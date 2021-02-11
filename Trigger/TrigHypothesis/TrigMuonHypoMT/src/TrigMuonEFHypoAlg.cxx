@@ -110,7 +110,7 @@ StatusCode TrigMuonEFHypoAlg::execute( const EventContext& context ) const
       if(!matchedToDec) continue;
 
       // create new decisions
-      auto newd = newDecisionIn( decisions );
+      auto newd = newDecisionIn( decisions, hypoAlgNodeName() );
       
       // pussh_back to toolInput
       toolInput.emplace_back( newd, muon, previousDecision );

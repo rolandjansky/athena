@@ -2,6 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 from AthenaCommon.Constants import DEBUG
 
 ## Small class to hold the names for cache containers, should help to avoid copy / paste errors
@@ -51,7 +52,7 @@ def RpcBytestreamDecodeCfg(flags, name="RpcRawDataProvider"):
     acc.addService( robDPSvc )
 
     # Setup the RAW data provider tool
-    keyName = flags.Overlay.BkgPrefix + "RPCPAD" if flags.Detector.OverlayRPC else "RPCPAD"
+    keyName = flags.Overlay.BkgPrefix + "RPCPAD" if flags.Common.ProductionStep == ProductionStep.Overlay else "RPCPAD"
     Muon__RPC_RawDataProviderToolMT=CompFactory.Muon.RPC_RawDataProviderToolMT
     MuonRpcRawDataProviderTool = Muon__RPC_RawDataProviderToolMT(name    = "RPC_RawDataProviderToolMT",
                                                                  Decoder = RPCRodDecoder,
@@ -101,7 +102,7 @@ def TgcBytestreamDecodeCfg(flags, name="TgcRawDataProvider"):
     acc.addService( robDPSvc )
 
     # Setup the RAW data provider tool
-    keyName = flags.Overlay.BkgPrefix + "TGCRDO" if flags.Detector.OverlayTGC else "TGCRDO"
+    keyName = flags.Overlay.BkgPrefix + "TGCRDO" if flags.Common.ProductionStep == ProductionStep.Overlay else "TGCRDO"
     Muon__TGC_RawDataProviderToolMT=CompFactory.Muon.TGC_RawDataProviderToolMT
     MuonTgcRawDataProviderTool = Muon__TGC_RawDataProviderToolMT(name    = "TGC_RawDataProviderToolMT",
                                                                  Decoder = TGCRodDecoder,
@@ -152,7 +153,7 @@ def MdtBytestreamDecodeCfg(flags, name="MdtRawDataProvider"):
     acc.addService( robDPSvc )
 
     # Setup the RAW data provider tool
-    keyName = flags.Overlay.BkgPrefix + "MDTCSM" if flags.Detector.OverlayMDT else "MDTCSM"
+    keyName = flags.Overlay.BkgPrefix + "MDTCSM" if flags.Common.ProductionStep == ProductionStep.Overlay else "MDTCSM"
     Muon__MDT_RawDataProviderToolMT=CompFactory.Muon.MDT_RawDataProviderToolMT
     MuonMdtRawDataProviderTool = Muon__MDT_RawDataProviderToolMT(name    = "MDT_RawDataProviderToolMT",
                                                                  Decoder = MDTRodDecoder,
@@ -199,7 +200,7 @@ def CscBytestreamDecodeCfg(flags, name="CscRawDataProvider"):
     acc.addService( robDPSvc )
 
     # Setup the RAW data provider tool
-    keyName = flags.Overlay.BkgPrefix + "CSCRDO" if flags.Detector.OverlayCSC else "CSCRDO"
+    keyName = flags.Overlay.BkgPrefix + "CSCRDO" if flags.Common.ProductionStep == ProductionStep.Overlay else "CSCRDO"
     Muon__CSC_RawDataProviderToolMT=CompFactory.Muon.CSC_RawDataProviderToolMT
     MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderToolMT(name    = "CSC_RawDataProviderToolMT",
                                                                  Decoder = CSCRodDecoder,

@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# art-description: Test the symmetric Run3 layout in reconstruction
+# art-description: Test muon reconstruction on best knowledge symmetric Run3 layout
 # 
 # art-type: grid
 # art-include: master/Athena
@@ -17,14 +17,14 @@
 # art-output: NSWPRDValAlg.reco.ntuple.root
 
 #####################################################################
-# run reconstruction on 1000 di-muon events (1.3<|eta|<2.7) using the symmetric Run3 layout
-LOG_RECO="log_Run3_symmetric_reco.log"
-Reco_tf.py --inputRDOFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/Run3/RDO/SymmetricLayout_RDO_v1.root \
+# run reconstruction on 2000 di-muon events (0.9<|eta|<2.8) using the best knowledge symmetric Run3 layout (ATLAS-R3S-2021-01-00-01)
+# the input RDO was produced (simulation/digitisation was run) in Athena,master,2021-01-30 (newer than 22.0.25)
+Reco_tf.py --inputRDOFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/Run3/RDO/RDO_DiMuon_Endcap_R3LatestLayout_sym_v1.root \
            --preExec "from MuonRecExample.MuonRecFlags import muonRecFlags;muonRecFlags.setDefaults();muonRecFlags.doFastDigitization=False;muonRecFlags.useLooseErrorTuning.set_Value_and_Lock(True);muonRecFlags.doTrackPerformance=True;muonRecFlags.TrackPerfSummaryLevel=2;muonRecFlags.TrackPerfDebugLevel=5;from RecExConfig.RecFlags import rec;rec.doTrigger=False;rec.doEgamma=True;rec.doLucid=True;rec.doZdc=True;rec.doJetMissingETTag=True;from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags;muonStandaloneFlags.printSummary=True;" \
            --autoConfiguration everything \
            --imf False \
            --postInclude MuonPRDTest/NSWPRDValAlg.reco.py \
-           --outputESDFile OUT_ESD.root &> ${LOG_RECO}
+           --outputESDFile OUT_ESD.root
 exit_code=$?
 echo  "art-result: ${exit_code} Reco_tf.py"
 if [ ${exit_code} -ne 0 ]
@@ -32,6 +32,7 @@ then
     exit ${exit_code}
 fi
 # check the log file for WARNING/ERROR/FATAL
+LOG_RECO="log_Run3_symmetric_reco.log"
 NWARNING="$(cat ${LOG_RECO} | grep WARNING | wc -l)"
 NERROR="$(cat ${LOG_RECO} | grep ERROR | wc -l)"
 NFATAL="$(cat ${LOG_RECO} | grep FATAL | wc -l)"

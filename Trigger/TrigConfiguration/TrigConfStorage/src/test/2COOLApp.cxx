@@ -35,7 +35,6 @@
 
 #include "TrigConfL1Data/HelperFunctions.h"
 #include "TrigConfL1Data/CTPConfig.h"
-#include "TrigConfL1Data/CTPConfigOnline.h"
 
 #include "TrigConfStorage/StorageMgr.h"
 #include "TrigConfStorage/XMLStorageMgr.h"
@@ -229,7 +228,7 @@ void printhelp(std::ostream & o, std::ostream& (*lineend) ( std::ostream& os )) 
 }
 
 class JobConfig {
- public:
+public:
   enum ETriggerLevel { NONE = 0, LVL1 = 1, HLT = 2, BOTH = 3 };
 
   JobConfig() :
@@ -509,11 +508,11 @@ void JobConfig::PrintCompleteSetup(std::ostream & log, std::ostream& (*lineend) 
       log << "Lumiblock number    : " << LumiblockNumber() << lineend;
     } 
 		if(ListOfWriteFolders().size()>0) {
-    log << "Writing will be restricted to the following folders:" << lineend;
-		std::vector<std::string>::const_iterator wfIt = ListOfWriteFolders().begin();
-		for(;wfIt!=ListOfWriteFolders().end();wfIt++) {
-		  log << "  " << (*wfIt) << lineend;
-		}
+      log << "Writing will be restricted to the following folders:" << lineend;
+      std::vector<std::string>::const_iterator wfIt = ListOfWriteFolders().begin();
+      for(;wfIt!=ListOfWriteFolders().end();wfIt++) {
+        log << "  " << (*wfIt) << lineend;
+      }
 		}
   }
 

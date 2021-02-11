@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawDataReadingAlg.h"
@@ -11,6 +11,8 @@
 #include "eformat/Version.h"
 #include "eformat/index.h"
 
+#include "LArByteStream/LArRodBlockTransparentV0.h"
+#include "LArByteStream/LArRodBlockCalibrationV3.h"
 #include "LArByteStream/LArRodBlockStructure.h"
 #include "LArByteStream/LArRodBlockPhysicsV5.h"
 #include "LArByteStream/LArRodBlockPhysicsV6.h"
@@ -121,7 +123,20 @@ StatusCode LArRawDataReadingAlg::execute(const EventContext& ctx) const {
 	  return m_failOnCorruption ? StatusCode::FAILURE : StatusCode::SUCCESS;
 	}// end switch(rodMinorVersion)
       }//end of rodBlockType==4
-      else {
+      else if (rodBlockType==2) { //Transparent mode
+	switch(rodMinorVersion) {
+           case 4:  
+	     rodBlock.reset(new LArRodBlockTransparentV0<LArRodBlockHeaderTransparentV0>);
+             break;
+           case 12:
+             rodBlock.reset(new LArRodBlockCalibrationV3);
+             break;
+           default:  
+	     ATH_MSG_ERROR("Found unsupported ROD Block version " << rodMinorVersion 
+			<< " of ROD block type " << rodBlockType);
+	     return m_failOnCorruption ? StatusCode::FAILURE : StatusCode::SUCCESS;
+        }
+      } else {
         if(rob.rod_source_id()& 0x1000 ){
                ATH_MSG_DEBUG(" skip Latome fragment with source ID "<< std::hex << rob.rod_source_id());
                rodBlock=nullptr;

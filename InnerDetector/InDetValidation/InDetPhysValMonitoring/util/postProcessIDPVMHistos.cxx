@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -150,18 +150,36 @@ int pproc_file(const std::string & p_infile) {
 
 
 int main(int argc, char* argv[]) {
-  if (argc !=2){
+  
+  std::string infile{""}; 
+  /// Standard usage. The user passes a file they wish to update. 
+  if (argc == 2){
+     infile  = argv[1];
+  }
+  /// hadd imitation. Ugly, but allows this to run 
+  /// in PhysVal merge transforms.
+  /// We deliberately ignore the first arg ("-f") in the following. 
+  /// This is because the physval merge step requires passing a "-f" ... 
+  else if (argc == 4 && std::string(argv[1]) == std::string{"-f"}){
+    /// copy the input file to the output file 
+    gSystem->CopyFile(argv[3],argv[2],true); 
+    /// and mark the output for postprocessing. Input stays invariant in this mode
+    infile = argv[2]; 
+  }
+  else {
     std::cerr<<" Usage: postProcessIDPVMHistos <File to post-process>"<<std::endl;
     std::cerr<< "    where the file is typically obtained by hadding" << std::endl;
     std::cerr<< "    outputs of several independent IDPVM runs." << std::endl;
+    std::cerr<<" Alternative usage: postProcessIDPVMHistos -f <desired output file name> <File to post-process>"<<std::endl;
+    std::cerr<< "    imitates a hadd-like signature for PhysVal merging." << std::endl;
     return 1; 
   }
-  const string infile {argv[1]};
-
+  /// check if the input exists
   if (!file_exists(infile)) {
     std::cerr << "Error: invalid input file: " << infile << std::endl;
     return 1;
   }
+  /// and post-process if it does
   std::cout << " Post-processing file " << infile << "\n" << std::endl;
   return pproc_file(infile);
 }

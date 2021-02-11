@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 from AthenaCommon.CfgGetter import getPublicTool, getAlgorithm
@@ -168,6 +168,7 @@ def MuonCreatorAlg( name="MuonCreatorAlg",**kwargs ):
     if TriggerFlags.MuonSlice.doTrigMuonConfig:
         kwargs.setdefault("MakeClusters", False)
         kwargs.setdefault("ClusterContainerName", "")
+        kwargs.setdefault("CopySegments", False)
     return CfgMgr.MuonCreatorAlg(name,**kwargs)
 
 
@@ -202,6 +203,7 @@ def StauCreatorAlg( name="StauCreatorAlg", **kwargs ):
     kwargs.setdefault("BuildSlowMuon",1)
     kwargs.setdefault("ClusterContainerName", "SlowMuonClusterCollection")
     kwargs.setdefault("TagMaps",["stauTagMap"])
+    kwargs.setdefault("CopySegments", False)
     if not TriggerFlags.MuonSlice.doTrigMuonConfig:
         recordMuonCreatorAlgObjs (kwargs)
     return MuonCreatorAlg(name,**kwargs)

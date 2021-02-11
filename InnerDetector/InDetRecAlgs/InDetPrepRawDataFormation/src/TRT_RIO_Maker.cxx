@@ -57,6 +57,9 @@ namespace InDet {
     if (m_roiSeeded.value()) {
       ATH_CHECK(m_roiCollectionKey.initialize());
       ATH_CHECK(m_regionSelector.retrieve());
+    }else{
+      ATH_CHECK(m_roiCollectionKey.initialize(false));
+      m_regionSelector.disable();
     }
 
     ATH_CHECK( m_rdoContainerKey.initialize() );

@@ -46,7 +46,7 @@ namespace LVL1 {
     virtual unsigned int getTTowerET() override;
     virtual void buildSeeds() override; 
     virtual bool isSeedLocalMaxima() override; 
-    virtual unsigned int getClusterET() override;
+    virtual unsigned int getSmallClusterET() override;
     virtual std::unique_ptr<jFEXSmallRJetTOB> getSmallRJetTOBs() override;
   //  virtual jFEXSmallRJetTOB* getSmallRJetTOBs() override;
 //LVL1::jFEXSmallRJetAlgoTOB * LVL1::jFEXSmallRJetAlgo::getSmallRJetTOB()

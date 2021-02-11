@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************
@@ -117,7 +117,7 @@ bool TrigEgammaNavBaseTool::EventWiseSelection( ){
     }
 
 
-    for(const auto& eg : *m_offElectrons ){
+    for(const auto eg : *m_offElectrons ){
         ATH_MSG_DEBUG("ApplyElectronPid...");
         if(ApplyElectronPid(eg,"Loose")) hist1(m_anatype+"_electrons")->AddBinContent(1);
         if(ApplyElectronPid(eg,"Medium")) hist1(m_anatype+"_electrons")->AddBinContent(2);
@@ -196,7 +196,7 @@ StatusCode TrigEgammaNavBaseTool::executeElectronNavigation( std::string trigIte
 
 
   const std::string decor="is"+pidname;
-  for(const auto& eg : *m_offElectrons ){
+  for(const auto eg : *m_offElectrons ){
       const HLT::TriggerElement *te = nullptr;
       if(!eg->trackParticle()){
           ATH_MSG_DEBUG("No track Particle");
@@ -263,7 +263,7 @@ StatusCode TrigEgammaNavBaseTool::executePhotonNavigation( std::string trigItem,
  
   const std::string decor="is"+m_photonPid;
 
-  for(const auto& eg : *m_offPhotons ){
+  for(const auto eg : *m_offPhotons ){
       const HLT::TriggerElement *te = nullptr;
       if(!eg->caloCluster()){
           ATH_MSG_DEBUG("No caloCluster");

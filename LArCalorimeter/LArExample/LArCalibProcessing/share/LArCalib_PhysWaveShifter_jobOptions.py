@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 from future import standard_library
 standard_library.install_aliases()
 import subprocess
@@ -236,10 +238,8 @@ LArPhysWaveShifter.TshiftLayer       = [ 0 , 0 , 0 , 0 ]
 LArPhysWaveShifter.TimeShiftFromPeak = False
 LArPhysWaveShifter.NindexFromPeak    = 0 # if 0 will use Ndelays*Nsampling
 LArPhysWaveShifter.Ndelays           = 24
-#LArPhysWaveShifter.Nsamplings        = 3 
 LArPhysWaveShifter.Nsamplings        = 2
 LArPhysWaveShifter.TimeShiftByFEB    = True
-#LArPhysWaveShifter.TimeShiftGuardRegion  = 0
 LArPhysWaveShifter.TimeShiftGuardRegion  = 5
 
 
@@ -268,7 +268,6 @@ if (  WritePoolFile ) :
    # writre PredPhysWave
    OutputConditionsAlgPhysWave = OutputConditionsAlg("OutputConditionsAlgPhysWave",OutputPhysWavePoolFileDir+"/"+OutputPhysWavePoolFileName,
                                                      [OutputObjectSpecPhysWave],[OutputObjectSpecTagPhysWave],WriteIOV)
-   #OutputConditionsAlgPhysWave.WriteIOV = WriteIOV
    OutputConditionsAlgPhysWave.Run1     = IOVBegin
    if IOVEnd>0:
       OutputConditionsAlgPhysWave.Run2  = IOVEnd
@@ -304,7 +303,7 @@ svcMgr.MessageSvc.OutputLevel  = WARNING
 svcMgr.MessageSvc.defaultLimit = 10000
 svcMgr.MessageSvc.Format       = "% F%20W%S%7W%R%T %0W%M"
 
-svcMgr+=CfgMgr.AthenaEventLoopMgr(OutputLevel = INFO)
+svcMgr+=CfgMgr.AthenaEventLoopMgr(OutputLevel = DEBUG)
 
 from AthenaCommon.AppMgr import theAuditorSvc
 from AthenaCommon.ConfigurableDb import getConfigurable

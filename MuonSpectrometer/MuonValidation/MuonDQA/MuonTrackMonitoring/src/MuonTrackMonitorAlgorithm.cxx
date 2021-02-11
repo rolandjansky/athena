@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+	Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 	2020 Matthias Schott - Uni Mainz
 */
 
@@ -127,7 +127,7 @@ StatusCode	MuonTrackMonitorAlgorithm::analyseLowLevelMuonFeatures(const xAOD::Mu
 	auto	MSLumiBlockNumberOfSegments = Monitored::Scalar<float>("MSLumiBlockNumberOfSegments", 0);
 
 	/// Loop over all muons
-	for(const auto& muon : Muons) {
+	for(const auto muon : Muons) {
 		xAOD::Muon::Quality muonQuality	= muon->quality();
 		xAOD::Muon::MuonType muonType =	muon->muonType();
 		xAOD::Muon::Author muonAuthor =	muon->author();
@@ -190,7 +190,7 @@ StatusCode	MuonTrackMonitorAlgorithm::analyseCombinedTracks(const xAOD::MuonCont
 	std::vector<const xAOD::Muon*>	vecCombinedMuonsHighPT;
 	std::vector<const xAOD::Muon*>	vecCombinedMuons;
 
-	for(const auto& muon : Muons) {
+	for(const auto muon : Muons) {
 		xAOD::Muon::MuonType muonType = muon->muonType();
 		if (muonType==xAOD::Muon::Combined) {
 			CBMuonLumiBlock = lumiBlockID;
@@ -259,7 +259,7 @@ StatusCode	MuonTrackMonitorAlgorithm::analyseZBosonCandidates(const xAOD::MuonCo
 	std::vector<const xAOD::Muon*>	vecMuons_ZBoson_Candidates;
 	
 	/// Select Muons Relevant for Z
-	for(const auto& muon : Muons) {
+	for(const auto muon : Muons) {
 		xAOD::Muon::MuonType muonType = muon->muonType();
 		if (muonType==xAOD::Muon::Combined) {
 			const xAOD::TrackParticle *cbtp = nullptr;
@@ -338,7 +338,7 @@ StatusCode	MuonTrackMonitorAlgorithm::analyseJPsiCandidates(const xAOD::MuonCont
 	std::vector<const xAOD::Muon*>	vecMuons_JPsi_Candidates;
 	
 	/// JPsi Muon Selection
-	for(const auto& muon : Muons) {
+	for(const auto muon : Muons) {
 		xAOD::Muon::MuonType	muonType	=	muon->muonType();
 		if (muonType==xAOD::Muon::Combined) {
 			const xAOD::TrackParticle *cbtp = nullptr;

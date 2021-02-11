@@ -120,7 +120,7 @@ TCS::TopoSteeringStructure::printParameters(std::ostream & o) const {
 
 
 TCS::StatusCode
-TCS::TopoSteeringStructure::setupFromMenu(const TrigConf::L1Menu& l1menu, bool debug, bool legacy) {
+TCS::TopoSteeringStructure::setupFromMenu(const TrigConf::L1Menu& l1menu, bool legacy, bool debug) {
 
    if(debug)
       cout << "/***************************************************************************/" << endl

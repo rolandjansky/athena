@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -31,7 +31,6 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "LArRawEvent/LArAccumulatedCalibDigitContainer.h"
-//#include "LArIdentifier/LArOnlineID.h"
 #include "LArRawConditions/LArRawRampContainer.h"
 #include "LArRecUtils/LArParabolaPeakRecoTool.h"
 #include "LArRecUtils/LArShapePeakRecoTool.h"
@@ -48,7 +47,6 @@
 #include "StoreGate/ReadCondHandleKey.h"
 
 #include "LArRecConditions/LArCalibLineMapping.h"
-//#include "LArCalibTriggerAccumulator.h"
 #include "CaloDetDescr/ICaloSuperCellIDTool.h"
 #include <vector>
 #include <string>
@@ -71,8 +69,7 @@ public:
   virtual StatusCode stop();
   StatusCode finalize(){return StatusCode::SUCCESS;}
 
-  //typedef std::map<uint16_t,LArAccumulatedCalibDigit> ACCRAMP;
-  typedef std::map<uint16_t,LArCalibTriggerAccumulator> ACCRAMP;
+  typedef std::map<uint32_t,LArCalibTriggerAccumulator> ACCRAMP;
 
 
 private:
@@ -87,16 +84,6 @@ private:
 		     std::vector<float>& rampCoeffs, std::vector<int>& vSat, 
 		     const HWIdentifier chid, const LArOnOffIdMapping* cabling);
 
-  //Private data memebers:
-  //typedef std::map<HWIdentifier, std::map<uint16_t,RAWRAMP> >  RAWRAMPMAP;
-  //std::vector<RAWRAMPMAP> m_ramps;
-  //std::vector<CaloGain::CaloGain> m_gains;//Gains corresponding to the containers
-  //vector...index of key list (=gain)
-  //outer map...List of cells
-  //inner map...List of DAC values
-
-  // typedef std::map<uint16_t,RAWRAMPPOINT> RAWRAMP;
-
   LArConditionsContainer<ACCRAMP>* m_ramps;
 
 
@@ -110,16 +97,13 @@ private:
   int m_ipassShape; 
   int m_ipassPedestal; 
 
-  // vector (gain) of vector(HashCell) of vector (DAC) of vector(Ndelays) of caliwaves
   std::vector< std::vector< std::vector< std::vector<double> > > >m_CaliWaves;
  // vector (gain) of vector(HashCell) of vector (DAC) of DACs
-  std::vector< std::vector< std::vector< int > > >m_CaliDACs;
+  std::vector< std::vector< std::vector< unsigned int > > >m_CaliDACs;
  // vector (gain) of vector(HashCell) of DAC0 index
   std::vector< std::vector< int> > m_IndexDAC0;
- // vector (gain) of vector(HashCell) of Highest DAC index
   std::vector< std::vector< int> > m_IndexHighestDAC;
 
-  // vector(HashCell) of pedestals
   std::vector<float> m_thePedestal;    
 
   std::string m_recoTypeProp; // ( "Parabola", "Shape" or "OF" ) 
@@ -136,12 +120,12 @@ private:
   IntegerProperty m_maxADC;
   IntegerProperty m_consADC;
   bool m_dac0sub, m_saveRawRamp,m_saveRecRamp, m_longNtuple, m_satSlope;
-  IntegerProperty m_minDAC;
+  UnsignedIntegerProperty m_minDAC;
 
   int m_DeadChannelCut;
   std::string m_folderName;
   int m_shapeMethodDAC;
-  int m_DAC0;
+  unsigned int m_DAC0;
 
   bool m_correctBias;
   bool m_withIntercept;
@@ -165,14 +149,6 @@ private:
   bool        m_iterate;
 
   uint16_t m_fatalFebErrorPattern;
-
-  // For calib line mapping, only used for SC for now 
-  IntegerProperty m_nPulsedCalibLines;
-  std::vector<int> m_pulsedCalibLines;    
-  SG::ReadCondHandleKey<LArCalibLineMapping> m_calibMapKey{this,"CalibMapKey","LArCalibLineMap","SG Key of calib line mapping object"};
-  SG::ReadCondHandleKey<LArCalibLineMapping> m_calibMapSCKey{this,"CalibMapSCKey","LArCalibIdMapSC","SG Key of calib line mapping object"};
-  
-
 
 };
 

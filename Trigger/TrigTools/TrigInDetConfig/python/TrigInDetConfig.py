@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -678,7 +678,12 @@ def trackConverterCfg(flags, signature, signatureName):
 def trigInDetFastTrackingCfg( inflags, roisKey="EMRoIs", signatureName='' ):
 
   # redirect InDet.Tracking flags to point to a specific trigger setting
-  flags = inflags.cloneAndReplace("InDet.Tracking", "Trigger.InDetTracking."+signatureName)
+  if 'Muon' in signatureName:
+    signatureFlags='Muon'
+  else:
+    signatureFlags = signatureName
+
+  flags = inflags.cloneAndReplace("InDet.Tracking", "Trigger.InDetTracking."+signatureFlags)
 
   #If signature specified add suffix to the name of each algorithms
   signature =  ("_" + signatureName if signatureName else '').lower()
@@ -737,4 +742,3 @@ if __name__ == "__main__":
 
     acc.printConfig(withDetails=True, summariseProps=True)
     acc.store( open("test.pkl", "wb") )
-    print('All ok')

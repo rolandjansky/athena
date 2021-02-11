@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -101,7 +101,7 @@ StatusCode FastCaloSimParamAlg::execute()
   // TODO would be more efficient to directly write the truncated
   // input collection to the output collection rather than copying it
   // first.
-  for (const auto& step: *inputHandle ) {
+  for (const auto step: *inputHandle ) {
     auto&& stepCopy = std::make_unique<ISF_FCS_Parametrization::FCS_StepInfo>(*step);
     outputHandle->push_back( stepCopy.release() );
   }
@@ -120,14 +120,14 @@ StatusCode FastCaloSimParamAlg::clusterize(ISF_FCS_Parametrization::FCS_StepInfo
 {
   ATH_MSG_DEBUG("Initial clusterize size: "<<stepinfo->size()<<" - will merge steps in the same cell which are less than dR and dT to each other");
   double total_energy1(0.);
-  for (const auto& step: *stepinfo) {
+  for (const auto step: *stepinfo) {
     total_energy1+=step->energy();
   }
   ATH_MSG_DEBUG("Check: total energy before clusterize "<<total_energy1);
 
   // Try this if it will be faster: split to cells first
   std::map<Identifier, ISF_FCS_Parametrization::FCS_StepInfoCollection*> FCS_SIC_cells;
-  for (const auto& step: *stepinfo) {
+  for (const auto step: *stepinfo) {
     if (FCS_SIC_cells.find(step->identify()) != FCS_SIC_cells.end()) {// Already have a step for this cell
       auto&& stepCopy = std::make_unique<ISF_FCS_Parametrization::FCS_StepInfo>(*step);
       FCS_SIC_cells[step->identify()]->push_back( stepCopy.release() );
@@ -194,7 +194,7 @@ StatusCode FastCaloSimParamAlg::clusterize(ISF_FCS_Parametrization::FCS_StepInfo
   ATH_MSG_VERBOSE("Copying back");
   stepinfo->clear(); // also calls delete on all the removed elements (because the DataVector owns its elements)
   for (std::map<Identifier, ISF_FCS_Parametrization::FCS_StepInfoCollection*>::iterator it = FCS_SIC_cells.begin(); it!= FCS_SIC_cells.end(); ++it) {
-    for (const auto& step: *(it->second)) {
+    for (const auto step: *(it->second)) {
       auto&& stepCopy = std::make_unique<ISF_FCS_Parametrization::FCS_StepInfo>(*step);
       stepinfo->push_back( stepCopy.release() );
     }
@@ -203,7 +203,7 @@ StatusCode FastCaloSimParamAlg::clusterize(ISF_FCS_Parametrization::FCS_StepInfo
     delete (it->second);
   }
   double total_energy2(0.);
-  for (const auto& step: *stepinfo) {
+  for (const auto step: *stepinfo) {
     total_energy2+=step->energy();
   }
   ATH_MSG_DEBUG("Check: total energy "<<total_energy2);

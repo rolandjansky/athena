@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include <sstream>
@@ -544,7 +544,7 @@ namespace CP {
         double rate_not_fired_data = 1.;
         double rate_not_fired_mc = 1.;
 
-        for (const auto *mu : mucont) {
+        for (const auto mu : mucont) {
 
             double eff_data = 0., eff_mc = 0.;
 

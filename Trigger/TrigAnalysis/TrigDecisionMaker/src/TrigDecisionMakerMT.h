@@ -34,22 +34,18 @@
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigSteeringEvent/HLTResultMT.h"
 #include "TrigOutputHandling/ITriggerBitsMakerTool.h"
+#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
+#include "TrigConfInterfaces/IHLTConfigSvc.h"
+#include "TrigConfData/HLTMenu.h"
+#include "TrigSteering/Lvl1ResultAccessTool.h"
 
 // containers
 #include <vector>
 #include <string>
 #include <map>
 
-namespace HLT {
-  class ILvl1ResultAccessTool;
-}
-
 namespace LVL1CTP {
   class Lvl1Result;
-}
-
-namespace TrigConf {
-  class ITrigConfigSvc;
 }
 
 namespace TrigDec {
@@ -83,21 +79,25 @@ namespace TrigDec {
 
     StatusCode getL1Result (const LVL1CTP::Lvl1Result*& result, const EventContext& context) const; //!< retrieve LVL1 result (called in execute)
 
-    char getBGByte(int BCId) const; //!< to get the BG byte encoded for a given BC
+    char getBGByte(unsigned int BCId) const; //!< to get the BG byte encoded for a given BC
 
     Gaudi::Property<bool> m_doL1{this, "doL1",  true, "Read L1 trigger information"};
     Gaudi::Property<bool> m_doHLT{this, "doHLT", true, "Read HLT trigger information"};
 
-    // Tools & services
-    ServiceHandle<TrigConf::ITrigConfigSvc> m_trigConfigSvc; //!< handle to the full (L1 & HLT) trigger config service
-    Gaudi::Property<std::string> m_trigConfigLocation{this, "TrigConfigLocation", "TrigConf::TrigConfigSvc/TrigConfigSvc", "Trigger configuration service to fetch"};
+    Gaudi::Property<bool> m_useNewConfigL1{this, "UseNewConfigL1", true, "When true, read the menu from detector store, when false use the L1ConfigSvc"};
+    Gaudi::Property<bool> m_useNewConfigHLT{this, "UseNewConfigHLT", true, "When true, read the menu from detector store, when false use the HLTConfigSvc"};
 
-    ToolHandle<HLT::ILvl1ResultAccessTool> m_lvl1Tool;  //!< tool to ease the access to the L1 results (RoIs, items, etc)
-    Gaudi::Property<std::string> m_lvl1ToolLocation{this, "Lvl1ToolLocation", "HLT::Lvl1ResultAccessTool/Lvl1ResultAccessTool", "L1 tool to fetch"};
+    // Tools & services
+    ServiceHandle<TrigConf::ILVL1ConfigSvc> m_l1ConfigSvc{this, "LVL1ConfigSvc", "LVL1ConfigSvc", "The LVL1ConfigSvc providing L1 configuration for Run 2"};
+    ServiceHandle<TrigConf::IHLTConfigSvc> m_hltConfigSvc{this, "HLTConfigSvc", "HLTConfigSvc", "The HLTConfigSvc providing HLT configuration for Run 2"};
+
+    ToolHandle<HLT::ILvl1ResultAccessTool> m_lvl1Tool{this, "Lvl1ResultAccessTool", "HLT::Lvl1ResultAccessTool/Lvl1ResultAccessTool", "L1 tool to fetch"}; //!< tool to ease the access to the L1 results (RoIs, items, etc)
 
     ToolHandle<ITriggerBitsMakerTool> m_bitsMakerTool{this, "BitsMakerTool", "", "Tool to create trigger bits for MC"};
 
     // Input keys configuration
+    SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu", "HLT Menu key, for use if IsJSONConfig=True"};
+
     SG::ReadHandleKey<HLT::HLTResultMT> m_hltResultKeyIn {this, "HLTResultMT", "HLTResultMT", "Key of the HLTResultMT object to get bits from online bytestream" };
     SG::ReadHandleKey<ROIB::RoIBResult> m_ROIBResultKeyIn {this, "RoIBResult", "RoIBResult", "RoIB Result Object Key"};
     SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKeyIn {this, "EventInfo", "EventInfo", "Event Info Object Key"};

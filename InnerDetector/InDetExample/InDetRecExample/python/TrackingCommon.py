@@ -1004,8 +1004,11 @@ def getInDetTRT_LocalOccupancy(name ="InDet_TRT_LocalOccupancy", **kwargs) :
     if 'TRTStrawStatusSummaryTool' not in kwargs :
         kwargs = setDefaults( kwargs, TRTStrawStatusSummaryTool = getInDetTRTStrawStatusSummaryTool() )
 
+    if 'isTrigger' not in kwargs :
+        kwargs = setDefaults( kwargs, isTrigger = False )
+
     from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
-    return InDet__TRT_LocalOccupancy(name=the_name, **setDefaults( kwargs, isTrigger = False) )
+    return InDet__TRT_LocalOccupancy(name = the_name, **kwargs)
 
 @makePublicTool
 def getInDetTRT_dEdxTool(name = "InDetTRT_dEdxTool", **kwargs) :

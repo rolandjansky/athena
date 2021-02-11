@@ -45,8 +45,6 @@
 // STD
 #include <math.h>
 
-// temporary
-#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkGeometry/TrackingVolume.h"
 

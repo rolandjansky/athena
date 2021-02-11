@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -302,7 +302,7 @@ StatusCode Trk::RiddersAlgorithm::execute()
 
    ATH_MSG_VERBOSE( "Cylinder to be intersected : " << estimationCylinder );
 
-   const Trk::TrackParameters* estimationParameters = m_propagator->propagateParameters(startParameters,
+   auto estimationParameters = m_propagator->propagateParameters(startParameters,
                                                                                         estimationCylinder,
                                                                                         Trk::alongMomentum,
                                                                                         false,
@@ -353,7 +353,6 @@ StatusCode Trk::RiddersAlgorithm::execute()
                                          rotateTrans);
 
    // cleanup for memory reasons
-   delete estimationParameters; estimationParameters = 0;
 
    Trk::PlaneSurface destinationSurface(surfaceTransform,10e5 , 10e5);
 
@@ -364,7 +363,7 @@ StatusCode Trk::RiddersAlgorithm::execute()
    Trk::TransportJacobian currentStepJacobian(testMatrix);
    double pathLimit = -1.;
 
-   const Trk::TrackParameters* trackParameters = m_propagator->propagate(startParameters,
+   auto trackParameters = m_propagator->propagate(startParameters,
                                                                          destinationSurface,
                                                                          Trk::alongMomentum,
                                                                          false,
@@ -442,62 +441,62 @@ StatusCode Trk::RiddersAlgorithm::execute()
          Trk::AtaPlane  startQopPlus(loc1,loc2,phi,theta,qOverP+m_qOpVariations[istep],startSurface);
 
         // the propagations --- 10 times
-        const Trk::TrackParameters* endLoc1Minus = m_propagator->propagateParameters(startLoc1Minus,
+        auto endLoc1Minus = m_propagator->propagateParameters(startLoc1Minus,
                                                                      destinationSurface,
                                                                      Trk::alongMomentum,
                                                                      false,
                                                                      *m_magFieldProperties);
 
 
-        const Trk::TrackParameters* endLoc1Plus = m_propagator->propagateParameters(startLoc1Plus,
+        auto endLoc1Plus = m_propagator->propagateParameters(startLoc1Plus,
                                                                      destinationSurface,
                                                                      Trk::alongMomentum,
                                                                      false,
                                                                      *m_magFieldProperties);
 
-        const Trk::TrackParameters* endLoc2Minus = m_propagator->propagateParameters(startLoc2Minus,
+        auto endLoc2Minus = m_propagator->propagateParameters(startLoc2Minus,
                                                                      destinationSurface,
                                                                      Trk::alongMomentum,
                                                                      false,
                                                                      *m_magFieldProperties);
 
-        const Trk::TrackParameters* endLoc2Plus = m_propagator->propagateParameters(startLoc2Plus,
+        auto endLoc2Plus = m_propagator->propagateParameters(startLoc2Plus,
                                                                       destinationSurface,
                                                                       Trk::alongMomentum,
                                                                       false,
                                                                       *m_magFieldProperties);
 
-        const Trk::TrackParameters* endPhiMinus = m_propagator->propagateParameters(startPhiMinus,
+        auto endPhiMinus = m_propagator->propagateParameters(startPhiMinus,
                                                                      destinationSurface,
                                                                      Trk::alongMomentum,
                                                                      false,
                                                                      *m_magFieldProperties);
 
-        const Trk::TrackParameters* endPhiPlus = m_propagator->propagateParameters(startPhiPlus,
+        auto endPhiPlus = m_propagator->propagateParameters(startPhiPlus,
                                                                       destinationSurface,
                                                                       Trk::alongMomentum,
                                                                       false,
                                                                       *m_magFieldProperties);
 
-        const Trk::TrackParameters* endThetaMinus = m_propagator->propagateParameters(startThetaMinus,
+        auto endThetaMinus = m_propagator->propagateParameters(startThetaMinus,
                                                                      destinationSurface,
                                                                      Trk::alongMomentum,
                                                                      false,
                                                                      *m_magFieldProperties);
 
-        const Trk::TrackParameters* endThetaPlus = m_propagator->propagateParameters(startThetaPlus,
+        auto endThetaPlus = m_propagator->propagateParameters(startThetaPlus,
                                                                       destinationSurface,
                                                                       Trk::alongMomentum,
                                                                       false,
                                                                       *m_magFieldProperties);
 
-        const Trk::TrackParameters* endQopMinus = m_propagator->propagateParameters(startQopMinus,
+        auto endQopMinus = m_propagator->propagateParameters(startQopMinus,
                                                                      destinationSurface,
                                                                      Trk::alongMomentum,
                                                                      false,
                                                                      *m_magFieldProperties);
 
-        const Trk::TrackParameters* endQopPlus = m_propagator->propagateParameters(startQopPlus,
+        auto endQopPlus = m_propagator->propagateParameters(startQopPlus,
                                                                       destinationSurface,
                                                                       Trk::alongMomentum,
                                                                       false,
@@ -605,18 +604,6 @@ StatusCode Trk::RiddersAlgorithm::execute()
 
             ++recStep;
          }
-
-        delete endLoc1Minus;   endLoc1Minus  = 0;
-        delete endLoc1Plus;    endLoc1Plus   = 0;
-        delete endLoc2Minus;   endLoc2Minus  = 0;
-        delete endLoc2Plus;    endLoc2Plus   = 0;
-        delete endPhiMinus;    endPhiMinus   = 0;
-        delete endPhiPlus;     endPhiPlus    = 0;
-        delete endThetaMinus;  endThetaMinus = 0;
-        delete endThetaPlus;   endThetaPlus  = 0;
-        delete endQopMinus;    endQopMinus   = 0;
-        delete endQopPlus;     endQopPlus    = 0;
-
       }
 
       // -------------------------------------------------------------------------------
@@ -889,7 +876,7 @@ StatusCode Trk::RiddersAlgorithm::execute()
   }
 
   // memory cleanup
-  delete trackParameters;
+  //delete trackParameters;
   delete transportJacobian;
 
   // Code entered here will be executed once per event

@@ -66,13 +66,13 @@ Surface::normal() const
 inline Amg::Vector2D
 Surface::localParametersToPosition(const LocalParameters& locpars) const
 {
-  if (locpars.contains(Trk::loc1) && locpars.contains(Trk::loc2)) {
+  if (locpars.contains(Trk::loc1) && locpars.contains(Trk::loc2)){
     return Amg::Vector2D(locpars[Trk::loc1], locpars[loc2]);
   }
-  if (locpars.contains(Trk::loc1)) {
+  if (locpars.contains(Trk::loc1)){
     return Amg::Vector2D(locpars[Trk::loc1], 0.);
   }
-  if (locpars.contains(Trk::loc2)) {
+  if (locpars.contains(Trk::loc2)){
     return Amg::Vector2D(0., locpars[loc2]);
   }
   return Amg::Vector2D(0., 0.);
@@ -251,6 +251,14 @@ inline bool
 Surface::isFree() const
 {
   return (m_owner == Trk::noOwn);
+}
+
+inline void
+Surface::setTransform(const Amg::Transform3D& trans)
+{
+  m_transform = std::make_unique<Amg::Transform3D>(trans);
+  m_center = std::make_unique<Amg::Vector3D>(m_transform->translation());
+  m_normal = std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2));
 }
 
 inline void Surface::setOwner

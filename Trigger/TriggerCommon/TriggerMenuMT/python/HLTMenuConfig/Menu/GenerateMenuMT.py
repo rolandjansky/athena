@@ -194,16 +194,13 @@ class GenerateMenuMT(object, metaclass=Singleton):
                         sigFolder = sig
                         subSigs = [sig]
                     for ss in subSigs:
-                        if sigFolder == 'Combined':
-                            continue
-                        else:
-                            #import the includes into the global namespace. Only import the signature we need!
-                            #this is equivalent having this line at the beginning of the file:
-                            #import TriggerMenuMT.HLTMenuConfig.[sig].Generate[sig]ChainDefs as Generate[sig]ChainDefs
-                            import_module = 'TriggerMenuMT.HLTMenuConfig.' + sigFolder +'.Generate' + ss + 'ChainDefs'
-                            globals()['Generate'+ss+'ChainDefs'] = __import__(import_module,fromlist=['Generate'+ss+'ChainDefs'])
-                            if ss not in self.availableSignatures:
-                                self.availableSignatures.append(ss)
+                        #import the includes into the global namespace. Only import the signature we need!
+                        #this is equivalent having this line at the beginning of the file:
+                        #import TriggerMenuMT.HLTMenuConfig.[sig].Generate[sig]ChainDefs as Generate[sig]ChainDefs
+                        import_module = 'TriggerMenuMT.HLTMenuConfig.' + sigFolder +'.Generate' + ss + 'ChainDefs'
+                        globals()['Generate'+ss+'ChainDefs'] = __import__(import_module,fromlist=['Generate'+ss+'ChainDefs'])
+                        if ss not in self.availableSignatures:
+                            self.availableSignatures.append(ss)
 
             except ImportError:
                 log.exception('Problems when importing ChainDef generating code for %s', sig)
@@ -270,9 +267,6 @@ class GenerateMenuMT(object, metaclass=Singleton):
         
         self.generateChains()
 
-        # align event building sequences
-        EventBuildingSequenceSetup.alignEventBuildingSteps(self.allChainsForAlignment)
-
         #dict of signature: set it belongs to
         #e.g. {'Electron': ['Electron','Muon','Photon']}        
         menuAlignment = MenuAlignment(self.combinationsInMenu,
@@ -322,6 +316,9 @@ class GenerateMenuMT(object, metaclass=Singleton):
                 log.error('The chain dictionary is: %s', pp.pformat(chainDict))
                 raise Exception("Please fix the menu or the chain.")
         
+        # align event building sequences
+        EventBuildingSequenceSetup.alignEventBuildingSteps(TriggerConfigHLT.configs(), TriggerConfigHLT.dicts())
+
         return TriggerConfigHLT.configsList()
 
     @memoize
@@ -449,10 +446,13 @@ class GenerateMenuMT(object, metaclass=Singleton):
                 log.debug("Merging strategy from dictionary: %s", mainChainDict["mergingStrategy"])
                 theChainConfig = mergeChainDefs(listOfChainConfigs, mainChainDict)
 
-                # This needs to be added for topological chains - needs implementation
-                #doTopo = self.CheckIntraSignatureTopo(chainDicts) and chainDict["topo"]
-                #if doTopo:
-                # theChainDef = TriggerMenu.combined.generateCombinedChainDefs._addTopoInfo(theChainDef,chainDicts,listOfChainDefs)
+                if len(mainChainDict['extraComboHypos']) > 0:
+                    try:
+                        functionToCall ='GenerateCombinedChainDefs.addTopoInfo(theChainConfig,mainChainDict,listOfChainConfigs,lengthOfChainConfigs)' 
+                        log.debug("Trying to add extra ComboHypoTool for %s",mainChainDict['extraComboHypos'])
+                        theChainConfig = eval(functionToCall)
+                    except RuntimeError:
+                        log.exception( 'Problems creating ChainDef for chain\n %s ', chainName)
 
         else:
             theChainConfig = listOfChainConfigs[0]
@@ -506,5 +506,9 @@ class GenerateMenuMT(object, metaclass=Singleton):
 
         from TriggerMenuMT.HLTMenuConfig.Menu.HLTPrescaleJSON import generateJSON as generatePrescaleJSON
         generatePrescaleJSON()
+
+        log.debug('[GenerateMenuMT::generateMT] now generating HLTMonitoring JSON...')
+        from TriggerMenuMT.HLTMenuConfig.Menu.HLTMonitoringJSON import generateDefaultMonitoringJSON
+        generateDefaultMonitoringJSON()
 
         return finalListOfChainConfigs

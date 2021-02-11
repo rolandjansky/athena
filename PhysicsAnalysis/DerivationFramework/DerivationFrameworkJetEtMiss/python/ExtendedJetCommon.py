@@ -126,7 +126,7 @@ def addAntiKt10TruthWZJets(sequence,outputlist):
         addStandardJets("AntiKt", 1.0, "TruthWZ", ptmin=40000, mods="truth_ungroomed_larger", algseq=sequence, outputGroup=outputlist)
 
 def addAntiKt4EMPFlowJetsFE(sequence, outputlist):
-    addCHSPFlowObjectsFE()   # noqa: F821 (FIXME, does not exist)
+    addCHSPFlowObjectsFE()
     addStandardJets("AntiKt", 0.4, "EMPFlowFE", ptmin=10000, ptminFilter=15000, mods="pflow_ungroomed", algseq=sequence, outputGroup=outputlist)
 
 ##################################################################  
@@ -428,7 +428,7 @@ def addJetTruthLabel(jetalg,algname,labelname,sequence):
         if jetalg in supportedTruthJets:
             isTruthJet = True
 
-        jetaugtool = getJetAugmentationTool(jetalg)
+        jetaugtool = getJetAugmentationTool(jetalg, labelname)
 
         if(jetaugtool is None):
             extjetlog.warning('*** addJetTruthLabel called but corresponding augmentation tool does not exist! ***')
@@ -857,7 +857,32 @@ def addCHSPFlowObjects():
             job.jetalg.Tools.append(jtm.jetconstitCHSPFlow)
             extjetlog.info("Added CHS PFlow sequence to \'jetalg\'")
             extjetlog.info(job.jetalg.Tools)
+
 ##################################################################
+# Same as above, but using xAOD::FlowElement instead of xAOD::PFO
+##################################################################   
+def addCHSPFlowObjectsFE():
+    # Only act if the collection does not already exist
+    from RecExConfig.AutoConfiguration import IsInInputFile
+    if not IsInInputFile("xAOD::FlowElementContainer","CHSFlowElements"):
+        # Check that an alg doing this has not already been inserted
+        from AthenaCommon.AlgSequence import AlgSequence
+        job = AlgSequence()
+        from JetRec.JetRecStandard import jtm
+        if not hasattr(job,"jetalgCHSPFlowFE") and not hasattr(jtm,"jetconstitCHSPFlowFE"):
+            from JetRec.JetRecConf import JetToolRunner
+            jtm += JetToolRunner("jetconstitCHSPFlowFE",
+                                 EventShapeTools=[],
+                                 Tools=[jtm.JetConstitSeq_PFlowCHS_FE])
+            # Add this tool runner to the JetAlgorithm instance "jetalg"
+            # which runs all preparatory tools
+            # This was added by JetCommon
+            job.jetalg.Tools.append(jtm.jetconstitCHSPFlowFE)
+            extjetlog.info("Added CHS PFlow (FlowElement) sequence to \'jetalg\'")
+            extjetlog.info(job.jetalg.Tools)
+
+##################################################################
+
 applyJetCalibration_xAODColl("AntiKt4EMTopo")
 updateJVT_xAODColl("AntiKt4EMTopo")
 applyJetCalibration_xAODColl("AntiKt4EMPFlow")

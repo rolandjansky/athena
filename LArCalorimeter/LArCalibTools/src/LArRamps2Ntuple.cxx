@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArRamps2Ntuple.h"
@@ -113,31 +113,6 @@ StatusCode LArRamps2Ntuple::stop() {
    return StatusCode::FAILURE;
  }
 
- /*
- LArConditionsContainer<LArRampP1>* myramp = NULL;
- if(m_applyCorr) {
-    const LArRampComplete *rampComplete=NULL;
-    if(dynamic_cast<const LArRampComplete*>(ramp)) {
-        sc=m_detStore->retrieve(rampComplete,m_rampKey);
-        if (sc!=StatusCode::SUCCESS) {
-           ATH_MSG_WARNING( "Unable to retrieve LArRampComplete with key: "<<m_rampKey << " from DetectorStore" );
-        }
-       
-       myramp=(LArConditionsContainer<LArRampP1>*) rampComplete;
-    }
-    if( myramp) {
-      if(!myramp->correctionsApplied()) { 
-        sc = myramp->applyCorrections();
-        if (sc!=StatusCode::SUCCESS) {
-          ATH_MSG_ERROR( "Applying corrections failed" );
-        }
-      } else {
-       ATH_MSG_WARNING( "Corrections already applied. Can't apply twice!" );
-      }
-    }
- }
- */
- 
  sc=m_nt->addItem("cellIndex",cellIndex,0,2000);
  if (sc!=StatusCode::SUCCESS) {
    ATH_MSG_ERROR( "addItem 'Cell Index' failed" );
@@ -329,7 +304,6 @@ StatusCode LArRamps2Ntuple::stop() {
          const std::vector<LArRawRamp::RAMPPOINT_t>& singleRamp=(*cont_it)->theRamp();
 
          for (DACIndex=0;DACIndex<singleRamp.size();DACIndex++) {
-	   
            SampleMax[DACIndex] = singleRamp[DACIndex].iMaxSample;
            TimeMax[DACIndex]   = singleRamp[DACIndex].TimeMax;
            ADC[DACIndex]       = singleRamp[DACIndex].ADC;
@@ -439,7 +413,6 @@ StatusCode LArRamps2Ntuple::stop() {
 
  } //end else have only fitted ramp
 
- //if ((rampComplete||rampMC) && m_addCorrUndo) {
  if (ramp && m_addCorrUndo) {
    //Now loop over undoCorrections:
    for ( unsigned igain=CaloGain::LARHIGHGAIN; 
@@ -474,15 +447,6 @@ StatusCode LArRamps2Ntuple::stop() {
      }
    }//end loop over gains
  }//end if add corrections
-
- /*
- if(m_applyCorr && myramp) {
-    sc = myramp->undoCorrections();
-    if (sc!=StatusCode::SUCCESS) {
-	   ATH_MSG_ERROR( "Undo corrections failed" );
-    }
- }
- */
 
 
  ATH_MSG_INFO( "LArRamps2Ntuple has finished." );

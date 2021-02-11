@@ -44,6 +44,8 @@
 #include "InDetPerfPlot_Resolution.h"
 #include "InDetPerfNtuple_TruthToReco.h" 
 
+#include "InDetTrackSystematicsTools/InDetTrackTruthOriginDefs.h"
+
 ///class holding all plots for Inner Detector RTT Validation and implementing fill methods
 class InDetRttPlots: public InDetPlotBase {
 public:
@@ -52,7 +54,7 @@ public:
   void SetFillJetPlots(bool fillJets, bool fillBJets);
 
   ///fill for things needing truth and track only
-  void fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle);
+  void fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle, bool truthIsFromB=false);
 
   ///fill for things needing track only
   void fill(const xAOD::TrackParticle& particle);
@@ -71,9 +73,9 @@ public:
   ///fill reco-vertex related plots that need EventInfo
   void fill(const xAOD::VertexContainer& vertexContainer, const unsigned int nPU);
 
-  void fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet, bool isBjet=false, bool isFake=false, bool isUnlinked=false);
-  void fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::Jet& jet, const bool isGood, bool isBjet=false);
-  void fillFakeRate(const xAOD::TrackParticle& track, const xAOD::Jet& jet, const bool isFake, bool isBjet=false);
+  void fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet, bool isBjet=false, bool isFake=false, bool isUnlinked=false, bool truthIsFromB=false);
+  void fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::Jet& jet, const bool isGood, bool isBjet=false, bool truthIsFromB=false);
+  void fillFakeRate(const xAOD::TrackParticle& track, const xAOD::Jet& jet, const bool isFake, bool isBjet=false, bool truthIsFromB=false);
   
   virtual ~InDetRttPlots() {/**nop**/
   };
@@ -94,6 +96,7 @@ private:
   InDetPerfPlot_FakeRate m_fakePlots;
   InDetPerfPlot_FakeRate m_missingTruthFakePlots;
   InDetPerfPlot_Resolution m_resolutionPlotPrim;
+  InDetPerfPlot_Resolution m_resolutionPlotPrim_truthFromB;
   InDetPerfPlot_Hits m_hitsRecoTracksPlots;
   InDetPerfPlot_Efficiency m_effPlots;
   InDetPerfPlot_VerticesVsMu m_verticesVsMuPlots;
@@ -118,6 +121,10 @@ private:
   std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots_fake_bjets;
   std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots_unlinked;
   std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots_unlinked_bjets;
+  
+  // by track origin
+  bool m_doTruthOriginPlots;
+  std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots_truthFromB;
 
   //By track authors
   std::unique_ptr<InDetPerfPlot_Efficiency> m_effSiSPSeededFinderPlots;

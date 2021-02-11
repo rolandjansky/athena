@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -250,7 +250,7 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
       if (allowRecalibrate && m_recalibrator
           && it->measurementType() == TrackState::TRT)  {
         const AmgVector(5) x = it->referenceParameters()->parameters()+(*predDiffPar);
-        const Trk::TrackParameters* param = CREATE_PARAMETERS(*it->referenceParameters(),x,nullptr);
+        auto param = CREATE_PARAMETERS(*it->referenceParameters(),x,nullptr);
         Trk::TrackState::CalibrationType oldType = it->calibrationType();
 
         // the replaceMeas.-method does ownership right and detects if the
@@ -293,7 +293,7 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
         // allow making of wire-hits for TRT fits with L/R-solving on the fly
         if ( m_recalibrator && it->measurementType() == TrackState::TRT) {
           const AmgVector(5) x = it->referenceParameters()->parameters()+(*predDiffPar);
-          const Trk::TrackParameters* param = CREATE_PARAMETERS(*it->referenceParameters(),x,nullptr);
+          auto param = CREATE_PARAMETERS(*it->referenceParameters(),x,nullptr);
           if ( Trk::SensorBoundsCheck::areParamsInside
                 (*fittableMeasurement, param->parameters(), *predDiffCov, 1.0, -1.0)) {
             Trk::TrackState::CalibrationType oldType = it->calibrationType();
@@ -304,7 +304,8 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
             fittableMeasurement = it->measurement();
 	    ATH_MSG_VERBOSE ("TRT ROT calibration changed, from "<<oldType<<" to broad hit "<<
                            it->calibrationType()<< " instead of outlier");
-            delete fitQS; fitQS=nullptr;
+            delete fitQS; 
+            fitQS=nullptr;
             updatedDifference.reset( 
               m_updator->updateParameterDifference(*predDiffPar, *predDiffCov,
                                                    *(it->measurementDifference()),
@@ -319,7 +320,7 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
               it->isOutlier(Trk::TrackState::StateOutlier);
             }
           }
-          delete param;
+          //delete param;
         } else {     
           ATH_MSG_DEBUG ( "failed Chi2 test, remove measurement from track fit." );
           it->isOutlier ( Trk::TrackState::StateOutlier );
@@ -478,14 +479,15 @@ Trk::FitterStatusCode Trk::ForwardRefTrackKalmanFitter::enterSeedIntoTrajectory
       return FitterStatusCode::BadInput;
     }
 
-    const Trk::TrackParameters* lastPropagatedPar = 
+    auto lastPropagatedPar = 
       CREATE_PARAMETERS((*inputParAtStartSurface),
                         inputParAtStartSurface->parameters(), nullptr); // remove covariance
     for (auto it=m_utility->firstFittableState ( trajectory ); it!=trajectory.end(); ++it) {
       if (!it->referenceParameters()) {
+        //gives up ownership by default, ProtoTrackStateOnSurface takes care of deletion
         it->checkinReferenceParameters (lastPropagatedPar);
       } else {
-        delete lastPropagatedPar; lastPropagatedPar=nullptr;
+        //delete lastPropagatedPar; lastPropagatedPar=nullptr;
         // FIXME study this further, whether cov really not needed and how close in param
         // space the old and new references are.
         ATH_MSG_VERBOSE("At state T"<<it->positionOnTrajectory()<<" have already reference.");
@@ -516,11 +518,11 @@ Trk::FitterStatusCode Trk::ForwardRefTrackKalmanFitter::enterSeedIntoTrajectory
                                                 Trk::anyDirection, 
                                                 /*bcheck=*/ false,
                                                 useFullField,jac, pathLimit,
-                                                controlledMatEffects.particleType() );
+                                                controlledMatEffects.particleType() ).release();
       if (!jac || !lastPropagatedPar) {
         ATH_MSG_WARNING ("lost reference track while propagating.");
         delete jac;
-        delete lastPropagatedPar;
+        //delete lastPropagatedPar;
         return FitterStatusCode::BadInput;
       }
       it->checkinTransportJacobian(jac,true);
@@ -540,7 +542,7 @@ void Trk::ForwardRefTrackKalmanFitter::printGlobalParams(int istate, const std::
                                                          const AmgVector(5)& diff) const
 {
   const AmgVector(5) x = ref.parameters()+diff;
-  const Trk::TrackParameters* param = CREATE_PARAMETERS(ref,x,nullptr);
+  auto param = CREATE_PARAMETERS(ref,x,nullptr);
   char tt[80]; snprintf(tt,79,"T%.2d",istate);
   msg(MSG::VERBOSE) << tt << ptype << " GP:" 
         << std::setiosflags(std::ios::fixed | std::ios::showpoint | std::ios::right )

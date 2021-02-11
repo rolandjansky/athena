@@ -89,7 +89,9 @@ TGCRPhiCoincidenceOut* TGCRPhiCoincidenceMatrix::doCoincidence()
                             subsector,type,m_dR,m_dPhi[j]); // this function will be implemented. 
       ptOut = std::abs(pt);
       chargeOut = pt<0 ? 0:1;
-      
+      // the charge is inverted on the C-side.
+      chargeOut = m_sideId == 0 ? chargeOut : !chargeOut; 
+
       CoincidenceTypeOut=(type==0);
 
     } else {    // for Run-2
@@ -147,7 +149,7 @@ void TGCRPhiCoincidenceMatrix::setRPhiMap(const TGCRPhiCoincidenceMap* map)
 TGCRPhiCoincidenceMatrix::TGCRPhiCoincidenceMatrix(const TGCArguments* tgcargs,const TGCSectorLogic* sL)
   : m_sectorLogic(sL),
     m_matrixOut(0), m_map(0),
-    m_nPhiHit(0), m_SSCId(0), m_r(0), m_dR(0), m_ptR(0), m_tgcArgs(tgcargs)
+    m_nPhiHit(0), m_SSCId(0), m_r(0), m_dR(0), m_ptR(0), m_sideId(0), m_tgcArgs(tgcargs)
 {
   for (int i=0; i<MaxNPhiHit; i++) {
     m_phi[i]=0;

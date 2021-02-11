@@ -13,6 +13,8 @@
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput= ["AOD.pool.root"]
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+ConfigFlags.Input.Files = athenaCommonFlags.FilesInput()
 
 
 ###################################################################3
@@ -45,37 +47,28 @@ from RecExConfig.RecFlags import rec
 rec.DPDMakerScripts.append( "egammaD3PDMaker/ClusterCorrectionD3PD_prodJobOFragment.py" )
 rec.doCBNT.set_Value_and_Lock( False )
 rec.doWriteTAG.set_Value_and_Lock( False )
+rec.doDPD.set_Value_and_Lock( True )
+rec.doWritexAOD.set_Value_and_Lock( False )
+rec.doTau.set_Value_and_Lock( False )
+rec.doCaloRinger.set_Value_and_Lock( False )
+from MuonRecExample.MuonRecFlags import muonRecFlags
+muonRecFlags.doMSVertex.set_Value_and_Lock( False )
 
 # Block loading conditions folders we won't need.
 blocked_folders = [
     '/CALO/Identifier/CaloTTOnAttrIdMapAtlas',
     '/CALO/Identifier/CaloTTOnOffIdMapAtlas',
     '/CALO/Identifier/CaloTTPpmRxIdMapAtlas',
-    '/LAR/ElecCalibMC/AutoCorr',
-    '/LAR/ElecCalibMC/DAC2uA',
     '/LAR/ElecCalibMC/HVScaleCorr',
-    '/LAR/ElecCalibMC/MinBias',
-    '/LAR/ElecCalibMC/MinBiasAverage',
-    '/LAR/ElecCalibMC/MphysOverMcal',
-    '/LAR/ElecCalibMC/Noise',
     '/LAR/ElecCalibMC/Pedestal',
-    '/LAR/ElecCalibMC/Ramp',
-    '/LAR/ElecCalibMC/Shape',
-    '/LAR/ElecCalibMC/fSampl',
-    '/LAR/ElecCalibMC/uA2MeV',
     '/LAR/Identifier/LArTTCellMapAtlas',
     '/MDT/DCS/DROPPEDCH',
     '/MDT/DCS/PSLVCHSTATE',
-    '/PIXEL/PixdEdx',
     '/TILE/OFL02/NOISE/AUTOCR',
     '/TILE/OFL02/PULSESHAPE/PHY',
     '/TILE/ONL01/FILTER/OF2/PHY',
     '/TILE/ONL01/NOISE/OFNI',
-    '/TRT/Cond/Status',
-    '/TRT/Cond/StatusPermanent',
     '/CALO/H1Weights/H1WeightsKt4Topo',
-    '/Indet/PixelDist',
-    '/Indet/TrkErrorScaling',
     ]
 from IOVDbSvc.CondDB import conddb
 for f in blocked_folders:

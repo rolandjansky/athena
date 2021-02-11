@@ -91,7 +91,6 @@ class ThresholdValue(object):
 
 
 
-
 class LVL1Threshold(object):
     __slots__ = ['name','ttype','mapping','active','seed','seed_ttype', 'seed_multi', 'bcdelay', 'cableinfo', 'thresholdValues']
 
@@ -112,7 +111,7 @@ class LVL1Threshold(object):
 
     def getVarName(self):
         """returns a string that can be used as a varname"""
-        return self.name.replace('.','')
+        return self.name.replace('p','')
 
     def setCableInput(self):
         from .Cabling import Cabling
@@ -129,7 +128,6 @@ class LVL1Threshold(object):
             return self.addJetThresholdValue(value, *args, **kwargs)
         if self.ttype in ['JE', 'TE', 'XE', 'XS', 'CALREQ', 'MBTSSI', 'TRT', 'ZDC', 'BCM', 'BCMCMB', 'BPTX', 'LUCID', 'NIM']:
             return self.addEnergyThresholdValue(value, *args, **kwargs)
-        
 
         raise RuntimeError("addThrValue() not defined for threshold type %s" % self.ttype)
 
@@ -154,30 +152,22 @@ class LVL1Threshold(object):
     def addEMThresholdValue(self, value, *args, **kwargs):
         # supporting both EM and TAU
         defargs = ThresholdValue.getDefaults(self.ttype) 
-        
         posargs = dict(zip(['etamin', 'etamax', 'phimin', 'phimax', 'em_isolation', 'had_isolation', 'had_veto', 'priority', 'isobits', 'use_relIso'], args))
-        
         # then we evaluate the arguments: first defaults, then positional arguments, then named arguments
         p = deepcopy(defargs)
         p.update(posargs)
         p.update(kwargs)
-
         thrv = ThresholdValue(self.ttype, value,
                               etamin = p['etamin'], etamax=p['etamax'], phimin=p['phimin'], phimax=p['phimax'],
                               priority = p['priority'], name = self.name+'full')
-
         thrv.setIsolation(em_isolation = p['em_isolation'], had_isolation = p['had_isolation'], had_veto = p['had_veto'], isobits = p['isobits'], use_relIso = p['use_relIso'])
-        
         self.thresholdValues.append(thrv)
-            
         return self
-
 
 
     def addJetThresholdValue(self, value, *args, **kwargs):
         defargs = ThresholdValue.getDefaults(self.ttype)
         posargs = dict(zip(['etamin', 'etamax', 'phimin', 'phimax', 'window', 'priority'], args))
-
         p = deepcopy(defargs)
         p.update(posargs)
         p.update(kwargs)
@@ -191,11 +181,9 @@ class LVL1Threshold(object):
     def addEnergyThresholdValue(self, value, *args, **kwargs):
         defargs = ThresholdValue.getDefaults(self.ttype)
         posargs = dict(zip(['etamin', 'etamax', 'phimin', 'phimax', 'priority'], args))
-
         p = deepcopy(defargs)
         p.update(posargs)
         p.update(kwargs)
-
         thrv = ThresholdValue(self.ttype, value, etamin=p['etamin'], etamax=p['etamax'], phimin=p['phimin'], phimax=p['phimax'],
                               priority=p['priority'], name=self.name+'full')
         self.thresholdValues.append(thrv)
@@ -237,9 +225,6 @@ class LVL1TopoInput(LVL1Threshold):
     convention is less strict (allows"-" and can start with a number)
     """
 
-    import re
-    multibitPattern = re.compile(r"(?P<line>.*)\[(?P<bit>\d+)\]")
-
     #<TriggerThreshold active="1" bitnum="1" id="148" mapping="0" name="4INVM9999-AJ0s6-AJ0s6" type="TOPO" input="ctpcore" version="1">
     #  <Cable connector="CON1" input="CTPCORE" name="TOPO1">
     #    <Signal range_begin="0" range_end="0" clock="0"/>
@@ -277,8 +262,6 @@ class LVL1TopoInput(LVL1Threshold):
             self.bitOnCable = firstbit           # 0 .. 31
             self.fpga       = -1
             self.clock      = clock
-            
-
 
     def setCableInput(self):
         from .Cabling import Cabling
@@ -287,8 +270,7 @@ class LVL1TopoInput(LVL1Threshold):
 
     def getVarName(self):
         """returns a string that can be used as a varname"""
-        return ("TOPO_" + self.name).replace('.','').replace('-','_') # we can not have '.' or '-' in the variable name
-
+        return ("TOPO_" + self.name).replace('p','').replace('-','_') # we can not have '.' or '-' in the variable name
 
 
 class LVL1Thresholds(object):

@@ -151,6 +151,11 @@ def tauMonitoringCaloOnly():
    monTool.defineHistogram('EtaEF, PhiEF', path='EXPERT', type='TH2F', title="EF ROI Eta vs Phi in TrigTauRecMerged FEX; #eta; #phi",
                                            xbins=51, xmin=-2.55, xmax=2.55,
                                            ybins=65, ymin=-3.1415936-0.098174/2., ymax=3.1415936+0.098174/2.)
+
+   monTool.defineHistogram('EtaEF', path='EXPERT', type='TH1F', title="EF ROI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
+   monTool.defineHistogram('PhiEF', path='EXPERT', type='TH1F', title="EF ROI Phi; nRoIs", xbins=65, xmin=-3.1415936-0.098174/2., xmax=3.1415936+0.098174/2.)
+       
+
    return monTool
 
 
@@ -195,6 +200,9 @@ def tauMonitoringCaloOnlyMVA():
    monTool.defineHistogram('EtaEF, PhiEF', path='EXPERT', type='TH2F', title="EF ROI Eta vs Phi in TrigTauRecMerged FEX; #eta; #phi",
                                            xbins=51, xmin=-2.55, xmax=2.55,
                                            ybins=65, ymin=-3.1415936-0.098174/2., ymax=3.1415936+0.098174/2.)
+   monTool.defineHistogram('EtaEF', path='EXPERT', type='TH1F', title="EF ROI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
+   monTool.defineHistogram('PhiEF', path='EXPERT', type='TH1F', title="EF ROI Phi; nRoIs", xbins=65, xmin=-3.1415936-0.098174/2., xmax=3.1415936+0.098174/2.)
+
    return monTool
 
 
@@ -259,6 +267,9 @@ def tauMonitoringPreselection():
                                            xbins=51, xmin=-2.55, xmax=2.55,
                                            ybins=65, ymin=-3.1415936-0.098174/2., ymax=3.1415936+0.098174/2.)
 
+   monTool.defineHistogram('EtaEF', path='EXPERT', type='TH1F', title="EF ROI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
+   monTool.defineHistogram('PhiEF', path='EXPERT', type='TH1F', title="EF ROI Phi; nRoIs", xbins=65, xmin=-3.1415936-0.098174/2., xmax=3.1415936+0.098174/2.)
+
    return monTool
 
 
@@ -322,6 +333,9 @@ def tauMonitoringPrecision():
    monTool.defineHistogram('EtaEF, PhiEF', path='EXPERT', type='TH2F', title="EF ROI Eta vs Phi in TrigTauRecMerged FEX; #eta; #phi",
                                            xbins=51, xmin=-2.55, xmax=2.55,
                                            ybins=65, ymin=-3.1415936-0.098174/2., ymax=3.1415936+0.098174/2.)
+ 
+   monTool.defineHistogram('EtaEF', path='EXPERT', type='TH1F', title="EF ROI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
+   monTool.defineHistogram('PhiEF', path='EXPERT', type='TH1F', title="EF ROI Phi; nRoIs", xbins=65, xmin=-3.1415936-0.098174/2., xmax=3.1415936+0.098174/2.)
 
    return monTool
 
@@ -385,6 +399,9 @@ def tauMonitoringPrecisionMVA():
    monTool.defineHistogram('EtaEF, PhiEF', path='EXPERT', type='TH2F', title="EF ROI Eta vs Phi in TrigTauRecMerged FEX; #eta; #phi",
                                            xbins=51, xmin=-2.55, xmax=2.55,
                                            ybins=65, ymin=-3.1415936-0.098174/2., ymax=3.1415936+0.098174/2.)
+
+   monTool.defineHistogram('EtaEF', path='EXPERT', type='TH1F', title="EF ROI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
+   monTool.defineHistogram('PhiEF', path='EXPERT', type='TH1F', title="EF ROI Phi; nRoIs", xbins=65, xmin=-3.1415936-0.098174/2., xmax=3.1415936+0.098174/2.)
 
    return monTool
 

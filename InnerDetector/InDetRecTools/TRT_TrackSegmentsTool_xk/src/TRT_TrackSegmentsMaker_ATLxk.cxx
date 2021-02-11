@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -23,6 +23,7 @@
 #include "InDetRecToolInterfaces/ITRT_TrackExtensionTool.h"
 #include "TrkExInterfaces/IPropagator.h"
 #include "StoreGate/ReadHandle.h"
+#include <cmath>
 ///////////////////////////////////////////////////////////////////
 // Constructor
 ///////////////////////////////////////////////////////////////////
@@ -690,14 +691,13 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::findLocaly(const EventContext &ctx,
 
   double pT = m_pTmin/(double(m)*m_Psi-1.);
 
-  double pin = 1./(pT*sqrt((1.+condData.m_dzdr[ndzdr]*condData.m_dzdr[ndzdr])));
+  double pin = 1./(pT*std::sqrt((1.+condData.m_dzdr[ndzdr]*condData.m_dzdr[ndzdr])));
 
   Amg::Vector3D PSV(0.,0.,0.); Trk::PerigeeSurface PS(PSV);
-  const Trk::TrackParameters* Tp = PS.createTrackParameters(0.,0.,fm,atan2(1.,condData.m_dzdr[ndzdr]),pin,0);
+  auto Tp = PS.createUniqueTrackParameters(0.,0.,fm,atan2(1.,condData.m_dzdr[ndzdr]),pin,0);
     ++event_data.m_nlocal;
 
   Trk::TrackSegment* seg = m_extensionTool->findSegment(ctx, *Tp, *(event_data.m_extEventData) );
-  delete Tp;
   if(!seg) return;
 
   // Momentum cut
@@ -706,7 +706,7 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::findLocaly(const EventContext &ctx,
   double iP = seg->localParameters().get(Trk::qOverP);
 
   // ME: let's not use a soft cut here
-  if(sin(T) < 0.9*m_pTmin*fabs(iP)) {delete seg; return;}
+  if(std::sin(T) < 0.9*m_pTmin*std::abs(iP)) {delete seg; return;}
 
 
   ++event_data.m_nsegments;

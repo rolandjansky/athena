@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -18,6 +18,7 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
+#include "L1CaloFEXSim/FEXAlgoSpaceDefs.h"
 
 namespace LVL1 {
   
@@ -40,10 +41,12 @@ Interface definition for jFEXFPGA
     virtual int ID() = 0;
     
     virtual uint32_t formSmallRJetTOB(int &, int &) =0;
-    virtual std::vector<uint32_t> getjTOBs() = 0;
+    virtual uint32_t formLargeRJetTOB(int &, int &) =0;
+    virtual std::vector<uint32_t> getSmallRJetTOBs() = 0;
+    virtual std::vector<uint32_t> getLargeRJetTOBs() = 0;
 
-    virtual void SetTowersAndCells_SG(int [][17]) = 0;
-    virtual void SetTowersAndCells_SG(int [][24]) = 0;
+    virtual void SetTowersAndCells_SG(int [][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width]) = 0;
+    virtual void SetTowersAndCells_SG(int [][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width]) = 0;
 
   private:
 

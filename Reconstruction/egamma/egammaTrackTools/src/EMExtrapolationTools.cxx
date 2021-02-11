@@ -318,15 +318,14 @@ EMExtrapolationTools::getEtaPhiAtCalo(const EventContext& ctx,
     ATH_MSG_DEBUG("Intersection failed");
     return false;
   }
-  Trk::PerigeeSurface surface(vertex->position());
   /*
    * Create high pt track parameters to mimic a neutral particle.
    * This in principle is an approximation
    */
-  const Trk::TrackParameters* trkPar = surface.createTrackParameters(
-    vertex->position(), momentum.unit() * 1.e10, +1, nullptr);
-  bool success = getEtaPhiAtCalo(ctx,trkPar, etaAtCalo, phiAtCalo);
-  delete trkPar;
+  Trk::PerigeeSurface surface(vertex->position());
+  Trk::Perigee trkPar(
+    vertex->position(), momentum.unit() * 1.e10, +1, surface, nullptr);
+  bool success = getEtaPhiAtCalo(ctx,&trkPar, etaAtCalo, phiAtCalo);
   return success;
 }
 /*  The actual calculation happens here*/

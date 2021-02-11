@@ -36,7 +36,11 @@ for stream_name in all_streams:
   stream_count_step = TrigBSDumpGrepStep('StreamCount_'+stream_name)
   stream_count_step.args += '--stag'
   stream_count_step.file_name_base = output_name_base
-  stream_count_step.regex = 'Stream Tags:.*' + stream_name
+  stream_count_step.regex = stream_name
+  if 'PEB' in stream_name or 'DS' in stream_name:
+    stream_count_step.regex += '.*Partial Event Building'
+  else:
+    stream_count_step.regex += '.*Full Event Building'
   test.check_steps.append(stream_count_step)
 
 import sys

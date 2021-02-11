@@ -1,6 +1,8 @@
 """
 This job options file will run an example extrapolation using the
 Acts tracking geometry and the Acts extrapolation toolchain.
+
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 
 # start from scratch with component accumulator
@@ -31,7 +33,7 @@ def ActsExtrapolationAlgCfg(configFlags, name = "ActsExtrapolationAlg", **kwargs
 if "__main__" == __name__:
   from AthenaCommon.Configurable import Configurable
   from AthenaCommon.Logging import log
-  from AthenaCommon.Constants import VERBOSE,INFO
+  from AthenaCommon.Constants import INFO
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
   from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 
@@ -42,8 +44,6 @@ if "__main__" == __name__:
   ConfigFlags.Beam.Type = ''
   ConfigFlags.GeoModel.AtlasVersion  = "ATLAS-R2-2016-01-00-01"
   ConfigFlags.IOVDb.GlobalTag        = "OFLCOND-SIM-00-00-00"
-  ConfigFlags.Detector.SimulateBpipe = True
-  ConfigFlags.Detector.SimulateID    = True
   ConfigFlags.Detector.GeometryBpipe = True
   ConfigFlags.Detector.GeometryID    = True
   ConfigFlags.Detector.GeometryPixel = True

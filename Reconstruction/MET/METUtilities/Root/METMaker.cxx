@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // METMaker.cxx
@@ -305,7 +305,7 @@ namespace met {
       } else {
         ATH_MSG_VERBOSE("Original inputs? " << originalInputs);
       }
-      for(const auto *obj : *collection) {
+      for(const auto obj : *collection) {
         const IParticle* orig = obj;
         bool selected = false;
         if(!originalInputs) { orig = *acc_originalObject(*obj); }
@@ -594,8 +594,7 @@ namespace met {
     std::vector<float> softJetWeights;
     bool originalInputs = jets->empty() ? false : !acc_originalObject.isAvailable(*jets->front());
 
-
-    for(const auto *jet : *jets) {
+    for(const auto jet : *jets) {
       const MissingETAssociation* assoc = 0;
       if(originalInputs) {
         assoc = MissingETComposition::getAssociation(map,jet);
@@ -1247,7 +1246,7 @@ namespace met {
 
       ATH_MSG_DEBUG("Successfully retrieved primary vertex container");
 
-      for(const auto *vx : *h_PV) {
+      for(const auto vx : *h_PV) {
 
          if(vx->vertexType()==xAOD::VxType::PriVtx) {
 

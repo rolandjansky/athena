@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ##
 #
@@ -1427,7 +1427,7 @@ def dump_TrackSummary (info, f):
 def dump_Surface (info, f):
     fprint (f, typename(info.__class__) + ':')
     dump_Threevec (info.center(), f)
-    dump_Threevec (info.normal(), f)
+    dump_Threevec (PyAthena.Trk.Surface.normal (info), f)
     if (isinstance (info, PyAthena.Trk.DiscSurface) and
         typename(info.bounds().__class__).find ('NoBounds') >= 0):
         bd_class = info.bounds().__class__

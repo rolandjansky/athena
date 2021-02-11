@@ -72,6 +72,8 @@ excludeTracePattern.append("*/DQDefects/virtual*")
 excludeTracePattern.append("*/TrigEDMConfig/TriggerEDM.py")
 excludeTracePattern.append("*/TrigL2MissingET/TrigL2MissingETMonitoring.py")
 excludeTracePattern.append("*AthFile/impl.py")
+excludeTracePattern.append("*/AthenaConfiguration/*")
+excludeTracePattern.append("*ROOT/_facade.py")
 #####################
 # Flags (separated) #
 #####################
@@ -1305,9 +1307,16 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
                                                  StreamName = 'StreamAOD',
                                                  Cells = 'AllCalo',
                                                  CellLinks = 'CaloCalTopoClusters_links',
-                                                 Taus = "TauJets")
+                                                 Taus = "TauJets",
+                                                 MinTauPt = tauFlags.tauRecMinPt())
                 topSequence += tauCellAlg3
-                
+
+                if tauFlags.tauRecMinPt() > 0:
+                    from tauRec.tauRecConf import TauThinningAlg
+                    tauThinningAlg = TauThinningAlg('TauThinningAlg',
+                                                    MinTauPt = tauFlags.tauRecMinPt())
+                    topSequence += tauThinningAlg
+
         except Exception:
             treatException("Could not make AOD cells" )
 

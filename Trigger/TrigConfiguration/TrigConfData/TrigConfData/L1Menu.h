@@ -90,6 +90,9 @@ namespace TrigConf {
       /** Access to L1Threshold by name */
       const TrigConf::L1Threshold & threshold(const std::string & thresholdName) const;
 
+      /** Access to L1Threshold by type and mapping index */
+      const TrigConf::L1Threshold & threshold(const std::string & typeName, unsigned int mapping) const;
+
       /** Access to extra info for threshold types */
       const L1ThrExtraInfo & thrExtraInfo() const;
 
@@ -165,6 +168,7 @@ namespace TrigConf {
       /** threshold maps */
       std::map<std::string, std::vector<std::shared_ptr<TrigConf::L1Threshold>>> m_thresholdsByType{};
       std::map<std::string, std::shared_ptr<TrigConf::L1Threshold>> m_thresholdsByName{};
+      std::map<std::string, std::map<unsigned int, std::shared_ptr<TrigConf::L1Threshold>>> m_thresholdsByTypeAndMapping{};
 
       TrigConf::L1ThrExtraInfo m_thrExtraInfo;
 

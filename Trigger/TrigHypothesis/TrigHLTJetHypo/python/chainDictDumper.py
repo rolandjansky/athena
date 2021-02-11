@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
 from TriggerMenuMT.HLTMenuConfig.Menu.SignatureDicts import JetChainParts
@@ -10,7 +10,7 @@ pp = PrettyPrinter(indent=4)
 pp.pprint(JetChainParts)
 
 def do_it():
-    print('\n------------------\n')
+    print('\n------------------\n') #noqa: ATL901
     chain_dict = dictFromChainName(chain_name)
     pp.pprint(chain_dict)
 

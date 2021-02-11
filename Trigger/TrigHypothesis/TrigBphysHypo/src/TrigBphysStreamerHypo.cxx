@@ -41,7 +41,7 @@ StatusCode TrigBphysStreamerHypo::execute( const EventContext& context ) const {
   DecisionContainer* decisions = outputHandle.ptr();
 
   for (const Decision* previousDecision : *previousDecisionsHandle) {
-    Decision* decision = TrigCompositeUtils::newDecisionIn(decisions, previousDecision, "", context);
+    Decision* decision = TrigCompositeUtils::newDecisionIn(decisions, previousDecision, TrigCompositeUtils::hypoAlgNodeName(), context);
 
     auto muonLinkInfo = TrigCompositeUtils::findLink<xAOD::MuonContainer>(previousDecision, TrigCompositeUtils::featureString(), true);
     ATH_CHECK( muonLinkInfo.isValid() );

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -152,8 +152,6 @@ namespace LVL1 {
 	  tmp_eTowersIDs_subset[thisRow][thisCol] = towerid;
 	  tmp_eTowersColl_subset.insert( std::map<int, eTower>::value_type(towerid,  *(this_eTowerContainer->findTower(towerid))));
 
-	  std::vector<Identifier> supercellIDs = this_eTowerContainer->findTower(towerid)->getSCIDs();
-
 	}
       }
 
@@ -167,8 +165,6 @@ namespace LVL1 {
 	tmp_eTowersIDs_subset[thisRow][10] = towerid;
 	tmp_eTowersColl_subset.insert( std::map<int, eTower>::value_type(towerid,  *(this_eTowerContainer->findTower(towerid))));
 
-	std::vector<Identifier> supercellIDs = this_eTowerContainer->findTower(towerid)->getSCIDs();
-
       }
 
       // set the EMB part
@@ -181,8 +177,6 @@ namespace LVL1 {
 
 	  tmp_eTowersIDs_subset[thisRow][thisCol] = towerid;
 	  tmp_eTowersColl_subset.insert( std::map<int, eTower>::value_type(towerid,  *(this_eTowerContainer->findTower(towerid))));
-
-	  std::vector<Identifier> supercellIDs = this_eTowerContainer->findTower(towerid)->getSCIDs();
 
 	}
       }
@@ -254,8 +248,6 @@ namespace LVL1 {
 
           tmp_eTowersColl_subset.insert( std::map<int, eTower>::value_type(towerid,  *(this_eTowerContainer->findTower(towerid))));
 
-	  std::vector<Identifier> supercellIDs = this_eTowerContainer->findTower(towerid)->getSCIDs();
-
         }
       }
       
@@ -318,8 +310,6 @@ namespace LVL1 {
           tmp_eTowersIDs_subset[thisRow][thisCol] = towerid;
           tmp_eTowersColl_subset.insert( std::map<int, eTower>::value_type(towerid,  *(this_eTowerContainer->findTower(towerid))));
 
-	  std::vector<Identifier> supercellIDs = this_eTowerContainer->findTower(towerid)->getSCIDs();
-
         }
       }
       // set the TRANS part
@@ -331,8 +321,6 @@ namespace LVL1 {
         tmp_eTowersIDs_subset[thisRow][7] = towerid;
         tmp_eTowersColl_subset.insert( std::map<int, eTower>::value_type(towerid,  *(this_eTowerContainer->findTower(towerid))));
 
-	std::vector<Identifier> supercellIDs = this_eTowerContainer->findTower(towerid)->getSCIDs();
-
       }
       // set the EMEC part
       for(int thisCol=8; thisCol<cols; thisCol++){
@@ -343,8 +331,6 @@ namespace LVL1 {
 
           tmp_eTowersIDs_subset[thisRow][thisCol] = towerid;
           tmp_eTowersColl_subset.insert( std::map<int, eTower>::value_type(towerid,  *(this_eTowerContainer->findTower(towerid))));
-
-	  std::vector<Identifier> supercellIDs = this_eTowerContainer->findTower(towerid)->getSCIDs();
 
         }
       }

@@ -32,7 +32,7 @@ def generateL1DecoderAndChainsManually(topSequence):
     from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
     from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
     makeHLTTree( triggerConfigHLT=TriggerConfigHLT )
-
+    
 
 ###########################################################################    
 def generateL1DecoderAndChainsByMenu(topSequence):
@@ -357,7 +357,7 @@ def generateL1Decoder():
 
     muUnpacker = RoIsUnpackingEmulationTool("MURoIsUnpackingTool", InputFilename="l1muroi.dat",  OutputTrigRoIs=mapThresholdToL1RoICollection("MU"), Decisions=mapThresholdToL1DecisionCollection("MU"), ThresholdPrefix="MU" )
 
-    l1Decoder.roiUnpackers = [emUnpacker, muUnpacker]
+    l1Decoder.RoIBRoIUnpackers = [emUnpacker, muUnpacker]
 
     L1UnpackingSeq += l1Decoder
     log.debug(L1UnpackingSeq)

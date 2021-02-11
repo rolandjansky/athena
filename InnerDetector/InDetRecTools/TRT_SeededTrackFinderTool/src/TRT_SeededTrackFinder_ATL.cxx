@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -651,10 +651,12 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
     const Trk::PerigeeSurface persurf (Amg::Vector3D(0,0,0));
 
     //Get track parameters at the end of SCT to start backwards propagation
-    const Trk::TrackParameters* per   = m_proptool->propagate(*upTP,persurf,Trk::oppositeMomentum,false,m_fieldprop,Trk::nonInteracting); //Propagate
+    auto per   = m_proptool->propagate(*upTP,persurf,Trk::oppositeMomentum,false,m_fieldprop,Trk::nonInteracting); //Propagate
     if(!per){
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"No extrapolated track parameters!"<<endmsg;
-      delete niTP; delete upTP; continue;
+      delete niTP; 
+      delete upTP; 
+      continue;
     }
 
     if(msgLvl(MSG::VERBOSE)) {
@@ -665,10 +667,12 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
     //Get list of InDet Elements
     std::list<const InDetDD::SiDetectorElement*> DE;
     m_roadmaker->detElementsRoad(ctx, fieldCache, *per,Trk::alongMomentum,DE,event_data.roadMakerData());
-    delete per;
+    //delete per;
     if( int(DE.size()) < m_nclusmin){ //Not enough detector elements to satisfy the minimum number of clusters requirement. Stop
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Too few detector elements, not expected" << endmsg;
-      delete niTP; delete upTP; continue;
+      delete niTP; 
+      delete upTP; 
+      continue;
     }
 
     //
@@ -697,10 +701,14 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
 	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initial Track Parameters at 1st SP created and scaled from TRT segment, " << endmsg;
 	if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << (*mesTP) << endmsg;
       }else{
-	delete niTP; delete upTP; continue;
+        delete niTP; 
+        delete upTP; 
+        continue;
       }
     }else{
-      delete niTP; delete upTP; continue;
+      delete niTP; 
+      delete upTP; 
+      continue;
     }
 
     //
@@ -746,14 +754,14 @@ InDet::TRT_SeededTrackFinder_ATL::getTP(MagField::AtlasFieldCache& fieldCache, c
                                         bool& outl,
                                         InDet::TRT_SeededTrackFinder_ATL::EventData &event_data) const
 {
-  const Trk::TrackParameters* iTP = 0;
+  const Trk::TrackParameters* iTP = nullptr;
 
   outl = false;
 
   const Trk::Surface&               surf  = SP->associatedSurface(); //Get the associated surface
   Trk::PropDirection                dir   = Trk::oppositeMomentum;   //Propagate backwards i.e. opposite momentum when filtering
   Trk::ParticleHypothesis           part  = Trk::nonInteracting;     //Choose a non interacting particle
-  const Trk::TrackParameters*       eTP   = m_proptool->propagate(*startTP,surf,dir,false,m_fieldprop,part); //Propagate
+  auto       eTP   = m_proptool->propagate(*startTP,surf,dir,false,m_fieldprop,part); //Propagate
 
   if(!eTP){
 
@@ -779,9 +787,9 @@ InDet::TRT_SeededTrackFinder_ATL::getTP(MagField::AtlasFieldCache& fieldCache, c
       double covPola=event_data.noise().covariancePola();
       double covIMom=event_data.noise().covarianceIMom();
       double corIMom=event_data.noise().correctionIMom();
-      iTP = addNoise(covAzim,covPola,covIMom,corIMom,eTP,0);
+      iTP = addNoise(covAzim,covPola,covIMom,corIMom,eTP.get(),0);
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"The updator failed! Count an outlier "<<endmsg;
-      delete eTP;
+      //delete eTP;
       //if (uTP) {delete uTP; delete sct_fitChi2;}
       outl = true;
 
@@ -804,12 +812,14 @@ InDet::TRT_SeededTrackFinder_ATL::getTP(MagField::AtlasFieldCache& fieldCache, c
 	double covPola=event_data.noise().covariancePola();
 	double covIMom=event_data.noise().covarianceIMom();
 	double corIMom=event_data.noise().correctionIMom();
-	iTP = addNoise(covAzim,covPola,covIMom,corIMom,eTP,0);
+	iTP = addNoise(covAzim,covPola,covIMom,corIMom,eTP.get(),0);
 	outl = true;
       }
 
       // Clean up
-      delete eTP; delete uTP; delete sct_fitChi2;
+      //delete eTP; 
+      delete uTP; 
+      delete sct_fitChi2;
     }
   }
   return iTP;

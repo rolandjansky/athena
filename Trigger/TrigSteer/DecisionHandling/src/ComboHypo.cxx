@@ -121,7 +121,7 @@ StatusCode ComboHypo::copyDecisions(  const LegDecisionsMap & passingLegs, const
           }
         }
 
-        Decision* newDec = newDecisionIn( outDecisions, inputDecision, "CH", context );
+        Decision* newDec = newDecisionIn( outDecisions, inputDecision, comboHypoAlgNodeName(), context );
         ATH_MSG_DEBUG("New decision (Container Index:" << input_counter << ", Element Index:"<< newDec->index() <<") has "
           << (TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(newDec, initialRoIString())).isValid()
           << " valid initialRoI, "<< TrigCompositeUtils::getLinkToPrevious(newDec).size() <<" previous decisions and "<<finalIds.size()<<" decision IDs") ;   
@@ -206,6 +206,9 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
       // This is regardless of whether or not other legs also use the same FS ROI. Regardless of if the leg's required multiplicity.
       // This keeps the leg alive until the actual FS reconstruction may occur. At which point, the following ComboHypo will begin
       // to cut on the actual reconstructed physics objects.
+      //
+      // The behaviour may also be kept even after we have started to process a leg through HypoAlgs. This is done by the HypoAlg
+      // setting the "feature" to be the same as the initialRoI. The initialRoI must still be a FullScan ROI for this to work.
       for (const ElementLink<DecisionContainer> dEL : it->second){
         uint32_t featureKey = 0, roiKey = 0;
         uint16_t featureIndex = 0, roiIndex = 0;
@@ -213,7 +216,11 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
         // NOTE: roiKey, roiIndex are only currently used in the discrimination for L1 Decision objects (which don't have a 'feature' link)
         // NOTE: We should make it configurable to choose either the feature or the ROI here, as done in the InputMaker base class when merging.
         ATH_CHECK( extractFeatureAndRoI(dEL, featureKey, featureIndex, roiKey, roiIndex, roiFullscan) );
-        if (roiKey != 0 && roiFullscan) {
+        if (roiFullscan and (    (featureKey == roiKey and featureIndex == roiIndex) // The user explicitly set the feature === the initialRoI (and it is FS)
+                              or (featureKey == 0 and roiKey != 0) // The leg has not yet started to process, the initialRoI is FS
+                            )
+           )
+        {
           // This fsCount integer is being to generate unique "hash" values to allow the FS ROI to meet the multiplicity requirements of this leg
           for (size_t i = 0; i < requiredMultiplicity; ++i) {
             legFeatureHashes.at( legIndex ).insert( ++fsCount );

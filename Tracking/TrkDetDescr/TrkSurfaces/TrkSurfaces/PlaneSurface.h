@@ -59,7 +59,7 @@ class ParametersT;
 class PlaneSurface : public Surface
 {
 public:
- 
+
   /** The surface type static constexpr */
   static constexpr SurfaceType staticType = Surface::Plane;
 
@@ -155,6 +155,22 @@ public:
     double phi,
     double theta,
     double qop,
+    AmgSymMatrix(5) * cov = nullptr) const override final;
+
+  /** Use the Surface as a ParametersBase constructor, from local parameters -
+   * charged */
+  virtual Surface::ChargedTrackParametersUniquePtr createUniqueTrackParameters(
+    double l1,
+    double l2,
+    double phi,
+    double theta,
+    double qop,
+    AmgSymMatrix(5) * cov = nullptr) const override final;
+
+  virtual Surface::ChargedTrackParametersUniquePtr createUniqueTrackParameters(
+    const Amg::Vector3D& position,
+    const Amg::Vector3D& momentum,
+    double charge,
     AmgSymMatrix(5) * cov = nullptr) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -

@@ -27,23 +27,6 @@ def makeKeysList(inputDict):
     return tmpList
 
 
-def setTHistSvcOutput(outputList):
-    """Build the Output list of the THistSvc. This is used below and to
-    configure athenaMT/PT when running from the online DB but with the
-    offline THistSvc"""
-    
-    if 1 not in [ o.count('SHIFT') for o in outputList ]:
-        outputList += [ "SHIFT DATAFILE='shift-monitoring.root' OPT='RECREATE'"]
-    if 1 not in [ o.count('EXPERT') for o in outputList ]:
-        outputList += [ "EXPERT DATAFILE='expert-monitoring.root' OPT='RECREATE'"]
-    if 1 not in [ o.count('run_1') for o in outputList ]:
-        outputList += [ "run_1 DATAFILE='lbn-monitoring.root' OPT='RECREATE'"]        
-    if 1 not in [ o.count('RUNSTAT') for o in outputList ]:
-        outputList += [ "RUNSTAT DATAFILE='runstat-monitoring.root' OPT='RECREATE'"]
-    if 1 not in [ o.count('DEBUG') for o in outputList ]:        
-        outputList += [ "DEBUG DATAFILE='debug-monitoring.root' OPT='RECREATE'"]
-
-    return
         
     
 def monitoringTools(steering):
@@ -99,6 +82,7 @@ def monitoringTools(steering):
         from GaudiSvc.GaudiSvcConf import THistSvc
         ServiceMgr += THistSvc()
     if hasattr(ServiceMgr.THistSvc, "Output"): # this is offline THistSvc fo which we want to setup files
+        from TriggerHistSvcConfig import setTHistSvcOutput
         setTHistSvcOutput(ServiceMgr.THistSvc.Output)
         
 
@@ -121,6 +105,13 @@ class HLTSimulationGetter(Configured):
     def configure(self):
         
         log = logging.getLogger("HLTTriggergetter.py")
+
+        if TriggerFlags.triggerMenuSetup() == "Physics_pp_v7_primaries":
+            # the Run 2 triggger menu Physics_pp_v7_primaries does not exist in json (it should be phased out soon)
+            # Need to disable the new menu through the new config flags
+            log.info("Setting ConfigFlags.Trigger.readLVL1FromJSON to False because TriggerFlags.triggerMenuSetup == %s", TriggerFlags.triggerMenuSetup())
+            from AthenaConfiguration.AllConfigFlags import ConfigFlags
+            ConfigFlags.Trigger.readLVL1FromJSON = False
 
         from AthenaCommon.AlgSequence import AlgSequence 
         topSequence = AlgSequence()
@@ -218,8 +209,12 @@ class HLTSimulationGetter(Configured):
             TrigSteer_HLT.Navigation.ClassesToPreregister = getHLTPreregistrationList()
             
             TrigSteer_HLT.Navigation.Dlls = getEDMLibraries()
-
+            from AthenaConfiguration.AllConfigFlags import ConfigFlags
+            TrigSteer_HLT.LvlConverterTool.Lvl1ResultAccessTool.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
             monitoringTools(TrigSteer_HLT)
+            for monTools in TrigSteer_HLT.MonTools:
+                if monTools.name() in ["TrigRoIMoniValidation", "TrigRoIMoniOnline"]:
+                    monTools.Lvl1ResultAccessTool.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
             topSequence += TrigSteer_HLT
 
 

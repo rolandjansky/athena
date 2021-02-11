@@ -34,7 +34,7 @@ class TrackTools: public AthAlgTool, virtual public ITrackTools{
 
         std::vector< double > getXYZEtaPhiInCellSampling(const TRACK* track, const CaloCell *cell);
         std::vector< double > getXYZEtaPhiInCellSampling(const TRACK* track, CaloSampling::CaloSample sampling);
-        const Trk::TrackParameters* getTrackInCellSampling(const TRACK* track, CaloSampling::CaloSample sampling);
+        std::unique_ptr<const Trk::TrackParameters> getTrackInCellSampling(const TRACK* track, CaloSampling::CaloSample sampling);
         std::vector< std::vector<double> > getXYZEtaPhiPerLayer(const TRACK* track);
         std::vector< std::vector<double> > getXYZEtaPhiPerSampling(const TRACK* track);
         double getPathInsideCell(const TRACK *track, const CaloCell *cell);

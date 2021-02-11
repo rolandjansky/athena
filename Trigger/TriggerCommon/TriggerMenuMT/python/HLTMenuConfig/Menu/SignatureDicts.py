@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
 log.info("Importing %s",__name__)
@@ -57,7 +57,8 @@ ChainDictTemplate = {
     'chainParts'   : [],
     'topoStartFrom' : False,
     'sigFolder'     : '',
-    'subSigs'       : []
+    'subSigs'        : [],
+    'extraComboHypos' : []
 }
 
 #==========================================================
@@ -137,21 +138,24 @@ JetChainParts = {
                       'fbdjshared',  # Forward backward jets + dijet, default parameters, fb and dj can share
                       'fbdjnosharedSEP10etSEP20etSEP34massSEP50fbet', # f/b jets + dijet, expl. parameters, fb and dj do not share
                       'dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass', # Test dijet mass sel
+                      'dijetSEP80j1etSEP80j2etSEP700djmassSEP26djdphi', # Test dijet mass sel including dphi cut
+                      'dijetSEP70j1etSEP70j2etSEP1000djmassSEP20djdphiSEP40djdeta', # dijet mass sel including dphi and deta cuts
                       # 'agg' category is for single variable computed by aggregation over single jets
                       'aggSEP1000htSEP30etSEP0eta320', # HT selection with explicit jet et/eta cuts
                       'aggSEP500htSEP30etSEP0eta320',
                       'aggSEP100htSEP10etSEP0eta320',
-                      'aggSEP50htSEP10etSEP0eta320',
+                      'aggSEP50htSEP10etSEP0eta320'
                       ],
+
     # Simple hypo configuration. Single property cuts defined as MINvarMAX
     'etaRange'      :
-      ['0eta320', '320eta490', '0eta240', '0eta290'],
+      ['0eta320', '320eta490', '0eta240', '0eta290', '0eta490'],
     'jvt'           : # Jet Vertex Tagger pileup discriminant
       ['010jvt', '011jvt', '015jvt', '020jvt', '050jvt', '059jvt'],
     'momCuts'       : # Generic moment cut on single jets
       ['050momemfrac100','momhecfrac010','050momemfrac100SEPmomhecfrac010'],
-    'cleaning'      : # Jet cleaning per jet (currently unused)
-      ['noCleaning',],
+    'prefilters'      : # Pre-hypo jet selectors (including cleaning)
+    ['loose', 'prefilterSEP300ceta210SEP300nphi10'], 
     'smc'           : # "Single mass condition" -- rename?
       ['30smcINF', '35smcINF', '40smcINF', '50smcINF', '60smcINF', 'nosmc'],
     # Setup for alternative data stream readout
@@ -194,7 +198,7 @@ JetChainParts_Default = {
     'etaRange'      : '0eta320',
     'jvt'           : '',
     'momCuts'       : '',
-    'cleaning'      : 'noCleaning',
+    'prefilters'    : [],
     'hypoScenario'  : 'simple',
     'smc'           : 'nosmc',
     #
@@ -229,7 +233,7 @@ MuonChainParts = {
     'threshold'      : '',
     'extra'          : ['noL1', 'msonly','lateMu', "Dr", "muoncalib" ,'l2io','l2lrt'],
     'IDinfo'         : [],
-    'isoInfo'        : ['ivarmedium'],
+    'isoInfo'        : ['ivarmedium', 'ivarperf'],
     'invMassInfo'    : ['10invm70'],
     'addInfo'        : ['1step','idperf','LRT','3layersEC','cosmic',"muonqual"],
     'topo'           : AllowedTopos_mu,
@@ -418,11 +422,12 @@ ElectronChainParts = {
     'isoInfo'        : ['ivarloose','ivarmedium','ivartight'],
     'trkInfo'        : ['idperf', 'gsf'],
     'caloInfo'       : [],
-    'lhInfo'         : [],
+    'lhInfo'         : ['nod0'],
     'L2IDAlg'        : ['noringer'],
     'addInfo'        : [ 'etcut', 'etcut1step',"v2","v3"],
     'sigFolder'     : 'Egamma',
-    'subSigs'       : ['Electron','Photon']
+    'subSigs'       : ['Electron','Photon'],
+    'topo'          : AllowedTopos_e
 }
 
 # ---- Egamma Dictionary of default Values ----
@@ -455,6 +460,7 @@ ElectronChainParts_Default = {
 # Photon chains
 #==========================================================
 # ---- Photon Dictionary of all allowed Values ----
+AllowedTopos_g = ['dPhi15']
 PhotonChainParts = {
     'L1threshold'    : '',
     'signature'      : ['Photon'],
@@ -474,8 +480,8 @@ PhotonChainParts = {
     'FSinfo'         : [],
     'addInfo'        : ['etcut',],
     'sigFolder'     : 'Egamma',
-    'subSigs'       : ['Electron','Photon']
-    
+    'subSigs'       : ['Electron','Photon'],
+    'topo'          : AllowedTopos_g
     }
 
 # ---- Photon Dictionary of default Values ----
@@ -621,7 +627,7 @@ CosmicChainParts = {
     'chainPartName'  : '',
     'L1threshold'    : '',
     'purpose'        : AllowedCosmicChainIdentifiers,
-    'addInfo'        : ['cosmicid','noise', 'beam', 'laser', 'AllTE', 'central', 'ds'], #'trtd0cut'
+    'addInfo'        : ['cosmicid','noise', 'beam', 'laser', 'AllTE', 'central', 'ds','CIS'], #'trtd0cut'
     'trackingAlg'    : ['idscan', 'sitrack', 'trtxk'],
     'hits'           : ['4hits'],
     'threshold'      : '',
@@ -700,7 +706,7 @@ AllowedCalibChainIdentifiers = ['csccalib',     'larcalib',
                                 'tilelarcalib', 'alfacalib',
                                 'larnoiseburst','ibllumi', 
                                 'l1satmon',     'zdcpeb',
-                                'calibAFP',
+                                'calibAFP', 'larpebcalib',
                                 ]
 
 # ---- Calib Chain Dictionary of all allowed Values ----
@@ -900,7 +906,7 @@ UnconventionalTrackingChainParts_Default = {
 #==========================================================
 # Combined Chains
 #==========================================================
-AllowedTopos_comb = []
+AllowedTopos_comb = ['03dRtt']
 
 # ---- Combined Dictionary of all allowed Values ----
 CombinedChainParts = deepcopy(PhotonChainParts)
@@ -918,8 +924,7 @@ CombinedChainParts_Default['topo'] = []
 # ----- Allowed HLT Topo Keywords (also: generic topos like DR, DETA, DPHI...)
 #==========================================================
 #NOTE: removed jets from list, special case for VBF triggers
-AllowedTopos = AllowedTopos_e + AllowedTopos_mu + AllowedTopos_Bphysics + AllowedTopos_xe + AllowedTopos_tau + AllowedTopos_comb
-
+AllowedTopos = AllowedTopos_e + AllowedTopos_g + AllowedTopos_mu + AllowedTopos_Bphysics + AllowedTopos_xe + AllowedTopos_tau + AllowedTopos_comb
 
 #==========================================================
 # Obtain signature type

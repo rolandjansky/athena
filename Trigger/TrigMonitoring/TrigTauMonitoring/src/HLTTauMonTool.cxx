@@ -166,7 +166,6 @@ HLTTauMonTool::HLTTauMonTool(const std::string & type, const std::string & n, co
    m_HLTTriggerCondition = 0;
    m_mu_offline = 0.;
    m_mu_online = 0;
-   m_tauCont = 0;
 
    m_counterOfdR0_Topomutau = 0;
    m_counterOfdR0_Topoeltau = 0;
@@ -196,8 +195,6 @@ StatusCode HLTTauMonTool::init() {
   
   m_mu_offline = 0.;
   m_mu_online = 0;
-
-  m_tauCont = 0;
 
        m_LB = -1;
  
@@ -243,6 +240,14 @@ StatusCode HLTTauMonTool::init() {
     
     if(m_L1StringCondition=="allowResurrectedDecision") m_L1TriggerCondition=TrigDefs::Physics | TrigDefs::allowResurrectedDecision;
     if(m_HLTStringCondition=="allowResurrectedDecision") m_HLTTriggerCondition=TrigDefs::Physics | TrigDefs::allowResurrectedDecision;
+
+    ATH_CHECK(m_eventInfoKey.initialize());
+    ATH_CHECK(m_truthParticleKey.initialize(m_truth));
+    ATH_CHECK(m_offlineTauJetKey.initialize());
+    ATH_CHECK(m_emRoIKey.initialize());
+    ATH_CHECK(m_jetRoIKey.initialize());
+    ATH_CHECK(m_pvKey.initialize());
+    ATH_CHECK(m_jetKey.initialize());
 
     return StatusCode::SUCCESS;
 }
@@ -328,8 +333,8 @@ StatusCode HLTTauMonTool::fill() {
 
   m_muCut40Passed = (!m_domuCut40 || (m_domuCut40 && (m_mu_offline<40.)));
 
-  const xAOD::EventInfo* evtInfo = 0;
-  if( !evtStore()->retrieve(evtInfo, "EventInfo" ).isSuccess() ){
+  const xAOD::EventInfo* evtInfo = SG::get(m_eventInfoKey);
+  if( !evtInfo ){
     ATH_MSG_WARNING("Failed to retrieve EventInfo container, aborting!");
     return StatusCode::SUCCESS;
   }
@@ -342,9 +347,8 @@ StatusCode HLTTauMonTool::fill() {
   m_true_taus.clear(); 
   m_true_taus_nprong.clear();
   if(m_truth){
-   const xAOD::TruthParticleContainer* truth_cont = 0;
-   sc = evtStore()->retrieve(truth_cont, "TruthParticles" );
-   if( !sc.isSuccess() ){
+   const xAOD::TruthParticleContainer* truth_cont = SG::get(m_truthParticleKey);
+   if( !truth_cont ){
      ATH_MSG_WARNING("Failed to retrieve TruthParticle container. Exiting.");
       //return StatusCode::FAILURE;     
    }
@@ -389,16 +393,15 @@ StatusCode HLTTauMonTool::fill() {
     // good reco taus
   //m_taus.clear();
   m_taus_RNN.clear();
-  m_tauCont = 0;
-  sc = evtStore()->retrieve(m_tauCont, "TauJets");
-  if( !sc.isSuccess()  ){
+  const auto tauCont = SG::get(m_offlineTauJetKey);
+  if( !tauCont ){
     ATH_MSG_WARNING("Failed to retrieve TauJets container. Exiting!");
     //return StatusCode::FAILURE;
     //return sc;
   }
   else{
-    xAOD::TauJetContainer::const_iterator offlinetau,offlinetau_end = m_tauCont->end();
-    for(offlinetau=m_tauCont->begin();offlinetau!=offlinetau_end; ++offlinetau){
+    xAOD::TauJetContainer::const_iterator offlinetau,offlinetau_end = tauCont->end();
+    for(offlinetau=tauCont->begin();offlinetau!=offlinetau_end; ++offlinetau){
       if((*offlinetau)){
         TLorentzVector TauTLV = (*offlinetau)->p4();
         double eta_Tau = TauTLV.Eta();
@@ -657,9 +660,9 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
 
   if(trigItem=="Dump"){
 
-    const xAOD::EmTauRoIContainer* l1Tau_cont = 0;
+    const xAOD::EmTauRoIContainer* l1Tau_cont = SG::get(m_emRoIKey);
 
-    if ( !evtStore()->retrieve( l1Tau_cont, "LVL1EmTauRoIs").isSuccess() ){ // retrieve arguments: container type, container key
+    if ( !l1Tau_cont ){ // retrieve arguments: container type, container key
       ATH_MSG_WARNING("Failed to retrieve LVL1EmTauRoI container. Exiting! ");
       return StatusCode::FAILURE;
     } else{
@@ -736,8 +739,8 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
       std::vector< float > jet_roi_eta;
       std::vector< float > jet_roi_phi;
 
-      const xAOD::EmTauRoIContainer* l1Tau_cont = 0;
-      if ( !evtStore()->retrieve( l1Tau_cont, "LVL1EmTauRoIs").isSuccess() ){ // retrieve arguments: container type, container key
+      const xAOD::EmTauRoIContainer* l1Tau_cont = SG::get(m_emRoIKey);
+      if ( !l1Tau_cont ){ // retrieve arguments: container type, container key
         ATH_MSG_WARNING("Failed to retrieve LVL1EmTauRoI container. Exiting!");
       } else {
         ATH_MSG_DEBUG("found LVL1EmTauRoI in SG");
@@ -867,10 +870,10 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
       // look at triggers seeded by L1_TAU20IM_2TAU12IM to get the jet turn-on
       if(trig_item_EF=="HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20IM_2TAU12IM" && getTDT()->isPassed(trig_item_EF,m_HLTTriggerCondition)){
 
-        const xAOD::JetContainer * jet_cont = 0;
-        if(!evtStore()->retrieve(jet_cont, "AntiKt4LCTopoJets").isSuccess()) {
+        const xAOD::JetContainer * jet_cont = SG::get(m_jetKey);
+        if(!jet_cont) {
 
-          ATH_MSG_WARNING("Failed to retrieve AntiKt4EMTopoJets container");
+          ATH_MSG_WARNING("Failed to retrieve " << m_jetKey << " container");
           //return StatusCode::FAILURE;
         } else {
           float maxPt=0;
@@ -1182,8 +1185,8 @@ StatusCode HLTTauMonTool::fillL1Tau(const xAOD::EmTauRoI * aL1Tau){
   hist2("hL1EtVsPhi")->Fill(aL1Tau->tauClus()/CLHEP::GeV,aL1Tau->phi());
   hist2("hL1EtVsEta")->Fill(aL1Tau->tauClus()/CLHEP::GeV,aL1Tau->eta());
 
-  const xAOD::JetRoIContainer *l1jets = 0;
-  if ( !evtStore()->retrieve( l1jets, "LVL1JetRoIs").isSuccess() ){
+  const xAOD::JetRoIContainer *l1jets = SG::get(m_jetRoIKey);
+  if ( !l1jets ){
     ATH_MSG_WARNING("Failed to retrieve LVL1JetRoIs container. Exiting.");
     return StatusCode::FAILURE;
   } else{
@@ -2368,8 +2371,8 @@ void HLTTauMonTool::testL1TopoNavigation(const std::string & trigItem){
         combEnd = comb;
         std::advance(combEnd,100);
       }
-      const xAOD::EmTauRoIContainer* l1Tau_cont = 0;
-      if ( !evtStore()->retrieve( l1Tau_cont, "LVL1EmTauRoIs").isSuccess() ){
+      const xAOD::EmTauRoIContainer* l1Tau_cont = SG::get(m_emRoIKey);
+      if ( !l1Tau_cont ){
         ATH_MSG_WARNING("Failed to retrieve LVL1EmTauRoI container");
       } else {
         ATH_MSG_DEBUG("found LVL1EmTauRoI in SG");
@@ -2401,8 +2404,8 @@ void HLTTauMonTool::testL1TopoNavigation(const std::string & trigItem){
       const std::vector< TrigCompositeUtils::LinkInfo<xAOD::TauJetContainer> > features
          = getTDT()->features<xAOD::TauJetContainer>( trig_item_EF, m_HLTTriggerCondition, "HLT_TrigTauRecMerged_MVA" );
 
-      const xAOD::EmTauRoIContainer* l1Tau_cont = 0;
-      if ( !evtStore()->retrieve( l1Tau_cont, "LVL1EmTauRoIs").isSuccess() ){
+      const xAOD::EmTauRoIContainer* l1Tau_cont = SG::get(m_emRoIKey);
+      if ( !l1Tau_cont ){
         ATH_MSG_WARNING("Failed to retrieve LVL1EmTauRoI container");
       } else {
         ATH_MSG_DEBUG("found LVL1EmTauRoI in SG");
@@ -2463,8 +2466,8 @@ void  HLTTauMonTool::testClusterNavigation(const xAOD::TauJet *aEFTau){
 ///////////////////////////////////////////////////////////
 const xAOD::EmTauRoI * HLTTauMonTool::findLVL1_ROI(const TrigRoiDescriptor * roiDesc){
     
-    const xAOD::EmTauRoIContainer*  l1Tau_cont = 0;
-    if ( !evtStore()->retrieve( l1Tau_cont, "LVL1EmTauRoIs").isSuccess() ){ // retrieve arguments: container type, container key
+    const xAOD::EmTauRoIContainer*  l1Tau_cont = SG::get(m_emRoIKey);
+    if ( !l1Tau_cont ){ // retrieve arguments: container type, container key
         ATH_MSG_WARNING("Failed to retrieve LVL1EmTauRoI container. Exiting.");
         return 0;
     } else{
@@ -3822,8 +3825,8 @@ bool HLTTauMonTool::L1TauMatching(const std::string & trigItem, const TLorentzVe
 
 int HLTTauMonTool::PrimaryVertices(){
   int nGoodVtx(0);
-  const xAOD::VertexContainer* primary = 0;
-  if( !evtStore()->retrieve(primary, "PrimaryVertices" ).isSuccess() ){
+  const xAOD::VertexContainer* primary = SG::get(m_pvKey);
+  if( !primary ){
     ATH_MSG_DEBUG("Failed to retrieve PrimaryVertices container, returning -1!");
     return -1;
     }

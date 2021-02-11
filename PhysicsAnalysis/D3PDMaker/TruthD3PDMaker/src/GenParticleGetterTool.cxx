@@ -47,7 +47,11 @@ namespace D3PD {
       McEventCollection::const_iterator iter = mc->begin();
       if( iter == mc->end() ) return 0;
 
+#ifdef HEPMC3
+      return ( *iter )->particles().size();
+#else
       return ( *iter )->particles_size();
+#endif
    }
 
    StatusCode GenParticleGetterTool::reset( bool allowMissing ) {
@@ -69,20 +73,58 @@ namespace D3PD {
          return StatusCode::SUCCESS;
       }
 
+#ifdef HEPMC3
+      m_partItr = ( *m_evtItr )->particles().begin();
+      m_partEnd = ( *m_evtItr )->particles().end();
+#else
       m_partItr = ( *m_evtItr )->particles_begin();
       m_partEnd = ( *m_evtItr )->particles_end();
+#endif
 
       return StatusCode::SUCCESS;
    }
 
    const void* GenParticleGetterTool::nextUntyped() {
   
-      if( m_evtItr == m_evtEnd ) return 0;
+      if( m_evtItr == m_evtEnd ) return nullptr;
 
+#ifdef HEPMC3
+//AV: Untyped is a bad idea for smart pointers.
       // Check if this GenEvent passes our selection cuts:
       if( ! m_selector->pass( *m_evtItr, m_mcColl ) ) {
          ++m_evtItr;
-	 if( m_evtItr == m_evtEnd ) return 0;
+	 if( m_evtItr == m_evtEnd ) return nullptr;
+         m_partItr = ( *m_evtItr )->particles().begin();
+         m_partEnd = ( *m_evtItr )->particles().end();
+         return nextUntyped();
+      }
+
+      // Check if there are no more particles in this GenEvent:
+      if( m_partItr == m_partEnd ) {
+         ++m_evtItr;
+         if( m_evtItr == m_evtEnd ) return nullptr;
+
+         m_partItr = ( *m_evtItr )->particles().begin();
+         m_partEnd = ( *m_evtItr )->particles().end();
+         return nextUntyped();
+      }
+
+      // Check if this GenParticle passes our selection:
+      if( ! m_selector->pass( *m_partItr, m_mcColl ) ) {
+         ++m_partItr;
+         return nextUntyped();
+      }
+
+      // I just like to write this part our verbosely...
+      HepMC::ConstGenParticlePtr part = *m_partItr;
+      ++m_partItr;
+
+      return part.get();
+#else
+      // Check if this GenEvent passes our selection cuts:
+      if( ! m_selector->pass( *m_evtItr, m_mcColl ) ) {
+         ++m_evtItr;
+	 if( m_evtItr == m_evtEnd ) return nullptr;
          m_partItr = ( *m_evtItr )->particles_begin();
          m_partEnd = ( *m_evtItr )->particles_end();
          return nextUntyped();
@@ -91,7 +133,7 @@ namespace D3PD {
       // Check if there are no more particles in this GenEvent:
       if( m_partItr == m_partEnd ) {
          ++m_evtItr;
-         if( m_evtItr == m_evtEnd ) return 0;
+         if( m_evtItr == m_evtEnd ) return nullptr;
 
          m_partItr = ( *m_evtItr )->particles_begin();
          m_partEnd = ( *m_evtItr )->particles_end();
@@ -109,6 +151,7 @@ namespace D3PD {
       ++m_partItr;
 
       return part;
+#endif
    }
 
    const std::type_info& GenParticleGetterTool::elementTypeinfo() const {

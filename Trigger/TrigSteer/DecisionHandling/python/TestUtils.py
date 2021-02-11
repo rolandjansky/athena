@@ -55,7 +55,7 @@ class L1EmulationTest(L1Decoder):
                                                     Decisions = "EMRoIDecisions",
                                                     OutputTrigRoIs = mapThresholdToL1RoICollection("EM"),
                                                     OutputLevel = self.getDefaultProperty("OutputLevel"))
-            self.roiUnpackers += [emUnpacker]
+            self.RoIBRoIUnpackers += [emUnpacker]
             print (emUnpacker)
 
 
@@ -65,7 +65,7 @@ class L1EmulationTest(L1Decoder):
                                                     Decisions = "MURoIDecisions",
                                                     OutputTrigRoIs = mapThresholdToL1RoICollection("MU"),
                                                     OutputLevel=self.getDefaultProperty("OutputLevel"))
-            self.roiUnpackers += [muUnpacker]
+            self.RoIBRoIUnpackers += [muUnpacker]
 
         self.L1DecoderSummaryKey = "L1DecoderSummary"
 

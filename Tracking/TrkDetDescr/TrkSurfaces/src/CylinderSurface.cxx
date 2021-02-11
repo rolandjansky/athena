@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -40,9 +40,18 @@ Trk::CylinderSurface::CylinderSurface(const CylinderSurface& csf, const Amg::Tra
   , m_rotSymmetryAxis(nullptr)
 {}
 
-// constructor by radius and halflength
+// constructor by radius and halflenght
 Trk::CylinderSurface::CylinderSurface(Amg::Transform3D* htrans, double radius, double hlength)
   : Trk::Surface(htrans)
+  , m_bounds(new Trk::CylinderBounds(radius, hlength))
+  , m_referencePoint(nullptr)
+  , m_rotSymmetryAxis(nullptr)
+{}
+
+// constructor by radius and halflenght
+Trk::CylinderSurface::CylinderSurface(std::unique_ptr<Amg::Transform3D> htrans,
+                                      double radius, double hlength)
+  : Trk::Surface(std::move(htrans))
   , m_bounds(new Trk::CylinderBounds(radius, hlength))
   , m_referencePoint(nullptr)
   , m_rotSymmetryAxis(nullptr)
@@ -82,7 +91,7 @@ Trk::CylinderSurface::CylinderSurface(double radius, double hlength)
   , m_rotSymmetryAxis(nullptr)
 {}
 
-// constructor by radius, halflenght and phisector
+// constructor by radius, halflength and phisector
 Trk::CylinderSurface::CylinderSurface(double radius, double hphi, double hlength)
   : Trk::Surface(nullptr)
   , m_bounds(new Trk::CylinderBounds(radius, hphi, hlength))

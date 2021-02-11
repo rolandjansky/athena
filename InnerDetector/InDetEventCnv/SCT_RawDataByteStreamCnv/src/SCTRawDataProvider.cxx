@@ -39,6 +39,8 @@ StatusCode SCTRawDataProvider::initialize()
     m_cabling.disable();
   }
   else {
+    //Disable Roi requirement
+    ATH_CHECK(m_roiCollectionKey.initialize(false));
     // Retrieve Cabling tool
     ATH_CHECK(m_cabling.retrieve());
     m_regionSelector.disable();

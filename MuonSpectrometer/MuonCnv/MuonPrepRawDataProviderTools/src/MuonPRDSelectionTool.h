@@ -88,6 +88,7 @@ namespace Muon {
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ToolHandle<IMdtDriftCircleOnTrackCreator> m_mdtCreator{this,"MdtDriftCircleOnTrackCreator","Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"};
     ToolHandle<IMuonClusterOnTrackCreator> m_clusterCreator{this,"MuonClusterOnTrackCreator","Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"};
+    ToolHandle<IMuonClusterOnTrackCreator> m_mmClusterCreator{this,"MmClusterOnTrackCreator","Muon::MMClusterOnTrackCreator/MMClusterOnTrackCreator"};
     mutable ToolHandle<IMuonRecoValidationTool> m_recoValidationTool{this,"MuonRecoValidationTool",""};
 
     /** cuts */

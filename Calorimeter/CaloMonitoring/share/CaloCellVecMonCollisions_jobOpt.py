@@ -18,6 +18,8 @@ from AthenaMonitoring.AtlasReadyFilterTool import GetAtlasReadyFilterTool
 
 from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
 theCaloNoiseTool=CaloNoiseToolDefault()
+ToolSvc+=theCaloNoiseTool
+
 
 from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
 theLArChanMasker=LArBadChannelMasker("LArChanMasker")

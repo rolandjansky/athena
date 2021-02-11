@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STGCSIMHITVARIABLES_H
@@ -20,52 +20,52 @@ class sTGCSimHitVariables : public ValAlgVariables
 						  std::string containername,
 						  MSG::Level msglvl) :
     ValAlgVariables(evtStore, detManager, tree, containername, msglvl),
-    m_sTgcIdHelper(0),
+    m_sTgcIdHelper(nullptr),
     m_NSWsTGC_nSimHits(0), 
-    m_NSWsTGC_trackId(0),
-    m_NSWsTGC_isInsideBounds(0),
-    m_NSWsTGC_globalTime(0), 
-    m_NSWsTGC_hitGlobalPositionX(0), 
-    m_NSWsTGC_hitGlobalPositionY(0), 
-    m_NSWsTGC_hitGlobalPositionZ(0), 
-    m_NSWsTGC_hitGlobalPositionR(0),
-    m_NSWsTGC_hitGlobalPositionP(0),
-    m_NSWsTGC_hitGlobalDirectionX(0), 
-    m_NSWsTGC_hitGlobalDirectionY(0), 
-    m_NSWsTGC_hitGlobalDirectionZ(0), 
-    m_NSWsTGC_detector_globalPositionX(0),
-    m_NSWsTGC_detector_globalPositionY(0),
-    m_NSWsTGC_detector_globalPositionZ(0),
-    m_NSWsTGC_detector_globalPositionR(0),
-    m_NSWsTGC_detector_globalPositionP(0),
-    m_NSWsTGC_hitToDsurfacePositionX(0),
-    m_NSWsTGC_hitToDsurfacePositionY(0),
-    m_NSWsTGC_hitToDsurfacePositionZ(0),
-    m_NSWsTGC_hitToRsurfacePositionX(0),
-    m_NSWsTGC_hitToRsurfacePositionY(0),
-    m_NSWsTGC_hitToRsurfacePositionZ(0),
-    m_NSWsTGC_FastDigitRsurfacePositionX(0),
-    m_NSWsTGC_FastDigitRsurfacePositionY(0),
-    m_NSWsTGC_particleEncoding(0), 
-    m_NSWsTGC_depositEnergy(0), 
-    m_NSWsTGC_sim_stationName(0),
-    m_NSWsTGC_wedgeId(0),
-    m_NSWsTGC_wedgeType(0),
-    m_NSWsTGC_detectorNumber(0),
-    m_NSWsTGC_sim_stationEta(0),
-    m_NSWsTGC_sim_stationPhi(0),
-    m_NSWsTGC_sim_multilayer(0),
-    m_NSWsTGC_sim_layer(0),
-    m_NSWsTGC_sim_side(0),
-    m_NSWsTGC_stripNumber(0),
-    m_NSWsTGC_wireNumber(0),
-    m_NSWsTGC_off_stationName(0),
-    m_NSWsTGC_off_stationEta(0),                                         
-    m_NSWsTGC_off_stationPhi(0),
-    m_NSWsTGC_off_multiplet(0),
-    m_NSWsTGC_off_gas_gap(0),
-    m_NSWsTGC_off_channel_type(0),
-    m_NSWsTGC_off_channel(0)
+    m_NSWsTGC_trackId(),
+    m_NSWsTGC_isInsideBounds(),
+    m_NSWsTGC_globalTime(), 
+    m_NSWsTGC_hitGlobalPositionX(), 
+    m_NSWsTGC_hitGlobalPositionY(), 
+    m_NSWsTGC_hitGlobalPositionZ(), 
+    m_NSWsTGC_hitGlobalPositionR(),
+    m_NSWsTGC_hitGlobalPositionP(),
+    m_NSWsTGC_hitGlobalDirectionX(), 
+    m_NSWsTGC_hitGlobalDirectionY(), 
+    m_NSWsTGC_hitGlobalDirectionZ(), 
+    m_NSWsTGC_detector_globalPositionX(),
+    m_NSWsTGC_detector_globalPositionY(),
+    m_NSWsTGC_detector_globalPositionZ(),
+    m_NSWsTGC_detector_globalPositionR(),
+    m_NSWsTGC_detector_globalPositionP(),
+    m_NSWsTGC_hitToDsurfacePositionX(),
+    m_NSWsTGC_hitToDsurfacePositionY(),
+    m_NSWsTGC_hitToDsurfacePositionZ(),
+    m_NSWsTGC_hitToRsurfacePositionX(),
+    m_NSWsTGC_hitToRsurfacePositionY(),
+    m_NSWsTGC_hitToRsurfacePositionZ(),
+    m_NSWsTGC_FastDigitRsurfacePositionX(),
+    m_NSWsTGC_FastDigitRsurfacePositionY(),
+    m_NSWsTGC_particleEncoding(), 
+    m_NSWsTGC_depositEnergy(), 
+    m_NSWsTGC_sim_stationName(),
+    m_NSWsTGC_wedgeId(),
+    m_NSWsTGC_wedgeType(),
+    m_NSWsTGC_detectorNumber(),
+    m_NSWsTGC_sim_stationEta(),
+    m_NSWsTGC_sim_stationPhi(),
+    m_NSWsTGC_sim_multilayer(),
+    m_NSWsTGC_sim_layer(),
+    m_NSWsTGC_sim_side(),
+    m_NSWsTGC_stripNumber(),
+    m_NSWsTGC_wireNumber(),
+    m_NSWsTGC_off_stationName(),
+    m_NSWsTGC_off_stationEta(),                                         
+    m_NSWsTGC_off_stationPhi(),
+    m_NSWsTGC_off_multiplet(),
+    m_NSWsTGC_off_gas_gap(),
+    m_NSWsTGC_off_channel_type(),
+    m_NSWsTGC_off_channel()
   {
     setHelper(idhelper);
   }
@@ -83,7 +83,7 @@ class sTGCSimHitVariables : public ValAlgVariables
 
   void setHelper(const MuonIdHelper* idhelper){
     m_sTgcIdHelper = dynamic_cast<const sTgcIdHelper*>(idhelper);
-    if(m_sTgcIdHelper == 0) {
+    if(!m_sTgcIdHelper) {
        ATH_MSG_ERROR("casting IdHelper to sTgcIdhelper failed");
        throw;
     }
@@ -95,59 +95,59 @@ class sTGCSimHitVariables : public ValAlgVariables
   const sTgcIdHelper* m_sTgcIdHelper;
 
   int m_NSWsTGC_nSimHits;
-  std::vector<int> *m_NSWsTGC_trackId;
+  std::vector<int> m_NSWsTGC_trackId;
 
-  std::vector<bool> *m_NSWsTGC_isInsideBounds;
+  std::vector<bool> m_NSWsTGC_isInsideBounds;
 
-  std::vector<double> *m_NSWsTGC_globalTime;
-  std::vector<double> *m_NSWsTGC_hitGlobalPositionX;
-  std::vector<double> *m_NSWsTGC_hitGlobalPositionY;
-  std::vector<double> *m_NSWsTGC_hitGlobalPositionZ;
-  std::vector<double> *m_NSWsTGC_hitGlobalPositionR;
-  std::vector<double> *m_NSWsTGC_hitGlobalPositionP;
-  std::vector<double> *m_NSWsTGC_hitGlobalDirectionX;
-  std::vector<double> *m_NSWsTGC_hitGlobalDirectionY;
-  std::vector<double> *m_NSWsTGC_hitGlobalDirectionZ;
+  std::vector<double> m_NSWsTGC_globalTime;
+  std::vector<double> m_NSWsTGC_hitGlobalPositionX;
+  std::vector<double> m_NSWsTGC_hitGlobalPositionY;
+  std::vector<double> m_NSWsTGC_hitGlobalPositionZ;
+  std::vector<double> m_NSWsTGC_hitGlobalPositionR;
+  std::vector<double> m_NSWsTGC_hitGlobalPositionP;
+  std::vector<double> m_NSWsTGC_hitGlobalDirectionX;
+  std::vector<double> m_NSWsTGC_hitGlobalDirectionY;
+  std::vector<double> m_NSWsTGC_hitGlobalDirectionZ;
 
-  std::vector<double> *m_NSWsTGC_detector_globalPositionX;
-  std::vector<double> *m_NSWsTGC_detector_globalPositionY;
-  std::vector<double> *m_NSWsTGC_detector_globalPositionZ;
-  std::vector<double> *m_NSWsTGC_detector_globalPositionR;
-  std::vector<double> *m_NSWsTGC_detector_globalPositionP;
+  std::vector<double> m_NSWsTGC_detector_globalPositionX;
+  std::vector<double> m_NSWsTGC_detector_globalPositionY;
+  std::vector<double> m_NSWsTGC_detector_globalPositionZ;
+  std::vector<double> m_NSWsTGC_detector_globalPositionR;
+  std::vector<double> m_NSWsTGC_detector_globalPositionP;
 
-  std::vector<double> *m_NSWsTGC_hitToDsurfacePositionX;
-  std::vector<double> *m_NSWsTGC_hitToDsurfacePositionY;
-  std::vector<double> *m_NSWsTGC_hitToDsurfacePositionZ;
+  std::vector<double> m_NSWsTGC_hitToDsurfacePositionX;
+  std::vector<double> m_NSWsTGC_hitToDsurfacePositionY;
+  std::vector<double> m_NSWsTGC_hitToDsurfacePositionZ;
 
-  std::vector<double> *m_NSWsTGC_hitToRsurfacePositionX;
-  std::vector<double> *m_NSWsTGC_hitToRsurfacePositionY;
-  std::vector<double> *m_NSWsTGC_hitToRsurfacePositionZ;
+  std::vector<double> m_NSWsTGC_hitToRsurfacePositionX;
+  std::vector<double> m_NSWsTGC_hitToRsurfacePositionY;
+  std::vector<double> m_NSWsTGC_hitToRsurfacePositionZ;
 
-  std::vector<double> *m_NSWsTGC_FastDigitRsurfacePositionX;
-  std::vector<double> *m_NSWsTGC_FastDigitRsurfacePositionY;
+  std::vector<double> m_NSWsTGC_FastDigitRsurfacePositionX;
+  std::vector<double> m_NSWsTGC_FastDigitRsurfacePositionY;
 
-  std::vector<int> *m_NSWsTGC_particleEncoding;
-  std::vector<double> *m_NSWsTGC_depositEnergy;
+  std::vector<int> m_NSWsTGC_particleEncoding;
+  std::vector<double> m_NSWsTGC_depositEnergy;
 
-  std::vector<std::string> *m_NSWsTGC_sim_stationName;
-  std::vector<int> *m_NSWsTGC_wedgeId;        // large=0, small=1
-  std::vector<int> *m_NSWsTGC_wedgeType;      // pivot 0, confirmation 1
-  std::vector<int> *m_NSWsTGC_detectorNumber; // [0-3]
-  std::vector<int> *m_NSWsTGC_sim_stationEta;
-  std::vector<int> *m_NSWsTGC_sim_stationPhi; // [1-16]
-  std::vector<int> *m_NSWsTGC_sim_multilayer; // [1-2]
-  std::vector<int> *m_NSWsTGC_sim_layer;      // [1-4]
-  std::vector<int> *m_NSWsTGC_sim_side;       // [1-4]
-  std::vector<int> *m_NSWsTGC_stripNumber;
-  std::vector<int> *m_NSWsTGC_wireNumber;     // wire groups 0-31 in increasing phi
+  std::vector<std::string> m_NSWsTGC_sim_stationName;
+  std::vector<int> m_NSWsTGC_wedgeId;        // large=0, small=1
+  std::vector<int> m_NSWsTGC_wedgeType;      // pivot 0, confirmation 1
+  std::vector<int> m_NSWsTGC_detectorNumber; // [0-3]
+  std::vector<int> m_NSWsTGC_sim_stationEta;
+  std::vector<int> m_NSWsTGC_sim_stationPhi; // [1-16]
+  std::vector<int> m_NSWsTGC_sim_multilayer; // [1-2]
+  std::vector<int> m_NSWsTGC_sim_layer;      // [1-4]
+  std::vector<int> m_NSWsTGC_sim_side;       // [1-4]
+  std::vector<int> m_NSWsTGC_stripNumber;
+  std::vector<int> m_NSWsTGC_wireNumber;     // wire groups 0-31 in increasing phi
 
-  std::vector<std::string> *m_NSWsTGC_off_stationName;
-  std::vector<int> *m_NSWsTGC_off_stationEta; 
-  std::vector<int> *m_NSWsTGC_off_stationPhi;
-  std::vector<int> *m_NSWsTGC_off_multiplet;
-  std::vector<int> *m_NSWsTGC_off_gas_gap;
-  std::vector<int> *m_NSWsTGC_off_channel_type;
-  std::vector<int> *m_NSWsTGC_off_channel;
+  std::vector<std::string> m_NSWsTGC_off_stationName;
+  std::vector<int> m_NSWsTGC_off_stationEta; 
+  std::vector<int> m_NSWsTGC_off_stationPhi;
+  std::vector<int> m_NSWsTGC_off_multiplet;
+  std::vector<int> m_NSWsTGC_off_gas_gap;
+  std::vector<int> m_NSWsTGC_off_channel_type;
+  std::vector<int> m_NSWsTGC_off_channel;
 
 
 };

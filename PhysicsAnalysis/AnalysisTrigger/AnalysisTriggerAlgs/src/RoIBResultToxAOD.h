@@ -150,6 +150,8 @@ private:
 
    /// @name Other properties
    /// @{
+   /// Use new-style menu
+   Gaudi::Property<bool> m_useNewConfig { this, "UseNewConfig", true, "When true, read the menu from detector store, when false use the L1ConfigSvc" };
 
    /// Use inputs from the Calo system
    Gaudi::Property< bool > m_doCalo {

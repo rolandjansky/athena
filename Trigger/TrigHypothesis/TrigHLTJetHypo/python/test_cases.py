@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -49,11 +49,13 @@ test_strings = [
         )
     )""",
 
+    
+    'simple([(38et, 0eta320, 100fltr:neta50, 90fltr:cphi100)])',
 ]
 
 
 if __name__ == '__main__':
     for i, tc in enumerate(test_strings):
-        print (i, tc)
+        print (i, tc) #noqa: ATL901
 
-    print('There are %d test cases' % len(test_strings))
+    print('There are %d test cases' % len(test_strings)) #noqa: ATL901

@@ -37,10 +37,6 @@ private:
     this, "MuRoIKey", "LVL1MuonRoIs",
     "Key of the muon RoI container to be linked to L1 Trigger Result"};
 
-  Gaudi::Property<std::string> m_muRoILinkName {
-    this, "MuRoILinkName", "mu_roi",
-    "Name of the link to be created from L1 Trigger Result to muon RoI container"};
-
   // Placeholder for other L1 xAOD outputs:
   // - CTP result
   // - L1Topo result

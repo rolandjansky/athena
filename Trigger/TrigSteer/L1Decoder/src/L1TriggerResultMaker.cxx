@@ -56,7 +56,10 @@ StatusCode L1TriggerResultMaker::execute(const EventContext& eventContext) const
   ATH_CHECK(muRoIHandle.isValid());
 
   // Link the L1 xAOD containers (actually their first elements) to L1TriggerResult
-  makeLink(m_muRoIKey, *(l1trHandle->back()), m_muRoILinkName.value(), eventContext);
+  ATH_MSG_DEBUG(m_muRoIKey.key() << " size: " << muRoIHandle->size());
+  if (not muRoIHandle->empty()) {
+    makeLink(m_muRoIKey, *(l1trHandle->back()), m_muRoIKey.key(), eventContext);
+  }
 
   return StatusCode::SUCCESS;
 }

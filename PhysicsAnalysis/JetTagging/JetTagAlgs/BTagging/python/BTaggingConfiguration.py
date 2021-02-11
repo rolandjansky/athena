@@ -14,118 +14,82 @@ from RecExConfig.RecFlags import rec
 # (TOOLS NOT PORTED TO RELEASE 19 ARE COMMENTED OUT)
 
 # Common tools:
-from BTagging.BTaggingConfiguration_CommonTools import *
-from BTagging.BTaggingConfiguration_InDetVKalVxInJetTool import *
-from BTagging.BTaggingConfiguration_InDetVKalVxTrigInJetTool import *
-from BTagging.BTaggingConfiguration_InDetVKalVxNegativeTagInJetTool import *
-from BTagging.BTaggingConfiguration_InDetVKalVxMultiVxInJetTool import *
+from BTagging.BTaggingConfiguration_CommonTools import metaBTagCalibrationBrokerTool,metaBTagLeptonTruthTool,toolBTagLeptonTruthTool,metathisBTagLabeling,toolthisBTagLabeling,metaBTagJetTruthMatching,toolBTagJetTruthMatching,toolJetQuarkLabel,toolJetTrackTruthMatching,metaBTagTrackToVertexIPEstimator,toolBTagTrackToVertexIPEstimator,metaAtlasExtrapolator,toolAtlasExtrapolator,metaBTagTrackToVertexTool,toolBTagTrackToVertexTool,metaBTagFullLinearizedTrackFactory,toolBTagFullLinearizedTrackFactory
+from BTagging.BTaggingConfiguration_InDetVKalVxInJetTool import metaInDetVKalVxInJetTool,toolInDetVKalVxInJetTool
+from BTagging.BTaggingConfiguration_InDetVKalVxTrigInJetTool import metaInDetVKalVxInJetTool_Trig,toolInDetVKalVxInJetTool_Trig
+from BTagging.BTaggingConfiguration_InDetVKalVxNegativeTagInJetTool import metaInDetVKalVxNegativeTagInJetTool,toolInDetVKalVxNegativeTagInJetTool
+from BTagging.BTaggingConfiguration_InDetVKalVxMultiVxInJetTool import metaInDetVKalMultiVxInJetTool,toolInDetVKalMultiVxInJetTool,metaMSVVariablesFactory,toolMSVVariablesFactory
 
 # IP taggers
-#from BTagging.BTaggingConfiguration_IP1DTag import *
-#from BTagging.BTaggingConfiguration_IP2DFlipTag import *
-from BTagging.BTaggingConfiguration_IP2DNegTag import *
-#from BTagging.BTaggingConfiguration_IP2DPosTag import *
-#from BTagging.BTaggingConfiguration_IP2DSpcFlipTag import *
-#from BTagging.BTaggingConfiguration_IP2DSpcNegTag import *
-#from BTagging.BTaggingConfiguration_IP2DSpcPosTag import *
-#from BTagging.BTaggingConfiguration_IP2DSpcTag import *
-from BTagging.BTaggingConfiguration_IP2DTag import *
-from BTagging.BTaggingConfiguration_IP2DTrigTag import *
-from BTagging.BTaggingConfiguration_IP2DTrigHybridTag import *
-#from BTagging.BTaggingConfiguration_IP3DFlipTag import *
-from BTagging.BTaggingConfiguration_IP3DNegTag import *
-#from BTagging.BTaggingConfiguration_IP3DPosTag import *
-#from BTagging.BTaggingConfiguration_IP3DSpcFlipTag import *
-#from BTagging.BTaggingConfiguration_IP3DSpcNegTag import *
-#from BTagging.BTaggingConfiguration_IP3DSpcPosTag import *
-#from BTagging.BTaggingConfiguration_IP3DSpcTag import *
-from BTagging.BTaggingConfiguration_IP3DTag import *
-from BTagging.BTaggingConfiguration_IP3DTrigTag import *
-from BTagging.BTaggingConfiguration_IP3DTrigHybridTag import *
-
-# Jet fitter taggers
-#from BTagging.BTaggingConfiguration_JetFitterCOMB import *
-#from BTagging.BTaggingConfiguration_JetFitterTagCOMBNNIP3DNeg import *
-#from BTagging.BTaggingConfiguration_JetFitterTagCOMBNNIP3DPos import *
-##from BTagging.BTaggingConfiguration_JetFitterTagCOMBNN import *
-#from BTagging.BTaggingConfiguration_JetFitterTagNNFlip import *
-##from BTagging.BTaggingConfiguration_JetFitterTagNN import *
-#from BTagging.BTaggingConfiguration_JetFitterTag import *
+from BTagging.BTaggingConfiguration_IP3DNegTag import metaIP3DNegTag,toolIP3DNegTag,metaIP3DNegDetailedTrackGradeFactory,toolIP3DNegDetailedTrackGradeFactory,metaIP3DNegBasicTrackGradeFactory,toolIP3DNegBasicTrackGradeFactory,metaSVForIPTool_IP3DNeg,toolSVForIPTool_IP3DNeg,metaIP3DNegTrackSelector,toolIP3DNegTrackSelector,metaIP3DNegNewLikelihoodTool,toolIP3DNegNewLikelihoodTool
+from BTagging.BTaggingConfiguration_IP3DTrigHybridTag import metaIP3DTrigHybridTag,toolIP3DTrigHybridTag,metaIP3DTrigHybridDetailedTrackGradeFactory,toolIP3DTrigHybridDetailedTrackGradeFactory,metaIP3DTrigHybridBasicTrackGradeFactory,toolIP3DTrigHybridBasicTrackGradeFactory,metaSVForIPTool_IP3DTrigHybrid,toolSVForIPTool_IP3DTrigHybrid,metaIP3DTrigHybridTrackSelector,toolIP3DTrigHybridTrackSelector,metaTrigHybridInDetTrackSelector,toolTrigHybridInDetTrackSelector,metaTrigHybridSpecialTrackAssociator,toolTrigHybridSpecialTrackAssociator,metaIP3DTrigHybridNewLikelihoodTool,toolIP3DTrigHybridNewLikelihoodTool
+from BTagging.BTaggingConfiguration_IP2DTrigTag import metaIP2DTag_Trig,toolIP2DTag_Trig
+from BTagging.BTaggingConfiguration_IP2DNegTag import metaIP2DNegTag,toolIP2DNegTag,metaIP2DNegDetailedTrackGradeFactory,toolIP2DNegDetailedTrackGradeFactory,metaIP2DNegBasicTrackGradeFactory,toolIP2DNegBasicTrackGradeFactory,metaSVForIPTool_IP2DNeg,toolSVForIPTool_IP2DNeg,metaIP2DNegTrackSelector,toolIP2DNegTrackSelector,metaIP2DNegNewLikelihoodTool,toolIP2DNegNewLikelihoodTool
+from BTagging.BTaggingConfiguration_IP3DTag import metaIP3DTag,toolIP3DTag
+from BTagging.BTaggingConfiguration_IP2DTrigHybridTag import metaIP2DTrigHybridTag,toolIP2DTrigHybridTag,metaIP2DTrigHybridDetailedTrackGradeFactory,toolIP2DTrigHybridDetailedTrackGradeFactory,metaIP2DTrigHybridBasicTrackGradeFactory,toolIP2DTrigHybridBasicTrackGradeFactory,metaSVForIPTool_IP2DTrigHybrid,toolSVForIPTool_IP2DTrigHybrid,metaIP2DTrigHybridTrackSelector,toolIP2DTrigHybridTrackSelector,metaIP2DTrigHybridNewLikelihoodTool,toolIP2DTrigHybridNewLikelihoodTool
+from BTagging.BTaggingConfiguration_IP2DTag import metaIP2DTag,toolIP2DTag,metaIP2DDetailedTrackGradeFactory,toolIP2DDetailedTrackGradeFactory,metaIP2DBasicTrackGradeFactory,toolIP2DBasicTrackGradeFactory,metaSVForIPTool_IP2D,toolSVForIPTool_IP2D,metaIP2DTrackSelector,toolIP2DTrackSelector,metaIP2DNewLikelihoodTool,toolIP2DNewLikelihoodTool
+from BTagging.BTaggingConfiguration_IP3DTrigTag import metaIP3DTag_Trig,toolIP3DTag_Trig,metaIP3DDetailedTrackGradeFactory,toolIP3DDetailedTrackGradeFactory,metaIP3DBasicTrackGradeFactory,toolIP3DBasicTrackGradeFactory,metaSVForIPTool_IP3D,toolSVForIPTool_IP3D,metaIP3DTrackSelector,toolIP3DTrackSelector,metaInDetTrackSelector,toolInDetTrackSelector,metaSpecialTrackAssociator,toolSpecialTrackAssociator,metaIP3DNewLikelihoodTool,toolIP3DNewLikelihoodTool
 
 # New jet fitter taggers
-#from BTagging.BTaggingConfiguration_NewJetFitterCOMB import *
-#from BTagging.BTaggingConfiguration_NewJetFitterFlipCOMB import *
-#from BTagging.BTaggingConfiguration_NewJetFitterTagFlip import *
-##from BTagging.BTaggingConfiguration_NewJetFitterTag import *
-
-from BTagging.BTaggingConfiguration_NewJetFitterCollection import * #I collected all jetfitter functions currently needed for rel. 19 into here (Wouter)
-from BTagging.BTaggingConfiguration_NewJetFitterTrigCollection import * #I collected all jetfitter functions currently needed for rel. 19 into here (Wouter)
-from BTagging.BTaggingConfiguration_NewJetFitterIP3DNegCollection import *
+from BTagging.BTaggingConfiguration_NewJetFitterCollection import metaJetFitterExtrapolator,toolJetFitterExtrapolator,metaInDetImprovedJetFitterTrackSelectorTool,toolInDetImprovedJetFitterTrackSelectorTool,metaJetFitterFullLinearizedTrackFactory,toolJetFitterFullLinearizedTrackFactory,metaJetFitterMode3dTo1dFinder,toolJetFitterMode3dTo1dFinder,metaJetFitterSequentialVertexSmoother,toolJetFitterSequentialVertexSmoother,metaVxInternalEdmFactory,toolVxInternalEdmFactory,toolVxInternalEdmFactory_SV,metaJetFitterSequentialVertexFitter,toolJetFitterSequentialVertexFitter,toolJetFitterSequentialVertexFitter_SV,metaImprovedJetFitterInitializationHelper,toolImprovedJetFitterInitializationHelper,metaTrkDistanceFinderNeutralNeutral,toolTrkDistanceFinderNeutralNeutral,metaTrkDistanceFinderNeutralCharged,toolTrkDistanceFinderNeutralCharged,metaImprovedJetFitterRoutines,toolImprovedJetFitterRoutines,metaInDetJetFitterUtils,toolInDetJetFitterUtils,toolInDetJetFitterUtils_SV,metaJetFitterVariablesFactory,toolJetFitterVariablesFactory,metaJetFitterNtupleWriterNN,toolJetFitterNtupleWriterNN,metaNeuralNetworkToHistoToolNN,toolNeuralNetworkToHistoToolNN,metaJetFitterNNTool,_slim_jf_options,toolJetFitterNNTool,metaJetFitterTagNN,toolJetFitterTagNN,metaJetFitterNtupleWriterCOMBNN,toolJetFitterNtupleWriterCOMBNN,metaNeuralNetworkToHistoToolCOMBNN,toolNeuralNetworkToHistoToolCOMBNN,metaJetFitterCOMBNNTool,toolJetFitterCOMBNNTool,metaJetFitterTagCOMBNN,toolJetFitterTagCOMBNN,metaJetFitterTrackSelectorTool,toolJetFitterTrackSelectorTool,toolJetFitterTrackSelectorTool_SV,metaJetFitterMultiStageFit,toolJetFitterMultiStageFit,toolJetFitterMultiStageFit_SV,metaNewJetFitterVxFinder,metaJetFitterTwoTrackVtxFinderTool,toolJetFitterTwoTrackVtxFinderTool,toolJetFitterTwoTrackVtxFinderTool_SV,metaJetFitterV0FinderTool,toolJetFitterV0FinderTool,toolJetFitterV0FinderTool_SV
+from BTagging.BTaggingConfiguration_NewJetFitterIP3DNegCollection import metaNewJetFitterVxFinderFlip,toolNewJetFitterVxFinderFlip,metaJetFitterTagNNFlip,toolJetFitterTagNNFlip,metaJetFitterTagCOMBNNIP3DNeg,toolJetFitterTagCOMBNNIP3DNeg
+from BTagging.BTaggingConfiguration_NewJetFitterTrigCollection import metaJetFitterTagNN_Trig,toolJetFitterTagNN_Trig,toolNewJetFitterVxFinder,toolNewJetFitterVxFinder_SV
 
 # Lepton taggers
-#from BTagging.BTaggingConfiguration_SoftMuonTagChi2 import *
-from BTagging.BTaggingConfiguration_SoftMuonTag import *
-
-# Track counting
-#from BTagging.BTaggingConfiguration_TrackCountingFlip import *
-#from BTagging.BTaggingConfiguration_TrackCounting import *
+from BTagging.BTaggingConfiguration_SoftMuonTag import metaSoftMuonTag,toolSoftMuonTag,metaSoftMuonTagNewLikelihoodTool,toolSoftMuonTagNewLikelihoodTool
 
 # SV taggers
-from BTagging.BTaggingConfiguration_SV0Tag import *
-from BTagging.BTaggingConfiguration_SV1FlipTag import *
-from BTagging.BTaggingConfiguration_SV1Tag import *
-from BTagging.BTaggingConfiguration_SV1TrigTag import *
-#from BTagging.BTaggingConfiguration_SV2FlipTag import *
-from BTagging.BTaggingConfiguration_SV2Tag import *
+from BTagging.BTaggingConfiguration_SV1Tag import metaSV1Tag,toolSV1Tag,metaSV1NewLikelihoodTool,toolSV1NewLikelihoodTool
+from BTagging.BTaggingConfiguration_SV1FlipTag import metaSV1FlipTag,toolSV1FlipTag,metaSV1FlipNewLikelihoodTool,toolSV1FlipNewLikelihoodTool
+from BTagging.BTaggingConfiguration_SV0Tag import metaSV0Tag,toolSV0Tag,metaInDetVKalVxNegInJetTool,toolInDetVKalVxNegInJetTool
+from BTagging.BTaggingConfiguration_SV2Tag import metaSV2Tag,toolSV2Tag,metaSV2NewLikelihoodTool,toolSV2NewLikelihoodTool
+from BTagging.BTaggingConfiguration_SV1TrigTag import metaSV1Tag_Trig,toolSV1Tag_Trig,metaSV1NewLikelihoodTool_Trig,toolSV1NewLikelihoodTool_Trig
 
 # MultiSV tagger
-#from BTagging.BTaggingConfiguration_MultiSVTag import *
-from BTagging.BTaggingConfiguration_MultiSVbb1Tag import *
-from BTagging.BTaggingConfiguration_MultiSVbb2Tag import *
+from BTagging.BTaggingConfiguration_MultiSVbb1Tag import metaMultiSVbb1Tag,toolMultiSVbb1Tag
+from BTagging.BTaggingConfiguration_MultiSVbb2Tag import metaMultiSVbb2Tag,toolMultiSVbb2Tag
 
 # MV taggers
-from BTagging.BTaggingConfiguration_MV1FlipTag import *
-from BTagging.BTaggingConfiguration_MV1Tag import *
-#from BTagging.BTaggingConfiguration_MV2FlipTag import *
-#from BTagging.BTaggingConfiguration_MV2Tag import *
-from BTagging.BTaggingConfiguration_MV2c10muTag import *
-from BTagging.BTaggingConfiguration_MV2c10muFlipTag import *
-from BTagging.BTaggingConfiguration_MV2c10rnnTag import *
-from BTagging.BTaggingConfiguration_MV2c10rnnFlipTag import *
-from BTagging.BTaggingConfiguration_MV1cTag import *
-from BTagging.BTaggingConfiguration_MV1cFlipTag import *
-from BTagging.BTaggingConfiguration_MV2c00Tag import *
-from BTagging.BTaggingConfiguration_MV2c00FlipTag import *
-from BTagging.BTaggingConfiguration_MV2c10Tag import *
-from BTagging.BTaggingConfiguration_MV2c10TrigTag import *
-from BTagging.BTaggingConfiguration_MV2c10TrigHybridTag import *
-from BTagging.BTaggingConfiguration_MV2c10FlipTag import *
-from BTagging.BTaggingConfiguration_MV2c20Tag import *
-from BTagging.BTaggingConfiguration_MV2c20FlipTag import *
-from BTagging.BTaggingConfiguration_MV2c100Tag import *
-from BTagging.BTaggingConfiguration_MV2c100FlipTag import *
-from BTagging.BTaggingConfiguration_MV2cl100Tag import *
-from BTagging.BTaggingConfiguration_MV2cl100FlipTag import *
-from BTagging.BTaggingConfiguration_MV2c10hpTag import *
-from BTagging.BTaggingConfiguration_MV2c10hpFlipTag import *
+from BTagging.BTaggingConfiguration_MV2c00FlipTag import metaMV2c00FlipTag,toolMV2c00FlipTag
+from BTagging.BTaggingConfiguration_MV2c10hpFlipTag import metaMV2c10hpFlipTag,toolMV2c10hpFlipTag
+from BTagging.BTaggingConfiguration_MV2c10muTag import metaMV2c10muTag,toolMV2c10muTag
+from BTagging.BTaggingConfiguration_MV2c100FlipTag import metaMV2c100FlipTag,toolMV2c100FlipTag
+from BTagging.BTaggingConfiguration_MV2c10Tag import metaMV2c10Tag,toolMV2c10Tag
+from BTagging.BTaggingConfiguration_MV2c10rnnTag import metaMV2c10rnnTag,toolMV2c10rnnTag
+from BTagging.BTaggingConfiguration_MV2c20FlipTag import metaMV2c20FlipTag,toolMV2c20FlipTag
+from BTagging.BTaggingConfiguration_MV1Tag import metaMV1Tag,toolMV1Tag
+from BTagging.BTaggingConfiguration_MV2cl100Tag import metaMV2cl100Tag,toolMV2cl100Tag
+from BTagging.BTaggingConfiguration_MV2c10TrigHybridTag import metaMV2c10TrigHybridTag,toolMV2c10TrigHybridTag
+from BTagging.BTaggingConfiguration_MV1cTag import metaMV1cTag,toolMV1cTag
+from BTagging.BTaggingConfiguration_MV2c10TrigTag import metaMV2c10Tag_Trig,toolMV2c10Tag_Trig
+from BTagging.BTaggingConfiguration_MV2c10rnnFlipTag import metaMV2c10rnnFlipTag,toolMV2c10rnnFlipTag
+from BTagging.BTaggingConfiguration_MV1cFlipTag import metaMV1cFlipTag,toolMV1cFlipTag
+from BTagging.BTaggingConfiguration_MV2c20Tag import metaMV2c20Tag,toolMV2c20Tag
+from BTagging.BTaggingConfiguration_MV2c00Tag import metaMV2c00Tag,toolMV2c00Tag
+from BTagging.BTaggingConfiguration_MV2c10hpTag import metaMV2c10hpTag,toolMV2c10hpTag
+from BTagging.BTaggingConfiguration_MV2c10FlipTag import metaMV2c10FlipTag,toolMV2c10FlipTag
+from BTagging.BTaggingConfiguration_MV2c100Tag import metaMV2c100Tag,toolMV2c100Tag
+from BTagging.BTaggingConfiguration_MV1FlipTag import metaMV1FlipTag,toolMV1FlipTag
+from BTagging.BTaggingConfiguration_MV2cl100FlipTag import metaMV2cl100FlipTag,toolMV2cl100FlipTag
+from BTagging.BTaggingConfiguration_MV2c10muFlipTag import metaMV2c10muFlipTag,toolMV2c10muFlipTag
 
 #JetVertexCharge tool
-from BTagging.BTaggingConfiguration_JetVertexCharge import *
+from BTagging.BTaggingConfiguration_JetVertexCharge import metaJetVertexCharge,toolJetVertexCharge,metaMuonCorrectionsTool,toolMuonCorrectionsTool,metaMuonSelectorTool,toolMuonSelectorTool
 
 # MultivariateTagManager
-from BTagging.BTaggingConfiguration_MultivariateTagManager import *
-from BTagging.BTaggingConfiguration_MultivariateTrigTagManager import *
-from BTagging.BTaggingConfiguration_MultivariateFlipTagManager import *
-from BTagging.BTaggingConfiguration_MultiTrigHybridTagManager import *
+from BTagging.BTaggingConfiguration_MultivariateTrigTagManager import metaMultivariateTagManager_Trig,toolMultivariateTagManager_Trig
+from BTagging.BTaggingConfiguration_TagNtupleDumper import metaTagNtupleDumper,toolTagNtupleDumper
+from BTagging.BTaggingConfiguration_MultivariateFlipTagManager import metaMultivariateFlipTagManager,toolMultivariateFlipTagManager
+from BTagging.BTaggingConfiguration_MultiTrigHybridTagManager import metaMultivariateTrigHybridTagManager,toolMultivariateTrigHybridTagManager
+from BTagging.BTaggingConfiguration_MultivariateTagManager import metaMultivariateTagManager,toolMultivariateTagManager
 
-# TagNtupleDumper
-from BTagging.BTaggingConfiguration_TagNtupleDumper import *
+
 
 # Global dictionary keeping track of all tool collections
 _BTaggingConfig_ToolCollections = {}
 
 # We also need deepcopy here (for cloning metadata when cloning tools since these include nested dictionaries)
-from copy import deepcopy
+#from copy import deepcopy
 
 # Global dictionary to keep track of all configuration instances
 _BTaggingConfig_Configurations = {}
@@ -454,7 +418,6 @@ class Configuration:
       if len(SetupScheme) == 0:
         SetupScheme = BTaggingFlags.ConfigurationScheme
       from BTagging.BTaggingConfiguration_LoadTools import SetupJetCollection
-      import sys
       if Verbose is None:
           Verbose = (BTaggingFlags.OutputLevel < 3)
       if Verbose:
@@ -478,7 +441,7 @@ class Configuration:
               self.ConfigureMainAssociatorTool(self._BTaggingConfig_MainAssociatorTools[jetcol], jetcol)
               continue
           # Check if this jet collection has been correctly set up.
-          if not jetcol in self._BTaggingConfig_JetCollections:
+          if jetcol not in self._BTaggingConfig_JetCollections:
               print (self.BTagTag()+' - ERROR - setupJetBTaggerAlgs() called for jet collection with name "'+jetcol+'" but this jet collection has not been initialized.')
               raise RuntimeError
           print (self.BTagTag()+' - INFO - Adding JetBTaggerAlg for '+jetcol)
@@ -509,7 +472,7 @@ class Configuration:
           jetbtaggeralg = JetBTaggerAlg(**options)
           from RecExConfig.ObjKeyStore import objKeyStore
           objKeyStore.addManyTypesTransient(objs)
-          if not topSequence is None:
+          if topSequence is not None:
               topSequence += jetbtaggeralg
           if Verbose:
               print (self.BTagTag()+' - INFO - Attached to the beforementioned JetBTaggerAlg we have the following BTagTool:')
@@ -555,7 +518,6 @@ class Configuration:
         SetupScheme = BTaggingFlags.ConfigurationScheme
 
       from BTagging.BTaggingConfiguration_LoadTools import SetupJetCollection
-      import sys
       if Verbose is None:
           Verbose = (BTaggingFlags.OutputLevel < 3)
       if Verbose:
@@ -579,7 +541,7 @@ class Configuration:
               self.ConfigureMainAssociatorTool(self._BTaggingConfig_MainAssociatorTools[jetcol], jetcol)
               continue
           # Check if this jet collection has been correctly set up.
-          if not jetcol in self._BTaggingConfig_JetCollections:
+          if jetcol not in self._BTaggingConfig_JetCollections:
               print (self.BTagTag()+' - ERROR - setupJetBTaggerTools() called for jet collection with name "'+jetcol+'" but this jet collection has not been initialized.')
               raise RuntimeError
           print (self.BTagTag()+' - INFO - Adding JetBTaggerTool for '+jetcol)
@@ -610,7 +572,7 @@ class Configuration:
           # Setup the associator tool
           self.ConfigureMainAssociatorTool(thisBTagTrackAssociation, jetcol)
           # -- add tool to topSequence
-          if not topSequence is None:
+          if topSequence is not None:
               topSequence += jetbtaggertool
           # -- add tool to ToolSvc
           if AddToToolSvc:
@@ -689,12 +651,12 @@ class Configuration:
       if ToolSvc is None:
           if BTaggingFlags.OutputLevel < 3:
               print (self.BTagTag()+' - DEBUG - INFO: ToolSvc is None during registration. This could be on purpose if want to add the tool to ToolSvc yourself and in particular is normal for BTagCalibrationBrokerTool.')
-      if CheckPrerequisites and not ToolSvc is None:
+      if CheckPrerequisites and ToolSvc is not None:
         self.setupPrerequisites(tool_type, ToolSvc, TrackCollection = track, JetCollection = jetcol, Verbose = Verbose,
                                 MuonCollection=MuonCollection,
                                 CheckOnlyInsideToolCollection=CheckOnlyInsideToolCollection, DoNotSetUpParticleAssociators=DoNotSetUpParticleAssociators)
       self._BTaggingConfig_InitializedTools[self.getToolName(tool_type, track, jetcol)] = tool
-      if not ToolSvc is None:
+      if ToolSvc is not None:
           print (self.BTagTag()+' - DEBUG - Tool added to ToolSvc: ')
           print (tool)
           ToolSvc += tool
@@ -764,7 +726,7 @@ class Configuration:
       #GeneralToolSuffix() can not be used here because now tagger in Trig scheme are added with the full name tagger_Trig
       GeneralToolSuffix = ''
       if 'Trig' in self._name and 'Trig' not in tool:
-          GeneralToolSuffix = '_Trig';
+          GeneralToolSuffix = '_Trig'
       # Some tools only need exactly one in ToolSvc
       if getToolMetadata(tool, 'OneInTotal'):
           return tool+GeneralToolSuffix
@@ -821,7 +783,7 @@ class Configuration:
                   # move the current tool to just passed the highest_index
                   required.insert(highest_index+1, required[n])
                   required.pop(n)
-                  break;
+                  break
           if highest_index < 0:
               # we did not need to sort anything; therefore we are done
               stop_sorting = True
@@ -851,7 +813,7 @@ class Configuration:
       InToolCollection = ToolCollDict[getToolCollection(tool_type)]
       Dependencies = getToolDependencies(tool_type)
       for tool in Dependencies:
-          if (not tool in IgnoreList) and (not tool in required) and ((not CheckOnlyInsideToolCollection) or (tool in InToolCollection)):
+          if (tool not in IgnoreList) and (tool not in required) and ((not CheckOnlyInsideToolCollection) or (tool in InToolCollection)):
               # Check if this tool has been set up already
               if self._BTaggingConfig_SetUpCombinations.get((tool, JetCollection, TrackCollection), None) is None:
                   required.append(tool)
@@ -932,7 +894,7 @@ class Configuration:
       output: The last of the tools having been set up. (For convenience; you can use other functions to retrieve the others if needed)"""
       if not SuppressNonCloneWarning:
           if not getToolMetadata(tool_type, 'IsAClone') is None:
-              if len(options) > 0 and (getToolMetadata(tool_type, 'IsAClone') == False):
+              if len(options) > 0 and (getToolMetadata(tool_type, 'IsAClone') is False):
                   print (self.BTagTag()+' - WARNING - You are changing the settings for an instance of '+tool_type+'. It is generally safer to first clone the tool and then use the non-default settings for the clone to avoid any confusion later on. You can also suppress this warning by running addTool with the SuppressNonCloneWarning set to True.')
           elif len(options) > 0:
               print (self.BTagTag()+' - WARNING - You are changing the settings for an instance of '+tool_type+'. It is generally safer to first clone the tool and then use the non-default settings for the clone to avoid any confusion later on. You can also suppress this warning by running addTool with the SuppressNonCloneWarning set to True.')
@@ -1171,7 +1133,7 @@ class Configuration:
           print (self.BTagTag()+' - WARNING - A tool of type "'+tool_type+'" was already set up for the combination '+str((track, jetcol))+' ignoring duplicate...')
           return
       #HACK DL1
-      if getToolMetadata(tool_type, 'IsATagger') and not 'DL1' in tool_type and not 'MV2' in tool_type:
+      if getToolMetadata(tool_type, 'IsATagger') and 'DL1' not in tool_type and 'MV2' not in tool_type:
           btagger = self.getJetCollectionTool(jetcol)
           btagger.TagToolList += [tool,]
       if getToolMetadata(tool_type, 'IsAVertexFinder'):
@@ -1199,7 +1161,7 @@ class Configuration:
       # Add to the tool also the jet collection (needed for reference running)
       jetcollist = getToolMetadata(tool_type, 'JetCollectionList')
       if jetcollist:
-          if not jetcol in getattr(tool, jetcollist):
+          if jetcol not in getattr(tool, jetcollist):
               if BTaggingFlags.OutputLevel < 3:
                   print (self.BTagTag()+' - DEBUG - Adding to tool '+self.getToolName(tool_type, track, jetcol)+' the jet collection: '+jetcol)
               getattr(tool, jetcollist).append(jetcol)
@@ -1348,7 +1310,7 @@ class Configuration:
           btagtool = self.setupBTagTool(JetCollection, ToolSvc, Verbose = Verbose, options=options)
           if btagtool:
               self.RegisterOutputContainersForJetCollection(JetCollection, Verbose)
-              if not JetCollection in BTaggingFlags.Jets:
+              if JetCollection not in BTaggingFlags.Jets:
                   BTaggingFlags.Jets += [JetCollection, ]
           return btagtool
       else:
@@ -1395,7 +1357,7 @@ class Configuration:
       secVtxFinderList = []
       secVtxFinderTrackNameList = []
       secVtxFinderxAODBaseNameList = []
-      from BTagging.BTaggingConfiguration_NewJetFitterCollection import toolNewJetFitterVxFinder as toolNewJetFitterVxFinder
+#      from BTagging.BTaggingConfiguration_NewJetFitterCollection import toolNewJetFitterVxFinder as toolNewJetFitterVxFinder
 
       newJetFitterVxFinder = toolNewJetFitterVxFinder_SV('JFVxFinder')
       secVtxFinderList.append(newJetFitterVxFinder)
@@ -1544,7 +1506,7 @@ class Configuration:
           for element in PassByPointer:
               # Find the tool
               ToPass = self._BTaggingConfig_InitializedTools.get(self.getToolName(PassByPointer[element],track,jetcol), None)
-              if ToPass is None and not element in options: # allow for options overwrite
+              if ToPass is None and element not in options: # allow for options overwrite
                   print (self.BTagTag()+' - ERROR - Tool of type '+PassByPointer[element]+' to be passed as pointer to tool of type '+tool_type)
                   print (self.BTagTag()+' - ERROR - but this tool was not found/registered. (Can be overwritten using options passed to the set up script).')
                   raise ValueError
@@ -1572,12 +1534,12 @@ class Configuration:
                   raise ValueError
               else:
                   for tagger in CalibrationTaggers:
-                      if not tagger in broker.taggers:
+                      if tagger not in broker.taggers:
                           broker.taggers.append(tagger)
       # Set up the actual tool
       try:
           tool = eval('tool'+tool_type+'(**options)')
-      except:
+      except Exception:
           print (self.BTagTag()+' - ERROR - Attempting to set up a tool of type "'+tool_type+'" but this tool was not/incorrectly implemented.')
           raise
       # Fill in jet collection lists if applicable
@@ -1612,7 +1574,7 @@ def getActiveTaggers():
 def taggerIsPossible(tagger):
     """Returns whether a tagger can be used depending on various criteria."""
     # disable tagger is it is unknown
-    if not tagger in BTaggingFlags._tags:
+    if tagger not in BTaggingFlags._tags:
         print ('#BTAG# - WARNING - Unknown tagger ('+tagger+') encountered, disabling...')
         return False
     # disable all taggers if B-tagging is not active
@@ -1772,7 +1734,7 @@ def cloneTool(ToolType, Suffix):
             changeToolMetadata(ToolType+Suffix, "VertexFinderxAODBaseName", str(getToolMetadata(ToolType, "VertexFinderxAODBaseName"))+Suffix)
         if not getToolMetadata(ToolType, "xAODBaseName") is None:
             changeToolMetadata(ToolType+Suffix, "xAODBaseName", str(getToolMetadata(ToolType, "xAODBaseName"))+Suffix)
-    except:
+    except Exception:
         print ('#BTAG# - ERROR - cloneToolCollection() called but one of the tools does not exist, is not implemented correctly, or does not allow cloning: '+ToolType)
         raise
     addToolTypeToToolCollection(ToolType+Suffix, ToolType+Suffix)
@@ -1786,7 +1748,7 @@ def cloneToolCollection(ToolCollection, Suffix):
 
     This is useful if you want to set up multiple tools of the same type but with different settings. See the documentation
     for more information."""
-    if not ToolCollection in _BTaggingConfig_ToolCollections:
+    if ToolCollection not in _BTaggingConfig_ToolCollections:
         print ('#BTAG#- ERROR - Trying to clone a tool collection called '+ToolCollection+' but this does not exist')
         options = []
         tcollections = getToolCollections()
@@ -1827,7 +1789,7 @@ def cloneToolCollection(ToolCollection, Suffix):
             # Add to new tool collection
             addToolTypeToToolCollection(tool+Suffix, ToolCollection+Suffix)
             changeToolMetadata(tool+Suffix, "IsAClone", True)
-        except:
+        except Exception:
             print ('#BTAG#- ERROR - cloneToolCollection() called but one of the tools does not exist, is not implemented correctly, or does not allow cloning: '+tool)
             raise
     return returnlist
@@ -1840,7 +1802,7 @@ def getToolAllMetadata(tool_type):
     output: The metadata as a dictionary."""
     try:
         D = eval('meta'+tool_type)
-    except:
+    except Exception:
         print ('#BTAG#- ERROR - Tool type "'+tool_type+'" has no metadata dictionary or does not exist!')
         raise NotImplementedError
     return D
@@ -1865,7 +1827,7 @@ def changeClonedToolCollectionMetadata(ToolCollection, Suffix, metakey, metavalu
 
     Note, you can actually also use this on the default (i.e. non-cloned) tool collections by settings the Suffix to "", but
     this is not recommended."""
-    if not ToolCollection in _BTaggingConfig_ToolCollections:
+    if ToolCollection not in _BTaggingConfig_ToolCollections:
         print ('#BTAG#- ERROR - Attempting to modify metadata for cloned tool collection for a tool collection that does not exist: '+ToolCollection)
         raise ValueError
     for tool in _BTaggingConfig_ToolCollections[ToolCollection]:
@@ -1877,7 +1839,7 @@ def changeToolMetadata(tool_type, metakey, metavalue):
     try:
         exec('global meta'+tool_type)
         exec('meta'+tool_type+'[metakey] = metavalue')
-    except:
+    except Exception:
         print ('#BTAG#- ERROR - Trying to adjust metadata for a tool that does not exist or has no metadata: '+tool_type)
         raise ValueError
 
@@ -1904,7 +1866,7 @@ def JetCollectionIsSupported(JetCollection):
     for alias in BTaggingFlags.CalibrationChannelAliases:
         arrow = alias.find("->")
         if arrow == -1:
-            print(self.BTagTag()+" - WARNING - Incorrectly specified rule in BTaggingFlags.CalibrationChannelAliases: "+alias)
+            print(" - WARNING - Incorrectly specified rule in BTaggingFlags.CalibrationChannelAliases: "+alias)
         else:
             if jetcol == alias[:arrow]:
                 aliasesto = (alias[arrow+2:]).split(",")
@@ -1991,6 +1953,7 @@ def toolBTagMuonToJetAssociator(name, useBTagFlagsDefaults = True, **options):
 
 # Fill up the tool collections during import
 # DO NOT DELETE THIS SECTION; IT IS VITAL!
+metadict = {}
 for tool in dir():
     if tool.find('meta') == 0:
         tname = tool[4:]
@@ -1999,3 +1962,357 @@ for tool in dir():
         if 'ToolCollection' in metadict:
             tcoll = metadict['ToolCollection']
         addToolTypeToToolCollection(tname, tcoll)
+
+
+
+
+# HAVE to do something with these or flake8 will complain and it is not smart enough to understand we are actually using them
+# A pointless function honestly ...
+def getMetadataAndTool(**options):
+  metadata = None
+  tool = None
+
+  metadata = metaBTagCalibrationBrokerTool
+  metadata = metaBTagLeptonTruthTool
+  tool = toolBTagLeptonTruthTool(**options)
+  metadata = metathisBTagLabeling
+  tool = toolthisBTagLabeling(**options)
+  metadata = metaBTagJetTruthMatching
+  tool = toolBTagJetTruthMatching(**options)
+  tool = toolJetQuarkLabel(**options)
+  tool = toolJetTrackTruthMatching(**options)
+  metadata = metaBTagTrackToVertexIPEstimator
+  tool = toolBTagTrackToVertexIPEstimator(**options)
+  metadata = metaAtlasExtrapolator
+  tool = toolAtlasExtrapolator(**options)
+  metadata = metaBTagTrackToVertexTool
+  tool = toolBTagTrackToVertexTool(**options)
+  metadata = metaBTagFullLinearizedTrackFactory
+  tool = toolBTagFullLinearizedTrackFactory(**options)
+
+  metadata = metaInDetVKalVxInJetTool
+  tool = toolInDetVKalVxInJetTool(**options)
+
+  metadata = metaInDetVKalMultiVxInJetTool
+  tool = toolInDetVKalMultiVxInJetTool(**options)
+  metadata = metaMSVVariablesFactory
+  tool = toolMSVVariablesFactory(**options)
+
+  metadata = metaInDetVKalVxNegativeTagInJetTool
+  tool = toolInDetVKalVxNegativeTagInJetTool(**options)
+
+  metadata = metaInDetVKalVxInJetTool_Trig
+  tool = toolInDetVKalVxInJetTool_Trig(**options)
+  
+  metadata = metaIP3DNegTag
+  tool = toolIP3DNegTag(**options)
+  metadata = metaIP3DNegDetailedTrackGradeFactory
+  tool = toolIP3DNegDetailedTrackGradeFactory(**options)
+  metadata = metaIP3DNegBasicTrackGradeFactory
+  tool = toolIP3DNegBasicTrackGradeFactory(**options)
+  metadata = metaSVForIPTool_IP3DNeg
+  tool = toolSVForIPTool_IP3DNeg(**options)
+  metadata = metaIP3DNegTrackSelector
+  tool = toolIP3DNegTrackSelector(**options)
+  metadata = metaIP3DNegNewLikelihoodTool
+  tool = toolIP3DNegNewLikelihoodTool(**options)
+  
+  metadata = metaIP3DTrigHybridTag
+  tool = toolIP3DTrigHybridTag(**options)
+  metadata = metaIP3DTrigHybridDetailedTrackGradeFactory
+  tool = toolIP3DTrigHybridDetailedTrackGradeFactory(**options)
+  metadata = metaIP3DTrigHybridBasicTrackGradeFactory
+  tool = toolIP3DTrigHybridBasicTrackGradeFactory(**options)
+  metadata = metaSVForIPTool_IP3DTrigHybrid
+  tool = toolSVForIPTool_IP3DTrigHybrid(**options)
+  metadata = metaIP3DTrigHybridTrackSelector
+  tool = toolIP3DTrigHybridTrackSelector(**options)
+  metadata = metaTrigHybridInDetTrackSelector
+  tool = toolTrigHybridInDetTrackSelector(**options)
+  metadata = metaTrigHybridSpecialTrackAssociator
+  tool = toolTrigHybridSpecialTrackAssociator(**options)
+  metadata = metaIP3DTrigHybridNewLikelihoodTool
+  tool = toolIP3DTrigHybridNewLikelihoodTool(**options)
+  
+  metadata = metaIP2DTag_Trig
+  tool = toolIP2DTag_Trig(**options)
+  metadata = metaIP2DDetailedTrackGradeFactory
+  tool = toolIP2DDetailedTrackGradeFactory(**options)
+  
+  metadata = metaIP2DNegTag
+  tool = toolIP2DNegTag(**options)
+  metadata = metaIP2DNegDetailedTrackGradeFactory
+  tool = toolIP2DNegDetailedTrackGradeFactory(**options)
+  metadata = metaIP2DNegBasicTrackGradeFactory
+  tool = toolIP2DNegBasicTrackGradeFactory(**options)
+  metadata = metaSVForIPTool_IP2DNeg
+  tool = toolSVForIPTool_IP2DNeg(**options)
+  metadata = metaIP2DNegTrackSelector
+  tool = toolIP2DNegTrackSelector(**options)
+  metadata = metaIP2DNegNewLikelihoodTool
+  tool = toolIP2DNegNewLikelihoodTool(**options)
+  
+  metadata = metaIP3DTag
+  tool = toolIP3DTag(**options)
+
+  metadata = metaIP2DTrigHybridTag
+  tool = toolIP2DTrigHybridTag(**options)
+  metadata = metaIP2DTrigHybridDetailedTrackGradeFactory
+  tool = toolIP2DTrigHybridDetailedTrackGradeFactory(**options)
+  metadata = metaIP2DTrigHybridBasicTrackGradeFactory
+  tool = toolIP2DTrigHybridBasicTrackGradeFactory(**options)
+  metadata = metaSVForIPTool_IP2DTrigHybrid
+  tool = toolSVForIPTool_IP2DTrigHybrid(**options)
+  metadata = metaIP2DTrigHybridTrackSelector
+  tool = toolIP2DTrigHybridTrackSelector(**options)
+  metadata = metaIP2DTrigHybridNewLikelihoodTool
+  tool = toolIP2DTrigHybridNewLikelihoodTool(**options)
+  
+  metadata = metaIP2DTag
+  tool = toolIP2DTag(**options)
+  metadata = metaIP2DBasicTrackGradeFactory
+  tool = toolIP2DBasicTrackGradeFactory(**options)
+  metadata = metaSVForIPTool_IP2D
+  tool = toolSVForIPTool_IP2D(**options)
+  metadata = metaIP2DTrackSelector
+  tool = toolIP2DTrackSelector(**options)
+  metadata = metaIP2DNewLikelihoodTool
+  tool = toolIP2DNewLikelihoodTool(**options)
+  
+  metadata = metaIP3DTag_Trig
+  tool = toolIP3DTag_Trig(**options)
+  metadata = metaIP3DDetailedTrackGradeFactory
+  tool = toolIP3DDetailedTrackGradeFactory(**options)
+  metadata = metaIP3DBasicTrackGradeFactory
+  tool = toolIP3DBasicTrackGradeFactory(**options)
+  metadata = metaSVForIPTool_IP3D
+  tool = toolSVForIPTool_IP3D(**options)
+  metadata = metaIP3DTrackSelector
+  tool = toolIP3DTrackSelector(**options)
+  metadata = metaInDetTrackSelector
+  tool = toolInDetTrackSelector(**options)
+  metadata = metaSpecialTrackAssociator
+  tool = toolSpecialTrackAssociator(**options)
+  metadata = metaIP3DNewLikelihoodTool
+  tool = toolIP3DNewLikelihoodTool(**options)
+
+  metadata = metaInDetImprovedJetFitterTrackSelectorTool
+  tool = toolInDetImprovedJetFitterTrackSelectorTool(**options)
+  metadata = metaJetFitterFullLinearizedTrackFactory
+  tool = toolJetFitterFullLinearizedTrackFactory(**options)
+  metadata = metaJetFitterMode3dTo1dFinder
+  tool = toolJetFitterMode3dTo1dFinder(**options)
+  metadata = metaJetFitterSequentialVertexSmoother
+  tool = toolJetFitterSequentialVertexSmoother(**options)
+  metadata = metaVxInternalEdmFactory
+  tool = toolVxInternalEdmFactory(**options)
+  tool = toolVxInternalEdmFactory_SV(**options)
+  metadata = metaJetFitterSequentialVertexFitter
+  tool = toolJetFitterSequentialVertexFitter(**options)
+  tool = toolJetFitterSequentialVertexFitter_SV(**options)
+  metadata = metaImprovedJetFitterInitializationHelper
+  tool = toolImprovedJetFitterInitializationHelper(**options)
+  metadata = metaTrkDistanceFinderNeutralNeutral
+  tool = toolTrkDistanceFinderNeutralNeutral(**options)
+  metadata = metaTrkDistanceFinderNeutralCharged
+  tool = toolTrkDistanceFinderNeutralCharged(**options)
+  metadata = metaImprovedJetFitterRoutines
+  tool = toolImprovedJetFitterRoutines(**options)
+  metadata = metaInDetJetFitterUtils
+  tool = toolInDetJetFitterUtils(**options)
+  tool = toolInDetJetFitterUtils_SV(**options)
+  metadata = metaJetFitterVariablesFactory
+  tool = toolJetFitterVariablesFactory(**options)
+  metadata = metaJetFitterNtupleWriterNN
+  tool = toolJetFitterNtupleWriterNN(**options)
+  metadata = metaNeuralNetworkToHistoToolNN
+  tool = toolNeuralNetworkToHistoToolNN(**options)
+  metadata = metaJetFitterNNTool
+  tool = _slim_jf_options(**options)
+  tool = toolJetFitterNNTool(**options)
+  metadata = metaJetFitterTagNN
+  tool = toolJetFitterTagNN(**options)
+  metadata = metaJetFitterNtupleWriterCOMBNN
+  tool = toolJetFitterNtupleWriterCOMBNN(**options)
+  metadata = metaNeuralNetworkToHistoToolCOMBNN
+  tool = toolNeuralNetworkToHistoToolCOMBNN(**options)
+  metadata = metaJetFitterCOMBNNTool
+  tool = toolJetFitterCOMBNNTool(**options)
+  metadata = metaJetFitterTagCOMBNN
+  tool = toolJetFitterTagCOMBNN(**options)
+  metadata = metaJetFitterTrackSelectorTool
+  tool = toolJetFitterTrackSelectorTool(**options)
+  tool = toolJetFitterTrackSelectorTool_SV(**options)
+  metadata = metaJetFitterMultiStageFit
+  tool = toolJetFitterMultiStageFit(**options)
+  tool = toolJetFitterMultiStageFit_SV(**options)
+  metadata = metaNewJetFitterVxFinder
+  metadata = metaJetFitterTwoTrackVtxFinderTool
+  tool = toolJetFitterTwoTrackVtxFinderTool(**options)
+  tool = toolJetFitterTwoTrackVtxFinderTool_SV(**options)
+  metadata = metaJetFitterV0FinderTool
+  tool = toolJetFitterV0FinderTool(**options)
+  tool = toolJetFitterV0FinderTool_SV(**options)
+  tool = toolNewJetFitterVxFinder(**options)
+  tool = toolNewJetFitterVxFinder_SV(**options)
+
+  metadata = metaNewJetFitterVxFinderFlip
+  tool = toolNewJetFitterVxFinderFlip(**options)
+  metadata = metaJetFitterTagNNFlip
+  tool = toolJetFitterTagNNFlip(**options)
+  metadata = metaJetFitterTagCOMBNNIP3DNeg
+  tool = toolJetFitterTagCOMBNNIP3DNeg(**options)
+
+  metadata = metaJetFitterExtrapolator
+  tool = toolJetFitterExtrapolator(**options)
+  metadata = metaJetFitterTagNN_Trig
+  tool = toolJetFitterTagNN_Trig(**options)
+
+
+  metadata = metaJetFitterNtupleWriterCOMBNN
+  tool = toolJetFitterNtupleWriterCOMBNN(**options)
+  metadata = metaNeuralNetworkToHistoToolCOMBNN
+  tool = toolNeuralNetworkToHistoToolCOMBNN(**options)
+  metadata = metaJetFitterCOMBNNTool
+  tool = toolJetFitterCOMBNNTool(**options)
+  metadata = metaJetFitterTagCOMBNN
+  tool = toolJetFitterTagCOMBNN(**options)
+  metadata = metaJetFitterTrackSelectorTool
+  tool = toolJetFitterTrackSelectorTool(**options)
+  tool = toolJetFitterTrackSelectorTool_SV(**options)
+  metadata = metaJetFitterMultiStageFit
+  tool = toolJetFitterMultiStageFit(**options)
+  tool = toolJetFitterMultiStageFit_SV(**options)
+  metadata = metaNewJetFitterVxFinder
+  metadata = metaJetFitterTwoTrackVtxFinderTool
+  tool = toolJetFitterTwoTrackVtxFinderTool(**options)
+  tool = toolJetFitterTwoTrackVtxFinderTool_SV(**options)
+  metadata = metaJetFitterV0FinderTool
+  tool = toolJetFitterV0FinderTool(**options)
+  tool = toolJetFitterV0FinderTool_SV(**options)
+
+  metadata = metaSoftMuonTag
+  tool = toolSoftMuonTag(**options)
+  metadata = metaSoftMuonTagNewLikelihoodTool
+  tool = toolSoftMuonTagNewLikelihoodTool(**options)
+  metadata = metaMuonSelectorTool
+  tool = toolMuonSelectorTool(**options)
+
+  metadata = metaSV1Tag
+  tool = toolSV1Tag(**options)
+  metadata = metaSV1NewLikelihoodTool
+  tool = toolSV1NewLikelihoodTool(**options)
+
+  metadata = metaSV1FlipTag
+  tool = toolSV1FlipTag(**options)
+  metadata = metaSV1FlipNewLikelihoodTool
+  tool = toolSV1FlipNewLikelihoodTool(**options)
+
+  metadata = metaSV0Tag
+  tool = toolSV0Tag(**options)
+  metadata = metaInDetVKalVxNegInJetTool
+  tool = toolInDetVKalVxNegInJetTool(**options)
+
+  metadata = metaSV2Tag
+  tool = toolSV2Tag(**options)
+  metadata = metaSV2NewLikelihoodTool
+  tool = toolSV2NewLikelihoodTool(**options)
+
+  metadata = metaSV1Tag_Trig
+  tool = toolSV1Tag_Trig(**options)
+  metadata = metaSV1NewLikelihoodTool_Trig
+  tool = toolSV1NewLikelihoodTool_Trig(**options)
+
+  metadata = metaMultiSVbb1Tag
+  tool = toolMultiSVbb1Tag(**options)
+
+  metadata = metaMultiSVbb2Tag
+  tool = toolMultiSVbb2Tag(**options)
+
+  metadata = metaJetVertexCharge
+  tool = toolJetVertexCharge(**options)
+  metadata = metaMuonCorrectionsTool
+  tool = toolMuonCorrectionsTool(**options)
+
+  metadata = metaMultivariateTagManager_Trig
+  tool = toolMultivariateTagManager_Trig(**options)
+
+  metadata = metaTagNtupleDumper
+  tool = toolTagNtupleDumper(**options)
+
+  metadata = metaMultivariateFlipTagManager
+  tool = toolMultivariateFlipTagManager(**options)
+
+  metadata = metaMultivariateTrigHybridTagManager
+  tool = toolMultivariateTrigHybridTagManager(**options)
+
+  metadata = metaMultivariateTagManager
+  tool = toolMultivariateTagManager(**options)
+
+  metadata = metaMV2c00FlipTag
+  tool = toolMV2c00FlipTag(**options)
+
+  metadata = metaMV2c10hpFlipTag
+  tool = toolMV2c10hpFlipTag(**options)
+
+  metadata = metaMV2c10muTag
+  tool = toolMV2c10muTag(**options)
+
+  metadata = metaMV2c100FlipTag
+  tool = toolMV2c100FlipTag(**options)
+
+  metadata = metaMV2c10Tag
+  tool = toolMV2c10Tag(**options)
+
+  metadata = metaMV2c10rnnTag
+  tool = toolMV2c10rnnTag(**options)
+
+  metadata = metaMV2c20FlipTag
+  tool = toolMV2c20FlipTag(**options)
+
+  metadata = metaMV1Tag
+  tool = toolMV1Tag(**options)
+
+  metadata = metaMV2cl100Tag
+  tool = toolMV2cl100Tag(**options)
+
+  metadata = metaMV2c10TrigHybridTag
+  tool = toolMV2c10TrigHybridTag(**options)
+
+  metadata = metaMV1cTag
+  tool = toolMV1cTag(**options)
+
+  metadata = metaMV2c10Tag_Trig
+  tool = toolMV2c10Tag_Trig(**options)
+
+  metadata = metaMV2c10rnnFlipTag
+  tool = toolMV2c10rnnFlipTag(**options)
+
+  metadata = metaMV1cFlipTag
+  tool = toolMV1cFlipTag(**options)
+
+  metadata = metaMV2c20Tag
+  tool = toolMV2c20Tag(**options)
+
+  metadata = metaMV2c00Tag
+  tool = toolMV2c00Tag(**options)
+
+  metadata = metaMV2c10hpTag
+  tool = toolMV2c10hpTag(**options)
+
+  metadata = metaMV2c10FlipTag
+  tool = toolMV2c10FlipTag(**options)
+
+  metadata = metaMV2c100Tag
+  tool = toolMV2c100Tag(**options)
+
+  metadata = metaMV1FlipTag
+  tool = toolMV1FlipTag(**options)
+
+  metadata = metaMV2cl100FlipTag
+  tool = toolMV2cl100FlipTag(**options)
+
+  metadata = metaMV2c10muFlipTag
+  tool = toolMV2c10muFlipTag(**options)
+
+  return [metadata,tool]

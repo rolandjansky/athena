@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration 
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration 
 */
 
 //***************************************************************************  
@@ -13,33 +13,34 @@
 
 LVL1::jFEXOutputCollection::~jFEXOutputCollection()
 {
-  for (auto iValues : m_allvalues_smallRJet){
+  for(auto iValues : m_allvalues_smallRJet){
     delete iValues;	
   }
 
- // for(auto iValues: m_allvalues_largeRJet){
- //   delete iValues;
- // }
+ for(auto iValues: m_allvalues_largeRJet){
+   delete iValues;
+  }
 }
 
 void LVL1::jFEXOutputCollection::clear() 
 {
-  for (auto iValues : m_allvalues_smallRJet){
+  for(auto iValues : m_allvalues_smallRJet){
     iValues->clear();
   }
-//for(auto iValues : m_allvallues_largeRJet){
-//  iValues->clear();
-//}
+  for(auto iValues : m_allvalues_largeRJet){
+    iValues->clear();
+  }
 }
+
 void LVL1::jFEXOutputCollection::addValue_smallRJet(std::string key, float value)
 {
  m_values_tem_smallRJet.insert(std::make_pair(key, value));
 }
 
-//void LVL1::jFEXOutputCollection::addValue_largeRJet(std::string key, float value)
-//{
-// m_values_tem_largeRJet.insert(std::make_pair(key, value));
-//}
+void LVL1::jFEXOutputCollection::addValue_largeRJet(std::string key, float value)
+{
+ m_values_tem_largeRJet.insert(std::make_pair(key, value));
+}
 
 void LVL1::jFEXOutputCollection::fill_smallRJet()
 {
@@ -48,10 +49,15 @@ void LVL1::jFEXOutputCollection::fill_smallRJet()
   m_values_tem_smallRJet.clear();
 
 }
-//void LVL1::jFEXOutputCollection::fill_largeRJet()
-//
-//
-//
+void LVL1::jFEXOutputCollection::fill_largeRJet()
+{
+  std::map<std::string, float>* values_local = new std::map<std::string, float>(m_values_tem_largeRJet);
+  m_allvalues_largeRJet.push_back(values_local);
+  m_values_tem_largeRJet.clear();
+
+}
+
+
 int LVL1::jFEXOutputCollection::size()
 {
   return m_allvalues_smallRJet.size();
@@ -61,4 +67,7 @@ std::map<std::string, float>* LVL1::jFEXOutputCollection::get_smallRJet(int loca
 {
   return m_allvalues_smallRJet[location];
 }
-//std::map<std::string, float>* LVL1::jFEXOutputCollection::get_largeRJet(int location)
+std::map<std::string, float>* LVL1::jFEXOutputCollection::get_largeRJet(int location)
+{
+  return m_allvalues_smallRJet[location];
+}

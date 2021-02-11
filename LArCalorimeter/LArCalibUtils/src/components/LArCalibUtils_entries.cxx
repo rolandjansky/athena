@@ -44,7 +44,7 @@
 #include "LArCalibUtils/LArPedestalAutoCorrBuilder.h"
 #include "LArCalibUtils/LArRampAdHocPatchingAlg.h"
 #include "LArCalibUtils/LArShapeCorrector.h"
-#include "LArCalibUtils/LArAutoCorrToolToDB.h"
+#include "LArCalibUtils/LArAutoCorrAlgToDB.h"
 #include "LArCalibUtils/LArDuplicateConstants.h"
 #include "LArCalibUtils/LArCalibPatchingAlg.h"
 #include "LArCalibUtils/LArCalibCopyAlg.h"
@@ -52,9 +52,7 @@
 
 
 typedef LArCalibPatchingAlg<LArRampComplete> LArRampPatcher;
-//typedef LArCalibPatchingAlg<LArOFCComplete> LArOFCPatcher;
 typedef LArCalibPatchingAlg<LArCaliWaveContainer> LArCaliWavePatcher;
-//#include "LArRawConditions/LArMphysOverMcalComplete.h"
 typedef LArCalibPatchingAlg<LArMphysOverMcalComplete> LArMphysOverMcalPatcher;
 
 //typedef LArCalibCopyAlg<LArPedestalComplete> LArPedestalCopyAlg;
@@ -100,15 +98,13 @@ DECLARE_COMPONENT( LArHVCorrMaker )
 DECLARE_COMPONENT( LArCalibShortCorrector )
 DECLARE_COMPONENT( LArTimePhysPrediction )
 DECLARE_COMPONENT( LArRampAdHocPatchingAlg )
-//DECLARE_COMPONENT( LArPedestalCopyAlg )
 DECLARE_COMPONENT( LArPhysWaveCopyAlg )
 DECLARE_COMPONENT( LArDAC2uAMCCopyAlg )
 DECLARE_COMPONENT( LArTdriftCompleteCopyAlg )
 DECLARE_COMPONENT( LArShapeCorrector )
-DECLARE_COMPONENT( LArAutoCorrToolToDB )
+DECLARE_COMPONENT( LArAutoCorrAlgToDB )
 DECLARE_COMPONENT( LArDuplicateConstants )
 
-  //DECLARE_COMPONENT( LArOFCPatcher )
 DECLARE_COMPONENT( LArAutoCorrDecoderTool )
 DECLARE_COMPONENT( LArDigitOscillationCorrTool )
 DECLARE_COMPONENT( LArDeltaRespTool )

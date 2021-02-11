@@ -40,7 +40,8 @@ TrigTestMonToolAC::TrigTestMonToolAC(const std::string & type, const std::string
      m_requireDecision(false),
      m_containTracks(false),
      m_filter_on_roi(false),
-     m_legacy(true)
+     m_legacy(true),
+     m_fiducial_radius(32)
 {
   msg(MSG::WARNING) << "TrigTestMonToolAC::TrigTestMonToolAC() compiled: " << __DATE__ << " " << __TIME__ << endmsg;
 
@@ -98,6 +99,8 @@ TrigTestMonToolAC::TrigTestMonToolAC(const std::string & type, const std::string
   declareProperty( "KeepAllEvents", m_keepAllEvents = false );
 
   declareProperty( "Leagacy", m_legacy = true );
+
+  declareProperty( "FiducialRadius", m_fiducial_radius = 32 );
   
   msg(MSG::INFO) << "TrigTestMonToolAC::TrigTestMonToolAC() " << gDirectory->GetName() << endmsg;
 
@@ -138,9 +141,11 @@ StatusCode TrigTestMonToolAC::init() {
 							m_keepAllEvents ) );
     }
     else { 
-      m_sequences.push_back( new AnalysisConfigMT_Ntuple( &m_roiInfo, m_ntupleChainNames, 
-							  m_outputFileName, m_tauEtCutOffline, m_selectTruthPdgId, 
-							  m_keepAllEvents ) );
+      AnalysisConfigMT_Ntuple* ac = new AnalysisConfigMT_Ntuple( &m_roiInfo, m_ntupleChainNames, 
+								 m_outputFileName, m_tauEtCutOffline, m_selectTruthPdgId, 
+								 m_keepAllEvents );
+      ac->set_fiducial_radius( m_fiducial_radius );
+      m_sequences.push_back( ac );
     }
 
     m_sequences.back()->releaseData(m_releaseMetaData);

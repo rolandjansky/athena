@@ -81,7 +81,6 @@ def defineJetConstit(jetRecoDict,clustersKey=None,pfoPrefix=None):
     constitMods = []
     # Get the details of the constituent definition:
     # type, mods and the input container name
-
     
     if jetRecoDict["constitType"] == "pf":
         if pfoPrefix is None:
@@ -163,21 +162,21 @@ def defineJets(jetRecoDict,clustersKey=None,prefix='',pfoPrefix=None):
     jetDef = JetDefinition( "AntiKt", actualradius, jetConstit, ptmin=minpt[jetradius], prefix=prefix, suffix=suffix)
     return jetDef
 
-def defineReclusteredJets(jetRecoDict,smallRjets):
-    rcJetConstit = JetConstitSource("RCJet", xAODType.Jet, smallRjets, label='JetRC')
-    rcJetDef = JetDefinition( "AntiKt", 1.0, rcJetConstit)
+def defineReclusteredJets(jetRecoDict,smallRjets,inputlabel,prefix,suffix):
+    rcJetConstit = JetConstitSource("RCJet", xAODType.Jet, smallRjets, label=inputlabel+'RC')
+    rcJetDef = JetDefinition( "AntiKt", 1.0, rcJetConstit, prefix=prefix, suffix=suffix)
     return rcJetDef
 
 def defineGroomedJets(jetRecoDict,ungroomedDef):#,ungroomedJetsName):
-    from JetRecConfig.JetGrooming import JetTrimmingTrig, JetSoftDropTrig
+    from JetRecConfig.JetGrooming import JetTrimming, JetSoftDrop
     groomAlg = jetRecoDict["recoAlg"][3:] if 'sd' in jetRecoDict["recoAlg"] else jetRecoDict["recoAlg"][-1]
     suffix = "_"+ jetRecoDict["jetCalib"]
     if jetRecoDict["trkopt"]!="notrk":
         suffix += "_"+jetRecoDict["trkopt"]
     
     groomDef = {
-        "sd":JetSoftDropTrig(ungroomedDef,ZCut=0.1,Beta=1.0, suffix=suffix),
-        "t" :JetTrimmingTrig(ungroomedDef,RClus=0.2,PtFrac=0.04, suffix=suffix),
+        "sd":JetSoftDrop(ungroomedDef,ZCut=0.1,Beta=1.0, suffix=suffix),
+        "t" :JetTrimming(ungroomedDef,RClus=0.2,PtFrac=0.04, suffix=suffix),
     }[groomAlg]
     return groomDef
 
@@ -250,7 +249,8 @@ def defineCalibMods(jetRecoDict,dataSource,rhoKey="auto"):
         calibSpec = ":".join( [calibContext, dataSource, calibSeq, rhoKey, pvname, gscDepth] )
 
         if jetalg=="a4":
-            calibMods = ["ConstitFourMom_copy",
+            calibMods = ["EMScaleMom",
+                         "ConstitFourMom_copy",
                          "CaloEnergies", # Needed for GSC
                          "Calib:"+calibSpec]
         else:
@@ -261,9 +261,10 @@ def defineCalibMods(jetRecoDict,dataSource,rhoKey="auto"):
 
 def getDecorList(doTracks,isPFlow):
     # Basic jet info provided by the jet builder
-    decorlist = [ 'AlgorithmType', 'InputType' 
+    decorlist = [ 'AlgorithmType', 'InputType',
                   'ActiveArea', 'ActiveArea4vec_eta', 'ActiveArea4vec_m',
-                  'ActiveArea4vec_phi', 'ActiveArea4vec_pt']
+                  'ActiveArea4vec_phi', 'ActiveArea4vec_pt',
+                  'EMFrac','HECFrac','JvtRpt','EnergyPerSampling']
 
     if doTracks:
         decorlist += ["GhostTrack",

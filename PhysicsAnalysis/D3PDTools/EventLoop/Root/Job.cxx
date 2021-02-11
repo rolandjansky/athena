@@ -11,6 +11,7 @@
 
 #include <memory>
 #include <AnaAlgorithm/AnaAlgorithmWrapper.h>
+#include <AnaAlgorithm/AnaReentrantAlgorithmWrapper.h>
 #include <EventLoop/MessageCheck.h>
 #include <EventLoop/Algorithm.h>
 #include <EventLoop/AlgorithmWrapper.h>
@@ -260,6 +261,15 @@ namespace EL
     if (config.useXAODs())
       useXAOD ();
     algsAdd (std::make_unique<AnaAlgorithmWrapper> (config));
+  }
+
+
+
+  void Job ::
+  algsAdd (const AnaReentrantAlgorithmConfig& config)
+  {
+    // no invariant used
+    algsAdd (std::make_unique<AnaReentrantAlgorithmWrapper> (config));
   }
 
 

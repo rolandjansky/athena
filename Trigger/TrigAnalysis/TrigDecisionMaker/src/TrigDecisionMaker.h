@@ -119,7 +119,7 @@ namespace TrigDec {
     SG::ReadHandleKey<HLT::HLTResult> m_hltResultKey{this, "HLTResultKey", "HLTResult_HLT", " SK key to retrieve the merged HLT result from SG" };
 
     ServiceHandle<TrigConf::ITrigConfigSvc> m_trigConfigSvc; //!< handle to the full (L1 & HLT) trigger config service
-    ToolHandle<HLT::ILvl1ResultAccessTool> m_lvl1Tool;  //!< tool to ease the access to the L1 results (RoIs, items, etc)
+    ToolHandle<HLT::ILvl1ResultAccessTool> m_lvl1Tool{this, "Lvl1ResultAccessTool", "HLT::Lvl1ResultAccessTool/Lvl1ResultAccessTool", "L1 tool to fetch"}; //!< tool to ease the access to the L1 results (RoIs, items, etc)
 
     // For statistics
     mutable std::atomic<unsigned int> m_nEvents; //!< statistics: number of processed events

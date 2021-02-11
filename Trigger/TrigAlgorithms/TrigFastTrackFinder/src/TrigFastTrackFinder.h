@@ -33,6 +33,9 @@
 
 #include "AthenaMonitoringKernel/Monitored.h"
 
+//for UTT
+#include "TrigT1Interfaces/RecJetRoI.h"
+
 class ITrigL2LayerNumberTool;
 class ITrigSpacePointConversionTool;
 class ITrigInDetTrackFitter;
@@ -118,6 +121,12 @@ protected:
   SG::ReadHandleKey<Trk::PRDtoTrackMap>       m_prdToTrackMap
      {this,"PRDtoTrackMap",""};
  
+  // DataHandles for UTT
+  SG::ReadHandleKey<DataVector<LVL1::RecJetRoI>> m_recJetRoiCollectionKey {this, "RecJetRoI", "", ""};
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_hitDVSeedKey{this, "HitDVSeed", "", ""};
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_hitDVTrkKey{this, "HitDVTrk", "", ""};
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_hitDVSPKey{this, "HitDVSP", "", ""};
+
   // Control flags
 
   bool m_doCloneRemoval;
@@ -188,6 +197,12 @@ protected:
   bool m_LRTmode;
   
   std::string m_trigseedML_LUT;//ML-based track seeding LUT name
+
+  // L1 J seeded hit-based displaced vertex
+  bool m_doJseedHitDV;
+  StatusCode findJseedHitDV(const EventContext&, const std::vector<TrigSiSpacePointBase>&, const TrackCollection&) const;
+  StatusCode calcdEdx(const EventContext&, const TrackCollection&) const;
+  float deltaR(float, float, float, float) const;
 };
 
 #endif // not TRIGFASTTRACKFINDER_TRIGFASTTRACKFINDER_H

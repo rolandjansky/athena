@@ -27,7 +27,7 @@ kwargsHitMonAlg = { 'doOnline'        : True if athenaCommonFlags.isOnline() els
                      'doLowOccupancy'  : False,      #Turn on/off histograms with binning for cosmics/single beam                    
                      'doHighOccupancy' : True,       #Turn on/off histograms with binning for collisions
                      'doHeavyIonMon'   : InDetFlags.doHeavyIon(),   # Histogram modification for heavy ion monitoring
-                     'doFEPlots'       : False,       #Turn on/off histograms with FE Status information
+                     'doFEPlots'       : True,       #Turn on/off histograms with FE Status information
                      'RDOName'         : InDetKeys.PixelRDOs()
 }
 
@@ -36,7 +36,7 @@ kwargsClusMonAlg = { 'doOnline'        : True if athenaCommonFlags.isOnline() el
                       'doLowOccupancy'  : False,      #Turn on/off histograms with binning for cosmics/single beam
                       'doHighOccupancy' : True,       #Turn on/off histograms with binning for collisions
                       'doHeavyIonMon'   : InDetFlags.doHeavyIon(),   # Histogram modification for heavy ion monitoring
-                      'doFEPlots'       : False,       #Turn on/off histograms with FE Status information
+                      'doFEPlots'       : True,       #Turn on/off histograms with FE Status information
                       'ClusterName'     : InDetKeys.PixelClusters(),
                       'TrackName'       : InDetKeys.Tracks()
 }

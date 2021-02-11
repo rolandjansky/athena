@@ -73,8 +73,9 @@ class Lvl1SimulationGetter (Configured):
                     include( "TrigT1CaloSim/TrigT1CaloSimJobOptions_Cell.py")
                     
                 log.info("adding MBTS simulation to the topSequence")
+                from AthenaConfiguration.AllConfigFlags import ConfigFlags
                 from TrigT1MBTS.TrigT1MBTSConf import LVL1__TrigT1MBTS
-                topSequence += LVL1__TrigT1MBTS()
+                topSequence += LVL1__TrigT1MBTS(UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON)
 
 
             # schedule simulation
@@ -141,8 +142,9 @@ class Lvl1SimulationGetter (Configured):
                     TriggerFlags.doTrt.set_Value(False)
 
             if TriggerFlags.doZdc():
+                from AthenaConfiguration.AllConfigFlags import ConfigFlags
                 from TrigT1ZDC.TrigT1ZDCConf import LVL1__TrigT1ZDC
-                alg = LVL1__TrigT1ZDC()
+                alg = LVL1__TrigT1ZDC(UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON)
 
                 # ZDC simulation is using truth information at the moment, so do not do any fancy configuration
                 

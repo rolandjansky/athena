@@ -58,6 +58,8 @@ StatusCode AthenaPoolCnvSvc::initialize() {
       }
       // Put PoolSvc into share mode to avoid duplicating catalog.
       m_poolSvc->setShareMode(true);
+      // Disable PersistencySvc per output file mode
+      m_persSvcPerOutput.setValue(false);
    }
    if (!m_inputStreamingTool.empty() || !m_outputStreamingTool.empty()) {
       // Retrieve AthenaSerializeSvc
@@ -309,7 +311,11 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
          streamClient++;
       }
       if (streamClient == m_streamClientFiles.size()) {
-         m_streamClientFiles.push_back(outputConnection);
+         if (m_streamClientFiles.size() < m_outputStreamingTool.size()) {
+            m_streamClientFiles.push_back(outputConnection);
+         } else {
+            streamClient = 0;
+         }
       }
    }
 

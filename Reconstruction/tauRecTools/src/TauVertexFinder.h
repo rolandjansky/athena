@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUREC_TAUVERTEXFINDER_H
-#define TAUREC_TAUVERTEXFINDER_H
+#ifndef TAURECTOOLS_TAUVERTEXFINDER_H
+#define TAURECTOOLS_TAUVERTEXFINDER_H
 
 #include "tauRecTools/TauRecToolBase.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -72,4 +72,4 @@ private:
 
 };
 
-#endif // not TAUREC_TAUVERTEXFINDER_H
+#endif // TAURECTOOLS_TAUVERTEXFINDER_H

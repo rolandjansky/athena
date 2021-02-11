@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -456,9 +456,9 @@ namespace Trk {
           std::cout <<"accumulate: Q inversion failed. CLHEP status flag = "<<ierr<< std::endl;
           return false;
         }
-        vtemp(1) =   -ptrVertex->originalPosition()->x()+(*(ptrVertex->Vvector()))(1);
-        vtemp(2) =   -ptrVertex->originalPosition()->y()+(*(ptrVertex->Vvector()))(2);
-        vtemp(3) =   -ptrVertex->originalPosition()->z()+(*(ptrVertex->Vvector()))(3);
+        vtemp(0) =   -ptrVertex->originalPosition()->x()+(*(ptrVertex->Vvector()))(0);
+        vtemp(1) =   -ptrVertex->originalPosition()->y()+(*(ptrVertex->Vvector()))(1);
+        vtemp(2) =   -ptrVertex->originalPosition()->z()+(*(ptrVertex->Vvector()))(2);
       }
 
 

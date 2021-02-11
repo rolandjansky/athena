@@ -296,6 +296,9 @@ if ConfigFlags.Input.Format == 'BS':
 from AthenaCommon.DetFlags import DetFlags
 if ConfigFlags.Trigger.doLVL1:
     DetFlags.detdescr.all_setOn()
+    #if not ConfigFlags.Input.isMC or ConfigFlags.Common.isOnline:
+    #    DetFlags.detdescr.ALFA_setOff()
+
 if ConfigFlags.Trigger.doID:
     DetFlags.detdescr.ID_setOn()
     DetFlags.makeRIO.ID_setOn()
@@ -448,6 +451,13 @@ from LumiBlockComps.LumiBlockMuWriterDefault import LumiBlockMuWriterDefault
 LumiBlockMuWriterDefault(sequence=hltBeginSeq)
 
 # ---------------------------------------------------------------
+# Level 1 simulation
+# ---------------------------------------------------------------
+if opt.doL1Sim:
+    from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
+    hltBeginSeq += Lvl1SimulationSequence(ConfigFlags)
+
+# ---------------------------------------------------------------
 # Add L1Decoder providing inputs to HLT
 # ---------------------------------------------------------------
 if opt.doL1Unpacking:
@@ -458,13 +468,6 @@ if opt.doL1Unpacking:
     else:
         from DecisionHandling.TestUtils import L1EmulationTest
         hltBeginSeq += L1EmulationTest()
-
-# ---------------------------------------------------------------
-# Level 1 simulation
-# ---------------------------------------------------------------
-if opt.doL1Sim:
-    from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
-    hltBeginSeq += Lvl1SimulationSequence(ConfigFlags)
 
 # ---------------------------------------------------------------
 # Transient ByteStream
@@ -519,7 +522,7 @@ if not hasattr(svcMgr, 'THistSvc'):
     from GaudiSvc.GaudiSvcConf import THistSvc
     svcMgr += THistSvc()
 if hasattr(svcMgr.THistSvc, "Output"):
-    from TriggerJobOpts.HLTTriggerGetter import setTHistSvcOutput
+    from TriggerJobOpts.TriggerHistSvcConfig import setTHistSvcOutput
     setTHistSvcOutput(svcMgr.THistSvc.Output)
 
 #-------------------------------------------------------------
@@ -578,6 +581,10 @@ if opt.doWriteBS or opt.doWriteRDOTrigger:
     hypos = collectHypos(findSubSequence(topSequence, "HLTAllSteps"))
     filters = collectFilters(findSubSequence(topSequence, "HLTAllSteps"))
 
+    nfilters = sum(len(v) for v in filters.values())
+    nhypos = sum(len(v) for v in hypos.values())    
+    log.info( "Algorithms counting: Number of Filter algorithms: %d  -  Number of Hypo algoirthms: %d", nfilters , nhypos) 
+
     summaryMakerAlg = findAlgorithm(topSequence, "DecisionSummaryMakerAlg")
     l1decoder = findAlgorithm(topSequence, "L1Decoder")
 
@@ -596,14 +603,16 @@ if opt.doWriteBS or opt.doWriteRDOTrigger:
     TriggerEDMRun3.addHLTNavigationToEDMList(TriggerEDMRun3.TriggerHLTListRun3, decObj, decObjHypoOut)
 
     # Configure output writing
-    CAtoGlobalWrapper( triggerOutputCfg, ConfigFlags, summaryAlg=summaryMakerAlg)
+    CAtoGlobalWrapper(triggerOutputCfg, ConfigFlags, hypos=hypos)
 
 #-------------------------------------------------------------
 # Cost Monitoring
 #-------------------------------------------------------------
 
-from TrigCostMonitorMT.TrigCostMonitorMTConfig import TrigCostMonitorMTCfg
+from TrigCostMonitorMT.TrigCostMonitorMTConfig import TrigCostMonitorMTCfg, TrigCostMonitorMTPostSetup
 CAtoGlobalWrapper(TrigCostMonitorMTCfg, ConfigFlags)
+# TODO - how can TrigCostMonitorMTPostSetup be component-accumulator-ised?
+TrigCostMonitorMTPostSetup()
 
 #-------------------------------------------------------------
 # Debugging for view cross-dependencies

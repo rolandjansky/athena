@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #
 # @file egammaD3PDAnalysis/python/egammaTruthParticleConfig.py
@@ -33,9 +33,11 @@ def egammaTruthParticleConfig \
 
     algname = prefix + sgkey + 'Builder'
     if not hasattr (seq, algname):
+        from MCTruthClassifier.MCTruthClassifierBase import getMCTruthClassifierExtrapolator
         from egammaRec.Factories import ToolFactory
         exten = ToolFactory (CfgMgr.Trk__ParticleCaloExtensionTool,
                              name="GSFParticleCaloExtensionTool",
+                             Extrapolator = getMCTruthClassifierExtrapolator(),
                              StartFromPerigee = True)()
 
         seq += egammaD3PDAnalysis.egammaTruthAlg (

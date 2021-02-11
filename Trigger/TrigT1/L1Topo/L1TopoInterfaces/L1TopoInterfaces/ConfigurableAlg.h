@@ -41,6 +41,8 @@ namespace TCS {
       // setting the class name
       void setClassName(const std::string & className) { m_className = className; }
 
+      void setLegacyMode(bool isLegacyTopo) {m_isLegacyTopo=isLegacyTopo;}
+
       // accessors
       const std::string & name() const { return m_name; }
       const std::string & className() const { return m_className; }
@@ -57,6 +59,8 @@ namespace TCS {
       bool isSortingAlg() const { return m_algType == SORT; }
 
       bool isDecisionAlg() const { return m_algType == DECISION; }
+
+      bool isLegacyTopo() const { return m_isLegacyTopo; }
 
       // const access to parameter
       const Parameter & parameter(const std::string & parameterName) const;
@@ -97,6 +101,7 @@ namespace TCS {
 
       void fillHist2D(const std::string & histName, double x, double y);
       
+     
    private:
 
       class ConfigurableAlgImpl;
@@ -114,6 +119,7 @@ namespace TCS {
 
       AlgType  m_algType; // stores type of alg (Sorting or Decision)
 
+      bool m_isLegacyTopo;
 
    };
 

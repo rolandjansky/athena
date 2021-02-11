@@ -260,8 +260,7 @@ private:
   mutable std::atomic<unsigned> m_countRefitIterations = 0;
 
   // count warnings
-  mutable std::unique_ptr<MessageHelper> m_messageHelper
-    ATLAS_THREAD_SAFE; // MessageHelper is thread-safe
+  std::unique_ptr<MessageHelper> m_messageHelper;
 
 };
 

@@ -52,6 +52,9 @@ TrigConf::L1Menu::update()
             for( auto & thr : v ) {
                m_thresholdsByName[ thr->name() ] = thr;
             }
+            for (auto &thr : v) {
+               m_thresholdsByTypeAndMapping[thrType][thr->mapping()] = thr;
+            }
          }
       }
    }
@@ -252,6 +255,22 @@ TrigConf::L1Menu::threshold(const std::string & thresholdName) const
    }
    catch(std::exception & ex) {
       std::cerr << "No threshold '" << thresholdName << "' defined in the thresholds section of the L1 menu" << std::endl;
+      throw;
+   }
+}
+
+/** Access to L1Threshold by type and mapping index */
+const TrigConf::L1Threshold &
+TrigConf::L1Menu::threshold(const std::string &typeName, unsigned int mapping) const
+{
+   try
+   {
+      return *m_thresholdsByTypeAndMapping.at(typeName).at(mapping);
+   }
+   catch (std::exception &ex)
+   {
+      std::cerr << "No threshold of type '" << typeName << "' with mapping " << mapping
+                << " defined in the thresholds section of the L1 menu" << std::endl;
       throw;
    }
 }

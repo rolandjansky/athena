@@ -138,6 +138,7 @@ namespace FlavorTagDiscriminants {
 
     TypeRegexes trk_type_regexes {
       {"numberOf.*"_r, EDMType::UCHAR},
+      {"btagIp_(d|z)0.*"_r, EDMType::FLOAT},
       {".*_(d|z)0.*"_r, EDMType::CUSTOM_GETTER},
       {"(log_)?(ptfrac|dr).*"_r, EDMType::CUSTOM_GETTER}
     };
@@ -154,6 +155,7 @@ namespace FlavorTagDiscriminants {
     TrkSelRegexes trk_select_regexes {
       {".*_ip3d_.*"_r, TrackSelection::IP3D_2018},
       {".*_all_.*"_r, TrackSelection::ALL},
+      {".*_dipsLoose202102_.*"_r, TrackSelection::DIPS_LOOSE_202102},
     };
     std::vector<DL2TrackSequenceConfig> trk_config = get_track_input_config(
       trk_names, trk_type_regexes, trk_sort_regexes, trk_select_regexes);

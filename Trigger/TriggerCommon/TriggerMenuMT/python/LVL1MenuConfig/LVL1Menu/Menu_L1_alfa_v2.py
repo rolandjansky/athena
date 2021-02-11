@@ -62,6 +62,7 @@ def defineMenu():
         ### For L1_ALFA
         'NIM_ALFA_LOG', 'NIM_ALFA_LOG_OD'
         ]
+
     Lvl1Flags.items = [
         #EM thresholds
         'L1_EM3', 'L1_EM6', 'L1_EM12', 'L1_EM10VH',
@@ -164,7 +165,6 @@ def defineMenu():
         'L1_LUCID_A_ALFA_C_UNPAIRED_ISO','L1_LUCID_C_ALFA_A_UNPAIRED_ISO',
         'L1_MBTS_2_C_ALFA_A_UNPAIRED_ISO','L1_MBTS_2_A_ALFA_C_UNPAIRED_ISO',
         'L1_MBTS_1_C_ALFA_A_UNPAIRED_ISO','L1_MBTS_1_A_ALFA_C_UNPAIRED_ISO',
-
         ]
     
 

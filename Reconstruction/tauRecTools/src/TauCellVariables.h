@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUREC_TAUCELLVARIABLES_H
-#define	TAUREC_TAUCELLVARIABLES_H
+#ifndef TAURECTOOLS_TAUCELLVARIABLES_H
+#define TAURECTOOLS_TAUCELLVARIABLES_H
 
 #include "tauRecTools/TauRecToolBase.h"
 
@@ -67,4 +67,4 @@ inline bool TauCellVariables::isStripLayer(const CaloSampling::CaloSample& calo)
   }
 }
 
-#endif	/* TAUREC_TAUCELLVARIABLES_H */
+#endif // TAURECTOOLS_TAUCELLVARIABLES_H

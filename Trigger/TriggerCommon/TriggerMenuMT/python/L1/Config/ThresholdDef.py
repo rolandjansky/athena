@@ -43,10 +43,10 @@ class ThresholdDef:
 
         MuonThreshold( 'MU0'   ).setThrValue( thr = 4 )
         MuonThreshold( 'MU4'   ).setThrValue( ba=4,  ec=4,  fw=4 )
-        MuonThreshold( 'MU5'   ).setThrValue( ba=4,  ec=4,  fw=6  )
+        MuonThreshold( 'MU5'   ).setThrValue( ba=4,  ec=4,  fw=6 )
         MuonThreshold( 'MU6'   ).setThrValue( thr=6  )
         MuonThreshold( 'MU6M'  ).setThrValue( thr=6,  fw=8  ).setTGCFlags("F & C | F & H | C & H")
-        MuonThreshold( 'MU10'  ).setThrValue( thr=10  )
+        MuonThreshold( 'MU10'  ).setThrValue( thr=10 )
         MuonThreshold( 'MU11'  ).setThrValue( thr=10 )
         MuonThreshold( 'MU15'  ).setThrValue( thr=14, ba=15 )
         MuonThreshold( 'MU20'  ).setThrValue( thr=20 )
@@ -158,20 +158,17 @@ class ThresholdDef:
         for et in [12,20, 25]:
             TauThreshold('eTAU%iIM' % et, 'eTAU').setEt(et)
 
-
-
         # JET
         for thrV in [12, 15, 20, 25, 30, 40, 50, 85, 100]:
             JetThreshold('jJ%i' % thrV, 'jJ').setPt(thrV).addRange(etamin=-31, etamax=31) # jets are between -31 and 31 -ATR-11526
 
-
         # Central jet
-        for (thrV, etamax) in [(12,23), (15,25), (25,23), (35,23), (40,25)]:
-            JetThreshold('jJ%i.0ETA%i'  % (thrV, etamax), 'jJ').setPt(thrV).addRange(etamin = -etamax,  etamax = etamax)  
+        for (thrV, etamax) in [(12,25), (15,25), (25,23), (35,23), (40,25)]:
+            JetThreshold('jJ%ip0ETA%i'  % (thrV, etamax), 'jJ').setPt(thrV).addRange(etamin = -etamax,  etamax = etamax)  
 
         # Standard forward jet
         for thrV in [15, 20, 75]:
-            JetThreshold('jJ%i.31ETA49' % thrV, 'jJ').setPt(thrV).addRange(etamin=31, etamax=49).addRange(etamin=-49, etamax=-31)
+            JetThreshold('jJ%ip31ETA49' % thrV, 'jJ').setPt(thrV).addRange(etamin=31, etamax=49).addRange(etamin=-49, etamax=-31)
 
         # XE
         for thrV in [20, 50]:

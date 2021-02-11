@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
 from future import standard_library
 standard_library.install_aliases()
 import subprocess
@@ -14,7 +16,8 @@ import subprocess
 
 if not "SuperCells" in dir():
    SuperCells=False
-
+#if not 'SC_SampleShift' in dir():
+#   SC_SampleShift=0
 
 if not SuperCells: include("LArCalibProcessing/LArCalib_Flags.py")
 if SuperCells:     include("LArCalibProcessing/LArCalib_FlagsSC.py")
@@ -61,10 +64,14 @@ if not 'FullFileName' in dir():
  
        
 if not 'GainList' in dir():
-   GainList = [ "HIGH", "MEDIUM", "LOW" ]
+   if not SuperCells:
+      GainList = [ "HIGH", "MEDIUM", "LOW" ]
+   else:
+      GainList = [ "SC" ]
 
 if not 'GroupingType' in dir():
-   GroupingType = "ExtendedSubDetector"
+   if not SuperCells: GroupingType = "ExtendedSubDetector"
+   if SuperCells:     GroupingType = "ExtendedFeedThrough"
 
 if not 'ChannelSelection' in dir():
    # read all
@@ -112,8 +119,19 @@ if not 'doLArScaNoiseTool' in dir():
 if not 'doLArCalibDataQuality' in dir():
    doLArCalibDataQuality = True
 
+## LAr Coherent Noise Mon
+if not 'doLArCoherentNoise' in dir():
+   doLArCoherentNoise = False
+
+
 if not 'online' in dir():
    online = False
+
+if 'coherentNoiseFEBS' not in dir():
+   coherentNoiseFEBS=[]
+
+if 'coherNoisePartSums' not in dir():
+   coherNoisePartSums=False
    
 #######################################################
 #       Pedestal and AutoCorrelation  properties
@@ -311,54 +329,57 @@ ServiceMgr.EventSelector.MaxBadEvents = 0
 ## All three are vectors of integers
 #################################################################
 
+if runAccumulator:
+ if SuperCells:
+   from LArByteStream.LArByteStreamConf import LArLATOMEDecoder
+   theLArLATOMEDecoder = LArLATOMEDecoder("LArLATOMEDecoder")
+   theLArLATOMEDecoder.latomeInfoFileName = LatomeInfo
+   theLArLATOMEDecoder.DumpFile = SC_DumpFile
+   theLArLATOMEDecoder.RawDataFile = SC_RawDataFile
 
-from LArByteStream.LArByteStreamConf import LArRawCalibDataReadingAlg
+   from LArByteStream.LArByteStreamConf import LArRawSCDataReadingAlg
+   larRawSCDataReadingAlg = LArRawSCDataReadingAlg() 
+   larRawSCDataReadingAlg.adcCollKey = Gain
+   larRawSCDataReadingAlg.adcBasCollKey = ""
+   larRawSCDataReadingAlg.etCollKey = ""
+   larRawSCDataReadingAlg.etIdCollKey = ""
+   larRawSCDataReadingAlg.LATOMEDecoder = theLArLATOMEDecoder
+   larRawSCDataReadingAlg.OutputLevel = DEBUG
+   topSequence += larRawSCDataReadingAlg
 
-theLArRawCalibDataReadingAlg=LArRawCalibDataReadingAlg()
-theLArRawCalibDataReadingAlg.LArAccDigitKey=GainList[0]
-theLArRawCalibDataReadingAlg.LArFebHeaderKey="LArFebHeader"
+ else:
+   ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/HIGH"]
+   ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/MEDIUM"]
+   ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/LOW"]
+   ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArFebHeaderContainer/LArFebHeader"]
 
+ from LArROD.LArRODConf import LArDigitsAccumulator
+ larDigitsAccumulator = LArDigitsAccumulator("LArDigitsAccumulator")
+ larDigitsAccumulator.KeyList = [Gain]
+ larDigitsAccumulator.LArAccuDigitContainerName = ""
+ larDigitsAccumulator.NTriggersPerStep = 100
+ larDigitsAccumulator.OutputLevel = DEBUG
 
-topSequence+=theLArRawCalibDataReadingAlg
+ topSequence += larDigitsAccumulator
 
-
-"""
-if not SuperCells:
-   from LArByteStream.LArByteStreamConf import LArRodDecoder
-   ServiceMgr.ToolSvc += LArRodDecoder()
-
-#ToolSvc.LArRodDecoder.BEPreselection     = [0]                                                   ## : [Barrel=0,Endcap=1]
-#ToolSvc.LArRodDecoder.PosNegPreselection = [1]                                                   ## : [C-side (negative eta)=0, A-side (positive eta)=1]
-#ToolSvc.LArRodDecoder.FTNumPreselection  = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]               ## : first half of [EM barrel feedthrough numbers]
-#ToolSvc.LArRodDecoder.FTNumPreselection  = [16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31]     ## : second half of [EM barrel feedthrough numbers]
-#ToolSvc.LArRodDecoder.FTNumPreselection  = [0,1,4,7,8,11,12,13,14,17,18,19,20,23,24]             ## : [EMEC Standard feedthrough numbers]
-#ToolSvc.LArRodDecoder.FTNumPreselection  = [2,9,15,21]                                           ## : [EMEC Special feedthrough numbers]
-#ToolSvc.LArRodDecoder.FTNumPreselection  = [3,10,16,22]                                          ## : [HEC feedthrough numbers]  (note: slots 1&2 are EMEC slots)
-#ToolSvc.LArRodDecoder.FTNumPreselection  = [6]                                                   ## : [FCAL feedthrough number]
-
-theByteStreamAddressProviderSvc =ServiceMgr.ByteStreamAddressProviderSvc
-
-if not SuperCells:
-   theByteStreamAddressProviderSvc.TypeNames += ["LArFebHeaderContainer/LArFebHeader"]
-   theByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/HIGH"]
-   theByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/MEDIUM"]
-   theByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/LOW"]
-   theByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/FREE"]
-
-   theByteStreamAddressProviderSvc.TypeNames += ["LArAccumulatedDigitContainer/HIGH"]
-   theByteStreamAddressProviderSvc.TypeNames += ["LArAccumulatedDigitContainer/MEDIUM"]
-   theByteStreamAddressProviderSvc.TypeNames += ["LArAccumulatedDigitContainer/LOW"]
+else:
    
-if SuperCells:
-   theByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/SC"]
-"""
+   # Need to debug the raw data reading algo for legacy
+   from LArByteStream.LArByteStreamConf import LArRawCalibDataReadingAlg
+
+   theLArRawCalibDataReadingAlg=LArRawCalibDataReadingAlg()
+   theLArRawCalibDataReadingAlg.LArAccDigitKey=Gain
+   theLArRawCalibDataReadingAlg.LArFebHeaderKey="LArFebHeader"
+
+   topSequence+=theLArRawCalibDataReadingAlg
+
 
 from IOVDbSvc.CondDB import conddb
 
 if 'BadChannelsFolder' not in dir():
-   BadChannelsFolder="/LAR/BadChannelsOfl/BadChannels"
+   BadChannelsFolder="/LAR/BadChannels/BadChannels"
 if 'MissingFEBsFolder' not in dir():
-   MissingFEBsFolder="/LAR/BadChannelsOfl/MissingFEBs"
+   MissingFEBsFolder="/LAR/BadChannels/MissingFEBs"
 
 
 if ( ReadBadChannelFromCOOL ):      
@@ -388,6 +409,10 @@ condSeq+=theLArBadChannelCondAlg
 
 theLArBadFebCondAlg=LArBadFebCondAlg(ReadKey=MissingFEBsFolder)
 condSeq+=theLArBadFebCondAlg
+
+if SuperCells:
+   conddb.addFolder("","/LAR/IdentifierOfl/OnOffIdMap_SC<db>COOLOFL_LAR/OFLP200</db><tag>LARIdentifierOflOnOffIdMap_SC-000</tag>") 
+
 
 ## This algorithm verifies that no FEBs are dropping out of the run
 ## If it finds corrupt events, it breaks the event loop and terminates the job rapidly
@@ -458,6 +483,7 @@ if ( doLArCalibDataQuality  ) :
       conddb.addFolder("",LArCalib_Flags.LArAutoCorrFolder+"<key>LArAutoCorrRef</key><dbConnection>"+DBConnectionCOOL+"</dbConnection>"+ChannelSelection)
 
 
+"""
 if runAccumulator:
    if Pedestal :
       from LArCalibUtils.LArCalibUtilsConf import LArPedestalMaker
@@ -480,26 +506,27 @@ if runAccumulator:
       LArAutoCorrMaker.KeyList = GainList
       LArAutoCorrMaker.events_ref = EventsRef
       LArAutoCorrMaker.nsigma     = NSigma
-      LArAutoCorrMaker.Nsamples     = NSamples
+      #LArAutoCorrMaker.Nsamples     = NSamples
       LArAutoCorrMaker.KeyOutput  = KeyOutputAC
       LArAutoCorrMaker.GroupingType = GroupingType
       LArAutoCorrMaker.BunchCrossingTool = ""
-   
       topSequence += LArAutoCorrMaker
 
 else :
-      # pre computation in the DSP
-      from LArCalibUtils.LArCalibUtilsConf import LArPedestalAutoCorrBuilder
-      LArPedACBuilder=LArPedestalAutoCorrBuilder("LArPedestalAutoCorrBuilder")
-      LArPedACBuilder.KeyList         = GainList
-      LArPedACBuilder.PedestalKey     = KeyOutputPed
-      LArPedACBuilder.AutoCorrKey     = KeyOutputAC      
-      LArPedACBuilder.GroupingType    = GroupingType
-      if not SuperCells:
-         LArPedACBuilder.sample_min      = MinSample
-         LArPedACBuilder.sample_max      = MaxSample
-      
-      topSequence += LArPedACBuilder
+"""
+# pre computation in the DSP or acummulator
+from LArCalibUtils.LArCalibUtilsConf import LArPedestalAutoCorrBuilder
+LArPedACBuilder=LArPedestalAutoCorrBuilder("LArPedestalAutoCorrBuilder")
+LArPedACBuilder.KeyList         = GainList
+LArPedACBuilder.PedestalKey     = KeyOutputPed
+LArPedACBuilder.AutoCorrKey     = KeyOutputAC      
+LArPedACBuilder.GroupingType    = GroupingType
+if not SuperCells:
+   LArPedACBuilder.sample_min      = MinSample
+   LArPedACBuilder.sample_max      = MaxSample
+
+LArPedACBuilder.OutputLevel     = DEBUG
+topSequence += LArPedACBuilder
 
       
 ######################################################################
@@ -600,15 +627,6 @@ if ( doMonitoring ) :
    topSequence += AthenaMonManager( "LArMon" )
    LArMon = topSequence.LArMon
 
-   ## old style
-   #LArMon.FileKey = "AllMon"
-   #LArMon.ManualDataTypeSetup = True
-   #LArMon.Environment         = "user"
-   #LArMon.ManualRunLBSetup    = True
-   #LArMon.Run                 = 1
-   #LArMon.LumiBlock           = 1
-   #LArMon.CheckEveryNoEvents  = 999999 #to do the check only at the end of the run
-
    ## tier0 style
    LArMon.FileKey = "GLOBAL"
    LArMon.ManualDataTypeSetup = True
@@ -618,7 +636,44 @@ if ( doMonitoring ) :
    LArMon.LumiBlock           = 1
    LArMon.CheckEveryNoEvents  = 999999 #to do the check only at the end of the run
   
-   LArDigitKey = GainList[0]
+   LArDigitKey = Gain_forCoherentNoise
+
+
+   if ( doLArCoherentNoise ) :
+      from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+      athenaCommonFlags.isOnline=online
+      from LArMonTools.LArMonFlags import LArMonFlags
+      from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
+      theLArBadChannelsMasker=LArBadChannelMasker("LArBadChannelsMasker")
+      theLArBadChannelsMasker.DoMasking=True
+      theLArBadChannelsMasker.ProblemsToMask=[
+         "deadReadout","deadPhys","short","almostDead",
+         "highNoiseHG","highNoiseMG","highNoiseLG","sporadicBurstNoise"
+         ]
+      ToolSvc+=theLArBadChannelsMasker
+      from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArPedestalFlat_ as LArPedestalCondAlg 
+      svcMgr.IOVDbSvc.Folders.append("<db>COOLONL_LAR/CONDBR2</db>/LAR/ElecCalibFlat/Pedestal")
+      from AthenaCommon.AlgSequence import AthSequencer
+      condSeq = AthSequencer("AthCondSeq")
+      condSeq+=LArPedestalCondAlg(ReadKey="/LAR/ElecCalibFlat/Pedestal",WriteKey="Pedestal2")
+      condSeq.CondInputLoader.Load.append(("CondAttrListCollection","/LAR/ElecCalibFlat/Pedestal"))
+
+      ## Coherent noise plots
+      include("LArMonTools/LArNoiseCorrelationMon_jobOptions.py")    
+      for item in topSequence.LArMon.AthenaMonTools:
+          if item.getName()=='LArNoiseCorrelationMon':
+            item.LArPedestalKey="Pedestal2"
+            item.IsCalibrationRun=True
+            item.LArDigitContainerKey=Gain_forCoherentNoise
+            item.TriggerChain=""
+            item.TrigDecisionTool=""
+            item.FEBsToMonitor = coherentNoiseFEBS
+            item.PublishPartialSums = coherNoisePartSums
+      if 'EvtNo' in dir():  
+         theApp.EvtMax = EvtNo
+         pass
+      pass
+
 
    if ( doLArFEBMon ) :
       ## LArFEBMon
@@ -635,11 +690,6 @@ if ( doMonitoring ) :
       include("LArRawConditions/LArIdMap_ATLAS_jobOptions.py")
       include("LArMonTools/LArScaNoiseMonTool_jobOptions.py")
 
-#   if ( doLArDigitNoiseMonTool ) :   
-#      ## LArDigitNoiseMonTool
-#      include("LArMonTools/LArDigitNoiseMonTool_jobOptions.py")
-#      theLArDigitNoiseMon.gainNames = GainList
-   
    RootHistOutputFileName='RootHistos_'+BaseFileNamePedAutoCorr+".root"
 
    theApp.HistogramPersistency = "ROOT"
@@ -647,8 +697,6 @@ if ( doMonitoring ) :
    if os.path.exists(OutputPedAutoCorrRootFileDir + "/" +RootHistOutputFileName): 
       os.remove(OutputPedAutoCorrRootFileDir + "/" +RootHistOutputFileName)
    ServiceMgr += THistSvc()
-   #ServiceMgr.THistSvc.Output = ["AllMon DATAFILE='"+OutputPedAutoCorrRootFileDir + "/" +RootHistOutputFileName+"' OPT='New'"]
-
    ServiceMgr.THistSvc.Output = ["GLOBAL DATAFILE='"+OutputPedAutoCorrRootFileDir + "/" +RootHistOutputFileName+"' OPT='RECREATE'"]
 
 
@@ -658,6 +706,8 @@ if ( WriteNtuple ) :
    if Pedestal :
       from LArCalibTools.LArCalibToolsConf import LArPedestals2Ntuple
       LArPedestals2Ntuple = LArPedestals2Ntuple("LArPedestals2Ntuple")
+      LArPedestals2Ntuple.RealGeometry = True
+      LArPedestals2Ntuple.OffId = True
       LArPedestals2Ntuple.ContainerKey = KeyOutputPed
       LArPedestals2Ntuple.AddFEBTempInfo = False
       LArPedestals2Ntuple.isSC = SuperCells
@@ -670,14 +720,15 @@ if ( WriteNtuple ) :
    if AutoCorr :
       from LArCalibTools.LArCalibToolsConf import LArAutoCorr2Ntuple
       LArAutoCorr2Ntuple = LArAutoCorr2Ntuple( "LArAutoCorr2Ntuple" )
-      LArAutoCorr2Ntuple.Nsamples     = NSamples
+      LArAutoCorr2Ntuple.RealGeometry = True
+      LArAutoCorr2Ntuple.OffId = True
+      #LArAutoCorr2Ntuple.Nsamples     = NSamples
       LArAutoCorr2Ntuple.AddFEBTempInfo  = False
       LArAutoCorr2Ntuple.ContainerKey = KeyOutputAC
       LArAutoCorr2Ntuple.isSC = SuperCells
       if SuperCells:
          LArAutoCorr2Ntuple.CablingKey = "LArOnOffIdMapSC"
          LArAutoCorr2Ntuple.CalibMapKey = "LArCalibIdMapSC"
-
       topSequence += LArAutoCorr2Ntuple
 
    theApp.HistogramPersistency = "ROOT"
@@ -730,6 +781,4 @@ theAuditorSvc += getConfigurable("NameAuditor")(OutputLevel = WARNING)
 ServiceMgr.ChronoStatSvc.OutputLevel  = INFO
 
 ###########################################################################
-#ServiceMgr.IOVDbSvc.OutputLevel = DEBUG 
-
-printfunc (condSeq)
+#printfunc (condSeq)

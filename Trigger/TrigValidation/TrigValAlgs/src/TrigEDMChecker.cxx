@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** Adapted from code by A.Hamilton to check trigger EDM; R.Goncalo 21/11/07 */
@@ -584,7 +584,7 @@ StatusCode TrigEDMChecker::dumpTrigPassBits(){
     }
     else {
         ATH_MSG_INFO("Size of PassBits container : " << xbitscont->size());
-        for(const auto &bits:*xbitscont){
+        for(const auto bits:*xbitscont){
             if(bits==nullptr){
                 ATH_MSG_INFO("TrigPassBits point nullptr ");
                 continue;
@@ -1674,7 +1674,7 @@ StatusCode TrigEDMChecker::dumpxAODTrigElectronContainer() {
     return StatusCode::SUCCESS;
   }
 
-  for (const auto& eg : *elCont){
+  for (const auto eg : *elCont){
       ATH_MSG_INFO("REGTEST TrigElectron->Phi() returns " << eg->phi());
       ATH_MSG_INFO("REGTEST TrigElectron->Eta() returns " << eg->eta());
       ATH_MSG_INFO("REGTEST TrigElectron->rEta returns " << eg->rcore());
@@ -1732,7 +1732,7 @@ StatusCode TrigEDMChecker::dumpxAODTrigPhotonContainer() {
     return StatusCode::SUCCESS;
   }
 
-  for (const auto& eg : *phCont){
+  for (const auto eg : *phCont){
 
       ATH_MSG_INFO("REGTEST TrigPhoton->Phi() returns " << eg->phi());
       ATH_MSG_INFO("REGTEST TrigPhoton->Eta() returns " << eg->eta());
@@ -1780,7 +1780,7 @@ StatusCode TrigEDMChecker::dumpxAODElectronContainer() {
   //DEBUG output for Egamma container
   ATH_MSG_INFO(" REGTEST: xAOD Reconstruction variables: ");
   //                //Cluster and ShowerShape info
-  for (const auto& eg : *elCont){
+  for (const auto eg : *elCont){
       //REGTEST printout
       if (eg) {
           ATH_MSG_INFO(" REGTEST: egamma energy: " << eg->e() );
@@ -1933,7 +1933,7 @@ StatusCode TrigEDMChecker::dumpxAODPhotonContainer() {
   //DEBUG output for xAOD::PhotonContainer
   ATH_MSG_INFO(" REGTEST: xAOD Reconstruction variables: ");
   //                //Cluster and ShowerShape info
-  for (const auto& eg : *phCont){
+  for (const auto eg : *phCont){
       //REGTEST printout
       if (eg) {
           ATH_MSG_INFO(" REGTEST: egamma energy: " << eg->e() );
@@ -2587,7 +2587,7 @@ StatusCode TrigEDMChecker::dumpxAODJetContainer() {
         if (jetContsize != 0) {
             onefilled = true;
             int i = 0;
-            for(const auto & thisjet : *jetCont) {
+            for(const auto thisjet : *jetCont) {
                 ++i;
                 ATH_MSG_INFO( "REGTEST Looking at jet " << i);
                 if (thisjet) {
@@ -4256,7 +4256,7 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
         }
         // Check my seeds
         if (!doDump) {
-          for (const ElementLink<DecisionContainer>& s : seedELs) {
+          for (const ElementLink<DecisionContainer> s : seedELs) {
             const std::vector<DecisionID>& seedDecisions = (*s)->decisions();
             const auto it2 = std::find(seedDecisions.begin(), seedDecisions.end(), chainID.numeric());
             if (it2 != seedDecisions.end()) {

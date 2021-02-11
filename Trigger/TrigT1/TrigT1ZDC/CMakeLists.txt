@@ -7,4 +7,5 @@ atlas_subdir( TrigT1ZDC )
 atlas_add_component( TrigT1ZDC
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps AtlasHepMCLib GaudiKernel GeneratorObjects TrigConfInterfaces TrigConfL1Data TrigT1Interfaces )
+                     LINK_LIBRARIES AthenaBaseComps AtlasHepMCLib GaudiKernel GeneratorObjects 
+                     TrigConfInterfaces TrigConfData TrigConfL1Data TrigT1Interfaces )

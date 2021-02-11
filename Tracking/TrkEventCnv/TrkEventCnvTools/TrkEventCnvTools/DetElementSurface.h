@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKEVENTCNVTOOLS_DETELEMENTSURFACE_H
@@ -54,6 +54,9 @@ class DetElementSurface : public Surface
 // A dummy method required for consistency of the package and 
     virtual ParametersBase<5, Trk::Charged>* createTrackParameters(double, double, double, double, double, AmgSymMatrix(5)*) const {return nullptr;}
     virtual ParametersBase<5, Trk::Charged>* createTrackParameters(const Amg::Vector3D&, const Amg::Vector3D&, double, AmgSymMatrix(5)*) const {return nullptr;}     
+    virtual std::unique_ptr<ParametersBase<5, Trk::Charged>> createUniqueTrackParameters(double, double, double, double, double, AmgSymMatrix(5)*) const {return nullptr;}
+    virtual std::unique_ptr<ParametersBase<5, Trk::Charged>> createUniqueTrackParameters(const Amg::Vector3D&, const Amg::Vector3D&, double, AmgSymMatrix(5)*) const {return nullptr;}
+    
     virtual ParametersBase<5, Trk::Neutral>* createNeutralParameters(double, double, double, double, double, AmgSymMatrix(5)*) const {return nullptr;}
     virtual ParametersBase<5, Trk::Neutral>* createNeutralParameters(const Amg::Vector3D&, const Amg::Vector3D&, double, AmgSymMatrix(5)*) const {return nullptr;}
 

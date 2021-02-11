@@ -30,7 +30,7 @@ namespace LVL1{
       virtual unsigned int getRealPhi() =0;
       virtual unsigned int getRealEta() =0;
       virtual unsigned int getTTowerET() = 0;
-      virtual unsigned int getClusterET() =0;
+      virtual unsigned int getSmallClusterET() =0;
       //virtual unsigned int getClusterET(int smallRJetClusterIDs[4][5]) =0;
       virtual std::unique_ptr<jFEXSmallRJetTOB> getSmallRJetTOBs() = 0; 
 

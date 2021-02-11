@@ -51,6 +51,8 @@ def defaultTestFlags(configFlags, args):
     configFlags.Tile.zeroAmplitudeWithoutDigits = False
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles
+    from AthenaConfiguration.Enums import ProductionStep
+    configFlags.Common.ProductionStep = ProductionStep.Overlay
     if args.data:
         configFlags.Input.isMC = False  # TODO: this one should be autodetected
         configFlags.Input.Files = defaultTestFiles.HITS_DATA_OVERLAY

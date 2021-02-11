@@ -138,9 +138,9 @@ class ITrackTools:virtual public IAlgTool{
                                                    bool includelar) = 0;
         virtual double getPathInsideCell(const TRACK *track, const CaloCell *cell) = 0;
         virtual double getPath(const CaloCell* cell, const Trk::TrackParameters *entrance, const Trk::TrackParameters *exit) = 0;
-	virtual std::vector< double > getXYZEtaPhiInCellSampling(const TRACK* track, const CaloCell *cell) = 0;
+        virtual std::vector< double > getXYZEtaPhiInCellSampling(const TRACK* track, const CaloCell *cell) = 0;
         virtual std::vector< double > getXYZEtaPhiInCellSampling(const TRACK* track, CaloSampling::CaloSample sampling) = 0;
-        virtual const Trk::TrackParameters* getTrackInCellSampling(const TRACK* track, CaloSampling::CaloSample sampling) = 0;
+        virtual std::unique_ptr<const Trk::TrackParameters> getTrackInCellSampling(const TRACK* track, CaloSampling::CaloSample sampling) = 0;
         virtual std::vector< std::vector<double> > getXYZEtaPhiPerLayer(const TRACK* track) = 0;
         virtual std::vector< std::vector<double> > getXYZEtaPhiPerSampling(const TRACK* track) = 0;
         virtual int retrieveIndex(int sampling, float eta) = 0;

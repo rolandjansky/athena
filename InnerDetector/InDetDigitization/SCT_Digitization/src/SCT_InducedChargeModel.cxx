@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------
@@ -42,7 +42,8 @@ SCT_InducedChargeModel::setWaferData(const float vdepl,
                                      const InDetDD::SiDetectorElement* element,
                                      const AtlasFieldCacheCondObj* fieldCondObj,
                                      const ToolHandle<ISiliconConditionsTool> siConditionsTool,
-                                     CLHEP::HepRandomEngine* rndmEngine) const {
+                                     CLHEP::HepRandomEngine* rndmEngine,
+                                     const EventContext& ctx) const {
   std::lock_guard<std::mutex> lock(m_mutex);
 
   // If cache exists, cache is used.
@@ -69,7 +70,8 @@ SCT_InducedChargeModel::setWaferData(const float vdepl,
                                                  m_bulk_depth,
                                                  m_EFieldModel,
                                                  siConditionsTool,
-                                                 rndmEngine);
+                                                 rndmEngine,
+                                                 ctx);
 
   //--- set electric fields ---
   setEField(*data);

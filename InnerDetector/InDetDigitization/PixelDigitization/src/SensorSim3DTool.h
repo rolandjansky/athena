@@ -1,6 +1,7 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
+
 /**
  * @file PixelDigitization/SensorSim3DTool.h
  * @author Soshi Tsuno <Soshi.Tsuno@cern.ch>
@@ -17,83 +18,111 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "RadDamageUtil.h"
 
-class SensorSim3DTool : public SensorSimTool {
 
-  public:
-    SensorSim3DTool( const std::string& type, const std::string& name,const IInterface* parent);
-    virtual StatusCode initialize() override;
-    virtual StatusCode finalize() override;
-    virtual ~SensorSim3DTool();
+class SensorSim3DTool: public SensorSimTool {
+public:
+  SensorSim3DTool(const std::string& type, const std::string& name, const IInterface* parent);
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
+  virtual ~SensorSim3DTool();
 
-    virtual StatusCode induceCharge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection& chargedDiodes, 
-        const InDetDD::SiDetectorElement &Module, const InDetDD::PixelModuleDesign &p_design, 
-        std::vector< std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions, CLHEP::HepRandomEngine *rndmEngine) override;
+  virtual StatusCode induceCharge(const TimedHitPtr<SiHit>& phit,
+                                  SiChargedDiodeCollection& chargedDiodes,
+                                  const InDetDD::SiDetectorElement& Module,
+                                  const InDetDD::PixelModuleDesign& p_design,
+                                  const PixelModuleData *moduleData,
+                                  std::vector< std::pair<double, double> >& trfHitRecord,
+                                  std::vector<double>& initialConditions,
+                                  CLHEP::HepRandomEngine* rndmEngine,
+                                  const EventContext &ctx) override;
 
 
-    // 3D sensor simulation using probability density map (used in RUN-2 (no radiation damage)
-    StatusCode readProbMap(std::string);
-    StatusCode printProbMap(std::string);
-    double getProbMapEntry(std::string, int, int);
+  // 3D sensor simulation using probability density map (used in RUN-2 (no radiation damage)
+  StatusCode readProbMap(std::string);
+  StatusCode printProbMap(std::string);
+  double getProbMapEntry(std::string, int, int);
 
-    double getElectricField(double x, double y);
-    double getMobility(double electricField, bool isHoleBit);
-    double getDriftTime(bool isHoleBit);
-    double getTimeToElectrode(double x, double y, bool isHoleBit);
-    double getTrappingPositionX(double initX, double initY, double driftTime, bool isHoleBit);
-    double getTrappingPositionY(double initX, double initY, double driftTime, bool isHoleBit);
-    double getRamoPotential(double x, double y);
+  double getElectricField(double x, double y);
+  double getMobility(double electricField, bool isHoleBit);
+  double getDriftTime(bool isHoleBit);
+  double getTimeToElectrode(double x, double y, bool isHoleBit);
+  double getTrappingPositionX(double initX, double initY, double driftTime, bool isHoleBit);
+  double getTrappingPositionY(double initX, double initY, double driftTime, bool isHoleBit);
+  double getRamoPotential(double x, double y);
+private:
+  SensorSim3DTool();
 
-  private:
-    SensorSim3DTool();
+  // 3D sensor simulation using probability density map (used in RUN-2 (no radiation damage)
+  std::multimap<std::pair<int, int>, double> m_probMapFEI4;
+  std::multimap<std::pair<int, int>, double> m_probMapFEI3;
 
-    // 3D sensor simulation using probability density map (used in RUN-2 (no radiation damage)
-    std::multimap<std::pair<int,int>,double> m_probMapFEI4;
-    std::multimap<std::pair<int,int>,double> m_probMapFEI3;
+  // Map for radiation damage simulation
+  std::map<std::pair<int, int>, TH3F*> m_ramoPotentialMap;
+  std::map<std::pair<int, int>, TH2F*> m_eFieldMap;
+  std::map<std::pair<int, int>, TH3F*> m_xPositionMap_e;
+  std::map<std::pair<int, int>, TH3F*> m_xPositionMap_h;
+  std::map<std::pair<int, int>, TH3F*> m_yPositionMap_e;
+  std::map<std::pair<int, int>, TH3F*> m_yPositionMap_h;
+  std::map<std::pair<int, int>, TH2F*> m_timeMap_e;
+  std::map<std::pair<int, int>, TH2F*> m_timeMap_h;
+  TH2F* m_avgChargeMap_e;
+  TH2F* m_avgChargeMap_h;
 
-    // Map for radiation damage simulation
-    std::map<std::pair<int, int>, TH3F*> m_ramoPotentialMap;
-    std::map<std::pair<int, int>, TH2F*> m_eFieldMap;
-    std::map<std::pair<int, int>, TH3F*> m_xPositionMap_e;
-    std::map<std::pair<int, int>, TH3F*> m_xPositionMap_h;
-    std::map<std::pair<int, int>, TH3F*> m_yPositionMap_e;
-    std::map<std::pair<int, int>, TH3F*> m_yPositionMap_h;
-    std::map<std::pair<int, int>, TH2F*> m_timeMap_e;
-    std::map<std::pair<int, int>, TH2F*> m_timeMap_h;
-    TH2F* m_avgChargeMap_e;
-    TH2F* m_avgChargeMap_h;
+  std::vector<double> m_fluence_layers;
+  std::map<std::pair<int, int>, double> m_fluence_layersMaps;
 
-    std::vector<double> m_fluence_layers;
-    std::map<std::pair<int, int>, double> m_fluence_layersMaps;
+  Gaudi::Property<std::string> m_cc_prob_file_fei3
+  {
+    this, "CCProbMapFileFEI3", "PixelDigitization/3DFEI3-3E-problist-1um_v1.txt",
+    "Input probability file for 3D FEI3 sensor."
+  };
 
-    Gaudi::Property<std::string> m_cc_prob_file_fei3
-    {this, "CCProbMapFileFEI3", "PixelDigitization/3DFEI3-3E-problist-1um_v1.txt", "Input probability file for 3D FEI3 sensor."};
+  Gaudi::Property<std::string> m_cc_prob_file_fei4
+  {
+    this, "CCProbMapFileFEI4", "PixelDigitization/3DFEI4-2E-problist-1um_v0.txt",
+    "Input probability file for 3D FEI4 sensor."
+  };
 
-    Gaudi::Property<std::string> m_cc_prob_file_fei4
-    {this, "CCProbMapFileFEI4", "PixelDigitization/3DFEI4-2E-problist-1um_v0.txt", "Input probability file for 3D FEI4 sensor."};
+  Gaudi::Property<int> m_numberOfSteps
+  {
+    this, "numberOfSteps", 50, "Number of steps for Pixel3D module"
+  };
 
-    Gaudi::Property<int> m_numberOfSteps
-    {this, "numberOfSteps", 50, "Number of steps for Pixel3D module"};
+  Gaudi::Property<bool> m_doRadDamage
+  {
+    this, "doRadDamage", false, "doRadDmaage bool: should be flag"
+  };
 
-    Gaudi::Property<bool> m_doRadDamage
-    {this, "doRadDamage", false, "doRadDmaage bool: should be flag"};
+  Gaudi::Property<bool> m_doChunkCorrection
+  {
+    this, "doChunkCorrection", false, "doChunkCorrection bool: should be flag"
+  };
 
-    Gaudi::Property<bool> m_doChunkCorrection
-    {this, "doChunkCorrection", false, "doChunkCorrection bool: should be flag"};
+  Gaudi::Property<double> m_fluence
+  {
+    this, "fluence", 0,
+    "this is the fluence benchmark, 0-6.  0 is unirradiated, 1 is start of Run 2, 5 is end of 2018 and 6 is projected end of 2018"
+  };
 
-    Gaudi::Property<double> m_fluence
-    {this, "fluence", 0, "this is the fluence benchmark, 0-6.  0 is unirradiated, 1 is start of Run 2, 5 is end of 2018 and 6 is projected end of 2018"};
+  Gaudi::Property<double> m_trappingTimeElectrons
+  {
+    this, "trappingTimeElectrons", 0.0, "Characteristic time till electron is trapped [ns]"
+  };
 
-    Gaudi::Property<double> m_trappingTimeElectrons
-    {this, "trappingTimeElectrons", 0.0, "Characteristic time till electron is trapped [ns]"};
+  Gaudi::Property<double> m_trappingTimeHoles
+  {
+    this, "trappingTimeHoles", 0.0, "Characteristic time till hole is trapped [ns]"
+  };
 
-    Gaudi::Property<double> m_trappingTimeHoles
-    {this, "trappingTimeHoles", 0.0, "Characteristic time till hole is trapped [ns]"};
+  Gaudi::Property<double> m_temperature
+  {
+    this, "Temperature", 300.0, "Default temperature [K]"
+  };
 
-    Gaudi::Property<double> m_temperature
-    {this, "Temperature", 300.0, "Default temperature [K]"};
-
-    ToolHandle<RadDamageUtil> m_radDamageUtil
-    {this, "RadDamageUtil", "RadDamageUtil", "Rad Damage utility"};
+  ToolHandle<RadDamageUtil> m_radDamageUtil
+  {
+    this, "RadDamageUtil", "RadDamageUtil", "Rad Damage utility"
+  };
 
 };
 

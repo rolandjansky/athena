@@ -133,6 +133,7 @@ InDetPhysValMonitoringTool::InDetPhysValMonitoringTool(const std::string& type, 
   declareProperty("VertexTruthMatchTool", m_vtxValidTool);
   declareProperty("useVertexTruthMatchTool", m_useVertexTruthMatchTool);
   declareProperty("TruthSelectionTool", m_truthSelectionTool);
+  declareProperty("doTruthOriginPlots", m_doTruthOriginPlots);
   declareProperty("FillTrackInJetPlots", m_doTrackInJetPlots);
   declareProperty("FillTrackInBJetPlots", m_doBjetPlots);
   declareProperty("FillTruthToRecoNtuple", m_fillTruthToRecoNtuple);
@@ -158,6 +159,8 @@ InDetPhysValMonitoringTool::initialize() {
   ATH_CHECK(m_trackSelectionTool.retrieve(EnableTool {m_useTrackSelection} ));
   ATH_CHECK(m_truthSelectionTool.retrieve(EnableTool {not m_truthParticleName.key().empty()} ));
   ATH_CHECK(m_vtxValidTool.retrieve(EnableTool {m_useVertexTruthMatchTool}));
+  ATH_CHECK(m_trackTruthOriginTool.retrieve( EnableTool {m_doTruthOriginPlots} ));
+
   ATH_MSG_DEBUG("m_useVertexTruthMatchTool ====== " <<m_useVertexTruthMatchTool);
   if (m_truthSelectionTool.get() ) {
     m_truthCutFlow = CutFlow(m_truthSelectionTool->nCuts());
@@ -333,7 +336,11 @@ InDetPhysValMonitoringTool::fillHistograms() {
 
       if ((not std::isnan(prob)) and (prob > m_lowProb) and passed) {
         nSelectedMatchedTracks++; 
-        m_monPlots->fill(*thisTrack, *associatedTruth); // Make plots requiring matched truth
+        bool truthIsFromB = false;
+        if ( m_doTruthOriginPlots and m_trackTruthOriginTool->isFrom(associatedTruth, 5) ) {
+          truthIsFromB = true;
+        }
+        m_monPlots->fill(*thisTrack, *associatedTruth, truthIsFromB); // Make plots requiring matched truth
       }
     }
 
@@ -506,6 +513,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
               
             if(!accept) continue;
             bool isEfficient(false);
+
             for (auto thisTrack: *tracks) {
               if (m_useTrackSelection and not (m_trackSelectionTool->accept(*thisTrack, primaryvertex))) {
                 continue;
@@ -520,10 +528,16 @@ InDetPhysValMonitoringTool::fillHistograms() {
                 }
               }
             }
-            m_monPlots->fillEfficiency(*truth, *thisJet, isEfficient,isBjet);
+
+            bool truthIsFromB = false;
+            if ( m_doTruthOriginPlots and m_trackTruthOriginTool->isFrom(truth, 5) ) {
+              truthIsFromB = true;
+            }
+            m_monPlots->fillEfficiency(*truth, *thisJet, isEfficient, isBjet, truthIsFromB);
           }
         }
       }
+
       for (auto thisTrack: *tracks) {    // The beginning of the track loop
         if (m_useTrackSelection and not (m_trackSelectionTool->accept(*thisTrack, primaryvertex))) {
           continue;
@@ -536,10 +550,14 @@ InDetPhysValMonitoringTool::fillHistograms() {
       
         const xAOD::TruthParticle* associatedTruth = getAsTruth.getTruth(thisTrack); 
         const bool unlinked = (associatedTruth==nullptr);
-        const bool isFake = (associatedTruth && prob < m_lowProb);  
-        m_monPlots->fill(*thisTrack, *thisJet,isBjet,isFake,unlinked);                                   
+        const bool isFake = (associatedTruth && prob < m_lowProb);
+        bool truthIsFromB = false;
+        if ( m_doTruthOriginPlots and m_trackTruthOriginTool->isFrom(associatedTruth, 5) ) {
+          truthIsFromB = true;
+        }
+        m_monPlots->fill(*thisTrack, *thisJet, isBjet, isFake, unlinked, truthIsFromB);                                   
         if (associatedTruth){
-          m_monPlots->fillFakeRate(*thisTrack, *thisJet, isFake,isBjet);
+          m_monPlots->fillFakeRate(*thisTrack, *thisJet, isFake, isBjet, truthIsFromB);
        }
       }
     }
