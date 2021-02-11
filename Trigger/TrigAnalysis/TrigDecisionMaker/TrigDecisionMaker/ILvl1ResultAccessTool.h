@@ -33,7 +33,7 @@ namespace HLT {
    public:
       DeclareInterfaceID (ILvl1ResultAccessTool, 1, 0);
 
-      virtual const std::vector<LVL1CTP::Lvl1Item*>& getDecisionItems() = 0;
+      virtual const std::vector<LVL1CTP::Lvl1Item>& getDecisionItems() = 0;
 
       virtual const std::vector< MuonRoI >& getMuonRoIs() const = 0;
       virtual const std::vector< EMTauRoI >& getEMTauRoIs()  const = 0;

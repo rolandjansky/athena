@@ -31,7 +31,7 @@ namespace HLT {
        Generic structure representing one LVL1 threshold which is used in all LVL1 RoIs
    */
    struct ConfigThreshold {
-      ConfigThreshold(std::string n = "", unsigned int h=0, bool a = false, uint32_t m = 0)
+      ConfigThreshold(const std::string& n = "", unsigned int h=0, bool a = false, uint32_t m = 0)
          : name(n), hashId(h), activeHLT(a), mask(m) { }
       std::string name;    //!< threshold name, e.g. EM25i
       unsigned int hashId; //!< hash number of name, to speed up internal usage
@@ -43,7 +43,7 @@ namespace HLT {
        modifed ConfigThreshold to incorporate the JetEnergy type
    */
    struct ConfigJetEThreshold : public ConfigThreshold {
-      ConfigJetEThreshold(std::string n = "", unsigned int h=0, bool a = false, uint32_t m = 0, JetRoIType t = Unknown)
+      ConfigJetEThreshold(const std::string& n = "", unsigned int h=0, bool a = false, uint32_t m = 0, JetRoIType t = Unknown)
          : ConfigThreshold(n, h, a, m), type(t) { }
       JetRoIType type; //!< JetEnergy type, see JetRoIType enumeration
    };

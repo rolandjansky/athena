@@ -10,6 +10,8 @@
 #include "TrigDecisionMaker/ILvl1ResultAccessTool.h"
 #include "TrigDecisionMaker/Lvl1ItemsAndRoIs.h"
 #include "TrigConfData/L1PrescalesSet.h"
+#include "TrigT1Interfaces/CPRoIDecoder.h"
+#include "TrigT1Interfaces/JEPRoIDecoder.h"
 
 #include <vector>
 #include <bitset>
@@ -24,11 +26,6 @@ namespace TrigConf {
 namespace LVL1CTP {
    class Lvl1Result;
    class Lvl1Item;
-}
-
-namespace LVL1 {
-   class JEPRoIDecoder;
-   class CPRoIDecoder;
 }
 
 namespace HLT {
@@ -74,7 +71,7 @@ namespace HLT {
       /** @brief Get LVL1 items  ... for TrigDecision
        */
       virtual
-      const std::vector<LVL1CTP::Lvl1Item*>& getDecisionItems() override  { return m_decisionItems; }
+      const std::vector<LVL1CTP::Lvl1Item>& getDecisionItems() override  { return m_decisionItems; }
 
 
       // LVL1 RoIs and thresholds:
@@ -103,8 +100,8 @@ namespace HLT {
        *  @param useL1JetEnergy consider LVL1 JetEnergy RoIs ?
        */
       virtual
-      StatusCode updateConfig(bool useL1Calo = true,
-                              bool useL1Muon = true,
+      StatusCode updateConfig(bool useL1Muon = true,
+                              bool useL1Calo = true,
                               bool useL1JetEnergy = true) override;
 
       virtual std::vector< std::unique_ptr<LVL1CTP::Lvl1Item>> makeLvl1ItemConfig() const override;
@@ -196,12 +193,11 @@ namespace HLT {
       void clearDecisionItems(); //!< delete all LVL1 decisio items
 
       // L1 decoders
-      LVL1::JEPRoIDecoder* m_jepDecoder { nullptr };
-      LVL1::CPRoIDecoder* m_cpDecoder { nullptr };
+      LVL1::JEPRoIDecoder m_jepDecoder;
+      LVL1::CPRoIDecoder m_cpDecoder;
 
       // Results cache
-      std::vector< LVL1CTP::Lvl1Item* >     m_decisionItems;  //!< vector holding all LVL1 items for TrigDecision
-      std::vector<const LVL1CTP::Lvl1Item*> m_itemsBPonly;    //!< vector holding all LVL1 items that were suppressed by prescales
+      std::vector<LVL1CTP::Lvl1Item>        m_decisionItems;  //!< vector holding all LVL1 items for TrigDecision
 
       std::vector< MuonRoI> m_muonRoIs;     //!< cached LVL1 Muon-type RoI objects
       std::vector< EMTauRoI> m_emTauRoIs;   //!< cached LVL1 EMTau-type RoI objects
