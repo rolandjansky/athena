@@ -298,8 +298,6 @@ if (DerivationFrameworkIsMonteCarlo):
             edtalg = getattr(topSequence, alg)
             delattr(topSequence, alg)
             egam8Seq += edtalg
-#    from DerivationFrameworkMCTruth.MCTruthCommon import addTruthJets
-#    addTruthJets(egam8Seq)
 
 
 #====================================================================

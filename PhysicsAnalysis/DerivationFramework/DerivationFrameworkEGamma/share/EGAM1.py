@@ -587,6 +587,7 @@ print('WARNING: NonPromptLepton tagger not migrated yet to R22, will not decorat
 # egam1Seq += JetTagConfig.GetDecoratePromptLeptonAlgs(name="Electrons")
 
 
+
 #========================================
 # ENERGY DENSITY
 #========================================
@@ -597,8 +598,6 @@ if (DerivationFrameworkIsMonteCarlo):
             edtalg = getattr(topSequence, alg)
             delattr(topSequence, alg)
             egam1Seq += edtalg
-#    from DerivationFrameworkMCTruth.MCTruthCommon import addTruthJets
-#    addTruthJets(egam1Seq)
 
 
 #====================================================================
