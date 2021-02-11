@@ -14,8 +14,10 @@
 NEVENTS=500
 REF_DIR="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/tauRec/reference/q221"
 
+export ATHENA_CORE_NUMBER=4
+
 # run the reconstruction
-Reco_tf.py --maxEvents ${NEVENTS} --AMI q221
+Reco_tf.py --maxEvents ${NEVENTS} --AMI q221 --multithreaded True
 echo "art-result: $? Reconstrution"
 
 # compare the AOD file
