@@ -87,14 +87,14 @@ class SCT_SurfaceChargesGenerator : public extends<AthAlgTool, ISCT_SurfaceCharg
   virtual ~SCT_SurfaceChargesGenerator() = default;
 
   /** AlgTool initialize */
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   /** AlgTool finalize */
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override;
 
  private:
 
-  virtual void setFixedTime(float fixedTime)                             {m_tfix = fixedTime;}
+  virtual void setFixedTime(float fixedTime) override                {m_tfix = fixedTime;}
 
   /** create a list of surface charges from a hit */
   virtual void process(const InDetDD::SiDetectorElement* element, const TimedHitPtr<SiHit>& phit, const ISiSurfaceChargesInserter& inserter, CLHEP::HepRandomEngine * rndmEngine, const EventContext& ctx) const override;
