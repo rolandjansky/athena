@@ -128,13 +128,6 @@ std::pair<std::unique_ptr<xAOD::JetContainer>, std::unique_ptr<SG::IAuxStore> > 
   // Delete the cluster sequence before we go
   if(!pjVector->empty()) {
 
-    // Let fastjet deal with deletion of ClusterSequence, so we don't need to also put it in the EventStore.
-    // Release the memory from the unique_ptr
-    /*- Commented for now as this breaks in MT (probably) due to thread-unsafe fj shared pointer
-    // clSequence->delete_self_when_unused();
-    // clSequence.release();
-    -*/
-
     // -------------------------------------
     // translate to xAOD::Jet
     ATH_MSG_DEBUG("Converting pseudojets to xAOD::Jet");
