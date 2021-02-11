@@ -214,6 +214,7 @@ muFastThresholdsForECWeakBRegion = {
 # 'WPname' : cut on 0.3 cone
 # put < 0 for no cut
 trigMuonEFTrkIsoThresholds = {
+    'ivarloose'       : 0.16, #ivarloose
     'ivarmedium'      : 0.07, #ivarmedium
     'ivartight'       : 0.06, #ivartight
     'ivarverytight'  : 0.04   #ivarverytight

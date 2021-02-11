@@ -233,7 +233,7 @@ MuonChainParts = {
     'threshold'      : '',
     'extra'          : ['noL1', 'msonly','lateMu', "Dr", "muoncalib" ,'l2io','l2lrt'],
     'IDinfo'         : [],
-    'isoInfo'        : ['ivarmedium', 'ivarperf'],
+    'isoInfo'        : ['ivarloose', 'ivarmedium', 'ivarperf',],
     'invMassInfo'    : ['10invm70'],
     'addInfo'        : ['1step','idperf','LRT','3layersEC','cosmic',"muonqual"],
     'topo'           : AllowedTopos_mu,
