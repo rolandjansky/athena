@@ -9,6 +9,7 @@ python -u dqt_zlumi_pandas.py --dblivetime --useofficial --infile $infile --grl 
 ```
 
 # Making single run plots
+_Note_: The output directory (outdir) will need to be changed at the top of both scripts.
 ```
 # Time dependent efficiency and luminosity plots
 python plotting/efficiency.py --infile ~/public/Zcounting/CSVOutputs/HighMu/data17_13TeV/run_340030.csv
@@ -20,12 +21,17 @@ python plotting/luminosity.py --infile ~/public/Zcounting/CSVOutputs/HighMu/data
 ```
 
 # Running over the entire dataset
+_Note_: The input (indir) and output (out_dir) directories will need to be changed at the top of the script run_code.sh.
 ```
-./run_code.sh 17 local # to run jobs locally in a loop
-./run_code.sh 17 batch # to submit all jobs to the batch
+submit=batch # set to local to run all jobs locally in a loop
+for year in 15 16 17 18
+do
+    ./run_code.sh $year $submit
+done
 ```
 
 # Making plots for the entire dataset
+_Note_: The input (indir) and output (outdir) directories will need to be changed in both scripts.
 ```
 for year in 15 16 17 18
 do
@@ -43,6 +49,7 @@ done
 ```
 
 # Making full Run-2 "super plots"
+_Note_: The input (indir) and output (outdir) directories will need to be changed in both scripts.
 ```
 # Full Run-2 L_Z / L_ATLAS plots vs. time
 for channel in Zee Zmumu Zll
@@ -56,6 +63,7 @@ python -u plotting/yearwise_luminosity_vs_mu.py --year run2 --comp
 ```
 
 # Making Benedetto/LHCC format files
+_Note_: The input (indir) and output (outdir) directories will need to be changed in utils/make_benedetto_files.py. 
 ```
 for year in 15 16 17 18
 do

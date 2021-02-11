@@ -177,16 +177,13 @@ def main():
 
             if ratio > 1.10: 
                 arrow[xbin] = R.TArrow(mid, 1.025, mid, 1.03, 0.02, "|>")
-                arrow[xbin].SetLineWidth(2)
-                arrow[xbin].SetLineColor(R.kRed)
-                arrow[xbin].SetFillColor(R.kRed)
-                arrow[xbin].Draw("same")
             elif ratio < 0.90: 
                 arrow[xbin] = R.TArrow(mid, 0.975, mid, 0.97, 0.02, "|>")
-                arrow[xbin].SetLineWidth(2)
-                arrow[xbin].SetLineColor(R.kRed)
-                arrow[xbin].SetFillColor(R.kRed)
-                arrow[xbin].Draw("same")
+            
+            arrow[xbin].SetLineWidth(2)
+            arrow[xbin].SetLineColor(R.kRed)
+            arrow[xbin].SetFillColor(R.kRed)
+            arrow[xbin].Draw("same")
           
         c1.SaveAs(outfile + ".pdf")
 
