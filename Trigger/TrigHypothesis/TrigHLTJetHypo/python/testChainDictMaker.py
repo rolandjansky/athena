@@ -109,7 +109,7 @@ def testChainDictMaker(idict):
 
 def list_chains():
     for i, c in enumerate(chains):
-        logger.debug('%2d' % i, ' ', c.name)
+        logger.debug('%2d ' + c.name, i)
 
 
 if __name__ == '__main__':
