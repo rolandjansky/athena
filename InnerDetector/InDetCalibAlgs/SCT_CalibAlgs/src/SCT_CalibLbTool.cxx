@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -224,7 +224,6 @@ SCT_CalibLbTool::fillFromData() {
       ATH_MSG_ERROR("The evtInfo pointer is nullptr");
       return false;
    }
-   //m_lumiBlock=m_evtInfo->lumiBlock();
    m_numberOfEventsHisto->Fill(m_lumiBlock);
    bool result{true};
    //--- Retrieve the RDO container

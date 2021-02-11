@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -328,9 +328,6 @@ StatusCode SCTCalib::execute() {
          ATH_MSG_FATAL("Unable to get the EventInfo");
          return StatusCode::FAILURE;
       }
-      //const EventInfo* evt_ptr{&(*evt)};
-      //const xAOD::EventInfo* evt_ptr{&(*evt)};
-      //ATH_MSG_VERBOSE(SCT_CalibAlgs::eventInfoAsString(evt_ptr));
       //--- TimeStamp/LB range analyzed
       const int timeStamp{static_cast<int>(evt->timeStamp())};
       const int lumiBlock{static_cast<int>(evt->lumiBlock())};
