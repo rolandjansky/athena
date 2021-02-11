@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Trigger includes
@@ -20,7 +20,7 @@
 #include "eformat/Issue.h"
 #include "eformat/SourceIdentifier.h"
 
-// Local definitions
+// Local constants
 namespace {
   /**
    * ROBFragment module ID of the HLT result which contains all Trigger EDM collections. Can be considered to be made
@@ -32,6 +32,22 @@ namespace {
    * Changed from 0.0 to 1.0 in September 2019 to differentiate Run-3 HLT ByteStream format from earlier formats.
    */
   constexpr uint16_t hltRodMinorVersion = 0x0100;
+}
+
+// Local helper methods
+namespace {
+  /// Check if a stream tag has the given type
+  bool isStreamTagType(const eformat::helper::StreamTag& st, const eformat::TagType type) {
+    return eformat::helper::string_to_tagtype(st.type) == type;
+  }
+  /// Check if a stream tag has the debug type
+  bool isDebugStreamTag(const eformat::helper::StreamTag& st) {
+    return isStreamTagType(st, eformat::TagType::DEBUG_TAG);
+  }
+  /// Check if a stream tag has the unknown type
+  bool isUnknownStreamTag(const eformat::helper::StreamTag& st) {
+    return isStreamTagType(st, eformat::TagType::UNKNOWN_TAG);
+  }
 }
 
 // =============================================================================
@@ -109,10 +125,12 @@ StatusCode HLT::HLTResultMTByteStreamCnv::createRep(DataObject* pObj, IOpaqueAdd
   // Read the stream tags to check for debug stream tag and decide which HLT ROBFragments to write out
   std::set<eformat::helper::SourceIdentifier> resultIdsToWrite;
   bool debugEvent=false;
-  auto isDebugStreamTag = [](const eformat::helper::StreamTag& st){
-    return eformat::helper::string_to_tagtype(st.type) == eformat::TagType::DEBUG_TAG;
-  };
+  std::string unknownTypeStreams;
   for (const eformat::helper::StreamTag& st : hltResult->getStreamTags()) {
+    // Flag events with unknown stream type
+    if (isUnknownStreamTag(st)) {
+      unknownTypeStreams += st.type + "_" + st.name + " ";
+    }
     // Flag debug stream events
     if (isDebugStreamTag(st)) debugEvent=true;
     // In case of full event building, add the full result ID
@@ -126,6 +144,11 @@ StatusCode HLT::HLTResultMTByteStreamCnv::createRep(DataObject* pObj, IOpaqueAdd
       if (sid.subdetector_id() == eformat::SubDetector::TDAQ_HLT)
         resultIdsToWrite.insert(sid);
     }
+  }
+  // Fail if the event is not already failed (debug stream) and unknown stream type was found
+  if (!debugEvent && !unknownTypeStreams.empty()) {
+    ATH_MSG_ERROR("Found stream tag(s) with unknown type: " << unknownTypeStreams);
+    return StatusCode::FAILURE;
   }
 
   // If the event goes to the debug stream, remove all non-debug stream tags

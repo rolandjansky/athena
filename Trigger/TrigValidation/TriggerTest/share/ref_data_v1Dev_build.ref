@@ -2744,7 +2744,7 @@ HLT_tilecalib_laser_TilePEB_L1CALREQ2:
   stepFeatures:
     0: 20
 HLT_timeburner_L1All:
-  eventCount: 20
+  eventCount: 0
 HLT_unconvtrk120_isohpttrack_iaggrmedium_L1XE50:
   eventCount: 0
 HLT_unconvtrk120_isohpttrack_imedium_L1XE50:
