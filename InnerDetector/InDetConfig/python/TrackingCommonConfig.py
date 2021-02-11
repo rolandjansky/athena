@@ -307,10 +307,12 @@ def InDetRefitRotCreatorCfg(flags, name='InDetRefitRotCreator', **kwargs):
     return acc
 
 def InDetPRDtoTrackMapToolGangedPixelsCfg(flags, name='PRDtoTrackMapToolGangedPixels', **kwargs):
+    acc = ComponentAccumulator()
     the_name = makeName( name, kwargs)
     kwargs.setdefault("PixelClusterAmbiguitiesMapName", 'PixelClusterAmbiguitiesMap') # InDetKeys.GangedPixelMap()
     kwargs.setdefault("addTRToutliers", True)
-    return CompFactory.InDet.InDetPRDtoTrackMapToolGangedPixels( name=the_name, **kwargs)
+    acc.setPrivateTools(CompFactory.InDet.InDetPRDtoTrackMapToolGangedPixels( name=the_name, **kwargs))
+    return acc
 
 def InDetTrackPRD_AssociationCfg(flags, name='InDetTrackPRD_Association', **kwargs):
     acc = ComponentAccumulator()
