@@ -212,7 +212,7 @@ DerivationFrameworkJob += SeqPHYS
 #====================================================================
 # Tau   
 #====================================================================
-'''
+
 # Add low-pt di-tau reconstruction
 from DerivationFrameworkTau.TauCommon import addDiTauLowPt
 addDiTauLowPt(Seq=SeqPHYS)
@@ -234,7 +234,7 @@ PHYSDiTauLowPtTPThinningTool = DerivationFramework__DiTauTrackParticleThinning(n
                                                                                SelectionString         = "DiTauJetsLowPt.nSubjets > 1")
 ToolSvc += PHYSDiTauLowPtTPThinningTool
 thinningTools.append(PHYSDiTauLowPtTPThinningTool)
-'''
+
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
@@ -251,7 +251,7 @@ SeqPHYS += CfgMgr.DerivationFramework__DerivationKernel("PHYSKernel",
 
 from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollection
 
-#FtagJetCollection('AntiKt4EMPFlowJets',SeqPHYS)
+FtagJetCollection('AntiKt4EMPFlowJets',SeqPHYS)
 
 
 #====================================================================
@@ -281,7 +281,7 @@ PHYSSlimmingHelper.SmartCollections = ["Electrons",
                                        "MET_Baseline_AntiKt4EMPFlow",
                                        "TauJets",
                                        "DiTauJets",
-                                       #"DiTauJetsLowPt",
+                                       "DiTauJetsLowPt",
                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                        #"AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
                                        #"BTagging_AntiKtVR30Rmax4Rmin02Track_201903"
