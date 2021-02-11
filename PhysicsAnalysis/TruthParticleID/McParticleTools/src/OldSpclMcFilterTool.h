@@ -87,7 +87,7 @@ class OldSpclMcFilterTool : public TruthParticleFilterBaseTool
    */
   StatusCode rebuildLinks( const HepMC::GenEvent * mcEvent,
 			   HepMC::GenEvent * outEvt,
-			   HepMC::GenParticle * mcPart );
+			   HepMC::GenParticlePtr mcPart );
 
   /** to get tesIO **/
   StatusCode initializeTool();
