@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 '''@file TrigEgammaMonitoringConfigRun3.py
 @author D. Maximov (histograms), Joao victor Pinto (core)
@@ -60,8 +60,8 @@ class TrigEgammaMonAlgBuilder:
   basePath = 'HLT/EgammaMon'
 
 
-  isemnames = ["Tight", "Medium", "Loose"]
-  lhnames   = ["LHTight", "LHMedium", "LHLoose"]
+  isemnames = ["tight", "medium", "loose"]
+  lhnames   = ["lhtight", "lhmedium", "lhloose","lhvloose"]
  
 
   def __init__(self, helper, runflag, **kwargs):
@@ -328,12 +328,12 @@ class TrigEgammaMonAlgBuilder:
       self.zeeMonAlg.isEMResultNames=self.isemnames
       self.zeeMonAlg.LHResultNames=self.lhnames
       self.zeeMonAlg.ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector]
-      self.zeeMonAlg.ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector]
+      self.zeeMonAlg.ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector,VeryLooseLHSelector]
       self.zeeMonAlg.ZeeLowerMass=80
       self.zeeMonAlg.ZeeUpperMass=100
       self.zeeMonAlg.OfflineTagMinEt=25
-      self.zeeMonAlg.OfflineTagSelector='LHTight'
-      self.zeeMonAlg.OfflineProbeSelector='LHLoose'
+      self.zeeMonAlg.OfflineTagSelector='lhtight'
+      self.zeeMonAlg.OfflineProbeSelector='lhloose'
       self.zeeMonAlg.OppositeCharge=True
       self.zeeMonAlg.RemoveCrack=False
       self.zeeMonAlg.TagTriggerList=self.tagItems
@@ -353,12 +353,12 @@ class TrigEgammaMonAlgBuilder:
       self.jpsieeMonAlg.isEMResultNames=self.isemnames
       self.jpsieeMonAlg.LHResultNames=self.lhnames
       self.jpsieeMonAlg.ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector]
-      self.jpsieeMonAlg.ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector]
+      self.jpsieeMonAlg.ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector,VeryLooseLHSelector]
       self.jpsieeMonAlg.ZeeLowerMass=2
       self.jpsieeMonAlg.ZeeUpperMass=5
       self.jpsieeMonAlg.OfflineTagMinEt=5
-      self.jpsieeMonAlg.OfflineTagSelector='LHTight'
-      self.jpsieeMonAlg.OfflineProbeSelector='LHLoose'
+      self.jpsieeMonAlg.OfflineTagSelector='lhtight'
+      self.jpsieeMonAlg.OfflineProbeSelector='lhloose'
       self.jpsieeMonAlg.OppositeCharge=True
       self.jpsieeMonAlg.RemoveCrack=False
       self.jpsieeMonAlg.TagTriggerList=self.jpsitagItems
