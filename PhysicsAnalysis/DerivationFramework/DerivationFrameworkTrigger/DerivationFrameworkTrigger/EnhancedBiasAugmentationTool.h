@@ -16,7 +16,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
-#include "TrigCostMonitor/ReadLumiBlock.h"
+#include "EnhancedBiasWeighter/ReadLumiBlock.h"
 #include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 
 namespace DerivationFramework {
@@ -39,7 +39,7 @@ namespace DerivationFramework {
       std::map<int32_t, uint32_t>    m_eventNumberToIdMap;    //!< Used to cache & map EventNumber to weight-ID
       std::map<uint32_t, float>      m_idToWeightMap;         //!< Cache & map weight-ID to weight. TODO, move to 46bit, but also need to update some XMLs
       std::map<uint32_t, char>       m_idToUnbiasedMap;       //!< Cache & map weight-ID to unbiased flag
-      mutable Trig::ReadLumiBlock    m_readLumiBlock;         //!< Cache lumi block lengths TODO - not actually modified, but without a const accessor
+      mutable ReadLumiBlock          m_readLumiBlock;         //!< Cache lumi block lengths TODO - not actually modified, but without a const accessor
       std::map<uint32_t, uint32_t>   m_eventsPerLB;           //!< Cache & map enhanced bias events per LB
       std::map<uint32_t, char>       m_goodLB;                //!< Cache & map "good run list" like mechanism for rates
   }; 

@@ -1282,62 +1282,24 @@ class autoConditionsTag(_modifier):
         from RecExConfig.AutoConfiguration import ConfigureConditionsTag
         ConfigureConditionsTag()
 
-class enableCostDebug(_modifier):
-    """
-    Enables cost debugging options
-    """
-    def postSetup(self):
-        from TrigCostMonitor.TrigCostMonitorConfig import setupCostDebug
-        setupCostDebug()
-
 class enableCostMonitoring(_modifier):
     """
     Enable Cost Monitoring for online
     """
     def preSetup(self):
-        TriggerFlags.enableMonitoring = TriggerFlags.enableMonitoring.get_Value()+['CostExecHLT']
-        # MT
         from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
         flags.Trigger.CostMonitoring.doCostMonitoring = True
-
-    def postSetup(self):
-        try:
-          from TrigCostMonitor.TrigCostMonitorConfig import postSetupOnlineCost
-          postSetupOnlineCost()
-        except AttributeError:
-          log.error('enableCostMonitoring (Run 2 style) post setup failed.')
 
 class enableCostForCAF(_modifier):
     """
     Enable Cost Monitoring for CAF processing - use together with enableCostMonitoring
+    Forces cost data to be collected in every event, not just in events for which the HLT
+    cost monitoring chain is active and passes its prescale check.
+    Not of as much use in Run 3, one can just unprescale the cost monitoring chain instead.
     """
     def preSetup(self):
-        try:
-            import TrigCostMonitor.TrigCostMonitorConfig as costConfig
-            costConfig.preSetupCostForCAF()
-        except AttributeError:
-            log.info('TrigCostMonitor has not CAF preSetup option... OK to continue')
-        # MT
         from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
         flags.Trigger.CostMonitoring.monitorAllEvents = True
-
-    def postSetup(self):
-        try:
-            import TrigCostMonitor.TrigCostMonitorConfig as costConfig
-            costConfig.postSetupCostForCAF()
-        except AttributeError:
-            log.info('TrigCostMonitor has not CAF postSetup option... OK to continue')
-
-class doEnhancedBiasWeights(_modifier):
-    """
-    Enable calculaton of EnhancedBias weights, either on or offline - use together with enableCostMonitoring and enableCostForCAF (if offline).
-    """
-    def postSetup(self):
-        try:
-            import TrigCostMonitor.TrigCostMonitorConfig as costConfig
-            costConfig.postSetupEBWeighting()
-        except AttributeError:
-            log.warning('TrigCostMonitor has no EnhancedBias postSetup option...')
 
 class BeamspotFromSqlite(_modifier):
     """
