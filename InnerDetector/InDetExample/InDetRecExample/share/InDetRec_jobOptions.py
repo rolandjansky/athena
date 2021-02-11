@@ -124,7 +124,7 @@ else:
 
     if InDetFlags.doSLHC():
       InDetSpSeededTracksKey    = InDetKeys.SiSpSeededSLHCTracks() 
-      InDetResolvedTracksKey    = InDetKeys.UnslimmedTracks() if InDetFlags.doFastTracking()  else InDetKeys.ResolvedSLHCTracks() 
+      InDetResolvedTracksKey    = InDetKeys.UnslimmedTracks() if (InDetFlags.doFastTracking() and not InDetFlags.doSLHCLargeD0()) else InDetKeys.ResolvedSLHCTracks()
       InDetExtendedTracksKey    = InDetKeys.ExtendedSLHCTracks()
       InDetExtendedTracksMapKey = InDetKeys.ExtendedTracksMapSLHC()              
       
@@ -1089,7 +1089,7 @@ else:
       if InDetFlags.doDBMstandalone():
         TrackCollectionKeys      += [ InDetKeys.DBMTracks() ]
         TrackCollectionTruthKeys += [ InDetKeys.DBMTracksTruth() ]
-      elif (not InDetFlags.doFastTracking()):
+      elif (not InDetFlags.doFastTracking() or InDetFlags.doSLHCLargeD0()):
         from TrkTrackCollectionMerger.TrkTrackCollectionMergerConf import Trk__TrackCollectionMerger
         TrkTrackCollectionMerger = Trk__TrackCollectionMerger(name                    = "InDetTrackCollectionMerger",
                                                               TracksLocation          = InputCombinedInDetTracks,

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -168,6 +168,8 @@ namespace InDet {
       float                       m_dzdrver                       ;
       float                       m_diver                         ;
       float                       m_diversss                      ;
+      float                       m_rminSSS                       ;
+      float                       m_rmaxSSS                       ;
       float                       m_dazmax                        ;
       float                       m_ptmin                         ;
       float                       m_ipt                           ;
@@ -293,6 +295,7 @@ namespace InDet {
       void fillLists       () ;
       void fillListsSSS    () ;
       void fillListsPPP    () ;
+      void fillListsSSSFast() ;
       void fillListsPPPFast() ;
 
       void erase           () ;
