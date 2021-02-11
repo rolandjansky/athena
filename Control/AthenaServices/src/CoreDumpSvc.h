@@ -114,14 +114,16 @@ private:
   Gaudi::Property<std::string> m_coreDumpStream{this, "CoreDumpStream", "stdout",
       "Stream to use for core dump [stdout,stderr]"};
 
-  Gaudi::Property<int> m_fatalHandlerFlags{this, "FatalHandler", -1, 
+  Gaudi::Property<int> m_fatalHandlerFlags{this, "FatalHandler", 0, 
       "Flags given to the fatal handler this service installs\n"
-      "if the flag is zero, no additional fatal handler is installed.\n"
-      "-1 handles SIGINT (Ctrl-C)"};
+      "if the flag is zero, no additional fatal handler is installed."};
 
   Gaudi::Property<double> m_timeout{this, "TimeOut", 30.0*60*1e9,
       "Terminate job after it this reaches the time out in Wallclock time, "
       "usually due to hanging during stack unwinding. Timeout given in nanoseconds despite seconds precision"};
+
+  Gaudi::Property<bool> m_killOnSigInt{this, "KillOnSigInt",true, "Terminate job on SIGINT (aka Ctrl-C)"};
+
 	   
   ///@}
 
