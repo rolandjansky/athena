@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DCMathSegmentMaker.h"
@@ -188,7 +188,7 @@ DCMathSegmentMaker::associateTriggerHits(const MuonSegment& seg, const std::vect
     Amg::Transform3D amdbToGlobal = seg.associatedSurface().transform();
 
     std::vector<const MuonClusterOnTrack*>   clusters = clus;
-    std::vector<const Trk::MeasurementBase*> measToBeDeleted;
+    std::vector<std::unique_ptr<const Trk::MeasurementBase> > measToBeDeleted;
     // if requested, retrieve trigger eta hits
     if (includeEtaHits) {
         measToBeDeleted = addEtaHits(clusters, isEndcap);
@@ -272,20 +272,16 @@ DCMathSegmentMaker::associateTriggerHits(const MuonSegment& seg, const std::vect
 
     segmentCreationInfo sInfo(spVecs, multiGeo.get(), gToStation, amdbToGlobal, phimin, phimax);
     MuonSegment* newSeg = createSegment(segment, chid, seg.globalPosition(), seg.globalDirection(), mdts, true, sInfo);
-    for (std::vector<const Trk::MeasurementBase*>::iterator it = measToBeDeleted.begin(); it != measToBeDeleted.end();
-         it++)
-        delete (*it);
-    measToBeDeleted.clear();
 
     return newSeg;
 }
 
-std::vector<const Trk::MeasurementBase*>
+std::vector<std::unique_ptr<const Trk::MeasurementBase> >
 DCMathSegmentMaker::addEtaHits(std::vector<const MuonClusterOnTrack*>& clusters, bool isEndcap) const
 {
 
     std::set<IdentifierHash>                         chIdHs;
-    std::vector<const Trk::MeasurementBase*>         measurementsToBeDeleted;
+    std::vector<std::unique_ptr<const Trk::MeasurementBase> > measurementsToBeDeleted;
     std::vector<const MuonClusterOnTrack*>::iterator cit     = clusters.begin();
     std::vector<const MuonClusterOnTrack*>::iterator cit_end = clusters.end();
     for (; cit != cit_end; ++cit) chIdHs.insert((*cit)->collectionHash());
@@ -327,7 +323,7 @@ DCMathSegmentMaker::addEtaHits(std::vector<const MuonClusterOnTrack*>& clusters,
                 if (clus) {
                     ATH_MSG_VERBOSE("  adding hit: " << m_idHelperSvc->toString(clus->identify()));
                     clusters.push_back(clus);
-                    measurementsToBeDeleted.push_back(clus);
+                    measurementsToBeDeleted.emplace_back(clus);
                 }
             }
         }
@@ -362,7 +358,7 @@ DCMathSegmentMaker::addEtaHits(std::vector<const MuonClusterOnTrack*>& clusters,
                 const MuonClusterOnTrack* clus = m_clusterCreator->createRIO_OnTrack(**hit, (*hit)->globalPosition());
                 if (clus) {
                     clusters.push_back(clus);
-                    measurementsToBeDeleted.push_back(clus);
+                    measurementsToBeDeleted.emplace_back(clus);
                 }
             }
         }
@@ -607,7 +603,7 @@ DCMathSegmentMaker::createSegment(TrkDriftCircleMath::Segment& segment, const Id
     // associate MDT hits to segment
     std::set<Identifier>                     deltaVec;
     std::set<Identifier>                     outoftimeVec;
-    std::vector<const Trk::MeasurementBase*> measToBeDeleted = associateMDTsToSegment(
+    std::vector<std::unique_ptr<const Trk::MeasurementBase> > measToBeDeleted = associateMDTsToSegment(
         gdir, segment, mdts, sInfo.geom, sInfo.globalTrans, sInfo.amdbTrans, deltaVec, outoftimeVec, rioDistVec);
 
     TrkDriftCircleMath::DCSLHitSelector hitSelector;
@@ -872,10 +868,6 @@ DCMathSegmentMaker::createSegment(TrkDriftCircleMath::Segment& segment, const Id
         delete msegment;
         msegment = 0;
     }
-    for (std::vector<const Trk::MeasurementBase*>::iterator it = measToBeDeleted.begin(); it != measToBeDeleted.end();
-         it++)
-        delete (*it);
-    measToBeDeleted.clear();
     return msegment;
 }
 
@@ -1272,8 +1264,15 @@ DCMathSegmentMaker::createSpacePoint(const Identifier& gasGapId, const MuonClust
     double lpy(0.);
     // case one hit missing. Take position and error of the available hit
     if (!etaHit) {
-        lpx   = phiHit->localParameters()[Trk::locX];
-        error = Amg::error(phiHit->localCovariance(), Trk::locX);
+        if (!phiHit) {
+          ATH_MSG_WARNING("Both eta and phi hits missing");
+          lpx = 0;
+          error = 0;
+        }
+        else {
+          lpx   = phiHit->localParameters()[Trk::locX];
+          error = Amg::error(phiHit->localCovariance(), Trk::locX);
+        }
     } else if (!phiHit) {
         lpx   = etaHit->localParameters()[Trk::locX];
         error = Amg::error(etaHit->localCovariance(), Trk::locX);
@@ -1662,7 +1661,7 @@ DCMathSegmentMaker::createChamberGeometry(const Identifier& chid, const Amg::Tra
 }
 
 
-std::vector<const Trk::MeasurementBase*>
+std::vector<std::unique_ptr<const Trk::MeasurementBase> >
 DCMathSegmentMaker::associateMDTsToSegment(
     const Amg::Vector3D& gdir, TrkDriftCircleMath::Segment& segment,
     const std::vector<const MdtDriftCircleOnTrack*>& mdts, TrkDriftCircleMath::MdtMultiChamberGeometry* multiGeo,
@@ -1671,7 +1670,7 @@ DCMathSegmentMaker::associateMDTsToSegment(
 {
 
     // clear result vectors
-    std::vector<const Trk::MeasurementBase*> measurementsToBeDeleted;
+    std::vector<std::unique_ptr<const Trk::MeasurementBase> > measurementsToBeDeleted;
 
     // convert segment parameters + x position from road
     const TrkDriftCircleMath::Line&     line = segment.line();
@@ -1763,7 +1762,7 @@ DCMathSegmentMaker::associateMDTsToSegment(
 
         // update the drift radius after recalibration, keep error
         MdtDriftCircleOnTrack* new_drift_circle = new MdtDriftCircleOnTrack(*nonconstDC);
-        measurementsToBeDeleted.push_back(new_drift_circle);
+        measurementsToBeDeleted.emplace_back(new_drift_circle);
         TrkDriftCircleMath::DriftCircle new_dc(dcit->position(), std::abs(nonconstDC->driftRadius()), dcit->dr(),
                                                dcit->drPrecise(),
                                                static_cast<TrkDriftCircleMath::DriftCircle*>(&(*dcit))->state(),
