@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETTAGCALIBRATION_JETTAGCALIBCONDALG_H
@@ -55,31 +55,31 @@ class JetTagCalibCondAlg : public AthAlgorithm {
   JetTagCalibCondAlg (const std::string& name, ISvcLocator* pSvcLocator);
   ~JetTagCalibCondAlg();
 
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
 
  private:
   void registerHistogram(const std::string& tagger, const std::string& histoname);
   void registerHistogram(const std::string& tagger, const std::string& directory, const std::string& histoname);
   StatusCode createHistoMap(TFile* file, JetTagCalibCondData * histos);
   StatusCode objectTDirExists(const std::string& histname, TFile* file) const;
-  std::vector<std::string> tokenize(std::string str, std::string delim);
+  std::vector<std::string> tokenize(const std::string& str, const std::string& delim);
   void smoothAndNormalizeHistogram(TH1* h, const std::string& hname);
   void smoothASH2D(TH2* input2D, int m1, int m2); 
   void initializeIPTag();
   void initializeIP2D();
   void initializeIP3D();
-  void initializeSVEff(std::string);
+  void initializeSVEff(const std::string&);
   void initializeSV1();
   void initializeSV2();
   void initializeJetFitterNN();
   void initializeSoftMu();
-  void initializeMV2(std::string);
+  void initializeMV2(const std::string&);
   void initializeRNNIP();
   void initializeJetVertexCharge();
-  void initializeMultiSV(std::string);
-  void initializeDL1(std::string);
+  void initializeMultiSV(const std::string&);
+  void initializeDL1(const std::string&);
 
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKey{this, "ReadKeyCalibPath", "/GLOBAL/BTagCalib/RUN12", "Key of input (raw) conditions folder of bration path"}; //   /GLOBAL/BTagCalib/Onl/RUN12 online, /GLOBAL/BTagCalib/RUN12 offline
   SG::WriteCondHandleKey<JetTagCalibCondData> m_writeKey{this, "HistosKey", "JetTagCalibHistosKey", "Key of output (derived) JetTag calibration data"};
