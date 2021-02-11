@@ -14,7 +14,7 @@ PS
 #include "./ConditionsDefsMT.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
+// #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
 
 class TrigJetConditionConfig_htfr:
 public extends<AthAlgTool, ITrigJetConditionConfig> {

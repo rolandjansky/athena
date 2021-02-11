@@ -10,8 +10,6 @@
 #include "./ConditionsDefsMT.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
-
 class TrigJetConditionConfig_dijet_dphi:
 public extends<AthAlgTool, ITrigJetConditionConfig> {
   
