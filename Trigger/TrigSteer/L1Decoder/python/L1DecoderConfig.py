@@ -13,6 +13,7 @@ def mapThresholdToL1DecisionCollection(threshold):
 
     mapThresholdToL1Decoder = { "FSNOSEED": "HLTNav_L1FSNOSEED",
                                 "EM" : "HLTNav_L1EM",
+                                "eEM": "HLTNav_L1eEM",
                                 "MU" : "HLTNav_L1MU",
                                 "J"  : "HLTNav_L1J",
                                 "TAU": "HLTNav_L1TAU",
@@ -34,6 +35,7 @@ def mapThresholdToL1RoICollection(threshold):
 
     mapThresholdToL1Decoder = { "FSNOSEED": "HLT_FSRoI",
                                 "EM" : "HLT_EMRoIs",
+                                "eEM": "HLT_eEMRoIs",
                                 "MU" : "HLT_MURoIs",
                                 "J"  : "HLT_JETRoI",
                                 "TAU": "HLT_TAURoI",
@@ -49,7 +51,7 @@ def mapThresholdToL1RoICollection(threshold):
     log.error("Threshold \""+ threshold + "\" not mapped to any ROI collection! Available are: " + str(mapThresholdToL1Decoder.values()))
 
 
-def createCaloRoIUnpackers():
+def createLegacyCaloRoIUnpackers():
     #from L1Decoder.L1DecoderConf import EMRoIsUnpackingTool, METRoIsUnpackingTool, JRoIsUnpackingTool, TAURoIsUnpackingTool
     from L1Decoder.L1DecoderMonitoring import RoIsUnpackingMonitoring
     from TrigEDMConfig.TriggerEDMRun3 import recordable
@@ -74,6 +76,16 @@ def createCaloRoIUnpackers():
     jUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="J", maxCount=30 )
 
     return [emUnpacker, metUnpacker, tauUnpacker, jUnpacker ]
+
+def createCaloRoIUnpackers():
+    from L1Decoder.L1DecoderMonitoring import RoIsUnpackingMonitoring
+    from TrigEDMConfig.TriggerEDMRun3 import recordable
+    eFexEMUnpacker = CompFactory.eFexEMRoIsUnpackingTool(
+        Decisions = mapThresholdToL1DecisionCollection("eEM"),
+        OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("eEM")),
+        MonTool = RoIsUnpackingMonitoring(prefix="eEM", maxCount=30))
+
+    return [eFexEMUnpacker]
 
 def createMuonRoIUnpackers(flags):
     #from L1Decoder.L1DecoderConf import MURoIsUnpackingTool
@@ -108,10 +120,13 @@ def getL1TriggerResultMaker():
     # Muon RoIs
     l1trMaker.MuRoIKey = "LVL1MuonRoIs"
 
+    # L1Calo RoIs
+    l1trMaker.eFexEMRoIKey = "L1_eEMRoI"
+
     # Placeholder for other L1 xAOD outputs:
     # - CTP result
     # - L1Topo result
-    # - L1Calo (Run3) RoIs
+    # - the remaining Run-3 L1Calo RoIs
 
     return l1trMaker
 
@@ -135,8 +150,10 @@ class L1Decoder(CompFactory.L1Decoder) :
                                             OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("FSNOSEED") )) ]
         # EM unpacker
         if TriggerFlags.doID() or TriggerFlags.doCalo():
-            unpackers = createCaloRoIUnpackers()
-            self.RoIBRoIUnpackers += unpackers
+            if flags.Trigger.enableL1Phase1:
+                self.xAODRoIUnpackers += createCaloRoIUnpackers()
+            if flags.Trigger.enableL1CaloLegacy:
+                self.RoIBRoIUnpackers += createLegacyCaloRoIUnpackers()
 
         # MU unpacker
         if TriggerFlags.doMuon():
@@ -185,8 +202,10 @@ def L1DecoderCfg(flags, seqName = None):
                                         OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("FSNOSEED")) ) ]
 
     if flags.Trigger.doCalo:
-        unpackers = createCaloRoIUnpackers()
-        decoderAlg.RoIBRoIUnpackers += unpackers
+        if flags.Trigger.enableL1Phase1:
+            decoderAlg.xAODRoIUnpackers += createCaloRoIUnpackers()
+        if flags.Trigger.enableL1CaloLegacy:
+            decoderAlg.RoIBRoIUnpackers += createLegacyCaloRoIUnpackers()
 
     if flags.Trigger.doMuon:
         unpackers = createMuonRoIUnpackers(flags)
