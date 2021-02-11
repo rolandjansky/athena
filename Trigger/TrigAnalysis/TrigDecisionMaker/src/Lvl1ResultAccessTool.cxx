@@ -2,20 +2,8 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-/**********************************************************************************
- * @Project: HLT Steering
- * @Package: TrigSteering
- * @Class  : Lvl1ResultAccessTool
- *
- * @brief
- *
- * @author Nicolas Berger  <Nicolas.Berger@cern.ch>  - CERN
- *
- * File and Version Information:
- * $Id: Lvl1ResultAccessTool.cxx,v 1.45 2009-05-11 13:56:23 tbold Exp $
- **********************************************************************************/
-
-#include "TrigSteering/Lvl1ResultAccessTool.h"
+#include "TrigDecisionMaker/Lvl1ItemsAndRoIs.h"
+#include "Lvl1ResultAccessTool.h"
 
 #include "TrigT1Result/RoIBResult.h"
 #include "CTPfragment/CTPdataformatVersion.h"
@@ -29,7 +17,6 @@
 #include "TrigT1Interfaces/RecJetRoI.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 
-
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/ThresholdConfig.h"
@@ -41,10 +28,7 @@
 #include "TrigConfHLTData/HLTTriggerElement.h"
 #include "TrigConfHLTData/HLTUtils.h"
 
-#include "TrigSteering/Lvl1ItemsAndRoIs.h"
 #include "TrigSteeringEvent/Lvl1Result.h"
-
-#include "TrigInterfaces/AlgoConfig.h"
 
 using namespace std;
 using namespace TrigConf;

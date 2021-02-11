@@ -1,12 +1,8 @@
-// -*- C++ -*-
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
- * @Project: HLT Steering
- * @Package: TrigSteering
  * @class  : ConfigThreshold, ConfigJetEThreshold,
  *           HLTRoI, MuonRoI, EMTauRoI, JetEnergyRoI
  *
@@ -14,15 +10,10 @@
  *
  * @author Nicolas Berger  <Nicolas.Berger@cern.ch>  - CERN
  * @author Till Eifert     <Till.Eifert@cern.ch>
- *
- * File and Version Information:
- * $Id: Lvl1ItemsAndRoIs.h,v 1.3 2009-04-23 09:20:11 nberger Exp $
  **********************************************************************************/
 
-#ifndef TRIGSTEERING_Lvl1ItemsAndRoIs_H
-#define TRIGSTEERING_Lvl1ItemsAndRoIs_H
-
-#include "TrigSteeringEvent/Enums.h"
+#ifndef TRIGDECISIONMAKER_LVL1ITEMSANDROIS_H
+#define TRIGDECISIONMAKER_LVL1ITEMSANDROIS_H
 
 #include "TrigT1Result/MuCTPIRoI.h"
 #include "TrigT1Result/EMTauRoI.h"

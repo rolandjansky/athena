@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -13,7 +13,6 @@
  * @author Nicolas Berger  <Nicolas.Berger@cern.ch>  - CERN
  *
  * File and Version Information:
- * $Id: Lvl1Converter.h,v 1.18 2009-02-16 15:47:04 tbold Exp $
  **********************************************************************************/
 
 #ifndef TRIGSTEERING_LVL1CONVERTER_H
@@ -25,6 +24,7 @@
 #include "TrigSteering/LvlConverter.h"
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "TrigSteering/Lvl1ConsistencyChecker.h"
+#include "TrigDecisionMaker/ILvl1ResultAccessTool.h"
 
 // forward declarations
 class ITrigTimerSvc;
@@ -39,7 +39,6 @@ class Lvl1ConsistencyChecker;
 
 namespace HLT {
 
-   class ILvl1ResultAccessTool;
    class SteeringChain;
    class TriggerElement;
 

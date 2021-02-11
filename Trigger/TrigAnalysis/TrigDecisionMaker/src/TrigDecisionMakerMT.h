@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -23,26 +23,24 @@
 #ifndef TrigDecisionMaker_TrigDecisionMakerMT_H
 #define TrigDecisionMaker_TrigDecisionMakerMT_H
 
-// Base class
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
 #include "xAODEventInfo/EventInfo.h"
-
-// trigger/configuration stuff
 #include "xAODTrigger/TrigDecision.h"
+
+#include "TrigDecisionMaker/ILvl1ResultAccessTool.h"
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigSteeringEvent/HLTResultMT.h"
 #include "TrigOutputHandling/ITriggerBitsMakerTool.h"
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "TrigConfInterfaces/IHLTConfigSvc.h"
 #include "TrigConfData/HLTMenu.h"
-#include "TrigSteering/Lvl1ResultAccessTool.h"
 
 // containers
 #include <vector>
 #include <string>
-#include <map>
 
 namespace LVL1CTP {
   class Lvl1Result;
