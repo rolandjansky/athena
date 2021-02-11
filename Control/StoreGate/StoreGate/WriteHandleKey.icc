@@ -11,6 +11,13 @@
  */
 
 
+// WARNING! WARNING! WARNING!
+//
+// This version of the file has been modified for use in 21.2 and
+// should not be swept into master.
+
+
+
 namespace SG {
 
 
@@ -30,6 +37,32 @@ WriteHandleKey<T>::WriteHandleKey (const std::string& key /*= ""*/,
                   Gaudi::DataHandle::Writer,
                   storeName)
 {
+}
+
+
+/**
+ * @brief auto-declaring Property Constructor.
+ * @param owner Owning component.
+ * @param name name of the Property
+ * @param key  default StoreGate key for the object.
+ * @param doc Documentation string.
+ *
+ * will associate the named Property with this WHK via declareProperty
+ *
+ * The provided key may actually start with the name of the store,
+ * separated by a "+":  "MyStore+Obj".  If no "+" is present
+ * the store named by @c storeName is used.
+ */
+template <class T>
+template <class OWNER, class K>
+inline
+WriteHandleKey<T>::WriteHandleKey( OWNER* owner,
+                                   std::string name,
+                                   const K& key /*= {}*/,
+                                   std::string doc /*= ""*/)
+  : WriteHandleKey<T> (key)
+{
+  owner->declareProperty(std::move(name), *this, std::move(doc));
 }
 
 

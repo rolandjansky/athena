@@ -51,6 +51,26 @@ public:
   WriteHandleKey (const std::string& key = "",
                   const std::string& storeName = "StoreGateSvc");
 
+
+  /**
+   * @brief auto-declaring Property Constructor.
+   * @param owner Owning component.
+   * @param name name of the Property
+   * @param key  default StoreGate key for the object.
+   * @param doc Documentation string.
+   *
+   * will associate the named Property with this WHK via declareProperty
+   *
+   * The provided key may actually start with the name of the store,
+   * separated by a "+":  "MyStore+Obj".  If no "+" is present
+   * the store named by @c storeName is used.
+   */
+  template <class OWNER, class K>
+  inline WriteHandleKey (OWNER* owner,
+                         std::string name,
+                         const K& key={},
+                         std::string doc="");
+
   
   /**
    * @brief Change the key of the object to which we're referring.

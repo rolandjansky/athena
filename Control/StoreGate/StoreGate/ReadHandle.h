@@ -188,6 +188,28 @@ public:
    */
   virtual bool isValid() override final;
 
+
+  /**
+   * @brief Dereference the pointer, but don't cache anything.
+   */
+  const_pointer_type get();
+
+
+  /**
+   * @brief Dereference the pointer, but don't cache anything.
+   * @param ctx The event context to use.
+   */
+  const_pointer_type get (const EventContext& ctx);
+
+
+protected:
+  /**
+   * @brief Protected constructor used by WriteDecorHandle.
+   * @param key The key object holding the clid/key.
+   * @param ctx The event context, or nullptr to use the global default.
+   */
+  explicit ReadHandle (const VarHandleKey& key, const EventContext* ctx);
+
   
 private:
   /**
