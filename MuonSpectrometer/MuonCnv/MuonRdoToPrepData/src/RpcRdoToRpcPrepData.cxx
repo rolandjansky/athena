@@ -44,8 +44,9 @@ StatusCode RpcRdoToRpcPrepData::initialize(){
 
   //Nullify key from scheduler if not needed  
   if(!m_seededDecoding){
-    m_roiCollectionKey = "";
-    m_rpcCollection = "";
+    ATH_CHECK(m_roiCollectionKey.initialize(false));
+    ATH_CHECK(m_rpcCollection.initialize(false));
+    m_regsel_rpc.disable();
   }
   if(m_seededDecoding){
     ATH_CHECK(m_roiCollectionKey.initialize());
@@ -78,7 +79,6 @@ StatusCode RpcRdoToRpcPrepData::execute() {
 //         IdentifierHash bmlHash((IdentifierHash)bml);
 //         myVector.push_back(bmlHash);
 //     }
-    myVector.reserve(0); // empty vector 
 
     if(m_seededDecoding){
       bool decoded=false;

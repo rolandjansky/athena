@@ -47,7 +47,7 @@ for opt,arg in opts:
     if opt=="-p":
         postproc=True
     if opt=="-n":
-        Events_local=arg
+        Events_local=int(arg)
     if opt in ("-c", "--config"):
         testconfig = True
     if opt=="-t":

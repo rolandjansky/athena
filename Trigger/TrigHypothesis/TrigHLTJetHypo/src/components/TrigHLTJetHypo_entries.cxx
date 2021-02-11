@@ -2,16 +2,6 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigHLTJetHypo/TrigHLTJetHypo2.h"
-#include "TrigHLTJetHypo/TrigEFRazorAllTE.h"
-#include "TrigHLTJetHypo/TrigEFDPhiMetJetAllTE.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypo_Dijet.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypo_DijetMassDEta.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypo_DijetMassDEtaDPhi.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypo_EtaEt.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypo_HT.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypo_TLA.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypo_SMC.h"
 #include "../TrigJetHypoAlgMT.h"
 #include "../TrigJetHypoToolConfig_fastreduction.h"
 //
@@ -32,33 +22,11 @@
 
 //
 #include "../TrigJetHypoToolMT.h"
-#include "../TrigJetHypoToolHelperMT.h"
 #include "../TrigJetHypoToolHelperNoGrouper.h"
 #include "../TrigJetTLAHypoAlgMT.h"
 #include "../TrigJetTLAHypoToolMT.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/BasicCleanerTool.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/AntiCleanerTool.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/EtaEtCleanerTool.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/LlpCleanerTool.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/LooseCleanerTool.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/NullCleanerTool.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/TightCleanerTool.h"
 
-
-DECLARE_COMPONENT(TrigHLTJetHypo2)
-
-DECLARE_COMPONENT(TrigEFRazorAllTE)
-DECLARE_COMPONENT(TrigEFDPhiMetJetAllTE)
-DECLARE_COMPONENT(TrigHLTJetHypo_Dijet)
-DECLARE_COMPONENT(TrigHLTJetHypo_DijetMassDEta)
-DECLARE_COMPONENT(TrigHLTJetHypo_DijetMassDEtaDPhi)
 DECLARE_COMPONENT(TrigJetHypoToolConfig_fastreduction)
-DECLARE_COMPONENT(TrigHLTJetHypo_SMC)
-DECLARE_COMPONENT(TrigHLTJetHypo_HT)
-DECLARE_COMPONENT(TrigHLTJetHypo_TLA)
-DECLARE_COMPONENT(TrigHLTJetHypo_EtaEt)
-
-
 DECLARE_COMPONENT(TrigJetConditionConfig_phi)
 DECLARE_COMPONENT(TrigJetConditionConfig_signed_eta)
 DECLARE_COMPONENT(TrigJetConditionConfig_abs_eta)
@@ -78,14 +46,5 @@ DECLARE_COMPONENT(TrigJetHypoAlgMT)
 DECLARE_COMPONENT(TrigJetHypoToolMT)
 DECLARE_COMPONENT(TrigJetTLAHypoAlgMT)
 DECLARE_COMPONENT(TrigJetTLAHypoToolMT)
-DECLARE_COMPONENT(TrigJetHypoToolHelperMT)
 DECLARE_COMPONENT(TrigJetHypoToolHelperNoGrouper)
-
-DECLARE_COMPONENT(BasicCleanerTool)
-DECLARE_COMPONENT(AntiCleanerTool)
-DECLARE_COMPONENT(EtaEtCleanerTool)
-DECLARE_COMPONENT(LlpCleanerTool)
-DECLARE_COMPONENT(LooseCleanerTool)
-DECLARE_COMPONENT(NullCleanerTool)
-DECLARE_COMPONENT(TightCleanerTool)
 

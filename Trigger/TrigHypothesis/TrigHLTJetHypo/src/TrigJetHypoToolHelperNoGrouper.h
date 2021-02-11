@@ -7,7 +7,8 @@
 
 /**
  * A configurable helper class to implement Jet Trigger algorithms.
- * Initial jet removal from incomming container is done using the ICleaner predicates.
+ * Initial jet removal from incomming container is done using the 
+ * prefilter predicates.
  * The surviving jets are grouped into subsets by the IJetGroup object.
  *
  * The IMatcher objector owns a set of Conditions objects. 
@@ -20,7 +21,6 @@
 #include <vector>
 #include <memory>
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ICleanerTool.h"
 #include "./IJetsMatcherMT.h"
 #include "./ConditionsDefsMT.h"
 #include "./ConditionFilter.h"

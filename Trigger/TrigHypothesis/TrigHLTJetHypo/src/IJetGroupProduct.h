@@ -14,9 +14,10 @@ typedef std::unique_ptr<ITrigJetHypoInfoCollector> Collector;
 
 class IJetGroupProduct{
   /*
-   * Interface to jet group amkers for FastReducer. 
+   * Interface to jet group makers for FastReducer. 
    */
  public:
+  virtual ~IJetGroupProduct() = default;
   virtual std::optional<std::vector<std::size_t>> next(const Collector&) = 0;
 };
 

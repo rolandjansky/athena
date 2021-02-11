@@ -169,12 +169,6 @@ class TestingTrigSteer( TrigSteer_baseClass ):
         except:
             log.warning("Attempt to add monitoring tools failed, will continue without them")
 
-        # adding the cost tools
-        try:
-            from TrigCostMonitor.TrigCostMonitorConfig import TrigCostToolsList
-            self.OPITools.extend(TrigCostToolsList)
-        except:
-            log.info("Attempt to add trigger cost monitoring tools failed, will continue without them")
 
         time = TrigTimeHistToolConfig("%sSteeringTime" % self.HLTLevel )
         self.MonTools += [ time ]
@@ -236,11 +230,6 @@ class TestingTrigSteer_L2( TrigSteer_baseClass ):
         except:
             log.warning("Attempt to add monitoring tools failed, will continue without them")
 
-        try:
-            from TrigCostMonitor.TrigCostMonitorConfig import TrigCostToolsList
-            self.OPITools.extend(TrigCostToolsList)
-        except:
-            log.info("Attempt to add trigger cost monitoring tools failed, will continue without them")
 
         time = TrigTimeHistToolConfig("L2SteeringTime")
         self.MonTools += [ time ]
@@ -298,11 +287,6 @@ class TestingTrigSteer_EF( TrigSteer_baseClass ) :
         except:
             log.warning("Attempt to add monitoring tools failed, will continue without them")
 
-        try:
-            from TrigCostMonitor.TrigCostMonitorConfig import TrigCostToolsList
-            self.OPITools.extend(TrigCostToolsList)
-        except:
-            log.info("Attempt to add trigger cost monitoring tools failed, will continue without them")
             
         time = TrigTimeHistToolConfig("EFSteeringTime")
         self.MonTools += [ time ]

@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file eflowEventTPCnv/test/eflowObjectContainerCnv_p5_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -16,6 +14,7 @@
 #include "SGTools/TestStore.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include "TestTools/leakcheck.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include <cassert>
 #include <iostream>
 
@@ -98,6 +97,7 @@ void testit (const eflowObjectContainer& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  (void)Gaudi::Hive::currentContext();
   // Get proxies created outside of leak checking.
   ElementLink<CaloClusterContainer> foo ("foo", 0);
   ElementLink<CaloClusterContainer> bar ("bar", 0);

@@ -72,9 +72,13 @@ namespace D3PD {
          m_vtxItr = m_vtxEnd;
          return StatusCode::SUCCESS;
       }
-
+#ifdef HEPMC3
+      m_vtxItr = ( *m_evtItr )->vertices().begin();
+      m_vtxEnd = ( *m_evtItr )->vertices().end();
+#else
       m_vtxItr = ( *m_evtItr )->vertices_begin();
       m_vtxEnd = ( *m_evtItr )->vertices_end();
+#endif
 
       return StatusCode::SUCCESS;
    }
@@ -83,10 +87,41 @@ namespace D3PD {
 
       if( m_evtItr == m_evtEnd ) return nullptr;
 
+#ifdef HEPMC3
       // Check if this GenEvent passes our selection cuts:
       if( ! m_selector->pass( *m_evtItr, m_mcColl ) ) {
          ++m_evtItr;
-	 if( m_evtItr == m_evtEnd ) return 0;
+	 if( m_evtItr == m_evtEnd ) return nullptr;
+         m_vtxItr = ( *m_evtItr )->vertices().begin();
+         m_vtxEnd = ( *m_evtItr )->vertices().end();
+         return nextUntyped();
+      }
+
+      // Check if there are no more vertices in this GenEvent:
+      if( m_vtxEnd ==  m_vtxItr ){
+         ++m_evtItr;
+         if( m_evtItr == m_evtEnd ) return nullptr;
+
+         m_vtxItr = ( *m_evtItr )->vertices().begin();
+         m_vtxEnd = ( *m_evtItr )->vertices().end();
+         return nextUntyped();
+      }
+
+      if( ! m_selector->pass( *m_vtxItr, m_mcColl ) ) {
+         ++m_vtxItr;
+         return nextUntyped();
+      }
+
+      // I just like to write this part our verbosely...
+      HepMC::ConstGenVertexPtr vtx = *m_vtxItr;
+      ++m_vtxItr;
+
+      return vtx.get();
+#else
+      // Check if this GenEvent passes our selection cuts:
+      if( ! m_selector->pass( *m_evtItr, m_mcColl ) ) {
+         ++m_evtItr;
+	 if( m_evtItr == m_evtEnd ) return nullptr;
          m_vtxItr = ( *m_evtItr )->vertices_begin();
          m_vtxEnd = ( *m_evtItr )->vertices_end();
          return nextUntyped();
@@ -95,7 +130,7 @@ namespace D3PD {
       // Check if there are no more vertices in this GenEvent:
       if( m_vtxEnd ==  m_vtxItr ){
          ++m_evtItr;
-         if( m_evtItr == m_evtEnd ) return 0;
+         if( m_evtItr == m_evtEnd ) return nullptr;
 
          m_vtxItr = ( *m_evtItr )->vertices_begin();
          m_vtxEnd = ( *m_evtItr )->vertices_end();
@@ -112,11 +147,16 @@ namespace D3PD {
       ++m_vtxItr;
 
       return vtx;
+#endif
    }
 
    const std::type_info& GenVertexGetterTool::elementTypeinfo() const {
 
+#ifdef HEPMC3
+      return typeid( HepMC::GenVertexPtr );
+#else
       return typeid( HepMC::GenVertex );
+#endif
    }
 
 } // namespace D3PD

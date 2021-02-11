@@ -8,7 +8,6 @@
 #include "./RepeatedConditionsDefs.h"
 #include "./Tree.h"
 #include "./JetGroupProduct.h"
-#include "./JetGroupIndAllocator.h"
 #include "./xAODJetCollector.h"
 #include "./ITrigJetHypoInfoCollector.h"
 #include "./JetGroupRegister.h"
@@ -84,8 +83,6 @@ class FastReducer {
   bool m_pass{false};
 
   HypoJetVector m_passingJets;
-
-  //  JetGroupIndAllocator m_jgIndAllocator;
 
   JetGroupRegister m_jgRegister;
   /** set up the data structures for propagation. Propagation is the

@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import sys,os
 
@@ -35,29 +35,10 @@ def generateL1Menu(menu):
     return tpcl1.menu
 
 
-def readL1MenuFromXML(menu="LVL1config_Physics_pp_v6.xml"):
-
-    fullname = None
-
-    if '/' in menu:
-        fullname = menu
-    
-    import os
-    for path in os.environ['XMLPATH'].split(':'):
-        if 'TriggerMenuXML' not in os.listdir(path):
-            continue
-        if menu in os.listdir("%s/TriggerMenuXML/" % path):
-            fullname = "%s/TriggerMenuXML/%s" % (path,menu)
-        break # we only want to look into the first TriggerMenuXML package
-
-    if fullname:
-        tpcl1 = TriggerConfigLVL1( inputFile = fullname, outputFile = "test.xml" )
-        tpcl1.writeXML()
-        return tpcl1.menu
-    else:
-        log.error("Did not find file %s", menu)
-        return None
-
+def readL1MenuFromXML(menu):
+    tpcl1 = TriggerConfigLVL1( inputFile = menu, outputFile = "test.xml" )
+    tpcl1.writeXML()
+    return tpcl1.menu
 
 
 def findUnneededRun2():
@@ -71,30 +52,6 @@ def findUnneededRun2():
         tpcl1 = TriggerConfigLVL1()
 
         log.info(set(tpcl1.registeredItems.keys()) - set(Lvl1Flags.items()))
-
-
-
-def findRequiredItemsFromXML():
-    
-    menus = ['Physics_pp_v7','MC_pp_v7','LS2_v1', 'Physics_pp_run3_v1', 'PhysicsP1_pp_run3_v1', 'MC_pp_run3_v1', 'Cosmic_run3_v1', 'PhysicsP1_HI_run3_v1', 'Dev_HI_run3_v1']
-
-    from TriggerMenuMT.LVL1MenuConfig.LVL1.XMLReader import L1MenuXMLReader
-
-    allItems = set()
-    allThrs = set()
-
-    path='/afs/cern.ch/atlas/software/builds/AtlasP1HLT/18.1.0.2/InstallArea/XML/TriggerMenuXML'
-
-    for menu in menus:
-        xmlfile = "%s/LVL1config_%s.xml" % (path,menu)
-        r = L1MenuXMLReader(xmlfile)
-        allItems.update( [x['name'] for x in r.getL1Items()] )
-        allThrs.update( [x['name'] for x in r.getL1Thresholds()] )
-        log.info('%s %d %d', menu, len(allItems), len(allThrs))
-
-    from pickle import dump
-    f = open("L1Items.pickle","w")
-    dump([menus,allItems,allThrs],f)
 
 
 def findUnneededRun1(what="items"):

@@ -213,7 +213,7 @@ Trk::GsfExtrapolator::extrapolateImpl(
   const Trk::Layer* associatedLayer = nullptr;
   const Trk::TrackingVolume* startVolume = nullptr;
   const Trk::TrackingVolume* destinationVolume = nullptr;
-  const Trk::TrackParameters* referenceParameters = nullptr;
+  std::unique_ptr<Trk::TrackParameters> referenceParameters = nullptr;
 
   initialiseNavigation(ctx,
                        cache,
@@ -310,10 +310,6 @@ Trk::GsfExtrapolator::extrapolateImpl(
       break;
     }
 
-    // New reference parameters are the navigation parameters at the boundary
-    // surface
-    referenceParameters = cache.m_stateAtBoundarySurface.navigationParameters;
-
     // Break the lop if an oscillation is detected
     if (previousVolume == nextVolume) {
       ++fallbackOscillationCounter;
@@ -348,7 +344,7 @@ Trk::GsfExtrapolator::extrapolateImpl(
     }
 
     double revisedDistance =
-      (referenceParameters->position() - newDestination).mag();
+      (cache.m_stateAtBoundarySurface.navigationParameters->position() - newDestination).mag();
 
     double distanceChange = std::abs(revisedDistance - initialDistance);
 
@@ -1412,7 +1408,7 @@ Trk::GsfExtrapolator::initialiseNavigation(
   const Trk::Layer*& currentLayer,
   const Trk::TrackingVolume*& currentVolume,
   const Trk::TrackingVolume*& destinationVolume,
-  const Trk::TrackParameters*& referenceParameters,
+  std::unique_ptr<Trk::TrackParameters>& referenceParameters,
   Trk::PropDirection direction) const
 {
 
@@ -1463,11 +1459,10 @@ Trk::GsfExtrapolator::initialiseNavigation(
     referenceParameters =
       currentVolume
         ? propagator.propagateParameters(
-            ctx, *combinedState, surface, direction, false, m_fieldProperties).release()
+            ctx, *combinedState, surface, direction, false, m_fieldProperties)
         : nullptr;
     // These parameters will need to be deleted later. Add to list of garbage to
     // be collected
-    throwIntoGarbageBin(cache, referenceParameters);
     if (referenceParameters) {
       Amg::Vector3D surfaceDirection(referenceParameters->position() -
                                      combinedState->position());
@@ -1497,13 +1492,9 @@ Trk::GsfExtrapolator::initialiseNavigation(
       referenceParameters =
         currentVolume
           ? propagator.propagateParameters(
-              ctx, *combinedState, surface, direction, false, m_fieldProperties).release()
+              ctx, *combinedState, surface, direction, false, m_fieldProperties)
           : nullptr;
-      // These parameters will need to be deleted later. Add to list of garbage
-      // to be collected
-      throwIntoGarbageBin(cache, referenceParameters);
     }
-
     // 3. Global search
   } else {
     // If no reference parameters are defined, then determine them
@@ -1511,11 +1502,8 @@ Trk::GsfExtrapolator::initialiseNavigation(
       referenceParameters =
         currentVolume
           ? propagator.propagateParameters(
-              ctx, *combinedState, surface, direction, false, m_fieldProperties).release()
+              ctx, *combinedState, surface, direction, false, m_fieldProperties)
           : nullptr;
-      // These parameters will need to be deleted later. Add to list of garbage
-      // to be collected
-      throwIntoGarbageBin(cache, referenceParameters);
     }
     // Global search of tracking geometry to find the destination volume
     if (referenceParameters) {

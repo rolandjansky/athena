@@ -1,16 +1,10 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
-
-
-
 
 ##########################################
 # This is the menu:
 ###########################################
-# note : L1 Seeds must be declared in CTP file: for example
-# nightly/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/XML/TriggerMenuXML/LVL1config_Physics_pp_v7.xml
-##########################################
 
 def generateChains():
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool

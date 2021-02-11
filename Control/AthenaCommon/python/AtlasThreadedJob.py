@@ -21,7 +21,7 @@ def _setupAtlasThreadedJob():
         theApp.MessageSvcType = "MessageSvc"
 
     svcMgr.MessageSvc.defaultLimit = 0
-    svcMgr.MessageSvc.Format = "% F%40W%S%4W%R%e%s%8W%R%T %0W%M"
+    svcMgr.MessageSvc.Format = "% F%50W%C%6W%R%e%s%8W%R%T %0W%M"
 
     numStores = jps.ConcurrencyFlags.NumConcurrentEvents()
 
