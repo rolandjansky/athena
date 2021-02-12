@@ -55,7 +55,8 @@ def getJetGroomAlg(groomdef,monTool=None):
         "jetrecalg_"+jetname,
         Provider = groomer,
         Modifiers = mods,
-        OutputContainer = jetname)
+        OutputContainer = jetname,
+        MonTool = monTool)
     
     
     from JetRecConfig.JetRecConfig import autoconfigureModifiers

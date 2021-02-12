@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from collections import OrderedDict
 from builtins import str
@@ -105,7 +105,7 @@ def collectFilters( steps ):
 
 def collectL1DecoderDecisionObjects(l1decoder):
     decisionObjects = set()
-    decisionObjects.update([ str(d.Decisions) for d in l1decoder.roiUnpackers ])
+    decisionObjects.update([ str(d.Decisions) for d in l1decoder.RoIBRoIUnpackers + l1decoder.xAODRoIUnpackers ])
     from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
     decisionObjects.add( mapThresholdToL1DecisionCollection("FSNOSEED") ) # Include also Full Scan
     __log.info("Collecting %i decision objects from L1 decoder instance", len(decisionObjects))
@@ -393,7 +393,7 @@ def triggerBSOutputCfg(flags, hypos, offline=False):
     __log.debug('Setting StreamTagMakerTool.PEBDecisionKeys = %s', PEBKeys)
     stmaker.PEBDecisionKeys = PEBKeys
 
-    acc = ComponentAccumulator(sequenceName="HLTTop")
+    acc = ComponentAccumulator("HLTTop")
     if offline:
         # Create HLT result maker and alg
         from TrigOutputHandling.TrigOutputHandlingConfig import HLTResultMTMakerCfg
@@ -491,7 +491,7 @@ def triggerPOOLOutputCfg(flags, edmSet):
 
     # Produce xAOD L1 RoIs from RoIBResult
     from AnalysisTriggerAlgs.AnalysisTriggerAlgsCAConfig import RoIBResultToxAODCfg
-    xRoIBResultAcc, xRoIBResultOutputs = RoIBResultToxAODCfg(flags, acc.getSequence().name)
+    xRoIBResultAcc, xRoIBResultOutputs = RoIBResultToxAODCfg(flags)
     acc.merge(xRoIBResultAcc)
     # Ensure outputs are produced before streamAlg runs
     streamAlg.ExtraInputs += xRoIBResultOutputs
@@ -608,7 +608,7 @@ def triggerRunCfg( flags, seqName = None, menu=None ):
     acc.merge( triggerIDCCacheCreatorsCfg( flags, seqName="AthAlgSeq" ), sequenceName="HLTBeginSeq" )
 
     from L1Decoder.L1DecoderConfig import L1DecoderCfg
-    l1DecoderAcc = L1DecoderCfg( flags, seqName =  "HLTBeginSeq")
+    l1DecoderAcc = L1DecoderCfg( flags )
     # TODO, once moved to newJO the algorithm can be added to l1DecoderAcc and merging will be sufficient here
     acc.merge( l1DecoderAcc )
 
@@ -668,7 +668,7 @@ def triggerIDCCacheCreatorsCfg(flags, seqName = None):
     """
     Configures IDC cache loading, for now unconditionally, may make it menu dependent in future
     """
-    acc = ComponentAccumulator(sequenceName = seqName)
+    acc = ComponentAccumulator(seqName)
     from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheCfg
     acc.merge( MuonCacheCfg(), sequenceName = seqName )
 

@@ -74,6 +74,10 @@ namespace LVL1TGCTrigger {
 
   m_useEIFI  = tgcArgs()->USE_INNER() && (m_region==ENDCAP); 
   m_useTileMu = tgcArgs()->TILE_MU() && (m_region==ENDCAP); 
+
+  m_nswSide   =   (tgcArgs()->NSWSideInfo().find("A")!=std::string::npos && m_sideId==0)
+               || (tgcArgs()->NSWSideInfo().find("C")!=std::string::npos && m_sideId==1);
+
   
   m_trackSelectorOut.reset(new TGCTrackSelectorOut());//for Run3
 
@@ -583,19 +587,37 @@ void TGCSectorLogic::doInnerCoincidence(const SG::ReadCondHandleKey<TGCTriggerDa
       //Defenation of innerDetectorNumber :: enum{EI=0,TILE,BIS78};
 
       /*int innerDetectorNumber = which_InnerCoincidence();*/ //this function will be implemented.
-      
-      // doTGCEICoincidnece();
-      // doTILECoincidence();
-      // doTGCBISCoincidence();
 
+      // The below section is a tmporary method. It will be replaced with WICHINNER COINCIDENCE.  
+      int pos = 4*coincidenceOut->getR() +  coincidenceOut->getPhi();
+      // check if inner is used for the roi 
+      bool validEI = (m_mapEIFI->getFlagROI(pos, coincidenceOut->getIdSSC(), m_sectorId) == 1);
+      // check if TileMu is used for the roi 
+      bool validTileMu = (m_mapTileMu->getFlagROI(pos, coincidenceOut->getIdSSC(), m_sectorId, m_sideId) == 1);
+
+
+      bool isEI=false;
+      bool isTILE=false;
+      if(m_useEIFI && validEI){isEI=doTGCEICoincidence(coincidenceOut);}
+      if(m_useTileMu && validTileMu){isTILE=doTILECoincidence(coincidenceOut); }
+      //if(m_useBIS && validBIS){isBIS=doTGCBISCoincidence(coincidenceOut); }
+
+      coincidenceOut->setInnerCoincidenceFlag(isEI || isTILE || (!m_useEIFI && !validEI && !m_useTileMu && !validTileMu));
     }
     else{//  NSW or FI are used to inner coincidnece in SSC#5~18 in Endcap and Forward region 
-      if(tgcArgs()->USE_NSW() /*&& isNSWside(m_sideId)*/){ //this function will be implemented.There is a NSW on A-side only in early Run3;
-      doTGCNSWCoincidence(coincidenceOut);
+
+      int pos = 4*coincidenceOut->getR() +  coincidenceOut->getPhi();
+      bool validFI = (m_mapEIFI->getFlagROI(pos, coincidenceOut->getIdSSC(), m_sectorId) == 1);
+
+      if(tgcArgs()->USE_NSW() && m_nswSide){ //this function will be implemented.There is a NSW on A-side only in early Run3;
+	doTGCNSWCoincidence(coincidenceOut);
       }
-      else if(/*!isNSWside(m_sideId)*/false){
-	//doTGCFICoincidence();
+      else if(m_nswSide && validFI){
+	if(m_useEIFI){
+	  coincidenceOut->setInnerCoincidenceFlag( doTGCFICoincidence(coincidenceOut) );
+	}
       }
+      else{coincidenceOut->setInnerCoincidenceFlag(true);}
 
     }
 
@@ -630,21 +652,95 @@ void TGCSectorLogic::doInnerCoincidence(const SG::ReadCondHandleKey<TGCTriggerDa
     }
 
 
-    //////  select lowest pT   /////
-    if(pt_EtaPhi>coincidenceOut->getpT() && pt_EtaDtheta>coincidenceOut->getpT()){
-      return;
+    //////  select lowest pT   ///// will be replaced with pT merger
+    int nsw_pT;
+    if(pt_EtaPhi==0 || pt_EtaDtheta==0){
+      nsw_pT = pt_EtaPhi!=0 ? pt_EtaPhi :  pt_EtaDtheta;
     }
-    else if(pt_EtaPhi<pt_EtaDtheta){
-      coincidenceOut->setpT(pt_EtaPhi);
+    else{
+      nsw_pT = pt_EtaPhi<pt_EtaDtheta ? pt_EtaPhi :  pt_EtaDtheta;
+    }
+
+    if(nsw_pT>coincidenceOut->getpT()){
       return;
     }
     else{
-      coincidenceOut->setpT(pt_EtaDtheta);
+      coincidenceOut->setpT(nsw_pT);
       return;
     }
 
   }
 
+
+
+  bool TGCSectorLogic::doTILECoincidence(TGCRPhiCoincidenceOut* coincidenceOut){
+    /////////////////////////////////////////////////////////////////////////////
+    /// The algorithm is for Run2. We will replac it with an algorithm for Run3.
+    /// temporariy, use the Run2 algorithm to set the inner flag.
+    ////////////////////////////////////////////////////////////////////////////
+
+    bool isHitTileMu=false;
+      for ( int mod=0; mod< TGCTileMuCoincidenceMap::N_Input_TileMuModule; mod++){
+        int maskTM =  m_mapTileMu->getMask(mod, coincidenceOut->getIdSSC(), m_sectorId, m_sideId);
+        const TGCTMDBOut* tm = m_pTMDB->getOutput(m_sideId, m_sectorId, mod); 
+        int  hit6      = tm->GetHit6();
+        int  hit56     = tm->GetHit56(); 
+        if          (maskTM == TGCTileMuCoincidenceMap::TM_D6_L) {
+          isHitTileMu = isHitTileMu || (hit6==TGCTMDBOut::TM_LOW) || (hit6==TGCTMDBOut::TM_HIGH) ;
+        } else  if  (maskTM == TGCTileMuCoincidenceMap::TM_D6_H) {
+          isHitTileMu = isHitTileMu || (hit6==TGCTMDBOut::TM_HIGH) ;
+        } else  if  (maskTM == TGCTileMuCoincidenceMap::TM_D56_L) {
+          isHitTileMu = isHitTileMu || (hit56==TGCTMDBOut::TM_LOW) || (hit56==TGCTMDBOut::TM_HIGH) ;
+        } else  if  (maskTM == TGCTileMuCoincidenceMap::TM_D56_H) {
+          isHitTileMu = isHitTileMu || (hit56==TGCTMDBOut::TM_HIGH) ;
+        } 
+      }
+
+    return isHitTileMu;
+  }
+
+
+  bool TGCSectorLogic::doTGCEICoincidence(TGCRPhiCoincidenceOut* coincidenceOut){
+
+    bool isHitInner=false;
+    for(unsigned int iSlot=0;iSlot<TGCInnerTrackletSlotHolder::NUMBER_OF_SLOTS_PER_TRIGGER_SECTOR; iSlot++) {
+      const TGCInnerTrackletSlot* hit = m_innerTrackletSlots[iSlot];
+      
+      for (size_t reg=0;reg< TGCInnerTrackletSlot::NUMBER_OF_REGIONS; reg++){
+
+	// Wire    
+	bool isHitWire = false;
+	for (size_t bit=0; bit< TGCInnerTrackletSlot::NUMBER_OF_TRIGGER_BITS; bit++){
+	  isHitWire =   m_mapEIFI->getTriggerBit(iSlot, coincidenceOut->getIdSSC(), m_sectorId, reg, TGCInnerTrackletSlot::WIRE, bit)
+	    &&   hit->getTriggerBit(reg,TGCInnerTrackletSlot::WIRE,bit) ;
+	  if(isHitWire){break;}
+	}
+
+	// Strip
+	bool isHitStrip = false;
+	for (size_t bit=0;bit< TGCInnerTrackletSlot::NUMBER_OF_TRIGGER_BITS; bit++){
+	  isHitStrip =  m_mapEIFI->getTriggerBit(iSlot, coincidenceOut->getIdSSC(), m_sectorId, reg, TGCInnerTrackletSlot::STRIP, bit)
+	    && hit->getTriggerBit(reg,TGCInnerTrackletSlot::STRIP,bit);
+	  if(isHitStrip){break;}
+	}
+
+	isHitInner = isHitWire && isHitStrip;
+	if(isHitInner){
+	  return true;
+	}
+      }
+
+    }
+
+    return false;
+
+  }
+
+
+
+  bool TGCSectorLogic::doTGCFICoincidence(TGCRPhiCoincidenceOut* coincidenceOut){
+   return doTGCEICoincidence(coincidenceOut);
+  }
 
 
 } //end of namespace bracket

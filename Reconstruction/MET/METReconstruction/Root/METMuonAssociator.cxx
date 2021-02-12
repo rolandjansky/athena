@@ -22,6 +22,10 @@
 // Tracking EDM
 #include "xAODTracking/Vertex.h"
 
+
+typedef ElementLink<xAOD::MuonContainer> MuonLink_t;
+typedef ElementLink<xAOD::FlowElementContainer> FELink_t;
+
 namespace met {
 
   using namespace xAOD;
@@ -36,6 +40,7 @@ namespace met {
   {
     declareProperty("DoClusterMatch", m_doMuonClusterMatch=true);
     declareProperty("MuonKey",m_muContKey);
+    declareProperty("UseFEMuonLinks", m_useFEMuonLinks = false ); 
   }
 
   // Destructor
@@ -51,6 +56,13 @@ namespace met {
     ATH_MSG_VERBOSE ("Initializing " << name() << "...");
     ATH_CHECK( m_muContKey.assign(m_input_data_key));
     ATH_CHECK( m_muContKey.initialize());
+    if (m_useFEMuonLinks || m_useFELinks) {
+      if (m_neutralFEReadDecorKey.key()=="") {ATH_CHECK( m_neutralFEReadDecorKey.assign(m_input_data_key+"."+m_neutralFELinksKey));}
+      if (m_chargedFEReadDecorKey.key()=="") {ATH_CHECK( m_chargedFEReadDecorKey.assign(m_input_data_key+"."+m_chargedFELinksKey));}
+      ATH_CHECK( m_neutralFEReadDecorKey.initialize());
+      ATH_CHECK( m_chargedFEReadDecorKey.initialize());
+    }
+
     if (m_doMuonClusterMatch) {
       ATH_CHECK(m_elementLinkName.initialize());
     }
@@ -213,15 +225,78 @@ namespace met {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode METMuonAssociator::extractFE(const xAOD::IParticle* obj,
-                                          std::vector<const xAOD::IParticle*>& felist,
-                                          const met::METAssociator::ConstitHolder& constits,
-                                          std::map<const IParticle*,MissingETBase::Types::constvec_t>& /*momenta*/) const
-  {  
+  StatusCode METMuonAssociator::extractFE(const xAOD::IParticle* obj, 
+                                            std::vector<const xAOD::IParticle*>& felist,
+                                            const met::METAssociator::ConstitHolder& constits,
+                                            std::map<const IParticle*,MissingETBase::Types::constvec_t> &/*momenta*/) const
+  {
     const xAOD::Muon *mu = static_cast<const xAOD::Muon*>(obj);
+
+    if (m_useFEMuonLinks) { 
+      ATH_CHECK( extractFEsFromLinks(mu, felist,constits) );
+    } 
+    else {
+      ATH_CHECK( extractFEs(mu, felist, constits) );
+    }
+
+    return StatusCode::SUCCESS;
+  }
+
+  StatusCode METMuonAssociator::extractFEsFromLinks(const xAOD::Muon* mu, //TODO to be tested
+						       std::vector<const xAOD::IParticle*>& felist,
+						       const met::METAssociator::ConstitHolder& constits) const
+  {
+    ATH_MSG_DEBUG("Extract FEs From Links for " << mu->type()  << " with pT " << mu->pt());
+
+    std::vector<FELink_t> nFELinks;
+    std::vector<FELink_t> cFELinks;
+
+    SG::ReadDecorHandle<xAOD::MuonContainer, std::vector<FELink_t> > neutralFEReadDecorHandle (m_neutralFEReadDecorKey);
+    SG::ReadDecorHandle<xAOD::MuonContainer, std::vector<FELink_t> > chargedFEReadDecorHandle (m_chargedFEReadDecorKey);
+    nFELinks=neutralFEReadDecorHandle(*mu);
+    cFELinks=chargedFEReadDecorHandle(*mu);
+
+    // Charged FEs
+    for (FELink_t feLink : cFELinks) {
+      if (feLink.isValid()){
+	const xAOD::FlowElement* fe_init = *feLink;
+	for (const auto& fe : *constits.feCont){
+	  if (fe->index() == fe_init->index() && fe->isCharged()){ //index-based match between JetETmiss and CHSFlowElements collections
+	    const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");
+	    if(  fe->isCharged() && PVMatchedAcc(*fe)&& ( !m_cleanChargedPFO || isGoodEoverP(static_cast<const xAOD::TrackParticle*>(fe->chargedObject(0))) ) ) {
+	      ATH_MSG_DEBUG("Accept cFE with pt " << fe->pt() << ", e " << fe->e() << ", eta " << fe->eta() << ", phi " << fe->phi() );
+	      felist.push_back(fe); 
+	    } 
+	  }
+	}
+      }
+    } // end cFE loop
+
+    // Neutral FEs
+    for (FELink_t feLink : nFELinks) {
+      if (feLink.isValid()){
+        const xAOD::FlowElement* fe_init = *feLink;
+	for (const auto& fe : *constits.feCont){
+	  if (fe->index() == fe_init->index() && !fe->isCharged()){ //index-based match between JetETmiss and CHSFlowElements collections
+	    if( ( !fe->isCharged()&& fe->e() > FLT_MIN ) ){ 
+	      ATH_MSG_DEBUG("Accept nFE with pt " << fe->pt() << ", e " << fe->e() << ", eta " << fe->eta() << ", phi " << fe->phi() << " in sum.");
+	      felist.push_back(fe);
+	    }   
+	  }
+	}
+      }
+    } // end nFE links loop
+
+
+    return StatusCode::SUCCESS;
+  }
+
+  StatusCode METMuonAssociator::extractFEs(const xAOD::Muon* mu, 
+				 std::vector<const xAOD::IParticle*>& felist,
+				 const met::METAssociator::ConstitHolder& constits) const
+  {  
     const TrackParticle* idtrack = mu->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
     const CaloCluster* muclus = mu->cluster();
-
     ATH_MSG_VERBOSE("Muon " << mu->index() << " with pt " << mu->pt()
                     << ", eta "   << mu->eta()
                     << ", phi " << mu->phi());

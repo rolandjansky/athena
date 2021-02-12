@@ -11,7 +11,6 @@
 // ********************************************************************
 
 #include "TrigJetTLAHypoToolMT.h"
-#include "TrigJetHypoToolHelperMT.h"
 
 #include "GaudiKernel/StatusCode.h"
 
@@ -86,12 +85,10 @@ TrigJetTLAHypoToolMT::decide(std::vector<JetDecision>& jetHypoInputs) const {
   }
   
 
-  std::string msg = "TrigJetTLAHypoToolMT: Passthrough decision count " + std::to_string(decision_count); 
-
-  ATH_MSG_DEBUG(msg);
+  ATH_MSG_DEBUG("TrigJetTLAHypoToolMT: Passthrough decision count " + std::to_string(decision_count)); 
 
   if (infocollector){
-    infocollector->collect("TrigJetTLAHypoToolMT", msg);
+    infocollector->collect("TrigJetTLAHypoToolMT", "TrigJetTLAHypoToolMT: Passthrough decision count " + std::to_string(decision_count));
     infocollector->write();
   }
   return StatusCode::SUCCESS;

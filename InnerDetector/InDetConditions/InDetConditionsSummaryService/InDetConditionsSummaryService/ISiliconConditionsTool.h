@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -10,6 +10,7 @@
 #define ISiliconConditionsTool_h
 //Gaudi Includes
 #include "GaudiKernel/IAlgTool.h"
+#include "GaudiKernel/EventContext.h"
 // STL includes
 #include <string>
 
@@ -29,15 +30,15 @@ public:
 
   //@name methods taking the detector identifier
   //@{
-  virtual float temperature(const Identifier& detectorElement) const = 0;
-  virtual float biasVoltage(const Identifier& detectorElement) const = 0;
-  virtual float depletionVoltage(const Identifier& detectorElement) const = 0;
+  virtual float temperature(const Identifier& detectorElement, const EventContext& ctx) const = 0;
+  virtual float biasVoltage(const Identifier& detectorElement, const EventContext& ctx) const = 0;
+  virtual float depletionVoltage(const Identifier& detectorElement, const EventContext& ctx) const = 0;
   //@}
   //@name methods taking the detector hash identifier
   //@{
-  virtual float temperature(const IdentifierHash& detectorElement) const = 0;
-  virtual float biasVoltage(const IdentifierHash& detectorElement) const = 0;
-  virtual float depletionVoltage(const IdentifierHash& detectorElement) const = 0;
+  virtual float temperature(const IdentifierHash& detectorElement, const EventContext& ctx) const = 0;
+  virtual float biasVoltage(const IdentifierHash& detectorElement, const EventContext& ctx) const = 0;
+  virtual float depletionVoltage(const IdentifierHash& detectorElement, const EventContext& ctx) const = 0;
   //@}
 
 };

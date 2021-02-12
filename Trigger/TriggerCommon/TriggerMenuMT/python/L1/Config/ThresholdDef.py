@@ -163,7 +163,7 @@ class ThresholdDef:
             JetThreshold('jJ%i' % thrV, 'jJ').setPt(thrV).addRange(etamin=-31, etamax=31) # jets are between -31 and 31 -ATR-11526
 
         # Central jet
-        for (thrV, etamax) in [(12,23), (15,25), (25,23), (35,23), (40,25)]:
+        for (thrV, etamax) in [(12,25), (15,25), (25,23), (35,23), (40,25)]:
             JetThreshold('jJ%ip0ETA%i'  % (thrV, etamax), 'jJ').setPt(thrV).addRange(etamin = -etamax,  etamax = etamax)  
 
         # Standard forward jet

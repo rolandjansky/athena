@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 // Local include(s):
@@ -99,7 +99,7 @@ namespace CP {
         ATH_CHECK(m_prw_Tool->apply(*ei));
         m_evNumber = ei->eventNumber();
         
-        for (const auto& mu : *muons) {
+        for (const auto mu : *muons) {
             if (mu->pt() < m_pt_cut || (m_eta_cut > 0 && std::abs(mu->eta()) >= m_eta_cut)) continue;
             // reject all loose muons
             if (m_sel_tool->getQuality(*mu) > m_muon_quality) continue;          

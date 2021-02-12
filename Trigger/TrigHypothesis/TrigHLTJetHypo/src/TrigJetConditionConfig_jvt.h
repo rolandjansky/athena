@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGJETCONDITIONCONFIG_JVT_H
@@ -9,8 +9,6 @@
 #include "ITrigJetConditionConfig.h"
 #include "./ConditionsDefsMT.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
 
 class TrigJetConditionConfig_jvt:
 public extends<AthAlgTool, ITrigJetConditionConfig> {

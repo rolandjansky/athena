@@ -187,23 +187,28 @@ def analyseChainName(chainName, L1thresholds, L1item):
     hltChainNameShort = '_'.join(cparts)
 
     # ---- identify the topo algorithm and add to genchainDict -----
-    from .SignatureDicts import AllowedTopos
+    from .SignatureDicts import AllowedTopos, AllowedTopos_comb
     topo = ''
     topos=[]
+    extraComboHypos = []
     toposIndexed={}
     topoindex = -5
     for cindex, cpart in enumerate(cparts):
-        if  cpart in AllowedTopos:
+        if cpart in AllowedTopos:
             log.debug('" %s" is in this part of the name %s -> topo alg', AllowedTopos, cpart)
             topo = cpart
             topoindex = cindex
             toposIndexed.update({topo : topoindex})
             hltChainNameShort=hltChainNameShort.replace('_'+cpart, '')
             topos.append(topo)
+        if cpart in AllowedTopos_comb:
+             log.debug('[analyseChainName] chain part %s is a combined topo hypo, adding to extraComboHypo', cpart)
+             extraComboHypos.append(cpart)
 
     genchainDict['topo'] = topos
+    genchainDict['extraComboHypos'] = extraComboHypos
 
-    # replace these lines belwo with cparts = chainName.split("_")
+    # replace these lines below with cparts = chainName.split("_")
     for t, i in enumerate(toposIndexed):
         if (t in cparts):
             log.debug('topo %s with index %s', t, i)
@@ -339,8 +344,12 @@ def analyseChainName(chainName, L1thresholds, L1item):
 
         chainpartsNoL1 = chainparts
         parts=chainpartsNoL1.split('_')
+        if None in parts:
+            log.error("[analyseChainName] chainpartsNoL1 -> parts: %s -> %s", chainpartsNoL1, parts)
+            raise Exception("[analyseChainName] parts contains None, please identify how this is happening")
         parts=list(filter(None,parts))
-
+        log.debug("[analyseChainName] chainpartsNoL1 %s, parts %s", chainpartsNoL1, parts)
+        
         chainProperties['trigType']=mdicts[chainindex]['trigType']
         chainProperties['extra']=mdicts[chainindex]['extra']
         multiplicity = mdicts[chainindex]['multiplicity'] if not mdicts[chainindex]['multiplicity'] == '' else '1'
@@ -392,11 +401,9 @@ def analyseChainName(chainName, L1thresholds, L1item):
 
         # ---- check remaining parts for complete matches in allowedPropertiesAndValues Dict ----
         # ---- unmatched = list of tokens that are not found in the allowed values as a whole ----
-        parts = filter(None, parts)     #removing empty strings from list
 
         matchedparts = []
         for pindex, part in enumerate(parts):
-            origpart = part
             for prop, allowedValues in allowedSignaturePropertiesAndValues.items():
                 if part in allowedValues:
                     if type(chainProperties[prop]) is list:
@@ -442,7 +449,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
                             part = part.replace(aV,'')
                             break # done with allowed values for that property
 
-            assert len(part.split()) == 0, "These parts of the chain name {} are not understood {}".format(origpart,part)
+            assert len(part.split()) == 0, "These parts of the chain name {} are not understood: {}".format(chainpartsNoL1,part)
 
 
         # ---- remove properties that aren't allowed in the chain properties for a given siganture ----

@@ -1,6 +1,7 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
- */
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+*/
+
 /**
  * @file PixelDigitization/SensorSim3DTool.h
  * @author Soshi Tsuno <Soshi.Tsuno@cern.ch>
@@ -17,6 +18,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "RadDamageUtil.h"
 
+
 class SensorSim3DTool: public SensorSimTool {
 public:
   SensorSim3DTool(const std::string& type, const std::string& name, const IInterface* parent);
@@ -24,10 +26,15 @@ public:
   virtual StatusCode finalize() override;
   virtual ~SensorSim3DTool();
 
-  virtual StatusCode induceCharge(const TimedHitPtr<SiHit>& phit, SiChargedDiodeCollection& chargedDiodes,
-                                  const InDetDD::SiDetectorElement& Module, const InDetDD::PixelModuleDesign& p_design,
+  virtual StatusCode induceCharge(const TimedHitPtr<SiHit>& phit,
+                                  SiChargedDiodeCollection& chargedDiodes,
+                                  const InDetDD::SiDetectorElement& Module,
+                                  const InDetDD::PixelModuleDesign& p_design,
+                                  const PixelModuleData *moduleData,
                                   std::vector< std::pair<double, double> >& trfHitRecord,
-                                  std::vector<double>& initialConditions, CLHEP::HepRandomEngine* rndmEngine) override;
+                                  std::vector<double>& initialConditions,
+                                  CLHEP::HepRandomEngine* rndmEngine,
+                                  const EventContext &ctx) override;
 
 
   // 3D sensor simulation using probability density map (used in RUN-2 (no radiation damage)
@@ -116,6 +123,7 @@ private:
   {
     this, "RadDamageUtil", "RadDamageUtil", "Rad Damage utility"
   };
+
 };
 
 #endif // PIXELDIGITIZATION_SensorSim3DTool_H

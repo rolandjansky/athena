@@ -10,7 +10,6 @@
 #include "./IJetsMatcherMT.h"
 #include "./ConditionFilter.h"
 
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerBridge.h"
 #include <optional>
 
 class ITrigJetHypoToolNoGrouperConfig : virtual public ::IAlgTool {
@@ -26,9 +25,6 @@ public:
   /** check the input values */
   virtual StatusCode checkVals()  const = 0;
 
-
-  /** Provide cleaner objects to sdiscard "dirty" jets before preocessing. */
-  virtual std::vector<std::shared_ptr<ICleaner>> getCleaners() const = 0;
 
   /** return an object that tests jet group - Conditions matching */
   virtual std::unique_ptr<IJetsMatcherMT> getMatcher() const = 0;

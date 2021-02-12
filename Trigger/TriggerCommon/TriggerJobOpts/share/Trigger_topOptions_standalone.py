@@ -174,11 +174,6 @@ log.info("configuring LVL1 (L1Topo and CTP)")
 from TriggerJobOpts.Lvl1TriggerOnlineGetter import Lvl1SimulationGetter
 lvl1 = Lvl1SimulationGetter()
 
-if globalflags.InputFormat()=='pool':
-    log.info("setting up transient BS")
-    TriggerFlags.doTransientByteStream = True
-    include( "TriggerJobOpts/jobOfragment_TransBS_standalone.py" )
-
 # setup HLT
 # initialize HLT config svc
 from TrigConfigSvc.TrigConfigSvcConfig import SetupTrigConfigSvc

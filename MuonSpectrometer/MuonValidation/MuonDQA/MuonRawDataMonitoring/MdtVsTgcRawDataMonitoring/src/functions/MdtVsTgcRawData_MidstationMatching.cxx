@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -414,9 +414,7 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(std::vector<const Muon::MuonSegment*>
         int nTPD = tpdVector[k].size();
         for(int iTPD1=0;iTPD1<nTPD;iTPD1++){
           // Variables to hold matches found for this PRD
-          std::vector<const Muon::TgcPrepData*> *thisTPDmatches;
-	  thisTPDmatches = 0;
-	  if(thisTPDmatches->size()>0) thisTPDmatches->clear();
+          std::vector<const Muon::TgcPrepData*> thisTPDmatches;
           int thisTPDlayerMatches[9] = {0,0,0,0,0,0,0,0,0}; 
           
           // Get position variables
@@ -474,7 +472,7 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(std::vector<const Muon::MuonSegment*>
               
               // Add PRD2 to matches for PRD1
               if(layer2>=0)thisTPDlayerMatches[layer2]++;
-              thisTPDmatches->push_back(tpdVector[k].at(iTPD2));
+              thisTPDmatches.push_back(tpdVector[k].at(iTPD2));
             }
           }// nTPD2
           
@@ -492,7 +490,7 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(std::vector<const Muon::MuonSegment*>
               // Set maximum values to current segment's values
               nlayerMax = nlayerCurrent;
               nPRDMax   = nPRDCurrent;
-              bestTPDmatches[k]    = thisTPDmatches;
+              bestTPDmatches[k]    = &thisTPDmatches;
               for(int l=0;l<9;l++){
                 bestTPDlayerMatches[k][l] = thisTPDlayerMatches[l];
               }

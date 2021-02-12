@@ -218,7 +218,7 @@ const Trk::PseudoMeasurementOnTrack* RefitTracksAndVertex::createPMfromSi ( cons
   defPar.push_back( theta ) ;
   if( !mp->covariance() )  return 0;
   Trk::LocalParameters  parFromSi( defPar ) ;
-  AmgSymMatrix(1) covFromSi;
+  AmgSymMatrix(2) covFromSi;
   
   covFromSi( 0, 0 ) = (*mp->covariance())( Trk::z0,Trk::z0 ) ;
   covFromSi( 1, 1 ) = (*mp->covariance())( Trk::theta,Trk::theta ) ;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <map>
@@ -969,7 +969,7 @@ void L1EnergyCMXTools::dumpCrateEnergies(
 
   ATH_MSG_DEBUG(msg);
   for (const auto& p : crates) {
-    for (const auto& c : *p) {
+    for (const LVL1::CrateEnergy* c : *p) {
       ATH_MSG_DEBUG(" CrateEnergy: crate " << c->crate() << " results ");
       ATH_MSG_DEBUG("  Et " << c->et() << " overflow " << c->etOverflow());
       ATH_MSG_DEBUG("  Ex " << c->ex() << " overflow " << c->exOverflow());

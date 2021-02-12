@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -47,18 +47,18 @@ class SCT_SiliconConditionsTool: public extends<AthAlgTool, ISiliconConditionsTo
   virtual StatusCode finalize() override;
 
   /** Silicon temperature by Identifier */
-  virtual float temperature(const Identifier& elementId) const override;
+  virtual float temperature(const Identifier& elementId, const EventContext& ctx) const override;
   /** Silicon bias voltage by Identifier */
-  virtual float biasVoltage(const Identifier& elementId) const override;
+  virtual float biasVoltage(const Identifier& elementId, const EventContext& ctx) const override;
   /** Silicon depletion voltage by Identifier */
-  virtual float depletionVoltage(const Identifier& elementId) const override;
+  virtual float depletionVoltage(const Identifier& elementId, const EventContext& ctx) const override;
 
   /** Silicon temperature by IdentifierHash */
-  virtual float temperature(const IdentifierHash& elementHash) const override;
+  virtual float temperature(const IdentifierHash& elementHash, const EventContext& ctx) const override;
   /** Silicon bias voltage by IdentifierHash */
-  virtual float biasVoltage(const IdentifierHash& elementHash) const override;
+  virtual float biasVoltage(const IdentifierHash& elementHash, const EventContext& ctx) const override;
   /** Silicon depletion voltage by IdentifierHash */
-  virtual float depletionVoltage(const IdentifierHash& elementHash) const override;
+  virtual float depletionVoltage(const IdentifierHash& elementHash, const EventContext& ctx) const override;
 
  private:
  
@@ -84,8 +84,8 @@ class SCT_SiliconConditionsTool: public extends<AthAlgTool, ISiliconConditionsTo
 
   const SCT_ID* m_sct_id{nullptr};
 
-  const SCT_DCSFloatCondData* getCondDataHV() const;
-  const SCT_DCSFloatCondData* getCondDataTemp() const;
+  const SCT_DCSFloatCondData* getCondDataHV(const EventContext& ctx) const;
+  const SCT_DCSFloatCondData* getCondDataTemp(const EventContext& ctx) const;
   };
 
 #endif // SCT_SiliconConditionsTool_h

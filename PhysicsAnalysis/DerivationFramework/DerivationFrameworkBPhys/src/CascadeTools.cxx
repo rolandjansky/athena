@@ -81,7 +81,7 @@ double CascadeTools::invariantMassError(const std::vector<TLorentzVector> &parti
     ATH_MSG_DEBUG("The provided number of masses does not match the number of tracks in the vertex");
     return -999999.;
   }
-  std::vector<TLorentzVector> particleMom(NTrk); particleMom.clear();
+  std::vector<TLorentzVector> particleMom(NTrk);
   for( unsigned int it=0; it<NTrk; it++) {
     double esq = particleMom2[it].Px()*particleMom2[it].Px() + particleMom2[it].Py()*particleMom2[it].Py() +
                  particleMom2[it].Pz()*particleMom2[it].Pz() + masses[it]*masses[it];

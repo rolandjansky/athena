@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # import Hypo Algs/Tools
 from AthenaConfiguration.ComponentFactory import CompFactory # tools are imported from the factory, (NewJO)
@@ -661,7 +661,10 @@ class TrigMuonEFCombinerHypoConfig(object):
 
 def TrigMuonEFTrackIsolationHypoToolFromDict( chainDict ) :
     cparts = [i for i in chainDict['chainParts'] if i['signature']=='Muon']
-    thresholds = cparts[0]['isoInfo']
+    if 'ivarperf' in chainDict['chainParts'][0]['chainPartName']:
+        thresholds = 'passthrough'
+    else:
+        thresholds = cparts[0]['isoInfo']
     config = TrigMuonEFTrackIsolationHypoConfig()
     tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds )
     return tool
@@ -675,22 +678,26 @@ class TrigMuonEFTrackIsolationHypoConfig(object) :
         tool = CompFactory.TrigMuonEFTrackIsolationHypoTool(toolName)
 
         try:
-            ptcone03 = trigMuonEFTrkIsoThresholds[ isoCut ]
+            if(isoCut=='passthrough') :
+                tool.AcceptAll = True
 
-            tool.PtCone02Cut = 0.0
-            tool.PtCone03Cut = ptcone03
-            tool.AcceptAll = False
-
-            if 'MS' in isoCut:
-                tool.RequireCombinedMuon = False
             else:
-                tool.RequireCombinedMuon = True
+                ptcone03 = trigMuonEFTrkIsoThresholds[ isoCut ]
 
-            tool.DoAbsCut = False
-            if 'var' in isoCut :
-                tool.useVarIso = True
-            else :
-                tool.useVarIso = False
+                tool.PtCone02Cut = 0.0
+                tool.PtCone03Cut = ptcone03
+                tool.AcceptAll = False
+
+                if 'MS' in isoCut:
+                    tool.RequireCombinedMuon = False
+                else:
+                    tool.RequireCombinedMuon = True
+
+                tool.DoAbsCut = False
+                if 'var' in isoCut :
+                    tool.useVarIso = True
+                else :
+                    tool.useVarIso = False
         except LookupError:
             if(isoCut=='passthrough') :
                 log.debug('Setting passthrough')
@@ -761,11 +768,8 @@ if __name__ == '__main__':
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
 
-    configToTest = [ 'HLT_mu6fast_L1MU6',
-                     'HLT_mu6Comb_L1MU6',
-                     'HLT_mu6_L1MU6',
-                     'HLT_mu20_ivar_L1MU20',
-                     'HLT_2mu6Comb_L12MU6',
+    configToTest = [ 'HLT_mu6_L1MU6',
+                     'HLT_mu20_ivarmedium_L1MU20',
                      'HLT_2mu6_L12MU6']
 
     from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName

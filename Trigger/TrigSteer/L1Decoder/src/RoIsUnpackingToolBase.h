@@ -13,6 +13,7 @@
 #include "TrigConfL1Data/TriggerThreshold.h"
 #include "TrigConfL1Data/Menu.h"
 #include "TrigConfData/HLTMenu.h"
+#include "xAODTrigger/TrigComposite.h"
 
 namespace ROIB {
   class RoIBResult;
@@ -40,6 +41,10 @@ public:
   
   virtual StatusCode unpack(const EventContext& /*ctx*/,
                             const ROIB::RoIBResult& /*roib*/,
+                            const HLT::IDSet& /*activeChains*/) const override { return StatusCode::SUCCESS; }
+
+  virtual StatusCode unpack(const EventContext& /*ctx*/,
+                            const xAOD::TrigComposite& /*l1TriggerResult*/,
                             const HLT::IDSet& /*activeChains*/) const override { return StatusCode::SUCCESS; }
 
 

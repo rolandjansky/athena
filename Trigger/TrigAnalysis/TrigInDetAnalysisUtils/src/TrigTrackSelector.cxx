@@ -280,21 +280,106 @@ void TrigTrackSelector::selectTracks( const TruthParticleContainer* truthtracks 
     
 }
 
+
+/// extract all the tracks from a xAOD::TruthParticle collection and 
+/// histogram the x and y production coordinates to determine the 
+/// event "beamline" position
+
+void TrigTrackSelector::truthBeamline( const xAOD::TruthParticleContainer* truthtracks, double& x0, double& y0 ) { 
+
+  x0 = 0;
+  y0 = 0;
+    
+  /// histograms and book keeoing
+ 
+  int Nx = 300;
+  int Ny = 300;
+
+  /// positions
+  std::vector<double> xpos(Nx,0);
+  std::vector<double> ypos(Ny,0);
+
+  /// numbers of tracks
+  std::vector<int> xn(Nx,0);
+  std::vector<int> yn(Ny,0);
+
+  int xoffset = Nx/2;; 
+  int yoffset = Ny/2; 
+
+  double deltax = 3.0/Nx;
+  double deltay = 3.0/Ny;
+
+  /// fill histograms ...
+
+  xAOD::TruthParticleContainer::const_iterator  trackitr = truthtracks->begin();
+  xAOD::TruthParticleContainer::const_iterator  trackend = truthtracks->end();
+    
+  for ( ; trackitr!=trackend ; trackitr++ ) { 
+    
+    const xAOD::TruthParticle* track = (*trackitr);
+    
+    if ( track->status() != 1 || !track->hasProdVtx() ) continue; 
+
+    /// get track production vertex
+
+    double xp[3] = { track->prodVtx()->x(), track->prodVtx()->y(), track->prodVtx()->z() };
+
+    /// add to the correct bins
+
+    int ix = xp[0]/deltax + xoffset;
+    int iy = xp[1]/deltay + yoffset;
+
+    if ( ix<0 || ix>=Nx || iy<0 || iy>=Nx ) continue;
+
+    xpos[ix] += xp[0];
+    ypos[iy] += xp[1];
+
+    xn[ix]++;
+    yn[iy]++;
+
+  } // loop over tracks
+
+  /// calculate the most populous bin in x and y 
+
+  int imx = 0; 
+  int imy = 0; 
+
+  for ( size_t i=0 ; i<xpos.size() ; i++ ) {
+    if ( xn[i]>xn[imx] ) imx = i;
+    if ( yn[i]>yn[imy] ) imy = i;
+  }
+
+  /// require more than 1 particle for it to be classed a "vertex"
+  /// therefore, for single particle Monte Carlo, this will not 
+  /// be updated and (0,0) will still be correctly used 
+  if ( xn[imx]>1 ) x0 = xpos[imx]/xn[imx];
+  if ( yn[imy]>1 ) y0 = ypos[imy]/yn[imy];
+
+}
+
+
 // extract all the tracks from a xAOD::TruthParticle collection and add them
 void TrigTrackSelector::selectTracks( const xAOD::TruthParticleContainer* truthtracks ) { 
     
   xAOD::TruthParticleContainer::const_iterator  trackitr = truthtracks->begin();
   xAOD::TruthParticleContainer::const_iterator  trackend = truthtracks->end();
   
+  /// get truth beamline 
+  double x0 = 0;
+  double y0 = 0;
+
+  truthBeamline( truthtracks, x0, y0 );
+
   while ( trackitr!=trackend ) { 
     
-    selectTrack( *trackitr );
+    selectTrack( *trackitr, x0, y0 );
       
     trackitr++;
 
   } // loop over tracks
     
 }
+
 
 
 // add a TruthParticle from a GenParticle - easy, bet it doesn't work 
@@ -342,7 +427,7 @@ bool TrigTrackSelector::selectTrack( const TruthParticle* track ) {
 
 
 // add an xAOD::TruthParticle 
-bool TrigTrackSelector::selectTrack( const xAOD::TruthParticle* track ) { 
+bool TrigTrackSelector::selectTrack( const xAOD::TruthParticle* track, double x0, double y0 ) { 
 
   if ( track ) { 
         
@@ -371,7 +456,7 @@ bool TrigTrackSelector::selectTrack( const xAOD::TruthParticle* track ) {
     /// need to calculate d0 and z0 correctly.
 
     double xp[3] = { measPer->prodVtx()->x(), measPer->prodVtx()->y(), measPer->prodVtx()->z() };
-
+    double xb[3] = { xp[0]-x0, xp[1]-y0, measPer->prodVtx()->z() };
     double xd[3] = { 0, 0, 0 };
       
     if ( track->hasDecayVtx() ) { 
@@ -383,21 +468,11 @@ bool TrigTrackSelector::selectTrack( const xAOD::TruthParticle* track ) {
     double rp = std::sqrt( xp[0]*xp[0] + xp[1]*xp[1] ); 
     double rd = std::sqrt( xd[0]*xd[0] + xd[1]*xd[1] ); 
       
-    /// these are the d0 and z at the point of closest approach to the (0,0)
-    //    double theta = 2*std::atan( std::exp( -eta ) );
-    //    double z0 = xp[2] - (xp[0]*std::cos(phi) + xp[1]*std::sin(phi))/std::tan(theta);
-    //    double d0 = xp[1]*std::cos(phi) -  xp[0]*std::sin(phi);
-    /// but we want "corrected to the "beam line" which for truth particles 
-    /// is just the production vertex, so  ...
-    double z0 = xp[2];
-    double d0 = 0;
-
-    /// there is an issue, since these may actually be secondary vertex particles, 
-    /// so we really want to know what is the true "primary" vertex position, 
-    /// which is perhaps somewhat tricky as we do not run a vertex algorithm on
-    /// the truth particles, so we should probably try to pick up the beamline position 
-    /// from somewhere and use that
-
+    /// these are the d0 and z at the point of closest approach to x0, y0, the event 
+    /// "beamline", which is the best that we can do for the moment
+    double theta = 2*std::atan( std::exp( -eta ) );
+    double z0 = xb[2] - (xb[0]*std::cos(phi) + xb[1]*std::sin(phi))/std::tan(theta);
+    double d0 = xb[1]*std::cos(phi) -  xb[0]*std::sin(phi);
 
     bool final_state = false; 
       

@@ -114,9 +114,10 @@ private:
   Gaudi::Property<std::string> m_coreDumpStream{this, "CoreDumpStream", "stdout",
       "Stream to use for core dump [stdout,stderr]"};
 
-  Gaudi::Property<int> m_fatalHandlerFlags{this, "FatalHandler", 0, 
+  Gaudi::Property<int> m_fatalHandlerFlags{this, "FatalHandler", -1, 
       "Flags given to the fatal handler this service installs\n"
-      "if the flag is zero, no additional fatal handler is installed"};
+      "if the flag is zero, no additional fatal handler is installed.\n"
+      "-1 handles SIGINT (Ctrl-C)"};
 
   Gaudi::Property<double> m_timeout{this, "TimeOut", 30.0*60*1e9,
       "Terminate job after it this reaches the time out in Wallclock time, "

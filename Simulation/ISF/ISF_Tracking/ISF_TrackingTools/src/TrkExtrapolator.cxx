@@ -9,7 +9,6 @@
 // class header include
 #include "TrkExtrapolator.h"
 
-#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 
 #include "TrkExInterfaces/IExtrapolator.h"
 
@@ -21,17 +20,11 @@
 /** Constructor **/
 ISF::TrkExtrapolator::TrkExtrapolator(const std::string& t, const std::string& n, const IInterface* p)
   : base_class(t,n,p),
-    m_trackingGeometry(0),
-    m_trackingGeometrySvc("TrackingGeometrySvc/AtlasTrackingGeometrySvc",n),
-    m_trackingGeometryName("AtlasTrackingGeometry"),
     m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
     m_trackingVolumeName(""),
     m_trackingVolume(0),
     m_pdgToParticleHypothesis(new Trk::PdgToParticleHypothesis())
 {
-   declareProperty( "TrackingGeometrySvc", 
-         m_trackingGeometrySvc,
-         "TrackingGeometrySvc used for track extrapolation" );
    declareProperty( "TrackingVolumeName",
          m_trackingVolumeName,
          "Name of the TrackingVolume within which the extrapolation is to be carried out");
@@ -57,6 +50,8 @@ StatusCode  ISF::TrkExtrapolator::initialize()
     ATH_MSG_FATAL( "Could not retrieve " << m_extrapolator );
     return StatusCode::FAILURE;
   }
+  // initialize the TrackingGeometryReadKey
+  ATH_CHECK(m_trackingGeometryReadKey.initialize());
 
   ATH_MSG_VERBOSE("initialize() successful");
   return StatusCode::SUCCESS;
@@ -78,17 +73,19 @@ ISF::ISFParticle* ISF::TrkExtrapolator::extrapolate( const ISF::ISFParticle &par
     ATH_MSG_ERROR( "Problem with extrapolator!" );
     return 0;
   }
-  
+
   if ( !m_trackingVolume ) {
-    if ( !m_trackingGeometry ) { 
-      if ( !retrieveTrackingGeometry() ) {
-        ATH_MSG_ERROR( "Problem with TrackingGeometrySvc!" );
-        return 0;
-      }
+    // ------------------------------- get the trackingGeometry at first place
+    SG::ReadCondHandle<Trk::TrackingGeometry> readHandle{m_trackingGeometryReadKey};
+    if (!readHandle.isValid() || *readHandle == nullptr) {
+      ATH_MSG_ERROR("Problem with TrackingGeometry '" << m_trackingGeometryReadKey.fullKey() << "' from CondStore.");
+      return 0;
     }
-    m_trackingVolume = m_trackingGeometry->trackingVolume( m_trackingGeometryName);
+
+    const Trk::TrackingGeometry* trackingGeometry = *readHandle;
+    m_trackingVolume = trackingGeometry->trackingVolume( m_trackingVolumeName);
     if (!m_trackingVolume) {
-      ATH_MSG_FATAL("Failed to retrieve TrackingVolume: " << m_trackingGeometryName);
+      ATH_MSG_FATAL("Failed to retrieve TrackingVolume: " << m_trackingVolumeName);
       return 0;
     }
   }
@@ -123,19 +120,3 @@ ISF::ISFParticle* ISF::TrkExtrapolator::extrapolate( const ISF::ISFParticle &par
   return extrapolatedParticle;
 }
 
-bool ISF::TrkExtrapolator::retrieveTrackingGeometry() const 
-{
-  if ( m_trackingGeometry ) return true;
-  if ( m_trackingGeometrySvc.empty() ) return false;
-  MsgStream log(msgSvc(),name());
-  StatusCode sc = m_trackingGeometrySvc.retrieve();
-  if ( sc.isFailure() ){
-    log << MSG::WARNING << " failed to retrieve geometry Svc " << m_trackingGeometrySvc << endmsg;
-    return false;
-  } 
-  log << MSG::INFO << "  geometry Svc " << m_trackingGeometrySvc << " retrieved " << endmsg;
-  
-  m_trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
-  if ( !m_trackingGeometry ) return false;
-  return true;
-}
