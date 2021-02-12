@@ -25,8 +25,10 @@
 #include "mocks/MockGenericMonitoringTool.h"
 #include "mocks/MockHistogramFactory.h"
 
+#include "../src/HistogramFiller/StaticHistogramProvider.h"
 #include "../src/HistogramFiller/LumiblockHistogramProvider.h"
 #include "../src/HistogramFiller/OfflineHistogramProvider.h"
+#include "../src/HistogramFiller/LiveHistogramProvider.h"
 
 using namespace std;
 using namespace Monitored;
@@ -38,10 +40,12 @@ class LumiblockHistogramProviderTestSuite {
   private:
     list<function<void(void)>> registeredTestCases() {
       return {
+        REGISTER_TEST_CASE(test_shouldCreateAndReturnJustOneHistogram),
         REGISTER_TEST_CASE(test_shouldThrowExceptionWhen_kLBNHistoryDepth_isNonPositive),
         REGISTER_TEST_CASE(test_shouldNotThrowExceptionWhen_kLBNHistoryDepth_isDefinedAsNumber),
         REGISTER_TEST_CASE(test_shouldCreateNewHistogramWithUpdatedAlias),
-        REGISTER_TEST_CASE(test_shouldCreateNewHistogramWithUpdatedLumiBlock)
+        REGISTER_TEST_CASE(test_shouldCreateNewHistogramWithUpdatedLumiBlock),
+        REGISTER_TEST_CASE(test_shouldCreateNewHistogramWithLatestLumiBlocks),
       };
     }
 
@@ -53,6 +57,22 @@ class LumiblockHistogramProviderTestSuite {
     }
 
     void afterEach() {
+    }
+
+    void test_shouldCreateAndReturnJustOneHistogram() {
+      TNamed histogram;
+      HistogramDef histogramDef;
+      m_histogramFactory->mock_create = [&histogram, &histogramDef](const HistogramDef& def) mutable {
+        VALUE(&def) EXPECTED(&histogramDef);
+        return &histogram;
+      };
+
+      StaticHistogramProvider testObj(m_histogramFactory, histogramDef);
+      TNamed* firstResult = testObj.histogram();
+      TNamed* secondResult = testObj.histogram();
+
+      VALUE(firstResult) EXPECTED(&histogram);
+      VALUE(secondResult) EXPECTED(&histogram);
     }
 
     void test_shouldThrowExceptionWhen_kLBNHistoryDepth_isNonPositive() {
@@ -92,7 +112,7 @@ class LumiblockHistogramProviderTestSuite {
       histogramDef.alias = "test alias";
       histogramDef.kLBNHistoryDepth = 3;
 
-      m_gmTool->histSvc().mock_always_empty = false; // the moc actually keeps track of registered histograms
+      m_gmTool->histSvc().mock_always_empty = false; // the mock actually keeps track of registered histograms
       LumiblockHistogramProvider testObj(m_gmTool.get(), m_histogramFactory, histogramDef);
 
       for (auto input : expectedFlow) {
@@ -102,16 +122,15 @@ class LumiblockHistogramProviderTestSuite {
         m_gmTool->mock_lumiBlock = [&]() { return lumiBlock; };
         m_histogramFactory->mock_create = [&](const HistogramDef& def) mutable {
           VALUE(def.alias) EXPECTED(expectedAlias);
-	  m_log << MSG::INFO << "Registering: " << def.alias << endmsg;
-	  m_gmTool->histSvc().regHist(m_histogramFactory->getFullName(def), &histogram).ignore();
+          m_log << MSG::INFO << "Registering: " << def.alias << endmsg;
+          m_gmTool->histSvc().regHist(m_histogramFactory->getFullName(def), &histogram).ignore();
           return &histogram;
         };
-	m_histogramFactory->mock_remove = [&](const Monitored::HistogramDef& def) {
-	  m_log << MSG::INFO << "Deregistering: " << def.alias << endmsg;
-	  m_gmTool->histSvc().deReg(m_histogramFactory->getFullName(def)).ignore();
-	  return nullptr;
-	};
-
+        m_histogramFactory->mock_remove = [&](const Monitored::HistogramDef& def) {
+          m_log << MSG::INFO << "Deregistering: " << def.alias << endmsg;
+          m_gmTool->histSvc().deReg(m_histogramFactory->getFullName(def)).ignore();
+          return nullptr;
+        };
 
         TNamed* const result = testObj.histogram();
         VALUE(result) EXPECTED(&histogram);
@@ -149,6 +168,46 @@ class LumiblockHistogramProviderTestSuite {
         VALUE(result) EXPECTED(&histogram);
       }
     }
+
+    void test_shouldCreateNewHistogramWithLatestLumiBlocks() {
+      auto expectedFlow = {
+        // tuple elements are: (LB, xbins, xmin, xmax)
+        make_tuple(1, 10, 0.5, 10.5),
+        make_tuple(2, 10, 0.5, 10.5),
+        make_tuple(10, 10, 0.5, 10.5),
+        make_tuple(11, 10, 1.5, 11.5),
+      };
+
+      TNamed histogram;
+
+      HistogramDef histogramDef;
+      histogramDef.xbins = 10;
+      histogramDef.xmin = 0.5;
+      histogramDef.xmax = 10.5;
+      histogramDef.kLive = 10;
+
+      LiveHistogramProvider testObj(m_gmTool.get(), m_histogramFactory, histogramDef);
+
+      for (auto input : expectedFlow) {
+        const unsigned lumiBlock = get<0>(input);
+        const float expected_xbins = get<1>(input);
+        const float expected_xmin = get<2>(input);
+        const float expected_xmax = get<3>(input);
+
+        m_gmTool->mock_lumiBlock = [lumiBlock]() { return lumiBlock; };
+
+        m_histogramFactory->mock_create = [&](const HistogramDef& def) mutable {
+          VALUE(def.xbins) EXPECTED(expected_xbins);
+          VALUE(def.xmin) EXPECTED(expected_xmin);
+          VALUE(def.xmax) EXPECTED(expected_xmax);
+          return &histogram;
+        };
+
+        TNamed* const result = testObj.histogram();
+        VALUE(result) EXPECTED(&histogram);
+      }
+    }
+
 
   // ==================== Helper methods ====================
   private:

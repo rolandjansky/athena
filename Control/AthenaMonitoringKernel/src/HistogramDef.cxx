@@ -45,6 +45,7 @@ const HistogramDef HistogramDef::parse(const std::string& histogramDefinition) {
   result.kVec = setting["kVec"];
   result.kVecUO = setting["kVecUO"];
   result.kCumulative = setting["kCumulative"];
+  result.kLive = setting["kLive"];
 
   result.xvar = setting["xvar"];
   result.xbins = setting["xbins"];

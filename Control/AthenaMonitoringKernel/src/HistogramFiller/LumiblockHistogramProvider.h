@@ -50,7 +50,7 @@ namespace Monitored {
 
       const unsigned lumiBlock = m_gmTool->lumiBlock();
       if (lumiBlock <= m_lastValidLumiBlock and m_currentHistogram != nullptr)
-	return m_currentHistogram;
+        return m_currentHistogram;
 
       // a new histogram needed
       HistogramDef def = *m_histDef;
@@ -65,18 +65,18 @@ namespace Monitored {
 
       // Helper function to set the alias in histogram definition
       auto setAlias = [&](unsigned lumiPage, HistogramDef& def ) {
-	if (historyDepth > 1)
-	  def.alias = def.alias + "_LB" + std::to_string(minLumiBlock(lumiPage)) + "_" + std::to_string(maxLumiBlock(lumiPage));
-	else
-	  def.alias = def.alias + "_LB" + std::to_string(minLumiBlock(lumiPage));
+      if (historyDepth > 1)
+        def.alias = def.alias + "_LB" + std::to_string(minLumiBlock(lumiPage)) + "_" + std::to_string(maxLumiBlock(lumiPage));
+      else
+        def.alias = def.alias + "_LB" + std::to_string(minLumiBlock(lumiPage));
       };
 
 
-      // deregister previous histogram (we actually may make severall additonal calls to clean the past even deeper)
+      // deregister previous histogram (we actually may make several additonal calls to clean the past even deeper)
       if (lumiPage != 0) {
-	HistogramDef deregDef = def;
-	setAlias(lumiPage -1, deregDef );
-	m_factory->remove(deregDef);
+        HistogramDef deregDef = def;
+        setAlias(lumiPage -1, deregDef );
+        m_factory->remove(deregDef);
       }
 
       setAlias(lumiPage, def);
