@@ -2208,6 +2208,22 @@ HLT_j45_pf_subjesgscIS_ftf_boffperf_split_L1J20:
     0: 19
     1: 48
     2: 48
+HLT_j45_pf_subjesgsc_ftf_L1J15:
+  eventCount: 19
+  stepCounts:
+    0: 20
+    1: 19
+  stepFeatures:
+    0: 20
+    1: 51
+HLT_j45_pf_subresjesgsc_ftf_L1J15:
+  eventCount: 19
+  stepCounts:
+    0: 20
+    1: 19
+  stepFeatures:
+    0: 20
+    1: 57
 HLT_j45_sk_nojcalib_L1J15:
   eventCount: 15
   stepCounts:
@@ -2284,7 +2300,23 @@ HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20:
     0: 19
     1: 46
     2: 46
+HLT_j45_subjesgsc_ftf_L1J15:
+  eventCount: 19
+  stepCounts:
+    0: 20
+    1: 19
+  stepFeatures:
+    0: 20
+    1: 47
 HLT_j45_subresjesgscIS_ftf_L1J15:
+  eventCount: 19
+  stepCounts:
+    0: 20
+    1: 19
+  stepFeatures:
+    0: 20
+    1: 54
+HLT_j45_subresjesgsc_ftf_L1J15:
   eventCount: 19
   stepCounts:
     0: 20
