@@ -143,7 +143,8 @@ class JetChainConfiguration(ChainConfigurationBase):
             'constitMod':'',
             'jetCalib':'subjesIS',
             'trkopt':'notrk',
-            'trkpresel': 'nopresel'
+            'trkpresel': 'nopresel',
+            'cleaning': 'noCleaning',
         }
         preselJetParts = dict(preselRecoDict)
         preselParts    = self.recoDict["trkpresel"].split('j')
@@ -159,7 +160,6 @@ class JetChainConfiguration(ChainConfigurationBase):
              'bTag': '',
              'bTracking': '',
              'chainPartName': chainPartName,
-             'cleaning': 'noCleaning',
              'dataScouting': '',
              'etaRange': '0eta320',
              'extra': '',

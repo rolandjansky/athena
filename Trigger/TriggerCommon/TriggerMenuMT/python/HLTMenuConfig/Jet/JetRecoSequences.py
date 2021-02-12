@@ -197,7 +197,21 @@ def standardJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict
     decorList = JetRecoConfiguration.getDecorList(doesTracking,isPFlow)
     if doesTracking:
         jetDef.modifiers.append("JVT:"+jetRecoDict["trkopt"])
+    #Configuring jet cleaning mods now
+    if jetRecoDict["cleaning"] != 'noCleaning': 
+        #Decorate with jet cleaning info only if not a PFlow chain (no cleaning available for PFlow jets now)
+        if isPFlow:
+            raise RuntimeError('Requested jet cleaning for a PFlow chain. Jet cleaning is currently not supported for PFlow jets.')
+        if jetRecoDict['recoAlg']!='a4':
+            raise RuntimeError('Requested jet cleaning for a non small-R jet chain. Jet cleaning is currently not supported for large-R jets.')
 
+        jetDef.modifiers.append("CaloQuality")
+        jetDef.modifiers.append("Cleaning:{}".format(jetRecoDict["cleaning"]))
+
+
+    decorList = JetRecoConfiguration.getDecorList(doesTracking,isPFlow)
+    decorList += ["Jvt"]
+    
     # Get online monitoring tool
     from JetRec import JetOnlineMon
     monTool = JetOnlineMon.getMonTool_TrigJetAlgorithm("HLTJets/"+jetDef.fullname()+"/")

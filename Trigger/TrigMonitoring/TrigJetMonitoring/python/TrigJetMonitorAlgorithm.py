@@ -156,6 +156,7 @@ ExtraSmallROnlineHists = [
   "ActiveArea", 
   "EM3Frac",
   "Tile0Frac",
+  "LooseBad",
 ]
 
 # All online large-R jet collections

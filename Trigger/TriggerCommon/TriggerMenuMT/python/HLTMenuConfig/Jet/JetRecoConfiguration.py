@@ -20,7 +20,19 @@ def interpretJetCalibDefault(recoDict):
     elif recoDict['constitType'] == 'pf':
       return 'subresjesgscIS'
 
-recoKeys = ['recoAlg','constitType','clusterCalib','constitMod','jetCalib','trkopt','trkpresel']
+recoKeys = ['recoAlg','constitType','clusterCalib','constitMod','jetCalib','trkopt','trkpresel','cleaning']
+
+cleaningDict = {
+    'cleanLB': 'LooseBad',
+}
+
+def extractCleaningsFromPrefilters(prefilters_list):
+    found_cleanings= [ci for ck, ci in cleaningDict.items() if ck in prefilters_list]
+    if len(found_cleanings) <= 1:  # Only one supported cleaning decoration at the moment
+        return 'noCleaning' if len(found_cleanings) == 0 else found_cleanings[0]
+    else:
+        raise RuntimeError(
+            'Multijet jet cleanings found in jet trigger reco dictionary {}. Multiple jet cleanings are currently unsupported'.format(found_cleanings))
 
 # Extract the jet reco dict from the chainDict
 def extractRecoDict(chainParts):
@@ -37,6 +49,8 @@ def extractRecoDict(chainParts):
                         raise RuntimeError('Inconsistent reco setting for %s' % k)
                 # copy this entry to the reco dictionary
                 recoDict[k] = p[k]
+            elif k =='cleaning':
+                recoDict[k] = extractCleaningsFromPrefilters(p["prefilters"])
 
     # set proper jetCalib key in default case
     if recoDict['jetCalib'] == "default":
@@ -46,7 +60,7 @@ def extractRecoDict(chainParts):
 
 # Translate the reco dict to a string for suffixing etc
 def jetRecoDictToString(jetRecoDict):
-    strtemp = "{recoAlg}_{constitMod}{constitType}_{clusterCalib}_{jetCalib}"
+    strtemp = "{recoAlg}_{constitMod}{constitType}_{clusterCalib}_{jetCalib}_{cleaning}"
     if jetRecoDict["trkopt"] != "notrk":
         strtemp += "_{trkopt}_{trkpresel}"
     return strtemp.format(**jetRecoDict)
@@ -60,12 +74,13 @@ def jetRecoDictFromString(jet_def_string):
     from TriggerMenuMT.HLTMenuConfig.Menu.SignatureDicts import JetChainParts,JetChainParts_Default
     for key in recoKeys:
         keyFound = False
+        tmp_key = 'prefilters' if key == 'cleaning' else key
         for part in jet_def_string.split('_'):
-            if part in JetChainParts[key]:
+            if part in JetChainParts[tmp_key]:
                 jetRecoDict[key] = part
                 keyFound         = True
         if not keyFound:
-            jetRecoDict[key] = JetChainParts_Default[key]
+            jetRecoDict[key] = 'noCleaning' if key =='cleaning' else JetChainParts_Default[key]
 
     # set proper jetCalib key in default case
     if jetRecoDict['jetCalib'] == "default":
