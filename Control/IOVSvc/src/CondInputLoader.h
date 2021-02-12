@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // CondInputLoader.h 
@@ -15,6 +15,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "AthenaKernel/IIOVSvc.h"
+#include "AthenaKernel/IIOVDbSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "PersistentDataModel/AthenaAttributeList.h"
@@ -62,6 +63,7 @@ class CondInputLoader
   ServiceHandle<StoreGateSvc> m_condStore;
   ServiceHandle<ICondSvc> m_condSvc;
   ServiceHandle<IIOVSvc> m_IOVSvc;
+  ServiceHandle<IIOVDbSvc> m_IOVDbSvc;
   ServiceHandle<IClassIDSvc> m_clidSvc;
   ServiceHandle<Athena::IRCUSvc> m_rcuSvc;
   
@@ -70,3 +72,4 @@ class CondInputLoader
 
 
 #endif
+

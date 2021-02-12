@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // IOVDbSvc.cxx
@@ -652,40 +652,43 @@ void IOVDbSvc::signalEndProxyPreload() {
   // this method does nothing
 }
 
+void IOVDbSvc::postConditionsLoad() {
+   // Close any open POOL files after loding Conditions
+   ATH_MSG_DEBUG( "postConditionsLoad: m_par_managePoolConnections=" << m_par_managePoolConnections
+                  << "  m_poolPayloadRequested=" << m_poolPayloadRequested );
+
+   if (m_par_managePoolConnections && m_poolPayloadRequested) {
+      // reset POOL connection to close all open conditions POOL files
+      m_par_managePoolConnections.set(false);
+      m_poolPayloadRequested=false;
+      if( m_poolSvcContext ) {
+         if (StatusCode::SUCCESS==m_h_poolSvc->disconnect(m_poolSvcContext)) {
+            ATH_MSG_DEBUG( "Successfully closed input POOL connections");
+         } else {
+            ATH_MSG_WARNING( "Unable to close input POOL connections" );
+         }
+         // reopen transaction
+         if (StatusCode::SUCCESS==m_h_poolSvc->connect(pool::ITransaction::READ, m_poolSvcContext)) {
+            ATH_MSG_DEBUG("Reopend read transaction for POOL conditions input files" );
+         } else {
+            ATH_MSG_WARNING("Cannot reopen read transaction for POOL conditions input files");
+         }
+      }
+   }
+}
+
 void IOVDbSvc::handle( const Incident& inc) {
   // Handle incidents:
   // BeginEvent to set IOVDbSvc state to EVENT_LOOP
   // StoreCleared to close any open POOL files
-  ATH_MSG_VERBOSE( "entering handle(), incident type " << inc.type()
-           << " from " << inc.source() );
+  ATH_MSG_VERBOSE( "entering handle(), incident type " << inc.type() << " from " << inc.source() );
   if (inc.type()=="BeginEvent") {
     m_state=IOVDbSvc::EVENT_LOOP;
   } else {
-    const StoreClearedIncident* sinc= 
-      dynamic_cast<const StoreClearedIncident*>(&inc);
+    const StoreClearedIncident* sinc = dynamic_cast<const StoreClearedIncident*>(&inc);
     if ((inc.type()=="StoreCleared" && sinc!=0 && sinc->store()==&*m_h_sgSvc)) {
-      if (inc.type()=="StoreCleared") {
-        m_state=IOVDbSvc::FINALIZE_ALG;
-      }
-      if (m_par_managePoolConnections && m_poolPayloadRequested) {
-        // reset POOL connection to close all open conditions POOL files
-        m_par_managePoolConnections.set(false);
-        m_poolPayloadRequested=false;
-        if( m_poolSvcContext ) {
-           if (StatusCode::SUCCESS==m_h_poolSvc->disconnect(m_poolSvcContext)) {
-              ATH_MSG_DEBUG( "Successfully closed input POOL connections");
-           } else {
-              ATH_MSG_WARNING( "Unable to close input POOL connections" );
-           }
-           // reopen transaction
-           if (StatusCode::SUCCESS==m_h_poolSvc->connect(pool::ITransaction::READ,
-                                                         m_poolSvcContext)) {
-              ATH_MSG_DEBUG("Reopend read transaction for POOL conditions input files" );
-           } else {
-              ATH_MSG_WARNING("Cannot reopen read transaction for POOL conditions input files");
-           }
-        }
-      }
+       m_state=IOVDbSvc::FINALIZE_ALG;
+       postConditionsLoad();
     }
   }
 }
@@ -695,7 +698,7 @@ StatusCode IOVDbSvc::processTagInfo() {
   // Set GlobalTag and any folder-specific overrides if given
 
   // dump out contents of TagInfo
-   ATH_MSG_DEBUG( "Tags from input TagInfo:");
+  ATH_MSG_DEBUG( "Tags from input TagInfo:");
   if( msg().level()>=MSG::DEBUG ) m_h_tagInfoMgr->printTags(msg());
   
   // check IOVDbSvc GlobalTag, if not already set
