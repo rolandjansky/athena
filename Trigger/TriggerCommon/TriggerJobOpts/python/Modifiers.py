@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ##############################################################
 # Modifiers.py
@@ -9,7 +9,7 @@
 #  for now there are no options foreseen for the modifiers
 #
 #  Permanent fixes that are only applied online should be
-#  put into Trigger_topOptions_standalone.py
+#  put into runHLT_standalone.py
 ###############################################################
 
 from AthenaCommon.AppMgr import theApp
@@ -594,13 +594,6 @@ class doMuonRoIDataAccess(_modifier):
     """
     def preSetup(self):
         TriggerFlags.MuonSlice.doEFRoIDrivenAccess=True
-
-class forceMuonDataPrep(_modifier):
-    """
-    Execute muon data preparation on every event
-    """
-    def preSetup(self):
-        pass  # the actual modifier is implemented in share/Trigger_topOptions_standalone.py
 
 class rerunLVL1(_modifier):
     """
