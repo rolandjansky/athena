@@ -93,7 +93,7 @@ if DetFlags.overlay.LAr_on():
     outStream.ItemList+=['LArRawChannelContainer#LArRawChannels']
     if 'AddCaloDigi' in digitizationFlags.experimentalDigi():
         outStream.ItemList+=['LArDigitContainer#LArDigitContainer_MC']
-    else:
+    elif 'AddCaloDigiThinned' in digitizationFlags.experimentalDigi():
         outStream.ItemList+=['LArDigitContainer#LArDigitContainer_MC_Thinned']
 
 if DetFlags.overlay.Tile_on():

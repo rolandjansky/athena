@@ -17,7 +17,7 @@ if DetFlags.LAr_on():
     if DetFlags.digitize.LAr_on():
         job += CfgGetter.getAlgorithm("LArRawChannelBuilder", tryDefaultConfigurable=True)
 
-        if not digitizationFlags.PileUpPremixing():
+        if not digitizationFlags.PileUpPremixing() and 'AddCaloDigiThinned' in digitizationFlags.experimentalDigi():
             from LArROD.LArDigits import DefaultLArDigitThinner
             LArDigitThinner = DefaultLArDigitThinner('LArDigitThinner') # automatically added to topSequence
 
