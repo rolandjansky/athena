@@ -21,7 +21,7 @@ def LArRawChannelBuilderDefault():
         from RecExConfig.AutoConfiguration import GetRunNumber
         runNum = GetRunNumber()
         lri=getLArFormatForRun(runNum)
-        if lri.runType()==0:
+        if lri is not None and lri.runType() is not None and lri.runType()==0:
            from LArROD.LArRODConf import LArRawChannelBuilderIterAlg
            theLArRawChannelBuilder=LArRawChannelBuilderIterAlg()
            theLArRawChannelBuilder.minSample=2
