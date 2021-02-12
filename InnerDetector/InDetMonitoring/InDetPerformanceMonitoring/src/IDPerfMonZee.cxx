@@ -588,7 +588,7 @@ StatusCode IDPerfMonZee::procHistograms()
 const xAOD::CaloCluster* IDPerfMonZee::getLeadingEMcluster(const xAOD::CaloClusterContainer* clusters, const xAOD::CaloCluster* omitCluster) const {
   const xAOD::CaloCluster* leading_emcluster{};
   float max_pt = 0.;
-  for (const auto &cl: *clusters) {
+  for (const auto cl: *clusters) {
     if (cl == omitCluster) continue;
     double deltaR = std::sqrt(std::pow(std::fabs(cl->phi() - omitCluster->phi()),2) + std::pow(std::fabs(cl->eta() - omitCluster->eta()),2));
     if(deltaR < 0.005) continue;
@@ -605,7 +605,7 @@ const xAOD::CaloCluster* IDPerfMonZee::getLeadingEMcluster(const xAOD::PhotonCon
   const xAOD::CaloCluster* leading_emcluster{};
   bool LHSel;
   float max_pt = 0.;
-  for (const auto & em: *electrons) {
+  for (const auto em: *electrons) {
     ATH_MSG_DEBUG("Checking likelihood");
     // check ID
     if(m_doIDCuts){
@@ -632,7 +632,7 @@ const xAOD::CaloCluster* IDPerfMonZee::getLeadingEMcluster(const xAOD::PhotonCon
 const xAOD::TrackParticle* IDPerfMonZee::electronTrackMatch(const xAOD::TrackParticleContainer* tracks, const xAOD::CaloCluster* cluster, double dEta, double dPhi) const {
   const xAOD::TrackParticle* matched_track{};
   double min_dR = 1.0e+20;
-  for (const auto & track: *tracks){
+  for (const auto track: *tracks){
     double deta = cluster->etaBE(2)-track->eta();
     double dphi = cluster->phi()-track->phi();
     double dr = std::sqrt(deta*deta + dphi*dphi);
@@ -647,7 +647,7 @@ const xAOD::TrackParticle* IDPerfMonZee::electronTrackMatch(const xAOD::TrackPar
 double IDPerfMonZee::electronTrackMatchEta(const xAOD::TrackParticleContainer* tracks, const xAOD::CaloCluster* cluster, double dEta) const {
   const xAOD::TrackParticle* matched_track{};
   double min_dEta = 1.0e+20;
-  for (const auto & track : *tracks){
+  for (const auto track : *tracks){
     double deta = std::fabs(cluster->etaBE(2)-track->eta());
     if (deta < min_dEta && deta < dEta) {
       min_dEta = deta;

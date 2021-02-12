@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -303,7 +303,7 @@ loopOverRecElectrons (std::vector<const Trk::Track*> &v_usedTrks)
    ATH_MSG_DEBUG( "Entering loopOverRecElectrons." );
   if(!m_doRecElectrons) return;
   if(!evtStore()->retrieve(m_electronContainer, m_electronsName).isFailure()){
-    for(const auto & p_Electron:*m_electronContainer)
+    for(const auto p_Electron:*m_electronContainer)
     {
       if(not p_Electron) continue;
       if(!electronQualityCuts(p_Electron)) continue;
@@ -333,7 +333,7 @@ TRT_Electron_Monitoring_Tool::loopOverMuons (std::vector<const Trk::Track*> &v_u
   if(!m_doMuonMon) return;
   if(!evtStore()->retrieve(m_muonContainer, m_muonsName).isFailure())
   {
-    for(const auto & p_Muon:*m_muonContainer)
+    for(const auto p_Muon:*m_muonContainer)
     {
       if(!(p_Muon)) continue;
       if(!muonQualityCuts(p_Muon)) continue;

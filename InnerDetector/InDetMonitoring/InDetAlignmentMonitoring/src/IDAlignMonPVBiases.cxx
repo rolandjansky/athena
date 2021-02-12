@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -526,7 +526,7 @@ StatusCode IDAlignMonPVBiases::fillHistograms()
   *******************************************************************/
   for (; track_itr!=track_itrE; ++track_itr) {
     const xAOD::Vertex* foundVertex = nullptr;
-    for (const auto& vx : *vertices)
+    for (const auto vx : *vertices)
     {
       for (const auto& tpLink : vx->trackParticleLinks())
       {
