@@ -17,6 +17,7 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "RadDamageUtil.h"
+#include "PixelConditionsData/PixelHistoConverter.h"
 
 
 class SensorSim3DTool: public SensorSimTool {
@@ -38,9 +39,9 @@ public:
 
 
   // 3D sensor simulation using probability density map (used in RUN-2 (no radiation damage)
-  StatusCode readProbMap(std::string);
-  StatusCode printProbMap(std::string);
-  double getProbMapEntry(std::string, int, int);
+  StatusCode readProbMap(const std::string&);
+  StatusCode printProbMap(const std::string&) const;
+  double getProbMapEntry(const std::string&, int, int) const;
 
   double getElectricField(double x, double y);
   double getMobility(double electricField, bool isHoleBit);
@@ -48,7 +49,6 @@ public:
   double getTimeToElectrode(double x, double y, bool isHoleBit);
   double getTrappingPositionX(double initX, double initY, double driftTime, bool isHoleBit);
   double getTrappingPositionY(double initX, double initY, double driftTime, bool isHoleBit);
-  double getRamoPotential(double x, double y);
 private:
   SensorSim3DTool();
 
@@ -57,19 +57,18 @@ private:
   std::multimap<std::pair<int, int>, double> m_probMapFEI3;
 
   // Map for radiation damage simulation
-  std::map<std::pair<int, int>, TH3F*> m_ramoPotentialMap;
-  std::map<std::pair<int, int>, TH2F*> m_eFieldMap;
-  std::map<std::pair<int, int>, TH3F*> m_xPositionMap_e;
-  std::map<std::pair<int, int>, TH3F*> m_xPositionMap_h;
-  std::map<std::pair<int, int>, TH3F*> m_yPositionMap_e;
-  std::map<std::pair<int, int>, TH3F*> m_yPositionMap_h;
-  std::map<std::pair<int, int>, TH2F*> m_timeMap_e;
-  std::map<std::pair<int, int>, TH2F*> m_timeMap_h;
-  TH2F* m_avgChargeMap_e;
-  TH2F* m_avgChargeMap_h;
+  std::vector<PixelHistoConverter> m_ramoPotentialMap;
+  std::vector<PixelHistoConverter> m_eFieldMap;
+  std::vector<PixelHistoConverter> m_xPositionMap_e;
+  std::vector<PixelHistoConverter> m_xPositionMap_h;
+  std::vector<PixelHistoConverter> m_yPositionMap_e;
+  std::vector<PixelHistoConverter> m_yPositionMap_h;
+  std::vector<PixelHistoConverter> m_timeMap_e;
+  std::vector<PixelHistoConverter> m_timeMap_h;
+  PixelHistoConverter m_avgChargeMap_e;
+  PixelHistoConverter m_avgChargeMap_h;
 
   std::vector<double> m_fluence_layers;
-  std::map<std::pair<int, int>, double> m_fluence_layersMaps;
 
   Gaudi::Property<std::string> m_cc_prob_file_fei3
   {

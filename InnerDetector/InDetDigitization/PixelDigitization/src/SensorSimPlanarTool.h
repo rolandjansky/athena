@@ -13,9 +13,10 @@
 #define PIXELDIGITIZATION_SensorSimPlanarTool_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "SensorSimTool.h"
 #include "InDetCondTools/ISiLorentzAngleTool.h"
+#include "SensorSimTool.h"
 #include "RadDamageUtil.h"
+#include "PixelConditionsData/PixelHistoConverter.h"
 
 
 class SensorSimPlanarTool: public SensorSimTool {
@@ -41,16 +42,11 @@ private:
   SensorSimPlanarTool();
 
   // Map for radiation damage simulation
-  std::vector<TH3F*> m_ramoPotentialMap;
-  std::vector<TH2F*> m_distanceMap_e;
-  std::vector<TH2F*> m_distanceMap_h;
-  std::vector<TH2F*> m_lorentzMap_e;
-  std::vector<TH2F*> m_lorentzMap_h;
-
-  // maps to directly get factor to calculate bin instead of calling FindBin
-  double m_ramo_x_binMap;
-  double m_ramo_y_binMap;
-  double m_ramo_z_binMap;
+  std::vector<PixelHistoConverter> m_ramoPotentialMap;
+  std::vector<PixelHistoConverter> m_distanceMap_e;
+  std::vector<PixelHistoConverter> m_distanceMap_h;
+  std::vector<PixelHistoConverter> m_lorentzMap_e;
+  std::vector<PixelHistoConverter> m_lorentzMap_h;
 
   Gaudi::Property<int> m_numberOfSteps
   {
