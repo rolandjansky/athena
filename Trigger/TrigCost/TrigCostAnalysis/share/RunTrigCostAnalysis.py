@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -110,7 +110,7 @@ if __name__=='__main__':
   Configurable.configurableRun3Behavior = 1
 
   # Set the Athena configuration flags
-  ConfigFlags.fillFromArgs(parser=parser)
+  ConfigFlags.fillFromArgs(args.flags)
   ConfigFlags.lock()
 
   # Initialize configuration object, add accumulator, merge, and run.
