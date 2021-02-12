@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -19,7 +19,7 @@
 
 #include "TrigSteeringEvent/OnlineErrorCode.h"
 #include "TrigSteeringEvent/Lvl1Result.h"
-#include "TrigSteering/Lvl1ResultAccessTool.h"
+#include "Lvl1ResultAccessTool.h"
 
 #include "xAODTrigger/TrigDecisionAuxInfo.h"
 

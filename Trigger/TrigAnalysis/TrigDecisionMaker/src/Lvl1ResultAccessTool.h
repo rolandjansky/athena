@@ -1,31 +1,17 @@
-// -*- C++ -*-
-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-/**********************************************************************************
- * @Project: HLT Steering
- * @Package: TrigSteering
- * @class  : ILvl1ResultAccessTool, Lvl1ResultAccessTool
- *
- * @brief This file contains the tool to unpack RoI and threshold info from the LVL1 RoI words.
- *
- *
- * @author Nicolas Berger  <Nicolas.Berger@cern.ch>  - CERN
- * @author Till Eifert     <Till.Eifert@cern.ch>
- *
- * File and Version Information:
- * $Id: Lvl1ResultAccessTool.h,v 1.20 2009-05-11 12:25:22 tbold Exp $
- **********************************************************************************/
-
-#ifndef TRIGSTEERING_Lvl1ResultAccessTool_H
-#define TRIGSTEERING_Lvl1ResultAccessTool_H
+#ifndef TRIGDECISIONMAKER_LVL1RESULTACCESSTOOL_H
+#define TRIGDECISIONMAKER_LVL1RESULTACCESSTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "TrigSteering/Lvl1ItemsAndRoIs.h"
+#include "TrigDecisionMaker/ILvl1ResultAccessTool.h"
+#include "TrigDecisionMaker/Lvl1ItemsAndRoIs.h"
 #include "TrigConfData/L1PrescalesSet.h"
+#include "TrigT1Interfaces/CPRoIDecoder.h"
+#include "TrigT1Interfaces/JEPRoIDecoder.h"
 
 #include <vector>
 #include <bitset>
@@ -35,86 +21,22 @@
 namespace TrigConf {
    class ILVL1ConfigSvc;
    class TriggerThreshold;
-   class L1PrescalesSet;
 }
 
 namespace LVL1CTP {
-   class CTPMuonConfig;
-   class CTPCaloConfig;
-   class CTPJetEnergyConfig;
    class Lvl1Result;
    class Lvl1Item;
 }
 
-namespace LVL1 {
-   class RecMuonRoiSvc;
-   class JEPRoIDecoder;
-   class CPRoIDecoder;
-}
-
-namespace ROIB {
-   class CTPRoI;
-   class RoIBResult;
-}
-
 namespace HLT {
-
-   class Chain;
-
-   /**
-      @class ILvl1ResultAccessTool
-      this class provides the interface to the Lvl1 result access tool.
-      Full description of the tool is given in Lvl1ResultAccessTool.
-
-   */
-   class ILvl1ResultAccessTool : public virtual IAlgTool
-   {
-   public:
-      DeclareInterfaceID (ILvl1ResultAccessTool, 1, 0);
-
-      virtual const std::vector<LVL1CTP::Lvl1Item*>& getDecisionItems() = 0;
-
-      virtual const std::vector< MuonRoI >& getMuonRoIs() const = 0;
-      virtual const std::vector< EMTauRoI >& getEMTauRoIs()  const = 0;
-      virtual const std::vector< JetEnergyRoI >& getJetEnergyRoIs() const = 0;
-
-      virtual bool isCalibrationEvent(const ROIB::RoIBResult& result) const = 0;
-      virtual std::vector< const LVL1CTP::Lvl1Item*>
-      createL1Items(const ROIB::RoIBResult& result,
-                    LVL1CTP::Lvl1Result const** lvl1ResultOut = nullptr) = 0;
-      virtual std::vector< const LVL1CTP::Lvl1Item*>
-      createL1Items(const std::vector< std::unique_ptr<LVL1CTP::Lvl1Item> >& lvl1ItemConfig,
-                    const ROIB::RoIBResult& result,
-                    LVL1CTP::Lvl1Result const** lvl1ResultOut = nullptr) const = 0;
-
-      virtual const std::vector< MuonRoI >&      createMuonThresholds(const ROIB::RoIBResult& result) = 0;
-      virtual const std::vector< EMTauRoI >&     createEMTauThresholds(const ROIB::RoIBResult& result, bool updateCaloRoIs=false) = 0;
-      virtual const std::vector< JetEnergyRoI >& createJetEnergyThresholds(const ROIB::RoIBResult& result, bool updateCaloRoIs) = 0;
-
-      virtual std::bitset<3> lvl1EMTauJetOverflow(const ROIB::RoIBResult& result) = 0;
-     
-      virtual StatusCode updateConfig(bool useL1Calo = true,
-                                      bool useL1Muon = true,
-                                      bool useL1JetEnergy = true) = 0;
-
-      virtual std::vector< std::unique_ptr<LVL1CTP::Lvl1Item> > makeLvl1ItemConfig() const = 0;
-      virtual std::vector< std::unique_ptr<LVL1CTP::Lvl1Item> > makeLvl1ItemConfig(const EventContext& context) const = 0;
-      virtual StatusCode updateItemsConfigOnly() = 0;
-
-      virtual StatusCode updateResult(const ROIB::RoIBResult& result,
-                                      bool updateCaloRoIs = false) = 0;
-
-      virtual StatusCode updateResult(const LVL1CTP::Lvl1Result& result) = 0;
-   };
-
 
    /**
       @class Lvl1ResultAccessTool
       This tool is used to handle all LVL1 results in a coherent way, taking the LVL1
       configuration into account to fill the raw bits with more meaningful data.
 
-      Clients are the LVL1 converter class in the HLT Steering, namely the Lvl1Converter
-      class; and the trigger decision tool (class TrigDecisionTool) which makes all
+      This was used by the Lvl1Converter in the Run-1&2 HLT Steering. Now the only client
+      is the trigger decision tool (class TrigDecisionTool) which makes all
       trigger information available to the end-users.
 
       Lvl1ResultAccessTool needs to know the trigger configuration, it can however handle
@@ -149,7 +71,7 @@ namespace HLT {
       /** @brief Get LVL1 items  ... for TrigDecision
        */
       virtual
-      const std::vector<LVL1CTP::Lvl1Item*>& getDecisionItems() override  { return m_decisionItems; }
+      const std::vector<LVL1CTP::Lvl1Item>& getDecisionItems() override  { return m_decisionItems; }
 
 
       // LVL1 RoIs and thresholds:
@@ -178,8 +100,8 @@ namespace HLT {
        *  @param useL1JetEnergy consider LVL1 JetEnergy RoIs ?
        */
       virtual
-      StatusCode updateConfig(bool useL1Calo = true,
-                              bool useL1Muon = true,
+      StatusCode updateConfig(bool useL1Muon = true,
+                              bool useL1Calo = true,
                               bool useL1JetEnergy = true) override;
 
       virtual std::vector< std::unique_ptr<LVL1CTP::Lvl1Item>> makeLvl1ItemConfig() const override;
@@ -271,12 +193,11 @@ namespace HLT {
       void clearDecisionItems(); //!< delete all LVL1 decisio items
 
       // L1 decoders
-      LVL1::JEPRoIDecoder* m_jepDecoder { nullptr };
-      LVL1::CPRoIDecoder* m_cpDecoder { nullptr };
+      LVL1::JEPRoIDecoder m_jepDecoder;
+      LVL1::CPRoIDecoder m_cpDecoder;
 
       // Results cache
-      std::vector< LVL1CTP::Lvl1Item* >     m_decisionItems;  //!< vector holding all LVL1 items for TrigDecision
-      std::vector<const LVL1CTP::Lvl1Item*> m_itemsBPonly;    //!< vector holding all LVL1 items that were suppressed by prescales
+      std::vector<LVL1CTP::Lvl1Item>        m_decisionItems;  //!< vector holding all LVL1 items for TrigDecision
 
       std::vector< MuonRoI> m_muonRoIs;     //!< cached LVL1 Muon-type RoI objects
       std::vector< EMTauRoI> m_emTauRoIs;   //!< cached LVL1 EMTau-type RoI objects

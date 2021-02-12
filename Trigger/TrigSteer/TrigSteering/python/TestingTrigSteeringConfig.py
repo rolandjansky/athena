@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # flake8: noqa (trigger legacy code)
 
@@ -7,6 +7,7 @@ from TrigSteering.TrigSteeringConfig import TrigSteer_baseClass
 from TrigNavigation.TrigNavigationConfig import TestingHLTNavigationOffline
 from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
 from TrigSteering.TrigSteeringConfig import getConfigurableByConfigName
+from TrigDecisionMaker.TrigDecisionMakerConf import HLT__Lvl1ResultAccessTool
 
 class TestingLvl1FromFile(HLT__Lvl1FromFile):
     __slots__ = []

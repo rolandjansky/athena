@@ -2,33 +2,18 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-/**********************************************************************************
- * @Project: HLT Steering
- * @Package: TrigSteering
- * @Class  : Lvl1ResultAccessTool
- *
- * @brief
- *
- * @author Nicolas Berger  <Nicolas.Berger@cern.ch>  - CERN
- *
- * File and Version Information:
- * $Id: Lvl1ResultAccessTool.cxx,v 1.45 2009-05-11 13:56:23 tbold Exp $
- **********************************************************************************/
-
-#include "TrigSteering/Lvl1ResultAccessTool.h"
+#include "TrigDecisionMaker/Lvl1ItemsAndRoIs.h"
+#include "Lvl1ResultAccessTool.h"
 
 #include "TrigT1Result/RoIBResult.h"
 #include "CTPfragment/CTPdataformatVersion.h"
 
 #include "TrigT1Interfaces/TriggerTypeWord.h"
 #include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
-#include "TrigT1Interfaces/CPRoIDecoder.h"
-#include "TrigT1Interfaces/JEPRoIDecoder.h"
 #include "TrigT1Interfaces/RoIFormatUpdater.h"
 #include "TrigT1Interfaces/RecEmTauRoI.h"
 #include "TrigT1Interfaces/RecJetRoI.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
-
 
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "TrigConfL1Data/CTPConfig.h"
@@ -37,23 +22,15 @@
 #include "TrigConfL1Data/Menu.h"
 #include "TrigConfL1Data/TriggerItem.h"
 #include "TrigConfData/L1Menu.h"
-
 #include "TrigConfHLTData/HLTTriggerElement.h"
 #include "TrigConfHLTData/HLTUtils.h"
-
-#include "TrigSteering/Lvl1ItemsAndRoIs.h"
 #include "TrigSteeringEvent/Lvl1Result.h"
 
-#include "TrigInterfaces/AlgoConfig.h"
-
-using namespace std;
-using namespace TrigConf;
+using TrigConf::L1DataDef;
 
 HLT::Lvl1ResultAccessTool::Lvl1ResultAccessTool(const std::string& name, const std::string& type,
                                                 const IInterface* parent) :
-   base_class(name, type, parent),
-   m_jepDecoder { new LVL1::JEPRoIDecoder() },
-   m_cpDecoder { new LVL1::CPRoIDecoder() }  
+   base_class(name, type, parent)
 {
    declareProperty( "ignorePrescales", m_ignorePrescales=false, "Allows to set prescales but ignore them");
    declareProperty( "muonCommissioningStep", m_muonCommissioningStep=0, "Set thresholods creation policty. 0 means default, i.e. thresholds fully inclusive");
@@ -61,15 +38,11 @@ HLT::Lvl1ResultAccessTool::Lvl1ResultAccessTool(const std::string& name, const s
 
 HLT::Lvl1ResultAccessTool::~Lvl1ResultAccessTool() {
    clearDecisionItems();
-   delete m_jepDecoder;
-   delete m_cpDecoder;
 }
 
 
 void
 HLT::Lvl1ResultAccessTool::clearDecisionItems() {
-   for (LVL1CTP::Lvl1Item* item : m_decisionItems)
-      delete item;
    m_decisionItems.clear();
 }
 
@@ -188,7 +161,6 @@ HLT::Lvl1ResultAccessTool::updateItemsConfigOnly() {
 
    if (xtra > 0)
       for (unsigned int i = 0; i < (unsigned int)xtra; ++i) {
-         delete m_decisionItems.back();
          m_decisionItems.pop_back();
       }
 
@@ -198,9 +170,9 @@ HLT::Lvl1ResultAccessTool::updateItemsConfigOnly() {
       if (!m_lvl1ItemConfig[i]) continue;
 
       if (i < m_decisionItems.size()) {
-         m_decisionItems[i]->setName(m_lvl1ItemConfig[i]->name());
-         m_decisionItems[i]->setHashId(m_lvl1ItemConfig[i]->hashId());
-         m_decisionItems[i]->setPrescaleFactor(m_lvl1ItemConfig[i]->prescaleFactor());
+         m_decisionItems[i].setName(m_lvl1ItemConfig[i]->name());
+         m_decisionItems[i].setHashId(m_lvl1ItemConfig[i]->hashId());
+         m_decisionItems[i].setPrescaleFactor(m_lvl1ItemConfig[i]->prescaleFactor());
       }
 
       ATH_MSG_DEBUG("name " << m_lvl1ItemConfig[i]->name() << " (and hashID " << m_lvl1ItemConfig[i]->hashId() << ") position " << i);
@@ -277,9 +249,9 @@ HLT::Lvl1ResultAccessTool::updateConfig( bool useL1Muon, bool useL1Calo, bool us
       m_tauCfg.clear();
       m_emtauThresholds.clear();
       
-      for( L1DataDef::TriggerType caloType : vector<L1DataDef::TriggerType>{ L1DataDef::EM, L1DataDef::TAU} ) {
+      for( L1DataDef::TriggerType caloType : std::vector<L1DataDef::TriggerType>{ L1DataDef::EM, L1DataDef::TAU} ) {
 
-         for (TriggerThreshold * clusterTT : thresholdConfig->getThresholdVector( caloType ) ) {
+         for (TrigConf::TriggerThreshold * clusterTT : thresholdConfig->getThresholdVector( caloType ) ) {
 
             if (clusterTT == nullptr) continue;
             
@@ -302,7 +274,7 @@ HLT::Lvl1ResultAccessTool::updateConfig( bool useL1Muon, bool useL1Calo, bool us
                ATH_MSG_WARNING("this LVL1 threshold bit position (" << tn << ") is smaller 0, go on w/o this threshold!");
             } else {
                uint32_t mask= 0x1 << tn;
-               ATH_MSG_DEBUG("thresholdNumber = " << tn << " .. bit position = 0x" << hex << setw( 8 ) << setfill( '0' ) << mask << dec);
+               ATH_MSG_DEBUG("thresholdNumber = " << tn << " .. bit position = 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << mask << std::dec);
                if (caloType == L1DataDef::EM)
                   m_emCfg.push_back( ConfigThreshold( clusterTT->name(), teId, activeHLT, mask ));
                else if (caloType == L1DataDef::TAU)
@@ -324,10 +296,12 @@ HLT::Lvl1ResultAccessTool::updateConfig( bool useL1Muon, bool useL1Calo, bool us
       m_useL1JetEnergy = false;// care about jetEnergy RoIs in execute only if at least one jetEnergy TriggerElement is used in HLT !
       m_jetCfg.clear();
       
-      // In case we need to calculate thresholds passed: copy jet thresholds into vector RecJetRoI can use 
-      m_jetThresholds = thresholdConfig->getJetThresholdVector(); 
-      for (TrigConf::TriggerThreshold* fwdThr : thresholdConfig->getFJetThresholdVector() ) 
-         m_jetThresholds.push_back(fwdThr); 
+      // In case we need to calculate thresholds passed: copy jet thresholds into vector RecJetRoI can use
+      m_jetThresholds = thresholdConfig->getJetThresholdVector();
+      m_jetThresholds.insert( m_jetThresholds.end(),
+                              thresholdConfig->getFJetThresholdVector().begin(),
+                              thresholdConfig->getFJetThresholdVector().end() );
+
       // Jet threholds:
       for(const TrigConf::TriggerThreshold * thr : thresholdConfig->getJetThresholdVector() ) {
          ATH_MSG_DEBUG("Searching TE that matches LVL1 JET threshold: " << thr->name());
@@ -346,7 +320,7 @@ HLT::Lvl1ResultAccessTool::updateConfig( bool useL1Muon, bool useL1Calo, bool us
             ATH_MSG_WARNING("this LVL1 threshold bit position (" << tn << ") is smaller 0, go on w/o this threshold!");
          } else {
             uint32_t mask= 0x1 << tn; // 8 bits in Run 1, up to 25 in Run 2
-            ATH_MSG_DEBUG("thresholdNumber = " << tn << " .. mask = 0x" << hex << setw( 8 ) << setfill( '0' ) << mask << dec);
+            ATH_MSG_DEBUG("thresholdNumber = " << tn << " .. mask = 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << mask << std::dec);
             m_jetCfg.push_back( ConfigJetEThreshold( thr->name(), teId, activeHLT, mask, JetRoI) );
             m_useL1JetEnergy = true;
          }
@@ -372,7 +346,7 @@ HLT::Lvl1ResultAccessTool::updateConfig( bool useL1Muon, bool useL1Calo, bool us
             uint32_t mask= 0x1;
             mask <<= 8; // first 8 bits are for jet thresholds (this code will never be reached in Run 2)
             mask <<= tn; // move to threshold number (4 bits)
-            ATH_MSG_DEBUG("thresholdNumber = " << tn << " .. bit position = 0x" << hex << setw( 8 ) << setfill( '0' ) << mask << dec);
+            ATH_MSG_DEBUG("thresholdNumber = " << tn << " .. bit position = 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << mask << std::dec);
             m_jetCfg.push_back( ConfigJetEThreshold(thr->name(), teId, activeHLT,  mask, ForwardJetRoI) );
             m_useL1JetEnergy = true;
          }
@@ -398,7 +372,7 @@ HLT::Lvl1ResultAccessTool::updateConfig( bool useL1Muon, bool useL1Calo, bool us
             uint32_t mask= 0x1;
             mask <<= 16; // first 15 bits are EnergyY, 16th bit is overflow
             mask <<= tn; // 16 bits for TE (lower 8bit) and restricted range TE (upper 8bit)
-            ATH_MSG_DEBUG( "thresholdNumber = " << tn << ", mask = 0x" << hex << setw( 8 ) << setfill( '0' ) << mask << dec);
+            ATH_MSG_DEBUG( "thresholdNumber = " << tn << ", mask = 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << mask << std::dec);
             m_jetCfg.push_back( ConfigJetEThreshold(thr->name(), teId, activeHLT, mask, TotalEtRoI) );
             m_useL1JetEnergy = true;
          }
@@ -422,7 +396,7 @@ HLT::Lvl1ResultAccessTool::updateConfig( bool useL1Muon, bool useL1Calo, bool us
             ATH_MSG_WARNING("this LVL1 threshold bit position (" << tn << ") is smaller 0, go on w/o this threshold!");
          } else {
             uint32_t mask= 0x1 << tn; // 4 bits here !
-            ATH_MSG_DEBUG("thresholdNumber = " << tn << ", mask = 0x" << hex << setw( 8 ) << setfill( '0' ) << mask << dec);
+            ATH_MSG_DEBUG("thresholdNumber = " << tn << ", mask = 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << mask << std::dec);
             m_jetCfg.push_back( ConfigJetEThreshold(thr->name(), teId, activeHLT,mask, JetEtRoI) );
             m_useL1JetEnergy = true;
          }
@@ -448,7 +422,7 @@ HLT::Lvl1ResultAccessTool::updateConfig( bool useL1Muon, bool useL1Calo, bool us
             uint32_t mask= 0x1;
             mask <<= 16; // first 15 bits are EnergyY, 16th bit is overflow
             mask <<= tn; // 16 bits for XE (lower 8bit) and restricted range XE (upper 8bit)
-            ATH_MSG_DEBUG("thresholdNumber = " << tn << ", mask = 0x" << hex << setw( 8 ) << setfill( '0' ) << mask << dec);
+            ATH_MSG_DEBUG("thresholdNumber = " << tn << ", mask = 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << mask << std::dec);
             m_jetCfg.push_back( ConfigJetEThreshold(thr->name(), teId, activeHLT, mask, MissingEtRoI) );
             m_useL1JetEnergy = true;
          }
@@ -473,7 +447,7 @@ HLT::Lvl1ResultAccessTool::updateConfig( bool useL1Muon, bool useL1Calo, bool us
             uint32_t mask= 0x1;
             mask <<= 16; // first 15 bits are EnergyY, 16th bit is overflow
             mask <<= tn; // 8 bits here
-            ATH_MSG_DEBUG("thresholdNumber = " << tn << ", mask = 0x" << hex << setw( 8 ) << setfill( '0' ) << mask << dec);
+            ATH_MSG_DEBUG("thresholdNumber = " << tn << ", mask = 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << mask << std::dec);
             m_jetCfg.push_back( ConfigJetEThreshold(thr->name(), teId, activeHLT, mask, METSignificanceRoI) );
             m_useL1JetEnergy = true;
          }
@@ -505,11 +479,10 @@ HLT::Lvl1ResultAccessTool::updateResult(const LVL1CTP::Lvl1Result& result)
    clearDecisionItems();
    // set L1 items:
    for (unsigned int i = 0; i < result.nItems(); ++i)
-      //    m_decisionItems.push_back(new LVL1CTP::Lvl1Item("", 0, i,
-      m_decisionItems.push_back(new LVL1CTP::Lvl1Item("", 0,
-                                                      result.isPassedBeforePrescale(i),
-                                                      result.isPassedAfterPrescale(i),
-                                                      result.isPassedAfterVeto(i) ));
+      m_decisionItems.push_back(LVL1CTP::Lvl1Item("", 0,
+                                                  result.isPassedBeforePrescale(i),
+                                                  result.isPassedAfterPrescale(i),
+                                                  result.isPassedAfterVeto(i) ));
    return StatusCode::SUCCESS;
 }
 
@@ -596,7 +569,7 @@ HLT::Lvl1ResultAccessTool::createL1Items( const std::vector< std::unique_ptr<LVL
       for (unsigned int iWord = 0; iWord < ctpRoIVecAV.size(); ++iWord) {
          uint32_t roIWord = ctpRoIVecAV[iWord].roIWord();
          lvl1Result->itemsAfterVeto().push_back(roIWord);
-         ATH_MSG_DEBUG("TAV word #" << iWord << " is 0x" << hex << setw( 8 ) << setfill( '0' ) << roIWord << dec);
+         ATH_MSG_DEBUG("TAV word #" << iWord << " is 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << roIWord << std::dec);
       }
 
       // 1.) TBP
@@ -604,8 +577,8 @@ HLT::Lvl1ResultAccessTool::createL1Items( const std::vector< std::unique_ptr<LVL
       for (unsigned int iWord=0; iWord < ctpRoIVecBP.size(); ++iWord) {
          uint32_t roIWord = ctpRoIVecBP[iWord].roIWord();
          lvl1Result->itemsBeforePrescale().push_back(roIWord);
-         ATH_MSG_DEBUG( "TBP word #" << iWord << " is 0x" << hex
-                        << setw( 8 ) << setfill( '0' ) << roIWord << dec);    
+         ATH_MSG_DEBUG( "TBP word #" << iWord << " is 0x" << std::hex
+                        << std::setw( 8 ) << std::setfill( '0' ) << roIWord << std::dec);
       }
 
       // 2.) TAP
@@ -614,7 +587,7 @@ HLT::Lvl1ResultAccessTool::createL1Items( const std::vector< std::unique_ptr<LVL
          uint32_t roIWord = ctpRoIVecAP[iWord].roIWord();
          lvl1Result->itemsAfterPrescale().push_back(roIWord);
 
-         ATH_MSG_DEBUG("TAP word #" << iWord << " is 0x" << hex << setw( 8 ) << setfill( '0' ) << roIWord << dec);
+         ATH_MSG_DEBUG("TAP word #" << iWord << " is 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << roIWord << std::dec);
          
       }
       // make sure TBP, TAP, TAV all have 8 entries !
@@ -650,7 +623,7 @@ HLT::Lvl1ResultAccessTool::createMuonThresholds(const ROIB::RoIBResult &result)
          MuonRoI roi(*itMuon);
          uint32_t roIWord = itMuon->roIWord();
 
-         ATH_MSG_DEBUG("Muon RoI word: 0x" << hex << setw(8) << roIWord  << dec);
+         ATH_MSG_DEBUG("Muon RoI word: 0x" << std::hex << std::setw(8) << roIWord  << std::dec);
 
          // the Threshold Number (1 to 6)  associated with this Muon RoI
          unsigned int thresholdNumber = itMuon->pt();
@@ -763,10 +736,7 @@ HLT::Lvl1ResultAccessTool::createEMTauThresholds(const ROIB::RoIBResult& result,
       ATH_MSG_DEBUG("Looking for EMTau RoIs");
       ATH_MSG_DEBUG("----------------------");
 
-      std::map<std::pair<int,int>, int> emRoI, tau; // (crate,module) : count
-
       const std::vector<ROIB::EMTauResult>& emTauResult = result.eMTauResult();
-      std::vector<ROIB::EMTauRoI> emTauRoIVec;
 
       for (std::vector<ROIB::EMTauResult>::const_iterator itResult  = emTauResult.begin();
            itResult != emTauResult.end(); ++itResult) {
@@ -863,7 +833,7 @@ HLT::Lvl1ResultAccessTool::createJetEnergyThresholds(const ROIB::RoIBResult& res
             ATH_MSG_DEBUG("RoI word: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << roIWord << std::dec);
 
             // RoI Type
-            LVL1::TrigT1CaloDefs::RoIType roiType = m_jepDecoder->roiType(roIWord);
+            LVL1::TrigT1CaloDefs::RoIType roiType = m_jepDecoder.roiType(roIWord);
             
             if ( roiType == LVL1::TrigT1CaloDefs::EnergyRoIWordType0) {
 
@@ -928,16 +898,14 @@ HLT::Lvl1ResultAccessTool::createJetEnergyThresholds(const ROIB::RoIBResult& res
                } else if ( roiType == LVL1::TrigT1CaloDefs::EnergyRoIWordType0 && ( threshold->type == TotalEtRoI ||
                                                                                     threshold->type == MissingEtRoI ||
                                                                                     threshold->type == METSignificanceRoI)) {
-
                   bool ignoreThreshold = false;
-                  bool thrIsRestrictedRangeThr = false;
                   // for TE and XE thresholds the etSumType distinguishes between full and restricted range thresholds
                   //    etSumType==0: full eta range
                   //    etSumType==1: restricted eta range
                   // restricted range thresholds must be ignored when the etSumType==0 and vice versa
                   // restricted range thresholds have a mask >= 0x1000000  (lower 24 bit are energy sum (15bit), overflow (1bit) and full range thresholds (8bit)
                   if( threshold->type == TotalEtRoI || threshold->type == MissingEtRoI) {
-
+                     bool thrIsRestrictedRangeThr = false;
                      if(threshold->mask >= 0x1000000 )
                         thrIsRestrictedRangeThr = true;
 
@@ -996,9 +964,9 @@ HLT::Lvl1ResultAccessTool::lvl1EMTauJetOverflow(const ROIB::RoIBResult& result)
    // Count number of RoIs per crate/module
    for (const ROIB::EMTauResult& res : result.eMTauResult()) {
       for (const ROIB::EMTauRoI& roi : res.roIVec()) {
-         int c = m_cpDecoder->crate(roi.roIWord());
-         int m = m_cpDecoder->module(roi.roIWord());
-         int t = m_cpDecoder->roiType(roi.roIWord());
+         int c = m_cpDecoder.crate(roi.roIWord());
+         int m = m_cpDecoder.module(roi.roIWord());
+         int t = m_cpDecoder.roiType(roi.roIWord());
 
          if (t==LVL1::TrigT1CaloDefs::EMRoIWordType) ++em[{c,m}];
          else if (t==LVL1::TrigT1CaloDefs::TauRoIWordType) ++tau[{c,m}];
@@ -1007,9 +975,9 @@ HLT::Lvl1ResultAccessTool::lvl1EMTauJetOverflow(const ROIB::RoIBResult& result)
 
    for (const ROIB::JetEnergyResult& res : result.jetEnergyResult()) {
       for (const ROIB::JetEnergyRoI& roi : res.roIVec()) {
-         int c = m_jepDecoder->crate(roi.roIWord());
-         int m = m_jepDecoder->module(roi.roIWord());
-         int t = m_jepDecoder->roiType(roi.roIWord());
+         int c = m_jepDecoder.crate(roi.roIWord());
+         int m = m_jepDecoder.module(roi.roIWord());
+         int t = m_jepDecoder.roiType(roi.roIWord());
 
          if (t==LVL1::TrigT1CaloDefs::JetRoIWordType) ++jet[{c,m}];
       }

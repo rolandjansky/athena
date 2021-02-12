@@ -1,10 +1,11 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # flake8: noqa (trigger legacy code)
 
 from TrigSteering.TrigSteeringConf import *
 from TrigNavigation.TrigNavigationConfig import *
 from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+from TrigDecisionMaker.TrigDecisionMakerConf import HLT__Lvl1ResultAccessTool
 
 class RandomScaler( HLT__RandomScaler ):
     """Random scaler"""
