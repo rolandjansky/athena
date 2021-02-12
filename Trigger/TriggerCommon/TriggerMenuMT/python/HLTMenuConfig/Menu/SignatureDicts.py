@@ -123,7 +123,7 @@ JetChainParts = {
     'constitMod'   : # Constituent modifiers
       ['sk', 'cssk'],
     'jetCalib'     : # Jet calibration
-      ['jes', 'subjes', 'subjesIS', 'subjesgscIS', 'subresjesgscIS', 'nojcalib'],
+      ['jes', 'subjes', 'subjesIS', 'subjesgscIS', 'subresjesgscIS', 'subjesgsc', 'subresjesgsc', 'nojcalib'],
     'scan'         : # No longer used?
       ['FS',],
     'trkopt'       : # Tracking configuration
