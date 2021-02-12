@@ -48,6 +48,7 @@ namespace Monitored {
     bool kVec{false}; //!< add content to each bin from each element of a vector
     bool kVecUO{false}; //!< add content to each bin from vector, including overflow/underflow
     bool kCumulative{false}; //!< fill bin of monitored object's value, and every bin below it
+    int kLive{0}; //!< fill only the last N lumiblocks in y_vs_lb plots
 
     std::string xvar; //!< name of x variable
     int xbins{0}; //!< number of y bins

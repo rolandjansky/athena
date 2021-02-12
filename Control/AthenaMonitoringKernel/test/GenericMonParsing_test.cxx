@@ -49,6 +49,7 @@ json defaultJson() {
   j["kVec"] = false;
   j["kVecUO"] = false;
   j["kCumulative"] = false;
+  j["kLive"] = false;
   j["merge"] = "";
   j["treeDef"] = "";
   return j;
