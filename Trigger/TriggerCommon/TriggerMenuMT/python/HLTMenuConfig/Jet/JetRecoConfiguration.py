@@ -27,8 +27,7 @@ cleaningDict = {
 }
 
 def extractCleaningsFromPrefilters(prefilters_list):
-    found_cleanings= [ci for ck, ci in cleaningDict.items()
-                       if ck in prefilters_list]
+    found_cleanings= [ci for ck, ci in cleaningDict.items() if ck in prefilters_list]
     if len(found_cleanings) <= 1:  # Only one supported cleaning decoration at the moment
         return 'noCleaning' if len(found_cleanings) == 0 else found_cleanings[0]
     else:

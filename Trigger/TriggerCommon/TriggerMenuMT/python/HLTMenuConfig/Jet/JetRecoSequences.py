@@ -202,6 +202,8 @@ def standardJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict
         #Decorate with jet cleaning info only if not a PFlow chain (no cleaning available for PFlow jets now)
         if isPFlow:
             raise RuntimeError('Requested jet cleaning for a PFlow chain. Jet cleaning is currently not supported for PFlow jets.')
+        if jetRecoDict['recoAlg']!='a4':
+            raise RuntimeError('Requested jet cleaning for a non small-R jet chain. Jet cleaning is currently not supported for large-R jets.')
 
         jetDef.modifiers.append("CaloQuality")
         jetDef.modifiers.append("Cleaning:{}".format(jetRecoDict["cleaning"]))
