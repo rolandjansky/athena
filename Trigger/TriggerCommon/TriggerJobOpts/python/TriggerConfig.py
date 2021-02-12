@@ -610,7 +610,7 @@ def triggerRunCfg( flags, seqName = None, menu=None ):
     from L1Decoder.L1DecoderConfig import L1DecoderCfg
     l1DecoderAcc = L1DecoderCfg( flags )
     # TODO, once moved to newJO the algorithm can be added to l1DecoderAcc and merging will be sufficient here
-    acc.merge( l1DecoderAcc )
+    acc.merge( l1DecoderAcc,  sequenceName="HLTBeginSeq" )
 
     # detour to the menu here, (missing now, instead a temporary hack)
     if menu:
