@@ -70,7 +70,7 @@ compactSpecification = {
 #
     "C1"               : (("C1;C1;",100,-1,1), ("C1","float")),
     "C2"               : (("C2;C2;",100,-1,1), ("C2","float")),
-    "D2"               : (("D2;D2;",100,-1,1), ("D2","float")),
+    "D2"               : (("D2;D2;",100, 0,10), ("D2","float")),
     "C1_Beta2"         : (("C1;C1;",100,-1,1), ("C1","float")),
     "C2_Beta2"         : (("C2_Beta2;C2_Beta2;",100,-1,1), ("C2_Beta2","float")),
     "D2_Beta2"         : (("D2_Beta2;D2_Beta2;",100,-1,1), ("D2_Beta2","float")),
@@ -155,7 +155,15 @@ compactSpecification = {
     #"CHF[0]": (("SumPtTrkPt500/pT; SumPtTrkPt500/pT;",50,-1.,1.2), ("chf[0]", "vector<float>", "gev") ),
     #CBG
     #
-
+    
+    #New PFlow Variables
+    "DFCommonJets_QGTagger_NTracks": (("DFCommonJets_QGTagger_NTracks; DFCommonJets_QGTagger_NTracks;",30,0.,30.), ("DFCommonJets_QGTagger_NTracks", "float") ),
+    "DFCommonJets_QGTagger_TracksWidth": (("DFCommonJets_QGTagger_TracksWidth; DFCommonJets_QGTagger_TracksWidth;",16,-1.1,0.5), ("DFCommonJets_QGTagger_TracksWidth", "float") ),
+    "DFCommonJets_QGTagger_TracksC1": (("DFCommonJets_QGTagger_TracksC1; DFCommonJets_QGTagger_TracksC1;",16,-1.1,0.5), ("DFCommonJets_QGTagger_TracksC1", "float") ),
+    "DFCommonJets_fJvt": (("DFCommonJets_fJvt; DFCommonJets_fJvt;",23,0.,2.3), ("DFCommonJets_fJvt", "float") ),
+    #RG and ZG
+    "rg": (("rg; rg;",29,-1.2,1.7), ("rg", "float") ),
+    "zg": (("zg; zg;",19,-1.2,0.7), ("zg", "float") ),
     # 2D Histo format is
     # "histoname" : ( binning, attributeInfo1, attributeInfo2 )
     # where
