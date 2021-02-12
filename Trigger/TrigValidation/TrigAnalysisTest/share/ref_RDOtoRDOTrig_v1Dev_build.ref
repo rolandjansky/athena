@@ -929,6 +929,20 @@ HLT_e20_lhmedium_e15_lhmedium_Zee_L12EM3:
     2: 4
     3: 3
     4: 2
+HLT_e20_lhtight_ivarloose_L1ZAFB-25DPHI-EM18I:
+  eventCount: 2
+  stepCounts:
+    0: 2
+    1: 2
+    2: 2
+    3: 2
+    4: 2
+  stepFeatures:
+    0: 2
+    1: 4
+    2: 2
+    3: 2
+    4: 2
 HLT_e24_lhmedium_2g12_loose_L1EM20VH_3EM10VH:
   eventCount: 0
   stepFeatures:
