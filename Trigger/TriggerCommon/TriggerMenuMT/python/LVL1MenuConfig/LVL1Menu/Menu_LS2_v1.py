@@ -653,7 +653,7 @@ def defineMenu():
         #ATR-18824
         'L1_ZAFB-04DPHI-EM15I',
         'L1_ZAFB-25DPHI-EM15I',
-        #'L1_ZAFB-25DPHI-EM18I',
+        'L1_ZAFB-25DPHI-EM18I',
 
         #ATR-19302: 
 #        'L1_DPHI-M70-2EM10I',
