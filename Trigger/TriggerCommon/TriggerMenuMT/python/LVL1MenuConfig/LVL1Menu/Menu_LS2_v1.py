@@ -443,10 +443,11 @@ def defineMenu():
         #BGRP9
 
         #BGRP11
+        'L1_RD0_BGRP11',
 
         # RNDM
         'L1_RD0_FILLED', 'L1_RD0_UNPAIRED_ISO',  'L1_RD0_EMPTY',
-        "L1_RD1_EMPTY","L1_RD2_EMPTY",
+        "L1_RD1_EMPTY",
         'L1_RD0_FIRSTEMPTY', 
         'L1_RD0_ABORTGAPNOTCALIB',
         'L1_RD2_FILLED', 'L1_RD2_EMPTY',
@@ -869,6 +870,7 @@ def defineMenu():
         'L1_RD2_EMPTY'  : 206,
         'L1_RD3_FILLED' : 207,
         'L1_RD3_EMPTY'  : 208,
+        'L1_RD0_BGRP11' : 211,
         'L1_TRT_FILLED' : 218,
         'L1_TRT_EMPTY'  : 219,
         'L1_RD0_ABORTGAPNOTCALIB' : 372,
@@ -967,7 +969,7 @@ def defineMenu():
         'L1_DY-BOX-2MU6' : 318,
         'L1_DY-BOX-2MU4' : 160,
         'L1_CEP-CJ60' : 162,
-        #'L1_CEP-CJ50' : 164,
+        'L1_CEP-CJ50' : 80,
         'L1_MBTS_1_EMPTY' : 164,
         'L1_MBTS_2_EMPTY' : 166,
         'L1_MBTS_1_1_EMPTY' : 168,
@@ -981,6 +983,8 @@ def defineMenu():
         'L1_ALFA_A7R1L' : 494,
         'L1_ALFA_B7R1U' : 495,
         'L1_ALFA_B7R1L' : 496,
+        'L1_ALFA_B7L1L' : 497,
+
 }
 
 
