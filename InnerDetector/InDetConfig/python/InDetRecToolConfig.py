@@ -535,6 +535,9 @@ def InDetTestPixelLayerToolCfg(flags, name = "InDetTestPixelLayerTool", **kwargs
 def InDetPropagatorCfg(flags, name='InDetPropagator',**kwargs):
   the_name = makeName( name, kwargs)
   result = ComponentAccumulator()
+  from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+  result.merge(MagneticFieldSvcCfg(flags))
+
   tool = None
   if flags.InDet.propagatorType == "STEP":
     tool = CompFactory.Trk.STEP_Propagator( name = the_name, **kwargs)
