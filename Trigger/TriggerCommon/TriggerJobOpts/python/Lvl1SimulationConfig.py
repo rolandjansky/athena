@@ -374,3 +374,47 @@ def Lvl1SimulationSequence( ConfigFlags ):
         l1SimSeq = Lvl1SimulationSequence_Data( ConfigFlags )
 
     return l1SimSeq
+
+
+
+def Lvl1SimulationMCCfg(flags):
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    acc = ComponentAccumulator()
+
+    from TrigT1CaloSim.TrigT1CaloSimRun2Config import L1LegacyCaloSimMCCfg
+    from AthenaCommon.CFElements import seqAND
+    acc.addSequence(seqAND('L1SimSeq'), parentName='AthAlgSeq')
+    acc.addSequence(seqAND('L1CaloLegacySimSeq'), parentName='L1SimSeq')
+    acc.merge(L1LegacyCaloSimMCCfg(flags), sequenceName='L1CaloLegacySimSeq')
+    return acc
+
+if __name__ == '__main__':    
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior = 1
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+    flags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.RDO.e4993_s3214_r11315/RDO.17533168._000001.pool.root.1']
+    flags.Common.isOnline=False
+    flags.Exec.MaxEvents=25
+    flags.Concurrency.NumThreads = 1
+    flags.Concurrency.NumConcurrentEvents=1
+    flags.Scheduler.ShowDataDeps=True
+    flags.Scheduler.CheckDependencies=True
+    flags.Scheduler.ShowDataFlow=True
+
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    acc = MainServicesCfg(flags)
+
+    from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
+    acc.merge(PoolReadCfg(flags))
+
+    acc.merge(Lvl1SimulationMCCfg(flags))
+
+    acc.printConfig(withDetails=True, summariseProps=True, printDefaults=True)
+    with open("L1Sim.pkl", "wb") as p:
+        acc.store(p)
+        p.close()
+
+    status = acc.run()
+    if status.isFailure():
+        import sys
+        sys.exit(1)
