@@ -4,7 +4,7 @@
 /**
  * @file PixelDigitization/PixelHistoConverter.h
  * @author Tomas Dado <tomas.dado@cern.ch>
- * @date February, 2020
+ * @date February, 2021
  * @brief A helper class to conver ROOT TH* objects into simple vectors for speed up
  */
 
@@ -42,7 +42,7 @@ public:
   }
 
   inline bool isOverflowZ(const float value) const {
-    return (value >= m_zAxis.max) ? true : false;
+    return (value >= m_zAxis.max);
   }
   bool isFirstZ(const float value) const;
   float getBinX(const float value) const;
