@@ -37,6 +37,49 @@ InDetPerfNtuple_TruthToReco::InDetPerfNtuple_TruthToReco(InDetPlotBase* pParent,
     m_trackErr_z0sin("trackErr_z0sin",m_undefinedValue,*this),
     m_track_chiSquared("track_chiSquared",m_undefinedValue,*this),
     m_track_nDoF("track_nDoF",m_undefinedValue,*this),
+    m_numberOfContribPixelLayers("numberOfContribPixelLayers",m_undefinedValue,*this),
+    m_numberOfBLayerHits("numberOfBLayerHits",m_undefinedValue,*this),
+    m_numberOfBLayerOutliers("numberOfBLayerOutliers",m_undefinedValue,*this),
+    m_numberOfBLayerSharedHits("numberOfBLayerSharedHits",m_undefinedValue,*this),
+    m_numberOfBLayerSplitHits("numberOfBLayerSplitHits",m_undefinedValue,*this),
+    m_expectBLayerHit("expectBLayerHit",m_undefinedValue,*this),
+    m_expectInnermostPixelLayerHit("expectInnermostPixelLayerHit",m_undefinedValue,*this),
+    m_numberOfInnermostPixelLayerHits("numberOfInnermostPixelLayerHits",m_undefinedValue,*this),
+    m_numberOfInnermostPixelLayerOutliers("numberOfInnermostPixelLayerOutliers",m_undefinedValue,*this),
+    m_numberOfInnermostPixelLayerSharedHits("numberOfInnermostPixelLayerSharedHits",m_undefinedValue,*this),
+    m_numberOfInnermostPixelLayerSplitHits("numberOfInnermostPixelLayerSplitHits",m_undefinedValue,*this),
+    m_expectNextToInnermostPixelLayerHit("expectNextToInnermostPixelLayerHit",m_undefinedValue,*this),
+    m_numberOfNextToInnermostPixelLayerHits("numberOfNextToInnermostPixelLayerHits",m_undefinedValue,*this),
+    m_numberOfNextToInnermostPixelLayerOutliers("numberOfNextToInnermostPixelLayerOutliers",m_undefinedValue,*this),
+    m_numberOfNextToInnermostPixelLayerSharedHits("numberOfNextToInnermostPixelLayerSharedHits",m_undefinedValue,*this),
+    m_numberOfNextToInnermostPixelLayerSplitHits("numberOfNextToInnermostPixelLayerSplitHits",m_undefinedValue,*this),
+    m_numberOfDBMHits("numberOfDBMHits",m_undefinedValue,*this),
+    m_numberOfPixelHits("numberOfPixelHits",m_undefinedValue,*this),
+    m_numberOfPixelOutliers("numberOfPixelOutliers",m_undefinedValue,*this),
+    m_numberOfPixelHoles("numberOfPixelHoles",m_undefinedValue,*this),
+    m_numberOfPixelSharedHits("numberOfPixelSharedHits",m_undefinedValue,*this),
+    m_numberOfPixelSplitHits("numberOfPixelSplitHits",m_undefinedValue,*this),
+    m_numberOfGangedPixels("numberOfGangedPixels",m_undefinedValue,*this),
+    m_numberOfGangedFlaggedFakes("numberOfGangedFlaggedFakes",m_undefinedValue,*this),
+    m_numberOfPixelDeadSensors("numberOfPixelDeadSensors",m_undefinedValue,*this),
+    m_numberOfPixelSpoiltHits("numberOfPixelSpoiltHits",m_undefinedValue,*this),
+    m_numberOfSCTHits("numberOfSCTHits",m_undefinedValue,*this),
+    m_numberOfSCTOutliers("numberOfSCTOutliers",m_undefinedValue,*this),
+    m_numberOfSCTHoles("numberOfSCTHoles",m_undefinedValue,*this),
+    m_numberOfSCTDoubleHoles("numberOfSCTDoubleHoles",m_undefinedValue,*this),
+    m_numberOfSCTSharedHits("numberOfSCTSharedHits",m_undefinedValue,*this),
+    m_numberOfSCTDeadSensors("numberOfSCTDeadSensors",m_undefinedValue,*this),
+    m_numberOfSCTSpoiltHits("numberOfSCTSpoiltHits",m_undefinedValue,*this),
+    m_numberOfTRTHits("numberOfTRTHits",m_undefinedValue,*this),
+    m_numberOfTRTOutliers("numberOfTRTOutliers",m_undefinedValue,*this),
+    m_numberOfTRTHoles("numberOfTRTHoles",m_undefinedValue,*this),
+    m_numberOfTRTHighThresholdHits("numberOfTRTHighThresholdHits",m_undefinedValue,*this),
+    m_numberOfTRTHighThresholdHitsTotal("numberOfTRTHighThresholdHitsTotal",m_undefinedValue,*this),
+    m_numberOfTRTHighThresholdOutliers("numberOfTRTHighThresholdOutliers",m_undefinedValue,*this),
+    m_numberOfTRTDeadStraws("numberOfTRTDeadStraws",m_undefinedValue,*this),
+    m_numberOfTRTTubeHits("numberOfTRTTubeHits",m_undefinedValue,*this),
+    m_numberOfTRTXenonHits("numberOfTRTXenonHits",m_undefinedValue,*this),
+    m_numberOfTRTSharedHits("numberOfTRTSharedHits",m_undefinedValue,*this),
     m_hasTruth("hasTruth",0,*this),
     m_hasTrack("hasTrack",0,*this),
     m_passedTruthSelection("passedTruthSelection",0,*this),
@@ -108,6 +151,142 @@ void InDetPerfNtuple_TruthToReco::fillTrack(const xAOD::TrackParticle& track, co
 
     m_track_chiSquared = track.chiSquared();
     m_track_nDoF       = track.numberDoF();
+
+    // Fill track summary info (e.g. hits/holes/outliers on track)
+    fillTrackSummaryInfo(track);
+}
+
+void InDetPerfNtuple_TruthToReco::fillTrackSummaryInfo(const xAOD::TrackParticle& track) {
+    uint8_t value = 0;
+    if (track.summaryValue(value, xAOD::numberOfContribPixelLayers)) {
+        m_numberOfContribPixelLayers = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfBLayerHits)) {
+        m_numberOfBLayerHits = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfBLayerOutliers)) {
+        m_numberOfBLayerOutliers = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfBLayerSharedHits)) {
+        m_numberOfBLayerSharedHits = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfBLayerSplitHits)) {
+        m_numberOfBLayerSplitHits = value;
+    }
+    if (track.summaryValue(value, xAOD::expectBLayerHit)) {
+        m_expectBLayerHit = value;
+    }
+    if (track.summaryValue(value, xAOD::expectInnermostPixelLayerHit)) {
+        m_expectInnermostPixelLayerHit = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfInnermostPixelLayerHits)) {
+        m_numberOfInnermostPixelLayerHits = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfInnermostPixelLayerOutliers)) {
+        m_numberOfInnermostPixelLayerOutliers = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfInnermostPixelLayerSharedHits)) {
+        m_numberOfInnermostPixelLayerSharedHits = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfInnermostPixelLayerSplitHits)) {
+        m_numberOfInnermostPixelLayerSplitHits = value;
+    }
+    if (track.summaryValue(value, xAOD::expectNextToInnermostPixelLayerHit)) {
+        m_expectNextToInnermostPixelLayerHit = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfNextToInnermostPixelLayerHits)) {
+        m_numberOfNextToInnermostPixelLayerHits = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfNextToInnermostPixelLayerOutliers)) {
+        m_numberOfNextToInnermostPixelLayerOutliers = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfNextToInnermostPixelLayerSharedHits)) {
+        m_numberOfNextToInnermostPixelLayerSharedHits = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfNextToInnermostPixelLayerSplitHits)) {
+        m_numberOfNextToInnermostPixelLayerSplitHits = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfDBMHits)) {
+        m_numberOfDBMHits = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfPixelHits)) {
+        m_numberOfPixelHits = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfPixelOutliers)) {
+        m_numberOfPixelOutliers = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfPixelHoles)) {
+        m_numberOfPixelHoles = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfPixelSharedHits)) {
+        m_numberOfPixelSharedHits = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfPixelSplitHits)) {
+        m_numberOfPixelSplitHits = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfGangedPixels)) {
+        m_numberOfGangedPixels = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfGangedFlaggedFakes)) {
+        m_numberOfGangedFlaggedFakes = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfPixelDeadSensors)) {
+        m_numberOfPixelDeadSensors = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfPixelSpoiltHits)) {
+        m_numberOfPixelSpoiltHits = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfSCTHits)) {
+        m_numberOfSCTHits = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfSCTOutliers)) {
+        m_numberOfSCTOutliers = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfSCTHoles)) {
+        m_numberOfSCTHoles = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfSCTDoubleHoles)) {
+        m_numberOfSCTDoubleHoles = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfSCTSharedHits)) {
+        m_numberOfSCTSharedHits = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfSCTDeadSensors)) {
+        m_numberOfSCTDeadSensors = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfSCTSpoiltHits)) {
+        m_numberOfSCTSpoiltHits = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfTRTHits)) {
+        m_numberOfTRTHits = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfTRTOutliers)) {
+        m_numberOfTRTOutliers = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfTRTHoles)) {
+        m_numberOfTRTHoles = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfTRTHighThresholdHits)) {
+        m_numberOfTRTHighThresholdHits = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfTRTHighThresholdHitsTotal)) {
+        m_numberOfTRTHighThresholdHitsTotal = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfTRTHighThresholdOutliers)) {
+        m_numberOfTRTHighThresholdOutliers = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfTRTDeadStraws)) {
+        m_numberOfTRTDeadStraws = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfTRTTubeHits)) {
+        m_numberOfTRTTubeHits = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfTRTXenonHits)) {
+        m_numberOfTRTXenonHits = value;
+    }
+    if (track.summaryValue(value, xAOD::numberOfTRTSharedHits)) {
+        m_numberOfTRTSharedHits = value;
+    }
 }
 
 void InDetPerfNtuple_TruthToReco::fillTree() {
