@@ -348,7 +348,7 @@ def Lvl1SimulationSequence_MC( ConfigFlags ):
 
 
 
-def Lvl1SimulationSequence( flags ):
+def Lvl1SimulationSequence( ConfigFlags ):
     """ 
     Configure L1 simulation for Athena MT jobs
     """
