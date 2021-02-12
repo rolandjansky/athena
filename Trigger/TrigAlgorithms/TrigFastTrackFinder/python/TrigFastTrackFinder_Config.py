@@ -202,7 +202,6 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
 
         self.useNewLayerNumberScheme = True
 
-        self.OutputCollectionSuffix = slice_name
         from AthenaCommon.AppMgr import ToolSvc
 
         numberingTool = TrigL2LayerNumberTool(name = "TrigL2LayerNumberTool_FTF")
