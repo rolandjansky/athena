@@ -21,10 +21,6 @@
 #include "TrigInDetEvent/TrigVertexCollection.h"
 #include "TrigInDetToolInterfaces/ITrigPrimaryVertexFitter.h"
 #include "TrkParameters/TrackParameters.h"
-// Generic Trigger tools
-#include "TrigNavigation/TriggerElement.h"
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigTimeAlgs/TrigTimer.h"
 //Conversion units
 #include "GaudiKernel/SystemOfUnits.h"
 using Gaudi::Units::GeV;
