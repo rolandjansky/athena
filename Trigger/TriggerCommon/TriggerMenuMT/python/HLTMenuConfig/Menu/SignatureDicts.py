@@ -137,14 +137,16 @@ JetChainParts = {
     'hypoScenario' : ['simple', # Independent selections on individual jets, multiplicity+threshold cuts
                       'fbdjshared',  # Forward backward jets + dijet, default parameters, fb and dj can share
                       'fbdjnosharedSEP10etSEP20etSEP34massSEP50fbet', # f/b jets + dijet, expl. parameters, fb and dj do not share
+                      # 'dijet' scenario applies always a mass cut (deta and dphi cuts are optional)
+                      # 0eta320 is the default eta selections for j1/j2
                       'dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass', # Test dijet mass sel
                       'dijetSEP80j1etSEP80j2etSEP700djmassSEP26djdphi', # Test dijet mass sel including dphi cut
                       'dijetSEP70j1etSEP70j2etSEP1000djmassSEP20djdphiSEP40djdeta', # dijet mass sel including dphi and deta cuts
-                      # 'agg' category is for single variable computed by aggregation over single jets
-                      'aggSEP1000htSEP30etSEP0eta320', # HT selection with explicit jet et/eta cuts
-                      'aggSEP500htSEP30etSEP0eta320',
-                      'aggSEP100htSEP10etSEP0eta320',
-                      'aggSEP50htSEP10etSEP0eta320'
+                      # 'agg' category is for single variable computed by aggregation over single jets (default filtering: 30et and 0eta320)
+                      'aggSEP1000ht',
+                      'aggSEP500ht',
+                      'aggSEP100htSEP10et',
+                      'aggSEP50htSEP10etSEP0eta320' # HT selection with explicit jet et/eta cuts
                       ],
 
     # Simple hypo configuration. Single property cuts defined as MINvarMAX

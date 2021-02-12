@@ -308,8 +308,8 @@ def setupMenu():
         ChainProp(name='HLT_j0_fbdjshared_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j60_j0_fbdjshared_L1J20', l1SeedThresholds=['FSNOSEED']*2, groups=MultiJetGroup),
 
-        ChainProp(name='HLT_j0_aggSEP1000htSEP30etSEP0eta320_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j0_aggSEP500htSEP30etSEP0eta320_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j0_aggSEP1000ht_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j0_aggSEP500ht_L1J20', groups=SingleJetGroup),
 
         ChainProp(name='HLT_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j0_dijetSEP80j1etSEP80j2etSEP700djmassSEP26djdphi_L1J20', groups=SingleJetGroup),
