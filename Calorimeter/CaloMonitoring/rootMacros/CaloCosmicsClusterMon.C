@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //#####################################################################
@@ -26,6 +26,7 @@ using namespace std;
 class CaloCosmicsClusterMon
 {
 
+  // cppcheck-suppress unknownMacro
   RQ_OBJECT("CaloCosmicsClusterMon") // necessary if not inherite from ROOT class
 
  protected:

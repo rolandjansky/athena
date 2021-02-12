@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //#####################################################################
@@ -25,6 +25,7 @@ using namespace std;
 class CaloClusterShwrMon
 {
 
+  // cppcheck-suppress unknownMacro
   RQ_OBJECT("CaloClusterShwrMon") // necessary if not inherite from ROOT class
 
  protected:
