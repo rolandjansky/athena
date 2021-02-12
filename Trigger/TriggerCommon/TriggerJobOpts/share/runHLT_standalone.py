@@ -522,7 +522,7 @@ if not hasattr(svcMgr, 'THistSvc'):
     from GaudiSvc.GaudiSvcConf import THistSvc
     svcMgr += THistSvc()
 if hasattr(svcMgr.THistSvc, "Output"):
-    from TriggerJobOpts.HLTTriggerGetter import setTHistSvcOutput
+    from TriggerJobOpts.TriggerHistSvcConfig import setTHistSvcOutput
     setTHistSvcOutput(svcMgr.THistSvc.Output)
 
 #-------------------------------------------------------------
@@ -603,14 +603,16 @@ if opt.doWriteBS or opt.doWriteRDOTrigger:
     TriggerEDMRun3.addHLTNavigationToEDMList(TriggerEDMRun3.TriggerHLTListRun3, decObj, decObjHypoOut)
 
     # Configure output writing
-    CAtoGlobalWrapper( triggerOutputCfg, ConfigFlags, summaryAlg=summaryMakerAlg)
+    CAtoGlobalWrapper(triggerOutputCfg, ConfigFlags, hypos=hypos)
 
 #-------------------------------------------------------------
 # Cost Monitoring
 #-------------------------------------------------------------
 
-from TrigCostMonitorMT.TrigCostMonitorMTConfig import TrigCostMonitorMTCfg
+from TrigCostMonitorMT.TrigCostMonitorMTConfig import TrigCostMonitorMTCfg, TrigCostMonitorMTPostSetup
 CAtoGlobalWrapper(TrigCostMonitorMTCfg, ConfigFlags)
+# TODO - how can TrigCostMonitorMTPostSetup be component-accumulator-ised?
+TrigCostMonitorMTPostSetup()
 
 #-------------------------------------------------------------
 # Debugging for view cross-dependencies

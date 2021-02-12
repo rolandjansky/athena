@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+    Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -147,6 +147,29 @@ void eSuperCellTowerMapper::reset(){
            HEC1  9
            HEC2  10
            HEC3  11
+
+           TileBar0 12  (Tile Barrel)
+           TileBar1 13
+           TileBar2 14
+
+           TileGap1 15 (ITC and Scintillator)
+           TileGap2 16
+           TileGap3 17
+
+           TileExt0 18 (Tile Extended Barrel)
+           TileExt1 19
+           TileExt2 20
+
+           FCAL0 21 (Forward EM Endcap)
+           FCAL1 22
+           FCAL2 23
+
+           MINIFCAL0 24
+           MINIFCAL1 25
+           MINIFCAL2 26
+           MINIFCAL3 27
+
+           Unknown 28
     */
 
     //We need to explicitly avoid +/- 3 pos_neg supercells! These go beyond |eta| == 2.5
@@ -537,7 +560,7 @@ void eSuperCellTowerMapper::ConnectSuperCellToTower(std::unique_ptr<eTowerContai
     switch (region) {
     case 0: { // special treatment for TRANSITON region
 
-      layer = 3; // change layer label for ET threshold treatment since we are treating this as a layer3 cell - it's an extreme special case cell as part of tne transition region
+      layer = 3; // change layer label for ET threshold treatment since we are treating this as a layer3 cell - it's an extreme special case cell as part of the transition region
 
       towereta = eta_index;
       towerphi = phi_index;

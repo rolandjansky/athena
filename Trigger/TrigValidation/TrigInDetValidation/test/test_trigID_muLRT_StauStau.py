@@ -28,6 +28,7 @@
 
 
 Slices  = ['L2muonLRT']
+LRT     = True
 RunEF   = True
 Events  = 8000 
 Threads = 8 

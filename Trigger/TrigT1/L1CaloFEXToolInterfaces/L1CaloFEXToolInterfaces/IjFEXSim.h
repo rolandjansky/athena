@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -14,6 +14,7 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "L1CaloFEXSim/jTowerContainer.h"
+#include "L1CaloFEXSim/FEXAlgoSpaceDefs.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloEvent/CaloCellContainer.h"
 
@@ -33,15 +34,14 @@ Interface definition for jFEXSim
 
     virtual void reset() = 0;
 
-    virtual void execute() = 0;
     virtual int ID() = 0;
-    virtual void SetTowersAndCells_SG(int tmp[16*2][17]) = 0;
-    virtual void SetTowersAndCells_SG(int tmp[16*2][24]) = 0;
+    virtual void SetTowersAndCells_SG(int tmp[FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width]) = 0;
+    virtual void SetTowersAndCells_SG(int tmp[FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width]) = 0;
 
     virtual std::vector<uint32_t> getSmallRJetTOBs() =0;
     virtual std::vector<uint32_t> getLargeRJetTOBs() =0;
-    virtual StatusCode NewExecute(int tmp[16*4][17]) = 0;
-    virtual StatusCode NewExecute(int tmp[16*4][24]) = 0;
+    virtual StatusCode NewExecute(int tmp[2*FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width]) = 0;
+    virtual StatusCode NewExecute(int tmp[2*FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width]) = 0;
   private:
 
   };

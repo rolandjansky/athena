@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -10,6 +10,7 @@
 #include "GaudiKernel/MsgStream.h"
 // Trk
 #include "TrkEventPrimitives/ParamDefs.h"
+#include <cmath>
 
 namespace Trk {
 // Constructor with TP arguments
@@ -71,9 +72,9 @@ CurvilinearParametersT<DIM, T, S>::CurvilinearParametersT(
   this->m_parameters[Trk::qOverP] = tqOverP;
 
   // make sure that the position & momentum are calculated
-  double p = fabs(1. / tqOverP);
+  double p = std::abs(1. / tqOverP);
   this->m_momentum = Amg::Vector3D(
-    p * cos(tphi) * sin(ttheta), p * sin(tphi) * sin(ttheta), p * cos(ttheta));
+    p * std::cos(tphi) * std::sin(ttheta), p * std::sin(tphi) * std::sin(ttheta), p * std::cos(ttheta));
 
   /* we need all the above for the surface*/
   this->m_surface.reset(new S(this->m_position, curvilinearFrame()));
@@ -262,6 +263,15 @@ CurvilinearParametersT<DIM, T, S>::clone() const
   return new CurvilinearParametersT<DIM, T, S>(*this);
 }
 
+/** unique clone */
+template<int DIM, class T, class S>
+std::unique_ptr<CurvilinearParametersT<DIM, T, S>>
+CurvilinearParametersT<DIM, T, S>::uniqueClone() const
+{
+  return std::unique_ptr<CurvilinearParametersT<DIM, T, S>>(clone());
+}
+
+
 /** Return the ParametersType enum */
 template<int DIM, class T, class S>
 ParametersType
@@ -340,14 +350,14 @@ Trk::CurvilinearParametersT<DIM, T, S>::updateParametersHelper(
   if (updateMomentum) {
     double phi = updatedParameters[Trk::phi];
     double theta = updatedParameters[Trk::theta];
-    double p = fabs(1. / updatedParameters[Trk::qOverP]);
+    double p = std::abs(1. / updatedParameters[Trk::qOverP]);
     this->m_chargeDef.setCharge(sgn(updatedParameters[Trk::qOverP]));
     // assign them and update the momentum 3 vector
     this->m_parameters[Trk::phi] = phi;
     this->m_parameters[Trk::theta] = theta;
     this->m_parameters[Trk::qOverP] = updatedParameters[Trk::qOverP];
     this->m_momentum = Amg::Vector3D(
-      p * cos(phi) * sin(theta), p * sin(phi) * sin(theta), p * cos(theta));
+      p * std::cos(phi) * std::sin(theta), p * std::sin(phi) * std::sin(theta), p * std::cos(theta));
   }
 
   // position update if needed -  loc1

@@ -36,6 +36,11 @@
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 #include "TrigMultiTrkComboHypoTool.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
+
+namespace Trk {
+class IVKalState;
+}
 
 
 class TrigMultiTrkComboHypo: public ::ComboHypo {
@@ -52,10 +57,11 @@ class TrigMultiTrkComboHypo: public ::ComboHypo {
  private:
   StatusCode executeL2(const EventContext& context) const;
   StatusCode executeEF(const EventContext& context) const;
-  xAOD::TrigBphys* fit(const std::vector<ElementLink<xAOD::TrackParticleContainer>>& tracklist) const;
+  xAOD::Vertex* fit(const std::vector<ElementLink<xAOD::TrackParticleContainer>>& tracklist, Trk::IVKalState*) const;
+  xAOD::TrigBphys* makeTrigBPhys(xAOD::Vertex* vertex, Trk::IVKalState* fitterState, const Amg::Vector3D  &beamspot) const;
   bool isIdenticalTracks(const xAOD::TrackParticle* lhs, const xAOD::TrackParticle* rhs) const;
   bool isInMassRange(double mass) const;
-
+  float Lxy(const xAOD::TrigBphys*, const Amg::Vector3D&) const;
   SG::ReadHandleKey<xAOD::TrackParticleContainer>
     m_trackParticleContainerKey {this, "TrackCollectionKey", "Tracks", "input TrackParticle container name"};
 
@@ -78,7 +84,7 @@ class TrigMultiTrkComboHypo: public ::ComboHypo {
   ToolHandle<Trk::TrkVKalVrtFitter> m_vertexFitter {this, "VertexFitter", "", "VKalVrtFitter tool to fit tracks into the common vertex"};
 
   ToolHandle<GenericMonitoringTool> m_monTool {this, "MonTool", "", "monitoring tool"};
-
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
   TrigCompositeUtils::DecisionIDContainer m_allowedIDs;
 
 };

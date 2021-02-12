@@ -31,9 +31,9 @@ private:
   Gaudi::Property<std::string> m_group {this,"Group", "undefined"};
   Gaudi::Property<std::string> m_probeTrigChain {this, "ProbeTrigChain", "_undefined_"};
   Gaudi::Property<size_t> m_jetIndex {this, "Index",0};
+  Gaudi::Property<bool> m_sortJets {this,"SortJets", false};
   ToolHandle<IJetSelector> m_selectTool;
   ToolHandle<IJetHistoVarTool> m_jetVar;
-
   
   
 };

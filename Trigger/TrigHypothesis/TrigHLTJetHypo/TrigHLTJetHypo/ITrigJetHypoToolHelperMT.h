@@ -7,7 +7,6 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
 
 class ITrigJetHypoInfoCollector;
 class xAODJetCollector;

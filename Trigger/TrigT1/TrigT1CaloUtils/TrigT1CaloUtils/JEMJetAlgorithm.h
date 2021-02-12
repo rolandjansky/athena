@@ -39,7 +39,8 @@ The JEMJetAlgorithm:<br>
 class JEMJetAlgorithm {
 public: 
   
-  JEMJetAlgorithm( double eta, double phi, const std::map<int, JetInput *>* jiContainer, ServiceHandle<TrigConf::ILVL1ConfigSvc> config);
+  JEMJetAlgorithm( double eta, double phi, const std::map<int, JetInput *>* jiContainer, 
+                   ServiceHandle<TrigConf::ILVL1ConfigSvc> config, const TrigConf::L1Menu * l1menu);
 
   ~JEMJetAlgorithm();
   
@@ -64,6 +65,7 @@ private: //atribs
   double m_refEta;
   double m_refPhi;
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
+  const TrigConf::L1Menu * m_l1menu{nullptr};
 
   /** Algorithm results */
   double m_eta;

@@ -52,7 +52,7 @@ JetFinder::JetFinder(string name)
   declareProperty("VariableRMassScale", m_massscale =-1.0);
   declareProperty("PtMin", m_ptmin =0.0);
   declareProperty("GhostArea", m_ghostarea =0.0);
-  declareProperty("RandomOption", m_ranopt =0);
+  declareProperty("RandomOption", m_ranopt =1);
   declareProperty("JetBuilder", m_bld);
 }
 

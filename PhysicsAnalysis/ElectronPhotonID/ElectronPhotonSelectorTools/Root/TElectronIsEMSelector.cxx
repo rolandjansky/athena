@@ -739,10 +739,8 @@ Root::TElectronIsEMSelector::TrackCut(
   int ibin_eta= bins.at(1);
   int ibin_combined= bins.at(2);
 
-  if (ibin_eta>=0) {
-
+  if (ibin_eta >= 0 && ibin_combined >= 0) {
     // Track quality cuts
-
     // cuts on number of b-layer hits
     if(CheckVar(m_cutBL,1) && m_cutBL[ibin_eta] == 1 && !passBLayerRequirement){
       iflag |= ( 0x1 << egammaPID::TrackBlayer_Electron);
@@ -769,11 +767,9 @@ Root::TElectronIsEMSelector::TrackCut(
     }
 
     if (ibin_combined>=0) {
-
       // matching (eta,phi) and energy-momentum
       // cut on Delta Eta and Delta Phi
-
-      deltaeta=fabsf(deltaeta); // use absolute value
+      deltaeta=std::abs(deltaeta);
 
       if (CheckVar(m_cutDeltaEta, 4)) {
         if (deltaeta > m_cutDeltaEta[ibin_combined])
@@ -837,8 +833,12 @@ Root::TElectronIsEMSelector::TrackCut(
   const double a5 = 159.8; const double b5 = -70.9;
 
   int ibin_eta_TRT = -1;
-  if (!m_cutBinEta_TRT.empty()) {
-    const int numBins = m_cutBinEta_TRT.size();
+  //We have an array
+  //[0.1; 0.625; 1.07; 1.304; 1.752; 2.0]
+  //Above 2.0 we do not have a TRT ,
+  //so valid values will be 0 -5 in the above case
+  if (!m_cutBinEta_TRT.empty()&& eta2<m_cutBinEta_TRT.back()) {
+    const int numBins = (m_cutBinEta_TRT.size()-1);
     int ibinEta = 0;
     while (ibinEta < numBins && eta2 > m_cutBinEta_TRT[ibinEta]) {
       ++ibinEta;
@@ -848,29 +848,26 @@ Root::TElectronIsEMSelector::TrackCut(
 
   if (ibin_eta_TRT >= 0) {
     switch (ibin_eta_TRT) {
-
-    case 0:
-      DeltaNum = nTRTTotal - (a0 + b0*eta2 + c0*eta2*eta2);
-      break;
-
-    case 1:
-      DeltaNum = nTRTTotal - (a1 + b1*eta2 + c1*eta2*eta2 + d1*eta2*eta2*eta2);
-      break;
-
-    case 2:
-      DeltaNum = nTRTTotal - (a2 + b2*eta2 + c2*eta2*eta2) ;
-      break;
-
-    case 3:
-      DeltaNum = nTRTTotal - (a3 + b3*eta2);
-      break;
-
-    case 4:
-      DeltaNum = nTRTTotal - (a4 + b4*eta2 + c4*eta2*eta2 + d4*eta2*eta2*eta2);
-      break;
-
-    case 5:
-      DeltaNum = nTRTTotal - (a5 + b5*eta2);
+      case 0: {
+        DeltaNum = nTRTTotal - (a0 + b0 * eta2 + c0 * eta2 * eta2);
+      } break;
+      case 1: {
+        DeltaNum = nTRTTotal - (a1 + b1 * eta2 + c1 * eta2 * eta2 +
+                                d1 * eta2 * eta2 * eta2);
+      } break;
+      case 2: {
+        DeltaNum = nTRTTotal - (a2 + b2 * eta2 + c2 * eta2 * eta2);
+      } break;
+      case 3: {
+        DeltaNum = nTRTTotal - (a3 + b3 * eta2);
+      } break;
+      case 4: {
+        DeltaNum = nTRTTotal - (a4 + b4 * eta2 + c4 * eta2 * eta2 +
+                                d4 * eta2 * eta2 * eta2);
+      } break;
+      case 5: {
+        DeltaNum = nTRTTotal - (a5 + b5 * eta2);
+      }
     }
 
     if (CheckVar(m_cutNumTRT, 2)) {
@@ -919,7 +916,6 @@ Root::TElectronIsEMSelector::TrackCut(
         iflag |= (0x1 << egammaPID::TrackTRTratio90_Electron);
       }
     }
-
   } // eta TRT
 
   return iflag;
@@ -928,20 +924,33 @@ Root::TElectronIsEMSelector::TrackCut(
 std::vector<int> Root::TElectronIsEMSelector::FindEtEtaBin(double et, double eta2) const{
 
   // Try to figure out in which bin we belong
+
+  //Example
+  //For Et we have an array  of values
+  //5000; 10000; 15000; 20000; 30000; 40000; 50000; 60000; 70000; 80000
+  //with 10 entries
+  //And we have 11 cut entries
+  //so ibin_et can be 0-10
   int ibin_et = -1;
   // loop on ET range
   if (!m_cutBinET.empty()) {
     const int numBins = m_cutBinET.size();
     int ibinET = 0;
-    while (ibinET < numBins && et > m_cutBinEta[ibinET]) {
+    while (ibinET < numBins && et > m_cutBinET[ibinET]) {
       ++ibinET;
     }
     ibin_et = ibinET;
   }
-
+  //For eta we have an array  of values
+  // 0.1; 0.6 ;0.8; 1.15; 1.37; 1.52; 1.81; 2.01; 2.37; 2.47
+  //with 10 entries
+  //And we have 10 cut entries
+  //As above 2.47 will be cut by
+  //egammaPID::ClusterEtaRange_Electron
+  //so valid ibin_eta can be 0-9  (we need to have eta2<2.47)
   int ibin_eta = -1;
-  if (!m_cutBinEta.empty()) {
-    const int numBins = m_cutBinEta.size();
+  if (!m_cutBinEta.empty() && eta2<m_cutBinEta.back()) {
+    const int numBins = (m_cutBinEta.size()-1);
     int ibinEta = 0;
     while (ibinEta < numBins && eta2 > m_cutBinEta[ibinEta]) {
       ++ibinEta;

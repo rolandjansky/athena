@@ -311,7 +311,11 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
          streamClient++;
       }
       if (streamClient == m_streamClientFiles.size()) {
-         m_streamClientFiles.push_back(outputConnection);
+         if (m_streamClientFiles.size() < m_outputStreamingTool.size()) {
+            m_streamClientFiles.push_back(outputConnection);
+         } else {
+            streamClient = 0;
+         }
       }
    }
 

@@ -5,9 +5,12 @@ import re
 
 from TrigHLTJetHypo.checkScenarioPresence import checkScenarioPresence
 
+from AthenaCommon.Logging import logging
+from AthenaCommon.Constants import DEBUG
+logger = logging.getLogger( __name__)
+
 # substrings that cannot occur in any chainPartName for simple chains.
 reject_substr = (
-    #    'gsc',
     'ion',
     'dphi',
     'deta',
@@ -78,8 +81,6 @@ def _make_simple_label(chain_parts, leg_label):
                 condition_str += ',%s' % jvtstr
             if momstr:
                 if 'SEP' in momstr:
-                    print('_cuts_from_momCuts(momstr):')
-                    print(_cuts_from_momCuts(momstr))
                     for cut in _cuts_from_momCuts(momstr):
                         condition_str += ',%s' % cut
                 else:
@@ -179,10 +180,12 @@ def _make_dijet_label(chain_parts, leg_label):
     """dijet label. supports dijet cuts, and cuts on particpating jets
     Currently supported cuts:
     - dijet mass
+    - dijet phi
+    - dijet eta
     - jet1 et, eta
     - jet2 et, eta
 
-    - default values are used for unspecified cuts.
+    - default values are used for unspecified cuts, except for delta phi and delta eta for which no cut is applied if not requested
     The cut set can be extended according to the pattern
     """
 
@@ -191,22 +194,43 @@ def _make_dijet_label(chain_parts, leg_label):
     
     assert scenario.startswith('dijet')
 
-    # example scenario: 'dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass',
+    # example scenarios:
+    # 'dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass',
+    # 'dijetSEP80j1etSEP80j2etSEP700djmassSEP26djdphi',
+    # 'dijetSEP70j1etSEP70j2etSEP1000djmassSEP20djdphiSEP40djdeta',
 
     pattern = r'^dijetSEP('\
     r'(?P<j1etlo>\d*)j1et(?P<j1ethi>\d*)SEP'\
-    r'(?P<j1etalo>\d*)j1eta(?P<j1etahi>\d*)SEP'\
+    r'((?P<j1etalo>\d*)j1eta(?P<j1etahi>\d*)SEP)?'\
     r'(?P<j2etlo>\d*)j2et(?P<j2ethi>\d*)SEP'\
-    r'(?P<j2etalo>\d*)j2eta(?P<j2etahi>\d*)SEP'\
-    r'(?P<djmasslo>\d*)djmass(?P<djmasshi>\d*))$'
+    r'((?P<j2etalo>\d*)j2eta(?P<j2etahi>\d*)SEP)?'\
+    r'(?P<djmasslo>\d*)djmass(?P<djmasshi>\d*)'\
+    r'(SEP(?P<djdphilo>\d*)djdphi(?P<djdphihi>\d*))?'\
+    r'(SEP(?P<djdetalo>\d*)djdeta(?P<djdetahi>\d*))?)$'
+    # Note:
+    # j1eta/j2eta is allowed not to be in the scenario, default values will be used in such a case
+    # djdphi/djdeta is allowed not to be in the scenario, no djdphi/djdeta cut will be applied in such a case
 
-    template = 'root([] dijet(' \
-        '[(%(djmasslo)sdjmass%(djmasshi)s, 26djdphi)]'\
-        'simple([(%(j1etlo)set, %(j1etalo)seta%(j1etahi)s, %(leg_label)s)])'\
-        'simple([(%(j2etlo)set, %(j2etalo)seta%(j2etahi)s, %(leg_label)s)])))'
+    template = 'root([] dijet([(%(djmasslo)sdjmass%(djmasshi)s'
+    if 'djdphi' in scenario: # add djdphi cut only if present in scenario
+        template += ',%(djdphilo)sdjdphi%(djdphihi)s'
+    if 'djdeta' in scenario: # add djdeta cut only if present in scenario
+        template += ',%(djdetalo)sdjdeta%(djdetahi)s'
+    template += ')]simple([(%(j1etlo)set, '
+    if 'j1eta' in scenario:
+        template += '%(j1etalo)seta%(j1etahi)s, %(leg_label)s)])'
+    else: # use default j1eta cuts
+        template += 'eta, %(leg_label)s)])'
+    template += 'simple([(%(j2etlo)set, '
+    if 'j2eta' in scenario:
+        template += '%(j2etalo)seta%(j2etahi)s, %(leg_label)s)])))'
+    else: # use default j2eta cuts
+        template += 'eta, %(leg_label)s)])))'
 
-    # example label:
+    # label examples:
     #    dijet([(700djmass)] simple([(80et, 0eta240, leg002)]) simple([(80et, 0eta240, leg002)])))
+    #    dijet([(700djmass,26djdphi)] simple([(80et, eta, leg002)]) simple([(80et, eta, leg002)])))
+    #    dijet([(1000djmass,20djdphi,40djdeta)] simple([(70et, eta, leg002)]) simple([(70et, eta, leg002)])))
 
     extra = {'leg_label': leg_label}
     label = make_label(scenario, pattern, template, extra)
@@ -248,7 +272,7 @@ def _make_agg_label(chain_parts, leg_label):
     return label
     
 
-def chainDict2jetLabel(chain_dict):
+def chainDict2jetLabel(chain_dict, debug=False):
     """Entry point to this Module. Return a chain label according to the
     value of cp['hypoScenario'], where cp is an element of list/
     chainDict['chainPart']
@@ -262,6 +286,10 @@ def chainDict2jetLabel(chain_dict):
 
     # suported scenarios. Caution! two keys in the router dict
     # must not share a common initial substring.
+
+    if debug:
+        logger.setLevel(DEBUG)
+        
     router = {
         'simple': _make_simple_label,
         'agg':   _make_agg_label,
@@ -285,9 +313,9 @@ def chainDict2jetLabel(chain_dict):
 
     bad_headers = checkScenarioPresence(chain_parts,
                                         chain_dict['chainName'])
+    bad_headers = '\n'.join(bad_headers)
     if bad_headers:
-        [print ('scenario mismatch', h) for h in bad_headers]
-        # assert False
+        logger.info('scenario mismatches, %s', bad_headers)
         
     for cp in chain_parts:
         for k in cp_sorter:

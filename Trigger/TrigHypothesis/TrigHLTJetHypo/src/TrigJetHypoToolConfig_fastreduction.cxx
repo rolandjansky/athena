@@ -7,11 +7,6 @@
 
 #include "GaudiKernel/StatusCode.h"
 
-#include "./conditionsFactoryMT.h"
-
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/xAODJetAsIJetFactory.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerFactory.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoHelper2.h"
 #include "./RepeatedCondition.h"
 #include "./FastReductionMatcher.h"
 #include "./Tree.h"
@@ -117,8 +112,6 @@ TrigJetHypoToolConfig_fastreduction::getMatcher () const {
   }
 
   auto matcher =  std::unique_ptr<IJetsMatcherMT>();
-  //  matcher.reset(new FastReductionMatcher(std::move(*opt_conds),
-  //					 Tree(m_treeVec)));
 
   auto conditions = std::move(*opt_conds);
   auto filters = getConditionFilters();
@@ -132,11 +125,4 @@ TrigJetHypoToolConfig_fastreduction::getMatcher () const {
 StatusCode TrigJetHypoToolConfig_fastreduction::checkVals() const {
   return StatusCode::SUCCESS;
 }
-
-std::vector<std::shared_ptr<ICleaner>> 
-TrigJetHypoToolConfig_fastreduction::getCleaners() const {
-  std::vector<std::shared_ptr<ICleaner>> v;
-  return v;
-}
-
 

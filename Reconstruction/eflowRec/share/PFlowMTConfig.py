@@ -1,7 +1,13 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+from eflowRec.eflowRecFlags import jobproperties
+
 from eflowRec.eflowRecConf import PFLeptonSelector
 PFLeptonSelector=PFLeptonSelector("PFLeptonSelector")
+if False == jobproperties.eflowRecFlags.useElectrons:
+  PFLeptonSelector.selectElectrons=False
+if False == jobproperties.eflowRecFlags.useMuons:
+  PFLeptonSelector.selectMuons=False
 topSequence += PFLeptonSelector
 
 from eflowRec.eflowRecConf import PFTrackSelector
@@ -54,7 +60,6 @@ CellEOverPTool=eflowCellEOverPTool_mc12_JetETMiss()
 
 PFCellLevelSubtractionTool.eflowCellEOverPTool=CellEOverPTool
 
-from eflowRec.eflowRecFlags import jobproperties
 if jobproperties.eflowRecFlags.eflowAlgType == "EOverP":
    PFCellLevelSubtractionTool.CalcEOverP = True
    PFCellLevelSubtractionTool.nMatchesInCellLevelSubtraction = -1

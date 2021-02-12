@@ -40,10 +40,9 @@ plots_resolution = ["res_et","res_Rphi","res_Reta","res_Rhad","res_ptvarcone20",
 
 # Define triggers for tagging 
 monitoring_tags = [
+                   'HLT_e24_lhtight_L1EM20VH_e15_etcut_L1EM7_Zee', # pp_v6
                    'HLT_e26_lhtight_nod0_e15_etcut_L1EM7_Zee',
-                   'HLT_e24_lhmedium_ivarloose',
                    'HLT_e24_lhmedium_L1EM20VH',
-                   'HLT_e24_lhmedium_nod0_ivarloose',
                    'HLT_e24_lhtight_nod0_ivarloose',
                    'HLT_e26_lhtight_nod0_ivarloose'
                    ]
@@ -68,8 +67,7 @@ monitoring_L1Calo = []
 # Startup and high-pt electrons to monitor from inclusive electrons
 commission_electron = []
 
-monitoring_electron = ['HLT_e60_lhmedium_nod0_L1EM22VHI',
-                       'HLT_e60_lhmedium_nod0_L1EM24VHI',
+monitoring_electron = [
                        'HLT_e60_lhmedium_nod0',
                        'HLT_e60_lhmedium',
                        'HLT_e120_lhloose',
@@ -86,35 +84,24 @@ commissionTP_electron = [
                          'HLT_e24_lhvloose_nod0_sc_gsf']
 
 monitoringTP_electron = [
-                         'HLT_e12_lhloose_L1EM10VH',
-                         'HLT_e12_lhloose',
-                         'HLT_e15_lhloose_nod0',
+                         'HLT_e12_lhloose_L1EM10VH', # 2015
                          'HLT_e17_lhvloose_nod0',
                          'HLT_e24_lhvloose_nod0_L1EM20VH',
                          'HLT_e24_lhmedium_nod0_L1EM20VH',
-                         'HLT_e24_lhmedium_L1EM20VH',
-                         'HLT_e26_lhtight_nod0',
-                         'HLT_e26_lhtight_nod0_ivarloose',                        
-                         'HLT_e28_lhtight_idperf',                        
-                         'HLT_e28_lhtight_nod0_ivarloose',                        
+                         'HLT_e24_lhmedium_L1EM20VH', # 2015
+                         'HLT_e24_lhtight_nod0_ivarloose', # 2016
+                         'HLT_e26_lhtight_nod0_ivarloose',  # 2016 - 2018                 
                          ]
 monitoringTP_electron += commissionTP_electron
 
 monitoringTP_Jpsiee = ["HLT_e5_lhtight_nod0"]
 
-monitoring_photon = ['HLT_g25_medium_L1EM20VH',
-                     'HLT_g25_loose_L1EM20VH',
-                     'HLT_g35_loose_L1EM20VH',
-                     'HLT_g15_loose',
-                     'HLT_g25_loose',
-                     'HLT_g35_loose',
-                     'HLT_g20_tight_icalovloose_L1EM15VHI',
-                     'HLT_g20_tight',
+monitoring_photon = ['HLT_g25_medium_L1EM20VH', # 2017 - 2018
+                     'HLT_g25_loose', # 2015 - 2016
+                     'HLT_g20_tight_icalovloose_L1EM15VHI', # 2018
                      'HLT_g22_tight',
-                     'HLT_g120_loose',
-                     'HLT_g140_loose',
-                     'HLT_g140_loose_L1EM22VHI',
-                     'HLT_g200_loose'
+                     'HLT_g120_loose', # 2015
+                     'HLT_g140_loose', # 2016 - 2018
                      ]
 
 #Add the Menu-Aware monitoring; maps a trigger to a category
@@ -161,7 +148,6 @@ validationTP_electron = [
     'HLT_e24_lhtight_nod0_ivarloose',
     'HLT_e24_lhmedium_nod0_L1EM20VHI',
     # 2015
-    'HLT_e24_lhmedium_L1EM20VH',
     'HLT_e12_lhloose_L1EM10VH',
     'HLT_e24_lhmedium_L1EM20VHI',
     ]

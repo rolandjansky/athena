@@ -15,7 +15,7 @@ def PixelMonitoringConfig(flags):
                             #'doHeavyIonMon'   : InDetFlags.doHeavyIon(),   # Histogram modification for heavy ion monitoring
                             #'RDOName'         : InDetKeys.PixelRDOs()
                             'doHeavyIonMon'   : False,      #Until new config ready
-                            'doFEPlots'       : False,       #Turn on/off histograms with FE Status information
+                            'doFEPlots'       : True,       #Turn on/off histograms with FE Status information
                             'RDOName'         : 'PixelRDOs',#Until new config ready
         }
 
@@ -25,7 +25,7 @@ def PixelMonitoringConfig(flags):
                              'doHighOccupancy' : True,       #Turn on/off histograms with binning for collisions
                              #'doHeavyIonMon'   : InDetFlags.doHeavyIon(),   # Histogram modification for heavy ion monitoring
                              'doHeavyIonMon'   : False,   #Until new config ready
-                             'doFEPlots'       : False,       #Turn on/off histograms with FE Status information
+                             'doFEPlots'       : True,       #Turn on/off histograms with FE Status information
                              #'ClusterName'     : InDetKeys.PixelClusters(),
                              'ClusterName'     : 'PixelClusters', #Until new config ready
                              #'TrackName'       : InDetKeys.Tracks()

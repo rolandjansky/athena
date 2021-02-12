@@ -2,8 +2,8 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUREC_TAUCALIBRATELC_H
-#define TAUREC_TAUCALIBRATELC_H
+#ifndef TAURECTOOLS_TAUCALIBRATELC_H
+#define TAURECTOOLS_TAUCALIBRATELC_H
 
 #include "AsgDataHandles/ReadHandleKey.h"
 #include "AsgDataHandles/ReadDecorHandleKey.h"
@@ -60,4 +60,4 @@ class TauCalibrateLC : public TauRecToolBase {
         "input vertex container key"};
 };
 
-#endif
+#endif // TAURECTOOLS_TAUCALIBRATELC_H

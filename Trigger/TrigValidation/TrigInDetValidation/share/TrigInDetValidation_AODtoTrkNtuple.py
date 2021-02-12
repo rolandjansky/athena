@@ -92,6 +92,9 @@ if ( True ) :
   TestMonTool.mcTruth = True
   TestMonTool.ntupleChainNames = ['']
 
+  if ( 'LRT' in dir() ) :
+    TestMonTool.FiducialRadius = 500.
+
   TestMonTool.KeepAllEvents = False
   # TestMonTool.TrigConfigTool = "TrigConf::xAODConfigTool"
   TestMonTool.ntupleChainNames += [

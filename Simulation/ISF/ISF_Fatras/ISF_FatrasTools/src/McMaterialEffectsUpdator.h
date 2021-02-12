@@ -24,6 +24,7 @@
 #include "TrkDetDescrUtils/LayerIndexSampleMap.h"
 #include "TrkDetDescrUtils/GeometrySignature.h" 
 #include "TrkEventPrimitives/PdgToParticleHypothesis.h"
+#include "TrkGeometry/TrackingGeometry.h"
 
 // ISF
 #include "ISF_Event/ITruthIncident.h"
@@ -46,7 +47,6 @@ namespace Trk {
   class IEnergyLossUpdator;
   class IMultipleScatteringUpdator;
   class TrackingGeometry;
-  class ITrackingGeometrySvc;
 }
 
 namespace ISF {
@@ -188,8 +188,6 @@ namespace iFatras {
      const Trk::LayerIndexSampleMap*  layerIndexSampleMap() const;
    
     
-     //!< retrieve TrackingGeometry (almost callback ready!)
-     StatusCode                                   updateTrackingGeometry() const;
      
      /** IEnergyLossUpdator */
      bool                                         m_eLoss;
@@ -251,9 +249,7 @@ namespace iFatras {
      std::string                                  m_layerIndexCaloSampleMapName;        //!< name to record it
      mutable const Trk::LayerIndexSampleMap*      m_layerIndexCaloSampleMap;            //!< the map for the calo-layer index map
                   
-     mutable const Trk::TrackingGeometry*         m_trackingGeometry;                   //!< the tracking geometry owned by the navigator
-     ServiceHandle<Trk::ITrackingGeometrySvc>     m_trackingGeometrySvc;                //!< ToolHandle to the TrackingGeometrySvc
-     std::string                                  m_trackingGeometryName;               //!< default name of the TrackingGeometry      
+       SG::ReadCondHandleKey<Trk::TrackingGeometry>      m_trackingGeometryReadKey{this, "TrackingGeometryReadKey", "ISF_FatrasTrackingGeometry", "Key of input TrackingGeometry"};
      
      /** projection factor for the non-parametric scattering */
      double                                      m_projectionFactor;

@@ -413,6 +413,67 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+StatusCode TrigCostMTSvc::generateTimeoutReport(const EventContext& context, std::string& report) {
+
+  ATH_CHECK(checkSlot(context));
+  if (!m_eventMonitored[context.slot()]) {
+    ATH_MSG_DEBUG("Not a monitored event.");
+    report = "";
+    return StatusCode::SUCCESS;
+  }
+
+  std::unique_lock lockUnique(m_slotMutex[context.slot()]);
+
+  tbb::concurrent_hash_map< AlgorithmIdentifier, AlgorithmPayload, AlgorithmIdentifierHashCompare>::const_iterator beginIt;
+  tbb::concurrent_hash_map< AlgorithmIdentifier, AlgorithmPayload, AlgorithmIdentifierHashCompare>::const_iterator endIt;
+  tbb::concurrent_hash_map< AlgorithmIdentifier, AlgorithmPayload, AlgorithmIdentifierHashCompare>::const_iterator it;
+  ATH_CHECK(m_algStartInfo.getIterators(context, msg(), beginIt, endIt));
+
+  // Create map that sorts in descending order
+  std::map<uint64_t, std::string, std::greater<uint64_t>> timeToAlgMap;
+
+  for (it = beginIt; it != endIt; ++it) {
+    const AlgorithmIdentifier& ai = it->first;
+    const AlgorithmPayload& ap = it->second;
+
+    // Don't look at any records from other slots
+    if (ai.m_realSlot != context.slot()) continue;
+
+    uint64_t startTime = ap.m_algStartTime.microsecondsSinceEpoch();
+    uint64_t stopTime = 0;
+    {
+      tbb::concurrent_hash_map<AlgorithmIdentifier, TrigTimeStamp, AlgorithmIdentifierHashCompare>::const_accessor stopTimeAcessor;
+      if (m_algStopTime.retrieve(ai, stopTimeAcessor).isFailure()) {
+        ATH_MSG_DEBUG("No end time for '" << ai.m_caller << "', '" << ai.m_store << "'");
+      } else { // retrieve was a success
+        stopTime = stopTimeAcessor->second.microsecondsSinceEpoch();
+      }
+      // stopTimeAcessor goes out of scope - lock released
+    }
+
+    if (stopTime == 0) continue; 
+ 
+    timeToAlgMap[stopTime-startTime] = ai.m_caller;
+  }
+
+  // Save top 5 times to the report
+  report = "Timeout detected with the following algorithms consuming the most time: ";
+  int algCounter = 0;
+  for(const std::pair<const uint64_t, std::string>& p : timeToAlgMap){
+    // Save time in miliseconds instead of microseconds
+    report += p.second + " (" + std::round(p.first/3.) + " ms)";
+    ++algCounter;
+    if (algCounter >= 5){
+      break;
+    }
+    report += ", ";
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
 StatusCode TrigCostMTSvc::checkSlot(const EventContext& context) const {
   if (context.slot() >= m_eventSlots) {
     ATH_MSG_FATAL("Job is using event slot #" << context.slot() << ", but we only reserved space for: " << m_eventSlots);

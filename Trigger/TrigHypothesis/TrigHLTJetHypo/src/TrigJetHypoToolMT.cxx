@@ -11,7 +11,6 @@
 // ********************************************************************
 
 #include "TrigJetHypoToolMT.h"
-#include "TrigJetHypoToolHelperMT.h"
 
 #include "GaudiKernel/StatusCode.h"
 

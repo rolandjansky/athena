@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************
@@ -206,11 +206,11 @@ void TrigEgammaNavTPBaseTool::executeTandP(){
 
     clearProbeList(); // Clear Probes after each trigger
     ATH_MSG_DEBUG("Execute TandP BaseTool " << m_offElectrons->size());
-    for(const auto& elTag : *m_offElectrons){
+    for(const auto elTag : *m_offElectrons){
         itag++;
         if( ! isTagElectron(elTag) ) continue;
         unsigned iprobe=0;
-        for(const auto& elProbe : *m_offElectrons){  // Dress the probes with updated Pid decision
+        for(const auto elProbe : *m_offElectrons){  // Dress the probes with updated Pid decision
             iprobe++;
             hist1(m_anatype+"_ProbeCutCounter")->Fill("Electrons",1);
             if(elProbe==elTag) continue;
@@ -485,7 +485,7 @@ bool TrigEgammaNavTPBaseTool::isGoodProbeElectron(const xAOD::Electron *el){
         TLorentzVector probeCandidate;
         probeCandidate.SetPtEtaPhiE(el->pt(), el->trackParticle()->eta(), el->trackParticle()->phi(), el->e());
         Int_t jetsAroundProbeElectron = 0; 
-        for(const auto &i_jet : *m_jets){
+        for(const auto i_jet : *m_jets){
             TLorentzVector jet;
             jet.SetPtEtaPhiE(i_jet->pt(), i_jet->eta(), i_jet->phi(), i_jet->e());
             if( (jet.Et() > 20*Gaudi::Units::GeV) && (jet.DeltaR(probeCandidate) < 0.4)) jetsAroundProbeElectron++;

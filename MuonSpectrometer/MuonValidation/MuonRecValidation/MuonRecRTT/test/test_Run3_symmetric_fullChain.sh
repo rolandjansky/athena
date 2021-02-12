@@ -4,9 +4,11 @@
 # 
 # art-type: grid
 # art-include: master/Athena
+# art-athena-mt: 5
 # art-output: OUT_HITS.root
 # art-output: NSWPRDValAlg.sim.ntuple.root
 # art-output: NSWPRDValAlg.dcube.root
+# art-output: dcube*
 # art-output: OUT_RDO.root
 # art-output: NSWPRDValAlg.digi.ntuple.root
 # art-output: NSWDigiCheck.txt
@@ -47,7 +49,21 @@ echo "Found ${NWARNING} WARNING, ${NERROR} ERROR and ${NFATAL} FATAL messages in
 
 #####################################################################
 # create histograms for dcube
-python $Athena_DIR/bin/createDCubeHistograms.py
+python $Athena_DIR/bin/createDCubeHistograms.py --doMM --doSTGC
+exit_code=$?
+echo  "art-result: ${exit_code} DCubeSimHist"
+if [ ${exit_code} -ne 0 ]
+then
+    exit ${exit_code}
+fi
+#####################################################################
+
+#####################################################################
+# download last nightly's ART results to compare against
+echo "download latest result"
+art.py download --user=artprod --dst=lastResults "$ArtPackage" "$ArtJobName"
+ls -l lastResults
+$ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py -r lastResults/NSWPRDValAlg.dcube.root -t KS chi2 -c $Athena_DIR/XML/MuonPRDTest/dcube_config_simulation_symRun3.xml -x dcubeSimulation -p NSWPRDValAlg.dcube.root
 exit_code=$?
 echo  "art-result: ${exit_code} DCubeSim"
 if [ ${exit_code} -ne 0 ]

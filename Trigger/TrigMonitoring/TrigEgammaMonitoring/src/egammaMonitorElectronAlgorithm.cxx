@@ -56,7 +56,7 @@ void egammaMonitorElectronAlgorithm::filltopoElectronTrackCaloMatch( const Event
     auto deltaPhiFromLastMeasurement = Monitored::Scalar<float>("deltaPhiFromLastMeasurement",0.0);
 
 
-    for (const auto& electron : *electrons){
+    for (const auto electron : *electrons){
         electron->trackCaloMatchValue(deltaEta0,xAOD::EgammaParameters::deltaEta0);
         electron->trackCaloMatchValue(deltaEta1,xAOD::EgammaParameters::deltaEta1);
         electron->trackCaloMatchValue(deltaEta2,xAOD::EgammaParameters::deltaEta2);
@@ -108,7 +108,7 @@ void egammaMonitorElectronAlgorithm::filltopoElectronShowerShapes( const EventCo
     auto eratio_col             = Monitored::Collection("eratio"   , eratio_vec  );
     auto DeltaE_col             = Monitored::Collection("deltaE"   , DeltaE_vec  );
     
-    for (const auto& electron : *electrons) {
+    for (const auto electron : *electrons) {
     
         e237_vec.push_back(electron->showerShapeValue(val,xAOD::EgammaParameters::e237));
         e277_vec.push_back(electron->showerShapeValue(val,xAOD::EgammaParameters::e237));

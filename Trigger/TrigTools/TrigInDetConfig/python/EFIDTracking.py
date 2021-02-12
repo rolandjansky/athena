@@ -21,34 +21,44 @@ def get_idtrig_view_verifier(name):
    from TrigInDetConfig.TrigInDetConfig import InDetCacheNames
    viewDataVerifier = CfgMgr.AthViews__ViewDataVerifier( name )
    viewDataVerifier.DataObjects = [
-                                     ( 'InDet::SCT_ClusterContainer',   TrigSCTKeys.Clusters ),
-                                     ( 'InDet::PixelClusterContainer',  TrigPixelKeys.Clusters ),
-                                     ( 'SpacePointContainer',           TrigSCTKeys.SpacePoints ),
-                                     ( 'SpacePointContainer',           TrigPixelKeys.SpacePoints ),
-                                     ( 'SpacePointOverlapCollection',   'StoreGateSvc+OverlapSpacePoints' ),
-                                     ( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+TrigPixelClusterAmbiguitiesMap' )
-                                     ]
+                                    ( 'SpacePointContainer',           TrigSCTKeys.SpacePoints ),
+                                    ( 'SpacePointContainer',           TrigPixelKeys.SpacePoints ),
+                                    ( 'SpacePointOverlapCollection',   'StoreGateSvc+OverlapSpacePoints' ),
+                                    ( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+TrigPixelClusterAmbiguitiesMap' )
+                                  ]
+
+   #Having these (clusters) uncommented breaks cosmic when data preparation is right before offline pattern rec
+   #Probably it tries to fetch the data before the actual alg producing them runs?
+   #Not case in other signatures where data preparation and offline patern recognition are in different views
+   if 'cosmics' not in name:
+      viewDataVerifier.DataObjects += [
+                                       ( 'InDet::SCT_ClusterContainer',   TrigSCTKeys.Clusters ),
+                                       ( 'InDet::PixelClusterContainer',  TrigPixelKeys.Clusters ),
+                                      ]
    
-   viewDataVerifier.DataObjects += [( 'InDet::PixelClusterContainerCache' , InDetCacheNames.Pixel_ClusterKey ),
-                                   ( 'PixelRDO_Cache' , InDetCacheNames.PixRDOCacheKey ),
-                                   ( 'InDet::SCT_ClusterContainerCache' , InDetCacheNames.SCT_ClusterKey ),
-                                   ( 'SCT_RDO_Cache' , InDetCacheNames.SCTRDOCacheKey ),
-                                   ( 'SpacePointCache' , InDetCacheNames.SpacePointCachePix ),
-                                   ( 'SpacePointCache' , InDetCacheNames.SpacePointCacheSCT ),
-                                   ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.PixBSErrCacheKey ),
-                                   ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTBSErrCacheKey ),
-                                   ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTFlaggedCondCacheKey ),
-                                   ( 'IDCInDetBSErrContainer',        'StoreGateSvc+SCT_FlaggedCondData' ),
-                                   ( 'IDCInDetBSErrContainer',        'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
-                                   ( 'IDCInDetBSErrContainer',        'StoreGateSvc+SCT_ByteStreamErrs' ),
-                                   ( 'IDCInDetBSErrContainer',        'StoreGateSvc+PixelByteStreamErrs' ),
-                                   ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
-                                   ( 'TagInfo' , 'DetectorStore+ProcessingTags' )]
+   #FIXME:
+   #Align with the data preparation, are all of them  really needed in the EFID ?
+   viewDataVerifier.DataObjects += [ ( 'InDet::PixelClusterContainerCache' , InDetCacheNames.Pixel_ClusterKey ),
+                                     ( 'PixelRDO_Cache' , InDetCacheNames.PixRDOCacheKey ),
+                                     ( 'InDet::SCT_ClusterContainerCache' , InDetCacheNames.SCT_ClusterKey ),
+                                     ( 'SCT_RDO_Cache' , InDetCacheNames.SCTRDOCacheKey ),
+                                     ( 'SpacePointCache' , InDetCacheNames.SpacePointCachePix ),
+                                     ( 'SpacePointCache' , InDetCacheNames.SpacePointCacheSCT ),
+                                     ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.PixBSErrCacheKey ),
+                                     ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTBSErrCacheKey ),
+                                     ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTFlaggedCondCacheKey ),
+                                     ( 'IDCInDetBSErrContainer',        'StoreGateSvc+SCT_FlaggedCondData' ),
+                                     ( 'IDCInDetBSErrContainer',        'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
+                                     ( 'IDCInDetBSErrContainer',        'StoreGateSvc+SCT_ByteStreamErrs' ),
+                                     ( 'IDCInDetBSErrContainer',        'StoreGateSvc+PixelByteStreamErrs' ),
+                                     ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
+                                     ( 'TagInfo' , 'DetectorStore+ProcessingTags' )]
+
    
-   # Load RDOs if we aren't loading bytestream
+  # Load RDOs if we aren't loading bytestream
    from AthenaCommon.AlgSequence import AlgSequence
    topSequence = AlgSequence()
-   
+  
    topSequence.SGInputLoader.Load += [ ( 'TagInfo' , 'DetectorStore+ProcessingTags' ) ]
    
    if not globalflags.InputFormat.is_bytestream():
@@ -58,10 +68,10 @@ def get_idtrig_view_verifier(name):
                                         ( 'IDCInDetBSErrContainer' , InDetKeys.SCT_ByteStreamErrs() ), 
                                         ( 'IDCInDetBSErrContainer',  'StoreGateSvc+SCT_FlaggedCondData' ),
                                         ]
-   #   topSequence.SGInputLoader.Load += [( 'PixelRDO_Container' , InDetKeys.PixelRDOs() ),
-   #                                      ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() ),
-   #                                      ( 'IDCInDetBSErrContainer' , InDetKeys.PixelByteStreamErrs() ),
-   #                                      ( 'IDCInDetBSErrContainer' , InDetKeys.SCT_ByteStreamErrs() )]
+     topSequence.SGInputLoader.Load += [( 'PixelRDO_Container' , InDetKeys.PixelRDOs() ),
+                                         ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() ),
+                                         ( 'IDCInDetBSErrContainer' , InDetKeys.PixelByteStreamErrs() ),
+                                         ( 'IDCInDetBSErrContainer' , InDetKeys.SCT_ByteStreamErrs() )]
    
    return viewDataVerifier
 
@@ -76,37 +86,25 @@ def remapToOffline( name ):
 def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
       viewAlgs = [] #list of all algs running in this module
 
-      #Load necessary data
       dataVerifier = None
-      #FIXME: Should not be necessary
       if verifier:
          dataVerifier = get_idtrig_view_verifier(verifier+config.name)
          viewAlgs.append( dataVerifier )
 
 
-      #FIXME: For now id setup but eventually port parameters into ConfigSetting in TrigInDetConfig pkg
+      #FIXME:  eventually adapt the cuts in the configsetting ATR-22755
       from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
       from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
       offName = remapToOffline( config.name )
       trackingCuts = ConfiguredNewTrackingCuts( offName ) #FIXME: replace cosmic 
       trackingCuts.__indetflags = InDetTrigFlags
 
-      #TODO: to be taken from config info
-      #prefix     = 'InDetTrigMT'
-      #suffix     = '_%s'%whichSignature if whichSignature else '' 
-
-      #outEFIDTracks             = "HLT_IDTrkTrack_%s_%s"         %( whichSignature, 'EFID')
-      #outEFIDTrackParticles     = "HLT_IDTrack_%s_%s"            %( whichSignature, 'EFID')
-
-
       # --- decide if use the association tool
-      #FIXME: Make the same decision as offline (based on the tracking cuts)?
+      usePrdAssociationTool = False 
+      #FIXME: Do we need this switch? If so, make the same decision as offline (based on the tracking cuts)? ATR-22755
       #Are all of these needed?
       #if (len(InputCollections) > 0) and (trackingCuts.mode() == "LowPt" or trackingCuts.mode() == "VeryLowPt" or trackingCuts.mode() == "LargeD0" or trackingCuts.mode() == "LowPtLargeD0" or trackingCuts.mode() == "BeamGas" or trackingCuts.mode() == "ForwardTracks" or trackingCuts.mode() == "ForwardSLHCTracks"  or trackingCuts.mode() == "Disappearing" or trackingCuts.mode() == "VeryForwardSLHCTracks" or trackingCuts.mode() == "SLHCConversionFinding"):
       #usePrdAssociationTool = True
-      #else:
-      usePrdAssociationTool = False #Keep false for now
-      #Do we actually need it?
       if usePrdAssociationTool:
          from .InDetTrigCommon import prdAssociation_builder
          InputCollections = None #Dummy atm
@@ -118,15 +116,16 @@ def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
       #                      Track building stage
 
 
-      #FIXME? use trigger flags?
+      #FIXME Use trigger flags instead of indetflags ATR-22756
       # What are the instances when we don't need this?
       #if InDetFlags.doSiSPSeededTrackFinder():
       doSiSPSeededTrackFinder = True #True by default to test this
       if doSiSPSeededTrackFinder:
 
-         from AthenaCommon.DetFlags import DetFlags 
+         #FIXME: do we need this covered by detflag condition? ATR-22756
+         #from AthenaCommon.DetFlags import DetFlags 
          # --- Loading Pixel, SCT conditions
-         if DetFlags.haveRIO.pixel_on():
+         if True:#DetFlags.haveRIO.pixel_on():
             from AthenaCommon.AlgSequence import AthSequencer
             condSeq = AthSequencer("AthCondSeq")
             if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksPixelCondAlg"):
@@ -137,7 +136,7 @@ def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
 
 
 
-         if trackingCuts.useSCT():
+         if True:#FIXME trackingCuts.useSCT()? ATR-22756
             from AthenaCommon.AlgSequence import AthSequencer
             condSeq = AthSequencer("AthCondSeq")
             if not hasattr(condSeq, "InDet__SiDetElementsRoadCondAlg_xk"):
@@ -160,6 +159,8 @@ def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
                                                                 nameSuffix            = config.name )
 
          viewAlgs.append( siSPSeededTrackFinder )
+
+      #This code is expected to be used for monitoring purposes and comparison between first and second stage but atm disabled
       #-----------------------------------------------------------------------------
       #                      Track particle conversion algorithm (for pattern rec.)
       #                        atm disabled but might be useful later for debugging
@@ -187,8 +188,7 @@ def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
       return  viewAlgs, dataVerifier
 
 
-#TODO: potentially  unify with makeInDetPrecisionTracking in the InDetPT.py?
-#TODO better name?
+#This could potentially be unified with makeInDetPrecisionTracking in the InDetPT.py?
 def makePrecisionInDetPatternRecognition( config, inputTracks,verifier = None ):
    ptAlgs = [] #List containing all the precision tracking algorithms hence every new added alg has to be appended to the list
    

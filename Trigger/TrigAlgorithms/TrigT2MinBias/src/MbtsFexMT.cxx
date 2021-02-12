@@ -18,7 +18,7 @@ StatusCode MbtsFexMT::initialize()
   ATH_CHECK( m_badChannelsKey.initialize() );
   ATH_CHECK( m_TileHelperKey.initialize() );
   ATH_CHECK( m_dataAccessSvc.retrieve() );
-  ATH_CHECK(m_t2MbtsBitsKey.initialize());
+  ATH_CHECK(m_MbtsBitsKey.initialize());
   if (! m_monTool.empty() ) ATH_CHECK( m_monTool.retrieve() );
 
   return StatusCode::SUCCESS;
@@ -88,7 +88,7 @@ StatusCode MbtsFexMT::execute(const EventContext& context) const
   auto mon_triggerTimes = Monitored::Collection("triggerTime ",triggerTimes);
   Monitored::Group(m_monTool,mon_triggerEnergies,mon_triggerEta,mon_triggerPhi,mon_triggerTimes);
 
-  SG::WriteHandle<xAOD::TrigT2MbtsBitsContainer> mbtsHandle (m_t2MbtsBitsKey, context);
+  SG::WriteHandle<xAOD::TrigT2MbtsBitsContainer> mbtsHandle (m_MbtsBitsKey, context);
 
   auto trigMbtsContainer = std::make_unique< xAOD::TrigT2MbtsBitsContainer>();
   auto trigMbtsAuxContainer = std::make_unique< xAOD::TrigT2MbtsBitsAuxContainer>();
@@ -100,6 +100,7 @@ StatusCode MbtsFexMT::execute(const EventContext& context) const
   mbtsObj->setTriggerEnergies(triggerEnergies);
   mbtsObj->setTriggerTimes(triggerTimes);
 
+  ATH_MSG_DEBUG("Recording " << mbtsHandle.key());
   ATH_CHECK(mbtsHandle.record( std::move(trigMbtsContainer), std::move( trigMbtsAuxContainer ) ) );
   return StatusCode::SUCCESS;
 }

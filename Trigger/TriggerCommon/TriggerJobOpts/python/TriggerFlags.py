@@ -44,7 +44,6 @@ default_true_flags = [
 ]
 
 default_false_flags = [
-    "readLVL1FromJSON", # the authoritative L1 menu (xml or json) - this flag will be removed after the transition to json has been completed
     "fakeLVL1", # create fake RoI from KINE info  """
     "useL1CaloCalibration", # Should be false for early data, true for later """
     "useRun1CaloEnergyScale",

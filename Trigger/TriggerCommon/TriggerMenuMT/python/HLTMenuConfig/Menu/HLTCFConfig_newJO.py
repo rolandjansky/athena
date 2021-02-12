@@ -323,7 +323,8 @@ def generateDecisionTree(chains):
     for stepNumber in range(1, maxStep+1):
         getDecisionDumper(stepNumber)
     theCFisFixed=True
-    acc.printConfig()
+    if log.getEffectiveLevel() <= logging.DEBUG:
+        acc.printConfig()
     resetDF(acc)
     setHypoOutputs(acc)
     setIMOutputs(acc)

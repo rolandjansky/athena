@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUREC_TAUAXISSETTER_H
-#define TAUREC_TAUAXISSETTER_H
+#ifndef TAURECTOOLS_TAUAXISSETTER_H
+#define TAURECTOOLS_TAUAXISSETTER_H
 
 #include "tauRecTools/TauRecToolBase.h"
 
@@ -51,4 +51,4 @@ private:
   Gaudi::Property<bool> m_doVertexCorrection {this, "VertexCorrection", true, "switch of tau vertex correction"};
 };
 
-#endif
+#endif // TAURECTOOLS_TAUAXISSETTER_H

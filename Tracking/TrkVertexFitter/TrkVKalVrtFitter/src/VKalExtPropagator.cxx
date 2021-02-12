@@ -203,107 +203,145 @@ namespace Trk {
                                                                   const IVKalState& istate) const
   {   
       const TrkVKalVrtFitter::State& state = static_cast<const TrkVKalVrtFitter::State&> (istate);
+      const EventContext& ctx = (state.m_eventContext)
+                                  ? *(state.m_eventContext)
+                                  : Gaudi::Hive::currentContext();
 
       const Trk::TrackParameters* endPer=nullptr;
       const Trk::TrackParameters* tmpPer=nullptr;
       ParticleHypothesis prtType = pion;
-//End surface
+      //End surface
       PerigeeSurface surfEnd( *endPoint );
-//Initial point (global frame)
+      //Initial point (global frame)
       Amg::Vector3D iniPoint =  inpPer->position();
-      //const MeasuredPerigee* mPer=dynamic_cast<const MeasuredPerigee*> (inpPer); /* This a reference system point */
-      //if( mPer != 0) iniPoint = mPer->vertex();                                  /* and NOT point on track!!!*/
       Amg::Vector3D pmom=inpPer->momentum();
-//Track reference point ( some point on track provided initially, global frame )
+      //Track reference point ( some point on track provided initially, global frame )
       Amg::Vector3D refPoint(0.,0.,0.);
       if(TrkID>=0)refPoint = state.m_trkControl.at(TrkID).trkRefGlobPos;
-//
+      //
       Amg::Vector3D step  = (*endPoint) - iniPoint;
-//
+      //
       int Strategy = 0; if(TrkID>=0) Strategy = state.m_trkControl[TrkID].extrapolationType;
-//
-// Extrapolation for new track - no material at all
-//
+      //
+      // Extrapolation for new track - no material at all
+      //
       const TrackParameters *pntOnTrk=nullptr;
-      if(TrkID<0){  
+      if (TrkID < 0) {
         prtType = undefined;
-        if( pmom.dot(step) > 0.) {
-          endPer = m_extrapolator->extrapolateDirectly( *inpPer, surfEnd, alongMomentum, true, pion);
-        }else{
-          endPer = m_extrapolator->extrapolateDirectly( *inpPer, surfEnd, oppositeMomentum, true, pion);
+        if (pmom.dot(step) > 0.) {
+          endPer = m_extrapolator->extrapolateDirectly(ctx,
+            *inpPer, surfEnd, alongMomentum, true, pion);
+        } else {
+          endPer = m_extrapolator->extrapolateDirectly(ctx,
+            *inpPer, surfEnd, oppositeMomentum, true, pion);
         }
         return endPer;
       }
-        pntOnTrk=dynamic_cast<const TrackParameters*> (state.m_trkControl.at(TrkID).TrkPnt);
-        if(pntOnTrk==nullptr)return endPer;
-        //double inpMass=state.m_trkControl[TrkID].prtMass;
-        //if(     inpMass >  0. && inpMass< 20.) {  prtType=electron; }  //VK  Disabled according to users request
-        //else if(inpMass > 20. && inpMass<120.) {  prtType=muon; }      //    May be activated in future
-        //else if(inpMass >120. && inpMass<200.) {  prtType=pion; }
-        //else if(inpMass >200. && inpMass<700.) {  prtType=kaon; }
-        //else if(inpMass >700. && inpMass<999.) {  prtType=proton; }
-        //else {  prtType=undefined; }
-        prtType=pion;                     // Pion hypothesis is always used for extrapolation
-        iniPoint =  pntOnTrk->position(); // Redefinition of starting point for extrapolation
-        step  = (*endPoint) - iniPoint;
-      
-// std::cout<<" TrkID="<<TrkID<<" Strat="<<Strategy<<" mom="<<pmom<<'\n';
-// std::cout<<" Step ="<< step<<'\n';
-// std::cout<<" iniPoint="<< iniPoint<<" endPoint="<<(*endPoint)<<" refPoint="<< refPoint<<'\n';
-//
-// Extrapolation for first measured point strategy. Start from it and always add material
-//
-      if( Strategy == 0) {  
-        PropDirection dir=alongMomentum; if(pmom.dot(step)<0) dir=oppositeMomentum;
-        endPer = m_extrapolator->extrapolate(*pntOnTrk, surfEnd, dir, true, prtType, addNoise);
+      pntOnTrk = dynamic_cast<const TrackParameters*>(
+        state.m_trkControl.at(TrkID).TrkPnt);
+      if (pntOnTrk == nullptr){
         return endPer;
       }
-// 
-// Extrapolation for any measured point
-//
-      if( Strategy == 1) {  
-         PropDirection dir=alongMomentum;  MaterialUpdateMode mmode=addNoise;
-	 if(pmom.dot(step)<0){ dir=oppositeMomentum; mmode=removeNoise;}
-         endPer = m_extrapolator->extrapolate( *pntOnTrk, surfEnd, dir, true, prtType, mmode);
-         return endPer; 
+      prtType = pion; // Pion hypothesis is always used for extrapolation
+      // Redefinition of starting point for extrapolation
+      iniPoint = pntOnTrk->position();
+      step = (*endPoint) - iniPoint;
+
+      //
+      // Extrapolation for first measured point strategy. Start from it and
+      // always add material
+      //
+      if( Strategy == 0) {
+        PropDirection dir = alongMomentum;
+        if (pmom.dot(step) < 0) {
+          dir = oppositeMomentum;
+        }
+        endPer = m_extrapolator->extrapolate(
+          ctx, *pntOnTrk, surfEnd, dir, true, prtType, addNoise);
+        return endPer;
       }
-// 
-// Extrapolation for perigee and B-hit
-//
-      if( Strategy == 2) {  
-        double Border=25.; 
-        bool dirPositive=true; if( pmom.dot(step) < 0.) dirPositive=false;
-        if( (*endPoint).perp()>Border &&  iniPoint.perp()>Border){
-	   if( dirPositive){
-             endPer = m_extrapolator->extrapolate( *pntOnTrk, surfEnd, alongMomentum, true, prtType, addNoise);
-           }else{
-             endPer = m_extrapolator->extrapolate( *pntOnTrk, surfEnd, oppositeMomentum, true, prtType, removeNoise);
-           }
-           return endPer; 
-        } 
-        if( (*endPoint).perp()<Border &&  iniPoint.perp()<Border){
-	   if( dirPositive){
-             endPer = m_extrapolator->extrapolate( *pntOnTrk, surfEnd, alongMomentum, true, prtType, removeNoise);
-           }else{
-             endPer = m_extrapolator->extrapolate( *pntOnTrk, surfEnd, oppositeMomentum, true, prtType, addNoise);
-           }
-           return endPer; 
- 	}
-	Amg::Transform3D *trnsf = new Amg::Transform3D(); 
-	(*trnsf).setIdentity();
-	CylinderSurface surfBorder( trnsf, Border, 3000.);        
-        if( iniPoint.perp()<Border){
-          tmpPer = m_extrapolator->extrapolate( *pntOnTrk, surfBorder, alongMomentum, true, prtType, removeNoise);
-	  if(tmpPer==nullptr)return nullptr;
-          endPer = m_extrapolator->extrapolate( *tmpPer, surfEnd,    alongMomentum, true, prtType,    addNoise);
-        }else{
-          endPer = m_extrapolator->extrapolate( *pntOnTrk, surfEnd, oppositeMomentum , true, prtType, addNoise);
-          return endPer; 
+      // 
+      // Extrapolation for any measured point
+      //
+      if (Strategy == 1) {
+        PropDirection dir = alongMomentum;
+        MaterialUpdateMode mmode = addNoise;
+        if (pmom.dot(step) < 0) {
+          dir = oppositeMomentum;
+          mmode = removeNoise;
+        }
+        endPer = m_extrapolator->extrapolate(
+          ctx, *pntOnTrk, surfEnd, dir, true, prtType, mmode);
+        return endPer;
+      }
+      //
+      // Extrapolation for perigee and B-hit
+      //
+      if (Strategy == 2) {
+        double Border = 25.;
+        bool dirPositive = true;
+        if (pmom.dot(step) < 0.)
+          dirPositive = false;
+        if ((*endPoint).perp() > Border && iniPoint.perp() > Border) {
+          if (dirPositive) {
+            endPer = m_extrapolator->extrapolate(
+              ctx, *pntOnTrk, surfEnd, alongMomentum, true, prtType, addNoise);
+          } else {
+            endPer = m_extrapolator->extrapolate(ctx,
+                                                 *pntOnTrk,
+                                                 surfEnd,
+                                                 oppositeMomentum,
+                                                 true,
+                                                 prtType,
+                                                 removeNoise);
+          }
+          return endPer;
+        }
+        if ((*endPoint).perp() < Border && iniPoint.perp() < Border) {
+          if (dirPositive) {
+            endPer = m_extrapolator->extrapolate(ctx,
+                                                 *pntOnTrk,
+                                                 surfEnd,
+                                                 alongMomentum,
+                                                 true,
+                                                 prtType,
+                                                 removeNoise);
+          } else {
+            endPer = m_extrapolator->extrapolate(ctx,
+                                                 *pntOnTrk,
+                                                 surfEnd,
+                                                 oppositeMomentum,
+                                                 true,
+                                                 prtType,
+                                                 addNoise);
+          }
+          return endPer;
+        }
+        Amg::Transform3D* trnsf = new Amg::Transform3D();
+        (*trnsf).setIdentity();
+        CylinderSurface surfBorder(trnsf, Border, 3000.);
+        if (iniPoint.perp() < Border) {
+          tmpPer = m_extrapolator->extrapolate(ctx,
+                                               *pntOnTrk,
+                                               surfBorder,
+                                               alongMomentum,
+                                               true,
+                                               prtType,
+                                               removeNoise);
+          if (tmpPer == nullptr) {
+            return nullptr;
+          }
+          endPer = m_extrapolator->extrapolate(
+            ctx, *tmpPer, surfEnd, alongMomentum, true, prtType, addNoise);
+        } else {
+          endPer = m_extrapolator->extrapolate(
+            ctx, *pntOnTrk, surfEnd, oppositeMomentum, true, prtType, addNoise);
+          return endPer;
         }
         delete tmpPer;
-        return endPer; 
+        return endPer;
       }
-      return endPer; 
+      return endPer;
   }
 
 /*--------------------------------------------------------------------------------------*/

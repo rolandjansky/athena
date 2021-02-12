@@ -1,6 +1,7 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
- */
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+*/
+
 /**
  * @file PixelDigitization/SensorSimPlanarTool.h
  * @author Soshi Tsuno <Soshi.Tsuno@cern.ch>
@@ -17,6 +18,7 @@
 #include "RadDamageUtil.h"
 #include "PixelConditionsData/PixelHistoConverter.h"
 
+
 class SensorSimPlanarTool: public SensorSimTool {
 public:
   SensorSimPlanarTool(const std::string& type, const std::string& name, const IInterface* parent);
@@ -24,10 +26,15 @@ public:
   virtual StatusCode finalize() override;
   virtual ~SensorSimPlanarTool();
 
-  virtual StatusCode induceCharge(const TimedHitPtr<SiHit>& phit, SiChargedDiodeCollection& chargedDiodes,
-                                  const InDetDD::SiDetectorElement& Module, const InDetDD::PixelModuleDesign& p_design,
+  virtual StatusCode induceCharge(const TimedHitPtr<SiHit>& phit,
+                                  SiChargedDiodeCollection& chargedDiodes,
+                                  const InDetDD::SiDetectorElement& Module,
+                                  const InDetDD::PixelModuleDesign& p_design,
+                                  const PixelModuleData *moduleData, 
                                   std::vector< std::pair<double, double> >& trfHitRecord,
-                                  std::vector<double>& initialConditions, CLHEP::HepRandomEngine* rndmEngine) override;
+                                  std::vector<double>& initialConditions,
+                                  CLHEP::HepRandomEngine* rndmEngine,
+                                  const EventContext &ctx) override;
 
   //Apply slim edge inefficiencies for IBL sensors
   StatusCode applyIBLSlimEdges(double& energyPerStep, double& eta_drifted);

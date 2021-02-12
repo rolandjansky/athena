@@ -6,7 +6,7 @@
  **     @author  mark sutton
  **     @date    Tue 10 Nov 2009 10:15:40 GMT 
  **
- **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  **/
 
 
@@ -139,6 +139,22 @@ TIDARoiDescriptor::TIDARoiDescriptor(const TIDARoiDescriptor& a) :
   m_tanthetaMinus = exitpoint( this->zedMinus(), this->etaMinus(), m_zedMinusR, m_rMinusZed );
 }
 
+
+TIDARoiDescriptor& TIDARoiDescriptor::operator= (const TIDARoiDescriptor& a)
+{
+  if (this != &a) {
+    TObject::operator= (a);
+    m_params = a.m_params;
+    m_fullscan = a.m_fullscan;
+    m_l1Id = a.m_l1Id;
+    m_roiId = a.m_roiId;
+    m_roiWord = a.m_roiWord;
+    m_rois = a.m_rois;
+    m_tanthetaPlus  = exitpoint( this->zedPlus(),  this->etaPlus(),  m_zedPlusR,  m_rPlusZed );
+    m_tanthetaMinus = exitpoint( this->zedMinus(), this->etaMinus(), m_zedMinusR, m_rMinusZed );
+  }
+  return *this;
+}
 
 
 TIDARoiDescriptor::~TIDARoiDescriptor() { }

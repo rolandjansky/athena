@@ -1,6 +1,6 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
- */
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+*/
 /**
  * @file PixelDigitization/PixelDigitizationTool.h
  * @author Soshi Tsuno <Soshi.Tsuno@cern.ch>
@@ -27,12 +27,14 @@
 #include "StoreGate/WriteHandleKey.h"
 #include "PileUpTools/PileUpMergeSvc.h"
 
+#include "PixelConditionsData/PixelModuleData.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "SensorSimTool.h"
 #include "FrontEndSimTool.h"
 #include "EnergyDepositionTool.h"
 
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+
 
 class PixelDigitizationTool: public PileUpToolBase {
 public:
@@ -64,6 +66,9 @@ private:
   };
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey {
     this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"
+  };
+  SG::ReadCondHandleKey<PixelModuleData>     m_moduleDataKey{
+    this, "PixelModuleData", "PixelModuleData", "Pixel module data"
   };
   std::string m_inputObjectName {
     ""
@@ -111,6 +116,7 @@ protected:
   Gaudi::Property<bool> m_createNoiseSDO {
     this, "CreateNoiseSDO", false, "Set create noise SDO flag"
   };
+
 };
 
 #endif // PIXELDIGITIZATION_PIXELDIGITIZATIONTOOL_H

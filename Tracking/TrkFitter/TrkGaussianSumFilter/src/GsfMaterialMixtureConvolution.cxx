@@ -425,19 +425,20 @@ Trk::GsfMaterialMixtureConvolution::update(
     AmgSymMatrix(5)& measuredCov =
       caches[stateIndex].deltaCovariances[materialIndex];
 
-    Trk::TrackParameters* updatedTrackParameters =
-      inputState[stateIndex].first->associatedSurface().createTrackParameters(
-        stateVector[Trk::loc1],
-        stateVector[Trk::loc2],
-        stateVector[Trk::phi],
-        stateVector[Trk::theta],
-        stateVector[Trk::qOverP],
-        new AmgSymMatrix(5)(measuredCov));
+    std::unique_ptr<Trk::TrackParameters> updatedTrackParameters =
+      inputState[stateIndex]
+        .first->associatedSurface()
+        .createUniqueTrackParameters(stateVector[Trk::loc1],
+                                     stateVector[Trk::loc2],
+                                     stateVector[Trk::phi],
+                                     stateVector[Trk::theta],
+                                     stateVector[Trk::qOverP],
+                                     new AmgSymMatrix(5)(measuredCov));
 
     double updatedWeight = caches[stateIndex].weights[materialIndex];
 
-    assemblerCache.multiComponentState.emplace_back(updatedTrackParameters,
-                                                    updatedWeight);
+    assemblerCache.multiComponentState.emplace_back(
+      std::move(updatedTrackParameters), updatedWeight);
     assemblerCache.validWeightSum += updatedWeight;
   }
 

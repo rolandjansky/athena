@@ -25,4 +25,4 @@ atlas_add_executable( trigCostHistToCSV
 
 atlas_install_joboptions( share/TrigCostAnalysis_JobOptions.py )
 atlas_install_scripts( share/RunTrigCostAnalysis.py share/CostAnalysisPostProcessing.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

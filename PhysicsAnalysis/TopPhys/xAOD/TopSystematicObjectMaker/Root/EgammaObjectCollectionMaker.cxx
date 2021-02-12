@@ -208,8 +208,9 @@ namespace top {
         if (calibratePhotons) {
           top::check(m_calibrationTool->applyCorrection(*photon),
                      "Failed to applyCorrection");
-          top::check(m_isolationCorr->applyCorrection(*photon),
-                     "Failed to apply photon isolation leakage correction");
+          // TODO -- revert back once the isolation corrections are fully settled in R22
+          // top::check(m_isolationCorr->applyCorrection(*photon),
+          //            "Failed to apply photon isolation leakage correction");
 
           // Only apply shower shape fudging on full simulation MC
           if (m_config->isMC() && !m_config->isAFII() && m_recomputePhotonFudge && m_config->getDerivationStream() != "PHYS") {
@@ -342,7 +343,8 @@ namespace top {
                                                                                           // electrons
           if (calibrateElectrons) {
             top::check(m_calibrationTool->applyCorrection(*electron), "Failed to applyCorrection");
-            top::check(m_isolationCorr->applyCorrection(*electron), "Failed to apply leakage correction");
+            // TODO -- revert back once the isolation corrections are fully settled in R22
+            // top::check(m_isolationCorr->applyCorrection(*electron), "Failed to apply leakage correction");
           }
 
           double d0sig = xAOD::TrackingHelpers::d0significance(electron->trackParticle(),
