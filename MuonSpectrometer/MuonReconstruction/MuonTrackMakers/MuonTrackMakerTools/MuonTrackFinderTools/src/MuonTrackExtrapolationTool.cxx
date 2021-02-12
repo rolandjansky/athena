@@ -371,7 +371,6 @@ namespace Muon {
         }
 
         ATH_MSG_DEBUG(" perigee pars:        " << m_printer->print(*perigee));
-        ATH_MSG_DEBUG(" second perigee pars: " << m_printer->print(*secondPerigee));
 
         // flag whether the perigees were inserted
         bool perigeeWasInserted = false;
@@ -381,6 +380,7 @@ namespace Muon {
         bool perigeePointsToIP = perigee->position().dot(perDir) < 0. ;
         bool secondPerigeePointsToIP = false;
         if (secondPerigee) {
+	    ATH_MSG_DEBUG(" second perigee pars: " << m_printer->print(*secondPerigee));
             secondPerigeePointsToIP = secondPerigee->position().dot(secondPerigee->momentum()) < 0.;
             if (perigeePointsToIP == secondPerigeePointsToIP) {
                 ATH_MSG_DEBUG(" Track has two perigee's with the same orientation with respect to the IP ");
