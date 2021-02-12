@@ -182,9 +182,6 @@ def commonPhysValTool(container, refcontainer="", onlyKinematics = False, global
               jhm.Pull_C10,
               jhm.Pull_C11,
               jhm.Charge,
-#               jhm.ShowerDeconstructionW,
-#               jhm.ShowerDeconstructionTop,
-#               jhm.Volatility,
                 ]
 
     #filler.OutputLevel =2 
