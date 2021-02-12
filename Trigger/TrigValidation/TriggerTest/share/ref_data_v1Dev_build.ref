@@ -1016,9 +1016,9 @@ HLT_g85_tight_3j50_L1EM22VHI:
   eventCount: 0
 HLT_g90_loose_xe90_cell_L1EM22VHI:
   eventCount: 0
-HLT_j0_aggSEP1000htSEP30etSEP0eta320_L1J20:
+HLT_j0_aggSEP1000ht_L1J20:
   eventCount: 0
-HLT_j0_aggSEP500htSEP30etSEP0eta320_L1J20:
+HLT_j0_aggSEP500ht_L1J20:
   eventCount: 0
 HLT_j0_dijetSEP70j1etSEP70j2etSEP1000djmassSEP20djdphiSEP40djdeta_L1J20:
   eventCount: 0

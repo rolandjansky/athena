@@ -228,9 +228,9 @@ def _make_dijet_label(chain_parts, leg_label):
         template += 'eta, %(leg_label)s)])))'
 
     # label examples:
-    #    dijet([(700djmass)] simple([(80et, 0eta240, leg002)]) simple([(80et, 0eta240, leg002)])))
-    #    dijet([(700djmass,26djdphi)] simple([(80et, eta, leg002)]) simple([(80et, eta, leg002)])))
-    #    dijet([(1000djmass,20djdphi,40djdeta)] simple([(70et, eta, leg002)]) simple([(70et, eta, leg002)])))
+    #    root([] dijet([(700djmass)] simple([(80et, 0eta240, leg002)]) simple([(80et, 0eta240, leg002)]))))
+    #    root([] (dijet([(700djmass,26djdphi)] simple([(80et, eta, leg002)]) simple([(80et, eta, leg002)]))))
+    #    root([] dijet([(1000djmass,20djdphi,40djdeta)] simple([(70et, eta, leg002)]) simple([(70et, eta, leg002)]))))
 
     extra = {'leg_label': leg_label}
     label = make_label(scenario, pattern, template, extra)
@@ -255,19 +255,39 @@ def _make_agg_label(chain_parts, leg_label):
     
     # assert scenario.startswith('agg'), '_make_agg_label(): scenario does not start with agg'
 
-    # the scenario contains the  ht cut, and filter cuts.
-    # all cuts thast do no start with 'ht are filter cuts
+    # the scenario contains the ht cut, and filter cuts.
+    # all cuts that do no start with 'ht are filter cuts
+    # default filter cuts are applied if none are specified
 
-    pattern = r'^aggSEP(?P<htlo>\d*)ht(?P<hthi>\d*)SEP'\
-        r'(?P<etlo>\d*)et(?P<ethi>\d*)SEP'\
-        r'(?P<etalo>\d*)eta(?P<etahi>\d*)$'
+    # example scenarios:
+    #    aggSEP1000htSEP10etSEP0eta240
+    #    aggSEP500htSEP10et
+    #    aggSEP100ht
+
+    pattern = r'^aggSEP(?P<htlo>\d*)ht(?P<hthi>\d*)'\
+        r'(SEP(?P<etlo>\d*)et(?P<ethi>\d*))?'\
+        r'(SEP(?P<etalo>\d*)eta(?P<etahi>\d*))?$'
+    # Note:
+    # et is allowed not to be in the scenario, default value will be used in such a case
+    # eta is allowed not to be in the scenario, default value will be ued in such a case
     
-    template = 'root([]agg([(%(htlo)sht, %(leg_label)s)'\
-        '(%(etlo)sfltr:et)'\
-        '(%(etalo)sfltr:eta%(etahi)s)]))'
+    template = 'root([]agg([(%(htlo)sht, %(leg_label)s)'
+    if 'et' in scenario:
+        template += '(%(etlo)sfltr:et)'
+    else: # use default et filtering
+        template += '(30fltr:et)'
+    if 'eta' in scenario:
+        template += '(%(etalo)sfltr:eta%(etahi)s)]))'
+    else: # use default eta filtering
+        template += '(0fltr:eta320)]))'
     
     extra = {'leg_label': leg_label}
     label = make_label(scenario, pattern, template, extra)
+
+    # example labels:
+    #   root([]agg([(1000ht, leg000)(10fltr:et)(0fltr:eta240)]))
+    #   root([]agg([(500ht, leg000)(10fltr:et)(0fltr:eta320)]))
+    #   root([]agg([(100ht, leg000)(30fltr:et)(0fltr:eta320)]))
 
     return label
     
