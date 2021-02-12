@@ -209,6 +209,7 @@ def TrackingGeometryCondAlgCfg( flags , name = 'AtlasTrackingGeometryCondAlg', d
                                                                       flags=flags,
                                                                       result=result,
                                                                       envelopeDefinitionSvc=atlas_env_def_service,
+                                                                      buildTrtStrawLayers=flags.Beam.Type=='cosmics',
                                                                       namePrefix=namePrefix,
                                                                       nameSuffix=nameSuffix)
       result.addPublicTool(inDetTrackingGeometryBuilder)
