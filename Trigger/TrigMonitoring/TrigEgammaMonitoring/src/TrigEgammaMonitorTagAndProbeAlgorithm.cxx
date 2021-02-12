@@ -512,7 +512,7 @@ void TrigEgammaMonitorTagAndProbeAlgorithm::dressPid(const xAOD::Electron *eg) c
         const std::string pidname="is"+m_isemname[ipid];
         eg->auxdecor<bool>(pidname)=static_cast<bool>(accept);
     }
-    for(int ipid=0;ipid<2;ipid++){
+    for(int ipid=0;ipid<4;ipid++){
         bool accept = (bool) this->m_electronLHTool[ipid]->accept(ctx,eg);
         const std::string pidname="is"+m_lhname[ipid];
         eg->auxdecor<bool>(pidname)=static_cast<bool>(accept);

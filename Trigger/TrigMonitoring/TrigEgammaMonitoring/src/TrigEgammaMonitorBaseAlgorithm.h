@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigEgammaMonitorBaseAlgorithm_h 
@@ -72,8 +72,6 @@ class TrigEgammaMonitorBaseAlgorithm : public AthMonitorAlgorithm {
     ToolHandleArray<IAsgElectronIsEMSelector> m_electronIsEMTool{this,"ElectronIsEMSelector",{}};
     /*! Offline LH Selectors */
     ToolHandleArray<IAsgElectronLikelihoodTool> m_electronLHTool{this,"ElectronLikelihoodTool",{}};
-    /*! Offline LH Very loose selector */
-    ToolHandle<IAsgElectronLikelihoodTool> m_electronLHVLooseTool{this,"ElectronLHVLooseTool", ""};
     
     /*! Offline isEM Photon Selectors */ 
     ToolHandleArray<IAsgPhotonIsEMSelector> m_photonIsEMTool{this,"PhotonIsEMSelector",{}};
