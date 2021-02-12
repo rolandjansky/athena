@@ -466,7 +466,7 @@ PhotonChainParts = {
     'signature'      : ['Photon'],
     'alignmentGroup' : ['Photon','Egamma'],
     'chainPartName'  : '',
-    'multiplicity'   : '',    
+    'multiplicity'   : '',
     'trigType'       : ['g'],
     'threshold'      : '',
     'extra'          : [],
@@ -489,7 +489,7 @@ PhotonChainParts_Default = {
     'signature'      : ['Photon'],
     'alignmentGroup' : ['Photon'],
     'L1threshold'    : '',
-    'multiplicity'   : '',    
+    'multiplicity'   : '',
     'trigType'       : '',
     'threshold'      : '',
     'extra'          : '',
@@ -497,7 +497,7 @@ PhotonChainParts_Default = {
     'isoInfo'        : '',
     'reccalibInfo'   : '',
     'trkInfo'        : '',
-    'caloInfo'       : '',    
+    'caloInfo'       : '',
     'hypoInfo'       : '',
     'recoAlg'        : '',
     'FSinfo'         : '',
@@ -515,7 +515,7 @@ MinBiasChainParts = {
     'alignmentGroup' : ['MinBias'],
     'L1threshold'    : '',
     'chainPartName'  : '',
-    'multiplicity'   : '',    
+    'multiplicity'   : '',
     'trigType'       : ['mb'],
     'threshold'      : '',
     'extra'          : ['noisesup', 'vetombts2in', 'vetombts1side2in',  'vetospmbts2in', "vetosp" ,'ion', 'ncb', 'blayer', 'exclusiveloose', 'exclusivetight'], #ncb = non collision background, blayer = only sum innermost pix layer
@@ -523,13 +523,13 @@ MinBiasChainParts = {
     'ZDCinfo'        : ['lg', 'hg'],
     'trkInfo'        : ['hlttr', 'ftk', 'costr'],
     'hypoL2Info'     : ['sp2', 'sp3', 'sp5', 'sp10', 'sp15', 'sp100', 'sp300', 'sp400', 'sp500', 'sp600', 'sp700', 'sp800', 'sp900',
-                        'sp1000', 'sp1200', 'sp1300', 'sp1400', 'sp1500', 'sp1600', 'sp1700', 'sp1800', 
+                        'sp1000', 'sp1200', 'sp1300', 'sp1400', 'sp1500', 'sp1600', 'sp1700', 'sp1800',
                         'sp2000', 'sp2100', 'sp2200', 'sp2300', 'sp2400', 'sp2500', 'sp2700', 'sp2800', 'sp2900', 'sp3000',
                         'sp3100', 'sp3500', 'sp4100', 'sp4500', 'sp4800', 'sp5000', 'sp5200',],
     'pileupInfo'     : ['pusup200','pusup300','pusup350', 'pusup400', 'pusup450', 'pusup500', 'pusup550', 'pusup600', 'pusup700', 'pusup750', 'pusup800', 'pusup900',
                         'pusup1000', 'pusup1100', 'pusup1200', 'pusup1300', 'pusup1400', 'pusup1500',],
     'hypoEFInfo'     : ['trk3','trk5','trk10','trk15',  'trk20',  'trk30',  'trk40', 'trk45', 'trk50', 'trk55', 'trk60', 'trk65', 'trk70', 'trk75', 'trk80', 'trk90',
-                        'trk100', 'trk110', 'trk120', 'trk130', 'trk140', 'trk150', 'trk160', 'trk180', 'trk200', 'trk220', 'trk240', 'trk260', 'trk280',      
+                        'trk100', 'trk110', 'trk120', 'trk130', 'trk140', 'trk150', 'trk160', 'trk180', 'trk200', 'trk220', 'trk240', 'trk260', 'trk280',
                         'pt2', 'pt4', 'pt6', 'pt8', ],
     'hypoEFsumEtInfo': ['sumet40', 'sumet50', 'sumet60', 'sumet70', 'sumet80', 'sumet90', 'sumet110', 'sumet150',],
     'recoAlg'        : ['mbts', 'sptrk', 'sp', 'noalg', 'perf', 'hmt', 'hmtperf', 'idperf', 'zdcperf'],
@@ -543,17 +543,17 @@ MinBiasChainParts_Default = {
     'alignmentGroup' : ['MinBias'],
     'L1threshold'    : '',
     'chainPartName'  : '',
-    'multiplicity'   : '',    
+    'multiplicity'   : '',
     'trigType'       : ['mb'],
     'threshold'      : '',
-    'extra'          : '',    
+    'extra'          : '',
     'IDinfo'         : '',
-    'ZDCinfo'        : '',    
-    'trkInfo'        : '',    
+    'ZDCinfo'        : '',
+    'trkInfo'        : '',
     'hypoL2Info'     : '',
     'pileupInfo'     : '',
     'hypoEFInfo'     : '',
-    'hypoEFsumEtInfo': '',    
+    'hypoEFsumEtInfo': '',
     'recoAlg'        : [],
     'addInfo'        : [],
     'sigFolder'     : 'MinBias',
@@ -575,7 +575,7 @@ HeavyIonChainParts = {
     'extra'          : [],
     'IDinfo'         : [],
     'trkInfo'        : [],
-    'eventShape'     : [],    
+    'eventShape'     : [],
     'eventShapeVeto' : [],
     'hypoL2Info'     : [],
     'pileupInfo'     : [],
@@ -589,7 +589,7 @@ HeavyIonChainParts = {
     }
 
 # ---- HeavyIonDictionary of default Values ----
-HeavyIonChainParts_Default = { 
+HeavyIonChainParts_Default = {
     'signature'      : ['HeavyIon'],
     'alignmentGroup' : ['HeavyIon'],
     'L1threshold'    : '',
@@ -605,7 +605,7 @@ HeavyIonChainParts_Default = {
     'hypoL2Info'     : '',
     'pileupInfo'     : '',
     'hypoEFInfo'     : '',
-    'hypoEFsumEtInfo': '',    
+    'hypoEFsumEtInfo': '',
     'recoAlg'        : [],
     'addInfo'        : [],
     'gap'            : '',
@@ -617,7 +617,7 @@ HeavyIonChainParts_Default = {
 # ---- CosmicDef chains -----
 #==========================================================
 AllowedCosmicChainIdentifiers = ['larps','larhec',
-                                 'tilecalib', 
+                                 'tilecalib',
                                  'sct',  'id',]
 
 # ---- Cosmic Chain Dictionary of all allowed Values ----
@@ -632,7 +632,7 @@ CosmicChainParts = {
     'hits'           : ['4hits'],
     'threshold'      : '',
     'multiplicity'   : '',
-    'trigType'       : 'cosmic', 
+    'trigType'       : 'cosmic',
     'extra'          : '',
     'sigFolder'     : 'CalibCosmicMon',
     'subSigs'       : ['Cosmic']
@@ -650,7 +650,7 @@ CosmicChainParts_Default = {
     'hits'           : [],
     'threshold'      : '',
     'multiplicity'   : '',
-    'trigType'       : '', 
+    'trigType'       : '',
     'extra'          : '',
     'sigFolder'     : 'CalibCosmicMon',
     'subSigs'       : ['Cosmic']
@@ -670,10 +670,10 @@ StreamingChainParts = {
     'threshold'      : '',
     'multiplicity'   : '',
     'streamingInfo'  : ['bkg', 'idmon', 'mb', 'eb', 'zb','to','standby',
-                        'jettauetmiss', 'larcells', 
+                        'jettauetmiss', 'larcells',
                         'cosmiccalo', 'cosmicmuons','idcosmic', 'dcmmon',
                         'zb', 'l1calo', 'l1topo','ftk'],
-    'trigType'       : 'streamer', 
+    'trigType'       : 'streamer',
     'extra'          : '',
     'streamType'     : AllowedStreamingChainIdentifiers,
     'algo' : ['NoAlg'],
@@ -690,7 +690,7 @@ StreamingChainParts_Default = {
     'threshold'      : '',
     'multiplicity'   : '',
     'streamingInfo'  : '',
-    'trigType'       : '', 
+    'trigType'       : '',
     'extra'          : '',
     'streamType'     : '',
     'algo' : [],
@@ -701,10 +701,10 @@ StreamingChainParts_Default = {
 #==========================================================
 # ---- CalibDef chains -----
 #==========================================================
-AllowedCalibChainIdentifiers = ['csccalib',     'larcalib', 
-                                'idcalib',      'l1calocalib', 
+AllowedCalibChainIdentifiers = ['csccalib',     'larcalib',
+                                'idcalib',      'l1calocalib',
                                 'tilelarcalib', 'alfacalib',
-                                'larnoiseburst','ibllumi', 
+                                'larnoiseburst','ibllumi',
                                 'l1satmon',     'zdcpeb',
                                 'calibAFP', 'larpebcalib',
                                 ]
@@ -724,7 +724,7 @@ CalibChainParts = {
     'streamingInfo'  : ['vdm',],
     'threshold'      : '',
     'multiplicity'   : '',
-    'trigType'       : ['trk'], 
+    'trigType'       : ['trk'],
     'extra'          : ['bs',''],
     'sigFolder'     : 'CalibCosmicMon',
     'subSigs'       : ['Calib']
@@ -745,7 +745,7 @@ CalibChainParts_Default = {
     'threshold'      : '',
     'multiplicity'   : '',
     'location'   : '',
-    'trigType'       : '', 
+    'trigType'       : '',
     'extra'          : '',
     'sigFolder'     : 'CalibCosmicMon',
     'subSigs'       : ['Calib']
@@ -787,7 +787,7 @@ MonitorChainParts_Default = {
     'hypo'           : '',
     'threshold'      : '',
     'multiplicity'   : '',
-    'trigType'       : '', 
+    'trigType'       : '',
     'extra'          : '',
     'sigFolder'     : 'CalibCosmicMon',
     'subSigs'       : ['Monitor']
@@ -822,7 +822,7 @@ EnhancedBiasChainParts_Default = {
     'algType'        : 'physics',
     'threshold'      : '',
     'multiplicity'   : '',
-    'trigType'       : '', 
+    'trigType'       : '',
     'extra'          : '',
     'sigFolder'     : 'CalibCosmicMon',
     'subSigs'       : ['EnhancedBias']
@@ -863,7 +863,7 @@ BeamspotChainParts_Default = {
     'threshold'      : '',
     'multiplicity'   : '',
     'location'       : 'vtx',
-    'trigType'       : 'beamspot', 
+    'trigType'       : 'beamspot',
     'extra'          : '',
     'sigFolder'     : 'CalibCosmicMon',
     'subSigs'       : ['Beamspot']
@@ -882,7 +882,7 @@ UnconventionalTrackingChainParts = {
     'trigType'       : ['unconvtrk'],
     'threshold'      : '',
     'isoInfo'        : ['iaggrmedium','iaggrloose','imedium','iloose'],
-    'extra'          : ["isohpttrack"],
+    'extra'          : ["isohpttrack", "fslrt"],
     'addInfo'        : [],
     'sigFolder'     : 'UnconventionalTracking',
     'subSigs'       : ['UnconventionalTracking']
@@ -947,7 +947,7 @@ def getSignatureNameFromToken(chainpart):
 
 #==========================================================
 # Signature dictionaries to use
-#==========================================================            
+#==========================================================
 def getSignatureInformation(signature):
     if signature == 'Electron':
         return [ElectronChainParts_Default, ElectronChainParts]
@@ -958,7 +958,7 @@ def getSignatureInformation(signature):
     if signature == "Bjet":
         return [bJetChainParts_Default, JetChainParts]
     if signature == "Tau":
-        return [TauChainParts_Default, TauChainParts] 
+        return [TauChainParts_Default, TauChainParts]
     if (signature == "Muon"):
         return [MuonChainParts_Default, MuonChainParts]
     if  (signature == "Bphysics"):
@@ -996,14 +996,10 @@ def getSignatureInformation(signature):
 
 #==========================================================
 # Analysis the base pattern: <mult><signatureType><threshold><extraInfo>
-#==========================================================            
+#==========================================================
 def getBasePattern():
     import re
     allTrigTypes = SliceIDDict.values()
     possibleTT = '|'.join(allTrigTypes)
     pattern = re.compile("(?P<multiplicity>\d*)(?P<trigType>(%s))(?P<threshold>\d+)(?P<extra>\w*)" % (possibleTT)) # noqa: W605
     return pattern
-
-
-
-

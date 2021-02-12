@@ -677,6 +677,23 @@ class _Settings_fullScan( _GlobalSettings ):
       self._configFT = _FastTracking(   signatureType = 'fullScan',  nameSuffix = 'FS' ) #
       self._doRecord = False
 
+class _Settings_fullScanCustomName( _GlobalSettings ):
+   def __init__( self, name ):
+      _GlobalSettings.__init__(self)
+      self._name     = name #To be appended to alg names
+      self._roi      = "HLT_Roi_FS" #FIXME: possibly different!
+      self._configFT = _FastTracking(   signatureType = 'fullScan',  nameSuffix = 'FS' ) #
+      self._doRecord = False
+
+class _Settings_fullScanPreLRT( _GlobalSettings ):
+   def __init__( self ):
+      _GlobalSettings.__init__(self)
+      self._name     = "fullScanPreLRT" #To be appended to alg names
+      self._roi      = "HLT_Roi_FS" #FIXME: possibly different!
+      self._configFT = _FastTracking(   signatureType = 'fullScan',  nameSuffix = 'FS' ) #
+      self._doRecord = False
+
+
 class _Settings_fullScanUTT( _GlobalSettings ):
    def __init__( self ):
       _GlobalSettings.__init__(self)
@@ -703,7 +720,6 @@ class _Settings_bmumux( _GlobalSettings ):
       self._configFT  = _FastTracking(      signatureType = 'bphysics', nameSuffix = 'Bmumux' )
       self._configPT  = _PrecisionTracking( signatureType = 'bphysics', nameSuffix = 'Bmumux' )
       self._doRecord  = True #Allow recording of track collections
-
 
 class _Settings_electronLRT( _GlobalSettings ):
    def __init__( self ):
@@ -752,7 +768,7 @@ class _Settings_fullScanLRT( _GlobalSettings ):
       self._name     = "fullScanLrt" #To be appended to alg names
       self._roi      = "HLT_Roi_FS" #FIXME ATR-22755
       self._configFT = _FastTracking(   signatureType = 'fullScanLRT',  nameSuffix = 'FSLRT' ) #
-      self._doRecord = False
+      self._doRecord = True #record track collections
       self._isLRT    = True
 
 _ConfigSettings = {
@@ -774,11 +790,12 @@ _ConfigSettings = {
     "jetUTT"      : _Settings_jetUTT(),
 
     "fullScan"    : _Settings_fullScan(),
+    "fullScanPreLRT": _Settings_fullScanPreLRT(),
 
     "beamSpot"    : _Settings_beamSpot(),
+    "beamSpotFS"  : _Settings_fullScanCustomName("beamSpotFS"),
     "cosmics"     : _Settings_cosmics(),
     "bmumux"      : _Settings_bmumux(),
-    
     "minBias"     : _Settings_minBias(),
 
     "electronLRT" : _Settings_electronLRT(),

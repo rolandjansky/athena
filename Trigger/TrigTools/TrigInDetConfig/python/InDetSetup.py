@@ -12,12 +12,12 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags # noqa: F401
 
 include("InDetTrigRecExample/InDetTrigRec_jobOptions.py")
 
-def makeInDetAlgsNoView( config = None, rois = 'EMViewRoIs', doFTF = True ):
+def makeInDetAlgsNoView( config = None, rois = 'EMViewRoIs', doFTF = True, secondStageConfig = None ):
 
-  viewAlgs, viewVerify = makeInDetAlgs( config, rois, doFTF, None)
+  viewAlgs, viewVerify = makeInDetAlgs( config, rois, doFTF, None, secondStageConfig)
   return viewAlgs
 
-def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifier='IDViewDataVerifier'):
+def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifier='IDViewDataVerifier', secondStageConfig = None):
   if config is None :
     raise ValueError('makeInDetAlgs() No config provided!')
   #Add suffix to the algorithms
@@ -334,6 +334,32 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
       theTrackParticleCreatorAlg.TrackParticlesName = config.FT.tracksFTF( doRecord = config.isRecordable )
 
       viewAlgs.append(theTrackParticleCreatorAlg)
+
+      if secondStageConfig is not None:
+        #have been supplied with a second stage config, create another instance of FTF
+        theFTF2 = TrigFastTrackFinderBase("TrigFastTrackFinder_" + secondStageConfig.name, secondStageConfig.FT.signatureType )
+        theFTF2.RoIs           = rois
+        theFTF2.TracksName     = secondStageConfig.FT.trkTracksFTF()
+        theFTF2.inputTracksName = config.FT.trkTracksFTF()
+        theFTF2.doCloneRemoval = secondStageConfig.FT.setting.doCloneRemoval
+
+        viewAlgs.append(theFTF2)
+
+
+        from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
+        from InDetTrigParticleCreation.InDetTrigParticleCreationConf import InDet__TrigTrackingxAODCnvMT
+
+
+
+        theTrackParticleCreatorAlg2 = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg_" + secondStageConfig.FT.signatureType,
+                                                                  TrackName = secondStageConfig.FT.trkTracksFTF(),
+                                                                  ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
+
+
+        #In general all FTF trackParticle collections are recordable except beamspot to save space
+        theTrackParticleCreatorAlg2.TrackParticlesName = secondStageConfig.FT.tracksFTF( doRecord = secondStageConfig.isRecordable )
+
+        viewAlgs.append(theTrackParticleCreatorAlg2)
 
 
   return viewAlgs, ViewDataVerifier

@@ -7,7 +7,6 @@
 #include "TrigLongLivedParticlesHypo/TrigNewLoFHypo.h"
 #include "TrigLongLivedParticlesHypo/TrigCaloRatioHypo.h"
 #include "TrigLongLivedParticlesHypo/TrigLLPInnerDetectorHypo.h"
-
 #include "../TrigIsoHPtTrackTriggerHypoAlgMT.h"
 #include "../TrigIsoHPtTrackTriggerHypoTool.h"
 
@@ -15,7 +14,8 @@
 DECLARE_COMPONENT (TrigIsoHPtTrackTriggerHypoAlgMT )
 DECLARE_COMPONENT (TrigIsoHPtTrackTriggerHypoTool )
 
-
+#include "TrigLongLivedParticlesHypo/FastTrackFinderLRTHypoTool.h"
+#include "TrigLongLivedParticlesHypo/FastTrackFinderLRTHypoAlg.h"
 
 DECLARE_COMPONENT( TrigL2HVJetHypoAllCuts )
 DECLARE_COMPONENT( TrigL2HVJetHypo )
@@ -26,3 +26,5 @@ DECLARE_COMPONENT( TrigLoFRemovalHypo )
 DECLARE_COMPONENT( TrigNewLoFHypo )
 DECLARE_COMPONENT( TrigCaloRatioHypo )
 
+DECLARE_COMPONENT( FastTrackFinderLRTHypoTool )
+DECLARE_COMPONENT( FastTrackFinderLRTHypoAlg )
