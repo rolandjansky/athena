@@ -466,6 +466,8 @@ namespace MuonCombined {
     if( !dressMuon(*muon,outputData.xaodSegmentContainer) ){ 
       ATH_MSG_WARNING("Failed to dress muon");
       outputData.muonContainer->pop_back();
+      //if we are dealing with staus, also need to remove the slowMuon
+      if( m_buildStauContainer ) outputData.slowMuonContainer->pop_back();
       return 0;
     }
 
