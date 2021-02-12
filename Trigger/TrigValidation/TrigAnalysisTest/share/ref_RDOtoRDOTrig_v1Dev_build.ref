@@ -2441,9 +2441,17 @@ HLT_j80_pf_ftf_j55_pf_ftf_j28_pf_ftf_j20_pf_ftf_L1MU20:
     0: 8
     1: 218
 HLT_j85_L1J20:
-  eventCount: 0
+  eventCount: 13
+  stepCounts:
+    0: 13
+  stepFeatures:
+    0: 21
 HLT_j85_cleanLB_L1J20:
-  eventCount: 0
+  eventCount: 13
+  stepCounts:
+    0: 13
+  stepFeatures:
+    0: 21
 HLT_j85_ftf_L1J20:
   eventCount: 13
   stepCounts:
