@@ -83,6 +83,7 @@ if globalflags.DataSource()!='data':
 
 OutputJets["FTAG4"] = ["AntiKt4EMTopoJets",
                        "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810",
+                       "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets",
                        "AntiKt4EMPFlowJets"]
 
