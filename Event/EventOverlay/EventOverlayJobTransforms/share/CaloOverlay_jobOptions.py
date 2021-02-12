@@ -58,8 +58,10 @@ if DetFlags.overlay.LAr_on():
     else:
         job += CfgGetter.getAlgorithm("LArRawChannelBuilder", tryDefaultConfigurable=True)
 
-    from LArROD.LArDigits import DefaultLArDigitThinner
-    LArDigitThinner = DefaultLArDigitThinner('LArDigitThinner') # automatically added to topSequence
+    from Digitization.DigitizationFlags import digitizationFlags
+    if 'AddCaloDigiThinned' in digitizationFlags.experimentalDigi():
+       from LArROD.LArDigits import DefaultLArDigitThinner
+       LArDigitThinner = DefaultLArDigitThinner('LArDigitThinner') # automatically added to topSequence
 
     #Adjust StoreGate keys in case of data-overlay:
     if overlayFlags.isDataOverlay():
@@ -68,7 +70,8 @@ if DetFlags.overlay.LAr_on():
 
        #Output of the LArPileUpTool (set up by LArDigitGetter) is "LArDigitContainer_MC"
        #That's the input to the digit thinner and the LArRawChannelBuilder
-       job.LArDigitThinner.InputContainerName = "LArDigitContainer_MC"
+       if 'AddCaloDigiThinned' in digitizationFlags.experimentalDigi():
+          job.LArDigitThinner.InputContainerName = "LArDigitContainer_MC"
        job.LArRawChannelBuilderAlg.LArDigitKey = "LArDigitContainer_MC"
 
 

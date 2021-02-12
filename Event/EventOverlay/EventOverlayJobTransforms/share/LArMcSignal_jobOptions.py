@@ -66,6 +66,8 @@ if DetFlags.overlay.LAr_on():
    newLArRawChannelBuilder.OutputLevel = DEBUG
    job += newLArRawChannelBuilder
 
-   from LArROD.LArDigits import DefaultLArDigitThinner
-   newLArDigitThinner = DefaultLArDigitThinner('newLArDigitThinner') # automatically added to topSequence
-   job.newLArDigitThinner.EvtStore = "BkgEvent_0_SG"
+   from Digitization.DigitizationFlags import digitizationFlags
+   if 'AddCaloDigiThinned' in digitizationFlags.experimentalDigi():
+      from LArROD.LArDigits import DefaultLArDigitThinner
+      newLArDigitThinner = DefaultLArDigitThinner('newLArDigitThinner') # automatically added to topSequence
+      job.newLArDigitThinner.EvtStore = "BkgEvent_0_SG"
