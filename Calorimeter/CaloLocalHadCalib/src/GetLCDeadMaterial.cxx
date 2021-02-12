@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -136,9 +136,9 @@ StatusCode GetLCDeadMaterial::initialize()
     ATH_MSG_FATAL( " Empty vector of input root files! "  );
     return StatusCode::FAILURE;
   }
-  for(std::vector<std::string >::iterator it = m_inputRootFiles.begin(); it!=m_inputRootFiles.end(); it++){
-    ATH_MSG_INFO( " Adding root file '" <<(*it) << "'"  );
-    pChain->Add( (*it).c_str() );
+  for (const std::string& fname : m_inputRootFiles) {
+    ATH_MSG_INFO( " Adding root file '" <<fname << "'"  );
+    pChain->Add( fname.c_str() );
   }
 
   // pointer to the chain and data in it
