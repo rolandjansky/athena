@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkTrack/Track.h"
@@ -526,7 +526,7 @@ namespace Trk {
     for (; itAtsos != alignTrack->lastAtsos(); ++itAtsos) {      
 
       std::vector<Residual>::const_iterator itRes=(**itAtsos).firstResidual();
-      for (; itRes!=(**itAtsos).lastResidual(); itRes++,index++) {
+      for (; itRes!=(**itAtsos).lastResidual(); ++itRes,index++) {
         
         V(index,index) = itRes->errSq();
       }
