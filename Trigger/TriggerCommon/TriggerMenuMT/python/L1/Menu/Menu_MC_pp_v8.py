@@ -474,7 +474,7 @@ def defineMenu():
         'L1_4J15' : 131,
         'L1_4J20' : 132,
         'L1_3J15p0ETA25_XE40' : 184,
-        'L1_J45p0ETA23_3J15p0ETA25' : 72,
+        'L1_J45p0ETA23_3J15p0ETA25' : 86,
         'L1_J50_2J40p0ETA25_3J15p0ETA25' : 87,
 
         'L1_6J15' : 135,
@@ -740,7 +740,7 @@ def defineMenu():
         'L1_ALFA_A7R1L': 494,
         'L1_ALFA_A7R1U': 493,
         'L1_ALFA_ANY'  : 490,
-        'L1_ALFA_B7L1L': 73,
+        'L1_ALFA_B7L1L': 497,
         'L1_ALFA_B7L1U': 489,
         'L1_ALFA_B7R1L': 496,
         'L1_ALFA_B7R1U': 495,
