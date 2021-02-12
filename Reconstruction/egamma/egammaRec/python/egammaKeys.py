@@ -8,15 +8,19 @@ __author__ = "Bruno Lenzi"
 # option = for aux container applied in ALL cases (ESD and AOD),
 # option =  for additional suppression for  AOD only]
 
+from IsolationAlgs.IsoUpdatedTrackCones import iso_vars
+
 
 class egammaKeysDict:
     inputs = dict(
     )
 
-    ShowerShapesSuppress = '-e033.-e011.-e333.-e335.-e337.-e377'
+    ShowerShapesSuppress = '.-e033.-e011.-e333.-e335.-e337.-e377'
     PhotonisemSupress = '.-isEMLoose.-isEMTight'
     ElectronisemSupress = '.-isEMLHLoose.-isEMLHTight.-isEMLHMedium.-isEMLoose.-isEMMultiLepton.-isEMMedium.-isEMTight'
-    FwdElectronisemSupress = '-isEMTight.-isEMMedium.-isEMLoose'
+    FwdElectronisemSupress = '.-isEMTight.-isEMMedium.-isEMLoose'
+    # Strip off the leading dot
+    isovar_suppress = "-" + ".-".join(iso_vars())
 
     outputs = dict(
         Conversion=[
@@ -45,7 +49,7 @@ class egammaKeysDict:
         Electron=[
             'xAOD::ElectronContainer',
             'Electrons',
-            '',
+            isovar_suppress,
             ShowerShapesSuppress+ElectronisemSupress],
         EgammaRec=['egammaRecContainer',
                    'egammaRecCollection',
@@ -59,13 +63,13 @@ class egammaKeysDict:
             'ElectronSuperRecCollection', '', ''],
         FwdElectron=['xAOD::ElectronContainer',
                      'ForwardElectrons',
-                     '',
+                     isovar_suppress,
                      FwdElectronisemSupress],
         FwdCluster=['xAOD::CaloClusterContainer',
                     'ForwardElectronClusters',
                     '-SisterCluster', ''],
         Photon=['xAOD::PhotonContainer',
-                'Photons', '',
+                'Photons', isovar_suppress,
                 ShowerShapesSuppress+PhotonisemSupress],
         TrackParticle=[
             'xAOD::TrackParticleContainer',

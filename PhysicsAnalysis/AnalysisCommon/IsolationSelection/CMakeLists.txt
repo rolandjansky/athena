@@ -4,16 +4,21 @@
 atlas_subdir( IsolationSelection )
 
 # External dependencies:
-find_package( ROOT COMPONENTS Core Hist Tree )
+find_package( ROOT COMPONENTS Core Hist Tree TMVA )
+
+set(extra_libs)
+if ( NOT XAOD_STANDALONE AND NOT XAOD_ANALYSIS )
+  set(extra_libs TrkExUtils)
+endif()
 
 # Libraries in the package:
 atlas_add_library( IsolationSelectionLib
   IsolationSelection/*.h Root/*.cxx
   PUBLIC_HEADERS IsolationSelection
-  INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-  LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AsgTools xAODBase xAODEgamma xAODMuon
-  xAODPrimitives xAODTracking PATCoreLib PATInterfaces
-  PRIVATE_LINK_LIBRARIES InDetTrackSelectionToolLib FourMomUtils PathResolver )
+  PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+  LINK_LIBRARIES AthContainers AsgTools xAODBase xAODEgamma xAODMuon xAODEventInfo ${extra_libs}
+  xAODPrimitives PATCoreLib PATInterfaces InDetTrackSelectionToolLib xAODTracking
+  PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} PathResolver FourMomUtils TrackVertexAssociationToolLib InDetTrackSelectionToolLib )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( IsolationSelection
@@ -28,7 +33,7 @@ atlas_add_dictionary( IsolationSelectionDict
    LINK_LIBRARIES IsolationSelectionLib )
 
 # Executable(s) in the package:
-if( XAOD_STANDALONE )
+if( XAOD_STANDALONE OR XAOD_ANALYSIS )
    atlas_add_executable( testIsolationCloseByCorrectionTool
       util/testIsolationCloseByCorrectionTool.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
@@ -39,11 +44,11 @@ if( XAOD_STANDALONE )
       util/testIsolationSelectionTool.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEgamma xAODMuon
-      xAODPrimitives IsolationSelectionLib )
+      xAODPrimitives IsolationSelectionLib xAODRootAccess)
 endif()
 
 # Test(s) in the package:
-if( XAOD_STANDALONE )
+if( XAOD_STANDALONE OR XAOD_ANALYSIS )
    atlas_add_test( ut_reflex SCRIPT test/ut_reflex.py )
 endif()
 
