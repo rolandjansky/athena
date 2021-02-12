@@ -71,16 +71,16 @@ class TileDQstatus;
 class TileDigitsMaker: public AthAlgorithm {
   public:
     // Constructor
-    TileDigitsMaker(std::string name, ISvcLocator* pSvcLocator);
+    TileDigitsMaker(const std::string& name, ISvcLocator* pSvcLocator);
 
 
     //Destructor 
     virtual ~TileDigitsMaker();
 
     //Gaudi Hooks
-    StatusCode initialize(); //!< initialize method
-    StatusCode execute();    //!< execute method
-    StatusCode finalize();   //!< finalize method
+    virtual StatusCode initialize() override; //!< initialize method
+    virtual StatusCode execute() override;    //!< execute method
+    virtual StatusCode finalize() override;   //!< finalize method
 
   private:
     StatusCode overlayBackgroundDigits(const TileDigitsCollection *bkgDigitCollection, const TileHitCollection* hitCollection, int igain[], int ros, int drawer, int drawerIdx, int over_gain[], const EventContext &ctx);

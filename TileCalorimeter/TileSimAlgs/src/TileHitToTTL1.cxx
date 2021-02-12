@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -59,8 +59,10 @@ using CLHEP::RandGaussQ;
 //
 // Constructor
 //
-TileHitToTTL1::TileHitToTTL1(std::string name, ISvcLocator* pSvcLocator)
+TileHitToTTL1::TileHitToTTL1(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
+  , m_infoName ("TileInfo")
+  , m_TileTTL1Type ("Standard")
   , m_cosmicsType(false)
   , m_tileID(nullptr)
   , m_tileTBID(nullptr)
@@ -76,9 +78,6 @@ TileHitToTTL1::TileHitToTTL1(std::string name, ISvcLocator* pSvcLocator)
   , m_tileNoise(false)
   , m_tileThresh(false)
 {
-  m_infoName = "TileInfo";
-  m_TileTTL1Type = "Standard";
-
   declareProperty("TileInfoName", m_infoName);
   declareProperty("TileTTL1Type", m_TileTTL1Type);
   declareProperty("maskBadChannels", m_maskBadChannels = true);

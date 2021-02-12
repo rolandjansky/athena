@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -75,7 +75,7 @@ class TileDQstatus;
 class TilePulseForTileMuonReceiver: public AthAlgorithm {
   public:
     // constructor
-    TilePulseForTileMuonReceiver(std::string name, ISvcLocator* pSvcLocator);
+    TilePulseForTileMuonReceiver(const std::string& name, ISvcLocator* pSvcLocator);
     // destructor
     virtual ~TilePulseForTileMuonReceiver();
 

@@ -64,7 +64,7 @@ using Athena::Units::MeV;
 //
 // Constructor
 //
-TileDigitsMaker::TileDigitsMaker(std::string name, ISvcLocator* pSvcLocator)
+TileDigitsMaker::TileDigitsMaker(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     m_mergeSvc(nullptr),
     m_tileID(nullptr),

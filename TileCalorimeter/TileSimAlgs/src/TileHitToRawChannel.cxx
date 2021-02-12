@@ -47,7 +47,7 @@ using CLHEP::RandGaussQ;
 //
 // Constructor
 //
-TileHitToRawChannel::TileHitToRawChannel(std::string name, ISvcLocator* pSvcLocator)
+TileHitToRawChannel::TileHitToRawChannel(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
   , m_rChUnit(TileRawChannelUnit::ADCcounts)
   , m_rChType(TileFragHash::Default)
