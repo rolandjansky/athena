@@ -4110,10 +4110,26 @@ HLT_tilecalib_laser_TilePEB_L1CALREQ2:
   eventCount: 0
 HLT_timeburner_L1All:
   eventCount: 0
-HLT_unconvtrk120_isohpttrack_iaggrmedium_L1XE50:
-  eventCount: 0
-HLT_unconvtrk120_isohpttrack_imedium_L1XE50:
-  eventCount: 0
+HLT_unconvtrk120_fslrt_L1All:
+  eventCount: 20
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
+HLT_unconvtrk120_fslrt_L1XE50:
+  eventCount: 10
+  stepCounts:
+    0: 10
+  stepFeatures:
+    0: 10
+HLT_unconvtrk50_isohpttrack_L1XE50:
+  eventCount: 4
+  stepCounts:
+    0: 10
+    1: 4
+  stepFeatures:
+    0: 10
+    1: 5
 HLT_xe100_cvfpufit_L1XE50:
   eventCount: 6
   stepCounts:
@@ -4324,24 +4340,6 @@ HLT_xe65_cell_xe110_tcpufit_L1XE50:
     0: 5
   stepFeatures:
     0: 13
-HLT_xe80_tcpufit_unconvtrk120_isohpttrack_iaggrloose_L1XE50:
-  eventCount: 0
-  stepFeatures:
-    0: 9
-HLT_xe80_tcpufit_unconvtrk120_isohpttrack_iaggrmedium_L1XE50:
-  eventCount: 0
-  stepFeatures:
-    0: 9
-HLT_xe80_tcpufit_unconvtrk120_isohpttrack_imedium_L1XE50:
-  eventCount: 0
-  stepFeatures:
-    0: 9
-HLT_xe80_tcpufit_unconvtrk80_isohpttrack_imedium_L1XE50:
-  eventCount: 1
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 10
 HLT_xe95_trkmht_xe90_tcpufit_xe75_cell_L1XE50:
   eventCount: 4
   stepCounts:
