@@ -15,10 +15,19 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Jet.JetRecoConfiguration")
 
 def interpretJetCalibDefault(recoDict):
-    if recoDict['constitType'] == 'tc':
-        return 'subresjesgscIS' if recoDict['trkopt'] == 'ftf' else 'subjesIS'
-    elif recoDict['constitType'] == 'pf':
-      return 'subresjesgscIS'
+    if recoDict['recoAlg'] == 'a4':
+        if recoDict['constitType'] == 'tc':
+            return 'subresjesgscIS' if recoDict['trkopt'] == 'ftf' else 'subjesIS'
+        elif recoDict['constitType'] == 'pf':
+            return 'subresjesgscIS'
+    elif recoDict['recoAlg'] == 'a10':
+        return 'subjes'
+    elif recoDict['recoAlg'] == 'a10t':
+        return 'jes'
+    elif recoDict['recoAlg'] == 'a10r':
+        return 'subjesIS' # calibration for the small-R jets used to reconstruct the reclustered jets
+    else:
+        raise RuntimeError('No default calibration is defined for %s' % recoDict['recoAlg'])
 
 recoKeys = ['recoAlg','constitType','clusterCalib','constitMod','jetCalib','trkopt','trkpresel']
 
