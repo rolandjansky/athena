@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -54,6 +54,8 @@ class ISCT_CalibHistoTool: virtual public IAlgTool {
       int numberOfLb() const;
       /// set number of lumiblocks
       void setLbToMerge(const int nLbMerge);
+      /// set lumiblock for Lb dependent maps
+      void setLb(const int nLb);
       /// get number of lumiblocks
       int LbToMerge() const;
    protected:
@@ -62,6 +64,7 @@ class ISCT_CalibHistoTool: virtual public IAlgTool {
       TH1I* m_numberOfEventsHisto{nullptr};
       ITHistSvc* m_thistSvc{nullptr};
       const SCT_ID* m_pSCTHelper{nullptr};
+      int m_lumiBlock{0};
       int m_nLb{0};
       int m_nLbMerge{0};
       //
