@@ -13,12 +13,15 @@
  */
 
 
+// WARNING! WARNING! WARNING!
+//
+// This version of the file has been modified for use in 21.2 and
+// should not be swept into master.
+
+
 #ifndef ASG_DATA_HANDLES_READ_DECOR_HANDLE_KEY_H
 #define ASG_DATA_HANDLES_READ_DECOR_HANDLE_KEY_H
 
-#ifndef XAOD_STANDALONE
-#include <StoreGate/ReadDecorHandleKey.h>
-#else
 
 #include "AsgDataHandles/ReadHandleKey.h"
 
@@ -99,7 +102,5 @@ public:
 
 
 #include "AsgDataHandles/ReadDecorHandleKey.icc"
-
-#endif
 
 #endif // not STOREGATE_READDECORHANDLEKEY_H

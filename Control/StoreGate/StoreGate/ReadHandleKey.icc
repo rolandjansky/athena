@@ -34,6 +34,32 @@ ReadHandleKey<T>::ReadHandleKey (const std::string& key /*= ""*/,
 
 
 /**
+ * @brief Auto-delaring Property constructor.
+ * @param owner Owning omponent.
+ * @param name Name of the Property.
+ * @param key  Default StoreGate key for the objet.
+ * @param doDocumentation string.
+ *
+ * Will assoiate the named Property with this RHK via declareProperty.
+ *
+ * The provided key may atually start with the name of the store,
+ * separated by a "+":  "MyStore+Obj".  If no "+" is present
+ * the store named by @storeName is used.
+ */
+template <class T>
+template <class OWNER, class K>
+inline
+ReadHandleKey<T>::ReadHandleKey( OWNER* owner,
+                                 const std::string& name,
+                                 const K& key /* ={}*/,
+                                 const std::string& doc /*= ""*/)
+  : ReadHandleKey<T>( key )
+{
+  owner->declareProperty(name, *this, doc);
+}
+
+
+/**
  * @brief Change the key of the object to which we're referring.
  * @param sgkey The StoreGate key for the object.
  * 
