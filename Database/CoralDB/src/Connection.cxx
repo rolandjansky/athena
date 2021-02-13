@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: Connection.cxx,v 1.4 2008-05-06 22:37:30 beringer Exp $
@@ -27,7 +27,8 @@ Connection::Connection()
 
 
 
-Connection::Connection(string fromId, string fromSlot, string toId, string toSlot)
+Connection::Connection(const std::string& fromId, const std::string& fromSlot,
+                       const std::string& toId, const std::string& toSlot)
   : m_fromId(fromId)
   , m_fromSlot(fromSlot)
   , m_toId(toId)
@@ -36,7 +37,8 @@ Connection::Connection(string fromId, string fromSlot, string toId, string toSlo
 
 
 
-void Connection::setConnection(string fromId, string fromSlot, string toId, string toSlot) {
+void Connection::setConnection(const std::string& fromId, const std::string& fromSlot,
+                               const std::string& toId, const std::string& toSlot) {
   m_fromId = fromId;
   m_fromSlot = fromSlot;
   m_toId = toId;
