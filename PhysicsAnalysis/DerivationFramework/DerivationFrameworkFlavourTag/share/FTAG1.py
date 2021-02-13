@@ -219,12 +219,6 @@ addExKtDoubleTaggerRCJets(FTAG1Seq, ToolSvc)
 addVRJets(FTAG1Seq)
 addVRJets(FTAG1Seq, do_ghost=True)
 addVRJets(FTAG1Seq, training='201903') #new trackjet training!
-# Also add Hbb Tagger(s)
-addHbbTagger(FTAG1Seq, ToolSvc)
-addHbbTagger(
-    FTAG1Seq, ToolSvc,
-    nn_file_name="BoostedJetTaggers/HbbTagger/Summer2018/MulticlassNetwork.json",
-    nn_config_file="BoostedJetTaggers/HbbTaggerDNN/MulticlassConfigJune2018.json")
 
 # alias for VR
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo",
