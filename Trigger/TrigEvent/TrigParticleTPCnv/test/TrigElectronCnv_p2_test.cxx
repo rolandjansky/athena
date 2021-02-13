@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file TrigParticleTPCnv/test/TrigElectronCnv_p2_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -18,6 +16,7 @@
 #include "TestTools/FLOATassert.h"
 #include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include <cassert>
 #include <iostream>
 
@@ -79,6 +78,7 @@ void testit (const TrigElectron& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  (void)Gaudi::Hive::currentContext();
   // Get proxies created outside of leak check.
   ElementLink< TrigEMClusterContainer > foo ("foo", 10);
   ElementLink< TrigInDetTrackCollection > bar ("bar", 20);
