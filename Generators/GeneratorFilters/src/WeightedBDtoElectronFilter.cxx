@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeneratorFilters/WeightedBDtoElectronFilter.h"
@@ -24,11 +24,10 @@ WeightedBDtoElectronFilter::WeightedBDtoElectronFilter(const std::string& name, 
   m_PtMin = m_ptBins[ 0 ];
   m_PtMax = m_ptBins[ m_ptBins.size()-1 ];
   m_EtaRange = m_etaBins[ m_etaBins.size()-1 ];
-  m_rand = 0;
 }
 
 StatusCode WeightedBDtoElectronFilter::filterInitialize() {
-  m_rand = new TRandom3();
+  m_rand = std::make_unique<TRandom3>();
   unsigned int nEtaBins    = m_etaBins.size()-1;
   unsigned int nPtBins     = m_ptBins.size()-1;
   unsigned int nPrescaleFactors = m_binPrescaleFactors.size();
@@ -57,7 +56,6 @@ StatusCode WeightedBDtoElectronFilter::filterInitialize() {
 
 
 StatusCode WeightedBDtoElectronFilter::filterFinalize() {
-  delete m_rand;
   return StatusCode::SUCCESS;
 }
 

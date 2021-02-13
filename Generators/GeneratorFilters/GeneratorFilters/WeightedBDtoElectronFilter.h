@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GENERATORFILTERS_WEIGHTEDBDTOELECTRONFILTER_H
@@ -46,7 +46,7 @@ private:
   bool isDHadron(const int pID) const { return (isDBaryon(pID)||isDMeson(pID)); }
 
   /// Random number generator
-  TRandom3* m_rand;
+  std::unique_ptr<TRandom3> m_rand;
 
   /// eta bin limits
   std::vector<double> m_etaBins;
