@@ -714,7 +714,7 @@ class Configurable(metaclass=ConfigurableMeta.ConfigurableMeta ):
           # add value and default
             default = defs.get(p)
 
-            if isinstance(v,MutableSequence) or v == Configurable.propertyNoValue:
+            if not isinstance(v,MutableSequence) and v == Configurable.propertyNoValue:
                # show default value as value, and no extra 'default'
                strVal = repr(default)
                strDef = None
