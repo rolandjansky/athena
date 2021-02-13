@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -16,6 +16,8 @@
 ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 #include "CxxUtils/SealDebug.h"
+#include "CxxUtils/UnwindBacktrace.h"
+#include "CxxUtils/no_sanitize_undefined.h"
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
@@ -256,11 +258,115 @@ void fromhere()
 }
 
 
+#ifdef HAVE_LINUX_UNWIND_BACKTRACE
+
+
+#include <string>
+#include <cassert>
+#include <signal.h>
+
+
+std::string accumtrace (FILE* fp)
+{
+  std::string s;
+  fseek (fp, 0, SEEK_SET);
+  char buf[65536];
+  while (fgets (buf, sizeof (buf), fp)) {
+    if (strstr (buf, "libasan") != nullptr)
+      continue;
+    if (strstr (buf, "DebugAids::stacktrace") != nullptr)
+      continue;
+    filter (buf);
+    s += std::string (buf);
+  }
+  return s;
+}
+
+
+struct Foo
+{
+  virtual ~Foo() = default;
+  virtual float a() const { return m_a; }
+  virtual float b() const { return m_b; }
+  float m_a = 0;
+  float m_b = 0;
+};
+    
+
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__ ((noinline))
+#endif
+double crashMe NO_SANITIZE_UNDEFINED (const Foo* f)
+{
+  return f->a() + f->b();
+}
+
+
+int test_fd = -1;
+FILE* test_fp = nullptr;
+void testhandle(int)
+{
+  Athena::DebugAids::stacktrace (test_fd);
+  resethooks();
+  std::string s = accumtrace (test_fp);
+
+  const char* exp = " 0xX CxxUtils::backtraceByUnwind(void (*)(int, unsigned long), int) + 0xX [/libCxxUtils.so D[0xX]]\n\
+ 0xX testhandle(int) + 0xX [/stacktrace_test.exe D[0xX]]\n\
+ 0xX __restore_rt sigaction.c:? + 0xX [/libpthread.so.0 D[0xX]]\n\
+ 0xX <unknown function>\n\
+ 0xX crashMe(Foo const*) + 0xX [/stacktrace_test.exe D[0xX]]\n\
+ 0xX testbad + 0xX [/stacktrace_test.exe D[0xX]]\n\
+ 0xX main + 0xX [/stacktrace_test.exe D[0xX]]\n\
+ 0xX __libc_start_main + 0xX [/libc.so.6 D[0xX]]\n\
+ 0xX _start + 0xX [/stacktrace_test.exe D[0xX]]\n\
+";
+  if (s != exp) {
+    puts ("Comparison fails!\n");
+    puts (s.c_str());
+  }
+
+  exit (0);
+}
+
+
+void testbad()
+{
+  struct sigaction act;
+  act.sa_handler = testhandle;
+  sigemptyset (&act.sa_mask);
+  act.sa_flags = 0;
+  sigaction (SIGSEGV, &act, nullptr);
+
+  unsigned long xbuf[1024];
+  xbuf[0] = (unsigned long)&xbuf[1];
+  xbuf[1] = (unsigned long)&xbuf[10];
+  xbuf[2] = (unsigned long)&xbuf[10];
+  xbuf[3] = (unsigned long)&xbuf[10];
+  xbuf[4] = (unsigned long)&xbuf[10];
+  for (int i=5; i < 1024; i++)
+    xbuf[i] = 0xdeadbeefcafefeed;
+
+  char pat[] = "stacktrace_testbXXXXXX";
+  umask (0600);
+  int fd = mkstemp (pat);
+  if (fd < 0) std::abort();
+  test_fd = fd;
+  test_fp = fdopen (fd, "w+");
+
+  sethooks();
+  crashMe ((Foo*)xbuf);
+}
+#endif
+
+
 int main()
 {
   initpointers();
   Athena::DebugAids::setStackTraceAddr2Line ("/usr/bin/addr2line");
   fromhere();
+#ifdef HAVE_LINUX_UNWIND_BACKTRACE
+  testbad();
+#endif
   finishing = true;
   return 0;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -265,6 +265,9 @@ public:
     static unsigned		handleFatalOptions ATLAS_NOT_THREAD_SAFE (void);
 
     static void			fatal ATLAS_NOT_THREAD_SAFE (int sig, siginfo_t *info, void *x);
+    static bool			fatalDump ATLAS_NOT_THREAD_SAFE (int sig, siginfo_t *info, void *x,
+                                                                 IOFD fd,
+                                                                 unsigned options);
     static bool			fatalDump ATLAS_NOT_THREAD_SAFE (int sig, siginfo_t *info, void *x);
     static int			fatalLevel ATLAS_NOT_THREAD_SAFE (void);
     static bool			crashed ATLAS_NOT_THREAD_SAFE (void);

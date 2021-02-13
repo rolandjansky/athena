@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -22,6 +22,7 @@
 #include "CxxUtils/SealDebug.h"                // wlav
 #include "CxxUtils/SealSignal.h"               // wlav
 #include "CxxUtils/SealSharedLib.h"            // wlav
+#include "CxxUtils/UnwindBacktrace.h"          // sss
 #include "CxxUtils/checker_macros.h"
 
 // wlav copied from SealBase/sysapi/DebugAids.h
@@ -754,6 +755,9 @@ DebugAids::stacktrace ATLAS_NOT_THREAD_SAFE (IOFD fd /* = IOFD_INVALID */)
     fflush (stderr);
     dup2 (stderrfd, STDERR_FILENO);
     close (newfd);
+#elif HAVE_LINUX_UNWIND_BACKTRACE
+    CxxUtils::backtraceByUnwind (stacktraceLine, fd);
+
 #elif HAVE_BACKTRACE_SYMBOLS_FD && HAVE_DLADDR		// linux
     // we could have used backtrace_symbols_fd, except its output
     // format is pretty bad, so recode that here :-(
