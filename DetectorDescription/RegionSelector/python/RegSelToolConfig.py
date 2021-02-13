@@ -19,10 +19,15 @@ def _createRegSelCondAlg( detector,  CondAlgConstructor ):
     """
     Creates conditions alg that provides data to a RegSel Tool
     """
-    condAlg = CondAlgConstructor( name = _condAlgName( detector ),
-                                  ManagerName = detector,
-                                  PrintTable  = False,
-                                  RegSelLUT = ("RegSelLUTCondData_"+detector) )
+    if detector == "TRT":
+        condAlg = CondAlgConstructor( name = _condAlgName( detector ),
+                                      PrintTable  = False,
+                                      RegSelLUT = ("RegSelLUTCondData_"+detector) )
+    else:
+        condAlg = CondAlgConstructor( name = _condAlgName( detector ),
+                                      ManagerName = detector,
+                                      PrintTable  = False,
+                                      RegSelLUT = ("RegSelLUTCondData_"+detector) )
 
     if detector == "Pixel":
         condAlg.DetEleCollKey = "PixelDetectorElementCollection"
