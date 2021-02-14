@@ -225,6 +225,7 @@ DerivationFrameworkJob += SeqPHYS
 #====================================================================
 # Tau   
 #====================================================================
+
 # Add low-pt di-tau reconstruction
 from DerivationFrameworkTau.TauCommon import addDiTauLowPt
 addDiTauLowPt(Seq=SeqPHYS)
@@ -246,6 +247,7 @@ PHYSDiTauLowPtTPThinningTool = DerivationFramework__DiTauTrackParticleThinning(n
                                                                                SelectionString         = "DiTauJetsLowPt.nSubjets > 1")
 ToolSvc += PHYSDiTauLowPtTPThinningTool
 thinningTools.append(PHYSDiTauLowPtTPThinningTool)
+
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
