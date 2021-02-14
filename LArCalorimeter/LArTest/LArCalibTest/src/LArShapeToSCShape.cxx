@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArShapeToSCShape.cxx 
@@ -167,6 +167,7 @@ StatusCode LArShapeToSCShape::execute()
     if (cellIds.empty()) {
       msg(MSG::ERROR) << "Got empty vector of cell ids for super cell id 0x" 
 		      << std::hex << scId.get_compact() << std::dec << endmsg;
+      continue;
     }
     const Identifier cellId=cellIds[0];
     

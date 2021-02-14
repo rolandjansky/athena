@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 bool PSEUDO=false;//PSEUDO=true;
@@ -576,7 +576,7 @@ void largeur_eta_phi(int iDet, int iLayer, int iReg, float &weta, float &wphi)
     case EMEC: 
       if(iCalo==1/*OW*/) 
       {
-	if(iLayer>=2) dphi=dphi; else dphi*=4.;
+	if(iLayer>=2) /*dphi=dphi*/; else dphi*=4.;
 	if(iLayer==1) 
 	  if(iReg==0) deta*=2.;
 	  else if(iReg==2) deta/=8.;
