@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -10,10 +10,19 @@
  ***************************************************************************/
 
 #include "MuonReadoutGeometry/RpcDetectorElement.h"
+
 #include "MuonIdHelpers/RpcIdHelper.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MuonReadoutGeometry/RpcReadoutElement.h"
+#include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/Surface.h"
-#include <TString.h> // for Form
+
+#include <TString.h>
+#include <stdlib.h>
+#include <stdexcept>
+#include <string>
+
+class GeoVFullPhysVol;
 
 namespace MuonGM {
 
@@ -32,7 +41,7 @@ RpcDetectorElement::RpcDetectorElement(GeoVFullPhysVol* pv,
 void RpcDetectorElement::addRpcReadoutElement(const RpcReadoutElement* rpc, int index)
 {
   if (index < NDoubletZ) {
-    if (m_rpcVector[index] == nullptr) {
+    if (!m_rpcVector[index]) {
       m_rpcVector[index] = rpc;
       // everything ok
       m_nREinDetectorElement++;
@@ -78,7 +87,7 @@ RpcDetectorElement::getRpcReadoutElement(int dbz, int dbp) const
   }
 
   if (dbz_index < (int)nReadoutElements() && dbz_index >= 0) return m_rpcVector[dbz_index];
-  else return NULL;
+  else return nullptr;
 }
 
 const Amg::Transform3D& RpcDetectorElement::transform() const

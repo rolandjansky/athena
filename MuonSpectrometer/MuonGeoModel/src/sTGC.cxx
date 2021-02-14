@@ -1,32 +1,37 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModel/sTGC.h"
 
-#include "MuonAGDDDescription/sTGC_Technology.h"
+#include <GaudiKernel/IMessageSvc.h>
+#include <GaudiKernel/MsgStream.h>
+#include <GeoModelKernel/GeoDefinitions.h>
+#include <GeoModelKernel/GeoShape.h>
+#include "AGDDKernel/AGDDDetectorStore.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include "GeoModelInterfaces/StoredMaterialManager.h"
+#include "GeoModelKernel/GeoFullPhysVol.h"
+#include "GeoModelKernel/GeoIdentifierTag.h"
+#include "GeoModelKernel/GeoLogVol.h"
+#include "GeoModelKernel/GeoNameTag.h"
+#include "GeoModelKernel/GeoPhysVol.h"
+#include "GeoModelKernel/GeoSerialIdentifier.h"
+#include "GeoModelKernel/GeoShapeShift.h"
+#include "GeoModelKernel/GeoShapeSubtraction.h"
+#include "GeoModelKernel/GeoSimplePolygonBrep.h"
+#include "GeoModelKernel/GeoTransform.h"
+#include "GeoModelKernel/GeoTrd.h"
 #include "MuonAGDDDescription/sTGCDetectorDescription.h"
 #include "MuonAGDDDescription/sTGCDetectorHelper.h"
-#include "AGDDKernel/AGDDDetectorStore.h"
-#include "MuonGeoModel/Station.h"
-#include "MuonGeoModel/MYSQL.h"
+#include "MuonAGDDDescription/sTGC_Technology.h"
+#include "MuonGeoModel/Component.h"
 #include "MuonGeoModel/sTGCComponent.h"
-#include "MuonGeoModel/Cutout.h"
-#include "GeoModelKernel/GeoTrd.h"
-#include "GeoModelKernel/GeoBox.h"
-#include "GeoModelKernel/GeoSimplePolygonBrep.h"
-#include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoFullPhysVol.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
-#include "GeoModelKernel/GeoNameTag.h"
-#include "GeoModelKernel/GeoSerialDenominator.h"
-#include "GeoModelKernel/GeoTransform.h"
-#include "GeoModelKernel/GeoSerialIdentifier.h"
-#include "GeoModelKernel/GeoIdentifierTag.h"
-#include "GeoModelKernel/GeoShapeSubtraction.h"
-#include "GeoModelKernel/GeoShapeIntersection.h"
-#include "GeoModelKernel/GeoShapeShift.h"
+
+#include <cmath>
+#include <string>
+
+class GeoMaterial;
 
 namespace MuonGM {
 

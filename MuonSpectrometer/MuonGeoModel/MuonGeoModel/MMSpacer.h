@@ -1,18 +1,21 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MMSpacer_H
 #define MMSpacer_H
 
 #include "MuonGeoModel/DetectorElement.h"
-#include "MuonGeoModel/MMSpacerComponent.h"
+
+#include <vector>
 
 class GeoPhysVol;
 
 namespace MuonGM {
 
 class Cutout;
+class Component;
+class MMSpacerComponent;
 
 class MMSpacer: public DetectorElement {
 

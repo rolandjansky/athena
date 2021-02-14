@@ -1,29 +1,30 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONREADOUTGEOMETRY_STGCREADOUTELEMENT_H
 #define MUONREADOUTGEOMETRY_STGCREADOUTELEMENT_H
 
 #include "MuonReadoutGeometry/MuonClusterReadoutElement.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonReadoutGeometry/MuonChannelDesign.h"
-#include "MuonReadoutGeometry/MuonPadDesign.h"
+
+#include "Identifier/Identifier.h"
 #include "MuonIdHelpers/sTgcIdHelper.h"
+#include "MuonReadoutGeometry/MuonChannelDesign.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MuonReadoutGeometry/MuonPadDesign.h"
+
+#include <string>
+#include <utility>
+#include <vector>
 
 class BLinePar;
-
-namespace Trk{
-  class PlaneSurface;
-}
+class GeoVFullPhysVol;
 
 namespace MuonGM {
   /**
      An sTgcReadoutElement corresponds to a single STGC module; therefore 
      typicaly a barrel muon station contains:
   */
-
-  class MuonDetectorManager;
  
   class sTgcReadoutElement: public MuonClusterReadoutElement {
   public:

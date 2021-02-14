@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModel/StandardComponent.h"
@@ -9,6 +9,9 @@
 #include "MuonGeoModel/CMI_Technology.h"
 #include "MuonGeoModel/CRO_Technology.h"
 #include "MuonGeoModel/LBI_Technology.h"
+
+#include <ostream>
+#include <string>
 
 namespace MuonGM {
 

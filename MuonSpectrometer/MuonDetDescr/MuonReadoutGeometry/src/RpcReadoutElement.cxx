@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -8,15 +8,26 @@
 ***************************************************************************/
 
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
-#include "MuonReadoutGeometry/RpcReadoutSet.h"
-#include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoFullPhysVol.h"
-#include "GeoPrimitives/CLHEPtoEigenConverter.h"
+
+#include <GaudiKernel/IMessageSvc.h>
+#include <GeoModelKernel/GeoDefinitions.h>
+#include <GeoModelKernel/GeoLogVol.h>
+#include <GeoModelKernel/GeoPVConstLink.h>
+#include <GeoModelKernel/GeoVFullPhysVol.h>
+#include <GeoModelKernel/GeoVPhysVol.h>
+#include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GeoModelKernel/GeoFullPhysVol.h"
+#include "MuonReadoutGeometry/GenericRPCCache.h"
+#include "MuonReadoutGeometry/RpcReadoutSet.h"
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/RectangleBounds.h"
-#include "AthenaKernel/getMessageSvc.h"
-#include <TString.h> // for Form
+#include "TrkSurfaces/Surface.h"
+#include "TrkSurfaces/SurfaceBounds.h"
+
+#include <TString.h>
+#include <cmath>
+#include <stdexcept>
 
 namespace {
   static constexpr double const& rpc3GapLayerThickness = 11.8; // gas vol. + ( bakelite + graphite + PET )x2

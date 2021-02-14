@@ -1,11 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModel/DriftTube.h"
+
 #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
+#include <GaudiKernel/IMessageSvc.h>
+#include <GaudiKernel/MsgStream.h>
+#include "AthenaKernel/getMessageSvc.h"
+#include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoSerialDenominator.h"
@@ -13,6 +17,7 @@
 #include "GeoModelKernel/GeoDefinitions.h"
 #include "MuonGeoModel/MYSQL.h"
 #include "MuonGeoModel/MDT_Technology.h"
+
 #include <iostream>
 #include <string>
 

@@ -1,22 +1,23 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef Station_H
 #define Station_H
 
-#include <atomic>
-#include <string>
-#include <vector>
-#include <map>
 #include "MuonGeoModel/Component.h"
 #include "MuonGeoModel/Cutout.h"
 #include "MuonGeoModel/Position.h"
 #include "MuonGeoModel/AlignPos.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-#include <memory>
 #include "AthenaKernel/CLASS_DEF.h"
+
+#include <atomic>
+#include <string>
+#include <vector>
+#include <map>
+#include <memory>
 
 /*
    This class holds an std::map of Position, AlignPos and an std::vector of

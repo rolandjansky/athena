@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -19,17 +19,14 @@
 #ifndef MUONREADOUTGEOMETRY_MUONDETECTORELEMENT_H
 #define MUONREADOUTGEOMETRY_MUONDETECTORELEMENT_H
 
-#include <string>
 #include "TrkDetElementBase/TrkDetElementBase.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
-#include "AthenaKernel/CLASS_DEF.h"
 
-class GeoPhysVol;
+class GeoVFullPhysVol;
 
 namespace MuonGM {
 
-class MuonStation;
 class MuonDetectorManager;
 
 /**

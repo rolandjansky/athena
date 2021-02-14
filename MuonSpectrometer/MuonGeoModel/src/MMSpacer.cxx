@@ -1,30 +1,28 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #include "MuonGeoModel/MMSpacer.h"
-#include "MuonGeoModel/MMSpacer_Technology.h"
-#include "MuonGeoModel/Station.h"
-#include "MuonGeoModel/MYSQL.h"
-#include "MuonGeoModel/MMSpacerComponent.h"
-#include "MuonGeoModel/Cutout.h"
-#include "GeoModelKernel/GeoTrd.h"
-#include "GeoModelKernel/GeoTube.h"
-#include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoFullPhysVol.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
-#include "GeoModelKernel/GeoNameTag.h"
-#include "GeoModelKernel/GeoSerialDenominator.h"
-#include "GeoModelKernel/GeoTransform.h"
-#include "GeoModelKernel/GeoSerialIdentifier.h"
-#include "GeoModelKernel/GeoIdentifierTag.h"
+
+#include <GaudiKernel/IMessageSvc.h>
+#include <GaudiKernel/MsgStream.h>
+#include <GeoModelKernel/GeoShape.h>
+#include "AthenaKernel/getMessageSvc.h"
+#include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-// for cutouts:
-#include "GeoModelKernel/GeoShapeSubtraction.h"
-#include "GeoModelKernel/GeoShapeIntersection.h"
+#include "GeoModelKernel/GeoLogVol.h"
+#include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoShapeShift.h"
+#include "GeoModelKernel/GeoShapeSubtraction.h"
+#include "GeoModelKernel/GeoTrd.h"
+#include "MuonGeoModel/Component.h"
+#include "MuonGeoModel/MMSpacerComponent.h"
+#include "MuonGeoModel/MMSpacer_Technology.h"
+#include "MuonGeoModel/MYSQL.h"
+
+#include <string>
+
+class GeoMaterial;
 
 namespace MuonGM {
 
