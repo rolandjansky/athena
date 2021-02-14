@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // local include(s)
@@ -71,8 +71,8 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau) const {
   }
 
   // Retrieve event info
-  const SG::AuxElement::ConstAccessor<float> acc_mu("mu");
-  const SG::AuxElement::ConstAccessor<int> acc_nVtxPU("nVtxPU");
+  static const SG::AuxElement::ConstAccessor<float> acc_mu("mu");
+  static const SG::AuxElement::ConstAccessor<int> acc_nVtxPU("nVtxPU");
   vars.mu = acc_mu(xTau);
   vars.nVtxPU = acc_nVtxPU(xTau);
 
@@ -89,7 +89,7 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau) const {
     vars.etaConstituent = xTau.etaPanTauCellBased();
     float ptLC = xTau.ptDetectorAxis();
     float ptConstituent = xTau.ptPanTauCellBased();
-    const SG::AuxElement::ConstAccessor<float> acc_pt_combined("pt_combined");
+    static const SG::AuxElement::ConstAccessor<float> acc_pt_combined("pt_combined");
     vars.ptCombined = acc_pt_combined(xTau);
 
     if(vars.ptCombined>0.) {
@@ -104,9 +104,9 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau) const {
     }
 
     // Retrieve substructure info
-    const SG::AuxElement::ConstAccessor<float> acc_PanTauBDT_1p0n_vs_1p1n("PanTau_BDTValue_1p0n_vs_1p1n");
-    const SG::AuxElement::ConstAccessor<float> acc_PanTauBDT_1p1n_vs_1pXn("PanTau_BDTValue_1p1n_vs_1pXn");
-    const SG::AuxElement::ConstAccessor<float> acc_PanTauBDT_3p0n_vs_3pXn("PanTau_BDTValue_3p0n_vs_3pXn");
+    static const SG::AuxElement::ConstAccessor<float> acc_PanTauBDT_1p0n_vs_1p1n("PanTau_BDTValue_1p0n_vs_1p1n");
+    static const SG::AuxElement::ConstAccessor<float> acc_PanTauBDT_1p1n_vs_1pXn("PanTau_BDTValue_1p1n_vs_1pXn");
+    static const SG::AuxElement::ConstAccessor<float> acc_PanTauBDT_3p0n_vs_3pXn("PanTau_BDTValue_3p0n_vs_3pXn");
     vars.PanTauBDT_1p0n_vs_1p1n = acc_PanTauBDT_1p0n_vs_1p1n(xTau);
     vars.PanTauBDT_1p1n_vs_1pXn = acc_PanTauBDT_1p1n_vs_1pXn(xTau);
     vars.PanTauBDT_3p0n_vs_3pXn = acc_PanTauBDT_3p0n_vs_3pXn(xTau);
@@ -125,8 +125,8 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau) const {
     vars.ptDetectorAxis = xTau.ptDetectorAxis();
     vars.etaDetectorAxis = xTau.etaDetectorAxis();
 
-    const SG::AuxElement::ConstAccessor<float> acc_UpsilonCluster("UpsilonCluster");
-    const SG::AuxElement::ConstAccessor<float> acc_LeadClusterFrac("LeadClusterFrac");
+    static const SG::AuxElement::ConstAccessor<float> acc_UpsilonCluster("UpsilonCluster");
+    static const SG::AuxElement::ConstAccessor<float> acc_LeadClusterFrac("LeadClusterFrac");
     vars.upsilon_cluster = acc_UpsilonCluster(xTau);
     vars.lead_cluster_frac = acc_LeadClusterFrac(xTau);
 
