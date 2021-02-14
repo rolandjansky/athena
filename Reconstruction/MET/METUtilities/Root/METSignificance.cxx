@@ -99,6 +99,16 @@ namespace met {
     declareProperty("IsDataMuon",  m_isDataMuon    = false   );
     declareProperty("IsAFII",      m_isAFII        = false   );
 
+    m_file = nullptr;
+  }
+  
+  METSignificance::~METSignificance(){}
+  
+  StatusCode METSignificance::initialize(){
+
+    ATH_MSG_INFO ("Initializing " << name() << "...");
+    ATH_MSG_INFO("Set up JER tools");
+
     // Phi resolution
     std::string configpath  = PathResolverFindCalibFile(m_configPrefix+m_configJetPhiResoFile);
     m_file = TFile::Open(configpath.c_str());
@@ -113,14 +123,7 @@ namespace met {
     else{
       ATH_MSG_ERROR("PU Jet Uncertainty TFile is not valid: " << configpath);
     }
-  }
-  
-  METSignificance::~METSignificance(){}
-  
-  StatusCode METSignificance::initialize(){
 
-    ATH_MSG_INFO ("Initializing " << name() << "...");
-    ATH_MSG_INFO("Set up JER tools");
     std::string toolName;
     std::string jetcoll = "AntiKt4EMTopoJets";
     toolName = "JetCalibrationTool/jetCalibTool_"+m_JetCollection;
@@ -224,7 +227,7 @@ namespace met {
     m_met_vect.SetXYZ(m_metx, m_mety, 0);
 
     // Fill the remaining terms
-    for(const xAOD::MissingET *met : *metCont) {
+    for(const auto met : *metCont) {
 
       // skip the invisible and total MET
       if(MissingETBase::Source::isTotalTerm(met->source())){

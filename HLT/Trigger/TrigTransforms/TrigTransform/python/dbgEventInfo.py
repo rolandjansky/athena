@@ -8,6 +8,7 @@ from __future__ import print_function
 
 import eformat
 from ROOT import gStyle, gROOT, addressof, TTree, vector, string
+from TrigByteStreamTools.hltResultMT import get_collections
 
 import logging
 msg = logging.getLogger('PyJobTransforms.' + __name__)
@@ -28,12 +29,12 @@ class dbgEventInfo:
         self.Node_ID                               = 0
         self.HLT_Result                            = 'None'
         self.SuperMasterKey                        = 0
-        self.HLT_PSC_Key                           = 0
+        self.HLTPrescaleKey                           = 0
         self.HLT_Application                       = 'None'
         self.HLT_Decision                          = False
         self.L1_Chain_Names                        = []
         self.HLT_Chain_Names                       = []
-        self.EventStatusNames                      = []
+        self.EventStatusNames                      = 'None'
 
         self.eventCounter = 0
         self.rootDefinitions(dbgStep, inputFile)
@@ -86,8 +87,8 @@ class dbgEventInfo:
         self.Lumiblock = event.lumi_block()
         self.Lvl1_ID = event.lvl1_id()
 
-        self.Event_Counter_Lvl1_ID = self.Lvl1_ID & 0xffffff
-        self.Event_Counter_Reset_Counter_Lvl1_ID = (self.Lvl1_ID & 0xff000000) >> 24
+        msg.debug("Event Counter Lvl1 ID               = %s", self.Lvl1_ID & 0xffffff)
+        msg.debug("Event Counter Reset Counter Lvl1 ID = %s", (self.Lvl1_ID & 0xff000000) >> 24)
 
         self.L1_Chain_Names = L1ChainNames
         self.HLT_Chain_Names = HLTChainNames
@@ -107,12 +108,29 @@ class dbgEventInfo:
     def eventConfig(self, configKeys=None, event=None):
         # Set configuration data: PSK and SMK
         if configKeys:
-            self.HLT_PSC_Key = configKeys['HLTPSK']
+            self.HLTPrescaleKey = configKeys['HLTPSK']
             self.SuperMasterKey = configKeys['SMK']
+        elif event:
+            # Find TrigConfKeys EDM collection and extract data
+            for rob in event.children():
+                if rob.source_id().subdetector_id() != eformat.helper.SubDetector.TDAQ_HLT:
+                    continue
+                raw_data = tuple(rob.rod_data())
+                collections = get_collections(raw_data, skip_payload=False)
+                configList = [c for c in collections if 'xAOD::TrigConfKeys_v' in c.name_persistent]
 
-        # TODO if config keys from COOL are not available decode TrigConfKeys collection ATR-22653
+                for conf in configList:
+                    configKeys = conf.deserialise()
+                    if configKeys:
+                        self.HLTPrescaleKey = configKeys.hltpsk()
+                        self.SuperMasterKey = configKeys.smk()
+                        return
 
-        msg.info('HLT_Configuration  smk:{0}   hltpskey :{1}'.format(self.SuperMasterKey, self.HLT_PSC_Key))
+            msg.info("Smk and hltpskey unavailable in this event")
+        else:
+            msg.info("Cannot retrieve smk and hltpskey")
+
+        msg.info('HLT_Configuration  smk:{0}   hltpskey :{1}'.format(self.SuperMasterKey, self.HLTPrescaleKey))
 
 
     def eventStatus(self, event):
@@ -160,16 +178,20 @@ class dbgEventInfo:
         self.L1_Triggered_AV.clear()
         self.L1_Triggered_IDs.clear()
 
+        if not L1ItemNames:
+            msg.warn("L1 items map not available")
+            return
+
         # Decode Lvl1 trigger info
         info = event.lvl1_trigger_info()
         nwords = len(info)//3  # TBP, TAP, TAV
         l1Bits = [self.decodeTriggerBits(info[i*nwords:(i+1)*nwords]) for i in range(3)]
 
         for id in l1Bits[0]:
-            try:
+            if id in L1ItemNames:
                 self.L1_Triggered_BP.push_back(L1ItemNames[id])
-            except TypeError:
-                msg.warn("Item name for ctpid %s not found!", id)
+            else:
+                msg.debug('Item %s not found in the menu - probably is disabled', id)
 
         for id in l1Bits[2]:
             self.L1_Triggered_IDs.push_back(id)
@@ -185,6 +207,10 @@ class dbgEventInfo:
         # Get HLT info and store it in ROOT vectors
         self.HLT_Triggered_Names.clear()
         self.HLT_Triggered_IDs.clear()
+
+        if not HLTChainNames:
+            msg.warn("HLT Chains map not available")
+            return
 
         # Decode HLT trigger info
         info = event.event_filter_info()
@@ -206,6 +232,7 @@ class dbgEventInfo:
         bit_indices = []
         for iw in range(len(words)):
             bit_indices.extend([base*iw+i for i in range(base) if words[iw] & (1 << i)])
+
         return bit_indices
 
 
@@ -272,12 +299,12 @@ class dbgEventInfo:
         self.Event_Info.Node_ID                = self.Node_ID
         self.Event_Info.Lumiblock              = self.Lumiblock
         self.Event_Info.SuperMasterKey         = self.SuperMasterKey
-        self.Event_Info.HLT_PSC_Key            = self.HLT_PSC_Key
+        self.Event_Info.HLTPrescaleKey         = self.HLTPrescaleKey
         self.Event_Info.HLT_Decision           = self.HLT_Decision
         self.Event_Info.HLT_Application        = self.HLT_Application
         self.Event_Info.EventStatusNames       = self.EventStatusNames
-        
-        self.event_info_tree.Fill()        
+
+        self.event_info_tree.Fill()
 
 
     def rootDefinitions(self,dbgStep,inputFile):
@@ -299,7 +326,7 @@ class dbgEventInfo:
             Int_t   Lumiblock;\
             Int_t   Node_ID;\
             Int_t   SuperMasterKey;\
-            Int_t   HLT_PSC_Key;\
+            Int_t   HLTPrescaleKey;\
             Bool_t  HLT_Decision;\
             Char_t  HLT_Application[50];\
             Char_t  EventStatusNames[50];\
@@ -313,17 +340,17 @@ class dbgEventInfo:
         self.event_info_tree.Branch('Run_Number',       addressof(self.Event_Info, 'Run_Number'),       'run_Number/I')
         self.event_info_tree.Branch('Stream_Tag_Name',  addressof(self.Event_Info, 'Stream_Tag_Name'),  'stream_Tag_Name/C')
         self.event_info_tree.Branch('Stream_Tag_Type',  addressof(self.Event_Info, 'Stream_Tag_Type'),  'stream_Tag_Type/C')
-        self.event_info_tree.Branch('Lvl1_ID',                             addressof(self.Event_Info, 'Lvl1_ID'),                               'lvl1_ID/I')
+        self.event_info_tree.Branch('Lvl1_ID',          addressof(self.Event_Info, 'Lvl1_ID'),          'lvl1_ID/I')
         self.event_info_tree.Branch('Event_Counter_Lvl1_ID',               addressof(self.Event_Info, 'Event_Counter_Lvl1_ID'),                 'event_Counter_Lvl1_ID/I')
         self.event_info_tree.Branch('Event_Counter_Reset_Counter_Lvl1_ID', addressof(self.Event_Info, 'Event_Counter_Reset_Counter_Lvl1_ID'),   'event_Counter_Reset_Counter_Lvl1_ID/I')
-        self.event_info_tree.Branch('Global_ID',        addressof(self.Event_Info, 'Global_ID'),  'global_ID/I')
-        self.event_info_tree.Branch('Lumiblock',        addressof(self.Event_Info, 'Lumiblock'),  'lumiblock/I')
-        self.event_info_tree.Branch('Node_ID',          addressof(self.Event_Info, 'Node_ID'),  'node_ID/I')
-        self.event_info_tree.Branch('SuperMasterKey',   addressof(self.Event_Info, 'SuperMasterKey'),    'supperMasterKey/I')
-        self.event_info_tree.Branch('HLT_PSC_Key',      addressof(self.Event_Info, 'HLT_PSC_Key'),       'hLT_PSC_Key/I')
-        self.event_info_tree.Branch('HLT_Decision',     addressof(self.Event_Info, 'HLT_Decision'),    'hLT_Decision/B')
-        self.event_info_tree.Branch('HLT_Application',  addressof(self.Event_Info, 'HLT_Application'),   'HLT_Application/C')
-        self.event_info_tree.Branch('EventStatusNames', addressof(self.Event_Info, 'EventStatusNames'),  'eventStatusNames/C')
+        self.event_info_tree.Branch('Global_ID',        addressof(self.Event_Info, 'Global_ID'),        'global_ID/I')
+        self.event_info_tree.Branch('Lumiblock',        addressof(self.Event_Info, 'Lumiblock'),        'lumiblock/I')
+        self.event_info_tree.Branch('Node_ID',          addressof(self.Event_Info, 'Node_ID'),          'node_ID/I')
+        self.event_info_tree.Branch('SuperMasterKey',   addressof(self.Event_Info, 'SuperMasterKey'),   'superMasterKey/I')
+        self.event_info_tree.Branch('HLTPrescaleKey',   addressof(self.Event_Info, 'HLTPrescaleKey'),   'hltPrescaleKey/I')
+        self.event_info_tree.Branch('HLT_Decision',     addressof(self.Event_Info, 'HLT_Decision'),     'hLT_Decision/B')
+        self.event_info_tree.Branch('HLT_Application',  addressof(self.Event_Info, 'HLT_Application'),  'HLT_Application/C')
+        self.event_info_tree.Branch('EventStatusNames', addressof(self.Event_Info, 'EventStatusNames'), 'eventStatusNames/C')
 
         # Setup vector data
         self.L1_Triggered_AV  = vector( string )()

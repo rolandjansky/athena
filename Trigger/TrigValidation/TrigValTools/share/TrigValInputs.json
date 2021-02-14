@@ -24,7 +24,7 @@
         "source": "data",
         "format": "BS",
         "paths": [
-            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data20_test/data_test.00374861.physics_Main.daq.RAW._lb0004._SFO-1._0001.data"
+            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data_test.00386211.physics_Main.daq.RAW._lb0003._SFO-5._0001.data"
         ]
     },
     "data_cos": {
@@ -61,6 +61,14 @@
         "paths": [
             "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.RDO.e4993_s3214_r11315/RDO.17533168._000001.pool.root.1",
             "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.RDO.e4993_s3214_r11315/RDO.17533168._000002.pool.root.1"
+        ]
+    },
+    "pbpb": {
+        "source": "mc",
+        "format": "RDO",
+        "paths": [            
+            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.420000.Hijing_PbPb_5p02TeV_MinBias_Flow_JJFV6.recon.RDO.e4962_a890_s3136_r12384_tid24120377_00/RDO.24120377._000001.pool.root.1",
+	    "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.420000.Hijing_PbPb_5p02TeV_MinBias_Flow_JJFV6.recon.RDO.e4962_a890_s3136_r12384_tid24120377_00/RDO.24120377._000002.pool.root.1"
         ]
     },
     "ttbar_phase1": {

@@ -37,6 +37,9 @@ class MURoIsUnpackingTool : public RoIsUnpackingToolBase
   virtual StatusCode unpack(const EventContext& ctx,
                             const ROIB::RoIBResult& roib,
                             const HLT::IDSet& activeChains) const override;
+  virtual StatusCode unpack(const EventContext& ctx,
+                            const xAOD::TrigComposite& l1TriggerResult,
+                            const HLT::IDSet& activeChains) const override;
   virtual StatusCode start() override;
 private: 
 
@@ -48,6 +51,10 @@ private:
   SG::WriteHandleKey< DataVector<LVL1::RecMuonRoI> > m_recRoIsKey{
     this, "OutputRecRoIs", "HLT_RecMURoIs",
     "Name of the RoIs object produced by the unpacker"};
+
+  Gaudi::Property<std::string> m_muRoILinkName {
+    this, "MuRoILinkName", "LVL1MuonRoIs",
+    "Name of the link to read from L1TriggerResult for muon RoI container"};
 
   Gaudi::Property<float> m_roIWidth{
     this, "RoIWidth", 0.1, "Size of RoI in eta/ phi"};

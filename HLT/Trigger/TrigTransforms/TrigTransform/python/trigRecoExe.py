@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # @brief: Trigger executor to call base transforms
 # @details: Based on athenaExecutor with some modifications
@@ -134,14 +134,19 @@ class trigRecoExecutor(athenaExecutor):
                 fileNameDbg = outputFiles['HIST_DEBUGSTREAMMON'].value
 
                 # Do debug stream preRun step and get asetup string from debug stream input files
-                dbgAsetupString = dbgStream.dbgPreRun(inputFiles['BS_RDO'], fileNameDbg)
+                dbgAsetupString, dbAlias = dbgStream.dbgPreRun(inputFiles['BS_RDO'], fileNameDbg, self.conf.argdict)
                 # Setup asetup from debug stream
                 # if no --asetup r2b:string was given and is not running with tzero/software/patches as TestArea
                 if asetupString is None and dbgAsetupString is not None:
                     asetupString = dbgAsetupString
-                    msg.info('Will use asetup string for debug stream analsys %s', dbgAsetupString)
+                    msg.info('Will use asetup string for debug stream analysis %s', dbgAsetupString)
+
+                # Set database in command line if it was missing
+                if 'DBserver' not in self.conf.argdict and dbAlias:
+                    msg.warn("Database alias will be set to %s", dbAlias)
+                    self._cmd.append("--db-server " + dbAlias)
             else:
-                msg.warn("Flag outputHIST_DEBUGSTREAMMONFile or outputBSFile not defined - debug stream anaylsis will not run.")
+                msg.info("Flag outputHIST_DEBUGSTREAMMONFile or outputBSFile not defined - debug stream analysis will not run.")
 
 
         # Call athenaExecutor parent as the above overrides what athenaExecutor would have done
@@ -251,7 +256,7 @@ class trigRecoExecutor(athenaExecutor):
             msg.error('Failed to open transform logfile {0}: {1:s}'.format(log, e))
         for line, lineCounter in myGen:
             # Check to see if any of the hlt children had an issue
-            if 'Child Issue' in line > -1:
+            if 'Child Issue' in line:
                 try:
                     signal = int((re.search('signal ([0-9]*)', line)).group(1))
                 except AttributeError:
@@ -354,6 +359,10 @@ class trigRecoExecutor(athenaExecutor):
                         raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
                             'Did not produce any BS file when selecting CostMonitoring stream with trigbs_extractStream.py in file')
 
+                # Run debug step for all streams
+                if "outputHIST_DEBUGSTREAMMONFile" in self.conf.argdict:
+                    self._postExecuteDebug(argInDict)
+
                 # If a stream (not All) is selected, then slim the orignal (many stream) BS output to the particular stream
                 if 'streamSelection' in self.conf.argdict and self.conf.argdict['streamSelection'].value != "All":
                     splitFailed = self._splitBSfile(self.conf.argdict['streamSelection'].value, matchedOutputFileNames[0], argInDict.value[0])
@@ -368,28 +377,23 @@ class trigRecoExecutor(athenaExecutor):
         else:
             msg.info('BS output filetype not defined so skip BS filename check')
 
-        # Run postRun step debug stream analysis if output BS file and output histogram are set
-        if "outputHIST_DEBUGSTREAMMONFile" in self.conf.argdict and 'BS' in self.conf.dataDictionary:
-            msg.info("debug stream analysis in postExecute")
-
-            # Set file name for debug stream analysis output
-            fileNameDbg = self.conf.argdict["outputHIST_DEBUGSTREAMMONFile"].value
-            msg.info('outputHIST_DEBUGSTREAMMONFile argument is {0}'.format(fileNameDbg))
-
-            if(os.path.isfile(fileNameDbg[0])):
-                # Keep filename if not defined
-                msg.info('Will use file created in PreRun step {0}'.format(fileNameDbg))
-            else:
-                msg.info('No file created  in PreRun step {0}'.format(fileNameDbg))
-
-            # Do debug stream postRun step
-            dbgStream.dbgPostRun(argInDict, fileNameDbg)
-
-            #
-            # TODO is the reset now redundant? (not needed for reprocessing)
-            #
-            # Now reset metadata for outputBSFile needed for trf file validation
-            self.conf.dataDictionary['BS']._resetMetadata()
-
         msg.info('Now run athenaExecutor:postExecute')
         super(trigRecoExecutor, self).postExecute()
+
+
+    def _postExecuteDebug(self, argInDict):
+        # Run postRun step debug stream analysis if output BS file and output histogram are set
+        msg.info("debug stream analysis in postExecute")
+
+        # Set file name for debug stream analysis output
+        fileNameDbg = self.conf.argdict["outputHIST_DEBUGSTREAMMONFile"].value
+        msg.info('outputHIST_DEBUGSTREAMMONFile argument is {0}'.format(fileNameDbg))
+
+        if(os.path.isfile(fileNameDbg[0])):
+            # Keep filename if not defined
+            msg.info('Will use file created in PreRun step {0}'.format(fileNameDbg))
+        else:
+            msg.info('No file created  in PreRun step {0}'.format(fileNameDbg))
+
+        # Do debug stream postRun step
+        dbgStream.dbgPostRun(argInDict, fileNameDbg, self.conf.argdict)

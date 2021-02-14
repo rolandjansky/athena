@@ -41,7 +41,7 @@ TRT_ToT_dEdx::TRT_ToT_dEdx(const std::string& t, const std::string& n, const IIn
   AthAlgTool(t,n,p),
   m_TRTStrawSummaryTool("TRT_StrawStatusSummaryTool",this),
   m_assoTool("InDet::InDetPRD_AssociationToolGangedPixels"),
-  m_localOccTool()
+  m_localOccTool("",this)
 {
   declareInterface<ITRT_ToT_dEdx>(this);
   declareProperty("TRTStrawSummaryTool",    m_TRTStrawSummaryTool);
@@ -1153,6 +1153,10 @@ TRT_ToT_dEdx::hitOccupancyCorrection(const EventContext& ctx,
     if (tmpRio->rioType(Trk::RIO_OnTrackType::TRT_DriftCircle)) {
       driftcircle = static_cast<const InDet::TRT_DriftCircleOnTrack*>(tmpRio);
     }
+  }
+
+  if (!driftcircle) {
+    return 0.;
   }
 
   const Trk::TrackParameters* trkP = itr->trackParameters();

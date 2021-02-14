@@ -11,7 +11,7 @@
         </fileList>
         <fileOffset>-1</fileOffset>
         <library>DFDcmEmuBackend</library>
-        <loopOverFiles>False</loopOverFiles>
+        <loopOverFiles>True</loopOverFiles>
         <numEvents>3</numEvents>
         <outputFileName>out.data</outputFileName>
         <preload>False</preload>

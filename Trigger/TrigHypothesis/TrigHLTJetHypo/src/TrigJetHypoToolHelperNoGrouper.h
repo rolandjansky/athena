@@ -7,7 +7,8 @@
 
 /**
  * A configurable helper class to implement Jet Trigger algorithms.
- * Initial jet removal from incomming container is done using the ICleaner predicates.
+ * Initial jet removal from incomming container is done using the 
+ * prefilter predicates.
  * The surviving jets are grouped into subsets by the IJetGroup object.
  *
  * The IMatcher objector owns a set of Conditions objects. 
@@ -20,12 +21,13 @@
 #include <vector>
 #include <memory>
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ICleanerTool.h"
 #include "./IJetsMatcherMT.h"
 #include "./ConditionsDefsMT.h"
+#include "./ConditionFilter.h"
 
 #include "TrigHLTJetHypo/ITrigJetHypoToolHelperMT.h"
 #include "ITrigJetHypoToolNoGrouperConfig.h"
+#include "./ITrigJetRepeatedConditionConfig.h"
 
 class ITrigJetHypoInfoCollector;
 class xAODJetCollector;
@@ -56,18 +58,22 @@ public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
   // Object that matches jet groups with Conditions
   std::vector<std::unique_ptr<IJetsMatcherMT>> m_matchers;
 
-  // Bridge objects to ICleaner predicate function objects to allow polymorphic
-  // pointers to be used with the STL (pass by value).
-  ToolHandleArray<ICleanerTool> m_cleaners;
-
   ///////////////////////////////
 
  // Used to generate helper objects foe TrigHLTJetHelper
  // from user supplied values
  ToolHandleArray<ITrigJetHypoToolNoGrouperConfig> m_configs {
    this, "HypoConfigurers", {},
-   "Configurers to set up TrigJetHypoHelperNoGrouper"}; 
+   "Configurers to set up TrigJetHypoHelperNoGrouper"};
 
+  ToolHandleArray<ITrigJetRepeatedConditionConfig>
+  m_prefilterConditionMakers{this, "prefiltConditionMakers", {},
+    "hypo tree Condition builder AlgTools for hypo pre-filtering"};
+
+  // object that copies selected incomming jets into a new vector.
+  ConditionFilter m_prefilter{}; 
+
+  
   Gaudi::Property<bool>
   m_debug {this, "debug", false, "instantantiate helpers with this debug flag"};
   
@@ -76,7 +82,9 @@ public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
                   const std::unique_ptr<ITrigJetHypoInfoCollector>&,
                   const std::optional<bool>& pass) const;
 
- virtual std::string toString() const override;
+  StatusCode makePrefilter();
+  
+  virtual std::string toString() const override;
 };
 
 #endif

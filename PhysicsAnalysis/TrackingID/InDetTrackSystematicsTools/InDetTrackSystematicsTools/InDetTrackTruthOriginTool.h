@@ -38,9 +38,11 @@ namespace InDet {
   /** Computes the tracks origin */
   virtual int getTrackOrigin(const xAOD::TrackParticle* track) const override;
 
+  /** Computes the truth origin (from B or D hadron) */
+  virtual bool isFrom(const xAOD::TruthParticle* part, int flav) const override;
+
 private:
 
-  bool isFrom(const xAOD::TruthParticle* part, int flav) const;
   int getParentID(const xAOD::TruthParticle* part) const;
 
   float m_matchingProbabilityCut = 0.75;

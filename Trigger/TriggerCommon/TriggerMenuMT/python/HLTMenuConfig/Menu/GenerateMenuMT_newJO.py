@@ -1,6 +1,4 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaCommon.CFElements import seqAND
 import itertools
 
 from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
@@ -46,9 +44,10 @@ def getGenerator(signature):
     """
     Fill the mapping from the flag container name to the function responsible for generating the Chain objects
 
-    Here the files naming convention is employed: the chains mentioned in Trigger.menu.XYZ are served by the function in HLTMenuConfig.XYZ.generateChains"""
-    capitalizedSignature = signature.capitalize()
-    importString = 'TriggerMenuMT.HLTMenuConfig.{}.generate{}'.format(capitalizedSignature, capitalizedSignature)
+    Here the files naming convention is employed: the chains mentioned in Trigger.menu.XYZ are served by the function in HLTMenuConfig.XYZ.generateXYZ
+    where XYZ is the "signature" property of the chainDict (passed here directly) """
+
+    importString = 'TriggerMenuMT.HLTMenuConfig.{0}.generate{0}'.format(signature)
     gen = importlib.import_module( importString )
     log.info('Imported generator for %s', signature)
     return gen.generateChains
@@ -76,12 +75,14 @@ def generateChainConfig(flags, chain, sigGenMap):
     mainChainDict['prescale'] = 1
     chainDicts = splitInterSignatureChainDict(mainChainDict)
     listOfChainConfigs = []
+    alignmentLengths ={}
     for chainDict, alignmentGroup in zip(chainDicts, mainChainDict['alignmentGroups']):
         signature = chainDict['signature']
         if signature not in sigGenMap:
             log.error('Generator for %s is missing. Chain config can not be built', signature)
             return
         chainConfig = sigGenMap[signature](flags, chainDict)
+        alignmentLengths[alignmentGroup] = len(chainConfig.steps)
         chainConfig.alignmentGroups = [alignmentGroup]
         listOfChainConfigs.append(chainConfig)
 
@@ -90,6 +91,7 @@ def generateChainConfig(flags, chain, sigGenMap):
     else:
         theChainConfig = listOfChainConfigs[0]
 
+    mainChainDict["alignmentLengths"] = alignmentLengths
     return mainChainDict, theChainConfig
 
 
@@ -100,20 +102,24 @@ def doMenuAlignment(chains):
     Input is a list of pairs, (chain dict, chain config)
     """
     groups = [c[0]['alignmentGroups'] for c in chains]
+    log.info('Alignment Combinations %s', groups)
     alignmentCombinations = set([tuple(set(g)) for g in groups if len(g) > 1])
     alignmentGroups = set(*alignmentCombinations)
-    alignmentLengths = dict.fromkeys(list(itertools.chain(*groups)), 0)
+    log.info('Alignment Combinations %s', alignmentCombinations)
+    log.info('Alignment Groups %s', alignmentGroups)
 
+    alignmentLengths = dict.fromkeys(list(itertools.chain(*groups)), 0)
+    
     for chainDict, chainConfig in chains:
-        clen = len(chainConfig.steps)
-        for group in chainDict['alignmentGroups']:
+        for group, clen in chainDict['alignmentLengths'].items():
             alignmentLengths[group] = max(alignmentLengths[group], clen)
+        del chainDict['alignmentLengths']
+    log.info('Alignment Lengths %s', alignmentLengths)
 
     menuAlignment = MenuAlignment(alignmentCombinations,
                                   alignmentGroups,
                                   alignmentLengths)
     menuAlignment.analyse_combinations()
-    # lengthOfChainConfigs is something like this: [(4, 'Photon'), (5, 'Muon')]
 
     reverseAlignmentLengths = [ el[::-1] for el in alignmentLengths.items()]
     for chainDict, chainConfig in chains:
@@ -124,6 +130,8 @@ def doMenuAlignment(chains):
             alignedChainConfig = menuAlignment.single_align(chainDict, chainConfig)
         elif len(alignmentGroups) == 2:
             alignedChainConfig = menuAlignment.multi_align(chainDict, chainConfig, reverseAlignmentLengths)
+        else:
+            assert False, "Do not handle more than one calignment group"
         TriggerConfigHLT.registerChain(chainDict, alignedChainConfig)
 
 
@@ -157,15 +165,10 @@ def generateMenu(flags):
     """
     loadChains(flags)
 
-    menuAcc = ComponentAccumulator()
-    mainSequenceName = 'HLTAllSteps'
-    menuAcc.addSequence(seqAND(mainSequenceName))
-
-    # pass all menuChain to CF builder
-    menuAcc.wasMerged()
     menuAcc = generateDecisionTree(TriggerConfigHLT.configsList())
-
-    menuAcc.printConfig()
+    menuAcc.wasMerged()
+    if log.getEffectiveLevel() <= logging.DEBUG:
+        menuAcc.printConfig()
 
     log.info('CF is built')
 

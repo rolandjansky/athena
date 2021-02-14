@@ -24,6 +24,7 @@ class RoIsUnpackingEmulationTool : public RoIsUnpackingToolBase {
                               const std::string& name, 
                               const IInterface* parent );
 
+  using RoIsUnpackingToolBase::unpack;
   virtual StatusCode unpack(const EventContext& ctx,
                             const ROIB::RoIBResult& roib,
                             const HLT::IDSet& activeChains) const override;

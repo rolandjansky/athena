@@ -22,7 +22,7 @@ def EntryLayerToolCfg(flags, name="ISF_EntryLayerTool", **kwargs):
         acc.addService(OEsvc)
         kwargs.setdefault("EvtStore", OEsvc) # For Fast Chain
 
-    acc.addPublicTool(CompFactory.ISF.EntryLayerTool(name, **kwargs))
+    acc.setPrivateTools(CompFactory.ISF.EntryLayerTool(name, **kwargs))
     return acc
 
 
@@ -40,7 +40,7 @@ def EntryLayerToolMTCfg(flags, name="ISF_EntryLayerToolMT", **kwargs):
         acc.addService(OEsvc)
         kwargs.setdefault("EvtStore", OEsvc) # For Fast Chain
 
-    acc.addPublicTool(CompFactory.ISF.EntryLayerToolMT(name, **kwargs))
+    acc.setPrivateTools(CompFactory.ISF.EntryLayerToolMT(name, **kwargs))
     return acc
 
 
@@ -58,7 +58,7 @@ def AFIIEntryLayerToolCfg(flags, name="ISF_AFIIEntryLayerTool", **kwargs):
         acc.addService(OEsvc)
         kwargs.setdefault("EvtStore", OEsvc) # For Fast Chain
 
-    acc.addPublicTool(CompFactory.ISF.EntryLayerTool(name, **kwargs))
+    acc.setPrivateTools(CompFactory.ISF.EntryLayerTool(name, **kwargs))
     return acc
 
 
@@ -76,5 +76,5 @@ def AFIIEntryLayerToolMTCfg(flags, name="ISF_AFIIEntryLayerToolMT", **kwargs):
         acc.addService(OEsvc)
         kwargs.setdefault("EvtStore", OEsvc) # For Fast Chain
 
-    acc.addPublicTool(CompFactory.ISF.EntryLayerToolMT(name, **kwargs))
+    acc.setPrivateTools(CompFactory.ISF.EntryLayerToolMT(name, **kwargs))
     return acc

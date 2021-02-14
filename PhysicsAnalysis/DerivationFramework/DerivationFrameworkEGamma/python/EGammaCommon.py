@@ -88,16 +88,11 @@ ToolSvc += ElectronLHSelectorLooseBL
 #====================================================================
 # ELECTRON CHARGE SELECTION
 #====================================================================
-#
-# Disabled as is missing in R22
-#
-
 from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AsgElectronChargeIDSelectorTool
 ElectronChargeIDSelector = AsgElectronChargeIDSelectorTool("ElectronChargeIDSelectorLoose")
 ElectronChargeIDSelector.primaryVertexContainer = "PrimaryVertices"
 ElectronChargeIDSelector.TrainingFile = "ElectronPhotonSelectorTools/ChargeID/ECIDS_20180731rel21Summer2018.root"
 ToolSvc += ElectronChargeIDSelector
-
 
 #====================================================================
 # FWD ELECTRON LH SELECTORS
@@ -148,28 +143,28 @@ ToolSvc += PhotonIsEMSelectorTightPtIncl
 from CaloClusterCorrection.CaloClusterCorrectionConf import CaloFillRectangularCluster
 
 EGAMCOM_caloFillRect55 = CaloFillRectangularCluster (	name = "EGAMCOMCaloFillRectangularCluster55",
-                                                        cells_name = "AODCellContainer",
+                                                        cells_name = "AllCalo",
                                                         eta_size = 5,
                                                         phi_size = 5,
                                                         fill_cluster = True)
 ToolSvc += EGAMCOM_caloFillRect55
 
 EGAMCOM_caloFillRect35 = CaloFillRectangularCluster (	name = "EGAMCOMCaloFillRectangularCluster35",
-                                                        cells_name = "AODCellContainer",
+                                                        cells_name = "AllCalo",
                                                         eta_size = 3,
                                                         phi_size = 5,
                                                         fill_cluster = True)
 ToolSvc += EGAMCOM_caloFillRect35
 
 EGAMCOM_caloFillRect37 = CaloFillRectangularCluster (	name = "EGAMCOMCaloFillRectangularCluster37",
-                                                        cells_name = "AODCellContainer",
+                                                        cells_name = "AllCalo",
                                                         eta_size = 3,
                                                         phi_size = 7,
                                                         fill_cluster = True)
 ToolSvc += EGAMCOM_caloFillRect37
 
 EGAMCOM_caloFillRect711 = CaloFillRectangularCluster (	name = "EGAMCOMCaloFillRectangularCluster711",
-                                                        cells_name = "AODCellContainer",
+                                                        cells_name = "AllCalo",
                                                         eta_size = 7,
                                                         phi_size = 11,
                                                         fill_cluster = True)
@@ -237,11 +232,7 @@ ElectronPassLHTight = DerivationFramework__EGElectronLikelihoodToolWrapper( name
 ToolSvc += ElectronPassLHTight
 print(ElectronPassLHTight)
 
-#
-# Disabled as is missing in R22
-#
-
-# decorate electrons with the output of ECIDS ----------------------------------------------------------------------
+# decorate electrons with the output of ECIDS
 ElectronPassECIDS = DerivationFramework__EGElectronLikelihoodToolWrapper( name = "ElectronPassECIDS",
                                                                           EGammaElectronLikelihoodTool = ElectronChargeIDSelector,
                                                                           EGammaFudgeMCTool = "",
@@ -366,7 +357,7 @@ ElectronAmbiguity = DF_EGEAT(name               = "ElectronAdditionnalAmbiguity"
 ToolSvc += ElectronAmbiguity
 
 #
-# Commented ForwardElectronPassLHLoose, ForwardElectronPassLHMedium, ForwardElectronPassLHTight, tools due to they are not available in R22 yet
+# Commented ForwardElectronPassLHLoose, ForwardElectronPassLHMedium, ForwardElectronPassLHTight tools due to they are not available in R22 yet
 #
 # list of all the decorators so far
 EGAugmentationTools = [DFCommonPhotonsDirection,
@@ -448,6 +439,8 @@ if  rec.doTruth():
     # Schedule the two energy density tools for running
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
+    if not hasattr(topSequence, jtm.truthget.name()):
+        topSequence += jtm.truthget
     topSequence += EventDensityAthAlg("EDTruthCentralAlg", EventDensityTool = tc )
     topSequence += EventDensityAthAlg("EDTruthForwardAlg", EventDensityTool = tf )
 
@@ -463,6 +456,8 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("EGamma
 # ADD TOOLS
 #=======================================
 
-from IsolationAlgs.IsoUpdatedTrackCones import GetUpdatedIsoTrackCones
+import IsolationAlgs.IsoUpdatedTrackCones as isoCones
 if not hasattr(DerivationFrameworkJob,"IsolationBuilderTight1000"):
-    DerivationFrameworkJob += GetUpdatedIsoTrackCones()
+    DerivationFrameworkJob += isoCones.GetUpdatedIsoTrackCones()
+
+

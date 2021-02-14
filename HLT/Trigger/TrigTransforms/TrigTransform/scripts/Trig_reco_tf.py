@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## Trig_reco_tf.py
 ## - based on PyJobTransforms/Reco_tf.py
@@ -19,6 +19,7 @@ import PyJobTransforms.trfArgClasses as trfArgClasses
 
 from TrigTransform.trigRecoExe import trigRecoExecutor
 from TrigTransform.trigCostExe import trigCostExecutor
+from TrigTransform.trigRateExe import trigRateExecutor
 
 # Setup core logging here
 from PyJobTransforms.trfLogger import msg
@@ -61,13 +62,13 @@ def getTransform():
 
     # RAWtoCOST is new option for trigger transform
     # runs in athena and will succeed if input BS file has costmon enabled
-    executorSet.add(trigCostExecutor(name = 'RAWtoCOST', skeletonFile = 'TrigCostMonitor/readTrigCost.py',
-                                     substep = 'r2c',
-                                     inData = ['DRAW_TRIGCOST'], outData = ['NTUP_TRIGCOST', 'NTUP_TRIGRATE', 'NTUP_TRIGEBWGHT'],
-                                     perfMonFile = 'ntuple_RAWtoCOST.pmon.gz',
-                                     literalRunargs = ['from AthenaCommon.AthenaCommonFlags import jobproperties as jps',
-                                                       'jps.AthenaCommonFlags.FilesInput.set_Value_and_Lock(runArgs.inputDRAW_TRIGCOSTFile)',
-                                                       'jps.AthenaCommonFlags.EvtMax.set_Value_and_Lock(runArgs.maxEvents)']))
+    executorSet.add(trigCostExecutor(name = 'RAWtoCOST',
+                                     exe = 'RunTrigCostAnalysis.py',
+                                     inData = ['DRAW_TRIGCOST'], outData = ['NTUP_TRIGCOST']))
+
+    executorSet.add(trigRateExecutor(name = 'AODtoRATE',
+                                     exe = 'RatesAnalysisFullMenu.py',
+                                     inData = ['AOD'], outData = ['NTUP_TRIGRATE']))
 
     # add default reconstruction steps
     ## TODO: eventually to be replaced by:
@@ -191,10 +192,6 @@ def addTrigCostArgs(parser):
     parser.add_argument('--outputNTUP_TRIGRATEFile', nargs='+',
                         type=trfArgClasses.argFactory(trfArgClasses.argHISTFile, io='output', runarg=True, countable=False),
                         help='D3PD output NTUP_TRIGRATE file', group='TrigCost')
-    # NTUP_TRIGEBWGHT is used for COST monitoring - used in the reco release
-    parser.add_argument('--outputNTUP_TRIGEBWGHTFile', nargs='+',
-                        type=trfArgClasses.argFactory(trfArgClasses.argHISTFile, io='output', runarg=True, countable=False),
-                        help='D3PD output NTUP_TRIGEBWGHT file', group='TrigCost')
 
 
 def addTriggerDBArgs(parser):

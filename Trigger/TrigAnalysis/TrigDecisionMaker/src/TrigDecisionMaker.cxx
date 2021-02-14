@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -27,7 +27,6 @@
 #include "EventInfo/EventType.h"
 
 #include "TrigSteeringEvent/Lvl1Result.h"
-#include "TrigSteering/Lvl1ResultAccessTool.h"
 
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
 #include "TrigConfL1Data/BunchGroupSet.h"
@@ -41,7 +40,6 @@ using namespace TrigDec;
 TrigDecisionMaker::TrigDecisionMaker(const std::string &name, ISvcLocator *pSvcLocator)
   : AthReentrantAlgorithm(name, pSvcLocator),
     m_trigConfigSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
-    m_lvl1Tool("HLT::Lvl1ResultAccessTool/Lvl1ResultAccessTool", this),
     m_nEvents(0),
     m_l1_error(0), m_l2_error(0), m_ef_error(0), 
     m_hlt_error(0),
@@ -254,7 +252,7 @@ TrigDecisionMaker::ResultStatus TrigDecisionMaker::getL1Result(const LVL1CTP::Lv
 
   ATH_MSG_DEBUG ( "Got ROIBResult from StoreGate with key " << m_l1roibResultKey ) ;
 
-  std::vector< std::unique_ptr<LVL1CTP::Lvl1Item> > itemConfig = m_lvl1Tool->makeLvl1ItemConfig();
+  std::vector< std::unique_ptr<LVL1CTP::Lvl1Item> > itemConfig = m_lvl1Tool->makeLvl1ItemConfig(ctx);
 
   if ((roIBResult->cTPResult()).isComplete()) {  
     m_lvl1Tool->createL1Items(itemConfig, *roIBResult,&result);

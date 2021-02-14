@@ -1,0 +1,61 @@
+<?xml version="1.0" ?>
+
+<!-- Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration -->
+
+<dcube_client_config>
+ <dcube branch="*" cmtconfig="*" install="*" jobId="*" project="*">
+  <ref_desc>Last master nightly</ref_desc>
+  <test_desc>Current master nightly</test_desc>
+  <plimit fail="0.75" warn="0.95"/>
+  <TDirectory name="/">
+   <TDirectory name="simulation">
+    <hist1D name="truthPt" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="truthEta" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="truthPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcLocalX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcLocalY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcLocalZ" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcStationEta" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcStationPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcGlobalX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcGlobalY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcGlobalZ" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcGlobalR" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcGlobalP" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcGasGap" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtLocalX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtLocalY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtLocalZ" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtStationEta" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtStationPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtGlobalX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtGlobalY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtGlobalZ" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtGlobalR" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtGlobalP" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtTube" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="tgcLocalX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="tgcLocalY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="tgcLocalZ" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="tgcStationEta" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="tgcStationPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="tgcGlobalX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="tgcGlobalY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="tgcGlobalZ" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="tgcGlobalR" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="tgcGlobalP" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="tgcGasGap" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mmGlobalX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mmGlobalY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mmGlobalZ" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mmGlobalR" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mmGlobalP" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="stgcGlobalX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="stgcGlobalY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="stgcGlobalZ" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="stgcGlobalR" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="stgcGlobalP" plotopts="" tests="KS,chi2" type="TH1F"/>
+   </TDirectory>
+  </TDirectory>
+ </dcube>
+</dcube_client_config>

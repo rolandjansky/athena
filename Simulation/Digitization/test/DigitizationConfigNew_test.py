@@ -9,7 +9,7 @@ from AthenaCommon.Constants import DEBUG
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.TestDefaults import defaultTestFiles
-from Digitization.DigitizationSteering import DigitizationMainCfg
+from Digitization.DigitizationSteering import DigitizationMainCfg, DigitizationMessageSvcCfg, setupDigitizationDetectorFlags
 
 # Set up logging and new style config
 log.setLevel(DEBUG)
@@ -23,10 +23,14 @@ ConfigFlags.GeoModel.Align.Dynamic = False
 ConfigFlags.Concurrency.NumThreads = 1
 ConfigFlags.Concurrency.NumConcurrentEvents=1
 ConfigFlags.Beam.NumberOfCollisions = 0.
+
+setupDigitizationDetectorFlags(ConfigFlags, '')
+
 ConfigFlags.lock()
 
 # Construct our accumulator to run
 acc = DigitizationMainCfg(ConfigFlags)
+acc.merge(DigitizationMessageSvcCfg(ConfigFlags))
 
 # Dump config
 acc.getService("StoreGateSvc").Dump = True

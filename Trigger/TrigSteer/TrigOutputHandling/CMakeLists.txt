@@ -14,7 +14,7 @@ atlas_add_library( TrigOutputHandlingLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigOutputHandling
                    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} GaudiKernel AthViews AthenaBaseComps RootUtils TrigSteeringEvent TrigSerializeResultLib TrigConfData xAODTrigCalo xAODTrigRinger xAODTrigEgamma xAODEgamma xAODBTagging xAODTrigger xAODTracking xAODTrigMuon xAODMuon xAODTau xAODTrigBphys xAODTrigMissingET DecisionHandlingLib AthenaMonitoringKernelLib TrigPartialEventBuildingLib TrigSerializeTPLib AthContainersRoot TrigCompositeUtilsLib TrigCostMonitorMTLib
+                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} GaudiKernel AthViews AthenaBaseComps RootUtils TrigSteeringEvent TrigSerializeResultLib TrigConfData xAODTrigCalo xAODTrigRinger xAODTrigEgamma xAODEgamma xAODBTagging xAODTrigger xAODTracking xAODTrigMuon xAODMuon xAODTau xAODTrigBphys xAODTrigMissingET  xAODTrigMinBias DecisionHandlingLib AthenaMonitoringKernelLib TrigPartialEventBuildingLib TrigSerializeTPLib AthContainersRoot TrigCompositeUtilsLib TrigCostMonitorMTLib
 		   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} PathResolver )
 
 
@@ -37,7 +37,7 @@ atlas_add_test( void_record_test
 
 atlas_add_test( serial_deserial_test
       SOURCES test/serial_deserial_test.cxx
-      LINK_LIBRARIES TrigOutputHandlingLib
+      LINK_LIBRARIES TrigOutputHandlingLib CxxUtils
       ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
       POST_EXEC_SCRIPT nopost.sh
       PROPERTIES TIMEOUT 300
@@ -45,7 +45,7 @@ atlas_add_test( serial_deserial_test
 
 atlas_add_test( schema_evolution_test
       SOURCES test/schema_evolution_test.cxx
-      LINK_LIBRARIES TrigOutputHandlingLib
+      LINK_LIBRARIES TrigOutputHandlingLib CxxUtils
       ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
       POST_EXEC_SCRIPT nopost.sh
       PROPERTIES TIMEOUT 300

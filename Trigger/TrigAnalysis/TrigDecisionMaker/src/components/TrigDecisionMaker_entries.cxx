@@ -1,9 +1,7 @@
 #include "../TrigDecisionMaker.h"
 #include "../TrigDecisionMakerMT.h"
-//#include "TrigDecisionMaker/TrigDecisionTest.h"
+#include "../Lvl1ResultAccessTool.h"
 
 DECLARE_COMPONENT( TrigDec::TrigDecisionMaker )
 DECLARE_COMPONENT( TrigDec::TrigDecisionMakerMT )
-
-//DECLARE_COMPONENT( TrigDec::TrigDecisionTest )
-
+DECLARE_COMPONENT( HLT::Lvl1ResultAccessTool )

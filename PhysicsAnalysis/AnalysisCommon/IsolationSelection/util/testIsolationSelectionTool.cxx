@@ -1,24 +1,8 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: testIsolationSelectionTool.cxx 788099 2016-12-05 15:12:00Z dzhang $
-
-// Mindlessly copied from CPAnalysisExamples
-#ifndef CPANALYSISEXAMPLES_ERRORCHECK_H
-#define CPANALYSISEXAMPLES_ERRORCHECK_H
-
-#define CHECK( ARG )                                     \
-   do {                                                  \
-      const bool result = ARG;                           \
-      if( ! result ) {                                   \
-         ::Error( APP_NAME, "Failed to execute: \"%s\"", \
-                  #ARG );                                \
-         return 1;                                       \
-      }                                                  \
-   } while( false )
-
-#endif // CPANALYSISEXAMPLES_ERRORCHECK_H
+// $Id: testIsolationSelectionTool.cxx 800557 2017-03-14 12:59:06Z jpoveda $
 
 // System include(s):
 #include <memory>
@@ -31,11 +15,10 @@
 #include <TString.h>
 
 // Infrastructure include(s):
-#ifdef ROOTCORE
 #   include "xAODRootAccess/Init.h"
 #   include "xAODRootAccess/TEvent.h"
 #   include "xAODRootAccess/TStore.h"
-#endif // ROOTCORE
+#   include "AsgMessaging/MessageCheck.h"
 
 // EDM include(s):
 #include "xAODEgamma/PhotonContainer.h"
@@ -52,6 +35,8 @@ using std::endl;
 
 
 int main( int argc, char* argv[] ) {
+  using namespace asg::msgUserCode;
+  ANA_CHECK_SET_TYPE (int);
 
   // The application's name:
   const char* APP_NAME = argv[ 0 ];
@@ -63,17 +48,17 @@ int main( int argc, char* argv[] ) {
     return 1;
   }
   // Initialise the application:
-  CHECK( xAOD::Init( APP_NAME ) );
+  ANA_CHECK( xAOD::Init( APP_NAME ) );
 
   // Open the input file:
   const TString fileName = argv[ 1 ];
   Info( APP_NAME, "Opening file: %s", fileName.Data() );
   std::unique_ptr< TFile > ifile( TFile::Open( fileName, "READ" ) );
-  CHECK( ifile.get() );
+  ANA_CHECK( ifile.get() );
 
   // Create a TEvent object:
   xAOD::TEvent event( xAOD::TEvent::kClassAccess );
-  CHECK( event.readFrom( ifile.get() ) );
+  ANA_CHECK( event.readFrom( ifile.get() ) );
   Info( APP_NAME, "Number of events in the file: %i",
         static_cast< int >( event.getEntries() ) );
 
@@ -90,33 +75,32 @@ int main( int argc, char* argv[] ) {
   }
 
   // This is a testing file, lets fail whenever we can
+#ifdef XAOD_STANDALONE
   StatusCode::enableFailure();
-
+#endif
 
   // The most simple case, just select electron and muon
   CP::IsolationSelectionTool iso_1( "iso_1" );
-//   CHECK( iso_1.setProperty("MuonWP","Loose") );
-  CHECK( iso_1.setProperty("MuonWP","Tight") );
-//   CHECK( iso_1.setProperty("ElectronWP","Tight") );
-  CHECK( iso_1.setProperty("ElectronWP","Tight") );
-  CHECK( iso_1.setProperty("PhotonWP","Cone40") );
-//   CHECK( iso_1.setProperty("doCutInterpolation",true) );
-  CHECK( iso_1.initialize() );
+  ANA_CHECK( iso_1.setProperty("MuonWP","Gradient") );
+  ANA_CHECK( iso_1.setProperty("ElectronWP","Gradient") );
+  ANA_CHECK( iso_1.setProperty("PhotonWP","Cone40") );
+//   ANA_CHECK( iso_1.setProperty("doCutInterpolation",true) );
+  ANA_CHECK( iso_1.initialize() );
 
   // use a user configured Muon WP?
   CP::IsolationSelectionTool iso_2( "iso_2" );
-  CHECK( iso_2.initialize() );
+  ANA_CHECK( iso_2.initialize() );
 
   /// use "myTestWP" WP for muon
   std::vector< std::pair<xAOD::Iso::IsolationType, std::string> > myCuts;
   myCuts.push_back(std::make_pair<xAOD::Iso::IsolationType, std::string>(xAOD::Iso::ptcone20, "0.1*x+90"));
   myCuts.push_back(std::make_pair<xAOD::Iso::IsolationType, std::string>(xAOD::Iso::topoetcone20, "0.2*x+80"));
-  CHECK( iso_2.addUserDefinedWP("myTestWP", xAOD::Type::Muon, myCuts));
+  ANA_CHECK( iso_2.addUserDefinedWP("myTestWP", xAOD::Type::Muon, myCuts));
 
   std::vector< std::pair<xAOD::Iso::IsolationType, std::string> > myCuts2;
   myCuts2.push_back(std::make_pair<xAOD::Iso::IsolationType, std::string>(xAOD::Iso::ptcone30, "0.1*(x+90000)"));
   myCuts2.push_back(std::make_pair<xAOD::Iso::IsolationType, std::string>(xAOD::Iso::topoetcone30, "0.02*(x+80000)"));
-  CHECK( iso_2.addUserDefinedWP("myTestWP2", xAOD::Type::Photon, myCuts2, "", CP::IsolationSelectionTool::Cut));
+  ANA_CHECK( iso_2.addUserDefinedWP("myTestWP2", xAOD::Type::Photon, myCuts2, "", CP::IsolationSelectionTool::Cut));
 
   strObj strMuon;
   strMuon.isolationValues.resize(xAOD::Iso::numIsolationTypes);
@@ -132,7 +116,7 @@ int main( int argc, char* argv[] ) {
     event.getEntry( entry );
 
     const xAOD::PhotonContainer* photons(nullptr);
-    CHECK( event.retrieve(photons,m_sgKeyPhotons) );
+    ANA_CHECK( event.retrieve(photons,m_sgKeyPhotons) );
     for (auto x : *photons) {
       if (x->pt() > 7000.) {
         if (x->caloCluster() != nullptr) {
@@ -149,7 +133,7 @@ int main( int argc, char* argv[] ) {
 
 
     const xAOD::ElectronContainer* electrons(nullptr);
-    CHECK( event.retrieve(electrons,m_sgKeyElectrons) );
+    ANA_CHECK( event.retrieve(electrons,m_sgKeyElectrons) );
     for (auto x : *electrons) {
       if (x->pt() > 7000.) {
         if (x->caloCluster() != nullptr) {
@@ -164,7 +148,7 @@ int main( int argc, char* argv[] ) {
 
 
     const xAOD::MuonContainer* muons(nullptr);
-    CHECK( event.retrieve(muons,m_sgKeyMuons) );
+    ANA_CHECK( event.retrieve(muons,m_sgKeyMuons) );
     for (auto x : *muons) {
       strMuon.pt = x->pt();
       strMuon.eta = x->eta();
@@ -174,7 +158,7 @@ int main( int argc, char* argv[] ) {
 
       if (x->pt() > 7000.) {
         if (fabs(x->eta()) < 2.5) {
-          if (iso_1.accept( strMuon )) {
+          if (iso_1.accept( *x )) {
             Info(APP_NAME," Muon passes Isolation");
           }
         }

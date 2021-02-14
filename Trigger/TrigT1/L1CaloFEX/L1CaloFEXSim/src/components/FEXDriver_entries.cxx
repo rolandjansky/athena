@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+    Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "L1CaloFEXSim/eFEXDriver.h"
@@ -14,6 +14,7 @@
 #include "L1CaloFEXSim/jFEXSim.h"
 #include "L1CaloFEXSim/jFEXFPGA.h"
 #include "L1CaloFEXSim/jFEXSmallRJetAlgo.h"
+#include "L1CaloFEXSim/jFEXLargeRJetAlgo.h"
 #include "L1CaloFEXSim/jFEXNtupleWriter.h"
 
 using namespace LVL1;
@@ -35,4 +36,5 @@ DECLARE_COMPONENT(jTowerBuilder)
 DECLARE_COMPONENT(jSuperCellTowerMapper)
 DECLARE_COMPONENT(jFEXFPGA)
 DECLARE_COMPONENT(jFEXSmallRJetAlgo)
+DECLARE_COMPONENT(jFEXLargeRJetAlgo)
 DECLARE_COMPONENT(jFEXNtupleWriter)

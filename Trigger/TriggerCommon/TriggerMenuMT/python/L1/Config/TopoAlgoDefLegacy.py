@@ -23,7 +23,7 @@ class TopoAlgoDefLegacy:
         alg.addvariable('IsoMask', 0)
         tm.registerTopoAlgo(alg)  
 
-                                
+
         alg = AlgConf.ClusterSelect( name = 'TAUabi', inputs = 'ClusterTobArray', outputs = 'TAUabi', algoId = 1 )
         alg.addgeneric('InputWidth',  HW.InputWidthTAU)
         alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSelectTAU )

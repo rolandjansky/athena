@@ -21,6 +21,8 @@ public:
 private:
     const float m_undefinedValue{-9999};
     
+    void fillTrackSummaryInfo(const xAOD::TrackParticle& track);
+
     //Truth variables
     InDetPerfNtupleBranch<int>   m_truth_selectedByPileupSwitch; 
     InDetPerfNtupleBranch<int>   m_truth_pdgId; 
@@ -63,7 +65,52 @@ private:
     //More track variables
     InDetPerfNtupleBranch<float> m_track_chiSquared;
     InDetPerfNtupleBranch<float> m_track_nDoF;
-    
+
+    //Track summary variables
+    InDetPerfNtupleBranch<int> m_numberOfContribPixelLayers;
+    InDetPerfNtupleBranch<int> m_numberOfBLayerHits;
+    InDetPerfNtupleBranch<int> m_numberOfBLayerOutliers;
+    InDetPerfNtupleBranch<int> m_numberOfBLayerSharedHits;
+    InDetPerfNtupleBranch<int> m_numberOfBLayerSplitHits;
+    InDetPerfNtupleBranch<int> m_expectBLayerHit;
+    InDetPerfNtupleBranch<int> m_expectInnermostPixelLayerHit;
+    InDetPerfNtupleBranch<int> m_numberOfInnermostPixelLayerHits;
+    InDetPerfNtupleBranch<int> m_numberOfInnermostPixelLayerOutliers;
+    InDetPerfNtupleBranch<int> m_numberOfInnermostPixelLayerSharedHits;
+    InDetPerfNtupleBranch<int> m_numberOfInnermostPixelLayerSplitHits;
+    InDetPerfNtupleBranch<int> m_expectNextToInnermostPixelLayerHit;
+    InDetPerfNtupleBranch<int> m_numberOfNextToInnermostPixelLayerHits;
+    InDetPerfNtupleBranch<int> m_numberOfNextToInnermostPixelLayerOutliers;
+    InDetPerfNtupleBranch<int> m_numberOfNextToInnermostPixelLayerSharedHits;
+    InDetPerfNtupleBranch<int> m_numberOfNextToInnermostPixelLayerSplitHits;
+    InDetPerfNtupleBranch<int> m_numberOfDBMHits;
+    InDetPerfNtupleBranch<int> m_numberOfPixelHits;
+    InDetPerfNtupleBranch<int> m_numberOfPixelOutliers;
+    InDetPerfNtupleBranch<int> m_numberOfPixelHoles;
+    InDetPerfNtupleBranch<int> m_numberOfPixelSharedHits;
+    InDetPerfNtupleBranch<int> m_numberOfPixelSplitHits;
+    InDetPerfNtupleBranch<int> m_numberOfGangedPixels;
+    InDetPerfNtupleBranch<int> m_numberOfGangedFlaggedFakes;
+    InDetPerfNtupleBranch<int> m_numberOfPixelDeadSensors;
+    InDetPerfNtupleBranch<int> m_numberOfPixelSpoiltHits;
+    InDetPerfNtupleBranch<int> m_numberOfSCTHits;
+    InDetPerfNtupleBranch<int> m_numberOfSCTOutliers;
+    InDetPerfNtupleBranch<int> m_numberOfSCTHoles;
+    InDetPerfNtupleBranch<int> m_numberOfSCTDoubleHoles;
+    InDetPerfNtupleBranch<int> m_numberOfSCTSharedHits;
+    InDetPerfNtupleBranch<int> m_numberOfSCTDeadSensors;
+    InDetPerfNtupleBranch<int> m_numberOfSCTSpoiltHits;
+    InDetPerfNtupleBranch<int> m_numberOfTRTHits;
+    InDetPerfNtupleBranch<int> m_numberOfTRTOutliers;
+    InDetPerfNtupleBranch<int> m_numberOfTRTHoles;
+    InDetPerfNtupleBranch<int> m_numberOfTRTHighThresholdHits;
+    InDetPerfNtupleBranch<int> m_numberOfTRTHighThresholdHitsTotal;
+    InDetPerfNtupleBranch<int> m_numberOfTRTHighThresholdOutliers;
+    InDetPerfNtupleBranch<int> m_numberOfTRTDeadStraws;
+    InDetPerfNtupleBranch<int> m_numberOfTRTTubeHits;
+    InDetPerfNtupleBranch<int> m_numberOfTRTXenonHits;
+    InDetPerfNtupleBranch<int> m_numberOfTRTSharedHits;
+
     //Flags
     InDetPerfNtupleBranch<int> m_hasTruth; 
     InDetPerfNtupleBranch<int> m_hasTrack; 

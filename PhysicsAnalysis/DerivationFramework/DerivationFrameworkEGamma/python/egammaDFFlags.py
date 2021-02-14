@@ -29,12 +29,13 @@ class egammaDFFlagsJobProperty(JobProperty):
         return self.statusOn and self.StoredValue and jobproperties.egammaDFFlags.Enabled()
 
 # enable or disable cell-level reweighting
+# False by default since not migrated yet to master
 class doEGammaCellReweighting (egammaDFFlagsJobProperty):
     """ switch for enabling cell-level reweighting of e/gamma clusters
     """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=True
+    StoredValue=False
 
 # enable or disable cell-level reweighting variations
 class doEGammaCellReweightingVariations (egammaDFFlagsJobProperty):

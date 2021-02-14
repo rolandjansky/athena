@@ -54,7 +54,28 @@ def LArRawChannelBuilderAlgCfg(configFlags, **kwargs):
 
     kwargs.setdefault(dspkey, sgkey)
 
-    acc.addEventAlgo(LArRawChannelBuilderAlg(**kwargs))
+    if configFlags.LAr.ROD.forceIter or configFlags.LAr.RawChannelSource == "calculated":
+       # iterative OFC procedure
+       LArRawChannelBuilderIterAlg=CompFactory.LArRawChannelBuilderIterAlg
+       kwargs.setdefault('minSample',2)
+       kwargs.setdefault('maxSample',12)
+       kwargs.setdefault('minADCforIterInSigma',4)
+       kwargs.setdefault('minADCforIter',15)
+       kwargs.setdefault('defaultPhase',12)
+       kwargs.setdefault('OutputLevel',DEBUG)
+       nominalPeakSample=2
+       from LArConditionsCommon.LArCool import larcool
+       if (larcool is not None):
+          nominalPeakSample = larcool.firstSample()
+       if (nominalPeakSample > 1) :
+          kwargs.setdefault('DefaultShiftTimeSample',nominalPeakSample-2)
+       else :
+          kwargs.setdefault('DefaultShiftTimeSample',0)   
+
+       acc.addEventAlgo(LArRawChannelBuilderIterAlg(**kwargs))
+    else:
+       #fixed OFC, as in DSP
+       acc.addEventAlgo(LArRawChannelBuilderAlg(**kwargs))
 
     return acc
 
@@ -70,6 +91,8 @@ if __name__=="__main__":
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.RAW
+    # in case of testing iterative OFC:
+    #ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecJobTransformTests/data15_1beam/data15_1beam.00260466.physics_L1Calo.merge.RAW._lb1380._SFO-ALL._0001.1']
     ConfigFlags.Input.isMC = False
     ConfigFlags.lock()
 

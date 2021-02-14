@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTruthAssociationAlg.h"
@@ -65,7 +65,7 @@ StatusCode MuonTruthAssociationAlg::execute()
   
   // loop over muons 
   int muonInd=0;
-  for( const auto& muon : *muonTruthParticleLink ){
+  for( const auto muon : *muonTruthParticleLink ){
     // use primary track particle to get the truth link (except for the case of STACO, where we must use the ID track particle, as the combined is not truth-matched)
     ATH_MSG_DEBUG("muon with pT "<<muon->pt()<<" and author "<<muon->author());
     const xAOD::TrackParticle* tp(0);
@@ -99,7 +99,7 @@ StatusCode MuonTruthAssociationAlg::execute()
       	ATH_MSG_VERBOSE(" Got valid truth link for muon author " << muon->author() << " barcode " << (*truthLink)->barcode());
 	// loop over truth particles
 	bool foundTruth=false;
-	for( const auto& truthParticle : *muonTruthParticleRecoLink ){
+	for( const auto truthParticle : *muonTruthParticleRecoLink ){
 	  if( truthParticle->status() != 1 ) continue;
 	  ATH_MSG_DEBUG("Got truth muon with barcode " << truthParticle->barcode() << " pt "<< truthParticle->pt());
 	  ElementLink< xAOD::MuonContainer > muonLink;
@@ -333,7 +333,7 @@ StatusCode MuonTruthAssociationAlg::execute()
   }
 
   //one more thing: need to have muonlink set for all truth particles to avoid ELReset errors
-  for( const auto& truthParticle : *muonTruthParticleRecoLink ){
+  for( const auto truthParticle : *muonTruthParticleRecoLink ){
     if(!truthParticle->isAvailable<ElementLink< xAOD::MuonContainer > >("recoMuonLink")){
       ATH_MSG_DEBUG("no reco muon link set, add an empty one");
       muonTruthParticleRecoLink(*truthParticle)=ElementLink< xAOD::MuonContainer > ();

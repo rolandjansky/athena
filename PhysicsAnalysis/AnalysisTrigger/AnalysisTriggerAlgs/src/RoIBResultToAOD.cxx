@@ -566,29 +566,22 @@ void RoIBResultToAOD::addJetEnergyRoI( const ROIB::RoIBResult* result, LVL1_ROI*
             Jet_ROI roi( roIWord, recRoI.eta(), roiPhi, roIWord & 0xFFF );
 
             // fired Jet thresholds
-            std::vector< unsigned int >* thrV = recRoI.thresholdsPassed();
-            std::vector< unsigned int >::const_iterator itTh  = thrV->begin();
-            std::vector< unsigned int >::const_iterator itThE = thrV->end();
-            for( ; itTh != itThE; ++itTh ) {
-               double thrValue = recRoI.triggerThreshold(*itTh)* CLHEP::GeV;
+            for( const unsigned int thrMapping : recRoI.thresholdsPassed()) {
+               double thrValue = recRoI.triggerThreshold(thrMapping) * CLHEP::GeV;
                std::string thrName = "NameNotFound";
                if (!recRoI.isForwardJet()) {
-                  if (jetNames.find(*itTh-1) != jetNames.end()) thrName = jetNames[*itTh-1];
+                  if (jetNames.find(thrMapping-1) != jetNames.end()) thrName = jetNames[thrMapping-1];
                }
                else if (recRoI.eta() > 0) {
-                  if (jfNames.find(*itTh-1) != jfNames.end()) thrName = jfNames[*itTh-1];
+                  if (jfNames.find(thrMapping-1) != jfNames.end()) thrName = jfNames[thrMapping-1];
                }
                else {
-                  if (jbNames.find(*itTh-1) != jbNames.end()) thrName = jbNames[*itTh-1];
+                  if (jbNames.find(thrMapping-1) != jbNames.end()) thrName = jbNames[thrMapping-1];
                }
-
                roi.addThresholdValue( thrValue );
                roi.addThresholdName( thrName );
-
-               ATH_MSG_DEBUG( "Jet Thr : " << thrName
-                              << ", value = " << thrValue );
+               ATH_MSG_DEBUG( "Jet Thr : " << thrName << ", value = " << thrValue );
             }
-            delete thrV;
 
             // Jet Cluster ET sums
             if (m_retrievedJetTool) {
@@ -649,43 +642,40 @@ void RoIBResultToAOD::addJetEnergyRoI( const ROIB::RoIBResult* result, LVL1_ROI*
                                ( roiWord0 >> 16 ) & 0xFF, overflows );
 
             // fired summed ET thresholds
-            std::vector< unsigned int >* thrEtMiss = recRoI.etMissThresholdsPassed();
-            std::vector< unsigned int >::const_iterator itThEtMiss  = thrEtMiss->begin();
-            for( ; itThEtMiss != thrEtMiss->end(); ++itThEtMiss ) {
+            for (unsigned int xeMapping : recRoI.etMissThresholdsPassed())
+            {
                std::string thrName = "NameNotFound";
-               if( xeNames.find( *itThEtMiss - 1 ) != xeNames.end() ) {
-                  thrName = xeNames[ *itThEtMiss - 1 ];
+               if (xeNames.find(xeMapping - 1) != xeNames.end())
+               {
+                  thrName = xeNames[xeMapping - 1];
                }
                roi.addThreshold( thrName );
                ATH_MSG_DEBUG( "ETmiss threshold : " << thrName );
             }
-            delete thrEtMiss;
 
             // fired missing ET thresholds
-            std::vector< unsigned int >* thrSumEt = recRoI.sumEtThresholdsPassed();
-            std::vector< unsigned int >::const_iterator itThSumEt  = thrSumEt->begin();
-            for( ; itThSumEt != thrSumEt->end(); ++itThSumEt ) {
+            for (unsigned int teMapping : recRoI.sumEtThresholdsPassed())
+            {
                std::string thrName = "NameNotFound";
-               if( teNames.find( *itThSumEt - 1 ) != teNames.end() ) {
-                  thrName = teNames[ *itThSumEt - 1 ];
+               if (teNames.find(teMapping - 1) != teNames.end())
+               {
+                  thrName = teNames[teMapping - 1];
                }
                roi.addThreshold( thrName );
                ATH_MSG_DEBUG( "SumET threshold : " << thrName );
             }
-            delete thrSumEt;
 
             // fired missing ET  significance thresholds
-            std::vector< unsigned int >* thrMETSig = recRoI.mEtSigThresholdsPassed();
-            std::vector< unsigned int >::const_iterator itThMETSig  = thrMETSig->begin();
-            for( ; itThMETSig != thrMETSig->end(); ++itThMETSig ) {
+            for (unsigned int xsMapping : recRoI.mEtSigThresholdsPassed())
+            {
                std::string thrName = "NameNotFound";
-               if( xsNames.find( *itThMETSig - 1 ) != xsNames.end() ) {
-                  thrName = xsNames[ *itThMETSig - 1 ];
+               if (xsNames.find(xsMapping - 1) != xsNames.end())
+               {
+                  thrName = xsNames[xsMapping - 1];
                }
                roi.addThreshold( thrName );
                ATH_MSG_DEBUG( "METSig threshold : " << thrName );
             }
-            delete thrMETSig;
 
             lvl1ROI->addEnergySumROI(roi);
          }

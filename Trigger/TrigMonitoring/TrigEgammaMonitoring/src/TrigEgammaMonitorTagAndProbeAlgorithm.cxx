@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************
@@ -206,11 +206,11 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::executeTandP( const EventContext& ct
 
     
     ATH_MSG_DEBUG("Execute TandP BaseTool " << offElectrons->size());
-    for(const auto& elTag : *offElectrons)
+    for(const auto elTag : *offElectrons)
     {
         if( ! isTagElectron( monGroup, elTag) ) continue;
         
-        for(const auto& elProbe : *offElectrons)
+        for(const auto elProbe : *offElectrons)
         {  // Dress the probes with updated Pid decision
            
             fillLabel(monGroup, "ProbeCutCounter", "Electrons");
@@ -486,7 +486,7 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::isGoodProbeElectron( ToolHandle<Gene
         TLorentzVector probeCandidate;
         probeCandidate.SetPtEtaPhiE(el->pt(), el->trackParticle()->eta(), el->trackParticle()->phi(), el->e());
         Int_t jetsAroundProbeElectron = 0; 
-        for(const auto &i_jet : *jets){
+        for(const auto i_jet : *jets){
             TLorentzVector jet;
             jet.SetPtEtaPhiE(i_jet->pt(), i_jet->eta(), i_jet->phi(), i_jet->e());
             if( (jet.Et() > 20*Gaudi::Units::GeV) && (jet.DeltaR(probeCandidate) < 0.4)) jetsAroundProbeElectron++;
@@ -512,7 +512,7 @@ void TrigEgammaMonitorTagAndProbeAlgorithm::dressPid(const xAOD::Electron *eg) c
         const std::string pidname="is"+m_isemname[ipid];
         eg->auxdecor<bool>(pidname)=static_cast<bool>(accept);
     }
-    for(int ipid=0;ipid<2;ipid++){
+    for(int ipid=0;ipid<4;ipid++){
         bool accept = (bool) this->m_electronLHTool[ipid]->accept(ctx,eg);
         const std::string pidname="is"+m_lhname[ipid];
         eg->auxdecor<bool>(pidname)=static_cast<bool>(accept);

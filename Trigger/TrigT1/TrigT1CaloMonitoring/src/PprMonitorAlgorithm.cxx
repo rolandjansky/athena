@@ -28,8 +28,8 @@ StatusCode PprMonitorAlgorithm::initialize() {
   ATH_MSG_DEBUG("m_TT_ADC_HitMap_Thresh " << m_TT_ADC_HitMap_Thresh);
 
   // we initialise all the containers that we need
-  ATH_CHECK(m_xAODTriggerTowerContainerName.initialize());
-
+  ATH_CHECK( m_xAODTriggerTowerContainerName.initialize() );
+  
   // retrieve any tools if needed
   //ATH_CHECK(myTool.retrieve());
   
@@ -45,14 +45,18 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
   // Contains the variables to monitor
   std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> variables;
 
-
-  //Retrieve Trigger Towers from SG
+  // Retrieve event info from SG
+  
+  uint32_t bunchCrossing = 0;
+  bunchCrossing = ctx.eventID().bunch_crossing_id();
+  ATH_MSG_DEBUG("BCID: " << bunchCrossing);
+  
+  // Retrieve Trigger Towers from SG
   SG::ReadHandle<xAOD::TriggerTowerContainer> triggerTowerTES(m_xAODTriggerTowerContainerName, ctx);
   if(!triggerTowerTES.isValid()){
     ATH_MSG_ERROR("No Trigger Tower container found in TES  "<< m_xAODTriggerTowerContainerName); 
     return StatusCode::FAILURE;
   }
-
 
   // Create a vector of trigger towers with quantities to be monitored
   std::vector<MonitorTT> vecMonTT_EM;  // EM towers
@@ -70,7 +74,7 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
 
 
   // Variables to monitor 
-  
+ 
   // EM towers
   // eta for 2-d eta-phi maps (contains "duplicate" entries to account for granularity of multiple phi bins in forward region)
   auto etaTT_EM = Monitored::Collection("etaTT_EM", vecMonTT_EM, []( const auto &emTower ){return emTower.tower->eta();});
@@ -130,13 +134,17 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
   std::vector<int> vec_EM_jepET_0_noDuplicates = {};
   std::vector<int> vec_EM_jepET_5 = {};
   std::vector<int> vec_EM_jepET_5_noDuplicates = {};
-
+  std::vector<int> vec_cpET_5 = {};
+  std::vector<int> vec_jepET_5 = {};
+  
   // Weights
   std::vector<int> vec_EM_ADC = {};
 
   // For average ADC plots
   std::vector<double> vec_EM_maxADCPlus1 = {};
 
+  std::vector<uint32_t> vec_cp_BCID = {};
+  std::vector<uint32_t> vec_jep_BCID = {};
 
   for (auto& emTower : vecMonTT_EM) {
   
@@ -144,6 +152,8 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     int cpET = (emTower.tower)->cpET();
     int jepET = emTower.jepET;
     bool isDuplicate = emTower.isDuplicate;
+    vec_cp_BCID.push_back(bunchCrossing);
+    vec_jep_BCID.push_back(bunchCrossing);
 
     ATH_MSG_DEBUG("cpET: " << cpET << " jepET: " << jepET);
 
@@ -153,11 +163,12 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     vec_EM_cpET_0_noDuplicates.push_back((cpET > 0) && !isDuplicate);   // For plots not binned in phi
     vec_EM_cpET_5.push_back(cpET > 5);
     vec_EM_cpET_5_noDuplicates.push_back((cpET > 5) && !isDuplicate);
+    vec_cpET_5.push_back((cpET > 5) && !isDuplicate);
     vec_EM_jepET_0.push_back(jepET > 0);
     vec_EM_jepET_0_noDuplicates.push_back((jepET > 0) && !isDuplicate);
     vec_EM_jepET_5.push_back(jepET > 5);
     vec_EM_jepET_5_noDuplicates.push_back((jepET > 5) && !isDuplicate); 
-      
+    vec_jepET_5.push_back((jepET > 5) && !isDuplicate);      
 
     // -------- ADC hitmaps per timeslice --------
     unsigned int tslice = (emTower.tower)->adcPeak();
@@ -212,6 +223,8 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     int cpET = (hadTower.tower)->cpET();
     int jepET = hadTower.jepET;
     bool isDuplicate = hadTower.isDuplicate;
+    vec_cp_BCID.push_back(bunchCrossing);
+    vec_jep_BCID.push_back(bunchCrossing);
 
     if (cpET > 0) ATH_MSG_DEBUG("HAD tower cpET: " << cpET << " jepET: " << jepET);
 
@@ -221,10 +234,12 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     vec_HAD_cpET_0_noDuplicates.push_back((cpET > 0) && !isDuplicate);   // For plots not binned in phi
     vec_HAD_cpET_5.push_back(cpET > 5);
     vec_HAD_cpET_5_noDuplicates.push_back((cpET > 5) && !isDuplicate);
+    vec_cpET_5.push_back((cpET > 5) && !isDuplicate);
     vec_HAD_jepET_0.push_back(jepET > 0);
     vec_HAD_jepET_0_noDuplicates.push_back((jepET > 0) && !isDuplicate);
     vec_HAD_jepET_5.push_back(jepET > 5);
     vec_HAD_jepET_5_noDuplicates.push_back((jepET > 5) && !isDuplicate);
+    vec_jepET_5.push_back((jepET > 5) && !isDuplicate);
 
     // -------- ADC hitmaps per timeslice -------- 
     unsigned int tslice = (hadTower.tower)->adcPeak();
@@ -253,6 +268,13 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
 
   } // End loop over vector of HAD towers 
  
+
+  // Define additional monitored variables (BCID)
+  auto cp_BCID = Monitored::Collection("cp_BCID", vec_cp_BCID);
+  variables.push_back(cp_BCID);
+
+  auto jep_BCID = Monitored::Collection("jep_BCID", vec_jep_BCID);
+  variables.push_back(jep_BCID);
   
   // Define additional monitored variables (EM) 
   auto maxADCPlus1_EM = Monitored::Collection("maxADCPlus1_EM", vec_EM_maxADCPlus1);
@@ -261,6 +283,13 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
   // Define additional monitored variables (HAD)
   auto maxADCPlus1_HAD = Monitored::Collection("maxADCPlus1_HAD", vec_HAD_maxADCPlus1);
   variables.push_back(maxADCPlus1_HAD);
+
+  // Define cutmask
+  auto mask_cpET_5 = Monitored::Collection("mask_cpET_5", vec_cpET_5);
+  variables.push_back(mask_cpET_5);
+
+  auto mask_jepET_5 = Monitored::Collection("mask_jepET_5", vec_jepET_5);
+  variables.push_back(mask_jepET_5);
 
   // Define the cutmasks (EM)
   auto mask_EM_noDuplicates = Monitored::Collection("mask_EM_noDuplicates", vec_EM_noDuplicates);

@@ -3,7 +3,7 @@
 
 This test inherits from Simulation/G4Atlas/G4AtlasAlg/test/G4AtlasAlgConfigNew_Test.py
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 # based on https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/Control/AthenaServices/python/Configurables.py#0247
 def EvtIdModifierSvc_add_modifier(svc,
@@ -49,7 +49,6 @@ if __name__ == '__main__':
     a = time.time()
 
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
-    import os
 
     # Set up logging and config behaviour
     from AthenaCommon.Logging import log
@@ -61,6 +60,8 @@ if __name__ == '__main__':
 
     #import and set config flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from AthenaConfiguration.Enums import ProductionStep
+    ConfigFlags.Common.ProductionStep = ProductionStep.Simulation
     ConfigFlags.Input.RunNumber = [284500] #Isn't updating - todo: investigate
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     inputDir = defaultTestFiles.d

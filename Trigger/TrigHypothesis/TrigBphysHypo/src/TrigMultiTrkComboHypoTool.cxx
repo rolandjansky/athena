@@ -32,7 +32,8 @@ StatusCode TrigMultiTrkComboHypoTool::initialize() {
                  "   AcceptAll = " << (m_acceptAll ? "True" : "False") << endmsg <<
                  "   mass range: ( " <<  m_massRange.value().first << ", " << m_massRange.value().second << " )" << endmsg <<
                  "   chi2 cut: " << m_chi2 << endmsg <<
-                 "   " << (m_totalCharge < 0 ? "total charge cut is disabled" : "total charge cut: only right charge combinations") );
+                 "   " << (m_totalCharge < 0 ? "total charge cut is disabled" : "total charge cut: only right charge combinations"));
+  ATH_MSG_DEBUG("   LxyCut: > " << m_LxyCut.value());
 
   ATH_CHECK( m_nTrk >= 2 );
 
@@ -56,10 +57,13 @@ bool TrigMultiTrkComboHypoTool::passed(const xAOD::TrigBphys* trigBphys) const {
   auto mon_mass = Monitored::Scalar<float>("mass", -1.);
   auto mon_pT_trk1 = Monitored::Scalar<float>("pT_trk1", -1.);
   auto mon_pT_trk2 = Monitored::Scalar<float>("pT_trk2", -1.);
+  auto mon_Lxy  = Monitored::Scalar<float>("Lxy", -1.);
 
-  auto mon = Monitored::Group( m_monTool, mon_totalCharge, mon_chi2, mon_mass, mon_pT_trk1, mon_pT_trk2);
+  auto mon = Monitored::Group( m_monTool, mon_totalCharge, mon_chi2, mon_mass, mon_pT_trk1, mon_pT_trk2, mon_Lxy);
 
-  if (m_acceptAll || (isInMassRange(trigBphys->mass()) && passedChi2Cut(trigBphys->fitchi2()) && passedChargeCut(totalCharge(trigBphys)))) {
+  if (m_acceptAll || (isInMassRange(trigBphys->mass()) && passedChi2Cut(trigBphys->fitchi2()) && passedChargeCut(totalCharge(trigBphys)) && 
+             trigBphys->lxy() > m_LxyCut )) {
+    mon_Lxy = trigBphys->lxy();
     mon_totalCharge = totalCharge(trigBphys);
     mon_chi2 = trigBphys->fitchi2();
     mon_mass = trigBphys->mass();

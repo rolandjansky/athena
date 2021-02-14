@@ -1572,7 +1572,7 @@ StatusCode HLTJetMonTool::fillBasicHists() {
       }
       
       unsigned int n_HLTJet = 0;
-      for(const auto & thisjet : *jetcoll) {
+      for(const auto thisjet : *jetcoll) {
         n_HLTJet++;
 	
       	if(/*m_debuglevel*/1) {
@@ -1695,7 +1695,7 @@ StatusCode HLTJetMonTool::fillBasicHists() {
 	    }
 
 
-	  for(const auto & thisjet : *jetcoll) {
+         for(const auto thisjet : *jetcoll) {
             n_OFJet++;
 
             if(!thisjet) continue;
@@ -1796,7 +1796,7 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
   double count=0;
   std::string chain = Form("HLT_%s",theChain.c_str());
   ATH_MSG_DEBUG("fillBasicHLTforChain CHAIN: " << chain << " passed TDT: " << getTDT()->isPassed(chain));
-  
+
   if (getTDT()->isPassed(chain)) {
 
     if((h  = hist("HLTSigma_vs_LB"))){
@@ -1990,7 +1990,7 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
     } // TriggerElement or TrigComposite
 
     if((h  = hist("HLTJet_n")))            h->Fill(count,      m_lumi_weight);
-     
+
   }// if chain passed
 
   m_v_HLTindex.push_back(m_n_index);
@@ -2011,11 +2011,9 @@ void HLTJetMonTool::fillBasicL1forChain(const std::string& theChain, double thrE
 
   TLorentzVector v_thisjet; //create a 4vector for the single jets in the event
 
-  
 
   if (getTDT()->isPassed(theChain.c_str())){
 
-    
 
     if((h  = hist("L1Sigma_vs_LB"))){
       //   h->GetXaxis()->SetRangeUser(*std::min_element(m_v_lbn.begin(),m_v_lbn.end())-1,*std::max_element(m_v_lbn.begin(),m_v_lbn.end())+1);
@@ -2094,7 +2092,7 @@ void HLTJetMonTool::fillBasicL1forChain(const std::string& theChain, double thrE
     } // l2It
 
     if((h  = hist("L1Jet_n")))           h->Fill(count,m_lumi_weight);
-    
+
   } // L2 chain isPassed
 
   m_v_L1index.push_back(m_n_index);
@@ -2640,7 +2638,7 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
 
       TLorentzVector v_trigjet_tmp;
 
-      for(const auto & jet : *jetcoll) {
+      for(const auto jet : *jetcoll) {
 
 	ATH_MSG_DEBUG("Offline Jet Collection Loop");
 
@@ -2949,7 +2947,7 @@ bool HLTJetMonTool::isLeadingJet(const xAOD::Jet *jet, const xAOD::JetContainer 
   bool   found_jetn=false;
   std::vector<double> v_ofjets;
 
-  for(const auto & j : *jetcoll) {
+  for(const auto j : *jetcoll) {
     if (fabs(j->eta())>=EtaLow && fabs(j->eta())<=EtaHigh){
      
       v_ofjets.push_back(j->pt());
@@ -3373,7 +3371,7 @@ int HLTJetMonTool::basicKineVar(const std::string& hist, std::vector<std::string
 // ------------------------------------------------------------------------------------
 std::string HLTJetMonTool::GetJetCollectionName(const std::string& theChain) {
   std::string jetcoll = "HLT_AntiKt4EMTopoJets_subjesIS"; //default small-R EMTopo jets
-  if (theChain.find("a10t") != std::string::npos) jetcoll = "HLT_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_jes";
+  if (theChain.find("a10t") != std::string::npos) jetcoll = "HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes";
   else if(theChain.find("a10r") != std::string::npos) jetcoll = "HLT_AntiKt10JetRCJets_subjesIS";
   else if(theChain.find("a10") != std::string::npos) jetcoll = "HLT_AntiKt10LCTopoJets_subjes"; //default large-R jets
   else if(theChain.find("ftf") != std::string::npos) { //EMPFlow jets

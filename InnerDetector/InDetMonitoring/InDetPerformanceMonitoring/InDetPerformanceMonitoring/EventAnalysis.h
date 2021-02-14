@@ -42,7 +42,10 @@ class EventAnalysis
   template<class T> static CLHEP::Hep3Vector calculateMomentum(const T * pP);
   template<class T> static float EvalInvMass( const T* pxP1, const T* pxP2,
 					      float fMass1, float fMass2 = invalidAnswer );
+  template<class T> static float EvalInvMass( const T* pxP1, const T* pxP2, const T* pxp3, const T* pxP4,
+                                              float fMass1, float fMass2 = -999.9, float fMass3 = -999.9, float fMass4 = invalidAnswer );
   template<class T> static float EvalDiMuInvMass( const T* pxP1, const T* pxP2 );
+  template<class T> static float EvalFourMuInvMass( const T* pxP1, const T* pxP2, const T* pxP3, const T* pxP4);
   template<class T> static float EvaluateAngle( const T* pxP1, const T* pxP2 );
   template<class T> static float EvalPtDiff( const T* pxP1, const T* pxP2 );
   template<class T> static float EvalPhiDiff( const T* pxP1, const T* pxP2 );
@@ -114,6 +117,46 @@ template<class T> float EventAnalysis::EvalInvMass( const T* pxP1, const T* pxP2
   CLHEP::HepLorentzVector xLVec1; xLVec1.setVectM( xTmp1, fMass1 );
   CLHEP::HepLorentzVector xLVec2; xLVec2.setVectM( xTmp2, fMass2 );
   return static_cast<float>( xLVec1.invariantMass( xLVec2 ) );
+}
+
+// 4 Particle Invariant Mass                                                                                                                                                       
+template<class T> float EventAnalysis::EvalFourMuInvMass( const T* pxP1, const T* pxP2, const T* pxP3, const T* pxP4 )
+{
+  // Check integrity of inputs.                                                                                                                                                     
+  if ( !pxP1 || !pxP2 || !pxP3 || !pxP4) return invalidAnswer;
+
+  // Evaluate invariant mass.                                                                                                                                                
+  return EvalInvMass( pxP1, pxP2, pxP3, pxP4, EAna::g_fMuonMass );
+}
+
+template<class T> float EventAnalysis::EvalInvMass( const T* pxP1, const T* pxP2, const T* pxP3, const T* pxP4,
+                                                    float fMass1, float fMass2, float fMass3, float fMass4 /* = -999.9 */ )
+{
+  // Check integrity of inputs.No tachyons.                                                                                                                                         
+  if ( fMass1 < 0.0f )  return invalidAnswer;
+  if ( !pxP1 || !pxP2 || !pxP3 || !pxP4) return invalidAnswer;
+
+  // Set masses equal if required by user                                                                                                                                           
+  fMass2 = ( fMass2 < 0.0f ) ? fMass1 : fMass2;
+  fMass3 = ( fMass3 < 0.0f ) ? fMass1 : fMass3;
+  fMass4 = ( fMass4 < 0.0f ) ? fMass1 : fMass4;
+
+  // Evaluate invariant mass.                                                                                                                                                       
+  CLHEP::Hep3Vector xTmp1 = CLHEP::Hep3Vector( pxP1->p4().Px() * EAna::CGeV, pxP1->p4().Py() * EAna::CGeV, pxP1->p4().Pz() * EAna::CGeV  );
+  CLHEP::Hep3Vector xTmp2 = CLHEP::Hep3Vector( pxP2->p4().Px() * EAna::CGeV, pxP2->p4().Py() * EAna::CGeV, pxP2->p4().Pz() * EAna::CGeV  );
+  CLHEP::Hep3Vector xTmp3 = CLHEP::Hep3Vector( pxP3->p4().Px() * EAna::CGeV, pxP3->p4().Py() * EAna::CGeV, pxP3->p4().Pz() * EAna::CGeV  );
+  CLHEP::Hep3Vector xTmp4 = CLHEP::Hep3Vector( pxP4->p4().Px() * EAna::CGeV, pxP4->p4().Py() * EAna::CGeV, pxP4->p4().Pz() * EAna::CGeV  );
+
+  CLHEP::HepLorentzVector xLVec;  xLVec.setVectM ( xTmp1, fMass1 );
+  CLHEP::HepLorentzVector xLVec2; xLVec2.setVectM( xTmp2, fMass2 );
+  CLHEP::HepLorentzVector xLVec3; xLVec3.setVectM( xTmp3, fMass3 );
+  CLHEP::HepLorentzVector xLVec4; xLVec4.setVectM( xTmp4, fMass4 );
+
+  xLVec += xLVec2;
+  xLVec += xLVec3;
+  xLVec += xLVec4;
+
+  return static_cast<float>( xLVec.m() );
 }
 
 // Angle Between two particles

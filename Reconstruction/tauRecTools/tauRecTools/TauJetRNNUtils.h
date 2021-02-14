@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUREC_TAUJETRNNUTILS_H
-#define TAUREC_TAUJETRNNUTILS_H
+#ifndef TAURECTOOLS_TAUJETRNNUTILS_H
+#define TAURECTOOLS_TAUJETRNNUTILS_H
 
 #include "xAODTau/TauJet.h"
 #include "xAODCaloEvent/CaloVertexedTopoCluster.h"
@@ -168,6 +168,9 @@ bool nSCTHitsPlusDeadSensors (
 bool eProbabilityHT(
     const xAOD::TauJet &tau, const xAOD::TauTrack &track, double &out);
 
+bool eProbabilityNN(
+    const xAOD::TauJet &tau, const xAOD::TauTrack &track, double &out);
+
 } // namespace Track
 
 
@@ -205,4 +208,4 @@ bool FirstEngDensOverClustersMeanFirstEngDens    (const xAOD::TauJet &tau, const
 } // namespace Variables
 } // namespace TauJetRNNUtils
 
-#endif // TAUREC_TAUJETRNNUTILS_H
+#endif // TAURECTOOLS_TAUJETRNNUTILS_H

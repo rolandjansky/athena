@@ -56,43 +56,49 @@ public:
     MaterialAllocator        (const std::string& type, 
                  const std::string& name,
                  const IInterface* parent);
-    ~MaterialAllocator() =default;     // destructor
+    virtual ~MaterialAllocator() =default;     // destructor
 
     // standard Athena methods
-    StatusCode initialize() override;
-    StatusCode finalize() override;
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
     
     // add leading material effects to track
+    virtual
     void    addLeadingMaterial (std::vector<FitMeasurement*>&    measurements,
                     ParticleHypothesis            particleHypothesis,
                     FitParameters&            fitParameters,
-                                    Garbage_t&                          garbage) const;
+                                    Garbage_t&                          garbage) const override;
 
     // allocate material
+    virtual
     void allocateMaterial(std::vector<FitMeasurement*>& measurements,
                           ParticleHypothesis particleHypothesis,
                           FitParameters& fitParameters,
                           const TrackParameters& startParameters,
-                          Garbage_t& garbage) const;
+                          Garbage_t& garbage) const override;
 
     // initialize scattering (needs to know X0 integral)
-    void    initializeScattering (std::vector<FitMeasurement*>&    measurements) const;
+    virtual
+    void    initializeScattering (std::vector<FitMeasurement*>&    measurements) const override;
 
     // material TSOS between spectrometer entrance surface and parameters given in spectrometer */
+    virtual
     std::vector<const TrackStateOnSurface*>*    leadingSpectrometerTSOS(
     const TrackParameters& spectrometerParameters,
-        Garbage_t& garbage) const;
+        Garbage_t& garbage) const override;
  
     // order measurements by distance from startPosition
+    virtual
     void    orderMeasurements(std::vector<FitMeasurement*>&    measurements,
                   Amg::Vector3D            startDirection,
-                  Amg::Vector3D            startPosition) const;
+                  Amg::Vector3D            startPosition) const override;
 
     // has material been reallocated?
+    virtual
     bool reallocateMaterial(std::vector<FitMeasurement*>& measurements,
                             FitParameters& fitParameters,
-                            Garbage_t& garbage) const;
+                            Garbage_t& garbage) const override;
 
   private:
     // add material delimiters to control aggregation
@@ -186,7 +192,7 @@ public:
     Trk::MagneticFieldProperties                        m_stepField;
 
     // count warnings
-    mutable std::unique_ptr<MessageHelper>                m_messageHelper ATLAS_THREAD_SAFE; // MessageHelper is thread-safe
+    std::unique_ptr<MessageHelper>                m_messageHelper;
     
     class    compareByDistance {
     public:

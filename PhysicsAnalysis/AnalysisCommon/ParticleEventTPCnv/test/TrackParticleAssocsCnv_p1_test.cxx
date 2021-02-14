@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file ParticleEventTPCnv/test/ParticleAssocsCnv_p1_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -16,6 +14,7 @@
 #include "ParticleEvent/TrackParticleAssocs.h"
 #include "SGTools/TestStore.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include <cassert>
 #include <iostream>
 
@@ -48,6 +47,7 @@ void compare (const TrackParticleAssocs& a1,
 void test1()
 {
   std::cout << "test1\n";
+  (void)Gaudi::Hive::currentContext();
 
   Rec::TrackParticleContainer* tpc = new Rec::TrackParticleContainer;
   for (int i=0; i < 10; i++)

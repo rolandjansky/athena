@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -190,7 +190,8 @@ namespace Trk {
          materialPosition(Amg::Vector3D(0.,0.,0.)), 
          materialScaling(1.),         
          transportJacobian(tjac),
-         pathLength(pLength)
+         pathLength(pLength),
+         time(0)
         {}        
         
     };

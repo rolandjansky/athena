@@ -11,7 +11,11 @@ class FastReductionAlgToolFactory:
         self.tool_factories = {
             'eta': [CompFactory.TrigJetConditionConfig_abs_eta, 0], 
             'peta': [CompFactory.TrigJetConditionConfig_signed_eta, 0],
+            'ceta': [CompFactory.TrigJetConditionConfig_signed_eta, 0],
             'neta': [CompFactory.TrigJetConditionConfig_signed_eta, 0],
+            'pphi': [CompFactory.TrigJetConditionConfig_phi, 0],
+            'cphi': [CompFactory.TrigJetConditionConfig_phi, 0],
+            'nphi': [CompFactory.TrigJetConditionConfig_phi, 0],
             'et': [CompFactory.TrigJetConditionConfig_et, 0],
             'djmass': [CompFactory.TrigJetConditionConfig_dijet_mass, 0],
             'djdphi': [CompFactory.TrigJetConditionConfig_dijet_dphi, 0],
@@ -21,8 +25,7 @@ class FastReductionAlgToolFactory:
             'jvt': [CompFactory.TrigJetConditionConfig_jvt, 0],
             'ht': [CompFactory.TrigJetConditionConfig_htfr, 0],
             'all': [CompFactory.TrigJetConditionConfig_acceptAll, 0],
-            'capacitychecked':
-            [CompFactory.TrigJetConditionConfig_capacitychecked, 0],
+            'repeated': [CompFactory.TrigJetConditionConfig_repeated, 0],
             'fastreduction': [CompFactory.TrigJetHypoToolConfig_fastreduction, 0],
             'helper': [CompFactory.TrigJetHypoToolHelperNoGrouper, 0],
             }
@@ -39,7 +42,8 @@ class FastReductionAlgToolFactory:
 
 
     def __call__(self, key, extra=''):
-   
+
+        key = key.split(':')[-1]  # key = 'eta' for 'XXX:eta'
         klass = self.tool_factories[key][0]
         sn = self.tool_factories[key][1]
         

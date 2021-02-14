@@ -19,3 +19,8 @@ atlas_add_test( TriggerConfigTest
 atlas_add_test( TriggerConfigFlags_AutoConfTest
    SCRIPT test_TriggerFlags_autoconf.py
    POST_EXEC_SCRIPT nopost.sh )
+
+atlas_add_test( NewJOL1SimSetup
+   SCRIPT python -m TriggerJobOpts.Lvl1SimulationConfig
+   POST_EXEC_SCRIPT nopost.sh )
+

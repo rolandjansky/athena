@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.CfgGetter import addTool, addToolClone, addService, addAlgorithm, addNamesToSkipIfNotAvailable, addTypesOnlyToSkip
 from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
@@ -11,7 +11,7 @@ addTypesOnlyToSkip( "ICaloNoiseTool" )
 # Tools from other packages
 ################################################################################
 
-# put this here until it is set in the appropriate package (needed for Trigger_topOptions_standalone.py", line 141)
+# put this here until it is set in the appropriate package (needed for Trigger)
 addTool("TrkExTools.AtlasExtrapolator.AtlasExtrapolator","AtlasExtrapolator")
 
 ################################################################################

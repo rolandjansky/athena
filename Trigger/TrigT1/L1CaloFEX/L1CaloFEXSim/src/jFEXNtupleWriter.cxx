@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -46,10 +46,6 @@ StatusCode LVL1::jFEXNtupleWriter::initialize () {
   m_myTree->Branch ("truth_smallRJet_phi",  &m_truth_smallRJet_phi);
   m_myTree->Branch ("truth_smallRJet_ET",  &m_truth_smallRJet_ET);
 
-//  m_myTree->Branch ("truth_smallLJet_eta",  &m_truth_e_eta);
-//  m_myTree->Branch ("truth_smallLJet_phi",  &m_truth_e_phi);
-//  m_myTree->Branch ("truth_smallLJet_ET",  &m_truth_e_ET);
-
   if (m_load_truth_jet){
     m_myTree->Branch ("truth_jet_eta",  &m_truth_jet_eta);
     m_myTree->Branch ("truth_jet_phi",  &m_truth_jet_phi);
@@ -70,10 +66,14 @@ StatusCode LVL1::jFEXNtupleWriter::initialize () {
   m_myTree->Branch("smallRJetTOB_eta", &m_smallRJetTOB_eta);
   m_myTree->Branch("smallRJetTOB_phi", &m_smallRJetTOB_phi);
   m_myTree->Branch("smallRJetTOB_ET", &m_smallRJetTOB_ET);
-/*  m_myTree->Branch ("tau_Iso",  &m_tau_Iso);
-  m_myTree->Branch ("tau_Et",  &m_tau_Et);
-  m_myTree->Branch ("tau_isCentralTowerSeed",  &m_tau_isCentralTowerSeed);
-*/
+
+  m_myTree->Branch ("largeRJet_ET",  &m_largeRJet_ET);
+  m_myTree->Branch ("largeRJet_nTOBs",  &m_largeRJet_nTOBs);
+
+  m_myTree->Branch("largeRJetTOB_eta",  &m_largeRJetTOB_eta);
+  m_myTree->Branch ("largeRJetTOB_phi", &m_largeRJetTOB_phi);
+  m_myTree->Branch ("largeRJetTOB_ET", &m_largeRJetTOB_ET);
+
   return StatusCode::SUCCESS;
 }
 
@@ -84,25 +84,21 @@ StatusCode LVL1::jFEXNtupleWriter::execute () {
 
   m_jFEXOutputCollection = new jFEXOutputCollection();
  // m_jFEXOutputCollection = std::shared_ptr<jFEXOutputCollection>(new jFEXOutputCollection());
-
  // m_jFEXOutputCollection = std::make_shared<jFEXOutputCollection>();
-
   //m_jFEXOutputCollection = std::make_shared<jFEXOutputCollection>();
   CHECK(evtStore->retrieve(m_jFEXOutputCollection, "jFEXOutputCollection"));
 
   CHECK(loadsmallRJetAlgoVariables());
-//Check(loadTruthJets)
+  CHECK(loadlargeRJetAlgoVariables());
 //CHECK()
 
 
- /* CHECK(loadegAlgoVariables());
-  CHECK(loadtauAlgoVariables());
-  CHECK(loadTruthElectron());
-  CHECK(loadTruthTau());
-  if (m_load_truth_jet){
-    CHECK(loadTruthJets());
-  }
-*/
+ // CHECK(loadegAlgoVariables());
+//  CHECK(loadTruthTau());
+//  if (m_load_truth_jet){
+//    CHECK(loadTruthJets());
+//  }
+
   m_myTree->Fill();
   m_jFEXOutputCollection->clear();
   return StatusCode::SUCCESS;
@@ -135,41 +131,28 @@ StatusCode LVL1::jFEXNtupleWriter::loadsmallRJetAlgoVariables() {
   return StatusCode::SUCCESS;
 }
 
-/*
-StatusCode LVL1::jFEXNtupleWriter::loadegAlgoVariables() {
-  m_eg_ET.clear();
-  m_eg_WstotNum.clear();
-  m_eg_WstotDen.clear();
-  m_eg_eta.clear();
-  m_eg_phi.clear();
-  m_eg_haveseed.clear();
-  m_eg_RetaNum.clear();
-  m_eg_RetaDen.clear();
-  m_eg_RhadNum.clear();
-  m_eg_RhadDen.clear();
+StatusCode LVL1::jFEXNtupleWriter::loadlargeRJetAlgoVariables() {
+  m_largeRJet_ET.clear();
+  m_largeRJet_nTOBs.clear();
+  m_largeRJetTOB_eta.clear();
+  m_largeRJetTOB_phi.clear();
+  m_largeRJetTOB_ET.clear();
 
-  m_em.clear();
-  m_had.clear();
-  m_eg_nTOBs = m_jFEXOutputCollection->size();
   for (int i = 0; i < m_jFEXOutputCollection->size(); i++)
   {
-    std::map<std::string, float> jFEXegvalue_tem = (*(m_jFEXOutputCollection->get_eg(i)));
-    m_eg_WstotNum.push_back(jFEXegvalue_tem["WstotNum"]);
-    m_eg_WstotDen.push_back(jFEXegvalue_tem["WstotDen"]);
-    m_eg_RetaNum.push_back(jFEXegvalue_tem["RetaNum"]);
-    m_eg_RetaDen.push_back(jFEXegvalue_tem["RetaDen"]);
-    m_eg_RhadNum.push_back(jFEXegvalue_tem["RhadNum"]);
-    m_eg_RhadDen.push_back(jFEXegvalue_tem["RhadDen"]);
-    m_eg_haveseed.push_back(jFEXegvalue_tem["haveseed"]);
-    m_eg_ET.push_back(jFEXegvalue_tem["ET"]);
-    m_eg_eta.push_back(jFEXegvalue_tem["eta"]);
-    m_eg_phi.push_back(jFEXegvalue_tem["phi"]);
-    m_em.push_back(jFEXegvalue_tem["em"]);
-    m_had.push_back(jFEXegvalue_tem["had"]);
+    m_largeRJet_ET.push_back((*(m_jFEXOutputCollection->get_largeRJet(i)))["largeRJet_ET"]);
+    m_largeRJet_nTOBs.push_back((*(m_jFEXOutputCollection->get_largeRJet(i)))["largeRJet_nTOBs"]); 
+    m_largeRJetTOB_eta.push_back((*(m_jFEXOutputCollection->get_largeRJet(i)))["largeRJetTOB_eta"]);
+    m_largeRJetTOB_phi.push_back((*(m_jFEXOutputCollection->get_largeRJet(i)))["largeRJetTOB_phi"]);
+    m_largeRJetTOB_ET.push_back((*(m_jFEXOutputCollection->get_largeRJet(i)))["largeRJetTOB_ET"]);
+
   }
   return StatusCode::SUCCESS;
 }
-*/
+
+
+
+
 /*
 StatusCode LVL1::jFEXNtupleWriter::loadTruthElectron() {
   m_truth_e_eta.clear();

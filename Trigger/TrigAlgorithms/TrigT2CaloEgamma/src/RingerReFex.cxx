@@ -171,15 +171,19 @@ StatusCode RingerReFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
   double my_eta             = rtrigEmCluster.eta();
   double my_phi             = rtrigEmCluster.phi();
  
+  SG::WriteHandle<xAOD::TrigRingerRingsContainer> ringsCollection = SG::WriteHandle<xAOD::TrigRingerRingsContainer>( m_ringerContainerKey, context );
+  ATH_CHECK( ringsCollection.record( std::make_unique<xAOD::TrigRingerRingsContainer>(),  std::make_unique<xAOD::TrigRingerRingsAuxContainer>() ) );
 
   // Check if the cluster is in the Eta region
   bool accept=false; 
   for(unsigned i=0; i<m_etaBins.size();i+=2){
     if((abs(my_eta) > m_etaBins[i]) && (abs(my_eta) <= m_etaBins[i+1]))  accept=true;
   }  
-  if(!accept)
+  if(!accept){
+    auto dummyRinger = new xAOD::TrigRingerRings();
+    ringsCollection->push_back( dummyRinger ); 
     return StatusCode::SUCCESS;
-
+  }
   
   
   bool wrap                 = Ringer::check_wrap_around(rtrigEmCluster.phi(), false);
@@ -403,14 +407,10 @@ StatusCode RingerReFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
     ref_rings.insert(ref_rings.end(), jt->pattern().begin(), jt->pattern().end());
   } 
   
-
-  
-  //Create the container to attach all rings
-  SG::WriteHandle<xAOD::TrigRingerRingsContainer> ringsCollection = SG::WriteHandle<xAOD::TrigRingerRingsContainer>( m_ringerContainerKey, context );
-  ATH_CHECK( ringsCollection.record( std::make_unique<xAOD::TrigRingerRingsContainer>(),  std::make_unique<xAOD::TrigRingerRingsAuxContainer>() ) );
   auto ptrigRingerRings= new xAOD::TrigRingerRings();
   ringsCollection->push_back( ptrigRingerRings );  
   ptrigRingerRings->setRings(ref_rings);
+
   auto clusLink = ElementLink<xAOD::TrigEMClusterContainer>(m_clusterContainerKey.key(),0,context);
   ptrigRingerRings->setEmClusterLink( clusLink  );
 

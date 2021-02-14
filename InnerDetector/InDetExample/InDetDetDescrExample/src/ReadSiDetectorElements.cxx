@@ -170,10 +170,11 @@ void ReadSiDetectorElements::printAllElements(const bool accessDuringInitializat
         // These are no longer accessed through the detector element.
         IdentifierHash hashId = element->identifyHash();
         if (m_useConditionsTools) {
+          const EventContext &ctx = Gaudi::Hive::currentContext();
           ATH_MSG_ALWAYS(" Temperature (C), bias voltage, depletion voltage: "
-                         << m_siConditionsTool->temperature(hashId) << " "
-                         << m_siConditionsTool->biasVoltage(hashId) << " "
-                         << m_siConditionsTool->depletionVoltage(hashId));
+                         << m_siConditionsTool->temperature(hashId, ctx) << " "
+                         << m_siConditionsTool->biasVoltage(hashId, ctx) << " "
+                         << m_siConditionsTool->depletionVoltage(hashId, ctx));
         
 
 	  ATH_MSG_ALWAYS(" Lorentz correction (mm), tanLorentzPhi = "
@@ -585,10 +586,11 @@ ReadSiDetectorElements::testElement(const Identifier & id,
     ATH_MSG_ALWAYS(" center: r (mm) = " <<  element->center().perp()/CLHEP::mm 
                    << ", phi (deg) = " <<  element->center().phi()/CLHEP::deg);
     if (m_useConditionsTools) {
+      const EventContext &ctx = Gaudi::Hive::currentContext();
       ATH_MSG_ALWAYS(" Temperature (C), bias voltage, depletion voltage: "
-                     << m_siConditionsTool->temperature(hashId) << " "
-                     << m_siConditionsTool->biasVoltage(hashId) << " "
-                     << m_siConditionsTool->depletionVoltage(hashId));
+                     << m_siConditionsTool->temperature(hashId, ctx) << " "
+                     << m_siConditionsTool->biasVoltage(hashId, ctx) << " "
+                     << m_siConditionsTool->depletionVoltage(hashId, ctx));
     }
     ATH_MSG_ALWAYS(" sin(tilt), tilt (deg), sin(stereo), stereo (deg) = " 
                    << element->sinTilt() << ", " 

@@ -11,9 +11,6 @@
  * @date 21 February 2014
 **/
 
-
-
-
 //local include
 #include "InDetPhysValMonitoring/IAthSelectionTool.h"
 #include "InDetPhysValMonitoring/CutFlow.h"
@@ -22,6 +19,8 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
+#include "InDetTrackSystematicsTools/InDetTrackTruthOriginTool.h"
+#include "InDetTrackSystematicsTools/InDetTrackTruthOriginDefs.h"
 
 #include "InDetTruthVertexValidation/IInDetVertexTruthMatchTool.h"
 
@@ -159,9 +158,12 @@ private:
     bool m_useTrackSelection;
     bool m_useVertexTruthMatchTool;
     bool m_TrkSelectPV;   // make track selection relative to PV
+    bool m_doTruthOriginPlots;
     ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelectionTool;
     ToolHandle<IInDetVertexTruthMatchTool> m_vtxValidTool;
     ToolHandle<IAthSelectionTool> m_truthSelectionTool;
+    ToolHandle<InDet::IInDetTrackTruthOriginTool> m_trackTruthOriginTool{this, "trackTruthOriginTool", "InDet::InDetTrackTruthOriginTool"};
+
     mutable std::mutex  m_mutex;
     mutable CutFlow     m_truthCutFlow ATLAS_THREAD_SAFE; // Guarded by m_mutex
     std::vector<int> m_prospectsMatched;

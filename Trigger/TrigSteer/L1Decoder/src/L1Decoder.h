@@ -80,9 +80,13 @@ private:
     this, "ctpUnpacker", "CTPUnpackingTool/CTPUnpackingTool",
     "Tool used to unpack the CTP info"};
 
-  ToolHandleArray<IRoIsUnpackingTool> m_roiUnpackers{
-    this, "roiUnpackers", {},
-    "Tools unpacking RoIs"};
+  ToolHandleArray<IRoIsUnpackingTool> m_roiUnpackers_roib{
+    this, "RoIBRoIUnpackers", {},
+    "Tools unpacking Run-2 RoIs from RoIBResult"};
+
+  ToolHandleArray<IRoIsUnpackingTool> m_roiUnpackers_xaod{
+    this, "xAODRoIUnpackers", {},
+    "Tools unpacking xAOD RoIs from L1TriggerResult"};
 
   ToolHandle<IPrescalingTool> m_prescaler{
     this, "prescaler", "PrescalingTool/PrescalingTool",

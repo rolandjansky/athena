@@ -21,6 +21,8 @@ public:
 
   virtual StatusCode initialize() override;
 
+  virtual bool isEmulated() const override {return true;}
+
 private:
 
   ///@{ @name Properties

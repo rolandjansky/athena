@@ -7,14 +7,10 @@
 
 #include "GaudiKernel/StatusCode.h"
 
-#include "./conditionsFactoryMT.h"
-
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/xAODJetAsIJetFactory.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerFactory.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoHelper2.h"
-#include "./CapacityCheckedCondition.h"
+#include "./RepeatedCondition.h"
 #include "./FastReductionMatcher.h"
 #include "./Tree.h"
+#include "./ConditionsDefsMT.h"
 
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 
@@ -52,7 +48,7 @@ StatusCode TrigJetHypoToolConfig_fastreduction::initialize() {
 
 
 std::optional<ConditionPtrs>
-TrigJetHypoToolConfig_fastreduction::getCapacityCheckedConditions() const {
+TrigJetHypoToolConfig_fastreduction::getRepeatedConditions() const {
 
   ConditionPtrs conditions;
 
@@ -60,7 +56,7 @@ TrigJetHypoToolConfig_fastreduction::getCapacityCheckedConditions() const {
   // return an invalid optional if any src signals a problem
 
   for(const auto& cm : m_conditionMakers){
-    conditions.push_back(cm->getCapacityCheckedCondition());
+    conditions.push_back(cm->getRepeatedCondition());
   }
       
   return std::make_optional<ConditionPtrs>(std::move(conditions));
@@ -72,11 +68,11 @@ TrigJetHypoToolConfig_fastreduction::getConditions() const {
   
   ConditionsMT conditions;
   for(const auto& cm : m_conditionMakers){
-    conditions.push_back(cm->getCapacityCheckedCondition());
+    conditions.push_back(cm->getRepeatedCondition());
   }
 
   for(const auto& cm : m_antiConditionMakers){
-    conditions.push_back(cm->getCapacityCheckedAntiCondition());
+    conditions.push_back(cm->getRepeatedAntiCondition());
   }
   
   return std::make_optional<ConditionsMT>(std::move(conditions));
@@ -89,8 +85,9 @@ TrigJetHypoToolConfig_fastreduction::getConditionFilters() const {
   auto filters = std::vector<std::unique_ptr<ConditionFilter>>();
   
   for(const auto& cm : m_filtConditionMakers){
-    ConditionPtrs filterConditions;  // will contain a single Condition
-    filterConditions.push_back(cm->getCapacityCheckedCondition());
+
+    ConditionsMT filterConditions;  // will contain a single Condition
+    filterConditions.push_back(cm->getRepeatedCondition());
     auto cf = std::make_unique<ConditionFilter>(filterConditions);
     filters.push_back(std::move(cf));
   }
@@ -108,15 +105,13 @@ TrigJetHypoToolConfig_fastreduction::requiresNJets() const {
 std::unique_ptr<IJetsMatcherMT>
 TrigJetHypoToolConfig_fastreduction::getMatcher () const {
 
-  auto opt_conds = getCapacityCheckedConditions();
+  auto opt_conds = getRepeatedConditions();
 
   if(!opt_conds.has_value()){
     return std::unique_ptr<IJetsMatcherMT>(nullptr);
   }
 
   auto matcher =  std::unique_ptr<IJetsMatcherMT>();
-  //  matcher.reset(new FastReductionMatcher(std::move(*opt_conds),
-  //					 Tree(m_treeVec)));
 
   auto conditions = std::move(*opt_conds);
   auto filters = getConditionFilters();
@@ -130,11 +125,4 @@ TrigJetHypoToolConfig_fastreduction::getMatcher () const {
 StatusCode TrigJetHypoToolConfig_fastreduction::checkVals() const {
   return StatusCode::SUCCESS;
 }
-
-std::vector<std::shared_ptr<ICleaner>> 
-TrigJetHypoToolConfig_fastreduction::getCleaners() const {
-  std::vector<std::shared_ptr<ICleaner>> v;
-  return v;
-}
-
 

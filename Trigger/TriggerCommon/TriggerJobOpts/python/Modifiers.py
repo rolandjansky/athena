@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ##############################################################
 # Modifiers.py
@@ -9,7 +9,7 @@
 #  for now there are no options foreseen for the modifiers
 #
 #  Permanent fixes that are only applied online should be
-#  put into Trigger_topOptions_standalone.py
+#  put into runHLT_standalone.py
 ###############################################################
 
 from AthenaCommon.AppMgr import theApp
@@ -595,13 +595,6 @@ class doMuonRoIDataAccess(_modifier):
     def preSetup(self):
         TriggerFlags.MuonSlice.doEFRoIDrivenAccess=True
 
-class forceMuonDataPrep(_modifier):
-    """
-    Execute muon data preparation on every event
-    """
-    def preSetup(self):
-        pass  # the actual modifier is implemented in share/Trigger_topOptions_standalone.py
-
 class rerunLVL1(_modifier):
     """
     Reruns the L1 simulation on real data
@@ -611,11 +604,6 @@ class rerunLVL1(_modifier):
         from AthenaCommon.Include import include
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
-
-        #write cool objects to detector store
-        from IOVDbSvc.CondDB import conddb
-        conddb.addFolderWithTag('TRIGGER', "/TRIGGER/LVL1/BunchGroupContent", "HEAD")
-        conddb.addFolder('TRIGGER', '/TRIGGER/LVL1/CTPCoreInputMapping')
 
         #configure LVL1 config svc with xml file
         from TrigConfigSvc.TrigConfigSvcConfig import L1TopoConfigSvc
@@ -1287,62 +1275,24 @@ class autoConditionsTag(_modifier):
         from RecExConfig.AutoConfiguration import ConfigureConditionsTag
         ConfigureConditionsTag()
 
-class enableCostDebug(_modifier):
-    """
-    Enables cost debugging options
-    """
-    def postSetup(self):
-        from TrigCostMonitor.TrigCostMonitorConfig import setupCostDebug
-        setupCostDebug()
-
 class enableCostMonitoring(_modifier):
     """
     Enable Cost Monitoring for online
     """
     def preSetup(self):
-        TriggerFlags.enableMonitoring = TriggerFlags.enableMonitoring.get_Value()+['CostExecHLT']
-        # MT
         from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
         flags.Trigger.CostMonitoring.doCostMonitoring = True
-
-    def postSetup(self):
-        try:
-          from TrigCostMonitor.TrigCostMonitorConfig import postSetupOnlineCost
-          postSetupOnlineCost()
-        except AttributeError:
-          log.error('enableCostMonitoring (Run 2 style) post setup failed.')
 
 class enableCostForCAF(_modifier):
     """
     Enable Cost Monitoring for CAF processing - use together with enableCostMonitoring
+    Forces cost data to be collected in every event, not just in events for which the HLT
+    cost monitoring chain is active and passes its prescale check.
+    Not of as much use in Run 3, one can just unprescale the cost monitoring chain instead.
     """
     def preSetup(self):
-        try:
-            import TrigCostMonitor.TrigCostMonitorConfig as costConfig
-            costConfig.preSetupCostForCAF()
-        except AttributeError:
-            log.info('TrigCostMonitor has not CAF preSetup option... OK to continue')
-        # MT
         from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
         flags.Trigger.CostMonitoring.monitorAllEvents = True
-
-    def postSetup(self):
-        try:
-            import TrigCostMonitor.TrigCostMonitorConfig as costConfig
-            costConfig.postSetupCostForCAF()
-        except AttributeError:
-            log.info('TrigCostMonitor has not CAF postSetup option... OK to continue')
-
-class doEnhancedBiasWeights(_modifier):
-    """
-    Enable calculaton of EnhancedBias weights, either on or offline - use together with enableCostMonitoring and enableCostForCAF (if offline).
-    """
-    def postSetup(self):
-        try:
-            import TrigCostMonitor.TrigCostMonitorConfig as costConfig
-            costConfig.postSetupEBWeighting()
-        except AttributeError:
-            log.warning('TrigCostMonitor has no EnhancedBias postSetup option...')
 
 class BeamspotFromSqlite(_modifier):
     """

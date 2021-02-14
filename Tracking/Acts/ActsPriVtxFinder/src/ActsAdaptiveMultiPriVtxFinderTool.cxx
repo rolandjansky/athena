@@ -126,7 +126,7 @@ ActsAdaptiveMultiPriVtxFinderTool::initialize()
     finderConfig.useVertexCovForIPEstimation = m_useVertexCovForIPEstimation;
     finderConfig.useSeedConstraint = m_useSeedConstraint;
     m_vertexFinder = std::make_shared<VertexFinder>(finderConfig, extractParameters);
-
+    
     ATH_MSG_INFO("ACTS AMVF tool successfully initialized");
     return StatusCode::SUCCESS;
 }
@@ -285,7 +285,7 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, std::vect
     VertexFinder::State finderState;
 
     auto findResult = m_vertexFinder->find(allTrackPtrs, vertexingOptions, finderState);
-
+    
     if(!findResult.ok()){
       xAOD::Vertex* dummyxAODVertex = new xAOD::Vertex;
       theVertexContainer->push_back(dummyxAODVertex);

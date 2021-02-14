@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -26,30 +26,20 @@
 #ifndef TrigDecisionMaker_TrigDecisionMaker_H
 #define TrigDecisionMaker_TrigDecisionMaker_H
 
-// Base class
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
 
-// core stuff
-#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-// trigger/configuration stuff
+#include "TrigDecisionMaker/ILvl1ResultAccessTool.h"
 #include "TrigDecisionEvent/TrigDecision.h"
-
 #include "TrigT1Result/RoIBResult.h"
 
-
-// containers
 #include <vector>
 #include <string>
-#include <map>
 #include <atomic>
 
-
-
 namespace HLT {
-  class ILvl1ResultAccessTool;
   class HLTResult;
 }
 
@@ -60,8 +50,6 @@ namespace LVL1CTP {
 namespace TrigConf {
   class ITrigConfigSvc;
 }
-
-class MsgStream;
 
 namespace TrigDec {
 
@@ -119,7 +107,7 @@ namespace TrigDec {
     SG::ReadHandleKey<HLT::HLTResult> m_hltResultKey{this, "HLTResultKey", "HLTResult_HLT", " SK key to retrieve the merged HLT result from SG" };
 
     ServiceHandle<TrigConf::ITrigConfigSvc> m_trigConfigSvc; //!< handle to the full (L1 & HLT) trigger config service
-    ToolHandle<HLT::ILvl1ResultAccessTool> m_lvl1Tool;  //!< tool to ease the access to the L1 results (RoIs, items, etc)
+    ToolHandle<HLT::ILvl1ResultAccessTool> m_lvl1Tool{this, "Lvl1ResultAccessTool", "HLT::Lvl1ResultAccessTool/Lvl1ResultAccessTool", "L1 tool to fetch"}; //!< tool to ease the access to the L1 results (RoIs, items, etc)
 
     // For statistics
     mutable std::atomic<unsigned int> m_nEvents; //!< statistics: number of processed events

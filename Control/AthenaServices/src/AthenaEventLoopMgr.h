@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_ATHENAEVENTLOOPMGR_H
@@ -128,9 +128,12 @@ protected:
   tool_stats m_toolReject; ///< tool returns StatusCode::FAILURE counter
   tool_stats m_toolAccept; ///< tool returns StatusCode::SUCCESS counter
   tool_store m_tools;         ///< internal tool store
-  
+
+  /// require input attribute list
+  bool m_requireInputAttributeList{};
+
   /// read event number from secondary input
-  bool m_useSecondaryEventNumber;
+  bool m_useSecondaryEventNumber{};
 
   /// property update handler:sets up the Pre-selection tools
   void setupPreSelectTools(Gaudi::Details::PropertyBase&);

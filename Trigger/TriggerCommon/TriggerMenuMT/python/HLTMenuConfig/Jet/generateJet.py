@@ -56,8 +56,7 @@ def generateChains( flags, chainDict ):
     inEventReco.mergeReco( CaloTopoClusterCfg( flags,
                                     cellsname = cellsname,
                                     clustersname = clustersname,
-                                    doLCCalib = False,
-                                    sequenceName = inEventReco.recoSeq.name) )
+                                    doLCCalib = False) )
 
     #sequencing of actual jet reconstruction
     from JetRecConfig import JetRecConfig

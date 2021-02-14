@@ -12,7 +12,7 @@ atlas_add_component( FastSiDigitization
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaBaseComps AthenaKernel PileUpToolsLib EventPrimitives xAODEventInfo GaudiKernel GeoPrimitives InDetReadoutGeometry PixelCablingLib PixelConditionsData ReadoutGeometryBase PixelReadoutGeometry SCT_ReadoutGeometry InDetCondTools InDetSimData InDetPrepRawData SiClusterizationToolLib InDetSimEvent HitManagement ISF_FatrasDetDescrModel ISF_FatrasEvent TrkTruthData StoreGateLib Identifier GeneratorObjects InDetIdentifier TrkDetDescrInterfaces TrkDigEvent TrkDigInterfaces TrkSurfaces TrkExUtils )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaBaseComps AthenaKernel PileUpToolsLib EventPrimitives xAODEventInfo GaudiKernel GeoPrimitives InDetReadoutGeometry PixelCablingLib PixelConditionsData ReadoutGeometryBase PixelReadoutGeometry SCT_ReadoutGeometry InDetCondTools InDetSimData InDetPrepRawData SiClusterizationToolLib InDetSimEvent HitManagement TrkTruthData StoreGateLib Identifier GeneratorObjects InDetIdentifier TrkDetDescrInterfaces TrkDigEvent TrkDigInterfaces TrkSurfaces TrkExUtils )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

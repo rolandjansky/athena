@@ -50,6 +50,9 @@ def get_parser():
                         const='chainDump.yml',
                         help='Produce a small yaml file including condensed counts information for test file only '
                              '(no ref) with the given name or %(const)s if no name is given')
+    parser.add_argument('--yamlL1',
+                        action='store_true',
+                        help='Include the L1 count information to the yaml file')
     parser.add_argument('--fracTolerance',
                         metavar='FRAC',
                         type=float,
@@ -322,7 +325,7 @@ def write_txt_output(json_dict, diff_only=False):
                     outfile.write(line+'\n')
 
 
-def make_light_dict(full_dict):
+def make_light_dict(full_dict, includeL1Counts):
     light_dict = dict()
     for chain in full_dict['HLTChain']['counts'].items():
         chain_name = chain[0]
@@ -356,6 +359,11 @@ def make_light_dict(full_dict):
 
         extract_steps('HLTStep', 'stepCounts')
         extract_steps('HLTDecision', 'stepFeatures')
+
+    if includeL1Counts and 'L1AV' in full_dict:
+        light_dict.update(
+            {name:{"eventCount": counts["count"]} for name,counts in full_dict["L1AV"]["counts"].items()}
+        )
 
     return light_dict
 
@@ -474,7 +482,7 @@ def main():
 
     if args.yaml:
         logging.info('Writing results extract to %s', args.yaml)
-        light_dict = make_light_dict(json_dict)
+        light_dict = make_light_dict(json_dict, includeL1Counts = args.yamlL1)
         with open(args.yaml, 'w') as outfile:
             yaml.dump(light_dict, outfile, sort_keys=True)
 

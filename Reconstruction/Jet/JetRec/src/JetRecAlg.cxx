@@ -11,7 +11,8 @@
 #include "xAODJet/JetAuxContainer.h"
 
 #if !defined (GENERATIONBASE) && !defined (XAOD_ANALYSIS)
-  #include "AthenaMonitoringKernel/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #endif
 
 using std::string;
@@ -53,6 +54,10 @@ StatusCode JetRecAlg::finalize() {
 
 //**********************************************************************
 
+#if !defined (GENERATIONBASE) && !defined (XAOD_ANALYSIS)
+#define DOMONITORING
+#endif
+
 StatusCode JetRecAlg::execute(const EventContext& ctx) const {
   // Get JetContainer by running fastjet, grooming or copying existing jets...
   // Pass in the WriteHandle so that the provider can do the record, and we
@@ -60,57 +65,58 @@ StatusCode JetRecAlg::execute(const EventContext& ctx) const {
   // We can subsequently access the jets from the handle and don't have to
   // worry about memory management.
 
-#if !defined (GENERATIONBASE) && !defined (XAOD_ANALYSIS)
-  auto t_total = Monitored::Timer<std::chrono::milliseconds>( "TIME_total" );
-
-  SG::WriteHandle<xAOD::JetContainer> jetContHandle(m_output,ctx);
-
-  auto t_jpv = Monitored::Timer<std::chrono::microseconds>( "TIME_jetprovider" );
-  ATH_CHECK( m_jetprovider->getAndRecordJets(jetContHandle) );
-  auto mon_jpv = Monitored::Group(m_monTool, t_jpv);
-
-  ATH_MSG_DEBUG("Created jet container of size "<< jetContHandle->size() << "  | writing to "<< m_output.key() );
-
-  ATH_MSG_DEBUG("Applying jet modifiers to " << m_output.key());
-
-  // Calculate moments, calibrate, sort, filter...  -----------
-  auto t_mod = Monitored::Timer<std::chrono::milliseconds>( "TIME_modifiers_total" );
-  for(const ToolHandle<IJetModifier>& t : m_modifiers){
-    std::string modname = t.name();
-    auto t_mods = Monitored::Timer<std::chrono::microseconds>( Form("TIME_modifier_%s",modname.c_str()) );
-    ATH_MSG_DEBUG("Running " << modname);
-    ATH_CHECK(t->modify(*jetContHandle));
-    auto mon_mods = Monitored::Group(m_monTool, t_mods);
-  }
-  auto mon_mod_total = Monitored::Group(m_monTool, t_mod);
-
-  // monitor jet multiplicity and basic jet kinematics
-  auto njets = Monitored::Scalar<int>("nJets");
-  auto pt    = Monitored::Collection("pt",  *jetContHandle, [c=0.001]( const xAOD::Jet* jet ) { return jet->pt()*c; });
-  auto et    = Monitored::Collection("et",  *jetContHandle, [c=0.001]( const xAOD::Jet* jet ) { return jet->p4().Et()*c; });
-  auto eta   = Monitored::Collection("eta", *jetContHandle, []( const xAOD::Jet* jet ) { return jet->eta(); });
-  auto phi   = Monitored::Collection("phi", *jetContHandle, []( const xAOD::Jet* jet ) { return jet->phi(); });
-  auto mon   = Monitored::Group(m_monTool,njets,pt,et,eta,phi);
-  njets      = jetContHandle->size();
-
-  auto mon_total = Monitored::Group(m_monTool, t_total);
-
-#else
-
-  SG::WriteHandle<xAOD::JetContainer> jetContHandle(m_output,ctx);
-
-  ATH_CHECK( m_jetprovider->getAndRecordJets(jetContHandle) );
-  ATH_MSG_DEBUG("Created jet container of size "<< jetContHandle->size() << "  | writing to "<< m_output.key() );
-
-  ATH_MSG_DEBUG("Applying jet modifiers to " << m_output.key());
-
-  // Calculate moments, calibrate, sort, filter...  -----------
-  for(const ToolHandle<IJetModifier>& t : m_modifiers){
-    ATH_MSG_DEBUG("Running " << t.name());
-    ATH_CHECK(t->modify(*jetContHandle));
-  }
-
+#ifdef DOMONITORING
+  auto t_total = Monitored::Timer<std::chrono::milliseconds>( "TIME_jetreco" );
+  auto t_jpv = Monitored::Timer<std::chrono::milliseconds>( "TIME_jetprovider" );
+  auto t_mod = Monitored::Timer<std::chrono::milliseconds>( "TIME_jetmod" );
 #endif
+
+  SG::WriteHandle<xAOD::JetContainer> jetContHandle(m_output,ctx);
+
+  // Define a scope to ease monitoring of the JetProvider action
+  {
+#ifdef DOMONITORING
+    Monitored::ScopedTimer time_provider(t_jpv);
+#endif
+    ATH_CHECK( m_jetprovider->getAndRecordJets(jetContHandle) );
+    ATH_MSG_DEBUG("Created jet container of size "<< jetContHandle->size() << "  | writing to "<< m_output.key() );
+  }
+
+  // Define a scope to ease monitoring of the JetModifier action
+  {
+#ifdef DOMONITORING
+    Monitored::ScopedTimer time_modifiers(t_mod);
+#endif
+    ATH_MSG_DEBUG("Applying jet modifiers to " << m_output.key());
+    // Calculate moments, calibrate, sort, filter...  -----------
+    for(const ToolHandle<IJetModifier>& t : m_modifiers){
+    ATH_MSG_DEBUG("Running " << t.name());
+      ATH_CHECK(t->modify(*jetContHandle));
+    }
+  }
+
+#if !defined (GENERATIONBASE) && !defined (XAOD_ANALYSIS)
+  // monitor jet multiplicity and basic jet kinematics
+  auto njets = Monitored::Scalar<int>("JET_n");
+  njets      = jetContHandle->size();
+  std::vector<float> jetpt, jetet, jeteta, jetphi, jetmass;
+  for (const xAOD::Jet* j : *jetContHandle) {
+    constexpr float invGeV = 1./Gaudi::Units::GeV;
+    jetpt.push_back(j->pt() * invGeV);
+    jetet.push_back(j->p4().Et() * invGeV);
+    jetmass.push_back(j->m() * invGeV);
+    jeteta.push_back(j->eta());
+    jetphi.push_back(j->phi());
+  }
+  auto pt    = Monitored::Collection("JET_pt",  jetpt);
+  auto et    = Monitored::Collection("JET_et",  jetet);
+  auto eta   = Monitored::Collection("JET_eta", jeteta);
+  auto mass  = Monitored::Collection("JET_m",   jetmass);
+  auto phi   = Monitored::Collection("JET_phi", jetphi);
+  
+  auto mon   = Monitored::Group(m_monTool,t_total,t_jpv,t_mod,njets,pt,et,mass,eta,phi);
+#endif
+
 
   return StatusCode::SUCCESS;
 

@@ -76,6 +76,11 @@ def getInDetPhysValMonitoringTool(**kwargs):
                 kwargs,
                 FillTruthToRecoNtuple=True)
 
+        if InDetPhysValFlags.doTruthOriginPlots():
+            kwargs = setDefaults(
+                kwargs,
+                doTruthOriginPlots=True )
+
         # adding the VeretxTruthMatchingTool
         from InDetTruthVertexValidation.InDetTruthVertexValidationConf import InDetVertexTruthMatchTool
         kwargs = setDefaults(

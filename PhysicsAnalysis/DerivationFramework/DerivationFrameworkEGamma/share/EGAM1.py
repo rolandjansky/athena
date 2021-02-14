@@ -33,7 +33,7 @@ DoCellReweightingVariations = jobproperties.egammaDFFlags.doEGammaCellReweightin
 
 # check if we run on data or MC (DataSource = geant4)
 from AthenaCommon.GlobalFlags import globalflags
-print "EGAM1 globalflags.DataSource(): ", globalflags.DataSource()
+print("EGAM1 globalflags.DataSource(): ", globalflags.DataSource())
 if globalflags.DataSource()!='geant4':
     DoCellReweighting = False
     DoCellReweightingVariations = False
@@ -46,8 +46,8 @@ streamName = derivationFlags.WriteDAOD_EGAM1Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_EGAM1Stream )
 EGAM1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 
-
 augmentationTools = []
+
 
 #====================================================================
 # SET UP SKIMMING
@@ -86,7 +86,7 @@ EGAM1_ZEEMassTool1 = DerivationFramework__EGInvariantMassTool( name = "EGAM1_ZEE
                                                                MinDeltaR = 0.0)
 ToolSvc += EGAM1_ZEEMassTool1
 augmentationTools += [EGAM1_ZEEMassTool1]
-print EGAM1_ZEEMassTool1
+print(EGAM1_ZEEMassTool1)
 
 #====================================================================
 # Z->ee selection based on di-electron trigger
@@ -111,7 +111,7 @@ EGAM1_ZEEMassTool2 = DerivationFramework__EGInvariantMassTool( name = "EGAM1_ZEE
                                                                MinDeltaR = 0.0)
 ToolSvc += EGAM1_ZEEMassTool2
 augmentationTools += [EGAM1_ZEEMassTool2]
-print EGAM1_ZEEMassTool2
+print(EGAM1_ZEEMassTool2)
 
 
 # 2. SELECTION FOR T&P
@@ -141,7 +141,7 @@ EGAM1_ZEEMassTool3 = DerivationFramework__EGInvariantMassTool( name = "EGAM1_ZEE
                                                                MinDeltaR = 0.0)
 ToolSvc += EGAM1_ZEEMassTool3
 augmentationTools += [EGAM1_ZEEMassTool3]
-print EGAM1_ZEEMassTool3
+print(EGAM1_ZEEMassTool3)
 
 
 
@@ -174,16 +174,15 @@ EGAM1_ZEGMassTool = DerivationFramework__EGInvariantMassTool( name = "EGAM1_ZEGM
                                                               MinDeltaR = 0.0)
 ToolSvc += EGAM1_ZEGMassTool
 augmentationTools += [EGAM1_ZEGMassTool]
-print EGAM1_ZEGMassTool
+print(EGAM1_ZEGMassTool)
 
 
 # Skimming criteria
 expression = 'count(EGAM1_DiElectronMass > 50.0*GeV)>=1 || count(EGAM1_DiElectronMass2 > 50.0*GeV)>=1 || count(EGAM1_DiElectronMass3 > 50.0*GeV)>=1 ||  count (EGAM1_ElectronPhotonMass > 50.0*GeV)>=1'
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-EGAM1SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM1SkimmingTool",
-                                                                 expression = expression)
-ToolSvc += EGAM1SkimmingTool
-print "EGAM1 skimming tool: ", EGAM1SkimmingTool
+EGAM1_SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM1SkimmingTool",
+                                                                  expression = expression)
+ToolSvc += EGAM1_SkimmingTool
 
 
 
@@ -212,13 +211,13 @@ if DoCellReweighting:
     # first, create the container with the new cells (after reweighting)
     EGAM1_NewCellTool = NewCellTool("EGAM1_NewCellTool",
                                     #OutputLevel = DEBUG,
-                                    CellContainerName = "AODCellContainer",
+                                    CellContainerName = "AllCalo",
                                     ReweightCellContainerName = "NewCellContainer",
                                     SGKey_electrons = "Electrons",
                                     SGKey_photons = "Photons",
                                     ReweightCoefficients2DPath = "DerivationFrameworkCalo/CellReweight_v2d/rewCoeffs10.root" )
 
-    print EGAM1_NewCellTool
+    print(EGAM1_NewCellTool)
     ToolSvc += EGAM1_NewCellTool
     augmentationTools += [EGAM1_NewCellTool]
 
@@ -230,7 +229,7 @@ if DoCellReweighting:
                                                               SGKey_caloCells = "NewCellContainer",
                                                               SGKey_electrons = "Electrons",
                                                               SGKey_photons = "Photons")
-    print EGAM1_ClusterDecoratorTool
+    print(EGAM1_ClusterDecoratorTool)
     ToolSvc += EGAM1_ClusterDecoratorTool
     augmentationTools += [EGAM1_ClusterDecoratorTool]
 
@@ -240,7 +239,7 @@ if DoCellReweighting:
     EGAM1_EMShowerBuilderTool = EMShowerBuilder("EGAM1_EMShowerBuilderTool", 
                                                 CellsName="NewCellContainer" )
 
-    print EGAM1_EMShowerBuilderTool
+    print(EGAM1_EMShowerBuilderTool)
     ToolSvc += EGAM1_EMShowerBuilderTool
     
     # fourth, decorate the new objects with their shower shapes computed from the new clusters
@@ -258,7 +257,7 @@ if DoCellReweighting:
                                                   DecorationPrefix = "RW_",
                                                   SaveReweightedContainer = True)
 
-    print EGAM1_EGammaReweightTool
+    print(EGAM1_EGammaReweightTool)
     ToolSvc += EGAM1_EGammaReweightTool
     augmentationTools += [EGAM1_EGammaReweightTool]
 
@@ -271,13 +270,13 @@ if DoCellReweighting:
         # first, create the container with the new cells (after reweighting)      
         EGAM1_MaxVarCellTool = MaxVarCellTool ("EGAM1_MaxVarCellTool",
                                                #OutputLevel = DEBUG,
-                                               CellContainerName="AODCellContainer",
+                                               CellContainerName="AllCalo",
                                                ReweightCellContainerName="MaxVarCellContainer",
                                                SGKey_electrons = "Electrons",
                                                SGKey_photons = "Photons", 
                                                ReweightCoefficients2DPath = "DerivationFrameworkCalo/CellReweight_v2d/rewCoeffs11.root")
         
-        print EGAM1_MaxVarCellTool
+        print(EGAM1_MaxVarCellTool)
         ToolSvc += EGAM1_MaxVarCellTool
 
         # second, run a tool that creates the clusters and objects from these new cells
@@ -287,13 +286,13 @@ if DoCellReweighting:
                                                                            SGKey_caloCells = "MaxVarCellContainer", 
                                                                            SGKey_electrons = "Electrons",
                                                                            SGKey_photons = "Photons")
-        print EGAM1_MaxVarClusterDecoratorTool
+        print(EGAM1_MaxVarClusterDecoratorTool)
         ToolSvc += EGAM1_MaxVarClusterDecoratorTool
 
         # third, schedule a tool that will be invoked by the EGammaReweightTool to create on-the-fly the shower shapes with the new cells
         EGAM1_EMMaxVarShowerBuilderTool = EMShowerBuilder("EGAM1_EMMaxVarShowerBuilderTool", 
                                                           CellsName="MaxVarCellContainer")
-        print EGAM1_EMMaxVarShowerBuilderTool
+        print(EGAM1_EMMaxVarShowerBuilderTool)
         ToolSvc += EGAM1_EMMaxVarShowerBuilderTool
         
         # fourth, decorate the new objects with their shower shapes computed from the new clusters
@@ -310,7 +309,7 @@ if DoCellReweighting:
                                                             DecorateEGammaObjects = False,
                                                             DecorationPrefix = "Max_",
                                                             SaveReweightedContainer = True)
-        print EGAM1_EGammaMaxVarReweightTool
+        print(EGAM1_EGammaMaxVarReweightTool)
         ToolSvc += EGAM1_EGammaMaxVarReweightTool
 
 
@@ -321,14 +320,14 @@ if DoCellReweighting:
         # first, create the container with the new cells (after reweighting)            
         EGAM1_MinVarCellTool = MinVarCellTool ("EGAM1_MinVarCellTol",
                                                #OutputLevel = DEBUG,
-                                               CellContainerName="AODCellContainer",
+                                               CellContainerName="AllCalo",
                                                ReweightCellContainerName="MinVarCellContainer",
                                                SGKey_electrons = "Electrons",
                                                SGKey_photons = "Photons",
                                                ReweightCoefficients2DPath = "DerivationFrameworkCalo/CellReweight_v2d/rewCoeffs00.root")
 
       
-        print EGAM1_MinVarCellTool
+        print(EGAM1_MinVarCellTool)
         ToolSvc += EGAM1_MinVarCellTool
 
         # second, run a tool that creates the clusters and objects from these new cells
@@ -338,13 +337,13 @@ if DoCellReweighting:
                                                                            SGKey_caloCells = "MinVarCellContainer", 
                                                                            SGKey_electrons = "Electrons",
                                                                            SGKey_photons = "Photons")
-        print EGAM1_MinVarClusterDecoratorTool
+        print(EGAM1_MinVarClusterDecoratorTool)
         ToolSvc += EGAM1_MinVarClusterDecoratorTool
 
         # third, schedule a tool that will be invoked by the EGammaReweightTool to create on-the-fly the shower shapes with the new cells      
         EGAM1_EMMinVarShowerBuilderTool = EMShowerBuilder("EGAM1_EMMinVarShowerBuilderTool", 
                                                           CellsName="MinVarCellContainer")
-        print EGAM1_EMMinVarShowerBuilderTool
+        print(EGAM1_EMMinVarShowerBuilderTool)
         ToolSvc += EGAM1_EMMinVarShowerBuilderTool
 
         # fourth, decorate the new objects with their shower shapes computed from the new clusters
@@ -362,7 +361,7 @@ if DoCellReweighting:
                                                             DecorationPrefix = "Min_",
                                                             SaveReweightedContainer = True)
 
-        print EGAM1_EGammaMinVarReweightTool
+        print(EGAM1_EGammaMinVarReweightTool)
         ToolSvc += EGAM1_EGammaMinVarReweightTool
 
         augmentationTools += [EGAM1_MaxVarCellTool, EGAM1_MaxVarClusterDecoratorTool, EGAM1_EGammaMaxVarReweightTool, EGAM1_MinVarCellTool, EGAM1_MinVarClusterDecoratorTool, EGAM1_EGammaMinVarReweightTool]
@@ -372,7 +371,7 @@ if DoCellReweighting:
 # Gain and cluster energies per layer decoration tool
 #====================================================================
 # GM: do we really need new, different tools: getClusterEnergyPerLayerDecoratorNew, getClusterEnergyPerLayerDecoratorMaxVar, getClusterEnergyPerLayerDecoratorMinVar?
-from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations, getClusterEnergyPerLayerDecorator, getClusterEnergyPerLayerDecorations, getClusterEnergyPerLayerDecoratorNew, getClusterEnergyPerLayerDecoratorMaxVar, getClusterEnergyPerLayerDecoratorMinVar
+from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations, getClusterEnergyPerLayerDecorator, getClusterEnergyPerLayerDecorations
 EGAM1_GainDecoratorTool = GainDecorator()
 ToolSvc += EGAM1_GainDecoratorTool
 augmentationTools += [EGAM1_GainDecoratorTool]
@@ -380,8 +379,10 @@ augmentationTools += [EGAM1_GainDecoratorTool]
 cluster_sizes = (3,7), (5,5), (7,11)
 EGAM1_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta, nphi)() for neta, nphi in cluster_sizes]
 if DoCellReweighting:
+    from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import getClusterEnergyPerLayerDecoratorNew
     EGAM1_ClusterEnergyPerLayerDecorators += [getClusterEnergyPerLayerDecoratorNew(neta, nphi)() for neta, nphi in cluster_sizes]
     if DoCellReweightingVariations:
+        from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import getClusterEnergyPerLayerDecoratorMaxVar, getClusterEnergyPerLayerDecoratorMinVar
         EGAM1_ClusterEnergyPerLayerDecorators += [getClusterEnergyPerLayerDecoratorMaxVar(neta, nphi)() for neta, nphi in cluster_sizes]
         EGAM1_ClusterEnergyPerLayerDecorators += [getClusterEnergyPerLayerDecoratorMinVar(neta, nphi)() for neta, nphi in cluster_sizes]
 augmentationTools += EGAM1_ClusterEnergyPerLayerDecorators
@@ -390,11 +391,12 @@ augmentationTools += EGAM1_ClusterEnergyPerLayerDecorators
 #====================================================================
 # SET UP THINNING
 #====================================================================
-        
-from DerivationFrameworkCore.ThinningHelper import ThinningHelper
-EGAM1ThinningHelper = ThinningHelper( "EGAM1ThinningHelper" )
-EGAM1ThinningHelper.TriggerChains = '(^(?!.*_[0-9]*(mu|j|xe|tau|ht|xs|te))(?!HLT_[eg].*_[0-9]*[eg][0-9].*)(?!HLT_eb.*)(?!.*larpeb.*)(?!HLT_.*_AFP_.*)(HLT_[eg].*))|HLT_e.*_Zee.*'
-EGAM1ThinningHelper.AppendToStream( EGAM1Stream, ExtraContainersTrigger )
+
+print('WARNING, Thinning of trigger navigation has to be properly implemented in R22')
+#from DerivationFrameworkCore.ThinningHelper import ThinningHelper
+#EGAM1ThinningHelper = ThinningHelper( "EGAM1ThinningHelper" )
+#EGAM1ThinningHelper.TriggerChains = '(^(?!.*_[0-9]*(mu|j|xe|tau|ht|xs|te))(?!HLT_[eg].*_[0-9]*[eg][0-9].*)(?!HLT_eb.*)(?!.*larpeb.*)(?!HLT_.*_AFP_.*)(HLT_[eg].*))|HLT_e.*_Zee.*'
+#EGAM1ThinningHelper.AppendToStream( EGAM1Stream, ExtraContainersTrigger )
 
 
 thinningTools=[]
@@ -421,7 +423,7 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
                                                                                         BestMatchOnly = True,
                                                                                         ConeSize = 0.3)
         ToolSvc += EGAM1ElectronTPThinningTool
-        print EGAM1ElectronTPThinningTool
+        print(EGAM1ElectronTPThinningTool)
         thinningTools.append(EGAM1ElectronTPThinningTool)
 
     # Tracks associated with Electrons (all tracks, large cone, for track isolation studies of the selected electrons)
@@ -436,7 +438,7 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
                                                                                          ConeSize = 0.6)
 
         ToolSvc += EGAM1ElectronTPThinningTool2
-        print EGAM1ElectronTPThinningTool2
+        print(EGAM1ElectronTPThinningTool2)
         thinningTools.append(EGAM1ElectronTPThinningTool2)
 
     # Tracks associated with Photons
@@ -451,7 +453,7 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
                                                                                       BestMatchOnly = True,
                                                                                       ConeSize = 0.3)
         ToolSvc += EGAM1PhotonTPThinningTool
-        print EGAM1PhotonTPThinningTool
+        print(EGAM1PhotonTPThinningTool)
         thinningTools.append(EGAM1PhotonTPThinningTool)
 
     # Tracks associated with Jets
@@ -459,10 +461,10 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
         EGAM1JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name                    = "EGAM1JetTPThinningTool",
                                                                                 StreamName              = streamName,
-                                                                                JetKey                  = "AntiKt4EMTopoJets",
+                                                                                JetKey                  = "AntiKt4EMPFlowJets",
                                                                                 InDetTrackParticlesKey  = "InDetTrackParticles")
         ToolSvc += EGAM1JetTPThinningTool
-        print EGAM1JetTPThinningTool
+        print(EGAM1JetTPThinningTool)
         thinningTools.append(EGAM1JetTPThinningTool)
 
 
@@ -474,7 +476,7 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
                                                                                   MuonKey                 = "Muons",
                                                                                   InDetTrackParticlesKey  = "InDetTrackParticles")
         ToolSvc += EGAM1MuonTPThinningTool
-        print EGAM1MuonTPThinningTool
+        print(EGAM1MuonTPThinningTool)
         thinningTools.append(EGAM1MuonTPThinningTool)
         
 
@@ -487,18 +489,19 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
                                                                                 ConeSize                = 0.6,
                                                                                 InDetTrackParticlesKey  = "InDetTrackParticles")
         ToolSvc += EGAM1TauTPThinningTool
-        print EGAM1TauTPThinningTool
+        print(EGAM1TauTPThinningTool)
         thinningTools.append(EGAM1TauTPThinningTool)
 
     # Tracks from primary vertex
-    if (TrackThinningKeepPVTracks) : 
+    thinning_expression = "InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV)*sin(InDetTrackParticles.theta) < 3.0*mm && InDetTrackParticles.pt > 10*GeV"
+    if (TrackThinningKeepPVTracks) :
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
         EGAM1TPThinningTool = DerivationFramework__TrackParticleThinning( name                    = "EGAM1TPThinningTool",
                                                                           StreamName              = streamName,
-                                                                          SelectionString         = "InDetTrackParticles.DFCommonTightPrimary && abs( DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta)) < 3.0*mm",
+                                                                          SelectionString         = thinning_expression,
                                                                           InDetTrackParticlesKey  = "InDetTrackParticles")
         ToolSvc += EGAM1TPThinningTool
-        print EGAM1TPThinningTool
+        print(EGAM1TPThinningTool)
         thinningTools.append(EGAM1TPThinningTool)
 
 
@@ -511,7 +514,7 @@ EGAM1CCTCThinningTool = DerivationFramework__CaloClusterThinning(name           
                                                                  TopoClCollectionSGKey   = "CaloCalTopoClusters",
                                                                  ConeSize                = 0.5)
 ToolSvc += EGAM1CCTCThinningTool
-print EGAM1CCTCThinningTool
+print(EGAM1CCTCThinningTool)
 thinningTools.append(EGAM1CCTCThinningTool)
 
 
@@ -519,11 +522,10 @@ thinningTools.append(EGAM1CCTCThinningTool)
 if globalflags.DataSource()=='geant4':
     truth_cond_WZH = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))" # W, Z and Higgs
     truth_cond_lep = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16))" # Leptons
-    truth_cond_top = "((abs(TruthParticles.pdgId) ==  6))"                                     # Top quark
+    truth_cond_top = "((abs(TruthParticles.pdgId) ==  6))"                                      # Top quark
     truth_cond_gam = "((abs(TruthParticles.pdgId) == 22) && (TruthParticles.pt > 1*GeV))"       # Photon
     truth_cond_finalState = '(TruthParticles.status == 1 && TruthParticles.barcode < 200000)'   # stable particles
     truth_expression = '(' + truth_cond_WZH + ' ||  ' + truth_cond_lep +' || '+truth_cond_top +' || '+truth_cond_gam + ') || (' + truth_cond_finalState+')'
-
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
     EGAM1TruthThinningTool = DerivationFramework__GenericTruthThinning(name                    = "EGAM1TruthThinningTool",
                                                                        StreamName              = streamName,
@@ -531,11 +533,9 @@ if globalflags.DataSource()=='geant4':
                                                                        PreserveDescendants     = False,
                                                                        PreserveGeneratorDescendants     = True,
                                                                        PreserveAncestors      = True)
-    
+  
     ToolSvc += EGAM1TruthThinningTool
     thinningTools.append(EGAM1TruthThinningTool)
-
-print "EGAM1 thinningTools: ", thinningTools
 
 
 
@@ -550,30 +550,54 @@ DerivationFrameworkJob += egam1Seq
 #=======================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 
-print "EGAM1 skimming tools", [EGAM1SkimmingTool]
-print "EGAM1 thinning tools", thinningTools
-print "EGAM1 augmentation tools", augmentationTools
+print("EGAM1 skimming tools: ", [EGAM1_SkimmingTool])
+print("EGAM1 thinning tools: ", thinningTools)
+print("EGAM1 augmentation tools: ", augmentationTools)
 egam1Seq += CfgMgr.DerivationFramework__DerivationKernel("EGAM1Kernel",
                                                          AugmentationTools = augmentationTools,
-                                                         SkimmingTools = [EGAM1SkimmingTool],
+                                                         SkimmingTools = [EGAM1_SkimmingTool],
                                                          ThinningTools = thinningTools
                                                          )
 
+
 #====================================================================
-# RESTORE JET COLLECTIONS REMOVED BETWEEN r20 AND r21
+# JET/MET
 #====================================================================
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
-#reducedJetList = ["AntiKt4PV0TrackJets", "AntiKt4TruthJets"]
-reducedJetList = ["AntiKt4TruthJets"]
+reducedJetList = []
+if (DerivationFrameworkIsMonteCarlo):
+    reducedJetList.append("AntiKt4TruthJets")
 replaceAODReducedJets(reducedJetList,egam1Seq,"EGAM1")
+
+
+#====================================================================
+# FLAVOUR TAGGING   
+#====================================================================
+from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollection
+FtagJetCollection('AntiKt4EMPFlowJets',egam1Seq)
 
 
 #=======================================
 # ADD NON-PROMPT LEPTON VETO ALGORITHMS 
 #=======================================
-import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
-JetTagConfig.ConfigureAntiKt4PV0TrackJets(egam1Seq, "EGAM1")
-egam1Seq += JetTagConfig.GetDecoratePromptLeptonAlgs(name="Electrons")
+# not migrated yet to R22
+print('WARNING: NonPromptLepton tagger not migrated yet to R22, will not decorate electrons with its output')
+# import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+# JetTagConfig.ConfigureAntiKt4PV0TrackJets(egam1Seq, "EGAM1")
+# egam1Seq += JetTagConfig.GetDecoratePromptLeptonAlgs(name="Electrons")
+
+
+
+#========================================
+# ENERGY DENSITY
+#========================================
+if (DerivationFrameworkIsMonteCarlo):
+    # Schedule the two energy density tools for running after the pseudojets are created.
+    for alg in ['EDTruthCentralAlg', 'EDTruthForwardAlg']:
+        if hasattr(topSequence, alg):
+            edtalg = getattr(topSequence, alg)
+            delattr(topSequence, alg)
+            egam1Seq += edtalg
 
 
 #====================================================================
@@ -593,13 +617,12 @@ EGAM1Stream.AcceptAlgs(["EGAM1Kernel"])
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 EGAM1SlimmingHelper = SlimmingHelper("EGAM1SlimmingHelper")
 EGAM1SlimmingHelper.SmartCollections = ["Electrons",
-					"Photons",
+                                        "Photons",
                                         "Muons",
                                         "TauJets",
-                                        "MET_Reference_AntiKt4EMTopo",
-                                        "AntiKt4EMTopoJets",
-                                        "AntiKt4EMTopoJets_BTagging201810",
-                                        "BTagging_AntiKt4EMTopo_201810",
+                                        "MET_Baseline_AntiKt4EMPFlow",
+                                        "AntiKt4EMPFlowJets",
+                                        "BTagging_AntiKt4EMPFlow",
                                         "InDetTrackParticles",
                                         "PrimaryVertices" ]
 
@@ -642,9 +665,5 @@ EGAM1SlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
 EGAM1SlimmingHelper.AppendContentToStream(EGAM1Stream)
 
 #Add full CellContainer
-EGAM1Stream.AddItem("CaloCellContainer#AODCellContainer")
+EGAM1Stream.AddItem("CaloCellContainer#AllCalo")
 EGAM1Stream.AddItem("CaloClusterCellLinkContainer#egammaClusters_links")
-
-
-
-

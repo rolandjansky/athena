@@ -272,6 +272,7 @@ namespace xAOD {
     AUX_VARIABLE( RNNEleScoreSigTrans ); 
 
     AUX_VARIABLE( nAllTracks );
+    AUX_VARIABLE( nLargeRadiusTracks );
   }
   
 } // namespace xAOD

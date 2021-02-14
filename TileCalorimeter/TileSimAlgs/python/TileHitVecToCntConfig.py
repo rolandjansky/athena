@@ -4,6 +4,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg, PileUpXingFolderCfg
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
@@ -34,8 +35,8 @@ def TileHitVecToCntToolCfg(flags, **kwargs):
     """
 
     kwargs.setdefault('name', 'TileHitVecToCntTool')
-    kwargs.setdefault('RndmEvtOverlay', flags.Detector.OverlayTile)
-    kwargs.setdefault('OnlyUseContainerName', not flags.Detector.OverlayTile)
+    kwargs.setdefault('RndmEvtOverlay', flags.Common.ProductionStep == ProductionStep.Overlay)
+    kwargs.setdefault('OnlyUseContainerName', flags.Common.ProductionStep != ProductionStep.Overlay)
 
     acc = ComponentAccumulator()
 
@@ -101,7 +102,7 @@ def TileHitVecToCntCfg(flags, **kwargs):
         kwargs.setdefault('DigitizationTool', tool)
 
     # choose which alg to attach to, following PileUpToolsCfg
-    if flags.Detector.OverlayTile:
+    if flags.Common.ProductionStep == ProductionStep.Overlay:
         kwargs.setdefault('name', 'TileHitVecToCnt')
         Alg = CompFactory.TileHitVecToCnt
         acc.addEventAlgo(Alg(**kwargs))

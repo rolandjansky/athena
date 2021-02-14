@@ -1,14 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
+#include <time.h>
 
+#include "TimeDivider.h"
 
-#include "TrigRateMoni.h"
-
-
-TimeDivider::TimeDivider(unsigned int intervals, unsigned int duration, unit u ) 
+TimeDivider::TimeDivider(unsigned int intervals, unsigned int duration, unit u )
   : m_intervals(intervals),
     m_duration(duration), 
     m_unit(u),

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -85,7 +85,7 @@ Trk::SimpleTrackCollectionMerger::mergeTrack(const TrackCollection* pTrackCollec
   if(pTrackCollection and not pTrackCollection->empty()) {
     ATH_MSG_DEBUG("Size of track collection " << pTrackCollection->size());
     // loop over tracks
-    for(const auto& pThisTrack: *pTrackCollection){
+    for(const auto pThisTrack: *pTrackCollection){
       // add track into output
       Trk::Track* newTrack = const_cast<Trk::Track*>(pThisTrack);
       outputCollection->push_back(newTrack);

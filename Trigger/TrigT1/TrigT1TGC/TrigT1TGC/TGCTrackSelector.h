@@ -17,6 +17,8 @@ namespace LVL1TGCTrigger {
   public:
     TGCTrackSelector(const TGCSectorLogic* sL=0);
     ~TGCTrackSelector();
+
+    void reset();
     void input(TGCRPhiCoincidenceOut* rPhiOut);
     bool select(std::shared_ptr<TGCTrackSelectorOut> TrackcandidateOut);
     TGCTrackSelectorOut getTrackSelectorOut(int index);

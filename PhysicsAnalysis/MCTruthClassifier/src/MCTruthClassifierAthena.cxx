@@ -47,21 +47,21 @@ EtaPhiCaloHelper(const Trk::CaloExtension* caloExtension,
     Trk::TrackParametersIdHelper parsIdHelper;
 
     // loop over calo layers
-    for (const auto *cur : caloExtension->caloLayerIntersections()) {
+    for (const auto& cur : caloExtension->caloLayerIntersections()) {
 
       // only use entry layer
-      if (!parsIdHelper.isEntryToVolume(cur->cIdentifier())) {
+      if (!parsIdHelper.isEntryToVolume(cur.cIdentifier())) {
         continue;
       }
 
-      CaloSampling::CaloSample sampleEx = parsIdHelper.caloSample(cur->cIdentifier());
+      CaloSampling::CaloSample sampleEx = parsIdHelper.caloSample(cur.cIdentifier());
       if (sampleEx != CaloSampling::EMB2 && sampleEx != CaloSampling::EME2 && sampleEx != CaloSampling::FCAL2) {
         continue;
       }
 
       if (sampleEx == sample || etaCalo == -99) {
-        etaCalo = cur->position().eta();
-        phiCalo = cur->position().phi();
+        etaCalo = cur.position().eta();
+        phiCalo = cur.position().phi();
         if (sampleEx == sample)
           break;
       }
@@ -125,7 +125,7 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus, bool isFwrdEle
   }
 
   std::vector<const xAOD::TruthParticle*> tps;
-  if (!m_truthInConeTool->particlesInCone(etaClus, phiClus, 0.5, tps)) {
+  if (!m_truthInConeTool->particlesInCone(ctx,etaClus, phiClus, 0.5, tps)) {
     ATH_MSG_WARNING("Truth Particle in Cone failed");
     return theMatchPart;
   }
@@ -195,7 +195,7 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus, bool isFwrdEle
     if (info) {
       info->egPartPtr.push_back(thePart);
       info->egPartdR.push_back(dR);
-      info->egPartClas.push_back(particleTruthClassifier(theMatchPart));
+      info->egPartClas.push_back(particleTruthClassifier(theMatchPart,info));
     }
 
     // Gen particles
@@ -310,7 +310,7 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus, bool isFwrdEle
     if (info) {
       info->egPartPtr.push_back(thePart);
       info->egPartdR.push_back(dR);
-      info->egPartClas.push_back(particleTruthClassifier(theMatchPart));
+      info->egPartClas.push_back(particleTruthClassifier(theMatchPart,info));
     }
 
     // the leading photon or electron  inside narrow eleptical cone m_phtClasConePhi  X m_phtClasConeEta

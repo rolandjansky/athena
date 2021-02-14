@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # flake8: noqa (trigger legacy code)
 
@@ -7,6 +7,7 @@ from TrigSteering.TrigSteeringConfig import TrigSteer_baseClass
 from TrigNavigation.TrigNavigationConfig import TestingHLTNavigationOffline
 from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
 from TrigSteering.TrigSteeringConfig import getConfigurableByConfigName
+from TrigDecisionMaker.TrigDecisionMakerConf import HLT__Lvl1ResultAccessTool
 
 class TestingLvl1FromFile(HLT__Lvl1FromFile):
     __slots__ = []
@@ -115,10 +116,6 @@ class TestingLvl1ResultAccessTool ( HLT__Lvl1ResultAccessTool ) :
         from AthenaCommon.Logging import logging  # loads logger
         log = logging.getLogger( name )
 
-        # set LVL1Config svc if not already done
-        # from TrigConfigSvc.TrigConfigSvcConfig import SetupTrigConfigSvc
-        # self.LVL1ConfigSvc = SetupTrigConfigSvc().GetConfigurable()
-
     def setDefaults(self,handle):
         from AthenaCommon.Constants import VERBOSE
         handle.OutputLevel = VERBOSE
@@ -137,7 +134,7 @@ class TestingTrigSteer( TrigSteer_baseClass ):
 
         from AthenaCommon.Logging import logging  # loads logger
         log = logging.getLogger( name )
-       
+
         self.HLTLevel = name[name.rfind('_')+1:]
         if not self.HLTLevel in ['L2', 'EF', 'HLT']:
             raise RuntimeError("Wrong steering level %s, name of steering instance must end in _L2, _EF, or _HLT" % self.HLTLevel)
@@ -173,12 +170,6 @@ class TestingTrigSteer( TrigSteer_baseClass ):
         except:
             log.warning("Attempt to add monitoring tools failed, will continue without them")
 
-        # adding the cost tools
-        try:
-            from TrigCostMonitor.TrigCostMonitorConfig import TrigCostToolsList
-            self.OPITools.extend(TrigCostToolsList)
-        except:
-            log.info("Attempt to add trigger cost monitoring tools failed, will continue without them")
 
         time = TrigTimeHistToolConfig("%sSteeringTime" % self.HLTLevel )
         self.MonTools += [ time ]
@@ -240,11 +231,6 @@ class TestingTrigSteer_L2( TrigSteer_baseClass ):
         except:
             log.warning("Attempt to add monitoring tools failed, will continue without them")
 
-        try:
-            from TrigCostMonitor.TrigCostMonitorConfig import TrigCostToolsList
-            self.OPITools.extend(TrigCostToolsList)
-        except:
-            log.info("Attempt to add trigger cost monitoring tools failed, will continue without them")
 
         time = TrigTimeHistToolConfig("L2SteeringTime")
         self.MonTools += [ time ]
@@ -302,11 +288,6 @@ class TestingTrigSteer_EF( TrigSteer_baseClass ) :
         except:
             log.warning("Attempt to add monitoring tools failed, will continue without them")
 
-        try:
-            from TrigCostMonitor.TrigCostMonitorConfig import TrigCostToolsList
-            self.OPITools.extend(TrigCostToolsList)
-        except:
-            log.info("Attempt to add trigger cost monitoring tools failed, will continue without them")
             
         time = TrigTimeHistToolConfig("EFSteeringTime")
         self.MonTools += [ time ]

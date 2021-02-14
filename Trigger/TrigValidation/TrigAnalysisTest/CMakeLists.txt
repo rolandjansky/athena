@@ -42,7 +42,6 @@ endif()
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_scripts( bin/*.py test/test*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
-atlas_install_scripts( test/exec*.sh test/test*.sh )
 atlas_install_joboptions( share/*.py )
 atlas_install_data( share/*.ref )
 

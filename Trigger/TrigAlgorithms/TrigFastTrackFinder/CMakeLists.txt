@@ -7,7 +7,7 @@ atlas_subdir( TrigFastTrackFinder )
 atlas_add_component( TrigFastTrackFinder
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps AthenaMonitoringKernelLib BeamSpotConditionsData CxxUtils GaudiKernel PathResolver InDetIdentifier InDetPrepRawData InDetRIO_OnTrack InDetRecToolInterfaces SiSPSeededTrackFinderData SiSpacePointsSeed TrigInDetEvent TrigInDetPattRecoEvent TrigInDetPattRecoTools TrigInDetToolInterfacesLib TrigInterfacesLib TrigNavigationLib TrigSteeringEvent TrigTimeAlgsLib TrkEventPrimitives TrkEventUtils TrkParameters TrkRIO_OnTrack TrkToolInterfaces TrkTrack TrkTrackSummary TrigAccelEvent TrigInDetAccelerationToolLib TrigInDetAccelerationServiceLib)
+                     LINK_LIBRARIES AthenaBaseComps AthenaMonitoringKernelLib BeamSpotConditionsData CxxUtils GaudiKernel PathResolver InDetIdentifier InDetPrepRawData InDetRIO_OnTrack InDetRecToolInterfaces SiSPSeededTrackFinderData SiSpacePointsSeed TrigInDetEvent TrigInDetPattRecoEvent TrigInDetPattRecoTools TrigInDetToolInterfacesLib TrigInterfacesLib TrigSteeringEvent TrkEventPrimitives TrkEventUtils TrkParameters TrkRIO_OnTrack TrkToolInterfaces TrkTrack TrkTrackSummary TrigAccelEvent TrigInDetAccelerationToolLib TrigInDetAccelerationServiceLib TrigT1Interfaces)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

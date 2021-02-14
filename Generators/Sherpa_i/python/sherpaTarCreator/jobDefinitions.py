@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import sys,os,glob,shutil,re
+import os,glob,shutil,re
 
 def mkGetOpenLoopsJob(options):
     if not ("getOpenLoops" in options.performOnly or "all" in options.performOnly):
@@ -24,7 +24,7 @@ def mkGetOpenLoopsJob(options):
 
     #delete openloops folder if it exists
     if os.path.exists("Process/OpenLoops"):
-        rmtree("Process/OpenLoops")
+        shutil.rmtree("Process/OpenLoops")
 
     job = options.batchSystemModule.batchJob("0.getOpenLoops", hours=2, nCores=options.ncoresScons, memMB=1, basedir=options.jobOptionDir[0])
     
@@ -164,11 +164,11 @@ def mkIntegrateJob(options, ecm, prevJob):
     ecmopt = ["BEAM_ENERGY_1="+str(ecm/2.*1000), "BEAM_ENERGY_2="+str(ecm/2.*1000)]
     ignoreopt = ["RUNDATA","LOG_FILE","NNPDF_GRID_PATH","RESULT_DIRECTORY"]
     totopt = options.Sherpa_i.Parameters + ecmopt
-    if options.Sherpa_i.PluginCode is not "":
+    if options.Sherpa_i.PluginCode != "":
         totopt.append("SHERPA_LDADD=Sherpa_iPlugin")
     for s in totopt:
-        if not (re.split('\W',s)[0] in ignoreopt):
-            job.cmds += ["sed '/.*\}(run).*/i\ \ "+s+"' -i Run.dat"]
+        if not (re.split(r'\W',s)[0] in ignoreopt):
+            job.cmds += [r"sed '/.*\}(run).*/i\ \ "+s+"' -i Run.dat"]
 
     if not options.sherpaInstallPath:
         options.sherpaInstallPath = "/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/MCGenerators/sherpa/${SHERPAVER}.openmpi3/x86_64-centos7-gcc62-opt"
@@ -244,7 +244,7 @@ def mkEvntGenTestJob(options, ecm, jodir, prevJob):
     job.cmds += ["for i in 1 2 5 10 20 50 100 200 500 1000 2000 5000 10000; do if test $nPer12h -gt $i; then finalEventsPerJob=$i; fi; done"]
     job.cmds += ["echo \"Possible number of events per 12h: ${nPer12h} -> ${finalEventsPerJob} \""]
     job.cmds += ["if grep -q evgenConfig.nEventsPerJob "+jodir+"/mc.*.py; then"]
-    job.cmds += ["  sed -e \"s/evgenConfig.nEventsPerJob.*=.*\([0-9]*\)/evgenConfig.nEventsPerJob = ${finalEventsPerJob}/g\" -i "+jodir+"/mc.*.py"]
+    job.cmds += [r"  sed -e \"s/evgenConfig.nEventsPerJob.*=.*\([0-9]*\)/evgenConfig.nEventsPerJob = ${finalEventsPerJob}/g\" -i "+jodir+"/mc.*.py"]
     job.cmds += ["else"]
     job.cmds += ["  echo \"evgenConfig.nEventsPerJob = ${finalEventsPerJob}\" >> "+jodir+"/mc.*.py"]
     job.cmds += ["fi"]

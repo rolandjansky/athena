@@ -232,8 +232,7 @@ bool TauCombinedTES::isValid(const xAOD::TauJet& tau) const {
     return false;
   }
 
-  // FIXME: At which calibration state ???
-  int etaIndex = getEtaIndex(tau.eta()); 
+  int etaIndex = getEtaIndex(tau.etaTauEnergyScale()); 
   if (etaIndex > 4) {
     ATH_MSG_DEBUG("Eta is out of the supported range !");
     return false;
@@ -294,11 +293,9 @@ double TauCombinedTES::getCaloResolution(const xAOD::TauJet& tau) const {
   xAOD::TauJetParameters::DecayMode decayMode = getDecayMode(tau);  
   int decayModeIndex = getDecayModeIndex(decayMode);
 
-  // FIXME: At which calibration state ???
-  int etaIndex = getEtaIndex(tau.eta());
+  int etaIndex = getEtaIndex(tau.etaTauEnergyScale());
   
-  // FIXME: At which calibration state ???
-  return getCaloResolution(tau.pt(), etaIndex, decayModeIndex);
+  return getCaloResolution(tau.ptTauEnergyScale(), etaIndex, decayModeIndex);
 }
 
 

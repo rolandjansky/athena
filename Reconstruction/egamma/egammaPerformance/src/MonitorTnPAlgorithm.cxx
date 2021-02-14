@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 Author : B. Laforge (laforge@lpnhe.in2p3.fr)
 4 May 2020
@@ -53,7 +53,7 @@ StatusCode MonitorTnPAlgorithm::fillHistograms( const EventContext& ctx ) const 
   const xAOD::Electron *lead_el = nullptr;
   const xAOD::Electron *subl_el = nullptr;
 
-  for (const auto& e_iter : *electrons) {
+  for (const auto e_iter : *electrons) {
     // Check that the electron meets our requirements
     bool isGood;
     if (! e_iter->passSelection(isGood,m_RecoName)) {

@@ -4,6 +4,7 @@
 #
 # art-type: grid
 # art-include: master/Athena
+# art-athena-mt: 8
 # art-output: OUT_ESD.root
 # art-output: OUT_ESD_1thread.root
 # art-output: OUT_ESD_5thread.root
@@ -11,63 +12,67 @@
 # art-output: diff_1_vs_serial.txt
 # art-output: diff_5_vs_1.txt
 # art-output: diff_8_vs_1.txt
+# art-output: log.RAWtoESD_serial
+# art-output: log.RAWtoESD_1thread
+# art-output: log.RAWtoESD_5thread
+# art-output: log.RAWtoESD_8thread
 
 #####################################################################
-LOG_RECO="log_q431_RAWtoESD_serial.log"
 Reco_tf.py --AMI q431 \
            --imf False \
-           --outputESDFile OUT_ESD.root &> ${LOG_RECO}
+           --outputESDFile OUT_ESD.root
 exit_code=$?
 echo  "art-result: ${exit_code} Reco_tf.py"
 if [ ${exit_code} -ne 0 ]
 then
     exit ${exit_code}
 fi
+mv log.RAWtoESD log.RAWtoESD_serial
 #####################################################################
 
 #####################################################################
 # now run reconstruction with AthenaMT with 1 thread
-LOG_RECO="log_q431_RAWtoESD_1thread.log"
 Reco_tf.py --AMI q431 \
            --imf False \
            --athenaopts="--threads=1" \
-           --outputESDFile OUT_ESD_1thread.root &> ${LOG_RECO}
+           --outputESDFile OUT_ESD_1thread.root
 exit_code=$?
 echo  "art-result: ${exit_code} Reco_tf_1thread.py"
 if [ ${exit_code} -ne 0 ]
 then
     exit ${exit_code}
 fi
+mv log.RAWtoESD log.RAWtoESD_1thread
 #####################################################################
 
 #####################################################################
 # now run reconstruction with AthenaMT with 5 threads
-LOG_RECO="log_q431_RAWtoESD_5thread.log"
 Reco_tf.py --AMI q431 \
            --imf False \
            --athenaopts="--threads=5" \
-           --outputESDFile OUT_ESD_5thread.root &> ${LOG_RECO}
+           --outputESDFile OUT_ESD_5thread.root
 exit_code=$?
 echo  "art-result: ${exit_code} Reco_tf_5thread.py"
 if [ ${exit_code} -ne 0 ]
 then
     exit ${exit_code}
 fi
+mv log.RAWtoESD log.RAWtoESD_5thread
 #####################################################################
 
 #####################################################################
 # now run reconstruction with AthenaMT with 8 threads
-LOG_RECO="log_q431_RAWtoESD_8thread.log"
 Reco_tf.py --AMI q431 \
            --imf False \
            --athenaopts="--threads=8" \
-           --outputESDFile OUT_ESD_8thread.root &> ${LOG_RECO}
+           --outputESDFile OUT_ESD_8thread.root
 exit_code=$?
 echo  "art-result: ${exit_code} Reco_tf_8thread.py"
 if [ ${exit_code} -ne 0 ]
 then
     exit ${exit_code}
 fi
+mv log.RAWtoESD log.RAWtoESD_8thread
 #####################################################################
 
 #####################################################################

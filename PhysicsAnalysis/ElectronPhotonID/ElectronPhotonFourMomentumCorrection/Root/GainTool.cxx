@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <sstream>
@@ -15,8 +15,6 @@ using namespace std;
 namespace egGain {
 
   GainTool::GainTool(const std::string& filenameTO, const std::string& filenameVar){
-    m_TOFile = 0;
-    m_varFile = 0;
     Init( filenameTO, filenameVar);
   }
 
@@ -253,6 +251,10 @@ namespace egGain {
 	else if (energy_input<480 && energy_input>=200) corrM_G = (funcG_com[1][id_eta]->Eval(energy_input))/(funcG_com[0][id_eta]->Eval(range_energy[id_eta]));
 	else if (energy_input>=480) corrM_G = (funcG_com[2][id_eta]->Eval(energy_input))/(funcG_com[0][id_eta]->Eval(range_energy[id_eta]));
       }
+    }
+
+    if (id_eta < 0) {
+      return energy_input*1000.;
     }
 
     double ets2 = energy_layer2_input/cosh(eta_input);

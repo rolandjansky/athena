@@ -52,7 +52,6 @@ def add_ipfordg(ToolSvc, calibration_tool, BTaggingFlags,
     ToolSvc += detailed_track_grade_factory
     
     if BTaggingFlags.OutputLevel < 3:
-      print (basic_track_grade_factory)
       print (detailed_track_grade_factory)
 
     if do_neg: 

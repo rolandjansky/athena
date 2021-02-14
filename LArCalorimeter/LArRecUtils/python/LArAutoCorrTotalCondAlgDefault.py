@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Include import include
 from AthenaCommon.Logging import logging
@@ -9,7 +9,12 @@ include("LArConditionsCommon/LArConditionsCommon_MC_jobOptions.py")
 
 from LArRecUtils.LArRecUtilsConf import LArAutoCorrTotalCondAlg 
 from AthenaCommon.AlgSequence import AthSequencer
-from LArCabling.LArCablingAccess import LArOnOffIdMapping
+if "SuperCells" not in dir(): 
+    SuperCells = False
+if SuperCells:
+    from LArCabling.LArCablingAccess import LArOnOffIdMappingSC
+else:
+    from LArCabling.LArCablingAccess import LArOnOffIdMapping
 condSeq = AthSequencer("AthCondSeq")
 
 
@@ -18,7 +23,10 @@ def LArAutoCorrTotalCondAlgDefault():
     mlog = logging.getLogger( 'LArAutoCorrTotalCondAlg::__init__ ' )
     mlog.info("entering LArAutoCorrTotalCondAlgDefault")
 
-    LArOnOffIdMapping()
+    if SuperCells:
+        LArOnOffIdMappingSC()
+    else:
+        LArOnOffIdMapping()
     condSeq = AthSequencer("AthCondSeq")
     if hasattr (condSeq,"LArAutoCorrTotalCondAlg"):
         return getattr(condSeq,"LArAutoCorrTotalCondAlg")

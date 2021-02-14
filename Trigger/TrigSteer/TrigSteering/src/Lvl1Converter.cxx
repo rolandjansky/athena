@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -14,7 +14,6 @@
  * @author Tomasz Bold <Tomasz.Bold@cern.ch>         - UCI - AGH
  *
  * File and Version Information:
- * $Id: Lvl1Converter.cxx,v 1.49 2009-03-24 20:41:45 tbold Exp $
  **********************************************************************************/
 
 #include "TrigSteering/Lvl1Converter.h"
@@ -46,7 +45,6 @@
 #include "TrigConfL1Data/TriggerItem.h"
 
 #include "TrigInterfaces/AlgoConfig.h"
-#include "TrigSteering/Lvl1ResultAccessTool.h"
 #include "TrigSteering/Lvl1ConsistencyChecker.h"
 
 #include "TrigTimeAlgs/TrigTimerSvc.h"

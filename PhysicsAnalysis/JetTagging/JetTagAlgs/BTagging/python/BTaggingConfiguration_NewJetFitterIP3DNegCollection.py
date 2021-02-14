@@ -90,8 +90,6 @@ def toolNewJetFitterVxFinderFlip(name, useBTagFlagsDefaults = True, **options):
                   **options: Python dictionary with options for the tool.
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     if useBTagFlagsDefaults:
-        if not 'InDetKeys' in dir():
-            from InDetRecExample.InDetKeys import InDetKeys
         defaults = { 'OutputLevel'                         : BTaggingFlags.OutputLevel,
                      'VxPrimaryContainer'                  : BTaggingFlags.PrimaryVertexCollectionName,
                      'MaxNumDeleteIterations'              : 30,

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigMETMonitorAlgorithm.h"
@@ -7,7 +7,9 @@
 
 TrigMETMonitorAlgorithm::TrigMETMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
   : AthMonitorAlgorithm(name,pSvcLocator)
-  , m_offline_met_key("MET_EMTopo")
+  , m_offline_met_key("MET_Reference_AntiKt4EMPFlow")
+  , m_hlt_electron_key("HLT_egamma_Electrons_GSF")
+  , m_hlt_muon_key("HLT_MuonsCB_FS")
   , m_lvl1_roi_key("LVL1EnergySumRoI")
   , m_lvl1_jnc_key("jNOISECUT_MET")
   , m_lvl1_jrho_key("jXERHO_MET")
@@ -31,6 +33,8 @@ TrigMETMonitorAlgorithm::TrigMETMonitorAlgorithm( const std::string& name, ISvcL
   , m_trigDecTool("Trig::TrigDecisionTool/TrigDecisionTool")
 {
   declareProperty("offline_met_key", m_offline_met_key);
+  declareProperty("hlt_electron_key", m_hlt_electron_key);
+  declareProperty("hlt_muon_key", m_hlt_muon_key);
   declareProperty("l1_roi_key", m_lvl1_roi_key);
   declareProperty("l1_jnc_key", m_lvl1_jnc_key);
   declareProperty("l1_jrho_key", m_lvl1_jrho_key);
@@ -58,7 +62,7 @@ TrigMETMonitorAlgorithm::TrigMETMonitorAlgorithm( const std::string& name, ISvcL
   declareProperty("L1Chain04", m_L1Chain04="L1_gXENC50");
   declareProperty("L1Chain05", m_L1Chain05="L1_gXERHO50");
   declareProperty("L1Chain06", m_L1Chain06="L1_gXEJWOJ50");
-  declareProperty("L1Chain01", m_L1Chain07="L1_gXEPUFIT50");
+  declareProperty("L1Chain07", m_L1Chain07="L1_gXEPUFIT50");
   declareProperty("HLTChain01", m_HLTChain01="HLT_xe65_cell_L1XE50");
   declareProperty("HLTChain02", m_HLTChain02="HLT_xe100_mht_L1XE50");
   declareProperty("HLTChain03", m_HLTChain03="HLT_xe100_tcpufit_L1XE50");
@@ -81,6 +85,8 @@ TrigMETMonitorAlgorithm::~TrigMETMonitorAlgorithm() {}
 
 StatusCode TrigMETMonitorAlgorithm::initialize() {
     ATH_CHECK( m_offline_met_key.initialize() );
+    ATH_CHECK( m_hlt_electron_key.initialize() );
+    ATH_CHECK( m_hlt_muon_key.initialize() );
     ATH_CHECK( m_lvl1_roi_key.initialize() );
     ATH_CHECK( m_lvl1_jnc_key.initialize() );
     ATH_CHECK( m_lvl1_jrho_key.initialize() );
@@ -110,6 +116,17 @@ StatusCode TrigMETMonitorAlgorithm::initialize() {
 
 StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const {
     using namespace Monitored;
+
+    // access lepton containers
+    SG::ReadHandle<xAOD::ElectronContainer> hlt_electron_cont(m_hlt_electron_key, ctx);
+    if (! hlt_electron_cont.isValid() || hlt_electron_cont->size()==0 ) {
+      ATH_MSG_DEBUG("Container "<< m_hlt_electron_key << " does not exist or is empty");
+    }
+
+    SG::ReadHandle<xAOD::MuonContainer> hlt_muon_cont(m_hlt_muon_key, ctx);
+    if (! hlt_muon_cont.isValid() || hlt_muon_cont->size()==0 ) {
+      ATH_MSG_DEBUG("Container "<< m_hlt_muon_key << " does not exist or is empty");
+    }
 
     // access met containers
     SG::ReadHandle<xAOD::MissingETContainer> offline_met_cont(m_offline_met_key, ctx);
@@ -225,6 +242,10 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     const xAOD::TrigMissingET *hlt_met = 0;
 
     // define variables
+    auto hlt_el_mult = Monitored::Scalar<int>("hlt_el_mult",0.0);
+    auto hlt_el_pt = Monitored::Scalar<float>("hlt_el_pt",0.0);
+    auto hlt_mu_mult = Monitored::Scalar<int>("hlt_mu_mult",0.0);
+    auto hlt_mu_pt = Monitored::Scalar<float>("hlt_mu_pt",0.0);
     auto offline_Ex = Monitored::Scalar<float>("offline_Ex",0.0);
     auto offline_Ey = Monitored::Scalar<float>("offline_Ey",0.0);
     auto offline_Et = Monitored::Scalar<float>("offline_Et",0.0);
@@ -401,6 +422,21 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 
     // constant floor for log plots
     double epsilon = 1.189;
+
+    // access lepton values
+    if ( hlt_electron_cont.isValid() && hlt_electron_cont->size() > 0 ) {
+      hlt_el_mult = hlt_electron_cont->size();
+      for (auto Electron: *hlt_electron_cont) {
+        hlt_el_pt = (Electron->pt())*0.001;
+      }
+    }
+
+    if ( hlt_muon_cont.isValid() && hlt_muon_cont->size() > 0 ) {
+      hlt_mu_mult = hlt_muon_cont->size();
+      for (auto Muon: *hlt_muon_cont) {
+        hlt_mu_pt = (Muon->pt())*0.001;
+      }
+    }
 
     // access offline MET values
     if ( offline_met_cont.isValid() && offline_met_cont->size() > 0 ) {
@@ -759,6 +795,12 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
          pass_HLT01,pass_HLT02,pass_HLT03,pass_HLT04,pass_HLT05,
          pass_HLT05,pass_HLT06,pass_HLT07,pass_HLT08,pass_HLT09,
          pass_HLT11,pass_HLT12,pass_HLT13,pass_HLT14);
+    if (hlt_el_mult > 0) {
+      fill(tool,hlt_el_mult, hlt_el_pt);
+    }
+    if (hlt_mu_mult > 0) {
+      fill(tool,hlt_mu_mult, hlt_mu_pt);
+    }
     if (hlt_cell_met_cont->size() > 0) {
       fill(tool,cell_Ex,cell_Ey,cell_Et,cell_sumEt,
          cell_Ex_log,cell_Ey_log,cell_Et_log,cell_sumEt_log,

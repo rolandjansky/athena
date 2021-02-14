@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 Node - represents a tree structure. scenario and parameters which are strings 
 filled in while parsing a jet hyp[o label. A visitor is used to convert 
@@ -24,18 +24,22 @@ class Node(object):
         
         self.scenario = scenario
         self.parameters = ''
+        self.multiplicity = 1
         self.children = []
-        self.conf_attrs = []  # list of dictionaries
+        self.conf_attrs = []  # list of dictionaries to build conditions
 
+
+       
         # filled in by a CondtionsTollSetter:
         self.compound_condition_tools = [] 
         self.chainpartinds = []
-
+        
         # Condition objects may have filters
         # eg HT may have an et filter. Filters are made up of conditions
         # and are used to form jet subsets.
-        self.filter_conditions = []
-        self.filter_tool = None
+        self.filter_condition_tool = None
+        self.filter_dicts = []
+        
         
         self.tree_top = False
         self.tool = None
@@ -89,21 +93,23 @@ class Node(object):
              indent + 'parent node id: %s' % self.parent_id,
              indent + 'is tree top? %s' % self.tree_top,
              indent + 'parameters: %s' % str(self.parameters),
+             indent + 'multiplicity: %s' % str(self.multiplicity),
              indent + 'chainpartinds %s' % str(self.chainpartinds),
              indent + 'conf_attrs [%d]:' % len(self.conf_attrs)]
         for ca in self.conf_attrs:
             s.append(indent + str(ca))
         
-        s.append(indent + 'filter_conditions [%d]:' % (
-            len(self.filter_conditions),))
+        s.append(indent + 'filter_dicts [%d]:' % (
+            len(self.filter_dicts),))
                  
-        for fc in self.filter_conditions:
+        for fc in self.filter_dicts:
             s.append(indent + str(fc))
 
         s.append(indent + 'compoundConditionTools [%d]:' % len(
             self.compound_condition_tools))
 
-        s.append(indent + 'filter_tool :' + str(self.filter_tool))
+        s.append(indent + 'condition_filter_tool: %s' % str(
+            self.filter_condition_tool))
 
         s.append(indent + 'No of children: %d\n' % len(self.children))
 
@@ -118,6 +124,11 @@ class Node(object):
             s.extend(c.dump_(n_in+5))
             
         return s
+
+    def size(self):
+        sz = 1
+        for c in self.children: sz += c.size()
+        return sz
 
     def dump(self):
 

@@ -23,7 +23,7 @@ RecomputeElectronSelectors = True
 
 # check if we run on data or MC
 from AthenaCommon.GlobalFlags import globalflags
-print "EGAM2 globalflags.DataSource(): ", globalflags.DataSource()
+print("EGAM2 globalflags.DataSource(): ", globalflags.DataSource())
 
 
 
@@ -33,6 +33,8 @@ print "EGAM2 globalflags.DataSource(): ", globalflags.DataSource()
 streamName = derivationFlags.WriteDAOD_EGAM2Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_EGAM2Stream )
 EGAM2Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+
+augmentationTools = []
 
 
 #====================================================================
@@ -66,7 +68,8 @@ EGAM2_JPSIEEMassTool = DerivationFramework__EGInvariantMassTool( name = "EGAM2_J
                                                                  DoTransverseMass = False,
                                                                  MinDeltaR = 0.0)
 ToolSvc += EGAM2_JPSIEEMassTool
-print EGAM2_JPSIEEMassTool
+augmentationTools += [EGAM2_JPSIEEMassTool]
+print(EGAM2_JPSIEEMassTool)
 
 # SELECTION FOR T&P
 
@@ -96,7 +99,9 @@ EGAM2_JPSIEEMassTool2 = DerivationFramework__EGInvariantMassTool( name = "EGAM2_
                                                                   DoTransverseMass = False,
                                                                   MinDeltaR = 0.15)
 ToolSvc += EGAM2_JPSIEEMassTool2
-print EGAM2_JPSIEEMassTool2
+augmentationTools += [EGAM2_JPSIEEMassTool2]
+print(EGAM2_JPSIEEMassTool2)
+
 
 # Skimming criteria (offline selection)
 expression_calib = '(count(EGAM2_DiElectronMass > 1.0*GeV && EGAM2_DiElectronMass < 5.0*GeV)>=1)'
@@ -107,7 +112,7 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 EGAM2_OfflineSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM2_OfflineSkimmingTool",
                                                                         expression = expression)
 ToolSvc += EGAM2_OfflineSkimmingTool
-print "EGAM2 offline skimming tool:", EGAM2_OfflineSkimmingTool
+print("EGAM2 offline skimming tool:", EGAM2_OfflineSkimmingTool)
 
 #====================================================================
 # trigger-based selection
@@ -141,13 +146,12 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 EGAM2_TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name = "EGAM2_TriggerSkimmingTool", TriggerListOR = triggers)
 
 ToolSvc += EGAM2_TriggerSkimmingTool
-print "EGAM2 trigger skimming tool:", EGAM2_TriggerSkimmingTool
+print("EGAM2 trigger skimming tool:", EGAM2_TriggerSkimmingTool)
 
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
 EGAM2_SkimmingTool = DerivationFramework__FilterCombinationOR(name="EGAM2SkimmingTool", FilterList=[EGAM2_OfflineSkimmingTool,EGAM2_TriggerSkimmingTool] )
 ToolSvc+=EGAM2_SkimmingTool
-print "EGAM2 skimming tool:", EGAM2_SkimmingTool
 
 
 
@@ -162,20 +166,22 @@ print "EGAM2 skimming tool:", EGAM2_SkimmingTool
 from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations, getClusterEnergyPerLayerDecorator, getClusterEnergyPerLayerDecorations
 EGAM2_GainDecoratorTool = GainDecorator()
 ToolSvc += EGAM2_GainDecoratorTool
+augmentationTools += [EGAM2_GainDecoratorTool]
 
 cluster_sizes = (3,5), (5,7), (7,7), (7,11)
 EGAM2_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta, nphi)() for neta, nphi in cluster_sizes]
+augmentationTools += EGAM2_ClusterEnergyPerLayerDecorators
 
 
 #====================================================================
 # SET UP THINNING
 #====================================================================
 
-from DerivationFrameworkCore.ThinningHelper import ThinningHelper
-EGAM2ThinningHelper = ThinningHelper( "EGAM2ThinningHelper" )
-EGAM2ThinningHelper.TriggerChains = '(^(?!.*_[0-9]*(mu|j|xe|tau|ht|xs|te))(?!HLT_[eg].*_[0-9]*[eg][0-9].*)(?!HLT_eb.*)(?!.*larpeb.*)(?!HLT_.*_AFP_.*)(HLT_[eg].*))|HLT_e.*_Jpsiee.*'
-
-EGAM2ThinningHelper.AppendToStream( EGAM2Stream, ExtraContainersTrigger )
+print('WARNING, Thinning of trigger navigation has to be properly implemented in R22')
+#from DerivationFrameworkCore.ThinningHelper import ThinningHelper
+#EGAM2ThinningHelper = ThinningHelper( "EGAM2ThinningHelper" )
+#EGAM2ThinningHelper.TriggerChains = '(^(?!.*_[0-9]*(mu|j|xe|tau|ht|xs|te))(?!HLT_[eg].*_[0-9]*[eg][0-9].*)(?!HLT_eb.*)(?!.*larpeb.*)(?!HLT_.*_AFP_.*)(HLT_[eg].*))|HLT_e.*_Jpsiee.*'
+#EGAM2ThinningHelper.AppendToStream( EGAM2Stream, ExtraContainersTrigger )
 
 
 thinningTools=[]
@@ -195,10 +201,10 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
         EGAM2JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name                    = "EGAM2JetTPThinningTool",
                                                                                 StreamName              = streamName,
-                                                                                JetKey                  = "AntiKt4EMTopoJets",
+                                                                                JetKey                  = "AntiKt4EMPFlowJets",
                                                                                 InDetTrackParticlesKey  = "InDetTrackParticles")
         ToolSvc += EGAM2JetTPThinningTool
-        print EGAM2JetTPThinningTool
+        print(EGAM2JetTPThinningTool)
         thinningTools.append(EGAM2JetTPThinningTool)
     
     # Tracks associated with Muons
@@ -209,7 +215,7 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
                                                                                   MuonKey                 = "Muons",
                                                                                   InDetTrackParticlesKey  = "InDetTrackParticles")
         ToolSvc += EGAM2MuonTPThinningTool
-        print EGAM2MuonTPThinningTool
+        print(EGAM2MuonTPThinningTool)
         thinningTools.append(EGAM2MuonTPThinningTool)
 
     # Tracks associated with Electrons
@@ -224,7 +230,7 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
                                                                                         BestMatchOnly = True,
                                                                                         ConeSize = 0.3)
         ToolSvc += EGAM2ElectronTPThinningTool
-        print EGAM2ElectronTPThinningTool
+        print(EGAM2ElectronTPThinningTool)
         thinningTools.append(EGAM2ElectronTPThinningTool)
 
     # Tracks associated with Photons
@@ -240,7 +246,7 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
                                                                                       ConeSize = 0.3)
 
         ToolSvc += EGAM2PhotonTPThinningTool
-        print EGAM2PhotonTPThinningTool
+        print(EGAM2PhotonTPThinningTool)
         thinningTools.append(EGAM2PhotonTPThinningTool)
 
     # Tracks associated with Taus
@@ -252,21 +258,20 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
                                                                                 ConeSize                = 0.6,
                                                                                 InDetTrackParticlesKey  = "InDetTrackParticles")
         ToolSvc += EGAM2TauTPThinningTool
-        print EGAM2TauTPThinningTool
+        print(EGAM2TauTPThinningTool)
         thinningTools.append(EGAM2TauTPThinningTool)
 
     # Tracks from primary vertex
+    thinning_expression = "InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV)*sin(InDetTrackParticles.theta) < 3.0*mm && InDetTrackParticles.pt > 10*GeV"
     if (TrackThinningKeepPVTracks) :
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
         EGAM2TPThinningTool = DerivationFramework__TrackParticleThinning( name                    = "EGAM2TPThinningTool",
                                                                           StreamName              = streamName,
-                                                                          SelectionString         = "InDetTrackParticles.DFCommonTightPrimary && abs( DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta)) < 3.0*mm",
+                                                                          SelectionString         = thinning_expression,
                                                                           InDetTrackParticlesKey  = "InDetTrackParticles")
         ToolSvc += EGAM2TPThinningTool
-        print EGAM2TPThinningTool
+        print(EGAM2TPThinningTool)
         thinningTools.append(EGAM2TPThinningTool)
-
-print "EGAM2 thinningTools: ", thinningTools
 
 
 #=======================================
@@ -277,23 +282,45 @@ DerivationFrameworkJob += egam2Seq
 
 
 #=======================================
-# CREATE THE DERIVATION KERNEL ALGORITHM   
+# CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
+
+print("EGAM2 skimming tools: ", [EGAM2_SkimmingTool])
+print("EGAM2 thinning tools: ", thinningTools)
+print("EGAM2 augmentation tools: ", augmentationTools)
 egam2Seq += CfgMgr.DerivationFramework__DerivationKernel("EGAM2Kernel",
-                                                         AugmentationTools = [EGAM2_JPSIEEMassTool,EGAM2_JPSIEEMassTool2,EGAM2_GainDecoratorTool] + EGAM2_ClusterEnergyPerLayerDecorators,
+                                                         AugmentationTools = augmentationTools,
                                                          SkimmingTools = [EGAM2_SkimmingTool],
                                                          ThinningTools = thinningTools
                                                          )
 
-
 #====================================================================
-# RESTORE JET COLLECTIONS REMOVED BETWEEN r20 AND r21
+# JET/MET
 #====================================================================
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
-reducedJetList = ["AntiKt4TruthJets"]
+reducedJetList = []
+if (DerivationFrameworkIsMonteCarlo):
+    reducedJetList.append("AntiKt4TruthJets")
 replaceAODReducedJets(reducedJetList,egam2Seq,"EGAM2")
 
+
+#====================================================================
+# FLAVOUR TAGGING   
+#====================================================================
+from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollection
+FtagJetCollection('AntiKt4EMPFlowJets',egam2Seq)
+
+
+#========================================
+# ENERGY DENSITY
+if (DerivationFrameworkIsMonteCarlo):
+    # Schedule the two energy density tools for running after the pseudojets are created.
+    for alg in ['EDTruthCentralAlg', 'EDTruthForwardAlg']:
+        if hasattr(topSequence, alg):
+            edtalg = getattr(topSequence, alg)
+            delattr(topSequence, alg)
+            egam2Seq += edtalg
 
 #====================================================================
 # SET UP STREAM SELECTION
@@ -312,15 +339,13 @@ EGAM2Stream.AcceptAlgs(["EGAM2Kernel"])
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 EGAM2SlimmingHelper = SlimmingHelper("EGAM2SlimmingHelper")
 
-EGAM2SlimmingHelper.SmartCollections = [
-				        "Electrons",
+EGAM2SlimmingHelper.SmartCollections = ["Electrons",
                                         "Photons",
-					"Muons",
+                                        "Muons",
                                         "TauJets",
-                                        "MET_Reference_AntiKt4EMTopo",
-                                        "AntiKt4EMTopoJets",
-                                        "AntiKt4EMTopoJets_BTagging201810",
-                                        "BTagging_AntiKt4EMTopo_201810",
+                                        "MET_Baseline_AntiKt4EMPFlow",
+                                        "AntiKt4EMPFlowJets",
+                                        "BTagging_AntiKt4EMPFlow",
                                         "InDetTrackParticles",
                                         "PrimaryVertices" ]
 # muons, tau, MET, b-tagging could be switched off if not needed and use too much space

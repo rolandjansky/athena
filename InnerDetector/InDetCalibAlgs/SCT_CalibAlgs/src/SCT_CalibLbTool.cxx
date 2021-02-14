@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -48,6 +48,7 @@ SCT_CalibLbTool::SCT_CalibLbTool(const std::string& type, const std::string& nam
 
 StatusCode
 SCT_CalibLbTool::initialize() {
+
    ATH_MSG_INFO("Initialize of " << PACKAGE_VERSION);
    ATH_CHECK(service("THistSvc", m_thistSvc));
 
@@ -76,7 +77,7 @@ SCT_CalibLbTool::initialize() {
 
    // Read Handle Key
    ATH_CHECK(m_rdoContainerKey.initialize());
-
+   
    return StatusCode::SUCCESS;
 }
 
@@ -223,7 +224,6 @@ SCT_CalibLbTool::fillFromData() {
       ATH_MSG_ERROR("The evtInfo pointer is nullptr");
       return false;
    }
-   m_lumiBlock=m_evtInfo->lumiBlock();
    m_numberOfEventsHisto->Fill(m_lumiBlock);
    bool result{true};
    //--- Retrieve the RDO container
@@ -251,7 +251,7 @@ SCT_CalibLbTool::fillFromData() {
          int strip{m_pSCTHelper->strip((*rdoItr)->identify())};
          const int endStrip{(*rdoItr)->getGroupSize() + strip};
          for (; strip != endStrip; ++strip) {
-            pThisHisto2D->Fill( strip, m_lumiBlock);
+            pThisHisto2D->Fill( strip, m_lumiBlock );
          }
          ////
          int rdoGroupSize{(*rdoItr)->getGroupSize()};

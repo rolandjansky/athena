@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // METTruthAssociator.cxx 
@@ -168,7 +168,7 @@ namespace met {
     std::vector<const IParticle*> jetTruth;
     std::vector<ElementLink<IParticleContainer> > jetconst;
     jetTruth.reserve(20);
-    for(const auto& jet : *jetCont) {
+    for(const auto jet : *jetCont) {
       jetTruth.clear();
       jetconst.clear();
       MissingETBase::Types::constvec_t trkvec;
@@ -242,7 +242,7 @@ namespace met {
     const IParticleContainer* uniqueTruth = metMap->getUniqueSignals(truthParticleCont.asDataVector(),MissingETBase::UsageHandler::TruthParticle);
     ATH_MSG_VERBOSE("Extracted " << uniqueTruth->size() << "/" << truthParticleCont.size()
 		    << " unique truth particles.");
-    for(const auto& part : *uniqueTruth) {
+    for(const auto part : *uniqueTruth) {
       const xAOD::TruthParticle* truth = static_cast<const xAOD::TruthParticle*>(part);
       // stable
       if(!MC::isGenStable(truth->status(),truth->barcode())) continue;
@@ -319,7 +319,7 @@ namespace met {
       }
     }
 
-    for(const auto& truth : truthParticleCont) {
+    for(const auto truth : truthParticleCont) {
       if(truth->pt()<1) continue;
       // stable
       if(!MC::isGenStable(truth->status(),truth->barcode())) continue;
@@ -412,7 +412,7 @@ namespace met {
       }
     }
 
-    for(const auto& truth : truthParticleCont) {
+    for(const auto truth : truthParticleCont) {
       if(!truth || truth->pt()<1) continue;
       // stable
       if(!MC::isGenStable(truth->status(),truth->barcode())) continue;
@@ -502,7 +502,7 @@ namespace met {
     std::vector<const IParticle*> constlist;
     constlist.reserve(20);
     std::vector<const IParticle*> hardObjs_tmp;
-    for(const auto& obj : *hardObjs) {
+    for(const auto obj : *hardObjs) {
       hardObjs_tmp.push_back(obj);
     }
     std::sort(hardObjs_tmp.begin(),hardObjs_tmp.end(),greaterPt);

@@ -40,5 +40,5 @@ TCS::MuonTOB::clearHeap() {
 }
 
 void TCS::MuonTOB::print(std::ostream &o) const {
-    o << "cluster energy: " << Et() << ", eta: " << eta() << ", phi: " << phi();
+    o << "cluster energy: " << Et() << ", eta: " << eta() << ", phi: " << phi() << ", sectorName: " << sectorName() << ", bw2or3: " << bw2or3() << ", innerCoin: " << innerCoin() << ", goodMF: " << goodMF() << ", charge: " << charge() << ", is2cand: " << is2cand();
 }

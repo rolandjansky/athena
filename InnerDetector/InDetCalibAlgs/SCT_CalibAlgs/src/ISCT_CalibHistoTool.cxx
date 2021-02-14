@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -80,6 +80,11 @@ ISCT_CalibHistoTool::numberOfLb() const {
 void
 ISCT_CalibHistoTool::setLbToMerge(const int nLbMerge) {
    m_nLbMerge = nLbMerge;
+}
+
+void
+ISCT_CalibHistoTool::setLb(const int nLb) {
+   m_lumiBlock = nLb;
 }
 
 int

@@ -33,6 +33,9 @@ namespace xAOD {
   const std::string TrigComposite_v1::s_inputMakerNodeNameString{"IM"};
   const std::string TrigComposite_v1::s_hypoAlgNodeNameString{"H"};
   const std::string TrigComposite_v1::s_comboHypoAlgNodeNameString{"CH"};
+  const std::string TrigComposite_v1::s_summaryFilterNodeNameString{"SF"};
+  const std::string TrigComposite_v1::s_summaryPassNodeNameString{"HLTPassRaw"};
+  const std::string TrigComposite_v1::s_summaryPrescaledNodeNameString{"HLTPrescaled"};
 
   bool TrigComposite_v1::s_throwOnCopyError = false; 
 
@@ -166,6 +169,43 @@ namespace xAOD {
    //               Implementation for the link accessor functions
    //
 
+
+   bool TrigComposite_v1::removeObjectLink(const std::string& name) {
+      bool removed = false;
+      const std::vector< std::string >& names = linkColNames();
+      for( size_t i = 0; i < names.size(); ++i ) {
+         if( names.at(i) != name ) continue;
+         // Remove
+         linkColNamesNC().erase( linkColNamesNC().begin() + i );
+         linkColKeysNC().erase( linkColKeysNC().begin() + i );
+         linkColIndicesNC().erase( linkColIndicesNC().begin() + i );
+         linkColClidsNC().erase( linkColClidsNC().begin() + i );
+         removed = true;
+         break;
+      }
+      return removed;
+   }
+
+
+   bool TrigComposite_v1::removeObjectCollectionLinks(const std::string& name) {
+      bool removed = false;
+      const std::vector< std::string >& names = linkColNames();
+      const std::string mangledName = name + s_collectionSuffix;
+      for( size_t i = 0; i < names.size(); /*noop*/ ) {
+         if( names.at(i) == mangledName ) {
+            // Remove
+            linkColNamesNC().erase( linkColNamesNC().begin() + i );
+            linkColKeysNC().erase( linkColKeysNC().begin() + i );
+            linkColIndicesNC().erase( linkColIndicesNC().begin() + i );
+            linkColClidsNC().erase( linkColClidsNC().begin() + i );
+            removed = true;
+         } else {
+            ++i;
+         }
+      }
+      return removed;
+   }
+
    bool TrigComposite_v1::hasObjectLink( const std::string& name, const CLID clid ) const {
 
       // Since this function shouldn't throw exceptions too easily,
@@ -206,8 +246,8 @@ namespace xAOD {
    bool TrigComposite_v1::hasObjectLinkExact(const std::string& name, const uint32_t key, const uint16_t index, const uint32_t clid) const {
       for (size_t i = 0; i < this->linkColNames().size(); ++i) {
          if (this->linkColNames().at(i) != name) continue;
-         if (this->linkColKeysNoRemap().at(i) != key) continue;
-         if (this->linkColIndicesNoRemap().at(i) != index) continue;
+         if (this->linkColKeys().at(i) != key) continue;
+         if (this->linkColIndices().at(i) != index) continue;
          if (this->linkColClids().at(i) != clid) continue;
          return true;
       } 
@@ -225,30 +265,22 @@ namespace xAOD {
                            linkColClids )
 
    const std::vector< uint32_t >& TrigComposite_v1::linkColKeys() const {
-      if (isRemapped()) {
-        static const Accessor< std::vector< uint32_t > > acc_remap( "remap_linkColKeys" );
-        return acc_remap( *this );
-      }
       static const Accessor< std::vector< uint32_t > > acc_builtin( "linkColKeys" );
       return acc_builtin( *this );
    }
 
    const std::vector< uint16_t >& TrigComposite_v1::linkColIndices() const {
-      if (isRemapped()) {
-        static const Accessor< std::vector< uint16_t > > acc_remap( "remap_linkColIndices" );
-        return acc_remap( *this );
-      }
       static const Accessor< std::vector< uint16_t > > acc_builtin( "linkColIndices" );
       return acc_builtin( *this );
    }
 
-   const std::vector< uint32_t >& TrigComposite_v1::linkColKeysNoRemap() const {
-      static const Accessor< std::vector< uint32_t > > acc( "linkColKeys" );
+   const std::vector< uint32_t >& TrigComposite_v1::linkColKeysRemap() const {
+      static const Accessor< std::vector< uint32_t > > acc( "remap_linkColKeys" );
       return acc( *this );
    }
 
-   const std::vector< uint16_t >& TrigComposite_v1::linkColIndicesNoRemap() const {
-      static const Accessor< std::vector< uint16_t > > acc( "linkColIndices" );
+   const std::vector< uint16_t >& TrigComposite_v1::linkColIndicesRemap() const {
+      static const Accessor< std::vector< uint16_t > > acc( "remap_linkColIndices" );
       return acc( *this );
    }
 
@@ -347,15 +379,21 @@ namespace xAOD {
      }
    }
 
-   bool TrigComposite_v1::typelessGetObjectLink( const std::string& name, uint32_t& key, uint32_t& clid, uint16_t& index ) const {
+   bool TrigComposite_v1::typelessGetObjectLink( const std::string& name, uint32_t& key, uint32_t& clid, uint16_t& index) const {
       std::vector<std::string>::const_iterator it = std::find(linkColNames().begin(), linkColNames().end(), name);
       if (it == linkColNames().end()) {
          return false;
       }
       const size_t location = std::distance(linkColNames().begin(), it);
-      key = linkColKeys().at(location);
-      clid = linkColClids().at(location);
-      index = linkColIndices().at(location);
+      if (isRemapped()) {
+         key = linkColKeysRemap().at(location);
+         clid = linkColClids().at(location);
+         index = linkColIndicesRemap().at(location);
+      } else {
+         key = linkColKeys().at(location);
+         clid = linkColClids().at(location);
+         index = linkColIndices().at(location);
+      }
       return true;
    }
 
@@ -366,13 +404,19 @@ namespace xAOD {
       bool found = false;
       const std::string mangledName = name + s_collectionSuffix;
       for (size_t i = 0; i < this->linkColNames().size(); ++i) {
-        if (linkColNames().at(i) != mangledName) {
-          continue;
-        }
-        keyVec.push_back( linkColKeys().at(i) );
-        clidVec.push_back( linkColClids().at(i) );
-        indexVec.push_back( linkColIndices().at(i) );
-        found = true;
+         if (linkColNames().at(i) != mangledName) {
+            continue;
+         }
+         if (isRemapped()) {
+            keyVec.push_back( linkColKeysRemap().at(i) );
+            clidVec.push_back( linkColClids().at(i) );
+            indexVec.push_back( linkColIndicesRemap().at(i) );
+         } else {
+            keyVec.push_back( linkColKeys().at(i) );
+            clidVec.push_back( linkColClids().at(i) );
+            indexVec.push_back( linkColIndices().at(i) );
+         }
+         found = true;
       }
       return found;
    }
@@ -404,9 +448,9 @@ std::ostream& operator<<(std::ostream& os, const xAOD::TrigComposite_v1& tc) {
     if (!i) os << std::endl;
     os << "    Link Name:"  << tc.linkColNames()[i];
     os << ", Key:"   << tc.linkColKeys()[i];
-    if (isRemapped) os << ", OldKey:"   << tc.linkColKeysNoRemap()[i];
+    if (isRemapped) os << ", RemappedKey:"   << tc.linkColKeysRemap()[i];
     os << ", Index:" << tc.linkColIndices()[i];
-    if (isRemapped) os << ", OldIndex:" << tc.linkColIndicesNoRemap()[i];
+    if (isRemapped) os << ", RemappedIndex:" << tc.linkColIndicesRemap()[i];
     os << ", CLID:"  << tc.linkColClids()[i];
     if (i != tc.linkColNames().size() - 1) os << std::endl;
   }

@@ -65,7 +65,9 @@ if metFlags.DoPFlow() and metFlags.UseTracks():
                    AssocConfig('Soft')]
     cfg_akt4pf = METAssocConfig('AntiKt4EMPFlow',
                                 associators,
-                                doPFlow=True
+                                doPFlow=True,
+                                usePFOLinks=metFlags.UsePFOLinks(), 
+                                useFELinks=metFlags.UseFELinks() 
                                 )
 
     metFlags.METAssocConfigs()[cfg_akt4pf.suffix] = cfg_akt4pf
@@ -85,8 +87,11 @@ if metFlags.DoPFlow() and metFlags.UseTracks() and metFlags.UseFlowElements():
                    AssocConfig('Soft')]
     cfg_akt4pffe = METAssocConfig('AntiKt4EMPFlowFE',
                                   associators,
-                                  doPFlow=True
+                                  doPFlow=True,
+                                  usePFOLinks=metFlags.UsePFOLinks(), 
+                                  useFELinks=metFlags.UseFELinks() 
                                   )
 
     metFlags.METAssocConfigs()[cfg_akt4pffe.suffix] = cfg_akt4pffe
     metFlags.METAssocOutputList().append(cfg_akt4pffe.suffix)
+

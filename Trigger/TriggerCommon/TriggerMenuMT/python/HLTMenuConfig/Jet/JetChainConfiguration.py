@@ -42,7 +42,15 @@ class JetChainConfiguration(ChainConfigurationBase):
 
         # expect that the L1 seed is the same for all jet parts, otherwise we have a problem
         jChainParts = jetChainParts(self.chainPart)
+        # Register if this is a performance chain, in which case the HLT should be exactly j0_perf
+        self.isPerf = False
         for p in jChainParts:
+            if p['addInfo'] == 'perf':
+                # Slightly awkward check but we want to permit any L1, while
+                # restricting HLT to have exactly this form and nothing else
+                if self.chainName != 'HLT_j0_perf_'+self.chainL1Item:
+                        raise RuntimeError(f'Invalid jet \'perf\' chain "{self.chainName}": Only "HLT_j0_perf_[L1]" is permitted!')
+                self.isPerf = True
             l1th = p['L1threshold']
             if self.L1Threshold != '' and self.L1Threshold != l1th:
                 log.error('Cannot configure a jet chain with different L1 thresholds')
@@ -71,15 +79,18 @@ class JetChainConfiguration(ChainConfigurationBase):
             else:
                 clustersKey, jetPreselStep = self.getJetCaloPreselChainStep()
                 chainSteps.append( jetPreselStep )
-            jetCollectionName, jetTrackingHypoStep = self.getJetTrackingHypoChainStep(clustersKey)
+            jetCollectionName, jetDef, jetTrackingHypoStep = self.getJetTrackingHypoChainStep(clustersKey)
             chainSteps.append( jetTrackingHypoStep )
         else:
-            jetCollectionName, jetCaloHypoStep = self.getJetCaloHypoChainStep()
+            jetCollectionName, jetDef, jetCaloHypoStep = self.getJetCaloHypoChainStep()
             chainSteps.append( jetCaloHypoStep )
 
         if "JetDS" in self.chainName:
-           TLAStep = self.getJetTLAChainStep(jetCollectionName)
-           chainSteps+= [TLAStep]
+            # Select the TLA jets from the full jet container
+            # rather than the filtered one seen by the hypo
+            # (No diff in practice if the TLA cut is higher than the hypo filter)
+            TLAStep = self.getJetTLAChainStep(jetDef.fullname())
+            chainSteps+= [TLAStep]
         
         myChain = self.buildChain(chainSteps)
 
@@ -95,11 +106,11 @@ class JetChainConfiguration(ChainConfigurationBase):
         stepName = "MainStep_jet_"+jetDefStr
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetCaloHypoMenuSequence
-        jetSeq = RecoFragmentsPool.retrieve( jetCaloHypoMenuSequence, 
-                                             ConfigFlags, **self.recoDict )
+        jetSeq, jetDef = RecoFragmentsPool.retrieve( jetCaloHypoMenuSequence, 
+                                                     ConfigFlags, isPerf=self.isPerf, **self.recoDict )
         jetCollectionName = str(jetSeq.hypo.Alg.Jets)
 
-        return jetCollectionName, ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
+        return jetCollectionName, jetDef ,ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
 
     def getJetTrackingHypoChainStep(self, clustersKey):
         jetDefStr = jetRecoDictToString(self.recoDict)
@@ -107,11 +118,12 @@ class JetChainConfiguration(ChainConfigurationBase):
         stepName = "MainStep_jet_"+jetDefStr
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetTrackingHypoMenuSequence
-        jetSeq = RecoFragmentsPool.retrieve( jetTrackingHypoMenuSequence,
-                                             ConfigFlags, clustersKey=clustersKey, **self.recoDict )
+        jetSeq, jetDef = RecoFragmentsPool.retrieve( jetTrackingHypoMenuSequence,
+                                                     ConfigFlags, clustersKey=clustersKey,
+                                                     isPerf=self.isPerf, **self.recoDict )
         jetCollectionName = str(jetSeq.hypo.Alg.Jets)
 
-        return jetCollectionName, ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
+        return jetCollectionName, jetDef, ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
 
     def getJetCaloRecoChainStep(self):
         stepName = "CaloRecoPTStep_jet_"+self.recoDict["clusterCalib"]
@@ -131,7 +143,8 @@ class JetChainConfiguration(ChainConfigurationBase):
             'constitMod':'',
             'jetCalib':'subjesIS',
             'trkopt':'notrk',
-            'trkpresel': 'nopresel'
+            'trkpresel': 'nopresel',
+            'cleaning': 'noCleaning',
         }
         preselJetParts = dict(preselRecoDict)
         preselParts    = self.recoDict["trkpresel"].split('j')
@@ -147,7 +160,6 @@ class JetChainConfiguration(ChainConfigurationBase):
              'bTag': '',
              'bTracking': '',
              'chainPartName': chainPartName,
-             'cleaning': 'noCleaning',
              'dataScouting': '',
              'etaRange': '0eta320',
              'extra': '',
@@ -170,8 +182,8 @@ class JetChainConfiguration(ChainConfigurationBase):
         stepName = "PreselStep_jet_"+jetDefStr
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetCaloPreselMenuSequence
-        jetSeq, clustersKey = RecoFragmentsPool.retrieve( jetCaloPreselMenuSequence,
-                                                          ConfigFlags, **preselRecoDict )
+        jetSeq, jetDef, clustersKey = RecoFragmentsPool.retrieve( jetCaloPreselMenuSequence,
+                                                                  ConfigFlags, **preselRecoDict )
 
         return str(clustersKey), ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[preselChainDict])
 

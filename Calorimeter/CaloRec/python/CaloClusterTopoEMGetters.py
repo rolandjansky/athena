@@ -16,8 +16,6 @@ from CaloClusterCorrection.CaloTopoEMCorrections \
      import make_CaloTopoEMCorrections
 from AthenaCommon.SystemOfUnits import GeV
 
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-theCaloNoiseTool = CaloNoiseToolDefault()
 
 class CaloClusterTopoEMGetterBase (CaloClusterGetterBase):
     _inputGetter = jp.CaloRecFlags.clusterCellGetterName()

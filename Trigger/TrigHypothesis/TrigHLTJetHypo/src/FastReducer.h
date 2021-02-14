@@ -1,14 +1,13 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGHLTJETHYPO_FASTREDUCER_H
 #define TRIGHLTJETHYPO_FASTREDUCER_H
 
-#include "./CapacityCheckedConditionsDefs.h"
+#include "./RepeatedConditionsDefs.h"
 #include "./Tree.h"
 #include "./JetGroupProduct.h"
-#include "./JetGroupIndAllocator.h"
 #include "./xAODJetCollector.h"
 #include "./ITrigJetHypoInfoCollector.h"
 #include "./JetGroupRegister.h"
@@ -52,6 +51,7 @@ class FastReducer {
 
   // conditions owned by the matcher
   const ConditionPtrs& m_conditions;
+  std::vector<std::size_t> m_conditionMult;
 
   // conditionFilters owned by the matcher
   const ConditionFilters& m_conditionFilters;
@@ -63,7 +63,7 @@ class FastReducer {
   
   Tree m_tree;
 
-  // map Condition index onto a list of indices of satisfying job groups.
+  // map Condition index onto a list of indices of satisfying jet groups.
   CondInd2JetGroupsInds m_satisfiedBy;
 
   /** map Condition index onto a set of indices the condition
@@ -83,8 +83,6 @@ class FastReducer {
   bool m_pass{false};
 
   HypoJetVector m_passingJets;
-
-  //  JetGroupIndAllocator m_jgIndAllocator;
 
   JetGroupRegister m_jgRegister;
   /** set up the data structures for propagation. Propagation is the

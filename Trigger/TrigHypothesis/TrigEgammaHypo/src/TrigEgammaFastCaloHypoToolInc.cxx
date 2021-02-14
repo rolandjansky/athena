@@ -352,7 +352,7 @@ bool TrigEgammaFastCaloHypoToolInc::decide_ringer ( const ITrigEgammaFastCaloHyp
     emCluster = ringerShape->emCluster();
     //emCluster= input.cluster;
     if(!emCluster){
-      ATH_MSG_WARNING( "There is no link to xAOD::TrigEMCluster into the Ringer object.");
+      ATH_MSG_DEBUG("There is no link to xAOD::TrigEMCluster into the Ringer object.");
       return false;
     }
   }

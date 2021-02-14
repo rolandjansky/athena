@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -13,7 +13,10 @@
 #include "L1CaloFEXSim/jTowerContainer.h"
 #include "L1CaloFEXSim/jFEXSmallRJetAlgo.h" 
 #include "L1CaloFEXSim/jFEXSmallRJetTOB.h" 
+#include "L1CaloFEXSim/jFEXLargeRJetTOB.h"
+#include "L1CaloFEXSim/jFEXLargeRJetAlgo.h" 
 #include "L1CaloFEXSim/jFEXOutputCollection.h" 
+#include "L1CaloFEXSim/FEXAlgoSpaceDefs.h"
 //#include "L1CaloFEXSim/jFEXtauAlgo.h" //for the future
 //#include "L1CaloFEXSim/jFEXtauTOB.h" //for the future
 #include "CaloEvent/CaloCellContainer.h"
@@ -29,7 +32,6 @@
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/ReadHandle.h"
 #include "SGTools/TestStore.h"
-
 
 namespace LVL1 {
 
@@ -102,12 +104,46 @@ StatusCode jFEXFPGA::execute(){
       {m_jTowersIDs_Thin[ieta -2][iphi -2], m_jTowersIDs_Thin[ieta -2][iphi -1], m_jTowersIDs_Thin[ieta][iphi], m_jTowersIDs_Thin[ieta -2][iphi +1], m_jTowersIDs_Thin[ieta -2][iphi +2]}
 	};
 
+      int largeRCluster_IDs[15][15];
+      for(int i = -7; i< 8; i++ ){
+        for(int j = -7; j< 8; j++){
+          largeRCluster_IDs[7 +i][7 +j] = m_jTowersIDs_Thin[ieta + i][iphi +j];
+        }
+      }
+      //remove corners from large ET ring
+      for(int i =4; i <8; i++){
+        if( i != 7){
+          largeRCluster_IDs[7 +i][14] = 0;
+          largeRCluster_IDs[7 +i][0] = 0;
+          largeRCluster_IDs[7 -i][14] = 0;
+          largeRCluster_IDs[7 -i][0] = 0;
+        }
+
+        largeRCluster_IDs[14][7 +i] = 0;
+        largeRCluster_IDs[14][7 -i] = 0;
+        largeRCluster_IDs[0][7 +i] = 0;
+        largeRCluster_IDs[0][7 -i] = 0;
+        largeRCluster_IDs[13][13] = 0;
+        largeRCluster_IDs[1][1] = 0;
+        largeRCluster_IDs[13][1] = 0;
+        largeRCluster_IDs[1][13] = 0;       
+      }
+
       int smallRCluster_IDs[4][5];
       for(int i =-2; i< 2; i++){
         smallRCluster_IDs[i +2][0] = m_jTowersIDs_Thin[ieta +i][iphi +3];
         smallRCluster_IDs[i +2][1] = m_jTowersIDs_Thin[ieta +i][iphi -3];  
         smallRCluster_IDs[i +2][2] = m_jTowersIDs_Thin[ieta +3][iphi +i];
-        smallRCluster_IDs[i +2][2] = m_jTowersIDs_Thin[ieta -3][iphi +i];
+        smallRCluster_IDs[i +2][3] = m_jTowersIDs_Thin[ieta -3][iphi +i];
+      }
+
+       //this prevents adding ET from small RT ring
+      for(int i = -3; i< 4; i++){
+        for(int j = -3; j<4 ; j++){
+          if(!(i == 3 && j == -3) || !(i == -3 && j == 3) || !(i == 3 && j == 3) || !(i == -3 && j == -3)){
+            largeRCluster_IDs[7 +i][7 +j] = 0; 
+          }
+        }
       }
       
       
@@ -115,6 +151,7 @@ StatusCode jFEXFPGA::execute(){
       ATH_CHECK( m_jFEXSmallRJetAlgoTool->safetyTest());
       m_jFEXSmallRJetAlgoTool->setup(tobtable); 
       m_jFEXSmallRJetAlgoTool->setupCluster(smallRCluster_IDs);
+      m_jFEXLargeRJetAlgoTool->setupCluster(largeRCluster_IDs);      
 
       //These are plots of the central TT for each 5x5 search window.
       jFEXOutputs->addValue_smallRJet("smallRJet_ET", m_jFEXSmallRJetAlgoTool->getTTowerET());
@@ -130,7 +167,7 @@ StatusCode jFEXFPGA::execute(){
       // for plotting variables in TOBS- internal check:
       jFEXOutputs->addValue_smallRJet("smallRJetTOB_eta",tmp_tob->setEta(ieta));
       jFEXOutputs->addValue_smallRJet("smallRJetTOB_phi",tmp_tob->setPhi(iphi));
-      jFEXOutputs->addValue_smallRJet("smallRJetTOB_ET",m_jFEXSmallRJetAlgoTool->getTTowerET());    
+      jFEXOutputs->addValue_smallRJet("smallRJetTOB_ET",m_jFEXSmallRJetAlgoTool->getSmallClusterET());    
       //saturation and res to be completed in future.. 
 
       uint32_t tobword = formSmallRJetTOB(ieta, iphi);
@@ -138,6 +175,23 @@ StatusCode jFEXFPGA::execute(){
 
           
       jFEXOutputs->fill_smallRJet();  
+      if(m_jFEXSmallRJetAlgoTool->isSeedLocalMaxima()){
+        //LargeRJetAlgo is here as SmallRJetlocalMaxima is a requirement
+        unsigned int largeClusterET = m_jFEXLargeRJetAlgoTool->getLargeClusterET(m_jFEXSmallRJetAlgoTool->getSmallClusterET(),m_jFEXLargeRJetAlgoTool->getRingET());
+        ATH_MSG_DEBUG("jFEXFPGA: large RJet algo, check large cluster ET: "<< largeClusterET); 
+        jFEXOutputs->addValue_largeRJet("largeRJet_ET", largeClusterET);
+
+        std::unique_ptr<jFEXLargeRJetTOB> tmp_tob = m_jFEXLargeRJetAlgoTool->getLargeRJetTOBs();
+
+        jFEXOutputs->addValue_largeRJet("largeRJetTOB_ET", largeClusterET);
+        jFEXOutputs->addValue_largeRJet("largeRJetTOB_phi", tmp_tob->setPhi(iphi));
+        jFEXOutputs->addValue_largeRJet("largeRJetTOB_eta", tmp_tob->setEta(ieta));
+      
+        uint32_t tobword = formLargeRJetTOB(ieta, iphi);
+        if ( tobword != 0 ) m_tobwords.push_back(tobword);
+
+        jFEXOutputs->fill_largeRJet();
+      }
 
       if(!m_jFEXSmallRJetAlgoTool->isSeedLocalMaxima()){continue;}  
     
@@ -147,19 +201,19 @@ StatusCode jFEXFPGA::execute(){
     return StatusCode::SUCCESS;
 } //end of the execute function 
 
-void jFEXFPGA::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[][17]){
+  void jFEXFPGA::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width]){
     
-  const int rows = 16*2;
+  const int rows = FEXAlgoSpaceDefs::jFEX_algoSpace_height;
   const int cols = sizeof tmp_jTowersIDs_subset[0] / sizeof tmp_jTowersIDs_subset[0][0];
   
   std::copy(&tmp_jTowersIDs_subset[0][0], &tmp_jTowersIDs_subset[0][0]+(rows*cols),&m_jTowersIDs_Wide[0][0]);
   
-  //this prints out the jTower IDs that each FPGA is responsible for
   ATH_MSG_DEBUG("\n==== jFEXFPGA ========= FPGA (" << m_id << ") [on jFEX " << m_jfexid << "] IS RESPONSIBLE FOR jTOWERS :");
 
   //comment below due to mapping bug 12.01.21 
 
-/* for (int thisRow=rows-1; thisRow>=0; thisRow--){
+  /* 
+   for (int thisRow=rows-1; thisRow>=0; thisRow--){
     for (int thisCol=0; thisCol<cols; thisCol++){
       if(thisCol != cols-1){ ATH_MSG_DEBUG("|  " << m_jTowersIDs_Wide[thisRow][thisCol] << "  "); }
       else { ATH_MSG_DEBUG("|  " << m_jTowersIDs_Wide[thisRow][thisCol] << "  |"); }
@@ -168,9 +222,9 @@ void jFEXFPGA::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[][17]){
   
 }
 
-void jFEXFPGA::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[][24]){
+void jFEXFPGA::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width]){
 
-    const int rows = 16*2;
+  const int rows = FEXAlgoSpaceDefs::jFEX_algoSpace_height;
     const int cols = sizeof tmp_jTowersIDs_subset[0] / sizeof tmp_jTowersIDs_subset[0][0];
     
     std::copy(&tmp_jTowersIDs_subset[0][0], &tmp_jTowersIDs_subset[0][0]+(rows*cols),&m_jTowersIDs_Thin[0][0]);
@@ -180,7 +234,8 @@ void jFEXFPGA::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[][24]){
     
     //comment below due to mapping bug 12.01.21 
 
- /* for (int thisRow=rows-1; thisRow>=0; thisRow--){
+    /* 
+    for (int thisRow=rows-1; thisRow>=0; thisRow--){
       for (int thisCol=0; thisCol<cols; thisCol++){
 	if(thisCol != cols-1){ ATH_MSG_DEBUG("|  " << m_jTowersIDs_Thin[thisRow][thisCol] << "  "); }
 	else { ATH_MSG_DEBUG("|  " << m_jTowersIDs_Thin[thisRow][thisCol] << "  |"); }
@@ -189,11 +244,11 @@ void jFEXFPGA::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[][24]){
 
   }
 
-std::vector <uint32_t> jFEXFPGA::getjTOBs()
+std::vector <uint32_t> jFEXFPGA::getSmallRJetTOBs()
 {
   auto tobsSort = m_tobwords;
   
-  ATH_MSG_DEBUG("number of tobs: " << tobsSort.size() << " in FPGA: " << m_id<< " before truncation");
+  ATH_MSG_DEBUG("number of smallRJet tobs: " << tobsSort.size() << " in FPGA: " << m_id<< " before truncation");
     // sort tobs by their et ( 11 bits of the 32 bit tob word)
      std::sort (tobsSort.begin(), tobsSort.end(), etSort);
      tobsSort.resize(7);
@@ -201,13 +256,26 @@ std::vector <uint32_t> jFEXFPGA::getjTOBs()
 
 }
 
+std::vector <uint32_t> jFEXFPGA::getLargeRJetTOBs()
+{
+  auto tobsSort = m_tobwords;
+
+  ATH_MSG_DEBUG("number of largeRJet tobs: " << tobsSort.size() << " in FPGA: " << m_id<< " before truncation");
+    // sort tobs by their et ( 13 bits of the 32 bit tob word)
+     std::sort (tobsSort.begin(), tobsSort.end(), etSort);
+     tobsSort.resize(1);
+     return tobsSort;
+
+}
+
+
 
 uint32_t jFEXFPGA::formSmallRJetTOB(int & ieta, int & iphi)  
 {
   uint32_t tobWord = 0;
   const unsigned int jFEXETResolution = 200; //LSB is 200MeV
 
-  unsigned int et = m_jFEXSmallRJetAlgoTool->getClusterET();   
+  unsigned int et = m_jFEXSmallRJetAlgoTool->getSmallClusterET();   
   unsigned int jFEXSmallRJetTOBEt = et/jFEXETResolution;
 
   if (jFEXSmallRJetTOBEt > 0x7ff) jFEXSmallRJetTOBEt = 0x7ff;  //0x7ff is 11 bits 
@@ -219,12 +287,41 @@ uint32_t jFEXFPGA::formSmallRJetTOB(int & ieta, int & iphi)
 
   //create basic tobword with 32 bits 
   tobWord = tobWord + jFEXSmallRJetTOBEt + (phi << 11) + (eta << 15) + (Res << 20) + (Sat << 31); 
+  ATH_MSG_DEBUG("tobword smallRJet with et, phi, eta, res and sat : " << std::bitset<32>(tobWord) );
   
   //arbitary et threshold to not overflow the TOBs 
   unsigned int minEtThreshold = 30;
   if (et < minEtThreshold) return 0;
   else return tobWord;
 }
+
+uint32_t jFEXFPGA::formLargeRJetTOB(int & ieta, int & iphi)
+{
+  uint32_t tobWord = 0;
+  const unsigned int jFEXETResolution = 200; //LSB is 200MeV
+
+  unsigned int et = m_jFEXLargeRJetAlgoTool->getLargeClusterET(m_jFEXSmallRJetAlgoTool->getSmallClusterET(),m_jFEXLargeRJetAlgoTool->getRingET());
+  unsigned int jFEXLargeRJetTOBEt = et/jFEXETResolution;
+
+  if (jFEXLargeRJetTOBEt > 0x1fff) jFEXLargeRJetTOBEt = 0x1fff;  //0x1fff is 13 bits
+
+  int eta = ieta;
+  int phi = iphi;
+  int Sub = 0; //9 bits reserved
+  int Sat = 0; //1 bit for saturation flag, not coded yet
+
+  //create basic tobword with 32 bits
+  tobWord = tobWord + jFEXLargeRJetTOBEt + (phi << 13) + (eta << 17) + (Sub << 22) + (Sat << 31);
+
+  ATH_MSG_DEBUG("tobword largeRJet with et, phi, eta, sub and sat : " << std::bitset<32>(tobWord) );
+
+  //arbitary et threshold to not overflow the TOBs
+  unsigned int minEtThreshold = 30;
+  if (et < minEtThreshold) return 0;
+  else return tobWord;
+}
+
+
   
 } // end of namespace bracket
 

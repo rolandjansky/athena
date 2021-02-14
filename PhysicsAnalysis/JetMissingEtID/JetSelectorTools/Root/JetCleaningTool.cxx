@@ -11,6 +11,9 @@ Created:     Feb 2014
 Description: Class for selecting jets that pass some cleaning cuts
 ******************************************************************************/
 
+#include "AsgDataHandles/ReadDecorHandle.h"
+#include "AsgDataHandles/WriteDecorHandle.h"
+
 // This class header and package headers
 #include "JetSelectorTools/JetCleaningTool.h"
 #include "JetSelectorTools/Helpers.h"
@@ -25,9 +28,6 @@ Description: Class for selecting jets that pass some cleaning cuts
 #include <stdexcept>
 // ROOT includes
 #include "TEnv.h"
-
-
-
 
 //=============================================================================
 // Constructors
@@ -173,6 +173,7 @@ StatusCode JetCleaningTool::initialize()
   ATH_MSG_INFO( "Configured with cut level " << getCutName( m_cutLevel ) );
   m_jetCleanDFName = "DFCommonJets_jetClean_"+getCutName(m_cutLevel);
   m_acc_jetClean = m_jetCleanDFName;
+  m_jetCleanKey = m_jetContainerName + "." + getCutName(LooseBad);
   m_acc_looseClean = "DFCommonJets_jetClean_"+getCutName(LooseBad);
   ATH_MSG_DEBUG( "Initialized decorator name: " << m_jetCleanDFName );
 
@@ -186,6 +187,10 @@ StatusCode JetCleaningTool::initialize()
             return StatusCode::FAILURE;
     }
 
+  if(m_jetContainerName.empty()) {
+      ATH_MSG_WARNING("Impossible to initialize JetCleaningTool decorators with empty container name. Please fix that if you are trying to decorate jets with jet cleaning variables.");
+  }
+  else ATH_CHECK(m_jetCleanKey.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -409,6 +414,20 @@ asg::AcceptData JetCleaningTool::accept( const xAOD::Jet& jet) const
               NegativeE,
               AverageLArQF,
               FracSamplingMaxIndex);}
+}
+
+StatusCode JetCleaningTool::decorate(const xAOD::JetContainer &jets) const
+{
+    ATH_MSG_DEBUG(" Decorating jets with jet cleaning decoration : " << m_jetCleanKey.key());
+
+    SG::WriteDecorHandle<xAOD::JetContainer, bool> cleanHandle(m_jetCleanKey);
+
+    for (const xAOD::Jet *jet : jets) {
+        cleanHandle(*jet) = accept(*jet).getCutResult("Cleaning");
+    }
+
+    return StatusCode::SUCCESS;
+
 }
 
 /** Hot cell checks */

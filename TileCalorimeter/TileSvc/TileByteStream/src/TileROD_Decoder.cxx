@@ -3939,7 +3939,8 @@ void TileROD_Decoder::mergeD0cellsHLT(const D0CellsHLT& d0cells,
 {
   TileRawChannelCollection::ID frag_id = (v.identify() & 0x0FFF);
   int ros = (frag_id >> 8);
-  if ( ros != 1 ) return; // Only in positive barrel
+  bool barrel ( (ros==1) || (ros==2) );
+  if ( !barrel ) return; // Only in barrel
   int drawer = (frag_id & 0xFF);
   TileCell* pCell  = d0cells.m_cells[drawer];
   if ( !pCell ) return;
@@ -4551,7 +4552,7 @@ void TileROD_Decoder::unpack_frag42( uint32_t sourceid, uint32_t version, const 
     for (size_t j = v.size() - nmod; j < v.size(); ++j) {
       const std::vector<bool> & r = v[j]->GetDecision();
       std::stringstream ss;
-      for (const auto & val : r) {
+      for (const bool val : r) {
         ss << std::setw(2) << val;
       }
       msg(MSG::DEBUG) << MSG::hex << "0x" << v[j]->GetID() << MSG::dec << ss.str() << endmsg;

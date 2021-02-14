@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigEgammaMonitorBaseAlgorithm.h"
@@ -48,26 +48,29 @@ StatusCode TrigEgammaMonitorBaseAlgorithm::initialize()
 
 
 
-bool TrigEgammaMonitorBaseAlgorithm::ApplyElectronPid( const xAOD::Electron *eg, const std::string pidName) const
+bool TrigEgammaMonitorBaseAlgorithm::ApplyElectronPid( const xAOD::Electron *eg, const std::string pidname) const
 {
     auto ctx = Gaudi::Hive::currentContext() ;
-    if (pidName == "Tight"){
+    if (pidname == "tight"){
         return (bool) this->m_electronIsEMTool[0]->accept(ctx,eg);
     }
-    else if (pidName == "Medium"){
+    else if (pidname == "medium"){
         return  (bool) this->m_electronIsEMTool[1]->accept(ctx,eg);
     }
-    else if (pidName == "Loose"){
+    else if (pidname == "loose"){
         return (bool) this->m_electronIsEMTool[2]->accept(ctx,eg);
     }
-    else if (pidName == "LHTight"){
+    else if (pidname == "lhtight"){
         return (bool) this->m_electronLHTool[0]->accept(ctx,eg);
     }
-    else if (pidName == "LHMedium"){
+    else if (pidname == "lhmedium"){
         return (bool) this->m_electronLHTool[1]->accept(ctx,eg);
     }
-    else if (pidName == "LHLoose"){
+    else if (pidname == "lhloose"){
         return (bool) this->m_electronLHTool[2]->accept(ctx,eg);
+    }
+    else if (pidname == "lhvloose"){
+        return (bool) this->m_electronLHTool[3]->accept(ctx,eg);
     }
     else ATH_MSG_DEBUG("No Pid tool, continue without PID");
     return false;
@@ -78,16 +81,16 @@ bool TrigEgammaMonitorBaseAlgorithm::ApplyElectronPid( const xAOD::Electron *eg,
 // ************************************************************************************************
 
 
-bool TrigEgammaMonitorBaseAlgorithm::ApplyPhotonPid( const xAOD::Photon *eg, const std::string pidName) const
+bool TrigEgammaMonitorBaseAlgorithm::ApplyPhotonPid( const xAOD::Photon *eg, const std::string pidname) const
 {
     auto ctx = Gaudi::Hive::currentContext() ;
-    if (pidName == "Tight"){
+    if (pidname == "tight"){
         return (bool) this->m_photonIsEMTool[0]->accept(ctx,eg);
     }
-    else if (pidName == "Medium"){
+    else if (pidname == "medium"){
         return  (bool) this->m_photonIsEMTool[1]->accept(ctx,eg);
     }
-    else if (pidName == "Loose"){
+    else if (pidname == "loose"){
         return (bool) this->m_photonIsEMTool[2]->accept(ctx,eg);
     }
     else ATH_MSG_DEBUG("No Pid tool, continue without PID");
@@ -110,7 +113,7 @@ bool TrigEgammaMonitorBaseAlgorithm::isIsolated(const xAOD::Electron *eg, const 
   }
   float ptcone20_rel = ptcone20/eg->pt();
   ATH_MSG_DEBUG("Relative isolation value " << ptcone20_rel);
-  if (isolation == "Loose"){
+  if (isolation == "loose"){
     if (ptcone20_rel > 0.1) {
       ATH_MSG_DEBUG("Probe failing isolation");
       return false;
@@ -699,6 +702,9 @@ void TrigEgammaMonitorBaseAlgorithm::parseTriggerName(const std::string trigger,
             pidname = defaultPid;
             etcut=true;
         }
+        else {
+            pidname = getProbePid(strs.at(1));
+        }
 
         //Get the L1 information
 
@@ -756,17 +762,17 @@ const std::map<std::string,std::string> TrigEgammaMonitorBaseAlgorithm::m_trigLv
                                                                                         {"EFTrack","Trigger EFTrack step"},
                                                                                         {"HLT","Trigger HLT accept"}};
 
-const std::map<std::string, std::string> TrigEgammaMonitorBaseAlgorithm::m_pidMap = { {"vloose"   , "Loose"   },
-                                                                                      {"loose"    , "Loose"   },
-                                                                                      {"medium"   , "Medium"  },
-                                                                                      {"tight"    , "Tight"   },
-                                                                                      {"loose1"   , "Loose"   },
-                                                                                      {"medium1"  , "Medium"  },
-                                                                                      {"tight1"   , "Tight"   },
-                                                                                      {"lhvloose" , "LHLoose" },
-                                                                                      {"lhloose"  , "LHLoose" },
-                                                                                      {"lhmedium" , "LHMedium"},
-                                                                                      {"lhtight"  , "LHTight" } };
+const std::map<std::string, std::string> TrigEgammaMonitorBaseAlgorithm::m_pidMap = { {"vloose"   , "loose"   },
+                                                                                      {"loose"    , "loose"   },
+                                                                                      {"medium"   , "medium"  },
+                                                                                      {"tight"    , "tight"   },
+                                                                                      {"loose1"   , "loose"   },
+                                                                                      {"medium1"  , "medium"  },
+                                                                                      {"tight1"   , "tight"   },
+                                                                                      {"lhvloose" , "lhvloose" },
+                                                                                      {"lhloose"  , "lhloose" },
+                                                                                      {"lhmedium" , "lhmedium"},
+                                                                                      {"lhtight"  , "lhtight" } };
 
 
 

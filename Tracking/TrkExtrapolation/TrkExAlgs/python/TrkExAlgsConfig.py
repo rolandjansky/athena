@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator 
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -49,8 +49,6 @@ if __name__=="__main__":
     ConfigFlags.Beam.Type = ''
     ConfigFlags.GeoModel.AtlasVersion  = "ATLAS-R2-2016-01-00-01"
     ConfigFlags.IOVDb.GlobalTag        = "OFLCOND-SIM-00-00-00"
-    ConfigFlags.Detector.SimulateBpipe = True
-    ConfigFlags.Detector.SimulateID    = True    
     ConfigFlags.Detector.GeometryBpipe = True
     ConfigFlags.Detector.GeometryID    = True
     ConfigFlags.Detector.GeometryPixel = True

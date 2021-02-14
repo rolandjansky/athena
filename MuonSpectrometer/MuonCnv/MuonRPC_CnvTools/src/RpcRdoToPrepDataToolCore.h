@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRDOTOPREPDATA_RPCRDOTOPREPDATATOOLCORE_H
@@ -37,18 +37,18 @@ public:
   RpcRdoToPrepDataToolCore( const std::string&, const std::string&, const IInterface* );
 
   // to allow access to the IMuonRdoToPrepDataTool interface
-  StatusCode queryInterface( const InterfaceID& riid, void** ppvIf );
+  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvIf ) override;
 
   // setup/teardown functions, similar like those for Algorithm/Service
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   // decoding method 
-  StatusCode decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect );
-  StatusCode decode( const std::vector<uint32_t>& robIds );
+  virtual StatusCode decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect ) override;
+  virtual StatusCode decode( const std::vector<uint32_t>& robIds ) override;
 
   // debugging 
-  void printInputRdo();
-  void printPrepData();
+  virtual void printInputRdo() override;
+  virtual void printPrepData() override;
   void printCoinData();
 
   // to resolve possible conflicts with IProperty::interfaceID()

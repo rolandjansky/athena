@@ -116,10 +116,7 @@ StatusCode JetConstituentModSequence::initialize() {
 int JetConstituentModSequence::execute() const {
 
   // Define monitored quantities
-  auto t_exec     = Monitored::Timer<std::chrono::milliseconds>( "TIME_execute"  );
-  auto t_subtract = Monitored::Timer<std::chrono::milliseconds>( "TIME_subtract" );
-  // Explicitly start/stop the timer around the subtraction tool calls
-  t_subtract.start();
+  auto t_exec     = Monitored::Timer<std::chrono::milliseconds>( "TIME_constitmod"  );
 
   // Create the shallow copy according to the input type
   switch(m_inputType){
@@ -169,10 +166,7 @@ int JetConstituentModSequence::execute() const {
     
   }
 
-  //Explicitly start/stop the timer around the subtraction tool calls
-  t_subtract.stop();
-
-  auto mon = Monitored::Group(m_monTool, t_exec, t_subtract);
+  auto mon = Monitored::Group(m_monTool, t_exec);
 
   return 0;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -57,8 +57,7 @@ PixelDiodeMap::~PixelDiodeMap()
   // The cellId returned will be added to this so we must start with 0,0.
   SiCellId cellId(0,0);
 
-  std::shared_ptr<const PixelDiodeMatrix> cell = m_matrix->cellIdOfPosition(relativePos, cellId);
-
+  const PixelDiodeMatrix *cell = m_matrix->cellIdOfPosition(relativePos, cellId);
   // return invalid Id if there was a problem (don't expect this to be the case).
   if (cell==nullptr) {
     return SiCellId(); // Invalid id.
@@ -91,9 +90,8 @@ PixelDiodeMap::parameters(const SiCellId & cellId) const
   // Position is relative to left bottom corner.
   //
   Amg::Vector2D position(-halfWidth, -halfLength);
-  std::shared_ptr<const PixelDiodeMatrix> cell = m_matrix->positionOfCell(cellId, position);
-  
-  if (cell) {
+  const PixelDiodeMatrix *cell = m_matrix->positionOfCell(cellId, position);
+  if (cell != nullptr) {
     
     // get size
     Amg::Vector2D size(cell->phiWidth(), cell->etaWidth());

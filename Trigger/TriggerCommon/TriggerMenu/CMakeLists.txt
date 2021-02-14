@@ -19,10 +19,6 @@ atlas_install_scripts( scripts/generate*Menu.py scripts/menuTestTMC.sh
 scripts/generateUnprescaledLists.py scripts/runTriggerAPIExample.py)
 atlas_install_xmls( data/*.dtd data/*.xml )
 
-atlas_add_test( generateMenu SCRIPT scripts/testMenu.sh 
-                PROPERTIES TIMEOUT 500 
-                POST_EXEC_SCRIPT "check_log.py --errors --config checklogTriggerTest.conf generateMenu.log" 
-              )
 
 if( NOT "${CMAKE_PROJECT_NAME}" STREQUAL "AthDerivation" )
     atlas_add_test ( checkL1Menu SCRIPT scripts/checkL1Menu.sh

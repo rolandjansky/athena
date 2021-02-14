@@ -92,7 +92,7 @@ StatusCode SCTSiPropertiesCondAlg::execute(const EventContext& ctx) const {
   for (SCT_ID::size_type hash{0}; hash<wafer_hash_max; hash++) {
     const IdentifierHash elementHash{static_cast<IdentifierHash::value_type>(hash)};
 
-    double temperatureC{m_siCondTool->temperature(elementHash)};
+    double temperatureC{m_siCondTool->temperature(elementHash, ctx)};
 
     if (not ((temperatureC>m_temperatureMin) and (temperatureC<m_temperatureMax))) {
       ATH_MSG_DEBUG("Invalid temperature: "  
@@ -103,8 +103,8 @@ StatusCode SCTSiPropertiesCondAlg::execute(const EventContext& ctx) const {
     }
 
     double temperature{temperatureC + 273.15};
-    double deplVoltage{m_siCondTool->depletionVoltage(elementHash) * CLHEP::volt};
-    double biasVoltage{m_siCondTool->biasVoltage(elementHash) * CLHEP::volt};
+    double deplVoltage{m_siCondTool->depletionVoltage(elementHash, ctx) * CLHEP::volt};
+    double biasVoltage{m_siCondTool->biasVoltage(elementHash, ctx) * CLHEP::volt};
 
     const InDetDD::SiDetectorElement* element{elements->getDetectorElement(elementHash)};
     double depletionDepth{element->thickness()};

@@ -38,7 +38,8 @@ log = logging.getLogger(__name__)
 
 def jetRecoDictForMET(**recoDict):
     """ Get a jet reco dict that's usable for the MET slice """
-    jrd = {k: recoDict.get(k, JetChainParts_Default[k]) for k in jetRecoKeys}
+    jrd = {k: recoDict.get(k, JetChainParts_Default[k]) for k in jetRecoKeys if not k=='cleaning'}
+    jrd.update({'cleaning':'noCleaning'})
     # Rename the cluster calibration
     try:
         jrd["clusterCalib"] = recoDict["calib"]

@@ -1,8 +1,6 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
-
-from __future__ import print_function, absolute_import
 
 from AthenaCommon.Include import include
 include.block("InDetTrigRecExample/EFInDetConfig.py")
@@ -14,12 +12,12 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags # noqa: F401
 
 include("InDetTrigRecExample/InDetTrigRec_jobOptions.py")
 
-def makeInDetAlgsNoView( config = None, rois = 'EMViewRoIs', doFTF = True ):
+def makeInDetAlgsNoView( config = None, rois = 'EMViewRoIs', doFTF = True, secondStageConfig = None ):
 
-  viewAlgs, viewVerify = makeInDetAlgs( config, rois, doFTF, None)
+  viewAlgs, viewVerify = makeInDetAlgs( config, rois, doFTF, None, secondStageConfig)
   return viewAlgs
 
-def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifier='IDViewDataVerifier'):
+def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifier='IDViewDataVerifier', secondStageConfig = None):
   if config is None :
     raise ValueError('makeInDetAlgs() No config provided!')
   #Add suffix to the algorithms
@@ -48,6 +46,10 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
                                     ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTFlaggedCondCacheKey ),
                                     ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
                                     ( 'TagInfo' , 'DetectorStore+ProcessingTags' )]
+    if doFTF and config.FT.signatureType == 'fullScanUTT' :
+      ViewDataVerifier.DataObjects += [ ( 'DataVector< LVL1::RecJetRoI >' , 'StoreGateSvc+HLT_RecJETRoIs' ) ]
+
+
 
     viewAlgs.append( ViewDataVerifier )
 
@@ -221,7 +223,7 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
   InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools.append(sct_ByteStreamErrorsToolSetup.getTool().getFullName())
 
   if (InDetTrigFlags.doPrintConfigurables()):
-     print (InDetSCT_ConditionsSummaryToolWithoutFlagged)
+     print (InDetSCT_ConditionsSummaryToolWithoutFlagged)  # noqa: ATL901
 
   #
   # --- SCT_ClusteringTool
@@ -308,6 +310,12 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
       theFTF.RoIs           = rois
       theFTF.TracksName     = config.FT.trkTracksFTF()
       theFTF.doCloneRemoval = config.FT.setting.doCloneRemoval
+      if config.FT.signatureType == 'fullScanUTT' :
+        theFTF.RecJetRoI      = "HLT_RecJETRoIs"
+        theFTF.HitDVSeed      = "HLT_HitDVSeed"
+        theFTF.HitDVTrk       = "HLT_HitDVTrk"
+        theFTF.HitDVSP        = "HLT_HitDVSP"
+
 
       viewAlgs.append(theFTF)
 
@@ -326,6 +334,32 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
       theTrackParticleCreatorAlg.TrackParticlesName = config.FT.tracksFTF( doRecord = config.isRecordable )
 
       viewAlgs.append(theTrackParticleCreatorAlg)
+
+      if secondStageConfig is not None:
+        #have been supplied with a second stage config, create another instance of FTF
+        theFTF2 = TrigFastTrackFinderBase("TrigFastTrackFinder_" + secondStageConfig.name, secondStageConfig.FT.signatureType )
+        theFTF2.RoIs           = rois
+        theFTF2.TracksName     = secondStageConfig.FT.trkTracksFTF()
+        theFTF2.inputTracksName = config.FT.trkTracksFTF()
+        theFTF2.doCloneRemoval = secondStageConfig.FT.setting.doCloneRemoval
+
+        viewAlgs.append(theFTF2)
+
+
+        from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
+        from InDetTrigParticleCreation.InDetTrigParticleCreationConf import InDet__TrigTrackingxAODCnvMT
+
+
+
+        theTrackParticleCreatorAlg2 = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg_" + secondStageConfig.FT.signatureType,
+                                                                  TrackName = secondStageConfig.FT.trkTracksFTF(),
+                                                                  ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
+
+
+        #In general all FTF trackParticle collections are recordable except beamspot to save space
+        theTrackParticleCreatorAlg2.TrackParticlesName = secondStageConfig.FT.tracksFTF( doRecord = secondStageConfig.isRecordable )
+
+        viewAlgs.append(theTrackParticleCreatorAlg2)
 
 
   return viewAlgs, ViewDataVerifier

@@ -154,11 +154,16 @@ class JobOptionsTemplate(object):
                     # which is evaluated at runtime
                     # Protect this with try: except: for the Embedding use case
                     msg.debug('Adding runarg {0!s}={1!r}'.format(k, v))
-                    print(os.linesep.join(('try:',
-                                                          '    {0}.{1!s} = {2!s}'.format(self._runArgsName, k, v),
-                                                          'except AttributeError:',
-                                                          '    printfunc ("WARNING - AttributeError for {0}")'.format(k))), file=runargsFile)
-    
+                    if self._exe._isCAEnabled():
+                        print(os.linesep.join(('try:',
+                                               '    {0}.{1!s} = {2!s}'.format(self._runArgsName, k, v),
+                                               'except AttributeError:',
+                                               '    print ("WARNING - AttributeError for {0}")'.format(k))), file=runargsFile)
+                    else:
+                        print(os.linesep.join(('try:',
+                                               '    {0}.{1!s} = {2!s}'.format(self._runArgsName, k, v),
+                                               'except AttributeError:',
+                                               '    printfunc ("WARNING - AttributeError for {0}")'.format(k))), file=runargsFile)
                 ## @note Now write the literals into the runargs file
                 if self._exe._literalRunargs is not None:
                     print(os.linesep, '# Literal runargs snippets', file=runargsFile)

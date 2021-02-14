@@ -2,7 +2,7 @@
 
 # jobOptions to activate the dump of the NSWPRDValAlg nTuple
 # This file can be used with Sim_tf by specifying --postInclude MuonPRDTest/NSWPRDValAlg.sim.py
-# It dumps Truth, MuEntry and Hits, for MDT, RPC, MM and sTGC
+# It dumps Truth, MuEntry and Hits, for all muon technologies
 
 #-----------------------------------------------------------------------------
 # Algorithms

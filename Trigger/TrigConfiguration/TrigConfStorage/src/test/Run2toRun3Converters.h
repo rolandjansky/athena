@@ -8,3 +8,4 @@
 void convertRun2HLTMenuToRun3(const TrigConf::HLTFrame* frame, const std::string& filename);
 void convertRun2HLTPrescalesToRun3(const TrigConf::HLTFrame* frame, const std::string& filename);
 void convertRun2BunchGroupsToRun3(const TrigConf::CTPConfig* frame, const std::string& filename);
+void convertRun2L1PrescalesToRun3(const TrigConf::CTPConfig* frame, const std::string& filename);

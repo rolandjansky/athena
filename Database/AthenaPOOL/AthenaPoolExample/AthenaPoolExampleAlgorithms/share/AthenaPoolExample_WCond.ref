@@ -1044,12 +1044,12 @@ Stream1              INFO Identified a total of 1 objects to write out:
 Stream1              INFO 0: ExampleHitContainer#PedestalWriteData#PedestalWriteData
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
 StorageSvc           INFO ExampleHitContainer_p1 [????]
-SimplePoolFile4...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] ConditionsContainer(ExampleHitContainer_p1/PedestalWriteData)
+SimplePoolFile4...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] ConditionsContainerExampleHitContainer_p1(PedestalWriteData)
 ConditionsConta...  DEBUG Opening
 ConditionsConta...  DEBUG    attributes# = 1
-ConditionsConta...  DEBUG Branch container 'ExampleHitContainer_p1_PedestalWriteData'
-ConditionsConta...  DEBUG Opened container ConditionsContainer(ExampleHitContainer_p1/PedestalWriteData) of type ROOT_Tree
-SimplePoolFile4...  DEBUG --->Adding Assoc :????/ConditionsContainer(ExampleHitContainer_p1/PedestalWriteData) [203]  (3 , ffffffff)
+ConditionsConta...  DEBUG Branch container 'PedestalWriteData'
+ConditionsConta...  DEBUG Opened container ConditionsContainerExampleHitContainer_p1(PedestalWriteData) of type ROOT_Tree
+SimplePoolFile4...  DEBUG --->Adding Assoc :????/ConditionsContainerExampleHitContainer_p1(PedestalWriteData) [203]  (3 , ffffffff)
 SimplePoolFile4...  DEBUG ---->ClassID:????
 SimplePoolFile4...  DEBUG --->Adding Shape[0 , ????]:  [1 Column(s)] 
 SimplePoolFile4...  DEBUG ---->Class:ExampleHitContainer_p1

@@ -14,6 +14,7 @@ JetMonitoringAlg::JetMonitoringAlg( const std::string& name, ISvcLocator* pSvcLo
     declareProperty("FillerTools", m_jetFillerTools);
     declareProperty("FailureOnMissingContainer", m_failureOnMissingContainer);
     declareProperty("OnlyPassingJets", m_onlyPassingJets);
+    declareProperty("EventFiresAnyJetChain", m_eventFiresAnyJetChain);
 }
 
 
@@ -66,23 +67,32 @@ StatusCode JetMonitoringAlg::fillHistograms( const EventContext& ctx ) const {
       ATH_CHECK( t->processJetContainer(*this, *trigJetsCont, ctx) );
     }
   } else {
-  // retrieve the jet container
-  SG::ReadHandle<xAOD::JetContainer> jets(m_jetContainerKey, ctx);    
-  if (! jets.isValid() ) {
-    if (m_failureOnMissingContainer){
-      ATH_MSG_ERROR("evtStore() does not contain jet Collection with name "<< m_jetContainerKey);
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_WARNING("evtStore() does not contain jet Collection with name "<< m_jetContainerKey);
-      return StatusCode::SUCCESS;
+    // retrieve the jet container
+    SG::ReadHandle<xAOD::JetContainer> jets(m_jetContainerKey, ctx);    
+    if (! jets.isValid() ) {
+      if (m_failureOnMissingContainer){
+        ATH_MSG_ERROR("evtStore() does not contain jet Collection with name "<< m_jetContainerKey);
+        return StatusCode::FAILURE;
+      } else {
+        ATH_MSG_WARNING("evtStore() does not contain jet Collection with name "<< m_jetContainerKey);
+        return StatusCode::SUCCESS;
+      }
     }
-  }
  
-  // call each histograming tool on the container
-  for(const auto& t: m_jetFillerTools){
-    ATH_MSG_DEBUG( " now run "<< t->name() );
-    ATH_CHECK( t->processJetContainer(*this, *jets, ctx) );
-  }
+    if (m_eventFiresAnyJetChain && m_triggerChainString == "") { //this option makes sure to check if any jet trigger was fired in the event
+      bool eventFiresAnyJetChain = false;
+      const Trig::ChainGroup* cg = getTrigDecisionTool()->getChainGroup( "HLT_[1-9]?0?j[0-9]+.*" ); //retrieve or create chaingroup using regular expression
+      for (const std::string& trig : cg->getListOfTriggers()) {
+        if (isPassed(trig)) { eventFiresAnyJetChain = true; break; } 
+      }
+      if (!eventFiresAnyJetChain) return StatusCode::SUCCESS;
+    }
+
+    // call each histograming tool on the container
+    for(const auto& t: m_jetFillerTools){
+      ATH_MSG_DEBUG( " now run "<< t->name() );
+      ATH_CHECK( t->processJetContainer(*this, *jets, ctx) );
+    }
  }
   return StatusCode::SUCCESS;
 }
