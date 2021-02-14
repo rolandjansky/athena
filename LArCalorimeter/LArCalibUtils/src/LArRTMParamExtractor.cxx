@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArRTMParamExtractor.h"
@@ -340,29 +340,27 @@ StatusCode LArRTMParamExtractor::stop()
   int nchannel = 0 ;
 
   // get the waveforms from the detector store, according to key list
-  std::vector<std::string>::const_iterator key_it=m_keylist.begin();
-  std::vector<std::string>::const_iterator key_it_e=m_keylist.end();
   
   int NCalibParams=0;
   int NDetParams=0;
 
   unsigned nWaveConts=0;
 
-  for (;key_it!=key_it_e;key_it++) { //Loop over all containers that are to be processed 
+  for (const std::string& key : m_keylist) { //Loop over all containers that are to be processed 
     
     // Get current LArCaliWaveContainer
     const LArCaliWaveContainer* caliWaveContainer;
-    sc = detStore()->retrieve(caliWaveContainer,*key_it);
+    sc = detStore()->retrieve(caliWaveContainer,key);
     if (sc.isFailure()) {
-      ATH_MSG_INFO( "LArCaliWaveContainer (key = " << *key_it << ") not found in StoreGate");
+      ATH_MSG_INFO( "LArCaliWaveContainer (key = " << key << ") not found in StoreGate");
       continue;   
     }
     if ( caliWaveContainer == NULL ) {
-      ATH_MSG_INFO( "LArCaliWaveContainer (key = " << *key_it << ") is empty");
+      ATH_MSG_INFO( "LArCaliWaveContainer (key = " << key << ") is empty");
       continue;
     }
     
-    ATH_MSG_INFO( "Processing LArCaliWaveContainer from StoreGate, key = " << *key_it);
+    ATH_MSG_INFO( "Processing LArCaliWaveContainer from StoreGate, key = " << key);
     ++nWaveConts;
     
     for ( unsigned gain = CaloGain::LARHIGHGAIN ; gain < CaloGain::LARNGAIN ; ++ gain ) {
@@ -372,10 +370,10 @@ StatusCode LArRTMParamExtractor::stop()
       const_iterator itVec_e = caliWaveContainer->end(gain);
       
       if ( itVec == itVec_e ) {
-	ATH_MSG_INFO( "LArCaliWaveContainer (key=" << *key_it << ") has no channels with gain = " << gain);
+	ATH_MSG_INFO( "LArCaliWaveContainer (key=" << key << ") has no channels with gain = " << gain);
 	continue ;
       }
-      ATH_MSG_INFO( "Now processing gain = " << gain << " in LArCaliWaveContainer with key=" << *key_it);
+      ATH_MSG_INFO( "Now processing gain = " << gain << " in LArCaliWaveContainer with key=" << key);
 
       for (; itVec != itVec_e; ++itVec) { // loop over channels for a given gain
 	
@@ -421,7 +419,7 @@ StatusCode LArRTMParamExtractor::stop()
 		
 	unsigned nDACproc = 0;
 
-	for (;cont_it!=cont_it_e;cont_it++) { // loop over DAC values for a given channel
+	for (;cont_it!=cont_it_e;++cont_it) { // loop over DAC values for a given channel
 	  
 	  // get current cali wave:
 	  // ---------------------
