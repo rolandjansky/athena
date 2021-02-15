@@ -116,4 +116,11 @@ void SCT_ModuleSideDesign::setMother(SCT_ModuleSideDesign * mother){
 }
 
 
+void SCT_ModuleSideDesign::getStripRow(SiCellId /*id*/, int * /*strip */, int *row) const {
+   //For SCT sensors, return something unphysical; derived versions for ITk strip implement specializations
+   *row = -1;
+ }
+
+
+
 } // namespace InDetDD

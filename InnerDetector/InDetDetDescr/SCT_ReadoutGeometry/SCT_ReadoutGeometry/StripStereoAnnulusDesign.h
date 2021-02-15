@@ -68,7 +68,7 @@ public:
     // Copy constructor and assignment:
     StripStereoAnnulusDesign(const StripStereoAnnulusDesign &design);
     StripStereoAnnulusDesign &operator = (const StripStereoAnnulusDesign &design);
-    void getStripRow(SiCellId cellId, int *strip, int *row) const;
+    void getStripRow(SiCellId cellId, int *strip, int *row) const final;
     int strip1Dim(int strip, int row) const;
     SiLocalPosition stripPosAtR(int strip, int row, double r) const;
     int diodesInRow(const int row) const;

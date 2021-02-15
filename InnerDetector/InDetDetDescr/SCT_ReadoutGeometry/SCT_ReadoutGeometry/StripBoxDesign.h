@@ -50,7 +50,7 @@ public:
 //    even with multi-row detectors. This was an easier way to get digitization than doing 
 //    the more natural 2D (strip, row) identifier. The following methods convert 1D to 2D and v.v.
 //
-    void getStripRow(SiCellId id, int *strip, int *row) const;
+    void getStripRow(SiCellId id, int *strip, int *row) const final;
     int strip1Dim(int strip, int row) const;
     int diodes() const; 
     int diodesInRow(const int row) const; 
