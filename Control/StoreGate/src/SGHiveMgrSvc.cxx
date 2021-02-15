@@ -89,6 +89,7 @@ size_t HiveMgrSvc::allocateStore( int evtNumber ) {
     error() << "No slots available for event number " << evtNumber << endmsg;
     return std::string::npos;
   }
+  std::scoped_lock lock{m_mutex};
   for (size_t index=0; index<m_nSlots; ++index) {
     if( m_slots[index].eventNumber == evtNumber) {
       error() << "Attempt to allocate an event slot for an event that is still active: event number " << evtNumber << endmsg;
@@ -112,6 +113,7 @@ size_t HiveMgrSvc::allocateStore( int evtNumber ) {
  */
 StatusCode HiveMgrSvc::freeStore( size_t slotIndex ) {
   if (slotIndex < m_nSlots) {
+    std::scoped_lock lock{m_mutex};
     if (m_slots[slotIndex].eventNumber == -1) {
       debug() << "Slot " << slotIndex << " is already free" << endmsg;
     }
