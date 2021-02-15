@@ -1,10 +1,13 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline, addFolders
+
+# @TODO retire once migration to TrackingGeometry conditions data is complete
+from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
 
 def InDetPrdAssociationToolCfg(name='InDetPrdAssociationTool',**kwargs) :
   acc = ComponentAccumulator()
@@ -520,6 +523,11 @@ def InDetTestPixelLayerToolCfg(flags, name = "InDetTestPixelLayerTool", **kwargs
       kwargs.setdefault( "PixelSummaryTool", tmpAcc.getPrimary())
       result.merge(tmpAcc)
 
+  if 'Extrapolator' not in kwargs :
+    tmpAcc =  InDetExtrapolatorCfg(flags)
+    kwargs.setdefault("Extrapolator", tmpAcc.getPrimary())
+    result.merge(tmpAcc)
+
   kwargs.setdefault("CheckActiveAreas", flags.InDet.checkDeadElementsOnTrack)
   kwargs.setdefault("CheckDeadRegions", flags.InDet.checkDeadElementsOnTrack)
   kwargs.setdefault("CheckDisabledFEs", flags.InDet.checkDeadElementsOnTrack)
@@ -532,6 +540,9 @@ def InDetTestPixelLayerToolCfg(flags, name = "InDetTestPixelLayerTool", **kwargs
 def InDetPropagatorCfg(flags, name='InDetPropagator',**kwargs):
   the_name = makeName( name, kwargs)
   result = ComponentAccumulator()
+  from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+  result.merge(MagneticFieldSvcCfg(flags))
+
   tool = None
   if flags.InDet.propagatorType == "STEP":
     tool = CompFactory.Trk.STEP_Propagator( name = the_name, **kwargs)
@@ -563,10 +574,17 @@ def InDetNavigatorCfg(flags, name='InDetNavigator', **kwargs):
   the_name = makeName( name, kwargs)
   result = ComponentAccumulator()
   if 'TrackingGeometrySvc' not in kwargs :
-      from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-      tmpAcc = TrackingGeometrySvcCfg(flags)
-      kwargs.setdefault("TrackingGeometrySvc", tmpAcc.getPrimary())
-      result.merge(tmpAcc)
+       if not use_tracking_geometry_cond_alg :
+              from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+              tmpAcc = TrackingGeometrySvcCfg(flags)
+              kwargs.setdefault("TrackingGeometrySvc", tmpAcc.getPrimary())
+              result.merge(tmpAcc)
+  if 'TrackingGeometryKey' not in kwargs :
+       if use_tracking_geometry_cond_alg :
+              from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
+              result.merge( TrackingGeometryCondAlgCfg(flags) )
+              # @TODO howto get the TrackingGeometryKey from the TrackingGeometryCondAlgCfg ?
+              kwargs.setdefault("TrackingGeometryKey", 'AtlasTrackingGeometry')
 
   tool = CompFactory.Trk.Navigator( name = the_name, **kwargs)
   result.addPublicTool( tool )

@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file TrackingConfigurationWorkaround.py
@@ -7,6 +7,7 @@
 @date 2019-12-17
 @brief Centralize the DQ workarounds for setting up ID tracking tools in new-style config, until this is provided centrally
 '''
+from InDetConfig import InDetRecToolConfig
 
 def TrackSummaryToolWorkaround(flags):
     from AthenaConfiguration.ComponentFactory import CompFactory
@@ -16,85 +17,27 @@ def TrackSummaryToolWorkaround(flags):
     ############################## TO RUN TRACKSUMMARYTOOL #####################
 
     # Taken from InnerDetector/InDetDigitization/PixelDigitization/python/PixelDigitizationConfigNew.py
-    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelConfigCondAlgCfg
-    result.merge(PixelConfigCondAlgCfg(flags))
 
-    from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
-    InDetPixelConditionsSummaryTool = result.popToolsAndMerge(PixelConditionsSummaryCfg(flags))
+    InDetPixelConditionsSummaryTool = result.popToolsAndMerge(InDetRecToolConfig.PixelConditionsSummaryToolCfg(flags))
 
-    # Taken from Tracking/TrkConfig/python/AtlasExtrapolatorConfig.py
-    # AtlasExtrapolatorConfig can give only private extrapolator. We need public extrapolator.
-    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-    trackGeomCfg = TrackingGeometrySvcCfg(flags)
-    geom_svc = trackGeomCfg.getPrimary() 
-    geom_svc.GeometryBuilder.Compactify = False ######## To avoid crash ########
-    result.merge(trackGeomCfg)
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    result.merge(MagneticFieldSvcCfg(flags))
-    AtlasNavigator = CompFactory.Trk.Navigator(name = 'AtlasNavigator')
-    AtlasNavigator.TrackingGeometrySvc = geom_svc
-    result.addPublicTool(AtlasNavigator) 
-
-    # Taken from InnerDetector/InDetExample/InDetRecExample/share/InDetRecLoadTools.py
-    InDetPropagator = CompFactory.Trk.RungeKuttaPropagator(name = 'InDetPropagator')
-    InDetPropagator.AccuracyParameter = 0.0001
-    InDetPropagator.MaxStraightLineStep = .004
-    result.addPublicTool(InDetPropagator)
-    InDetMaterialUpdator = CompFactory.Trk.MaterialEffectsUpdator(name = "InDetMaterialEffectsUpdator")
-    result.addPublicTool(InDetMaterialUpdator)
-    InDetSubPropagators = []
-    InDetSubUpdators    = []
-    # -------------------- set it depending on the geometry ----------------------------------------------------
-    # default for ID is (Rk,Mat)
-    InDetSubPropagators += [ InDetPropagator.name ]
-    InDetSubUpdators    += [ InDetMaterialUpdator.name ]
-    # default for Calo is (Rk,MatLandau)
-    InDetSubPropagators += [ InDetPropagator.name ]
-    InDetSubUpdators    += [ InDetMaterialUpdator.name ]
-    # default for MS is (STEP,Mat)
-    #InDetSubPropagators += [ InDetStepPropagator.name ]
-    InDetSubUpdators    += [ InDetMaterialUpdator.name ]
-    #from TrkExTools.TrkExToolsConf import Trk__Extrapolator
-    InDetExtrapolator = CompFactory.Trk.Extrapolator(name                    = 'InDetExtrapolator',
-                                          Propagators             = [ InDetPropagator ],
-                                          MaterialEffectsUpdators = [ InDetMaterialUpdator ],
-                                          Navigator               = AtlasNavigator,
-                                          SubPropagators          = InDetSubPropagators,
-                                          SubMEUpdators           = InDetSubUpdators)
-    result.addPublicTool(InDetExtrapolator)
-    InDetTestPixelLayerTool = CompFactory.InDet.InDetTestPixelLayerTool(name = "InDetTestPixelLayerTool",
+    InDetTestPixelLayerTool = result.popToolsAndMerge(InDetRecToolConfig.InDetTestPixelLayerToolCfg(flags,
                                                              PixelSummaryTool = InDetPixelConditionsSummaryTool,
                                                              CheckActiveAreas=True,
                                                              CheckDeadRegions=True,
-                                                             CheckDisabledFEs=True)
+                                                             CheckDisabledFEs=True))
     result.addPublicTool(InDetTestPixelLayerTool)
-    InDetBoundaryCheckTool = CompFactory.InDet.InDetBoundaryCheckTool(
-        name="InDetBoundaryCheckTool",
-        UsePixel=flags.Detector.GeometryPixel,
-        UseSCT=flags.Detector.GeometrySCT,
-        PixelLayerTool=InDetTestPixelLayerTool
-    )
-    result.addPublicTool(InDetBoundaryCheckTool)
-    InDetHoleSearchTool = CompFactory.InDet.InDetTrackHoleSearchTool(name = "InDetHoleSearchTool",
-                                                          Extrapolator = InDetExtrapolator,
-                                                          CountDeadModulesAfterLastHit = True,
-                                                          BoundaryCheckTool=InDetBoundaryCheckTool)
-    result.addPublicTool(InDetHoleSearchTool)
-    InDetPrdAssociationTool = CompFactory.InDet.InDetPRD_AssociationToolGangedPixels(name                           = "InDetPrdAssociationTool_setup",
-                                                                          PixelClusterAmbiguitiesMapName = "PixelClusterAmbiguitiesMap",
-                                                                          SetupCorrect                   = True,
-                                                                          addTRToutliers                 = True)
-    result.addPublicTool(InDetPrdAssociationTool)
-    InDetTrackSummaryHelperTool = CompFactory.InDet.InDetTrackSummaryHelperTool(name            = "InDetSummaryHelper",
-                                                                     AssoTool        = InDetPrdAssociationTool,
-                                                                     PixelToTPIDTool = '',
-                                                                     TestBLayerTool  = '',
-                                                                     RunningTIDE_Ambi = flags.InDet.doTIDE_Ambi,
-                                                                     DoSharedHits    = False,
-                                                                     HoleSearch      = InDetHoleSearchTool,
-                                                                     usePixel        = flags.Detector.GeometryPixel,
-                                                                     useSCT          = flags.Detector.GeometrySCT,
-                                                                     useTRT          = flags.Detector.GeometryTRT)
+
+    InDetBoundaryCheckTool_acc = InDetRecToolConfig.InDetBoundaryCheckToolCfg(flags, PixelLayerTool = InDetTestPixelLayerTool)
+    InDetHoleSearchTool_acc = InDetRecToolConfig.InDetTrackHoleSearchToolCfg(flags,
+                                                                             BoundaryCheckTool= result.popToolsAndMerge(InDetBoundaryCheckTool_acc) )
+    InDetHoleSearchTool = InDetHoleSearchTool_acc.getPrimary()
+    result.merge(InDetHoleSearchTool_acc)
+
+    InDetTrackSummaryHelperTool_acc = InDetRecToolConfig.InDetTrackSummaryHelperToolCfg(flags,HoleSearch=InDetHoleSearchTool)
+    InDetTrackSummaryHelperTool=InDetTrackSummaryHelperTool_acc.getPrimary()
+    result.merge(InDetTrackSummaryHelperTool_acc)
+
+    # @TODO should there be a version InDetRecToolConfig ?
     InDetTrackSummaryTool = CompFactory.Trk.TrackSummaryTool(name = "InDetTrackSummaryTool",
                                                   InDetSummaryHelperTool = InDetTrackSummaryHelperTool,
                                                   doSharedHits           = False,

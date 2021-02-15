@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ######################################################
 # ConfiguredInDetTrackingGeometry module
@@ -15,10 +15,13 @@ from AthenaCommon.DetFlags import DetFlags
 # define the class
 class ConfiguredInDetTrackingGeometryBuilderCond( InDet__RobustTrackingGeometryBuilderCond ):
     # constructor
-    def __init__(self,name = 'InDetTrackingGeometryBuilderCond',
-                      namePrefix = '',
-                      setLayerAssociation = True,
-                      buildTrtStrawLayers = False):
+    # the name must already contain the prefix and suffix if desired
+    def __init__(self,
+                 name = 'InDetTrackingGeometryBuilderCond',
+                 namePrefix = '',
+                 nameSuffix= 'Cond',
+                 setLayerAssociation = True,
+                 buildTrtStrawLayers = False):
 
         # get the ToolSvc
         from AthenaCommon.AppMgr import ToolSvc, ServiceMgr           
@@ -28,7 +31,7 @@ class ConfiguredInDetTrackingGeometryBuilderCond( InDet__RobustTrackingGeometryB
         
         # beampipe        
         from InDetTrackingGeometry.InDetTrackingGeometryConf import InDet__BeamPipeBuilderCond
-        BeamPipeBuilder = InDet__BeamPipeBuilderCond(name=namePrefix+'BeamPipeBuilderCond')
+        BeamPipeBuilder = InDet__BeamPipeBuilderCond(name=namePrefix+'BeamPipeBuilder'+nameSuffix)
         BeamPipeBuilder.BeamPipeRadius 	        = TrkDetFlags.BeamPipeRadius()
         BeamPipeBuilder.BeamPipeThickness       = TrkDetFlags.BeamPipeThickness() 
         BeamPipeBuilder.BeamPipeMaterialBinsZ   = TrkDetFlags.BeamPipeLayerMaterialBinsZ()
@@ -45,7 +48,7 @@ class ConfiguredInDetTrackingGeometryBuilderCond( InDet__RobustTrackingGeometryB
         # PIXEL building
         if DetFlags.pixel_on():
           from InDetTrackingGeometry.InDetTrackingGeometryConf import InDet__SiLayerBuilderCond
-          PixelLayerBuilder = InDet__SiLayerBuilderCond(name=namePrefix+'PixelLayerBuilderCond')
+          PixelLayerBuilder = InDet__SiLayerBuilderCond(name=namePrefix+'PixelLayerBuilder'+nameSuffix)
           PixelLayerBuilder.PixelCase 	       = True
           PixelLayerBuilder.Identification       = 'Pixel'
           PixelLayerBuilder.SiDetManagerLocation = 'Pixel'
@@ -76,7 +79,7 @@ class ConfiguredInDetTrackingGeometryBuilderCond( InDet__RobustTrackingGeometryB
         if DetFlags.SCT_on():
           # SCT building
           from InDetTrackingGeometry.InDetTrackingGeometryConf import InDet__SiLayerBuilderCond
-          SCT_LayerBuilder = InDet__SiLayerBuilderCond(name=namePrefix+'SCT_LayerBuilderCond')
+          SCT_LayerBuilder = InDet__SiLayerBuilderCond(name=namePrefix+'SCT_LayerBuilder'+nameSuffix)
           SCT_LayerBuilder.PixelCase                       = False
           SCT_LayerBuilder.Identification                  = 'SCT'
           SCT_LayerBuilder.SiDetManagerLocation            = 'SCT'
@@ -105,7 +108,7 @@ class ConfiguredInDetTrackingGeometryBuilderCond( InDet__RobustTrackingGeometryB
         
         if DetFlags.TRT_on():                                                      
           from InDetTrackingGeometry.InDetTrackingGeometryConf import InDet__TRT_LayerBuilderCond
-          TRT_LayerBuilder = InDet__TRT_LayerBuilderCond(name=namePrefix+'TRT_LayerBuilderCond')
+          TRT_LayerBuilder = InDet__TRT_LayerBuilderCond(name=namePrefix+'TRT_LayerBuilder'+nameSuffix)
           # TRT barrel specifications
           TRT_LayerBuilder.ModelBarrelLayers  = TrkDetFlags.TRT_BarrelModelLayers()
           TRT_LayerBuilder.BarrelLayerBinsZ   = TrkDetFlags.TRT_BarrelLayerMaterialBinsZ()
@@ -131,7 +134,7 @@ class ConfiguredInDetTrackingGeometryBuilderCond( InDet__RobustTrackingGeometryB
         
         # helpers for the InDetTrackingGeometry Builder : layer array creator
         from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__LayerArrayCreator
-        InDetLayerArrayCreator = Trk__LayerArrayCreator(name = 'InDetLayerArrayCreator')
+        InDetLayerArrayCreator = Trk__LayerArrayCreator(name = namePrefix+'InDetLayerArrayCreator'+nameSuffix)
         InDetLayerArrayCreator.EmptyLayerMode           = 2 # deletes empty material layers from arrays
         InDetLayerArrayCreator.OutputLevel              = TrkDetFlags.InDetBuildingOutputLevel()
         # add to ToolSvc
@@ -139,14 +142,14 @@ class ConfiguredInDetTrackingGeometryBuilderCond( InDet__RobustTrackingGeometryB
 
         # helpers for the InDetTrackingGeometry Builder : volume array creator
         from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__TrackingVolumeArrayCreator
-        InDetTrackingVolumeArrayCreator                       = Trk__TrackingVolumeArrayCreator(name = 'InDetTrackingVolumeArrayCreator')
+        InDetTrackingVolumeArrayCreator                       = Trk__TrackingVolumeArrayCreator(name = namePrefix+'InDetTrackingVolumeArrayCreator'+nameSuffix)
         InDetTrackingVolumeArrayCreator.OutputLevel           = TrkDetFlags.InDetBuildingOutputLevel()
         # add to ToolSvc
         ToolSvc += InDetTrackingVolumeArrayCreator
         
         # helpers for the InDetTrackingGeometry Builder : tracking voluem helper for glueing
         from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__TrackingVolumeHelper
-        InDetTrackingVolumeHelper                             = Trk__TrackingVolumeHelper(name ='InDetTrackingVolumeHelper')
+        InDetTrackingVolumeHelper                             = Trk__TrackingVolumeHelper(name = namePrefix+'InDetTrackingVolumeHelper'+nameSuffix)
         InDetTrackingVolumeHelper.OutputLevel                 = TrkDetFlags.InDetBuildingOutputLevel()
         # the material bins 
         InDetTrackingVolumeHelper.BarrelLayerBinsZ            = TrkDetFlags.InDetPassiveLayerMaterialBinsRz()
@@ -158,7 +161,7 @@ class ConfiguredInDetTrackingGeometryBuilderCond( InDet__RobustTrackingGeometryB
         
         # helpers for the InDetTrackingGeometry Builder : cylinder volume creator
         from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__CylinderVolumeCreator
-        InDetCylinderVolumeCreator = Trk__CylinderVolumeCreator(name = 'InDetCylinderVolumeCreator')
+        InDetCylinderVolumeCreator = Trk__CylinderVolumeCreator(name = namePrefix+'InDetCylinderVolumeCreator'+nameSuffix)
         # give him the layer array creator
         InDetCylinderVolumeCreator.LayerArrayCreator          = InDetLayerArrayCreator
         InDetCylinderVolumeCreator.TrackingVolumeArrayCreator = InDetTrackingVolumeArrayCreator
@@ -180,8 +183,10 @@ class ConfiguredInDetTrackingGeometryBuilderCond( InDet__RobustTrackingGeometryB
         # add to SvcMgr
         ServiceMgr += AtlasEnvelopeSvc
         
+        if name.find('CondCond')>=0 :
+            raise exception('invalid name composition %s ' % (name))
         # the tracking geometry builder
-        InDet__RobustTrackingGeometryBuilderCond.__init__(self,namePrefix+name,\
+        super(ConfiguredInDetTrackingGeometryBuilderCond,self).__init__(name,\
                                                       BeamPipeBuilder   = BeamPipeBuilder,\
                                                       LayerBuilders     = layerbuilders,
                                                       LayerBinningType  = binnings,

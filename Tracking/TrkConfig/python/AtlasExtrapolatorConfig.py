@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # New configuration for ATLAS extrapolator
 # Based heavily on AtlasExtrapolator.py
@@ -6,21 +6,41 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+# @TODO reture once migration to tracking geometry cond alg is complete
+from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
 
 # import the Extrapolator configurable
 Trk__Extrapolator=CompFactory.Trk.Extrapolator
+
+def AtlasNavigatorCfg(flags, name='AtlasNavigator') :
+       # get the correct TrackingGeometry setup
+       result=ComponentAccumulator()
+       geom_svc=None
+       geom_cond_key=''
+       if not use_tracking_geometry_cond_alg :
+              from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+              acc = TrackingGeometrySvcCfg(flags)
+              geom_svc = acc.getPrimary()
+              result.merge(acc)
+       else :
+            from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
+            result.merge( TrackingGeometryCondAlgCfg(flags) );
+            geom_cond_key = 'AtlasTrackingGeometry'
+            # @TOOD how to get the key of the TrackingGeometry conditions data ?
+       # the UNIQUE NAVIGATOR ( === UNIQUE GEOMETRY) --------------------------------------------------------------
+       Trk__Navigator=CompFactory.Trk.Navigator
+       AtlasNavigator = Trk__Navigator(name = 'AtlasNavigator',
+                                       TrackingGeometrySvc = geom_svc,
+                                       TrackingGeometryKey = geom_cond_key)
+       result.setPrivateTools(AtlasNavigator)
+       return result
+
 
 # define the class
 def AtlasExtrapolatorCfg( flags, name = 'AtlasExtrapolator' ):
        result=ComponentAccumulator()
 
        acc  = MagneticFieldSvcCfg(flags)
-       result.merge(acc)
-
-       # get the correct TrackingGeometry setup
-       from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-       acc = TrackingGeometrySvcCfg(flags)
-       geom_svc = acc.getPrimary() 
        result.merge(acc)
 
        # PROPAGATOR DEFAULTS --------------------------------------------------------------------------------------
@@ -55,10 +75,7 @@ def AtlasExtrapolatorCfg( flags, name = 'AtlasExtrapolator' ):
        
        AtlasUpdators    += [ AtlasMaterialEffectsUpdatorLandau ]
 
-       # the UNIQUE NAVIGATOR ( === UNIQUE GEOMETRY) --------------------------------------------------------------
-       Trk__Navigator=CompFactory.Trk.Navigator
-       AtlasNavigator = Trk__Navigator(name = 'AtlasNavigator')
-       AtlasNavigator.TrackingGeometrySvc = geom_svc
+       AtlasNavigator=result.popToolsAndMerge( AtlasNavigatorCfg(flags) )
        result.addPublicTool(AtlasNavigator) #TODO remove one day
 
        # CONFIGURE PROPAGATORS/UPDATORS ACCORDING TO GEOMETRY SIGNATURE

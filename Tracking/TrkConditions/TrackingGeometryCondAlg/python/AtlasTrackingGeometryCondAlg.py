@@ -30,7 +30,8 @@ class ConfiguredTrackingGeometryCondAlg( Trk__TrackingGeometryCondAlg ) :
 
     # constructor
     def __init__(self,name = 'AtlasTrackingGeometryCondAlg'):
-        
+        nameSuffix='Cond'
+        atlas_tracking_geometry_name = 'AtlasTrackingGeometry'
         if TrkDetFlags.ConfigurationOutputLevel() < 3 :
           print ('[ Configuration : start ] *** '+name+' ********************************')
           print ('[ TrackingGeometryCondAlg ]')
@@ -43,7 +44,7 @@ class ConfiguredTrackingGeometryCondAlg( Trk__TrackingGeometryCondAlg ) :
         
         # the geometry builder alg tool
         from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__GeometryBuilderCond
-        AtlasGeometryBuilder = Trk__GeometryBuilderCond(name = 'AtlasGeometryBuilderCond')
+        AtlasGeometryBuilder = Trk__GeometryBuilderCond(name = 'AtlasGeometryBuilder'+nameSuffix)
         # switch the building outputlevel on 
         AtlasGeometryBuilder.OutputLevel = TrkDetFlags.ConfigurationOutputLevel()
         
@@ -66,8 +67,8 @@ class ConfiguredTrackingGeometryCondAlg( Trk__TrackingGeometryCondAlg ) :
               from InDetTrackingGeometry.ConfiguredInDetTrackingGeometryBuilderCond import ConfiguredInDetTrackingGeometryBuilderCond as IDGeometryBuilder
           else:
               from InDetTrackingGeometry.ConfiguredStagedTrackingGeometryBuilderCond import ConfiguredStagedTrackingGeometryBuilderCond as IDGeometryBuilder
-          InDetTrackingGeometryBuilder = IDGeometryBuilder(name ='InDetTrackingGeometryBuilderCond')
-                
+          InDetTrackingGeometryBuilder = IDGeometryBuilder(name ='InDetTrackingGeometryBuilder'+nameSuffix,nameSuffix=nameSuffix)
+
           InDetTrackingGeometryBuilder.EnvelopeDefinitionSvc = AtlasEnvelopeSvc
           InDetTrackingGeometryBuilder.OutputLevel = TrkDetFlags.InDetBuildingOutputLevel()
           # and give it to the Geometry Builder
@@ -81,7 +82,7 @@ class ConfiguredTrackingGeometryCondAlg( Trk__TrackingGeometryCondAlg ) :
            ToolSvc += CaloVolumeCreator
 
            from CaloTrackingGeometry.ConfiguredCaloTrackingGeometryBuilderCond import ConfiguredCaloTrackingGeometryBuilderCond as ConfiguredCaloGeo 
-           CaloTrackingGeometryBuilder = ConfiguredCaloGeo(name='CaloTrackingGeometryBuilderCond')
+           CaloTrackingGeometryBuilder = ConfiguredCaloGeo(name='CaloTrackingGeometryBuilder'+nameSuffix)
            CaloTrackingGeometryBuilder.TrackingVolumeCreator = CaloVolumeCreator
            CaloTrackingGeometryBuilder.EnvelopeDefinitionSvc = AtlasEnvelopeSvc
            CaloTrackingGeometryBuilder.OutputLevel           = TrkDetFlags.CaloBuildingOutputLevel()
@@ -163,6 +164,7 @@ class ConfiguredTrackingGeometryCondAlg( Trk__TrackingGeometryCondAlg ) :
         Trk__TrackingGeometryCondAlg.__init__(self,name,
                                               GeometryBuilder = AtlasGeometryBuilder,
                                               GeometryProcessors = AtlasGeometryProcessors,
+                                              TrackingGeometryWriteKey = atlas_tracking_geometry_name,
                                               OutputLevel = TrkDetFlags.ConfigurationOutputLevel())
         # screen output of the configuration
         if TrkDetFlags.ConfigurationOutputLevel() < 3 :

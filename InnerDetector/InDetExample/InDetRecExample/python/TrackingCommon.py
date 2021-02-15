@@ -632,7 +632,7 @@ def getTrackingGeometryCondAlg(name="AtlasTrackingGeometryCondAlg",**kwargs) :
     the_name = makeName( name, kwargs )
     from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg
     alg = ConfiguredTrackingGeometryCondAlg(the_name)
-    alg.TrackingGeometryWriteKey = 'AlignedTrackingGeometry'
+    # alg.TrackingGeometryWriteKey = 'AlignedTrackingGeometry'
     return alg
 
 
@@ -1647,3 +1647,31 @@ def pixelClusterSplitProbName() :
         InDetNewTrackingCutsDisappearing = ConfiguredNewTrackingCuts("Disappearing")
       ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsDisappearing.extension()
     return ClusterSplitProbContainer if hasSplitProb(ClusterSplitProbContainer) else ''
+
+@makePublicTool
+def getInDetFullLinearizedTrackFactory(name='InDetFullLinearizedTrackFactory', **kwargs) :
+    the_name                    = makeName( name, kwargs)
+    if 'Extrapolator' not in kwargs :
+        kwargs=setDefaults(kwargs,Extrapolator           = getInDetExtrapolator()) # @TODO AtlasExtrapolator ? 
+
+    from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__FullLinearizedTrackFactory
+    return Trk__FullLinearizedTrackFactory(the_name, **kwargs)
+
+@makePublicTool
+def getTrackToVertexIPEstimator(name='TrackToVertexIPEstimator', **kwargs) :
+    the_name                    = makeName( name, kwargs)
+    if 'Extrapolator' not in kwargs :
+        kwargs=setDefaults(kwargs,Extrapolator           = getInDetExtrapolator()) # @TODO AtlasExtrapolator ? 
+    if 'LinearizedTrackFactory' not in kwargs :
+        kwargs=setDefaults(kwargs, LinearizedTrackFactory = getInDetFullLinearizedTrackFactory() )
+    from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__TrackToVertexIPEstimator
+    return Trk__TrackToVertexIPEstimator( the_name, **kwargs)
+
+@makePublicTool
+def getV0Tools(name='V0Tools', **kwargs) :
+    the_name                    = makeName( name, kwargs)
+    if 'Extrapolator' not in kwargs :
+        from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+        kwargs=setDefaults(kwargs,Extrapolator = AtlasExtrapolator())
+    from TrkVertexAnalysisUtils.TrkVertexAnalysisUtilsConf import Trk__V0Tools
+    return Trk__V0Tools(the_name, **kwargs)

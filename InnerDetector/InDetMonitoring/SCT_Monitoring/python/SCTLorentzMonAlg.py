@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file SCTLorentzMonAlg.py
@@ -7,6 +7,7 @@
 @date 2019-04-02
 @brief Based on AthenaMonitoring/ExampleMonitorAlgorithm.py
 '''
+from InDetConfig import TrackingCommonConfig
 
 def SCTLorentzMonAlgConfig(inputFlags):
     
@@ -29,7 +30,9 @@ def SCTLorentzMonAlgConfig(inputFlags):
     # base class configuration following the inputFlags. The returned object 
     # is the algorithm.
     from AthenaConfiguration.ComponentFactory import CompFactory
-    myMonAlg = helper.addAlgorithm(CompFactory.SCTLorentzMonAlg, 'SCTLorentzMonAlg')
+    myMonAlg = helper.addAlgorithm(CompFactory.SCTLorentzMonAlg,
+                                   'SCTLorentzMonAlg',
+                                   AssociationTool = result.popToolsAndMerge(TrackingCommonConfig.InDetPRDtoTrackMapToolGangedPixelsCfg(inputFlags)) )
 
     # # If for some really obscure reason you need to instantiate an algorithm
     # # yourself, the AddAlgorithm method will still configure the base 

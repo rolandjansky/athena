@@ -276,10 +276,7 @@ if InDetFlags.doV0Finder():
   if (InDetFlags.doPrintConfigurables()):
     printfunc (InDetV0VtxPointEstimator)
 
-  from TrkVertexAnalysisUtils.TrkVertexAnalysisUtilsConf import Trk__V0Tools
-  v0_tools = Trk__V0Tools(name                    = 'V0Tools',
-                          Extrapolator            = v0_InDetExtrapolator)
-  ToolSvc += v0_tools
+  v0_tools = TrackingCommon.getV0Tools()
 
   #
   # InDetV0FinderTool
