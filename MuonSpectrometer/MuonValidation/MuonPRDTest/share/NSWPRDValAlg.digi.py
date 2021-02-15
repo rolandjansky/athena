@@ -29,6 +29,9 @@ NSWPRDValAlg.doSTGCRDO = MuonGeometryFlags.hasSTGC()
 NSWPRDValAlg.doSTGCPRD = False
 NSWPRDValAlg.doSTGCFastDigit = False
 
+NSWPRDValAlg.doRPCHit = True
+NSWPRDValAlg.doRPCDigit = True
+
 #-----------------------------------------------------------------------------
 # save ROOT histograms and Tuple
 #-----------------------------------------------------------------------------
