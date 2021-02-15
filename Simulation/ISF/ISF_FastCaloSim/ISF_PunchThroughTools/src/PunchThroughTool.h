@@ -15,6 +15,8 @@
 #include "BarcodeEvent/PhysicsProcessCode.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
+#include "AtlasHepMC/GenEvent_fwd.h"
+
 /*-------------------------------------------------------------------------
  *  Forward declarations
  *-------------------------------------------------------------------------*/
@@ -30,10 +32,6 @@ namespace CLHEP {
 
 namespace HepPDT {
   class ParticleDataTable;
-}
-
-namespace HepMC {
-  class GenEvent;
 }
 
 namespace Barcode {
