@@ -85,8 +85,7 @@ class TrigInDetReco(ExecStep):
             if (i=='muon') :
                 chains += "'HLT_mu6_idperf_L1MU6',"
                 chains += "'HLT_mu24_idperf_L1MU20',"
-                chains += "'HLT_mu26_ivarmedium_L1MU20',"
-                chains += "'HLT_mu28_ivarmedium_L1MU20',"
+                chains += "'HLT_mu26_ivarperf_L1MU20',"
                 flags += 'doMuonSlice=True;'
             if (i=='electron') :
                 chains +=  "'HLT_e5_etcut_L1EM3',"  ## need an idperf chain once one is in the menu

@@ -93,7 +93,8 @@ if ( True ) :
   TestMonTool.ntupleChainNames = ['']
 
   if ( 'LRT' in dir() ) :
-    TestMonTool.FiducialRadius = 500.
+    if LRT == True :
+      TestMonTool.FiducialRadius = 500.
 
   TestMonTool.KeepAllEvents = False
   # TestMonTool.TrigConfigTool = "TrigConf::xAODConfigTool"
@@ -153,8 +154,8 @@ if ( True ) :
     "HLT_mu.*_idperf.*:HLT_IDTrack_Muon_FTF:roi=HLT_Roi_L2SAMuon",
     "HLT_mu.*_idperf.*:HLT_IDTrack_Muon_IDTrig",
     "HLT_mu.*_idperf.*:HLT_IDTrack_Muon_IDTrig:roi=HLT_Roi_L2SAMuonForEF",
-    "HLT_mu.*i.*:HLT_IDTrack_MuonIso_FTF:roi=HLT_Roi_MuonIso",
-    "HLT_mu.*i.*:HLT_IDTrack_MuonIso_IDTrig:roi=HLT_Roi_MuonIso",
+    "HLT_mu.*iv.*:HLT_IDTrack_MuonIso_FTF:roi=HLT_Roi_MuonIso",
+    "HLT_mu.*iv.*:HLT_IDTrack_MuonIso_IDTrig:roi=HLT_Roi_MuonIso",
 
     "HLT_mu6_LRT_idperf_l2lrt_L1MU6:HLT_IDTrack_MuonLRT_FTF:HLT_Roi_L2SAMuon_LRT",
 
