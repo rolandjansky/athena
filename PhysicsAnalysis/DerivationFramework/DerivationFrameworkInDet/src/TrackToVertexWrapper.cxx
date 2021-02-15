@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -93,7 +93,7 @@ namespace DerivationFramework {
       std::unique_ptr<const Trk::ImpactParametersAndSigma> iPandSigma;
       std::unique_ptr<const Trk::ImpactParametersAndSigma> iPandSigmaBiased;
       const xAOD::Vertex* foundVertex { nullptr };
-      for (const auto& vx : *vertices)
+      for (const auto vx : *vertices)
       {
 	for (const auto& tpLink : vx->trackParticleLinks())
 	{
