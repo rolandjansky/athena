@@ -21,7 +21,9 @@ std::shared_ptr<const PixelDiodeMatrix> PixelDiodeMatrix::construct(double phiWi
 void PixelDiodeMatrix::initialize(double phiWidth, double etaWidth)
 {
   m_phiWidth = phiWidth;
+  m_phiWidthInverse = 1. / phiWidth;
   m_etaWidth = etaWidth;
+  m_etaWidthInverse = 1. / etaWidth;
   m_phiCells = 1;
   m_etaCells = 1;
   m_direction = phiDir; // Irrelevant
@@ -69,7 +71,7 @@ void PixelDiodeMatrix::initialize(Direction direction,  // phi or eta
   assert(m_middleCells);
 
   if (m_direction == phiDir) {
-    
+
     // In eta direction widths must be all the same.
     if (m_middleCells){
       m_etaWidth = m_middleCells->etaWidth();
@@ -77,7 +79,7 @@ void PixelDiodeMatrix::initialize(Direction direction,  // phi or eta
     }
     // Check lower and upper are consistent
     // TODO.
-    
+
     if (m_lowerCell) {
       m_phiWidth += m_lowerCell->phiWidth();
       m_phiCells += m_lowerCell->phiCells();
@@ -87,7 +89,7 @@ void PixelDiodeMatrix::initialize(Direction direction,  // phi or eta
       m_phiWidth += m_numCells * m_middleCells->phiWidth();
       m_phiCells += m_numCells * m_middleCells->phiCells();
     }
-  
+
     if (m_upperCell) {
       m_phiWidth += m_upperCell->phiWidth();
       m_phiCells += m_upperCell->phiCells();
@@ -102,7 +104,7 @@ void PixelDiodeMatrix::initialize(Direction direction,  // phi or eta
     }
     // Check lower and upper are consistent
     // TODO.
-    
+
     if (m_lowerCell) {
       m_etaWidth += m_lowerCell->etaWidth();
       m_etaCells += m_lowerCell->etaCells();
@@ -112,7 +114,7 @@ void PixelDiodeMatrix::initialize(Direction direction,  // phi or eta
       m_etaWidth += m_numCells * m_middleCells->etaWidth();
       m_etaCells += m_numCells * m_middleCells->etaCells();
     }
-  
+
     if (m_upperCell) {
       m_etaWidth += m_upperCell->etaWidth();
       m_etaCells += m_upperCell->etaCells();
@@ -120,28 +122,30 @@ void PixelDiodeMatrix::initialize(Direction direction,  // phi or eta
 
   }
 
+  m_phiWidthInverse = 1. / m_phiWidth;
+  m_etaWidthInverse = 1. / m_etaWidth;
 }
 
 const PixelDiodeMatrix*
 PixelDiodeMatrix::cellIdOfPosition(const Amg::Vector2D & relPosition, SiCellId & cellId) const
 
-  /// Description.  
+  /// Description.
   /// Overview of algoritm:
-  /// 
+  ///
   ///  - Before calling this method on the top level matrix the 2D position is
   ///    calculated relative to the bottom left corner.
   ///  - The method cellIdOfPosition is always called with the position relative to
-  ///    bottom left of the cell and the cell id of bottom left child cell. 
-  ///    For the top level matrix this is the position (-halfWidth, -halfLength) and a starting 
+  ///    bottom left of the cell and the cell id of bottom left child cell.
+  ///    For the top level matrix this is the position (-halfWidth, -halfLength) and a starting
   ///    cell id of (0,0).
-  ///  - It first checks if it is in the lower cell (if it exists). 
+  ///  - It first checks if it is in the lower cell (if it exists).
   ///  - If not, it determines which cell by dividing the position relative to
-  ///    the start of the cell array by the pitch in that direction. 
-  ///  - If it is beyond the range of the middle cells it is taken as being in 
+  ///    the start of the cell array by the pitch in that direction.
+  ///  - If it is beyond the range of the middle cells it is taken as being in
   ///    the upper cell.
   ///  - The cell number is added to the cellId that is passed to the method
   ///  - Once the cell is determined the function is called recursively until it
-  ///    reaches a single cell. 
+  ///    reaches a single cell.
   ///
 
 {
@@ -155,58 +159,62 @@ PixelDiodeMatrix::cellIdOfPosition(const Amg::Vector2D & relPosition, SiCellId &
   double relPosDir = 0; // Relative position along m_direction
   int startIndex = 0;
   double pitch = 0;
+  double pitchInverse = 0;
   int middleCells = 0;
 
   if (m_direction == phiDir) {
 
     relPosDir = relPosition[distPhi];
     pitch = m_middleCells->phiWidth();
+    pitchInverse = m_middleCells->phiWidthInverse();
     middleCells = m_middleCells->phiCells();
 
     if (m_lowerCell) {
       if (relPosDir < m_lowerCell->phiWidth()) {
-	return m_lowerCell->cellIdOfPosition(relPosition, cellId);
+        return m_lowerCell->cellIdOfPosition(relPosition, cellId);
       } else {
-	relPosDir  -=  m_lowerCell->phiWidth();
-	startIndex +=  m_lowerCell->phiCells();
+        relPosDir  -= m_lowerCell->phiWidth();
+        startIndex += m_lowerCell->phiCells();
       }
     }
   } else { // etaDir
 
     relPosDir = relPosition[distEta];
     pitch = m_middleCells->etaWidth();
+    pitchInverse = m_middleCells->etaWidthInverse();
     middleCells = m_middleCells->etaCells();
 
     if (m_lowerCell) {
       if (relPosDir < m_lowerCell->etaWidth()) {
-	return m_lowerCell->cellIdOfPosition(relPosition, cellId);
+        return m_lowerCell->cellIdOfPosition(relPosition, cellId);
       } else {
-	relPosDir  -=  m_lowerCell->etaWidth();
-	startIndex +=  m_lowerCell->etaCells();
+        relPosDir  -= m_lowerCell->etaWidth();
+        startIndex += m_lowerCell->etaCells();
       }
     }
-  } 
+  }
 
-  
-  int index = relPosDir / pitch;
 
-  if (index < 0) index = 0; // Make sure its in range (in case of rounding errors)
+  int index = relPosDir * pitchInverse;
+
   const PixelDiodeMatrix *nextCell{};
 
-  if (m_upperCell && (index >= m_numCells)) { 
-    // We are in the upper cell. 
+  bool outOfBounds = index >= m_numCells;
+  if (m_upperCell != nullptr && outOfBounds) {
+    // We are in the upper cell.
     index = m_numCells;
     nextCell = m_upperCell.get();
   } else {
     // We are in the middle cells
     // Make sure its in range (in case of rounding errors)
-    if (index >= m_numCells) index = m_numCells - 1;
+    if (outOfBounds) index = m_numCells - 1;
     nextCell = m_middleCells.get();
   }
-  
 
-  relPosDir  -= index *  pitch;
-  startIndex += index *  middleCells;
+  if (index > 0) { // Make sure its in range (in case of rounding errors)
+    relPosDir  -= index *  pitch;
+    startIndex += index *  middleCells;
+  }
 
   int newPhiIndex = cellId.phiIndex();
   int newEtaIndex = cellId.etaIndex();
@@ -222,8 +230,8 @@ PixelDiodeMatrix::cellIdOfPosition(const Amg::Vector2D & relPosition, SiCellId &
       cell = nextCell->cellIdOfPosition(newRelPos, relId);
       newPhiIndex += startIndex + relId.phiIndex();
       newEtaIndex += relId.etaIndex();
-    } 
-  } else { 
+    }
+  } else {
     if (nextCell->singleCell()) {
       newEtaIndex += startIndex;
       cell = nextCell;
@@ -240,12 +248,12 @@ PixelDiodeMatrix::cellIdOfPosition(const Amg::Vector2D & relPosition, SiCellId &
   return cell;
 }
 
-	
-	   
+
+
 const PixelDiodeMatrix *
 PixelDiodeMatrix::positionOfCell(const SiCellId & cellId, Amg::Vector2D & position) const
 
-  /// Description.  
+  /// Description.
   /// Overview of algoritm:
   ///
   ///  - It starts with the position of the bottom left corner of the cell.
@@ -253,7 +261,7 @@ PixelDiodeMatrix::positionOfCell(const SiCellId & cellId, Amg::Vector2D & positi
   ///  - It first checks if is in the lower cell (if it exists).
   ///  - If not it determines the bottom edge of the cell by multiplying the cell
   ///    number by the pitch.
-  ///  - If it is beyond the range of the middle cells it is taken as being in 
+  ///  - If it is beyond the range of the middle cells it is taken as being in
   ///    the upper cell.
   ///  - This position is then passed recursively to the same method until it
   ///    reaches a single cell.
@@ -280,15 +288,15 @@ PixelDiodeMatrix::positionOfCell(const SiCellId & cellId, Amg::Vector2D & positi
     relIndex = cellId.phiIndex();
     pitch = m_middleCells->phiWidth();
     middleCells = m_middleCells->phiCells();
-    
+
     if (m_lowerCell) {
       if (relIndex < m_lowerCell->phiCells()) {
         return m_lowerCell->positionOfCell(cellId, position);
       } else {
-	relIndex -=  m_lowerCell->phiCells();
-	startPos +=  m_lowerCell->phiWidth();
+        relIndex -=  m_lowerCell->phiCells();
+	      startPos +=  m_lowerCell->phiWidth();
       }
-    } 
+    }
 
   } else { // etaDir
 
@@ -300,11 +308,11 @@ PixelDiodeMatrix::positionOfCell(const SiCellId & cellId, Amg::Vector2D & positi
       if (relIndex < m_lowerCell->etaCells()) {
         return m_lowerCell->positionOfCell(cellId, position);
       } else {
-	relIndex -=  m_lowerCell->etaCells();
-	startPos +=  m_lowerCell->etaWidth();
+	      relIndex -=  m_lowerCell->etaCells();
+	      startPos +=  m_lowerCell->etaWidth();
       }
     }
-  } 
+  }
 
   int index = relIndex / middleCells;
   if (index > m_numCells) index = m_numCells;
@@ -312,8 +320,8 @@ PixelDiodeMatrix::positionOfCell(const SiCellId & cellId, Amg::Vector2D & positi
   startPos += index * pitch;
 
   const PixelDiodeMatrix *nextCell{};
-  if (m_upperCell && (index == m_numCells)) { 
-    // We are in the upper cell. 
+  if (m_upperCell && (index == m_numCells)) {
+    // We are in the upper cell.
     nextCell = m_upperCell.get();
   } else {
     // We are in the middle cells
@@ -329,8 +337,8 @@ PixelDiodeMatrix::positionOfCell(const SiCellId & cellId, Amg::Vector2D & positi
     SiCellId relId(cellId.phiIndex(),relIndex);
     position[distEta] += startPos;
     cell = nextCell->positionOfCell(relId, position);
-  }    
-  
+  }
+
   return cell;
 }
 

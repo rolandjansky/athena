@@ -128,10 +128,16 @@ namespace InDetDD {
       
       /** Width in phi (x) direction.*/
       double phiWidth() const;
-      
+
+      /** Inverse of width in phi (x) direction.*/
+      double phiWidthInverse() const;
+
       /** Width in eta (y) direction. */
       double etaWidth() const;
-      
+
+      /** Inverse of width in eta (y) direction. */
+      double etaWidthInverse() const;
+
       /** Number of cells in phi (x) direction. */
       int phiCells() const;
       
@@ -160,7 +166,9 @@ namespace InDetDD {
                       std::shared_ptr<const PixelDiodeMatrix> upperCells);
 
       double        m_phiWidth;
+      double        m_phiWidthInverse;
       double        m_etaWidth;
+      double        m_etaWidthInverse;
       int           m_phiCells;    
       int           m_etaCells;
       Direction     m_direction;
@@ -176,10 +184,20 @@ namespace InDetDD {
     { 
       return m_phiWidth;
     }
+
+    inline double PixelDiodeMatrix::phiWidthInverse() const
+    { 
+      return m_phiWidthInverse;
+    }
     
     inline double PixelDiodeMatrix::etaWidth() const
     { 
       return m_etaWidth;
+    }
+    
+    inline double PixelDiodeMatrix::etaWidthInverse() const
+    { 
+      return m_etaWidthInverse;
     }
     
     inline int PixelDiodeMatrix::phiCells() const
