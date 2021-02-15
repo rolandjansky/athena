@@ -52,6 +52,7 @@ void AGDDsTGC::CreateVolume()
 	stgc_comp->dy=_y;
 	stgc_comp->subType=sType;
 	stgc_comp->yCutout=_yCutout;
+	stgc_comp->yCutoutCathode=_yCutoutCathode;
 	
 	MuonGM::sTGC *cham=new MuonGM::sTGC(stgc_comp);
 	GeoPhysVol *vvv=(GeoPhysVol*)cham->build(1);

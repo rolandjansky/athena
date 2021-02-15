@@ -38,6 +38,7 @@ sTGC::sTGC(Component* ss): DetectorElement(ss->name)
   width = s->dx1;
   longWidth = s->dx2;
   yCutout= s->yCutout;
+  yCutoutCathode= s->yCutoutCathode;
   length = s->dy;
   name=s->name;
   index = s->index;
@@ -212,25 +213,36 @@ GeoFullPhysVol* sTGC::build(int minimalgeo, int , std::vector<Cutout*> )
       else
       {
         double W=width/2.+((longWidth-width)/2.)*f5/(length);
-      	  GeoSimplePolygonBrep *sGasV
-        	=new GeoSimplePolygonBrep(gasTck);
+        // This describes the active area
+      	GeoSimplePolygonBrep *sGasV=new GeoSimplePolygonBrep(gasTck/2.);
         sGasV->addVertex(longWidthActive/2.-f6,lengthActive/2.-f4);
-		sGasV->addVertex(-longWidthActive/2.+f6,lengthActive/2.-f4);
-		sGasV->addVertex(-longWidthActive/2.+f6,lengthActive/2.-yCutout);
-		sGasV->addVertex(-W+f6,-lengthActive/2.+f5);
-		sGasV->addVertex(W-f6,-lengthActive/2.+f5);
-		sGasV->addVertex(longWidthActive/2.-f6,lengthActive/2.-yCutout);
+		    sGasV->addVertex(-longWidthActive/2.+f6,lengthActive/2.-f4);
+		    sGasV->addVertex(-longWidthActive/2.+f6,lengthActive/2.-f4-yCutoutCathode);
+		    sGasV->addVertex(-W+f6,-lengthActive/2.+f5);
+		    sGasV->addVertex(W-f6,-lengthActive/2.+f5);
+		    sGasV->addVertex(longWidthActive/2.-f6,lengthActive/2.-f4-yCutoutCathode);
+        
+        // This describes the enveloppe (active area + frames) 
+      	GeoSimplePolygonBrep *sGasV2=new GeoSimplePolygonBrep(gasTck/2.);
+        sGasV2->addVertex(longWidth/2.,length/2.);
+		    sGasV2->addVertex(-longWidth/2.,length/2.);
+		    sGasV2->addVertex(-longWidth/2.,length/2.-yCutout);
+		    sGasV2->addVertex(-width/2.,-length/2.);
+		    sGasV2->addVertex(width/2.,-length/2.);
+		    sGasV2->addVertex(longWidth/2.,length/2.-yCutout);
 	
-	const GeoShape *sGasV1=new GeoShapeShift(sGasV,transf);
+        // define the final geo shapes
+	      const GeoShape *sGasV1=new GeoShapeShift(sGasV,transf);
+	      const GeoShape *sGasV3=new GeoShapeShift(sGasV2,transf);
+        // Remove active from active+frames to only get frames
+        sGasV3= &(sGasV3->subtract( (*sGasV1)));
 	
-	const GeoShape* sGasV2=&(sGasVolume1->subtract(*sGasV1));
-	
-	GeoLogVol* ltrdframe = new GeoLogVol("sTGC_Frame", sGasV2,
+	      GeoLogVol* ltrdframe = new GeoLogVol("sTGC_Frame", sGasV3,
                                          matManager->getMaterial("std::Aluminium"));
-          GeoPhysVol* ptrdframe = new GeoPhysVol(ltrdframe);
+        GeoPhysVol* ptrdframe = new GeoPhysVol(ltrdframe);
 
-          ptrdgas->add(ptrdframe);
-	
+        // Add frame volume to QL3
+        ptrdgas->add(ptrdframe);
       }
 
 
