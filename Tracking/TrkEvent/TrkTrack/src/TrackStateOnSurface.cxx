@@ -80,6 +80,24 @@ TrackStateOnSurface::TrackStateOnSurface(
   assert(isSane());
 }
 
+TrackStateOnSurface::TrackStateOnSurface(
+    const MeasurementBase          *meas,
+    std::unique_ptr<TrackParameters> trackParameters,
+    const FitQualityOnSurface      *fitQoS,
+    const MaterialEffectsBase      *materialEffects,
+    const std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>& typePattern,
+    const AlignmentEffectsOnTrack       *alignmentEffectsOnTrack
+    ):
+    m_fitQualityOnSurface(fitQoS),
+    m_trackParameters(std::move(trackParameters)),
+    m_measurementOnTrack(meas),
+    m_materialEffectsOnTrack( materialEffects ),
+    m_alignmentEffectsOnTrack( alignmentEffectsOnTrack ),
+    m_typeFlags(typePattern)
+{
+  assert(isSane());
+}
+
 
 TrackStateOnSurface::TrackStateOnSurface
     (const MeasurementBase* meas,const TrackParameters* trackParameters):
