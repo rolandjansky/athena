@@ -64,12 +64,8 @@ electron_comparison_list = [
         'title': 'True Prompt Electron with GSFTrack'},
     {'name': 'truthPromptElectronWithReco',
         'title': 'True Prompt Electron with Reco Electron'},
-    {'name': 'recoElectronIsoFixedCutTight',
-        'title': 'Reconstructed Electron FixedCutTight'},
     {'name': 'recoElectronIsoFixedCutTightTrackOnly',
         'title': 'Reconstructed Electron FixedCutTightTrackOnly'},
-    {'name': 'recoElectronIsoFixedCutLoose',
-        'title': 'Reconstructed Electron FixedCutLoose'},
     {'name': 'trackingEfficiency', 'title': 'Tracking Efficiency'},
     {'name': 'GSFEfficiency', 'title': 'GSF Efficiency'},
     {'name': 'matchingEfficiency', 'title': 'Matching  Efficiency'},
@@ -80,12 +76,8 @@ electron_comparison_list = [
         'title': 'Reconstructed Electron MediumLH Efficiency'},
     {'name': 'recoElectronTightLHEfficiency',
         'title': 'Reconstructed Electron TightLH Efficiency'},
-    {'name': 'recoElectronIsoFixedCutTightEfficiency',
-        'title': 'Reconstructed Electron FixedCutTight Efficiency'},
     {'name': 'recoElectronIsoFixedCutTightTrackOnlyEfficiency',
         'title': 'Reconstructed Electron FixedCutTighTrackOnly Efficiency'},
-    {'name': 'recoElectronIsoFixedCutLooseEfficiency',
-        'title': 'Reconstructed Electron FixedCutLoose Efficiency'},
 ]
 
 photon_comparison_list = [
