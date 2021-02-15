@@ -18,6 +18,7 @@ public:
    friend std::ostream & operator << (std::ostream& os, const sTGCComponent & c);
 
    double yCutout;
+   double yCutoutCathode;
    std::string subType;
 };
 
