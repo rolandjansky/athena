@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileEvent/TileRawChannel.h"
@@ -174,6 +174,8 @@ StatusCode TileRawChannelBuilderWienerFilter::finalize() {
 
 TileRawChannel * TileRawChannelBuilderWienerFilter::rawChannel(const TileDigits* digits) {
 
+  const EventContext &ctx = Gaudi::Hive::currentContext();
+
   ++m_chCounter;
 
   double pedestal = 0.;
@@ -193,7 +195,7 @@ TileRawChannel * TileRawChannelBuilderWienerFilter::rawChannel(const TileDigits*
   int drawer = m_tileHWID->drawer(adcId);
   int channel = m_tileHWID->channel(adcId);
 
-  chi2 = filter(ros, drawer, channel, gain, pedestal, energy, time);
+  chi2 = filter(ros, drawer, channel, gain, pedestal, energy, time, ctx);
 
   unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
 
@@ -278,13 +280,13 @@ int TileRawChannelBuilderWienerFilter::findMaxDigitPosition() {
 }
 
 
-float TileRawChannelBuilderWienerFilter::getPedestal(int ros, int drawer, int channel, int gain) {
+float TileRawChannelBuilderWienerFilter::getPedestal(int ros, int drawer, int channel, int gain, const EventContext &ctx) {
   float pedestal = 0.;
 
   switch (m_pedestalMode) {
     case -1:
       // use pedestal from conditions DB
-      pedestal = m_tileToolNoiseSample->getPed(TileCalibUtils::getDrawerIdx(ros, drawer), channel, gain);
+      pedestal = m_tileToolNoiseSample->getPed(TileCalibUtils::getDrawerIdx(ros, drawer), channel, gain, TileRawChannelUnit::ADCcounts, ctx);
       break;
     case 7:
       pedestal = m_digits[6];
@@ -352,7 +354,7 @@ int TileRawChannelBuilderWienerFilter::getBCIDIndex() {
 
 
 double TileRawChannelBuilderWienerFilter::filter(int ros, int drawer, int channel
-    , int &gain, double &pedestal, double &amplitude, double &time) {
+    , int &gain, double &pedestal, double &amplitude, double &time, const EventContext &ctx) {
 
   ATH_MSG_VERBOSE( "filter()" );
 
@@ -399,7 +401,7 @@ double TileRawChannelBuilderWienerFilter::filter(int ros, int drawer, int channe
     amplitude += weights[7]; // Wiener bias
 
     double phase = 0.;
-    pedestal = getPedestal(ros, drawer, channel, gain);
+    pedestal = getPedestal(ros, drawer, channel, gain, ctx);
 
     chi2 = compute(ros, drawer, channel, gain, pedestal, amplitude, time, phase);
 

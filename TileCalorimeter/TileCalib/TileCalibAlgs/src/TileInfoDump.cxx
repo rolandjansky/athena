@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Gaudi includes
@@ -355,6 +355,8 @@ void TileInfoDump::printIntegrator() {
 //___________________________________________________________________________________________
 void TileInfoDump::printPedestals() {
 
+  const EventContext &ctx = Gaudi::Hive::currentContext();
+
   std::vector<float> vecAutoCr;
 
   for (unsigned int ros = 0; ros < TileCalibUtils::MAX_ROS; ++ros) {
@@ -372,10 +374,10 @@ void TileInfoDump::printPedestals() {
                          << drawer << "/"
                          << channel << "/"
                          << adc << " : "
-                         << "Pedestal level=" << m_tileToolNoiseSample->getPed(drawerIdx, channel, adc) << "\t"
-                         << "HFN=" << m_tileToolNoiseSample->getHfn(drawerIdx, channel, adc) << "\t"
-                         << "LFN=" << m_tileToolNoiseSample->getLfn(drawerIdx, channel, adc) << "\t"
-                         << "OF=" << m_tileToolNoiseRawChn->getNoise(drawerIdx, channel, adc) << "\t"
+                         << "Pedestal level=" << m_tileToolNoiseSample->getPed(drawerIdx, channel, adc, TileRawChannelUnit::ADCcounts, ctx) << "\t"
+                         << "HFN=" << m_tileToolNoiseSample->getHfn(drawerIdx, channel, adc, TileRawChannelUnit::ADCcounts, ctx) << "\t"
+                         << "LFN=" << m_tileToolNoiseSample->getLfn(drawerIdx, channel, adc, TileRawChannelUnit::ADCcounts, ctx) << "\t"
+                         << "OF=" << m_tileToolNoiseRawChn->getNoise(drawerIdx, channel, adc, TileRawChannelUnit::ADCcounts, ctx) << "\t"
                          << "ACR = ";
           for (unsigned int i = 0; i < vecAutoCr.size(); ++i) {
             msg(MSG::INFO) << vecAutoCr[i] << " ";
@@ -394,6 +396,8 @@ void TileInfoDump::printPedestals() {
 //___________________________________________________________________________________________
 void TileInfoDump::print1gNoise() {
 
+  const EventContext &ctx = Gaudi::Hive::currentContext();
+
   std::vector<float> vecAutoCr;
 
   for (unsigned int ros = 0; ros < TileCalibUtils::MAX_ROS; ++ros) {
@@ -409,8 +413,8 @@ void TileInfoDump::print1gNoise() {
                         << drawer << "/"
                         << channel << "/"
                         << adc << " : "
-			<< "Electronic (ADC counts) " << m_tileToolNoiseRawChn->getElectronicNoise(drawerIdx, channel, adc) << "\t"
-                        << "PileUp (MeV) " << m_tileToolNoiseRawChn->getPileUpNoise(drawerIdx, channel, adc) );
+			<< "Electronic (ADC counts) " << m_tileToolNoiseRawChn->getElectronicNoise(drawerIdx, channel, adc, TileRawChannelUnit::ADCcounts, ctx) << "\t"
+                        << "PileUp (MeV) " << m_tileToolNoiseRawChn->getPileUpNoise(drawerIdx, channel, adc, ctx) );
 
         }  //end adc
       }  //end channel
@@ -485,6 +489,8 @@ void TileInfoDump::printPulseShapes() {
   float startpoint = -100.0;
   float endpoint = 150.0;
 
+  const EventContext &ctx = Gaudi::Hive::currentContext();
+
   //=== force m_printPulseShapesStep to have positive value
   if (m_printPulseShapesStep <= 0) m_printPulseShapesStep = 0.5;
   unsigned int npoint = static_cast<unsigned int>((endpoint - startpoint) / m_printPulseShapesStep);
@@ -493,7 +499,7 @@ void TileInfoDump::printPulseShapes() {
     for (unsigned int point = 0; point < npoint; ++point) {
       time = startpoint + point * m_printPulseShapesStep;
       //if(m_tileToolPulseShape->getPulseShapeYDY(drawerIdx,channel,adc,time,y,dy)) {
-      m_tileToolPulseShape->getPulseShapeYDY(drawerIdx, channel, adc, time, y, dy);
+      m_tileToolPulseShape->getPulseShapeYDY(drawerIdx, channel, adc, time, y, dy, ctx);
       ATH_MSG_INFO( ros << "/" << std::setw(2)
                    << drawer << "/" << std::setw(2)
                    << channel << "/"
@@ -862,7 +868,8 @@ void TileInfoDump::printOfcs() {
   int Phamax;
   int NSamples;
 
-  m_tileToolOfcCool->getOfcParams(drawerIdx, NPhases, NFields, Phamin, Phamax, NSamples);
+  const EventContext &ctx = Gaudi::Hive::currentContext();
+  m_tileToolOfcCool->getOfcParams(drawerIdx, NPhases, NFields, Phamin, Phamax, NSamples, ctx);
 
   int phase_step = round(static_cast<double>(Phamax - Phamin) / (std::abs(NPhases) - 1));
 
@@ -882,7 +889,7 @@ void TileInfoDump::printOfcs() {
     for (int phase = Phamin; phase <= Phamax; phase += phase_step ) {
       float real_phase = float(phase) * PHASE_PRECISION;
       TileOfcWeightsStruct weights;
-      m_tileToolOfcCool->getOfcWeights(drawerIdx, m_printOfcChannel, gain, real_phase, true, weights).ignore();
+      m_tileToolOfcCool->getOfcWeights(drawerIdx, m_printOfcChannel, gain, real_phase, true, weights, ctx).ignore();
 
       ATH_MSG_INFO( "OFC phase " << real_phase << " ns");
 

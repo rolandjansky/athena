@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -581,6 +581,8 @@ StatusCode TileDigitsMonTool::finalHists()
   if (m_allHistsFilled) return StatusCode::SUCCESS;
   m_allHistsFilled = true;
 
+  const EventContext &ctx = Gaudi::Hive::currentContext();
+
   const char *part[5] = { "AUX", "LBA", "LBC", "EBA", "EBC" };
   const char *gain[6] = { "_lo", "_hi", "", " low gain", " high gain", "" };
 
@@ -691,7 +693,7 @@ StatusCode TileDigitsMonTool::finalHists()
               if (m_fillPedestalDifference) {
 
                 if (!isDisconnected(ros, drawer, channel)) {
-                  m_data->m_final_hist1[ros][drawer][adc][0]->SetBinContent(channel + 1, Ped - m_tileToolNoiseSample->getPed(drawerIdx, channel, adc));
+                  m_data->m_final_hist1[ros][drawer][adc][0]->SetBinContent(channel + 1, Ped - m_tileToolNoiseSample->getPed(drawerIdx, channel, adc, TileRawChannelUnit::ADCcounts, ctx));
                   m_data->m_final_hist1[ros][drawer][adc][0]->SetBinError(channel + 1, PedRMS);
                 }
 

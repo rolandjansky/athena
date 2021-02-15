@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -214,7 +214,7 @@ void testTileCondToolAutoCr(ISvcLocator* svcLoc) {
 
 
 
-void testTileCondToolPulseShape(ISvcLocator* svcLoc) {
+void testTileCondToolPulseShape(ISvcLocator* svcLoc, const EventContext& ctx) {
 
   std::cout << "\nTest TileCondToolPulseShape\n";
 
@@ -238,7 +238,7 @@ void testTileCondToolPulseShape(ISvcLocator* svcLoc) {
     float time = DEF_CONDITIONS[timeIndex];
     float y(0.0F);
     float dy(0.0F);
-    tool->getPulseShapeYDY(defaultDrawerIdx, defaultChannel, defaultAdc, time, y, dy);
+    tool->getPulseShapeYDY(defaultDrawerIdx, defaultChannel, defaultAdc, time, y, dy, ctx);
     assert(Athena_test::isEqual(y, DEF_CONDITIONS[timeIndex + nTimes]));
   }
 
@@ -249,7 +249,7 @@ void testTileCondToolPulseShape(ISvcLocator* svcLoc) {
         float refY = getCondtionsData(channel, gain, timeIndex + nTimes);
         float y(0.0F);
         float dy(0.0F);
-        tool->getPulseShapeYDY(DRAWER_IDX, channel, gain, time, y, dy);
+        tool->getPulseShapeYDY(DRAWER_IDX, channel, gain, time, y, dy, ctx);
         assert(Athena_test::isEqual(y, refY));
       }
     }
@@ -397,7 +397,7 @@ int main() {
 
   testTileCondToolTiming(svcLoc);
   testTileCondToolAutoCr(svcLoc);
-  testTileCondToolPulseShape(svcLoc);
+  testTileCondToolPulseShape(svcLoc, ctx);
   testTileCondToolDspThreshold(svcLoc);
   testTileCondToolIntegrator(svcLoc);
 

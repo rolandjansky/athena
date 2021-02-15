@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************************
@@ -206,6 +206,8 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
     ATH_MSG_DEBUG( "Executing TilePulseForTileMuonReceiver" );
   }
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
   // Conversion from TMDB channel number to channel number in a drawer: EB (0-3) LB (0-8)
   // Including the cells used in the "The potential of using the ATLAS Tile calorimeter in Phase-II for the
   // Level-0 muon trigger" (ATL-COM-TILECAL-2015-007.pdf): ALL D-layer + BC-8.
@@ -249,7 +251,7 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
 
   // Get hit container from TES
   //
-  SG::ReadHandle<TileHitContainer> hitContainer(m_hitContainerKey);
+  SG::ReadHandle<TileHitContainer> hitContainer(m_hitContainerKey, ctx);
   ATH_CHECK( hitContainer.isValid() );
 
   // Set up buffers for handling information in a single collection.
@@ -306,7 +308,7 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
         }
       }
     } else {
-      SG::ReadHandle<TileDigitsContainer> tileDigitsContainerHandle(m_inputDigitContainerKey);
+      SG::ReadHandle<TileDigitsContainer> tileDigitsContainerHandle(m_inputDigitContainerKey, ctx);
       if (tileDigitsContainerHandle.isValid()) {
         for (const auto* digitCollection : *tileDigitsContainerHandle) {
           for (const auto* digit : *digitCollection) {
@@ -541,7 +543,7 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
 
             ATH_MSG_VERBOSE( "(C.02.04)   phase : " << k << "-" << m_binTime0 << "*" << m_timeStep << " = " << phase);
 
-            m_tileToolPulseShape->getPulseShapeYDY(drawerIdx, TMDBchan, TileID::LOWGAIN, phase, y, dy);
+            m_tileToolPulseShape->getPulseShapeYDY(drawerIdx, TMDBchan, TileID::LOWGAIN, phase, y, dy, ctx);
             shape = (double) y;
             pDigitSamples[js] += e_pmt * shape; // MeV
 
@@ -683,7 +685,7 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
         // Collecting pedestal from the database
         //
         if (m_tilePedestal) {
-          pedSim = m_tileToolNoiseSample->getPed(idhash, TMDBchan, TileID::LOWGAIN);
+          pedSim = m_tileToolNoiseSample->getPed(idhash, TMDBchan, TileID::LOWGAIN, TileRawChannelUnit::ADCcounts, ctx);
           // As in TileDigitsMaker bug fix for wrong ped value in DB
           //
           if (pedSim == 0.0) pedSim = 30.;
@@ -697,12 +699,12 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
           //
           RandGaussQ::shootArray(*rngWrapper, m_nSamples, Rndm, 0.0, 1.0);
           RandFlat::shootArray(*rngWrapper, 1, Rndm_dG, 0.0, 1.0);
-          sigma_Hfn1 = m_tileToolNoiseSample->getHfn1(idhash, TMDBchan, TileID::LOWGAIN);
-          sigma_Hfn2 = m_tileToolNoiseSample->getHfn2(idhash, TMDBchan, TileID::LOWGAIN);
+          sigma_Hfn1 = m_tileToolNoiseSample->getHfn1(idhash, TMDBchan, TileID::LOWGAIN, ctx);
+          sigma_Hfn2 = m_tileToolNoiseSample->getHfn2(idhash, TMDBchan, TileID::LOWGAIN, ctx);
           if (sigma_Hfn1 > 0 || sigma_Hfn2) {
-            sigma_Norm = sigma_Hfn1 / (sigma_Hfn1 + sigma_Hfn2 * m_tileToolNoiseSample->getHfnNorm(idhash, TMDBchan, TileID::LOWGAIN));
+            sigma_Norm = sigma_Hfn1 / (sigma_Hfn1 + sigma_Hfn2 * m_tileToolNoiseSample->getHfnNorm(idhash, TMDBchan, TileID::LOWGAIN, ctx));
           } else {
-            sigma_Hfn1 = m_tileToolNoiseSample->getHfn(idhash, TMDBchan, TileID::LOWGAIN);
+            sigma_Hfn1 = m_tileToolNoiseSample->getHfn(idhash, TMDBchan, TileID::LOWGAIN, TileRawChannelUnit::ADCcounts, ctx);
             sigma_Norm = 1.;
           }
           if (Rndm_dG[0] < sigma_Norm) sigmaSim = sigma_Hfn1;
@@ -785,10 +787,10 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
 
   ATH_MSG_VERBOSE ( "(A.05)   Send to event store all collected objects " );
 
-  SG::WriteHandle<TileDigitsContainer> muRcvDigitsCnt(m_muRcvDigitsContainerKey);
+  SG::WriteHandle<TileDigitsContainer> muRcvDigitsCnt(m_muRcvDigitsContainerKey, ctx);
   ATH_CHECK( muRcvDigitsCnt.record(std::move(muRcvDigitsContainer)) );
 
-  SG::WriteHandle<TileRawChannelContainer> muRcvRawChannelCnt(m_muRcvRawChannelContainerKey);
+  SG::WriteHandle<TileRawChannelContainer> muRcvRawChannelCnt(m_muRcvRawChannelContainerKey, ctx);
   ATH_CHECK( muRcvRawChannelCnt.record(std::move(muRcvRawChannelContainer)) );
 
   ATH_MSG_VERBOSE( "TilePulseForTileMuonReceiver execution completed" );

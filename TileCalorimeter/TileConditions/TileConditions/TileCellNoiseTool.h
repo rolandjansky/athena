@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_TILECELLNOISETOOL_H
@@ -32,7 +32,9 @@ class TileCellNoiseTool: public extends<AthAlgTool, ITileCellNoiseTool> {
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
 
-    virtual float getCellNoise(const Identifier& cell_id, CaloGain::CaloGain caloGain) const override;
+    virtual float getCellNoise(const Identifier& cell_id,
+                               CaloGain::CaloGain caloGain,
+                               const EventContext& ctx) const override;
 
   private:
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILERECUTILS_ITILETIMEBCOFFSETFILTER_H
@@ -61,7 +61,7 @@ class TileTimeBCOffsetFilter: public extends<AthAlgTool, ITileRawChannelTool> {
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
 
-    virtual StatusCode process (TileMutableRawChannelContainer& rchCont) const override;
+    virtual StatusCode process (TileMutableRawChannelContainer& rchCont, const EventContext& ctx) const override;
 
   private:
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileEvent/TileRawChannel.h"
@@ -143,12 +143,14 @@ StatusCode TileRawChannelBuilderFitFilterCool::initialize() {
   if (msgLvl(MSG::DEBUG)) {
     if (m_channelNoiseRMS) {
       msg(MSG::DEBUG) << " noise for all channels from Conditions DB ";
-      if (TileCablingService::getInstance()->getTestBeam())
-        msg(MSG::DEBUG) << " rmsLow(LBA01/0) = " << m_tileToolNoiseSample->getHfn(20, 0, TileID::LOWGAIN)
-                        << " rmsHi(LBA01/0) = " << m_tileToolNoiseSample->getHfn(20, 0, TileID::HIGHGAIN)
+      if (TileCablingService::getInstance()->getTestBeam()) {
+        const EventContext &ctx = Gaudi::Hive::currentContext();
+        msg(MSG::DEBUG) << " rmsLow(LBA01/0) = " << m_tileToolNoiseSample->getHfn(20, 0, TileID::LOWGAIN, TileRawChannelUnit::ADCcounts, ctx)
+                        << " rmsHi(LBA01/0) = " << m_tileToolNoiseSample->getHfn(20, 0, TileID::HIGHGAIN, TileRawChannelUnit::ADCcounts, ctx)
                         << endmsg;
-      else
+      } else {
         msg(MSG::DEBUG) << endmsg;
+      }
     } else {
       msg(MSG::DEBUG) << " common noise for all channels (OBSOLETE): " << endmsg;
       msg(MSG::DEBUG) << " rmsLow = " << m_noiseLow
@@ -164,6 +166,8 @@ void TileRawChannelBuilderFitFilterCool::handle(const Incident& inc) {
   // -------- get pulse shapes from COOL
 
   ATH_MSG_INFO( "TileRawChannelBuilderFitFilterCool handle" << inc.type() );
+
+  const EventContext &ctx = inc.context();
 
   if (inc.type() == "BeginRun") {
     // Do run initializations here...
@@ -191,7 +195,7 @@ void TileRawChannelBuilderFitFilterCool::handle(const Incident& inc) {
       phase = LAS_START_T_LO;
       for (int i = 0; i < MAX_LO_PULSE_LAS; i++) {
         //                drawerIdx, channel,gain, phase+25*(i-3), py, pdy
-        m_tileToolPulseShape->getPulseShapeYDY(drawerIdx, 0, 0, phase, y, dy);
+        m_tileToolPulseShape->getPulseShapeYDY(drawerIdx, 0, 0, phase, y, dy, ctx);
         m_shapes->m_tllas.push_back(phase);
         m_shapes->m_yllas.push_back(y);
         m_shapes->m_tdllas.push_back(phase);
@@ -215,7 +219,7 @@ void TileRawChannelBuilderFitFilterCool::handle(const Incident& inc) {
       phase = LAS_START_T_HI;
       for (int i = 0; i < MAX_HI_PULSE_LAS; i++) {
         //                drawerIdx, channel,gain, phase+25*(i-3), py, pdy
-        m_tileToolPulseShape->getPulseShapeYDY(drawerIdx, 0, 1, phase, y, dy);
+        m_tileToolPulseShape->getPulseShapeYDY(drawerIdx, 0, 1, phase, y, dy, ctx);
         m_shapes->m_thlas.push_back(phase);
         m_shapes->m_yhlas.push_back(y);
         m_shapes->m_tdhlas.push_back(phase);
@@ -240,7 +244,7 @@ void TileRawChannelBuilderFitFilterCool::handle(const Incident& inc) {
       phase = PHYS_START_T_LO;
       for (int i = 0; i < MAX_LO_PULSE_PHYS; i++) {
         //                drawerIdx, channel,gain, phase+25*(i-3), py, pdy
-        m_tileToolPulseShape->getPulseShapeYDY(drawerIdx, 0, 0, phase, y, dy);
+        m_tileToolPulseShape->getPulseShapeYDY(drawerIdx, 0, 0, phase, y, dy, ctx);
         m_shapes->m_tlphys.push_back(phase);
         m_shapes->m_ylphys.push_back(y);
         m_shapes->m_tdlphys.push_back(phase);
@@ -264,7 +268,7 @@ void TileRawChannelBuilderFitFilterCool::handle(const Incident& inc) {
       phase = PHYS_START_T_HI;
       for (int i = 0; i < MAX_HI_PULSE_PHYS; i++) {
         //                drawerIdx, channel,gain, phase+25*(i-3), py, pdy
-        m_tileToolPulseShape->getPulseShapeYDY(drawerIdx, 0, 1, phase, y, dy);
+        m_tileToolPulseShape->getPulseShapeYDY(drawerIdx, 0, 1, phase, y, dy, ctx);
         m_shapes->m_thphys.push_back(phase);
         m_shapes->m_yhphys.push_back(y);
         m_shapes->m_tdhphys.push_back(phase);
@@ -321,7 +325,7 @@ void TileRawChannelBuilderFitFilterCool::handle(const Incident& inc) {
       phase = CIS_START_T_LO;
       for (int i = 0; i < MAX_LO_PULSE_CIS; i++) {
         //                drawerIdx, channel,gain, phase+25*(i-3), py, pdy
-        m_tileToolPulseShape->getPulseShapeYDY(drawerIdx, 0, 0, phase, y, dy);
+        m_tileToolPulseShape->getPulseShapeYDY(drawerIdx, 0, 0, phase, y, dy, ctx);
         m_shapes->m_tlcis.push_back(phase);
         m_shapes->m_ylcis.push_back(y);
         m_shapes->m_tdlcis.push_back(phase);
@@ -346,7 +350,7 @@ void TileRawChannelBuilderFitFilterCool::handle(const Incident& inc) {
       phase = CIS_START_T_HI;
       for (int i = 0; i < MAX_HI_PULSE_CIS; i++) {
         //                drawerIdx, channel,gain, phase+25*(i-3), py, pdy
-        m_tileToolPulseShape->getPulseShapeYDY(drawerIdx, 0, 1, phase, y, dy);
+        m_tileToolPulseShape->getPulseShapeYDY(drawerIdx, 0, 1, phase, y, dy, ctx);
         m_shapes->m_thcis.push_back(phase);
         m_shapes->m_yhcis.push_back(y);
         m_shapes->m_tdhcis.push_back(phase);
@@ -372,7 +376,7 @@ void TileRawChannelBuilderFitFilterCool::handle(const Incident& inc) {
       phase = SCIS_START_T_LO;
       for (int i = 0; i < MAX_LO_PULSE_CIS; i++) {
         //                drawerIdx, channel,gain, phase+25*(i-3), py, pdy
-        m_tileToolPulse5p2Shape->getPulseShapeYDY(drawerIdx, 0, 0, phase, y, dy);
+        m_tileToolPulse5p2Shape->getPulseShapeYDY(drawerIdx, 0, 0, phase, y, dy, ctx);
         m_shapes->m_tslcis.push_back(phase);
         m_shapes->m_yslcis.push_back(y);
         m_shapes->m_tdslcis.push_back(phase);
@@ -397,7 +401,7 @@ void TileRawChannelBuilderFitFilterCool::handle(const Incident& inc) {
       phase = SCIS_START_T_HI;
       for (int i = 0; i < MAX_HI_PULSE_CIS; i++) {
         //                drawerIdx, channel,gain, phase+25*(i-3), py, pdy
-        m_tileToolPulse5p2Shape->getPulseShapeYDY(drawerIdx, 0, 1, phase, y, dy);
+        m_tileToolPulse5p2Shape->getPulseShapeYDY(drawerIdx, 0, 1, phase, y, dy, ctx);
         m_shapes->m_tshcis.push_back(phase);
         m_shapes->m_yshcis.push_back(y);
         m_shapes->m_tdshcis.push_back(phase);
@@ -423,7 +427,7 @@ void TileRawChannelBuilderFitFilterCool::handle(const Incident& inc) {
       phase = LEAK_START_T_LO;
       for (int i = 0; i < MAX_LO_PULSE_CIS; i++) {
         //                drawerIdx, channel,gain, phase+25*(i-3), py, pdy
-        m_tileToolLeak100Shape->getPulseShapeYDY(drawerIdx, 0, 0, phase, y, dy);
+        m_tileToolLeak100Shape->getPulseShapeYDY(drawerIdx, 0, 0, phase, y, dy, ctx);
         m_shapes->m_tleaklo.push_back(phase);
         m_shapes->m_leaklo.push_back(y);
         m_shapes->m_tdleaklo.push_back(phase);
@@ -448,7 +452,7 @@ void TileRawChannelBuilderFitFilterCool::handle(const Incident& inc) {
       phase = LEAK_START_T_HI;
       for (int i = 0; i < MAX_HI_PULSE_CIS; i++) {
         //                drawerIdx, channel,gain, phase+25*(i-3), py, pdy
-        m_tileToolLeak100Shape->getPulseShapeYDY(drawerIdx, 0, 1, phase, y, dy);
+        m_tileToolLeak100Shape->getPulseShapeYDY(drawerIdx, 0, 1, phase, y, dy, ctx);
         m_shapes->m_tleakhi.push_back(phase);
         m_shapes->m_leakhi.push_back(y);
         m_shapes->m_tdleakhi.push_back(phase);
@@ -474,7 +478,7 @@ void TileRawChannelBuilderFitFilterCool::handle(const Incident& inc) {
       phase = SLEAK_START_T_LO;
       for (int i = 0; i < MAX_LO_PULSE_CIS; i++) {
         //                drawerIdx, channel,gain, phase+25*(i-3), py, pdy
-        m_tileToolLeak5p2Shape->getPulseShapeYDY(drawerIdx, 0, 0, phase, y, dy);
+        m_tileToolLeak5p2Shape->getPulseShapeYDY(drawerIdx, 0, 0, phase, y, dy, ctx);
         m_shapes->m_tsleaklo.push_back(phase);
         m_shapes->m_sleaklo.push_back(y);
         m_shapes->m_tdsleaklo.push_back(phase);
@@ -499,7 +503,7 @@ void TileRawChannelBuilderFitFilterCool::handle(const Incident& inc) {
       phase = SLEAK_START_T_HI;
       for (int i = 0; i < MAX_HI_PULSE_CIS; i++) {
         //                drawerIdx, channel,gain, phase+25*(i-3), py, pdy
-        m_tileToolLeak5p2Shape->getPulseShapeYDY(drawerIdx, 0, 1, phase, y, dy);
+        m_tileToolLeak5p2Shape->getPulseShapeYDY(drawerIdx, 0, 1, phase, y, dy, ctx);
         m_shapes->m_tsleakhi.push_back(phase);
         m_shapes->m_sleakhi.push_back(y);
         m_shapes->m_tdsleakhi.push_back(phase);
@@ -529,6 +533,8 @@ StatusCode TileRawChannelBuilderFitFilterCool::finalize() {
 
 TileRawChannel* TileRawChannelBuilderFitFilterCool::rawChannel(const TileDigits* digits) {
 
+  const EventContext &ctx = Gaudi::Hive::currentContext();
+
   ++m_chCounter;
 
   const HWIdentifier adcId = digits->adc_HWID();
@@ -543,7 +549,7 @@ TileRawChannel* TileRawChannelBuilderFitFilterCool::rawChannel(const TileDigits*
   double pedestal = 0.0;
 
   // use fit filter
-  pulseFit(digits, amplitude, time, pedestal, chi2);
+  pulseFit(digits, amplitude, time, pedestal, chi2, ctx);
 
   unsigned int drawerIdx(0), channel(0), adc(0);
   m_tileIdTransforms->getIndices(adcId, drawerIdx, channel, adc);
@@ -597,7 +603,7 @@ TileRawChannel* TileRawChannelBuilderFitFilterCool::rawChannel(const TileDigits*
  * @param samples TileDigits
  */
 void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, double &amplitude
-    , double &time, double &pedestal, double &chi2) {
+    , double &time, double &pedestal, double &chi2, const EventContext &ctx) {
 
   amplitude = 0.0;
   time = 0.0;
@@ -619,7 +625,7 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
   if (igain == 0) {
     switch (m_channelNoiseRMS) {
       case 3:
-        rms = m_tileToolNoiseSample->getHfn(drawerIdx, channel, igain);
+        rms = m_tileToolNoiseSample->getHfn(drawerIdx, channel, igain, TileRawChannelUnit::ADCcounts, ctx);
         if (rms > 0.0) break;
         /* FALLTHROUGH */
       case 2:
@@ -636,7 +642,7 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
   } else if (igain == 1) {
     switch (m_channelNoiseRMS) {
       case 3:
-        rms = m_tileToolNoiseSample->getHfn(drawerIdx, channel, igain);
+        rms = m_tileToolNoiseSample->getHfn(drawerIdx, channel, igain, TileRawChannelUnit::ADCcounts, ctx);
         if (rms > 0.0) break;
         /* FALLTHROUGH */
       case 2:

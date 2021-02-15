@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -83,9 +83,9 @@ class TileDigitsMaker: public AthAlgorithm {
     StatusCode finalize();   //!< finalize method
 
   private:
-    StatusCode overlayBackgroundDigits( const TileDigitsCollection *bkgDigitCollection, const TileHitCollection* hitCollection, int igain[], int ros, int drawer, int drawerIdx, int over_gain[] );
+    StatusCode overlayBackgroundDigits(const TileDigitsCollection *bkgDigitCollection, const TileHitCollection* hitCollection, int igain[], int ros, int drawer, int drawerIdx, int over_gain[], const EventContext &ctx);
 
-    StatusCode FillDigitCollection(const TileHitCollection* hitCollection, std::vector<double *> &drawerBufferLo, std::vector<double *> &drawerBufferHi, int igain[], int overgain[], double ech_int[], std::vector<bool> &signal_in_channel) const;
+    StatusCode FillDigitCollection(const TileHitCollection* hitCollection, std::vector<double *> &drawerBufferLo, std::vector<double *> &drawerBufferHi, int igain[], int overgain[], double ech_int[], std::vector<bool> &signal_in_channel, const EventContext &ctx) const;
 
     SG::ReadHandleKey<TileHitContainer> m_hitContainerKey{this,"TileHitContainer","TileHitCnt",
                                                           "input Tile hit container key"};

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -187,7 +187,7 @@ class TileTBDump: public AthAlgorithm {
 
     void dump_data(const uint32_t* data, unsigned int size, unsigned int version, int verbosity);
 
-    void dump_digi(unsigned int subdet_id, const uint32_t* data, unsigned int size, unsigned int version, int verbosity, unsigned int robsourceid);
+    void dump_digi(unsigned int subdet_id, const uint32_t* data, unsigned int size, unsigned int version, int verbosity, unsigned int robsourceid, const EventContext& ctx);
 
     void dump_it(unsigned int nw, unsigned int* data);
 
