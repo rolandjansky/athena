@@ -47,7 +47,6 @@ def get_idtrig_view_verifier(name):
                                      ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.PixBSErrCacheKey ),
                                      ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTBSErrCacheKey ),
                                      ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTFlaggedCondCacheKey ),
-                                     ( 'IDCInDetBSErrContainer',        'StoreGateSvc+SCT_FlaggedCondData' ),
                                      ( 'IDCInDetBSErrContainer',        'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
                                      ( 'IDCInDetBSErrContainer',        'StoreGateSvc+SCT_ByteStreamErrs' ),
                                      ( 'IDCInDetBSErrContainer',        'StoreGateSvc+PixelByteStreamErrs' ),
