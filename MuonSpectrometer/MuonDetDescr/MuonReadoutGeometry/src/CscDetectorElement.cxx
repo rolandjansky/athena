@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -10,14 +10,19 @@
  ***************************************************************************/
 
 #include "MuonReadoutGeometry/CscDetectorElement.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
+
+#include "MuonReadoutGeometry/CscReadoutElement.h"
+#include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/Surface.h"
+
+class GeoVFullPhysVol;
 
 namespace MuonGM {
 
+class MuonDetectorManager;
+
 CscDetectorElement::CscDetectorElement(GeoVFullPhysVol* pv, MuonDetectorManager* mgr,Identifier id, IdentifierHash 
-idHash) : MuonDetectorElement(pv,mgr,id,idHash), m_cscre(NULL)
+idHash) : MuonDetectorElement(pv,mgr,id,idHash), m_cscre(nullptr)
 {
   m_nREinDetectorElement=1; 
 }

@@ -1,18 +1,32 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
+
+#include <GaudiKernel/IMessageSvc.h>
+#include "AthenaKernel/getMessageSvc.h"
+#include "EventPrimitives/AmgMatrixBasePlugin.h"
+#include "GaudiKernel/MsgStream.h"
 #include "MuonReadoutGeometry/GenericTGCCache.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/TgcReadoutParams.h"
 #include "TrkSurfaces/PlaneSurface.h"
-#include "TrkSurfaces/TrapezoidBounds.h"
 #include "TrkSurfaces/RotatedTrapezoidBounds.h"
-#include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
-#include "GaudiKernel/MsgStream.h"
-#include "AthenaKernel/getMessageSvc.h"
+#include "TrkSurfaces/TrapezoidBounds.h"
+
+#include <assert.h>
+#include <cmath>
+#include <stdlib.h>
+#include <memory>
+#include <ostream>
 #include <vector>
+
+class GeoVFullPhysVol;
+
+namespace Trk {
+  class SurfaceBounds;
+}
 
 namespace MuonGM {
 
@@ -20,7 +34,7 @@ TgcReadoutElement::TgcReadoutElement(GeoVFullPhysVol* pv, std::string stName,
                                      int zi, int fi, bool is_mirrored,
                                      MuonDetectorManager* mgr)
   : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr),
-    m_readout_type(-1), m_readoutParams(NULL)
+    m_readout_type(-1), m_readoutParams(nullptr)
 {
   setStationName(stName);
   // get the setting of the caching flag from the manager
@@ -306,12 +320,12 @@ float TgcReadoutElement::chamberWidth(float z) const
 
 float TgcReadoutElement::chamberMinPhi() const
 {
-    return -atan2((longWidth() - shortWidth())/2, length());
+    return -std::atan2((longWidth() - shortWidth())/2, length());
 }
 
 float TgcReadoutElement::chamberMaxPhi() const
 {
-    return atan2((longWidth() - shortWidth())/2, length());
+    return std::atan2((longWidth() - shortWidth())/2, length());
 }
 
 float TgcReadoutElement::wirePitch() const
@@ -517,8 +531,8 @@ float TgcReadoutElement::stripMinPhi(int gasGap, int strip) const
   // layout Q and following 
   double z = (getRsize()-2.*getPhysicalDistanceFromBase())/2.;
   Amg::Vector3D ctrChamber  = globalPosition();
-  double minPhiLargeBase = atan(stripMinX(gasGap,strip, z)/(ctrChamber.perp()+z));
-  double minPhiShortBase = atan(stripMinX(gasGap,strip,-z)/(ctrChamber.perp()-z));
+  double minPhiLargeBase = std::atan(stripMinX(gasGap,strip, z)/(ctrChamber.perp()+z));
+  double minPhiShortBase = std::atan(stripMinX(gasGap,strip,-z)/(ctrChamber.perp()-z));
   if (minPhiLargeBase < minPhiShortBase) {
     stripMinPhi = minPhiLargeBase;
   }
@@ -538,8 +552,8 @@ float TgcReadoutElement::stripMaxPhi(int gasGap, int strip) const
     // layout Q and following 
     double z = (getRsize()-2.*getPhysicalDistanceFromBase())/2.;
     Amg::Vector3D ctrChamber  = globalPosition();
-    double maxPhiLargeBase = atan(stripMaxX(gasGap,strip, z)/(ctrChamber.perp()+z));
-    double maxPhiShortBase = atan(stripMaxX(gasGap,strip,-z)/(ctrChamber.perp()-z));
+    double maxPhiLargeBase = std::atan(stripMaxX(gasGap,strip, z)/(ctrChamber.perp()+z));
+    double maxPhiShortBase = std::atan(stripMaxX(gasGap,strip,-z)/(ctrChamber.perp()-z));
     if (maxPhiLargeBase > maxPhiShortBase) {
       stripMaxPhi = maxPhiLargeBase;
     }

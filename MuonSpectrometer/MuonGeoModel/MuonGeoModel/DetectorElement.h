@@ -1,19 +1,17 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DetectorElement_H
 #define DetectorElement_H
 
 #include "CxxUtils/checker_macros.h"
-#include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/getMessageSvc.h"
+#include <GaudiKernel/IMessageSvc.h>
+#include "GeoModelInterfaces/StoredMaterialManager.h"
 
-#include <iostream>
-#include <mutex>
 #include <string>
-#include <vector>
 
 namespace MuonGM {
 

@@ -1,14 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DriftTube_H
 #define DriftTube_H
 
 #include "MuonGeoModel/DetectorElement.h"
-class GeoVPhysVol;
-namespace MuonGM {
 
+#include <string>
+
+class GeoVPhysVol;
+
+namespace MuonGM {
 
 class DriftTube: public DetectorElement {
 public:

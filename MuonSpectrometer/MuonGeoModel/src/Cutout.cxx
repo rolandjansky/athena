@@ -1,8 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModel/Cutout.h"
+
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoPara.h"
 #include "GeoModelKernel/GeoTrd.h"
@@ -11,6 +12,7 @@
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoDefinitions.h"
 #include "GaudiKernel/SystemOfUnits.h"
+#include "GeoModelKernel/GeoShape.h"
 
 namespace MuonGM {
 

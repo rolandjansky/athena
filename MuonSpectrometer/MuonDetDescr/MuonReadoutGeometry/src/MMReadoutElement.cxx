@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -8,20 +8,36 @@
 ***************************************************************************/
 
 #include "MuonReadoutGeometry/MMReadoutElement.h"
-#include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoTrd.h"
-#include "GeoModelKernel/GeoShapeSubtraction.h"
+
+#include <GaudiKernel/IMessageSvc.h>
+#include <GeoModelKernel/GeoLogVol.h>
+#include <GeoModelKernel/GeoPVConstLink.h>
+#include <GeoModelKernel/GeoShape.h>
+#include <GeoModelKernel/GeoVFullPhysVol.h>
+#include <GeoModelKernel/GeoVPhysVol.h>
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
-#include "TrkSurfaces/PlaneSurface.h"
-#include "TrkSurfaces/RectangleBounds.h"
-#include "TrkSurfaces/RotatedTrapezoidBounds.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "GeoModelKernel/GeoShapeSubtraction.h"
+#include "GeoModelKernel/GeoTrd.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
+#include "Identifier/IdentifierHash.h"
 #include "MuonAGDDDescription/MMDetectorDescription.h"
 #include "MuonAGDDDescription/MMDetectorHelper.h"
-#include "MuonAlignmentData/BLinePar.h"
-#include "GaudiKernel/MsgStream.h"
-#include "AthenaKernel/getMessageSvc.h"
+#include "MuonAlignmentData/ALinePar.h"
+#include "MuonAlignmentData/CorrContainer.h"
+#include "TrkSurfaces/PlaneSurface.h"
+#include "TrkSurfaces/RotatedTrapezoidBounds.h"
+
+#include <cmath>
+#include <stdlib.h>
+#include <map>
+#include <memory>
+#include <utility>
+
+namespace Trk {
+  class SurfaceBounds;
+}
 
 namespace MuonGM {
 
