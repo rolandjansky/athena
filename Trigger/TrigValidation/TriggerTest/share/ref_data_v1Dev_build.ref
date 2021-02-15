@@ -1558,6 +1558,14 @@ HLT_mu14_L1MU10:
   stepFeatures:
     0: 1
     1: 1
+HLT_mu14_ivarloose_tau25_mediumRNN_tracktwoMVA_03dRtt_L1MU10_TAU12IM_3J12:
+  eventCount: 0
+  stepFeatures:
+    0: 1
+HLT_mu14_ivarloose_tau35_mediumRNN_tracktwoMVA_03dRtt_L1MU10_TAU20IM:
+  eventCount: 0
+  stepFeatures:
+    0: 1
 HLT_mu14_tau25_mediumRNN_tracktwoMVA_xe50_cell_L1MU10_TAU12IM_XE35:
   eventCount: 0
   stepFeatures:
@@ -1570,6 +1578,10 @@ HLT_mu20_2mu4noL1_L1MU20:
   stepFeatures:
     0: 1
     1: 1
+HLT_mu20_ivarloose_tau20_mediumRNN_tracktwoMVA_03dRtt_L1MU20:
+  eventCount: 0
+  stepFeatures:
+    0: 1
 HLT_mu20_ivarmedium_mu4noL1_10invm70_L1MU20:
   eventCount: 0
   stepCounts:
@@ -1780,6 +1792,14 @@ HLT_mu6_mu6noL1_L1MU6:
     0: 1
     1: 1
 HLT_mu6_xe30_mht_L1XE10:
+  eventCount: 0
+  stepCounts:
+    0: 1
+    1: 1
+  stepFeatures:
+    0: 1
+    1: 1
+HLT_mu80_L1MU20:
   eventCount: 0
   stepCounts:
     0: 1

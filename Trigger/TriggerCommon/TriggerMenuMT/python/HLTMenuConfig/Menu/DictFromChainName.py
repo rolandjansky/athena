@@ -479,6 +479,13 @@ def analyseChainName(chainName, L1thresholds, L1item):
     return genchainDict
 
 
+def flattenChainGroups(A):
+    rt = []
+    for i in A:
+        if isinstance(i,list): rt.extend(flattenChainGroups(i))
+        else: rt.append(i)
+    return rt
+
 def dictFromChainName(chainInfo):
     """
     Transforms ChainProp into the ChainDict
@@ -510,7 +517,7 @@ def dictFromChainName(chainInfo):
         chainName       = chainInfo.name
         l1Thresholds    = chainInfo.l1SeedThresholds
         stream          = chainInfo.stream
-        groups          = chainInfo.groups
+        groups          = flattenChainGroups(chainInfo.groups)
         mergingStrategy = chainInfo.mergingStrategy
         mergingOffset   = chainInfo.mergingOffset
         mergingOrder    = chainInfo.mergingOrder
