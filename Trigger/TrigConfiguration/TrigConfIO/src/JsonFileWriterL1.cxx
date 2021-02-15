@@ -1,8 +1,6 @@
-/*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-*/
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-#include "TrigConfIO/JsonFileWriter.h"
+#include "TrigConfIO/JsonFileWriterL1.h"
 
 #include <iomanip>
 #include <fstream>
@@ -13,13 +11,13 @@ using json = nlohmann::json;
 
 using namespace std;
 
-TrigConf::JsonFileWriter::JsonFileWriter() : 
-   TrigConfMessaging( "JsonFileWriter")
+TrigConf::JsonFileWriterL1::JsonFileWriterL1() : 
+   TrigConfMessaging( "JsonFileWriterL1")
 {}
 
 
 bool
-TrigConf::JsonFileWriter::writeJsonFile(const std::string & filename, const L1Menu & l1menu) const
+TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1Menu & l1menu) const
 {
 
    json items({});
@@ -36,7 +34,7 @@ TrigConf::JsonFileWriter::writeJsonFile(const std::string & filename, const L1Me
          jItem["legacy"] = *legacy;
       items[item.name()] = jItem;
    };
- 
+
    json thresholds({});
    for(const std::string & thrType : l1menu.thresholdTypes()) {
       json jThresholsByType({});
@@ -93,6 +91,7 @@ TrigConf::JsonFileWriter::writeJsonFile(const std::string & filename, const L1Me
             jThr["thrValues"] = json::array_t({});
             for(auto & rv : EMThr.thrValues()) {
                json jRV({});
+               jRV["value"] = static_cast<unsigned int>(rv.value());
                jRV["etamin"] = rv.etaMin();
                jRV["etamax"] = rv.etaMax();
                jRV["phimin"] = 0; // never used, so not read 
@@ -104,7 +103,6 @@ TrigConf::JsonFileWriter::writeJsonFile(const std::string & filename, const L1Me
                }
                jRV["isobits"] = isobits;
                jRV["priority"] = rv.priority();
-               jRV["value"] = (unsigned int)rv.value();
                jThr["thrValues"] += jRV;
             }
          } catch(std::bad_cast&) {};
@@ -114,13 +112,13 @@ TrigConf::JsonFileWriter::writeJsonFile(const std::string & filename, const L1Me
             jThr["thrValues"] = json::array_t({});
             for(auto & rv : JThr.thrValues()) {
                json jRV({});
+               jRV["value"] = static_cast<unsigned int>(rv.value());
                jRV["etamin"] = rv.etaMin();
                jRV["etamax"] = rv.etaMax();
                jRV["phimin"] = 0; // never used, so not read 
                jRV["phimax"] = 64; // never used, so not read
-               jRV["priority"] = rv.priority();
                jRV["window"] = JThr.window(0);
-               jRV["value"] = (unsigned int)rv.value();
+               jRV["priority"] = rv.priority();
                jThr["thrValues"] += jRV;
             }
          } catch(std::bad_cast&) {};
@@ -130,10 +128,10 @@ TrigConf::JsonFileWriter::writeJsonFile(const std::string & filename, const L1Me
             //jThr["thrValues"] = json::array_t({});
             for(auto & rv : teThr.thrValues()) {
                json jRV({});
+               jRV["value"] = static_cast<unsigned int>(rv.value());
                jRV["etamin"] = rv.etaMin();
                jRV["etamax"] = rv.etaMax();
                jRV["priority"] = rv.priority();
-               jRV["value"] = (unsigned int)rv.value();
                jThr["thrValues"] += jRV;
             }
          } catch(std::bad_cast&) {};
@@ -151,13 +149,13 @@ TrigConf::JsonFileWriter::writeJsonFile(const std::string & filename, const L1Me
             jThr["reta"] = TrigConf::Selection::wpToString(eEMThr.reta());
             jThr["rhad"] = TrigConf::Selection::wpToString(eEMThr.rhad());
             jThr["wstot"] = TrigConf::Selection::wpToString(eEMThr.wstot());
-            jThr["thrValues"] = json::array_t({});
+            jThr["thrValues"] = json::value_t::array;
             for(auto & rv : eEMThr.thrValues()) {
                json jRV({});
+               jRV["value"] = static_cast<unsigned int>(rv.value());
                jRV["etamin"] = rv.etaMin();
                jRV["etamax"] = rv.etaMax();
                jRV["priority"] = rv.priority();
-               jRV["value"] = (unsigned int)rv.value();
                jThr["thrValues"] += jRV;
             }
          } catch(std::bad_cast&) {};
@@ -167,10 +165,10 @@ TrigConf::JsonFileWriter::writeJsonFile(const std::string & filename, const L1Me
             jThr["ranges"] = json::array_t({});
             for(auto & rv : jJThr.thrValues()) {
                json jRV({});
+               jThr["value"] = int(jJThr.thrValue(rv.etaMin()));
                jRV["etamin"] = rv.etaMin();
                jRV["etamax"] = rv.etaMax();
                jThr["ranges"] += jRV;
-               jThr["value"] = int(jJThr.thrValue(rv.etaMin()));
             }
          } catch(std::bad_cast&) {};
 
@@ -208,6 +206,7 @@ TrigConf::JsonFileWriter::writeJsonFile(const std::string & filename, const L1Me
 
       if(thrType == "MU") {
          auto & muinfo = l1menu.thrExtraInfo().MU();
+         jThrType["exclusionLists"] = json::value_t::object;
          for(auto & listName : muinfo.exclusionListNames()) {
             jThrType["exclusionLists"][listName] = json::array_t({});
             for(auto & x : muinfo.exclusionList(listName)) {
@@ -331,7 +330,7 @@ TrigConf::JsonFileWriter::writeJsonFile(const std::string & filename, const L1Me
    };
 
 
-   json boards{};
+   json boards;
    for( auto & bname : l1menu.boardNames() ) {
       auto & bdef = l1menu.board(bname);
       boards[bname] = json{ {"connectors", bdef.connectorNames()}, {"type", bdef.type()} };
@@ -340,7 +339,7 @@ TrigConf::JsonFileWriter::writeJsonFile(const std::string & filename, const L1Me
    };
 
 
-   json connectors{};
+   json connectors;
    for( auto & cname : l1menu.connectorNames() ) {
       auto jConn = json{};
       auto & cdef = l1menu.connector(cname);
@@ -378,7 +377,7 @@ TrigConf::JsonFileWriter::writeJsonFile(const std::string & filename, const L1Me
       connectors[cname] = jConn;
    }
 
-   json ctp({});
+   json ctp;
    {
       for(size_t slot=7; slot<=9; ++slot) {
          std::string sName = "slot" + std::to_string(slot);
@@ -404,15 +403,15 @@ TrigConf::JsonFileWriter::writeJsonFile(const std::string & filename, const L1Me
       ctp["monitoring"] = json({{"ctpmon",ctpmon}});
    }
 
-   json jtopo({});
+   json jtopo;
    {
       std::map<L1TopoAlgorithm::AlgorithmType,std::string> algTypeNames = {
          {L1TopoAlgorithm::AlgorithmType::SORTING, "sortingAlgorithms"},
          {L1TopoAlgorithm::AlgorithmType::DECISION, "decisionAlgorithms"},
          {L1TopoAlgorithm::AlgorithmType::MULTIPLICITY, "multiplicityAlgorithms"}
       };
-
-      for( const std::string topoCat : {"TOPO", "MUTOPO", "MULTTOPO", "R2TOPO"} ) {
+      auto topoCategories = l1menu.isRun2() ? std::vector<std::string> {"R2TOPO"} : std::vector<std::string> {"TOPO", "MUTOPO", "MULTTOPO", "R2TOPO"};
+      for( const std::string topoCat : topoCategories ) {
          for(auto & algName : l1menu.topoAlgorithmNames(topoCat)) {
             json jalg = json::object_t({});
             auto & alg = l1menu.algorithm(algName,topoCat);
@@ -474,8 +473,11 @@ TrigConf::JsonFileWriter::writeJsonFile(const std::string & filename, const L1Me
       }
    }
 
-   json j({});
+   json j;
    j["filetype"] = "l1menu";
+   if(l1menu.isRun2()) {
+      j["run"] = 2;
+   }
    j["name"] = l1menu.name();
    j["items"] = items;
    j["thresholds"] = thresholds;
@@ -494,19 +496,19 @@ TrigConf::JsonFileWriter::writeJsonFile(const std::string & filename, const L1Me
 
 
 bool 
-TrigConf::JsonFileWriter::writeJsonFile(const std::string & filename, const TrigConf::L1BunchGroupSet & l1bgs) const {
+TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const TrigConf::L1BunchGroupSet & l1bgs) const {
 
-   json j({});
+   json j;
    j["filetype"] = "bunchgroupset";
    j["name"]  = l1bgs.name();
 
-   json groups({});
+   json groups;
    for (size_t i = 0 ; i< l1bgs.size(); ++i) {
       auto group = l1bgs.getBunchGroup(i);
       json jgroup({});
       jgroup["name"] = group->name();
       jgroup["id"] = group->id();
-      jgroup["info"] = std::to_string(group->size()) + "bunchs, " + std::to_string(group->nGroups()) + " groups";
+      jgroup["info"] = std::to_string(group->size()) + " bunches, " + std::to_string(group->nGroups()) + " groups";
       json trains = json::array();
       for (auto [first, len]: group->trains()) {
          json train({});
@@ -524,13 +526,13 @@ TrigConf::JsonFileWriter::writeJsonFile(const std::string & filename, const Trig
    return true;
 }
 
-bool TrigConf::JsonFileWriter::writeJsonFile(const std::string & filename, const TrigConf::L1PrescalesSet & l1ps) const {
-   json j({});
+bool TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const TrigConf::L1PrescalesSet & l1ps) const {
+   json j;
    j["filetype"] = "l1prescale";
    j["name"]  = l1ps.name();
-   json cuts({});
+   json cuts;
    for ( auto [itemName, ps]: l1ps.prescales()){
-      json cut({});
+      json cut;
       cut["cut"] = ps.cut;
       cut["enabled"] = ps.enabled;
       cut["info"] = "prescale: " + std::to_string(ps.prescale);

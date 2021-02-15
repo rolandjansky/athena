@@ -26,9 +26,10 @@ TrigConf::L1CTP::load()
    for(size_t i=0; i<3; ++i) {
       m_electrical[i] = electrical.get_optional<std::string>("connector" + std::to_string(i)).get_value_or("");
    }
-   auto optical = inputs.get_child("optical");
-   for(size_t i=0; i<12; ++i) {
-      m_optical[i] = optical.get_optional<std::string>("connector" + std::to_string(i)).get_value_or("");
+   if(auto optical = inputs.get_child_optional("optical")) {
+      for(size_t i=0; i<12; ++i) {
+         m_optical[i] = optical->get_optional<std::string>("connector" + std::to_string(i)).get_value_or("");
+      }
    }
    for( auto & mon : data().get_child("monitoring.ctpmon") ) {
       std::string monName = mon.first;

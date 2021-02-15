@@ -132,7 +132,6 @@ namespace TrigConf {
       /** Board names */
       std::vector<std::string> boardNames() const;
 
-
       /** Access to connector by name */
       const TrigConf::L1Connector & connector(const std::string & connectorName) const;
 
@@ -148,6 +147,8 @@ namespace TrigConf {
       /** print overview of L1 Menu */
       void printMenu(bool full = false) const;
 
+      bool isRun2() const { return m_run<3; }
+
    private:
 
       /** Update the internal data after modification of the data object */
@@ -155,6 +156,8 @@ namespace TrigConf {
 
       /** the supermasterkey */
       unsigned int m_smk {0};
+
+      unsigned int m_run{3}; // this variable is set to 2 for L1 menus from Run 2 which have a much reduced content 
 
       /** connector by name */ 
       std::map<std::string, TrigConf::L1Connector> m_connectors{};
