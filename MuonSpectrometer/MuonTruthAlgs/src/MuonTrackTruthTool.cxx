@@ -159,7 +159,7 @@ namespace Muon {
       std::unique_ptr<TruthTrajectory> truthTrajectory;
       // associate the muon truth with the gen event info
       if( genEvent ){
-	HepMC::GenParticlePtr genParticle = HepMC::barcode_to_particle(genEvent, (*tr_it).GetBarCode() );
+	HepMC::ConstGenParticlePtr genParticle = HepMC::barcode_to_particle(genEvent, (*tr_it).GetBarCode() );
 	if( genParticle ){
 	  truthTrajectory = std::make_unique<TruthTrajectory>();
 	  m_truthTrajectoryBuilder->buildTruthTrajectory(truthTrajectory.get(),genParticle);
