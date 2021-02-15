@@ -294,9 +294,9 @@ protected: //!< data members
 
   SharedObject<const CylinderBounds> m_bounds; //!< bounds (shared)
   //!< The global reference point (== a point on the  surface)
-  CxxUtils::CachedUniquePtrT<Amg::Vector3D> m_referencePoint;
+  CxxUtils::CachedUniquePtr<Amg::Vector3D> m_referencePoint;
   //!< The rotational symmetry axis
-  CxxUtils::CachedUniquePtrT<Amg::Vector3D> m_rotSymmetryAxis;
+  CxxUtils::CachedUniquePtr<Amg::Vector3D> m_rotSymmetryAxis;
 };
 
 } // end of namespace

@@ -43,7 +43,7 @@ Trk::ConeSurface::ConeSurface(const ConeSurface& csf, const Amg::Transform3D& tr
 // constructor by opening angle and whether its symmetric or a single cone
 Trk::ConeSurface::ConeSurface(Amg::Transform3D* htrans, double alpha, bool symmetric)
   : Trk::Surface(htrans)
-  , m_bounds(new Trk::ConeBounds(alpha, symmetric))
+  , m_bounds(std::make_shared<Trk::ConeBounds>(alpha, symmetric))
   , m_referencePoint(nullptr)
   , m_rotSymmetryAxis(nullptr)
 {}
@@ -51,7 +51,7 @@ Trk::ConeSurface::ConeSurface(Amg::Transform3D* htrans, double alpha, bool symme
 // constructor by opening angle and its z values
 Trk::ConeSurface::ConeSurface(Amg::Transform3D* htrans, double alpha, double zmin, double zmax, double halfPhi)
   : Trk::Surface(htrans)
-  , m_bounds(new Trk::ConeBounds(alpha, zmin, zmax, halfPhi))
+  , m_bounds(std::make_shared<Trk::ConeBounds>(alpha, zmin, zmax, halfPhi))
   , m_referencePoint(nullptr)
   , m_rotSymmetryAxis(nullptr)
 {}
