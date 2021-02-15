@@ -217,7 +217,7 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
 
   ATH_MSG_VERBOSE("Applying 3D sensor simulation.");
   double sensorThickness = Module.design().thickness();
-  const InDet::SiliconProperties& siProperties = m_siPropertiesTool->getSiProperties(Module.identifyHash());
+  const InDet::SiliconProperties& siProperties = m_siPropertiesTool->getSiProperties(Module.identifyHash(), ctx);
   double eleholePairEnergy = siProperties.electronHolePairsPerEnergy();
 
   // Charge Collection Probability Map bin size

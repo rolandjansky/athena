@@ -109,17 +109,20 @@ class SCT_InducedChargeModel {
                  const double x0, const double y0,
                  double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2,
                  const IdentifierHash hashId,
-                 const ToolHandle<ISiPropertiesTool> siPropertiesTool) const;
+                 const ToolHandle<ISiPropertiesTool> siPropertiesTool,
+                 const EventContext& ctx) const;
   void holeTransport(const SCT_InducedChargeModelData& data,
                      const double x0, const double y0,
                      double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2,
                      const IdentifierHash hashId,
-                     const ToolHandle<ISiPropertiesTool> siPropertiesTool) const;
+                     const ToolHandle<ISiPropertiesTool> siPropertiesTool,
+                     const EventContext& ctx) const;
   void electronTransport(const SCT_InducedChargeModelData& data,
                          const double x0, const double y0,
                          double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2,
                          const IdentifierHash hashId,
-                         const ToolHandle<ISiPropertiesTool> siPropertiesTool) const;
+                         const ToolHandle<ISiPropertiesTool> siPropertiesTool,
+                         const EventContext& ctx) const;
 
  private:
  
@@ -129,7 +132,8 @@ class SCT_InducedChargeModel {
                 const bool isElectron,
                 const double x, const double y, double& vx, double& vy, double& D,
                 const IdentifierHash hashId,
-                const ToolHandle<ISiPropertiesTool> siPropertiesTool) const;
+                const ToolHandle<ISiPropertiesTool> siPropertiesTool,
+                const EventContext& ctx) const;
   double induced(const SCT_InducedChargeModelData& data,
                  const int istrip, const double x, const double y) const;
   void getEField(const SCT_InducedChargeModelData& data,

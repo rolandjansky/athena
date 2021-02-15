@@ -106,7 +106,8 @@ void SCT_InducedChargeModel::transport(const SCT_InducedChargeModelData& data,
                                        const double x0, const double y0,
                                        double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2,
                                        const IdentifierHash hashId,
-                                       const ToolHandle<ISiPropertiesTool> siPropertiesTool) const {
+                                       const ToolHandle<ISiPropertiesTool> siPropertiesTool,
+                                       const EventContext& ctx) const {
   // transport electrons and holes in the bulk
   // T. Kondo, 2010.9.9, 2017.7.20
   // External parameters to be specified
@@ -128,7 +129,7 @@ void SCT_InducedChargeModel::transport(const SCT_InducedChargeModelData& data,
   }
   while (t_current < m_transportTimeMax) {
     if (!isInBulk) break;
-    if (!getVxVyD(data, isElectron, x, y, vx, vy, D, hashId, siPropertiesTool)) break;
+    if (!getVxVyD(data, isElectron, x, y, vx, vy, D, hashId, siPropertiesTool, ctx)) break;
     double delta_y = vy * m_transportTimeStep / Gaudi::Units::second; // ns -> s
     y += delta_y;
     double dt = m_transportTimeStep; // [nsec]
@@ -191,7 +192,8 @@ void SCT_InducedChargeModel::holeTransport(const SCT_InducedChargeModelData& dat
                                            const double x0, const double y0,
                                            double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2,
                                            const IdentifierHash hashId,
-                                           const ToolHandle<ISiPropertiesTool> siPropertiesTool) const {
+                                           const ToolHandle<ISiPropertiesTool> siPropertiesTool,
+                                           const EventContext& ctx) const {
   // Q_m2[100],Q_m1[100],Q_00[100],Q_p1[100],Q_p2[100] NTransportSteps=100
   const bool isElectron = false;
   transport(data,
@@ -199,7 +201,8 @@ void SCT_InducedChargeModel::holeTransport(const SCT_InducedChargeModelData& dat
             x0, y0,
             Q_m2, Q_m1, Q_00, Q_p1, Q_p2,
             hashId,
-            siPropertiesTool);
+            siPropertiesTool,
+            ctx);
 }
 
 //---------------------------------------------------------------------
@@ -209,7 +212,8 @@ void SCT_InducedChargeModel::electronTransport(const SCT_InducedChargeModelData&
                                                const double x0, const double y0,
                                                double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2,
                                                const IdentifierHash hashId,
-                                               const ToolHandle<ISiPropertiesTool> siPropertiesTool) const {
+                                               const ToolHandle<ISiPropertiesTool> siPropertiesTool,
+                                               const EventContext& ctx) const {
   // Q_m2[100],Q_m1[100],Q_00[100],Q_p1[100],Q_p2[100] NTransportSteps=100
   const bool isElectron = true;
   transport(data,
@@ -217,7 +221,8 @@ void SCT_InducedChargeModel::electronTransport(const SCT_InducedChargeModelData&
             x0, y0,
             Q_m2, Q_m1, Q_00, Q_p1, Q_p2,
             hashId,
-            siPropertiesTool);
+            siPropertiesTool,
+            ctx);
 }
 
 //---------------------------------------------------------------
@@ -227,7 +232,8 @@ bool SCT_InducedChargeModel::getVxVyD(const SCT_InducedChargeModelData& data,
                                       const bool isElectron,
                                       const double x, const double y, double& vx, double& vy, double& D,
                                       const IdentifierHash hashId,
-                                      const ToolHandle<ISiPropertiesTool> siPropertiesTool) const {
+                                      const ToolHandle<ISiPropertiesTool> siPropertiesTool,
+                                      const EventContext& ctx) const {
   double Ex, Ey;
   getEField(data, x, y, Ex, Ey); // [V/cm]
   if (Ey > 0.) {
@@ -238,13 +244,13 @@ bool SCT_InducedChargeModel::getVxVyD(const SCT_InducedChargeModelData& data,
     }
     const double E = std::sqrt(Ex*Ex+Ey*Ey);
     const double mu = (isElectron ?
-                       siPropertiesTool->getSiProperties(hashId).calcElectronDriftMobility(data.m_T, E*CLHEP::volt/CLHEP::cm) :
-                       siPropertiesTool->getSiProperties(hashId).calcHoleDriftMobility    (data.m_T, E*CLHEP::volt/CLHEP::cm))
+                       siPropertiesTool->getSiProperties(hashId, ctx).calcElectronDriftMobility(data.m_T, E*CLHEP::volt/CLHEP::cm) :
+                       siPropertiesTool->getSiProperties(hashId, ctx).calcHoleDriftMobility    (data.m_T, E*CLHEP::volt/CLHEP::cm))
       * (CLHEP::volt/CLHEP::cm)/(CLHEP::cm/CLHEP::s);
     const double v = mu * E;
     const double r = (isElectron ?
-                      siPropertiesTool->getSiProperties(hashId).calcElectronHallFactor(data.m_T) :
-                      siPropertiesTool->getSiProperties(hashId).calcHoleHallFactor(data.m_T));
+                      siPropertiesTool->getSiProperties(hashId, ctx).calcElectronHallFactor(data.m_T) :
+                      siPropertiesTool->getSiProperties(hashId, ctx).calcHoleHallFactor(data.m_T));
 
     const double tanLA = data.m_element->design().readoutSide()
       * r * mu * (isElectron ? -1. : +1.) // because e has negative charge.
