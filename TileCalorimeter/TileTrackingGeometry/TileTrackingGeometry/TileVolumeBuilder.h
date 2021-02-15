@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -12,11 +12,15 @@
 // Gaudi
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "CxxUtils/checker_macros.h"
 // Trk
 #include "TrkDetDescrInterfaces/ITrackingVolumeBuilder.h"
 #include "CaloTrackingGeometry/ICaloSurfaceBuilder.h"
+#include "TrkGeometry/Material.h"
 // STL
 #include <vector>
+#include <memory>
+#include <mutex>
 
 class TileDetDescrManager;
 class CaloDetDescrManager;
@@ -70,9 +74,10 @@ namespace Tile {
       void printInfo(GeoPVConstLink pv) const;
       void printChildren(GeoPVConstLink pv, int igen, Amg::Transform3D trIn) const;
 
+      void throwIntoGarbage (std::unique_ptr<Trk::Material> mat) const;
+
       const TileDetDescrManager*                        m_tileMgr;                        //!< Calo DetDescrMgr
       std::string                                       m_tileMgrLocation;                //!< Location of the CaloDetDescrMgr
-      const CaloDetDescrManager*                        m_calo_dd;
        
       ToolHandle<Trk::ITrackingVolumeHelper>            m_trackingVolumeHelper;           //!< Helper Tool to create TrackingVolumes
       ToolHandle<Trk::ITrackingVolumeCreator>           m_trackingVolumeCreator;          //!< Second helper for volume creation
@@ -85,6 +90,8 @@ namespace Tile {
       
       bool                             m_forceSymmetry;              //!< forces volume symmetry between negative/positive part
 
+      mutable std::mutex m_garbageMutex;
+      mutable std::vector<std::unique_ptr<Trk::Material> > m_garbage ATLAS_THREAD_SAFE;
   };
   
 } // end of namespace

@@ -1,0 +1,28 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+namespace Trk {
+
+inline float
+IPixelToTPIDTool::dEdx(const Trk::Track& track,
+                       int& nUsedHits,
+                       int& nUsedIBLOverflowHits) const
+{
+
+  return dEdx(
+    Gaudi::Hive::currentContext(), track, nUsedHits, nUsedIBLOverflowHits);
+}
+
+inline std::vector<float>
+IPixelToTPIDTool::getLikelihoods(double dedx, double p, int nGoodPixels) const
+{
+
+  return getLikelihoods(Gaudi::Hive::currentContext(), dedx, p, nGoodPixels);
+}
+
+inline float
+IPixelToTPIDTool::getMass(double dedx, double p, int nGoodPixels) const
+{
+  return getMass(Gaudi::Hive::currentContext(), dedx, p, nGoodPixels);
+}
+}

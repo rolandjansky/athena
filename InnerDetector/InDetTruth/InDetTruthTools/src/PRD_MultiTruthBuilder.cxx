@@ -9,7 +9,7 @@
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SiReadoutCellId.h"
+#include "ReadoutGeometryBase/SiReadoutCellId.h"
 //#include <stdexcept>
 //#include <ext/functional>
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -16,7 +16,7 @@
 #ifndef LARAUTOCORR2NTUPLE_H
 #define LARAUTOCORR2NTUPLE_H
 #include "LArCalibTools/LArCond2NtupleBase.h"
-
+#include "LArElecCalib/ILArAutoCorr.h"
 
 class LArAutoCorr2Ntuple : public LArCond2NtupleBase
 {
@@ -26,12 +26,13 @@ class LArAutoCorr2Ntuple : public LArCond2NtupleBase
 
   //standard algorithm methods
   virtual StatusCode stop();
+  virtual StatusCode initialize();
   StatusCode finalize(){return StatusCode::SUCCESS;}
  
  private:
 
   // Key of the AutocorrComplete object
-  std::string m_objKey;
+  SG::ReadCondHandleKey<ILArAutoCorr> m_objKey{this,"ContainerKey",""};
 
   // Number of samples
   unsigned  m_nsamples;

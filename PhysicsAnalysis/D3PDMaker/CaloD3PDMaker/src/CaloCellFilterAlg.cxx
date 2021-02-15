@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -10,14 +10,12 @@
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
+#include "StoreGate/ReadCondHandle.h"
 
 // EDM include(s):
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloIdentifier/CaloID.h"
 #include "AthContainers/ConstDataVector.h"
-
-// Tool(s):
-#include "CaloInterface/ICaloNoiseTool.h"
 
 // Local include(s):
 #include "CaloCellFilterAlg.h"
@@ -33,7 +31,6 @@ CaloCellFilterAlg::CaloCellFilterAlg( const std::string& name,
      m_fcalid( 0 ),
      m_hecid( 0 ),
      m_tileid( 0 ),
-     m_noise_tool( "" ),
      m_caloSelection( false ),
      m_caloSamplingSelection( false ) {
 
@@ -51,8 +48,6 @@ CaloCellFilterAlg::CaloCellFilterAlg( const std::string& name,
    declareProperty( "CellSigmaCut", m_sigmaCut );
    // list of calo samplings to treat
    declareProperty( "CaloSamplings", m_caloSamplings );
-
-   declareProperty( "NoiseTool", m_noise_tool );
 }
 
 StatusCode CaloCellFilterAlg::initialize() {
@@ -78,9 +73,7 @@ StatusCode CaloCellFilterAlg::initialize() {
    CHECK( detStore()->retrieve( m_hecid ) );
    CHECK( detStore()->retrieve( m_tileid ) );
 
-   if( ! m_noise_tool.empty() ) {
-      CHECK( m_noise_tool.retrieve() );
-   }
+   ATH_CHECK( m_caloNoiseKey.initialize(SG::AllowEmpty) );
 
    const unsigned int nSubCalo = static_cast< int >( CaloCell_ID::NSUBCALO );
 
@@ -161,7 +154,7 @@ StatusCode CaloCellFilterAlg::execute() {
    int index = 0;
 
    bool useNoiseCut = false;
-   if( ! m_noise_tool.empty() ) useNoiseCut = true;
+   if( ! m_caloNoiseKey.empty() ) useNoiseCut = true;
 
    for( ; f_cell != l_cell; ++f_cell ) {
 
@@ -204,7 +197,8 @@ StatusCode CaloCellFilterAlg::execute() {
             }
 
             if( useNoiseCut ) {
-               float sigma = m_noise_tool->getNoise( cell );
+               SG::ReadCondHandle<CaloNoise> caloNoise{m_caloNoiseKey};
+               float sigma = caloNoise->getNoise( cell->ID(), cell->gain() );
                if( std::abs( e ) < sigma * m_sigmaCut ) continue;
             }
 

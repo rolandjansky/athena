@@ -390,7 +390,7 @@ void egammaMVACalib::setupBDT(const TString& fileName)
 
   TString filePath = PathResolverFindCalibFile(fileName.Data());
   std::unique_ptr<TFile> f(TFile::Open(filePath));
-  CHECK_SETUPBDT( f.get() && f->IsZombie() );
+  CHECK_SETUPBDT( f.get() && !f->IsZombie() );
 
   // Load hPoly
   auto hPoly = loadFromFile<TH2Poly>(f.get(), "hPoly");

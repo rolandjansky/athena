@@ -124,6 +124,7 @@
 + DetectorDescription/IdDictDetDescrCnv
 + DetectorDescription/IdDictParser
 + DetectorDescription/Identifier
++ DetectorDescription/ReadoutGeometryBase
 + Event/EventAthenaPool
 + Event/EventBookkeeperAthenaPool
 + Event/EventBookkeeperMetaData

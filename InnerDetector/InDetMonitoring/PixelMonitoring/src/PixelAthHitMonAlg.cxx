@@ -3,20 +3,19 @@
 */
 
 #include "PixelAthHitMonAlg.h"
-#include "PixelCabling/IPixelCablingSvc.h"
 
 PixelAthHitMonAlg::PixelAthHitMonAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthMonitorAlgorithm(name, pSvcLocator),
-  m_pixelCableSvc("PixelCablingSvc", name),
+  m_pixelCablingSvc("PixelCablingSvc", name),
   m_pixelid(nullptr)
 {
   //jo flags
   declareProperty("doOnline", m_doOnline = false);
-  declareProperty("doModules", m_doModules = false);
   declareProperty("doLumiBlock", m_doLumiBlock = false);
   declareProperty("doLowOccupancy", m_doLowOccupancy = false);
   declareProperty("doHighOccupancy", m_doHighOccupancy = false);
   declareProperty("doHeavyIonMon", m_doHeavyIonMon = false);
+  declareProperty("doFEPlots", m_doFEPlots = false);
 }
 
 
@@ -27,7 +26,7 @@ StatusCode PixelAthHitMonAlg::initialize() {
 
   ATH_CHECK( detStore()->retrieve(m_pixelid, "PixelID") );
   ATH_CHECK( m_pixelCondSummaryTool.retrieve() );
-  ATH_CHECK( m_pixelCableSvc.retrieve() );
+  ATH_CHECK( m_pixelCablingSvc.retrieve() );
   ATH_CHECK( m_pixelRDOName.initialize() );
 
   return AthMonitorAlgorithm::initialize();
@@ -46,6 +45,8 @@ StatusCode PixelAthHitMonAlg::fillHistograms( const EventContext& ctx ) const {
   auto rdocontainer = SG::makeHandle(m_pixelRDOName, ctx);
   if ( !(rdocontainer.isValid()) ) {
     ATH_MSG_ERROR("Pixel Monitoring: Pixel RDO container "<< m_pixelRDOName << " could not be found.");
+    auto dataread_err = Monitored::Scalar<int>( "hitdataread_err", DataReadErrors::ContainerInvalid );
+    fill(hitGroup, dataread_err);
     return StatusCode::RECOVERABLE;
   } else {
     ATH_MSG_DEBUG("Pixel Monitoring: Pixel RDO container "<< rdocontainer.name() <<" is found.");
@@ -134,9 +135,10 @@ StatusCode PixelAthHitMonAlg::fillHistograms( const EventContext& ctx ) const {
 
 
   VecAccumulator2DMap HitMap("HitMap");
+  VecAccumulator2DMap HitFEMap("HitFEMap");
   std::vector<int> hitLvl1a;
   std::unordered_map<int, std::vector<int>> hitLvl1aLayer;
-
+  std::unordered_map<int, std::vector<int>> hitToTLayer;
 
   Identifier rdoID;
   PixelRDO_Container::const_iterator colNext = rdocontainer->begin();
@@ -148,6 +150,8 @@ StatusCode PixelAthHitMonAlg::fillHistograms( const EventContext& ctx ) const {
     const InDetRawDataCollection<PixelRDORawData>* PixelCollection(*colNext);
     if (!PixelCollection) {
       ATH_MSG_DEBUG("Pixel Monitoring: Pixel Hit container is empty.");
+      auto dataread_err = Monitored::Scalar<int>( "hitdataread_err", DataReadErrors::CollectionInvalid );
+      fill(hitGroup, dataread_err);
       continue;
     }
 
@@ -156,10 +160,12 @@ StatusCode PixelAthHitMonAlg::fillHistograms( const EventContext& ctx ) const {
       int pixlayer = getPixLayersID(m_pixelid->barrel_ec(rdoID), m_pixelid->layer_disk(rdoID) );
       if (pixlayer == 99) continue;
       HitMap.add(pixlayer, rdoID, m_pixelid, 1.0);
+      if (m_doFEPlots) HitFEMap.add(pixlayer, rdoID, m_pixelid, m_pixelCablingSvc->getFE(&rdoID, rdoID), 1.0);
       nhits++;
       nhits_layer[pixlayer]++;
       hitLvl1a.push_back( (*p_rdo)->getLVL1A() );
       hitLvl1aLayer[pixlayer].push_back( (*p_rdo)->getLVL1A() );
+      hitToTLayer[pixlayer].push_back( (*p_rdo)->getToT() );
       getPhiEtaMod(m_pixelid, rdoID, phiMod, etaMod, copyFEval);
       switch (pixlayer) {
       case PixLayers::kECA : 
@@ -185,12 +191,18 @@ StatusCode PixelAthHitMonAlg::fillHistograms( const EventContext& ctx ) const {
   }
 
   fill2DProfLayerAccum( HitMap );
+  if (m_doFEPlots) fill2DProfLayerAccum( HitFEMap );
 
   auto vals = Monitored::Collection( "Hit_LVL1A_pixel", hitLvl1a );
   fill( hitGroup, vals);
   for ( const auto& itr : hitLvl1aLayer ) {
     int layer = itr.first;
     auto vals = Monitored::Collection( "Hit_LVL1A_layer", hitLvl1aLayer.at(layer) );
+    fill( pixLayersLabel[layer], vals);
+  }
+  for ( const auto& itr : hitToTLayer ) {
+    int layer = itr.first;
+    auto vals = Monitored::Collection( "HitToT_val", hitToTLayer.at(layer) );
     fill( pixLayersLabel[layer], vals);
   }
 
@@ -215,6 +227,11 @@ StatusCode PixelAthHitMonAlg::fillHistograms( const EventContext& ctx ) const {
       avgocc_ratio_toIBL_layer[i] = avgocc_good_layer[i] / avgocc_good_layer[PixLayers::kIBL];
     }
     fill1DProfLumiLayers( "AvgOccRatioToIBLPerLumi", lb, avgocc_ratio_toIBL_layer );
+  }
+
+  if (nhits==0) {
+    auto dataread_err = Monitored::Scalar<int>( "hitdataread_err", DataReadErrors::EmptyContainer );
+    fill(hitGroup, dataread_err);
   }
   //*******************************************************************************
   //************************** End of filling Hit Histograms **********************

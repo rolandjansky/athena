@@ -374,7 +374,7 @@ transformGlobalToLine(const Amg::Transform3D&  T,
   par[0]    = x*Bx  +y*By  +z*Bz  ;
   par[1]    = x*A[0]+y*A[1]+z*A[2];
 
-  if(!useJac) return;
+  if(!useJac) {return;}
 
   // Condition trajectory on surface
   //
@@ -382,22 +382,17 @@ transformGlobalToLine(const Amg::Transform3D&  T,
   double a  = (1.-d)*(1.+d); if(a!=0.) a=1./a;
   const double X = d*A[0]-P[3], Y = d*A[1]-P[4], Z = d*A[2]-P[5];
 
-  const double d1 = P[10]*A[0]+P[11]*A[1]+P[12]*A[2];
-  const double d2 = P[17]*A[0]+P[18]*A[1]+P[19]*A[2];
-  const double d3 = P[24]*A[0]+P[25]*A[1]+P[26]*A[2];
-  const double d4 = P[31]*A[0]+P[32]*A[1]+P[33]*A[2];
-  const double d5 = P[38]*A[0]+P[39]*A[1]+P[40]*A[2];
-  const double s1 = (((P[ 7]*X+P[ 8]*Y+P[ 9]*Z)+x*(d1*A[0]-P[10]))+(y*(d1*A[1]-P[11])+z*(d1*A[2]-P[12])))*a;
-  const double s2 = (((P[14]*X+P[15]*Y+P[16]*Z)+x*(d2*A[0]-P[17]))+(y*(d2*A[1]-P[18])+z*(d2*A[2]-P[19])))*a;
-  const double s3 = (((P[21]*X+P[22]*Y+P[23]*Z)+x*(d3*A[0]-P[24]))+(y*(d3*A[1]-P[25])+z*(d3*A[2]-P[26])))*a;
-  const double s4 = (((P[28]*X+P[29]*Y+P[30]*Z)+x*(d4*A[0]-P[31]))+(y*(d4*A[1]-P[32])+z*(d4*A[2]-P[33])))*a;
-  const double s5 = (((P[35]*X+P[36]*Y+P[37]*Z)+x*(d5*A[0]-P[38]))+(y*(d5*A[1]-P[39])+z*(d5*A[2]-P[40])))*a;
+  double D[5] = {};
+  mutl3x5Helper(D, A, &P[10]);
+  const double s0 = (((P[ 7]*X+P[ 8]*Y+P[ 9]*Z)+x*(D[0]*A[0]-P[10]))+(y*(D[0]*A[1]-P[11])+z*(D[0]*A[2]-P[12])))*a;
+  const double s1 = (((P[14]*X+P[15]*Y+P[16]*Z)+x*(D[1]*A[0]-P[17]))+(y*(D[1]*A[1]-P[18])+z*(D[1]*A[2]-P[19])))*a;
+  const double s2 = (((P[21]*X+P[22]*Y+P[23]*Z)+x*(D[2]*A[0]-P[24]))+(y*(D[2]*A[1]-P[25])+z*(D[2]*A[2]-P[26])))*a;
+  const double s3 = (((P[28]*X+P[29]*Y+P[30]*Z)+x*(D[3]*A[0]-P[31]))+(y*(D[3]*A[1]-P[32])+z*(D[3]*A[2]-P[33])))*a;
+  const double s4 = (((P[35]*X+P[36]*Y+P[37]*Z)+x*(D[4]*A[0]-P[38]))+(y*(D[4]*A[1]-P[39])+z*(D[4]*A[2]-P[40])))*a;
 
   //pass -1 (As we want do add rather subtract in the helper)
-  globalToLocalVecHelper(P, -1.*s1, -1.*s2, -1.*s3, -1.*s4, -1.*s5);
-
+  globalToLocalVecHelper(P, -1.*s0, -1.*s1, -1.*s2, -1.*s3, -1.*s4);
   // Jacobian production
-  //
   const double B[3]={Bx,By,Bz};
   mutl3x5Helper(&Jac[0],B,&P[7]);
   mutl3x5Helper(&Jac[5],A,&P[7]);

@@ -16,8 +16,8 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"  
 
 // InDetReadoutGeometry
-#include "InDetReadoutGeometry/SiCommonItems.h" 
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
+#include "ReadoutGeometryBase/SiCommonItems.h" 
+#include "ReadoutGeometryBase/InDetDD_Defs.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
 
 #include "PixelGeoModelAthenaComps.h"

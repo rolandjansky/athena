@@ -5,14 +5,15 @@
 #ifndef TAURECTOOLS_HELPERFUNCTIONS_H
 #define TAURECTOOLS_HELPERFUNCTIONS_H
 
-#include "AsgMessaging/MessageCheck.h"
 #include "xAODTracking/VertexContainer.h"
+#include "xAODJet/Jet.h"
 #include "xAODTau/TauJet.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODPFlow/PFO.h"
 
-#include "MVAUtils/BDT.h"
+#include "AsgMessaging/MessageCheck.h"
 
+#include "MVAUtils/BDT.h"
 #include "TLorentzVector.h"
 #include "TString.h"
 
@@ -24,9 +25,29 @@ namespace tauRecTools
 {
   ANA_MSG_HEADER(msgHelperFunction)
 
-  TLorentzVector GetConstituentP4(const xAOD::JetConstituent& constituent);
+  /**
+   * @brief Return the vertex of jet candidate
+   * @warning In trigger, jet candidate does not have a candidate, and an ERROR
+   *          message will be print out !
+   */ 
+  const xAOD::Vertex* getJetVertex(const xAOD::Jet& jet);
+ 
+  /**
+   * @brief Return the vertex of tau candidate
+   *        If the vertex link of tau candidate is valid, then the vertex which the link point to will
+   *        be returned. Otherwise, it will try to retrieve the vertex of the seed jet in offline reconstruction
+   */  
+  const xAOD::Vertex* getTauVertex(const xAOD::TauJet& tau, bool inTrigger = false);
 
-  const StatusCode GetJetClusterList(const xAOD::Jet* jet, std::vector<const xAOD::CaloCluster*> &clusterList, bool useSubtractedCluster);
+  /**
+   * @brief Return the four momentum of the tau axis
+   *        The tau axis is widely used to select clusters and cells in tau reconstruction.
+   *        If doVertexCorrection is true, then IntermediateAxis is returned. Otherwise, 
+   *        DetectorAxis is returned.  
+   */ 
+  TLorentzVector getTauAxis(const xAOD::TauJet& tau, bool doVertexCorrection = true);
+
+  TLorentzVector GetConstituentP4(const xAOD::JetConstituent& constituent);
 
   xAOD::TauTrack::TrackFlagType isolateClassifiedBits(xAOD::TauTrack::TrackFlagType flag);
   bool sortTracks(const ElementLink<xAOD::TauTrackContainer> &l1, const ElementLink<xAOD::TauTrackContainer> &l2);
@@ -39,4 +60,4 @@ namespace tauRecTools
   std::vector<TString> parseStringMVAUtilsBDT(const TString& str, const TString& delim=",");
 }
 
-#endif // not TAUANALYSISTOOLS_HELPERFUNCTIONS_H
+#endif // TAURECTOOLS_HELPERFUNCTIONS_H

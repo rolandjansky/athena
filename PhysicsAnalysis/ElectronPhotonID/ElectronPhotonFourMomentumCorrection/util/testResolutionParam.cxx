@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <ElectronPhotonFourMomentumCorrection/egammaEnergyCorrectionTool.h>
@@ -10,6 +10,7 @@
 #include "TLegend.h"
 #include "TStyle.h"
 #include "TPad.h"
+#include "TFile.h"
 
 int main() {
 

@@ -26,14 +26,20 @@
 # art-output: *.dat 
 
 Slices = ['bjet']
-RunEF   = False
-Events = 4000
-Threads = 4 
-Slots   = 4
+Events  = 4000
+Threads = 8 
+Slots   = 8
 Input = 'ttbar_ID'    # defined in TrigValTools/share/TrigValInputs.json  
 
-TrackReference = [ 'Truth' ]
+Jobs = [ ( "Truth",       " TIDAdata-run3.dat                    -o data-hists.root" ),
+         ( "Offline",     " TIDAdata-run3-offline.dat -r Offline -o data-hists-offline.root" ) ]
+
+Comp = [ ( "L2bjet",              "L2bjet",      "data-hists.root",         " -c TIDAhisto-panel.dat  -d HLTL2-plots " ),
+         ( "L2bjetoffline",       "L2bjet",      "data-hists-offline.root", " -c TIDAhisto-panel.dat  -d HLTL2-plots-offline " ),
+         ( "EFbjet",              "EFbjet",      "data-hists.root",         " -c TIDAhisto-panel.dat  -d HLTEF-plots " ),
+         ( "EFbjetoffline",       "EFbjet",      "data-hists-offline.root", " -c TIDAhisto-panel.dat  -d HLTEF-plots-offline " ) ]
 
 
 from AthenaCommon.Include import include 
 include("TrigInDetValidation/TrigInDetValidation_Base.py")
+

@@ -57,7 +57,31 @@ StatusCode GenEventFillerTool::book()
 
 StatusCode GenEventFillerTool::fill (const HepMC::GenEvent& p)
 {
-  *m_signal_process_id = p.signal_process_id();
+#ifdef HEPMC3
+  *m_signal_process_id = HepMC::signal_process_id(p);
+  *m_event_number      = p.event_number();
+  auto a_event_scale = p.attribute<HepMC3::DoubleAttribute>("event_scale");
+  *m_event_scale = a_event_scale?a_event_scale->value():0.0;
+  auto a_alphaQCD = p.attribute<HepMC3::DoubleAttribute>("alphaQCD");
+  *m_alphaQCD = a_alphaQCD?a_alphaQCD->value():0.0;
+  auto a_alphaQED = p.attribute<HepMC3::DoubleAttribute>("alphaQED");
+  *m_alphaQED = a_alphaQED?a_alphaQED->value():0.0;
+  auto a_pi = p.pdf_info();
+  for(size_t i=0;i<(size_t)p.weights().size();i++)  m_weight->push_back(p.weights()[i]);
+  if (a_pi) {
+    *m_pdf_id1   = a_pi->parton_id[0];
+    *m_pdf_id2   = a_pi->parton_id[1];
+    *m_pdf_x1    = a_pi->x[0];
+    *m_pdf_x2    = a_pi->x[1];
+    *m_pdf_scale = a_pi->scale;
+    *m_pdf1      = a_pi->xf[0];
+    *m_pdf2      = a_pi->xf[1];
+  } else {
+    *m_pdf_id1 = *m_pdf_id2 = 0;
+    *m_pdf_x1 = *m_pdf_x2 = *m_pdf_scale = *m_pdf1 = *m_pdf2 = -1.0;
+  }
+#else
+  *m_signal_process_id = HepMC::signal_process_id(p);
   *m_event_number      = p.event_number();
   *m_event_scale       = p.event_scale();
   *m_alphaQCD          = p.alphaQCD();
@@ -76,6 +100,7 @@ StatusCode GenEventFillerTool::fill (const HepMC::GenEvent& p)
     *m_pdf_id1 = *m_pdf_id2 = 0;
     *m_pdf_x1 = *m_pdf_x2 = *m_pdf_scale = *m_pdf1 = *m_pdf2 = -1.;
   }
+#endif
   return StatusCode::SUCCESS;
 }
 

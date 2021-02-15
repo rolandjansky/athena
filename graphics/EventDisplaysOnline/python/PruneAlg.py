@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """Algorithm for pruning eventdisplay files
 """
@@ -19,7 +19,7 @@ class PruneAlg( PyAthena.Alg ):
 		self.numevents = kw.get("NumberOfEvents", 250)
 	
 	def initialize(self):
-		self.msg.debug("Going to prune %s, keeping %d events" % (self.directory, self.numevents))
+		self.msg.debug("Going to prune %s, keeping %d events", self.directory, self.numevents)
 		return StatusCode.Success
 
 	def execute(self):

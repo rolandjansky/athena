@@ -28,15 +28,12 @@ ElectronPhotonShowerShapeFudgeTool::ElectronPhotonShowerShapeFudgeTool(std::stri
   m_configFile("")
 {
 
+  declareProperty("FFCalibFile", m_ffFile="ElectronPhotonShowerShapeFudgeTool/v2/PhotonFudgeFactors.root", "Calib path file for Photon MC corrections");
   declareProperty("Preselection",m_preselection=-999);
   declareProperty("ConfigFile",m_configFile="","The config file to use for the Electron Shifter");
 
   // Create an instance of the underlying ROOT tool
-#ifdef USE_NEW_TOOL  
   m_ph_rootTool = new TPhotonMCShifterTool();
-#else
-  m_ph_rootTool = new FudgeMCTool();
-#endif
   m_el_rootTool = new TElectronMCShifterTool();
 }
 
@@ -101,6 +98,8 @@ StatusCode ElectronPhotonShowerShapeFudgeTool::initialize()
   m_el_rootTool->Widths[ElePIDNames::Var::wstot] = GetFloatVector("width_wstot", env);
   m_el_rootTool->Widths[ElePIDNames::Var::e277] = GetFloatVector("width_e277", env);
   m_el_rootTool->Widths[ElePIDNames::Var::DeltaE] = GetFloatVector("width_DeltaE", env);
+
+  m_ph_rootTool->LoadFFs(m_preselection, m_ffFile);
 
   return StatusCode::SUCCESS;
 }

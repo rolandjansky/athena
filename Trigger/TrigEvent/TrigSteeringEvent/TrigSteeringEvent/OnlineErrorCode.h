@@ -51,9 +51,11 @@ namespace HLT {
       default: return "UNDEFINED OnlineErrorCode"; break;
     }
   }
-}
 
 inline std::ostream& operator<< (std::ostream& os, const HLT::OnlineErrorCode code) {
   return os << HLT::OnlineErrorCodeToString(code);
 }
+
+} // namespace HLT
+
 #endif // TRIGSTEERINGEVENT_OnlineErrorCode_H

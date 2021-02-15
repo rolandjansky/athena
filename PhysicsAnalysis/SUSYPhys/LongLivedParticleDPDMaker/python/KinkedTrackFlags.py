@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
 ## Name:        KinkedTrackFlags.py
@@ -14,7 +14,7 @@
 __doc__ = """job flags for the RPV/LL KinkedTrack DESD"""
 __version__ = "0.0.1"
 
-from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
+from AthenaCommon.JobProperties import JobProperty
 from AthenaCommon.JobProperties import jobproperties
 
 import AthenaCommon.SystemOfUnits as Units

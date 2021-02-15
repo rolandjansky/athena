@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 ##=============================================================================
@@ -20,8 +20,6 @@ __version__ = "0.0.1"
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.JobProperties import jobproperties
 
-import AthenaCommon.SystemOfUnits as Units
-
 #=====================================================================
 # First define container for the PrimaryDPDMaker flags  
 #=====================================================================
@@ -32,20 +30,18 @@ jobproperties.add_Container(PrimaryDPDFlags_RPVLLStream)
 
 primRPVLLDESDM=jobproperties.PrimaryDPDFlags_RPVLLStream
 
-from LongLivedParticleDPDMaker import DiLepFlags
-from LongLivedParticleDPDMaker import DVFlags
-from LongLivedParticleDPDMaker import KinkedTrackFlags
-from LongLivedParticleDPDMaker import EmergingFlags
-from LongLivedParticleDPDMaker import StoppedFlags
-from LongLivedParticleDPDMaker import VH_DVFlags
-from LongLivedParticleDPDMaker import QuirksFlags
-from LongLivedParticleDPDMaker import HipsFlags
-from LongLivedParticleDPDMaker import HNLFlags
-from LongLivedParticleDPDMaker import HVFlags
-from LongLivedParticleDPDMaker import SmpCaloIdFlags
-from LongLivedParticleDPDMaker import SmpMsFlags
-from LongLivedParticleDPDMaker import VHFlags
-from LongLivedParticleDPDMaker import TauFlags
+from LongLivedParticleDPDMaker import DiLepFlags        # noqa: F401
+from LongLivedParticleDPDMaker import DVFlags           # noqa: F401
+from LongLivedParticleDPDMaker import KinkedTrackFlags  # noqa: F401
+from LongLivedParticleDPDMaker import EmergingFlags     # noqa: F401
+from LongLivedParticleDPDMaker import StoppedFlags      # noqa: F401
+from LongLivedParticleDPDMaker import VH_DVFlags        # noqa: F401
+from LongLivedParticleDPDMaker import QuirksFlags       # noqa: F401
+from LongLivedParticleDPDMaker import HipsFlags         # noqa: F401
+from LongLivedParticleDPDMaker import HNLFlags          # noqa: F401
+from LongLivedParticleDPDMaker import HVFlags           # noqa: F401
+from LongLivedParticleDPDMaker import SmpCaloIdFlags    # noqa: F401
+from LongLivedParticleDPDMaker import SmpMsFlags        # noqa: F401
 
 #===============================================================
 # Set specific properties for each of the analysis selections

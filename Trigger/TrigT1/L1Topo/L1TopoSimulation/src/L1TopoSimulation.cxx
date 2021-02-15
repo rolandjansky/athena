@@ -3,22 +3,11 @@
 */
 
 #include "./L1TopoSimulation.h"
-#include "./AthenaL1TopoHistSvc.h"
 
-#include "TH1F.h"
-
-#include "AthenaMonitoring/IMonitorToolBase.h"
-
-#include "L1TopoCoreSim/TopoSteering.h"
 #include "L1TopoConfig/L1TopoMenu.h"
 #include "L1TopoEvent/TopoInputEvent.h"
 
-#include "L1TopoSimulation/IInputTOBConverter.h"
-#include "TrigConfInterfaces/IL1TopoConfigSvc.h"
-#include "GaudiKernel/ITHistSvc.h"
-
 #include "L1TopoInterfaces/IL1TopoHistSvc.h"
-#include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "TrigT1CaloEvent/EmTauROI_ClassDEF.h"
 
@@ -28,12 +17,10 @@
 #include "L1TopoRDO/L1TopoTOB.h"
 #include "L1TopoRDO/L1TopoRDOCollection.h"
 
-#include "./PeriodicScaler.h"
+#include "./AthenaL1TopoHistSvc.h"
 
-
-using namespace std;
+// using namespace std;
 using namespace LVL1;
-
 
 namespace {
    // needed for monitoring
@@ -41,81 +28,53 @@ namespace {
    public:
     
       //! constructor
-      TopoResultBit(const TCS::GlobalDecision & decision, unsigned int module) :
+      TopoResultBit(const TCS::GlobalDecision & decision, std::string connName) :
          m_decision(decision),
-         m_module(module)
+         m_connName(connName)
       {}
 
       //! return size of data
-      virtual unsigned int size() const { return 64; }
+      virtual unsigned int size() const { return 64; } // Change this when implementing multiplicity algorithms (size could change for Topo1)
 
       //! indexed access to data
-      virtual double get(unsigned pos) const { return m_decision.passed(m_module, pos) ? pos : -1.; }
+      virtual double get(unsigned pos) const { return m_decision.passed(m_connName, pos) ? pos : -1.; }
 
    private:
       const TCS::GlobalDecision & m_decision;
-      unsigned int m_module;
+      std::string m_connName;
    };
 }
 
 
-
 L1TopoSimulation::L1TopoSimulation(const std::string &name, ISvcLocator *pSvcLocator) :
    AthAlgorithm(name, pSvcLocator),
-   m_l1topoConfigSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
-   m_histSvc( "THistSvc/THistSvc", name),
-   m_monitors(this),
-   m_emtauInputProvider("LVL1::EMTauInputProvider/EMTauInputProvider", this),
-   m_jetInputProvider("LVL1::JetInputProvider/JetInputProvider", this),
-   m_energyInputProvider("LVL1::EnergyInputProvider/EnergyInputProvider", this),
-   m_muonInputProvider("LVL1::MuonInputProvider/MuonInputProvider", this),
-   m_topoSteering( unique_ptr<TCS::TopoSteering>(new TCS::TopoSteering()) )
+   m_topoSteering( std::make_unique<TCS::TopoSteering>() ),
+   m_scaler( std::make_unique<LVL1::PeriodicScaler>() )
 {
-   declareProperty( "TrigConfigSvc", m_l1topoConfigSvc, "Service to provide the L1Topo menu");
-   declareProperty( "HistSvc", m_histSvc, "Histogramming service for L1Topo algorithms");
-   declareProperty( "EMTAUInputProvider", m_emtauInputProvider, "Tool to fill the EMTAU TOBs of the topo input event");
-   declareProperty( "JetInputProvider", m_jetInputProvider, "Tool to fill the Jet TOBs of the topo input event");
-   declareProperty( "EnergyInputProvider", m_energyInputProvider, "Tool to fill the energy and MET TOBs of the topo input event");
-   declareProperty( "MuonInputProvider", m_muonInputProvider, "Tool to fill the muon TOBs of the topo input event");
-   declareProperty( "AthenaMonTools", m_monitors, "List of monitoring tools to be run with this instance, if incorrect then tool is silently skipped.");
-   declareProperty( "MonHistBaseDir", m_histBaseDir = "L1TopoAlgorithms", "Base directory for monitoring histograms will be /EXPERT/<MonHistBaseDir>" );
-   declareProperty( "EnableInputDump", m_enableInputDump, "Boolean to enable writing of input data for standalone running");
-   declareProperty( "UseBitwise", m_enableBitwise, "Boolean to enable the bitwise version of software algorithms");
-   declareProperty("FillHistoBasedOnHardware", m_fillHistogramsBasedOnHardwareDecision=true,
-                   "Boolean to fill accept/reject histograms based on hdw; default based on sim");
-   declareProperty( "InputDumpFile", m_inputDumpFile, "File name for dumping input data");
-   declareProperty( "TopoCTPLocation", m_topoCTPLocation = LVL1::DEFAULT_L1TopoCTPLocation, "StoreGate key of topo decision output for CTP" );
-   declareProperty( "TopoOverflowCTPLocation", m_topoOverflowCTPLocation = LVL1::DEFAULT_L1TopoOverflowCTPLocation, "StoreGate key of topo overflow output for CTP" );
-   declareProperty( "TopoOutputLevel", m_topoOutputLevel, "OutputLevel for L1Topo algorithms" );
-   declareProperty( "TopoSteeringOutputLevel", m_topoSteeringOutputLevel, "OutputLevel for L1Topo steering" );
-   declareProperty("Prescale", m_prescale = 1, "Internal prescale factor for this algorithm, implemented with a periodic scaler: so 1 means run every time, N means run every 1 in N times it is called; the other times it will exit without doing anything");
-   declareProperty("PrescaleDAQROBAccess", m_prescaleForDAQROBAccess = 4, "Prescale factor for requests for DAQ ROBs: can be used to avoid overloading ROS. Zero means disabled, 1 means always, N means sample only 1 in N events");
-
-
-   const TCS::GlobalDecision & dec = m_topoSteering->simulationResult().globalDecision();
-   declareMonitoredCustomVariable("DecisionModule1", new TopoResultBit(dec, 0));
-   declareMonitoredCustomVariable("DecisionModule2", new TopoResultBit(dec, 1));
-   declareMonitoredCustomVariable("DecisionModule3", new TopoResultBit(dec, 2));
-   m_scaler = new LVL1::PeriodicScaler();
-   
+   // const TCS::GlobalDecision & dec = m_topoSteering->simulationResult().globalDecision();
+   // declareMonitoredCustomVariable("DecisionModule1", new TopoResultBit(dec, 0));
+   // declareMonitoredCustomVariable("DecisionModule2", new TopoResultBit(dec, 1));
+   // declareMonitoredCustomVariable("DecisionModule3", new TopoResultBit(dec, 2));
 }
 
 
-LVL1::L1TopoSimulation::~L1TopoSimulation()
+L1TopoSimulation::~L1TopoSimulation()
 {}
 
 bool
-LVL1::L1TopoSimulation::isClonable() const
+L1TopoSimulation::isClonable() const
 {
    return true;
 }
 
 StatusCode
-LVL1::L1TopoSimulation::initialize() {
+L1TopoSimulation::initialize() {
    ATH_MSG_INFO("initialize");
 
-   m_topoSteering->setMsgLevel( TrigConf::MSGTC::Level(m_topoSteeringOutputLevel) );
+   m_topoSteering->setMsgLevel( TrigConf::MSGTC::Level((int)m_topoSteeringOutputLevel) );
 
+   m_topoSteering->setLegacyMode(m_isLegacyTopo);
+   
    ATH_MSG_DEBUG("retrieving " << m_monitors);
    CHECK( m_monitors.retrieve() );
 
@@ -154,25 +113,21 @@ LVL1::L1TopoSimulation::initialize() {
    ATH_MSG_DEBUG("Output trigger key property " << m_topoCTPLocation);
    ATH_MSG_DEBUG("Output overflow key property " << m_topoOverflowCTPLocation);
 
-   const TXC::L1TopoMenu* menu = m_l1topoConfigSvc->menu();
-   if(menu == nullptr) {
-      ATH_MSG_FATAL("No L1 Topo menu from " << m_l1topoConfigSvc->name());
-      return StatusCode::FAILURE;
-   }
+   const TrigConf::L1Menu * l1menu = nullptr;
+   ATH_CHECK( detStore()->retrieve(l1menu) ); 
+   ATH_MSG_INFO( "initialize(): retrieving new-style L1 trigger menu from Detector Store" );
 
    m_topoSteering->setUseBitwise(m_enableBitwise);
-   std::cout << "Calling m_topoSteering->setupFromConfiguration(*menu)" << endl;
    try {
-      m_topoSteering->setupFromConfiguration(*menu);
+      m_topoSteering->setupFromConfiguration(*l1menu);
    }
-   catch(exception & e) {
+   catch(std::exception & e) {
       ATH_MSG_FATAL("Caught exception when configuring topo steering from menu: " << e.what() );
       return StatusCode::FAILURE;
    }
 
-   m_topoSteering->setAlgMsgLevel( TrigConf::MSGTC::Level(m_topoOutputLevel) );
+   m_topoSteering->setAlgMsgLevel( TrigConf::MSGTC::Level((int)m_topoOutputLevel) );
    m_topoSteering->setOutputAlgosFillBasedOnHardware(m_fillHistogramsBasedOnHardwareDecision);
-
 
    std::shared_ptr<IL1TopoHistSvc> topoHistSvc = std::shared_ptr<IL1TopoHistSvc>( new AthenaL1TopoHistSvc(m_histSvc) );
    topoHistSvc->setBaseDir("/EXPERT/" + m_histBaseDir.value());
@@ -184,13 +139,12 @@ LVL1::L1TopoSimulation::initialize() {
 
 // Exectued once per offline job and for every new run online
 StatusCode
-LVL1::L1TopoSimulation::stop() {
+L1TopoSimulation::stop() {
    ATH_MSG_DEBUG("stop");
 
    // monitoring
    for (auto mt : m_monitors )
       mt->finalHists().ignore();
-
 
    return StatusCode::SUCCESS;
 }
@@ -198,20 +152,20 @@ LVL1::L1TopoSimulation::stop() {
 
 // Exectued once per offline job and for every new run online
 StatusCode
-LVL1::L1TopoSimulation::start() {
+L1TopoSimulation::start() {
    ATH_MSG_DEBUG("start");
 
    m_scaler->reset();
 
-   // monitoring : book histogram
-   for (auto mt : m_monitors )
-      CHECK( mt->bookHists() );
+   // TODO monitoring : book histogram
+   //   for (auto mt : m_monitors )
+   //      CHECK( mt->bookHists() );
 
 
    try {
       m_topoSteering->initializeAlgorithms();
    }
-   catch(exception & e) {
+   catch(std::exception & e) {
       ATH_MSG_FATAL("Caught exception when initializing topo algorithms" << e.what() );
       return StatusCode::FAILURE;
    }
@@ -227,7 +181,7 @@ LVL1::L1TopoSimulation::start() {
 
 
 StatusCode
-LVL1::L1TopoSimulation::execute() {
+L1TopoSimulation::execute() {
    const EventContext& ctx = Gaudi::Hive::currentContext();
 
    if (m_prescale>1 && not m_scaler->decision(m_prescale)){
@@ -282,7 +236,7 @@ LVL1::L1TopoSimulation::execute() {
    // execute the toposteering
    m_topoSteering->executeEvent();
 
-   ATH_MSG_DEBUG("" << m_topoSteering->simulationResult().globalDecision());
+   ATH_MSG_DEBUG("Global Decision:\n" << m_topoSteering->simulationResult().globalDecision());
    
 
    /**
@@ -294,49 +248,60 @@ LVL1::L1TopoSimulation::execute() {
     *
     */
 
+   // Format for CTP still undecided
+
    const TCS::GlobalDecision & dec = m_topoSteering->simulationResult().globalDecision();
    auto topoDecision2CTP = std::make_unique< LVL1::FrontPanelCTP >();
    auto topoOverflow2CTP = std::make_unique< LVL1::FrontPanelCTP >();
-   for(unsigned int clock=0; clock<2; ++clock) {
-      topoDecision2CTP->setCableWord0( clock, 0 ); // ALFA
-      topoDecision2CTP->setCableWord1( clock, dec.decision( 0, clock) );  // TOPO 0
-      topoDecision2CTP->setCableWord2( clock, dec.decision( 1, clock) );  // TOPO 1
-      topoOverflow2CTP->setCableWord0( clock, 0 ); // ALFA
-      topoOverflow2CTP->setCableWord1( clock, dec.overflow( 0, clock) );  // TOPO 0
-      topoOverflow2CTP->setCableWord2( clock, dec.overflow( 1, clock) );  // TOPO 1
-   } 
+
+   const TrigConf::L1Menu * l1menu = nullptr;
+   ATH_CHECK( detStore()->retrieve(l1menu) );
+
+   if( m_isLegacyTopo ) {
+      // to be implemented
+   } else {
+      // set electrical connectors
+      std::string conn1 = l1menu->board("Topo2").connectorNames()[0];
+      std::string conn2 = l1menu->board("Topo3").connectorNames()[0];
+      for(unsigned int clock=0; clock<2; ++clock) {
+         topoDecision2CTP->setCableWord0( clock, 0 ); // ALFA
+         ATH_MSG_DEBUG("Word 1 " << conn1 << " clock " << clock << "  " << dec.decision_field( conn1, clock) );
+         topoDecision2CTP->setCableWord1( clock, dec.decision_field( conn1, clock) );  // TOPO 0
+         ATH_MSG_DEBUG("Word 2 " << conn2 << " clock " << clock << "  " << dec.decision_field( conn2, clock) );
+         topoDecision2CTP->setCableWord2( clock, dec.decision_field( conn2, clock) );  // TOPO 1
+         // topoOverflow2CTP->setCableWord0( clock, 0 ); // ALFA
+         // topoOverflow2CTP->setCableWord1( clock, dec.overflow( 0, clock) );  // TOPO 0
+         // topoOverflow2CTP->setCableWord2( clock, dec.overflow( 1, clock) );  // TOPO 1
+      }    
+   }
+
    
    CHECK(SG::makeHandle(m_topoCTPLocation)        .record(std::move(topoDecision2CTP)));
    CHECK(SG::makeHandle(m_topoOverflowCTPLocation).record(std::move(topoOverflow2CTP)));
-   
+
 
    // TODO: get the output combination data and put into SG
 
    // fill histograms
    // Commenting out temporarily to avoid crash 
-   //when L1TopoSimulation run without menu confifuration.
-   //for (auto mt : m_monitors )
-   //   if ( ! mt->preSelector() ) 
-   //      mt->fillHists().ignore();
+   // when L1TopoSimulation run without menu confifuration. 
+   //   for (auto mt : m_monitors )
+   //      if ( ! mt->preSelector() ) 
+   //         mt->fillHists().ignore();
 
    return StatusCode::SUCCESS;
 }
 
 
-
-
 StatusCode
-LVL1::L1TopoSimulation::finalize() {
+L1TopoSimulation::finalize() {
    m_topoSteering->inputEvent().dumpFinish();
-
-   delete m_scaler;
-   m_scaler=0;
-
    return StatusCode::SUCCESS;
 }
 
+
 StatusCode
-LVL1::L1TopoSimulation::retrieveHardwareDecision()
+L1TopoSimulation::retrieveHardwareDecision()
 {
     // some duplication with L1TopoRDO::Helpers
     // getDecisionAndOverflowBits() ?

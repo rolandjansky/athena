@@ -43,7 +43,7 @@ rec.readAOD.set_Value_and_Lock(False)
 include ("RecExCommon/RecExCommon_topOptions.py")
 
 # D3PDMaker calo block
-from CaloD3PDMaker.CaloD3PD import CaloD3PD
+from CaloSysD3PDMaker.CaloD3PD import CaloD3PD
 alg = CaloD3PD(file = tuple_name, tuplename = 'caloD3PD')
 
 if readRaw :

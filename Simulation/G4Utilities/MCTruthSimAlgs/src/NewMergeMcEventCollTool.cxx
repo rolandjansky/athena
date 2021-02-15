@@ -127,12 +127,21 @@ StatusCode NewMergeMcEventCollTool::processEvent(const McEventCollection *pMcEvt
   if (!pMcEvtColl->empty()) {
     for (unsigned int iEv=0; iEv<pMcEvtColl->size(); iEv++) {
       const HepMC::GenEvent& c_evt(*((*pMcEvtColl)[iEv]));
+#ifdef HEPMC3
+      HepMC::GenEvent * evt = new HepMC::GenEvent(c_evt);
+      for (auto  itVer:  evt->vertices()) {
+        HepMC::FourVector newPos(itVer->position().x(),itVer->position().y(),itVer->position().z(),itVer->position().t()+timeOffset);
+        itVer->set_position(newPos);
+      }
+      outputMcEventCollection->push_back(evt);
+#else
       HepMC::GenEvent * evt = new HepMC::GenEvent(c_evt);
       for (HepMC::GenEvent::vertex_iterator itVer=evt->vertices_begin(); itVer!=evt->vertices_end(); ++itVer) {
         HepMC::FourVector newPos((*itVer)->position().x(),(*itVer)->position().y(),(*itVer)->position().z(),(*itVer)->position().t()+timeOffset);
         (*itVer)->set_position(newPos);
       }
       outputMcEventCollection->push_back(evt);
+#endif
     }
   }
   return StatusCode::SUCCESS;
@@ -149,11 +158,16 @@ void NewMergeMcEventCollTool::printDetailsOfMergedMcEventCollection(McEventColle
   while(outputEventItr!=endOfEvents) {
     const int signal_process_id(HepMC::signal_process_id((*outputEventItr)));
     const int event_number((*outputEventItr)->event_number());
+#ifdef HEPMC3
+    ATH_MSG_INFO ( "GenEvent #"<<event_number<<", signal_process_id="<<signal_process_id<</*", category="<<event->second<<*/", number of Vertices="<<(*outputEventItr)->vertices().size() );
+#else
     ATH_MSG_INFO ( "GenEvent #"<<event_number<<", signal_process_id="<<signal_process_id<</*", category="<<event->second<<*/", number of Vertices="<<(*outputEventItr)->vertices_size() );
+#endif
     char fname[80];
     sprintf(fname,"%s.event%d.txt",m_truthCollInputKey.value().c_str(),event_number);
     std::ofstream of(fname);
-    (*outputEventItr)->print(of); // verbose output
+    const HepMC::GenEvent *evt=(*outputEventItr);
+    HepMC::Print::line(of,*evt); // verbose output
     of.close();
     ++outputEventItr;
   }

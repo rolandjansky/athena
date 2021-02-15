@@ -22,8 +22,6 @@ CSCcablingSvc::CSCcablingSvc(const std::string& name, ISvcLocator* sl)
   declareProperty("Run1Cabling", m_run1 = false);
 }
 
-CSCcablingSvc::~CSCcablingSvc() {}
-
 StatusCode CSCcablingSvc::queryInterface(const InterfaceID& riid, void** ppvIF) {
  
   if( IID_ICSCcablingSvc.versionMatch(riid) ) { 
@@ -70,10 +68,6 @@ StatusCode CSCcablingSvc::initialize() {
   m_rod  = (m_run1 ? 8 : 16);
   m_max  = m_side * m_rod;
 
-  return StatusCode::SUCCESS;
-}
-
-StatusCode CSCcablingSvc::finalize() { 
   return StatusCode::SUCCESS;
 }
 

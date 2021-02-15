@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
@@ -26,6 +26,8 @@
 
 #include "AthenaMonitoringKernel/Monitored.h"
 
+#include <initializer_list>
+
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -36,6 +38,7 @@ namespace ROIB {
 
 class MuCTPI_RDO;
 class IROBDataProviderSvc;
+class ITrigROBDataProviderSvc;
 
 class TH1F;       /// for monitoring purposes
 class TH2F;       /// for monitoring purposes
@@ -90,10 +93,6 @@ private:
   BooleanProperty                  m_doROBChecksum;
   TH1F*                            m_hist_failedChecksumForALFAROB;
   Histo1DProperty                  m_histProp_failedChecksumForALFAROB;
-  //TH1F*                            m_hist_failedChecksumForROB;
-  //Histo1DProperty                  m_histProp_failedChecksumForROB;
-  //TH1F*                            m_hist_failedChecksumForSD;
-  //Histo1DProperty                  m_histProp_failedChecksumForSD;
 
   /// Switch for ALFA fast online tracking
   BooleanProperty                  m_doALFATracking;
@@ -121,42 +120,29 @@ private:
   std::map<eformat::GenericStatus, std::string> m_map_GenericStatus;
   std::vector<std::string>                      m_vec_SpecificStatus;
 
+  TH2F*                            m_hist_bckg_pcx[4][4];
+  TH2F*                            m_hist_bckg_pcy[4][4];
+  TH2F*                            m_hist_bckg_pax[4][4];
+  TH2F*                            m_hist_bckg_pay[4][4];
+
   /// pointers to the CTP and muCTPi result objects
   ROIB::MuCTPIResult*              m_lvl1muCTPIResult;  // RoIB muCTPi Result
 
-  ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
+  ToolHandleArray<GenericMonitoringTool> m_monTools{this, "MonTools", {}, "Monitoring tools"};
 
   /// vectors with CTP and muCTPi ROB Ids
-  //std::vector<uint32_t> m_ctpRobIds;
-  //std::vector<uint32_t> m_muCTPiRobIds;
   std::vector<uint32_t> m_ALFARobIds;
-
-  /// trigger muCTPi RoIs from L1 and DAQ ROB
-  //std::vector<ROIB::MuCTPIRoI>     m_lvl1muCTPIRoIs;    // RoIs from RoIB muCTPi ROB
-  //std::vector<ROIB::MuCTPIRoI>     m_daqmuCTPIRoIs;     // RoIs from DAQ muCTPi ROB
-
-  //std::vector<uint32_t>            m_lvl1muCTPIHash_Endcap;  // Hash for RoIs from RoIB 
-  //std::vector<uint32_t>            m_lvl1muCTPIHash_Forward; // Hash for RoIs from RoIB 
-  //std::vector<uint32_t>            m_lvl1muCTPIHash_Barrel;  // Hash for RoIs from RoIB 
-
-  //std::vector<uint32_t>            m_daqmuCTPIHash_Endcap;   // Hash for RoIs from DAQ ROB 
-  //std::vector<uint32_t>            m_daqmuCTPIHash_Forward;  // Hash for RoIs from DAQ ROB 
-  //std::vector<uint32_t>            m_daqmuCTPIHash_Barrel;   // Hash for RoIs from DAQ ROB 
 
   Histo1DProperty                  m_histProp_NumberOfRoIs;
 
   std::map<std::string, int> m_map_TrgNamesToHistGroups;
   std::map<int, int>         m_map_TrgItemNumbersToHistGroups;
 
-  //mutable std::map<int, int>  m_triggerHitPatternReady;
-  //mutable std::map<int, int>  m_triggerHitPattern;
 
   std::string m_pathHisto;
 
-  //TrigConf::HLTChain* m_HLTcostMon_chain;
 
-  int m_elast15 {0}, m_elast18 {0};     // ctp-items id numbers to select golden alfa trigger for data quality assesment
-  //mutable int m_nbOfTracksInDetectors[8]; // counters for track candidates - needed in data quality assesment
+  int m_elast15 {0}, m_elast18 {0},  m_syst17 {0}, m_syst18 {0};     // ctp-items id numbers to select golden alfa trigger for data quality assesment
 
 // ALFA extensions
 // geometry data
@@ -167,16 +153,13 @@ private:
 
 #include "../src/TrigALFAROBMon_geomTable.icc"
 
-  //mutable std::vector <float> m_pU[8][10];
-  //mutable std::vector <float> m_pV[8][10];
-
   const float m_y_min[2] = {0.,-35.};
   const float m_y_max[2] = {35.,0.};
 
-  //mutable bool m_sFiberHitsODPos[8][3][30],  m_sFiberHitsODNeg[8][3][30];
 
   const std::vector<std::string> m_stationNames {"B7L1U", "B7L1L", "A7L1U", "A7L1L", "A7R1U", "A7R1L", "B7R1U", "B7R1L"};
-  const std::vector<std::string> m_trigConditions{"elastic", "elastic_ALFA_BG", "singleDiffr", "ALFA_MBTS_singleDiffr", "ALFA_LUCID_singleDiffr", "ALFA_EM3", "ALFA_J12", "ALFA_TRT", "ANY", "ANY_UNPAIRED_ISO", "ANY_ALFA_BG", "ALFA_EMPTY"};
+  //const std::vector<std::string> m_trigConditions{"elastic", "elastic_ALFA_BG", "singleDiffr", "ALFA_MBTS_singleDiffr", "ALFA_LUCID_singleDiffr", "ALFA_EM3", "ALFA_J12", "ALFA_TRT", "ANY", "ANY_UNPAIRED_ISO", "ANY_ALFA_BG", "ALFA_EMPTY"};
+  const std::vector<std::string> m_trigConditions{"elastic",  "ANY"};
 
 
   /// Helper for checksum test
@@ -214,9 +197,4 @@ private:
 
   /// Helper to print contents of a muCTPi RoIB data word 
   void dumpRoIBDataWord(uint32_t data_word ) const;
-
-  // routines to reset selected set of histograms
-  void reset1LBhistos() const;
-  void reset10LBhistos() const;
-  void reset60LBhistos() const;
 };

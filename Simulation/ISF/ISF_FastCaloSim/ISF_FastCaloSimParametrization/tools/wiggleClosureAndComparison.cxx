@@ -17,9 +17,6 @@
 #include <string>
 #include <sstream>
 #include <iostream>
-#include "TSystem.h"
-#include "TString.h"
-#include "TFile.h"
 #include <stdlib.h>
 #include "TLorentzVector.h"
 #include "TH1.h"

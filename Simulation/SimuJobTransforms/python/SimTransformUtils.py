@@ -148,6 +148,7 @@ def addAtlasG4Substep(executorSet):
                                    inData=['EVNT_TR'],
                                    outData=['HITS','NULL'] ))
     executorSet.add(athenaExecutor(name = 'AtlasG4Tf', skeletonFile = 'SimuJobTransforms/skeleton.EVGENtoHIT_MC12.py',
+                                   skeletonCA = 'SimuJobTransforms.G4AtlasAlg_Skeleton',
                                    substep = 'sim', tryDropAndReload = False,
                                    inData=['NULL','EVNT'],
                                    outData=['EVNT_TR','HITS','NULL'] ))
@@ -170,6 +171,7 @@ def addAFII_HITSMergeSubstep(executorSet):
 
 def addDigitizationSubstep(executorSet):
     executorSet.add(athenaExecutor(name = 'HITtoRDO', skeletonFile = 'SimuJobTransforms/skeleton.HITtoRDO.py',
+                                              skeletonCA='SimuJobTransforms.HITtoRDO_Skeleton',
                                               substep = 'h2r', tryDropAndReload = False,
                                               inData = ['HITS'], outData = ['RDO','RDO_FILT'], runtimeRunargs =
                                               {'LowPtMinbiasHitsFile' : 'runArgs.inputLowPtMinbiasHitsFile',

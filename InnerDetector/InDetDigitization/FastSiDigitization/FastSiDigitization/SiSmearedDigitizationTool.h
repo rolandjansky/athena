@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -31,12 +31,8 @@
 
 #include "InDetPrepRawData/SCT_ClusterContainer.h"  // typedef
 #include "InDetPrepRawData/PixelClusterContainer.h"
-#include "ISF_FatrasEvent/PlanarClusterContainer.h"
-#include "ISF_FatrasEvent/PlanarCluster.h"
 
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
-#include "ISF_FatrasDetDescrModel/IdHashDetElementCollection.h"
-#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 
 #include "GaudiKernel/ITHistSvc.h"
 #include "EventPrimitives/EventPrimitives.h"
@@ -62,12 +58,6 @@ namespace InDet {
   class SiCluster;
 }
 
-namespace Trk {
-
-  class TrackingGeometry;
-
-}
-
 class SiSmearedDigitizationTool : virtual public PileUpToolBase
 {
 
@@ -90,10 +80,8 @@ public:
   StatusCode mergeEvent(const EventContext& ctx);
 
   typedef std::multimap<IdentifierHash, InDet::PixelCluster*> Pixel_detElement_RIO_map;
-  typedef std::multimap<IdentifierHash, iFatras::PlanarCluster*> Planar_detElement_RIO_map;
   typedef std::multimap<IdentifierHash, InDet::SCT_Cluster*> SCT_detElement_RIO_map;
   StatusCode mergeClusters(Pixel_detElement_RIO_map * cluster_map);
-  StatusCode mergeClusters(Planar_detElement_RIO_map * cluster_map);
   StatusCode mergeClusters(SCT_detElement_RIO_map * cluster_map);
 
   StatusCode digitize(const EventContext& ctx);
@@ -139,8 +127,6 @@ public:
 
   InDet::SCT_ClusterContainer*  m_sctClusterContainer;               //!< the SCT_ClusterContainer
 
-  iFatras::PlanarClusterContainer*  m_planarClusterContainer;               //!< the SCT_ClusterContainer
-
   ServiceHandle<PileUpMergeSvc> m_mergeSvc;      /**< PileUp Merge service */
   int                       m_HardScatterSplittingMode; /**< Process all SiHit or just those from signal or background events */
   bool                      m_HardScatterSplittingSkipper;
@@ -151,9 +137,6 @@ public:
   PRD_MultiTruthCollection* m_SCTPrdTruth{};
   std::string               m_prdTruthNameSCT;
 
-  PRD_MultiTruthCollection* m_planarPrdTruth{};
-  std::string               m_prdTruthNamePlanar;
-
   SiHitCollection* m_simHitColl{};
   std::string      m_inputObjectName;     //! name of the sub event  hit collections.
 
@@ -161,20 +144,14 @@ public:
 
   Pixel_detElement_RIO_map* m_pixelClusterMap{};
 
-  Planar_detElement_RIO_map* m_planarClusterMap{};
-
   SCT_detElement_RIO_map* m_sctClusterMap{};
 
   bool m_SmearPixel;
 
   bool m_emulateAtlas;
 
-  iFatras::IdHashDetElementCollection*                    m_detElementMap{};
-  std::string                                    m_detElementMapName;
-
   std::string                           m_pixel_SiClustersName;
   std::string                           m_Sct_SiClustersName;
-  std::string                           m_planar_SiClustersName;
 
   bool       m_checkSmear;
 
@@ -214,11 +191,6 @@ public:
   double           m_Err_x_SCT;
   double           m_Err_y_SCT;
 
-  ServiceHandle<Trk::ITrackingGeometrySvc>     m_trackingGeometrySvc;        //!< Service handle for retrieving the TrackingGeometry
-  const Trk::TrackingGeometry*              m_trackingGeometry;           //!< The TrackingGeometry to be retrieved
-  std::string                                  m_trackingGeometryName;       //!< The Name of the TrackingGeometry
-
-  bool m_useCustomGeometry;
 
   SiSmearedDigitizationTool();
   SiSmearedDigitizationTool(const SiSmearedDigitizationTool&);

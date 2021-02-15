@@ -62,7 +62,7 @@ namespace Analysis {
     CHECK( m_dec_track_mom.initialize() );
 
     // create and initialize write handles
-    for (const std::string key: m_jetDecorator->getDecoratorKeys()) {
+    for (const std::string& key: m_jetDecorator->getDecoratorKeys()) {
       std::string full_key = m_BTagCollectionName.key() + "." + key;
       ATH_MSG_DEBUG("Adding " << full_key);
       m_outputKeys.emplace_back(std::make_unique<SG::WriteDecorHandleKey<xAOD::BTaggingContainer>>(this, key, full_key, ""));

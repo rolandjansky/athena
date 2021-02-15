@@ -239,18 +239,19 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     double m_fixedRho;
     bool m_useFixedRho;
 
-    std::vector <TProfile2D*> *m_sagittasCB;
-    std::vector <TProfile2D*> *m_sagittasID;
-    std::vector <TProfile2D*> *m_sagittasME;
+    std::vector < std::unique_ptr<TProfile2D> > m_sagittasCB;
+    std::vector < std::unique_ptr<TProfile2D> > m_sagittasID;
+    std::vector < std::unique_ptr<TProfile2D> > m_sagittasME;
 
     bool m_SagittaCorrPhaseSpace;
     bool m_doSagittaCorrection;
     bool m_doSagittaMCDistortion;
     bool m_doNotUseAMGMATRIXDECOR;
-
-    TProfile2D *m_sagittaPhaseSpaceCB;
-    TProfile2D *m_sagittaPhaseSpaceID;
-    TProfile2D *m_sagittaPhaseSpaceME;
+    float m_IterWeight;
+    
+    std::unique_ptr<TProfile2D> m_sagittaPhaseSpaceCB;
+    std::unique_ptr<TProfile2D> m_sagittaPhaseSpaceID;
+    std::unique_ptr<TProfile2D> m_sagittaPhaseSpaceME;
 
     std::string m_SagittaRelease;
     std::vector <unsigned int > m_SagittaIterations;

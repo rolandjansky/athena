@@ -63,8 +63,7 @@ namespace Trk {
     }
  
 
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
 
     /**
      * Constructor

@@ -34,6 +34,8 @@ class TrigTauRecMerged_Tau (TrigTauRecMerged) :
             tools.append(taualgs.getTauVertexFinder(doUseTJVA=False)) #don't use TJVA by default
             tools.append(taualgs.getTauAxis())
             tools.append(taualgs.getTauTrackFinder())
+            tools.append(taualgs.getTauClusterFinder())
+            tools.append(taualgs.getTauVertexedClusterDecorator())
             tools.append(taualgs.getEnergyCalibrationLC())
             tools.append(taualgs.getCellVariables(cellConeSize=0.4))
             
@@ -90,6 +92,8 @@ class TrigTauRecMerged_Tau2012 (TrigTauRecMerged) :
             tools.append(taualgs.getTauVertexFinder(doUseTJVA=False)) #don't use TJVA by default
             tools.append(taualgs.getTauAxis())
             tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=2))
+            tools.append(taualgs.getTauClusterFinder())
+            tools.append(taualgs.getTauVertexedClusterDecorator())
             tools.append(taualgs.getEnergyCalibrationLC())
 
             tools.append(taualgs.getCellVariables(cellConeSize=0.2))  #cellConeSize 0.2!!
@@ -143,6 +147,9 @@ class TrigTauRecMerged_TauPreselection (TrigTauRecMerged) :
             # Insert bypass later?
             # Count tracks with deltaZ0 cut of 2mm for 2016 and 1mm for 2017-2018 (see ATR-15845)
             tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=1, noSelector=False))
+            # Decorate the clusters
+            tools.append(taualgs.getTauClusterFinder())
+            tools.append(taualgs.getTauVertexedClusterDecorator())
             # Calibrate to TES
             tools.append(taualgs.getEnergyCalibrationLC())
             # Calculate cell-based quantities: strip variables, EM and Had energies/radii, centFrac, isolFrac and ring energies
@@ -205,6 +212,9 @@ class TrigTauRecMerged_TauFTK (TrigTauRecMerged) :
             # Count tracks with deltaZ0 cut of 2mm -> Need to remove quality criteria for fast-tracks here
             # Insert bypass later?
             tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=2, noSelector = False))
+            # Decorate the clusters
+            tools.append(taualgs.getTauClusterFinder())
+            tools.append(taualgs.getTauVertexedClusterDecorator())
             # Calibrate to TES
             tools.append(taualgs.getEnergyCalibrationLC())
             # Calculate cell-based quantities: strip variables, EM and Had energies/radii, centFrac, isolFrac and ring energies
@@ -260,6 +270,9 @@ class TrigTauRecMerged_TauCaloOnly (TrigTauRecMerged) :
             tools.append(taualgs.getJetSeedBuilder())
             # Set LC energy scale (0.2 cone) and intermediate axis (corrected for vertex: useless at trigger)
             tools.append(taualgs.getTauAxis())
+            # Decorate the clusters
+            tools.append(taualgs.getTauClusterFinder())
+            tools.append(taualgs.getTauVertexedClusterDecorator())
             # Calibrate to TES
             tools.append(taualgs.getEnergyCalibrationLC(caloOnly=True))
             # Calculate cell-based quantities: strip variables, EM and Had energies/radii, centFrac, isolFrac and ring energies
@@ -304,6 +317,9 @@ class TrigTauRecMerged_TauCaloOnlyMVA (TrigTauRecMerged) :
             tools.append(taualgs.getJetSeedBuilder())
             # Set LC energy scale (0.2 cone) and intermediate axis (corrected for vertex: useless at trigger)
             tools.append(taualgs.getTauAxis())
+            # Decorate the clusters
+            tools.append(taualgs.getTauClusterFinder())
+            tools.append(taualgs.getTauVertexedClusterDecorator())
             # Calibrate to TES
             tools.append(taualgs.getEnergyCalibrationLC(caloOnly=True))
             # Calculate cell-based quantities: strip variables, EM and Had energies/radii, centFrac, isolFrac and ring energies
@@ -356,6 +372,9 @@ class TrigTauRecMerged_TauPrecision (TrigTauRecMerged) :
             tools.append(taualgs.getTauAxis())
             # Count tracks with deltaZ0 cut of 2mm for 2016 and 1mm for 2017-2018 (see ATR-15845)
             tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=1))
+            # Decorate the clusters
+            tools.append(taualgs.getTauClusterFinder())
+            tools.append(taualgs.getTauVertexedClusterDecorator())
             # Calibrate to TES
             tools.append(taualgs.getEnergyCalibrationLC())
             # Calculate cell-based quantities: strip variables, EM and Had energies/radii, centFrac, isolFrac and ring energies
@@ -440,6 +459,9 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
                 # tightened to 0.75 mm for tracktwoMVA (until the track BDT can be used)
                 tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=0.75, prefix='TrigTauTightDZ_'))            
 
+            # Decorate the clusters
+            tools.append(taualgs.getTauClusterFinder())
+            tools.append(taualgs.getTauVertexedClusterDecorator())
             # Calibrate to calo TES
             tools.append(taualgs.getEnergyCalibrationLC())
 

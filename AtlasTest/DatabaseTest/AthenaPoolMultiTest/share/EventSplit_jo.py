@@ -106,7 +106,7 @@ Stream3.CheckNumberOfWrites = False
 Others  = AthenaPoolOutputStream( "Others", "AthenaPoolMultiTest_Missed.root", False, noTag=False )
 Others.CheckNumberOfWrites = False
 # Events that failed at least one filter
-Bad     = AthenaPoolOutputStream( "Bad", "AthenaPoolMultiTest_Missed.root", False, noTag=False )
+Bad     = AthenaPoolOutputStream( "Bad", "AthenaPoolMultiTest_Bad.root", False, noTag=False )
 Bad.CheckNumberOfWrites = False
 
 # Configure them using filter methods and itemlist

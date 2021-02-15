@@ -15,6 +15,8 @@
 #include <xAODCore/ShallowCopy.h>
 #include <xAODBase/ObjectType.h>
 #include <xAODBase/IParticleHelpers.h>
+#include "xAODEventInfo/EventInfo.h"
+
 #include <GaudiKernel/ITHistSvc.h>
 
 #include <IsolationSelection/TestMacroHelpers.h>
@@ -51,19 +53,30 @@ namespace CP {
                 ATH_CHECK(evtStore()->record(shallowcopy.first, "Shallow" + ContainerName));
                 ATH_CHECK(evtStore()->record(shallowcopy.second, "Shallow" + ContainerName + "Aux."));
                 return StatusCode::SUCCESS;
-
             }
-
+            
+            const CP::IsolationCloseByCorrectionTool* correction_tool() const;
             ServiceHandle<ITHistSvc> m_histSvc;
 
             ToolHandle<CP::IIsolationCloseByCorrectionTool> m_isoCloseByCorrTool;
             ToolHandle<CP::IIsolationSelectionTool> m_isoSelectorTool;
 
             TTree* m_tree;
+            long long unsigned m_eventNumber;
             std::unique_ptr<IsoCorrectionTestHelper> m_ele_helper;
             std::unique_ptr<IsoCorrectionTestHelper> m_muo_helper;
             std::unique_ptr<IsoCorrectionTestHelper> m_pho_helper;
+            bool m_consider_ele;
+            bool m_consider_muo;
+            bool m_consider_pho;
 
+            float m_mu_min_pt;
+            float m_mu_max_eta;
+            float m_el_min_pt;
+            float m_el_max_eta;
+            float m_ph_min_pt;
+            float m_ph_max_eta;
+            
     };
 
 }

@@ -265,6 +265,12 @@ PP="$PP"'|MetaInputLoader *INFO ( address|.*is still valid for|.*and sid)'
 # Message useless for judging test success
 PP="$PP"'|^FileMgr +DEBUG Successfully registered handler for tech'
 
+# TagInfoMgr not longer a ConversionSvc
+# this line is gone
+PP="$PP"'|Added successfully Conversion service:TagInfoMgr'
+# this line moved around
+PP="$PP"'|Added successfully Conversion service:AthenaPoolCnvSvc'
+
 ########################################### END #####################################################
 
 # Always use default ignore list
@@ -305,6 +311,7 @@ else
            fi
        fi
 
+       echo "Reference log taken from: $reflog" 
        if [ -r $reflog ]; then
            jobdiff=${joblog}-todiff
            refdiff=`basename ${reflog}`-todiff

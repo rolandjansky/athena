@@ -31,20 +31,6 @@ TrkDistanceFinderNeutralCharged::TrkDistanceFinderNeutralCharged(const std::stri
 }
 
 
-StatusCode TrkDistanceFinderNeutralCharged::initialize() 
-  { 
-    StatusCode s = AthAlgTool::initialize();
-    ATH_MSG_INFO("Initialize successful");
-    return StatusCode::SUCCESS;
-  }
-
-StatusCode TrkDistanceFinderNeutralCharged::finalize() 
-{
-  ATH_MSG_INFO("Finalize successful");
-  return StatusCode::SUCCESS;
-}
-
-
 TrkDistanceFinderNeutralCharged::~TrkDistanceFinderNeutralCharged() = default;
 
 std::pair<Amg::Vector3D,double>  

@@ -404,7 +404,11 @@ namespace NSWL1 {
         ITHistSvc* tHistSvc=nullptr;
         m_validation_tree.clear_ntuple_variables();
         ATH_CHECK(service("THistSvc", tHistSvc));
-        std::string algoname = dynamic_cast<const INamedInterface*>(parent())->name();
+        auto iname = dynamic_cast<const INamedInterface*>(parent());
+        if (!iname) {
+          return StatusCode::FAILURE;
+        }
+        std::string algoname = iname->name();
         std::string treename = PadTdsValidationTree::treename_from_algoname(algoname);
         ATH_CHECK(tHistSvc->getTree(treename, tree));
 

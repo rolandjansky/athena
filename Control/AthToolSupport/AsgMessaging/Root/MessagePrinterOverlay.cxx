@@ -12,8 +12,9 @@
 
 #include <AsgMessaging/MessagePrinterOverlay.h>
 
+#include <AsgMessaging/MessageCheckLocal.h>
 #include <AsgMessaging/MessagePrinter.h>
-#include <cassert>
+#include <cstdlib>
 
 //
 // method implementations
@@ -25,7 +26,13 @@ namespace asg
   MessagePrinterOverlay (IMessagePrinter *val_printer) noexcept
     : m_saved (getCurrent()), m_current (val_printer)
   {
-    assert (val_printer != nullptr);
+    using namespace msgAsgMessaging;
+
+    if (val_printer == nullptr)
+    {
+      ANA_MSG_FATAL ("nullptr passed illegally");
+      std::abort ();
+    }
     getCurrent() = val_printer;
   }
 
@@ -34,7 +41,13 @@ namespace asg
   MessagePrinterOverlay ::
   ~MessagePrinterOverlay () noexcept
   {
-    assert (getCurrent() == m_current);
+    using namespace msgAsgMessaging;
+
+    if (getCurrent() != m_current)
+    {
+      ANA_MSG_FATAL ("the overlay message printer changed underhand this should never happen");
+      std::abort ();
+    }
     getCurrent() = m_saved;
   }
 

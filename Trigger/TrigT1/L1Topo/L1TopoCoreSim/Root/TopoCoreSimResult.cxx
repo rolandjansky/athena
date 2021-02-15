@@ -15,6 +15,8 @@
 
 #include "L1TopoCommon/Exception.h"
 
+#include "TrigConfData/L1Menu.h"
+
 #include <algorithm>
 
 using namespace std;
@@ -46,9 +48,9 @@ TopoCoreSimResult::triggerOutput(const std::string & triggerName) const {
 
 
 
-StatusCode
+TCS::StatusCode
 TopoCoreSimResult::collectResult(TCS::DecisionConnector* outputConn) {
-   StatusCode sc = StatusCode::SUCCESS;
+   TCS::StatusCode sc = TCS::StatusCode::SUCCESS;
    if (outputConn == nullptr ) {
       sc = m_globalDecision.collectDecision(m_outputConnectors);
    } else {
@@ -59,31 +61,33 @@ TopoCoreSimResult::collectResult(TCS::DecisionConnector* outputConn) {
 }
 
 
-StatusCode
+TCS::StatusCode
 TopoCoreSimResult::reset() {
    return m_globalDecision.resetDecision();
 }
 
 
-StatusCode
-TopoCoreSimResult::setupFromMenu(const TXC::L1TopoMenu & menu, 
-                                 const std::map<std::string, TCS::DecisionConnector*>& outputConnectorMap) {
+TCS::StatusCode
+TopoCoreSimResult::setupFromMenu(const std::map<std::string, TCS::DecisionConnector*>& outputConnectorMap) {
 
    m_outputConnectorMap = outputConnectorMap;
+
+   vector<TrigConf::TriggerLine> triggerLines;
 
    for(auto & x : m_outputConnectorMap) {
       // fill the set
       m_outputConnectors.insert(x.second);
 
       // fill the trigger line map (trigger name --> (TCS::DecisionConnector*,unsigned int index) )
-      for( const TXC::TriggerLine & trigger : x.second->triggers() ) {
+      for( const TrigConf::TriggerLine & trigger : x.second->triggers() ) {
          m_triggerLocation[trigger.name()] = x.second;
+	 triggerLines.push_back(trigger);
       }
    }
 
-   m_globalDecision.setTriggerLines(menu.getL1TopoConfigOutputList().getTriggerLines());
+   m_globalDecision.setTriggerLines(triggerLines);
 
-   return StatusCode::SUCCESS;
+   return TCS::StatusCode::SUCCESS;
 }
 
 
@@ -112,9 +116,9 @@ operator<<(std::ostream& o, const TCS::TopoCoreSimResult & simRes) {
 
    for( const DecisionConnector * conn : simRes.m_outputConnectors ) {
       o << conn->name() << endl;
-      for(const TXC::TriggerLine & trigger : conn->triggers()) {
-         o << "  " << trigger << endl;
-      }
+   //   for(const TrigConf::TriggerLine & trigger : conn->triggers()) {
+	//         o << "  " << trigger << endl;
+   //   }
       for(const TCS::TOBArray* output : conn->outputData())
          o << "  output " << output << endl;
    }

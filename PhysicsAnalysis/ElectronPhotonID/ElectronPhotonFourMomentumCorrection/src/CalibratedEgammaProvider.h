@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
 //athena friendly provider of egamma calibrations - applies the egammaCalibTool to collections 
 //author: will buttinger
 
-// Dear emacs, this is -*- c++ -*-
+
 #ifndef CALIBRATEDEGAMMAPROVIDER_H
 #define CALIBRATEDEGAMMAPROVIDER_H
 

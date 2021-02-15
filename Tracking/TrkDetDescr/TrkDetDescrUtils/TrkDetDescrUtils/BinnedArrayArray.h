@@ -32,7 +32,7 @@ namespace Trk {
    */
 
 template<class T>
-class BinnedArrayArrayT : public BinnedArrayT<T>
+class BinnedArrayArrayT final: public BinnedArrayT<T>
 {
 
 public:

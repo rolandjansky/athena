@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -8,7 +7,7 @@ AthSequencer=CompFactory.AthSequencer
 
 def MainServicesMiniCfg(loopMgr='AthenaEventLoopMgr', masterSequence='AthAlgSeq'):
     #Mininmal basic config, just good enough for HelloWorld and alike
-    cfg=ComponentAccumulator(masterSequence)
+    cfg=ComponentAccumulator(AthSequencer(masterSequence,Sequential=True))
     cfg.setAsTopLevel()
     cfg.setAppProperty('TopAlg',['AthSequencer/'+masterSequence])
     cfg.setAppProperty('MessageSvcType', 'MessageSvc')
@@ -51,7 +50,7 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
         # We add the conditions sequence later such that the CondInputLoader gets
         # initialized after all other user Algorithms for MT, so the base classes
         # of data deps can be correctly determined. 
-        cfg.addSequence(AthSequencer('AthAlgSeq',IgnoreFilterPassed=True,StopOverride=True),parentName='AthAllAlgSeq')
+        cfg.addSequence(AthSequencer('AthAlgSeq', IgnoreFilterPassed=True, StopOverride=True), parentName='AthAllAlgSeq')
         cfg.addSequence(AthSequencer('AthCondSeq',StopOverride=True),parentName='AthAllAlgSeq')
 
     cfg.addSequence(AthSequencer('AthEndSeq',Sequential=True),parentName='AthAlgEvtSeq') 
@@ -76,7 +75,7 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
     cfg.addService(StoreGateSvc("DetectorStore"))
     cfg.addService(StoreGateSvc("HistoryStore"))
     cfg.addService(StoreGateSvc("ConditionStore"))
-    cfg.addService(CompFactory.CoreDumpSvc(), create=True)
+    cfg.addService(CompFactory.CoreDumpSvc(FastStackTrace=True), create=True)
 
     cfg.setAppProperty('InitializationLoopCheck',False)
 
@@ -84,6 +83,7 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
 
     msgsvc=CompFactory.MessageSvc()
     msgsvc.OutputLevel=cfgFlags.Exec.OutputLevel
+    msgsvc.Format = "% F%{:d}W%C%7W%R%T %0W%M".format(cfgFlags.Common.MsgSourceLength)
     cfg.addService(msgsvc)
 
     if cfgFlags.Exec.DebugStage != "":
@@ -97,7 +97,7 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
         # Migrated code from AtlasThreadedJob.py
         AuditorSvc=CompFactory.AuditorSvc
         msgsvc.defaultLimit = 0
-        msgsvc.Format = "% F%40W%S%4W%R%e%s%8W%R%T %0W%M"
+        msgsvc.Format = "% F%{:d}W%C%6W%R%e%s%8W%R%T %0W%M".format(cfgFlags.Common.MsgSourceLength)
 
         SG__HiveMgrSvc=CompFactory.SG.HiveMgrSvc
         hivesvc = SG__HiveMgrSvc("EventDataSvc")
@@ -116,6 +116,7 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
         scheduler.ShowDataDependencies = cfgFlags.Scheduler.ShowDataDeps
         scheduler.ShowDataFlow         = cfgFlags.Scheduler.ShowDataFlow
         scheduler.ShowControlFlow      = cfgFlags.Scheduler.ShowControlFlow
+        scheduler.VerboseSubSlots      = cfgFlags.Scheduler.EnableVerboseViews
         scheduler.ThreadPoolSize       = cfgFlags.Concurrency.NumThreads
         cfg.addService(scheduler)
 
@@ -147,3 +148,8 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
 
     return cfg
     
+
+if __name__=="__main__":
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    cfg = MainServicesCfg(ConfigFlags)
+    cfg._wasMerged = True   # to avoid errror that CA was not merged

@@ -14,9 +14,9 @@
 TrigL2MuonSA::RpcRoadDefiner::RpcRoadDefiner(const std::string& type,
                                              const std::string& name,
                                              const IInterface*  parent):
-  AthAlgTool(type, name, parent),
-  m_regionSelector( "RegSelSvc", name )
+  AthAlgTool(type, name, parent)
 {
+  declareProperty("RegionSelectionTool", m_regionSelector);
 }
 
 // --------------------------------------------------------------------------------
@@ -25,6 +25,10 @@ TrigL2MuonSA::RpcRoadDefiner::RpcRoadDefiner(const std::string& type,
 StatusCode TrigL2MuonSA::RpcRoadDefiner::initialize()
 {
   ATH_CHECK(m_idHelperSvc.retrieve());
+
+  ATH_CHECK(m_regionSelector.retrieve());
+  ATH_MSG_DEBUG("Retrieved the RegionSelector tool ");
+
   return StatusCode::SUCCESS;
 }
 
@@ -119,13 +123,13 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
 	  else if (i_station==5) muonRoad.rWidth[10][i_layer] = 650;//BMG
 	  else muonRoad.rWidth[i_station][i_layer] = m_rWidth_RPC_Failed;
 	} else {
-	  if (i_station==0)      muonRoad.rWidth[i_station][i_layer] = 400;//for inner
-	  else if (i_station==1) muonRoad.rWidth[i_station][i_layer] = 200;//for middle
-	  else if (i_station==2) muonRoad.rWidth[i_station][i_layer] = 400;//for outer
-	  else if (i_station==3) muonRoad.rWidth[i_station][i_layer] = 400;//EndcapInner
-	  else if (i_station==4) muonRoad.rWidth[9][i_layer] = m_rWidth_RPC_Failed;//BME
-	  else if (i_station==5) muonRoad.rWidth[10][i_layer] = m_rWidth_RPC_Failed;//BMG
-	  else muonRoad.rWidth[i_station][i_layer] = m_rWidth_RPC_Failed;
+	  if (i_station==0)      muonRoad.rWidth[i_station][i_layer] = 250;//for inner
+	  else if (i_station==1) muonRoad.rWidth[i_station][i_layer] = 400;//for middle
+	  else if (i_station==2) muonRoad.rWidth[i_station][i_layer] = 600;//for outer
+	  else if (i_station==3) muonRoad.rWidth[i_station][i_layer] = 300;//EndcapInner
+	  else if (i_station==4) muonRoad.rWidth[9][i_layer] = 400;//BME
+	  else if (i_station==5) muonRoad.rWidth[10][i_layer] = 400;//BMG
+	  else muonRoad.rWidth[i_station][i_layer] = 400;
 	}
       }
       else {
@@ -159,8 +163,11 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
 
   const IRoiDescriptor* iroi = (IRoiDescriptor*) roi;
 
-  if (iroi) m_regionSelector->DetHashIDList(MDT, *iroi, mdtHashList);
-  else m_regionSelector->DetHashIDList(MDT, mdtHashList);
+  if (iroi) m_regionSelector->HashIDList(*iroi, mdtHashList);
+  else {
+    TrigRoiDescriptor fullscan_roi( true );
+    m_regionSelector->HashIDList(fullscan_roi, mdtHashList);
+  }
 
   if(roi) delete roi;
 

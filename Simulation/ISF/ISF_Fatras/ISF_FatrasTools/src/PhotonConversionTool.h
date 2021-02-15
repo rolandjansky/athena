@@ -35,7 +35,6 @@ namespace Trk {
   class CylinderVolumeBounds;
   class PdgToParticleHypothesis;
   class TrackingGeometry;
-  class ITrackingGeometrySvc;
 }
 
 namespace ISF {

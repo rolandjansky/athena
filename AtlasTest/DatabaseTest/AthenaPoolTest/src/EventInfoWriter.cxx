@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -9,9 +9,6 @@
  * geometry and conditions tags in EventInfo, writes extra tags.
  *
  * @author RD Schaffer <R.D.Schaffer@cern.ch>
- *
- * $Id: EventInfoWriter.cxx,v 1.9 2009-04-29 07:49:45 schaffer Exp $
- *
  */
 
 //<<<<<< INCLUDES                                                       >>>>>>
@@ -22,7 +19,6 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventType.h"
-#include "EventInfo/TagInfo.h"
 #include "EventInfoMgt/ITagInfoMgr.h"
 
 // Constructor with parameters:
@@ -116,54 +112,16 @@ StatusCode EventInfoWriter::execute()
         if (m_tagInfoMgr->addTag("TagD1", "D2").isFailure()) {
             ATH_MSG_WARNING("TagD1 NOT added");
 	} 
-
-ATH_MSG_DEBUG("execute: reset TagInfo proxy");
-
-        SG::DataProxy* tagInfoProxy = 
-            detStore()->proxy( ClassID_traits<TagInfo>::ID() );
-
-        if (0 == tagInfoProxy) {
-            ATH_MSG_ERROR("execute: Unable to retrieve TagInfo object with clid/key: " 
-                            << ClassID_traits<TagInfo>::ID());
-            return StatusCode::FAILURE;
-        }
-        // reset and retrieve
-        tagInfoProxy->reset();
-        const TagInfo* tagInfo = 0;
-        if (detStore()->retrieve( tagInfo ).isFailure() ) {
-            ATH_MSG_ERROR("execute: Could not retrieve TagInfo object from the detector store");      
-            return StatusCode::FAILURE;
-        }
-        else {
-            ATH_MSG_DEBUG("execute: retrieved TagInfo");
-        }
-
     }
 
-
-    // Get TagInfo and add tags
-
-    TagInfo tagInfo_local;
-    const TagInfo* tagInfo = 0;
-    // Try to get tagInfo if there, otherwise create
-    if (detStore()->retrieve( tagInfo ).isFailure()) {
-	ATH_MSG_DEBUG("No TagInfo in DetectorStore - creating one");
-	tagInfo = &tagInfo_local;
-    } 
-    else {
-	ATH_MSG_DEBUG("Retrieved TagInfo");
-    } 
-
-    // Dump out contents of TagInfo
-    ATH_MSG_DEBUG("Tags from  TagInfo:");
+    // Dump out Tags
+    ATH_MSG_DEBUG("Tags from TagInfoMgr:");
     MsgStream log(msgSvc(), name());
-    tagInfo->printTags(log);
+    m_tagInfoMgr->printTags(log);
     
     // Print out current Release version 
-    std::string releaseVersion;
-    tagInfo->findTag("AtlasRelease", releaseVersion);
-    ATH_MSG_DEBUG("Found Release version from TagInfo: " 
-	<< releaseVersion);
+    std::string releaseVersion = m_tagInfoMgr->findTag("AtlasRelease");
+    ATH_MSG_DEBUG("Found Release version from TagInfoMgr: " << releaseVersion);
 
     return StatusCode::SUCCESS;
 }
@@ -214,16 +172,4 @@ EventInfoWriter::fillTagInfo    () const
     }
         
     return StatusCode::SUCCESS;
-
 }
-
-
-
-StatusCode
-EventInfoWriter::checkTagInfo(IOVSVC_CALLBACK_ARGS)
-{
-    // Get the messaging service, print where you are
-    ATH_MSG_DEBUG("EventInfoWriter::checkTagInfo - called by IOVSvc");
-    return (fillTagInfo());
-}
-

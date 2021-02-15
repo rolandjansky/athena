@@ -90,15 +90,13 @@ bool LArHitEMap::BuildWindows(const McEventCollection* mcCollptr,
     McEventCollection::const_iterator itr;
 //    std::cout << " start loop over particles " << std::endl;
     for (itr = mcCollptr->begin(); itr!=mcCollptr->end(); ++itr) {
-      HepMC::GenEvent::particle_const_iterator itrPart;
-      for (itrPart = (*itr)->particles_begin(); itrPart!=(*itr)->particles_end(); ++itrPart )
+      for (auto part: *(*itr))
       {
-         HepMC::GenParticle *part=*itrPart;
          //works only for photons(22) and electrons(11) primary particle from Geant (status>1000)
          // with pt>5 GeV
 // GU 20-june-2006 use barcode between 10001 and 20000 to select primary particles //AV2020: not sure if it works
-         if(   (part->pdg_id()==22 || abs(part->pdg_id())==11 || part->pdg_id()==111) 
-            && part->barcode()>10000 && part->barcode()<20000
+         if(   (part->pdg_id()==22 || std::abs(part->pdg_id())==11 || part->pdg_id()==111) 
+            && HepMC::barcode(part)>10000 && HepMC::barcode(part)<20000
             && part->momentum().perp()> ptmin)
          {
 //          std::cout << "good particle found ! " << part->pdg_id() << std::endl;

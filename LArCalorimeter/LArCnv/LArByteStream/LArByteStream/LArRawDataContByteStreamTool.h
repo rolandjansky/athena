@@ -18,6 +18,9 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 //#include "GaudiKernel/ToolHandle.h"
 #include "LArByteStream/Hid2RESrcID.h"
+#include "LArByteStream/RodRobIdMap.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "LArRecConditions/LArFebRodMapping.h"
 #include "ByteStreamCnvSvcBase/FullEventAssembler.h" 
 #include "ByteStreamData/RawEvent.h" 
 #include "LArByteStream/LArRodDecoder.h"
@@ -25,6 +28,7 @@
 #include "CaloIdentifier/CaloGain.h"
 #include "CaloConditions/CaloNoise.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "CxxUtils/CachedUniquePtr.h"
 
 #include "LArRawEvent/LArFebHeaderContainer.h"
 // Map of ROBs need this
@@ -44,7 +48,7 @@ class IByteStreamEventAccess;
       
 class LArRawDataContByteStreamTool: public AthAlgTool {
 public:
-  using FEA_t = FullEventAssembler<Hid2RESrcID>;
+  using FEA_t = FullEventAssembler<RodRobIdMap>;
 
   /** Constructor
       Standard AlgTool constructor
@@ -78,8 +82,11 @@ public:
    * to get all ROD fragments belonging to LAr. Methods from @c LArRodDecoder 
    * are used to deal with the individual ROD fragments. 
   */
-  template <class COLLECTION >
-  StatusCode convert(const RawEvent* re, COLLECTION* digit_cont, CaloGain::CaloGain gain) const;
+  template <class COLLECTION, typename ...ARGS >
+  StatusCode convert(const RawEvent* re,
+                     COLLECTION* digit_cont,
+                     CaloGain::CaloGain gain,
+                     ARGS&&... args) const;
 
   /** 
    * @brief Fill channels from LArDigitContainer to a FullEvent
@@ -114,6 +121,9 @@ private:
   /** Prepare ROB index before conversion */
   StatusCode prepareRobIndex (const RawEvent* event, RobIndex_t& robIndex) const;
  
+  /** Construct a RodBlockStructure instance of the proper concrete type. */
+  std::unique_ptr<LArRodBlockStructure> makeRodBlockStructure() const;
+
   //StatusCode prepareWriting();
   /** 
    * @brief Check that all elements in a container have the same gain
@@ -123,16 +133,12 @@ private:
   template <class COLLECTION >
     bool checkGainConsistency(const COLLECTION* coll) const;
  
-  Hid2RESrcID m_hid2re;       //!< Contains the mapping from channel to ROD
+  const Hid2RESrcID& getHid2RESrcID (const LArFebRodMapping& rodMapping) const;
+
+  CxxUtils::CachedUniquePtr<Hid2RESrcID> m_hid2re;       //!< Contains the mapping from channel to ROD (writing only)
   LArRodDecoder *m_decoder;   //!< Pointer to RodDecoder class
 
-  /** Pointer to @c LArRodBlockStructure base class. 
-      Which concrete implementation is used depends on the value of 
-      @c m_DSPRunMode and @c m_RodBlockVersion. Ony for writing. 
-  */
-  LArRodBlockStructure *m_RodBlockStructure;
-
-  /** Indicateds which version of DSP code should be used for writing.
+  /** Indicates which version of DSP code should be used for writing.
       This is equivalent to the DetectorEventType word in the ROD block header.
       Only for writing. 
    */
@@ -154,8 +160,16 @@ private:
   // Name of Digit container to retrieve
   std::string m_DigitContName;
 
+  const LArOnlineID*    m_onlineHelper = nullptr;
+
   SG::ReadCondHandleKey<CaloNoise> m_caloNoiseKey
   { this, "CaloNoiseKey", "totalNoise", "" };
+
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_onOffIdMappingKey
+  { this, "OnOffIdMappingKey", "LArOnOffIdMap", "LArOnOffIdMap" };
+
+  SG::ReadCondHandleKey<LArFebRodMapping> m_febRodMappingKey
+  { this, "FebRodMappingKey", "LArFebRodMap", "LArFebRodMap" };
 };
 
 

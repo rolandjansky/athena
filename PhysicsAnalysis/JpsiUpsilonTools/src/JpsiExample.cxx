@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // JpsiExample.cxx
@@ -322,9 +322,9 @@ TVector3 JpsiExample::trackMomentum(const xAOD::Vertex * vxCandidate, uint trkIn
 //    pz = aPerigee->momentum()[Trk::pz];
 //  }
   
-  SG::ReadDecorHandle<xAOD::Vertex, std::vector<float>> hx (m_refPX);
-  SG::ReadDecorHandle<xAOD::Vertex, std::vector<float>> hy (m_refPY);
-  SG::ReadDecorHandle<xAOD::Vertex, std::vector<float>> hz (m_refPZ);
+  SG::ReadDecorHandle<xAOD::VertexContainer, std::vector<float>> hx (m_refPX);
+  SG::ReadDecorHandle<xAOD::VertexContainer, std::vector<float>> hy (m_refPY);
+  SG::ReadDecorHandle<xAOD::VertexContainer, std::vector<float>> hz (m_refPZ);
 
   const std::vector<float>& refTrackPx = hx(*vxCandidate);
   const std::vector<float>& refTrackPy = hy(*vxCandidate);

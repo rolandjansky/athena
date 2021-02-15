@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef ISOLATIONSELECTION_ISOVARIABLEHELPER_H
@@ -30,7 +30,7 @@ namespace CP {
             IsoVariableHelper(IsoType type, const std::string& BackupPreFix);
 
         private:
-
+            CorrectionCode getIsolationFromOriginal(const xAOD::IParticle* particle, float& value) const;
             IsoType m_isoType;
             bool m_BackupIso;
             CharDecorator m_dec_IsoIsBackup;

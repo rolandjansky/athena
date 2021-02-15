@@ -35,8 +35,8 @@ namespace FlavorTagDiscriminants {
   // also allow some user-configured remapping. Items in replaced_vars
   // are removed as they are used.
   void remap_inputs(std::vector<lwt::Input>& nn,
-                    std::vector<DL2InputConfig>& dl2,
-                    std::map<std::string, std::string>& replaced_vars);
+                    std::map<std::string, std::string>& replaced_vars,
+                    std::map<std::string, double>& defaults);
 
   // Function to map the regex + list of inputs to variable config,
   // this time for sequence inputs.

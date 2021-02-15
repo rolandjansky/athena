@@ -81,7 +81,7 @@ namespace Monitored {
       m_monitoredGroup(std::move(monitoredGroup))
 	{ }
     
-    virtual ~Group() {
+    ~Group() {
       if (m_autoFill) {
         fill();
       }
@@ -97,7 +97,7 @@ namespace Monitored {
      *
      * @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx fillExplicitly_fill
      **/
-    virtual void fill() {
+    void fill() {
       if ( m_tool.empty() ) return;
       setAutoFill(false);
       m_tool->invokeFillers(m_monitoredGroup);

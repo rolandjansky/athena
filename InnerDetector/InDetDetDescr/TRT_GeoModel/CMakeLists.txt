@@ -1,16 +1,16 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TRT_GeoModel )
 
 # External dependencies:
-find_package( GeoModelCore )
+find_package( GeoModel COMPONENTS GeoModelKernel )
 
 # Component(s) in the package:
 atlas_add_component( TRT_GeoModel
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} AthenaKernel GeoModelInterfaces GeoModelUtilities GeoPrimitives GaudiKernel TRT_ConditionsServicesLib InDetGeoModelUtils InDetReadoutGeometry TRT_ReadoutGeometry CxxUtils SGTools StoreGateLib AthenaPoolUtilities DetDescrConditions IdDictDetDescr TRT_ConditionsData InDetIdentifier GeometryDBSvcLib RDBAccessSvcLib )
+                     LINK_LIBRARIES ${GEOMODEL_LIBRARIES} AthenaKernel GeoModelInterfaces GeoModelUtilities GeoPrimitives GaudiKernel TRT_ConditionsServicesLib InDetGeoModelUtils ReadoutGeometryBase InDetReadoutGeometry TRT_ReadoutGeometry CxxUtils SGTools StoreGateLib AthenaPoolUtilities DetDescrConditions IdDictDetDescr TRT_ConditionsData InDetIdentifier GeometryDBSvcLib RDBAccessSvcLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

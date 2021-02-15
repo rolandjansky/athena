@@ -7,8 +7,6 @@ Provide different utilities like:
   _frozen = a base class / metaclass for making objects immutable
 """
 
-from __future__ import print_function
-
 __author__  = 'A. Dell`Acqua, M. Gallas, A. Di Simone'
 
 ## ATLAS generic scintillator SD
@@ -29,7 +27,7 @@ class ScintillatorSD(object):
         import AtlasG4Eng
         AtlasG4Eng.G4Eng.load_Lib('G4AncillarySD')
         AtlasG4Eng.G4Eng.load_Dict('G4AncillarySDDict')
-        SD_HChandler = AtlasG4Eng.G4Eng.gbl.ScintillatorSD_PyHandler()
+        #SD_HChandler = AtlasG4Eng.G4Eng.gbl.ScintillatorSD_PyHandler()
         #import PyG4Atlas
         ## SD = PyG4Atlas.SenDetector('G4AncillarySD', 'ScintillatorSD', 'ScintillatorSD') #FIXME SD to be migrated ATLASSIM-1752
         ## # Make a ScintillatorSD hit collection and each associated volume has a
@@ -67,7 +65,7 @@ class MemorySnooper(PyAthena.Alg):
         """
         Checks the memory at any time and print it to a file.
         """
-        import os, string, time
+        import os, time
         now = time.time()
         elapsed_time = now - self.now
         self.now = now
@@ -84,7 +82,7 @@ class MemorySnooper(PyAthena.Alg):
         only if is different from the previous value obtained.
         This method is for the use in the execute method (event by event).
         """
-        import os, string, time
+        import os, time
         now = time.time()
         elapsed_time = now - self.now
         self.now = now

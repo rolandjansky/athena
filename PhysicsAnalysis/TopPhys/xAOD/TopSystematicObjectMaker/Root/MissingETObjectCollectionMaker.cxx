@@ -127,7 +127,8 @@ namespace top {
                                                                  const std::string& outputContainerSuffix) {
     // decoration for objects that pass pre OR selection
     std::string passPreORSelection = "passPreORSelection";
-    const std::string jet_collection = m_config->sgKeyJets();
+    std::string jet_collection = m_config->sgKeyJets();
+    jet_collection.erase(jet_collection.length() - 4); //erase "Jets" from jet collection name
 
     const bool is_loose_event = (event->isLooseEvent() == 1 ? true : false);
 
@@ -164,7 +165,7 @@ namespace top {
 
       // Add those that pass pre-overlap removal selection to met_electrons
       ConstDataVector<xAOD::ElectronContainer> met_electrons(SG::VIEW_ELEMENTS);
-      for (const auto& el: *xaod_el)
+      for (const auto *el: *xaod_el)
         if (el->isAvailable<char>(passPreORSelection)
             && el->auxdata<char>(passPreORSelection) == 1) met_electrons.push_back(el);
 
@@ -185,7 +186,7 @@ namespace top {
 
       // Add those that pass pre-overlap removal to met_photons
       ConstDataVector<xAOD::PhotonContainer> met_photons(SG::VIEW_ELEMENTS);
-      for (const auto& photon: *xaod_photon)
+      for (const auto *photon: *xaod_photon)
         if (photon->isAvailable<char>(passPreORSelection)
             && photon->auxdata<char>(passPreORSelection) == 1) met_photons.push_back(photon);
 
@@ -205,7 +206,7 @@ namespace top {
 
       // Add those that pass pre-overlap removal to met_taus
       ConstDataVector<xAOD::TauJetContainer> met_taus(SG::VIEW_ELEMENTS);
-      for (const auto& tau: *xaod_tau)
+      for (const auto *tau: *xaod_tau)
         if (tau->isAvailable<char>(passPreORSelection)
             && tau->auxdata<char>(passPreORSelection) == 1) met_taus.push_back(tau);
 
@@ -227,7 +228,7 @@ namespace top {
 
       // Add those that pass pre-overlap removal to met_muons
       ConstDataVector<xAOD::MuonContainer> met_muons(SG::VIEW_ELEMENTS);
-      for (const auto& mu: *xaod_mu)
+      for (const auto *mu: *xaod_mu)
         if (mu->isAvailable<char>(passPreORSelection)
             && mu->auxdata<char>(passPreORSelection) == 1) met_muons.push_back(mu);
 
@@ -278,13 +279,13 @@ namespace top {
         // https://svnweb.cern.ch/trac/atlasoff/browser/Reconstruction/MET/METUtilities/tags/METUtilities-00-01-43/util/example_METMaker_METSystematicsTool.cxx
 
         //get the soft cluster term, and applyCorrection
-        xAOD::MissingET* softClusMet = (*new_met_container)["SoftClus"];
+        xAOD::MissingET* softClusMet = (*new_met_container)["SoftClusCore"];
         if (softClusMet != nullptr) { //check we retrieved the clust term
           m_met_systematics->setRandomSeed(static_cast<int>(1e6*softClusMet->phi()));
           top::check(m_met_systematics->applyCorrection(*softClusMet), "Failed to applyCorrection");
         }
 
-        xAOD::MissingET* softTrkMet = (*new_met_container)["PVSoftTrk"];
+        xAOD::MissingET* softTrkMet = (*new_met_container)["PVSoftTrkCore"];
         if (softTrkMet != nullptr) { //check we retrieved the soft trk
           m_met_systematics->setRandomSeed(static_cast<int>(1e6*softTrkMet->phi()));
           top::check(m_met_systematics->applyCorrection(*softTrkMet), "Failed to applyCorrection");

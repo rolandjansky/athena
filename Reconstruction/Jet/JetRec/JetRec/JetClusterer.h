@@ -28,6 +28,7 @@
 #include "JetRec/PseudoJetContainer.h"
 #include "JetRec/JetFromPseudojet.h"
 #include "JetEDM/PseudoJetVector.h"
+#include "JetEDM/ClusterSequence.h"
 
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/AreaDefinition.hh"
@@ -64,13 +65,14 @@ protected:
 
   /// used to build the key under which the final PJ will be stored in evtStore() 
   SG::WriteHandleKey<PseudoJetVector> m_finalPseudoJets {this, "FinalPseudoJets_DONOTSET", "", "output pseudojets -- autoconfigured name"};
+  SG::WriteHandleKey<jet::ClusterSequence> m_clusterSequence {this, "ClusterSequence_DONOTSET", "", "output pseudojets -- autoconfigured name"};
   
   // Job options.
   Gaudi::Property<std::string>  m_jetalg {this, "JetAlgorithm", "AntiKt", "alg type : AntiKt, Kt, CA..."};
   Gaudi::Property<float> m_jetrad        {this, "JetRadius", 0.4 , "jet size parameter"}; 
   Gaudi::Property<float> m_ptmin         {this, "PtMin", 0.0, "pT min in MeV"};
   Gaudi::Property<float> m_ghostarea     {this, "GhostArea", 0.0, "Area for ghosts. 0==>no ghosts."};
-  Gaudi::Property<int> m_ranopt          {this, "RandomOption", 0, "Rand option: 0=fj default, 1=run/event"};
+  Gaudi::Property<int> m_ranopt          {this, "RandomOption", 1, "Rand option: 0=fj default, 1=run/event"};
 
   Gaudi::Property<int> m_inputType       {this, "JetInputType", 0, "input type as in xAOD::JetInput (see xAODJet/JetContainerInfo.h)"};
 

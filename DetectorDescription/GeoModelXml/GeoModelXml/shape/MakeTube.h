@@ -8,6 +8,7 @@
 //
 #ifndef GEO_MODEL_XML_MAKE_TUBE_H
 #define GEO_MODEL_XML_MAKE_TUBE_H
+#include <xercesc/util/XercesDefs.hpp>
 
 #include "GeoModelXml/Element2GeoItem.h"
 

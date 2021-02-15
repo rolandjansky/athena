@@ -24,7 +24,7 @@ void IDC_WriteHandleBase::ReleaseLock(){
 //Running code
    assert(m_atomic->load() != ABORTstate);
    lockguard lk(m_mut->mutex);
-   m_atomic->compare_exchange_strong(waitstate, ABORTstate);
+   m_atomic->compare_exchange_strong(waitstate, ABORTstate, std::memory_order_relaxed, std::memory_order_relaxed);
    m_mut->condition.notify_all();
    m_atomic = nullptr;
 }

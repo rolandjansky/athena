@@ -20,7 +20,8 @@ precommand = ''.join([
   "doWriteRDOTrigger=True;",
   "forceEnableAllChains=True;",
   "fpeAuditor=True;",
-  "failIfNoProxy=True;"
+  "failIfNoProxy=True;",
+  'doRuntimeNaviVal=True', # Perform runtime graph vaidation in this test
 ])
 ex.args = '-c "{:s}"'.format(precommand)
 
@@ -34,7 +35,7 @@ test.check_steps = CheckSteps.default_check_steps(test)
 # Ultimately there should be no per-event messages
 msgcount = test.get_step("MessageCount")
 msgcount.thresholds = {
-  'WARNING': 500,
+  'WARNING': 600,
   'INFO': 1200,
   'other': 80
 }

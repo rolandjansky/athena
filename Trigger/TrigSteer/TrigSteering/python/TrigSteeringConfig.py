@@ -1,10 +1,11 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # flake8: noqa (trigger legacy code)
 
 from TrigSteering.TrigSteeringConf import *
 from TrigNavigation.TrigNavigationConfig import *
 from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+from TrigDecisionMaker.TrigDecisionMakerConf import HLT__Lvl1ResultAccessTool
 
 class RandomScaler( HLT__RandomScaler ):
     """Random scaler"""
@@ -153,16 +154,6 @@ class Lvl1ResultAccessTool ( HLT__Lvl1ResultAccessTool ) :
     def __init__(self, name = "Lvl1ResultAccessTool"):
         super( Lvl1ResultAccessTool, self ).__init__( name )
 
-        from AthenaCommon.Logging import logging  # loads logger
-        log = logging.getLogger( name )
-
-        from AthenaCommon.AppMgr import ServiceMgr
-
-        # set LVL1Config svc if not already done
-        # from TrigConfigSvc.TrigConfigSvcConfig import SetupTrigConfigSvc
-        # self.LVL1ConfigSvc = SetupTrigConfigSvc().GetConfigurable()
-
-
     def setDefaults(self,handle):
         pass
 
@@ -185,11 +176,6 @@ class TrigSteer_baseClass( HLT__TrigSteer ):
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         from AthenaCommon.Logging import logging  # loads logger
         log = logging.getLogger( name )
-
-        # set TrigConfig svc if not already done
-        #from TrigConfigSvc.TrigConfigSvcConfig import SetupTrigConfigSvc
-        #self.ConfigSvc = SetupTrigConfigSvc().GetConfigurable()
-
         # ScalerSvc        
         if not hasattr( svcMgr, 'ScalerSvc' ):
             log.debug( "Adding ScalerSvc to ServiceMgr" )

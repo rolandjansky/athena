@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaMPToolBase.h"
@@ -20,9 +20,6 @@
 #include <signal.h>
 
 #include <iterator>
-
-#include "unistd.h"
-#include <signal.h>
 
 namespace AthenaMPToolBase_d {
   bool sig_done = false;
@@ -57,40 +54,23 @@ AthenaMPToolBase::~AthenaMPToolBase()
 StatusCode AthenaMPToolBase::initialize()
 {
   ATH_MSG_DEBUG("In initialize");
-  StatusCode sc = m_evtProcessor.retrieve();
-  if(!sc.isSuccess()) {
-    ATH_MSG_ERROR("Error retrieving wrapped Event Loop Manager");
-    return sc;
-  }
-
-  sc = m_appMgr.retrieve();
-  if(!sc.isSuccess()) {
-    ATH_MSG_ERROR("Error retrieving ApplicationMgr");
-    return sc;
-  }
+  ATH_CHECK(m_evtProcessor.retrieve());
+  ATH_CHECK(m_appMgr.retrieve());
 
   SmartIF<IProperty> prpMgr(serviceLocator());
   if(prpMgr.isValid()) {
     // Get event selector name. Retrieve EventSelector and EventSeek
     m_evtSelName = prpMgr->getProperty("EvtSel").toString();
-    sc = serviceLocator()->service(m_evtSelName,m_evtSelector);
-    if(sc.isFailure() || m_evtSelector==0) {
-      ATH_MSG_ERROR("Error retrieving EventSelector");
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(serviceLocator()->service(m_evtSelName,m_evtSelector));
   }
   else {
     ATH_MSG_ERROR("IProperty interface not found in ApplicationMgr");
     return StatusCode::FAILURE;
   }
 
-  sc = m_fileMgr.retrieve();
-  if(!sc.isSuccess()) {
-    ATH_MSG_ERROR("Error retrieving FileMgr");
-    return sc;
-  }
+  ATH_CHECK(m_fileMgr.retrieve());
 
-  SmartIF<IProperty> prpMgr1(&*m_fileMgr);
+  SmartIF<IProperty> prpMgr1(m_fileMgr.get());
   if(prpMgr1.isValid()) {
     m_fileMgrLog = prpMgr1->getProperty("LogFile").toString();
   }

@@ -4,15 +4,15 @@
 
 #ifndef GEO_MODEL_XML_MAKE_TRANSLATION_H
 #define GEO_MODEL_XML_MAKE_TRANSLATION_H
+#include <xercesc/util/XercesDefs.hpp>
 //
 //    Create and return a HepRotation3d. Caller must delete it.
 //
 
+XERCES_CPP_NAMESPACE_BEGIN
+class DOMElement;
+XERCES_CPP_NAMESPACE_END
 #include "GeoModelKernel/GeoDefinitions.h"
-
-#include <xercesc/dom/DOM.hpp>
-
-//namespace HepGeom {class Translate3D;}
 class GmxUtil;
 
 

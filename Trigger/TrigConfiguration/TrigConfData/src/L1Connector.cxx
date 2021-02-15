@@ -52,10 +52,10 @@ TrigConf::L1Connector::update()
       for( size_t clock = 0; clock < m_maxClock; ++clock ) {
          std::string path = "triggerlines";
          if( m_type == ConnectorType::ELECTRICAL ) {
-            if(hasMultipleFPGAs) {
-               path += ".fpga";
-               path += std::to_string(fpga);
-            }
+	    if(hasMultipleFPGAs) {
+ 	       path += ".fpga";
+	       path += std::to_string(fpga);
+	    }
             path += ".clock";
             path += std::to_string(clock);
          }
@@ -66,7 +66,7 @@ TrigConf::L1Connector::update()
             m_triggerLines[fpga][clock].emplace_back( name,
                                                       tl.second.get_child("startbit").get_value<unsigned int>(),
                                                       tl.second.get_child("nbits").get_value<unsigned int>(),
-                                                      fpga, clock);
+                                                      fpga, clock, m_name);
             m_lineByName[name] = & m_triggerLines[fpga][clock].back();
          }
       }

@@ -75,7 +75,7 @@ namespace Trk {
     SubDetHitStatistics::SubDetType findSubDetType(Identifier id);
 
     const MuonSimData::Deposit* getDeposit(const MuonSimDataCollection& simCol, 
-                                                                            const HepMC::GenParticle& genPart, 
+                                                                            HepMC::ConstGenParticlePtr genPart, 
                                                                             const Identifier& id);
     const MuonSimDataCollection* retrieveTruthCollection( std::string colName );
  
@@ -94,7 +94,7 @@ namespace Trk {
                                          std::set<Muon::MuonStationIndex::ChIndex> chIndices);
 
     Amg::Vector3D getPRDTruthPosition(const Muon::MuonSegment &segment, 
-				      std::list<const HepMC::GenParticle*> genPartList,
+				      std::list<HepMC::ConstGenParticlePtr> genPartList,
 				      int truthPos,
 				      std::set<Muon::MuonStationIndex::ChIndex> chIndices);
 
@@ -107,4 +107,4 @@ namespace Trk {
   
 } // end namespace Trk
 
-#endif/*DETAILEDMUONPATTERNTRUTHBUILDER_H*/
+#endif

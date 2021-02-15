@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // class header
@@ -15,11 +15,9 @@
 #include "G4Transportation.hh"
 #include "G4hMultipleScattering.hh"
 #include "G4hIonisation.hh"
-#include "G4Transportation.hh"
 #include "G4ProcessManager.hh"
 #include "G4Decay.hh"
 #include "G4BaryonConstructor.hh"
-#include "G4ProcessManager.hh"
 
 // STL headers
 #include <string>
@@ -192,13 +190,13 @@ void RHadronsPhysicsTool::ConstructProcess()
         pmanager = particle->GetProcessManager();
       }
       G4ProcessVector *pros = pmanager->GetProcessList();
-      for (int pi=0; pi<pros->size(); ++pi) {
+      for (unsigned int pi=0; pi<pros->size(); ++pi) {
         if ((*pros)[pi]->GetProcessType()==fDecay) {
           pmanager->RemoveProcess(pi);
           break;
         }
       }
-      for (int pi=0; pi<pros->size(); ++pi) {
+      for (unsigned int pi=0; pi<pros->size(); ++pi) {
         if ((*pros)[pi]->GetProcessType()==fDecay) {
           ATH_MSG_WARNING ( "There is another decay process for this particle already defined!" );
           pmanager ->DumpInfo();

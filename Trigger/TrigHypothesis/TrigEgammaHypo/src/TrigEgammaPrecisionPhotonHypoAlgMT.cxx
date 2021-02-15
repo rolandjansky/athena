@@ -52,9 +52,10 @@ StatusCode TrigEgammaPrecisionPhotonHypoAlgMT::execute( const EventContext& cont
   // loop over previous decisions
   size_t counter=0;
   for ( auto previousDecision: *previousDecisionsHandle ) {
-    //get RoI  
-    auto roiELInfo = findLink<TrigRoiDescriptorCollection>( previousDecision, initialRoIString() );
-    
+
+    //get updated RoI  
+    auto roiELInfo = findLink<TrigRoiDescriptorCollection>( previousDecision, roiString() );    
+
     ATH_CHECK( roiELInfo.isValid() );
     const TrigRoiDescriptor* roi = *(roiELInfo.link);
 
@@ -76,10 +77,9 @@ StatusCode TrigEgammaPrecisionPhotonHypoAlgMT::execute( const EventContext& cont
 	    ATH_CHECK(ph.isValid());
 
 	    ATH_MSG_DEBUG ( "PhotonHandle in position " << cl << " processing...");
-	    auto d = newDecisionIn( decisions, name() );
-	    d->setObjectLink( "feature",  ph );
+	    auto d = newDecisionIn( decisions, hypoAlgNodeName() );
+	    d->setObjectLink( featureString(),  ph );
 	    TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
-	    d->setObjectLink( roiString(), roiELInfo.link );
 	    toolInput.emplace_back( d, roi, photonHandle.cptr()->at(cl), previousDecision );
 	    validphotons++;
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # File: D3PDMakerTest/python/difftuple_text.py
@@ -7,15 +7,14 @@
 # Purpose: Diff a root tuple file against a text dump.
 #
 
-from __future__ import print_function
-
-
 import operator
 import os
 import types
 import re
 import string
 import fnmatch
+import ROOT
+from functools import reduce
 from D3PDMakerTest.split_list import split_list, split_list1
 
 ignore_event_differences = False
@@ -1078,7 +1077,7 @@ def read_val (val):
         good = True
         for i in range(len(psplit)):
             psplit[i] = read_val (psplit[i])
-            if type(psplit[i]) != type([]):
+            if not isinstance(psplit[i], list):
                 good = False
                 break
         if good:
@@ -1086,7 +1085,7 @@ def read_val (val):
 
     if val[-1] == 'L':
         try:
-            return long(val)
+            return int(val)
         except TypeError:
             pass
 
@@ -1127,7 +1126,7 @@ class Reader (object):
 
 
     def getline (self):
-        if self.saved != None:
+        if self.saved is not None:
             out = self.saved
             self.saved = None
             return out
@@ -1140,7 +1139,7 @@ class Reader (object):
 
 
     def ungetline (self, l):
-        assert self.saved == None
+        assert self.saved is None
         self.saved = l
         return
 
@@ -1157,7 +1156,7 @@ class Tree (object):
     def read (self):
         while True:
             l = self.reader.getline()
-            if l == None: break
+            if l is None: break
             if not l: continue
             if l == '[Dummy tree skipped]':
                 self.dummy = True
@@ -1216,7 +1215,7 @@ class String (object):
         self.val = ''
         while True:
             l = reader.getline()
-            if l == None: break
+            if l is None: break
             ipos = l.find ('__END_OF_STRING__')
             if ipos >= 0:
                 self.val = self.val + l[:ipos]
@@ -1250,7 +1249,7 @@ class Dumpreader (object):
     def read (self):
         while True:
             l = self.reader.getline()
-            if l == None: break
+            if l is None: break
             if not l: continue
             if l.find ('wrong interface id') >= 0: continue
             ll = l.split()
@@ -1274,7 +1273,7 @@ class Dumpreader (object):
 
 
 def dictkey_diff (d1, d2, msg, filter = None):
-    keys = [k for k in d1.keys() if not d2.has_key(k)]
+    keys = [k for k in d1.keys() if k not in d2]
     if filter: keys = [k for k in keys if not filter(k)]
     if keys:
         keys.sort()
@@ -1302,7 +1301,7 @@ def diff_string (k, s1, s2):
 
 inttypes = [types.IntType, types.LongType]
 def compare (o1, o2, thresh = 1e-6, ithresh = None, eltcmp = None):
-    if eltcmp and type(o1) != type([]):
+    if eltcmp and not isinstance(o1, list):
         return eltcmp (o1, o2)
     # Allow comparing int/long int.
     if type(o1) in inttypes and type(o2) in inttypes:
@@ -1310,19 +1309,19 @@ def compare (o1, o2, thresh = 1e-6, ithresh = None, eltcmp = None):
         if o2 < 0: o2 = o2 + (1<<32)
         return o1 == o2
     # Promote int to float if needed.
-    if type(o1) in inttypes and type(o2) == type(1.1):
+    if type(o1) in inttypes and isinstance(o2, float):
         o1 = float(o1)
-    elif type(o2) in inttypes and type(o1) == type(1.1):
+    elif type(o2) in inttypes and isinstance(o1, float):
         o2 = float(o2)
 
     if type(o1) != type(o2):
         return False
-    if type(o1) == type([]):
+    if isinstance(o1, list):
         if len(o1) != len(o2):
             return False
 
         # Inline this to speed up this common case.
-        if len(o1) > 0 and type(o1[0]) == type(1.1) and not ithresh and not callable(thresh) and not eltcmp:
+        if len(o1) > 0 and isinstance(o1[0], float) and not ithresh and not callable(thresh) and not eltcmp:
             xabs = abs
             for i in range(len(o1)):
                 x1 = o1[i]
@@ -1349,10 +1348,10 @@ def compare (o1, o2, thresh = 1e-6, ithresh = None, eltcmp = None):
                              'map<string,float>',
                              'map<string,string>']:
         return ROOT.D3PDTest.MapDumper.equal (o1, o2)
-    if type(o1) == type(1.1):
+    if isinstance(o1, float):
         if callable(ithresh):
             ret = ithresh(o1, o2)
-            if ret == True or ret == False: return ret
+            if ret is True or ret is False: return ret
         elif ithresh and abs(o1) < ithresh and abs(o2) < ithresh:
             return True
         num = o1-o2
@@ -1551,7 +1550,7 @@ def diff_branch (k, kb, v1, v2):
     thresh = 1e-6
     for (pat, th) in branch_thresh:
         if pat.match (kb):
-            if type(th) == type(()):
+            if isinstance(th, tuple):
                 thresh = th[0]
                 ithresh = th[1]
             else:
@@ -1669,9 +1668,9 @@ def diff_branch (k, kb, v1, v2):
         b2 = v2[e]
 
         # Promote int to float if needed.
-        if type(b1) in inttypes and type(b2) == type(1.1):
+        if type(b1) in inttypes and isinstance(b2, float):
             b1 = float(b1)
-        elif type(b2) in inttypes and type(b1) == type(1.1):
+        elif type(b2) in inttypes and isinstance(b1, float):
             b2 = float(b2)
 
         if type(b1) != type(b2):
@@ -1718,7 +1717,7 @@ def diff_files (d1, d2):
     dictkey_diff (d2.keys, d1.keys, 'Keys only in reference file:',
                   ignore_key_p)
     for k in d1.keys.keys():
-        if d2.keys.has_key(k) and not ignore_key_p (k):
+        if k in d2.keys and not ignore_key_p (k):
             v1 = d1.keys[k]
             v2 = d2.keys[k]
             if type(v1) != type(v2):

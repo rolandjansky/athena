@@ -51,6 +51,7 @@ public:
 private:
   void fillMagFieldHist();
   void fillReleaseDataHist();
+  void fillProcThreadHist(int workerID);
   void fillSubDetHist();
   void fillIOVDbHist();
   void fillIOVDbChangeHist(const EventContext& ctx);
@@ -75,6 +76,8 @@ private:
   TH2I* m_magFieldHist{nullptr};
   TH2I* m_iovChangeHist{nullptr};
   TH1I* m_releaseHist{nullptr};
+  TH2I* m_mtConfigHist{nullptr};
+  TH1I* m_workersHist{nullptr};
   TH2I* m_subdetHist{nullptr};
   TProfile* m_lumiHist{nullptr};
   TProfile* m_muHist{nullptr};

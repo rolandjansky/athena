@@ -31,7 +31,7 @@ def getTrigDecisionTool(flags):
     if not flags.Input.isMC:
         # need to work through exact details here
         # tdt.UseOldEventInfoDecisionFormat = True
-        tdt.NavigationFormat = "TrigComposite" if flags.Trigger.EDMDecodingVersion == 3 else "TriggerElement"
+        tdt.NavigationFormat = "TrigComposite" if flags.Trigger.EDMVersion == 3 else "TriggerElement"
     else:
         tdt.NavigationFormat = "TrigComposite" if 'HLTNav_Summary' in flags.Input.Collections else "TriggerElement"
     rv.addPublicTool(tdt)

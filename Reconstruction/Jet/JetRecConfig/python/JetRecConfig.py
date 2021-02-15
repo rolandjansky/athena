@@ -81,16 +81,16 @@ def addJetClusteringToComponent(components, jetdef_i, configFlags, sequenceName=
     # Schedule the various input collections.
     # We don't have to worry about ordering, as the scheduler
     # will handle the details. Just merge the components.
-    inputcomps = JetInputCfg(jetdef_i, configFlags, sequenceName)
-    components.merge(inputcomps)
+    inputcomps = JetInputCfg(jetdef_i, configFlags)
+    components.merge(inputcomps, sequenceName=sequenceName)
 
     # schedule the algs to create fastjet::PseudoJet objects out of the inputs
-    pjCompo= PseudoJetCfg(jetdef_i, configFlags, sequenceName)
-    components.merge(pjCompo)
+    pjCompo= PseudoJetCfg(jetdef_i, configFlags)
+    components.merge(pjCompo, sequenceName=sequenceName)
     
     # Generate a JetRecAlg to run the jet finding and modifiers
     jetrecalg = getJetRecAlg( jetdef_i)
-    components.addEventAlgo(jetrecalg, sequenceName)
+    components.addEventAlgo(jetrecalg, sequenceName=sequenceName)
     
     jetlog.info("Scheduled JetAlgorithm instance \"jetalg_{0}\"".format(jetdef_i.fullname()))
 
@@ -133,14 +133,14 @@ def buildPseudoJetAlgs(jetdef):
     jetdef._internalAtt['finalPJContainer'] = finalPJContainer
     return pjalglist
     
-def PseudoJetCfg(jetdef, configFlags, sequenceName):
+def PseudoJetCfg(jetdef, configFlags):
     """Builds a ComponentAccumulator for creating PseudoJetContainer needed by jetdef.
     THIS updates jetdef._internalAtt['finalPJContainer'] 
     """
-    components = ComponentAccumulator(sequenceName)
-    pjalglist = buildPseudoJetAlgs( jetdef )
+    components = ComponentAccumulator()
+    pjalglist = buildPseudoJetAlgs(jetdef)
     for pjalg in pjalglist:
-        components.addEventAlgo( pjalg, sequenceName )
+        components.addEventAlgo(pjalg)
     return components
 
 _mergedPJContainers = dict()
@@ -152,7 +152,7 @@ def mergedPJId(pjList):
 
 
 ########################################################################
-def JetInputCfg(jetOrConstitdef, configFlags, sequenceName='AthAlgSeq'):
+def JetInputCfg(jetOrConstitdef, configFlags):
     """Function for setting up inputs to jet finding
 
     This includes constituent modifications, track selection, copying of
@@ -162,8 +162,7 @@ def JetInputCfg(jetOrConstitdef, configFlags, sequenceName='AthAlgSeq'):
      * a JetDefinition : this happens when called from JetRecCfg, then the jetdef._prereqDic/Order are used.
      * a JetConstitSource : to allow scheduling the corresponding constituents algs independently of any jet alg. 
     """
-
-    components = ComponentAccumulator(sequenceName)
+    components = ComponentAccumulator()
 
     
     from .JetDefinition import JetConstitSource, JetDefinition
@@ -289,9 +288,10 @@ def getJetAlgorithm(jetname, jetdef, pjContNames, monTool = None):
     return jetalg
 
 ########################################################################
-# Function that substitues JetRecTool + JetAlgorithm
+# New JetRecAlgorithm to replace JetRecTool
+# This call is for a JRA that runs jet-finding
 #
-def getJetRecAlg( jetdef):
+def getJetRecAlg( jetdef, monTool = None):
     """ """
     pjContNames = jetdef._internalAtt['finalPJContainer']
     jclust = CompFactory.JetClusterer(
@@ -300,8 +300,9 @@ def getJetRecAlg( jetdef):
         JetRadius = jetdef.radius,
         PtMin = jetdef.ptmin,
         InputPseudoJets = pjContNames,
-        GhostArea = 0.01 if (jetdef.radius < 0.6)  else 0. , 
-        JetInputType = jetdef.inputdef.jetinputtype,
+        GhostArea = 0.01, 
+        JetInputType = int(jetdef.inputdef.jetinputtype),
+        RandomOption = 1,
     )
 
     mods = buildJetModifierList(jetdef)
@@ -311,9 +312,48 @@ def getJetRecAlg( jetdef):
         "jetrecalg_"+jetname,
         Provider = jclust,
         Modifiers = mods,
-        OutputContainer = jetname)
+        OutputContainer = jetname,
+        MonTool = monTool)
 
     autoconfigureModifiers(jra.Modifiers, jetname)
+
+    return jra
+
+
+########################################################################
+# Get a JetRecAlg set up to copy a jet collection and apply mods
+# In this setup we do not resolve dependencies because typically
+# these may be set up already in the original jet collection
+# In future we may wish to add a toggle.
+#
+# The decoration list can be set in order for the decorations
+# (jet moments) on the original jets to be propagated to the
+# copy collection. Beware of circular dependencies!
+def getJetCopyAlg(jetsin, jetsoutdef, decorations=[], shallowcopy=True, shallowIO=True, monTool=None):
+
+    jcopy = CompFactory.JetCopier(
+        "copier",
+        InputJets = jetsin,
+        DecorDeps=decorations,
+        ShallowCopy=shallowcopy,
+        ShallowIO=shallowIO)
+
+    # Convert mod aliases into concrete tools
+    from . import JetModConfig
+    mods = []
+    for mod in jetsoutdef.modifiers:
+        moddef = JetModConfig.aliasToModDef(mod,jetsoutdef)
+        mods.append(JetModConfig.getModifier(jetsoutdef,moddef,moddef.modspec))
+
+    jetsoutname = jetsoutdef.fullname()
+    jra = CompFactory.JetRecAlg(
+        "jetrecalg_copy_"+jetsoutname,
+        Provider = jcopy,
+        Modifiers = mods,
+        OutputContainer = jetsoutname,
+        MonTool = monTool)
+
+    autoconfigureModifiers(jra.Modifiers, jetsoutname)
 
     return jra
 

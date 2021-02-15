@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TauDefs.h 796092 2017-02-08 00:14:16Z griffith $
 #ifndef XAODTAU_TAUDEFS_H
 #define XAODTAU_TAUDEFS_H
 
@@ -327,8 +326,8 @@ namespace TauJetParameters
       nChargedTracks=109,
       nIsolatedTracks=110,
       nModifiedIsolationTracks=111,//no static variable for now
-
-      //Tau/Ele BDTVars
+      nAllTracks=112,
+      nLargeRadiusTracks=113,
 
     };
 
@@ -415,6 +414,7 @@ namespace TauJetParameters
       unclassified         = 9,  // helper enum for not yet classified tracks
       passTrkSelectionTight = 10, //pass the xAOD Tight track selection
       modifiedIsolationTrack = 11, //passTrkSelector && !classifiedCharged
+      LargeRadiusTrack = 12, // Large Radius Track
       //if you add another flag, you'll need to check the track sorting alg, it assumes unclassified is the last flag *This should be fixed in TauTrackClassifier now*
       //Track sorting just requires that the classifiedXXX bits are consecutive, charged is first (of classifiedXXX), and fake is last (of classifiedXXX)
     };

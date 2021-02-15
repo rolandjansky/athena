@@ -1664,3 +1664,10 @@ void InDet::SiSpacePointsSeedMaker_Trigger::initializeEventData(EventData& data)
                   SizeRFZV,
                   false); // checkEta not used
 }
+
+void InDet::SiSpacePointsSeedMaker_Trigger::writeNtuple(const SiSpacePointsSeed*, const Trk::Track*, int, long) const{
+}
+
+bool InDet::SiSpacePointsSeedMaker_Trigger::getWriteNtupleBoolProperty() const{
+    return false;
+}

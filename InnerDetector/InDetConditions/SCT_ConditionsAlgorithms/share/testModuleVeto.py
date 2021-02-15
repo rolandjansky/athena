@@ -76,7 +76,7 @@ IOVDbSvc = Service("IOVDbSvc")
 from IOVDbSvc.CondDB import conddb
 IOVDbSvc.GlobalTag="OFLCOND-MC16-SDR-18"
 
-### Use COOL database for SCT_ModuleVetoSvc
+### Use COOL database for SCT_ModuleVetoTool
 useDB = True # False
 
 from SCT_ConditionsTools.SCT_ModuleVetoToolSetup import SCT_ModuleVetoToolSetup

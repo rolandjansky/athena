@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
 ## Name:        Fancy Jet Skimmer (allows to also cut on jet moments)
@@ -11,7 +11,6 @@
 ## Description: This is a short algorithm to select events that contain a jet
 ##              that fulfills a certain set of criteria, including jet moments
 ##
-## $Id: FancyJetFilter.py,v 1.6 2009/01/14 20:46:32 mkaneda Exp $
 ##
 ##============================================================================
 
@@ -24,8 +23,6 @@ __author__  = "Andy Haas <ahaas@cern.ch>"
 
 import AthenaPython.PyAthena as PyAthena
 from AthenaPython.PyAthena import StatusCode
-
-from PrimaryDPDMaker import PrimaryDPDHelpers
 
 import PyUtils.RootUtils as ru
 ROOT = ru.import_root()
@@ -126,7 +123,7 @@ class FancyJetFilter( PyAthena.AthFilterAlgorithm ):
 
         ## Import needed modules
         import PyUtils.RootUtils as ru
-        ROOT = ru.import_root()
+        ROOT = ru.import_root()  # noqa: F841
 
         ## Get the StoreGate service
         self.storeGateSvc = PyAthena.py_svc('StoreGateSvc')
@@ -141,7 +138,7 @@ class FancyJetFilter( PyAthena.AthFilterAlgorithm ):
         self.jss = PyAthena.SignalStateHelper(PyAthena.P4SignalState.JETFINAL)
         
         ## import some 4-mom utils
-        import FourMomUtils.Bindings
+        import FourMomUtils.Bindings  # noqa: F401
         self.utils = { 'deltaR' : PyAthena.P4Helpers.deltaR }
 
 
@@ -151,12 +148,12 @@ class FancyJetFilter( PyAthena.AthFilterAlgorithm ):
 
     def execute(self):
         self.nProcessed+=1
-        self.msg.debug( '==> execute %s on %r. event...' % (self.name(), self.nProcessed) )
+        self.msg.debug( '==> execute %s on %r. event...', self.name(), self.nProcessed )
         
 
         ## If passAll is selected, accept all events
         if self.passAll :
-            self.msg.debug( '%s event passed because passAll is true' % self.name() )
+            self.msg.debug( '%s event passed because passAll is true', self.name() )
             self.setFilterPassed(True)
             self.nEventPassed += 1
             return StatusCode.Success
@@ -166,9 +163,9 @@ class FancyJetFilter( PyAthena.AthFilterAlgorithm ):
         jetCollection = None
         try:
             jetCollection = self.storeGateSvc.retrieve( self.jetCollectionType, self.jetCollectionName )
-            self.msg.debug( 'Loading the jet collection %s from the input file.' % self.jetCollectionName )
+            self.msg.debug( 'Loading the jet collection %s from the input file.', self.jetCollectionName )
         except LookupError:
-            self.msg.warning( 'Collection %s not found' % self.jetCollectionName )           
+            self.msg.warning( 'Collection %s not found', self.jetCollectionName )
             self.setFilterPassed(True)
             return StatusCode.Success   
    
@@ -185,7 +182,7 @@ class FancyJetFilter( PyAthena.AthFilterAlgorithm ):
 
 
         # Print a debug message
-        self.msg.debug( 'Starting loop over all jets. In this event, there are %s jets' % jetCollection.size() )
+        self.msg.debug( 'Starting loop over all jets. In this event, there are %s jets', jetCollection.size() )
 
 
         ## Find leading Et
@@ -198,7 +195,7 @@ class FancyJetFilter( PyAthena.AthFilterAlgorithm ):
 
         for jet in jetCollection :
             controlObject(jet)            
-            self.msg.debug( ' jet = '+str(jet))
+            self.msg.debug( ' jet = %s', jet)
             self.nJets += 1
             jet_n += 1
             if jet_n <= self.nLeadingsForCheck :
@@ -208,8 +205,7 @@ class FancyJetFilter( PyAthena.AthFilterAlgorithm ):
                         #ACH
                         pass_trk = False
                         for mk in jet.getMomentKeys():
-                            if not mk in ['sumPtTrk']: continue
-                            mom = jet.getMoment (mk)
+                            if mk not in ['sumPtTrk']: continue
                             value_mom=jet.getMoment (mk, True)
                             self.msg.debug("mom: %s %s", (mk, value_mom) )
                             if self.cutSumPtTrkMax>0.0 and value_mom < self.cutSumPtTrkMax:
@@ -223,7 +219,7 @@ class FancyJetFilter( PyAthena.AthFilterAlgorithm ):
                         if self.removeOverlap :
                             self.msg.debug( 'FancyJetFilter: I am in overlap!' )
                             doesOverlap = False
-                            for lep in leptonList :
+                            for lep in leptonList :   # noqa: F821 (FIXME, leptonList unknown)
                                 if self.utils['deltaR'](jet, lep) <= self.deltaR :
                                     doesOverlap = True
                                     break
@@ -253,7 +249,7 @@ class FancyJetFilter( PyAthena.AthFilterAlgorithm ):
             pass
 
         # Print a debug message
-        self.msg.debug( 'Done with the loop over the jets. Have %s jets in collection, put %s jets in goodJets, and the leading jet has et = %s GeV.' % ( jetCollection.size(), goodJets.__len__(), leadEt/Units.GeV ) )
+        self.msg.debug( 'Done with the loop over the jets. Have %s jets in collection, put %s jets in goodJets, and the leading jet has et = %s GeV.', jetCollection.size(), goodJets.__len__(), leadEt/Units.GeV )
 
         releaseObject()
 
@@ -261,12 +257,12 @@ class FancyJetFilter( PyAthena.AthFilterAlgorithm ):
         ## Check if the event is accepted
         if  goodJets.__len__() >= self.minNumberPassed and leadEt <= self.cutEtMax :
             self.msg.debug( 'The %d leading jets are within [%f , %f] GeV', jet_pass, self.cutEtMin/Units.GeV, self.cutEtMax/Units.GeV)
-            self.msg.debug( '%s event passed.' % self.name() )
+            self.msg.debug( '%s event passed.', self.name() )
             self.setFilterPassed(True)
             self.nEventPassed += 1
             pass
         else:
-            self.msg.debug( '%s event failed' % self.name() )
+            self.msg.debug( '%s event failed', self.name() )
             self.setFilterPassed(False)
             pass
         
@@ -299,13 +295,13 @@ class FancyJetFilter( PyAthena.AthFilterAlgorithm ):
 
 
         
-        self.msg.info( '==> finalize %s...' % self.name() )
+        self.msg.info( '==> finalize %s...', self.name() )
         self.msg.info( '***************************************************************' )
-        self.msg.info( 'Cut-flow table of %s skimming algorithm:' % self.name() )
+        self.msg.info( 'Cut-flow table of %s skimming algorithm:', self.name() )
         self.msg.info( '-------------' )
-        self.msg.info( ' Number of processed events: %r' % self.nProcessed )
-        self.msg.info( ' Number of all jets:    %r and number of jets per event: %3.3f +/- %3.3f' % ( self.nJets, effiJets, effiErrJets ) )
-        self.msg.info( ' Events accepted:    %r and resulting efficiency = (%3.3f +/- %3.3f)%%' % ( self.nEventPassed, effiEvents, effiErrEvents ) )
+        self.msg.info( ' Number of processed events: %r', self.nProcessed )
+        self.msg.info( ' Number of all jets:    %r and number of jets per event: %3.3f +/- %3.3f', self.nJets, effiJets, effiErrJets )
+        self.msg.info( ' Events accepted:    %r and resulting efficiency = (%3.3f +/- %3.3f)%%', self.nEventPassed, effiEvents, effiErrEvents )
         self.msg.info( '***************************************************************' )
 
         return StatusCode.Success

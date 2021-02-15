@@ -1,9 +1,7 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 from AthenaCommon.SystemOfUnits import GeV
-from AthenaCommon.Include import Include 
-# flake8: noqa 
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TrigEgammaFastPhotonHypoTool')

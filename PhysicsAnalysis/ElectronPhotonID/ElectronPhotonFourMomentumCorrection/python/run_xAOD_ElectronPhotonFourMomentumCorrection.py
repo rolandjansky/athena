@@ -1,7 +1,6 @@
 #!/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import ROOT
 import math
@@ -43,7 +42,7 @@ def xAOD_particle_generator(tree, collection_getter, newevent_function=None, end
         ei = tree.EventInfo
         event_number = ei.eventNumber()
         if event_numbers:
-            if not event_number in event_numbers:
+            if event_number not in event_numbers:
                 continue
         logging.debug("=== event number %d ievent = %d", event_number, ievent)
         if newevent_function is not None:
@@ -94,11 +93,12 @@ def main(filename, **args):
         f.Print()
         return
 
-    logging.info("input has %d entries" % tree.GetEntries())
+    logging.info("input has %d entries", tree.GetEntries())
 
     logging.debug("initializing tool")
     tool = ROOT.CP.EgammaCalibrationAndSmearingTool("tool")
     tool.setProperty("ESModel", args["esmodel"]).ignore()
+    tool.setProperty("decorrelationModel", args["decorrelation"]).ignore()
     if args["no_smearing"]:
         tool.setProperty("int")("doSmearing", 0).ignore()
     if args['debug']:
@@ -108,6 +108,11 @@ def main(filename, **args):
 
     tool.initialize()
 
+    if args['variation'] is not None:
+        logging.info("applying systematic variation %s", args['variation'])
+        sys_set = ROOT.CP.SystematicSet()
+        sys_set.insert(ROOT.CP.SystematicVariation(args['variation'], args['variation_sigma']))
+        tool.applySystematicVariation(sys_set)
 
     logging.debug("creating output tree")
     fout = ROOT.TFile("output.root", "recreate")
@@ -154,7 +159,8 @@ def main(filename, **args):
         tree_out.Fill(ei.eventNumber(), cluster.eta(), cluster.phi(),
                       true_e, pdgId, calibrated_energy, xAOD_energy, raw_e, raw_ps)
         if math.isnan(calibrated_energy) or math.isnan(calibrated_energy) or calibrated_energy < 1:
-            print ("==>", particle.author(), particle.eta(), particle.phi(), xAOD_energy, calibrated_energy)
+            print("==>", particle.author(), particle.eta(), particle.phi(), xAOD_energy, calibrated_energy)
+
 
     logging.info("%d events written", tree_out.GetEntries())
 
@@ -162,7 +168,6 @@ def main(filename, **args):
     fout.Close()
 
 if __name__ == '__main__':
-    ROOT.gROOT.ProcessLine(".x $ROOTCOREDIR/scripts/load_packages.C")
     import argparse
 
     parser = argparse.ArgumentParser(description='Run on xAOD and dump calibrated energy for electron and photons',
@@ -179,6 +184,9 @@ if __name__ == '__main__':
     parser.add_argument('--no-layer-correction', action='store_true', default=False)
     parser.add_argument('--no-smearing', action='store_true')
     parser.add_argument('--esmodel', default="es2015c_summer")
+    parser.add_argument('--decorrelation', default='1NP_v1')
+    parser.add_argument('--variation', type=str, help='variation to apply (optional)')
+    parser.add_argument('--variation-sigma', type=int, default=1, help='number of sigma for the variation (+1 or -1)')
     parser.add_argument('--use-afii', type=int)
 
     args = parser.parse_args()

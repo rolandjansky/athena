@@ -1,4 +1,6 @@
-// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
 
 #include <iomanip>
 
@@ -10,33 +12,53 @@
 using namespace std;
 using namespace TCS;
 
+void
+GlobalDecision::setTriggerLines(const vector<TrigConf::TriggerLine> & triggers) {
+
+  m_triggers = triggers;
+  vector<string> connNames = {};
+  for (const TrigConf::TriggerLine & trigger : triggers){
+    auto it = find(connNames.begin(), connNames.end(), trigger.connName());
+    if (it == connNames.end()){
+      connNames.push_back(trigger.connName());
+      m_decision[trigger.connName()] = 0;
+    }
+  }
+}
+  
 uint32_t
-GlobalDecision::decision(unsigned int module, unsigned int clock) const {
-   if(clock==0) {
-      // lower 32 bit
-      return (uint32_t) (m_decision[module] & 0xffffffff);
-   } else {
-      // upper 32 bit
-      uint64_t clock1 = m_decision[module] & 0xffffffff00000000;
-      return (uint32_t) (clock1 >> 32);
+GlobalDecision::decision_field(string connName, unsigned int clock) const {
+   try {
+      if(clock==0) {
+         // lower 32 bit
+         return (uint32_t) (m_decision.at(connName) & 0xffffffff);
+      } else {
+         // upper 32 bit
+         uint64_t clock1 = m_decision.at(connName) & 0xffffffff00000000;
+         return (uint32_t) (clock1 >> 32);
+      }
+   }
+   catch(std::exception &) {
+      TRG_MSG_ERROR("Connector name " << connName << " unknown");
+      throw;
    }
 }
 
 uint32_t
-GlobalDecision::overflow(unsigned int module, unsigned int clock) const {
+GlobalDecision::overflow_field(string connName, unsigned int clock) const {
    if(clock==0) {
       // lower 32 bit
-      return (uint32_t) (m_overflow[module] & 0xffffffff);
+      return (uint32_t) (m_overflow.find(connName)->second & 0xffffffff);
    } else {
       // upper 32 bit
-      uint64_t clock1 = m_overflow[module] & 0xffffffff00000000;
+      uint64_t clock1 = m_overflow.find(connName)->second & 0xffffffff00000000;
       return (uint32_t) (clock1 >> 32);
    }
 }
 
 
-GlobalDecision::GlobalDecision() :
-   TrigConfMessaging("L1TopoGlobalDecision")
+GlobalDecision::GlobalDecision(const std::string &name) :
+   TrigConfMessaging(name)
 {}
 
 /****************************************************************
@@ -47,7 +69,7 @@ GlobalDecision::GlobalDecision() :
  *
  ****************************************************************/
 
-StatusCode
+TCS::StatusCode
 GlobalDecision::collectDecision(const set<DecisionConnector*> & outconn) {
    resetDecision();
 
@@ -56,34 +78,34 @@ GlobalDecision::collectDecision(const set<DecisionConnector*> & outconn) {
       const Decision& dec = conn->decision();
 
       unsigned int pos = 0; // for multi-output algorithms pos is the output index
-      for(const TXC::TriggerLine & trigger : conn->triggers() ) {
-
-         unsigned int bit = trigger.counter() % 64;  // trigger bit in module
+      for(const TrigConf::TriggerLine & trigger : conn->triggers() ) {
          
-         uint64_t & moduleDec = m_decision[trigger.module()];
-         uint64_t & moduleOvf = m_overflow[trigger.module()];
+	      unsigned int position = trigger.startbit() + 32*trigger.fpga() + 16*trigger.clock();
+
+         uint64_t & connectorDec = m_decision[trigger.connName()];
+         uint64_t & connectorOvf = m_overflow[trigger.connName()];
          uint64_t mask(0x1);
 
-         //std::cout << "JOERG GlobalDecision::collectDecision: trigger line " << trigger.name() << " [counter="<<trigger.counter()<<"] on module " << trigger.module() << " and bit [0-63] " << bit << " -> dec " << dec << std::endl;
-
          if( dec.bit(pos++) )  // bit set?
-            moduleDec |= (mask << bit);
+            connectorDec |= (mask << position);
          if( dec.overflow())
-            moduleOvf |= (mask << bit);
+            connectorOvf |= (mask << position);
       }
 
    }
    m_valid = true;
-   return StatusCode::SUCCESS;
+   return TCS::StatusCode::SUCCESS;
 }
 
 
-StatusCode
+TCS::StatusCode
 GlobalDecision::resetDecision() {
-   m_decision[0] = m_decision[1] = m_decision[2] = 0;
-   m_overflow[0] = m_overflow[1] = m_overflow[2] = 0;
+   for(auto const& dec : m_decision)
+     m_decision[dec.first] = 0;
+   for(auto const& ovf : m_overflow)
+     m_overflow[ovf.first] = 0;
    m_valid = false;
-   return StatusCode::SUCCESS;
+   return TCS::StatusCode::SUCCESS;
 }
 
 
@@ -96,18 +118,17 @@ operator<<(std::ostream& o, const TCS::GlobalDecision & dec) {
    if(!dec.isValid()) 
       o << "Note that the overall decision has not been calculated" << endl;
 
-   for(unsigned int module = 0; module<3; ++module)
-      o << "Overall decision module " << module << ": 0x" << right << hex << setfill('0') << setw(16) << dec.decision(module) << std::dec << setfill(' ') << endl;
-
+   for(auto const& itdec : dec.m_decision)
+      o << "Overall decision for connector " << itdec.first << ": 0x" << right << hex << setfill('0') << setw(16) << dec.decision_field(itdec.first) << std::dec << setfill(' ') << endl;
    
    if(dec.isValid()) {
-      for(const TXC::TriggerLine & trigger : dec.m_triggers)
-         o << "  " << setw(30) << left << trigger.name() << "  " << (dec.passed(trigger.module(), trigger.counter() % 64) ? "pass" : "fail") << endl;
+     for(const TrigConf::TriggerLine & trigger : dec.m_triggers){
+	 unsigned int position = trigger.startbit() + 32*trigger.fpga() + 16*trigger.clock();
+	 o << "  " << setw(30) << left << trigger.name() << "  " << (dec.passed(trigger.connName(), position) ? "pass" : "fail") << endl;}
    } else {
-      for(const TXC::TriggerLine & trigger : dec.m_triggers)
-         o << "  " << setw(30) << left << trigger.name() << "  unset" << endl;
+      for(const TrigConf::TriggerLine & trigger : dec.m_triggers)
+	o << "  " << setw(30) << left << trigger.name() << "  unset" << endl;
    }
-   
    return o;
 }
 //----------------------------------------------------------
@@ -117,17 +138,17 @@ GlobalDecision::print() const {
    if(!isValid()) 
       TRG_MSG_INFO("Note that the overall decision has not been calculated");
 
-   for(unsigned int module = 0; module<3; ++module)
-      TRG_MSG_INFO("Overall decision module " << module << ": 0x" << right << hex << setfill('0') << setw(16) << decision(module) << std::dec << setfill(' '));
+   for(auto const& dec : m_decision)
+      TRG_MSG_INFO("Overall decision from connector " << dec.first << ": 0x" << right << hex << setfill('0') << setw(16) << decision_field(dec.first) << std::dec << setfill(' '));
 
-   
    if(isValid()) {
-      for(const TXC::TriggerLine & trigger : m_triggers)
-         TRG_MSG_INFO("      " << setw(30) << left << trigger.name() << "  " << (passed(trigger.module(), trigger.counter() % 64) ? "pass" : "fail") );
+      for(const TrigConf::TriggerLine & trigger : m_triggers){
+	 unsigned int position = trigger.startbit() + 32*trigger.fpga() + 16*trigger.clock();
+ 	 TRG_MSG_INFO("      " << setw(30) << left << trigger.name() << "  " << (passed(trigger.connName(), position) ? "pass" : "fail") );}
    } else {
-      for(const TXC::TriggerLine & trigger : m_triggers)
+      for(const TrigConf::TriggerLine & trigger : m_triggers)
          TRG_MSG_INFO("      " << setw(30) << left << trigger.name() << "  unset" );
    }
-   
 }
+
 }

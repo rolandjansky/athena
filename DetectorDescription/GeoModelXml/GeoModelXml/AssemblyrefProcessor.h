@@ -4,6 +4,7 @@
 
 #ifndef GEO_MODEL_XML_ASSEMBLYREF_PROCESSOR_H
 #define GEO_MODEL_XML_ASSEMBLYREF_PROCESSOR_H
+#include <xercesc/util/XercesDefs.hpp>
 
 //
 //   Processor for assemblyref tags.

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAMPTOOLS_TOKENSCATTERER_H
@@ -56,9 +56,9 @@ class EvtRangeScatterer final : public AthenaMPToolBase
 				 , int& procReportPending);
 
   // Poll the failed PID queue to see if any of the Processors has failed
-  void pollFailedPidQueue(AthenaInterprocess::SharedQueue*  sharedFailedPidQueue
-			  , yampl::ISocket* socket2Pilot
-			  , int& procReportPending);
+  pid_t pollFailedPidQueue(AthenaInterprocess::SharedQueue*  sharedFailedPidQueue
+			   , yampl::ISocket* socket2Pilot
+			   , int& procReportPending);
 
   StringProperty           m_processorChannel;
   StringProperty           m_eventRangeChannel;

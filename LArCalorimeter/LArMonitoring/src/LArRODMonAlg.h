@@ -26,6 +26,7 @@ class HWIdentifier;
 class LArOnOffIdMapping;
 class LArRawChannelContainer;
 class LArDigitContainer;
+class LArFebHeaderContainer;
 
 #include <atomic>
 #include <fstream>
@@ -134,6 +135,7 @@ private:
   SG::ReadHandleKey<LArRawChannelContainer> m_channelKey_fromDigits{this,"LArRawChannelKey_fromDigits","LArRawChannels_FromDigits","SG key of LArRawChannels produced offline"};
 
   SG::ReadHandleKey<LArDigitContainer> m_digitContainerKey{this,"LArDigitContainerKey","FREE","SG key of LArDigitContainer read from Bytestream"};
+  SG::ReadHandleKey<LArFebHeaderContainer> m_headerContainerKey{this,"LArFebHeaderKey","LArFebHeader","SG key of LArFebHeader"};
 
 
   SG::ReadCondHandleKey<ILArOFC>         m_keyOFC{this,"KeyOFC","LArOFC","SG key of LArOFC CDO"};

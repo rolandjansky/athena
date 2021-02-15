@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PERSISTENTDATAMODELTPCNV_DATAHEADER_P6_H
@@ -34,12 +34,14 @@ public:
     bool operator==(const DbRecord& rhs) const { return fid==rhs.fid && tech==rhs.tech; }
   };
   struct ObjRecord {
-    Guid guid; std::string key; unsigned clid; long long oid1;
+     Guid guid;
+     std::string cont, key;
+     unsigned clid; long long oid1;
     ObjRecord() {}
-    ObjRecord( const Guid& g, const std::string& k, unsigned id, long long o)
-      : guid(g), key(k), clid(id), oid1(o) {}
+    ObjRecord( const Guid& g, const std::string& c, const std::string& k, unsigned id, long long o)
+       : guid(g), cont(c), key(k), clid(id), oid1(o) {}
     bool operator==(const ObjRecord& rhs) const
-      { return clid == rhs.clid && key == rhs.key && oid1 == rhs.oid1; }
+      { return clid == rhs.clid && cont == rhs.cont && key == rhs.key && oid1 == rhs.oid1; }
   };
 
 public: // Constructor and Destructor
@@ -58,6 +60,7 @@ public: // Constructor and Destructor
 	   const std::set<unsigned int>& symLinks = std::set<unsigned int>(),
 	   const std::vector<unsigned int>& hashes = std::vector<unsigned int>());
    std::size_t sizeObj() const;
+   std::string getObjContainer(unsigned int index) const;
    std::string getObjKey(unsigned int index) const;
    unsigned int getObjType(unsigned int index) const;
    Guid getObjClassId(unsigned int index) const;

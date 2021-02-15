@@ -7,7 +7,6 @@
 #include <cmath>
 #include <iomanip>
 #include <stdexcept>
-#include <sstream>
 namespace FPTracker{
   TransversePoint::TransversePoint():m_x(0.), m_y(0.){
   }

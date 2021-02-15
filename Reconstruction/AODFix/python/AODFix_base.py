@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 
@@ -42,9 +42,9 @@ class AODFix_base(object):
         self.isHIP = isHIP
         self.prevAODFix = prevVersion if not force else 'none' # if forcing, ignore old AODFix
         self.newAODFix = "-".join(self.latestAODFixVersion())
-        logAODFix.debug( "latestAODFixVersion() = " +  self.newAODFix)
-        logAODFix.debug( "prevVersion = " +  prevVersion)
-        logAODFix.debug( "force = " +  str(force))
+        logAODFix.debug( "latestAODFixVersion() = %s", self.newAODFix)
+        logAODFix.debug( "prevVersion = %s", prevVersion)
+        logAODFix.debug( "force = %s", force)
         if self.newAODFix == "":
             # the AODFix is empty: do nothing
             self.doAODFix = False
@@ -58,7 +58,7 @@ class AODFix_base(object):
             self.doAODFix = True
 
         if self.doAODFix:
-            logAODFix.info("AODFix with version %s scheduled" % self.newAODFix)
+            logAODFix.info("AODFix with version %s scheduled", self.newAODFix)
 
     def addMetaData(self):
         '''standard function to apply metadata, can overload if necessary for complicated scenarios.'''
@@ -83,7 +83,7 @@ class AODFix_base(object):
 
             metastr = "AODFix_" + "-".join(metadataList) + suffix
 
-            logAODFix.info("executing addMetaData, will add as AODFixVersion %s" % metastr)
+            logAODFix.info("executing addMetaData, will add as AODFixVersion %s", metastr)
             from AthenaCommon.AppMgr import ServiceMgr as svcMgr
             svcMgr.TagInfoMgr.ExtraTagValuePairs["AODFixVersion"]=metastr
 

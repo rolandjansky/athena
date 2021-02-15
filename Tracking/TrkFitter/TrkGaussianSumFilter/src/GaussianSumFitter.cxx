@@ -31,6 +31,35 @@
 #include <algorithm>
 #include <vector>
 
+namespace {
+std::unique_ptr<Trk::FitQuality>
+buildFitQuality(const Trk::SmoothedTrajectory& smoothedTrajectory)
+{
+
+  double chiSquared = 0.;
+  int numberDoF = -5;
+  // Loop over all TrackStateOnSurface objects in trajectory
+  Trk::SmoothedTrajectory::const_iterator stateOnSurface =
+    smoothedTrajectory.begin();
+  for (; stateOnSurface != smoothedTrajectory.end(); ++stateOnSurface) {
+    if (!(*stateOnSurface)->type(Trk::TrackStateOnSurface::Measurement)) {
+      continue;
+    }
+    if ((*stateOnSurface)->fitQualityOnSurface() == nullptr) {
+      continue;
+    }
+    chiSquared += (*stateOnSurface)->fitQualityOnSurface()->chiSquared();
+    numberDoF += (*stateOnSurface)->fitQualityOnSurface()->numberDoF();
+  }
+
+  if (std::isnan(chiSquared) || chiSquared <= 0.) {
+    return nullptr;
+  }
+
+  return std::make_unique<Trk::FitQuality>(chiSquared, numberDoF);
+}
+}
+
 Trk::GaussianSumFitter::GaussianSumFitter(const std::string& type,
                                           const std::string& name,
                                           const IInterface* parent)
@@ -721,34 +750,6 @@ Trk::GaussianSumFitter::makePerigee(
   return perigeeMultiStateOnSurface;
 }
 
-std::unique_ptr<Trk::FitQuality>
-Trk::GaussianSumFitter::buildFitQuality(
-  const Trk::SmoothedTrajectory& smoothedTrajectory) const
-{
-
-  double chiSquared = 0.;
-  int numberDoF = -5;
-  // Loop over all TrackStateOnSurface objects in trajectory
-  SmoothedTrajectory::const_iterator stateOnSurface =
-    smoothedTrajectory.begin();
-  for (; stateOnSurface != smoothedTrajectory.end(); ++stateOnSurface) {
-    if (!(*stateOnSurface)->type(TrackStateOnSurface::Measurement)) {
-      continue;
-    }
-    if ((*stateOnSurface)->fitQualityOnSurface() == nullptr) {
-      continue;
-    }
-    chiSquared += (*stateOnSurface)->fitQualityOnSurface()->chiSquared();
-    numberDoF += (*stateOnSurface)->fitQualityOnSurface()->numberDoF();
-  }
-
-  if (std::isnan(chiSquared) || chiSquared <= 0.) {
-    return nullptr;
-  }
-
-  return std::make_unique<FitQuality>(chiSquared, numberDoF);
-}
-
 /*
  * Forwards fit on a set of PrepRawData
  */
@@ -793,12 +794,12 @@ Trk::GaussianSumFitter::fitPRD(
 
   Trk::ComponentParameters componentParametersNearOrigin(
     estimatedTrackParametersNearOrigin.associatedSurface()
-      .createTrackParameters(par[Trk::loc1],
-                             par[Trk::loc2],
-                             par[Trk::phi],
-                             par[Trk::theta],
-                             par[Trk::qOverP],
-                             nullptr /*no errors*/),
+      .createUniqueTrackParameters(par[Trk::loc1],
+                                   par[Trk::loc2],
+                                   par[Trk::phi],
+                                   par[Trk::theta],
+                                   par[Trk::qOverP],
+                                   nullptr /*no errors*/),
     1.);
 
   Trk::MultiComponentState multiComponentStateNearOrigin{};
@@ -864,12 +865,12 @@ Trk::GaussianSumFitter::fitMeasurements(
 
   Trk::ComponentParameters componentParametersNearOrigin(
     estimatedTrackParametersNearOrigin.associatedSurface()
-      .createTrackParameters(par[Trk::loc1],
-                             par[Trk::loc2],
-                             par[Trk::phi],
-                             par[Trk::theta],
-                             par[Trk::qOverP],
-                             covariance /*no errors*/),
+      .createUniqueTrackParameters(par[Trk::loc1],
+                                   par[Trk::loc2],
+                                   par[Trk::phi],
+                                   par[Trk::theta],
+                                   par[Trk::qOverP],
+                                   covariance /*no errors*/),
     1.);
 
   Trk::MultiComponentState multiComponentStateNearOrigin{};
@@ -1378,15 +1379,15 @@ Trk::GaussianSumFitter::combine(
       AmgSymMatrix(5)* covarianceOfNewParameters =
         new AmgSymMatrix(5)(K * *smootherMeasuredCov);
 
-      Trk::TrackParameters* combinedTrackParameters =
+      std::unique_ptr<Trk::TrackParameters> combinedTrackParameters =
         (forwardsComponent.first)
           ->associatedSurface()
-          .createTrackParameters(newParameters[Trk::loc1],
-                                 newParameters[Trk::loc2],
-                                 newParameters[Trk::phi],
-                                 newParameters[Trk::theta],
-                                 newParameters[Trk::qOverP],
-                                 covarianceOfNewParameters);
+          .createUniqueTrackParameters(newParameters[Trk::loc1],
+                                       newParameters[Trk::loc2],
+                                       newParameters[Trk::phi],
+                                       newParameters[Trk::theta],
+                                       newParameters[Trk::qOverP],
+                                       covarianceOfNewParameters);
       // Covariance matrix object now owned by TrackParameters object. Reset
       // pointer to prevent delete
       covarianceOfNewParameters = nullptr;
@@ -1399,8 +1400,8 @@ Trk::GaussianSumFitter::combine(
       double weightScalingFactor = exp(-0.5 * exponent);
       double combinedWeight = smootherComponent.second *
                               forwardsComponent.second * weightScalingFactor;
-      Trk::ComponentParameters combinedComponent(combinedTrackParameters,
-                                                 combinedWeight);
+      Trk::ComponentParameters combinedComponent(
+        std::move(combinedTrackParameters), combinedWeight);
       combinedMultiState->push_back(std::move(combinedComponent));
     }
   }

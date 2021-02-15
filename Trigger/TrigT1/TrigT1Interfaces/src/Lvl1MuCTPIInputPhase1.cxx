@@ -44,10 +44,9 @@ namespace LVL1MUONIF {
 
   /////////////
   const Lvl1MuSectorLogicDataPhase1& Lvl1MuCTPIInputPhase1::getSectorLogicData( size_t systemAddress,
-								    size_t subSystemAddress,
-								    size_t sectorAddress,
-								    int    bcid             ) const {
-
+										size_t subSystemAddress,
+										size_t sectorAddress,
+										int    bcid             ) const {
     static const Lvl1MuBarrelSectorLogicDataPhase1 dummy;
     for( size_t ip=0; ip<m_data[systemAddress].size(); ip++){
       int bc=((m_data[systemAddress]).at(ip)).first;
@@ -56,6 +55,19 @@ namespace LVL1MUONIF {
       return *(vecSL.at(getSystemIndex(systemAddress,subSystemAddress,sectorAddress)));
     }
     return dummy;
+  }
+
+  /////////////
+  std::shared_ptr<Lvl1MuSectorLogicDataPhase1> Lvl1MuCTPIInputPhase1::getSectorLogicDataPtr( size_t systemAddress,
+											     size_t subSystemAddress,
+											     size_t sectorAddress,
+											     int    bcid             ) {
+    for( size_t ip=0; ip<m_data[systemAddress].size(); ip++){
+      int bc=((m_data[systemAddress]).at(ip)).first;
+      if (bc != bcid) continue;
+      return m_data[systemAddress].at(ip).second.at(getSystemIndex(systemAddress,subSystemAddress,sectorAddress));
+    }
+    return nullptr;
   }
 
   /////////////

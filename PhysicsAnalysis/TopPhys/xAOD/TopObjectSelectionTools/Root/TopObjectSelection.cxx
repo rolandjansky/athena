@@ -20,7 +20,6 @@
 #include "xAODEventInfo/EventInfo.h"
 
 #include "FourMomUtils/xAODP4Helpers.h"
-//#include "PATCore/TAccept.h"
 
 #include "TopParticleLevel/TruthTools.h"
 #include "xAODTruth/TruthParticle.h"
@@ -342,7 +341,7 @@ namespace top {
   }
 
   void TopObjectSelection::applySelectionPreOverlapRemovalSoftMuons() {
-    for (const std::pair<std::size_t, std::string>& currentSystematic : *m_config->systSgKeyMapSoftMuons()) {
+    for (const auto& currentSystematic : *m_config->systSgKeyMapSoftMuons()) {
       ///-- if executeNominal, skip other systematics (and vice-versa) --///
       if (m_executeNominal && !m_config->isSystNominal(m_config->systematicName(currentSystematic.first))) continue;
       if (!m_executeNominal && m_config->isSystNominal(m_config->systematicName(currentSystematic.first))) continue;
@@ -523,8 +522,7 @@ namespace top {
                  "TopObjectSelection::applySelectionPreOverlapRemovalLargeRJets() failed to retrieve large R jets");
 
       for (auto jetPtr : *jets) {
-        //char decoration = m_largeJetSelection->passSelection(*jetPtr);
-        char decoration = '0';
+        char decoration = m_largeJetSelection->passSelection(*jetPtr);
         jetPtr->auxdecor<char>(m_passPreORSelection) = decoration;
         jetPtr->auxdecor<char>(m_ORToolDecoration) = decoration * 2;
         if (m_doLooseCuts) {

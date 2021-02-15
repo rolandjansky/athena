@@ -20,7 +20,6 @@
 #include "GeoModelKernel/GeoCons.h"
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoShapeShift.h"
-#include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeIntersection.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 #include "GeoModelKernel/GeoNameTag.h"

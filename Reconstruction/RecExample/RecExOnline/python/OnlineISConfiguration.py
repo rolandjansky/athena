@@ -1,10 +1,5 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-from future import standard_library
-standard_library.install_aliases()
-import subprocess
-
 import ispy
 
 
@@ -14,7 +9,7 @@ def GetAtlasReady():
       r4p = ISObject(IPCPartition("ATLAS"), 'RunParams.Ready4Physics', 'RunParams')
       r4p.checkout()
       return r4p.ready4physics
-   except:
+   except Exception:
       print ("#### Failed to determine if we are ready for physics")
       raise
 
@@ -33,15 +28,15 @@ def GetRunType():
       partition = "ATLAS"
   except KeyError:
     partition = "ATLAS"
-    mlog.warning("TDAQ_PARTITION not defined in environment, using %s as default" % partition)
+    mlog.warning("TDAQ_PARTITION not defined in environment, using %s as default", partition)
 
   #now try and read the information from IS
   try:
     from ipc import IPCPartition
     from ispy import ISObject
-    ipcPart = IPCPartition(partition);
+    ipcPart = IPCPartition(partition)
     if not ipcPart.isValid():
-      raise UserWarning("Partition %s invalid - cannot access run type settings" % partition);
+      raise UserWarning("Partition %s invalid - cannot access run type settings" % partition)
     runparams = ISObject(ipcPart, 'RunParams.RunParams', 'RunParams')
     runparams.checkout()
     beamEnergy = runparams.beam_energy
@@ -51,7 +46,7 @@ def GetRunType():
     beamEnergy = None
     projectTag = None
 
-  mlog.info("Setting project tag to %s" % projectTag)
+  mlog.info("Setting project tag to %s", projectTag)
   return (None, beamEnergy, projectTag) # the BeamType in the IS RunParams is not useful for auto-configuration
 
 def GetBFields():
@@ -61,16 +56,16 @@ def GetBFields():
 
   #BFields are read from initial partition
   partition = 'initial'
-  mlog.debug("Trying to read magnetic field configuration from partition %s" % partition)
+  mlog.debug("Trying to read magnetic field configuration from partition %s", partition)
 
   #now try and read the information from IS
   try:
     from ipc import IPCPartition
-    from ispy import ISObject
-    ipcPart = IPCPartition(partition);
+    ipcPart = IPCPartition(partition)
     if not ipcPart.isValid():
-      raise UserWarning("Partition %s invalid - cannot access magnetic field setting" % partition);
+      raise UserWarning("Partition %s invalid - cannot access magnetic field setting" % partition)
     #Get the current and valid status
+    #     from ispy import ISObject
     #     torCurrent = ISObject(ipcPart, 'DCS_GENERAL.MagnetToroidsCurrent.value', 'DdcFloatInfo')
     #     solCurrent = ISObject(ipcPart, 'DCS_GENERAL.MagnetSolenoidCurrent.value', 'DdcFloatInfo')
     #     torInvalid = ISObject(ipcPart, 'DCS_GENERAL.MagnetToroidsCurrent.invalid', 'DdcIntInfo')
@@ -107,8 +102,8 @@ def GetBFields():
     sys.exit(1)
 
   #print the result
-  mlog.info("Magnetic field in solenoid is %s" % ((solOn and "ON") or "OFF"))
-  mlog.info("Magnetic field in toroid is %s"   % ((torOn and "ON") or "OFF"))
+  mlog.info("Magnetic field in solenoid is %s", ((solOn and "ON") or "OFF"))
+  mlog.info("Magnetic field in toroid is %s",   ((torOn and "ON") or "OFF"))
 
   #finally return our values
   return (solCurrent, torCurrent)

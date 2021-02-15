@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TauJetAuxContainer_v3.cxx 725228 2016-02-19 22:59:42Z griffith $
@@ -270,7 +270,9 @@ namespace xAOD {
     //RNN tau eVeto
     AUX_VARIABLE( RNNEleScore );
     AUX_VARIABLE( RNNEleScoreSigTrans ); 
-    
+
+    AUX_VARIABLE( nAllTracks );
+    AUX_VARIABLE( nLargeRadiusTracks );
   }
   
 } // namespace xAOD

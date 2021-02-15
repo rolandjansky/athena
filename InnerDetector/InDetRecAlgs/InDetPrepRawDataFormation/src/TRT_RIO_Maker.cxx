@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -57,6 +57,9 @@ namespace InDet {
     if (m_roiSeeded.value()) {
       ATH_CHECK(m_roiCollectionKey.initialize());
       ATH_CHECK(m_regionSelector.retrieve());
+    }else{
+      ATH_CHECK(m_roiCollectionKey.initialize(false));
+      m_regionSelector.disable();
     }
 
     ATH_CHECK( m_rdoContainerKey.initialize() );
@@ -92,7 +95,7 @@ namespace InDet {
     // Get TRT_RDO and produce TRT_RIO collections
     if (!m_roiSeeded) {//Full-scan mode
 
-      for(const auto& rdoCollections : *rdoContainer) {
+      for(const auto rdoCollections : *rdoContainer) {
         const InDetRawDataCollection<TRT_RDORawData>* currentCollection(rdoCollections);
         InDet::TRT_DriftCircleContainer::IDC_WriteHandle lock = rioContainer->getWriteHandle(currentCollection->identifyHash());
         if( lock.OnlineAndPresentInAnotherView() ) continue;

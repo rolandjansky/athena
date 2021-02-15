@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // class header
@@ -64,8 +64,8 @@ namespace Simulation
     }
     auto outputMcEventCollection = std::make_unique<McEventCollection>(*h_inputMcEventCollection);
     ATH_CHECK( h_outputMcEventCollection.record ( std::move (outputMcEventCollection)) );
-    // loop over the event in the mc collection
-    for (const auto& currentGenEvent : *h_outputMcEventCollection) {
+    // loop over the events in the mc collection
+    for (HepMC::GenEvent* currentGenEvent : *h_outputMcEventCollection) {
       // skip empty events
       if ( !currentGenEvent ) continue;
       ATH_CHECK(this->patchSignalProcessVertex(*currentGenEvent));

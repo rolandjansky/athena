@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -27,7 +27,6 @@
 
 // Package includes
 #include "CoreDumpSvc.h"
-#include "SetFatalHandler.h"
 
 // ROOT includes
 #include "TSystem.h"
@@ -51,6 +50,21 @@
 #include "CxxUtils/SealDebug.h"
 #include "CxxUtils/read_athena_statm.h"
 
+namespace {
+
+  inline static const std::string horizLine = std::string(85,'-')+'\n';
+
+   void ExitOnInt( int sig, siginfo_t*, void* ) {
+      if ( sig == SIGINT ) {
+      // called on user ^C
+	 std::cout << std::endl;
+         std::cerr << "Athena           CRITICAL stopped by user interrupt\n";
+	 raise(SIGKILL);
+      }
+   }
+
+} // unnamed namespace
+
 
 /**
  * @brief  Signal handler for CoreDumpSvc
@@ -66,8 +80,12 @@ namespace CoreDumpSvcHandler
   SigHandler_t oldSigHandler;         ///< old signal handlers
   bool callOldHandler(true);          ///< forward calls to old handlers?
   bool stackTrace(false);             ///< produce stack trace?
+  bool fastStackTrace(false);         ///< produce fast stack trace using CxxUtils/Seal
   CoreDumpSvc* coreDumpSvc(nullptr);  ///< pointer to CoreDumpSvc
-  
+  std::ostream* ostr(&std::cout);     ///< stream for printing
+
+  std::ostream& log() { return *ostr; }  ///< convenience method for logging
+
   /**
    * Signal handler for the CoreDumpSvc
    */
@@ -111,7 +129,7 @@ namespace CoreDumpSvcHandler
       if (sigaction(SIGALRM, &sa, nullptr) < 0) std::abort();
       alarm(timeoutSeconds);
     }
-    
+
     std::cout.flush();
     std::cerr.flush();
     
@@ -120,27 +138,34 @@ namespace CoreDumpSvcHandler
       coreDumpSvc->print();
     }
 
+    if (fastStackTrace) {
+      log() << horizLine << "Producing (fast) stack trace...\n"
+            << horizLine << std::flush;
+      Athena::DebugAids::stacktrace();
+      log() << std::endl;
+    }
+
     if (gSystem && stackTrace) {
-      std::cout << "Producing stack trace..." << std::endl;
+      log() << horizLine << "Producing stack trace (can be slow, check gdb process)...\n"
+            << horizLine << std::flush;
       gSystem->StackTrace();
+      log() << std::endl;
     }
 
     if (callOldHandler) {
       // Call previous signal handler
       // Need to distinguish between the two different types
       const struct sigaction& oact = oldSigHandler[sig];
+      log() << horizLine << "Invoking previous signal handler (can be slow, check gdb process)...\n"
+            << horizLine << std::flush;
       if ( oact.sa_flags & SA_SIGINFO ) {
-        std::cout << "Invoking previous sa_sigaction at " << (void*)oact.sa_sigaction
-                  << ", sa_flags = " << oact.sa_flags << std::endl;
         oact.sa_sigaction(sig, info, extra);
       }
       else if (oact.sa_handler != SIG_DFL && oact.sa_handler != SIG_IGN ) {
-        std::cout << "Invoking previous sa_handler at " << (void*)oact.sa_handler
-                  << ", sa_flags = " << oact.sa_flags << std::endl;
         oact.sa_handler(sig);
       }
       else {
-        std::cout << "Could not invoke previous signal handler" << std::endl;
+        log() << "Could not invoke previous signal handler" << std::endl;
       }
     }
 
@@ -173,9 +198,10 @@ CoreDumpSvc::CoreDumpSvc( const std::string& name, ISvcLocator* pSvcLocator ) :
   
   m_callOldHandler.declareUpdateHandler(&CoreDumpSvc::propertyHandler, this);
   m_stackTrace.declareUpdateHandler(&CoreDumpSvc::propertyHandler, this);
+  m_fastStackTrace.declareUpdateHandler(&CoreDumpSvc::propertyHandler, this);
   m_coreDumpStream.declareUpdateHandler(&CoreDumpSvc::propertyHandler, this);
   m_fatalHandlerFlags.declareUpdateHandler(&CoreDumpSvc::propertyHandler, this);
-  
+  m_killOnSigInt.declareUpdateHandler(&CoreDumpSvc::propertyHandler, this);
   // Allocate for 2 slots just for now.
   m_usrCoreDumps.resize(2);
   m_sysCoreDumps.resize(2); 
@@ -190,22 +216,38 @@ void CoreDumpSvc::propertyHandler(Gaudi::Details::PropertyBase& p)
 {
   CoreDumpSvcHandler::callOldHandler = m_callOldHandler;
   CoreDumpSvcHandler::stackTrace = m_stackTrace;
+  CoreDumpSvcHandler::fastStackTrace = m_fastStackTrace;
 
   if ( p.name()==m_coreDumpStream.name() ) {
     const std::string val = p.toString();
-    if ( val=="stdout" || val=="stderr" || val=="MsgStream" ) return;
+    if ( val=="stdout" ) {
+      CoreDumpSvcHandler::ostr = &std::cout;
+    }
+    else if ( val=="stderr" ) {
+      CoreDumpSvcHandler::ostr = &std::cerr;
+    }
     else {
-      ATH_MSG_WARNING
-	("'" << val << "' not valid for " << m_coreDumpStream.name()
-	 << ": " << m_coreDumpStream.documentation());
+      ATH_MSG_WARNING("'" << val << "' not valid for " << m_coreDumpStream.name()
+                      << ": " << m_coreDumpStream.documentation());
     }
   } else if ( p.name() == m_fatalHandlerFlags.name() ) {
     if (m_fatalHandlerFlags.fromString(p.toString()).isSuccess()) {
       if (m_fatalHandlerFlags != 0) {
-        AthenaServices::SetFatalHandler( m_fatalHandlerFlags );
+	Athena::Signal::handleFatal(nullptr, IOFD_INVALID, nullptr, nullptr, m_fatalHandlerFlags);
       }
     } else {
       ATH_MSG_INFO("could not convert [" << p.toString() << "] to integer");
+    }
+  }
+  else if (p.name() ==  m_killOnSigInt.name()) {
+    if (m_killOnSigInt.fromString(p.toString()).isSuccess()) {
+      if (m_killOnSigInt) {
+	ATH_MSG_DEBUG("Will kill job on SIGINT (Ctrl-C)");
+	Athena::Signal::handle( SIGINT, ExitOnInt );
+      }
+    }
+    else {
+      ATH_MSG_WARNING("Could not convert [" << p.toString() << "] to bool");
     }
   }
 
@@ -217,10 +259,15 @@ void CoreDumpSvc::propertyHandler(Gaudi::Details::PropertyBase& p)
 StatusCode CoreDumpSvc::initialize()
 {
   if (m_fatalHandlerFlags != 0) {
-    ATH_MSG_INFO("install f-a-t-a-l handler... (flag = " << m_fatalHandlerFlags.value() << ")");
-    AthenaServices::SetFatalHandler(m_fatalHandlerFlags);
+      ATH_MSG_INFO("install f-a-t-a-l handler... (flag = " << m_fatalHandlerFlags.value() << ")");
+      Athena::Signal::handleFatal(nullptr, IOFD_INVALID, nullptr, nullptr, m_fatalHandlerFlags);
   }
 
+  if (m_killOnSigInt) {
+      ATH_MSG_DEBUG("Will kill job on SIGINT (Ctrl-C)");
+      Athena::Signal::handle( SIGINT, ExitOnInt );
+  }
+  
   if ( installSignalHandler().isFailure() ) {
     ATH_MSG_ERROR ("Could not install signal handlers");
     return StatusCode::FAILURE;
@@ -285,15 +332,8 @@ void CoreDumpSvc::setCoreDumpInfo( const EventContext& ctx, const std::string& n
 //----------------------------------------------------------------------
 void CoreDumpSvc::print()
 {
-  if (m_coreDumpStream == "MsgStream") {
-    ATH_MSG_FATAL ("Core dump follows:" << std::endl << dump());
-  }
-  else if (m_coreDumpStream == "stderr") {
-    std::cerr << dump() << std::endl;
-  }
-  else {
-    std::cout << dump() << std::endl;
-  }  
+  ATH_MSG_FATAL("Caught fatal signal. Printing details to " << m_coreDumpStream.value() << ".");
+  CoreDumpSvcHandler::log() << dump() << std::flush;
 }
 
 //----------------------------------------------------------------------
@@ -436,14 +476,13 @@ std::string CoreDumpSvc::dump() const
     }
   }
 
-  os << "-------------------------------------------------------------------------------------\n";
+  os << horizLine;
   os << "| AtlasBaseDir : " << std::setw(66) << getenv("AtlasBaseDir")  << " |\n";
   os << "| AtlasVersion : " << std::setw(66) << getenv("AtlasVersion")  << " |\n";
   os << "| BINARY_TAG   : " << std::setw(66) << getenv("BINARY_TAG")    << " |\n";
-  os << "-------------------------------------------------------------------------------------\n";
+  os << horizLine;
   os << " Note: to see line numbers in below stacktrace you might consider running following :\n";
   os << "  atlasAddress2Line --file <logfile>\n";
-  os << "-------------------------------------------------------------------------------------";
 
   IAthenaSummarySvc *iass(nullptr);
   if (service("AthenaSummarySvc",iass,false).isSuccess() && iass) {

@@ -814,7 +814,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
     // m_stepPropagator->propagateT(*currPar,cache.m_navigSurfs,dir,*cache.m_currentDense,particle,solutions,cache.m_path,timeLim,true);
     const Trk::TrackParameters *nextPar = m_stepPropagator->propagateT(*currPar, cache.m_navigSurfs, dir, m_fieldProperties,
                                                                        particle, solutions, cache.m_path, timeLim, true,
-                                                                       cache.m_currentDense, cache.m_hitVector);
+                                                                       cache.m_currentDense, cache.m_hitVector).release();
     ATH_MSG_VERBOSE("  [+] Propagation done. ");
     if (nextPar) {
       ATH_MSG_DEBUG("  [+] Position after propagation -   at " << positionOutput(
@@ -1172,7 +1172,7 @@ Trk::TimedExtrapolator::overlapSearch(Trk::TimedExtrapolator::Cache &cache,
     detParameters = (&parm);
   } else if (detSurface) {
     // detParameters = prop.propagate(parm, *detSurface, dir, false, tvol, particle);
-    detParameters = prop.propagate(parm, *detSurface, dir, false, m_fieldProperties, particle);
+    detParameters = prop.propagate(parm, *detSurface, dir, false, m_fieldProperties, particle).release();
   }
 
   // set the surface hit to true, it is anyway overruled
@@ -1232,7 +1232,7 @@ Trk::TimedExtrapolator::overlapSearch(Trk::TimedExtrapolator::Cache &cache,
                                                                        Trk::anyDirection,
                                                                        true,
                                                                        m_fieldProperties,
-                                                                       particle);
+                                                                       particle).release();
 
         if (overlapParameters) {
           ATH_MSG_VERBOSE("  [+] Overlap surface was hit, checking start/end surface condition.");
@@ -2534,7 +2534,7 @@ Trk::TimedExtrapolator::extrapolateInAlignableTV(Trk::TimedExtrapolator::Cache &
     // curvilinear on return, current TG volume
     const Trk::TrackParameters *nextPar = m_stepPropagator->propagateT(*currPar, cache.m_navigSurfs, dir, m_fieldProperties,
                                                                        particle, solutions, cache.m_path, timeLim, true,
-                                                                       cache.m_currentDense, cache.m_hitVector);
+                                                                       cache.m_currentDense, cache.m_hitVector).release();
     ATH_MSG_VERBOSE("  [+] Propagation done. ");
     if (nextPar) {
       ATH_MSG_DEBUG("  [+] Position after propagation -   at " << positionOutput(nextPar->position()));

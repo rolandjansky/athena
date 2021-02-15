@@ -30,6 +30,9 @@ def PprMonitoringConfig(inputFlags):
     threshADC = 50
     PprMonAlg.TT_ADC_HitMap_Thresh = threshADC  # ADC cut for hit maps
  
+    sliceNo = 15
+    PprMonAlg.SliceNo = sliceNo  # Max number of timeslices in the readout
+    
     # Histogram paths
     mainDir = 'L1Calo'
     trigPath = 'PPM/'
@@ -52,60 +55,67 @@ def PprMonitoringConfig(inputFlags):
     phimax_2d = 64
     phimax_1d = 2.*math.pi 
     maxEnergyRange = 256
+    bcn = 0xdec # 3564 bunches
 
    
     #######################   
     # PPM inputs (LUT-CP) #
     #######################
     histPath = trigPath+'/LUT-CP/Distributions'
-    
-    # EM distributions
-    myGroup.defineHistogram('etaTT_EM;h_ppm_em_1d_tt_lutcp_Eta', title='EM LUT-CP: Distribution of peak in #eta; #eta', type='TH1F', path=histPath, xbins=etabins, cutmask='mask_EM_cpET_0_noPhi')
 
-    myGroup.defineHistogram('phiTT_1d_EM;h_ppm_em_1d_tt_lutcp_Phi', title='EM LUT-CP: Distribution of peak in #phi; #phi', type='TH1F', path=histPath, xbins=phibins, xmin=phimin, xmax=phimax_1d, cutmask='mask_EM_cpET_0_phiBins')
+    # LUT per BCN
+    myGroup.defineHistogram('cp_BCID;ppm_1d_tt_lutcp_LutPerBCN', title='Number of LUT-CP > 5 GeV/2 per BC; Bunch crossing; # of LUT above limit', type='TH1F', path=histPath, xbins=bcn, xmin=0, xmax=bcn, cutmask='mask_cpET_5')
+      
+    # EM distributions
+    myGroup.defineHistogram('etaTT_EM;ppm_em_1d_tt_lutcp_Eta', title='EM LUT-CP: Distribution of peak in #eta; #eta', type='TH1F', path=histPath, xbins=etabins, cutmask='mask_EM_cpET_0_noPhi')
+
+    myGroup.defineHistogram('phiTT_1d_EM;ppm_em_1d_tt_lutcp_Phi', title='EM LUT-CP: Distribution of peak in #phi; #phi', type='TH1F', path=histPath, xbins=phibins, xmin=phimin, xmax=phimax_1d, cutmask='mask_EM_cpET_0_phiBins')
  
-    myGroup.defineHistogram('cpET_EM;h_ppm_em_1d_tt_lutcp_Et', title='EM LUT-CP: Distribution of peak; EM LUT peak [GeV/2]', type='TH1F', path=histPath, xbins=maxEnergyRange-1, xmin=1, xmax=maxEnergyRange, cutmask='mask_EM_cpET_0_noPhi')
+    myGroup.defineHistogram('cpET_EM;ppm_em_1d_tt_lutcp_Et', title='EM LUT-CP: Distribution of peak; EM LUT peak [GeV/2]', type='TH1F', path=histPath, xbins=maxEnergyRange-1, xmin=1, xmax=maxEnergyRange, cutmask='mask_EM_cpET_0_noPhi')
 
     # HAD distributions
-    myGroup.defineHistogram('etaTT_HAD;h_ppm_had_1d_tt_lutcp_Eta', title='HAD LUT-CP: Distribution of peak in #eta; #eta', type='TH1F', path=histPath, xbins=etabins, cutmask='mask_HAD_cpET_0_noPhi')
+    myGroup.defineHistogram('etaTT_HAD;ppm_had_1d_tt_lutcp_Eta', title='HAD LUT-CP: Distribution of peak in #eta; #eta', type='TH1F', path=histPath, xbins=etabins, cutmask='mask_HAD_cpET_0_noPhi')
 
-    myGroup.defineHistogram('phiTT_1d_HAD;h_ppm_had_1d_tt_lutcp_Phi', title='HAD LUT-CP: Distribution of peak in #phi; #phi', type='TH1F', path=histPath, xbins=phibins, xmin=phimin, xmax=phimax_1d, cutmask='mask_HAD_cpET_0_phiBins')
+    myGroup.defineHistogram('phiTT_1d_HAD;ppm_had_1d_tt_lutcp_Phi', title='HAD LUT-CP: Distribution of peak in #phi; #phi', type='TH1F', path=histPath, xbins=phibins, xmin=phimin, xmax=phimax_1d, cutmask='mask_HAD_cpET_0_phiBins')
  
-    myGroup.defineHistogram('cpET_HAD;h_ppm_had_1d_tt_lutcp_Et', title='HAD LUT-CP: Distribution of peak; HAD LUT peak [GeV/2]', type='TH1F', path=histPath, xbins=maxEnergyRange-1, xmin=1, xmax=maxEnergyRange, cutmask='mask_HAD_cpET_0_noPhi')
+    myGroup.defineHistogram('cpET_HAD;ppm_had_1d_tt_lutcp_Et', title='HAD LUT-CP: Distribution of peak; HAD LUT peak [GeV/2]', type='TH1F', path=histPath, xbins=maxEnergyRange-1, xmin=1, xmax=maxEnergyRange, cutmask='mask_HAD_cpET_0_noPhi')
 
     # Eta-phi maps
     histPath = trigPath+'/LUT-CP/EtaPhiMaps'
 
-    myGroup.defineHistogram('etaTT_EM,phiTT_2d_EM,cpET_EM;h_ppm_em_2d_etaPhi_tt_lutcp_AverageEt', title='EM Average LUT-CP Et for Et > 5 GeV/2', type='TProfile2D', path=histPath, xbins=etabins, ybins=phibins, ymin=phimin, ymax=phimax_2d, cutmask='mask_EM_cpET_5_phiBins')
+    myGroup.defineHistogram('etaTT_EM,phiTT_2d_EM,cpET_EM;ppm_em_2d_etaPhi_tt_lutcp_AverageEt', title='EM Average LUT-CP Et for Et > 5 GeV/2', type='TProfile2D', path=histPath, xbins=etabins, ybins=phibins, ymin=phimin, ymax=phimax_2d, cutmask='mask_EM_cpET_5_phiBins')
     
-    myGroup.defineHistogram('etaTT_HAD,phiTT_2d_HAD,cpET_HAD;h_ppm_had_2d_etaPhi_tt_lutcp_AverageEt', title='HAD Average LUT-CP Et for Et > 5 GeV/2', type='TProfile2D', path=histPath, xbins=etabins, ybins=phibins, ymin=phimin, ymax=phimax_2d, cutmask='mask_HAD_cpET_5_phiBins')
+    myGroup.defineHistogram('etaTT_HAD,phiTT_2d_HAD,cpET_HAD;ppm_had_2d_etaPhi_tt_lutcp_AverageEt', title='HAD Average LUT-CP Et for Et > 5 GeV/2', type='TProfile2D', path=histPath, xbins=etabins, ybins=phibins, ymin=phimin, ymax=phimax_2d, cutmask='mask_HAD_cpET_5_phiBins')
 
     
     ########################   
     # PPM inputs (LUT-JEP) #
     ########################
     histPath = trigPath+'/LUT-JEP/Distributions'
-    
+   
+    # LUT per BCN
+    myGroup.defineHistogram('jep_BCID;ppm_1d_tt_lutjep_LutPerBCN', title='Number of LUT-JEP > 5 GeV per BC; Bunch crossing; # of LUT above limit', type='TH1F', path=histPath, xbins=bcn, xmin=0, xmax=bcn, cutmask='mask_jepET_5')
+ 
     # EM distributions
-    myGroup.defineHistogram('etaTT_EM;h_ppm_em_1d_tt_lutjep_Eta', title='EM LUT-JEP: Distribution of peak in #eta', type='TH1F', path=histPath, xbins=etabins, cutmask='mask_EM_jepET_0_noPhi')
+    myGroup.defineHistogram('etaTT_EM;ppm_em_1d_tt_lutjep_Eta', title='EM LUT-JEP: Distribution of peak in #eta', type='TH1F', path=histPath, xbins=etabins, cutmask='mask_EM_jepET_0_noPhi')
 
-    myGroup.defineHistogram('phiTT_1d_EM;h_ppm_em_1d_tt_lutjep_Phi', title='EM LUT-JEP: Distribution of peak in #phi; #phi', type='TH1F', path=histPath, xbins=phibins, xmin=phimin, xmax=phimax_1d, cutmask='mask_EM_jepET_0_phiBins')
+    myGroup.defineHistogram('phiTT_1d_EM;ppm_em_1d_tt_lutjep_Phi', title='EM LUT-JEP: Distribution of peak in #phi; #phi', type='TH1F', path=histPath, xbins=phibins, xmin=phimin, xmax=phimax_1d, cutmask='mask_EM_jepET_0_phiBins')
 
-    myGroup.defineHistogram('jepET_EM;h_ppm_em_1d_tt_lutjep_Et', title='EM LUT-JEP: Distribution of peak; EM LUT peak [GeV]', type='TH1F', path=histPath, xbins=maxEnergyRange-1, xmin=1, xmax=maxEnergyRange, cutmask='mask_EM_jepET_0_noPhi')   
+    myGroup.defineHistogram('jepET_EM;ppm_em_1d_tt_lutjep_Et', title='EM LUT-JEP: Distribution of peak; EM LUT peak [GeV]', type='TH1F', path=histPath, xbins=maxEnergyRange-1, xmin=1, xmax=maxEnergyRange, cutmask='mask_EM_jepET_0_noPhi')   
 
     # HAD distributions
-    myGroup.defineHistogram('etaTT_HAD;h_ppm_had_1d_tt_lutjep_Eta', title='HAD LUT-JEP: Distribution of peak in #eta', type='TH1F', path=histPath, xbins=etabins, cutmask='mask_HAD_jepET_0_noPhi')
+    myGroup.defineHistogram('etaTT_HAD;ppm_had_1d_tt_lutjep_Eta', title='HAD LUT-JEP: Distribution of peak in #eta', type='TH1F', path=histPath, xbins=etabins, cutmask='mask_HAD_jepET_0_noPhi')
 
-    myGroup.defineHistogram('phiTT_1d_HAD;h_ppm_had_1d_tt_lutjep_Phi', title='HAD LUT-JEP: Distribution of peak in #phi; #phi', type='TH1F', path=histPath, xbins=phibins, xmin=phimin, xmax=phimax_1d, cutmask='mask_HAD_jepET_0_phiBins')
+    myGroup.defineHistogram('phiTT_1d_HAD;ppm_had_1d_tt_lutjep_Phi', title='HAD LUT-JEP: Distribution of peak in #phi; #phi', type='TH1F', path=histPath, xbins=phibins, xmin=phimin, xmax=phimax_1d, cutmask='mask_HAD_jepET_0_phiBins')
 
-    myGroup.defineHistogram('jepET_HAD;h_ppm_had_1d_tt_lutjep_Et', title='HAD LUT-JEP: Distribution of peak; HAD LUT peak [GeV]', type='TH1F', path=histPath, xbins=maxEnergyRange-1, xmin=1, xmax=maxEnergyRange, cutmask='mask_HAD_jepET_0_noPhi')   
+    myGroup.defineHistogram('jepET_HAD;ppm_had_1d_tt_lutjep_Et', title='HAD LUT-JEP: Distribution of peak; HAD LUT peak [GeV]', type='TH1F', path=histPath, xbins=maxEnergyRange-1, xmin=1, xmax=maxEnergyRange, cutmask='mask_HAD_jepET_0_noPhi')   
 
     # Eta-phi maps
     histPath = trigPath+'/LUT-JEP/EtaPhiMaps'
 
-    myGroup.defineHistogram('etaTT_EM,phiTT_2d_EM,jepET_EM;h_ppm_em_2d_etaPhi_tt_lutjep_AverageEt', title='EM Average LUT-JEP Et for Et > 5 GeV', type='TProfile2D', path=histPath, xbins=etabins, ybins=phibins, ymin=phimin, ymax=phimax_2d, cutmask='mask_EM_jepET_5_phiBins')
+    myGroup.defineHistogram('etaTT_EM,phiTT_2d_EM,jepET_EM;ppm_em_2d_etaPhi_tt_lutjep_AverageEt', title='EM Average LUT-JEP Et for Et > 5 GeV', type='TProfile2D', path=histPath, xbins=etabins, ybins=phibins, ymin=phimin, ymax=phimax_2d, cutmask='mask_EM_jepET_5_phiBins')
 
-    myGroup.defineHistogram('etaTT_HAD,phiTT_2d_HAD,jepET_HAD;h_ppm_had_2d_etaPhi_tt_lutjep_AverageEt', title='HAD Average LUT-JEP Et for Et > 5 GeV', type='TProfile2D', path=histPath, xbins=etabins, ybins=phibins, ymin=phimin, ymax=phimax_2d, cutmask='mask_HAD_jepET_5_phiBins')
+    myGroup.defineHistogram('etaTT_HAD,phiTT_2d_HAD,jepET_HAD;ppm_had_2d_etaPhi_tt_lutjep_AverageEt', title='HAD Average LUT-JEP Et for Et > 5 GeV', type='TProfile2D', path=histPath, xbins=etabins, ybins=phibins, ymin=phimin, ymax=phimax_2d, cutmask='mask_HAD_jepET_5_phiBins')
 
 
     ####################
@@ -114,18 +124,36 @@ def PprMonitoringConfig(inputFlags):
     histPath = trigPath+'/ADC/EtaPhiMaps'
     
     # EM tower maps 
-    myGroup.defineHistogram('etaTT_EM,phiTT_2d_EM;h_ppm_em_2d_etaPhi_tt_adc_HitMap', title='#eta - #phi map of EM FADC > ' +str(threshADC)+ ' for triggered timeslice; Tower #eta; Tower #phi', type='TH2F', path=histPath, xbins=etabins, ybins=phibins, ymin=phimin, ymax=phimax_2d, cutmask='mask_EM_timeslice') 
+    myGroup.defineHistogram('etaTT_EM,phiTT_2d_EM;ppm_em_2d_etaPhi_tt_adc_HitMap', title='#eta - #phi map of EM FADC > ' +str(threshADC)+ ' for triggered timeslice; Tower #eta; Tower #phi', type='TH2F', path=histPath, xbins=etabins, ybins=phibins, ymin=phimin, ymax=phimax_2d, cutmask='mask_EM_timeslice') 
    
-    myGroup.defineHistogram('etaTT_EM,phiTT_2d_EM,emTT_ADC;h_ppm_em_2d_etaPhi_tt_adc_ProfileHitMap', title='#eta - #phi profile map of EM FADC > ' +str(threshADC)+ ' for triggered timeslice; Tower #eta; Tower #phi', type='TProfile2D', path=histPath, xbins=etabins, ybins=phibins, ymin=phimin, ymax=phimax_2d, cutmask='mask_EM_timeslice') 
+    myGroup.defineHistogram('etaTT_EM,phiTT_2d_EM,emTT_ADC;ppm_em_2d_etaPhi_tt_adc_ProfileHitMap', title='#eta - #phi profile map of EM FADC > ' +str(threshADC)+ ' for triggered timeslice; Tower #eta; Tower #phi', type='TProfile2D', path=histPath, xbins=etabins, ybins=phibins, ymin=phimin, ymax=phimax_2d, cutmask='mask_EM_timeslice') 
 
  
     # HAD tower maps 
-    myGroup.defineHistogram('etaTT_HAD,phiTT_2d_HAD;h_ppm_had_2d_etaPhi_tt_adc_HitMap', title='#eta - #phi map of HAD FADC > ' +str(threshADC)+ ' for triggered timeslice; Tower #eta; Tower #phi', type='TH2F', path=histPath, xbins=etabins, ybins=phibins, ymin=phimin, ymax=phimax_2d, cutmask='mask_HAD_timeslice')
+    myGroup.defineHistogram('etaTT_HAD,phiTT_2d_HAD;ppm_had_2d_etaPhi_tt_adc_HitMap', title='#eta - #phi map of HAD FADC > ' +str(threshADC)+ ' for triggered timeslice; Tower #eta; Tower #phi', type='TH2F', path=histPath, xbins=etabins, ybins=phibins, ymin=phimin, ymax=phimax_2d, cutmask='mask_HAD_timeslice')
  
-    myGroup.defineHistogram('etaTT_HAD,phiTT_2d_HAD,hadTT_ADC;h_ppm_had_2d_etaPhi_tt_adc_ProfileHitMap', title='#eta - #phi profile map of HAD FADC > ' +str(threshADC)+ ' for triggered timeslice; Tower #eta; Tower #phi', type='TProfile2D', path=histPath, xbins=etabins, ybins=phibins, ymin=phimin, ymax=phimax_2d, cutmask='mask_HAD_timeslice')
+    myGroup.defineHistogram('etaTT_HAD,phiTT_2d_HAD,hadTT_ADC;ppm_had_2d_etaPhi_tt_adc_ProfileHitMap', title='#eta - #phi profile map of HAD FADC > ' +str(threshADC)+ ' for triggered timeslice; Tower #eta; Tower #phi', type='TProfile2D', path=histPath, xbins=etabins, ybins=phibins, ymin=phimin, ymax=phimax_2d, cutmask='mask_HAD_timeslice')
  
-  
+ 
+    # Triggered time-slice
+    histPath = trigPath+'/ADC/Timeslices'
+
+    myGroup.defineHistogram('adcPeak_EM;ppm_em_1d_tt_adc_TriggeredSlice', title='Number of the EM triggered slice; # Slice', type='TH1F', path=histPath, xbins=sliceNo, xmin=0, xmax=sliceNo, cutmask='mask_EM_noDuplicates') 
+ 
+    myGroup.defineHistogram('adcPeak_HAD;ppm_had_1d_tt_adc_TriggeredSlice', title='Number of the HAD triggered slice; # Slice', type='TH1F', path=histPath, xbins=sliceNo, xmin=0, xmax=sliceNo, cutmask='mask_HAD_noDuplicates')   
+ 
+    myGroup.defineHistogram('maxADC_EM;ppm_em_1d_tt_adc_MaxTimeslice', title='EM distribution of maximum timeslice; slice', type='TH1D', path=histPath, xbins=sliceNo, xmin=0, xmax=sliceNo, cutmask='mask_EM_maxSlice_noPhi') 
+
+    myGroup.defineHistogram('maxADC_HAD;ppm_had_1d_tt_adc_MaxTimeslice', title='HAD distribution of maximum timeslice; slice', type='TH1D', path=histPath, xbins=sliceNo, xmin=0, xmax=sliceNo, cutmask='mask_HAD_maxSlice_noPhi') 
     
+    myGroup.defineHistogram('etaTT_EM,phiTT_2d_EM,maxADCPlus1_EM;ppm_em_2d_etaPhi_tt_adc_MaxTimeslice', title='Average maximum timeslice for EM signal (TS:1-15); Tower #eta; Tower #phi', type='TProfile2D', path=histPath, xbins=etabins, ybins=phibins, ymin=phimin, ymax=phimax_2d, cutmask='mask_EM_maxSlice')
+
+    myGroup.defineHistogram('etaTT_HAD,phiTT_2d_HAD,maxADCPlus1_HAD;ppm_had_2d_etaPhi_tt_adc_MaxTimeslice', title='Average maximum timeslice for HAD signal (TS:1-15); Tower #eta; Tower #phi', type='TProfile2D', path=histPath, xbins=etabins, ybins=phibins, ymin=phimin, ymax=phimax_2d, cutmask='mask_HAD_maxSlice')
+
+     
+
+    # Finish up
+
     acc = helper.result()
     result.merge(acc)
     return result

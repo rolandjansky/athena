@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetIsoTrackSelectorTool_InDetIsoTrackSelectorTool_H
@@ -35,21 +35,20 @@ namespace InDet
 
     public:
       /** Athena AlgTool methods */
-      StatusCode initialize();
-      StatusCode finalize();
+      virtual StatusCode initialize() override;
 
       /** Constructor / Destructor */
       InDetIsoTrackSelectorTool(const std::string& t, const std::string& n, const IInterface*  p);
       ~InDetIsoTrackSelectorTool();
 
       /** ESD type interface */
-      bool decision(const Trk::AtaStraightLine&, const Trk::Track& track) const;
+      virtual bool decision(const Trk::AtaStraightLine&, const Trk::Track& track) const override;
       
       /** AOD type interface */
-      bool decision(const Trk::AtaStraightLine&, const Trk::TrackParticleBase& trackParticle) const;
+      virtual bool decision(const Trk::AtaStraightLine&, const Trk::TrackParticleBase& trackParticle) const override;
       
       /** Work-horse interface - will ignore TrackSelector */
-      bool decision(const Trk::AtaStraightLine&, const Trk::TrackParameters& trackPars) const;
+      virtual bool decision(const Trk::AtaStraightLine&, const Trk::TrackParameters& trackPars) const override;
 
     private:
       /** Robust cut window setting */

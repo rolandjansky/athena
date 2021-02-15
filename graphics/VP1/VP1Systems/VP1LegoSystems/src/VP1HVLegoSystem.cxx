@@ -10,10 +10,6 @@
 #include <Inventor/nodes/SoSwitch.h>
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoTranslation.h>
-#include <Inventor/nodes/SoSwitch.h>
-#include <Inventor/nodes/SoSeparator.h>
-
-//#include "LArReadoutGeometry/FCALTile.h"
 
 #include "VP1Base/VP1Serialise.h"
 #include "VP1Base/VP1Deserialise.h"

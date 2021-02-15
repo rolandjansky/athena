@@ -67,6 +67,10 @@ namespace top {
     std::shared_ptr<PlotManager> m_hists_RadHigh_Loose = nullptr;
     std::shared_ptr<PlotManager> m_hists_RadLow = nullptr;
     std::shared_ptr<PlotManager> m_hists_RadLow_Loose = nullptr;
+    std::shared_ptr<PlotManager> m_hists_RadHighNoVar3c = nullptr;
+    std::shared_ptr<PlotManager> m_hists_RadHighNoVar3c_Loose = nullptr;
+    std::shared_ptr<PlotManager> m_hists_RadLowNoVar3c = nullptr;
+    std::shared_ptr<PlotManager> m_hists_RadLowNoVar3c_Loose = nullptr;
 
     // Nominal hash value
     std::size_t m_nominalHashValue;
@@ -78,6 +82,8 @@ namespace top {
     bool m_doNominal;
     bool m_doRadHigh;
     bool m_doRadLow;
+    bool m_doRadHighNoVar3c; // doRadHigh but don't take Var3c into account
+    bool m_doRadLowNoVar3c; // doRadLow but don't take Var3c into account
 
     // pT and eta bin edges, separated by colons
     std::string m_ptBins;

@@ -1,21 +1,15 @@
 /*
- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
-/**
-  @class EMBremCollectionBuilder
-  @brief Implementation file for EMBremCollectionBuilder
-  @author Christos Anastopoulos,Anthony Morley
-  */
-
 #include "EMBremCollectionBuilder.h"
-//
+
 #include "TrkTrack/Track.h"
 #include "TrkTrack/LinkToTrack.h"
 #include "TrkTrackLink/ITrackLink.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "AthenaKernel/errorcheck.h"
-//
+
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
 #include "xAODTruth/TruthParticle.h"
@@ -68,25 +62,27 @@ StatusCode EMBremCollectionBuilder::EMBremCollectionBuilder::finalize(){
 StatusCode
 EMBremCollectionBuilder::execute(const EventContext& ctx) const
 {
-  /*
-   * Read in the input
-   * All TrackParticles and the selected view
-   */
+  // Read the inputs
+
+  // all the track particles
   SG::ReadHandle<xAOD::TrackParticleContainer> trackTES(m_trackParticleContainerKey,ctx);
   if(!trackTES.isValid()) {
     ATH_MSG_FATAL("Failed to retrieve TrackParticle container: "
                   << m_trackParticleContainerKey.key());
     return StatusCode::FAILURE;
   }
+
+  // selected track particles
   SG::ReadHandle<xAOD::TrackParticleContainer> selectedTracks(m_selectedTrackParticleContainerKey,ctx);
   if(!selectedTracks.isValid()) {
     ATH_MSG_FATAL("Failed to retrieve TrackParticle container: "
                   << m_selectedTrackParticleContainerKey.key());
     return StatusCode::FAILURE;
   }
-  /*
-   * Create the final containers to be written out
-   */
+
+  // Create the final containers to be written out
+
+  // track particles
   SG::WriteHandle<xAOD::TrackParticleContainer> finalTrkPartContainer(
     m_OutputTrkPartContainerKey, ctx);
 
@@ -96,20 +92,20 @@ EMBremCollectionBuilder::execute(const EventContext& ctx) const
 
   xAOD::TrackParticleContainer* cPtrTrkPart = finalTrkPartContainer.ptr();
 
+  // tracks
   SG::WriteHandle<TrackCollection> finalTracks(m_OutputTrackContainerKey, ctx);
   ATH_CHECK(finalTracks.record(std::make_unique<TrackCollection>()));
   TrackCollection* cPtrTracks = finalTracks.ptr();
-  /*
-   * Split TRT-alone from silicon ones
-   * For the TRT we can get all the info already
-   */
+
+  // Loop over the selected track-particles
+  // Split TRT-alone from silicon ones. For the TRT we can get all the info already
   std::vector<const xAOD::TrackParticle*> siliconTrkTracks;
   siliconTrkTracks.reserve(16);
   std::vector<TrackWithIndex> trtAloneTrkTracks;
-  trtAloneTrkTracks.reserve(16);
+  trtAloneTrkTracks.reserve(8);
   for(const xAOD::TrackParticle* track : *selectedTracks){
     const Trk::Track* trktrack{nullptr};
-    if (  track->trackLink().isValid() ){
+    if (track->trackLink().isValid()){
       trktrack =track->track();
     }
     else{
@@ -118,44 +114,43 @@ EMBremCollectionBuilder::execute(const EventContext& ctx) const
     }
     int nSiliconHits_trk =0;
     uint8_t dummy(0);
-    if( track->summaryValue(dummy,xAOD::numberOfSCTHits) ){
+    if (track->summaryValue(dummy,xAOD::numberOfSCTHits)){
       nSiliconHits_trk += dummy;
     }
-    if(track->summaryValue(dummy,xAOD::numberOfPixelHits) ){
+    if (track->summaryValue(dummy,xAOD::numberOfPixelHits)){
       nSiliconHits_trk += dummy;
     }
     ATH_MSG_DEBUG("Number of Silicon hits "<<nSiliconHits_trk);
 
-    if(nSiliconHits_trk >= m_MinNoSiHits){
+    if (nSiliconHits_trk >= m_MinNoSiHits){
       siliconTrkTracks.push_back(track);
     }else{
-      //copy Trk::Track and keep also the index of the original
+      //copy Trk::Track and keep also the index of the original TrackParticle
       trtAloneTrkTracks.emplace_back(
         std::make_unique<Trk::Track>(*trktrack),track->index());
     }
   }
-  /*
-   * Refitted  and possible failed fit info
-   */
-  std::vector<TrackWithIndex> refitted;
+
+  // Store the results of the GSF refit
+  std::vector<TrackWithIndex> refitted;  // refit success
   refitted.reserve(siliconTrkTracks.size());
-  std::vector<TrackWithIndex> failedfit;
-  /*
-   * Do the refit and get all the info
-   */
+  std::vector<TrackWithIndex> failedfit;  // refit failure
+
+  // Do the GSF refit. Note that the output is a two collections
+  // (success and failure) of TrackWithIndex, which means a xAOD::Track
+  // and the index to the original track particle.
+  // Note that the input is a xAOD::TrackParticle (the link to the xAOD::Track is used)
   ATH_CHECK(refitTracks(ctx,siliconTrkTracks,refitted,failedfit));
   siliconTrkTracks.clear();
-  /*
-   * Fill the final collections
-   */
+  
+  // Fill the final collections
   ATH_CHECK(createCollections(ctx,refitted,failedfit,trtAloneTrkTracks,
                     cPtrTracks,cPtrTrkPart,trackTES.ptr()));
-   /*
-   * update counters
-   * */
+
+  // Update counters
   m_RefittedTracks.fetch_add(refitted.size(), std::memory_order_relaxed);
   m_FailedFitTracks.fetch_add(failedfit.size(), std::memory_order_relaxed);
-  m_FailedSiliconRequirFit.fetch_add(trtAloneTrkTracks.size(),std::memory_order_relaxed);
+  m_FailedSiliconRequirFit.fetch_add(trtAloneTrkTracks.size(), std::memory_order_relaxed);
   return StatusCode::SUCCESS;
 }
 
@@ -201,46 +196,50 @@ EMBremCollectionBuilder::createCollections(
   const xAOD::TrackParticleContainer* AllTracks) const
 {
   /*
-   * Refitted are  new tracks (not copied/cloned)
+   * Refitted are new tracks (not copied/cloned)
    * so need to update the summary
    */
-  for (auto& Info : refitted){
-    updateGSFTrack(ctx,Info, AllTracks);
+  for (auto& trk : refitted) {
+    updateGSFTrack(ctx, trk, AllTracks);
   }
 
-  for (auto& Info : refitted){
-    ATH_CHECK(createNew(Info,finalTracks,finalTrkPartContainer,AllTracks));
+  for (auto& trk : refitted) {
+    ATH_CHECK(
+      createNew(ctx, trk, finalTracks, finalTrkPartContainer, AllTracks));
   }
 
-  for (auto& Info  :  failedfit){
-    ATH_CHECK(createNew(Info,finalTracks,finalTrkPartContainer,AllTracks));
+  for (auto& trk : failedfit) {
+    ATH_CHECK(
+      createNew(ctx, trk, finalTracks, finalTrkPartContainer, AllTracks));
   }
 
-  for (auto& Info : trtAlone){
-    ATH_CHECK(createNew(Info,finalTracks,finalTrkPartContainer,AllTracks));
+  for (auto& trk : trtAlone) {
+    ATH_CHECK(
+      createNew(ctx, trk, finalTracks, finalTrkPartContainer, AllTracks));
   }
   return StatusCode::SUCCESS;
 }
 
 StatusCode
 EMBremCollectionBuilder::createNew(
-  TrackWithIndex& Info,
+  const EventContext& ctx,
+  TrackWithIndex& trk_info,
   TrackCollection* finalTracks,
   xAOD::TrackParticleContainer* finalTrkPartContainer,
   const xAOD::TrackParticleContainer* AllTracks) const
 {
 
-  size_t origIndex = Info.origIndex;
+  size_t origIndex = trk_info.origIndex;
   const xAOD::TrackParticle* original = AllTracks->at(origIndex);
   /*
    * Create TrackParticle it should be now owned by finalTrkPartContainer
    */
   xAOD::TrackParticle* aParticle = m_particleCreatorTool->createParticle(
-    *(Info.track), finalTrkPartContainer, nullptr, xAOD::electron);
+    ctx, *(trk_info.track), finalTrkPartContainer, nullptr, xAOD::electron);
 
   if (!aParticle) {
     ATH_MSG_WARNING(
-      "Could not create TrackParticle!!! for Track: " << *(Info.track));
+      "Could not create TrackParticle!!! for Track: " << *(trk_info.track));
     return StatusCode::SUCCESS;
   }
 
@@ -249,7 +248,7 @@ EMBremCollectionBuilder::createNew(
     ElementLink<xAOD::TrackParticleContainer>>
     tP("originalTrackParticle");
   ElementLink<xAOD::TrackParticleContainer> linkToOriginal(*AllTracks,
-                                                           origIndex);
+                                                           origIndex,ctx);
   tP(*aParticle) = linkToOriginal;
 
   if (m_doTruth) {
@@ -281,10 +280,9 @@ EMBremCollectionBuilder::createNew(
   /*
    * Add qoverP from the last measurement
    */
-  static const SG::AuxElement::Accessor<float> QoverPLM("QoverPLM");
   float QoverPLast(0);
-  auto rtsos = Info.track->trackStateOnSurfaces()->rbegin();
-  for (; rtsos != Info.track->trackStateOnSurfaces()->rend(); ++rtsos) {
+  auto rtsos = trk_info.track->trackStateOnSurfaces()->rbegin();
+  for (; rtsos != trk_info.track->trackStateOnSurfaces()->rend(); ++rtsos) {
     if ((*rtsos)->type(Trk::TrackStateOnSurface::Measurement) &&
         (*rtsos)->trackParameters() != nullptr &&
         (*rtsos)->measurementOnTrack() != nullptr &&
@@ -294,12 +292,14 @@ EMBremCollectionBuilder::createNew(
       break;
     }
   }
+
+  static const SG::AuxElement::Accessor<float> QoverPLM("QoverPLM");
   QoverPLM(*aParticle) = QoverPLast;
 
-  // Now  Slim the Trk::Track for writing to disk
-  m_slimTool->slimTrack(*(Info.track));
-  finalTracks->push_back(std::move(Info.track));
-  ElementLink<TrackCollection> trackLink(*finalTracks,finalTracks->size()-1);
+  // Now slim the Trk::Track for writing to disk
+  m_slimTool->slimTrack(*(trk_info.track));
+  finalTracks->push_back(std::move(trk_info.track));
+  ElementLink<TrackCollection> trackLink(*finalTracks,finalTracks->size()-1,ctx);
   aParticle->setTrackLink( trackLink );
   return StatusCode::SUCCESS;
 }
@@ -307,16 +307,16 @@ EMBremCollectionBuilder::createNew(
 void
 EMBremCollectionBuilder::updateGSFTrack(
   const EventContext& ctx,
-  const TrackWithIndex& Info,
+  const TrackWithIndex& trk_info,
   const xAOD::TrackParticleContainer* AllTracks) const
 {
 
   //update the summary of the non-const track without hole search
-  m_summaryTool->updateTrackSummary(ctx,*(Info.track));
+  m_summaryTool->updateTrackSummary(ctx,*(trk_info.track));
   //Get the summary so as to add info to it
-  Trk::TrackSummary* summary = Info.track->trackSummary();
+  Trk::TrackSummary* summary = trk_info.track->trackSummary();
 
-  size_t origIndex = Info.origIndex;
+  size_t origIndex = trk_info.origIndex;
   const xAOD::TrackParticle* original = AllTracks->at(origIndex);
 
   uint8_t dummy(0);

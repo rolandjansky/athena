@@ -47,7 +47,7 @@ def createDQConfigFlags():
             arg = lambda x: x.DQ.DataType != 'cosmics' # noqa: E731
         if flag == 'doHLTMon':
             # new HLT monitoring not yet compatible with pre-Run 3 data
-            arg = lambda x: x.Trigger.EDMDecodingVersion == 3 # noqa: E731
+            arg = lambda x: x.Trigger.EDMVersion == 3 # noqa: E731
 
         acf.addFlag('DQ.Steering.' + flag, arg)
 

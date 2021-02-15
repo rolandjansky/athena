@@ -120,9 +120,8 @@ def ByteStreamWriteCfg(flags, type_names=None):
     ), "Input is from multiple runs, do not know which one to use {}".format(
         all_runs
     )
-
-    result = ComponentAccumulator("AthOutSeq")
     comp_factory = AthenaConfiguration.ComponentFactory.CompFactory
+    result = ComponentAccumulator(comp_factory.AthSequencer('AthOutSeq', StopOverride=True))
 
     event_storage_output = comp_factory.ByteStreamEventStorageOutputSvc(
         MaxFileMB=15000,
@@ -154,6 +153,66 @@ def ByteStreamWriteCfg(flags, type_names=None):
     result.merge(
         MetaDataSvcCfg(flags, ["IOVDbMetaDataTool", "ByteStreamMetadataTool"])
     )
+
+    return result
+
+def TransientByteStreamCfg(flags, item_list=None, type_names=None, extra_inputs=None):
+    """Set up transient ByteStream output stream
+
+    Configure components responsible for writing bytestream format. Write the
+    specified objects to ByteStream into the cache of the ROBDataProviderSvc.
+    The data can then be read downstream as if they were coming from a BS file.
+
+    Args:
+        flags:        Job configuration, usually derived from ConfigFlags
+        item_list:    (optional) List of objects to be written to transient ByteStream
+        type_names:   (optional) List of types/names to register in BS conversion service
+                      as available to be read from (transient) ByteStream
+        extra_inputs: (optional) List of objects which need to be produced before transient
+                      ByteStream streaming is scheduled - ensures correct scheduling
+
+    Returns:
+        A component accumulator fragment containing the components required to
+        write transient bytestream. Should be merged into main job configuration.
+    """
+
+    result = ComponentAccumulator()
+    comp_factory = AthenaConfiguration.ComponentFactory.CompFactory
+
+    rdp = comp_factory.ROBDataProviderSvc()
+    result.addService(rdp)
+
+    rdp_output = comp_factory.ByteStreamRDP_OutputSvc()
+    result.addService(rdp_output)
+
+    bytestream_conversion = comp_factory.ByteStreamCnvSvc(
+        name="ByteStreamCnvSvc",
+        ByteStreamOutputSvcList=[rdp_output.getName()],
+    )
+    result.addService(bytestream_conversion)
+
+    # Special fictitious extra output which can be used to ensure correct
+    # scheduling of transient ByteStream clients
+    extra_outputs = [("TransientBSOutType","StoreGateSvc+TransientBSOutKey")]
+
+    output_stream = comp_factory.AthenaOutputStream(
+        name="TransBSStreamAlg",
+        EvtConversionSvc=bytestream_conversion.name,
+        OutputFile="ByteStreamRDP_OutputSvc",
+        ItemList=item_list if item_list else list(),
+        ExtraInputs=extra_inputs if extra_inputs else list(),
+        ExtraOutputs=extra_outputs
+    )
+    result.addEventAlgo(output_stream, primary=True)
+
+    address_provider = comp_factory.ByteStreamAddressProviderSvc(
+        TypeNames=type_names if type_names else list(),
+    )
+    result.addService(address_provider)
+
+    proxy = comp_factory.ProxyProviderSvc()
+    proxy.ProviderNames += [address_provider.name]
+    result.addService(proxy)
 
     return result
 

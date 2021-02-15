@@ -60,7 +60,7 @@ StatusCode LArFCalTowerBuilderTool::initializeTool(){
 inline
 void
 LArFCalTowerBuilderTool::addTower (const tower_iterator& t,
-                                   const CaloCellContainer* cells,
+                                   const ElementLink<CaloCellContainer>& cellsEL,
                                    CaloTower* tower) const
 {
   LArFCalTowerStore::cell_iterator firstC = m_cellStore.firstCellofTower(t);
@@ -68,6 +68,7 @@ LArFCalTowerBuilderTool::addTower (const tower_iterator& t,
   // here get needed size of this vector and use it to reserve tower size.
   int ts=  m_cellStore.towerSize(t);
   double wsumE = tower->getBasicEnergy(); // this is not 0 since some towers already have cells from other calos.
+  const CaloCellContainer* cells = cellsEL.getDataPtr();
   for (; firstC != lastC; ++firstC) {
 
     unsigned int ci = firstC->first;
@@ -79,7 +80,7 @@ LArFCalTowerBuilderTool::addTower (const tower_iterator& t,
     // get weights
     if (cellPtr) {
       wsumE += weightC * cellPtr->e();					// Summ up weighted energies .
-      tower->addUniqueCellNoKine(cells, cndx, weightC, ts); // add cells to tower.
+      tower->addUniqueCellNoKine(cellsEL, cndx, weightC, ts); // add cells to tower.
     }
   }
   tower->setE(wsumE);  // update tower kinematics.
@@ -89,7 +90,7 @@ LArFCalTowerBuilderTool::addTower (const tower_iterator& t,
 inline
 void
 LArFCalTowerBuilderTool::iterateFull (CaloTowerContainer* towers,
-                                      const CaloCellContainer* cells) const
+                                      const ElementLink<CaloCellContainer>& cellsEL) const
 {
   size_t sz = towers->size();
   assert(m_cellStore.size() ==  sz);
@@ -97,7 +98,7 @@ LArFCalTowerBuilderTool::iterateFull (CaloTowerContainer* towers,
 
   for (unsigned int t = 0; t < sz; ++t, ++tower_it) {
     CaloTower* aTower = towers->getTower(t);
-    addTower (tower_it, cells, aTower);
+    addTower (tower_it, cellsEL, aTower);
   }
 }
 
@@ -105,7 +106,7 @@ LArFCalTowerBuilderTool::iterateFull (CaloTowerContainer* towers,
 inline
 void
 LArFCalTowerBuilderTool::iterateSubSeg (CaloTowerContainer* towers,
-                                        const CaloCellContainer* cells,
+                                        const ElementLink<CaloCellContainer>& cellsEL,
                                         const CaloTowerSeg::SubSeg* subseg) const
 {
   size_t sz = towers->size();
@@ -114,7 +115,7 @@ LArFCalTowerBuilderTool::iterateSubSeg (CaloTowerContainer* towers,
 
   for (unsigned int t = 0; t < sz; ++t, ++tower_it) {
     CaloTower* aTower = towers->getTower(tower_it.itower());
-    addTower (tower_it, cells, aTower);
+    addTower (tower_it, cellsEL, aTower);
   }
 }
 
@@ -124,7 +125,8 @@ LArFCalTowerBuilderTool::iterateSubSeg (CaloTowerContainer* towers,
 /////////////////////////
 
 StatusCode
-LArFCalTowerBuilderTool::execute(CaloTowerContainer* theTowers,
+LArFCalTowerBuilderTool::execute(const EventContext& ctx,
+                                 CaloTowerContainer* theTowers,
                                  const CaloCellContainer* theCells,
                                  const CaloTowerSeg::SubSeg* subseg) const
 {
@@ -154,11 +156,11 @@ LArFCalTowerBuilderTool::execute(CaloTowerContainer* theTowers,
   // register this calorimeter
   theTowers->setCalo(m_caloIndex);
 
-  
+  const ElementLink<CaloCellContainer> cellsEL (*theCells, 0, ctx);
   if (subseg)
-    iterateSubSeg (theTowers, theCells, subseg);
+    iterateSubSeg (theTowers, cellsEL, subseg);
   else
-    iterateFull (theTowers, theCells);
+    iterateFull (theTowers, cellsEL);
 
   return StatusCode::SUCCESS;
 }
@@ -166,19 +168,21 @@ LArFCalTowerBuilderTool::execute(CaloTowerContainer* theTowers,
 
 /**
  * @brief Run tower building and add results to the tower container.
+ * @param ctx The current event context.
  * @param theContainer The tower container to fill.
  *
  * If the segmentation hasn't been set, take it from the tower container.
  * This is for use by converters.
  */
-StatusCode LArFCalTowerBuilderTool::execute (CaloTowerContainer* theContainer)
+StatusCode LArFCalTowerBuilderTool::execute (const EventContext& ctx,
+                                             CaloTowerContainer* theContainer)
 {
   if (m_cellStore.size() == 0) {
     setTowerSeg (theContainer->towerseg());
     ATH_CHECK( rebuildLookup() );
   }
 
-  return execute (theContainer, nullptr, nullptr);
+  return execute (ctx, theContainer, nullptr, nullptr);
 }
 
 

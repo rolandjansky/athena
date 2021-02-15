@@ -22,6 +22,7 @@
 #include "AtlasHepMC/GenEvent.h"
 #include "AtlasHepMC/GenParticle.h"
 #include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/Relatives.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 // McParticleKernel includes
@@ -102,10 +103,6 @@ PileupFilterTool::~PileupFilterTool()
 }
 
 /////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
 // Non-const methods: 
 /////////////////////////////////////////////////////////////////// 
 
@@ -144,14 +141,6 @@ StatusCode PileupFilterTool::buildMcAod( const McEventCollection* in,
 
   return StatusCode::SUCCESS;
 }
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////// 
 // Non-const methods: 
@@ -200,37 +189,28 @@ StatusCode PileupFilterTool::selectSpclMcBarcodes()
 
      const HepMC::GenEvent* genEvent = (*mcEventItr);
 
-     float xp=0.0; float yp=0.0; float zp=0.0;
+#ifdef HEPMC3
+     auto vxp = genEvent->vertices().begin();
+#else
+     HepMC::GenEvent::vertex_const_iterator vxp = genEvent->vertices_begin();
+#endif
+     const float xp = (*vxp)->position().x();
+     const float yp = (*vxp)->position().y();
+     const float zp = (*vxp)->position().z();
 
-     if ( genEvent == *(mcTruth->begin()) ) {
-       HepMC::GenEvent::vertex_const_iterator vxp = genEvent->vertices_begin();
-       xp = (*vxp)->position().x();
-       yp = (*vxp)->position().y();
-       zp = (*vxp)->position().z();
-     } else {
-       HepMC::GenEvent::vertex_const_iterator vxp = genEvent->vertices_begin();
-       xp = (*vxp)->position().x();
-       yp = (*vxp)->position().y();
-       zp = (*vxp)->position().z();
-     } 
 
      // Loop over all particles, selecting special ones
      // keep track of them using their barcodes
-     HepMC::GenEvent::particle_const_iterator part  = genEvent->particles_begin();
-     HepMC::GenEvent::particle_const_iterator partE = genEvent->particles_end();
-     for ( ; part != partE; ++part ) {
-        const int id      = (*part)->pdg_id();
-        //const int ida     = std::abs(id);
-        const HepMC::FourVector hlv = (*part)->momentum();
+     for (auto  part: *genEvent) {
+        const int id      = part->pdg_id();
+        const HepMC::FourVector hlv = part->momentum();
         const double pt   = hlv.perp();
-        //const double eta  = hlv.pseudoRapidity();
-        //const double mass = hlv.m();
-        const int barcode = (*part)->barcode();
-        const HepMC::GenVertex * decayVtx = (*part)->end_vertex();
-        const HepMC::GenVertex * prodVtx  = (*part)->production_vertex();
+        const int barcode = HepMC::barcode(part);
+        HepMC::ConstGenVertexPtr decayVtx = part->end_vertex();
+        HepMC::ConstGenVertexPtr prodVtx  = part->production_vertex();
         bool isSpcl = false;
         /// skip stuff with no end-vertex
-        if( (*part)->status() != 1 && !decayVtx ) continue;
+        if( part->status() != 1 && !decayVtx ) continue;
 
         float xi = (prodVtx->position()).x();
         float yi = (prodVtx->position()).y();
@@ -242,7 +222,7 @@ StatusCode PileupFilterTool::selectSpclMcBarcodes()
 		      << xi << " " << yi << " " << zi << " " 
 		      << "Particle ID = " << id);
 
-        float deltaR = sqrt( (xp-xi)*(xp-xi) + (yp-yi)*(yp-yi) );
+        float deltaR = std::sqrt( (xp-xi)*(xp-xi) + (yp-yi)*(yp-yi) );
 
         const bool accept = (pt > m_ptMin) && (deltaR < m_rRange);
         ///////////////////////////
@@ -250,9 +230,9 @@ StatusCode PileupFilterTool::selectSpclMcBarcodes()
         ///////////////////////////
         /// stable particles
         if (m_includeSimul ) {
-           if ( isGSStable(*part) && accept ) isSpcl = true;
+           if ( isGSStable(part) && accept ) isSpcl = true;
         } else {
-           if ( isStable(*part) && accept ) isSpcl = true;
+           if ( isStable(part) && accept ) isSpcl = true;
         }
 
         //////////////////////////////////////
@@ -263,11 +243,9 @@ StatusCode PileupFilterTool::selectSpclMcBarcodes()
 
         // Children
         if( isSpcl && decayVtx ) {
-          HepMC::GenVertex::particle_iterator child  = (*part)->end_vertex()->particles_begin(HepMC::children);
-          HepMC::GenVertex::particle_iterator childE = (*part)->end_vertex()->particles_end(HepMC::children);
-          for(; child != childE; ++child) {
-             if( isGenerator(*child) && !m_removeDecayToSelf) { 
-	       m_barcodes.insert((*child)->barcode());// its not there already
+          for(auto child: *(part->end_vertex())) {
+             if( isGenerator(child) && !m_removeDecayToSelf) { 
+	       m_barcodes.insert(HepMC::barcode(child));// its not there already
              }
           }
         }
@@ -285,62 +263,72 @@ StatusCode PileupFilterTool::shapeGenEvent( McEventCollection* genAod )
   for ( McEventCollection::const_iterator evt = genAod->begin(); 
 	evt != genAod->end(); 
 	++evt) {
-    std::vector<HepMC::GenParticle*> going_out;
+    std::vector<HepMC::GenParticlePtr> going_out;
 
     std::list<int> evtBarcodes;
-    for ( HepMC::GenEvent::particle_const_iterator p = (*evt)->particles_begin();
-	  p != (*evt)->particles_end(); 
-	  ++p ) {
-      evtBarcodes.push_back( (*p)->barcode() );
+    for ( auto p: **evt) {
+      evtBarcodes.push_back( HepMC::barcode(p) );
     }
 
     for ( std::list<int>::const_iterator itrBc = evtBarcodes.begin();
 	  itrBc != evtBarcodes.end();
 	  ++itrBc ) {
 
-      HepMC::GenParticle * p = (*evt)->barcode_to_particle(*itrBc);
+      HepMC::GenParticlePtr p = HepMC::barcode_to_particle(*evt,*itrBc);
 
-      ATH_MSG_DEBUG("[pdg,bc]= " << p->pdg_id() << ", " << p->barcode());
-      if ( m_barcodes.find(p->barcode()) == m_barcodes.end() ) { 
+      ATH_MSG_DEBUG("[pdg,bc]= " << p->pdg_id() << ", " << HepMC::barcode( p));
+      if ( m_barcodes.find(HepMC::barcode(p)) == m_barcodes.end() ) { 
 	going_out.push_back(p); // list of useless particles
-	HepMC::GenVertex * pvtx = p->production_vertex();
-	HepMC::GenVertex * evtx = p->end_vertex();
+	HepMC::GenVertexPtr pvtx = p->production_vertex();
+	HepMC::GenVertexPtr evtx = p->end_vertex();
 
 	std::pair<int,int> bcNext( 0, 0 );
 	if ( msgLvl(MSG::DEBUG) ) {
 	  msg(MSG::DEBUG)
 	    << "Removing [" 
 	    << p->pdg_id() << ", " 
-	    << p->barcode() << "]" 
+	    <<HepMC::barcode( p) << "]" 
 	    << "\tprod/endVtx: " << pvtx 
 	    << "/"  << evtx 
 	    << endmsg;
 	  std::list<int>::const_iterator pNext = itrBc;
 	  ++pNext;
 	  if ( pNext != evtBarcodes.end() ) {
-	    bcNext.first = (*evt)->barcode_to_particle(*pNext)->barcode();
+	    bcNext.first = HepMC::barcode(HepMC::barcode_to_particle(*evt,*pNext));
 	  }
 	}
 	
+#ifdef HEPMC3
+	if (pvtx) pvtx->remove_particle_out(p); //remove from production vertex from useless partilcle
+#else
 	if (pvtx) pvtx->remove_particle(p); //remove from production vertex from useless partilcle
+#endif
 	if (evtx) { // if it has end vertex, may need to move the out partilces
 	  if(pvtx){ // move the partilces back
 	    if ( msgLvl(MSG::DEBUG) ) {
 	      msg(MSG::DEBUG) << "\tin endVtx   "<< endmsg;
 	    }
+#ifdef HEPMC3
+	    while ( evtx->particles_out().begin() !=  evtx->particles_out().end()) {
+	      pvtx->add_particle_out(evtx->particles_out().front());
+	    }
+	  }//> end if [prod vertex]
+	  evtx->remove_particle_out(p); // disconnect from end vertex	
+#else 
 	    while ( evtx->particles_out_const_begin() !=  evtx->particles_out_const_end()) {
 	      HepMC::GenVertex::particles_out_const_iterator np = evtx->particles_out_const_begin();
 	      pvtx->add_particle_out(*np); // note that this really is a MOVE!!! it get taken off evtx by magic
 	    }
 	  }//> end if [prod vertex]
-	  evtx->remove_particle(p); // disconnect from end vertex	  
+	  evtx->remove_particle(p); // disconnect from end vertex	
+#endif  
 	}//> end if [decay vertex]
 
 	if ( msgLvl(MSG::DEBUG) ) {
 	  std::list<int>::const_iterator pNext = itrBc;
 	  ++pNext;
 	  if ( pNext != evtBarcodes.end() ) {
-	    bcNext.second = (*evt)->barcode_to_particle(*pNext)->barcode();
+	    bcNext.second = HepMC::barcode(HepMC::barcode_to_particle(*evt,*pNext));
 	  }
 
 	  if ( bcNext.first != bcNext.second ) {
@@ -358,6 +346,16 @@ StatusCode PileupFilterTool::shapeGenEvent( McEventCollection* genAod )
     }//> loop over particles (via their barcode)
 
 
+#ifdef HEPMC3
+    // there may be a bunch of vertices with no particles connected to them:
+    // ==> Get rid of them
+    std::vector<HepMC::ConstGenVertexPtr> going_out_again;
+    for ( HepMC::ConstGenVertexPtr v: (*evt)->vertices() ) {
+      if ( v->particles_in().size() == 0 && v->particles_out().size() == 0 ){
+	going_out_again.push_back(v);
+      }
+    }//> loop over vertices
+#else 
     // now get rid of all dead particles
     for ( std::vector<HepMC::GenParticle*>::iterator d = going_out.begin(); 
 	  d != going_out.end(); 
@@ -381,6 +379,7 @@ StatusCode PileupFilterTool::shapeGenEvent( McEventCollection* genAod )
 	  ++d ){
       delete *d;
     }
+#endif
     
   }//> loop over GenEvents in McEventCollection
   
@@ -388,10 +387,19 @@ StatusCode PileupFilterTool::shapeGenEvent( McEventCollection* genAod )
   for ( McEventCollection::iterator evt = genAod->begin(); 
 	evt != genAod->end(); 
 	++evt) { 
-    const HepMC::GenVertex * sigProcVtx = (*evt)->signal_process_vertex(); 
-    if ( 0 != sigProcVtx ) { 
-      const int sigProcBC = sigProcVtx->barcode(); 
+    auto sigProcVtx = HepMC::signal_process_vertex(*evt); 
+    if ( !sigProcVtx ) continue;
+      const int sigProcBC = HepMC::barcode(sigProcVtx); 
       bool isInColl = false; 
+#ifdef HEPMC3
+      for ( auto itrVtx: (*evt)->vertices()){ 
+	if ( sigProcBC == HepMC::barcode(itrVtx) ) { 
+	  isInColl = true; 
+	  break; 
+	} 
+      }  //> loop over vertices 
+//AV: We don't set nullptr as signal vertex in HepMC3
+#else 
       for ( HepMC::GenEvent::vertex_const_iterator itrVtx = (*evt)->vertices_begin(); 
 	    itrVtx != (*evt)->vertices_end(); 
 	    ++itrVtx ) { 
@@ -403,7 +411,7 @@ StatusCode PileupFilterTool::shapeGenEvent( McEventCollection* genAod )
       if ( !isInColl ) { 
 	(*evt)->set_signal_process_vertex(0); 
       } 
-    }//> a signal_process_vertex has been setup 
+#endif
   }//> loop over GenEvent's 
 
   return StatusCode::SUCCESS;
@@ -425,25 +433,23 @@ StatusCode PileupFilterTool::reconnectParticles( const McEventCollection* in,
     
     // Reconnect the particles
     ATH_MSG_VERBOSE("Reconnecting particles...");
-    for ( HepMC::GenEvent::particle_iterator itrPart = outEvt->particles_begin();
-	  itrPart != outEvt->particles_end();
-	  ++itrPart ) {
-      if ( (*itrPart)->end_vertex() ) {
+    for ( auto itrPart: *outEvt) {
+      if ( itrPart->end_vertex() ) {
 	continue;
       }
-      if ( rebuildLinks( evt, outEvt, *itrPart ).isFailure() ) {
+      if ( rebuildLinks( evt, outEvt, itrPart ).isFailure() ) {
 	ATH_MSG_WARNING("Could not rebuild links for this particle [pdgId,bc]= "
-			<< (*itrPart)->pdg_id()
-			<< ", " << (*itrPart)->barcode());
+			<< itrPart->pdg_id()
+			<< ", " << HepMC::barcode(itrPart));
       } else if ( msgLvl(MSG::VERBOSE) ) {
 	msg(MSG::VERBOSE)
 	  << "==========================================================="
 	  << endmsg
 	  << "Production vertex for particle " 
-	  << (*itrPart)->barcode() << " : ";
-	if ( (*itrPart)->production_vertex() ) {
+	  << HepMC::barcode(itrPart) << " : ";
+	if ( itrPart->production_vertex() ) {
 	  std::stringstream prodVtx("");
-	  (*itrPart)->production_vertex()->print(prodVtx);
+	  HepMC::Print::line(prodVtx,itrPart->production_vertex());
 	  msg(MSG::VERBOSE) << std::endl
 			    << prodVtx.str()
 			    << endmsg;
@@ -452,10 +458,10 @@ StatusCode PileupFilterTool::reconnectParticles( const McEventCollection* in,
 	}
 	
 	msg(MSG::VERBOSE) << "Decay vertex for particle " 
-			  << (*itrPart)->barcode() << " : ";
-	if ( (*itrPart)->end_vertex() ) {
+			  << HepMC::barcode(itrPart) << " : ";
+	if ( itrPart->end_vertex() ) {
 	  std::stringstream dcyVtx("");
-	  (*itrPart)->end_vertex()->print(dcyVtx);
+	  HepMC::Print::line(dcyVtx,itrPart->end_vertex());
 	  msg(MSG::VERBOSE) << std::endl
 			    << dcyVtx.str()
 			    << endmsg;
@@ -473,7 +479,7 @@ StatusCode PileupFilterTool::reconnectParticles( const McEventCollection* in,
 
 StatusCode PileupFilterTool::rebuildLinks( const HepMC::GenEvent * mcEvt,
 					      HepMC::GenEvent * outEvt,
-					      HepMC::GenParticle * mcPart )
+					      HepMC::GenParticlePtr mcPart )
 {
   if ( !mcPart ) {
     ATH_MSG_WARNING("Null GenParticle: can not rebuildLinks");
@@ -497,9 +503,9 @@ StatusCode PileupFilterTool::rebuildLinks( const HepMC::GenEvent * mcEvt,
 
   // Cache some useful infos
   const int pdgId = mcPart->pdg_id();
-  const int bc    = mcPart->barcode();
-  /*const*/ HepMC::GenParticle * inPart = mcEvt->barcode_to_particle(bc);
-  /*const*/ HepMC::GenVertex   * dcyVtx = inPart->end_vertex();
+  const int bc    = HepMC::barcode(mcPart);
+  /*const*/ HepMC::GenParticlePtr  inPart = HepMC::barcode_to_particle(mcEvt,bc);
+  /*const*/ HepMC::GenVertexPtr    dcyVtx = inPart->end_vertex();
 
   if ( !dcyVtx ) {
     ATH_MSG_VERBOSE("No decay vertex for the particle #" << bc << " : "
@@ -507,7 +513,6 @@ StatusCode PileupFilterTool::rebuildLinks( const HepMC::GenEvent * mcEvt,
     return StatusCode::SUCCESS;
   }
 
-  const HepMC::IteratorRange range = HepMC::descendants;
   std::list<int> bcChildPart;
   std::list<int> bcChildVert;
 
@@ -515,8 +520,24 @@ StatusCode PileupFilterTool::rebuildLinks( const HepMC::GenEvent * mcEvt,
   // Loop over all descendants of the GenParticle
   // Store the barcode of the GenParticles entering into each GenVertex
   //
-  const HepMC::GenVertex::vertex_iterator endVtx = dcyVtx->vertices_end(range);
-  for ( HepMC::GenVertex::vertex_iterator itrVtx = dcyVtx->vertices_begin( range );
+#ifdef HEPMC3
+  auto descendants=HepMC::descendant_vertices(dcyVtx);
+  for ( auto itrVtx: descendants) {
+    bool foundPdgId = false;
+    for ( auto itrPart: itrVtx->particles_in()) {
+      // because the vertices are traversed in POST ORDER !!
+      bcChildPart.push_front( HepMC::barcode(itrPart));
+      if ( itrPart->pdg_id() == pdgId ) {
+	foundPdgId = true;
+      }
+    }//> loop over in-going particles of this vertex
+    if ( foundPdgId ) {
+      bcChildVert.push_front( HepMC::barcode(itrVtx));
+    }
+  }//> loop over descendants of decay vertex
+#else
+  const HepMC::GenVertex::vertex_iterator endVtx = dcyVtx->vertices_end(HepMC::descendants);
+  for ( HepMC::GenVertex::vertex_iterator itrVtx = dcyVtx->vertices_begin( HepMC::descendants );
 	itrVtx != endVtx;
 	++itrVtx ) {
     bool foundPdgId = false;
@@ -540,11 +561,72 @@ StatusCode PileupFilterTool::rebuildLinks( const HepMC::GenEvent * mcEvt,
     }
 
   }//> loop over descendants of decay vertex
+#endif
 
   //
   // Now we loop over the previously stored barcodes and
   // we connect our GenParticle to the first found barcode
   // 
+#ifdef HEPMC3
+  std::list<int>::const_iterator bcVtxEnd = bcChildVert.end();
+  for ( std::list<int>::const_iterator itrBcVtx = bcChildVert.begin();
+	itrBcVtx != bcVtxEnd;
+	++itrBcVtx ) {
+    HepMC::GenVertexPtr childVtx = HepMC::barcode_to_vertex(outEvt,*itrBcVtx);
+    if ( childVtx ) {
+      if ( childVtx->particles_in().size() > 0 ) {
+	for ( auto itrPart:  childVtx->particles_in()) {
+	  if ( itrPart->pdg_id() == pdgId ) {
+	    HepMC::GenVertexPtr  prodVtx = itrPart->production_vertex();
+	    if ( prodVtx ) {
+	      if ( prodVtx->particles_in().size() > 0 ) {
+		// Humm... This is not what we'd have expected
+		// so we skip it
+		if ( msgLvl(MSG::VERBOSE) ) {
+		  msg(MSG::VERBOSE)
+		    << "found a particle [bc,pdgId]= "
+		    << HepMC::barcode(itrPart) << ", "
+		    << "but its production vertex has incoming particles !"
+		    << endmsg;
+		  continue;
+		}
+		// create a GenVertex which will be the decay vertex of our
+		// GenParticle and the production vertex of the GenParticle
+		// we just found
+		HepMC::GenVertexPtr linkVtx = HepMC::newGenVertexPtr();
+		outEvt->add_vertex( linkVtx );
+		linkVtx->add_particle_in( mcPart );
+		linkVtx->add_particle_out( itrPart );
+		
+		msg(MSG::ERROR)
+		  << "====================================================="
+		  << endmsg
+		  << "Created a GenVertex - link !"
+		  << std::endl;
+		std::stringstream vtxLink("");
+		HepMC::Print::line(vtxLink,linkVtx);
+		msg(MSG::ERROR)
+		  << vtxLink.str()
+		  << endmsg
+		  << "====================================================="
+		  << endmsg;
+	      }
+	    }
+	  }
+	}//> loop over incoming particles
+      } else { 
+	// no incoming particle : so we just add this particle
+	// a bit odd though : FIXME ?
+	childVtx->add_particle_in(mcPart);
+	msg(MSG::WARNING) << "Odd situation:" << std::endl;
+	std::stringstream vtxDump( "" );
+	HepMC::Print::line(vtxDump,childVtx);
+	msg(MSG::WARNING) << vtxDump.str() << endmsg;
+	return StatusCode::SUCCESS;
+      }//> end if incoming particles
+    }//> found a child-vertex
+  }//> loop over child-vertex-barcodes
+#else
   std::list<int>::const_iterator bcVtxEnd = bcChildVert.end();
   for ( std::list<int>::const_iterator itrBcVtx = bcChildVert.begin();
 	itrBcVtx != bcVtxEnd;
@@ -606,6 +688,7 @@ StatusCode PileupFilterTool::rebuildLinks( const HepMC::GenEvent * mcEvt,
       }//> end if incoming particles
     }//> found a child-vertex
   }//> loop over child-vertex-barcodes
+#endif
 
   return StatusCode::FAILURE;
 }

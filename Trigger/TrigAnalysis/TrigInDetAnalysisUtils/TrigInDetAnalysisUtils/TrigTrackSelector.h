@@ -103,8 +103,11 @@ public:
   // extract all the tracks from a TrackParticle collection and add them
   void selectTracks( const xAOD::TruthParticleContainer* truthtracks );
 
+  // extract all the tracks from a TrackParticle collection and add them
+  void truthBeamline( const xAOD::TruthParticleContainer* truthtracks, double& x0, double& y0 );
 
-  bool selectTrack( const HepMC::GenParticle* track );
+
+  bool selectTrack( HepMC::ConstGenParticlePtr track );
 
 
   // add a TruthParticle 
@@ -113,11 +116,11 @@ public:
   // add a TruthParticle 
   bool selectTrack( const TruthParticle* track );
 
-  bool selectTrack( const xAOD::TruthParticle* track );
+  bool selectTrack( const xAOD::TruthParticle* track, double x0=0, double y0=0 );
 
 
   // make a TIDA::Track from a GenParticle 
-  TIDA::Track* makeTrack( const HepMC::GenParticle* track );
+  TIDA::Track* makeTrack( HepMC::ConstGenParticlePtr track );
 
   // make a TIDA::Track from a TruthParticle 
   TIDA::Track* makeTrack( const TruthParticle* track, unsigned long tid=0 );

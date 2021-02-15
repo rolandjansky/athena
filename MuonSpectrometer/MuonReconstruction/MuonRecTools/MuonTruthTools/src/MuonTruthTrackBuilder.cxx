@@ -139,7 +139,7 @@ MuonTruthTrackBuilder::finalize()
 }
 
 const TrackRecord*
-MuonTruthTrackBuilder::getEntryRecord(const HepMC::GenParticle& genPart) const
+MuonTruthTrackBuilder::getEntryRecord(HepMC::ConstGenParticlePtr genPart) const
 {
     const TrackRecordCollection* truthCollection = 0;
     std::string                  location        = "MuonEntryLayer";
@@ -169,7 +169,7 @@ MuonTruthTrackBuilder::getEntryRecord(const HepMC::GenParticle& genPart) const
     TrackRecordCollection::const_iterator it_end = truthCollection->end();
     for (; it != it_end; ++it) {
         int barcode = (*it).GetBarCode();
-        if (barcode == genPart.barcode()) {
+        if (barcode == HepMC::barcode(genPart)) {
 
             ATH_MSG_DEBUG("Matched muon in track record: bc " << barcode << " pt " << (*it).GetMomentum().perp()
                                                               << " eta " << (*it).GetMomentum().eta());
@@ -179,8 +179,8 @@ MuonTruthTrackBuilder::getEntryRecord(const HepMC::GenParticle& genPart) const
                                                               << " eta " << (*it).GetMomentum().eta());
         }
     }
-    ATH_MSG_DEBUG("No match found for muon: bc " << genPart.barcode() << " pt " << genPart.momentum().perp() << " eta "
-                                                 << genPart.momentum().eta());
+    ATH_MSG_DEBUG("No match found for muon: bc " << HepMC::barcode(genPart) << " pt " << genPart->momentum().perp() << " eta "
+                                                 << genPart->momentum().eta());
     return 0;
 }
 
@@ -195,7 +195,7 @@ MuonTruthTrackBuilder::createTrack(const Trk::PRD_TruthTrajectory& prdTraj, Trk:
     }
 
     // get the associated GenParticle
-    const HepMC::GenParticle* genPart = prdTraj.genParticle;
+   auto genPart = prdTraj.genParticle;
     if (!genPart) {
         ATH_MSG_WARNING("No GenParticle associated to this PRD_TruthTrajectory. Ignoring track creation.");
         return 0;
@@ -203,9 +203,9 @@ MuonTruthTrackBuilder::createTrack(const Trk::PRD_TruthTrajectory& prdTraj, Trk:
     ATH_MSG_VERBOSE("Got PRD Truth trajectory with " << prdTraj.nDoF << " degrees of freedom, PdgID "
                                                      << genPart->pdg_id());
     // check min degrees of freedom
-    if (abs(genPart->pdg_id()) != 13 || (m_minNdof > 0 && prdTraj.nDoF < m_minNdof)) return 0;
+    if (std::abs(genPart->pdg_id()) != 13 || (m_minNdof > 0 && prdTraj.nDoF < m_minNdof)) return 0;
 
-    const TrackRecord* trackRecord = getEntryRecord(*genPart);
+    const TrackRecord* trackRecord = getEntryRecord(genPart);
     if (!trackRecord) {
         ATH_MSG_WARNING("No TrackRecord associated to this PRD_TruthTrajectory.");
         return 0;

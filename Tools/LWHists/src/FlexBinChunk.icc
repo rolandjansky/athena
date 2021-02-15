@@ -9,8 +9,6 @@
 #define FLEXBINCHUNK_ALLCHARSTAGE  (static_cast<uint32_t>(0x55555555))
 #define FLEXBINCHUNK_ALLSHORTSTAGE (static_cast<uint32_t>(0xAAAAAAAA))
 
-#include <cmath>
-
 template <class T> inline unsigned FlexBinChunk_stageByType() { return 0x3; }
 template <> inline unsigned FlexBinChunk_stageByType<uint8_t>() { return 0x1; }
 template <> inline unsigned FlexBinChunk_stageByType<uint16_t>() { return 0x2; }

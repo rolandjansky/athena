@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./ThresholdConfigLoader.h"
@@ -416,7 +416,7 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& thrConfig ) {
             //tt->setNumberofValues(numberofvalues);
             // trigger thresholds sorted by type
             thrConfig.addTriggerThreshold(tt);
-            tt = new TriggerThreshold();
+            tt = nullptr;
          }
 
          nRowsLoop2 = row["TT.L1TT_ID"].data<int>();

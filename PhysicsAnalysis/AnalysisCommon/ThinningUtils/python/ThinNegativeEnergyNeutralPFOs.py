@@ -17,11 +17,13 @@ class ThinNegativeEnergyNeutralPFOs(Configured):
                 ThinNegativeEnergyNeutralPFOs = True,
                 StreamName = 'StreamAOD'
             )
+            from RecExConfig.ObjKeyStore import cfgKeyStore
+            if cfgKeyStore.isInInput('xAOD::FlowElementContainer', 'JetETMissNeutralFlowElements',):
+                theNegativeEnergyNeutralPFOsThinner.NeutralPFOsFEKey = "JetETMissNeutralFlowElements"
             print (theNegativeEnergyNeutralPFOsThinner)
 
             CHSnPFOsThinAlg = None
 
-            from RecExConfig.ObjKeyStore import cfgKeyStore
 
             from JetRec.JetRecFlags import jetFlags
             if (jetFlags.useTracks or

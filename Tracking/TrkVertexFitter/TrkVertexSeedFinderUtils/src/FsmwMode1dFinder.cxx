@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
@@ -28,17 +28,6 @@ namespace Trk
 
   FsmwMode1dFinder::~FsmwMode1dFinder() = default;
 
-  StatusCode FsmwMode1dFinder::initialize() 
-  { 
-    msg(MSG::INFO) << "Initialize successfull" << endmsg;
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode FsmwMode1dFinder::finalize() 
-  {
-    msg(MSG::INFO)  << "Finalize successfull" << endmsg;
-    return StatusCode::SUCCESS;
-  }
 
 #ifdef FSMWMODE1DFINDER_DEBUG
   namespace {

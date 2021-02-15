@@ -36,10 +36,6 @@ ByteStreamCnvSvc::ByteStreamCnvSvc(const std::string& name, ISvcLocator* pSvcLoc
     m_evtStore ("StoreGateSvc", name)
 {
   declareProperty("ByteStreamOutputSvc",     m_ioSvcName);
-  declareProperty("IsSimulation",  m_isSimulation = false);
-  declareProperty("IsTestbeam",    m_isTestbeam   = false);
-  declareProperty("IsCalibration", m_isCalibration= false);
-  declareProperty("GetDetectorMask", m_getDetectorMask = false);
   declareProperty("UserType",      m_userType     = "RawEvent");
   declareProperty("EventStore",    m_evtStore);
 }

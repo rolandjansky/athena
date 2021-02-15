@@ -1,7 +1,5 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
 from AthenaCommon import CfgMgr
 from Digitization.DigitizationFlags import digitizationFlags
         
@@ -56,15 +54,6 @@ def SensorSimPlanarTool(name="SensorSimPlanarTool", **kwargs):
     kwargs.setdefault("SiPropertiesTool", ToolSvc.PixelSiPropertiesTool)
     kwargs.setdefault("LorentzAngleTool", ToolSvc.PixelLorentzAngleTool)
     kwargs.setdefault("doRadDamage", digitizationFlags.doRadiationDamage.get_Value())
-    # TODO This is 2018 fluence setting. These parameters should be controlled by the conditions data.
-    kwargs.setdefault("fluence", 6.4)
-    kwargs.setdefault("fluenceB", 4.6)
-    kwargs.setdefault("fluence1", 2.1)
-    kwargs.setdefault("fluence2", 1.3)
-    kwargs.setdefault("voltage", 400)
-    kwargs.setdefault("voltageB", 400)
-    kwargs.setdefault("voltage1", 250)
-    kwargs.setdefault("voltage2", 250)
     return CfgMgr.SensorSimPlanarTool(name, **kwargs)
 
 def SensorSim3DTool(name="SensorSim3DTool", **kwargs):
@@ -126,6 +115,7 @@ def EndcapFEI3SimTool(name="EndcapFEI3SimTool", **kwargs):
 
 def IdMapping():
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
+    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
 
     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
 
@@ -159,18 +149,10 @@ def PixelConfigCondAlg_MC():
     ############################################################################################
     # Set up Pixel Module data (2018 condition)
     ############################################################################################
-    from IOVDbSvc.CondDB import conddb
-    from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
-    from AthenaCommon.AlgSequence import AthSequencer
 
     #################
     # Module status #
     #################
-    useNewDeadmapFormat = False
-    if not useNewDeadmapFormat:
-        if not (conddb.folderRequested("/PIXEL/PixMapOverlay") or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):
-            conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapOverlay","/PIXEL/PixMapOverlay", className='CondAttrListCollection')
-
     from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
     alg = PixelConfigCondAlg(name="PixelConfigCondAlg")
 
@@ -207,15 +189,24 @@ def PixelConfigCondAlg_MC():
     #====================================================================================
     # Run-dependent SIMULATION(digitization) parameters:
     #====================================================================================
-    # RUN2 2015/2016
-    alg.BarrelToTThreshold2016       = [   -1,    5,    5,    5]
-    alg.FEI3BarrelLatency2016        = [    0,  151,  256,  256]
-    alg.FEI3BarrelHitDuplication2016 = [False,False,False,False]
-    alg.FEI3BarrelSmallHitToT2016    = [   -1,   -1,   -1,   -1]
-    alg.FEI3BarrelTimingSimTune2016  = [   -1, 2015, 2015, 2015]
-    alg.BarrelCrossTalk2016          = [ 0.30, 0.06, 0.06, 0.06]
-    alg.BarrelNoiseOccupancy2016     = [ 5e-8, 5e-8, 5e-8, 5e-8]
-    alg.BarrelDisableProbability2016 = [ 9e-3, 9e-3, 9e-3, 9e-3]
+    # RUN2 2015/2016 (mc16a)
+    # The pixel conditions are matched with 2016 data (mc16a) at L=17.3fb-1 (run#303638).
+    alg.BarrelToTThreshold2016       = [     -1,      5,      5,      5]
+    alg.FEI3BarrelLatency2016        = [      0,    151,    256,    256]
+    alg.FEI3BarrelHitDuplication2016 = [  False,  False,  False,  False]
+    alg.FEI3BarrelSmallHitToT2016    = [     -1,     -1,     -1,     -1]
+    alg.FEI3BarrelTimingSimTune2016  = [     -1,   2015,   2015,   2015]
+    alg.BarrelCrossTalk2016          = [   0.30,   0.12,   0.12,   0.12]
+    alg.BarrelNoiseOccupancy2016     = [   5e-8,   5e-8,   5e-8,   5e-8]
+    alg.BarrelDisableProbability2016 = [   9e-3,   9e-3,   9e-3,   9e-3]
+    alg.BarrelLorentzAngleCorr2016   = [    1.0,    1.0,    1.0,    1.0]
+    alg.DefaultBarrelBiasVoltage2016 = [   80.0,  350.0,  200.0,  150.0]
+    alg.BarrelFluence2016            = [0.80e14,1.61e14,0.71e14,0.48e14]
+
+    alg.BarrelFluenceMap2016 = ["PixelDigitization/maps_IBL_PL_80V_fl0_8e14.root",
+                                "PixelDigitization/maps_PIX_350V_fl1_61e14.root",
+                                "PixelDigitization/maps_PIX_200V_fl0_71e14.root",
+                                "PixelDigitization/maps_PIX_150V_fl0_48e14.root"]
 
     alg.EndcapToTThreshold2016       = [    5,    5,    5]
     alg.FEI3EndcapLatency2016        = [  256,  256,  256]
@@ -225,11 +216,14 @@ def PixelConfigCondAlg_MC():
     alg.EndcapCrossTalk2016          = [ 0.06, 0.06, 0.06]
     alg.EndcapNoiseOccupancy2016     = [ 5e-8, 5e-8, 5e-8]
     alg.EndcapDisableProbability2016 = [ 9e-3, 9e-3, 9e-3]
+    alg.EndcapLorentzAngleCorr2016   = [  1.0,  1.0,  1.0]
+    alg.DefaultEndcapBiasVoltage2016 = [150.0,150.0,150.0]
 
     alg.DBMToTThreshold2016       = [   -1,   -1,   -1]
     alg.DBMCrossTalk2016          = [ 0.06, 0.06, 0.06]
     alg.DBMNoiseOccupancy2016     = [ 5e-8, 5e-8, 5e-8]
     alg.DBMDisableProbability2016 = [ 9e-3, 9e-3, 9e-3]
+    alg.DefaultDBMBiasVoltage2016 = [500.0,500.0,500.0]
 
     alg.IBLNoiseShape2016    = [0.0, 0.0330, 0.0, 0.3026, 0.5019, 0.6760, 0.8412, 0.9918, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
     alg.BLayerNoiseShape2016 = [0.0, 0.0, 0.0, 0.0, 0.2204, 0.5311, 0.7493, 0.8954, 0.9980, 1.0]
@@ -242,15 +236,24 @@ def PixelConfigCondAlg_MC():
     #                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1735, 0.3380, 0.4733, 0.5829, 0.6730, 0.7516, 0.8234, 0.8916, 0.9595, 1.0]]
 
     #====================================================================================
-    # RUN2 2017
-    alg.BarrelToTThreshold2017       = [   -1,    5,    5,    5]
-    alg.FEI3BarrelLatency2017        = [    0,  151,  256,  256]
-    alg.FEI3BarrelHitDuplication2017 = [False,False,False,False]
-    alg.FEI3BarrelSmallHitToT2017    = [   -1,   -1,   -1,   -1]
-    alg.FEI3BarrelTimingSimTune2017  = [   -1, 2018, 2018, 2018]
-    alg.BarrelCrossTalk2017          = [ 0.30, 0.06, 0.06, 0.06]
-    alg.BarrelNoiseOccupancy2017     = [ 5e-8, 5e-8, 5e-8, 5e-8]
-    alg.BarrelDisableProbability2017 = [ 9e-3, 9e-3, 9e-3, 9e-3]
+    # RUN2 2017 (mc16d)
+    # The pixel conditions are matched with 2017 data (mc16d) at L=69.0fb-1 (run#336506).
+    alg.BarrelToTThreshold2017       = [     -1,      5,      5,      5]
+    alg.FEI3BarrelLatency2017        = [      0,    151,    256,    256]
+    alg.FEI3BarrelHitDuplication2017 = [  False,  False,  False,  False]
+    alg.FEI3BarrelSmallHitToT2017    = [     -1,     -1,     -1,     -1]
+    alg.FEI3BarrelTimingSimTune2017  = [     -1,   2018,   2018,   2018]
+    alg.BarrelCrossTalk2017          = [   0.30,   0.12,   0.12,   0.12]
+    alg.BarrelNoiseOccupancy2017     = [   5e-8,   5e-8,   5e-8,   5e-8]
+    alg.BarrelDisableProbability2017 = [   9e-3,   9e-3,   9e-3,   9e-3]
+    alg.BarrelLorentzAngleCorr2017   = [    1.0,    1.0,    1.0,    1.0]
+    alg.DefaultBarrelBiasVoltage2017 = [  350.0,  350.0,  200.0,  150.0]
+    alg.BarrelFluence2017            = [3.18e14,3.42e14,1.50e14,1.01e14]
+
+    alg.BarrelFluenceMap2017 = ["PixelDigitization/maps_IBL_PL_350V_fl3_18e14.root",
+                                "PixelDigitization/maps_PIX_350V_fl3_42e14.root",
+                                "PixelDigitization/maps_PIX_200V_fl1_5e14.root",
+                                "PixelDigitization/maps_PIX_150V_fl1_01e14.root"]
 
     alg.EndcapToTThreshold2017       = [    5,    5,    5]
     alg.FEI3EndcapLatency2017        = [  256,  256,  256]
@@ -260,26 +263,38 @@ def PixelConfigCondAlg_MC():
     alg.EndcapCrossTalk2017          = [ 0.06, 0.06, 0.06]
     alg.EndcapNoiseOccupancy2017     = [ 5e-8, 5e-8, 5e-8]
     alg.EndcapDisableProbability2017 = [ 9e-3, 9e-3, 9e-3]
+    alg.EndcapLorentzAngleCorr2017   = [  1.0,  1.0,  1.0]
+    alg.DefaultEndcapBiasVoltage2017 = [150.0,150.0,150.0]
 
     alg.DBMToTThreshold2017       = [   -1,   -1,   -1]
     alg.DBMCrossTalk2017          = [ 0.06, 0.06, 0.06]
     alg.DBMNoiseOccupancy2017     = [ 5e-8, 5e-8, 5e-8]
     alg.DBMDisableProbability2017 = [ 9e-3, 9e-3, 9e-3]
+    alg.DefaultDBMBiasVoltage2017 = [500.0,500.0,500.0]
 
     alg.IBLNoiseShape2017    = [0.0, 0.0330, 0.0, 0.3026, 0.5019, 0.6760, 0.8412, 0.9918, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
     alg.BLayerNoiseShape2017 = [0.0, 0.0, 0.0, 0.0, 0.2204, 0.5311, 0.7493, 0.8954, 0.9980, 1.0]
     alg.PixelNoiseShape2017  = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2418, 0.4397, 0.5858, 0.6949, 0.7737, 0.8414, 0.8959, 0.9414, 0.9828, 1.0]
 
     #====================================================================================
-    # RUN2 2018
-    alg.BarrelToTThreshold2018       = [   -1,    3,    5,    5]
-    alg.FEI3BarrelLatency2018        = [    0,  151,  256,  256]
-    alg.FEI3BarrelHitDuplication2018 = [False,False,False,False]
-    alg.FEI3BarrelSmallHitToT2018    = [   -1,   -1,   -1,   -1]
-    alg.FEI3BarrelTimingSimTune2018  = [   -1, 2018, 2018, 2018]
-    alg.BarrelCrossTalk2018          = [ 0.30, 0.06, 0.06, 0.06]
-    alg.BarrelNoiseOccupancy2018     = [ 5e-8, 5e-8, 5e-8, 5e-8]
-    alg.BarrelDisableProbability2018 = [ 9e-3, 9e-3, 9e-3, 9e-3]
+    # RUN2 2018 (mc16e)
+    # The pixel conditions are matched with 2018 data (mc16e) at L=119.4fb-1 (run#357193).
+    alg.BarrelToTThreshold2018       = [     -1,      3,      5,      5]
+    alg.FEI3BarrelLatency2018        = [      0,    151,    256,    256]
+    alg.FEI3BarrelHitDuplication2018 = [  False,  False,  False,  False]
+    alg.FEI3BarrelSmallHitToT2018    = [     -1,     -1,     -1,     -1]
+    alg.FEI3BarrelTimingSimTune2018  = [     -1,   2018,   2018,   2018]
+    alg.BarrelCrossTalk2018          = [   0.30,   0.12,   0.12,   0.12]
+    alg.BarrelNoiseOccupancy2018     = [   5e-8,   5e-8,   5e-8,   5e-8]
+    alg.BarrelDisableProbability2018 = [   9e-3,   9e-3,   9e-3,   9e-3]
+    alg.BarrelLorentzAngleCorr2018   = [    1.0,    1.0,    1.0,    1.0]
+    alg.DefaultBarrelBiasVoltage2018 = [  400.0,  400.0,  250.0,  250.0]
+    alg.BarrelFluence2018            = [5.50e14,5.19e14,2.28e14,1.53e14]
+
+    alg.BarrelFluenceMap2018 = ["PixelDigitization/maps_IBL_PL_400V_fl5_5e14.root",
+                                "PixelDigitization/maps_PIX_400V_fl5_19e14.root",
+                                "PixelDigitization/maps_PIX_250V_fl2_28e14.root",
+                                "PixelDigitization/maps_PIX_250V_fl1_53e14.root"]
 
     alg.EndcapToTThreshold2018       = [    5,    5,    5]
     alg.FEI3EndcapLatency2018        = [  256,  256,  256]
@@ -289,11 +304,14 @@ def PixelConfigCondAlg_MC():
     alg.EndcapCrossTalk2018          = [ 0.06, 0.06, 0.06]
     alg.EndcapNoiseOccupancy2018     = [ 5e-8, 5e-8, 5e-8]
     alg.EndcapDisableProbability2018 = [ 9e-3, 9e-3, 9e-3]
+    alg.EndcapLorentzAngleCorr2018   = [  1.0,  1.0,  1.0]
+    alg.DefaultEndcapBiasVoltage2018 = [250.0,250.0,250.0]
 
     alg.DBMToTThreshold2018       = [   -1,   -1,   -1]
     alg.DBMCrossTalk2018          = [ 0.06, 0.06, 0.06]
     alg.DBMNoiseOccupancy2018     = [ 5e-8, 5e-8, 5e-8]
     alg.DBMDisableProbability2018 = [ 9e-3, 9e-3, 9e-3]
+    alg.DefaultDBMBiasVoltage2018 = [500.0,500.0,500.0]
 
     alg.IBLNoiseShape2018    = [0.0, 0.0330, 0.0, 0.3026, 0.5019, 0.6760, 0.8412, 0.9918, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
     alg.BLayerNoiseShape2018 = [0.0, 0.0, 0.0, 0.0, 0.2204, 0.5311, 0.7493, 0.8954, 0.9980, 1.0]
@@ -301,14 +319,21 @@ def PixelConfigCondAlg_MC():
 
     #====================================================================================
     # RUN1
-    alg.BarrelToTThresholdRUN1       = [    3,    3,    3]
-    alg.FEI3BarrelLatencyRUN1        = [  256,  256,  256]
-    alg.FEI3BarrelHitDuplicationRUN1 = [ True, True, True]
-    alg.FEI3BarrelSmallHitToTRUN1    = [    7,    7,    7]
-    alg.FEI3BarrelTimingSimTuneRUN1  = [ 2009, 2009, 2009]
-    alg.BarrelCrossTalkRUN1          = [ 0.06, 0.06, 0.06]
-    alg.BarrelNoiseOccupancyRUN1     = [ 5e-8, 5e-8, 5e-8]
-    alg.BarrelDisableProbabilityRUN1 = [ 9e-3, 9e-3, 9e-3]
+    alg.BarrelToTThresholdRUN1       = [      3,      3,      3]
+    alg.FEI3BarrelLatencyRUN1        = [    256,    256,    256]
+    alg.FEI3BarrelHitDuplicationRUN1 = [   True,   True,   True]
+    alg.FEI3BarrelSmallHitToTRUN1    = [      7,      7,      7]
+    alg.FEI3BarrelTimingSimTuneRUN1  = [   2009,   2009,   2009]
+    alg.BarrelCrossTalkRUN1          = [   0.06,   0.06,   0.06]
+    alg.BarrelNoiseOccupancyRUN1     = [   5e-8,   5e-8,   5e-8]
+    alg.BarrelDisableProbabilityRUN1 = [   9e-3,   9e-3,   9e-3]
+    alg.BarrelLorentzAngleCorrRUN1   = [    1.0,    1.0,    1.0]
+    alg.DefaultBarrelBiasVoltageRUN1 = [  150.0,  150.0,  150.0]
+    alg.BarrelFluenceRUN1            = [1.01e14,0.44e14,0.30e14]
+
+    alg.BarrelFluenceMapRUN1 = ["PixelDigitization/maps_PIX_150V_fl1_01e14.root",
+                                "PixelDigitization/maps_PIX_150V_fl0_44e14.root",
+                                "PixelDigitization/maps_PIX_150V_fl0_3e14.root"]
 
     alg.EndcapToTThresholdRUN1       = [    3,    3,    3]
     alg.FEI3EndcapLatencyRUN1        = [  256,  256,  256]
@@ -318,21 +343,34 @@ def PixelConfigCondAlg_MC():
     alg.EndcapCrossTalkRUN1          = [ 0.06, 0.06, 0.06]
     alg.EndcapNoiseOccupancyRUN1     = [ 5e-8, 5e-8, 5e-8]
     alg.EndcapDisableProbabilityRUN1 = [ 9e-3, 9e-3, 9e-3]
+    alg.EndcapLorentzAngleCorrRUN1   = [  1.0,  1.0,  1.0]
+    alg.DefaultEndcapBiasVoltageRUN1 = [150.0,150.0,150.0]
 
     alg.BLayerNoiseShapeRUN1 = [0.0, 0.0, 0.0, 0.0, 0.2204, 0.5311, 0.7493, 0.8954, 0.9980, 1.0]
     alg.PixelNoiseShapeRUN1  = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2418, 0.4397, 0.5858, 0.6949, 0.7737, 0.8414, 0.8959, 0.9414, 0.9828, 1.0]
 
     #====================================================================================
     # ITK
-    alg.BarrelToTThresholdITK       = [    3,    3,    3,    3,    3]
-    alg.BarrelCrossTalkITK          = [ 0.06, 0.06, 0.06, 0.06, 0.06]
-    alg.BarrelNoiseOccupancyITK     = [ 5e-8, 5e-8, 5e-8, 5e-8, 5e-8]
-    alg.BarrelDisableProbabilityITK = [ 9e-3, 9e-3, 9e-3, 9e-3, 9e-3]
+    alg.BarrelToTThresholdITK       = [     3,     3,     3,     3,     3]
+    alg.BarrelCrossTalkITK          = [  0.06,  0.06,  0.06,  0.06,  0.06]
+    alg.BarrelNoiseOccupancyITK     = [  5e-8,  5e-8,  5e-8,  5e-8,  5e-8]
+    alg.BarrelDisableProbabilityITK = [  9e-3,  9e-3,  9e-3,  9e-3,  9e-3]
+    alg.BarrelLorentzAngleCorrITK   = [   1.0,   1.0,   1.0,   1.0,   1.0]
+    alg.DefaultBarrelBiasVoltageITK = [ 150.0, 150.0, 150.0, 150.0, 150.0]
+    alg.BarrelFluenceITK            = [0.0e14,0.0e14,0.0e14,0.0e14,0.0e14]
+
+    alg.BarrelFluenceMapITK = ["PixelDigitization/maps_IBL_PL_80V_fl0e14.root",
+                               "PixelDigitization/maps_IBL_PL_80V_fl0e14.root",
+                               "PixelDigitization/maps_IBL_PL_80V_fl0e14.root",
+                               "PixelDigitization/maps_IBL_PL_80V_fl0e14.root",
+                               "PixelDigitization/maps_IBL_PL_80V_fl0e14.root"]
 
     alg.EndcapToTThresholdITK       = [    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3]
     alg.EndcapCrossTalkITK          = [ 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06]
     alg.EndcapNoiseOccupancyITK     = [ 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8]
     alg.EndcapDisableProbabilityITK = [ 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3]
+    alg.EndcapLorentzAngleCorrITK   = [  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0]
+    alg.DefaultEndcapBiasVoltageITK = [150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0]
 
     alg.InnermostNoiseShapeITK     = [0.0, 1.0]
     alg.NextInnermostNoiseShapeITK = [0.0, 1.0]
@@ -340,16 +378,12 @@ def PixelConfigCondAlg_MC():
 
     alg.CablingMapFileName=IdMapping()
 
-    if useNewDeadmapFormat:
-        alg.ReadDeadMapKey = ''
-
     return alg
 
 def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     from AthenaCommon.AppMgr import ServiceMgr
     from AthenaCommon.AppMgr import ToolSvc
     from IOVDbSvc.CondDB import conddb
-    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
     from AthenaCommon.GlobalFlags import globalflags
     from AthenaCommon.AlgSequence import AthSequencer
@@ -358,18 +392,22 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     if not hasattr(condSeq, 'PixelConfigCondAlg'):
         condSeq += PixelConfigCondAlg_MC()
 
-    useNewDeadmapFormat = False
     useNewChargeFormat  = False
 
     ############################################################################################
     # Set up Conditions DB
     ############################################################################################
-    if useNewDeadmapFormat:
-        if not conddb.folderRequested("/PIXEL/PixelModuleFeMask"):
-            conddb.addFolder("PIXEL_OFL", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
-        if not hasattr(condSeq, "PixelDeadMapCondAlg"):
-            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
-            condSeq += PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
+    if not conddb.folderRequested("/PIXEL/PixelModuleFeMask"):
+        conddb.addFolder("PIXEL_OFL", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
+        # TODO: Once new global tag is updated, this line should be removed. (Current MC global tag is too old!!! (before RUN-2!!!))
+        if (globalflags.DataSource=='data' and conddb.dbdata == 'CONDBR2'):  # for data overlay
+            conddb.addOverride("/PIXEL/PixelModuleFeMask","PixelModuleFeMask-RUN2-DATA-UPD4-05")
+        else:
+            conddb.addOverride("/PIXEL/PixelModuleFeMask","PixelModuleFeMask-SIM-MC16-000-03")
+
+    if not hasattr(condSeq, "PixelDeadMapCondAlg"):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
+        condSeq += PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
 
     if not hasattr(condSeq, "PixelDCSCondStateAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStateAlg

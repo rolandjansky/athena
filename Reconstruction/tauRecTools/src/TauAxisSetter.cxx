@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -38,9 +38,8 @@ StatusCode TauAxisSetter::execute(xAOD::TauJet& tau) const {
   
   ATH_MSG_DEBUG("barycenter (eta, phi): "  << baryCenter.Eta() << " " << baryCenter.Phi());
 
-  // Detector axis is the total p4 of clusterswithin m_clusterCone core of the barycenter 
+  // Detector axis is the total p4 of clusters within m_clusterCone core of the barycenter 
   TLorentzVector tauDetectorAxis;
-  int nConstituents = 0;
 
   for (const xAOD::JetConstituent* constituent : constituents) {
     TLorentzVector constituentP4 = tauRecTools::GetConstituentP4(*constituent);
@@ -49,10 +48,9 @@ StatusCode TauAxisSetter::execute(xAOD::TauJet& tau) const {
     if (dR > m_clusterCone) continue;
 
     tauDetectorAxis += constituentP4;
-    ++nConstituents;
   }
 
-  if (0 == nConstituents) {
+  if (tauDetectorAxis.Pt() == 0. && m_doVertexCorrection == false) {
     ATH_MSG_DEBUG("this tau candidate does not have any constituent clusters!");
     return StatusCode::FAILURE;
   }
@@ -66,10 +64,13 @@ StatusCode TauAxisSetter::execute(xAOD::TauJet& tau) const {
     // Tau intermediate axis (corrected for tau vertex)
     TLorentzVector tauInterAxis;
 
-    const xAOD::Vertex* jetVertex = getJetVertex(*jetSeed);
-    
-    const xAOD::Vertex* tauVertex = nullptr;
-    if (tau.vertexLink().isValid()) tauVertex = tau.vertex();
+    // In trigger, jet candidate does not have a vertex
+    const xAOD::Vertex* jetVertex = nullptr;
+    if (!inTrigger()) {
+      jetVertex = tauRecTools::getJetVertex(*jetSeed);
+    }
+
+    const xAOD::Vertex* tauVertex = tauRecTools::getTauVertex(tau, inTrigger());
 
     // Redo the vertex correction when tau vertex is different from jet vertex
     if (jetVertex != tauVertex) {
@@ -89,15 +90,15 @@ StatusCode TauAxisSetter::execute(xAOD::TauJet& tau) const {
       TLorentzVector baryCenterTauVertex; 
  
       // Loop over the jet constituents, and calculate the barycenter using the four momentum 
-      // correctd to point at tau vertex 
+      // corrected to point at tau vertex 
       for (const xAOD::JetConstituent* constituent : constituents) {
         TLorentzVector constituentP4 = getVertexCorrectedP4(*constituent, position);
         baryCenterTauVertex += constituentP4;
       }
       ATH_MSG_DEBUG("barycenter (eta, phi) at tau vertex: "  << baryCenterTauVertex.Eta() << " " << baryCenterTauVertex.Phi());
 
-      // Tau intrmediate axis is the four momentum (corrected to point at tau verteex) of clusters 
-      // within m_clusterCone of the baryon center
+      // Tau intermediate axis is the four momentum (corrected to point at tau vertex) of clusters 
+      // within m_clusterCone of the barycenter
       for (const xAOD::JetConstituent* constituent : constituents) {
         TLorentzVector constituentP4 = getVertexCorrectedP4(*constituent, position);
         double dR = baryCenterTauVertex.DeltaR(constituentP4);
@@ -110,29 +111,17 @@ StatusCode TauAxisSetter::execute(xAOD::TauJet& tau) const {
       tauInterAxis = tauDetectorAxis;
     }
 
+    if (tauInterAxis.Pt() == 0.) {
+      ATH_MSG_DEBUG("this tau candidate does not have any constituent clusters!");
+      return StatusCode::FAILURE;
+    }
+
     ATH_MSG_DEBUG("tau axis:" << tauInterAxis.Pt()<< " " << tauInterAxis.Eta() << " " << tauInterAxis.Phi()  << " " << tauInterAxis.E() );
     tau.setP4(tauInterAxis.Pt(), tauInterAxis.Eta(), tauInterAxis.Phi(), tau.m());
     tau.setP4(xAOD::TauJetParameters::IntermediateAxis, tauInterAxis.Pt(), tauInterAxis.Eta(), tauInterAxis.Phi(), tauInterAxis.M());
   } // End of m_doVertexCorrection
 
   return StatusCode::SUCCESS;
-}
-
-
-
-const xAOD::Vertex* TauAxisSetter::getJetVertex(const xAOD::Jet& jet) const {
-  
-  const xAOD::Vertex* jetVertex = nullptr;
-  
-  if (m_doJetVertexCorrection && !inTrigger()) {
-    bool isAvailable = jet.getAssociatedObject("OriginVertex", jetVertex);
-    if (!isAvailable) {
-      ATH_MSG_WARNING("OriginVertex not available !");
-      jetVertex = nullptr;
-    }
-  }
-
-  return jetVertex;
 }
 
 
@@ -170,15 +159,9 @@ TLorentzVector TauAxisSetter::getVertexCorrectedP4(const xAOD::PFO& pfo,
 
     // If there is a vertex correction in jet reconstruction, then pfo.p4() is the four momentum 
     // at EM scale. Otherwise, pfo.p4() is at LC scale (not clear), and pfo.p4EM() is the four 
-    // momentum at EM scale. 
-    // TODO: May need further modifications, depending on how the jet reconstruction fix ATLJETMET-1280
-    // The strategy only works for PFlow at EM scale.
-    if (m_doJetVertexCorrection && !inTrigger()) {
-      vertexCorrectedP4 = pfo.GetVertexCorrectedFourVec(pos);
-    }
-    else {
-      vertexCorrectedP4 = pfo.GetVertexCorrectedEMFourVec(pos);
-    }
+    // momentum at EM scale. Here, we assume jet always perform the vertex correction in offline 
+    // reconstruction.
+    vertexCorrectedP4 = pfo.GetVertexCorrectedFourVec(pos);
   }
   else {
     vertexCorrectedP4 = pfo.p4();

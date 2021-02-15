@@ -7,6 +7,7 @@
 
 // System include(s):
 #include <typeinfo>
+#include <mutex>
 
 // Local include(s):
 #include "xAODRootAccess/tools/TDestructor.h"

@@ -15,6 +15,9 @@ class DebugInfoCollector: public ITrigJetHypoInfoCollector {
 public:
   DebugInfoCollector(const std::string& name="Unknown",
 		     bool byTime=true);
+
+  ~DebugInfoCollector();
+
   virtual void collect(const std::string&, const std::string&) override;
 
   virtual std::string toString() const override;

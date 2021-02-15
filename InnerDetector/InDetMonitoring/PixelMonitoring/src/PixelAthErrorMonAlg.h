@@ -8,6 +8,7 @@
 #include "PixelAthMonitoringBase.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "PixelConditionsData/PixelByteStreamErrors.h"
+#include "PixelCabling/IPixelCablingSvc.h"
 
 class PixelID;
 
@@ -119,6 +120,8 @@ static const int numErrorCatRODModsLayer[PixLayers::COUNT] = {
   kNumErrorCatRODMods, kNumErrorCatRODMods, kNumErrorCatRODMods, kNumErrorCatRODMods
 };
 
+static const int nFEIBL2D{2};
+
 class PixelAthErrorMonAlg : public PixelAthMonitoringBase {
 
  public:
@@ -131,21 +134,26 @@ class PixelAthErrorMonAlg : public PixelAthMonitoringBase {
   int getErrorCategory(int error_cat_rodmod) const;
   std::bitset<kNumErrorStatesFEI3> getErrorStateFEI3Mod(uint64_t errorword) const;
   std::bitset<kNumErrorStatesFEI3> getErrorStateFE(uint64_t errorword, bool isibl) const;
-  void fillErrorCatRODmod(uint64_t mod_errorword, int (&nerrors_cat_rodmod)[ErrorCategoryRODMOD::COUNT]) const;
-  void fillErrorCatRODmod(uint64_t fe_errorword, bool is_fei4, int (&nerrors_cat_rodmod)[ErrorCategoryRODMOD::COUNT]) const;
-  void fillErrorCatRODmod(int servicecode, int payload, int (&nerrors_cat_rodmod)[ErrorCategoryRODMOD::COUNT]) const;
+  void fillErrorCatRODmod(uint64_t mod_errorword, 
+			    int (&nerrors_cat_rodmod)[ErrorCategoryRODMOD::COUNT][nFEIBL2D]) const;
+  void fillErrorCatRODmod(uint64_t fe_errorword, bool is_fei4, 
+			    int (&nerrors_cat_rodmod)[ErrorCategoryRODMOD::COUNT][nFEIBL2D], int ife) const;
+  void fillErrorCatRODmod(int servicecode, int payload, 
+			    int (&nerrors_cat_rodmod)[ErrorCategoryRODMOD::COUNT][nFEIBL2D], int ife) const;
 
  private:
 
-  ToolHandle<IInDetConditionsTool> m_pixelCondSummaryTool{this, "PixelConditionsSummaryTool", "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};
+  ServiceHandle<IPixelCablingSvc> m_pixelCablingSvc; //FE info
+  ToolHandle<IInDetConditionsTool> m_pixelCondSummaryTool{this, "PixelConditionsSummaryTool", 
+							    "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};
 
   const PixelID* m_pixelid;
 
   bool m_doOnline;
-  bool m_doModules;
   bool m_doLumiBlock;
   bool m_doLowOccupancy;
   bool m_doHighOccupancy;
   bool m_doHeavyIonMon;
+
 };
 #endif

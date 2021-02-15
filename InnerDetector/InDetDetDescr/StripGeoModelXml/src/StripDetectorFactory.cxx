@@ -16,7 +16,7 @@
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 
-#include "InDetReadoutGeometry/SiCommonItems.h"
+#include "ReadoutGeometryBase/SiCommonItems.h"
 #include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/Version.h"
 #include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
@@ -47,6 +47,11 @@ StripDetectorFactory::StripDetectorFactory(InDetDD::AthenaComps *athenaComps,
 //    Create the detector manager... should allow the name to be set
 //
     m_detectorManager = new InDetDD::SCT_DetectorManager(detStore(),m_options->detectorName());
+
+    //TODO - For now this is always assuemd to be present as a default.
+    //To be revisited once the ITk alignment scheme is a bit clearer
+    m_detectorManager->addFolder("/Indet/Align");
+
 //
 //   Set Detector Manager SCT version information
 //
@@ -121,15 +126,20 @@ void StripDetectorFactory::create(GeoPhysVol *world) {
    
 //
     unsigned int nChildren = world->getNChildVols();
+    bool foundVolume = false;
 
     for (int iChild = nChildren - 1; iChild>=0; --iChild) {
-        if (world->getNameOfChildVol(iChild) == "SCT") {
-            // The * converts from a ConstPVLink to a reference to a GeoVPhysVol;
-            // the & takes its address.
-            m_detectorManager->addTreeTop(&*world->getChildVol(iChild));
-            break;
-        }
+      if (world->getNameOfChildVol(iChild) == "SCT" || world->getNameOfChildVol(iChild) == "ITkStrip") {
+	//Allow "SCT" for compatibility with older geometry tags
+	// The * converts from a ConstPVLink to a reference to a GeoVPhysVol;
+	// the & takes its address.
+	foundVolume = true;
+	m_detectorManager->addTreeTop(&*world->getChildVol(iChild));
+	break;
+      }
     }
+
+    if(!foundVolume) ATH_MSG_ERROR("Could not find a logicalVolume named \"ITkStrip\" (or \"SCT\") - this is required to provide the Envelope!");
 
     doNumerology();
 
@@ -256,11 +266,11 @@ void StripDetectorFactory::doNumerology() {
         // and whether it expects a global or local shift.
         // level 0: sensor, level 1: module, level 2, layer/disc, level 3: whole barrel/enccap
         InDetDD::AlignFolderType alignFolderType = getAlignFolderType();
+
         m_detectorManager->addAlignFolderType(alignFolderType);
 
         switch (alignFolderType) {
         case InDetDD::static_run1:
-            m_detectorManager->addFolder(topFolder);
             m_detectorManager->addChannel(topFolder + "/ID", 3, InDetDD::global);
             m_detectorManager->addChannel(topFolder + "/SCT",2,InDetDD::global);
             for (BarrelEndcap::iterator bec = m_waferTree.begin(); bec != m_waferTree.end(); ++bec) {

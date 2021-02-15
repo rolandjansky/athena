@@ -1,7 +1,10 @@
-// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
 
 #include "L1TopoInterfaces/AlgFactory.h" 
 #include "L1TopoInterfaces/IL1TopoHistSvc.h"
+
 
 #include "L1TopoInterfaces/ConfigurableAlg.h"
 #include "L1TopoInterfaces/ParameterSpace.h"
@@ -41,22 +44,31 @@ TopoSteering::~TopoSteering() {
    AlgFactory::destroy_instance();
 }
 
-StatusCode
-TopoSteering::setupFromConfiguration(const TXC::L1TopoMenu& menu) {
-   
-   if(m_useBitwise){ TRG_MSG_INFO("Will be using bitwise implementation of algorithms");}
-   else{TRG_MSG_INFO("Will NOT be using bitwise implementation of algorithms");}
+TCS::StatusCode
+TopoSteering::setupFromConfiguration(const TXC::L1TopoMenu&){
+  
+  // Keep this method to avoid crashes. TO-DO: Switch menu loading in L1TopoSimulation.cxx
+  TRG_MSG_WARNING("Cannot configure simulation from XML. Use JSON format");
 
+  return TCS::StatusCode::SUCCESS;
 
-   StatusCode sc = m_structure.setupFromMenu( menu );
-
-   // configure layout of the simulation result
-   sc &= m_simulationResult.setupFromMenu( menu, m_structure.outputConnectors() );
-
-   return sc;
 }
 
-StatusCode
+
+TCS::StatusCode
+TopoSteering::setupFromConfiguration(const TrigConf::L1Menu& l1menu){
+
+
+  TCS::StatusCode sc = m_structure.setupFromMenu( l1menu, m_isLegacyTopo );
+  
+  // configure layout of the simulation result
+  sc &= m_simulationResult.setupFromMenu( m_structure.outputConnectors() );
+
+  return sc;
+
+}
+
+TCS::StatusCode
 TopoSteering::reset() {
 
    ClusterTOB::clearHeap();
@@ -74,11 +86,11 @@ TopoSteering::reset() {
 
    m_simulationResult.reset();
    
-   return StatusCode::SUCCESS;
+   return TCS::StatusCode::SUCCESS;
 }
 
 
-StatusCode
+TCS::StatusCode
 TopoSteering::initializeAlgorithms() {
    TRG_MSG_INFO("initializing algorithms");
    if( ! structure().isConfigured() ) {
@@ -92,6 +104,7 @@ TopoSteering::initializeAlgorithms() {
          if(m_histSvc) {
             alg->setL1TopoHistSvc(m_histSvc);
          }
+	 alg->setLegacyMode(m_isLegacyTopo);
          alg->initialize();
       }
 
@@ -101,7 +114,7 @@ TopoSteering::initializeAlgorithms() {
 }
 
 
-StatusCode
+TCS::StatusCode
 TopoSteering::setHistSvc(std::shared_ptr<IL1TopoHistSvc> histSvc) {
    TRG_MSG_INFO("setting L1TopoHistSvc ");
    m_histSvc = histSvc;
@@ -109,7 +122,7 @@ TopoSteering::setHistSvc(std::shared_ptr<IL1TopoHistSvc> histSvc) {
 }
 
 
-StatusCode
+TCS::StatusCode
 TopoSteering::saveHist() {
    if(m_histSvc) {
       m_histSvc->save();
@@ -120,7 +133,7 @@ TopoSteering::saveHist() {
 }
 
 
-StatusCode
+TCS::StatusCode
 TopoSteering::executeEvent() {
 
 
@@ -135,7 +148,7 @@ TopoSteering::executeEvent() {
    inputEvent().print();
 
    // execute all connectors
-   StatusCode sc = StatusCode::SUCCESS;
+   TCS::StatusCode sc = TCS::StatusCode::SUCCESS;
    TRG_MSG_INFO("Going to execute " << m_structure.outputConnectors().size() << " connectors");
    for(auto outConn: m_structure.outputConnectors()) {
       TRG_MSG_INFO("executing trigger line " << outConn.first);
@@ -148,19 +161,19 @@ TopoSteering::executeEvent() {
    m_simulationResult.globalDecision().print();
 
    TRG_MSG_INFO("finished executing event " << m_evtCounter++);
-   return StatusCode::SUCCESS;
+   return TCS::StatusCode::SUCCESS;
 }
 
 
 
-StatusCode
+TCS::StatusCode
 TopoSteering::executeTrigger(const std::string & TrigName) {
    if( ! structure().isConfigured() )
       TCS_EXCEPTION("TopoSteering has not been configured, can't run");
    
    DecisionConnector * outConn = m_structure.outputConnector(TrigName);
 
-   StatusCode sc = executeConnector(outConn);
+   TCS::StatusCode sc = executeConnector(outConn);
 
    m_simulationResult.collectResult(outConn);
 
@@ -168,18 +181,22 @@ TopoSteering::executeTrigger(const std::string & TrigName) {
 }
 
 
-StatusCode
+
+
+
+
+TCS::StatusCode
 TopoSteering::executeConnector(TCS::Connector *conn) {
 
    if (conn == NULL) {
-     return StatusCode::FAILURE;
+     return TCS::StatusCode::FAILURE;
    }
 
    // caching
    if(conn->isExecuted())
       return conn->executionStatusCode();
   
-   StatusCode sc(StatusCode::SUCCESS);
+   TCS::StatusCode sc(TCS::StatusCode::SUCCESS);
 
    if(conn->isInputConnector()) {
       //TRG_MSG_DEBUG("  ... executing input connector '" << conn->name() << "'");
@@ -200,14 +217,14 @@ TopoSteering::executeConnector(TCS::Connector *conn) {
 
 
 
-StatusCode
+TCS::StatusCode
 TopoSteering::executeInputConnector(TCS::InputConnector *conn) {
 
    if (conn == NULL) {
-     return StatusCode::FAILURE;
+     return TCS::StatusCode::FAILURE;
    }
 
-   StatusCode sc(StatusCode::SUCCESS);
+   TCS::StatusCode sc(TCS::StatusCode::SUCCESS);
 
    // attaching data from inputEvent to input connector, depending on the configured input type
 
@@ -223,14 +240,14 @@ TopoSteering::executeInputConnector(TCS::InputConnector *conn) {
 
 
 
-StatusCode
+TCS::StatusCode
 TopoSteering::executeSortingConnector(TCS::SortingConnector *conn) {
 
    if (conn == NULL) {
      return StatusCode::FAILURE;
    }
 
-   StatusCode sc = StatusCode::SUCCESS;
+   TCS::StatusCode sc = TCS::StatusCode::SUCCESS;
   
    // execute all the prior connectors
    for( TCS::Connector* inputConn: conn->inputConnectors() ){
@@ -253,14 +270,14 @@ TopoSteering::executeSortingConnector(TCS::SortingConnector *conn) {
 
 
 
-StatusCode
+TCS::StatusCode
 TopoSteering::executeDecisionConnector(TCS::DecisionConnector *conn) {
 
    if (conn == NULL) {
-     return StatusCode::FAILURE;
+     return TCS::StatusCode::FAILURE;
    }
 
-   StatusCode sc = StatusCode::SUCCESS;
+   TCS::StatusCode sc = TCS::StatusCode::SUCCESS;
   
    // execute all the prior connectors
    for( TCS::Connector* inputConn: conn->inputConnectors() ){
@@ -295,8 +312,10 @@ TopoSteering::executeDecisionConnector(TCS::DecisionConnector *conn) {
    for(TCS::Connector* inputConnector: conn->inputConnectors()) {
        // TODO DG-2017-04-18 the sort overflow (>10 TOBs) in the SortAlg is not implemented yet
        if(inputConnector->isSortingConnector()) {
-           sortOverflow = (sortOverflow ||
-                            dynamic_cast<SortingConnector*>(inputConnector)->sortingAlgorithm()->overflow());
+         if (auto sortConn = dynamic_cast<SortingConnector*>(inputConnector)) {
+           sortOverflow = sortConn->sortingAlgorithm()->overflow();
+           if (sortOverflow) break;
+         }
        }
    }
    conn->m_decision.setOverflow(conn->hasInputOverflow() || sortOverflow);
@@ -305,7 +324,7 @@ TopoSteering::executeDecisionConnector(TCS::DecisionConnector *conn) {
 
 
 
-StatusCode
+TCS::StatusCode
 TopoSteering::executeSortingAlgorithm(TCS::SortingAlg *alg,
                                       TCS::InputConnector* inputConnector,
                                       TCS::TOBArray * & sortedOutput) {
@@ -318,12 +337,12 @@ TopoSteering::executeSortingAlgorithm(TCS::SortingAlg *alg,
    if(m_useBitwise) alg->sortBitCorrect(*input, *sortedOutput);
    else alg->sort(*input, *sortedOutput);
 
-   return StatusCode::SUCCESS;
+   return TCS::StatusCode::SUCCESS;
 }
 
 
 
-StatusCode
+TCS::StatusCode
 TopoSteering::executeDecisionAlgorithm(TCS::DecisionAlg *alg,
                                        const std::vector<Connector*> & inputConnectors,
                                        const std::vector<TCS::TOBArray *> & output,
@@ -357,8 +376,9 @@ TopoSteering::executeDecisionAlgorithm(TCS::DecisionAlg *alg,
    else alg->process( input, output, decision );
    //TRG_MSG_ALWAYS("[XS1234sz]L1Topo Steering alg " << alg->name() << " has decision " << decision.decision());
      
-   return StatusCode::SUCCESS;
+   return TCS::StatusCode::SUCCESS;
 }
+
 
 
 void
@@ -422,8 +442,8 @@ void TopoSteering::propagateHardwareBitsToAlgos()
        TCS::DecisionConnector *outCon = connector.second;
         outCon->decisionAlgorithm()->resetHardwareBits();
         unsigned int pos = 0; // for multi-output algorithms pos is the output index
-        for(const TXC::TriggerLine &trigger : outCon->triggers()){
-            unsigned int bitNumber = trigger.counter();
+        for(const TrigConf::TriggerLine &trigger : outCon->triggers()){
+	    unsigned int bitNumber = trigger.startbit() + 32*trigger.fpga() + 16*clock();
             outCon->decisionAlgorithm()->setHardwareBits(pos,
                                                          m_triggerHdwBits[bitNumber],
                                                          m_ovrflowHdwBits[bitNumber]);

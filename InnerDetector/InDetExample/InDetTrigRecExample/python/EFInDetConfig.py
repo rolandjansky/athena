@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #
 # Configuration classes for EF InDet Algs
@@ -20,9 +20,8 @@
 #              defines the class and instance name
 #
 
-from __future__ import print_function
+# flake8: noqa  (legacy trigger)
 
-# 
 from AthenaCommon.Include import include
 
 include.block("InDetTrigRecExample/EFInDetConfig.py")
@@ -282,7 +281,7 @@ class TrigEFIDSequence(TrigInDetSequenceBase):
     #    modify the sequence acoording to triggerflags
     from TriggerJobOpts.TriggerFlags  import TriggerFlags
 
-    if not ( TriggerFlags.doEF() or TriggerFlags.doHLT() ) or not TriggerFlags.doFEX():
+    if not TriggerFlags.doHLT() or not TriggerFlags.doFEX():
       from TrigSteeringTest.TrigSteeringTestConf import PESA__dummyAlgo as dummyAlgo_disabledByTriggerFlags_EFID
       dummyAlgEFID = dummyAlgo_disabledByTriggerFlags_EFID("doEF_or_doFEX_False_no_EFID")
       alglist = '[dummyAlgEFID]'

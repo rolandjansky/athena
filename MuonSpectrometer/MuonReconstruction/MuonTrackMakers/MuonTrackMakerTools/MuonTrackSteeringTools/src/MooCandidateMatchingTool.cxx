@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MooCandidateMatchingTool.h"
@@ -248,16 +248,23 @@ namespace Muon {
 
   bool MooCandidateMatchingTool::match( const Trk::Track& track, const MuonSegment& segment, bool useTightCuts ) const {
 
+    MuPatCandidateTool::MeasGarbage measurementsToBeDeleted;
+    MuPatCandidateTool::HitGarbage hitsToBeDeleted;
+
     ATH_MSG_DEBUG("Match track/segment: useTightCuts " << useTightCuts);
     // convert segment and track
     std::unique_ptr<Trk::Track> inTrack=std::make_unique<Trk::Track>(track);
-    std::unique_ptr<MuPatTrack> candidate = m_candidateTool->createCandidate(inTrack);
+    std::unique_ptr<MuPatTrack> candidate = m_candidateTool->createCandidate(inTrack,
+                                                                             hitsToBeDeleted,
+                                                                             measurementsToBeDeleted);
     if( !candidate ) { 
       ATH_MSG_VERBOSE("Failed to create track candidate");
      return false;
     }
 
-    std::unique_ptr<MuPatSegment> segInfo(m_candidateTool->createSegInfo(segment));
+    std::unique_ptr<MuPatSegment> segInfo(m_candidateTool->createSegInfo(segment,
+                                                                         hitsToBeDeleted,
+                                                                         measurementsToBeDeleted));
     if( !segInfo ) {
       ATH_MSG_VERBOSE("Failed to create segment candidate");
       return false;
@@ -1466,6 +1473,5 @@ namespace Muon {
  
 
   void MooCandidateMatchingTool::cleanUp() const {
-    m_candidateTool->cleanUp();
   }
 }

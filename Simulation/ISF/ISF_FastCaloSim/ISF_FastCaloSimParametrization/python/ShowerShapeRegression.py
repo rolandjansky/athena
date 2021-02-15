@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 __author__ = 'Christopher Bock - LMU'
 
@@ -164,11 +164,11 @@ class ShowerShapeRegressor():
 
         self.obtain_output_names()
 
-        f = ROOT.TFile(self.root_file_name)
+        f = ROOT.TFile(self.root_file_name)  # noqa: F841
         chain = ROOT.gDirectory.Get('ISF_HitAnalysis/CaloHitAna')
         entries = chain.GetEntriesFast()
 
-        for current_entry in xrange(entries):
+        for current_entry in range(entries):
             print(' Loading entry: %i' % current_entry)
             j = chain.LoadTree(current_entry)
             if j < 0:
@@ -208,7 +208,7 @@ class ShowerShapeRegressor():
                                        self.cumulative_etaphi_nbins[0], self.cumulative_etaphi_xrange[0],
                                        self.cumulative_etaphi_xrange[1], self.cumulative_etaphi_nbins[1],
                                        self.cumulative_etaphi_yrange[0], self.cumulative_etaphi_yrange[1])
-        for i in xrange(num_hits):
+        for i in range(num_hits):
             layer_id = chain.HitSampling[i]
 
             if not layer_id == self.selected_layer:
@@ -280,9 +280,9 @@ class ShowerShapeRegressor():
 
             y_axis = self.eta_phi_efrac_hists[0].GetYaxis()
             n_bins_y = y_axis.GetNbins()
-            for x_bin in xrange(n_bins_x + 1):
+            for x_bin in range(n_bins_x + 1):
                 x_center = x_axis.GetBinCenter(x_bin)
-                for y_bin in xrange(n_bins_y + 1):
+                for y_bin in range(n_bins_y + 1):
                     y_center = x_axis.GetBinCenter(y_bin)
                     for hist in self.eta_phi_efrac_hists:
                         value = hist.GetBinContent(x_bin, y_bin)
@@ -294,9 +294,9 @@ class ShowerShapeRegressor():
 
             y_axis = cumulative_histogram.GetYaxis()
             n_bins_y = y_axis.GetNbins()
-            for x_bin in xrange(n_bins_x + 1):
+            for x_bin in range(n_bins_x + 1):
                 x_bin_width = x_axis.GetBinWidth(x_bin)
-                for y_bin in xrange(n_bins_y + 1):
+                for y_bin in range(n_bins_y + 1):
                     y_bin_width = y_axis.GetBinWidth(y_bin)
                     area = x_bin_width*y_bin_width
 
@@ -506,9 +506,9 @@ class ShowerShapeRegressor():
             y_axis = reference.GetYaxis()
             n_bins_x = x_axis.GetNbins()
             n_bins_y = y_axis.GetNbins()
-            for x in xrange(n_bins_x + 1):
+            for x in range(n_bins_x + 1):
                 d_eta[0] = x_axis.GetBinCenter(x)
-                for y in xrange(n_bins_y + 1):
+                for y in range(n_bins_y + 1):
                     d_phi[0] = y_axis.GetBinCenter(y)
                     r[0] = math.sqrt(d_eta[0]*d_eta[0] + d_phi[0]*d_phi[0])
 
@@ -555,7 +555,7 @@ class ShowerShapeRegressor():
         for key in input_file.GetListOfKeys():
             print('Key: %s' % key.GetName())
 
-            if not 'Method_' in key.GetName():
+            if 'Method_' not in key.GetName():
                 continue
             if not ROOT.gROOT.GetClass(key.GetClassName()).InheritsFrom('TDirectory'):
                 continue
@@ -584,11 +584,11 @@ class ShowerShapeRegressor():
                     plot_obj = plot_key.ReadObj()
                     if isinstance(plot_obj, ROOT.TH2F):
                         plot_name = plot_key.GetName()
-                        if not '_reg_' in plot_name:
+                        if '_reg_' not in plot_name:
                             continue
 
                         if not ((show_target and '_tgt' in plot_name) or
-                                (not show_target and (not '_tgt' in plot_name))):
+                                (not show_target and ('_tgt' not in plot_name))):
                             continue
 
                         if not ((compare_to_train and 'train' in plot_name) or

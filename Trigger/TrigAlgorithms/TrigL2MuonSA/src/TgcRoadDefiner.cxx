@@ -19,9 +19,9 @@
 TrigL2MuonSA::TgcRoadDefiner::TgcRoadDefiner(const std::string& type,
 					     const std::string& name,
 					     const IInterface*  parent):
-     AthAlgTool(type, name, parent),
-     m_regionSelector( "RegSelSvc", name )
+     AthAlgTool(type, name, parent)
 {
+  declareProperty("RegionSelectionTool", m_regionSelector);
 }
 
 // --------------------------------------------------------------------------------
@@ -31,6 +31,9 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::initialize()
 {
    
   ATH_CHECK(AthAlgTool::initialize());
+
+  ATH_CHECK(m_regionSelector.retrieve());
+  ATH_MSG_DEBUG("Retrieved the RegionSelector tool ");
 
   ATH_CHECK(m_tgcFit.retrieve());
   ATH_MSG_DEBUG("Retrieved service " << m_tgcFit);
@@ -264,6 +267,7 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
     
   } else {
     // If no TGC hit are available, estimate the road from RoI
+    // or if inside-out mode, width is tuned based on FTF track extrapolation resolution
     ATH_MSG_DEBUG("Because no TGC hits are available, estimate the road from RoI");
 
     roiEta = p_roi->eta();
@@ -285,13 +289,23 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
     muonRoad.aw[csc][0]     = aw;
     muonRoad.bw[csc][0]     = 0;
     for (int i_layer=0; i_layer<N_LAYER; i_layer++) {
-      muonRoad.rWidth[endcap_inner][i_layer] = m_rWidth_TGC_Failed;
-      muonRoad.rWidth[endcap_middle][i_layer] = m_rWidth_TGC_Failed;
-      muonRoad.rWidth[endcap_outer][i_layer] = m_rWidth_TGC_Failed;
-      muonRoad.rWidth[endcap_extra][i_layer] = m_rWidth_TGC_Failed;
-      muonRoad.rWidth[barrel_inner][i_layer] = m_rWidth_TGC_Failed;
-      muonRoad.rWidth[bee][i_layer] = m_rWidth_TGC_Failed;
-      muonRoad.rWidth[csc][i_layer] = m_rWidth_TGC_Failed;
+      if(insideOut) {
+	muonRoad.rWidth[endcap_inner][i_layer] = 300;
+	muonRoad.rWidth[endcap_middle][i_layer] = 400;
+	muonRoad.rWidth[endcap_outer][i_layer] = 600;
+	muonRoad.rWidth[endcap_extra][i_layer] = 400;
+	muonRoad.rWidth[barrel_inner][i_layer] = 250;
+	muonRoad.rWidth[bee][i_layer] = 500;
+	muonRoad.rWidth[csc][i_layer] = 200;
+      } else {
+	muonRoad.rWidth[endcap_inner][i_layer] = m_rWidth_TGC_Failed;
+	muonRoad.rWidth[endcap_middle][i_layer] = m_rWidth_TGC_Failed;
+	muonRoad.rWidth[endcap_outer][i_layer] = m_rWidth_TGC_Failed;
+	muonRoad.rWidth[endcap_extra][i_layer] = m_rWidth_TGC_Failed;
+	muonRoad.rWidth[barrel_inner][i_layer] = m_rWidth_TGC_Failed;
+	muonRoad.rWidth[bee][i_layer] = m_rWidth_TGC_Failed;
+	muonRoad.rWidth[csc][i_layer] = m_rWidth_TGC_Failed;
+      }
     }
   }
  
@@ -333,8 +347,11 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
   if(phiMin < M_PI*-1) phiMin += M_PI*2.;
   TrigRoiDescriptor* roi = new TrigRoiDescriptor( p_roi->eta(), etaMin, etaMax, p_roi->phi(), phiMin, phiMax ); 
   const IRoiDescriptor* iroi = (IRoiDescriptor*) roi;
-  if (iroi) m_regionSelector->DetHashIDList(MDT, *iroi, mdtHashList);
-  else m_regionSelector->DetHashIDList(MDT, mdtHashList);
+  if (iroi) m_regionSelector->HashIDList(*iroi, mdtHashList);
+  else {
+    TrigRoiDescriptor fullscan_roi( true );
+    m_regionSelector->HashIDList(fullscan_roi, mdtHashList);
+  }
   if(roi) delete roi;
   
   for(const IdentifierHash& i_hash : mdtHashList ){

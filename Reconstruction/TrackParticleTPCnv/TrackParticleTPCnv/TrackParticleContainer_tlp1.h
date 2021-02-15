@@ -77,7 +77,6 @@
 
 // next line can be removed as soon as TPCnvTokenList_p1.h is fixed (i.e. includes string)
 #include <string>
-#include "AthenaPoolUtilities/TPCnvTokenList_p1.h"
 
 #include <ios>
 

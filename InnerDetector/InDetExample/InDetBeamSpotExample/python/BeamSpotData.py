@@ -2,8 +2,6 @@
 
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
 """
 Tools for handling beam spot data in ntuples or in COOL.
 For functionality requiring COOL access, you'll probably need to use
@@ -17,9 +15,7 @@ __version__ = '$Id: BeamSpotData.py 759522 2016-07-04 12:47:58Z amorley $'
 import time
 import copy
 from array import array
-#from CoolConvUtilities import AtlCoolLib
-#from PyCool import cool
-from math import *
+from math import sqrt, atan
 import csv
 
 import numpy   # WARNING: must be last import, so numpy can override sqrt etc
@@ -37,7 +33,7 @@ varDefsGen = {
     'fill':  {},
     'bcid':  {},
     'nEvents':   {},
-    'nValid':    {'altfmt': '%i', 'latexheader': '$n_{\mathrm{vtx}}$'},
+    'nValid':    {'altfmt': '%i', 'latexheader': r'$n_{\mathrm{vtx}}$'},
     'nVtxAll':   {},
     'nVtxPrim':  {},
     'status':    {'fmt': '%4i', 'altfmt': '%4i','latexheader' : 'Status' },
@@ -50,13 +46,13 @@ varDefsGen = {
     'posZ':      {'units': 'mm', 'fmt': '%10.2f', 'latexheader': '$z$ [mm]',
                   'altfmt': '%10.1f', 'altlatexheader': '\\lumposz [mm]',
                   'title': 'Beam Spot Position z', 'atit': 'Luminous centroid z [mm]', 'min': -100, 'max': 100},
-    'sigmaX':    {'units': 'mm', 'fmt': '%10.4f', 'latexheader': '$\sigma_x$ [mm]',
-                  'altfmt': '%10.0f', 'altfactor': 1000., 'altlatexheader': '\\lumsigx [$\mu$m]',
+    'sigmaX':    {'units': 'mm', 'fmt': '%10.4f', 'latexheader': r'$\sigma_x$ [mm]',
+                  'altfmt': '%10.0f', 'altfactor': 1000., 'altlatexheader': r'\\lumsigx [$\mu$m]',
                   'title': 'Beam Spot Size #sigma_{x}', 'atit': 'Luminous size #sigma_{x} [mm]', 'min': 0, 'max': 0.6},
-    'sigmaY':    {'units': 'mm', 'fmt': '%10.4f', 'latexheader': '$\sigma_y$ [mm]',
-                  'altfmt': '%10.0f','altfactor': 1000., 'altlatexheader': '\\lumsigy [$\mu$m]',
+    'sigmaY':    {'units': 'mm', 'fmt': '%10.4f', 'latexheader': r'$\sigma_y$ [mm]',
+                  'altfmt': '%10.0f','altfactor': 1000., 'altlatexheader': r'\\lumsigy [$\mu$m]',
                   'title': 'Beam Spot Size #sigma_{y}', 'atit': 'Luminous size #sigma_{y} [mm]', 'min': 0, 'max': 0.6},
-    'sigmaZ':    {'units': 'mm', 'fmt': '%10.2f', 'latexheader': '$\sigma_z$ [mm]',
+    'sigmaZ':    {'units': 'mm', 'fmt': '%10.2f', 'latexheader': r'$\sigma_z$ [mm]',
                   'altfmt': '%10.0f', 'altlatexheader': '\\lumsigz [mm]',
                   'title': 'Beam Spot Size #sigma_{z}', 'atit': 'Luminous size #sigma_{z} [mm]', 'min': 0, 'max': 150},
     'tiltX':     {'units': 'rad', 'fmt': '%10.6f', 'latexheader': 'tilt$_{xz}$ [rad]',
@@ -96,7 +92,7 @@ varDefsGen = {
                   'title': 'Error Scale Factor k', 'atit': 'k', 'min': 0.5, 'max': 2.0},
     'kErr':      {'fmt': '%10.3f',
                   'title': 'Uncertainty on Error Scale Factor k', 'atit': 'Uncertainty on k', 'min': 0, 'max': 0.2},
-    'sigmaXY':   {'fmt': '%10.6f', 'latexheader': '$\sigma_{xy}$',
+    'sigmaXY':   {'fmt': '%10.6f', 'latexheader': r'$\sigma_{xy}$',
                   'title': 'Beam Spot Size #sigma_{xy}', 'atit': '#sigma_{xy}', 'min': -0.0005, 'max': 0.0005},
 }
 
@@ -246,7 +242,7 @@ def varDef(var,property,default='',useAlternate=False,override=None):
         if useAlternate:
             v = varDefs[var].get('alt'+property,v)
         return v
-    except:
+    except Exception:
         return default
 
 def fmtVal(var,value,strip=False,useAlternate=False):
@@ -402,7 +398,7 @@ class BeamSpotValue:
     def thetaXY(self):
         try:
             txy = .5*atan((2*self.sigmaX*self.sigmaY*self.rhoXY)/(self.sigmaY**2-self.sigmaX**2))
-        except:
+        except Exception:
             txy = 0
         return txy
 
@@ -413,7 +409,7 @@ class BeamSpotValue:
             tpy = -1*(self.rhoXY*self.sigmaX*(self.sigmaX**2+self.sigmaY**2))/(self.sigmaX**4+2*(2*self.rhoXY**2-1)*self.sigmaX**2*self.sigmaY**2+self.sigmaY**4)
             tpr = (self.sigmaX*self.sigmaY**3-self.sigmaY*self.sigmaX**3)/(self.sigmaX**4+2*(2*self.rhoXY**2-1)*self.sigmaX**2*self.sigmaY**2+self.sigmaY**4)
             txye = sqrt(tpx*tpx*self.sigmaXErr**2 + tpy*tpy*self.sigmaYErr**2 + tpr*tpr*self.rhoXYErr**2 + 2*(tpx*tpy*self.covSxSy + tpx*tpr*self.covSxRhoXY + tpy*tpr*self.covSyRhoXY))
-        except:
+        except Exception:
             txye = 0
         return txye
 
@@ -430,15 +426,15 @@ class BeamSpotValue:
             BeamSpotValue.coolQuery = COOLQuery()
         try:
             self.timeStart = BeamSpotValue.coolQuery.lbTime(self.run,self.lbStart)[0]
-        except:
+        except Exception:
             pass
         try:
             self.timeEnd = BeamSpotValue.coolQuery.lbTime(self.run,self.lbEnd-1)[1]
-        except:
+        except Exception:
             pass
         try:
             self.fill = BeamSpotValue.coolQuery.getLHCInfo(self.timeStart).get('FillNumber',0)
-        except:
+        except Exception:
             pass
     
     def fillDataFromPseudoLb(self, pseudoLbFile, timeUnit = 1.):
@@ -451,7 +447,7 @@ class BeamSpotValue:
                 print ("point %s %s %s %s" % (point,start,sep,acq))
                 BeamSpotValue.pseudoLbDict[int(point)] = (int(int(start)*timeUnit), int(int(end)*timeUnit), float(sep), float(acq))
 
-        if not self.lbStart in self.pseudoLbDict:
+        if self.lbStart not in self.pseudoLbDict:
             print ("Missing %s in pseudoLbDict" % self.lbStart)
             return
 
@@ -468,7 +464,7 @@ class BeamSpotValue:
 
         try:
             self.fill = BeamSpotValue.coolQuery.getLHCInfo(self.timeStart).get('FillNumber',0)
-        except:
+        except Exception:
             pass
         
         return
@@ -590,7 +586,7 @@ class BeamSpotAverage:
             lumi = lumiNt.IntLumi
             try:
                 self.lumiData[run][lb] = lumi
-            except:
+            except Exception:
                 self.lumiData[run] = {}
                 self.lumiData[run][lb] = lumi
         lumiSum = 0.
@@ -610,7 +606,7 @@ class BeamSpotAverage:
             for lb in range(b.lbStart,b.lbEnd):
                 try:
                     lumi += self.lumiData[b.run][lb]
-                except:
+                except Exception:
                     print ('ERROR: missing luminosity information for run %i LB %i (in [%i,%i]) - weight set to zero!!' % (b.run,lb,b.lbStart,b.lbEnd))
                     self.nWarnings += 1
         for i in range(len(self.varList)):
@@ -647,7 +643,7 @@ class BeamSpotAverage:
             self.ave = self.sumx/self.sum
             self.err = self.rms/numpy.sqrt(self.sum)
 
-    def getIndex(varName):
+    def getIndex(self, varName):
         for i in range(len(self.varList)):
             if self.varList[i]==varName:
                 return i
@@ -847,7 +843,7 @@ class BeamSpotContainer:
         cache = {}
         for b in self:
             r = b.run
-            if not r in cache:
+            if r not in cache:
                 cache[r] = {}
             if b.lbEnd-b.lbStart > 500:
                 print ('WARNING: Cannot cache LB range %i ... %i for run %i' % (b.lbStart,b.lbEnd,r))
@@ -986,28 +982,28 @@ class BeamSpotFinderNt(BeamSpotContainer):
             bs = BeamSpotValue(self.fullCorrelations)
             try:
                 bs.status = BeamSpotFinderNt.fitIdToStatusMap[self.nt.fitID]+BeamSpotFinderNt.fitResultToStatusMap[self.nt.fitStatus]
-            except:
+            except Exception:
                 bs.status = 0
                 print ("ERROR: can't translate (fitID,fitStatus) = (%i,%i) into status word" % (self.nt.fitID,self.nt.fitStatus))
             bs.run = self.nt.run
             try:
                 bs.bcid = self.nt.bcid
-            except:
+            except Exception:
                 pass
             bs.lbStart = self.nt.lumiStart
             bs.lbEnd = self.nt.lumiStart+self.nt.lumiRange
             bs.nEvents = self.nt.nEvents
             try:
                 bs.nValid = self.nt.nValid
-            except:
+            except Exception:
                 pass
             try:
                 bs.nVtxAll = self.nt.nVtxAll
-            except:
+            except Exception:
                 pass
             try:
                 bs.nVtxPrim = self.nt.nVtxPrim
-            except:
+            except Exception:
                 pass                        
             bs.posX = self.nt.xc
             bs.posY = self.nt.yc
@@ -1128,7 +1124,6 @@ class BeamSpotCOOL(BeamSpotContainer):
             lumiBegin = since & 0xFFFFFFFF
 
             until = obj.until()
-            runUntil = until >> 32
             lumiUntil = until & 0xFFFFFFFF
 
             bs            = BeamSpotValue()                            
@@ -1163,7 +1158,7 @@ class BeamSpotCOOL(BeamSpotContainer):
 
             try:
                 rhoXYtmp = sigmaXYtmp / sigmaXtmp / sigmaYtmp
-            except:
+            except Exception:
                 rhoXYtmp = 0
             bs.rhoXY      = rhoXYtmp
 
@@ -1172,7 +1167,7 @@ class BeamSpotCOOL(BeamSpotContainer):
                 sumtmp += sigmaXErrtmp * sigmaXErrtmp / sigmaXtmp / sigmaXtmp
                 sumtmp += sigmaYErrtmp * sigmaYErrtmp / sigmaYtmp / sigmaYtmp
                 rhoXYErrtmp = sqrt(rhoXYtmp * rhoXYtmp * sumtmp)
-            except:
+            except Exception:
                 rhoXYErrtmp = 0
 
             bs.rhoXYErr = rhoXYErrtmp

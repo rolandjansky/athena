@@ -23,18 +23,11 @@
 
 // McParticleTools includes
 #include "HepMcFloatWriterTool.h"
-
+#include "AtlasHepMC/Flow.h"
+#include "AtlasHepMC/Polarization.h"
 static const char * s_protocolSep = ":";
 
-struct ToLower
-{
-  char operator() (char c) const  { return std::tolower(c); }
-};
-
 /////////////////////////////////////////////////////////////////// 
-/// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
 /// Constructors
 ////////////////
 HepMcFloatWriterTool::HepMcFloatWriterTool( const std::string& type, 
@@ -51,8 +44,7 @@ HepMcFloatWriterTool::HepMcFloatWriterTool( const std::string& type,
 		   m_ioBackendURL = "ascii:hepmc.genevent.txt", 
 		   "Name of the back-end we'll use to write out the HepMC::GenEvent."
 		   "\nEx: ascii:hepmc.genevent.txt" );
-  m_ioBackendURL.declareUpdateHandler( &HepMcFloatWriterTool::setupBackend,
-				       this );
+  m_ioBackendURL.declareUpdateHandler( &HepMcFloatWriterTool::setupBackend,this );
   
   declareProperty( "McEvents",
 		   m_mcEventsName = "GEN_EVENT",
@@ -107,16 +99,13 @@ StatusCode HepMcFloatWriterTool::execute()
 {
   // retrieve the McEventCollection
   const McEventCollection * mcEvts = 0;
-  if ( evtStore()->retrieve( mcEvts, m_mcEventsName ).isFailure() ||
-       0 == mcEvts ) {
-    ATH_MSG_ERROR("Could not retrieve a McEventCollection at ["
-		  << m_mcEventsName << "] !!");
+  if ( evtStore()->retrieve( mcEvts, m_mcEventsName ).isFailure() || 0 == mcEvts ) {
+    ATH_MSG_ERROR("Could not retrieve a McEventCollection at [" << m_mcEventsName << "] !!");
     return StatusCode::FAILURE;
   }
 
   if ( mcEvts->empty() ) {
-    ATH_MSG_WARNING("McEventCollection at [" << m_mcEventsName
-		    << "] is EMPTY !!");
+    ATH_MSG_WARNING("McEventCollection at [" << m_mcEventsName << "] is EMPTY !!");
     return StatusCode::FAILURE;
   }
 
@@ -130,17 +119,11 @@ StatusCode HepMcFloatWriterTool::execute()
 }
 
 /////////////////////////////////////////////////////////////////// 
-/// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
 /// Non-const methods: 
 /////////////////////////////////////////////////////////////////// 
 
 StatusCode HepMcFloatWriterTool::write( const HepMC::GenEvent* evt )
 {
-  //m_ioBackend->write_comment( m_mcEventsName.value() );
-  //m_ioBackend->write_event(evt);
   std::ostringstream out;
 
   // precision 8 (# digits following decimal point) is the minimum that
@@ -150,38 +133,48 @@ StatusCode HepMcFloatWriterTool::write( const HepMC::GenEvent* evt )
   out.setf(std::ios::dec,std::ios::basefield);
   out.setf(std::ios::scientific,std::ios::floatfield);
 
-  std::vector<long int> random_states = evt->random_states();
 
+#ifdef HEPMC3
+  long evt_vertices_size=evt->vertices().size();
+  std::shared_ptr<HepMC3::DoubleAttribute> A_alphaQCD=evt->attribute<HepMC3::DoubleAttribute>("alphaQCD");
+  double  evt_alphaQCD=(A_alphaQCD?(A_alphaQCD->value()):0.0);
+  std::shared_ptr<HepMC3::DoubleAttribute> A_alphaQED=evt->attribute<HepMC3::DoubleAttribute>("alphaQED");
+  double  evt_alphaQED=(A_alphaQED?(A_alphaQED->value()):0.0);
+  std::shared_ptr<HepMC3::DoubleAttribute> A_event_scale=evt->attribute<HepMC3::DoubleAttribute>("event_scale");
+  double  evt_event_scale=(A_event_scale?(A_event_scale->value()):0.0);
+  std::shared_ptr<HepMC3::VectorLongIntAttribute> A_random_states=evt->attribute<HepMC3::VectorLongIntAttribute>("random_states");
+  std::vector<long int> random_states=(A_random_states?(A_random_states->value()):std::vector<long int>());
+  long random_states_size=random_states.size();
+#else 
+  long evt_vertices_size=evt->vertices_size();
+  double  evt_alphaQCD=evt->alphaQCD();
+  double  evt_alphaQED=evt->alphaQED();
+  double  evt_event_scale=evt->event_scale();
+  std::vector<long int> random_states=evt->random_states();
+  long random_states_size=random_states.size();
+#endif
   out << "# -- GenEvent -->\n";
   out << "#" << evt->event_number() 
-      << " " << evt->event_scale() 
-      << " " << evt->alphaQCD() 
-      << " " << evt->alphaQED()
-      << " " << evt->signal_process_id()
-      << " " << ( evt->signal_process_vertex() ?
-		  evt->signal_process_vertex()->barcode() : 0 )
-      << " " << evt->vertices_size()
-      << " " << random_states.size()
+      << " " << evt_event_scale 
+      << " " << evt_alphaQCD 
+      << " " << evt_alphaQED
+      << " " << HepMC::signal_process_id(evt)
+      << " " << ( HepMC::signal_process_vertex(evt) ? HepMC::barcode(HepMC::signal_process_vertex(evt)) : 0 )
+      << " " << evt_vertices_size
+      << " " << random_states_size
       << "\n";
   out << "#";
-  std::copy( random_states.begin(), random_states.end(),
-	     std::ostream_iterator<long int>(out, " ") );
+  std::copy( random_states.begin(), random_states.end(), std::ostream_iterator<long int>(out, " ") );
   out << evt->weights().size() << "\n";
 
   out << "#";
-  std::copy( evt->weights().begin(), evt->weights().end(),
-	     std::ostream_iterator<double>(out, " ") );
+  std::copy( evt->weights().begin(), evt->weights().end(), std::ostream_iterator<double>(out, " ") );
   out << '\n';
 
   out << "#-- particles --\n";
-  for ( HepMC::GenEvent::particle_const_iterator 
-	  i    = evt->particles_begin(),
-	  iEnd = evt->particles_end();
-	i != iEnd;
-	++i ) {
-    const HepMC::GenParticle * p = *i;
+  for (auto p: *evt) {
     if ( p ) {
-      out << "# " << p->barcode() << " " << p->pdg_id() << "\n";
+      out << "# " << HepMC::barcode(p) << " " << p->pdg_id() << "\n";
       
       const HepMC::FourVector mom = p->momentum();
       std::ostringstream buf;
@@ -193,26 +186,42 @@ StatusCode HepMcFloatWriterTool::write( const HepMC::GenEvent* evt )
       const float py = static_cast<float>(mom.py());
       const float pz = static_cast<float>(mom.pz());
       const float m  = static_cast<float>(mom.m());
-      const float e  = 
-	static_cast<float>(std::sqrt( std::pow( px, 2 ) +
-				      std::pow( py, 2 ) +
-				      std::pow( pz, 2 ) +
-				      std::pow( m,  2 ) ) );
-      buf << px << " " << py << " " << pz << " " << e 
-	  << " " << m 
-	  << "\n";
+      const float e  = static_cast<float>(std::sqrt( std::pow( px, 2 ) + std::pow( py, 2 ) + std::pow( pz, 2 ) + std::pow( m,  2 ) ) );
+      buf << px << " " << py << " " << pz << " " << e   << " " << m   << "\n";
 
       out << buf.str();
+      auto pol=HepMC::polarization(p);
       out << "# "<< p->status() 
-	  << " " << p->polarization().theta()
-	  << " " << p->polarization().phi()
-	  << " " << ( p->end_vertex() ? p->end_vertex()->barcode() : 0 )
-	  << " " << p->flow() 
+	  << " " << pol.theta()
+	  << " " << pol.phi()
+	  << " " << ( p->end_vertex() ? HepMC::barcode(p->end_vertex()) : 0 )
+	  << " " << HepMC::flow(p) 
 	  << "\n";
     }
   }
 
   out << "#-- vertices -- \n";
+#ifdef HEPMC3
+  for (auto v: evt->vertices()) {
+    if ( v ) { 
+      out << "# " << HepMC::barcode(v) << " " << v->status() << "\n";
+      const HepMC::FourVector pos = v->position();
+      std::ostringstream buf;
+      buf.precision( std::numeric_limits<float>::digits10 + 1 );
+      buf.setf(std::ios::dec,std::ios::basefield);
+      buf.setf(std::ios::scientific,std::ios::floatfield);
+      
+      buf << pos.x() << " " << pos.y() << " " << pos.z() << " "  << pos.t() << "\n";
+
+      out << buf.str();
+      out << "#";
+      std::string svertexeights("1.0"); 
+      auto vertexeights=v->attribute<HepMC3::VectorDoubleAttribute>("weights");
+      if (vertexeights) vertexeights->to_string(svertexeights);
+      out << svertexeights;
+      out << '\n';
+    }
+#else
   for ( HepMC::GenEvent::vertex_const_iterator 
 	  i    = evt->vertices_begin(),
 	  iEnd = evt->vertices_end();
@@ -228,29 +237,20 @@ StatusCode HepMcFloatWriterTool::write( const HepMC::GenEvent* evt )
       buf.setf(std::ios::dec,std::ios::basefield);
       buf.setf(std::ios::scientific,std::ios::floatfield);
       
-      buf << pos.x() << " " << pos.y() << " " << pos.z() << " "
-	  << pos.t() << "\n";
+      buf << pos.x() << " " << pos.y() << " " << pos.z() << " "  << pos.t() << "\n";
 
       out << buf.str();
       out << "#";
-      std::copy( v->weights().begin(), v->weights().end(),
-		 std::ostream_iterator<double>(out, " ") );
+      std::copy( v->weights().begin(), v->weights().end(), std::ostream_iterator<double>(out, " ") );
       out << '\n';
     }
+#endif
   }
   out << "#<-- GenEvent --\n";
 
   (*m_ioBackend) << out.str() << std::flush;
   return StatusCode::SUCCESS;
 }
-
-/////////////////////////////////////////////////////////////////// 
-/// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-/// Const methods: 
-///////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////// 
 /// Non-const methods: 
@@ -282,23 +282,15 @@ void HepMcFloatWriterTool::setupBackend( Gaudi::Details::PropertyBase& /*prop*/ 
   }
 
   // get the protocol name in lower cases
-  std::transform( protocol.begin(), protocol.end(), 
-		  protocol.begin(),
-		  ToLower() );
-
+  std::transform( protocol.begin(), protocol.end(), protocol.begin(), [](unsigned char c){ return std::tolower(c); } );
   if ( "ascii" == protocol ) {
-    m_ioBackend = new std::ofstream( fileName.c_str(), 
-				     std::ios::out | std::ios::trunc );
+    m_ioBackend = new std::ofstream( fileName.c_str(), std::ios::out | std::ios::trunc );
 
   } else {
-    ATH_MSG_WARNING("UNKNOWN protocol [" << protocol << "] !!" << endmsg
-		    << "Will use [ascii] instead...");
+    ATH_MSG_WARNING("UNKNOWN protocol [" << protocol << "] !!" << endmsg << "Will use [ascii] instead...");
     protocol = "ascii";
-    m_ioBackend = new std::ofstream( fileName.c_str(), 
-				     std::ios::out | std::ios::trunc );
-  }    
-
-  ATH_MSG_DEBUG("Using protocol [" << protocol << "] and write to ["
-		<< fileName << "]");
+    m_ioBackend = new std::ofstream( fileName.c_str(), std::ios::out | std::ios::trunc );
+  }
+  ATH_MSG_DEBUG("Using protocol [" << protocol << "] and write to ["<< fileName << "]");
   return;
 }

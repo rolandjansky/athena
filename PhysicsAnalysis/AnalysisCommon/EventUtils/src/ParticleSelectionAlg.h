@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ParticleSelectionAlg.h
@@ -11,10 +11,6 @@
 #ifndef EVENTUTILS_PARTICLESELECTIONALG_H
 #define EVENTUTILS_PARTICLESELECTIONALG_H 1
 
-// STL includes
-#include <string>
-#include <vector>
-
 // FrameWork includes
 #include "GaudiKernel/ToolHandle.h"
 // #include "GaudiKernel/ServiceHandle.h"
@@ -22,6 +18,11 @@
 #include "AthAnalysisBaseComps/AthAnalysisAlgorithm.h"
 #include "xAODBase/IParticleContainer.h"
 //#include "TrigDecisionTool/TrigDecisionTool.h"
+#include "PATCore/IAsgSelectionTool.h"
+
+// STL includes
+#include <string>
+#include <vector>
 
 // // Forward declarations
 // namespace Trig{
@@ -76,11 +77,11 @@ class ParticleSelectionAlg
   // Private data:
   ///////////////////////////////////////////////////////////////////
  private:
+  /// The list of IAsgSelectionTools
+  ToolHandleArray<IAsgSelectionTool> m_selTools;
+
   /// Name of the EventInfo object
   StringProperty m_evtInfoName;
-
-  /// Name of the PrimaryVertex container
-  StringProperty m_inPrimVtxCont;
 
   /// Input container name
   StringProperty m_inCollKey;
@@ -152,10 +153,6 @@ class ParticleSelectionAlg
   /// The list of pairs of the tool index of the AsgSelectionTools and the
   /// starting index of the corresponding CutBookKeeper inside the CutBookkeeperContainer.
   std::vector<std::size_t> m_selToolIdxOffset;
-
-  /// The list of pairs of the tool index of the AsgSelectionWithVertexTools and the
-  /// starting index of the corresponding CutBookKeeper inside the CutBookkeeperContainer.
-  std::vector<std::size_t> m_selWPVToolIdxOffset;
 
   /// Store the index of the CutBookKeeper in the CutBookkeeperContainer for the
   /// selection using the ExpressionParser

@@ -1,57 +1,57 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 from __future__ import absolute_import
 
-from .constants import lchars
+from .constants import (lchars, seps, digits)
 
 import re
 from collections import defaultdict
 
+win_alphabet = lchars + seps
+window_re = re.compile(
+    r'^(?P<lo>\d*)(?P<attr>[%s]+)(?P<hi>\d*)' % win_alphabet)
+
 def defaultParameters(parameter, default=''):  # default if parameter unknown
-    defaults = {'etalo': '0',
-                'etahi': '320',
-                'petalo': '0',  # +ve eta
-                'petahi': '320',
-                'netalo': '320',  # -ve eta
-                'netahi': '0',
-                'etlo':   '0',
-                'ethi':   'inf',
-                'EtThreshold': '0.',
-                'eta_mins': '0.',
-                'eta_maxs': '3.2',
-                'asymmetricEtas': 0,  # exception: not a string
-                'djmasslo': '0.0',
-                'djmasshi': 'inf',
-                'djdetalo': '0.',
-                'djdetahi': 'inf',
-                'djdphilo': '0.',
-                'djdphihi': 'inf',
-                'qjmasslo': '0.0',
-                'qjmasshi': 'inf',
-                'momCutslo': '-inf',
-                'momCutshi': 'inf',
-                'smclo': '0',
-                'smchi': 'inf',                
-                'jvtlo': '0',
-                'jvthi': 'inf',
+    explicit_defaults = {
+        'etahi': '320',
+        'j1etahi': '320',
+        'j2etahi': '320',
+        'eta_maxs': '3.2',
+        'EtThreshold': '0.',
+        'eta_mins': '0.',
+        'asymmetricEtas': 0,  # exception: not a string
+        'momCutslo': '-inf',
     }
 
+    parameter = parameter.split(':')[-1]  # fltr:eta....
     if parameter.startswith('mom'):
         parameter = 'momCuts'
 
-    if parameter not in  defaults:
-        print ('defaultParameters: unknown parameter, tryurning default ',
-               parameter)
 
-    return defaults.get(parameter, default)
+    if parameter in explicit_defaults: return explicit_defaults[parameter]
+    
+    if not default:
+        if parameter.endswith('lo'):
+            default = '0'
+        elif parameter.endswith('hi'):
+            default = 'inf'
+        else:
+            raise RuntimeError(
+                'cannot find default for parameter ' + str(parameter))
 
+    return default
 
 
 def scaleFactors(parameter):
-    defaults = {
+
+    defaults = {  # only positive values here. sign done elsewhere
         'eta': 0.01,
-        'neta': -0.01,
+        'neta': 0.01,
+        'ceta': 0.01,
         'peta': 0.01,
+        'nphi': 0.01,
+        'cphi': 0.01,
+        'pphi': 0.01,
         'et': 1000.,
         'ht': 1000.,
         'smc': 1000.,
@@ -62,27 +62,43 @@ def scaleFactors(parameter):
         'momCuts': 0.01,
         'jvt': 0.01,
     }
+
+    parameter = parameter.split(':')[-1]  # fltr:eta....
+
     if parameter.startswith('mom'):
         parameter = 'momCuts'
+
     return defaults[parameter]
         
-class Checker(object):
+class TreeChecker(object):
     def __init__(self):
-        self.known = {
-            'simple': ('Et'),
-            'cascade': ('m')
-        }
-
+        self.node_count = 0
+        self.root_count = 0
+        self.bad_condition_count = 0
         self.msgs = []
-        self.nchecked = 0
-
+        
     def mod(self, node):
-        self.nchecked += 1
-        if node.scenario not in self.known:
-            self.msgs.append('unknown scenario %s' % node.scenario)
+        self.node_count += 1
+        if node.scenario == 'root':
+            self.root_count += 1
+            if node.conf_attrs:
+                self.bad_condition_count += 1
+
+        else:
+            if len(node.conf_attrs) != 1:
+                self.bad_condition_count += 1
+
+    def error(self):
+        good  = self.root_count == 1 and self.bad_condition_count == 0
+        return not good
+    
     
     def report(self):
-        s = ['Checker: %d nodes checked' % self.nchecked]
+        cn = self.__class__.__name__
+        s = ['%s: %d nodes checked' % (cn, self.node_count),
+             '%s: %d root node(s)' % (cn, self.root_count),
+             '%s: error - ' % cn + str(self.error())]
+        
         s.extend(self.msgs)
         return '\n'.join(s)
 
@@ -96,34 +112,6 @@ class TreeBuilder(object):
 
     def report(self):
         return self.tree
-
-
-class TreeToBooleanExpression(object):
-    """visit a hypo tree. If boolean scenarios are present, build a
-    boolean expression string."""
-    
-    def __init__(self):
-        self.stack = []
-
-    def mod(self, node):
-        if node.scenario == 'not':
-            self.stack.append(' ! ')
-            return
-
-        if node.scenario == 'and':
-            self.stack.append(' x ')
-            return
-
-        if node.scenario == 'or':
-            self.stack.append(' + ')
-            return
-
-        self.stack.append(' %s ' %node.tool.name())
-
-    def report(self):
-        s = '%s: ' % self.__class__.__name__
-        while self.stack: s += self.stack.pop()
-        return s.strip()
 
 
 class ConditionsDictMaker(object):
@@ -148,11 +136,9 @@ class ConditionsDictMaker(object):
 
     """
 
-    window_re = re.compile(
-        r'^(?P<lo>\d*)(?P<attr>[%s]+)(?P<hi>\d*)' % lchars)
 
 
-    # key: substring from chain label. value: asttribute of python
+    # key: substring from chain label. value: attribute of python
     # component proxy
     
     def get_conditions(self, params):
@@ -167,7 +153,7 @@ class ConditionsDictMaker(object):
            ['900mass,26dphi']
         """
         
-        alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789,'
+        alphabet = lchars + seps + digits
         pat = re.compile(r'(^\([%s]+\))'% alphabet )
         s = params
         m = True
@@ -177,33 +163,40 @@ class ConditionsDictMaker(object):
             if m is not None:
                 conditions.append(m.group(0))
                 s = s[len(conditions[-1]):]
+
         assert params == ''.join(conditions)
         conditions = [c[1:-1] for c in conditions]  # strip parens
         return conditions
 
 
     def makeDict(self, params):
+
         # conditions example: ['10et,0eta320', '20et']
         conditions = self.get_conditions(params)
 
         # keep track of identical conditions (mult > 1)
         
-        mult_conditions = defaultdict(int)
-        for c in conditions: mult_conditions[c] += 1
-        
         result = []
+        chainpartinds = []
         msgs = []
 
 
         # process each parameter string once.
-        for c, mult in mult_conditions.items(): # c is condition string
+        for c in conditions: # c is condition string
             cdict = defaultdict(dict)
+            
             toks = c.split(',')  # parameters in par string are separated by ','
             toks = [t.strip() for t in toks]
 
+            # cpis: shain part ind
+            cpis = [t for t in toks if t.startswith('leg')]
+            assert len(cpis) < 2
+            if cpis:
+                chainpartinds.append(cpis[0])
+                toks.remove(chainpartinds[-1])
+
             for t in toks:
-                m = self.window_re.match(t)
-                limits_dict = {}
+                m = window_re.match(t)
                 if m is None:
                     msgs.append('match failed for parameter %s' % t)
                     error = True
@@ -226,17 +219,23 @@ class ConditionsDictMaker(object):
                 #    must be set. The  attribute name is used directly,
                 #    the defaults do not require multiplying by a scale factor.
                 #   
-                
+
                 attr = group_dict['attr']  # attribute name in label
                 lo = group_dict['lo']  # string: low value or ''
                 hi = group_dict['hi']  # string high value or ''
 
                 def scale_limit(limit, sf):
 
-                    try:
-                        fl = float(limit)
-                    except TypeError: # limit = 'inf' or similar
-                        return limit
+                    # note on the value inf in python
+                    # the value of float('inf') is inf.
+                    # the value of float('-inf') is -inf.
+                    # the value of 10 * inf is inf.
+                    #
+                    # this is case independent:
+                    #
+                    # the value of float('iNf') is inf.
+
+                    fl = float(limit)
 
                     if fl != 0:  # avoid '-0'
                         fl = fl * sf
@@ -251,16 +250,38 @@ class ConditionsDictMaker(object):
                     
                 sf = scaleFactors(attr)
                 
+                # scale fctors and negative limts
+                # Scaling taking the string version of the limit found in
+                # the jet labelm and
+                #
+                # converts it to a float, and scales it. eg for eta,
+                # '320' -> '3.2'
+                # 
+                # Some limits are negative. eg the values assocated with
+                # neta are bot negative. Eg the  '320neta100' represent
+                # cut values of -3.2 and -1.0. 
+                #
+                # Currently (1/2021), dor attributes neta and nphi the 
+                # both the low and high limits are negative, while for
+                # ceta, cphi (c = crossing zero) the lower limits are
+                # negative.
+
+                neg_low = ('neta', 'nphi', 'ceta', 'cphi')
+                neg_high = ('neta', 'nphi')
+                
+                limits_dict = {}
                 if lo:
                     # find the python proxy class  name
-                    limits_dict['min'] = scale_limit(lo, sf)
-                        
+                    ssf = -sf if  attr in neg_low else sf
+                    limits_dict['min'] = scale_limit(lo, ssf)
+                    
                 if hi:
-                    limits_dict['max'] = scale_limit(hi, sf)
+                    ssf = -sf if  attr in neg_high else sf
+                    limits_dict['max'] = scale_limit(hi, ssf)
                         
                 cdict[attr] = limits_dict
-            
-            result.append((cdict, mult)) # append dictionary and mult.
+
+            result.append(cdict) # append dictionary
 
 
         # Example: input condition string:
@@ -276,7 +297,7 @@ class ConditionsDictMaker(object):
 
         msgs = ['ConditionsDict OK']
         error = False
-        return result, error, msgs
+        return result, chainpartinds, error, msgs
 
 
 class TreeParameterExpander_simple(object):
@@ -286,18 +307,16 @@ class TreeParameterExpander_simple(object):
     parameter strings look like '40et, 0eta320, nosmc'
     """
     
-    window_re = re.compile(
-        r'^(?P<lo>\d*)(?P<attr>[%s]+)(?P<hi>\d*)' % lchars)
-
     def __init__(self):
         self.msgs = []
 
     def mod(self, node):
 
         cdm = ConditionsDictMaker()
-        d, error, msgs = cdm.makeDict(node.parameters)
+        d, chainpartinds, error, msgs = cdm.makeDict(node.parameters)
         self.msgs.extend(msgs)
         node.conf_attrs = d
+        node.chainpartinds = chainpartinds
 
     def report(self):
         return '%s: ' % self.__class__.__name__ + '\n'.join(self.msgs) 
@@ -313,27 +332,24 @@ class TreeParameterExpander_dijet(object):
     which will convert numeric values, and symbolic values such as 'inf'
     """
     
-    window_re = re.compile(
-        r'^(?P<lo>\d*)(?P<attr>[%s]+)(?P<hi>\d*)' % lchars)
-
-
     def __init__(self):
         self.msgs = []
 
     def mod(self, node):
 
         cdm = ConditionsDictMaker()
-        d, error, msgs = cdm.makeDict(node.parameters)
+        d, chainpartinds, error, msgs = cdm.makeDict(node.parameters)
         self.msgs.extend(msgs)
         node.conf_attrs = d
+        node.chainpartinds = chainpartinds
 
     def report(self):
-        return '%s: ' % self.__class__.__name__ + '\n'.join(self.msgs) 
+        return '%s: ' % self.__class__.__name__ + '\n'.join(self.msgs)
 
 
-class TreeParameterExpander_combgen(object):
+class  TreeParameterExpander_all(object):
     """Convert parameter string into a dictionary holding low, high window
-    cut vals. Specialistaion for the combgen Tool
+    cut vals. Specialistaion for the "all" node
 
     parameter strings look like '40m,100deta200, 50dphi300'
     """
@@ -343,66 +359,40 @@ class TreeParameterExpander_combgen(object):
 
     def mod(self, node):
 
-        ok = True # status flag
-        # the group size must be the first attribute, then the conditions.
-        # size_re = re.compile(r'^\((\d+)\)')
-        parameters = node.parameters[:]
-        # m = size_re.match(parameters)
-        # if m is None:
-        #     self.msgs.append('Error')
-        #     return
+        if node.parameters != '' :
+            self.msgs.append(
+                'Error, all node with parameters ' + node.parameters)
+            return
 
-        # node.conf_attrs = {'groupSize':int(m.groups()[0])}
-        # remove goup info + 2 parentheses
-        # parameters = parameters[len(m.groups()[0])+2:]
+        node.conf_attrs = []
 
-        cdm = ConditionsDictMaker()
-        d, error, msgs = cdm.makeDict(parameters)
-        self.msgs.extend(msgs)
-        node.conf_attrs = d
-        
-
-        if ok:
-            self.msgs = ['All OK']
-        else:
-            self.msgs.append('Error')
+        self.msgs = ['All OK']
 
         
     def report(self):
-        return '%s: ' % self.__class__.__name__ + '\n'.join(self.msgs) 
+        return '%s: ' % self.__class__.__name__ + '\n'.join(self.msgs)
 
 
-class TreeParameterExpander_partgen(object):
-    """Convert parameter string into a dictionary holding low, high window
-    cut vals. Specialistaion for the combgen Tool
-
-    parameter strings look like '40m,100deta200, 50dphi300'
-    """
-    
-    def __init__(self):
-        self.msgs = []
-
+class FilterConditionsMover:
     def mod(self, node):
+        """Move dictionary used to construct the filter for a Condition from
+        node.conf_attrs to node.filter_dicts"""
 
-        parameters = node.parameters[:]
- 
-        cdm = ConditionsDictMaker()
 
-        d, error, msgs = cdm.makeDict(parameters)
+        filter_dicts = []
+        for ca in node.conf_attrs:
+            ca_keys = ca.keys()
+            n_filtkey = 0
 
-        self.msgs.extend(msgs)
-        node.conf_attrs = d
-        
+            for ca_key in ca_keys:
+                if 'fltr' in ca_key: n_filtkey += 1
+            assert n_filtkey == 0 or n_filtkey == len(ca_keys)
 
-        if not error:
-            self.msgs = ['All OK']
-        else:
-            self.msgs.append('Error')
+            if n_filtkey > 0:
+                filter_dicts.append(ca)
 
-        return d, error, msgs
-    
-    def report(self):
-        return '%s: ' % self.__class__.__name__ + '\n'.join(self.msgs) 
+        [node.conf_attrs.remove(ca) for ca in filter_dicts]
+        node.filter_dicts = filter_dicts
 
 
 class TreeParameterExpander_null(object):
@@ -418,23 +408,18 @@ class TreeParameterExpander_null(object):
         return '%s: ' % self.__class__.__name__ + '\n'.join(self.msgs) 
     
 
-
 class TreeParameterExpander(object):
     """Class to expand node.parameters string. Delegates to
     specialised expanders."""
     
     router = {
         'z': TreeParameterExpander_null,
+        'root': TreeParameterExpander_null,
         'simple': TreeParameterExpander_simple,
-        'simplepartition': TreeParameterExpander_simple,
-        'ht': TreeParameterExpander_simple,
+        'agg': TreeParameterExpander_simple,
         'dijet': TreeParameterExpander_dijet,
         'qjet': TreeParameterExpander_simple,
-        'not': TreeParameterExpander_null,
-        'and': TreeParameterExpander_null,
-        'or': TreeParameterExpander_null,
-        'combgen': TreeParameterExpander_combgen,
-        'partgen': TreeParameterExpander_partgen,
+        'all': TreeParameterExpander_all,
         'agree': TreeParameterExpander_null,
     }
 
@@ -442,11 +427,39 @@ class TreeParameterExpander(object):
         self.expander = None
 
     def mod(self, node):
+
         self.expander = self.router[node.scenario]()
         self.expander.mod(node)
-        print (self.expander.report())
-
+        
     def report(self):
         return self.expander.report()
         
 
+class IdenticalNodeCompressor(object):
+    """Visitor Class to group nodes represnting the same conditions into
+    a single node """
+
+    def __init__(self):
+        self.messages = []
+
+    def mod(self, node):
+        """identify idental nodes/ If > 1, set the multiplicity of the first 
+        to the number of such nodes, then remove the remainder"""
+        
+        param_nodes = defaultdict(list)
+        [param_nodes[c.parameters].append(c) for c in node.children]
+
+        for cns in param_nodes.values():
+            if len(cns) > 1:
+                self. messages.append('Coelescing %d nodes' % len(cns))
+                cns[0].multiplicity = len(cns)
+                [node.children.remove(c) for c in cns[1:]]
+
+
+    def report(self):
+        
+        if self.messages:
+            return '%s: %s' % (self.__class__.__name__,
+                               '\n'.join(self.messages))
+        else:
+            return ''

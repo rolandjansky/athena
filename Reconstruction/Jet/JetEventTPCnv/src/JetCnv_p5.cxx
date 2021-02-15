@@ -13,11 +13,6 @@
 // DataModelAthenaPool includes
 #include "DataModelAthenaPool/NavigableCnv_p1.h"
 
-// EventCommonTPCnv includes
-// #include "EventCommonTPCnv/P4ImplPxPyPzECnv_p1.h"
-
-// #include "JetEventTPCnv/JetSignalStateCnv.h"
-
 #include "ParticleEventTPCnv/ParticleBaseCnv_p1.h"
 
 // JetEvent includes

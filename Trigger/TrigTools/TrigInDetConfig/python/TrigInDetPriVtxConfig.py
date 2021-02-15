@@ -1,6 +1,6 @@
 #  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-__author__ =   "Mark Sutton"
+__author__ =   "Mark Sutton and Lukas Novotny"
 __doc__    =   "vertexFinder_builder"
 __all__    = [ "vertexFinder_builder", "makeVertices" ]
 
@@ -12,9 +12,67 @@ __all__    = [ "vertexFinder_builder", "makeVertices" ]
 # 
 #     vertexFinder_builder() 
 #
-#  function at the end - the rest are just helper 
+#  the rest are just helper 
 #  functions to create the relevant tools that are 
 #  needed along the way 
+
+
+# old function for backwards compatability
+#TODO inputTrackCollection is obsolete, remove in the next MR iteration
+def makeVertices( whichSignature, inputTrackCollection, outputVtxCollection, config, adaptiveVertexing=False ) :
+
+    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+
+    adaptiveVertexing = getInDetTrigConfig( whichSignature ).adaptiveVertex 
+
+    return vertexFinder_builder( signature         = whichSignature, 
+                                 inputTracks       = config.FT.tracksFTF(),
+                                 outputVertices    = outputVtxCollection,
+                                 adaptiveVertexing = adaptiveVertexing )
+
+
+
+
+# actual function to create the vertex finder instance
+# needs the tool to actually create the vertices, plus the 
+# tool to sort them into the desired order, and some monitoring
+# here the vertex finder tool is chosen (iterative vs adaptive)
+def vertexFinder_builder( signature, inputTracks, outputVertices, adaptiveVertexing ) :
+
+    from AthenaCommon.Logging import logging
+    log = logging.getLogger("InDetVtx")
+
+    from TrigEDMConfig.TriggerEDMRun3 import recordable
+
+    # create the three subtools for use by the vertexFinder itself ...
+    
+    # the actual tool which finds the vertices ...
+    # and actual place which choose between iterative and adaptive vertex finder tools
+    if adaptiveVertexing :
+        vertexFinderTool = adaptiveMultiVertexFinderTool_builder( signature ) 
+    else :   
+        vertexFinderTool = iterativeVertexFinderTool_builder( signature ) 
+
+    # which are then sorted ...
+    vertexSortingTool = vertexSortingTool_builder( signature )
+
+    # and finally some monitoring ...
+    vertexMonitoringTool = vertexMonitoringTool_builder( signature )
+
+    # no create the vertex finder ...
+    from InDetPriVxFinder.InDetPriVxFinderConf import InDet__InDetPriVxFinder
+
+    vertexFinder = InDet__InDetPriVxFinder( name                        = "InDetTrigPriVxFinder" + signature,
+                                            VertexFinderTool            = vertexFinderTool,
+                                            TracksName                  = recordable(inputTracks), 
+                                            VxCandidatesOutputName      = recordable(outputVertices), 
+                                            VertexCollectionSortingTool = vertexSortingTool,
+                                            doVertexSorting             = True,
+                                            PriVxMonTool                = vertexMonitoringTool )
+    
+    log.debug(vertexFinder)
+    
+    return  [ vertexFinder ]
 
 
 # linearised track factory, whatever that does, for the vertex finder
@@ -35,7 +93,7 @@ def  linearTrackFactory_builder( signature, extrapolator ) :
 
 # vertex fitter for the vertex finder 
 
-def  vertexFitterTool_builder( signature, linearTrackFactory, extrapolator ) :
+def  iterativeVertexFitterTool_builder( signature, linearTrackFactory, extrapolator ) :
 
     from AthenaCommon.AppMgr import ToolSvc
     
@@ -132,7 +190,7 @@ def  trackDensitySeedFinder_builder( signature ) :
 
 # create the actual vertex finder tool ...
 
-def vertexFinderTool_builder( signature ) : 
+def iterativeVertexFinderTool_builder( signature ) : 
 
     from AthenaCommon.AppMgr import ToolSvc
 
@@ -141,7 +199,6 @@ def vertexFinderTool_builder( signature ) :
    
     # the track summary tool, and extrapolator will be needed by multiple 
     # tools so create them once and pass them into the builders ...  
-
     trackSummaryTool = TrackingCommon.getInDetTrackSummaryTool()
     extrapolator     = TrackingCommon.getInDetExtrapolator()
 
@@ -152,12 +209,11 @@ def vertexFinderTool_builder( signature ) :
 
     
     # now create the five sub tools needed ...
-
-    linearTrackFactory     =     linearTrackFactory_builder( signature, extrapolator )
-    vertexFitterTool       =       vertexFitterTool_builder( signature, linearTrackFactory, extrapolator )
-    impactEstimator        =        impactEstimator_builder( signature, extrapolator )
-    trackSelectorTool      =      trackSelectorTool_builder( signature, trackSummaryTool, extrapolator, vtxcuts )
-    trackDensitySeedFinder = trackDensitySeedFinder_builder( signature )
+    linearTrackFactory     =        linearTrackFactory_builder( signature, extrapolator )
+    vertexFitterTool       = iterativeVertexFitterTool_builder( signature, linearTrackFactory, extrapolator )
+    impactEstimator        =           impactEstimator_builder( signature, extrapolator )
+    trackSelectorTool      =         trackSelectorTool_builder( signature, trackSummaryTool, extrapolator, vtxcuts )
+    trackDensitySeedFinder =    trackDensitySeedFinder_builder( signature )
     
     # now create the actual vertex finder tool ...
     # this is the main part of the actual working part of the code - 
@@ -182,42 +238,9 @@ def vertexFinderTool_builder( signature ) :
                                                              MaxTracks                = vtxcuts.MaxTracks() )
                                                            
     
- # InDetAdaptiveMultiPriVxFinderTool job options for later 
- #  verxtexFinderTool = InDet__InDetAdaptiveMultiPriVxFinderTool( name = "InDetTrigPriVxFinderTool" + signature,
- #                                                             VertexFitterTool         = vertexFitterTool,
- #  ...
-
- # VertexFitterTool  = vertexFitterTool,
- # TrackSelector     = trackSelectorTool,
- # SeedFinder        = trackDensitySeedFinder,
- 
- # IPEstimator       = Trk::ITrackToVertexIPEstimator  : impactEstimator is different type than for IterativeFinder 
- # BeamSpotKey       = InDet::BeamSpotData  : what is this ??
-
- # TracksMaxZinterval = 
- # maxVertexChi2 = 
- # finalCutMaxVertexChi2 = 
- # cutVertexDependence = 
- # MinWeight = 
- # realMultiVertex = 
- # useFastCompatibility = 
- # useBeamConstraint = 
- # addSingleTrackVertices = 
- # tracksMaxSignificance = 
- # m_useSeedConstraint = 
- # selectiontype = 
- # //==0 for sum p_t^2
- # //==1 for NN
- # //==2 for min bias compatibility estimation (in the future)
- # maxIterations = 
- # do3dSplitting = 
- # zBfieldApprox = 
- # maximumVertexContamination = 
-
     ToolSvc += vertexFinderTool
    
     return vertexFinderTool
-
 
 
 
@@ -245,64 +268,123 @@ def vertexSortingTool_builder( signature ) :
     
     return vertexSortingTool
     
-
-
-
 # create online vertex monitoring histograms
-
 def vertexMonitoringTool_builder( signature ) : 
     from InDetPriVxFinder.InDetPriVxFinderMonitoring import InDetPriVxFinderMonitoringTool
     return  InDetPriVxFinderMonitoringTool()
 
 
 
+#------------------------------------------------------------------------------------------------------------------
+#                         BUILDERS FOR ADAPTIVE MULTI VERTEX TOOL
+#------------------------------------------------------------------------------------------------------------------
+
+# create the actual vertex finder tool ...
+def adaptiveMultiVertexFinderTool_builder( signature ) : 
+
+    from AthenaCommon.AppMgr import ToolSvc
+
+    # use the getters from TrackingCommon ... 
+    import InDetRecExample.TrackingCommon as TrackingCommon
+   
+    # the track summary tool, and extrapolator will be needed by multiple 
+    # tools so create them once and pass them into the builders ...  
+    trackSummaryTool = TrackingCommon.getInDetTrackSummaryTool()
+    extrapolator     = TrackingCommon.getInDetExtrapolator()
+    doVtx3DFinding   = True # TODO!!!! InDetFlags.doPrimaryVertex3DFinding()
+
+    # get the selection cuts use to select the actual tracks in the tool ...
+    from InDetTrigRecExample.TrigInDetConfiguredVtxCuts import ConfiguredTrigVtxCuts 
+    vtxcuts = ConfiguredTrigVtxCuts() 
+    vtxcuts.printInfo()
+
+    # now create the five sub tools needed ...
+    linearTrackFactory     =            linearTrackFactory_builder( signature, extrapolator )
+    impactEstimator        =               impactEstimator_builder( signature, extrapolator )
+    vertexFitterTool       =      adaptiveVertexFitterTool_builder( signature, linearTrackFactory, extrapolator,impactEstimator )
+    trackSelectorTool      =             trackSelectorTool_builder( signature, trackSummaryTool, extrapolator, vtxcuts )
+    seedFinder             =        trackDensitySeedFinder_builder( signature )
+    # leave this here, but commented for the time being while we investigate ...
+    # seedFinder           = adaptiveMultiVertexSeedFinder_builder( signature, doVtx3DFinding)
 
 
-# actual function to create the vertex finder instance
-# needs the tool to actually create the vertices, plus the 
-# tool to sort them into the desired order, and some monitoring
+    # now create the actual vertex finder tool ...
+    # this is the main part of the actual working part of the code - 
+    # the vertoces are found by this class, in this instance it includes
+    # a beam line constraint - it we want this to allow this constrain 
+    # to be disabled we can add a flag and some additional logic 
+    from InDetPriVxFinderTool.InDetPriVxFinderToolConf import InDet__InDetAdaptiveMultiPriVxFinderTool
 
-def vertexFinder_builder( signature, inputTracks, outputVertices ) :
-
-    from AthenaCommon.Logging import logging
-    log = logging.getLogger("InDetVtx")
-
-    from TrigEDMConfig.TriggerEDMRun3 import recordable
-
-    # create the three subtools for use by the vertexFinder itself ...
+    vertexFinderTool = InDet__InDetAdaptiveMultiPriVxFinderTool(name              = "InDetTrigAdaptiveMultiPriVxFinderTool" + signature,
+                                                                        SeedFinder        = seedFinder,
+                                                                        VertexFitterTool  = vertexFitterTool,
+                                                                        TrackSelector     = trackSelectorTool,
+                                                                        useBeamConstraint = True,
+                                                                        selectiontype     = 0, # what is this?
+                                                                        do3dSplitting     = doVtx3DFinding)
     
-    # the actual tool which finde the vertices ... 
-    vertexFinderTool = vertexFinderTool_builder( signature ) 
+    ToolSvc += vertexFinderTool
+   
+    return vertexFinderTool
 
-    # which are then sorted ...
-    vertexSortingTool = vertexSortingTool_builder( signature )
 
-    # and finally some monitoring ...
-    vertexMonitoringTool = vertexMonitoringTool_builder( signature )
 
-    # no create the vertex finder ...
+# annealing for adaptive vertex finder
+def annealingMaker_builder(signature) :
 
-    from InDetPriVxFinder.InDetPriVxFinderConf import InDet__InDetPriVxFinder
+    from AthenaCommon.AppMgr import ToolSvc
 
-    vertexFinder = InDet__InDetPriVxFinder( name                        = "InDetTrigPriVxFinder" + signature,
-                                            VertexFinderTool            = vertexFinderTool,
-                                            TracksName                  = recordable(inputTracks), 
-                                            VxCandidatesOutputName      = recordable(outputVertices), 
-                                            VertexCollectionSortingTool = vertexSortingTool,
-                                            doVertexSorting             = True,
-                                            PriVxMonTool                = vertexMonitoringTool )
+    from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__DetAnnealingMaker
+    annealingMaker = Trk__DetAnnealingMaker(name = "InDetTrigAnnealingMaker" + signature,
+                                                     SetOfTemperatures = [1.]) 
+    ToolSvc += annealingMaker
     
-    log.debug(vertexFinder)
+    return annealingMaker
+
+
+
+# vertex fitter for the vertex finder 
+# this one is for adaptive vertex finder tool
+def  adaptiveVertexFitterTool_builder( signature, linearTrackFactory, extrapolator,impactEstimator ) :
+
+    from AthenaCommon.AppMgr import ToolSvc
+
+    annealingMaker  = annealingMaker_builder ( signature )
+    from TrkVertexFitters.TrkVertexFittersConf import Trk__AdaptiveMultiVertexFitter
+    vertexFitterTool = Trk__AdaptiveMultiVertexFitter(name                         = "InDetTrigAdaptiveMultiVertexFitterTool" + signature,
+                                                      LinearizedTrackFactory       = linearTrackFactory,
+                                                      ImpactPoint3dEstimator       = impactEstimator,
+                                                      AnnealingMaker               = annealingMaker,
+                                                      DoSmoothing                  = True) # false is default 
+ 
+    ToolSvc += vertexFitterTool
     
-    return  [ vertexFinder ]
+    return vertexFitterTool
 
 
-# old function for backwards compatability
-#TODO inputTrackCollection is obsolete, remove in the next MR iteration
-def makeVertices( whichSignature, inputTrackCollection, outputVtxCollection, config ) :
 
-    return vertexFinder_builder( signature      = whichSignature, 
-                                 inputTracks    = config.FT.tracksFTF(),
-                                 outputVertices = outputVtxCollection )
+
+def adaptiveMultiVertexSeedFinder_builder( signature , doVtx3DFinding):
+
+    from AthenaCommon.AppMgr import ToolSvc
     
+    if (doVtx3DFinding): #InDetFlags.doPrimaryVertex3DFinding()
+
+        from TrkVertexSeedFinderTools.TrkVertexSeedFinderToolsConf import Trk__CrossDistancesSeedFinder
+        seedFinder = Trk__CrossDistancesSeedFinder( name              = "InDetTrigCrossDistancesSeedFinder" + signature,
+                                                    trackdistcutoff   = 1.,
+                                                    trackdistexppower = 2)
+    
+    else:
+    
+        from TrkVertexSeedFinderTools.TrkVertexSeedFinderToolsConf import Trk__ZScanSeedFinder
+        seedFinder = Trk__ZScanSeedFinder(name = "InDetTrigZScanSeedFinder" + signature
+                                                      # Mode1dFinder = # default, no setting needed
+                                                     )
+    ToolSvc += seedFinder
+
+    return seedFinder
+
+
+
 

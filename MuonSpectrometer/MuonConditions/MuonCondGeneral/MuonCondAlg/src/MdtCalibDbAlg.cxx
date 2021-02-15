@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondAlg/MdtCalibDbAlg.h"
@@ -50,6 +50,7 @@ MdtCalibDbAlg::MdtCalibDbAlg(const std::string& name, ISvcLocator* pSvcLocator) 
   m_condSvc{"CondSvc", name},
   m_rtFolder("/MDT/RTBLOB"),
   m_tubeFolder("/MDT/T0BLOB"),
+  m_newFormat2020(false),
   m_TimeSlewingCorrection(false),
   m_UseMLRt(true),
   m_TsCorrectionT0(0.),
@@ -73,6 +74,9 @@ MdtCalibDbAlg::MdtCalibDbAlg(const std::string& name, ISvcLocator* pSvcLocator) 
   declareProperty("RtFolder",m_rtFolder,"DB folder containing the RT calibrations");
   declareProperty("ReadKeyTube",m_readKeyTube);
   declareProperty("ReadKeyRt",m_readKeyRt);
+
+  //new folder format 2020
+  declareProperty("NewFormat2020",m_newFormat2020);
   
   //Properties to deform the t0 and rt relationship
   declareProperty("T0Shift",m_t0Shift,"for simulation: common shift of all T0s, in ns");
@@ -390,10 +394,59 @@ StatusCode MdtCalibDbAlg::loadRt(const MuonGM::MuonDetectorManager* muDetMgr){
   ATH_MSG_INFO("Size of CondAttrListCollection " << readHandleRt.fullKey() << " readCdoRt->size()= " << readCdoRt->size());
   ATH_MSG_INFO("Range of input is " << rangeRt);
 
+  // read new-style format 2020
+  std::vector<coral::AttributeList> dataPerChannel;
+  if(m_newFormat2020){
+    CondAttrListCollection::const_iterator itr;
+    for(itr = readCdoRt->begin(); itr != readCdoRt->end(); ++itr) {
+      const coral::AttributeList& atr = itr->second;
+      std::string data;
+      if(atr["data"].specification().type() == typeid(coral::Blob)){
+        ATH_MSG_VERBOSE("Loading data as a BLOB, uncompressing...");
+        if(!uncompressInMyBuffer(atr["data"].data<coral::Blob>())) {
+          ATH_MSG_FATAL( "Cannot uncompress buffer" );
+          return StatusCode::FAILURE;
+        }
+        if(!m_decompression_buffer){
+          ATH_MSG_FATAL("Cannot uncompress BLOB! Aborting...");
+          return StatusCode::FAILURE;
+        }
+        data = (reinterpret_cast<char*>(m_decompression_buffer.get()));
+      }
+      else {
+        ATH_MSG_VERBOSE("Loading data as a STRING");
+        data = *(static_cast<const std::string*>((atr["data"]).addressOfData()));
+      }
+      
+      // unwrap the json and build the data vector
+      nlohmann::json yy = nlohmann::json::parse(data);
+      for(auto& it : yy.items()){
+        nlohmann::json yx = it.value();
+        for(auto& jt : yx.items()){
+          coral::AttributeList al;
+          al.extend("tech", "int"   );
+          al.extend("file", "string");
+          al.extend("data", "blob"  );
+          al["tech"].data<int>()         = jt.value()[1];
+          al["file"].data<std::string>() = jt.value()[2]; 
+          al["data"].data<coral::Blob>() = compressBlob(jt.value()[3]);
+          dataPerChannel.push_back(al);
+        }
+	  }
+    }
+  }
+  // read old-style format
+  else {
+    CondAttrListCollection::const_iterator itr;
+    for (itr = readCdoRt->begin(); itr != readCdoRt->end(); ++itr) {
+      coral::AttributeList atr = const_cast<coral::AttributeList&>(itr->second);
+      dataPerChannel.push_back(atr);
+    }
+  }
+
   // unpack the strings in the collection and update the writeCdoRt
-  CondAttrListCollection::const_iterator itr;
-  for (itr = readCdoRt->begin(); itr != readCdoRt->end(); ++itr) {
-    const coral::AttributeList &atr=itr->second;
+  for(unsigned int idx=0; idx<dataPerChannel.size(); ++idx){
+    coral::AttributeList atr = dataPerChannel[idx];
     bool rt_ts_applied = (atr["tech"].data<int>() & MuonCalib::TIME_SLEWING_CORRECTION_APPLIED);
     std::string header="",payload="",trailer="";
     // if BLOB data
@@ -431,6 +484,22 @@ StatusCode MdtCalibDbAlg::loadRt(const MuonGM::MuonDetectorManager* muDetMgr){
     //the muonfixedid of the chamber is in the header.  Hence the "if" below will always be true.
     if(regionId>m_regionIdThreshold) {
       MuonCalib::MuonFixedId id(regionId);
+      if (!id.is_mdt()) {
+        ATH_MSG_WARNING("Found non-MDT MuonFixedId, continuing...");
+        continue;
+      }
+      if (!m_idHelperSvc->hasCSC()) {
+        // in case there are no CSCs, there must be 2 NSWs, and accordingly no EIS/EIL1-3 MDTs
+        std::string stationName = id.stationNumberToFixedStationString(id.stationName());
+        if (stationName.find("EIS")!=std::string::npos || (std::abs(id.eta())<4&&stationName.find("EIL")!=std::string::npos)) {
+          static std::atomic<bool> eisWarningPrinted = false;
+          if (!eisWarningPrinted) {
+            ATH_MSG_WARNING("Found EIS/EIL1-3 MuonFixedId, although NSWs should be present, continuing...");
+            eisWarningPrinted.store(true, std::memory_order_relaxed);
+          }
+          continue;
+        }
+      }
       athenaId = m_idToFixedIdTool->fixedIdToId(id);
       // If using chamber RTs skip RTs for ML2 -- use ML1 RT for entire chamber
       if( m_regionSvc->RegionType()==ONEPERCHAMBER && m_idHelperSvc->mdtIdHelper().multilayer(athenaId)==2 ) {
@@ -450,6 +519,14 @@ StatusCode MdtCalibDbAlg::loadRt(const MuonGM::MuonDetectorManager* muDetMgr){
       ATH_MSG_VERBOSE( "Fixed region Id "<<regionId<<" converted into athena Id "<<athenaId <<" and then into hash "<<hash);
       regionId = hash;      //reset regionId to chamber hash
     }
+    if(regionId>=writeCdoRt->size()) {
+      static std::atomic<bool> regionIdWarningPrinted = false;
+      if (!regionIdWarningPrinted) {
+        ATH_MSG_WARNING("loadRt() - regionId="<<regionId<<" larger than size of MdtRtRelationCollection, skipping...");
+        regionIdWarningPrinted.store(true, std::memory_order_relaxed);
+      }
+      continue;
+    }
     // extract npoints in RT function
     pch = strtok (NULL, "_,");
     npoints = atoi(pch);
@@ -464,7 +541,12 @@ StatusCode MdtCalibDbAlg::loadRt(const MuonGM::MuonDetectorManager* muDetMgr){
     double innerTubeRadius = -9999.;
     const MuonGM::MdtReadoutElement *detEl = muDetMgr->getMdtReadoutElement( m_idHelperSvc->mdtIdHelper().channelID(athenaId,1,1,1) );
     if( !detEl ){
-      ATH_MSG_INFO( "Ignoring nonexistant station in calibration DB: " << m_idHelperSvc->mdtIdHelper().print_to_string(athenaId) );
+      static std::atomic<bool> rtWarningPrinted = false;
+      if (!rtWarningPrinted) {
+        ATH_MSG_WARNING("loadRt() - Ignoring nonexistant station in calibration DB: "<<m_idHelperSvc->mdtIdHelper().print_to_string(athenaId)<<", cf. ATLASRECTS-5826");
+        rtWarningPrinted.store(true, std::memory_order_relaxed);
+        continue;
+      }
     } else {
       innerTubeRadius = detEl->innerTubeRadius();
     }
@@ -762,14 +844,63 @@ StatusCode MdtCalibDbAlg::loadTube(const MuonGM::MuonDetectorManager* muDetMgr){
   ATH_MSG_INFO("Size of CondAttrListCollection " << readHandleTube.fullKey() << " readCdoTube->size()= " << readCdoTube->size());
   ATH_MSG_INFO("Range of input is " << rangeTube);
   
+  // read new-style format 2020
+  std::vector<coral::AttributeList> dataPerChannel;
+  if(m_newFormat2020){
+    CondAttrListCollection::const_iterator itr;
+    for(itr = readCdoTube->begin(); itr != readCdoTube->end(); ++itr) {
+      const coral::AttributeList& atr = itr->second;
+      std::string data;
+      if(atr["data"].specification().type() == typeid(coral::Blob)){
+        ATH_MSG_VERBOSE("Loading data as a BLOB, uncompressing...");
+        if(!uncompressInMyBuffer(atr["data"].data<coral::Blob>())) {
+          ATH_MSG_FATAL( "Cannot uncompress buffer" );
+          return StatusCode::FAILURE;
+        }
+        if(!m_decompression_buffer){
+          ATH_MSG_FATAL("Cannot uncompress BLOB! Aborting...");
+          return StatusCode::FAILURE;
+        }
+        data = (reinterpret_cast<char*>(m_decompression_buffer.get()));
+      }
+      else {
+        ATH_MSG_VERBOSE("Loading data as a STRING");
+        data = *(static_cast<const std::string*>((atr["data"]).addressOfData()));
+      }
+      
+      // unwrap the json and build the data vector
+      nlohmann::json yy = nlohmann::json::parse(data);
+      for(auto& it : yy.items()){
+        nlohmann::json yx = it.value();
+        for(auto& jt : yx.items()){
+          coral::AttributeList al;
+          al.extend("tech", "int"   );
+          al.extend("file", "string");
+          al.extend("data", "blob"  );
+          al["tech"].data<int>()         = jt.value()[1];
+          al["file"].data<std::string>() = jt.value()[2]; 
+          al["data"].data<coral::Blob>() = compressBlob(jt.value()[3]);
+          dataPerChannel.push_back(al);
+        }
+	  }
+    }
+  }
+  // read old-style format
+  else {
+    CondAttrListCollection::const_iterator itr;
+    for (itr = readCdoTube->begin(); itr != readCdoTube->end(); ++itr) {
+      coral::AttributeList atr = const_cast<coral::AttributeList&>(itr->second);
+      dataPerChannel.push_back(atr);
+    }
+  }
+
   // Inverse of wire propagation speed
   float inversePropSpeed = 1./(Gaudi::Units::c_light*m_prop_beta);
 
   // unpack the strings in the collection and update the 
   // MdtTubeCalibContainers in TDS
-  CondAttrListCollection::const_iterator itr;
-  for (itr = readCdoTube->begin(); itr != readCdoTube->end(); ++itr) {
-    const coral::AttributeList &atr = itr->second;
+  for(unsigned int idx=0; idx<dataPerChannel.size(); ++idx){
+    coral::AttributeList atr = dataPerChannel[idx];
     std::string header="",payload="",trailer="";
 
     bool t0_ts_applied = (atr["tech"].data<int>() & MuonCalib::TIME_SLEWING_CORRECTION_APPLIED);
@@ -830,7 +961,11 @@ StatusCode MdtCalibDbAlg::loadTube(const MuonGM::MuonDetectorManager* muDetMgr){
     bool isValid = true; // the elementID takes a bool pointer to check the validity of the Identifier
     Identifier chId = m_idHelperSvc->mdtIdHelper().elementID(name,ieta,iphi,true,&isValid);
     if (!isValid) {
-      ATH_MSG_WARNING("Element Identifier " << chId.get_compact() << " retrieved for station name " << name << " is not valid, skipping...");
+      static std::atomic<bool> idWarningPrinted = false;
+      if (!idWarningPrinted) {
+        ATH_MSG_WARNING("Element Identifier " << chId.get_compact() << " retrieved for station name " << name << " is not valid, skipping, cf. ATLASRECTS-5826");
+        idWarningPrinted.store(true, std::memory_order_relaxed);
+      }
       continue;
     }
  
@@ -885,8 +1020,12 @@ StatusCode MdtCalibDbAlg::loadTube(const MuonGM::MuonDetectorManager* muDetMgr){
       // currently there is no calibration DB for Run3 or Run4, i.e. nothing for the new
       // sMDT chambers in the inner barrel layers (BI), so skip them for now until a DB is in place
       if (m_idHelperSvc->issMdt(chId) && name.find("BI")!=std::string::npos) {
-        ATH_MSG_WARNING("Currently no entry for "<<name<<" sMDT chambers (eta="<<ieta<<") in database, skipping...");
-        return StatusCode::SUCCESS;
+        static std::atomic<bool> sMDTWarningPrinted = false;
+        if (!sMDTWarningPrinted) {
+          ATH_MSG_WARNING("Currently no entry for "<<name<<" sMDT chambers (eta="<<ieta<<") in database, skipping...");
+          sMDTWarningPrinted.store(true, std::memory_order_relaxed);
+        }
+        continue;
       }
       else {
         ATH_MSG_ERROR( "Pre-existing MdtTubeCalibContainer for chamber ID " <<chId<< " size ("<<size<<") does not match the one found in DB ("<<ntubes<<")");
@@ -981,7 +1120,11 @@ MuonCalib::MdtTubeCalibContainer* MdtCalibDbAlg::buildMdtTubeCalibContainer(cons
   ATH_MSG_VERBOSE( " new det el " << detEl );
   
   if( !detEl ){ 
-    ATH_MSG_INFO( "Ignoring nonexistant station in calibration DB: " << m_idHelperSvc->mdtIdHelper().print_to_string(id) );
+    static std::atomic<bool> warningPrinted = false;
+    if (!warningPrinted) {
+      ATH_MSG_WARNING("buildMdtTubeCalibContainer() - Ignoring nonexistant station in calibration DB: "<<m_idHelperSvc->mdtIdHelper().print_to_string(id)<<", cf. ATLASRECTS-5826");
+      warningPrinted.store(true, std::memory_order_relaxed);
+    }
   } else {
     int nml = 2;
     if( !detEl2 ) nml = 1;
@@ -1047,6 +1190,15 @@ inline bool MdtCalibDbAlg::uncompressInMyBuffer(const coral::Blob &blob) {
   }
   m_decompression_buffer.get()[actual_length]=0;
   return true;
+}
+inline coral::Blob MdtCalibDbAlg::compressBlob(const std::string dataString) const{
+	uLongf dest_len = compressBound(dataString.size());
+	coral::Blob blob;
+	blob.resize(dest_len);
+	Bytef * p = static_cast<Bytef *>(blob.startingAddress());		
+	compress(p, &dest_len, reinterpret_cast<const Bytef *>(dataString.c_str()), dataString.size());
+	blob.resize(dest_len);
+	return blob;
 }
 
 inline MuonCalib::RtResolutionLookUp* MdtCalibDbAlg::getRtResolutionInterpolation( const std::vector<MuonCalib::SamplePoint> &sample_points) {

@@ -1,8 +1,9 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 LArRawDataReadingAlg=CompFactory.LArRawDataReadingAlg
 
 def LArRawDataReadingCfg(configFlags, **kwargs):
@@ -13,6 +14,11 @@ def LArRawDataReadingCfg(configFlags, **kwargs):
 
     if configFlags.Overlay.DataOverlay:
         kwargs.setdefault("LArDigitKey", configFlags.Overlay.BkgPrefix + "FREE")
+        kwargs.setdefault("LArRawChannelKey", "")
+
+    print('LArRawDataReadingCfg configFlags.LAr.RawChannelSource ',configFlags.LAr.RawChannelSource)
+
+    if configFlags.LAr.RawChannelSource=="calculated":
         kwargs.setdefault("LArRawChannelKey", "")
 
     kwargs.setdefault("FailOnCorruption",False)
@@ -35,13 +41,15 @@ if __name__=="__main__":
     ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.lock()
 
-    acc=LArRawDataReadingCfg(ConfigFlags)
+    acc = MainServicesCfg( ConfigFlags )
+    from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
+    acc.merge(AtlasGeometryCfg(ConfigFlags))
+    acc.merge(LArRawDataReadingCfg(ConfigFlags))
     
     DumpLArRawChannels=CompFactory.DumpLArRawChannels
     from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg 
     acc.merge(LArOnOffIdMappingCfg(ConfigFlags))
     acc.addEventAlgo(DumpLArRawChannels(LArRawChannelContainerName="LArRawChannels",))
 
-    f=open("LArRawDataReading.pkl","wb")
-    acc.store(f)
-    f.close()
+    acc.run(2,OutputLevel=DEBUG)
+

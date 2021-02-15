@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -313,8 +313,9 @@ def pixelCondCfg(flags):
       PixelDCSCondTempAlgCfg, PixelAlignCondAlgCfg, PixelDetectorElementCondAlgCfg,
       PixelHitDiscCnfgAlgCfg, PixelReadoutSpeedAlgCfg, PixelCablingCondAlgCfg,
       PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg,
-      PixelDistortionAlgCfg, PixelOfflineCalibCondAlgCfg
-# NEW FOR RUN3    PixelDeadMapCondAlgCfg, PixelChargeLUTCalibCondAlgCfg/
+      PixelDistortionAlgCfg, PixelOfflineCalibCondAlgCfg,
+      PixelDeadMapCondAlgCfg
+# NEW FOR RUN3    PixelChargeLUTCalibCondAlgCfg/
   )
 
   from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
@@ -340,7 +341,7 @@ def pixelCondCfg(flags):
   # deadmap
   acc.merge(PixelDCSCondStateAlgCfg(flags))
   acc.merge(PixelDCSCondStatusAlgCfg(flags))
-# NEW FOR RUN3    acc.merge(PixelDeadMapCondAlgCfg(flags))
+  acc.merge(PixelDeadMapCondAlgCfg(flags))
   # offline calibration
   acc.merge(PixelDistortionAlgCfg(flags))
   acc.merge(PixelOfflineCalibCondAlgCfg(flags))
@@ -633,7 +634,6 @@ def ftfCfg(flags, roisKey, signature, signatureName):
                                          SeedRadBinWidth          =  flags.InDet.Tracking.seedRadBinWidth,
                                          TrackInitialD0Max        = 1000. if flags.InDet.Tracking.extension == 'cosmics' else 20.0,
                                          TracksName               = __trackCollName(signatureName),
-                                         OutputCollectionSuffix   = signature,
                                          TripletDoPSS             = False,
                                          Triplet_D0Max            = flags.InDet.Tracking.d0SeedMax,
                                          Triplet_D0_PPS_Max       = flags.InDet.Tracking.d0SeedPPSMax,
@@ -660,7 +660,6 @@ def trackConverterCfg(flags, signature, signatureName):
   acc.merge( TrackSummaryToolCfg(flags, name="InDetTrigFastTrackSummaryTool") )
 
   creatorTool = CompFactory.Trk.TrackParticleCreatorTool( name = "InDetTrigParticleCreatorToolFTF",
-                                                          Extrapolator = acc.getPublicTool( "InDetTrigExtrapolator" ),
                                                           TrackSummaryTool      = acc.getPublicTool( "InDetTrigFastTrackSummaryTool" ),
                                                           KeepParameters        = True,
                                                           ComputeAdditionalInfo = True,
@@ -675,10 +674,15 @@ def trackConverterCfg(flags, signature, signatureName):
 
   return acc
 
-def trigInDetCfg( inflags, roisKey="EMRoIs", signatureName='' ):
+def trigInDetFastTrackingCfg( inflags, roisKey="EMRoIs", signatureName='' ):
 
   # redirect InDet.Tracking flags to point to a specific trigger setting
-  flags = inflags.cloneAndReplace("InDet.Tracking", "Trigger.InDetTracking."+signatureName)
+  if 'Muon' in signatureName:
+    signatureFlags='Muon'
+  else:
+    signatureFlags = signatureName
+
+  flags = inflags.cloneAndReplace("InDet.Tracking", "Trigger.InDetTracking."+signatureFlags)
 
   #If signature specified add suffix to the name of each algorithms
   signature =  ("_" + signatureName if signatureName else '').lower()
@@ -690,7 +694,7 @@ def trigInDetCfg( inflags, roisKey="EMRoIs", signatureName='' ):
   acc.merge(beamposCondCfg(flags))
 
 
-  verifier = CompFactory.AthViews.ViewDataVerifier( name = 'VDVInDet'+signature,
+  verifier = CompFactory.AthViews.ViewDataVerifier( name = 'VDVInDetFTF'+signature,
                                                     DataObjects= [('xAOD::EventInfo', 'StoreGateSvc+EventInfo'),
                                                                   ('InDet::PixelClusterContainerCache', 'PixelTrigClustersCache'),
                                                                   ('PixelRDO_Cache', 'PixRDOCache'),
@@ -733,8 +737,7 @@ if __name__ == "__main__":
     # output can be used by experts to check actual configuration (e.g. here we configure to run on RAW and it should be reflected in settings)
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     acc = MainServicesCfg( ConfigFlags )
-    acc.merge( trigInDetCfg( ConfigFlags, roisKey="ElectronRoIs", signatureName="Electron" ) )
+    acc.merge( trigInDetFastTrackingCfg( ConfigFlags, roisKey="ElectronRoIs", signatureName="Electron" ) )
 
     acc.printConfig(withDetails=True, summariseProps=True)
     acc.store( open("test.pkl", "wb") )
-    print('All ok')

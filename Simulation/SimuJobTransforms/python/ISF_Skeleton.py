@@ -2,49 +2,13 @@
 
 import sys
 from PyJobTransforms.CommonRunArgsToFlags import commonRunArgsToFlags
-from OverlayConfiguration.OverlayHelpers import accFromFragment
-
-# based on https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/Control/AthenaServices/python/Configurables.py#0247
-def EvtIdModifierSvc_add_modifier(svc,
-        run_nbr=None, evt_nbr=None, time_stamp=None, lbk_nbr=None,
-        nevts=1):
-    if run_nbr is None:
-        modify_run_nbr = 0
-        run_nbr = 0
-    else:
-        modify_run_nbr = 1
-
-
-    if evt_nbr is None:
-        modify_evt_nbr = 0
-        evt_nbr = 0
-    else:
-        modify_evt_nbr = 1
-
-    if time_stamp is None:
-        modify_time_stamp = 0
-        time_stamp = 0
-    else:
-        modify_time_stamp = 1
-
-    if lbk_nbr is None:
-        modify_lbk_nbr = 0
-        lbk_nbr = 0
-    else:
-        modify_lbk_nbr = 1
-
-    mod_bit = int(0b0000
-                | (modify_run_nbr << 0)
-                | (modify_evt_nbr << 1)
-                | (modify_time_stamp << 2)
-                | (modify_lbk_nbr << 3))
-
-    svc.Modifiers += [run_nbr, evt_nbr, time_stamp, lbk_nbr,
-                    nevts, mod_bit]
+from PyJobTransforms.TransformUtils import processPreExec, processPreInclude, processPostExec, processPostInclude
 
 def defaultSimulationFlags(ConfigFlags):
     """Fill default simulation flags"""
     # TODO: how to autoconfigure those
+    from AthenaConfiguration.Enums import ProductionStep
+    ConfigFlags.Common.ProductionStep = ProductionStep.Simulation
     ConfigFlags.Sim.CalibrationRun = "Off" #"DeadLAr" 
     ConfigFlags.Sim.RecordStepInfo = False
     ConfigFlags.Sim.CavernBG = "Signal"
@@ -137,6 +101,8 @@ def fromRunArgs(runArgs):
 
     if hasattr(runArgs, 'DataRunNumber'):
         ConfigFlags.Input.RunNumber = [runArgs.DataRunNumber] # is it updating?
+        ConfigFlags.Input.OverrideRunNumber = True
+        ConfigFlags.Input.LumiBlockNumber = [1] # dummy value
 
     if hasattr(runArgs, 'outputHITSFile'):
         ConfigFlags.Sim.PhysicsList = runArgs.physicsList
@@ -158,16 +124,12 @@ def fromRunArgs(runArgs):
     # Setup common simulation flags
     defaultSimulationFlags(ConfigFlags)
 
-    # Pre-exec
-    if hasattr(runArgs, 'preExec') and runArgs.preExec != 'NONE' and runArgs.preExec:
-        for cmd in runArgs.preExec:
-            exec(cmd)
-
     # Pre-include
-    if hasattr(runArgs, 'preInclude') and runArgs.preInclude:
-        for fragment in runArgs.preInclude:
-            accFromFragment(fragment, ConfigFlags)
-    
+    processPreInclude(runArgs, ConfigFlags)
+
+    # Pre-exec
+    processPreExec(runArgs, ConfigFlags)
+
     # Lock flags
     ConfigFlags.lock()
 
@@ -180,26 +142,6 @@ def fromRunArgs(runArgs):
     from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
     cfg.merge(PoolReadCfg(ConfigFlags))
     cfg.merge(PoolWriteCfg(ConfigFlags))
-    # todo its own cfg ...
-    #todo check evtMax=-1 works with this method
-    myRunNumber = 284500
-    myFirstLB = 1
-    myInitialTimeStamp = 1446539185
-    from AthenaConfiguration.ComponentFactory import CompFactory
-    evtIdModifierSvc = CompFactory.EvtIdModifierSvc(EvtStoreName="StoreGateSvc")
-    iovDbMetaDataTool = CompFactory.IOVDbMetaDataTool()
-    iovDbMetaDataTool.MinMaxRunNumbers = [myRunNumber, 2147483647]
-    cfg.addPublicTool(iovDbMetaDataTool)
-    EvtIdModifierSvc_add_modifier(evtIdModifierSvc, run_nbr=myRunNumber, lbk_nbr=myFirstLB, time_stamp=myInitialTimeStamp, nevts=evtMax)
-    eventSelector = cfg.getService("EventSelector")
-    eventSelector.OverrideRunNumber = True
-    eventSelector.RunNumber = myRunNumber
-    eventSelector.FirstLB = myFirstLB
-    eventSelector.InitialTimeStamp = myInitialTimeStamp # Necessary to avoid a crash
-    if hasattr(eventSelector, "OverrideRunNumberFromInput"):
-        eventSelector.OverrideRunNumberFromInput = True
-    cfg.addService(evtIdModifierSvc, create=True)
-    # ... up to here?
 
     # add BeamEffectsAlg
     from BeamEffects.BeamEffectsAlgConfig import BeamEffectsAlgCfg
@@ -282,14 +224,11 @@ def fromRunArgs(runArgs):
 
 
     # Post-include
-    if hasattr(runArgs, 'postInclude') and runArgs.postInclude:
-        for fragment in runArgs.postInclude:
-            cfg.merge(accFromFragment(fragment, ConfigFlags))
+    processPostInclude(runArgs, ConfigFlags, cfg)
 
     # Post-exec
-    if hasattr(runArgs, 'postExec') and runArgs.postExec != 'NONE' and runArgs.postExec:
-        for cmd in runArgs.postExec:
-            exec(cmd)
+    processPostExec(runArgs, ConfigFlags, cfg)
+
 
     import time
     tic = time.time()

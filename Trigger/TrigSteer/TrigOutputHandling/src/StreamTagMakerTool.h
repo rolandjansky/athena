@@ -26,7 +26,7 @@
 class StreamTagMakerTool : public extends<AthAlgTool, HLTResultMTMakerTool> {
 public:
   StreamTagMakerTool(const std::string& type, const std::string& name, const IInterface* parent);
-  virtual ~StreamTagMakerTool() override;
+  virtual ~StreamTagMakerTool() override = default;
 
   virtual StatusCode fill( HLT::HLTResultMT& resultToFill, const EventContext& ctx ) const override;
 
@@ -35,11 +35,9 @@ public:
   virtual StatusCode finalize() override;
 
   /// Type describing StreamTag information needed by the tool: {name, type, obeysLumiBlock, forceFullEventBuilding}
-  typedef std::tuple<std::string, std::string, bool, bool> StreamTagInfo;
+  using StreamTagInfo = std::tuple<std::string, std::string, bool, bool>;
 
 private:
-  std::string formatStreamTagInfo (const StreamTagInfo& info) const;
-
   SG::ReadHandleKey<TrigConf::HLTMenu> m_hltMenuKey{"DetectorStore+HLTTriggerMenu"};
 
   SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_finalChainDecisions {this, "ChainDecisions", "HLTNav_Summary",

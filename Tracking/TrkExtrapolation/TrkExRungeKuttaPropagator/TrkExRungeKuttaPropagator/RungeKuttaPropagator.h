@@ -141,7 +141,7 @@ namespace Trk {
         /** AlgTool finalize method */
         virtual StatusCode finalize() override final;
 
-        /** Main propagation mehtod NeutralParameters */
+        /** Main propagation method NeutralParameters */
 
         virtual NeutralParameters* propagate
         (const NeutralParameters        &,
@@ -150,9 +150,9 @@ namespace Trk {
          const BoundaryCheck            &,
          bool                            ) const override final;
 
-        /** Main propagation mehtod without transport jacobian production*/
+        /** Main propagation method without transport jacobian production*/
 
-        virtual  TrackParameters*           propagate
+        virtual  std::unique_ptr<TrackParameters>           propagate
         (const EventContext&          ctx,
          const TrackParameters          &,
          const Surface                  &,
@@ -163,9 +163,9 @@ namespace Trk {
          bool                            ,
          const TrackingVolume*           ) const override final;
 
-        /** Main propagation mehtod with transport jacobian production*/
+        /** Main propagation method with transport jacobian production*/
 
-        virtual  TrackParameters*           propagate
+        virtual  std::unique_ptr<TrackParameters>           propagate
         (const EventContext&          ctx,
          const TrackParameters          &,
          const Surface                  &,
@@ -180,7 +180,7 @@ namespace Trk {
 
         /** The propagation method finds the closest surface */
 
-        virtual TrackParameters*           propagate
+        virtual std::unique_ptr<TrackParameters>           propagate
         (const EventContext&          ctx,
          const TrackParameters         &,
          std::vector<DestSurf>         &,
@@ -193,9 +193,9 @@ namespace Trk {
          bool                           ,
          const TrackingVolume*          ) const override final;
 
-        /** Main propagation mehtod for parameters only without transport jacobian productio*/
+        /** Main propagation method for parameters only without transport jacobian productio*/
 
-        virtual  TrackParameters*           propagateParameters
+        virtual  std::unique_ptr<TrackParameters>           propagateParameters
         (const EventContext&          ctx,
          const TrackParameters          &,
          const Surface                  &,
@@ -207,9 +207,9 @@ namespace Trk {
          const TrackingVolume*          ) const override final;
 
 
-        /** Main propagation mehtod for parameters only with transport jacobian productio*/
+        /** Main propagation method for parameters only with transport jacobian productio*/
 
-        virtual  TrackParameters*           propagateParameters
+        virtual  std::unique_ptr<TrackParameters>           propagateParameters
         (const EventContext&          ctx,
          const TrackParameters          &,
          const Surface                  &,
@@ -258,7 +258,7 @@ namespace Trk {
          const MagneticFieldProperties  &, 
          ParticleHypothesis particle=pion) const  override final;
 
-        /** Main propagation mehtod with step to surface calculation*/
+        /** Main propagation method with step to surface calculation*/
 
         virtual bool propagate
         (const EventContext&          ctx,
@@ -270,7 +270,7 @@ namespace Trk {
          double                         &,
          ParticleHypothesis particle=pion) const  override final;
 
-        /** Main propagation mehtod for parameters only */
+        /** Main propagation method for parameters only */
 
         virtual bool propagateParameters
         (const EventContext&          ctx,
@@ -281,7 +281,7 @@ namespace Trk {
          const MagneticFieldProperties  &,
          ParticleHypothesis particle=pion) const  override final;
 
-        /** Main propagation mehtod for parameters only with step to surface calculation*/
+        /** Main propagation method for parameters only with step to surface calculation*/
         virtual bool propagateParameters
         (const EventContext&          ctx,
          PatternTrackParameters         &,
@@ -352,7 +352,7 @@ namespace Trk {
  
         /** Internal RungeKutta propagation method for charge track parameters*/   
 
-        TrackParameters*      propagateRungeKutta
+        std::unique_ptr<TrackParameters>      propagateRungeKutta
         (Cache& cache                  ,
          bool                          ,
          const TrackParameters        &,
@@ -414,19 +414,6 @@ namespace Trk {
          double                       *,
          bool                         &) const;
 
-        /** Propagation methods straight line step*/
-
-        double straightLineStep
-        (bool   ,     
-         double ,
-         double*) const;
-
-        /** Test new propagation to cylinder boundary */
-
-        bool newCrossPoint
-        (const CylinderSurface&,
-         const double         *,
-         const double         *) const;
 
         /** Step estimator with directions correction */
 
@@ -441,12 +428,6 @@ namespace Trk {
         double stepReduction(const double*) const;
 
         /** Build new track parameters without propagation */
-
-        TrackParameters*  buildTrackParametersWithoutPropagation
-        (const TrackParameters &,double*) const;
-
-        NeutralParameters*  buildTrackParametersWithoutPropagation
-        (const NeutralParameters&,double*) const;
 
         void globalOneSidePositions
         (Cache& cache                   ,
@@ -465,13 +446,6 @@ namespace Trk {
          const CylinderBounds           &,
          double                          ,
          ParticleHypothesis particle=pion) const;
-
-        Trk::TrackParameters* crossPoint
-        (const TrackParameters    &,
-         std::vector<DestSurf>    &,
-         std::vector<unsigned int>&,
-         double                   *,
-         std::pair<double,int>    &) const;
 
         void getField(
           Cache& cache, 

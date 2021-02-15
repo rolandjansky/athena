@@ -11,6 +11,21 @@ if rec.doMuonCombined() and muonRecFlags.doCalibNtuple():
     from MuonCombinedRecExample import MuonCombinedCalibConfig
 
 #--------------------------------------------------------------------------
+# Do segment truth association
+#--------------------------------------------------------------------------
+if rec.doTruth() and muonCombinedRecFlags.doxAOD():
+    from MuonTruthAlgs.MuonTruthAlgsConf import Muon__MuonSegmentTruthAssociationAlg
+    topSequence += Muon__MuonSegmentTruthAssociationAlg("MuonSegmentTruthAssociationAlg")
+    try:
+        from PyUtils.MetaReaderPeeker import metadata
+        truthStrategy = metadata['TruthStrategy']
+        if truthStrategy in ['MC15', 'MC18', 'MC18LLP']:
+            topSequence.MuonSegmentTruthAssociationAlg.BarcodeOffset = 10000000
+    except:
+        printfunc ("Failed to read /Simulation/Parameters/ metadata")
+        pass
+
+#--------------------------------------------------------------------------
 # Do track truth
 #--------------------------------------------------------------------------
 if rec.doTruth() and muonCombinedRecFlags.doxAOD() and rec.doMuonCombined():
@@ -52,14 +67,6 @@ if rec.doTruth() and muonCombinedRecFlags.doxAOD() and rec.doMuonCombined():
 if muonCombinedRecFlags.doTrackPerformance:
     include("MuonCombinedRecExample/MuonCombinedTrackPerformance_jobOptions.py")
 
-if( muonCombinedRecFlags.createTagAndProbeInput() ):
-    from MuonCombinedRecExample.TagAndProbeInputSetup import setupTagAndProbeInput
-    setupTagAndProbeInput()
-
-if( muonCombinedRecFlags.createScaleCalibrationInput() ):
-    from MuonCombinedRecExample.ScaleCalibrationInputSetup import setupScaleCalibrationInput
-    setupScaleCalibrationInput()
-    
 if rec.doMuonCombined() and rec.doJetMissingETTag() and muonCombinedRecFlags.doxAOD():
     muonTCLinkAlg = CfgMgr.ClusterMatching__CaloClusterMatchLinkAlg("MuonTCLinks",ClustersToDecorate="MuonClusterCollection")
     topSequence += muonTCLinkAlg

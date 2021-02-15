@@ -1,9 +1,8 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
    */
 
 #include <algorithm>
-#include "Gaudi/Property.h"
 #include "TrigJetTLAHypoAlgMT.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
@@ -81,7 +80,7 @@ StatusCode TrigJetTLAHypoAlgMT::execute( const EventContext& context ) const {
 
         //prepare the necessary information to the HypoTool:
         // - the new decision
-        Decision* newDecision = TrigCompositeUtils::newDecisionIn(outputDecisions, previousDecision, "", context);
+        Decision* newDecision = TrigCompositeUtils::newDecisionIn(outputDecisions, previousDecision, hypoAlgNodeName(), context);
         // - the ElementLink to the TLA-jet
         ElementLink<xAOD::JetContainer> jetLink = ElementLink<xAOD::JetContainer>(*TLAjets, TLAjet->index());
         ATH_CHECK( jetLink.isValid() );   

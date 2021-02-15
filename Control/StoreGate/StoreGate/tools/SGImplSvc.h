@@ -37,7 +37,6 @@
 #include <thread>
 
 #include "AthenaKernel/StoreID.h"
-#include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/IProxyProviderSvc.h"
 #include "AthenaKernel/IHiveStoreMgr.h"
 #include "AthenaKernel/IOVSvcDefs.h"
@@ -59,7 +58,7 @@
 #include "AthAllocators/Arena.h"
 
 #include "GaudiKernel/IIncidentSvc.h"
-#include "GaudiKernel/ServiceHandle.h"
+
 //forward declarations
 namespace SG {
   class DataProxy;

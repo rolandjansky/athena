@@ -59,7 +59,7 @@ StatusCode L1TestDecoder::execute (const EventContext& ctx) const {
       ATH_MSG_DEBUG("Decoded EM RoI at position " << *roiDesc );
       emRoIs->push_back( roiDesc );
 
-      auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput, "L1" );
+      auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput, l1DecoderNodeName() );
       decision->setObjectLink( initialRoIString(), ElementLink<TrigRoiDescriptorCollection>( m_trigEMRoIsKey.key(), emRoIs->size()-1 ) );
       addDecisionID( HLT::Identifier( "HLT_EMTestChain" ), decision );      
     }

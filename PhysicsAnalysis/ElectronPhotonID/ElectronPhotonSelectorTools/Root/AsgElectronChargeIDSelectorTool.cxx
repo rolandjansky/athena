@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -66,7 +66,7 @@ AsgElectronChargeIDSelectorTool::AsgElectronChargeIDSelectorTool(const std::stri
 //=============================================================================
 AsgElectronChargeIDSelectorTool::~AsgElectronChargeIDSelectorTool()
 {
-  for (auto bdt: m_v_bdts) if (bdt) delete bdt;
+  for (auto *bdt: m_v_bdts) if (bdt) delete bdt;
 }
 
 
@@ -93,7 +93,7 @@ StatusCode AsgElectronChargeIDSelectorTool::initialize()
   if (!m_trainingFile.empty()) {  //If the property was set by the user, take that.
         
     TrainingFile= PathResolverFindCalibFile( m_trainingFile );
-    if(TrainingFile==""){//Error if it cant find the conf
+    if(TrainingFile.empty()){//Error if it cant find the conf
       ATH_MSG_ERROR("Could not locate " << m_trainingFile );
       return StatusCode::FAILURE;
     }
@@ -120,9 +120,9 @@ StatusCode AsgElectronChargeIDSelectorTool::initialize()
       TDirectory *td = (TDirectoryFile*)key->ReadObj();
       std::string dirName =td->GetName();
       if (dirName.find(m_pid_name)!=std::string::npos) {
-        std::string foldconf=dirName.substr(dirName.rfind("_")+1,-1);
+        std::string foldconf=dirName.substr(dirName.rfind('_')+1,-1);
         // std::string f_index=foldconf.substr(0,foldconf.find("o"));
-        std::string s_nfold=foldconf.substr(foldconf.find("o")+1,-1);
+        std::string s_nfold=foldconf.substr(foldconf.find('o')+1,-1);
         nfold=atoi(s_nfold.data());
         break;
       }
@@ -134,7 +134,7 @@ StatusCode AsgElectronChargeIDSelectorTool::initialize()
   TObjArray* toa= (TObjArray*) bdtfile->Get("/ECIDS_"+m_pid_name+TString::Format("_0o%d",nfold)+"/variables");
   std::string commaSepVars="";
   if (toa) {
-    TObjString *tos= 0;
+    TObjString *tos= nullptr;
     if (toa->GetEntries()>0) tos= (TObjString*) toa->At(0);
     commaSepVars=tos->GetString().Data();
     ATH_MSG_INFO("Variables for ECIDS= "<<commaSepVars);
@@ -143,9 +143,9 @@ StatusCode AsgElectronChargeIDSelectorTool::initialize()
     
   //prepare m_inputVars
   m_inputVars.clear();
-  while (commaSepVars.find(",")!=std::string::npos) {
-    m_inputVars.push_back(commaSepVars.substr(0,commaSepVars.find(",")));
-    commaSepVars.erase(0,commaSepVars.find(",")+1);
+  while (commaSepVars.find(',')!=std::string::npos) {
+    m_inputVars.push_back(commaSepVars.substr(0,commaSepVars.find(',')));
+    commaSepVars.erase(0,commaSepVars.find(',')+1);
   }
   m_inputVars.push_back(commaSepVars.substr(0,-1));//push back the last element
 
@@ -376,7 +376,7 @@ double AsgElectronChargeIDSelectorTool::calculate( const EventContext& ctx, cons
   unsigned bdt_index=eventInfo->eventNumber()%unsigned(m_v_bdts.size());
     
   std::vector<float> v_inputs;
-  for (auto var: m_inputVars) {
+  for (const auto& var: m_inputVars) {
     if (var == "pt"                     ) v_inputs.push_back(et                	     );
     if (var == "eta"                    ) v_inputs.push_back(eta               	     );
     if (var == "abs_eta"                ) v_inputs.push_back(fabs(eta)         	     );

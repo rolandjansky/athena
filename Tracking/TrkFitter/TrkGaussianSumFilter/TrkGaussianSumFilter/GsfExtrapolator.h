@@ -208,16 +208,17 @@ private:
 
   /** Method to initialise navigation parameters including starting state, layer
    * and volume, and destination volume */
-  void initialiseNavigation(const EventContext& ctx,
-                            Cache& cache,
-                            const IPropagator& propagator,
-                            const MultiComponentState& initialState,
-                            const Surface& surface,
-                            const Layer*& associatedLayer,
-                            const TrackingVolume*& currentVolume,
-                            const TrackingVolume*& destinationVolume,
-                            const TrackParameters*& referenceParameters,
-                            PropDirection direction) const;
+  void initialiseNavigation(
+    const EventContext& ctx,
+    Cache& cache,
+    const IPropagator& propagator,
+    const MultiComponentState& initialState,
+    const Surface& surface,
+    const Layer*& associatedLayer,
+    const TrackingVolume*& currentVolume,
+    const TrackingVolume*& destinationVolume,
+    std::unique_ptr<TrackParameters>& referenceParameters,
+    PropDirection direction) const;
 
   bool radialDirectionCheck(const EventContext& ctx,
                             const IPropagator& prop,
@@ -251,13 +252,6 @@ private:
     const Trk::TrackParameters* nextPar,
     PropDirection direction = anyDirection,
     ParticleHypothesis particleHypothesis = nonInteracting) const;
-
-  std::string layerRZoutput(const Trk::Layer* lay) const;
-
-  std::string positionOutput(const Amg::Vector3D& pos) const;
-
-  int radialDirection(const Trk::MultiComponentState& pars,
-                      PropDirection dir) const;
 
   ToolHandleArray<IPropagator> m_propagators{ this, "Propagators", {}, "" };
   ToolHandle<INavigator> m_navigator{ this,

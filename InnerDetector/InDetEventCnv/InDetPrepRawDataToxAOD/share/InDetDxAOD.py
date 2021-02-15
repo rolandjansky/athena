@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #################
 ### Steering options
@@ -104,10 +104,10 @@ if dumpTrtInfo:
 
 
 #Setup charge->ToT back-conversion to restore ToT info as well
-if dumpPixInfo: 
-    from PixelCalibAlgs.PixelCalibAlgsConf import PixelChargeToTConversion 
-    PixelChargeToTConversionSetter = PixelChargeToTConversion(name = "PixelChargeToTConversionSetter") 
-    IDDerivationSequence += PixelChargeToTConversionSetter 
+if dumpPixInfo:
+    from PixelCalibAlgs.PixelCalibAlgsConf import PixelChargeToTConversion
+    PixelChargeToTConversionSetter = PixelChargeToTConversion(name = "PixelChargeToTConversionSetter")
+    IDDerivationSequence += PixelChargeToTConversionSetter
     if (printIdTrkDxAODConf):
         print(PixelChargeToTConversionSetter)
         print(PixelChargeToTConversionSetter.properties())
@@ -124,7 +124,7 @@ if makeSplitTracks:
     splittertoolcomb= InDet__InDetTrackSplitterTool(name="SplitterTool",
                                                     TrackFitter=ToolSvc.InDetTrackFitter,
                                                     OutputUpperTracksName = "TracksUpperSplit",
-                                                    OutputLowerTracksName = "TracksLowerSplit") 
+                                                    OutputLowerTracksName = "TracksLowerSplit")
     ToolSvc += splittertoolcomb
 
     from InDetTrackValidation.InDetTrackValidationConf import InDet__InDetSplittedTracksCreator
@@ -139,8 +139,7 @@ if makeSplitTracks:
 
     # Create xAOD::TrackParticles out of them
     from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
-    InDetxAODSplitParticleCreatorTool = Trk__TrackParticleCreatorTool(name = "InDetSplitxAODParticleCreatorTool", 
-                                                                      Extrapolator            = InDetExtrapolator,
+    InDetxAODSplitParticleCreatorTool = Trk__TrackParticleCreatorTool(name = "InDetSplitxAODParticleCreatorTool",
                                                                       TrackSummaryTool        = InDetTrackSummaryToolSharedHits,
                                                                       KeepParameters          = True)
     ToolSvc += InDetxAODSplitParticleCreatorTool
@@ -198,7 +197,7 @@ if TrtZSel or TrtJSel:
             'HLT_e140_lhloose_nod0',
             'HLT_e300_etcut']
         expression_trigE = ' || '.join(triggersE)
-        
+
         triggersM = [
             # Single muon
             'HLT_mu26_imedium',
@@ -206,14 +205,14 @@ if TrtZSel or TrtJSel:
             'HLT_mu28_imedium',
             'HLT_mu28_ivarmedium',
             'HLT_mu40',
-            'HLT_mu50' 
+            'HLT_mu50'
             ]
         expression_trigM = ' || '.join(triggersM)
 
         # Zee TnP
         requirement_Zee_tag = '(Electrons.Tight || Electrons.LHTight) && Electrons.pt > 24.5*GeV'
         requirement_Zee_probe = 'Electrons.pt > 6.5*GeV'
-        
+
         ZeeMassTool = DerivationFramework__InvariantMassTool( name = "ZeeMassTool",
                                                               ObjectRequirements = requirement_Zee_tag,
                                                               SecondObjectRequirements = requirement_Zee_probe,
@@ -222,14 +221,14 @@ if TrtZSel or TrtJSel:
                                                               SecondMassHypothesis = 0.511*MeV,
                                                               ContainerName = "Electrons",
                                                               SecondContainerName = "Electrons")
-        
+
         ToolSvc+=ZeeMassTool
         expression_Zee = 'count(Zee_DiElectronMass > 75.0*GeV && Zee_DiElectronMass < 105.0*GeV)>=1'
-        
+
         # Zmumu TnP
         requirement_Zmm_tag = 'Muons.ptcone40/Muons.pt < 0.3 && Muons.pt > 10.*GeV'
         requirement_Zmm_probe = 'Muons.ptcone40/Muons.pt < 0.3 && Muons.pt > 4.5*GeV'
-        
+
         ZmmMassTool = DerivationFramework__InvariantMassTool( name = "ZmmMassTool",
                                                               ObjectRequirements = requirement_Zmm_tag,
                                                               SecondObjectRequirements = requirement_Zmm_probe,
@@ -242,15 +241,15 @@ if TrtZSel or TrtJSel:
         expression_Zmm = 'count(Zmm_DiMuonMass > 75.0*GeV && Zmm_DiMuonMass < 105.0*GeV)>=1'
 
         expression = '( ' + expression_Zee + ' && ( ' + expression_trigE + ' ) ) || ( ' + expression_Zmm + ' && ( ' + expression_trigM + ' ) )'
-        
+
         # Event selection tool
         from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
         Z_SkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "Z_SkimmingTool",
                                                                      expression = expression)
-        
+
         ToolSvc += Z_SkimmingTool
         print(Z_SkimmingTool)
-        
+
     if TrtJSel:
         triggersE = [
             # Di-electron
@@ -262,7 +261,7 @@ if TrtZSel or TrtJSel:
             'HLT_e14_lhtight_nod0_e4_etcut_Jpsiee',
             ]
         expression_trigE = ' || '.join(triggersE)
-        
+
         triggersM = [
             # Di-muon
             'HLT_2mu4',
@@ -282,7 +281,7 @@ if TrtZSel or TrtJSel:
         # JPSIee TnP
         requirement_JPSIee_tag = '(Electrons.Tight || Electrons.LHTight) && Electrons.pt > 4.5*GeV'
         requirement_JPSIee_probe = 'Electrons.pt > 4.5*GeV'
-        
+
         JPSIeeMassTool = DerivationFramework__InvariantMassTool( name = "JPSIeeMassTool",
                                                                  ObjectRequirements = requirement_JPSIee_tag,
                                                                  SecondObjectRequirements = requirement_JPSIee_probe,
@@ -291,14 +290,14 @@ if TrtZSel or TrtJSel:
                                                                  SecondMassHypothesis = 0.511*MeV,
                                                                  ContainerName = "Electrons",
                                                                  SecondContainerName = "Electrons")
-        
+
         ToolSvc+=JPSIeeMassTool
         expression_JPSIee = '(count(JPSIee_DiElectronMass > 2.0*GeV && JPSIee_DiElectronMass < 4.0*GeV)>=1)'
-        
+
         # JPSImumu TnP
         requirement_JPSImm_tag = '(Muons.ptcone40/Muons.pt < 0.3 && Muons.pt > 4.5*GeV)'
         requirement_JPSImm_probe = '(Muons.ptcone40/Muons.pt < 0.3 && Muons.pt > 4.5*GeV)'
-        
+
         JPSImmMassTool = DerivationFramework__InvariantMassTool( name = "JPSImmMassTool",
                                                                  ObjectRequirements = requirement_JPSImm_tag,
                                                                  SecondObjectRequirements = requirement_JPSImm_probe,
@@ -311,8 +310,8 @@ if TrtZSel or TrtJSel:
         expression_JPSImm = '(count(JPSImm_DiMuonMass > 2.0*GeV && JPSImm_DiMuonMass < 4.0*GeV)>=1)'
 
         expression = '( ' + expression_JPSIee + ' && ( ' + expression_trigE + ' ) ) || ( ' + expression_JPSImm + ' && ( ' + expression_trigM + ' ) )'
-        
-        
+
+
 # Event selection tool
         from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
         JPSI_SkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "JPSI_SkimmingTool",
@@ -322,12 +321,12 @@ if TrtZSel or TrtJSel:
         print(JPSI_SkimmingTool)
 
 
-if skimmingExpression: 
+if skimmingExpression:
     from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
     stringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "stringSkimmingTool",
                                                                      expression = skimmingExpression)
-    
-    ToolSvc += stringSkimmingTool 
+
+    ToolSvc += stringSkimmingTool
 
 
 DRAW_ZMUMU_SkimmingTool=None
@@ -485,7 +484,7 @@ svcMgr.DecisionSvc.CalcStats = True
 from InDetRecExample import TrackingCommon
 # Add the TSOS augmentation tool to the derivation framework
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackStateOnSurfaceDecorator
-DFTSOS = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFTrackStateOnSurfaceDecorator",
+DFTSOS = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFTrackStateOnSurfaceDecorator_InDetDxAOD",
                                                           ContainerName = "InDetTrackParticles",
                                                           DecorationPrefix = prefixName,
                                                           StoreTRT   = dumpTrtInfo,
@@ -632,16 +631,16 @@ IDTRKThinningTool = DerivationFramework__TrackParticleThinning(name = "IDTRKThin
 ToolSvc += IDTRKThinningTool
 thinningTools.append(IDTRKThinningTool)
 
-if pixelClusterThinningExpression: 
+if pixelClusterThinningExpression:
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackMeasurementThinning
-    trackMeasurementThinningTool = DerivationFramework__TrackMeasurementThinning( 
+    trackMeasurementThinningTool = DerivationFramework__TrackMeasurementThinning(
         name                          = "TrackMeasurementThinningTool",
         ThinningService               = "IDTRKThinningSvc",
         SelectionString               = pixelClusterThinningExpression,
         TrackMeasurementValidationKey = "PixelClusters",
         ApplyAnd                      = False)
 
-    ToolSvc += trackMeasurementThinningTool 
+    ToolSvc += trackMeasurementThinningTool
     thinningTools.append(trackMeasurementThinningTool)
 
 # Add decoration with truth parameters if running on simulation
@@ -671,7 +670,7 @@ IDDerivationSequence += CfgMgr.DerivationFramework__DerivationKernel("DFTSOS_KER
                                                                        ThinningTools = thinningTools,
                                                                        OutputLevel = INFO)
 
-topSequence += IDDerivationSequence 
+topSequence += IDDerivationSequence
 if (printIdTrkDxAODConf):
     print(IDDerivationSequence )
     print(IDDerivationSequence.properties())
@@ -688,7 +687,7 @@ svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
 
 ## Steer output file
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-from D2PDMaker.D2PDHelpers import buildFileName
+from PrimaryDPDMaker.PrimaryDPDHelpers import buildFileName
 from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
 streamName = primDPD.WriteDAOD_IDTRKVALIDStream.StreamName
 fileName   = buildFileName( primDPD.WriteDAOD_IDTRKVALIDStream )
@@ -808,7 +807,7 @@ if dumpTriggerInfo:
     IDTRKVALIDStream.AddItem("xAOD::TrigNavigationAuxInfo#TrigNavigationAux.")
 
     if dumpTrtInfo and not isIdTrkDxAODSimulation:
-        # strangely these options cause crashes in R21 MC reco:  ATLASRECTS-3861 
+        # strangely these options cause crashes in R21 MC reco:  ATLASRECTS-3861
         from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
         SlimmingHelper = SlimmingHelper("SlimmingHelper")
         SlimmingHelper.AllVariables += ["HLT_xAOD__ElectronContainer_egamma_Electrons","HLT_xAOD__MuonContainer_MuonEFInfo"]

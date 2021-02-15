@@ -16,6 +16,8 @@ using TrigCompositeUtils::newDecisionIn;
 using TrigCompositeUtils::linkToPrevious;
 using TrigCompositeUtils::viewString;
 using TrigCompositeUtils::featureString;
+using TrigCompositeUtils::hypoAlgNodeName;
+
 
 TrigEgammaFastPhotonHypoAlgMT::TrigEgammaFastPhotonHypoAlgMT( const std::string& name, 
 				      ISvcLocator* pSvcLocator ) :
@@ -77,7 +79,7 @@ StatusCode TrigEgammaFastPhotonHypoAlgMT::execute( const EventContext& context )
     ATH_MSG_DEBUG ( "electron handle size: " << photonsHandle->size() << "..." );
 
     for ( auto photonIter = photonsHandle->begin(); photonIter != photonsHandle->end(); ++photonIter, photonCounter++ ) {
-      auto d = newDecisionIn( decisions, name() );
+      auto d = newDecisionIn( decisions, hypoAlgNodeName() );
       d->setObjectLink( featureString(), ViewHelper::makeLink<xAOD::TrigPhotonContainer>( *viewEL, photonsHandle, photonCounter ) );
       
       auto clusterPtr = (*photonIter)->emCluster();

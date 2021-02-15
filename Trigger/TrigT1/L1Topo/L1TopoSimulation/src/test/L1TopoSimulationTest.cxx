@@ -13,6 +13,11 @@
 
 #include "GaudiKernel/ITHistSvc.h"
 
+// Dependencies for new menu format
+#include "TrigConfIO/JsonFileLoader.h"
+#include "TrigConfData/L1Menu.h"
+#include "TrigConfData/L1Threshold.h"
+#include "TrigConfData/L1Connector.h"
 
 using namespace std;
 
@@ -23,6 +28,7 @@ LVL1::L1TopoSimulationTest::L1TopoSimulationTest(const std::string &name, ISvcLo
    m_OfftopoSteering( unique_ptr<TCS::TopoSteering>(new TCS::TopoSteering()) )
 {
    declareProperty( "InputXMLFile", m_OffinputXMLFile, "File name for menu XML");
+   declareProperty( "InputJSONFile", m_OffinputJSONFile, "File name for menu JSON");
    declareProperty( "InputASCIIFile", m_OffinputASCIIFile, "File name for ASCII TOB vector");
    declareProperty( "HistSvc", m_OffhistSvc, "Histogramming service for L1Topo algorithms");
    declareProperty( "MonHistBaseDir", m_OffhistBaseDir = "L1TopoAlgorithms", "Base directory for monitoring histograms will be /EXPERT/<MonHistBaseDir>" );
@@ -43,22 +49,27 @@ LVL1::L1TopoSimulationTest::isClonable() const
 
 StatusCode
 LVL1::L1TopoSimulationTest::initialize() {
-   m_OfftopoSteering->setMsgLevel( TrigConf::MSGTC::Level(m_OfftopoSteeringOutputLevel) );
 
-   if (m_OffinputXMLFile.empty()){
-      ATH_MSG_FATAL("No L1 Topo menu from XML " << m_OffinputXMLFile);
-      return StatusCode::FAILURE;
-   }
-   TXC::L1TopoXMLParser XMLParser;
-   XMLParser.msg().setLevel( TrigConf::MSGTC::Level(m_OfftopoOutputLevel) );
-   XMLParser.readConfiguration(m_OffinputXMLFile);
-   XMLParser.parseConfiguration();
+  m_OfftopoSteering->setMsgLevel( TrigConf::MSGTC::Level(m_OfftopoSteeringOutputLevel) );
 
-   m_OfftopoSteering->setupFromConfiguration(XMLParser.takeMenu());
-   m_OfftopoSteering->setAlgMsgLevel( TrigConf::MSGTC::Level(m_OfftopoOutputLevel) );
+  ATH_MSG_INFO("initialize");
+
+  if (m_OffinputXMLFile.empty() || m_OffinputJSONFile.empty()){
+    ATH_MSG_FATAL("No L1 Topo menu from JSON " << m_OffinputJSONFile);
+    return StatusCode::FAILURE;
+  }
+
+  TrigConf::L1Menu l1menu;
+  TrigConf::JsonFileLoader fileLoader;
+  fileLoader.loadFile( m_OffinputJSONFile, l1menu);
+  m_OfftopoSteering->setupFromConfiguration(l1menu);
+    
+
+  // ----------------------------------------------------
+  m_OfftopoSteering->setAlgMsgLevel( TrigConf::MSGTC::Level(m_OfftopoOutputLevel) );
 
   
-   std::shared_ptr<IL1TopoHistSvc> topoHistSvc = std::shared_ptr<IL1TopoHistSvc>( new AthenaL1TopoHistSvc(m_OffhistSvc) );
+  std::shared_ptr<IL1TopoHistSvc> topoHistSvc = std::shared_ptr<IL1TopoHistSvc>( new AthenaL1TopoHistSvc(m_OffhistSvc) );
    topoHistSvc->setBaseDir("/EXPERT/" + m_OffhistBaseDir.value());
   
    
@@ -88,14 +99,24 @@ LVL1::L1TopoSimulationTest::initialize() {
 StatusCode
 LVL1::L1TopoSimulationTest::execute() {
 
+  cout << "Reseting TopoSteering" << endl;
+
    // reset input and internal state
    m_OfftopoSteering->reset();
+
+   cout << "Getting next event from dump txt" << endl;
 
    // Obtain next events in the dump txt
    m_Offreader.getNextEvent();
 
+   cout << "Executing even in TopoSteering" << endl;
+
    // execute the toposteering
    m_OfftopoSteering->executeEvent();
+
+   // Printout the decision bits
+   cout << "Printing out decisions" << endl;
+   cout << m_OfftopoSteering->simulationResult().globalDecision();
 
    return StatusCode::SUCCESS;
 }

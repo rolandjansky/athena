@@ -1,21 +1,18 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGTAUHYPO_ITrigTauGenericHypoTool_H
-#define TRIGTAUHYPO_ITrigTauGenericHypoTool_H 1
+#define TRIGTAUHYPO_ITrigTauGenericHypoTool_H
 
 #include "GaudiKernel/IAlgTool.h"
-
-
-
-
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include "xAODTau/TauJetContainer.h"
 
 /**
- * @class Base for tools dooing L2 Calo Hypo selection
- * @brief 
+ * @brief Base for tools doing tau hypo selection
  **/
-
 class ITrigTauGenericHypoTool
   : virtual public ::IAlgTool
 { 
@@ -34,9 +31,9 @@ class ITrigTauGenericHypoTool
 			   TrigCompositeUtils::decisionIDs( previousDecision ).end() )
     {}
     
-    TrigCompositeUtils::Decision* decision;
-    const TrigRoiDescriptor* roi;
-    const xAOD::TauJetContainer* taucontainer;
+    TrigCompositeUtils::Decision* decision{nullptr};
+    const TrigRoiDescriptor* roi{nullptr};
+    const xAOD::TauJetContainer* taucontainer{nullptr};
     const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
   };
   
@@ -47,7 +44,7 @@ class ITrigTauGenericHypoTool
    * There will be many tools called often to perform this quick operation and we do not want to pay for polymorphism which we do not need to use.
    * Will actually see when N obj hypos will enter the scene
    **/
-  virtual StatusCode decide( std::vector<ClusterInfo>& input )  const = 0;
+  virtual StatusCode decide( std::vector<ClusterInfo>& input ) const = 0;
 
   /**
    * @brief Makes a decision for a single object
@@ -55,10 +52,7 @@ class ITrigTauGenericHypoTool
    **/ 
   virtual bool decide( const ClusterInfo& i ) const = 0;
 
- protected:
-
-
-}; 
+};
 
 
 #endif //> !TRIGTAUHYPO_ITrigTauGenericHypoTool_H

@@ -43,6 +43,7 @@ namespace LVL1 {
     // make algorithm is clonable
     virtual bool isClonable() const override;
 
+
   private:
 
     TCS::TopoASCIIReader m_Offreader;
@@ -55,6 +56,7 @@ namespace LVL1 {
     StringProperty  m_OffhistBaseDir; //! sets base dir for monitoring histograms
     StringProperty  m_OffinputASCIIFile { "" }; // input dump file
     StringProperty  m_OffinputXMLFile { "" }; // XML file can be register in case of enabling the ASCII file read for validation purposes
+    StringProperty  m_OffinputJSONFile { "" }; // JSON file for menu
 
     std::unique_ptr<TCS::TopoSteering>  m_OfftopoSteering; //!< the topo steering
      

@@ -20,7 +20,7 @@ Sim_tf.py \
 --DataRunNumber '284500' \
 --physicsList 'FTFP_BERT_ATL' \
 --truthStrategy 'MC15aPlus' \
---simulator 'G4FastCaloMT' \
+--simulator 'G4FastCaloMTEnergyOrdered' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
 --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
 --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' #\
@@ -46,7 +46,7 @@ then
   --DataRunNumber '284500' \
   --physicsList 'FTFP_BERT_ATL' \
   --truthStrategy 'MC15aPlus' \
-  --simulator 'G4FastCaloMT' \
+  --simulator 'G4FastCaloMTEnergyOrdered' \
   --postInclude 'default:PyJobTransforms/UseFrontier.py' \
   --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
   --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' #\
@@ -71,7 +71,7 @@ then
   --DataRunNumber '284500' \
   --physicsList 'FTFP_BERT_ATL' \
   --truthStrategy 'MC15aPlus' \
-  --simulator 'G4FastCalo' \
+  --simulator 'G4FastCaloEnergyOrdered' \
   --postInclude 'default:PyJobTransforms/UseFrontier.py' \
   --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
   --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' #\

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <vector>
@@ -45,11 +45,6 @@ RingerReader::RingerReader(std::string  name):
 
 }
 
-
-// ========================================================================
-
-RingerReader::~RingerReader()
-{;}
 
 // ========================================================================
 template <class T>
@@ -112,7 +107,6 @@ bool RingerReader::retrieve( std::string &calibPath, std::vector< std::shared_pt
         for(unsigned l=0; l<m_nodes->size(); l++) tfnames.push_back("tanh"); // This is default for this version
 	  	  discriminators.push_back( std::make_shared<MultiLayerPerceptron>(*m_nodes,*m_weights,*m_bias,tfnames,m_etBins->at(0),
                                                                           m_etBins->at(1),m_etaBins->at(0),m_etaBins->at(1), -999., 999.) ); 
-        ATH_MSG_INFO( "Added new discriminator into the list." );
 	    }catch(std::bad_alloc &){
         ATH_MSG_ERROR("Can not alloc cutDefs on memory." );
         return false;
@@ -161,7 +155,6 @@ bool RingerReader::retrieve( std::string &calibPath, std::vector< std::shared_pt
       try{
 
         if(m_useConvLayer->at(0)){
-          ATH_MSG_INFO( "Alloc Convolutional Neural Object into the stack..." );
           /* To be include in the future
           discriminators.push_back(new ConvMultiLayerPerceptron( 
                                     // Dense layers
@@ -188,7 +181,6 @@ bool RingerReader::retrieve( std::string &calibPath, std::vector< std::shared_pt
 
         }
         
-        ATH_MSG_INFO( "Added new discriminator into the list." );
 	    }catch(std::bad_alloc &){
         ATH_MSG_ERROR(  "Can not alloc cutDefs on memory." );
         return false;
@@ -302,7 +294,7 @@ bool RingerReader::retrieve( std::string &calibPath, std::vector< std::shared_pt
   
   file.Close(); 
   ATH_MSG_INFO( "Config file version                         : " << version );
-  ATH_MSG_INFO( "Total of cutDefs retrievied is              : " << cutDefs.size() );
+  ATH_MSG_INFO( "Total of cutDefs retrieved is               : " << cutDefs.size() );
   ATH_MSG_INFO( "Using pileup correction                     : " << (m_doPileupCorrection?"Yes":"No") );
   ATH_MSG_INFO( "Using lumi cut                              : " << (m_lumiCut) );
   ATH_MSG_INFO( "RemoveOutputTansigTF?                       : " << (m_removeOutputTansigTF?"Yes":"No") );

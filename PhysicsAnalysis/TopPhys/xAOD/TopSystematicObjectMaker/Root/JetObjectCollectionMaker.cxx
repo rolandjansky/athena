@@ -231,7 +231,7 @@ namespace top {
 
     ///-- Large R jet tagger scale factor uncertainties -- ///
     if (m_config->isMC() && m_config->useLargeRJets()) {
-      for (const std::pair<std::string, std::string>& name : m_config->boostedTaggerSFnames()) {
+      for (const auto& name : m_config->boostedTaggerSFnames()) {
         ToolHandle<ICPJetUncertaintiesTool> tmp_SF_uncert_tool("JetSFuncert_" + name.first);
         if (tmp_SF_uncert_tool.retrieve()) {
           largeRsysts.insert(tmp_SF_uncert_tool->recommendedSystematics());
@@ -249,17 +249,15 @@ namespace top {
     if (m_config->jetSubstructureName() == "SubjetMaker") m_jetSubstructure.reset(new top::SubjetMaker);
 
     ///-- Large R jet truth labeling --///
-//    m_jetTruthLabelingTool = nullptr;
-//    if (m_config->isMC() && m_config->useLargeRJets()) {
-//      m_jetTruthLabelingTool = std::unique_ptr<JetTruthLabelingTool>(new JetTruthLabelingTool("JetTruthLabeling"));
-//      // For DAOD_PHYS we need to pass few more arguments as it uses TRUTH3
-//      if (m_config->getDerivationStream() == "PHYS") {
-//        top::check(m_jetTruthLabelingTool->setProperty("UseTRUTH3", true), "Failed to set UseTRUTH3 for m_jetTruthLabelingTool");
-//        top::check(m_jetTruthLabelingTool->setProperty("TruthBosonContainerName", "TruthBoson"), "Failed to set truth container name for m_jetTruthLabelingTool");
-//        top::check(m_jetTruthLabelingTool->setProperty("TruthTopQuarkContainerName", "TruthTop"), "Failed to set truth container name for m_jetTruthLabelingTool");
-//      }
-//      top::check(m_jetTruthLabelingTool->initialize(), "Failed to initialize m_jetTruthLabelingTool");
-//    }
+    m_jetTruthLabelingTool = nullptr;
+    if (m_config->isMC() && m_config->useLargeRJets()) {
+      m_jetTruthLabelingTool = std::unique_ptr<JetTruthLabelingTool>(new JetTruthLabelingTool("JetTruthLabeling"));
+      // For DAOD_PHYS we need to pass few more arguments as it uses TRUTH3
+      top::check(m_jetTruthLabelingTool->setProperty("UseTRUTH3", true), "Failed to set UseTRUTH3 for m_jetTruthLabelingTool");
+      top::check(m_jetTruthLabelingTool->setProperty("TruthBosonContainerName", "TruthBoson"), "Failed to set truth container name for m_jetTruthLabelingTool");
+      top::check(m_jetTruthLabelingTool->setProperty("TruthTopQuarkContainerName", "TruthTop"), "Failed to set truth container name for m_jetTruthLabelingTool");
+      top::check(m_jetTruthLabelingTool->initialize(), "Failed to initialize m_jetTruthLabelingTool");
+   }
 
     // set the systematics list
     m_config->systematicsJets(specifiedSystematics());
@@ -267,7 +265,7 @@ namespace top {
     m_config->systematicsTrackJets(m_specifiedSystematicsTrackJets);
 
     ///-- DL1 Decoration --///
-    for (const std::pair<std::string, std::string>& algo : m_config->bTagAlgo_selToolNames()) {
+    for (const auto& algo : m_config->bTagAlgo_selToolNames()) {
       m_btagSelToolsDL1Decor[algo.first] = algo.second;
       top::check(m_btagSelToolsDL1Decor[algo.first].retrieve(), "Failed to retrieve " + algo.first + " btagging selector for " + m_config->sgKeyJets() + ". This is required for b-tagging score decorations in EventSaver!");
       if (DLx.count(algo.first) == 0) {
@@ -276,7 +274,7 @@ namespace top {
     }
 
     if (m_config->useTrackJets()) {
-      for (const std::pair<std::string, std::string>& algo : m_config->bTagAlgo_selToolNames_trkJet()) {
+      for (const auto& algo : m_config->bTagAlgo_selToolNames_trkJet()) {
         m_btagSelToolsDL1Decor_trkJet[algo.first] = algo.second;
         top::check(m_btagSelToolsDL1Decor_trkJet[algo.first].retrieve(), "Failed to retrieve " + algo.first + " btagging selector for " + m_config->sgKeyTrackJets() + ". This is required for b-tagging score decorations in EventSaver!");
         if (DLx.count(algo.first) == 0) {
@@ -290,7 +288,7 @@ namespace top {
     if (m_config->useLargeRJets()) {
       for (const std::pair<std::string, std::string>& name : m_config->boostedJetTaggers()) {
         std::string fullName = name.first + "_" + name.second;
-        m_boostedJetTaggers[fullName] = ToolHandle<IJetSelectorTool>(fullName);
+        m_boostedJetTaggers[fullName] = ToolHandle<IJetDecorator>(fullName);
         top::check(m_boostedJetTaggers[fullName].retrieve(), "Failed to retrieve " + fullName);
       }
     }
@@ -383,7 +381,13 @@ namespace top {
 
     ///-- Apply calibration --///
     ///-- Calibrate jet container --///
-    top::check(m_jetCalibrationTool->applyCalibration(*(shallow_xaod_copy.first)), "Failed to applyCalibration");
+    if (isLargeR) {
+      top::check(m_jetCalibrationToolLargeR->applyCalibration(*(shallow_xaod_copy.first)),
+          "Failed to do applyCalibration on large-R jets");
+    } else {
+      top::check(m_jetCalibrationTool->applyCalibration(*(shallow_xaod_copy.first)),
+          "Failed to do applyCalibration on small-R jets");
+    }
 
     ///-- Loop over the xAOD Container --///
     for (const auto jet : *(shallow_xaod_copy.first)) {
@@ -754,22 +758,16 @@ namespace top {
     top::check(evtStore()->retrieve(xaod_calibrated_jets, m_config->sgKeyLargeRJets(
                                       m_nominalSystematicSet.hash())),
                "Failed to retrieve nominal calibrated large-R jets");
-    for (const xAOD::Jet* jet : *xaod_calibrated_jets) {
-      top::check(tagLargeRJet(*jet), "Failed to tag large-R jet");
-    }
+    
+    top::check(tagLargeRJet(*xaod_calibrated_jets), "Failed to tag large-R jet");
     return StatusCode::SUCCESS;
   }
 
-  StatusCode JetObjectCollectionMaker::tagLargeRJet(const xAOD::Jet& jet) {
+  StatusCode JetObjectCollectionMaker::tagLargeRJet(const xAOD::JetContainer& container) {
     //decorate with boosted-tagging flags
     for (const std::pair<std::string, std::string>& name : m_config->boostedJetTaggers()) {
-      std::string fullName = name.first + "_" + name.second;
-//      const Root::TAccept& result = m_boostedJetTaggers[fullName]->tag(jet);
-      // TAccept has bool operator overloaded, but let's be more explicit in the output to char
-//      jet.auxdecor<char>("isTagged_" + fullName) = (result ? 1 : 0);
-      jet.auxdecor<char>("isTagged_" + fullName) = 0;
-      // for users to extract more detailed tagging result information in custom event saver
-      //jet.auxdecor<unsigned long>("TAccept_bitmap_" + fullName) = result.getCutResultBitSet().to_ulong();
+      const std::string fullName = name.first + "_" + name.second;
+      top::check(m_boostedJetTaggers[fullName]->decorate(container), "Failed to decorate jets with booster tagger");
     }
     return StatusCode::SUCCESS;
   }
@@ -804,9 +802,9 @@ namespace top {
                "Unable to retrieve truth jet container " + m_truthJetCollForHS +
                " - this is needed to define HS jets for application of JVT");
 
-    for (const auto& jet : *jets) {
+    for (const auto *jet : *jets) {
       bool ishs = false;
-      for (const auto& tjet : *truthJets) {
+      for (const auto *tjet : *truthJets) {
         if (tjet->p4().DeltaR(jet->p4()) < 0.3 && tjet->pt() > 10e3) ishs = true;
       }
       isHS(*jet) = ishs;
@@ -830,9 +828,9 @@ namespace top {
     const xAOD::Jet* matchedTruthJet = nullptr;
     double deltaR(9999);
     
-    for (const auto& jet : *jets) {
+    for (const auto *jet : *jets) {
       // loop over truth jets
-      for (const auto& iTruthJet : *truthJets) {
+      for (const auto *iTruthJet : *truthJets) {
         TLorentzVector truthJetTLV;
         truthJetTLV.SetPtEtaPhiE(iTruthJet->pt(),iTruthJet->eta(),iTruthJet->phi(),iTruthJet->e());
 
@@ -875,7 +873,7 @@ namespace top {
                  "Failed to retrieve small-R jet collection" + m_config->sgKeyJets());
     }
 
-    for (const auto& jet : *jets) {
+    for (const auto *jet : *jets) {
       // loop over either calo or track jet btag selection tools to calculate the DL1x scores
       const std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool>>& m_btagDecorTools \
         = (trackJets ? m_btagSelToolsDL1Decor_trkJet : m_btagSelToolsDL1Decor);

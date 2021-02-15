@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -23,7 +23,6 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackStateValidationContainer.h"
 #include "xAODTracking/TrackStateValidation.h"
-#include "xAODTracking/TrackStateValidationContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthVertex.h"
@@ -127,14 +126,17 @@ InDetPhysValMonitoringTool::InDetPhysValMonitoringTool(const std::string& type, 
   m_trackSelectionTool("InDet::InDetTrackSelectionTool/TrackSelectionTool"),
   m_vtxValidTool("InDetVertexTruthMatchTool/VtxTruthMatchTool"),
   m_truthSelectionTool("AthTruthSelectionTool", this),
-  m_doTrackInJetPlots(true) {
+  m_doTrackInJetPlots(true),
+  m_fillTruthToRecoNtuple(false) {
   declareProperty("useTrackSelection", m_useTrackSelection);
   declareProperty("TrackSelectionTool", m_trackSelectionTool);
   declareProperty("VertexTruthMatchTool", m_vtxValidTool);
   declareProperty("useVertexTruthMatchTool", m_useVertexTruthMatchTool);
   declareProperty("TruthSelectionTool", m_truthSelectionTool);
+  declareProperty("doTruthOriginPlots", m_doTruthOriginPlots);
   declareProperty("FillTrackInJetPlots", m_doTrackInJetPlots);
   declareProperty("FillTrackInBJetPlots", m_doBjetPlots);
+  declareProperty("FillTruthToRecoNtuple", m_fillTruthToRecoNtuple);
   declareProperty("maxTrkJetDR", m_maxTrkJetDR = 0.4);
   declareProperty("DirName", m_dirName = "SquirrelPlots/");
   declareProperty("SubFolder", m_folder);
@@ -157,11 +159,14 @@ InDetPhysValMonitoringTool::initialize() {
   ATH_CHECK(m_trackSelectionTool.retrieve(EnableTool {m_useTrackSelection} ));
   ATH_CHECK(m_truthSelectionTool.retrieve(EnableTool {not m_truthParticleName.key().empty()} ));
   ATH_CHECK(m_vtxValidTool.retrieve(EnableTool {m_useVertexTruthMatchTool}));
+  ATH_CHECK(m_trackTruthOriginTool.retrieve( EnableTool {m_doTruthOriginPlots} ));
+
   ATH_MSG_DEBUG("m_useVertexTruthMatchTool ====== " <<m_useVertexTruthMatchTool);
   if (m_truthSelectionTool.get() ) {
     m_truthCutFlow = CutFlow(m_truthSelectionTool->nCuts());
   }
   m_monPlots = std::make_unique<InDetRttPlots> (nullptr, m_dirName + m_folder, m_detailLevel); // m_detailLevel := DEBUG, enable expert histograms
+  m_monPlots->SetFillJetPlots(m_doTrackInJetPlots,m_doBjetPlots);
 
   ATH_CHECK( m_trkParticleName.initialize() );
   ATH_CHECK( m_truthParticleName.initialize( (m_pileupSwitch == "HardScatter" or m_pileupSwitch == "All") and not m_truthParticleName.key().empty() ) );
@@ -207,6 +212,11 @@ InDetPhysValMonitoringTool::fillHistograms() {
   SG::ReadHandle<xAOD::EventInfo> pie = SG::ReadHandle<xAOD::EventInfo>(m_eventInfoContainerName);
  
   std::vector<const xAOD::TruthParticle*> truthParticlesVec = getTruthParticles();
+
+  // Mark the truth particles in our vector as "selected". 
+  // This is needed because we later access the truth matching via xAOD decorations, where we do not 'know' about membership to this vector.
+  markSelectedByPileupSwitch(truthParticlesVec);
+
   IDPVM::CachedGetAssocTruth getAsTruth; // only cache one way, track->truth, not truth->tracks 
 
   if (not tracks.isValid()) {
@@ -283,10 +293,14 @@ InDetPhysValMonitoringTool::fillHistograms() {
   //
   //Loop over all reconstructed tracks
   //
+  // If writing ntuples, use a truth-to-track(s) cache to handle truth matching.
+  // Based on the assumption that multiple tracks can (albeit rarely) share the same truth association.
+  std::map<const xAOD::TruthParticle*, std::vector<const xAOD::TrackParticle*>> cacheTruthMatching {};
+  //
   std::vector<const xAOD::TrackParticle*> selectedTracks {};
   selectedTracks.reserve(tracks->size());
   unsigned int nTrackBAT = 0, nTrackSTD = 0, nTrackANT = 0, nTrackTOT = 0;
-  for (const auto& thisTrack: *tracks) {
+  for (const auto thisTrack: *tracks) {
     //FIXME: Why is this w.r.t the primary vertex?
     const asg::AcceptData& accept = m_trackSelectionTool->accept(*thisTrack, primaryvertex);
     if (m_useTrackSelection and not accept) continue;
@@ -320,9 +334,13 @@ InDetPhysValMonitoringTool::fillHistograms() {
         tmp_truth_cutflow.update( passed.missingCuts() );
       }
 
-      if ((prob > m_lowProb) and passed) {
+      if ((not std::isnan(prob)) and (prob > m_lowProb) and passed) {
         nSelectedMatchedTracks++; 
-        m_monPlots->fill(*thisTrack, *associatedTruth); // Make plots requiring matched truth
+        bool truthIsFromB = false;
+        if ( m_doTruthOriginPlots and m_trackTruthOriginTool->isFrom(associatedTruth, 5) ) {
+          truthIsFromB = true;
+        }
+        m_monPlots->fill(*thisTrack, *associatedTruth, truthIsFromB); // Make plots requiring matched truth
       }
     }
 
@@ -333,6 +351,55 @@ InDetPhysValMonitoringTool::fillHistograms() {
     if(!isAssociatedTruth) nMissingAssociatedTruth++;
     m_monPlots->fillFakeRate(*thisTrack, isFake, isAssociatedTruth, puEvents, nVertices);
 
+    if (m_fillTruthToRecoNtuple) {
+      // Decorate track particle with extra flags
+      decorateTrackParticle(*thisTrack, accept);
+
+      if (isAssociatedTruth) {
+        // Decorate truth particle with extra flags
+        decorateTruthParticle(*associatedTruth, m_truthSelectionTool->accept(associatedTruth));
+
+        // Cache truth-to-track associations
+        auto cachedAssoc = cacheTruthMatching.find(associatedTruth);
+        // Check if truth particle already present in cache
+        if (cachedAssoc == cacheTruthMatching.end()) {
+          // If not yet present, add truth-to-track association in cache
+          cacheTruthMatching[associatedTruth] = {thisTrack};
+        }
+        else {
+          // If already present, cache additional track associations (here multiple track particle can be linked to the same truth particle)
+          cachedAssoc->second.push_back(thisTrack);
+        }
+      }
+      else {
+        // Fill track only entries with dummy truth values
+        m_monPlots->fillNtuple(*thisTrack);
+      }
+    }
+  }
+  if (m_fillTruthToRecoNtuple) {
+    // Now fill all truth-to-track associations
+    // Involves some double-filling of truth particles in cases where multiple tracks share the same truth association,
+    // these duplicates can be filtered in the ntuple by selecting only the 'best matched' truth-associated track particles.
+    for (auto& cachedAssoc: cacheTruthMatching) {
+      const xAOD::TruthParticle* thisTruth = cachedAssoc.first;
+
+      // Decorate that this truth particle is being filled to prevent double counting in truth particle loop
+      m_dec_hasTruthFilled(*thisTruth) = true;
+
+      // Sort all associated tracks by truth match probability
+      std::sort(cachedAssoc.second.begin(), cachedAssoc.second.end(), 
+        [](const xAOD::TrackParticle* t1, const xAOD::TrackParticle* t2) { return getMatchingProbability(*t1) > getMatchingProbability(*t2); }
+      );
+
+      // Fill all tracks associated to to this truth particle, also recording 'truth match ranking' as index in probability-sorted vector of matched tracks
+      for (int itrack = 0; itrack < (int) cachedAssoc.second.size(); itrack++) {
+          const xAOD::TrackParticle* thisTrack = cachedAssoc.second[itrack];
+          
+          // Fill track entries with truth association
+          m_monPlots->fillNtuple(*thisTrack, *thisTruth, itrack);
+      }
+    }
   }
   m_monPlots->fill(nTrackANT, nTrackSTD, nTrackBAT, puEvents, nVertices);
   m_monPlots->fill(nTrackTOT, puEvents, nVertices);
@@ -376,6 +443,17 @@ InDetPhysValMonitoringTool::fillHistograms() {
       ATH_MSG_DEBUG("Filling efficiency plots info monitoring plots");
       m_monPlots->fillEfficiency(*thisTruth, *matchedTrack, isEfficient, puEvents, nVertices);
     }
+    
+    if (m_fillTruthToRecoNtuple) {
+      // Skip if already filled in track loop
+      if (hasTruthFilled(*thisTruth)) continue;
+
+      // Decorate truth particle with extra flags
+      decorateTruthParticle(*thisTruth, accept);
+      
+      // Fill truth only entries with dummy track values
+      m_monPlots->fillNtuple(*thisTruth);
+    }
   }
 
   if (nSelectedRecoTracks == nMissingAssociatedTruth) {
@@ -392,7 +470,6 @@ InDetPhysValMonitoringTool::fillHistograms() {
   m_monPlots->fillCounter(nTruths, InDetPerfPlot_nTracks::ALLTRUTH);
   m_monPlots->fillCounter(nAssociatedTruth, InDetPerfPlot_nTracks::ALLASSOCIATEDTRUTH);
   m_monPlots->fillCounter(nSelectedMatchedTracks, InDetPerfPlot_nTracks::MATCHEDRECO);
-  
   
   // Tracking In Dense Environment
   if (!m_doTrackInJetPlots) return StatusCode::SUCCESS;
@@ -411,7 +488,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
       "Cannot open " << m_jetContainerName <<
         " jet container or TruthParticles truth particle container. Skipping jet plots.");
   } else {
-    for (const auto& thisJet: *jets) {         // The big jets loop
+    for (const auto thisJet: *jets) {         // The big jets loop
       if (not passJetCuts(*thisJet)) {
         continue;
       }
@@ -436,6 +513,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
               
             if(!accept) continue;
             bool isEfficient(false);
+
             for (auto thisTrack: *tracks) {
               if (m_useTrackSelection and not (m_trackSelectionTool->accept(*thisTrack, primaryvertex))) {
                 continue;
@@ -450,10 +528,16 @@ InDetPhysValMonitoringTool::fillHistograms() {
                 }
               }
             }
-            m_monPlots->fillEfficiency(*truth, *thisJet, isEfficient,isBjet);
+
+            bool truthIsFromB = false;
+            if ( m_doTruthOriginPlots and m_trackTruthOriginTool->isFrom(truth, 5) ) {
+              truthIsFromB = true;
+            }
+            m_monPlots->fillEfficiency(*truth, *thisJet, isEfficient, isBjet, truthIsFromB);
           }
         }
       }
+
       for (auto thisTrack: *tracks) {    // The beginning of the track loop
         if (m_useTrackSelection and not (m_trackSelectionTool->accept(*thisTrack, primaryvertex))) {
           continue;
@@ -466,16 +550,55 @@ InDetPhysValMonitoringTool::fillHistograms() {
       
         const xAOD::TruthParticle* associatedTruth = getAsTruth.getTruth(thisTrack); 
         const bool unlinked = (associatedTruth==nullptr);
-        const bool isFake = (associatedTruth && prob < m_lowProb);  
-        m_monPlots->fill(*thisTrack, *thisJet,isBjet,isFake,unlinked);                                   
+        const bool isFake = (associatedTruth && prob < m_lowProb);
+        bool truthIsFromB = false;
+        if ( m_doTruthOriginPlots and m_trackTruthOriginTool->isFrom(associatedTruth, 5) ) {
+          truthIsFromB = true;
+        }
+        m_monPlots->fill(*thisTrack, *thisJet, isBjet, isFake, unlinked, truthIsFromB);                                   
         if (associatedTruth){
-          m_monPlots->fillFakeRate(*thisTrack, *thisJet, isFake,isBjet);
+          m_monPlots->fillFakeRate(*thisTrack, *thisJet, isFake, isBjet, truthIsFromB);
        }
       }
     }
   } // loop over jets
 
   return StatusCode::SUCCESS;
+}
+
+void InDetPhysValMonitoringTool::decorateTrackParticle(const xAOD::TrackParticle & track, const asg::AcceptData & passed) const {
+  // Decorate outcome of track selection
+  m_dec_passedTrackSelection(track) = (bool)(passed);
+}
+
+void InDetPhysValMonitoringTool::decorateTruthParticle(const xAOD::TruthParticle & truth, const IAthSelectionTool::CutResult & passed) const {  
+  // Decorate outcome of truth selection
+  m_dec_passedTruthSelection(truth) = (bool)(passed);
+
+  // Decorate if selected by pileup switch
+  m_dec_selectedByPileupSwitch(truth) = isSelectedByPileupSwitch(truth);
+}
+
+bool InDetPhysValMonitoringTool::hasTruthFilled(const xAOD::TruthParticle & truth) const{
+  if (!m_acc_hasTruthFilled.isAvailable(truth)) {
+    ATH_MSG_DEBUG("Truth particle not yet filled in ntuple");
+    return false;
+  }
+  return m_acc_hasTruthFilled(truth);
+}
+
+bool InDetPhysValMonitoringTool::isSelectedByPileupSwitch(const xAOD::TruthParticle & truth) const{
+  if (!m_acc_selectedByPileupSwitch.isAvailable(truth)) {
+      ATH_MSG_DEBUG("Selected by pileup switch decoration requested from a truth particle but not available");
+      return false;
+  }
+  return m_acc_selectedByPileupSwitch(truth);
+}
+
+void InDetPhysValMonitoringTool::markSelectedByPileupSwitch(const std::vector<const xAOD::TruthParticle*> & truthParticles) const{
+  for (const auto& thisTruth: truthParticles) {
+    m_dec_selectedByPileupSwitch(*thisTruth) = true;
+  }
 }
 
 StatusCode
@@ -492,6 +615,13 @@ InDetPhysValMonitoringTool::bookHistograms() {
     // reg**** in the monitoring baseclass doesnt have a TEff version, but TGraph *
     // pointers just get passed through, so we use that method after an ugly cast
     ATH_CHECK(regGraph(reinterpret_cast<TGraph*>(eff.first), eff.second, all)); // ??
+  }
+  // register trees for ntuple writing
+  if (m_fillTruthToRecoNtuple) {
+    std::vector<TreeData> trees = m_monPlots->retrieveBookedTrees();
+    for (auto& t : trees) {
+      ATH_CHECK(regTree(t.first, t.second, all));
+    }
   }
   return StatusCode::SUCCESS;
 }
@@ -611,7 +741,7 @@ InDetPhysValMonitoringTool::getTruthVertices() const {
       ATH_MSG_VERBOSE("Getting TruthEvents container.");
       SG::ReadHandle<xAOD::TruthEventContainer> truthEventContainer(m_truthEventName);
       if (truthEventContainer.isValid()) {
-        for (const auto& evt : *truthEventContainer) {
+        for (const auto evt : *truthEventContainer) {
           truthVtx = evt->truthVertex(0);
           if (truthVtx) {
             truthHSVertices.push_back(truthVtx);
@@ -629,7 +759,7 @@ InDetPhysValMonitoringTool::getTruthVertices() const {
       ATH_MSG_VERBOSE("Getting TruthEvents container.");
       SG::ReadHandle<xAOD::TruthPileupEventContainer> truthPileupEventContainer(m_truthPileUpEventName);
       if (truthPileupEventContainer.isValid()) {
-        for (const auto& evt : *truthPileupEventContainer) {
+        for (const auto evt : *truthPileupEventContainer) {
           truthVtx = evt->truthVertex(0);
           if (truthVtx) {
             truthPUVertices.push_back(truthVtx);

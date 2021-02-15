@@ -41,7 +41,7 @@ namespace Trk {
  @author Marcin.Wolter@cern.ch
  */
 
-class AnnulusBounds : public SurfaceBounds
+class AnnulusBounds final: public SurfaceBounds
 {
 
 public:

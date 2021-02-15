@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -137,9 +137,9 @@ StatusCode MDT_MapConversion::initialize()
   
 }
 
-const Identifier& MDT_MapConversion::ConvertToOffline(const std::string &OnlineId) const
+const Identifier& MDT_MapConversion::ConvertToOffline(const std::string &OnlineId,
+                                                      bool quiet /*=false */) const
 {
-  MsgStream log(msgSvc(), name());
 //  int size = m_Chamber_Map.size();
   //log << MSG::VERBOSE << "*************** size is\n" << size<< endmsg;
   std::map<std::string, Identifier>::iterator iter;
@@ -148,8 +148,10 @@ const Identifier& MDT_MapConversion::ConvertToOffline(const std::string &OnlineI
   
   if (m_Chamber_Map.size()!=0){
     const auto& mapit = m_Chamber_Map.find(OnlineId);
-    if (ATH_UNLIKELY(mapit == m_Chamber_Map.end())) { 
-      log << MSG::ERROR << "Lookup of ID " << OnlineId << " in MDT_MapConversion::ConvertToOffline failed" << endmsg; 
+    if (ATH_UNLIKELY(mapit == m_Chamber_Map.end())) {
+      if (!quiet) {
+        ATH_MSG_ERROR( "Lookup of ID " << OnlineId << " in MDT_MapConversion::ConvertToOffline failed" );
+      }
       return m_Online_empty; // not quite right but should never get here
     }
     const Identifier & OfflineName = (mapit->second);

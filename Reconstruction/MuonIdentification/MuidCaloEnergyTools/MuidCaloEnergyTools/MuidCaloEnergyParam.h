@@ -9,7 +9,6 @@
  to trackParameters given at the calo mid-surface.
    
   @author Konstantinos.Nikolopoulos@cern.ch, Alan.Poppleton@cern.ch
- (c) ATLAS Combined Muon software
 */
 //////////////////////////////////////////////////////////////////////////////
 

@@ -1,41 +1,14 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/**
- * ==============================================================================
- * ATLAS Muon Identifier Helpers Package
- * -----------------------------------------
- * ==============================================================================
- */
-
-//<doc><file> $Id: TgcIdHelper.cxx,v 1.39 2009-01-20 22:44:13 kblack Exp $
-//<version>   $Name: not supported by cvs2svn $
-
-// Includes
-
 #include "MuonIdHelpers/TgcIdHelper.h"
-
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
-
-
-// Constructor/Destructor
+#include "AthenaKernel/getMessageSvc.h"
 
 TgcIdHelper::TgcIdHelper() : MuonIdHelper("TgcIdHelper"), m_GASGAP_INDEX(0),
   m_ISSTRIP_INDEX(0) {}
 
-// Destructor
-
-TgcIdHelper::~TgcIdHelper()
-{
-  // m_Log deleted in base class.
-}
-
 // Initialize dictionary
-
 int TgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 {
   int status = 0;
@@ -50,6 +23,7 @@ int TgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   }
 
   // init base object
+  AtlasDetectorID::setMessageSvc(Athena::getMessageSvc());
   if(AtlasDetectorID::initialize_from_dictionary(dict_mgr)) return (1);
 
   // Register version of the MuonSpectrometer dictionary

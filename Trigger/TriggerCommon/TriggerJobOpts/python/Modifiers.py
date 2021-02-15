@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ##############################################################
 # Modifiers.py
@@ -9,7 +9,7 @@
 #  for now there are no options foreseen for the modifiers
 #
 #  Permanent fixes that are only applied online should be
-#  put into Trigger_topOptions_standalone.py
+#  put into runHLT_standalone.py
 ###############################################################
 
 from AthenaCommon.AppMgr import theApp
@@ -494,33 +494,8 @@ class optimizeChainOrder(_modifier):
             topSequence.TrigSteer_HLT.ExecutionOrderStrategy.order=[ 'name:.+beamspot.+',
                                                                     'name:.+j.+',
                                                                     'name:.+2tau.+',
+
                                                                     'name:.+tau.+'  ]
-
-class disablePixels(_modifier):
-    """
-    Turns off pixels in region selector
-    """
-    def postSetup(self):
-        svcMgr.RegSelSvc.enablePixel=False
-
-class disableSCTBarrel(_modifier):
-    """
-    Turns off SCT Barrel in region selector and badly mapped ROB
-    """
-    def postSetup(self):
-        svcMgr.RegSelSvc.DeleteSiRobList=range(0x210000,0x21000a+1)+range(0x210100,0x21010a+1)+range(0x220000,0x22000a+1)+range(0x220100,0x22010a+1)+[0x240005]
-
-class disableIBL(_modifier):
-    """
-    Turn off IBL from readout
-    """
-
-    def postSetup(self):
-        import TrigInDetValidation.InDetModules as IDM
-        pixel_barrel_layer1_hashes = IDM.getHashes(IDM.getLayer(IDM.getBarrel(IDM.Pixel),0))
-        svcMgr.RegSelSvc.DeletePixelHashList=pixel_barrel_layer1_hashes
-        svcMgr.ROBDataProviderSvc.ignoreROB=[1310848, 1310849, 1310850, 1310851, 1310899, 1310944, 1310913, 1310946, 1310929, 1310912, 1310914, 1310736, 1310737, 1310738, 1310739, 1310752, 1310753, 1310754, 1310755, 1310883, 1310897, 1310930, 1310896, 1310898, 1310768, 1310769, 1310770, 1310771, 1310784, 1310785, 1310786, 1310787, 1310867, 1310931, 1310881, 1310880, 1310882, 1310800, 1310801, 1310802, 1310803, 1310816, 1310817, 1310818, 1310819, 1310915, 1310865, 1310864, 1310945, 1310928, 1310866, 1310832, 1310833, 1310834, 1310835, 1310947]
-
 class disableIBLInTracking(_modifier):
     """
     Turn off IBL in tracking algorithms (data still available for PEB etc)
@@ -620,31 +595,15 @@ class doMuonRoIDataAccess(_modifier):
     def preSetup(self):
         TriggerFlags.MuonSlice.doEFRoIDrivenAccess=True
 
-class forceMuonDataPrep(_modifier):
-    """
-    Execute muon data preparation on every event
-    """
-    def preSetup(self):
-        pass  # the actual modifier is implemented in share/Trigger_topOptions_standalone.py
-
 class rerunLVL1(_modifier):
     """
     Reruns the L1 simulation on real data
     """
     def preSetup(self):
 
-        # Do nothing for EF only running
-        if not TriggerFlags.doLVL2() and TriggerFlags.doEF():
-            return
-
         from AthenaCommon.Include import include
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
-
-        #write cool objects to detector store
-        from IOVDbSvc.CondDB import conddb
-        conddb.addFolderWithTag('TRIGGER', "/TRIGGER/LVL1/BunchGroupContent", "HEAD")
-        conddb.addFolder('TRIGGER', '/TRIGGER/LVL1/CTPCoreInputMapping')
 
         #configure LVL1 config svc with xml file
         from TrigConfigSvc.TrigConfigSvcConfig import L1TopoConfigSvc
@@ -662,7 +621,11 @@ class rerunLVL1(_modifier):
 
         #rederive MuCTPI inputs to CTP from muon RDO
         #writes this to the usual MuCTPICTP storegate location
-        from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi_on_RDO
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        if ConfigFlags.Trigger.enableL1Phase1:
+            from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1_on_RDO as L1Muctpi_on_RDO
+        else:
+            from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi_on_RDO
         topSequence += L1Muctpi_on_RDO()
         topSequence.L1Muctpi_on_RDO.CTPOutputLocID = "L1MuCTPItoCTPLocation"
         topSequence.L1Muctpi_on_RDO.RoIOutputLocID = "L1MuCTPItoRoIBLocation"
@@ -674,7 +637,10 @@ class rerunLVL1(_modifier):
             topSequence += L1TopoSimulation()
             log.info( "adding L1TopoSimulation() to topSequence" )
 
-            from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
+            if ConfigFlags.Trigger.enableL1Phase1:
+                from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1Tool as L1MuctpiTool
+            else:
+                from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
             from AthenaCommon.AppMgr import ToolSvc
             ToolSvc += L1MuctpiTool()
             topSequence.L1TopoSimulation.MuonInputProvider.MuctpiSimTool = L1MuctpiTool()
@@ -736,10 +702,6 @@ class rerunDMLVL1(_modifier):
     """
     def preSetup(self):
 
-         # Do nothing for EF only running
-         if not TriggerFlags.doLVL2() and TriggerFlags.doEF():
-             return
-
          from AthenaCommon.Include import include
          from AthenaCommon.AlgSequence import AlgSequence
          topSequence = AlgSequence()
@@ -762,7 +724,11 @@ class rerunDMLVL1(_modifier):
          #Run MuCTPI simulation (before or after importing DeriveSim??)
          #rederive MuCTPI inputs to CTP from muon RDO
          #writes this to the usual MuCTPICTP storegate location
-         from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi_on_RDO
+         from AthenaConfiguration.AllConfigFlags import ConfigFlags
+         if ConfigFlags.Trigger.enableL1Phase1:
+             from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1_on_RDO as L1Muctpi_on_RDO
+         else:
+             from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiPhase1_on_RDO as L1Muctpi_on_RDO
          topSequence += L1Muctpi_on_RDO()
          topSequence.L1Muctpi_on_RDO.CTPOutputLocID = "L1MuCTPItoCTPLocation"
          topSequence.L1Muctpi_on_RDO.RoIOutputLocID = "L1MuCTPItoRoIBLocation"
@@ -1309,62 +1275,24 @@ class autoConditionsTag(_modifier):
         from RecExConfig.AutoConfiguration import ConfigureConditionsTag
         ConfigureConditionsTag()
 
-class enableCostDebug(_modifier):
-    """
-    Enables cost debugging options
-    """
-    def postSetup(self):
-        from TrigCostMonitor.TrigCostMonitorConfig import setupCostDebug
-        setupCostDebug()
-
 class enableCostMonitoring(_modifier):
     """
     Enable Cost Monitoring for online
     """
     def preSetup(self):
-        TriggerFlags.enableMonitoring = TriggerFlags.enableMonitoring.get_Value()+['CostExecHLT']
-        # MT
         from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
         flags.Trigger.CostMonitoring.doCostMonitoring = True
-
-    def postSetup(self):
-        try:
-          from TrigCostMonitor.TrigCostMonitorConfig import postSetupOnlineCost
-          postSetupOnlineCost()
-        except AttributeError:
-          log.error('enableCostMonitoring (Run 2 style) post setup failed.')
 
 class enableCostForCAF(_modifier):
     """
     Enable Cost Monitoring for CAF processing - use together with enableCostMonitoring
+    Forces cost data to be collected in every event, not just in events for which the HLT
+    cost monitoring chain is active and passes its prescale check.
+    Not of as much use in Run 3, one can just unprescale the cost monitoring chain instead.
     """
     def preSetup(self):
-        try:
-            import TrigCostMonitor.TrigCostMonitorConfig as costConfig
-            costConfig.preSetupCostForCAF()
-        except AttributeError:
-            log.info('TrigCostMonitor has not CAF preSetup option... OK to continue')
-        # MT
         from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
         flags.Trigger.CostMonitoring.monitorAllEvents = True
-
-    def postSetup(self):
-        try:
-            import TrigCostMonitor.TrigCostMonitorConfig as costConfig
-            costConfig.postSetupCostForCAF()
-        except AttributeError:
-            log.info('TrigCostMonitor has not CAF postSetup option... OK to continue')
-
-class doEnhancedBiasWeights(_modifier):
-    """
-    Enable calculaton of EnhancedBias weights, either on or offline - use together with enableCostMonitoring and enableCostForCAF (if offline).
-    """
-    def postSetup(self):
-        try:
-            import TrigCostMonitor.TrigCostMonitorConfig as costConfig
-            costConfig.postSetupEBWeighting()
-        except AttributeError:
-            log.warning('TrigCostMonitor has no EnhancedBias postSetup option...')
 
 class BeamspotFromSqlite(_modifier):
     """
@@ -1392,21 +1320,6 @@ class LumiFromSqlite(_modifier):
                 folders += [f]
         svcMgr.IOVDbSvc.Folders = folders
 
-class LumiRegionZmax168(_modifier):
-    """
-    decrease the size (equivalent of 3*sigma_z) of luminous region for ID tracking to 168 mm
-    """
-    def preSetup(self):
-        from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import L2IDTrackingCuts
-        from AthenaCommon.SystemOfUnits import mm
-        L2IDTrackingCuts.setRegSelZmax(168* mm)
-
-    def postSetup(self):
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        RegSelSvc=topSequence.allConfigurables.get("RegSelSvcDefault")
-        from AthenaCommon.SystemOfUnits import mm
-        RegSelSvc.DeltaZ = 168* mm
 
 class useDynamicAlignFolders(_modifier):
     """
@@ -1449,6 +1362,17 @@ class tightenElectronTrackingCuts(_modifier):
             topSequence.TrigSteer_HLT.TrigFastTrackFinder_Electron_IDTrig.doCloneRemoval=True
         except AttributeError:
             log.error("Cannot modify doCloneRemoval setting")
+
+class doRuntimeNaviVal(_modifier):
+    """
+    Checks the validity of each Decision Object produced by a HypoAlg, including all of its
+    parents all the way back to the L1 decoder. Potentially CPU expensive.
+    """
+    def preSetup(self):
+        log.info("Enabling Runtime Trigger Navigation Validation")
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        ConfigFlags.Trigger.doRuntimeNaviVal = True
+
 
 ###############################################################
 # Modifiers believed to be obsolete.

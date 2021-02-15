@@ -95,8 +95,8 @@ private:
        "PrimaryVerticesContainerName",
        "PrimaryVertices"};
   SG::ReadDecorHandleKey<xAOD::EventInfo>        m_rdhkEvtInfo {this
-      ,"AveIntPerXKey"
-      ,"EventInfo.AveIntPerXDecor"
+      ,"averageInteractionsPerCrossingKey"
+      ,"EventInfo.averageInteractionsPerCrossing"
       ,"Decoration for Average Interaction Per Crossing"};
 
   //Variables for configuration

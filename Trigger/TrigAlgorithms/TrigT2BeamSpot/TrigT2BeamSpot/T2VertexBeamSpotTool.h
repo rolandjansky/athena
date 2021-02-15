@@ -26,10 +26,10 @@
 #include <vector>
 #include <memory>
 // Local tools
-#include "../src/T2TrackManager.h"
 #include "../src/T2Track.h"
 #include "../src/T2BeamSpot.h"
 #include "../src/T2SplitVertex.h"
+#include "../src/T2TrackClusterer.h"
 //Athena tools
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -41,20 +41,14 @@
 //Data handles
 #include "StoreGate/ReadCondHandleKey.h"
 //Beam data
-#include "StoreGate/StoreGateSvc.h"
 #include "BeamSpotConditionsData/BeamSpotData.h"
-//To get TEVec and HLT::Error messaging
-#include "TrigInterfaces/Algo.h"
 //Monitoring tool
 #include "AthenaMonitoringKernel/Monitored.h"
 
 class TrigVertexCollection;
 
-namespace HLT {
-   class TriggerElement;
-}
 namespace PESA {
-   class T2TrackClusterer;
+   class T2SplitVertex;
    /**
     *   This class uses primary vertex reconstruction to measure
     *   and monitor the LHC beam as seen by the ATLAS detector. 
@@ -110,15 +104,14 @@ namespace PESA {
 
          bool m_passNpvTrigCuts;
 
-         /* Track manager */
-         T2TrackManager m_trackManager;
-
          /* Number of Z blocks */
          double       m_trackClusDZ;
          bool         m_weightSeed;
          bool         m_splitWholeCluster;
          bool         m_reclusterSplit;
          double       m_trackSeedPt;
+         std::string  m_clusterPerigee = "original"; // one of "original", "beamspot", "beamline"
+         T2TrackClusterer::TrackPerigee m_clusterTrackPerigee = T2TrackClusterer::perigee_original;
 
          /* Track selection criteria */
          unsigned  m_totalNTrkMin;
@@ -172,15 +165,16 @@ namespace PESA {
          void monitor_cluster_tracks(T2TrackClusterer& clusterer, const Trk::Track & track  ) const;
 
          /* Monitor  vertex parameters  */
-         void monitor_vertex(const std::string& prefix, const std::string& suffix, const T2Vertex &vertex ) const;
+         void monitor_vertex(const std::string& prefix, const std::string& suffix, const T2Vertex &vertex, int bcid=-1 ) const;
+
+         /* Monitor split vertex parameters */
+         void monitor_split_vertex(const std::string& prefix, const std::string& suffix, const T2SplitVertex& vertex) const;
 
          std::string m_vertexCollName;
 
       private:
+
          ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
-
-         
-
 
    };
 

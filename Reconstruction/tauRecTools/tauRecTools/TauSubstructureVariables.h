@@ -1,14 +1,13 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUREC_TAUSUBSTRUCTUREBUILDER_H
-#define TAUREC_TAUSUBSTRUCTUREBUILDER_H
+#ifndef TAURECTOOLS_TAUSUBSTRUCTUREVARIABLES_H
+#define TAURECTOOLS_TAUSUBSTRUCTUREVARIABLES_H
 
 #include "tauRecTools/TauRecToolBase.h"
-#include "tauRecTools/ITauVertexCorrection.h"
 
-#include "AsgTools/ToolHandle.h"
+#include <string>
 
 /**
  * @brief Calculate variables from the tau substructure.
@@ -18,26 +17,23 @@
  * 
  */
 
-class TauSubstructureVariables : public TauRecToolBase
-{
-    public: 
-	    ASG_TOOL_CLASS2(TauSubstructureVariables, TauRecToolBase, ITauToolBase)
-        
-        static const float DEFAULT;
+class TauSubstructureVariables : public TauRecToolBase {
 
-        TauSubstructureVariables(const std::string& name="TauSubstructureVariables");
+public: 
 
-        ~TauSubstructureVariables();
-
-        virtual StatusCode initialize() override;
-        virtual StatusCode execute(xAOD::TauJet& pTau) const override;
-
-    private:
-	// use shower subtracted clusters with PFlow jet seeds
-	bool m_useSubtractedCluster;
+  ASG_TOOL_CLASS2(TauSubstructureVariables, TauRecToolBase, ITauToolBase)
   
-    ToolHandle<ITauVertexCorrection> m_tauVertexCorrection { this, 
-      "TauVertexCorrection", "TauVertexCorrection", "Tool to perform the vertex correction"};
+  TauSubstructureVariables(const std::string& name="TauSubstructureVariables");
+
+  virtual ~TauSubstructureVariables() = default;
+
+  virtual StatusCode execute(xAOD::TauJet& tau) const override;
+
+  static const float DEFAULT;
+
+private:
+
+  bool m_doVertexCorrection;
 };
 
-#endif
+#endif // TAURECTOOLS_TAUSUBSTRUCTUREVARIABLES_H

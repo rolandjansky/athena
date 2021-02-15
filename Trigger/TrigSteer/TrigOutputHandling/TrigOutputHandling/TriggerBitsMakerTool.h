@@ -18,7 +18,7 @@
 class TriggerBitsMakerTool : public extends<AthAlgTool, HLTResultMTMakerTool, ITriggerBitsMakerTool> {
 public:
   TriggerBitsMakerTool(const std::string& type, const std::string& name, const IInterface* parent);
-  virtual ~TriggerBitsMakerTool() override;
+  virtual ~TriggerBitsMakerTool() override = default;
 
   virtual StatusCode fill( HLT::HLTResultMT& resultToFill, const EventContext& ctx ) const override;
 
@@ -55,10 +55,10 @@ private:
   Gaudi::Property<std::map<std::string, uint32_t>> m_extraChainToBit { this, "ExtraChainToBit", {},
     "Special case and testing purposes hard-coded chain-to-bit mappings to use in addition to those from the HLT menu."};
 
-  typedef std::map< TrigCompositeUtils::DecisionID, uint32_t> ChainToBitMap;
+  using ChainToBitMap = std::map< TrigCompositeUtils::DecisionID, uint32_t>;
   ChainToBitMap m_mapping; //!< Mapping of each chain's hash ID to its chain counter
 
-  uint32_t m_largestBit; //!< Largest chain counter hence largest bit needed to be stored in result bitmap
+  uint32_t m_largestBit{0}; //!< Largest chain counter hence largest bit needed to be stored in result bitmap
 };
 
 #endif // TRIGOUTPUTHANDLING_TRIGGERBITSMAKERTOOL_H

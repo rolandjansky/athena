@@ -251,10 +251,11 @@ def InDetTRT_RIO_MakerPUCfg(flags, useTimeInfo, usePhase, prefix, collectionPU, 
 def TRTPreProcessingCfg(flags, useTimeInfo = True, usePhase = False, **kwargs):
     acc = ComponentAccumulator()
 
-    from PixelConditionsAlgorithms.PixelConditionsConfig import (PixelChargeCalibCondAlgCfg, PixelConfigCondAlgCfg, PixelCablingCondAlgCfg, PixelReadoutSpeedAlgCfg)
+    from PixelConditionsAlgorithms.PixelConditionsConfig import (PixelChargeCalibCondAlgCfg, PixelConfigCondAlgCfg, PixelDeadMapCondAlgCfg, PixelCablingCondAlgCfg, PixelReadoutSpeedAlgCfg)
 
-    acc.merge(PixelChargeCalibCondAlgCfg(flags))
     acc.merge(PixelConfigCondAlgCfg(flags))
+    acc.merge(PixelDeadMapCondAlgCfg(flags))
+    acc.merge(PixelChargeCalibCondAlgCfg(flags))
     acc.merge(PixelCablingCondAlgCfg(flags))
     acc.merge(PixelReadoutSpeedAlgCfg(flags))
 
@@ -318,9 +319,6 @@ if __name__ == "__main__":
 
     from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
     top_acc.merge(TRT_GeometryCfg( ConfigFlags ))
-
-    msgService = top_acc.getService('MessageSvc')
-    msgService.Format = "S:%s E:%e % F%138W%S%7W%R%T  %0W%M"
 
     from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
     from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg

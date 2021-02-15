@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetMultipleVertexSeedFinderUtils_InDetTrackZ0SortingTool_H
@@ -41,11 +41,9 @@ namespace InDet
  
   public:
    
-   StatusCode initialize();
+   virtual StatusCode initialize() override;
     
-   StatusCode finalize();
-  
-   InDetTrackZ0SortingTool(const std::string& t, const std::string& n, const IInterface*  p); 
+   InDetTrackZ0SortingTool(const std::string& t, const std::string& n, const IInterface*  p);
     
    static const InterfaceID& interfaceID() {return IID_InDetTrackZ0SortingTool;}
  

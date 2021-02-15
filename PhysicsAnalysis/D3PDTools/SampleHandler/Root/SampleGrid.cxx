@@ -37,7 +37,6 @@ namespace SH
   void SampleGrid ::
   testInvariant () const
   {
-    RCU_INVARIANT (this != 0);
   }
 
 

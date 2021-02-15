@@ -14,7 +14,6 @@
 #include "ByteStreamData/RawEvent.h" 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
-#include "ByteStreamData/RawEvent.h" 
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h" 
 #include "TBEvent/TBTDC.h"
 #include "TBEvent/TBBeamDetector.h"

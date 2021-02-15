@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # art-description: transform test of BSRDOtoRAW + T0Reco + T0Mon, using v1PhysP1 menu
 # art-type: build
@@ -19,6 +19,7 @@ hlt.args = '--precommand=\\\"setMenu=\\\'PhysicsP1_pp_run3_v1\\\'\\\"'
 hlt.args += ' --prodSysBSRDO True'
 hlt.args += ' --outputBSFile=RAW.pool.root'
 hlt.args += ' --outputHIST_HLTMONFile=hltmon.root'
+hlt.args += ' --outputDRAW_TRIGCOSTFile=TRIGCOST.pool.root'
 hlt.input = 'data'
 
 #====================================================================================================

@@ -28,6 +28,7 @@ atlas_add_poolcnv_library( xAODTruthAthenaPoolPoolCnv
 
 # Install files from the package.
 atlas_install_joboptions( share/*.py )
+atlas_install_scripts( test/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 # Set up (a) test(s) for the converter(s):
 find_package( AthenaPoolUtilitiesTest )
@@ -36,7 +37,7 @@ if( ATHENAPOOLUTILITIESTEST_FOUND AND NOT SIMULATIONBASE
    AND NOT GENERATIONBASE )
    set( XAODTRUTHATHENAPOOL_REFERENCE_TAG
       xAODTruthAthenaPoolReference-01-01-00 )
-   run_tpcnv_legacy_test( xAODTruthAthenaPool_21.0.79   AOD-21.0.79-full
+   run_tpcnv_test( xAODTruthAthenaPool_21.0.79   AOD-21.0.79-full
       REQUIRED_LIBRARIES xAODTruthAthenaPoolPoolCnv
       REFERENCE_TAG ${XAODTRUTHATHENAPOOL_REFERENCE_TAG} )
 elseif( NOT ATHENAPOOLUTILITIESTEST_FOUND )

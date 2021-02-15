@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 include.block("LArCalibProcessing/LArCalib_FlagsSC.py")
 
 from string import *
@@ -5,7 +7,6 @@ from string import *
 class LArCalib_Flags:
     
     globalFlagDB = "LARCALIB-RUN2-00"
-    #globalFlagDB = "LARCALIB-000-02"
     OutputDB     = "sqlite://;schema=myDB200.db;dbname=CONDBR2"
     InputDB      = OutputDB
 
@@ -18,7 +19,6 @@ class LArCalib_Flags:
     LArPhysAutoCorrFolder        = "/LAR/ElecCalibOflSC/AutoCorrs/PhysicsAutoCorr"
 
     LArCaliWaveFolder            = "/LAR/ElecCalibOflSC/CaliWaves/CaliWave"
-#    LArCaliWaveFolderXtlk        = "/LAR/ElecCalibOflSC/CaliWaves/CaliWaveXtalkCorr"
     LArCaliWaveFolderXtlk        = "/LAR/ElecCalibOflSC/CaliWaves/CaliWave"
 
     LArPhysWaveFolder            = "/LAR/ElecCalibOflSC/PhysWaves/RTM"
@@ -28,10 +28,8 @@ class LArCalib_Flags:
 
     LArOFCPhysFolder             = "/LAR/ElecCalibOflSC/OFC/PhysWave/RTM/"
     LArOFCCaliFolder             = "/LAR/ElecCalibOflSC/OFC/CaliWave"
-#    LArOFCCaliFolderXtlk         = "/LAR/ElecCalibOflSC/OFC/CaliWaveXtalkCorr"
     LArOFCCaliFolderXtlk         = "/LAR/ElecCalibOflSC/OFC/CaliWave"
     LArOFCMasterWaveFolder       = "/LAR/ElecCalibOflSC/OFC/MasterWave"
-#    LArOFCMasterWaveFolderXtlk   = "/LAR/ElecCalibOflSC/OFC/MasterWaveXtalkCorr"
     LArOFCMasterWaveFolderXtlk   = "/LAR/ElecCalibOflSC/OFC/MasterWave"
                                
     LArShapeFolder               = "/LAR/ElecCalibOflSC/Shape/RTM/"
@@ -40,17 +38,16 @@ class LArCalib_Flags:
     LArShapeMasterWaveFolder     = "/LAR/ElecCalibOflSC/Shape/MasterWave"
     LArShapeMasterWaveFolderXtlk = "/LAR/ElecCalibOflSC/Shape/MasterWaveXtalkCorr"   
                               
-    #LArRampFolder               = "/LAR/ElecCalibOflSC/Ramps/Ramp"
     LArRampFolder                = "/LAR/ElecCalibOflSC/Ramps/RampLinea"
 
     ## Parameters
     ## these parameters are not ready for all layer :
-    LArCaliPulseParamsFolder     = "/LAR/ElecCalibOflSC/CaliPulseParams/Measured"
-    LArDetCellParamsFolder       = "/LAR/ElecCalibOflSC/DetCellParams/Measured"
+    #LArCaliPulseParamsFolder     = "/LAR/ElecCalibOflSC/CaliPulseParams/Measured"
+    #LArDetCellParamsFolder       = "/LAR/ElecCalibOflSC/DetCellParams/Measured"
 
     ## extracted using RTM methode :
-    #LArCaliPulseParamsFolder     = "/LAR/ElecCalibOflSC/CaliPulseParams/RTM"
-    #LArDetCellParamsFolder       = "/LAR/ElecCalibOflSC/DetCellParams/RTM"  
+    LArCaliPulseParamsFolder     = "/LAR/ElecCalibOflSC/CaliPulseParams/RTM"
+    LArDetCellParamsFolder       = "/LAR/ElecCalibOflSC/DetCellParams/RTM"  
 
     LArDTimeFolder               = "/LAR/ElecCalibOflSC/Tdrift/Computed"
 
@@ -63,7 +60,7 @@ class LArCalib_Flags:
         
 
 def LArCalibFolderTag(folder,tag):
-    return join(split(folder, '/'),'') + tag
+    return "".join(folder.split('/')) + tag
     
 
 class FolderTagResover:
@@ -83,7 +80,7 @@ class FolderTagResover:
           return folder.resolveTag(globalTag)
         except:  
           # new folder, should "create a tag"
-          return join(split(foldername, '/'),'') + '-UPD3-00'
+          return "".join(foldername.split('/')) + '-UPD3-00'
           
             
     def getFolderTagSuffix(self,foldername,globalTag=LArCalib_Flags.globalFlagDB):

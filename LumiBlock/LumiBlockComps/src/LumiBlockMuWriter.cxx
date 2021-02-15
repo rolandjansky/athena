@@ -16,8 +16,8 @@ StatusCode LumiBlockMuWriter::initialize()
   ATH_MSG_INFO("LumiBlockMuWriter::initialize()");
 
   ATH_CHECK(m_lumiDataKey.initialize(SG::AllowEmpty));
-  ATH_CHECK(m_actIntPerXKey.initialize());
-  ATH_CHECK(m_aveIntPerXKey.initialize());
+  ATH_CHECK(m_actMuKey.initialize());
+  ATH_CHECK(m_aveMuKey.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -28,7 +28,7 @@ StatusCode LumiBlockMuWriter::execute(const EventContext& ctx)  const
 
   float actualMu = 0.0;
   float muToLumi = 0.0;
-  float aveIntPerX = 0.0;
+  float averageMu = 0.0;
   if (!m_lumiDataKey.empty()) {
     SG::ReadCondHandle<LuminosityCondData> lumiData (m_lumiDataKey, ctx);
     if (lumiData->lbAverageLuminosity() != 0 ||
@@ -39,25 +39,25 @@ StatusCode LumiBlockMuWriter::execute(const EventContext& ctx)  const
         actualMu = lumiData->lbLuminosityPerBCIDVector().at(bcid) / muToLumi;
       }
     }
-    aveIntPerX = lumiData->lbAverageInteractionsPerCrossing();
+    averageMu = lumiData->lbAverageInteractionsPerCrossing();
   }
 
-  SG::WriteDecorHandle<xAOD::EventInfo,float> actIntPerXDecor(m_actIntPerXKey,ctx);
-  if (!actIntPerXDecor.isPresent()) {
-    ATH_MSG_ERROR( "actIntPerXDecor.isPresent check fails" );
+  SG::WriteDecorHandle<xAOD::EventInfo,float> actMu(m_actMuKey,ctx);
+  if (!actMu.isPresent()) {
+    ATH_MSG_ERROR( "actualInteractionsPerCrossing.isPresent check fails" );
     return StatusCode::FAILURE;
   }
-  if (!actIntPerXDecor.isAvailable()) {
-    actIntPerXDecor(0) = actualMu;
+  if (!actMu.isAvailable()) {
+    actMu(0) = actualMu;
   }
     
-  SG::WriteDecorHandle<xAOD::EventInfo,float> aveIntPerXDecor(m_aveIntPerXKey,ctx);
-  if (!aveIntPerXDecor.isPresent()) {
-    ATH_MSG_ERROR( "aveIntPerXDecor.isPresent check fails" );
+  SG::WriteDecorHandle<xAOD::EventInfo,float> aveMu(m_aveMuKey,ctx);
+  if (!aveMu.isPresent()) {
+    ATH_MSG_ERROR( "averageInteractionsPerCrossing.isPresent check fails" );
     return StatusCode::FAILURE;
   }
-  if (!aveIntPerXDecor.isAvailable()) {
-    aveIntPerXDecor(0) = aveIntPerX;
+  if (!aveMu.isAvailable()) {
+    aveMu(0) = averageMu;
   }
 
   return StatusCode::SUCCESS;

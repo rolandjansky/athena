@@ -6,13 +6,10 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
 
         # do we want the lagacy monitoring ?
  
-        from TriggerJobOpts.HLTTriggerResultGetter import EDMDecodingVersion
-        from TriggerJobOpts.TriggerFlags import TriggerFlags
-
-        EDMDecodingVersion()
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
         mt_chains = True
-        if ( TriggerFlags.EDMDecodingVersion < 3 or legacy_monitoring ) :
+        if ( ConfigFlags.Trigger.EDMVersion < 3 or legacy_monitoring ) :
                 mt_chains = False
 
         list = []
@@ -90,7 +87,7 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
                 if mt_chains: 
                         tidaegamma.ntupleChainNames += [
                                 "Offline",
-                                "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_FTF",
+                                "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",
                                 "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_IDTrig",
                                 "HLT_e.*_gsf_idperf.*:key=GSFTrigTrackParticles"
                         ]
@@ -259,8 +256,8 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
                         tidatau.ntupleChainNames += [
                                 "Offline",
                                 "HLT_tau.*idperf.*:key=HLT_IDTrack_TauCore_FTF:roi=HLT_Roi_TauCore",
-                                "HLT_tau.*idperf.*:key=HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIso_TauID",
-                                "HLT_tau.*idperf.*:key=HLT_IDTrack_Tau_IDTrig:roi=HLT_TauIso_TauID"
+                                "HLT_tau.*idperf.*:key=HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIso",
+                                "HLT_tau.*idperf.*:key=HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_TauIso"
                          ]
                 else:
                         tidatau.ntupleChainNames += [
@@ -334,8 +331,8 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
                 if mt_chains:
                         tidabjet.ntupleChainNames += [
                                 "Offline",
-                                "HLT_j45_ftf_L1J15:key=HLT_IDTrack_FS_FTF:vtx=HLT_IDVertex_FS",
-                                "HLT_j.*_ftf.*boffperf.*:key=HLT_IDTrack_FS_FTF:vtx=HLT_IDVertex_FS",
+                                "HLT_j45_ftf_L1J15:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
+                                "HLT_j.*_ftf.*boffperf.*:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
                                 "HLT_j.*.*boffperf.*:key=HLT_IDTrack_Bjet_FTF",
                                 "HLT_j.*.*boffperf.*:key=HLT_IDTrack_Bjet_IDTrig"
                         ]

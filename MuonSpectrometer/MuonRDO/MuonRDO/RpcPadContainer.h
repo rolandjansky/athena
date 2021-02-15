@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// RpcPadContainer.h
 
 #ifndef MUONDIGITCONTAINER_RPCPADCONAINTER_H
 #define MUONDIGITCONTAINER_RPCPADCONAINTER_H
@@ -14,7 +12,6 @@
 #include "MuonRDO/RpcCoinMatrix.h"
 #include "MuonRDO/RpcPad.h"
 #include "MuonRDO/RpcPad_Cache.h"
-//#include "MuonRDO/RpcPadIdHash.h"
 #include "AthenaKernel/CLASS_DEF.h"
 #include "EventContainers/IdentifiableContainer.h" 
 
@@ -50,10 +47,6 @@ public:
   virtual const CLID& clID() const {
     return classID(); 
   }
-
-private:
-
-    //    RpcPadIdHash&  hashFcn() const;
 
 };
 

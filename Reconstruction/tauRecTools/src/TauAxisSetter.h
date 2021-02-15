@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUREC_TAUAXISSETTER_H
-#define TAUREC_TAUAXISSETTER_H
+#ifndef TAURECTOOLS_TAUAXISSETTER_H
+#define TAURECTOOLS_TAUAXISSETTER_H
 
 #include "tauRecTools/TauRecToolBase.h"
 
@@ -24,35 +24,31 @@
 
 class TauAxisSetter : public TauRecToolBase {
 
-  public:
-    
-    ASG_TOOL_CLASS2(TauAxisSetter, TauRecToolBase, ITauToolBase);
-    
-    /** @brief Constructor */ 
-    TauAxisSetter(const std::string& name);
-
-    /** @brief Destructor */
-    virtual ~TauAxisSetter() = default;
-
-    /** @brief Execution of this tool */ 
-    virtual StatusCode execute(xAOD::TauJet& tau) const override;
-
-  private:
+public:
   
-    /** Get the jet vertex */
-    const xAOD::Vertex* getJetVertex(const xAOD::Jet& jet) const;
+  ASG_TOOL_CLASS2(TauAxisSetter, TauRecToolBase, ITauToolBase)
+  
+  /** @brief Constructor */ 
+  TauAxisSetter(const std::string& name);
 
-    /**@brief Get the vertex corrected four momentum */
-     TLorentzVector getVertexCorrectedP4(const xAOD::JetConstituent& constituent, 
-                                         const Amg::Vector3D& position) const; 
-    
-     /**@brief Get the vertex corrected four momentum */
-     TLorentzVector getVertexCorrectedP4(const xAOD::PFO& pfo, 
-                                         const Amg::Vector3D& position) const; 
+  /** @brief Destructor */
+  virtual ~TauAxisSetter() = default;
 
-    Gaudi::Property<double> m_clusterCone {this, "ClusterCone", 0.2, "cone of tau candidate"};
-    Gaudi::Property<bool> m_doVertexCorrection {this, "VertexCorrection", true, "switch of tau vertex correction"};
-    Gaudi::Property<bool> m_doJetVertexCorrection {this, "JetVertexCorrection", true, "switch of jet vertex correction"};
+  /** @brief Execution of this tool */ 
+  virtual StatusCode execute(xAOD::TauJet& tau) const override;
+
+private:
+  
+  /**@brief Get the vertex corrected four momentum */
+  TLorentzVector getVertexCorrectedP4(const xAOD::JetConstituent& constituent, 
+                                      const Amg::Vector3D& position) const; 
+  
+  /**@brief Get the vertex corrected four momentum */
+  TLorentzVector getVertexCorrectedP4(const xAOD::PFO& pfo, 
+                                      const Amg::Vector3D& position) const; 
+
+  Gaudi::Property<double> m_clusterCone {this, "ClusterCone", 0.2, "cone of tau candidate"};
+  Gaudi::Property<bool> m_doVertexCorrection {this, "VertexCorrection", true, "switch of tau vertex correction"};
 };
 
-#endif
+#endif // TAURECTOOLS_TAUAXISSETTER_H

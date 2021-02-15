@@ -1,42 +1,38 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """Utility to test whether a string is a legal jet chain label"""
 from __future__ import print_function
 
 
 from ChainLabelParser import ChainLabelParser
-from  TrigHLTJetHypo.treeVisitors import TreeParameterExpander
-from  TrigHLTJetHypo.ConditionsToolSetterFastReduction import (
-    ConditionsToolSetterFastReduction,)
 
-def compile(label, setter, expand=False, do_dump=False, do_print=False):
-    print ('compile:',  label)
+def compile(label, do_dump=False, do_print=False):
+    print ('compile:',  label) #noqa: ATL901
 
     parser = ChainLabelParser(label, debug=False)
-    tree = parser.parse()
+    forest = parser.parse()
 
-    tree.set_ids(node_id=0, parent_id=0)
+    print ('forest has %d' % len(forest),' tree(s)\n') #noqa: ATL901
+    
+    for i, tree in enumerate(forest):
+
+        print ('tree ', i, '\n') #noqa: ATL901
+
+        tree.set_ids(node_id=0, parent_id=0)
     
     
-    if expand:
-        visitor = TreeParameterExpander()
-        tree.accept(visitor)
-
-        if setter is not None:
-            setter.mod(tree)
-
-    print ('compile: tree.scenario', tree.scenario)
+        print ('compile: tree.scenario', tree.scenario) #noqa: ATL901
 
         
         
-    if do_print:
-        print ('\nnode dumping top node only:\n')
-        print (tree)
+        if do_print:
+            print ('\nnode dumping top node only:\n') #noqa: ATL901
+            print (tree) #noqa: ATL901
 
-    if do_dump:
-        print ('\nnode dump tree:\n')
-        print (tree.dump())
+        if do_dump:
+            print ('\nnode dump tree:\n') #noqa: ATL901
+            print (tree.dump()) #noqa: ATL901
         
-    return tree
+    return forest
 
 def compile_(label, setter=None, expand=True, do_dump=False, do_print=False):
     compile(label, setter, expand, do_dump)
@@ -53,23 +49,17 @@ if __name__ == '__main__':
     try:
         index = int(c)
     except Exception:
-        print('expected int in [1,%d] ]on comand line, got %s' % (
+        print('expected int in [1,%d] ]on comand line, got %s' % (  #noqa: ATL901
             len(test_strings), c))
         sys.exit()
 
     if(index < 0 or index > len(test_strings) - 1):
-        print('index %d not in range [0, %d]' % (index, len(test_strings) -1))
+        print('index %d not in range [0, %d]' % (index, len(test_strings) -1))  #noqa: ATL901
         sys.exit()
                                                  
             
-    print('index', index)
+    print('index', index)  #noqa: ATL901
     label = test_strings[index]
 
-    setter = ConditionsToolSetterFastReduction('toolSetterFastReduction')
-    
-    tree = compile(label, setter=setter,  expand=True, do_dump=True)
+    tree = compile(label, do_dump=True)
 
-    print ('tvec: %s' % str(setter.tool))
-    print ('svec: %s' % setter.shared)
-    print ('conditionsVec [%d]: %s' % (len(setter.conditionsVec),
-                                       str(setter.conditionsVec)))

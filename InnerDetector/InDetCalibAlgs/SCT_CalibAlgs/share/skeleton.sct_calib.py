@@ -42,6 +42,16 @@ theApp.AuditAlgorithms = True
 theApp.AuditServices   = True
 
 #--------------------------------------------------------------
+# Switching off multi-threading (not working?!)
+#--------------------------------------------------------------
+#from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
+##svcMgr.ForwardSchedulerSvc.ThreadPoolSize    = numThreads
+##svcMgr.ForwardSchedulerSvc.MaxEventsInFlight = numEvents
+#svcMgr.ForwardSchedulerSvc.ThreadPoolSize    = 1
+#svcMgr.ForwardSchedulerSvc.MaxEventsInFlight = 1
+#--------------------------------------------------------------
+
+#--------------------------------------------------------------
 # User setup to run each algorithm
 # - SCTCalibConfig.py is used as input to the following
 #   flags/properties
@@ -55,6 +65,10 @@ else :
 #--- Reading RunNumber from FileName
 if hasattr( runArgs, 'RunNumber' ) :
     RunNumber = runArgs.RunNumber
+
+#--- Reading EventNumber from FileName
+if hasattr( runArgs, 'EventNumber' ) :
+    EventNumber = runArgs.EventNumber
 
 #--- Setting MaxEvents from runArguments
 if hasattr( runArgs, 'maxEvents' ) :
@@ -159,7 +173,9 @@ else :
 #--------------------------------------------------------------
 if runArgs.InputType is not 'RAW':
     ServiceMgr.EventSelector.RunNumber         = runArgs.RunNumber
-    ServiceMgr.EventSelector.InitialTimeStamp  = int(SORTime)
+    ServiceMgr.EventSelector.FirstEvent        = runArgs.EventNumber
+    ServiceMgr.EventSelector.FirstLB           = 0
+    ServiceMgr.EventSelector.InitialTimeStamp  = int(SORTime.split(".")[0])
 
 
 #--------------------------------------------------------------
@@ -368,8 +384,9 @@ conddb.dbdata = 'CONDBR2'
 
 from SCT_ConditionsTools.SCT_MonitorConditionsToolSetup import SCT_MonitorConditionsToolSetup
 sct_MonitorConditionsToolSetup = SCT_MonitorConditionsToolSetup()
-#sct_MonitorConditionsToolSetup.setFolderDb("<db>COOLOFL_SCT/CONDBR2</db> /SCT/Derived/Monitoring<tag>SctDerivedMonitoring-RUN2-UPD4-005</tag>")
-sct_MonitorConditionsToolSetup.setFolderDb("<db>COOLOFL_SCT/CONDBR2</db> /SCT/Derived/Monitoring<tag>SctDerivedMonitoring-RUN2-UPD4-005</tag><forceRunNumber>364160</forceRunNumber>")
+sct_MonitorConditionsToolSetup.setFolderDb("<db>COOLOFL_SCT/CONDBR2</db> /SCT/Derived/Monitoring<tag>SctDerivedMonitoring-RUN2-UPD4-005</tag>")
+#sct_MonitorConditionsToolSetup.setFolderDb("<db>COOLOFL_SCT/CONDBR2</db> /SCT/Derived/Monitoring<tag>SctDerivedMonitoring-RUN2-UPD4-005</tag><forceRunNumber>364160</forceRunNumber>")
+#sct_MonitorConditionsToolSetup.setFolderDb("<db>COOLOFL_SCT/CONDBR2</db> /SCT/Derived/Monitoring<tag>SctDerivedMonitoring-RUN2-UPD4-005</tag><forceRunNumber>364214</forceRunNumber>")
 sct_MonitorConditionsToolSetup.setup()
 
 # GeoModel & MagneticFieldSvc
@@ -453,7 +470,7 @@ SCTCalibWriteTool.TagID4Efficiency     = TagID4Efficiency
 SCTCalibWriteTool.TagID4BSErrors       = TagID4BSErrors
 SCTCalibWriteTool.TagID4LorentzAngle   = TagID4LorentzAngle
 
-SCTCalibWriteTool.OutputLevel = INFO
+SCTCalibWriteTool.OutputLevel = DEBUG
 
 print(SCTCalibWriteTool)
 
@@ -475,6 +492,7 @@ SCTCalib = topSequence.SCTCalib
 
 #--- Run number
 SCTCalib.RunNumber = RunNumber
+SCTCalib.EventNumber = EventNumber
 #--- Run stat/end time read from runInfo.txt
 SCTCalib.RunStartTime = SORTime
 SCTCalib.RunEndTime   = EORTime
@@ -493,7 +511,6 @@ SCTCalib.ReadBS         = ReadBS
 if hasattr( runArgs, 'InputType' ) :
     if runArgs.InputType is 'RAW' :
         ServiceMgr.EventSelector.Input = runArgs.inputNames
-#        ServiceMgr.ByteStreamInputSvc.PartName = runArgs.part
     elif runArgs.InputType is 'NTUP_TRKVALID' :
         SCTCalib.InputTrkVal                       = runArgs.inputNames
     elif runArgs.InputType is 'HIST' :
@@ -523,6 +540,9 @@ SCTCalib.DoLorentzAngle   = DoLorentzAngle    # False in default
 SCTCalib.WriteToCool = WriteToCool # True in default
 
 #--- Properties for noisy strips
+SCTCalib.LbsPerWindow           = LbsPerWindow
+SCTCalib.NoisyUpdate            = NoisyUpdate
+SCTCalib.NoisyWriteAllModules   = NoisyWriteAllModules
 SCTCalib.NoisyMinStat           = NoisyMinStat
 SCTCalib.NoisyStripAll          = NoisyStripAll
 SCTCalib.NoisyStripThrDef       = NoisyStripThrDef
@@ -588,7 +608,7 @@ SCTCalib.EfficiencySummaryFile     = prefix + 'EfficiencySummaryFile.xml'     # 
 SCTCalib.BSErrorSummaryFile        = prefix + 'BSErrorSummaryFile.xml'        # Summary of BS Errors
 SCTCalib.BSErrorModuleFile         = prefix + 'BSErrorModuleSummary.xml'      # BS Errors for each module
 
-SCTCalib.OutputLevel     = DEBUG # DEBUG / INFO
+SCTCalib.OutputLevel     = WARNING # DEBUG / INFO
 SCTCalib.AuditAlgorithms = True  # False
 
 print(SCTCalib)
@@ -602,5 +622,6 @@ theApp.EvtMax                      = EvtMax
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
 #--------------------------------------------------------------
-ServiceMgr.MessageSvc.OutputLevel = DEBUG
+ServiceMgr.MessageSvc.OutputLevel = WARNING
+ServiceMgr.MessageSvc.debugLimit  = 1000
 ServiceMgr.MessageSvc.infoLimit   = 2000000

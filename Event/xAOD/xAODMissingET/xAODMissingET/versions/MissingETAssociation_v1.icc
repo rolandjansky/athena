@@ -17,7 +17,7 @@ inline xAOD::MissingETAssociation_v1::ConstVec::ConstVec()
   , m_sumpt(MissingETBase::Numerical::sumptDefault())
 { }
 
-inline xAOD::MissingETAssociation_v1::ConstVec::ConstVec(double cpx,double cpy,double cpz,double ce,double sumpt)
+inline xAOD::MissingETAssociation_v1::ConstVec::ConstVec(float cpx,float cpy,float cpz,float ce,float sumpt)
   : m_cpx(cpx), m_cpy(cpy), m_cpz(cpz), m_ce(ce), m_sumpt(sumpt)
 {}
 
@@ -36,23 +36,23 @@ inline bool xAOD::MissingETAssociation_v1::ConstVec::operator!=(const ConstVec& 
 { return !this->operator==(cvec); }
 
 // ------------------------------------------------------------------ Accessors
-inline double  xAOD::MissingETAssociation_v1::ConstVec::cpx() const { return m_cpx; }
-inline double  xAOD::MissingETAssociation_v1::ConstVec::cpy() const { return m_cpy; }
-inline double  xAOD::MissingETAssociation_v1::ConstVec::cpz() const { return m_cpz; }
-inline double  xAOD::MissingETAssociation_v1::ConstVec::ce() const { return m_ce; }
-inline double  xAOD::MissingETAssociation_v1::ConstVec::sumpt() const { return m_sumpt; }
-inline double& xAOD::MissingETAssociation_v1::ConstVec::cpx() { return m_cpx; }
-inline double& xAOD::MissingETAssociation_v1::ConstVec::cpy() { return m_cpy; }
-inline double& xAOD::MissingETAssociation_v1::ConstVec::cpz() { return m_cpz; }
-inline double& xAOD::MissingETAssociation_v1::ConstVec::ce() { return m_ce; }
-inline double& xAOD::MissingETAssociation_v1::ConstVec::sumpt() { return m_sumpt; }
+inline float  xAOD::MissingETAssociation_v1::ConstVec::cpx() const { return m_cpx; }
+inline float  xAOD::MissingETAssociation_v1::ConstVec::cpy() const { return m_cpy; }
+inline float  xAOD::MissingETAssociation_v1::ConstVec::cpz() const { return m_cpz; }
+inline float  xAOD::MissingETAssociation_v1::ConstVec::ce() const { return m_ce; }
+inline float  xAOD::MissingETAssociation_v1::ConstVec::sumpt() const { return m_sumpt; }
+inline float& xAOD::MissingETAssociation_v1::ConstVec::cpx() { return m_cpx; }
+inline float& xAOD::MissingETAssociation_v1::ConstVec::cpy() { return m_cpy; }
+inline float& xAOD::MissingETAssociation_v1::ConstVec::cpz() { return m_cpz; }
+inline float& xAOD::MissingETAssociation_v1::ConstVec::ce() { return m_ce; }
+inline float& xAOD::MissingETAssociation_v1::ConstVec::sumpt() { return m_sumpt; }
 
 // -------------------------------------------------------------------- Setters 
-inline void xAOD::MissingETAssociation_v1::ConstVec::setCpx(double cpx) { this->cpx() = cpx; }
-inline void xAOD::MissingETAssociation_v1::ConstVec::setCpy(double cpy) { this->cpy() = cpy; }
-inline void xAOD::MissingETAssociation_v1::ConstVec::setCpz(double cpz) { this->cpz() = cpz; }
-inline void xAOD::MissingETAssociation_v1::ConstVec::setCe(double ce) { this->ce() = ce; }
-inline void xAOD::MissingETAssociation_v1::ConstVec::setSumpt(double sumpt) { this->sumpt() = sumpt; }
+inline void xAOD::MissingETAssociation_v1::ConstVec::setCpx(float cpx) { this->cpx() = cpx; }
+inline void xAOD::MissingETAssociation_v1::ConstVec::setCpy(float cpy) { this->cpy() = cpy; }
+inline void xAOD::MissingETAssociation_v1::ConstVec::setCpz(float cpz) { this->cpz() = cpz; }
+inline void xAOD::MissingETAssociation_v1::ConstVec::setCe(float ce) { this->ce() = ce; }
+inline void xAOD::MissingETAssociation_v1::ConstVec::setSumpt(float sumpt) { this->sumpt() = sumpt; }
 
 ////////////////////////////////////////////
 // Inlined Methods for MissingETAssociation //
@@ -100,73 +100,73 @@ inline MissingETBase::Types::objlink_vector_t& xAOD::MissingETAssociation_v1::f_
 
 // ---------------------------------------------------------- constituent vectors
 
-inline const std::vector<double>& xAOD::MissingETAssociation_v1::calpx() const
-{ static const SG::AuxElement::Accessor<std::vector<double> > acc("calpx"); return acc(*this); }
-inline double xAOD::MissingETAssociation_v1::calpx(const IParticle* pPart) const
+inline const std::vector<float>& xAOD::MissingETAssociation_v1::calpx() const
+{ return m_acc_calpx(*this); }
+inline float xAOD::MissingETAssociation_v1::calpx(const IParticle* pPart) const
 { return this->calpx(this->findIndex(pPart)); }
-inline const std::vector<double>& xAOD::MissingETAssociation_v1::calpy() const
-{ static const SG::AuxElement::Accessor<std::vector<double> > acc("calpy"); return acc(*this); }
-inline const std::vector<double>& xAOD::MissingETAssociation_v1::calpz() const
-{ static const SG::AuxElement::Accessor<std::vector<double> > acc("calpz"); return acc(*this); }
-inline const std::vector<double>& xAOD::MissingETAssociation_v1::cale() const
-{ static const SG::AuxElement::Accessor<std::vector<double> > acc("cale"); return acc(*this); }
-inline const std::vector<double>& xAOD::MissingETAssociation_v1::calsumpt() const
-{ static const SG::AuxElement::Accessor<std::vector<double> > acc("calsumpt"); return acc(*this); }
+inline const std::vector<float>& xAOD::MissingETAssociation_v1::calpy() const
+{ return m_acc_calpy(*this); }
+inline const std::vector<float>& xAOD::MissingETAssociation_v1::calpz() const
+{ return m_acc_calpz(*this); }
+inline const std::vector<float>& xAOD::MissingETAssociation_v1::cale() const
+{ return m_acc_cale(*this); }
+inline const std::vector<float>& xAOD::MissingETAssociation_v1::calsumpt() const
+{ return m_acc_calsumpt(*this); }
 
-inline std::vector<double>& xAOD::MissingETAssociation_v1::f_calpx() 
-{ static const SG::AuxElement::Accessor<std::vector<double> > acc("calpx"); return acc(*this); }
-inline std::vector<double>& xAOD::MissingETAssociation_v1::f_calpy() 
-{ static const SG::AuxElement::Accessor<std::vector<double> > acc("calpy"); return acc(*this); }
-inline std::vector<double>& xAOD::MissingETAssociation_v1::f_calpz() 
-{ static const SG::AuxElement::Accessor<std::vector<double> > acc("calpz"); return acc(*this); }
-inline std::vector<double>& xAOD::MissingETAssociation_v1::f_cale() 
-{ static const SG::AuxElement::Accessor<std::vector<double> > acc("cale"); return acc(*this); }
-inline std::vector<double>& xAOD::MissingETAssociation_v1::f_calsumpt() 
-{ static const SG::AuxElement::Accessor<std::vector<double> > acc("calsumpt"); return acc(*this); }
+inline std::vector<float>& xAOD::MissingETAssociation_v1::f_calpx() 
+{ return m_acc_calpx(*this); }
+inline std::vector<float>& xAOD::MissingETAssociation_v1::f_calpy() 
+{ return m_acc_calpy(*this); }
+inline std::vector<float>& xAOD::MissingETAssociation_v1::f_calpz() 
+{ return m_acc_calpz(*this); }
+inline std::vector<float>& xAOD::MissingETAssociation_v1::f_cale() 
+{ return m_acc_cale(*this); }
+inline std::vector<float>& xAOD::MissingETAssociation_v1::f_calsumpt() 
+{ return m_acc_calsumpt(*this); }
 
-inline const std::vector<double>& xAOD::MissingETAssociation_v1::trkpx() const
-{ static const SG::AuxElement::Accessor<std::vector<double> > acc("trkpx"); return acc(*this); }
-inline const std::vector<double>& xAOD::MissingETAssociation_v1::trkpy() const
-{ static const SG::AuxElement::Accessor<std::vector<double> > acc("trkpy"); return acc(*this); }
-inline const std::vector<double>& xAOD::MissingETAssociation_v1::trkpz() const
-{ static const SG::AuxElement::Accessor<std::vector<double> > acc("trkpz"); return acc(*this); }
-inline const std::vector<double>& xAOD::MissingETAssociation_v1::trke() const
-{ static const SG::AuxElement::Accessor<std::vector<double> > acc("trke"); return acc(*this); }
-inline const std::vector<double>& xAOD::MissingETAssociation_v1::trksumpt() const
-{ static const SG::AuxElement::Accessor<std::vector<double> > acc("trksumpt"); return acc(*this); }
+inline const std::vector<float>& xAOD::MissingETAssociation_v1::trkpx() const
+{ return m_acc_trkpx(*this); }
+inline const std::vector<float>& xAOD::MissingETAssociation_v1::trkpy() const
+{ return m_acc_trkpy(*this); }
+inline const std::vector<float>& xAOD::MissingETAssociation_v1::trkpz() const
+{ return m_acc_trkpz(*this); }
+inline const std::vector<float>& xAOD::MissingETAssociation_v1::trke() const
+{ return m_acc_trke(*this); }
+inline const std::vector<float>& xAOD::MissingETAssociation_v1::trksumpt() const
+{ return m_acc_trksumpt(*this); }
 
-inline std::vector<double>& xAOD::MissingETAssociation_v1::f_trkpx() 
-{ static const SG::AuxElement::Accessor<std::vector<double> > acc("trkpx"); return acc(*this); }
-inline std::vector<double>& xAOD::MissingETAssociation_v1::f_trkpy() 
-{ static const SG::AuxElement::Accessor<std::vector<double> > acc("trkpy"); return acc(*this); }
-inline std::vector<double>& xAOD::MissingETAssociation_v1::f_trkpz() 
-{ static const SG::AuxElement::Accessor<std::vector<double> > acc("trkpz"); return acc(*this); }
-inline std::vector<double>& xAOD::MissingETAssociation_v1::f_trke() 
-{ static const SG::AuxElement::Accessor<std::vector<double> > acc("trke"); return acc(*this); }
-inline std::vector<double>& xAOD::MissingETAssociation_v1::f_trksumpt() 
-{ static const SG::AuxElement::Accessor<std::vector<double> > acc("trksumpt"); return acc(*this); }
+inline std::vector<float>& xAOD::MissingETAssociation_v1::f_trkpx() 
+{ return m_acc_trkpx(*this); }
+inline std::vector<float>& xAOD::MissingETAssociation_v1::f_trkpy() 
+{ return m_acc_trkpy(*this); }
+inline std::vector<float>& xAOD::MissingETAssociation_v1::f_trkpz() 
+{ return m_acc_trkpz(*this); }
+inline std::vector<float>& xAOD::MissingETAssociation_v1::f_trke() 
+{ return m_acc_trke(*this); }
+inline std::vector<float>& xAOD::MissingETAssociation_v1::f_trksumpt() 
+{ return m_acc_trksumpt(*this); }
 
-inline double xAOD::MissingETAssociation_v1::jettrkpx() const
-{ static const SG::AuxElement::Accessor<double > acc("jettrkpx"); return acc(*this); }
-inline double xAOD::MissingETAssociation_v1::jettrkpy() const
-{ static const SG::AuxElement::Accessor<double > acc("jettrkpy"); return acc(*this); }
-inline double xAOD::MissingETAssociation_v1::jettrkpz() const
-{ static const SG::AuxElement::Accessor<double > acc("jettrkpz"); return acc(*this); }
-inline double xAOD::MissingETAssociation_v1::jettrke() const
-{ static const SG::AuxElement::Accessor<double > acc("jettrke"); return acc(*this); }
-inline double xAOD::MissingETAssociation_v1::jettrksumpt() const
-{ static const SG::AuxElement::Accessor<double > acc("jettrksumpt"); return acc(*this); }
+inline float xAOD::MissingETAssociation_v1::jettrkpx() const
+{ return m_acc_jettrkpx(*this); }
+inline float xAOD::MissingETAssociation_v1::jettrkpy() const
+{ return m_acc_jettrkpy(*this); }
+inline float xAOD::MissingETAssociation_v1::jettrkpz() const
+{ return m_acc_jettrkpz(*this); }
+inline float xAOD::MissingETAssociation_v1::jettrke() const
+{ return m_acc_jettrke(*this); }
+inline float xAOD::MissingETAssociation_v1::jettrksumpt() const
+{ return m_acc_jettrksumpt(*this); }
 
-inline double& xAOD::MissingETAssociation_v1::f_jettrkpx() 
-{ static const SG::AuxElement::Accessor<double > acc("jettrkpx"); return acc(*this); }
-inline double& xAOD::MissingETAssociation_v1::f_jettrkpy() 
-{ static const SG::AuxElement::Accessor<double > acc("jettrkpy"); return acc(*this); }
-inline double& xAOD::MissingETAssociation_v1::f_jettrkpz() 
-{ static const SG::AuxElement::Accessor<double > acc("jettrkpz"); return acc(*this); }
-inline double& xAOD::MissingETAssociation_v1::f_jettrke() 
-{ static const SG::AuxElement::Accessor<double > acc("jettrke"); return acc(*this); }
-inline double& xAOD::MissingETAssociation_v1::f_jettrksumpt() 
-{ static const SG::AuxElement::Accessor<double > acc("jettrksumpt"); return acc(*this); }
+inline float& xAOD::MissingETAssociation_v1::f_jettrkpx() 
+{ return m_acc_jettrkpx(*this); }
+inline float& xAOD::MissingETAssociation_v1::f_jettrkpy() 
+{ return m_acc_jettrkpy(*this); }
+inline float& xAOD::MissingETAssociation_v1::f_jettrkpz() 
+{ return m_acc_jettrkpz(*this); }
+inline float& xAOD::MissingETAssociation_v1::f_jettrke() 
+{ return m_acc_jettrke(*this); }
+inline float& xAOD::MissingETAssociation_v1::f_jettrksumpt() 
+{ return m_acc_jettrksumpt(*this); }
 
 // --------------------------------------------------------- misc association flag
 inline bool xAOD::MissingETAssociation_v1::isMisc() const 
@@ -282,13 +282,13 @@ inline MissingETBase::Types::constvec_t operator+(const MissingETBase::Types::co
 inline MissingETBase::Types::constvec_t operator-(const MissingETBase::Types::constvec_t& v0,const MissingETBase::Types::constvec_t& v1)
 { MissingETBase::Types::constvec_t v(v0); v -= v1; return v; }
 
-inline MissingETBase::Types::constvec_t operator*(const MissingETBase::Types::constvec_t& cvec,double scale)
+inline MissingETBase::Types::constvec_t operator*(const MissingETBase::Types::constvec_t& cvec,float scale)
 { MissingETBase::Types::constvec_t v(cvec); v *= scale; return v; }
 
-inline MissingETBase::Types::constvec_t operator*(double scale,const MissingETBase::Types::constvec_t& cvec)
+inline MissingETBase::Types::constvec_t operator*(float scale,const MissingETBase::Types::constvec_t& cvec)
 { MissingETBase::Types::constvec_t v(cvec); v *= scale; return v; }
 
-inline MissingETBase::Types::constvec_t operator/(const MissingETBase::Types::constvec_t& cvec,double scale)
+inline MissingETBase::Types::constvec_t operator/(const MissingETBase::Types::constvec_t& cvec,float scale)
 { MissingETBase::Types::constvec_t v(cvec); v /= scale; return v; } 
 
 ///////////////////////////////////////////////////////////////

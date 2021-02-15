@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1TopoSimulation_JetInputProvider
@@ -8,10 +8,11 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "L1TopoSimulation/IInputTOBConverter.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "GaudiKernel/LockedHandle.h"
 #include "TrigT1CaloEvent/JetCMXTopoDataCollection.h"
 
-class TH1I;
-class TH2I;
+#include "TH1.h"
+#include "TH2.h"
 
 class ITHistSvc;
 
@@ -36,9 +37,9 @@ namespace LVL1 {
 
       SG::ReadHandleKey< DataVector<JetCMXTopoData> >  m_jetLocation;    //!<  Jet ROIs SG key
 
-      TH1I * m_hPt1 {nullptr};
-      TH1I * m_hPt2 {nullptr};
-      TH2I * m_hEtaPhi {nullptr};
+      mutable LockedHandle<TH1> m_hPt1 ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_hPt2 ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hEtaPhi ATLAS_THREAD_SAFE;
    };
 }
 

@@ -14,7 +14,6 @@
 //  "Event-by-Event Estimate of Muon Energy Loss in ATLAS",
 //  IEEE Trans. Nucl. Sci., vol. 54, no. 5, pt. 2, pp. 1792-1796, Oct. 2007.
 //
-//  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
 //<<<<<< INCLUDES                                                       >>>>>>

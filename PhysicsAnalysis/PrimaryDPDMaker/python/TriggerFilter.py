@@ -12,8 +12,6 @@
 ##              set of triggers.
 ##=============================================================================
 
-from __future__ import print_function
-
 __doc__ = """This is a short algorithm to select events that pass at least
 one out of a certain set of triggers.
 """
@@ -23,11 +21,6 @@ __author__  = "Eric Feng <Eric.Feng@cern.ch>"
 
 import AthenaPython.PyAthena as PyAthena
 from AthenaPython.PyAthena import StatusCode
-
-from PrimaryDPDMaker import PrimaryDPDHelpers
-
-## Import the module that allows to use named units, e.g. GeV
-import AthenaCommon.SystemOfUnits as Units
 
 class TriggerFilter( PyAthena.AthFilterAlgorithm ):
     """
@@ -62,7 +55,7 @@ class TriggerFilter( PyAthena.AthFilterAlgorithm ):
 
         ## Import needed modules
         import PyUtils.RootUtils as ru
-        ROOT = ru.import_root()
+        ROOT = ru.import_root()  # noqa: F841
 
         ## Get the TrigDecisionTool tool
         self.tdt = PyAthena.py_tool('Trig::TrigDecisionTool/TrigDecisionTool', iface='Trig::TrigDecisionTool')
@@ -90,12 +83,12 @@ class TriggerFilter( PyAthena.AthFilterAlgorithm ):
         isPassed = False
         
         self.nProcessed+=1
-        self.msg.debug( '==> execute %s on %r. event...' % (self.name, self.nProcessed) )
+        self.msg.debug( '==> execute %s on %r. event...', self.name, self.nProcessed )
         
 
         ## If passAll is selected, accept all events
         if self.passAll :
-            self.msg.debug( '%s event passed because passAll is true' % self.name )
+            self.msg.debug( '%s event passed because passAll is true', self.name )
             self.setFilterPassed(True)
             return StatusCode.Success        
 
@@ -103,8 +96,8 @@ class TriggerFilter( PyAthena.AthFilterAlgorithm ):
         #if self.tdt.isPassed(PyAthena.TrigDec.EF):
         if self.tdt.isPassed( self.trigger ):
             self.nEventPassTrigger += 1
-            self.msg.debug("Trigger %s passed. Count: %d"
-                           % ( self.trigger, self.nEventPassTrigger ) )
+            self.msg.debug("Trigger %s passed. Count: %d",
+                           self.trigger, self.nEventPassTrigger)
             isPassed = True
             pass
         
@@ -133,13 +126,13 @@ class TriggerFilter( PyAthena.AthFilterAlgorithm ):
         except ZeroDivisionError :
             self.msg.warning( 'Division by zero error when calculating the uncertainties on the pass efficiencies...' )
         
-        self.msg.info( '==> finalize %s...' % self.name )
+        self.msg.info( '==> finalize %s...', self.name )
         self.msg.info( '***************************************************************' )
-        self.msg.info( 'Cut-flow table of %s skimming algorithm:' % self.name )
+        self.msg.info( 'Cut-flow table of %s skimming algorithm:', self.name )
         self.msg.info( '-------------' )
-        self.msg.info( ' Number of processed events: %r' % self.nProcessed )
-        self.msg.info( ' Events passing trigger %s:   %r and resulting efficiency = (%3.3f +/- %3.3f)%%' \
-                       % ( self.trigger, self.nEventPassTrigger, effiPassTrigger, effiErrPassTrigger ) )
+        self.msg.info( ' Number of processed events: %r', self.nProcessed )
+        self.msg.info( ' Events passing trigger %s:   %r and resulting efficiency = (%3.3f +/- %3.3f)%%',
+                       self.trigger, self.nEventPassTrigger, effiPassTrigger, effiErrPassTrigger )
         self.msg.info( '***************************************************************' )
 
         return StatusCode.Success

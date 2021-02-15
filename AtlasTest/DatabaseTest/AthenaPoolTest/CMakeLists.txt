@@ -34,7 +34,7 @@ function (athenapooltest_run_test testName jo pattern)
   atlas_add_test( ${testName}
                   SCRIPT athena.py AthenaPoolTest/${jo}.py
                   LOG_SELECT_PATTERN ${pattern}
-                  LOG_IGNORE_PATTERN "DEBUG Try item:|AthenaAttribute.*DB=|AtlasRelease"
+                  LOG_IGNORE_PATTERN "DEBUG Try item:|AthenaAttribute.*DB=|AtlasRelease|Release version"
                   PROPERTIES TIMEOUT 900 )
   if( ARG_DEPENDS )
     foreach( _dep ${ARG_DEPENDS} )

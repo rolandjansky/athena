@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 The SCT 24h Calibration Loop.
 This transformation will run the SCT 24 hours calibration loop.
@@ -31,6 +31,7 @@ from PyJobTransformsCore.trfutil import *
 
 dsDict={'input': [] , 'output' : []}
 RunNumber=-1
+EventNumber=-1
 SvcClass=''
 Stream=''
 NumberOfEvents=0
@@ -136,7 +137,7 @@ def main():
 def getTransform():
 
     exeSet = set()
-    exeSet.add(SCTCalibExecutor('/afs/cern.ch/user/c/csander/testarea/Athena-master/InnerDetector/athena/InDetCalibAlgs/SCT_CalibAlgs/share/skeleton.sct_calib.py'))
+    exeSet.add(SCTCalibExecutor('/afs/cern.ch/user/c/csander/testarea/Athena-latest/athena/InnerDetector/InDetCalibAlgs/SCT_CalibAlgs/share/skeleton.sct_calib.py'))
 #    exeSet.add(SCTCalibExecutor('/afs/cern.ch/user/s/sctcalib/testarea/latest/athena/InnerDetector/InDetCalibAlgs/SCT_CalibAlgs/share/skeleton.sct_calib.py'))
 
     trf = transform(executor=exeSet) 
@@ -275,7 +276,7 @@ class SCTCalibExecutor( athenaExecutor ):
     def __init__(self, skeleton):
         athenaExecutor.__init__(self,
                                 name = 'sctcalib',
-                                skeletonFile='/afs/cern.ch/user/c/csander/testarea/Athena-master/athena/InnerDetector/InDetCalibAlgs/SCT_CalibAlgs/share/skeleton.sct_calib.py')
+                                skeletonFile='/afs/cern.ch/user/c/csander/testarea/Athena-latest/athena/InnerDetector/InDetCalibAlgs/SCT_CalibAlgs/share/skeleton.sct_calib.py')
 #                                skeletonFile='/afs/cern.ch/user/s/sctcalib/testarea/latest/athena/InnerDetector/InDetCalibAlgs/SCT_CalibAlgs/share/skeleton.sct_calib.py')
 
     def preExecute(self, input=set(), output=set()):
@@ -295,6 +296,8 @@ class SCTCalibExecutor( athenaExecutor ):
         fileName=namelist[0].split('/')[nName]
         projectName=str(fileName.split('.')[0])
 
+        #### Try to avoid validation of output files
+        #self.skipOutputFileValidation=True
 
         if not 'doRunInfo' in runArgs:
             self.conf.addToArgdict('doRunInfo', trfArgClasses.argBool(False))
@@ -302,7 +305,7 @@ class SCTCalibExecutor( athenaExecutor ):
             if runArgs['doRunInfo']._value:
                 import SCT_CalibAlgs.runInfo as runInfo
 
-                print "RunNumber for the runInfo = " + str(RunNumber) + " " + Stream
+                print ("RunNumber for the runInfo = ", str(RunNumber), " ", Stream)
                 runInfo.main(RunNumber, projectName)
 
         if not 'splitNoisyStrip' in runArgs:
@@ -310,13 +313,17 @@ class SCTCalibExecutor( athenaExecutor ):
         if not 'doRunSelector' in runArgs:
             self.conf.addToArgdict('doRunSelector', trfArgClasses.argBool(False))
 
+        #### This is a try to set event number manually if run over HIST files
+        if not 'EventNumber' in runArgs:
+            self.conf.addToArgdict('EventNumber', trfArgClasses.argInt(0))
+
         # Set STAGE_SVCCLASS
         if not SvcClass is '' and not SvcClass is None:
             os.environ['STAGE_SVCCLASS']=SvcClass
 
         # Check input type
         inputtype=dsDict['input'][0]['dataset'].split('.')[4]
-        print "Input type = " + inputtype
+        print ("Input type = ", inputtype)
         self.conf.addToArgdict('InputType', trfArgClasses.argString(inputtype))
 
         # check which parts to be run
@@ -413,7 +420,7 @@ class SCTCalibExecutor( athenaExecutor ):
             checkRun=runSelector.main(RunNumber,part,skipQueue,Stream)
             if not checkRun:
 
-                print "Run %s didn't pass run selection criteria. It will not be processed and no output will be generated. Finish execution and exit gracefully" %(RunNumber)
+                print ("Run ", RunNumber, " didn't pass run selection criteria. It will not be processed and no output will be generated. Finish execution and exit gracefully")
                 emptyDic = {}
                 self._trf._dataDictionary = emptyDic
                     
@@ -450,12 +457,12 @@ class SCTCalibExecutor( athenaExecutor ):
                 cmd += "\n"
 #                cmd += " >> /dev/null 2>&1 \n"
             
-                print cmd
+                print (cmd)
                 self._echologger.info('Merging Hitmap and LB files!')
                 retcode=1
                 try:
                     retcode = os.system(cmd)
-                except OSError, e:
+                except (OSError, e):
                     retcode = 1
                 if retcode == 0:
                     self._echologger.info('Root merge successful')
@@ -485,13 +492,13 @@ class SCTCalibExecutor( athenaExecutor ):
         if 'doNoisyStrip' in runArgs['part']._value and runArgs['splitNoisyStrip']._value == 1:
             outInstance0 = self.conf.dataDictionary[list(self._output)[0]]
             outTFile0 = TFile(outInstance0._value[0])
-            print outTFile0.GetName()
+            print (outTFile0.GetName())
             outNentries0 = int(outTFile0.Get('GENERAL/events').GetEntries())
             outInstance0._setMetadata(outInstance0._value,{'nentries': outNentries0})
             
             outInstance1 = self.conf.dataDictionary[list(self._output)[1]]
             outTFile1 = TFile(outInstance1._value[0])
-            print outTFile1.GetName()
+            print (outTFile1.GetName())
             outNentries1 = int(outTFile1.Get('GENERAL/events').GetEntries())
             outInstance1._setMetadata(outInstance1._value,{'nentries': outNentries1})
 

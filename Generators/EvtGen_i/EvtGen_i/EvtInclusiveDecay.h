@@ -84,7 +84,7 @@ class EvtInclusiveDecay:public GenBase {
 		void removeDecayTree(HepMC::GenEvent* hepMC, HepMC::GenParticlePtr p);
 		void decayParticle(HepMC::GenEvent* hepMC, HepMC::GenParticlePtr p);
 		void addEvtGenDecayTree(HepMC::GenEvent* hepMC, HepMC::GenParticlePtr part,
-					EvtParticle* evtPart, EvtVector4R treeStart,
+					EvtParticle* evtPart, 
                                         double momentumScaleFactor = 1.0);
 
 		bool isToBeDecayed(HepMC::ConstGenParticlePtr p, bool doCrossChecks);

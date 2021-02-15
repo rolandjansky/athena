@@ -6,17 +6,7 @@
 @file PixelAthMonitoringBase.py
 @brief Helper functions for Run 3 Pixel monitoring algorithm configuration
 '''
-# hack to deal with global variables in this module
-# check if we are in "old-" or "new-style" configuration
-#from AthenaConfiguration.AllConfigFlags import ConfigFlags
-#from RecExConfig.AutoConfiguration import GetRunNumber
-#if ConfigFlags.DQ.isReallyOldStyle:
 runtext = ''
-#    if GetRunNumber() is not None:
-#        runtext = ' (Run %d)' % GetRunNumber()
-#else:
-#    runtext = ' (Run %d)' % ConfigFlags.Input.RunNumber[0]
-
 
 NumLayersDisk = 3
 NumLayersDBM  = 3
@@ -43,6 +33,10 @@ xminsl   = [ -0.5, -0.5,-6.5,-6.5,-6.5,-16.5,  -0.5,  -0.5]
 ybinsl   = [   48,   48,  22,  38,  52,   14,     4,     4]
 etatxt   = [ditxt,ditxt,btxt,btxt,btxt,sbtxt,dbmtxt,dbmtxt]
 phitext  = ";phi index of module"
+xbinsfel = [   24,   24, 104, 104, 104,   32,     3,     3]
+xminsfel = [ -0.5, -0.5, -52, -52, -52,-16.5,  -0.5,  -0.5]
+ybinsfel = [   96,   96,  44,  76, 104,   14,     4,     4]
+
 totcuts  = [   15,   15,  15,  15,  15,    4,     4,     4] 
 xbinsem  = [    3,    3,  13,  13,  13,   20,     3,     3]
 xminsem  = [  0.5,  0.5,-6.5,-6.5,-6.5,  -10,   0.5,   0.5]
@@ -80,6 +74,26 @@ ModulesIBL = [
 LayersDBM = ["Layer 0", "Layer 1", "Layer 2"] #xDBM
 
 LabelX = [LayersDisk, LayersDisk, ModulesBarrel, ModulesBarrel, ModulesBarrel, ModulesIBL, LayersDBM, LayersDBM]
+
+#same for FE
+LayersDiskFE = [" ", " ", " ", "Disk 1", " ", " ", " ", " ",
+              " ", " ", " ", "Disk 2", " ", " ", " ", " ",
+              " ", " ", " ", "Disk 3", " ", " ", " ", " "]
+ModulesBarrelFE = [
+    " ", " ", " ", "M6C", " ", " ", " ", " ",
+    " ", " ", " ", "M5C", " ", " ", " ", " ",
+    " ", " ", " ", "M4C", " ", " ", " ", " ",
+    " ", " ", " ", "M3C", " ", " ", " ", " ",
+    " ", " ", " ", "M2C", " ", " ", " ", " ",
+    " ", " ", " ", "M1C", " ", " ", " ", " ",
+    " ", " ", " ", "M0", " ", " ", " ", " ",
+    " ", " ", " ", "M1A", " ", " ", " ", " ",
+    " ", " ", " ", "M2A", " ", " ", " ", " ",
+    " ", " ", " ", "M3A", " ", " ", " ", " ",
+    " ", " ", " ", "M4A", " ", " ", " ", " ",
+    " ", " ", " ", "M5A", " ", " ", " ", " ",
+    " ", " ", " ", "M6A", " ", " ", " ", " "]
+LabelFEX = [LayersDiskFE, LayersDiskFE, ModulesBarrelFE, ModulesBarrelFE, ModulesBarrelFE, ModulesIBL, LayersDBM, LayersDBM]
 
 ModulesECA = [
     "B01_S2_M1", "B01_S2_M6", "B01_S2_M2", "B01_S2_M5", "B01_S2_M3",
@@ -138,6 +152,24 @@ StavesIBL = [
     "S12", "S13","S14"]
 
 LabelY = [ModulesECA, ModulesECC, StavesL0, StavesL1, StavesL2, StavesIBL, ModulesDBM, ModulesDBM]
+
+#same for per-FE
+ModulesFEECA = []
+for i in ModulesECA: 
+    ModulesFEECA.extend([i, ' '])
+ModulesFEECC = []
+for i in ModulesECC: 
+    ModulesFEECC.extend([i, ' '])
+StavesFEL0 = []
+for i in StavesL0:
+    StavesFEL0.extend([i, ' '])
+StavesFEL1 = []
+for i in StavesL1:
+    StavesFEL1.extend([i, ' '])
+StavesFEL2 = []
+for i in StavesL2:
+    StavesFEL2.extend([i, ' '])
+LabelFEY = [ModulesFEECA, ModulesFEECC, StavesFEL0, StavesFEL1, StavesFEL2, StavesIBL, ModulesDBM, ModulesDBM]
 
 #PP0
 PP0sEC = [
@@ -230,6 +262,12 @@ ErrCatLabelsNorm = [
       "TimeoutErrorsFracPerEvent"
 ]
 
+ReadingDataErrLabels = [
+      "Invalid container",
+      "Invalid collection", 
+      "Container empty"
+]
+
 layergroups = {}
 def getLayerGroup(helper, alg, layer):
     if alg not in layergroups:
@@ -250,7 +288,7 @@ def define2DProfHist(helper, alg, name, title, path, type='TProfile2D', doWeight
          title      -- Title of histogram (Title = title +' '+layer)
          path       -- Path in output file for histogram
          type       -- Type of histogram (TH2D, TProfile2D)
-         lifecycle  -- global life duration of histograms (run, lowstat [i.e. 20 LB], lumiblock) - APPLIES to MonGroup only
+         lifecycle  -- global life duration of histograms (run, lowStat [i.e. 20 LB], lumiblock) - APPLIES to MonGroup only
          zmin(zmax) -- fix the displayed range - simply chopping the range!!!
          opt        -- history depth of a histogram e.g. 'kLBNHistoryDepth=10'
          histname   -- another way of naming the histogram(s), useful when multiple histograms are filled from exactly the same variables, but in a different way
@@ -280,6 +318,49 @@ def define2DProfHist(helper, alg, name, title, path, type='TProfile2D', doWeight
                                     zmin=zmin, zmax=zmax,
                                     duration=lifecycle,
                                     opt=opt, xlabels=LabelX[i], ylabels=LabelY[i])
+
+def define2DProfPerFEHist(helper, alg, name, title, path, type='TProfile2D', doWeight=False, lifecycle='run', zmin=None, zmax=None, opt='', histname=None, onlylayers=layers):
+    '''
+    This function configures 2D (Profile) histograms (or maps) for Pixel layers per FE.
+
+    Arguments:
+         helper     -- AthMonitorCfgHelper(Old) instance
+         alg        -- algorithm - Configurable object returned from addAlgorithm
+         name       -- Name of histogram (Name = name_layer)
+         title      -- Title of histogram (Title = title +' '+layer)
+         path       -- Path in output file for histogram
+         type       -- Type of histogram (TH2D, TProfile2D)
+         lifecycle  -- global life duration of histograms (run, lowStat [i.e. 20 LB], lumiblock) - APPLIES to MonGroup only
+         zmin(zmax) -- fix the displayed range - simply chopping the range!!!
+         opt        -- history depth of a histogram e.g. 'kLBNHistoryDepth=10'
+         histname   -- another way of naming the histogram(s), useful when multiple histograms are filled from exactly the same variables, but in a different way
+         onlylayers -- sublist of layers 
+    '''
+    assert(set(onlylayers).issubset(layers))
+    if histname is None:
+        histname = name
+    for i, layer in enumerate(layers):
+        if layer not in onlylayers: 
+            continue
+        fulltitle   = title + ', {0}'.format(layer) + runtext + etatxt[i] + phitext
+        layerGroup = getLayerGroup(helper, alg, layer)
+
+        fullvarstring = '{0}_{1},{0}_{2}'.format(name, 'em', 'pm')
+        weightvar = ''
+        if 'Profile' in type: 
+            fullvarstring += ',{0}_{1}'.format(name, 'val')
+        elif doWeight:
+            weightvar = '{0}_{1}'.format(name, 'val') # re-use the same variable for TH2 for now.
+            
+        fullvarstring += ';' + histname + '_{0}'.format(layer)
+        layerGroup.defineHistogram(fullvarstring, 
+                                    type=type, path=path, title=fulltitle, weight=weightvar,
+                                    xbins=xbinsfel[i], xmin=xminsfel[i], xmax=xminsfel[i]+xbinsfel[i], 
+                                    ybins=ybinsfel[i], ymin=-0.5, ymax=-0.5+ybinsfel[i],
+                                    zmin=zmin, zmax=zmax,
+                                    duration=lifecycle,
+                                    opt=opt, xlabels=LabelFEX[i], ylabels=LabelFEY[i])
+
 
 def definePP0Histos(helper, alg, name, title, path, opt=''):
     '''

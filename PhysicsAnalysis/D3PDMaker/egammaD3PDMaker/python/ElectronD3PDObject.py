@@ -7,18 +7,16 @@
 # @brief Configure electron D3PD object.
 #
 
-from egammaD3PDMaker.defineBlockAndAlg   \
-     import defineAlgLODFunc, defineBlockAndAlg
+from egammaD3PDMaker.defineBlockAndAlg      import defineBlockAndAlg
 from EventCommonD3PDMaker.DRAssociation     import DRAssociation
 from TrackD3PDMaker.xAODTrackSummaryFiller  import xAODTrackSummaryFiller
 from D3PDMakerCoreComps.D3PDObject          import make_SGDataVector_D3PDObject
 from D3PDMakerCoreComps.D3PDObject          import DeferArg
-from D3PDMakerCoreComps.SimpleAssociation   import SimpleAssociation, IdentityAssociation
-from D3PDMakerCoreComps.IndexAssociation    import IndexAssociation
+from D3PDMakerCoreComps.SimpleAssociation   import SimpleAssociation
 from D3PDMakerCoreComps.IndexMultiAssociation import IndexMultiAssociation
-from D3PDMakerCoreComps.resolveSGKey        import resolveSGKey, testSGKey
+from D3PDMakerCoreComps.resolveSGKey        import testSGKey
+from D3PDMakerCoreComps.resolveSGKey        import resolveSGKey # noqa: F401
 from D3PDMakerConfig.D3PDMakerFlags         import D3PDMakerFlags
-# from TriggerD3PDMaker.defineTriggerBits     import defineTriggerBits
 from RecExConfig.RecFlags                   import rec
 import egammaD3PDMaker
 import EventCommonD3PDMaker

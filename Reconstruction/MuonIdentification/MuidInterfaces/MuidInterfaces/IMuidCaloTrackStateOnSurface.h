@@ -8,7 +8,6 @@
 //  objects representing the Coulomb scattering and energy deposit between 
 //  the InDet and MuonSpectrometer entrance.
 //
-//  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef MUIDINTERFACES_IMUIDCALOTRACKSTATEONSURFACE_H

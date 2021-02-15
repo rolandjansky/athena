@@ -1,6 +1,6 @@
-#! /usr/bin/env python
+#!/usr/bin/env python3
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import json
 import argparse
@@ -105,10 +105,11 @@ def printSnapshotsInfo():
     print('*'*105)
     print('{0:<40}{1:<}'.format('Number of events processed:',
                                   data['summary']['nEvents']))
-    print('{0:<40}{1:<.0f}'.format('CPU usage per event[ms]:',
+    print('{0:<40}{1:<.0f}'.format('CPU usage per event [ms]:',
                                   float(data['summary']['snapshotLevel']['Execute']['dCPU'])/float(data['summary']['nEvents'])))
     print('{0:<40}{1:<.3f}'.format('Events per second:',
                                   float(data['summary']['nEvents'])/float(data['summary']['snapshotLevel']['Execute']['dWall']*0.001)))
+    print('{0:<40}{1:<}'.format('CPU utilization efficiency [%]:', data['summary']['misc']['cpuUtilEff']))
     print('*'*105)
     print('{0:<40}{1:<.2f} GB'.format('Max Vmem:',
                                      float(data['summary']['peaks']['vmemPeak'])/1024./1024.))
@@ -131,6 +132,16 @@ def printSystemInfo():
     print('='*105)
     print('{0:<40}{1:<}'.format('CPU Model:',data['summary']['sysInfo']['cpuModel'].lstrip()))
     print('{0:<40}{1:<}'.format('Number of Available Cores:',data['summary']['sysInfo']['coreNum']))
+    print('{0:<40}{1:<.2f} GB'.format('Total Memory:',float(data['summary']['sysInfo']['totMem'])/1024./1024.))
+    print('='*105)
+
+# Print Environment Info
+def printEnvironmentInfo():
+    print('='*105)
+    print('{0:^105}'.format('Environment Information'))
+    print('='*105)
+    print('{0:<40}{1:<}'.format('Malloc Library:',data['summary']['envInfo']['mallocLib']))
+    print('{0:<40}{1:<}'.format('Math Library:',data['summary']['envInfo']['mathLib']))
     print('='*105)
 
 # Main function
@@ -177,8 +188,9 @@ if '__main__' in __name__:
         if args.level in ['All', 'SummaryLevel']:
             printSnapshotsInfo()
 
-        # Print System Information
+        # Print System and Environment Information
         if args.level in ['All']:
             printSystemInfo()
+            printEnvironmentInfo()
         # Print Footer
         printFooter()

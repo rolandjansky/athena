@@ -40,14 +40,10 @@
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkParameters/TrackParameters.h"
-//#include "TrkParameters/MeasuredPerigee.h"
-#include "TrkParameters/TrackParameters.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 
 #include "Particle/TrackParticle.h"
 #include "Particle/TrackParticleContainer.h"
-
-//#include "CLHEP/Units/SystemOfUnits.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <sstream>
@@ -13,25 +13,25 @@
 using namespace std;
 
 namespace egGain {
-  
+
   GainTool::GainTool(const std::string& filenameTO, const std::string& filenameVar){
     Init( filenameTO, filenameVar);
   }
-    
+
   GainTool::~GainTool() {
-    
+
     for (int i=0;i<m_NUM_ETA_BINS;++i){
       delete m_funcTO[i];
 
       for (int j=0;j< m_NUM_ENERGY_BINS;++j){
 	delete m_funcG[j][i];
-	delete m_conv_funcG[j][i];	
+	delete m_conv_funcG[j][i];
       }
       for (int j=0;j< m_NUM_UNCONV_ENERGY_BINS;++j){
 	delete  m_unconv_funcG[j][i];
       }
     }
-    
+
   }
 
   void GainTool::Init(const std::string& filenameTO, const std::string& filenameVar){
@@ -107,26 +107,26 @@ namespace egGain {
 	m_funcG[0][id]=(TF1*)m_varFile->Get(etabin1_M_elec.c_str());
 	m_funcG[1][id]=(TF1*)m_varFile->Get(etabin2_M_elec.c_str());
 	m_funcG[2][id]=(TF1*)m_varFile->Get(etabin3_M_elec.c_str());
-	
+
 	m_conv_funcG[0][id]=(TF1*)m_varFile->Get(etabin1_M_conv.c_str());
 	m_conv_funcG[1][id]=(TF1*)m_varFile->Get(etabin2_M_conv.c_str());
 	m_conv_funcG[2][id]=(TF1*)m_varFile->Get(etabin3_M_conv.c_str());
-	
+
 	m_unconv_funcG[0][id]=(TF1*)m_varFile->Get(etabin1_M_unconv.c_str());
 	m_unconv_funcG[1][id]=(TF1*)m_varFile->Get(etabin2_M_unconv.c_str());
 	m_unconv_funcG[2][id]=(TF1*)m_varFile->Get(etabin3_M_unconv.c_str());
-	m_unconv_funcG[3][id]=(TF1*)m_varFile->Get(etabin4_M_unconv.c_str());	
+	m_unconv_funcG[3][id]=(TF1*)m_varFile->Get(etabin4_M_unconv.c_str());
       }
 
       else {
 	m_funcG[0][id]=(TF1*)m_varFile->Get(etabin1_P_elec.c_str());
 	m_funcG[1][id]=(TF1*)m_varFile->Get(etabin2_P_elec.c_str());
 	m_funcG[2][id]=(TF1*)m_varFile->Get(etabin3_P_elec.c_str());
-	
+
 	m_conv_funcG[0][id]=(TF1*)m_varFile->Get(etabin1_P_conv.c_str());
 	m_conv_funcG[1][id]=(TF1*)m_varFile->Get(etabin2_P_conv.c_str());
 	m_conv_funcG[2][id]=(TF1*)m_varFile->Get(etabin3_P_conv.c_str());
-	
+
 	m_unconv_funcG[0][id]=(TF1*)m_varFile->Get(etabin1_P_unconv.c_str());
 	m_unconv_funcG[1][id]=(TF1*)m_varFile->Get(etabin2_P_unconv.c_str());
 	m_unconv_funcG[2][id]=(TF1*)m_varFile->Get(etabin3_P_unconv.c_str());
@@ -152,7 +152,7 @@ namespace egGain {
 			 0.167472,0.154887,0.122343,0.212282,0.657224,0.576652,0.135954,0.0798118,0.0167071,-0.0221686,-0.0398211,0.128146,-0.0226478};
 
     double range_energy[28]={195.,180.,175.,160.,140.,145.,155.,155.,145.,140.,120.,90.,90.,75.,75.,90.,90.,120.,140.,145.,155.,155.,145.,140.,160.,175.,180.,195.};
-    
+
     double corrM_G, corrE;
     corrM_G =1;
     corrE=0;
@@ -173,14 +173,11 @@ namespace egGain {
       }
     }
 
-    if (id_eta < 0)
-      return energy_input*1000.;
-
     if (ptype == PATCore::ParticleType::UnconvertedPhoton){
       double norm_unconv=1.;
       if (id_eta<17 && id_eta>10) norm_unconv = m_unconv_funcG[0][id_eta]->Eval(range_energy[id_eta]);
       else if (id_eta<25 && id_eta>2) norm_unconv = m_unconv_funcG[1][id_eta]->Eval(range_energy[id_eta]);
-      else  norm_unconv = m_unconv_funcG[2][id_eta]->Eval(range_energy[id_eta]);
+      else norm_unconv = m_unconv_funcG[2][id_eta]->Eval(range_energy[id_eta]);
 
       if (energy_input<92) corrM_G = (m_unconv_funcG[0][id_eta]->Eval(energy_input))/(norm_unconv);
       else if (energy_input<160 && energy_input>=92) corrM_G = (m_unconv_funcG[1][id_eta]->Eval(energy_input))/(norm_unconv);
@@ -255,7 +252,11 @@ namespace egGain {
 	else if (energy_input>=480) corrM_G = (funcG_com[2][id_eta]->Eval(energy_input))/(funcG_com[0][id_eta]->Eval(range_energy[id_eta]));
       }
     }
-    
+
+    if (id_eta < 0) {
+      return energy_input*1000.;
+    }
+
     double ets2 = energy_layer2_input/cosh(eta_input);
     double valTO = (m_funcTO[id_eta])->Eval(ets2);
     if (valTO < 0) {

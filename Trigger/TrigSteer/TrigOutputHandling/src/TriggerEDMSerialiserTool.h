@@ -42,7 +42,7 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
 	     const std::string& name,
 	     const IInterface* parent );
 
-  virtual ~TriggerEDMSerialiserTool();
+  virtual ~TriggerEDMSerialiserTool() override = default;
   virtual StatusCode fill( HLT::HLTResultMT& resultToFill, const EventContext& ctx ) const override;
 
   virtual StatusCode  initialize() override;
@@ -83,33 +83,18 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
    * Internal structure to keep configuration organised conveniently
    **/
   struct Address {
-    enum Category { xAODInterface, xAODAux, OldTP, xAODDecoration, None };
-    Address( const std::string& transType_,
-	     const std::string& persType_,
-	     const CLID clid_,
-	     const std::string& key_,
-	     const std::vector<uint16_t> module_={},
-	     const Category category_ = None,
-	     const xAOD::AuxSelection& sel_ = {} )
-    : transType(transType_),
-      persType(persType_),
-      clid(clid_),
-      key(key_),
-      moduleIdVec(module_),
-      category(category_),
-      sel(sel_){}
+    enum class Category : uint8_t { xAODInterface, xAODAux, OldTP, xAODDecoration, None };
 
     std::string transType;
     std::string persType; // actual versioned type
     CLID clid;
     std::string key;
-    std::vector<uint16_t> moduleIdVec;
+    std::vector<uint16_t> moduleIdVec{};
+    Category category{Category::None};
+    xAOD::AuxSelection sel{}; //!< xAOD dynamic variables selection, relevant only for xAODAux category
 
-    Category category;
-    xAOD::AuxSelection sel = {}; //!< xAOD dynamic variables selection, relevant only for xAODAux category
-
-    const std::string transTypeName() const {return transType+"#"+key;}
-    const std::string persTypeName() const {return persType+"#"+key;}
+    std::string transTypeName() const {return transType+"#"+key;}
+    std::string persTypeName() const {return persType+"#"+key;}
   };
 
   /**
@@ -117,8 +102,6 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
    * Internal structure to keep information for truncation debugging
    **/
   struct TruncationInfo {
-    TruncationInfo(const Address* a, const size_t s, const bool r)
-    : addrPtr(a), size(s), recorded(r) {}
     const Address* addrPtr{nullptr};
     size_t size{0};
     bool recorded{false};
@@ -147,7 +130,7 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
   /**
    * Given the ID of the collection (in address arg) insert basic streaming info into the buffer.
    */
-  StatusCode makeHeader( const TriggerEDMSerialiserTool::Address& address, std::vector<uint32_t>& buffer  ) const;
+  static StatusCode makeHeader( const TriggerEDMSerialiserTool::Address& address, std::vector<uint32_t>& buffer  );
 
   /**
    * Copy bytes from the memory into the buffer converting from char[] to uint32_t[]
@@ -200,7 +183,7 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
   /**
    * Obtain version from the actual type name
    */
-  std::string version( const std::string& name ) const;
+  static std::string version( const std::string& name );
 
 };
 

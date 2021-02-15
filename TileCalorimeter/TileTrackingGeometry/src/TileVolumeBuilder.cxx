@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -62,7 +62,6 @@ Tile::TileVolumeBuilder::TileVolumeBuilder(const std::string& t, const std::stri
   AthAlgTool(t,n,p),
   m_tileMgr(0),
   m_tileMgrLocation("Tile"),
-  m_calo_dd(0),
   m_trackingVolumeHelper("Trk::TrackingVolumeHelper/TrackingVolumeHelper"),
   m_trackingVolumeCreator("Trk::CylinderVolumeCreator/TrackingVolumeCreator"),
   m_tileBarrelEnvelope(25.*mm),
@@ -95,10 +94,6 @@ Tile::TileVolumeBuilder::~ TileVolumeBuilder()
 // initialize
 StatusCode Tile::TileVolumeBuilder::initialize()
 {
-  // Get the Calo geometry
-  StatusCode status = detStore()->retrieve(m_calo_dd);
-  if(status.isFailure()) return status;
-  
   // get Tile Detector Description Manager
   if (detStore()->retrieve(m_tileMgr, m_tileMgrLocation).isFailure()){  
     ATH_MSG_FATAL( "Could not get TileDetDescrManager! Tile TrackingVolumes will not be built" );
@@ -190,8 +185,8 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
   std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > exitSurf  = m_surfBuilder->exitSurfaces();
   
   // averaged material properties 
-  const Trk::Material* barrelProperties = new Trk::Material(22.7, 212., 45.8, 21.4, 0.0062);
-  const Trk::Material* extendedBarrelProperties = new Trk::Material(22.7, 210., 45.8, 21.4, 0.0062);
+  auto barrelProperties = std::make_unique<Trk::Material>(22.7, 212., 45.8, 21.4, 0.0062);
+  auto extendedBarrelProperties = std::make_unique<Trk::Material>(22.7, 210., 45.8, 21.4, 0.0062);
   // material properties with layer encoding - to be defined later 
   const Trk::BinnedMaterial* barrelMaterialBinned = 0;
   const Trk::BinnedMaterial* extendedMaterialBinned = 0;
@@ -204,23 +199,23 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
   ATH_MSG_DEBUG( "Retrieved " << numTreeTops << " tree tops from the TileDetDescrManager. " );
 
   // layer material can be adjusted here
-  std::vector<const Trk::IdentifiedMaterial*> matTB; 
+  std::vector<Trk::IdentifiedMaterial> matTB; 
   int baseID = Trk::GeometrySignature(Trk::Calo)*1000 + 12;
-  matTB.push_back(new std::pair<const Trk::Material*,int>(barrelProperties,0));
-  matTB.push_back(new std::pair<const Trk::Material*,int>(barrelProperties,baseID));
-  matTB.push_back(new std::pair<const Trk::Material*,int>(barrelProperties,baseID+1));
-  matTB.push_back(new std::pair<const Trk::Material*,int>(barrelProperties,baseID+2));
+  matTB.emplace_back(barrelProperties.get(),0);
+  matTB.emplace_back(barrelProperties.get(),baseID);
+  matTB.emplace_back(barrelProperties.get(),baseID+1);
+  matTB.emplace_back(barrelProperties.get(),baseID+2);
   
   // material index 
   std::vector<size_t> ltb{0,1,2,3};
   
   // layer material can be adjusted here
-  std::vector<const Trk::IdentifiedMaterial*> matETB; 
+  std::vector<Trk::IdentifiedMaterial> matETB; 
   baseID = Trk::GeometrySignature(Trk::Calo)*1000 + 18;
-  matETB.push_back(new std::pair<const Trk::Material*,int>(extendedBarrelProperties,0));
-  matETB.push_back(new std::pair<const Trk::Material*,int>(extendedBarrelProperties,baseID));
-  matETB.push_back(new std::pair<const Trk::Material*,int>(extendedBarrelProperties,baseID+1));
-  matETB.push_back(new std::pair<const Trk::Material*,int>(extendedBarrelProperties,baseID+2));
+  matETB.emplace_back(extendedBarrelProperties.get(),0);
+  matETB.emplace_back(extendedBarrelProperties.get(),baseID);
+  matETB.emplace_back(extendedBarrelProperties.get(),baseID+1);
+  matETB.emplace_back(extendedBarrelProperties.get(),baseID+2);
 
   // layer material can be adjusted here
   //Trk::MaterialProperties barrelFingerGapProperties = Trk::MaterialProperties(1., 130./0.35, 0.003*pow(0.35,3),30.);
@@ -297,7 +292,7 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
 	    steps.push_back(depth);
 	    Trk::BinUtility* rBU = new Trk::BinUtility(steps, Trk::open, Trk::binR);
 	    
-	    barrelMaterialBinned = new Trk::BinnedMaterial(barrelProperties,rBU,ltb,matTB);
+	    barrelMaterialBinned = new Trk::BinnedMaterial(barrelProperties.get(),rBU,ltb,matTB);
             
 	    tileBarrel = new Trk::AlignableTrackingVolume(0,align,                          
 							  tileBarrelBounds,
@@ -361,7 +356,7 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
 	    steps.push_back(tileExtendedBounds->outerRadius());
 	    Trk::BinUtility* eBU = new Trk::BinUtility(steps, Trk::open, Trk::binR);
 	    
-	    extendedMaterialBinned = new Trk::BinnedMaterial(extendedBarrelProperties,eBU,ltb,matETB);
+	    extendedMaterialBinned = new Trk::BinnedMaterial(extendedBarrelProperties.get(),eBU,ltb,matETB);
 	    
 	    tileExtendedTrackingVolume = new Trk::AlignableTrackingVolume(new Amg::Transform3D(Amg::Translation3D(childPosition)),
 									  align,
@@ -386,7 +381,7 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
 	      steps.push_back(tileExtendedBounds->outerRadius());
 	      Trk::BinUtility* eBU = new Trk::BinUtility(steps, Trk::open, Trk::binR);
 	      
-	      extendedMaterialBinned = new Trk::BinnedMaterial(extendedBarrelProperties,eBU,ltb,matETB);
+	      extendedMaterialBinned = new Trk::BinnedMaterial(extendedBarrelProperties.get(),eBU,ltb,matETB);
 	      
 	      tileExtendedTrackingVolume = new Trk::AlignableTrackingVolume(new Amg::Transform3D(Amg::Translation3D(childPosition)),
 									    align,
@@ -443,12 +438,12 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
   double tileExtZ = tilePositiveExtendedBarrel->center().z()-tilePositiveExtendedBarrelBounds.halflengthZ();
 
   // binned material for ITC : 
-  std::vector<const Trk::IdentifiedMaterial*> matITC;
+  std::vector<Trk::IdentifiedMaterial> matITC;
   // layer material can be adjusted here
   baseID = Trk::GeometrySignature(Trk::Calo)*1000;
-  matITC.push_back(new Trk::IdentifiedMaterial(barrelProperties,baseID+15));
-  matITC.push_back(new Trk::IdentifiedMaterial(barrelProperties,baseID+16));
-  matITC.push_back(new Trk::IdentifiedMaterial(barrelProperties,baseID+17));
+  matITC.emplace_back(barrelProperties.get(),baseID+15);
+  matITC.emplace_back(barrelProperties.get(),baseID+16);
+  matITC.emplace_back(barrelProperties.get(),baseID+17);
 
   // ITCPlug1
   double p1Z = 0.5*(plug1Z-plug1hZ+tileExtZ);
@@ -467,8 +462,8 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
   std::vector<float> bpsteps{float(plug1R), float(tileBarrelBounds->outerRadius())};
   Trk::BinUtility* rBU = new Trk::BinUtility(bpsteps, Trk::open, Trk::binR);
   Trk::BinUtility* rBUc = rBU->clone();
-  const Trk::BinnedMaterial* plug1MatPos = new Trk::BinnedMaterial(barrelProperties,rBU,dummylay,matITC);
-  const Trk::BinnedMaterial* plug1MatNeg = new Trk::BinnedMaterial(barrelProperties,rBUc,dummylay,matITC);
+  const Trk::BinnedMaterial* plug1MatPos = new Trk::BinnedMaterial(barrelProperties.get(),rBU,dummylay,matITC);
+  const Trk::BinnedMaterial* plug1MatNeg = new Trk::BinnedMaterial(barrelProperties.get(),rBUc,dummylay,matITC);
 
   Amg::Transform3D* align=0;      
 
@@ -502,8 +497,8 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
   std::vector<float> p2steps{float(plug2R), float(plug1R)};
   Trk::BinUtility* p2BU = new Trk::BinUtility(p2steps, Trk::open, Trk::binR);
   Trk::BinUtility* p2BUc = p2BU->clone();
-  const Trk::BinnedMaterial* plug2MatPos = new Trk::BinnedMaterial(barrelProperties,p2BU,p2lay,matITC);
-  const Trk::BinnedMaterial* plug2MatNeg = new Trk::BinnedMaterial(barrelProperties,p2BUc,p2lay,matITC);
+  const Trk::BinnedMaterial* plug2MatPos = new Trk::BinnedMaterial(barrelProperties.get(),p2BU,p2lay,matITC);
+  const Trk::BinnedMaterial* plug2MatNeg = new Trk::BinnedMaterial(barrelProperties.get(),p2BUc,p2lay,matITC);
       
   Trk::AlignableTrackingVolume* itcPlug2Pos = new Trk::AlignableTrackingVolume(itcP2PosTransform, align,
 									       itcPlug2Bounds,
@@ -535,7 +530,7 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
   std::vector<size_t> glay(1,2);
   std::vector<float> gsteps{float(gapi-gapBounds->halflengthZ()), float(gapi+gapBounds->halflengthZ())};
   Trk::BinUtility* gp = new Trk::BinUtility(gsteps, Trk::open, Trk::binZ);
-  const Trk::BinnedMaterial* gpMat = new Trk::BinnedMaterial(barrelProperties,gp,glay,matITC);
+  const Trk::BinnedMaterial* gpMat = new Trk::BinnedMaterial(barrelProperties.get(),gp,glay,matITC);
       
   Trk::AlignableTrackingVolume* gapPos = new Trk::AlignableTrackingVolume(gapPosTransform, align,
 									  gapBounds,
@@ -545,7 +540,7 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
 
   std::vector<float> nsteps{float(-gapi-gapBounds->halflengthZ()), float(-gapi+gapBounds->halflengthZ())};
   Trk::BinUtility* gn = new Trk::BinUtility(nsteps, Trk::open, Trk::binZ);
-  const Trk::BinnedMaterial* gnMat = new Trk::BinnedMaterial(barrelProperties,gn,glay,matITC);
+  const Trk::BinnedMaterial* gnMat = new Trk::BinnedMaterial(barrelProperties.get(),gn,glay,matITC);
       
   Trk::AlignableTrackingVolume* gapNeg = new Trk::AlignableTrackingVolume(gapNegTransform, align,
 									  gapBounds->clone(),
@@ -800,6 +795,9 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
     printCheckResult(msg(MSG::DEBUG), tileGirder);
   } // end of detailed output
 
+  throwIntoGarbage (std::move (barrelProperties));
+  throwIntoGarbage (std::move (extendedBarrelProperties));
+
   return tileTrackingVolumes;
 }
 
@@ -861,4 +859,11 @@ void Tile::TileVolumeBuilder::printChildren(const PVConstLink pv,int igen, Amg::
     }
   }  
    
+}
+
+
+void Tile::TileVolumeBuilder::throwIntoGarbage (std::unique_ptr<Trk::Material> mat) const
+{
+  std::scoped_lock lock (m_garbageMutex);
+  m_garbage.push_back (std::move (mat));
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AsgDataHandles/ReadHandle.h"
@@ -8,7 +8,10 @@
 #include "PathResolver/PathResolver.h"
 
 namespace {
-  static constexpr double const MeVtoGeV = 1./1000.;
+  static constexpr double const MeVtoGeV = 1./1000.;  
+  const xAOD::MuonSegment* get_segment(const xAOD::Muon& mu, unsigned int n){
+     return mu.nMuonSegments() > n ? mu.muonSegment(n) : nullptr;    
+  }
 }
 
 namespace CP {
@@ -285,19 +288,19 @@ namespace CP {
     }
     acceptData.setCutResult( "Eta", true );
 
-    // Passes ID hit cuts 
-    ATH_MSG_VERBOSE( "Passes ID Hit cuts " << passedIDCuts(mu) );
-    if( !passedIDCuts (mu) ) {
-      return acceptData;
-    }
-    acceptData.setCutResult( "IDHits", true );
+    // Passes ID hit cuts
+    bool passIDCuts=passedIDCuts(mu);
+    ATH_MSG_VERBOSE( "Passes ID Hit cuts " << passIDCuts);
+    acceptData.setCutResult( "IDHits", passIDCuts );
     
-    // Passes muon preselection
-    ATH_MSG_VERBOSE( "Passes preselection cuts " << passedMuonCuts(mu) );
-    if( !passedMuonCuts (mu) ) {
+    //passes muon preselection
+    bool passMuonCuts=passedMuonCuts(mu);
+    ATH_MSG_VERBOSE( "Passes preselection cuts " << passMuonCuts );
+    acceptData.setCutResult( "Preselection", passMuonCuts );
+    
+    if( !passIDCuts || !passMuonCuts ) {
       return acceptData;
-    }
-    acceptData.setCutResult( "Preselection", true );
+    }    
 
     // Passes quality requirements 
     xAOD::Muon::Quality thisMu_quality = getQuality(mu);
@@ -767,7 +770,7 @@ namespace CP {
 
 
   bool MuonSelectionTool::passedLowPtEfficiencyMVACut( const xAOD::Muon& mu ) const{
-
+    std::lock_guard<std::mutex> guard(m_low_pt_mva_mutex);
     //set values for all BDT input variables from the muon in question
     uint8_t middleSmallHoles,middleLargeHoles;
     if( !mu.parameter(*m_lowPTmva_momentumBalanceSig,xAOD::Muon::momentumBalanceSignificance)
@@ -783,16 +786,11 @@ namespace CP {
 
     *m_lowPTmva_middleHoles = (Float_t)(middleSmallHoles + middleLargeHoles);
 
-    if (mu.nMuonSegments() > 0)
-      *m_lowPTmva_muonSeg1ChamberIdx = mu.muonSegment(0)->chamberIndex();
-    else
-      *m_lowPTmva_muonSeg1ChamberIdx = -9.0;
-
-    if (mu.nMuonSegments() > 1)
-      *m_lowPTmva_muonSeg2ChamberIdx = mu.muonSegment(1)->chamberIndex();
-    else
-      *m_lowPTmva_muonSeg2ChamberIdx = -9.0;
-
+    const xAOD::MuonSegment* first_seg = get_segment(mu,0);
+    const xAOD::MuonSegment* second_seg = get_segment(mu,1);
+    *m_lowPTmva_muonSeg1ChamberIdx = first_seg!=nullptr? first_seg->chamberIndex() : -9;
+    *m_lowPTmva_muonSeg2ChamberIdx = second_seg!=nullptr? second_seg->chamberIndex() : -9;
+   
 
     //get event number from event info
     SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfo);
@@ -1169,7 +1167,7 @@ namespace CP {
       else return true;
     }
     // ::
-    if( mu.muonType() == xAOD::Muon::CaloTagged && std::abs(mu.eta())<0.105 && passedCaloTagQuality(mu)) return true;
+    if( mu.muonType() == xAOD::Muon::CaloTagged && std::abs(mu.eta())<0.105 ) return true; //removed the passedCaloTagQuality(mu) until this is better understood in r22
     // ::
     if( mu.muonType() == xAOD::Muon::SegmentTagged && std::abs(mu.eta())<0.105 ) return true;
     // ::

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 class Treereader (object):
@@ -16,7 +16,7 @@ class Treereader (object):
         self._tree = tree
         self._subpattern = subpattern
         self._subreaders = []
-        if self._subpattern == None:
+        if self._subpattern is None:
             tree.SetNotify (self)
         return
 

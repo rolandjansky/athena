@@ -630,6 +630,10 @@
   <x title="p_{T} [GeV]" n="25" lo="0" hi="50"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
+<h id="efficiency_vs_pt_high" type="TEfficiency" title="Fraction of reco-matched truth track">
+  <x title="p_{T} [GeV]" n="29" lo="50" hi="1500"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
 <h id="efficiency_vs_pt_low" type="TEfficiency" title="Fraction of reco-matched truth track">
   <x title="p_{T} [GeV]" n="52" lo="0.4" hi="3"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
@@ -639,7 +643,7 @@
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
 <h id="efficiency_vs_d0" type="TEfficiency" title="Fraction of reco-matched truth track">
-  <x title="d_{0} [mm]" n="100" lo="-25" hi="25"/>
+  <x title="d_{0} [mm]" n="80" lo="-10" hi="10"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
 <h id="efficiency_vs_z0" type="TEfficiency" title="Fraction of reco-matched truth track">
@@ -663,11 +667,19 @@
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
 <h id="efficiency_vs_prodR" type="TEfficiency" title="Track Efficiency vs Production Vertex Radius">
-  <x title="prod_R [mm]" n="100" lo="0" hi="1500"/>
+  <x title="prod_R [mm]" n="65" lo="0" hi="650"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
+<h id="efficiency_vs_prodR_extended" type="TEfficiency" title="Track Efficiency vs Production Vertex Radius">
+  <x title="prod_R [mm]" n="40" lo="0" hi="1200"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
 <h id="efficiency_vs_prodZ" type="TEfficiency" title="Track Efficiency vs Production Vertex Z">
-  <x title="prod_Z [mm]" n="100" lo="0" hi="2000"/>
+  <x title="prod_Z [mm]" n="50" lo="0" hi="300"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
+<h id="efficiency_vs_prodZ_extended" type="TEfficiency" title="Track Efficiency vs Production Vertex Z">
+  <x title="prod_Z [mm]" n="40" lo="0" hi="1000"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
 <!-- Fake rate plots -->

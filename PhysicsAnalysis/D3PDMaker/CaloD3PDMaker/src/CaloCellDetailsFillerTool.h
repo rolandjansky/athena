@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOD3PDMAKER_CALOCELLDETAILSFILLERTOOL_H
@@ -15,7 +15,8 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "GaudiKernel/ToolHandle.h" 
 #include "CaloConditions/ICaloBadChanTool.h"
-#include "CaloInterface/ICaloNoiseTool.h"
+#include "CaloConditions/CaloNoise.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class LArEM_ID;
 class LArFCAL_ID;
@@ -71,10 +72,14 @@ private:
     bool m_saveSigma;
 
     ToolHandle<ICaloBadChanTool> m_pb_tool;
-    ToolHandle<ICaloNoiseTool> m_noise_tool;
+   /**
+    * @brief Key of the CaloNoise Conditions data object.
+    * Typical values are '"electronicNoise', 'pileupNoise', or '"totalNoise'
+    */
+   SG::ReadCondHandleKey<CaloNoise> m_caloNoiseKey{this,
+        "CaloNoise", "", "Calo noise object name"};
 
-
-    // variables to be in ntuple.  
+    // variables to be in ntuple.
 
     float * m_xCells;
     float * m_yCells;
@@ -87,7 +92,7 @@ private:
     unsigned int * m_offId;
     float * m_sigma;
 
-    bool m_useNoiseTool;
+    bool m_useNoise;
     
 
 };

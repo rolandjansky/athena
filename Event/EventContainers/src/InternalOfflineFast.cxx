@@ -23,17 +23,17 @@ bool InternalOfflineFast::tryAddFromCache(IdentifierHash hash)
 
 void InternalOfflineFast::wait() const {
    std::scoped_lock lock (m_waitMutex);
-   if(m_needsupdate == false) return;
+   if(m_needsupdate.load(std::memory_order_acquire) == false) return;
    m_map.clear();
    for(size_t i=0 ;i < m_fullMap.size(); ++i){
     if(m_fullMap[i]) m_map.emplace_back(i, m_fullMap[i]);
    }
    m_map.shrink_to_fit();
-   m_needsupdate.store(false);
+   m_needsupdate.store(false, std::memory_order_release);
 }
 
 std::vector<IdentifierHash> InternalOfflineFast::getAllCurrentHashes() const {
-    if(m_needsupdate) wait();
+    if(m_needsupdate.load(std::memory_order_acquire)) wait();
     std::vector<IdentifierHash> ids;
     ids.reserve(m_map.size());
     for(auto &x : m_map) {
@@ -44,35 +44,35 @@ std::vector<IdentifierHash> InternalOfflineFast::getAllCurrentHashes() const {
 
 InternalConstItr
  InternalOfflineFast::cend() const {
-    if(m_needsupdate) wait();
+    if(m_needsupdate.load(std::memory_order_acquire)) wait();
     return m_map.cend();
 }
 
 const std::vector < I_InternalIDC::hashPair >& InternalOfflineFast::getAllHashPtrPair() const{
-    if(m_needsupdate) wait();
+    if(m_needsupdate.load(std::memory_order_acquire)) wait();
     return m_map;
 }
 
 InternalConstItr
  InternalOfflineFast::cbegin() const {
-    if(m_needsupdate) wait();
+    if(m_needsupdate.load(std::memory_order_acquire)) wait();
     return m_map.cbegin();
 }
 
 InternalConstItr InternalOfflineFast::indexFind( IdentifierHash hashId ) const{
-   if(m_needsupdate) wait();
+   if(m_needsupdate.load(std::memory_order_acquire)) wait();
    auto itr = std::lower_bound( m_map.cbegin(), m_map.cend(), hashId.value(), [](const hashPair &lhs,  IdentifierHash::value_type rhs) -> bool { return lhs.first < rhs; } );
    if(itr!= m_map.cend() && itr->first==hashId) return itr;
    return m_map.cend();
 }
 
 size_t InternalOfflineFast::numberOfCollections() const {
-    if(m_needsupdate) wait();
+    if(m_needsupdate.load(std::memory_order_acquire)) wait();
     return m_map.size();
 }
 
 void InternalOfflineFast::cleanUp(deleter_f* deleter) noexcept {
-    if(!m_needsupdate) {
+    if(!m_needsupdate.load(std::memory_order_acquire)) {
         for(const auto& x : m_map) { deleter(x.second); m_fullMap[x.first] = nullptr; }
         if(!m_map.empty()) m_needsupdate.store(true, std::memory_order_relaxed);
     }
@@ -120,7 +120,7 @@ StatusCode InternalOfflineFast::fetchOrCreate(const std::vector<IdentifierHash>&
 }
 
 void InternalOfflineFast::destructor(deleter_f* deleter) noexcept {
-    if(!m_needsupdate) for(const auto& x : m_map)  deleter(x.second);
+    if(!m_needsupdate.load(std::memory_order_acquire)) for(const auto& x : m_map)  deleter(x.second);
     else {
       for(size_t i=0 ;i < m_fullMap.size(); ++i){
          if(m_fullMap[i]) deleter(m_fullMap[i]);

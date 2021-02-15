@@ -160,13 +160,17 @@ void SimpleMergeMcEventCollTool::printDetailsOfMergedMcEventCollection(McEventCo
   ATH_MSG_INFO ( "Current OUTPUT GenEvent: " );
   while(outputEventItr!=endOfEvents)
     {
-      const int signal_process_id((*outputEventItr)->signal_process_id());
+      const int signal_process_id=HepMC::signal_process_id(*outputEventItr);
       const int event_number((*outputEventItr)->event_number());
+#ifdef HEPMC3
+      ATH_MSG_INFO ( "GenEvent #"<<event_number<<", signal_process_id="<<signal_process_id<</*", category="<<event->second<<*/", number of Vertices="<<(*outputEventItr)->vertices().size() );
+#else
       ATH_MSG_INFO ( "GenEvent #"<<event_number<<", signal_process_id="<<signal_process_id<</*", category="<<event->second<<*/", number of Vertices="<<(*outputEventItr)->vertices_size() );
+#endif
       char fname[80];
       sprintf(fname,"%s.event%d.txt",m_truthCollInputKey.value().c_str(),event_number);
       std::ofstream of(fname);
-      (*outputEventItr)->print(of); // verbose output
+      HepMC::Print::line(of,*(*outputEventItr)); // verbose output
       of.close();
       ++outputEventItr;
     }

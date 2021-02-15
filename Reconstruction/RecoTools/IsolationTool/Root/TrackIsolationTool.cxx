@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,13 @@ namespace xAOD {
 	ATH_MSG_FATAL("Could not retrieve InDetTrackSelectionTool");
 	return StatusCode::FAILURE;
       }
+      if (!m_ttvaTool.empty()) {
+        ATH_MSG_DEBUG("Use TTVA tool " << m_ttvaTool);
+        m_useTTVATool = true;
+        ATH_CHECK( m_ttvaTool.retrieve() );
+      }
+      else
+        ATH_MSG_DEBUG("Will not use TTVA tool");
 
     /** square cone */
     m_overlapCone2 = m_overlapCone*m_overlapCone;
@@ -56,6 +63,9 @@ namespace xAOD {
     ATH_CHECK(m_indetTrackParticleLocation.initialize());
     if (!m_vertexLocation.key().empty())
       ATH_CHECK(m_vertexLocation.initialize());
+
+    if (m_coreTrackEtaRange.value() > 0)
+      m_useLooseTrackCore = true;
 
     return StatusCode::SUCCESS;
   }
@@ -177,11 +187,16 @@ namespace xAOD {
 #endif
 
     for( const auto& tp : tps ) {
-      if( ! m_trkselTool->accept( *tp , input.vertex ) ){
-	ATH_MSG_DEBUG("reject track pt = " << tp->pt());
-	continue;
-      } else
-	ATH_MSG_DEBUG("Accept track, pt = " << tp->pt());
+      if( (!m_trkselTool->accept( *tp , input.vertex)) ||
+        (m_useTTVATool && (!input.vertex || !m_ttvaTool->isCompatible(*tp, *input.vertex)))){
+          if (!input.vertex){
+            ATH_MSG_WARNING("Encountered a track isolation input with invalid vertex while requiring TTVA. Rejecting, please check your inputs!"); 
+          } 
+          ATH_MSG_DEBUG("reject track pt = " << tp->pt());
+          continue;
+      } else{
+	      ATH_MSG_DEBUG("Accept track, pt = " << tp->pt());
+      }
       add( input,*tp, result );
 
     }
@@ -207,8 +222,9 @@ namespace xAOD {
     if( !indetTrackParticles ) return false;
 
     // loop over all track particles
-    for( const auto& tp : *indetTrackParticles ) {
-      if( ! m_trkselTool->accept( *tp , input.vertex ) ){
+    for( const auto tp : *indetTrackParticles ) {
+      if( (!m_trkselTool->accept(*tp, input.vertex)) ||
+        (m_useTTVATool && !m_ttvaTool->isCompatible(*tp, *input.vertex))){
 	ATH_MSG_DEBUG("[2] reject track pt = " << tp->pt());
 	continue;
       }
@@ -222,13 +238,22 @@ namespace xAOD {
   void TrackIsolationTool::add( TrackIsolationInput& input, const TrackParticle& tp2, TrackIsolation& result ) const
   {
     // check if track pointer matches the one of input or one of the exclusion set
+    // Jon Burr: I'm not completely convinced by the use of CoreTrackEtaRange.
+    // With this setup, if you're running in simple isolation mode any track
+    // within the same eta slice (even on the other side of the detector) will
+    // be included in the eta code. If you manually provide a track particle
+    // container then the tool automatically runs in this simple mode...
+    // This is fine in IsolationBuilder (the main client) but could produce
+    // unexpected results with other users
     if(input.corrections.trackbitset.test(static_cast<unsigned int>(Iso::coreTrackPtr))){
-	 if(input.particle == &tp2 || (input.exclusionSet && input.exclusionSet->count(&tp2))){
-	   ATH_MSG_DEBUG("track pointer " << &tp2 << ", track pt = " << tp2.pt() << ", input pt = " << input.particle->pt()) ;
-	   result.coreCorrections[Iso::coreTrackPtr] += tp2.pt();
-	   return;
-	 }
-       }
+      if(input.particle == &tp2 || 
+         (input.exclusionSet && input.exclusionSet->count(&tp2)) ||
+         (m_useLooseTrackCore && std::abs(input.particle->eta() - tp2.eta()) < m_coreTrackEtaRange)){
+        ATH_MSG_DEBUG("track pointer " << &tp2 << ", track pt = " << tp2.pt() << ", input pt = " << input.particle->pt()) ;
+        result.coreCorrections[Iso::coreTrackPtr] += tp2.pt();
+        return;
+      }
+    }
 
     // check eta
     float deta = input.particle->eta()-tp2.eta();

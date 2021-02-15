@@ -212,8 +212,8 @@ StatusCode JetHypoExerciserCompareAlg::execute() {
 
     bool jagree{true};
     for (std::size_t i = 0; i < njets; i++) {
-      ATH_MSG_INFO(" jet 0 : " << static_cast<const void*>(collected0.at(i)) <<
-		   " jet 1 : " << static_cast<const void*>(collected1.at(i)));
+      ATH_MSG_INFO(" jet 0 : " << static_cast<const void*>(collected0.at(i).get()) <<
+		   " jet 1 : " << static_cast<const void*>(collected1.at(i).get()));
 
       if (collected0.at(i) != collected1.at(i)) {
 	ATH_MSG_INFO(" jets above differ ");
@@ -234,7 +234,6 @@ StatusCode JetHypoExerciserCompareAlg::execute() {
 
   }
   
-  for (auto p : jv) {delete p;}
   return StatusCode::SUCCESS;
 }
 

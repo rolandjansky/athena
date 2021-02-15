@@ -14,8 +14,6 @@
 // STL includes
 #include <set>
 
-// FrameWork includes
-
 // McParticleTools includes
 #include "TruthParticleFilterBaseTool.h"
 
@@ -45,10 +43,6 @@ class OldSpclMcFilterTool : public TruthParticleFilterBaseTool
 
   /// Destructor: 
   virtual ~OldSpclMcFilterTool(); 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
 
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 
@@ -93,7 +87,7 @@ class OldSpclMcFilterTool : public TruthParticleFilterBaseTool
    */
   StatusCode rebuildLinks( const HepMC::GenEvent * mcEvent,
 			   HepMC::GenEvent * outEvt,
-			   HepMC::GenParticle * mcPart );
+			   HepMC::GenParticlePtr mcPart );
 
   /** to get tesIO **/
   StatusCode initializeTool();
@@ -144,12 +138,6 @@ class OldSpclMcFilterTool : public TruthParticleFilterBaseTool
 
 }; 
 
-// I/O operators
-//////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 #endif //> MCPARTICLETOOLS_OLDSPCLMCFILTERTOOL_H
 

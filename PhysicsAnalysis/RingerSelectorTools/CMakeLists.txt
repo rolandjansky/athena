@@ -1,25 +1,13 @@
-################################################################################
-# Package: RingerSelectorTools
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare package version:
 set( RingerSelectorTools_version "\"RingerSelectorTools-00-00-18\"" )
 
 # Declare the package name:
 atlas_subdir( RingerSelectorTools )
-# Extra dependencies based on the environment:
-set( extra_pub_dep )
-set( extra_dep )
-if( XAOD_STANDALONE )
-   set( extra_dep Control/xAODRootAccess )
-else()
-  set( extra_pub_dep Control/AthenaKernel )
-  set( extra_dep Control/AthContainers Tracking/TrkEvent/TrkTrackSummary GaudiKernel )
-endif()
 
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
-find_package( ROOT COMPONENTS Core Gpad Tree MathCore Hist RIO pthread )
+find_package( ROOT COMPONENTS Core RIO )
 
 atlas_add_library( RingerSelectorToolsEnumsLib
                    Root/enums/*.cxx
@@ -32,22 +20,22 @@ atlas_add_library( RingerSelectorToolsLib
                    Root/procedures/*.cxx
                    Root/tools/*.cxx
                    PUBLIC_HEADERS RingerSelectorTools
-                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools CxxUtils xAODCaloRings xAODEgamma xAODTracking PATCoreLib EgammaAnalysisInterfacesLib RingerSelectorToolsEnumsLib 
-                   PRIVATE_LINK_LIBRARIES xAODBase PathResolver TrkTrackSummary )
+                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib AsgTools AthenaKernel GaudiKernel xAODCaloRings xAODEgamma xAODTracking EgammaAnalysisInterfacesLib RingerSelectorToolsEnumsLib
+                   PRIVATE_LINK_LIBRARIES xAODBase AthContainers PathResolver TrkTrackSummary )
+
 if( NOT XAOD_STANDALONE )
   atlas_add_component( RingerSelectorTools
                        src/components/*.cxx
-                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                       LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel AthContainers GaudiKernel TrkTrackSummary RingerSelectorToolsLib )
+                       LINK_LIBRARIES RingerSelectorToolsLib )
 endif()
 
 
 atlas_add_dictionary( RingerSelectorToolsDict
                       RingerSelectorTools/RingerSelectorToolsDict.h
                       RingerSelectorTools/selection.xml
-                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} RingerSelectorToolsLib )
+                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} RingerSelectorToolsLib )
 
 atlas_add_dictionary( RingerSelectorToolsEnumsDict
                       RingerSelectorTools/RingerSelectorToolsEnumsDict.h
@@ -63,10 +51,10 @@ atlas_add_executable( dumpRings
 
 atlas_add_executable( ringsHist
    util/ringsHist.cxx
-   LINK_LIBRARIES RingerSelectorToolsLib  ${ROOT_LIBRARIES} )
+   LINK_LIBRARIES RingerSelectorToolsLib ${ROOT_LIBRARIES} )
 endif()
 
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 if( XAOD_STANDALONE )
 message( STATUS "Using tag ${RingerSelectorTools_version} for all written RingerSelectorTools data." )

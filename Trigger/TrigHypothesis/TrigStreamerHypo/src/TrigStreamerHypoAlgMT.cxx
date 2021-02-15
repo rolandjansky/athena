@@ -22,60 +22,34 @@ StatusCode TrigStreamerHypoAlgMT::initialize() {
 }
 
 StatusCode TrigStreamerHypoAlgMT::execute( const EventContext& context ) const {  
+
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
-  
-  // read in the previous Decisions made before running this hypo Alg.
-  auto h_prevDecisions = SG::makeHandle(decisionInput(), context );
-  if( not h_prevDecisions.isValid() ) {//implicit
-    ATH_MSG_ERROR( "No implicit RH for previous decisions "<<  decisionInput().key()<<". Check the input decisions key?" );
-    return StatusCode::FAILURE;      
-  }
-  ATH_MSG_DEBUG( "Decisions being read from " << decisionInput().key() );
-  ATH_MSG_DEBUG( "Running with "<< h_prevDecisions->size() <<" implicit ReadHandles for previous decisions");
-  auto prevDecisions = h_prevDecisions.get();
+  auto h_prevDecisions = SG::makeHandle( decisionInput(), context );
+  ATH_CHECK( h_prevDecisions.isValid() );
+  ATH_MSG_DEBUG( "Running with "<< h_prevDecisions->size() <<" previous decisions");
 
   // Make a new Decisions container which will contain the new Decision object created by this hypo.
   SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context ); 
   DecisionContainer* newDecisions = outputHandle.ptr();
 
-  // -----------------------------------------------------------------------
-  if (prevDecisions->size() != 1) {
-    ATH_MSG_ERROR("TrigStreamerHypoAlgMT requires there to be exactly one previous Decision object, but found " << prevDecisions->size());
-    return StatusCode::FAILURE;
-  }
-  const Decision* previousDecision = prevDecisions->at(0);
-  
-  // Create output Decision object, link it to prevDecision & its "feature"
-  auto newDecision = TrigCompositeUtils::newDecisionIn(newDecisions, previousDecision, "", context);
+  // Struct to pass info on to the HypoTools
+  std::vector< ITrigStreamerHypoToolMT::HypoInfo > hypoInfo;
 
-  // We may want to use this as a 1st step PassThrough hypo
-  // In this case, we need to be more explicit about setting a feature on the Decision object
-  if(m_setInitialRoiAsFeature && !newDecision->hasObjectLink(featureString())) {
-    newDecision->setObjectLink<TrigRoiDescriptorCollection>(TrigCompositeUtils::featureString(), 
-							    TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(newDecision, TrigCompositeUtils::initialRoIString()).link);
-  }
-  
-  // Get set of active chains
-  const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs{
-    TrigCompositeUtils::decisionIDs(previousDecision).begin(), 
-    TrigCompositeUtils::decisionIDs(previousDecision).end()
-  };
+  for (const Decision* previousDecision : *h_prevDecisions ) {
+    // Create output Decision object, link it to prevDecision.
+    Decision* newDecision = newDecisionIn(newDecisions, previousDecision, hypoAlgNodeName(), context);
 
-  //bool allPassed = true;
+    // Obligatory link to feature. Use a dummy link here (a link to self)
+    ElementLink<DecisionContainer> dummyLink(*newDecisions, newDecisions->size()-1, context);
+    newDecision->setObjectLink(featureString(), dummyLink);
+
+    hypoInfo.emplace_back(newDecision, previousDecision);
+  }
+
   for (const auto& tool: m_hypoTools) {
-    auto decisionId = tool->getId();
     ATH_MSG_DEBUG( "About to decide for " << tool->name() );
-    if (TrigCompositeUtils::passed(decisionId.numeric(), previousDecisionIDs)){
-      ATH_MSG_DEBUG("Passed previous trigger step");
-      bool pass;
-      ATH_CHECK(tool->decide(pass)); //this is unnecessary as the hypoTools are streamers, but lets go
-      if (pass) {
-        ATH_MSG_DEBUG("Passed " << tool->name() );
-    		TrigCompositeUtils::addDecisionID(decisionId, newDecision);
-      } else ATH_MSG_DEBUG("Didn't pass " << tool->name() );
-    } else ATH_MSG_DEBUG("Didn't pass previous trigger step");
+    ATH_CHECK(tool->decide(hypoInfo)); // The StreamerHypoTool only contains logical-flow checks
   }
-  // -----------------------------------------------------------------------
 
   // Common debug printing
   ATH_CHECK(hypoBaseOutputProcessing(outputHandle));

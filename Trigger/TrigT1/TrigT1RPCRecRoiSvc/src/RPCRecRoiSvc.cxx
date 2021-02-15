@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cmath>
@@ -7,8 +7,6 @@
 #include <iomanip>
 
 #include "TrigT1RPCRecRoiSvc/RPCRecRoiSvc.h"
-
-#include "StoreGate/StoreGateSvc.h"
 
 #include "RPCcablingInterface/IRPCcablingServerSvc.h"
 
@@ -22,7 +20,7 @@ StatusCode RPCRecRoiSvc::initialize()
   ATH_CHECK( detStore->retrieve(m_MuonMgr) );
   ATH_MSG_DEBUG( "Found the MuonDetDescrMgr "  );
 
-  ATH_CHECK(m_readKey.initialize());
+  ATH_CHECK(m_rpcKey.initialize());
   ATH_CHECK(m_idHelperSvc.retrieve());
 
   m_cabling = nullptr;
@@ -64,7 +62,10 @@ void RPCRecRoiSvc::reconstruct(const unsigned int & roIWord) const
   Amg::Vector3D EtaHighBorder_pos(0.,0.,0.);
   Amg::Vector3D PhiLowBorder_pos(0.,0.,0.);
   Amg::Vector3D PhiHighBorder_pos(0.,0.,0.);
-  
+
+  // use IRPCcablingSvc here, since EventContext cannot be found when using the CondData
+  // (passing the CondData to this 'reconstruct' function does not work, since the function signature is inherited from LVL1::RecMuonRoiSvc)
+  // anyway, maybe this service can be replaced by the TrigT1RPCRecRoiTool ?
   if(m_cabling->give_RoI_borders_id(m_side, m_sector, m_roi,
                                    EtaLowBorder_id, EtaHighBorder_id,
                                    PhiLowBorder_id, PhiHighBorder_id)) 
@@ -126,8 +127,8 @@ RPCRecRoiSvc::dumpRoiMap(const std::string& filename)
     const unsigned int maxLogicSector = 32;
     const unsigned int maxRoI = 32;
 
-    SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey};
-    const RpcCablingCondData* readCdo{*readHandle};
+    SG::ReadCondHandle<RpcCablingCondData> rpcReadHandle{m_rpcKey};
+    const RpcCablingCondData* rpcCab{*rpcReadHandle};
 
     // ADDED PART FOR ETA-PHI DUMP
     // MC July 2014: add dump the ROI Eta-Phi Map 
@@ -146,8 +147,8 @@ RPCRecRoiSvc::dumpRoiMap(const std::string& filename)
                     unsigned long int roIWord = (roi<<2)+(side<<14)+(sector<<15);
                     reconstruct(roIWord);
                     double etaMinLow(0),etaMaxLow(0),etaMinHigh(0),etaMaxHigh(0);
-                    etaDimLow (etaMinLow, etaMaxLow, readCdo);
-                    etaDimHigh(etaMinHigh,etaMaxHigh, readCdo);
+                    etaDimLow (etaMinLow, etaMaxLow, rpcCab);
+                    etaDimHigh(etaMinHigh,etaMaxHigh, rpcCab);
                     roi_map << std::setw(8)  << side     << " "
                             << std::setw(8)  << sector   << " "
                             << std::setw(8)  << roi      << " "
@@ -176,15 +177,15 @@ void RPCRecRoiSvc::RoIsize(const unsigned int & roIWord,
     double etaMax_Low=0;
     double etaMax_High=0;
 
-    SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey};
-    const RpcCablingCondData* readCdo{*readHandle};
+    SG::ReadCondHandle<RpcCablingCondData> rpcReadHandle{m_rpcKey};
+    const RpcCablingCondData* rpcCab{*rpcReadHandle};
 
     reconstruct(roIWord);
     phiMin_LowHigh=m_phiMin;
     phiMax_LowHigh=m_phiMax;
     
-    bool low  = etaDimLow(etaMin_Low,etaMax_Low, readCdo);
-    bool high = etaDimHigh(etaMin_High,etaMax_High, readCdo);
+    bool low  = etaDimLow(etaMin_Low,etaMax_Low, rpcCab);
+    bool high = etaDimHigh(etaMin_High,etaMax_High, rpcCab);
 
     if (low&&high) {
         etaMin_LowHigh=std::min(etaMin_Low,etaMin_High);
@@ -205,7 +206,7 @@ void RPCRecRoiSvc::RoIsize(const unsigned int & roIWord,
 
 
 
-bool RPCRecRoiSvc::etaDimLow (double& etaMin, double& etaMax, const RpcCablingCondData* readCdo) const
+bool RPCRecRoiSvc::etaDimLow (double& etaMin, double& etaMax, const RpcCablingCondData* rpcCab) const
 {
   // Get the strips delimiting the RoIs from rPCcablingSvc
   Identifier EtaLowBorder_id;
@@ -215,7 +216,7 @@ bool RPCRecRoiSvc::etaDimLow (double& etaMin, double& etaMax, const RpcCablingCo
   Amg::Vector3D EtaLowBorder_pos(0.,0.,0.);
   Amg::Vector3D EtaHighBorder_pos(0.,0.,0.);
 
-  if(!readCdo->give_LowPt_borders_id(m_side, m_sector, m_roi,
+  if(!rpcCab->give_LowPt_borders_id(m_side, m_sector, m_roi,
                                        EtaLowBorder_id, EtaHighBorder_id,
                                        PhiLowBorder_id, PhiHighBorder_id, &m_idHelperSvc->rpcIdHelper())) return false;
   
@@ -237,7 +238,7 @@ bool RPCRecRoiSvc::etaDimLow (double& etaMin, double& etaMax, const RpcCablingCo
   return true;
 }
 
-bool RPCRecRoiSvc::etaDimHigh (double& etaMin, double& etaMax, const RpcCablingCondData* readCdo) const
+bool RPCRecRoiSvc::etaDimHigh (double& etaMin, double& etaMax, const RpcCablingCondData* rpcCab) const
 {
   // Get the strips delimiting the RoIs from rPCcablingSvc
   Identifier EtaLowBorder_id;
@@ -247,7 +248,7 @@ bool RPCRecRoiSvc::etaDimHigh (double& etaMin, double& etaMax, const RpcCablingC
   Amg::Vector3D EtaLowBorder_pos(0.,0.,0.);
   Amg::Vector3D EtaHighBorder_pos(0.,0.,0.);
 
-  if(!readCdo->give_HighPt_borders_id(m_side, m_sector, m_roi,
+  if(!rpcCab->give_HighPt_borders_id(m_side, m_sector, m_roi,
                                       EtaLowBorder_id, EtaHighBorder_id,
                                       PhiLowBorder_id, PhiHighBorder_id, &m_idHelperSvc->rpcIdHelper())) return false;
     

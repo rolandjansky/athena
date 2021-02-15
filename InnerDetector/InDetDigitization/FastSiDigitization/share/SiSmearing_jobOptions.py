@@ -41,10 +41,6 @@ from AthenaCommon.BeamFlags import jobproperties
 # sct_SiPropertiesToolSetup.setup()
 # sctSiPropertiesTool = sct_SiPropertiesToolSetup.getTool()
 
-from PixelConditionsTools.PixelConditionsToolsConf import PixelRecoDbTool
-ToolSvc += PixelRecoDbTool()
-ToolSvc.PixelRecoDbTool.InputSource = 1
-
 from IOVDbSvc.CondDB import conddb
 conddb.addFolder("PIXEL_OFL","/PIXEL/PixCalib")
 

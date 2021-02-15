@@ -86,8 +86,6 @@ protected:
    StringArrayProperty      m_metadataItemList;
    /// Vector of item names
    StringArrayProperty      m_excludeList;
-   /// Number of commits after which to do a flush when using in memory files
-   IntegerProperty m_autoSend{this,"AutoSend",-1};
    /// Vector of item names
    StringArrayProperty      m_compressionListHigh;
    /// Vector of item names

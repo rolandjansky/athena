@@ -12,9 +12,6 @@
 #include "CaloGeoHelpers/CaloSampling.h"
 
 
-#include "xAODCaloEvent/CaloCluster.h"
-
-
 using xAOD::Jet;
 using xAOD::CaloCluster;
 

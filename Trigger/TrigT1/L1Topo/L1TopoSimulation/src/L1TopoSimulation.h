@@ -5,40 +5,31 @@
 #ifndef L1Topo_L1TopoSimulation
 #define L1Topo_L1TopoSimulation
 
+#include "L1TopoCoreSim/TopoSteering.h"
+
+#include "L1TopoSimulation/IInputTOBConverter.h"
+
+#include "PeriodicScaler.h"
 #include "TrigConfBase/MsgStream.h"
-
-
-#include "AthenaBaseComps/AthAlgorithm.h"
 #include "TrigInterfaces/IMonitoredAlgo.h"
-
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
-
-#include <memory>
-
+#include "TrigConfInterfaces/IL1TopoConfigSvc.h"
+#include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
+#include "TrigConfData/L1Menu.h"
 #include "TrigT1Interfaces/FrontPanelCTP.h"
 
 #include "StoreGate/ReadHandleKey.h"
 
-class TH1;
-class IMonitorToolBase;
-class ITHistSvc;
+#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaMonitoring/IMonitorToolBase.h"
+
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ITHistSvc.h"
+
+#include "TH1F.h"
+#include <memory>
 
 namespace LVL1 {
-   class PeriodicScaler;
-}
-
-namespace TCS {
-   class TopoSteering;
-}
-
-namespace TrigConf {
-   class IL1TopoConfigSvc;
-}
-
-namespace LVL1 {
-
-   class IInputTOBConverter;
 
    class L1TopoSimulation : public AthAlgorithm, public IMonitoredAlgo {
    public:
@@ -68,41 +59,37 @@ namespace LVL1 {
 
    private:
 
-      //! \brief Alg handles to tools and services
-      //! @{
-      ServiceHandle<TrigConf::IL1TopoConfigSvc> m_l1topoConfigSvc;
+      std::unique_ptr<TCS::TopoSteering>  m_topoSteering; //!< the topo steering
+      std::unique_ptr<LVL1::PeriodicScaler> m_scaler {nullptr}; //! prescale decision tool
 
-      ServiceHandle<ITHistSvc> m_histSvc;
 
-      ToolHandleArray < IMonitorToolBase > m_monitors;
+      // Services and input tools
+      ServiceHandle<TrigConf::IL1TopoConfigSvc> m_l1topoConfigSvc { this, "TrigConfigSvc", "TrigConf::TrigConfigSvc/TrigConfigSvc", "Service to provide the L1Topo menu" };
+      ServiceHandle<ITHistSvc> m_histSvc { this, "HistSvc", "THistSvc/THistSvc", "Histogramming service for L1Topo algorithms" };
 
-      ToolHandle<IInputTOBConverter> m_emtauInputProvider;
+      ToolHandleArray < IMonitorToolBase > m_monitors { this, "AthenaMonTools", {}, "Monitoring tools"};
+      ToolHandle<IInputTOBConverter> m_emtauInputProvider  { this, "EMTAUInputProvider",  "LVL1::EMTauInputProvider/EMTauInputProvider",   "Tool to fill the EMTAU TOBs of the topo input event"         };
+      ToolHandle<IInputTOBConverter> m_jetInputProvider    { this, "JetInputProvider",    "LVL1::JetInputProvider/JetInputProvider",       "Tool to fill the Jet TOBs of the topo input event"           };
+      ToolHandle<IInputTOBConverter> m_energyInputProvider { this, "EnergyInputProvider", "LVL1::EnergyInputProvider/EnergyInputProvider", "Tool to fill the energy and MET TOBs of the topo input event"};
+      ToolHandle<IInputTOBConverter> m_muonInputProvider   { this, "MuonInputProvider",   "LVL1::MuonInputProvider/MuonInputProvider",     "Tool to fill the muon TOBs of the topo input event"          };
 
-      ToolHandle<IInputTOBConverter> m_jetInputProvider;
+      // outputs
+      SG::WriteHandleKey<LVL1::FrontPanelCTP>  m_topoCTPLocation { this, "TopoCTPLocation", LVL1::DEFAULT_L1TopoCTPLocation, "StoreGate key of topo decision output for CTP"}; ///< SG key of decision bits for CTP
+      SG::WriteHandleKey<LVL1::FrontPanelCTP>  m_topoOverflowCTPLocation { this, "TopoOverflowCTPLocation", LVL1::DEFAULT_L1TopoOverflowCTPLocation, "StoreGate key of topo overflow output for CTP"}; ///< SG key of overflow bits for CTP
 
-      ToolHandle<IInputTOBConverter> m_energyInputProvider;
+      Gaudi::Property<bool> m_isLegacyTopo { this, "IsLegacyTopo", false, "Simulation of Legacy L1Topo boards" };
+      Gaudi::Property<bool> m_enableInputDump { this, "EnableInputDump", false, "Enable writing of input data for standalone running" };
+      Gaudi::Property<bool> m_enableBitwise { this, "UseBitwise", false, "Boolean to enable the bitwise version of software algorithms"}; 
+      Gaudi::Property<std::string> m_inputDumpFile { this, "InputDumpFile", "inputdump.txt", "File name for dumping input data" };
+      Gaudi::Property<int> m_topoOutputLevel { this, "TopoOutputLevel", TrigConf::MSGTC::WARNING, "OutputLevel for L1Topo algorithms"};
+      Gaudi::Property<int> m_topoSteeringOutputLevel { this, "TopoSteeringOutputLevel", TrigConf::MSGTC::WARNING, "OutputLevel for L1Topo steering"};
 
-      ToolHandle<IInputTOBConverter> m_muonInputProvider;
-
-      //! @}
-
-      BooleanProperty m_enableInputDump { false }; // for enabling input dumping
-      BooleanProperty m_enableBitwise { false }; // for enabling bitwise algorithms
-      StringProperty  m_inputDumpFile { "inputdump.txt" }; // input dump file
-      SG::WriteHandleKey<LVL1::FrontPanelCTP>  m_topoCTPLocation { "" }; ///< SG key of decision bits for CTP
-      SG::WriteHandleKey<LVL1::FrontPanelCTP>  m_topoOverflowCTPLocation { "" }; ///< SG key of overflow bits for CTP
-      int m_topoOutputLevel{TrigConf::MSGTC::WARNING};                                  // property to set the outputlevel of the topo algorithms
-      int m_topoSteeringOutputLevel{TrigConf::MSGTC::WARNING};                          // property to set the outputlevel of the topo steering
-
-      std::unique_ptr<TCS::TopoSteering>  m_topoSteering; //!< the topo steering 
-
-      BooleanProperty m_fillHistogramsBasedOnHardwareDecision { false }; // default: fill based on simulation
-      UnsignedIntegerProperty m_prescaleForDAQROBAccess {4}; ///< read hdw bits every N events (used only when m_fillHistogramsBasedOnHardwareDecision is true)
-      UnsignedIntegerProperty m_prescale; //! property for prescale factor
-      LVL1::PeriodicScaler* m_scaler; //! prescale decision tool
-
-      StringProperty m_histBaseDir; //! sets base dir for monitoring histograms
-  };
+      // Properties for hardware monitoring
+      Gaudi::Property<bool> m_fillHistogramsBasedOnHardwareDecision { this, "FillHistoBasedOnHardware", true, "Fill accept/reject histograms based on hdw; default based on sim" };
+      Gaudi::Property<unsigned int> m_prescaleForDAQROBAccess { this, "PrescaleDAQROBAccess", 4, "Prescale factor for requests for DAQ ROBs: can be used to avoid overloading ROS. Zero means disabled, 1 means always, N means sample only 1 in N events"}; 
+      Gaudi::Property<unsigned int> m_prescale { this, "Prescale", 1, "Internal prescale factor for this algorithm, implemented with a periodic scaler: so 1 means run every time, N means run every 1 in N times it is called; the other times it will exit without doing anything"};
+      Gaudi::Property<std::string> m_histBaseDir { this, "MonHistBaseDir", "L1/L1TopoAlgorithms", "Base directory for monitoring histograms will be /EXPERT/<MonHistBaseDir>"}; 
+   };
 
 }
 #endif

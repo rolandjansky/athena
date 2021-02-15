@@ -13,6 +13,7 @@
 
 #include "TrackPtr.h"
 #include "TrkEventPrimitives/TrackScore.h"
+#include "TrkEventUtils/ClusterSplitProbabilityContainer.h"
 
 #include <vector>
 #include <map> //multimap
@@ -95,7 +96,26 @@ namespace Trk {
                                                  
     const TrackParameters *
     getTrackParameters(const Trk::Track* track) const;
-    
+
+    /** Initialize read and write handles for ClusterSplitProbabilityContainers.
+     * If a write handle key is specified for the new ClusterSplitProbabilityContainer, read handles
+     * for this key are "renounced" in all child tools.
+     */
+    StatusCode
+    initializeClusterSplitProbContainer();
+
+    // special pointer type for the ClusterSplitProbabilityContainerPtr to allow to use a single "pointer" for
+    // ClusterSplitProbabilityContainer which need to be deleted and those owned by storegate
+    using UniqueClusterSplitProbabilityContainerPtr = std::unique_ptr<Trk::ClusterSplitProbabilityContainer,void(*)(Trk::ClusterSplitProbabilityContainer*) >;
+
+    /** Create a new cluster splitting probability container and (optionally) record it in storegate
+     * The new container may be populated from an already existing container, and might be stored in StoreGate.
+     * The ownersip, which might be either storegate or the calling scope, is taken into account by the
+     * UniqueClusterSplitProbabilityContainerPtr and must not be touched i.e. unique_ptr::release must not be called.
+     */
+    AmbiguityProcessorBase::UniqueClusterSplitProbabilityContainerPtr
+    createAndRecordClusterSplitProbContainer(const EventContext& ctx) const;
+
     //variables accessible to derived classes
     std::vector<float>     m_etaBounds;           //!< eta intervals for internal monitoring
     mutable std::mutex m_statMutex;
@@ -105,6 +125,16 @@ namespace Trk {
        @todo The actual tool that is used should be configured through job options*/
     ToolHandle<ITrackScoringTool> m_scoringTool;
     ToolHandle<Trk::IExtendedTrackSummaryTool> m_trackSummaryTool{this, "TrackSummaryTool", "InDetTrackSummaryToolNoHoleSearch"};
+
+  private:
+    // the handles should not be used directly instead the methods initializeClusterSplitProbContainer
+    // and createAndRecordClusterSplitProbContainer should be used.
+    SG::ReadHandleKey<Trk::ClusterSplitProbabilityContainer> m_clusterSplitProbContainerIn
+        {this, "InputClusterSplitProbabilityName", "",""};
+    SG::WriteHandleKey<Trk::ClusterSplitProbabilityContainer> m_clusterSplitProbContainerOut
+       {this, "OutputClusterSplitProbabilityName", "",""};
+
+  protected:
      /** brem recovery mode with brem fit ? */
     bool  m_tryBremFit{};
     bool  m_caloSeededBrem{};

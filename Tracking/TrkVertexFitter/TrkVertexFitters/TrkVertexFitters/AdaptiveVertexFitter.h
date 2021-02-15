@@ -88,8 +88,7 @@ namespace Trk
     using Trk::IVertexFitter::fit;
   
     virtual StatusCode initialize() override;
-    virtual StatusCode finalize() override;
-    
+
     //same kind error as FullVertexFitter code to be similar in error response - NOT IMPLEMENTED YET
     //enum FitError {FITOK,MATINV,NEGTRCHI2,MAXCHI2,MAXTRCHI2,NOTRKS,NOFIT};
     

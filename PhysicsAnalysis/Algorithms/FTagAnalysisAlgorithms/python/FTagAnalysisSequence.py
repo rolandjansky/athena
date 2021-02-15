@@ -1,11 +1,11 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # AnaAlgorithm import(s):
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 
 def makeFTagAnalysisSequence( seq, dataType, jetCollection,
                               btagWP = "FixedCutBEff_77",
-                              btagger = "MV2c10",
+                              btagger = "DL1r",
                               postfix = "",
                               preselection=None,
                               kinematicSelection = False,
@@ -32,7 +32,7 @@ def makeFTagAnalysisSequence( seq, dataType, jetCollection,
 
     # Kinematic selection depending on validity of the calibration
     # https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BTagCalibrationRecommendationsRelease21
-    if minPt == None:
+    if minPt is None:
         if "EMPFlow" in jetCollection:
             minPt = 20e3
         elif "EMTopo" in jetCollection:
@@ -46,14 +46,12 @@ def makeFTagAnalysisSequence( seq, dataType, jetCollection,
     if legacyRecommendations:
         # Remove b-tagging calibration from the container name
         btIndex = jetCollection.find('_BTagging')
-        if btIndex != -1:
-            jetCollection = jetCollection[:btIndex]
+        if btIndex == -1:
+            jetCollection += '_BTagging201903'
 
-        # CDI file
-        # https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BTagCalibrationRecommendationsRelease21
-        bTagCalibFile = "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2019-07-30_v1.root"
-    else:
-        bTagCalibFile = "xAODBTaggingEfficiency/13TeV/2020-21-13TeV-MC16-CDI-2020-03-11_Sh228_v3.root"
+    # CDI file
+    # https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BTagCalibrationRecommendationsRelease21
+    bTagCalibFile = "xAODBTaggingEfficiency/13TeV/2020-21-13TeV-MC16-CDI-2020-03-11_Sh228_v3.root"
 
     # # Create the analysis algorithm sequence object:
     # seq = AnaAlgSequence( "FTagAnalysisSequence" )

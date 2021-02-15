@@ -16,11 +16,6 @@ using namespace InDet;
 
     StatusCode JetFitterTrackSelectorTool::initialize() {
 
-        if ( AlgTool::initialize().isFailure() ) {
-            msg(MSG::ERROR) << " Unable to initialize the AlgTool" << endmsg;
-            return StatusCode::FAILURE;
-        }
-
 	if ( m_trkFilter.retrieve().isFailure() ) {
 	  msg(MSG::ERROR) << " Unable to retrieve InDet::InDetDetailedTrackSelectorTool" << endmsg;
 	  return StatusCode::FAILURE;
@@ -39,10 +34,6 @@ using namespace InDet;
         return StatusCode::SUCCESS;
     }
 
-    StatusCode JetFitterTrackSelectorTool::finalize() {
-        msg(MSG::INFO) << "Finalize successful" << endmsg;
-        return StatusCode::SUCCESS;
-    }
 
     const Trk::SelectedTracksInJet* JetFitterTrackSelectorTool::doTrackSelection( const xAOD::Vertex &primaryVertex,
 										  const TLorentzVector &jetMomentum,

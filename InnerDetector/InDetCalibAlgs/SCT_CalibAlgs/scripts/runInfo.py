@@ -54,12 +54,12 @@ def main( runNum=None ):
   print 'runInfo from scripts folder'
   #e.g. : http://coolcherrypy.cern.ch:8080/cooldb/ATLAS_COOLPROD/ATLAS_COOLONL_TDAQ/COMP200/TDAQ/RunCtrl/EOR_Params/timespan/732227499458560-732231794425855/channels/0
   
-  xmlString=channelValueQuery(url)
-  RunNumber    = extractValue(xmlString,'RunNumber')
-  iovstart,iovend     = extractChannelIov(xmlString)
-  nLB          = iovend - ( iovstart + 1 )
-  ProjectTag   = extractValue(xmlString,'FilenameTag' )
-  DetectorMask =  extractValue(xmlString,'DetectorMask' )
+  xmlString       = channelValueQuery(url)
+  RunNumber       = extractValue(xmlString,'RunNumber')
+  iovstart,iovend = extractChannelIov(xmlString)
+  nLB             = iovend - ( iovstart + 1 )
+  ProjectTag      = extractValue(xmlString,'FilenameTag' )
+  DetectorMask    = extractValue(xmlString,'DetectorMask' )
   
   ts1 = long(extractValue(xmlString,"SORTime"))/1000000000L
   ts2 = long(extractValue(xmlString,"EORTime"))/1000000000L

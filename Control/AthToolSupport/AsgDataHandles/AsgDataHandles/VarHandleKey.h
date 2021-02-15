@@ -66,6 +66,14 @@ public:
   //               bool isCond = false);
 
 
+
+  /**
+   * @brief standard (virtual) destructor
+   */
+  virtual ~VarHandleKey () noexcept = default;
+
+
+
   /**
    * @brief Change the key of the object to which we're referring.
    * @param sgkey The StoreGate key for the object.

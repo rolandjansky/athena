@@ -29,7 +29,6 @@
 #include "TrkTrack/Track.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrackSummary/TrackSummary.h"
-#include "TrkTrack/TrackCollection.h"
 #include "TrkEventPrimitives/FitQuality.h"
 
 #include "TrkParticleBase/TrackParticleBase.h"

@@ -94,12 +94,13 @@ CaloTowerBuilderToolTestAlg::make_cells()
 
 
 StatusCode
-CaloTowerBuilderToolTestAlg::test_subseg (const CaloTowerSeg::SubSeg& subseg,
+CaloTowerBuilderToolTestAlg::test_subseg (const EventContext& ctx,
+                                          const CaloTowerSeg::SubSeg& subseg,
                                           const CaloCellContainer* cells,
                                           const CaloTowerContainer* tow0)
 {
   CaloTowerContainer* tow = new CaloTowerContainer (subseg.segmentation());
-  CHECK( m_builder->execute (tow, cells, &subseg) );
+  CHECK( m_builder->execute (ctx, tow, cells, &subseg) );
 
   for (size_t i = 0; i < tow->size(); i++) {
     using index_t = CaloTowerContainer::index_t;
@@ -159,10 +160,12 @@ StatusCode CaloTowerBuilderToolTestAlg::test1()
 {
   std::cout << "test1\n";
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
   const CaloCellContainer* cells = make_cells();
   CHECK( evtStore()->record (cells, "cells") );
   CaloTowerContainer* tow1 = new CaloTowerContainer (m_seg);
-  CHECK( m_builder->execute (tow1, cells) );
+  CHECK( m_builder->execute (ctx, tow1, cells) );
 
   for (size_t i = 0; i < tow1->size(); i++) {
     const CaloTower* t = (*tow1)[i];
@@ -179,8 +182,8 @@ StatusCode CaloTowerBuilderToolTestAlg::test1()
     std::cout << "\n";
   }
 
-  CHECK( test_subseg (m_seg.subseg (0.7, 0.3, -0.2, 0.4), cells, tow1) );
-  CHECK( test_subseg (m_seg.subseg (0.7, 0.3,  3.1, 0.4), cells, tow1) );
+  CHECK( test_subseg (ctx, m_seg.subseg (0.7, 0.3, -0.2, 0.4), cells, tow1) );
+  CHECK( test_subseg (ctx, m_seg.subseg (0.7, 0.3,  3.1, 0.4), cells, tow1) );
 
   delete tow1;
   return StatusCode::SUCCESS;

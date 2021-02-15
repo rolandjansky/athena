@@ -1,9 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from scipy.stats import rv_discrete
 import test_statistics as TS
 import numpy as np
-import warnings
 
 # If True, import IPyParallel package to do the parallel computation.
 # And if IPyParallel is not installed, automatically turns it False.
@@ -121,7 +120,7 @@ def power_of_test(data1, data2, rvs_func = 'rvs_pairs', tests = ['chi2_2samp'], 
     [p1, p2, ...] : 1-D array
         The corresponding p-values for each histogram pairs.
     """
-    if parallel == None: parallel = PARALLEL
+    if parallel is None: parallel = PARALLEL
     if parallel:
         try:
             global client
@@ -131,7 +130,7 @@ def power_of_test(data1, data2, rvs_func = 'rvs_pairs', tests = ['chi2_2samp'], 
             jobs = []
             for i in range(N):
                 rvs_key['size'] = (size//N + 1) if (i < size % N) else size//N
-                jobs.append(client[client.ids[i]].apply_async(power_of_test, data1, data2, rvs_func, test, rvs_key, test_key, False))
+                jobs.append(client[client.ids[i]].apply_async(power_of_test, data1, data2, rvs_func, tests, rvs_key, test_key, False))
             ars = client._asyncresult_from_jobs(jobs)
             if sync:
                 ars.wait_interactive()

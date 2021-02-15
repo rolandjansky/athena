@@ -30,46 +30,14 @@ JetFitterMultiStageFit::~JetFitterMultiStageFit() {}
 
 StatusCode JetFitterMultiStageFit::initialize() {
 
-    StatusCode sc = AlgTool::initialize();
-    if (sc.isFailure()) {
-        msg(MSG::ERROR) << " Unable to initialize the AlgTool" << endmsg;
-        return sc;
-    }
-
-    sc =  m_helper.retrieve();
-    if(sc.isFailure()) 	  {
-        msg(MSG::ERROR) << " Unable to retrieve "<<m_helper<<endmsg;
-        return StatusCode::FAILURE;
-    }else msg(MSG::INFO) << "JetFitter Helper retrieved"<<endmsg;
-
-    sc = m_initializationHelper.retrieve();
-    if(sc.isFailure()) 	  {
-        msg(MSG::ERROR) << " Unable to retrieve "<<m_initializationHelper<<endmsg;
-        return StatusCode::FAILURE;
-    }else msg(MSG::INFO) << "JetFitter Initialization Helper retrieved"<<endmsg;
-
-    sc = m_routines.retrieve();
-    if(sc.isFailure())
-    {
-        msg(MSG::ERROR) << " Unable to retrieve the JetFitter routines"<<m_routines<<endmsg;
-        return StatusCode::FAILURE;
-    }
-    else msg(MSG::INFO) << "JetFitter Routines class retrieved"<<endmsg;
-
-    if (m_jetFitterUtils.retrieve().isFailure())
-    {
-        msg(MSG::ERROR) << "Could not find JetFitterUtils tool." << endmsg;
-        return StatusCode::FAILURE;
-    }
-    else msg(MSG::INFO) << " JetFitterUtils retrieved" << endmsg;
+    ATH_CHECK( m_helper.retrieve() );
+    ATH_CHECK( m_initializationHelper.retrieve() );
+    ATH_CHECK( m_routines.retrieve() );
+    ATH_CHECK( m_jetFitterUtils.retrieve() );
 
     return StatusCode::SUCCESS;
 }
 
-StatusCode JetFitterMultiStageFit::finalize() {
-    msg(MSG::INFO) << "Finalize successful" << endmsg;
-    return StatusCode::SUCCESS;
-}
 
 Trk::VxJetCandidate* JetFitterMultiStageFit::doTwoStageFit(const Trk::RecVertex & primaryVertex,
                                                         const TLorentzVector & jetMomentum,

@@ -12,7 +12,6 @@
 
 #include "MissingETGoodness/JetVarTool.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "MissingETGoodness/Goodies.h"
 
 #include "TString.h"

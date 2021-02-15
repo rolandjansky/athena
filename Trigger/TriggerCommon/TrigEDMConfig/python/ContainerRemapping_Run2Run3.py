@@ -24,7 +24,7 @@ HLT_Name_Changes = {
         ('HLT_AntiKt10LCTopoJets_subjes',                    'HLT_xAOD__JetContainer_a10tclcwsubjesFS'),
         ('HLT_AntiKt10LCTopoJets_nojcalib',                  'HLT_xAOD__JetContainer_a10tclcwnojcalibFS'),
         # Large-R groomed
-        ('HLT_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_jes', 'HLT_xAOD__JetContainer_a10ttclcwjesFS'),
+        ('HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes', 'HLT_xAOD__JetContainer_a10ttclcwjesFS'),
         ],
     
     'xAOD::CaloClusterContainer':
@@ -42,6 +42,13 @@ def remapHLTContainerNames():
             auxcontainertype = containertype.replace("Container","AuxContainer")
             if containertype=="xAOD::CaloClusterContainer":
                 auxcontainertype = "xAOD::CaloClusterTrigAuxContainer"
+            if containertype=="xAOD::JetContainer" and run3name.startswith("HLT"):
+                isShallow = True
+                for expr in ["RCJets","Trimmed","SoftDrop","nojcalib"]:
+                    if expr in run3name:
+                        isShallow=False
+                if isShallow:
+                    auxcontainertype = "xAOD::ShallowAuxContainer"
 
             #AddressRemappingSvc.addInputRename(containertype,run3name,run2name)
             ars = AddressRemappingSvc.getAddressRemappingSvc()

@@ -14,9 +14,7 @@
 #include "CoolKernel/IFolderSet.h"
 #include "CoolKernel/IObject.h"
 #include "CoolKernel/IObjectIterator.h"
-#include "CoolKernel/Exception.h"
 #include "CoolKernel/pointers.h"
-#include "CoolKernel/IDatabaseSvc.h"
 #include "CoolApplication/DatabaseSvcFactory.h"
 #include "LumiCalc/ReplicaSorter.h"
 
@@ -45,14 +43,8 @@
 #include <vector>
 #include <map>
 
-// boost includes
-//#include <boost/unordered_map.hpp>
-
 // logger
 #include "GoodRunsLists/TMsgLogger.h"
-
-// magic includes
-//#include <magic.h>
 
 //================================================
 // Simple class to hold

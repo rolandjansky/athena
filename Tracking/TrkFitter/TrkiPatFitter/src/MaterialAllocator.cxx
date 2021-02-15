@@ -10,11 +10,7 @@
 #include <cmath>
 #include <iomanip>
 #include "GaudiKernel/SystemOfUnits.h"
-#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
-#include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
 #include "TrkDetElementBase/TrkDetElementBase.h"
-#include "TrkExInterfaces/IExtrapolator.h"
-#include "TrkExInterfaces/IIntersector.h"
 #include "TrkExUtils/TrackSurfaceIntersection.h"
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkGeometry/TrackingVolume.h"
@@ -38,11 +34,7 @@ namespace Trk
   MaterialAllocator::MaterialAllocator (const std::string& type,
                                         const std::string& name,
                                         const IInterface* parent)
-    :   AthAlgTool(type, name, parent),
-    m_extrapolator("Trk::Extrapolator/AtlasExtrapolator", this),
-    m_intersector("Trk::RungeKuttaIntersector/RungeKuttaIntersector", this),
-    m_trackingGeometrySvc("TrackingGeometrySvc/AtlasTrackingGeometrySvc", name),
-    m_trackingVolumesSvc("Trk::TrackingVolumesSvc/TrackingVolumesSvc", name),
+    :   AthAlgTool(type, name, parent), 
     m_aggregateMaterial(true),
     m_allowReordering(false),
     m_useStepPropagator(1),
@@ -54,15 +46,11 @@ namespace Trk
     m_sectorMaxPhi(0.28),
     m_stationMaxGap(0.6 * Gaudi::Units::meter),
     m_calorimeterVolume(nullptr),
-    m_indetVolume(nullptr),
-    m_spectrometerEntrance(nullptr),
+    m_indetVolume(nullptr),    
     m_messageHelper(nullptr) {
-    m_messageHelper = new MessageHelper(*this);
+    m_messageHelper = std::make_unique< MessageHelper>(*this);
     declareInterface<IMaterialAllocator>(this);
-    declareProperty("Extrapolator", m_extrapolator);
-    declareProperty("Intersector", m_intersector);
-    declareProperty("TrackingGeometrySvc", m_trackingGeometrySvc);
-    declareProperty("TrackingVolumesSvc", m_trackingVolumesSvc);
+    
     declareProperty("AggregateMaterial", m_aggregateMaterial);
     declareProperty("AllowReordering", m_allowReordering);
 
@@ -76,14 +64,9 @@ namespace Trk
     declareProperty("MaxNumberOfWarnings", m_maxWarnings,
                     "Maximum number of permitted WARNING messages per message type.");
   }
-
-  MaterialAllocator::~MaterialAllocator (void)
-  {}
-
+ 
   StatusCode
   MaterialAllocator::initialize() {
-    // print name and package version
-    ATH_MSG_INFO("MaterialAllocator::initialize() - package version " << PACKAGE_VERSION);
 
     // fill WARNING messages
     m_messageHelper->setMaxNumberOfMessagesPrinted(m_maxWarnings);
@@ -91,69 +74,43 @@ namespace Trk
     m_messageHelper->setMessage(0,
                                 "leadingSpectrometerTSOS:  missing TrackingGeometrySvc - no leading material will be added");
     m_messageHelper->setMessage(1, "indetMaterial: extrapolateM finds no material on track");
-    m_messageHelper->setMessage(2,
-                                "spectrometerMaterial: missing TrackingGeometrySvc - no spectrometer material added");
+    m_messageHelper->setMessage(2, "spectrometerMaterial: missing TrackingGeometrySvc - no spectrometer material added");
     m_messageHelper->setMessage(3,
                                 "spectrometerMaterial: did not find MS entrance surface - no MS material taken into account");
     m_messageHelper->setMessage(4, "spectrometerMaterial: failed extrapolation");
     m_messageHelper->setMessage(5, "spectrometerMaterial: extrapolateM finds no material on track");
 
     // retrieve the necessary Extrapolators (muon tracking geometry is very picky!)
-    if (m_extrapolator.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Failed to retrieve tool " << m_extrapolator);
-      return StatusCode::FAILURE;
-    } 
-      ATH_MSG_INFO("Retrieved tool " << m_extrapolator);
-    
-    if (m_intersector.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Failed to retrieve tool " << m_intersector);
-      return StatusCode::FAILURE;
-    } 
-      ATH_MSG_INFO("Retrieved tool " << m_intersector);
-    
+    ATH_CHECK( m_extrapolator.retrieve() );
+    ATH_MSG_DEBUG("Retrieved tool " << m_extrapolator);
+
+    ATH_CHECK( m_intersector.retrieve() );
+    ATH_MSG_DEBUG("Retrieved tool " << m_intersector);
 
     // retrieve services
-    if (m_trackingGeometrySvc.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Failed to retrieve Svc " << m_trackingGeometrySvc);
-      return StatusCode::FAILURE;
-    } 
-      ATH_MSG_INFO("Retrieved Svc " << m_trackingGeometrySvc);
-    
-
+    if (m_trackingGeometryReadKey.empty()){
+        ATH_CHECK( m_trackingGeometrySvc.retrieve() );
+    } else ATH_CHECK(m_trackingGeometryReadKey.initialize());
     // need to create the IndetExit and MuonEntrance TrackingVolumes
-    if (m_trackingVolumesSvc.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Failed to retrieve Svc " << m_trackingVolumesSvc);
-      return StatusCode::FAILURE;
-    } 
-      ATH_MSG_INFO("Retrieved Svc " << m_trackingVolumesSvc);
-      m_calorimeterVolume = new Volume(
-        m_trackingVolumesSvc->volume(ITrackingVolumesSvc::MuonSpectrometerEntryLayer));
-      m_indetVolume = new Volume(
-        m_trackingVolumesSvc->volume(ITrackingVolumesSvc::CalorimeterEntryLayer));
-    
+    ATH_CHECK( m_trackingVolumesSvc.retrieve() );
+    ATH_MSG_DEBUG("Retrieved Svc " << m_trackingVolumesSvc);
+    m_calorimeterVolume = &(m_trackingVolumesSvc->volume(ITrackingVolumesSvc::MuonSpectrometerEntryLayer));
+    m_indetVolume = &(m_trackingVolumesSvc->volume(ITrackingVolumesSvc::CalorimeterEntryLayer));
 
-    if (m_useStepPropagator > 0 && m_stepPropagator.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Failed to retrieve Svc " << m_stepPropagator);
-      return StatusCode::FAILURE;
+    if (m_useStepPropagator > 0) {
+      ATH_CHECK(m_stepPropagator.retrieve());
     }
 
-// Field for StepPropagator
+    // Field for StepPropagator
     m_stepField = Trk::MagneticFieldProperties(Trk::FullField);
     if (m_useStepPropagator == 2) m_stepField = Trk::MagneticFieldProperties(Trk::FastField);
 
     return StatusCode::SUCCESS;
   }
 
-  StatusCode
-  MaterialAllocator::finalize() {
-    ATH_MSG_INFO("finalize() ");
-
+  StatusCode MaterialAllocator::finalize() {
     // summarize WARNINGs
-    m_messageHelper->printSummary();
-
-    delete m_calorimeterVolume;
-    delete m_indetVolume;
-    delete m_messageHelper;
+    m_messageHelper->printSummary();    
     return StatusCode::SUCCESS;
   }
 
@@ -434,13 +391,8 @@ namespace Trk
                                                 intersection,
                                                 qOverP);
               if (newIntersectionSTEP && intersection) {
-//                       double dist = 1000.*(newIntersectionSTEP->position()-intersection->position()).mag();
-//                       std::cout << " iMat 1 distance STEP and Intersector " << dist << std::endl;
-//                       if(dist>10.) std::cout << " iMat 1 ALARM distance STEP and Intersector " << dist << std::endl;
                 delete newIntersectionSTEP;
-              } else {
-//                        if(intersection) std::cout << " iMat 1 ALARM STEP did not intersect! " << std::endl;
-              }
+              } 
             } else {
               intersection = m_useStepPropagator >= 1 ?
                              m_stepPropagator->intersectSurface((**r).trackParameters()->associatedSurface(),
@@ -525,12 +477,7 @@ namespace Trk
                                                          intersection,
                                                          qOverP);
           if (newIntersectionSTEP && intersection) {
-//                double dist = 1000.*(newIntersectionSTEP->position()-intersection->position()).mag();
-//                std::cout << " iMat 2 distance STEP and Intersector " << dist << std::endl;
-//                if(dist>10.) std::cout << " iMat 2 ALARM distance STEP and Intersector " << dist << std::endl;
             delete newIntersectionSTEP;
-          } else {
-//                if(intersection) std::cout << " iMat 2 ALARM STEP did not intersect! " << std::endl;
           }
         } else {
           intersection = m_useStepPropagator >= 1 ?
@@ -623,7 +570,7 @@ namespace Trk
   void
   MaterialAllocator::allocateMaterial(std::vector<FitMeasurement*>& measurements,
                                       ParticleHypothesis particleHypothesis,
-                                      const FitParameters& fitParameters,
+                                      FitParameters& fitParameters,
                                       const TrackParameters& startParameters,
                                       Garbage_t& garbage) const {
     // different strategies used for indet and muon spectrometer
@@ -707,35 +654,19 @@ namespace Trk
     }
   }
 
-  void
-  MaterialAllocator::createSpectrometerEntranceOnce() const {
-    std::call_once(m_spectrometerEntranceOnceFlag, [&](){
-      m_spectrometerEntrance = m_trackingGeometrySvc->trackingGeometry()->trackingVolume("MuonSpectrometerEntrance");
-    });
-  }
-
   std::vector<const TrackStateOnSurface*>*
   MaterialAllocator::leadingSpectrometerTSOS(const TrackParameters& spectrometerParameters,
                                              Garbage_t& garbage) const {
-    // make sure the spectrometer entrance volume is available
-    if (!m_spectrometerEntrance) {
-      if (!m_trackingGeometrySvc) {
-        // missing TrackingGeometrySvc - no leading material will be added
-        m_messageHelper->printWarning(0);
-        return nullptr;
-      } 
-        createSpectrometerEntranceOnce();
-      
-    }
-
+  
+    const Trk::TrackingVolume* spectrometerEntrance = getSpectrometerEntrance();
+    if (!spectrometerEntrance) return nullptr;
     // check input parameters are really in the spectrometer
     if (m_calorimeterVolume->inside(spectrometerParameters.position())) return nullptr;
 
-    const TrackParameters* entranceParameters =
-      m_extrapolator->extrapolateToVolume(spectrometerParameters,
-                                                      *m_spectrometerEntrance,
-                                                      anyDirection,
-                                                      Trk::nonInteracting);
+    std::unique_ptr<const TrackParameters> entranceParameters(m_extrapolator->extrapolateToVolume(spectrometerParameters,
+                                                              *spectrometerEntrance,
+                                                              anyDirection,
+                                                              Trk::nonInteracting));
     if (!entranceParameters) {
       ATH_MSG_VERBOSE(std::setiosflags(std::ios::fixed)
                       << "leadingSpectrometerTSOS: no material found from RZ"
@@ -749,15 +680,14 @@ namespace Trk
     }
 
     const Surface& entranceSurface = entranceParameters->associatedSurface();
-    const std::vector<const TrackStateOnSurface*>* extrapolatedTSOS =
-      extrapolatedMaterial(m_extrapolator,
-                           spectrometerParameters,
-                           entranceSurface,
-                           anyDirection,
-                           false,
-                           Trk::muon,
-                           garbage);
-    delete entranceParameters;
+    std::unique_ptr<const std::vector<const TrackStateOnSurface*>> extrapolatedTSOS (extrapolatedMaterial(m_extrapolator,
+                                                                                           spectrometerParameters,
+                                                                                           entranceSurface,
+                                                                                           anyDirection,
+                                                                                           false,
+                                                                                           Trk::muon,
+                                                                                           garbage));
+    
     if (!extrapolatedTSOS
         || extrapolatedTSOS->empty()
         || !extrapolatedTSOS->front()->trackParameters()) {
@@ -768,13 +698,12 @@ namespace Trk
                       << std::setw(10) << std::setprecision(3)
                       << spectrometerParameters.position().z()
                       << "  with p " << std::setw(8) << std::setprecision(3)
-                      << spectrometerParameters.momentum().mag() / Gaudi::Units::GeV);
-      delete extrapolatedTSOS;
+                      << spectrometerParameters.momentum().mag() / Gaudi::Units::GeV);      
       return nullptr;
     }
 
-    std::vector<FitMeasurement*>    leadingMeasurements;
-    std::vector<const TrackStateOnSurface*>* leadingTSOS = new std::vector<const TrackStateOnSurface*>;
+    std::vector<std::unique_ptr<FitMeasurement>>    leadingMeasurements;
+    std::unique_ptr<std::vector<const TrackStateOnSurface*>> leadingTSOS = std::make_unique<std::vector<const TrackStateOnSurface*>>();
     leadingTSOS->reserve(extrapolatedTSOS->size());
     double outgoingEnergy = spectrometerParameters.momentum().mag();
     double particleMass = ParticleMasses().mass[Trk::muon];
@@ -782,11 +711,11 @@ namespace Trk
          s != extrapolatedTSOS->end();
          ++s) {
       if (!(**s).trackParameters()) continue;
-      FitMeasurement* measurement = measurementFromTSOS(**s, outgoingEnergy, particleMass);
+      std::unique_ptr<FitMeasurement> measurement (measurementFromTSOS(**s, outgoingEnergy, particleMass));
       outgoingEnergy = (**s).trackParameters()->momentum().mag();
 
       if (measurement) {
-        leadingMeasurements.insert(leadingMeasurements.begin(), measurement);
+        leadingMeasurements.emplace(leadingMeasurements.begin(), std::move(measurement));
       } else {
         leadingTSOS->push_back((**s).clone());
       }
@@ -794,14 +723,13 @@ namespace Trk
 
 
     // convert back to TSOS
-    std::vector<FitMeasurement*>::iterator m = leadingMeasurements.begin();
-    for (; m != leadingMeasurements.end(); ++m)
-      leadingTSOS->push_back(new TrackStateOnSurface(nullptr,
+    for (const auto& m : leadingMeasurements)
+      leadingTSOS->emplace_back(new TrackStateOnSurface(nullptr,
                                                      nullptr,
                                                      nullptr,
-                                                     (**m).materialEffects()->clone()));
+                                                      m->materialEffects()->clone()));
 
-    deleteMaterial(extrapolatedTSOS, garbage);
+    deleteMaterial(extrapolatedTSOS.release(), garbage);
 
     // debug
     if (msgLvl(MSG::VERBOSE) && !leadingTSOS->empty()) {
@@ -813,15 +741,9 @@ namespace Trk
                       << spectrometerParameters.position().z()
                       << "  with p " << std::setw(8) << std::setprecision(3)
                       << spectrometerParameters.momentum().mag() / Gaudi::Units::GeV);
-      printMeasurements(leadingMeasurements);
+      //printMeasurements(leadingMeasurements);
     }
-
-    // clean up
-    for (m = leadingMeasurements.begin(); m != leadingMeasurements.end(); ++m)
-      delete *m;
-    leadingMeasurements.clear();
-
-    return leadingTSOS;
+    return leadingTSOS.release();
   }
 
   void
@@ -878,7 +800,7 @@ namespace Trk
 
   bool
   MaterialAllocator::reallocateMaterial(std::vector<FitMeasurement*>& measurements,
-                                        const FitParameters& parameters,
+                                        FitParameters& parameters,
                                         Garbage_t& garbage) const {
     ATH_MSG_DEBUG(" reallocateSpectrometerMaterial ");
 
@@ -2207,7 +2129,7 @@ namespace Trk
   void
   MaterialAllocator::spectrometerMaterial(std::vector<FitMeasurement*>& measurements,
                                           ParticleHypothesis particleHypothesis,
-                                          const FitParameters& fitParameters,
+                                          FitParameters& fitParameters,
                                           const TrackParameters& startParameters,
                                           Garbage_t& garbage) const {
     // return if no MS measurement
@@ -2235,9 +2157,7 @@ namespace Trk
       Amg::Vector3D positionMst = startPosition;
       if ((**m).measurementBase()) positionMst = (**m).measurementBase()->globalPosition();
       double distance = startDirection.dot(position - startPosition);
-      double distanceR =
-        sqrt((positionMst.x() - startPosition.x()) * (positionMst.x() - startPosition.x()) +
-             (positionMst.y() - startPosition.y()) * (positionMst.y() - startPosition.y()));
+      double distanceR = std::hypot(positionMst.x() - startPosition.x() , positionMst.y() - startPosition.y());
       double distanceZ = (positionMst.z() - startPosition.z());
       if (startDirection.z() < 0) distanceZ = -distanceZ;
       if (!m_calorimeterVolume->inside(position) || !m_calorimeterVolume->inside(positionSurf)) {
@@ -2313,17 +2233,8 @@ namespace Trk
     // insert delimiters
     addSpectrometerDelimiters(measurements);
 
-    // make sure the spectrometer entrance volume is available
-    ATH_MSG_DEBUG(" add spectrometerMaterial ");
-    if (!m_spectrometerEntrance) {
-      if (!m_trackingGeometrySvc) {
-        // missing TrackingGeometrySvc - no spectrometer material added
-        m_messageHelper->printWarning(2);
-        return;
-      } 
-        createSpectrometerEntranceOnce();
-      
-    }
+    const Trk::TrackingVolume* spectrometerEntrance = getSpectrometerEntrance();
+    if (!spectrometerEntrance) return;
 
     // entranceParameters are at the MS entrance surface (0 if perigee downstream)
     TrackSurfaceIntersection* entranceIntersection = nullptr;
@@ -2335,7 +2246,7 @@ namespace Trk
                                                                              false));
       if (!innerParameters) innerParameters.reset(startParameters.clone());
       entranceParameters.reset( m_extrapolator->extrapolateToVolume(*innerParameters,
-                                                                           *m_spectrometerEntrance,
+                                                                           *spectrometerEntrance,
                                                                            anyDirection,
                                                                            Trk::nonInteracting));
       if (entranceParameters) {

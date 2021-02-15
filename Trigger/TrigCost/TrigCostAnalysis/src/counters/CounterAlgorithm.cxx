@@ -3,6 +3,7 @@
 */
 
 #include "xAODTrigger/TrigCompositeContainer.h"
+#include "TrigDataAccessMonitoring/ROBDataMonitor.h"
 
 #include "CounterAlgorithm.h"
 
@@ -16,6 +17,11 @@ CounterAlgorithm::CounterAlgorithm(const std::string& name, const MonitorBase* p
   regHistogram("AlgCalls_perEvent", "Calls/Event;Calls;Events", VariableType::kPerEvent, kLinear, -0.5, 49.5);
   regHistogram("InEventView_perCall", "In Event View;Yes or No;Calls", VariableType::kPerCall, kLinear, -0.5, 1.5, 2);
   regHistogram("RoIID_perCall", "RoI ID;RoI ID;Calls", VariableType::kPerCall, kLinear, -1.5, 20.5, 22);
+  regHistogram("Request_perEvent", "Number of requests/Event;Number of requests;Events", VariableType::kPerEvent, LogType::kLinear, -0.5, 10.5, 11);
+  regHistogram("NetworkRequest_perEvent", "Number of network requests/Event;Number of requests;Events", VariableType::kPerEvent, LogType::kLinear, -0.5, 10.5, 11);
+  regHistogram("CachedROBSize_perEvent", "Total ROB Size/Event;ROB size;Events", VariableType::kPerEvent, LogType::kLinear, 0, 1024, 50);
+  regHistogram("NetworkROBSize_perEvent", "Total ROB Size/Event;ROB size;Events", VariableType::kPerEvent, LogType::kLinear, 0, 1024, 50);
+  regHistogram("RequestTime_perEvent", "ROB Elapsed Time/Event;Elapsed Time [ms];Events", VariableType::kPerEvent);
 }
 
 
@@ -44,6 +50,37 @@ StatusCode CounterAlgorithm::newEvent(const CostData& data, size_t index, const 
   ATH_CHECK( fill("InEventView_perCall", (globalScope ? 0.0 : 1.0), weight) );
 
   ATH_CHECK( fill("RoIID_perCall", alg->getDetail<int32_t>("roi"), weight) );
+
+  // Monitor data requests per algorithm
+  if (data.algToRequestMap().count(index)) {
+    for (size_t requestIdx : data.algToRequestMap().at(index)) {
+      const xAOD::TrigComposite* request = data.rosCollection().at(requestIdx);
+      const std::vector<unsigned> robs_history = request->getDetail<std::vector<unsigned>>("robs_history");
+      const std::vector<uint32_t> robs_size = request->getDetail<std::vector<uint32_t>>("robs_size");
+
+      bool networkRequestIncremented = false;
+      for (size_t i = 0; i < robs_size.size(); ++i) {
+        // ROB request was fetched over the network
+        if (robs_history[i] == robmonitor::RETRIEVED) {
+          ATH_CHECK( fill("NetworkROBSize_perEvent", robs_size[i], weight) );
+          networkRequestIncremented = true;
+        }
+        // ROB request was cached
+        else if (robs_history[i] == robmonitor::HLT_CACHED || robs_history[i] == robmonitor::DCM_CACHED) {
+          ATH_CHECK( fill("CachedROBSize_perEvent", robs_size[i], weight) );
+        }
+      }
+
+      ATH_CHECK( increment("Request_perEvent", weight) );
+
+      if (networkRequestIncremented) {
+        ATH_CHECK( increment("NetworkRequest_perEvent", weight) );
+      }
+
+      const float rosTime = timeToMilliSec(request->getDetail<uint64_t>("start"), request->getDetail<uint64_t>("stop"));
+      ATH_CHECK( fill("Time_perEvent", rosTime, weight) );
+    }
+  }
 
   return StatusCode::SUCCESS;
 }

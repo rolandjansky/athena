@@ -11,7 +11,7 @@ atlas_add_component( InDetJiveXML
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps StoreGateLib GaudiKernel InDetRawData TrkSpacePoint TrkTruthData JiveXMLLib AthContainers IdDictDetDescr InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry InDetPrepRawData TrkEventPrimitives TrkPrepRawData InDetBeamSpotServiceLib InDetCondTools )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps StoreGateLib GaudiKernel InDetRawData TrkSpacePoint TrkTruthData JiveXMLLib AthContainers IdDictDetDescr InDetIdentifier ReadoutGeometryBase InDetReadoutGeometry TRT_ReadoutGeometry InDetPrepRawData TrkEventPrimitives TrkPrepRawData InDetBeamSpotServiceLib InDetCondTools )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

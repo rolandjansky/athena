@@ -28,15 +28,10 @@
 
 # Some analysis packages that are not part of Athena
 - Control/AthLinksSA
-+ PhysicsAnalysis/Algorithms/MuonAnalysisAlgorithms
-+ PhysicsAnalysis/Algorithms/SelectionHelpers
-+ PhysicsAnalysis/Algorithms/SystematicsHandles
-- PhysicsAnalysis/Algorithms/.*
-- PhysicsAnalysis/AnalysisCommon/PMGTools
+- PhysicsAnalysis/Algorithms/StandaloneAnalysisAlgorithms
 - PhysicsAnalysis/D3PDTools/EventLoop.*
 - PhysicsAnalysis/D3PDTools/MultiDraw
 - PhysicsAnalysis/D3PDTools/SampleHandler
-- PhysicsAnalysis/ElectronPhotonID/PhotonEfficiencyCorrection
 - PhysicsAnalysis/HiggsPhys/Run2/HZZ/Tools/ZMassConstraint
 - PhysicsAnalysis/JetPhys/SemileptonicCorr
 - PhysicsAnalysis/SUSYPhys/SUSYTools

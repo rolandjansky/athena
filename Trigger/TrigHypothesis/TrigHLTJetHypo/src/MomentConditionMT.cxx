@@ -25,7 +25,7 @@ bool MomentConditionMT::isSatisfied(const pHypoJet& ip,
   if (!(ip -> getAttribute(m_moment, momentValue))){
 
     if(collector){
-      auto j_addr = static_cast<const void*>(ip);
+      auto j_addr = static_cast<const void*>(ip.get());
 
       std::stringstream ss0;
       ss0 << "MomentCondition: " 
@@ -50,7 +50,7 @@ bool MomentConditionMT::isSatisfied(const pHypoJet& ip,
         << " moment " << m_moment
         << " pass: "  << std::boolalpha << pass << '\n';
 
-    auto j_addr = static_cast<const void*>(ip);
+    auto j_addr = static_cast<const void*>(ip.get());
     std::stringstream ss1;
     ss1 <<  "     jet : ("<< j_addr << ") "
       "moment " << m_moment << " value: " << momentValue<< '\n';

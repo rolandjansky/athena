@@ -89,7 +89,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::setMCFlag(BooleanProperty use_mcLU
 StatusCode TrigL2MuonSA::MuFastStationFitter::findSuperPoints(const LVL1::RecMuonRoI*    p_roi,
                                                               const TrigL2MuonSA::MuonRoad& muonRoad,
                                                               TrigL2MuonSA::RpcFitResult& rpcFitResult,
-                                                              std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns)
+                                                              std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns) const
 {
 
   //
@@ -120,7 +120,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::findSuperPoints(const LVL1::RecMuo
 StatusCode TrigL2MuonSA::MuFastStationFitter::findSuperPointsSimple(const LVL1::RecMuonRoI*   p_roi,
 								    const TrigL2MuonSA::MuonRoad& muonRoad,
 								    TrigL2MuonSA::TgcFitResult& tgcFitResult,
-								    std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns)
+								    std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns) const
 {
 
   for (TrigL2MuonSA::TrackPattern& itTrack : v_trackPatterns) { // loop for track candidates
@@ -150,7 +150,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::findSuperPointsSimple(const LVL1::
 StatusCode TrigL2MuonSA::MuFastStationFitter::findSuperPoints(const LVL1::RecMuonRoI*   p_roi,
                                                               const TrigL2MuonSA::MuonRoad& muonRoad,
                                                               TrigL2MuonSA::TgcFitResult& tgcFitResult,
-                                                              std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns)
+                                                              std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns) const
 {
 
   for (TrigL2MuonSA::TrackPattern& itTrack : v_trackPatterns) { // loop for track candidates
@@ -189,7 +189,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::findSuperPoints(const LVL1::RecMuo
 
 // --------------------------------------------------------------------------------
 
-StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::TrackPattern& trackPattern)
+StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::TrackPattern& trackPattern) const
 {
    int   count;
    int   FitFlag;
@@ -343,7 +343,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
 // --------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------
 StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::TrackPattern& trackPattern,
-                                                               const TrigL2MuonSA::MuonRoad&    muonRoad)
+                                                               const TrigL2MuonSA::MuonRoad&    muonRoad) const
 {
   const unsigned int MAX_STATION = 10;
   TrigL2MuonSA::MdtHits*    mdtSegment;
@@ -503,7 +503,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
 // --------------------------------------------------------------------------------
 void TrigL2MuonSA::MuFastStationFitter::stationSPFit(TrigL2MuonSA::MdtHits*    mdtSegment, 
                                                      TrigL2MuonSA::SuperPoint* superPoint,
-                                                     TrigL2MuonSA::PBFitResult& pbFitResult,int s_address, int i_station,double aw, float phiDir){
+                                                     TrigL2MuonSA::PBFitResult& pbFitResult,int s_address, int i_station,double aw, float phiDir) const{
 
   TrigL2MuonSA::MdtHits::iterator itMdtHit;
 
@@ -1023,7 +1023,7 @@ void TrigL2MuonSA::MuFastStationFitter::stationSPFit(TrigL2MuonSA::MdtHits*    m
 // --------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------
 void TrigL2MuonSA::MuFastStationFitter::makeReferenceLine(TrigL2MuonSA::TrackPattern&   trackPattern,
-                                                          const TrigL2MuonSA::MuonRoad& muonRoad){
+                                                          const TrigL2MuonSA::MuonRoad& muonRoad)  const{
 
   TrigL2MuonSA::SuperPoint* superPoint;
   const unsigned int MAX_STATION = 8;
@@ -1170,7 +1170,7 @@ void TrigL2MuonSA::MuFastStationFitter::makeReferenceLine(TrigL2MuonSA::TrackPat
 //--------------------------------------------------------------------------------------
 
 double TrigL2MuonSA::MuFastStationFitter::fromAlphaPtToInn(TrigL2MuonSA::TgcFitResult& tgcFitResult,
-                                                           TrigL2MuonSA::TrackPattern& trackPattern)
+                                                           TrigL2MuonSA::TrackPattern& trackPattern) const
 {
 
   TrigL2MuonSA::SuperPoint* superPoint;
@@ -1253,7 +1253,7 @@ double TrigL2MuonSA::MuFastStationFitter::fromAlphaPtToInn(TrigL2MuonSA::TgcFitR
 void TrigL2MuonSA::MuFastStationFitter::updateInnSP(TrigL2MuonSA::TrackPattern& trackPattern,
                                                     double &aw,
                                                     double &tgc_aw,
-                                                    double &bw)
+                                                    double &bw) const
 {
 
   double nrWidth = m_rwidth_Endcapinn_first;
@@ -1324,7 +1324,7 @@ void TrigL2MuonSA::MuFastStationFitter::findLayerCombination(std::vector<unsigne
                                                              int n,
                                                              int r,
                                                              std::vector<std::vector<unsigned int> > &c,
-                                                             int &nr)
+                                                             int &nr) const
 {
   std::vector<unsigned int> b;
 
@@ -1345,7 +1345,7 @@ void TrigL2MuonSA::MuFastStationFitter::findSubLayerCombination(std::vector<unsi
                                                                 int index,
                                                                 int num,
                                                                 std::vector<std::vector<unsigned int> > &c,
-                                                                int &nr)
+                                                                int &nr) const
 {
   for (int i=index; i<n-num+1; i++) {
 
@@ -1372,7 +1372,8 @@ void TrigL2MuonSA::MuFastStationFitter::findSubLayerCombination(std::vector<unsi
 
 // --------------------------------------------------------------------------------
 
-float TrigL2MuonSA::MuFastStationFitter::SetDriftSpace(float tdr, float rad, float zeta, float phim, float phiDir) {
+float TrigL2MuonSA::MuFastStationFitter::SetDriftSpace(float tdr, float rad, float zeta, float phim, float phiDir) const
+{
   
   const float CSPEED = 2.99979e+10;    //     light speed (cm/s)
   const float MDT_RED = 0.7;
@@ -1410,7 +1411,8 @@ float TrigL2MuonSA::MuFastStationFitter::SetDriftSpace(float tdr, float rad, flo
 
 ==============================================================================*/
 
-int TrigL2MuonSA::MuFastStationFitter::Evlfit(int Ifla, TrigL2MuonSA::PBFitResult& pbFitResult) {
+int TrigL2MuonSA::MuFastStationFitter::Evlfit(int Ifla, TrigL2MuonSA::PBFitResult& pbFitResult) const
+{
 
   int i,j,k,Ifit,Ntry,IGcur,Jbad;
   float Xnor,rlin,Xbad,test;
@@ -1541,7 +1543,8 @@ int TrigL2MuonSA::MuFastStationFitter::Evlfit(int Ifla, TrigL2MuonSA::PBFitResul
 ==============================================================================*/
 
 void TrigL2MuonSA::MuFastStationFitter::Circles (int Nmeas,float *XI,float *YI,float *RI,float *WI,int *IG,
-                                                 float *A,float *B,float DAB[2][2],float *Chi2,float *Pchi2) {
+                                                 float *A,float *B,float DAB[2][2],float *Chi2,float *Pchi2) const
+{
 
   float RRi[NMEAMX],WIlim,CHbest,Abest,Bbest;
   float A0,B0,SAA,SBB,SAB,Square,Aj,Bj;
@@ -1659,7 +1662,8 @@ void TrigL2MuonSA::MuFastStationFitter::Circles (int Nmeas,float *XI,float *YI,f
 ==============================================================================*/
 
 void TrigL2MuonSA::MuFastStationFitter::Circfit (int Nmeas,float *XI,float *YI,float *RI,float *WI,int *IG,
-                                                 float *A,float *B,float DAB[2][2],float *Chi2) {
+                                                 float *A,float *B,float DAB[2][2],float *Chi2) const
+{
 
   float XX[NMEAMX],YY[NMEAMX],Test,Toll,Xnor,Aold,Bold,Epsi;
   float SAA,SAB,SBB,Square;
@@ -1723,7 +1727,8 @@ void TrigL2MuonSA::MuFastStationFitter::Circfit (int Nmeas,float *XI,float *YI,f
 ==============================================================================*/
 
 void TrigL2MuonSA::MuFastStationFitter::Xline (float *X,float *Y,float *W,int *IG,int NP,
-     float *A,float *B,float *SAA,float *SBB,float *SAB,float *Square) {
+     float *A,float *B,float *SAA,float *SBB,float *SAB,float *Square) const
+{
       
     int j;
     float S1,SX,SY,SXX,SXY,SYY,Deter,DY;
@@ -1771,7 +1776,7 @@ void TrigL2MuonSA::MuFastStationFitter::Xline (float *X,float *Y,float *W,int *I
 // --------------------------------------------------------------------------------
  void TrigL2MuonSA::MuFastStationFitter::Circles (int Nmeas,float *XI,float *YI,float *RI,float *WI,int *IG,
                                                   float *A,float *B,float DAB[2][2],float *Chi2,float *Pchi2,
-                                                  float *SlopeCand, float *InterceptCand, float *Chi2Cand) 
+                                                  float *SlopeCand, float *InterceptCand, float *Chi2Cand) const 
 {
   float RRi[NMEAMX],WIlim,CHbest,Abest,Bbest;
   float A0,B0,SAA,SBB,SAB,Square,Aj,Bj;

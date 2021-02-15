@@ -1,17 +1,15 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """Configure all flags (for RecExCommon) so that only Muon Standalone and Muon Combined reconstruction are run"""
 
 from AthenaCommon.DetFlags import DetFlags 
-from AthenaCommon.GlobalFlags import globalflags,GlobalFlags
 from RecExConfig.RecFlags import rec as recFlags
 from RecExConfig.RecAlgsFlags import recAlgs as recAlgsFlags
-from RecExConfig.RecConfFlags import recConfFlags
 from InDetRecExample.InDetJobProperties import InDetFlags
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 
 # import standalone to avoid that it overwrites combined later on
-import MuonRecExample.MuonRecStandaloneOnlySetup
+import MuonRecExample.MuonRecStandaloneOnlySetup  # noqa: F401 (import side-effects)
 
 # Output
 recFlags.doWriteESD = False

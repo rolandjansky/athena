@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -56,9 +56,21 @@ public:
    */
   DiscSurface(Amg::Transform3D* htrans, double rmin, double rmax);
 
+  /**Constructor for Discs from HepGeom::Transform3D, \f$ r_{min}, r_{max} \f$
+   */
+  DiscSurface(std::unique_ptr<Amg::Transform3D> htrans,
+              double rmin, double rmax);
+
   /**Constructor for Discs from HepGeom::Transform3D, \f$ r_{min}, r_{max},
    * \phi_{hsec} \f$ */
   DiscSurface(Amg::Transform3D* htrans,
+              double rmin,
+              double rmax,
+              double hphisec);
+
+  /**Constructor for Discs from HepGeom::Transform3D, \f$ r_{min}, r_{max},
+   * \phi_{hsec} \f$ */
+  DiscSurface(std::unique_ptr<Amg::Transform3D> htrans,
               double rmin,
               double rmax,
               double hphisec);
@@ -114,6 +126,22 @@ public:
     double phi,
     double theta,
     double qop,
+    AmgSymMatrix(5) * cov = nullptr) const override final;
+    
+/** Use the Surface as a ParametersBase constructor, from local parameters -
+   * charged */
+  virtual Surface::ChargedTrackParametersUniquePtr createUniqueTrackParameters(
+    double l1,
+    double l2,
+    double phi,
+    double theta,
+    double qop,
+    AmgSymMatrix(5) * cov = nullptr) const override final;
+    
+  virtual Surface::ChargedTrackParametersUniquePtr createUniqueTrackParameters(
+    const Amg::Vector3D& position,
+    const Amg::Vector3D& momentum,
+    double charge,
     AmgSymMatrix(5) * cov = nullptr) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -

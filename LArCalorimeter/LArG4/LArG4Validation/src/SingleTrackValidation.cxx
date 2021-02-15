@@ -320,7 +320,11 @@ StatusCode SingleTrackValidation::execute() {
   for (e=mcEvent->begin();e!=mcEvent->end();e++) {
     
     // Get just the primary, call it "theParticle"
+#ifdef HEPMC3
+   HepMC::ConstGenParticlePtr theParticle = (*e)->particles().front();
+#else
     const HepMC::GenParticle *theParticle= *((**e).particles_begin());
+#endif
 
     // Fetch whatever particle properties will be used in the following:
     const HepPDT::ParticleDataTable * dataTable = m_c->partPropSvc->PDT();

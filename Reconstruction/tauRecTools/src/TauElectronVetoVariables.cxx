@@ -4,42 +4,31 @@
 
 #ifndef XAOD_ANALYSIS
 
-
-
-#include "GaudiKernel/SystemOfUnits.h"
-#include "CaloUtils/CaloVertexedCell.h"
+#include "TauElectronVetoVariables.h"
+#include "tauRecTools/KineUtils.h"
 
 #include "xAODTau/TauJet.h"
-#include "xAODJet/Jet.h"
-#include "tauRecTools/KineUtils.h"
-#include "tauRecTools/HelperFunctions.h"
-
+#include "CaloUtils/CaloVertexedCell.h"
 #include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
-#include "TauElectronVetoVariables.h"
+
+#include "GaudiKernel/SystemOfUnits.h"
+
 #include <algorithm>
 #include <cmath>
 #include <unordered_map>
 #include <array>
+
 using Gaudi::Units::GeV;
 
-//-------------------------------------------------------------------------
-// Constructor
-//-------------------------------------------------------------------------
+
 TauElectronVetoVariables::TauElectronVetoVariables(const std::string &name) :
 TauRecToolBase(name) {
 }
 
-//-------------------------------------------------------------------------
-// Destructor
-//-------------------------------------------------------------------------
-TauElectronVetoVariables::~TauElectronVetoVariables() { }
 
-//-------------------------------------------------------------------------
-// Initializer
-//-------------------------------------------------------------------------
-StatusCode TauElectronVetoVariables::initialize()
-{
+
+StatusCode TauElectronVetoVariables::initialize() {
   ATH_CHECK( m_caloExtensionTool.retrieve() );
   if (!m_ParticleCacheKey.key().empty()) {
     ATH_CHECK(m_ParticleCacheKey.initialize());
@@ -49,11 +38,9 @@ StatusCode TauElectronVetoVariables::initialize()
   return StatusCode::SUCCESS;
 }
 
-//-------------------------------------------------------------------------
-// Execution
-//-------------------------------------------------------------------------
-StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau) const
-{
+
+
+StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau) const {
     if (pTau.nTracks() < 1) {
         return StatusCode::SUCCESS;
     }
@@ -127,24 +114,24 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau) const
         caloExtension = uniqueExtension.get();
       }
     }
-    const std::vector<const Trk::CurvilinearParameters*>& clParametersVector = caloExtension->caloLayerIntersections();
+    const std::vector<Trk::CurvilinearParameters>& clParametersVector = caloExtension->caloLayerIntersections();
     if( not caloExtension || clParametersVector.empty() ){
       ATH_MSG_WARNING("extrapolation of leading track to calo surfaces failed  : caloLayerIntersection is empty" );
       return StatusCode::SUCCESS;
     }
     // loop over calo layers
-    for( const Trk::CurvilinearParameters * cur : clParametersVector ){
+    for( const Trk::CurvilinearParameters& cur : clParametersVector ){
       // only use entry layer
-      if( !parsIdHelper.isEntryToVolume(cur->cIdentifier()) ) continue;
-      CaloSampling::CaloSample sample = parsIdHelper.caloSample(cur->cIdentifier());
+      if( !parsIdHelper.isEntryToVolume(cur.cIdentifier()) ) continue;
+      CaloSampling::CaloSample sample = parsIdHelper.caloSample(cur.cIdentifier());
       int index = -1;
       if( sample == CaloSampling::PreSamplerE || sample == CaloSampling::PreSamplerB ) index = 0;
       else if( sample == CaloSampling::EME1 || sample == CaloSampling::EMB1 )          index = 1;
       else if( sample == CaloSampling::EME2 || sample == CaloSampling::EMB2 )          index = 2;
       else if( sample == CaloSampling::EME3 || sample == CaloSampling::EMB3 )          index = 3;
       if( index < 0 ) continue;
-      extrapolatedEta[index] = cur->position().eta();
-      extrapolatedPhi[index] = cur->position().phi();
+      extrapolatedEta[index] = cur.position().eta();
+      extrapolatedPhi[index] = cur.position().phi();
     }
     for (size_t i = 0; i < numberOfEM_Layers; ++i) {
       if ( extrapolatedEta[i] < invalidCoordinateThreshold || extrapolatedPhi[i] < invalidCoordinateThreshold ){
@@ -152,23 +139,21 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau) const
         return StatusCode::SUCCESS;
       }
     }
-    if (! pTau.jetLink().isValid()) {
-      ATH_MSG_ERROR("tau does not have jet seed for electron veto cell variable calculation");
-      return StatusCode::FAILURE;
-    }
-    const xAOD::Jet* pJetSeed = pTau.jet();
+    
     // Loop through jets, get links to clusters
-    std::vector<const xAOD::CaloCluster*> clusterList;
-    ATH_CHECK(tauRecTools::GetJetClusterList(pJetSeed, clusterList, m_useSubtractedCluster));
     std::bitset<200000> cellSeen{};
     const std::unordered_map<int, int> samplingLookup{
       {4,0}, {5,1}, {6,2}, {7,3}, {8,12},
       {15, 12}, {16,13}, {17,14}, {18,12}, {19, 13}, {20,14}
     };
     const auto notFound{samplingLookup.end()};
-    for (auto cluster : clusterList){
-      CaloClusterCellLink::const_iterator pCellIter  = cluster->getCellLinks()->begin();
-      CaloClusterCellLink::const_iterator pCellIterE = cluster->getCellLinks()->end();
+    
+    std::vector<xAOD::CaloVertexedTopoCluster> vertexedClusterList = pTau.vertexedClusters();
+    for (const xAOD::CaloVertexedTopoCluster& vertexedCluster : vertexedClusterList){
+      
+      const xAOD::CaloCluster& cluster = vertexedCluster.clust();
+      CaloClusterCellLink::const_iterator pCellIter  = cluster.getCellLinks()->begin();
+      CaloClusterCellLink::const_iterator pCellIterE = cluster.getCellLinks()->end();
       for (; pCellIter != pCellIterE; ++pCellIter) {
 	      double cellEta{}, cellPhi{}, cellET{};
         pCell = *pCellIter;

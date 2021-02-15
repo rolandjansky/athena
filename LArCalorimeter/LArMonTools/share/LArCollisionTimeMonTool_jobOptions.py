@@ -6,10 +6,6 @@
 #          LArCollisionTimeAlg is called before LArMonManager.
 ###############################################################################
 
-## Include LArCollisionTimeAlg
-include ("LArCellRec/LArCollisionTime_jobOptions.py")
-
-include("LArClusterRec/LArClusterCollisionTime_jobOptions.py")
 
 #########
 # Now configure and schedule the monitoring tool

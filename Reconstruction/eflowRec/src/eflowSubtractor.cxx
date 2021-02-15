@@ -10,7 +10,6 @@
  */
 
 #include "xAODCaloEvent/CaloCluster.h"
-#include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
 #include "eflowRec/eflowRecTrack.h"
 #include "eflowRec/eflowRecCluster.h"
@@ -21,7 +20,6 @@
 #include "eflowRec/eflowLayerIntegrator.h"
 #include "eflowRec/eflowEEtaBinnedParameters.h"
 #include "eflowRec/eflowSubtractor.h"
-#include "xAODCaloEvent/CaloClusterKineHelper.h"
 
 
 namespace eflowSubtract {

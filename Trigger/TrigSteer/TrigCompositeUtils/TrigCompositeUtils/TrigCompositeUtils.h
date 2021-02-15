@@ -33,6 +33,10 @@
 
 #include "HLTIdentifier.h"
 #include "NavGraph.h"
+#include "TrigCompositeUtils/LinkInfo.h"
+#include "TrigCompositeUtils/IPartCombItr.h"
+#include "TrigCompositeUtils/Combinations.h"
+#include "TrigConfHLTData/HLTChain.h"
 
 namespace TrigCompositeUtils {
 
@@ -205,11 +209,17 @@ namespace TrigCompositeUtils {
  
 /**
    * @brief Recognise whether the chain ID is a leg ID
-   * @param chainIdentifier The HLT::Identifier corresponding to the specifci ID.
+   * @param legIdentifier The HLT::Identifier corresponding to the specifci ID.
    * @return True if leg-ID, else false
    **/
   bool isLegId(const HLT::Identifier& legIdentifier);
 
+/**
+   * @brief Recognise whether the HLT identifier corresponds to a whole chain
+   * @param chainIdentifier The HLT::Identifier corresponding to the specifci ID.
+   * @return True if chain-ID, else false
+   **/
+  bool isChainId(const HLT::Identifier& chainIdentifier);
     
   /**
    * @brief traverses Decision object links for another Decision object fufilling the prerequisite specified by the filter
@@ -290,39 +300,7 @@ namespace TrigCompositeUtils {
     const DecisionIDContainer ids,
     const bool enforceDecisionOnNode);
 
-  /**
-   * @brief Additional information returned by the TrigerDecisionTool's feature retrieval, contained within the LinkInfo.
-   **/
-  enum ActiveState {
-    UNSET, //!< Default property of state. Indicates that the creator of the LinkInfo did not supply this information
-    ACTIVE, //!< The link was still active for one-or-more of the HLT Chains requested in the TDT
-    INACTIVE //!< The link was inactive for all of the HLT Chains requested in the TDT. I.e. the object was rejected by these chains.
-  };
 
-  /**
-   * @brief Helper to keep a Decision object, ElementLink and ActiveState (with respect to some requested ChainGroup) linked together (for convenience)
-   **/
-  template<typename T>
-  struct LinkInfo {
-    LinkInfo()
-      : source{0} {}
-    LinkInfo(const Decision* s, const ElementLink<T>& l, ActiveState as = ActiveState::UNSET)
-      : source{s}, link{l}, state{as} {}
-
-    bool isValid() const {
-      return source && link.isValid();
-    }
-    /**
-     * @brief helper conversion to make it usable with CHECK macro expecting StatusCode
-     */
-    operator StatusCode () {
-      return (isValid() ? StatusCode::SUCCESS : StatusCode::FAILURE);
-    }
-
-    const Decision* source;
-    ElementLink<T> link;
-    ActiveState state;
-  };
 
   /// @name Constant string literals used within the HLT
   /// @{
@@ -332,6 +310,12 @@ namespace TrigCompositeUtils {
   const std::string& viewString();
   const std::string& featureString();
   const std::string& seedString();
+
+  const std::string& l1DecoderNodeName();
+  const std::string& filterNodeName();
+  const std::string& inputMakerNodeName();
+  const std::string& hypoAlgNodeName();
+  const std::string& comboHypoAlgNodeName();
   /// @}
 
   /**
@@ -457,7 +441,7 @@ namespace TrigCompositeUtils {
                           branch once a link has been located and collected. 
    * @param[inout] visitedCache Optional cache used by the recursive algorithm to avoid exploring each node multiple times. 
    */
-  bool typelessfindLinks(const Decision* start, 
+  bool typelessFindLinks(const Decision* start, 
     const std::string& linkName,
     std::vector<uint32_t>& key,
     std::vector<uint32_t>& clid,
@@ -465,7 +449,78 @@ namespace TrigCompositeUtils {
     const unsigned int behaviour = TrigDefs::allFeaturesOfType, 
     std::set<const xAOD::TrigComposite*>* visitedCache = nullptr);
 
+  /**
+   * @brief Produce the combinations for a set of features
+   * 
+   * Returns a TrigCompositeUtils::Combinations object that generates all valid
+   * combinations of features. This is a range object that returns on iterator
+   * which creates the combinations on the fly.
+   * 
+   * @param[in] chainName The name of the chain
+   * @param[in] features The IParticle features of the container
+   * @param[in] legMultiplicities The multiplicity of each chain leg
+   * @param[in] filter A function that returns true for all valid combinations
+   */
+  Combinations buildCombinations(
+    const std::string& chainName,
+    const std::vector<LinkInfo<xAOD::IParticleContainer>>& features,
+    const std::vector<std::size_t>& legMultiplicities,
+    const std::function<bool(const std::vector<LinkInfo<xAOD::IParticleContainer>>&)>& filter);
 
+  /**
+   * @brief Produce the combinations for a set of features
+   * 
+   * Returns a TrigCompositeUtils::Combinations object that generates all valid
+   * combinations of features. This is a range object that returns on iterator
+   * which creates the combinations on the fly.
+   * 
+   * @param[in] chainName The name of the chain
+   * @param[in] features The IParticle features of the container
+   * @param[in] legs legMultiplicities The multiplicity of each chain leg
+   * @param[in] filter A FilterType enum describing how to filter valid combinations
+   */
+  Combinations buildCombinations(
+    const std::string& chainName,
+    const std::vector<LinkInfo<xAOD::IParticleContainer>>& features,
+    const std::vector<std::size_t>& legMultiplicities,
+    FilterType filter = FilterType::UniqueObjects);
+
+  /**
+   * @brief Produce the combinations for a set of features
+   * 
+   * Returns a TrigCompositeUtils::Combinations object that generates all valid
+   * combinations of features. This is a range object that returns on iterator
+   * which creates the combinations on the fly.
+   * 
+   * @param[in] chainName The name of the chain
+   * @param[in] features The IParticle features of the container
+   * @param[in] chainInfo The chain info object read from the configuration
+   * @param[in] filter A function that returns true for all valid combinations
+   */
+  Combinations buildCombinations(
+    const std::string& chainName,
+    const std::vector<LinkInfo<xAOD::IParticleContainer>>& features,
+    const TrigConf::HLTChain *chainInfo,
+    const std::function<bool(const std::vector<LinkInfo<xAOD::IParticleContainer>>&)>& filter);
+
+  /**
+   * @brief Produce the combinations for a set of features
+   * 
+   * Returns a TrigCompositeUtils::Combinations object that generates all valid
+   * combinations of features. This is a range object that returns on iterator
+   * which creates the combinations on the fly.
+   * 
+   * @param[in] chainName The name of the chain
+   * @param[in] features The IParticle features of the container
+   * @param[in] chainInfo The chain info object read from the configuration
+   * @param[in] filter A FilterType enum describing how to filter valid combinations
+   */
+  Combinations buildCombinations(
+    const std::string& chainName,
+    const std::vector<LinkInfo<xAOD::IParticleContainer>>& features,
+    const TrigConf::HLTChain *chainInfo,
+    FilterType filter = FilterType::UniqueObjects);
+    
   /**
    * Prints the Decision object including the linked seeds
    * @warnign expensive call

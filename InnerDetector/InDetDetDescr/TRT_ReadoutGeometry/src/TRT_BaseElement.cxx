@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_ReadoutGeometry/TRT_BaseElement.h"
@@ -11,7 +11,6 @@
 #include "GeoModelUtilities/GeoAlignmentStore.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
-#include "GeoModelUtilities/GeoAlignmentStore.h"
 #include "InDetIdentifier/TRT_ID.h"
 
 #include <vector>
@@ -30,7 +29,6 @@ TRT_BaseElement::TRT_BaseElement(const GeoVFullPhysVol* volume,
   , m_surfaceCache{}
   , m_surface{}
   , m_surfaces{}
-  , m_mutex{}
   , m_geoAlignStore(geoAlignStore)
 {
   m_idHash = m_idHelper->straw_layer_hash(id);
@@ -117,19 +115,21 @@ TRT_BaseElement::surface(const Identifier& id) const
   if (!m_strawSurfaces[straw]) {
     createSurfaceCache(id);
   }
-  return *(m_strawSurfaces[straw].get());
+  return *(m_strawSurfaces[straw]);
 }
 
 const std::vector<const Trk::Surface*>&
 TRT_BaseElement::surfaces() const
 {
-  std::lock_guard<std::mutex> lock{ m_mutex };
-  if (!m_surfaces.size()) {
-    m_surfaces.reserve(nStraws());
-    for (unsigned is = 0; is < nStraws(); ++is)
-      m_surfaces.push_back(&strawSurface(is));
+  if (!m_surfaces.isValid()) {
+    std::vector<const Trk::Surface*> tmp_surfaces;
+    tmp_surfaces.reserve(nStraws());
+    for (unsigned is = 0; is < nStraws(); ++is) {
+      tmp_surfaces.push_back(&strawSurface(is));
+    }
+    m_surfaces.set(tmp_surfaces);
   }
-  return m_surfaces;
+  return *(m_surfaces.ptr());
 }
 
 const Trk::SurfaceBounds&
@@ -275,23 +275,30 @@ void
 TRT_BaseElement::createSurfaceCache(Identifier id) const
 {
   int straw = m_idHelper->straw(id);
-  // get the StrawTransform from GeoModel
-  HepGeom::Transform3D cStrawTransform = calculateStrawTransform(straw);
 
   // convert neccessary parts to Amg
   if (!m_strawSurfacesCache[straw]) {
-    Amg::Transform3D* sTransform =
-      new Amg::Transform3D(Amg::CLHEPTransformToEigen(cStrawTransform));
-    Amg::Vector3D* sCenter = new Amg::Vector3D(sTransform->translation());
     // create the surface cache & fill it
-    m_strawSurfacesCache[straw].set(
-      std::make_unique<SurfaceCache>(sTransform, sCenter, nullptr, nullptr));
+    m_strawSurfacesCache[straw].set(createSurfaceCacheHelper(straw));
   }
   // creaete the surface only if needed (the links are still intact)
   if (!m_strawSurfaces[straw]) {
     m_strawSurfaces[straw].set(
       std::make_unique<Trk::StraightLineSurface>(*this, id));
   }
+}
+
+std::unique_ptr<SurfaceCache>
+TRT_BaseElement::createSurfaceCacheHelper(int straw) const
+{
+  // get the StrawTransform from GeoModel
+  HepGeom::Transform3D cStrawTransform = calculateStrawTransform(straw);
+  auto sTransform = std::make_unique<Amg::Transform3D>(
+    Amg::CLHEPTransformToEigen(cStrawTransform));
+  auto sCenter = std::make_unique<Amg::Vector3D>(sTransform->translation());
+  // create the surface cache & fill it
+  return std::make_unique<SurfaceCache>(
+    sTransform.release(), sCenter.release(), nullptr, nullptr);
 }
 
 void

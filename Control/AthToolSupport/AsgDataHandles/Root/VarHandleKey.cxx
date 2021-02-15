@@ -67,7 +67,9 @@ VarHandleKey::VarHandleKey (const std::string& sgkey)
  */
 VarHandleKey& VarHandleKey::operator= (const std::string& sgkey)
 {
-  m_sgKey = sgkey;
+  if (assign (sgkey).isFailure ()) {
+    throw std::runtime_error (std::string("Could not assign VarHandleKey with key ") + sgkey);
+  }
   return *this;
 }
 

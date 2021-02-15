@@ -84,6 +84,10 @@ private:
     this, "Crunch", false,
     "Crunch CPU instead of sleeping"
   };
+  Gaudi::Property<bool> m_checkDataConsistency {
+    this, "CheckDataConsistency", false,
+    "Perform consistency checks for all retrieved ROB data"
+  };
   Gaudi::Property<std::map<std::string,std::vector<uint32_t> > > m_robAccessDictProp {
     this, "ROBAccessDict", {},
     "Dictionary of prefetch/retrieve operations with given ROB IDs. The value is a vector of ROB IDs. "

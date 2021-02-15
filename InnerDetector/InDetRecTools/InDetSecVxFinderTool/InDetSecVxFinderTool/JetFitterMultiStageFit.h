@@ -36,9 +36,7 @@ public:
         return IID_JetFitterMultiStageFit;
     }
 
-    StatusCode initialize();
-
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
 
     JetFitterMultiStageFit(const std::string &t, const std::string &n, const IInterface *p);
 

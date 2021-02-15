@@ -23,27 +23,25 @@ from PixelMonitoring.PixelAthErrorMonAlgCfg import PixelAthErrorMonAlgCfg
 from InDetRecExample.InDetKeys import InDetKeys                                                                                     
 
 kwargsHitMonAlg = { 'doOnline'        : True if athenaCommonFlags.isOnline() else False,      #Histograms for online (athenaPT) running
-                     'doModules'       : True if athenaCommonFlags.isOnline() else False, #Turn on/off the sets of 1744 module histograms (for dqmf)
                      'doLumiBlock'     : False if athenaCommonFlags.isOnline() else True,       #Turn on/off histograms stored for each lumi block
                      'doLowOccupancy'  : False,      #Turn on/off histograms with binning for cosmics/single beam                    
                      'doHighOccupancy' : True,       #Turn on/off histograms with binning for collisions
                      'doHeavyIonMon'   : InDetFlags.doHeavyIon(),   # Histogram modification for heavy ion monitoring
+                     'doFEPlots'       : True,       #Turn on/off histograms with FE Status information
                      'RDOName'         : InDetKeys.PixelRDOs()
 }
 
 kwargsClusMonAlg = { 'doOnline'        : True if athenaCommonFlags.isOnline() else False,      #Histograms for online (athenaPT) running
-                      'doModules'       : True if athenaCommonFlags.isOnline() else False, #Turn on/off the sets of 1744 module histograms (for dqmf)
                       'doLumiBlock'     : False if athenaCommonFlags.isOnline() else True,       #Turn on/off histograms stored for each lumi block
                       'doLowOccupancy'  : False,      #Turn on/off histograms with binning for cosmics/single beam
                       'doHighOccupancy' : True,       #Turn on/off histograms with binning for collisions
                       'doHeavyIonMon'   : InDetFlags.doHeavyIon(),   # Histogram modification for heavy ion monitoring
-                      #                  'doStatus'        : True,       #Turn on/off histograms with Module Status information
+                      'doFEPlots'       : True,       #Turn on/off histograms with FE Status information
                       'ClusterName'     : InDetKeys.PixelClusters(),
                       'TrackName'       : InDetKeys.Tracks()
 }
 
 kwargsErrMonAlg = { 'doOnline'        : True if athenaCommonFlags.isOnline() else False,      #Histograms for online (athenaPT) running
-                     'doModules'       : True if athenaCommonFlags.isOnline() else False, #Turn on/off the sets of 1744 module histograms (for dqmf)
                      'doLumiBlock'     : False if athenaCommonFlags.isOnline() else True,       #Turn on/off histograms stored for each lumi block
                      'doLowOccupancy'  : False,      #Turn on/off histograms with binning for cosmics/single beam                    
                      'doHighOccupancy' : True,       #Turn on/off histograms with binning for collisions

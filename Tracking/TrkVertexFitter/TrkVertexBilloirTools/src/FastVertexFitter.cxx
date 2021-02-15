@@ -76,17 +76,9 @@ namespace Trk
 			msg(MSG::INFO) << "Retrieved tool " << m_linFactory << endmsg;
 		
 
-
-
-		msg(MSG::INFO)  << "Initialize successful" << endmsg;
 		return StatusCode::SUCCESS;
 	}
 
-	StatusCode FastVertexFitter::finalize()
-	{
-		msg(MSG::INFO)  << "Finalize successful" << endmsg;
-		return StatusCode::SUCCESS;
-	}
 
 	FastVertexFitter::FastVertexFitter ( const std::string& t, const std::string& n, const IInterface*  p ) : base_class ( t,n,p ),
 														  m_maxIterations ( 3 ),

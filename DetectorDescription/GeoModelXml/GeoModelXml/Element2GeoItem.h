@@ -9,17 +9,19 @@
 //
 #ifndef GEO_MODEL_XML_ELEMENT2GEO_ITEM_H
 #define GEO_MODEL_XML_ELEMENT2GEO_ITEM_H
+#include <xercesc/util/XercesDefs.hpp>
 
 #include <map>
 #include <string>
 
-#include <xercesc/dom/DOM.hpp>
-
 class RCBase;
 class GmxUtil;
 
+XERCES_CPP_NAMESPACE_BEGIN
+class DOMElement;
+XERCES_CPP_NAMESPACE_END
 class ProcessorRegistry;
-namespace HepTool {class Evaluator;}
+class Evaluator;
 
 class Element2GeoItem {
 

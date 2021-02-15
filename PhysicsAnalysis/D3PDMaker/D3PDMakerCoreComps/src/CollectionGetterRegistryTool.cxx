@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CollectionGetterRegistryTool.cxx 618070 2014-09-22 19:05:34Z ssnyder $
 /**
  * @file D3PDMakerCoreComps/src/CollectionGetterRegistryTool.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -15,8 +14,8 @@
 #include "D3PDMakerInterfaces/ICollectionGetterTool.h"
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 
+#include <boost/algorithm/string/predicate.hpp>
 
 namespace D3PD {
 
@@ -101,14 +100,21 @@ CollectionGetterRegistryTool::get (const std::string& label,
   }
 
   // Get the properties for the source tool.
-  const std::vector<const Gaudi::Details::PropertyBase*>* props =
-    m_jos->getProperties (i->second->name());
+  const auto& props = m_jos->items([&i](const auto& p) {
+    return boost::algorithm::starts_with(std::get<0>(p), i->second->name()+".");
+  });
 
   // Copy them to the destination tool (except for Label).
   std::string fullname = parent->name() + "." + label;
-  for (size_t i = 0; i < props->size(); i++) {
-    if ((*props)[i]->name() != "Label")
-      CHECK( m_jos->addPropertyToCatalogue (fullname, *(*props)[i]) );
+  for (const auto& p : props) {
+    const std::string& oldname = std::get<0>(p);
+    std::string::size_type ipos = oldname.rfind ('.');
+    if (ipos != std::string::npos) {
+      std::string pname = oldname.substr (ipos, std::string::npos);
+      if (pname != ".Label") {
+        m_jos->set(fullname + pname, std::get<1>(p));
+      }
+    }
   }
 
   // Create the new tool.

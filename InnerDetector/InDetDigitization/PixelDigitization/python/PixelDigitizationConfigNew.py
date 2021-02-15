@@ -9,8 +9,9 @@ from PixelConditionsAlgorithms.PixelConditionsConfig import (
     PixelCablingCondAlgCfg, PixelChargeCalibCondAlgCfg, PixelConfigCondAlgCfg, 
     PixelDCSCondHVAlgCfg, PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg, 
     PixelDCSCondTempAlgCfg, PixelDistortionAlgCfg, 
-    PixelHitDiscCnfgAlgCfg, PixelOfflineCalibCondAlgCfg, PixelReadoutSpeedAlgCfg
-# NEW FOR RUN3    PixelDeadMapCondAlgCfg, PixelChargeLUTCalibCondAlgCfg
+    PixelHitDiscCnfgAlgCfg, PixelOfflineCalibCondAlgCfg, PixelReadoutSpeedAlgCfg,
+    PixelDeadMapCondAlgCfg
+# NEW FOR RUN3    PixelChargeLUTCalibCondAlgCfg
 )
 
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
@@ -84,15 +85,6 @@ def SensorSimPlanarToolCfg(flags, name="SensorSimPlanarTool", **kwargs):
     kwargs.setdefault("LorentzAngleTool", LorentzTool)
     SensorSimPlanarTool = CompFactory.SensorSimPlanarTool
     kwargs.setdefault("doRadDamage", flags.Digitization.DoRadiationDamage)
-    # TODO This is 2018 fluence setting. These parameters should be controlled by the conditions data.
-    kwargs.setdefault("fluence", 6.4)
-    kwargs.setdefault("fluenceB", 4.6)
-    kwargs.setdefault("fluence1", 2.1)
-    kwargs.setdefault("fluence2", 1.3)
-    kwargs.setdefault("voltage", 400)
-    kwargs.setdefault("voltageB", 400)
-    kwargs.setdefault("voltage1", 250)
-    kwargs.setdefault("voltage2", 250)
     acc.setPrivateTools(SensorSimPlanarTool(name, **kwargs))
     return acc
 
@@ -175,7 +167,7 @@ def PixelDigitizationBasicToolCfg(flags, name="PixelDigitizationBasicTool", **kw
     # deadmap
     acc.merge(PixelDCSCondStateAlgCfg(flags))
     acc.merge(PixelDCSCondStatusAlgCfg(flags))
-# NEW FOR RUN3    acc.merge(PixelDeadMapCondAlgCfg(flags))
+    acc.merge(PixelDeadMapCondAlgCfg(flags))
     # offline calibration
     acc.merge(PixelDistortionAlgCfg(flags))
     acc.merge(PixelOfflineCalibCondAlgCfg(flags))

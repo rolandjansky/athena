@@ -1821,8 +1821,8 @@ struct IdDataVec {
     typedef std::vector<Entry>          EntryVec;
     typedef typename EntryVec::iterator EntryIt;
 
-    IdDataVec<T>() {}
-    IdDataVec<T>(const Identifier& i) : id(i) {}
+    IdDataVec() {}
+    IdDataVec(const Identifier& i) : id(i) {}
 
     Identifier id;
     EntryVec   data;

@@ -17,6 +17,25 @@ using std::vector;
 
 namespace xAOD {
 
+    // Static accessors
+    const SG::AuxElement::Accessor<std::vector<float> > MissingETAssociation_v1::m_acc_calpx("calpx");
+    const SG::AuxElement::Accessor<std::vector<float> > MissingETAssociation_v1::m_acc_calpy("calpy");
+    const SG::AuxElement::Accessor<std::vector<float> > MissingETAssociation_v1::m_acc_calpz("calpz");
+    const SG::AuxElement::Accessor<std::vector<float> > MissingETAssociation_v1::m_acc_cale("cale");
+    const SG::AuxElement::Accessor<std::vector<float> > MissingETAssociation_v1::m_acc_calsumpt("calsumpt");
+
+    const SG::AuxElement::Accessor<std::vector<float> > MissingETAssociation_v1::m_acc_trkpx("trkpx");
+    const SG::AuxElement::Accessor<std::vector<float> > MissingETAssociation_v1::m_acc_trkpy("trkpy");
+    const SG::AuxElement::Accessor<std::vector<float> > MissingETAssociation_v1::m_acc_trkpz("trkpz");
+    const SG::AuxElement::Accessor<std::vector<float> > MissingETAssociation_v1::m_acc_trke("trke");
+    const SG::AuxElement::Accessor<std::vector<float> > MissingETAssociation_v1::m_acc_trksumpt("trksumpt");
+
+    const SG::AuxElement::Accessor<float> MissingETAssociation_v1::m_acc_jettrkpx("jettrkpx");
+    const SG::AuxElement::Accessor<float> MissingETAssociation_v1::m_acc_jettrkpy("jettrkpy");
+    const SG::AuxElement::Accessor<float> MissingETAssociation_v1::m_acc_jettrkpz("jettrkpz");
+    const SG::AuxElement::Accessor<float> MissingETAssociation_v1::m_acc_jettrke("jettrke");
+    const SG::AuxElement::Accessor<float> MissingETAssociation_v1::m_acc_jettrksumpt("jettrksumpt");
+
   MissingETBase::Types::bitmask_t getObjMask(size_t objIndex)
   { 
     if(objIndex==MissingETBase::Numerical::invalidIndex()) return 0;
@@ -41,14 +60,14 @@ namespace xAOD {
     return *this;
   }
 
-  MissingETAssociation_v1::ConstVec& MissingETAssociation_v1::ConstVec::operator*=(double scale)
+  MissingETAssociation_v1::ConstVec& MissingETAssociation_v1::ConstVec::operator*=(float scale)
   {
     this->cpx() *= scale; this->cpy() *= scale; this->cpz() *= scale; this->ce() *= scale;
     this->sumpt() *= scale;
     return *this;
   }
 
-  MissingETAssociation_v1::ConstVec& MissingETAssociation_v1::ConstVec::operator/=(double scale)
+  MissingETAssociation_v1::ConstVec& MissingETAssociation_v1::ConstVec::operator/=(float scale)
   {
     if ( scale <1e-9 ) { this->cpx() = 0.; this->cpy() = 0.; this->cpz() = 0.; this->ce() = 0.; this->sumpt() = 0.; return *this; }
     else { return this->operator*=(1./scale); }
@@ -64,7 +83,7 @@ namespace xAOD {
       MissingETBase::Numerical::isEqual(this->sumpt(),cvec.sumpt());
   }
 
-  double MissingETAssociation_v1::ConstVec::cpt() const
+  float MissingETAssociation_v1::ConstVec::cpt() const
   {
     return sqrt(this->cpx()*this->cpx()+this->cpy()*this->cpy());
   }
@@ -276,47 +295,47 @@ namespace xAOD {
   // Setters //
   /////////////
 
-  bool MissingETAssociation_v1::setCalPx(const std::vector<double>& calpxvec)
+  bool MissingETAssociation_v1::setCalPx(const std::vector<float>& calpxvec)
   { this->f_calpx().clear(); this->f_calpx().insert(this->f_calpx().end(),calpxvec.begin(),calpxvec.end()); return !this->f_calpx().empty(); }
-  bool MissingETAssociation_v1::setCalPy(const std::vector<double>& calpyvec)
+  bool MissingETAssociation_v1::setCalPy(const std::vector<float>& calpyvec)
   { this->f_calpy().clear(); this->f_calpy().insert(this->f_calpy().end(),calpyvec.begin(),calpyvec.end()); return !this->f_calpy().empty(); }
-  bool MissingETAssociation_v1::setCalPz(const std::vector<double>& calpzvec)
+  bool MissingETAssociation_v1::setCalPz(const std::vector<float>& calpzvec)
   { this->f_calpz().clear(); this->f_calpz().insert(this->f_calpz().end(),calpzvec.begin(),calpzvec.end()); return !this->f_calpz().empty(); }
-  bool MissingETAssociation_v1::setCalE(const std::vector<double>& calevec)
+  bool MissingETAssociation_v1::setCalE(const std::vector<float>& calevec)
   { this->f_cale().clear(); this->f_cale().insert(this->f_cale().end(),calevec.begin(),calevec.end()); return !this->f_cale().empty(); }
-  bool MissingETAssociation_v1::setCalSumpt(const std::vector<double>& calsumptvec)
+  bool MissingETAssociation_v1::setCalSumpt(const std::vector<float>& calsumptvec)
   { this->f_calsumpt().clear(); this->f_calsumpt().insert(this->f_calsumpt().end(),calsumptvec.begin(),calsumptvec.end()); return !this->f_calsumpt().empty(); }
   bool MissingETAssociation_v1::setCalKey(const std::vector<MissingETBase::Types::bitmask_t>& calkeyvec)
   { this->f_calkey().clear(); this->f_calkey().insert(this->f_calkey().end(),calkeyvec.begin(),calkeyvec.end()); return !this->f_calkey().empty(); }
 
-  bool MissingETAssociation_v1::setTrkPx(const std::vector<double>& trkpxvec)
+  bool MissingETAssociation_v1::setTrkPx(const std::vector<float>& trkpxvec)
   { this->f_trkpx().clear(); this->f_trkpx().insert(this->f_trkpx().end(),trkpxvec.begin(),trkpxvec.end()); return !this->f_trkpx().empty(); }
-  bool MissingETAssociation_v1::setTrkPy(const std::vector<double>& trkpyvec)
+  bool MissingETAssociation_v1::setTrkPy(const std::vector<float>& trkpyvec)
   { this->f_trkpy().clear(); this->f_trkpy().insert(this->f_trkpy().end(),trkpyvec.begin(),trkpyvec.end()); return !this->f_trkpy().empty(); }
-  bool MissingETAssociation_v1::setTrkPz(const std::vector<double>& trkpzvec)
+  bool MissingETAssociation_v1::setTrkPz(const std::vector<float>& trkpzvec)
   { this->f_trkpz().clear(); this->f_trkpz().insert(this->f_trkpz().end(),trkpzvec.begin(),trkpzvec.end()); return !this->f_trkpz().empty(); }
-  bool MissingETAssociation_v1::setTrkE(const std::vector<double>& trkevec)
+  bool MissingETAssociation_v1::setTrkE(const std::vector<float>& trkevec)
   { this->f_trke().clear(); this->f_trke().insert(this->f_trke().end(),trkevec.begin(),trkevec.end()); return !this->f_trke().empty(); }
-  bool MissingETAssociation_v1::setTrkSumpt(const std::vector<double>& trksumptvec)
+  bool MissingETAssociation_v1::setTrkSumpt(const std::vector<float>& trksumptvec)
   { this->f_trksumpt().clear(); this->f_trksumpt().insert(this->f_trksumpt().end(),trksumptvec.begin(),trksumptvec.end()); return !this->f_trksumpt().empty(); }
   bool MissingETAssociation_v1::setTrkKey(const std::vector<MissingETBase::Types::bitmask_t>& trkkeyvec)
   { this->f_trkkey().clear(); this->f_trkkey().insert(this->f_trkkey().end(),trkkeyvec.begin(),trkkeyvec.end()); return !this->f_trkkey().empty(); }
 
   //////////
   // FIXME: failsafe implementation checks on invalidKey and vector index - vector index may be sufficient?
-  bool MissingETAssociation_v1::setCalPx(size_t keyIdx,double calpx)
+  bool MissingETAssociation_v1::setCalPx(size_t keyIdx,float calpx)
   { if ( keyIdx != MissingETBase::Numerical::invalidIndex() && keyIdx < this->f_calpx().size() ) { this->f_calpx()[keyIdx] = calpx; return true; } else { return false; } }
-  bool MissingETAssociation_v1::setCalPy(size_t keyIdx,double calpy)
+  bool MissingETAssociation_v1::setCalPy(size_t keyIdx,float calpy)
   { if ( keyIdx != MissingETBase::Numerical::invalidIndex() && keyIdx < this->f_calpy().size() ) { this->f_calpy()[keyIdx] = calpy; return true; } else { return false; } }
-  bool MissingETAssociation_v1::setCalPz(size_t keyIdx,double calpz)
+  bool MissingETAssociation_v1::setCalPz(size_t keyIdx,float calpz)
   { if ( keyIdx != MissingETBase::Numerical::invalidIndex() && keyIdx < this->f_calpz().size() ) { this->f_calpz()[keyIdx] = calpz; return true; } else { return false; } }
-  bool MissingETAssociation_v1::setCalE(size_t keyIdx,double cale)
+  bool MissingETAssociation_v1::setCalE(size_t keyIdx,float cale)
   { if ( keyIdx != MissingETBase::Numerical::invalidIndex() && keyIdx < this->f_cale().size() ) { this->f_cale()[keyIdx] = cale; return true; } else { return false; } }
-  bool MissingETAssociation_v1::setCalSumpt(size_t keyIdx,double calsumpt)
+  bool MissingETAssociation_v1::setCalSumpt(size_t keyIdx,float calsumpt)
   { if ( keyIdx != MissingETBase::Numerical::invalidIndex() && keyIdx < this->f_calsumpt().size() ) { this->f_calsumpt()[keyIdx] = calsumpt; return true; } else { return false; } }
   bool MissingETAssociation_v1::setCalKey(size_t keyIdx,MissingETBase::Types::bitmask_t calkey)
   { if ( keyIdx != MissingETBase::Numerical::invalidIndex() && keyIdx < this->f_calkey().size() ) { this->f_calkey()[keyIdx] = calkey; return true; } else { return false; } }
-  bool MissingETAssociation_v1::setCalVec(size_t keyIdx,double calpx,double calpy,double calpz,double cale,double sumpt)
+  bool MissingETAssociation_v1::setCalVec(size_t keyIdx,float calpx,float calpy,float calpz,float cale,float sumpt)
   {
     if ( keyIdx != MissingETBase::Numerical::invalidIndex() && keyIdx < this->f_cale().size() ) {
       this->f_calpx()[keyIdx] = calpx;  this->f_calpy()[keyIdx] = calpy;
@@ -324,7 +343,7 @@ namespace xAOD {
       this->f_calsumpt()[keyIdx] = sumpt; return true;
     } else { return false; }
   }
-  bool MissingETAssociation_v1::addCalVec(MissingETBase::Types::bitmask_t key,double calpx,double calpy,double calpz,double cale,double sumpt) {
+  bool MissingETAssociation_v1::addCalVec(MissingETBase::Types::bitmask_t key,float calpx,float calpy,float calpz,float cale,float sumpt) {
     for(MissingETBase::Types::bitmask_t testkey : this->f_calkey()) {
       // quit if key already exists.
       if(key==testkey) return false;
@@ -338,19 +357,19 @@ namespace xAOD {
     return true;
   }
 
-  bool MissingETAssociation_v1::setTrkPx(size_t keyIdx,double trkpx)
+  bool MissingETAssociation_v1::setTrkPx(size_t keyIdx,float trkpx)
   { if ( keyIdx != MissingETBase::Numerical::invalidIndex() && keyIdx < this->f_trkpx().size() ) { this->f_trkpx()[keyIdx] = trkpx; return true; } else { return false; } }
-  bool MissingETAssociation_v1::setTrkPy(size_t keyIdx,double trkpy)
+  bool MissingETAssociation_v1::setTrkPy(size_t keyIdx,float trkpy)
   { if ( keyIdx != MissingETBase::Numerical::invalidIndex() && keyIdx < this->f_trkpy().size() ) { this->f_trkpy()[keyIdx] = trkpy; return true; } else { return false; } }
-  bool MissingETAssociation_v1::setTrkPz(size_t keyIdx,double trkpz)
+  bool MissingETAssociation_v1::setTrkPz(size_t keyIdx,float trkpz)
   { if ( keyIdx != MissingETBase::Numerical::invalidIndex() && keyIdx < this->f_trkpz().size() ) { this->f_trkpz()[keyIdx] = trkpz; return true; } else { return false; } }
-  bool MissingETAssociation_v1::setTrkE(size_t keyIdx,double trke)
+  bool MissingETAssociation_v1::setTrkE(size_t keyIdx,float trke)
   { if ( keyIdx != MissingETBase::Numerical::invalidIndex() && keyIdx < this->f_trke().size() ) { this->f_trke()[keyIdx] = trke; return true; } else { return false; } }
-  bool MissingETAssociation_v1::setTrkSumpt(size_t keyIdx,double trksumpt)
+  bool MissingETAssociation_v1::setTrkSumpt(size_t keyIdx,float trksumpt)
   { if ( keyIdx != MissingETBase::Numerical::invalidIndex() && keyIdx < this->f_trksumpt().size() ) { this->f_trksumpt()[keyIdx] = trksumpt; return true; } else { return false; } }
   bool MissingETAssociation_v1::setTrkKey(size_t keyIdx,MissingETBase::Types::bitmask_t trkkey)
   { if ( keyIdx != MissingETBase::Numerical::invalidIndex() && keyIdx < this->f_trkkey().size() ) { this->f_trkkey()[keyIdx] = trkkey; return true; } else { return false; } }
-  bool MissingETAssociation_v1::setTrkVec(size_t keyIdx,double trkpx,double trkpy,double trkpz,double trke,double sumpt)
+  bool MissingETAssociation_v1::setTrkVec(size_t keyIdx,float trkpx,float trkpy,float trkpz,float trke,float sumpt)
   { 
     if ( keyIdx != MissingETBase::Numerical::invalidIndex() && keyIdx < this->f_trke().size() ) {
       this->f_trkpx()[keyIdx] = trkpx;  this->f_trkpy()[keyIdx] = trkpy;
@@ -358,7 +377,7 @@ namespace xAOD {
       this->f_trksumpt()[keyIdx] = sumpt; return true; 
     } else { return false; }
   }
-  bool MissingETAssociation_v1::addTrkVec(MissingETBase::Types::bitmask_t key,double trkpx,double trkpy,double trkpz,double trke,double sumpt) {
+  bool MissingETAssociation_v1::addTrkVec(MissingETBase::Types::bitmask_t key,float trkpx,float trkpy,float trkpz,float trke,float sumpt) {
     for(MissingETBase::Types::bitmask_t testkey : this->f_trkkey()) {
       // quit if key already exists.
       if(key==testkey) return false;
@@ -373,17 +392,17 @@ namespace xAOD {
   }
 
 
-  void MissingETAssociation_v1::setJetTrkPx(double px)
+  void MissingETAssociation_v1::setJetTrkPx(float px)
   { this->f_jettrkpx() = px; }
-  void MissingETAssociation_v1::setJetTrkPy(double py)
+  void MissingETAssociation_v1::setJetTrkPy(float py)
   { this->f_jettrkpy() = py; }
-  void MissingETAssociation_v1::setJetTrkPz(double pz)
+  void MissingETAssociation_v1::setJetTrkPz(float pz)
   { this->f_jettrkpz() = pz; }
-  void MissingETAssociation_v1::setJetTrkE(double e)
+  void MissingETAssociation_v1::setJetTrkE(float e)
   { this->f_jettrke() = e; }
-  void MissingETAssociation_v1::setJetTrkSumpt(double sumpt)
+  void MissingETAssociation_v1::setJetTrkSumpt(float sumpt)
   { this->f_jettrksumpt() = sumpt; }
-  void MissingETAssociation_v1::setJetTrkVec(double px,double py,double pz,double e,double sumpt)
+  void MissingETAssociation_v1::setJetTrkVec(float px,float py,float pz,float e,float sumpt)
   {
     this->f_jettrkpx() = px;  this->f_jettrkpy() = py;
     this->f_jettrkpz() = pz;  this->f_jettrke() = e; 
@@ -446,28 +465,28 @@ namespace xAOD {
   // Getters //
   /////////////
   
-  double MissingETAssociation_v1::calpx(size_t keyIdx) const
+  float MissingETAssociation_v1::calpx(size_t keyIdx) const
   { return keyIdx != MissingETBase::Numerical::invalidIndex() && keyIdx < this->sizeCal() ? this->calpx()[keyIdx] : MissingETBase::Numerical::cpxError(); }
-  double MissingETAssociation_v1::calpy(size_t keyIdx) const
+  float MissingETAssociation_v1::calpy(size_t keyIdx) const
   { return keyIdx != MissingETBase::Numerical::invalidIndex() && keyIdx < this->sizeCal() ? this->calpy()[keyIdx] : MissingETBase::Numerical::cpyError(); }
-  double MissingETAssociation_v1::calpz(size_t keyIdx) const
+  float MissingETAssociation_v1::calpz(size_t keyIdx) const
   { return keyIdx != MissingETBase::Numerical::invalidIndex() && keyIdx < this->sizeCal() ? this->calpz()[keyIdx] : MissingETBase::Numerical::cpzError(); }
-  double MissingETAssociation_v1::cale(size_t keyIdx) const
+  float MissingETAssociation_v1::cale(size_t keyIdx) const
   { return keyIdx != MissingETBase::Numerical::invalidIndex() && keyIdx < this->sizeCal() ? this->cale()[keyIdx] : MissingETBase::Numerical::ceError(); }
-  double MissingETAssociation_v1::calsumpt(size_t keyIdx) const
+  float MissingETAssociation_v1::calsumpt(size_t keyIdx) const
   { return keyIdx != MissingETBase::Numerical::invalidIndex() && keyIdx < this->sizeCal() ? this->calsumpt()[keyIdx] : MissingETBase::Numerical::sumptError(); }
   MissingETBase::Types::bitmask_t MissingETAssociation_v1::calkey(size_t keyIdx) const
   { return keyIdx != MissingETBase::Numerical::invalidIndex() && keyIdx < this->sizeCal() ? this->calkey()[keyIdx] : MissingETBase::Numerical::invalidIndex(); }
 
-  double MissingETAssociation_v1::trkpx(size_t keyIdx) const
+  float MissingETAssociation_v1::trkpx(size_t keyIdx) const
   { return keyIdx != MissingETBase::Numerical::invalidIndex() && keyIdx < this->sizeTrk() ? this->trkpx()[keyIdx] : MissingETBase::Numerical::cpxError(); }
-  double MissingETAssociation_v1::trkpy(size_t keyIdx) const
+  float MissingETAssociation_v1::trkpy(size_t keyIdx) const
   { return keyIdx != MissingETBase::Numerical::invalidIndex() && keyIdx < this->sizeTrk() ? this->trkpy()[keyIdx] : MissingETBase::Numerical::cpyError(); }
-  double MissingETAssociation_v1::trkpz(size_t keyIdx) const
+  float MissingETAssociation_v1::trkpz(size_t keyIdx) const
   { return keyIdx != MissingETBase::Numerical::invalidIndex() && keyIdx < this->sizeTrk() ? this->trkpz()[keyIdx] : MissingETBase::Numerical::cpzError(); }
-  double MissingETAssociation_v1::trke(size_t keyIdx) const
+  float MissingETAssociation_v1::trke(size_t keyIdx) const
   { return keyIdx != MissingETBase::Numerical::invalidIndex() && keyIdx < this->sizeTrk() ? this->trke()[keyIdx] : MissingETBase::Numerical::ceError(); }
-  double MissingETAssociation_v1::trksumpt(size_t keyIdx) const
+  float MissingETAssociation_v1::trksumpt(size_t keyIdx) const
   { return keyIdx != MissingETBase::Numerical::invalidIndex() && keyIdx < this->sizeTrk() ? this->trksumpt()[keyIdx] : MissingETBase::Numerical::sumptError(); }
   MissingETBase::Types::bitmask_t MissingETAssociation_v1::trkkey(size_t keyIdx) const
   { return keyIdx != MissingETBase::Numerical::invalidIndex() && keyIdx < this->sizeTrk() ? this->trkkey()[keyIdx] : MissingETBase::Numerical::invalidIndex(); }
@@ -501,12 +520,12 @@ namespace xAOD {
     return pVec;
   }
                                                                                    
-  std::vector<const IParticle*> MissingETAssociation_v1::objects(const std::vector<double>*& calpxPtr,const std::vector<double>*& calpyPtr,
-                                                                 const std::vector<double>*& calpzPtr,const std::vector<double>*& calePtr,
-                                                                 const std::vector<double>*& calsumptPtr,
-                                                                 const std::vector<double>*& trkpxPtr,const std::vector<double>*& trkpyPtr,
-                                                                 const std::vector<double>*& trkpzPtr,const std::vector<double>*& trkePtr,
-                                                                 const std::vector<double>*& trksumptPtr) const
+  std::vector<const IParticle*> MissingETAssociation_v1::objects(const std::vector<float>*& calpxPtr,const std::vector<float>*& calpyPtr,
+                                                                 const std::vector<float>*& calpzPtr,const std::vector<float>*& calePtr,
+                                                                 const std::vector<float>*& calsumptPtr,
+                                                                 const std::vector<float>*& trkpxPtr,const std::vector<float>*& trkpyPtr,
+                                                                 const std::vector<float>*& trkpzPtr,const std::vector<float>*& trkePtr,
+                                                                 const std::vector<float>*& trksumptPtr) const
   {
     calpxPtr = &(this->calpx()); calpyPtr = &(this->calpy()); calpzPtr = &(this->calpz()); calePtr = &(this->cale()); calsumptPtr = &(this->calsumpt());
     trkpxPtr = &(this->trkpx()); trkpyPtr = &(this->trkpy()); trkpzPtr = &(this->trkpz()); trkePtr = &(this->trke()); trksumptPtr = &(this->trksumpt());

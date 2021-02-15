@@ -13,7 +13,6 @@
 #include "InDetServMatGeoModel/ConvertStaveServices.h"
 
 #include <map>
-#include <iostream>
 
 #include <iostream>  // for DEBUG only
 using namespace std;

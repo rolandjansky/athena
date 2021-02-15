@@ -10,9 +10,7 @@
 #include "CaloHitAna.h"
 #include "../ISF_FastCaloSimParametrization/CaloGeometry.h"
 #include "../ISF_FastCaloSimParametrization/FCAL_ChannelMap.h"
-#include "TFile.h"
 #include "TTree.h"
-#include "TString.h"
 #include <string>
 #include <sstream>
 #include <iostream>

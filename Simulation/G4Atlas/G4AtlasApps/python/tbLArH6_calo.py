@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
  LAr H6 Calo detector description.
@@ -8,10 +8,7 @@
 __author__ = 'Joe Boudreau, Mohsen Kakhzad, Margret Fincke-Keeler, \
               J.P. Archambault, M. Gallas, A. Soukharev'
 
-import math
 from G4AtlasApps import PyG4Atlas, AtlasG4Eng
-from G4AtlasApps.PyG4Atlas import  DetFacility, PhysicsReg
-
 
 # -- World volume --
 class LArWorld(object):
@@ -47,7 +44,6 @@ class Det_Layouts:
 
         AtlasG4Eng.G4Eng.load_Dict('LArG4RunControlDict')
         import ROOT
-        import __main__
         from G4AtlasApps.SimFlags import simFlags
         if (simFlags.SimLayout.get_Value()=="tb_LArH6_2002"):
             pd=AtlasG4Eng.G4Eng.gbl.LArGeoTBH1GeoOptions()

@@ -162,7 +162,7 @@ def InDetExtrapolatorCfg(flags, name='InDetExtrapolator', **kwargs) :
 
 def PixelConditionsSummaryToolCfg(flags, name = "InDetPixelConditionsSummaryTool", **kwargs):
     #FIXME - fix the duplication in TrigInDetConfig.py and PixelConditionsSummaryConfig.py
-    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelConfigCondAlgCfg, PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg
+    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelConfigCondAlgCfg, PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg, PixelDeadMapCondAlgCfg
 
     kwargs.setdefault( "UseByteStream", not flags.Input.isMC)
 
@@ -174,6 +174,7 @@ def PixelConditionsSummaryToolCfg(flags, name = "InDetPixelConditionsSummaryTool
     result.merge(PixelConfigCondAlgCfg(flags))
     result.merge(PixelDCSCondStateAlgCfg(flags))
     result.merge(PixelDCSCondStatusAlgCfg(flags))
+    result.merge(PixelDeadMapCondAlgCfg(flags))
 
     result.setPrivateTools(CompFactory.PixelConditionsSummaryTool(name, **kwargs))
     return result
@@ -375,6 +376,10 @@ def SCT_ConfigurationCondAlgCfg(flags, name="SCT_ConfigurationCondAlg", **kwargs
   kwargs.setdefault("SCT_CablingTool", acc.popPrivateTools())
   result.merge(acc)
 
+  acc = SCT_ReadoutToolCfg(flags)
+  kwargs.setdefault("SCT_ReadoutTool", acc.popPrivateTools())
+  result.merge(acc)
+
   result.addCondAlgo(CompFactory.SCT_ConfigurationCondAlg(name, **kwargs))
   return result
 
@@ -415,8 +420,13 @@ def SCT_ReadCalibDataToolCfg(flags, name="SCT_ReadCalibDataTool", cond_kwargs={}
 
 
 def SCT_FlaggedConditionToolCfg(flags, name="SCT_FlaggedConditionTool", **kwargs):
-  tool = CompFactory.SCT_FlaggedConditionTool(name, **kwargs)
   result = ComponentAccumulator()
+
+  # For SCT_ID and SCT_DetectorElementCollection used in SCT_FlaggedConditionTool
+  from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
+  result.merge(SCT_GeometryCfg(flags))
+
+  tool = CompFactory.SCT_FlaggedConditionTool(name, **kwargs)
   result.setPrivateTools(tool)
   return result
 
@@ -453,12 +463,29 @@ def SCT_ByteStreamErrorsToolCfg(flags, name="SCT_ByteStreamErrorsTool", **kwargs
   return result
 
 def SCT_CablingToolCfg(flags):
-    from SCT_Cabling.SCT_CablingConfig import SCT_CablingCondAlgCfg
-    result = SCT_CablingCondAlgCfg(flags)
+  result = ComponentAccumulator()
 
-    tool = CompFactory.SCT_CablingTool()
-    result.setPrivateTools(tool)
-    return result
+  # For SCT_ID used in SCT_CablingTool
+  from AtlasGeoModel.GeoModelConfig import GeoModelCfg
+  result.merge(GeoModelCfg(flags))
+
+  from SCT_Cabling.SCT_CablingConfig import SCT_CablingCondAlgCfg
+  result.merge(SCT_CablingCondAlgCfg(flags))
+
+  tool = CompFactory.SCT_CablingTool()
+  result.setPrivateTools(tool)
+  return result
+
+def SCT_ReadoutToolCfg(flags, name="SCT_ReadoutTool", **kwargs):
+  result = ComponentAccumulator()
+
+  acc = SCT_CablingToolCfg(flags)
+  kwargs.setdefault("SCT_CablingTool", acc.popPrivateTools())
+  result.merge(acc)
+
+  tool = CompFactory.SCT_ReadoutTool(**kwargs)
+  result.setPrivateTools(tool)
+  return result
 
 def SCT_TdaqEnabledToolCfg(flags, name="InDetSCT_TdaqEnabledTool", **kwargs):
   if flags.Input.isMC:

@@ -8,7 +8,6 @@
 #include "LArHV/FCALHVManager.h"
 #include "LArHV/EMBPresamplerHVManager.h"
 #include "LArHV/EMECPresamplerHVManager.h"
-#include "LArHV/LArHVManager.h"
 
 LArHVManager::LArHVManager()
   : m_embHV()

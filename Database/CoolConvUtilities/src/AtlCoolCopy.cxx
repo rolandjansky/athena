@@ -25,7 +25,6 @@
 #include "CoolKernel/IFolderSet.h"
 #include "CoolKernel/IObject.h"
 #include "CoolKernel/IObjectIterator.h"
-#include "CoolKernel/Exception.h"
 #include "CoolKernel/IRecordIterator.h"
 #include "CoolApplication/Application.h"
 #include "CoralBase/AttributeListException.h"

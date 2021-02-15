@@ -15,7 +15,6 @@
 #include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "AthExHive/HiveDataObj.h"
-#include "HiveAlgBase.h"
 
 #include <string>
 

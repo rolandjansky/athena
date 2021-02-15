@@ -6,9 +6,6 @@
 #
 # =====================================================================
 
-from __future__ import print_function
-
-from threading import Thread
 import os
 import time
 
@@ -26,11 +23,11 @@ class getAthenaConfig:
         
         try:
             self.athenaTestArea = os.environ['TestArea']
-        except:
+        except Exception:
             self.athenaTestArea = ""
         try:
             self.athenaTags = os.environ['AtlasProject'] + ',' + self.athenaConf.replace("-",",")
-        except:
+        except Exception:
             self.athenaTags = ""
         if self.atlasSet == "AtlasSetup":
             self.atlasSetupPath = os.environ['AtlasSetup']
@@ -119,8 +116,7 @@ class manageJob:
         #   os.system('ln -s %s %s' % (self.MonitoringScript,self.RunPath+"/InDetRecExample/InDetMonitoringAlignment.py") )
 
     def writeJO(self):
-        PrefixName="Iter%d%s_" % (self.i, self.folderSuffix)
-        
+
         job=open(self.RunPath + self.JOBNAME,'w')
         job.write('##-------- Alignment Configuration --------------------\n')
 
@@ -267,7 +263,6 @@ class manageJob:
         while (os.popen('bjobs -w').read().find(self.preName)!=-1 and os.popen('bjobs -w').read().find(self.folderSuffix)!=-1):
             time.sleep(30)
             
-import os
 class SortCpus:
     def __init__(self, TOTALCPUS, LOCALDIR, FILELIST, OutputLevel,doDetailedSplitting = False, nEventsPerFile=-1):
             def sort_by_value(d):
@@ -323,7 +318,6 @@ class SortCpus:
                             SizeList[i][1] = curr[4].rstrip()
                             i = i+1
                     FinalList = {}
-                    count = 0
                     
                     for i in range(0,len(SizeList)):
                         #print (SizeList[i][0])
@@ -786,8 +780,6 @@ def HandleRunOptions():
     User_ColCPUs = 0
     Col_CPUs = Def_ColCPUs
 
-    argNum = 1
-    argMax = len(sys.argv)-1
     argCurr = -1 # jut to make that first time it points to 0
     
     #print (' >>> user input has %s arguments' % argMax)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -155,7 +155,7 @@ bool TGCTileMuCoincidenceMap::readMap()
   //----- 
   
   std::string fullName;
-  fullName = PathResolver::find_file( dbname.c_str(), "DATAPATH" );
+  fullName = PathResolver::FindCalibDirectory("dev")+"/TrigT1TGC/TILE/"+dbname;
   bool isFound =( fullName.length() > 0 );
   if( !isFound) {
     log << MSG::WARNING 
@@ -267,7 +267,7 @@ int  TGCTileMuCoincidenceMap::getMask(const int module,
   if  (tgcArgs()->USE_CONDDB()) {
     SG::ReadCondHandle<TGCTriggerData> readHandle{m_readCondKey};
     const TGCTriggerData* readCdo{*readHandle};
-    return readCdo->getTrigMaskTile(module, ssc, sec, side);
+    return readCdo->getTrigMaskTile(ssc, sec, side)>>(module*4) & 0x7;
   } else {
     return  m_map[module][ssc][sec][side];
   }
@@ -286,7 +286,7 @@ int  TGCTileMuCoincidenceMap::getFlagPT(const int pt,
   if  (tgcArgs()->USE_CONDDB()) {
     SG::ReadCondHandle<TGCTriggerData> readHandle{m_readCondKey};
     const TGCTriggerData* readCdo{*readHandle};
-    return readCdo->getFlagPtTile(pt-1, ssc, sec, side);
+    return (readCdo->getFlagPtTile(ssc, sec, side)>>(pt-1)) & 0x1;  /* only 1st bit needed (0x1) */
   } else {
     return  m_flagPT[pt-1][ssc][sec][side];
   }
@@ -305,7 +305,7 @@ int  TGCTileMuCoincidenceMap::getFlagROI(const int roi,
   if  (tgcArgs()->USE_CONDDB()) {
     SG::ReadCondHandle<TGCTriggerData> readHandle{m_readCondKey};
     const TGCTriggerData* readCdo{*readHandle};
-    return readCdo->getFlagRoiTile(roi, ssc, sec, side);
+    return (readCdo->getFlagRoiTile(ssc, sec, side)>>roi) & 0x1;  /* only 1st bit needed (0x1) */
   } else {
     return  m_flagROI[roi][ssc][sec][side];
   }

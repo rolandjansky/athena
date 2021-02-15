@@ -237,6 +237,76 @@ const HepMC::GenParticle* HepMcParticleLink::cptr() const
   }
   return p;
 }
+#ifdef HEPMC3
+/**
+ * @brief Dereference/smart pointer.
+ */
+HepMC3::ConstGenParticlePtr HepMcParticleLink::scptr() const
+{
+  HepMC3::ConstGenParticlePtr pp{nullptr};
+  const IProxyDict* sg = nullptr;
+  auto p = m_ptrs.get (sg);
+  if (!p) {
+    if (0 == barcode()) {
+#if 0
+      MsgStream log (Athena::getMessageSvc(), "HepMcParticleLink");
+      log << MSG::DEBUG
+             << "scptr: no truth particle associated with this hit (barcode==0)."
+             << " Probably this is a noise hit" << endmsg;
+#endif
+      return nullptr;
+    }
+    if (!sg) {
+      sg = SG::CurrentEventStore::store();
+    }
+    if (const McEventCollection* pEvtColl = retrieveMcEventCollection(sg)) {
+      const HepMC::GenEvent *pEvt = nullptr;
+      index_type index, position;
+      m_extBarcode.eventIndex (index, position);
+      if (index == 0) {
+        pEvt = pEvtColl->at(0);
+      }
+      else if (position != ExtendedBarCode::UNDEFINED) {
+        if (position < pEvtColl->size()) {
+          pEvt = pEvtColl->at (position);
+        }
+        else {
+#if 0
+          MsgStream log (Athena::getMessageSvc(), "HepMcParticleLink");
+          log << MSG::WARNING << "scptr: position = " << position << ", McEventCollection size = "<< pEvtColl->size() << endmsg;
+#endif
+          return nullptr;
+        }
+      }
+      else {
+        pEvt = pEvtColl->find (index);
+      }
+      if (0 != pEvt) {
+        pp = HepMC::barcode_to_particle(pEvt,barcode());
+        if (position != ExtendedBarCode::UNDEFINED) {
+          m_extBarcode.makeIndex (pEvt->event_number(), position);
+        }
+      } else {
+        MsgStream log (Athena::getMessageSvc(), "HepMcParticleLink");
+        if (position != ExtendedBarCode::UNDEFINED) {
+          log << MSG::WARNING
+            << "scptr: Mc Truth not stored for event at " << position
+            << endmsg;
+        } else {
+          log << MSG::WARNING
+            << "scptr: Mc Truth not stored for event with event number " << index
+            << endmsg;
+        }
+      }
+    } else {
+      MsgStream log (Athena::getMessageSvc(), "HepMcParticleLink");
+      log << MSG::WARNING << "scptr: McEventCollection not found" << endmsg;
+    }
+  }
+  return pp;
+}
+
+#endif
 
 
 /**

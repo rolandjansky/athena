@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file DataModelTestDataWrite/src/GAuxContainer_v1.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -23,6 +21,8 @@ GAuxContainer_v1::GAuxContainer_v1()
   : xAOD::AuxContainerBase()
 {
   AUX_VARIABLE (anInt);
+  AUX_VARIABLE (gFloat);
+  AUX_VARIABLE (gvFloat);
 }
 
 

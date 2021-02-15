@@ -34,11 +34,11 @@ int main() {
                                       "dev/PileupReweighting/ilumicalc_histograms_HLT_e12_lhvloose_nod0_L1EM10VH_297730-304494_OflLumi-13TeV-005.root:HLT_e12_lhvloose_nod0_L1EM10VH",
                                       "dev/PileupReweighting/ilumicalc_histograms_HLT_e24_lhvloose_nod0_L1EM20VH_297730-304494_OflLumi-13TeV-005.root:HLT_e24_lhvloose_nod0_L1EM20VH"}; //feed with lc files for each trigger
   
-  prwTool.setProperty( "DataScaleFactor", 1/1.09 );
-  prwTool.setProperty( "LumiCalcFiles" , lcFiles );
-  //prwTool.setProperty( "OutputLevel", 1 ); //VERBOSE OUTPUT LEVEL
+  ANA_CHECK(prwTool.setProperty( "DataScaleFactor", 1/1.09 ));
+  ANA_CHECK(prwTool.setProperty( "LumiCalcFiles" , lcFiles ));
+  //ANA_CHECK(prwTool.setProperty( "OutputLevel", 1 )); //VERBOSE OUTPUT LEVEL
 
-  prwTool.initialize();
+  ANA_CHECK(prwTool.initialize());
   
   std::cout << prwTool->expert()->GetDataWeight( 297730 , "HLT_e12_lhvloose_nod0_L1EM10VH", 4) << std::endl;
   if(! ( fabs(prwTool->expert()->GetDataWeight( 297730 , "HLT_e12_lhvloose_nod0_L1EM10VH", 4)  - 8797.7) < 1e-3 ) ) {

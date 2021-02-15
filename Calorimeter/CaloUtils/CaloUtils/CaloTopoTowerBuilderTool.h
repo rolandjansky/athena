@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOREC_CALOTOPOTOWERBUILDERTOOL_H
@@ -46,7 +46,8 @@ class CaloTopoTowerBuilderTool : public CaloTopoTowerBuilderToolBase
   virtual ~CaloTopoTowerBuilderTool();
 
   /// execute
-  virtual StatusCode execute(CaloTopoTowerContainer* theContainer,const CaloCellContainer* theCell=0) const override;
+  virtual StatusCode execute(const EventContext& ctx,
+                             CaloTopoTowerContainer* theContainer,const CaloCellContainer* theCell=0) const override;
   //virtual StatusCode initialize();
 
   virtual StatusCode initializeTool() override;

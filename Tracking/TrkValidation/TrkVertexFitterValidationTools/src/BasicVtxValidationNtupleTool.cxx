@@ -385,12 +385,15 @@ StatusCode Trk::BasicVtxValidationNtupleTool::fillTrueTrackAtVertexInfo(const Tr
         }
         else { 
             TrackTruth trk_truth=found->second;
-            const HepMC::GenParticle * particle;
-            particle = trk_truth.particleLink();
-            HepMC:: GenVertex* prod_vtx = particle->production_vertex();
+            auto particle = trk_truth.particleLink();
+            auto prod_vtx = particle->production_vertex();
 
             //fill parent id
+#ifdef HEPMC3
+            auto   parent_iter = prod_vtx->particles_in().begin();
+#else
             HepMC::GenVertex::particle_iterator   parent_iter = prod_vtx->particles_begin(HepMC::parents);
+#endif
             m_vxparent_id->push_back((*parent_iter)->pdg_id());
             m_vxparticle_id->push_back(particle->pdg_id());
 

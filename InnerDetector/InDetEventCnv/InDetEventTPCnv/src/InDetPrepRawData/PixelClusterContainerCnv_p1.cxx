@@ -111,7 +111,7 @@ void  InDet::PixelClusterContainerCnv_p1::persToTrans(const InDet::InDetPRD_Cont
         coll->setIdentifier(Identifier(pcoll.m_id));
         unsigned int nchans           = pcoll.m_end - pcoll.m_begin;
         coll->resize(nchans);
-        const InDetDD::SiDetectorElement * de = (m_useDetectorElement ? elements->getDetectorElement(collIDHash) : nullptr);
+        const InDetDD::SiDetectorElement * de = (elements ? elements->getDetectorElement(collIDHash) : nullptr);
         // Fill with channels
         for (unsigned int ichan = 0; ichan < nchans; ++ ichan) {
             const TPObjRef pchan = persCont->m_PRD[ichan + pcoll.m_begin];

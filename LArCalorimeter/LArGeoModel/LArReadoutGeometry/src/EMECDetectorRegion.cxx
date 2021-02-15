@@ -5,7 +5,6 @@
 #include "GeoModelKernel/GeoVFullPhysVol.h"
 
 #include "LArReadoutGeometry/EMECDetectorRegion.h"
-#include "GeoModelKernel/GeoVFullPhysVol.h"
 #include "GeoModelKernel/GeoPcon.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 

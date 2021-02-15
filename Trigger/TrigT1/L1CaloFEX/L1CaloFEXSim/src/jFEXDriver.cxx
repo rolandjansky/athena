@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+    Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -18,8 +18,8 @@
 #include "L1CaloFEXSim/jSuperCellTowerMapper.h"
 
 #include "L1CaloFEXSim/jFEXSim.h"
-//#include "L1CaloFEXSim/jFEXOutputCollection.h"
-//#include "L1CaloFEXSim/jFEXegTOB.h"
+#include "L1CaloFEXSim/jFEXOutputCollection.h"
+#include "L1CaloFEXSim/jFEXSmallRJetTOB.h"
 
 #include "TROOT.h"
 #include "TH1.h"
@@ -117,8 +117,9 @@ StatusCode jFEXDriver::finalize()
 
   // STEP 1 TO BE REPLACED IN THE NEAR FUTURE - KEPT HERE FOR REFERENCE
   // STEP 1 - Do some monitoring (code to exported in the future to another algorithm accessing only StoreGate and not appearing in this algorithm)
-  /*
+  
   jFEXOutputCollection* my_jFEXOutputCollection = new jFEXOutputCollection();
+  //std::shared_ptr<jFEXOutputCollection> my_jFEXOutputCollection = std::make_shared<jFEXOutputCollection>();
   bool savetob = true;
   if(savetob)
   {
@@ -131,7 +132,7 @@ StatusCode jFEXDriver::finalize()
     //ATH_CHECK(jFEXOutputCollectionSG.record(std::make_unique<jFEXOutputCollection>()));
     
   }
-  */
+  
 
   // STEP 2 - Make some jTowers and fill the local container
   ATH_CHECK( m_jTowerBuilderTool.retrieve() );

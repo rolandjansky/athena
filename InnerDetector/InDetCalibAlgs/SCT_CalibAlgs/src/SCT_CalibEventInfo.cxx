@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -115,9 +115,19 @@ SCT_CalibEventInfo::setRunNumber(const int rn) {
    m_runNumber = rn;
 }
 
+void
+SCT_CalibEventInfo::setEventNumber(const int en) {
+   m_eventNumber = en;
+}
+
 int
 SCT_CalibEventInfo::runNumber() const {
    return m_runNumber;
+}
+
+int
+SCT_CalibEventInfo::eventNumber() const {
+   return m_eventNumber;
 }
 
 void

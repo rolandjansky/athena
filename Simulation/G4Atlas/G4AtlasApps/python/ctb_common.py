@@ -1,7 +1,5 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
 """
 - This module contains the common volumes, sub-detector envelopes,
   magnets, beam pipes, volumes for MCTruth and other common stuff
@@ -21,9 +19,6 @@ __author__ = 'M. Gallas'
 import math
 import PyG4Atlas, AtlasG4Eng
 from PyG4Atlas import DetFacilityT
-from atlas_materials import material_concrete
-from atlas_materials import material_mylar
-from atlas_materials import material_scintillator
 
 #=======================================================================
 # - CTB top volumes  ---------------------------------------------------
@@ -169,15 +164,15 @@ class LArFarUpstreamMaterial(object):
             self.material.df.MoveTo(self.material.position)
             AtlasG4Eng.G4Eng.add_DetFacility(self.material,\
                      AtlasG4Eng.G4Eng.Dict_DetFacility.get('CTB'))
-            AtlasG4Eng.G4Eng.log.info(' LArFarUpstreamMaterial is placed inside CTB '+\
-                   'at -20000 mm. ')
+            AtlasG4Eng.G4Eng.log.info(' LArFarUpstreamMaterial is placed inside CTB '
+                                      'at -20000 mm. ')
         elif(option==1):
             self.material.position=AtlasG4Eng.G4Eng.gbl.Hep3Vector(-1020.,0.,0.)
             self.material.df.MoveTo(self.material.position)
             AtlasG4Eng.G4Eng.add_DetFacility(self.material,\
                      AtlasG4Eng.G4Eng.Dict_DetFacility.get('IDET'))
-            AtlasG4Eng.G4Eng.log.info(' LArFarUpstreamMaterial is placed inside IDET '+\
-                   'at -1020 mm in order to use BeamConditions ')
+            AtlasG4Eng.G4Eng.log.info(' LArFarUpstreamMaterial is placed inside IDET '
+                                      'at -1020 mm in order to use BeamConditions ')
 
 # - Magnets  -----------------------------------------------------------
 __doc__+="""\n\n         -- MAGNETS -- \n"""
@@ -351,7 +346,7 @@ class ctb_beampipes_and_magnetsupstream:
             AtlasG4Eng.G4Eng.add_DetFacility(beampipe2,mbpl12)
             AtlasG4Eng.G4Eng.add_DetFacility(mylarequiv,ctb)
         if(mode==2):
-            equivupstreammaterial=EquivUpstreamMaterial()
+            equivupstreammaterial=EquivUpstreamMaterial()  # noqa: F841 (needed?)
 
 # - Muon-DUMP  ---------------------------------------------------------
 __doc__+="""\n\n         -- MUON DUMP -- \n"""
@@ -669,7 +664,7 @@ class CombinedScintillator:
        #self.ctb_combinedscintillator_position=AtlasG4Eng.G4Eng.gbl.CLHEP.Hep3Vector(-2.0,0.0,2200.)
         if (eta==0):
           self.ctb_combinedscintillator_position=AtlasG4Eng.G4Eng.gbl.CLHEP.Hep3Vector(-2.0,0.0,0.)
-        elif(eta>0,eta<=0.95):
+        elif(eta>0 and eta<=0.95):
           self.ctb_combinedscintillator_position=AtlasG4Eng.G4Eng.gbl.CLHEP.Hep3Vector(-2.0,0.0,\
                      2274.0/math.tan(2*math.atan(math.exp(-eta))) )
         elif(eta>0.95):

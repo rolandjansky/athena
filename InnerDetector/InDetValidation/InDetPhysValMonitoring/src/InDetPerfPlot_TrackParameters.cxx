@@ -99,11 +99,11 @@ InDetPerfPlot_TrackParameters::fill(const xAOD::TruthParticle& particle) {
   // quantities with xAOD::TruthParticle accessors:
   float eta = particle.eta();
   float pt = particle.pt() / Gaudi::Units::GeV;
+  float phi = particle.phi();
 
   float d0 = (particle.isAvailable<float>("d0")) ? particle.auxdata<float>("d0") : -9999.;
   float z0 = (particle.isAvailable<float>("z0")) ? particle.auxdata<float>("z0") : -9999.;
   float theta = (particle.isAvailable<float>("theta")) ? particle.auxdata<float>("theta") : -9999.;
-  float phi = (particle.isAvailable<float>("phi")) ? particle.auxdata<float>("phi") : -9999.;
   float z0sin = (particle.isAvailable<float>("z0") && particle.auxdata<float>("theta")) ? z0 * std::sin(theta) : -9999.;
   float qOverP = (particle.isAvailable<float>("qOverP")) ? particle.auxdata<float>("qOverP") : -9999.;
   float prodR = (particle.isAvailable<float>("prodR")) ? particle.auxdata<float>("prodR") : -9999.;

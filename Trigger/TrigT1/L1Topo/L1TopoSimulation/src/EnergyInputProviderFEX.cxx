@@ -1,11 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <math.h> /* atan2 */
-
-#include "TH1.h"
-#include "TH2.h"
 
 #include "GaudiKernel/ITHistSvc.h"
 
@@ -58,14 +55,24 @@ EnergyInputProviderFEX::handle(const Incident& incident) {
    string histPath = "/EXPERT/" + name() + "/";
    replace( histPath.begin(), histPath.end(), '.', '/'); 
 
-   m_hPt = new TH1I( "MET", "Missing ET TOB", 200, 0, 2000);
-   m_hPt->SetXTitle("p_{T}");
+   auto hPt = std::make_unique<TH1I>( "MET", "Missing ET TOB", 200, 0, 2000);
+   hPt->SetXTitle("p_{T}");
 
-   m_hPhi = new TH1I( "METPhi", "MET TOB Phi", 32, -3.2, 3.2);
-   m_hPhi->SetXTitle("#phi");
+   auto hPhi = std::make_unique<TH1I>( "METPhi", "MET TOB Phi", 32, -3.2, 3.2);
+   hPhi->SetXTitle("#phi");
 
-   m_histSvc->regHist( histPath + "MET", m_hPt ).ignore();
-   m_histSvc->regHist( histPath + "METPhi", m_hPhi ).ignore();
+   if (m_histSvc->regShared( histPath + "MET", std::move(hPt), m_hPt ).isSuccess()){
+     ATH_MSG_DEBUG("MET histogram has been registered successfully for EnergyProvider.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register MET histogram for EnergyProvider");
+   }
+   if (m_histSvc->regShared( histPath + "METPhi", std::move(hPhi), m_hPhi ).isSuccess()){
+     ATH_MSG_DEBUG("METPhi histogram has been registered successfully for EnergyProvider.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register METPhi histogram for EnergyProvider");
+   }
 
 }
 

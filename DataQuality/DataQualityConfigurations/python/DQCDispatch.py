@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # This holds the method that returns an appropriate DataQualityConfiguration
 # module for the specified input string
@@ -53,11 +53,11 @@ def getmodule(modname):
 
     import re
     # Does it look like datann_hip?
-    m = re.match('data\d{2}_hip', modname)
+    m = re.match(r'data\d{2}_hip', modname)
     if m:
         from . import base_data_hi; return base_data_hi
     # Does it look like datann?
-    m = re.match('data\d{2}$', modname)
+    m = re.match(r'data\d{2}$', modname)
     if m:
         from . import base_data; return base_data
 

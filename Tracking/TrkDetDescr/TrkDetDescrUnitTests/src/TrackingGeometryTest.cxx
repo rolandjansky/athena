@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@ Trk::TrackingGeometryTest::TrackingGeometryTest(const std::string& name, ISvcLoc
 #endif
    m_executed(false),
    m_trackingGeometrySvc("TrackingGeometrySvc","AtlasTrackingGeometrySvc"),
-   m_trackingGeometry(0),
+   m_trackingGeometry(nullptr),
    m_trackingGeometryName("AtlasTrackingGeometry"),
    m_trackingGeometryProcessors()
  {

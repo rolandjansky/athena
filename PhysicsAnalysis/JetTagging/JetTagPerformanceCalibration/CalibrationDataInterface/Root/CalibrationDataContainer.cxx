@@ -880,6 +880,7 @@ CalibrationDataHistogramContainer::getInterpolatedUncertainty(TH1* hist) const
 
     // Copied from TH3::Interpolate()
 
+    yAxis = hist->GetYaxis();
     zAxis = hist->GetZaxis();
 
     Int_t ubx = xAxis->FindBin(m_vars[0]);

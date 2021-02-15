@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Defines the shared tools used in muon identification
 # Based on :
@@ -123,10 +123,6 @@ def MuonCombinedParticleCreatorCfg(flags, name="MuonCombinedParticleCreator",**k
         kwargs.setdefault("TrackSummaryTool", acc.getPrimary() ) 
         result.merge (acc)
 
-    acc = AtlasExtrapolatorCfg(flags)
-    kwargs.setdefault("Extrapolator", acc.getPrimary() )
-    result.addPublicTool(kwargs['Extrapolator'])
-    result.merge(acc)
     kwargs.setdefault("KeepAllPerigee",True )
     kwargs.setdefault("UseMuonSummaryTool",True )
     if flags.Beam.Type=="cosmics":
@@ -179,7 +175,6 @@ def MuonMaterialProviderToolCfg(flags,  name = "MuonMaterialProviderTool"):
     result.merge(acc)
     result.addPublicTool(atlas_extrapolator)
     kwargs = dict()
-    kwargs["Extrapolator"] = atlas_extrapolator
     if flags.Muon.SAMuonTrigger:
         from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryToolCfg
         acc = MuonTrackSummaryToolCfg(flags)
@@ -203,7 +198,11 @@ def MuonMaterialProviderToolCfg(flags,  name = "MuonMaterialProviderTool"):
     if flags.Muon.MuonTrigger:
         useCaloEnergyMeas = False
 
-    tool = CompFactory.Trk.TrkMaterialProviderTool(name = name, MuonCaloEnergyTool = muonCaloEnergyTool, UseCaloEnergyMeasurement = useCaloEnergyMeas)
+    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+    acc  = TrackingGeometrySvcCfg(flags)
+    result.merge(acc)
+    tool = CompFactory.Trk.TrkMaterialProviderTool(name = name, MuonCaloEnergyTool = muonCaloEnergyTool, UseCaloEnergyMeasurement = useCaloEnergyMeas,
+                                                   TrackingGeometrySvc = acc.getPrimary())
     result.addPublicTool(tool)
     result.setPrivateTools(tool)
     return result 
@@ -353,13 +352,9 @@ def MuonCombinedToolCfg(flags, name="MuonCombinedTool",**kwargs):
     return result 
 
 def MuonCombinedFitTagToolCfg(flags, name="MuonCombinedFitTagTool",**kwargs):
-    # if TriggerFlags.MuonSlice.doTrigMuonConfig:
-    #     from TrkExRungeKuttaIntersector.TrkExRungeKuttaIntersectorConf import Trk.IntersectorWrapper as Propagator
-    #     TrigMuonPropagator = Propagator(name = 'TrigMuonPropagator')
-    #     ToolSvc += TrigMuonPropagator
-    #     kwargs.setdefault("TrackBuilder",         getPublicToolClone("TrigMuonTrackBuilder", "CombinedMuonTrackBuilder", Propagator=TrigMuonPropagator) )
-    #     kwargs.setdefault("VertexContainer", "")
-    # else:
+    if flags.Muon.MuonTrigger:
+        kwargs.setdefault("VertexContainer", "")
+
     result = CombinedMuonTrackBuilderCfg(flags)
     tool = result.popPrivateTools()
     result.addPublicTool(tool)
@@ -580,8 +575,11 @@ def MuidSegmentRegionRecoveryToolCfg(flags, name ='MuidSegmentRegionRecoveryTool
 
 
 def MuidErrorOptimisationToolCfg(flags, name='MuidErrorOptimisationToolFit', **kwargs ):
-    result = MuonCombinedTrackSummaryToolCfg(flags)
+    from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryHelperToolCfg
+    result = MuonTrackSummaryHelperToolCfg(flags)
     kwargs.setdefault("TrackSummaryTool",  result.popPrivateTools() )
+    tool = CompFactory.Muon.MuonErrorOptimisationTool(name, **kwargs)
+    result.setPrivateTools(tool)
     return result
 
 def MuonAlignmentUncertToolThetaCfg(flags,name ="MuonAlignmentUncertToolTheta", **kwargs):
@@ -694,7 +692,9 @@ def CombinedMuonTrackBuilderCfg(flags, name='CombinedMuonTrackBuilder', **kwargs
     if flags.Muon.enableErrorTuning and 'MuonErrorOptimizer' not in kwargs:
         # use alignment effects on track for all algorithms
 
-        useAlignErrs = True
+        # FIXME - useAlignErrs set to false until MuonAlignmentErrorDBAlg config is available 
+        useAlignErrs = False
+
         # FIXME - handle this.
         #    if conddb.dbdata == 'COMP200' or conddb.dbmc == 'COMP200' or 'HLT' in globalflags.ConditionsTag() or conddb.isOnline or TriggerFlags.MuonSlice.doTrigMuonConfig:
         #         useAlignErrs = False
@@ -807,9 +807,9 @@ def MuonCombinedTrackFitterCfg(flags, name="MuonCombinedTrackFitter", **kwargs )
     return result
 
 def CombinedMuonTagTestToolCfg(flags, name='CombinedMuonTagTestTool', **kwargs ):
-    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
     result = AtlasExtrapolatorCfg(flags)
     kwargs.setdefault("ExtrapolatorTool",result.getPrimary() )
+    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
     acc  = TrackingGeometrySvcCfg(flags)
     kwargs.setdefault("TrackingGeometrySvc", acc.getPrimary() )
     result.merge(acc)

@@ -1,11 +1,13 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArByteStream/LArDigitContByteStreamCnv.h"
 #include "LArByteStream/LArRawDataContByteStreamTool.h"
-#include "LArByteStream/LArABBADecoder.h"
-#include "LArByteStream/ABBAMapping.h"
+#include "LArByteStream/LArLATOMEDecoder.h"
+#include "LArByteStream/LATOMEMapping.h"
+#include "LArByteStream/Mon.h"
+
 
 #include "CaloIdentifier/CaloGain.h"
 
@@ -28,7 +30,7 @@
 LArDigitContByteStreamCnv::LArDigitContByteStreamCnv(ISvcLocator* svcloc) :
   AthConstConverter(storageType(), classID(),svcloc,"LArDigitContByteStreamCnv"),
   m_tool("LArRawDataContByteStreamTool"),
-  m_scTool("LArABBADecoder"),
+  m_scTool("LArLATOMEDecoder"),
   m_rdpSvc("ROBDataProviderSvc", name()),
   m_byteStreamEventAccess("ByteStreamCnvSvc", name()),
   m_byteStreamCnvSvc(nullptr)
@@ -85,32 +87,53 @@ LArDigitContByteStreamCnv::createObjConst(IOpaqueAddress* pAddr, DataObject*& pO
   // get gain and pass to convert function.
   CaloGain::CaloGain gain=CaloGain::LARNGAIN; //At this place, LARNGAINS means Automatic gain.
   bool isSC=false;
+  LArDigitContainer* adc_coll=0;
+  LArDigitContainer* adc_bas_coll=0;
+  LArRawSCContainer* et_coll=0;
+  LArRawSCContainer* et_id_coll=0;
+  LArLATOMEHeaderContainer* header_coll=0;
+  
   if (key=="HIGH")
     gain=CaloGain::LARHIGHGAIN;
   else if (key=="MEDIUM")
     gain=CaloGain::LARMEDIUMGAIN;
   else if (key=="LOW")
     gain=CaloGain::LARLOWGAIN;
-  else if (key=="SC")
+  else if (key=="SC"){
     isSC=true;
-
+    adc_coll=new LArDigitContainer();
+  }
+  else if(key=="SC_ADC_BAS"){
+    isSC=true;
+    adc_bas_coll=new LArDigitContainer();
+  }
+  
   // Convert the RawEvent to  LArDigitContainer
   ATH_MSG_DEBUG( "Converting LArDigits (from ByteStream). key=" << key << " ,gain=" << gain );
-  LArDigitContainer *DigitContainer=new LArDigitContainer;
   StatusCode sc;
   if (!isSC) {//Regular readout
+    LArDigitContainer *DigitContainer=new LArDigitContainer;
     sc=m_tool->convert(re,DigitContainer,gain);
+    if (sc!=StatusCode::SUCCESS)
+      ATH_MSG_WARNING( "Conversion tool returned an error. LArDigitContainer might be empty." );
+    pObj = SG::asStorable(DigitContainer) ;
+    return StatusCode::SUCCESS;
   }
-  else { //Supercell readout
-    sc=m_scTool->convert(re,DigitContainer);
+
+  //Supercell readout
+  sc=m_scTool->convert(re,adc_coll, adc_bas_coll, et_coll, et_id_coll, header_coll);
+  if (sc!=StatusCode::SUCCESS)
+    ATH_MSG_WARNING( "Conversion tool returned an error. LAr SC containers might be empty." );
+
+  if (key=="SC"){
+    pObj = SG::asStorable(adc_coll);
   }
-  if (sc!=StatusCode::SUCCESS) {
-    ATH_MSG_WARNING( "Conversion tool returned an error. LArDigitContainer might be empty." );
+  else if(key=="SC_ADC_BAS"){
+    pObj = SG::asStorable(adc_bas_coll);
   }
-    
-  pObj = SG::asStorable(DigitContainer) ;
 
   return StatusCode::SUCCESS;
+
 }
 
 StatusCode 
@@ -119,7 +142,7 @@ LArDigitContByteStreamCnv::createRepConst(DataObject* pObj, IOpaqueAddress*& pAd
   ATH_MSG_VERBOSE( "Execute CreateRep method of LArDigitContainer " );
 
   // Get Full Event Assembler
-  FullEventAssembler<Hid2RESrcID> *fea = 0;
+  FullEventAssembler<RodRobIdMap> *fea = 0;
   ATH_CHECK( m_byteStreamCnvSvc->getFullEventAssembler(fea,"LAr") );
 
   LArDigitContainer* DigitContainer=0;

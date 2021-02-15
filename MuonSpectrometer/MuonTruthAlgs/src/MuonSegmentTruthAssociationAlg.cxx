@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentTruthAssociationAlg.h"
@@ -113,7 +113,7 @@ namespace Muon {
     // create a map of chamber index onto the truth segments
     std::map<Muon::MuonStationIndex::ChIndex, std::vector<ElementLink< xAOD::MuonSegmentContainer> > > chamberTruthSegmentLinks;
     segIndex = 0;
-    for( auto const& truthSegment : *muonTruthSegments ){
+    for( const auto truthSegment : *muonTruthSegments ){
       muonTruthSegments(*truthSegment)=ElementLink< xAOD::MuonSegmentContainer >();
       std::vector<ElementLink< xAOD::MuonSegmentContainer> >& linkVec = chamberTruthSegmentLinks[truthSegment->chamberIndex()];
       linkVec.push_back(ElementLink< xAOD::MuonSegmentContainer >(truthSegmentContainerName,segIndex));

@@ -167,7 +167,7 @@ bool TGCEIFICoincidenceMap::readMap()
   //----- 
   
   std::string fullName;
-  fullName = PathResolver::find_file( dbname.c_str(), "DATAPATH" );
+  fullName = PathResolver::FindCalibDirectory("dev")+"/TrigT1TGC/EIFI/"+dbname;
   bool isFound =( fullName.length() > 0 );
   if( !isFound) {
     ATH_MSG_WARNING(" Could not found " << dbname);
@@ -258,7 +258,7 @@ int TGCEIFICoincidenceMap::getFlagPT(const int pt,
   if  (tgcArgs()->USE_CONDDB()) {
     SG::ReadCondHandle<TGCTriggerData> readHandle{m_readCondKey};
     const TGCTriggerData* readCdo{*readHandle};
-    return readCdo->getFlagPtEifi(m_side,pt-1,ssc,sec);
+    return readCdo->getFlagPtEifi(m_side,ssc,sec)>>(pt-1) & 0x1;  /* only 1st bit needed (0x1) */
   } else {
     return  m_flagPT[ssc][sec].test(pt-1);
   }
@@ -275,7 +275,7 @@ int  TGCEIFICoincidenceMap::getFlagROI(const int roi,
   if  (tgcArgs()->USE_CONDDB()) {
     SG::ReadCondHandle<TGCTriggerData> readHandle{m_readCondKey};
     const TGCTriggerData* readCdo{*readHandle};
-    return readCdo->getFlagRoiEifi(m_side,roi,ssc,sec);
+    return readCdo->getFlagRoiEifi(m_side,ssc,sec)>>roi & 0x1;  /* only 1st bit needed (0x1) */
   } else {
     return  m_flagROI[roi][ssc][sec];
   }
@@ -291,7 +291,8 @@ int TGCEIFICoincidenceMap::getTriggerBit(const int slot,
   if  (tgcArgs()->USE_CONDDB()) {
     SG::ReadCondHandle<TGCTriggerData> readHandle{m_readCondKey};
     const TGCTriggerData* readCdo{*readHandle};
-    return readCdo->getTrigBitEifi(m_side,slot,ssc,sec,reg,read,bit);
+    unsigned int shift = (reg<<3) + (read<<2) + bit;
+    return readCdo->getTrigBitEifi(m_side,slot,ssc,sec)>>shift & 0x1;  /* only 1st bit needed (0x1) */
   } else {
     return m_map[slot][ssc][sec].getTriggerBit(reg,read,bit);
   }

@@ -35,6 +35,44 @@
 
 namespace {
 const bool useBoundaryMaterialUpdate(true);
+
+std::string
+layerRZoutput(const Trk::Layer* lay)
+{
+  std::string result("NULL");
+  if (not lay) {
+    return result;
+  }
+  result = "[r,z] = [ " +
+           std::to_string(lay->surfaceRepresentation().bounds().r()) + ", " +
+           std::to_string(lay->surfaceRepresentation().center().z()) +
+           " ] - Index ";
+  result += std::to_string(lay->layerIndex().value());
+  return result;
+}
+
+std::string
+positionOutput(const Amg::Vector3D& pos)
+{
+  std::stringstream outStream;
+  outStream << "[r,phi,z] = [ " << pos.perp() << ", " << pos.phi() << ", "
+            << pos.z() << " ]";
+  return outStream.str();
+}
+
+int
+radialDirection(const Trk::MultiComponentState& pars, Trk::PropDirection dir)
+{
+  // safe inbound/outbound estimation
+  double prePositionR = pars.begin()->first->position().perp();
+  return (prePositionR >
+          (pars.begin()->first->position() +
+           dir * 0.5 * prePositionR * pars.begin()->first->momentum().unit())
+            .perp())
+           ? -1
+           : 1;
+}
+
 }
 
 Trk::GsfExtrapolator::GsfExtrapolator(const std::string& type,
@@ -175,7 +213,7 @@ Trk::GsfExtrapolator::extrapolateImpl(
   const Trk::Layer* associatedLayer = nullptr;
   const Trk::TrackingVolume* startVolume = nullptr;
   const Trk::TrackingVolume* destinationVolume = nullptr;
-  const Trk::TrackParameters* referenceParameters = nullptr;
+  std::unique_ptr<Trk::TrackParameters> referenceParameters = nullptr;
 
   initialiseNavigation(ctx,
                        cache,
@@ -272,10 +310,6 @@ Trk::GsfExtrapolator::extrapolateImpl(
       break;
     }
 
-    // New reference parameters are the navigation parameters at the boundary
-    // surface
-    referenceParameters = cache.m_stateAtBoundarySurface.navigationParameters;
-
     // Break the lop if an oscillation is detected
     if (previousVolume == nextVolume) {
       ++fallbackOscillationCounter;
@@ -292,7 +326,7 @@ Trk::GsfExtrapolator::extrapolateImpl(
     // parameters has increased
     combinedState = currentState->begin()->first.get();
 
-    const TrackParameters* parametersAtDestination =
+    auto parametersAtDestination =
       currentPropagator->propagateParameters(ctx,
                                              *combinedState,
                                              surface,
@@ -303,14 +337,14 @@ Trk::GsfExtrapolator::extrapolateImpl(
     Amg::Vector3D newDestination;
     if (parametersAtDestination) {
       newDestination = parametersAtDestination->position();
-      delete parametersAtDestination;
+      //delete parametersAtDestination;
     } else {
       ATH_MSG_DEBUG("Distance check propagation Failed.  Using surface center");
       newDestination = surface.center();
     }
 
     double revisedDistance =
-      (referenceParameters->position() - newDestination).mag();
+      (cache.m_stateAtBoundarySurface.navigationParameters->position() - newDestination).mag();
 
     double distanceChange = std::abs(revisedDistance - initialDistance);
 
@@ -1296,7 +1330,7 @@ Trk::GsfExtrapolator::multiStatePropagate(
                     "propagated... continuing");
       continue;
     }
-    Trk::TrackParameters* propagatedParameters =
+    auto propagatedParameters =
       propagator.propagate(ctx,
                            *currentParameters,
                            surface,
@@ -1310,7 +1344,7 @@ Trk::GsfExtrapolator::multiStatePropagate(
     }
     sumw += component->second;
     // Propagation does not affect the weightings of the states
-    propagatedState.emplace_back(propagatedParameters, component->second);
+    propagatedState.emplace_back(std::move(propagatedParameters), component->second);
   }
 
   ATH_MSG_DEBUG("GSF multiStatePropagate() propagated  "
@@ -1374,7 +1408,7 @@ Trk::GsfExtrapolator::initialiseNavigation(
   const Trk::Layer*& currentLayer,
   const Trk::TrackingVolume*& currentVolume,
   const Trk::TrackingVolume*& destinationVolume,
-  const Trk::TrackParameters*& referenceParameters,
+  std::unique_ptr<Trk::TrackParameters>& referenceParameters,
   Trk::PropDirection direction) const
 {
 
@@ -1429,7 +1463,6 @@ Trk::GsfExtrapolator::initialiseNavigation(
         : nullptr;
     // These parameters will need to be deleted later. Add to list of garbage to
     // be collected
-    throwIntoGarbageBin(cache, referenceParameters);
     if (referenceParameters) {
       Amg::Vector3D surfaceDirection(referenceParameters->position() -
                                      combinedState->position());
@@ -1461,11 +1494,7 @@ Trk::GsfExtrapolator::initialiseNavigation(
           ? propagator.propagateParameters(
               ctx, *combinedState, surface, direction, false, m_fieldProperties)
           : nullptr;
-      // These parameters will need to be deleted later. Add to list of garbage
-      // to be collected
-      throwIntoGarbageBin(cache, referenceParameters);
     }
-
     // 3. Global search
   } else {
     // If no reference parameters are defined, then determine them
@@ -1475,9 +1504,6 @@ Trk::GsfExtrapolator::initialiseNavigation(
           ? propagator.propagateParameters(
               ctx, *combinedState, surface, direction, false, m_fieldProperties)
           : nullptr;
-      // These parameters will need to be deleted later. Add to list of garbage
-      // to be collected
-      throwIntoGarbageBin(cache, referenceParameters);
     }
     // Global search of tracking geometry to find the destination volume
     if (referenceParameters) {
@@ -1578,44 +1604,6 @@ Trk::GsfExtrapolator::addMaterialtoVector(Cache& cache,
   }
 }
 
-std::string
-Trk::GsfExtrapolator::layerRZoutput(const Trk::Layer* lay) const
-{
-  std::string result("NULL");
-  if (not lay) {
-    return result;
-  }
-  result = "[r,z] = [ " +
-           std::to_string(lay->surfaceRepresentation().bounds().r()) + ", " +
-           std::to_string(lay->surfaceRepresentation().center().z()) +
-           " ] - Index ";
-  result += std::to_string(lay->layerIndex().value());
-  return result;
-}
-
-std::string
-Trk::GsfExtrapolator::positionOutput(const Amg::Vector3D& pos) const
-{
-  std::stringstream outStream;
-  outStream << "[r,phi,z] = [ " << pos.perp() << ", " << pos.phi() << ", "
-            << pos.z() << " ]";
-  return outStream.str();
-}
-
-int
-Trk::GsfExtrapolator::radialDirection(const Trk::MultiComponentState& pars,
-                                      PropDirection dir) const
-{
-  // safe inbound/outbound estimation
-  double prePositionR = pars.begin()->first->position().perp();
-  return (prePositionR >
-          (pars.begin()->first->position() +
-           dir * 0.5 * prePositionR * pars.begin()->first->momentum().unit())
-            .perp())
-           ? -1
-           : 1;
-}
-
 bool
 Trk::GsfExtrapolator::radialDirectionCheck(
   const EventContext& ctx,
@@ -1641,7 +1629,7 @@ Trk::GsfExtrapolator::radialDirectionCheck(
     // boundary surface
     const Trk::Surface& insideSurface =
       (boundarySurfaces[Trk::tubeInnerCover].get())->surfaceRepresentation();
-    const Trk::TrackParameters* parsOnInsideSurface =
+    auto parsOnInsideSurface =
       prop.propagateParameters(ctx,
                                *(startParm.begin()->first),
                                insideSurface,
@@ -1664,7 +1652,7 @@ Trk::GsfExtrapolator::radialDirectionCheck(
     }
 
     // memory cleanup (no garbage bin, this is faster)
-    delete parsOnInsideSurface;
+    //delete parsOnInsideSurface;
     ATH_MSG_DEBUG("  Check radial direction: distance layer / boundary = "
                   << distToLayer << " / " << distToInsideSurface);
     // the intersection with the original layer is valid if it is before the

@@ -22,7 +22,6 @@
 #include "TrigMuonEvent/TrigMuonEFTrack.h"
 #include "TrigMuonEvent/TrigMuonEFCbTrack.h"
 #include "TrigMuonEvent/MuonFeature.h"
-#include "TrigMuonEvent/TrigMuonEFInfoContainer.h"
 #include "TrigMuonEvent/TrigMuonEFInfoTrackContainer.h"
 #include "TrigMuonEvent/TrigMuonEFInfoTrack.h"
 #include "TrigMuonEvent/TrigMuonEFIsolationContainer.h"

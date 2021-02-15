@@ -1,10 +1,4 @@
-#
-# Magnetic field tool
-#
-#from TrkMagFieldTools.TrkMagFieldToolsConf import Trk__MagneticFieldTool
-#InDetMagField = Trk__MagneticFieldTool('InDetMagField')
-#ToolSvc += InDetMagField
-#print      InDetMagField
+#Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #
 # set up extrapolator
@@ -12,7 +6,7 @@
 from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
 InDetExtrapolator = AtlasExtrapolator()
 ToolSvc += InDetExtrapolator
-print      InDetExtrapolator
+print      (InDetExtrapolator)
 
 # Vertex point estimator
 #
@@ -40,10 +34,8 @@ ToolSvc += InDetPrdAssociationTool
 
 from RecExConfig.RecFlags import rec
 CountDeadModulesAfterLastHit=False
-#rec.Commissioning=False
 
 from InDetRecExample.InDetJobProperties import InDetFlags
-
 from InDetBoundaryCheckTool.InDetBoundaryCheckToolConf import InDet__InDetBoundaryCheckTool
 BoundaryCheckTool = InDet__InDetBoundaryCheckTool(
     name="InDetBoundaryCheckTool",
@@ -109,7 +101,7 @@ InDetTrackSelectorTool = InDet__InDetDetailedTrackSelectorTool(name = "InDetDeta
                                                               )
 
 ToolSvc+=InDetTrackSelectorTool
-print      InDetTrackSelectorTool
+print     ( InDetTrackSelectorTool)
 
 # configure vertex fitters
 
@@ -122,7 +114,7 @@ TrkVKalVrtFitter = Trk__TrkVKalVrtFitter(
                                          #FirstMeasuredPointLimit = True,
                                          MakeExtendedVertex  = True)
 ToolSvc += TrkVKalVrtFitter
-print      TrkVKalVrtFitter
+print     ( TrkVKalVrtFitter)
 
 #
 # --- load linearized track factory
@@ -133,7 +125,7 @@ InDetLinFactory = Trk__FullLinearizedTrackFactory(name              = "Trk::InDe
 #                                                  MagneticFieldTool = InDetMagField
                                                   )
 ToolSvc += InDetLinFactory
-print InDetLinFactory
+print (InDetLinFactory)
 
 
 from TrkV0Fitter.TrkV0FitterConf import Trk__TrkV0VertexFitter
@@ -144,27 +136,27 @@ TrkV0Fitter = Trk__TrkV0VertexFitter(name              = 'TrkV0FitterName',
 #                                     MagneticFieldTool = InDetMagField
                                      )
 ToolSvc += TrkV0Fitter
-print      TrkV0Fitter
+print      (TrkV0Fitter)
 
 from TrkVertexBilloirTools.TrkVertexBilloirToolsConf import Trk__FastVertexFitter
 InDetFastVxFitterTool = Trk__FastVertexFitter(name                   = "InDetFastVertexFitterTool",
                                               LinearizedTrackFactory = InDetLinFactory,
                                               Extrapolator           = InDetExtrapolator)
 ToolSvc += InDetFastVxFitterTool
-print      InDetFastVxFitterTool
+print     ( InDetFastVxFitterTool)
 
 from TrkVertexBilloirTools.TrkVertexBilloirToolsConf import Trk__FullVertexFitter
 InDetFullVxFitterTool = Trk__FullVertexFitter(name                   = "InDetFullVertexFitterTool",
                                               LinearizedTrackFactory = InDetLinFactory,
                                               Extrapolator           = InDetExtrapolator)
 ToolSvc += InDetFullVxFitterTool
-print      InDetFullVxFitterTool
+print      (InDetFullVxFitterTool)
 
 # Primary vertex refitting
 from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__KalmanVertexUpdator
 myVertexUpdator = Trk__KalmanVertexUpdator()
 ToolSvc += myVertexUpdator
-print      myVertexUpdator
+print    (  myVertexUpdator)
 
 
 
@@ -174,8 +166,3 @@ ToolSvc += MBTSTimeFilterTool()
 MBTSTimeFilterTool.ChargeThreshold   = 60.0/222.0
 MBTSTimeFilterTool.MinHitsPerSide    = 2
 MBTSTimeFilterTool.MaxTimeDifference = 10.0
-
-#from TrkVertexAnalysisUtils.TrkVertexAnalysisUtilsConf import Trk__V0Tools
-#InDetV0Tools = Trk__V0Tools(name = "InDetV0Tools")
-#ToolSvc += InDetV0Tools
-#print InDetV0Tools

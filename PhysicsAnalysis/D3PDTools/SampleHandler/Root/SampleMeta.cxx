@@ -32,7 +32,6 @@ namespace SH
   void SampleMeta :: 
   testInvariant () const
   {
-    RCU_INVARIANT (this != 0);
   }
 
 

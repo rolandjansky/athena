@@ -35,7 +35,7 @@ runArgs.trigStream = 'IDCosmic'
 runArgs.preExec = ['from RecExConfig.RecFlags  import rec','rec.doMonitoring=False','rec.doInDet=False','rec.doMuon=False','rec.doMuonCombined=False','rec.doEgamma=False','rec.doTau=False','rec.doTrigger=False','doTopoClusterCBNT=True','rec.doFloatingPointException=False']
 
 # Configuration fragment for DPD.
-runArgs.preInclude = ['RecExCommon/RecoUsefulFlags.py', 'RecExCommission/RecExCommissionRepro.py', 'RecExCommission/MinimalCommissioningSetup.py', 'RecJobTransforms/UseOracle.py']
+runArgs.preInclude = ['RecExCommon/RecoUsefulFlags.py', 'RecExCommission/RecExCommissionRepro.py', 'RecExCond/MinimalCommissioningSetup.py', 'RecJobTransforms/UseOracle.py']
 
 runArgs.postExec = ['from CaloRec.CaloRecConf import CBNTAA_CaloCluster','theCBNT_CaloClusterTopo=CBNTAA_CaloCluster("CBNT_CaloClusterTopo")','theCBNT_CaloClusterTopo.MaxCaloCluster = 2000']
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -24,15 +24,21 @@ MCTruthClassifier::particleTruthClassifier(HepMC::ConstGenParticlePtr thePart, I
     return std::make_pair(partType, partOrig);
 
   // Retrieve the links between HepMC and xAOD::TruthParticle
-  SG::ReadHandle<xAODTruthParticleLinkVector> truthParticleLinkVecReadHandle(m_truthLinkVecReadHandleKey);
+  const EventContext& ctx =
+    info ? info->eventContext : Gaudi::Hive::currentContext();
+
+  SG::ReadHandle<xAODTruthParticleLinkVector> truthParticleLinkVecReadHandle(
+    m_truthLinkVecReadHandleKey, ctx);
   if (!truthParticleLinkVecReadHandle.isValid()) {
     ATH_MSG_WARNING(
-      " Invalid ReadHandle for xAODTruthParticleLinkVector with key: " << truthParticleLinkVecReadHandle.key());
+      " Invalid ReadHandle for xAODTruthParticleLinkVector with key: "
+      << truthParticleLinkVecReadHandle.key());
     return std::make_pair(partType, partOrig);
   }
 
-  for (const auto& entry : *truthParticleLinkVecReadHandle) {
-    if (entry->first.isValid() && entry->second.isValid() && HepMC::barcode(entry->first.cptr()) == HepMC::barcode(thePart)) {
+  for (const auto entry : *truthParticleLinkVecReadHandle) {
+    if (entry->first.isValid() && entry->second.isValid() &&
+        HepMC::barcode(entry->first.cptr()) == HepMC::barcode(thePart)) {
       const xAOD::TruthParticle* truthParticle = *entry->second;
       if (!compareTruthParticles(thePart, truthParticle)) {
         // if the barcode/pdg id / status of the pair does not match
@@ -79,19 +85,25 @@ MCTruthClassifier::particleTruthClassifier(const xAOD::TruthParticle* thePart, I
   }
 
   // retrieve collection and get a pointer
-  if (!thePart)
+  if (!thePart){
     return std::make_pair(partType, partOrig);
+  }
+  const EventContext& ctx =
+    info ? info->eventContext : Gaudi::Hive::currentContext();
 
-  SG::ReadHandle<xAOD::TruthParticleContainer> truthParticleContainerReadHandle(m_truthParticleContainerKey);
+  SG::ReadHandle<xAOD::TruthParticleContainer> truthParticleContainerReadHandle(
+    m_truthParticleContainerKey,ctx);
 
   if (!truthParticleContainerReadHandle.isValid()) {
     ATH_MSG_WARNING(
-      " Invalid ReadHandle for xAOD::TruthParticleContainer with key: " << truthParticleContainerReadHandle.key());
+      " Invalid ReadHandle for xAOD::TruthParticleContainer with key: "
+      << truthParticleContainerReadHandle.key());
     return std::make_pair(partType, partOrig);
   }
 
-  ATH_MSG_DEBUG("xAODTruthParticleContainer with key  " << truthParticleContainerReadHandle.key()
-                                                        << " has valid ReadHandle ");
+  ATH_MSG_DEBUG("xAODTruthParticleContainer with key  "
+                << truthParticleContainerReadHandle.key()
+                << " has valid ReadHandle ");
 
   int iParticlePDG = thePart->pdgId();
   // status=10902 in Pythia?
@@ -312,6 +324,102 @@ MCTruthClassifier::findAllJetMothers(const xAOD::TruthParticle* thePart,
     }
   }
 }
+
+//--------------------------------------------------------------------------------------
+unsigned int MCTruthClassifier::classify(const xAOD::TruthParticle  *thePart) const {
+//--------------------------------------------------------------------------------------
+
+  ATH_MSG_DEBUG( "Executing classify" );
+
+  if(!thePart){ATH_MSG_WARNING( "Passed a nullptr" ); return 0;}
+
+  return defOrigOfParticle(thePart);
+}
+
+//-------------------------------------------------------------------------------
+unsigned int MCTruthClassifier::defOrigOfParticle(const xAOD::TruthParticle  *thePart) const {
+//-------------------------------------------------------------------------------
+
+  ATH_MSG_DEBUG( "Executing DefOrigOfParticle " );
+
+  int iParticlePDG = std::abs(thePart->pdgId());
+  int iParticleStat = std::abs(thePart->status());
+
+  unsigned int outputvalue;
+
+  bool isStable=0; bool fromhad = 0; bool uncat = 0; bool isHadTau=0; bool mybeam=0; bool fromTau=0; bool fromBSM=0; bool isGeant=0;  bool isBSM=0;
+
+  if(iParticleStat == 1 || iParticleStat == 2){
+    isStable = 1;
+  }
+  if(isStable == 1){
+    const xAOD::TruthVertex* partOriVert=thePart->hasProdVtx() ? thePart->prodVtx():nullptr;
+    if( partOriVert!=nullptr ) {
+      for (unsigned int ipIn=0; ipIn<partOriVert->nIncomingParticles(); ++ipIn) {
+        const xAOD::TruthParticle* theMother=partOriVert->incomingParticle(ipIn);
+        if(!theMother) continue;
+
+        if(std::abs(thePart->barcode()) >= m_barcodeG4Shift){
+          isGeant = 1; break;
+        }
+        if(MC::PID::isBSM(iParticlePDG) && abs(iParticleStat) == 1){
+          isBSM=1;
+        }
+
+        while (mybeam==0){
+          const xAOD::TruthVertex* partOriVert=thePart->hasProdVtx() ? thePart->prodVtx():nullptr;
+          if( partOriVert!=nullptr ) {
+            const xAOD::TruthParticle* theMother=partOriVert->incomingParticle(0);
+            if(!theMother) continue;
+
+            if(std::abs(theMother->pdgId()) == 2212){
+              mybeam = 1; break;
+            }
+            if(MC::PID::isTau(theMother->pdgId()) && theMother->status() == 2 ){
+              fromTau = 1; isHadTau =0;
+            }
+            if(isHadron(theMother) && theMother->status() == 2 ) {
+              fromhad = 1;
+              if(fromTau == 1){
+                isHadTau = 1;
+              }
+            }
+
+            if(MC::PID::isBSM(theMother->pdgId())){
+              fromBSM = 1;
+            }
+            thePart = theMother;
+          }
+          else{break;}
+        }
+      }
+    }
+    else{
+      uncat=1;
+    }
+    std::bitset<MCTC_bits::totalBits> status;
+
+    status[MCTC_bits::stable] = isStable;
+    status[MCTC_bits::isgeant] = isGeant;
+    status[MCTC_bits::isbsm] = isBSM;
+    status[MCTC_bits::uncat] = uncat;
+    status[MCTC_bits::frombsm] = fromBSM;
+    status[MCTC_bits::hadron] = fromhad;
+    status[MCTC_bits::Tau] = fromTau;
+    status[MCTC_bits::HadTau] = isHadTau;
+
+    outputvalue = static_cast<unsigned int>(status.to_ulong());
+  }
+  else {
+    std::bitset<MCTC_bits::totalBits> unclass;
+    unclass[MCTC_bits::stable] = isStable;
+
+    outputvalue = static_cast<unsigned int>(unclass.to_ulong());
+  }
+
+  return outputvalue;
+}
+
 //-------------------------------------------------------------------------------
 ParticleType
 MCTruthClassifier::defTypeOfElectron(ParticleOrigin EleOrig, bool isPrompt) const
@@ -2855,7 +2963,7 @@ MCTruthClassifier::findFinalStatePart(const xAOD::TruthVertex* EndVert) const
       if (pVert != nullptr) {
         vecPart = findFinalStatePart(pVert);
         if (!vecPart.empty())
-          for (auto i : vecPart)
+          for (const auto *i : vecPart)
             finalStatePart.push_back(i);
       }
     }
@@ -3005,7 +3113,7 @@ MCTruthClassifier::barcode_to_particle(const xAOD::TruthParticleContainer* Truth
   // temporary solution?
   const xAOD::TruthParticle* ptrPart = nullptr;
 
-  for (const auto truthParticle : *TruthTES) {
+  for (const auto *const truthParticle : *TruthTES) {
     if (truthParticle->barcode() == bc) {
       ptrPart = truthParticle;
       break;

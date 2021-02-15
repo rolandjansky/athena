@@ -53,7 +53,6 @@ LArRODMonTool::LArRODMonTool(const std::string& type,
     m_eventsCounter(0),
     m_histos(N_PARTITIONS),
     m_errcounters(N_PARTITIONS),
-    m_calo_noise_tool("CaloNoiseTool/CaloNoiseToolDefault"),
     m_BC(0),
     m_dumpDigits(false)
 
@@ -103,8 +102,6 @@ LArRODMonTool::LArRODMonTool(const std::string& type,
   
   declareProperty("OnlineHistorySize",m_history_size = 20);
   declareProperty("OnlineHistoryGranularity",m_history_granularity = 5);
-
-  declareProperty("NoiseTool",m_calo_noise_tool);
 
   declareProperty("TimeOFCUnitOnline",m_unit_online = 1);
   declareProperty("TimeOFCUnitOffline",m_unit_offline = 1);
@@ -186,11 +183,6 @@ LArRODMonTool::initialize() {
 
   ATH_CHECK(m_adc2mevKey.initialize());
 
-  sc = m_calo_noise_tool.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Unable to find calo noise tool" );
-    return StatusCode::FAILURE;
-  }
 
   ATH_CHECK(m_cablingKey.initialize());
 
@@ -715,6 +707,7 @@ StatusCode LArRODMonTool::fillHistograms() {
   SG::ReadCondHandle<LArADC2MeV> adc2MeVHdl{m_adc2mevKey};
   const LArADC2MeV* adc2mev=*adc2MeVHdl;
 
+
   if (m_doCheckSum || m_doRodStatus) {
     FebStatus_Check();
     ATH_MSG_DEBUG("Found " << m_ignoreFEBs.size() << " FEBs with checksum errors or statatus errors. Will ignore these FEBs.");
@@ -1024,14 +1017,17 @@ void LArRODMonTool::closeDumpfiles() {
   }
 }
 
-StatusCode LArRODMonTool::compareChannels(const CaloDetDescrManager* ddman,
-                                          const LArOnOffIdMapping* cabling,
+StatusCode LArRODMonTool::compareChannels(const CaloDetDescrManager* /*ddman*/,
+                                          const LArOnOffIdMapping* /*cabling*/,
                                           const ILArOFC* ofcs,
                                           const ILArShape* shapes,
                                           const ILArHVScaleCorr* hvScaleCorrs,
                                           const ILArPedestal* pedestals,
                                           const LArADC2MeV* adc2mev,
-                                          const HWIdentifier chid,const LArRawChannel& rcDig, const LArRawChannel& rcBS, const LArDigit* dig) {
+                                          const HWIdentifier chid,
+					  const LArRawChannel& rcDig, 
+					  const LArRawChannel& rcBS, 
+					  const LArDigit* dig) {
   ATH_MSG_DEBUG( " I am entering compareChannels method" );
 
   const int slot_fD = m_LArOnlineIDHelper->slot(chid);
@@ -1225,10 +1221,6 @@ StatusCode LArRODMonTool::compareChannels(const CaloDetDescrManager* ddman,
          if (q_gain == 0) ramp0 = 0.; // no ramp intercepts in HG
          const float ped = pedestals->pedestal(chid,rcDig.gain());
          ATH_MSG_INFO( "Escale: "<<escale<<" intercept: "<<ramp0<<" pedestal: "<<ped<<" gain: "<<rcDig.gain() );
-         const Identifier cellid=cabling->cnvToIdentifier(chid);
-         const CaloDetDescrElement* cellDDE = ddman->get_element(cellid); 
-         const float noise=m_calo_noise_tool->totalNoiseRMS(cellDDE,rcDig.gain(),20.);
-         ATH_MSG_INFO( "Noise for mu=20: "<<noise);
          ATH_MSG_INFO( "HVScaleCorr: "<<hvscale);
          double emon=0.;
 	 const unsigned nOFCSamp=std::min(samples.size(),this_OFC_a_test.size());

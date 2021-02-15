@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 def getTrackFastSimSD(name='TrackFastSimSD', **kwargs):
@@ -34,4 +34,4 @@ def getMuonEntryRecordSD(name="MuonEntryRecord", **kwargs):
     kwargs.setdefault("LogicalVolumeNames", ['MSEL'])
     kwargs.setdefault("SD_type", 1)
     kwargs.setdefault ('OutputCollectionNames', ['MuonEntryRecord'])
-    return getTrackRecorderSD(name, **kwargs)
+    return CfgMgr.TrackRecorderSDTool(name, **kwargs)

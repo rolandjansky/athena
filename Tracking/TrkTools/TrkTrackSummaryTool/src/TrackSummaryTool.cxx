@@ -66,8 +66,7 @@ StatusCode
 Trk::TrackSummaryTool::initialize(){
   ATH_CHECK( detStore()->retrieve(m_detID, "AtlasID" ));
   if (m_idTool.empty() && m_muonTool.empty()) {
-      ATH_MSG_ERROR ("Could get neither InDetHelperTool nor MuonHelperTool. Must abort.");
-      return StatusCode::FAILURE;
+      ATH_MSG_WARNING ("Could get neither InDetHelperTool nor MuonHelperTool.");
   }
   if (not m_idTool.empty()) ATH_CHECK(m_idTool.retrieve());
   if (not m_eProbabilityTool.empty()) ATH_CHECK(m_eProbabilityTool.retrieve());
@@ -198,7 +197,7 @@ Trk::TrackSummaryTool::fillSummary(const EventContext& ctx,
       };
       setTheseElements(information, atPixelIndices, toZero);
       if (track.info().trackFitter() != TrackInfo::Unknown && !m_dedxtool.empty()) {
-        dedx = m_dedxtool->dEdx(track, nHitsUsed_dEdx, nOverflowHits_dEdx);
+        dedx = m_dedxtool->dEdx(ctx,track, nHitsUsed_dEdx, nOverflowHits_dEdx);
       }
       information[Trk::numberOfDBMHits] = 0;
     }
@@ -290,11 +289,11 @@ Trk::TrackSummaryTool::fillSummary(const EventContext& ctx,
 
   // add detailed summary for indet
   if( m_addInDetDetailedSummary && !m_idTool.empty() ){
-    m_idTool->addDetailedTrackSummary(track,ts);
+    m_idTool->addDetailedTrackSummary(ctx,track,ts);
   }
   // add detailed summary for muons
   if( m_addMuonDetailedSummary && !m_muonTool.empty() ){
-    m_muonTool->addDetailedTrackSummary(track,ts);
+    m_muonTool->addDetailedTrackSummary(ctx,track,ts);
   }
 }
 
@@ -305,7 +304,9 @@ Trk::TrackSummaryTool::updateSharedHitCount(
   TrackSummary& summary) const
 {
   // first check if track has no summary - then it is recreated
-  m_idTool->updateSharedHitCount(track, prdToTrackMap, summary);
+  if (m_idTool){
+    m_idTool->updateSharedHitCount(track, prdToTrackMap, summary);
+  }
 }
 
 void
@@ -330,9 +331,13 @@ Trk::TrackSummaryTool::updateAdditionalInfo(const Track& track,
   if (track.info().trackFitter() != TrackInfo::Unknown && !m_dedxtool.empty()) {
     dedx = m_dedxtool->dEdx(track, nHitsUsed_dEdx, nOverflowHits_dEdx);
   }
-  m_idTool->updateAdditionalInfo(summary, eProbability,dedx, nHitsUsed_dEdx,nOverflowHits_dEdx);
-  m_idTool->updateExpectedHitInfo(track, summary);
-  if (m_addInDetDetailedSummary) m_idTool->addDetailedTrackSummary(track,summary);
+  if (m_idTool){
+    m_idTool->updateAdditionalInfo(summary, eProbability,dedx, nHitsUsed_dEdx,nOverflowHits_dEdx);
+    m_idTool->updateExpectedHitInfo(track, summary);
+    if (m_addInDetDetailedSummary) m_idTool->addDetailedTrackSummary(track,summary);
+  } else {
+    ATH_MSG_INFO("No updates attempted, as the SummaryHelperTool is not defined.");
+  }
 }
 
 /*

@@ -6,26 +6,25 @@
 # Jiri.Masik@cern.ch
 # -----------------------------------
 
-#retrieve common trigger settings (truth)
-from TriggerJobOpts.TriggerFlags import TriggerFlags
+include.block("InDetTrigRecExample/InDetTrigRec_jobOptions.py")
 
 from AthenaCommon.Logging import logging 
 log = logging.getLogger("InDetTrigRec_jobOptions.py")
 
-if not 'InDetTrigFlags' in dir():
-   # --- setup flags with default values
-   log.info("InDetTrigRec_jobOptions: InDetTrigFlags not set - setting to defaults")
-   from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-   InDetTrigFlags.doNewTracking.set_Value_and_Lock(True)
-   #InDetTrigFlags.InDet25nsec = True      #autoconfig and runHLT_standalone setting for BS 
-   InDetTrigFlags.primaryVertexSetup = "IterativeFinding"
-   #InDetTrigFlags.primaryVertexSetup = "DefaultFastFinding"
-   InDetTrigFlags.doRefit = True    # switched on for ATR-12226 (z0 uncertainties in bjets)
-   InDetTrigFlags.doPixelClusterSplitting = False
-   InDetTrigFlags.doPrintConfigurables = False    #
-   #InDetTrigFlags.doPrintConfigurables = True    #
+# --- setup flags with default values
+log.info("InDetTrigRec_jobOptions: InDetTrigFlags - setting to defaults")
+from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+InDetTrigFlags.doNewTracking.set_Value_and_Lock(True)
+InDetTrigFlags.cutLevel=12
+#InDetTrigFlags.InDet25nsec = True      #autoconfig and runHLT_standalone setting for BS 
+InDetTrigFlags.primaryVertexSetup = "IterativeFinding"
+InDetTrigFlags.doRefit = True    # switched on for ATR-12226 (z0 uncertainties in bjets)
+InDetTrigFlags.doPixelClusterSplitting = False
+InDetTrigFlags.doPrintConfigurables = False
+from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCuts  #noqa instantiate objects early on
 
 #moved the truth setting (can be overriden with set&lock)
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 InDetTrigFlags.doTruth = TriggerFlags.doTruth()
 
 InDetTrigFlags.init()
@@ -81,11 +80,4 @@ include ("InDetRecExample/InDetRecCabling.py")
 
 
 
-# ------------------------------------------------------------
-#
-# ----------- Loading the Tracking Tools and Services
-#
-# ------------------------------------------------------------
-#moved to python
-include ("InDetTrigRecExample/InDetTrigRecLoadTools.py")
 

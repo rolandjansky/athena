@@ -1,4 +1,5 @@
 #include "JetMonitoring/JetKinematicHistos.h"
+#include "JetMonitoring/JetSubStructureHistos.h"
 #include "JetMonitoring/JetAttributeHisto.h"
 #include "JetMonitoring/HistoDefinitionTool.h"
 #include "JetMonitoring/HistosForJetSelection.h"
@@ -30,6 +31,7 @@
 #include "../JetMonitoringTool.h"
 
 DECLARE_COMPONENT( JetKinematicHistos )
+DECLARE_COMPONENT( JetSubStructureHistos )
 DECLARE_COMPONENT( JetMonitoringTool )
 DECLARE_COMPONENT( HistoDefinitionTool )
 DECLARE_COMPONENT( HistosForJetSelection )

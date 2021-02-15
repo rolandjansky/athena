@@ -1,9 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-/*
- */
-// $Id$
 /**
  * @file StoreGate/ReadDecorHandleKey.icc
  * @author scott snyder <snyder@bnl.gov>
@@ -11,6 +8,9 @@
  * @brief Property holding a SG store/key/clid/attr name from which a
  *        ReadDecorHandle is made.
  */
+
+
+#include "StoreGate/tools/DecorKeyHelpers.h"
 
 
 namespace SG {
@@ -29,7 +29,8 @@ template <class T>
 inline
 ReadDecorHandleKey<T>::ReadDecorHandleKey (const std::string& key /*= ""*/,
                                            const std::string& storeName /*= StoreID::storeName(StoreID::EVENT_STORE)*/)
-  : Base (ClassID_traits<topbase_t>::ID(), key, storeName)
+  : Base (ClassID_traits<topbase_t>::ID(), key, storeName),
+    m_contHandleKey (contKeyFromKey (key), storeName)
 {
 }
 
@@ -55,11 +56,50 @@ ReadDecorHandleKey<T>::ReadDecorHandleKey( OWNER* owner,
                                            const std::string& name,
                                            const K& key /*={}*/,
                                            const std::string& doc /*=""*/)
-  : Base (ClassID_traits<topbase_t>::ID(), owner, name, key, doc)
+  : Base (ClassID_traits<topbase_t>::ID(), owner, name, key, doc),
+    m_contHandleKey (contKeyFromKey (key), StoreID::storeName(StoreID::EVENT_STORE) )
 {
 }
 
 
+/**
+ * @brief Change the key of the object to which we're referring.
+ * @param sgkey The StoreGate key for the object.
+ * 
+ * The provided key may actually start with the name of the store,
+ * separated by a "+":  "MyStore+Obj".  If no "+" is present,
+ * the store is not changed.
+ */
+template <class T>
+ReadDecorHandleKey<T>&
+ReadDecorHandleKey<T>::operator= (const std::string& sgkey)
+{
+  m_contHandleKey = contKeyFromKey (sgkey);
+  Base::operator= (sgkey);
+  return *this;
+}
+
+
+/**
+ * @brief Change the key of the object to which we're referring.
+ * @param sgkey The StoreGate key for the object.
+ * 
+ * The provided key may actually start with the name of the store,
+ * separated by a "+":  "MyStore+Obj".  If no "+" is present
+ * the store is not changed.  A key name that starts with a "+"
+ * is interpreted as a hierarchical key name, not an empty store name.
+ *
+ * Returns failure the key string format is bad.
+ */
+template <class T>
+StatusCode ReadDecorHandleKey<T>::assign (const std::string& sgkey)
+{
+  if (m_contHandleKey.assign (contKeyFromKey (sgkey)).isFailure())
+    return StatusCode::FAILURE;
+  return Base::assign (sgkey);
+}
+
+  
 /**
  * @brief Return the class ID for the referenced object.
  *
@@ -70,6 +110,33 @@ inline
 CLID ReadDecorHandleKey<T>::clid() const
 {
   return ClassID_traits<T>::ID();
+}
+
+
+/**
+ * @brief If this object is used as a property, then this should be called
+ *        during the initialize phase.  It will fail if the requested
+ *        StoreGate service cannot be found or if the key is blank.
+ *
+ * @param used If false, then this handle is not to be used.
+ *             Instead of normal initialization, the key will be cleared.
+ */
+template <class T>
+StatusCode ReadDecorHandleKey<T>::initialize (bool used /*= true*/)
+{
+  if (m_contHandleKey.initialize (used).isFailure())
+    return StatusCode::FAILURE;
+  return Base::initialize (used);
+}
+
+
+/**
+ * @brief Return the handle key for the container.
+ */
+template <class T>
+const ReadHandleKey<T>& ReadDecorHandleKey<T>::contHandleKey() const
+{
+  return m_contHandleKey;
 }
 
 

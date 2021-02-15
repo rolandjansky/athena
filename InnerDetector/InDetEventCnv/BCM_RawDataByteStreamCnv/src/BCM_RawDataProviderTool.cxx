@@ -70,7 +70,7 @@ StatusCode BCM_RawDataProviderTool::convert( std::vector<const OFFLINE_FRAGMENTS
 {
   if(vecRobs.size() == 0) return StatusCode::SUCCESS;
 
-  std::vector<const ROBFragment*>::const_iterator rob_it = vecRobs.begin();
+  std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>::const_iterator rob_it = vecRobs.begin();
 
   // loop over the ROB fragments
   for(; rob_it!=vecRobs.end(); ++rob_it) {

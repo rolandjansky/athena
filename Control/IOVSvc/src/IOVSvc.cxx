@@ -406,7 +406,7 @@ IOVSvc::getRange(const CLID& clid, const std::string& key,
 StatusCode 
 IOVSvc::getRangeFromDB(const CLID& clid, const std::string& key, 
                        IOVRange& range, std::string& tag,
-                       std::unique_ptr<IOpaqueAddress>& ioa) const { 
+                       std::unique_ptr<IOpaqueAddress>& ioa) const {
 
   std::lock_guard<std::recursive_mutex> lock(m_lock);
 
@@ -416,7 +416,19 @@ IOVSvc::getRangeFromDB(const CLID& clid, const std::string& key,
                    << fullProxyName(clid,key) << " not registered"  );
     return StatusCode::FAILURE;
   } else {
-    return ist->getRangeFromDB( clid, key, range, tag, ioa );
+    
+    //Get current time form thread-local context
+    const EventContext& context = Gaudi::Hive::currentContext();
+    const EventIDBase& eventID = context.eventID();
+    uint32_t event = eventID.lumi_block();
+    uint32_t run   = eventID.run_number();
+    IOVTime curTime;
+    curTime.setRunEvent(run,event);
+    // get ns timestamp from event
+    curTime.setTimestamp(1000000000L*(uint64_t)eventID.time_stamp() + eventID.time_stamp_ns_offset());
+
+
+    return ist->getRangeFromDB( clid, key, range, tag, ioa, curTime );
   }
 
 }
@@ -855,7 +867,7 @@ IOVSvc::createCondObj(CondContBase* ccb, const DataObjID& id,
   // In that case, when we delete the address, it will
   // follow an invalid pointer.  So be sure to delete
   // the address before the object is added to CondCont.
-  ioa.release();
+  ioa.reset();
 
   // DataObject *d2 = static_cast<DataObject*>(v);
   

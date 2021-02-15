@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+    Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -37,9 +37,10 @@ class jTowerBuilder: public AthAlgTool, virtual public IjTowerBuilder {
   virtual void BuildTRANSjTowers(std::unique_ptr<jTowerContainer> & jTowerContainerRaw) const override ;
   virtual void BuildEMEjTowers(std::unique_ptr<jTowerContainer> & jTowerContainerRaw) const override ;
   virtual void BuildEMIEjTowers(std::unique_ptr<jTowerContainer> & jTowerContainerRaw) const override ;
+  virtual void BuildFCALjTowers(std::unique_ptr<jTowerContainer> & jTowerContainerRaw) const override ;
   virtual void BuildHECjTowers(std::unique_ptr<jTowerContainer> & jTowerContainerRaw) const override ;
   virtual void BuildAllTowers(std::unique_ptr<jTowerContainer> & jTowerContainerRaw) const override ;
-  virtual void BuildSingleTower(std::unique_ptr<jTowerContainer> & jTowerContainerRawRaw,float eta, float phi, float keybase, int posneg) const override ;
+  virtual void BuildSingleTower(std::unique_ptr<jTowerContainer> & jTowerContainerRawRaw,float eta, float phi, float keybase, int posneg, float centre_eta = 0.0, float centre_phi = 0.0, int fcal_layer = -1) const override ;
 
 };
 

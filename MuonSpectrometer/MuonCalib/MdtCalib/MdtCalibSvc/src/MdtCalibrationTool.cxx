@@ -59,10 +59,10 @@ public:
   double m_inverseSpeedOfLight;      // in ns/mm
   double m_inversePropagationSpeed;  // in ns/mm
 
-  /* T0 Shift Service -- Per-tube offsets of t0 value */
-  ServiceHandle<MuonCalib::IShiftMapTools> m_t0ShiftSvc;
-  /* TMax Shift Service -- Per-tube offsets of Tmax */
-  ServiceHandle<MuonCalib::IShiftMapTools> m_tMaxShiftSvc;
+  /* T0 Shift tool -- Per-tube offsets of t0 value */
+  ToolHandle<MuonCalib::IShiftMapTools> m_t0ShiftTool;
+  /* TMax Shift tool -- Per-tube offsets of Tmax */
+  ToolHandle<MuonCalib::IShiftMapTools> m_tMaxShiftTool;
 
   // tools should only be retrieved if they are used
   bool m_doT0Shift;
@@ -76,24 +76,24 @@ public:
 
 };
 
-MdtCalibrationTool::Imp::Imp(std::string name) :
+MdtCalibrationTool::Imp::Imp(std::string ) :
   m_muonGeoManager(nullptr),
   m_inverseSpeedOfLight(1./Gaudi::Units::c_light),
   m_inversePropagationSpeed(m_inverseSpeedOfLight/0.85),
-  m_t0ShiftSvc("MdtCalibrationT0ShiftSvc", name),
-  m_tMaxShiftSvc("MdtCalibrationTMaxShiftSvc", name),
+  m_t0ShiftTool("MdtCalibrationT0ShiftTool"),
+  m_tMaxShiftTool("MdtCalibrationTMaxShiftTool"),
   m_doT0Shift(false),
   m_doTMaxShift(false),
   m_unphysicalHitRadiusUpperBound(-1.),
   m_unphysicalHitRadiusLowerBound(-1.),
   m_resTwin(-1.),
   m_BMGpresent(false),
-  m_BMGid(-1)
-{}
+  m_BMGid(-1) {
+}
 
 
-MdtCalibrationTool::MdtCalibrationTool(const std::string& type, const std::string &name, const IInterface* parent)
-  : base_class(type, name, parent)
+MdtCalibrationTool::MdtCalibrationTool(const std::string& type, const std::string &name, const IInterface* parent) : base_class(type, name, parent),
+  m_hasBISsMDT(false)
 {
   m_imp.reset(new MdtCalibrationTool::Imp(name));
   // settable properties
@@ -134,12 +134,17 @@ StatusCode MdtCalibrationTool::initialize() {
     ATH_MSG_INFO("Processing configuration for layouts with BMG chambers.");
     m_imp->m_BMGid = m_idHelperSvc->mdtIdHelper().stationNameIndex("BMG");
   }
+
+  int bisIndex=m_idHelperSvc->mdtIdHelper().stationNameIndex("BIS");
+  Identifier bis7Id = m_idHelperSvc->mdtIdHelper().elementID(bisIndex, 7, 1);
+  if (m_idHelperSvc->issMdt(bis7Id)) m_hasBISsMDT=true;
+
   // initialise MuonGeoModel access
   ATH_CHECK(detStore()->retrieve( m_imp->m_muonGeoManager ));
 
-  if (m_imp->m_doT0Shift) ATH_CHECK( m_imp->m_t0ShiftSvc.retrieve() );
+  if (m_imp->m_doT0Shift) ATH_CHECK( m_imp->m_t0ShiftTool.retrieve() );
 
-  if (m_imp->m_doTMaxShift) ATH_CHECK ( m_imp->m_tMaxShiftSvc.retrieve() );
+  if (m_imp->m_doTMaxShift) ATH_CHECK ( m_imp->m_tMaxShiftTool.retrieve() );
 
   ATH_MSG_DEBUG("Settings:");
   ATH_MSG_DEBUG("  Time window: lower bound " << m_imp->settings.timeWindowLowerBound()
@@ -256,11 +261,17 @@ bool MdtCalibrationTool::driftRadiusFromTime( MdtCalibHit &hit,
     }
 
     // get t0 shift from tool (default: no shift, value is zero)
-    if (m_imp->m_doT0Shift) t0 += m_imp->m_t0ShiftSvc->getValue(id);
+    if (m_imp->m_doT0Shift) t0 += m_imp->m_t0ShiftTool->getValue(id);
   } else {
-    ATH_MSG_WARNING("MdtTubeCalibContainer not found for "
-		      << m_idHelperSvc->mdtIdHelper().print_to_string( id ));
-    ATH_MSG_WARNING( "Tube cannot be calibrated!!!" );
+    if (m_hasBISsMDT) {
+      static std::atomic<bool> bisWarningPrinted = false;
+      if (!bisWarningPrinted) {
+        ATH_MSG_WARNING("MdtTubeCalibContainer not found for " << m_idHelperSvc->mdtIdHelper().print_to_string( id ) << " - Tube cannot be calibrated, cf. ATLASRECTS-5819");
+        bisWarningPrinted.store(true, std::memory_order_relaxed);
+      }
+    } else {
+      ATH_MSG_WARNING("MdtTubeCalibContainer not found for " << m_idHelperSvc->mdtIdHelper().print_to_string( id ) << " - Tube cannot be calibrated!");
+    }
     return false;
   }
 
@@ -328,7 +339,7 @@ bool MdtCalibrationTool::driftRadiusFromTime( MdtCalibHit &hit,
 
     // apply tUpper gshift
     if (m_imp->m_doTMaxShift) {
-      float tShift = m_imp->m_tMaxShiftSvc->getValue(id);
+      float tShift = m_imp->m_tMaxShiftTool->getValue(id);
       r = rtRelation->rt()->radius( t * (1 + tShift) );
     }
 
@@ -480,7 +491,7 @@ bool MdtCalibrationTool::twinPositionFromTwinHits( MdtCalibHit &hit,
   } else {
     ATH_MSG_WARNING( "MdtTubeCalibContainer not found for "
 		     << m_idHelperSvc->mdtIdHelper().print_to_string( id ) );
-    ATH_MSG_WARNING( "Tube cannot be calibrated!!!" );
+    ATH_MSG_WARNING( "Tube cannot be calibrated!!" );
     return false;
   }
 

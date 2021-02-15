@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
 ## Name:        Single Muon Skimmer
@@ -19,10 +19,6 @@ __author__  = "David Lopez Mateos <David.Lopez@cern.ch>"
 
 import AthenaPython.PyAthena as PyAthena
 from AthenaPython.PyAthena import StatusCode
-from PrimaryDPDMaker import PrimaryDPDHelpers
-
-## Import the module that allows to use named units, e.g. GeV
-import AthenaCommon.SystemOfUnits as Units
 
 class MuonSegmentFilter( PyAthena.AthFilterAlgorithm ):
     """
@@ -74,31 +70,30 @@ class MuonSegmentFilter( PyAthena.AthFilterAlgorithm ):
 
     def execute(self):
         self.nProcessed+=1
-        self.msg.debug( '==> execute %s on %r. event...' % (self.name(), self.nProcessed) )
+        self.msg.debug( '==> execute %s on %r. event...', self.name(), self.nProcessed )
         
         ## If passAll is selected, accept all events
         if self.passAll :
-            self.msg.debug( '%s event passed because passAll is true' % self.name() )
+            self.msg.debug( '%s event passed because passAll is true', self.name() )
             self.setFilterPassed(True)
             return StatusCode.Success
 
-        jetCollection = None
         _retrieve = self.sgSvc.retrieve
 
         try :
             muSegCollection = _retrieve (self.muonSegmentContainerType, self.muonSegmentContainerName)            
         except LookupError :
-            self.msg.warning('%s container not found in StoreGate ' % self.muonSegmentContainerName)
+            self.msg.warning('%s container not found in StoreGate ', self.muonSegmentContainerName)
    
         ## Check if the event is accepted
         if muSegCollection.__len__() >=  self.minNumberSegments and \
              muSegCollection.__len__()<=  self.maxNumberSegments  :
             self.nEventPassed += 1
-            self.msg.debug( '%s event passed' % self.name() )
+            self.msg.debug( '%s event passed', self.name() )
             self.setFilterPassed(True)
             pass
         else :
-            self.msg.debug( '%s event failed' % self.name() )
+            self.msg.debug( '%s event failed', self.name() )
             self.setFilterPassed(False)
             pass
 
@@ -124,12 +119,12 @@ class MuonSegmentFilter( PyAthena.AthFilterAlgorithm ):
             pass
 
         
-        self.msg.info( '==> finalize %s...' % self.name() )
+        self.msg.info( '==> finalize %s...', self.name() )
         self.msg.info( '***************************************************************' )
-        self.msg.info( 'Cut-flow table of %s skimming algorithm:' % self.name() )
+        self.msg.info( 'Cut-flow table of %s skimming algorithm:', self.name() )
         self.msg.info( '-------------' )
-        self.msg.info( ' Number of processed events: %r' % self.nProcessed )
-        self.msg.info( ' Events after numberPassed %r and resulting efficiency = (%3.3f +/- %3.3f)%%' % ( self.nEventPassed, effiNumPassed, effiErrNumPassed ) )
+        self.msg.info( ' Number of processed events: %r', self.nProcessed )
+        self.msg.info( ' Events after numberPassed %r and resulting efficiency = (%3.3f +/- %3.3f)%%', self.nEventPassed, effiNumPassed, effiErrNumPassed )
         self.msg.info( '***************************************************************' )
 
         return StatusCode.Success

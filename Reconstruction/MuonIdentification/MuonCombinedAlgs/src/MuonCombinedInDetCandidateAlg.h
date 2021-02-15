@@ -25,13 +25,10 @@ class MuonCombinedInDetCandidateAlg : public AthReentrantAlgorithm {
     StatusCode execute(const EventContext& ctx) const;
 
   private:
-    bool m_doSiliconForwardMuons;
 
-    float m_extThreshold;
-
-    SG::ReadHandleKeyArray<xAOD::TrackParticleContainer> m_indetTrackParticleLocation;
-    SG::ReadHandleKey<xAOD::TrackParticleContainer>      m_indetForwardTrackParticleLocation;
-    SG::WriteHandleKey<InDetCandidateCollection>         m_candidateCollectionName;
+    SG::ReadHandleKeyArray<xAOD::TrackParticleContainer> m_indetTrackParticleLocation{this,"TrackParticleLocation",{"InDetTrackParticles"}};
+    SG::ReadHandleKey<xAOD::TrackParticleContainer>      m_indetForwardTrackParticleLocation{this,"ForwardParticleLocation","InDetForwardTrackParticles"};
+    SG::WriteHandleKey<InDetCandidateCollection>         m_candidateCollectionName{this,"InDetCandidateLocation","InDetCandidates"};
     ToolHandle<Trk::ITrackSelectorTool>                  m_trackSelector{
         this, "TrackSelector", "InDet::InDetDetailedTrackSelectorTool/MuonCombinedInDetDetailedTrackSelectorTool",
         "Track selector tool"};
@@ -56,6 +53,10 @@ class MuonCombinedInDetCandidateAlg : public AthReentrantAlgorithm {
     void printTrackParticleInfo(const xAOD::TrackParticle* const tp, const std::string& what) const;
 
     int getCount(const xAOD::TrackParticle& tp, xAOD::SummaryType type) const;
+
+    Gaudi::Property<bool> m_doSiliconForwardMuons {this,"DoSiliconAssocForwardMuons",false};
+
+    Gaudi::Property<float> m_extThreshold {this,"ExtensionPtThreshold",2500};
 };
 
 

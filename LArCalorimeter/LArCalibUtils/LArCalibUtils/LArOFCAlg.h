@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LArOFCAlgorithm_H
@@ -15,7 +15,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "LArElecCalib/ILArAutoCorrDecoderTool.h"
 
-//#include "LArElecCalib/ILArPedestal.h"
 #include "CaloIdentifier/CaloGain.h"
 #include "LArRawConditions/LArCaliWaveContainer.h"
 #include "LArRawConditions/LArPhysWaveContainer.h"
@@ -37,8 +36,6 @@ class LArOnlineID_Base;
 class CaloDetDescrManager_Base; 
 class LArDSPConfig;
 
-#include "GaudiKernel/ToolHandle.h"
-
 class LArOFCAlg:public AthAlgorithm {
  
 public:
@@ -48,12 +45,11 @@ public:
   StatusCode execute() {return StatusCode::SUCCESS;}
   virtual StatusCode stop();
   StatusCode finalize(){return StatusCode::SUCCESS;}
-  //  Eigen::VectorXd  getAmpCoef();
-  //Eigen::VectorXd  getATauCoef();
 
 private:
 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKeySC{this,"ScCablingKey","LArOnOffIdMapSC","SG Key of SC LArOnOffIdMapping object"};
 
   struct perChannelData_t {
     //Input:
@@ -172,7 +168,6 @@ private:
   public:
     Looper(std::vector<perChannelData_t>* p, const LArOnOffIdMapping* cabling, const LArOFCAlg* a) : m_perChanData(p), m_cabling(cabling), m_ofcAlg(a) {};
     void operator() (tbb::blocked_range<size_t>& r) const {
-      //std::cout << "TBB grainsize " << r.end() - r.begin() << std::endl;
       for (size_t i=r.begin();i!=r.end();++i) {
 	m_ofcAlg->process(m_perChanData->at(i),m_cabling);
       }

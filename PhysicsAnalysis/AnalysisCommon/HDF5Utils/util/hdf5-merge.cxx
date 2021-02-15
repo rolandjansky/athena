@@ -1,10 +1,21 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "H5Cpp.h"
 #include <HDF5Utils/DefaultMerger.h>
+
+// Suppress a warning from boost.
+// (Binaries apparently include boost with -I rather than -isystem.)
+#ifdef __clang__
+# pragma clang diagnostic push
+# pragma clang diagnostic ignored "-Wc11-extensions"
+#endif
 #include <boost/program_options.hpp>
+#ifdef __clang__
+# pragma clang diagnostic pop
+#endif
+
 #include <boost/algorithm/string/split.hpp> 
 #include <boost/algorithm/string/trim.hpp> 
 #include <iostream>

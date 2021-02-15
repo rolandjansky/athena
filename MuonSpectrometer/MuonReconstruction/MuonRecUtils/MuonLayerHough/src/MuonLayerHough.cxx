@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonLayerHough/MuonLayerHough.h"
@@ -13,6 +13,17 @@
 #include <iostream>
 #include <stdlib.h>
 
+
+namespace {
+    // Avoid floating point exceptions arising from cases of x = 0 or x = PI 
+    // by extending the inverse tan function towards a large number
+    // Avoid FPEs occuring in clang 10 , e.g.,
+    // FPEAuditor  2   1 WARNING FPE OVERFLOW in [Execute] of [MuGirlStauAlg] on event 257948896 0 0
+    // by large number
+    float invtan(const float x){
+        return x == 0 || x == M_PI ? 1.e12 : 1./ std::tan(x);
+    }
+}
 namespace MuonHough {
 
   MuonLayerHough::MuonLayerHough(  const RegionDescriptor& descriptor ) : 
@@ -29,16 +40,12 @@ namespace MuonHough {
     
     // setup the histograms; determines the number of theta slices
     m_histos.reserve(m_descriptor.nthetaSamples);//it contains all the theta layers
-    for( unsigned int i=0;i<m_descriptor.nthetaSamples;++i ) m_histos.push_back(new unsigned int[m_nbins]);
+    for( unsigned int i=0;i<m_descriptor.nthetaSamples;++i ) m_histos.emplace_back(new unsigned int[m_nbins]);
     reset();
   }
-
-  MuonLayerHough::~MuonLayerHough() {
-    for( unsigned int i=0;i<m_histos.size();++i ) delete[] m_histos[i];
-  }
-
+  
   void MuonLayerHough::reset() {
-    for( unsigned int i=0;i<m_histos.size();++i ) memset( m_histos[i], 0, sizeof(unsigned int)*m_nbins );  
+    for( unsigned int i=0;i<m_histos.size();++i ) memset( m_histos[i].get(), 0, sizeof(unsigned int)*m_nbins );  
     max = 0;
     maxhist = -1;
     maxbin = -1;
@@ -50,10 +57,10 @@ namespace MuonHough {
     for( int ci=0;ci<cycles;++ci ){
       float dtheta = m_descriptor.thetaStep;
       float dthetaOffset = 2*m_descriptor.thetaStep*(ci-(cycles-1)/2.);
-      float theta = atan2(x,y);
-      float zref = (m_descriptor.referencePosition-x)/tan(theta-dthetaOffset)+y;
-      float z0 = (m_descriptor.referencePosition-x)/tan(theta-dthetaOffset+dtheta)+y;
-      float z1 = (m_descriptor.referencePosition-x)/tan(theta-dthetaOffset-dtheta)+y;
+      float theta = std::atan2(x,y);
+      float zref = (m_descriptor.referencePosition-x)*invtan(theta-dthetaOffset)+y;
+      float z0 = (m_descriptor.referencePosition-x)*invtan(theta-dthetaOffset+dtheta)+y;
+      float z1 = (m_descriptor.referencePosition-x)*invtan(theta-dthetaOffset-dtheta)+y;
 
       float zmin = z0<z1?z0:z1;
       float zmax = z0<z1?z1:z0;
@@ -293,7 +300,7 @@ namespace MuonHough {
     const int cycles = m_histos.size();
     // loop over histograms and find maximum
     for( int ci=0;ci<cycles;++ci ){
-      const float scale = 1. - 0.01*fabs(ci-cycles/2.0); // small deweighting of non pointing bins; weighting more on the central part
+      const float scale = 1. - 0.01*std::abs(ci-cycles/2.0); // small deweighting of non pointing bins; weighting more on the central part
       for( int n=0;n<m_nbins;++n ) {
         const int val = m_histos[ci][n];
         if( val < imaxval ) continue;
@@ -312,7 +319,7 @@ namespace MuonHough {
 
     maximum.max   = tmax*0.001;
     maximum.pos   = candidatePos;
-    maximum.theta = -m_descriptor.thetaStep*(thetab-(m_histos.size()-1)*0.5) + atan2(m_descriptor.referencePosition,maximum.pos);    
+    maximum.theta = -m_descriptor.thetaStep*(thetab-(m_histos.size()-1)*0.5) + std::atan2(m_descriptor.referencePosition,maximum.pos);    
     maximum.refpos   = m_descriptor.referencePosition;
     maximum.refregion = m_descriptor.region;
     maximum.refchIndex = m_descriptor.chIndex;
@@ -380,9 +387,9 @@ namespace MuonHough {
       int relbin = ci-(cycles-1)/2;
       float dtheta = m_descriptor.thetaStep;
       float dthetaOffset = 2*m_descriptor.thetaStep*(relbin);//if bintheta = cycles, this is the same as dtheta * (cycles + 1 )
-      float theta = atan2(x,y);
-      float z0 = (m_descriptor.referencePosition-x)/tan(theta-dthetaOffset+dtheta)+y;//move the angle by a step, recalculate the new y value
-      float z1 = (m_descriptor.referencePosition-x)/tan(theta-dthetaOffset-dtheta)+y;
+      float theta = std::atan2(x,y);
+      float z0 = (m_descriptor.referencePosition-x)*invtan(theta-dthetaOffset+dtheta)+y;//move the angle by a step, recalculate the new y value
+      float z1 = (m_descriptor.referencePosition-x)*invtan(theta-dthetaOffset-dtheta)+y;
       
       float zmin = z0<z1?z0:z1;
       float zmax = z0<z1?z1:z0;
@@ -472,15 +479,15 @@ namespace MuonHough {
     if (dtheta<=0) throw std::runtime_error(Form("File: %s, Line: %d\nMuonLayerHough::range() - dtheta is not positive (%.4f)", __FILE__, __LINE__, dtheta));
     float dthetaOffset = 2*dtheta*(bintheta-(cycles-1)/2.);
     
-    float theta1 = atan2(x,y1)-dthetaOffset;
-    float z01 = dx/tan(theta1+dtheta)+y1;
-    float z11 = dx/tan(theta1-dtheta)+y1;
+    float theta1 = std::atan2(x,y1)-dthetaOffset;
+    float z01 = dx*invtan(theta1+dtheta)+y1;
+    float z11 = dx*invtan(theta1-dtheta)+y1;
     float zmin1 = std::min(z01,z11);
     float zmax1 = std::max(z01,z11);
     
-    float theta2 = atan2(x,y2)-dthetaOffset;
-    float z02 = dx/tan(theta2+dtheta)+y2;
-    float z12 = dx/tan(theta2-dtheta)+y2;
+    float theta2 = std::atan2(x,y2)-dthetaOffset;    
+    float z02 = dx*invtan(theta2+dtheta)+y2;
+    float z12 = dx*invtan(theta2-dtheta)+y2;
     float zmin2 = std::min(z02,z12);
     float zmax2 = std::max(z02,z12);
     
@@ -508,8 +515,8 @@ namespace MuonHough {
     else{//do parabolic
       float expected = 0;
       float extrapolated_diff = 9999;
-      float tan_theta_ref = tan(theta_ref);
-      float invtan_theta_ref = 1./tan(theta_ref);
+      float tan_theta_ref = std::tan(theta_ref);
+      float invtan_theta_ref = 1.*invtan(theta_ref);
       float r_start = ref.hough->m_descriptor.chIndex%2 > 0? 4900.:5200.; //start of barrel B field; values could be further optimized; 5500.:6500.
       float z_start = 8500.; //start of endcap B field; used to be 6500; should start at 8500
       float z_end   = 12500.;  //end of endcap B field; used to be 12000; should end at 12500

@@ -166,7 +166,8 @@ void convert (std::ostream& os, const std::vector<T>& x)
 {
   os << "[";
   bool first = true;
-  for (const T& elt : x) {
+  // using `decltype(auto)` in case T=bool
+  for (decltype(auto) elt : x) {
     if (first)
       first = false;
     else

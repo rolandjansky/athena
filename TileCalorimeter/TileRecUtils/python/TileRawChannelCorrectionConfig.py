@@ -101,9 +101,11 @@ def TileTimeBCOffsetFilterCfg(flags, **kwargs):
 
     acc = ComponentAccumulator()
     kwargs.setdefault('CheckDCS', flags.Tile.useDCS)
-    kwargs.setdefault('EneThreshold3', 3000)
-    kwargs.setdefault('EneThreshold1', 4000)
+    kwargs.setdefault('EneThreshold3', 1000)
+    kwargs.setdefault('EneThreshold1', 3000)
     kwargs.setdefault('TimeThreshold', 15)
+    kwargs.setdefault('RefEneThreshold', 500)
+    kwargs.setdefault('RefTimeThreshold', 10)
 
     from TileRecUtils.TileDQstatusConfig import TileDQstatusAlgCfg
     acc.merge( TileDQstatusAlgCfg(flags) )

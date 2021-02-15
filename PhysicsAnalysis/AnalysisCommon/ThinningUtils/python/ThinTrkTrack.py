@@ -1,10 +1,7 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
-from __future__ import print_function
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from RecExConfig.Configured import Configured
 from AthenaCommon.Logging import logging
-from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 
 class ThinTrkTrack(Configured):    
     def configure(self):
@@ -28,8 +25,6 @@ class ThinTrkTrack(Configured):
                 GSFTrackKey="GSFTracks",
                 StreamName='StreamAOD')
             
-            from AthenaCommon.Constants import VERBOSE, DEBUG, INFO, ERROR           
-            #theTrkTrackThinner.OutputLevel=DEBUG            
             print (theTrkTrackThinner)
 
         except Exception:

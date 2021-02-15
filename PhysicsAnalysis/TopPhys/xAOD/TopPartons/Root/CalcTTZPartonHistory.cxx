@@ -75,7 +75,7 @@ namespace top {
     // (PDG ID 23). Only consider Z bosons at the end of the chain
     // of radiative corrections (i.e. a Z boson decaying into
     // something else than a Z).
-    for (const auto& p : *truthParticles) {
+    for (const auto *p : *truthParticles) {
       if (!p->isZ()) continue;
       if (PartonHistoryUtils::hasParticleIdenticalParent(p)) continue;
 
@@ -108,7 +108,7 @@ namespace top {
     // For off-shell Z bosons it's a bit more tricky. We now look
     // for two same-flavour particles that are attached to the
     // ttbar vertex.
-    for (const auto& p : *truthParticles) {
+    for (const auto *p : *truthParticles) {
       if (abs(p->pdgId()) > 19) continue;                                            // Only elementary fermions
       if (p->pdgId() < 0) continue;                                            // No anti-particles (to avoid
                                                                                // double-counting)

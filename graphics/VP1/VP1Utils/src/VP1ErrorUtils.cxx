@@ -33,13 +33,8 @@
 #include <Inventor/nodes/SoVertexProperty.h>
 #include <Inventor/nodes/SoCylinder.h>
 #include <Inventor/nodes/SoComplexity.h>
-#include <Inventor/nodes/SoVertexProperty.h>
-#include <Inventor/nodes/SoLineSet.h>
 #include <Inventor/nodes/SoDrawStyle.h>
 #include "VP1HEPVis/nodes/SoGenericBox.h"
-
-//#include "TrkParameters/AtaStraightLine.h"
-//#include "TrkParameters/Perigee.h"
 
 #include "TrkSurfaces/Surface.h"
 #include "TrkSurfaces/RectangleBounds.h"

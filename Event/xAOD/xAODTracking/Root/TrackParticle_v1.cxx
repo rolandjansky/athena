@@ -61,10 +61,10 @@ namespace xAOD {
        makePrivateStore();
     }
     this->IParticle::operator=( tp );
-#ifndef XAOD_STANDALONE
+#ifndef XAOD_ANALYSIS
     // assume that this copy will create new cache as needed
     m_perigeeParameters.reset();
-#endif // not XAOD_STANDALONE
+#endif // not XAOD_ANALYSIS
     return *this;
   }
 
@@ -149,12 +149,12 @@ namespace xAOD {
   }
 
   void TrackParticle_v1::setDefiningParameters(float d0, float z0, float phi0, float theta, float qOverP) {
-#ifndef XAOD_STANDALONE
+#ifndef XAOD_ANALYSIS
     // reset perigee cache if existing
     if(m_perigeeParameters.isValid()) {
       m_perigeeParameters.reset();
     }
-#endif // not XAOD_STANDALONE
+#endif // not XAOD_ANALYSIS
     static const Accessor< float > acc1( "d0" );
     acc1( *this ) = d0;
 
@@ -180,12 +180,12 @@ namespace xAOD {
 
   void TrackParticle_v1::setDefiningParametersCovMatrix(const xAOD::ParametersCovMatrix_t& cov){
 
-#ifndef XAOD_STANDALONE
+#ifndef XAOD_ANALYSIS
     // reset perigee cache if existing
     if(m_perigeeParameters.isValid()) {
       m_perigeeParameters.reset();
     }
-#endif // not XAOD_STANDALONE
+#endif // not XAOD_ANALYSIS
 
     // Extract the diagonal elements from the matrix.
     std::vector< float > diagVec;
@@ -248,7 +248,8 @@ namespace xAOD {
 	std::size_t vecIndex = 0;
 	for( int i = 1; i < cov.rows(); ++i ) {
 	  for( int j = 0; j < i; ++j, ++vecIndex ) {
-	    cov.fillSymmetric( i, j, offDiagVec[ vecIndex ]*sqrt(cov(i,i)*cov(j,j)) );
+	    float offDiagCoeff = cov(i,i)>0 && cov(j,j)>0 ? offDiagVec[vecIndex]*sqrt(cov(i,i)*cov(j,j)) : 0;
+	    cov.fillSymmetric( i, j, offDiagCoeff );
 	  }
 	}
       }
@@ -264,18 +265,16 @@ namespace xAOD {
 	// Access the "raw" variable.
 	const std::vector< float >& offDiagVec = accCovMatrixOffDiag( *this );
 	// Set the off-diagonal elements using the raw variable.
-	cov.fillSymmetric( d0_index, phi_index,
-			   offDiagVec[d0_phi_index]*sqrt(cov(d0_index,d0_index)*cov(phi_index,phi_index)) );
-	cov.fillSymmetric( z0_index, th_index,
-			   offDiagVec[z0_th_index]*sqrt(cov(z0_index,z0_index)*cov(th_index,th_index)) );
-	cov.fillSymmetric( d0_index, qp_index,
-			   offDiagVec[d0_qp_index]*sqrt(cov(d0_index,d0_index)*cov(qp_index,qp_index)) );
-	cov.fillSymmetric( z0_index, qp_index,
-			   offDiagVec[z0_qp_index]*sqrt(cov(z0_index,z0_index)*cov(qp_index,qp_index)) );
-	cov.fillSymmetric( phi_index, qp_index,
-			   offDiagVec[phi_qp_index]*sqrt(cov(phi_index,phi_index)*cov(qp_index,qp_index)) );
-	cov.fillSymmetric( th_index, qp_index,
-			   offDiagVec[th_qp_index]*sqrt(cov(th_index,th_index)*cov(qp_index,qp_index)) );
+
+	const covMatrixIndexPairVec& vecPairIndex = covMatrixComprIndexPairs();
+
+	for(unsigned int k=0; k<COVMATRIX_OFFDIAG_VEC_COMPR_SIZE; ++k){
+	  std::pair<covMatrixIndex,covMatrixIndex> pairIndex = vecPairIndex[k];
+	  covMatrixIndex i = pairIndex.first;
+	  covMatrixIndex j = pairIndex.second;
+	  float offDiagCoeff = cov(i,i)>0 && cov(j,j)>0 ? offDiagVec[k]*sqrt(cov(i,i)*cov(j,j)) : 0;
+	  cov.fillSymmetric( i, j, offDiagCoeff );
+	}
 
       }
 
@@ -325,12 +324,13 @@ namespace xAOD {
       if( accCovMatrixOffDiag.isAvailable( *this ) &&
 	  ( static_cast< int >( accCovMatrixOffDiag( *this ).size() ) == COVMATRIX_OFFDIAG_VEC_COMPR_SIZE ) ){
 
-	result.fillSymmetric( d0_index, phi_index, true );
-	result.fillSymmetric( z0_index, th_index, true );
-	result.fillSymmetric( d0_index, qp_index, true );
-	result.fillSymmetric( z0_index, qp_index, true );
-	result.fillSymmetric( phi_index, qp_index, true );
-	result.fillSymmetric( th_index, qp_index, true );
+	const covMatrixIndexPairVec& vecPairIndex = covMatrixComprIndexPairs();
+
+	for(const auto& pairIndex : vecPairIndex){
+	  covMatrixIndex i = pairIndex.first;
+	  covMatrixIndex j = pairIndex.second;
+	  result.fillSymmetric( i, j, true );
+	}
 
       }
 
@@ -353,16 +353,20 @@ namespace xAOD {
   std::vector<float> TrackParticle_v1::definingParametersCovMatrixVec() const {
 
     std::vector< float > vec;
-    AmgSymMatrix(5)* cov = new AmgSymMatrix(5)(definingParametersCovMatrix());
-    Amg::compress(*cov,vec);
+    const AmgSymMatrix(5) cov = definingParametersCovMatrix();
+    Amg::compress(cov,vec);
     return vec;
 
   }
 
   void TrackParticle_v1::setDefiningParametersCovMatrixDiagVec( const std::vector< float >& vec ) {
 
-    if( vec.size() != ParametersCovMatrix_t::RowsAtCompileTime ){
-      throw std::runtime_error("Setting track definingParametersCovMatrixDiag with vector of size "+std::to_string(vec.size())+" instead of expected "+std::to_string(ParametersCovMatrix_t::RowsAtCompileTime)+" is not supported");
+    if (vec.size() != ParametersCovMatrix_t::RowsAtCompileTime) {
+      throw std::runtime_error(
+        "Setting track definingParametersCovMatrixDiag with vector of size " +
+        std::to_string(vec.size()) + " instead of expected " +
+        std::to_string(ParametersCovMatrix_t::RowsAtCompileTime) +
+        " is not supported");
     }
 
     accCovMatrixDiag( *this ) = vec;
@@ -398,12 +402,15 @@ namespace xAOD {
     std::vector< float > offDiagVecCompr;
     offDiagVecCompr.resize(COVMATRIX_OFFDIAG_VEC_COMPR_SIZE);
 
-    offDiagVecCompr[d0_phi_index] = cov(d0_index, phi_index) / sqrt(cov(d0_index,d0_index)*cov(phi_index,phi_index));
-    offDiagVecCompr[z0_th_index] = cov(z0_index, th_index) / sqrt(cov(z0_index,z0_index)*cov(th_index,th_index));
-    offDiagVecCompr[d0_qp_index] = cov(d0_index, qp_index) / sqrt(cov(d0_index,d0_index)*cov(qp_index,qp_index));
-    offDiagVecCompr[z0_qp_index] = cov(z0_index, qp_index) / sqrt(cov(z0_index,z0_index)*cov(qp_index,qp_index));
-    offDiagVecCompr[phi_qp_index] = cov(phi_index, qp_index) / sqrt(cov(phi_index,phi_index)*cov(qp_index,qp_index));
-    offDiagVecCompr[th_qp_index] = cov(th_index, qp_index) / sqrt(cov(th_index,th_index)*cov(qp_index,qp_index));
+    const covMatrixIndexPairVec& vecPairIndex = covMatrixComprIndexPairs();
+
+    for(unsigned int k=0; k<COVMATRIX_OFFDIAG_VEC_COMPR_SIZE; ++k){
+      std::pair<covMatrixIndex,covMatrixIndex> pairIndex = vecPairIndex[k];
+      covMatrixIndex i = pairIndex.first;
+      covMatrixIndex j = pairIndex.second;
+      float offDiagElement = cov(i,i)>0 && cov(j,j)>0 ? cov(i,j)/sqrt(cov(i,i)*cov(j,j)) : 0;
+      offDiagVecCompr[k] = offDiagElement;
+    }
 
     accCovMatrixOffDiag( *this ) = offDiagVecCompr;
     return;
@@ -437,7 +444,7 @@ namespace xAOD {
     acc3( *this ) = z;
   }
 
-#ifndef XAOD_STANDALONE
+#ifndef XAOD_ANALYSIS
   const Trk::Perigee& TrackParticle_v1::perigeeParameters() const {
 
     // Require the cache to be valid and check if the cached pointer has been set
@@ -470,7 +477,7 @@ namespace xAOD {
     m_perigeeParameters.set(tmpPerigeeParameters);
     return *(m_perigeeParameters.ptr());
   }
-#endif // not XAOD_STANDALONE
+#endif // not XAOD_ANALYSIS
 
   AUXSTORE_PRIMITIVE_GETTER(TrackParticle_v1, float, chiSquared)
   AUXSTORE_PRIMITIVE_GETTER(TrackParticle_v1, float, numberDoF)
@@ -615,8 +622,8 @@ namespace xAOD {
     acc( *this ).at(index) = static_cast<uint8_t>(pos);
   }
 
-#ifndef XAOD_STANDALONE
-  const Trk::CurvilinearParameters TrackParticle_v1::curvilinearParameters(unsigned int index) const {    
+#ifndef XAOD_ANALYSIS
+  const Trk::CurvilinearParameters TrackParticle_v1::curvilinearParameters(unsigned int index) const {
 
     static const Accessor< std::vector<float>  > acc( "trackParameterCovarianceMatrices" );
     unsigned int offset = index*15;
@@ -631,7 +638,7 @@ namespace xAOD {
 
     return param;
   }
-#endif // not XAOD_STANDALONE
+#endif // not XAOD_ANALYSIS
 
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST(TrackParticle_v1, uint8_t, xAOD::TrackProperties,trackProperties)
   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST(TrackParticle_v1, uint8_t, xAOD::TrackProperties,trackProperties, setTrackProperties)
@@ -686,8 +693,15 @@ namespace xAOD {
     ( *acc )( *this ) = value;
   }
 
+  const TrackParticle_v1::covMatrixIndexPairVec& TrackParticle_v1::covMatrixComprIndexPairs(){
+    static const covMatrixIndexPairVec result {
+      {d0_index,phi_index}, {z0_index,th_index}, {d0_index,qp_index},
+      {z0_index,qp_index}, {phi_index,qp_index}, {th_index,qp_index} };
+    return result;
+  }
 
-#ifndef XAOD_STANDALONE
+
+#ifndef XAOD_ANALYSIS
    /// The function will return an invalid ElementLink in case nothing was set
    /// for it yet. This is to avoid users having to always check both for
    /// the decoration being available, and the link being valid.
@@ -733,13 +747,13 @@ namespace xAOD {
       }
 
       return *( acc( *this ) );
-   } 
-#endif // not XAOD_STANDALONE
-   
+   }
+#endif // not XAOD_ANALYSIS
+
    void TrackParticle_v1::resetCache(){
-#ifndef XAOD_STANDALONE
+#ifndef XAOD_ANALYSIS
      m_perigeeParameters.reset();
-#endif // not XAOD_STANDALONE
+#endif // not XAOD_ANALYSIS
    }
 
 } // namespace xAOD

@@ -28,7 +28,6 @@
 #include "LArRawConditions/LArCableLengthComplete.h"
 #include "LArRawConditions/LArCableAttenuationComplete.h"
 #include "LArRawConditions/LArOFCBinComplete.h"
-#include "LArRawConditions/LArPhysCaliTdiffComplete.h"
 
 namespace LArParamsProperties {
 

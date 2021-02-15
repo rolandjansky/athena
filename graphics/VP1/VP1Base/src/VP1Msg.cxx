@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -60,10 +60,10 @@ void VP1Msg::messageWarningRed( const QString& str, IVP1System* sys /* defaults 
         sys->message(str);
 	
     // colors, see:
-	// - http://brianmilco.blogspot.ch/2011/11/color-debug-output-with-qt-and-qdebug.html
-	// - http://misc.flogisoft.com/bash/tip_colors_and_formatting
-	std::string msg = str.toStdString();
-	fprintf(stderr, "\033[1m\033[31mWarning:\033[21m\033[0m: %s\n", msg.c_str() );
+    // - http://brianmilco.blogspot.ch/2011/11/color-debug-output-with-qt-and-qdebug.html
+    // - http://misc.flogisoft.com/bash/tip_colors_and_formatting
+    std::string msg = str.toStdString();
+    fprintf(stderr, "\033[1m\033[31mWarning:\033[21m\033[0m: %s\n", msg.c_str() );
 }
 // The whole 'Warning' message is printed in red
 //____________________________________________________________________
@@ -73,10 +73,10 @@ void VP1Msg::messageWarningAllRed( const QString& str, IVP1System* sys /* defaul
         sys->message(str);
 	
     // colors, see:
-	// - http://brianmilco.blogspot.ch/2011/11/color-debug-output-with-qt-and-qdebug.html
-	// - http://misc.flogisoft.com/bash/tip_colors_and_formatting
-	std::string msg = str.toStdString();
-	fprintf(stderr, "\033[1m\033[31mWarning:\033[21m %s\033[0m\n", msg.c_str() );
+    // - http://brianmilco.blogspot.ch/2011/11/color-debug-output-with-qt-and-qdebug.html
+    // - http://misc.flogisoft.com/bash/tip_colors_and_formatting
+    std::string msg = str.toStdString();
+    fprintf(stderr, "\033[1m\033[31mWarning:\033[21m %s\033[0m\n", msg.c_str() );
 }
 
 

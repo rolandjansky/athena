@@ -17,6 +17,7 @@ recoLog.info( '****************** STARTING RAW->ALL MAKING *****************' )
 
 from AthenaCommon.AppMgr import ServiceMgr; import AthenaPoolCnvSvc.AthenaPool
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 ## Input
 # BS
@@ -27,6 +28,7 @@ if hasattr(runArgs,"inputBSFile"):
     rec.readRDO.set_Value_and_Lock( True )
     globalflags.InputFormat.set_Value_and_Lock('bytestream')
     athenaCommonFlags.BSRDOInput.set_Value_and_Lock( runArgs.inputBSFile )
+    ConfigFlags.Input.Files = athenaCommonFlags.BSRDOInput()
 if len(DRAWInputs) == 1:
     rec.readRDO.set_Value_and_Lock( True )
     globalflags.InputFormat.set_Value_and_Lock('bytestream')
@@ -39,6 +41,7 @@ if hasattr(runArgs,"inputRDOFile"):
     rec.readRDO.set_Value_and_Lock( True )
     globalflags.InputFormat.set_Value_and_Lock('pool')
     athenaCommonFlags.PoolRDOInput.set_Value_and_Lock( runArgs.inputRDOFile )
+    ConfigFlags.Input.Files = athenaCommonFlags.PoolRDOInput()
     
 # EVNT (?)
 if hasattr(runArgs,"inputEVNTFile"):

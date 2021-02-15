@@ -10,6 +10,8 @@
 
 #include "TrigConfBase/TrigConfMessaging.h"
 
+#include "TrigConfData/L1Menu.h"
+
 #include <iostream>
 #include "L1TopoCommon/StatusCode.h"
 #include "L1TopoCoreSim/GlobalDecision.h"
@@ -43,7 +45,7 @@ namespace TCS {
 
       const std::vector<const TCS::TOBArray*> & output(const std::string & connName) const;
 
-      StatusCode setupFromMenu(const TXC::L1TopoMenu & menu, const std::map<std::string, TCS::DecisionConnector*>& outputConnectorMap);
+      StatusCode setupFromMenu(const std::map<std::string, TCS::DecisionConnector*>& outputConnectorMap);
 
       StatusCode collectResult(TCS::DecisionConnector* outputConn = nullptr );
 

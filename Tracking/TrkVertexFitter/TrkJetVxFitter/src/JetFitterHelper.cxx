@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -44,20 +44,6 @@ namespace Trk
   JetFitterHelper::~JetFitterHelper() = default;
 
 
-  StatusCode JetFitterHelper::initialize() {
-
-    ATH_MSG_INFO( "Initialize successful" );
-    return StatusCode::SUCCESS;
-
-  }
-
-  StatusCode JetFitterHelper::finalize() {
-
-    ATH_MSG_INFO( "Finalize successful" );
-    return StatusCode::SUCCESS;
-
-  }
-  
   void JetFitterHelper::addTracksOfFirstVertexToSecondVertex(const VxVertexOnJetAxis & first,VxVertexOnJetAxis & second) const {
     
     

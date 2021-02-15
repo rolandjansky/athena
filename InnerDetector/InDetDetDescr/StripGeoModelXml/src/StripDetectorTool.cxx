@@ -7,7 +7,7 @@
 #include "StripGeoModelXml/StripOptions.h"
 #include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetGeoModelUtils/InDetDDAthenaComps.h"
-#include "InDetReadoutGeometry/SiCommonItems.h"
+#include "ReadoutGeometryBase/SiCommonItems.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"

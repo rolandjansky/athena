@@ -174,6 +174,7 @@ def TrigPhotonIsoBuilderCfg(name='TrigPhotonIsolationBuilder'):
             
     return TrigPhotonIsolationBuilder()
 
+
 def TrigEgammaDecorationTools():
     #Return a list with the tools that decorate both electrons and photons. 
     return [ EMFourMomBuilder() ] 
@@ -185,4 +186,6 @@ def TrigPhotonDecorationTools():
 def TrigElectronDecorationTools():
     #Return a list with the tools that decorate only photons
     return [ ElectronPIDBuilder()]
+
+
 

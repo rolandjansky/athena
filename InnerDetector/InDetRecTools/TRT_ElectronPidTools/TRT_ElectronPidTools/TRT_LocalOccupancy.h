@@ -126,6 +126,8 @@ namespace InDet
    SG::ReadHandleKey<TRT_DriftCircleContainer> m_trt_driftcircles{ this, "TRT_DriftCircleCollection", "TRT_DriftCircles", "m_trt_driftcircles" };
    SG::ReadCondHandleKey<TRTCond::AliveStraws> m_strawReadKey{this,"AliveStraws","AliveStraws","AliveStraws in-key"};
 
+   SG::ReadHandleKey<OccupancyData> m_occupancyCacheRead{"OccupancyData"};
+   SG::WriteHandleKey<OccupancyData> m_occupancyCacheWrite{"OccupancyData"};
    bool m_isTrigger;
    bool m_T0Shift; // choice to use T0shift or not
    float m_lowGate;

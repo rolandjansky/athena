@@ -212,7 +212,7 @@ CondCont<T>::CondCont (Athena::IRCUSvc& rcusvc,
  * @brief Destructor.
  */
 template <typename T>
-CondCont<T>::~CondCont<T>()
+CondCont<T>::~CondCont()
 {
 }    
 
@@ -409,7 +409,7 @@ bool CondContMixedBase::valid (const EventIDBase& t) const
  * @brief Destructor.
  */
 template <typename T>
-CondContMixed<T>::~CondContMixed<T>()
+CondContMixed<T>::~CondContMixed()
 {
 }    
 

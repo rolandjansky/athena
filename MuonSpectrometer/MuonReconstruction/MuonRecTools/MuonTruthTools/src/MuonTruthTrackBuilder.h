@@ -104,7 +104,7 @@ class MuonTruthTrackBuilder : public AthAlgTool, virtual public Trk::ITruthTrack
     MuonSegment* createSegment(const Trk::TrackParameters& pars, std::vector<const Trk::MeasurementBase*>& hits) const;
     Trk::PseudoMeasurementOnTrack* createPseudo(const Trk::TrackParameters& pars,
                                                 const Trk::MeasurementBase& meas) const;
-    const TrackRecord*             getEntryRecord(const HepMC::GenParticle& genPart) const;
+    const TrackRecord*             getEntryRecord(HepMC::ConstGenParticlePtr genPart) const;
     const MuonSimData::Deposit*    getDeposit(const MuonSimDataCollection& simCol, const HepMC::GenParticle& genPart,
                                               const Identifier& id) const;
     void                           createSegments(DetectorLayer& layer, Trk::SegmentCollection& segs) const;

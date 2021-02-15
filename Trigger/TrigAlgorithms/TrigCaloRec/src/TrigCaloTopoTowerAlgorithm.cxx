@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -16,6 +16,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ListItem.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include "Gaudi/Property.h"
 
@@ -208,6 +209,7 @@ HLT::ErrorCode TrigCaloTopoTowerAlgorithm::hltExecute(const HLT::TriggerElement*
 {
 
   ATH_MSG_DEBUG("in execute(): outputTE->getId() ="<<outputTE->getId());
+  const EventContext& ctx = Gaudi::Hive::currentContext();
 
   //////////////////////
  //////CaloCluster Container
@@ -271,7 +273,7 @@ HLT::ErrorCode TrigCaloTopoTowerAlgorithm::hltExecute(const HLT::TriggerElement*
     {
       //      m_toolInvoke[(*firstITool)->name()]++;
       
-      processStatus = (*firstITool)->execute(newTowers);
+      processStatus = (*firstITool)->execute(ctx, newTowers);
       
       // if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << << MSG::INFO << "processStatus is: " << processStatus << endmsg;
       

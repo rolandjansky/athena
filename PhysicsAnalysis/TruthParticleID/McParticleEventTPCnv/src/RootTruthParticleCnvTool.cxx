@@ -71,16 +71,16 @@ RootTruthParticleCnvTool::convert(const McEventCollection *mcCollection,
   container->setGenEvent( mcCollection, genEventIndex );
 
   // reserve enough space for the container so we don't have to relocate it
+#ifdef HEPMC3
+  container->reserve( evt->particles().size() );
+#else
   container->reserve( evt->particles_size() );
+#endif
 
   /// Create a map to enhance access between GenParticles and TruthParticles
   TruthParticleContainer::Map_t bcToMcPart;
 
-  const HepMC::GenEvent::particle_const_iterator itrEnd = evt->particles_end();
-  for ( HepMC::GenEvent::particle_const_iterator itrPart=evt->particles_begin();
-	itrPart != itrEnd;
-	++itrPart ) {
-    const HepMC::GenParticle * hepMcPart = (*itrPart);
+  for ( auto hepMcPart:  *evt) {
 
     TruthParticle * mcPart = new TruthParticle( hepMcPart, container );
     container->push_back( mcPart );

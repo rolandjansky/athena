@@ -1,9 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-#ifndef ROOTCORE
-#ifdef XAOD_ANALYSIS
 
 #ifndef TAUANALYSISTOOLS_UT_TAUANALYSISTOOLS_TEST_H
 #define TAUANALYSISTOOLS_UT_TAUANALYSISTOOLS_TEST_H 1
@@ -33,6 +30,7 @@ using namespace asg::msgUserCode;  //messaging
 
 int main( int argc, char* argv[] )
 {
+  ANA_CHECK_SET_TYPE (int);
 
   IAppMgrUI* app = POOL::Init(); //important to do this first!
 
@@ -58,40 +56,41 @@ int main( int argc, char* argv[] )
   // TauSelectionTool
   // ===========================================================================
   ToolHandle<TauAnalysisTools::ITauSelectionTool> TauSelTool("TauAnalysisTools::TauSelectionTool/TauSelectionTool");
-  TauSelTool.retrieve(); //this will cause the tool to be created and initialized
+  ANA_CHECK(TauSelTool.retrieve()); //this will cause the tool to be created and initialized
 
   // ===========================================================================
   // TauSmearingTool
   // ===========================================================================
   ToolHandle<TauAnalysisTools::ITauSmearingTool> TauSmeTool("TauAnalysisTools::TauSmearingTool/TauSmearingTool");
-  TauSmeTool.retrieve();
+  ANA_CHECK(TauSmeTool.retrieve());
 
   // ===========================================================================
   // TauEfficiencyCorrectionsTool
   // ===========================================================================
   ToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> TauEffCorrTool( "TauAnalysisTools::TauEfficiencyCorrectionsTool/TauEfficiencyCorrectionsTool" );
-  AthAnalysisHelper::setProperty(TauEffCorrTool, "TauSelectionTool", TauSelTool);
-  TauEffCorrTool.retrieve();
+  ANA_CHECK(AthAnalysisHelper::setProperty(TauEffCorrTool, "TauSelectionTool", TauSelTool));
+  ANA_CHECK(TauEffCorrTool.retrieve());
 
   // ===========================================================================
   // TauTruthMatchingTool
   // ===========================================================================
   ToolHandle<TauAnalysisTools::ITauTruthMatchingTool> T2MT( "TauAnalysisTools::TauTruthMatchingTool/TauTruthMatchingTool");
-  AthAnalysisHelper::setProperty(T2MT, "WriteTruthTaus", true);
-  T2MT.retrieve();
+  ANA_CHECK(AthAnalysisHelper::setProperty(T2MT, "WriteTruthTaus", true));
+  ANA_CHECK(AthAnalysisHelper::setProperty(T2MT, "TruthJetContainerName", "AntiKt4TruthDressedWZJets"));
+  ANA_CHECK(T2MT.retrieve());
 
   // ===========================================================================
   // TauTruthTrackMatchingTool
   // ===========================================================================
   ToolHandle<TauAnalysisTools::ITauTruthTrackMatchingTool> T3MT( "TauAnalysisTools::TauTruthTrackMatchingTool/TauTruthTrackMatchingTool");
-  T3MT.retrieve();
+  ANA_CHECK(T3MT.retrieve());
 
   // defining needed Container
   const xAOD::TauJetContainer* xTauJetContainer = 0;
 
   //loop over input file with POOL
   POOL::TEvent evt;
-  evt.readFrom( fileName );
+  ANA_CHECK(evt.readFrom( fileName ));
 
   // for(int i=0;i < evt.getEntries(); i++) {
   for(int i=0; i < 100; i++)
@@ -102,7 +101,7 @@ int main( int argc, char* argv[] )
       continue;
     }
 
-    evt.retrieve( xTauJetContainer, "TauJets" );
+    ANA_CHECK(evt.retrieve( xTauJetContainer, "TauJets" ));
 
     for ( auto xTau : *xTauJetContainer )
     {
@@ -119,7 +118,8 @@ int main( int argc, char* argv[] )
                     << ", prong = " << int(xTau->nTracks())
                     << ", charge = " << int(xTau->charge()));
 
-      if ((bool)xTau->auxdata<char>("IsTruthMatched"))
+      bool avail = xTau->isAvailable<char>("IsTruthMatched") ;
+      if (avail && (xTruthTau != nullptr))
       {
         if (xTruthTau->isTau())
         {
@@ -164,21 +164,11 @@ int main( int argc, char* argv[] )
     }
   }
   ServiceHandle<IProperty> toolSvc("ToolSvc","");
-  toolSvc->setProperty("OutputLevel","1");
+  ANA_CHECK(toolSvc->setProperty("OutputLevel","1"));
   asg::msgToolHandle::setMsgLevel(MSG::Level::DEBUG);
 
-  app->finalize(); //trigger finalization of all services and tools created by the Gaudi Application
+  ANA_CHECK(app->finalize()); //trigger finalization of all services and tools created by the Gaudi Application
   return 0;
 }
 
 #endif //> !TAUANALYSISTOOLS_UT_TAUANALYSISTOOLS_TEST_H
-
-#else
-int main()
-{
-  return 0;
-}
-
-#endif // XAOD_ANALYSIS
-
-#endif // not ROOTCORE

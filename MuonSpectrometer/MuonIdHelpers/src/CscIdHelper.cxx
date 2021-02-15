@@ -1,37 +1,16 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/**
- * ==============================================================================
- * ATLAS Muon Identifier Helpers Package
- * ==============================================================================
- */
-
 #include "MuonIdHelpers/CscIdHelper.h"
+#include "AthenaKernel/getMessageSvc.h"
 
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
 #include <mutex>
-
-/// Constructor/Destructor
 
 CscIdHelper::CscIdHelper() : MuonIdHelper("CscIdHelper"), m_CHAMBERLAYER_INDEX(0),
   m_WIRELAYER_INDEX(0), m_MEASURESPHI_INDEX(0), m_stripMaxPhi(UINT_MAX), m_stripMaxEta(UINT_MAX), m_hasChamLay1(false) {}
 
-/// Destructor
-
-CscIdHelper::~CscIdHelper()
-{
-  // m_Log deleted in base class.
-}
-
-
-
 /// Initialize dictionary
-
 int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 {
   int status = 0;
@@ -46,7 +25,7 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   }
 
   /// init base object
-
+  AtlasDetectorID::setMessageSvc(Athena::getMessageSvc());
   if (AtlasDetectorID::initialize_from_dictionary(dict_mgr)) return (1);
 
   // Register version of the MuonSpectrometer dictionary

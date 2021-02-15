@@ -16,9 +16,6 @@
 #include "../JetAnalysisEDM/ParticleContainer.h"
 #include "../JetAnalysisEDM/EventObject.h"
 #include "../JetAnalysisEDM/EventManager.h"
-//#include "Math/Vector4D.h"
-
-#include "../JetAnalysisEDM/Utils.h"
 
 #pragma link off all globals;
 #pragma link off all classes;

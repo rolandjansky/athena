@@ -115,15 +115,15 @@ def MergedPixelsToolCfg(flags, **kwargs) :
 
 ##------------------------------------------------------------------------------
 def ClusterMakerToolCfg(flags, name="InDetClusterMakerTool", **kwargs) :
-    from PixelConditionsAlgorithms.PixelConditionsConfig import (PixelChargeCalibCondAlgCfg, PixelConfigCondAlgCfg,
+    from PixelConditionsAlgorithms.PixelConditionsConfig import (PixelChargeCalibCondAlgCfg, PixelConfigCondAlgCfg, PixelDeadMapCondAlgCfg, 
                                                                  PixelOfflineCalibCondAlgCfg, PixelCablingCondAlgCfg, PixelReadoutSpeedAlgCfg)
 
     acc = ComponentAccumulator()
     # This directly needs the following Conditions data:
     # PixelModuleData & PixelChargeCalibCondData
-    acc.merge( PixelChargeCalibCondAlgCfg(flags))
     acc.merge( PixelConfigCondAlgCfg(flags))
-
+    acc.merge(PixelDeadMapCondAlgCfg(flags))
+    acc.merge( PixelChargeCalibCondAlgCfg(flags))
     acc.merge(PixelOfflineCalibCondAlgCfg(flags))
     acc.merge(PixelCablingCondAlgCfg(flags))
     acc.merge(PixelReadoutSpeedAlgCfg(flags))

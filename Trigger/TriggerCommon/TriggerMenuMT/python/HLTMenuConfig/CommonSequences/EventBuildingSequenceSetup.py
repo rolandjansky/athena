@@ -8,7 +8,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep, MenuSeque
 from TrigPartialEventBuilding.TrigPartialEventBuildingConf import PEBInfoWriterAlg
 from TrigPartialEventBuilding.TrigPartialEventBuildingConfig import StaticPEBInfoWriterToolCfg, RoIPEBInfoWriterToolCfg
 from DecisionHandling import DecisionHandlingConf
-from libpyeformat_helper import SubDetector
+from libpyeformat_helper import SourceIdentifier, SubDetector
 from AthenaCommon.CFElements import seqAND, findAlgorithm
 from AthenaCommon.Logging import logging
 log = logging.getLogger('EventBuildingSequenceSetup')
@@ -45,7 +45,7 @@ def pebInfoWriterTool(name, eventBuildType):
     Create PEBInfoWriterTool configuration for the eventBuildType
     '''
     tool = None
-    if 'BeamSpotPEB' in eventBuildType:
+    if 'BeamSpotPEB' == eventBuildType:
         tool = StaticPEBInfoWriterToolCfg(name)
         tool.addSubDets([
             SubDetector.PIXEL_BARREL,
@@ -58,23 +58,44 @@ def pebInfoWriterTool(name, eventBuildType):
             SubDetector.SCT_ENDCAP_C_SIDE,
             SubDetector.TDAQ_CTP
         ])
-    elif 'LArPEB' in eventBuildType:
+    elif 'LArPEBCalib' == eventBuildType:
+        tool = StaticPEBInfoWriterToolCfg(name)
+        tool.addSubDets([SubDetector.LAR_EM_BARREL_A_SIDE,
+                         SubDetector.LAR_EM_BARREL_C_SIDE,
+                         SubDetector.LAR_EM_ENDCAP_A_SIDE,
+                         SubDetector.LAR_EM_ENDCAP_C_SIDE,
+                         SubDetector.LAR_HAD_ENDCAP_A_SIDE,
+                         SubDetector.LAR_HAD_ENDCAP_C_SIDE,
+                         SubDetector.LAR_FCAL_A_SIDE,
+                         SubDetector.LAR_FCAL_C_SIDE,
+                         SubDetector.LAR_EM_BARREL_ENDCAP_A_SIDE,
+                         SubDetector.LAR_EM_BARREL_ENDCAP_C_SIDE,
+                         SubDetector.LAR_EM_HAD_ENDCAP_A_SIDE,
+                         SubDetector.LAR_EM_HAD_ENDCAP_C_SIDE,
+                         SubDetector.TDAQ_CTP
+        ])
+    elif 'LArPEBHLT' == eventBuildType:
         tool = RoIPEBInfoWriterToolCfg(name)
         tool.addRegSelDets(['Pixel', 'SCT', 'TRT', 'TTEM', 'TTHEC', 'FCALEM', 'FCALHAD'])
         tool.MaxRoIs = 5
         tool.addHLTResultToROBList()  # add the main (full) HLT result to the list
         tool.addCTPResultToROBList()  # add the CTP result to the list
-    elif 'RPCPEBSecondaryReadout' in eventBuildType:
+    elif 'LArPEB' == eventBuildType:
+        tool = RoIPEBInfoWriterToolCfg(name)
+        tool.addRegSelDets(['Pixel', 'SCT', 'TRT', 'TTEM', 'TTHEC', 'FCALEM', 'FCALHAD'])
+        tool.MaxRoIs = 5
+        tool.addCTPResultToROBList()  # add the CTP result to the list
+    elif 'RPCPEBSecondaryReadout' == eventBuildType:
         tool = StaticPEBInfoWriterToolCfg(name)
         tool.addROBs([0x610080, 0x620080])
-    elif 'SCTPEB' in eventBuildType:
+    elif 'SCTPEB' == eventBuildType:
         tool = StaticPEBInfoWriterToolCfg(name)
         tool.addSubDets([SubDetector.SCT_BARREL_A_SIDE,
                          SubDetector.SCT_BARREL_C_SIDE,
                          SubDetector.SCT_ENDCAP_A_SIDE,
                          SubDetector.SCT_ENDCAP_C_SIDE
         ])
-    elif 'TilePEB' in eventBuildType:
+    elif 'TilePEB' == eventBuildType:
         tool = StaticPEBInfoWriterToolCfg(name)
         tool.addSubDets([SubDetector.TILECAL_LASER_CRATE,
                          SubDetector.TILECAL_BARREL_A_SIDE,
@@ -88,12 +109,12 @@ def pebInfoWriterTool(name, eventBuildType):
                          SubDetector.TDAQ_CALO_JET_PROC_DAQ, # = 0x74
                          SubDetector.TDAQ_CALO_JET_PROC_ROI # = 0x75
         ])
-    elif 'AlfaPEB' in eventBuildType:
+    elif 'AlfaPEB' == eventBuildType:
         tool = StaticPEBInfoWriterToolCfg(name)
         tool.addSubDets([SubDetector.FORWARD_ALPHA,
                          SubDetector.TDAQ_CTP
         ])
-    elif 'CSCPEB' in eventBuildType:
+    elif 'CSCPEB' == eventBuildType:
         tool = StaticPEBInfoWriterToolCfg(name)
         tool.addSubDets([
             SubDetector.MUON_CSC_ENDCAP_A_SIDE,
@@ -145,27 +166,79 @@ def findEventBuildingStep(chainConfig):
     return pebSteps[0]
 
 
-def alignEventBuildingSteps(all_chains):
-    def is_peb(chainData):
-        return len(chainData[0]['eventBuildType']) > 0
-    all_peb_chains = list(filter(is_peb, all_chains))
+def alignEventBuildingSteps(chain_configs, chain_dicts):
+    def is_peb_dict(chainNameAndDict):
+        return len(chainNameAndDict[1]['eventBuildType']) > 0
+
+    all_peb_chain_dicts = dict(filter(is_peb_dict, chain_dicts.items()))
+    all_peb_chain_names = list(all_peb_chain_dicts.keys())
+
+    def is_peb_config(chainNameAndConfig):
+        return chainNameAndConfig[0] in all_peb_chain_names
+
+    all_peb_chain_configs = dict(filter(is_peb_config, chain_configs.items()))
+
     maxPebStepPosition = {} # {eventBuildType: N}
+
     def getPebStepPosition(chainConfig):
         pebStep = findEventBuildingStep(chainConfig)
         return chainConfig.steps.index(pebStep) + 1
 
     # First loop to find the maximal PEB step positions to which we need to align
-    for chainDict, chainConfig, lengthOfChainConfigs in all_peb_chains:
+    for chainName, chainConfig in all_peb_chain_configs.items():
         pebStepPosition = getPebStepPosition(chainConfig)
-        ebt = chainDict['eventBuildType']
+        ebt = all_peb_chain_dicts[chainName]['eventBuildType']
         if ebt not in maxPebStepPosition or pebStepPosition > maxPebStepPosition[ebt]:
             maxPebStepPosition[ebt] = pebStepPosition
 
     # Second loop to insert empty steps before the PEB steps where needed
-    for chainDict, chainConfig, lengthOfChainConfigs in all_peb_chains:
+    for chainName, chainConfig in all_peb_chain_configs.items():
         pebStepPosition = getPebStepPosition(chainConfig)
-        ebt = chainDict['eventBuildType']
+        ebt = all_peb_chain_dicts[chainName]['eventBuildType']
         if pebStepPosition < maxPebStepPosition[ebt]:
             numStepsNeeded = maxPebStepPosition[ebt] - pebStepPosition
-            log.debug('Aligning PEB step for chain %s by adding %d empty steps', chainDict['chainName'], numStepsNeeded)
+            log.debug('Aligning PEB step for chain %s by adding %d empty steps', chainName, numStepsNeeded)
             chainConfig.insertEmptySteps('EmptyPEBAlign', numStepsNeeded, pebStepPosition-1)
+
+
+# Unit test
+if __name__ == "__main__":
+    failures = 0
+    for eb_identifier in EventBuildingInfo.getAllEventBuildingIdentifiers():
+        tool = None
+        try:
+            tool = pebInfoWriterTool('TestTool_'+eb_identifier, eb_identifier)
+        except Exception as ex:
+            failures += 1
+            log.error('Caught exception while configuring PEBInfoWriterTool for %s: %s', eb_identifier, ex)
+            continue
+
+        if not tool:
+            failures += 1
+            log.error('No tool created for %s', eb_identifier)
+            continue
+
+        if tool.__cpp_type__ not in ['StaticPEBInfoWriterTool', 'RoIPEBInfoWriterTool']:
+            failures += 1
+            log.error('Unexpected tool type for %s: %s', eb_identifier, tool.__cpp_type__)
+            continue
+
+        robs = tool.ROBList if tool.__cpp_type__ == 'StaticPEBInfoWriterTool' else tool.ExtraROBs
+        dets = tool.SubDetList if tool.__cpp_type__ == 'StaticPEBInfoWriterTool' else tool.ExtraSubDets
+        robs_check_passed = True
+        for rob_id in robs:
+            rob_sid = SourceIdentifier(rob_id)
+            rob_det_id = rob_sid.subdetector_id()
+            if int(rob_det_id) in dets:
+                robs_check_passed = False
+                log.error('Redundant configuration for %s: ROB %s added to the ROB list while full SubDetector '
+                          '%s is already in the SubDets list', eb_identifier, rob_sid.human(), str(rob_det_id))
+
+        if not robs_check_passed:
+            failures += 1
+            continue
+
+        log.info('%s correctly configured', tool.name)
+
+    import sys
+    sys.exit(failures)

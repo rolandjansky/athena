@@ -1,7 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
-from G4AtlasApps.SimFlags import simFlags
 
 from ISF_Algorithms.collection_merger_helpers import generate_mergeable_collection_name
 

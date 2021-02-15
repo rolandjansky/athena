@@ -5,7 +5,7 @@ from MuonCombinedRecExample.MuonCombinedKeys import MuonCombinedKeys as MuonCbKe
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 from InDetRecExample.InDetJobProperties import InDetFlags
 from RecExConfig.RecFlags import rec as rec
-
+from IsolationAlgs.IsoUpdatedTrackCones import iso_vars
 
 if DetFlags.detdescr.Calo_on(): # FIXME - check if the objects below still make sense. EJWM
    MuonCombinedAODList+=["xAOD::CaloClusterContainer#MuonClusterCollection"]
@@ -14,6 +14,7 @@ if DetFlags.detdescr.Calo_on(): # FIXME - check if the objects below still make 
 
 if DetFlags.detdescr.Muon_on():
    excludedAuxData = '-caloExtension.-cellAssociation.-clusterAssociation'
+   excludedMuonAuxData = ".-"+".-".join(iso_vars())
    # Adding the xAOD content by default
    MuonCombinedAODList+=[ "xAOD::TrackParticleContainer#"+MuonCbKeys.CombinedFitParticles()]
    MuonCombinedAODList+=[ "xAOD::TrackParticleAuxContainer#"+MuonCbKeys.CombinedFitParticles()+"Aux." + excludedAuxData ]
@@ -24,10 +25,10 @@ if DetFlags.detdescr.Muon_on():
    MuonCombinedAODList+=[ "xAOD::TrackParticleContainer#"+MuonCbKeys.SpectrometerParticles() ]
    MuonCombinedAODList+=[ "xAOD::TrackParticleAuxContainer#"+MuonCbKeys.SpectrometerParticles()+"Aux." + excludedAuxData ]
    MuonCombinedAODList+=[ "xAOD::MuonContainer#Muons" ]
-   MuonCombinedAODList+=[ "xAOD::MuonAuxContainer#MuonsAux.-DFCommonMuonsTight.-DFCommonGoodMuon.-DFCommonMuonsMedium.-DFCommonMuonsLoose" ] # See note
+   MuonCombinedAODList+=[ "xAOD::MuonAuxContainer#MuonsAux.-DFCommonMuonsTight.-DFCommonGoodMuon.-DFCommonMuonsMedium.-DFCommonMuonsLoose" + excludedMuonAuxData ] # See note
    if InDetFlags.doR3LargeD0():
        MuonCombinedAODList+=[ "xAOD::MuonContainer#"+MuonCbKeys.FinalMuonsLargeD0() ]
-       MuonCombinedAODList+=[ "xAOD::MuonAuxContainer#"+MuonCbKeys.FinalMuonsLargeD0()+"Aux.-DFCommonMuonsTight.-DFCommonGoodMuon.-DFCommonMuonsMedium.-DFCommonMuonsLoose" ] # See note
+       MuonCombinedAODList+=[ "xAOD::MuonAuxContainer#"+MuonCbKeys.FinalMuonsLargeD0()+"Aux.-DFCommonMuonsTight.-DFCommonGoodMuon.-DFCommonMuonsMedium.-DFCommonMuonsLoose" + excludedMuonAuxData] # See note
       
        ### Combined muon track particles
        MuonCombinedAODList+=[ "xAOD::TrackParticleContainer#Combined"+MuonCbKeys.FinalMuonsLargeD0()+"TrackParticles"]

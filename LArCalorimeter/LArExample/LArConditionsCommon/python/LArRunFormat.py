@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from CoolConvUtilities.AtlCoolLib import indirectOpen
 
@@ -58,13 +58,12 @@ class LArRunInfo:
 def getLArFormatForRun(run,readOracle=True,quiet=False,connstring=None):
     from AthenaCommon.Logging import logging
     mlog_LRF = logging.getLogger( 'getLArRunFormatForRun' )
-    # connstring = "sqlite://;schema=rundb.db;dbname=CONDBR2"
     if connstring is None:
         from IOVDbSvc.CondDB import conddb
         connstring = "COOLONL_LAR/"+conddb.dbdata
     
     mlog_LRF.info("Connecting to database %s", connstring)
-    print ("run=",run)
+    print("run=",run)
     runDB=indirectOpen(connstring,oracle=readOracle)
     if (runDB is None):
         mlog_LRF.error("Cannot connect to database %s",connstring)
@@ -98,11 +97,11 @@ def getLArFormatForRun(run,readOracle=True,quiet=False,connstring=None):
 if __name__=='__main__':
     import sys
     if len(sys.argv)!=2:
-        print ("Syntax",sys.argv[0],'<run>')
+        print("Syntax",sys.argv[0],'<run>')
         sys.exit(-1)
     run=int(sys.argv[1])
     myformat=getLArFormatForRun(run)
     if (myformat is not None):
-      print (" LAr run configuration: Nsamples:%d  GainType:%d  Latency:%d  FirstSample:%d  Format:%s  runType:%s" % (myformat.nSamples(),myformat.gainType(),myformat.latency(),myformat.firstSample(),myformat.stringFormat(),myformat.stringRunType()))
+      print(" LAr run configuration: Nsamples:%d  GainType:%d  Latency:%d  FirstSample:%d  Format:%s  runType:%s" % (myformat.nSamples(),myformat.gainType(),myformat.latency(),myformat.firstSample(),myformat.stringFormat(),myformat.stringRunType()))
     else:
-      print (" LAr run infomation not available")
+      print(" LAr run infomation not available")

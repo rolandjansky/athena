@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////
@@ -13,16 +13,15 @@
 // Det Descr
 #include "Identifier/Identifier.h"
 
-#include "InDetReadoutGeometry/SiReadoutCellId.h"
+#include "ReadoutGeometryBase/SiReadoutCellId.h"
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
-#include "InDetReadoutGeometry/SiCellId.h"
+#include "ReadoutGeometryBase/SiCellId.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 
 // Random numbers
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/RandLandau.h"
 
 // DataHandle
@@ -30,7 +29,6 @@
 
 // Pile-up
 
-#include "InDetReadoutGeometry/SiDetectorDesign.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
 
 // Fatras
@@ -676,7 +674,7 @@ StatusCode PixelFastDigitizationTool::digitize(const EventContext& ctx)
           // create the smdar parameter
           double sPar = m_pixSmearLandau ?
             m_pixSmearPathLength*CLHEP::RandLandau::shoot(m_randomEngine) :
-            m_pixSmearPathLength*CLHEP::RandGauss::shoot(m_randomEngine);
+            m_pixSmearPathLength*CLHEP::RandGaussZiggurat::shoot(m_randomEngine);
           pathlenght *=  (1.+sPar);
         }
 
@@ -817,9 +815,13 @@ StatusCode PixelFastDigitizationTool::digitize(const EventContext& ctx)
         //           clusterPosition = SG::ReadCondHandle<PixelDistortionData>(m_distortionKey)->correctSimulation(m_pixel_ID->wafer_hash(hitSiDetElement->identify()), clusterPosition, localDirection);
 
         // from InDetReadoutGeometry: width from eta
-        double etaWidth = dynamic_cast<const InDetDD::PixelModuleDesign*>(&hitSiDetElement->design())->widthFromColumnRange(etaIndexMin, etaIndexMax);
+        auto pixModDesign = dynamic_cast<const InDetDD::PixelModuleDesign*>(&hitSiDetElement->design());
+        if (!pixModDesign) {
+          return StatusCode::FAILURE;
+        }
+        double etaWidth = pixModDesign->widthFromColumnRange(etaIndexMin, etaIndexMax);
         // from InDetReadoutGeometry : width from phi
-        double phiWidth = dynamic_cast<const InDetDD::PixelModuleDesign*>(&hitSiDetElement->design())->widthFromRowRange(phiIndexMin, phiIndexMax);
+        double phiWidth = pixModDesign->widthFromRowRange(phiIndexMin, phiIndexMax);
 
         InDet::SiWidth siWidth(Amg::Vector2D(siDeltaPhiCut,siDeltaEtaCut),
                                Amg::Vector2D(phiWidth,etaWidth));

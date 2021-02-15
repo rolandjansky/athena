@@ -42,21 +42,6 @@ Mode3dFromFsmw1dFinder::Mode3dFromFsmw1dFinder(const std::string& t, const std::
 //  6 : phi mode with coincided radius mode then coincide with Z mode
 
 
-StatusCode Mode3dFromFsmw1dFinder::initialize() 
-{ 
-  ATH_CHECK(  AlgTool::initialize() );
-  ATH_MSG_INFO("Initialize successful" );
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode Mode3dFromFsmw1dFinder::finalize() 
-{
-  ATH_MSG_INFO("Finalize successful" );
-  return StatusCode::SUCCESS;
-}
-
-
 Amg::Vector3D
 Mode3dFromFsmw1dFinder::getMode(const double vx,
                                 const double vy,

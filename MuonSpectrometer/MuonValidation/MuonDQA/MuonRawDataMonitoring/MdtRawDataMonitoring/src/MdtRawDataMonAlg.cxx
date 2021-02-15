@@ -528,8 +528,7 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
   }   //m_doMdtESD==true
 
   SG::ReadHandle<Trk::SegmentCollection> segms(m_segm_type, ctx);
-  if (!segms.isValid())
-  {
+  if (!segms.isValid()) {
     ATH_MSG_ERROR("evtStore() does not contain mdt segms Collection with name " << m_segm_type);
     return StatusCode::FAILURE;
   }

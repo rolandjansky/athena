@@ -498,7 +498,7 @@ class TopoAlgoDef(object):
                 setattr (d, k, x[k])
              
                 
-            toponame = "HT%d-%s%s%s%s.ETA%s" % (d.minHT, d.otype, str(d.ocut), d.olist, str(d.nleading) if d.olist=="s" else "", str(d.oeta)) 
+            toponame = "HT%d-%s%s%s%spETA%s" % (d.minHT, d.otype, str(d.ocut), d.olist, str(d.nleading) if d.olist=="s" else "", str(d.oeta)) 
             
             log.info("Define %s" % toponame)
             
@@ -518,7 +518,7 @@ class TopoAlgoDef(object):
             tm.registerAlgo(alg)
 
 
-            
+
         # INVM_EM for Jpsi
         invm_map = {"algoname": 'INVM_EMs6' , "ocutlist": [ 7, 12 ], "minInvm": 1, "maxInvm": 5, "otype" : "EM", "olist" : "s", "nleading" : 1, "inputwidth": HW.OutputWidthSortEM}
 
@@ -583,8 +583,6 @@ class TopoAlgoDef(object):
             tm.registerAlgo(alg)
 
 
-
-            
         # ZH Trigger
         supportedalgolist = [
             {"minDPhi": 10, "otype" : "J", "ocut" : 20, "olist" : "s", "nleading" : 2, "inputwidth": HW.OutputWidthSortJET, "ocut2": 30 }, #10MINDPHI-J20s2-XE30
@@ -832,7 +830,7 @@ class TopoAlgoDef(object):
             class d : pass
             for k in x:
                 setattr (d, k, x[k])
-            toponame = "SC%d-%s%s%s%s.ETA%s" % (d.minHT, d.otype, str(d.ocut), d.olist, str(d.nleading) if d.olist=="s" else "", str(d.oeta)) # noqa: F821
+            toponame = "SC%d-%s%s%s%spETA%s" % (d.minHT, d.otype, str(d.ocut), d.olist, str(d.nleading) if d.olist=="s" else "", str(d.oeta)) # noqa: F821
             log.info("Define %s" % toponame)
             inputList = d.otype + d.olist # noqa: F821
             alg = AlgConf.SimpleCone( name = toponame, inputs = inputList, outputs = [toponame], algoId = currentAlgoId ); currentAlgoId += 1
@@ -876,8 +874,8 @@ class TopoAlgoDef(object):
             class d : pass
             for k in x:
                 setattr (d, k, x[k])
-            obj1 = "%s%s%s.%sETA%i"  % (d.otype1, str(d.ocut1), d.olist1 + (str(d.nleading1) if d.olist1.find('s')>=0 else ""),str(d.minEta1) if d.minEta1>0 else "", d.maxEta1) # noqa: F821
-            obj2 = "-%s%s%s.%sETA%i"  % (d.otype2, str(d.ocut2), d.olist2 + (str(d.nleading2) if d.olist2.find('s')>=0 else ""),str(d.minEta2) if d.minEta2>0 else "", d.maxEta2) # noqa: F821
+            obj1 =  "%s%s%sp%sETA%i"  % (d.otype1, str(d.ocut1), d.olist1 + (str(d.nleading1) if d.olist1.find('s')>=0 else ""),str(d.minEta1) if d.minEta1>0 else "", d.maxEta1) # noqa: F821
+            obj2 = "-%s%s%sp%sETA%i"  % (d.otype2, str(d.ocut2), d.olist2 + (str(d.nleading2) if d.olist2.find('s')>=0 else ""),str(d.minEta2) if d.minEta2>0 else "", d.maxEta2) # noqa: F821
             inputList = [d.otype1 + d.olist1, d.otype2 + d.olist2] # noqa: F821
             toponame = "%iINVM%i-%s%s"   % (d.minInvm, d.maxInvm, obj1, obj2) # noqa: F821
             alg = AlgConf.InvariantMassInclusive2( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId); currentAlgoId += 1    

@@ -10,7 +10,7 @@
 #include <xercesc/dom/DOM.hpp>
 #include "GeoModelXml/IndexProcessor.h"
 
-#include "GeoModelXml/translate.h"
+#include "xercesc/util/XMLString.hpp"
 #include "GeoModelXml/GmxUtil.h"
 
 using namespace std;
@@ -20,11 +20,11 @@ void IndexProcessor::process(const DOMElement *element, GmxUtil &gmxUtil, GeoNod
 
     char *name2release;
 
-    name2release = Translate(element->getAttribute(Translate("ref")));
+    name2release = XMLString::transcode(element->getAttribute(XMLString::transcode("ref")));
     string name(name2release);
     XMLString::release(&name2release);
 
-    name2release = Translate(element->getAttribute(Translate("value")));
+    name2release = XMLString::transcode(element->getAttribute(XMLString::transcode("value")));
     string value(name2release);
     XMLString::release(&name2release);
 

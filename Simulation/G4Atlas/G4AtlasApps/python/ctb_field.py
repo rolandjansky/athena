@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
 This module adds the magnetic fields to the CTB simulation
@@ -72,7 +72,7 @@ class CTBFieldMap(object):
         for i in dataPathList:
             if 'CTB' in i and 'magfield' in i:
                 self.mag_data_path = i
-                AtlasG4Eng.G4Eng.log.debug('ctb_field::CTBFieldMap found the datapath for field maps at %s' % self.mag_data_path)
+                AtlasG4Eng.G4Eng.log.debug('ctb_field::CTBFieldMap found the datapath for field maps at %s', self.mag_data_path)
         ## Restrict the field to the IDET volume
         if mode == 0:
             mapfield_CTB = PyG4Atlas.MagneticField('G4Field', 'G4AtlasFieldSvc', typefield='MapField')
@@ -94,7 +94,7 @@ class CTBFieldMap(object):
             try:
                 os.symlink(os.path.join(self.mag_data_path,fieldmap_name),
                            os.path.join(os.getcwd(),'magempty'))
-            except:
+            except Exception:
                 AtlasG4Eng.G4Eng.log.debug('ctb_field::CTBFieldMap DATAPATH not found --> try local link')
                 os.symlink(os.path.join(os.getcwd(),fieldmap_name),
                            os.path.join(os.getcwd(),'magempty'))

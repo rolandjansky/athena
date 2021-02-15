@@ -93,8 +93,8 @@ class GenAodValidationTool : public TruthParticleValidationBaseTool
    *   - check same number of branches
    *   - check same particles (4-mom + id + status)
    */
-  bool compareVtx( const HepMC::GenVertex* vtx1,
-		   const HepMC::GenVertex* vtx2 ) const;
+  bool compareVtx( HepMC::ConstGenVertexPtr vtx1,
+		   HepMC::ConstGenVertexPtr vtx2 ) const;
 
   /** @brief Check that 2 given particles are the same:
    *    - 4-mom 
@@ -103,8 +103,8 @@ class GenAodValidationTool : public TruthParticleValidationBaseTool
    *    - flow
    *    - polarization
    */
-  bool compareParts( const HepMC::GenParticle* p1,
-		     const HepMC::GenParticle* p2 ) const;
+  bool compareParts( HepMC::ConstGenParticlePtr p1,
+		     HepMC::ConstGenParticlePtr p2 ) const;
 
   /** Request pointers to the HepMcWriterTools to be able to write 
    *  out HepMC::GenEvent for further comparison (off-framework)
@@ -158,12 +158,5 @@ class GenAodValidationTool : public TruthParticleValidationBaseTool
   HepMcTool_t m_checkMcEventWriter;
 
 }; 
-
-/// I/O operators
-//////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-/// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 #endif //> MCPARTICLETOOLS_GENAODVALIDATIONTOOL_H

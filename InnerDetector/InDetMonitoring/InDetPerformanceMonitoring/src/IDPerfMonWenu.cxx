@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -523,7 +523,7 @@ StatusCode IDPerfMonWenu::procHistograms()
 const xAOD::CaloCluster* IDPerfMonWenu::getLeadingEMcluster(const xAOD::CaloClusterContainer* clusters, const xAOD::CaloCluster* omitCluster) const {
   const xAOD::CaloCluster* leading_emcluster{nullptr};
   float max_pt = 0.;
-  for (const auto & cl: *clusters) {
+  for (const auto cl: *clusters) {
     if (cl == omitCluster) continue;
     double deltaR = std::sqrt(std::pow(std::fabs(cl->phi() - omitCluster->phi()),2) + std::pow(std::fabs(cl->eta() - omitCluster->eta()),2));
     if(deltaR < 0.005) continue;
@@ -540,7 +540,7 @@ const xAOD::CaloCluster* IDPerfMonWenu::getLeadingEMcluster(const xAOD::PhotonCo
   const xAOD::CaloCluster* leading_emcluster = 0;
   bool LHSel;
   float max_pt = 0.;
-  for (const auto & em: *electrons) {
+  for (const auto em: *electrons) {
     // check ID
     if(m_doIDCuts){
       LHSel = false;
@@ -563,7 +563,7 @@ const xAOD::CaloCluster* IDPerfMonWenu::getLeadingEMcluster(const xAOD::PhotonCo
 const xAOD::TrackParticle* IDPerfMonWenu::electronTrackMatch(const xAOD::TrackParticleContainer* tracks, const xAOD::CaloCluster* cluster, double dEta, double dPhi) const {
   const xAOD::TrackParticle* matched_track = 0;
   double min_dR = 1.0e+20;
-  for (const auto & track: *tracks) {
+  for (const auto track: *tracks) {
     double deta = cluster->eta()-track->eta();
     double dphi = cluster->phi()-track->phi();
     double dr = std::sqrt(deta*deta + dphi*dphi);
@@ -578,7 +578,7 @@ const xAOD::TrackParticle* IDPerfMonWenu::electronTrackMatch(const xAOD::TrackPa
 double IDPerfMonWenu::electronTrackMatchEta(const xAOD::TrackParticleContainer* tracks, const xAOD::CaloCluster* cluster, double dEta) const {
   const xAOD::TrackParticle* matched_track = 0;
   double min_dEta = 1.0e+20;
-  for (const auto & track: *tracks) {
+  for (const auto track: *tracks) {
     double deta = std::fabs(cluster->eta()-track->eta());
     if (deta < min_dEta && deta < dEta) {
       min_dEta = deta;
@@ -593,7 +593,7 @@ double IDPerfMonWenu::electronTrackMatchEta(const xAOD::TrackParticleContainer* 
 double IDPerfMonWenu::electronTrackMatchPhi(const xAOD::TrackParticleContainer* tracks, const xAOD::CaloCluster* cluster, double dPhi) const {
   const xAOD::TrackParticle* matched_track = 0;
   double min_dPhi = 1.0e+20;
-  for (const auto & track : *tracks) {
+  for (const auto track : *tracks) {
     double dphi = std::abs(signedDeltaPhi(cluster->phi(),track->phi()));
     if (dphi < min_dPhi && dphi < dPhi) {
       min_dPhi = dphi;

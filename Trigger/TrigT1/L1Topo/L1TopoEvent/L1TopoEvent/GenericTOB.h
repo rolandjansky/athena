@@ -4,6 +4,7 @@
 #define L1TopoEvent_GeneralTOP
 
 #include <iostream>
+#include <string>
 
 #include "L1TopoEvent/BaseTOB.h"
 #include "L1TopoEvent/JetTOB.h"
@@ -66,6 +67,14 @@ namespace TCS {
 
       int eta() const { return m_eta; }
       int phi() const { return m_phi; }
+
+      // See definitions at TrigT1Interfaces/MuCTPIL1TopoCandidate.h 
+      std::string sectorName() const { return m_sectorName; }
+      bool bw2or3() const { return m_bw2or3; }
+      bool innerCoin() const { return m_innerCoin; }
+      bool goodMF() const { return m_goodMF; }
+      int charge() const { return m_charge; }
+      bool is2cand() const { return m_is2cand; }
       
       double EtDouble() const { return m_EtDouble; }
       double etaDouble() const { return m_etaDouble; }
@@ -87,6 +96,13 @@ namespace TCS {
 
       int m_eta { 0 };
       int m_phi { 0 };
+
+      std::string m_sectorName { "" };
+      bool m_bw2or3 { 0 };
+      bool m_innerCoin { 0 };
+      bool m_goodMF { 0 };
+      int m_charge { 0 };
+      bool m_is2cand { 0 };
 
       double m_EtDouble { 0 };
       double m_etaDouble { 0 };

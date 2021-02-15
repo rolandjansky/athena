@@ -14,6 +14,12 @@ AlgorithmTableConstructor::AlgorithmTableConstructor(const std::string& name) : 
   addExpectedHistogram("AlgCalls_perEvent");
   addExpectedHistogram("RoIID_perCall");
   addExpectedHistogram("InEventView_perCall");
+  addExpectedHistogram("Request_perEvent");
+  addExpectedHistogram("NetworkRequest_perEvent");
+  addExpectedHistogram("CachedROBSize_perEvent");
+  addExpectedHistogram("NetworkROBSize_perEvent");
+  addExpectedHistogram("RequestTime_perEvent");
+
 
   getBaseEntry().addColumn("name", "Name", "Algorithms name");
   getBaseEntry().addColumn("events", "Raw Active Events", "Raw underlying statistics on number of events processed with the alg active");
@@ -26,6 +32,11 @@ AlgorithmTableConstructor::AlgorithmTableConstructor(const std::string& name) : 
   getBaseEntry().addColumn("totalTimePerc", "Alg Total Time [%]", "Total weighted integrated walltime of the alg as a percentage of all algs");
   getBaseEntry().addColumn("timePerCall", "Alg Total Time/Call [ms]", "Mean weighted alg time. Normalised to all alg calls");
   getBaseEntry().addColumn("timePerEvent", "Alg Total Time/Event [ms]", "Mean weighted alg time. Normalised to all events with one or more alg calls");
+  getBaseEntry().addColumn("requestTimePerEvent", "ROS Data Request Time/Event [ms]", "Average time waiting for ROS data per event for  events with at least one execution in this run range");
+  getBaseEntry().addColumn("dataRate", "Data Request Rate [Hz]", "Rate of calls to the ROS from this algorithm in this run range");
+  getBaseEntry().addColumn("retrievedDataRate", "Retrieved ROB Rate [Hz]", "Rate of ROB retrievals from this algorithm in this run range");
+  getBaseEntry().addColumn("cachedDataSizeRate", "Cached ROB Rate [kB/s]", "Average size of cached ROB data fetches for this algorithm in this run range");
+  getBaseEntry().addColumn("retrievedDataSizeRate", "Retrieved ROB Rate [kB/s]", "Average size of retrieved ROB data fetches for this algorithm in this run range");
 }
 
 
@@ -47,6 +58,11 @@ TableEntry AlgorithmTableConstructor::getTableEntry(const std::string name) {
   //"totalTimePerc" is set in post
   tableEntry.setEntry("timePerCall", hist("Time_perCall")->GetMean());
   tableEntry.setEntry("timePerEvent", hist("Time_perEvent")->GetMean());
+  tableEntry.setEntry("requestTimePerEvent", hist("RequestTime_perEvent")->GetMean());
+  tableEntry.setEntry("dataRate", histGetXWeightedIntegral("Request_perEvent", /*isLog*/ false)); // Needs normalising in tablePostProcessing
+  tableEntry.setEntry("retrievedDataRate", histGetXWeightedIntegral("NetworkRequest_perEvent", /*isLog*/ false)); // Needs normalising in tablePostProcessing
+  tableEntry.setEntry("retrievedDataSizeRate", histGetXWeightedIntegral("NetworkROBSize_perEvent", /*isLog*/ false)); // Needs normalising in tablePostProcessing
+  tableEntry.setEntry("cachedDataSizeRate", histGetXWeightedIntegral("CachedROBSize_perEvent", /*isLog*/ false)); // Needs normalising in tablePostProcessing
 
   return tableEntry;
 }
@@ -63,6 +79,10 @@ void AlgorithmTableConstructor::tablePostProcessing(std::vector<TableEntry>& tab
     te.setEntry("totalTimePerc", 100.0 * (te.getEntryFloat("totalTimeSec") / totalTime));
     te.normaliseEntry("eventRate", walltime);
     te.normaliseEntry("callRate", walltime);
+    te.normaliseEntry("dataRate", walltime);
+    te.normaliseEntry("retrievedDataRate", walltime);
+    te.normaliseEntry("cachedDataSizeRate", walltime);
+    te.normaliseEntry("retrievedDataSizeRate", walltime);
   }
 }
 

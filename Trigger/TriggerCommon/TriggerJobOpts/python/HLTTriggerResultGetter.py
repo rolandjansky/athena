@@ -1,107 +1,16 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.Logging import logging
 from AthenaCommon.GlobalFlags import globalflags
 
 from AthenaCommon.AppMgr import ServiceMgr
 from RecExConfig.Configured import Configured
 
-from RecExConfig.RecAlgsFlags import recAlgs
 from RecExConfig.RecFlags import rec
 
 from TrigRoiConversion.TrigRoiConversionConf import RoiWriter
-
-
-def  EDMDecodingVersion():
-
-    log = logging.getLogger("EDMDecodingVersion")
-
-    # BYTESTREAM: decide Run3 or later based on ROD version, decide Run1/Run2 based on run number
-    if globalflags.InputFormat.is_bytestream():
-
-        # Check HLT ROD version in first event of first input file
-        from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-        inputFileName = athenaCommonFlags.FilesInput()[0]
-        if not inputFileName and athenaCommonFlags.isOnline():
-            log.info("Online reconstruction mode, no input file available. Leaving default TriggerFlags.EDMDecodingVersion=%d", TriggerFlags.EDMDecodingVersion())
-            return
-
-        import eformat
-        from libpyeformat_helper import SubDetector
-        bs = eformat.istream(inputFileName)
-
-        rodVersionM = -1
-        rodVersionL = -1
-        # Find the first HLT ROBFragment in the first event
-        for robf in bs[0]:
-            if robf.rob_source_id().subdetector_id()==SubDetector.TDAQ_HLT:
-                rodVersionM = robf.rod_minor_version() >> 8
-                rodVersionL = robf.rod_minor_version() & 0xFF
-                log.debug("HLT ROD minor version from input file is %d.%d", rodVersionM, rodVersionL)
-                break
-
-        if rodVersionM < 0 or rodVersionL < 0:
-            log.warning("Cannot determine HLT ROD version from input file, falling back to runNumber-based decision")
-        elif rodVersionM >= 1:
-            TriggerFlags.EDMDecodingVersion = 3
-            log.info("Decoding version set to 3, because running on BS file with HLT ROD version %d.%d", rodVersionM, rodVersionL)
-            return
-
-        # Use run number to determine decoding version
-        from RecExConfig.AutoConfiguration  import GetRunNumber
-        runNumber = GetRunNumber()
-
-        boundary_run12 = 230000
-        boundary_run23 = 368000
-
-        if runNumber <= 0:
-            log.error("Cannot determine decoding version because run number %d is invalid. Leaving the default version %d",
-                        runNumber, TriggerFlags.EDMDecodingVersion())
-        elif runNumber < boundary_run12:
-            # Run-1 data
-            TriggerFlags.EDMDecodingVersion = 1
-            TriggerFlags.doMergedHLTResult = False
-            log.info("Decoding version set to 1 based on BS file run number (runNumber < %d)",
-                        boundary_run12)
-        elif runNumber < boundary_run23:
-            # Run-2 data
-            TriggerFlags.EDMDecodingVersion = 2
-            log.info("Decoding version set to 2 based on BS file run number (%d < runNumber < %d)",
-                        boundary_run12, boundary_run23)
-        else:
-            # Run-3 data
-            TriggerFlags.EDMDecodingVersion = 3
-            log.info("Decoding version set to 3 based on BS file run number (runNumber > %d)",
-                        boundary_run23)
-
-    else:
-        # POOL files: decide based on HLT output type present in file
-        from RecExConfig.ObjKeyStore import cfgKeyStore
-        from PyUtils.MetaReaderPeeker import convert_itemList
-        cfgKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
-
-        TriggerFlags.doMergedHLTResult = True
-        if cfgKeyStore.isInInputFile( "HLT::HLTResult", "HLTResult_EF" ):
-            TriggerFlags.EDMDecodingVersion = 1
-            TriggerFlags.doMergedHLTResult = False
-            log.info("Decoding version set to 1, because HLTResult_EF found in POOL file")
-        elif cfgKeyStore.isInInputFile( "xAOD::TrigNavigation", "TrigNavigation" ):
-            TriggerFlags.EDMDecodingVersion = 2
-            log.info("Decoding version set to 2, because TrigNavigation found in POOL file")
-        elif cfgKeyStore.isInInputFile( "xAOD::TrigCompositeContainer", "HLTNav_Summary"):
-            TriggerFlags.EDMDecodingVersion = 3
-            log.info("Decoding version set to 3, because HLTNav_Summary found in POOL file")
-        elif rec.readRDO():
-            # If running Trigger on RDO input (without previous trigger result), choose Run-2 or Run-3 based on doMT
-            if TriggerFlags.doMT():
-                TriggerFlags.EDMDecodingVersion = 3
-                log.info("Decoding version set to 3, because running Trigger with doMT=True")
-            else:
-                TriggerFlags.EDMDecodingVersion = 2
-                log.info("Decoding version set to 2, because running Trigger with doMT=False")
-        else:
-            log.warning("Cannot recognise HLT EDM format, leaving default TriggerFlags.EDMDecodingVersion=%d", TriggerFlags.EDMDecodingVersion())
 
 
 class xAODConversionGetter(Configured):
@@ -118,10 +27,10 @@ class xAODConversionGetter(Configured):
 
         from TrigEDMConfig.TriggerEDM import getPreregistrationList
         from TrigEDMConfig.TriggerEDM import getEFRun1BSList,getEFRun2EquivalentList,getL2Run1BSList,getL2Run2EquivalentList
-        xaodconverter.Navigation.ClassesToPreregister = getPreregistrationList(TriggerFlags.EDMDecodingVersion())
-        ## if TriggerFlags.EDMDecodingVersion() == 2:
+        xaodconverter.Navigation.ClassesToPreregister = getPreregistrationList(ConfigFlags.Trigger.EDMVersion)
+        ## if ConfigFlags.Trigger.EDMVersion == 2:
         ##     #        if TriggerFlags.doMergedHLTResult():
-        ##     #if EDMDecodingVersion() =='Run2': #FPP
+        ##     #if ConfigFlags.Trigger.EDMVersion == 2: #FPP
         ##     xaodconverter.Navigation.ClassesToPreregister = getHLTPreregistrationList()
         ## else:
         ##     xaodconverter.Navigation.ClassesToPreregister = list(set(getL2PreregistrationList()+getEFPreregistrationList()+getHLTPreregistrationList()))
@@ -214,7 +123,7 @@ class ByteStreamUnpackGetterRun2(Configured):
             extr.Navigation.Dlls = getEDMLibraries()            
 
             from TrigEDMConfig.TriggerEDM import getPreregistrationList
-            extr.Navigation.ClassesToPreregister = getPreregistrationList(TriggerFlags.EDMDecodingVersion())
+            extr.Navigation.ClassesToPreregister = getPreregistrationList(ConfigFlags.Trigger.EDMVersion)
             
             if TriggerFlags.doMergedHLTResult():
                 extr.L2ResultKey=""
@@ -250,7 +159,7 @@ class ByteStreamUnpackGetterRun2(Configured):
         from AthenaCommon.AppMgr import ToolSvc
         ToolSvc += TrigSerToolTP
         from TrigEDMConfig.TriggerEDM import getTPList
-        TrigSerToolTP.TPMap = getTPList((TriggerFlags.EDMDecodingVersion()))
+        TrigSerToolTP.TPMap = getTPList((ConfigFlags.Trigger.EDMVersion))
         
         from TrigSerializeCnvSvc.TrigSerializeCnvSvcConf import TrigSerializeConvHelper
         TrigSerializeConvHelper = TrigSerializeConvHelper(doTP = True)
@@ -376,9 +285,6 @@ class HLTTriggerResultGetter(Configured):
         log = logging.getLogger("HLTTriggerResultGetter.py")
         from RecExConfig.ObjKeyStore import objKeyStore
 
-        # set EDMDecodingVersion
-        EDMDecodingVersion()
-
         # Set AODFULL for data unless it was set explicitly already
         if TriggerFlags.AODEDMSet.isDefault() and globalflags.DataSource()=='data':
             TriggerFlags.AODEDMSet = 'AODFULL'
@@ -387,25 +293,24 @@ class HLTTriggerResultGetter(Configured):
         topSequence = AlgSequence()
         log.info("BS unpacking (TF.readBS): %d", TriggerFlags.readBS() )
         if TriggerFlags.readBS():
-            if TriggerFlags.EDMDecodingVersion() <= 2:
+            if ConfigFlags.Trigger.EDMVersion <= 2:
                 bs = ByteStreamUnpackGetterRun2()  # noqa: F841
             else:
                 bs = ByteStreamUnpackGetter()  # noqa: F841
 
         xAODContainers = {}
 #        if not recAlgs.doTrigger():      #only convert when running on old data
-        if TriggerFlags.EDMDecodingVersion()==1:
+        if ConfigFlags.Trigger.EDMVersion == 1:
             xaodcnvrt = xAODConversionGetter()
             xAODContainers = xaodcnvrt.xaodlist
 
-        if recAlgs.doTrigger() or TriggerFlags.doTriggerConfigOnly():
-            if TriggerFlags.EDMDecodingVersion() <= 2:
-                tdt = TrigDecisionGetterRun2()  # noqa: F841
-            else:
-                tdt = TrigDecisionGetter()  # noqa: F841
+        if ConfigFlags.Trigger.EDMVersion <= 2 and (rec.doTrigger() or TriggerFlags.doTriggerConfigOnly()):
+            tdt = TrigDecisionGetterRun2()  # noqa: F841
+        elif ConfigFlags.Trigger.EDMVersion >= 3 and TriggerFlags.readBS():
+            tdt = TrigDecisionGetter()  # noqa: F841
 
         # Temporary hack to add Run-3 navigation to ESD and AOD
-        if (rec.doESD() or rec.doAOD()) and TriggerFlags.EDMDecodingVersion() == 3:
+        if (rec.doESD() or rec.doAOD()) and ConfigFlags.Trigger.EDMVersion == 3:
             # The hack with wildcards is needed for BS->ESD because we don't know the exact keys
             # of HLT navigation containers before unpacking them from the BS event.
             objKeyStore._store['streamESD'].allowWildCard(True)
@@ -474,17 +379,17 @@ class HLTTriggerResultGetter(Configured):
         if(xAODContainers):
             _TriggerESDList.update( xAODContainers )
         else:
-            _TriggerESDList.update( getTriggerEDMList(TriggerFlags.ESDEDMSet(),  TriggerFlags.EDMDecodingVersion()) ) 
+            _TriggerESDList.update( getTriggerEDMList(TriggerFlags.ESDEDMSet(),  ConfigFlags.Trigger.EDMVersion) ) 
         
-        log.info("ESD content set according to the ESDEDMSet flag: %s and EDM version %d", TriggerFlags.ESDEDMSet() ,TriggerFlags.EDMDecodingVersion())
+        log.info("ESD content set according to the ESDEDMSet flag: %s and EDM version %d", TriggerFlags.ESDEDMSet(), ConfigFlags.Trigger.EDMVersion)
 
         # AOD objects choice
         _TriggerAODList = {}
         
         #from TrigEDMConfig.TriggerEDM import getAODList    
-        _TriggerAODList.update( getTriggerEDMList(TriggerFlags.AODEDMSet(),  TriggerFlags.EDMDecodingVersion()) ) 
+        _TriggerAODList.update( getTriggerEDMList(TriggerFlags.AODEDMSet(),  ConfigFlags.Trigger.EDMVersion) ) 
 
-        log.info("AOD content set according to the AODEDMSet flag: %s and EDM version %d", TriggerFlags.AODEDMSet(),TriggerFlags.EDMDecodingVersion())
+        log.info("AOD content set according to the AODEDMSet flag: %s and EDM version %d", TriggerFlags.AODEDMSet(),ConfigFlags.Trigger.EDMVersion)
 
         log.debug("ESD EDM list: %s", _TriggerESDList)
         log.debug("AOD EDM list: %s", _TriggerAODList)

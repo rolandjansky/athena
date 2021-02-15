@@ -28,10 +28,7 @@
 #include "CLHEP/Geometry/Point3D.h"
 
 #include "CxxUtils/CachedUniquePtr.h"
-#include "CxxUtils/checker_macros.h"
-
-#include <atomic>
-#include <mutex>
+#include "CxxUtils/CachedValue.h"
 #include <vector>
 
 
@@ -79,15 +76,15 @@ namespace InDetDD {
     virtual TRT_BaseElement::Type type() const = 0; 
 
     /** identifier of this detector element: */
-    Identifier identify() const;
+    virtual Identifier identify() const override final;
 
     /** identifier hash */
-    IdentifierHash identifyHash() const;
+    virtual IdentifierHash identifyHash() const override final;
 
     // --- GeoModel transformation forwards ----------------------------------------------------- //
 
     /** Get Default Transform (of module in barrel, layer in endcap) from GeoModel before alignment corrections */
-    inline const GeoTrf::Transform3D& defTransform() const { return getMaterialGeom()->getDefAbsoluteTransform(); }
+    const GeoTrf::Transform3D& defTransform() const;
     
     /** Default Local -> global transform of the straw (ie before alignment corrections) : CLHEP */
     virtual HepGeom::Transform3D defStrawTransform(int straw) const = 0;
@@ -99,37 +96,37 @@ namespace InDetDD {
     // (a) Element Surface section - accesses the m_surfaceCache store
     
     /** Element Surface: access to the Surface (straw layer) */
-    virtual const Trk::Surface& surface () const;
+    virtual const Trk::Surface& surface () const override final;
     
     /** Straw layer bounds */
-    virtual const Trk::SurfaceBounds& bounds() const;
+    virtual const Trk::SurfaceBounds& bounds() const override final;
         
     /** Element Surface: Get Transform of element in Tracking frame: Amg */
-    virtual const Amg::Transform3D& transform() const;
+    virtual const Amg::Transform3D& transform() const override final;
 
     /** Element Surface: center of a straw layer. */
-    virtual const Amg::Vector3D& center() const;
+    virtual const Amg::Vector3D& center() const override final;
     
     /** Element Surface: normal of a straw layer */
-    virtual const Amg::Vector3D& normal() const;
+    virtual const Amg::Vector3D& normal() const override final;
     
     // (b) Straw Surface section - accesses the vector<SurfaceCache> m_strawSurfacesCache store
     
     /** Straw Surface: access to the surface via identifier */
-    virtual const Trk::Surface& surface (const Identifier& id) const;
+    virtual const Trk::Surface& surface (const Identifier& id) const override final;
     
     /** Returns the full list of all detection surfaces associated to this detector element */
-    virtual const std::vector<const Trk::Surface*>& surfaces() const;
+    const std::vector<const Trk::Surface*>& surfaces() const;
     
     /** Straw Surface: access to the bounds via Identifier */
-    virtual const Trk::SurfaceBounds& bounds(const Identifier& id) const;
+    virtual const Trk::SurfaceBounds& bounds(const Identifier& id) const override final;
 
     /** Straw Surface: access to the transform of individual straw in Tracking frame: Amg */
-    virtual const Amg::Transform3D& transform(const Identifier& id) const;
+    virtual const Amg::Transform3D& transform(const Identifier& id) const override final;
 
     /** Straw transform - fast access in array, in Tracking frame: Amg */
     /** Straw Surface: access to the transform of individual straw in Tracking frame: Amg */
-    virtual const Amg::Transform3D& strawTransform(unsigned int straw) const;
+    const Amg::Transform3D& strawTransform(unsigned int straw) const;
             
     /** Straw Surface: Center of a straw using Identifier 
         Straw center and straw axis can be obtained by the following:
@@ -140,10 +137,10 @@ namespace InDetDD {
         double phi = element->strawCenter()->phi();
         Amg::Vector3D strawAxis =  element->strawTransform(straw)* Vector3D(0,0,1) * strawDirection() */
         
-    virtual const Amg::Vector3D& center(const Identifier& id) const;
+    virtual const Amg::Vector3D& center(const Identifier& id) const override final;
 
     /** Normal of a straw. (Not very meaningful). */
-    virtual const Amg::Vector3D& normal(const Identifier& id) const;
+    virtual const Amg::Vector3D& normal(const Identifier& id) const override final;
     
     /** Straw Surface: access to the surface via integer */
     const Trk::StraightLineSurface& strawSurface(int straw) const;
@@ -173,22 +170,22 @@ namespace InDetDD {
     // the cache changed to Amg, hence CLHEP methods don't return by reverence anymore
 
     /** Element Surface: Get Transform of element in Tracking frame - CLHEP converted */
-    virtual const HepGeom::Transform3D transformCLHEP() const;
+    const HepGeom::Transform3D transformCLHEP() const;
 
     /**  Element Surface: Straw center - CLHEP converted*/
-    virtual const HepGeom::Point3D<double> centerCLHEP() const;
+    const HepGeom::Point3D<double> centerCLHEP() const;
 
     /**  Element Surface: Normal of a straw layer - CLHEP converted */
-    virtual const HepGeom::Vector3D<double> normalCLHEP() const; 
+    const HepGeom::Vector3D<double> normalCLHEP() const; 
 
     /** Straw Surface : get Transform of individual straw in Tracking frame - CLHEP converted */
-    virtual const HepGeom::Transform3D transformCLHEP(const Identifier& id) const;
+    const HepGeom::Transform3D transformCLHEP(const Identifier& id) const;
 
     /** Straw Surface : Center of a straw using Identifier - CLHEP converted */
-    virtual const HepGeom::Point3D<double> centerCLHEP(const Identifier& id) const;
+    const HepGeom::Point3D<double> centerCLHEP(const Identifier& id) const;
 
     /** Straw Surface : Center of a straw using Identifier - CLHEP converted */
-    virtual const HepGeom::Vector3D<double> normalCLHEP(const Identifier& id) const;
+    const HepGeom::Vector3D<double> normalCLHEP(const Identifier& id) const;
 
     // ---- CLHEP methods ---- to be checked if needed ---------------------------------------------  (end)
    
@@ -201,8 +198,6 @@ namespace InDetDD {
     /** Return the TRT_Conditions object associated to this Detector element */
     const TRT_Conditions* conditions() const;
 
-
-  protected:
     /** to be overloaded by the extended classes */
     virtual   HepGeom::Transform3D calculateStrawTransform(int straw) const = 0;
 
@@ -219,7 +214,7 @@ namespace InDetDD {
     void createSurfaceCache(Identifier id) const;
     
     /** invalidate action on the cache */
-    virtual void invalidateOther() const {};
+    void invalidateOther() const {};
 
   private:
     
@@ -230,6 +225,7 @@ namespace InDetDD {
     void deleteCache();
     void createStrawSurfaces() const;
     void createStrawSurfacesCache() const;
+    std::unique_ptr<SurfaceCache> createSurfaceCacheHelper(int straw) const;
 
   protected:
     Identifier                                          m_id;
@@ -249,9 +245,8 @@ namespace InDetDD {
     //!< helper element surface for the cache   
     CxxUtils::CachedUniquePtr<SurfaceCache> m_surfaceCache;
     CxxUtils::CachedUniquePtr<Trk::Surface> m_surface;
-    
-    mutable std::vector<const Trk::Surface*> m_surfaces ATLAS_THREAD_SAFE; // Guarded by m_mutex
-    mutable std::mutex m_mutex;
+   
+    CxxUtils::CachedValue<std::vector<const Trk::Surface*>> m_surfaces; 
     const GeoAlignmentStore* m_geoAlignStore=nullptr;
 
   };

@@ -27,7 +27,6 @@
 #include "Gaudi/Property.h"
 
 // Framework includes
-//#include "GaudiKernel/GenericAddress.h"
 #include "GaudiKernel/FileIncident.h"
 #include "GaudiKernel/IIoComponentMgr.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -62,11 +61,7 @@
 // xAOD include(s):
 #include "xAODRootAccess/Init.h"
 
-//#include "xAODRootAccess/TEvent.h"
-//#include "AsgTools/SgTEvent.h"
-
 #include "GaudiKernel/ServiceHandle.h"
-#include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IProxyProviderSvc.h"
 #include <map>
 

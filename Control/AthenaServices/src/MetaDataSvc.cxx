@@ -62,6 +62,9 @@ MetaDataSvc::MetaDataSvc(const std::string& name, ISvcLocator* pSvcLocator) : ::
    m_persToClid.insert(std::pair<std::string, CLID>("xAOD::TriggerMenuContainer_v1", 1107011239));
    m_persToClid.insert(std::pair<std::string, CLID>("DataVector<xAOD::TriggerMenu_v1>", 1107011239));
    m_persToClid.insert(std::pair<std::string, CLID>("xAOD::TriggerMenuAuxContainer_v1", 1212409402));
+   m_persToClid.insert(std::pair<std::string, CLID>("xAOD::TriggerMenuJsonContainer_v1", 1221262614));
+   m_persToClid.insert(std::pair<std::string, CLID>("DataVector<xAOD::TriggerMenuJson_v1>", 1221262614));
+   m_persToClid.insert(std::pair<std::string, CLID>("xAOD::TriggerMenuJsonAuxContainer_v1", 373045213));
    m_persToClid.insert(std::pair<std::string, CLID>("xAOD::LumiBlockRangeContainer_v1", 1115934851));
    m_persToClid.insert(std::pair<std::string, CLID>("DataVector<xAOD::LumiBlockRange_v1>", 1115934851));
    m_persToClid.insert(std::pair<std::string, CLID>("xAOD::LumiBlockRangeAuxContainer_v1", 1251061086));
@@ -78,6 +81,7 @@ MetaDataSvc::MetaDataSvc(const std::string& name, ISvcLocator* pSvcLocator) : ::
    m_toolForClid.insert(std::pair<CLID, std::string>(243004407, "xAODMaker::EventFormatMetaDataTool"));
    m_toolForClid.insert(std::pair<CLID, std::string>(1234982351, "BookkeeperTool"));
    m_toolForClid.insert(std::pair<CLID, std::string>(1107011239, "xAODMaker::TriggerMenuMetaDataTool"));
+   m_toolForClid.insert(std::pair<CLID, std::string>(1221262614, "xAODMaker::TriggerMenuMetaDataTool"));
    m_toolForClid.insert(std::pair<CLID, std::string>(1115934851, "LumiBlockMetaDataTool"));
    m_toolForClid.insert(std::pair<CLID, std::string>(178309087, "xAODMaker::FileMetaDataTool"));
    m_toolForClid.insert(std::pair<CLID, std::string>(1188015687, "xAODMaker::TruthMetaDataTool"));
@@ -467,14 +471,23 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
          if ((*iter)->name() == "ToolSvc.CopyEventStreamInfo") foundTool = true;
       }
       if (!foundTool) {
-         ServiceHandle<IIncidentListener> cfSvc("CutFlowSvc", this->name()); // Disable CutFlowSvc by stopping its incidents.
-         if (cfSvc.retrieve().isSuccess()) {
-            m_incSvc->removeListener(cfSvc.get(), IncidentType::BeginInputFile);
-            m_incSvc->removeListener(cfSvc.get(), IncidentType::EndInputFile);
-            m_incSvc->removeListener(cfSvc.get(), IncidentType::EndRun);
-            m_incSvc->removeListener(cfSvc.get(), "StoreCleared");
-            m_incSvc->removeListener(cfSvc.get(), "MetaDataStop");
-            cfSvc.release().ignore();
+         if (serviceLocator()->existsService("CutFlowSvc")) {
+            ServiceHandle<IIncidentListener> cfSvc("CutFlowSvc", this->name()); // Disable CutFlowSvc by stopping its incidents.
+            if (cfSvc.retrieve().isSuccess()) {
+               ATH_MSG_INFO("Disabling incidents for: " << cfSvc.name());
+               m_incSvc->removeListener(cfSvc.get(), IncidentType::BeginInputFile);
+               m_incSvc->removeListener(cfSvc.get(), "MetaDataStop");
+               cfSvc.release().ignore();
+            }
+         }
+         if (serviceLocator()->existsService("xAODConfigSvc")) {
+            ServiceHandle<IIncidentListener> xcSvc("xAODConfigSvc", this->name()); // Disable xAODConfigSvc, fails for merging
+            if (xcSvc.retrieve().isSuccess()) {
+               ATH_MSG_INFO("Disabling incidents for: " << xcSvc.name());
+               m_incSvc->removeListener(xcSvc.get(), IncidentType::BeginInputFile);
+               m_incSvc->removeListener(xcSvc.get(), IncidentType::BeginEvent);
+               xcSvc.release().ignore();
+            }
          }
       }
    }
@@ -649,40 +662,23 @@ void MetaDataSvc::recordHook(const std::type_info& typeInfo) {
 
   CLID itemID = 0;
   if (m_classIDSvc->getIDOfTypeInfoName(typeName, itemID).isSuccess()) {
-
-    ATH_MSG_DEBUG("MetaDataSvc will handle ClassID " << itemID);
-    auto it =  m_handledClasses.find(itemID);
-
-    if (it == m_handledClasses.end())
-      m_handledClasses[itemID] = 1;
-    else
-      (it->second)++;
-
+    auto result =  m_handledClasses.insert(itemID);
+    if (result.second)
+      ATH_MSG_DEBUG("MetaDataSvc will handle " << typeName
+                    << " ClassID: " << itemID);
   }
-
 }
 
 void MetaDataSvc::removeHook(const std::type_info& typeInfo) {
   const std::string& typeName = System::typeinfoName(typeInfo);
-  ATH_MSG_VERBOSE("Handling removal of event of type " << typeName);
+  ATH_MSG_VERBOSE("Handling removal event of type " << typeName);
 
   CLID itemID = 0;
-  // use Gaudi::System to get type name
   if (m_classIDSvc->getIDOfTypeInfoName(typeName, itemID).isSuccess()) {
-
-    ATH_MSG_DEBUG("MetaDataSvc will handle ClassID " << itemID);
-    auto it =  m_handledClasses.find(itemID);
-
-    if (it == m_handledClasses.end())
-      return;
-
-    (it->second)--;
-
-    if (it->second == 0)
-      m_handledClasses.erase(it);
-
+    if (0 < m_handledClasses.erase(itemID))
+      ATH_MSG_DEBUG("MetaDataSvc will no longer handle " << typeName
+                    << " ClassID: " << itemID);
   }
-
 }
 
 

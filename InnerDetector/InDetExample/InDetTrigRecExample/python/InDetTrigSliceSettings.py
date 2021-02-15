@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ##
 ## @file InDetTrigRecExample/python/InDetTrigSliceSettings.py
@@ -22,13 +22,13 @@ class InDetTrigSliceSettingsDB:
   other InDetTrigRecExample files are included)
   for example a preExec line
   from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings; InDetTrigSliceSettings[('pTmin','bjetVtx')] = 5000.
-  allows testing the bjetVtx instance with as different reconstruction threshold, as in the Run 2 configureation 
+  allows testing the bjetVtx instance with as different reconstruction threshold, as in the Run 2 configureation
   """
   def __init__(self):
     from AthenaCommon.SystemOfUnits import GeV
     _slices = ['electron','photon',
                'muon', 'muonFS', 'muonCore', 'muonLate', 'muonIso',
-               'tau', 'tauCore', 'tauIso', 
+               'tau', 'tauCore', 'tauIso',
                # nonsense duplicated tau instances
                # "tauId", "tauEF", "tauTrk", "tauTrkTwo",
                'bjet', 'bjetVtx',
@@ -42,11 +42,12 @@ class InDetTrigSliceSettingsDB:
                'hadCalib', 'fullScan500',       #hadCalib instances
                'heavyIon', 'heavyIonFS',   #RoI and FS instances for the heavy ion
                'beamSpot', 'cosmics',
-               'bphysHighPt'
+               'bphysHighPt',
+               'electronLRT', 'muonLRT', 'tauLRT', 'fullScanLRT', 'bjetLRT'
                ]
 
     self.db = {}
-    
+
     ptmin =   {}
     etahalf = {}
     phihalf = {}
@@ -65,6 +66,7 @@ class InDetTrigSliceSettingsDB:
     docloneremoval = {}
     doresmon = {}
     dotrigindettrack = {}
+    dopps = {}
 
     #ptmin
     for i in _slices:
@@ -101,20 +103,28 @@ class InDetTrigSliceSettingsDB:
     d0seedmax['cosmics'] = 1000.0
     d0seedppsmax['cosmics'] = 1000.0
 
+    for i in ["fullScanLRT", "electronLRT", "muonLRT", "tauLRT", "bjetLRT"]:
+        d0seedmax[i] = 300.
+
     self.db['d0SeedMax']=d0seedmax
     self.db['d0SeedPPSMax']=d0seedppsmax
 
     for i in _slices:
-      dozfinder[i] = False 
-      dotrigindettrack[i] = False 
+      dozfinder[i] = False
+      dotrigindettrack[i] = False
     dozfinder['beamSpot'] = True
     self.db['doZFinder']=dozfinder
     self.db['doTrigInDetTrack']=dotrigindettrack
 
     for i in _slices:
-      doresmon[i] = False 
+      doresmon[i] = False
     doresmon['muon'] = True
     self.db['doResMon']=doresmon
+    
+    for i in _slices:
+      dopps[i] = True
+    dopps['fullScan'] = False
+    self.db['DoPPS'] = dopps
 
     for i in _slices:
       dospphifiltering[i] = True
@@ -133,7 +143,7 @@ class InDetTrigSliceSettingsDB:
       docloneremoval[i] = True
     docloneremoval['electron'] = False
     self.db['doCloneRemoval'] = docloneremoval
-    
+
 
 
     for i in _slices:
@@ -144,12 +154,14 @@ class InDetTrigSliceSettingsDB:
     checkseedredundancy['muonLate'] = True
     checkseedredundancy['muonCore'] = True
     # muonIso instance has default seed redundency of False
-  
+
     checkseedredundancy['bphysics'] = True
     checkseedredundancy['beamSpot'] = True
+    checkseedredundancy["fullScanLRT"] = True
+
     self.db['checkRedundantSeeds'] = checkseedredundancy
 
-    
+
     for i in _slices:
       drdoubletmax[i] = 270
       seedradbinwidth[i] = 2
@@ -195,6 +207,11 @@ class InDetTrigSliceSettingsDB:
       'tauIso'    : 0.4,
       'beamSpot'  : 3.0,
       'bjetVtx'   : 0.2,
+      'electronLRT': 0.1,
+      'muonLRT': 0.1,
+      'tauLRT': 0.4,
+      'fullScanLRT': 3,
+      'bjetLRT': 0.2
       }
     self.db['etaHalfWidth']=etahalf
 
@@ -228,6 +245,11 @@ class InDetTrigSliceSettingsDB:
       'tauIso'    : 0.4,
       'beamSpot'  : 3.14159,
       'bjetVtx'   : 0.201,
+      'electronLRT': 0.1,
+      'muonLRT': 0.1,
+      'tauLRT': 0.4,
+      'fullScanLRT': 3.14159,
+      'bjetLRT': 0.201
       }
     self.db['phiHalfWidth']=phihalf
 
@@ -246,6 +268,7 @@ class InDetTrigSliceSettingsDB:
     fullscan['heavyIonFS']=True
     fullscan['minBias400']=True
     fullscan['beamSpot']  =True
+    fullscan['fullScanLRT'] = True
 
     self.db['doFullScan']=fullscan
 
@@ -262,6 +285,44 @@ class InDetTrigSliceSettingsDB:
     monptmin['muon'] = 12 * GeV
     self.db['monPtMin']=monptmin
 
+    #TRT extension
+    dotrt = {}
+    for i in _slices:
+      dotrt[i] = False
+
+    dotrt["tauIso"] = True
+    dotrt["tauCore"] = True
+    dotrt["tau"] = True
+    dotrt["electron"] = True
+    dotrt["tauLRT"] = True
+
+    self.db['doTRT'] = dotrt
+
+
+    #d0 track max, z0 track max and usepixelsp
+    d0trackmax = {}
+    z0trackmax = {}
+    usepixelsp = {}
+
+    for i in _slices:
+      d0trackmax[i] = 20.
+      z0trackmax[i] = 300.
+      usepixelsp[i] = True
+
+    d0trackmax["cosmics"] = 1000.
+    z0trackmax["cosmics"] = 1000.
+
+    for i in ["fullScanLRT", "electronLRT", "muonLRT", "tauLRT", "bjetLRT"]:
+      d0trackmax[i] = 300.
+      z0trackmax[i] = 500.
+      usepixelsp[i] = False
+
+
+
+    self.db["d0TrackMax"] = d0trackmax
+    self.db["z0TrackMax"] = z0trackmax
+    self.db["usePixelSP"] = usepixelsp
+
   def __getitem__(self, p):
     (quantity, slice) = p
     v = None
@@ -270,9 +331,9 @@ class InDetTrigSliceSettingsDB:
       q = self.db[quantity]
       try:
         v = q[slice]
-      except:
+      except Exception:
         print ('get InDetTrigSliceSettingsDB has no slice %s configured' % slice)
-    except:
+    except Exception:
       print ('get InDetTrigSliceSettingsDB has no quantity %s configured' % quantity)
 
     return v
@@ -283,9 +344,9 @@ class InDetTrigSliceSettingsDB:
       q = self.db[quantity]
       try:
         q[slice] = value
-      except:
+      except Exception:
         print ('set InDetTrigSliceSettingsDB has no slice %s configured' % slice)
-    except:
+    except Exception:
       print ('set InDetTrigSliceSettingsDB has no quantity %s configured' % quantity)
 
 

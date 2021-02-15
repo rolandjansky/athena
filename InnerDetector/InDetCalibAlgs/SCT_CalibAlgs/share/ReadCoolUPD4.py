@@ -30,10 +30,14 @@ def openDatabase(dbstring):
   
 #def formIov(runNumber):
 #  s,u=(runNumber << 32), ((runNumber + 1) << 32) - 1
+#  print ("formIOV: ", s, u)
 #  return s,u
   
+#CS: this version is needed if previous runs are processed (make sure runNumberSave is small enough)
 def formIov(runNumber):
-  runNumberSave = 362345
+  #runNumberSave = 364160
+  #runNumberSave = 364076
+  runNumberSave = 359398
   s,u=(runNumberSave << 32), ((runNumber + 1) << 32) - 1
   return s,u
 
@@ -63,13 +67,13 @@ def GetRunList(dbstring, folder, tag, runNumber, k):
     db.closeDatabase()
     
     Temp=sorted(temp)
-    # print('array is', Temp)
+    #print('GetRunList: array is', Temp)
     ls=[]
     for i in range(len(Temp)-1):
         if (Temp[i] != Temp[i+1]):
              ls.append(Temp[i])
    
-#    ls.append(Temp[len(Temp)-1])
+    #ls.append(Temp[len(Temp)-1])
     print(ls)
 
     list=[]

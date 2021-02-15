@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef E1HG_SYSTEMATICS_H
@@ -21,8 +21,8 @@ class e1hg_systematics {
   e1hg_systematics();
   ~e1hg_systematics();
 
-  /** 
-   @brief particle_type = 0 (electrons), 1 (unconv photons), 2 (conv photons) 
+  /**
+   @brief particle_type = 0 (electrons), 1 (unconv photons), 2 (conv photons)
    @brief energy = energy in MeV
    @brief eta
    @brief return value  alpha    Ebiased =  E*(1 + alpha)

@@ -10,7 +10,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "IRegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 #include "MuonAlignmentData/CorrContainer.h" // for ALineMapContainer
@@ -39,7 +39,7 @@ private:
   ToolHandle<Muon::IMuonRawDataProviderTool> m_rawDataTool{this,"ProviderTool","Muon::CSC_RawDataProviderToolMT/CscRawDataProviderTool"};
 
   /// Handle for region selector service
-  ServiceHandle<IRegSelSvc> m_regionSelector;
+  ToolHandle<IRegSelTool> m_regsel_csc{this, "RegionSelectionTool", "RegSelTool/RegSelTool_CSC", "CSC Region Selector Tool"};
   
   /// Property to decide whether or not to do RoI based decoding
   Gaudi::Property< bool > m_seededDecoding { this, "DoSeededDecoding", false, "If true do decoding in RoIs"};

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 
@@ -47,7 +47,7 @@ class RecoFix_base(object):
 
             metastr = "AODFix_" + "-".join(self.latestAODFixVersion()) + suffix
 
-            logRecoFix.info("executing addMetaData, will add as AODFixVersion %s" % metastr)
+            logRecoFix.info("executing addMetaData, will add as AODFixVersion %s", metastr)
             from AthenaCommon.AppMgr import ServiceMgr as svcMgr
             svcMgr.TagInfoMgr.ExtraTagValuePairs["AODFixVersion"] = metastr
 

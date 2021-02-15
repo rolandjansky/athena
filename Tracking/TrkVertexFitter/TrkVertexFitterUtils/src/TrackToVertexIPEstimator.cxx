@@ -66,11 +66,6 @@ namespace Trk
    return StatusCode::SUCCESS;  
  }//end of initialize method
     
- StatusCode TrackToVertexIPEstimator::finalize()
- { 
-  msg(MSG::INFO)  << "Finalize successful" << endmsg;
-  return StatusCode::SUCCESS;
- }
 
  const  ImpactParametersAndSigma * TrackToVertexIPEstimator::estimate(const xAOD::TrackParticle * track, const xAOD::Vertex * vtx, bool doRemoval) const
  {

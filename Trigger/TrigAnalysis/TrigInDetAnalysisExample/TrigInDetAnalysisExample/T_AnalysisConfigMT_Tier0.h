@@ -757,7 +757,7 @@ protected:
 
 	    std::vector<TIDA::Vertex> tidavertices;
 
-	    this->select( vertices, roi_link, vtx_name );
+	    this->select( tidavertices, roi_link, vtx_name );
 
 	    chain.back().addVertices( tidavertices );
 	    
@@ -928,20 +928,17 @@ protected:
 
             int _ip = 0; /// count of particles in this interaction
 
-            int pid = (*evitr)->signal_process_id();
+            int pid = HepMC::signal_process_id((*evitr));
 
-            if ( pid!=0 && (*evitr)->particles_size()>0 ) { /// hooray! actually found a sensible event
-              /// go through the particles
-              HepMC::GenEvent::particle_const_iterator pitr((*evitr)->particles_begin());
-              HepMC::GenEvent::particle_const_iterator pend((*evitr)->particles_end());
+            //The logic should be clarified here
+            if ( pid!=0 ) { /// hooray! actually found a sensible event
 
-              while ( pitr!=pend ) {
+              for (auto pitr: *(*evitr) ) {
 
-                selectorTruth.selectTrack( *pitr );
+                selectorTruth.selectTrack( pitr );
 
                 ++_ip;
-
-                ++pitr;
+                
               }
 
             }

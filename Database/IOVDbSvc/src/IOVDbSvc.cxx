@@ -695,7 +695,8 @@ StatusCode IOVDbSvc::processTagInfo() {
   // Set GlobalTag and any folder-specific overrides if given
 
   // dump out contents of TagInfo
-   ATH_MSG_DEBUG( "Tags from input TagInfo:" << std::endl << m_h_tagInfoMgr->dumpTagInfoToStr() );
+   ATH_MSG_DEBUG( "Tags from input TagInfo:");
+  if( msg().level()>=MSG::DEBUG ) m_h_tagInfoMgr->printTags(msg());
   
   // check IOVDbSvc GlobalTag, if not already set
   if (m_globalTag=="") {

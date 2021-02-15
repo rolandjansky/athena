@@ -24,11 +24,7 @@
 
 // McParticleTools includes
 #include "VtxBasedFilterTool.h"
-
-/////////////////////////////////////////////////////////////////// 
-/// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
+#include "AtlasHepMC/Flow.h"
 using namespace TruthHelper;
 
 /// Constructors
@@ -57,9 +53,6 @@ VtxBasedFilterTool::~VtxBasedFilterTool()
   ATH_MSG_DEBUG("Calling destructor");
 }
 
-/////////////////////////////////////////////////////////////////// 
-/// Const methods: 
-///////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////// 
 /// Non-const methods: 
@@ -68,7 +61,7 @@ VtxBasedFilterTool::~VtxBasedFilterTool()
 StatusCode VtxBasedFilterTool::buildMcAod( const McEventCollection* in,
 					McEventCollection* out )
 {
-  if ( 0 == in || 0 == out ) {
+  if ( !in || ! out ) {
     msg(MSG::ERROR)
       << "Invalid pointer to McEventCollection !" << endmsg
       << "  in: " << in << endmsg
@@ -78,7 +71,7 @@ StatusCode VtxBasedFilterTool::buildMcAod( const McEventCollection* in,
 
   for ( unsigned int iEvt = 0; iEvt != in->size(); ++iEvt ) {
     const HepMC::GenEvent * inEvt = (*in)[iEvt];
-    if ( 0 == inEvt ) {
+    if ( !inEvt ) {
       msg(MSG::WARNING)
         << "Could not launch filtering procedure for GenEvent number ["
         << iEvt << "] from McEventCollection ["
@@ -87,20 +80,7 @@ StatusCode VtxBasedFilterTool::buildMcAod( const McEventCollection* in,
         << "  inEvt: " << inEvt << endmsg;
       continue;
     }
-    HepMC::GenEvent* outEvt = new HepMC::GenEvent( inEvt->signal_process_id(), 
-                                                   inEvt->event_number() );
-    outEvt->set_event_scale  ( inEvt->event_scale() );
-    outEvt->set_alphaQCD     ( inEvt->alphaQCD() );
-    outEvt->set_alphaQED     ( inEvt->alphaQED() );
-    outEvt->weights() =        inEvt->weights();
-    outEvt->set_random_states( inEvt->random_states() );
-    if ( 0 != inEvt->heavy_ion() ) {
-      outEvt->set_heavy_ion    ( *inEvt->heavy_ion() );
-    }
-    if ( 0 != inEvt->pdf_info() ) {
-      outEvt->set_pdf_info     ( *inEvt->pdf_info() );
-    }
-
+    HepMC::GenEvent* outEvt =  HepMC::copyemptyGenEvent(inEvt);
     if ( buildGenEvent( inEvt, outEvt ).isFailure() ) {
       msg(MSG::ERROR)
 	<< "Could filter GenEvent number [" << iEvt 
@@ -117,18 +97,11 @@ StatusCode VtxBasedFilterTool::buildMcAod( const McEventCollection* in,
   return StatusCode::SUCCESS;
 }
 
-/////////////////////////////////////////////////////////////////// 
-/// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-/// Const methods: 
-///////////////////////////////////////////////////////////////////
 
 StatusCode VtxBasedFilterTool::buildGenEvent( const HepMC::GenEvent* in,
 					      HepMC::GenEvent* out )
 {
-  if ( 0 == in || 0 == out ) {
+  if ( !in || !out ) {
     msg(MSG::ERROR)
       << "Invalid pointer to GenEvent !!" << endmsg
       << "  in: " << in << endmsg
@@ -136,29 +109,31 @@ StatusCode VtxBasedFilterTool::buildGenEvent( const HepMC::GenEvent* in,
     return StatusCode::FAILURE;
   }
 
+#ifdef HEPMC3
+  for (auto vtx: in->vertices()){
+#else
   // loop over vertices
-  for ( HepMC::GenEvent::vertex_const_iterator vtx = in->vertices_begin();
-	vtx != in->vertices_end(); 
-	++vtx ) {
-
-    if ( !isAccepted(*vtx) ) {
+  for ( HepMC::GenEvent::vertex_const_iterator vtxit = in->vertices_begin(); vtxit != in->vertices_end(); ++vtxit ) {
+    auto vtx=*vtxit;
+#endif
+    if ( !isAccepted(vtx) ) {
       // no in-going nor out-going particles at this vertex matches 
       // the requirements: ==> Skip it
       continue;
     }
     
-    if ( addVertex( *vtx, out ).isFailure() ) {
+    if ( addVertex( vtx, out ).isFailure() ) {
       msg(MSG::WARNING)
-	<< "Could not add vertex [" << (*vtx)->barcode() << "]" << endmsg;
+	<< "Could not add vertex [" << HepMC::barcode(vtx) << "]" << endmsg;
     }
   } //> end loop over vertices
   
   return StatusCode::SUCCESS;
 }
 
-bool VtxBasedFilterTool::isAccepted( const HepMC::GenVertex* vtx ) const
+bool VtxBasedFilterTool::isAccepted( HepMC::ConstGenVertexPtr vtx ) const
 {
-  if ( 0 == vtx ) {
+  if ( !vtx ) {
     return false;
   }
 
@@ -176,10 +151,10 @@ bool VtxBasedFilterTool::isAccepted( const HepMC::GenVertex* vtx ) const
   return false;
 }
 
-StatusCode VtxBasedFilterTool::addVertex( const HepMC::GenVertex* srcVtx,
+StatusCode VtxBasedFilterTool::addVertex( HepMC::ConstGenVertexPtr srcVtx,
 				       HepMC::GenEvent* evt ) const
 {
-  if ( 0 == srcVtx || 0 == evt ) {
+  if ( !srcVtx || !evt ) {
     msg(MSG::ERROR)
       << "In addVertex(vtx,evt) : INVALID pointer given !!" << endmsg
       << " vtx: " << srcVtx << endmsg
@@ -187,6 +162,56 @@ StatusCode VtxBasedFilterTool::addVertex( const HepMC::GenVertex* srcVtx,
     return StatusCode::FAILURE;
   }
 
+#ifdef HEPMC3
+  HepMC::GenVertexPtr  vtx = HepMC::barcode_to_vertex(evt,HepMC::barcode(srcVtx));
+  if ( ! vtx ) {
+    evt->add_vertex(vtx);
+    vtx = HepMC::newGenVertexPtr();
+    vtx->set_position( srcVtx->position() );
+    vtx->set_status( srcVtx->status() );
+    HepMC::suggest_barcode(vtx, HepMC::barcode(srcVtx) );
+    //AV: here should be code to copy the weights, but these are never used. Skip. Please don't remove this comment.  vtx->weights() = srcVtx->weights();
+  }
+
+  ////////////////////////////
+  /// Fill the parent branch
+  for ( auto parent: srcVtx->particles_in() ) {
+    HepMC::GenParticlePtr p = HepMC::barcode_to_particle(evt, HepMC::barcode(parent) );
+    if ( !p ) {
+      p = HepMC::newGenParticlePtr();
+      vtx->add_particle_in( p );
+      p->set_momentum( parent->momentum() );
+      p->set_generated_mass( parent->generated_mass() );
+      p->set_pdg_id( parent->pdg_id() );
+      p->set_status( parent->status() );
+      HepMC::set_flow(p, HepMC::flow(parent) );
+      HepMC::set_polarization(p, HepMC::polarization(parent) );
+	  HepMC::suggest_barcode(p,HepMC::barcode(parent) );
+    } else {
+    // set the mother's decay to our (new) vertex
+    vtx->add_particle_in( p );
+    }
+  }//> loop over ingoing particles
+  
+  //////////////////////////////
+  /// Fill the children branch
+  for ( auto child: srcVtx->particles_out()) {
+    HepMC::GenParticlePtr p = HepMC::barcode_to_particle(evt, HepMC::barcode(child) );
+    if ( !p ) {
+      p = HepMC::newGenParticlePtr();
+      vtx->add_particle_out( p );
+      p->set_momentum( child->momentum() );
+      p->set_generated_mass( child->generated_mass() );
+      p->set_pdg_id( child->pdg_id() );
+      HepMC::set_flow(p, HepMC::flow(child) );
+      HepMC::set_polarization(p, HepMC::polarization(child) );
+	  HepMC::suggest_barcode(p,HepMC::barcode(child) );
+    } else {
+    // set the daughter's production vertex to our new vertex
+    vtx->add_particle_out( p );
+    }
+  }//> loop over outgoing particles
+#else
   HepMC::GenVertex * vtx = evt->barcode_to_vertex(srcVtx->barcode());
   if ( 0 == vtx ) {
     vtx = HepMC::newGenVertexPtr();
@@ -242,12 +267,13 @@ StatusCode VtxBasedFilterTool::addVertex( const HepMC::GenVertex* srcVtx,
     vtx->add_particle_out( p );
 
   }//> loop over outgoing particles
+#endif
 
   return StatusCode::SUCCESS;
 }
 
 bool 
-VtxBasedFilterTool::isFromHardScattering( const HepMC::GenVertex* vtx ) const
+VtxBasedFilterTool::isFromHardScattering( HepMC::ConstGenVertexPtr vtx ) const
 {
   if ( std::abs(HepMC::barcode(vtx)) <= m_maxHardScatteringVtxBarcode.value() &&
        m_ppFilter.isAccepted(vtx) &&

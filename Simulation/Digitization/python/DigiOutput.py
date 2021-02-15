@@ -62,15 +62,17 @@ def getStreamRDO_ItemList(log):
     else:
         StreamRDO_ItemList = []
 
-    if DetFlags.pileup.any_on() or digitizationFlags.doXingByXingPileUp():
-        if DetFlags.writeRDOPool.any_on():
-            outputKey = 'EventInfo'
-            if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
-                from OverlayCommonAlgs.OverlayFlags import overlayFlags
-                outputKey = overlayFlags.bkgPrefix() + 'EventInfo'
-            #add to output stream
-            StreamRDO_ItemList += [ "xAOD::EventInfo#" + outputKey, "xAOD::EventAuxInfo#" + outputKey + "Aux."]
+    # Event info
+    if DetFlags.writeRDOPool.any_on():
+        outputKey = 'EventInfo'
+        if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+            from OverlayCommonAlgs.OverlayFlags import overlayFlags
+            outputKey = overlayFlags.bkgPrefix() + 'EventInfo'
+        #add to output stream
+        StreamRDO_ItemList += [ "xAOD::EventInfo#" + outputKey, "xAOD::EventAuxInfo#" + outputKey + "Aux."]
+        if DetFlags.pileup.any_on() or digitizationFlags.doXingByXingPileUp():
             StreamRDO_ItemList += [ "xAOD::EventInfoContainer#*", "xAOD::EventInfoAuxContainer#*"]
+
     # Set up for cosmics digitization
     from AthenaCommon.BeamFlags import jobproperties
     if jobproperties.Beam.beamType == "cosmics" :
@@ -218,7 +220,4 @@ def getStreamRDO_ItemList(log):
         StreamRDO_ItemList +=["RecoTimingObj#*EVNTtoHITS_timings"]
         StreamRDO_ItemList +=["RecoTimingObj#*HITStoRDO_timings"]
 
-    if DetFlags.writeRDOPool.any_on():
-        # Pool Output
-        StreamRDO_ItemList+=["EventInfo#*"]
     return StreamRDO_ItemList

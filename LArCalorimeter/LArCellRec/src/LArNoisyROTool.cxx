@@ -14,7 +14,6 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "LArIdentifier/LArOnlineID.h" 
 #include "LArCabling/LArOnOffIdMapping.h"
-#include "LArRecEvent/LArNoisyROSummary.h"
 #include "StoreGate/ReadCondHandle.h"
 
 LArNoisyROTool::LArNoisyROTool( const std::string& type, 

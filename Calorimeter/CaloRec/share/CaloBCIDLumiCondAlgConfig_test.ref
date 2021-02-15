@@ -1,4 +1,4 @@
-Py:Athena            INFO using release [WorkDir-22.0.19] [x86_64-centos7-gcc8-opt] [atlas-work3/8e90f7b6f3f] -- built on [2020-10-26T1549]
+Py:Athena            INFO using release [WorkDir-22.0.26] [x86_64-centos7-gcc8-opt] [upgrade/3ed427b] -- built on [2021-01-22T0907]
 --- data
 Py:AutoConfigFlags    INFO Obtaining metadata of auto-configuration by peeking into /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
 Py:MetaReader        INFO Current mode used: peeker
@@ -8,27 +8,24 @@ Py:LuminosityCondAlg    INFO Created Run2 LuminosityCondAlg using folder /TRIGGE
 Py:ComponentAccumulator    INFO Event Inputs
 Py:ComponentAccumulator    INFO Event Algorithm Sequences
 Py:ComponentAccumulator    INFO Top sequence 0
-Py:ComponentAccumulator    INFO \__ AthAlgSeq (seq: SEQ AND)
+Py:ComponentAccumulator    INFO \__ AthAlgSeq
 Py:ComponentAccumulator    INFO Condition Algorithms
 Py:ComponentAccumulator    INFO  \__ CaloBCIDCoeffsCondAlg (cond alg)
-Py:ComponentAccumulator    INFO      * MCSymKey: LArMCSym
-Py:ComponentAccumulator    INFO      * MinBiasAvgKey: LArPileupAverageSym
-Py:ComponentAccumulator    INFO      * OFCKey: LArOFC
-Py:ComponentAccumulator    INFO      * OutputCoeffsKey: CaloBCIDCoeffs
-Py:ComponentAccumulator    INFO      * ShapeKey: LArShape32Sym
+Py:ComponentAccumulator    INFO      * MCSymKey: LArMCSym set
+Py:ComponentAccumulator    INFO      * MinBiasAvgKey: LArPileupAverageSym set
+Py:ComponentAccumulator    INFO      * OFCKey: LArOFC set
+Py:ComponentAccumulator    INFO      * OutputCoeffsKey: CaloBCIDCoeffs set
+Py:ComponentAccumulator    INFO      * ShapeKey: LArShape32Sym set
 Py:ComponentAccumulator    INFO  \__ LuminosityCondAlg (cond alg)
-Py:ComponentAccumulator    INFO      * BunchGroupInputKey: 
-Py:ComponentAccumulator    INFO      * BunchLumisInputKey: 
-Py:ComponentAccumulator    INFO      * FillParamsInputKey: 
-Py:ComponentAccumulator    INFO      * LuminosityFolderInputKey: /TRIGGER/OFLLUMI/OflPrefLumi
-Py:ComponentAccumulator    INFO      * LuminosityOutputKey: LuminosityCondData
-Py:ComponentAccumulator    INFO      * OnlineLumiCalibrationInputKey: OnlineLumiCalibrationCondData
+Py:ComponentAccumulator    INFO      * LuminosityFolderInputKey: /TRIGGER/OFLLUMI/OflPrefLumi set
+Py:ComponentAccumulator    INFO      * LuminosityOutputKey: LuminosityCondData set
+Py:ComponentAccumulator    INFO      * OnlineLumiCalibrationInputKey: OnlineLumiCalibrationCondData set
 Py:ComponentAccumulator    INFO  \__ CaloBCIDLumiCondAlg (cond alg)
-Py:ComponentAccumulator    INFO      * BunchCrossingCondDataKey: BunchCrossingData
-Py:ComponentAccumulator    INFO      * CoeffsKey: CaloBCIDCoeffs
-Py:ComponentAccumulator    INFO      * LuminosityCondDataKey: LuminosityCondData
-Py:ComponentAccumulator    INFO      * OutputLumiKey: CaloBCIDLumi
-Py:ComponentAccumulator    INFO      * isMC: False
+Py:ComponentAccumulator    INFO      * BunchCrossingCondDataKey: BunchCrossingData set
+Py:ComponentAccumulator    INFO      * CoeffsKey: CaloBCIDCoeffs set
+Py:ComponentAccumulator    INFO      * LuminosityCondDataKey: LuminosityCondData set
+Py:ComponentAccumulator    INFO      * OutputLumiKey: CaloBCIDLumi set
+Py:ComponentAccumulator    INFO      * isMC: False set
 Py:ComponentAccumulator    INFO Services
 Py:ComponentAccumulator    INFO []
 Py:ComponentAccumulator    INFO Public Tools
@@ -37,8 +34,8 @@ Py:ComponentAccumulator    INFO ]
 Py:ComponentAccumulator    INFO Private Tools
 Py:ComponentAccumulator    INFO [
 Py:ComponentAccumulator    INFO ]
-Py:ComponentAccumulator    INFO TheApp properties
-IOVDbSvc: ['/LAR/ElecCalibOfl/LArPileupShape<key>LArShape32</key><db>COOLOFL_LAR/CONDBR2</db>', '/LAR/ElecCalibOfl/LArPileupAverage<db>COOLOFL_LAR/CONDBR2</db>', '/TRIGGER/OFLLUMI/OflPrefLumi<db>COOLOFL_TRIGGER/CONDBR2</db>', '/TDAQ/OLC/CALIBRATIONS<db>COOLONL_TDAQ/CONDBR2</db>']
+Py:ComponentAccumulator    INFO theApp properties
+IOVDbSvc: ['<db>COOLOFL_LAR/CONDBR2</db> /LAR/ElecCalibOfl/LArPileupShape<key>LArShape32</key>', '<db>COOLOFL_LAR/CONDBR2</db> /LAR/ElecCalibOfl/LArPileupAverage', '<db>COOLOFL_TRIGGER/CONDBR2</db> /TRIGGER/OFLLUMI/OflPrefLumi', '<db>COOLONL_TDAQ/CONDBR2</db> /TDAQ/OLC/CALIBRATIONS']
 --- mc
 Py:AutoConfigFlags    INFO Obtaining metadata of auto-configuration by peeking into /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root
 Py:MetaReader        INFO Current mode used: peeker
@@ -59,20 +56,20 @@ Py:LArAutoCorrTotalCondAlgCfg    INFO  no pileup noise in LArAutoCorrTotal
 Py:ComponentAccumulator    INFO Event Inputs
 Py:ComponentAccumulator    INFO Event Algorithm Sequences
 Py:ComponentAccumulator    INFO Top sequence 0
-Py:ComponentAccumulator    INFO \__ AthAlgSeq (seq: SEQ AND)
+Py:ComponentAccumulator    INFO \__ AthAlgSeq
 Py:ComponentAccumulator    INFO Condition Algorithms
 Py:ComponentAccumulator    INFO  \__ CaloBCIDCoeffsCondAlg (cond alg)
-Py:ComponentAccumulator    INFO      * MCSymKey: LArMCSym
-Py:ComponentAccumulator    INFO      * MinBiasAvgKey: LArPileupAverageSym
-Py:ComponentAccumulator    INFO      * OFCKey: LArOFC
-Py:ComponentAccumulator    INFO      * OutputCoeffsKey: CaloBCIDCoeffs
-Py:ComponentAccumulator    INFO      * ShapeKey: LArShapeSym
+Py:ComponentAccumulator    INFO      * MCSymKey: LArMCSym set
+Py:ComponentAccumulator    INFO      * MinBiasAvgKey: LArPileupAverageSym set
+Py:ComponentAccumulator    INFO      * OFCKey: LArOFC set
+Py:ComponentAccumulator    INFO      * OutputCoeffsKey: CaloBCIDCoeffs set
+Py:ComponentAccumulator    INFO      * ShapeKey: LArShapeSym set
 Py:ComponentAccumulator    INFO  \__ CaloBCIDLumiCondAlg (cond alg)
-Py:ComponentAccumulator    INFO      * BunchCrossingCondDataKey: BunchCrossingData
-Py:ComponentAccumulator    INFO      * CoeffsKey: CaloBCIDCoeffs
-Py:ComponentAccumulator    INFO      * LuminosityCondDataKey: LuminosityCondData
-Py:ComponentAccumulator    INFO      * OutputLumiKey: CaloBCIDLumi
-Py:ComponentAccumulator    INFO      * isMC: True
+Py:ComponentAccumulator    INFO      * BunchCrossingCondDataKey: BunchCrossingData set
+Py:ComponentAccumulator    INFO      * CoeffsKey: CaloBCIDCoeffs set
+Py:ComponentAccumulator    INFO      * LuminosityCondDataKey: LuminosityCondData set
+Py:ComponentAccumulator    INFO      * OutputLumiKey: CaloBCIDLumi set
+Py:ComponentAccumulator    INFO      * isMC: True set
 Py:ComponentAccumulator    INFO Services
 Py:ComponentAccumulator    INFO []
 Py:ComponentAccumulator    INFO Public Tools
@@ -81,5 +78,5 @@ Py:ComponentAccumulator    INFO ]
 Py:ComponentAccumulator    INFO Private Tools
 Py:ComponentAccumulator    INFO [
 Py:ComponentAccumulator    INFO ]
-Py:ComponentAccumulator    INFO TheApp properties
-IOVDbSvc: ['/LAR/Identifier/OnOffIdMap<tag>LARIdentifierOnOffIdMap-012</tag><db>COOLOFL_LAR/OFLP200</db>', '/LAR/Align<db>COOLOFL_LAR/OFLP200</db>', '/LAR/LArCellPositionShift<db>COOLOFL_LAR/OFLP200</db>', '/LAR/ElecCalibMC/Ramp<db>COOLOFL_LAR/OFLP200</db>', '/LAR/ElecCalibMC/DAC2uA<db>COOLOFL_LAR/OFLP200</db>', '/LAR/ElecCalibMC/uA2MeV<db>COOLOFL_LAR/OFLP200</db>', '/LAR/ElecCalibMC/MphysOverMcal<db>COOLOFL_LAR/OFLP200</db>', '/LAR/ElecCalibMC/HVScaleCorr<db>COOLOFL_LAR/OFLP200</db>', '/LAR/ElecCalibMC/Shape<db>COOLOFL_LAR/OFLP200</db>', '/LAR/ElecCalibMC/Noise<db>COOLOFL_LAR/OFLP200</db>', '/LAR/ElecCalibMC/Pedestal<db>COOLOFL_LAR/OFLP200</db>', '/LAR/ElecCalibMC/AutoCorr<db>COOLOFL_LAR/OFLP200</db>', '/LAR/ElecCalibMC/fSampl<db>COOLOFL_LAR/OFLP200</db>', '/LAR/ElecCalibMC/MinBias<db>COOLOFL_LAR/OFLP200</db>', '/LAR/ElecCalibMC/LArPileupAverage<db>COOLOFL_LAR/OFLP200</db>', '/Digitization/Parameters<tag>HEAD</tag>']
+Py:ComponentAccumulator    INFO theApp properties
+IOVDbSvc: ['<db>COOLOFL_LAR/OFLP200</db> /LAR/Identifier/OnOffIdMap<tag>LARIdentifierOnOffIdMap-012</tag>', '<db>COOLOFL_LAR/OFLP200</db> /LAR/Align', '<db>COOLOFL_LAR/OFLP200</db> /LAR/LArCellPositionShift', '<db>COOLOFL_LAR/OFLP200</db> /LAR/ElecCalibMC/Ramp', '<db>COOLOFL_LAR/OFLP200</db> /LAR/ElecCalibMC/DAC2uA', '<db>COOLOFL_LAR/OFLP200</db> /LAR/ElecCalibMC/uA2MeV', '<db>COOLOFL_LAR/OFLP200</db> /LAR/ElecCalibMC/MphysOverMcal', '<db>COOLOFL_LAR/OFLP200</db> /LAR/ElecCalibMC/HVScaleCorr', '<db>COOLOFL_LAR/OFLP200</db> /LAR/ElecCalibMC/Shape', '<db>COOLOFL_LAR/OFLP200</db> /LAR/ElecCalibMC/Noise', '<db>COOLOFL_LAR/OFLP200</db> /LAR/ElecCalibMC/Pedestal', '<db>COOLOFL_LAR/OFLP200</db> /LAR/ElecCalibMC/AutoCorr', '<db>COOLOFL_LAR/OFLP200</db> /LAR/ElecCalibMC/fSampl', '<db>COOLOFL_LAR/OFLP200</db> /LAR/ElecCalibMC/MinBias', '<db>COOLOFL_LAR/OFLP200</db> /LAR/ElecCalibMC/LArPileupAverage', '/Digitization/Parameters<tag>HEAD</tag>']

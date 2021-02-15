@@ -23,6 +23,20 @@
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include "TrkSurfaces/PerigeeSurface.h"
 
+namespace {
+bool
+updateP(double& qOverP, double deltaP)
+{
+  double p = 1. / std::abs(qOverP);
+  p += deltaP;
+  if (p <= 0.) {
+    return false;
+  }
+  qOverP = qOverP > 0. ? 1. / p : -1. / p;
+  return true;
+}
+}
+
 Trk::GsfMaterialMixtureConvolution::GsfMaterialMixtureConvolution(
   const std::string& type,
   const std::string& name,
@@ -326,16 +340,17 @@ Trk::GsfMaterialMixtureConvolution::update(
       updatedCovariance =
         new AmgSymMatrix(5)(caches[stateIndex].deltaCovariances[materialIndex]);
     }
-    Trk::TrackParameters* updatedTrackParameters =
-      inputState[stateIndex].first->associatedSurface().createTrackParameters(
-        updatedStateVector[Trk::loc1],
-        updatedStateVector[Trk::loc2],
-        updatedStateVector[Trk::phi],
-        updatedStateVector[Trk::theta],
-        updatedStateVector[Trk::qOverP],
-        updatedCovariance);
+    std::unique_ptr<Trk::TrackParameters> updatedTrackParameters =
+      inputState[stateIndex]
+        .first->associatedSurface()
+        .createUniqueTrackParameters(updatedStateVector[Trk::loc1],
+                                     updatedStateVector[Trk::loc2],
+                                     updatedStateVector[Trk::phi],
+                                     updatedStateVector[Trk::theta],
+                                     updatedStateVector[Trk::qOverP],
+                                     updatedCovariance);
 
-    Trk::ComponentParameters dummyCompParams(updatedTrackParameters, 1.);
+    Trk::ComponentParameters dummyCompParams(std::move(updatedTrackParameters), 1.);
     Trk::MultiComponentState returnMultiState;
     returnMultiState.push_back(std::move(dummyCompParams));
     return returnMultiState;
@@ -410,19 +425,20 @@ Trk::GsfMaterialMixtureConvolution::update(
     AmgSymMatrix(5)& measuredCov =
       caches[stateIndex].deltaCovariances[materialIndex];
 
-    Trk::TrackParameters* updatedTrackParameters =
-      inputState[stateIndex].first->associatedSurface().createTrackParameters(
-        stateVector[Trk::loc1],
-        stateVector[Trk::loc2],
-        stateVector[Trk::phi],
-        stateVector[Trk::theta],
-        stateVector[Trk::qOverP],
-        new AmgSymMatrix(5)(measuredCov));
+    std::unique_ptr<Trk::TrackParameters> updatedTrackParameters =
+      inputState[stateIndex]
+        .first->associatedSurface()
+        .createUniqueTrackParameters(stateVector[Trk::loc1],
+                                     stateVector[Trk::loc2],
+                                     stateVector[Trk::phi],
+                                     stateVector[Trk::theta],
+                                     stateVector[Trk::qOverP],
+                                     new AmgSymMatrix(5)(measuredCov));
 
     double updatedWeight = caches[stateIndex].weights[materialIndex];
 
-    assemblerCache.multiComponentState.emplace_back(updatedTrackParameters,
-                                                    updatedWeight);
+    assemblerCache.multiComponentState.emplace_back(
+      std::move(updatedTrackParameters), updatedWeight);
     assemblerCache.validWeightSum += updatedWeight;
   }
 
@@ -441,18 +457,6 @@ Trk::GsfMaterialMixtureConvolution::update(
                                                   << " final size: "
                                                   << mergedState.size());
   return mergedState;
-}
-
-bool
-Trk::GsfMaterialMixtureConvolution::updateP(double& qOverP, double deltaP) const
-{
-  double p = 1. / std::abs(qOverP);
-  p += deltaP;
-  if (p <= 0.) {
-    return false;
-  }
-  qOverP = qOverP > 0. ? 1. / p : -1. / p;
-  return true;
 }
 
 std::pair<const Trk::MaterialProperties*, double>

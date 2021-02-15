@@ -205,13 +205,13 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata(const EventContext& ctx) const {
           // as long as there is no BIS sMDT cabling, to avoid a hard crash, replace the tubeNumber
           // of tubes not covered in the cabling by 1
           if (m_idHelperSvc->mdtIdHelper().stationName(channelId)==1
-             && std::abs(m_idHelperSvc->mdtIdHelper().stationEta(channelId))>6
              && m_idHelperSvc->issMdt(channelId)) {
+             unsigned int theLayer = (layer==4) ? 3 : layer;
              if (!bisWarningPrinted) {
-               ATH_MSG_WARNING("Found BIS sMDT with tubeLayer="<<layer<<" and tubeNumber="<<tube<<". Setting to 1,1 until a proper cabling is implemented...");
+               ATH_MSG_WARNING("Found BIS sMDT with tubeLayer="<<layer<<" and tubeNumber="<<tube<<". Setting to "<<theLayer<<",1 until a proper cabling is implemented, cf. ATLASRECTS-5804");
                bisWarningPrinted.store(true, std::memory_order_relaxed);
              }
-             cabling = readCdo->getOnlineId(name, eta, phi, multilayer, 1, 1,subsystem, mrod, link, tdc, channel);
+             cabling = readCdo->getOnlineId(name, eta, phi, multilayer, theLayer, 1,subsystem, mrod, link, tdc, channel);
           }
           if (!cabling) {
             ATH_MSG_ERROR( "MDTcabling can't return an online ID for the channel : "  );

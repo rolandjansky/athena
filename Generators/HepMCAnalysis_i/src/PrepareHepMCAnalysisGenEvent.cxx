@@ -7,10 +7,12 @@
  */
 #include <vector>
 #include "HepMC/GenEvent.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 //This tricky convention is needed for usage with HepMC3.
 #ifdef HEPMC3
 #include "HepMC3/GenEvent.h"
 #include "HepMCCompatibility.h"
+StatusCode  GetEventsFromCollection(AthAlgorithm* a,std::vector<const HepMC3::GenEvent*>& evts, const std::string km);
 HepMC::GenEvent* PrepareHepMCAnalysisGenEvent(const HepMC3::GenEvent* cevent)
 {
 HepMC::GenEvent* event = ConvertHepMCGenEvent_3to2(*cevent);
@@ -21,8 +23,15 @@ HepMC::GenEvent* event = ConvertHepMCGenEvent_3to2(*cevent);
   }
   return event;
 }
+StatusCode  GetEvents(AthAlgorithm* a,std::vector<HepMC::GenEvent*>& evts, const std::string km)
+{
+std::vector<const HepMC3::GenEvent*> input;
+StatusCode ret =GetEventsFromCollection(a,input,km);
+for (auto a: input) evts.push_back(PrepareHepMCAnalysisGenEvent(a));
+return ret;
+}
 #else
-using HepMCAnalysisGenEvent=HepMC::GenEvent;
+StatusCode  GetEventsFromCollection(AthAlgorithm* a,std::vector<const HepMC::GenEvent*>& evts, const std::string km);
 HepMC::GenEvent* PrepareHepMCAnalysisGenEvent(const HepMC::GenEvent* cevent)
 {
 //Note: the deep copy solves the issue described in the previous version.
@@ -33,5 +42,12 @@ HepMC::GenEvent* event = new HepMC::GenEvent(*cevent);
       (*p)->set_momentum(fv);
   }
   return event;
+}
+StatusCode  GetEvents(AthAlgorithm* a,std::vector<HepMC::GenEvent*>& evts, const std::string km)
+{
+std::vector<const HepMC::GenEvent*> input;
+StatusCode ret =GetEventsFromCollection(a,input,km);
+for (auto a: input) evts.push_back(PrepareHepMCAnalysisGenEvent(a));
+return ret;
 }
 #endif

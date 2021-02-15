@@ -96,7 +96,7 @@ import AthenaPoolCnvSvc.ReadAthenaPool
 from PoolSvc.PoolSvcConf import PoolSvc
 ServiceMgr += PoolSvc()
 
-athenaCommonFlags.FilesInput = [ "./ESD.pool.root" ]
+athenaCommonFlags.FilesInput = [ "./myESD.pool.root" ]
 ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput.get_Value()
 
 theApp.EvtMax = -1

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackSelectorTool/InDetTrtDriftCircleCutTool.h"
@@ -7,23 +7,9 @@
 
 StatusCode  InDet::InDetTrtDriftCircleCutTool::initialize()
 {
-  StatusCode sc = AthAlgTool::initialize();
-
-
-  if(sc.isFailure()){
-    msg(MSG::ERROR)<<" Unable to initialize the AlgTool"<<endmsg;
-    return StatusCode::FAILURE;
-  }
-
-    // Read key
-   ATH_CHECK( m_strawReadKey.initialize() );
+  // Read key
+  ATH_CHECK( m_strawReadKey.initialize() );
  
-  return StatusCode::SUCCESS;
-}
-    
-StatusCode InDet::InDetTrtDriftCircleCutTool::finalize()
-{
-  msg(MSG::INFO)  << "Finalize successful" << endmsg;
   return StatusCode::SUCCESS;
 }
     

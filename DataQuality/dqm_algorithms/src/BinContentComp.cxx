@@ -1,6 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
 
 /*! \file BinContentComp.cxx compares bins of histogram wrt to reference histogram and counts number of bins N Sigma away from ref; returns dqm_core::Result
  * \author Haleh Hadavand
@@ -11,6 +12,8 @@
 #include <dqm_algorithms/tools/AlgorithmHelper.h>
 #include <TH1.h>
 #include <TF1.h>
+#include <TProfile.h>
+#include <TProfile2D.h>
 #include <TClass.h>
 #include <math.h>
 #include <ers/ers.h>
@@ -90,8 +93,17 @@ dqm_algorithms::BinContentComp::execute(	const std::string & name,
     result->tags_["InsufficientEntries"] = histogram->GetEntries();
     return result;
   }
-  
+
+  const TProfile* profile(nullptr);
+  const TProfile2D* profile2D(nullptr);
+  const double minBinEntries = dqm_algorithms::tools::GetFirstFromMap( "MinBinEntries", config.getParameters(), -1);
+  if(minBinEntries > 0) {
+   if (object.InheritsFrom("TProfile"))        profile   = dynamic_cast<const TProfile*>(&object);
+   else if (object.InheritsFrom("TProfile2D")) profile2D = dynamic_cast<const TProfile2D*>(&object);
+  }
+
   const bool ignorezero = (bool) dqm_algorithms::tools::GetFirstFromMap( "Ignore0", config.getParameters(), 0);
+  const bool ignoreInputZero = (bool) dqm_algorithms::tools::GetFirstFromMap( "IgnoreInput0", config.getParameters(), 0);
   bool greaterthan = (bool) dqm_algorithms::tools::GetFirstFromMap( "GreaterThan", config.getParameters(), 0);
   bool lessthan = (bool) dqm_algorithms::tools::GetFirstFromMap( "LessThan", config.getParameters(), 0);
   const bool publish = (bool) dqm_algorithms::tools::GetFirstFromMap( "PublishBins", config.getParameters(), 0);
@@ -144,8 +156,24 @@ dqm_algorithms::BinContentComp::execute(	const std::string & name,
       refhist->Scale(ratio);
    }
 
+   int nSkippedBins(0);
   for ( int i = range[0]; i <= range[1]; ++i ) {
     for ( int j = range[2]; j <= range[3]; ++j ) {
+      if (minBinEntries > 0) {
+        int bin = histogram->GetBin(i, j);
+        if (profile) {
+          if (profile->GetBinEntries(bin) < minBinEntries) {
+            ++nSkippedBins;
+            continue;
+          }
+        } else if (profile2D) {
+          if (profile2D->GetBinEntries(bin) < minBinEntries) {
+            ++nSkippedBins;
+            continue;
+          }
+        }
+      }
+
      if ( ! refhist ){
 	 refcont=value;
      } else {
@@ -172,8 +200,11 @@ dqm_algorithms::BinContentComp::execute(	const std::string & name,
       double reldiff=1;
       if(refcont!=0) reldiff=diff/refcont;
       else if(diff==0) reldiff=0;
+
       if (ignorezero && refcont==0) continue;
-      if (ignorezero && ! refhist && inputcont==0) continue;
+      if (ignorezero && !refhist && inputcont==0) continue;
+      if (ignoreInputZero && inputcont==0) continue;
+
       if (inputerr !=0){
 	double sigma=diff/inputerr;
 	if (greaterthan && diff < 0. ) continue;  
@@ -200,8 +231,9 @@ dqm_algorithms::BinContentComp::execute(	const std::string & name,
   
   
   result->tags_["NBins"] = count;
+  result->tags_["NSkippedBins"] = nSkippedBins;
   result->object_ =  (boost::shared_ptr<TObject>)(TObject*)(resulthisto);
-  
+
   if (gthreshold > rthreshold) {
      if ( count >= gthreshold ) {
         result->status_ = dqm_core::Result::Green;
@@ -236,6 +268,7 @@ dqm_algorithms::BinContentComp::printDescription(std::ostream& out)
   
   out<<"Optional Parameter: MinStat: Minimum histogram statistics needed to perform Algorithm"<<std::endl;
   out<<"Optional Parameter: Ignore0: Ignore bins which have zero entries in reference histogram"<<std::endl;
+  out<<"Optional Parameter: IgnoreInput0: Ignore bins which have zero entries in tested histogram"<<std::endl;
   out<<"Optional Parameter: xmin: minimum x range"<<std::endl;
   out<<"Optional Parameter: xmax: maximum x range"<<std::endl;
   out<<"Optional Parameter: ymin: minimum y range"<<std::endl;
@@ -249,6 +282,7 @@ dqm_algorithms::BinContentComp::printDescription(std::ostream& out)
   out<<"Optional Parameter: MaxDiffRel: test fails if NBins more than NSigma away and NBins more than MaxDiffRel (relative difference) away\n"<<std::endl; 
   out<<"Optional Parameter: FixedError: override the histogram errors with this value"<<std::endl;
   out<<"Optional Parameter: IncludeRefError: use both the histogram and reference histogram errors in calculation"<<std::endl;
-                                                                                                                                            
+  out<<"Optional Parameter: MinBinEntries: Minimum bin entries in profile histogram needed to check this bin (by default: -1)"<<std::endl;
+
 }
 

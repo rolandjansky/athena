@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGEGAMMAHYPO_TRIGEGAMMAFASTCALOHYPOTOOLINC_H
 #define TRIGEGAMMAHYPO_TRIGEGAMMAFASTCALOHYPOTOOLINC_H 1
@@ -30,7 +30,6 @@ class TrigEgammaFastCaloHypoToolInc : public extends<AthAlgTool, ITrigEgammaFast
 			 const std::string& name, 
 			 const IInterface* parent );
 
-  virtual ~TrigEgammaFastCaloHypoToolInc();
   virtual StatusCode initialize() override;
 
   virtual StatusCode decide( std::vector<ITrigEgammaFastCaloHypoTool::FastClusterInfo>& input )  const override;
@@ -43,7 +42,7 @@ class TrigEgammaFastCaloHypoToolInc : public extends<AthAlgTool, ITrigEgammaFast
 
  private:
   Ringer::RingerSelectorTool        m_selectorTool;
-  ToolHandle<ILumiBlockMuTool>      m_lumiBlockMuTool;
+  ToolHandle<ILumiBlockMuTool>      m_lumiBlockMuTool{this, "LumiBlockMuTool", "LumiBlockMuTool/LumiBlockMuTool", "Luminosity Tool"};
   Gaudi::Property<std::string>      m_constantsCalibPath{this, "ConstantsCalibPath", "", "Constants Calib Path"};  
   Gaudi::Property<std::string>      m_thresholdsCalibPath{this, "ThresholdsCalibPath", "", "Thresholds Calib Path"};  
   HLT::Identifier m_decisionId;

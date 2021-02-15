@@ -37,11 +37,6 @@ if __name__=='__main__':
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior = 1
 
-    # Setup logs
-    from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import *
-    log.setLevel(INFO)
-
     # set threads
     ConfigFlags.Concurrency.NumThreads=args.threads
     ConfigFlags.Concurrency.NumConcurrentEvents=args.threads
@@ -56,6 +51,13 @@ if __name__=='__main__':
         from AthenaMonitoring.DQConfigFlags import allSteeringFlagsOff
         allSteeringFlagsOff()
     ConfigFlags.fillFromArgs(parser=parser)
+
+    # Setup logs
+    from AthenaCommon.Logging import log
+    from AthenaCommon import Constants
+    if args.loglevel:
+        log.setLevel(getattr(Constants, args.loglevel))
+
     # override Input.Files with result from our own arguments
     # if --filesInput was specified as well (!) this will override
     if args.inputFiles is not None:
@@ -92,16 +94,15 @@ if __name__=='__main__':
                ((ConfigFlags.DQ.Steering.InDet, "doGlobalMon") and ConfigFlags.DQ.Steering.InDet.doGlobalMon) or \
                ((ConfigFlags.DQ.Steering.InDet, "doPerfMon") and ConfigFlags.DQ.Steering.InDet.doPerfMon):
                 ConfigFlags.Detector.GeometryID = True
-        if hasattr(ConfigFlags.DQ.Steering, "doPixelMon") and ConfigFlags.DQ.Steering.doPixelMon:
-            ConfigFlags.Detector.GeometryPixel = True
-        if hasattr(ConfigFlags.DQ.Steering, "doSCTMon") and ConfigFlags.DQ.Steering.doSCTMon:
-            ConfigFlags.Detector.GeometrySCT = True
-        if hasattr(ConfigFlags.DQ.Steering, "doTRTMon") and ConfigFlags.DQ.Steering.doTRTMon:
-            ConfigFlags.Detector.GeometryTRT = True
-            
+
+    # Just assume we want the full ID geometry, if we are reading in geometry
+    ConfigFlags.Detector.GeometryPixel = True
+    ConfigFlags.Detector.GeometrySCT = True
+    ConfigFlags.Detector.GeometryTRT = True
+
     log.info('FINAL CONFIG FLAGS SETTINGS FOLLOW')
-    ConfigFlags.dump()
-        
+    if args.loglevel is None or getattr(Constants, args.loglevel) <= Constants.INFO:
+        ConfigFlags.dump()
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.

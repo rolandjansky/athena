@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
 ## Name:        ElectronLikelihoodToolMapping.py
@@ -13,7 +13,7 @@ import cppyy
 try :
     #cppyy.load_library('libElectronPhotonSelectorToolsDict')
     cppyy.include("ElectronPhotonSelectorTools/LikelihoodEnums.h")
-except :
+except Exception:
     pass
 
 from ROOT import LikeEnum

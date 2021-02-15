@@ -22,8 +22,6 @@
 #include "TRT_ConditionsData/ExpandedIdentifier.h"
 #include "TRT_ConditionsData/StrawDxContainer.h"
 
-#include "GeoModelUtilities/GeoAlignmentStore.h"
-
 namespace InDetDD {
 
 TRT_EndcapElement::TRT_EndcapElement(const GeoVFullPhysVol* volume,
@@ -243,6 +241,17 @@ TRT_EndcapElement::elementSurface() const
 void
 TRT_EndcapElement::createSurfaceCache() const
 {
+ if (!m_surfaceCache) {
+    m_surfaceCache.set(createSurfaceCacheHelper());
+  }
+  // create the surface if needed
+  if (!m_surface) {
+    elementSurface();
+  }
+}
+std::unique_ptr<SurfaceCache>
+TRT_EndcapElement::createSurfaceCacheHelper() const
+{
   // Calculate the surface
   double phiCenter = m_descriptor->startPhi() +
                      m_descriptor->strawPitch() * 0.5 * (nStraws() - 1);
@@ -266,27 +275,22 @@ TRT_EndcapElement::createSurfaceCache() const
   // location is inverted (due to 180 rotation around y axis). This is
   // taken care of by the extra 180 CLHEP::deg rotation around Y that we do
   // to get the z axis pointing in the correct direction.
-
-  Amg::Transform3D* transform = 0;
-  if (m_code.isPosZ())
-    transform =
-      new Amg::Transform3D((getMaterialGeom()->getAbsoluteTransform() *
-                            GeoTrf::RotateZ3D(phiCenter)));
-  else
-    transform = new Amg::Transform3D(
-      (getMaterialGeom()->getAbsoluteTransform() *
-       GeoTrf::RotateY3D(180 * CLHEP::deg) * GeoTrf::RotateZ3D(phiCenter)));
+  auto transform =
+    m_code.isPosZ()
+      ? std::make_unique<Amg::Transform3D>(
+          (getMaterialGeom()->getAbsoluteTransform() *
+           GeoTrf::RotateZ3D(phiCenter)))
+      : std::make_unique<Amg::Transform3D>(
+          (getMaterialGeom()->getAbsoluteTransform() *
+           GeoTrf::RotateY3D(180 * CLHEP::deg) * GeoTrf::RotateZ3D(phiCenter)));
 
   // create the igredients and the cache
-  Trk::DiscBounds* bounds = new Trk::DiscBounds(rMin, rMax, phiHalfWidth);
-  Amg::Vector3D* center = new Amg::Vector3D(transform->translation());
-  Amg::Vector3D* normal = new Amg::Vector3D(transform->rotation().col(2));
-  m_surfaceCache.set(
-    std::make_unique<SurfaceCache>(transform, center, normal, bounds));
-  // create the surface if needed
-  if (not m_surface){
-    elementSurface();
-  }
+  auto bounds = std::make_unique<Trk::DiscBounds>(rMin, rMax, phiHalfWidth);
+  auto center = std::make_unique<Amg::Vector3D>(transform->translation());
+  auto normal = std::make_unique<Amg::Vector3D>(transform->rotation().col(2));
+
+  return std::make_unique<SurfaceCache>(
+    transform.release(), center.release(), normal.release(), bounds.release());
 }
 
 int

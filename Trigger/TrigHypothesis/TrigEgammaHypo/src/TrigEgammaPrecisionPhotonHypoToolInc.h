@@ -29,7 +29,6 @@ class TrigEgammaPrecisionPhotonHypoToolInc : public extends<AthAlgTool, ITrigEga
 			 const std::string& name, 
 			 const IInterface* parent );
 
-  virtual ~TrigEgammaPrecisionPhotonHypoToolInc();
   virtual StatusCode initialize() override;
 
   virtual StatusCode decide( std::vector<ITrigEgammaPrecisionPhotonHypoTool::PhotonInfo>& input )  const override;
@@ -43,15 +42,13 @@ class TrigEgammaPrecisionPhotonHypoToolInc : public extends<AthAlgTool, ITrigEga
   Gaudi::Property< std::vector<float> > m_etabin { this, "EtaBins", {} , "Bins of eta" }; //!<  selection variable for PRECISION calo selection:eta bins
   Gaudi::Property< std::vector<float> > m_eTthr { this, "ETthr", {}, "ET Threshold" };
   Gaudi::Property< float > m_detacluster { this, "dETACLUSTERthr", 0. , "" };
-  Gaudi::Property< float > m_dphicluster { this, "dPHICLUSTERthr", 0. , "" };  
-
- /* Calo isolation cut */
-  float m_RelEtConeCut;
+  Gaudi::Property< float > m_dphicluster { this, "dPHICLUSTERthr", 0. , "" };
+  Gaudi::Property< float > m_RelEtConeCut { this, "RelEtConeCut", -999. , "Calo isolation cut" };
 
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
-  ToolHandle<IAsgPhotonIsEMSelector> m_egammaPhotonCutIDTool;
+  ToolHandle< IAsgPhotonIsEMSelector > m_egammaPhotonCutIDTool { this, "PhotonIsEMSelector", "" };
 /*Luminosity info*/
-  SG::ReadDecorHandleKey<xAOD::EventInfo> m_avgMuKey { this, "AveIntPerXKey", "EventInfo.AveIntPerXDecor", "Decoration for Average Interaction Per Crossing" };
+  SG::ReadDecorHandleKey<xAOD::EventInfo> m_avgMuKey { this, "averageInteractionsPerCrossingKey", "EventInfo.averageInteractionsPerCrossing", "Decoration for Average Interaction Per Crossing" };
 
   int findCutIndex( float eta ) const;
 }; 

@@ -17,7 +17,6 @@
 //L1 includes
 
 // check the include of the Chain.h file here below, maybe it's obsolete because it seems it's not used
-//#include "TrigSteering/Chain.h" // OLD include
 #include "TrigSteeringEvent/Chain.h" // NEW include - Requested by Francesca Pastore, 13 Sep 2013
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
@@ -34,7 +33,6 @@
 #include "TrigMuonEvent/TrigMuonEFTrack.h"
 #include "TrigMuonEvent/TrigMuonEFCbTrack.h"
 #include "TrigMuonEvent/MuonFeature.h"
-#include "TrigMuonEvent/TrigMuonEFInfoContainer.h"
 #include "TrigMuonEvent/TrigMuonEFInfoTrackContainer.h"
 #include "TrigMuonEvent/TrigMuonEFInfoTrack.h"
 #include "TrigMuonEvent/TrigMuonEFIsolationContainer.h"

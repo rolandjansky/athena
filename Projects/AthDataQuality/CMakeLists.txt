@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Set up the project.
 cmake_minimum_required( VERSION 3.6 )
@@ -18,7 +18,7 @@ set( TDAQ-COMMON_ATROOT
 find_package( AtlasCMake REQUIRED )
 
 # Build the project against LCG:
-set( LCG_VERSION_POSTFIX "python3_ATLAS_2"
+set( LCG_VERSION_POSTFIX "python3_ATLAS_6"
    CACHE STRING "Version postfix for the LCG release to use" )
 set( LCG_VERSION_NUMBER 98
    CACHE STRING "Version number for the LCG release to use" )
@@ -45,10 +45,9 @@ lcg_generate_env( SH_FILE ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh )
 
 # Generate replacement rules for the installed paths:
 set( _replacements )
-if( NOT "$ENV{NICOS_PROJECT_HOME}" STREQUAL "" )
-   get_filename_component( _buildDir $ENV{NICOS_PROJECT_HOME} PATH )
-   list( APPEND _replacements ${_buildDir}
-      "\${AthDataQuality_DIR}/../../../.." )
+if( NOT "$ENV{ATLAS_BUILD_DIR}" STREQUAL "" )
+   list( APPEND _replacements "$ENV{ATLAS_BUILD_DIR}/install"
+                              "\${AthDataQuality_DIR}/../../../.." )
 endif()
 if( NOT "$ENV{TDAQ_RELEASE_BASE}" STREQUAL "" )
    list( APPEND _replacements $ENV{TDAQ_RELEASE_BASE}

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -847,13 +847,13 @@ MuonBackExtrapolator::give_eta_phi_at_vertex(
              double pt, double eta, double phi,
              bool barrel,bool triggerST,bool /*aligned*/,bool dataset, double& extEta,
              double& sigmaEta,double& extPhi,double& sigmaPhi,double PT,
-             double data_Barrel_Param[2][2][2],
-             double data_Barrel_Sigmas[2][2][2][2],
-             double data_Endcap_TriggerST_Param[4][12][2][2][2][2],
-             double data_Endcap_TriggerST_Sigmas[4][12][2][2][2][2],
-             double data_Endcap_InnerST_Param[4][12][2][2][2],
-             double data_Endcap_InnerST_PhiSigmas[4][12][2][2][2],
-             double data_Endcap_InnerST_EtaSigmas[2][2][2][2][2])
+             const double data_Barrel_Param[2][2][2],
+             const double data_Barrel_Sigmas[2][2][2][2],
+             const double data_Endcap_TriggerST_Param[4][12][2][2][2][2],
+             const double data_Endcap_TriggerST_Sigmas[4][12][2][2][2][2],
+             const double data_Endcap_InnerST_Param[4][12][2][2][2],
+             const double data_Endcap_InnerST_PhiSigmas[4][12][2][2][2],
+             const double data_Endcap_InnerST_EtaSigmas[2][2][2][2][2])
 {
 
     pt = retune_pt(pt, dataset);
@@ -870,8 +870,8 @@ MuonBackExtrapolator::give_eta_phi_at_vertex(
     
     // BARREL
     if (barrel) {
-        double (*param)[2][2]     = 0;
-        double (*sigmas)[2][2][2] = 0;
+        const double (*param)[2][2]     = 0;
+        const double (*sigmas)[2][2][2] = 0;
 
         param  = data_Barrel_Param;
         sigmas = data_Barrel_Sigmas;
@@ -925,8 +925,8 @@ MuonBackExtrapolator::give_eta_phi_at_vertex(
     
     if(triggerST) {
     
-        double (*param)[12][2][2][2][2] = 0;
-        double (*sigmas)[12][2][2][2][2] = 0;
+        const double (*param)[12][2][2][2][2] = 0;
+        const double (*sigmas)[12][2][2][2][2] = 0;
     
         param =  data_Endcap_TriggerST_Param;
 	sigmas = data_Endcap_TriggerST_Sigmas;
@@ -938,9 +938,9 @@ MuonBackExtrapolator::give_eta_phi_at_vertex(
     
     } else {
     
-        double (*param)[12][2][2][2] = 0;
-        double (*sigmaP)[12][2][2][2] = 0;
-	double (*sigmaE)[2][2][2][2] = 0;
+        const double (*param)[12][2][2][2] = 0;
+        const double (*sigmaP)[12][2][2][2] = 0;
+	const double (*sigmaE)[2][2][2][2] = 0;
 
         param  = data_Endcap_InnerST_Param;
         sigmaP = data_Endcap_InnerST_PhiSigmas;
@@ -969,13 +969,13 @@ MuonBackExtrapolator::give_eta_phi_at_tuned_vertex(
     double pt,double zetaId,double zetaMu,double eta,double phi, 
     bool barrel,bool triggerST,bool /*aligned*/, bool dataset,
     double& extEta,double& sigmaEta,double& extPhi,double& sigmaPhi,double PT,
-             double data_Barrel_Param[2][2][2],
-             double data_Barrel_Sigmas[2][2][2][2],
-             double data_Endcap_TriggerST_Param[4][12][2][2][2][2],
-             double data_Endcap_TriggerST_Sigmas[4][12][2][2][2][2],
-             double data_Endcap_InnerST_Param[4][12][2][2][2],
-             double data_Endcap_InnerST_PhiSigmas[4][12][2][2][2],
-             double data_Endcap_InnerST_EtaSigmas[2][2][2][2][2])
+    const double data_Barrel_Param[2][2][2],
+    const double data_Barrel_Sigmas[2][2][2][2],
+    const double data_Endcap_TriggerST_Param[4][12][2][2][2][2],
+    const double data_Endcap_TriggerST_Sigmas[4][12][2][2][2][2],
+    const double data_Endcap_InnerST_Param[4][12][2][2][2],
+    const double data_Endcap_InnerST_PhiSigmas[4][12][2][2][2],
+    const double data_Endcap_InnerST_EtaSigmas[2][2][2][2][2])
 {
 
     pt = retune_pt(pt, dataset);
@@ -991,8 +991,8 @@ MuonBackExtrapolator::give_eta_phi_at_tuned_vertex(
     
     // BARREL
     if (barrel) {
-        double (*param)[2][2] = 0;
-        double (*sigmas)[2][2][2] = 0;
+        const double (*param)[2][2] = 0;
+        const double (*sigmas)[2][2][2] = 0;
 
         param  = data_Barrel_Param;
         sigmas = data_Barrel_Sigmas;
@@ -1048,8 +1048,8 @@ MuonBackExtrapolator::give_eta_phi_at_tuned_vertex(
     
     if(triggerST) {
     
-        double (*param)[12][2][2][2][2] = 0;
-        double (*sigmas)[12][2][2][2][2] = 0;
+        const double (*param)[12][2][2][2][2] = 0;
+        const double (*sigmas)[12][2][2][2][2] = 0;
 
         param =  data_Endcap_TriggerST_Param;
 	sigmas = data_Endcap_TriggerST_Sigmas;
@@ -1061,9 +1061,9 @@ MuonBackExtrapolator::give_eta_phi_at_tuned_vertex(
     
     } else {
     
-        double (*param)[12][2][2][2] = 0;
-        double (*sigmaP)[12][2][2][2] = 0;
-	double (*sigmaE)[2][2][2][2] = 0;
+        const double (*param)[12][2][2][2] = 0;
+        const double (*sigmaP)[12][2][2][2] = 0;
+	const double (*sigmaE)[2][2][2][2] = 0;
     
         param  = data_Endcap_InnerST_Param;
 	sigmaP = data_Endcap_InnerST_PhiSigmas;

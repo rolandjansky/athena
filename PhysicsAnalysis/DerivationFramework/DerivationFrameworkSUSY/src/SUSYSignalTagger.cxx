@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DerivationFrameworkSUSY/SUSYSignalTagger.h"
@@ -98,7 +98,7 @@ namespace DerivationFramework {
     if (!truthP || truthP->empty()) {
       return false;
     }
-    for (const auto& tp : *truthP) {
+    for (const auto tp : *truthP) {
 
       //check ifSUSY particle
       if ((abs(tp->pdgId()) > 1000000 && abs(tp->pdgId()) < 1000007) || // squarkL
@@ -138,7 +138,7 @@ namespace DerivationFramework {
     if (!firstsp && !secondsp) return false; // should find none or two
 
     if (firstsp && firstsp->nChildren() == 1) {
-      for (const auto& tp : *truthP) {
+      for (const auto tp : *truthP) {
         if (tp->barcode() == firstsp->child(0)->barcode() && tp->pdgId() != firstsp->pdgId()) {
           firstsp = tp;
           break;
@@ -147,7 +147,7 @@ namespace DerivationFramework {
     }
 
     if (secondsp && secondsp->nChildren() == 1) {
-      for (const auto& tp : *truthP) {
+      for (const auto tp : *truthP) {
         if (tp->barcode() == secondsp->child(0)->barcode() && tp->pdgId() != secondsp->pdgId()) {
           secondsp = tp;
           break;

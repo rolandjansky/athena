@@ -1,4 +1,4 @@
-"""Define method to configure and test SCT_SiliconConditionsTestAlgConfig
+"""Define method to configure and test SCT_SiliconConditionsTestAlg
 
 Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """

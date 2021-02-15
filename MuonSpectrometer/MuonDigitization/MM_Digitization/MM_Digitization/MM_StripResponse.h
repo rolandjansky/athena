@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MM_DIGITIZATION_MM_STRIPRESPONSE_H
@@ -22,7 +22,7 @@ class MM_StripResponse {
  public:
 
   MM_StripResponse();
-  MM_StripResponse(std::vector<MM_IonizationCluster> IonizationClusters, float timeResolution, float stripPitch, int stripID, int minstripID, int maxstripID);
+  MM_StripResponse(std::vector<std::unique_ptr<MM_IonizationCluster>>& IonizationClusters, float timeResolution, float stripPitch, int stripID, int minstripID, int maxstripID);
   void timeOrderElectrons();
   void calculateTimeSeries(float thetaD, int gasgap);
   //  void calculateTimeSeries();
@@ -41,7 +41,7 @@ class MM_StripResponse {
 
   int getNElectrons();
   float getTotalCharge();
-  std::vector<MM_Electron*> getElectrons();
+  std::vector<std::unique_ptr<MM_Electron>>& getElectrons();
 
  private:
 
@@ -51,7 +51,7 @@ class MM_StripResponse {
   int m_minstripID;
   int m_maxstripID;
 
-  std::vector<MM_Electron*> m_Electrons;
+  std::vector<std::unique_ptr<MM_Electron>> m_Electrons;
 
   // First argument is time bin, second argument is strip ID
   std::map< int, std::map<int,float> > m_stripCharges;

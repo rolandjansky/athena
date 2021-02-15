@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <boost/algorithm/string/join.hpp>
@@ -34,33 +34,7 @@
 #include "dumpAllSystematics.h"
 
 DumpAllSystematics::DumpAllSystematics(const std::string& name, ISvcLocator* svcLoc)
-  : AthAlgorithm(name, svcLoc),
-  m_EventNumber(0),
-  m_RunNumber(0),
-  m_instance_index(0),
-  m_actualIntPerXing(0.),
-  m_averageIntPerXing(0.),
-  m_truth_pt(0.),
-  m_truth_phi(0.),
-  m_truth_eta(0.),
-  m_truth_E(0.),
-  m_truth_pdgId(0),
-  m_truth_parent_pdgId(0),
-  m_truth_matched(false),
-  m_truth_isConv(false),
-  m_truth_Rconv(0.),
-  m_npv(0),
-  m_cl_phi(0.),
-  m_cl_eta(0.),
-  m_cl_etaCalo(0.),
-  m_cl_rawcl_Es0(0.),
-  m_cl_rawcl_Es1(0.),
-  m_cl_rawcl_Es2(0.),
-  m_cl_rawcl_Es3(0.),
-  m_cl_E(0.),
-  m_ph_Rconv(0.),
-  m_ph_convFlag(0),
-  m_wstot(0.)
+  : AthAlgorithm(name, svcLoc)
 {
   declareProperty("EgammaCalibrationAndSmearingTools", m_EgammaCalibrationAndSmearingTools);
   declareProperty("particle", m_particle_name="", "electron/photon");
@@ -240,7 +214,7 @@ StatusCode DumpAllSystematics::execute()
     CHECK(evtStore()->retrieve(electrons, m_reco_container_name));
 
     std::pair<xAOD::ElectronContainer*, xAOD::ShallowAuxContainer*> electrons_shallowCopy = xAOD::shallowCopyContainer(*electrons);
-    for (const auto& el : *electrons_shallowCopy.first) {
+    for (xAOD::Electron* el : *electrons_shallowCopy.first) {
       ATH_MSG_DEBUG("new electron eta: " << el->eta());
 
 
@@ -261,7 +235,7 @@ StatusCode DumpAllSystematics::execute()
     CHECK(evtStore()->retrieve(photons, m_reco_container_name));
 
     std::pair<xAOD::PhotonContainer*, xAOD::ShallowAuxContainer*> photons_shallowCopy = xAOD::shallowCopyContainer(*photons);
-    for (const auto& ph : *photons_shallowCopy.first) {
+    for (xAOD::Photon* ph : *photons_shallowCopy.first) {
       ATH_MSG_DEBUG("new photon eta: " << ph->eta());
 
       CHECK(do_truth(*ph));

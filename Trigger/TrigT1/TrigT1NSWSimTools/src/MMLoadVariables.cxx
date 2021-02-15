@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1NSWSimTools/MMLoadVariables.h"
@@ -71,18 +71,22 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
 
       for(const auto it : *truthContainer) {  //first loop in MMT_loader::load_event
         const HepMC::GenEvent *subEvent = it;
+#ifdef HEPMC3
+        for(auto particle : subEvent->particles()) {
+#else
         HepMC::ConstGenEventParticleRange particle_range = subEvent->particle_range();
         for(const auto pit : particle_range) {
           const HepMC::GenParticle *particle = pit;
-          const HepMC::FourVector& momentum = particle->momentum();
+#endif
+          const HepMC::FourVector momentum = particle->momentum();
           int k=trackRecordCollection->size(); //number of mu entries
-          if(particle->barcode() == 10001 && std::abs(particle->pdg_id())==13){
+          if(HepMC::barcode(particle) == 10001 && std::abs(particle->pdg_id())==13){
             thePart.SetPtEtaPhiE(momentum.perp(),momentum.eta(),momentum.phi(),momentum.e());
             for(const auto & mit : *trackRecordCollection ) {
               if(k>0&&j<k){
                 const CLHEP::Hep3Vector mumomentum = mit.GetMomentum();
                 const CLHEP::Hep3Vector muposition = mit.GetPosition();
-                pdg=particle->barcode();
+                pdg=HepMC::barcode(particle);
                 phiEntry = mumomentum.getPhi();
                 etaEntry = mumomentum.getEta();
                 phiPosition = muposition.getPhi();
@@ -90,10 +94,14 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
               }
             }//muentry loop
               int l=0;
+#ifdef HEPMC3
+              for(auto vertex1 : subEvent->vertices()) {
+#else
               HepMC::ConstGenEventVertexRange vertex_range = subEvent->vertex_range();
               for(const auto vit : vertex_range) {
                 if(l!=0){break;}//get first vertex of iteration, may want to change this
                 const HepMC::GenVertex *vertex1 = vit;
+#endif
                 const HepMC::FourVector& position = vertex1->position();
                 vertex=TVector3(position.x(),position.y(),position.z());
                 l++;
@@ -124,7 +132,7 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
         // loop on all digits inside a collection, i.e. multilayer
         int digit_count =0;
 
-        for (const auto & item:*digitCollection) {
+        for (const auto item:*digitCollection) {
             // get specific digit and identify it
             const MmDigit* digit = item;
             Identifier id = digit->identify();
@@ -160,11 +168,8 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
             //match to truth particle
             TLorentzVector truthPart;
             for(auto it1 : *truthContainer) {  //Must be a more elegant way... should work for now though
-              const HepMC::GenEvent *subEvent1 = it1;
-              HepMC::ConstGenEventParticleRange particle_range1 = subEvent1->particle_range();
-              for(auto pit1 : particle_range1) {
-                const HepMC::GenParticle *particle1 = pit1;
-                const HepMC::FourVector& momentum1 = particle1->momentum();
+              for(auto particle1 : *it1) {
+                const HepMC::FourVector momentum1 = particle1->momentum();
                 truthPart.SetPtEtaPhiE(momentum1.perp(),momentum1.eta(),momentum1.phi(),momentum1.e());
               }//end particle loop
             }//end truth container loop (1 iteration) for matching

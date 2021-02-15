@@ -1,0 +1,50 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+namespace Trk {
+
+inline AlignablePlaneSurface*
+AlignablePlaneSurface::clone() const
+{
+  return new AlignablePlaneSurface(*this);
+}
+
+inline const TrkDetElementBase*
+AlignablePlaneSurface::associatedDetectorElement() const
+{
+  return m_nominalSurface->associatedDetectorElement();
+}
+
+inline Identifier
+AlignablePlaneSurface::associatedDetectorElementIdentifier() const
+{
+  return m_nominalSurface->associatedDetectorElementIdentifier();
+}
+
+inline const Trk::Layer*
+AlignablePlaneSurface::associatedLayer() const
+{
+  return m_nominalSurface->associatedLayer();
+}
+
+inline const PlaneSurface&
+AlignablePlaneSurface::surfaceRepresentation() const
+{
+  return (*this);
+}
+
+inline const PlaneSurface&
+AlignablePlaneSurface::nominalSurface() const
+{
+  return (*m_nominalSurface);
+}
+
+inline const Amg::Transform3D&
+AlignablePlaneSurface::nominalTransform() const
+{
+  return m_nominalSurface->transform();
+}
+
+}
+

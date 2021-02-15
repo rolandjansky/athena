@@ -1184,3 +1184,10 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::initializeEventData(EventData& d
                   0, // sizeRFZV not used
                   false); // checkEta not used
 }
+
+void InDet::SiSpacePointsSeedMaker_LowMomentum::writeNtuple(const SiSpacePointsSeed*, const Trk::Track*, int, long) const{
+}
+
+bool InDet::SiSpacePointsSeedMaker_LowMomentum::getWriteNtupleBoolProperty() const{
+    return false;
+}

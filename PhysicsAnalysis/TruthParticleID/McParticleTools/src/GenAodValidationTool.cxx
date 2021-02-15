@@ -23,7 +23,8 @@
 #include "AtlasHepMC/GenEvent.h"
 #include "AtlasHepMC/GenVertex.h"
 #include "AtlasHepMC/GenParticle.h"
-
+#include "AtlasHepMC/Flow.h"
+#include "AtlasHepMC/Polarization.h"
 // McParticleKernel includes
 #include "McParticleKernel/IIOHepMcTool.h"
 
@@ -86,21 +87,6 @@ GenAodValidationTool::~GenAodValidationTool()
 
 }
 
-/////////////////////////////////////////////////////////////////// 
-/// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-/// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-/// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-/// Const methods: 
-///////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////// 
 /// Non-const methods: 
@@ -246,6 +232,58 @@ GenAodValidationTool::executeTool( const HepMC::GenEvent* refMcEvts,
 	       << "Event: " << evtNbr
 	       << std::endl;
 
+#ifdef HEPMC3   
+  // loop over reference vertices
+  for ( auto  vtx: refMcEvts->vertices()) {
+    if ( m_ppFilter.isAccepted(vtx) &&
+	 !m_showerFilter.isAccepted(vtx) ) {
+      HepMC::Print::line(*m_outFile,vtx);
+      HepMC::ConstGenVertexPtr checkVtx = HepMC::barcode_to_vertex(checkMcEvts,HepMC::barcode(vtx));
+      if ( !checkVtx ) {
+	ATH_MSG_WARNING
+	  ("Output GenEvent is missing the selected HardScattering Vtx !!"
+	   << " (" << HepMC::barcode(vtx) << ")");
+      } else {
+	(*m_outFile) << "---------" << std::endl;
+	 HepMC::Print::line(*m_outFile,checkVtx);
+	if ( !compareVtx( vtx, checkVtx ) ) {
+	  ATH_MSG_WARNING("Selected HardScattering vertices are NOT the same !!"
+			  << " at Event [" << evtNbr << "]"
+			  << " refVtx = " << HepMC::barcode(vtx));
+	}
+      }
+    }
+  }
+  (*m_outFile) << "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
+  // loop over slimmed HepMC::GenEvent and check that vertices
+  // are comparable
+  // loop over reference vertices
+  for (auto checkVtx: checkMcEvts->vertices()) {
+    HepMC::GenVertexPtr refVtx = HepMC::barcode_to_vertex(refMcEvts,HepMC::barcode(checkVtx));
+    if (!refVtx) {
+      ATH_MSG_WARNING("In Event [" << evtNbr
+		      << "]: got null ref-vertex (barcode: " 
+		      << HepMC::barcode(checkVtx) << ")");
+      continue;
+    }
+    if ( !compareVtx( refVtx, checkVtx ) ) {
+      ATH_MSG_WARNING("In Event [" << evtNbr
+		      << "]: vertices are not the SAME (" 
+		      << HepMC::barcode(refVtx) << ")");
+      std::stringstream refVtxStr;
+      HepMC::Print::line(refVtxStr,refVtx);
+      std::stringstream checkVtxStr;
+      HepMC::Print::line(checkVtxStr,checkVtx);
+      msg(MSG::WARNING) << std::endl
+			<< "######### Ref vertex:" << std::endl
+			<< refVtxStr.str()
+			<< std::endl
+			<< "######### Check vertex:" << std::endl
+			<< checkVtxStr.str()
+			<< endmsg;
+    }
+  }  
+#else
   // loop over reference vertices
   for ( HepMC::GenEvent::vertex_const_iterator vtx = refMcEvts->vertices_begin();
 	vtx != refMcEvts->vertices_end(); 
@@ -270,8 +308,7 @@ GenAodValidationTool::executeTool( const HepMC::GenEvent* refMcEvts,
     }
   }
 
-  (*m_outFile) << "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
-	       << std::endl;
+  (*m_outFile) << "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
 
   // loop over slimmed HepMC::GenEvent and check that vertices
   // are comparable
@@ -304,29 +341,74 @@ GenAodValidationTool::executeTool( const HepMC::GenEvent* refMcEvts,
 			<< endmsg;
     }
   }  
+#endif
 
   return StatusCode::SUCCESS;
 }
 
-bool GenAodValidationTool::compareVtx( const HepMC::GenVertex* vtx1,
-				       const HepMC::GenVertex* vtx2 ) const
+bool GenAodValidationTool::compareVtx( HepMC::ConstGenVertexPtr vtx1, HepMC::ConstGenVertexPtr vtx2 ) const
 {
-  if ( 0 == vtx1 ||
-       0 == vtx2 ) {
+  if ( !vtx1 || !vtx2 ) {
     ATH_MSG_ERROR("One of vertices is a NULL pointer !!" << endmsg
 		  << " vtx1: " << vtx1 << endmsg
 		  << " vtx2: " << vtx2);
     return false;
   }
 
+#ifdef HEPMC3 
+  const int inVtx1 = vtx1->particles_in().size();
+  const int inVtx2 = vtx2->particles_in().size();
+
+  const int outVtx1 = vtx1->particles_out().size();
+  const int outVtx2 = vtx2->particles_out().size();
+  
+  if (  inVtx1 !=  inVtx2 || outVtx1 != outVtx2 ) {
+    ATH_MSG_ERROR("Not the same number of branches !!" << endmsg
+		  << " in:  " << inVtx1  << "\t" << inVtx2  << endmsg
+		  << " out: " << outVtx1 << "\t" << outVtx2);
+    return false;
+  }
+
+  for ( auto inPart1: vtx1->particles_in()) {
+    bool inParticleOK = false;
+    for ( auto inPart2: vtx2->particles_in()) {
+      if ( compareParts( inPart1, inPart2 ) ) {
+	inParticleOK = true;
+	break;
+      }
+    } //> end loop over in-part2
+
+    if ( !inParticleOK ) {
+      ATH_MSG_ERROR("In-going particles are NOT matching !!");
+      return false;
+    }
+
+  }//> end loop over in-part1
+
+
+  for ( auto outPart1: vtx1->particles_out()) {
+    bool outParticleOK = false;
+    for ( auto outPart2: vtx2->particles_out()) {
+      if ( compareParts( outPart1, outPart2 ) ) {
+	outParticleOK = true;
+	break;
+      }
+    } //> end loop over out-part2
+
+    if ( !outParticleOK ) {
+      ATH_MSG_ERROR("Out-going particles are NOT matching !!");
+      return false;
+    }
+
+  }//> end loop over out-part1	
+#else
   const int inVtx1 = vtx1->particles_in_size();
   const int inVtx2 = vtx2->particles_in_size();
 
   const int outVtx1 = vtx1->particles_out_size();
   const int outVtx2 = vtx2->particles_out_size();
   
-  if (  inVtx1 !=  inVtx2 ||
-       outVtx1 != outVtx2 ) {
+  if (  inVtx1 !=  inVtx2 || outVtx1 != outVtx2 ) {
     ATH_MSG_ERROR("Not the same number of branches !!" << endmsg
 		  << " in:  " << inVtx1  << "\t" << inVtx2  << endmsg
 		  << " out: " << outVtx1 << "\t" << outVtx2);
@@ -373,16 +455,15 @@ bool GenAodValidationTool::compareVtx( const HepMC::GenVertex* vtx1,
     }
 
   }//> end loop over out-part1
+#endif
 
   return true;
 }
 
 bool 
-GenAodValidationTool::compareParts( const HepMC::GenParticle* p1,
-				    const HepMC::GenParticle* p2 ) const
+GenAodValidationTool::compareParts( HepMC::ConstGenParticlePtr p1, HepMC::ConstGenParticlePtr p2 ) const
 {
-  if ( 0 == p1 ||
-       0 == p2 ) {
+  if ( !p1 || !p2 ) {
     ATH_MSG_ERROR("One of particlees is a NULL pointer !!" << endmsg
 		  << " p1: " << p1 << endmsg
 		  << " p2: " << p2);
@@ -396,14 +477,14 @@ GenAodValidationTool::compareParts( const HepMC::GenParticle* p1,
   const HepMC::FourVector hlv1   = p1->momentum();
   const int id1                  = p1->pdg_id();
   const int status1              = p1->status();
-  const HepMC::Flow flow1        = p1->flow();
-  const HepMC::Polarization pol1 = p1->polarization();
+  auto flow1                     = HepMC::flow(p1);
+  auto pol1                      = HepMC::polarization(p1);
 
   const HepMC::FourVector hlv2   = p2->momentum();
   const int id2                  = p2->pdg_id();
   const int status2              = p2->status();
-  const HepMC::Flow flow2        = p2->flow();
-  const HepMC::Polarization pol2 = p2->polarization();
+  auto flow2                     = HepMC::flow(p2);
+  auto pol2                      = HepMC::polarization(p2);
 
   const bool isOK = ( hlv1    == hlv2    &&
 		      id1     == id2     && 
@@ -431,7 +512,6 @@ StatusCode GenAodValidationTool::setupHepMcWriterTools()
   if ( !m_refMcEventWriter.retrieve().isSuccess() ) {
     ATH_MSG_ERROR("Creation of algTool ["
 		  << m_refMcEventWriter.type() << "/" 
-		  //<< m_refMcEventWriter.name() 
 		  << "] FAILED !");
     return StatusCode::FAILURE;
   }
@@ -439,7 +519,6 @@ StatusCode GenAodValidationTool::setupHepMcWriterTools()
   if ( !m_checkMcEventWriter.retrieve().isSuccess() ) {
     ATH_MSG_ERROR("Creation of algTool ["
 		  << m_checkMcEventWriter.type() << "/" 
-		  //<< m_checkMcEventWriter.name() 
 		  << "] FAILED !");
     return StatusCode::FAILURE;
   }
@@ -449,7 +528,6 @@ StatusCode GenAodValidationTool::setupHepMcWriterTools()
   if ( m_refMcEventWriter->setProperty( refProp ).isFailure() ) {
     ATH_MSG_ERROR("Could not set property [" << refProp.name() 
 		  << "] for tool [" << m_refMcEventWriter.type() << "/" 
-		  //<< m_refMcEventWriter.name() 
 		  << "] !");
     return StatusCode::FAILURE;
   }
@@ -458,7 +536,6 @@ StatusCode GenAodValidationTool::setupHepMcWriterTools()
   if ( m_checkMcEventWriter->setProperty( checkProp ).isFailure() ) {
     ATH_MSG_ERROR("Could not set property [" << checkProp.name()
 		  << "] for tool [" << m_checkMcEventWriter.type() << "/" 
-		  //<< m_checkMcEventWriter.name() 
 		  << "] !");
     return StatusCode::FAILURE;
   }

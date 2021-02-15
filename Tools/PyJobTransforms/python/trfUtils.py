@@ -1,12 +1,4 @@
-from __future__ import print_function
-from future.utils import iteritems
-
-from builtins import object
-from builtins import map
-import six
-
-
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfUtils
 # @brief Transform utility functions
@@ -318,11 +310,11 @@ def shQuoteStrings(strArray = sys.argv):
 #  @note This is useful so that multiple parts of code can co-operatively take lines from the file
 def lineByLine(filename, strip=True, removeTimestamp=True, substepName=None):
     linecounter = 0
-    encargs = {} if six.PY2 else {'encoding' : 'utf8'}
+    encargs = {'encoding' : 'utf8'}
     f = open(filename, 'r', **encargs)
     for line in f:
         linecounter += 1
-        if substepName and isinstance(substepName, six.string_types):    # Remove substepName only if caller provides that string.
+        if substepName and isinstance(substepName, str):    # Remove substepName only if caller provides that string.
             line = line.lstrip(substepName)
         if removeTimestamp:
             line = line.lstrip('0123456789:-, ')            # Remove timestamps in both serial and MP mode.
@@ -548,7 +540,7 @@ def pickledDump(argdict):
 
     from PyJobTransforms.trfArgClasses import argument
     theArgumentDictionary = {}
-    for k, v in iteritems(argdict):
+    for k, v in argdict.items():
         if k == 'dumpPickle':
             continue
         if isinstance(v, argument):
@@ -567,7 +559,7 @@ def JSONDump(argdict):
 
     from PyJobTransforms.trfArgClasses import argument
     theArgumentDictionary = {}
-    for k, v in iteritems(argdict):
+    for k, v in argdict.items():
         if k == 'dumpJSON':
             continue
         if isinstance(v, argument):
@@ -582,7 +574,7 @@ def JSONDump(argdict):
 #  from json (TODO: make the transforms happy with unicode as well as plain str!)
 def convertToStr(in_string):
     if isinstance(in_string, dict):
-        return dict([(convertToStr(key), convertToStr(value)) for key, value in iteritems(in_string)])
+        return dict([(convertToStr(key), convertToStr(value)) for key, value in in_string.items()])
     elif isinstance(in_string, list):
         return [convertToStr(element) for element in in_string]
     # Unicode is always str in Python3, but bytes are not
@@ -607,7 +599,7 @@ def cliToKey(option):
 def printHR(the_object):
     # dictionary
     if isinstance(the_object, dict):
-        for key, value in sorted(iteritems(the_object)):
+        for key, value in sorted(the_object.items()):
             print(u'{key}: {value}'.format(key = key, value = value))
     # list or tuple
     elif isinstance(the_object, list) or isinstance(the_object, tuple):
@@ -707,7 +699,7 @@ class Job(object):
     #  @return object description string
     def __str__(self):
         descriptionString = ""
-        for key, value in sorted(iteritems(vars(self))):
+        for key, value in sorted(vars(self).items()):
             descriptionString += str("{key}:{value} ".format(
                 key = key,
                 value = value)
@@ -765,7 +757,7 @@ class JobGroup(object):
     #  @return object description string
     def __str__(self):
         descriptionString = ""
-        for key, value in sorted(iteritems(vars(self))):
+        for key, value in sorted(vars(self).items()):
             descriptionString += str("{key}:{value} ".format(
                 key = key,
                 value = value)
@@ -854,7 +846,7 @@ class ParallelJobProcessor(object):
     #  @return object description string
     def __str__(self):
         descriptionString = ""
-        for key, value in sorted(iteritems(vars(self))):
+        for key, value in sorted(vars(self).items()):
             descriptionString += str("{key}:{value} ".format(
                 key = key,
                 value = value
@@ -1549,7 +1541,7 @@ def ValgrindCommand(
         for option in extraOptionsList:
             optionsList.append(option)
     # Add suppression files and athena commands
-    for suppressionFile, pathEnvironmentVariable in iteritems(suppressionFilesAndCorrespondingPathEnvironmentVariables):
+    for suppressionFile, pathEnvironmentVariable in suppressionFilesAndCorrespondingPathEnvironmentVariables.items():
         suppFile = findFile(os.environ[pathEnvironmentVariable], suppressionFile)
         if suppFile:
             optionsList.append("--suppressions=" + suppFile)

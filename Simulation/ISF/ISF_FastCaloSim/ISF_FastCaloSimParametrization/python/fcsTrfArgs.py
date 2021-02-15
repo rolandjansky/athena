@@ -1,13 +1,10 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import argparse
 import logging
 msg = logging.getLogger(__name__)
-import unittest
-import pickle
-import os
 
-from PyJobTransforms.trfArgClasses import argFactory, argFile, argInt, argFloat, argString, argSubstep, trfArgParser, argList, argBool, argPOOLFile, argHITSFile, argRDOFile, argSubstepInt, argSubstepBool
+from PyJobTransforms.trfArgClasses import argFactory, argPOOLFile, argBool, argString, argInt, argFile
+
 ## Add FCS Ntuple transform arguments
 def addFCS_NtupArgs(parser):
     parser.defineArgGroup('FCS_Ntup_tf', 'FCS_Ntup_tf specific options')

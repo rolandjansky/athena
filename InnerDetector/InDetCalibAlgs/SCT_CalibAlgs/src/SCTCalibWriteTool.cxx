@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -54,7 +54,15 @@ const bool becCapsFormat{true};
 const bool becUnderscoreFormat{false};
 
 SCTCalibWriteTool::SCTCalibWriteTool(const std::string& type, const std::string& name, const IInterface* parent) :
-   AthAlgTool(type, name, parent)
+   AthAlgTool(type, name, parent),
+   m_streamer(((m_version == 0) ? "AthenaOutputStreamTool" : "AthenaPoolOutputStreamTool"), this),
+   m_IOVDbSvc("IOVDbSvc", "SCTCalibWriteTool")
+{
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
+SCTCalibWriteTool::~SCTCalibWriteTool()
 {
 }
 
@@ -74,7 +82,11 @@ SCTCalibWriteTool::queryInterface(const InterfaceID& riid, void** ppvIF)
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 StatusCode
-SCTCalibWriteTool::initialize() {
+SCTCalibWriteTool::initialize()
+{
+
+   ATH_MSG_DEBUG("in SCTCalibWriteTool::initialize start");
+
    if (detStore()->retrieve(m_pHelper,"SCT_ID").isFailure()) {
       ATH_MSG_ERROR("SCT mgr failed to retrieve");
       return StatusCode::FAILURE;
@@ -98,12 +110,17 @@ SCTCalibWriteTool::initialize() {
 
    // Get the IOVRegistrationSvc when needed
    if (m_regIOV) {
+
       if (service("IOVRegistrationSvc", m_regSvc).isFailure()) {
          ATH_MSG_ERROR("Unable to find IOVRegistrationSvc ");
          return StatusCode::FAILURE;
       }
    }
-   
+
+   // Retrieve IOVDb service
+   if (m_IOVDbSvc.retrieve().isFailure())
+      return msg(MSG:: ERROR)<< "Failed to retrieve IOVDbSvc " << endmsg, StatusCode::FAILURE;
+
    return StatusCode::SUCCESS;
 }
 
@@ -111,6 +128,17 @@ SCTCalibWriteTool::initialize() {
 
 StatusCode
 SCTCalibWriteTool::finalize() {
+   ATH_MSG_DEBUG("SCTCalibWriteTool::finalize");
+   if (!m_attrListColl.release()) {
+      return StatusCode::FAILURE;
+   }
+   if (!m_streamer.release().isSuccess()) {
+      return StatusCode::FAILURE;
+   }
+   if (!m_IOVDbSvc.release().isSuccess()) {
+      return StatusCode::FAILURE;
+   }
+   ATH_MSG_DEBUG("Thank you for using the SCTCalibWriteTool");
    return StatusCode::SUCCESS;
 }
 
@@ -207,12 +235,12 @@ SCTCalibWriteTool::createCondObjects ATLAS_NOT_THREAD_SAFE // Thread unsafe Cond
 
 StatusCode
 SCTCalibWriteTool::createListStrip ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrListCollection::add is used.
-                                  (const Identifier& wafer_id,
-                                   const SCT_ID* sctId,
-                                   const int samplesize,
-                                   const std::string& defectType,
-                                   const float threshold,
-                                   const std::string& defectList) const
+(const Identifier& wafer_id,
+ const SCT_ID* sctId,
+ const int samplesize,
+ const std::string& defectType,
+ const float threshold,
+ const std::string& defectList) const
 {
    if (!m_writeCondObjs) {
       return StatusCode::SUCCESS;
@@ -236,7 +264,7 @@ SCTCalibWriteTool::createListStrip ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAt
    std::ostringstream attrStr2;
    attrList0.toOutputStream(attrStr2);
    m_attrListColl_deadStrip->add(wafer_id.get_identifier32().get_compact(), attrList0);
-   ATH_MSG_INFO("createListStrip: return StatusCode::SUCCESS");
+   //ATH_MSG_INFO("createListStrip: return StatusCode::SUCCESS");
    return StatusCode::SUCCESS;
 }
 
@@ -480,8 +508,11 @@ SCTCalibWriteTool::stringToInt(const std::string& s) const {
 
 StatusCode
 SCTCalibWriteTool::wrapUpNoisyChannel() {
+   ATH_MSG_DEBUG("wrapUpNoisyChannel: start");
    if (recordAndStream(m_attrListColl.get(), s_defectFolderName, m_defectRecorded).isFailure()) return StatusCode::FAILURE;
+   ATH_MSG_DEBUG("wrapUpNoisyChannel: middle");
    if (registerCondObjectsWithErrMsg(s_defectFolderName, m_tagID4NoisyStrips).isFailure()) return StatusCode::FAILURE;
+   ATH_MSG_DEBUG("wrapUpNoisyChannel: end");
    return StatusCode::SUCCESS;
 }
 
@@ -552,26 +583,31 @@ SCTCalibWriteTool::wrapUpLorentzAngle() {
 
 StatusCode
 SCTCalibWriteTool::streamOutCondObjects(const std::string& foldername) {
+   ATH_MSG_DEBUG("streamOutCondObjects: before connectOutput" << m_streamName);
    if (m_streamer->connectOutput(m_streamName).isFailure()) {
       ATH_MSG_ERROR("Could not connect stream to output");
       return( StatusCode::FAILURE);
    }
    IAthenaOutputStreamTool::TypeKeyPairs typeKeys{1};
+   ATH_MSG_DEBUG("streamOutCondObjects: before m_readWriteCool");
    if (m_readWriteCool) {
-      IAthenaOutputStreamTool::TypeKeyPair
-      attrCollPair{"CondAttrListCollection", foldername};
+      //ATH_MSG_DEBUG("before CondAttrListCollection " << foldername);
+      IAthenaOutputStreamTool::TypeKeyPair attrCollPair{"CondAttrListCollection", foldername};
       typeKeys[0] = attrCollPair;
    }
 
+   ATH_MSG_DEBUG("streamOutCondObjects: before streamObjects");
    if (m_streamer->streamObjects(typeKeys).isFailure()) {
       ATH_MSG_ERROR("Could not stream out AttributeLists");
       return StatusCode::FAILURE;
    }
 
+   ATH_MSG_DEBUG("streamOutCondObjects: before commitOutput");
    if (m_streamer->commitOutput().isFailure()) {
       ATH_MSG_ERROR("Could not commit output stream");
       return StatusCode::FAILURE;
    }
+   ATH_MSG_DEBUG("streamOutCondObjects: before return");
    return StatusCode::SUCCESS;
 }
 
@@ -579,8 +615,9 @@ SCTCalibWriteTool::streamOutCondObjects(const std::string& foldername) {
 
 StatusCode
 SCTCalibWriteTool::streamOutCondObjectsWithErrMsg(const std::string& foldername) {
+   ATH_MSG_DEBUG("streamOutCondObjectsWithErrMsg: foldername " << foldername);
    if (streamOutCondObjects(foldername).isFailure()) {
-      ATH_MSG_ERROR("Could create conditions object  " << foldername);
+      ATH_MSG_ERROR("Could not create conditions object  " << foldername);
       return StatusCode::FAILURE;
    }
    return StatusCode::SUCCESS;
@@ -591,6 +628,7 @@ SCTCalibWriteTool::streamOutCondObjectsWithErrMsg(const std::string& foldername)
 StatusCode
 SCTCalibWriteTool::registerCondObjects(const std::string& foldername,const std::string& tagname) const {
    // Register the IOV DB with the conditions data written out
+   ATH_MSG_DEBUG("registerCondObjects start");
    if (m_readWriteCool) {
       // Can only write out AttrList's if this is NOT write and reg in two steps
       if (!m_twoStepWriteReg) {
@@ -602,8 +640,9 @@ SCTCalibWriteTool::registerCondObjects(const std::string& foldername,const std::
          if (!m_manualiov) {
 
             SG::ReadHandle<EventInfo> evt{m_eventInfoKey};
+            ATH_MSG_DEBUG("registerCondObjects: before get EventInfo");
             if (not evt.isValid()) {
-               ATH_MSG_ERROR("Unable to get the EventInfo");
+               ATH_MSG_ERROR("registerCondObjects: Unable to get the EventInfo");
                return StatusCode::FAILURE;
             }
 
@@ -619,17 +658,28 @@ SCTCalibWriteTool::registerCondObjects(const std::string& foldername,const std::
          unsigned int beginLB{IOVTime::MINEVENT};
          unsigned int endLB{IOVTime::MAXEVENT};
 
+         ATH_MSG_DEBUG("registerCondObjects: registerCondObjects middle");
+
          if (not tagname.empty()) {
+            ATH_MSG_DEBUG("registerCondObjects: registerCondObjects before registerIOV 1");
+            ATH_MSG_DEBUG("registerCondObjects: foldername, tagname, beginRun, endRun, beginLB, endLB: " << foldername << ", " << tagname << ", " << beginRun << ", " << endRun << ", " << beginLB << ", " << endLB);
             sc = m_regSvc->registerIOV("CondAttrListCollection", foldername, tagname, beginRun, endRun, beginLB, endLB);
+            ATH_MSG_DEBUG("registerCondObjects after registerIOV 1");
          } else {
+            ATH_MSG_DEBUG("registerCondObjects before registerIOV 2");
+            ATH_MSG_DEBUG("registerCondObjects: foldername, beginRun, endRun, beginLB, endLB: " << foldername << ", " << beginRun << ", " << endRun << ", " << beginLB << ", " << endLB);
             sc = m_regSvc->registerIOV("CondAttrListCollection", foldername, "", beginRun, endRun, beginLB, endLB);
+            ATH_MSG_DEBUG("registerCondObjects after registerIOV 2");
          }
          if (sc.isFailure()) {
-            ATH_MSG_ERROR("Could not register in IOV DB for CondAttrListCollection");
+            ATH_MSG_ERROR("registerCondObjects: Could not register in IOV DB for CondAttrListCollection");
             return StatusCode::FAILURE;
          }
       }
    }
+
+   ATH_MSG_DEBUG("registerCondObjects end");
+
    return StatusCode::SUCCESS;
 }
 
@@ -639,7 +689,7 @@ StatusCode
 SCTCalibWriteTool::registerCondObjectsWithErrMsg(const std::string& foldername,const std::string& tagname) const {
    if (m_regIOV) {
       if (registerCondObjects(foldername,tagname).isFailure()) {
-         ATH_MSG_ERROR("Could not register " << foldername);
+         ATH_MSG_ERROR("registerCondObjectsWithErrMsg: Could not register " << foldername);
          return StatusCode::FAILURE;
       }
    }
@@ -650,14 +700,18 @@ SCTCalibWriteTool::registerCondObjectsWithErrMsg(const std::string& foldername,c
 
 StatusCode
 SCTCalibWriteTool::recordAndStream(const CondAttrListCollection* pCollection,const std::string& foldername, bool& flag) {
+   ATH_MSG_DEBUG("recordAndStream start " << foldername);
    if (m_writeCondObjs) {
+      ATH_MSG_DEBUG("recordAndStream middle ");
       if (detStore()->record(pCollection, foldername).isFailure()) {
          ATH_MSG_ERROR("Could not record "<<foldername);
          return StatusCode::FAILURE;
       }
       flag=true;
+      ATH_MSG_DEBUG("recordAndStream middle 2");
       if (streamOutCondObjectsWithErrMsg(s_defectFolderName).isFailure()) return StatusCode::FAILURE;
    }
+   ATH_MSG_DEBUG("recordAndStream end ");
    return StatusCode::SUCCESS;
 }
 

@@ -9,8 +9,6 @@ ROOT file .
 
 # TODO: Remove? Totally unused, I think.  (AB, 07/2011)
 
-from __future__ import print_function
-
 __author__ = 'M. Gallas'
 
 class HistoAtHistoSvc(object):
@@ -61,7 +59,7 @@ class HistoAtHistoSvc(object):
     def retrieve_historoot(self,root_file_name,root_histo_name):
         """ Retrieves a TH1F ROOT histogram.
         """
-        from ROOT import TFile, TH1F
+        from ROOT import TFile
         self.RootHistoName=root_histo_name
         self.RootFileName=(root_file_name)
         self.RootFile=TFile(self.RootFileName)

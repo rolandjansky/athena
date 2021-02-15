@@ -7,12 +7,10 @@
 #include "VP1Base/VP1QtInventorUtils.h"
 #include <Inventor/nodes/SoMaterial.h>
 #include <iostream>
+#include <map>
 #include <QBuffer>
 
 /////////////////////////////////////// Base class ///////////////////////////////////////
-
-#include <map>
-#include <iostream>
 
 class VisAttributes::Imp {
 public:

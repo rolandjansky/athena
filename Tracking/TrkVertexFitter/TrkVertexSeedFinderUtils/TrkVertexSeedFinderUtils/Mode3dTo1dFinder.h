@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVERTEXSEEDFINDERUTILS_MODE3DTO1DFINDER_H
@@ -39,8 +39,7 @@ namespace Trk
 
 
     virtual StatusCode initialize() override;
-    virtual StatusCode finalize() override;
-    
+
     
     /**
      * @brief Obtain the 3d-mode (position) from a list of positions

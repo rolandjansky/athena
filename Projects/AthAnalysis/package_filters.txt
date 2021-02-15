@@ -1,0 +1,215 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
+# Package filtering rules for the AthAnalysis project build.
+#
+
+# Testing package(s):
++ AsgExternal/Asg_Test
++ AtlasTest/TestTools
+
+# Core xAOD reading:
++ Control/AthContainersInterfaces
++ Control/AthContainersRoot
++ Control/AthContainers
++ Control/AthLinks
++ Control/AthToolSupport/.*
++ Control/CxxUtils
++ Control/xAODRootAccess.*
+
+# EDM:
++ Event/EventPrimitives
++ Event/FourMomUtils
++ Event/PyDumper
++ Event/xAOD/xAODMetaDataCnv
++ Event/xAOD/xAODTriggerCnv
++ Event/xAOD/xAODTrackingCnv
++ Event/xAOD/xAODEventFormatCnv
++ Event/xAOD/xAODCoreCnv
++ Event/xAOD/xAODTruthCnv
++ Event/xAOD/xAODEventInfoCnv
+- Event/xAOD/.*Cnv
++ Event/xAOD/.*
+
+# Others:
++ Calorimeter/CaloGeoHelpers
++ DetectorDescription/GeoPrimitives
++ DetectorDescription/IRegionSelector
++ DetectorDescription/RoiDescriptor
+
+# Packages temporarily turned off:
+- Reconstruction/Jet/JetAnalysisTools/.*
+- Reconstruction/Jet/JetMomentTools
+
+# Analysis Tools:
++ DataQuality/GoodRunsLists
++ ForwardDetectors/ZDC/ZdcAnalysis
++ Generators/TruthUtils
++ InnerDetector/InDetRecTools/InDetTrackSelectionTool
++ InnerDetector/InDetRecTools/TrackVertexAssociationTool
++ MuonSpectrometer/MuonStationIndex
+- PhysicsAnalysis/Algorithms/StandaloneAnalysisAlgorithms
++ PhysicsAnalysis/Algorithms/.*
++ PhysicsAnalysis/AnalysisCommon/AssociationUtils
++ PhysicsAnalysis/AnalysisCommon/EventUtils
+#+ PhysicsAnalysis/AnalysisCommon/FakeBkgTools
++ PhysicsAnalysis/AnalysisCommon/FsrUtils
++ PhysicsAnalysis/AnalysisCommon/IsolationSelection
++ PhysicsAnalysis/AnalysisCommon/PATCore
++ PhysicsAnalysis/AnalysisCommon/PATInterfaces
++ PhysicsAnalysis/AnalysisCommon/PMGTools
++ PhysicsAnalysis/AnalysisCommon/ParticleJetTools
++ PhysicsAnalysis/AnalysisCommon/PileupReweighting
++ PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/HFORTools
++ PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/GammaORTools
++ PhysicsAnalysis/AnalysisCommon/ReweightUtils
++ PhysicsAnalysis/AnalysisCommon/HDF5Utils
++ PhysicsAnalysis/AnalysisCommon/CutBookkeeperUtils
+#+ PhysicsAnalysis/AnalysisCommon/ThinningUtils
++ PhysicsAnalysis/AnalysisCommon/TruthClassification
+#+ PhysicsAnalysis/BPhys/BPhysTools
++ PhysicsAnalysis/D3PDTools/RootCoreUtils
++ PhysicsAnalysis/D3PDTools/SampleHandler
++ PhysicsAnalysis/D3PDTools/AnaAlgorithm
+- PhysicsAnalysis/D3PDTools/.*
++ PhysicsAnalysis/ElectronPhotonID/.*
++ PhysicsAnalysis/HeavyIonPhys/HIEventUtils
++ PhysicsAnalysis/HiggsPhys/Run2/HZZ/Tools/ZMassConstraint
++ PhysicsAnalysis/Interfaces/.*
++ PhysicsAnalysis/JetMissingEtID/JetSelectorTools
++ PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/CalibrationDataInterface
++ PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/xAODBTaggingEfficiency
++ PhysicsAnalysis/JetTagging/FlavorTagDiscriminants
++ PhysicsAnalysis/MCTruthClassifier
++ PhysicsAnalysis/MuonID/MuonIDAnalysis/.*
++ PhysicsAnalysis/MuonID/MuonSelectorTools
+#+ PhysicsAnalysis/SUSYPhys/SUSYTools
++ PhysicsAnalysis/TauID/DiTauMassTools
++ PhysicsAnalysis/TauID/TauAnalysisTools
++ PhysicsAnalysis/TrackingID/.*
++ Reconstruction/EventShapes/EventShapeInterface
+#- Reconstruction/Jet/JetAnalysisTools/JetAnalysisEDM
+- Reconstruction/Jet/JetEvent.*
+- Reconstruction/Jet/JetMonitoring
++ Reconstruction/Jet/JetReclustering
+- Reconstruction/Jet/JetRec.+
+- Reconstruction/Jet/JetSimTools
+- Reconstruction/Jet/JetValidation
++ Reconstruction/Jet/Jet.*
+#+ Reconstruction/Jet/BoostedJetTaggers
++ Reconstruction/MET/METInterface
++ Reconstruction/MET/METUtilities
++ Reconstruction/MVAUtils
++ Reconstruction/PFlow/PFlowUtils
++ Reconstruction/egamma/egammaInterfaces
++ Reconstruction/egamma/egammaLayerRecalibTool
++ Reconstruction/egamma/egammaMVACalib
++ Reconstruction/egamma/egammaRecEvent
++ Reconstruction/egamma/egammaUtils
++ Reconstruction/tauRecTools
++ Tools/PathResolver
++ Tools/ART
++ Tools/DirectIOART
++ Trigger/TrigAnalysis/TrigAnalysisInterfaces
++ Trigger/TrigAnalysis/TrigBunchCrossingTool
++ Trigger/TrigAnalysis/TrigDecisionTool
++ Trigger/TrigAnalysis/TrigGlobalEfficiencyCorrection
++ Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
++ Trigger/TrigAnalysis/TriggerMatchingTool
++ Trigger/TrigConfiguration/TrigConfBase
++ Trigger/TrigConfiguration/TrigConfData
++ Trigger/TrigConfiguration/TrigConfHLTData
++ Trigger/TrigConfiguration/TrigConfHLTUtils
++ Trigger/TrigConfiguration/TrigConfInterfaces
++ Trigger/TrigConfiguration/TrigConfL1Data
++ Trigger/TrigConfiguration/TrigConfxAOD
+#+ Trigger/TrigCost/EnhancedBiasWeighter
+#+ Trigger/TrigCost/RatesAnalysis
++ Trigger/TrigEvent/TrigDecisionInterface
++ Trigger/TrigEvent/TrigNavStructure
++ Trigger/TrigEvent/TrigRoiConversion
++ Trigger/TrigEvent/TrigSteeringEvent
++ Trigger/TrigSteer/TrigCompositeUtils
++ Trigger/TrigT1/TrigT1MuctpiBits
+#+ Trigger/TriggerSimulation/TrigBtagEmulationTool
+#+ Reconstruction/RecoTools/IsolationTool
++ Reconstruction/RecoTools/RecoToolInterfaces
+
+### Here follows the Athena-specific parts of the analysis release
+
+# Core Athena (would like to reduce) :
++ Control/AthAllocators
++ Control/AthenaConfiguration
++ Control/AthenaServices
++ Control/StoreGate
++ Control/SGComps
++ Control/SGTools
++ Control/StoreGateBindings
++ Control/SGMon/SGAudCore
++ Control/AthenaBaseComps
++ Control/AthAnalysisBaseComps
++ Control/AthenaCommon
++ Control/AthenaKernel
++ Control/AthenaPython
++ Control/CLID.*
++ Control/GaudiSequencer
++ Control/DataModelRoot
++ Control/RootUtils
++ Control/PerformanceMonitoring/PerfMonKernel
++ Control/PerformanceMonitoring/PerfMonComps
++ Control/PerformanceMonitoring/PerfMonEvent
++ Control/PerformanceMonitoring/PerfMonGPerfTools
++ Control/Navigation
+
+#scripts package contains useful commands like get_files
++ Tools/Scripts
+
++ Tools/PyUtils
+# Need IOVSvc for, at least, the file peeking (:-()
++ Control/IOVSvc
+
++ PhysicsAnalysis/POOLRootAccess
+
+# POOL Support (would like to decouple from core) :
++ Database/APR/.*
++ Database/AthenaRoot/.*
++ Database/ConnectionManagement/.*
+- Database/AthenaPOOL/AthenaPoolExample.*
+- Database/AthenaPOOL/.*Tools
++ Database/AthenaPOOL/DBDataModel
++ Database/AthenaPOOL/.*
++ Database/IOVDb.*
++ Database/PersistentDataModel.*
++ Database/TPTools
++ Database/CoraCool
++ Database/AtlasSTLAddReflex
++ Control/DataModelAthenaPool
+
+# Basic DF setup :
++ PhysicsAnalysis/DerivationFramework/DerivationFrameworkCore
++ PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
++ PhysicsAnalysis/CommonTools/ExpressionEvaluation
+
+# EVNT support :
+#+ PhysicsAnalysis/DerivationFramework/DerivationFrameworkMCTruth
++ Generators/AtlasHepMC
++ Generators/GenInterfaces
++ Generators/GeneratorObjects.*
++ Generators/HepMCWeightSvc
+
+# Needed for CutFlowSvc when using filter algs
++ Event/EventBookkeeperTools
++ Event/EventBookkeeperMetaData
+
+# LumiBlockComps for the LumiBlockMetaDataTool
++ LumiBlock/LumiBlockComps
+
+# Other extras (would very much like to eliminate!) :
++ Event/EventInfo.*
++ Event/EventAthenaPool
++ Event/EventTPCnv
++ Event/EventPTCnv
++ DetectorDescription/Identifier
++ DetectorDescription/GeoModel/GeoModelInterfaces
+
+# Don't build anything else:
+- .*

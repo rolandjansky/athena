@@ -313,12 +313,14 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	    ATH_MSG_DEBUG("        svp_mass in GeV: " << svp_mass );
 	    fill("TrigBjetMonitor",svp_mass);
 	    
-	    NameH = "xEVtx_tr_"+trigName;
-	    ATH_MSG_DEBUG( " NameH: " << NameH  );
-	    auto svp_efrc = Monitored::Scalar<float>(NameH,0.0);
-	    btag->variable<float>("SV1", "efracsvx", svp_efrc);
-	    ATH_MSG_DEBUG("        svp_efrc: " << svp_efrc);
-	    fill("TrigBjetMonitor",svp_efrc);
+		if (svp_mass > 0) {
+			NameH = "xEVtx_tr_"+trigName;
+			ATH_MSG_DEBUG( " NameH: " << NameH  );
+			auto svp_efrc = Monitored::Scalar<float>(NameH,0.0);
+			btag->variable<float>("SV1", "efracsvx", svp_efrc);
+			ATH_MSG_DEBUG("        svp_efrc: " << svp_efrc);
+			fill("TrigBjetMonitor",svp_efrc);
+		}
 	    
 	    // Run-3 discriminators
 	    

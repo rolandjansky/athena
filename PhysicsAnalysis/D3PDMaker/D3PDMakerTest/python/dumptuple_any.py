@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # File: D3PDMakerTest/python/dumptuple_any.py
@@ -7,12 +7,9 @@
 # Purpose: Test D3PD making.
 #
 
-from __future__ import print_function
-
-
 # Always run in batch mode.
 import os
-if os.environ.has_key('DISPLAY'):
+if 'DISPLAY' in os.environ:
     del os.environ['DISPLAY']
 os.environ['TERM'] = 'dumb'
 
@@ -30,7 +27,6 @@ cppyy.load_library('libAtlasSTLAddReflexDict')
 ROOT.TClass('vector<float>')
 ROOT.TClass('vector<vector<unsigned int> >')
 from ordereddict import OrderedDict
-import operator
 
 
 # Work around a library load order issue...
@@ -67,14 +63,14 @@ def alleq (l):
 
 def isint(o):
     try:
-        dum = int(o)
+        _ = int(o)
     except ValueError:
         return False
     return True
 
 
 def form_list(l):
-    if type(l) != type([]):
+    if not isinstance(l, list):
         return l
     return '[' + ','.join(l) + ']'
 def squash_list(l):
@@ -110,12 +106,12 @@ def squash_list(l):
             
     
 def tostr (o):
-    if type(o) == type([]):
+    if isinstance(o, list):
         l = [tostr(x) for x in o]
         if len(l) > 1:
             return squash_list(l)
         return '[' + ', '.join (l) + ']'
-    if type(o) == type(""):
+    if isinstance(o, str):
         s = repr(o)
     else:
         s = str(o)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MOOTRACKFITTER_H
@@ -219,7 +219,8 @@ namespace Muon {
 
     
     /** extract all information needed for the fit from the track */
-    bool extractData( const MuPatCandidateBase& entry1, const MuPatCandidateBase& entry2, FitterData& fitterData, GarbageCan& garbage ) const;
+    bool extractData( const MuPatCandidateBase& entry1, const MuPatCandidateBase& entry2, FitterData& fitterData, GarbageCan& garbage) const;
+
 
     /** extract all information from the HitList of a FitterData object */
     bool extractData( FitterData& fitterData, bool usePreciseHits ) const;
@@ -262,7 +263,8 @@ namespace Muon {
     double thetaSeeding( const MuPatCandidateBase& entry, MeasVec& etaHits ) const;
 
     /** clean phi hits, returns true if anything happened during the cleaning */
-    bool cleanPhiHits( double momentum, FitterData& phiHits, const PrepVec* patternPhiHits, GarbageCan& garbage ) const;
+    bool cleanPhiHits( double momentum, FitterData& phiHits, const PrepVec* patternPhiHits, GarbageCan& garbage,
+                       MuPatHitTool::HitGarbage& hitsToBeDeleted) const;
 
     /** check whether mometum of start parameter is ok */
     bool validMomentum( const Trk::TrackParameters& pars ) const;

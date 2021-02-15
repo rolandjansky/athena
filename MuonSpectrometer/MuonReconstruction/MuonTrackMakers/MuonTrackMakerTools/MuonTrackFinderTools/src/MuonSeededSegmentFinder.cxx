@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSeededSegmentFinder.h"
@@ -475,7 +475,8 @@ namespace Muon {
     const Trk::StraightLineSurface& surf = detEl.surface(id);
 
     // propagate segment parameters to first measurement
-    const Trk::TrackParameters* exPars = m_propagator->propagate(pars, surf, Trk::anyDirection, false, m_magFieldProperties);
+    //retain ownership; this code deleted the exPars before
+    auto exPars = m_propagator->propagate(pars, surf, Trk::anyDirection, false, m_magFieldProperties);
     if ( !exPars ) {
       ATH_MSG_DEBUG(" Propagation failed!! ");
       return 0;
@@ -515,7 +516,7 @@ namespace Muon {
     //if( fabs(distanceToWire) > roadWidthR || fabs(posAlongWire) > halfTubeLength + roadWidthZ ){
     if (nSigmaFromTrack > m_maxSigma || fabs(posAlongWire) > halfTubeLength + roadWidthZ ) {
       if ( msgLvl(MSG::VERBOSE) ) msg() << " --- dropped" << endmsg;
-      delete exPars;
+      //delete exPars;
       return 0;
     }
 
@@ -530,7 +531,7 @@ namespace Muon {
     const MdtDriftCircleOnTrack* mdtROT = m_mdtRotCreator->createRIO_OnTrack(mdtPrd, exPars->position(), &momentum);
 
     // clean up pointers
-    delete exPars;
+    //delete exPars;
 
     // check whether ROT is created
     if ( !mdtROT ) {

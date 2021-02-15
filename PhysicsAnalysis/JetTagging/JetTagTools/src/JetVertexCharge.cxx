@@ -35,6 +35,7 @@
 #include "TH1.h"
 
 #include "xAODBTagging/BTagVertex.h"
+#include "xAODBTagging/ftagfloat_t.h"
 
 #include "ParticleJetTools/ParticleToJetAssociator.h"
 
@@ -537,29 +538,29 @@ StatusCode JetVertexCharge::tagJet( const xAOD::Vertex& priVtx,
       BTag.setVariable<float>(m_taggerNameBase, "mu_vtx", vars[Vars::MU_VTX]);
 
       BTag.setVariable<int>(m_taggerNameBase, "category", mvaCat );
-      BTag.setVariable<double>(m_taggerNameBase, "discriminant", -7. ); 
+      BTag.setVariable<ftagfloat_t>(m_taggerNameBase, "discriminant", -7. ); 
 
     } 
     else if( m_runModus == "analysis") {   
 
-      double llr;
+      ftagfloat_t llr;
       if(mvaCat == JC_noMu ) { 
         llr = logLikelihoodRatio( JC_noMu, vars[Vars::JC] , author);  
-        BTag.setVariable<double>(m_taggerNameBase, "discriminant", llr );
+        BTag.setVariable<ftagfloat_t>(m_taggerNameBase, "discriminant", llr );
         return StatusCode::SUCCESS;
       } 
       else if(mvaCat == JC_all ) { 
         llr = logLikelihoodRatio( JC_all, vars[Vars::JC_ALL] , author); 
-        BTag.setVariable<double>(m_taggerNameBase, "discriminant", llr );
+        BTag.setVariable<ftagfloat_t>(m_taggerNameBase, "discriminant", llr );
         return StatusCode::SUCCESS;
       }  
       else if(mvaCat == SVC ) { 
         llr = logLikelihoodRatio( SVC, vars[Vars::SVC] , author); 
-        BTag.setVariable<double>(m_taggerNameBase, "discriminant", llr );
+        BTag.setVariable<ftagfloat_t>(m_taggerNameBase, "discriminant", llr );
         return StatusCode::SUCCESS;
       } 
       else if(mvaCat < 0 ) {   //NULL cat
-        BTag.setVariable<double>(m_taggerNameBase, "discriminant", -7. );
+        BTag.setVariable<ftagfloat_t>(m_taggerNameBase, "discriminant", -7. );
         return StatusCode::SUCCESS;
       } 
 
@@ -579,7 +580,7 @@ StatusCode JetVertexCharge::tagJet( const xAOD::Vertex& priVtx,
 
       //Now I compute the log-likelihood ratio
       llr = logLikelihoodRatio( mvaCat, mvaWeight , author); 
-      BTag.setVariable<double>(m_taggerNameBase, "discriminant", llr );
+      BTag.setVariable<ftagfloat_t>(m_taggerNameBase, "discriminant", llr );
 
 
     }  //if runmodus Analysis

@@ -18,7 +18,6 @@
 /// Externals
 #include "TrkTrack/Track.h"
 #include "TrkTrackSummary/TrackSummary.h"
-#include "TrigInterfaces/IMonitoredAlgo.h"
 #include "GaudiKernel/SystemOfUnits.h"
 // Amg::error
 #include "EventPrimitives/EventPrimitivesHelpers.h"

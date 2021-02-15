@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVERTEXSEEDFINDERUTILS_FSMWMODE1DFINDERALGO_H
@@ -37,9 +37,6 @@ namespace Trk
   class FsmwMode1dFinder : public AthAlgTool, virtual public IMode1dFinder
   {
   public:
-    StatusCode initialize();
-    StatusCode finalize();
-
     //default constructor due to Athena interface
     FsmwMode1dFinder(const std::string& t, const std::string& n, const IInterface*  p);
     

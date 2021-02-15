@@ -60,7 +60,7 @@ class LArG4GenShowerLib : public AthAlgorithm {
   void truncate(ShowerLib::StepInfoList* stepinfo);
 
   //! return first MC truth particle for event
-  const HepMC::GenParticle* getParticleFromMC();
+  HepMC::ConstGenParticlePtr getParticleFromMC();
   //! calculate moments from StepInfoCollection
   void calculateMoments(const ShowerLib::StepInfoCollection&  eventSteps,
 			double& weights, double& xavfra, double& yavfra, double& ravfra);

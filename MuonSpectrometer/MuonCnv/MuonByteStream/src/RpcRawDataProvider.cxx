@@ -10,10 +10,8 @@
 
 Muon::RpcRawDataProvider::RpcRawDataProvider(const std::string& name,
                                       ISvcLocator* pSvcLocator) :
-  AthReentrantAlgorithm(name, pSvcLocator),
-  m_regionSelector  ("RegSelSvc",name) 
+  AthReentrantAlgorithm(name, pSvcLocator)
 {
-  declareProperty ("RegionSelectionSvc", m_regionSelector, "Region Selector");
 }
 
 StatusCode Muon::RpcRawDataProvider::initialize() {
@@ -25,11 +23,12 @@ StatusCode Muon::RpcRawDataProvider::initialize() {
 
   if(m_seededDecoding) {
     // We only need the region selector in RoI seeded mode
-    if (m_regionSelector.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Unable to retrieve RegionSelector Svc");
+    if (m_regsel_rpc.retrieve().isFailure()) {
+      ATH_MSG_FATAL("Unable to retrieve RegionSelector Tool");
       return StatusCode::FAILURE;
     }  
   }//seededDecoding
+  else m_regsel_rpc.disable();
   
   return StatusCode::SUCCESS;
 }
@@ -46,7 +45,7 @@ StatusCode Muon::RpcRawDataProvider::execute(const EventContext& ctx) const {
     SG::ReadHandle<TrigRoiDescriptorCollection> muonRoI(m_roiCollectionKey, ctx);
     if(!muonRoI.isValid()){
       ATH_MSG_WARNING("Cannot retrieve muonRoI "<<m_roiCollectionKey.key());
-      return StatusCode::SUCCESS;
+      return StatusCode::FAILURE;
     }
 
     // loop on RoIs
@@ -54,7 +53,7 @@ StatusCode Muon::RpcRawDataProvider::execute(const EventContext& ctx) const {
     for(auto roi : *muonRoI){
       ATH_MSG_DEBUG("Get ROBs for RoI " << *roi);
       // get list of ROBs from region selector
-      m_regionSelector->DetROBIDListUint(RPC,*roi,rpcrobs);
+      m_regsel_rpc->ROBIDList(*roi,rpcrobs);
 
       // decode the ROBs
       if(m_rawDataTool->convert(rpcrobs, ctx).isFailure()) {

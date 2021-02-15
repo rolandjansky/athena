@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetMultipleVertexSeedFinderUtils/InDetTrackZ0SortingTool.h"
@@ -25,13 +25,6 @@ namespace InDet
   return StatusCode::SUCCESS;
  }//end of initialize method
     
-
- StatusCode InDetTrackZ0SortingTool::finalize()
- {
-  msg(MSG::INFO)  << "Finalize successful" << endmsg;
-  return StatusCode::SUCCESS;
- }//end of finalize method
-  
 
  InDetTrackZ0SortingTool::InDetTrackZ0SortingTool(const std::string& t, const std::string& n, const IInterface*  p):
  AthAlgTool(t,n,p), m_extrapolator("Trk::Extrapolator")

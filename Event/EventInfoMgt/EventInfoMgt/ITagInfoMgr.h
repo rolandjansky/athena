@@ -8,20 +8,16 @@
  * @file TagInfoMgr.h
  *
  * @brief This is a Athena service which manages detector description
- *  tag information. It maintains a TagInfo object in the Detector
- *  Store with current tag values. 
+ *  tag information. It maintains a private TagInfo object 
  *
  * @author RD Schaffer <R.D.Schaffer@cern.ch>
  */
 
 //<<<<<< INCLUDES                                                       >>>>>>
 
-#include "AthenaKernel/IOVSvcDefs.h"
 #include "GaudiKernel/Service.h"
-#include "GaudiKernel/IIncidentListener.h"
-#include "AthenaKernel/IAddressProvider.h"
-#include "AthenaKernel/IOVSvcDefs.h"
 
+class MsgStream;
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
@@ -29,8 +25,7 @@
  * @class ITagInfoMgr
  *
  * @brief This is a Athena service which manages detector description
- *  tag information. It maintains a TagInfo object in the Detector
- *  Store with current tag values. 
+ *  tag information. It maintains a TagInfo object with current tag values.
  *
  *  The tags to fill the TagInfo object may come from a variety of
  *  sources: i.e. the tags specified by the GeoModelSvc and IOVDbSvc,
@@ -52,14 +47,11 @@
  *  Some clients need to know when detector description tags change
  *  so that they may update their descriptions, such as the geometry
  *  description. The TagInfo object will change in this case. So
- *  clients that need to know when tags change should set up a
- *  callback to the TagInfo object. This is done with regFcn of the
- *  StoreGate service (for the DetectorStore). The method 
- *
- *  virtual std::string& tagInfoKey() = 0;
- *
- *  provides access to the SG key of TagInfo which is needed to
- *  register a data handle for the callback.
+ *  clients that need to know when tags change should register themselves
+ *  by calling ITagInfoMgr::addListener(listener*) method.
+ *  These clients need to implement the ITagInfoMgr::Listener interface and
+ *  ITagInfoMgr::Listener::tagInfoUpdated() method which will be called
+ *  when the TagInfo changes.
  *
  */
 class ITagInfoMgr : virtual public IInterface
@@ -70,6 +62,21 @@ public:
     typedef     std::pair<std::string, std::string>  NameTagPair;
     typedef     std::vector<NameTagPair>             NameTagPairVec;
     //@}
+
+
+    /// Listener interface class that client who want to be notified about TagInfo
+    /// update should implement (and then register themselves calliing addListener())
+    class Listener {
+    public:
+       virtual void tagInfoUpdated() = 0;
+    };
+
+    /// Add a Listener to the notification list for TagInfo changes
+    virtual void              addListener(Listener* listener) = 0;
+
+    /// Remove a Listener from the notification list for TagInfo changes
+    virtual void              removeListener(Listener* listener) = 0;
+      
 
     /// Retrieve interface ID
     static const InterfaceID& interfaceID();
@@ -82,20 +89,20 @@ public:
     /// on the input
     virtual StatusCode        removeTagFromInput(const std::string& tagName) = 0;
 
-    /// Method to allow clients to access the TagInfo object key.
-    virtual std::string&      tagInfoKey() = 0;
+    /// Find tag by its name, return by value - empty string if not found
+    virtual std::string       findTag(const std::string & name) const = 0;
 
-    /// callback from IOVSvc - only used as test of callback
-    virtual StatusCode        checkTagInfo(IOVSVC_CALLBACK_ARGS) = 0;
-
-    /// Find tag by name, return by value
-    virtual std::string findTag(const std::string & name) const = 0;
+    /// Find INPUT tag by its name, return by value - empty string if not found
+    virtual std::string       findInputTag(const std::string& name) const = 0;
 
     /// Return a vector with all current input tags
-    virtual NameTagPairVec getInputTags() const = 0;
+    virtual NameTagPairVec    getInputTags() const = 0;
 
     /// Dump the content of the current TagInfo to std::string for debug
-    virtual std::string dumpTagInfoToStr() const = 0;
+    virtual std::string       dumpTagInfoToStr() const = 0;
+
+    /// Printout method
+    virtual void              printTags(MsgStream& log) const = 0;
 };
 
 

@@ -1,5 +1,3 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -23,10 +21,12 @@
 
 // Forward declaration
 #include "AtlasHepMC/GenEvent_fwd.h"
-#include "AtlasHepMC/IO_BaseClass_fwd.h"
-
-class HepMcWriterTool : virtual public IIOHepMcTool,
-			        public AthAlgTool
+#include "AtlasHepMC/IO_BaseClass.h"
+#ifdef HEPMC3
+#include "HepMC3/Writer.h"
+#include "HepMC3/WriterAsciiHepMC2.h"
+#endif 
+class HepMcWriterTool : virtual public IIOHepMcTool, public AthAlgTool
 { 
 
   /////////////////////////////////////////////////////////////////// 
@@ -37,9 +37,7 @@ class HepMcWriterTool : virtual public IIOHepMcTool,
   // Copy constructor: 
 
   /// Constructor with parameters: 
-  HepMcWriterTool( const std::string& type,
-		   const std::string& name, 
-		   const IInterface* parent );
+  HepMcWriterTool( const std::string& type, const std::string& name,  const IInterface* parent );
 
   /// Destructor: 
   virtual ~HepMcWriterTool(); 
@@ -48,10 +46,6 @@ class HepMcWriterTool : virtual public IIOHepMcTool,
   StatusCode  initialize();
   StatusCode  execute();
   StatusCode  finalize();
-
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
 
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 
@@ -95,15 +89,11 @@ class HepMcWriterTool : virtual public IIOHepMcTool,
 
   /** Abstract base class for the back-end
    */
+#ifdef HEPMC3
+  HepMC3::Writer* m_ioBackend;
+#else   
   HepMC::IO_BaseClass* m_ioBackend;
+#endif
 
 }; 
-
-/// I/O operators
-//////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-/// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
-
 #endif //> MCPARTICLETOOLS_HEPMCWRITERTOOL_H

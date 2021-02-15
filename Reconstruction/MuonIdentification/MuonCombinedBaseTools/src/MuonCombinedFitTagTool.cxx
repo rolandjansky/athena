@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -7,7 +7,6 @@
 //  AlgTool performing combined fit of ID and MS tracks (Muid)
 //  A CombinedFitTag is added to the InDetCandidate object.
 //
-//  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
 #include "MuonCombinedFitTagTool.h"
@@ -37,7 +36,6 @@ namespace MuonCombined {
     ATH_MSG_INFO( "Initializing MuonCombinedFitTagTool - package version " << PACKAGE_VERSION );
     
     ATH_CHECK(m_printer.retrieve());
-    ATH_CHECK(m_tagTool.retrieve());
     ATH_CHECK(m_trackBuilder.retrieve());
     if(! m_outwardsBuilder.empty() ) ATH_CHECK(m_outwardsBuilder.retrieve());
     ATH_CHECK(m_trackQuery.retrieve());
@@ -171,7 +169,6 @@ namespace MuonCombined {
     }
     
     if( bestCandidate ){
-      double outerMatchChi2 = 1e19;
       // take the best MS Track, first the update extrapolated, than the extrapolated, last the spectrometer track
       bool haveME=true;
       if( !bestMETrack ){
@@ -181,7 +178,6 @@ namespace MuonCombined {
       }
 
       if( bestCandidate->indetTrackParticle().trackLink().isValid() && bestMETrack ){
-        outerMatchChi2 = m_tagTool->chi2(*bestCandidate->indetTrackParticle().track(),*bestMETrack);
         
         if(msgLevel() >= MSG::DEBUG) {
           dumpCaloEloss(bestCombTrack.get(), " bestCandidate Combined Track ");
@@ -192,7 +188,7 @@ namespace MuonCombined {
       ATH_MSG_DEBUG("Final combined muon: "<<m_printer->print(*bestCombTrack));
       ATH_MSG_DEBUG(m_printer->printStations(*bestCombTrack));
       ATH_MSG_DEBUG("Combined Muon with ID " << m_printer->print(bestCandidate->indetTrackParticle().perigeeParameters())
-        << " match chi2 " << bestTag->matchChi2() << " outer match " << outerMatchChi2 );
+        << " match chi2 " << bestTag->matchChi2());
       combTracks->push_back(bestCombTrack.release());
       ElementLink<TrackCollection> comblink( *combTracks,combTracks->size()-1);
       bestTag->setCombinedTrackLink(comblink);
@@ -350,7 +346,7 @@ namespace MuonCombined {
       SG::ReadHandle<xAOD::VertexContainer> vertices { m_vertexKey, ctx };
       if ( vertices.isValid() )
 	{
-	  for (const auto& vx : *vertices)
+	  for (const auto vx : *vertices)
 	    {
 	      for (const auto& tpLink : vx->trackParticleLinks())
 		{
@@ -792,6 +788,10 @@ namespace MuonCombined {
       if (matchChiSq1 < matchChiSq2) return true;
       return false;
     }
+  }
+
+  void MuonCombinedFitTagTool::cleanUp() const {
+    m_trackBuilder->cleanUp();
   }
   
   

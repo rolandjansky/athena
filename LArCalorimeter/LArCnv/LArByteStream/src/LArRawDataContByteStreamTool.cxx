@@ -11,6 +11,8 @@
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArRawEvent/LArCalibDigitContainer.h"
+#include "LArRecConditions/LArCalibLineMapping.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 #include "LArByteStream/LArRodBlockStructure.h"
 //#include "LArByteStream/LArRodBlockStructure_0.h"
@@ -21,6 +23,7 @@
 #include "LArByteStream/LArRodBlockPhysicsV5.h"
 #include "LArByteStream/LArRodBlockPhysicsV6.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include "StoreGate/ReadCondHandle.h"
 
@@ -48,7 +51,6 @@ LArRawDataContByteStreamTool::LArRawDataContByteStreamTool
   declareProperty("SubDetectorId",m_subDetId=0);
   declareProperty("IncludeDigits",m_includeDigits=false);
   declareProperty("DigitsContainer",m_DigitContName="LArDigitContainer_MC_Thinned");
-  m_RodBlockStructure=NULL;
 }
 
 LArRawDataContByteStreamTool::~LArRawDataContByteStreamTool() {
@@ -64,55 +66,23 @@ LArRawDataContByteStreamTool::initialize()
   ATH_CHECK( toolSvc()->retrieveTool("LArRodDecoder",m_decoder) );
 
   if (m_initializeForWriting) {
-   ATH_CHECK( m_hid2re.initialize() );
+   if (m_DSPRunMode == 0) {
+     // Obsolete mode 
+     ATH_MSG_ERROR ( "LArRodBlockStructure type 0 is obsolete and can't be used any more." );
+     return StatusCode::FAILURE;
+   }
 
-   //Set LArRodBlockStructure according to jobOpts.
-   switch(m_DSPRunMode)
-     {case 0:  //Obsolete mode 
-	m_RodBlockStructure=NULL;
-	ATH_MSG_ERROR ( "LArRodBlockStructure type 0 is obsolete and can't be used any more." );
-	return StatusCode::FAILURE;
-      break;
-     case 2:  //Transparent mode, DSP just copies FEB-data                                            
-       m_RodBlockStructure=new LArRodBlockTransparentV0<LArRodBlockHeaderTransparentV0>;
-       ATH_MSG_DEBUG ( "Set Rod Block Type to LArRodBlockTransparent (#2)" );
-      break;
-     case 7: //Calibration mode
-       m_RodBlockStructure=new LArRodBlockCalibrationV0<LArRodBlockHeaderCalibrationV0>;
-       ATH_MSG_DEBUG ( "Set Rod Block Type to LArRodBlockCalibration (#7)" );
-       break;
-     case 4: //Physics assembly mode
-       if ( m_RodBlockVersion == 10 ){
-         m_RodBlockStructure=new LArRodBlockPhysicsV5;
-         ATH_MSG_DEBUG ( "Set Rod Block Type to LArRodBlockPhysics (#5)" );
-       } else if ( m_RodBlockVersion == 12 ){
-         m_RodBlockStructure=new LArRodBlockPhysicsV6;
-         ATH_MSG_DEBUG ( "Set Rod Block Type to LArRodBlockPhysics (#6)" );
-       } else {
-         m_RodBlockStructure=new LArRodBlockPhysicsV0;
-         ATH_MSG_DEBUG ( "Set Rod Block Type to LArRodBlockPhysics (#4)" );
-       }
-       break;
-     case 5: //Physics assembly mode
-       m_RodBlockStructure=new LArRodBlockPhysicsV3;
-       ATH_MSG_DEBUG ( "Set Rod Block Type to LArRodBlockPhysics (#5)" );
-       break;
-     default:
-       m_RodBlockStructure=new LArRodBlockPhysicsV0;
-       ATH_MSG_WARNING ( "DSP runmode " << m_DSPRunMode << " is unknown. Using physics assembly mode (#4) by default" );
-       break;
-     }
+   ATH_CHECK( detStore()->retrieve (m_onlineHelper, "LArOnlineID") );
 
-   // Set chosen RodBlockType
-   LArRodEncoder::setRodBlockStructure(m_RodBlockStructure);
    ATH_MSG_INFO ( "Initialization done for reading and writing" );
-
  }
   else {
     ATH_MSG_INFO ( "Initialization done for reading only" );
   }
 
   ATH_CHECK( m_caloNoiseKey.initialize (m_initializeForWriting) );
+  ATH_CHECK( m_onOffIdMappingKey.initialize (m_initializeForWriting) );
+  ATH_CHECK( m_febRodMappingKey.initialize (m_initializeForWriting) );
 
   return StatusCode::SUCCESS;  
 }
@@ -121,7 +91,6 @@ LArRawDataContByteStreamTool::initialize()
 StatusCode
 LArRawDataContByteStreamTool::finalize()
 {
-  delete m_RodBlockStructure;
   ATH_CHECK( AthAlgTool::finalize() );
   return StatusCode::SUCCESS;
 }
@@ -141,7 +110,10 @@ LArRawDataContByteStreamTool::WriteLArDigits(const LArDigitContainer* digitCont,
    ATH_MSG_ERROR ( "Null pointer passed to WriteLArDigit routine!" );
    return StatusCode::FAILURE;
  }
- if (!m_RodBlockStructure->canSetRawData() && !m_RodBlockStructure->canSetRawDataFixed()) {
+
+ std::unique_ptr<LArRodBlockStructure> blstruct = makeRodBlockStructure();
+
+ if (!blstruct->canSetRawData() && !blstruct->canSetRawDataFixed()) {
    ATH_MSG_DEBUG ( "This instance of LArRodBlockStructure can't hold LArDigits!" );
    return StatusCode::FAILURE;
  }
@@ -154,13 +126,28 @@ LArRawDataContByteStreamTool::WriteLArDigits(const LArDigitContainer* digitCont,
  LArDigitContainer::const_iterator it_b=digitCont->begin();
  LArDigitContainer::const_iterator it_e=digitCont->end();
  if (it_b==it_e) {
-   ATH_MSG_WARNING ( "Attempt to persitify a empty LArDigitContainer to ByteStream" );
+   ATH_MSG_WARNING ( "Attempt to persistify an empty LArDigitContainer to ByteStream" );
    return StatusCode::SUCCESS;
  }
 
+ const CaloDetDescrManager* calodd = nullptr;
+ ATH_CHECK( detStore()->retrieve (calodd, "CaloMgr") );
+ const EventContext& ctx = Gaudi::Hive::currentContext();
+ SG::ReadCondHandle<LArOnOffIdMapping> onOffMapping (m_onOffIdMappingKey, ctx);
+ SG::ReadCondHandle<LArFebRodMapping> febRodMapping (m_febRodMappingKey, ctx);
+ const Hid2RESrcID& hid2re = getHid2RESrcID (**febRodMapping);
+
  std::map<uint32_t, LArRodEncoder> mapEncoder; 
+
+ auto getEncoder = [&] (uint32_t reid) -> LArRodEncoder&
+                   { return mapEncoder.try_emplace (reid,
+                                                    *m_onlineHelper,
+                                                    *calodd,
+                                                    **onOffMapping,
+                                                    blstruct.get()).first->second; };
+
  unsigned n=0;
- if (m_RodBlockStructure->canSetRawDataFixed() && checkGainConsistency(digitCont))
+ if (blstruct->canSetRawDataFixed() && checkGainConsistency(digitCont))
    {//Set fixed gain raw data
      int fixgain=(*it_b)->gain();
      ATH_MSG_DEBUG(" number of Digits in LArDigitContainer for gain " << fixgain << ": " 
@@ -169,29 +156,29 @@ LArRawDataContByteStreamTool::WriteLArDigits(const LArDigitContainer* digitCont,
      for(; it_b!=it_e; ++it_b){
        const LArDigit* digit = *it_b; 
        HWIdentifier  chid = digit->hardwareID() ; 
-       uint32_t reid      = m_hid2re.getRodID( chid ); 
-       mapEncoder[reid].add(digit, fixgain);
+       uint32_t reid      = hid2re.getRodID( **febRodMapping, chid );
+       getEncoder(reid).add (digit, fixgain);
        n++;
      }  
      ATH_MSG_VERBOSE(" number of channels in the LArDigitContainer for gain " 
                      << fixgain << ": "<<n );
    } // end if
  else 
-   if (m_RodBlockStructure->canSetRawData()) { //Set free gain raw data
+   if (blstruct->canSetRawData()) { //Set free gain raw data
      ATH_MSG_DEBUG(" number of channels in LArDigit container: "<< digitCont->size() );
 
       // Sorting Channels by ROD
       for(; it_b!=it_e; ++it_b){
 	const LArDigit* digit = *it_b; 
 	HWIdentifier  chid = digit->hardwareID() ; 
-	uint32_t reid      = m_hid2re.getRodID( chid ); 
-	mapEncoder[reid].add(digit);
+	uint32_t reid      = hid2re.getRodID( **febRodMapping, chid ); 
+	getEncoder(reid).add (digit);
 	n++;
       }  
       ATH_MSG_VERBOSE(" number of channels added to framgent: "<<n );
      }//  end else-if(can set Raw data)
 
- SG::ReadCondHandle<CaloNoise> noise (m_caloNoiseKey);
+ SG::ReadCondHandle<CaloNoise> noise (m_caloNoiseKey, ctx);
 
  // Now loop over map and fill all ROD Data Blocks
  std::map<uint32_t,LArRodEncoder>::iterator it  =mapEncoder.begin(); 
@@ -224,7 +211,10 @@ LArRawDataContByteStreamTool::WriteLArCalibDigits(const LArCalibDigitContainer* 
    ATH_MSG_DEBUG ( "Null pointer passed to WriteLArCalibDigit routine!" );
    return StatusCode::FAILURE;
  }
- if (!m_RodBlockStructure->canSetCalibration()|| !m_RodBlockStructure->canSetRawDataFixed()) {
+
+ std::unique_ptr<LArRodBlockStructure> blstruct = makeRodBlockStructure();
+
+ if (!blstruct->canSetCalibration()|| !blstruct->canSetRawDataFixed()) {
    ATH_MSG_DEBUG ( "This instance of LArRodBlockStructure can't hold LArCalibDigits!" );
    return StatusCode::FAILURE;
  }
@@ -245,7 +235,22 @@ LArRawDataContByteStreamTool::WriteLArCalibDigits(const LArCalibDigitContainer* 
    return StatusCode::FAILURE;
  }
 
+ const CaloDetDescrManager* calodd = nullptr;
+ ATH_CHECK( detStore()->retrieve (calodd, "CaloMgr") );
+ const EventContext& ctx = Gaudi::Hive::currentContext();
+ SG::ReadCondHandle<LArOnOffIdMapping> onOffMapping (m_onOffIdMappingKey, ctx);
+ SG::ReadCondHandle<LArFebRodMapping> febRodMapping (m_febRodMappingKey, ctx);
+ const Hid2RESrcID& hid2re = getHid2RESrcID (**febRodMapping);
+
  std::map<uint32_t, LArRodEncoder> mapEncoder; 
+
+ auto getEncoder = [&] (uint32_t reid) -> LArRodEncoder&
+                   { return mapEncoder.try_emplace (reid,
+                                                    *m_onlineHelper,
+                                                    *calodd,
+                                                    **onOffMapping,
+                                                    blstruct.get()).first->second; };
+
  unsigned n=0;
  int fixgain=(*it_b)->gain();
  
@@ -253,15 +258,15 @@ LArRawDataContByteStreamTool::WriteLArCalibDigits(const LArCalibDigitContainer* 
  for(; it_b!=it_e; ++it_b){
    const LArCalibDigit* digit = *it_b; 
    HWIdentifier  chid = digit->hardwareID() ; 
-   uint32_t reid      = m_hid2re.getRodID( chid ); 
-   mapEncoder[reid].add(digit, fixgain);
+   uint32_t reid      = hid2re.getRodID( **febRodMapping, chid );
+   getEncoder(reid).add (digit, fixgain);
    n++;
  } 
  
  ATH_MSG_VERBOSE(" number of channels in the LArCalibDigitContainer for gain " 
                  << fixgain << ": "<<n );
 
- SG::ReadCondHandle<CaloNoise> noise (m_caloNoiseKey);
+ SG::ReadCondHandle<CaloNoise> noise (m_caloNoiseKey, ctx);
 
  // Now loop over map and fill all ROD Data Blocks
  std::map<uint32_t,LArRodEncoder>::iterator it  =mapEncoder.begin(); 
@@ -290,7 +295,10 @@ LArRawDataContByteStreamTool::WriteLArRawChannels(const LArRawChannelContainer* 
    ATH_MSG_DEBUG ( "Null pointer passed to WriteLArCalibDigit routine!" );
   return StatusCode::FAILURE;
  }
- if (!m_RodBlockStructure->canSetEnergy()) {
+
+ std::unique_ptr<LArRodBlockStructure> blstruct = makeRodBlockStructure();
+
+ if (!blstruct->canSetEnergy()) {
    ATH_MSG_DEBUG ( "This instance of LArRodBlockStructure can't hold LArRawChannels!" );
     return StatusCode::FAILURE;
  }
@@ -305,7 +313,23 @@ LArRawDataContByteStreamTool::WriteLArRawChannels(const LArRawChannelContainer* 
    ATH_MSG_WARNING ( "Attempt to persistify a empty LArDigitContainer to ByteStream" );
    return StatusCode::SUCCESS;
  }
+
+ const CaloDetDescrManager* calodd = nullptr;
+ ATH_CHECK( detStore()->retrieve (calodd, "CaloMgr") );
+ const EventContext& ctx = Gaudi::Hive::currentContext();
+ SG::ReadCondHandle<LArOnOffIdMapping> onOffMapping (m_onOffIdMappingKey, ctx);
+ SG::ReadCondHandle<LArFebRodMapping> febRodMapping (m_febRodMappingKey, ctx);
+ const Hid2RESrcID& hid2re = getHid2RESrcID (**febRodMapping);
+
  std::map<uint32_t, LArRodEncoder> mapEncoder; 
+
+ auto getEncoder = [&] (uint32_t reid) -> LArRodEncoder&
+                   { return mapEncoder.try_emplace (reid,
+                                                    *m_onlineHelper,
+                                                    *calodd,
+                                                    **onOffMapping,
+                                                    blstruct.get()).first->second; };
+
  //LArRodEncoder* Encoder = NULL;
  //uint32_t last_reid(0x0);
  //unsigned n=0; //For debug only
@@ -313,44 +337,44 @@ LArRawDataContByteStreamTool::WriteLArRawChannels(const LArRawChannelContainer* 
  for(; it!=it_e; ++it){
      const LArRawChannel& rawChan = *it; 
      HWIdentifier  chid = rawChan.channelID() ; 
-     uint32_t reid      = m_hid2re.getRodID( chid ); 
+     uint32_t reid      = hid2re.getRodID( **febRodMapping, chid ); 
 
 /*
      if ( reid != last_reid ) {
 	last_reid = reid;
 	// The guy does not exist
 	// This will create it
-	mapEncoder[reid].add(&rawChan);
+	getEncoder(reid).add(&rawChan);
 	// This will get its address
 	Encoder = &(mapEncoder[reid]);
      } else Encoder->add(&rawChan) ; // Encoder already there
 */
-     mapEncoder[reid].add(&rawChan);
+     getEncoder(reid).add (&rawChan);
    } 
    // I may want to also include the digits
    if ( m_includeDigits ) {
-	const DataHandle<LArDigitContainer> digitCont;
+        const LArDigitContainer* digitCont = nullptr;
 	if ( evtStore()->retrieve(digitCont,m_DigitContName).isFailure() ){
           ATH_MSG_ERROR ( "Digits required but not really found" );
 	} else {
-	  if ( m_RodBlockStructure->canIncludeRawData() ){
+	  if ( blstruct->canIncludeRawData() ){
 	   LArDigitContainer::const_iterator it_b=digitCont->begin();
 	   LArDigitContainer::const_iterator it_e=digitCont->end();
 	   if (it_b==it_e) {
-             ATH_MSG_WARNING ( "Attempt to persitify a empty LArDigitContainer to ByteStream" );
+             ATH_MSG_WARNING ( "Attempt to persistify a empty LArDigitContainer to ByteStream" );
 	   }
 	   for(; it_b!=it_e; ++it_b){
 		const LArDigit* digit = *it_b;
 		HWIdentifier  chid = digit->hardwareID() ;
-		uint32_t reid      = m_hid2re.getRodID( chid );
+		uint32_t reid      = hid2re.getRodID( **febRodMapping, chid );
 		// Lets use anygain for the moment
-		mapEncoder[reid].add(digit);
+		getEncoder(reid).add (digit);
      	   }
 	  } // End of check whether format allows to include RawData
 	} // Finish checking for Digit container in SG
    } // End of check for digits inclusion
 
- SG::ReadCondHandle<CaloNoise> noise (m_caloNoiseKey);
+ SG::ReadCondHandle<CaloNoise> noise (m_caloNoiseKey, ctx);
       
  // Now loop over map and fill all ROD Data Blocks
  std::map<uint32_t,LArRodEncoder>::iterator it_m  =mapEncoder.begin(); 
@@ -397,3 +421,62 @@ LArRawDataContByteStreamTool::prepareRobIndex(const RawEvent* re,
   }
   return StatusCode::SUCCESS;
 }
+
+
+/** Construct a RodBlockStructure instance of the proper concrete type. */
+std::unique_ptr<LArRodBlockStructure>
+LArRawDataContByteStreamTool::makeRodBlockStructure() const
+{
+  switch(m_DSPRunMode) {
+  case 0:  // Obsolete; shouldn't get here.
+    std::abort();
+
+  case 2:  //Transparent mode, DSP just copies FEB-data                                            
+    ATH_MSG_DEBUG ( "Set Rod Block Type to LArRodBlockTransparent (#2)" );
+    return std::make_unique<LArRodBlockTransparentV0<LArRodBlockHeaderTransparentV0> >();
+    break;
+
+  case 7: //Calibration mode
+    ATH_MSG_DEBUG ( "Set Rod Block Type to LArRodBlockCalibration (#7)" );
+    return std::make_unique<LArRodBlockCalibrationV0<LArRodBlockHeaderCalibrationV0> >();
+    break;
+
+  case 4: //Physics assembly mode
+    if ( m_RodBlockVersion == 10 ){
+      ATH_MSG_DEBUG ( "Set Rod Block Type to LArRodBlockPhysics (#5)" );
+      return std::make_unique<LArRodBlockPhysicsV5>();
+    }
+    else if ( m_RodBlockVersion == 12 ){
+      ATH_MSG_DEBUG ( "Set Rod Block Type to LArRodBlockPhysics (#6)" );
+      return std::make_unique<LArRodBlockPhysicsV6>();
+    }
+    else {
+      ATH_MSG_DEBUG ( "Set Rod Block Type to LArRodBlockPhysics (#4)" );
+      return std::make_unique<LArRodBlockPhysicsV0>();
+    }
+    break;
+
+  case 5: //Physics assembly mode
+    ATH_MSG_DEBUG ( "Set Rod Block Type to LArRodBlockPhysics (#5)" );
+    return std::make_unique<LArRodBlockPhysicsV3>();
+
+  default:
+    ATH_MSG_WARNING ( "DSP runmode " << m_DSPRunMode << " is unknown. Using physics assembly mode (#4) by default" );
+    return std::make_unique<LArRodBlockPhysicsV0>();
+  }
+}
+
+
+const Hid2RESrcID&
+LArRawDataContByteStreamTool::getHid2RESrcID (const LArFebRodMapping& rodMapping) const
+{
+  if (!m_hid2re) {
+    auto hid2re = std::make_unique<Hid2RESrcID>();
+    if (hid2re->initialize (rodMapping).isFailure()) {
+      std::abort();
+    }
+    m_hid2re.set (std::move (hid2re));
+  }
+  return *m_hid2re.get();
+}
+

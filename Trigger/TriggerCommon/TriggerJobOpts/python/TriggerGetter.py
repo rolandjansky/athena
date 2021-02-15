@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.GlobalFlags import jobproperties
 from AthenaCommon.Logging import logging
@@ -42,19 +42,21 @@ class TriggerGetter(Configured):
             return True
         self._done=True
 
+        if TF.triggerMenuSetup() == "Physics_pp_v7_primaries":
+            # the Run 2 triggger menu Physics_pp_v7_primaries does not exist in json (it should be phased out soon)
+            # Need to disable the new menu through the new config flags
+            log.info("Setting ConfigFlags.Trigger.readLVL1FromJSON to False because TriggerFlags.triggerMenuSetup == %s", TF.triggerMenuSetup())
+            from AthenaConfiguration.AllConfigFlags import ConfigFlags
+            ConfigFlags.Trigger.readLVL1FromJSON = False
+
         # start with print some information what this will do
         log.info("Basic configuration flags RecAlgsFlag.doTrigger: %d   RecFlags.doTrigger: %d TriggerFlags.doTriggerConfigOnly %d", recAlgs.doTrigger(), rec.doTrigger(), TF.doTriggerConfigOnly() )
-        log.info("TriggerFlags: doL1Topo: %s, doLVL1: %s, doLVL2: %s, doEF: %s, doHLT: %s, doMT: %s", TF.doL1Topo(), TF.doLVL1(), TF.doLVL2(), TF.doEF(), TF.doHLT(), TF.doMT() )
+        log.info("TriggerFlags: doL1Topo: %s, doLVL1: %s, doHLT: %s", TF.doL1Topo(), TF.doLVL1(), TF.doHLT() )
 
-        # RDOtoRDOTrigger MT temporarily coded in the transform skeleton, so skip here
-        if TF.doMT() and rec.readRDO() and rec.doWriteRDO():
-            log.info("Nothing happens in TriggerGetter for RDOtoRDOTrigger MT")
-            return True
-        
-        willGenerateMenu = recAlgs.doTrigger() and (TF.doLVL1() or TF.doLVL2() or TF.doEF() or TF.doHLT()) and not TF.doTriggerConfigOnly()
+        willGenerateMenu = recAlgs.doTrigger() and (TF.doLVL1() or TF.doHLT()) and not TF.doTriggerConfigOnly()
         willRunTriggerConfigGetter = recAlgs.doTrigger() or rec.doTrigger() or TF.doTriggerConfigOnly()
         willRunLVL1SimulationGetter = recAlgs.doTrigger() and not TF.doTriggerConfigOnly()
-        willRunHLTSimulationGetter = willRunLVL1SimulationGetter and (TF.doLVL2() or TF.doEF() or TF.doHLT())
+        willRunHLTSimulationGetter = willRunLVL1SimulationGetter and TF.doHLT()
 
         log.info("Will run: %s%s%s%s", "GenerateMenu " if willGenerateMenu else "",
                                        "TriggerConfigGetter " if willRunTriggerConfigGetter else "",
@@ -68,7 +70,7 @@ class TriggerGetter(Configured):
         if recAlgs.doTrigger():
             from TriggerMenu.menu.GenerateMenu import GenerateMenu
 
-            if ((TF.doLVL1() or TF.doLVL2() or TF.doEF() or TF.doHLT()) and not TF.doTriggerConfigOnly()):
+            if ((TF.doLVL1() or TF.doHLT()) and not TF.doTriggerConfigOnly()):
                 log.info("generating menu")
                 # trigger menu files generation
                 g = GenerateMenu()
@@ -120,7 +122,7 @@ class TriggerGetter(Configured):
             lvl1 = Lvl1SimulationGetter()  # noqa: F841
             
 
-            if TF.doTransientByteStream() or (jobproperties.Global.InputFormat() != 'bytestream' and (TF.doLVL2() or TF.doEF() or TF.doHLT())):
+            if TF.doTransientByteStream() or (jobproperties.Global.InputFormat() != 'bytestream' and TF.doHLT()):
                 # Transient BS construction and intialization
                 from ByteStreamCnvSvc import WriteByteStream
                 StreamBS = WriteByteStream.getStream("Transient","StreamBS")
@@ -147,10 +149,8 @@ class TriggerGetter(Configured):
 
             # setup HLT
             # initialize HLT config svc
-            log.info("TriggerFlags: doLVL2 %r", TF.doLVL2())
-            log.info("TriggerFlags: doEF   %r", TF.doEF())
             log.info("TriggerFlags: doHLT  %r", TF.doHLT())
-            if TF.doLVL2() or TF.doEF() or TF.doHLT():
+            if TF.doHLT():
                 log.info("configuring hlt")
                 from TriggerJobOpts.HLTTriggerGetter import HLTSimulationGetter
                 hlt = HLTSimulationGetter(g)  # noqa: F841
@@ -166,7 +166,7 @@ class TriggerGetter(Configured):
         hltouput = Lvl1ResultBuilderGetter()
 
         # prepare result making of HLT
-        if TF.doLVL2() or TF.doEF() or TF.doHLT() or (recAlgs.doTrigger() and TF.readBS()):
+        if TF.doHLT() or (recAlgs.doTrigger() and TF.readBS()):
             from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
             hltouput = HLTTriggerResultGetter()  # noqa: F841
       

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017, 2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_ATHENAHIVEEVENTLOOPMGR_H
@@ -14,25 +14,23 @@
 #include <string>
 #include <vector>
 
-#include "GaudiKernel/IEvtSelector.h"
 #include "Gaudi/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/MinimalEventLoopMgr.h"
 #include "GaudiKernel/IIncidentListener.h"
-#include "AthenaKernel/Timeout.h"
-#include "AthenaKernel/IAthenaEvtLoopPreSelectTool.h"
-#include "AthenaKernel/IEventSeek.h"
-#include "AthenaKernel/ICollectionSize.h"
-#include "AthenaKernel/IConditionsCleanerSvc.h"
-
-//////////////////////////////////////////////////
 #include "GaudiKernel/IAlgResourcePool.h"
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IHiveWhiteBoard.h"
 #include "GaudiKernel/IScheduler.h"
 #include "GaudiKernel/IAlgExecStateSvc.h"
+
+#include "AthenaKernel/Timeout.h"
+#include "AthenaKernel/IAthenaEvtLoopPreSelectTool.h"
+#include "AthenaKernel/IEventSeek.h"
+#include "AthenaKernel/ICollectionSize.h"
+#include "AthenaKernel/IConditionsCleanerSvc.h"
 
 // Standard includes
 #include <functional>
@@ -146,8 +144,11 @@ protected:
   /// Default is to clear the store at the end of the event
   StringProperty m_clearStorePolicy;
 
+  /// require input attribute list
+  bool m_requireInputAttributeList{};
+
   /// read event number from secondary input
-  bool m_useSecondaryEventNumber;
+  bool m_useSecondaryEventNumber{};
 
   /// property update handler:set the clear-store policy value and check its
   /// value.

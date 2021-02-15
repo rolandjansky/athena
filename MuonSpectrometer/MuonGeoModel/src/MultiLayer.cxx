@@ -321,6 +321,7 @@ GeoFullPhysVol* MultiLayer::build()
   double tL = longWidth/2.0 - (tubePitch/2.)*TrdDwoverL;
   stube = new GeoTube(0.0, tubePitch/2., tL);
   stube = & ( (*stube) << GeoTrf::RotateX3D(90.*Gaudi::Units::deg) );
+  stube->ref();
   const GeoShape* stubewithcut = nullptr;
   if (cutoutNsteps > 1 && !m_nonCutoutXSteps.size()) { // adaption of tube cuts only needed for cutouts along amdb-y
     double toptubelength = cutoutTubeLength[cutoutNsteps-1];
@@ -331,12 +332,11 @@ GeoFullPhysVol* MultiLayer::build()
 
   GeoShape* sbox = new GeoTrd(mdtthickness, mdtthickness, longWidth,
                               longWidth, tubePitch/2.);
-  GeoShape* sboxf = new GeoTrd(mdtthickness, mdtthickness, longWidth,
-                                longWidth, tubePitch/4.+1*Gaudi::Units::mm);
   slay = &(slay->subtract( (*sbox)<<GeoTrf::Translate3D(0.,0.,length/2.)));
 
   for (int i = 0; i < nrOfLayers; i++) {
-    if (xx[i] > tubePitch/2. + 10.*Gaudi::Units::mm) {
+    // check in which tubeLayers the layer x position is outside of the envelope and add tube to envelope (not for BMG)
+    if (logVolName.find("BMG")==std::string::npos && 2*xx[i]>=tubePitch) {
       // subtract tube at the start
       if (verbose_multilayer) {
         log << MSG::VERBOSE
@@ -370,6 +370,8 @@ GeoFullPhysVol* MultiLayer::build()
     }
   } // Loop over layers
 
+  stube->unref();
+
   const GeoMaterial* mlay = getMaterialManager()->getMaterial("std::Air");
   GeoLogVol* llay = new GeoLogVol(logVolName, slay, mlay);
   GeoFullPhysVol* play = new GeoFullPhysVol(llay);
@@ -388,6 +390,8 @@ GeoFullPhysVol* MultiLayer::build()
       sfoam = new GeoTrd(foamthicknesslow/2.-eps, foamthicknesslow/2.-eps,
                          width/2.-eps, longWidth/2.-eps, length/2.);
     }
+    GeoShape* sboxf = new GeoTrd(mdtthickness, mdtthickness, longWidth,
+                                 longWidth, tubePitch/4.+1*Gaudi::Units::mm);
     sfoam = &(sfoam->subtract( (*sboxf)<<GeoTrf::Translate3D(0.,0.,length/2.-tubePitch/4.)));
     mfoam = getMaterialManager()->getMaterial("muo::Foam");
     lfoam = new GeoLogVol("MultiLayerFoam", sfoam, mfoam);
@@ -400,6 +404,8 @@ GeoFullPhysVol* MultiLayer::build()
       sfoam = new GeoTrd(foamthicknessup/2.-eps, foamthicknessup/2.-eps,
                          width/2.-eps, longWidth/2.-eps, length/2.);
     }
+    GeoShape* sboxf = new GeoTrd(mdtthickness, mdtthickness, longWidth,
+                                 longWidth, tubePitch/4.+1*Gaudi::Units::mm);
     sfoam = &(sfoam->subtract( (*sboxf)<<GeoTrf::Translate3D(0.,0.,length/2.-tubePitch/4.)));
     mfoam = getMaterialManager()->getMaterial("muo::Foam");
     lfoam = new GeoLogVol("MultiLayerFoam", sfoam, mfoam);

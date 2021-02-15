@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTruthDecorationAlg.h"
@@ -69,7 +69,7 @@ namespace Muon {
     }
 
     // loop over truth coll
-    for( const auto& truth : *truthContainer ){
+    for( const auto truth : *truthContainer ){
       if( truth->status() != 1 ) continue;
       if( abs(truth->pdgId()) != 13 || truth->pt() < 1000. ) continue;
       xAOD::TruthParticle* truthParticle = new xAOD::TruthParticle();
@@ -163,8 +163,10 @@ namespace Muon {
     // loop over chamber layers
     for( const auto& lay : ids ){
       // skip empty layers
-      Amg::Vector3D* firstPos  = 0;
-      Amg::Vector3D* secondPos = 0;
+      Amg::Vector3D firstPos  = Amg::Vector3D::Zero();
+      Amg::Vector3D secondPos = Amg::Vector3D::Zero();
+      bool firstPosSet = false;
+      bool secondPosSet = false;
       Identifier chId;
       int index = -1;
       uint8_t nprecLayers = 0;
@@ -218,14 +220,18 @@ namespace Muon {
 		if( isEndcap ) return fabs(p1.z()) < fabs(p2.z());
 		else           return p1.perp() < p2.perp();
 	      };
-	      if( !firstPos ) firstPos  = new Amg::Vector3D(gpos);
-	      else if( !secondPos ){
-		secondPos = new Amg::Vector3D(gpos);
-		if( isSmaller(*secondPos,*firstPos) ) std::swap(firstPos,secondPos);
+	      if( !firstPosSet ) {
+                firstPos  = gpos;
+                firstPosSet = true;
+              }
+	      else if( !secondPosSet ){
+		secondPos = gpos;
+                secondPosSet = true;
+		if( isSmaller(secondPos,firstPos) ) std::swap(firstPos,secondPos);
 	      }else{
 		// update position if we can increase the distance between the two positions
-		if( isSmaller(gpos,*firstPos) )       *firstPos  = gpos;
-		else if( isSmaller(*secondPos,gpos) ) *secondPos = gpos;
+		if( isSmaller(gpos,firstPos) )       firstPos  = gpos;
+		else if( isSmaller(secondPos,gpos) ) secondPos = gpos;
 	      }
 	    }
 	  }
@@ -238,14 +244,18 @@ namespace Muon {
 	      Amg::Vector3D locpos(0,pos->second.getdeposits()[0].second.ypos(),pos->second.getdeposits()[0].second.zpos());
 	      gpos=descriptor->localToGlobalCoords(locpos,m_idHelperSvc->cscIdHelper().elementID(id));
 	      ATH_MSG_DEBUG("got CSC global position "<<gpos);
-	      if( !firstPos ) firstPos  = new Amg::Vector3D(gpos);
-              else if( !secondPos ){
-                secondPos = new Amg::Vector3D(gpos);
-		if(secondPos->perp()<firstPos->perp()) std::swap(firstPos,secondPos);
+	      if( !firstPosSet ) {
+                firstPos  = gpos;
+                firstPosSet = true;
+              }
+              else if( !secondPosSet ){
+                secondPos = gpos;
+                secondPosSet = true;
+		if(secondPos.perp() < firstPos.perp()) std::swap(firstPos,secondPos);
 	      }
 	      else{
-		if( gpos.perp()<firstPos->perp() )       *firstPos  = gpos;
-                else if( secondPos->perp()<gpos.perp() ) *secondPos = gpos;
+		if( gpos.perp() < firstPos.perp() )       firstPos  = gpos;
+                else if( secondPos.perp() < gpos.perp() ) secondPos = gpos;
               }
 	    }
 	  }
@@ -272,16 +282,14 @@ namespace Muon {
 	  MuonStationIndex::ChIndex chIndex = m_idHelperSvc->chamberIndex(chId);
 	  segment->setIdentifier(sector,chIndex,eta,technology);
 	}
-	if( firstPos && secondPos ){
-          Amg::Vector3D gpos = (*firstPos+*secondPos)/2.;
-          Amg::Vector3D gdir = (*firstPos-*secondPos).unit();
+	if( firstPosSet && secondPosSet ){
+          Amg::Vector3D gpos = (firstPos+secondPos)/2.;
+          Amg::Vector3D gdir = (firstPos-secondPos).unit();
 	  ATH_MSG_DEBUG(" got position : r " << gpos.perp() << " z " << gpos.z()
                         << "  and direction: theta " << gdir.theta() << " phi " << gdir.phi() );
           segment->setPosition(gpos.x(),gpos.y(),gpos.z());
           segment->setDirection(gdir.x(),gdir.y(),gdir.z());
 	}
-	delete firstPos;
-	delete secondPos;
       }
     }
   }

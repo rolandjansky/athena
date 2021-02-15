@@ -31,9 +31,10 @@
  // Include for the configuration service:
  #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
- // Outputs to CTP
- #include "TrigT1Interfaces/EmTauCTP.h"
- #include "TrigT1Interfaces/JetCTP.h"
+// Outputs to CTP
+#include "TrigT1Interfaces/EmTauCTP.h"
+#include "TrigT1Interfaces/JetCTP.h"
+#include "TrigT1Interfaces/TrigT1CaloDefs.h"
 
  namespace LVL1 {
 
@@ -87,7 +88,11 @@
    std::string   m_CMXCPTobLocation;
    /** Locations of real-time outputs in StoreGate */
    std::string m_TopoOutputLocation ;
-   std::string m_CTPOutputLocation ;
+
+    //std::string m_CTPOutputLocation ;
+   SG::WriteHandleKey<EmTauCTP> m_CTPOutputKey { this, "CTPOutputLocation", TrigT1CaloDefs::EmTauCTPLocation, "Output to CTP" };
+
+
    /** Location of input data in StoreGate */
    std::string   m_CPMCMXDataLocation;
    

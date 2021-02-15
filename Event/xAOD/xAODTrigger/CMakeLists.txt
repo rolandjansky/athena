@@ -17,7 +17,7 @@ atlas_add_library( xAODTrigger
    xAODTrigger/*.h xAODTrigger/versions/*.h xAODTrigger/versions/*.icc
    Root/*.cxx
    PUBLIC_HEADERS xAODTrigger
-   LINK_LIBRARIES AthContainers AthLinks xAODCore xAODBase TrigNavStructure CxxUtils
+   LINK_LIBRARIES AthContainers AthLinks xAODCore xAODBase TrigNavStructure CxxUtils TrigT1MuctpiBits
    ${extra_libs} )
 
 atlas_add_xaod_smart_pointer_dicts(
@@ -41,6 +41,10 @@ atlas_add_dictionary( xAODTriggerDict
 atlas_add_test( ut_xaodtrigger_bytestreamauxcontainer_v1_test
   SOURCES test/ut_xaodtrigger_bytestreamauxcontainer_v1_test.cxx
   LINK_LIBRARIES AthContainers xAODTrigger )
+
+atlas_add_test( ut_xaodtrigger_gFexEDM_test 
+  SOURCES test/ut_xaodtrigger_gFexEDM_test.cxx
+  LINK_LIBRARIES AthContainers xAODTrigger)
 
 if( NOT XAOD_STANDALONE )
    atlas_add_test( ut_xaodtrigger_trigcomposite_test

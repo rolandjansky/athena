@@ -249,7 +249,11 @@ StatusCode PadTriggerLogicOfflineTool::get_tree_from_histsvc( TTree*&tree)
     ITHistSvc* tHistSvc=nullptr;
     m_validation_tree.clear_ntuple_variables();
     ATH_CHECK(service("THistSvc", tHistSvc));
-    std::string algoname = dynamic_cast<const INamedInterface*>(parent())->name();
+    auto iname = dynamic_cast<const INamedInterface*>(parent());
+    if (!iname) {
+      return StatusCode::FAILURE;
+    }
+    std::string algoname = iname->name();
     std::string treename = PadTriggerValidationTree::treename_from_algoname(algoname);  
     ATH_CHECK(tHistSvc->getTree(treename, tree));
     return StatusCode::SUCCESS;

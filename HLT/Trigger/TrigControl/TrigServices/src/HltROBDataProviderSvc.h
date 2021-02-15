@@ -203,14 +203,19 @@ private:
   /// output:
   ///     vector of ROB fragments available already in cache
   ///     vector of ROB Ids missing in cache
+  ///     set of disabled ROBs
   void eventCache_checkRobListToCache(EventCache*, const std::vector<uint32_t>&, 
-				      std::vector<const ROBF*>&, std::vector<uint32_t>& );
+				      std::vector<const ROBF*>&, std::vector<uint32_t>&, 
+              std::optional<std::reference_wrapper<std::set<uint32_t>>> robIds_disabled = std::nullopt);
 
   /// method to add ROB fragments to an event cache in a slot
   /// input:
   ///     pointer to cache
   ///     vector of ROB fragments to add to the cache
-  void eventCache_addRobData(EventCache*, const std::vector<ROBF>&) ;
+  /// output:
+  ///     set of ignored ROBs
+  void eventCache_addRobData(EventCache*, std::vector<ROBF>&&,
+              std::optional<std::reference_wrapper<std::set<uint32_t>>> robIds_ignored = std::nullopt) ;
 
   /// Monitoring tool
   ToolHandle<GenericMonitoringTool> m_monTool{this, "MonTool", "", "Monitoring tool"};

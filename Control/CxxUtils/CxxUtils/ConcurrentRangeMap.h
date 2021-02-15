@@ -390,7 +390,7 @@ public:
 
   /**
    * @brief Update all range objects.
-   * @param rangeUpater Functional to call on each range object.
+   * @param rangeUpdater Functional to call on each range object.
    * @param ctx Execution context.
    *
    * This will iterate through the list of entries and call @c rangeUpdater

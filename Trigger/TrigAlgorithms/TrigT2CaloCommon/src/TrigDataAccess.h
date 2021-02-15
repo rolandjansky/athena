@@ -49,6 +49,7 @@
 #include "ZdcRec/ZdcRecChannelTool.h"
 //#include "LumiBlockComps/ILuminosityTool.h"
 
+#include "IRegionSelector/IRegSelSvc.h"
 #include "TrigT2CaloCommon/T2GeometryTool.h"
 #include "TrigT2CaloCommon/T2Calibration.h"
 #include "CaloGeoHelpers/CaloSampling.h"
@@ -66,7 +67,6 @@
 #include "CxxUtils/checker_macros.h"
 ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
 
-class IRegSelSvc;
 // class ITrigRegionSelector;
 class LArRoI_Map;
 class IROBDataProviderSvc;

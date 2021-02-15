@@ -10,7 +10,7 @@
 #include <xercesc/dom/DOM.hpp>
 #include "GeoModelKernel/RCBase.h"
 #include "GeoModelKernel/GeoGenericTrap.h"
-#include "GeoModelXml/translate.h"
+#include "xercesc/util/XMLString.hpp"
 #include "GeoModelXml/GmxUtil.h"
 
 
@@ -29,10 +29,10 @@ double x;
 double y;
 
     for (int i = 0; i < (nParams - 1) / 2; ++i) {
-        toRelease = Translate(element->getAttribute(Translate(parName[2 * i])));
+        toRelease = XMLString::transcode(element->getAttribute(XMLString::transcode(parName[2 * i])));
         x = gmxUtil.evaluate(toRelease);
         XMLString::release(&toRelease);
-        toRelease = Translate(element->getAttribute(Translate(parName[2 * i + 1])));
+        toRelease = XMLString::transcode(element->getAttribute(XMLString::transcode(parName[2 * i + 1])));
         y = gmxUtil.evaluate(toRelease);
         XMLString::release(&toRelease);
         vertices.push_back(GeoTwoVector(x, y));
@@ -40,7 +40,7 @@ double y;
 //
 //    z-half-length
 //
-    toRelease = Translate(element->getAttribute(Translate(parName[16])));
+    toRelease = XMLString::transcode(element->getAttribute(XMLString::transcode(parName[16])));
     p = gmxUtil.evaluate(toRelease);
     XMLString::release(&toRelease);
 

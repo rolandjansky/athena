@@ -33,14 +33,14 @@ class LumiBlockMuWriter : public AthReentrantAlgorithm
       ,"LuminosityCondData"
       ,"RCHK for LuminosityCondData"};
 
-  SG::WriteDecorHandleKey<xAOD::EventInfo> m_actIntPerXKey {this
-      ,"ActIntPerXKey"
-      ,"EventInfo.ActIntPerXDecor"
+  SG::WriteDecorHandleKey<xAOD::EventInfo> m_actMuKey {this
+      ,"actualInteractionsPerCrossingKey"
+      ,"EventInfo.actualInteractionsPerCrossing"
       ,"Decoration for Actual Interaction Per Crossing"};
 
-  SG::WriteDecorHandleKey<xAOD::EventInfo> m_aveIntPerXKey {this
-      ,"AveIntPerXKey"
-      ,"EventInfo.AveIntPerXDecor"
+  SG::WriteDecorHandleKey<xAOD::EventInfo> m_aveMuKey {this
+      ,"averageInteractionsPerCrossingKey"
+      ,"EventInfo.averageInteractionsPerCrossing"
       ,"Decoration for Average Interaction Per Crossing"};
 
 };

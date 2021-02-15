@@ -50,7 +50,6 @@ def getSCT_SurfaceChargesGenerator(name="SCT_SurfaceChargesGenerator", **kwargs)
     sct_SiPropertiesToolSetup.setSiliconTool(sct_SiliconConditionsToolSetup.getTool())
     sct_SiPropertiesToolSetup.setup()
     ## Charge trapping tool - used by SCT_SurfaceChargesGenerator
-    from AthenaCommon.AppMgr import ToolSvc
     ## SiLorentzAngleTool for SCT_SurfaceChargesGenerator
     from SiLorentzAngleTool.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
     sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()

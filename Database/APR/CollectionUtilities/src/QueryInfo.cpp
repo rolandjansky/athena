@@ -16,8 +16,6 @@
 #include "CollectionBase/CollectionFactory.h"
 
 #include "CollectionBase/ICollectionQuery.h"
-#include "CollectionBase/ICollectionCursor.h"
-#include "CollectionBase/CollectionRowBuffer.h"
 #include "CoralBase/Attribute.h"
 
 #include "POOLCore/Exception.h"

@@ -14,7 +14,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "SiClusterizationTool/ClusterMakerTool.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SiLocalPosition.h"
+#include "ReadoutGeometryBase/SiLocalPosition.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetPrepRawData/SCT_Cluster.h"
@@ -55,7 +55,7 @@ ClusterMakerTool::ClusterMakerTool(const std::string& t,
 StatusCode  ClusterMakerTool::initialize(){
   // Code entered here will be executed once at program start.
 
-   ATH_MSG_INFO ( name() << " initialize()" );
+   ATH_MSG_DEBUG ( name() << " initialize()" );
 
    if (not m_pixelCabling.empty()) {
      ATH_CHECK(m_pixelCabling.retrieve());

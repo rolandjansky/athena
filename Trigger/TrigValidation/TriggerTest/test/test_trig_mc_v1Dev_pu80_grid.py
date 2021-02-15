@@ -4,6 +4,7 @@
 # art-description: Trigger RDO->RDO_TRIG athena test of the Dev_pp_run3_v1 menu with pileup80 ttbar sample
 # art-type: grid
 # art-include: master/Athena
+# art-athena-mt: 4
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
@@ -24,9 +25,10 @@ ex = ExecStep.ExecStep()
 ex.type = 'athena'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'ttbar_pu80'
-ex.threads = 1
+ex.threads = 4
+ex.concurrent_events = 4
 # LS2_v1 soon to be renamed to Dev_pp_run3_v1
-ex.args = '-c "setMenu=\'LS2_v1_TriggerValidation_mc_prescale\';doWriteBS=False;doWriteRDOTrigger=True;"'
+ex.args = '-c "setMenu=\'LS2_v1_TriggerValidation_prescale\';doWriteBS=False;doWriteRDOTrigger=True;"'
 
 test = Test.Test()
 test.art_type = 'grid'

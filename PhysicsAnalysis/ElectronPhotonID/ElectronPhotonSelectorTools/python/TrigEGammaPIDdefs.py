@@ -1,6 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
-from __future__ import print_function
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 class TrigEgammaIDQuality:
     ElectronIDLoose = 0
@@ -275,7 +273,7 @@ class SelectionDefElectron:
         Electron_trk = CutDefElectron.TRACKINGLOOSE_ELECTRON
         
 
-""" \enum Bitdefinitons for the egamma class for photon identification
+r""" \enum Bitdefinitons for the egamma class for photon identification
     see egammaParameters for info on the variable definitions """
 class BitDefPhoton:
    """ @brief cluster eta range """

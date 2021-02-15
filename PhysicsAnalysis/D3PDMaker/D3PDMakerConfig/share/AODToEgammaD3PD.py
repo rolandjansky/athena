@@ -13,6 +13,8 @@
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput= ["AOD.pool.root"]
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+ConfigFlags.Input.Files = athenaCommonFlags.FilesInput()
 
 
 ###################################################################3
@@ -55,6 +57,9 @@ muonRecFlags.doMSVertex.set_Value_and_Lock( False )
 
 #from xAODJetCnv import ParticleJetCompatibility
 
+
+include( "RecExCommon/RecExCommon_topOptions.py" )
+
 # Block loading conditions folders we won't need.
 blocked_folders = [
     '/CALO/Identifier/CaloTTOnAttrIdMapAtlas',
@@ -77,6 +82,4 @@ from IOVDbSvc.CondDB import conddb
 for f in blocked_folders:
     conddb.blockFolder (f)
 
-
-include( "RecExCommon/RecExCommon_topOptions.py" )
 

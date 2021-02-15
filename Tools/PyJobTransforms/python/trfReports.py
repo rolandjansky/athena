@@ -1,16 +1,4 @@
-from __future__ import print_function
-from __future__ import division
-from future.utils import iteritems
-from future.utils import itervalues
-
-
-from builtins import object
-from future import standard_library
-standard_library.install_aliases()
-
-from builtins import int
-
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfReports
 #
@@ -18,7 +6,6 @@ from builtins import int
 #  @details Classes whose instance encapsulates transform reports
 #   at different levels, such as file, executor, transform
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfReports.py 784023 2016-11-14 14:01:07Z mavogel $
 #
 
 __version__ = '$Revision: 784023 $'
@@ -168,7 +155,7 @@ class trfJobReport(trfReport):
             if fileReport[fileType]:
                 myDict['files'][fileType] = []
         # Should have a dataDictionary, unless something went wrong very early...
-        for dataType, dataArg in iteritems(self._trf._dataDictionary):
+        for dataType, dataArg in self._trf._dataDictionary.items():
             if dataArg.auxiliaryFile: # Always skip auxilliary files from the report
                 continue
             if fileReport[dataArg.io]:
@@ -207,7 +194,7 @@ class trfJobReport(trfReport):
         maxWorkers = 1
         msg.debug('Raw cpu resource consumption: transform {0}, children {1}'.format(myCpuTime, childCpuTime))
         # Reduce childCpuTime by times reported in the executors (broken for MP...?)
-        for exeName, exeReport in iteritems(myDict['resource']['executor']):
+        for exeName, exeReport in myDict['resource']['executor'].items():
             if 'mpworkers' in exeReport:
                 if exeReport['mpworkers'] > maxWorkers : maxWorkers = exeReport['mpworkers']
             try:
@@ -262,7 +249,7 @@ class trfJobReport(trfReport):
         # Extract some executor parameters here
         for exeKey in ('preExec', 'postExec', 'preInclude', 'postInclude'):
             if exeKey in self._trf.argdict:
-                for substep, pyfrag in iteritems(self._trf.argdict[exeKey].value):
+                for substep, pyfrag in self._trf.argdict[exeKey].value.items():
                     if substep == 'all':
                         ElementTree.SubElement(trfTree, 'META', type = 'string', name = exeKey, value = str(pyfrag))
                     else:
@@ -277,7 +264,7 @@ class trfJobReport(trfReport):
                                        value = str(self._trf.argdict[exeKey].value))
 
         # Now add information about output files
-        for dataArg in itervalues(self._trf._dataDictionary):
+        for dataArg in self._trf._dataDictionary.values():
             if dataArg.io == 'output':
                 for fileEltree in trfFileReport(dataArg).classicEltreeList(fast = fast):
                     trfTree.append(fileEltree)
@@ -329,7 +316,7 @@ class trfJobReport(trfReport):
             # Mangle substep argumemts back to the old format
             for substepKey in ('preExec', 'postExec', 'preInclude', 'postInclude'):
                 if substepKey in self._trf.argdict:
-                    for substep, values in iteritems(self._trf.argdict[substepKey].value):
+                    for substep, values in self._trf.argdict[substepKey].value.items():
                         if substep == 'all':
                             trfDict['jobOutputs'][-1]['more']['metadata'][substepKey] = values
                         else:
@@ -375,7 +362,7 @@ class trfExecutorReport(object):
                       'exeConfig' : {}
                       }
         # Add executor config information
-        for k, v in iteritems(self._exe.extraMetadata):
+        for k, v in self._exe.extraMetadata.items():
             reportDict['exeConfig'][k] = v
 
         # Do we have a logscan to add?
@@ -519,7 +506,7 @@ class trfFileReport(object):
             raise trfExceptions.TransformReportException(trfExit.nameToCode('TRF_INTERNAL_REPORT_ERROR'),
                                                          'Unknown file ({0}) in the file report for {1}'.format(filename, self._fileArg))
         tree = ElementTree.Element('File', ID = str(self._fileArg.getSingleMetadata(fname = filename, metadataKey = 'file_guid', populate = not fast)))
-        for myKey, classicKey in iteritems(self._internalToClassicMap):
+        for myKey, classicKey in self._internalToClassicMap.items():
             # beam_type is tricky - we return only the first list value,
             # (but remember, protect against funny stuff!)
             if myKey == 'beam_type':
@@ -563,7 +550,7 @@ class trfFileReport(object):
                     'dataset' : self._fileArg.dataset,
                     }
         # Fill in the mapped 'primary' keys
-        for myKey, classicKey in iteritems(self._internalToGpickleMap):
+        for myKey, classicKey in self._internalToGpickleMap.items():
             fileDict[classicKey] = self._fileArg.getSingleMetadata(fname = filename, metadataKey = myKey, populate = not fast)
             if classicKey == 'checkSum' and fileDict[classicKey] == 'UNDEFINED':
                 # Old style is that we give back None when we don't know
@@ -573,7 +560,7 @@ class trfFileReport(object):
                 del fileDict[classicKey]
         # Base 'more' stuff which is known by the argFile itself
         fileDict['more'] = {'metadata' : {'fileType' : self._fileArg.type}}
-        for myKey, classicKey in iteritems(self._internalToGpickleMoreMap):
+        for myKey, classicKey in self._internalToGpickleMoreMap.items():
             value = self._fileArg.getSingleMetadata(fname = filename, metadataKey = myKey, populate = not fast)
             if value != 'UNDEFINED':
                 fileDict['more']['metadata'][classicKey] = value

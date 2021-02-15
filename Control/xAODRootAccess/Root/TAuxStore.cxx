@@ -61,7 +61,7 @@ namespace xAOD {
         m_splitLevel( splitLevel ), m_entry( 0 ), m_inTree( 0 ), m_outTree( 0 ),
         m_inputScanned( kFALSE ), m_selection(), m_transientStore( 0 ),
         m_auxIDs(), m_vecs(), m_size( 0 ), m_locked( kFALSE ), m_isDecoration(),
-        m_mutex1(), m_mutex2(), 
+        m_mutex1(), m_mutex2(),
         m_branches(), m_branchesWritten(), m_missingBranches() {
 
    }
@@ -290,7 +290,7 @@ namespace xAOD {
       guard_t guard( m_mutex1 );
 
       // Check if the transient store already handles this variable:
-      if( m_transientStore && 
+      if( m_transientStore &&
           ( m_transientStore->getAuxIDs().test( auxid ) ) ) {
          return m_transientStore->getData( auxid );
       }
@@ -453,7 +453,7 @@ namespace xAOD {
 
    /// Lock a decoration.
    void TAuxStore::lockDecoration (SG::auxid_t auxid)
-   { 
+   {
      if( m_transientStore ) {
        m_transientStore->lockDecoration (auxid);
      }
@@ -1213,7 +1213,7 @@ namespace xAOD {
          bool primitiveBranch = (strlen( brType->name() ) == 1);
          m_branches[ auxid ] =
             new TBranchHandle( kFALSE, ( strlen( brType->name() ) == 1 ),
-                               (primitiveBranch ? 
+                               (primitiveBranch ?
                                 brType :
                                 m_vecs[ auxid ]->objType() ),
                                ( m_structMode == kObjectStore ?
@@ -1775,6 +1775,25 @@ namespace xAOD {
           if (*cl2->GetTypeInfo() == *aux_vec_ti)
             return kTRUE;
         }
+      }
+
+      // If we got this far, the branch may have undergone schema evolution. If
+      // it's one that ROOT can deal with itself, then we should still be able
+      // to read the branch with this code.
+      //
+      // Note that even after looking at the ROOT source code, I'm still not
+      // 100% sure whether we would need to delete the objects returned by
+      // TClass::GetConversionStreamerInfo(...) in this code. :-( But based on
+      // general experience with the ROOT code, I'm going to say no...
+      TClass* aux_vec_cl =
+         TClass::GetClass( Utils::getTypeName( *aux_vec_ti ).c_str() );
+      if( aux_vec_cl && aux_vec_cl->GetConversionStreamerInfo( cl, 0 ) ) {
+         return kTRUE;
+      }
+      TClass* aux_obj_cl =
+         TClass::GetClass( Utils::getTypeName( *aux_obj_ti ).c_str() );
+      if( aux_obj_cl && aux_obj_cl->GetConversionStreamerInfo( cl, 0 ) ) {
+         return kFALSE;
       }
 
      // If neither, then something went wrong...

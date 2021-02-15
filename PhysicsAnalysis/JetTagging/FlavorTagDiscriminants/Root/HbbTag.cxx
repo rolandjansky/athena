@@ -161,9 +161,9 @@ namespace {
         return {hk::eta, j.eta()};
       };
     } else {
-      // for now we assume everything we read from b-tagging is a double,
+      // for now we assume everything we read from b-tagging is a float,
       // this is only true for DL1 scores.
-      return BTagPairGetter<double>(key);
+      return BTagPairGetter<float>(key);
     }
   }
 

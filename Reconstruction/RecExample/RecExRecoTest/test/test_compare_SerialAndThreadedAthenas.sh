@@ -4,6 +4,7 @@ echo "Creating new serial directory"
 mkdir serial; cd serial
 athena $1 | tee athenaSerial.log
 rc=${PIPESTATUS[0]}
+xAODDigest.py AOD.pool.root | tee digestSerial.log
 echo "art-result: $rc Serial"
 
 test_postProcessing_Errors.sh athenaSerial.log | tee errorsSerial.log
@@ -14,6 +15,7 @@ mkdir threadOne; cd threadOne
 
 athena --threads=1 $1 | tee athenaOneThread.log
 rc1=${PIPESTATUS[0]}
+xAODDigest.py AOD.pool.root | tee digestOneThread.log
 echo "art-result: $rc1 OneThread"
 
 test_postProcessing_Errors.sh athenaOneThread.log | tee errorsOneThread.log
@@ -27,6 +29,7 @@ then
  echo "Compare two directories"
  art.py compare ref --entries 10 --mode=semi-detailed --order-trees --diff-root . ../serial/ | tee diffSerialOneThread.log
  rcDiff1=${PIPESTATUS[0]}
+ collateDigest.sh digestOneThread.log ../serial/digestSerial.log digestDiffSerialOneThread.log 
  echo "art-result: $rcDiff1 Diff-Serial-OneThread"
 fi
 
@@ -36,6 +39,7 @@ mkdir threadTwo; cd threadTwo
 
 athena --threads=2 $1 | tee athenaTwoThreads.log
 rc2=${PIPESTATUS[0]}
+xAODDigest.py AOD.pool.root | tee digestTwoThreads.log
 echo "art-result: $rc2 TwoThreads"
 
 test_postProcessing_Errors.sh athenaTwoThreads.log | tee errorsTwoThreads.log
@@ -45,6 +49,7 @@ then
  echo "Compare two directories"
  art.py compare ref --entries 10 --mode=semi-detailed --order-trees --diff-root . ../threadOne | tee diffTwoThreadsOneThread.log
  rcDiff2=${PIPESTATUS[0]}
+ collateDigest.sh digestTwoThreads.log ../threadOne/digestOneThread.log digestDiffTwoThreadsOneThread.log 
  echo "art-result: $rcDiff2 Diff-OneThread-TwoThreads"
 fi
 
@@ -54,6 +59,7 @@ mkdir threadFive; cd threadFive
 
 athena --threads=5 $1 | tee athenaFiveThreads.log
 rc5=${PIPESTATUS[0]}
+xAODDigest.py AOD.pool.root | tee digestFiveThreads.log
 echo "art-result: $rc5 FiveThreads"
 
 test_postProcessing_Errors.sh athenaFiveThreads.log | tee errorsFiveThreads.log
@@ -63,5 +69,6 @@ then
  echo "Compare two directories"
  art.py compare ref --entries 10 --mode=semi-detailed --order-trees --diff-root . ../threadTwo | tee diffFiveThreadsTwoThreads.log
  rcDiff5=${PIPESTATUS[0]}
+ ollateDigest.sh digestFiveThreads.log ../threadTwo/digestTwoThreads.log digestDiffFiveThreadsTwoThread.log
  echo "art-result: $rcDiff5 Diff-TwoThreads-FiveThreads"
 fi

@@ -17,7 +17,6 @@ Py:ConfigurableDb WARNING   -TrigHLTJetHypo: TrigHLTJetHypo.TrigHLTJetHypoConf -
 Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
 Py:Athena            INFO including file "IdDictDetDescrCnv/IdDictDetDescrCnv_joboptions.py"
 EventInfoMgtInit: Got release version  AtlasOffline-rel_3
-Py:IOVDbSvc.CondDB WARNING Failed to extract year from project tag . Guessing run2
 Py:IOVDbSvc.CondDB    INFO Configuring database instance CONDBR2 based on project tag 
 Py:IOVDbSvc.CondDB    INFO Setting up conditions DB access to instance CONDBR2
 Data source lookup using /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasCore/rel_3/InstallArea/XML/AtlasAuthentication/dblookup.xml file

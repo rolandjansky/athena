@@ -1,15 +1,16 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUREC_TAUJETRNNUTILS_H
-#define TAUREC_TAUJETRNNUTILS_H
+#ifndef TAURECTOOLS_TAUJETRNNUTILS_H
+#define TAURECTOOLS_TAUJETRNNUTILS_H
 
-#include <unordered_map>
+#include "xAODTau/TauJet.h"
+#include "xAODCaloEvent/CaloVertexedTopoCluster.h"
 
 #include "AsgMessaging/AsgMessaging.h"
 
-#include "xAODTau/TauJet.h"
+#include <unordered_map>
 
 
 namespace TauJetRNNUtils {
@@ -34,7 +35,7 @@ public:
                                double &);
 
     using ClusterCalc = bool (*)(const xAOD::TauJet &,
-                                 const xAOD::CaloCluster &, double &);
+                                 const xAOD::CaloVertexedTopoCluster &, double &);
 
 public:
     VarCalc();
@@ -52,7 +53,7 @@ public:
 
     // Computes cluster variables
     bool compute(const std::string &name, const xAOD::TauJet &tau,
-                 const std::vector<const xAOD::CaloCluster *> &clusters,
+                 const std::vector<xAOD::CaloVertexedTopoCluster> &clusters,
                  std::vector<double> &out) const;
 
     // Methods to insert calculator functions into the lookup table
@@ -167,6 +168,9 @@ bool nSCTHitsPlusDeadSensors (
 bool eProbabilityHT(
     const xAOD::TauJet &tau, const xAOD::TauTrack &track, double &out);
 
+bool eProbabilityNN(
+    const xAOD::TauJet &tau, const xAOD::TauTrack &track, double &out);
+
 } // namespace Track
 
 
@@ -176,32 +180,32 @@ namespace Cluster {
 // Returns a status code indicating success
 
 bool et_log(
-    const xAOD::TauJet &tau, const xAOD::CaloCluster &cluster, double &out);
+    const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster &cluster, double &out);
 
 bool pt_jetseed_log(
-    const xAOD::TauJet &tau, const xAOD::CaloCluster &cluster, double &out);
+    const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster &cluster, double &out);
 
 bool dEta(
-    const xAOD::TauJet &tau, const xAOD::CaloCluster &cluster, double &out);
+    const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster &cluster, double &out);
 
 bool dPhi(
-    const xAOD::TauJet &tau, const xAOD::CaloCluster &cluster, double &out);
+    const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster &cluster, double &out);
 
 bool SECOND_R(
-    const xAOD::TauJet &tau, const xAOD::CaloCluster &cluster, double &out);
+    const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster &cluster, double &out);
 
 bool SECOND_LAMBDA(
-    const xAOD::TauJet &tau, const xAOD::CaloCluster &cluster, double &out);
+    const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster &cluster, double &out);
 
 bool CENTER_LAMBDA(
-    const xAOD::TauJet &tau, const xAOD::CaloCluster &cluster, double &out);
+    const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster &cluster, double &out);
 
-bool SECOND_LAMBDAOverClustersMeanSecondLambda   (const xAOD::TauJet &tau, const xAOD::CaloCluster &cluster, double &out);
-bool CENTER_LAMBDAOverClustersMeanCenterLambda   (const xAOD::TauJet &tau, const xAOD::CaloCluster &cluster, double &out);
-bool FirstEngDensOverClustersMeanFirstEngDens    (const xAOD::TauJet &tau, const xAOD::CaloCluster &cluster, double &out);
+bool SECOND_LAMBDAOverClustersMeanSecondLambda   (const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster &cluster, double &out);
+bool CENTER_LAMBDAOverClustersMeanCenterLambda   (const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster &cluster, double &out);
+bool FirstEngDensOverClustersMeanFirstEngDens    (const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster &cluster, double &out);
 
 } // namespace Cluster
 } // namespace Variables
 } // namespace TauJetRNNUtils
 
-#endif // TAUREC_TAUJETRNNUTILS_H
+#endif // TAURECTOOLS_TAUJETRNNUTILS_H

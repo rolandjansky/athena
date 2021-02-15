@@ -102,7 +102,7 @@ StatusCode ThinNegativeEnergyNeutralPFOsAlg::execute()
 
     const EventContext& ctx = Gaudi::Hive::currentContext();
     
-    if(!m_neutralPFOsFEKey.key().empty()){
+    if(!m_neutralPFOsKey.key().empty()){
 
         // Retrieve the container
         SG::ThinningHandle<xAOD::PFOContainer> neutralPFOs (m_neutralPFOsKey, ctx);

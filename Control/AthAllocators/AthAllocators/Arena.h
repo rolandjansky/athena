@@ -222,7 +222,6 @@
 #include "AthAllocators/ArenaAllocatorBase.h"
 #include <cstdlib>
 #include <string>
-#include <string>
 #include <ostream>
 
 

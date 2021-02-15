@@ -6,7 +6,6 @@
 atlas_subdir( TruthRivetTools )
 
 # External dependencies:
-find_package( HepMC )
 find_package( Rivet )
 find_package( YODA )
 find_package( FastJet )
@@ -21,10 +20,10 @@ atlas_add_library( TruthRivetToolsLib
 	Root/*.cxx TruthRivetTools/*.h
    SHARED
    PUBLIC_HEADERS TruthRivetTools
-   INCLUDE_DIRS ${HEPMC_INCLUDE_DIRS} ${RIVET_INCLUDE_DIRS} ${YODA_INCLUDE_DIRS}
+   INCLUDE_DIRS ${RIVET_INCLUDE_DIRS} ${YODA_INCLUDE_DIRS}
    ${FASTJET_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS}
-	LINK_LIBRARIES ${HEPMC_LIBRARIES} ${RIVET_LIBRARIES} ${YODA_LIBRARIES}
-   ${FASTJET_LIBRARIES} ${ROOT_LIBRARIES} ${GSL_LIBRARIES} AsgTools AtlasHepMCLib
+	LINK_LIBRARIES ${RIVET_LIBRARIES} ${YODA_LIBRARIES}
+   ${FASTJET_LIBRARIES} ${ROOT_LIBRARIES} ${GSL_LIBRARIES} AsgTools AtlasHepMCLib AtlasHepMCsearchLib
    GenInterfacesLib )
 
 atlas_add_component( TruthRivetTools

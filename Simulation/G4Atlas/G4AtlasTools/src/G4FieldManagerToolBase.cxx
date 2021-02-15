@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Primary include
@@ -7,12 +7,6 @@
 
 // CLHEP includes
 #include "CLHEP/Units/SystemOfUnits.h"
-
-// Some geant headers erroneously expect these to be in the global namespace.
-// Don't use using, so as not to trigger warnings from the namespace
-// static checker.
-static constexpr double perThousand = CLHEP::perThousand;
-static constexpr double perMillion  = CLHEP::perMillion;
 
 // Geant4 steppers
 #include "G4AtlasRK4.hh"

@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # Import a needed helper
-from PATCore.HelperUtils import *
+from PATCore.HelperUtils import GetTool
 
 def ElectronLikelihoodCUSTOMMediumConfig(theTool) :
     '''

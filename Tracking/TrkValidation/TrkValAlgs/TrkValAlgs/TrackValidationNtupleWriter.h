@@ -96,7 +96,7 @@ protected:
   bool                      m_doTruth;                     //!< Switch to turn on / off truth
   bool                      m_doTrackParticle;             //!  Switch to turn on/pff recording track particle trees into Ntuple 
 
-  const HepMC::GenParticle* m_visibleParticleWithoutTruth; //!< cludge to treat G4's "fake fakes"
+  HepMC::GenParticlePtr m_visibleParticleWithoutTruth; //!< cludge to treat G4's "fake fakes"
   std::vector<unsigned int>           m_nTrackTreeRecords;
   std::vector<TTree*>       m_trees;                 //!< Pointer to the NTuple trees (one for each input track collection)
   TTree*                    m_eventLinkTree;         //!< pointer to event-wise ntuple trees (one for all input track collections + truth)

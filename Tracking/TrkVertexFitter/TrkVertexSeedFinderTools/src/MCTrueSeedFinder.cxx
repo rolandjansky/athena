@@ -67,13 +67,6 @@ namespace Trk
   StatusCode MCTrueSeedFinder::initialize() 
   { 
     ATH_CHECK( m_mcEventCollectionKey.initialize() );
-    msg(MSG::INFO)  << "Initialize successful" << endmsg;
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode MCTrueSeedFinder::finalize() 
-  {
-    msg(MSG::INFO)  << "Finalize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -153,7 +146,11 @@ namespace Trk
       
       //get position of interaction from first non-zero vertex
       Amg::Vector3D vtxPosition;
+#ifdef HEPMC3
+      auto Vert = myEvent->vertices().begin();
+#else
       HepMC::GenEvent::vertex_const_iterator Vert = myEvent->vertices_begin();
+#endif
       msg(MSG::DEBUG) << "Retrieved position  x: " << (*Vert)->position().x()  << 
 	" y: " << (*Vert)->position().y() << 
 	" z: " << (*Vert)->position().z() << endmsg;
@@ -186,7 +183,11 @@ namespace Trk
     //we select in-time pile-up interactions and hard-scattering, if valid
 
 
+#ifdef HEPMC3
+    bool isEmpty = ( evt->particles().size() == 0 );
+#else
     bool isEmpty = ( evt->particles_size() == 0 );
+#endif
     bool isDummy = ( ( evt->event_number() == -1 ) &&
 		     ( HepMC::signal_process_id(evt) == 0 ) );
     if( isDummy ) isEmpty = false;
@@ -222,7 +223,7 @@ namespace Trk
     return true;
   }
 
-  bool MCTrueSeedFinder::pass( const HepMC::GenParticle* part,
+  bool MCTrueSeedFinder::pass( HepMC::ConstGenParticlePtr part,
 			       const McEventCollection* coll ) const {
 
     // Check if the particle is coming from a "good" GenEvent:

@@ -98,6 +98,14 @@ if (NOT SIMULATIONBASE)
      set (extra_libs )
    endif()
 
+   if( XAOD_STANDALONE )
+      atlas_add_test( gt_DataHandlesUnitTest
+         SOURCES test/gt_DataHandlesUnitTest.cxx
+         INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
+         LINK_LIBRARIES ${GTEST_LIBRARIES} AsgDataHandlesLib AsgTestingLib xAODRootAccess)
+      set_tests_properties (AsgExampleTools_gt_DataHandlesUnitTest_ctest PROPERTIES LABELS "AsgDataHandles;AsgExampleTools" )
+   endif()
+
    atlas_add_test( gt_DataHandlesTest
       SOURCES test/gt_DataHandlesTest.cxx
       INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}

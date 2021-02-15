@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -40,6 +40,8 @@ SCT_CalibHitmapTool::SCT_CalibHitmapTool(const std::string& type, const std::str
 
 StatusCode
 SCT_CalibHitmapTool::initialize() {
+   if ( service( "THistSvc", m_thistSvc ).isFailure() ) ATH_MSG_ERROR("Unable to retrieve pointer to THistSvc");
+
    ATH_CHECK(detStore()->retrieve(m_pSCTHelper, "SCT_ID"));
    //
    m_waferItrBegin = m_pSCTHelper->wafer_begin();
@@ -54,7 +56,7 @@ SCT_CalibHitmapTool::initialize() {
 
 StatusCode
 SCT_CalibHitmapTool::finalize() {
-   ATH_MSG_VERBOSE("SCT_CalibHitmapSvc::finalize()");
+   ATH_MSG_VERBOSE("SCT_CalibHitmapTool::finalize()");
 
    return StatusCode::SUCCESS;
 }

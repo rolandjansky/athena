@@ -7,7 +7,6 @@
 #include "EventContainers/IDC_WriteHandleBase.h"
 #include "CxxUtils/AthUnlikelyMacros.h"
 #include "EventContainers/IdentifiableCacheBase.h"
-#include "CxxUtils/AthUnlikelyMacros.h"
 
 using namespace EventContainers;
 typedef I_InternalIDC::InternalConstItr InternalConstItr;
@@ -17,25 +16,25 @@ InternalOnline::InternalOnline(EventContainers::IdentifiableCacheBase *cache) : 
     m_mask(cache->fullSize(), false), m_waitNeeded(false) {}
 
 const std::vector < I_InternalIDC::hashPair >& InternalOnline::getAllHashPtrPair() const{
-  if(m_waitNeeded) wait();
+  if(m_waitNeeded.load(std::memory_order_acquire)) wait();
   return m_map; 
 }
 
 
 InternalConstItr
  InternalOnline::cend() const {
-    if(m_waitNeeded) wait();
+    if(m_waitNeeded.load(std::memory_order_acquire)) wait();
     return m_map.cend();
 }
 
 InternalConstItr
  InternalOnline::cbegin() const {
-    if(m_waitNeeded) wait();
+    if(m_waitNeeded.load(std::memory_order_acquire)) wait();
     return m_map.cbegin();
 }
 
 InternalConstItr InternalOnline::indexFind( IdentifierHash hashId ) const{
-  if(m_waitNeeded) wait();
+  if(m_waitNeeded.load(std::memory_order_acquire)) wait();
    auto itr = std::lower_bound( m_map.begin(), m_map.end(), hashId.value(), [](hashPair &lhs,  IdentifierHash::value_type rhs) -> bool { return lhs.first < rhs; } );
    if(itr!= m_map.end() && itr->first==hashId) return itr;
    return m_map.end();
@@ -44,7 +43,7 @@ InternalConstItr InternalOnline::indexFind( IdentifierHash hashId ) const{
 void InternalOnline::wait() const {
     //lockguard to protect m_waitlist from multiple wait calls
     std::scoped_lock lock (m_waitMutex);
-    if(m_waitNeeded == false) return;
+    if(m_waitNeeded.load(std::memory_order_acquire) == false) return;
     using namespace EventContainers;
     const void* ABORTstate = reinterpret_cast<const void*>(IdentifiableCacheBase::ABORTEDflag);
     while(!m_waitlist.empty()) {
@@ -57,9 +56,9 @@ void InternalOnline::wait() const {
     }
     m_map.clear();
     for(size_t i =0;i<m_mask.size();i++){
-        if(m_mask[i]) m_map.emplace_back(i, m_cacheLink->m_vec[i].load());
+        if(m_mask[i]) m_map.emplace_back(i, m_cacheLink->m_vec[i].load(std::memory_order_relaxed));//acquire sync is done by  m_waitNeeded
     }
-    m_waitNeeded.store(false);
+    m_waitNeeded.store(false, std::memory_order_release);
 }
 
 bool InternalOnline::tryAddFromCache(IdentifierHash hashId, EventContainers::IDC_WriteHandleBase &lock) {
@@ -88,7 +87,7 @@ bool InternalOnline::tryAddFromCache(IdentifierHash hashId)
 }
 
 std::vector<IdentifierHash> InternalOnline::getAllCurrentHashes() const {
-    if(m_waitNeeded) wait();
+    if(m_waitNeeded.load(std::memory_order_acquire)) wait();
     std::vector<IdentifierHash> ids;
     ids.reserve(m_map.size());
     for(auto &x : m_map) {
@@ -98,12 +97,12 @@ std::vector<IdentifierHash> InternalOnline::getAllCurrentHashes() const {
 }
 
 size_t InternalOnline::numberOfCollections() const {
-    if(m_waitNeeded) wait();
+    if(m_waitNeeded.load(std::memory_order_acquire)) wait();
     return m_map.size();
 }
 
 void InternalOnline::resetMask() {
-    if(m_waitNeeded) wait();
+    if(m_waitNeeded.load(std::memory_order_relaxed)) wait();
     m_mask.assign(m_cacheLink->fullSize(), false);
     m_map.clear();
     m_waitNeeded.store(true, std::memory_order_relaxed);

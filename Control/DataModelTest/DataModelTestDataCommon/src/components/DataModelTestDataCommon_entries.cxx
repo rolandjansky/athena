@@ -1,8 +1,6 @@
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
  */
-
-// $Id$
 /**
  * @file DataModeltestDataCommon/src/components/DataModelTestDataCommon_entries.cxx
  * @author snyder@bnl.gov
@@ -21,6 +19,7 @@
 #include "../xAODTestWriteCLinks.h"
 #include "../xAODTestReadCVec.h"
 #include "../xAODTestReadCLinks.h"
+#include "../xAODTestShallowCopy.h"
 #include "../CondWriterAlg.h"
 #include "../CondWriterExtAlg.h"
 #include "../CondReaderAlg.h"
@@ -41,6 +40,7 @@ DECLARE_COMPONENT( DMTest::xAODTestThinCVec )
 DECLARE_COMPONENT( DMTest::xAODTestWriteCLinks )
 DECLARE_COMPONENT( DMTest::xAODTestReadCVec )
 DECLARE_COMPONENT( DMTest::xAODTestReadCLinks )
+DECLARE_COMPONENT( DMTest::xAODTestShallowCopy )
 DECLARE_COMPONENT( DMTest::CondWriterAlg )
 DECLARE_COMPONENT( DMTest::CondWriterExtAlg )
 DECLARE_COMPONENT( DMTest::CondReaderAlg )

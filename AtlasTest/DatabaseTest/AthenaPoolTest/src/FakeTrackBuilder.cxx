@@ -25,7 +25,6 @@
 #include "TrkVertexOnTrack/VertexOnTrack.h"
 
 // include InDet EDM
-// #include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
 #include "InDetPrepRawData/SiClusterCollection.h"
 #include "InDetPrepRawData/SiCluster.h"
 #include "Identifier/IdentifierHash.h"

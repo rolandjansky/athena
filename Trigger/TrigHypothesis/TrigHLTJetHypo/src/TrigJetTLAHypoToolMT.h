@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
    */
 
 #ifndef TRIGJETTLAHYPOTOOLMT_H
@@ -62,6 +62,10 @@ class TrigJetTLAHypoToolMT: public AthAlgTool{
 
     Gaudi::Property<bool>
       m_visitDebug {this, "visit_debug", false, "debug flag"};
+
+    Gaudi::Property<std::string> m_chainName {
+    this, "chain_name", {}, "chain name"};
+  
 
 
 

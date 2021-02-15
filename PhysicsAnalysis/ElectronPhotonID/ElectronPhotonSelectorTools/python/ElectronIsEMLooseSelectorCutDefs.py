@@ -4,7 +4,7 @@
 # This one is used for loose++ menu
 
 # Import a needed helper
-from PATCore.HelperUtils import *
+from PATCore.HelperUtils import GetTool
 
 # Define GeV
 GeV = 1000.0

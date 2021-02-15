@@ -87,6 +87,9 @@ namespace InDet{
     if (m_roiSeeded) {
       ATH_CHECK( m_roiCollectionKey.initialize() );
       ATH_CHECK(m_regionSelector.retrieve());
+    }else{
+      m_regionSelector.disable();
+      ATH_CHECK( m_roiCollectionKey.initialize(false) );
     }
 
     m_clusterContainerLinkKey = m_clusterContainerKey.key();

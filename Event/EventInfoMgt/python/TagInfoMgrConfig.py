@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -13,29 +13,18 @@ def TagInfoMgrCfg(configFlags,tagValuePairs={}):
     if not isinstance(tagValuePairs,dict):
         raise ConfigurationError("Parameter extraTagValuePairs is supposed to be a dictionary")
 
-    result=ComponentAccumulator()
-
-    TagInfoMgr=CompFactory.TagInfoMgr
-    ProxyProviderSvc=CompFactory.ProxyProviderSvc
-    EvtPersistencySvc=CompFactory.EvtPersistencySvc
-
     #Build project-version string for the TagInfoMgr 
     project = os.getenv('AtlasProject',"Unknown")
     version = os.getenv('AtlasVersion',"Unknown")     
     atlasRelease=project+"-"+version
-    
 
     tagValuePairs.update({"AtlasRelease" : atlasRelease})
 
+    TagInfoMgr=CompFactory.TagInfoMgr
     tagInfoMgr=TagInfoMgr(ExtraTagValuePairs = tagValuePairs)
+
+    result=ComponentAccumulator()
     result.addService(tagInfoMgr)
-    
-    #Add to EventPersistencySvc 
-    result.addService(EvtPersistencySvc("EventPersistencySvc",CnvServices=[tagInfoMgr.getName(),]))
-    
-    #Add to ProxyProviderSvc
-    result.addService(ProxyProviderSvc(ProviderNames=[tagInfoMgr.getName(),]))
-                       
     return result,tagInfoMgr
     
 if __name__ == "__main__":

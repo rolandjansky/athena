@@ -1,18 +1,15 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
 Main configuration module for the full ATLAS simulations
 """
 
-import math
-from AthenaCommon import PhysicalConstants
 from AthenaCommon.AppMgr import theApp
 from AthenaCommon.Include import include
 from AthenaCommon.JobProperties import jobproperties
 from AthenaCommon.DetFlags import DetFlags
-from AthenaCommon.BeamFlags import jobproperties
 
-import PyG4Atlas, AtlasG4Eng
+import AtlasG4Eng
 from SimSkeleton import SimSkeleton
 
 
@@ -27,7 +24,7 @@ class AtlasSimSkeleton(SimSkeleton):
             AtlasG4Eng.G4Eng.Dict['simu_skeleton'] = self
             AtlasG4Eng.G4Eng.Name = "ATLAS_G4Sim"
         else:
-            AtlasG4Eng.G4Eng.log.warning('AtlasSimSkeleton.__init__ :: the simulation already has a skeleton.' +
+            AtlasG4Eng.G4Eng.log.warning('AtlasSimSkeleton.__init__ :: the simulation already has a skeleton.'
                                                'You can find it in the G4AtlasEng.G4Eng.Dict()')
 
 
@@ -126,7 +123,7 @@ class AtlasSimSkeleton(SimSkeleton):
            frozen showers, etc
         """
         AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_external :: starting')
-        from AthenaCommon.AppMgr import ToolSvc,ServiceMgr
+        from AthenaCommon.AppMgr import ServiceMgr
         from Geo2G4.Geo2G4Conf import Geo2G4Svc
         geo2G4Svc = Geo2G4Svc()
         theApp.CreateSvc += ["Geo2G4Svc"]
@@ -145,7 +142,7 @@ class AtlasSimSkeleton(SimSkeleton):
         ## TODO: Tidy imports etc.
         from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
         from AthenaCommon.GlobalFlags import jobproperties
-        from AtlasGeoModel import SetGeometryVersion
+        from AtlasGeoModel import SetGeometryVersion  # noqa: F401
 
         ## Forward Region Twiss files - needed before geometry setup!
         if simFlags.ForwardDetectors.statusOn:
@@ -154,13 +151,12 @@ class AtlasSimSkeleton(SimSkeleton):
                 from AthenaCommon.AppMgr import ToolSvc
                 ToolSvc += getPublicTool("ForwardRegionProperties")
 
-        from AtlasGeoModel import GeoModelInit
-        from AtlasGeoModel import SimEnvelopes
-        from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
+        from AtlasGeoModel import GeoModelInit  # noqa: F401
+        from AtlasGeoModel import SimEnvelopes  # noqa: F401
         gms = GeoModelSvc()
         ## Cosmics GeoModel tweaks
         if jobproperties.Beam.beamType() == 'cosmics' or \
-           (simFlags.CavernBG.statusOn and not 'Signal' in simFlags.CavernBG.get_Value() ):
+           (simFlags.CavernBG.statusOn and 'Signal' not in simFlags.CavernBG.get_Value() ):
             from CavernInfraGeoModel.CavernInfraGeoModelConf import CavernInfraDetectorTool
             gms.DetectorTools += [ CavernInfraDetectorTool() ]
         ## Protects GeoModelSvc in the simulation from the AlignCallbacks
@@ -176,12 +172,12 @@ class AtlasSimSkeleton(SimSkeleton):
             from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
             AGDD2Geo = AGDDtoGeoSvc()
             from AthenaCommon import CfgGetter
-            if not "MuonAGDDTool/MuonSpectrometer" in AGDD2Geo.Builders:
+            if "MuonAGDDTool/MuonSpectrometer" not in AGDD2Geo.Builders:
                 ToolSvc += CfgGetter.getPublicTool("MuonSpectrometer", checkType=True)
                 AGDD2Geo.Builders += ["MuonAGDDTool/MuonSpectrometer"]
             from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
             if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
-                if not "NSWAGDDTool/NewSmallWheel" in AGDD2Geo.Builders:
+                if "NSWAGDDTool/NewSmallWheel" not in AGDD2Geo.Builders:
                     ToolSvc += CfgGetter.getPublicTool("NewSmallWheel", checkType=True)
                     AGDD2Geo.Builders += ["NSWAGDDTool/NewSmallWheel"]
             theApp.CreateSvc += ["AGDDtoGeoSvc"]

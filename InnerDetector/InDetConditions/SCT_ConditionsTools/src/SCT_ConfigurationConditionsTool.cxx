@@ -17,20 +17,13 @@ SCT_ConfigurationConditionsTool::SCT_ConfigurationConditionsTool(const std::stri
 
 // Initialize
 StatusCode SCT_ConfigurationConditionsTool::initialize() {
-  ATH_MSG_INFO("Initializing configuration");
+  ATH_MSG_DEBUG("Initializing configuration");
 
   ATH_CHECK(detStore()->retrieve(m_pHelper, "SCT_ID"));
 
   // Read Cond Handle Key
   ATH_CHECK(m_condKey.initialize());
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
-
-  return StatusCode::SUCCESS;
-}
-
-// Finalize
-StatusCode SCT_ConfigurationConditionsTool::finalize() {
-  ATH_MSG_INFO("Configuration finalize");
 
   return StatusCode::SUCCESS;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ElectronPhotonFourMomentumCorrection/e1hg_systematics.h"
@@ -91,7 +91,7 @@ double e1hg_systematics::getAlpha(int particle_type, double energy, double eta, 
    if (aeta<1.80) scale=0.;
    else if (aeta<2.3) scale = (0.050*(aeta-1.8)/0.4+0.025)/0.05;
    else scale = 0.05/0.05;
-   
+
    if( !interpolate ) {
      if (particle_type==0) return scale*m_helec[ieta]->GetBinContent(ibinEt+1);
      else if (particle_type==1) return scale*m_hphot[ieta]->GetBinContent(ibinEt+1);

@@ -33,7 +33,7 @@ if hasattr(runArgs, "preInclude"):
 
 # Avoid command line preInclude for Event Service
 if hasattr(runArgs, "eventService") and runArgs.eventService:
-    include('AthenaMP/AthenaMP_EventService.py')
+    import AthenaMP.EventService
         
 ## Post-include
 if hasattr(runArgs, "postInclude"):

@@ -155,11 +155,68 @@ class RestrictedCTPIDs(MenuVerification):
                         if ctp_id > 512]
         self.failures.extend(over_max_ids)
 
+
+class PartialEventBuildingChecks(MenuVerification):
+    def __init__(self):
+        super(PartialEventBuildingChecks, self).__init__(
+            description='Config consistency of Partial Event Building')
+
+    def run(self, config):
+        from TriggerMenuMT.HLTMenuConfig.Menu import EventBuildingInfo
+        eb_identifiers = EventBuildingInfo.getAllEventBuildingIdentifiers()
+
+        for chain_name, chain_config in config['chains'].items():
+            peb_identifiers = [idf for idf in eb_identifiers if '_'+idf+'_' in chain_name]
+            peb_writers = [seq for seq in chain_config['sequencers'] if 'PEBInfoWriter' in seq]
+
+            is_peb_chain = (len(peb_identifiers) > 0 or len(peb_writers) > 0)
+
+            # Check streaming configuration
+            for stream_name in chain_config['streams']:
+                if stream_name not in config['streams']:
+                    self.failures.append(
+                        'Stream {:s} for chain {:s} is not defined in streaming configuration'.format(
+                            stream_name, chain_name))
+
+                is_feb_stream = config['streams'][stream_name]['forceFullEventBuilding']
+
+                if is_peb_chain and is_feb_stream:
+                    self.failures.append(
+                        'PEB chain {:s} streamed to a full-event-building stream {:s} '
+                        '(forceFullEventBuilding=True)'.format(
+                            chain_name, stream_name))
+
+                elif not is_peb_chain and not is_feb_stream:
+                    self.failures.append(
+                        'Full-event-building chain {:s} streamed to the stream {:s} which allows partial '
+                        'event building (forceFullEventBuilding=False)'.format(
+                            chain_name, stream_name))
+
+            if not is_peb_chain:
+                # Not a PEB chain, skip further PEB-specific checks
+                continue
+
+            if len(peb_identifiers) != 1:
+                self.failures.append(
+                    '{:s} has {:d} event building identifiers'.format(chain_name, len(peb_identifiers)))
+
+            if len(peb_writers) != 1:
+                self.failures.append(
+                    '{:s} has {:d} PEBInfoWriter sequences'.format(chain_name, len(peb_writers)))
+
+            if peb_identifiers and peb_writers and not peb_writers[0].endswith(peb_identifiers[0]):
+                    self.failures.append(
+                        '{:s} PEB sequence name {:s} doesn\'t end with PEB identifier {:s}'.format(
+                            chain_name, peb_writers[0], peb_identifiers[0]))
+
+
+
 menu_tests = {
     TriggerLevel.HLT: [
         UniqueChainNames(),
         ConsecutiveChainCounters(),
         StructuredChainNames(TriggerLevel.HLT),
+        PartialEventBuildingChecks()
     ],
     TriggerLevel.L1: [
         RestrictedCTPIDs(),

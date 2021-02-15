@@ -2,8 +2,6 @@
 
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
 """
 Utilities for writing job transforms for use at T0 and at the CAF Task Management System.
 """
@@ -16,9 +14,6 @@ import json, yaml
 from InDetBeamSpotExample import JobRunner
 from InDetBeamSpotExample.TaskManager import TaskManager
 from optparse import OptionParser
-
-from future import standard_library
-standard_library.install_aliases()
 import subprocess
 
 def readJSON(fname):
@@ -71,7 +66,7 @@ def getGuid(name):
         try :
             (s,o) = subprocess.getstatusoutput('uuidgen')
             guid = o.strip()
-        except :
+        except Exception:
             guid = 'UUIDGENERROR'
     else :
         try :
@@ -83,7 +78,7 @@ def getGuid(name):
             if guid == '' :
                 (s,o) = subprocess.getstatusoutput('uuidgen')
                 guid = o.strip()
-        except :
+        except Exception:
             guid = 'PFCPARSINGERROR'
     return guid
 
@@ -121,9 +116,9 @@ class JobRunnerTransform:
         self.inputParamName = inputParamName
         self.outputParamName = outputParamName
         self.mandatoryArgs = mandatoryArgs
-        if not inputParamName in mandatoryArgs:
+        if inputParamName not in mandatoryArgs:
             mandatoryArgs.append(inputParamName)
-        if not outputParamName in mandatoryArgs:
+        if outputParamName not in mandatoryArgs:
             mandatoryArgs.append(outputParamName)
         self.optionalArgs = optionalArgs
         self.runner = None
@@ -159,7 +154,7 @@ class JobRunnerTransform:
         print ('\n')
 
         # Check for all mandatory parameters
-        missingArgs = [ x for x in mandatoryArgs if not x in self.argdict ]
+        missingArgs = [ x for x in mandatoryArgs if x not in self.argdict ]
         if missingArgs:
             self.report('MISSINGPARAM_ERROR','Mandatory parameter(s) missing from argdict: '+str(missingArgs))
             print ('ERROR: mandatory parameter(s) missing from argdict:', missingArgs)
@@ -307,7 +302,7 @@ class JobRunnerTransform:
             try:
                 jobStatus = self.runner.jobStatus[0]   # Assume we always run single jobs
                 jobStatusAcronym = 'OK' if jobStatus==0 else 'ATHENA_ERROR'
-            except:
+            except Exception:
                 jobStatus = 999
                 jobStatusAcronym = 'NOJOBSTATUS_ERROR'
                 moreText = "Jobrunner terminated abnormally and w/o a job status; athena job may or may not have run"

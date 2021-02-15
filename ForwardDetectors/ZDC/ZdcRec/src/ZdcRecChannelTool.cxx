@@ -22,22 +22,15 @@
 
 #include <math.h>
 
-//#include <gsl/gsl_errno.h>
-//#include <gsl/gsl_spline.h>
-
 #include "TMath.h"
-//#include "Identifier/HWIdentifier.h"
 
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/MsgStream.h"
-
-
 
 #include "ZdcEvent/ZdcDigits.h"
 #include "ZdcEvent/ZdcDigitsCollection.h"
 #include "ZdcRec/ZdcRecChannelTool.h"
 #include "ZdcRec/ZdcSignalSinc.h"
-//#include "ZdcIdentifier/ZdcID.h"
 #include "ZdcIdentifier/ZdcID.h"
 #include "ZdcConditions/ZdcCablingService.h"
 

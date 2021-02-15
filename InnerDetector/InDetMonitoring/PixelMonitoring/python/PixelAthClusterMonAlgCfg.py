@@ -7,18 +7,19 @@
 @brief Configuration of Pixel Monitoring Clusters, Tracks and Status Histograms for Run 3
 '''
 
-from PixelMonitoring.PixelAthMonitoringBase import define2DProfHist, definePP0Histos
+from PixelMonitoring.PixelAthMonitoringBase import define2DProfHist, define2DProfPerFEHist, definePP0Histos
 from PixelMonitoring.PixelAthMonitoringBase import define1DLayers, defineMapVsLumiLayers
 from PixelMonitoring.PixelAthMonitoringBase import define1DProfLumiLayers
 from PixelMonitoring.PixelAthMonitoringBase import layers, totcuts, xbinsem, xminsem, lumibinsx, ztotbinsy, ztotminsy
 from PixelMonitoring.PixelAthMonitoringBase import addOnTrackTxt, addOnTrackToPath, fullDressTitle
-from PixelMonitoring.PixelAthMonitoringBase import runtext
+from PixelMonitoring.PixelAthMonitoringBase import runtext, ReadingDataErrLabels
 
 
 def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
 
     doOnline  = kwargs.get('doOnline',  False)
     doLumiBlock = kwargs.get('doLumiBlock', False)
+    doFEPlots  = kwargs.get('doFEPlots',  False)
 
 ### begin status histograms
 
@@ -35,6 +36,22 @@ def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
     if doLumiBlock:
         title = 'Modules Status (0=Active+Good, 1=Active+Bad, 2=Inactive)'
         define2DProfHist(helper, alg, histoGroupName, title, pathLowStat, type='TProfile2D', lifecycle='lumiblock', histname='MapOfModulesStatusLB')
+
+### disabled for the moment - filling code requires more testing
+
+#    if doFEPlots:
+#        histoGroupName = 'MapOfFEsStatus' 
+#        title = 'FEs Status (0=Active+Good, 1=Active+Bad, 2=Inactive)'
+#        histlbname = 'MapOfFEsStatusLB'
+#        define2DProfPerFEHist(helper, alg, histoGroupName, title, path, type='TProfile2D')
+#
+#    if doLumiBlock:
+#        if not doFEPlots:
+#            title = 'Modules Status (0=Active+Good, 1=Active+Bad, 2=Inactive)'
+#            define2DProfHist(helper, alg, histoGroupName, title, pathLowStat, type='TProfile2D', lifecycle='lumiblock', histname='MapOfModulesStatusLB')
+#        else:
+#            title = 'FEs Status (0=Active+Good, 1=Active+Bad, 2=Inactive)'
+#            define2DProfPerFEHist(helper, alg, histoGroupName, title, pathLowStat, type='TProfile2D', lifecycle='lumiblock', histname='MapOfFEsStatusLB')
 
     histoGroupName = 'BadModulesPerLumi'
     title          = 'Number of bad modules (bad+active) per event per LB'
@@ -110,7 +127,8 @@ def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
 
     varName = 'pixclusmontool_lb,ntrks_per_event'
     title = fullDressTitle('Number of tracks per event per LB', False, ';lumi block', ';tracks/event')
-    varName += ';tracksPerEvtPerLumi'
+
+    varName += ';TracksPerEvtPerLumi'
     trackGroup.defineHistogram(varName,
                                 type='TProfile', path=path, title=title,
                                 xbins=lumibinsx, xmin=-0.5, xmax=-0.5+lumibinsx)
@@ -139,6 +157,12 @@ def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
         histoGroupName = 'MissHitsRatio5min' 
         title = 'Hole+Outlier per track reset every 5 min'
         define2DProfHist(helper, alg, 'MissHitsRatio', title, path, type='TProfile2D', zmin=0, zmax=1.1, opt='kLBNHistoryDepth=5', histname=histoGroupName)
+
+    varName = 'trkdataread_err;ReadingTrackDataErr'
+    title = 'Number of Track data reading errors;error type;# events'
+    trackGroup.defineHistogram(varName,
+                               type='TH1I', path=path, title=title,
+                               xbins=len(ReadingDataErrLabels), xmin=-0.5, xmax=-0.5+len(ReadingDataErrLabels), xlabels=ReadingDataErrLabels)
 
 ### end track histograms
 ### begin cluster histograms
@@ -260,12 +284,21 @@ def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
             title = addOnTrackTxt('Average per module(FE) cluster occupancy reset every 5 min', ontrack, True)
             definePP0Histos(helper, alg, histoGroupName, title, pathGroup, opt='kLBNHistoryDepth=5')
 
+        if doFEPlots:
+            histoGroupName = addOnTrackTxt('ClusterFEOccupancy', ontrack) 
+            title = addOnTrackTxt('Cluster occupancy per FE', ontrack, True)
+            define2DProfPerFEHist(helper, alg, histoGroupName, title, pathGroup, type='TH2F')
 
         if doLumiBlock:
             pathGroup = addOnTrackToPath(pathLowStat, ontrack)
-            histoGroupName = addOnTrackTxt('ClusterOccupancyLB', ontrack)
-            title = addOnTrackTxt('Cluster Occupancy', ontrack, True)
-            define2DProfHist(helper, alg, addOnTrackTxt('ClusterOccupancy', ontrack), title, pathGroup, type='TH2D', lifecycle='lowStat', histname=histoGroupName)
+            if not doFEPlots:
+                histoGroupName = addOnTrackTxt('ClusterOccupancyLB', ontrack)
+                title = addOnTrackTxt('Cluster occupancy', ontrack, True)
+                define2DProfHist(helper, alg, addOnTrackTxt('ClusterOccupancy', ontrack), title, pathGroup, type='TH2D', lifecycle='lumiblock', histname=histoGroupName)
+            else:
+                histoGroupName = addOnTrackTxt('ClusterFEOccupancyLB', ontrack)
+                title = addOnTrackTxt('Cluster occupancy per FE', ontrack, True)
+                define2DProfPerFEHist(helper, alg, addOnTrackTxt('ClusterFEOccupancy', ontrack), title, pathGroup, type='TH2F', lifecycle='lumiblock', histname=histoGroupName)
 
 
 ### 
@@ -277,7 +310,7 @@ def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
             histoGroupName = addOnTrackTxt('ClusterToTxCosAlpha', ontrack)
             title = addOnTrackTxt('Cluster ToTxCosAlpha', ontrack, True)
             define1DLayers(helper, alg, histoGroupName, title, pathGroup, ';ToT [BC]', ';# clusters', xbins=[300], xmins=[-0.5])
-            if (not doOnline):
+            if not doOnline:
                 histoGroupName = addOnTrackTxt('ClusterQxCosAlpha', ontrack)
                 title = addOnTrackTxt('Cluster Q normalized', ontrack, True)
                 define1DLayers(helper, alg, histoGroupName, title, pathGroup, ';Charge [e]', ';# clusters', xbins=[70], xmins=[-0.5], binsizes=[3000.])
@@ -288,6 +321,11 @@ def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
 ### 
 ### end cluster ToT and charge
 
-
+        if not ontrack:
+            varName = 'clsdataread_err;ReadingClusterDataErr'
+            title = 'Number of Cluster data reading errors;error type;# events'
+            trackGroup.defineHistogram(varName,
+                                       type='TH1I', path=pathGroup, title=title,
+                                       xbins=len(ReadingDataErrLabels), xmin=-0.5, xmax=-0.5+len(ReadingDataErrLabels), xlabels=ReadingDataErrLabels)
 
 ### end cluster histograms

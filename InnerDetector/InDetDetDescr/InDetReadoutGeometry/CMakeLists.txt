@@ -1,11 +1,11 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( InDetReadoutGeometry )
 
 # External dependencies:
 find_package( CLHEP )
-find_package( GeoModelCore )
+find_package( GeoModel COMPONENTS GeoModelKernel )
 
 # Component(s) in the package:
 atlas_add_library( InDetReadoutGeometry
@@ -13,5 +13,5 @@ atlas_add_library( InDetReadoutGeometry
                    PUBLIC_HEADERS InDetReadoutGeometry
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaKernel AtlasDetDescr CxxUtils GeoPrimitives Identifier GaudiKernel InDetIdentifier TrkDetElementBase TrkSurfaces TrkEventPrimitives StoreGateLib DetDescrConditions InDetCondTools
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${GEOMODEL_LIBRARIES} AthenaKernel AtlasDetDescr CxxUtils GeoPrimitives Identifier GaudiKernel InDetIdentifier TrkDetElementBase ReadoutGeometryBase TrkSurfaces TrkEventPrimitives StoreGateLib DetDescrConditions InDetCondTools
                    PRIVATE_LINK_LIBRARIES AthenaBaseComps AthenaPoolUtilities IdDictDetDescr GeoModelUtilities )

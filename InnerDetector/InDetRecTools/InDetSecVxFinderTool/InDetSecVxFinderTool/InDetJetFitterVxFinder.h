@@ -56,16 +56,16 @@ namespace InDet {
   public:
  
 
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
 
     InDetJetFitterVxFinder(const std::string& t, const std::string& n, const IInterface*  p);
 
     ~InDetJetFitterVxFinder();
 
+    virtual
     Trk::VxSecVertexInfo* findSecVertex(const xAOD::Vertex & /*primaryVertex*/,
 					const TLorentzVector & /*jetMomentum*/,
-					const std::vector<const xAOD::IParticle*> & /*inputTracks*/ ) const
+					const std::vector<const xAOD::IParticle*> & /*inputTracks*/ ) const override
     {
       /* not implemented */
       return 0;

@@ -6,9 +6,8 @@
 #include <xercesc/dom/DOM.hpp>
 #include "GeoModelKernel/RCBase.h"
 #include "GeoModelKernel/Units.h"
-#include "GeoModelKernel/Units.h"
 #include "GeoModelKernel/GeoElement.h"
-#include "GeoModelXml/translate.h"
+#include "xercesc/util/XMLString.hpp"
 #include "GeoModelXml/GmxUtil.h"
 
 using namespace xercesc;
@@ -24,21 +23,21 @@ double zVal, aVal;
 //
 //   Get my Z
 //
-    z = Translate(element->getAttribute(Translate("Z")));
+    z = XMLString::transcode(element->getAttribute(XMLString::transcode("Z")));
     zVal = gmxUtil.evaluate(z);
     XMLString::release(&z);
 //
 //   Get my A
 //
-    a = Translate(element->getAttribute(Translate("A")));
+    a = XMLString::transcode(element->getAttribute(XMLString::transcode("A")));
     aVal = gmxUtil.evaluate(a);
 	
     XMLString::release(&a);
 //
 //    Get my names
 //
-    name = Translate(element->getAttribute(Translate("name")));
-    shortname = Translate(element->getAttribute(Translate("shortname")));
+    name = XMLString::transcode(element->getAttribute(XMLString::transcode("name")));
+    shortname = XMLString::transcode(element->getAttribute(XMLString::transcode("shortname")));
 //
 //    Create it
 //

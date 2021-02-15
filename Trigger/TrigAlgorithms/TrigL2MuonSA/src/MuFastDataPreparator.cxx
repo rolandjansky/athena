@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuFastDataPreparator.h"
 
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include <utility>
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -12,8 +12,7 @@
 TrigL2MuonSA::MuFastDataPreparator::MuFastDataPreparator(const std::string& type, 
                                                          const std::string& name,
                                                          const IInterface*  parent): 
-  AthAlgTool(type,name,parent),
-  m_regionSelector("RegSelSvc", name)
+  AthAlgTool(type,name,parent)
 {
 }
 
@@ -28,14 +27,8 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::initialize()
     
    ATH_CHECK(AthAlgTool::initialize());
 
-   ATH_CHECK(m_recRPCRoiSvc.retrieve());
-   ATH_MSG_INFO("Retrieved Service " << m_recRPCRoiSvc);
-
-   ATH_CHECK(m_readKey.initialize());
+   ATH_CHECK(m_recRPCRoiTool.retrieve());
   
-   ATH_CHECK(m_regionSelector.retrieve());
-   ATH_MSG_DEBUG("Retrieved the RegionSelector service ");
-
    if (m_use_rpc) {
      ATH_CHECK(m_rpcDataPreparator.retrieve());
      ATH_MSG_DEBUG("Retrieved service " << m_rpcDataPreparator);
@@ -64,10 +57,6 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::initialize()
 
    ATH_CHECK(m_rpcPatFinder.retrieve());
    ATH_MSG_DEBUG("Retrieved service " << m_rpcPatFinder);
-
-   // set the geometry tools
-   m_rpcRoadDefiner->setMdtGeometry(m_regionSelector);
-   m_tgcRoadDefiner->setMdtGeometry(m_regionSelector);
 
    return StatusCode::SUCCESS; 
 }
@@ -170,8 +159,17 @@ void TrigL2MuonSA::MuFastDataPreparator::setExtrapolatorTool(ToolHandle<ITrigMuo
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
+void TrigL2MuonSA::MuFastDataPreparator::setMultiMuonTrigger( const bool multiMuonTrigger ) 
+{
+  m_rpcDataPreparator->setMultiMuonTrigger(multiMuonTrigger);
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
 StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRoI*     p_roi,
                                                            const TrigRoiDescriptor*    p_roids,
+                                                           bool&                       isRpcFakeRoi,
                                                            const bool                  insideOut,
                                                            TrigL2MuonSA::RpcHits&      rpcHits,
                                                            TrigL2MuonSA::MuonRoad&     muonRoad,
@@ -192,16 +190,13 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
   
   if(m_use_rpc && !insideOut) {
 
-    m_rpcDataPreparator->setMultiMuonTrigger(m_doMultiMuon);
     unsigned int roiWord = p_roi->roiWord();
     sc = m_rpcDataPreparator->prepareData(p_roids,
 					  roiWord,
+                                          isRpcFakeRoi, // check if the RoI is fake and se the flag
                                           rpcHits,
                                           rpcLayerHits,
                                           &m_rpcPatFinder);
-
-    // check if the RoI is fake and se the flag
-    m_isRpcFakeRoi = m_rpcDataPreparator->isFakeRoi();
 
     if (!sc.isSuccess()) {
       ATH_MSG_DEBUG("Error in RPC data prepapration. Continue using RoI");
@@ -209,17 +204,14 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
   } else {
     ATH_MSG_DEBUG("Skip RpcDataPreparator");
   }
-
-  SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey};
-  const RpcCablingCondData* readCdo{*readHandle};
  
-  m_recRPCRoiSvc->reconstruct(p_roi->roiWord());
+  auto data = m_recRPCRoiTool->roiData(p_roi->roiWord());
   double roiEtaMinLow = 0.;
   double roiEtaMaxLow = 0.;
   double roiEtaMinHigh = 0.;
   double roiEtaMaxHigh = 0.;
-  m_recRPCRoiSvc->etaDimLow(roiEtaMinLow, roiEtaMaxLow, readCdo);
-  m_recRPCRoiSvc->etaDimHigh(roiEtaMinHigh, roiEtaMaxHigh, readCdo);
+  m_recRPCRoiTool->etaDimLow(data, roiEtaMinLow, roiEtaMaxLow);
+  m_recRPCRoiTool->etaDimHigh(data, roiEtaMinHigh, roiEtaMaxHigh);
 
   ATH_MSG_DEBUG("nr of RPC hits=" << rpcHits.size());
 

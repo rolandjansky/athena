@@ -53,7 +53,8 @@ void test1()
 
   SG::ReadDecorHandle<MyObj, int> h1 (k3);
   assert (h1.clid() == MyCLID);
-  assert (h1.key() == "asd.aaa");
+  assert (h1.key() == "asd");
+  assert (h1.decorKey() == "asd.aaa");
   assert (h1.storeHandle().name() == "StoreGateSvc");
   assert (h1.mode() == Gaudi::DataHandle::Reader);
   assert (h1.auxid() == ityp);
@@ -64,7 +65,8 @@ void test1()
   ctx5.setExtension( Atlas::ExtendedEventContext(&dumstore) );
   SG::ReadDecorHandle<MyObj, int> h5 (k3, ctx5);
   assert (h5.clid() == MyCLID);
-  assert (h5.key() == "asd.aaa");
+  assert (h5.key() == "asd");
+  assert (h5.decorKey() == "asd.aaa");
   assert (h5.storeHandle().name() == "StoreGateSvc");
   assert (h5.mode() == Gaudi::DataHandle::Reader);
   assert (h5.store() == "TestStore");
@@ -74,7 +76,8 @@ void test1()
   assert (k6.initialize().isSuccess());
   SG::ReadDecorHandle<MyObj, int> h6 (k6, ctx5);
   assert (h6.clid() == MyCLID);
-  assert (h6.key() == "asd.aaa");
+  assert (h6.key() == "asd");
+  assert (h6.decorKey() == "asd.aaa");
   assert (h6.storeHandle().name() == "OtherStore");
   assert (h6.mode() == Gaudi::DataHandle::Reader);
   assert (h6.store() == "OtherStore" || h6.store() == "OtherStore_Impl");
@@ -122,7 +125,8 @@ void test2()
   assert (h1.auxid() == ityp);
 
   SG::ReadDecorHandle<MyObj, int> h2 (h1);
-  assert (h2.key() == "foo.aaa");
+  assert (h2.key() == "foo");
+  assert (h2.decorKey() == "foo.aaa");
   assert (h2.store() == "TestStore");
   assert (h2.isInitialized());
   assert (h2.cptr() == fooptr);
@@ -130,7 +134,8 @@ void test2()
   assert (h2.auxid() == ityp);
 
   SG::ReadDecorHandle<MyObj, int> h3 (std::move(h2));
-  assert (h3.key() == "foo.aaa");
+  assert (h3.key() == "foo");
+  assert (h3.decorKey() == "foo.aaa");
   assert (h3.store() == "TestStore");
   assert (h3.isInitialized());
   assert (h3.cptr() == fooptr);
@@ -151,11 +156,13 @@ void test2()
   assert (h4.auxid() == ityp2);
 
   h3 = h4;
-  assert (h3.key() == "bar.bbb");
+  assert (h3.key() == "bar");
+  assert (h3.decorKey() == "bar.bbb");
   assert (h3.store() == "TestStore");
   assert (h3.isInitialized());
   assert (h3.cptr() == barptr);
-  assert (h4.key() == "bar.bbb");
+  assert (h4.key() == "bar");
+  assert (h4.decorKey() == "bar.bbb");
   assert (h4.store() == "TestStore");
   assert (h4.isInitialized());
   assert (h4.cptr() == barptr);
@@ -168,7 +175,8 @@ void test2()
   // h1: foo, h2: unint, h3: bar, h4: bar
 
   h2 = std::move(h3);
-  assert (h2.key() == "bar.bbb");
+  assert (h2.key() == "bar");
+  assert (h2.decorKey() == "bar.bbb");
   assert (h2.store() == "TestStore");
   assert (h2.isInitialized());
   assert (h2.cptr() == barptr);
@@ -220,6 +228,25 @@ void test3()
   assert (h1 (*(*pcont)[1]) == 11);
   assert (h1 (2) == 12);
   assert (h1.getDataArray()[0] == 10);
+
+  // Test case of no alias.
+  SG::ReadDecorHandleKey<MyObjCont> k2 ("foo.bbb");
+  assert (k2.initialize().isSuccess());
+  SG::ReadDecorHandle<MyObjCont, int> h2 (k2);
+  assert (h2.setProxyDict (&testStore).isSuccess());
+  assert (h2.auxid() == r.getAuxID<int> ("bbb"));
+  assert (h2.isPresent());
+  assert (!h2.isAvailable());
+
+  MyObj::Decorator<int> bdec ("bbb");
+  bdec (*(*pcont)[0]) = 110;
+  bdec (*(*pcont)[1]) = 111;
+  bdec (*(*pcont)[2]) = 112;
+
+  assert (h2.isAvailable());
+  assert (h2 (*(*pcont)[1]) == 111);
+  assert (h2 (2) == 112);
+  assert (h2.getDataArray()[0] == 110);
 }
 
 
@@ -270,7 +297,8 @@ void test5()
   assert (k1.initialize().isSuccess());
   auto h1 = SG::makeHandle<int> (k1);
   assert (h1.clid() == MyCLID);
-  assert (h1.key() == "asd.aaa");
+  assert (h1.key() == "asd");
+  assert (h1.decorKey() == "asd.aaa");
   assert (h1.storeHandle().name() == "StoreGateSvc");
   assert (h1.mode() == Gaudi::DataHandle::Reader);
   assert (h1.auxid() == ityp);
@@ -284,7 +312,8 @@ void test5()
   ctx.setExtension( Atlas::ExtendedEventContext(&dumstore) );
   auto h2 = SG::makeHandle<int> (k1, ctx);
   assert (h2.clid() == MyCLID);
-  assert (h2.key() == "asd.aaa");
+  assert (h2.key() == "asd");
+  assert (h2.decorKey() == "asd.aaa");
   assert (h2.storeHandle().name() == "StoreGateSvc");
   assert (h2.mode() == Gaudi::DataHandle::Reader);
   assert (h2.store() == "TestStore");
@@ -294,7 +323,8 @@ void test5()
   assert (k3.initialize().isSuccess());
   auto h3 = SG::makeHandle<int> (k3, ctx);
   assert (h3.clid() == MyCLID);
-  assert (h3.key() == "asd.aaa");
+  assert (h3.key() == "asd");
+  assert (h3.decorKey() == "asd.aaa");
   assert (h3.storeHandle().name() == "OtherStore");
   assert (h3.mode() == Gaudi::DataHandle::Reader);
   assert (h3.store() == "OtherStore" || h3.store() == "OtherStore_Impl");

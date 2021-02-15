@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonMDT_Cabling/MuonMDT_CablingSvc.h"
@@ -18,8 +18,6 @@
 #include "MuonCondInterface/IMDTCablingDbTool.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
-#include "EventInfo/TagInfo.h"
-#include "EventInfoMgt/ITagInfoMgr.h"
 
 MuonMDT_CablingSvc::MuonMDT_CablingSvc(const std::string& svcName,ISvcLocator* sl) :
 AthService(svcName,sl),
@@ -40,10 +38,6 @@ AthService(svcName,sl),
     declareProperty("ForcedUse", m_forceUse);
     declareProperty("doCalStreamInit",m_doCalStreamInit=false);
 }
-
-MuonMDT_CablingSvc::~MuonMDT_CablingSvc()
-    { }
-
 
 /** Initialization method */
 StatusCode MuonMDT_CablingSvc::initialize()
@@ -81,23 +75,8 @@ StatusCode MuonMDT_CablingSvc::initialize()
         msg(MSG::DEBUG)<< "'ForcedUse' property is set to 'True', so disabling the callback. Configuration fixed to: "<<(m_useOldCabling ? "'Old MDT Cabling'" : "'New MDT Cabling'") << endmsg;     
     } else { 
         // The cabling to be used and the cabling in tag info will be compared by compareTags method
-        const DataHandle<TagInfo> tagInfoH;
-        std::string tagInfoKey = "";
-       // get the key
-        if(m_tagInfoMgr.retrieve().isFailure() || m_tagInfoMgr==0) {
-            msg(MSG::WARNING) << " Unable to locate TagInfoMgr service" << endmsg; 
-        } else {
-            tagInfoKey = m_tagInfoMgr->tagInfoKey();
-        }
-        if(m_detStore->regFcn(&MuonMDT_CablingSvc::compareTags,
-            this,
-            tagInfoH, 
-            tagInfoKey) 
-        != StatusCode::SUCCESS) {
-            msg(MSG::WARNING)<< "Cannot register compareTags function for key "  << tagInfoKey << endmsg;
-        } else {
-            msg(MSG::DEBUG)<< "Registered compareTags callback for key: " << tagInfoKey << endmsg;
-        }
+       ATH_CHECK( m_tagInfoMgr.retrieve() );
+       m_tagInfoMgr->addListener(this);
     }
 
   /** Get a pointer to the old cabling if needed */
@@ -166,14 +145,6 @@ StatusCode MuonMDT_CablingSvc::initialize()
     return sc;
 }
 
-/** Finalization method */
-StatusCode MuonMDT_CablingSvc::finalize()
-{
-    return StatusCode::SUCCESS;
-}
-
-
-
 // queryInterface 
 StatusCode MuonMDT_CablingSvc::queryInterface(const InterfaceID& riid, void** ppvIF) 
 { 
@@ -186,8 +157,7 @@ StatusCode MuonMDT_CablingSvc::queryInterface(const InterfaceID& riid, void** pp
     return StatusCode::SUCCESS;
 } 
 
-StatusCode 
-    MuonMDT_CablingSvc::compareTags(IOVSVC_CALLBACK_ARGS)
+StatusCode MuonMDT_CablingSvc::compareTags()
 {
     StatusCode sc;
     msg(MSG::DEBUG) << "compareTags() callback triggered. Current configuration is: "<<(m_useOldCabling ? "OldMDT_Cabling" : "NewMDT_Cabling") << endmsg;
@@ -199,46 +169,32 @@ StatusCode
         return StatusCode::SUCCESS;
     }
 
-    // Get TagInfo and retrieve tags
-    const TagInfo* tagInfo = 0;
-    StoreGateSvc* detStore=0;
-    sc = serviceLocator()->service("DetectorStore", detStore);
-    sc= detStore->retrieve(tagInfo);
+    std::string cablingType = m_tagInfoMgr->findInputTag("MDT_CablingType");
+    msg(MSG::DEBUG)<< "MDT_CablingType from TagInfo: " << cablingType << endmsg;
 
-    std::string cablingType;
+    // either have empty cabling tag and set to old cabling, or new and don't use old cabling
+    bool tagMatch = (cablingType=="" && m_useOldCabling) || (cablingType == "NewMDT_Cabling"&& !m_useOldCabling);
 
-    if (sc.isFailure() || tagInfo==0) {
-        msg(MSG::WARNING)<< "No TagInfo in DetectorStore while attempting to compare tags. Will use current configuration: "<<(m_useOldCabling ? "OldMDT_Cabling" : "NewMDT_Cabling") << endmsg;
-        return StatusCode::RECOVERABLE;
-    } else {
-        tagInfo->findInputTag("MDT_CablingType", cablingType);
-
-        msg(MSG::DEBUG)<< "MDT_CablingType from TagInfo: " << cablingType << endmsg;
-
-	// either have empty cabling tag and set to old cabling, or new and don't use old cabling
-        bool tagMatch = (cablingType=="" && m_useOldCabling) || (cablingType == "NewMDT_Cabling"&& !m_useOldCabling);  
-
-        if (!tagMatch) {
-          // Trying to use wrong cabling map! Flip configuration
+    if (!tagMatch) {
+       // Trying to use wrong cabling map! Flip configuration
      
-         if (m_useOldCabling) {
-            m_useOldCabling = false;
-            m_firstAccess=true;
-            //retrieve tool now to avoid unpleasent surprises later!
-            if ( m_dbTool.retrieve().isFailure()) {
-               msg(MSG::WARNING)<< "Could not find tool " << m_dbTool << ". Exiting."<< endmsg;
-               return StatusCode::FAILURE;
-            }
-          } else {
-            m_useOldCabling = true;
-            m_firstAccess=false;
+       if (m_useOldCabling) {
+          m_useOldCabling = false;
+          m_firstAccess=true;
+          //retrieve tool now to avoid unpleasent surprises later!
+          if ( m_dbTool.retrieve().isFailure()) {
+             msg(MSG::WARNING)<< "Could not find tool " << m_dbTool << ". Exiting."<< endmsg;
+             return StatusCode::FAILURE;
           }
+       } else {
+          m_useOldCabling = true;
+          m_firstAccess=false;
+       }
 
-          msg(MSG::INFO)<< "MDT_CablingType : " << cablingType << " is mismatched "
-            << "with configuration of this service ."
-            << "m_useOldCabling flag is flipped to " << (m_useOldCabling ? "true" : "false") << " ." 
-            << endmsg; 
-        }
+       msg(MSG::INFO)<< "MDT_CablingType : " << cablingType << " is mismatched "
+                     << "with configuration of this service ."
+                     << "m_useOldCabling flag is flipped to " << (m_useOldCabling ? "true" : "false") << " ."
+                     << endmsg;
     }
 
     msg(MSG::INFO)<< "compareTags() callback determined that the taginfo for MDT cabling is: "<< cablingType << " (blank = old). Current configuration is: "

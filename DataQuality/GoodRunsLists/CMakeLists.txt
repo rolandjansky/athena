@@ -15,12 +15,9 @@ atlas_add_root_dictionary( GoodRunsListsLib
    GoodRunsLists/DQHelperFunctions.h Root/LinkDef.h
    EXTERNAL_PACKAGES LibXml2 ROOT )
 
-if( NOT XAOD_STANDALONE )
-   if( XAOD_ANALYSIS )
-     set( extra_libs )
-   else()
-     set( extra_libs DerivationFrameworkInterfaces )
-   endif()
+set( extra_libs DerivationFrameworkInterfaces )
+if( XAOD_STANDALONE )
+   set( extra_libs )
 endif()
 
 atlas_add_library( GoodRunsListsLib

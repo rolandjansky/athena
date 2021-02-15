@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """ Geant4 simulation Python facilities for the ATLAS experiment.
 
@@ -10,15 +10,7 @@
 
 __author__ = 'A. Dell`Acqua, M. Gallas, A. Buckley'
 
-import os, os.path, string, sys
-from time import time
-from GaudiPython import PyAlgorithm
-from AthenaCommon import Constants, Logging, SystemOfUnits
 from AthenaCommon.AppMgr import theApp
-from AthenaCommon.Include import include
-import cppyy
-
-from G4AtlasApps import AtlasG4Eng
 
 from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
 if concurrencyProps.ConcurrencyFlags.NumThreads() > 0:
@@ -78,16 +70,16 @@ class _PyG4AtlasComp(PyG4Atlas_base):
             AtlasG4Eng.G4Eng.log.info('Configuring CTB H8 (2004) test beam')
             dummy = CtbSim()
         elif "simu_skeleton" not in AtlasG4Eng.G4Eng.Dict:
-            AtlasG4Eng.G4Eng.log.error('No sim skeleton registered by time of %s construction: STOP!!' % self.name())
+            AtlasG4Eng.G4Eng.log.error('No sim skeleton registered by time of %s construction: STOP!!', self.name())
             raise ValueError('Unknown sim setup: STOP')
 
         ## Import sim module if requested
         # TODO: is this ever used?
         if self.sim_module:
-            AtlasG4Eng.G4Eng.log.info("The kernel simulation Python module which describes the simulation is: %s" % self.sim_module)
+            AtlasG4Eng.G4Eng.log.info("The kernel simulation Python module which describes the simulation is: %s", self.sim_module)
             try:
                 __import__(self.sim_module, globals(), locals())
-            except:
+            except Exception:
                 AtlasG4Eng.G4Eng.log.fatal("The kernel simulation Python module '%s' was not found!" % self.sim_module)
                 raise RuntimeError('PyG4Atlas: %s: initialize()' % self.name())
 
@@ -102,12 +94,11 @@ class _PyG4AtlasComp(PyG4Atlas_base):
         import AtlasG4Eng
         from time import gmtime, strftime
         timestr = strftime("%a, %d %b %Y %H:%M:%S +0000", gmtime())
-        AtlasG4Eng.G4Eng.log.info('%s starting at (UTC): %s' % (self.name(), timestr))
+        AtlasG4Eng.G4Eng.log.info('%s starting at (UTC): %s', self.name(), timestr)
         AtlasG4Eng.G4Eng._app_profiler('%s begin of initialize' % self.name())
         AtlasG4Eng.G4Eng.Dict['simu_skeleton']._do_All()
         AtlasG4Eng.G4Eng._init_Simulation()
 
-        from G4AtlasApps.SimFlags import simFlags
         AtlasG4Eng.G4Eng._app_profiler('%s end of initialize' % self.name())
 
         from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -120,7 +111,7 @@ class _PyG4AtlasComp(PyG4Atlas_base):
         AtlasG4Eng.G4Eng._app_profiler('%s at finalize  ' % self.name())
         from time import gmtime, strftime
         timestr = strftime("%a, %d %b %Y %H:%M:%S +0000", gmtime())
-        AtlasG4Eng.G4Eng.log.info('%s ending at (UTC): %s'  % (self.name(), timestr))
+        AtlasG4Eng.G4Eng.log.info('%s ending at (UTC): %s', self.name(), timestr)
         return True
 
 if is_hive:

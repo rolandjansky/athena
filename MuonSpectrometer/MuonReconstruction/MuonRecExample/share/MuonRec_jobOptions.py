@@ -153,7 +153,6 @@ if muonRecFlags.doStandalone():
 
     if rec.doTruth():   
         from MuonTruthAlgs.MuonTruthAlgsConf import MuonDetailedTrackTruthMaker
-        from MuonTruthAlgs.MuonTruthAlgsConf import Muon__MuonSegmentTruthAssociationAlg
         from TrkTruthAlgs.TrkTruthAlgsConf import TrackTruthSelector
         from TrkTruthAlgs.TrkTruthAlgsConf import TrackParticleTruthAlg
         col =  "MuonSpectrometerTracks" 
@@ -164,17 +163,6 @@ if muonRecFlags.doStandalone():
         topSequence += TrackParticleTruthAlg(name = col+"TruthAlg",
                                              TrackTruthName=col+"Truth",
                                              TrackParticleName = "MuonSpectrometerTrackParticles" )
-
-        topSequence += Muon__MuonSegmentTruthAssociationAlg("MuonSegmentTruthAssociationAlg")
-
-        try:
-            from PyUtils.MetaReaderPeeker import metadata
-            truthStrategy = metadata['TruthStrategy']
-            if truthStrategy in ['MC15', 'MC18', 'MC18LLP']:
-                topSequence.MuonSegmentTruthAssociationAlg.BarcodeOffset = 10000000
-        except:
-            printfunc ("Failed to read /Simulation/Parameters/ metadata")
-            pass
 
 #--------------------------------------------------------------------------
 # Apply alignment corrections to geometry
@@ -193,9 +181,6 @@ elif muonRecFlags.doCalib():
     from MuonRecExample import MuonAlignConfig
     from MuonCnvExample import setupMuonCalib
     setupMuonCalib()
-else:
-    logMuon.warning("Loading %s but not setting up any MuonCalibration or Ntuple" % __name__ )
-
 
 #--------------------------------------------------------------------------
 # Evaluate tracking performance

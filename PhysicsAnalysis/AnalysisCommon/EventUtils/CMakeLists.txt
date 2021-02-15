@@ -11,4 +11,4 @@ atlas_add_component( EventUtils
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} AthAnalysisBaseCompsLib AthContainers AthContainersInterfaces AthLinks AthenaBaseComps AthenaKernel EventInfo xAODBase xAODCaloEvent xAODCore xAODCutFlow xAODEgamma xAODEventInfo xAODJet xAODMuon xAODPFlow xAODParticleEvent xAODTau xAODTracking xAODTruth GaudiKernel PATCoreLib ExpressionEvaluationLib TrigDecisionToolLib DerivationFrameworkInterfaces )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools AthAnalysisBaseCompsLib AthContainers AthContainersInterfaces AthLinks AthenaBaseComps AthenaKernel EventInfo xAODBase xAODCaloEvent xAODCore xAODCutFlow xAODEgamma xAODEventInfo xAODJet xAODMuon xAODPFlow xAODParticleEvent xAODTau xAODTracking xAODTruth GaudiKernel PATCoreLib ExpressionEvaluationLib TrigDecisionToolLib DerivationFrameworkInterfaces )

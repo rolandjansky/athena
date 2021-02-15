@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTruthAssociationAlg.h"
@@ -65,8 +65,9 @@ StatusCode MuonTruthAssociationAlg::execute()
   
   // loop over muons 
   int muonInd=0;
-  for( const auto& muon : *muonTruthParticleLink ){
+  for( const auto muon : *muonTruthParticleLink ){
     // use primary track particle to get the truth link (except for the case of STACO, where we must use the ID track particle, as the combined is not truth-matched)
+    ATH_MSG_DEBUG("muon with pT "<<muon->pt()<<" and author "<<muon->author());
     const xAOD::TrackParticle* tp(0);
     if (m_associateWithInDetTP || muon->author()==2 || muon->author()==6 ) {
       tp = muon->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
@@ -76,6 +77,7 @@ StatusCode MuonTruthAssociationAlg::execute()
     }
     
     if( !tp ){
+      ATH_MSG_DEBUG("no track particle associated?");
       muonTruthParticleLink(*muon)=ElementLink<xAOD::TruthParticleContainer>();
       muonTruthParticleOrigin(muonInd)=-99999;
       muonTruthParticleType(muonInd)=-99999;
@@ -97,13 +99,13 @@ StatusCode MuonTruthAssociationAlg::execute()
       	ATH_MSG_VERBOSE(" Got valid truth link for muon author " << muon->author() << " barcode " << (*truthLink)->barcode());
 	// loop over truth particles
 	bool foundTruth=false;
-	for( const auto& truthParticle : *muonTruthParticleRecoLink ){
+	for( const auto truthParticle : *muonTruthParticleRecoLink ){
 	  if( truthParticle->status() != 1 ) continue;
-	  ATH_MSG_DEBUG("Adding recoMuonLink for truth muon with barcode " << truthParticle->barcode() << " pt "<< truthParticle->pt());
+	  ATH_MSG_DEBUG("Got truth muon with barcode " << truthParticle->barcode() << " pt "<< truthParticle->pt());
 	  ElementLink< xAOD::MuonContainer > muonLink;
 	  
 	  if( ((*truthLink)->barcode())%m_barcodeOffset == truthParticle->barcode() ) {
-	    ATH_MSG_VERBOSE(" Got truth link -> creating link with truth particle " << (*truthLink)->barcode() );
+	    ATH_MSG_VERBOSE("Truth muon barcode matches -> creating link with truth particle " << (*truthLink)->barcode() );
 	    foundTruth=true;
 	    muonLink = ElementLink< xAOD::MuonContainer >(muon,*muonTruthParticleLink);
 	    // add the link from xAOD::Muon to TruthParticle in m_muonTruthParticleContainerName
@@ -118,7 +120,8 @@ StatusCode MuonTruthAssociationAlg::execute()
 	      }
 	      else{
 		std::vector<unsigned long long> mdtTruth=truthParticle->auxdata<std::vector<unsigned long long> >("truthMdtHits");
-		std::vector<unsigned long long> cscTruth=truthParticle->auxdata<std::vector<unsigned long long> >("truthCscHits");
+		std::vector<unsigned long long> cscTruth;
+		if(m_idHelperSvc->hasCSC()) cscTruth=truthParticle->auxdata<std::vector<unsigned long long> >("truthCscHits");
 		std::vector<unsigned long long> rpcTruth=truthParticle->auxdata<std::vector<unsigned long long> >("truthRpcHits");
 		std::vector<unsigned long long> tgcTruth=truthParticle->auxdata<std::vector<unsigned long long> >("truthTgcHits");
 		const Trk::Track* ptrk=tp->track();
@@ -162,19 +165,21 @@ StatusCode MuonTruthAssociationAlg::execute()
 		    }
 		  }
 		  if(found) continue;
-		  for(unsigned int i=0;i<cscTruth.size();i++){
-		    if(id==cscTruth[i]){
-		      if( measPhi ) {
-			Muon::MuonStationIndex::PhiIndex index = m_idHelperSvc->phiIndex(id);
-			if(nphiHitsPerChamberLayer[index]==999) nphiHitsPerChamberLayer[index]=1;
-			else ++nphiHitsPerChamberLayer[index];
+		  if(m_idHelperSvc->hasCSC()){
+		    for(unsigned int i=0;i<cscTruth.size();i++){
+		      if(id==cscTruth[i]){
+			if( measPhi ) {
+			  Muon::MuonStationIndex::PhiIndex index = m_idHelperSvc->phiIndex(id);
+			  if(nphiHitsPerChamberLayer[index]==999) nphiHitsPerChamberLayer[index]=1;
+			  else ++nphiHitsPerChamberLayer[index];
+			}
+			else{
+			  if(nprecHitsPerChamberLayer[chIndex]==999) nprecHitsPerChamberLayer[chIndex]=1;
+			  else ++nprecHitsPerChamberLayer[chIndex];
+			}
+			found=true;
+			break;
 		      }
-		      else{
-			if(nprecHitsPerChamberLayer[chIndex]==999) nprecHitsPerChamberLayer[chIndex]=1;
-			else ++nprecHitsPerChamberLayer[chIndex];
-		      }
-		      found=true;
-		      break;
 		    }
 		  }
 		  if(found) continue;
@@ -220,10 +225,12 @@ StatusCode MuonTruthAssociationAlg::execute()
 		      if(m_idHelperSvc->chamberIndex(id)==(Muon::MuonStationIndex::ChIndex)i){ nprecHitsPerChamberLayer[i]=0; found=true; break;}
 		    }
 		    if(found) continue;
-		    for(unsigned int j=0;j<cscTruth.size();j++){
-		      Identifier id(cscTruth[j]);
-		      if(!m_idHelperSvc->measuresPhi(id)){
-			if(m_idHelperSvc->chamberIndex(id)==(Muon::MuonStationIndex::ChIndex)i){ nprecHitsPerChamberLayer[i]=0; break;}
+		    if(m_idHelperSvc->hasCSC()){
+		      for(unsigned int j=0;j<cscTruth.size();j++){
+			Identifier id(cscTruth[j]);
+			if(!m_idHelperSvc->measuresPhi(id)){
+			  if(m_idHelperSvc->chamberIndex(id)==(Muon::MuonStationIndex::ChIndex)i){ nprecHitsPerChamberLayer[i]=0; break;}
+			}
 		      }
 		    }
 		  }
@@ -231,10 +238,12 @@ StatusCode MuonTruthAssociationAlg::execute()
 		for(unsigned int i=0;i<nphiHitsPerChamberLayer.size();i++){
 		  if(nphiHitsPerChamberLayer[i]==999){
 		    bool found=false;
-		    for(unsigned int j=0;j<cscTruth.size();j++){
-		      Identifier id(cscTruth[j]);
-		      if(m_idHelperSvc->measuresPhi(id)){
-			if(m_idHelperSvc->phiIndex(id)==(Muon::MuonStationIndex::PhiIndex)i){nphiHitsPerChamberLayer[i]=0; found=true; break;}
+		    if(m_idHelperSvc->hasCSC()){
+		      for(unsigned int j=0;j<cscTruth.size();j++){
+			Identifier id(cscTruth[j]);
+			if(m_idHelperSvc->measuresPhi(id)){
+			  if(m_idHelperSvc->phiIndex(id)==(Muon::MuonStationIndex::PhiIndex)i){nphiHitsPerChamberLayer[i]=0; found=true; break;}
+			}
 		      }
 		    }
 		    if(found) continue;
@@ -324,8 +333,9 @@ StatusCode MuonTruthAssociationAlg::execute()
   }
 
   //one more thing: need to have muonlink set for all truth particles to avoid ELReset errors
-  for( const auto& truthParticle : *muonTruthParticleRecoLink ){
+  for( const auto truthParticle : *muonTruthParticleRecoLink ){
     if(!truthParticle->isAvailable<ElementLink< xAOD::MuonContainer > >("recoMuonLink")){
+      ATH_MSG_DEBUG("no reco muon link set, add an empty one");
       muonTruthParticleRecoLink(*truthParticle)=ElementLink< xAOD::MuonContainer > ();
     }
   }

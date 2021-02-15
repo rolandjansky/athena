@@ -15,7 +15,6 @@
 #include "../LArOnOffMappingAlg.h"
 #include "../LArCalibLineMappingAlg.h"
 #include "../LArFebRodMappingAlg.h"
-#include "../LArHVIdMappingAlg.h"
 #include "../LArSymConditionsAlg.h"
 #include "../LArMCSymCondAlg.h"
 #include "../LArADC2MeVCondAlg.h"

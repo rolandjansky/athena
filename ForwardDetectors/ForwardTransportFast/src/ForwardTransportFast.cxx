@@ -60,10 +60,8 @@ StatusCode ForwardTransportFast::execute() {
     std::vector<HepMC::FourVector> fPosVector;
     std::vector<HepMC::FourVector> fMomVector;
     
-    for (HepMC::GenEvent::particle_const_iterator p = gEvent->particles_begin(); p != gEvent->particles_end(); ++p) {
+    for (auto gParticle: *gEvent) {
   
-      HepMC::GenParticle* gParticle = (*p); 
-
       if (gParticle->status() != 1) continue; // take only stable particles
       if (gParticle->end_vertex())  continue; // skip decay vertices
       
@@ -118,8 +116,8 @@ StatusCode ForwardTransportFast::execute() {
 
     for (int i=0; i<(int)fPidVector.size(); i++) { // add vertices for G4 tracking (status code = 1)  
 
-      HepMC::GenVertex*   gVertex   = new HepMC::GenVertex  (fPosVector.at(i));
-      HepMC::GenParticle* gParticle = new HepMC::GenParticle(fMomVector.at(i), fPidVector.at(i), 1);
+      HepMC::GenVertexPtr   gVertex   = HepMC::newGenVertexPtr  (fPosVector.at(i));
+      HepMC::GenParticlePtr gParticle = HepMC::newGenParticlePtr(fMomVector.at(i), fPidVector.at(i), 1);
       
       gVertex->add_particle_out(gParticle);
       

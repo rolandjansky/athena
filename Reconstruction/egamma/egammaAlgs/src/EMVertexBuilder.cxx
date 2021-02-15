@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -24,6 +24,7 @@ changes :
 #include "xAODEgamma/EgammaxAODHelpers.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
+#include "GeoPrimitives/GeoPrimitives.h" // Amg::Vector3D
 
 EMVertexBuilder::EMVertexBuilder(const std::string& name,
                                  ISvcLocator* pSvcLocator)
@@ -63,7 +64,7 @@ StatusCode EMVertexBuilder::execute(const EventContext& ctx) const
   }
 
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> verticesPair =
-    m_vertexFinderTool->findVertex(TPCol.cptr());
+    m_vertexFinderTool->findVertex(ctx,TPCol.cptr());
 
   if (!verticesPair.first || !verticesPair.second){
     ATH_MSG_ERROR("Null pointer to conversion container");
@@ -97,8 +98,8 @@ StatusCode EMVertexBuilder::execute(const EventContext& ctx) const
     accPz(vertex) = momentum.z();
 
     xAOD::EgammaParameters::ConversionType convType(xAOD::EgammaHelpers::conversionType((*itVtx)));
-    bool vxDoubleTRT = (convType == xAOD::EgammaParameters::doubleTRT);
-    bool vxSingleTRT = (convType == xAOD::EgammaParameters::singleTRT);
+    const bool vxDoubleTRT = (convType == xAOD::EgammaParameters::doubleTRT);
+    const bool vxSingleTRT = (convType == xAOD::EgammaParameters::singleTRT);
 
     if ((vxDoubleTRT && momentum.perp() < m_minPtCut_DoubleTrack) ||
         (vxSingleTRT && momentum.perp() < m_minPtCut_SingleTrack) ||
@@ -115,7 +116,7 @@ StatusCode EMVertexBuilder::execute(const EventContext& ctx) const
   // etaAtCalo, phiAtCalo (extrapolate each vertex)
   float etaAtCalo = -9999.;
   float phiAtCalo = -9999.;
-  for (itVtx = vertices->begin(); itVtx != vertices->end(); ++itVtx ){
+  for (itVtx = vertices->begin(); itVtx != vertices->end(); ++itVtx) {
     xAOD::Vertex *vertex = *itVtx;
 
     if (!m_EMExtrapolationTool->getEtaPhiAtCalo(

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -68,7 +68,7 @@ StatusCode EFMissingETFromTrackAndJets::initialize()
     } // if timing service
 
     // JVT likelihood histogram
-    TString jvtFile = "JVTlikelihood_20140805.root";
+    TString jvtFile = "JetMomentTools/JVTlikelihood_20140805.root";
     TString jvtName = "JVTRootCore_kNN100trim_pt20to50_Likelihood";
     m_jvtLikelihood = (TH2F *) getHistogramFromFile(jvtName, jvtFile);
     if (m_jvtLikelihood == nullptr) {
@@ -204,7 +204,7 @@ StatusCode EFMissingETFromTrackAndJets::execute(xAOD::TrigMissingET *,
             const xAOD::Vertex* foundVertex {
                 nullptr
             };
-            for (const auto& vx : *vertexContainer) {
+            for (const auto vx : *vertexContainer) {
                 for (const auto& tpLink : vx->trackParticleLinks()) {
                     if (*tpLink == itrk) {
                         foundVertex = vx;
@@ -235,7 +235,7 @@ StatusCode EFMissingETFromTrackAndJets::execute(xAOD::TrigMissingET *,
                 const xAOD::Vertex* foundVertex {
                     nullptr
                 };
-                for (const auto& vx : *vertexContainer) {
+                for (const auto vx : *vertexContainer) {
                     for (const auto& tpLink : vx->trackParticleLinks()) {
                         if (*tpLink == itrk) {
                             foundVertex = vx;
@@ -270,7 +270,7 @@ StatusCode EFMissingETFromTrackAndJets::execute(xAOD::TrigMissingET *,
             const xAOD::Vertex* foundVertex {
                 nullptr
             };
-            for (const auto& vx : *vertexContainer) {
+            for (const auto vx : *vertexContainer) {
                 for (const auto& tpLink : vx->trackParticleLinks()) {
                     if (*tpLink == track) {
                         foundVertex = vx;

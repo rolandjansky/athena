@@ -12,6 +12,7 @@
 
 #include <AsgTools/AsgComponentConfig.h>
 
+#include <AsgTools/AsgToolConfig.h>
 #include <regex>
 
 #ifdef XAOD_STANDALONE
@@ -24,7 +25,7 @@
 
 #else
 
-#include <GaudiKernel/IJobOptionsSvc.h>
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 #include <GaudiKernel/ServiceHandle.h>
 
 #endif
@@ -39,6 +40,16 @@ namespace asg
   AsgComponentConfig (const std::string& val_typeAndName)
   {
     setTypeAndName (val_typeAndName);
+  }
+
+
+
+  bool AsgComponentConfig ::
+  empty () const noexcept
+  {
+    return
+      m_type.empty() && m_name.empty() &&
+      m_privateTools.empty() && m_propertyValues.empty();
   }
 
 
@@ -71,6 +82,16 @@ namespace asg
   setName (const std::string& val_name)
   {
     m_name = val_name;
+  }
+
+
+
+  std::string AsgComponentConfig ::
+  typeAndName () const
+  {
+    if (m_name == m_type)
+      return m_name;
+    return m_type + "/" + m_name;
   }
 
 
@@ -132,6 +153,22 @@ namespace asg
       ANA_MSG_ERROR ("name \"" << m_name << "\" does not match format expression");
       return StatusCode::FAILURE;
     }
+    return StatusCode::SUCCESS;
+  }
+
+
+
+  StatusCode AsgComponentConfig ::
+  addPrivateTool (const std::string& name,
+                  const AsgToolConfig& toolConfig)
+  {
+    using namespace msgComponentConfig;
+
+    ANA_CHECK (createPrivateTool (name, toolConfig.type()));
+    for (const auto& subtool : toolConfig.m_privateTools)
+      ANA_CHECK (createPrivateTool (name + "." + subtool.first, subtool.second));
+    for (const auto& property : toolConfig.m_propertyValues)
+      setPropertyFromString (name + "." + property.first, property.second);
     return StatusCode::SUCCESS;
   }
 
@@ -360,7 +397,7 @@ namespace asg
 
     ANA_CHECK (checkTypeName (nestedNames));
 
-    ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc","AsgComponentConfig");
+    ServiceHandle<Gaudi::Interfaces::IOptionsSvc> joSvc("JobOptionsSvc","AsgComponentConfig");
     ANA_CHECK (joSvc.retrieve());
 
     for (const auto& tool : m_privateTools)
@@ -368,19 +405,13 @@ namespace asg
       std::string toolPath = prefix + m_name + "." + tool.first;
       const auto split = toolPath.rfind ('.');
       std::string toolName = toolPath.substr (split+1);
-      std::string parentName = toolPath.substr (0, split);
-      StringProperty athenaProperty (toolName, tool.second + "/" + toolName);
-      ANA_CHECK (joSvc->addPropertyToCatalogue (parentName, std::move (athenaProperty)));
+      joSvc->set (toolPath, tool.second + "/" + toolName);
     }
 
     for (const auto& property : m_propertyValues)
     {
       std::string propertyPath = prefix + m_name + "." + property.first;
-      const auto split = propertyPath.rfind ('.');
-      std::string propertyName = propertyPath.substr (split+1);
-      std::string componentName = propertyPath.substr (0, split);
-      StringProperty athenaProperty (propertyName, property.second);
-      ANA_CHECK (joSvc->addPropertyToCatalogue (componentName, std::move (athenaProperty)));
+      joSvc->set (propertyPath, property.second);
     }
 
     return StatusCode::SUCCESS;

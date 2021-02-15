@@ -20,7 +20,12 @@
 
 // Base classes
 #include "AsgTools/AsgTool.h"
-#include "JetInterface/IJetSelector.h"
+#include "AsgTools/PropertyWrapper.h"
+#include "AsgDataHandles/ReadDecorHandleKey.h"
+#include "AsgDataHandles/WriteDecorHandleKey.h"
+#include "JetInterface/IJetDecorator.h"
+#include "JetInterface/IJetSelector.h" 
+
 
 // The xAOD jet type
 #include "xAODJet/Jet.h"
@@ -31,33 +36,41 @@
 
 namespace JCT { class HotCell; }
 
-class JetCleaningTool : public asg::AsgTool , virtual public IJetSelector
+class JetCleaningTool : public asg::AsgTool, virtual public IJetDecorator, virtual public IJetSelector
 {
 
-  ASG_TOOL_CLASS(JetCleaningTool,IJetSelector)
+  ASG_TOOL_CLASS2(JetCleaningTool, IJetDecorator, IJetSelector)
 
-  public: 
-    /** Levels of cut */
-    enum CleaningLevel{ VeryLooseBadLLP , LooseBad , LooseBadLLP, LooseBadTrigger, TightBad , UnknownCut };
+public:
+  /** Levels of cut */
+  enum CleaningLevel
+  {
+    VeryLooseBadLLP,
+    LooseBad,
+    LooseBadLLP,
+    LooseBadTrigger,
+    TightBad,
+    UnknownCut
+  };
 
-    /** Standard constructor */
-    JetCleaningTool(const std::string& name="JetCleaningTool");
+  /** Standard constructor */
+  JetCleaningTool(const std::string &name = "JetCleaningTool");
 
-    /** Cut-based constructor */
-    JetCleaningTool(const CleaningLevel alevel, const bool doUgly=false);
+  /** Cut-based constructor */
+  JetCleaningTool(const CleaningLevel alevel, const bool doUgly = false);
 
-    /** Cut and string based constructor */
-    JetCleaningTool(const std::string& name , const CleaningLevel alevel, const bool doUgly=false);
+  /** Cut and string based constructor */
+  JetCleaningTool(const std::string &name, const CleaningLevel alevel, const bool doUgly = false);
 
-    /** Standard destructor */
-    virtual ~JetCleaningTool();
+  /** Standard destructor */
+  virtual ~JetCleaningTool();
 
-    /** Initialize method */
-    virtual StatusCode initialize();
+  /** Initialize method */
+  virtual StatusCode initialize() override;
 
-    const asg::AcceptInfo& getAcceptInfo() const
-    {
-      return m_accept;
+  const asg::AcceptInfo &getAcceptInfo() const
+  {
+    return m_accept;
     }
 
     /** The DFCommonJets decoration accept method */
@@ -90,6 +103,8 @@ class JetCleaningTool : public asg::AsgTool , virtual public IJetSelector
     int keep(const xAOD::Jet& jet) const final
     { return static_cast<bool>(accept(jet)); }
 
+    virtual StatusCode decorate(const xAOD::JetContainer &jets) const override;
+
     /** Hot cell checks */
     bool containsHotCells( const xAOD::Jet& jet, const unsigned int runNumber) const;
 
@@ -106,6 +121,10 @@ class JetCleaningTool : public asg::AsgTool , virtual public IJetSelector
     std::string m_jetCleanDFName; //new implementation with derivation level event cleaning decision
     SG::AuxElement::ConstAccessor<char> m_acc_jetClean;
     SG::AuxElement::ConstAccessor<char> m_acc_looseClean;
+
+    //
+    Gaudi::Property<std::string> m_jetContainerName{this, "JetContainer", "", "SG key for input jet container"};
+    SG::WriteDecorHandleKey<xAOD::JetContainer> m_jetCleanKey{this, "JetCleaningName", "isClean", "SG key for output jet cleaning decoration"};
 
     asg::AcceptInfo m_accept;
 

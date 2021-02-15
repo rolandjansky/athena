@@ -15,7 +15,7 @@ TRT_BarrelDescriptor::TRT_BarrelDescriptor()
     m_zDead(0),
     m_zPos(0),
     m_innerTubeRadius(2*CLHEP::mm), // FIXME: Hardwired for now!!
-    m_f(NULL),
+    m_f(nullptr),
     m_o(0),
     m_bounds()
 {

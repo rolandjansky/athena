@@ -1,32 +1,29 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon.JobProperties import JobProperty,JobPropertyContainer,jobproperties
 from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon.Logging import logging
-from AthenaCommon import BeamFlags
-beamFlags = jobproperties.Beam
 
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 from MuonRecExample.MuonRecFlags import muonRecFlags
 from MuonCnvExample.MuonCalibFlags import muonCalibFlags
 from RecExConfig.RecFlags import rec
 
+log = logging.getLogger("MuonCombinedRec")
+
 # configure calib algs for standalone
 if muonRecFlags.doCalibNtuple():
-    from MuonRecExample import MuonAlignConfig
+    from MuonRecExample import MuonAlignConfig  # noqa: F401 (import side-effects)
     from MuonCnvExample import setupMuonCalibNtuple
     setupMuonCalibNtuple()
 elif muonRecFlags.doCalib():
-    from MuonRecExample import MuonAlignConfig
+    from MuonRecExample import MuonAlignConfig  # noqa: F401 (import side-effects)
     from MuonCnvExample import setupMuonCalib
     setupMuonCalib()
 else:
-    logMuon.warning("Loading %s but not setting up any MuonCalibration or Ntuple" % __name__ )
+    log.warning("Loading %s but not setting up any MuonCalibration or Ntuple", __name__ )
 # NB. call setDefaults *after* import MuonCalibConfig
 muonCalibFlags.setDefaults()
-
-log = logging.getLogger("MuonCombinedRec")
 
 topSequence = AlgSequence()
 
@@ -34,7 +31,7 @@ topSequence = AlgSequence()
 # Move MuonCalibExtraTree to end of topSequence and configure for combined
 #s
 
-from PyUtils.MetaReaderPeeker import metadata, convert_itemList
+from PyUtils.MetaReaderPeeker import convert_itemList
 def checkContainerInInputFile(container_type, container_name):
     if container_type in convert_itemList(layout='dict'):
         if container_name in convert_itemList(layout='dict')[container_type]:
@@ -43,19 +40,19 @@ def checkContainerInInputFile(container_type, container_name):
 
 
 def StacoMuonCollectionAvailable():
-	return False
+    return False
 
 def MuidMuonCollectionAvailable():
-	return False
+    return False
 
 def MuonsMuonCollectionAvailable():
-        if rec.readESD() and checkContainerInInputFile("Analysis::MuonContainer", "Muons"):
-           return True
-        if muonCombinedRecFlags.doxAOD() and muonCombinedRecFlags.doCombinedFit():
-           return True
-        if  hasattr(topSequence, 'BuildMuonCollection'):
-           return True
-        return False
+    if rec.readESD() and checkContainerInInputFile("Analysis::MuonContainer", "Muons"):
+       return True
+    if muonCombinedRecFlags.doxAOD() and muonCombinedRecFlags.doCombinedFit():
+       return True
+    if  hasattr(topSequence, 'BuildMuonCollection'):
+       return True
+    return False
 
 
 try:

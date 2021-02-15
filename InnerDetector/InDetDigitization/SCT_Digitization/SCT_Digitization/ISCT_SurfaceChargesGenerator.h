@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -19,6 +19,7 @@
 #include "HitManagement/TimedHitPtr.h"
 
 #include "GaudiKernel/IAlgTool.h"
+#include "GaudiKernel/EventContext.h"
 
 class SiHit;
 
@@ -53,7 +54,9 @@ class ISCT_SurfaceChargesGenerator : virtual public IAlgTool {
 
   virtual void process(const InDetDD::SiDetectorElement* ele,
                        const TimedHitPtr<SiHit>& phit,
-                       const ISiSurfaceChargesInserter& inserter, CLHEP::HepRandomEngine * rndmEngine) const =0;
+                       const ISiSurfaceChargesInserter& inserter,
+                       CLHEP::HepRandomEngine * rndmEngine,
+                       const EventContext& ctx) const =0;
   virtual void setFixedTime(float fixedTime) =0;
 };
 

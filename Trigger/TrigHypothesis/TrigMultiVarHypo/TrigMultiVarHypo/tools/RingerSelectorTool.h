@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGMULTIVARHYPO_RINGERSELECTORTOOL_H 
 #define TRIGMULTIVARHYPO_RINGERSELECTORTOOL_H 
@@ -33,9 +33,6 @@ namespace Ringer{
     public:
       /// Standard constructor
       RingerSelectorTool();
-  
-      /// Standard destructor
-      ~RingerSelectorTool();
   
       StatusCode initialize();
   

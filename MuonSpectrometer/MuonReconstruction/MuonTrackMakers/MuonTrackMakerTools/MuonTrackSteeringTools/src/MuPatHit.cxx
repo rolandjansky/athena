@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuPatHit.h"
@@ -13,16 +13,18 @@ namespace Muon {
 
 
   // Static members
-  unsigned int MuPatHit::s_maxNumberOfInstantiations = 0;
-  unsigned int MuPatHit::s_numberOfInstantiations = 0;
-  unsigned int MuPatHit::s_numberOfCopies = 0;
+  std::atomic<unsigned int> MuPatHit::s_maxNumberOfInstantiations;
+  std::atomic<unsigned int> MuPatHit::s_numberOfInstantiations = 0;
+  std::atomic<unsigned int> MuPatHit::s_numberOfCopies = 0;
 
   // Static functions
 
   // member functions
-  MuPatHit::MuPatHit( const Trk::TrackParameters* pars, const Trk::MeasurementBase* presMeas, const Trk::MeasurementBase* broadMeas,
-        const Info& info ) :
-    m_pars(pars),m_precisionMeas(presMeas),m_broadMeas(broadMeas),m_info(info)
+  MuPatHit::MuPatHit( std::shared_ptr<const Trk::TrackParameters> pars,
+                      const Trk::MeasurementBase* presMeas,
+                      std::unique_ptr<const Trk::MeasurementBase> broadMeas,
+                      const Info& info ) :
+    m_pars(std::move(pars)),m_precisionMeas(presMeas),m_broadMeas(std::move(broadMeas)),m_info(info)
   {
 //     std::cout << " new MuPatHit  " << this;
 //     if( pars ) std::cout << " theta " << pars->momentum().theta() << " phi " << pars->momentum().phi();
@@ -44,7 +46,6 @@ namespace Muon {
 
   MuPatHit& MuPatHit::operator=( const MuPatHit& hit ) {
     if( &hit != this ){
-      cleanUp();
       copy(hit);
 #ifdef MCTB_OBJECT_COUNTERS
       ++s_numberOfCopies;
@@ -55,7 +56,6 @@ namespace Muon {
 
   MuPatHit::~MuPatHit() {
 //     std::cout << " delete MuPatHit  " << this << std::endl;
-    cleanUp();
 #ifdef MCTB_OBJECT_COUNTERS
     removeInstance();
 #endif
@@ -64,17 +64,13 @@ namespace Muon {
   void MuPatHit::copy( const MuPatHit& hit ){
     m_pars = hit.m_pars;
     m_precisionMeas = hit.m_precisionMeas;
-    m_broadMeas = hit.m_broadMeas->clone();
+    m_broadMeas.reset (hit.m_broadMeas->clone());
     m_info = hit.m_info;
   }
 
-  void MuPatHit::cleanUp(){
-    delete m_broadMeas;
-  }
-
-  void MuPatHit::updateParameters( const Trk::TrackParameters* pars ) {
+  void MuPatHit::updateParameters( std::shared_ptr<const Trk::TrackParameters> pars ) {
 //     if( pars ) std::cout << " update pars " << this << " theta " << pars->momentum().theta() << " phi " << pars->momentum().phi() << std::endl;
-    m_pars = pars;
+    m_pars = std::move(pars);
   }
 
 

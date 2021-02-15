@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 import os
 
 
@@ -34,8 +36,6 @@ if not 'FilePrefix' in dir():
 if not 'InputDir' in dir():
    InputDir = "/castor/cern.ch/grid/atlas/DAQ/lar/ElecCalib/2014/"+RunNumberList[0]
 
-#if not 'FillSCDataBCID' in dir():
-#   FillSCDataBCID=-1
 if not 'FillLatomeSourceID' in dir():
    FillLatomeSourceID=-1
 if not 'OverwriteEventNumber' in dir():
@@ -92,7 +92,6 @@ if SuperCells:
    DetFlags.Truth_setOff()
    DetFlags.LVL1_setOff()
    DetFlags.digitize.all_setOff()
-   #DetFlags.Print()
    
    #Set up GeoModel (not really needed but crashes without)
    from AtlasGeoModel import SetGeometryVersion
@@ -216,14 +215,12 @@ else:
    theLArLATOMEDecoder.latomeInfoFileName = LatomeInfo
    theLArLATOMEDecoder.DumpFile = SC_DumpFile
    theLArLATOMEDecoder.RawDataFile = SC_RawDataFile
-   theLArLATOMEDecoder.SampleShift = SC_SampleShift
    theLArLATOMEDecoder.ProtectSourceId = SCProtectSourceId
    svcMgr.ToolSvc += theLArLATOMEDecoder
 
 from LArCalibTools.LArCalibToolsConf import *
 
 LArDigits2Ntuple=LArDigits2Ntuple("LArDigits2Ntuple")
-#LArDigits2Ntuple.ContainerKey = Gain
 contkeys = []
 contkeys.append(Gain)
 
@@ -262,15 +259,4 @@ theApp.EvtMax=EvtMax
 svcMgr.MessageSvc.OutputLevel=WARNING
 
 LArDigits2Ntuple.OutputLevel=WARNING
-
-#DetStore=Service("DetectorStore");
-#DetStore.dump=TRUE
-#from StoreGate.StoreGateConf import StoreGateSvc
-#sgStore = StoreGateSvc("StoreGateSvc")
-#sgStore.Dump = True
-#sgStore.OutputLevel = DEBUG
-
-#dtStore = StoreGateSvc("DetectorStore")
-#dtStore.Dump = True
-#dtStore.OutputLevel = DEBUG
 

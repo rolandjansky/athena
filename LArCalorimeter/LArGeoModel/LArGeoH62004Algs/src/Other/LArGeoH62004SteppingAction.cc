@@ -17,7 +17,6 @@
 #include "LArG4SD/LArG4SD.h"
 #include "LArG4Code/LArG4Identifier.h"
 #include "G4Track.hh"
-#include "G4StepPoint.hh"
 #include "G4TouchableHistory.hh"
 #include "G4TransportationManager.hh"
 #include "G4VPhysicalVolume.hh"

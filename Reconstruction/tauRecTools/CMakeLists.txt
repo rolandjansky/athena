@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( tauRecTools )
@@ -18,7 +18,7 @@ atlas_add_root_dictionary( tauRecToolsLib tauRecToolsLibCintDict
   tauRecTools/TauCommonCalcVars.h
   tauRecTools/MvaTESVariableDecorator.h
   tauRecTools/MvaTESEvaluator.h
-  tauRecTools/CombinedP4FromRecoTaus.h
+  tauRecTools/TauCombinedTES.h
   tauRecTools/TauTrackClassifier.h
   tauRecTools/TauTrackRNNClassifier.h
   tauRecTools/TauWPDecorator.h
@@ -26,7 +26,6 @@ atlas_add_root_dictionary( tauRecToolsLib tauRecToolsLibCintDict
   tauRecTools/TauJetRNNEvaluator.h
   tauRecTools/TauIDVarCalculator.h
   tauRecTools/TauDecayModeNNClassifier.h
-  tauRecTools/TauVertexCorrection.h
   tauRecTools/TauVertexedClusterDecorator.h
   Root/LinkDef.h
   EXTERNAL_PACKAGES ROOT
@@ -55,7 +54,7 @@ else()
       LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} ${Boost_LIBRARIES}
       AthLinks AsgTools CxxUtils xAODCaloEvent xAODEventInfo xAODPFlow xAODTau
       xAODTracking xAODParticleEvent CaloUtilsLib Particle AsgDataHandlesLib MVAUtils
-      PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} ${LWTNN_LIBRARIES} FourMomUtils xAODJet BeamSpotConditionsData 
+      PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} ${LWTNN_LIBRARIES} FourMomUtils xAODJet BeamSpotConditionsData
       PathResolver )
 endif()
 
@@ -65,8 +64,8 @@ if( NOT XAOD_STANDALONE )
          src/*.h src/*.cxx src/components/*.cxx
          INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
          LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${LWTNN_LIBRARIES} xAODTau
-         xAODTracking AthContainers FourMomUtils xAODCaloEvent xAODJet 
-         xAODPFlow xAODParticleEvent MVAUtils BeamSpotConditionsData GaudiKernel tauRecToolsLib )
+         xAODTracking AthContainers FourMomUtils xAODCaloEvent xAODJet
+         xAODPFlow xAODParticleEvent MVAUtils GaudiKernel tauRecToolsLib )
    else()
       atlas_add_component( tauRecTools
          src/*.h src/*.cxx src/components/*.cxx
@@ -78,7 +77,6 @@ if( NOT XAOD_STANDALONE )
          RecoToolInterfaces TrkLinks TrkParametersIdentificationHelpers
          TrkTrackSummary VxVertex TrkToolInterfaces TrkVertexFitterInterfaces
          TrkVertexFittersLib InDetTrackSelectionToolLib BeamSpotConditionsData
-         tauRecToolsLib )
+         tauRecToolsLib TrackVertexAssociationToolLib)
    endif()
 endif()
-

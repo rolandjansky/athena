@@ -13,7 +13,7 @@
  *   char* p = ...;
  *   int* ip = reinterpret_cast<int*>(p);
  *   int i = *ip++;
- @endif
+ *@endcode
  *
  * is undefined if @c p isn't aligned to an int boundary.  It further
  * will read the value using the host endianness, which is an issue

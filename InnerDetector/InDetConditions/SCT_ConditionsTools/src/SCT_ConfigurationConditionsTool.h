@@ -1,12 +1,12 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
  * @file SCT_ConfigurationConditionsTool.h
- * header file for service which reads SCT configuration from database
+ * header file for tool which reads SCT configuration from database
  * @author shaun.roe@cern.ch, gwilliam@mail.cern.ch
 **/
 
@@ -41,15 +41,14 @@ class SCT_ID;
 class SCT_ConfigurationConditionsTool: public extends<AthAlgTool, ISCT_ConfigurationConditionsTool> {
  public:
 
-  //@name Service methods
+  //@name Tool methods
   //@{
   SCT_ConfigurationConditionsTool(const std::string& type, const std::string& name, const IInterface* parent);
   virtual ~SCT_ConfigurationConditionsTool() = default;
   virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override;
   //@}
   
-  /**Can the service report about the given component? (chip, module...)*/
+  /**Can the tool report about the given component? (chip, module...)*/
   virtual bool                          canReportAbout(InDetConditions::Hierarchy h) const override;
   
   /**Is the detector element good?*/

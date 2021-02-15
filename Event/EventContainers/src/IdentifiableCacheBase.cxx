@@ -39,16 +39,13 @@ IdentifiableCacheBase::IdentifiableCacheBase (IdentifierHash maxHash,
 }
 
 
-IdentifiableCacheBase::~IdentifiableCacheBase()
-{
-
-}
+IdentifiableCacheBase::~IdentifiableCacheBase()=default;
 
 int IdentifiableCacheBase::tryLock(IdentifierHash hash, IDC_WriteHandleBase &lock, std::vector<IdentifierHash> &wait){
    assert(m_NMutexes > 0);
    const void *ptr1 =nullptr;
 
-   if(m_vec[hash].compare_exchange_strong(ptr1, INVALID)){//atomic swap (replaces ptr1 with value)
+   if(m_vec[hash].compare_exchange_strong(ptr1, INVALID, std::memory_order_relaxed, std::memory_order_relaxed)){//atomic swap (replaces ptr1 with value)
       //First call
       size_t slot = hash % m_NMutexes;
       auto &mutexpair = m_HoldingMutexes[slot];
@@ -71,7 +68,8 @@ void IdentifiableCacheBase::clear (deleter_f* deleter)
   size_t s = m_vec.size();
   if(0 != m_currentHashes.load(std::memory_order_relaxed)){
      for (size_t i=0; i<s ;i++) {
-       const void* ptr = m_vec[i].exchange(nullptr);
+       const void* ptr = m_vec[i].load(std::memory_order_relaxed);
+       m_vec[i].store(nullptr, std::memory_order_relaxed);
        if (ptr && ptr < ABORTED){
          deleter (ptr);
       }
@@ -86,23 +84,24 @@ void IdentifiableCacheBase::clear (deleter_f* deleter)
 //Does not lock or clear atomics to allow faster destruction
 void IdentifiableCacheBase::cleanUp (deleter_f* deleter)
 {
+  std::atomic_thread_fence(std::memory_order_acquire);
   if(0 != m_currentHashes.load(std::memory_order_relaxed)){ //Reduce overhead if cache was unused
     size_t s = m_vec.size();
     for (size_t i=0; i<s ;i++) {
-      const void* p = m_vec[i];
+      const void* p = m_vec[i].load(std::memory_order_relaxed);
       if(p && p < ABORTED) deleter (p);
     }
   }
 }
 
 int IdentifiableCacheBase::itemAborted (IdentifierHash hash){
-   const void* p = m_vec[hash].load();
+   const void* p = m_vec[hash].load(std::memory_order_relaxed); //Relaxed because it is not returning a pointer to anything
    return (p == ABORTED);
 }
 
 
 int IdentifiableCacheBase::itemInProgress (IdentifierHash hash){
-   const void* p = m_vec[hash].load();
+   const void* p = m_vec[hash].load(std::memory_order_relaxed); //Relaxed because it is not returning a pointer to anything
    return (p == INVALID);
 }
 
@@ -110,24 +109,27 @@ int IdentifiableCacheBase::itemInProgress (IdentifierHash hash){
 const void* IdentifiableCacheBase::find (IdentifierHash hash) noexcept
 {
   if (ATH_UNLIKELY(hash >= m_vec.size())) return nullptr;
-  const void* p = m_vec[hash].load();
+  const void* p = m_vec[hash].load(std::memory_order_relaxed);
   if (p >= ABORTED)
     return nullptr;
+  //Now we know it is a real pointer we can ensure the data is synced
+  std::atomic_thread_fence(std::memory_order_acquire);
   return p;
 }
 
 const void* IdentifiableCacheBase::waitFor(IdentifierHash hash)
 {
-   const void* item = m_vec[hash].load();
+   const void* item = m_vec[hash].load(std::memory_order_acquire);
    if(m_NMutexes ==0) return item;
    size_t slot = hash % m_NMutexes;
    if(item == INVALID){
       mutexPair &mutpair = m_HoldingMutexes[slot];
       uniqueLock lk(mutpair.mutex);
-      while( (item =m_vec[hash].load()) ==  INVALID){
+      while( (item =m_vec[hash].load(std::memory_order_relaxed)) ==  INVALID){
         mutpair.condition.wait(lk);
       }
    }
+   std::atomic_thread_fence(std::memory_order_acquire);
    return item;
 }
 
@@ -195,30 +197,19 @@ void IdentifiableCacheBase::createSet (const std::vector<IdentifierHash>& hashes
    }
 }
 
-#ifdef IdentifiableCacheBaseRemove
-bool IdentifiableCacheBase::remove (IdentifierHash hash)
-{
-   if (hash >= m_vec.size()) return false;
-   if(m_vec[hash]){
-      m_vec[hash] = nullptr;
-      m_currentHashes--;
-      return true;
-   }
-   return false;
-}
-#endif
+
 size_t IdentifiableCacheBase::numberOfHashes()
 {
-  return m_currentHashes.load();
+  return m_currentHashes.load(std::memory_order_relaxed); //Not to be used for syncing
 }
 
 std::vector<IdentifierHash> IdentifiableCacheBase::ids()
 {
   std::vector<IdentifierHash> ret;
-  ret.reserve (m_currentHashes);
+  ret.reserve (m_currentHashes.load(std::memory_order_relaxed));
   size_t s = m_vec.size();
   for (size_t i =0; i<s; i++) {
-    const void* p = m_vec[i].load();
+    const void* p = m_vec[i].load(std::memory_order_relaxed);
     if (p && p < ABORTED)
       ret.push_back (i);
   }
@@ -231,13 +222,13 @@ std::pair<bool, const void*> IdentifiableCacheBase::add (IdentifierHash hash, co
   if (ATH_UNLIKELY(hash >= m_vec.size())) return std::make_pair(false, nullptr);
   if(p==nullptr) return std::make_pair(false, nullptr);
   const void* nul=nullptr;
-  if(m_vec[hash].compare_exchange_strong(nul, p)){
-     m_currentHashes++;
+  if(m_vec[hash].compare_exchange_strong(nul, p, std::memory_order_release, std::memory_order_relaxed)){
+     m_currentHashes.fetch_add(1, std::memory_order_relaxed);
      return std::make_pair(true, p);
   }
   const void* invalid = INVALID;
-  if(m_vec[hash].compare_exchange_strong(invalid, p)){
-     m_currentHashes++;
+  if(m_vec[hash].compare_exchange_strong(invalid, p, std::memory_order_release, std::memory_order_acquire)){
+     m_currentHashes.fetch_add(1, std::memory_order_relaxed);
      return std::make_pair(true, p);
   }
   return std::make_pair(false, invalid);
@@ -250,13 +241,13 @@ std::pair<bool, const void*> IdentifiableCacheBase::addLock (IdentifierHash hash
   assert(hash < m_vec.size());
   if(p==nullptr) return std::make_pair(false, nullptr);
   const void* invalid = INVALID;
-  if(m_vec[hash].compare_exchange_strong(invalid, p)){
-     m_currentHashes++;
+  if(m_vec[hash].compare_exchange_strong(invalid, p, std::memory_order_release, std::memory_order_relaxed)){
+     m_currentHashes.fetch_add(1, std::memory_order_relaxed);
      return std::make_pair(true, p);
   }
   const void* nul=nullptr;
-  if(m_vec[hash].compare_exchange_strong(nul, p)){
-     m_currentHashes++;
+  if(m_vec[hash].compare_exchange_strong(nul, p, std::memory_order_release, std::memory_order_acquire)){
+     m_currentHashes.fetch_add(1, std::memory_order_relaxed);
      return std::make_pair(true, p);
   }
   return std::make_pair(false, nul);

@@ -7,7 +7,7 @@
 #include <xercesc/dom/DOM.hpp>
 #include "GeoModelKernel/RCBase.h"
 #include "GeoModelKernel/GeoTubs.h"
-#include "GeoModelXml/translate.h"
+#include "xercesc/util/XMLString.hpp"
 #include "GeoModelXml/GmxUtil.h"
 
 using namespace xercesc;
@@ -21,7 +21,7 @@ double p[nParams];
 char *toRelease;
 
     for (int i = 0; i < nParams; ++i) {
-        toRelease = Translate(element->getAttribute(Translate(parName[i])));
+        toRelease = XMLString::transcode(element->getAttribute(XMLString::transcode(parName[i])));
         p[i] = gmxUtil.evaluate(toRelease);
         XMLString::release(&toRelease);
     }

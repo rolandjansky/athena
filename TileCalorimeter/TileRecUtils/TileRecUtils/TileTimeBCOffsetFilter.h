@@ -95,7 +95,11 @@ class TileTimeBCOffsetFilter: public extends<AthAlgTool, ITileRawChannelTool> {
     float m_ene_threshold_3chan;
     float m_ene_threshold_1chan;
     float m_time_threshold_diff;
+    float m_time_threshold_ref_ch;
+    float m_ene_threshold_ref_ch;
+    
     bool m_checkDCS;
 
 };
 #endif
+

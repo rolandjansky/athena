@@ -10,12 +10,14 @@
 #include "AthenaKernel/IEventSeek.h"
 #include "AthenaKernel/IEvtSelectorSeek.h"
 #include "AthenaKernel/IEventShare.h"
+#include "AthenaKernel/IDataShare.h"
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IIoComponentMgr.h"
 #include "GaudiKernel/IFileMgr.h"
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IIncidentSvc.h"
+#include "GaudiKernel/IConversionSvc.h"
 
 #include <sys/stat.h>
 #include <sstream>
@@ -26,7 +28,6 @@
 #include <stdexcept>
 #include <cmath> // For pow
 
-#include "unistd.h"
 #include <signal.h>
 
 namespace SharedHiveEvtQueueConsumer_d {
@@ -43,6 +44,7 @@ SharedHiveEvtQueueConsumer::SharedHiveEvtQueueConsumer(const std::string& type
 					       , const IInterface* parent)
   : AthenaMPToolBase(type,name,parent)
   , m_useSharedReader(false)
+  , m_useSharedWriter(false)
   , m_isPileup(false)
   , m_isRoundRobin(false)
   , m_nEventsBeforeFork(0)
@@ -53,12 +55,14 @@ SharedHiveEvtQueueConsumer::SharedHiveEvtQueueConsumer(const std::string& type
   , m_evtSelSeek(0)
   , m_evtContext(0)
   , m_evtShare(0)
+  , m_dataShare(0)
   , m_sharedEventQueue(0)
   , m_sharedRankQueue(0)
 {
   declareInterface<IAthenaMPTool>(this);
 
   declareProperty("UseSharedReader",m_useSharedReader);
+  declareProperty("UseSharedWriter",m_useSharedWriter);
   declareProperty("IsPileup",m_isPileup);
   declareProperty("IsRoundRobin",m_isRoundRobin);
   declareProperty("EventsBeforeFork",m_nEventsBeforeFork);
@@ -108,10 +112,21 @@ StatusCode SharedHiveEvtQueueConsumer::initialize()
     ATH_CHECK( evtSelector()->createContext (m_evtContext) );
   }
 
-  if(m_useSharedReader) {
-    sc = serviceLocator()->service(m_evtSelName,m_evtShare);
-    if(sc.isFailure() || m_evtShare==0) {
+  sc = serviceLocator()->service(m_evtSelName,m_evtShare);
+  if(sc.isFailure() || m_evtShare==0) {
+    if(m_useSharedReader) {
       ATH_MSG_ERROR("Error retrieving IEventShare");
+      return StatusCode::FAILURE;
+    }
+    msg(MSG::INFO) << "Could not retrieve IEventShare" << endmsg;
+  }
+
+  IConversionSvc* cnvSvc = 0;
+  sc = serviceLocator()->service("AthenaPoolCnvSvc",cnvSvc);
+  m_dataShare = dynamic_cast<IDataShare*>(cnvSvc);
+  if(sc.isFailure() || m_dataShare==0) {
+    if(m_useSharedWriter) {
+      msg(MSG::ERROR) << "Error retrieving AthenaPoolCnvSvc " << cnvSvc << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -356,14 +371,23 @@ SharedHiveEvtQueueConsumer::bootstrap_func()
   ATH_MSG_INFO("File descriptors re-opened in the AthenaMP event worker PID=" << getpid());
 
   
-  // ________________________ Make Shared RAW Reader Client ________________________
-  if(m_useSharedReader) {
+  // ________________________ Make Shared Reader/Writer Client ________________________
+  if(m_useSharedReader && m_evtShare) {
     if(!m_evtShare->makeClient(m_rankId).isSuccess()) {
       ATH_MSG_ERROR("Failed to make the event selector a share client");
       return outwork;
-    }
-    else {
+    } else {
       ATH_MSG_DEBUG("Successfully made the event selector a share client");
+    }
+  }
+
+  if(m_useSharedWriter && m_dataShare) {
+    IProperty* propertyServer = dynamic_cast<IProperty*>(m_dataShare);
+    if (propertyServer==0 || propertyServer->setProperty("MakeStreamingToolClient", m_rankId + 1).isFailure()) {
+      ATH_MSG_ERROR("Could not change AthenaPoolCnvSvc MakeClient Property");
+      return outwork;
+    } else {
+      ATH_MSG_DEBUG("Successfully made the conversion service a share client");
     }
   }
 

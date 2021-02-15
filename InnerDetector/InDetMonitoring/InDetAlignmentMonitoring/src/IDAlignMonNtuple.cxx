@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -590,7 +590,11 @@ StatusCode IDAlignMonNtuple::fillHistograms()
       	HepMcParticleLink HMPL = trkTruth.particleLink();
 
 	if ( HMPL.isValid()) {
+#ifdef HEPMC3
+     HepMC::ConstGenParticlePtr genParticle = HMPL.scptr(); 
+#else
 	  const HepMC::GenParticle *genParticle = HMPL.cptr(); 
+#endif
 	  
 	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Particle with PDG "<< genParticle->pdg_id() << " Status "<< genParticle->status()<<" mass "<< genParticle->momentum().m() <<" pt "<<genParticle->momentum().perp()<<" eta "<<genParticle->momentum().eta()<<" phi "<<genParticle->momentum().phi()<<endmsg;
 
@@ -885,7 +889,7 @@ const Trk::TrackParameters* IDAlignMonNtuple::getUnbiasedTrackParameters(const T
 													  tsos->measurementOnTrack()->associatedSurface(),
 													  Trk::anyDirection, false,
 													  *TempField,
-													  Trk::nonInteracting);
+													  Trk::nonInteracting).release();
 	  
 	  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "After other side unbiased propagation" << endmsg;
 	  delete OtherSideUnbiasedTrackParams;

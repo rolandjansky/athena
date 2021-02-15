@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_SurfaceChargesGenerator.h"
@@ -178,7 +178,7 @@ StatusCode SCT_SurfaceChargesGenerator::finalize() {
 // ----------------------------------------------------------------------
 // perpandicular Drift time calculation
 // ----------------------------------------------------------------------
-float SCT_SurfaceChargesGenerator::driftTime(float zhit, const SiDetectorElement* element) const {
+float SCT_SurfaceChargesGenerator::driftTime(float zhit, const SiDetectorElement* element, const EventContext& ctx) const {
   if (element==nullptr) {
     ATH_MSG_ERROR("SCT_SurfaceChargesGenerator::process element is nullptr");
     return -2.0;
@@ -199,8 +199,8 @@ float SCT_SurfaceChargesGenerator::driftTime(float zhit, const SiDetectorElement
   float depletionVoltage{0.};
   float biasVoltage{0.};
   if (m_useSiCondDB) {
-    depletionVoltage = m_siConditionsTool->depletionVoltage(hashId) * CLHEP::volt;
-    biasVoltage = m_siConditionsTool->biasVoltage(hashId) * CLHEP::volt;
+    depletionVoltage = m_siConditionsTool->depletionVoltage(hashId, ctx) * CLHEP::volt;
+    biasVoltage = m_siConditionsTool->biasVoltage(hashId, ctx) * CLHEP::volt;
   } else {
     depletionVoltage = m_vdepl * CLHEP::volt;
     biasVoltage = m_vbias * CLHEP::volt;
@@ -213,13 +213,13 @@ float SCT_SurfaceChargesGenerator::driftTime(float zhit, const SiDetectorElement
         ATH_MSG_ERROR("driftTime: negative argument X for log(X) " << zhit);
       }
       return -1.0;
-    } else { 
+    } else {
       // (m_biasVoltage<m_depletionVoltage) can happen with underdepleted sensors, lose charges in that volume
       return -10.0;
     }
   }
 
-  float t_drift{log((depletionVoltage + biasVoltage) / denominator)};
+  float t_drift{std::log((depletionVoltage + biasVoltage) / denominator)};
   t_drift *= thickness * thickness / (2.0 * m_siPropertiesTool->getSiProperties(hashId).holeDriftMobility() * depletionVoltage);
   return t_drift;
 }
@@ -227,16 +227,16 @@ float SCT_SurfaceChargesGenerator::driftTime(float zhit, const SiDetectorElement
 // ----------------------------------------------------------------------
 // Sigma diffusion calculation
 // ----------------------------------------------------------------------
-float SCT_SurfaceChargesGenerator::diffusionSigma(float zhit, const SiDetectorElement* element) const {
+float SCT_SurfaceChargesGenerator::diffusionSigma(float zhit, const SiDetectorElement* element, const EventContext& ctx) const {
   if (element==nullptr) {
     ATH_MSG_ERROR("SCT_SurfaceChargesGenerator::diffusionSigma element is nullptr");
     return 0.0;
   }
   const IdentifierHash hashId{element->identifyHash()};
-  const float t{driftTime(zhit, element)}; // in ns
+  const float t{driftTime(zhit, element, ctx)}; // in ns
 
   if (t > 0.0) {
-    const float sigma{static_cast<float>(sqrt(2. * m_siPropertiesTool->getSiProperties(hashId).holeDiffusionConstant() * t))}; // in mm
+    const float sigma{static_cast<float>(std::sqrt(2. * m_siPropertiesTool->getSiProperties(hashId).holeDiffusionConstant() * t))}; // in mm
     return sigma;
   } else {
     return 0.0;
@@ -246,10 +246,10 @@ float SCT_SurfaceChargesGenerator::diffusionSigma(float zhit, const SiDetectorEl
 // ----------------------------------------------------------------------
 // Maximum drift time
 // ----------------------------------------------------------------------
-float SCT_SurfaceChargesGenerator::maxDriftTime(const SiDetectorElement* element) const {
+float SCT_SurfaceChargesGenerator::maxDriftTime(const SiDetectorElement* element, const EventContext& ctx) const {
   if (element) {
     const float sensorThickness{static_cast<float>(element->thickness())};
-    return driftTime(sensorThickness, element);
+    return driftTime(sensorThickness, element, ctx);
   } else {
     ATH_MSG_INFO("Error: SiDetectorElement not set!");
     return 0.;
@@ -259,10 +259,10 @@ float SCT_SurfaceChargesGenerator::maxDriftTime(const SiDetectorElement* element
 // ----------------------------------------------------------------------
 // Maximum Sigma difusion
 // ----------------------------------------------------------------------
-float SCT_SurfaceChargesGenerator::maxDiffusionSigma(const SiDetectorElement* element) const {
+float SCT_SurfaceChargesGenerator::maxDiffusionSigma(const SiDetectorElement* element, const EventContext& ctx) const {
   if (element) {
     const float sensorThickness{static_cast<float>(element->thickness())};
-    return diffusionSigma(sensorThickness, element);
+    return diffusionSigma(sensorThickness, element, ctx);
   } else {
     ATH_MSG_INFO("Error: SiDetectorElement not set!");
     return 0.;
@@ -300,9 +300,11 @@ float SCT_SurfaceChargesGenerator::surfaceDriftTime(float ysurf) const {
 // -------------------------------------------------------------------------------------------
 void SCT_SurfaceChargesGenerator::process(const SiDetectorElement* element,
                                           const TimedHitPtr<SiHit>& phit,
-                                          const ISiSurfaceChargesInserter& inserter, CLHEP::HepRandomEngine * rndmEngine) const {
+                                          const ISiSurfaceChargesInserter& inserter,
+                                          CLHEP::HepRandomEngine * rndmEngine,
+                                          const EventContext& ctx) const {
   ATH_MSG_VERBOSE("SCT_SurfaceChargesGenerator::process starts");
-  processSiHit(element, *phit, inserter, phit.eventTime(), phit.eventId(), rndmEngine);
+  processSiHit(element, *phit, inserter, phit.eventTime(), phit.eventId(), rndmEngine, ctx);
   return;
 }
 
@@ -314,7 +316,9 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiDetectorElement* element,
                                                const SiHit& phit,
                                                const ISiSurfaceChargesInserter& inserter,
                                                float p_eventTime,
-                                               unsigned short p_eventId, CLHEP::HepRandomEngine* rndmEngine) const {
+                                               unsigned short p_eventId,
+                                               CLHEP::HepRandomEngine* rndmEngine,
+                                               const EventContext& ctx) const {
   const SCT_ModuleSideDesign* design{dynamic_cast<const SCT_ModuleSideDesign*>(&(element->design()))};
   if (design==nullptr) {
     ATH_MSG_ERROR("SCT_SurfaceChargesGenerator::process can not get " << design);
@@ -351,7 +355,7 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiDetectorElement* element,
   const float cPhi{static_cast<float>(endPos[SiHit::xPhi]) - xPhi};
   const float cDep{static_cast<float>(endPos[SiHit::xDep]) - xDep};
 
-  const float LargeStep{sqrt(cEta*cEta + cPhi*cPhi + cDep*cDep)};
+  const float LargeStep{std::sqrt(cEta*cEta + cPhi*cPhi + cDep*cDep)};
   const int numberOfSteps{static_cast<int>(LargeStep / m_smallStepLength) + 1};
   const float steps{static_cast<float>(m_numberOfCharges * numberOfSteps)};
   const float e1{static_cast<float>(phit.energyLoss() / steps)};
@@ -365,20 +369,21 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiDetectorElement* element,
 
   SCT_InducedChargeModel::SCT_InducedChargeModelData* data{nullptr};
   if (m_doInducedChargeModel) { // Setting magnetic field for the ICM.
-    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, Gaudi::Hive::currentContext()};
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
     const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
     float vdepl{m_vdepl};
     float vbias{m_vbias};
     if (m_useSiCondDB) {
-      vdepl = m_siConditionsTool->depletionVoltage(hashId);
-      vbias = m_siConditionsTool->biasVoltage(hashId);
+      vdepl = m_siConditionsTool->depletionVoltage(hashId, ctx);
+      vbias = m_siConditionsTool->biasVoltage(hashId, ctx);
     }
     data = m_InducedChargeModel->setWaferData(vdepl,
                                               vbias,
                                               element,
                                               fieldCondObj,
                                               m_siConditionsTool,
-                                              rndmEngine);
+                                              rndmEngine,
+                                              ctx);
   }
 
   if (m_doDistortions) {
@@ -394,7 +399,7 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiDetectorElement* element,
   const float StepX{cEta / numberOfSteps};
   const float StepY{cPhi / numberOfSteps};
   const float StepZ{cDep / numberOfSteps};
-  
+
   // check the status of truth information for this SiHit
   // some Truth information is cut for pile up events
   const EBC_EVCOLL evColl = EBC_MAINEVCOLL;
@@ -422,7 +427,7 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiDetectorElement* element,
       m_h_spess->Fill(spess);
     }
 
-    float t_drift{driftTime(zReadout, element)};  // !< t_drift: perpandicular drift time
+    float t_drift{driftTime(zReadout, element, ctx)};  // !< t_drift: perpandicular drift time
     if (t_drift>-2.0000002 and t_drift<-1.9999998) {
       ATH_MSG_DEBUG("Checking for rounding errors in compression");
       if ((std::abs(z1) - 0.5 * thickness) < 0.000010) {
@@ -435,7 +440,7 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiDetectorElement* element,
           // set new coordinate to be 0.5nm inside wafer volume.
         }
         zReadout = 0.5 * thickness - design->readoutSide() * z1;
-        t_drift = driftTime(zReadout, element);
+        t_drift = driftTime(zReadout, element, ctx);
         if (t_drift>-2.0000002 and t_drift<-1.9999998) {
           ATH_MSG_WARNING("Attempt failed. Making no correction.");
         } else {
@@ -451,7 +456,7 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiDetectorElement* element,
 
       float sigma{0.};
       if (not m_doInducedChargeModel) {
-        sigma = diffusionSigma(zReadout, element);
+        sigma = diffusionSigma(zReadout, element, ctx);
         y1 += tanLorentz * zReadout; // !< Taking into account the magnetic field
       } // These are treated in Induced Charge Model.
 

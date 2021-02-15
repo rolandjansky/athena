@@ -36,14 +36,18 @@ monMan.ManualRunLBSetup    = True
 monMan.Run                 = 1
 monMan.LumiBlock           = 1
 
+# Input
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 if hasattr(runArgs,"inputESDFile"):
     rec.readESD.set_Value_and_Lock( True )
     athenaCommonFlags.PoolESDInput.set_Value_and_Lock( runArgs.inputESDFile )
+    ConfigFlags.Input.Files = athenaCommonFlags.PoolESDInput()
     rec.readESD = True
     rec.readAOD = False
 elif hasattr(runArgs,"inputAODFile"):
     rec.readAOD.set_Value_and_Lock( True )
     athenaCommonFlags.PoolAODInput.set_Value_and_Lock( runArgs.inputAODFile )
+    ConfigFlags.Input.Files = athenaCommonFlags.PoolAODInput()
     rec.readESD = False
     rec.readAOD = True
 else:
@@ -130,7 +134,7 @@ if hasattr(runArgs,"preExec"):
 if hasattr(runArgs,"preInclude"): 
     for fragment in runArgs.preInclude:
         include(fragment)
-    
+
 # Now, include the master top options from RecExCommon.
 include ("RecExCommon/RecExCommon_topOptions.py")
 
@@ -151,7 +155,7 @@ if hasattr(runArgs,"postExec"):
 
 
 # Temporary (July 19) trigger additions
-if TriggerFlags.doMT() or TriggerFlags.EDMDecodingVersion() == 3:
+if ConfigFlags.Trigger.EDMVersion == 3:
   if hasattr(ToolSvc, 'TrigDecisionTool'):
     ToolSvc.TrigDecisionTool.NavigationFormat="TrigComposite"
 

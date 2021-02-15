@@ -49,7 +49,7 @@ std::string SpecifiedJetsCondition::toString() const noexcept {
     ss << "group " << count << '\n';
     ++count;
     for(const auto& j : jg){
-      auto j_addr = static_cast<const void*>(j);
+      auto j_addr = static_cast<const void*>(j.get());
       ss << j_addr << " ";
     }
   }

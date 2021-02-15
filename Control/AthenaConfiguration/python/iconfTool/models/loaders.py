@@ -4,8 +4,11 @@ import pickle
 import logging
 from typing import Dict, List, Set, Tuple, cast
 
-from models.element import Element, GroupingElement
-from models.structure import ComponentsStructure
+from AthenaConfiguration.iconfTool.models.element import (
+    Element,
+    GroupingElement,
+)
+from AthenaConfiguration.iconfTool.models.structure import ComponentsStructure
 
 logger = logging.getLogger(__name__)
 

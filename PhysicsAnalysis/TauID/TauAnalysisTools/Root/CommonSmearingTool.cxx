@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Framework include(s):
@@ -16,7 +16,7 @@
 // tauRecTools include(s)
 #include "tauRecTools/MvaTESVariableDecorator.h"
 #include "tauRecTools/MvaTESEvaluator.h"
-#include "tauRecTools/CombinedP4FromRecoTaus.h"
+#include "tauRecTools/TauCombinedTES.h"
 
 using namespace TauAnalysisTools;
 /*
@@ -71,26 +71,27 @@ CommonSmearingTool::CommonSmearingTool(const std::string& sName)
   : asg::AsgMetadataTool( sName )
   , m_mSF(0)
   , m_sSystematicSet(0)
-  , m_fX(&caloTauPt)
-  , m_fY(&caloTauEta)
+  , m_fX(&finalTauPt)
+  , m_fY(&finalTauEta)
   , m_bIsData(false)
   , m_bIsConfigured(false)
   , m_tMvaTESVariableDecorator("MvaTESVariableDecorator", this)
   , m_tMvaTESEvaluator("MvaTESEvaluator", this)
-  , m_tCombinedP4FromRecoTaus("CombinedP4FromRecoTaus", this)
+  , m_tTauCombinedTES("TauCombinedTES", this)
   , m_eCheckTruth(TauAnalysisTools::Unknown)
   , m_bNoMultiprong(false)
-  , m_bPtFinalCalibIsAvailable(false)
-  , m_bPtFinalCalibIsAvailableIsChecked(false)
   , m_bPtTauEtaCalibIsAvailable(false)
   , m_bPtTauEtaCalibIsAvailableIsChecked(false)
 {
+  m_mSystematics = {};
+
   declareProperty("InputFilePath",       m_sInputFilePath       = "" );
   declareProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck = false );
   declareProperty("ApplyFading",         m_bApplyFading         = true );
-  declareProperty("ApplyMVATES",         m_bApplyMVATES         = false );
+  declareProperty("ApplyMVATES",         m_bApplyMVATES         = true );
   declareProperty("ApplyCombinedTES",    m_bApplyCombinedTES    = false );
   declareProperty("ApplyMVATESQualityCheck", m_bApplyMVATESQualityCheck = true );
+  declareProperty("ApplyInsituCorrection",   m_bApplyInsituCorrection   = true );
 }
 
 /*
@@ -141,22 +142,11 @@ StatusCode CommonSmearingTool::initialize()
   if (applySystematicVariation(CP::SystematicSet()) != StatusCode::SUCCESS )
     return StatusCode::FAILURE;
 
-#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
-  if (m_bApplyMVATES)
-  {
-    ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tMvaTESVariableDecorator, MvaTESVariableDecorator));
-    ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tMvaTESEvaluator, MvaTESEvaluator));
-    ATH_CHECK(m_tMvaTESEvaluator.setProperty("WeightFileName", "MvaTES_20161015_pi0fix_BDTG.weights.xml"));
-    ATH_CHECK(m_tMvaTESVariableDecorator.initialize());
-    ATH_CHECK(m_tMvaTESEvaluator.initialize());
-  }
-#endif
-
   if (m_bApplyCombinedTES || m_bApplyMVATES) // CombinedTES has to be available for MVA fix
   {
-    ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tCombinedP4FromRecoTaus, CombinedP4FromRecoTaus));
-    ATH_CHECK(m_tCombinedP4FromRecoTaus.setProperty("WeightFileName", "CalibLoopResult.root"));
-    ATH_CHECK(m_tCombinedP4FromRecoTaus.initialize());
+    ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tTauCombinedTES, TauCombinedTES));
+    ATH_CHECK(m_tTauCombinedTES.setProperty("WeightFileName", "CalibLoopResult_v04-04.root"));
+    ATH_CHECK(m_tTauCombinedTES.initialize());
   }
 
 
@@ -187,35 +177,20 @@ CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau )
   }
 
   if (m_bApplyMVATES)
-  {
-    if (not m_bPtFinalCalibIsAvailableIsChecked)
-    {
-      m_bPtFinalCalibIsAvailable = xTau.isAvailable<float>("ptFinalCalib");
-      m_bPtFinalCalibIsAvailableIsChecked = true;
-    }
-
-    if (not m_bPtFinalCalibIsAvailable)
-    {
-#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
-      // TODO: only call eventInitialize once per event, probably via migration to
-      // AsgMetadataTool
-      if (m_tMvaTESVariableDecorator->eventInitialize().isFailure())
-        return CP::CorrectionCode::Error;
-      if (m_tMvaTESVariableDecorator->execute(xTau).isFailure())
-        return CP::CorrectionCode::Error;
-      if (m_tMvaTESEvaluator->execute(xTau).isFailure())
-        return CP::CorrectionCode::Error; 
-#else
-      ATH_MSG_ERROR("MVA TES decoration 'ptFinalCalib' is not available ");
-      return CP::CorrectionCode::Error;
-#endif
-    }
-    
+  {    
     // veto MVA TES for unreasonably low resolution values
-    bool bVeto = dynamic_cast<CombinedP4FromRecoTaus*>(m_tCombinedP4FromRecoTaus.get())->getUseCaloPtFlag(xTau);
+    bool bVeto = false;
+    if (auto combp4 = dynamic_cast<TauCombinedTES*>(m_tTauCombinedTES.get())) {
+      bVeto = combp4->getUseCaloPtFlag(xTau);
+    }
 
     if (xTau.nTracks() > 0 and xTau.nTracks() < 6)
     {
+      static SG::AuxElement::ConstAccessor<float> accPtFinalCalib("ptFinalCalib");
+      static SG::AuxElement::ConstAccessor<float> accEtaFinalCalib("etaFinalCalib");
+      static SG::AuxElement::ConstAccessor<float> accPhiFinalCalib("phiFinalCalib");
+      static SG::AuxElement::ConstAccessor<float> accMFinalCalib("mFinalCalib");
+
       xTau.auxdecor<char>("MVATESQuality") = (char)bVeto;
       if (bVeto && m_bApplyMVATESQualityCheck)
       {
@@ -227,10 +202,10 @@ CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau )
       }
       else
       {
-        xTau.setP4(xTau.auxdata<float>("ptFinalCalib"),
-                   xTau.auxdata<float>("etaFinalCalib"),
-                   xTau.auxdata<float>("phiFinalCalib"),
-                   xTau.auxdata<float>("mFinalCalib"));
+        xTau.setP4(accPtFinalCalib(xTau),
+                   accEtaFinalCalib(xTau),
+                   accPhiFinalCalib(xTau),
+                   accMFinalCalib(xTau));
       }
     }
   }
@@ -239,9 +214,9 @@ CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau )
   {
     // TODO: only call eventInitialize once per event, probably via migration to
     // AsgMetadataTool
-    if (m_tCombinedP4FromRecoTaus->eventInitialize().isFailure())
+    if (m_tTauCombinedTES->eventInitialize().isFailure())
       return CP::CorrectionCode::Error;
-    if (m_tCombinedP4FromRecoTaus->execute(xTau).isFailure())
+    if (m_tTauCombinedTES->execute(xTau).isFailure())
       return CP::CorrectionCode::Error;
 
     if (xTau.nTracks() > 0 and xTau.nTracks() < 6)
@@ -258,7 +233,7 @@ CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau )
     return CP::CorrectionCode::Ok;
 
   // check which true state is requestet
-  if (!m_bSkipTruthMatchCheck and checkTruthMatch(xTau) != m_eCheckTruth)
+  if (!m_bSkipTruthMatchCheck and getTruthParticleType(xTau) != m_eCheckTruth)
   {
     return CP::CorrectionCode::Ok;
   }
@@ -267,13 +242,17 @@ CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau )
   std::string sProng = ConvertProngToString(xTau.nTracks());
 
   double dCorrection = 1.;
-  // get standard scale factor
-  CP::CorrectionCode tmpCorrectionCode = getValue("sf"+sProng,
-                                                  xTau,
-                                                  dCorrection);
-  // return correction code if histogram is not available
-  if (tmpCorrectionCode != CP::CorrectionCode::Ok)
-    return tmpCorrectionCode;
+  CP::CorrectionCode tmpCorrectionCode;
+  if (m_bApplyInsituCorrection)
+  {
+    // get standard scale factor
+    tmpCorrectionCode = getValue("sf"+sProng,
+                                                    xTau,
+                                                    dCorrection);
+    // return correction code if histogram is not available
+    if (tmpCorrectionCode != CP::CorrectionCode::Ok)
+      return tmpCorrectionCode;
+  }
 
   // skip further process if systematic set is empty
   if (m_sSystematicSet->size() > 0)
@@ -291,7 +270,6 @@ CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau )
       tmpCorrectionCode = getValue(it->second+sProng,
                                    xTau,
                                    dUncertaintySyst);
-
       // return correction code if histogram is not available
       if (tmpCorrectionCode != CP::CorrectionCode::Ok)
         return tmpCorrectionCode;
@@ -471,8 +449,8 @@ template<class T>
 void CommonSmearingTool::ReadInputs(TFile* fFile, std::map<std::string, T>* mMap)
 {
   // initialize function pointer
-  m_fX = &caloTauPt;
-  m_fY = &caloTauEta;
+  m_fX = &finalTauPt;
+  m_fY = &finalTauEta;
 
   TKey *kKey;
   TIter itNext(fFile->GetListOfKeys());
@@ -485,18 +463,18 @@ void CommonSmearingTool::ReadInputs(TFile* fFile, std::map<std::string, T>* mMap
     std::string sKeyName = kKey->GetName();
     if (sKeyName == "Xaxis")
     {
-      TNamed* tObj = (T)kKey->ReadObj();
+      TNamed* tObj = (TNamed*)kKey->ReadObj();
       std::string sTitle = tObj->GetTitle();
       delete tObj;
-      if (sTitle == "P")
+      if (sTitle == "P" || sTitle == "PFinalCalib")
       {
-        m_fX = &caloTauP;
+        m_fX = &finalTauP;
         ATH_MSG_DEBUG("using full momentum for x-axis");
       }
     }
     if (sKeyName == "Yaxis")
     {
-      TNamed* tObj = (T)kKey->ReadObj();
+      TNamed* tObj = (TNamed*)kKey->ReadObj();
       std::string sTitle = tObj->GetTitle();
       delete tObj;
       if (sTitle == "track-eta")
@@ -506,7 +484,7 @@ void CommonSmearingTool::ReadInputs(TFile* fFile, std::map<std::string, T>* mMap
       }
       else if (sTitle == "|eta|")
       {
-        m_fY = &caloTauAbsEta;
+        m_fY = &finalTauAbsEta;
         ATH_MSG_DEBUG("using absolute tau eta for y-axis");
       }
     }
@@ -543,8 +521,16 @@ void CommonSmearingTool::generateSystematicSets()
     // parse for nuisance parameter in histogram name
     std::vector<std::string> vSplitNP = {};
     split(mSF.first,'_',vSplitNP);
-    std::string sNP = vSplitNP.at(0);
-    std::string sNPUppercase = vSplitNP.at(0);
+    std::string sNP;
+    std::string sNPUppercase;
+    if (vSplitNP.size() > 2)
+    {
+      sNP = vSplitNP.at(0)+'_'+vSplitNP.at(1);
+      sNPUppercase = vSplitNP.at(0)+'_'+vSplitNP.at(1);
+    } else {
+      sNP = vSplitNP.at(0);
+      sNPUppercase = vSplitNP.at(0);
+    }
 
     // skip nominal scale factors
     if (sNP == "sf") continue;
@@ -580,7 +566,7 @@ CP::CorrectionCode CommonSmearingTool::getValue(const std::string& sHistName,
     const xAOD::TauJet& xTau,
     double& dEfficiencyScaleFactor) const
 {
-  TH1F* hHist = (*m_mSF)[sHistName];
+  TH1* hHist = (*m_mSF)[sHistName];
   if (!hHist)
   {
     ATH_MSG_ERROR("Histogram with name "<<sHistName<<" was not found in input file.");
@@ -613,40 +599,4 @@ CP::CorrectionCode CommonSmearingTool::getValue(const std::string& sHistName,
     }
   }
   return CP::CorrectionCode::Ok;
-}
-
-//______________________________________________________________________________
-e_TruthMatchedParticleType CommonSmearingTool::checkTruthMatch(const xAOD::TauJet& xTau) const
-{
-  // check if reco tau is a truth hadronic tau
-  typedef ElementLink< xAOD::TruthParticleContainer > Link_t;
-  if (!xTau.isAvailable< Link_t >("truthParticleLink"))
-    ATH_MSG_ERROR("No truth match information available. Please run TauTruthMatchingTool first.");
-
-  static SG::AuxElement::Accessor<Link_t> accTruthParticleLink("truthParticleLink");
-  const Link_t xTruthParticleLink = accTruthParticleLink(xTau);
-
-  // if there is no link, then it is a truth jet
-  e_TruthMatchedParticleType eTruthMatchedParticleType = TauAnalysisTools::TruthJet;
-
-  if (xTruthParticleLink.isValid())
-  {
-    const xAOD::TruthParticle* xTruthParticle = *xTruthParticleLink;
-    if (xTruthParticle->isTau())
-    {
-      static SG::AuxElement::ConstAccessor<char> accIsHadronicTau("IsHadronicTau");
-      if ((bool)accIsHadronicTau(*xTruthParticle))
-      {
-        eTruthMatchedParticleType = TruthHadronicTau;
-      }
-    }
-    else if (xTruthParticle->isElectron())
-      eTruthMatchedParticleType = TruthElectron;
-    else if (xTruthParticle->isMuon())
-      eTruthMatchedParticleType = TruthMuon;
-  }
-  else
-    ATH_MSG_VERBOSE("Truth particle link is not valid");
-
-  return eTruthMatchedParticleType;
 }

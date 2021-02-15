@@ -1,0 +1,69 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+namespace Trk {
+
+inline bool
+NoBounds::operator==(const SurfaceBounds&) const
+{
+  return true;
+}
+
+inline bool
+NoBounds::inside(const Amg::Vector2D&, double, double) const
+{
+  return true;
+}
+
+inline bool
+NoBounds::inside(const Amg::Vector2D&, const BoundaryCheck&) const
+{
+  return true;
+}
+
+inline bool
+NoBounds::insideLoc1(const Amg::Vector2D&, double) const
+{
+  return true;
+}
+
+inline bool
+NoBounds::insideLoc2(const Amg::Vector2D&, double) const
+{
+  return true;
+}
+
+inline double
+NoBounds::minDistance(const Amg::Vector2D&) const
+{
+  return 0.;
+}
+
+inline NoBounds*
+NoBounds::clone() const
+{
+  return new NoBounds();
+}
+
+inline double
+NoBounds::r() const
+{
+  return 0.;
+}
+
+inline MsgStream&
+NoBounds::dump(MsgStream& sl) const
+{
+  sl << "Trk::NoBounds ... boundless surface" << endmsg;
+  return sl;
+}
+
+inline std::ostream&
+NoBounds::dump(std::ostream& sl) const
+{
+  sl << "Trk::NoBounds ... boundless surface" << std::endl;
+  return sl;
+}
+
+} // end of namespace

@@ -6,9 +6,6 @@
  * 
  * Example:
  * 
- *     #include <iostream>
- *     #include "widthestimators.h"
- * 
  *     using widthestimators;
  * 
  *     int main()

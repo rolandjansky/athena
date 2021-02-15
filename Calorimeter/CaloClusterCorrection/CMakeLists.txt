@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( CaloClusterCorrection )
@@ -32,6 +32,11 @@ atlas_add_test( config_test
                 SCRIPT python ${CMAKE_CURRENT_SOURCE_DIR}/test/config_t.py
                 ENVIRONMENT FRONTIER_SERVER=$ENV{FRONTIER_SERVER}
                 LOG_IGNORE_PATTERN "Current filenames|by peeking" )
+
+atlas_add_test( CaloScaleCluster_test
+                SCRIPT python ${CMAKE_CURRENT_SOURCE_DIR}/test/CaloScaleCluster_test.py
+                PROPERTIES TIMEOUT 300
+                LOG_IGNORE_PATTERN "Reading file|no dictionary for class|by peeking|IdDictDetDescrCnv|Unable to locate catalog|Current filenames|Global tag|Cache alignment" )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

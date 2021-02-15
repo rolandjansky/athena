@@ -1,10 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file DataModelTestDataWrite/versions/GAuxContainer_v1.h
  * @author scott snyder <snyder@bnl.gov>
@@ -33,6 +30,8 @@ public:
 
 private:
   std::vector<int> anInt;
+  std::vector<double> gFloat;
+  std::vector<std::vector<double> > gvFloat;
 };
 
 

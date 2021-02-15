@@ -1,15 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from JetD3PDMaker.JetD3PDObject             import getJetD3PDObject
-from D3PDMakerConfig.D3PDMakerFlags         import D3PDMakerFlags
-from RecExConfig.RecFlags                   import rec
 from D3PDMakerCoreComps.IndexMultiAssociation import IndexMultiAssociation
 from D3PDMakerCoreComps.IndexAssociation import IndexAssociation
 from D3PDMakerCoreComps.ContainedVectorMultiAssociation import ContainedVectorMultiAssociation
 import JetSubstructureD3PDMaker
 from D3PDMakerCoreComps.D3PDObject          import make_SG_D3PDObject
-import EventCommonD3PDMaker
-#from JetTagD3PDMaker.AddBTagD3PDInfo import addBTagInfoToJetObject
 from JetTagD3PDMaker.JetTagD3PDMakerKeys import JetTagD3PDKeys
 from JetTagD3PDMaker.JetTagD3PDMakerFlags import JetTagD3PDFlags
 import JetTagD3PDMaker
@@ -37,14 +33,14 @@ def AddHadronicInfo(obj, additionalMoments = [], theblockname = 'SubjetMomentsHa
 
 def AddAssocJetsIndex(obj, jetassocname, jettarget, intermediate_names = [], level=0):
    
-   JetAssocTrack = IndexMultiAssociation(obj, 
-                                         JetSubstructureD3PDMaker.JetSubstructureTagJetINavigable4MomentumAssociationTool,
-                                         jettarget,level = level,
-                                         prefix=jetassocname+'_',
-                                         blockname=jetassocname+'blockindex', 
-                                         AssociationName = jetassocname , 
-                                         IntermediateAssociationNames=intermediate_names, 
-                                         OutputLevel=3 )
+   _ = IndexMultiAssociation(obj,
+                             JetSubstructureD3PDMaker.JetSubstructureTagJetINavigable4MomentumAssociationTool,
+                             jettarget,level = level,
+                             prefix=jetassocname+'_',
+                             blockname=jetassocname+'blockindex',
+                             AssociationName = jetassocname ,
+                             IntermediateAssociationNames=intermediate_names,
+                             OutputLevel=3 )
 
 def AddConstitIndex(object, typename='CaloCluster', target='cl_', myprefix='', level=0):
  
@@ -64,7 +60,6 @@ def AddConstitIndex(object, typename='CaloCluster', target='cl_', myprefix='', l
 def AddConstitTruthIndex(object, typename='TruthParticle', level=0):
 
     import EventCommonD3PDMaker
-    import D3PDMakerCoreComps
     import TruthD3PDMaker
     ConstitAssoc = ContainedVectorMultiAssociation \
             (object,
@@ -74,10 +69,10 @@ def AddConstitTruthIndex(object, typename='TruthParticle', level=0):
              TypeName = typename, WriteWeight = False,
              level = level)
            
-    genpart = IndexAssociation (ConstitAssoc,
-                                TruthD3PDMaker.TruthParticleGenParticleAssociationTool,
-                                TruthD3PDFlags.GenParticleAssocLabel(),
-                                prefix='mcpart_')
+    _ = IndexAssociation (ConstitAssoc,
+                          TruthD3PDMaker.TruthParticleGenParticleAssociationTool,
+                          TruthD3PDFlags.GenParticleAssocLabel(),
+                          prefix='mcpart_')
 
 
 

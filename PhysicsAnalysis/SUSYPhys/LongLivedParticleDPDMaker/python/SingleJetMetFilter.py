@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
 ## Name:        SingleJet+LargeMet Skimmer
@@ -18,7 +18,6 @@ __author__  = "Shimpei Yamamoto <shimpei.yamamoto@cern.ch>"
 
 import AthenaPython.PyAthena as PyAthena
 from AthenaPython.PyAthena import StatusCode
-from PrimaryDPDMaker import PrimaryDPDHelpers
 
 ## Import the module that allows to use named units, e.g. GeV
 import AthenaCommon.SystemOfUnits as Units
@@ -81,7 +80,7 @@ class SingleJetMetFilter( PyAthena.AthFilterAlgorithm ):
 
         ## Accept all events if passAll is set to be true
         if self.passAll :
-            self.msg.debug( '%s event passed because passAll is true' % self.name() )
+            self.msg.debug( '%s event passed because passAll is true', self.name() )
             self.setFilterPassed(True)
             return StatusCode.Success
 
@@ -91,7 +90,7 @@ class SingleJetMetFilter( PyAthena.AthFilterAlgorithm ):
         try:
             jetCollection = self.storeGateSvc.retrieve( self.jetCollectionType, self.jetCollectionName )
         except LookupError:
-            self.msg.warning( 'Collection %s not found' % self.jetCollectionName )           
+            self.msg.warning( 'Collection %s not found', self.jetCollectionName )
             self.setFilterPassed(False)
             return StatusCode.Success   
 
@@ -128,7 +127,7 @@ class SingleJetMetFilter( PyAthena.AthFilterAlgorithm ):
                 try:
                     met = self.storeGateSvc.retrieve( self.metCollectionType, self.metCollectionNames[i] )
                 except LookupError:
-                    self.msg.warning( 'Collection %s not found' % self.metCollectionNames[i] )           
+                    self.msg.warning( 'Collection %s not found', self.metCollectionNames[i] )
                     self.setFilterPassed(False)
                     return StatusCode.Success   
 
@@ -185,14 +184,14 @@ class SingleJetMetFilter( PyAthena.AthFilterAlgorithm ):
         except ZeroDivisionError :
             self.msg.warning( 'Division by zero error when calculating the uncertainties on the pass efficiencies...' )
 
-        self.msg.info( '==> finalize %s...' % self.name() )
+        self.msg.info( '==> finalize %s...', self.name() )
         self.msg.info( '***************************************************************' )
-        self.msg.info( 'Cut-flow table of %s skimming algorithm:' % self.name() )
+        self.msg.info( 'Cut-flow table of %s skimming algorithm:', self.name() )
         self.msg.info( '-------------' )
-        self.msg.info( ' Number of processed events:              %r' % self.nProcessed )
-        self.msg.info( ' Number of events with jet requirement:   %r, eff. = (%3.3f +/- %3.3f)%%' % ( self.nEventPassJet, effPassJet, effErrPassJet ) )
-        self.msg.info( ' Number of events with met requirement:   %r, eff. = (%3.3f +/- %3.3f)%%' % ( self.nEventPassMet, effPassMet, effErrPassMet ) )
-        self.msg.info( ' Number of events with all requirements:  %r, eff. = (%3.3f +/- %3.3f)%%' % ( self.nEventPassed, effPassAll, effErrPassAll ) )
+        self.msg.info( ' Number of processed events:              %r', self.nProcessed )
+        self.msg.info( ' Number of events with jet requirement:   %r, eff. = (%3.3f +/- %3.3f)%%', self.nEventPassJet, effPassJet, effErrPassJet )
+        self.msg.info( ' Number of events with met requirement:   %r, eff. = (%3.3f +/- %3.3f)%%', self.nEventPassMet, effPassMet, effErrPassMet )
+        self.msg.info( ' Number of events with all requirements:  %r, eff. = (%3.3f +/- %3.3f)%%', self.nEventPassed, effPassAll, effErrPassAll )
         self.msg.info( '***************************************************************' )
 
 

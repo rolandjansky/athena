@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # @file: perfmon.py
 # @purpose: launch the performance monitoring analysis script
 # @author: Sebastien Binet <binet@.cern.ch>
@@ -42,7 +42,7 @@ def main():
        help    = "comma-separated list of analyzers to be run during perfmon "\
                  "processing (eg: cpu,mem,io)"
        )
-       
+
     p( "-l",
        "--labels",
        dest    = "dsLabels",
@@ -97,8 +97,8 @@ def main():
         print ("ERROR: you need to give an output file name !")
         parser.print_help()
         return ExitCodes.ERROR
-        
-    if type(options.inputFiles) == type(""):
+
+    if isinstance(options.inputFiles, str):
         options.inputFiles = [ options.inputFiles ]
 
     for arg in args:
@@ -106,14 +106,14 @@ def main():
             options.inputFiles += [ arg ]
 
     from PerfMonAna.PyRootLib import importRoot
-    ROOT = importRoot( batch = options.rootBatch )
+    ROOT = importRoot( batch = options.rootBatch ) # noqa: F841
 
     inputFiles = []
     for f in options.inputFiles:
         f = glob.glob(os.path.expandvars(os.path.expanduser(f)))
         f.sort()
         inputFiles += f
-        
+
     ## we want to preserve the potential order of files
     ## => don't use a set
     inputFileNames = []
@@ -126,17 +126,17 @@ def main():
         print ("ERROR: got: %r" % options.inputFiles)
         #parser.print_help()
         return ExitCodes.ERROR
-    
+
     if options.outFileName is None:
         outFileName = os.path.basename(inputFileNames[0])
         options.outFileName = outFileName.replace(".pmon.gz",
                                                   ".perfmon.root")
-        
+
     outFileName = os.path.expandvars(os.path.expanduser(options.outFileName))
 
     ## massage the supposedly comma-separated list of dataset labels
     dsLabels = None
-    if type(options.dsLabels) == type(""):
+    if isinstance(options.dsLabels, str):
         options.dsLabels = options.dsLabels.strip()
         if options.dsLabels.count(",") > 0:
             dsLabels = options.dsLabels.split(",")
@@ -149,7 +149,7 @@ def main():
         analyzers = options.analyzers.split(",")
     else:
         analyzers = ( options.analyzers, )
-    
+
     ## loads and install the user filtering function
     from PerfMonAna.UserFct import loadFilterFct
     loadFilterFct(options.selectionUri)
@@ -167,7 +167,7 @@ def main():
         traceback.print_exc( file = sys.stdout )
         sc = ExitCodes.ERROR
         pass
-    
+
     return sc
 
 
@@ -176,11 +176,11 @@ if __name__ == "__main__":
     print (":"*80)
     print ("::: perfmon analysis script :::")
     print ("")
-    
+
     sc = main()
-    
+
     print ("")
     print ("::: bye")
     print (":"*80)
     sys.exit( sc )
-    
+

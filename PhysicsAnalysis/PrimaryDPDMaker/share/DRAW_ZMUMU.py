@@ -82,7 +82,7 @@ topSequence += DRAW_ZMUMU_Seq
 ### Output stream
 ##################
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-from D2PDMaker.D2PDHelpers import buildFileName
+from PrimaryDPDMaker.PrimaryDPDHelpers import buildFileName
 from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
 streamName = primDPD.WriteRAWPerfDPD_ZMUMU.StreamName
 fileName   = buildFileName( primDPD.WriteRAWPerfDPD_ZMUMU )

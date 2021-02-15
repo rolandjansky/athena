@@ -326,14 +326,14 @@ namespace InDetDD
              pat!=container->end();++pat) {
             stringToTransform[(*pat)->tag()] = *pat;
         }
-        for (std::pair<const std::string, const AlignableTransform*> value: stringToTransform) {
+        for (const std::pair<const std::string, const AlignableTransform*>& value: stringToTransform) {
             bool status = processKey(value.first, value.second, alignStore);
             alignmentChange = (alignmentChange || status);
         }
         return alignmentChange;
     }
 
-    bool InDetDetectorManager::processKey(const std::string key,
+    bool InDetDetectorManager::processKey(const std::string& key,
                                           const AlignableTransform* transformCollection,
                                           GeoVAlignmentStore* alignStore) const 
     {  

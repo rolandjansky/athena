@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
 ## Name:        BeamSpotDPDFlags
@@ -16,10 +16,7 @@ __version__ = "0.0.1"
 __author__  = "James Walder <jwalder@cern.ch>"
 __version__ = "$Id $"
 
-## Import the module that allows to use named units, e.g. GeV
-import AthenaCommon.SystemOfUnits as Units
-
-from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
+from AthenaCommon.JobProperties import JobProperty
 from AthenaCommon.JobProperties import jobproperties
 
 # Filename stream

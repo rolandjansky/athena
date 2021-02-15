@@ -22,7 +22,6 @@
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "LArRecConditions/LArBadChannelCont.h"
-#include "LumiBlockData/LuminosityCondData.h"
 #include "LArElecCalib/ILArPedestal.h"
 #include "StoreGate/ReadCondHandleKey.h"
 

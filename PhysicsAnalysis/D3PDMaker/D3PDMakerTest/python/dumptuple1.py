@@ -7,9 +7,6 @@
 # Purpose: Test D3PD making.
 #
 
-from __future__ import print_function
-
-
 # Always run in batch mode.
 import os
 if 'DISPLAY' in os.environ:
@@ -36,7 +33,7 @@ PyROOTFixes.enable_tree_fixes()
 from PyUtils.fprint import fprintln
 
 def safeord(x):
-    if type(x) == type(''):
+    if isinstance(x, str):
         return ord(x)
     if x < 0:
         x = x + 256

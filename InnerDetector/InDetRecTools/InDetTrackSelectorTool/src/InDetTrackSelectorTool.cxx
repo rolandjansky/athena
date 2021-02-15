@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackSelectorTool/InDetTrackSelectorTool.h"
@@ -51,12 +51,6 @@ InDetTrackSelectorTool::~InDetTrackSelectorTool()
 //_______________________________________________________________________________
 StatusCode InDetTrackSelectorTool::initialize()
 {
-  StatusCode sc = AthAlgTool::initialize();
-  if(sc.isFailure()) {
-    msg(MSG::ERROR)<<" Unable to initialize the AlgTool"<<endmsg;
-    return StatusCode::FAILURE;
-  }
-
   m_trackSumToolAvailable = false;
   if (!m_trackSumTool.empty())
   {
@@ -79,12 +73,6 @@ StatusCode InDetTrackSelectorTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-//_______________________________________________________________________________
-StatusCode InDetTrackSelectorTool::finalize()
-{
-  ATH_MSG_INFO("Finalize successful");
-  return StatusCode::SUCCESS;
-}
 
 //_______________________________________________________________________________
 bool InDetTrackSelectorTool::decision(const Trk::Track & track, const Trk::Vertex * vertex) const
@@ -97,12 +85,12 @@ bool InDetTrackSelectorTool::decision(const Trk::Track & track, const Trk::Verte
   // first ask track for summary
   std::unique_ptr<Trk::TrackSummary> summaryUniquePtr;
   const Trk::TrackSummary * summary = track.trackSummary();
-  if (summary == 0 && m_trackSumToolAvailable) {
+  if (summary == nullptr && m_trackSumToolAvailable) {
     summaryUniquePtr = m_trackSumTool->summary(track);
     summary = summaryUniquePtr.get();
   }
 
-  if (0==summary) {
+  if (nullptr==summary) {
    ATH_MSG_DEBUG( "Track preselection: cannot create a track summary. This track will not pass." );
    return false;
   }
@@ -128,7 +116,7 @@ bool InDetTrackSelectorTool::decision(const Trk::TrackParticleBase & track, cons
     return false;
 
   const Trk::TrackSummary * summary = track.trackSummary();
-  if (summary == 0) {
+  if (summary == nullptr) {
     ATH_MSG_INFO( "TrackParticleBase does not have a Track Summary. Rejected." );
     return false;
   }
@@ -139,30 +127,28 @@ bool InDetTrackSelectorTool::decision(const Trk::TrackParticleBase & track, cons
 
   int nBLayerHits =  summary->get(Trk::numberOfInnermostPixelLayerHits);
 
-  if(nPixelHits+nPixelDead<m_numberOfPixelHits || nBLayerHits<m_numberOfBLayerHits )
-    return false;
-  return true;
+  return !(nPixelHits+nPixelDead<m_numberOfPixelHits || nBLayerHits<m_numberOfBLayerHits);
 }
 
 //_______________________________________________________________________________
 bool InDetTrackSelectorTool::decision(const Trk::TrackParameters * track, const Trk::Vertex * vertex, const Trk::ParticleHypothesis hyp) const
 {
   // checking pointer first
-  if(0==track || !track->covariance()) {
+  if(nullptr==track || !track->covariance()) {
     ATH_MSG_WARNING( "Track preselection: Zero pointer to parameterbase* received (most likely a track without perigee). This track will not pass." );
     return false;
   }
 
   // getting the  perigee parameters of the track
-  const Trk::Perigee * perigee(0);
-  if(vertex == 0)
+  const Trk::Perigee * perigee(nullptr);
+  if(vertex == nullptr)
     perigee = dynamic_cast<const Trk::Perigee *>(track);
   else {
     Trk::PerigeeSurface perigeeSurface(vertex->position());
     perigee = dynamic_cast<const Trk::Perigee *>(m_extrapolator->extrapolate(*track,perigeeSurface,Trk::anyDirection,true,hyp));
   }
 
-  if(0 == perigee || !perigee->covariance() ) {
+  if(nullptr == perigee || !perigee->covariance() ) {
    ATH_MSG_INFO( "Track preselection: cannot make a measured perigee. This track will not pass." );
    return false;
   }
@@ -171,24 +157,24 @@ bool InDetTrackSelectorTool::decision(const Trk::TrackParameters * track, const 
 
   // d0 and z0 cuts
   double d0 = trackParameters[Trk::d0];
-  if(fabs(d0) > m_maxD0) { if(vertex != 0) { delete perigee; } return false; }
+  if(fabs(d0) > m_maxD0) { if(vertex != nullptr) { delete perigee; } return false; }
 
   double z0 = trackParameters[Trk::z0];
   if (fabs(z0)*sin(trackParameters[Trk::theta]) > m_IPz0Max)
-  { if(vertex != 0) { delete perigee; } return false; }
+  { if(vertex != nullptr) { delete perigee; } return false; }
   if (fabs(z0) > m_maxZ0)
-  { if(vertex != 0) { delete perigee; } return false; }
+  { if(vertex != nullptr) { delete perigee; } return false; }
 
   // transverse momentum
   double pt = perigee->momentum().perp();
-  if(pt<m_minPt) { if(vertex != 0) { delete perigee; } return false; }
+  if(pt<m_minPt) { if(vertex != nullptr) { delete perigee; } return false; }
 
   // d0 significance
   double d0Significance=fabs(trackParameters[Trk::d0]/sqrt( (*perigee->covariance())(Trk::d0,Trk::d0) ));
   if (d0Significance>m_maxD0overSigmaD0)
-  { if(vertex != 0) { delete perigee; } return false; }
+  { if(vertex != nullptr) { delete perigee; } return false; }
 
-  if(vertex != 0) { delete perigee; }
+  if(vertex != nullptr) { delete perigee; }
   return true;
 } //end of selection method
 

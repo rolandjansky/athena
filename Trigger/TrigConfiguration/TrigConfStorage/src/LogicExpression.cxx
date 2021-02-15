@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./LogicExpression.h"
@@ -25,7 +25,9 @@ LogicExpression::LogicExpression(const std::string& name, std::ostream & o)
 {}
 
 
-LogicExpression::~LogicExpression() {}
+LogicExpression::~LogicExpression()
+{
+}
 
 
 bool

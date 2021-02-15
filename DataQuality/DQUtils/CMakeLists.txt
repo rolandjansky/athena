@@ -36,3 +36,7 @@ atlas_install_python_modules( python/*.py python/ext python/sugar
    POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-select E11,E402,W1 --extend-ignore E731 )
 
 atlas_install_scripts( share/count_filled_lbs.py share/dqu_grldiff.py share/dqu_lumi.py share/dqu_grl_extract_period.py share/dqu_dump_periods.py )
+
+foreach( _test coracool events iovset_pickle read )
+   atlas_add_test( ${_test} SCRIPT tests/test_${_test}.py PROPERTIES TIMEOUT 300 POST_EXEC_SCRIPT nopost.sh )
+endforeach()

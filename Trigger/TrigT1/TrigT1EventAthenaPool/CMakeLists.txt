@@ -42,6 +42,7 @@ atlas_add_poolcnv_library( TrigT1EventAthenaPoolPoolCnv
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
+atlas_install_scripts( test/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 # Set up (a) test(s) for the converter(s):
 find_package( AthenaPoolUtilitiesTest )
@@ -49,7 +50,7 @@ find_package( AthenaPoolUtilitiesTest )
 if( ATHENAPOOLUTILITIESTEST_FOUND )
   set( TRIGT1EVENTATHENAPOOL_REFERENCE_TAG
        TrigT1EventAthenaPoolReference-01-00-00 )
-  run_tpcnv_legacy_test( TrigT1EventTPCnv_18.0.0   ESD-18.0.0
+  run_tpcnv_test( TrigT1EventTPCnv_18.0.0   ESD-18.0.0
                   REFERENCE_TAG ${TRIGT1EVENTATHENAPOOL_REFERENCE_TAG} )
 else()
    message( WARNING

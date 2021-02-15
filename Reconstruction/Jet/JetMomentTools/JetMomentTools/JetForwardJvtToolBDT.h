@@ -38,7 +38,6 @@
 #include "AsgDataHandles/ReadDecorHandle.h"
 #include "AsgDataHandles/WriteDecorHandleKey.h"
 #include "AsgDataHandles/WriteDecorHandle.h"
-#include "xAODTracking/VertexContainer.h"
 
 
 namespace TMVA{ class Reader; }
@@ -105,9 +104,6 @@ private:
   std::unique_ptr< TFile > m_wpFileIn;
   std::unique_ptr< TMVA::Reader > m_MVreader;
   std::unique_ptr< TH3D > m_mvfjvtThresh;
-
-
-  Gaudi::Property<std::string> m_orLabel{this, "OverlapDec", "", "SG key for the overlap decoration"};
 
   Gaudi::Property<double> m_etaThresh{this, "EtaThresh", 2.5, "Eta threshold"};
   Gaudi::Property<double> m_forwardMinPt{this, "ForwardMinPt", 20e3, "Forward minimum pt"};

@@ -13,7 +13,6 @@
 
 #include "MuonRDO/RpcPadContainer.h"
 #include "MuonRDO/RpcPad.h"
-#include "RPCcablingInterface/RpcPadIdHash.h"
 #include "MuonRDO/RpcCoinMatrix.h"
 #include "MuonRDO/RpcFiredChannel.h"
 #include "MuonRDO/RpcSectorLogicContainer.h"

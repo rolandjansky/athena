@@ -8,7 +8,6 @@
 // place all endcap components (EMEC, HEC, FCAL) within this volume.
 
 #include "LArGeoEndcap/EndcapCryostatConstruction.h"
-#include "LArGeoEndcap/EndcapCryostatConstruction.h"
 #include "LArGeoEndcap/EndcapPresamplerConstruction.h"
 #include "EndcapDMConstruction.h"
 
@@ -56,7 +55,6 @@
 
 
 #include "GeoModelInterfaces/IGeoModelSvc.h"
-#include "GeoModelUtilities/GeoDBUtils.h"
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Bootstrap.h"

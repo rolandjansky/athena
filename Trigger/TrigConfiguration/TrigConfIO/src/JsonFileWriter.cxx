@@ -224,7 +224,7 @@ TrigConf::JsonFileWriter::writeJsonFile(const std::string & filename, const L1Me
 
       if(thrType == "EM") {
          auto & eminfo = l1menu.thrExtraInfo().EM();
-         for(const std::string & isoSet : { "EMIsoForEMthr", "HAIsoForEMthr" }) {
+         for(const std::string isoSet : { "EMIsoForEMthr", "HAIsoForEMthr" }) {
             jThrType["isolation"][isoSet]["thrtype"] = isoSet;
             jThrType["isolation"][isoSet]["Parametrization"] = json::array_t({});
             for(size_t bit = 1; bit<=5; ++bit) {
@@ -412,7 +412,7 @@ TrigConf::JsonFileWriter::writeJsonFile(const std::string & filename, const L1Me
          {L1TopoAlgorithm::AlgorithmType::MULTIPLICITY, "multiplicityAlgorithms"}
       };
 
-      for( const std::string & topoCat : {"TOPO", "MUTOPO", "MULTTOPO", "R2TOPO"} ) {
+      for( const std::string topoCat : {"TOPO", "MUTOPO", "MULTTOPO", "R2TOPO"} ) {
          for(auto & algName : l1menu.topoAlgorithmNames(topoCat)) {
             json jalg = json::object_t({});
             auto & alg = l1menu.algorithm(algName,topoCat);
@@ -488,6 +488,57 @@ TrigConf::JsonFileWriter::writeJsonFile(const std::string & filename, const L1Me
    std::ofstream outfile(filename);
    outfile << std::setw(4) << j << std::endl;
 
+   TRG_MSG_INFO("Saved file " << filename);
+   return true;
+}
+
+
+bool 
+TrigConf::JsonFileWriter::writeJsonFile(const std::string & filename, const TrigConf::L1BunchGroupSet & l1bgs) const {
+
+   json j({});
+   j["filetype"] = "bunchgroupset";
+   j["name"]  = l1bgs.name();
+
+   json groups({});
+   for (size_t i = 0 ; i< l1bgs.size(); ++i) {
+      auto group = l1bgs.getBunchGroup(i);
+      json jgroup({});
+      jgroup["name"] = group->name();
+      jgroup["id"] = group->id();
+      jgroup["info"] = std::to_string(group->size()) + "bunchs, " + std::to_string(group->nGroups()) + " groups";
+      json trains = json::array();
+      for (auto [first, len]: group->trains()) {
+         json train({});
+         train["first"] = first;
+         train["length"] = len;
+         trains.push_back(train);
+      }
+      jgroup["bcids"] = trains;
+      groups["BGRP"+std::to_string(group->id())] = jgroup;
+   }
+   j["bunchGroups"] = groups;
+   std::ofstream outfile(filename);
+   outfile << std::setw(4) << j << std::endl;
+   TRG_MSG_INFO("Saved file " << filename);
+   return true;
+}
+
+bool TrigConf::JsonFileWriter::writeJsonFile(const std::string & filename, const TrigConf::L1PrescalesSet & l1ps) const {
+   json j({});
+   j["filetype"] = "l1prescale";
+   j["name"]  = l1ps.name();
+   json cuts({});
+   for ( auto [itemName, ps]: l1ps.prescales()){
+      json cut({});
+      cut["cut"] = ps.cut;
+      cut["enabled"] = ps.enabled;
+      cut["info"] = "prescale: " + std::to_string(ps.prescale);
+      cuts[itemName] = cut;
+   }
+   j["cutValues"] = cuts;
+   std::ofstream outfile(filename);
+   outfile << std::setw(4) << j << std::endl;
    TRG_MSG_INFO("Saved file " << filename);
    return true;
 }

@@ -16,7 +16,7 @@ ATLAS Collaboration
 #include "InDetPrepRawData/PixelClusterCollection.h"
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
 
-#include "InDetReadoutGeometry/SiLocalPosition.h" 
+#include "ReadoutGeometryBase/SiLocalPosition.h" 
 #include "InDetReadoutGeometry/SiDetectorElement.h" 
 
 // Space point Classes,

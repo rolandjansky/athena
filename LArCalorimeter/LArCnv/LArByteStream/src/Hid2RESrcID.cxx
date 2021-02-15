@@ -1,13 +1,13 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArByteStream/Hid2RESrcID.h" 
+#include "LArByteStream/Hid2RESrcID.h"
+#include "LArRecConditions/LArFebRodMapping.h"
 #include "CaloIdentifier/LArID_Exception.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IToolSvc.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
 
@@ -35,64 +35,38 @@ Hid2RESrcID::Hid2RESrcID():
 
 } 
 
-StatusCode Hid2RESrcID::initialize()
+StatusCode Hid2RESrcID::initialize ATLAS_NOT_THREAD_SAFE ()
 {  
-  // Message service
-  IMessageSvc*  msgSvc;
-  StatusCode sc = Gaudi::svcLocator()->service( "MessageSvc", msgSvc  );
-  MsgStream log(msgSvc, "Hid2RESrcID");
+  ServiceHandle<IToolSvc> toolSvc ("ToolSvc", "Hid2RESrcID");
+  ATH_CHECK( toolSvc.retrieve() );
+  ATH_CHECK( toolSvc->retrieveTool("LArCablingLegacyService",m_cablingSvc) );
 
-  // Cabling Service
-  IToolSvc* toolSvc;
-  sc   = Gaudi::svcLocator()->service("ToolSvc",toolSvc  );
-  if(sc.isSuccess())
-    {
-      sc = toolSvc->retrieveTool("LArCablingLegacyService",m_cablingSvc);
-      if (sc.isFailure()) {
-	log << MSG::FATAL << "Could not get LArCablingLegacyService !" << endmsg;
-	exit(1);
-      }
-    } else {  // check if it fails
-        // what do you want to do if it fails...
-      log << MSG::FATAL << "Could not get ToolSvc !" << endmsg;
-      exit(1);
-    }
+  const std::vector<HWIdentifier>& roms = m_cablingSvc->getLArRoModIDvec();
+  ATH_CHECK( initialize (roms) );
 
-  //m_cablingSvc = LArCablingService::getInstance(); 
- 
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode Hid2RESrcID::initialize (const LArFebRodMapping& rodMapping)
+{  
+  ATH_CHECK( initialize (rodMapping.getLArRoModIDvec()) );
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode Hid2RESrcID::initialize (const std::vector<HWIdentifier>& roms)
+{  
   // retrieve onlineHelper
-  const LArOnlineID* online_id = 0;
-  StoreGateSvc* detStore = 0;
-  sc =Gaudi::svcLocator()->service( "DetectorStore", detStore );
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to locate DetectorStore" << endmsg;
-    exit(1);
-  } else {
-    log << MSG::VERBOSE << "Successfully located DetectorStore" << endmsg;
-  }     
-  sc = detStore->retrieve(online_id, "LArOnlineID");
-  if (sc.isFailure()) {
-    log << MSG::FATAL << "Could not get LArOnlineID helper !" << endmsg;
-    exit(1);
-  } 
-  else {
-    m_onlineHelper=online_id;
-    log << MSG::VERBOSE << " Found the LArOnlineID helper. " << endmsg;
-  }
+  ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "Hid2RESrcID");
+  ATH_CHECK( detStore.retrieve() );
+  ATH_CHECK( detStore->retrieve(m_onlineHelper, "LArOnlineID") );
 
   // make internal maps 
   
   eformat::SubDetector detid ;
-  
-  
-
-  const std::vector<HWIdentifier>& roms = m_cablingSvc->getLArRoModIDvec();
-  std::vector<HWIdentifier>::const_iterator it =  roms.begin(); 
-  std::vector<HWIdentifier>::const_iterator it_end =  roms.end(); 
-
-  for(; it!=it_end; ++it)
+  for (const HWIdentifier& mId : roms)
     { 
-      HWIdentifier mId(*it); 
       detid = (eformat::SubDetector) m_readoutModuleSvc.subDet(mId); 
       uint8_t m = m_readoutModuleSvc.rodFragId(mId); 
 
@@ -117,14 +91,16 @@ uint32_t  Hid2RESrcID::getRodIDFromROM(const COLLECTION_ID& id) const
   COLL_MAP::const_iterator it = m_coll2ROD.find( id ); 
   if(it == m_coll2ROD.end()){
     std::cout <<" H2d2RESrcID invalid COLL ID in hex "<<std::hex<<id.get_compact()<<std::dec<<std::endl;
-    assert(0); 
+    std::abort();
   }	
 
   return  (*it).second ;
 }
 
 
-uint32_t  Hid2RESrcID::getRodID(const HWIdentifier& hid) const
+// Legacy unsafe version, relying on old cabling service.
+// Currently still used by TrigT2CaloCommon.
+uint32_t  Hid2RESrcID::getRodID ATLAS_NOT_THREAD_SAFE (const HWIdentifier& hid) const
 { // this method returns a RESrcID for the ROD, for a given LArOnlineID
   // channel number is ignored.
   HWIdentifier febId =  m_onlineHelper->feb_Id(hid) ;
@@ -134,16 +110,21 @@ uint32_t  Hid2RESrcID::getRodID(const HWIdentifier& hid) const
   return getRodIDFromROM(romId); 
 }
 
+uint32_t  Hid2RESrcID::getRodID(const LArFebRodMapping& rodMapping,
+                                const HWIdentifier& hid) const
+{ // this method returns a RESrcID for the ROD, for a given LArOnlineID
+  // channel number is ignored.
+  HWIdentifier febId =  m_onlineHelper->feb_Id(hid) ;
+  HWIdentifier romId = rodMapping.getReadoutModuleID(febId);
+  
+  return getRodIDFromROM(romId); 
+}
+
 /** mapping SrcID from ROD to ROB
  */ 
 uint32_t Hid2RESrcID::getRobID( uint32_t rod_id) const
 {
-//  Change Module Type to ROB 
-
- SourceIdentifier  id  = SourceIdentifier(rod_id);
- SourceIdentifier  id2 = SourceIdentifier(id.subdetector_id(), id.module_id());
- return    id2.code();
-
+  return m_rodRobIdMap.getRobID (rod_id);
 }
 
 

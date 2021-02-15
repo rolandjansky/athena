@@ -1,18 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArMphysOverMcal2Ntuple.h"
 #include "LArRawConditions/LArMphysOverMcalComplete.h"
 #include "LArRawConditions/LArMphysOverMcalMC.h"
 #include "CaloIdentifier/CaloGain.h"
-/*
-#include "GaudiKernel/INTupleSvc.h"
-#include "GaudiKernel/NTuple.h"
-#include "GaudiKernel/SmartDataPtr.h"
-*/
-
-//#include <fstream>
 
 LArMphysOverMcal2Ntuple::LArMphysOverMcal2Ntuple(const std::string& name, ISvcLocator* pSvcLocator): 
   LArCond2NtupleBase(name, pSvcLocator) { 
@@ -60,8 +53,15 @@ StatusCode LArMphysOverMcal2Ntuple::stop() {
  }
 
 
- SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
- const LArOnOffIdMapping* cabling=*cablingHdl;
+ const LArOnOffIdMapping *cabling=0;
+ if(m_isSC) {
+   ATH_MSG_DEBUG( "LArRamps2Ntuple: using SC cabling" );
+   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingSCKey};
+   cabling=*cablingHdl;
+ }else{
+   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+   cabling=*cablingHdl;
+ }
  if(!cabling) {
      ATH_MSG_WARNING( "Do not have cabling object LArOnOffIdMapping" );
      return StatusCode::FAILURE;

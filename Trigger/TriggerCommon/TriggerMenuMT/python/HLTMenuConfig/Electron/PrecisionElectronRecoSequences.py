@@ -13,7 +13,7 @@ def precisionElectronRecoSequence(RoIs):
 
     Sequence of algorithms is the following:
       - egammaRecBuilder/TrigEgammaRecElectron creates egammaObjects out of clusters and tracks. 
-      - electronSuperClusterBuilder algorithm will create superclusters out of the toposlusters and tracks in egammaRec under the electron hypothesis
+      - electronSuperClusterBuilder algorithm will create superclusters out of the topoclusters and tracks in egammaRec under the electron hypothesis
           https://gitlab.cern.ch/atlas/athena/blob/master/Reconstruction/egamma/egammaAlgs/python/egammaSuperClusterBuilder.py#L26 
       - TopoEgammBuilder will create photons and electrons out of trakcs and SuperClusters. Here at HLT electrons the aim is to ignore photons.
           https://gitlab.cern.ch/atlas/athena/blob/master/Reconstruction/egamma/egammaAlgs/src/topoEgammaBuilder.cxx
@@ -25,7 +25,7 @@ def precisionElectronRecoSequence(RoIs):
     # First the data verifiers:
     # Here we define the data dependencies. What input needs to be available for the Fexs (i.e. TopoClusters from precisionCalo) in order to run
     from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup import precisionCaloMenuDefs
-    
+       
     # precision Tracking related data dependencies
     from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys
 
@@ -38,47 +38,53 @@ def precisionElectronRecoSequence(RoIs):
 
     """ Retrieve the factories now """
     from TriggerMenuMT.HLTMenuConfig.Electron.TrigElectronFactories import TrigEgammaRecElectron, TrigElectronSuperClusterBuilder, TrigTopoEgammaElectronCfg
-    from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import  TrigEMTrackMatchBuilder
-   
-    #The sequence of these algorithms
-    thesequence = parOR( "precisionElectron_%s" % RoIs)
-   
-    thesequence += ViewVerifyTrk
+    from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import  TrigEMTrackMatchBuilder, TrigElectronIsoBuilderCfg
+
     # Create the sequence of three steps:
     #  - TrigEgammaRecElectron, TrigElectronSuperClusterBuilder, TrigTopoEgammaElectron
-    trackMatchBuilder = TrigEMTrackMatchBuilder()
-    trackMatchBuilder.TrackParticlesName = TrigEgammaKeys.TrigElectronTracksCollectionName
-    TrigEgammaAlgo = TrigEgammaRecElectron()
-   
-    TrigEgammaAlgo.InputTopoClusterContainerName = precisionCaloMenuDefs.precisionCaloClusters
-    TrigEgammaAlgo.TrackMatchBuilderTool = trackMatchBuilder
-    thesequence += TrigEgammaAlgo
-        
-    trigElectronAlgo = TrigElectronSuperClusterBuilder()
-    
-    trigElectronAlgo.InputEgammaRecContainerName = TrigEgammaAlgo.egammaRecContainer
-    thesequence += trigElectronAlgo
 
-    trigTopoEgammaAlgo = TrigTopoEgammaElectronCfg()
-    trigTopoEgammaAlgo.SuperElectronRecCollectionName = trigElectronAlgo.SuperElectronRecCollectionName
-    collectionOut = trigTopoEgammaAlgo.ElectronOutputName
-    thesequence += trigTopoEgammaAlgo
+    # Create the sequence of three steps:
+    #  - TrigEgammaRecElectron, TrigElectronSuperClusterBuilder, TrigTopoEgammaElectron
+    #The sequence of these algorithms
+    thesequence = parOR( "precisionElectron%s" % RoIs)
+    thesequence += ViewVerifyTrk
     
-    from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import TrigElectronIsoBuilderCfg
-    isoBuilder = TrigElectronIsoBuilderCfg()
+    ## TrigEMTrackMatchBuilder_noGSF ##
+    TrigEMTrackMatchBuilder = TrigEMTrackMatchBuilder("TrigEMTrackMatchBuilder_noGSF")
+    TrigEMTrackMatchBuilder.TrackParticlesName =  TrigEgammaKeys.TrigElectronTracksCollectionName
+
+    ## TrigEgammaRecElectron_noGSF ##
+    TrigEgammaRecAlgo = TrigEgammaRecElectron("TrigEgammaRecElectron_noGSF")
+    thesequence += TrigEgammaRecAlgo
+    TrigEgammaRecAlgo.TrackMatchBuilderTool = TrigEMTrackMatchBuilder
+    TrigEgammaRecAlgo.InputTopoClusterContainerName = precisionCaloMenuDefs.precisionCaloClusters
+
+    ## TrigElectronSuperClusterBuilder_noGSF ##
+    TrigSuperElectronAlgo = TrigElectronSuperClusterBuilder("TrigElectronSuperClusterBuilder_noGSF")
+    thesequence += TrigSuperElectronAlgo
+    TrigSuperElectronAlgo.InputEgammaRecContainerName =  TrigEgammaRecAlgo.egammaRecContainer
+    TrigSuperElectronAlgo.TrackMatchBuilderTool = TrigEMTrackMatchBuilder
+
+    ## TrigTopoEgammaElectronCfg_noGSF ##
+    TrigTopoEgammaAlgo = TrigTopoEgammaElectronCfg("TrigTopoEgammaElectronCfg_noGSF")
+    thesequence += TrigTopoEgammaAlgo
+    TrigTopoEgammaAlgo.SuperElectronRecCollectionName = TrigSuperElectronAlgo.SuperElectronRecCollectionName
+    collectionOut = TrigTopoEgammaAlgo.ElectronOutputName
+
+    ## TrigElectronIsoBuilderCfg_noGSF ##
+    isoBuilder = TrigElectronIsoBuilderCfg("TrigElectronIsoBuilderCfg_noGSF")
     thesequence += isoBuilder
 
     #online monitoring for topoEgammaBuilder
     from TriggerMenuMT.HLTMenuConfig.Electron.TrigElectronFactories import PrecisionElectronTopoMonitorCfg
     PrecisionElectronRecoMonAlgo = PrecisionElectronTopoMonitorCfg()
-    PrecisionElectronRecoMonAlgo.ElectronKey = trigTopoEgammaAlgo.ElectronOutputName
+    PrecisionElectronRecoMonAlgo.ElectronKey = TrigTopoEgammaAlgo.ElectronOutputName
     thesequence += PrecisionElectronRecoMonAlgo
 
     #online monitoring for TrigElectronSuperClusterBuilder
     from TriggerMenuMT.HLTMenuConfig.Electron.TrigElectronFactories import PrecisionElectronSuperClusterMonitorCfg
     PrecisionElectronSuperClusterMonAlgo = PrecisionElectronSuperClusterMonitorCfg()
-    PrecisionElectronSuperClusterMonAlgo.InputEgammaRecContainerName = trigElectronAlgo.SuperElectronRecCollectionName
+    PrecisionElectronSuperClusterMonAlgo.InputEgammaRecContainerName = TrigSuperElectronAlgo.SuperElectronRecCollectionName
     thesequence += PrecisionElectronSuperClusterMonAlgo
-
     return (thesequence, collectionOut)
 

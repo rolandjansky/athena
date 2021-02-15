@@ -6,30 +6,24 @@
 # @brief Construct a btagging d3pd.
 #
 
-from __future__ import print_function
-
-
 from AthenaCommon.AppMgr import ServiceMgr
-from AthenaCommon.AppMgr import ToolSvc
 from RecExConfig.RecFlags import rec
 
 from JetTagD3PDMaker.JetTagD3PDMakerKeys import JetTagD3PDKeys
 from JetTagD3PDMaker.JetTagD3PDMakerFlags import JetTagD3PDFlags
-from TrackD3PDMaker.TrackD3PDMakerFlags import TrackD3PDFlags
-from TruthD3PDMaker.TruthD3PDMakerFlags import TruthD3PDFlags
 
 def _modifyMuonObject(MuonD3PDObject):
-    if not MuonD3PDObject.allBlocknames().has_key("BtagMuonTrackMatchingBlock"):
+    if "BtagMuonTrackMatchingBlock" not in MuonD3PDObject.allBlocknames():
         if JetTagD3PDFlags.TrackAssocLabel() != "":
             from D3PDMakerCoreComps.IndexAssociation import IndexAssociation
             import MuonD3PDMaker
-            mtassoc = IndexAssociation(MuonD3PDObject,
-                                       MuonD3PDMaker.MuonTrackParticleAssociationTool,
-                                       JetTagD3PDFlags.TrackAssocLabel(),
-                                       level = 500,
-                                       prefix=JetTagD3PDKeys.MuonInDetTrackAssocPrefix(),
-                                       blockname="BtagMuonTrackMatchingBlock",
-                                       Type =  'InDet')
+            _ = IndexAssociation(MuonD3PDObject,
+                                 MuonD3PDMaker.MuonTrackParticleAssociationTool,
+                                 JetTagD3PDFlags.TrackAssocLabel(),
+                                 level = 500,
+                                 prefix=JetTagD3PDKeys.MuonInDetTrackAssocPrefix(),
+                                 blockname="BtagMuonTrackMatchingBlock",
+                                 Type =  'InDet')
 
 
 
@@ -312,7 +306,7 @@ def BTaggingD3PD(alg = None,
     if JetTagD3PDFlags.AddFatJets():
         from JetTagD3PDMaker.JetTagJSD3PDObjects import JSD3PD_Tool
         for xx in JetTagD3PDKeys.FatJetsList():	   
-            if xx[0] != None and xx[1] != None:
+            if xx[0] is not None and xx[1] is not None:
                 jsD3PD = JSD3PD_Tool(xx)
                 jsD3PD.addToAlg(alg)
 

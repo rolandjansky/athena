@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GENERATOROBJECTS_HEPMCPARTICLELINK_H
@@ -489,6 +489,13 @@ public:
    */
   const HepMC::GenParticle* cptr() const;
 
+#ifdef HEPMC3
+  /**
+   * @brief Dereference/smart pointer.
+   */
+  HepMC3::ConstGenParticlePtr scptr() const;
+#endif
+
 
   /** 
    * @brief Validity check.  Dereference and check for null.
@@ -656,6 +663,16 @@ public:
   /// Persistent part: barcode and location of target GenEvent.
   ExtendedBarCode m_extBarcode;
 };
+
+
+/**
+ * @brief Comparison with GenParticle*.
+ * Needed with c++20 to break an ambiguity between the built-in GenParticle*
+ * equality and operator== defined above, arising due to the conversions
+ * back and forth between HepMcParticleLink and GenParticle*.
+ */
+bool operator== (const HepMC::GenParticle* a,
+                 const HepMcParticleLink& b);
 
 
 /**

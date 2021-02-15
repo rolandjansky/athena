@@ -63,13 +63,15 @@ std::vector<TString> BDTHelper::parseString(const TString& str, const TString& d
   
   // split the string with ",", and put them into a vector
   for(size_t i = 0; i < arraySize; ++i) {
-    TString var = dynamic_cast<TObjString*> (objList->At(i))->String();
-    var.ReplaceAll(" ", "");
-    if(var.Contains(":=")) {
-      var=var(var.Index(":=")+2, var.Length()-var.Index(":=")-2);
+    if (auto str = dynamic_cast<TObjString*> (objList->At(i))) {
+      TString var = str->String();
+      var.ReplaceAll(" ", "");
+      if(var.Contains(":=")) {
+        var=var(var.Index(":=")+2, var.Length()-var.Index(":=")-2);
+      }
+      if(0==var.Length()) continue;
+      parsedString.push_back(var);
     }
-    if(0==var.Length()) continue;
-    parsedString.push_back(var);
   }
  
   delete objList;

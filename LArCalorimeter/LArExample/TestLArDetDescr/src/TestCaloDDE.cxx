@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // INCLUDE HEADER FILES:
@@ -23,7 +23,6 @@
 #include "CaloDetDescr/CaloDetDescriptor.h"
 #include "CaloDetDescr/ICaloRecoMaterialTool.h"
 #include "CaloDetDescr/ICaloRecoSimpleGeomTool.h"
-#include "CaloDetDescr/CaloDetDescriptor.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include <cmath>
@@ -976,6 +975,7 @@ TestCaloDDE::read_volumes()
 void
 TestCaloDDE::update()
 {
+  [[maybe_unused]]
   Transform3D delta =  RotateZ3D(0.01);
 }
 

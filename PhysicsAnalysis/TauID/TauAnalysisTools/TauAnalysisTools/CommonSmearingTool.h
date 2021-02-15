@@ -1,5 +1,7 @@
+// Dear emacs, this is -*- c++ -*-
+
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUANALYSISTOOLS_COMMONSMEARINGTOOL_H
@@ -9,10 +11,6 @@
   author: Dirk Duschinger
   mail: dirk.duschinger@cern.ch
   documentation in: ../README.rst
-                    or
-                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-<tag>/README.rst
-		    or
-                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/README.rst
 */
 
 // Framework include(s):
@@ -24,7 +22,7 @@
 #include "xAODTruth/TruthParticle.h"
 #include "PATInterfaces/CorrectionCode.h"
 
-#include "tauRecTools/CombinedP4FromRecoTaus.h"
+#include "tauRecTools/TauCombinedTES.h"
 
 // Local include(s):
 #include "TauAnalysisTools/Enums.h"
@@ -35,7 +33,7 @@
 #include "TROOT.h"
 #include "TClass.h"
 #include "TFile.h"
-#include "TH1F.h"
+#include "TH1.h"
 #include "TKey.h"
 
 
@@ -83,12 +81,11 @@ public:
   /// ignored (unless they
   virtual StatusCode applySystematicVariation ( const CP::SystematicSet& sSystematicSet);
 
-
 protected:
 
   std::string ConvertProngToString(const int& iProngness);
 
-  typedef std::map<std::string, TH1F*> SFMAP;
+  typedef std::map<std::string, TH1*> SFMAP;
   SFMAP* m_mSF;
   std::unordered_map < CP::SystematicSet, std::string > m_mSystematicSets;
   const CP::SystematicSet* m_sSystematicSet;
@@ -104,7 +101,6 @@ protected:
   virtual CP::CorrectionCode getValue(const std::string& sHistName,
                                       const xAOD::TauJet& xTau,
                                       double& dEfficiencyScaleFactor) const;
-  e_TruthMatchedParticleType checkTruthMatch(const xAOD::TauJet& xTau) const;
   void generateSystematicSets();
 
   std::string m_sInputFilePath;
@@ -116,10 +112,11 @@ protected:
   bool m_bApplyMVATES;
   bool m_bApplyCombinedTES;
   bool m_bApplyMVATESQualityCheck;
+  bool m_bApplyInsituCorrection;
 
   asg::AnaToolHandle<ITauToolBase> m_tMvaTESVariableDecorator;
   asg::AnaToolHandle<ITauToolBase> m_tMvaTESEvaluator;
-  asg::AnaToolHandle<ITauToolBase> m_tCombinedP4FromRecoTaus;
+  asg::AnaToolHandle<ITauToolBase> m_tTauCombinedTES;
 
   e_TruthMatchedParticleType m_eCheckTruth;
   bool m_bNoMultiprong;

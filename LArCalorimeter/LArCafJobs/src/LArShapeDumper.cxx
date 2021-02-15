@@ -30,7 +30,6 @@
 #include "LArCafJobs/CellInfo.h"
 #include "LArCafJobs/RunData.h"
 #include "LArCafJobs/EventData.h"
-#include "LArRawEvent/LArOFIterResultsContainer.h"
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TFile.h"
@@ -43,9 +42,7 @@
 #include "TrigConfHLTData/HLTSequence.h"
 #include "TrigConfHLTData/HLTSequenceList.h"
 
-// #include "LArCafJobs/DataContainer.h"
 // #include "LArCafJobs/HistoryContainer.h"
-// #include "LArCafJobs/CellInfo.h"
 // #include "LArCafJobs/TreeAccessor.h"
 
 

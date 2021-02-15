@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigL1JetMonitorAlgorithm.h"
@@ -33,7 +33,7 @@ StatusCode TrigL1JetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) 
   auto phi   = Monitored::Scalar<float>("phi");
 
   // Loop over jets
-  for(const auto& j : *jets){
+  for(const auto j : *jets){
     // Set the values of the monitored variables for the event		
     et8x8 = j->et8x8()*0.001;
     eta   = j->eta();

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file  CaloScaleCluster.cxx
@@ -52,9 +52,18 @@ void CaloScaleCluster::makeTheCorrection (const Context& myctx,
   
   float adj_aeta = std::abs (adj_eta);
   float fac;
-  if (std::abs (adj_eta) > m_etamax (myctx))
+  if (std::abs (adj_eta) > m_etamax (myctx)) {
     fac = correction[correction.size()-1][1];
-  else
-    fac = interpolate (correction, adj_aeta, m_degree (myctx));
+  }
+  else {
+    // The rfac-v5 tables contain a couple spurious zeros
+    // (from empty bins)?  If we don't do anything, this correction will blow
+    // up in the immediate vicinity of those points.  Work around by replacing
+    // the zeros with an average of the adjacent points, by setting
+    // fixZero=true in the interpolate call.
+    fac = interpolate (correction, adj_aeta, m_degree (myctx),
+                       1, CaloRec::Array<1>(), -1,
+                       /*fixZero=*/ true);
+  }
   cluster->setE (cluster->e() / fac);
 }

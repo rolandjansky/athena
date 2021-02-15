@@ -2,15 +2,10 @@
 
 # Written by Juerg Beringer in April 2008.
 
-from __future__ import print_function
-
 import math
 import os
 import socket
 import time
-
-from future import standard_library
-standard_library.install_aliases()
 import subprocess
 
 
@@ -161,7 +156,7 @@ class InDetAlignJobRunner:
 
     def submitBackground(self,jobnr):
         """Execute a configured job in the background"""
-        if not jobnr in self.jobs: raise InDetAlignJobRunnerError ('Job number %s is not yet configured' % jobnr)
+        if jobnr not in self.jobs: raise InDetAlignJobRunnerError ('Job number %s is not yet configured' % jobnr)
         scriptfile = self.jobs[jobnr]['scriptfile']
         logfile = self.jobs[jobnr]['logfile']
         os.system(scriptfile+' >& '+logfile+' &')
@@ -169,7 +164,7 @@ class InDetAlignJobRunner:
 
     def submitLSF(self,jobnr):
         """Execute a configured job as a LSF batch job"""
-        if not jobnr in self.jobs: raise InDetAlignJobRunnerError ('Job number %s is not yet configured' % jobnr)
+        if jobnr not in self.jobs: raise InDetAlignJobRunnerError ('Job number %s is not yet configured' % jobnr)
         batchCmd = 'bsub -q %(batchQueue)s -J %(jobname)s -o %(logfile)s %(scriptfile)s' % self.jobs[jobnr]
         print (batchCmd)
         os.system(batchCmd)
@@ -178,7 +173,7 @@ class InDetAlignJobRunner:
     def run(self):
         """Run all jobs either in batch or in the background, as specified by option batchType."""
         batchType = self.options['batchType']    # Currently the same for all jobs
-        if not batchType in ('LSF','background','configureOnly'): raise InDetAlignJobRunnerError ('Cannot run job type %s' % type)
+        if batchType not in ('LSF','background','configureOnly'): raise InDetAlignJobRunnerError ('Cannot run job type %s' % type)
         filesPerJob = self.options['filesPerJob']
         njobs = int(math.ceil(float(len(self.inputfiles))/filesPerJob))
         self.options['njobs'] = njobs

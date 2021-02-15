@@ -19,9 +19,6 @@
 
 #include <PMGTools/PMGTruthWeightTool.h>
 
-// For replacing substrings
-#include <boost/algorithm/string/replace.hpp>
-#include <boost/algorithm/string/case_conv.hpp>
 
 namespace PMGTools
 {
@@ -125,9 +122,14 @@ namespace PMGTools
       return m_weights.at(m_weightIndices.at(weightName));
     } catch (const std::out_of_range& e) {
       // Before throwing an exception, try to recover with bad naming conventions
-      std::string strippedName = boost::algorithm::to_lower_copy(boost::replace_all_copy(weightName, " ", ""));
-      for (const auto & weight:m_weightNames){
-        if (strippedName==boost::algorithm::to_lower_copy(boost::replace_all_copy(weight," ", ""))){
+      std::string strippedName = RCU::substitute (weightName, " ", "_");
+      std::transform(strippedName.begin(), strippedName.end(), strippedName.begin(),
+        [](unsigned char c){ return std::tolower(c); });
+      for (const std::string &weight : m_weightNames) {
+        std::string modifiedName = RCU::substitute (weight, " ", "_");
+        std::transform(modifiedName.begin(), modifiedName.end(), modifiedName.begin(),
+          [](unsigned char c){ return std::tolower(c); });
+        if (strippedName == modifiedName){
           ATH_MSG_WARNING("Using weight name \"" << weight << "\" instead of requested \"" << weightName << "\"");
           return getWeight(weight);
         }

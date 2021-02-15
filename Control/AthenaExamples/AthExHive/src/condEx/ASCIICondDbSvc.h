@@ -9,7 +9,6 @@
 #include "GaudiKernel/EventIDBase.h"
 #include "GaudiKernel/EventIDRange.h"
 #include "AthenaBaseComps/AthService.h"
-#include "AthenaBaseComps/AthService.h"
 
 #include "AthExHive/IASCIICondDbSvc.h"
 

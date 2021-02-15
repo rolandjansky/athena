@@ -12,6 +12,7 @@
 #include <EventLoop/TEventModule.h>
 
 #include <memory>
+#include <AsgTools/SgTEvent.h>
 #include <xAODRootAccess/TEvent.h>
 #include <xAODRootAccess/tools/TFileAccessTracer.h>
 #include <xAODRootAccess/TStore.h>
@@ -90,12 +91,15 @@ namespace EL
 
       m_store.reset (new xAOD::TStore);
 
+      m_evtStore = std::make_unique<asg::SgTEvent> (m_event.get(), m_store.get());
+
       m_useStats = data.m_metaData->castBool (Job::optXAODPerfStats, false);
       if (m_useStats)
         xAOD::PerfStats::instance().start();
 
       data.m_tevent = m_event.get();
       data.m_tstore = m_store.get();
+      data.m_evtStore = m_evtStore.get();
 
       // Perform a sanity check.
       if (!data.m_inputFile)
@@ -126,8 +130,10 @@ namespace EL
         stats->Print ();
         data.addOutput (std::move (stats));
       }
+      data.m_evtStore = nullptr;
       data.m_tevent = nullptr;
       data.m_tstore = nullptr;
+      m_evtStore.reset ();
       m_event.reset ();
       m_store.reset ();
       return StatusCode::SUCCESS;

@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUREC_TAUCELLVARIABLES_H
-#define	TAUREC_TAUCELLVARIABLES_H
+#ifndef TAURECTOOLS_TAUCELLVARIABLES_H
+#define TAURECTOOLS_TAUCELLVARIABLES_H
 
 #include "tauRecTools/TauRecToolBase.h"
 
@@ -23,7 +23,7 @@ class TauCellVariables : public TauRecToolBase {
     TauCellVariables(const std::string& name);
     
     /** @brief Destructor */
-    ~TauCellVariables();
+    virtual ~TauCellVariables() = default;
     
     /** @brief Perform the calculation of cell variables for each tau candidate */
     virtual StatusCode execute(xAOD::TauJet& pTau) const override;
@@ -36,11 +36,9 @@ class TauCellVariables : public TauRecToolBase {
     /** @brief Check whether the CaloSample is a Strip layer */
     bool isStripLayer(const CaloSampling::CaloSample& calo) const;
 
-    Gaudi::Property<double> m_cellEthr {this, "CellEthreshold", 0.2 * Gaudi::Units::GeV, "energy threshould of EM cell"};
     Gaudi::Property<double> m_stripEthr {this, "StripEthreshold", 0.2 * Gaudi::Units::GeV, "energy threshould for strip cell"};
     Gaudi::Property<double> m_cellCone {this, "CellCone", 0.2, "outer cone for cells used in calculation"};
     Gaudi::Property<bool> m_doVertexCorrection {this, "VertexCorrection", true, "switch of vertex correction"};
-    Gaudi::Property<bool> m_useSubtractedCluster {this, "UseSubtractedCluster", true, "use shower subtracted clusters in calo calculations"};
 };
 
 //______________________________________________________________________________
@@ -69,4 +67,4 @@ inline bool TauCellVariables::isStripLayer(const CaloSampling::CaloSample& calo)
   }
 }
 
-#endif	/* TAUREC_TAUCELLVARIABLES_H */
+#endif // TAURECTOOLS_TAUCELLVARIABLES_H

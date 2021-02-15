@@ -11,15 +11,18 @@
 
 using namespace TrigCompositeUtils;
 
+namespace {
+  std::string formatStreamTagInfo(const StreamTagMakerTool::StreamTagInfo& info) {
+    std::ostringstream ss;
+    ss << "[" << std::get<0>(info) << ", " << std::get<1>(info) << ", " << std::get<2>(info) << ", " << std::get<3>(info) << "]";
+    return ss.str();
+  }
+}
+
 // =============================================================================
 
 StreamTagMakerTool::StreamTagMakerTool( const std::string& type, const std::string& name, const IInterface* parent ):
-   base_class( type, name, parent )
-{}
-
-// =============================================================================
-
-StreamTagMakerTool::~StreamTagMakerTool() {}
+  base_class( type, name, parent ) {}
 
 // =============================================================================
 
@@ -141,7 +144,7 @@ StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill, const Event
     
     const std::vector<StreamTagInfo>& streams = mappingIter->second;
     for (const StreamTagInfo& streamTagInfo : streams) {
-      auto [st_name, st_type, obeysLB, forceFullEvent] = streamTagInfo;
+      const auto& [st_name, st_type, obeysLB, forceFullEvent] = streamTagInfo;
       ATH_MSG_DEBUG("Chain " << HLT::Identifier( chain ) << " accepted event into stream " << st_type << "_" << st_name
                     << " (obeysLB=" << obeysLB << ", forceFullEvent=" << forceFullEvent << ")");
       std::set<uint32_t> robs;
@@ -182,22 +185,35 @@ StatusCode StreamTagMakerTool::fillPEBInfoMap(std::unordered_map<DecisionID, PEB
     // Loop over decisions
     for (const Decision* d : *handle) {
       ATH_MSG_DEBUG("Processing decision " << *d);
+      DecisionIDContainer ids;
+      decisionIDs(d,ids);
+      if (ids.empty()) {
+        ATH_MSG_DEBUG("No chain passed for this decision object, skip retrieving PEB info");
+        continue;
+      }
       std::vector<uint32_t> robs;
       std::vector<uint32_t> subdets;
       if (d->getDetail(PEBInfoWriterToolBase::robListKey(), robs)) {
         ATH_MSG_DEBUG("Retrieved a list of " << robs.size() << " ROBs for this decision");
       }
       else {
-        ATH_MSG_DEBUG("Failed to retrieve " << PEBInfoWriterToolBase::robListKey() << " for this decision");
+        ATH_MSG_ERROR("Failed to retrieve " << PEBInfoWriterToolBase::robListKey() << " for decision container "
+                      << key.key() << ", decision " << *d);
+        return StatusCode::FAILURE;
       }
       if (d->getDetail(PEBInfoWriterToolBase::subDetListKey(), subdets)) {
         ATH_MSG_DEBUG("Retrieved a list of " << subdets.size() << " SubDets for this decision");
       }
       else {
-        ATH_MSG_DEBUG("Failed to retrieve " << PEBInfoWriterToolBase::subDetListKey() << " for this decision");
+        ATH_MSG_ERROR("Failed to retrieve " << PEBInfoWriterToolBase::subDetListKey() << " for decision container "
+                      << key.key() << ", decision " << *d);
+        return StatusCode::FAILURE;
       }
-      DecisionIDContainer ids;
-      decisionIDs(d,ids);
+      if (robs.empty() && subdets.empty()) {
+        // This would mean streaming the full event to a PEB stream
+        ATH_MSG_ERROR("Empty PEB info for decision container " << key.key() << ", decision " << *d);
+        return StatusCode::FAILURE;
+      }
       /// Assign PEBInfo to all passed chains for this decision
       for (unsigned int id : ids) {
         ATH_MSG_DEBUG("Mapping PEBInfo to passed chain " << HLT::Identifier(id).name());
@@ -209,14 +225,3 @@ StatusCode StreamTagMakerTool::fillPEBInfoMap(std::unordered_map<DecisionID, PEB
   } // Loop over decision containers
   return StatusCode::SUCCESS;
 }
-
-// =============================================================================
-
-std::string
-StreamTagMakerTool::formatStreamTagInfo (const StreamTagInfo& info) const
-{
-  std::ostringstream ss;
-  ss << "[" << std::get<0>(info) << ", " << std::get<1>(info) << ", " << std::get<2>(info) << ", " << std::get<3>(info) << "]";
-  return ss.str();
-}
-

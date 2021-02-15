@@ -1,22 +1,12 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 __doc__ = """Flags to steer Muon Combined Reconstruction."""
 
-from AthenaCommon.JobProperties import JobProperty,JobPropertyContainer,jobproperties
-from AthenaCommon.Logging import logging
-from AthenaCommon import BeamFlags
-from AthenaCommon import BFieldFlags
-beamFlags = jobproperties.Beam
-
-from RecExConfig.RecFlags import rec
-from RecExConfig.RecAlgsFlags import recAlgs
-
+from AthenaCommon.JobProperties import JobProperty,JobPropertyContainer
+from AthenaCommon.BeamFlags import jobproperties
+from MuonRecExample.MuonRecUtils import fillJobPropertyContainer,SummaryJobProperty
 from MuonRecExample.MuonRecFlags import muonRecFlags,muonStandaloneFlags
-from MuonRecExample.MuonRecUtils import logMuon,fillJobPropertyContainer,override_lock_and_set_Value,SummaryJobProperty
-from InDetRecExample.InDetJobProperties import InDetFlags
-
-logMuonComb = logging.getLogger("MuonCombinedRec")
 
 #
 # Flags for general use
@@ -154,16 +144,6 @@ class printSummary(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
-class createTagAndProbeInput(JobProperty):
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=False
-
-class createScaleCalibrationInput(JobProperty):
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=False
-
 ## Decide whether to wrap the new configuration in the old.
 class useNewConfig(JobProperty):
     statusOn=True
@@ -175,7 +155,6 @@ class MuonCombinedRec(JobPropertyContainer):
     """The flags to steer muon combined reconstruction"""
 
     def setDefaults(self):
-        global beamFlags,muonRecFlags,muonStandaloneFlags
         # set defaults of the flags that its using
         muonRecFlags.setDefaults()
 
@@ -183,7 +162,7 @@ class MuonCombinedRec(JobPropertyContainer):
 
         from MuonRecExample.MuonRecUtils import setJobPropertyDefault as setDefault
         
-        haveMuonTracks    = muonRecFlags.doStandalone() and self.doAOD
+#        haveMuonTracks    = muonRecFlags.doStandalone() and self.doAOD
 # This logic doesn't work - doAOD seems to be off with Vakho's standard test
 #        if not haveMuonTracks:
 #            if not muonRecFlags.doStandalone():
@@ -192,7 +171,7 @@ class MuonCombinedRec(JobPropertyContainer):
 #                print "turning off doxAOD because doAOD is off"
 #            setDefault(self.doxAOD,False)
 
-        if beamFlags.beamType()=='cosmics' or beamFlags.beamType()=='singlebeam':
+        if jobproperties.Beam.beamType()=='cosmics' or jobproperties.Beam.beamType()=='singlebeam':
             # Algorithms for CaloMuonCollection
             setDefault(self.doCaloTrkMuId,self.doAOD())
             # Algorithms for MuGirlLowBetaCollection
@@ -205,7 +184,7 @@ class MuonCombinedRec(JobPropertyContainer):
             #setDefault(self.doMuGirlLowBeta,self.doAOD())
             #setDefault(self.doMuGirl,self.doAOD())    # also for new MuonCollection
 
-        if beamFlags.beamType()=='cosmics':
+        if jobproperties.Beam.beamType()=='cosmics':
             setDefault(self.doLArMuId,True)
         else:
             setDefault(self.doLArMuId,False)

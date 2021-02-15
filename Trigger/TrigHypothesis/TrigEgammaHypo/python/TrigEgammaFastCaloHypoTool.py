@@ -1,9 +1,7 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.SystemOfUnits import GeV
-from AthenaCommon.Include import Include 
-# flake8: noqa 
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags 
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from TrigEgammaHypo.TrigL2CaloHypoCutDefs import L2CaloCutMaps
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool,defineHistogram
@@ -17,12 +15,11 @@ log = logging.getLogger('TrigEgammaFastCaloHypoTool')
 
 def _GetPath( cand, sel, basepath = 'RingerSelectorTools/TrigL2_20180903_v9' ):
     
-    logger = logging.getLogger("TrigMultiVarHypo.GetPath")
     from TriggerMenu.egamma.EgammaSliceFlags import EgammaSliceFlags
     if EgammaSliceFlags.ringerVersion():
        basepath = EgammaSliceFlags.ringerVersion()
-    logger.info('TrigMultiVarHypo version: %s', basepath)
-    if not sel in _possibleSel.keys():
+    log.debug('_GetPath: TrigMultiVarHypo version: %s', basepath)
+    if sel not in _possibleSel.keys():
        raise RuntimeError( "Bad selection name: %s" % sel )
     if 'e' in cand:
        constant = basepath+'/'+ 'TrigL2CaloRingerElectron{SEL}Constants.root'.format(SEL=_possibleSel[sel])
@@ -125,7 +122,7 @@ def _IncTool(name, cand, threshold, sel):
         tool.CARCOREthr  = L2CaloCutMaps( threshold ).MapsCARCOREthr[sel]
         tool.CAERATIOthr = L2CaloCutMaps( threshold ).MapsCAERATIOthr[sel]    
 
-    elif sel in _possibleSel.keys() and not "noringer" in name and cand=="e":
+    elif sel in _possibleSel.keys() and "noringer" not in name and cand=="e":
         tool.UseRinger = True
         pconstants, pthresholds = _GetPath( cand, sel )
         tool.ConstantsCalibPath = pconstants

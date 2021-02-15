@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -15,13 +15,14 @@
 // Gaudi/Athena include(s):
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "CaloConditions/CaloNoise.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 // Forward declaration(s):
 class LArEM_ID;
 class LArFCAL_ID;
 class LArHEC_ID;
 class TileID;
-class ICaloNoiseTool;
 
 /**
  *  @short Algorithm to filter CaloCellContainer
@@ -58,7 +59,12 @@ private:
    const LArHEC_ID  *m_hecid;
    const TileID     *m_tileid;    
 
-   ToolHandle< ICaloNoiseTool > m_noise_tool;
+   /**
+    * @brief Key of the CaloNoise Conditions data object.
+    * Typical values are '"electronicNoise', 'pileupNoise', or '"totalNoise'
+    */
+   SG::ReadCondHandleKey<CaloNoise> m_caloNoiseKey{this,
+        "CaloNoise", "", "Calo noise object name"};
 
    bool m_caloSelection;
    bool m_caloSamplingSelection;

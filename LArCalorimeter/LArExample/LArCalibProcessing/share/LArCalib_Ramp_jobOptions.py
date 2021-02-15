@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
 from future import standard_library
 standard_library.install_aliases()
 import subprocess
@@ -14,7 +16,9 @@ import subprocess
 
 if not "SuperCells" in dir():
    SuperCells=False
-   
+if not 'SC_SampleShift' in dir():
+   SC_SampleShift=0   
+
 if not SuperCells: include("LArCalibProcessing/LArCalib_Flags.py")
 if SuperCells:     include("LArCalibProcessing/LArCalib_FlagsSC.py")
 include("LArCalibProcessing/GetInputFiles.py")
@@ -59,7 +63,9 @@ if not 'GainList' in dir():
    GainList = [ "HIGH", "MEDIUM", "LOW" ]
    
 if not 'GroupingType' in dir():
-   GroupingType = "ExtendedSubDetector"
+   if not SuperCells: GroupingType = "ExtendedSubDetector"
+   if SuperCells:     GroupingType = "ExtendedFeedThrough"
+
         
 if not 'ChannelSelection' in dir():
    ## to read all
@@ -173,9 +179,6 @@ if not 'InputHECMapPoolFileName' in dir():
 if not 'ReadPedFromCOOL' in dir():
    ReadPedFromCOOL = True
 	
-#if not 'PedLArCalibFolderTag' in dir():
-#   PedLArCalibFolderTag = LArCalib_Flags.tagSuffix      
-
 if not 'PedRunNumber' in dir():
    PedRunNumber = "1005020_1005021_1005022"
 
@@ -189,9 +192,6 @@ if not 'InputPedPoolFileName' in dir():
 if not 'ReadOFCFromCOOL' in dir():
    ReadOFCFromCOOL = True
 	
-#if not 'OFCLArCalibFolderTag' in dir():
-#   OFCLArCalibFolderTag = LArCalib_Flags.tagSuffix
-
 if not 'OFCRunNumber' in dir():
    OFCRunNumber = "30950"
 
@@ -278,6 +278,12 @@ if ( ReadHECMapFromCOOL ):
    
 if not 'ReadBadChannelFromCOOL' in dir():
    ReadBadChannelFromCOOL = True   
+if ( ReadBadChannelFromCOOL ):      
+   if 'InputBadChannelSQLiteFile' in dir():
+      InputDBConnectionBadChannel = DBConnectionFile(InputBadChannelSQLiteFile)
+   else:
+      if 'InputDBConnectionBadChannel' not in dir():
+         InputDBConnectionBadChannel = "COOLOFL_LAR/CONDBR2"      
 
 #######################################################################################
 #                                print summary                                        #
@@ -335,17 +341,17 @@ from AthenaCommon.AlgSequence import AthSequencer
 condSeq = AthSequencer("AthCondSeq")
 
 ## get a handle to the ApplicationManager, to the ServiceManager and to the ToolSvc
-from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
+from AthenaCommon.AppMgr import theApp, ServiceMgr, ToolSvc
 
-theByteStreamInputSvc=svcMgr.ByteStreamInputSvc
+theByteStreamInputSvc=ServiceMgr.ByteStreamInputSvc
 if not 'FullFileName' in dir():
    RampLog.info( "No FullFileName! Please give a FullFileName list." )
    theApp.exit(-1)
 
 else :   
-   svcMgr.EventSelector.Input=FullFileName
+   ServiceMgr.EventSelector.Input=FullFileName
    
-scvMgr.EventSelector.MaxBadEvents = 0
+ServiceMgr.EventSelector.MaxBadEvents = 0
 
 ##############################################################################################
 #                                                                                            #
@@ -354,8 +360,8 @@ scvMgr.EventSelector.MaxBadEvents = 0
 # maybe useful one day                                                                       #
 #                                                                                            #
 #else                                                                                        #
-#   svcMgr.EventSelector.Input=OneFileName                                           #
-#   for i in range(len(svcMgr.EventSelector.Input)):                                 #
+#   ServiceMgr.EventSelector.Input=OneFileName                                           #
+#   for i in range(len(ServiceMgr.EventSelector.Input)):                                 #
 #      theByteStreamInputSvc.NumFile+=[10000]                                                #
 ##############################################################################################
 
@@ -369,46 +375,33 @@ scvMgr.EventSelector.MaxBadEvents = 0
 ## All three are vectors of integers
 #################################################################
 
-if not SuperCells:
-   from LArByteStream.LArByteStreamConf import LArRodDecoder
-   svcMgr.ToolSvc += LArRodDecoder()
+if ( runAccumulator ):
+   if SuperCells:
+      from LArByteStream.LArByteStreamConf import LArLATOMEDecoder
 
-#ToolSvc.LArRodDecoder.BEPreselection     = [0]                                                   ## : [Barrel=0,Endcap=1]
-#ToolSvc.LArRodDecoder.PosNegPreselection = [1]                                                   ## : [C-side (negative eta)=0, A-side (positive eta)=1]
-#ToolSvc.LArRodDecoder.FTNumPreselection  = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]               ## : first half of [EM barrel feedthrough numbers]
-#ToolSvc.LArRodDecoder.FTNumPreselection  = [16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31]     ## : second half of [EM barrel feedthrough numbers]
-#ToolSvc.LArRodDecoder.FTNumPreselection  = [0,1,4,7,8,11,12,13,14,17,18,19,20,23,24]             ## : [EMEC Standard feedthrough numbers]
-#ToolSvc.LArRodDecoder.FTNumPreselection  = [2,9,15,21]                                           ## : [EMEC Special feedthrough numbers]
-#ToolSvc.LArRodDecoder.FTNumPreselection  = [3,10,16,22]                                          ## : [HEC feedthrough numbers]  (note: slots 1&2 are EMEC slots)
-#ToolSvc.LArRodDecoder.FTNumPreselection  = [6]                                                   ## : [FCAL feedthrough number]
-
-      
- 
-###########################################################################
-#                                                                         #
-#                          Accumulator                                    #
-#                                                                         #
-###########################################################################
-
-if ( runAccumulator ) :
-   # this is a OLD jobOptions which can maybe work but only for the barrel                       #
-   # can be used as a skeleton if needed but                                                     #
-   # need to be updated for the barrel and the patterns for EMEC, HEC and FCAL need to be added   #
-   #include("LArCalibProcessing/LArCalib_CalibrationPatterns.py")
-   ByteStreamAddressProviderSvc =svcMgr.ByteStreamAddressProviderSvc
-   #if SuperCells is False:
-   #   theByteStreamAddressProviderSvc.TypeNames += ["LArFebHeaderContainer/LArFebHeader"]
-
+      theLArLATOMEDecoder = LArLATOMEDecoder("LArLATOMEDecoder")
+      theLArLATOMEDecoder.latomeInfoFileName = LatomeInfo
+      theLArLATOMEDecoder.DumpFile = SC_DumpFile
+      theLArLATOMEDecoder.RawDataFile = SC_RawDataFile
+      from LArByteStream.LArByteStreamConf import LArRawSCDataReadingAlg
+      larRawSCDataReadingAlg = LArRawSCDataReadingAlg() 
+      larRawSCDataReadingAlg.adcCollKey = Gain
+      larRawSCDataReadingAlg.adcBasCollKey = ""
+      larRawSCDataReadingAlg.etCollKey = ""
+      larRawSCDataReadingAlg.etIdCollKey = ""
+      larRawSCDataReadingAlg.LATOMEDecoder = theLArLATOMEDecoder
+      larRawSCDataReadingAlg.OutputLevel = DEBUG
+      topSequence += larRawSCDataReadingAlg
    include("./LArCalib_CalibrationPatterns.py")
 
-else :
-   theByteStreamAddressProviderSvc =svcMgr.ByteStreamAddressProviderSvc
-   theByteStreamAddressProviderSvc.TypeNames += ["LArFebHeaderContainer/LArFebHeader"]
-   theByteStreamAddressProviderSvc.TypeNames += [ "LArAccumulatedCalibDigitContainer/HIGH"  ]
-   theByteStreamAddressProviderSvc.TypeNames += [ "LArAccumulatedCalibDigitContainer/MEDIUM"]
-   theByteStreamAddressProviderSvc.TypeNames += [ "LArAccumulatedCalibDigitContainer/LOW"   ]
+else:
+   from LArByteStream.LArByteStreamConf import LArRawCalibDataReadingAlg
 
-   
+   theLArRawCalibDataReadingAlg=LArRawCalibDataReadingAlg()
+   theLArRawCalibDataReadingAlg.LArAccCalibDigitKey=GainList[0]
+   theLArRawCalibDataReadingAlg.LArFebHeaderKey="LArFebHeader"
+   topSequence+=theLArRawCalibDataReadingAlg
+      
 
 ##########################################################################
 #                                                                        #
@@ -432,13 +425,13 @@ if not 'InputBadChannelSQLiteFile' in dir():
 else :   
    RampLog.info( "Read Bad Channels from SQLite file") 
 
-if ( ReadBadChannelFromCOOL ):      
-   if 'InputBadChannelSQLiteFile' in dir():
-      InputDBConnectionBadChannel = DBConnectionFile(InputBadChannelSQLiteFile)
-   else:
-      #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=CONDBR2;"
-      if 'InputDBConnectionBadChannel' not in dir():
-         InputDBConnectionBadChannel = "COOLONL_LAR/" + conddb.dbname
+#if ( ReadBadChannelFromCOOL ):      
+#   if 'InputBadChannelSQLiteFile' in dir():
+#      InputDBConnectionBadChannel = DBConnectionFile(InputBadChannelSQLiteFile)
+#   else:
+#      #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=CONDBR2;"
+#      if 'InputDBConnectionBadChannel' not in dir():
+#         InputDBConnectionBadChannel = "COOLONL_LAR/" + conddb.dbname
       
 if 'BadChannelsLArCalibFolderTag' in dir() :
    BadChannelsTagSpec = LArCalibFolderTag (BadChannelsFolder,BadChannelsLArCalibFolderTag) 
@@ -480,15 +473,15 @@ if SuperCells:
    conddb.addFolder("","/LAR/IdentifierOfl/OnOffIdMap_SC<db>COOLOFL_LAR/OFLP200</db><tag>LARIdentifierOflOnOffIdMap_SC-000</tag>") 
 
 ## define the DB Gobal Tag :
-svcMgr.IOVDbSvc.GlobalTag   = LArCalib_Flags.globalFlagDB   
+ServiceMgr.IOVDbSvc.GlobalTag   = LArCalib_Flags.globalFlagDB   
 try:
-   svcMgr.IOVDbSvc.DBInstance=""
+   ServiceMgr.IOVDbSvc.DBInstance=""
 except: 
    pass
 
 # Temperature folder
 #conddb.addFolder("DCS_OFL","/LAR/DCS/FEBTEMP")
-#svcMgr.EventSelector.InitialTimeStamp = 1284030331
+#ServiceMgr.EventSelector.InitialTimeStamp = 1284030331
 #import cx_Oracle
 #import time
 #import datetime
@@ -504,12 +497,12 @@ except:
 #   iovtemp=1283145454
 
 #print "Setting timestamp for run ",RunNumberList[0]," to ",iovtemp
-#svcMgr.IOVDbSvc.forceTimestamp = 1283145454
-#svcMgr.IOVDbSvc.forceTimestamp = iovtemp
+#ServiceMgr.IOVDbSvc.forceTimestamp = 1283145454
+#ServiceMgr.IOVDbSvc.forceTimestamp = iovtemp
 
 
 from LArCalibProcessing.LArCalibCatalogs import larCalibCatalogs
-svcMgr.PoolSvc.ReadCatalog += larCalibCatalogs
+ServiceMgr.PoolSvc.ReadCatalog += larCalibCatalogs
 
 if ( doLArCalibDataQuality  ) :
    ## The reference is the Oracle DB
@@ -557,7 +550,7 @@ if ( ReadPedFromCOOL ):
    if (CorrectBias or StripsXtalkCorr or PeakOF):
       PedestalFolder  = LArCalib_Flags.LArPedestalFolder
       PedestalTagSpec = LArCalibFolderTag(PedestalFolder,PedLArCalibFolderTag)
-      conddb.addFolder("",PedestalFolder+"<tag>"+PedestalTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionPed+"</dbConnection>"+ChannelSelection)
+      conddb.addFolder("",PedestalFolder+"<tag>"+PedestalTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionPed+"</dbConnection>"+ChannelSelection,className="LArPedestalComplete")
       
 else:
    if 'InputPedPoolFileName' in dir():
@@ -571,8 +564,6 @@ if ( ReadOFCFromCOOL ):
    if PeakOF:
       if not 'CaliOFCTagSpec' in dir():
          CaliOFCTagSpec = LArCalibFolderTag(CaliOFCFolder,LArCaliOFCFolderTag)
-      #CaliOFCTagSpec = 'HEAD'
-      #print 'zzz', CaliOFCFolder, CaliOFCTagSpec, InputDBConnectionOFC
       conddb.addFolder("",CaliOFCFolder+"<tag>"+CaliOFCTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionOFC+"</dbConnection>"+ChannelSelection)
 
 else:
@@ -585,11 +576,11 @@ else:
 
 if ( len(PoolFileList)>0 ):
    from AthenaCommon.ConfigurableDb import getConfigurable
-   svcMgr += getConfigurable( "ProxyProviderSvc" )()
-   svcMgr.ProxyProviderSvc.ProviderNames += [ "CondProxyProvider" ]
+   ServiceMgr += getConfigurable( "ProxyProviderSvc" )()
+   ServiceMgr.ProxyProviderSvc.ProviderNames += [ "CondProxyProvider" ]
    
-   svcMgr += getConfigurable( "CondProxyProvider" )()
-   svcMgr.CondProxyProvider.InputCollections += PoolFileList
+   ServiceMgr += getConfigurable( "CondProxyProvider" )()
+   ServiceMgr.CondProxyProvider.InputCollections += PoolFileList
 
 if ( StripsXtalkCorr ) :
    from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
@@ -715,9 +706,6 @@ if ( ApplyAdHocCorrection ):
 #                                                                    #
 ######################################################################
 
-#from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-#topSequence+=xAODMaker__EventInfoCnvAlg()
-
 if ( doLArCalibDataQuality  ) :
    from LArCalibDataQuality.Thresholds import rampThr, rampThrFEB
    from LArCalibDataQuality.LArCalibDataQualityConf import LArRampValidationAlg
@@ -727,7 +715,7 @@ if ( doLArCalibDataQuality  ) :
                                            ProblemsToMask=["deadReadout","deadCalib","deadPhys","almostDead",
                                                            "highNoiseHG","highNoiseMG","highNoiseLG"]
                                            )
-   svcMgr.ToolSvc+=theLArRampValBCMask
+   ServiceMgr.ToolSvc+=theLArRampValBCMask
    theRampValidationAlg=LArRampValidationAlg("RampVal")
    theRampValidationAlg.RampTolerance=rampThr
    theRampValidationAlg.RampToleranceFEB=rampThrFEB
@@ -767,15 +755,6 @@ if ( doMonitoring ) :
    topSequence += AthenaMonManager( "LArMon" )
    LArMon = topSequence.LArMon
 
-    ## old style
-   #LArMon.FileKey = "AllMon"
-   #LArMon.ManualDataTypeSetup = True
-   #LArMon.Environment         = "user"
-   #LArMon.ManualRunLBSetup    = True
-   #LArMon.Run                 = 1
-   #LArMon.LumiBlock           = 1
-   #LArMon.CheckEveryNoEvents  = 999999 #to do the check only at the end of the run
-
    ## tier0 style
    LArMon.FileKey = "GLOBAL"
    LArMon.ManualDataTypeSetup = True
@@ -793,10 +772,9 @@ if ( doMonitoring ) :
    from GaudiSvc.GaudiSvcConf import THistSvc
    if os.path.exists(OutputRampRootFileDir+ "/" +RootHistOutputFileName): 
       os.remove(OutputRampRootFileDir+ "/" +RootHistOutputFileName)
-   svcMgr += THistSvc()
-   #svcMgr.THistSvc.Output = ["AllMon DATAFILE='"+OutputRampRootFileDir+ "/" +RootHistOutputFileName+"' OPT='New'"] 
+   ServiceMgr += THistSvc()
 
-   svcMgr.THistSvc.Output = ["GLOBAL DATAFILE='"+OutputRampRootFileDir+ "/" +RootHistOutputFileName+"' OPT='New'"]
+   ServiceMgr.THistSvc.Output = ["GLOBAL DATAFILE='"+OutputRampRootFileDir+ "/" +RootHistOutputFileName+"' OPT='New'"]
    
 if WriteNtuple or doMonitoring:
 
@@ -804,8 +782,8 @@ if WriteNtuple or doMonitoring:
    from GaudiSvc.GaudiSvcConf import NTupleSvc
    if os.path.exists(OutputRampRootFileDir+"/"+OutputRampRootFileName): 
       os.remove(OutputRampRootFileDir+"/"+OutputRampRootFileName)  
-   svcMgr += NTupleSvc()
-   svcMgr.NTupleSvc.Output = [ "FILE1 DATAFILE='"+OutputRampRootFileDir+"/"+OutputRampRootFileName+"' OPT='NEW'" ]
+   ServiceMgr += NTupleSvc()
+   ServiceMgr.NTupleSvc.Output = [ "FILE1 DATAFILE='"+OutputRampRootFileDir+"/"+OutputRampRootFileName+"' OPT='NEW'" ]
 
 if ( WritePoolFile ):
 
@@ -818,12 +796,12 @@ if ( WritePoolFile ):
    if IOVEnd>0:
       theOutputConditionsAlg.Run2=IOVEnd
 
-   svcMgr.IOVDbSvc.dbConnection  = OutputDB
+   ServiceMgr.IOVDbSvc.dbConnection  = OutputDB
 
    from RegistrationServices.RegistrationServicesConf import IOVRegistrationSvc
-   svcMgr += IOVRegistrationSvc()
-   svcMgr.IOVRegistrationSvc.OutputLevel = INFO
-   svcMgr.IOVRegistrationSvc.RecreateFolders = False
+   ServiceMgr += IOVRegistrationSvc()
+   ServiceMgr.IOVRegistrationSvc.OutputLevel = INFO
+   ServiceMgr.IOVRegistrationSvc.RecreateFolders = False
 
 if (WriteNtuple):
    
@@ -835,6 +813,8 @@ if (WriteNtuple):
       klist+=["LArRamp"+i]
    if not SuperCells: LArRamps2Ntuple.ContainerKey = klist #Only for raw ramp
    if SuperCells: LArRamps2Ntuple.ContainerKey = ["LArRampHIGH"]     # Modification to avoid problems in LArRampBuilder
+   LArRamps2Ntuple.RealGeometry = True
+   LArRamps2Ntuple.OffId = True
    LArRamps2Ntuple.NtupleName = "RAMPS"
    LArRamps2Ntuple.RawRamp = SaveRawRamp
    LArRamps2Ntuple.SaveAllSamples = SaveAllSamples
@@ -864,17 +844,17 @@ if (WriteNtuple):
       if SuperCells:
          LArAverages2NtupleSC=LArAverages2Ntuple("LArAverages2NtupleSC")
          LArAverages2NtupleSC.ContainerKey = "SC"
-         LArAverages2NtupleSC.NSamples = 50
+         #LArAverages2NtupleSC.NSamples = 50
          LArAverages2NtupleSC.isSC = SuperCells
          topSequence+= LArAverages2NtupleSC
   
 ###########################################################################	
 	
-svcMgr.MessageSvc.OutputLevel  = INFO
-svcMgr.MessageSvc.defaultLimit = 10000
-svcMgr.MessageSvc.Format       = "% F%20W%S%7W%R%T %0W%M"
+ServiceMgr.MessageSvc.OutputLevel  = INFO
+ServiceMgr.MessageSvc.defaultLimit = 10000
+ServiceMgr.MessageSvc.Format       = "% F%20W%S%7W%R%T %0W%M"
 
-svcMgr+=CfgMgr.AthenaEventLoopMgr(OutputLevel = WARNING)
+ServiceMgr+=CfgMgr.AthenaEventLoopMgr(OutputLevel = WARNING)
 
 from AthenaCommon.AppMgr import theAuditorSvc
 from AthenaCommon.ConfigurableDb import getConfigurable

@@ -7,7 +7,6 @@
 //  tool interface to recover spectrometer tracks (meaning MS hit reallocation)
 //  for likely spectrometer-indet matches which give combined fit problems.
 //
-//  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef MUIDINTERFACES_IMUIDMUONRECOVERY_H

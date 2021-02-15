@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HiveAlgL1.h"
@@ -17,10 +17,6 @@ HiveAlgL1::~HiveAlgL1() {}
 
 StatusCode HiveAlgL1::initialize() {
   ATH_MSG_DEBUG("initialize " << name());
-
-  // setProperties();
-
-  // ATH_MSG_INFO("time: " << sleep() );
 
   ATH_CHECK( m_rdh1.initialize() );
   ATH_CHECK( m_wrh1.initialize() );

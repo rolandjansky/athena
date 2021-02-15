@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 __author__  = "Frank Winklmeier"
 __version__ = "$Revision: 270227 $"
@@ -9,7 +9,6 @@ __doc__     = "Script to create dependency tree of perfmon stats"
 import sys
 import operator
 import re
-import tarfile
 
 import PerfMonComps.PerfMonSerializer as pmon_ser
 
@@ -63,14 +62,15 @@ class ResUser(Resource):
          indent = ('  '*level*(not opt.flat))
          s = '\n' + indent + self._node()
         
-      for d in self.dep: s += d._show(level+1, showFct)
+      for d in self.dep: 
+          s += d._show(level+1, showFct)
       return s
 
    def calcSelf(self, children=None):
       self.dvmem_self = self.dvmem
 
    def show(self, showFct=None):
-      print self._show(0, showFct),
+      print( self._show(0, showFct), )
 
    def _node(self):
       return self.name
@@ -80,13 +80,15 @@ class ResUser(Resource):
       """
       # Mark dependents for deletion
       for d in self.dep:
-         if purgeFct(d): d.name = None
+         if purgeFct(d): 
+             d.name = None
       
       # Recursively call children
-      for d in self.dep: d.purge(purgeFct)
+      for d in self.dep: 
+          d.purge(purgeFct)
 
       # Remove from list
-      self.dep = [ d for d in self.dep if d.name!=None ]
+      self.dep = [ d for d in self.dep if d.name is not None ]
                   
 class Comp(ResUser):
    """Component (Algorithm, Tool, Service, etc.)
@@ -155,10 +157,12 @@ def getResUser(f, resTree, steps=['ini'], current=None):
    parent = current
    
    for line in f:
-      if line.startswith(('#','/io/')): continue
+      if line.startswith(('#','/io/')): 
+          continue
 
       step,name,idx = sliceCompIdx(line)
-      if step not in steps: continue
+      if step not in steps: 
+          continue
 
       # startAud
       if idx==0:
@@ -182,7 +186,7 @@ def getResUser(f, resTree, steps=['ini'], current=None):
       # stopAud
       if idx==1:
          if name != current.name:
-            raise RuntimeError, "stop for %s within scope of %s" % (name, current.name)
+            raise RuntimeError( "stop for %s within scope of %s" % (name, current.name) )
          else:
             current.set(line, idx)
             current.wrapup()
@@ -190,48 +194,60 @@ def getResUser(f, resTree, steps=['ini'], current=None):
             if step=='cbk':
                offset = current.name.split(']+')[1]
                i = current.name.find('[')
-               if i>0: current.name = '%s{+%s}' % (current.name[:i],offset)
+               if i>0: 
+                   current.name = '%s{+%s}' % (current.name[:i],offset)
 
             if parent is None:
                current=None
                continue
-            else: return
+            else: 
+                return
 
 
 def readEvents(f):
    """Read components for evt slice
    """
-   reEvent = re.compile('AthenaEventLoopMgr\s*INFO\s*===>>>  done processing event.*')
+   reEvent = re.compile(r'AthenaEventLoopMgr\s*INFO\s*===>>>  done processing event.*')
    evt = None
    comps = []   # [ {name : [Comp]} ]
    for line in f:
       m = reEvent.match(line)
       if m:
-         if evt: evt+=1
-         else: evt=0
+         if evt: 
+             evt+=1
+         else: 
+             evt=0
          comps.append({})
-      if evt is None: continue
-      
+      if evt is None: 
+          continue
+     
+      '''
+      ## FIX ME : This bit needs to be checked
+      ##          It's not obvious what reAud is inteded to be...
       m = reAud.match(line)
-      if m and m.group('slice')!='evt': continue
+      if m and m.group('slice')!='evt': 
+          continue
       
       if m and m.group('action')=='start':
          comp = Comp(m.group('comp'))
          comp.set(m, 0)
-         if not comp.name in comps[evt]: comps[evt][comp.name] = []
+         if comp.name not in comps[evt]: 
+             comps[evt][comp.name] = []
          comps[evt][comp.name].append(comp)
 
       if m and m.group('action')=='stop':
          comp = comps[evt][comp.name][-1]
          comp.set(m, 1)
          comp.wrapup()         
+      '''
    
    return comps
 
 
 def resAvg(res):
    """Calculate average of list of resources"""
-   if len(res)==0: return None
+   if len(res)==0: 
+       return None
    a = Comp(res[0].name)
    a.step = res[0].step
    for r in res:
@@ -250,7 +266,8 @@ def calcEventAvg(comps, sliceObj=slice(None)):
    tmp = {}  # { comp: [] }
    for evt in comps[sliceObj]:
       for comp in evt.keys():
-         if not comp in tmp: tmp[comp] = []
+         if comp not in tmp: 
+             tmp[comp] = []
          tmp[comp] += evt[comp]
 
    avg = []
@@ -267,8 +284,10 @@ def getCompList(resTree, resList):
    Call with resList = [].
    """
    for r in resTree:
-      if isinstance(r, ResUser): resList.append(r)
-      for d in r.dep: getCompList([d], resList)   
+      if isinstance(r, ResUser): 
+          resList.append(r)
+      for d in r.dep: 
+          getCompList([d], resList)   
 
    return resList[:]
 
@@ -279,11 +298,12 @@ def diff(table, opt, attrgetter=operator.attrgetter('dvmem')):
    for i,t in enumerate(table):
       for comp in t:
          label = comp.symbol + ' ' + comp.name
-         if not label in tmp: tmp[label] = [0]*len(table)
+         if label not in tmp: 
+             tmp[label] = [0]*len(table)
          tmp[label][i] = attrgetter(comp)
 
    # Convert to list
-   if opt.min!=None:
+   if opt.min is not None:
       limit = opt.min + 0.00001
       cmpTable = [ [k]+v for k,v in tmp.iteritems() if abs(v[1]-v[0])>limit ]
    else:
@@ -292,12 +312,12 @@ def diff(table, opt, attrgetter=operator.attrgetter('dvmem')):
    if opt.diff and len(table)==2:
       cmpTable.sort( lambda x,y : (int(x[2]-x[1])-int(y[2]-y[1])), reverse=True )
       for c in cmpTable:
-         print "%-60s %10.0f %10.0f %10.0f" % (c[0],c[1],c[2],c[2]-c[1])
+         print( "%-60s %10.0f %10.0f %10.0f" % (c[0],c[1],c[2],c[2]-c[1]) )
    else:
       cmpTable.sort( lambda x,y : int(x[1]-y[1]), reverse=True)
       for c in cmpTable:
-         print "%-60s" % c[0],
-         print "%10.0f "*(len(c)-1) % tuple(c[1:])
+         print( "%-60s" % c[0], )
+         print( "%10.0f "*(len(c)-1) % tuple(c[1:]) )
 
    return
 
@@ -308,8 +328,8 @@ def printTable(compList, opt):
          avgmalloc = c.dmalloc*1024/c.nmalloc
       else:
          avgmalloc = 0
-      print "%-60s %10.0f %10.0f %10.0f %10.0f" %\
-            (c.name,c.dvmem,c.dmalloc,c.nmalloc,avgmalloc)
+      print( "%-60s %10.0f %10.0f %10.0f %10.0f" %\
+            (c.name,c.dvmem,c.dmalloc,c.nmalloc,avgmalloc) )
    
 def main():
    import argparse
@@ -348,7 +368,7 @@ def main():
       return 1
 
    if opt.diff and len(opt.files)!=2:
-      print "Can only calculate difference if two files are given"
+      print( "Can only calculate difference if two files are given" )
       return 1
 
    slices = [opt.slice]
@@ -368,26 +388,29 @@ def main():
    # Read files
    resTreeList = []
    for f in opt.files:
-      l = []
+      z = []
       fstream = pmon_ser.extract_pmon_files(f)['data']
-      getResUser(fstream, l, slices)
+      getResUser(fstream, z, slices)
       del fstream
-      resTreeList.append(l[:])
+      resTreeList.append(z[:])
 
       # Calculate self-VMem
-      if not opt.libself: children = [SharedLib]
-      else: children = None
-      for r in resTreeList[-1]: r.calcSelf(children)
+      if not opt.libself: 
+          children = [SharedLib]
+      else: 
+          children = None
+      for r in resTreeList[-1]: 
+          r.calcSelf(children)
 
    # Diff
    if len(opt.files)>1:
 
-      print '#'*80
+      print( '#'*80 )
       for i,f in enumerate(opt.files):
-         print "# [%d] %s" % (i+1,f)
+         print( "# [%d] %s" % (i+1,f) )
       if opt.diff:
-         print "# [3] difference [2]-[1]"
-      print '#'*80
+         print( "# [3] difference [2]-[1]" )
+      print( '#'*80 )
             
       table = [ getCompList(t,[]) for t in resTreeList ]
       if opt.self:
@@ -399,12 +422,16 @@ def main():
    # Only one file
    resTree = resTreeList[0]
 
-   if opt.min!=None:
+   if opt.min is not None:
       # Use VMem or self-VMem for filtering
-      vmem = lambda c : c.dvmem_self if (opt.self==True and hasattr(c,'dvmem_self')) else c.dvmem
-      for r in resTree: r.show(lambda c: vmem(c)>opt.min)
+      def vmem( c ): 
+          result = c.dvmem_self if (opt.self is True and hasattr(c,'dvmem_self')) else c.dvmem
+          return result
+      for r in resTree: 
+          r.show(lambda c: vmem(c)>opt.min)
    else:
-      for r in resTree: r.show()
+      for r in resTree: 
+          r.show()
 
    return 0
 
@@ -412,9 +439,11 @@ def main():
 if __name__ == "__main__":
    try:
       sys.exit(main())
-   except IOError, e:
+   except IOError as e:
       (code, msg) = e
-      if (code==32): pass   # ignore broken pipe exception
-      else: raise e
+      if (code==32): 
+          pass   # ignore broken pipe exception
+      else: 
+          raise e
    except KeyboardInterrupt:
       sys.exit(1)

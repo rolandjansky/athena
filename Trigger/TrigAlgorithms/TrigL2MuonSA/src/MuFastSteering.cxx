@@ -28,7 +28,6 @@
 MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc) 
   : HLT::FexAlgo(name, svc), 
     m_timerSvc("TrigTimerSvc", name),
-    m_regionSelector("RegSelSvc", name),
     m_recMuonRoIUtils(),
     m_rpcHits(), m_tgcHits(),
     m_mdtRegion(), m_muonRoad(),
@@ -61,13 +60,6 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
       m_timingTimers.push_back(m_timerSvc->addItem(name()+":TotalProcessing"));
     }
   }
-
-  // Locate RegionSelector
-  if (m_regionSelector.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Could not retrieve the regionselector service");
-    return HLT::ERROR;
-  }
-  ATH_MSG_DEBUG("Retrieved the RegionSelector service ");
 
   // Locate DataPreparator
   if (m_dataPreparator.retrieve().isFailure()) {
@@ -658,7 +650,8 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
     m_tgcFitResult.Clear();
 
     m_muonRoad.Clear();
-
+    bool isRpcFakeRoi = false;
+    
     if ( m_recMuonRoIUtils.isBarrel(*p_roi) ) { // Barrel
       ATH_MSG_DEBUG("Barrel");
 
@@ -671,6 +664,7 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
       m_tgcHits.clear();
       sc = m_dataPreparator->prepareData(*p_roi,
                                          *p_roids,
+                                         isRpcFakeRoi,
                                          m_insideOut,
                                          m_rpcHits,
                                          m_muonRoad,
@@ -692,7 +686,7 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
       if (m_use_timer) m_timingTimers[ITIMER_DATA_PREPARATOR]->pause();
       prepTimer.stop();
 
-      if ( m_rpcErrToDebugStream && m_dataPreparator->isRpcFakeRoi() ) {
+      if ( m_rpcErrToDebugStream && isRpcFakeRoi ) {
         ATH_MSG_ERROR("Invalid RoI in RPC data found: event to debug stream");
 	TrigL2MuonSA::TrackPattern trackPattern;
 	trackPatterns.push_back(trackPattern);
@@ -898,7 +892,7 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
     trackExtraTimer.stop();
     
     // Update monitoring variables
-    sc = updateMonitor(*p_roi, m_mdtHits_normal, trackPatterns );
+    sc = updateMonitor(*p_roi, isRpcFakeRoi, m_mdtHits_normal, trackPatterns );
     if (sc != StatusCode::SUCCESS) {
       ATH_MSG_WARNING("Failed to update monitoring variables");
       // Update output trigger element
@@ -1020,7 +1014,7 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
 
   p_roids = roids.begin();
   for (const auto p_roi : muonRoIs) {
-
+    bool isRpcFakeRoi = false;
     ATH_MSG_DEBUG("roi eta/phi: " << (*p_roi).eta() << "/" << (*p_roi).phi());
 
     // idtracks loop
@@ -1080,6 +1074,7 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
 	// Data preparation
 	sc = m_dataPreparator->prepareData(p_roi,
 					   *p_roids,
+                                           isRpcFakeRoi, 
 					   m_insideOut,
 					   m_rpcHits,
 					   m_muonRoad,
@@ -1275,7 +1270,7 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
       }
 
       // Update monitoring variables
-      sc = updateMonitor(p_roi, m_mdtHits_normal, trackPatterns );
+      sc = updateMonitor(p_roi, isRpcFakeRoi, m_mdtHits_normal, trackPatterns );
       if (sc != StatusCode::SUCCESS) {
 	ATH_MSG_WARNING("Failed to update monitoring variables");
       }
@@ -1835,34 +1830,38 @@ bool MuFastSteering::storeMSRoiDescriptor(const TrigRoiDescriptor*              
 
   const xAOD::L2StandAloneMuon* muonSA = outputTracks[0];
 
+  float mseta = pattern.etaMap;
+  float msphi = pattern.phiMS;
+
   // store TrigRoiDescriptor
-  if (fabs(muonSA->pt()) > ZERO_LIMIT ) {
-
-    // set width of 0.1 so that ID tracking monitoring works
-    const float phiHalfWidth = 0.1;
-    const float etaHalfWidth = 0.1;
-
-    TrigRoiDescriptor* MSroiDescriptor = new TrigRoiDescriptor(roids->roiWord(),
-                                                               roids->l1Id(),
-                                                               roids->roiId(),
-                                                               pattern.etaMap,
-                                                               pattern.etaMap - etaHalfWidth,
-                                                               pattern.etaMap + etaHalfWidth,
-                                                               pattern.phiMS,
-                                                               pattern.phiMS - phiHalfWidth,
-                                                               pattern.phiMS + phiHalfWidth);
-
-    ATH_MSG_VERBOSE("...TrigRoiDescriptor for MS "
-      	    << "pattern.etaMap/pattern.phiMS="
-      	    << pattern.etaMap << "/" << pattern.phiMS);
-
-    ATH_MSG_VERBOSE("will Record an RoiDescriptor for TrigMoore:"
-      	    << " phi=" << MSroiDescriptor->phi()
-      	    << ",  eta=" << MSroiDescriptor->eta());
-
-    outputMS.push_back(MSroiDescriptor);
-
+  if (fabs(muonSA->pt()) < ZERO_LIMIT ) {
+    mseta = roids->eta();
+    msphi = roids->phi();
   }
+
+  // set width of 0.1 so that ID tracking monitoring works
+  const float phiHalfWidth = 0.1;
+  const float etaHalfWidth = 0.1;
+
+  TrigRoiDescriptor* MSroiDescriptor = new TrigRoiDescriptor(roids->roiWord(),
+							     roids->l1Id(),
+							     roids->roiId(),
+							     mseta,
+							     mseta - etaHalfWidth,
+							     mseta + etaHalfWidth,
+							     msphi,
+							     msphi - phiHalfWidth,
+							     msphi + phiHalfWidth);
+
+  ATH_MSG_VERBOSE("...TrigRoiDescriptor for MS "
+		  << "mseta/msphi="
+		  << mseta << "/" << msphi);
+
+  ATH_MSG_VERBOSE("will Record an RoiDescriptor for TrigMoore:"
+		  << " phi=" << MSroiDescriptor->phi()
+		  << ",  eta=" << MSroiDescriptor->eta());
+
+  outputMS.push_back(MSroiDescriptor);
 
   return true;
 }
@@ -2127,6 +2126,7 @@ float MuFastSteering::getRoiSizeForID(bool isEta, const xAOD::L2StandAloneMuon* 
 // --------------------------------------------------------------------------------
 
 StatusCode MuFastSteering::updateMonitor(const LVL1::RecMuonRoI*                    roi,
+                                         const bool                                 isRpcFakeRoi,
                                          const TrigL2MuonSA::MdtHits&               mdtHits,
                                          std::vector<TrigL2MuonSA::TrackPattern>&   trackPatterns )
 {
@@ -2214,7 +2214,7 @@ StatusCode MuFastSteering::updateMonitor(const LVL1::RecMuonRoI*                
     middle_mdt_hits = count_middle;
     outer_mdt_hits  = count_outer;
 
-    if ( m_dataPreparator->isRpcFakeRoi() ) 
+    if ( isRpcFakeRoi ) 
       invalid_rpc_roi_number = roi->getRoINumber();
     
     track_pt    = (fabs(pattern.pt ) > ZERO_LIMIT)? pattern.charge*pattern.pt: 9999.;
@@ -2277,135 +2277,3 @@ void MuFastSteering::handle(const Incident& incident) {
 }
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
-
-HLT::ErrorCode MuFastSteering::prepareRobRequests(const HLT::TriggerElement* inputTE){
-
-  ATH_MSG_DEBUG("prepareRobRequests called");
-  
-  HLT::RobRequestInfo* RRInfo = config()->robRequestInfo();
-
-  if (!RRInfo) {
-    ATH_MSG_ERROR("Null pointer to RobRequestInfo");
-    return HLT::ERROR;
-  }
-  
-  std::vector<uint32_t> MdtRobList;
-  std::vector<uint32_t> RpcRobList;
-  std::vector<uint32_t> TgcRobList;
-  std::vector<uint32_t> CscRobList;
-  
-  std::vector<const TrigRoiDescriptor*> roids;
-  HLT::ErrorCode hec = getFeatures(inputTE, roids);
-
-  if (hec != HLT::OK) {
-    ATH_MSG_ERROR("Could not find input TE");
-    return hec;
-  }
-  
-  // RoI base data access
-  for (unsigned int i=0; i < roids.size(); i++) {
-    
-    if ( m_use_RoIBasedDataAccess_MDT) {
-
-      float roi_eta = roids[i]->eta();
-      float roi_phi = roids[i]->phi();
-      if (roi_phi < 0) roi_phi += 2.0 * M_PI;
-   
-      double etaMin = roi_eta - 0.2;
-      double etaMax = roi_eta + 0.2;
-      double phiMin = roi_phi - 0.2;
-      double phiMax = roi_phi + 0.2;
-      if( phiMin < 0 ) phiMin += 2*M_PI;
-      if( phiMax < 0 ) phiMax += 2*M_PI;
-      if( phiMin > 2*M_PI ) phiMin -= 2*M_PI;
-      if( phiMax > 2*M_PI ) phiMax -= 2*M_PI;
-
-      TrigRoiDescriptor* roi = new TrigRoiDescriptor( roi_eta, etaMin, etaMax, roi_phi, phiMin, phiMax );
-      const IRoiDescriptor* iroi = (IRoiDescriptor*) roi;
-
-      MdtRobList.clear();
-      if ( iroi ) m_regionSelector->DetROBIDListUint(MDT, *iroi, MdtRobList);
-      RRInfo->addRequestScheduledRobIDs(MdtRobList);
-      ATH_MSG_DEBUG("prepareRobRequests, find " << MdtRobList.size() << " Mdt Rob's,");
-
-      if(roi) delete roi;
-    }
-
-    if ( m_use_RoIBasedDataAccess_RPC) {
-
-      const IRoiDescriptor* iroi = (IRoiDescriptor*) roids[i];
-
-      RpcRobList.clear();
-      if ( iroi ) m_regionSelector->DetROBIDListUint(RPC, *iroi, RpcRobList);
-      RRInfo->addRequestScheduledRobIDs(RpcRobList);
-      ATH_MSG_DEBUG("prepareRobRequests, find " << RpcRobList.size() << " Rpc Rob's,");
-    }
-
-    if ( m_use_RoIBasedDataAccess_TGC) {
-
-      float roi_eta = roids[i]->eta();
-      float roi_phi = roids[i]->phi();
-      if (roi_phi < 0) roi_phi += 2.0 * M_PI;
-   
-      double etaMin = roi_eta - 0.2;
-      double etaMax = roi_eta + 0.2;
-      double phiMin = roi_phi - 0.1;
-      double phiMax = roi_phi + 0.1;
-      if( phiMin < 0 ) phiMin += 2*M_PI;
-      if( phiMax < 0 ) phiMax += 2*M_PI;
-      if( phiMin > 2*M_PI ) phiMin -= 2*M_PI;
-      if( phiMax > 2*M_PI ) phiMax -= 2*M_PI;
-
-      TrigRoiDescriptor* roi = new TrigRoiDescriptor( roi_eta, etaMin, etaMax, roi_phi, phiMin, phiMax );
-      const IRoiDescriptor* iroi = (IRoiDescriptor*) roi;
-
-      TgcRobList.clear();
-      if ( iroi ) m_regionSelector->DetROBIDListUint(TGC, *iroi, TgcRobList);
-      RRInfo->addRequestScheduledRobIDs(TgcRobList);
-      ATH_MSG_DEBUG("prepareRobRequests, find " << TgcRobList.size() << " Tgc Rob's,");
-
-      if(roi) delete roi;
-    }
-
-    if ( m_use_RoIBasedDataAccess_CSC) {
-
-      const IRoiDescriptor* iroi = (IRoiDescriptor*) roids[i];
-
-      CscRobList.clear();
-      if ( iroi ) m_regionSelector->DetROBIDListUint(CSC, *iroi, CscRobList);
-      RRInfo->addRequestScheduledRobIDs(CscRobList);
-      ATH_MSG_DEBUG("prepareRobRequests, find " << CscRobList.size() << " Csc Rob's,");
-    }
-  }
-  
-  // Full data access
-  if ( !m_use_RoIBasedDataAccess_MDT ) {
-    MdtRobList.clear();
-    m_regionSelector->DetROBIDListUint(MDT, MdtRobList);
-    RRInfo->addRequestScheduledRobIDs(MdtRobList);
-    ATH_MSG_DEBUG("prepareRobRequests, find " << MdtRobList.size() << " Mdt Rob's,");
-  }
-
-  if ( !m_use_RoIBasedDataAccess_RPC ) {
-    RpcRobList.clear();
-    m_regionSelector->DetROBIDListUint(RPC, RpcRobList);
-    RRInfo->addRequestScheduledRobIDs(RpcRobList);
-    ATH_MSG_DEBUG("prepareRobRequests, find " << RpcRobList.size() << " Rpc Rob's,");
-  }
-
-  if ( !m_use_RoIBasedDataAccess_TGC ) {
-    TgcRobList.clear();
-    m_regionSelector->DetROBIDListUint(TGC, TgcRobList);
-    RRInfo->addRequestScheduledRobIDs(TgcRobList);
-    ATH_MSG_DEBUG("prepareRobRequests, find " << TgcRobList.size() << " Tgc Rob's,");
-  }
-
-  if ( !m_use_RoIBasedDataAccess_CSC ) {
-    CscRobList.clear();
-    m_regionSelector->DetROBIDListUint(CSC, CscRobList);
-    RRInfo->addRequestScheduledRobIDs(CscRobList);
-    ATH_MSG_DEBUG("prepareRobRequests, find " << CscRobList.size() << " Csc Rob's,");
-  }
-  
-  return HLT::OK;
-}

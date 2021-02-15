@@ -63,7 +63,9 @@ def HLTCaloMonitoringTool():
     from AthenaCommon.AppMgr import ServiceMgr
     if not hasattr(ServiceMgr,"RegSelSvcDefault"):
         from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
-        ServiceMgr += RegSelSvcDefault()
+        regsel = RegSelSvcDefault()
+        regsel.enableCalo = True
+        ServiceMgr += regsel
 
     #HLTFullCalo = HLTCaloTool(name             = 'HLTFullCalo',
     #                                histoPathBase    = "/Trigger/HLT")

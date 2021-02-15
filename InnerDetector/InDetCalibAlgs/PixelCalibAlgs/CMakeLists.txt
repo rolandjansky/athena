@@ -18,4 +18,5 @@ atlas_add_library( PixelCalibAlgsLib
 
 atlas_add_component( PixelCalibAlgs
    src/components/*.cxx
-   LINK_LIBRARIES PixelCalibAlgsLib )
+   LINK_LIBRARIES GaudiKernel InDetByteStreamErrors PixelConditionsData PixelCalibAlgsLib )
+

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUPATHIT_H
@@ -7,6 +7,7 @@
 
 #include "Identifier/Identifier.h"
 #include "TrkParameters/TrackParameters.h"
+#include "CxxUtils/atomic_fetch_minmax.h"
 
 #include <list>
 #include <mutex>
@@ -24,6 +25,11 @@ namespace Muon {
     enum Type   { UnknownType = -1, MDT = 0, RPC = 1, TGC = 2, CSC = 3, MM = 4, sTGC = 5, PREC = 6, Pseudo = 7, Scatterer = 8 };
     enum Status { UnknownStatus = -1, OnTrack = 0, Outlier, NotOnTrack };
     enum HitSelection { UnknownSelection = -1, Precise = 0, Broad = 1 };
+
+    struct Unowned
+    {
+      void operator() (const Trk::TrackParameters*) const {}
+    };
 
     struct Info {
       Info() : id(),measuresPhi(false),type(UnknownType),selection(UnknownSelection),status(UnknownStatus) {}
@@ -46,8 +52,10 @@ namespace Muon {
       @param measuresPhi boolean indicating whether this is an eta or phi measurement
       @param used        enum indicating the hit status
     */
-    MuPatHit( const Trk::TrackParameters* pars, const Trk::MeasurementBase* presMeas, const Trk::MeasurementBase* broadMeas,
-       const Info& info );
+    MuPatHit( std::shared_ptr<const Trk::TrackParameters> pars,
+              const Trk::MeasurementBase* presMeas,
+              std::unique_ptr<const Trk::MeasurementBase> broadMeas,
+              const Info& info );
 
     /** @brief copy constructor */
     MuPatHit( const MuPatHit& hit );
@@ -80,19 +88,13 @@ namespace Muon {
     const Trk::MeasurementBase& broadMeasurement() const;
 
     /** @brief update the track parameters and residual of a MuPatHit */
-    void updateParameters( const Trk::TrackParameters* pars );
-
-    /** @brief reset the maximum number of objects counter */
-    static void resetMaxNumberOfInstantiations();
+    void updateParameters( std::shared_ptr<const Trk::TrackParameters> pars );
 
     /** @brief maximum number of objects of this type in memory */
     static unsigned int maxNumberOfInstantiations();
 
     /** current number of objects of this type in memory */
     static unsigned int numberOfInstantiations();
-
-    /** @brief reset the copy constructor counter */
-    static void resetNumberOfCopies();
 
     /** @brief number of times the copy constructor was called since last reset */
     static unsigned int numberOfCopies();
@@ -110,29 +112,23 @@ namespace Muon {
     //
     // private static data members
     //
-    static unsigned int s_numberOfInstantiations ATLAS_THREAD_SAFE;    //<! current number of objects of this type in memory
-    static unsigned int s_maxNumberOfInstantiations ATLAS_THREAD_SAFE; //<! maximum number of objects of this type in memory
-    static unsigned int s_numberOfCopies ATLAS_THREAD_SAFE;            //<! number of times the copy constructor was called since last reset
-
-    static std::mutex s_mutex; //<! to remove race condition
+    static std::atomic<unsigned int> s_numberOfInstantiations;    //<! current number of objects of this type in memory
+    static std::atomic<unsigned int> s_maxNumberOfInstantiations; //<! maximum number of objects of this type in memory
+    static std::atomic<unsigned int> s_numberOfCopies;            //<! number of times the copy constructor was called since last reset
 
     //
     // private member functions
     //
     /** no default constructor */
-    MuPatHit() : m_pars(0),m_precisionMeas(0),m_broadMeas(0) { }
-
-    /** @brief clean memory */
-    void cleanUp();
-
+    MuPatHit() = delete;
 
     /** @brief copy hit */
     void copy( const MuPatHit& hit );
 
     // private member data
-    const Trk::TrackParameters* m_pars;
+    std::shared_ptr<const Trk::TrackParameters> m_pars;
     const Trk::MeasurementBase* m_precisionMeas;
-    const Trk::MeasurementBase* m_broadMeas;
+    std::unique_ptr<const Trk::MeasurementBase> m_broadMeas;
     Info m_info;
 
   }; // class MuPatHit
@@ -151,48 +147,25 @@ namespace Muon {
   // static inline functions implementations
   //
   inline unsigned int MuPatHit::numberOfInstantiations() {
-    const std::lock_guard<std::mutex> lock(s_mutex);
-
     return s_numberOfInstantiations;
   }
 
   inline unsigned int MuPatHit::maxNumberOfInstantiations() {
-    const std::lock_guard<std::mutex> lock(s_mutex);
-
     return s_maxNumberOfInstantiations;
   }
 
   inline unsigned int MuPatHit::numberOfCopies() {
-    const std::lock_guard<std::mutex> lock(s_mutex);
-
     return s_numberOfCopies;
   }
 
   inline void MuPatHit::addInstance() {
-    const std::lock_guard<std::mutex> lock(s_mutex);
-
     ++s_numberOfInstantiations;
-    if ( s_numberOfInstantiations > s_maxNumberOfInstantiations ) {
-      s_maxNumberOfInstantiations = s_numberOfInstantiations;
-    }
+    CxxUtils::atomic_fetch_max (&s_maxNumberOfInstantiations,
+                                s_numberOfInstantiations.load());
   }
 
   inline void MuPatHit::removeInstance() {
-    const std::lock_guard<std::mutex> lock(s_mutex);
-
-    if ( s_numberOfInstantiations > 0 ) --s_numberOfInstantiations;
-  }
-
-  inline  void MuPatHit::resetMaxNumberOfInstantiations() {
-    const std::lock_guard<std::mutex> lock(s_mutex);
-
-    s_maxNumberOfInstantiations = 0;
-  }
-
-  inline void MuPatHit::resetNumberOfCopies() {
-    const std::lock_guard<std::mutex> lock(s_mutex);
-
-    s_numberOfCopies = 0;
+    --s_numberOfInstantiations;
   }
 
   //

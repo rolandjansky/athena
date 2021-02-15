@@ -82,6 +82,31 @@ StatusCode McEventCollectionTestTool::processEvent() {
 
       if(genEventIter != p_mceventcollection->begin()) isFirstEvent = false;
 
+#ifdef HEPMC3
+      ATH_MSG_INFO ("GenEvent Position in McEventCollection: " << n_genEvent-1 <<
+                    ", signal_process_id: " << HepMC::signal_process_id(currentGenEvent) <<
+                    ", event_number: " << currentGenEvent->event_number() <<
+                    ", particles_size: " << currentGenEvent->particles().size() <<
+                    ", vertices_size: " << currentGenEvent->vertices().size() <<
+                    " .");
+      if(currentGenEvent->particles().empty())
+        {
+          ++genEventIter;
+          continue;
+        }
+      ++n_genEventNonEmpty;
+      if(isFirstEvent)
+        {
+          m_sig_n_vert->Fill(currentGenEvent->vertices().size());
+          m_sig_n_part->Fill(currentGenEvent->particles().size());
+        }
+      else
+        {
+          m_bkg_n_vert->Fill(currentGenEvent->vertices().size());
+          m_bkg_n_part->Fill(currentGenEvent->particles().size());
+        }
+      ++genEventIter;
+#else
       ATH_MSG_INFO ("GenEvent Position in McEventCollection: " << n_genEvent-1 <<
                     ", signal_process_id: " << currentGenEvent->signal_process_id() <<
                     ", event_number: " << currentGenEvent->event_number() <<
@@ -105,6 +130,7 @@ StatusCode McEventCollectionTestTool::processEvent() {
           m_bkg_n_part->Fill(currentGenEvent->particles_size());
         }
       ++genEventIter;
+#endif
     }
   m_nGenEvents->Fill(n_genEvent,1);
   m_nEmptyGenEvents->Fill(n_genEvent-n_genEventNonEmpty,1);

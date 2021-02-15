@@ -17,6 +17,7 @@ atlas_add_poolcnv_library( TrigTruthEventAthenaPoolPoolCnv
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
+atlas_install_scripts( test/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 # Set up (a) test(s) for the converter(s):
 find_package( AthenaPoolUtilitiesTest )
@@ -24,9 +25,9 @@ find_package( AthenaPoolUtilitiesTest )
 if( ATHENAPOOLUTILITIESTEST_FOUND )
   set( TRIGTRUTHEVENTATHENAPOOL_REFERENCE_TAG
        TrigTruthEventAthenaPool-01-00-00 )
-  run_tpcnv_legacy_test( TrigTruthEventTPCnv_15.8.0   AOD-15.8.0-full
+  run_tpcnv_test( TrigTruthEventTPCnv_15.8.0   AOD-15.8.0-full
                   REFERENCE_TAG ${TRIGTRUTHEVENTATHENAPOOL_REFERENCE_TAG} )
-  run_tpcnv_legacy_test( TrigTruthEventTPCnv_18.0.0   AOD-18.0.0-full
+  run_tpcnv_test( TrigTruthEventTPCnv_18.0.0   AOD-18.0.0-full
                   REFERENCE_TAG ${TRIGTRUTHEVENTATHENAPOOL_REFERENCE_TAG} )
 else()
    message( WARNING

@@ -1,17 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import MuonD3PDMaker
-import D3PDMakerCoreComps
-import EventCommonD3PDMaker
 from D3PDMakerCoreComps.D3PDObject import make_SGDataVector_D3PDObject
 from D3PDMakerConfig.D3PDMakerFlags import D3PDMakerFlags
 
 from MuonD3PDMaker.MuonD3PDMakerFlags    import MuonD3PDFlags
 from RecExConfig.RecFlags import rec
-
-#from MuonD3PDMaker.MuonD3PDMakerConf import MuonWZTruthTool
-#TruthTool = MuonWZTruthTool()
-#ToolSvc += TruthTool
 
 MuonSegmentD3PDObject = \
            make_SGDataVector_D3PDObject ('Trk::SegmentCollection',

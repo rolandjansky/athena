@@ -26,6 +26,7 @@
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileIdentifier/TileRawChannelUnit.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
+#include "TileRecUtils/TileRawChannelBuilder.h"
 
 // Atlas includes
 #include "AthenaKernel/errorcheck.h"
@@ -41,9 +42,11 @@ TileTimeBCOffsetFilter::TileTimeBCOffsetFilter(const std::string& type,
     , m_tileHWID(nullptr)
     , m_cabling(nullptr)
 {
-  declareProperty("EneThreshold3", m_ene_threshold_3chan = 3000);
-  declareProperty("EneThreshold1", m_ene_threshold_1chan = 4000);
+  declareProperty("EneThreshold3", m_ene_threshold_3chan = 1000);
+  declareProperty("EneThreshold1", m_ene_threshold_1chan = 3000);
   declareProperty("TimeThreshold", m_time_threshold_diff = 15);
+  declareProperty("RefEneThreshold", m_ene_threshold_ref_ch = 500);
+  declareProperty("RefTimeThreshold", m_time_threshold_ref_ch = 10);
 
   declareProperty("CheckDCS", m_checkDCS = false);
 }
@@ -58,6 +61,10 @@ StatusCode TileTimeBCOffsetFilter::initialize() {
                       << m_ene_threshold_1chan << endmsg;
       msg(MSG::DEBUG) << "TimeThreshold = " 
                       << m_time_threshold_diff << endmsg;
+      msg(MSG::DEBUG) << "RefEneThreshold = "
+                      << m_ene_threshold_ref_ch << endmsg;
+      msg(MSG::DEBUG) << "RefTimeThreshold = "
+                      << m_time_threshold_ref_ch << endmsg;
       msg(MSG::DEBUG) << "CheckDCS = " 
                       << ((m_checkDCS)?"true":"false") << endmsg;
   }
@@ -234,6 +241,7 @@ TileTimeBCOffsetFilter::process (TileMutableRawChannelContainer& rchCont) const
       for(int i=0; i <= nchan_dmu; ++i) {
         ene_above = ene_above || ((ch_number[i] >= 0) && (ch_amp[i] > ene_threshold));
       }
+      ene_above = ene_above && (ch_amp[0] > m_ene_threshold_ref_ch);  // reference energy above threshold
       if (ene_above) { // at least 1 channel above the threshold
         ATH_MSG_VERBOSE( "Energy above threshold");
         /* first check whether the times of 1-3 channels on the DMU are within
@@ -255,7 +263,8 @@ TileTimeBCOffsetFilter::process (TileMutableRawChannelContainer& rchCont) const
         if (time_dmu_same) {
           time_dmu_aver /= n_dmu_aver;
           ATH_MSG_VERBOSE( "Average time "<< time_dmu_aver);
-          if (fabs(ch_time[0]-time_dmu_aver) > m_time_threshold_diff) {
+          if ((fabs(ch_time[0]-time_dmu_aver) > m_time_threshold_diff)    // reference time far from average DMU time
+                      && (fabs(ch_time[0]) < m_time_threshold_ref_ch)) {  // reference time ~0 ns
             for(int i=1; i <= nchan_dmu; ++i) {
               if (ch_number[i] >= 0) ch_mask[i] = true;
             }

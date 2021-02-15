@@ -12,7 +12,6 @@
 //  hybrid (measured + parametrized) energy deposit evaluation
 //  using the IMuidCaloMaterialParam and IMuidCaloEnergy interfaces
 //
-//  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
 //<<<<<< INCLUDES                                                       >>>>>>
@@ -403,8 +402,9 @@ MuidCaloTrackStateOnSurface::innerParameters(const Trk::TrackParameters& paramet
             propDirection = oppositeDirection;
         }
     }
+    //tidy up ownership later
     const Trk::TrackParameters* extrapolation =
-        m_propagator->propagate(parameters, *surface, propDirection, false, *m_magFieldProperties, Trk::nonInteracting);
+        m_propagator->propagate(parameters, *surface, propDirection, false, *m_magFieldProperties, Trk::nonInteracting).release();
     if (!extrapolation) return nullptr;
 
     // phi flip means track has crossed beam-axis (so quit)
@@ -441,10 +441,10 @@ MuidCaloTrackStateOnSurface::innerParameters(const Trk::TrackParameters& paramet
         } else {
             propDirection = Trk::anyDirection;
         }
-
+        //tidy up ownership later
         const Trk::TrackParameters* oldParameters = extrapolation;
         extrapolation = m_propagator->propagate(*oldParameters, *extrapolatedSurface, propDirection, false,
-                                                *m_magFieldProperties, Trk::nonInteracting);
+                                                *m_magFieldProperties, Trk::nonInteracting).release();
         if (!extrapolation) {
             // restart from input parameters (if not already done)
             //   trap no solution after restart
@@ -530,7 +530,7 @@ MuidCaloTrackStateOnSurface::middleParameters(const Trk::TrackParameters& parame
         }
     }
     const Trk::TrackParameters* extrapolation =
-        m_propagator->propagate(parameters, *surface, propDirection, false, *m_magFieldProperties, Trk::nonInteracting);
+        m_propagator->propagate(parameters, *surface, propDirection, false, *m_magFieldProperties, Trk::nonInteracting).release();
     if (!extrapolation) return nullptr;
 
     // phi flip means track has crossed beam-axis (so quit)
@@ -570,7 +570,7 @@ MuidCaloTrackStateOnSurface::middleParameters(const Trk::TrackParameters& parame
 
         const Trk::TrackParameters* oldParameters = extrapolation;
         extrapolation = m_propagator->propagate(*oldParameters, *extrapolatedSurface, propDirection, false,
-                                                *m_magFieldProperties, Trk::nonInteracting);
+                                                *m_magFieldProperties, Trk::nonInteracting).release();
         if (!extrapolation) {
             // restart from input parameters (if not already done)
             //   trap no solution after restart
@@ -656,8 +656,9 @@ MuidCaloTrackStateOnSurface::outerParameters(const Trk::TrackParameters& paramet
             propDirection = oppositeDirection;
         }
     }
+    //tidy up ownership later
     const Trk::TrackParameters* extrapolation =
-        m_propagator->propagate(parameters, *surface, propDirection, false, *m_magFieldProperties, Trk::nonInteracting);
+        m_propagator->propagate(parameters, *surface, propDirection, false, *m_magFieldProperties, Trk::nonInteracting).release();
     if (!extrapolation) return nullptr;
 
     // phi flip means track has crossed beam-axis (so quit)
@@ -694,10 +695,10 @@ MuidCaloTrackStateOnSurface::outerParameters(const Trk::TrackParameters& paramet
         } else {
             propDirection = Trk::anyDirection;
         }
-
+        //tidy up ownership later
         const Trk::TrackParameters* oldParameters = extrapolation;
         extrapolation = m_propagator->propagate(*oldParameters, *extrapolatedSurface, propDirection, false,
-                                                *m_magFieldProperties, Trk::nonInteracting);
+                                                *m_magFieldProperties, Trk::nonInteracting).release();
         if (!extrapolation) {
             // restart from input parameters (if not already done)
             //   trap no solution after restart

@@ -77,7 +77,7 @@ IntersectorWrapper::propagate (const NeutralParameters&		parameters,
   return m_linePropagator->propagate(parameters,surface,dir,boundsCheck,curvilinear);
 }
 
-TrackParameters*
+std::unique_ptr<TrackParameters>      
 IntersectorWrapper::propagate (const EventContext&              /*ctx*/,
                                const TrackParameters&		parameters,
                                const Surface&			surface,
@@ -91,10 +91,10 @@ IntersectorWrapper::propagate (const EventContext&              /*ctx*/,
   Cache cache{};
   findIntersection(cache,parameters,surface, dir);
   createParameters(cache,surface,boundsCheck,curvilinear);
-  return cache.m_parameters;
+  return std::move(cache.m_parameters);
 }
 
-TrackParameters*
+std::unique_ptr<TrackParameters>      
 IntersectorWrapper::propagate (const EventContext&              /*ctx*/,
                                const TrackParameters&		parameters,
                                const Surface&			surface,
@@ -110,10 +110,10 @@ IntersectorWrapper::propagate (const EventContext&              /*ctx*/,
   Cache cache{};
   findIntersection(cache,parameters,surface,dir);
   createParameters(cache,surface,boundsCheck,curvilinear);
-  return cache.m_parameters;
+  return std::move(cache.m_parameters);
 }
 
-TrackParameters*
+std::unique_ptr<TrackParameters>      
 IntersectorWrapper::propagateParameters (const EventContext&              /*ctx*/,
                                          const TrackParameters&		parameters,
                                          const Surface&			surface,
@@ -128,10 +128,10 @@ IntersectorWrapper::propagateParameters (const EventContext&              /*ctx*
   Cache cache{};
   findIntersection(cache,parameters,surface,dir);
   createParameters(cache,surface,boundsCheck,curvilinear);
-  return cache.m_parameters;
+  return std::move(cache.m_parameters);
 }
 
-TrackParameters*
+std::unique_ptr<TrackParameters>      
 IntersectorWrapper::propagateParameters (const EventContext&              /*ctx*/,
                                          const TrackParameters&		parameters,
                                          const Surface&			surface,
@@ -146,7 +146,7 @@ IntersectorWrapper::propagateParameters (const EventContext&              /*ctx*
   Cache cache{};
   findIntersection(cache,parameters,surface,dir);
   createParameters(cache,surface,boundsCheck,curvilinear);
-  return cache.m_parameters;
+  return std::move(cache.m_parameters);
 }
 
 const IntersectionSolution*
@@ -194,14 +194,14 @@ IntersectorWrapper::createParameters (Cache& cache,
   // curvilinear special (simple) case
   if (curvilinear)
   {
-    cache.m_parameters=new CurvilinearParameters(cache.m_intersection->position(),
+    cache.m_parameters=std::make_unique<CurvilinearParameters>(cache.m_intersection->position(),
                                                  cache.m_intersection->direction().phi(),
                                                  cache.m_intersection->direction().theta(),
                                                  cache.m_qOverP);
     return;
   }
 
-  cache.m_parameters=surface.createTrackParameters(cache.m_intersection->position(),
+  cache.m_parameters=surface.createUniqueTrackParameters(cache.m_intersection->position(),
                                                    cache.m_intersection->direction(),
                                                    cache.m_charge,nullptr);
   // unrecognized Surface

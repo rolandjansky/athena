@@ -7,7 +7,6 @@
 
 #include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/Service.h"
-#include "AthenaBaseComps/AthService.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaBaseComps/AthService.h"
 #include "ICondSvcSetupDone.h"

@@ -1,7 +1,5 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // HepMcFloatWriterTool.h 
@@ -24,10 +22,8 @@
 
 // Forward declaration
 #include "AtlasHepMC/GenEvent_fwd.h"
-//namespace McAod { class IO_BaseClass; }
 
-class HepMcFloatWriterTool : virtual public IIOHepMcTool,
-			             public AthAlgTool
+class HepMcFloatWriterTool : virtual public IIOHepMcTool, public AthAlgTool
 { 
 
   /////////////////////////////////////////////////////////////////// 
@@ -38,9 +34,7 @@ class HepMcFloatWriterTool : virtual public IIOHepMcTool,
   // Copy constructor: 
 
   /// Constructor with parameters: 
-  HepMcFloatWriterTool( const std::string& type,
-		   const std::string& name, 
-		   const IInterface* parent );
+  HepMcFloatWriterTool( const std::string& type, const std::string& name,  const IInterface* parent );
 
   /// Destructor: 
   virtual ~HepMcFloatWriterTool(); 
@@ -49,10 +43,6 @@ class HepMcFloatWriterTool : virtual public IIOHepMcTool,
   StatusCode  initialize();
   StatusCode  execute();
   StatusCode  finalize();
-
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
 
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 
@@ -98,12 +88,5 @@ class HepMcFloatWriterTool : virtual public IIOHepMcTool,
    */
   std::ostream* m_ioBackend;
 }; 
-
-/// I/O operators
-//////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-/// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 #endif //> MCPARTICLETOOLS_HEPMCFLOATWRITERTOOL_H

@@ -92,7 +92,12 @@ def createEgammaConfigFlags():
     egcf.addFlag("Egamma.Keys.Output.ForwardClusters", 'ForwardElectronClusters')
     egcf.addFlag("Egamma.Keys.Output.ForwardClustersSuppESD", '-SisterCluster')
     egcf.addFlag("Egamma.Keys.Output.ForwardClustersSuppAOD",
-                 '-SisterCluster.-CellLink')
+                 '-SisterCluster')
+
+    # These are the clusters that are used to determine which cells to write out to AOD
+    egcf.addFlag("Egamma.Keys.Output.EgammaLargeFWDClusters", 'egamma66FWDClusters')
+    egcf.addFlag("Egamma.Keys.Output.EgammaLargeFWDClustersSuppESD", '')
+    # don't define SuppAOD because the whole container is suppressed
 
     egcf.addFlag("Egamma.Keys.Output.Photons", 'Photons')
     egcf.addFlag("Egamma.Keys.Output.PhotonsSuppESD", '')

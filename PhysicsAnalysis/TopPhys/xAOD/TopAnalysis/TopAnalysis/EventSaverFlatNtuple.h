@@ -279,7 +279,6 @@ namespace top {
 
     // Store boosted jet tagger names
     std::vector<std::string> m_boostedJetTaggersNames;
-    std::vector<std::string> m_boostedJetTaggersNamesCalibrated;
 
     //some event weights
     float m_weight_mc;

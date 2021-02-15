@@ -20,23 +20,23 @@ namespace Muon {
 
     virtual StatusCode initialize();
     
-    void buildTruthTrajectory(TruthTrajectory *result, const HepMC::GenParticle *input) const;
+    void buildTruthTrajectory(TruthTrajectory *result, HepMC::ConstGenParticlePtr input) const;
     
     /** Returns an umambiguous mother of the truth particle on a TruthTrajectory, or 0.
      * Implemented via truthTrajectoryCuts().
      */
-    const HepMC::GenParticle* getMother(const HepMC::GenParticle* particle) const;
+    HepMC::ConstGenParticlePtr getMother(HepMC::ConstGenParticlePtr particle) const;
 
     /** Returns an umambiguous daughter of the truth particle on a TruthTrajectory, or 0.
      * This assumes no one mother can correspond to no more than one daughter.
      * Implemented via truthTrajectoryCuts().
      */
-    const HepMC::GenParticle* getDaughter(const HepMC::GenParticle* particle) const;
+    HepMC::ConstGenParticlePtr getDaughter(HepMC::ConstGenParticlePtr particle) const;
 
   private:
 
     /** Return type for the next method */
-    typedef std::pair<const HepMC::GenParticle*, const HepMC::GenParticle*> MotherDaughter;
+    typedef std::pair<HepMC::ConstGenParticlePtr, HepMC::ConstGenParticlePtr> MotherDaughter;
 
     /** 
      * Decides if the vertex connects two particles on the same
@@ -47,7 +47,7 @@ namespace Muon {
      * between mother and daughter particles; i.e. TruthTrajectories
      * are not allowed to branch.
      */
-    MotherDaughter truthTrajectoryCuts(const HepMC::GenVertex *vtx) const;
+    MotherDaughter truthTrajectoryCuts(HepMC::ConstGenVertexPtr vtx) const;
 
     // mutable bool m_isDecayIntoTwoMuons; // Really don't think this does anything? EJWM.
   };

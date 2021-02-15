@@ -93,7 +93,7 @@ TEST_F(PartitionsGroupsMatcherMTTest, tooFewSelectedJets){
    auto factory = TLorentzVectorFactory();
    auto tlv = factory.make(eta, et);
 
-   TLorentzVectorAsIJet* tl_j = new TLorentzVectorAsIJet(tlv);
+   auto tl_j = std::make_shared<const TLorentzVectorAsIJet>(tlv);
    HypoJetVector jets;
    jets.push_back(tl_j);
 
@@ -137,7 +137,7 @@ TEST_F(PartitionsGroupsMatcherMTTest, PassingJets){
   auto factory = TLorentzVectorFactory();
   
   auto makeJetFromEt = [&factory, eta](double et){
-    return new TLorentzVectorAsIJet(factory.make(eta, et));
+    return std::make_shared<const TLorentzVectorAsIJet>(factory.make(eta, et));
   };
 
   std::transform(ets.begin(),
@@ -199,7 +199,7 @@ TEST_F(PartitionsGroupsMatcherMTTest, Passing3Failing1){
   auto factory = TLorentzVectorFactory();
   
   auto makeJetFromEt = [&factory, eta](double et){
-    return new TLorentzVectorAsIJet(factory.make(eta, et));
+    return std::make_shared<const TLorentzVectorAsIJet>(factory.make(eta, et));
   };
 
   std::transform(ets.begin(),
@@ -241,8 +241,6 @@ TEST_F(PartitionsGroupsMatcherMTTest, Passing3Failing1){
   // calls: 4 jets, conditions need three: 4.3.2  = 24
   // pass: ignore failing jet. 3.2.1 = 6
   EXPECT_EQ(npass,  6u);
-  EXPECT_EQ(ncall, 24u);
-  
-  for(auto& j : jets){delete j;}
+  EXPECT_EQ(ncall, 24u);  
 }
  

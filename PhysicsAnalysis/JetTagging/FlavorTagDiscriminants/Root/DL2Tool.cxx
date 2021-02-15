@@ -14,6 +14,7 @@ namespace FlavorTagDiscriminants {
   {
     declareProperty("nnFile", m_props.nnFile);
     declareProperty("flipTagConfig", m_props.flipTagConfig);
+    declareProperty("variableRemapping", m_props.variableRemapping);
   }
   DL2Tool::~DL2Tool() {}
 
@@ -23,7 +24,12 @@ namespace FlavorTagDiscriminants {
     if (m_props.flipTagConfig.size() > 0) {
       flipConfig = flipTagConfigFromString(m_props.flipTagConfig);
     }
-    m_dl2.reset(new DL2HighLevel(m_props.nnFile, flipConfig));
+    m_dl2.reset(
+      new DL2HighLevel(
+        m_props.nnFile,
+        flipConfig,
+        m_props.variableRemapping)
+      );
     return StatusCode::SUCCESS;
   }
 

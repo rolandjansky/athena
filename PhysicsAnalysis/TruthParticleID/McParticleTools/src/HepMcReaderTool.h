@@ -1,5 +1,3 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -23,10 +21,13 @@
 
 // Forward declaration
 #include "AtlasHepMC/GenEvent_fwd.h"
-#include "AtlasHepMC/IO_BaseClass_fwd.h"
+#include "AtlasHepMC/IO_BaseClass.h"
+#ifdef HEPMC3
+#include "HepMC3/Reader.h"
+#include "HepMC3/ReaderAsciiHepMC2.h"
+#endif 
 
-class HepMcReaderTool : virtual public IIOHepMcTool,
-			        public AthAlgTool
+class HepMcReaderTool : virtual public IIOHepMcTool, public AthAlgTool
 { 
 
   /////////////////////////////////////////////////////////////////// 
@@ -37,9 +38,7 @@ class HepMcReaderTool : virtual public IIOHepMcTool,
   // Copy constructor: 
 
   /// Constructor with parameters: 
-  HepMcReaderTool( const std::string& type,
-		   const std::string& name, 
-		   const IInterface* parent );
+  HepMcReaderTool( const std::string& type, const std::string& name,  const IInterface* parent );
 
   /// Destructor: 
   virtual ~HepMcReaderTool(); 
@@ -48,10 +47,6 @@ class HepMcReaderTool : virtual public IIOHepMcTool,
   StatusCode  initialize();
   StatusCode  execute();
   StatusCode  finalize();
-
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
 
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 
@@ -93,15 +88,11 @@ class HepMcReaderTool : virtual public IIOHepMcTool,
 
   /** Abstract base class for the back-end
    */
+#ifdef HEPMC3
+  HepMC3::Reader* m_ioFrontend;
+#else 
   HepMC::IO_BaseClass* m_ioFrontend;
+#endif
 
 }; 
-
-/// I/O operators
-//////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-/// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
-
 #endif //> MCPARTICLETOOLS_HEPMCREADERTOOL_H

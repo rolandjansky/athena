@@ -1,6 +1,6 @@
 from past.builtins import basestring
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 def RDOFilePeeker(runArgs, skeletonLog):
     from PyUtils.MetaReader import read_metadata
@@ -30,14 +30,14 @@ def RDOFilePeeker(runArgs, skeletonLog):
     if '/Digitization/Parameters' in metadata:
         metadatadict = metadata['/Digitization/Parameters']
         if isinstance(metadatadict, list):
-            skeletonLog.warning("%s inputfile: %s contained %s sets of Dititization Metadata. Using the final set in the list.",inputtype,inputfile,len(metadatadict))
+            skeletonLog.warning("inputfile: %s contained %s sets of Dititization Metadata. Using the final set in the list.",input_file,len(metadatadict))
             metadatadict = metadatadict[-1]
     ##Get IOVDbGlobalTag
         if 'IOVDbGlobalTag' not in metadatadict:
             try:
                 if metadata['/TagInfo']['IOVDbGlobalTag'] is not None:
                     metadatadict['IOVDbGlobalTag'] = metadata['/TagInfo']['IOVDbGlobalTag']
-            except:
+            except Exception:
                 skeletonLog.warning("Failed to find IOVDbGlobalTag.")
     else:
         ##Patch for older hit files
@@ -89,7 +89,7 @@ def RDOFilePeeker(runArgs, skeletonLog):
             skeletonLog.debug(cmd)
             try:
                 exec(cmd)
-            except:
+            except Exception:
                 skeletonLog.warning('Failed to switch on subdetector %s',subdet)
         #hacks to reproduce the sub-set of DetFlags left on by RecExCond/AllDet_detDescr.py
         DetFlags.simulate.all_setOff()

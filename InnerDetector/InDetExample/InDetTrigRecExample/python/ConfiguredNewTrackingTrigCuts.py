@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """ Derive from the offline class and override InDetFlags
 """
@@ -7,7 +7,6 @@ __author__ = "J. Masik"
 __version__= "$Revision: 1.2 $"
 __doc__    = "ConfiguredNewTrackingTrigCuts"
 
-from AthenaCommon.Include import include
 
 _sharedcuts = False
 if _sharedcuts:
@@ -17,16 +16,14 @@ else:
 del _sharedcuts
 
 class ConfiguredNewTrackingTrigCuts(InDetTrigTrackingCuts):
-  def __set_indetflags(self):
-    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-    self.__indetflags = InDetTrigFlags
+  pass
 
-
-
-EFIDTrackingCuts = ConfiguredNewTrackingTrigCuts("Offline")
-EFIDTrackingCutsCosmics = ConfiguredNewTrackingTrigCuts("Cosmics")
-EFIDTrackingCutsBeamGas = ConfiguredNewTrackingTrigCuts("BeamGas")
-EFIDTrackingCutsLowPt = ConfiguredNewTrackingTrigCuts("LowPt")
-EFIDTrackingCutsTRT = ConfiguredNewTrackingTrigCuts("TRT")
-EFIDTrackingCutsHeavyIon = ConfiguredNewTrackingTrigCuts("HeavyIon")
-L2IDTrackingCuts = EFIDTrackingCuts
+if 'EFIDTrackingCuts' not in globals():
+  EFIDTrackingCuts = ConfiguredNewTrackingTrigCuts("Offline")
+  EFIDTrackingCutsCosmics = ConfiguredNewTrackingTrigCuts("Cosmics")
+  EFIDTrackingCutsBeamGas = ConfiguredNewTrackingTrigCuts("BeamGas")
+  EFIDTrackingCutsLowPt = ConfiguredNewTrackingTrigCuts("LowPt")
+  EFIDTrackingCutsTRT = ConfiguredNewTrackingTrigCuts("TRT")
+  EFIDTrackingCutsHeavyIon = ConfiguredNewTrackingTrigCuts("HeavyIon")
+  EFIDTrackingCutLRT = ConfiguredNewTrackingTrigCuts("LRT")
+  L2IDTrackingCuts = EFIDTrackingCuts

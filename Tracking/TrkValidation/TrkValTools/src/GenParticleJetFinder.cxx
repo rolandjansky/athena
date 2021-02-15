@@ -40,7 +40,7 @@ StatusCode Trk::GenParticleJetFinder::finalize() {
 ///////////////////////////////
 /// jetMCFinder
 ///////////////////////////////
-std::vector< Trk::GenParticleJet >* Trk::GenParticleJetFinder::jetMCFinder(  std::vector <const HepMC::GenParticle *>&  GenStableCharged) const
+std::vector< Trk::GenParticleJet >* Trk::GenParticleJetFinder::jetMCFinder(  std::vector <HepMC::ConstGenParticlePtr>&  GenStableCharged) const
 {
   if (GenStableCharged.size() == 0) {
     ATH_MSG_INFO ("no selected charged particles!");
@@ -113,7 +113,7 @@ std::vector< Trk::GenParticleJet >* Trk::GenParticleJetFinder::jetMCFinder(  std
                  << " ("<<(*jAtMin).getIndicesInEvent().size()<<")" );
 	  if((*iAtMin).getNumParticles()>(*jAtMin).getNumParticles()) {
 
-        std::vector<const HepMC::GenParticle* > partsTemp = (*jAtMin).getParticles();	  
+        auto partsTemp = (*jAtMin).getParticles();	  
         std::vector<int> indexTemp = (*jAtMin).getIndicesInEvent();
         //	  int partsTempSize = partsTemp.size();
         if (partsTemp.size()!=0) {
@@ -132,7 +132,7 @@ std::vector< Trk::GenParticleJet >* Trk::GenParticleJetFinder::jetMCFinder(  std
       }
 	  else {
 
-        std::vector<const HepMC::GenParticle* > partsTemp = (*iAtMin).getParticles();	  
+        auto partsTemp = (*iAtMin).getParticles();	  
         std::vector<int> indexTemp = (*iAtMin).getIndicesInEvent();
         if (partsTemp.size()!=0) {
 

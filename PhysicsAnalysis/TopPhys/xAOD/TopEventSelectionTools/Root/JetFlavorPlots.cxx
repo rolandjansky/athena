@@ -34,6 +34,8 @@ namespace top {
     m_doNominal(false),
     m_doRadHigh(false),
     m_doRadLow(false),
+    m_doRadHighNoVar3c(false),
+    m_doRadLowNoVar3c(false),
     // default pT and eta binning, and default max number of Jets
     m_ptBins("15:20:30:45:60:80:110:160:210:260:310:400:500:600:800:1000:1200:1500:1800:2500"),
     m_etaBins("0.:0.3:0.8:1.2:2.1:2.8:3.6:4.5"),
@@ -73,25 +75,30 @@ namespace top {
                s == "radiationHigh") m_doRadHigh = true;
       else if (s == "radiationlow" || s == "RADIATIONLOW" || s == "RadiationLow" ||
                s == "radiationLow") m_doRadLow = true;
+      else if (s == "radiationhighnovar3c" || s == "RADIATIONHIGHNOVAR3C" || s == "RadiationHighNoVar3c" ||
+               s == "radiationHighNoVar3c") m_doRadHighNoVar3c = true;
+      else if (s == "radiationlownovar3c" || s == "RADIATIONLOWNOVAR3C" || s == "RadiationLowNoVar3c" ||
+               s == "radiationLowNoVar3c") m_doRadLowNoVar3c = true;
       else {
         throw std::runtime_error("ERROR: Can't understand argument " + s + "For JETFLAVORPLOTS");
       }
     }
     //If neither nominal or radiation has been selected, assume it's nominal
-    if ((m_doNominal + m_doRadHigh + m_doRadLow) == false) m_doNominal = true;
+    if ((m_doNominal && m_doRadHigh && m_doRadLow && m_doRadHighNoVar3c && m_doRadLowNoVar3c) == false) m_doNominal = true;
     // create the JetFlavorPlots and JetFlavorPlots_Loose directories only if needed
     if (m_config->doTightEvents()) {
       if (m_doNominal) m_hists = std::make_shared<PlotManager>(name + "/JetFlavorPlots", outputFile, wk);
-      if (m_doRadHigh) m_hists_RadHigh =
-          std::make_shared<PlotManager>(name + "/JetFlavorPlots_RadHigh", outputFile, wk);
+      if (m_doRadHigh) m_hists_RadHigh = std::make_shared<PlotManager>(name + "/JetFlavorPlots_RadHigh", outputFile, wk);
       if (m_doRadLow) m_hists_RadLow = std::make_shared<PlotManager>(name + "/JetFlavorPlots_RadLow", outputFile, wk);
+      if (m_doRadHighNoVar3c) m_hists_RadHighNoVar3c = std::make_shared<PlotManager>(name + "/JetFlavorPlots_RadHighNoVar3c", outputFile, wk);
+      if (m_doRadLowNoVar3c) m_hists_RadLowNoVar3c = std::make_shared<PlotManager>(name + "/JetFlavorPlots_RadLowNoVar3c", outputFile, wk);
     }
     if (m_config->doLooseEvents()) {
       if (m_doNominal) m_hists_Loose = std::make_shared<PlotManager>(name + "/JetFlavorPlots_Loose", outputFile, wk);
-      if (m_doRadHigh) m_hists_RadHigh_Loose = std::make_shared<PlotManager>(name + "/JetFlavorPlots_Loose_RadHigh",
-                                                                             outputFile, wk);
-      if (m_doRadLow) m_hists_RadLow_Loose = std::make_shared<PlotManager>(name + "/JetFlavorPlots_Loose_RadLow",
-                                                                           outputFile, wk);
+      if (m_doRadHigh) m_hists_RadHigh_Loose = std::make_shared<PlotManager>(name + "/JetFlavorPlots_Loose_RadHigh", outputFile, wk);
+      if (m_doRadLow) m_hists_RadLow_Loose = std::make_shared<PlotManager>(name + "/JetFlavorPlots_Loose_RadLow", outputFile, wk);
+      if (m_doRadHighNoVar3c) m_hists_RadHighNoVar3c_Loose = std::make_shared<PlotManager>(name + "/JetFlavorPlots_Loose_RadHighNoVar3c", outputFile, wk);
+      if (m_doRadLowNoVar3c) m_hists_RadLowNoVar3c_Loose = std::make_shared<PlotManager>(name + "/JetFlavorPlots_Loose_RadLowNoVar3c", outputFile, wk);
     }
     //handle binning
     std::vector<double> ptBinning;
@@ -111,11 +118,15 @@ namespace top {
       if (m_doNominal) BookHistograms(m_hists, ptBinning, etaBinning);
       if (m_doRadHigh) BookHistograms(m_hists_RadHigh, ptBinning, etaBinning);
       if (m_doRadLow) BookHistograms(m_hists_RadLow, ptBinning, etaBinning);
+      if (m_doRadHighNoVar3c) BookHistograms(m_hists_RadHighNoVar3c, ptBinning, etaBinning);
+      if (m_doRadLowNoVar3c) BookHistograms(m_hists_RadLowNoVar3c, ptBinning, etaBinning);
     }
     if (m_config->doLooseEvents()) {
       if (m_doNominal) BookHistograms(m_hists_Loose, ptBinning, etaBinning);
       if (m_doRadHigh) BookHistograms(m_hists_RadHigh_Loose, ptBinning, etaBinning);
       if (m_doRadLow) BookHistograms(m_hists_RadLow_Loose, ptBinning, etaBinning);
+      if (m_doRadHighNoVar3c) BookHistograms(m_hists_RadHighNoVar3c_Loose, ptBinning, etaBinning);
+      if (m_doRadLowNoVar3c) BookHistograms(m_hists_RadLowNoVar3c_Loose, ptBinning, etaBinning);
     }
   }
 
@@ -165,28 +176,52 @@ namespace top {
       if (event.m_isLoose) FillHistograms(m_hists_Loose, eventWeight, event);
       else FillHistograms(m_hists, eventWeight, event);
     }
-    if (m_doRadHigh) {
+    if (m_doRadHigh || m_doRadHighNoVar3c) {
       // 2 different names are acceptable
       double scaleWeight = 1.;
       if (m_PMGTruthWeights->hasWeight(" muR = 0.5, muF = 0.5 ")) scaleWeight = m_PMGTruthWeights->getWeight(" muR = 0.5, muF = 0.5 ");
       else if (m_PMGTruthWeights->hasWeight(" muR = 0.50, muF = 0.50 ")) scaleWeight = m_PMGTruthWeights->getWeight(" muR = 0.50, muF = 0.50 ");
+      else if (m_PMGTruthWeights->hasWeight("MUR0.5_MUF0.5_PDF261000")) scaleWeight = m_PMGTruthWeights->getWeight("MUR0.5_MUF0.5_PDF261000"); // for e.g. Sherpa Z+jets
+      else if (m_PMGTruthWeights->hasWeight(" muR=0.50000E+00 muF=0.50000E+00 ")) scaleWeight = m_PMGTruthWeights->getWeight(" muR=0.50000E+00 muF=0.50000E+00 "); // for e.g. ttZ DSID 410218
+      else if (m_PMGTruthWeights->hasWeight(" dyn=   0 muR=0.50000E+00 muF=0.50000E+00 ")) scaleWeight = m_PMGTruthWeights->getWeight(" dyn=   0 muR=0.50000E+00 muF=0.50000E+00 "); // for e.g. tWZ 412118
+      else if (m_PMGTruthWeights->hasWeight("1009")) scaleWeight = m_PMGTruthWeights->getWeight("1009"); // for e.g. tZ 412063
+      else if (m_PMGTruthWeights->hasWeight("muR=05,muF=05")) scaleWeight = m_PMGTruthWeights->getWeight("muR=05,muF=05"); // for some other generator setups
       else top::check(m_PMGTruthWeights->hasWeight(" muR = 0.5, muF = 0.5 "), "JetFlavorPlots::apply(): Weight \" muR = 0.5, muF = 0.5 \" not found. Please report this message!");
-      top::check(m_PMGTruthWeights->hasWeight("Var3cUp"), "JetFlavorPlots::apply(): Weight \"Var3cUp\" not found. Please report this message!");
-      double eventWeight = scaleWeight * m_PMGTruthWeights->getWeight("Var3cUp") / nominalWeight;
-      if (event.m_isLoose) FillHistograms(m_hists_RadHigh_Loose, eventWeight, event);
-      else FillHistograms(m_hists_RadHigh, eventWeight, event);
+      double eventWeight = scaleWeight;
+      if (!m_doRadHighNoVar3c) {
+        top::check(m_PMGTruthWeights->hasWeight("Var3cUp"), "JetFlavorPlots::apply(): Weight \"Var3cUp\" not found. Please report this message!");
+        eventWeight *= m_PMGTruthWeights->getWeight("Var3cUp") / nominalWeight;
+        if (event.m_isLoose) FillHistograms(m_hists_RadHigh_Loose, eventWeight, event);
+        else FillHistograms(m_hists_RadHigh, eventWeight, event);
+      } // finish if (!m_doRadHighNoVar3c) 
+      else { // m_doRadHighVar3c is true
+        if (event.m_isLoose) FillHistograms(m_hists_RadHighNoVar3c_Loose, eventWeight, event);
+        else FillHistograms(m_hists_RadHighNoVar3c, eventWeight, event);
+      } // finish else 
     }
-    if (m_doRadLow) {
+    if (m_doRadLow || m_doRadLowNoVar3c) {
       //2 different names are acceptable
       double scaleWeight = 1.;
       if (m_PMGTruthWeights->hasWeight(" muR = 2.0, muF = 2.0 ")) scaleWeight = m_PMGTruthWeights->getWeight(" muR = 2.0, muF = 2.0 ");
       else if (m_PMGTruthWeights->hasWeight(" muR = 2.00, muF = 2.00 ")) scaleWeight = m_PMGTruthWeights->getWeight(" muR = 2.00, muF = 2.00 ");
+      else if (m_PMGTruthWeights->hasWeight("MUR2_MUF2_PDF261000")) scaleWeight = m_PMGTruthWeights->getWeight("MUR2_MUF2_PDF261000"); // for e.g. Sherpa Z+jets
+      else if (m_PMGTruthWeights->hasWeight(" muR=0.20000E+01 muF=0.20000E+01 ")) scaleWeight = m_PMGTruthWeights->getWeight(" muR=0.20000E+01 muF=0.20000E+01 "); // for e.g. ttZ DSID 410218
+      else if (m_PMGTruthWeights->hasWeight(" dyn=   0 muR=0.20000E+01 muF=0.20000E+01 ")) scaleWeight = m_PMGTruthWeights->getWeight(" dyn=   0 muR=0.20000E+01 muF=0.20000E+01 "); // for e.g. tWZ 412118
+      else if (m_PMGTruthWeights->hasWeight("1005")) scaleWeight = m_PMGTruthWeights->getWeight("1005"); // for e.g. tZ 412063
+      else if (m_PMGTruthWeights->hasWeight("muR=20,muF=20")) scaleWeight = m_PMGTruthWeights->getWeight("muR=20,muF=20"); // for some other generator setups
       else top::check(m_PMGTruthWeights->hasWeight(" muR = 2.0, muF = 2.0 "), "JetFlavorPlots::apply(): Weight \" muR = 2.0, muF = 2.0 \" not found. Please report this message!");
-      top::check(m_PMGTruthWeights->hasWeight("Var3cUp"), "JetFlavorPlots::apply(): Weight \"Var3cUp\" not found. Please report this message!");
-      top::check(m_PMGTruthWeights->hasWeight("Var3cDown"), "JetFlavorPlots::apply(): Weight \"Var3cDown\" not found. Please report this message!");
-      double eventWeight = scaleWeight * m_PMGTruthWeights->getWeight("Var3cDown") / nominalWeight;
-      if (event.m_isLoose) FillHistograms(m_hists_RadLow_Loose, eventWeight, event);
-      else FillHistograms(m_hists_RadLow, eventWeight, event);
+      double eventWeight = scaleWeight;
+      if (!m_doRadLowNoVar3c) {
+        top::check(m_PMGTruthWeights->hasWeight("Var3cDown"), "JetFlavorPlots::apply(): Weight \"Var3cDown\" not found. Please report this message!");
+        eventWeight *= m_PMGTruthWeights->getWeight("Var3cDown") / nominalWeight;
+        if (event.m_isLoose) FillHistograms(m_hists_RadLow_Loose, eventWeight, event);
+        else FillHistograms(m_hists_RadLow, eventWeight, event);
+      } // finish if (!m_doRadLowNoVar3c) {
+      else { // m_doRadLowNoVar3c is true
+        if (event.m_isLoose) FillHistograms(m_hists_RadLowNoVar3c_Loose, eventWeight, event);
+        else FillHistograms(m_hists_RadLowNoVar3c, eventWeight, event);
+      } // finish else 
+      
     }
     return true;
   }

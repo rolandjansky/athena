@@ -4,7 +4,6 @@ import re
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerJobOpts.TriggerFlags' )
-log.setLevel(logging.DEBUG)
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.JobProperties import jobproperties # noqa: F401
@@ -41,34 +40,23 @@ default_true_flags = [
     "doZdc",  # if False, disable ZDC algorithms at LVL2 & EF """"
     "doLucid", # if False, disable Lucid algorithms at LVL2 & EF
     "doMuon", # if FAlse, disable Muons, note: muons need input file containing digits"""
-    "doHLTpersistency",  # serialise L2result """
     "doNavigationSlimming",  # Enable the trigger navigation slimming"""
 ]
 
 default_false_flags = [
-    "readLVL1FromJSON", # the authoritative L1 menu (xml or json) - this flag will be removed after the transition to json has been completed
-    "readLVL1Calo", # read LVL1 Calo info from pool or BS """
-    "readLVL1Muon", # read LVL1 Muon in from Pool or BS """
     "fakeLVL1", # create fake RoI from KINE info  """
     "useL1CaloCalibration", # Should be false for early data, true for later """
     "useRun1CaloEnergyScale",
     "doCosmicSim", # run the LVL1 simulation with special setup for cosmic simulation (set to FALSE by default, to do collisions simulation) """
-    "disableRandomPrescale",  # if True, disable Random Prescales
-    "doLVL2",  # if False, disable LVL2 selection
-    "doEF",  # if False, disable EF selection
     "doTruth",
     "doFTK",  # if False, disable FTK result reader """
     "doTriggerConfigOnly",  # if True only the configuration services should be set, no algorithm """
-    "useOfflineSpacePoints", # use online convertors for Si SpacePoints
     "doTransientByteStream",  # Write transient ByteStream before executing HLT algorithms.
                               # To be used for running on MC RDO with clients which require BS inputs.
-    "doNtuple",
     "writeBS",  # Write ByteStream output file """
     "readBS",
     "readMenuFromTriggerDb", # define the TriggerDb to be the source of the LVL1 and HLT trigger menu
     "generateMenuDiagnostics",  # Generate additional files heling in menu diagnostics """
-    "abortOnConfigurationError", # Should the job be stoped if there is an error in configuration
-
 ]
 
 for name in default_true_flags:
@@ -87,51 +75,28 @@ class doHLT(JobProperty):
     allowedType=['bool']
     StoredValue=True
     
-    def _do_action(self):
-        """ setup flag level consistency """
-        if self.get_Value() is True:
-            if TriggerFlags.doEF.is_locked():
-                TriggerFlags.doEF.unlock()
-                TriggerFlags.doEF.set_Off()
-                TriggerFlags.doEF.lock()
-            else:
-                TriggerFlags.doEF.set_Off()
-            if TriggerFlags.doEF.is_locked():
-                TriggerFlags.doLVL2.unlock()
-                TriggerFlags.doLVL2.set_Off()
-                TriggerFlags.doLVL2.lock()
-            else:
-                TriggerFlags.doLVL2.set_Off()
-            log = logging.getLogger( 'TriggerFlags.doHLT' )
-            log.info("doHLT is True: force doLVL2=False and doEF=False"  )
-
 _flags.append(doHLT)
 
-class doMT(JobProperty):
-    """ Configure Run-3 AthenaMT Trigger """
-    statusOn=True
-    allowedType=['bool']
-    # Cannot use OnlineFlags.partitionName here because OnlineFlags need TriggerFlags to be created first
-    import os
-    partitionName = os.getenv('TDAQ_PARTITION') or ''
-    if partitionName:
-        # Only MT Trigger is supported online
-        StoredValue=True
-    else:
-        # ConcurrencyFlags are valid only in offline athena
-        from AthenaCommon.ConcurrencyFlags import jobproperties  # noqa: F811
-        StoredValue=bool(jobproperties.ConcurrencyFlags.NumThreads() >= 1)
-
-_flags.append(doMT)
-
-class EDMDecodingVersion(JobProperty):
+class EDMVersion(JobProperty):
     """ if 1, Run1 decoding version is set; if 2, Run2; if 3, Run3 """
-    statusOn=True
+    statusOn=False
     allowedType=['int']
     allowedValues=[1,2,3]
     StoredValue=3
 
-_flags.append(EDMDecodingVersion)
+    def _do_action(self):
+        self.statusOn = True
+
+    def __call__(self):
+        if not self.statusOn:
+            log = logging.getLogger('TriggerJobOpts.TriggerFlags')
+            log.warning('TriggerFlags.EDMVersion is deprecated, please use ConfigFlags.Trigger.EDMVersion')
+            from AthenaConfiguration.AllConfigFlags import ConfigFlags
+            self.StoredValue = ConfigFlags.Trigger.EDMVersion
+            self.statusOn = True
+        return JobProperty.__call__(self)
+
+_flags.append(EDMVersion)
 
 class enableMonitoring(JobProperty):
     """ enables certain monitoring type: Validation, Online, Time"""
@@ -514,16 +479,23 @@ class readLVL1configFromXML(JobProperty):
         import os
         log = logging.getLogger( 'TriggerFlags.readLVL1configFromXML' )
 
-        if TriggerFlags.doMT():
-            import TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1Flags  # noqa: F401
-        else:
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        try:
+            legacy_run2_trigger = (ConfigFlags.Trigger.EDMVersion <= 2) and not os.getenv('TDAQ_PARTITION')
+        except Exception:
+            log.warning("Could not determine if legacy or Run-3 configuration is needed. Assuming Run-3.")
+            legacy_run2_trigger = False
+
+        if legacy_run2_trigger:
             import TriggerMenu.l1.Lvl1Flags  # noqa: F401
+        else:
+            import TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1Flags  # noqa: F401
         
         if self.get_Value() is False:
             TriggerFlags.inputLVL1configFile = TriggerFlags.outputLVL1configFile()
             TriggerFlags.Lvl1.items.set_On()
         else:
-            menuXMLPackage = "TriggerMenuMT" if TriggerFlags.doMT() else "TriggerMenuXML"
+            menuXMLPackage = "TriggerMenuXML" if legacy_run2_trigger else "TriggerMenuMT"
             TriggerFlags.inputLVL1configFile = menuXMLPackage + "/LVL1config_"+_getMenuBaseName(TriggerFlags.triggerMenuSetup())+"_" + TriggerFlags.menuVersion() + ".xml"
             xmlFile=TriggerFlags.inputLVL1configFile()
             from TrigConfigSvc.TrigConfigSvcConfig import findFileInXMLPATH
@@ -833,7 +805,9 @@ class triggerMenuSetup(JobProperty):
         'Dev_HI_run3_v1', # Dev_HI_run3 for AthenaMT
         'MC_pp_v8', 'Physics_pp_v8', 'MC_pp_v8_no_prescale', 'MC_pp_v8_tight_mc_prescale', 'MC_pp_v8_tightperf_mc_prescale', 'MC_pp_v8_loose_mc_prescale','Physics_pp_v8_tight_physics_prescale',
         'Cosmic_run3_v1',
-        'LS2_v1_TriggerValidation_mc_prescale'
+        'LS2_v1_TriggerValidation_prescale',
+        'LS2_v1_BulkMCProd_prescale',
+        'LS2_v1_CPSampleProd_prescale'
         ]
 
     _default_menu='Physics_pp_v7_primaries'
@@ -940,14 +914,38 @@ TriggerFlags = rec.Trigger
 ## add online specific flags
 from TriggerJobOpts.TriggerOnlineFlags      import OnlineFlags   # noqa: F401
 
-## add slices generation flags
+def _legacy_run2_trigger():
+    if TriggerFlags.Online.partitionName():
+        return False
+    try:
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        return (ConfigFlags.Trigger.EDMVersion <= 2)
+    except Exception:
+        # This is needed when TriggerFlags are imported before we can determine if we need legacy
+        # or Run-3 trigger configuration. This whole function wouldn't be needed if we didn't change
+        # which SliceFlags we import during the import of TriggerFlags depending on legacy vs Run-3
+        # below. Running MT or serial has no relation to legacy vs Run-3 trigger in any case other
+        # than when executing trigger algorithms (like at P1 or in RDOtoRDOTrigger), but it's the best
+        # we can do here until we remove the legacy TriggerMenu. This is likely to be incorrect in
+        # digitisation / offline reconstruction / offline monitoring / derivations, but hopefully these
+        # jobs won't depend on SliceFlags.
+        from AthenaCommon.ConcurrencyFlags import jobproperties as cfjp
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        log = logging.getLogger('TriggerJobOpts.TriggerFlags')
+        log.debug('WARNING TriggerFlags imported before legacy vs Run-3 trigger config can be determined. '
+                  'Cannot determine whether to import SliceFlags for legacy TriggerMenu or TriggerMenuMT. '
+                  'Assuming legacy if numThreads=0 or Run-3 otherwise. If this job depends on SliceFlags, '
+                  'ensure ConfigFlags.Trigger.EDMVersion is either set manually or can be auto-configured '
+                  'from ConfigFlags.Input.Files before importing TriggerFlags.')
+        return cfjp.ConcurrencyFlags.NumThreads() == 0 and ConfigFlags.Concurrency.NumThreads == 0
 
-if doMT():
-    log.info("TriggerFlags importing SliceFlagsMT"  )
-    from TriggerJobOpts.SliceFlagsMT import *                                   # noqa: F401, F403
-else:
+## add slices generation flags
+if _legacy_run2_trigger():
     log.info("TriggerFlags importing SliceFlags (non-MT)"  )
     from TriggerJobOpts.SliceFlags import *                                   # noqa: F401, F403
+else:
+    log.info("TriggerFlags importing SliceFlagsMT"  )
+    from TriggerJobOpts.SliceFlagsMT import *                                   # noqa: F401, F403
 
 from TriggerJobOpts.Tier0TriggerFlags       import Tier0TriggerFlags      # noqa: F401
 
@@ -964,8 +962,7 @@ def sync_Trigger2Reco():
     if globalflags.InputFormat() == 'bytestream':
         TriggerFlags.readBS = True
         TriggerFlags.doLVL1 = False
-        TriggerFlags.doLVL2 = False
-        TriggerFlags.doEF   = False
+        TriggerFlags.doHLT   = False
 
     if rec.doWriteBS():
         TriggerFlags.writeBS = True

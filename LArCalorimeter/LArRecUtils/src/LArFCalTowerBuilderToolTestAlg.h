@@ -51,7 +51,8 @@ public:
 
 private:
   CaloCellContainer* make_cells();
-  StatusCode test_subseg (const CaloTowerSeg::SubSeg& subseg,
+  StatusCode test_subseg (const EventContext& ctx,
+                          const CaloTowerSeg::SubSeg& subseg,
                           const CaloCellContainer* cells,
                           const CaloTowerContainer* tow0);
   StatusCode test1();

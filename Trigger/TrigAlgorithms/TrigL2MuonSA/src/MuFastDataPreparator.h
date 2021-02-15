@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUFASTDATAPREPARATOR_H
@@ -12,11 +12,10 @@
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
-#include "RegionSelector/IRegSelSvc.h"
 
 #include "TrigT1Interfaces/RecMuonRoI.h"
 #include "TrigT1Interfaces/RecMuonRoiSvc.h"
-#include "TrigT1RPCRecRoiSvc/RPCRecRoiSvc.h"
+#include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 #include "MuFastDataPreparatorOptions.h"
@@ -55,6 +54,7 @@ class MuFastDataPreparator: public AthAlgTool {
   
   StatusCode prepareData(const LVL1::RecMuonRoI*     p_roi,
 			 const TrigRoiDescriptor*    p_roids,
+                         bool&                       isRpcFakeRoi,
 			 const bool                  insideOut,
 			 TrigL2MuonSA::RpcHits&      rpcHits,
 			 TrigL2MuonSA::MuonRoad&     muonRoad,
@@ -94,17 +94,12 @@ class MuFastDataPreparator: public AthAlgTool {
 
   void setExtrapolatorTool(ToolHandle<ITrigMuonBackExtrapolator>* backExtrapolator);
 
-  bool isRpcFakeRoi() {return m_isRpcFakeRoi;}
-
-  void setMultiMuonTrigger( const bool multiMuonTrigger ) {m_doMultiMuon = multiMuonTrigger;};
+  void setMultiMuonTrigger( const bool multiMuonTrigger );
 
  private:
   TrigL2MuonSA::MuFastDataPreparatorOptions m_options;
-  SG::ReadCondHandleKey<RpcCablingCondData> m_readKey{this, "ReadKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
 
-  ServiceHandle<IRegSelSvc> m_regionSelector;
-
-  ServiceHandle<LVL1RPC::RPCRecRoiSvc> m_recRPCRoiSvc{this, "RPCRecRoiSvc", "LVL1RPC::RPCRecRoiSvc"};
+  ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_recRPCRoiTool{this, "TrigT1RPCRecRoiTool", "LVL1::TrigT1RPCRecRoiTool/TrigT1RPCRecRoiTool"};
   ToolHandle<RpcDataPreparator>   m_rpcDataPreparator{this, "RPCDataPreparator", "TrigL2MuonSA::RpcDataPreparator"};
   ToolHandle<TgcDataPreparator>   m_tgcDataPreparator{this, "TGCDataPreparator", "TrigL2MuonSA::TgcDataPreparator"};
   ToolHandle<MdtDataPreparator>   m_mdtDataPreparator{this, "MDTDataPreparator", "TrigL2MuonSA::MdtDataPreparator"};
@@ -112,8 +107,8 @@ class MuFastDataPreparator: public AthAlgTool {
   ToolHandle<StgcDataPreparator>  m_stgcDataPreparator{this,"STGCDataPreparator","TrigL2MuonSA::StgcDataPreparator"};
   ToolHandle<MmDataPreparator>    m_mmDataPreparator{this,  "MMDataPreparator",  "TrigL2MuonSA::MmDataPreparator"};
 
-  ToolHandle<RpcRoadDefiner>      m_rpcRoadDefiner{"TrigL2MuonSA::RpcRoadDefiner"};
-  ToolHandle<TgcRoadDefiner>      m_tgcRoadDefiner{"TrigL2MuonSA::TgcRoadDefiner"};
+  ToolHandle<RpcRoadDefiner>      m_rpcRoadDefiner{this, "RpcRoadDefiner", "TrigL2MuonSA::RpcRoadDefiner"};
+  ToolHandle<TgcRoadDefiner>      m_tgcRoadDefiner{this, "TgcRoadDefiner", "TrigL2MuonSA::TgcRoadDefiner"};
   ToolHandle<RpcPatFinder>        m_rpcPatFinder{"TrigL2MuonSA::RpcPatFinder"};
   
   ToolHandle<ITrigMuonBackExtrapolator>* m_backExtrapolatorTool{nullptr};

@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-# $Id$
 #
 # @file egammaD3PDAnalysis/python/egammaTruthParticleConfig.py
 # @author scott snyder <snyder@bnl.gov>
@@ -11,12 +10,10 @@
 
 
 import egammaD3PDAnalysis
-import D3PDMakerCoreComps
 from D3PDMakerConfig.D3PDMakerFlags           import D3PDMakerFlags
-from McParticleAlgs.JobOptCfg                 import createMcAodBuilder
-from RecExConfig.RecFlags                     import rec
 from AthenaCommon.AlgSequence                 import AlgSequence
 from RecExConfig.ObjKeyStore                  import cfgKeyStore
+from RecExConfig.RecFlags                     import rec
 from AthenaCommon                             import CfgMgr
 
 
@@ -36,10 +33,11 @@ def egammaTruthParticleConfig \
 
     algname = prefix + sgkey + 'Builder'
     if not hasattr (seq, algname):
-        import AthenaCommon.CfgMgr as CfgMgr
+        from MCTruthClassifier.MCTruthClassifierBase import getMCTruthClassifierExtrapolator
         from egammaRec.Factories import ToolFactory
         exten = ToolFactory (CfgMgr.Trk__ParticleCaloExtensionTool,
                              name="GSFParticleCaloExtensionTool",
+                             Extrapolator = getMCTruthClassifierExtrapolator(),
                              StartFromPerigee = True)()
 
         seq += egammaD3PDAnalysis.egammaTruthAlg (

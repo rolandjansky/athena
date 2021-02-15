@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -18,7 +18,7 @@
 #include "InDetPrepRawData/SiWidth.h"
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SiLocalPosition.h"
+#include "ReadoutGeometryBase/SiLocalPosition.h"
 #include "InDetIdentifier/PixelID.h"
 #include "SiClusterizationTool/ClusterMakerTool.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
@@ -339,7 +339,7 @@ namespace InDet {
     // rowcolID contains: number of connected pixels, phi/eta pixel indices, tot, lvl1, rdo identifier
     std::vector<rowcolID> collectionID;
     std::unordered_set<Identifier> setOfIdentifiers{};
-    for(const auto & rdo : collection) {
+    for(const auto rdo : collection) {
       const Identifier rdoID= rdo->identify();
       if (m_useModuleMap and !(m_summaryTool->isGood(idHash,rdoID))) continue;
       //check for duplication:

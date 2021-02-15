@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MCTRUTHCLASSIFIER_MCTRUTHCLASSIFIER_H
@@ -83,6 +83,29 @@ public:
   virtual const xAOD::TruthParticle* isHadronFromB(const xAOD::TruthParticle*) const override;
   const xAOD::TruthParticle* getMother(const xAOD::TruthParticle*) const;
 
+  virtual unsigned int classify(const xAOD::TruthParticle  *) const override;
+
+  enum MCTC_bits : unsigned int { HadTau=0, Tau, hadron, frombsm, uncat, isbsm, isgeant, stable, totalBits };
+
+  /// \brief These helper functions return the value that the respective bit is set to in \ref MCTruthClassifier
+  static unsigned int isGeant(const unsigned int classify) { return std::bitset<MCTC_bits::totalBits> (classify).test(MCTC_bits::isgeant); }
+  static unsigned int isBSM(const unsigned int classify) { return std::bitset<MCTC_bits::totalBits> (classify).test(MCTC_bits::isbsm); }
+  static unsigned int fromBSM(const unsigned int classify) { return std::bitset<MCTC_bits::totalBits> (classify).test(MCTC_bits::frombsm); }
+
+  /*! \brief This helper function returns the value -1 by checking the bit set in \ref MCTruthClassifier.
+   * It returns the value -1 if uncategorised, 0 if non-prompt, 1 if prompt
+   * It also checks for prompt taus
+   */
+
+  static int isPrompt(const unsigned int classify, bool allow_prompt_tau_decays = true) {
+    std::bitset<MCTC_bits::totalBits> res(classify);
+    if (res.test(MCTC_bits::uncat)) return -1;
+    bool fromPromptTau = res.test(MCTC_bits::Tau) && !res.test(MCTC_bits::HadTau);
+    if (fromPromptTau) return int(allow_prompt_tau_decays);
+    return !res.test(MCTC_bits::hadron);
+  }
+
+
 #ifndef XAOD_ANALYSIS /*This can not run in Analysis Base*/
   virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(
     HepMC::ConstGenParticlePtr,
@@ -110,6 +133,7 @@ public:
   particleTruthClassifier(const xAOD::Jet*, bool DR, Info* info = nullptr) const override;
 
   virtual const xAOD::TruthParticle* getGenPart(const xAOD::TrackParticle*, Info* info = nullptr) const override;
+
 #endif
 
 private:
@@ -150,6 +174,9 @@ private:
                                                           const xAOD::TruthParticle*,
                                                           bool& isPrompt,
                                                           Info* info) const;
+  //MCTruthPartClassifier::ParticleOrigin
+  virtual unsigned int defOrigOfParticle(const xAOD::TruthParticle*) const override;
+
   //
   MCTruthPartClassifier::ParticleOrigin defHadronType(long);
   static bool isHadron(const xAOD::TruthParticle*);
@@ -166,8 +193,16 @@ private:
 
   /* Private functions */
 #if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE) /*Athena Only*/
-  bool genPartToCalo(const xAOD::CaloCluster*, const xAOD::TruthParticle*, bool, double&, bool&, Cache* cache) const;
-  const xAOD::TruthParticle* egammaClusMatch(const xAOD::CaloCluster*, bool, Info* info) const;
+  bool genPartToCalo(const EventContext& ctx,
+                     const xAOD::CaloCluster*,
+                     const xAOD::TruthParticle*,
+                     bool,
+                     double&,
+                     bool&,
+                     Cache* cache) const;
+  const xAOD::TruthParticle* egammaClusMatch(const xAOD::CaloCluster*,
+                                             bool,
+                                             Info* info) const;
 #endif
 
 #ifndef GENERATIONBASE /*Disable when no recostruction packages are expected*/
@@ -232,6 +267,7 @@ this,
     "xAODTruthLinks",
     "ReadHandleKey for xAODTruthParticleLinkVector"
   };
+
 #endif
 #ifndef GENERATIONBASE /*Disable when no recostruction packages are expected*/
   float m_deltaRMatchCut;

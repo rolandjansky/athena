@@ -210,20 +210,22 @@ StatusCode McTopAnaSolution::doMcTopWb()
   m_vtxFilter->filterMcEventCollection(mcevt, filteredMcEvt);
 
   const HepMC::GenEvent * evtAod = filteredMcEvt->front();
-  for ( HepMC::GenEvent::particle_const_iterator itr = evtAod->particles_begin();
-        itr != evtAod->particles_end();
-        ++itr ) {
-    ATH_MSG_DEBUG("Part. id: " << (*itr)->pdg_id() << endmsg
-                  << "E= "        << (*itr)->momentum().e()
-                  << "\tpx= "     << (*itr)->momentum().px());
+  for ( auto particle:  *evtAod) {
+    ATH_MSG_DEBUG("Part. id: " << particle->pdg_id() << endmsg
+                  << "E= "        << particle->momentum().e()
+                  << "\tpx= "     << particle->momentum().px());
 
     // retrieve the decay vertex of the current particle
-    const HepMC::GenVertex * decayVtx = (*itr)->end_vertex();
+   auto decayVtx = particle->end_vertex();
 
-    if (PDG::t == (*itr)->pdg_id() && //> select top
+    if (PDG::t == particle->pdg_id() && //> select top
         0      !=  decayVtx        && //> check that we have a valid vtx pointer
+#ifdef HEPMC3
+        2      <=  decayVtx->particles_out().size() ) { //> isn't necessary, just to exercize the GenVertex interface
+#else
         2      <=  decayVtx->particles_out_size() ) { //> isn't necessary, just to exercize the GenVertex interface
-      m_h_mctop_mass->Fill( (*itr)->momentum().m() );
+#endif
+      m_h_mctop_mass->Fill( particle->momentum().m() );
     }//> top
   }//> end loop over particles
 
@@ -266,8 +268,8 @@ StatusCode McTopAnaSolution::doMcTopWb()
       // not interested in... Skip it
       continue;
     }
-    const HepMC::GenParticle* hepPart = mc->genParticle();
-    const HepMC::GenVertex* vtx = hepPart->end_vertex();
+    auto hepPart = mc->genParticle();
+    auto vtx = hepPart->end_vertex();
     // Get the W boson
     if ( 0 != vtx &&
          wqqFilter.isAccepted( vtx ) ) {

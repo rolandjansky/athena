@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkJetVxFitter/TrkDistanceFinderNeutralNeutral.h"
@@ -16,21 +16,6 @@ TrkDistanceFinderNeutralNeutral::TrkDistanceFinderNeutralNeutral(const std::stri
   declareInterface<TrkDistanceFinderNeutralNeutral>(this);
   
 }
-
-
-StatusCode TrkDistanceFinderNeutralNeutral::initialize() 
-  { 
-    StatusCode s = AthAlgTool::initialize();
-    ATH_MSG_INFO("Initialize successful");
-    return s;
-  }
-
-StatusCode TrkDistanceFinderNeutralNeutral::finalize() 
-{
-  ATH_MSG_INFO("Finalize successful");
-  return StatusCode::SUCCESS;
-}
-
 
 TrkDistanceFinderNeutralNeutral::~TrkDistanceFinderNeutralNeutral() = default;
 

@@ -36,7 +36,7 @@ runArgs.trigStream = 'MinBias'
 runArgs.preExec = ['from RecExConfig.RecFlags  import rec','rec.doMonitoring=False','rec.doInDet=False','rec.doMuon=False','rec.doMuonCombined=False','rec.doEgamma=False','rec.doTau=False','rec.doTrigger=False','from LArROD.LArRODFlags import larRODFlags','larRODFlags.readDigits.set_Value_and_Lock(False)','doTopoClusterCBNT=True']
 
 # Configuration fragment for DPD.
-runArgs.preInclude = ['RecExCommon/RecoUsefulFlags.py', 'RecExCommission/RecExCommissionRepro.py', 'RecExCommission/MinimalCommissioningSetup.py', 'RecJobTransforms/UseOracle.py']
+runArgs.preInclude = ['RecExCommon/RecoUsefulFlags.py', 'RecExCommission/RecExCommissionRepro.py', 'RecExCond/MinimalCommissioningSetup.py', 'RecJobTransforms/UseOracle.py']
 
 # Configuration fragment for DPD.
 #runArgs.postInclude = ['RecJobTransforms/reducedRegionSelectorPostConfig.py']

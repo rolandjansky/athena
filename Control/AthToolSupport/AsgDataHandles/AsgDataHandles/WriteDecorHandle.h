@@ -68,19 +68,20 @@ public:
   explicit WriteDecorHandle (const WriteDecorHandleKey<T>& key);
 
 
-//   /**
-//    * @brief Constructor from a ReadDecorHandleKey and an explicit event context.
-//    * @param key The key object holding the clid/key.
-//    * @param ctx The event context.
-//    *
-//    * This will raise an exception if the StoreGate key is blank,
-//    * or if the event store cannot be found.
-//    *
-//    * If the default event store has been requested, then the thread-specific
-//    * store from the event context will be used.
-//    */
-//   explicit WriteDecorHandle (const WriteDecorHandleKey<T>& key,
-//                              const EventContext& ctx);
+  /**
+   * @brief Constructor from a ReadDecorHandleKey and an explicit event context.
+   * @param key The key object holding the clid/key.
+   * @param ctx The event context.
+   *
+   * This will raise an exception if the StoreGate key is blank,
+   * or if the event store cannot be found.
+   *
+   * If the default event store has been requested, then the thread-specific
+   * store from the event context will be used.
+   */
+  explicit WriteDecorHandle (const WriteDecorHandleKey<T>& key,
+                             const EventContext& ctx);
+
 
 //   /**
 //    * @brief Copy constructor.
@@ -112,15 +113,15 @@ public:
 //   WriteDecorHandle& operator= (WriteDecorHandle&& rhs);
 
 
-//   /**
-//    * @brief Is the referenced container present in SG?
-//    *
-//    * Note that this tests for the presence of the _container_,
-//    * not for the decoration.
-//    *
-//    * Const method; the handle does not change as a result of this.
-//    */
-//   bool isPresent() const;
+  /**
+   * @brief Is the referenced container present in SG?
+   *
+   * Note that this tests for the presence of the _container_,
+   * not for the decoration.
+   *
+   * Const method; the handle does not change as a result of this.
+   */
+  bool isPresent() const;
 
 
 //   /**
@@ -160,11 +161,11 @@ public:
 //   getDecorationArray();
 
 
-//   /**
-//    * @brief Test to see if this variable exists in the store,
-//    *        for the referenced object.
-//    */
-//   bool isAvailable();
+  /**
+   * @brief Test to see if this variable exists in the store,
+   *        for the referenced object.
+   */
+  bool isAvailable();
 
 
 //   /**
@@ -172,7 +173,19 @@ public:
 //    */
 //   SG::auxid_t auxid() const;
 
-  
+
+  // /**
+  //  * @brief Return the mode (read/write/update) for this handle.
+  //  */
+  // Gaudi::DataHandle::Mode mode() const;
+
+
+  /**
+   * @brief Return the name of the decoration alias (CONT.DECOR).
+   */
+  std::string decorKey() const;
+
+
 // private:
 //   /**
 //    * @brief Retrieve an object from StoreGate.
@@ -184,22 +197,22 @@ public:
 //   virtual void* typeless_dataPointer_impl (bool quiet) override;
 
 
-//   /**
-//    * @brief Test to see if this variable exists in the store,
-//    *        for the referenced object.
-//    *        Specialization for the case of a standalone object
-//    *        (@c T derives from @c SG::AuxElement).
-//    */
-//   bool isAvailable (std::true_type);
+  /**
+   * @brief Test to see if this variable exists in the store,
+   *        for the referenced object.
+   *        Specialization for the case of a standalone object
+   *        (@c T derives from @c SG::AuxElement).
+   */
+  bool isAvailable (std::true_type);
 
 
-//   /**
-//    * @brief Test to see if this variable exists in the store,
-//    *        for the referenced object.
-//    *        Specialization for the case of a container
-//    *        (@c T does not derive from @c SG::AuxElement).
-//    */
-//   bool isAvailable (std::false_type);
+  /**
+   * @brief Test to see if this variable exists in the store,
+   *        for the referenced object.
+   *        Specialization for the case of a container
+   *        (@c T does not derive from @c SG::AuxElement).
+   */
+  bool isAvailable (std::false_type);
 
 
 //   /** 
@@ -228,9 +241,8 @@ public:
 //   const SG::AuxVectorData* vectorData();
 
 
-//   /// Handle for reading the referenced object using its original name
-//   /// (not the alias).
-//   SG::ReadHandle<T> m_contHandle;
+  /// Name of the decoration alias: CONT.DECOR.
+  std::string m_decorKey;
 
 
   /// Accessor for the aux data item.

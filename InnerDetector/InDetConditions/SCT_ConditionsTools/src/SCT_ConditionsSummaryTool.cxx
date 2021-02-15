@@ -33,13 +33,6 @@ SCT_ConditionsSummaryTool::initialize() {
   return sc;
 }
 
-//Finalize
-StatusCode
-SCT_ConditionsSummaryTool::finalize() {
-  ATH_MSG_INFO("Thank-you for using the SCT_ConditionsSummaryTool, version " << PACKAGE_VERSION);
-  return StatusCode::SUCCESS;
-}
-
 bool
 SCT_ConditionsSummaryTool::isActive(const Identifier& elementId, const InDetConditions::Hierarchy h) const {
   return isGood(elementId, h);

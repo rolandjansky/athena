@@ -29,8 +29,6 @@ class StatusCode;
 class ZdcDigits;
 class ZdcDigitsCollection;
 
-#include "xAODTrigL1Calo/TriggerTowerContainer.h"
-
 class ZdcByteStreamRawDataV2: public AthReentrantAlgorithm
 {
 public:

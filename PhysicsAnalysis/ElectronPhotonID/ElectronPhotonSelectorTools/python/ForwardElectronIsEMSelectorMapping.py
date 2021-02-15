@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
 ## Name:        ForwardElectronIsEMSelectorMapping.py
@@ -9,7 +9,7 @@
 ## Description: Find mapping of mask and function for ID quality
 ##=============================================================================
 
-import ROOT,cppyy
+import cppyy
 cppyy.include("ElectronPhotonSelectorTools/egammaPIDdefs.h")
 
 from ROOT import egammaPID

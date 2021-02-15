@@ -10,7 +10,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "IRegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 
@@ -39,7 +39,7 @@ private:
   ToolHandle<Muon::IMuonRawDataProviderTool> m_rawDataTool{this,"ProviderTool","Muon::RPC_RawDataProviderToolMT/RpcRawDataProviderTool"};
 
   /// Handle for region selector service
-  ServiceHandle<IRegSelSvc> m_regionSelector;
+  ToolHandle<IRegSelTool> m_regsel_rpc{this, "RegionSelectionTool", "RegSelTool/RegSelTool_RPC", "RPC Region Selector Tool"};
 
   /// Property to decide whether or not to do RoI based decoding
   Gaudi::Property< bool > m_seededDecoding { this, "DoSeededDecoding", false, "If true do decoding in RoIs"};

@@ -19,7 +19,7 @@ namespace Monitored {
     std::string path; //!< booking path
     std::string title; //!< title of the histogram
     std::string opt; //!< options
-    std::string tld{""}; //!< top level directory (below THistSvc stream)
+    std::string tld; //!< top level directory (below THistSvc stream)
     std::string weight; //!< name of weight variable
     std::string cutMask; //!< variable that defines whether event is accepted
 
@@ -40,33 +40,34 @@ namespace Monitored {
     RunMode runmode = RunMode::Invalid; //!< online or offline
     RunPeriod runperiod = RunPeriod::Invalid; //!< rebook period in offline monitoring
 
-    bool Sumw2; //!< store sum of squares of weights
-    int kLBNHistoryDepth; //!< length of lb history
-    bool kAddBinsDynamically; //!< add new bins outside the existing range
-    bool kRebinAxes; //!< increase the axis range without adding new bins
-    bool kCanRebin; //!< allow all axes to be rebinned
-    bool kVec; //!< add content to each bin from each element of a vector
-    bool kVecUO; //!< add content to each bin from vector, including overflow/underflow
-    bool kCumulative; //!< fill bin of monitored object's value, and every bin below it
+    bool Sumw2{false}; //!< store sum of squares of weights
+    int kLBNHistoryDepth{0}; //!< length of lb history
+    bool kAddBinsDynamically{false}; //!< add new bins outside the existing range
+    bool kRebinAxes{false}; //!< increase the axis range without adding new bins
+    bool kCanRebin{false}; //!< allow all axes to be rebinned
+    bool kVec{false}; //!< add content to each bin from each element of a vector
+    bool kVecUO{false}; //!< add content to each bin from vector, including overflow/underflow
+    bool kCumulative{false}; //!< fill bin of monitored object's value, and every bin below it
+    int kLive{0}; //!< fill only the last N lumiblocks in y_vs_lb plots
 
     std::string xvar; //!< name of x variable
-    int xbins; //!< number of y bins
-    float xmin; //!< x axis minimum
-    float xmax; //!< x axis maximum
+    int xbins{0}; //!< number of y bins
+    float xmin{0}; //!< x axis minimum
+    float xmax{0}; //!< x axis maximum
     std::vector<std::string> xlabels; //!< labels for x axis
     std::vector<double> xarray; //!< array of x bin edges
 
     std::string yvar; //!< name of y variable
-    int ybins; //!< number of y bins
-    float ymin; //!< y axis minimum
-    float ymax; //!< y axis maximum
+    int ybins{0}; //!< number of y bins
+    float ymin{0}; //!< y axis minimum
+    float ymax{0}; //!< y axis maximum
     std::vector<std::string> ylabels; //!< labels for y axis
     std::vector<double> yarray; //!< array of y bin edges
 
     std::string zvar; //!< name of z variable
-    int zbins; //!< number of z bins
-    float zmin; //!< z axis minimum
-    float zmax; //!< z axis maximum
+    int zbins{0}; //!< number of z bins
+    float zmin{0}; //!< z axis minimum
+    float zmax{0}; //!< z axis maximum
     std::vector<std::string> zlabels; //!< labels for z axis
 
     std::string treeDef; //!< defines output TTree of monitored quantities

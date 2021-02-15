@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVERTEXFITTERUTILS_NEUTRALPARTICLEPARCALCULATOR_H
@@ -43,9 +43,8 @@ namespace Trk
   class NeutralParticleParameterCalculator : public AthAlgTool, virtual public INeutralParticleParameterCalculator
   {
   public:
-    StatusCode initialize();
-    StatusCode finalize();
-    
+    virtual StatusCode initialize() override;
+
   /**
    * Default constructor due to Athena interface
    */
@@ -59,7 +58,7 @@ namespace Trk
    /**
     * method that makes the parameters of a V0 or photon before decay to two tracks
     */
-    NeutralPerigee* createNeutralTrackFromVertex(const xAOD::Vertex& ) const;
+    virtual NeutralPerigee* createNeutralTrackFromVertex(const xAOD::Vertex& ) const override;
 
   private:
 

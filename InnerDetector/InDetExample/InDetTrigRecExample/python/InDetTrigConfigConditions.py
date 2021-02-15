@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -65,13 +65,9 @@ class PixelConditionsServicesSetup:
     from AthenaCommon.GlobalFlags import globalflags
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
-    useNewDeadmapFormat = False
     useNewChargeFormat  = False
-
-    if not useNewDeadmapFormat:
-      if not (conddb.folderRequested("/PIXEL/PixMapOverlay") or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):
-        conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapOverlay","/PIXEL/PixMapOverlay", className='CondAttrListCollection')
 
     if not hasattr(condSeq, 'PixelConfigCondAlg'):
       from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
@@ -89,12 +85,12 @@ class PixelConditionsServicesSetup:
             IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl4.dat"
           elif "BrlExt3.2_ref" == commonGeoFlags.GeoType():
             IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl32.dat"
-        elif (geoFlags.isIBL() == False):
+        elif (geoFlags.isIBL() is False):
           IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping.dat"
         else:
           # Planar IBL
           if (geoFlags.IBLLayout() == "planar"):
-            if (geoFlags.isDBM() == True):
+            if (geoFlags.isDBM() is True):
               IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_inclIBL_DBM.dat"
             else:
               IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_inclIBL.dat"
@@ -122,22 +118,27 @@ class PixelConditionsServicesSetup:
 
       alg = PixelConfigCondAlg(name="PixelConfigCondAlg", 
                                CablingMapFileName=IdMappingDat)
-      if not self.usePixMap:
-        alg.ReadDeadMapKey = ""
       condSeq += alg
 
     #########################
     # Deadmap Setup (RUN-3) #
     #########################
-    if useNewDeadmapFormat:
-      if not conddb.folderRequested("/PIXEL/PixelModuleFeMask"):
+    if not (conddb.folderRequested("/PIXEL/PixelModuleFeMask") or conddb.folderRequested("/PIXEL/Onl/PixelModuleFeMask")):
+      # TODO: Once global tag is updated, this line should be removed.
+      if not athenaCommonFlags.isOnline():
         conddb.addFolder("PIXEL_OFL", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
-      if not hasattr(condSeq, "PixelDeadMapCondAlg"):
-        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
-        alg = PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
-        if not self.usePixMap:
-          alg.ReadKey = ""
-        condSeq += alg
+        if (globalflags.DataSource=='data'):
+          conddb.addOverride("/PIXEL/PixelModuleFeMask","PixelModuleFeMask-RUN2-DATA-UPD4-05")
+        else:
+          conddb.addOverride("/PIXEL/PixelModuleFeMask","PixelModuleFeMask-SIM-MC16-000-03")
+    if not hasattr(condSeq, "PixelDeadMapCondAlg"):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
+      alg = PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
+      if not self.usePixMap:
+        alg.ReadKey = ''
+      if athenaCommonFlags.isOnline():
+        alg.ReadKey = ''
+      condSeq += alg
 
     ########################
     # DCS Conditions Setup #
@@ -146,7 +147,6 @@ class PixelConditionsServicesSetup:
     PixelTempFolder = "/PIXEL/DCS/TEMPERATURE"
     PixelDBInstance = "DCS_OFL"
 
-    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
     if athenaCommonFlags.isOnline():
        PixelHVFolder = "/PIXEL/HLT/DCS/HV"
        PixelTempFolder = "/PIXEL/HLT/DCS/TEMPERATURE"
@@ -228,7 +228,7 @@ class PixelConditionsServicesSetup:
     #####################
     # Cabling map Setup #
     #####################
-    if (conddb.dbdata=="CONDBR2" or (conddb.dbmc=="OFLP200" and geoFlags.isIBL()==True)) and not conddb.folderRequested("/PIXEL/HitDiscCnfg"):
+    if (conddb.dbdata=="CONDBR2" or (conddb.dbmc=="OFLP200" and geoFlags.isIBL() is True)) and not conddb.folderRequested("/PIXEL/HitDiscCnfg"):
       conddb.addFolderSplitMC("PIXEL","/PIXEL/HitDiscCnfg","/PIXEL/HitDiscCnfg", className="AthenaAttributeList")
 
     if not hasattr(condSeq, 'PixelHitDiscCnfgAlg'):
@@ -384,7 +384,7 @@ class SCT_ConditionsToolsSetup:
     condTools = []
     for condToolHandle in self.summaryTool.ConditionsTools:
       if condToolHandle not in condTools:
-        if not "SCT_FlaggedConditionTool" in condToolHandle.getFullName():
+        if "SCT_FlaggedConditionTool" not in condToolHandle.getFullName():
           condTools.append(condToolHandle)
     summaryToolWoFlagged.ConditionsTools = condTools
     if self._print:  print (summaryToolWoFlagged)
@@ -425,7 +425,6 @@ class SCT_ConditionsToolsSetup:
 
     from SCT_ConditionsTools.SCT_ConfigurationConditionsToolSetup import SCT_ConfigurationConditionsToolSetup
     sct_ConfigurationConditionsToolSetup = SCT_ConfigurationConditionsToolSetup()
-    from AthenaCommon.GlobalFlags import globalflags
     if (sctdaqpath=='/SCT/DAQ/Configuration'):
       sct_ConfigurationConditionsToolSetup.setChannelFolder(sctdaqpath+"/Chip") # For Run 1 data (COMP200)
     else:
@@ -541,9 +540,7 @@ class SCT_ConditionsToolsSetup:
                                           SiConditionsTool = sctSiliconConditionsTool,
                                           UseMagFieldCache = True,
                                           UseMagFieldDcs = (not athenaCommonFlags.isOnline()))
-      sctSiLorentzAngleCondAlg = condSeq.SCTSiLorentzAngleCondAlg
 
-    "Inititalize Lorentz angle Tool"
     from SiLorentzAngleTool.SiLorentzAngleToolConf import SiLorentzAngleTool
     SCTLorentzAngleTool = SiLorentzAngleTool(name=instanceName, DetectorName="SCT", SiLorentzAngleCondData="SCTSiLorentzAngleCondData")
     SCTLorentzAngleTool.UseMagFieldCache = True

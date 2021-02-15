@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -8,7 +8,6 @@
  energetic inner detector tracks in a cone surrounding a muon
  
   @author Konstantinos.Nikolopoulos@cern.ch, Alan.Poppleton@cern.ch
- (c) ATLAS Combined Muon software
 */
 //////////////////////////////////////////////////////////////////////////////
 
@@ -60,9 +59,9 @@ private:
 							  double phi) const;
 
     double				m_barrelCotTheta;
-    const Trk::Surface*			m_caloBackwardDisc;
-    const Trk::Surface*			m_caloCylinder;
-    const Trk::Surface*			m_caloForwardDisc;
+    std::unique_ptr<const Trk::Surface>	m_caloBackwardDisc;
+    std::unique_ptr<const Trk::Surface>	m_caloCylinder;
+    std::unique_ptr<const Trk::Surface>	m_caloForwardDisc;
     double				m_etaSafetyFactor;
     SG::ReadHandleKey<TrackCollection>  m_inDetTracksLocation{this,"InDetTracksLocation","Tracks","ID tracks"};
     // FIXME: mutable

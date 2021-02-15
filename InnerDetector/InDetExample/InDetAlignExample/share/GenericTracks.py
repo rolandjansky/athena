@@ -98,7 +98,7 @@ if newInDetAlignAlg_Options["useTrackSelector"]:
                             UseIDTrackSelectionTool = True,
                             #PassAllTracks = True, ## Uncomment this line to bypass track slection
                             IDTrackSelectionTool = trackSelectorNew)
-                            
+
     #ToolSvc += alignTrackSelection
 
 
@@ -302,29 +302,28 @@ if not Cosmics:
     #ToolSvc += InDetAlignMonBeamSpot_noTrig
     InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonBeamSpot_noTrig ]
 
-###############################################    
+###############################################
 # trying to implement the track segments for cosmics
 
 if Cosmics:
     from InDetTrackSplitterTool.InDetTrackSplitterToolConf import InDet__InDetTrackSplitterTool
-    from InDetTrackValidation.InDetTrackValidationConf import InDet__InDetSplittedTracksCreator 
+    from InDetTrackValidation.InDetTrackValidationConf import InDet__InDetSplittedTracksCreator
     from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import IDAlignMonTrackSegments
-    
+
     #----- tools for track splliting ---- START ----
     splittertoolcomb= InDet__InDetTrackSplitterTool(name="VARO_SplitterTool",
                                                     TrackFitter           = InDetTrackFitter, #InDetTrackFitter,
                                                     OutputUpperTracksName = "TracksUpperSplit",
                                                     OutputLowerTracksName = "TracksLowerSplit",
-                                                    OutputLevel = INFO) 
+                                                    OutputLevel = INFO)
     #ToolSvc += splittertoolcomb
     printfunc (splittertoolcomb)
 
-    # tool to convert to xAOD::TrackParticles 
+    # tool to convert to xAOD::TrackParticles
     from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
-    InDetxAODSplitParticleCreatorTool = Trk__TrackParticleCreatorTool(name = "InDetSplitxAODParticleCreatorTool", 
-                                                                      Extrapolator            = InDetExtrapolator,
+    InDetxAODSplitParticleCreatorTool = Trk__TrackParticleCreatorTool(name = "InDetSplitxAODParticleCreatorTool",
                                                                       TrackSummaryTool        = InDetTrackSummaryToolSharedHits,
-                                                                      KeepParameters          = True, 
+                                                                      KeepParameters          = True,
                                                                       OutputLevel = DEBUG)
     #ToolSvc += InDetxAODSplitParticleCreatorTool
     #----- tools for track splliting ---- COMPLETED ----
@@ -332,7 +331,7 @@ if Cosmics:
     #
     #### first task #### prepare the segment track selectors
     #
-    
+
     #--> needed ? InDetAlignMonManager.DataType = "cosmics"
     m_alignMonTrackSelectorTool  = []
     m_alignMonTrackSelectionTool = []
@@ -365,8 +364,8 @@ if Cosmics:
         #ToolSvc += m_alignMonTrackSelectorTool[i]
         if (InDetFlags.doPrintConfigurables()):
             printfunc (m_alignMonTrackSelectorTool[i])
-    
-           
+
+
         m_alignMonTrackSelectionTool.append(InDetAlignMon__TrackSelectionTool(name              = m_alignMonTrackSelectionToolName[i],
                                                                               ## Uncomment this line to bypass track slection
                                                                               #PassAllTracks      = True,
@@ -378,7 +377,7 @@ if Cosmics:
             printfunc (" <NewInDetAlignMonitoring> ** SELECTION ** m_alignMonTrackSelectionTool[",i,"] =",  m_alignMonTrackSelectionToolName[i])
             printfunc (m_alignMonTrackSelectionTool[i])
 
-    
+
     #
     ##### second task #### define the input track collections and the output segment collections
     #
@@ -387,10 +386,10 @@ if Cosmics:
     m_upperTracksName     = ["AlignTracks_Upper",            "Combined_Upper"]
     m_lowerTracksName     = ["AlignTracks_Lower",            "Combined_Lower"]
     #m_Splitter            = []
-    
+
     m_trackSegmentsUpLow     = []
     m_trackSegmentsUpLowName = ["InDetAlignMonTrackSegment_AlignTracks", "InDetAlignMonTrackSegments_Combined"]
-    
+
     m_inputTracksUpLow    = ["AlignTracks", "CombinedInDetTracks"]
     m_d0Range             = [ 200.0, 200.0]
     m_deltaD0             = [  0.25,  0.25]
@@ -419,7 +418,7 @@ if Cosmics:
         printfunc (" ")
         printfunc (" ***************** ")
 
-            
+
         # monitoring part of the track segments matchinv
         m_trackSegmentsUpLow.append(IDAlignMonTrackSegments(name                = m_trackSegmentsUpLowName[i],
                                                             InputTracksName     = m_inputTracksUpLow[i],
@@ -444,12 +443,12 @@ if Cosmics:
         printfunc (" <NewInDetAlignMonitoring> step ",i, m_trackSegmentsUpLowName[i]," added to the ToolSvc")
 
     #
-    #### third task #### define monitoring histograms for each cosmic ray track segment 
+    #### third task #### define monitoring histograms for each cosmic ray track segment
     #
     # 1) create and fill the track-collections list
     m_trkcolls = []
     for i in range(len(m_trackSplitterName)):
-        m_trkcolls.append(m_upperTracksName[i]+"Split") 
+        m_trkcolls.append(m_upperTracksName[i]+"Split")
         m_trkcolls.append(m_lowerTracksName[i]+"Split")
 
         # 2) convert the tracks to xAOD
@@ -474,12 +473,12 @@ if Cosmics:
                                                                       AddTruthLink = False,
                                                                       OutputLevel = INFO)
         topSequence += xAODSplitTrackParticleCnvAlg
-        
+
         # 2.2 ) lower track segments (same as above)
         splitter_TakeLower=InDet__InDetSplittedTracksCreator(name=m_inputTracksUpLow[i]+'_Splitter_TakeLower',
                                                    TrackSplitterTool     = splittertoolcomb,
                                                    TrackCollection       = m_inputTracksUpLow[i], #"Tracks",
-                                                   OutputTrackCollection = m_lowerTracksName[i]+"Split", 
+                                                   OutputTrackCollection = m_lowerTracksName[i]+"Split",
                                                    takeUpperSegment      = False,
                                                    takeLowerSegment      = True,
                                                    OutputLevel = INFO)
@@ -487,7 +486,7 @@ if Cosmics:
         printfunc (splitter_TakeLower)
 
         xAODSplitTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg(name=m_inputTracksUpLow[i]+'_Splitter_TakeLower_xAOD',
-                                                                      xAODContainerName ="xAOD::TrackParticleContainer", 
+                                                                      xAODContainerName ="xAOD::TrackParticleContainer",
                                                                       xAODTrackParticlesFromTracksContainerName =  m_lowerTracksName[i]+"Split",
                                                                       TrackParticleCreator = InDetxAODSplitParticleCreatorTool,
                                                                       TrackContainerName = m_lowerTracksName[i]+"Split",
@@ -497,7 +496,7 @@ if Cosmics:
                                                                       OutputLevel = INFO)
         topSequence += xAODSplitTrackParticleCnvAlg
 
-        
+
     # 3) now create the monitoring histos
     for i in range(len(m_trkcolls)):
         printfunc (" <NewInDetAlignMonitoring> going to define InDetAlignMonResiduals for track collection: ", m_trkcolls[i])
@@ -538,7 +537,7 @@ if Cosmics:
             )
         #ToolSvc += InDetAlignMonGenericTracks
         InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonGenericTracks ]
-        
+
         InDetAlignMonSelectedTracksEfficiencies = IDAlignMonEfficiencies (
             name = "InDetAlignMonEfficiencies_"+m_trkcolls[i],
             trackSelection = m_allSelection,
@@ -552,9 +551,9 @@ if Cosmics:
             )
         #ToolSvc += InDetAlignMonSelectedTracksEfficiencies
         InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonSelectedTracksEfficiencies ]
-        
 
-###############################################    
+
+###############################################
 if not hasattr(ServiceMgr, 'THistSvc'):
     from GaudiSvc.GaudiSvcConf import THistSvc
     ServiceMgr += THistSvc()

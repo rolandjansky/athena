@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUREC_TAUPI0CLUSTERCREATOR_H
-#define	TAUREC_TAUPI0CLUSTERCREATOR_H
+#ifndef TAURECTOOLS_TAUPI0CLUSTERCREATOR_H
+#define TAURECTOOLS_TAUPI0CLUSTERCREATOR_H
 
 #include "tauRecTools/TauRecToolBase.h"
-#include "tauRecTools/ITauVertexCorrection.h"
 
 #include "xAODPFlow/PFOContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
@@ -30,12 +29,12 @@ class TauPi0ClusterCreator : public TauRecToolBase {
 
 public:
   
-  ASG_TOOL_CLASS2(TauPi0ClusterCreator, TauRecToolBase, ITauToolBase);
+  ASG_TOOL_CLASS2(TauPi0ClusterCreator, TauRecToolBase, ITauToolBase)
   
-  TauPi0ClusterCreator(const std::string& name) ;
+  TauPi0ClusterCreator(const std::string& name);
+
   virtual ~TauPi0ClusterCreator() = default;
 
-  virtual StatusCode initialize() override;
   virtual StatusCode executePi0ClusterCreator(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer, 
   					xAOD::PFOContainer& hadronicClusterPFOContainer,
   					const xAOD::CaloClusterContainer& pi0CaloClusContainer) const override;
@@ -81,11 +80,7 @@ private:
   std::vector<float> get2ndEtaMomWRTCluster(const xAOD::CaloCluster& cluster) const;
 
   Gaudi::Property<double> m_clusterEtCut {this, "ClusterEtCut", 0.5 * Gaudi::Units::GeV, "Et threshould for pi0 candidate clusters"};
-  Gaudi::Property<bool> m_useSubtractedCluster {this, "UseSubtractedCluster", true, "use shower subtracted clusters in calo calculations"};
-
-  ToolHandle<ITauVertexCorrection> m_tauVertexCorrection { this, 
-    "TauVertexCorrection", "TauVertexCorrection", "Tool to perform the vertex correction"};
 };
 
-#endif	/* TAUPI0CLUSTERCREATOR_H */
+#endif // TAURECTOOLS_TAUPI0CLUSTERCREATOR_H
 

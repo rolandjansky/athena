@@ -1,10 +1,8 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: TauJetAccessors_v2.icc 638520 2015-01-09 13:21:05Z janus $
 
 #ifndef XAODTAU_TAUACCESSORS_V3_ICC
 #define XAODTAU_TAUACCESSORS_V3_ICC
@@ -226,6 +224,8 @@ break;
       DEFINE_TAUJETPARAMETER_ACCESSOR( int, nChargedTracks );
       DEFINE_TAUJETPARAMETER_ACCESSOR( int, nIsolatedTracks );
       DEFINE_TAUJETPARAMETER_ACCESSOR( int, nModifiedIsolationTracks ); 
+      DEFINE_TAUJETPARAMETER_ACCESSOR( int, nAllTracks );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( int, nLargeRadiusTracks );
 
     default:
       std::cerr << "xAOD::TauJetParameters ERROR Unknown integer detail ("
@@ -267,5 +267,3 @@ break;
 #endif //TAUTRACK_V1_ACCESSORS  to aid with link issues
 
 #endif // XAODTAU_TAUJETACCESSORS_V3_ICC
-
-//  LocalWords:  EMPOverTrkSysPCorrected

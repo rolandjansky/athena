@@ -53,6 +53,9 @@ class MonitorROS : public MonitorBase {
      * @return Owning unique ptr object typed on the CounterBase base class which points to concrete Counter of specialised type.
      */
     virtual std::unique_ptr<CounterBase> newCounter(const std::string& name) override; 
+
+  private:
+    std::map<uint32_t, std::string> m_robToRos; //!< Cache correspondis ROS per ROB id
 };
 
 #endif // TRIGCOSTANALYSIS_MONITORROS_H

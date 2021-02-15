@@ -18,6 +18,7 @@
 #endif // XAOD_STANDALONE
 
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
+#include "TrackVertexAssociationTool/ITrackVertexAssociationTool.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/VertexContainer.h"
@@ -123,6 +124,12 @@ namespace xAOD {
     Gaudi::Property<float> m_overlapCone{this, "OverlapCone", 0.1};
 
     float m_overlapCone2; /// overlap cone size squared
+
+    /// The maximum eta range to consider something a core track
+    Gaudi::Property<float> m_coreTrackEtaRange{this,
+     "CoreTrackEtaRange", 0.0, "The maximum eta range to consider something a core track"};
+    /// Whether the loose core track eta range is used
+    bool m_useLooseTrackCore{false};
 #ifndef XAOD_ANALYSIS
     /// tracks in cone tool
     ToolHandle<ITrackParticlesInConeTool> m_tracksInConeTool {this, 
@@ -131,6 +138,12 @@ namespace xAOD {
     /// selection of tracks
     ToolHandle<InDet::IInDetTrackSelectionTool> m_trkselTool {this,
 	"TrackSelectionTool", "InDet::InDetTrackSelectionTool/TrackSelectionTool"};
+
+    /// Select tracks associated to the vertex
+    ToolHandle<CP::ITrackVertexAssociationTool> m_ttvaTool{this,
+      "TTVATool", "", "Optional track to vertex association tool to filter tracks"};
+    /// Use the ttva tool. Set to true if one was provided.
+    bool m_useTTVATool{false};
 
     SG::ReadHandleKey<VertexContainer> m_vertexLocation {this,
 	"VertexLocation", "PrimaryVertices"};

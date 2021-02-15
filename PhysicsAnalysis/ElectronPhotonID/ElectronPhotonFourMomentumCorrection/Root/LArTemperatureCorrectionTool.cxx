@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <TParameter.h>
@@ -20,9 +20,7 @@ LArTemperatureCorrectionTool::LArTemperatureCorrectionTool(const std::string& fi
   if (!m_file or m_file->IsZombie()) { ATH_MSG_ERROR("cannot open file"); }
 
   m_tree = dynamic_cast<TTree*>(m_file->Get("temperature"));
-  if ( m_tree == nullptr ) { 
-    throw std::runtime_error( "cannot find tree" );
-  }
+  if (!m_tree) { ATH_MSG_FATAL("cannot find tree"); }
 
   Int_t t_run = 0;
   m_tree->SetBranchAddress("run", &t_run);

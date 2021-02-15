@@ -9,7 +9,6 @@
 #include "TRT_ReadoutGeometry/TRT_BarrelElement.h"
 #include "TRT_ReadoutGeometry/TRT_EndcapElement.h"
 #include "InDetReadoutGeometry/ExtendedAlignableTransform.h"
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
 #include "TRT_ReadoutGeometry/TRT_Conditions.h"
 
 #include "GeoModelKernel/GeoXF.h"
@@ -34,7 +33,7 @@ namespace InDetDD {
     TRT_DetectorManager::TRT_DetectorManager(StoreGateSvc * detStore)
         :InDetDetectorManager(detStore, "TRT"),
         m_numerology(new TRT_Numerology()),
-        m_idHelper(NULL),
+        m_idHelper(nullptr),
         m_ownsIdHelper(false),
         m_gasType(unknown),
         m_digvers(9999),
@@ -42,7 +41,7 @@ namespace InDetDD {
     {
 
     // If detstore no passed then get it from bootstrap.
-        if (m_detStore == 0) {
+        if (m_detStore == nullptr) {
             StatusCode sc = Gaudi::svcLocator()->service("DetectorStore", m_detStore);
             if (sc.isFailure()) msg(MSG::ERROR) << "Could not locate DetectorStore" << endmsg;
         }
@@ -54,7 +53,7 @@ namespace InDetDD {
             for (unsigned int mod=0;mod<NMODMAX;mod++) {
                 for (unsigned int phi=0; phi<NPHIMAX;phi++) {
                     for (unsigned int sLay=0;sLay<NSTRAWLAYMAXBR;sLay++) {
-                        m_barrelArray[ec][mod][phi][sLay]=NULL;
+                        m_barrelArray[ec][mod][phi][sLay]=nullptr;
                     }
                 }
             }
@@ -63,13 +62,13 @@ namespace InDetDD {
             for (unsigned int whe=0;whe<NWHEELMAX;whe++) {
                 for (unsigned int sLay=0;sLay<NSTRAWLAYMAXEC;sLay++) {
                     for(unsigned int phi=0;phi<NPHIMAX;phi++) {
-                        m_endcapArray[ec][whe][sLay][phi]=NULL;
+                        m_endcapArray[ec][whe][sLay][phi]=nullptr;
                     }
                 }
             }
         }
-        m_barrelXF[0]=m_barrelXF[1]=m_barrelXF[2]=NULL;
-        m_endcapXF[0]=m_endcapXF[1]=m_endcapXF[2]=NULL;
+        m_barrelXF[0]=m_barrelXF[1]=m_barrelXF[2]=nullptr;
+        m_endcapXF[0]=m_endcapXF[1]=m_endcapXF[2]=nullptr;
 
         m_conditions = std::make_unique<InDetDD::TRT_Conditions>();
     }
@@ -238,7 +237,7 @@ namespace InDetDD {
                                                                    unsigned int phiIndex,
                                                                    unsigned int strawLayerIndex) const {
         if ( positive >= 2 || moduleIndex >= NMODMAX
-            || phiIndex>=NPHIMAX || strawLayerIndex >= NSTRAWLAYMAXBR) return 0;
+            || phiIndex>=NPHIMAX || strawLayerIndex >= NSTRAWLAYMAXBR) return nullptr;
 
         return m_barrelArray[positive][moduleIndex][phiIndex][strawLayerIndex];
     }
@@ -250,7 +249,7 @@ namespace InDetDD {
         unsigned int phiIndex,
         unsigned int strawLayerIndex){
         if ( positive >= 2 || moduleIndex >= NMODMAX
-            || phiIndex>=NPHIMAX || strawLayerIndex >= NSTRAWLAYMAXBR) return 0;
+            || phiIndex>=NPHIMAX || strawLayerIndex >= NSTRAWLAYMAXBR) return nullptr;
 
         return m_barrelArray[positive][moduleIndex][phiIndex][strawLayerIndex];
     }
@@ -265,7 +264,7 @@ namespace InDetDD {
         unsigned int phiIndex) const {
 
         if ( positive >= 2 || wheelIndex >= NWHEELMAX
-            || phiIndex>=NPHIMAX || strawLayerIndex >= NSTRAWLAYMAXEC) return 0;
+            || phiIndex>=NPHIMAX || strawLayerIndex >= NSTRAWLAYMAXEC) return nullptr;
 
         return m_endcapArray[positive][wheelIndex][strawLayerIndex][phiIndex];
     }
@@ -277,7 +276,7 @@ namespace InDetDD {
         unsigned int phiIndex) {
 
         if ( positive >= 2 || wheelIndex >= NWHEELMAX
-            || phiIndex>=NPHIMAX || strawLayerIndex >= NSTRAWLAYMAXEC) return 0;
+            || phiIndex>=NPHIMAX || strawLayerIndex >= NSTRAWLAYMAXEC) return nullptr;
 
         return m_endcapArray[positive][wheelIndex][strawLayerIndex][phiIndex];
     }
@@ -298,12 +297,12 @@ namespace InDetDD {
         // Make sure it is a straw_layer id
         Identifier strawLayerId = m_idHelper->layer_id(id);
         IdentifierHash hashId = m_idHelper->straw_layer_hash(strawLayerId);
-        if (hashId>=m_elements.size()) return 0;
+        if (hashId>=m_elements.size()) return nullptr;
         return m_elements[hashId];
     }
 
     const TRT_BaseElement *TRT_DetectorManager::getElement(IdentifierHash id) const {
-        if (id>=m_elements.size()) return 0;
+        if (id>=m_elements.size()) return nullptr;
         return m_elements[id];
     }
 
@@ -395,11 +394,11 @@ namespace InDetDD {
         if (m_idHelper) {
             // Check if child and frame are actually full physical volumes.
             // if they are non zero.
-            const GeoVFullPhysVol * childFPV = 0;
+            const GeoVFullPhysVol * childFPV = nullptr;
             if (child) {
                 childFPV = dynamic_cast<const GeoVFullPhysVol *>(child);
             }
-            const GeoVFullPhysVol * frameFPV = 0;
+            const GeoVFullPhysVol * frameFPV = nullptr;
             if (frameVol) {
                 frameFPV = dynamic_cast<const GeoVFullPhysVol *>(frameVol);
             }
@@ -607,7 +606,7 @@ namespace InDetDD {
         if(msgLvl(MSG::DEBUG))
             msg(MSG::DEBUG) << "Processing TRT fine alignment." << endmsg;
 
-        const TRTCond::StrawDxContainer* container = 0;
+        const TRTCond::StrawDxContainer* container = nullptr;
         StatusCode sc = StatusCode::FAILURE;
         if (m_detStore->contains<TRTCond::StrawDxContainer>(key)) {
             sc = m_detStore->retrieve(container, key);
@@ -660,7 +659,7 @@ namespace InDetDD {
       msg(MSG::INFO) << "Processing new global alignment containers with key " << key << " in the " << frame << " frame at level " << level << endmsg;
 
     Identifier ident=Identifier();
-    const CondAttrListCollection* atrlistcol=0;
+    const CondAttrListCollection* atrlistcol=nullptr;
     if (StatusCode::SUCCESS==m_detStore->retrieve(atrlistcol,key)) {
       // loop over objects in collection
       for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr) {

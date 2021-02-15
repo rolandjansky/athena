@@ -1,7 +1,13 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+from eflowRec.eflowRecFlags import jobproperties
+
 from eflowRec.eflowRecConf import PFLeptonSelector
 PFLeptonSelector=PFLeptonSelector("PFLeptonSelector")
+if False == jobproperties.eflowRecFlags.useElectrons:
+  PFLeptonSelector.selectElectrons=False
+if False == jobproperties.eflowRecFlags.useMuons:
+  PFLeptonSelector.selectMuons=False
 topSequence += PFLeptonSelector
 
 from eflowRec.eflowRecConf import PFTrackSelector
@@ -54,7 +60,6 @@ CellEOverPTool=eflowCellEOverPTool_mc12_JetETMiss()
 
 PFCellLevelSubtractionTool.eflowCellEOverPTool=CellEOverPTool
 
-from eflowRec.eflowRecFlags import jobproperties
 if jobproperties.eflowRecFlags.eflowAlgType == "EOverP":
    PFCellLevelSubtractionTool.CalcEOverP = True
    PFCellLevelSubtractionTool.nMatchesInCellLevelSubtraction = -1
@@ -283,32 +288,6 @@ if jobproperties.eflowRecFlags.useFlowElements:
   PFMuonFlowElementAssocAlg.m_UseMuonTopoClusters=False # requires m_LinkNeutralFEClusters=True and if set to True= Retrieves TopoClusters from Aux. If not, cell-match muon calocluster to NFE topocluster.
   topSequence += PFMuonFlowElementAssocAlg
 
-  
-  if jobproperties.eflowRecFlags.doFlowElementValidation:
-      # since FE are not added at Tier0 yet, need to add it to the eflowRec routine
-      from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
-      monMan = AthenaMonManager( "PhysValMonManager" )
-      monMan.ManualDataTypeSetup = True
-      monMan.DataType            = "monteCarlo"
-      monMan.Environment         = "altprod"
-      monMan.ManualRunLBSetup    = True
-      monMan.Run                 = 1
-      monMan.LumiBlock           = 1
-      monMan.FileKey = "PhysVal"
-      
-      
-      
-      include("PhysValMonitoring/PhysValPFlow_FlowElements_jobOptions.py")
-      
-      for tool in monMan.AthenaMonTools:
-          tool.EnableLumi = False
-          tool.ManagerName = 'PhysValMonManager'
-    
-      from AthenaCommon.AppMgr import ServiceMgr
-      from GaudiSvc.GaudiSvcConf import THistSvc
-      ServiceMgr += THistSvc()
-      svcMgr.THistSvc.Output += ["PhysVal DATAFILE='PhysVal.root' OPT='RECREATE'"]
-      topSequence += monMan  
       
 
   

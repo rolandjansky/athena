@@ -1,29 +1,34 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // EDM include(s):
 #include "PATInterfaces/SystematicRegistry.h"
+#include "xAODMetaData/FileMetaData.h"
 
 // Local include(s):
 #include "TauAnalysisTools/TauSmearingTool.h"
 #include "TauAnalysisTools/SharedFilesVersion.h"
 #include "TauAnalysisTools/TauSmearingRun1Tool.h"
 
+#include <boost/algorithm/string.hpp>
+
 namespace TauAnalysisTools
 {
 
 TauSmearingTool::TauSmearingTool( const std::string& sName )
-  : asg::AsgTool( sName )
+  : asg::AsgMetadataTool( sName )
   , m_tCommonSmearingTool(sName+"_CommonSmearingTool", this)
   , m_sInputFilePath("")
 {
-  declareProperty( "RecommendationTag",   m_sRecommendationTag = "2017-moriond" );
+  declareProperty( "RecommendationTag",   m_sRecommendationTag = "2019-summer" );
   declareProperty( "SkipTruthMatchCheck", m_bSkipTruthMatchCheck = false );
   declareProperty( "ApplyFading",         m_bApplyFading = true);
-  declareProperty( "ApplyMVATES",         m_bApplyMVATES = false);
+  declareProperty( "ApplyMVATES",         m_bApplyMVATES = true);
   declareProperty( "ApplyCombinedTES",    m_bApplyCombinedTES = false);
   declareProperty("ApplyMVATESQualityCheck", m_bApplyMVATESQualityCheck = true );
+  declareProperty("ApplyInsituCorrection",   m_bApplyInsituCorrection   = true );
+  declareProperty( "isAFII",	                   m_sAFII	                   = false );
 
   // deprecated property
   declareProperty( "IsData",              m_bIsData = false );
@@ -50,65 +55,22 @@ StatusCode TauSmearingTool::initialize()
 
   std::string sDirectory = "TauAnalysisTools/"+std::string(sSharedFilesVersion)+"/Smearing/";
 
-  if (m_sRecommendationTag == "2017-moriond")
+  if (m_sRecommendationTag == "2019-summer")
   {
     if (m_sInputFilePath.empty())
-      m_sInputFilePath = sDirectory+"TES_TrueHadTau_2017-moriond.root";
+    {
+	    if (m_sAFII) m_sInputFilePath = sDirectory+"TES_TrueHadTau_2019-summer_AFII.root";
+      else m_sInputFilePath = sDirectory+"TES_TrueHadTau_2019-summer.root";
+    }
     ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tCommonSmearingTool, TauAnalysisTools::CommonSmearingTool));
     ATH_CHECK(m_tCommonSmearingTool.setProperty("InputFilePath", m_sInputFilePath));
     ATH_CHECK(m_tCommonSmearingTool.setProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck));
     ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyFading", m_bApplyFading));
     ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyMVATES", m_bApplyMVATES));
     ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyMVATESQualityCheck", m_bApplyMVATESQualityCheck));
+    ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyInsituCorrection", m_bApplyInsituCorrection));
     ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyCombinedTES", m_bApplyCombinedTES));
     ATH_CHECK(m_tCommonSmearingTool.setProperty("OutputLevel", this->msg().level()));
-  }
-  else if (m_sRecommendationTag == "2016-ichep")
-  {
-    if (m_sInputFilePath.empty())
-      m_sInputFilePath = sDirectory+"TES_TrueHadTau_2016-ichep.root";
-    ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tCommonSmearingTool, TauAnalysisTools::CommonSmearingTool));
-    ATH_CHECK(m_tCommonSmearingTool.setProperty("InputFilePath", m_sInputFilePath));
-    ATH_CHECK(m_tCommonSmearingTool.setProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck));
-    ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyFading", m_bApplyFading));
-    ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyMVATES", m_bApplyMVATES));
-    ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyCombinedTES", m_bApplyCombinedTES));
-    ATH_CHECK(m_tCommonSmearingTool.setProperty("OutputLevel", this->msg().level()));
-  }
-  else if (m_sRecommendationTag == "mc15-moriond")
-  {
-    if (m_sInputFilePath.empty())
-      m_sInputFilePath = sDirectory+"TES_TrueHadTau_mc15_moriond.root";
-    ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tCommonSmearingTool, TauAnalysisTools::CommonSmearingTool));
-    ATH_CHECK(m_tCommonSmearingTool.setProperty("InputFilePath", m_sInputFilePath));
-    ATH_CHECK(m_tCommonSmearingTool.setProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck));
-    ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyFading", m_bApplyFading));
-    ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyMVATES", m_bApplyMVATES));
-    ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyCombinedTES", m_bApplyCombinedTES));
-    ATH_CHECK(m_tCommonSmearingTool.setProperty("OutputLevel", this->msg().level()));
-  }
-  else if (m_sRecommendationTag == "mc15-pre-recommendations")
-  {
-    if (m_sInputFilePath.empty())
-      m_sInputFilePath = sDirectory+"TES_TrueHadTau_mc15_prerec.root";
-    ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tCommonSmearingTool, TauAnalysisTools::CommonSmearingTool));
-    ATH_CHECK(m_tCommonSmearingTool.setProperty("InputFilePath", m_sInputFilePath));
-    ATH_CHECK(m_tCommonSmearingTool.setProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck));
-    ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyFading", false)); // apply fading off by default
-  }
-  else if (m_sRecommendationTag == "mc12-final")
-  {
-    if (m_sInputFilePath.empty())
-      m_sInputFilePath = sDirectory+"mc12_p1344_medium.root";
-    ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tCommonSmearingTool, TauAnalysisTools::TauSmearingRun1Tool));
-    ATH_CHECK(m_tCommonSmearingTool.setProperty("InputFilePath", m_sInputFilePath));
-  }
-  else if (m_sRecommendationTag == "mc11-final")
-  {
-    if (m_sInputFilePath.empty())
-      m_sInputFilePath = sDirectory+"mc11.root";
-    ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tCommonSmearingTool, TauAnalysisTools::TauSmearingRun1Tool));
-    ATH_CHECK(m_tCommonSmearingTool.setProperty("InputFilePath", m_sInputFilePath));
   }
   else
   {
@@ -126,6 +88,27 @@ StatusCode TauSmearingTool::initialize()
     return StatusCode::FAILURE;
   }
 
+  return StatusCode::SUCCESS;
+}
+
+// auto detection of simulation flavour, used to cross check configuration of tool
+//______________________________________________________________________________
+StatusCode TauSmearingTool::beginInputFile()
+{
+  if (m_sRecommendationTag == "2019-summer")
+  {
+    std::string simType("");
+    if (inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData"))
+    {
+      const xAOD::FileMetaData* fmd = 0;
+      ATH_CHECK( inputMetaStore()->retrieve( fmd, "FileMetaData" ) );
+      bool result = fmd->value( xAOD::FileMetaData::simFlavour , simType );
+      // if no result -> no simFlavor metadata, so must be data
+      if(result) boost::to_upper(simType);
+    }
+    if (simType.find("ATLFASTII")!=std::string::npos && !m_sAFII) ATH_MSG_WARNING("Input file is fast simulation but you are _not_ using AFII corrections and uncertainties, you should set \"isAFII\" to \"true\"");
+    else if (simType.find("FULLG4")!=std::string::npos && m_sAFII) ATH_MSG_WARNING("Input file is full simulation but you are using AFII corrections and uncertainties, you should set \"isAFII\" to \"false\"");
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -158,7 +141,7 @@ CP::SystematicSet TauSmearingTool::recommendedSystematics() const
 {
   return m_tCommonSmearingTool->recommendedSystematics();
 }
-
+  
 StatusCode TauSmearingTool::applySystematicVariation ( const CP::SystematicSet& sSystematicSet)
 {
   return m_tCommonSmearingTool->applySystematicVariation( sSystematicSet );

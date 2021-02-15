@@ -6,9 +6,9 @@
 #include <xercesc/dom/DOM.hpp>
 //  #include <CLHEP/Geometry/Transform3D.h>
 //  #include <CLHEP/Geometry/Vector3D.h>
-#include "GeoModelXml/translate.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "xercesc/util/XMLString.hpp"
 #include "GeoModelXml/GmxUtil.h"
-
 
 MakeRotation::MakeRotation() {}
 
@@ -23,7 +23,7 @@ double p[nParams];
 char *toRelease;
 
     for (int i = 0; i < nParams; ++i) {
-        toRelease = Translate(rotation->getAttribute(Translate(parName[i])));
+        toRelease = XMLString::transcode(rotation->getAttribute(XMLString::transcode(parName[i])));
         p[i] = gmxUtil.evaluate(toRelease);
         XMLString::release(&toRelease);
     }
@@ -31,4 +31,5 @@ char *toRelease;
     temp = GeoTrf::AngleAxis3D(p[0], GeoTrf::Vector3D(p[1], p[2], p[3]));
 
     return temp;
+
 }

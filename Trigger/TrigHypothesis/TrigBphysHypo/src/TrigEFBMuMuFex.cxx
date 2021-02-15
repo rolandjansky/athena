@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -326,7 +326,7 @@ HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
             // loop over the vector of muon containers
             msg() << MSG::DEBUG << "MuonContainer, Got MuonEF " << ic << " Feature, size = " << muelv.size() << endmsg;
             int i(0);
-            for ( const auto& muel: muelv) {
+            for ( const ElementLink<xAOD::MuonContainer> muel: muelv) {
                 msg() << MSG::DEBUG << "ELLink: " << i++
                     << " index: "  << muel.index()
                     << " sgkey: "  << muel.dataID()
@@ -354,7 +354,7 @@ HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
         for ( const auto& tpelv : vec_elv_tps) {
             msg() << MSG::DEBUG <<  "SATrackParticleContainer, Got MUSA " << ic << " Feature, size = " << tpelv.size() << endmsg;
             int i(0);
-            for ( const auto& tpel: tpelv) {
+            for ( const ElementLink<xAOD::TrackParticleContainer> tpel: tpelv) {
                 msg() << MSG::DEBUG << "ELLink: " << i++
                     << " index: "  << tpel.index()
                     << " sgkey: "  << tpel.dataID()
@@ -369,7 +369,7 @@ HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
     
     // for each of the two roi's make muons selection (not roi2 has m_noID complexity)
     std::vector<const xAOD::Muon*> muons0, muons1, muonsAll;
-    for (const auto& muel: vec_elv_muons[0]){
+    for (const ElementLink<xAOD::MuonContainer> muel: vec_elv_muons[0]){
         if ( (*muel)->muonType() != xAOD::Muon::Combined && (*muel)->muonType() != xAOD::Muon::SegmentTagged) {
             ATH_MSG_DEBUG("Muon from roi1 is neither Combined or SegmentTagged - reject" );
             continue;
@@ -379,7 +379,7 @@ HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
         m_bphysHelperTool->addUnique(*muel, muonsAll,0.005,0.005,10, m_muonParticleType);
     } // roi1
     if(vec_elv_muons.size() > 1) {
-      for (const auto& muel: vec_elv_muons[1]){
+      for (const ElementLink<xAOD::MuonContainer> muel: vec_elv_muons[1]){
           // special case if noId set
           if (m_noId) {
               // no check needed for the noID
@@ -428,7 +428,7 @@ HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
                 xAOD::TrigBphys * bphys = m_resultsHolder.back();
                 ElementLink<xAOD::IParticleContainer> ptl1EL,ptl2EL;
                 bool foundMu0(false), foundMu1(false);
-                for ( const auto& muel: vec_elv_muons[0] ) {
+                for ( const ElementLink<xAOD::MuonContainer> muel: vec_elv_muons[0] ) {
                     if ( *muel == mu0) {
                         ptl1EL.resetWithKeyAndIndex(muel.dataID(),muel.index());
                         foundMu0 = true;
@@ -440,7 +440,7 @@ HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
                     if (foundMu0 && foundMu1) break; // found both links
                 }
                 if(vec_elv_muons.size() > 1) {
-                  for ( const auto& muel: vec_elv_muons[1] ) {
+                  for ( const ElementLink<xAOD::MuonContainer> muel: vec_elv_muons[1] ) {
                       if ( *muel == mu0) {
                           ptl1EL.resetWithKeyAndIndex(muel.dataID(),muel.index());
                           foundMu0 = true;
@@ -481,7 +481,7 @@ HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
                 xAOD::TrigBphys * bphys = m_resultsHolder.back();
                 ElementLink<xAOD::IParticleContainer> ptl1EL,ptl2EL;
                 bool foundMu0(false), foundMu1(false);
-                for ( const auto& muel: vec_elv_muons[0] ) {
+                for ( const ElementLink<xAOD::MuonContainer> muel: vec_elv_muons[0] ) {
                     if ( *muel == mu0) {
                         ptl1EL.resetWithKeyAndIndex(muel.dataID(),muel.index());
                         foundMu0 = true;
@@ -493,7 +493,7 @@ HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
                     if (foundMu0 && foundMu1) break; // found both links
                 }
                 if(vec_elv_muons.size() > 1) {
-                  for ( const auto& muel: vec_elv_muons[1] ) {
+                  for ( const ElementLink<xAOD::MuonContainer> muel: vec_elv_muons[1] ) {
                       if ( *muel == mu0) {
                           ptl1EL.resetWithKeyAndIndex(muel.dataID(),muel.index());
                           foundMu0 = true;

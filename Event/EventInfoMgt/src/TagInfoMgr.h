@@ -1,6 +1,6 @@
 //Dear emacs, this is -*-c++-*-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTINFOMGT_TAGINFOMGR_H
@@ -9,8 +9,7 @@
  * @file TagInfoMgr.h
  *
  * @brief This is a Athena service which manages detector description
- *  tag information. It maintains a TagInfo object in the Detector
- *  Store with current tag values. 
+ *  tag information. It maintains a TagInfo object with current tag values. 
  *
  * @author RD Schaffer <R.D.Schaffer@cern.ch>
  */
@@ -19,19 +18,20 @@
 
 #include "EventInfoMgt/ITagInfoMgr.h"
 #include "AthenaKernel/IOVSvcDefs.h"
-#include "AthenaBaseComps/AthCnvSvc.h"
+#include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
-#include "AthenaKernel/IAddressProvider.h"
 #include "AthenaKernel/IOVRange.h"
 #include "AthenaKernel/IIOVDbSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "EventInfo/TagInfo.h"
 #include "IOVDbMetaDataTools/IIOVDbMetaDataTool.h"
+#include "AthenaKernel/IAddressProvider.h"
 
 #include <map>
+#include <set>
+#include <shared_mutex>
 
 //<<<<<< PUBLIC TYPES                                                   >>>>>>
 
@@ -45,7 +45,7 @@ class CondAttrListCollection;
  *
  * @brief This is a Athena service which manages detector description
  *  tag information. It maintains a TagInfo object in the Detector
- *  Store with current tag values. 
+ *  Store with current tag values.
  *
  *  The tags to fill the TagInfo object may come from a variety of
  *  sources: i.e. the tags specified by the GeoModelSvc and IOVDbSvc,
@@ -65,16 +65,11 @@ class CondAttrListCollection;
  *  stream. Currently, the tags are NOT written to the IOV DB via the
  *  TagInfoMgr. 
  *
- *  Some clients need to know when detector description tags change
- *  so that they may update their descriptions, such as the geometry
- *  description. These clients need to set up a callback with the
- *  IOVSvc, as is done below for this class. 
- *
  */
-class TagInfoMgr : public ::AthCnvSvc,
+class TagInfoMgr : virtual public AthService,
                    virtual public ITagInfoMgr,
-                   virtual public IIncidentListener,
-		   virtual public IAddressProvider
+                   virtual public IAddressProvider,
+                   virtual public IIncidentListener
 {
 public:
 
@@ -102,74 +97,54 @@ public:
     /// on the input
     virtual StatusCode   removeTagFromInput(const std::string& tagName) override;
 
-    /// Method to allow clients to access the TagInfo object key.
-    virtual std::string& tagInfoKey() override;
-
     /// callback from IOVSvc - only used as test of callback
-    virtual StatusCode           checkTagInfo(IOVSVC_CALLBACK_ARGS) override;
-    //@}
+    StatusCode           checkTagInfo(IOVSVC_CALLBACK_ARGS);
 
     /// Find tag by name, return by value
-    virtual std::string findTag(const std::string & name) const override final;
+    virtual std::string  findTag(const std::string & name) const override final;
+
+    /// Find tag by its name - for input tags, return by value
+    virtual std::string  findInputTag(const std::string& name) const override final;
 
     /// Return a vector with all current input tags
     virtual NameTagPairVec getInputTags() const override final;
 
     /// Dump the content of the current TagInfo to std::string for debug
-    virtual std::string dumpTagInfoToStr() const override final;
+    virtual std::string  dumpTagInfoToStr() const override final;
+
+    /// Printout method
+    virtual void         printTags(MsgStream& log) const override final;
+
+    /// Add a Listener to the notification list for TagInfo changes
+    virtual void         addListener(Listener* listener) override final;
+
+    /// Remove a Listener from the notification list for TagInfo changes
+    virtual void         removeListener(Listener* listener) override final;
+    //@}
    
     /// @name TagInfo management methods:
     //@{
-    /// Callback at BeginRun and BeginEvent
-    ///   - BeginRun:   fill and regsister TagInfo
-    ///   - BeginEvent: fill EventInfo from TagInfo
-    virtual void handle(const Incident& incident) override;
+    void                 handle(const Incident& incident) override final;
 
-    typedef IAddressProvider::tadList tadList;
-    typedef IAddressProvider::tadListIterator tadListIterator;
-  
-    /// preload the detector store with the transient address for
-    /// TagInfo 
-    virtual StatusCode preLoadAddresses( StoreID::type storeID,
-					 tadList& tlist ) override;
-      
-    ///  Create a TagInfo object and record in storegate
+    /// Update Tags when input tags (/TagInfo in-file metadata) change
+    StatusCode           updateTagInfo();
+
+    /// Notify all listeners that the Tags were updated.
+    void                 notifyListeners() const;
+    /// Callback from IOVSvc used to notifyListeners at the right time 
+    StatusCode           iovCallback(IOVSVC_CALLBACK_ARGS);
+
+    // Fake IAddressProvider interface implementation - allows to make TagInfoMgr
+    // a proxy provider and attach it to an object with an IOV callback
+    // MN: non-functional, hoipefully temporaru
+    using IAddressProvider::tadList, IAddressProvider::tadListIterator;
+
+    virtual StatusCode preLoadAddresses( StoreID::type storeID, tadList& tlist ) override;
+
     virtual StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad,
                                      const EventContext& ctx) override;
-
-
-    /// Implementation of IConverter: Create the transient representation of an object from persistent state.
-    /// @param pAddress [IN] pointer to IOpaqueAddress of the representation.
-    /// @param refpObject [OUT] pointer to DataObject to be created.
-    virtual StatusCode createObj(IOpaqueAddress* pAddress, DataObject*& refpObject) override;
-
-   /// Create a Generic address using explicit arguments to identify a single object.
-   /// @param svcType [IN] service type of the address.
-   /// @param clid [IN] class id for the address.
-   /// @param par [IN] string containing the database name.
-   /// @param ip [IN] object identifier.
-   /// @param refpAddress [OUT] converted address.
-   virtual StatusCode createAddress(long svcType,
-		   const CLID& clid,
-		   const std::string* par,
-		   const unsigned long* ip,
-		   IOpaqueAddress*& refpAddress) override;
-
-   /// Convert address to string form
-   /// @param pAddress [IN] address to be converted.
-   /// @param refAddress [OUT] converted string form.
-   virtual StatusCode convertAddress(const IOpaqueAddress* pAddress, std::string& refAddress) override;
-
-    /// Create address from string form
-    /// @param svcType [IN] service type of the address.
-    /// @param clid [IN] class id for the address.
-    /// @param refAddress [IN] string form to be converted.
-    /// @param refpAddress [OUT] converted address.
-    virtual StatusCode createAddress(long svcType,
-                                     const CLID& clid,
-                                     const std::string& refAddress,
-                                     IOpaqueAddress*& refpAddress) override;
     //@}
+
 
     ///////////////////////////////////////////////////////////////////
     // Private methods:
@@ -192,13 +167,9 @@ private:
 
     /// @name TagInfo management methods:
     //@{
-    StatusCode fillTagInfo    (const CondAttrListCollection* tagInfoCond, TagInfo* tagInfo) const;
-    StatusCode fillMetaData   (const TagInfo* tagInfo, const CondAttrListCollection* tagInfoCond);
+    StatusCode fillTagInfo(const CondAttrListCollection* tagInfoCond);
+    StatusCode fillMetaData(const CondAttrListCollection* tagInfoCond);
     //@}
-
-    /// Flag to add override the tags from EventInfo from other
-    /// sources 
-    Gaudi::Property<bool>   m_overrideEventInfoTags { this, "OverrideEventInfoTags", true, "Override tags yes/no" };
 
     /// Extra tags/values pairs added in my jobOptions
     Gaudi::Property<std::map<std::string,std::string> >
@@ -209,11 +180,6 @@ private:
 
     /// Extra tags to be removed
     std::set<std::string>          m_tagsToBeRemoved;
-
-    /// The StoreGate key for the TagInfo
-    Gaudi::Property<std::string>   m_tagInfoKey{ this, "TagInfoKey", "ProcessingTags", "SG key for TagInfo" };
-
-    std::string                    m_tagInfoKeyValue;
 
     /// The event store
     ServiceHandle<StoreGateSvc>    m_storeGate { this, "StoreGateSvc", "StoreGateSvc" };
@@ -239,9 +205,14 @@ private:
     /// IOVRange of last TagInfo added to the file meta data
     IOVRange                       m_lastIOVRange { IOVRange(IOVTime(), IOVTime()) };
 
-    /// Last TagInfo added to the detector store
-    TagInfo                        m_lastTagInfo;
+    /// The Tags
+    TagInfo                        m_tagInfo;
 
+    /// List of listeners notified when the TagInfo changed
+    std::set< Listener* >          m_listeners;
+
+    /// mutex to protect internal data in MT
+    mutable std::shared_mutex      m_mutex   ATLAS_THREAD_SAFE;
 };
 
 

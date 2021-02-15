@@ -41,7 +41,7 @@ TRT_ToT_dEdx::TRT_ToT_dEdx(const std::string& t, const std::string& n, const IIn
   AthAlgTool(t,n,p),
   m_TRTStrawSummaryTool("TRT_StrawStatusSummaryTool",this),
   m_assoTool("InDet::InDetPRD_AssociationToolGangedPixels"),
-  m_localOccTool()
+  m_localOccTool("",this)
 {
   declareInterface<ITRT_ToT_dEdx>(this);
   declareProperty("TRTStrawSummaryTool",    m_TRTStrawSummaryTool);
@@ -280,7 +280,7 @@ TRT_ToT_dEdx::dEdx(const EventContext& ctx,
 
     ToTsum = std::accumulate(vecToT.begin(), vecToT.end(), 0);
     if (m_correctionType == kTrackBased) {
-      correctionFactor=trackOccupancyCorrection(track, useHitsHT);
+      correctionFactor=trackOccupancyCorrection(ctx,track, useHitsHT);
     } else {
       correctionFactor=correctNormalization(ctx,nVtx);
     }
@@ -383,7 +383,7 @@ TRT_ToT_dEdx::dEdx(const EventContext& ctx,
     double ToTsum = ToTsumXe*nhitsXe + ToTsumAr*nhitsAr + ToTsumKr*nhitsKr;
 
 	  if (m_correctionType == kTrackBased) {
-      correctionFactor = trackOccupancyCorrection(track, useHitsHT);
+      correctionFactor = trackOccupancyCorrection(ctx,track, useHitsHT);
     } else {
       correctionFactor = correctNormalization(ctx,nVtx);
     }
@@ -846,34 +846,52 @@ TRT_ToT_dEdx::correctToT_corrRZ(const EventContext& ctx,
       valToT = fitFuncEndcap_corrRZL(ctx,gasType, hitRtrack, hitPosR, Layer, hitZ>0?1:(hitZ<0?-1:0));
   }else{
     if (abs(hitPart)==1) // Barrel
-      valToT = fitFuncBarrel_corrRZ(gasType, hitRtrack, hitZ, Layer, StrawLayer);
+      valToT = fitFuncBarrel_corrRZ(ctx,gasType, hitRtrack, hitZ, Layer, StrawLayer);
     else // End-cap
-      valToT = fitFuncEndcap_corrRZ(gasType, hitRtrack, hitPosR, Layer, hitZ>0?1:(hitZ<0?-1:0));
+      valToT = fitFuncEndcap_corrRZ(ctx,gasType, hitRtrack, hitPosR, Layer, hitZ>0?1:(hitZ<0?-1:0));
   }
   if (std::isinf(valToT)) return 0.;
   if (valToT!=0) return ToTmip*timeOverThreshold/valToT;
   return 0.;
 }
 
-double TRT_ToT_dEdx::fitFuncBarrel_corrRZ(EGasType gasType, double driftRadius,double zPosition, int Layer, int StrawLayer) const
+double
+TRT_ToT_dEdx::fitFuncBarrel_corrRZ(const EventContext& ctx,
+                                   EGasType gasType,
+                                   double driftRadius,
+                                   double zPosition,
+                                   int Layer,
+                                   int StrawLayer) const
 {
   if (Layer == 0 && StrawLayer < 9) {
-    return fitFuncBarrelShort_corrRZ(gasType, driftRadius, zPosition, StrawLayer);
+    return fitFuncBarrelShort_corrRZ(ctx,gasType, driftRadius, zPosition, StrawLayer);
   }
-  return fitFuncBarrelLong_corrRZ(gasType, driftRadius, zPosition, Layer, StrawLayer);
+  return fitFuncBarrelLong_corrRZ(ctx,gasType, driftRadius, zPosition, Layer, StrawLayer);
 }
 
-double TRT_ToT_dEdx::fitFuncEndcap_corrRZ(EGasType gasType, double driftRadius,double radialPosition, int Layer, int sign) const
+double
+TRT_ToT_dEdx::fitFuncEndcap_corrRZ(const EventContext& ctx,
+                                   EGasType gasType,
+                                   double driftRadius,
+                                   double radialPosition,
+                                   int Layer,
+                                   int sign) const
 {
   /**
    * T(r,R) = T0(r)+ a(r)*R
    */
-  double T0 =  fitFuncPol_corrRZ(gasType, 0,driftRadius,Layer,0,sign,2);
-  double a  =  fitFuncPol_corrRZ(gasType, 1,driftRadius,Layer,0,sign,2);
+  double T0 =  fitFuncPol_corrRZ(ctx,gasType, 0,driftRadius,Layer,0,sign,2);
+  double a  =  fitFuncPol_corrRZ(ctx,gasType, 1,driftRadius,Layer,0,sign,2);
   return T0+a*radialPosition;
 }
 
-double TRT_ToT_dEdx::fitFuncBarrelLong_corrRZ(EGasType gasType, double driftRadius,double zPosition, int Layer, int StrawLayer) const
+double
+TRT_ToT_dEdx::fitFuncBarrelLong_corrRZ(const EventContext& ctx,
+                                       EGasType gasType,
+                                       double driftRadius,
+                                       double zPosition,
+                                       int Layer,
+                                       int StrawLayer) const
 {
   /**
    *                   |z|       /|z| - l  \
@@ -885,9 +903,9 @@ double TRT_ToT_dEdx::fitFuncBarrelLong_corrRZ(EGasType gasType, double driftRadi
   if(zPosition<0)sign=-1;
   double l = 704.6;
   // define set of parameters for negative and positive z positions
-  double T0 =  fitFuncPol_corrRZ(gasType, 0,driftRadius,Layer,StrawLayer,sign,0);
-  double  v =  fitFuncPol_corrRZ(gasType, 1,driftRadius,Layer,StrawLayer,sign,0);
-  double  s =  fitFuncPol_corrRZ(gasType, 2,driftRadius,Layer,StrawLayer,sign,0);
+  double T0 =  fitFuncPol_corrRZ(ctx,gasType, 0,driftRadius,Layer,StrawLayer,sign,0);
+  double  v =  fitFuncPol_corrRZ(ctx,gasType, 1,driftRadius,Layer,StrawLayer,sign,0);
+  double  s =  fitFuncPol_corrRZ(ctx,gasType, 2,driftRadius,Layer,StrawLayer,sign,0);
   //_in theory_ For IEEE-compatible type double, argument causes exp to overflow if outside [-708.4, 709.8]
   //however, overflow still seen when argument is 702; so I restrict these to -600, 600
   const double expArg=(z-l)/s;
@@ -897,7 +915,12 @@ double TRT_ToT_dEdx::fitFuncBarrelLong_corrRZ(EGasType gasType, double driftRadi
   return T0+(z/v)*std::exp(expArg);
 }
 
-double TRT_ToT_dEdx::fitFuncBarrelShort_corrRZ(EGasType gasType, double driftRadius,double zPosition, int StrawLayer) const
+double
+TRT_ToT_dEdx::fitFuncBarrelShort_corrRZ(const EventContext& ctx,
+                                        EGasType gasType,
+                                        double driftRadius,
+                                        double zPosition,
+                                        int StrawLayer) const
 {
   /**
    *  T(r,z) = T0(r)+ b(r)*|z|
@@ -905,15 +928,22 @@ double TRT_ToT_dEdx::fitFuncBarrelShort_corrRZ(EGasType gasType, double driftRad
   double z = std::abs(zPosition);
   int sign=1;
   if(zPosition<0)sign=-1;
-  double T0 = fitFuncPol_corrRZ(gasType, 0,driftRadius,0,StrawLayer,sign,1);
-  double b  = fitFuncPol_corrRZ(gasType, 1,driftRadius,0,StrawLayer,sign,1);
+  double T0 = fitFuncPol_corrRZ(ctx,gasType, 0,driftRadius,0,StrawLayer,sign,1);
+  double b  = fitFuncPol_corrRZ(ctx,gasType, 1,driftRadius,0,StrawLayer,sign,1);
   return T0+b*z;
 }
 
-
-double TRT_ToT_dEdx::fitFuncPol_corrRZ(EGasType gasType, int parameter, double driftRadius, int Layer, int Strawlayer, int sign, int set) const
+double
+TRT_ToT_dEdx::fitFuncPol_corrRZ(const EventContext& ctx,
+                                EGasType gasType,
+                                int parameter,
+                                double driftRadius,
+                                int Layer,
+                                int Strawlayer,
+                                int sign,
+                                int set) const
 {
-  SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
+  SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey,ctx};
   const TRTDedxcorrection* dEdxCorrection{*readHandle};
   if(dEdxCorrection==nullptr)
     {
@@ -1125,6 +1155,10 @@ TRT_ToT_dEdx::hitOccupancyCorrection(const EventContext& ctx,
     }
   }
 
+  if (!driftcircle) {
+    return 0.;
+  }
+
   const Trk::TrackParameters* trkP = itr->trackParameters();
   Identifier DCId = driftcircle->identify();
   int isHT = driftcircle->highLevel();
@@ -1191,13 +1225,16 @@ TRT_ToT_dEdx::hitOccupancyCorrection(const EventContext& ctx,
   return ToTmip*valToT;
 }
 
-double TRT_ToT_dEdx::trackOccupancyCorrection(const Trk::Track* track,  bool useHitsHT) const
+double
+TRT_ToT_dEdx::trackOccupancyCorrection(const EventContext& ctx,
+                                       const Trk::Track* track,
+                                       bool useHitsHT) const
 {
-  SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
+  SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey,ctx};
   const TRTDedxcorrection* dEdxCorrection{*readHandle};
 
   double corr=-999.;
-  double trackOcc = m_localOccTool->LocalOccupancy(*track);
+  double trackOcc = m_localOccTool->LocalOccupancy(ctx,*track);
   const Trk::TrackParameters* perigee = track->perigeeParameters();
   const Amg::VectorX& parameterVector = perigee->parameters();
   double theta  = parameterVector[Trk::theta];

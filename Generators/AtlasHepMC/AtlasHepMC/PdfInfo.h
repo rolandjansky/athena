@@ -8,14 +8,12 @@
 #ifdef HEPMC3
 #include "HepMC3/GenEvent.h"
 #include "HepMC3/PrintStreams.h"
-namespace HepMC
-{
+namespace HepMC {
 typedef std::shared_ptr<HepMC3::GenPdfInfo>  GenPdfInfoPtr;
 }
 #else
 #include "HepMC/PdfInfo.h"
-namespace HepMC
-{
+namespace HepMC {
 typedef HepMC::PdfInfo*  GenPdfInfoPtr;
 }
 #endif

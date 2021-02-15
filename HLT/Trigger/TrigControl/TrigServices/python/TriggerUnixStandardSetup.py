@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## @file TriggerUnixStandardSetup.py
 ## @brief py-module to configure the Athena AppMgr for trigger
@@ -23,9 +23,6 @@ def setupCommonServices():
     # Create our own logger
     log = logging.getLogger( 'TriggerUnixStandardSetup::setupCommonServices:' )
 
-    from TrigServices.TrigServicesConfig import setupMessageSvc
-    setupMessageSvc()
-     
     # Do the default Atlas job configuration first
     import AthenaCommon.AtlasUnixStandardJob   # noqa: F401
 
@@ -179,9 +176,13 @@ def setupCommonServicesEnd():
     # Set default properties for some important services after all user job options
     log.info('Configure core services for online running')
 
+    from TrigServices.TrigServicesConfig import setupMessageSvc
+    setupMessageSvc()
+
     svcMgr.CoreDumpSvc.CoreDumpStream = "stdout"
     svcMgr.CoreDumpSvc.CallOldHandler = False
     svcMgr.CoreDumpSvc.StackTrace = True
+    svcMgr.CoreDumpSvc.FastStackTrace = True
     svcMgr.CoreDumpSvc.FatalHandler = 0   # no extra fatal handler
     svcMgr.CoreDumpSvc.TimeOut = 60000000000        # timeout for stack trace generation changed to 60s (ATR-17112)
 

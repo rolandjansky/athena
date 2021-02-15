@@ -22,161 +22,60 @@ atlas_add_library( SGtests test/SGtests.cxx
    NO_PUBLIC_HEADERS
    LINK_LIBRARIES CxxUtils StoreGateLib TestTools )
 
-# Declare the package's tests:o
-atlas_add_test( ActiveStore_test
-   SOURCES test/ActiveStore_test.cxx
-   LINK_LIBRARIES SGtests )
+# Declare the package's tests:
+# Helper function setting up the test(s) in the package:
+function( _add_test name )
+   cmake_parse_arguments( ARG "" "LOG_IGNORE_PATTERN" "" ${ARGN} )
+   if( ARG_LOG_IGNORE_PATTERN )
+      set( extra_arg LOG_IGNORE_PATTERN ${ARG_LOG_IGNORE_PATTERN} )
+   endif()
+   atlas_add_test( ${name}
+      SOURCES test/${name}.cxx
+      INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+      LINK_LIBRARIES StoreGateLib TestTools
+      ${extra_arg} )
+endfunction( _add_test )
 
-   set( _hivePatterns "JobOptionsSvc +INFO|StoreGateSvc.*DEBUG|HiveMgrSvc +DEBUG" )
+set( _hivePatterns "JobOptionsSvc +INFO|StoreGateSvc.*DEBUG|HiveMgrSvc +DEBUG" )
 
-atlas_add_test( SGTiming_test
-   SOURCES test/SGTiming_test.cxx
-   LINK_LIBRARIES SGtests
-   LOG_IGNORE_PATTERN "${_hivePatterns}|rec:|averages" )
 
-atlas_add_test( SGHive_test
-   SOURCES test/SGHive_test.cxx
-   LINK_LIBRARIES SGtests
-   LOG_IGNORE_PATTERN "${_hivePatterns}" )
+_add_test( ActiveStore_test )
+_add_test( SGTiming_test LOG_IGNORE_PATTERN "${_hivePatterns}|rec:|averages" )
+_add_test( SGHive_test LOG_IGNORE_PATTERN "${_hivePatterns}" )
+_add_test( DataHandle_test )
+_add_test( SGIterator_test )
+_add_test( KeyConcept_test )
+_add_test( StoreClearedIncident_test )
+_add_test( SegMemSvc_test )
+_add_test( exceptions_test )
+_add_test( VarHandleKey_parseKey_test )
+_add_test( VarHandleKey_test )
+_add_test( VarHandleKeyProperty_test )
+_add_test( VarHandleProperty_test )
+_add_test( ReadHandleKey_test )
+_add_test( WriteHandleKey_test )
+_add_test( UpdateHandleKey_test )
+_add_test( TypelessWriteHandleKey_test )
+_add_test( VarHandleBase_test )
+_add_test( VarHandles_test )
+_add_test( WriteHandle_test )
+_add_test( ReadHandle_test )
+_add_test( UpdateHandle_test )
+_add_test( TypelessWriteHandle_test )
+_add_test( DecorKeyHelpers_test )
+_add_test( ReadDecorHandleKey_test )
+_add_test( WriteDecorHandleKey_test )
+_add_test( ReadDecorHandle_test )
+_add_test( WriteDecorHandle_test )
+_add_test( CondHandleKeyArray_test )
+_add_test( WriteCondHandle_test )
+_add_test( WriteDecorHandleKeyArray_test )
+_add_test( ReadDecorHandleKeyArray_test )
+_add_test( ThinningHandleKey_test )
+_add_test( ThinningHandleBase_test )
+_add_test( ThinningHandle_test )
+_add_test( ShallowCopyDecorDeps_test )
 
-atlas_add_test( DataHandle_test
-   SOURCES test/DataHandle_test.cxx
-   LINK_LIBRARIES SGtests )
-
-atlas_add_test( SGIterator_test
-   SOURCES test/SGIterator_test.cxx
-   LINK_LIBRARIES SGtests )
-
-atlas_add_test( KeyConcept_test
-   SOURCES test/KeyConcept_test.cxx
-   LINK_LIBRARIES SGtests )
-
-atlas_add_test( StoreClearedIncident_test
-   SOURCES test/StoreClearedIncident_test.cxx
-   LINK_LIBRARIES SGtests )
-
-atlas_add_test( SegMemSvc_test
-   SOURCES test/SegMemSvc_test.cxx
-   LINK_LIBRARIES SGtests )
-
-atlas_add_test( exceptions_test
-   SOURCES test/exceptions_test.cxx
-   LINK_LIBRARIES SGtests )
-
-atlas_add_test( VarHandleKey_parseKey_test
-   SOURCES test/VarHandleKey_parseKey_test.cxx
-   LINK_LIBRARIES SGtests )
-
-atlas_add_test( VarHandleKey_test
-   SOURCES test/VarHandleKey_test.cxx
-   LINK_LIBRARIES SGtests )
-
-atlas_add_test( VarHandleKeyProperty_test
-   SOURCES test/VarHandleKeyProperty_test.cxx
-   LINK_LIBRARIES SGtests )
-
-atlas_add_test( VarHandleProperty_test
-   SOURCES test/VarHandleProperty_test.cxx
-   LINK_LIBRARIES SGtests )
-
-atlas_add_test( ReadHandleKey_test
-   SOURCES test/ReadHandleKey_test.cxx
-   LINK_LIBRARIES SGtests )
-
-atlas_add_test( WriteHandleKey_test
-   SOURCES test/WriteHandleKey_test.cxx
-   LINK_LIBRARIES SGtests )
-
-atlas_add_test( UpdateHandleKey_test
-   SOURCES test/UpdateHandleKey_test.cxx
-   LINK_LIBRARIES SGtests )
-
-atlas_add_test( TypelessWriteHandleKey_test
-   SOURCES test/TypelessWriteHandleKey_test.cxx
-   LINK_LIBRARIES SGtests )
-
-atlas_add_test( VarHandleBase_test
-   SOURCES test/VarHandleBase_test.cxx
-   LINK_LIBRARIES SGtests )
-
-atlas_add_test( VarHandles_test
-   SOURCES test/VarHandles_test.cxx
-   LINK_LIBRARIES SGtests )
-
-atlas_add_test( WriteHandle_test
-   SOURCES test/WriteHandle_test.cxx
-   LINK_LIBRARIES SGtests AthContainers )
-
-atlas_add_test( ReadHandle_test
-   SOURCES test/ReadHandle_test.cxx
-   LINK_LIBRARIES SGtests )
-
-atlas_add_test( UpdateHandle_test
-   SOURCES test/UpdateHandle_test.cxx
-   LINK_LIBRARIES SGtests )
-
-atlas_add_test( TypelessWriteHandle_test
-   SOURCES test/TypelessWriteHandle_test.cxx
-   LINK_LIBRARIES SGtests AthContainers )
-
-atlas_add_test( DecorKeyHelpers_test
-   SOURCES test/DecorKeyHelpers_test.cxx
-   LINK_LIBRARIES StoreGateLib )
-
-atlas_add_test( ReadDecorHandleKey_test
-   SOURCES test/ReadDecorHandleKey_test.cxx
-   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
-   LINK_LIBRARIES StoreGateLib TestTools )
-
-atlas_add_test( WriteDecorHandleKey_test
-   SOURCES test/WriteDecorHandleKey_test.cxx
-   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
-   LINK_LIBRARIES StoreGateLib TestTools )
-
-atlas_add_test( ReadDecorHandle_test
-   SOURCES test/ReadDecorHandle_test.cxx
-   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
-   LINK_LIBRARIES StoreGateLib AthContainers TestTools )
-
-atlas_add_test( WriteDecorHandle_test
-   SOURCES test/WriteDecorHandle_test.cxx
-   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
-   LINK_LIBRARIES StoreGateLib AthContainers TestTools )
-
-atlas_add_test( CondHandleKeyArray_test
-   SOURCES test/CondHandleKeyArray_test.cxx
-   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
-   LINK_LIBRARIES StoreGateLib AthContainers TestTools )
-
-atlas_add_test( WriteCondHandle_test
-   SOURCES test/WriteCondHandle_test.cxx
-   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
-   LINK_LIBRARIES StoreGateLib AthContainers TestTools )
- 
-atlas_add_test( WriteDecorHandleKeyArray_test
-   SOURCES test/WriteDecorHandleKeyArray_test.cxx
-   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
-   LINK_LIBRARIES StoreGateLib TestTools )
-
-atlas_add_test( ReadDecorHandleKeyArray_test
-   SOURCES test/ReadDecorHandleKeyArray_test.cxx
-   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
-   LINK_LIBRARIES StoreGateLib TestTools )
-
-atlas_add_test( ThinningHandleKey_test
-   SOURCES test/ThinningHandleKey_test.cxx
-   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
-   LINK_LIBRARIES StoreGateLib AthContainers TestTools )
-
-atlas_add_test( ThinningHandleBase_test
-   SOURCES test/ThinningHandleBase_test.cxx
-   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
-   LINK_LIBRARIES StoreGateLib AthContainers TestTools )
-
-atlas_add_test( ThinningHandle_test
-   SOURCES test/ThinningHandle_test.cxx
-   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
-   LINK_LIBRARIES StoreGateLib AthContainers TestTools )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.txt

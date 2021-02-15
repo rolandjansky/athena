@@ -11,7 +11,7 @@ atlas_add_library( TrigT1Result
                    src/*.cxx
                    PUBLIC_HEADERS TrigT1Result
                    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaKernel L1TopoRDO TrigT1Interfaces
+                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaKernel L1TopoRDO TrigT1Interfaces TrigT1MuctpiBits
                    PRIVATE_LINK_LIBRARIES GaudiKernel )
 
 atlas_add_dictionary( TrigT1ResultDict

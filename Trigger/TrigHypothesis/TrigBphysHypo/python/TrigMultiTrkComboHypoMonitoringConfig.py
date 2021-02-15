@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 
@@ -24,6 +24,7 @@ class TrigMultiTrkComboHypoMonitoring(GenericMonitoringTool):
             defineHistogram('bphysFitMass', type='TH1F', path='EXPERT', title="fit mass of N tracks; fit mass of N selected tracks [GeV]", xbins=100, xmin=0, xmax=20),
             defineHistogram('bphysMass', type='TH1F', path='EXPERT', title="mass of N tracks; mass of N selected tracks [GeV]", xbins=100, xmin=0, xmax=20),
             defineHistogram('bphysCharge', type='TH1F', path='EXPERT', title="total charge of N tracks; Total Charge", xbins=20, xmin=-10, xmax=10),
+            defineHistogram('bphysLxy', type='TH1F', path='EXPERT', title="Lxy of Vertex; [mm]", xbins=30, xmin=-10, xmax=20),
             defineHistogram('TIME_all', type='TH1F', path='EXPERT', title='execution time; [microseconds]', xbins=100, xmin=0, xmax=1000),
             ]
 
@@ -31,9 +32,10 @@ class TrigMultiTrkComboHypoToolMonitoring(GenericMonitoringTool):
     def __init__ (self, name):
         super(TrigMultiTrkComboHypoToolMonitoring, self).__init__(name)
         self.Histograms = [
-        defineHistogram('totCharge', type='TH1F', path='EXPERT', title="Total Charge of N tracks; Total Charge", xbins=21, xmin=-10, xmax=10),
-        defineHistogram('CutCounter', type='TH1F', path='EXPERT', title="Checksum of passed cuts; N passed cuts", xbins=5, xmin=-0.5, xmax=4.5),
-        defineHistogram('FitChi2', type='TH1F', path='EXPERT', title="chi2 fit of N tracks; fit chi2 of N selected tracks", xbins=100, xmin=0, xmax=100),
-        defineHistogram('VertexMass', type='TH1F', path='EXPERT', title="mass of track pairs; m_{#mu#mu} [GeV]", xbins=100, xmin=0, xmax=20),
-        defineHistogram('trackPts', type='TH1F', path='EXPERT', title="p_{T} of tracks before cut; tracks before selection p_{T} [GeV]", xbins=100, xmin=0, xmax=40)
+        defineHistogram('totalCharge', type='TH1F', path='EXPERT', title="Total Charge of N tracks; total charge", xbins=20, xmin=-10, xmax=10),
+        defineHistogram('chi2', type='TH1F', path='EXPERT', title="chi2 fit of N tracks; vertex chi2", xbins=100, xmin=0, xmax=100),
+        defineHistogram('mass', type='TH1F', path='EXPERT', title="mass of track pairs; m_{#mu#mu} [GeV]", xbins=100, xmin=0, xmax=20),
+        defineHistogram('Lxy', type='TH1F', path='EXPERT', title="Lxy of Vertex; [mm]", xbins=30, xmin=-10, xmax=20),
+        defineHistogram('pT_trk1', type='TH1F', path='EXPERT', title="p_{T} of the first track; p_{T}(#mu_{1}) [GeV]", xbins=100, xmin=0, xmax=40),
+        defineHistogram('pT_trk2', type='TH1F', path='EXPERT', title="p_{T} of the second track; p_{T}(#mu_{2}) [GeV]", xbins=100, xmin=0, xmax=40),
         ]

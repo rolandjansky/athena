@@ -91,6 +91,7 @@ class MTCalibPebHypoOptions:
         self.NumBurnCycles = 0
         self.BurnTimeRandomly = True
         self.Crunch = False
+        self.CheckDataConsistency = False
         self.ROBAccessDict = rob_access_dict
         self.TimeBetweenROBReqMillisec = 0
         self.PEBROBList = []
@@ -168,6 +169,7 @@ def make_hypo_tool(name, options=default_options):
     hypo_tool.NumBurnCycles             = options.NumBurnCycles
     hypo_tool.BurnTimeRandomly          = options.BurnTimeRandomly
     hypo_tool.Crunch                    = options.Crunch
+    hypo_tool.CheckDataConsistency      = options.CheckDataConsistency
     hypo_tool.ROBAccessDict             = options.ROBAccessDict
     hypo_tool.TimeBetweenROBReqMillisec = options.TimeBetweenROBReqMillisec
     hypo_tool.PEBROBList                = options.PEBROBList
@@ -181,6 +183,8 @@ def make_all_hypo_algs(num_chains, concurrent=False):
     for chain_index in range(1, 1+num_chains):
         # Default hypo tool for chains 1, 4, 7, 10, ...
         hypoTool = make_hypo_tool('HLT_MTCalibPeb{:d}'.format(chain_index))
+        hypoTool.PEBROBList = rob_list
+        hypoTool.PEBSubDetList = []
         # Hypo for chains 2, 5, 8, 11, ...
         if chain_index % 3 == 2:
             hypoTool.PEBROBList = [0x420024, 0x420025, 0x420026, 0x420027]  # example LAr EMB ROBs
@@ -304,7 +308,7 @@ def make_summary_algs(hypo_algs):
     summMaker.FinalStepDecisions = {}
     for hypo in hypo_algs:
         for tool in hypo.HypoTools:
-            summMaker.FinalStepDecisions[tool.getName()] = str(hypo.HypoOutputDecisions)
+            summMaker.FinalStepDecisions[tool.getName()] = [str(hypo.HypoOutputDecisions)]
     log.info('summMaker = %s', summMaker)
     return [summary, summMaker]
 

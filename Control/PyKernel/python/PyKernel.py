@@ -1,7 +1,5 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
 """core module for an interactive analysis
 
 Examples are in `PyAnalysisExamples/PlotTest.py`_ and `PyAnalysisExamples/HistTest.py`_
@@ -19,10 +17,9 @@ __docformat__ = "restructuredtext en"
 # remove these lines when epydoc
 #"""
 import re
-import types
 import cppyy
-from math import *
-from AthenaCommon.SystemOfUnits import *
+from math import *  # noqa: F403
+from AthenaCommon.SystemOfUnits import *  # noqa: F403
 
 # global name space
 GNS = cppyy.gbl
@@ -106,7 +103,7 @@ class _SetEventCounter:
             curEvent = curEvent+1
             return GNS.StatusCode(1)
         # call original method
-        return apply(self.methodObj,var)
+        return self.methodObj(var)
     
 
 # retrieve object from StoreGate
@@ -130,7 +127,7 @@ def retrieve (aClass, aKey=None):
     if aClass == GNS.AANT:
         return rootStream
     global storeGate
-    if storeGate == None:
+    if storeGate is None:
         import AthenaPython.PyAthena as PyAthena
         storeGate = PyAthena.py_svc('StoreGateSvc/StoreGateSvc')
     if aKey:
@@ -157,9 +154,9 @@ def retrieveDet (aClass, aKey=None):
     """
     #import workaround    
     global detStore
-    if detStore == None:
+    if detStore is None:
         import AthenaPython.PyAthena as PyAthena
-        storeGate = PyAthena.py_svc('StoreGateSvc/DetectorStore')
+        storeGate = PyAthena.py_svc('StoreGateSvc/DetectorStore')  # noqa: F841
     if aKey:
         ret = detStore.retrieve(aClass,aKey)
     else:
@@ -244,16 +241,16 @@ def fill (hist, classAndKey, value, criteria="True", nEvent=100):
             # if NULL
             if obj == 0:
                 lSize = 0                
-        except:
+        except Exception:
             lSize = 0
 
         # loop over all elements
         for iC in range(lSize):
             # parameter name "x" must be consistent with the parsed strings
             if isCollection:
-                x = obj[iC]
+                x = obj[iC]  # noqa: F841
             else:
-                x = obj
+                x = obj  # noqa: F841
 
             # eval value/criteria commands
             try:
@@ -265,8 +262,8 @@ def fill (hist, classAndKey, value, criteria="True", nEvent=100):
                     if iE < bufEvent:
                         buf.append(vX)
                     else:
-                        h.Fill(vX)
-            except:
+                        h.Fill(vX)  # noqa: F405
+            except Exception:
                 pass
 
             # if not a collection escape from loop
@@ -300,7 +297,7 @@ def fill (hist, classAndKey, value, criteria="True", nEvent=100):
                 maxX = 1
 
             # create histogram if hist is None
-            if hist == None:
+            if hist is None:
                 lpath = '/stat/tmp/PyKernelHist'
                 unregister(lpath)
                 # determine title of histo
@@ -308,7 +305,7 @@ def fill (hist, classAndKey, value, criteria="True", nEvent=100):
                     title = value.__name__
                 else:
                     title = value
-                h = book(lpath, title, 100, minX, maxX)
+                h = book(lpath, title, 100, minX, maxX)  # noqa: F405
             else:
                 h = hist
 
@@ -417,16 +414,16 @@ def fill2 (hist, classAndKey, valueX, valueY, criteria="True", nEvent=100):
             # if NULL
             if obj == 0:
                 lSize = 0                
-        except:
+        except Exception:
             lSize = 0            
         
         # loop over all elements
         for iC in range(lSize):
             # parameter name "x" must be consistent with the parsed strings
             if isCollection:
-                x = obj[iC]
+                x = obj[iC]  # noqa: F841
             else:
-                x = obj
+                x = obj  # noqa: F841
 
             # eval value/criteria commands
             try:
@@ -440,8 +437,8 @@ def fill2 (hist, classAndKey, valueX, valueY, criteria="True", nEvent=100):
                         bufX.append(vX)
                         bufY.append(vY)                        
                     else:
-                        h.Fill(vX,vY)
-            except:
+                        h.Fill(vX,vY)  # noqa: F405
+            except Exception:
                 pass
                             
             # if not a collection escape from loop
@@ -499,7 +496,7 @@ def fill2 (hist, classAndKey, valueX, valueY, criteria="True", nEvent=100):
                 maxY = 1
 
             # create histogram if hist is None
-            if hist == None:
+            if hist is None:
                 lpath = '/stat/tmp/PyKernelHist'
                 unregister(lpath)
                 # determine title of histo
@@ -511,7 +508,7 @@ def fill2 (hist, classAndKey, valueX, valueY, criteria="True", nEvent=100):
                     titleY = valueY.__name__
                 else:
                     titleY = valueY
-                h = book(lpath, titleY+" vs "+titleX, 100, minX, maxX, 100, minY, maxY)
+                h = book(lpath, titleY+" vs "+titleX, 100, minX, maxX, 100, minY, maxY)  # noqa: F405
             else:
                 h = hist
 
@@ -614,16 +611,16 @@ def fillProf (hist, classAndKey, valueX, valueY, criteria="True", nEvent=100):
             # if NULL
             if obj == 0:
                 lSize = 0                
-        except:
+        except Exception:
             lSize = 0            
         
         # loop over all elements
         for iC in range(lSize):
             # parameter name "x" must be consistent with the parsed strings
             if isCollection:
-                x = obj[iC]
+                x = obj[iC]  # noqa: F841
             else:
-                x = obj
+                x = obj  # noqa: F841
 
             # eval value/criteria commands
             try:
@@ -637,8 +634,8 @@ def fillProf (hist, classAndKey, valueX, valueY, criteria="True", nEvent=100):
                         bufX.append(vX)
                         bufY.append(vY)                        
                     else:
-                        h.Fill(vX,vY)
-            except:
+                        h.Fill(vX,vY)  # noqa: F405
+            except Exception:
                 pass
                             
             # if not a collection escape from loop
@@ -672,7 +669,7 @@ def fillProf (hist, classAndKey, valueX, valueY, criteria="True", nEvent=100):
                 maxX = 1
 
             # create histogram if hist is None
-            if hist == None:
+            if hist is None:
                 lpath = '/stat/tmp/PyKernelHist'
                 unregister(lpath)
                 # determine title of histo
@@ -684,7 +681,7 @@ def fillProf (hist, classAndKey, valueX, valueY, criteria="True", nEvent=100):
                     titleY = valueY.__name__
                 else:
                     titleY = valueY                    
-                h = bookProf(lpath, titleY+" vs "+titleX, 100, minX, maxX)
+                h = bookProf(lpath, titleY+" vs "+titleX, 100, minX, maxX)  # noqa: F405
             else:
                 h = hist
 
@@ -721,13 +718,13 @@ def plotProf (classAndKey, valueX="$x", valueY="$x", criteria="True", nEvent=100
 # parse string
 def _parseString (str):
     # remove $
-    str = re.sub("\$", "", str)
+    str = re.sub(r"\$", "", str)
     # replace XXX#YYY with StoreGate access
     cK = re.findall(r'([\w_]+)#([\w_\*]+)',str)
     for iCK in cK:
         # when XXX#*
         if iCK[1]=='*':
-            bStr = iCK[0]+"#\*"
+            bStr = iCK[0]+r"#\*"
             aStr = 'retrieve(GNS.'+iCK[0]+')'
         else:
             bStr = iCK[0]+"#"+iCK[1]

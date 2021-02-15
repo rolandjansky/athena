@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigOpMonitor.h"
@@ -19,8 +19,6 @@
 #include <algorithm>
 #include <fstream>
 #include <list>
-
-#include <boost/algorithm/string.hpp>
 
 // Helpers
 namespace {
@@ -76,6 +74,8 @@ void TrigOpMonitor::handle( const Incident& incident ) {
     fillMagFieldHist();
     fillIOVDbHist();
     fillSubDetHist();
+    const AthenaInterprocess::UpdateAfterFork& updinc = dynamic_cast<const AthenaInterprocess::UpdateAfterFork&>(incident);
+    fillProcThreadHist(updinc.workerID());
   }
 }
 
@@ -128,6 +128,14 @@ StatusCode TrigOpMonitor::bookHists()
 
   m_releaseHist = new TH1I("GeneralOpInfo", "General operational info;;Applications", 1, 0, 1);
 
+  m_mtConfigHist = new TH2I("MTConfig", "Multi-threading configuration", 2, 0, 2, 10, 0, 10);
+  m_mtConfigHist->SetCanExtend(TH1::kYaxis);
+  m_mtConfigHist->GetXaxis()->SetBinLabel(1, "N threads");
+  m_mtConfigHist->GetXaxis()->SetBinLabel(2, "N slots");
+
+  m_workersHist = new TH1I("MPWorkers", "Worker IDs;Worker ID;Number of workers", 10, 0, 10);
+  m_workersHist->SetCanExtend(TH1::kXaxis);
+
   m_subdetHist = new TH2I("Subdetectors", "State of subdetectors", 1, 0, 1, 3, 0, 3);
   m_subdetHist->SetCanExtend(TH1::kXaxis);
   m_subdetHist->GetYaxis()->SetBinLabel(1, "# ROB");
@@ -140,7 +148,10 @@ StatusCode TrigOpMonitor::bookHists()
   m_muHist = new TProfile("Pileup", "Pileup;Lumiblock;Interactions per BX", m_maxLB, 0, m_maxLB);
 
   // Register histograms
-  TH1* hist[] = {m_releaseHist, m_subdetHist, m_iovChangeHist, m_magFieldHist, m_lumiHist, m_muHist};
+  TH1* hist[] = {
+    m_releaseHist, m_mtConfigHist, m_workersHist, m_subdetHist,
+    m_iovChangeHist, m_magFieldHist, m_lumiHist, m_muHist
+  };
   for (TH1* h : hist) {
     if (h) ATH_CHECK(m_histSvc->regHist(m_histPath + h->GetName(), h));
   }
@@ -344,6 +355,38 @@ void TrigOpMonitor::fillReleaseDataHist()
     }
 
     m_releaseHist->Fill((result["project name"] + " " + result["release"]).c_str(), 1);
+  }
+}
+
+void TrigOpMonitor::fillProcThreadHist(const int workerID)
+{
+  m_workersHist->Fill(workerID, 1);
+
+  auto getIntProp = [this](std::string_view name, const std::string& prop) -> std::optional<int> {
+    IProperty* svc = serviceLocator()->service(name).as<IProperty>();
+    if (svc == nullptr) return std::nullopt;
+    try {
+      return std::stoi(svc->getProperty(prop).toString());
+    }
+    catch (...) {
+      return std::nullopt;
+    }
+  };
+
+  const std::optional<int> numThreads = getIntProp("AvalancheSchedulerSvc","ThreadPoolSize");
+  if (numThreads.has_value()) {
+    m_mtConfigHist->Fill("N threads", numThreads.value(), 1.0);
+  }
+  else {
+    ATH_MSG_WARNING("Could not retrieve the number of threads to fill the monitoring histogram");
+  }
+
+  const std::optional<int> numSlots = getIntProp("EventDataSvc","NSlots");
+  if (numSlots.has_value()) {
+    m_mtConfigHist->Fill("N slots", numSlots.value(), 1.0);
+  }
+  else {
+    ATH_MSG_WARNING("Could not retrieve the number of slots to fill the monitoring histogram");
   }
 }
 

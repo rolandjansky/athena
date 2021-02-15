@@ -8,7 +8,6 @@
  * @brief         Implementation code for the class GsfMaterialEffectsUpdator
  */
 
-
 #include "TrkGaussianSumFilter/GsfMaterialEffectsUpdator.h"
 
 #include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
@@ -19,6 +18,20 @@
 
 #include "TrkGeometry/Layer.h"
 #include "TrkGeometry/MaterialProperties.h"
+namespace {
+bool
+updateP(AmgVector(5) & stateVector, double deltaP)
+{
+  double p = 1. / std::abs(stateVector[Trk::qOverP]);
+  p += deltaP;
+  if (p <= 0.) {
+    return false;
+  }
+  double updatedIp = stateVector[Trk::qOverP] > 0. ? 1. / p : -1. / p;
+  stateVector[Trk::qOverP] = updatedIp;
+  return true;
+}
+}
 
 Trk::GsfMaterialEffectsUpdator::GsfMaterialEffectsUpdator(
   const std::string& type,
@@ -420,8 +433,8 @@ Trk::GsfMaterialEffectsUpdator::compute(
       updatedCovariance = new AmgSymMatrix(5)(
         cache.deltaCovariances[componentIndex] + *measuredCov);
     }
-    Trk::TrackParameters* updatedTrackParameters =
-      trackParameters->associatedSurface().createTrackParameters(
+    std::unique_ptr<Trk::TrackParameters> updatedTrackParameters =
+      trackParameters->associatedSurface().createUniqueTrackParameters(
         updatedStateVector[Trk::loc1],
         updatedStateVector[Trk::loc2],
         updatedStateVector[Trk::phi],
@@ -430,26 +443,9 @@ Trk::GsfMaterialEffectsUpdator::compute(
         updatedCovariance);
     double updatedWeight =
       componentParameters.second * cache.weights[componentIndex];
-    computedState.emplace_back(updatedTrackParameters, updatedWeight);
+    computedState.emplace_back(std::move(updatedTrackParameters),
+                               updatedWeight);
   }
   return computedState;
 }
 
-/* ============================================================================
-   updateP method
-   ============================================================================
- */
-
-bool
-Trk::GsfMaterialEffectsUpdator::updateP(AmgVector(5) & stateVector,
-                                        double deltaP) const
-{
-  double p = 1. / std::abs(stateVector[Trk::qOverP]);
-  p += deltaP;
-  if (p <= 0.) {
-    return false;
-  }
-  double updatedIp = stateVector[Trk::qOverP] > 0. ? 1. / p : -1. / p;
-  stateVector[Trk::qOverP] = updatedIp;
-  return true;
-}

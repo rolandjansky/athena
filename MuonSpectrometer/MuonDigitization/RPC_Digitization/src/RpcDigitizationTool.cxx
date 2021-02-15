@@ -44,7 +44,6 @@
 //Core includes
 #include "PathResolver/PathResolver.h"
 #include "AIDA/IHistogram1D.h"
-#include "EventInfo/TagInfo.h"
 #include "EventInfoMgt/ITagInfoMgr.h"
 
 #include <string>
@@ -613,7 +612,7 @@ StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigit
       static std::atomic<bool> biWarningPrinted = false;
       if (stationName.find("BI")!=std::string::npos) {
         if (!biWarningPrinted) {
-          ATH_MSG_WARNING("skipping call of RPC DetectionEfficiency for BI as long as no proper cabling is implemented");
+          ATH_MSG_WARNING("skipping call of RPC DetectionEfficiency for BI as long as no proper cabling is implemented, cf. ATLASRECTS-5803");
           biWarningPrinted.store(true, std::memory_order_relaxed);
         }
       } else {
@@ -2151,7 +2150,7 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const EventContext& ctx, const Id
     if(readCdo->getFracClusterSize1Map().find(Id) != readCdo->getFracClusterSize1Map().end()) FracClusterSize1  = float(readCdo->getFracClusterSize1Map().find(Id)->second) ;
     else {
       if (!fracCluster1Printed) {
-        ATH_MSG_WARNING("FracClusterSize1 entry not found for id = " <<m_idHelper->show_to_string(*IdRpcStrip)<<" (stationName="<<stationName<<") default will be used");
+        ATH_MSG_WARNING("FracClusterSize1 entry not found for id = " <<m_idHelper->show_to_string(*IdRpcStrip)<<" (stationName="<<stationName<<") default will be used, cf. ATLASRECTS-5800");
         fracCluster1Printed.store(true, std::memory_order_relaxed);
       }
     }
@@ -2159,7 +2158,7 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const EventContext& ctx, const Id
     if(readCdo->getFracClusterSize2Map().find(Id) != readCdo->getFracClusterSize2Map().end()) FracClusterSize2	= float(readCdo->getFracClusterSize2Map().find(Id)->second) ;
     else {
       if (!fracCluster2Printed) {
-        ATH_MSG_WARNING("FracClusterSize2 entry not found for id = " <<m_idHelper->show_to_string(*IdRpcStrip)<<" (stationName="<<stationName<<") default will be used");
+        ATH_MSG_WARNING("FracClusterSize2 entry not found for id = " <<m_idHelper->show_to_string(*IdRpcStrip)<<" (stationName="<<stationName<<") default will be used, cf. ATLASRECTS-5800");
         fracCluster2Printed.store(true, std::memory_order_relaxed);
       }
     }
@@ -2172,7 +2171,7 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const EventContext& ctx, const Id
     if(readCdo->getMeanClusterSizeMap().find(Id) != readCdo->getMeanClusterSizeMap().end()) MeanClusterSize     = float(readCdo->getMeanClusterSizeMap().find(Id)->second)  ;
     else {
       if (!meanClusterPrinted) {
-        ATH_MSG_WARNING ("MeanClusterSize entry not found for id = " <<m_idHelper->show_to_string(*IdRpcStrip)<<" (stationName="<<stationName<<") default will be used");
+        ATH_MSG_WARNING ("MeanClusterSize entry not found for id = " <<m_idHelper->show_to_string(*IdRpcStrip)<<" (stationName="<<stationName<<") default will be used, cf. ATLASRECTS-5801");
         meanClusterPrinted.store(true, std::memory_order_relaxed);
       }
     }
@@ -2188,7 +2187,7 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const EventContext& ctx, const Id
         index>m_FracClusterSizeTail_A.size() || index>m_MeanClusterSizeTail_A.size() ) {
         if (stationName==0 || stationName==1) {
           if (!clusterIndexAPrinted) {
-            ATH_MSG_WARNING("Index out of array in ClusterSizeEvaluation SideA " << index << " statName "<<stationName);
+            ATH_MSG_WARNING("Index out of array in ClusterSizeEvaluation SideA " << index << " statName "<<stationName<<", cf. ATLASRECTS-5802");
             clusterIndexAPrinted.store(true, std::memory_order_relaxed);
           }
         } else ATH_MSG_WARNING("Index out of array in ClusterSizeEvaluation SideA " << index << " statName "<<stationName);
@@ -2205,7 +2204,7 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const EventContext& ctx, const Id
           index>m_FracClusterSizeTail_C.size() || index>m_MeanClusterSizeTail_C.size() ) {
           if (stationName==0 || stationName==1) {
             if (!clusterIndexCPrinted) {
-              ATH_MSG_WARNING("Index out of array in ClusterSizeEvaluation SideC " << index << " statName "<<stationName);
+              ATH_MSG_WARNING("Index out of array in ClusterSizeEvaluation SideC " << index << " statName "<<stationName<<", cf. ATLASRECTS-5802");
               clusterIndexCPrinted.store(true, std::memory_order_relaxed);
             }
           } else ATH_MSG_WARNING("Index out of array in ClusterSizeEvaluation SideC " << index << " statName "<<stationName);

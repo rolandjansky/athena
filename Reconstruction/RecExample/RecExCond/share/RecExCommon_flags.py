@@ -233,10 +233,16 @@ if len(rec.AutoConfiguration())>0:
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     svcMgr += AutoConfigConsistencyCheckSvc("AutoConfigConsistencyCheckSvc")
 
-
 #special commisioning job options
 if rec.Commissioning():
-   include("RecExCommission/RecExCommission.py")
+   include("RecExCond/MinimalCommissioningSetup.py")
+   # setup trigger reading from COOL
+   if rec.doTrigger():
+      from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
+      tf.configForStartup="HLTonline"
+      tf.configForStartup.lock()
+
+   rec.ScopingLevel.set_Value_and_Lock(1)
 
 if rec.triggerStream().startswith('express'):
    logRecExCommon_flags.info('Disabling track slimming for express stream.')
@@ -594,12 +600,6 @@ except Exception:
 
 #load commissioning flags here (major cleanup needed)
 if rec.Commissioning():
-   #--------------------------------------------------------------
-   # Common flags with RecExCommon
-   #--------------------------------------------------------------
-   #if rec.readRDO:
-   #   include( "RecExCommission/RecExCommissionCommonFlags_jobOptions.py" )
-
 
    # ---------------------------------------------------------------------------
    # AthenaCommonFlags

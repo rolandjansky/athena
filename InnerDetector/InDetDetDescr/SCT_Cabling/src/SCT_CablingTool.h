@@ -44,7 +44,6 @@ class SCT_CablingTool: public extends<AthAlgTool, ISCT_CablingTool> {
   SCT_CablingTool(const std::string& type, const std::string& name, const IInterface* parent);
   virtual ~SCT_CablingTool() = default;
   virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override;
   //@}
   
   //@name ISCT_CablingTool methods implemented, these are visible to clients

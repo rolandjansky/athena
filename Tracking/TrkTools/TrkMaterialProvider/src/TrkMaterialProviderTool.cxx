@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkMaterialProvider/TrkMaterialProviderTool.h"
@@ -28,7 +28,7 @@
 #include "MuidInterfaces/IMuidCaloEnergyParam.h"
 #include "MuidInterfaces/IMuidTrackIsolation.h"
 
-//#define DEBUGON //To activate printout for TSOS lists at various stages
+// #define DEBUGON //To activate printout for TSOS lists at various stages
 // for line-by-line debugging
 #define MYDEBUG() std::cout<<__FILE__<<" "<<__func__<<" "<<__LINE__<<std::endl
 
@@ -41,7 +41,6 @@ void myLocal_resetTrack(Trk::Track& track )
 Trk::TrkMaterialProviderTool::TrkMaterialProviderTool(const std::string& t, const std::string& n, const IInterface* p)
   :	AthAlgTool(t,n,p),
 	m_trackingVolumesSvc("TrackingVolumesSvc/TrackingVolumesSvc",n),
-	m_trackingGeometrySvc("TrackingGeometrySvc/AtlasTrackingGeometrySvc",n),
         m_scattool("Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator"),
 	m_caloMeasTool		("Rec::MuidCaloEnergyMeas/MuidCaloEnergyMeas"),
 	m_caloParamTool		("Rec::MuidCaloEnergyParam/MuidCaloEnergyParam"),
@@ -130,7 +129,12 @@ Trk::TrkMaterialProviderTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  ATH_CHECK(m_trackingGeometrySvc.retrieve());
+#ifdef LEGACY_TRKGEOM
+  if (!m_trackingGeometrySvc.empty()) {
+     ATH_CHECK(m_trackingGeometrySvc.retrieve());
+  }
+#endif
+  ATH_CHECK( m_trackingGeometryReadKey.initialize(!m_trackingGeometryReadKey.key().empty()) );
 
   return StatusCode::SUCCESS;
 }
@@ -403,65 +407,47 @@ void Trk::TrkMaterialProviderTool::getCaloMEOT(const Trk::Track& idTrack, const 
   for(auto m : *inputTSOS_ID) printTSOS(m, "TSOS ID TRACK");
   for(auto m : *inputTSOS_MS) printTSOS(m, "TSOS MS TRACK");
 #endif
-  
+
   // find last ID TSOS
-  DataVector<const Trk::TrackStateOnSurface>::const_iterator lastIDwP  = inputTSOS_ID->end();
-  DataVector<const Trk::TrackStateOnSurface>::const_iterator it        = inputTSOS_ID->end()-1;
-  DataVector<const Trk::TrackStateOnSurface>::const_iterator itFront   = inputTSOS_ID->begin();
-  while(*it) {
+  DataVector<const Trk::TrackStateOnSurface>::const_reverse_iterator lastIDwP  = inputTSOS_ID->rbegin();
+  for (auto it = inputTSOS_ID->rbegin(); it != inputTSOS_ID->rend(); ++it) {
     if(this->getVolumeByGeo(*it)==1 && (*it)->trackParameters()) {
       lastIDwP = it;
       break;
     }
-    if(it==itFront) break;
-    --it;
+  }
+  
+  if(lastIDwP == inputTSOS_ID->rend()) {
+    ATH_MSG_WARNING("Unable to find last ID TSOS with Track Parameters");    
+    ATH_MSG_WARNING("Unable to update Calorimeter TSOS");
+    return;
   }
   
   // find first MS TSOS
   DataVector<const Trk::TrackStateOnSurface>::const_iterator firstMS   = inputTSOS_MS->end();
   DataVector<const Trk::TrackStateOnSurface>::const_iterator firstMSwP = inputTSOS_MS->end();
-  it = inputTSOS_MS->begin();
   DataVector<const Trk::TrackStateOnSurface>::const_iterator itEnd = inputTSOS_MS->end();
-  for(; it!=itEnd; ++it) {
+  for(auto it = inputTSOS_MS->begin(); it!=itEnd ; ++it) {
     if(this->getVolumeByGeo(*it)==3) {// && !(*it)->type(Trk::TrackStateOnSurface::Perigee)) {
       if(firstMS==itEnd) 
-	firstMS = it;
+	      firstMS = it;
       if((*it)->trackParameters() && (*it)->trackParameters()->covariance()) {
-	firstMSwP = it;
-	break;
+	      firstMSwP = it;
+      	break;
       }
     }
   }
 
-  if(lastIDwP == inputTSOS_ID->end()) {
-    ATH_MSG_WARNING("Unable to find last ID TSOS with Track Parameters");    
-    ATH_MSG_WARNING("Unable to update Calorimeter TSOS");
-    /** deprecated outputLevel()
-    if(outputLevel() >= MSG::VERBOSE) {
-      for(auto m : *inputTSOS_ID)
-	      printTSOS(m, "DEBUG-ID-TSOS");
-    }    
-    **/
-    return;
-  }
   if(firstMS == inputTSOS_MS->end()) {
     ATH_MSG_WARNING("Unable to find first MS TSOS");    
     ATH_MSG_WARNING("Unable to update Calorimeter TSOS");
-    /** deprecated outputLevel()
-    if(outputLevel() >= MSG::VERBOSE) {
-      for(auto m : *inputTSOS_MS)
-	       printTSOS(m, "DEBUG-MS-TSOS");
-    }
-    **/
     return;
   }
 
   // check that first MS TSOS is not a PerigeeSurface
-  //bool removeOoC = false;
   DataVector<const Trk::TrackStateOnSurface>::const_iterator firstMSnotPerigee = firstMS;
   if( (*firstMS)->type(Trk::TrackStateOnSurface::Perigee) && (firstMS+1)!=inputTSOS_MS->end()) {
     firstMSnotPerigee=firstMS+1;
-    //removeOoC = true;
   }
 
 #ifdef DEBUGON
@@ -485,7 +471,6 @@ void Trk::TrkMaterialProviderTool::getCaloMEOT(const Trk::Track& idTrack, const 
   }
   fieldCondObj->getInitializedCache (fieldCache);
 
-  
   double Eloss = 0.; 
   double X0ScaleMS = 0.;
   double ElossScaleMS = 0.;
@@ -496,26 +481,35 @@ void Trk::TrkMaterialProviderTool::getCaloMEOT(const Trk::Track& idTrack, const 
 									    (*firstMSnotPerigee)->surface(),
 									    Trk::alongMomentum, 
 									    Trk::muon,
-                                                                            Eloss, X0ScaleMS, ElossScaleMS,
+                      Eloss, X0ScaleMS, ElossScaleMS,
 									    (firstMSwP == inputTSOS_MS->end()) ? nullptr : (*firstMSwP)->trackParameters(),
 									    false,
 									    true); 
-  
-  if(!caloTSOS || caloTSOS->size()!=3) {
-    if((!fieldCache.toroidOn()&&fabs(idTrack.perigeeParameters()->parameters()[Trk::qOverP])*4000.<1)|| (fieldCache.toroidOn()&&msTrack.perigeeParameters()->parameters()[Trk::qOverP]!=1/100000.&&msTrack.perigeeParameters()->parameters()[Trk::qOverP]!=0)) {
-// Warnings only for high momentum ID tracks and MS tracks that have measured curvature (Straight track has pq= 100000)
-      if(!fieldCache.toroidOn()) ATH_MSG_WARNING(" Toroid off q*momentum of ID track " << 1./idTrack.perigeeParameters()->parameters()[Trk::qOverP]);
-      if(fieldCache.toroidOn()) ATH_MSG_WARNING(" Toroid on q*momentum of MS track " << 1./msTrack.perigeeParameters()->parameters()[Trk::qOverP]);
-      ATH_MSG_WARNING("Unable to retrieve Calorimeter TSOS from extrapolateM+aggregation (null or !=3)");
-      if(!caloTSOS) {
-         ATH_MSG_WARNING(" Zero Calorimeter TSOS from extrapolateM+aggregation");
-      } else {
-         ATH_MSG_WARNING(" nr Calorimeter TSOS from extrapolateM+aggregation not equal to 3 " << caloTSOS->size());
+
+    if (!caloTSOS || caloTSOS->size() != 3)
+    {
+      double idqOverP = fabs(idTrack.perigeeParameters()->parameters()[Trk::qOverP]);
+      double msqOverP = msTrack.perigeeParameters() ? msTrack.perigeeParameters()->parameters()[Trk::qOverP] : (*firstMS)->trackParameters()->parameters()[Trk::qOverP] ;
+
+      if ((!fieldCache.toroidOn() && idqOverP * 4000. < 1) || (fieldCache.toroidOn() && msqOverP != 1 / 100000. && msqOverP != 0))
+      {
+        // Warnings only for high momentum ID tracks and MS tracks that have measured curvature (Straight track has pq= 100000)
+        if (!fieldCache.toroidOn())
+          ATH_MSG_WARNING(" Toroid off q*momentum of ID track " << 1. / idqOverP);
+        if (fieldCache.toroidOn())
+          ATH_MSG_WARNING(" Toroid on q*momentum of MS track " << 1. / msqOverP);
+        ATH_MSG_WARNING("Unable to retrieve Calorimeter TSOS from extrapolateM+aggregation (null or !=3)");
+        if (!caloTSOS) {
+          ATH_MSG_WARNING(" Zero Calorimeter TSOS from extrapolateM+aggregation");
+        } else {
+          ATH_MSG_WARNING(" nr Calorimeter TSOS from extrapolateM+aggregation not equal to 3 " << caloTSOS->size());
+        }
       }
-    }    
-    if(caloTSOS) deleteTSOS(caloTSOS);
-    return;
-  }
+
+      if (caloTSOS) deleteTSOS(caloTSOS);
+
+      return;
+    }
 
   for (unsigned int i=0;i<caloTSOS->size(); i++){
     const Trk::MaterialEffectsOnTrack *meot=dynamic_cast<const Trk::MaterialEffectsOnTrack *>((*caloTSOS)[i]->materialEffectsOnTrack());
@@ -552,8 +546,9 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm, con
   std::vector<const Trk::TrackStateOnSurface*>* caloTSOS = new std::vector<const Trk::TrackStateOnSurface*>();
   const Trk::TrackingVolume* targetVolume;
   Trk::PropDirection dir;
+  const EventContext& ctx = Gaudi::Hive::currentContext();
 
-  const Trk::TrackingGeometry* trackingGeometry =  m_trackingGeometrySvc->trackingGeometry();
+  const Trk::TrackingGeometry* trackingGeometry =  retrieveTrackingGeometry( ctx );
   if(!trackingGeometry) {
     ATH_MSG_WARNING("Unable to retrieve tracking geometry");
     return caloTSOS;
@@ -2050,5 +2045,11 @@ double Trk::TrkMaterialProviderTool::getFinalMeasuredEnergy(Rec::CaloMeas* caloM
 		   << " Mop Dep = "			<< MopLoss);//<< " +- " << MopError/CLHEP::GeV );
 
   return FinalMeasuredEnergy;
-}  
-  
+}
+
+void Trk::TrkMaterialProviderTool::throwFailedToGetTrackingGeomtry() const {
+   std::stringstream msg;
+   msg << "Failed to get conditions data " << m_trackingGeometryReadKey.key() << ".";
+   throw std::runtime_error(msg.str());
+}
+

@@ -17,17 +17,11 @@
 
 #include <xercesc/framework/StdOutFormatTarget.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
-#include <xercesc/framework/StdOutFormatTarget.hpp>
-#include <xercesc/framework/LocalFileFormatTarget.hpp>
 
 #include <xercesc/util/XMLUni.hpp>
 #include <xercesc/util/PlatformUtils.hpp>
-#include <xercesc/util/XMLUni.hpp>
 #include <xercesc/util/OutOfMemoryException.hpp>
-#include <xercesc/util/PlatformUtils.hpp>
 #include <xercesc/util/TransService.hpp>
-
-//#include <xercesc/parsers/XercesDOMParser.hpp>
 
 #include <ctime>
 #include <stdexcept>

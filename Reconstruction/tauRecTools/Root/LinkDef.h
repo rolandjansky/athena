@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "tauRecTools/TauCalibrateLC.h"
@@ -11,13 +11,12 @@
 #include "tauRecTools/MvaTESEvaluator.h"
 #include "tauRecTools/TauTrackRNNClassifier.h"
 #include "tauRecTools/TauTrackClassifier.h"
-#include "tauRecTools/CombinedP4FromRecoTaus.h"
+#include "tauRecTools/TauCombinedTES.h"
 #include "tauRecTools/TauWPDecorator.h"
 #include "tauRecTools/TauJetBDTEvaluator.h"
 #include "tauRecTools/TauIDVarCalculator.h"
 #include "tauRecTools/TauJetRNNEvaluator.h"
 #include "tauRecTools/TauDecayModeNNClassifier.h"
-#include "tauRecTools/TauVertexCorrection.h"
 
 #ifdef __CINT__
 
@@ -37,13 +36,11 @@
 #pragma link C++ class tauRecTools::TrackMVABDT+;
 #pragma link C++ class tauRecTools::TrackRNN+;
 #pragma link C++ class tauRecTools::TauTrackRNNClassifier+;
-#pragma link C++ class CombinedP4FromRecoTaus+;
+#pragma link C++ class TauCombinedTES+;
 #pragma link C++ class TauWPDecorator+;
 #pragma link C++ class TauJetBDTEvaluator+;
 #pragma link C++ class TauIDVarCalculator+;
 #pragma link C++ class TauJetRNNEvaluator+;
 #pragma link C++ class TauDecayModeNNClassifier+;
-#pragma link C++ class ITauVertexCorrection+;
-#pragma link C++ class TauVertexCorrection+;
 
 #endif

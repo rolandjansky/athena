@@ -17,8 +17,6 @@
 #include "VP1Base/VP1ExaminerViewer.h"
 #include "VP1Base/VP1Msg.h"
 
-
-//#include "Inventor/nodes/SoNode.h"
 #include "Inventor/nodes/SoMaterial.h"
 #include <Inventor/nodes/SoPerspectiveCamera.h>
 #include <Inventor/nodes/SoOrthographicCamera.h>
@@ -1511,8 +1509,6 @@ void VP1QtInventorUtils::getPointSizeRanges(double& min, double& max, double& gr
 	max = Imp::allowedPointSizeMax;
 	granularity = Imp::allowedPointSizeGranularity;
 }
-
-#include "VP1Base/VP1ExaminerViewer.h"
 
 //_____________________________________________________________________________________
 void VP1QtInventorUtils::ensureInitLineWidthAndPointSize(  SoQtRenderArea * ra )

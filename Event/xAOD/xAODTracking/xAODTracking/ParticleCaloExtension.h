@@ -1,19 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef XAOD_PARTICLECALOEXTENSION_H 
+#ifndef XAOD_PARTICLECALOEXTENSION_H
 #define XAOD_PARTICLECALOEXTENSION_H
 
-#include "xAODTracking/TrackingPrimitives.h" 
+#include "xAODTracking/TrackingPrimitives.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
-#ifndef XAOD_STANDALONE
-#ifndef XAOD_MANACORE
+#ifndef XAOD_ANALYSIS
 // Athena includes
 #include "TrkParameters/TrackParameters.h"
-#endif // not XAOD_MANACORE
-#endif // not XAOD_STANDALONE
+#endif // not XAOD_ANALYSIS
 
 #include <vector>
 class CaloCell;
@@ -24,9 +22,9 @@ namespace xAOD {
   class ParticleCaloExtension {
   public:
     /** constructor taking calo extrapolation as input. All vectors should be of the same length */
-    ParticleCaloExtension( float charge, 
-                           std::vector<std::vector<float> >&& parameters, 
-                           std::vector<std::vector<float> >&& parametersCovariance, 
+    ParticleCaloExtension( float charge,
+                           std::vector<std::vector<float> >&& parameters,
+                           std::vector<std::vector<float> >&& parametersCovariance,
                            std::vector<int>&& identifiers );
 
     /** destructor */
@@ -38,8 +36,8 @@ namespace xAOD {
     /** no assignment operator */
     ParticleCaloExtension& operator=(const ParticleCaloExtension&) = delete;
 
-    /// Returns the number of additional parameters stored in the Particle. 
-    size_t numberOfParameters() const; 
+    /// Returns the number of additional parameters stored in the Particle.
+    size_t numberOfParameters() const;
 
     /// Returns the track parameter vector at 'index'.
     const CurvilinearParameters_t trackParameters(unsigned int index) const;
@@ -50,11 +48,11 @@ namespace xAOD {
     /// @brief fill the matrix with the covariance at position 'index', returns false if the parameters at 'index' does not have a covariance
     bool trackParameterCovarianceMatrix(ParametersCovMatrix_t& matrix, unsigned int index) const;
 
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_ANALYSIS
     /// @brief Returns a curvilinear representation of the parameters at 'index'.
-    /// @note This is only available in Athena. 
-    const Trk::CurvilinearParameters curvilinearParameters(unsigned int index) const;          
-#endif // not XAOD_STANDALONE and not XAOD_MANACORE
+    /// @note This is only available in Athena.
+    const Trk::CurvilinearParameters curvilinearParameters(unsigned int index) const;
+#endif // not XAOD_ANALYSIS
 
     /** return whether cells were already associated or not */
     bool cellsAreAssociated() const;
@@ -66,7 +64,10 @@ namespace xAOD {
     void setCaloCells(const std::vector<CaloCell*>& cells);
 
   private:
-    /// charge
+    /// charge (unused in AnalysisBase)
+#ifdef __clang__
+    [[maybe_unused]]
+#endif
     float m_charge;
 
     /// parameters of the intersections with detector layers
@@ -77,13 +78,13 @@ namespace xAOD {
 
     /// identifiers of the intersections with detector layers
     std::vector<int> m_identifiers;
-   
+
     /** cell information */
     bool                   m_cellsAreSet; // bool to store whether already set
     std::vector<CaloCell*> m_caloCells;   // vector of cells
   };
 
-  /// Returns the number of additional parameters stored in the Particle. 
+  /// Returns the number of additional parameters stored in the Particle.
   inline size_t ParticleCaloExtension::numberOfParameters() const {
     return m_parameters.size();
   }
@@ -94,7 +95,7 @@ namespace xAOD {
     tmp << m_parameters[index][0],m_parameters[index][1],m_parameters[index][2],
       m_parameters[index][3],m_parameters[index][4],m_parameters[index][5];
     return tmp;
-  } 
+  }
 
   inline bool ParticleCaloExtension::trackParameterCovarianceMatrix(ParametersCovMatrix_t& cov, unsigned int index) const {
     const std::vector<float>& covVec = m_parametersCovariance[index];
@@ -105,12 +106,12 @@ namespace xAOD {
     }
     return true;
   }
-  
+
   /// @brief Return the ParameterPosition of the parameters at 'index'.
   inline int ParticleCaloExtension::parameterIdentifier(unsigned int index) const {
     return m_identifiers[index];
   }
-  
+
   inline bool ParticleCaloExtension::cellsAreAssociated() const {
     return m_cellsAreSet;
   }
@@ -124,13 +125,13 @@ namespace xAOD {
     m_cellsAreSet=true;
   }
 
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
-  inline const Trk::CurvilinearParameters ParticleCaloExtension::curvilinearParameters(unsigned int index) const {    
+#ifndef XAOD_ANALYSIS
+  inline const Trk::CurvilinearParameters ParticleCaloExtension::curvilinearParameters(unsigned int index) const {
 
     // copy the correct values into the temp matrix
     ParametersCovMatrix_t* cov = 0;
     if( !m_parametersCovariance[index].empty() ) {
-      cov = new ParametersCovMatrix_t(); 
+      cov = new ParametersCovMatrix_t();
       trackParameterCovarianceMatrix(*cov,index);
     }
     // retrieve the parameters to build the curvilinear frame
@@ -140,7 +141,7 @@ namespace xAOD {
 
     return param;
   }
-#endif // not XAOD_STANDALONE and not XAOD_MANACORE
+#endif // not XAOD_ANALYSIS
 
 }
 

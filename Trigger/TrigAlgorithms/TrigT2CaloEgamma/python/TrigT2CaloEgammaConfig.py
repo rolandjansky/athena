@@ -412,21 +412,18 @@ class T2CaloEgamma_ReFastAlgo (CompFactory.T2CaloEgammaReFastAlgo):
             from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigCaloDataAccessSvc
             svcMgr += TrigCaloDataAccessSvc()
         samp2 = EgammaReSamp2FexConfig(name="ReFaAlgoSamp2FexConfig",
-                                        trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc,
-                                        ExtraInputs=[( 'LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' )])
+                                        trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc)
         samp1 = EgammaReSamp1FexConfig("ReFaAlgoSamp1FexConfig",
-                                        trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc,
-                                        ExtraInputs=[( 'LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' )])
+                                        trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc)
         sampe = EgammaReEmEnFexConfig("ReFaAlgoEmEnFexConfig",
-                                        trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc,
-                                        ExtraInputs=[( 'LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' )])
+                                        trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc)
         samph = EgammaReHadEnFexConfig("ReFaAlgoHadEnFexConfig",
-                                        trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc,
-                                        ExtraInputs=[( 'LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' )])
+                                        trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc)
 
         samph.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale'),('TileBadChannels','ConditionStore+TileBadChannels')]
 
         self.IReAlgToolList = [ samp2, samp1, sampe, samph ]
+        self.ExtraInputs = [( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ) ]
         
         if doRinger:
             from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import RingerReFexConfig

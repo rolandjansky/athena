@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 
 ## @file:   AlignTrackFitter.py
@@ -8,6 +8,8 @@
 
 from AthenaCommon.Logging import logging
 from TrkAlignGenTools.AlignmentFlags import AlignmentFlags as align
+from InDetRecExample import TrackingCommon
+from InDetRecExample.TrackingCommon import createAndAddCondAlg
 
 ## AlignmentTrackFitter determines which type of fitter and configuration to 
 #  use based on AlignmentFlags and creates the fitter 
@@ -67,6 +69,12 @@ class AlignmentTrackFitter () :
         from AthenaCommon.AppMgr import ToolSvc
         from TrkGlobalChi2Fitter.TrkGlobalChi2FitterConf import Trk__GlobalChi2Fitter
         Fitter = Trk__GlobalChi2Fitter()
+
+        cond_alg = None
+        if TrackingCommon.use_tracking_geometry_cond_alg:
+            cond_alg = createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
+            Fitter.TrackingGeometryReadKey= cond_alg.TrackingGeometryWriteKey if cond_alg is not None else ''
+
         ToolSvc += Fitter
         self._fitter = Fitter
         if align.useSLFitter() :

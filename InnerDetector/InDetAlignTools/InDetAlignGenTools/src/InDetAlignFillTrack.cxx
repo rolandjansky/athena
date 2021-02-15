@@ -300,7 +300,11 @@ StatusCode InDetAlignFillTrack::FillTrack() {
           HepMcParticleLink HMPL = trkTruth.particleLink();
 
           if (HMPL.isValid()) {
+#ifdef HEPMC3
+            HepMC::ConstGenParticlePtr genParticle = HMPL.scptr();
+#else
             const HepMC::GenParticle* genParticle = HMPL.cptr();
+#endif
 
             double charge = 1.0;
             if (genParticle->pdg_id() < 0) charge = -charge;
@@ -317,7 +321,7 @@ StatusCode InDetAlignFillTrack::FillTrack() {
                               << endmsg;
             }
 
-            float genPt = sqrt((genParticle->momentum().x()) * (genParticle->momentum().x())
+            float genPt = std::sqrt((genParticle->momentum().x()) * (genParticle->momentum().x())
                                + (genParticle->momentum().y()) * (genParticle->momentum().y()));
 
             ATH_MSG_DEBUG("   * pt " << genPt / CLHEP::GeV << " CLHEP::GeV/c"

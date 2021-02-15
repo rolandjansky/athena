@@ -1104,7 +1104,7 @@ StatusCode BTaggingTruthTaggingTool::getDirectTaggedJets(TRFinfo &trfinf,std::ve
   is_tagged.clear();
   std::vector<int> appo;
   
-  for(const auto jet : trfinf.jets) {
+  for(const auto& jet : trfinf.jets) {
     ATH_MSG_DEBUG("pt " << jet.vars.jetPt << "   eta " << jet.vars.jetEta << "   wei " << jet.vars.jetTagWeight);
     bool is_btagged = false;
     if(!m_continuous)
@@ -1126,7 +1126,6 @@ StatusCode BTaggingTruthTaggingTool::getDirectTaggedJets(TRFinfo &trfinf,std::ve
 
 
 double BTaggingTruthTaggingTool::getEvtSF(TRFinfo &trfinf,int sys){
-  ANA_CHECK_SET_TYPE (StatusCode);
   double SF = 1.;
   std::vector<bool> is_tagged;
   ANA_CHECK_THROW( getDirectTaggedJets(trfinf,is_tagged) );

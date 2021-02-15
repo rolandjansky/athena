@@ -4,6 +4,9 @@
 
 #include "tauRecTools/CaloClusterVariables.h"
 #include "tauRecTools/HelperFunctions.h"
+
+#include "xAODCaloEvent/CaloVertexedTopoCluster.h"
+
 #include <cmath>
 
 const double CaloClusterVariables::DEFAULT = -1111.;
@@ -21,31 +24,20 @@ m_aveEffRadius(DEFAULT),
 m_totMass(DEFAULT),
 m_effMass(DEFAULT),
 m_totEnergy(DEFAULT),
-m_effEnergy(DEFAULT),
-m_useSubtractedCluster(true){
+m_effEnergy(DEFAULT) {
 }
 
 //*******************************************
 // update/fill the cluster based variables
 //*******************************************
 
-bool CaloClusterVariables::update(const xAOD::TauJet& pTau, const ToolHandle<ITauVertexCorrection>& tauVertexCorrection) {
+bool CaloClusterVariables::update(const xAOD::TauJet& pTau) {
     
-    if (! pTau.jetLink().isValid()) return false;
-
-    const xAOD::Jet* jetSeed = pTau.jet();
-    const xAOD::Vertex* jetVertex = tauVertexCorrection->getJetVertex(*jetSeed);
-
-    const xAOD::Vertex* tauVertex = nullptr;
-    if (pTau.vertexLink().isValid()) tauVertex = pTau.vertex();
- 
-    std::vector<const xAOD::CaloCluster*> clusterList;
-    StatusCode sc = tauRecTools::GetJetClusterList(jetSeed, clusterList, m_useSubtractedCluster);
+    const auto& vertexedClusterList = pTau.vertexedClusters();
 
     std::vector<TLorentzVector> clusterP4Vector;
-    for (const xAOD::CaloCluster* cluster : clusterList) {
-      TLorentzVector clusterP4 = tauVertexCorrection->getVertexCorrectedP4(*cluster, tauVertex, jetVertex);
-      clusterP4Vector.push_back(clusterP4);
+    for (const xAOD::CaloVertexedTopoCluster& vertexedCluster : vertexedClusterList) {
+      clusterP4Vector.push_back(vertexedCluster.p4());
     }
 
     this->m_numConstit = (int) clusterP4Vector.size();

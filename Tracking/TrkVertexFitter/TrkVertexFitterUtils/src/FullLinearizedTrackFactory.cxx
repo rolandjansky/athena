@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
@@ -37,17 +37,10 @@ namespace Trk
     ATH_CHECK( m_extrapolator.retrieve() );
     ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
 
-    msg(MSG::INFO)  << "Initialize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
 
-  StatusCode FullLinearizedTrackFactory::finalize() 
-  {
-    ATH_MSG_INFO ("Finalize successful");
-    return StatusCode::SUCCESS;
-  }
-
-  void FullLinearizedTrackFactory::linearize(VxTrackAtVertex & theTrack,const Amg::Vector3D & linPoint) const 
+  void FullLinearizedTrackFactory::linearize(VxTrackAtVertex & theTrack,const Amg::Vector3D & linPoint) const
   {
     if (theTrack.initialPerigee())
       theTrack.setLinTrack(linearizedTrack(theTrack.initialPerigee(),linPoint));

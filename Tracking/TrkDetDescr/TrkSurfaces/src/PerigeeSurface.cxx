@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -27,16 +27,20 @@ Trk::PerigeeSurface::PerigeeSurface(const Amg::Vector3D& gp)
   : Surface()
   , m_lineDirection{}
 {
-  Surface::m_center = std::make_unique<const Amg::Vector3D>(gp);
-  Surface::m_transform = std::make_unique<Amg::Transform3D>();
-  (*Surface::m_transform) = Amg::Translation3D(gp.x(), gp.y(), gp.z());
+  Surface::m_center = std::make_unique<Amg::Vector3D>(gp);
+  Surface::m_transform = std::make_unique<Amg::Transform3D>(
+    Amg::Translation3D(gp.x(), gp.y(), gp.z()));
 }
 
 Trk::PerigeeSurface::PerigeeSurface(Amg::Transform3D* tTransform)
   : Surface()
   , m_lineDirection{}
 {
-  Surface::m_transform=std::unique_ptr<Amg::Transform3D>(tTransform);
+  Surface::m_transform = std::unique_ptr<Amg::Transform3D>(tTransform);
+  if(tTransform){
+    Surface::m_center =
+      std::make_unique<Amg::Vector3D>(tTransform->translation());
+  }
 }
 
 Trk::PerigeeSurface::PerigeeSurface(std::unique_ptr<Amg::Transform3D> tTransform)
@@ -48,20 +52,24 @@ Trk::PerigeeSurface::PerigeeSurface(const PerigeeSurface& pesf)
   : Surface(pesf)
   , m_lineDirection{}
 {
-  if (pesf.m_center)
-    Surface::m_center = std::make_unique<const Amg::Vector3D>(*pesf.m_center);
-  if (pesf.m_transform)
+  if (pesf.m_center){
+    Surface::m_center = std::make_unique<Amg::Vector3D>(*pesf.m_center);
+  }
+  if (pesf.m_transform){
     Surface::m_transform = std::make_unique<Amg::Transform3D>(*pesf.m_transform);
+  }
 }
 
 Trk::PerigeeSurface::PerigeeSurface(const PerigeeSurface& pesf, const Amg::Transform3D& shift)
   : Surface()
   , m_lineDirection{}
 {
-  if (pesf.m_center)
-    Surface::m_center = std::make_unique<const Amg::Vector3D>(shift * (*pesf.m_center));
-  if (pesf.m_transform)
+  if (pesf.m_center){
+    Surface::m_center = std::make_unique<Amg::Vector3D>(shift * (*pesf.m_center));
+  }
+  if (pesf.m_transform){
     Surface::m_transform = std::make_unique<Amg::Transform3D>(shift * (*pesf.m_transform));
+  }
 }
 
 
@@ -81,10 +89,12 @@ Trk::PerigeeSurface::operator==(const Trk::Surface& sf) const
 {
   // first check the type not to compare apples with oranges
   const Trk::PerigeeSurface* persf = dynamic_cast<const Trk::PerigeeSurface*>(&sf);
-  if (!persf)
+  if (!persf){
     return false;
-  if (this == persf)
+  }
+  if (this == persf){
     return true;
+  }
   return (center() == persf->center());
 }
 

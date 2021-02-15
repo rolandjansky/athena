@@ -9,8 +9,6 @@
 
 namespace {
   struct CollectionDebugInfo {
-    CollectionDebugInfo(std::string_view n, const uint32_t s, const bool r)
-    : name(n), size(s), isRecorded(r) {}
     std::string_view name;
     uint32_t size;
     bool isRecorded;
@@ -52,9 +50,9 @@ StatusCode TruncationAnalysisAlg::execute(const EventContext& context) const {
     // Collect name+size+isRecorded in one structure and sort by descending size
     std::vector<CollectionDebugInfo> collections;
     for (size_t i=0; i<typeNameVec(*info).size(); ++i) {
-      collections.emplace_back(typeNameVec(*info).at(i),
-                               sizeVec(*info).at(i),
-                               static_cast<bool>(isRecordedVec(*info).at(i)));
+      collections.push_back({typeNameVec(*info).at(i),
+                             sizeVec(*info).at(i),
+                             static_cast<bool>(isRecordedVec(*info).at(i))});
     }
     std::sort(collections.begin(), collections.end(), cmpCollections);
 

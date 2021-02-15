@@ -17,7 +17,7 @@ import ROOT
 ROOT.gSystem.Load('libRingerSelectorToolsEnumsDict.so')
 from ROOT import Ringer
 
-from RingerSelectorTools.ElectronRingerSelectorDefs import *
+import RingerSelectorTools.ElectronRingerSelectorDefs as Defs
 
 class electronRingerPIDmenu (electronPIDmenu):
   testMenu = 999
@@ -47,8 +47,8 @@ class electronRingerPIDmenu (electronPIDmenu):
 #####################################################################################################
 
 ElectronRingerMap = {
-  (Ringer.Requirement.Loose, electronRingerPIDmenu.testMenu): ElectronRingerSelectorTestLoose,
-  (Ringer.Requirement.Medium, electronRingerPIDmenu.testMenu): ElectronRingerSelectorTestMedium,
-  (Ringer.Requirement.Tight, electronRingerPIDmenu.testMenu):  ElectronRingerSelectorTestTight,
-  (Ringer.Requirement.NoCut, electronRingerPIDmenu.testMenu):  ElectronRingerSelectorTestNoCut,
+  (Ringer.Requirement.Loose, electronRingerPIDmenu.testMenu): Defs.ElectronRingerSelectorTestLoose,
+  (Ringer.Requirement.Medium, electronRingerPIDmenu.testMenu): Defs.ElectronRingerSelectorTestMedium,
+  (Ringer.Requirement.Tight, electronRingerPIDmenu.testMenu):  Defs.ElectronRingerSelectorTestTight,
+  (Ringer.Requirement.NoCut, electronRingerPIDmenu.testMenu):  Defs.ElectronRingerSelectorTestNoCut,
   }

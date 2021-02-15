@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkJetVxFitter/KalmanVertexOnJetAxisUpdator.h"
@@ -46,12 +46,6 @@ namespace Trk{
   
   
   return StatusCode::SUCCESS;
- }
-
- StatusCode KalmanVertexOnJetAxisUpdator::finalize()
- {
-   ATH_MSG_INFO( "Finalize successful" );
-   return StatusCode::SUCCESS;
  }
 
 
@@ -263,7 +257,10 @@ namespace Trk{
     
       if (trackParametersWeight.determinant()<=0)  
       {
-        ATH_MSG_ERROR(" The determinant of the track covariance matrix is negative: " << trackParametersWeight.determinant());
+        ATH_MSG_WARNING(" The determinant of the inverse of the track covariance matrix is negative: " << trackParametersWeight.determinant());
+        if(trk->expectedCovarianceAtPCA().determinant()<=0){
+          ATH_MSG_ERROR(" As well as the determinant of the track covariance matrix: " << trk->expectedCovarianceAtPCA().determinant());
+	}
       }
       
 

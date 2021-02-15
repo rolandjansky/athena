@@ -55,12 +55,7 @@ namespace InDet
   return StatusCode::SUCCESS;
  }//end of initialize mtehod
  
- StatusCode SlidingWindowMultiSeedFinder::finalize()
- {
-  msg(MSG::INFO)  << "Finalize successful" << endmsg;
-  return StatusCode::SUCCESS;
- }
- 
+
  SlidingWindowMultiSeedFinder::SlidingWindowMultiSeedFinder(const std::string& t, const std::string& n, const
                                                             IInterface*p):AthAlgTool(t,n,p), 
                                                                           m_clusterLength(5.),

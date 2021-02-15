@@ -29,7 +29,7 @@ from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 from TrigAnalysisTest.TrigAnalysisSteps import add_physvalweb_steps
 
 preExec = ';'.join([
-  'setMenu=\'LS2_v1_TriggerValidation_mc_prescale\'',
+  'setMenu=\'LS2_v1_TriggerValidation_prescale\'',
   'from TriggerJobOpts.TriggerFlags import TriggerFlags',
   'TriggerFlags.AODEDMSet.set_Value_and_Lock(\\\"AODFULL\\\")',
 ])
@@ -50,7 +50,7 @@ physval.explicit_input = True
 physval.args = '--inputAODFile=AOD.pool.root --outputNTUP_PHYSVALFile=NTUP_PHYSVAL.pool.root --valid=True'
 
 validationFlags = 'doTrigEgamma,doTrigBphys,doTrigMET,doTrigJet,doTrigMuon,doTrigHLTResult,doTrigCalo,doTrigMinBias,doTrigTau,doTrigIDtrk,doTrigBjet'
-validationPreExec = 'TriggerFlags.EDMDecodingVersion.set_Value_and_Lock(3); from TrigEDMConfig import ContainerRemapping_Run2Run3; ContainerRemapping_Run2Run3.remapHLTContainerNames();'
+validationPreExec = 'from TrigEDMConfig import ContainerRemapping_Run2Run3; ContainerRemapping_Run2Run3.remapHLTContainerNames();'
 physval.args += ' --validationFlags="{:s}" --preExec="{:s}"'.format(validationFlags, validationPreExec)
 
 test = Test.Test()

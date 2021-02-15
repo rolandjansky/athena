@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SRC_EVENTINFOWRITER_H
@@ -12,9 +12,6 @@
  * geometry and conditions tags in EventInfo, writes extra tags.
  *
  * @author RD Schaffer <R.D.Schaffer@cern.ch>
- *
- * $Id: EventInfoWriter.h,v 1.6 2009-04-29 07:49:45 schaffer Exp $
- *
  */
 
 /**
@@ -28,7 +25,6 @@
 
 //<<<<<< INCLUDES                                                       >>>>>>
 
-#include "AthenaKernel/IOVSvcDefs.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 //<<<<<< PUBLIC TYPES                                                   >>>>>>
@@ -53,9 +49,6 @@ public:
     /// Algorithm finalize at end of job
     virtual StatusCode finalize();
   
-    /// Callback method for TagInfo access
-    StatusCode         checkTagInfo(IOVSVC_CALLBACK_ARGS);
-
     ///////////////////////////////////////////////////////////////////
     // Private methods:
     ///////////////////////////////////////////////////////////////////

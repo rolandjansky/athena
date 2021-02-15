@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file MTMonitoring.py
@@ -35,82 +35,82 @@ Chain2L1JetCollDict = { # set L1 jet collection name for L1 jet chains
 # HLT jet collections and chains to monitor
 ############################################
 
-Chain2JetCollDict  = dict() # set HLT jet collection for AT and legacy master HLT jet chains
-JetCollections     = dict() # List of HLT jet collections for AT and legacy master
-TurnOnCurves       = dict() # List reference chains and offline jet collections to be used for producing turn-on curves
-JetColls2Match     = dict()
+Chains2Monitor  = dict() # set HLT jet collection, reference chain and offline jet collection for turn-on curves, for AT and legacy master HLT jet chains
+JetCollections  = dict() # List of HLT jet collections for AT and legacy master (stating which should be matched and to which offline jet collection
 
 # AthenaMT
-JetCollections['MT'] = [
-  'HLT_AntiKt4EMTopoJets_subjesIS',                   # default small-R EM
-  'HLT_AntiKt10JetRCJets_subjesIS',                   # a10r
-  'HLT_AntiKt10LCTopoJets_subjes',                    # a10
-  'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes', # a10t
-  'HLT_AntiKt4EMPFlowJets_subjesIS_ftf',              # pflow w/o calo+track GSC
-  'HLT_AntiKt4EMPFlowJets_subjesgscIS_ftf',           # pflow w/ calo+track GSC
-  'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',        # pflow w/ residual + calo+track GSC
-  'HLT_AntiKt4EMPFlowJets_nojcalib_ftf',              # pflow nojcalib
-  'HLT_AntiKt4EMPFlowCSSKJets_nojcalib_ftf',          # pflow cssk nojcalib
-]
-Chain2JetCollDict['MT'] = {
-  'HLT_j420_L1J100'                        : 'HLT_AntiKt4EMTopoJets_subjesIS',
-  'HLT_j260_320eta490_L1J75_31ETA49'       : 'HLT_AntiKt4EMTopoJets_subjesIS',
-  'HLT_5j70_0eta240_L14J20'                : 'HLT_AntiKt4EMTopoJets_subjesIS',
-  'HLT_3j200_L1J100'                       : 'HLT_AntiKt4EMTopoJets_subjesIS',
-  'HLT_j460_a10r_L1J100'                   : 'HLT_AntiKt10JetRCJets_subjesIS',
-  'HLT_j460_a10_lcw_subjes_L1J100'         : 'HLT_AntiKt10LCTopoJets_subjes',
-  'HLT_j460_a10t_lcw_jes_L1J100'           : 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes',
-  'HLT_2j330_a10t_lcw_jes_35smcINF_L1J100' : 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes',
-  'HLT_j45_pf_ftf_L1J20'                   : 'HLT_AntiKt4EMPFlowJets_subjesIS_ftf',
-  'HLT_j45_pf_subjesgscIS_ftf_L1J20'       : 'HLT_AntiKt4EMPFlowJets_subjesgscIS_ftf',
-  'HLT_j85_pf_ftf_L1J20'                   : 'HLT_AntiKt4EMPFlowJets_subjesIS_ftf',
-  'HLT_j45_pf_nojcalib_ftf_L1J20'          : 'HLT_AntiKt4EMPFlowJets_nojcalib_ftf',
-  'HLT_j45_csskpf_nojcalib_ftf_L1J20'      : 'HLT_AntiKt4EMPFlowCSSKJets_nojcalib_ftf',
+JetCollections['MT'] = {
+  'HLT_AntiKt4EMTopoJets_subjesIS'                   : { 'MatchTo' : 'AntiKt4EMPFlowJets' }, # default small-R EM
+  'HLT_AntiKt10EMTopoRCJets_subjesIS'                : { 'MatchTo' : 'NONE' },               # a10r
+  'HLT_AntiKt10LCTopoJets_subjes'                    : { 'MatchTo' : 'NONE' },               # a10
+  'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes' : { 'MatchTo' : 'NONE' },               # a10t
+  'HLT_AntiKt4EMTopoJets_subjesgscIS_ftf'            : { 'MatchTo' : 'AntiKt4EMPFlowJets' }, # calo jet w/ calo+track GSC
+  'HLT_AntiKt4EMPFlowJets_subjesgscIS_ftf'           : { 'MatchTo' : 'AntiKt4EMPFlowJets' }, # pflow w/ calo+track GSC
+  'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf'        : { 'MatchTo' : 'AntiKt4EMPFlowJets' }, # pflow w/ residual + calo+track GSC
+  'HLT_AntiKt4EMPFlowJets_nojcalib_ftf'              : { 'MatchTo' : 'NONE' },               # pflow nojcalib
+  'HLT_AntiKt4EMPFlowCSSKJets_nojcalib_ftf'          : { 'MatchTo' : 'NONE' },               # pflow cssk nojcalib
 }
-TurnOnCurves['MT'] = { # ref chain, offline jet coll
-  'HLT_j420_L1J100'                        : ['HLT_j80_L1J15','AntiKt4EMTopoJets'],
-  'HLT_3j200_L1J100'                       : ['HLT_j80_L1J15','AntiKt4EMTopoJets'],
-  'HLT_j460_a10r_L1J100'                   : ['HLT_j80_L1J15','AntiKt4EMTopoJets'],
-  'HLT_j460_a10_lcw_subjes_L1J100'         : ['HLT_j80_L1J15','AntiKt4EMTopoJets'],
-  'HLT_j460_a10t_lcw_jes_L1J100'           : ['HLT_j80_L1J15','AntiKt4EMTopoJets'],
-  'HLT_2j330_a10t_lcw_jes_35smcINF_L1J100' : ['HLT_j80_L1J15','AntiKt4EMTopoJets'],
-  'HLT_j85_pf_ftf_L1J20'                   : ['HLT_j45_pf_ftf_L1J20','AntiKt4EMPFlowJets'],
-}
-JetColls2Match['MT'] = {
-  'HLT_AntiKt4EMTopoJets_subjesIS'            : 'AntiKt4EMPFlowJets',
-  'HLT_AntiKt4EMPFlowJets_subjesIS_ftf'       : 'AntiKt4EMPFlowJets',
-  'HLT_AntiKt4EMPFlowJets_subjesgscIS_ftf'    : 'AntiKt4EMPFlowJets',
-  'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf' : 'AntiKt4EMPFlowJets',
+Chains2Monitor['MT'] = {
+  # perf chain (runs no hypo)
+  'HLT_j0_perf_L1J12_EMPTY'                : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS',                   'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
+  # Small-R EMTopo chains
+  'HLT_j420_L1J100'                        : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS',                   'RefChain' : 'HLT_j85_L1J20',        'OfflineColl' : 'AntiKt4EMTopoJets' },
+  'HLT_j260_320eta490_L1J75_31ETA49'       : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS',                   'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
+  'HLT_5j70_0eta240_L14J20'                : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS',                   'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
+  'HLT_3j200_L1J100'                       : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS',                   'RefChain' : 'HLT_j85_L1J20',        'OfflineColl' : 'AntiKt4EMTopoJets' },
+  'HLT_j80_j60_L1J15'                      : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS',                   'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
+  'HLT_j45_subjesgscIS_ftf_L1J15'          : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesgscIS_ftf',            'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
+  # Small-R PFlow chains
+  'HLT_j45_pf_ftf_L1J15'                   : { 'HLTColl' : 'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',        'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
+  'HLT_j45_pf_subjesgscIS_ftf_L1J15'       : { 'HLTColl' : 'HLT_AntiKt4EMPFlowJets_subjesgscIS_ftf',           'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
+  'HLT_j85_pf_ftf_L1J20'                   : { 'HLTColl' : 'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',        'RefChain' : 'HLT_j45_pf_ftf_L1J15', 'OfflineColl' : 'AntiKt4EMPFlowJets' },
+  'HLT_j45_pf_nojcalib_ftf_L1J15'          : { 'HLTColl' : 'HLT_AntiKt4EMPFlowJets_nojcalib_ftf',              'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
+  'HLT_j45_cssk_pf_nojcalib_ftf_L1J15'     : { 'HLTColl' : 'HLT_AntiKt4EMPFlowCSSKJets_nojcalib_ftf',          'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
+  'HLT_10j40_pf_subresjesgscIS_ftf_L14J15' : { 'HLTColl' : 'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',        'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
+  # Large-R reclustered chains
+  'HLT_j460_a10r_L1J100'                   : { 'HLTColl' : 'HLT_AntiKt10EMTopoRCJets_subjesIS',                'RefChain' : 'HLT_j85_L1J20',        'OfflineColl' : 'AntiKt4EMTopoJets' },
+  # Large-R LCTopo chains
+  'HLT_j460_a10_lcw_subjes_L1J100'         : { 'HLTColl' : 'HLT_AntiKt10LCTopoJets_subjes',                    'RefChain' : 'HLT_j85_L1J20',        'OfflineColl' : 'AntiKt4EMTopoJets' },
+  # Large-R trimmed chains
+  'HLT_j460_a10t_lcw_jes_L1J100'           : { 'HLTColl' : 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes', 'RefChain' : 'HLT_j85_L1J20',        'OfflineColl' : 'AntiKt4EMTopoJets' },
+  'HLT_j460_a10t_lcw_jes_30smcINF_L1J100'  : { 'HLTColl' : 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes', 'RefChain' : 'HLT_j85_L1J20',        'OfflineColl' : 'AntiKt4EMTopoJets' },
+  'HLT_2j330_a10t_lcw_jes_35smcINF_L1J100' : { 'HLTColl' : 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes', 'RefChain' : 'HLT_j85_L1J20',        'OfflineColl' : 'AntiKt4EMTopoJets' },
 }
 
 # Legacy
-JetCollections['Legacy'] = [
-  'HLT_xAOD__JetContainer_a4tcemsubjesISFS',    # default small-R
-  'HLT_xAOD__JetContainer_a10r_tcemsubjesISFS', # a10r
-  'HLT_xAOD__JetContainer_a10tclcwsubjesFS',    # a10
-  'HLT_xAOD__JetContainer_a10ttclcwjesFS',      # a10t
-]
-Chain2JetCollDict['Legacy'] = {
-  'HLT_j420'                               : 'HLT_xAOD__JetContainer_a4tcemsubjesISFS',
-  'HLT_j260_320eta490'                     : 'HLT_xAOD__JetContainer_a4tcemsubjesISFS',
-  'HLT_j460_a10r_L1J100'                   : 'HLT_xAOD__JetContainer_a10r_tcemsubjesISFS',
-  'HLT_j460_a10_lcw_subjes_L1J100'         : 'HLT_xAOD__JetContainer_a10tclcwsubjesFS',
-  'HLT_j460_a10t_lcw_jes_L1J100'           : 'HLT_xAOD__JetContainer_a10ttclcwjesFS',
-  'HLT_2j330_a10t_lcw_jes_35smcINF_L1J100' : 'HLT_xAOD__JetContainer_a10ttclcwjesFS',
-  'HLT_5j70_0eta240'                       : 'HLT_xAOD__JetContainer_a4tcemsubjesISFS',
-  'HLT_3j200'                              : 'HLT_xAOD__JetContainer_a4tcemsubjesISFS',
+JetCollections['Legacy'] = {
+  'HLT_xAOD__JetContainer_a4tcemsubjesISFS'    : { 'MatchTo' : 'NONE' }, # default small-R
+  'HLT_xAOD__JetContainer_a10r_tcemsubjesISFS' : { 'MatchTo' : 'NONE' }, # a10r
+  'HLT_xAOD__JetContainer_a10tclcwsubjesFS'    : { 'MatchTo' : 'NONE' }, # a10
+  'HLT_xAOD__JetContainer_a10ttclcwjesFS'      : { 'MatchTo' : 'NONE' }, # a10t
 }
-TurnOnCurves['Legacy'] = { # ref chain, offline jet coll
-  'HLT_j420'                               : ['HLT_j175','AntiKt4EMTopoJets'],
-  'HLT_j260_320eta490'                     : ['HLT_j45_320eta490','AntiKt4EMTopoJets'],
-  'HLT_j460_a10r_L1J100'                   : ['HLT_j175','AntiKt4EMTopoJets'],
-  'HLT_j460_a10_lcw_subjes_L1J100'         : ['HLT_j175','AntiKt4EMTopoJets'],
-  'HLT_j460_a10t_lcw_jes_L1J100'           : ['HLT_j175','AntiKt4EMTopoJets'],
-  'HLT_2j330_a10t_lcw_jes_35smcINF_L1J100' : ['HLT_j175','AntiKt4EMTopoJets'],
-  'HLT_3j200'                              : ['HLT_j175','AntiKt4EMTopoJets'],
+Chains2Monitor['Legacy'] = {
+  # Small-R chains
+  'HLT_j420'                               : { 'HLTColl' : 'HLT_xAOD__JetContainer_a4tcemsubjesISFS',    'RefChain' : 'HLT_j175',          'OfflineColl' : 'AntiKt4EMTopoJets' },
+  'HLT_j260_320eta490'                     : { 'HLTColl' : 'HLT_xAOD__JetContainer_a4tcemsubjesISFS',    'RefChain' : 'HLT_j45_320eta490', 'OfflineColl' : 'AntiKt4EMTopoJets' },
+  'HLT_j80_j60_L1J15'                      : { 'HLTColl' : 'HLT_xAOD__JetContainer_a4tcemsubjesISFS',    'RefChain' : 'NONE',              'OfflineColl' : 'NONE' },
+  'HLT_5j70_0eta240'                       : { 'HLTColl' : 'HLT_xAOD__JetContainer_a4tcemsubjesISFS',    'RefChain' : 'NONE',              'OfflineColl' : 'NONE' },
+  'HLT_3j200'                              : { 'HLTColl' : 'HLT_xAOD__JetContainer_a4tcemsubjesISFS',    'RefChain' : 'HLT_j175',          'OfflineColl' : 'AntiKt4EMTopoJets' },
+  # Large-R reclustered chains
+  'HLT_j460_a10r_L1J100'                   : { 'HLTColl' : 'HLT_xAOD__JetContainer_a10r_tcemsubjesISFS', 'RefChain' : 'HLT_j175',          'OfflineColl' : 'AntiKt4EMTopoJets' },
+  # Large-R LCTopo chains
+  'HLT_j460_a10_lcw_subjes_L1J100'         : { 'HLTColl' : 'HLT_xAOD__JetContainer_a10tclcwsubjesFS',    'RefChain' : 'HLT_j175',          'OfflineColl' : 'AntiKt4EMTopoJets' },
+  # Large-R trimmed chains
+  'HLT_j460_a10t_lcw_jes_L1J100'           : { 'HLTColl' : 'HLT_xAOD__JetContainer_a10ttclcwjesFS',      'RefChain' : 'HLT_j175',          'OfflineColl' : 'AntiKt4EMTopoJets' },
+  'HLT_j460_a10t_lcw_jes_30smcINF_L1J100'  : { 'HLTColl' : 'HLT_xAOD__JetContainer_a10ttclcwjesFS',      'RefChain' : 'HLT_j175',          'OfflineColl' : 'AntiKt4EMTopoJets' },
+  'HLT_2j330_a10t_lcw_jes_35smcINF_L1J100' : { 'HLTColl' : 'HLT_xAOD__JetContainer_a10ttclcwjesFS',      'RefChain' : 'HLT_j175',          'OfflineColl' : 'AntiKt4EMTopoJets' },
 }
-JetColls2Match['Legacy'] = {
-}
+
+#########################################################
+# Protections
+#########################################################
+
+# Add missing jet collections to JetCollections dict
+# (this can happen if a given chain uses a jet collection that is not listed in JetCollections)
+for case in ['MT','Legacy']:
+  for chain,chaindict in Chains2Monitor[case].items():
+    if chaindict['HLTColl'] not in JetCollections[case]: # chain will not be monitored unless HLT collection is present in JetCollections
+      JetCollections[case][chaindict['HLTColl']] = { 'MatchTo' : 'NONE'}
 
 #########################################################
 # Helpful functions
@@ -132,6 +132,7 @@ def getEtaRange(chain):
 # Schedule more histograms for dedicated jet collections
 #########################################################
 from JetMonitoring.JetMonitoringConfig import JetMonAlgSpec, HistoSpec, EventHistoSpec, SelectSpec, ToolSpec #VarSpec can be added to define specific/custom variables
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 # All offline jet collections
 ExtraOfflineHists = [
@@ -155,6 +156,7 @@ ExtraSmallROnlineHists = [
   "ActiveArea", 
   "EM3Frac",
   "Tile0Frac",
+  "LooseBad",
 ]
 
 # All online large-R jet collections
@@ -177,7 +179,7 @@ def TrigJetMonConfig(inputFlags):
 
   # This is the right place to get the info, but the autoconfig of the flag
   # is not yet implemented
-  AthenaMT = ConfigFlags.Trigger.EDMDecodingVersion==3
+  AthenaMT = ConfigFlags.Trigger.EDMVersion==3
 
   # AthenaMT or Legacy
   InputType = 'MT' if AthenaMT else 'Legacy'
@@ -185,12 +187,12 @@ def TrigJetMonConfig(inputFlags):
   from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
   cfg = ComponentAccumulator()
 
-  # Match HLT to offline jets
-  for j1,j2 in JetColls2Match[InputType].items():
-    from AthenaConfiguration.ComponentFactory import CompFactory
-    name = 'Matching_{}_{}'.format(j1,j2)
-    alg = CompFactory.JetMatcherAlg(name, JetContainerName1=j1,JetContainerName2=j2)
-    cfg.addEventAlgo(alg)
+  # Match HLT jets to offline jets
+  for hltColl,collDict in JetCollections[InputType].items():
+    if collDict['MatchTo'] != 'NONE':
+      name = 'Matching_{}_{}'.format(hltColl,collDict['MatchTo'])
+      alg = CompFactory.JetMatcherAlg(name, JetContainerName1=hltColl,JetContainerName2=collDict['MatchTo'])
+      cfg.addEventAlgo(alg)
 
   # The following class will make a sequence, configure algorithms, and link
   # them to GenericMonitoringTools
@@ -220,7 +222,8 @@ def TrigJetMonConfig(inputFlags):
     monitorConf.toAlg(helper)
 
   # Loop over HLT jet chains
-  for chain,jetcoll in Chain2JetCollDict[InputType].items():
+  for chain,chainDict in Chains2Monitor[InputType].items():
+    jetcoll = chainDict['HLTColl']
     # kinematic plots
     if AthenaMT:
       chainMonitorConfT = jetChainMonitoringConfig(inputFlags,jetcoll,chain,AthenaMT,True)
@@ -228,13 +231,8 @@ def TrigJetMonConfig(inputFlags):
     chainMonitorConfF = jetChainMonitoringConfig(inputFlags,jetcoll,chain,AthenaMT,False)
     chainMonitorConfF.toAlg(helper)
     # efficiency plots
-    refChain       = 'NONE'
-    offlineJetColl = 'NONE'
-    if chain in TurnOnCurves[InputType]:
-      refChain       = TurnOnCurves[InputType][chain][0]
-      offlineJetColl = TurnOnCurves[InputType][chain][1]
-    if offlineJetColl != 'NONE' and refChain != 'NONE':
-      effMonitorConf = jetEfficiencyMonitoringConfig(inputFlags,jetcoll,offlineJetColl,chain,refChain,AthenaMT)
+    if chainDict['RefChain'] != 'NONE' and chainDict['OfflineColl'] != 'NONE':
+      effMonitorConf = jetEfficiencyMonitoringConfig(inputFlags,jetcoll,chainDict['OfflineColl'],chain,chainDict['RefChain'],AthenaMT)
       effMonitorConf.toAlg(helper)
 
   cfg.merge(helper.result())
@@ -254,7 +252,7 @@ def basicJetMonAlgSpec(jetcoll,isOnline,athenaMT):
   jetcollFolder = jetcoll
   if jetcoll in JetCollRemapping.JetCollRun2ToRun3 and not athenaMT:
     jetcollFolder = JetCollRemapping.JetCollRun2ToRun3[jetcoll]
-  Conf = JetMonAlgSpec(jetcoll+"Mon",JetContainerName = jetcoll, defaultPath = path, topLevelDir=TopLevelDir, bottomLevelDir=jetcollFolder, failureOnMissingContainer=False)
+  Conf = JetMonAlgSpec(jetcoll+"Mon",JetContainerName = jetcoll, defaultPath = path, eventFiresAnyJetChain=isOnline, topLevelDir=TopLevelDir, bottomLevelDir=jetcollFolder, failureOnMissingContainer=False)
 
   # Now start filling the histo spec list    
   Conf.appendHistos(
@@ -288,7 +286,9 @@ def basicJetMonAlgSpec(jetcoll,isOnline,athenaMT):
     SelectSpec( 'forward', '3.2<|eta|', path, FillerTools = ["pt","et","m"] ),
     SelectSpec( 'lowmu', 'avgMu<30', path, isEventVariable=True, FillerTools = ["pt","et","m","phi","eta"]),
     SelectSpec( 'highmu', '30<avgMu', path, isEventVariable=True, FillerTools = ["pt","et","m","phi","eta"]),
-
+    # To select on multiple variables simultaneously, simply combine the selection strings via &
+    # Example below to select on ET > 100 GeV and |eta| > 3.2:
+    # SelectSpec( 'ETeta', '100<et:GeV&|eta|<3.2', path, FillerTools = ["pt","et","m","eta"] )
     EventHistoSpec('njets', (25,0,25), title='NJets;NJets;Entries' ),
     EventHistoSpec('njetsPt20', (25,0,25), title='NJetsPt20;NJetsPt20;Entries' ),
     EventHistoSpec('njetsPt50', (25,0,25), title='NJetsPt50;NJetsPt50;Entries' ),
@@ -333,7 +333,7 @@ def jetMonitoringConfig(inputFlags,jetcoll,athenaMT):
        print('bottomlevel = '+str(conf.bottomLevelDir))
        group = monhelper.addGroup(parentAlg, conf.Group, conf.topLevelDir+'/'+conf.bottomLevelDir+'/NoTriggerSelection/')
        # define the histogram
-       group.defineHistogram('ptdiff',title='title', type="TH1F", path='MatchedJets_{}'.format(JetColls2Match[InputType][jetcoll]), xbins=100 , xmin=-100000, xmax=100000. ,)
+       group.defineHistogram('ptdiff',title='title', type="TH1F", path='MatchedJets_{}'.format(JetCollections[InputType][jetcoll]['MatchTo']), xbins=100 , xmin=-100000, xmax=100000. ,)
 
    # Declare a configuration dictionnary for a JetContainer
    if isOnline:
@@ -351,8 +351,8 @@ def jetMonitoringConfig(inputFlags,jetcoll,athenaMT):
      else:
        for hist in ExtraLargeROnlineHists: conf.appendHistos(hist)
      # Add matched jets plots
-     if jetcoll in JetColls2Match[InputType]:
-       matchedJetColl = JetColls2Match[InputType][jetcoll]
+     if JetCollections[InputType][jetcoll]['MatchTo'] != 'NONE':
+       matchedJetColl = JetCollections[InputType][jetcoll]['MatchTo']
        name           = 'jetMatched_{}_{}'.format(jetcoll,matchedJetColl)
        jetmatchKey    = '{}.matched_{}'.format(jetcoll,matchedJetColl)
        jetptdiffKey   = '{}.ptdiff_{}'.format(jetcoll,matchedJetColl)
@@ -470,9 +470,10 @@ def jetEfficiencyMonitoringConfig(inputFlags,onlinejetcoll,offlinejetcoll,chain,
    def defineHistoForJetTrigg(conf, parentAlg, monhelper , path):
        # create a monitoring group with the histo path starting from the parentAlg
        group = monhelper.addGroup(parentAlg, conf.Group, conf.topLevelDir+jetcollFolder+'/')
-       # define the histogram
-       group.defineHistogram('trigPassed,jetVar',title='titletrig', type="TEfficiency", path=chainFolder, xbins=100 , xmin=0, xmax=500000. ,)
-
+       # define the histogram, give them individual names so they don't overwrite each other
+       append = "offlineCut_"+conf.name.split("_")[-1] if "offlineCut" in conf.name else "noOfflineCut"
+       histname = "trigEff_vs_"+conf.Var.Name+"_"+append
+       group.defineHistogram('trigPassed,jetVar;'+histname,title='titletrig', type="TEfficiency", path=chainFolder, xbins=10000 , xmin=0, xmax=800000. ,)
    # Get jet index and eta selection for offline jets
    parts        = chain.split('j')
    multiplicity = parts[0].split('_')[1]
@@ -505,17 +506,18 @@ def jetEfficiencyMonitoringConfig(inputFlags,onlinejetcoll,offlinejetcoll,chain,
 
    if 'smc' in chain:
      trigConf.appendHistos(
-             SelectSpec( 'm50', '50<m', chainFolder, FillerTools = [
-               ToolSpec('JetHistoTriggEfficiency', chain+'_m50',
+             SelectSpec( 'm50', '50<m:GeV&{}<|eta|<{}'.format(etaMin,etaMax), chainFolder, SelectedIndex=index, FillerTools = [
+               ToolSpec('JetHistoTriggEfficiency', chain+'_offlineCut_m50',
                  Group='jetTrigGroup_'+chain+'_m50',
                  Var=retrieveVarToolConf("pt"), # In this context we can not just pass a str alias to describe a histo variable
                  ProbeTrigChain=chain,defineHistoFunc=defineHistoForJetTrigg
                ),
              ] ),
-             SelectSpec( 'et500', '500<et', chainFolder, FillerTools = [
-               ToolSpec('JetHistoTriggEfficiency', chain+'_et500',
+             SelectSpec( 'et500', '500<et:GeV&{}<|eta|<{}'.format(etaMin,etaMax), chainFolder, SelectedIndex=index, FillerTools = [
+               ToolSpec('JetHistoTriggEfficiency', chain+'_offlineCut_et500',
                  Group='jetTrigGroup_'+chain+'_et500',
                  Var=retrieveVarToolConf("m"), # In this context we can not just pass a str alias to describe a histo variable
+                 SortJets=True,
                  ProbeTrigChain=chain,defineHistoFunc=defineHistoForJetTrigg
                ),
              ] ),
@@ -527,12 +529,18 @@ if __name__=='__main__':
 
   # Read arguments
   parser = argparse.ArgumentParser()
-  parser.add_argument('--athenaMT', action='store_true', dest='athenaMT', default=False)
-  parser.add_argument('--legacy',   action='store_true', dest='legacy',   default=False)
-  parser.add_argument('--input',    action='store',      dest='inputFile')
-  args     = parser.parse_args()
-  AthenaMT = args.athenaMT
-  Legacy   = args.legacy
+  parser.add_argument('--athenaMT',            action='store_true', dest='athenaMT',            default=False)
+  parser.add_argument('--legacy',              action='store_true', dest='legacy',              default=False)
+  parser.add_argument('--runTruthReco',        action='store_true', dest='runTruthReco',        default=False)
+  parser.add_argument('--genOfflineR10PF',     action='store_true', dest='genOfflineR10PF',     default=False)
+  parser.add_argument('--printDetailedConfig', action='store_true', dest='printDetailedConfig', default=False)
+  parser.add_argument('--input',               action='store',      dest='inputFile')
+  args                = parser.parse_args()
+  AthenaMT            = args.athenaMT
+  Legacy              = args.legacy
+  RunTruth            = args.runTruthReco
+  GenOfflineR10PF     = args.genOfflineR10PF
+  PrintDetailedConfig = args.printDetailedConfig
   # Protections
   if AthenaMT and Legacy:
     print('ERROR: Choose AthenaMT or Legacy, exiting')
@@ -566,15 +574,60 @@ if __name__=='__main__':
   from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
   from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
   cfg = MainServicesCfg(ConfigFlags)
+
+  # AthenaMT or Legacy
+  InputType = 'MT' if AthenaMT else 'Legacy'
+
+  # Define the output list
+  outputlist = ["xAOD::EventInfo#*","xAOD::VertexContainer#*","xAOD::JetContainer#AntiKt4*Jets","xAOD::JetAuxContainer#AntiKt4*JetsAux.-PseudoJet","xAOD::JetContainer#HLT_*","xAOD::JetAuxContainer#HLT_*Aux.-PseudoJet","xAOD::ShallowAuxContainer#HLT_*Aux.-PseudoJet"]
+  # Reconstruct small-R truth jets
+  if RunTruth:
+    from JetRecConfig.StandardSmallRJets import AntiKt4Truth # import the standard definitions
+    # Add the components from our jet reconstruction job
+    from JetRecConfig.JetRecConfig import JetRecCfg
+    comp = JetRecCfg(AntiKt4Truth,ConfigFlags)
+    cfg.merge(comp)
+    # add jets to the output list
+    key = "{0}Jets".format(AntiKt4Truth.basename)
+    outputlist += ["xAOD::JetContainer#"+key,"xAOD::JetAuxContainer#"+key+"Aux.-PseudoJet"]
+
+  # Reconstruct offline large-R PFlow CSSK+SD jets
+  if GenOfflineR10PF:
+    from JetRecConfig.JetDefinition import JetConstitSeq, JetDefinition, xAODType
+    EMPFlowCSSK         = JetConstitSeq("EMPFlowCSSK", xAODType.ParticleFlow, ["CorrectPFO","CS","SK","CHS"], "JetETMissParticleFlowObjects", "CSSKParticleFlowObjects", label="EMPFlowCSSK")
+    AntiKt10EMPFlowCSSK = JetDefinition("AntiKt",1.0,EMPFlowCSSK,ptmin=2e3,)
+    AntiKt10EMPFlowCSSK.modifiers = ["ConstitFourMom","Sort","Filter:2000"]
+    from JetRecConfig.JetGrooming import JetSoftDrop
+    from JetRecConfig.StandardLargeRJets import standardrecomods,substrmods
+    AntiKt10EMPFlowCSSKSoftDrop = JetSoftDrop(AntiKt10EMPFlowCSSK,modifiers=standardrecomods+substrmods,ZCut=0.1,Beta=1.0) # standard SoftDrop
+    # Add the components from our jet reconstruction job
+    from JetRecConfig.JetRecConfig import JetRecCfg
+    comp = JetRecCfg(AntiKt10EMPFlowCSSKSoftDrop,ConfigFlags)
+    cfg.merge(comp)
+    # add jets to the output list
+    key = "{0}Jets".format(AntiKt10EMPFlowCSSKSoftDrop.basename)
+    outputlist += ["xAOD::JetContainer#"+key,"xAOD::JetAuxContainer#"+key+"Aux.-PseudoJet"]
+
+  # Write new jet collections to AOD
+  if RunTruth or GenOfflineR10PF:
+    # Get the output stream components
+    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+    cfg.merge(OutputStreamCfg(ConfigFlags,"xAOD",ItemList=outputlist))
+
   cfg.merge(PoolReadCfg(ConfigFlags))
 
   # The following class will make a sequence, configure algorithms, and link
   # them to GenericMonitoringTools
   from AthenaMonitoring import AthMonitorCfgHelper
   helper = AthMonitorCfgHelper(ConfigFlags,'TrigJetMonitorAlgorithm')
+  cfg.merge(helper.result()) # merge it to add the sequence needed to add matchers
 
-  # AthenaMT or Legacy
-  InputType = 'MT' if AthenaMT else 'Legacy'
+  # Match HLT jets to offline jets
+  for hltColl,collDict in JetCollections[InputType].items():
+    if collDict['MatchTo'] != 'NONE':
+      name = 'Matching_{}_{}'.format(hltColl,collDict['MatchTo'])
+      alg = CompFactory.JetMatcherAlg(name, JetContainerName1=hltColl,JetContainerName2=collDict['MatchTo'])
+      cfg.addEventAlgo(alg,sequenceName='AthMonSeq_TrigJetMonitorAlgorithm') # Add matchers to monitoring alg sequence
 
   # Loop over L1 jet collectoins
   for jetcoll in L1JetCollections:
@@ -599,23 +652,22 @@ if __name__=='__main__':
     monitorConf.toAlg(helper)
 
   # Loop over HLT jet chains
-  for chain,jetcoll in Chain2JetCollDict[InputType].items():
+  for chain,chainDict in Chains2Monitor[InputType].items():
+    jetcoll = chainDict['HLTColl']
+    # kinematic plots
     if AthenaMT:
       chainMonitorConfT = jetChainMonitoringConfig(ConfigFlags,jetcoll,chain,AthenaMT,True)
       chainMonitorConfT.toAlg(helper)
     chainMonitorConfF = jetChainMonitoringConfig(ConfigFlags,jetcoll,chain,AthenaMT,False)
     chainMonitorConfF.toAlg(helper)
-
-    # Produce efficiency plots
-    refChain       = 'NONE'
-    offlineJetColl = 'NONE'
-    if chain in TurnOnCurves[InputType]:
-      refChain       = TurnOnCurves[InputType][chain][0]
-      offlineJetColl = TurnOnCurves[InputType][chain][1]
-    if offlineJetColl != 'NONE' and refChain != 'NONE':
-      effMonitorConf = jetEfficiencyMonitoringConfig(ConfigFlags,jetcoll,offlineJetColl,chain,refChain,AthenaMT)
+    # efficiency plots
+    if chainDict['RefChain'] != 'NONE' and chainDict['OfflineColl'] != 'NONE':
+      effMonitorConf = jetEfficiencyMonitoringConfig(ConfigFlags,jetcoll,chainDict['OfflineColl'],chain,chainDict['RefChain'],AthenaMT)
       effMonitorConf.toAlg(helper)
 
   cfg.merge(helper.result())
   
+  # Print config
+  cfg.printConfig(withDetails=PrintDetailedConfig)
+
   cfg.run()

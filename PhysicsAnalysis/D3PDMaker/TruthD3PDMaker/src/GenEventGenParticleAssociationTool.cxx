@@ -46,8 +46,13 @@ GenEventGenParticleAssociationTool::GenEventGenParticleAssociationTool
 StatusCode
 GenEventGenParticleAssociationTool::reset (const HepMC::GenEvent& p)
 {
+#ifdef HEPMC3
+  m_it = p.particles().begin();
+  m_end = p.particles().end();
+#else
   m_it = p.particles_begin();
   m_end = p.particles_end();
+#endif
 
   m_haveSeenAHadron = false;
 
@@ -60,14 +65,14 @@ GenEventGenParticleAssociationTool::reset (const HepMC::GenEvent& p)
 /**
  * @brief Return a pointer to the next element in the association.
  *
- * Return 0 when the association has been exhausted.
+ * Return null when the association has been exhausted.
  */
 const HepMC::GenParticle* GenEventGenParticleAssociationTool::next()
 {
   if (m_it == m_end)
-    return 0;
+    return nullptr;
   
-  const HepMC::GenParticle* out;
+  HepMC::ConstGenParticlePtr out;
 
   // loop until we see what we want
   bool ok = false;
@@ -75,11 +80,10 @@ const HepMC::GenParticle* GenEventGenParticleAssociationTool::next()
 
     int pdg_id = std::abs ((*m_it)->pdg_id());
     int status = (*m_it)->status();
-    int barcode = (*m_it)->barcode();
+    int barcode = HepMC::barcode(*m_it);
     
     // are we at parton/hadron level?
-    if ( status!=3 && pdg_id > PARTONPDGMAX && 
-	 !m_haveSeenAHadron ) {
+    if ( status!=3 && pdg_id > PARTONPDGMAX && !m_haveSeenAHadron ) {
       m_haveSeenAHadron = true;
       m_firstHadronBarcode = barcode;
     }
@@ -95,14 +99,21 @@ const HepMC::GenParticle* GenEventGenParticleAssociationTool::next()
     // PHOTOS range: check whether photons come from parton range or 
     // hadron range
     int motherBarcode = 999999999;
-    if( barcode > PHOTOSMIN && barcode < GEANTMIN &&
-	(*m_it)->production_vertex() ) {
-      const HepMC::GenVertex* vprod = (*m_it)->production_vertex();
+    HepMC::ConstGenVertexPtr vprod = (*m_it)->production_vertex();
+    if( barcode > PHOTOSMIN && barcode < GEANTMIN && vprod ) {
+#ifdef HEPMC3
+      if (vprod->particles_in().size() > 0) {
+	auto mother = vprod->particles_in().front();
+	if (mother) 
+	  motherBarcode = HepMC::barcode(mother);
+      }
+#else
       if (vprod->particles_in_size() > 0) {
 	const HepMC::GenParticle* mother = *vprod->particles_in_const_begin();
 	if (mother) 
 	  motherBarcode = mother->barcode();
       }
+#endif
       if( m_doPartons && motherBarcode < m_firstHadronBarcode )
 	ok = true;
       if( m_doHadrons && motherBarcode >= m_firstHadronBarcode )
@@ -117,15 +128,19 @@ const HepMC::GenParticle* GenEventGenParticleAssociationTool::next()
     ++m_it;
     
     if (m_it == m_end)
-      return 0;
+      return nullptr;
   
   }
   
   // exit if we are at geant level and not supposed to write this out
-  if( out->barcode() > GEANTMIN && !m_doGeant )
-    return 0;
+  if( HepMC::barcode(out) > GEANTMIN && !m_doGeant )
+    return nullptr;
+#ifdef HEPMC3
+  return out.get();
+#else
   
   return out;
+#endif
 }
 
 

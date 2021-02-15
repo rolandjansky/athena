@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger("TriggerMenuMT.LVL1MenuConfig.L1Seeds")
@@ -12,7 +12,7 @@ from TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1Flags import Lvl1Flags
 run1 = Lvl1Flags.CTPVersion()<=3
 
 if run1:
-    from TriggerMenu.l1.TriggerTypeDefRun1 import TT
+    from TriggerMenuMT.LVL1MenuConfig.LVL1.TriggerTypeDefRun1 import TT
     rpcout_type = TT.rpcout | TT.phys
     rpcin_type  = TT.rpcin  | TT.phys             
 else:
@@ -53,7 +53,7 @@ def Lvl1ItemByTriggerType(l1object, triggertype_pattern, triggertype_bitmask):
 # define the various seeds
 ##############################
 def getL1BackgroundSeed(menul1items):        
-    l1background_seeds = 'L1_BCM_AC_CA_BGRP0,L1_BCM_Wide_EMPTY,L1_BCM_Wide_UNPAIRED_ISO,L1_BCM_Wide_UNPAIRED_NONISO,L1_J30.31ETA49_UNPAIRED_ISO,L1_J12_UNPAIRED_ISO,L1_J12_UNPAIRED_NONISO,L1_J12_ABORTGAPNOTCALIB,L1_BCM_AC_UNPAIRED_ISO,L1_BCM_CA_UNPAIRED_ISO,L1_BCM_AC_UNPAIRED_NONISO,L1_BCM_CA_UNPAIRED_NONISO,L1_J30.31ETA49_UNPAIRED_NONISO,L1_BCM_AC_ABORTGAPNOTCALIB,L1_BCM_CA_ABORTGAPNOTCALIB,L1_BCM_Wide_ABORTGAPNOTCALIB,L1_BCM_AC_CALIB,L1_BCM_CA_CALIB,L1_BCM_Wide_CALIB,L1_J50_UNPAIRED_ISO,L1_J50_UNPAIRED_NONISO,L1_J50_ABORTGAPNOTCALIB'
+    l1background_seeds = 'L1_BCM_AC_CA_BGRP0,L1_BCM_Wide_EMPTY,L1_BCM_Wide_UNPAIRED_ISO,L1_BCM_Wide_UNPAIRED_NONISO,L1_J30p31ETA49_UNPAIRED_ISO,L1_J12_UNPAIRED_ISO,L1_J12_UNPAIRED_NONISO,L1_J12_ABORTGAPNOTCALIB,L1_BCM_AC_UNPAIRED_ISO,L1_BCM_CA_UNPAIRED_ISO,L1_BCM_AC_UNPAIRED_NONISO,L1_BCM_CA_UNPAIRED_NONISO,L1_J30p31ETA49_UNPAIRED_NONISO,L1_BCM_AC_ABORTGAPNOTCALIB,L1_BCM_CA_ABORTGAPNOTCALIB,L1_BCM_Wide_ABORTGAPNOTCALIB,L1_BCM_AC_CALIB,L1_BCM_CA_CALIB,L1_BCM_Wide_CALIB,L1_J50_UNPAIRED_ISO,L1_J50_UNPAIRED_NONISO,L1_J50_ABORTGAPNOTCALIB'
     
     if TriggerFlags.triggerMenuSetup() == 'LS1_v1':
         l1background_seeds = 'L1_BCM_AC_CA_BGRP0,L1_BCM_AC_CA_UNPAIRED_ISO,L1_BCM_Wide_EMPTY,L1_BCM_Wide_UNPAIRED_ISO,L1_BCM_Wide_UNPAIRED_NONISO,L1_EM3_UNPAIRED_ISO,L1_FJ30_UNPAIRED_ISO,L1_J10_UNPAIRED_ISO,L1_J10_UNPAIRED_NONISO,L1_LUCID_A_C_EMPTY,L1_LUCID_A_C_UNPAIRED_ISO,L1_LUCID_A_C_UNPAIRED_NONISO,L1_LUCID_EMPTY,L1_LUCID_UNPAIRED_ISO,L1_MU4_UNPAIRED_ISO,L1_LUCID_COMM_UNPAIRED_ISO,L1_LUCID_COMM_EMPTY'
@@ -91,6 +91,7 @@ def getL1_ALFA_CDiff_Phys_Seeds (menul1items):
             log.error('L1 item %s from background seeds is not in current L1 menu', item)
             
     return l1_seeds
+
 ##############################
 def getL1_ALFA_Jet_Phys_Seeds (menul1items):        
     # comma separated list fo l1 seeds
@@ -104,11 +105,11 @@ def getL1_ALFA_Jet_Phys_Seeds (menul1items):
             
     return l1_seeds
 
-
 ##############################
 def getL1StandbySeed(l1items):        
     standby_seeds    = ",".join([ x for x in l1items if "_EMPTY" not in x and "CALREQ" not in x and "ZB" not in x and "-" not in x and "CMU" not in x and "ALFA" not in x  and "RD" not in x and "BCM" not in x and "BGRP12" not in x])
     return standby_seeds
+
 ##############################
 def getL1TopoSeed(l1items):
     l1topo_seeds = ",".join([ x for x in l1items if "-" in x or "CMU" in x ])
@@ -126,8 +127,6 @@ def getL1CaloSeed(l1seed, l1object):
                                       and (x not in calo_exceptions)  ])
     return l1calo_seeds
 
-
-
 ##############################
 def getL1TauSeed(l1items):
 
@@ -144,7 +143,6 @@ def getL1BSSeed(menul1items):
             log.error('L1 item %s from beamspot seeds is not in current L1 menu', item)
             
     return l1_seeds
-
 
 ##############################
 def getL1MinBiasSeed(l1seed, l1object):
@@ -178,7 +176,7 @@ def getEBnoL1PSSeed(l1items, l1seedname):
     noL1PS_seeds = ''
     if ('L1_PhysicsHigh' in l1seedname):
       #noL1PS_seeds = 'L1_MU6_3MU4,L1_EM15HI_2TAU12IM_J25_3J12,L1_EM15HI_2TAU12IM_XE35,L1_EM15HI_TAU40_2TAU15,L1_EM15VH_MU10,L1_EM15VH_3EM7,L1_EM22VHI,L1_2EM8VH_MU10,L1_MU10_TAU12IM_J25_2J12,L1_MU10_TAU12IM_XE35,L1_MU10_TAU20IM,L1_4J15,L1_XE50,L1_2J15_XE55,L1_TAU60,L1_TAU20IM_2TAU12IM_J25_2J20_3J12,L1_TAU20IM_2TAU12IM_XE35,L1_TAU20IM_2J20_XE45,L1_MU20,L1_MU6_J30.0ETA49_2J20.0ETA49,L1_MU10_3J20,L1_J40.0ETA25_2J15.31ETA49,L1_3MU6,L1_MU10_2J15_J20,L1_J40.0ETA25_2J25_J20.31ETA49,L1_2MU6_3MU4,L1_MU11_2MU6'
-      noL1PS_seeds = 'L1_MU6_3MU4,L1_EM15VH_MU10,L1_EM22VHI,L1_2EM8VH_MU10,L1_MU10_TAU12IM_J25_2J12,L1_MU10_TAU12IM_XE35,L1_MU10_TAU20IM,L1_4J15,L1_XE50,L1_2J15_XE55,L1_TAU60,L1_TAU20IM_2TAU12IM_J25_2J20_3J12,L1_TAU20IM_2TAU12IM_XE35,L1_TAU20IM_2J20_XE45,L1_MU20,L1_MU6_J30.0ETA49_2J20.0ETA49,L1_MU10_3J20,L1_J40.0ETA25_2J15.31ETA49,L1_3MU6,L1_MU10_2J15_J20,L1_J40.0ETA25_2J25_J20.31ETA49,L1_2MU6_3MU4,L1_MU11_2MU6'
+      noL1PS_seeds = 'L1_MU6_3MU4,L1_EM15VH_MU10,L1_EM22VHI,L1_2EM8VH_MU10,L1_MU10_TAU12IM_J25_2J12,L1_MU10_TAU12IM_XE35,L1_MU10_TAU20IM,L1_4J15,L1_XE50,L1_2J15_XE55,L1_TAU60,L1_TAU20IM_2TAU12IM_J25_2J20_3J12,L1_TAU20IM_2TAU12IM_XE35,L1_TAU20IM_2J20_XE45,L1_MU20,L1_MU6_J30p0ETA49_2J20p0ETA49,L1_MU10_3J20,L1_J40p0ETA25_2J15p31ETA49,L1_3MU6,L1_MU10_2J15_J20,L1_J40p0ETA25_2J25_J20p31ETA49,L1_2MU6_3MU4,L1_MU11_2MU6'
     elif ('L1_PhysicsVeryHigh' in l1seedname):
       #noL1PS_seeds = 'L1_XE80,L1_J100.31ETA49,L1_J400,L1_6J15'
       noL1PS_seeds = 'L1_XE80,L1_J400,L1_6J15'
@@ -188,7 +186,7 @@ def getEBnoL1PSSeed(l1items, l1seedname):
       #noL1PS_seeds = 'L1_J12_FIRSTEMPTY,L1_MU20_FIRSTEMPTY,L1_TAU8_FIRSTEMPTY,L1_EM7_FIRSTEMPTY'
       noL1PS_seeds = 'L1_J12_FIRSTEMPTY,L1_TAU8_FIRSTEMPTY,L1_EM7_FIRSTEMPTY'
     elif ('L1_UNPAIRED_ISO' in l1seedname):
-      noL1PS_seeds = 'L1_J12_UNPAIRED_ISO,L1_J15.31ETA49_UNPAIRED_ISO,L1_BCM_Wide_UNPAIRED_ISO,L1_BCM_AC_UNPAIRED_ISO,L1_BCM_CA_UNPAIRED_ISO,L1_MU4_UNPAIRED_ISO,L1_EM7_UNPAIRED_ISO,L1_TAU8_UNPAIRED_ISO,L1_TAU30_UNPAIRED_ISO'
+      noL1PS_seeds = 'L1_J12_UNPAIRED_ISO,L1_J15p31ETA49_UNPAIRED_ISO,L1_BCM_Wide_UNPAIRED_ISO,L1_BCM_AC_UNPAIRED_ISO,L1_BCM_CA_UNPAIRED_ISO,L1_MU4_UNPAIRED_ISO,L1_EM7_UNPAIRED_ISO,L1_TAU8_UNPAIRED_ISO,L1_TAU30_UNPAIRED_ISO'
     elif ('L1_UNPAIRED_NONISO' in l1seedname):
       noL1PS_seeds = 'L1_J12_UNPAIRED_NONISO,L1_BCM_Wide_UNPAIRED_NONISO,L1_BCM_AC_UNPAIRED_NONISO,L1_BCM_CA_UNPAIRED_NONISO'
     elif ('L1_ABORTGAPNOTCALIB' in l1seedname): 
@@ -245,7 +243,6 @@ def getL1ALFA_Calib(l1seed):
             
     return L1ALFA_Calib_seeds
 
-
 ##############################
 def getL1ALFA_CEP(l1seed):
 
@@ -258,8 +255,6 @@ def getL1ALFA_CEP(l1seed):
             log.error('L1 item %s from L1ALFA_CEP_seeds seeds is not in current L1 menu', item)
             
     return L1ALFA_CEP_seeds
-
-
 
 ##############################
 def getL1ALFA_SYS(l1seed):
@@ -287,13 +282,10 @@ def getL1ALFA_ELAS(l1seed):
             
     return L1ALFA_ELAS_seeds
 
-
-
 #####################################
 def getL1LowLumi(l1seed):
 
-    L1LowLumi_seeds = 'L1_EM20VH,L1_2EM10VH,L1_MU15,L1_2MU6,L1_3MU4,L1_EM15VH_MU10,L1_EM15I_MU4,L1_EM7_MU10,L1_2EM8VH_MU10,L1_TAU60,L1_TAU20IM_2TAU12IM_J25_2J20_3J12,L1_EM15HI_2TAU12IM_XE35,L1_MU10_TAU12IM_XE35,L1_TAU20_2TAU12_XE35,L1_TAU20IM_2TAU12IM_XE35,L1_EM15HI_2TAU12IM,L1_EM15HI_2TAU12IM_J25_3J12,L1_EM15HI_TAU40_2TAU15,L1_MU10_TAU12IM_J25_2J12,L1_MU10_TAU12IM,L1_J75,L1_4J15,L1_XE50,L1_3J25.0ETA23,L1_3J40,L1_2J15_XE55,L1_MU6_J40,L1_J75.31ETA49'
-
+    L1LowLumi_seeds = 'L1_EM20VH,L1_2EM10VH,L1_MU15,L1_2MU6,L1_3MU4,L1_EM15VH_MU10,L1_EM15I_MU4,L1_EM7_MU10,L1_2EM8VH_MU10,L1_TAU60,L1_TAU20IM_2TAU12IM_J25_2J20_3J12,L1_EM15HI_2TAU12IM_XE35,L1_MU10_TAU12IM_XE35,L1_TAU20_2TAU12_XE35,L1_TAU20IM_2TAU12IM_XE35,L1_EM15HI_2TAU12IM,L1_EM15HI_2TAU12IM_J25_3J12,L1_EM15HI_TAU40_2TAU15,L1_MU10_TAU12IM_J25_2J12,L1_MU10_TAU12IM,L1_J75,L1_4J15,L1_XE50,L1_3J25p0ETA23,L1_3J40,L1_2J15_XE55,L1_MU6_J40,L1_J75p31ETA49'
 
     # check if all the l1 background seeds given are in the current L1 menu
     l1bgditems = L1LowLumi_seeds.split(',')
@@ -406,20 +398,20 @@ def getSpecificL1Seeds(l1seedname, l1itemobject):
 def getInputTEfromL1Item(l1item):
     
     L1Map = {
-        'L1_TAU8_EMPTY':      ['HA8'],
-        'L1_TAU8_FIRSTEMPTY': ['HA8'],
-        'L1_TAU8_UNPAIRED_ISO': ['HA8'],
+        'L1_TAU8_EMPTY'          : ['HA8'],
+        'L1_TAU8_FIRSTEMPTY'     : ['HA8'],
+        'L1_TAU8_UNPAIRED_ISO'   : ['HA8'],
         'L1_TAU8_UNPAIRED_NONISO': ['HA8'],
-        'L1_TAU12_EMPTY':      ['HA12'],
-        'L1_TAU12_FIRSTEMPTY': ['HA12'],
-        'L1_TAU12_UNPAIRED_ISO': ['HA12'],
-        'L1_RD0_FIRSTEMPTY':  [''],
-        'L1_TAU30'         :  ['HA30'],
-        'L1_TAU30_EMPTY':      ['HA30'],
-        'L1_TAU30_UNPAIRED_ISO': ['HA30'],
-        'L1_TAU40'         :  ['HA40'],
-        'L1_TAU60'         :  ['HA60'],
-        'L1_TAU100'         :  ['HA100'],
+        'L1_TAU12_EMPTY'         : ['HA12'],
+        'L1_TAU12_FIRSTEMPTY'    : ['HA12'],
+        'L1_TAU12_UNPAIRED_ISO'  : ['HA12'],
+        'L1_RD0_FIRSTEMPTY'      : [''],
+        'L1_TAU30'               : ['HA30'],
+        'L1_TAU30_EMPTY'         : ['HA30'],
+        'L1_TAU30_UNPAIRED_ISO'  : ['HA30'],
+        'L1_TAU40'               : ['HA40'],
+        'L1_TAU60'               : ['HA60'],
+        'L1_TAU100'              : ['HA100'],
         }
 
     if TriggerFlags.triggerMenuSetup() == 'LS1_v1': 

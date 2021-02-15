@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -11,7 +11,6 @@
 // ********************************************************************
 
 #include "TrigJetTLAHypoToolMT.h"
-#include "TrigJetHypoToolHelperMT.h"
 
 #include "GaudiKernel/StatusCode.h"
 
@@ -43,17 +42,18 @@ TrigJetTLAHypoToolMT::~TrigJetTLAHypoToolMT(){
 }
 
 StatusCode TrigJetTLAHypoToolMT::initialize(){
-  DebugInfoCollector collector(name());
-  CHECK(m_helper->getDescription(collector));
-  auto s = collector.toString();
-  
-  for(const auto& l : lineSplitter(s)){
-    ATH_MSG_INFO(l);
-  }
-  
+
   if (m_visitDebug){
-    collector.write();
+
+    DebugInfoCollector collector(name());
+    CHECK(m_helper->getDescription(collector));
+    auto s = collector.toString();
+  
+    for(const auto& l : lineSplitter(s)){
+      ATH_MSG_INFO(l);
+    }
   }
+
   return StatusCode::SUCCESS;
 }
 
@@ -85,12 +85,10 @@ TrigJetTLAHypoToolMT::decide(std::vector<JetDecision>& jetHypoInputs) const {
   }
   
 
-  std::string msg = "TrigJetTLAHypoToolMT: Passthrough decision count " + std::to_string(decision_count); 
-
-  ATH_MSG_DEBUG(msg);
+  ATH_MSG_DEBUG("TrigJetTLAHypoToolMT: Passthrough decision count " + std::to_string(decision_count)); 
 
   if (infocollector){
-    infocollector->collect("TrigJetTLAHypoToolMT", msg);
+    infocollector->collect("TrigJetTLAHypoToolMT", "TrigJetTLAHypoToolMT: Passthrough decision count " + std::to_string(decision_count));
     infocollector->write();
   }
   return StatusCode::SUCCESS;

@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # $Id: aprof.py 783179 2016-11-09 11:13:54Z limosani $
 #
@@ -77,19 +77,9 @@ def makePdf( input_file, output_file ):
     from AthenaCommon.Logging import logging
     logger = logging.getLogger( "makePdf" )
 
-    import os
-    # CMAKE
-    if os.environ.get( 'CMTPATH', '' ) == '':
-        commandprefix = ""    
-    else:
-        # CMT
-        # Locate the setup script:
-        from PerfMonGPerfTools.Utils import locateSetupScript
-        script = locateSetupScript()
-
     # Construct and run the command:
     import os
-    command = "source " + script + " && pprof --pdf --nodecount=200 --nodefraction=0.001 " \
+    command = "pprof --pdf --nodecount=200 --nodefraction=0.001 " \
               "--edgefraction=0.0002 `which python` " + input_file + " > " + output_file
     logger.info( "Running command: " + command )
     return os.system( command )
@@ -109,13 +99,9 @@ def makeCallgrind( input_file, output_file ):
     from AthenaCommon.Logging import logging
     logger = logging.getLogger( "makeCallgrind" )
 
-    # Locate the setup script:
-    from PerfMonGPerfTools.Utils import locateSetupScript
-    script = locateSetupScript()
-
     # Construct and run the command:
     import os
-    command = "source " + script + " && pprof --callgrind `which python` " + \
+    command = "pprof --callgrind `which python` " + \
               input_file + " > " + output_file
     logger.info( "Running command: " + command )
     return os.system( command )

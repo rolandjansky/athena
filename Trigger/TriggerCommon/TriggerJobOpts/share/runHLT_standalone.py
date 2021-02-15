@@ -20,7 +20,7 @@
 #
 class opt:
     setupForMC       = None           # force MC setup
-    setMenu          = 'LS2_v1'
+    setMenu          = None           # option to overwrite flags.Trigger.triggerMenuSetup
     setDetDescr      = None           # force geometry tag
     setGlobalTag     = None           # force global conditions tag
     useCONDBR2       = True           # if False, use run-1 conditions DB
@@ -168,6 +168,8 @@ else:   # athenaHLT
 
 ConfigFlags.Input.Format = 'BS' if globalflags.InputFormat=='bytestream' else 'POOL'
 
+# Run-3 Trigger produces Run-3 EDM
+ConfigFlags.Trigger.EDMVersion = 3
 
 # Set final Cond/Geo tag based on input file, command line or default
 globalflags.DetDescrVersion = opt.setDetDescr or ConfigFlags.Trigger.OnlineGeoTag
@@ -294,6 +296,9 @@ if ConfigFlags.Input.Format == 'BS':
 from AthenaCommon.DetFlags import DetFlags
 if ConfigFlags.Trigger.doLVL1:
     DetFlags.detdescr.all_setOn()
+    #if not ConfigFlags.Input.isMC or ConfigFlags.Common.isOnline:
+    #    DetFlags.detdescr.ALFA_setOff()
+
 if ConfigFlags.Trigger.doID:
     DetFlags.detdescr.ID_setOn()
     DetFlags.makeRIO.ID_setOn()
@@ -360,9 +365,12 @@ DetFlags.BField_setOn()
 include ("RecExCond/AllDet_detDescr.py")
 
 if ConfigFlags.Trigger.doID:
+    include("InDetTrigRecExample/InDetTrigRec_jobOptions.py")
+    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+    InDetTrigFlags.doPrintConfigurables = log.getEffectiveLevel() <= logging.DEBUG
     from InDetRecExample.InDetJobProperties import InDetFlags
     InDetFlags.doPrintConfigurables = log.getEffectiveLevel() <= logging.DEBUG
-    include( "InDetRecExample/InDetRecCabling.py" )
+    include("InDetRecExample/InDetRecConditionsAccess.py")
 
 if ConfigFlags.Trigger.doCalo:
     from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigDataAccess
@@ -377,17 +385,7 @@ if ConfigFlags.Trigger.doMuon:
 
     include ("MuonRecExample/MuonRecLoadTools.py")
 
-# ---------------------------------------------------------------
-# ID conditions
-# ---------------------------------------------------------------
-if ConfigFlags.Trigger.doID:
-    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-    InDetTrigFlags.doPixelClusterSplitting = False
-
-    # PixelLorentzAngleSvc and SCTLorentzAngleSvc
-    from AthenaCommon.Include import include
-    include("InDetRecExample/InDetRecConditionsAccess.py")
-
+    
 # ----------------------------------------------------------------
 # Pool input
 # ----------------------------------------------------------------
@@ -395,11 +393,6 @@ if ConfigFlags.Input.Format == 'POOL':
     import AthenaPoolCnvSvc.ReadAthenaPool   # noqa
     svcMgr.AthenaPoolCnvSvc.PoolAttributes = [ "DEFAULT_BUFFERSIZE = '2048'" ]
     svcMgr.PoolSvc.AttemptCatalogPatch=True
-    # enable transient BS
-    if ConfigFlags.Trigger.doTransientByteStream:
-        log.info("setting up transient BS")
-        include( "TriggerJobOpts/jobOfragment_TransBS_standalone.py" )
-
 
 # ----------------------------------------------------------------
 # ByteStream input
@@ -412,7 +405,9 @@ elif ConfigFlags.Input.Format == 'BS' and not ConfigFlags.Trigger.Online.isParti
 # ---------------------------------------------------------------
 # Trigger config
 # ---------------------------------------------------------------
-ConfigFlags.Trigger.triggerMenuSetup = TriggerFlags.triggerMenuSetup = opt.setMenu
+if opt.setMenu:
+    ConfigFlags.Trigger.triggerMenuSetup = opt.setMenu
+TriggerFlags.triggerMenuSetup = ConfigFlags.Trigger.triggerMenuSetup
 TriggerFlags.readLVL1configFromXML = True
 TriggerFlags.outputLVL1configFile = None
 
@@ -456,6 +451,13 @@ from LumiBlockComps.LumiBlockMuWriterDefault import LumiBlockMuWriterDefault
 LumiBlockMuWriterDefault(sequence=hltBeginSeq)
 
 # ---------------------------------------------------------------
+# Level 1 simulation
+# ---------------------------------------------------------------
+if opt.doL1Sim:
+    from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
+    hltBeginSeq += Lvl1SimulationSequence(ConfigFlags)
+
+# ---------------------------------------------------------------
 # Add L1Decoder providing inputs to HLT
 # ---------------------------------------------------------------
 if opt.doL1Unpacking:
@@ -468,12 +470,12 @@ if opt.doL1Unpacking:
         hltBeginSeq += L1EmulationTest()
 
 # ---------------------------------------------------------------
-# Level 1 simulation
+# Transient ByteStream
 # ---------------------------------------------------------------
-if opt.doL1Sim:
-    from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
-    hltBeginSeq += Lvl1SimulationSequence(ConfigFlags)
-
+if ConfigFlags.Trigger.doTransientByteStream:
+    log.info("Configuring transient ByteStream")
+    from TriggerJobOpts.TriggerTransBSConfig import triggerTransBSCfg
+    CAtoGlobalWrapper(triggerTransBSCfg, ConfigFlags, seqName="HLTBeginSeq")
 
 # ---------------------------------------------------------------
 # HLT generation
@@ -509,12 +511,6 @@ if not opt.createHLTMenuExternally:
 
 
 
-#Needed to get full output from TrigSignatureMoniMT with a large menu: see ATR-21487
-#Can be removed once chainDump.py is used instead of log file parsing
-svcMgr.MessageSvc.infoLimit=10000
-
-
-
 from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc
 svcMgr += conf2toConfigurable( getHLTConfigSvc(ConfigFlags) )
 
@@ -526,7 +522,7 @@ if not hasattr(svcMgr, 'THistSvc'):
     from GaudiSvc.GaudiSvcConf import THistSvc
     svcMgr += THistSvc()
 if hasattr(svcMgr.THistSvc, "Output"):
-    from TriggerJobOpts.HLTTriggerGetter import setTHistSvcOutput
+    from TriggerJobOpts.TriggerHistSvcConfig import setTHistSvcOutput
     setTHistSvcOutput(svcMgr.THistSvc.Output)
 
 #-------------------------------------------------------------
@@ -585,6 +581,10 @@ if opt.doWriteBS or opt.doWriteRDOTrigger:
     hypos = collectHypos(findSubSequence(topSequence, "HLTAllSteps"))
     filters = collectFilters(findSubSequence(topSequence, "HLTAllSteps"))
 
+    nfilters = sum(len(v) for v in filters.values())
+    nhypos = sum(len(v) for v in hypos.values())    
+    log.info( "Algorithms counting: Number of Filter algorithms: %d  -  Number of Hypo algoirthms: %d", nfilters , nhypos) 
+
     summaryMakerAlg = findAlgorithm(topSequence, "DecisionSummaryMakerAlg")
     l1decoder = findAlgorithm(topSequence, "L1Decoder")
 
@@ -603,14 +603,16 @@ if opt.doWriteBS or opt.doWriteRDOTrigger:
     TriggerEDMRun3.addHLTNavigationToEDMList(TriggerEDMRun3.TriggerHLTListRun3, decObj, decObjHypoOut)
 
     # Configure output writing
-    CAtoGlobalWrapper( triggerOutputCfg, ConfigFlags, summaryAlg=summaryMakerAlg)
+    CAtoGlobalWrapper(triggerOutputCfg, ConfigFlags, hypos=hypos)
 
 #-------------------------------------------------------------
 # Cost Monitoring
 #-------------------------------------------------------------
 
-from TrigCostMonitorMT.TrigCostMonitorMTConfig import TrigCostMonitorMTCfg
+from TrigCostMonitorMT.TrigCostMonitorMTConfig import TrigCostMonitorMTCfg, TrigCostMonitorMTPostSetup
 CAtoGlobalWrapper(TrigCostMonitorMTCfg, ConfigFlags)
+# TODO - how can TrigCostMonitorMTPostSetup be component-accumulator-ised?
+TrigCostMonitorMTPostSetup()
 
 #-------------------------------------------------------------
 # Debugging for view cross-dependencies
@@ -631,9 +633,13 @@ if opt.reverseViews or opt.filterViews:
 include("TriggerTest/disableChronoStatSvcPrintout.py")
 
 #-------------------------------------------------------------
-# Disable spurious warnings from HepMcParticleLink, ATR-21838
+# MessageSvc
 #-------------------------------------------------------------
+svcMgr.MessageSvc.Format = "% F%40W%C%4W%R%e%s%8W%R%T %0W%M"
+svcMgr.MessageSvc.enableSuppression = False
+
 if ConfigFlags.Input.isMC:
+    # Disable spurious warnings from HepMcParticleLink, ATR-21838
     svcMgr.MessageSvc.setError += ['HepMcParticleLink']
 
 #-------------------------------------------------------------

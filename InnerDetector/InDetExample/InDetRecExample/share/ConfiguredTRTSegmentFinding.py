@@ -115,7 +115,7 @@ class ConfiguredTRTSegmentFinding:
       condSeq = AthSequencer("AthCondSeq")
       if not hasattr(condSeq, "InDet__TRT_TrackSegmentsMakerCondAlg_ATLxk"):
         from TRT_TrackSegmentsTool_xk.TRT_TrackSegmentsTool_xkConf import InDet__TRT_TrackSegmentsMakerCondAlg_ATLxk
-        InDetTRT_TrackSegmentsMakerCondAlg = InDet__TRT_TrackSegmentsMakerCondAlg_ATLxk(name                    = 'InDetTRT_SeedsMakerCondAlg'+extension,
+        InDetTRT_TrackSegmentsMakerCondAlg = InDet__TRT_TrackSegmentsMakerCondAlg_ATLxk(name                    = 'InDet__TRT_TrackSegmentsMakerCondAlg_ATLxk',
                                                                                         PropagatorTool          = InDetPatternPropagator,
                                                                                         NumberMomentumChannel   = NewTrackingCuts.TRTSegFinderPtBins(),
                                                                                         pTmin                   = pTmin)

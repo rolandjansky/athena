@@ -162,17 +162,9 @@ namespace top {
       }
     }
 
-    // Generators name
-    inline std::string getGenerators() const {return m_generators;}
-    inline void setGenerators(const std::string value) {
-      if (!m_configFixed) {
-        m_generators = value;
-      }
-    }
-
     // AMITag
     inline std::string getAMITag() const {return m_AMITag;}
-    inline void setAMITag(const std::string value) {
+    inline void setAMITag(const std::string& value) {
       if (!m_configFixed) {
         m_AMITag = value;
       }
@@ -196,7 +188,7 @@ namespace top {
 
     // What derivation type is it?
     inline std::string getDerivationStream() const {return m_derivationStream;}
-    inline void setDerivationStream(const std::string value) {
+    inline void setDerivationStream(const std::string& value) {
       if (!m_configFixed) {
         m_derivationStream = value;
       }
@@ -2061,7 +2053,6 @@ namespace top {
     bool m_isAFII;
     bool m_isDataOverlay;
     std::vector<std::string> m_filterBranches, m_filterPartonLevelBranches, m_filterParticleLevelBranches, m_filterNominalLooseBranches;
-    std::string m_generators;
     std::string m_AMITag;
     bool m_isPrimaryxAOD;
     bool m_isTruthDxAOD = false;

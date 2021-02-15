@@ -6,7 +6,8 @@
 #include "TrackScoringTool.h"
 #include "AmbiguityProcessorUtility.h"
 
-
+#include "GaudiKernel/ToolVisitor.h"
+#include "GaudiKernel/RenounceToolInputsVisitor.h"
 
 namespace Trk {
   AmbiguityProcessorBase::AmbiguityProcessorBase(const std::string& t, const std::string& n, const IInterface*  p ):
@@ -23,7 +24,74 @@ namespace Trk {
       (track.trackParameters()->front()->pT() > m_pTminBrem) and 
       ((not m_caloSeededBrem) or track.info().patternRecoInfo(Trk::TrackInfo::TrackInCaloROI));
   }
-  
+
+  StatusCode
+  AmbiguityProcessorBase::initializeClusterSplitProbContainer() {
+    // init ClusterSplitProb input and output container handles and renounce the output handle from its tools.
+    // the latter works because the ClusterSplitProb output container is created and recorded before the tools
+    // are called.
+    ATH_CHECK(m_clusterSplitProbContainerIn.initialize(!m_clusterSplitProbContainerIn.key().empty()));
+    ATH_CHECK(m_clusterSplitProbContainerOut.initialize(!m_clusterSplitProbContainerOut.key().empty()));
+    if (!m_clusterSplitProbContainerOut.key().empty()) {
+      auto visitor=[this](const IAlgTool *tool) {
+         const AlgTool *alg_tool = dynamic_cast<const AlgTool *>(tool);
+         for ( Gaudi::DataHandle* handle : alg_tool->inputHandles() ) {
+            this->msg(MSG::DEBUG)  << " input Handle "
+                                   << tool->name() << " . "
+                                   << handle->objKey() << endmsg;
+         }
+         for (auto elm : alg_tool->inputDataObjs()) {
+            this->msg(MSG::DEBUG) << " input object "
+                                  << tool->name() << " . "
+                                  << elm.key()  << endmsg;
+         }
+      };
+      if (msgLvl(MSG::DEBUG)) {
+         ToolVisitor::visit(tools(), visitor);
+      }
+      /// usage:
+      ATH_MSG_DEBUG(  " Renounce " << m_clusterSplitProbContainerOut.objKey() );
+      auto logger=RenounceToolInputsVisitor::createLogger( [this](const std::string_view& tool_name, const std::string_view& key) {
+         this->msg(MSG::INFO) << " Renounce " << tool_name << " . " << key << endmsg;
+      });
+      RenounceToolInputsVisitor renounce(std::vector<DataObjID>{m_clusterSplitProbContainerOut.fullKey()}, logger);
+      ToolVisitor::visit(tools(), renounce);
+      ATH_MSG_DEBUG(" renounced " << m_clusterSplitProbContainerOut.objKey() );
+      if (msgLvl(MSG::DEBUG)) {
+        ToolVisitor::visit(tools(), visitor);
+     }
+    }
+    return StatusCode::SUCCESS;
+  }
+
+  AmbiguityProcessorBase::UniqueClusterSplitProbabilityContainerPtr
+  AmbiguityProcessorBase::createAndRecordClusterSplitProbContainer(const EventContext& ctx) const {
+    SG::ReadHandle<Trk::ClusterSplitProbabilityContainer> splitProbContainerIn;
+    if (!m_clusterSplitProbContainerIn.key().empty()) {
+      splitProbContainerIn = SG::ReadHandle( m_clusterSplitProbContainerIn, ctx);
+      if (!splitProbContainerIn.isValid()) {
+        ATH_MSG_ERROR( "Failed to get input cluster split probability container "  << m_clusterSplitProbContainerIn.key());
+      }
+    }
+    std::unique_ptr<Trk::ClusterSplitProbabilityContainer>
+       newSplitProbContainer(!m_clusterSplitProbContainerIn.key().empty()
+                             ? std::make_unique<Trk::ClusterSplitProbabilityContainer>(*splitProbContainerIn)
+                             : std::make_unique<Trk::ClusterSplitProbabilityContainer>());
+    SG::WriteHandle<Trk::ClusterSplitProbabilityContainer> splitProbContainerHandle;
+    if (!m_clusterSplitProbContainerOut.key().empty()) {
+      splitProbContainerHandle=SG::WriteHandle<Trk::ClusterSplitProbabilityContainer>( m_clusterSplitProbContainerOut, ctx);
+      if (splitProbContainerHandle.record(std::move(newSplitProbContainer)).isFailure()) {
+        ATH_MSG_FATAL( "Failed to record output cluster split probability container "  << m_clusterSplitProbContainerOut.key());
+      }
+      // newSplitProbContainer owned by storegate -> no cleanup
+      return UniqueClusterSplitProbabilityContainerPtr(splitProbContainerHandle.ptr(), [](Trk::ClusterSplitProbabilityContainer *) {});
+    }
+    else {
+      // when not recording the split prob container in storegate the container must be deleted once going out of scope
+      return UniqueClusterSplitProbabilityContainerPtr(newSplitProbContainer.release(), [](Trk::ClusterSplitProbabilityContainer *ptr) { delete ptr;});
+    }
+  }
+
   bool
   AmbiguityProcessorBase::shouldTryBremRecovery(const Trk::Track & track, const TrackParameters * pPar) const{
     return m_tryBremFit and

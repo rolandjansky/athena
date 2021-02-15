@@ -19,7 +19,7 @@ TRT_EndcapDescriptor::TRT_EndcapDescriptor():
   m_strawLength(0),
   m_innerRadius(0),
   m_innerTubeRadius(2*CLHEP::mm),  // FIXME: Hardwired for now!!
-  m_f(NULL),
+  m_f(nullptr),
   m_o(0),
   m_bounds()
 {

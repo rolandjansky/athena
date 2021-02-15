@@ -80,8 +80,8 @@ def _configureReadAthenaPoolDouble():
         svcMgr += CfgMgr.EventSelectorByteStream("SecondaryEventSelector", IsSecondary=True, ByteStreamInputSvc="ByteStreamInputSvc")
     else:
         svcMgr += CfgMgr.EventSelectorAthenaPool("SecondaryEventSelector", IsSecondary=True)
-    svcMgr += CfgMgr.DoubleEventSelectorAthenaPool("DoubleEventSelector")    
-    theApp.EvtSel = "DoubleEventSelectorAthenaPool/DoubleEventSelector"
+    svcMgr += CfgMgr.DoubleEventSelectorAthenaPool("EventSelector")    
+    theApp.EvtSel = "DoubleEventSelectorAthenaPool/EventSelector"
 
     # Add in AthenaPoolAddressProviderSvc
     if not hasattr (svcMgr, 'AthenaPoolAddressProviderSvcPrimary'):

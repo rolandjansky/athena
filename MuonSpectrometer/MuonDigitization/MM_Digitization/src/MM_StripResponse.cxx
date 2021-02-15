@@ -6,11 +6,11 @@
 
 MM_StripResponse::MM_StripResponse() {}
 
-MM_StripResponse::MM_StripResponse(std::vector<MM_IonizationCluster> IonizationClusters, float timeResolution, float stripPitch, int stripID, int minstripID, int maxstripID) : m_timeResolution(timeResolution), m_stripPitch(stripPitch), m_stripID(stripID), m_minstripID(minstripID), m_maxstripID(maxstripID) {
+MM_StripResponse::MM_StripResponse(std::vector<std::unique_ptr<MM_IonizationCluster>>& IonizationClusters, float timeResolution, float stripPitch, int stripID, int minstripID, int maxstripID) : m_timeResolution(timeResolution), m_stripPitch(stripPitch), m_stripID(stripID), m_minstripID(minstripID), m_maxstripID(maxstripID) {
 
 	for (auto& IonizationCluster : IonizationClusters)
-		for (auto& Electron : IonizationCluster.getElectrons())
-			m_Electrons.push_back(Electron);
+		for (auto& Electron : IonizationCluster->getElectrons())
+			m_Electrons.push_back(std::move(Electron));
 
 }
 
@@ -20,19 +20,19 @@ int MM_StripResponse::getNElectrons(){
 
 float MM_StripResponse::getTotalCharge(){
 	float qtot = 0;
-	for(const MM_Electron* electron : m_Electrons) {
+	for(const std::unique_ptr<MM_Electron>& electron : m_Electrons) {
 		qtot += electron->getCharge();
 	}
 	return qtot;
 }
 
-std::vector<MM_Electron*> MM_StripResponse::getElectrons(){
+std::vector<std::unique_ptr<MM_Electron>>& MM_StripResponse::getElectrons(){
 	return m_Electrons;
 }
 
 void MM_StripResponse::timeOrderElectrons() {
 
-	std::sort(m_Electrons.begin(), m_Electrons.end(), [](const MM_Electron* a, const MM_Electron* b) -> bool { return a->getTime() < b->getTime(); });
+	std::sort(m_Electrons.begin(), m_Electrons.end(), [](const std::unique_ptr<MM_Electron>& a, const std::unique_ptr<MM_Electron>& b) -> bool { return a->getTime() < b->getTime(); });
 
 }
 

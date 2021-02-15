@@ -1,0 +1,17 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
+# File taking care of pointing the downstream projects at the right
+# version of the externals.
+#
+
+# Set up a "quiet flag".
+set( _quietFlag )
+if( AthAnalysis_FIND_QUIETLY )
+   set( _quietFlag QUIET )
+endif()
+
+# CMake cache variable(s).
+set( CLHEP_ROOT "${CLHEP_LCGROOT}" CACHE PATH "Path to pick up CLHEP from" )
+
+# Find Gaudi.
+find_package( Gaudi @Gaudi_VERSION@ EXACT REQUIRED ${_quietFlag} )

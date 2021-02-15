@@ -1,22 +1,18 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
 Tools configurations for ISF_NativeFastCaloSimServices
 KG Tan, 04/12/2012
 """
 
-from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicTool,getPublicToolClone,\
-        getService,getServiceClone,getAlgorithm,getAlgorithmClone
-
-from AthenaCommon.Constants import *  # FATAL,ERROR etc.
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.DetFlags import DetFlags
+from AthenaCommon.CfgGetter import getPublicTool, getService, getAlgorithm
 
 from ISF_Config.ISF_jobProperties import ISF_Flags # IMPORTANT: Flags must be set before tools are retrieved
 from ISF_FastCaloSimParametrization.ISF_NativeFastCaloSimJobProperties import ISF_NativeFastCaloSimFlags
 
 def getPunchThroughTool(name="ISF_PunchThroughTool", **kwargs):
-    from G4AtlasApps.SimFlags import SimFlags,simFlags
+    from G4AtlasApps.SimFlags import simFlags
+    from ISF_FastCaloSimServices.ISF_FastCaloSimJobProperties import ISF_FastCaloSimFlags
     kwargs.setdefault("RandomNumberService"     , simFlags.RandomSvc()                               )
     kwargs.setdefault("RandomStreamName"        , ISF_FastCaloSimFlags.RandomStreamName()            )
     kwargs.setdefault("FilenameLookupTable"     , "CaloPunchThroughParametrisation.root"             )
@@ -57,7 +53,6 @@ def getCaloCellContainerFinalizerTool(name="ISF_CaloCellContainerFinalizerTool",
 
 #### NativeFastCaloSimSvc
 def getNativeFastCaloSimSvc(name="ISF_NativeFastCaloSimSvc", **kwargs):
-    from ISF_FastCaloSimParametrization.ISF_NativeFastCaloSimJobProperties import ISF_NativeFastCaloSimFlags
     kwargs.setdefault("BatchProcessMcTruth"              , False                                             )
     kwargs.setdefault("SimulateUndefinedBarcodeParticles", False                                             )
     kwargs.setdefault("Identifier"                       , 'NativeFastCaloSim'                                     )
@@ -77,7 +72,7 @@ def getNativeFastCaloSimSvc(name="ISF_NativeFastCaloSimSvc", **kwargs):
     ISF_NativeFastCaloSimFlags.NativeFastCaloSimIsActive.set_Value_and_Lock(True)
 
     # register the FastCaloSim random number streams
-    from G4AtlasApps.SimFlags import SimFlags,simFlags
+    from G4AtlasApps.SimFlags import simFlags
     simFlags.RandomSeedList.addSeed( ISF_NativeFastCaloSimFlags.RandomStreamName(), 98346412, 12461240 )
 
     from ISF_FastCaloSimParametrization.ISF_FastCaloSimParametrizationConf import ISF__NativeFastCaloSimSvc

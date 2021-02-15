@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUANALYSISTOOLS_TAUEFFICIENCYTOOL_H
@@ -29,11 +29,9 @@
 #include "TauAnalysisTools/TauEfficiencyEleIDTool.h"
 #include "TauAnalysisTools/TauEfficiencyTriggerTool.h"
 
-#if __has_include("PileupReweighting/IPileupReweightingTool.h")
 // Tool include(s)
 #include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
 #define TAUANALYSISTOOLS_PRWTOOL_AVAILABLE
-#endif
 
 namespace TauAnalysisTools
 {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_DetailedSurfaceChargesGenerator.h"
@@ -156,7 +156,7 @@ StatusCode SCT_DetailedSurfaceChargesGenerator::finalize() {
 //----------------------------------------------------------------------
 // perpandicular Drift time calculation
 //----------------------------------------------------------------------
-float SCT_DetailedSurfaceChargesGenerator::DriftTime(float zhit, const SiDetectorElement* element) const {
+float SCT_DetailedSurfaceChargesGenerator::DriftTime(float zhit, const SiDetectorElement* element, const EventContext& ctx) const {
   const double sensorThickness{element->thickness()};
   if ((zhit<0.0) or (zhit>sensorThickness)) {
     ATH_MSG_DEBUG("DriftTime: hit coordinate zhit=" << zhit/CLHEP::micrometer << " out of range");
@@ -164,8 +164,8 @@ float SCT_DetailedSurfaceChargesGenerator::DriftTime(float zhit, const SiDetecto
   }
   const IdentifierHash hashId{element->identifyHash()};
 
-  const double vdepl{m_siConditionsTool->depletionVoltage(hashId) * CLHEP::volt};
-  const double vbias{m_siConditionsTool->biasVoltage(hashId) * CLHEP::volt};
+  const double vdepl{m_siConditionsTool->depletionVoltage(hashId, ctx) * CLHEP::volt};
+  const double vbias{m_siConditionsTool->biasVoltage(hashId, ctx) * CLHEP::volt};
   const double denominator{vdepl+vbias-(2.0*zhit*vdepl/sensorThickness)};
   if (denominator<=0.0) {
     if (vbias>=vdepl) { //Should not happen
@@ -188,9 +188,9 @@ float SCT_DetailedSurfaceChargesGenerator::DriftTime(float zhit, const SiDetecto
 //----------------------------------------------------------------------
 // Sigma Diffusion calculation
 //----------------------------------------------------------------------
-float SCT_DetailedSurfaceChargesGenerator::DiffusionSigma(float zhit, const SiDetectorElement* element) const {
+float SCT_DetailedSurfaceChargesGenerator::DiffusionSigma(float zhit, const SiDetectorElement* element, const EventContext& ctx) const {
   const IdentifierHash hashId{element->identifyHash()};
-  const float t{this->DriftTime(zhit, element)}; // in ns
+  const float t{this->DriftTime(zhit, element, ctx)}; // in ns
   if (t>0.0) {
     const float diffusionSigma{static_cast<float>(sqrt(2.*m_siPropertiesTool->getSiProperties(hashId).holeDiffusionConstant()*t))}; // in mm
     return diffusionSigma;
@@ -201,10 +201,10 @@ float SCT_DetailedSurfaceChargesGenerator::DiffusionSigma(float zhit, const SiDe
 //----------------------------------------------------------------------
 // Maximum drift time
 //----------------------------------------------------------------------
-float SCT_DetailedSurfaceChargesGenerator::MaxDriftTime(const SiDetectorElement* element) const {
+float SCT_DetailedSurfaceChargesGenerator::MaxDriftTime(const SiDetectorElement* element, const EventContext& ctx) const {
   if (element) {
     const double sensorThickness{element->thickness()};
-    return this->DriftTime(sensorThickness, element);
+    return this->DriftTime(sensorThickness, element, ctx);
   } else {
     ATH_MSG_INFO("Error: SiDetectorElement not set!");
     return 0.;
@@ -214,10 +214,10 @@ float SCT_DetailedSurfaceChargesGenerator::MaxDriftTime(const SiDetectorElement*
 //----------------------------------------------------------------------
 // Maximum Sigma difusion
 //----------------------------------------------------------------------
-float SCT_DetailedSurfaceChargesGenerator::MaxDiffusionSigma(const SiDetectorElement* element) const {
+float SCT_DetailedSurfaceChargesGenerator::MaxDiffusionSigma(const SiDetectorElement* element, const EventContext& ctx) const {
   if (element) {
     const double sensorThickness{element->thickness()};
-    return this->DiffusionSigma(sensorThickness, element);
+    return this->DiffusionSigma(sensorThickness, element, ctx);
   } else {
     ATH_MSG_INFO("Error: SiDetectorElement not set!");
     return 0.;
@@ -252,18 +252,18 @@ float SCT_DetailedSurfaceChargesGenerator::SurfaceDriftTime(float ysurf) const {
 //-------------------------------------------------------------------------------------------
 // create a list of surface charges from a hit - called from SCT_Digitization AthAlgorithm
 //-------------------------------------------------------------------------------------------
-void SCT_DetailedSurfaceChargesGenerator::process(const SiDetectorElement* element, const TimedHitPtr<SiHit>& phit, const ISiSurfaceChargesInserter& inserter, CLHEP::HepRandomEngine * rndmEngine) const {
+void SCT_DetailedSurfaceChargesGenerator::process(const SiDetectorElement* element, const TimedHitPtr<SiHit>& phit, const ISiSurfaceChargesInserter& inserter, CLHEP::HepRandomEngine * rndmEngine, const EventContext& ctx) const {
   ATH_MSG_VERBOSE("SCT_DetailedSurfaceChargesGenerator::process starts");
   const float p_eventTime{phit.eventTime()};
   const unsigned short p_eventId{phit.eventId()};
-  processSiHit(element, *phit, inserter, p_eventTime, p_eventId, rndmEngine);
+  processSiHit(element, *phit, inserter, p_eventTime, p_eventId, rndmEngine, ctx);
   return;
 }
 
 //-------------------------------------------------------------------------------------------
 // create a list of surface charges from a hit - called from both AthAlgorithm and PileUpTool
 //-------------------------------------------------------------------------------------------
-void SCT_DetailedSurfaceChargesGenerator::processSiHit(const SiDetectorElement* element, const SiHit& phit, const ISiSurfaceChargesInserter& inserter, float p_eventTime, unsigned short p_eventId, CLHEP::HepRandomEngine * rndmEngine) const {
+void SCT_DetailedSurfaceChargesGenerator::processSiHit(const SiDetectorElement* element, const SiHit& phit, const ISiSurfaceChargesInserter& inserter, float p_eventTime, unsigned short p_eventId, CLHEP::HepRandomEngine * rndmEngine, const EventContext& ctx) const {
   const SCT_ModuleSideDesign* p_design{dynamic_cast<const SCT_ModuleSideDesign*>(&(element->design()))};
   if (p_design==nullptr) {
     ATH_MSG_ERROR("SCT_DetailedSurfaceChargesGenerator::process can not get " << p_design);
@@ -345,7 +345,7 @@ void SCT_DetailedSurfaceChargesGenerator::processSiHit(const SiDetectorElement* 
     //Distance between charge and readout side. p_design->readoutSide() is +1 if readout side is in +ve depth axis direction and visa-versa.
     double zReadout{0.5*sensorThickness - p_design->readoutSide() * z1};
 
-    float tdrift{DriftTime(zReadout, element)}; //!< tdrift: perpandicular drift time
+    float tdrift{DriftTime(zReadout, element, ctx)}; //!< tdrift: perpandicular drift time
     if (tdrift>-2.0000002 and tdrift<-1.9999998) {
       ATH_MSG_DEBUG("Checking for rounding errors in compression");
       if ((std::abs(z1)-0.5*sensorThickness)<0.000010) {
@@ -356,7 +356,7 @@ void SCT_DetailedSurfaceChargesGenerator::processSiHit(const SiDetectorElement* 
           z1 = 0.5*sensorThickness-0.0000005; //set new coordinate to be 0.5nm inside wafer volume.
         }
         zReadout = 0.5*sensorThickness - p_design->readoutSide() * z1;
-        tdrift=DriftTime(zReadout, element);
+        tdrift=DriftTime(zReadout, element, ctx);
         if (tdrift>-2.0000002 and tdrift<-1.9999998) {
           ATH_MSG_WARNING("Attempt failed. Making no correction.");
         } else {
@@ -373,7 +373,7 @@ void SCT_DetailedSurfaceChargesGenerator::processSiHit(const SiDetectorElement* 
       //PJ select driftmodel here
       if (m_chargeDriftModel == defaultSCTModel or element->isEndcap()) { //Standard SCT driftmodel
         y1 += tanLorentz*zReadout; //!< Taking into account the magnetic field
-        float diffusionSigma{DiffusionSigma(zReadout, element)};
+        float diffusionSigma{DiffusionSigma(zReadout, element, ctx)};
         for (int i{0}; i<m_numberOfCharges; ++i) {
           float rx{CLHEP::RandGaussZiggurat::shoot(rndmEngine)};
           double xd{x1+diffusionSigma*rx};

@@ -23,7 +23,8 @@
 
 #include <string>
 
-#include "PixelConditionsData/PixelCablingCondData.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+
 
 
 
@@ -46,11 +47,8 @@ private:
 
   bool        m_printTable;
    
-  /// some cabling cond data to act as a flag to schedule the algorithm
-  /// sadly have to use the pixel cabling if the calorimeter doesn't have
-  /// it's own conditions data version 
-  SG::ReadCondHandleKey<PixelCablingCondData> m_cablingKey
-    {this, "CablingCondData", "PixelCablingCondData", "Pixel cabling key"};
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey
+    {this, "CablingKey", "LArOnOffIdMap", "LAr cabling key"};
 
   /// Output conditions object
   SG::WriteCondHandleKey<IRegSelLUTCondData> m_tableKey  

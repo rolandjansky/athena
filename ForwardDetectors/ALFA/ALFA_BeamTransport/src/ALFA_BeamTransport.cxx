@@ -14,13 +14,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "GeneratorObjects/McEventCollection.h"
-
-
-
-
 // FrameWork includes
 #include "GaudiKernel/ITHistSvc.h"
 #include "Gaudi/Property.h"
@@ -48,9 +41,6 @@ ALFA_BeamTransport::ALFA_BeamTransport(const std::string& name, ISvcLocator* pSv
   :
   AthAlgorithm(name,pSvcLocator)
 {
-  //  template for property decalration
-  //declareProperty("PropertyName", m_propertyName);
-
   declareProperty("ConfDir", m_FPConfig.ConfDir="./config");
   declareProperty("UseALFA", m_FPConfig.UseALFA=true);
   declareProperty("Debug", m_WriteDebugOutput=false);
@@ -222,14 +212,14 @@ StatusCode ALFA_BeamTransport::execute()
 ///////////////
 void ALFA_BeamTransport::MeVToGeV (HepMC::GenEvent* evt)
 {
-  for ( HepMC::GenEvent::particle_iterator p = evt->particles_begin(); p != evt->particles_end(); ++p ) {
+  for (auto p:  *evt) {
     // std::cout << " PDG, BAR " << (*p)->pdg_id() << " " << (*p)->barcode() << std::endl;
-    const HepMC::FourVector fv((*p)->momentum().px() / 1000.,
-			       (*p)->momentum().py() / 1000.,
-			       (*p)->momentum().pz() / 1000.,
-			       (*p)->momentum().e() / 1000.);
+    const HepMC::FourVector fv(p->momentum().px() / 1000.,
+			       p->momentum().py() / 1000.,
+			       p->momentum().pz() / 1000.,
+			       p->momentum().e() / 1000.);
     
-    (*p)->set_momentum( fv);
+    p->set_momentum( fv);
   }
 }
 
@@ -237,13 +227,13 @@ void ALFA_BeamTransport::MeVToGeV (HepMC::GenEvent* evt)
 ///////////////
 void ALFA_BeamTransport::GeVToMeV (HepMC::GenEvent* evt)
 {
-     for ( HepMC::GenEvent::particle_iterator p = evt->particles_begin(); p != evt->particles_end(); ++p ) {
-	  const HepMC::FourVector fv((*p)->momentum().px() * 1000.,
-				      (*p)->momentum().py() * 1000.,
-				      (*p)->momentum().pz() * 1000.,
-				      (*p)->momentum().e() * 1000.);
+     for ( auto p: *evt) {
+	  const HepMC::FourVector fv(p->momentum().px() * 1000.,
+				      p->momentum().py() * 1000.,
+				      p->momentum().pz() * 1000.,
+				      p->momentum().e() * 1000.);
 				      
-				      (*p)->set_momentum( fv);
+				      p->set_momentum( fv);
      }
 }
 
@@ -265,8 +255,8 @@ int ALFA_BeamTransport::AddHepMCData(HepMC::GenEvent* evt)
 	  
 	  HepMC::FourVector MomentumVectorRP1 = HepMC::FourVector(m_MomRP1.x(),m_MomRP1.y(),m_MomRP1.z(),m_EnergyRP1);
 	  
-	  HepMC::GenVertex* VertexRP1 = new HepMC::GenVertex(PositionVectorRP1);
-	  HepMC::GenParticle* ParticleRP1 = new HepMC::GenParticle(MomentumVectorRP1,2212,1);
+	  HepMC::GenVertexPtr VertexRP1 = HepMC::newGenVertexPtr(PositionVectorRP1);
+	  HepMC::GenParticlePtr ParticleRP1 = HepMC::newGenParticlePtr(MomentumVectorRP1,2212,1);
 	  //Add particle to vertex
 	  VertexRP1->add_particle_out(ParticleRP1);
 	  //add new vertex to HepMC event record
@@ -279,8 +269,8 @@ int ALFA_BeamTransport::AddHepMCData(HepMC::GenEvent* evt)
 	  
 	  HepMC::FourVector MomentumVectorRP3 = HepMC::FourVector(m_MomRP3.x(),m_MomRP3.y(),m_MomRP3.z(),m_EnergyRP3);
 	  
-	  HepMC::GenVertex* VertexRP3 = new HepMC::GenVertex(PositionVectorRP3);
-	  HepMC::GenParticle* ParticleRP3 = new HepMC::GenParticle(MomentumVectorRP3,2212,1);
+	  HepMC::GenVertexPtr VertexRP3 = HepMC::newGenVertexPtr(PositionVectorRP3);
+	  HepMC::GenParticlePtr ParticleRP3 = HepMC::newGenParticlePtr(MomentumVectorRP3,2212,1);
 	  
 	  VertexRP3->add_particle_out(ParticleRP3);
 	  
@@ -327,8 +317,8 @@ int ALFA_BeamTransport::DoBeamTracking(int evt_number)
 }
 
 int ALFA_BeamTransport::TransportSelectedParticle(HepMC::GenEvent* evt, int evt_number){
-     HepMC::GenParticle* p1=0;
-     HepMC::GenParticle* p2=0;
+     HepMC::GenParticlePtr p1{nullptr};
+     HepMC::GenParticlePtr p2{nullptr};
      
 	
      std::vector<FPTracker::Point> PosAtRP1;
@@ -346,41 +336,41 @@ int ALFA_BeamTransport::TransportSelectedParticle(HepMC::GenEvent* evt, int evt_
      
      
      //First we have to select the final state particles from the MC
-     for ( HepMC::GenEvent::particle_const_iterator p =  evt->particles_begin(); p != evt->particles_end(); ++p )
+     for ( auto p: *evt)
      {
 	  
 	  //Simple Eta Pt cut to remove particles from BeamTransportation which have no chance to reach RP plane
-	  mom=std::sqrt(std::pow((*p)->momentum().px(),2)+std::pow((*p)->momentum().py(),2)+std::pow((*p)->momentum().pz(),2));
-	  theta=std::acos(std::abs((*p)->momentum().pz())/mom);
+	  mom=std::sqrt(std::pow(p->momentum().px(),2)+std::pow(p->momentum().py(),2)+std::pow(p->momentum().pz(),2));
+	  theta=std::acos(std::abs(p->momentum().pz())/mom);
 	  eta=-std::log(std::tan(theta/2));
 	  
 	  std::cout<<"eta "<<eta<<std::endl;
 	  std::cout<<"DeptaP/p "<<std::abs((mom)/m_FPConfig.pbeam0)<<std::endl;
 	  
 	  
-	if( ((*p)->status() == 1) && (!(*p)->end_vertex()) )  {//TODO What is end_vertex()???
+	if( (p->status() == 1) && (!p->end_vertex()) )  {//TODO What is end_vertex()???
 	 	//Change the status code from Pythia (1) to 201 //added 120124
-		(*p)->set_status(201); 
+		p->set_status(201); 
 	       
 	  
-	  	int pid = (*p)->pdg_id();
+	  	int pid = p->pdg_id();
 	  	if(eta>m_EtaCut && 1-std::abs(mom/m_FPConfig.pbeam0) < m_XiCut){
 		     
 		     //save a copy of the particles which passed the cut
-		     HepMC::FourVector Position = (*p)->production_vertex()->position();
+		     HepMC::FourVector Position = p->production_vertex()->position();
 		     
-		     HepMC::FourVector Momentum = (*p)->momentum();
+		     HepMC::FourVector Momentum = p->momentum();
 		     
-		     HepMC::GenVertex* Vertex = new HepMC::GenVertex(Position); //copy of the vertex
-		     HepMC::GenParticle* Particle = new HepMC::GenParticle(Momentum,pid,202);
+		     HepMC::GenVertexPtr Vertex = HepMC::newGenVertexPtr(Position); //copy of the vertex
+		     HepMC::GenParticlePtr Particle = HepMC::newGenParticlePtr(Momentum,pid,202);
 		     
 		     
 		     Vertex->add_particle_out(Particle);
 		     evt->add_vertex(Vertex);
 	       
 	       		//select direction of particle 
-	       		if((*p)->momentum().pz()>0. && pid == 2212){//Beam1 TODO Tracking only works for protons!!!!
-		 	 	  p1=(*p);
+	       		if(p->momentum().pz()>0. && pid == 2212){//Beam1 TODO Tracking only works for protons!!!!
+		 	 	  p1=p;
 		   	 	//now we want to track the final particle if it's a protons
 		   	 	//Positions are given in mm FPTracker needs them in meter
 		   	 	m_Particle1=FPTracker::Particle(p1->production_vertex()->position().x()/1000.,
@@ -410,8 +400,8 @@ int ALFA_BeamTransport::TransportSelectedParticle(HepMC::GenEvent* evt, int evt_
 				}
     
 	       		}
-	       		else if((*p)->momentum().pz()<0. && pid == 2212){//beam 2
-		    		p2=(*p);
+	       		else if(p->momentum().pz()<0. && pid == 2212){//beam 2
+		    		p2=p;
 		    
 		    		m_Particle2=FPTracker::Particle(p2->production_vertex()->position().x()/1000.,
 						     p2->production_vertex()->position().y()/1000., 
@@ -471,8 +461,8 @@ int ALFA_BeamTransport::TransportSelectedParticle(HepMC::GenEvent* evt, int evt_
      
      HepMC::FourVector MomentumVectorRP1 = HepMC::FourVector(MomAtPR1.at(i).x(),MomAtPR1.at(i).y(),MomAtPR1.at(i).z(),EnergyRP1.at(i));
      
-     	HepMC::GenVertex* VertexRP1 = new HepMC::GenVertex(PositionVectorRP1);
-     	HepMC::GenParticle* ParticleRP1 = new HepMC::GenParticle(MomentumVectorRP1,2212,1); //save the transported particle with status code 1 (added 120124) preview was 201
+     	HepMC::GenVertexPtr VertexRP1 = HepMC::newGenVertexPtr(PositionVectorRP1);
+     	HepMC::GenParticlePtr ParticleRP1 = HepMC::newGenParticlePtr(MomentumVectorRP1,2212,1); //save the transported particle with status code 1 (added 120124) preview was 201
      	//Add particle to vertex
      	VertexRP1->add_particle_out(ParticleRP1);
      	//add new vertex to HepMC event record
@@ -491,8 +481,8 @@ int ALFA_BeamTransport::TransportSelectedParticle(HepMC::GenEvent* evt, int evt_
 	  
 	  HepMC::FourVector MomentumVectorRP3 = HepMC::FourVector(MomAtPR3.at(i).x(),MomAtPR3.at(i).y(),MomAtPR3.at(i).z(),EnergyRP3.at(i));
 	  
-	  HepMC::GenVertex* VertexRP3 = new HepMC::GenVertex(PositionVectorRP3);
-	  HepMC::GenParticle* ParticleRP3 = new HepMC::GenParticle(MomentumVectorRP3,2212,1);//save the transported particle with status code 1 (added 120124) preview was 201 
+	  HepMC::GenVertexPtr VertexRP3 = HepMC::newGenVertexPtr(PositionVectorRP3);
+	  HepMC::GenParticlePtr ParticleRP3 = HepMC::newGenParticlePtr(MomentumVectorRP3,2212,1);//save the transported particle with status code 1 (added 120124) preview was 201 
 	  
 	  VertexRP3->add_particle_out(ParticleRP3);
 	  

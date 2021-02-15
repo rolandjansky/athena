@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <string>
@@ -20,17 +20,16 @@
 
 #include <ctime>
 
-// Suppress a gcc8 warning from boost.
+// Suppress a warning from boost.
 // (Binaries apparently include boost with -I rather than -isystem.)
-// Fixed in boost 1.68 (see https://github.com/boostorg/mpl/issues/31)
-#ifdef __GNUC__
-# pragma GCC diagnostic push
-# pragma GCC diagnostic ignored "-Wparentheses"
+#ifdef __clang__
+# pragma clang diagnostic push
+# pragma clang diagnostic ignored "-Wc11-extensions"
 #endif
 #include "boost/program_options.hpp"
 namespace po = boost::program_options;
-#ifdef __GNUC__
-# pragma GCC diagnostic pop
+#ifdef __clang__
+# pragma clang diagnostic pop
 #endif
 
 #include "CoralDB/CoralDB.h"

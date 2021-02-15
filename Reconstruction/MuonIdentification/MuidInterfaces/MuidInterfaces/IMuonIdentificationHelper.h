@@ -4,7 +4,6 @@
 
 ///////////////////////////////////////////////////////////////////
 //
-// IMuonIdentificationHelper.h, (c) ATLAS Combined Muon software
 //
 //   tools used during combined Track, Particle and Muon creation
 //

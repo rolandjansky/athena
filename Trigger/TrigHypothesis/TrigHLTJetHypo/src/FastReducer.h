@@ -1,16 +1,19 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGHLTJETHYPO_FASTREDUCER_H
 #define TRIGHLTJETHYPO_FASTREDUCER_H
 
-#include "./CapacityCheckedConditionsDefs.h"
+#include "./RepeatedConditionsDefs.h"
 #include "./Tree.h"
 #include "./JetGroupProduct.h"
-#include "./JetGroupIndAllocator.h"
 #include "./xAODJetCollector.h"
+#include "./ITrigJetHypoInfoCollector.h"
+#include "./JetGroupRegister.h"
+#include "./ConditionFilter.h"
 #include <string>
+#include <map>
 
 using TreeVec = std::vector<std::size_t>;
 using IDJetGroup = std::map<std::size_t, HypoJetVector>;
@@ -21,17 +24,17 @@ typedef std::unique_ptr<ITrigJetHypoInfoCollector> Collector;
 */
 
 using JetGroupInd2ElemInds = std::map<int, std::vector<std::size_t>>;
+using  ConditionFilters = std::vector<std::unique_ptr<ConditionFilter>>;
 
-class ITrigJetHypoInfoCollector;
 
 class FastReducer {
  public:
 
-  FastReducer(const HypoJetGroupCIter& groups_b,
-              const HypoJetGroupCIter& groups_e,
+  FastReducer(const HypoJetCIter& jets_b,
+              const HypoJetCIter& jets_e,
               const ConditionPtrs& conditionObjects,
+	      const ConditionFilters& conditionFilters,
               const Tree& conditionsTree,
-              const std::vector<std::vector<int>>& sharedConditions,
               xAODJetCollector& jetCollector,
               const Collector& collector);
 
@@ -46,7 +49,12 @@ class FastReducer {
 
  private:
 
+  // conditions owned by the matcher
   const ConditionPtrs& m_conditions;
+  std::vector<std::size_t> m_conditionMult;
+
+  // conditionFilters owned by the matcher
+  const ConditionFilters& m_conditionFilters;
 
   /** tree structure for Conditions objects.
    The conditions tree gives relations among conditions (eg parent-child
@@ -55,13 +63,7 @@ class FastReducer {
   
   Tree m_tree;
 
-  /** A vector of shared Condition indices. All shared Conditions are leaf
-   Conditions  that see the jet icoming jets.
-  */
-  
-  std::vector<std::vector<int>> m_sharedConditions;
-
-  // map Condition index onto a list of indices of satisfying job groups.
+  // map Condition index onto a list of indices of satisfying jet groups.
   CondInd2JetGroupsInds m_satisfiedBy;
 
   /** map Condition index onto a set of indices the condition
@@ -82,16 +84,14 @@ class FastReducer {
 
   HypoJetVector m_passingJets;
 
-  JetGroupIndAllocator m_jgIndAllocator;
-  
+  JetGroupRegister m_jgRegister;
   /** set up the data structures for propagation. Propagation is the
    act of combining jet groups satisfying children
    in preparration for testing against parent conditions.
   */
   
-  bool findInitialJetGroups(const std::vector<int>& leaves,
-			    const HypoJetGroupCIter& groups_b,
-			    const HypoJetGroupCIter& groups_e,
+  bool findInitialJetGroups(const HypoJetCIter& jets_b,
+			    const HypoJetCIter& jets_e,
 			    const Collector& collector);
   
   
@@ -108,7 +108,12 @@ class FastReducer {
   
   void recordJetGroup(std::size_t ind,
 		      const HypoJetVector& jg,
-		      const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const;
+		      const Collector& collector) const;
+
+  void recordFiltering(std::size_t leaf_ind,
+		       std::size_t n_inputjets,
+		       int n_filteredjets,
+		       const Collector& collector) const;
 
   void collectLeafJets(xAODJetCollector& jetCollector,
 		       const Collector& collector) const;

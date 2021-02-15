@@ -23,7 +23,5 @@ ServiceManager      FATAL No Service factory for AtlasTrackingGeometrySvc availa
 ToolSvc.Trk::Ex...  ERROR ServiceLocatorHelper::service: can not locate service AtlasTrackingGeometrySvc
 ToolSvc.Trk::Ex...WARNING Couldn't retrieve TrackingGeometrySvc = ServiceHandle('AtlasTrackingGeometrySvc'). 
 ToolSvc.Trk::Ex...WARNING  -> Trying to retrieve default 'AtlasTrackingGeometry' from DetectorStore.
-ToolSvc.AtlasMu...   INFO initialize() successful
 ClassIDSvc           INFO  getRegistryEntries: read 113 CLIDRegistry entries for module ALL
-ToolSvc.Trk::Ex...   INFO initialize() successful
 test1

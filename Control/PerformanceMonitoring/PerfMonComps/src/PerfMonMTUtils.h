@@ -191,6 +191,8 @@ struct MeasurementData {
 
   event_meas_map_t getEventLevelData() const { return m_eventLevel_delta_map; }
 
+  unsigned long getNMeasurements() const { return m_eventLevel_delta_map.size(); }
+
   double getEventLevelCpuTime(unsigned long long event_count) const {
     return m_eventLevel_delta_map.at(event_count).cpu_time;
   }

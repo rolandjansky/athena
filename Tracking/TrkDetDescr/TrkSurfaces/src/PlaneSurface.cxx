@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -57,6 +57,8 @@ Trk::PlaneSurface::PlaneSurface(const Amg::Vector3D& position, const Curvilinear
   Trk::Surface::m_transform = std::make_unique<Amg::Transform3D>();
   (*Trk::Surface::m_transform) = curvilinearRotation;
   Trk::Surface::m_transform->pretranslate(position);
+  Trk::Surface::m_center = std::make_unique<Amg::Vector3D>(m_transform->translation());
+  Trk::Surface::m_normal = std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2));
 }
 
 // construct form TrkDetElementBase
@@ -65,6 +67,12 @@ Trk::PlaneSurface::PlaneSurface(const Trk::TrkDetElementBase& detelement, Amg::T
   , m_bounds()
 {
   m_transform=std::unique_ptr<Amg::Transform3D>(transf);
+  if (m_transform) {
+    Trk::Surface::m_center =
+      std::make_unique<Amg::Vector3D>(m_transform->translation());
+    Trk::Surface::m_normal =
+      std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2));
+  }
 }
 
 // construct form SiDetectorElement
@@ -75,6 +83,12 @@ Trk::PlaneSurface::PlaneSurface(const Trk::TrkDetElementBase& detelement,
   , m_bounds()
 {
   m_transform=std::unique_ptr<Amg::Transform3D>(transf);
+  if (m_transform) {
+    Trk::Surface::m_center =
+      std::make_unique<Amg::Vector3D>(m_transform->translation());
+    Trk::Surface::m_normal =
+      std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2));
+  }
 }
 
 // construct planar surface without bounds

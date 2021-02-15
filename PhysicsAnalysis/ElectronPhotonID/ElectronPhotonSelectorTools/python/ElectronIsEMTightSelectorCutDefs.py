@@ -4,7 +4,7 @@
 # This one is used for tight++ menu
 
 # Import a needed helper
-from PATCore.HelperUtils import *
+from PATCore.HelperUtils import GetTool
 
 
 # Define GeV

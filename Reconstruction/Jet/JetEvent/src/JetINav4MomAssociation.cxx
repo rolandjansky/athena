@@ -4,8 +4,6 @@
 
 #include "JetEvent/JetINav4MomAssociation.h"
 
-#include "JetEvent/JetINav4MomAssociation.h"
-
 JetINav4MomAssociation::JetINav4MomAssociation()
 {  } 
   

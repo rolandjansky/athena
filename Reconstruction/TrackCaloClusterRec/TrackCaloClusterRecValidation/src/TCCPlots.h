@@ -13,7 +13,6 @@
 #include "TCCPlotsBase.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
-#include "xAODTracking/TrackParticleContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODPFlow/TrackCaloClusterContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"

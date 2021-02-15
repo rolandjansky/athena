@@ -28,7 +28,7 @@
 
 class TriggerEDMDeserialiserAlg::WritableAuxStore : public SG::AuxStoreInternal {
 public:
-  WritableAuxStore() {}
+  WritableAuxStore() = default;
   using SG::AuxStoreInternal::addVector;
 };
 
@@ -44,10 +44,10 @@ namespace  {
   const std::type_info* getElementType ( const std::string& tname,
 					 std::string& elementTypeName ) {
     TClass* cls = TClass::GetClass( tname.c_str() );
-    if ( !cls ) return nullptr;
+    if ( cls == nullptr ) return nullptr;
     TVirtualCollectionProxy* prox = cls->GetCollectionProxy();
-    if ( !prox ) return nullptr;
-    if ( prox->GetValueClass() ) {
+    if ( prox == nullptr ) return nullptr;
+    if ( prox->GetValueClass() != nullptr ) {
       elementTypeName = prox->GetValueClass()->GetName();
       return prox->GetValueClass()->GetTypeInfo();
     }
@@ -68,11 +68,72 @@ namespace  {
   
 }
 
+/**
+ * Collection of helper functions for raw pointer operations on the bytestream payload
+ *
+ * Most functions can be constexpr if the compiler implements ConstexprIterator (P0858R0)
+ * Tested it works in clang9+ regardless of --std flag and in gcc10+ only with --std=c++20
+ * TODO: Remove the C++ version checks when the release is built with --std=c++20 or newer
+ */
+namespace PayloadHelpers {
+  using TDA = TriggerEDMDeserialiserAlg;
+
+  /// CLID of the collection stored in the next fragment
+  #if __cpp_lib_array_constexpr >= 201811L || __clang_major__ >= 9
+  constexpr
+  #endif
+  CLID collectionCLID(TDA::PayloadIterator start) {
+    return *( start + TDA::CLIDOffset );
+  }
+
+  /// Length of the serialised name payload
+  #if __cpp_lib_array_constexpr >= 201811L || __clang_major__ >= 9
+  constexpr
+  #endif
+  size_t nameLength(TDA::PayloadIterator start) {
+    return *( start + TDA::NameLengthOffset );
+  }
+
+  /// Size in bytes of the buffer that is needed to decode next fragment data content
+  #if __cpp_lib_array_constexpr >= 201811L || __clang_major__ >= 9
+  constexpr
+  #endif
+  size_t dataSize(TDA::PayloadIterator start) {
+    return *( start + TDA::NameOffset + nameLength(start) );
+  }
+
+  /**
+   * Returns starting point of the next fragment, can be == end()
+   *
+   * Intended to be used like this: start = advance(start); if ( start != data.end() )... decode else ... done
+   **/
+  #if __cpp_lib_array_constexpr >= 201811L || __clang_major__ >= 9
+  constexpr
+  #endif
+  TDA::PayloadIterator toNextFragment(TDA::PayloadIterator start) {
+    return start + (*start); // point ahead by the number of words pointed to by start iterator
+  }
+
+  /// String description of the collection stored in the next fragment, returns persistent type name and the SG key
+  std::vector<std::string> collectionDescription(TDA::PayloadIterator start) {
+    StringSerializer ss;
+    std::vector<std::string> labels;
+    ss.deserialize( start + TDA::NameOffset, start + TDA::NameOffset + nameLength(start), labels );
+    return labels;
+  }
+
+  /// Copies fragment to the buffer, no size checking, use @c dataSize to do so
+  void toBuffer(TDA::PayloadIterator start, char* buffer) {
+    // move to the beginning of the buffer memory
+    TDA::PayloadIterator dataStart =  start + TDA::NameOffset + nameLength(start) + 1 /*skip size*/;
+    // we rely on continuous memory layout of std::vector ...
+    std::memcpy( buffer, &(*dataStart), dataSize(start) );
+  }
+}
+
 
 TriggerEDMDeserialiserAlg::TriggerEDMDeserialiserAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthReentrantAlgorithm(name, pSvcLocator) {}
-
-TriggerEDMDeserialiserAlg::~TriggerEDMDeserialiserAlg() {}
 
 StatusCode TriggerEDMDeserialiserAlg::initialize() {
   ATH_CHECK( m_resultKey.initialize() );
@@ -90,14 +151,16 @@ StatusCode TriggerEDMDeserialiserAlg::finalize() {
 StatusCode TriggerEDMDeserialiserAlg::execute(const EventContext& context) const {    
 
   auto resultHandle = SG::makeHandle( m_resultKey, context );
-  if ( resultHandle.isValid() )
-    ATH_MSG_DEBUG("Obtained HLTResultMT " << m_resultKey.key() );
+  if ( not resultHandle.isValid() ) {
+    ATH_MSG_ERROR("Failed to obtain HLTResultMT with key " << m_resultKey.key());
+    return StatusCode::FAILURE;
+  }
+  ATH_MSG_DEBUG("Obtained HLTResultMT with key " << m_resultKey.key());
   
   const Payload* dataptr = nullptr;
-  // TODO: check if there are use cases where result may be not available in some events and this is not an issue at all
   if ( resultHandle->getSerialisedData( m_moduleID, dataptr ).isFailure() ) {
-    ATH_MSG_WARNING("No payload available with moduleId " << m_moduleID << " in this event");
-    return StatusCode::SUCCESS;
+    ATH_MSG_ERROR("No payload available with moduleId " << m_moduleID << " in this event");
+    return StatusCode::FAILURE;
   }
   ATH_CHECK( deserialise( dataptr ) );
   return StatusCode::SUCCESS;
@@ -106,13 +169,13 @@ StatusCode TriggerEDMDeserialiserAlg::execute(const EventContext& context) const
 StatusCode TriggerEDMDeserialiserAlg::deserialise(   const Payload* dataptr  ) const {
 
   size_t  buffSize = m_initialSerialisationBufferSize;
-  std::unique_ptr<char[]> buff( new char[buffSize] );
+  std::unique_ptr<char[]> buff = std::make_unique<char[]>(buffSize);
 
   // returns a char* buffer that is at minimum as large as specified in the argument
-  auto resize = [&]( size_t neededSize )  {
+  auto resize = [&buffSize, &buff]( const size_t neededSize ) -> void {
 		  if ( neededSize > buffSize ) {
 		    buffSize = neededSize;
-		    buff.reset( new char[buffSize] );
+		    buff = std::make_unique<char[]>(buffSize);
 		  }
 		};  
 
@@ -127,21 +190,21 @@ StatusCode TriggerEDMDeserialiserAlg::deserialise(   const Payload* dataptr  ) c
   PayloadIterator start = dataptr->begin();
   while ( start != dataptr->end() )  {
     fragmentCount++;
-    const CLID clid{ collectionCLID( start ) };
+    const CLID clid{ PayloadHelpers::collectionCLID( start ) };
     std::string transientTypeName;
     ATH_CHECK( m_clidSvc->getTypeNameOfID( clid, transientTypeName ) );
-    const std::vector<std::string> descr{ collectionDescription( start ) };
+    const std::vector<std::string> descr{ PayloadHelpers::collectionDescription( start ) };
     ATH_CHECK( descr.size() == 2 );
     std::string persistentTypeName{ descr[0] };
     const std::string key{ descr[1] };
-    const size_t bsize{ dataSize( start ) };
+    const size_t bsize{ PayloadHelpers::dataSize( start ) };
 
     ATH_MSG_DEBUG( "" );
     ATH_MSG_DEBUG( "fragment: " << fragmentCount << " type: "<< transientTypeName << " persistent type: " <<  persistentTypeName << " key: " << key << " size: " << bsize );
     resize( bsize );
-    toBuffer( start, buff.get() );
+    PayloadHelpers::toBuffer( start, buff.get() );
 
-    start = toNextFragment( start ); // point the start to the next chunk, irrespectively of what happens in deserialisation below
+    start = PayloadHelpers::toNextFragment( start ); // point the start to the next chunk, irrespectively of what happens in deserialisation below
         
     RootType classDesc = RootType::ByNameNoQuiet( persistentTypeName );
     ATH_CHECK( classDesc.IsComplete() );
@@ -263,7 +326,8 @@ StatusCode TriggerEDMDeserialiserAlg::checkSanity( const std::string& transientT
   if ( count == 0 ) {
     ATH_MSG_ERROR( "Could not recognise the kind of container " << transientTypeName );
     return StatusCode::FAILURE;
-  } else if (count > 1 ) {
+  }
+  if (count > 1 ) {
     ATH_MSG_ERROR( "Ambiguous container kind deduced from the transient type name " << transientTypeName );
     ATH_MSG_ERROR( "Recognised type as: " 
 		   << (isxAODInterfaceContainer ?" xAOD Interface Context":"" ) 
@@ -276,26 +340,6 @@ StatusCode TriggerEDMDeserialiserAlg::checkSanity( const std::string& transientT
 }
 
 
-size_t TriggerEDMDeserialiserAlg::nameLength( TriggerEDMDeserialiserAlg::PayloadIterator start ) const {
-  return *( start + NameLengthOffset);
-}
-
-std::vector<std::string> TriggerEDMDeserialiserAlg::collectionDescription( TriggerEDMDeserialiserAlg::PayloadIterator start ) const {
-  StringSerializer ss;
-  std::vector<std::string> labels;
-  ss.deserialize( start + NameOffset, start + NameOffset + nameLength(start), labels );
-  return labels;
-}
-size_t TriggerEDMDeserialiserAlg::dataSize( TriggerEDMDeserialiserAlg::PayloadIterator start ) const {
-  return *( start + NameOffset + nameLength( start ) );
-}
-
-void TriggerEDMDeserialiserAlg::toBuffer( TriggerEDMDeserialiserAlg::PayloadIterator start, char* buffer ) const {
-  // move to the beginning of the buffer memory
-  PayloadIterator dataStart =  start + NameOffset + nameLength(start) + 1 /*skip size*/;
-  // we rely on continuous memory layout of std::vector ...
-  std::memcpy( buffer, &(*dataStart), dataSize( start ) );
-}
 
 void TriggerEDMDeserialiserAlg::add_bs_streamerinfos(){
   std::string extStreamerInfos = "bs-streamerinfos.root";
@@ -313,8 +357,9 @@ void TriggerEDMDeserialiserAlg::add_bs_streamerinfos(){
     TStreamerInfo* inf = dynamic_cast<TStreamerInfo*>(infObj);
     inf->BuildCheck();
     TClass *cl = inf->GetClass();
-    if (cl)
+    if (cl != nullptr) {
       ATH_MSG_DEBUG( "external TStreamerInfo for " << cl->GetName()
 		     << " checksum: " << std::hex << inf->GetCheckSum()  );
+    }
   }
 }

@@ -25,9 +25,6 @@
 #include "TrkSurfaces/Surface.h"
 
 
-#include "TrkParameters/TrackParameters.h"
-
-
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/VertexContainer.h"
 

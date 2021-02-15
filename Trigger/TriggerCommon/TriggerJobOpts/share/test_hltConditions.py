@@ -6,7 +6,7 @@
 # deployment in the online DB.
 #
 # Usage:
-#  athena.py -c "sqlite='noise.db'" TriggerJobOpts/test_hltConditions.py
+#  athena.py --threads=1 -c "sqlite='noise.db'" TriggerJobOpts/test_hltConditions.py
 #  - Other options can be found below
 #
 # Author: Frank Winklmeier
@@ -22,9 +22,10 @@ if 'folder' not in dir():
    folder = '/CALO/Noise/CellNoise'
 
 # No updates required past this point
-testCurrentMenu=True
-EvtMax=10
-BSRDOInput='/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/atn-test/data16_13TeV.00307126.physics_eb_zmm_egz.merged.RAW.selected._0001.data'
+from AthenaCommon.AppMgr import theApp
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+theApp.EvtMax = 10
+athenaCommonFlags.FilesInput = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.merge.RAW._lb0151._SFO-1._0001.1']
 
 from AthenaCommon.Include import include
 myfolder = folder  # 'folder' seems to be overwritten somewhere in the include
@@ -32,12 +33,11 @@ include('TriggerJobOpts/runHLT_standalone.py')
 folder = myfolder
 
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-from IOVDbSvc.CondDB import conddb  # noqa: F401 configuration by import, old Run-2 job options
-svcMgr.IOVDbSvc.forceRunNumber = 9999999
-
+from IOVDbSvc.CondDB import conddb
 sqlite_tmp = 'cool_tmp.db'
 tag = svcMgr.IOVDbSvc.GlobalTag
 conddb.addMarkup(folder,'<db>sqlite://;schema=%s;dbname=CONDBR2</db>' % sqlite_tmp)
+conddb.addMarkup(folder,'<forceRunNumber>%d</forceRunNumber>' % 9999999 )
 
 import os
 import sys

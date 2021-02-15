@@ -26,11 +26,7 @@
 #include "GaudiKernel/IIncidentListener.h" 
 #include "AthenaKernel/IOVSvcDefs.h"
 
-//  #include "LArCondCnv/ExampleData.h" 
-//  #include "LArCondCnv/ExampleDataRamp.h" 
-#include "LArElecCalib/ILArRamp.h" 
 #include "StoreGate/DataHandle.h"
-//#include "AthenaKernel/IOVSvcDefs.h" 
 #include "StoreGate/ReadCondHandleKey.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "LArRecConditions/LArCalibLineMapping.h"

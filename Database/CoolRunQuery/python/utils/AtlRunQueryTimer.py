@@ -60,8 +60,9 @@ class TimerStats:
                 continue
             try:
                 idx = cur.subcounts.index(n)
+                print ('index', idx)
                 cur = cur.subcounts[idx]
-            except IndexError:
+            except ValueError:
                 cur.subcounts += [TimeCount(n)]
                 cur = cur.subcounts[-1]
         cur.totaltime += exectime

@@ -187,37 +187,57 @@ const Trk::SurfaceBounds& TRT_BarrelElement::strawBounds() const
 
 const Trk::Surface& TRT_BarrelElement::elementSurface() const
 {
-  if (not m_surface) m_surface.set(std::make_unique<Trk::PlaneSurface>(*this));
+  if (not m_surface) {
+    m_surface.set(std::make_unique<Trk::PlaneSurface>(*this));
+  }
   return *m_surface;
 }
 
 void TRT_BarrelElement::createSurfaceCache() const
 {
+ // create the surface cache
+ if (!m_surfaceCache) {
+   m_surfaceCache.set(createSurfaceCacheHelper());
+ }
+ // creaete the surface (only if needed, links are still ok even if cache
+ // update)
+ if (!m_surface) {
+   elementSurface();
+ }
+}
+std::unique_ptr<SurfaceCache>
+TRT_BarrelElement::createSurfaceCacheHelper() const{
+
   // Calculate the surface from the two end straws.
   int firstStraw = 0;
   int lastStraw = nStraws() - 1;
 
-  const Amg::Vector3D& centerFirstStraw = center(m_idHelper->straw_id(identify(), firstStraw));
-  const Amg::Vector3D& centerLastStraw  = center(m_idHelper->straw_id(identify(), lastStraw));
+  const Amg::Vector3D& centerFirstStraw =
+    center(m_idHelper->straw_id(identify(), firstStraw));
+  const Amg::Vector3D& centerLastStraw =
+    center(m_idHelper->straw_id(identify(), lastStraw));
 
   // Calculate center as the average position of the end straws.
-  Amg::Vector3D* center = new Amg::Vector3D(0.5*(centerFirstStraw+centerLastStraw));
+  auto center =
+    std::make_unique<Amg::Vector3D>(0.5 * (centerFirstStraw + centerLastStraw));
 
-  Amg::Vector3D  phiAxis = centerLastStraw - centerFirstStraw;
+  Amg::Vector3D phiAxis = centerLastStraw - centerFirstStraw;
   double width = phiAxis.mag();
   phiAxis = phiAxis.normalized();
-  double elementWidth = width + 2 * m_descriptor->innerTubeRadius(); // Add the straw tube radius
+  double elementWidth =
+    width + 2 * m_descriptor->innerTubeRadius(); // Add the straw tube radius
 
-  // Get local z-axis. This is roughly in +ve global z direction  (exactly if no misalignment)
-  // We could probably use any straw for this but we average the first and last straw and renormalize
-  // to a unit vector.
-  Amg::Vector3D etaAxis = 0.5*(strawAxis(firstStraw) + strawAxis(lastStraw));
+  // Get local z-axis. This is roughly in +ve global z direction  (exactly if no
+  // misalignment) We could probably use any straw for this but we average the
+  // first and last straw and renormalize to a unit vector.
+  Amg::Vector3D etaAxis = 0.5 * (strawAxis(firstStraw) + strawAxis(lastStraw));
   etaAxis = etaAxis.normalized();
 
   // Calculate normal. This will point away from the beam line based
   // on the assumption that the straw numbering goes in the direction
   // of increasing phi and the straw axis is in +ve z direction.
-  Amg::Vector3D* normal = new Amg::Vector3D(phiAxis.cross( etaAxis ));  // phi cross z
+  auto normal =
+    std::make_unique<Amg::Vector3D>(phiAxis.cross(etaAxis)); // phi cross z
 
   // Transform from local to global.
   // local x axis -> phiAxis
@@ -226,26 +246,24 @@ void TRT_BarrelElement::createSurfaceCache() const
   // translation -> center
 
   // This constructor takes three points in the two coordinate systems.
-  Amg::Transform3D* transform = new Amg::Transform3D();
+  auto transform = std::make_unique<Amg::Transform3D>();
 
   Amg::RotationMatrix3D rotation;
   rotation.col(0) = phiAxis;
   rotation.col(1) = etaAxis;
   rotation.col(2) = (*normal);
 
-  (*transform)  = Amg::Translation3D(*center) * rotation;
+  (*transform) = Amg::Translation3D(*center) * rotation;
 
   // create the element bounds
-  Trk::RectangleBounds * elementBounds = new Trk::RectangleBounds(0.5*elementWidth, 0.5*strawLength());
-  // create the surface cache
-  m_surfaceCache.set(std::make_unique<SurfaceCache>(transform, center, normal, elementBounds));
+  auto elementBounds = std::make_unique<Trk::RectangleBounds>(
+    0.5 * elementWidth, 0.5 * strawLength());
 
-  // creaete the surface (only if needed, links are still ok even if cache update)
-  if (not m_surface) {
-    elementSurface();
-  }
+  return std::make_unique<SurfaceCache>(transform.release(),
+                                        center.release(),
+                                        normal.release(),
+                                        elementBounds.release());
 }
-
 
 int TRT_BarrelElement::strawDirection() const
 {

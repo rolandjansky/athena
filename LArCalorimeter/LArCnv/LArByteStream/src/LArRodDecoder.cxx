@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation of LArRodDecoder class 
@@ -31,33 +31,20 @@
 #include <fstream>
 
 #include "LArRawConditions/LArCalibParams.h"
+#include "LArRecConditions/LArCalibLineMapping.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 static const InterfaceID IID_ILArRodDecoder
             ("LArRodDecoder", 1, 0);
 
 LArRodDecoder::LArRodDecoder ( const std::string& type, const std::string& name,const IInterface* parent )
   : AthAlgTool(type,name,parent),
-    m_larblockstruct(0),
-    m_larCablingSvc("LArCablingLegacyService"),
     m_LArCellEthreshold(-100.),
     m_larCell(false), 
     m_readtdc(false),
     m_onlineHelper(0),
     m_doBadChanMasking(false),
-    m_badChannelMasker(0),
-    m_rodTranspV0(0),
-    m_rodCalibV0(0),
-    m_rodCalibV1(0),
-    m_rodCalibV2(0),
-    m_rodCalibV3(0),
-    m_rodAccumV3(0),
-    m_rodPhysicsV0(0),
-    m_rodPhysicsV1(0),
-    m_rodPhysicsV2(0),
-    m_rodPhysicsV3(0),
-    m_rodPhysicsV4(0),
-    m_rodPhysicsV5(0),
-    m_rodPhysicsV6(0)
+    m_badChannelMasker(0)
  {
   declareInterface< LArRodDecoder  >( this );
   declareProperty("IgnoreCheckFEBs",m_IgnoreCheckFEBs);
@@ -89,7 +76,7 @@ const InterfaceID& LArRodDecoder::interfaceID( )
 { return IID_ILArRodDecoder;  }
 
 StatusCode
-LArRodDecoder::initialize()
+LArRodDecoder::initialize ATLAS_NOT_THREAD_SAFE ()
 {
  // Before anything, access message service
   m_StatusNMask = !m_StatusMask;
@@ -108,12 +95,6 @@ LArRodDecoder::initialize()
     return sc;
    }
   
-  sc=m_larCablingSvc.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to retrieve LArCablingLegacyService" << endmsg;
-    return StatusCode::FAILURE;
-  }
-  
  sc = toolSvc->retrieveTool("LArBadChannelMasker/LArRodDecoder_Masker", m_badChannelMasker);
  if(sc.isFailure()) {
    msg(MSG::ERROR) << "Failed to retrieve the LArBadChannelMasker named 'LArRodDecoder_Masker'." << endmsg;
@@ -131,14 +112,12 @@ LArRodDecoder::initialize()
     ListItem li(*it);
     if((toolSvc->retrieveTool(li.type(), li.name(), tool)).isFailure() ) 
       {msg(MSG::ERROR) << " Can't get AlgTool for CaloCellCorrection " << endmsg;
-      //std::cout << " Can't get AlgTool for CaloCellCorrection\n ";
        return StatusCode::FAILURE; 
       }
 
     corr = dynamic_cast<CaloCellCorrection*> (tool); 
     if(!corr  ) 
       {msg(MSG::ERROR) << " Can't d-cast to CaloCellCorrection*  " << endmsg;
-      //std::cout << " Can't d-cast to CaloCellCorrection* \n";
        return StatusCode::FAILURE; 
       }
     m_LArCellCorrTools.push_back(corr); 
@@ -153,107 +132,6 @@ LArRodDecoder::initialize()
      m_makeCell.setThreshold(m_LArCellEthreshold);
      m_makeCell.initialize( roiMap, &m_LArCellCorrTools ); 
    }	
-
-   //Fill Map for RodBlockStructure/Version number
-   m_BlStructArray.resize(12); //Reserve space for 11 block types some of the do not (yet) exist.
-
-   m_rodTranspV0  = (LArRodBlockStructure *) new LArRodBlockTransparentV0<LArRodBlockHeaderTransparentV0>;
-   m_rodCalibV0   = (LArRodBlockStructure *) new LArRodBlockCalibrationV0<LArRodBlockHeaderCalibrationV0>;
-   m_rodCalibV1   = (LArRodBlockStructure *) new LArRodBlockCalibrationV1;
-   m_rodCalibV2   = (LArRodBlockStructure *) new LArRodBlockCalibrationV2;
-   m_rodCalibV3   = (LArRodBlockStructure *) new LArRodBlockCalibrationV3;
-   m_rodAccumV3   = (LArRodBlockStructure *) new LArRodBlockAccumulatedV3;
-   m_rodPhysicsV0 = (LArRodBlockStructure *) new LArRodBlockPhysicsV0;
-   m_rodPhysicsV1 = (LArRodBlockStructure *) new LArRodBlockPhysicsV1;
-   m_rodPhysicsV2 = (LArRodBlockStructure *) new LArRodBlockPhysicsV2;
-   m_rodPhysicsV3 = (LArRodBlockStructure *) new LArRodBlockPhysicsV3;
-   m_rodPhysicsV4 = (LArRodBlockStructure *) new LArRodBlockPhysicsV4;
-   m_rodPhysicsV5 = (LArRodBlockStructure *) new LArRodBlockPhysicsV5;
-   m_rodPhysicsV6 = (LArRodBlockStructure *) new LArRodBlockPhysicsV6;
-   // Only implemented for physics V5
-   if (m_requiredPhysicsNSamples > 0) {
-	((LArRodBlockPhysicsV5*)m_rodPhysicsV5)->setRequiredNSamples(m_requiredPhysicsNSamples);
-	((LArRodBlockPhysicsV6*)m_rodPhysicsV6)->setRequiredNSamples(m_requiredPhysicsNSamples);
-   }
-   //m_BlStructArray[0].push_back();                               // obsolete old type
-   //m_BlStructArray[1] does not exists
-
-   // RodBlockType 2 = Transparent mode only
-   m_BlStructArray[2].push_back(m_rodTranspV0);  //0  Transparent mode v0 05.01.2004
-   m_BlStructArray[2].push_back(m_rodTranspV0);  //1  Transparent mode v0
-   m_BlStructArray[2].push_back(m_rodTranspV0);  //2  Transparent mode v0
-   m_BlStructArray[2].push_back(m_rodTranspV0);  //3  Transparent mode v0
-   m_BlStructArray[2].push_back(m_rodTranspV0);  //4  Transparent mode v0
-   m_BlStructArray[2].push_back(m_rodCalibV1);   //5  Calibration (Transparent mode) v1 17.01.2006
-   m_BlStructArray[2].push_back(m_rodCalibV3);   //6  Calibration (Transparent mode) v3 31.05.2006
-   m_BlStructArray[2].push_back(m_rodCalibV3);   //7  Calibration (Transparent mode) v3
-   m_BlStructArray[2].push_back(m_rodCalibV3);   //8  Calibration (Transparent mode) v3
-   m_BlStructArray[2].push_back(m_rodCalibV3);   //9  Calibration (Transparent mode) v3
-   m_BlStructArray[2].push_back(m_rodCalibV3);   //10 Calibration (Transparent mode) v3
-   m_BlStructArray[2].push_back(m_rodCalibV3);   //11 Calibration (Transparent mode) v3
-   m_BlStructArray[2].push_back(m_rodCalibV3);   //12 Calibration (Transparent mode) v3
-
-   // RodBlockType 3 = Test mode
-   m_BlStructArray[3].push_back(m_rodTranspV0);  //Test mode (same output as above)
-
-   // RodBlockType 4 = Physics mode
-   m_BlStructArray[4].push_back(m_rodPhysicsV0); //0  Physics mode v0 05.01.2004 first draft
-   m_BlStructArray[4].push_back(m_rodPhysicsV1); //1  Physics mode v1 19.08.2004 only small differences
-   m_BlStructArray[4].push_back(m_rodPhysicsV2); //2  Physics mode v2 05.10.2004 adapted to real DSP data
-   m_BlStructArray[4].push_back(m_rodPhysicsV2); //3  Physics mode v2 
-   m_BlStructArray[4].push_back(m_rodPhysicsV2); //4  Physics mode v2 
-   m_BlStructArray[4].push_back(m_rodPhysicsV2); //5  Physics mode v2 
-   m_BlStructArray[4].push_back(m_rodPhysicsV2); //6  Physics mode v2 
-   m_BlStructArray[4].push_back(m_rodPhysicsV2); //7  Physics mode v2 
-   m_BlStructArray[4].push_back(m_rodPhysicsV2); //8  Physics mode v2 
-   m_BlStructArray[4].push_back(m_rodPhysicsV4); //9  Physics mode v4 10.07.2007 for commissioning
-   m_BlStructArray[4].push_back(m_rodPhysicsV5); //10 Physics mode v5 16.06.2008 for LHC 
-   m_BlStructArray[4].push_back(m_rodPhysicsV5); //11 Physics mode v5 16.06.2008 for LHC 
-   m_BlStructArray[4].push_back(m_rodPhysicsV6); //12 Physics mode v5 09.03.2011 for LHC 
-
-   // RodBlockType 5 = Physics simulation mode
-   m_BlStructArray[5].push_back(m_rodPhysicsV3); //0  Physics mode v3 11.04.2005 for simulation
-
-   // RodBlockType 6 = Physics test mode
-   m_BlStructArray[6].push_back(m_rodPhysicsV0); //1  Physics mode v0 05.01.2004 first draft
-   m_BlStructArray[6].push_back(m_rodPhysicsV2); //2  Physics mode v2 05.10.2004 adapted to real DSP data
-   m_BlStructArray[6].push_back(m_rodPhysicsV2); //3  Physics mode v2
-
-   // RodBlockType 7 = Calibration mode
-   m_BlStructArray[7].push_back(m_rodCalibV0);  //0  Calibration mode v0  05.01.2004
-   m_BlStructArray[7].push_back(m_rodCalibV1);  //1  Calibration mode v1  17.01.2006
-   m_BlStructArray[7].push_back(m_rodCalibV1);  //2  Calibration mode v1 
-   m_BlStructArray[7].push_back(m_rodCalibV1);  //3  Calibration mode v1
-   m_BlStructArray[7].push_back(m_rodCalibV1);  //4  Calibration mode v1
-   m_BlStructArray[7].push_back(m_rodCalibV2);  //5  Calibration mode v2  26.04.2006
-   m_BlStructArray[7].push_back(m_rodCalibV3);  //6  Calibration mode v3  31.05.2006
-   m_BlStructArray[7].push_back(m_rodCalibV3);  //7  Calibration mode v3
-   m_BlStructArray[7].push_back(m_rodCalibV3);  //8  Calibration mode v3
-   m_BlStructArray[7].push_back(m_rodCalibV3);  //9  Calibration mode v3
-   m_BlStructArray[7].push_back(m_rodCalibV3);  //10 Calibration mode v3
-   m_BlStructArray[7].push_back(m_rodCalibV3);  //11 Calibration mode v3
-   m_BlStructArray[7].push_back(m_rodCalibV3);  //12 Calibration mode v3
-
-   //m_BlStructArray[8] does not exists
-   //m_BlStructArray[9] does not exists
-
-   // RodBlockType 10 = Accumulated mode (used for pre-processed pedestal runs)
-   m_BlStructArray[10].push_back(m_rodAccumV3);  //0  Accumulated mode v3 10.06.2008
-   m_BlStructArray[10].push_back(m_rodAccumV3);  //1  Accumulated mode v3
-   m_BlStructArray[10].push_back(m_rodAccumV3);  //2  Accumulated mode v3
-   m_BlStructArray[10].push_back(m_rodAccumV3);  //3  Accumulated mode v3
-   m_BlStructArray[10].push_back(m_rodAccumV3);  //4  Accumulated mode v3
-   m_BlStructArray[10].push_back(m_rodAccumV3);  //5  Accumulated mode v3
-   m_BlStructArray[10].push_back(m_rodAccumV3);  //6  Accumulated mode v3
-   m_BlStructArray[10].push_back(m_rodAccumV3);  //7  Accumulated mode v3
-   m_BlStructArray[10].push_back(m_rodAccumV3);  //8  Accumulated mode v3
-   m_BlStructArray[10].push_back(m_rodAccumV3);  //9  Accumulated mode v3 
-   m_BlStructArray[10].push_back(m_rodAccumV3);  //10 Accumulated mode v3 
-   m_BlStructArray[10].push_back(m_rodAccumV3);  //11 Accumulated mode v3 
-   m_BlStructArray[10].push_back(m_rodAccumV3);  //12 Accumulated mode v3 
-
-   m_larblockstruct = (LArRodBlockStructure*)NULL;
-
 
    //Build list of preselected Feedthroughs
    if (m_vBEPreselection.size() &&  m_vPosNegPreselection.size() && m_vFTPreselection.size()) {
@@ -289,27 +167,6 @@ LArRodDecoder::initialize()
 
 
 
-StatusCode LArRodDecoder::finalize()
-{ // Clean up matrix of RodBlockStructures
- delete m_rodTranspV0 ;
- delete m_rodCalibV0  ;
- delete m_rodCalibV1  ;
- delete m_rodCalibV2  ;
- delete m_rodCalibV3  ;
- delete m_rodAccumV3  ;
- delete m_rodPhysicsV0;
- delete m_rodPhysicsV1;
- delete m_rodPhysicsV2;
- delete m_rodPhysicsV3;
- delete m_rodPhysicsV4;
- delete m_rodPhysicsV5;
- delete m_rodPhysicsV6;
-
- ATH_MSG_VERBOSE("Cleanup of LArRodBlockStructures finished");
- return StatusCode::SUCCESS;
-}
-
-
 void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
                                    const uint32_t* p, uint32_t n, LArDigitContainer& coll, CaloGain::CaloGain RequestedGain) const
 { // Digit pointer
@@ -321,15 +178,7 @@ void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragmen
   LArRodBlockStructure* BlStruct=prepareBlockStructure(robFrag, p, n, RequestedGain);
   if (!BlStruct) return;
 
-
-  //std::cout << "Decoding LArDigits from ROD block size=0x" << std::hex << n << std::endl;
-  //for(int i=0;i<n;i++)
-  //  std::cout << "0x" << std::hex << i << " -     0x" << std::hex << p[i] << std::endl;
-
-  //int iFeb=0;
-  //int iCanTot=0,iCan=0; //For debug purpose
-   do
-    {
+  do {
       HWIdentifier fId( Identifier32(BlStruct->getFEBID()) );
       unsigned int fId32 = fId.get_identifier32().get_compact();
       if (!m_onlineHelper->isValidId(fId)) {
@@ -391,7 +240,6 @@ void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragmen
 	}
       }
       const int NthisFebChannel=m_onlineHelper->channelInSlotMax(fId);
-      //std::cout << "Processing FEB #" << iFeb++ << " FEBID " << std::hex << BlStruct->getFEBID()  << std::endl;
       while (BlStruct->getNextRawData(fcNb,samples,gain))
 	{if (fcNb>=NthisFebChannel)
 	  continue;
@@ -400,14 +248,10 @@ void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragmen
 	calogain=(CaloGain::CaloGain)gain;
 	dg = new LArDigit(cId, calogain, samples);
 	samples.clear();
-	//std::cout << "Processing channel id " << iCan++ << " " << std::hex << fcNb << " " << cId << " Gain=" << gain << " samples "  << samples[0] << " " 
-	//	  << samples[1] << " " << samples[2] << " " << samples[3] << " " << samples[4] << std::dec << std::endl;
-	//std::cout << "Feb id=" << BlStruct->getFEBID()  << " ChannelID=" << fcNb << std::endl;
 	coll.push_back(dg);
 	}
     }
    while (BlStruct->nextFEB()); //Get NextFeb
-   //std::cout << "Number of FEB processed " << iFeb << " fragment size = " << n << std::endl;
    return;
 }
 
@@ -426,11 +270,6 @@ void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragmen
   LArRodBlockStructure* BlStruct=prepareBlockStructure(robFrag, p, n, RequestedGain);
   if (!BlStruct) return;
 
-  //std::cout << "Decoding LArRawChannels from ROD size=0x" << std::hex << n << std::endl;
-  //for(int i=0;i<n;i++)
-  //  std::cout << "0x" << std::hex << i << " -     0x" << std::hex << p[i] << std::endl;
-
-  //int iFeb=0;
   do {
       HWIdentifier fId( Identifier32(BlStruct->getFEBID()) );
       unsigned int fId32 = fId.get_identifier32().get_compact();
@@ -492,7 +331,6 @@ void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragmen
 	}
       }
       const int NthisFebChannel=m_onlineHelper->channelInSlotMax(fId);
-      //std::cout << "Processing FEB #" << iFeb++ << " FEBID " << std::hex << BlStruct->getFEBID()  << std::endl;
       while (BlStruct->getNextEnergy(fcNb,energy,time,quality,gain)) {
 	if (fcNb>=NthisFebChannel)
 	  continue;
@@ -508,7 +346,6 @@ void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragmen
       }
     }
    while (BlStruct->nextFEB()); //Get NextFeb
-   //std::cout << "Number of FEB processed " << iFeb << " fragment size = " << n << std::endl;
    return;
 }
 
@@ -517,7 +354,9 @@ void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragmen
                                    const uint32_t* p,
                                    uint32_t n,
                                    LArCalibDigitContainer& coll,
-                                   CaloGain::CaloGain RequestedGain)
+                                   CaloGain::CaloGain RequestedGain,
+                                   const LArCalibLineMapping& calibLineMapping,
+                                   const LArOnOffIdMapping& onOffIdMapping) const
 { // CalibDigit pointer
   LArCalibDigit * dg=0 ;
   uint32_t gain;
@@ -527,14 +366,9 @@ void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragmen
   bool ispulsed;
   std::vector<short> samples;
 
-  //  for(int i=0;i<16;i++)
-  //  std::cout << " -     " << std::hex << p[i] << std::endl;
-
   ATH_MSG_VERBOSE("FillCollection for LArCalibDigitContainer is called.");
   LArRodBlockStructure* BlStruct=prepareBlockStructure(robFrag, p, n, RequestedGain);
-  //  std::cout << "Done with LArRodBlock prepare" << std::endl;
   if (!BlStruct) return;
-  // std::cout << " canSetCalibration() " << BlStruct->canSetCalibration() << std::endl;
   if (BlStruct->canSetCalibration()) {
     dac=BlStruct->getDAC();
     delay=BlStruct->getDelay();
@@ -606,23 +440,18 @@ void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragmen
 	  HWIdentifier cId = m_onlineHelper->channel_Id(fId,fcNb);
 	  ispulsed=BlStruct->getPulsed(fcNb);
 	  
-	  //std::cout << " in RawData calib block cId= " << cId << "  ispulsed=" << ispulsed << std::endl;
 	  calogain=(CaloGain::CaloGain)gain;
 	  dg = new LArCalibDigit(cId, calogain, samples, dac, delay, ispulsed);
 	  samples.clear();
-	  //std::cout << "Processing channel id" << iCan++ << " Gain=" << gain << std::endl;
-	  //std::cout << "Feb id=" << BlStruct->getFEBID()  << " ChannelID=" << fcNb << std::endl; 
 	  coll.push_back(dg);
-	  //iCan++;
 	  }
-	//std::cout << "Found " << iCan << " Channels in this FEB." << std::endl;
       }
     while (BlStruct->nextFEB()); //Get NextFeb
   }
   else {//Not a calibration data block, try to get from database
     ATH_MSG_VERBOSE("Not LArCalibDigit data block found. Building it using DB values");
     //1st step, get Calib board config object
-    const DataHandle<LArCalibParams> calibParams;
+    const LArCalibParams* calibParams = nullptr;
     StatusCode sc=detStore()->retrieve(calibParams);
     if (sc.isFailure())
       {msg(MSG::ERROR) << "Cannot load LArCalibParams from DetStore!" << endmsg;
@@ -637,9 +466,6 @@ void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragmen
     const unsigned eventNb=evt->eventNumber();
     const std::vector<HWIdentifier>* calibChannelIDs;
     do { //Loop over all FEBs in this ROD
-      
-      //std::cout << "\n *** BlStruct->getFEBID() = " << std::endl ;
-      //std::cout << BlStruct->getFEBID() << std::endl ;
       
       // IWS 24.01.2006 protection against NULL events (null pointer to rawdata block) 
       if (!BlStruct->hasRawDataBlock()) {
@@ -668,10 +494,9 @@ void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragmen
       do { //Search for the first connected channel of this FEB (probably the first one...)
 	fcNb++; 
 	cId = m_onlineHelper->channel_Id(fId,fcNb);
-	calibChannelIDs=&m_larCablingSvc->calibSlotLine(cId);
-	//std::cout << m_larCablingSvc->isOnlineConnected(cId) << " "  << calibChannelIDs->size() << " " << fcNb << std::endl ;
+	calibChannelIDs=&calibLineMapping.calibSlotLine(cId);
       }
-      while ( (!m_larCablingSvc->isOnlineConnected(cId) || calibChannelIDs->size()==0) && fcNb<128); // This is the right  conditions to exit the loop!
+      while ( (!onOffIdMapping.isOnlineConnected(cId) || calibChannelIDs->size()==0) && fcNb<128); // This is the right  conditions to exit the loop!
       
       if ( calibChannelIDs->size()==0 ) {
 	msg(MSG::ERROR) << "Cannot get calibration Channel ID for FEB " << std::hex << fId32 << std::dec << endmsg;
@@ -698,16 +523,14 @@ void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragmen
 	  if (fcNb>=NthisFebChannel) continue;
 	  if (samples.size()==0) continue; // Ignore missing cells
 	  cId = m_onlineHelper->channel_Id(fId,fcNb);
-	  calibChannelIDs=&m_larCablingSvc->calibSlotLine(cId);
+	  calibChannelIDs=&calibLineMapping.calibSlotLine(cId);
 	  //if (calibChannelIDs->size()==0) 
 	  //continue; //Disconnected channel
-	  //For the time beeing, I assume we are in H8 and have only one calib channel per FEB channel
+	  //For the time being, I assume we are in H8 and have only one calib channel per FEB channel
 
 	  if (calibChannelIDs->size()!=0) {
 	    csl_it=calibChannelIDs->begin();
-	    //uint32_t calibLine = m_onlineHelper->channel(*csl_it);
 	    ispulsed=calibParams->isPulsed(eventNb,*csl_it);
-	      //std::cout << " in RawData CalibDigit cId= " << cId << " calibLine=" << calibLine << "  ispulsed=" << ispulsed << std::endl;
  	    
 	  } else ispulsed=0;
 	  calogain=(CaloGain::CaloGain)gain;
@@ -728,7 +551,8 @@ void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragmen
                                    const uint32_t* p,
                                    uint32_t n,
                                    LArAccumulatedCalibDigitContainer& coll,
-                                   CaloGain::CaloGain RequestedGain)
+                                   CaloGain::CaloGain RequestedGain,
+                                   const LArCalibLineMapping& calibLineMapping) const
 { // Accumulated Digit pointer
   LArAccumulatedCalibDigit * dg=0 ;
   CaloGain::CaloGain calogain;
@@ -828,7 +652,7 @@ void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragmen
 	  if(!NStep) NStep=1; // To be able to decode v6 code
 	  StepIndex=BlStruct->getStepIndex();
 	  // 08.08.2005 IWS get calib line
-	  const std::vector<HWIdentifier>& calibChannelIDs=m_larCablingSvc->calibSlotLine(cId);
+	  const std::vector<HWIdentifier>& calibChannelIDs = calibLineMapping.calibSlotLine(cId);
 	  if (calibChannelIDs.size()==0) { 
 	        samplesSum.clear();
 	        samples2Sum.clear();
@@ -1044,52 +868,71 @@ void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragmen
 
 
 LArRodBlockStructure*
+LArRodDecoder::prepareBlockStructure1 (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag) const
+{ 
+  //Get version and blocktype form header
+  eformat::helper::Version ver(robFrag.rod_version());
+  const uint16_t rodMinorVersion=ver.minor_version();
+  const uint32_t rodBlockType=robFrag.rod_detev_type()&0xff;
+
+  const unsigned MAXMINOR = 12;
+  const unsigned MAXTYPE = 10;
+
+  if (rodMinorVersion > MAXMINOR || rodBlockType > MAXTYPE) {
+    msg(MSG::ERROR) << "Bad Rod block type " <<  rodBlockType
+                    << " / " << rodMinorVersion << endmsg;
+    return nullptr;
+  }
+  std::vector<std::unique_ptr<LArRodBlockStructure> >& blstructs =
+    *m_blstructs.get();
+  unsigned int index = rodBlockType * (MAXMINOR+1) + rodMinorVersion;
+  if (blstructs.empty()) {
+    blstructs.resize ((MAXMINOR+1)*(MAXTYPE+1));
+  }
+  if (!blstructs[index]) {
+    blstructs[index] = makeBlockStructure (rodBlockType, rodMinorVersion);
+  }
+  if (!blstructs[index]) {
+    msg(MSG::ERROR) << "Bad Rod block type " <<  rodBlockType
+                    << " / " << rodMinorVersion << endmsg;
+    return nullptr;
+  }
+
+#ifndef NDEBUG
+  ATH_MSG_DEBUG("Found version " << rodMinorVersion << " of Rod block type " << rodBlockType);
+#endif
+
+  return blstructs[index].get();
+}
+
+
+LArRodBlockStructure*
 LArRodDecoder::prepareBlockStructure(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
                                      const uint32_t* p, uint32_t n, const CaloGain::CaloGain RequestedGain) const
 { 
 #ifndef NDEBUG
   ATH_MSG_DEBUG("Prepare LArRodBlockStructure. Got a fragement of size " << n);
 #endif
-  //if (n<2) //Avoid segmentation fault
-  //  {msg(MSG::WARNING) << "Got empty Rod Fragment!" << endmsg;
-  //   return NULL;
-  //  }  
-  //uint32_t blocksize=p[0]; //First word contains block size
-  //if (blocksize>n)
-  //  {(*m_log) << MSG::ERROR << "Got truncated ROD Fragment!" << endmsg;
-  //   return NULL;
-  //  }
-  //Get version and blocktype form header
-  eformat::helper::Version ver(robFrag.rod_version());
-  const uint16_t rodMinorVersion=ver.minor_version();
-  const uint32_t rodBlockType=robFrag.rod_detev_type()&0xff;
-  if (rodBlockType>=m_BlStructArray.size() || m_BlStructArray[rodBlockType].size()==0)
-    {msg(MSG::ERROR) << "Unknown Rod block type " <<  rodBlockType << endmsg;
-     return NULL;
-    }
-  if (rodMinorVersion>=m_BlStructArray[rodBlockType].size() || m_BlStructArray[rodBlockType][rodMinorVersion]==NULL)
-    {msg(MSG::ERROR) << "No version " << rodMinorVersion <<  " of Rod Block Type  " <<  rodBlockType << "known." << endmsg;
-    return NULL;
-    }
-#ifndef NDEBUG
-  else
-    ATH_MSG_DEBUG("Found version " << rodMinorVersion << " of Rod block type " << rodBlockType);
-#endif
 
-  LArRodBlockStructure* BlStruct=m_BlStructArray[rodBlockType][rodMinorVersion];
+  LArRodBlockStructure* BlStruct = prepareBlockStructure1 (robFrag);
+  if (!BlStruct) {
+    return nullptr;
+  }
+
   //BlStruct->dumpFragment(v); // For testing purpose
   if (!BlStruct->setFragment(p,n)) {
-    static int nMess = 1, maxMess = 100;
-    if (nMess < maxMess) {
+    constexpr int maxMess = 100;
+    static std::atomic<int> nMess = 1;
+    int thismess = nMess++;
+    if (thismess < maxMess) {
       msg(MSG::ERROR) << "Could not set fragment (wrong number of samples in data ?) - container will not be filled" << endmsg;
-      nMess++;
-      if (nMess == maxMess)
+      if (thismess == maxMess)
         msg(MSG::ERROR) << "This message will not be repeated" << endmsg;
     }
     return NULL;
   }
 #ifndef NDEBUG
-  ATH_MSG_VERBOSE("Set Fragment at address "<<  (uint32_t *) &(p[0]) << " " << p[5]);
+  ATH_MSG_VERBOSE("Set Fragment at address "<<  &(p[0]) << " " << p[5]);
 #endif
 
   BlStruct->setGain(RequestedGain); //Will be ignored if BlockStructure does not support fixed gains.    
@@ -1100,3 +943,130 @@ LArRodDecoder::prepareBlockStructure(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragm
   return BlStruct;
 }
 
+
+std::unique_ptr<LArRodBlockStructure>
+LArRodDecoder::makeBlockStructure (unsigned int rodBlockType,
+                                   unsigned int rodMinorVersion) const
+{
+  switch (rodBlockType) {
+  case 2:
+    // RodBlockType 2 = Transparent mode only
+    switch (rodMinorVersion) {
+    case 0: // Transparent mode v0 05.01.2004
+    case 1: // Transparent mode v0
+    case 2: // Transparent mode v0
+    case 3: // Transparent mode v0
+    case 4: // Transparent mode v0
+      return std::make_unique<LArRodBlockTransparentV0<LArRodBlockHeaderTransparentV0> >();
+    case 5: // Calibration (Transparent mode) v1 17.01.2006
+      return std::make_unique<LArRodBlockCalibrationV1>();
+    case 6: // Calibration (Transparent mode) v3 31.05.2006
+    case 7: // Calibration (Transparent mode) v3
+    case 8: // Calibration (Transparent mode) v3
+    case 9: // Calibration (Transparent mode) v3
+    case 10:// Calibration (Transparent mode) v3
+    case 11:// Calibration (Transparent mode) v3
+    case 12:// Calibration (Transparent mode) v3
+      return std::make_unique<LArRodBlockCalibrationV3>();
+    default:
+      break;
+    }
+    break;
+
+  case 3:
+    // RodBlockType 3 = Test mode
+    return std::make_unique<LArRodBlockTransparentV0<LArRodBlockHeaderTransparentV0> >();
+
+  case 4:
+    // RodBlockType 4 = Physics mode
+    switch (rodMinorVersion) {
+    case 0: // Physics mode v0 05.01.2004 first draft
+      return std::make_unique<LArRodBlockPhysicsV0>();
+    case 1: // Physics mode v1 19.08.2004 only small differences
+      return std::make_unique<LArRodBlockPhysicsV1>();
+    case 2: // Physics mode v2 05.10.2004 adapted to real DSP data
+    case 3: // Physics mode v2
+    case 4: // Physics mode v2
+    case 5: // Physics mode v2
+    case 6: // Physics mode v2
+    case 7: // Physics mode v2
+    case 8: // Physics mode v2
+      return std::make_unique<LArRodBlockPhysicsV2>();
+    case 9: // Physics mode v4 10.07.2007 for commissioning
+      return std::make_unique<LArRodBlockPhysicsV4>();
+    case 10: // Physics mode v5 16.06.2008 for LHC 
+    case 11: // Physics mode v5 16.06.2008 for LHC
+      {
+        auto bl = std::make_unique<LArRodBlockPhysicsV5>();
+        if (m_requiredPhysicsNSamples > 0) {
+          bl->setRequiredNSamples(m_requiredPhysicsNSamples);
+        }
+        return bl;
+      }
+    case 12: // Physics mode v5 09.03.2011 for LHC
+      {
+        auto bl = std::make_unique<LArRodBlockPhysicsV6>();
+        if (m_requiredPhysicsNSamples > 0) {
+          bl->setRequiredNSamples(m_requiredPhysicsNSamples);
+        }
+        return bl;
+      }
+    default:
+      break;
+    }
+    break;
+
+  case 5:
+    // RodBlockType 5 = Physics simulation mode
+    // Physics mode v3 11.04.2005 for simulation
+    return std::make_unique<LArRodBlockPhysicsV3>();
+
+  case 6:
+    // RodBlockType 6 = Physics test mode
+    switch (rodMinorVersion) {
+    case 0: // Physics mode v0 05.01.2004 first draft
+      return std::make_unique<LArRodBlockPhysicsV0>();
+    case 1: // Physics mode v2 05.10.2004 adapted to real DSP data
+    case 2: // Physics mode v2
+      return std::make_unique<LArRodBlockPhysicsV2>();
+    default:
+      break;
+    }
+    break;
+
+  case 7:
+    // RodBlockType 7 = Calibration mode
+    switch (rodMinorVersion) {
+    case 0: // Calibration mode v0  05.01.2004
+      return std::make_unique<LArRodBlockCalibrationV0<LArRodBlockHeaderCalibrationV0> >();
+    case 1: // Calibration mode v1  17.01.2006
+    case 2: // Calibration mode v1 
+    case 3: // Calibration mode v1 
+    case 4: // Calibration mode v1 
+      return std::make_unique<LArRodBlockCalibrationV1>();
+    case 5: // Calibration mode v2  26.04.2006
+      return std::make_unique<LArRodBlockCalibrationV2>();
+    case 6: // Calibration mode v3  31.05.2006
+    case 7: // Calibration mode v3
+    case 8: // Calibration mode v3
+    case 9: // Calibration mode v3
+    case 10:// Calibration mode v3
+    case 11:// Calibration mode v3
+    case 12:// Calibration mode v3
+      return std::make_unique<LArRodBlockCalibrationV3>();
+    default:
+      break;
+    }
+    break;
+
+  case 10:
+    // RodBlockType 10 = Accumulated mode (used for pre-processed pedestal runs)
+    // Accumulated mode v3 10.06.2008
+    return std::make_unique<LArRodBlockAccumulatedV3>();
+
+  default:
+    break;
+  }
+
+  return std::unique_ptr<LArRodBlockStructure>();
+}

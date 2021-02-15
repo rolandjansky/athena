@@ -15,7 +15,7 @@ SCT_LinkMaskingTool::SCT_LinkMaskingTool(const std::string& type, const std::str
 
 // Initialize
 StatusCode SCT_LinkMaskingTool::initialize() {
-  ATH_MSG_INFO("Initializing configuration");
+  ATH_MSG_DEBUG("Initializing configuration");
 
   // Retrieve SCT ID helper
   if (detStore()->retrieve(m_sctHelper, "SCT_ID").isFailure()) {
@@ -26,12 +26,6 @@ StatusCode SCT_LinkMaskingTool::initialize() {
   // Read Cond Handle
   ATH_CHECK(m_condKey.initialize());
 
-  return StatusCode::SUCCESS;
-}
-
-// Finalize
-StatusCode SCT_LinkMaskingTool::finalize() {
-  ATH_MSG_INFO("Configuration finalize");
   return StatusCode::SUCCESS;
 }
 

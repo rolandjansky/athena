@@ -20,8 +20,11 @@ TYPE1(kShort_t,    short);              // 2
 TYPE1(kInt_t,      int);                // 3 
 TYPE1(kLong_t,     long);               // 4 
 TYPE1(kFloat_t,    float);              // 5 
-TYPE1(kCounter,    int);                // 6 
-TYPE1(kCharStar,   char*);              // 7 
+TYPE1(kCounter,    int);                // 6
+// kCharStar can't really be treated like the other types; further, it leads
+// to compilation failures with gcc11.  But we don't actually need it,
+// so just remove it.
+//TYPE1(kCharStar,   char*);              // 7 
 TYPE1(kDouble_t,   double);             // 8 
 TYPE1(kDouble32_t, Double32_t);         // 9 
 TYPE (kchar,       char, int);          // 10

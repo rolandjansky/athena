@@ -7,7 +7,7 @@
 namespace InDetDD {
 
 TRT_Conditions::TRT_Conditions()
-  : m_dxContainer(0),
+  : m_dxContainer(nullptr),
     m_mutex{}
 {}
 

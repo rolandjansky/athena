@@ -4,6 +4,7 @@
 # art-description: Trigger RDO->RDO_TRIG athena test of the Physics_pp_run3_v1 menu
 # art-type: grid
 # art-include: master/Athena
+# art-athena-mt: 4
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
@@ -24,7 +25,8 @@ ex = ExecStep.ExecStep()
 ex.type = 'athena'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'ttbar'
-ex.threads = 1
+ex.threads = 4
+ex.concurrent_events = 4
 ex.args = '-c "setMenu=\'Physics_pp_run3_v1\';doWriteBS=False;doWriteRDOTrigger=True;"'
 
 test = Test.Test()

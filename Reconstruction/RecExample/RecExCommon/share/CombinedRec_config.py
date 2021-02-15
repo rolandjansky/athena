@@ -36,7 +36,7 @@ if (rec.doESD()) and (recAlgs.doEFlow() or rec.doTau() or rec.doEgamma()) : #   
 
     #Now setup Large Radius Tracks version (LRT), only if LRT enabled    
     from InDetRecExample.InDetJobProperties import InDetFlags
-    if InDetFlags.doR3LargeD0():
+    if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
         #CaloExtensionBuilder was already imported above, and an exception would have been thrown
         #if that had failed.
         CaloExtensionBuilder(True)
@@ -45,9 +45,13 @@ if (rec.doESD()) and (recAlgs.doEFlow() or rec.doTau() or rec.doEgamma()) : #   
 # functionality : electron photon identification
 #
 #
+from InDetRecExample.InDetJobProperties import InDetFlags
+ 
 pdr.flag_domain('egamma')
 if rec.doEgamma():
     protectedInclude( "egammaRec/egammaRec_jobOptions.py" )
+    if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
+        protectedInclude( "egammaRec/egammaLRTRec_jobOptions.py" )
 AODFix_postEgammaRec()
 
 
@@ -141,6 +145,9 @@ if jetOK and rec.doBTagging() and  DetFlags.ID_on() and DetFlags.Muon_on():
         ConfigFlags.Input.Files = jps.AthenaCommonFlags.FilesInput.get_Value()
         ConfigFlags.IOVDb.GlobalTag=globalflags.ConditionsTag()
         ConfigFlags.GeoModel.AtlasVersion = jps.Global.DetDescrVersion()
+        # Additional b-tagging related flags
+        ConfigFlags.BTagging.SaveSV1Probabilities = True
+        ConfigFlags.BTagging.RunJetFitterNN = True
         # Configure BTagging algorithm
         from BTagging.BTagRun3Config import BTagRecoSplitCfg
         CAtoGlobalWrapper(BTagRecoSplitCfg, ConfigFlags)

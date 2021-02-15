@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FlavorTagDiscriminants/DL2HighLevel.h"
@@ -12,6 +12,7 @@
 #include "lwtnn/LightweightGraph.hh"
 #include "lwtnn/NanReplacer.hh"
 
+#define BOOST_BIND_GLOBAL_PLACEHOLDERS // Needed to silence Boost pragma message
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/exceptions.hpp>
@@ -52,7 +53,6 @@ namespace FlavorTagDiscriminants {
       {"rnnip"_r, "rnnipflip"},
       {"^(DL1|DL1r|DL1rmu)$"_r, "$1Flip"},
       {"pt|abs_eta"_r, "$&"},
-      {"(minimum|maximum|average)TrackRelativeEta"_r, "$&Flip"},
       {"softMuon.*|smt.*"_r, "$&"}
     };
 
@@ -81,7 +81,6 @@ namespace FlavorTagDiscriminants {
       {"IP[23]D(Neg)?_[pbc](b|c|u|tau)"_r, floattype},
       {"SV1(Flip)?_[pbc](b|c|u|tau)"_r, floattype},
       {"(rnnip|iprnn)(flip)?_p(b|c|u|tau)"_r, floattype},
-      {"(minimum|maximum|average)TrackRelativeEta(Flip)?"_r, EDMType::FLOAT},
       {"(JetFitter|SV1|JetFitterSecondaryVertex)(Flip)?_[Nn].*"_r, EDMType::INT},
       {"(JetFitter|SV1|JetFitterSecondaryVertex).*"_r, EDMType::FLOAT},
       {"pt|abs_eta|eta"_r, EDMType::CUSTOM_GETTER},
@@ -100,8 +99,6 @@ namespace FlavorTagDiscriminants {
       {"JetFitterFlip_.*"_r, "JetFitterFlip_isDefaults"},
       {"JetFitterSecondaryVertex_.*"_r, "JetFitterSecondaryVertex_isDefaults"},
       {"JetFitterSecondaryVertexFlip_.*"_r, "JetFitterSecondaryVertexFlip_isDefaults"},
-      {".*TrackRelativeEta"_r, "JetFitterSecondaryVertex_isDefaults"},
-      {".*TrackRelativeEtaFlip"_r, "JetFitterSecondaryVertexFlip_isDefaults"},
       {"rnnip_.*"_r, "rnnip_isDefaults"},
       {"rnnipflip_.*"_r, "rnnipflip_isDefaults"},
       {"iprnn_.*"_r, ""},
@@ -111,6 +108,11 @@ namespace FlavorTagDiscriminants {
 
     std::vector<DL2InputConfig> input_config;
     if (config.inputs.size() == 1) {
+
+      // allow the user to remape some of the inputs
+      remap_inputs(config.inputs.at(0).variables, var_map,
+                   config.inputs.at(0).defaults);
+
       std::vector<std::string> input_names;
       for (const auto& var: config.inputs.at(0).variables) {
         input_names.push_back(var.name);
@@ -118,8 +120,6 @@ namespace FlavorTagDiscriminants {
 
       input_config = get_input_config(
         input_names, type_regexes, default_flag_regexes);
-      // allow the user to remape some of the inputs
-      remap_inputs(config.inputs.at(0).variables, input_config, var_map);
     } else if (config.inputs.size() > 1) {
       throw std::logic_error("DL2 doesn't support multiple inputs");
     }
@@ -138,6 +138,7 @@ namespace FlavorTagDiscriminants {
 
     TypeRegexes trk_type_regexes {
       {"numberOf.*"_r, EDMType::UCHAR},
+      {"btagIp_(d|z)0.*"_r, EDMType::FLOAT},
       {".*_(d|z)0.*"_r, EDMType::CUSTOM_GETTER},
       {"(log_)?(ptfrac|dr).*"_r, EDMType::CUSTOM_GETTER}
     };
@@ -154,6 +155,7 @@ namespace FlavorTagDiscriminants {
     TrkSelRegexes trk_select_regexes {
       {".*_ip3d_.*"_r, TrackSelection::IP3D_2018},
       {".*_all_.*"_r, TrackSelection::ALL},
+      {".*_dipsLoose202102_.*"_r, TrackSelection::DIPS_LOOSE_202102},
     };
     std::vector<DL2TrackSequenceConfig> trk_config = get_track_input_config(
       trk_names, trk_type_regexes, trk_sort_regexes, trk_select_regexes);

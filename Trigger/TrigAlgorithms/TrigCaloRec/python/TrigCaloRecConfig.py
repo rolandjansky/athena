@@ -1608,7 +1608,7 @@ class HLTCaloCellMaker (_HLTCaloCellMaker):
     def __init__(self, name):
         super( HLTCaloCellMaker, self ).__init__(name)
         self.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale'),('TileBadChannels','ConditionStore+TileBadChannels')]
-        self.ExtraInputs+=[( 'LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' )]
+        self.ExtraInputs+=[( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ) ]
         from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
         monTool = GenericMonitoringTool('MonTool')
         maxNumberOfCells=1600.0
@@ -1707,3 +1707,85 @@ class TrigCaloClusterCalibratorMT_LC(TrigCaloClusterCalibratorMT):
         self.MonTool.defineHistogram('Eta', path='EXPERT', type='TH1F', title="Cluster #eta; #eta ; Number of Clusters", xbins=100, xmin=-2.5, xmax=2.5)
         self.MonTool.defineHistogram('Phi', path='EXPERT', type='TH1F', title="Cluster #phi; #phi ; Number of Clusters", xbins=64, xmin=-3.2, xmax=3.2)
         self.MonTool.defineHistogram('Eta,Phi', path='EXPERT', type='TH2F', title="Number of Clusters; #eta ; #phi ; Number of Clusters", xbins=100, xmin=-2.5, xmax=2.5, ybins=128, ymin=-3.2, ymax=3.2)
+
+
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
+
+
+def hltCaloCellMakerCfg(flags, FS=False, roisKey='UNSPECIFIED'):
+    acc = ComponentAccumulator()
+    from TrigT2CaloCommon.TrigCaloDataAccessConfig import trigCaloDataAccessSvcCfg
+    acc.merge(trigCaloDataAccessSvcCfg(flags))
+
+    cellMaker = CompFactory.HLTCaloCellMaker('HLTCaloCellMaker'+ ('FS' if FS else 'RoI'),
+                                             CellsName='CaloCells',
+                                             TrigDataAccessMT=acc.getService('TrigCaloDataAccessSvc'),
+                                             monitorCells=True,
+                                             ExtraInputs=[('TileEMScale', 'ConditionStore+TileEMScale'),
+                                                          ('TileBadChannels', 'ConditionStore+TileBadChannels'),
+                                                          ('LArOnOffIdMapping', 'ConditionStore+LArOnOffIdMap')], # TODO check if this depends on data/MC
+                                             RoIs=roisKey)
+
+    acc.addEventAlgo(cellMaker)
+    return acc
+
+def hltTopoClusterMakerCfg(flags, FS=False):
+    acc = ComponentAccumulator()
+    from CaloRec.CaloTopoClusterConfig import CaloTopoClusterToolCfg, CaloTopoClusterSplitterToolCfg
+    topoMaker = acc.popToolsAndMerge(CaloTopoClusterToolCfg(flags, cellsname='CaloCells'))
+    topoSplitter = acc.popToolsAndMerge(CaloTopoClusterSplitterToolCfg(flags))
+
+
+    topoMoments = CompFactory.CaloClusterMomentsMaker ('TrigTopoMoments')
+    topoMoments.MaxAxisAngle = 20*deg
+    topoMoments.TwoGaussianNoise = flags.Calo.TopoCluster.doTwoGaussianNoise
+    topoMoments.MinBadLArQuality = 4000
+    topoMoments.MomentsNames = ['FIRST_PHI',
+                                'FIRST_ETA',
+                                'SECOND_R' ,
+                                'SECOND_LAMBDA',
+                                'DELTA_PHI',
+                                'DELTA_THETA',
+                                'DELTA_ALPHA' ,
+                                'CENTER_X',
+                                'CENTER_Y',
+                                'CENTER_Z',
+                                'CENTER_MAG',
+                                'CENTER_LAMBDA',
+                                'LATERAL',
+                                'LONGITUDINAL',
+                                'FIRST_ENG_DENS',
+                                'ENG_FRAC_EM',
+                                'ENG_FRAC_MAX',
+                                'ENG_FRAC_CORE' ,
+                                'FIRST_ENG_DENS',
+                                'SECOND_ENG_DENS',
+                                'ISOLATION',
+                                'ENG_BAD_CELLS',
+                                'N_BAD_CELLS',
+                                'N_BAD_CELLS_CORR',
+                                'BAD_CELLS_CORR_E',
+                                'BADLARQ_FRAC',
+                                'ENG_POS',
+                                'SIGNIFICANCE',
+                                'CELL_SIGNIFICANCE',
+                                'CELL_SIG_SAMPLING',
+                                'AVG_LAR_Q',
+                                'AVG_TILE_Q'
+                                ]
+    from TrigEDMConfig.TriggerEDMRun3 import recordable
+    alg = CompFactory.TrigCaloClusterMakerMT('TrigCaloClusterMaker_topo'+('FS' if FS else 'RoI'),
+                                             Cells = 'CaloCells',
+                                             CaloClusters=recordable('HLT_TopoCaloClustersRoI'),
+                                             ClusterMakerTools = [ topoMaker, topoSplitter, topoMoments] # moments are missing yet
+                                            )
+    acc.addEventAlgo(alg)
+    return acc
+
+
+def hltCaloTopoClusteringCfg(flags, FS=False, roisKey='UNSPECIFIED'):
+    acc = ComponentAccumulator()
+    acc.merge(hltCaloCellMakerCfg(flags, FS=FS, roisKey=roisKey))
+    acc.merge(hltTopoClusterMakerCfg(flags, FS=FS))
+    return acc

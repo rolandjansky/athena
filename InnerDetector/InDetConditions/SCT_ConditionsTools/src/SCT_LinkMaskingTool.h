@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -38,7 +38,6 @@ public:
   SCT_LinkMaskingTool(const std::string& type, const std::string& name, const IInterface* parent);
   virtual ~SCT_LinkMaskingTool() = default;
   virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override;
   //@}
   
   /**Can the service report about the given component? (chip, module...)*/

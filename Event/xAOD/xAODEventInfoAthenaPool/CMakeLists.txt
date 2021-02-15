@@ -17,6 +17,7 @@ atlas_add_poolcnv_library( xAODEventInfoAthenaPoolPoolCnv
 
 # Install files from the package.
 atlas_install_joboptions( share/*.py )
+atlas_install_scripts( test/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 # Find the T/P test CMake code.
 find_package( AthenaPoolUtilitiesTest )
@@ -28,7 +29,7 @@ endif()
 
 # Set up the T/P converter test(s).
 if( NOT GENERATIONBASE )
-   run_tpcnv_legacy_test( xAODEventInfoAthenaPool_20.0.0.3 AOD-20.0.0.3-full
+   run_tpcnv_test( xAODEventInfoAthenaPool_20.0.0.3 AOD-20.0.0.3-full
       REQUIRED_LIBRARIES xAODEventInfoAthenaPoolPoolCnv )
 endif()
 # TPCnv unit tests disabled for AthGeneration project due to a dependency on DetDescrCnvSvc

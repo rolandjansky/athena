@@ -8,7 +8,7 @@ atlas_add_library( TrigInDetPattRecoTools
                    src/*.cxx
                    PUBLIC_HEADERS TrigInDetPattRecoTools
                    LINK_LIBRARIES TrigInDetPattRecoEvent
-                   PRIVATE_LINK_LIBRARIES IRegionSelector TrigInDetEvent )
+                   PRIVATE_LINK_LIBRARIES IRegionSelector TrigInDetEvent InDetPrepRawData )
 
 find_package(Boost)
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -18,12 +18,9 @@
 // STL
 #include <vector>
 
-class LArDetectorManager;
-class CaloDepthTool;
 class GeoPVConstLink;
 
 namespace Trk {
-  class ILayerArrayCreator;
   class ITrackingVolumeHelper;
   class ITrackingVolumeCreator;
   class TrackingVolume;
@@ -102,7 +99,6 @@ namespace LAr {
 
       // ------------- private members -----------------------------------------
                                      
-      const LArDetectorManager*                         m_lArMgr;                     //!< Calo DetDescrMgr
       std::string                                       m_lArMgrLocation;             //!< Location of the CaloDetDescrMgr
                                                                                       
       ToolHandle<Trk::ITrackingVolumeHelper>            m_lArTrackingVolumeHelper;     //!< Helper Tool to create TrackingVolumes

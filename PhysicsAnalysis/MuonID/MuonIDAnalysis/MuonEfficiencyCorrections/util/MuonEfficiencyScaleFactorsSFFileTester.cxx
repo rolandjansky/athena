@@ -209,7 +209,7 @@ int main(int argc, char* argv[]) {
         // Get the Muons from the event:
         const xAOD::MuonContainer* muons = 0;
         RETURN_CHECK(APP_NAME, event.retrieve(muons, "Muons"));
-        for (const auto& mu : *muons) {
+        for (const auto *mu : *muons) {
             if (PrimaryHelper.fill(mu) != CP::CorrectionCode::Ok) return EXIT_FAILURE;
             if (doComparison && ComparisonHelper.fill(mu) != CP::CorrectionCode::Ok) return EXIT_FAILURE;
             PrimaryHelper.fillTree();

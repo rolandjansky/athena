@@ -1,11 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ########################## start of MuonTiming Filter Fragment ##################################
 from AthenaCommon.AppMgr import ToolSvc
-from AthenaCommon.AppMgr import ServiceMgr
-from AthenaCommon.DetFlags import DetFlags
 import AthenaCommon.CfgMgr      as CfgMgr
-from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 from AthenaCommon.Include import include
 include( "TrackInCaloTools/TrackInCaloTools_jobOptions.py" )
 #from TrackInCaloTools import TrackInCaloTools_jobOptions

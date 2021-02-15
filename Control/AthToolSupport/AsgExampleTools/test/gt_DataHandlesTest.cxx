@@ -14,6 +14,7 @@
 #include <AsgMessaging/MessageCheck.h>
 #include <AsgTesting/UnitTest.h>
 #include <AsgExampleTools/IDataHandleTestTool.h>
+#include <TClass.h>
 #include <TFile.h>
 #include <cmath>
 #include <gtest/gtest.h>
@@ -40,6 +41,10 @@ namespace asg
   {
     static void SetUpTestCase ()
     {
+      // Access the dictionary
+      ASSERT_NE (TClass::GetClass ("xAOD::MuonContainer"), nullptr);
+      ASSERT_NE (TClass::GetClass ("asg::DataHandleTestTool"), nullptr);
+
       const char *test_file = getenv ("ASG_TEST_FILE_MC");
       ASSERT_NE (nullptr, test_file);
       file.reset (TFile::Open (test_file, "READ"));
@@ -146,6 +151,28 @@ namespace asg
     std::string writeDecorKey = "deco_" + makeUniqueName();
     config.setPropertyFromString ("writeDecorKey", "Muons." + writeDecorKey);
     config.setPropertyFromString ("doWriteDecorName", writeDecorKey);
+    ASSERT_SUCCESS (config.makeTool (tool, cleanup));
+    tool->runTest ();
+  }
+
+
+
+  // do an existing write decor handle test
+  TEST_F (DataHandlesTest, write_decor_handle_existing)
+  {
+    config.setPropertyFromString ("writeDecorKeyExisting", "Muons.pt");
+    config.setPropertyFromString ("doWriteDecorNameExisting", "pt");
+    ASSERT_SUCCESS (config.makeTool (tool, cleanup));
+    tool->runTest ();
+  }
+
+
+
+  // empty initial handles
+  TEST_F (DataHandlesTest, empty_initial_handles)
+  {
+    config.setPropertyFromString ("readKeyEmpty", "Muons");
+    config.setPropertyFromString ("readDecorKeyEmpty", "Muons.eta");
     ASSERT_SUCCESS (config.makeTool (tool, cleanup));
     tool->runTest ();
   }

@@ -5,17 +5,16 @@
 #ifndef MUONMDT_CABLING_MUONMDT_CABLINGSVC_H
 #define MUONMDT_CABLING_MUONMDT_CABLINGSVC_H
 
-#include "AthenaKernel/IOVSvcDefs.h"
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "EventInfoMgt/ITagInfoMgr.h"
 
 class MuonMDT_CablingMap;
 class MdtMezzanineType;
 class StoreGateSvc;
 class IMDTCablingDbTool;
-class ITagInfoMgr;
 class IdentifierHash;
 
 #include <list>
@@ -23,26 +22,20 @@ class IdentifierHash;
 
 static const InterfaceID IID_IMuonMDT_CablingSvc("MuonMDT_CablingSvc", 1, 0);
 
-class MuonMDT_CablingSvc : public AthService  {
 
+class MuonMDT_CablingSvc : public AthService ,
+			   virtual public ITagInfoMgr::Listener
+{
  public:
 
   MuonMDT_CablingSvc(const std::string& name,ISvcLocator* sl);
-  virtual ~MuonMDT_CablingSvc();
+  virtual ~MuonMDT_CablingSvc()=default;
   
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
-
-  /** methods called at trigger stop/start */
-  //  virtual StatusCode start();
-  //  virtual StatusCode stop();
-
-  /** method for begin run transition */
-  //  virtual void handle(const Incident&);
+  virtual StatusCode initialize() override;
 
   static const InterfaceID& interfaceID() { return IID_IMuonMDT_CablingSvc; }
 
-  virtual StatusCode queryInterface(const InterfaceID & riid, void** ppvInterface );
+  virtual StatusCode queryInterface(const InterfaceID & riid, void** ppvInterface ) override;
 
   // IOV service callback
   StatusCode initMappingModel(IOVSVC_CALLBACK_ARGS_P(I,keys));
@@ -99,7 +92,10 @@ class MuonMDT_CablingSvc : public AthService  {
 		   uint8_t& tdcId, uint8_t& channelId);
 
 
-  virtual StatusCode compareTags(IOVSVC_CALLBACK_ARGS);
+   // TagInfoMgr callback
+   virtual void tagInfoUpdated() override final { compareTags().ignore(); }
+
+   StatusCode compareTags();
 
   /** Returns true if we're using the old (non-DB) cabling*/
   bool usingOldCabling() const;

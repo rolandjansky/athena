@@ -27,23 +27,6 @@ def makeKeysList(inputDict):
     return tmpList
 
 
-def setTHistSvcOutput(outputList):
-    """Build the Output list of the THistSvc. This is used below and to
-    configure athenaMT/PT when running from the online DB but with the
-    offline THistSvc"""
-    
-    if 1 not in [ o.count('SHIFT') for o in outputList ]:
-        outputList += [ "SHIFT DATAFILE='shift-monitoring.root' OPT='RECREATE'"]
-    if 1 not in [ o.count('EXPERT') for o in outputList ]:
-        outputList += [ "EXPERT DATAFILE='expert-monitoring.root' OPT='RECREATE'"]
-    if 1 not in [ o.count('run_1') for o in outputList ]:
-        outputList += [ "run_1 DATAFILE='lbn-monitoring.root' OPT='RECREATE'"]        
-    if 1 not in [ o.count('RUNSTAT') for o in outputList ]:
-        outputList += [ "RUNSTAT DATAFILE='runstat-monitoring.root' OPT='RECREATE'"]
-    if 1 not in [ o.count('DEBUG') for o in outputList ]:        
-        outputList += [ "DEBUG DATAFILE='debug-monitoring.root' OPT='RECREATE'"]
-
-    return
         
     
 def monitoringTools(steering):
@@ -99,6 +82,7 @@ def monitoringTools(steering):
         from GaudiSvc.GaudiSvcConf import THistSvc
         ServiceMgr += THistSvc()
     if hasattr(ServiceMgr.THistSvc, "Output"): # this is offline THistSvc fo which we want to setup files
+        from TriggerHistSvcConfig import setTHistSvcOutput
         setTHistSvcOutput(ServiceMgr.THistSvc.Output)
         
 
@@ -121,6 +105,13 @@ class HLTSimulationGetter(Configured):
     def configure(self):
         
         log = logging.getLogger("HLTTriggergetter.py")
+
+        if TriggerFlags.triggerMenuSetup() == "Physics_pp_v7_primaries":
+            # the Run 2 triggger menu Physics_pp_v7_primaries does not exist in json (it should be phased out soon)
+            # Need to disable the new menu through the new config flags
+            log.info("Setting ConfigFlags.Trigger.readLVL1FromJSON to False because TriggerFlags.triggerMenuSetup == %s", TriggerFlags.triggerMenuSetup())
+            from AthenaConfiguration.AllConfigFlags import ConfigFlags
+            ConfigFlags.Trigger.readLVL1FromJSON = False
 
         from AthenaCommon.AlgSequence import AlgSequence 
         topSequence = AlgSequence()
@@ -145,7 +136,9 @@ class HLTSimulationGetter(Configured):
         log.info("Loading RegionSelector")
         from AthenaCommon.AppMgr import ServiceMgr
         from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
-        ServiceMgr += RegSelSvcDefault()
+        regsel = RegSelSvcDefault()
+        regsel.enableCalo = TriggerFlags.doCalo()
+        ServiceMgr += regsel
 
         # Configure the Data Preparation for Calo
         if TriggerFlags.doCalo():
@@ -189,14 +182,18 @@ class HLTSimulationGetter(Configured):
                 TrigSteer_HLT = ReruningTrigSteer_HLT('TrigSteer_HLT', hltFile=TriggerFlags.inputHLTconfigFile(), lvl1File=TriggerFlags.inputLVL1configFile())             
                 
             # TrigSteer_HLT.doL1TopoSimulation = TriggerFlags.doL1Topo() # this later needs to be extented to also run when we take data with L1Topo
-            TrigSteer_HLT.doL1TopoSimulation = True # always needs to run if the HLT is simulated
+            TrigSteer_HLT.doL1TopoSimulation = False # always needs to run if the HLT is simulated
             if hasattr(TrigSteer_HLT.LvlTopoConverter, 'MuonInputProvider'):
 
                 try: # this is temporary until TrigT1Muctpi-00-06-29 is in the release
-                    from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
+                    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+                    if ConfigFlags.Trigger.enableL1Phase1:
+                        from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1Tool as l1MuctpiTool
+                    else:
+                        from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool as l1MuctpiTool
                     from AthenaCommon.AppMgr import ToolSvc
-                    ToolSvc += L1MuctpiTool()
-                    TrigSteer_HLT.LvlTopoConverter.MuonInputProvider.MuctpiSimTool = L1MuctpiTool()
+                    ToolSvc += l1MuctpiTool()
+                    TrigSteer_HLT.LvlTopoConverter.MuonInputProvider.MuctpiSimTool = l1MuctpiTool()
                 except ImportError:
                     pass
 
@@ -212,28 +209,16 @@ class HLTSimulationGetter(Configured):
             TrigSteer_HLT.Navigation.ClassesToPreregister = getHLTPreregistrationList()
             
             TrigSteer_HLT.Navigation.Dlls = getEDMLibraries()
-
+            from AthenaConfiguration.AllConfigFlags import ConfigFlags
+            TrigSteer_HLT.LvlConverterTool.Lvl1ResultAccessTool.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
             monitoringTools(TrigSteer_HLT)
+            for monTools in TrigSteer_HLT.MonTools:
+                if monTools.name() in ["TrigRoIMoniValidation", "TrigRoIMoniOnline"]:
+                    monTools.Lvl1ResultAccessTool.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
             topSequence += TrigSteer_HLT
 
 
         if TriggerFlags.writeBS():
-            # declare objects to go to BS (from the lists above)
-            ## if TriggerFlags.doLVL2():                
-            ##     from TrigEDMConfig.TriggerEDM import getL2BSList
-            ##     TrigSteer_L2.Navigation.ClassesToPayload = getL2BSList()
-            ##     TrigSteer_L2.Navigation.ClassesToPreregister = []
-            ## 
-            ## if TriggerFlags.doEF():
-            ##     from TrigEDMConfig.TriggerEDM import getEFBSList
-            ##     TrigSteer_EF.Navigation.ClassesToPayload = getEFBSList()
-            ##     TrigSteer_EF.Navigation.ClassesToPreregister = []
-            ##     try:
-            ##         from TrigEDMConfig.TriggerEDM import getEFDSList
-            ##         TrigSteer_EF.Navigation.ClassesToPayload_DSonly = getEFDSList()
-            ##     except ImportError:
-            ##         log.warning("DataScouting not available in this release")
-
             if TriggerFlags.doHLT():
                 from TrigEDMConfig.TriggerEDM import  getHLTBSList 
                 TrigSteer_HLT.Navigation.ClassesToPayload = getHLTBSList() 
@@ -256,14 +241,6 @@ class HLTSimulationGetter(Configured):
             from TrigSerializeCnvSvc.TrigSerializeCnvSvcConf import TrigSerializeConvHelper
             TrigSerializeConvHelper = TrigSerializeConvHelper(doTP = True)
             ToolSvc += TrigSerializeConvHelper
-
-            #do not activate T/P of EF classes at L2
-            ## if TriggerFlags.doLVL2(): 
-            ##     from TrigEDMConfig.TriggerEDM import getL2BSTypeList
-            ##     TrigSerToolTP.ActiveClasses = getL2BSTypeList()
-            ## if TriggerFlags.doEF():
-            ##     from TrigEDMConfig.TriggerEDM import getL2BSTypeList, getEFBSTypeList
-            ##     TrigSerToolTP.ActiveClasses = getL2BSTypeList() + getEFBSTypeList()
 
             if TriggerFlags.doHLT():
                 from TrigEDMConfig.TriggerEDM import getHLTBSTypeList 

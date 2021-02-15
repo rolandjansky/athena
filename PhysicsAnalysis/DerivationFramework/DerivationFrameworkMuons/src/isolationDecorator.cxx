@@ -1,11 +1,7 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-/////////////////////////////////////////////////////////////////
-// isolationDecorator.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-// Author: Dongliang Zhang (dongliang.zhang@cern.ch)
 #include "DerivationFrameworkMuons/isolationDecorator.h"
 #include "AthenaKernel/errorcheck.h"
 #include <vector>
@@ -18,9 +14,9 @@
 #include "ExpressionEvaluation/MultipleProxyLoader.h"
 #include "ExpressionEvaluation/SGxAODProxyLoader.h"
 
-// #include "xAODTruth/TruthParticleContainer.h"
-static int NDIFF = xAOD::Iso::ptvarcone20 - xAOD::Iso::ptcone20;
-
+namespace{
+    constexpr int NDIFF = xAOD::Iso::ptvarcone20 - xAOD::Iso::ptcone20;
+}
 // Constructor
 DerivationFramework::isolationDecorator::isolationDecorator(const std::string& t,
 							    const std::string& n,
@@ -28,9 +24,8 @@ DerivationFramework::isolationDecorator::isolationDecorator(const std::string& t
   AthAlgTool(t, n, p),
   m_trackIsolationTool(),
   m_caloIsolationTool(),
-  m_parser(0),
-  m_decorators(xAOD::Iso::numIsolationTypes, 0)
-{
+  m_parser(nullptr),
+  m_decorators(){
   declareInterface<DerivationFramework::IAugmentationTool>(this);
   declareProperty("TrackIsolationTool", m_trackIsolationTool);
   declareProperty("CaloIsolationTool",  m_caloIsolationTool);
@@ -43,10 +38,6 @@ DerivationFramework::isolationDecorator::isolationDecorator(const std::string& t
   declareProperty("Prefix",             m_prefix="");
 }
   
-// Destructor
-DerivationFramework::isolationDecorator::~isolationDecorator() {
-}  
-
 // Athena initialize and finalize
 StatusCode DerivationFramework::isolationDecorator::initialize()
 {
@@ -54,12 +45,12 @@ StatusCode DerivationFramework::isolationDecorator::initialize()
 
   // load the matching tool
   if( ! m_caloIsolationTool.empty() ) {
-     CHECK( m_caloIsolationTool.retrieve() );
+     ATH_CHECK( m_caloIsolationTool.retrieve() );
      ATH_MSG_INFO( "Successfully retrived the CaloIsolationTool!" );
   }
 
   if( ! m_trackIsolationTool.empty() ) {
-     CHECK( m_trackIsolationTool.retrieve() );
+     ATH_CHECK( m_trackIsolationTool.retrieve() );
      ATH_MSG_INFO( "Successfully retrived the CaloIsolationTool!" );
   }
 
@@ -71,14 +62,17 @@ StatusCode DerivationFramework::isolationDecorator::initialize()
   m_ptconeTypes.clear();
   for(auto c: m_ptcones){
     xAOD::Iso::IsolationType t = static_cast<xAOD::Iso::IsolationType>(c);
-    m_decorators[c] = new SG::AuxElement::Decorator< float >(m_prefix+xAOD::Iso::toString(t));
-    m_decorators[c+NDIFF] = new SG::AuxElement::Decorator< float >(m_prefix+xAOD::Iso::toString(static_cast<xAOD::Iso::IsolationType>(c+NDIFF)));
+    xAOD::Iso::IsolationType t_var = static_cast<xAOD::Iso::IsolationType>(c+NDIFF);
+    
+    m_decorators.insert(std::make_pair(c, SG::AuxElement::Decorator< float >(m_prefix+xAOD::Iso::toString(t))));
+       
+    m_decorators.insert(std::make_pair(c+NDIFF, SG::AuxElement::Decorator< float >(m_prefix+xAOD::Iso::toString(t_var))));
     m_ptconeTypes.push_back(t);
   }
   m_topoetconeTypes.clear();
   for(auto c: m_topoetcones) {
     xAOD::Iso::IsolationType t = static_cast<xAOD::Iso::IsolationType>(c);
-    m_decorators[c] = new SG::AuxElement::Decorator< float >(m_prefix+xAOD::Iso::toString(t));
+    m_decorators.insert(std::make_pair(c, SG::AuxElement::Decorator< float >(m_prefix+xAOD::Iso::toString(t))));
     m_topoetconeTypes.push_back(t);
   }
 
@@ -86,7 +80,7 @@ StatusCode DerivationFramework::isolationDecorator::initialize()
   if (m_selectionString!="") {
           ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader(); // not deleted
           proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore())); // not deleted
-          m_parser = new ExpressionParsing::ExpressionParser(proxyLoaders);
+          m_parser = std::make_unique<ExpressionParsing::ExpressionParser>(proxyLoaders);
           m_parser->loadExpression(m_selectionString);
   }
 
@@ -94,33 +88,20 @@ StatusCode DerivationFramework::isolationDecorator::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode DerivationFramework::isolationDecorator::finalize()
-{
-  ATH_MSG_VERBOSE("finalize() ...");
-
-  /// delete the decorators
-  for(auto d: m_decorators) {if(d) delete d;}
-
-  /// clear parser
-  if (m_parser) {
-      delete m_parser;
-      m_parser = 0;
-  }
-
-  /// proxyLoaders and SGxAODProxyLoader are note deleted.
-
-  return StatusCode::SUCCESS;
+StatusCode DerivationFramework::isolationDecorator::decorate(const xAOD::IParticle* part, const int iso_type, const float val) const{
+    std::map<int, SG::AuxElement::Decorator<float>>::const_iterator itr = m_decorators.find(iso_type);
+    if (itr == m_decorators.end()) {
+        return StatusCode::FAILURE;
+    }
+    itr->second(*part) = val;
+    return StatusCode::SUCCESS;
 }
-
-StatusCode DerivationFramework::isolationDecorator::addBranches() const
-{
+    
+StatusCode DerivationFramework::isolationDecorator::addBranches() const {
   // retrieve tag (muon) container
-   const xAOD::IParticleContainer* toDecorate = 0;
-   if(evtStore()->retrieve(toDecorate, m_containerName).isFailure()) {
-     ATH_MSG_FATAL( "Unable to retrieve " << m_containerName );
-     return StatusCode::FAILURE;
-   }
-
+   const xAOD::IParticleContainer* toDecorate = nullptr;
+   ATH_CHECK(evtStore()->retrieve(toDecorate, m_containerName));
+   
   // Execute the text parser and update the mask
   std::vector<int> entries(toDecorate->size(), 1);
   if (m_parser) {
@@ -133,7 +114,7 @@ StatusCode DerivationFramework::isolationDecorator::addBranches() const
 
   /// Loop over tracks
   int ipar=0;
-  for(auto particle : *toDecorate) {
+  for(const auto particle : *toDecorate) {
     /// Only decorate those passed selection
     if (!entries[ipar++]) continue;
 
@@ -152,8 +133,8 @@ StatusCode DerivationFramework::isolationDecorator::addBranches() const
     xAOD::TrackIsolation resultTrack;
     if (m_trackIsolationTool->trackIsolation(resultTrack, *particle, m_ptconeTypes, m_trkCorrList)){
         for(unsigned int i=0; i<m_ptcones.size(); i++){
-          (*(m_decorators[m_ptcones[i]]))(*particle) = resultTrack.ptcones[i];
-          (*(m_decorators[m_ptcones[i]+NDIFF]))(*particle) = resultTrack.ptvarcones_10GeVDivPt[i];
+          ATH_CHECK(decorate(particle,m_ptcones[i],resultTrack.ptcones[i]));
+          ATH_CHECK(decorate(particle,m_ptcones[i]+NDIFF,resultTrack.ptvarcones_10GeVDivPt[i]));        
         }
     }else{
         ATH_MSG_WARNING("Failed to apply the track isolation for a particle");
@@ -163,7 +144,7 @@ StatusCode DerivationFramework::isolationDecorator::addBranches() const
     xAOD::CaloIsolation resultCalo; 
     if (m_caloIsolationTool->caloTopoClusterIsolation(resultCalo, *particle, m_topoetconeTypes, m_caloCorrList)){
         for(unsigned int i=0; i<m_topoetcones.size(); i++){
-          (*(m_decorators[m_topoetcones[i]]))(*particle) = resultCalo.etcones[i];
+           ATH_CHECK(decorate(particle,m_topoetcones[i],resultCalo.etcones[i]));
         }
     }else {
         ATH_MSG_WARNING("Failed to apply the calo isolation for a particle");

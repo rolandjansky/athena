@@ -49,7 +49,6 @@
 
 #include "VP1Base/VP1QtUtils.h"
 #include "VP1Base/IVP1System.h"
-#include "VP1Base/VP1QtUtils.h"
 #include "VP1Base/IVP1ChannelWidget.h"
 #include "VP1Base/VP1Msg.h"
 #include "VP1Base/VP1HelperClassBase.h"
@@ -113,7 +112,6 @@ std::vector<std::string> qstringlistToVecString(QStringList list)
 	#include <QDebug>
 	#include "xAODRootAccessInterfaces/TActiveEvent.h"
 	#include "xAODRootAccessInterfaces/TVirtualEvent.h"
-	#include <TTree.h>
 	#include <regex>
 	#include <QString>
 

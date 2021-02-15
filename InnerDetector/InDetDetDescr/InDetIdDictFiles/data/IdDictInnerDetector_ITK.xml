@@ -1,0 +1,2082 @@
+<!--
+
+   The InnerDetector identifier is arranged as follows
+
+   InnerDetector
+     part=Pixel
+       side=barrel
+         layer phi_module eta_module phi_index eta_index
+       side=endcap
+         disk phi_module eta_module phi_index eta_index
+     part=SCT
+       side=barrel
+         layer phi_module eta_module side strip
+       side=endcap
+         disk phi_module eta_module side strip
+     part=TRT
+       side=barrel
+         layer phi_module straw_layer straw
+       side=endcap
+         wheel phi_module straw_layer straw
+
+  -->
+
+<IdDictionary name="InnerDetector" version="SLHC" >
+  <field name="part" >
+    <label name="Pixel" value="1" />
+    <label name="SCT"   value="2" />
+    <label name="TRT"   value="3" />
+  </field>
+
+  <field name="barrel_endcap">
+    <label name="negative_endcap" value="-2" />
+    <label name="negative_barrel" value="-1" />
+    <label name="barrel"          value="0" />
+    <label name="positive_barrel" value="+1"  />
+    <label name="positive_endcap" value="+2"  />
+  </field>
+
+ 
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" value="barrel" />
+    <range field="layer" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="15" wraparound="TRUE" />
+    <range field="eta_module" values="-12 -11 -10 -9 -8 -7 -6 -5 -4 -3 -2 -1 1 2 3 4 5 6 7 8 9 10 11 12 " />
+    <range field="phi_index" minvalue="0" maxvalue="383" />
+    <range field="eta_index" minvalue="0" maxvalue="400" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" value="barrel" />
+    <range field="layer" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" values="-6 -5 -4 -3 -2 -1 1 2 3 4 5 6 " />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" value="barrel" />
+    <range field="layer" value="2" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" values="-15 -14 -13 -12 -11 -10 -9 -8 -7 -6 -5 -4 -3 -2 -1 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 " />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" value="barrel" />
+    <range field="layer" value="3" />
+    <range field="phi_module" minvalue="0" maxvalue="43" wraparound="TRUE" />
+    <range field="eta_module" values="-17 -16 -15 -14 -13 -12 -11 -10 -9 -8 -7 -6 -5 -4 -3 -2 -1 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 " />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" value="barrel" />
+    <range field="layer" value="4" />
+    <range field="phi_module" minvalue="0" maxvalue="55" wraparound="TRUE" />
+    <range field="eta_module" values="-18 -17 -16 -15 -14 -13 -12 -11 -10 -9 -8 -7 -6 -5 -4 -3 -2 -1 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 " />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="0" />
+    <range field="phi_index" minvalue="0" maxvalue="383" />
+    <range field="eta_index" minvalue="0" maxvalue="400" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="1" />
+    <range field="phi_index" minvalue="0" maxvalue="383" />
+    <range field="eta_index" minvalue="0" maxvalue="400" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="2" />
+    <range field="phi_index" minvalue="0" maxvalue="383" />
+    <range field="eta_index" minvalue="0" maxvalue="400" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="3" />
+    <range field="phi_index" minvalue="0" maxvalue="383" />
+    <range field="eta_index" minvalue="0" maxvalue="400" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="4" />
+    <range field="phi_index" minvalue="0" maxvalue="383" />
+    <range field="eta_index" minvalue="0" maxvalue="400" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="5" />
+    <range field="phi_index" minvalue="0" maxvalue="383" />
+    <range field="eta_index" minvalue="0" maxvalue="400" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="6" />
+    <range field="phi_index" minvalue="0" maxvalue="383" />
+    <range field="eta_index" minvalue="0" maxvalue="400" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="7" />
+    <range field="phi_index" minvalue="0" maxvalue="383" />
+    <range field="eta_index" minvalue="0" maxvalue="400" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="8" />
+    <range field="phi_index" minvalue="0" maxvalue="383" />
+    <range field="eta_index" minvalue="0" maxvalue="400" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="9" />
+    <range field="phi_index" minvalue="0" maxvalue="383" />
+    <range field="eta_index" minvalue="0" maxvalue="400" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="10" />
+    <range field="phi_index" minvalue="0" maxvalue="383" />
+    <range field="eta_index" minvalue="0" maxvalue="400" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="11" />
+    <range field="phi_index" minvalue="0" maxvalue="383" />
+    <range field="eta_index" minvalue="0" maxvalue="400" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="12" />
+    <range field="phi_index" minvalue="0" maxvalue="383" />
+    <range field="eta_index" minvalue="0" maxvalue="400" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="13" />
+    <range field="phi_index" minvalue="0" maxvalue="383" />
+    <range field="eta_index" minvalue="0" maxvalue="400" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="14" />
+    <range field="phi_index" minvalue="0" maxvalue="383" />
+    <range field="eta_index" minvalue="0" maxvalue="400" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="15" />
+    <range field="phi_index" minvalue="0" maxvalue="383" />
+    <range field="eta_index" minvalue="0" maxvalue="400" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="16" />
+    <range field="phi_index" minvalue="0" maxvalue="383" />
+    <range field="eta_index" minvalue="0" maxvalue="400" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="0" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="1" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="2" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="3" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="4" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="5" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="6" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="7" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="8" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="9" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="10" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="11" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="12" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="13" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="27" wraparound="TRUE" />
+    <range field="eta_module" value="14" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="15" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="27" wraparound="TRUE" />
+    <range field="eta_module" value="16" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="17" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="27" wraparound="TRUE" />
+    <range field="eta_module" value="18" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="19" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="27" wraparound="TRUE" />
+    <range field="eta_module" value="20" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="21" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="27" wraparound="TRUE" />
+    <range field="eta_module" value="22" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="23" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="27" wraparound="TRUE" />
+    <range field="eta_module" value="24" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="25" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="26" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="27" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="28" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="19" wraparound="TRUE" />
+    <range field="eta_module" value="29" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="2" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="0" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="2" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="1" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="2" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="2" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="2" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="3" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="2" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="4" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="2" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="5" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="2" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="6" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="2" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="7" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="2" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="8" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="2" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="9" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="2" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="10" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="3" />
+    <range field="phi_module" minvalue="0" maxvalue="43" wraparound="TRUE" />
+    <range field="eta_module" value="0" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="3" />
+    <range field="phi_module" minvalue="0" maxvalue="43" wraparound="TRUE" />
+    <range field="eta_module" value="1" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="3" />
+    <range field="phi_module" minvalue="0" maxvalue="43" wraparound="TRUE" />
+    <range field="eta_module" value="2" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="3" />
+    <range field="phi_module" minvalue="0" maxvalue="43" wraparound="TRUE" />
+    <range field="eta_module" value="3" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="3" />
+    <range field="phi_module" minvalue="0" maxvalue="43" wraparound="TRUE" />
+    <range field="eta_module" value="4" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="3" />
+    <range field="phi_module" minvalue="0" maxvalue="43" wraparound="TRUE" />
+    <range field="eta_module" value="5" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="3" />
+    <range field="phi_module" minvalue="0" maxvalue="43" wraparound="TRUE" />
+    <range field="eta_module" value="6" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="3" />
+    <range field="phi_module" minvalue="0" maxvalue="43" wraparound="TRUE" />
+    <range field="eta_module" value="7" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="4" />
+    <range field="phi_module" minvalue="0" maxvalue="51" wraparound="TRUE" />
+    <range field="eta_module" value="0" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="4" />
+    <range field="phi_module" minvalue="0" maxvalue="51" wraparound="TRUE" />
+    <range field="eta_module" value="1" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="4" />
+    <range field="phi_module" minvalue="0" maxvalue="51" wraparound="TRUE" />
+    <range field="eta_module" value="2" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="4" />
+    <range field="phi_module" minvalue="0" maxvalue="51" wraparound="TRUE" />
+    <range field="eta_module" value="3" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="4" />
+    <range field="phi_module" minvalue="0" maxvalue="51" wraparound="TRUE" />
+    <range field="eta_module" value="4" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="4" />
+    <range field="phi_module" minvalue="0" maxvalue="51" wraparound="TRUE" />
+    <range field="eta_module" value="5" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="4" />
+    <range field="phi_module" minvalue="0" maxvalue="51" wraparound="TRUE" />
+    <range field="eta_module" value="6" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="4" />
+    <range field="phi_module" minvalue="0" maxvalue="51" wraparound="TRUE" />
+    <range field="eta_module" value="7" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+  <region group="pixel" >
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="4" />
+    <range field="phi_module" minvalue="0" maxvalue="51" wraparound="TRUE" />
+    <range field="eta_module" value="8" />
+    <range field="phi_index" minvalue="0" maxvalue="772" />
+    <range field="eta_index" minvalue="0" maxvalue="804" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" value="barrel" />
+    <range field="layer" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="27" wraparound="TRUE" />
+    <range field="eta_module" values="-14 -13 -12 -11 -10 -9 -8 -7 -6 -5 -4 -3 -2 -1 1 2 3 4 5 6 7 8 9 10 11 12 13 14 " />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="1279" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" value="barrel" />
+    <range field="layer" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="27" wraparound="TRUE" />
+    <range field="eta_module" values="-14 -13 -12 -11 -10 -9 -8 -7 -6 -5 -4 -3 -2 -1 1 2 3 4 5 6 7 8 9 10 11 12 13 14 " />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="1279" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" value="barrel" />
+    <range field="layer" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="27" wraparound="TRUE" />
+    <range field="eta_module" values="-14 -13 -12 -11 -10 -9 -8 -7 -6 -5 -4 -3 -2 -1 1 2 3 4 5 6 7 8 9 10 11 12 13 14 " />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="2" />
+    <range field="strip" minvalue="0" maxvalue="1279" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" value="barrel" />
+    <range field="layer" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="27" wraparound="TRUE" />
+    <range field="eta_module" values="-14 -13 -12 -11 -10 -9 -8 -7 -6 -5 -4 -3 -2 -1 1 2 3 4 5 6 7 8 9 10 11 12 13 14 " />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="3" />
+    <range field="strip" minvalue="0" maxvalue="1279" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" value="barrel" />
+    <range field="layer" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="39" wraparound="TRUE" />
+    <range field="eta_module" values="-14 -13 -12 -11 -10 -9 -8 -7 -6 -5 -4 -3 -2 -1 1 2 3 4 5 6 7 8 9 10 11 12 13 14 " />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="1279" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" value="barrel" />
+    <range field="layer" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="39" wraparound="TRUE" />
+    <range field="eta_module" values="-14 -13 -12 -11 -10 -9 -8 -7 -6 -5 -4 -3 -2 -1 1 2 3 4 5 6 7 8 9 10 11 12 13 14 " />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="1279" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" value="barrel" />
+    <range field="layer" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="39" wraparound="TRUE" />
+    <range field="eta_module" values="-14 -13 -12 -11 -10 -9 -8 -7 -6 -5 -4 -3 -2 -1 1 2 3 4 5 6 7 8 9 10 11 12 13 14 " />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="2" />
+    <range field="strip" minvalue="0" maxvalue="1279" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" value="barrel" />
+    <range field="layer" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="39" wraparound="TRUE" />
+    <range field="eta_module" values="-14 -13 -12 -11 -10 -9 -8 -7 -6 -5 -4 -3 -2 -1 1 2 3 4 5 6 7 8 9 10 11 12 13 14 " />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="3" />
+    <range field="strip" minvalue="0" maxvalue="1279" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" value="barrel" />
+    <range field="layer" value="2" />
+    <range field="phi_module" minvalue="0" maxvalue="55" wraparound="TRUE" />
+    <range field="eta_module" values="-14 -13 -12 -11 -10 -9 -8 -7 -6 -5 -4 -3 -2 -1 1 2 3 4 5 6 7 8 9 10 11 12 13 14 " />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="1279" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" value="barrel" />
+    <range field="layer" value="2" />
+    <range field="phi_module" minvalue="0" maxvalue="55" wraparound="TRUE" />
+    <range field="eta_module" values="-14 -13 -12 -11 -10 -9 -8 -7 -6 -5 -4 -3 -2 -1 1 2 3 4 5 6 7 8 9 10 11 12 13 14 " />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="1279" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" value="barrel" />
+    <range field="layer" value="3" />
+    <range field="phi_module" minvalue="0" maxvalue="71" wraparound="TRUE" />
+    <range field="eta_module" values="-14 -13 -12 -11 -10 -9 -8 -7 -6 -5 -4 -3 -2 -1 1 2 3 4 5 6 7 8 9 10 11 12 13 14 " />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="1279" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" value="barrel" />
+    <range field="layer" value="3" />
+    <range field="phi_module" minvalue="0" maxvalue="71" wraparound="TRUE" />
+    <range field="eta_module" values="-14 -13 -12 -11 -10 -9 -8 -7 -6 -5 -4 -3 -2 -1 1 2 3 4 5 6 7 8 9 10 11 12 13 14 " />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="1279" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="0" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="1023" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="0" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="1023" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="0" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="2" />
+    <range field="strip" minvalue="0" maxvalue="1151" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="0" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="3" />
+    <range field="strip" minvalue="0" maxvalue="1151" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="1" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="1279" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="1" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="1279" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="1" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="2" />
+    <range field="strip" minvalue="0" maxvalue="1407" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="1" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="3" />
+    <range field="strip" minvalue="0" maxvalue="1407" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="2" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="1535" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="2" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="1535" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="3" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="895" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="3" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="895" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="3" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="2" />
+    <range field="strip" minvalue="0" maxvalue="895" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="3" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="3" />
+    <range field="strip" minvalue="0" maxvalue="895" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="4" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="1023" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="4" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="1023" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="5" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="1151" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="5" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="1151" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="0" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="1023" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="0" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="1023" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="0" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="2" />
+    <range field="strip" minvalue="0" maxvalue="1151" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="0" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="3" />
+    <range field="strip" minvalue="0" maxvalue="1151" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="1" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="1279" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="1" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="1279" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="1" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="2" />
+    <range field="strip" minvalue="0" maxvalue="1407" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="1" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="3" />
+    <range field="strip" minvalue="0" maxvalue="1407" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="2" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="1535" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="2" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="1535" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="3" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="895" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="3" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="895" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="3" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="2" />
+    <range field="strip" minvalue="0" maxvalue="895" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="3" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="3" />
+    <range field="strip" minvalue="0" maxvalue="895" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="4" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="1023" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="4" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="1023" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="5" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="1151" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="5" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="1151" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="2" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="0" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="1023" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="2" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="0" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="1023" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="2" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="0" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="2" />
+    <range field="strip" minvalue="0" maxvalue="1151" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="2" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="0" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="3" />
+    <range field="strip" minvalue="0" maxvalue="1151" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="2" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="1" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="1279" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="2" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="1" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="1279" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="2" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="1" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="2" />
+    <range field="strip" minvalue="0" maxvalue="1407" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="2" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="1" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="3" />
+    <range field="strip" minvalue="0" maxvalue="1407" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="2" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="2" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="1535" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="2" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="2" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="1535" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="2" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="3" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="895" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="2" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="3" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="895" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="2" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="3" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="2" />
+    <range field="strip" minvalue="0" maxvalue="895" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="2" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="3" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="3" />
+    <range field="strip" minvalue="0" maxvalue="895" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="2" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="4" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="1023" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="2" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="4" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="1023" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="2" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="5" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="1151" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="2" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="5" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="1151" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="3" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="0" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="1023" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="3" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="0" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="1023" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="3" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="0" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="2" />
+    <range field="strip" minvalue="0" maxvalue="1151" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="3" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="0" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="3" />
+    <range field="strip" minvalue="0" maxvalue="1151" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="3" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="1" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="1279" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="3" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="1" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="1279" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="3" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="1" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="2" />
+    <range field="strip" minvalue="0" maxvalue="1407" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="3" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="1" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="3" />
+    <range field="strip" minvalue="0" maxvalue="1407" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="3" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="2" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="1535" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="3" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="2" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="1535" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="3" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="3" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="895" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="3" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="3" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="895" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="3" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="3" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="2" />
+    <range field="strip" minvalue="0" maxvalue="895" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="3" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="3" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="3" />
+    <range field="strip" minvalue="0" maxvalue="895" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="3" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="4" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="1023" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="3" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="4" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="1023" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="3" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="5" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="1151" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="3" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="5" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="1151" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="4" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="0" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="1023" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="4" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="0" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="1023" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="4" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="0" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="2" />
+    <range field="strip" minvalue="0" maxvalue="1151" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="4" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="0" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="3" />
+    <range field="strip" minvalue="0" maxvalue="1151" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="4" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="1" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="1279" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="4" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="1" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="1279" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="4" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="1" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="2" />
+    <range field="strip" minvalue="0" maxvalue="1407" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="4" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="1" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="3" />
+    <range field="strip" minvalue="0" maxvalue="1407" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="4" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="2" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="1535" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="4" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="2" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="1535" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="4" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="3" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="895" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="4" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="3" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="895" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="4" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="3" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="2" />
+    <range field="strip" minvalue="0" maxvalue="895" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="4" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="3" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="3" />
+    <range field="strip" minvalue="0" maxvalue="895" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="4" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="4" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="1023" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="4" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="4" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="1023" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="4" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="5" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="1151" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="4" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="5" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="1151" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="5" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="0" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="1023" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="5" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="0" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="1023" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="5" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="0" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="2" />
+    <range field="strip" minvalue="0" maxvalue="1151" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="5" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="0" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="3" />
+    <range field="strip" minvalue="0" maxvalue="1151" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="5" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="1" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="1279" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="5" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="1" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="1279" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="5" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="1" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="2" />
+    <range field="strip" minvalue="0" maxvalue="1407" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="5" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="1" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="3" />
+    <range field="strip" minvalue="0" maxvalue="1407" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="5" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="2" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="1535" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="5" />
+    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="eta_module" value="2" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="1535" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="5" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="3" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="895" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="5" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="3" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="895" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="5" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="3" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="2" />
+    <range field="strip" minvalue="0" maxvalue="895" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="5" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="3" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="3" />
+    <range field="strip" minvalue="0" maxvalue="895" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="5" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="4" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="1023" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="5" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="4" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="1023" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="5" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="5" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
+    <range field="strip" minvalue="0" maxvalue="1151" />
+  </region>
+
+  <region group="sct" >
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+    <range field="disk" value="5" />
+    <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="eta_module" value="5" />
+    <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="1" />
+    <range field="strip" minvalue="0" maxvalue="1151" />
+  </region>
+
+</IdDictionary>

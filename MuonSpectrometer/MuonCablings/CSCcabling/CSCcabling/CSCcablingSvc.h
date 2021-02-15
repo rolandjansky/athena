@@ -24,13 +24,12 @@ class CSCcablingSvc : public AthService, virtual public IInterface {
 public:
    
   CSCcablingSvc(const std::string& name,ISvcLocator* sl);
-  virtual ~CSCcablingSvc();
+  virtual ~CSCcablingSvc()=default;
 
   static const InterfaceID& interfaceID() { return IID_ICSCcablingSvc; }
   virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIF);
 
   virtual StatusCode initialize(void);
-  virtual StatusCode finalize(void);  
 
   /** map offline ROD identifier to online ID */
   bool onlineId(const uint16_t subdetectorID, const uint16_t offlineID, uint32_t& rodId) const;

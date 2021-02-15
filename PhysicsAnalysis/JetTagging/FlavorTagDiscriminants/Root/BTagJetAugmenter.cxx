@@ -105,9 +105,9 @@ BTagJetAugmenter::BTagJetAugmenter(std::string associator, FlavorTagDiscriminant
   m_secondaryVtx_min_trk_flightDirRelEta(jfSvNew(f) + "_minimumTrackRelativeEta"),
   m_secondaryVtx_max_trk_flightDirRelEta(jfSvNew(f) + "_maximumTrackRelativeEta"),
   m_secondaryVtx_avg_trk_flightDirRelEta(jfSvNew(f) + "_averageTrackRelativeEta"),
-  m_min_trk_flightDirRelEta("minimumTrackRelativeEta" + flipString(f)),
-  m_max_trk_flightDirRelEta("maximumTrackRelativeEta" + flipString(f)),
-  m_avg_trk_flightDirRelEta("averageTrackRelativeEta" + flipString(f)),
+  m_min_trk_flightDirRelEta(jfSvNew(f) + "_minimumAllJetTrackRelativeEta"),
+  m_max_trk_flightDirRelEta(jfSvNew(f) + "_maximumAllJetTrackRelativeEta"),
+  m_avg_trk_flightDirRelEta(jfSvNew(f) + "_averageAllJetTrackRelativeEta"),
   m_rnnip_pbIsValid(rnn(f) + "_pbIsValid"),
   m_rnnip_isDefaults(rnn(f) + "_isDefaults")
 {

@@ -610,7 +610,7 @@ def MooSegmentFinderAlgCfg(flags, name = "MuonSegmentMaker",  **kwargs):
     # FIXME - this really shouldn't be set here! 
     kwargs.setdefault('TgcPrepDataContainer', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC and not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
         
-    kwargs.setdefault('MuonSegmentOutputLocation', "ThirdChainSegments" if flags.Muon.segmentOrigin=="TruthTracking" else "MuonSegments")
+    kwargs.setdefault('MuonSegmentOutputLocation', "ThirdChainSegments" if flags.Muon.segmentOrigin=="TruthTracking" else "TrackMuonSegments")
 
     moo_segment_finder_alg = MooSegmentFinderAlg( name=name, **kwargs )
     moo_segment_finder_alg.Cardinality=10
@@ -645,7 +645,8 @@ def MooSegmentFinderAlg_NCBCfg(flags, name = "MuonSegmentMaker_NCB", **kwargs):
 
     # Now set other NCB properties
     kwargs.setdefault('MuonPatternCombinationLocation', "NCB_MuonHoughPatternCombinations" )
-    kwargs.setdefault('MuonSegmentOutputLocation', "NCB_MuonSegments" )
+    kwargs.setdefault('MuonSegmentOutputLocation', "NCB_TrackMuonSegments" )
+    kwargs.setdefault('Key_MuonLayerHoughToolHoughDataPerSectorVec', 'NCB_HoughDataPerSectorVec')
     kwargs.setdefault('UseCSC', flags.Muon.doCSCs)
     kwargs.setdefault('UseMDT', False)
     kwargs.setdefault('UseRPC', False)
@@ -654,7 +655,7 @@ def MooSegmentFinderAlg_NCBCfg(flags, name = "MuonSegmentMaker_NCB", **kwargs):
     kwargs.setdefault('UseTGCNextBC', False)
     kwargs.setdefault('doTGCClust', False)
     kwargs.setdefault('doRPCClust', False)
-    
+        
     acc = MooSegmentFinderAlgCfg(flags, name=name, **kwargs)
     result.merge(acc)
     return result
@@ -670,7 +671,6 @@ def MuonSegmentFindingCfg(flags, cardinality=1):
     Muon__MuonEDMHelperSvc=CompFactory.Muon.MuonEDMHelperSvc
     muon_edm_helper_svc = Muon__MuonEDMHelperSvc("MuonEDMHelperSvc")
     result.addService( muon_edm_helper_svc )
-
     # We need to add two algorithms - one for normal collisions, one for NCB
     acc = MooSegmentFinderAlgCfg(flags, Cardinality=cardinality)
     result.merge(acc)
@@ -679,7 +679,7 @@ def MuonSegmentFindingCfg(flags, cardinality=1):
     result.merge(acc)
     return result
 
-if __name__=="__main__":                        
+if __name__=="__main__":
     # To run this, do e.g. 
     # python -m MuonConfig.MuonSegmentFindingConfig --run --threads=1
     from MuonConfig.MuonConfigUtils import SetupMuonStandaloneArguments, SetupMuonStandaloneConfigFlags, SetupMuonStandaloneOutput, SetupMuonStandaloneCA
@@ -707,13 +707,13 @@ if __name__=="__main__":
     pps = ProxyProviderSvc()
     ars=AddressRemappingSvc()
     pps.ProviderNames += [ 'AddressRemappingSvc' ]
-    ars.TypeKeyRenameMaps += [ '%s#%s->%s' % ("Trk::SegmentCollection", "MuonSegments", "MuonSegments_old") ]
-    ars.TypeKeyRenameMaps += [ '%s#%s->%s' % ("Trk::SegmentCollection", "MuonSegments_NCB", "MuonSegments_NCB_old") ]
-    
+    ars.TypeKeyRenameMaps += [ '%s#%s->%s' % ("Trk::SegmentCollection", "TrackMuonSegments", "TrackMuonSegments_old") ]
+    ars.TypeKeyRenameMaps += [ '%s#%s->%s' % ("Trk::SegmentCollection", "NCB_TrackMuonSegments", "NCB_TrackMuonSegments_old") ]
+
     cfg.addService(pps)
     cfg.addService(ars)
-    
-    itemsToRecord = ["Trk::SegmentCollection#MuonSegments", "Trk::SegmentCollection#NCB_MuonSegments"]
+
+    itemsToRecord = ["Trk::SegmentCollection#TrackMuonSegments", "Trk::SegmentCollection#NCB_TrackMuonSegments"]
     SetupMuonStandaloneOutput(cfg, ConfigFlags, itemsToRecord)
 
     # cfg.getService("StoreGateSvc").Dump = True
@@ -727,4 +727,3 @@ if __name__=="__main__":
         if not sc.isSuccess():
             import sys
             sys.exit("Execution failed")
-    

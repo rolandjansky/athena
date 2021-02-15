@@ -1,7 +1,7 @@
 /** -*- c++ -*- */
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -16,13 +16,18 @@
 #define SCTCalibWriteTool_H
 
 // Athena includes
+//#include "AthenaBaseComps/AthService.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaKernel/IOVTime.h"
+#include "AthenaKernel/IIOVDbSvc.h"
+#include "AthenaKernel/IAthenaOutputStreamTool.h" 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "EventInfo/EventInfo.h"
 #include "Identifier/Identifier.h"
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "StoreGate/ReadHandleKey.h"
+//#include "StoreGate/WriteCondHandleKey.h"
+#include "StoreGate/WriteCondHandle.h"
 
 #include "CoralBase/AttributeListSpecification.h"
 
@@ -30,6 +35,7 @@
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ClassID.h"
 
@@ -56,7 +62,7 @@ class SCTCalibWriteTool : public AthAlgTool {
       // Constructor
       SCTCalibWriteTool(const std::string& type, const std::string& name, const IInterface* parent);
       // Destructor
-      virtual ~SCTCalibWriteTool() = default;
+      virtual ~SCTCalibWriteTool();
 
       // overloading functions
       virtual StatusCode initialize();
@@ -73,7 +79,7 @@ class SCTCalibWriteTool : public AthAlgTool {
       std::string
       createDefectString(const int defectBeginChannel,const int defectEndChannel) const;
 
-     StatusCode createCondObjects ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrListCollection::add is used.
+      StatusCode createCondObjects ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrListCollection::add is used.
                                  (const Identifier& wafer_id,
                                   const SCT_ID* m_sctId,
                                   const int samplesize,
@@ -198,7 +204,7 @@ class SCTCalibWriteTool : public AthAlgTool {
       IntegerProperty              m_version{this, "Version", 0};
       IntegerProperty              m_beginRun{this, "BeginRun", IOVTime::MINRUN};
       IntegerProperty              m_endRun{this, "EndRun", IOVTime::MAXRUN};
-      StringProperty               m_streamName{this, "StreamName", "CondStreamTest"};
+      StringProperty               m_streamName{this, "StreamName", "SCTCalibStream"};
       StringProperty               m_tagID4NoisyStrips{this, "TagID4NoisyStrips", ""};
       StringProperty               m_tagID4DeadStrips{this, "TagID4DeadStrips", ""};
       StringProperty               m_tagID4DeadChips{this, "TagID4DeadChips", ""};
@@ -208,8 +214,9 @@ class SCTCalibWriteTool : public AthAlgTool {
       StringProperty               m_tagID4BSErrors{this, "TagID4BSErrors", ""};
       StringProperty               m_tagID4LorentzAngle{this, "TagID4LorentzAngle", ""};
 
-      IIOVRegistrationSvc*         m_regSvc{nullptr};
-      IAthenaOutputStreamTool*     m_streamer{nullptr};
+      IIOVRegistrationSvc*                m_regSvc{nullptr};
+      ToolHandle<IAthenaOutputStreamTool> m_streamer{nullptr};
+      ServiceHandle<IIOVDbSvc>            m_IOVDbSvc;
 
       bool                         m_defectRecorded{false};
       bool                         m_deadStripRecorded{false};
@@ -220,6 +227,7 @@ class SCTCalibWriteTool : public AthAlgTool {
       bool                         m_BSErrRecorded{false};
       bool                         m_LARecorded{false};
       const SCT_ID*                m_pHelper{nullptr};
+
 };
 
 inline const InterfaceID& SCTCalibWriteTool::interfaceID() {

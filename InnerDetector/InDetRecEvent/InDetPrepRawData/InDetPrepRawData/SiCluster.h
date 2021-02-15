@@ -94,16 +94,16 @@ public:
    */
   //@{
   /// return width class reference
-  virtual const InDet::SiWidth& width() const;
+  const InDet::SiWidth& width() const;
 
   /// return global position reference
-  virtual const Amg::Vector3D& globalPosition() const;
+  const Amg::Vector3D& globalPosition() const;
 
   /// set the flag of this cluster containing a gangedPixel
-  virtual void setGangedPixel(bool ganged);
+  void setGangedPixel(bool ganged);
 
   /// return the flag of this cluster containing a gangedPixel
-  virtual bool gangedPixel() const;
+  bool gangedPixel() const;
   /// return the detector element corresponding to this PRD
   /// The pointer will be zero if the det el is not defined (i.e. it was not
   /// passed in by the ctor)

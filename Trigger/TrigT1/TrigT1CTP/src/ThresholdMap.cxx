@@ -98,6 +98,11 @@ LVL1CTP::ThresholdMap::getThresholdNames() const {
 
 const LVL1CTP::CTPTriggerThreshold &
 LVL1CTP::ThresholdMap::getCTPThreshold( const std::string & thrName ) const {
-   return * m_mapByName.at( thrName );
+   try {
+      return * m_mapByName.at( thrName );
+   }
+   catch(std::exception&) {
+      throw std::runtime_error("Threshold " + thrName + " not present in CTPSimulation's internal threshold map");
+   }
 }
 

@@ -24,6 +24,8 @@ if hasattr( runArgs, 'inputZeroBiasBSFile'):
     athenaCommonFlags.FilesInput=runArgs.inputZeroBiasBSFile
 else:
     athenaCommonFlags.FilesInput=runArgs.inputBS_SKIMFile
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+ConfigFlags.Input.Files = athenaCommonFlags.FilesInput()
 
 #---------------------------
 ## Run performance monitoring (memory logging)

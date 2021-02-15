@@ -35,7 +35,7 @@ if hasattr(runArgs,"beamType"):
 
 # Avoid command line preInclude for event service
 if hasattr(runArgs, "eventService") and runArgs.eventService:
-    include('AthenaMP/AthenaMP_EventService.py')
+    import AthenaMP.EventService
 
 ## autoConfiguration keywords triggering pre-defined functions
 ## if hasattr(runArgs,"autoConfiguration"):
@@ -43,5 +43,9 @@ if hasattr(runArgs, "eventService") and runArgs.eventService:
 ##         rec.AutoConfiguration.append(key)
 
 from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties
-pmon_properties.PerfMonFlags.doMonitoring=True
-pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True
+from AthenaCommon.ConcurrencyFlags import jobproperties as cf
+if cf.ConcurrencyFlags.NumThreads() > 1:
+    pmon_properties.PerfMonFlags.doMonitoringMT=True
+else:
+    pmon_properties.PerfMonFlags.doMonitoring=True
+    pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True

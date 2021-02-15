@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMATOOLS_EMTRACKMATCHBUILDER_H
@@ -82,7 +82,7 @@ private:
   public:
     TrackMatchSorter(double distance = 0.0)
       : m_distance(distance){};
-    bool operator()(const TrackMatch& match1, const TrackMatch& match2);
+    bool operator()(const TrackMatch& match1, const TrackMatch& match2) const;
 
   private:
     double m_distance;

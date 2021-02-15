@@ -33,15 +33,9 @@ atlas_add_test( TrigHLTJetHypoUnitTests
    tests/FlowNetworkTest.cxx
    tests/LlpCleanerTest.cxx
    tests/LooseCleanerTest.cxx
-   tests/MaximumBipartiteGroupsMatcherTest.cxx
-   tests/MaximumBipartiteGroupsMatcherMTTest.cxx
-   tests/MaximumBipartiteGroupsMatcherMTTest_Multijet.cxx
-   tests/PartitionsGenTest.cxx
-   tests/PartitionsGroupsMatcherMTTest.cxx
    tests/TLorentzVectorFactoryTest.cxx
    tests/TightCleanerTest.cxx
    tests/xAODJetCollectorTest.cxx
-   tests/PartitionsGrouperTest.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} GoogleTestTools ${GMOCK_LIBRARIES} TrigHLTJetHypoLib TrigHLTJetHypoUnitTestsLib )
    

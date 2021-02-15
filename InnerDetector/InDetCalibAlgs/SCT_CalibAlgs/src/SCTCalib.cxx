@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -184,6 +184,7 @@ StatusCode SCTCalib::initialize() {
    if (not retrievedService(m_calibLbTool)) return StatusCode::FAILURE;
 
    ATH_CHECK(m_CablingTool.retrieve());
+   ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
    //--- LB range
    try {
@@ -212,6 +213,7 @@ StatusCode SCTCalib::initialize() {
       ATH_MSG_INFO("------------> Reading from ByteStream <-------------");
       m_calibEvtInfoTool->setSource("BS");
       ATH_CHECK(m_eventInfoKey.initialize());
+      ATH_MSG_INFO("m_eventInfoKey.initialize() was successful");
    }
 
 
@@ -261,6 +263,7 @@ StatusCode SCTCalib::initialize() {
       m_calibEvtInfoTool->setSource("HIST");
       m_calibEvtInfoTool->setTimeStamp(m_runStartTime, m_runEndTime);
       m_calibEvtInfoTool->setRunNumber(m_runNumber);
+      m_calibEvtInfoTool->setEventNumber(m_eventNumber);
    }
 
    //--- Booking histograms for hitmaps
@@ -273,6 +276,7 @@ StatusCode SCTCalib::initialize() {
       m_numberOfEventsHist = m_calibHitmapTool->size();
       m_calibEvtInfoTool->setTimeStamp(m_runStartTime, m_runEndTime);
       m_calibEvtInfoTool->setRunNumber(m_runNumber);
+      m_calibEvtInfoTool->setEventNumber(m_eventNumber);
       //m_calibEvtInfoTool->setLumiBlock(0);
       //m_calibEvtInfoTool->setBunchCrossing(0);
       m_calibLbTool->read("./SCTLB.root");
@@ -313,18 +317,20 @@ SCTCalib::notEnoughStatistics(const int required, const int obtained, const std:
 // Execute - on event by event
 //////////////////////////////////////////////////////////////////////////////////
 StatusCode SCTCalib::execute() {
+
+   const bool majorityIsGoodOrUnused{(m_useMajority and m_MajorityConditionsTool->isGood()) or !m_useMajority};
+
    ATH_MSG_DEBUG("----- in execute() ----- ");
    if (m_readBS) {
-      SG::ReadHandle<EventInfo> evt{m_eventInfoKey};
+      ATH_MSG_DEBUG("in execute(): m_eventInfoKey = " << m_eventInfoKey);
+      SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfoKey);
       if (not evt.isValid()) {
          ATH_MSG_FATAL("Unable to get the EventInfo");
          return StatusCode::FAILURE;
       }
-      const EventInfo* evt_ptr{&(*evt)};
-      ATH_MSG_VERBOSE(SCT_CalibAlgs::eventInfoAsString(evt_ptr));
       //--- TimeStamp/LB range analyzed
-      const int timeStamp{static_cast<int>(evt->event_ID()->time_stamp())};
-      const int lumiBlock{static_cast<int>(evt->event_ID()->lumi_block())};
+      const int timeStamp{static_cast<int>(evt->timeStamp())};
+      const int lumiBlock{static_cast<int>(evt->lumiBlock())};
       int timeStampBeginOld;
       int timeStampEndOld;
       m_calibEvtInfoTool->getTimeStamps(timeStampBeginOld, timeStampEndOld);
@@ -335,14 +341,18 @@ StatusCode SCTCalib::execute() {
       m_calibEvtInfoTool->setLumiBlock(std::min(lumiBlock, lbBeginOld), std::max(lumiBlock, lbEndOld));
       m_calibEvtInfoTool->setLumiBlock(lumiBlock);
       m_calibEvtInfoTool->setTimeStamp(timeStamp);
+      if (m_doNoisyLB and majorityIsGoodOrUnused) {
+         m_calibLbTool->setLb(evt->lumiBlock());
+      }
    }
 
-   const bool majorityIsGoodOrUnused{(m_useMajority and m_MajorityConditionsTool->isGood()) or !m_useMajority};
    //--- Fill histograms for (1) Number of events and (2) Hitmaps
    if (m_doHitMaps and majorityIsGoodOrUnused) m_calibHitmapTool->fill(m_readBS);
 
    //--- Fill histograms for (1) Number of events and (2) Hits as a function of LB
-   if (m_doNoisyLB and majorityIsGoodOrUnused) m_calibLbTool->fill(m_readBS);
+   if (m_doNoisyLB and majorityIsGoodOrUnused) {
+      m_calibLbTool->fill(m_readBS);
+   }
 
    //--- Fill histograms for (1) Number of events and (2) BSErrors
    if (m_doBSErrors) m_calibBsErrTool->fill(m_readBS);
@@ -351,7 +361,7 @@ StatusCode SCTCalib::execute() {
    m_calibEvtInfoTool->incrementCounter();
 
    ATH_MSG_DEBUG("----- end of execute() ----- ");
-   
+
    return StatusCode::SUCCESS;
 }
 
@@ -463,6 +473,7 @@ StatusCode SCTCalib::stop ATLAS_NOT_THREAD_SAFE () { // Thread unsafe getNoisySt
 
    //--- Close HIST
    if (m_readHIST) m_inputHist->Close();
+
    return StatusCode::SUCCESS;
 }
 
@@ -472,6 +483,13 @@ StatusCode SCTCalib::stop ATLAS_NOT_THREAD_SAFE () { // Thread unsafe getNoisySt
 ///////////////////////////////////////////////////////////////////////////////////
 StatusCode SCTCalib::finalize() {
    ATH_MSG_INFO("----- in finalize() ----- ");
+
+   if (m_writeToCool) {
+      if (!m_pCalibWriteTool.release().isSuccess()) {
+         ATH_MSG_ERROR("Failed to release m_pCalibWriteTool");
+         return StatusCode::FAILURE;
+      }
+   }
 
    ATH_MSG_INFO("Thank-you for using SCT_CalibAlgs, version " << PACKAGE_VERSION);
    return StatusCode::SUCCESS;
@@ -531,7 +549,7 @@ StatusCode SCTCalib::getNoisyStrip ATLAS_NOT_THREAD_SAFE () { // Thread unsafe w
    // }
 
    ATH_MSG_INFO("----- in getNoisyStrip() ----- ");
-   
+
    //--- Number of LBs processed
    m_numOfLBsProcessed = 0;
    for (int iLB{0}; iLB != m_LBRange; ++iLB) {
@@ -2633,7 +2651,7 @@ SCTCalib::getNumNoisyStrips(const Identifier& waferId) const {
    bool isNoisyWafer{false};
    float noisyStripThr{m_noisyStripThrDef ? (m_noisyStripThrOffline) : (m_noisyStripThrOnline)};
    for (int iStrip{0}; iStrip != nbins; ++iStrip) {
-      if (m_calibHitmapTool->getBinForHistogramIndex(iStrip + 1, waferHash.value()) / m_numberOfEvents > noisyStripThr) ++numNoisyStripsInTheWafer;
+      if ( (float) m_calibHitmapTool->getBinForHistogramIndex(iStrip + 1, waferHash.value()) / m_numberOfEvents > noisyStripThr) ++numNoisyStripsInTheWafer;
    }
    //--- Define/counts noisy wafers using wafer occupancy and number of noisy strips
    double averageOccupancy{m_calibHitmapTool->size(waferHash.value())/static_cast<double>(nbins)/static_cast<double>(m_numberOfEvents)};
@@ -2661,7 +2679,7 @@ SCTCalib::addStripsToList(Identifier& waferId, std::set<Identifier>& stripIdList
       if (!isNoisy) { //--- Add all strips
          stripIdList.insert(stripId);
       } else {
-         const float stripOccupancy{static_cast<float>(m_calibHitmapTool->getBinForHistogramIndex(iStrip + 1, waferHash.value()) / m_numberOfEvents)};
+         const float stripOccupancy{ (float) m_calibHitmapTool->getBinForHistogramIndex(iStrip + 1, waferHash.value()) / m_numberOfEvents};
          if (stripOccupancy > noisyStripThr) {
             if (!isNew) { //--- All noisy strips
                stripIdList.insert(stripId);
@@ -2682,10 +2700,10 @@ SCTCalib::addStripsToList(Identifier& waferId, std::set<Identifier>& stripIdList
 
 
 StatusCode
-SCTCalib::writeModuleListToCool ATLAS_NOT_THREAD_SAFE // Thread unsafe SCTCalibWriteTool::createCondObjects method is used.
-                               (const std::map<Identifier, std::set<Identifier>>& moduleListAll,
-                                const std::map<Identifier, std::set<Identifier>>& moduleListNew,
-                                const std::map<Identifier, std::set<Identifier>>& moduleListRef) {
+SCTCalib::writeModuleListToCool ATLAS_NOT_THREAD_SAFE // Thread unsafe SCTCalibWriteTool::createListStrip method is used.
+(const std::map<Identifier, std::set<Identifier>>& moduleListAll,
+ const std::map<Identifier, std::set<Identifier>>& moduleListNew,
+ const std::map<Identifier, std::set<Identifier>>& moduleListRef) {
    //--- Write out strips
    float noisyStripThr{m_noisyStripThrDef?(m_noisyStripThrOffline):(m_noisyStripThrOnline)};
    int nDefects{0};
@@ -2706,33 +2724,35 @@ SCTCalib::writeModuleListToCool ATLAS_NOT_THREAD_SAFE // Thread unsafe SCTCalibW
                   ATH_MSG_ERROR("Could not create defect strip entry in the CalibWriteTool.");
                }
                nDefects++;
-            } else ATH_MSG_DEBUG("Module " << moduleId  << " is identical to the reference output");
+            }; // else ATH_MSG_DEBUG("Module " << moduleId  << " is identical to the reference output");
          } else {
             if (m_noisyStripAll) { //--- ALL noisy strips
                if (!defectStripsAll.empty() || m_noisyWriteAllModules) {
-                 if (m_pCalibWriteTool->createCondObjects(moduleId, m_pSCTHelper, 10000, "NOISY", noisyStripThr, defectStripsAll).isFailure()) {
-                   ATH_MSG_ERROR("Could not create defect strip entry in the CalibWriteTool.");
-                 }
-              }
+                  if (m_pCalibWriteTool->createCondObjects(moduleId, m_pSCTHelper, 10000, "NOISY", noisyStripThr, defectStripsAll).isFailure()) {
+                     ATH_MSG_ERROR("Could not create defect strip entry in the CalibWriteTool.");
+                  }
+               }
             } else { //--- Only NEW noisy strips
                if (!defectStripsNew.empty()) {
-                 if (m_pCalibWriteTool->createCondObjects(moduleId, m_pSCTHelper, 10000, "NOISY", noisyStripThr, defectStripsNew).isFailure()) {
-                   ATH_MSG_ERROR("Could not create defect strip entry in the CalibWriteTool.");
-                 }
+                  if (m_pCalibWriteTool->createCondObjects(moduleId, m_pSCTHelper, 10000, "NOISY", noisyStripThr, defectStripsNew).isFailure()) {
+                     ATH_MSG_ERROR("Could not create defect strip entry in the CalibWriteTool.");
+                  }
                }
             }
          }
       }
    }
-   //ATH_MSG_INFO("Number of modules for which conditions were created: " << nDefects << "  !!!!" << endmsg;
-   if (moduleListAll.empty() or nDefects==0) {
+   ATH_MSG_DEBUG("Number of modules for which conditions were created: " << nDefects << "  !!!!");
+   if (moduleListAll.empty() or ( nDefects==0 && m_noisyUpdate )) {
       ATH_MSG_INFO("Number of noisy strips was zero or the same list of noisy strips. No local DB was created.");
    } else {
+      ATH_MSG_DEBUG("directly before call of wrapUpNoisyChannel");
       if (m_pCalibWriteTool->wrapUpNoisyChannel().isFailure()) {
          ATH_MSG_ERROR("Could not get NoisyStrips info");
          return StatusCode::FAILURE;
       }
    }
+   ATH_MSG_DEBUG("before return");
    return StatusCode::SUCCESS;
 }
 
@@ -2854,6 +2874,9 @@ StatusCode SCTCalib::noisyStripsToSummaryXml(const std::map<Identifier, std::set
       //const std::map<Identifier, std::set<Identifier>>& moduleListNew,
       const std::map<Identifier, std::set<Identifier>>& moduleListRef,
       const std::string& badStripsFile) const {
+
+   ATH_MSG_DEBUG("noisyStripsToSummaryXml: start");
+
    //--- Open
    const char* outputFileName{badStripsFile.c_str()};
    std::ofstream outFile{outputFileName, std::ios::out};
@@ -2875,6 +2898,7 @@ StatusCode SCTCalib::noisyStripsToSummaryXml(const std::map<Identifier, std::set
    //--- Create module list
    SCT_ID::const_id_iterator waferItr{m_pSCTHelper->wafer_begin()};
    SCT_ID::const_id_iterator waferItrE{m_pSCTHelper->wafer_end()};
+   ATH_MSG_DEBUG("noisyStripsToSummaryXml: before wafer loop");
    for (; waferItr != waferItrE; ++waferItr) {
       //--- Identifier
       Identifier waferId{*waferItr};
@@ -2901,6 +2925,7 @@ StatusCode SCTCalib::noisyStripsToSummaryXml(const std::map<Identifier, std::set
 
       //--- Execute once in this module
       if (m_pSCTHelper->side(waferId) == 1) {
+         ATH_MSG_DEBUG("noisyStripsToSummaryXml: ALL");
          //--- Noisy strips : All
          std::map< Identifier, std::set<Identifier> >::const_iterator moduleAllItr{moduleListAll.find(moduleId)};
          if (moduleAllItr != moduleListAll.end()) {
@@ -2909,6 +2934,7 @@ StatusCode SCTCalib::noisyStripsToSummaryXml(const std::map<Identifier, std::set
             numStripsAll += (*moduleAllItr).second.size();
          }
 
+         ATH_MSG_DEBUG("noisyStripsToSummaryXml: REF");
          //--- Noisy strips : Ref
          std::map< Identifier, std::set<Identifier> >::const_iterator moduleRefItr{moduleListRef.find(moduleId)};
          if (moduleRefItr != moduleListRef.end()) {
@@ -2917,6 +2943,7 @@ StatusCode SCTCalib::noisyStripsToSummaryXml(const std::map<Identifier, std::set
             numStripsRef += moduleRefItr->second.size();
          }
 
+         ATH_MSG_DEBUG("noisyStripsToSummaryXml: NEW");
          //--- Noisy strips : New
          if ( moduleAllItr != moduleListAll.end() ) {
             if ( moduleRefItr != moduleListRef.end() ) {
@@ -2929,6 +2956,7 @@ StatusCode SCTCalib::noisyStripsToSummaryXml(const std::map<Identifier, std::set
             }
          }
 
+         ATH_MSG_DEBUG("noisyStripsToSummaryXml: stripIdList -> chipIdList");
          //--- Noisy chips : stripIdList -> chipIdList
          if (moduleAllItr != moduleListAll.end()) {
             std::set<int> chipIdList{getNoisyChips(moduleAllItr->second)};
@@ -2956,6 +2984,7 @@ StatusCode SCTCalib::noisyStripsToSummaryXml(const std::map<Identifier, std::set
                }
             }
          }
+         ATH_MSG_DEBUG("noisyStripsToSummaryXml: Difference between All & Ref");
          //--- Difference between All & Ref
          if (defectStripsAll != defectStripsRef) ++numModulesDiff;
          //--- Module list written to XML
@@ -2973,8 +3002,11 @@ StatusCode SCTCalib::noisyStripsToSummaryXml(const std::map<Identifier, std::set
                          << "      <value name=\"StripOfflineRef\">" << normalizeList(defectStripsRef)    << "</value>" << linefeed
                          << "    </module>"                                                                             << std::endl;
          }
+         ATH_MSG_DEBUG("noisyStripsToSummaryXml: After Difference between All & Ref");
       }
    }//--- end loop : waferItr
+
+   ATH_MSG_DEBUG("noisyStripsToSummaryXml: after waferItr");
 
    //--- Upload flag
    std::string strUploadFlag{"U"};
@@ -2999,6 +3031,8 @@ StatusCode SCTCalib::noisyStripsToSummaryXml(const std::map<Identifier, std::set
          }
       }
    }
+
+   ATH_MSG_DEBUG("noisyStripsToSummaryXml: after FlagChecking");
 
    //--- Upload test result to XML
    std::ostringstream osNoisyMinStat, osNoisyModuleList, osNoisyModuleDiff, osNoisyStripDiff;
@@ -3052,6 +3086,8 @@ StatusCode SCTCalib::noisyStripsToSummaryXml(const std::map<Identifier, std::set
            << osModuleList.str()
            << "  </modules>"                                                                           << linefeed
            << "</run>"                                                                                 << std::endl;
+
+   ATH_MSG_DEBUG("noisyStripsToSummaryXml: before return");
 
    return StatusCode::SUCCESS;
 }
@@ -3131,7 +3167,7 @@ SCTCalib::getNoisyLB(const Identifier& moduleId, int& chipId) const {
    for (int iLB{0}; iLB != m_LBRange; ++iLB) {
       double numEventsInLB{static_cast<double>(m_calibLbTool->getNumberOfEventsInBin(iLB + 1))};
       if (numEventsInLB == 0) continue;
-      double chipOccupancy{m_calibLbTool->getBinForHistogramIndex(iLB + 1, histIndex)/numEventsInLB};
+      double chipOccupancy{(float) m_calibLbTool->getBinForHistogramIndex(iLB + 1, histIndex) / numEventsInLB};
       if (chipOccupancy > chipOccupancyThr) LBList.insert(iLB);
    }
    //--- Transform LBList to string and calculate a fraction of noisy LBs

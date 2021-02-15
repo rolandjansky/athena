@@ -3,14 +3,14 @@
 
 #import the selectors
 from __future__ import print_function
-from selector.AtlRunQuerySelectorDQ      import DQSelector
-from selector.AtlRunQuerySelectorTrigger import TrigKeySelector, TriggerSelector
-from selector.AtlRunQuerySelectorMisc    import BPMSelector, LArcondSelector, DatasetsSelector, DetectorSelector, FilenameSelector, PartitionSelector, ReadyForPhysicsSelector, DurationSelector, BFieldSelector
-from selector.AtlRunQuerySelectorEvents  import EventSelector
-from selector.AtlRunQuerySelectorStreams import StreamSelector
-from selector.AtlRunQuerySelectorLhcOlc  import LHCSelector, OLCLumiSelector, LuminositySelector, BeamspotSelector
+from CoolRunQuery.selector.AtlRunQuerySelectorDQ      import DQSelector
+from CoolRunQuery.selector.AtlRunQuerySelectorTrigger import TrigKeySelector, TriggerSelector
+from CoolRunQuery.selector.AtlRunQuerySelectorMisc    import BPMSelector, LArcondSelector, DatasetsSelector, DetectorSelector, FilenameSelector, PartitionSelector, ReadyForPhysicsSelector, DurationSelector, BFieldSelector
+from CoolRunQuery.selector.AtlRunQuerySelectorEvents  import EventSelector
+from CoolRunQuery.selector.AtlRunQuerySelectorStreams import StreamSelector
+from CoolRunQuery.selector.AtlRunQuerySelectorLhcOlc  import LHCSelector, OLCLumiSelector, LuminositySelector, BeamspotSelector
 
-from .AtlRunQueryRun                     import Run
+from CoolRunQuery.AtlRunQueryRun                      import Run
 
 
 class SelectorWorker:
@@ -135,7 +135,7 @@ class SelectorWorker:
     @classmethod
     def CreateSelector( cls, selname, doesShow, *args, **kwargs):
         selcls = SelectorWorker.__creationRules[selname]
-        exec('thecls=%s' % selcls)
+        thecls = eval('%s' % selcls)
         newsel = thecls(name=selname, *args, **kwargs)  # noqa: F821
         print ("CREATING SELECTOR %s %s('%s')" % (("SHOW" if doesShow else "RETRIEVE"), selcls, selname))
         s = cls.SelDescr(selector=newsel, priority=0, doesSelect=False, doesShow=True, executed=False)
@@ -163,7 +163,7 @@ class SelectorWorker:
     def getOrderedSelectorList(cls):
         # Highes priority first
         sortedSel = cls.__selectors
-        sortedSel.sort(lambda x,y: y.priority-x.priority)
+        sortedSel.sort(key = lambda x: x.priority, reverse=True)
         return sortedSel
 
     @classmethod

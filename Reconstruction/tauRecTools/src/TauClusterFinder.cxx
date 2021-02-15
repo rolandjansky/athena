@@ -20,6 +20,8 @@ TauRecToolBase(name) {
 
 
 StatusCode TauClusterFinder::execute(xAOD::TauJet& tau) const {
+  tau.clearClusterLinks();
+    
   if (! tau.jetLink().isValid()) {
     ATH_MSG_ERROR("Tau jet link is invalid.");
     return StatusCode::FAILURE;

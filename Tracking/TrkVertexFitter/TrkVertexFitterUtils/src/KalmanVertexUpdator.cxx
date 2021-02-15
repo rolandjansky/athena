@@ -32,13 +32,7 @@ namespace Trk{
   return StatusCode::SUCCESS;
  }
 
- StatusCode KalmanVertexUpdator::finalize()
- {
-  msg(MSG::INFO)  << "Finalize successful" << endmsg;
-  return StatusCode::SUCCESS;
- }
 
- 
  xAOD::Vertex * KalmanVertexUpdator:: add(xAOD::Vertex& vtx, VxTrackAtVertex& trk) const
  {
    return update(vtx,trk,IVertexUpdator::addTrack);

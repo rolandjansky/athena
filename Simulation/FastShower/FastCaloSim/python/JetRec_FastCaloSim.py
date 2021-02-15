@@ -1,8 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-    
-
-from JetRec.JetGetters import *
+from JetRec.JetGetters import make_StandardJetGetter
 from JetRec.JetRecFlags import jetFlags
 
 def make_FastCaloSimJets(doTowerJet = True, doTopoJet = True, doTruthJet = True, doLocalCalib = False ,

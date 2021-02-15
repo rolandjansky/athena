@@ -1,8 +1,6 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file PerfMonComps/python/PerfMonSerializer
-
-from __future__ import with_statement, print_function
 
 __version__ = "$Revision: 524466 $"
 __doc__ = "various utils to encode/decode perfmon (meta)data with base64"
@@ -161,23 +159,22 @@ def iextract_pmon_data(fname):
     else:
         raise ValueError("expect a xyz.pmon.gz or xyz.stream file (got [%s])"%(fname,))
     
-    from collections import defaultdict
     import numpy as np
     out = _init_pmon_data()
         
     with open(stream_fname, 'r') as f:
-        for l in f:
+        for z in f:
             data, step, idx, comp = (None, ) * 4
-            if l.startswith('#'):
+            if z.startswith('#'):
                 continue
             #print("[%s]" % l.strip())
             # handle things like:
             # /io/std::vector<unsigned int>#L1CaloUnpackingErrors ...
             # /io/std::map<std::string,std::vector<int> >#mapdata ...
-            l = l.replace('unsigned int', 'unsigned-int')\
+            z = z.replace('unsigned int', 'unsigned-int')\
                  .replace('> >', '>->')
             
-            fields = l.split()
+            fields = z.split()
             #print("##",repr(l))
             if fields[0].startswith(('/ini/','/evt/','/fin/',
                                      '/cbk/','/usr/',
@@ -345,7 +342,7 @@ def iextract_pmon_data(fname):
                 pass
             else:
                 print("warning: unhandled field [%s]" % (fields[0],))
-                print(repr(l))
+                print(repr(z))
 
             # yields what we got so far
             yield step, idx, comp, out
@@ -391,7 +388,8 @@ def encode(data, use_base64=True):
 def decode(s):
     """decode a (compressed) string into a python object
     """
-    if not s: return None
+    if not s:
+        return None
     import zlib
     import cPickle as pickle
     if s[0]=='B':
@@ -399,7 +397,6 @@ def decode(s):
         s=base64.b64decode(s[1:])
     else:
         s=s[1:]
-    d=pickle.loads(zlib.decompress(s))
     return pickle.loads(zlib.decompress(s))
 
 def build_callgraph(fname):
@@ -417,9 +414,7 @@ def build_callgraph(fname):
     current_step = 'ini'
     local_ctx = None
     
-    out = None
     for step, idx, comp, table in iextract_pmon_data(fname):
-        out = table
         if idx is None:
             if comp == 'PerfMonSliceIo':
                 # ignore this component for now...
@@ -493,7 +488,7 @@ def build_callgraph(fname):
                 # push the stack of contexes
                 parent_ctx = local_ctx
                 local_ctx = GraphNode(comp, parent=parent_ctx)
-                if not step in graph.keys():
+                if step not in graph.keys():
                     local_ctx.ctype = step
                 parent_ctx.children.append(local_ctx)
             elif idx == 1:

@@ -16,18 +16,11 @@
 //
 #include "GeoModelXml/ElementProcessor.h"
 
-#ifndef STANDALONE_GMX
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
-#else
-#include <iostream>
-#endif
-
-
+#include "GeoModelXml/OutputDirector.h"
 #include <string>
+#include "xercesc/util/XercesDefs.hpp"
 #include <xercesc/dom/DOM.hpp>
-#include "GeoModelXml/translate.h"
+
 
 #include "GeoModelXml/GeoNodeList.h"
 #include "GeoModelXml/ProcessorRegistry.h"
@@ -39,15 +32,10 @@ ElementProcessor::ElementProcessor() {}
 
 void ElementProcessor::process(const DOMElement *element, GmxUtil & /* gmxUtil*/, GeoNodeList & /* toAdd */) {
 
-    char *name2release = Translate(element->getNodeName());
+    char *name2release = XMLString::transcode(element->getNodeName());
     std::string name(name2release);
     XMLString::release(&name2release);
 
-#ifndef STANDALONE_GMX
-    ServiceHandle<IMessageSvc> msgh("MessageSvc", "GeoModelXml");
-    MsgStream log(&(*msgh), "GeoModelXml");
-    log << MSG::FATAL << "Error!!! Default element processor called for tag-name " << name << endmsg;
-#else
-    std::cerr << "Error!!! Default element processor called for tag-name " << name << std::endl;
-#endif
+    OUTPUT_STREAM;
+    msglog << MSG::FATAL << "Error!!! Default element processor called for tag-name " << name << endmsg;
 }

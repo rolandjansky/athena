@@ -510,8 +510,6 @@ IOVDbSvc             INFO Disconnecting from COOLOFL_TRT/OFLP200
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] C634B46D-ECB2-A045-91CC-00A82369D887
 Domain[ROOT_All]     INFO                           /home/sss/atlas/DBRelease/current/poolcond/cond09_mc.000070.gen.COND/cond12_data.000029.gen.COND._0001.pool.root
 RootDatabase.open    INFO /home/sss/atlas/DBRelease/current/poolcond/cond09_mc.000070.gen.COND/cond12_data.000029.gen.COND._0001.pool.root File version:53005
-PixelDetectorMa...WARNING Cannot set AlignableTransform for identifier  [2.1.0.0.0.-4.256.0] at level 2
-PixelDetectorMa...WARNING Subsequent WARNINGS will be printed at DEBUG level.
 PixelDetectorMa...   INFO Processing IBLDist alignment container with key (/Indet/IBLDist) and alignment folder pointing to /Indet/Align
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] D67CA215-C5CB-DF11-954C-000423DC2158
 Domain[ROOT_All]     INFO                           /home/sss/atlas/DBRelease/current/poolcond/cond09_mc.000019.gen.COND/cond09_mc.000019.gen.COND._0010.pool.root

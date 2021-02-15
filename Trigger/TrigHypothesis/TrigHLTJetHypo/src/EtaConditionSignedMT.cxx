@@ -30,7 +30,7 @@ bool EtaConditionSignedMT::isSatisfied(const pHypoJet& ip,
         << " eta[" << m_min << ", " << m_max << "]" 
         << " pass: "  << std::boolalpha << pass << '\n';
 
-    auto j_addr = static_cast<const void*>(ip);
+    auto j_addr = static_cast<const void*>(ip.get());
     std::stringstream ss1;
     ss1 <<  "     jet : ("<< j_addr << ") signed eta " << eta << '\n';
 

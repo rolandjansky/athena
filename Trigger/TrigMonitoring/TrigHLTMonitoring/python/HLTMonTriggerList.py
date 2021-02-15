@@ -97,7 +97,6 @@ class HLTMonTriggerList:
   # Implementation of https://its.cern.ch/jira/browse/ATR-13200
   def get_monitoring_mode(self):
     # Set monitoring mode
-    print ('jmasik: DQMonFlags.monManDataType(): ', DQMonFlags.monManDataType())
     self.data_type = DQMonFlags.monManDataType()
     
     if self.data_type == 'monteCarlo':

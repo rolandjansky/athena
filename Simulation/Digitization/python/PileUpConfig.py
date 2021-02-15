@@ -258,6 +258,9 @@ def getPileUpEventLoopMgr(name="PileUpEventLoopMgr", **kwargs):
         kwargs.setdefault('BeamLuminosity', noProfileSvc)
         ServiceMgr += noProfileSvc
 
-    kwargs.setdefault('EventInfoName', 'Input_EventInfo')  # for beam spot fix
+    kwargs.setdefault('EventInfoName', 'Input_EventInfo')
+    # Note that this is a hack. It is needed to fix beam spot information
+    # as original xAOD::EventInfo is created before conditions data could
+    # be read. Only the "EventInfoName" should change.
 
     return CfgMgr.PileUpEventLoopMgr(name, **kwargs)

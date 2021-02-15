@@ -60,7 +60,7 @@ topoEgammaBuilder::initialize()
     m_egammaOQTool.disable();
   }
 
-  //do we actually do ambiguity 
+  //do we actually do ambiguity
   m_doAmbiguity = !m_ambiguityTool.empty();
   if (m_doElectrons && m_doPhotons && m_doAmbiguity) {
     ATH_CHECK(m_ambiguityTool.retrieve());
@@ -100,15 +100,15 @@ topoEgammaBuilder::execute(const EventContext& ctx) const
   }
 
   SG::WriteHandle<xAOD::ElectronContainer> electronContainer(m_electronOutputKey, ctx);
-  
+
   ATH_CHECK(electronContainer.record(std::make_unique<xAOD::ElectronContainer>(),
                                      std::make_unique<xAOD::ElectronAuxContainer>()));
 
   SG::WriteHandle<xAOD::PhotonContainer> photonContainer(m_photonOutputKey,ctx);
-  
+
   ATH_CHECK(photonContainer.record(std::make_unique<xAOD::PhotonContainer>(),
                                    std::make_unique<xAOD::PhotonAuxContainer>()));
-  
+
   electrons = electronContainer.ptr();
   photons = photonContainer.ptr();
 
@@ -248,7 +248,7 @@ topoEgammaBuilder::execute(const EventContext& ctx) const
   }
   // Do the ambiguity Links
   if (m_doElectrons && m_doPhotons) {
-    ATH_CHECK(doAmbiguityLinks(electrons, photons));
+    ATH_CHECK(doAmbiguityLinks(ctx,electrons, photons));
   }
 
   return StatusCode::SUCCESS;
@@ -256,6 +256,7 @@ topoEgammaBuilder::execute(const EventContext& ctx) const
 
 StatusCode
 topoEgammaBuilder::doAmbiguityLinks(
+  const EventContext& ctx,
   xAOD::ElectronContainer* electronContainer,
   xAOD::PhotonContainer* photonContainer) const
 {
@@ -287,7 +288,7 @@ topoEgammaBuilder::doAmbiguityLinks(
       if (caloClusterLinks(*(electron->caloCluster())).at(0) ==
           caloClusterLinks(*(photon->caloCluster())).at(0)) {
         ElementLink<xAOD::EgammaContainer> link(*electronContainer,
-                                                electronIndex);
+                                                electronIndex,ctx);
         ELink(*photon) = link;
         break;
       }
@@ -309,7 +310,8 @@ topoEgammaBuilder::doAmbiguityLinks(
 
       if (caloClusterLinks(*(electron->caloCluster())).at(0) ==
           caloClusterLinks(*(photon->caloCluster())).at(0)) {
-        ElementLink<xAOD::EgammaContainer> link(*photonContainer, photonIndex);
+        ElementLink<xAOD::EgammaContainer> link(
+          *photonContainer, photonIndex, ctx);
         ELink(*electron) = link;
         break;
       }

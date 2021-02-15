@@ -7,8 +7,6 @@
 HLTResultMTMakerAlg::HLTResultMTMakerAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthReentrantAlgorithm(name, pSvcLocator) {}
 
-HLTResultMTMakerAlg::~HLTResultMTMakerAlg() {}
-
 StatusCode HLTResultMTMakerAlg::initialize() {
   ATH_CHECK( m_resultMaker.retrieve() );
   return StatusCode::SUCCESS;

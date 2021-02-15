@@ -69,7 +69,7 @@ class HLTTauMonTool : public IHLTMonTool {
 //#endif
 
   /// Method fills the histograms for one tau trigger item.
-  StatusCode fillHistogramsForItem(const std::string & trigItem, const bool & monRNN, const bool & monBDT, const std::string & goodTauRefType); 
+  StatusCode fillHistogramsForItem(const std::string & trigItem, const bool & monRNN, const bool & monBDT); 
   
  private:
 
@@ -87,9 +87,9 @@ class HLTTauMonTool : public IHLTMonTool {
   StatusCode fillPreselTau(const xAOD::TauJet *aEFTau);
   StatusCode fillEFTau(const xAOD::TauJet *aEFTau, const std::string & trigItem, const std::string & BDTinput_type, const bool & monRNN, const bool & monBDT);
   /// Method filling the EF vs Offline tau histograms
-  StatusCode fillEFTauVsOffline(const xAOD::TauJet *aEFTau, const std::string & trigItem, const std::string & BDTinput_type, const std::string & goodTauRefType);
-  StatusCode fillPreselTauVsOffline(const xAOD::TauJet *aEFTau, const std::string & goodTauRefType);
-  StatusCode fillL1TauVsOffline(const xAOD::EmTauRoI *aEFTau, const std::string & goodTauRefType);
+  StatusCode fillEFTauVsOffline(const xAOD::TauJet *aEFTau, const std::string & trigItem, const std::string & BDTinput_type);
+  StatusCode fillPreselTauVsOffline(const xAOD::TauJet *aEFTau);
+  StatusCode fillL1TauVsOffline(const xAOD::EmTauRoI *aEFTau);
   StatusCode fillEFTauVsTruth(const xAOD::TauJet *aEFTau, const std::string & trigItem);  
   StatusCode fillTopoValidation(const std::string & trigItem_topo, const std::string & trigItem_support);
 
@@ -98,9 +98,9 @@ class HLTTauMonTool : public IHLTMonTool {
 
   /// Method for Turn On Curves
   StatusCode examineTruthTau(const xAOD::TruthParticle& xTruthParticle) const;
-  StatusCode TruthTauEfficiency(const std::string & trigItem, const std::string & TauCont_type, const std::string & goodTauRefType);
+  StatusCode TruthTauEfficiency(const std::string & trigItem, const std::string & TauCont_type);
   StatusCode RecoTauEfficiency(const std::string & trigItem);
-  StatusCode TauEfficiency(const std::string & trigItem, const std::string & TauDenom, const std::string & goodTauRefType);
+  StatusCode TauEfficiency(const std::string & trigItem, const std::string & TauDenom);
 //  StatusCode TauEfficiencyCombo(const std::string & trigItem);
 
   StatusCode RealZTauTauEfficiency(const std::string & goodTauRefType);
@@ -176,7 +176,13 @@ class HLTTauMonTool : public IHLTMonTool {
   std::vector<int> m_true_taus_nprong;
   std::vector<const xAOD::TauJet *> m_taus_BDT;
   std::vector<const xAOD::TauJet *> m_taus_RNN;
-  const xAOD::TauJetContainer* m_tauCont;
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey { this, "eventInfoKey", "EventInfo", "EventInfo key" };
+  SG::ReadHandleKey<xAOD::TruthParticleContainer> m_truthParticleKey { this, "truthParticleKey", "TruthParticles", "TruthParticleContainer key" };
+  SG::ReadHandleKey<xAOD::TauJetContainer> m_offlineTauJetKey { this, "offlineTauJetKey", "TauJets", "Offline taujet container key" };
+  SG::ReadHandleKey<xAOD::EmTauRoIContainer> m_emRoIKey { this, "emRoIKey", "LVL1EmTauRoIs", "EM Tau RoI container key" };
+  SG::ReadHandleKey<xAOD::JetRoIContainer> m_jetRoIKey { this, "jetRoIKey", "LVL1JetRoIs", "Jet RoI container key" };
+  SG::ReadHandleKey<xAOD::VertexContainer> m_pvKey { this, "pvKey", "PrimaryVertices", "Primary vertex container key" };
+  SG::ReadHandleKey<xAOD::JetContainer> m_jetKey { this, "jetKey", "AntiKt4LCTopoJets", "Offline jet container key" };
 
   unsigned int m_L1TriggerCondition;
   unsigned int m_HLTTriggerCondition;

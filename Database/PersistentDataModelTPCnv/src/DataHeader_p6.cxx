@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PersistentDataModelTPCnv/DataHeader_p6.h"
@@ -101,6 +101,10 @@ unsigned int DataHeaderForm_p6::insertObj(const ObjRecord& rec,
 
 std::size_t DataHeaderForm_p6::sizeObj() const {
    return(m_objRecords.size());
+}
+
+std::string DataHeaderForm_p6::getObjContainer(unsigned int index) const {
+   return m_objRecords[index].cont;
 }
 
 std::string DataHeaderForm_p6::getObjKey(unsigned int index) const {

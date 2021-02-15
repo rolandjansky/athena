@@ -15,10 +15,10 @@ class TrigInDetTriplet {
  public:
    TrigInDetTriplet() = delete; //to prevent creation w/o initialization
 
- TrigInDetTriplet(const TrigSiSpacePointBase& s1, const TrigSiSpacePointBase& s2, const TrigSiSpacePointBase& s3, float Q) : 
-    m_s1(s1), m_s2(s2), m_s3(s3), m_Q(Q) {};
+ static_assert(std::is_nothrow_move_constructible<TrigSiSpacePointBase>::value);
+ TrigInDetTriplet(TrigSiSpacePointBase s1, TrigSiSpacePointBase s2, TrigSiSpacePointBase s3, float Q) :
+    m_s1(std::move(s1)), m_s2(std::move(s2)), m_s3(std::move(s3)), m_Q(Q) {};
 
- TrigInDetTriplet(const TrigInDetTriplet& t) = default;
  TrigInDetTriplet(TrigInDetTriplet* t) :
     m_s1(t->m_s1), m_s2(t->m_s2), m_s3(t->m_s3), m_Q(t->m_Q) {};
 

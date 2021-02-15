@@ -31,7 +31,6 @@ class TrigEgammaPrecisionElectronHypoToolInc : public extends<AthAlgTool, ITrigE
 			 const std::string& name, 
 			 const IInterface* parent );
 
-  virtual ~TrigEgammaPrecisionElectronHypoToolInc();
   virtual StatusCode initialize() override;
 
   virtual StatusCode decide( std::vector<ITrigEgammaPrecisionElectronHypoTool::ElectronInfo>& input, const EventContext& ctx)  const override;
@@ -45,17 +44,13 @@ class TrigEgammaPrecisionElectronHypoToolInc : public extends<AthAlgTool, ITrigE
   Gaudi::Property< std::vector<float> > m_eTthr { this, "ETthr", {}, "ET Threshold" };
   Gaudi::Property< float > m_detacluster { this, "dETACLUSTERthr", 0. , "" };
   Gaudi::Property< float > m_dphicluster { this, "dPHICLUSTERthr", 0. , "" };  
+  Gaudi::Property< float > m_RelPtConeCut { this, "RelPtConeCut", -999., "Track isolation cut" };
 
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
+  ToolHandle<IAsgElectronLikelihoodTool> m_egammaElectronLHTool{ this, "ElectronLHSelector", "", "Likelihood tool" };
 
-  /*Likelihood tool*/
-  ToolHandle<IAsgElectronLikelihoodTool> m_egammaElectronLHTool;
-
-  /* TRack isolation cut */
-  float m_RelPtConeCut;
-  
   /*Luminosity info*/
-  SG::ReadDecorHandleKey<xAOD::EventInfo> m_avgMuKey { this, "AveIntPerXKey", "EventInfo.AveIntPerXDecor", "Decoration for Average Interaction Per Crossing" };
+  SG::ReadDecorHandleKey<xAOD::EventInfo> m_avgMuKey { this, "averageInteractionsPerCrossingKey", "EventInfo.averageInteractionsPerCrossing", "Decoration for Average Interaction Per Crossing" };
   int findCutIndex( float eta ) const;
 
 }; 

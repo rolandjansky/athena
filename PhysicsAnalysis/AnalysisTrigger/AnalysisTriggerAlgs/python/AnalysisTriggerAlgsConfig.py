@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Athena import(s):
 import AthenaCommon.CfgMgr as CfgMgr
@@ -13,7 +13,7 @@ class DefaultRoIBResultToAOD( genConfRoIBResultToAOD ):
 
         # Get a logger:
         from AthenaCommon.Logging import logging
-        log = logging.getLogger( 'RoIBResultToAOD' )
+        log = logging.getLogger( 'RoIBResultToxAOD' )
 
         #
         # Get the handle to the LVL1 config service:
@@ -34,6 +34,8 @@ class DefaultRoIBResultToAOD( genConfRoIBResultToAOD ):
 
         # Set the handle for the algorithm:
         self.LVL1ConfigSvc = lvl1ConfigSvc
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        self.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
 
         #
         # Set up the L1Calo tools:
@@ -41,28 +43,30 @@ class DefaultRoIBResultToAOD( genConfRoIBResultToAOD ):
         log.info( "will add L1CPMTools instance to the algorithm" )
         self.L1CPMTools = CfgMgr.LVL1__L1CPMTools( 'L1CPMTools' )
         self.L1CPMTools.LVL1ConfigSvc = lvl1ConfigSvc
+        self.L1CPMTools.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
 
         log.info( "will add L1JEMJetTools instance to the algorithm" )
         self.L1JEMJetTools = CfgMgr.LVL1__L1JEMJetTools( 'L1JEMJetTools' )
         self.L1JEMJetTools.LVL1ConfigSvc = lvl1ConfigSvc
+        self.L1JEMJetTools.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
 
         #
-        # Set up the muon RoI services:
+        # Set up the muon RoI tools:
         #
-        if not hasattr( ServiceMgr, 'LVL1RPC::RPCRecRoiSvc' ):
-            log.info( "will setup LVL1RPC::RPCRecRoiSvc and add instance to ServiceMgr" )
-            from TrigT1RPCRecRoiSvc.TrigT1RPCRecRoiConfig import RPCRecRoiConfig
-            ServiceMgr += RPCRecRoiConfig()
+        from AthenaCommon.DetFlags import DetFlags
+        if DetFlags.detdescr.Muon_on():
+            #Configure alignemnt and muon detector conditions algs
+            from MuonRecExample import MuonAlignConfig  # noqa: F401
+            #TGC and RPC RecRoiTools
+            from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConf import LVL1__TrigT1RPCRecRoiTool, LVL1__TrigT1TGCRecRoiTool
+            from AthenaConfiguration.AllConfigFlags import ConfigFlags
+            rpcRecRoiTool = LVL1__TrigT1RPCRecRoiTool("RPCRecRoiTool", UseRun3Config=ConfigFlags.Trigger.enableL1Phase1)
+            self.RecRpcRoiTool = rpcRecRoiTool
+            tgcRecRoiTool = LVL1__TrigT1TGCRecRoiTool("TGCRecRoiTool", UseRun3Config=ConfigFlags.Trigger.enableL1Phase1)
+            self.RecTgcRoiTool = tgcRecRoiTool
         else:
-            log.info( "will _not_ add LVL1RPC::RPCRecRoiSvc instance to ServiceMgr since it already exists" )
-
-        if not hasattr( ServiceMgr, 'LVL1TGC::TGCRecRoiSvc' ):
-            log.info( "will setup LVL1RPC::TGCRecRoiSvc and add instance to ServiceMgr" )
-            from TrigT1TGCRecRoiSvc.TrigT1TGCRecRoiConfig import TGCRecRoiConfig
-            ServiceMgr += TGCRecRoiConfig()
-        else:
-            log.info( "will _not_ add LVL1RPC::TGCRecRoiSvc instance to ServiceMgr since it already exists" )
-
+            self.RecRpcRoiTool=""
+            self.RecTgcRoiTool=""
 
     def setDefaults( self, handle ):
         # switch off reading of Muon/Calo inputs if subsystem is not running

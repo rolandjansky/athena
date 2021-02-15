@@ -77,6 +77,7 @@ LArRODMonAlg::initialize() {
   ATH_CHECK(m_channelKey_fromDigits.initialize());
   ATH_CHECK(m_channelKey_fromBytestream.initialize());
   ATH_CHECK(m_digitContainerKey.initialize());
+  ATH_CHECK(m_headerContainerKey.initialize());
 
   ATH_CHECK(m_keyOFC.initialize());
   ATH_CHECK(m_keyShape.initialize());
@@ -220,9 +221,8 @@ StatusCode LArRODMonAlg::fillHistograms(const EventContext& ctx) const {
   std::set<HWIdentifier> ignoreFEBs;
 
   if (m_doCheckSum || m_doRodStatus) {
-     const LArFebHeaderContainer* febCont=NULL;
-     StatusCode sc = evtStore()->retrieve(febCont);
-     if (sc.isFailure() || !febCont) {
+     const LArFebHeaderContainer* febCont = SG::get(m_headerContainerKey, ctx);
+     if (!febCont) {
        ATH_MSG_WARNING( "No LArFEB container found in TDS" ); 
      } else {
        LArFebHeaderContainer::const_iterator itFEB = febCont->begin(); 

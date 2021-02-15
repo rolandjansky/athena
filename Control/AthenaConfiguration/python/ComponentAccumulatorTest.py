@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # self test of ComponentAccumulator
 
@@ -18,6 +18,7 @@ TestAlgo = CompFactory.HelloAlg
 
 
 Configurable.configurableRun3Behavior=1
+ComponentAccumulator.debugMode=True
 class TestComponentAccumulator( unittest.TestCase ):
     def setUp(self):
 
@@ -296,12 +297,25 @@ class ForbidRecursiveSequences( unittest.TestCase ):
 class FailedMerging( unittest.TestCase ):
     def runTest( self ):
         topCA = ComponentAccumulator()
-
-        def badMerge():
-            someCA = ComponentAccumulator()
-            topCA.merge(  (someCA, 1, "hello")  )
-        self.assertRaises(TypeError, badMerge )
         topCA.wasMerged()
+
+        hello = CompFactory.HelloAlg("hello", MyInt=7)
+        topCA.addEventAlgo(hello)
+        def badMerge1():
+            someCA = ComponentAccumulator()
+            someCA.wasMerged() # to silence verbose deletion of unmerged CA
+            topCA.merge(  (someCA, 1, "hello")  )
+        self.assertRaises(TypeError, badMerge1 )
+
+        def badMerge2():
+            someCA = ComponentAccumulator()
+            hello_mod = CompFactory.HelloAlg("hello", MyInt=8)
+            someCA.addEventAlgo(hello_mod)
+            someCA.wasMerged() # to silence verbose deletion of unmerged CA
+            topCA.merge(someCA)
+        self.assertRaises(ValueError, badMerge2)
+
+
 
 
 class MergeMovingAlgorithms( unittest.TestCase ):
@@ -504,7 +518,7 @@ class TestSequencesMerging( unittest.TestCase ):
     def setUp(self):
         pass
 
-    def skip_test_sequences_merging(self):
+    def test_sequences_merging(self):
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         ConfigFlags.lock()
         from AthenaCommon.Logging import logging
@@ -539,6 +553,36 @@ class TestSequencesMerging( unittest.TestCase ):
         topca.merge( ca1 )
         topca.printConfig()
         topca.wasMerged()
+
+
+class TestDifferentSequencesMerging( unittest.TestCase ):
+    def setUp(self):
+        pass
+
+    def test_sequences_merging(self):
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        ConfigFlags.lock()
+        from AthenaCommon.Logging import logging
+        logging.getLogger('ComponentAccumulator').setLevel(DEBUG)
         
+
+        print("ca1")
+        ca1 = ComponentAccumulator()
+        ca1.printConfig()
+        ca1.addSequence(seqAND("someSequence"))
+
+        print("ca2")
+        ca2 = ComponentAccumulator()
+        ca2.printConfig()
+        ca2.addSequence(seqOR("someSequence")) # same name differnt  sequence type
+        ca2.wasMerged()
+
+        ca = ComponentAccumulator()
+        ca.merge(ca1)
+        def _merge():
+            ca.merge(ca2)
+        self.assertRaises(RuntimeError, _merge) # expect to raise issue
+        ca.wasMerged()
+
 if __name__ == "__main__":
     unittest.main()

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_COREDUMPSVC_H
@@ -106,18 +106,24 @@ private:
       "Call previous signal handler"};
 
   Gaudi::Property<bool> m_stackTrace{this, "StackTrace", false,
-      "Produce stack trace on crash. Useful if no other signal handler is used"};
+      "Produce (gdb) stack trace on crash. Useful if no other signal handler is used"};
+
+  Gaudi::Property<bool> m_fastStackTrace{this, "FastStackTrace", false,
+      "Produce fast stack trace of current thread"};
 
   Gaudi::Property<std::string> m_coreDumpStream{this, "CoreDumpStream", "stdout",
-      "Stream to use for core dump [stdout,stderr,MsgStream]"};
+      "Stream to use for core dump [stdout,stderr]"};
 
   Gaudi::Property<int> m_fatalHandlerFlags{this, "FatalHandler", 0, 
       "Flags given to the fatal handler this service installs\n"
-      "if the flag is zero, no fatal handler is installed"};
+      "if the flag is zero, no additional fatal handler is installed."};
 
   Gaudi::Property<double> m_timeout{this, "TimeOut", 30.0*60*1e9,
       "Terminate job after it this reaches the time out in Wallclock time, "
       "usually due to hanging during stack unwinding. Timeout given in nanoseconds despite seconds precision"};
+
+  Gaudi::Property<bool> m_killOnSigInt{this, "KillOnSigInt",true, "Terminate job on SIGINT (aka Ctrl-C)"};
+
 	   
   ///@}
 

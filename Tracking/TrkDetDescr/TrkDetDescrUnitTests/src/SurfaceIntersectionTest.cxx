@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -94,7 +94,7 @@ StatusCode Trk::SurfaceIntersectionTest::runTest()
                 treeName += "_Info";        
         TTree* currentInfoTree = new TTree(treeName.Data(),"Surface Information");
         
-        ITHistSvc* tHistSvc = 0;
+        ITHistSvc* tHistSvc = nullptr;
         if (m_writeTTree && service("THistSvc",tHistSvc).isFailure()) {
             ATH_MSG_FATAL( "initialize() Could not find Hist Service! Aborting." );
             return StatusCode::FAILURE;

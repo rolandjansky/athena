@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -49,7 +49,7 @@ TrigMuonBackExtrapolator::finalize()
 
 StatusCode 
 TrigMuonBackExtrapolator::give_eta_phi_at_vertex (const MuonFeature* feature,
-     double& extEta,double& sigmaEta,double& extPhi,double& sigmaPhi,double PT)
+     double& extEta,double& sigmaEta,double& extPhi,double& sigmaPhi,double PT) const
 {
     bool result = MuonBackExtrapolator::give_eta_phi_at_vertex(
                                                      feature->pt(), 
@@ -80,7 +80,7 @@ TrigMuonBackExtrapolator::give_eta_phi_at_vertex (const MuonFeature* feature,
 StatusCode 
 TrigMuonBackExtrapolator::give_eta_phi_at_vertex (double pt,
     const MuonFeature* feature, double& extEta, double& sigmaEta,
-    double& extPhi, double& sigmaPhi, double PT)
+    double& extPhi, double& sigmaPhi, double PT) const
 {
     bool result = MuonBackExtrapolator::give_eta_phi_at_vertex(
                                                      pt, 
@@ -111,7 +111,7 @@ TrigMuonBackExtrapolator::give_eta_phi_at_vertex (double pt,
 StatusCode 
 TrigMuonBackExtrapolator::give_eta_phi_at_vertex( const MuonFeature* feature,
                                double ZetaID,double& extEta,double& sigmaEta,
-                                   double& extPhi,double& sigmaPhi,double PT)
+                                   double& extPhi,double& sigmaPhi,double PT) const
 {
      bool result = MuonBackExtrapolator::give_eta_phi_at_tuned_vertex(
                                                      feature->pt(),
@@ -143,7 +143,7 @@ TrigMuonBackExtrapolator::give_eta_phi_at_vertex( const MuonFeature* feature,
 StatusCode 
 TrigMuonBackExtrapolator::give_eta_phi_at_vertex( double pt,
     const MuonFeature* feature, double ZetaID, double& extEta, double& sigmaEta,
-    double& extPhi, double& sigmaPhi, double PT)
+    double& extPhi, double& sigmaPhi, double PT) const
 {
      bool result = MuonBackExtrapolator::give_eta_phi_at_tuned_vertex(
                                                      pt,
@@ -309,7 +309,7 @@ TrigMuonBackExtrapolator::give_tight_chi2  (const MuonFeature*,const TrigInDetTr
 
 StatusCode 
 TrigMuonBackExtrapolator::give_eta_phi_at_vertex (const xAOD::L2StandAloneMuon* muonSA,
-     double& extEta,double& sigmaEta,double& extPhi,double& sigmaPhi,double PT)
+     double& extEta,double& sigmaEta,double& extPhi,double& sigmaPhi,double PT) const
 {
     bool result = MuonBackExtrapolator::give_eta_phi_at_vertex(
                                                      muonSA->pt(), 
@@ -340,7 +340,7 @@ TrigMuonBackExtrapolator::give_eta_phi_at_vertex (const xAOD::L2StandAloneMuon* 
 StatusCode 
 TrigMuonBackExtrapolator::give_eta_phi_at_vertex (double pt,
     const xAOD::L2StandAloneMuon* muonSA, double& extEta, double& sigmaEta,
-    double& extPhi, double& sigmaPhi, double PT)
+    double& extPhi, double& sigmaPhi, double PT) const
 {
     bool result = MuonBackExtrapolator::give_eta_phi_at_vertex(
                                                      pt, 
@@ -371,7 +371,7 @@ TrigMuonBackExtrapolator::give_eta_phi_at_vertex (double pt,
 StatusCode 
 TrigMuonBackExtrapolator::give_eta_phi_at_vertex( const xAOD::L2StandAloneMuon* muonSA,
                                double ZetaID,double& extEta,double& sigmaEta,
-                                   double& extPhi,double& sigmaPhi,double PT)
+                                   double& extPhi,double& sigmaPhi,double PT) const
 {
      bool result = MuonBackExtrapolator::give_eta_phi_at_tuned_vertex(
                                                      muonSA->pt(),
@@ -403,7 +403,7 @@ TrigMuonBackExtrapolator::give_eta_phi_at_vertex( const xAOD::L2StandAloneMuon* 
 StatusCode 
 TrigMuonBackExtrapolator::give_eta_phi_at_vertex( double pt,
     const xAOD::L2StandAloneMuon* muonSA, double ZetaID, double& extEta, double& sigmaEta,
-    double& extPhi, double& sigmaPhi, double PT)
+    double& extPhi, double& sigmaPhi, double PT) const
 {
      bool result = MuonBackExtrapolator::give_eta_phi_at_tuned_vertex(
                                                      pt,

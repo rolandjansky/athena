@@ -52,7 +52,7 @@ def setupMessageSvc():
    MessageSvc = svcMgr.MessageSvc
    MessageSvc.OutputLevel = theApp.OutputLevel
 
-   MessageSvc.Format       = "% F%40W%S%4W%R%e%s%8W%R%T %0W%M"
+   MessageSvc.Format       = "% F%40W%C%4W%R%e%s%8W%R%T %0W%M"
    # Add timestamp when running in partition
    if os.environ.get('TDAQ_PARTITION','') != 'athenaHLT':
       MessageSvc.Format = "%t  " + MessageSvc.Format

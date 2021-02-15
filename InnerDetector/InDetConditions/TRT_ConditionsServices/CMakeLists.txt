@@ -18,7 +18,7 @@ atlas_add_library( TRT_ConditionsServicesLib
                    PUBLIC_HEADERS TRT_ConditionsServices
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES LINK_LIBRARIES AthenaKernel AthenaPoolUtilities DetDescrConditions EventPrimitives GaudiKernel GeoPrimitives InDetConditionsSummaryService InDetIdentifier TRT_ConditionsData
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps CxxUtils GeoModelInterfaces GeoModelUtilities Identifier xAODEventInfo InDetReadoutGeometry TRT_ReadoutGeometry PathResolver RegistrationServicesLib RDBAccessSvcLib ${extra_lib} )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps CxxUtils GeoModelInterfaces GeoModelUtilities Identifier xAODEventInfo ReadoutGeometryBase InDetReadoutGeometry TRT_ReadoutGeometry PathResolver RegistrationServicesLib RDBAccessSvcLib ${extra_lib} )
 
 atlas_add_component( TRT_ConditionsServices
                      src/components/*.cxx

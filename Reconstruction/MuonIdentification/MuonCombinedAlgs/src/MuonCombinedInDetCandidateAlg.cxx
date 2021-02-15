@@ -9,14 +9,8 @@
 
 using namespace MuonCombined;
 
-MuonCombinedInDetCandidateAlg::MuonCombinedInDetCandidateAlg(const std::string& name, ISvcLocator* pSvcLocator)
-    : AthReentrantAlgorithm(name, pSvcLocator), m_doSiliconForwardMuons(false)
-{
-    declareProperty("TrackParticleLocation", m_indetTrackParticleLocation = {"InDetTrackParticles"});
-    declareProperty("ForwardParticleLocation", m_indetForwardTrackParticleLocation = "InDetForwardTrackParticles");
-    declareProperty("InDetCandidateLocation", m_candidateCollectionName = "InDetCandidates");
-    declareProperty("DoSiliconAssocForwardMuons", m_doSiliconForwardMuons = false);
-    declareProperty("ExtensionPtThreshold", m_extThreshold = 2500);
+MuonCombinedInDetCandidateAlg::MuonCombinedInDetCandidateAlg(const std::string& name, ISvcLocator* pSvcLocator) :
+  AthReentrantAlgorithm(name, pSvcLocator) {
 }
 
 StatusCode
@@ -27,9 +21,7 @@ MuonCombinedInDetCandidateAlg::initialize()
     ATH_CHECK(m_indetTrackParticleLocation.initialize());
     ATH_CHECK(m_indetForwardTrackParticleLocation.initialize(m_doSiliconForwardMuons));
     ATH_CHECK(m_candidateCollectionName.initialize());
-
     ATH_CHECK(m_forwardTrackSelector.retrieve(DisableTool{!m_doSiliconForwardMuons}));
-
     return StatusCode::SUCCESS;
 }
 

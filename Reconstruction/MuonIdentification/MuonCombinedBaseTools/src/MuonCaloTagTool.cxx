@@ -10,7 +10,6 @@
 //  Authors: Nicolo de Groot & Antonio Salvucci
 //  based on: CaloTrkMuId
 //  
-//  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
 
@@ -385,5 +384,9 @@ namespace MuonCombined {
 
   }
 
+
+  void MuonCaloTagTool::cleanUp() const {
+    return;
+  }
 
 }	// end of namespace

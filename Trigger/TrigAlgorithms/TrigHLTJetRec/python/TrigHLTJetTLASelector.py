@@ -1,13 +1,7 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Import message level flags.
 from GaudiKernel.Constants import WARNING
-#                                (VERBOSE,
-#                                   DEBUG,
-#                                   INFO,
-#                                   WARNING,
-#                                   ERROR,
-#                                   FATAL,)
 
 def getConfiguredTLASelector(jetPtThreshold=20000, maxNJets=-1, inputJetsKey="HLT_xAOD__JetContainer_a4tcemsubjesISFS", outputJetsKey="HLT_xAOD__JetContainer_a4tcemsubjesISFS_TLA", outputLevel=WARNING) :
 

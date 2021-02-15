@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 def PixelMonitoringConfig(flags):
@@ -9,24 +9,23 @@ def PixelMonitoringConfig(flags):
     # run on RAW only
     if flags.DQ.Environment in ('online', 'tier0', 'tier0Raw'):
         kwargsHitMonAlg = { 'doOnline'        : flags.Common.isOnline,      #Histograms for online (athenaPT) running
-                            'doModules'       : flags.Common.isOnline, #Turn on/off the sets of 1744 module histograms (for dqmf)
                             'doLumiBlock'     : not flags.Common.isOnline,       #Turn on/off histograms stored for each lumi block
                             'doLowOccupancy'  : False,      #Turn on/off histograms with binning for cosmics/single beam                    
                             'doHighOccupancy' : True,       #Turn on/off histograms with binning for collisions
                             #'doHeavyIonMon'   : InDetFlags.doHeavyIon(),   # Histogram modification for heavy ion monitoring
                             #'RDOName'         : InDetKeys.PixelRDOs()
                             'doHeavyIonMon'   : False,      #Until new config ready
+                            'doFEPlots'       : True,       #Turn on/off histograms with FE Status information
                             'RDOName'         : 'PixelRDOs',#Until new config ready
         }
 
         kwargsClusMonAlg = { 'doOnline'        : flags.Common.isOnline,      #Histograms for online (athenaPT) running
-                             'doModules'       : flags.Common.isOnline, #Turn on/off the sets of 1744 module histograms (for dqmf)
                              'doLumiBlock'     : not flags.Common.isOnline,       #Turn on/off histograms stored for each lumi block
                              'doLowOccupancy'  : False,      #Turn on/off histograms with binning for cosmics/single beam
                              'doHighOccupancy' : True,       #Turn on/off histograms with binning for collisions
                              #'doHeavyIonMon'   : InDetFlags.doHeavyIon(),   # Histogram modification for heavy ion monitoring
                              'doHeavyIonMon'   : False,   #Until new config ready
-                             #                  'doStatus'        : True,       #Turn on/off histograms with Module Status information
+                             'doFEPlots'       : True,       #Turn on/off histograms with FE Status information
                              #'ClusterName'     : InDetKeys.PixelClusters(),
                              'ClusterName'     : 'PixelClusters', #Until new config ready
                              #'TrackName'       : InDetKeys.Tracks()
@@ -34,7 +33,6 @@ def PixelMonitoringConfig(flags):
         }
 
         kwargsErrMonAlg = { 'doOnline'        : flags.Common.isOnline,      #Histograms for online (athenaPT) running
-                            'doModules'       : flags.Common.isOnline, #Turn on/off the sets of 1744 module histograms (for dqmf)
                             'doLumiBlock'     : not flags.Common.isOnline,       #Turn on/off histograms stored for each lumi block
                             'doLowOccupancy'  : False,      #Turn on/off histograms with binning for cosmics/single beam                    
                             'doHighOccupancy' : True,       #Turn on/off histograms with binning for collisions

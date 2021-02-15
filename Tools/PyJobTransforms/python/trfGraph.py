@@ -1,17 +1,9 @@
-from future.utils import iteritems
-from future.utils import itervalues
-
-
-from builtins import int
-from builtins import object
-
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfGraph
 ## @brief Transform graph utilities
 #  @details Graph which represents transform executors (nodes) connected vis data types (edges)
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfGraph.py 743343 2016-04-27 15:47:21Z graemes $
 #  @note  There are a few well established python graph implementations, but none seem to be in the ATLAS
 #  release (NetworkX, igraph). Our needs are so basic that we might well be able to just take a few well
 #  known routines and have them in this module. See, e.g., http://www.python.org/doc/essays/graphs.html
@@ -87,7 +79,7 @@ class executorGraph(object):
         # nodes for any intermediate data end nodes as well
         pseudoNodes = dict()
         pseudoNodes['_start'] = graphNode(name='_start', inData=[], outData=self._inputData, weight = 0)
-        for node in itervalues(self._nodeDict):
+        for node in self._nodeDict.values():
             for dataType in node.outputDataTypes:
                 endNodeName = '_end_{0}'.format(dataType)
                 pseudoNodes[endNodeName] = graphNode(name=endNodeName, inData=[dataType], outData=[], weight = 0)
@@ -154,15 +146,15 @@ class executorGraph(object):
     
     
     def _resetConnections(self):
-        for node in itervalues(self._nodeDict):
+        for node in self._nodeDict.values():
             node.resetConnections()
     
     ## @brief Look at executor nodes and work out how they are connected
     #  @note Anything better than n^2? Should be ok for our low numbers of nodes, but could be optimised
     def findConnections(self):
         self._resetConnections()
-        for nodeNameA, nodeA in iteritems(self._nodeDict):
-            for nodeNameB, nodeB in iteritems(self._nodeDict):
+        for nodeNameA, nodeA in self._nodeDict.items():
+            for nodeNameB, nodeB in self._nodeDict.items():
                 if nodeNameA == nodeNameB:
                     continue
                 dataIntersection = list(set(nodeA.outputDataTypes) & set(nodeB.inputDataTypes))
@@ -181,7 +173,7 @@ class executorGraph(object):
         graphCopy = copy.deepcopy(self._nodeDict)
         # Find all valid start nodes in this graph - ones with no data dependencies themselves
         startNodeNames = []
-        for nodeName, node in iteritems(graphCopy):
+        for nodeName, node in graphCopy.items():
             if len(node.connections['in']) == 0:
                 startNodeNames.append(nodeName)
 
@@ -235,7 +227,7 @@ class executorGraph(object):
     def findExecutionPath(self):        
         # Switch off all nodes, except if we have a single node which is not data driven...
         self._execution = {}
-        for nodeName, node in iteritems(self._nodeDict):
+        for nodeName, node in self._nodeDict.items():
             if len(self._nodeDict) == 1 and node.inputDataTypes == set() and node.inputDataTypes == set():
                 self._execution[nodeName] = {'enabled' : True, 'input' : set(), 'output' : set()}
             else:
@@ -280,13 +272,13 @@ class executorGraph(object):
                     if nextNodeName in bestPath.extraData:
                         self._execution[nextNodeName]['input'].update(bestPath.extraData[nodeName])
                 # Add any extra data we need (from multi-exit nodes) to the data to produce list
-                for extraNodeData in itervalues(bestPath.extraData):
+                for extraNodeData in bestPath.extraData.values():
                     for extra in extraNodeData:
                         if extra not in dataAvailable:
                             dataToProduce.update([extra])
                             
         # Now remove the fake data objects from activated nodes
-        for node, props in iteritems(self._execution):
+        for node, props in self._execution.items():
             msg.debug('Removing fake data from node {0}'.format(node))
             props['input'] -= set(['inNULL', 'outNULL'])
             props['output'] -= set(['inNULL', 'outNULL'])

@@ -67,7 +67,8 @@ StatusCode CaloTopoTowerBuilderTool::initializeTool()
 // Tower Builder //
 ///////////////////
 
-StatusCode CaloTopoTowerBuilderTool::execute(CaloTopoTowerContainer* theTowers, const CaloCellContainer* /*theCells*/) const
+StatusCode CaloTopoTowerBuilderTool::execute(const EventContext& ctx,
+                                             CaloTopoTowerContainer* theTowers, const CaloCellContainer* /*theCells*/) const
 {
   //////////////////////////////////////////////////////////////////////////////
   //Starting loading  variables from CaloTopoTowerContainer
@@ -85,6 +86,9 @@ StatusCode CaloTopoTowerBuilderTool::execute(CaloTopoTowerContainer* theTowers, 
     msg(MSG::WARNING) << "  .. no CaloTopoTowers are made " << endmsg;
     return StatusCode::SUCCESS;
   }
+
+  const ElementLink<CaloCellContainer> CellsEL (*Cells, 0, ctx);
+
   const CaloCell2ClusterMap*  cellToClusterMap=theTowers->GetCellToClusterMap();
   bool delete_cellToClusterMap=false;
   if(cellToClusterMap==nullptr  ){
@@ -274,7 +278,7 @@ StatusCode CaloTopoTowerBuilderTool::execute(CaloTopoTowerContainer* theTowers, 
 		energyTower += cellEnergy;
 		numberOfClustersInTower++;
 		
-		newTower->addUniqueCellNoKine(Cells,globalIndex,weight, 10);
+		newTower->addUniqueCellNoKine(CellsEL,globalIndex,weight, 10);
 		
 		// now that we found the cell in at least one cluster above threshold, stop looking at associated clusters
 		ATH_MSG_VERBOSE(" -- Found at least one cluster passing cuts. 'break'");

@@ -47,14 +47,14 @@ def test_TriggerFlags(sample):
     acf.Input.Files = [inputfiles[sample]]
     acf.addFlagsCategory("Trigger", createTriggerFlags)
     
-    # Test EDMDecodingVersion
+    # Test EDMVersion
     EDMDecode_ref = {
         "Run1": 1,
         "Run2": 2,
         "Run3": 3
     }[sample[:4]]
-    log.info("EDMDecodingVersion: expected {}, configured {}".format(EDMDecode_ref, acf.Trigger.EDMDecodingVersion))
-    assert( acf.Trigger.EDMDecodingVersion == EDMDecode_ref )
+    log.info("EDMVersion: expected {}, configured {}".format(EDMDecode_ref, acf.Trigger.EDMVersion))
+    assert( acf.Trigger.EDMVersion == EDMDecode_ref )
 
     return
     

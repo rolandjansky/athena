@@ -11,7 +11,7 @@
 #include <cmath>
 #include <vector>
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "CaloConditions/CaloAffectedRegionInfoVec.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/LArEM_ID.h"
@@ -19,8 +19,6 @@
 #include "Identifier/HWIdentifier.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/StoreGateSvc.h"
-
-using CLHEP::GeV;
 
 namespace {
 bool
@@ -194,7 +192,7 @@ egammaOQFlagsBuilder::execute(const EventContext& ctx,
     egammaOQFlagsBuilder::findCentralCell(cluster, cellCentrId);
 
   // Set timing bit
-  const double absEnergyGeV = fabs(cluster->e() * (1. / GeV));
+  const double absEnergyGeV = fabs(cluster->e() * (1. / Gaudi::Units::GeV));
   if (absEnergyGeV != 0 &&
       fabs(cluster->time()) > m_TCut + m_TCutVsE / absEnergyGeV) {
     iflag |= (0x1 << xAOD::EgammaParameters::OutTime);

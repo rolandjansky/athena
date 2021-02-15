@@ -1,56 +1,37 @@
 /*
- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
-#ifndef CPANALYSISEXAMPLES_ERRORCHECK_H
-#define CPANALYSISEXAMPLES_ERRORCHECK_H
-
-#define CHECK( ARG )                                     \
-   do {                                                  \
-      const bool result = ARG;                           \
-      if( ! result ) {                                   \
-         ::Error( APP_NAME, "Failed to execute: \"%s\"", \
-                  #ARG );                                \
-         return 1;                                       \
-      }                                                  \
-   } while( false )
-
-#endif // CPANALYSISEXAMPLES_ERRORCHECK_H
+// System include(s):
+#include <memory>
+#include <cstdlib>
+#include <utility>
 
 // ROOT include(s):
 #include <TFile.h>
-#include <TTree.h>
+#include <TError.h>
+#include <TString.h>
 
 // Infrastructure include(s):
-#ifdef ROOTCORE
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
-#include "xAODRootAccess/tools/ReturnCheck.h"
-#endif // ROOTCORE
+#include "xAODRootAccess/TStore.h"
 
 // EDM include(s):
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODMuon/MuonContainer.h"
-// Local include(s):
 #include <xAODCore/ShallowCopy.h>
 #include <xAODBase/ObjectType.h>
 #include <xAODBase/IParticleHelpers.h>
+
 // Tools
 #include "IsolationSelection/IsolationCloseByCorrectionTool.h"
 #include "IsolationSelection/TestMacroHelpers.h"
 #include "IsolationSelection/IsolationSelectionTool.h"
 
 #include "AsgTools/AnaToolHandle.h"
-
-#define SET_DUAL_TOOL( TOOLHANDLE, TOOLTYPE, TOOLNAME )                \
-  ASG_SET_ANA_TOOL_TYPE(TOOLHANDLE, TOOLTYPE);                        \
-  TOOLHANDLE.setName(TOOLNAME);
-
-const float GeV = 1000.;
-const float iGeV = 0.001;
-const float PI = 3.1416;
 
 template<typename Container> StatusCode RetrieveContainer(xAOD::TEvent &Ev, const std::string &Key, Container* &C, xAOD::ShallowAuxContainer* &Aux) {
     if (Aux) delete Aux;
@@ -72,14 +53,16 @@ template<typename Container> StatusCode RetrieveContainer(xAOD::TEvent &Ev, cons
 }
 
 int main(int argc, char** argv) {
+    using namespace asg::msgUserCode;
+    ANA_CHECK_SET_TYPE (int);
 
     gErrorIgnoreLevel = 0;
     const char* APP_NAME = "test_IsolationCloseByCorrectionTool";
-    CHECK(xAOD::Init());
+    ANA_CHECK(xAOD::Init());
 
     TString outputTree = "test_IsolationCloseByCorrectionTool.root";
 
-    TString fileName = "root://eosatlas.cern.ch//eos/atlas/atlastier0/tzero/prod/valid1/PowhegPythia_P2011C_ttbar/117050/valid1.117050.PowhegPythia_P2011C_ttbar.recon.AOD.e2658_s1967_s1964_r5787_v111/valid1.117050.PowhegPythia_P2011C_ttbar.recon.AOD.e2658_s1967_s1964_r5787_v111._000001.4";
+    TString fileName = "root://eosatlas//eos/atlas/atlastier0/tzero/prod/valid1/PowhegPythia_P2011C_ttbar/117050/valid1.117050.PowhegPythia_P2011C_ttbar.recon.AOD.e2658_s1967_s1964_r5787_v111/valid1.117050.PowhegPythia_P2011C_ttbar.recon.AOD.e2658_s1967_s1964_r5787_v111._000001.4";
 
     if (argc > 1) {
         fileName = argv[1];
@@ -90,43 +73,41 @@ int main(int argc, char** argv) {
     ifile.get();
     // Create a TEvent object:
     xAOD::TEvent event(xAOD::TEvent::kClassAccess);
-    CHECK(event.readFrom(ifile.get()));
+    ANA_CHECK(event.readFrom(ifile.get()));
 
     // Creating the tools.
 
     //Define first the isolation selection tool with all WP
-    asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoSelTool;
-    SET_DUAL_TOOL(m_isoSelTool, CP::IsolationSelectionTool, "IsolationSelectionTool");
-    CHECK(m_isoSelTool.setProperty("MuonWP", "FixedCutLoose"));
-    CHECK(m_isoSelTool.setProperty("ElectronWP", "Loose"));
-    CHECK(m_isoSelTool.setProperty("PhotonWP", "FixedCutTightCaloOnly"));
-    CHECK(m_isoSelTool.retrieve());
+    asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoSelTool("CP::IsolationSelectionTool/IsoSelectionTool");
+    ANA_CHECK(m_isoSelTool.setProperty("MuonWP", "FixedCutLoose"));
+    ANA_CHECK(m_isoSelTool.setProperty("ElectronWP", "Loose"));
+    ANA_CHECK(m_isoSelTool.setProperty("PhotonWP", "FixedCutTightCaloOnly"));
+    ANA_CHECK(m_isoSelTool.retrieve());
 
     //Now let's come to the IsolaionCloseByCorrecitonTool
-    asg::AnaToolHandle<CP::IIsolationCloseByCorrectionTool> m_isoCloseByTool;
-    SET_DUAL_TOOL(m_isoCloseByTool, CP::IsolationCloseByCorrectionTool, "IsolationCloseByCorrectionTool");
+    asg::AnaToolHandle<CP::IIsolationCloseByCorrectionTool> m_isoCloseByTool("CP::IsolationCloseByCorrectionTool/IsoCorrectionTool");
 
     //pass the instance of the created isolation tool
-    CHECK(m_isoCloseByTool.setProperty("IsolationSelectionTool", m_isoSelTool.getHandle()));
+    ANA_CHECK(m_isoCloseByTool.setProperty("IsolationSelectionTool", m_isoSelTool.getHandle()));
 
     //Name of the quality decorator defining all nearby particles used to correct the isolation of a given particle
-    CHECK(m_isoCloseByTool.setProperty("SelectionDecorator", "isCloseByObject"));
+    ANA_CHECK(m_isoCloseByTool.setProperty("SelectionDecorator", "isCloseByObject"));
 
     //If you want to use only particles survivving the overlap removal. Then just add this line. Only particles with auxdata<char>("passOR") == 1 are used
-    //CHECK(m_isoCloseByTool.setProperty("PassOverlapDecorator","passOR"));
+    //ANA_CHECK(m_isoCloseByTool.setProperty("PassOverlapDecorator","passOR"));
 
     //What is the name of the final isolation decorator. The tool internally calls P->auxdata<char>("CorrectedIsol") = m_IsoTool->accept(*P)
-    CHECK(m_isoCloseByTool.setProperty("IsolationSelectionDecorator", "CorrectedIsol"));
+    ANA_CHECK(m_isoCloseByTool.setProperty("IsolationSelectionDecorator", "correctedIsol"));
 
     //By default all particles in the container are corrected. For the purpose of saving processing time one can optionally
     //define this property. Then the isolation of the particle is only corrected only if the particle passes the input quality or if this decorator is set to true
-    //CHECK(m_isoCloseByTool.setProperty("CorrectIsolationOf", "CorrectTheThing"));
+    //ANA_CHECK(m_isoCloseByTool.setProperty("CorrectIsolationOf", "CorrectTheThing"));
 
     //The closeByIsoCorrectionTool accesses the default variables of a particle via the original container links
     //Optionally one can backup the isolation values before correction. Then the tool creates an auxelement called <BackupPrefix>_<IsoVariable> This might be interesting if the people are interested in writing
     //out the default values using CxAODs
-    CHECK(m_isoCloseByTool.setProperty("BackupPrefix", "Default"));
-    CHECK(m_isoCloseByTool.retrieve());
+    ANA_CHECK(m_isoCloseByTool.setProperty("BackupPrefix", "default"));
+    ANA_CHECK(m_isoCloseByTool.retrieve());
 
     //Define  the output
     TFile* ofile;
@@ -154,13 +135,13 @@ int main(int argc, char** argv) {
     xAOD::PhotonContainer* Photons = nullptr;
 
     SG::AuxElement::Decorator<char> dec_PassQuality("isCloseByObject");
-    SG::AuxElement::Decorator<char> dec_PassIsol("DefaultIso");
+    SG::AuxElement::Decorator<char> dec_PassIsol("defaultIso");
 
     for (Long64_t entry = 0; entry < maxEVT; ++entry) {
 
         event.getEntry(entry);
         const xAOD::EventInfo* ei = 0;
-        CHECK(event.retrieve(ei, "EventInfo"));
+        ANA_CHECK(event.retrieve(ei, "EventInfo"));
 
         if (entry % INTERVAL == 0) {
             Info(APP_NAME, "%lld events processed, on event %llu of run %u", entry, ei->eventNumber(), ei->runNumber());
@@ -203,9 +184,9 @@ int main(int argc, char** argv) {
         // The final result  whether the object  passes the isolation criteria now can be stored in the 'IsolationSelectionDecorator' e.g. 'CorrectedIso'
 
         //Store everything in the final ntuples
-        CHECK(eleBranches.Fill(Electrons));
-        CHECK(muoBranches.Fill(Muons));
-        CHECK(phoBranches.Fill(Photons));
+        ANA_CHECK(eleBranches.Fill(Electrons));
+        ANA_CHECK(muoBranches.Fill(Muons));
+        ANA_CHECK(phoBranches.Fill(Photons));
         tree->Fill();
 
     }

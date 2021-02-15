@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -23,6 +23,7 @@ namespace DerivationFramework {
     m_jvtTool(""),
     m_jetJvtEfficiencyTool(""),
     m_dojvt(false),
+    m_dofjvt(false),
     m_dobtag(false),
     m_jetTrackSumMomentsTool(""),
     m_decoratetracksum(false),
@@ -44,6 +45,8 @@ namespace DerivationFramework {
     declareProperty("JvtMomentKey",   m_jvtMomentKey = "Jvt");
     declareProperty("JetJvtTool",     m_jvtTool);
     declareProperty("JetJvtEffTool",  m_jetJvtEfficiencyTool);
+    declareProperty("fJvtMomentKey",  m_fjvtMomentKey = "fJvt");
+    declareProperty("JetForwardPFlowJvtTool", m_fjvtTool);
     declareProperty("JetBtagTools",   m_btagSelTools);
     declareProperty("JetBtagWPs",     m_btagWP);
     declareProperty("JetTrackSumMomentsTool", m_jetTrackSumMomentsTool);
@@ -57,6 +60,9 @@ namespace DerivationFramework {
   StatusCode JetAugmentationTool::initialize()
   {
     ATH_MSG_INFO("Initialising JetAugmentationTool");
+
+    m_container_key = m_containerName;
+    ATH_CHECK(m_container_key.initialize());
 
     if(!m_jetCalibTool.empty()) {
       CHECK(m_jetCalibTool.retrieve());
@@ -79,11 +85,26 @@ namespace DerivationFramework {
 	ATH_MSG_INFO("Augmenting jets with updated JVT \"" << m_momentPrefix+m_jvtMomentKey << "\"");
 	m_dojvt = true;
 
+	m_acc_JVT = std::make_unique< SG::AuxElement::ConstAccessor<float> >(m_momentPrefix+m_jvtMomentKey);
+	m_acc_passJVT = std::make_unique< SG::AuxElement::ConstAccessor<char> >(m_momentPrefix+"pass"+m_jvtMomentKey);
+
 	m_jvt_key = m_containerName + "." + m_momentPrefix + m_jvtMomentKey;
 	m_passJvt_key = m_containerName + "." + m_momentPrefix + "pass" + m_jvtMomentKey;
 
 	ATH_CHECK(m_jvt_key.initialize());
 	ATH_CHECK(m_passJvt_key.initialize());
+
+	// PFlow fJVT tool
+	if(!m_fjvtTool.empty()) {
+	  CHECK(m_fjvtTool.retrieve());
+	  ATH_MSG_INFO("Augmenting (PFlow) jets with fJVT \"" << m_momentPrefix+m_fjvtMomentKey << "\"");
+	  m_dofjvt = true;
+
+	  m_acc_fJVT = std::make_unique< SG::AuxElement::ConstAccessor<float> >(m_momentPrefix+m_fjvtMomentKey);
+
+	  m_fjvt_key = m_containerName + "." + m_momentPrefix + m_fjvtMomentKey;
+	  ATH_CHECK(m_fjvt_key.initialize());
+	}
 
 	if(!m_btagSelTools.empty()) {
 	  size_t ibtag(0);
@@ -106,6 +127,7 @@ namespace DerivationFramework {
     }
 
     if(!m_jetTrackSumMomentsTool.empty()) {
+      ATH_MSG_INFO("Augmenting jets with track sum moments \"" << m_momentPrefix << "TrackSumMass,Pt\"");
       CHECK(m_jetTrackSumMomentsTool.retrieve());
       ATH_MSG_INFO("Augmenting jets with track sum moments \"" << m_momentPrefix << "TrackSumMass,Pt\"");
       m_decoratetracksum = true;
@@ -168,7 +190,7 @@ namespace DerivationFramework {
 	}
       }
     }
-    
+
     if(!m_jetTruthLabelingTool.empty()) {
       CHECK(m_jetTruthLabelingTool.retrieve());
       ATH_MSG_INFO("Augmenting jets with truthlabeling");
@@ -211,10 +233,11 @@ namespace DerivationFramework {
 
   StatusCode JetAugmentationTool::addBranches() const
   {
+
     // retrieve container
-    const xAOD::JetContainer* jets(0);
-    if( evtStore()->retrieve( jets, m_containerName ).isFailure() ) {
-      ATH_MSG_WARNING ("Couldn't retrieve jets with key: " << m_containerName );
+    SG::ReadHandle<xAOD::JetContainer> jets(m_container_key);
+    if( !jets.isValid() ) {
+      ATH_MSG_WARNING ("Couldn't retrieve jets with key: " << m_container_key.key() );
       return StatusCode::FAILURE;
     }
 
@@ -228,6 +251,31 @@ namespace DerivationFramework {
       if((m_jetCalibTool->modify(*jets_copy)).isFailure()) {
 	ATH_MSG_WARNING("Problem applying jet calibration");
 	return StatusCode::FAILURE;
+      }
+
+      if(m_dojvt){
+
+	SG::WriteDecorHandle<xAOD::JetContainer, float> jvt_handle(m_jvt_key);
+	SG::WriteDecorHandle<xAOD::JetContainer, char> passJvt_handle(m_passJvt_key);
+
+	//First update the Jvt criteria (needed for fJVT)
+	for(const xAOD::Jet *jet : *jets_copy) { 
+	  
+	  float jvt_value = m_jvtTool->updateJvt(*jet);
+	  jvt_handle(*jet)= jvt_value;
+	  ATH_MSG_VERBOSE("Calibrated JVT: " << jvt_value);
+	  
+	  bool passJVT = m_jetJvtEfficiencyTool->passesJvtCut(*jet);
+	  passJvt_handle(*jet) = passJVT;
+	}
+
+	// pFlow fJVT
+	if(m_dofjvt){
+	  if((m_fjvtTool->modify(*jets_copy)).isFailure()){
+	    ATH_MSG_ERROR("Problem computing fJVT");
+	    return StatusCode::FAILURE;
+	  }
+	}
       }
     }
 
@@ -270,7 +318,7 @@ namespace DerivationFramework {
     }
 
     // loop over the copies
-    for(const auto& jet : *jets_copy) {
+    for(const auto jet : *jets_copy) {
       // get the original jet so we can decorate it
       const xAOD::Jet& jet_orig( *(*jets)[jet->index()] );
 
@@ -291,16 +339,28 @@ namespace DerivationFramework {
 
 	if(m_dojvt) {
 
-	  SG::WriteDecorHandle<xAOD::JetContainer, float> jvt_handle(m_jvt_key);
-	  SG::WriteDecorHandle<xAOD::JetContainer, char> passJvt_handle(m_passJvt_key);
+	  SG::WriteDecorHandle<xAOD::JetContainer, float> jvt_handle(m_jvt_key); 
+	  SG::WriteDecorHandle<xAOD::JetContainer, char> passJvt_handle(m_passJvt_key); 
 
-	  float jvt_value = m_jvtTool->updateJvt(*jet);
-	  jvt_handle(jet_orig)= jvt_value;
-	  ATH_MSG_VERBOSE("Calibrated JVT: " << jvt_value);
-	  
-	  bool passJVT = m_jetJvtEfficiencyTool->passesJvtCut(jet_orig);
-	  passJvt_handle(jet_orig) = passJVT;
-	  
+	  if(m_acc_JVT->isAvailable(*jet)){
+	    jvt_handle(jet_orig) = (*m_acc_JVT)(*jet);
+	  }
+
+	  bool passJVT = false;
+
+	  if(m_acc_passJVT->isAvailable(*jet)){
+	    passJVT = (*m_acc_passJVT)(*jet);
+	    passJvt_handle(jet_orig) = passJVT;
+          }
+
+	  if(m_dofjvt){
+
+	    SG::WriteDecorHandle<xAOD::JetContainer, float> fjvt_handle(m_fjvt_key);
+	    if(m_acc_fJVT->isAvailable(*jet)){
+	      fjvt_handle(jet_orig) = (*m_acc_fJVT)(*jet);
+	    }
+	  }
+
 	  if(m_dobtag) {
 	    size_t ibtag(0);
 	    for(const auto& tool : m_btagSelTools) {
@@ -332,14 +392,14 @@ namespace DerivationFramework {
 
         if(m_acc_GhostTruthAssociationFraction->isAvailable(*jet)){
 	  ghostTruthAssocFrac_handle(jet_orig) = (*m_acc_GhostTruthAssociationFraction)(*jet);
-	  ATH_MSG_INFO("GhostTruthAssociationFraction: " << (*m_acc_GhostTruthAssociationFraction)(jet_orig) );
+	  ATH_MSG_VERBOSE("GhostTruthAssociationFraction: " << (*m_acc_GhostTruthAssociationFraction)(jet_orig) );
 	}
 	if(m_acc_GhostTruthAssociationLink->isAvailable(*jet)){
 	  ghostTruthAssocLink_handle(jet_orig) = (*m_acc_GhostTruthAssociationLink)(*jet);
-	  ATH_MSG_INFO("GhostTruthAssociationLink: " << (*m_acc_GhostTruthAssociationLink)(jet_orig) );
+	  ATH_MSG_VERBOSE("GhostTruthAssociationLink: " << (*m_acc_GhostTruthAssociationLink)(jet_orig) );
 	}
       }
-      
+
       if(m_decoratetruthlabel){
 
 	SG::WriteDecorHandle<xAOD::JetContainer, float> truthLabel_dRW_handle(m_truthLabel_dRW_key);
@@ -376,9 +436,12 @@ namespace DerivationFramework {
 	if(m_acc_Associated_truthjet_pt->isAvailable(*jet)) associated_truthjet_pt_handle(jet_orig) = (*m_acc_Associated_truthjet_pt)(*jet);
 	if(m_acc_Associated_truthjet_eta->isAvailable(*jet)) associated_truthjet_eta_handle(jet_orig) = (*m_acc_Associated_truthjet_eta)(*jet);
       }
-      
+
     }
 
     return StatusCode::SUCCESS;
   }
+
 }
+
+ 

@@ -445,7 +445,7 @@ class LArCondFlags(JobPropertyContainer):
 
         # set the tag for OnOffIdMap
         if "/LAR/Identifier/OnOffIdMap" in self.LArCondFolderTags():
-            self._log.info(' using user specified tag for /LAR/Identifier/OnOffIdMap' , self.LArCondFolderTags()['/LAR/Identifier/OnOffIdMap'])
+            self._log.info(' using user specified tag for /LAR/Identifier/OnOffIdMap %s' , self.LArCondFolderTags()['/LAR/Identifier/OnOffIdMap'])
         else :
             if DDVtype=="" or DDVtype not in self.DDVtoOnOffIdMCTag():
                 self._log.error(' unable to find a proper DDV type  for LArOnOffIdMap, DDV '+theDDV+', DDVtype='+DDVtype+',  set DDVtype to the latest ')
@@ -456,7 +456,7 @@ class LArCondFlags(JobPropertyContainer):
 
         # set the tag for CalibIdMap
         if "/LAR/Identifier/CalibIdMap" in self.LArCondFolderTags():
-            self._log.info(' using user specified tag for /LAR/Identifier/CalibIdMap' , self.LArCondFolderTags()['/LAR/Identifier/CalibIdMap'])
+            self._log.info(' using user specified tag for /LAR/Identifier/CalibIdMap %s' , self.LArCondFolderTags()['/LAR/Identifier/CalibIdMap'])
         else :
             if DDVtype=="" or DDVtype not in self.DDVtoCalibIdMCTag():
                 self._log.error(' unable to find a proper DDV type  for LArCalibIdMap, DDV '+theDDV+', DDVtype='+DDVtype+',  set DDVtype to the latest ')
@@ -468,7 +468,7 @@ class LArCondFlags(JobPropertyContainer):
             
         # set the tag for FebRodMap
         if "/LAR/Identifier/FebRodMap" in self.LArCondFolderTags():
-            self._log.info(' using user specified tag for /LAR/Identifier/FebRodMap' , self.LArCondFolderTags()['/LAR/Identifier/FebRodMap'])
+            self._log.info(' using user specified tag for /LAR/Identifier/FebRodMap %s' , self.LArCondFolderTags()['/LAR/Identifier/FebRodMap'])
 
         else :
             if DDVtype=="" or DDVtype not in self.DDVtoFebRodIdMCTag():

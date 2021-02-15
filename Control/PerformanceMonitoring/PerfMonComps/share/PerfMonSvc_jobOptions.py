@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 # @file: PerfMonComps/PerfMonSvc_jobOptions.py
 # @author: Sebastien Binet
 # $Id: PerfMonSvc_jobOptions.py,v 1.3 2007-08-01 20:58:52 binet Exp $

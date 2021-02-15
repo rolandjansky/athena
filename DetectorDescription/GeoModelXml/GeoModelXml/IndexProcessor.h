@@ -4,6 +4,7 @@
 
 #ifndef GEO_MODEL_XML_INDEX_PROCESSOR_H
 #define GEO_MODEL_XML_INDEX_PROCESSOR_H
+#include <xercesc/util/XercesDefs.hpp>
 //
 //   Processor for index tags which change the formula for generating a position-index.
 //

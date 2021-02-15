@@ -9,10 +9,13 @@
 //
 #ifndef GEO_MODEL_XML_ELEMENT_PROCESSOR_H
 #define GEO_MODEL_XML_ELEMENT_PROCESSOR_H
+#include <xercesc/util/XercesDefs.hpp>
 
 #include "GeoModelXml/GeoNodeList.h"
-#include <xercesc/dom/DOM.hpp>
 
+XERCES_CPP_NAMESPACE_BEGIN
+class DOMElement;
+XERCES_CPP_NAMESPACE_END
 class GmxUtil;
 
 class ElementProcessor {

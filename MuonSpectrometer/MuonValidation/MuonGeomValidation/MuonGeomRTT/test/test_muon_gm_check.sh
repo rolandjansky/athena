@@ -15,16 +15,8 @@ art.py createpoolfile
 
 set -x
 
-echo $AtlasVersion
-if [ ${AtlasVersion:0:4} == "21.0" ]; then
-    DetDesVer='"ATLAS-R2-2016-01-00-01"'
-elif [ ${AtlasVersion:0:4} == "21.3" ] || [ ${AtlasVersion:0:4} == "22.0" ]; then
-    DetDesVer='"ATLAS-R3-2021-01-00-00"'
-else
-    DetDesVer='"ATLAS-R2-2015-03-04-00"'
-fi
-
-
-athena.py -c 'DetDescrVersion = '$DetDesVer MuonGeoModelTest/MuonGeoModelCheck_jobOption.py
+athena.py -c "DetDescrVersion='ATLAS-R2-2016-01-00-01'" MuonGeoModelTest/MuonGeoModelCheck_jobOption.py
+athena.py -c "DetDescrVersion='ATLAS-R3-2021-01-00-01'" MuonGeoModelTest/MuonGeoModelCheck_jobOption.py
+athena.py -c "DetDescrVersion='ATLAS-R3S-2021-01-00-01'" MuonGeoModelTest/MuonGeoModelCheck_jobOption.py
 
 echo "art-result: $?"

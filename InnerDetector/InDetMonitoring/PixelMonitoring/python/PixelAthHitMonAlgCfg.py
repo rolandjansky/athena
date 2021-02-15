@@ -8,10 +8,11 @@
 '''
 
 from PixelMonitoring.PixelAthMonitoringBase import define2DProfHist, definePP0Histos, getLayerGroup
-from PixelMonitoring.PixelAthMonitoringBase import define1DProfLumiLayers
+from PixelMonitoring.PixelAthMonitoringBase import define1DProfLumiLayers, define2DProfPerFEHist
+from PixelMonitoring.PixelAthMonitoringBase import define1DLayers
 from PixelMonitoring.PixelAthMonitoringBase import layers, lumibinsx, bcidbinsx
 from PixelMonitoring.PixelAthMonitoringBase import addOnTrackTxt, addOnTrackToPath, fullDressTitle
-from PixelMonitoring.PixelAthMonitoringBase import runtext
+from PixelMonitoring.PixelAthMonitoringBase import runtext, ReadingDataErrLabels
 
 def PixelAthHitMonAlgCfg(helper, alg, **kwargs):
     '''
@@ -22,6 +23,7 @@ def PixelAthHitMonAlgCfg(helper, alg, **kwargs):
     '''
     doOnline  = kwargs.get('doOnline',  False)
     doLumiBlock = kwargs.get('doLumiBlock', False)
+    doFEPlots  = kwargs.get('doFEPlots',  False)
 
     ontrack = False
 
@@ -30,6 +32,12 @@ def PixelAthHitMonAlgCfg(helper, alg, **kwargs):
     pathGroup   = addOnTrackToPath(path, ontrack)
 
     hitGroup = helper.addGroup(alg, 'Hit')
+
+    varName = 'hitdataread_err;ReadingHitDataErr'
+    title = 'Number of Hit data reading errors;error type;# events'
+    hitGroup.defineHistogram(varName,
+                             type='TH1I', path=pathGroup, title=title,
+                             xbins=len(ReadingDataErrLabels), xmin=-0.5, xmax=-0.5+len(ReadingDataErrLabels), xlabels=ReadingDataErrLabels)
 
     varName = 'pixhitsmontool_lb,nhits_per_event'
     title = fullDressTitle('Average number of pixel hits per event per LB', ontrack, ';lumi block', ';# hits/event')
@@ -59,11 +67,26 @@ def PixelAthHitMonAlgCfg(helper, alg, **kwargs):
         yaxistext      = ';occ. ratio to IBL'
         define1DProfLumiLayers(helper, alg, histoGroupName, title, pathGroup, yaxistext, type='TProfile')
 
+    histoGroupName = 'HitToT'
+    title = 'Hit ToT'
+    define1DLayers(helper, alg, histoGroupName, title, pathGroup, ';ToT [BC]', ';# hits', xbins=[300]*5+[20]*3, xmins=[-0.5]*8, binsizes=[1.0]*8)
+
     histoGroupName = 'HitMap' 
     title = 'hit map'
     define2DProfHist(helper, alg, histoGroupName, title, path, type='TH2F')
+
+    if doFEPlots:
+        histoGroupName = 'HitFEMap' 
+        title = 'hit map per FE'
+        define2DProfPerFEHist(helper, alg, histoGroupName, title, path, type='TH2F')
+
     if doLumiBlock:
-        define2DProfHist(helper, alg, histoGroupName, title, pathLowStat, type='TH2F', lifecycle='lowStat', histname='HitMapLB')
+        if not doFEPlots:
+            define2DProfHist(helper, alg, histoGroupName, title, pathLowStat, type='TH2F', lifecycle='lumiblock', histname='HitMapLB')
+        else:
+            define2DProfPerFEHist(helper, alg, histoGroupName, title, pathLowStat, type='TH2F', lifecycle='lumiblock', histname='HitFEMapLB')
+
+
 
     histoname = 'AvgOccPerBCID'
     for layer in layers:

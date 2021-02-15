@@ -25,7 +25,7 @@ atlas_add_library(
 atlas_add_component(
     AthenaMonitoringKernel
     src/components/*.cxx
-    PRIVATE_LINK_LIBRARIES AthenaMonitoringKernelLib
+    LINK_LIBRARIES AthenaMonitoringKernelLib
 )
 
 # Install files from the package:

@@ -62,8 +62,7 @@ namespace InDet {
     }
  
 
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
 
     InDetJetFitterUtils(const std::string& t, const std::string& n, const IInterface*  p);
 

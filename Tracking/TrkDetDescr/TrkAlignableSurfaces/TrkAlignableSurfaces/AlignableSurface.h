@@ -43,10 +43,10 @@ class AlignableSurface
 
 public:
   /** Default Constructor - needed for pool and inherited classes */
-  AlignableSurface();
+  AlignableSurface() = default;
 
   /** Destructor */
-  virtual ~AlignableSurface();
+  virtual ~AlignableSurface() = default;
 
   /** Get the Surface representation */
   virtual const Surface& surfaceRepresentation() const = 0;

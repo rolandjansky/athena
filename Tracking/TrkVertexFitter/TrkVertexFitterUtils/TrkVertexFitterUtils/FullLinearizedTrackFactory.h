@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrkVertexFitterUtils_FULLLINEARIZEDTRACKFACTORY_H
@@ -59,10 +59,8 @@ namespace Trk
   /**
    * Standard AlgToolMethods
    */
-    StatusCode initialize();
+    virtual StatusCode initialize() override;
   
-    StatusCode finalize();
-    
   /**
    * Default constructor due to Athena interface
    */
@@ -79,23 +77,25 @@ namespace Trk
     *  Produces a new PerigeeLinearizedState and stores its pointer as a private  
     *  member of VxTrackAtVertex
     */
-    void linearize(VxTrackAtVertex & theTrack,const Amg::Vector3D & linPoint) const;
+    virtual void linearize(VxTrackAtVertex & theTrack,const Amg::Vector3D & linPoint) const override;
     
     /**
      * Linearization method:
      * Takes a MeasuredPerigee and a LinearizationPoint.
      * Creates a new PerigeeLinearizedTrackState and returns its pointer.
      */
+    virtual
     LinearizedTrack * linearizedTrack(const TrackParameters *param, 
-			              const Amg::Vector3D & linPoint) const;
+			              const Amg::Vector3D & linPoint) const override;
 
     /**
       * Linearization method:
       * Takes a MeasuredPerigee and a LinearizationPoint.
       * Creates a new PerigeeLinearizedTrackState and returns its pointer.
       */
+    virtual
     LinearizedTrack * linearizedTrack(const NeutralParameters *param,
-                                      const Amg::Vector3D & linPoint) const;
+                                      const Amg::Vector3D & linPoint) const override;
     
     
   private:

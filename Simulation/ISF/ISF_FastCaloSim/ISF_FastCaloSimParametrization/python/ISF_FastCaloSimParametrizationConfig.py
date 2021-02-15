@@ -1,16 +1,13 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 """
 Tools configurations for ISF_FastCaloSimParametrization
 """
 from AthenaCommon import CfgMgr
-from AthenaCommon.Constants import *  # FATAL,ERROR etc.
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.DetFlags import DetFlags
 
 def getFastCaloSimCaloExtrapolation(name="FastCaloSimCaloExtrapolation", **kwargs):
-    from ISF_FastCaloSimParametrization.ISF_FastCaloSimParametrizationConf import FastCaloSimCaloExtrapolation
+    from ISF_FastCaloSimParametrization.ISF_FastCaloSimParametrizationConf import FastCaloSimCaloExtrapolation  # noqa: F401
 
     kwargs.setdefault("CaloBoundaryR"             , [1148.0, 120.0, 41.0] )
     kwargs.setdefault("CaloBoundaryZ"             , [3550.0, 4587.0, 4587.0] )
@@ -23,5 +20,5 @@ def getFastCaloSimCaloExtrapolation(name="FastCaloSimCaloExtrapolation", **kwarg
 
 
 def getFastCaloSimGeometryHelper(name="FastCaloSimGeometryHelper", **kwargs):
-    from ISF_FastCaloSimParametrization.ISF_FastCaloSimParametrizationConf import FastCaloSimGeometryHelper
+    from ISF_FastCaloSimParametrization.ISF_FastCaloSimParametrizationConf import FastCaloSimGeometryHelper  # noqa: F401
     return CfgMgr.FastCaloSimGeometryHelper(name, **kwargs)

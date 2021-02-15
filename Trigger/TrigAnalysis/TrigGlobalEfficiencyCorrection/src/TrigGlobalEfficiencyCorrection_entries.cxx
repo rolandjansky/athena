@@ -1,0 +1,3 @@
+#include "TrigGlobalEfficiencyCorrection/TrigGlobalEfficiencyCorrectionTool.h"
+
+DECLARE_COMPONENT( TrigGlobalEfficiencyCorrectionTool )

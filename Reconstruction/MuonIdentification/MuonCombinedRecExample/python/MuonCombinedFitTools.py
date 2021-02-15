@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ###############################################################
 #
@@ -11,13 +11,11 @@
 #==============================================================
 
 
-from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
-from MuonRecExample.MuonRecFlags import muonRecFlags,muonStandaloneFlags
+from MuonRecExample.MuonRecFlags import muonRecFlags
 from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags
-from MuonRecExample.MuonRecUtils import ExtraFlags
 
 from AthenaCommon import CfgMgr
-from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicTool,getPublicToolClone,getService,getServiceClone
+from AthenaCommon.CfgGetter import getPrivateTool, getPrivateToolClone, getPublicTool, getPublicToolClone, getService
 from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
 from AthenaCommon.DetFlags import DetFlags 
@@ -25,10 +23,11 @@ from AthenaCommon.SystemOfUnits import meter
 
 from IOVDbSvc.CondDB import conddb
 from AthenaCommon.GlobalFlags import globalflags
-from RecExConfig.RecFlags import rec
 
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 from TriggerJobOpts.TriggerFlags import TriggerFlags
+
+from InDetRecExample import TrackingCommon
 
 GeV = 1000
 mm = 1
@@ -50,7 +49,7 @@ def iPatFitter( name='iPatFitter', **kwargs):
     if TriggerFlags.MuonSlice.doTrigMuonConfig:
         kwargs.setdefault("MaxIterations", 15)
     else:
-        import MuonCombinedRecExample.CombinedMuonTrackSummary
+        import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401 (import side-effects)
         from AthenaCommon.AppMgr import ToolSvc
         kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
 
@@ -65,7 +64,7 @@ def iPatSLFitter( name='iPatSLFitter', **kwargs):
     if TriggerFlags.MuonSlice.doTrigMuonConfig:
         kwargs.setdefault("MaxIterations", 15)
     else:
-        import MuonCombinedRecExample.CombinedMuonTrackSummary
+        import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401 (import side-effects)
         from AthenaCommon.AppMgr import ToolSvc
         kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
 
@@ -182,7 +181,7 @@ def MuonTrackQuery( name="MuonTrackQuery", **kwargs ):
 
 def MuidSegmentRegionRecoveryTool( name ='MuidSegmentRegionRecoveryTool', **kwargs ):
     kwargs.setdefault("Builder",  getPublicTool("CombinedMuonTrackBuilderFit") )
-    import MuonCombinedRecExample.CombinedMuonTrackSummary
+    import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401 (import side-effects)
     from AthenaCommon.AppMgr import ToolSvc
     kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
 
@@ -210,9 +209,7 @@ def MuidSegmentRegionRecoveryTool( name ='MuidSegmentRegionRecoveryTool', **kwar
 
 
 def MuonMaterialProviderTool( name = "MuonMaterialProviderTool"):
-    from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
-    from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool, Rec__MuonCaloEnergyTool, Rec__ParticleCaloCellAssociationTool
-    from TrkMaterialProvider.TrkMaterialProviderConf import Trk__TrkMaterialProviderTool
+    from TrackToCalo.TrackToCaloConf import Rec__MuonCaloEnergyTool, Rec__ParticleCaloCellAssociationTool
     caloCellAssociationTool = Rec__ParticleCaloCellAssociationTool(ParticleCaloExtensionTool = getPublicTool("MuonParticleCaloExtensionTool"))
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += caloCellAssociationTool
@@ -221,7 +218,7 @@ def MuonMaterialProviderTool( name = "MuonMaterialProviderTool"):
                                                  ParticleCaloCellAssociationTool = caloCellAssociationTool)
 
     ToolSvc += muonCaloEnergyTool
-    materialProviderTool = Trk__TrkMaterialProviderTool(MuonCaloEnergyTool = muonCaloEnergyTool);
+    materialProviderTool = TrackingCommon.getTrkMaterialProviderTool( name = "MuonTrkMaterialProviderTool", MuonCaloEnergyTool = muonCaloEnergyTool)
     if TriggerFlags.MuonSlice.doTrigMuonConfig:
         materialProviderTool.UseCaloEnergyMeasurement = False
     return materialProviderTool
@@ -285,7 +282,7 @@ def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
         kwargs.setdefault("Cleaner"                       , getPrivateToolClone("TrigMuidTrackCleaner_"+suffix,"MuidTrackCleaner", Fitter=kwargs["Fitter"]) )
 
     else:
-        import MuonCombinedRecExample.CombinedMuonTrackSummary
+        import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401 (import side-effects)
         kwargs.setdefault("TrackSummaryTool"              , ToolSvc.CombinedMuonTrackSummary )
         kwargs.setdefault("Propagator"                    , getPublicTool("MuonCombinedPropagator") )
         kwargs.setdefault("SLPropagator"                  , getPublicTool("MuonCombinedPropagator") )
@@ -355,7 +352,7 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
         kwargs.setdefault("CscRotCreator"                 , "" )
         kwargs.setdefault("Cleaner"                       , getPrivateToolClone("TrigMuidTrackCleaner_"+suffix, "MuidTrackCleaner", Fitter=kwargs["Fitter"]) )
     else:
-        import MuonCombinedRecExample.CombinedMuonTrackSummary
+        import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401 (import side-effects)
         kwargs.setdefault("MuonHoleRecovery"              , getPublicTool("MuidSegmentRegionRecoveryTool") )
         kwargs.setdefault("TrackSummaryTool"              , ToolSvc.CombinedMuonTrackSummary )
         kwargs.setdefault("Propagator"                    , getPublicTool("MuonCombinedPropagator") )

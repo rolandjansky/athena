@@ -24,8 +24,8 @@ namespace SG {
  */
 template <class T, class D>
 WriteDecorHandle<T, D>::WriteDecorHandle (const WriteDecorHandleKey<T>& key)
-  : Base (key, nullptr),
-    m_contHandle (key.contHandleKey()),
+  : Base (key.contHandleKey(), nullptr),
+    m_decorKey (key.key()),
     m_acc (SG::decorKeyFromKey (key.key())),
     m_madeAlias (false)
 {
@@ -46,8 +46,8 @@ WriteDecorHandle<T, D>::WriteDecorHandle (const WriteDecorHandleKey<T>& key)
 template <class T, class D>
 WriteDecorHandle<T, D>::WriteDecorHandle (const WriteDecorHandleKey<T>& key,
                                           const EventContext& ctx)
-  : Base (key, &ctx),
-    m_contHandle (key.contHandleKey(), ctx),
+  : Base (key.contHandleKey(), &ctx),
+    m_decorKey (key.key()),
     m_acc (SG::decorKeyFromKey (key.key())),
     m_madeAlias (false)
 {
@@ -60,7 +60,7 @@ WriteDecorHandle<T, D>::WriteDecorHandle (const WriteDecorHandleKey<T>& key,
 template <class T, class D>
 WriteDecorHandle<T, D>::WriteDecorHandle (const WriteDecorHandle& rhs)
   : Base (rhs),
-    m_contHandle (rhs.m_contHandle),
+    m_decorKey (rhs.m_decorKey),
     m_acc (rhs.m_acc),
     m_madeAlias (rhs.m_madeAlias)
 {
@@ -73,7 +73,7 @@ WriteDecorHandle<T, D>::WriteDecorHandle (const WriteDecorHandle& rhs)
 template <class T, class D>
 WriteDecorHandle<T, D>::WriteDecorHandle (WriteDecorHandle&& rhs)
   : Base (std::move (rhs)),
-    m_contHandle (std::move (rhs.m_contHandle)),
+    m_decorKey (std::move (rhs.m_decorKey)),
     m_acc (std::move (rhs.m_acc)),
     m_madeAlias (rhs.m_madeAlias)
 {
@@ -107,7 +107,7 @@ WriteDecorHandle<T, D>& WriteDecorHandle<T, D>::operator= (const WriteDecorHandl
   if (this != &rhs) {
     *static_cast<Base*>(this) = rhs;
     m_acc = rhs.m_acc;
-    m_contHandle = rhs.m_contHandle;
+    m_decorKey = rhs.m_decorKey;
     m_madeAlias = rhs.m_madeAlias;
   }
   return *this;
@@ -123,7 +123,7 @@ WriteDecorHandle<T, D>& WriteDecorHandle<T, D>::operator= (WriteDecorHandle&& rh
   if (this != &rhs) {
     *static_cast<Base*>(this) = std::move (rhs);
     m_acc = std::move (rhs.m_acc);
-    m_contHandle = std::move (rhs.m_contHandle);
+    m_decorKey = std::move (rhs.m_decorKey);
     m_madeAlias = rhs.m_madeAlias;
     rhs.m_madeAlias = false;
   }
@@ -142,7 +142,7 @@ WriteDecorHandle<T, D>& WriteDecorHandle<T, D>::operator= (WriteDecorHandle&& rh
 template <class T, class D>
 bool WriteDecorHandle<T, D>::isPresent() const
 {
-  return m_contHandle.isPresent();
+  return Base::isPresent();
 }
 
 
@@ -159,8 +159,6 @@ template <class T, class D>
 StatusCode WriteDecorHandle<T, D>::setProxyDict (IProxyDict* store)
 {
   m_madeAlias = false;
-  if (m_contHandle.setProxyDict (store).isFailure())
-    return StatusCode::FAILURE;
   return Base::setProxyDict (store);
 }
 
@@ -217,8 +215,9 @@ template <class T, class D>
 inline
 bool WriteDecorHandle<T, D>::isAvailable (std::true_type)
 {
-  if (this->m_ptr) {
-    const SG::AuxVectorData* obj = static_cast<const T*>(this->m_ptr)->container();
+  const T* ptr = this->ptr();
+  if (ptr) {
+    const SG::AuxVectorData* obj = ptr->container();
     if (obj) {
       return obj->isAvailable (m_acc.auxid());
     }
@@ -238,8 +237,9 @@ template <class T, class D>
 inline
 bool WriteDecorHandle<T, D>::isAvailable (std::false_type)
 {
-  if (this->m_ptr) {
-    return static_cast<const T*>(this->m_ptr)->isAvailable (m_acc.auxid());
+  const T* ptr = this->ptr();
+  if (ptr) {
+    return ptr->isAvailable (m_acc.auxid());
   }
 
   return false;
@@ -274,6 +274,28 @@ SG::auxid_t WriteDecorHandle<T, D>::auxid() const
 
 
 /**
+ * @brief Return the mode (read/write/update) for this handle.
+ */
+template <class T, class D>
+inline
+Gaudi::DataHandle::Mode WriteDecorHandle<T, D>::mode() const
+{
+  return Gaudi::DataHandle::Writer;
+}
+
+
+/**
+ * @brief Return the name of the decoration alias (CONT.DECOR).
+ */
+template <class T, class D>
+inline
+std::string WriteDecorHandle<T, D>::decorKey() const
+{
+  return m_decorKey;
+}
+
+
+/**
  * @brief Retrieve an object from StoreGate.
  * @param quiet If true, suppress failure messages.
  *
@@ -285,11 +307,14 @@ void* WriteDecorHandle<T, D>::typeless_dataPointer_impl (bool quiet)
 {
   if (this->m_ptr && this->m_madeAlias)
     return this->m_ptr;
-  if (m_contHandle.alias (WriteHandleKey<T> (this->key())).isFailure())
-    return nullptr;
   if (!this->m_ptr) {
     ReadHandle<T>::typeless_dataPointer_impl (quiet);
   }
+  if (!this->m_ptr) {
+    return nullptr;
+  }
+  if (this->alias (WriteHandleKey<T> (this->m_decorKey)).isFailure())
+    return nullptr;
   // Important to call the base class method above before calling vectorData;
   // otherwise, we'll get an infinite recursion.
   // Also don't call getDecorationArray if the container is empty.

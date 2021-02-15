@@ -55,8 +55,6 @@ StatusCode TriggerPatternCount::execute()
   return StatusCode::SUCCESS;
 }
 
-#include <stdlib.h>
-
 StatusCode TriggerPatternCount::finalize()
 {
   ATH_MSG_INFO ( "TriggerPatternCount has finished." );

@@ -20,13 +20,12 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
-// needed for callback function
-#include "EventInfo/TagInfo.h"
 
 // monitor memory usage
 #ifdef TRKDETDESCR_MEMUSAGE   
 #include <unistd.h>
 #endif
+
 
 /** Constructor **/
 Trk::TrackingGeometrySvc::TrackingGeometrySvc(const std::string& name,ISvcLocator* svc) : 
@@ -65,43 +64,36 @@ StatusCode Trk::TrackingGeometrySvc::initialize()
       return StatusCode::FAILURE;
   }
 
-  // get the key -- from StoreGate (DetectorStore)
-  std::vector< std::string > tagInfoKeys = m_pDetStore->keys<TagInfo> ();
-  std::string tagInfoKey = "";
-
-  if(tagInfoKeys.empty())   ATH_MSG_WARNING( " No TagInfo keys in DetectorStore ");
-  else {
-    if(tagInfoKeys.size() > 1) ATH_MSG_WARNING( " More than one TagInfo key in the DetectorStore, using the first one " );
-    tagInfoKey = tagInfoKeys[0];
-  }
-
-  if (!m_callbackStringForced) m_callbackString = tagInfoKey;
-        
   if (m_buildGeometryFromTagInfo){
-    // register the Callback
-    const DataHandle<TagInfo> tagInfoH;
-    if ( (m_pDetStore->regFcn(&ITrackingGeometrySvc::trackingGeometryInit,
-        dynamic_cast<ITrackingGeometrySvc*>(this),tagInfoH,m_callbackString)).isFailure() ){
-      ATH_MSG_WARNING( "Unable to register regFcn callback from DetectorStore" );
-    } 
+     ATH_MSG_INFO( "Building Geometry from TagInfo" );
+     // register a callback on TagInfo updates
+     ServiceHandle<ITagInfoMgr> tagInfoMgr("TagInfoMgr", name());
+     ATH_CHECK(tagInfoMgr.retrieve());
+     tagInfoMgr->addListener(this);
   } else {
-    ATH_MSG_INFO( "Building Geometry at initialisation time." );
-    // call with dummy parameters
-    int par1 = 0;
-    std::list<std::string> par2;
-    // build with no dependency on COOL
-    if (trackingGeometryInit(par1,par2).isFailure()) { 
-      ATH_MSG_FATAL( "Unable to build the TrackingGeometry!" );
-      return StatusCode::FAILURE;
-    }
+     ATH_MSG_INFO( "Building Geometry at initialisation time." );
+     // build with no dependency on COOL
+     if(trackingGeometryInit(false).isFailure()) {
+        ATH_MSG_FATAL( "Unable to build the TrackingGeometry!" );
+        return StatusCode::FAILURE;
+     }
   }
   ATH_MSG_INFO( "initialize() successful! " );
   return StatusCode::SUCCESS;
 }
 
 
-StatusCode Trk::TrackingGeometrySvc::trackingGeometryInit(IOVSVC_CALLBACK_ARGS_P(I,keys))
+void Trk::TrackingGeometrySvc::tagInfoUpdated()
 {
+   ATH_MSG_INFO("tagInfoUpdated() callback trigerred");
+   trackingGeometryInit().ignore();
+}
+
+
+StatusCode Trk::TrackingGeometrySvc::trackingGeometryInit(bool needsInit)
+{
+   ATH_MSG_INFO( "Trk::TrackingGeometrySvc::trackingGeometryInit" );
+
     if (m_useConditionsData) {
        ATH_MSG_FATAL("Logic error: TrackingGeometry init callback called despite being configured to use external TrackingGeometries provided by a conditions algorithm.");
     }
@@ -119,22 +111,10 @@ StatusCode Trk::TrackingGeometrySvc::trackingGeometryInit(IOVSVC_CALLBACK_ARGS_P
     if (m_pDetStore->contains<Trk::TrackingGeometry>(m_trackingGeometryName) && !m_rerunOnCallback) 
         return StatusCode::SUCCESS;
 
-    // avoid warning of unused parameter
-    (void) I;
-
-    bool needsInit = false;
-
-    if (m_callbackStringCheck) {
-        // check if the string is ESD for guaranteeing that misalignment has been introduced already
-        for (std::list<std::string>::const_iterator itr=keys.begin(); itr!=keys.end(); ++itr) {
-            if (*itr == m_callbackString) {
-                needsInit = true; break;
-            }
-        }
-    }
-
     // only build if the callback string was true
-    if (needsInit || !m_callbackStringCheck) {
+    // (MN: I set this to alwaus true if called on TagInfo update)
+    if (needsInit) {
+       ATH_MSG_INFO( "trackingGeometryInit - initialize on TagInfoMgr callback" );
         // cleanup the geometry if you have one 
         // (will delete what is in detector store, because new one will overwrite old one)
         m_trackingGeometry = nullptr;
@@ -245,7 +225,6 @@ void Trk::TrackingGeometrySvc::trackingGeometryNotSet() const {
 /** Finalize Service */
 StatusCode Trk::TrackingGeometrySvc::finalize()
 {
-
 #ifdef TRKDETDESCR_MEMUSAGE
     ATH_MSG_INFO( "[ memory usage ] Change in memory usage -------------------------------- "   );
     ATH_MSG_INFO( "[ memory usage ]    Virtual memory change (vsize) : " <<  m_changeVsize      );

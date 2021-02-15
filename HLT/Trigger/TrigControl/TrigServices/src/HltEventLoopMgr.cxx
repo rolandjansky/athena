@@ -6,7 +6,6 @@
 #include "HltEventLoopMgr.h"
 #include "TrigCOOLUpdateHelper.h"
 #include "TrigKernel/HltExceptions.h"
-#include "TrigSORFromPtreeHelper.h"
 #include "TrigRDBManager.h"
 #include "TrigSteeringEvent/HLTResultMT.h"
 
@@ -20,15 +19,10 @@
 
 // Gaudi includes
 #include "GaudiKernel/ConcurrencyFlags.h"
-#include "GaudiKernel/IAlgExecStateSvc.h"
 #include "GaudiKernel/IAlgManager.h"
 #include "GaudiKernel/IAlgorithm.h"
-#include "GaudiKernel/IAlgResourcePool.h"
 #include "GaudiKernel/IEvtSelector.h"
-#include "GaudiKernel/IHiveWhiteBoard.h"
 #include "GaudiKernel/IProperty.h"
-#include "GaudiKernel/IScheduler.h"
-#include "GaudiKernel/IIoComponentMgr.h"
 #include "GaudiKernel/IIoComponent.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 
@@ -53,9 +47,9 @@
     if (sccopy.isFailure()) {                     \
       ATH_MSG_ERROR(errmsg);                      \
       const EventContext& ctx                     \
-        = evctx ? *evctx : EventContext();        \
+        = (evctx) ? *(evctx) : EventContext();    \
       if (failedEvent(errcode,ctx).isFailure()) { \
-        if (delctx) {delete evctx;}               \
+        if (delctx) {delete (evctx);}             \
         return retonfail;                         \
       }                                           \
       else                                        \
@@ -83,22 +77,7 @@ using namespace boost::property_tree;
 // Standard constructor
 // =============================================================================
 HltEventLoopMgr::HltEventLoopMgr(const std::string& name, ISvcLocator* svcLoc)
-: base_class(name, svcLoc),
-  m_incidentSvc("IncidentSvc", name),
-  m_jobOptionsSvc("JobOptionsSvc", name),
-  m_evtStore("StoreGateSvc", name),
-  m_detectorStore("DetectorStore", name),
-  m_inputMetaDataStore("StoreGateSvc/InputMetaDataStore", name),
-  m_ioCompMgr("IoComponentMgr", name)
-{
-}
-
-// =============================================================================
-// Standard destructor
-// =============================================================================
-HltEventLoopMgr::~HltEventLoopMgr()
-{
-}
+: base_class(name, svcLoc) {}
 
 // =============================================================================
 // Reimplementation of AthService::initalize (IStateful interface)
@@ -152,7 +131,7 @@ StatusCode HltEventLoopMgr::initialize()
   if (!threads.empty())
     ATH_MSG_INFO(" ---> NumThreads              = " << threads);
   else
-   ATH_MSG_WARNING("Failed to retrieve the job property AvalancheSchedulerSvc.ThreadPoolSize");
+    ATH_MSG_WARNING("Failed to retrieve the job property AvalancheSchedulerSvc.ThreadPoolSize");
 
   //----------------------------------------------------------------------------
   // Setup all Hive services for multithreaded event processing with the exception of SchedulerSvc,
@@ -245,7 +224,7 @@ StatusCode HltEventLoopMgr::finalize()
   ATH_MSG_INFO("Total number of EventContext objects created " << m_localEventNumber);
 
   // Release all handles
-  auto releaseAndCheck = [&](auto& handle, std::string handleType) {
+  auto releaseAndCheck = [&](auto& handle, std::string_view handleType) {
     if (handle.release().isFailure())
       ATH_MSG_WARNING("finalize(): Failed to release " << handleType << " " << handle.typeAndName());
   };
@@ -405,7 +384,7 @@ StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree& /*pt*/)
     worker_dir /= oss.str();
     // Delete worker directory if it exists already
     if ( boost::filesystem::exists(worker_dir) ) {
-      if ( !boost::filesystem::remove_all(worker_dir) ) {
+      if ( boost::filesystem::remove_all(worker_dir) == 0 ) {
         ATH_MSG_FATAL("Cannot delete previous worker directory " << worker_dir);
         return StatusCode::FAILURE;
       }
@@ -421,7 +400,7 @@ StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree& /*pt*/)
 
   // Start the timeout thread
   ATH_MSG_DEBUG("Starting the timeout thread");
-  m_timeoutThread.reset(new std::thread(std::bind(&HltEventLoopMgr::runEventTimer,this)));
+  m_timeoutThread = std::make_unique<std::thread>(std::bind(&HltEventLoopMgr::runEventTimer,this));
 
   // Initialise vector of time points for event timeout monitoring
   {
@@ -546,7 +525,7 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
       auto eventContext = SG::makeHandle(m_eventContextWHKey,*eventContextPtr);
       HLT_EVTLOOP_CHECK(eventContext.record(std::move(eventContextPtr)),
                         "Failed to record new EventContext in the event store",
-                        HLT::OnlineErrorCode::BEFORE_NEXT_EVENT, eventContextPtr.get());
+                        HLT::OnlineErrorCode::BEFORE_NEXT_EVENT, eventContext.ptr());
 
       // Reset the AlgExecStateSvc
       m_aess->reset(*eventContext);
@@ -630,7 +609,7 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
       ATH_MSG_DEBUG("Retrieved event info for the new event " << *eventInfo);
 
       // Set EventID for the EventContext
-      EventIDBase eid = eventIDFromxAOD(eventInfo.cptr());
+      EventID eid = eventIDFromxAOD(eventInfo.cptr());
       // Override run/LB/timestamp if needed
       if (m_forceRunNumber > 0) {
         eid.set_run_number(m_forceRunNumber);
@@ -639,8 +618,8 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
         eid.set_lumi_block(m_forceLumiblock);
       }
       if (m_forceSOR_ns > 0) {
-        eid.set_time_stamp(m_forceSOR_ns / 1000000000);
-        eid.set_time_stamp_ns_offset(m_forceSOR_ns % 1000000000);
+        eid.set_time_stamp(m_forceSOR_ns / std::nano::den);
+        eid.set_time_stamp_ns_offset(m_forceSOR_ns % std::nano::den);
       }
       eventContext->setEventID(eid);
 
@@ -691,7 +670,7 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
         ATH_MSG_WARNING("Recoverable error in draining scheduler, continuing the event loop");
         continue;
       }
-      else if (drainResult==DrainSchedulerStatusCode::SCHEDULER_EMPTY && !events_available) {
+      if (drainResult==DrainSchedulerStatusCode::SCHEDULER_EMPTY && !events_available) {
         ATH_MSG_INFO("All events processed, finalising the event loop");
         loop_ended = true;
       }
@@ -715,15 +694,12 @@ StatusCode HltEventLoopMgr::stopRun() {
 // Implementation of IEventProcessor::createEventContext
 // =============================================================================
 EventContext HltEventLoopMgr::createEventContext() {
-
   auto slot = m_whiteboard->allocateStore(m_localEventNumber); // returns npos on failure
   if (slot == std::string::npos) {
     // return an invalid EventContext
     return EventContext();
-  } else {
-    return EventContext{ m_localEventNumber, slot };
   }
-
+  return EventContext{ m_localEventNumber, slot };
 }
 
 // =============================================================================
@@ -739,7 +715,7 @@ StatusCode HltEventLoopMgr::executeEvent(EventContext &&ctx)
   // Note this is time of a scheduler slot being free, not equal to the time of a whiteboard slot being free
   const auto slotIdleTime = std::chrono::steady_clock::now() - m_freeSlotStartPoint[ctx.slot()];
   Monitored::Scalar<int64_t> monSlotIdleTime("SlotIdleTime", std::chrono::duration_cast<std::chrono::milliseconds>(slotIdleTime).count());
-  auto mon = Monitored::Group(m_monTool, monSlotIdleTime);
+  Monitored::Group(m_monTool, monSlotIdleTime);
 
   // Now add event to the scheduler
   ATH_MSG_DEBUG("Adding event " <<  ctx.evt() << ", slot " << ctx.slot() << " to the scheduler");
@@ -747,7 +723,7 @@ StatusCode HltEventLoopMgr::executeEvent(EventContext &&ctx)
 
   // If this fails, we need to wait for something to complete
   if (addEventStatus.isFailure()){
-    ATH_MSG_ERROR("Failed adding event " << ctx.evt() << ", slot " << ctx.slot() << " to the scheduler");
+    ATH_MSG_ERROR("Failed adding event to the scheduler");
     return StatusCode::FAILURE;
   }
 
@@ -844,7 +820,7 @@ StatusCode HltEventLoopMgr::updateMagField(const ptree& pt) const
       const IAlgManager* algMgr = Gaudi::svcLocator()->as<IAlgManager>();
       IAlgorithm* fieldAlg{nullptr};
       algMgr->getAlgorithm("AtlasFieldMapCondAlg", fieldAlg).ignore();
-      if ( fieldAlg ) {
+      if ( fieldAlg != nullptr ) {
         ATH_MSG_INFO("Setting field currents on AtlasFieldMapCondAlg");
         ATH_CHECK( Gaudi::Utils::setProperty(fieldAlg, "MapSoleCurrent", sol_cur) );
         ATH_CHECK( Gaudi::Utils::setProperty(fieldAlg, "MapToroCurrent", tor_cur) );
@@ -926,7 +902,7 @@ void HltEventLoopMgr::printSORAttrList(const coral::AttributeList& atr) const
   unsigned long long sorTime_ns(atr["SORTime"].data<unsigned long long>());
 
   // Human readable format of SOR time if available
-  time_t sorTime_sec = sorTime_ns/1000000000;
+  time_t sorTime_sec = sorTime_ns / std::nano::den;
   const auto sorTime_readable = OWLTime(sorTime_sec);
 
   ATH_MSG_INFO("SOR parameters:");
@@ -968,7 +944,7 @@ StatusCode HltEventLoopMgr::failedEvent(HLT::OnlineErrorCode errorCode, const Ev
                     << m_maxFrameworkErrors.value() << ", was exceeded. Exiting the event loop.");
       return StatusCode::FAILURE; // break the event loop
     }
-    else return StatusCode::SUCCESS; // continue the event loop
+    return StatusCode::SUCCESS; // continue the event loop
   };
 
   //----------------------------------------------------------------------------
@@ -981,19 +957,19 @@ StatusCode HltEventLoopMgr::failedEvent(HLT::OnlineErrorCode errorCode, const Ev
       << " all slots of this HltEventLoopMgr instance will be drained before proceeding.");
     return drainAllAndProceed();
   }
-  else if (errorCode==HLT::OnlineErrorCode::AFTER_RESULT_SENT) {
+  if (errorCode==HLT::OnlineErrorCode::AFTER_RESULT_SENT) {
     ATH_MSG_ERROR("Failure occurred with OnlineErrorCode=" << errorCode
       << " meaning there was a framework error after HLT result was already sent out."
       << " All slots of this HltEventLoopMgr instance will be drained before proceeding.");
     return drainAllAndProceed();
   }
-  else if (errorCode==HLT::OnlineErrorCode::CANNOT_ACCESS_SLOT) {
+  if (errorCode==HLT::OnlineErrorCode::CANNOT_ACCESS_SLOT) {
     ATH_MSG_ERROR("Failed to access the slot for the processed event, cannot produce output. OnlineErrorCode=" << errorCode
       << ". All slots of this HltEventLoopMgr instance will be drained before proceeding, then either the loop will"
       << " exit with a failure code or the failed event will reach a hard timeout.");
     return drainAllAndProceed();
   }
-  else if (!eventContext.valid()) {
+  if (!eventContext.valid()) {
     ATH_MSG_ERROR("Failure occurred with an invalid EventContext. Likely there was a framework error before"
       << " requesting a new event or after sending the result of a finished event. OnlineErrorCode=" << errorCode
       << ". All slots of this HltEventLoopMgr instance will be drained before proceeding.");
@@ -1084,7 +1060,7 @@ StatusCode HltEventLoopMgr::failedEvent(HLT::OnlineErrorCode errorCode, const Ev
   int64_t eventTimeMillisec = std::chrono::duration_cast<std::chrono::milliseconds>(eventTime).count();
   auto monTimeAny = Monitored::Scalar<int64_t>("TotalTime", eventTimeMillisec);
   auto monTimeAcc = Monitored::Scalar<int64_t>("TotalTimeAccepted", eventTimeMillisec);
-  auto mon = Monitored::Group(m_monTool, monTimeAny, monTimeAcc);
+  Monitored::Group(m_monTool, monTimeAny, monTimeAcc);
 
   //----------------------------------------------------------------------------
   // Try to build and send the output
@@ -1098,7 +1074,7 @@ StatusCode HltEventLoopMgr::failedEvent(HLT::OnlineErrorCode errorCode, const Ev
   }
 
   DataObject* hltResultDO = m_evtStore->accessData(hltResultWH.clid(),hltResultWH.key());
-  if (!hltResultDO) {
+  if (hltResultDO == nullptr) {
     ATH_MSG_ERROR("Failed to retrieve DataObject for the HLT result object while handling a failed event."
       << " No HLT result can be recorded for this event. OnlineErrorCode=" << errorCode
       << ", local event number " << eventContext.evt() << ", slot " << eventContext.slot()
@@ -1107,7 +1083,7 @@ StatusCode HltEventLoopMgr::failedEvent(HLT::OnlineErrorCode errorCode, const Ev
   }
 
   IOpaqueAddress* addr = nullptr;
-  if (m_outputCnvSvc->createRep(hltResultDO,addr).isFailure() || !addr) {
+  if (m_outputCnvSvc->createRep(hltResultDO,addr).isFailure() || addr == nullptr) {
     ATH_MSG_ERROR("Conversion of HLT result object to the output format failed while handling a failed event."
       << " No HLT result can be recorded for this event. OnlineErrorCode=" << errorCode
       << ", local event number " << eventContext.evt() << ", slot " << eventContext.slot()
@@ -1132,7 +1108,7 @@ StatusCode HltEventLoopMgr::failedEvent(HLT::OnlineErrorCode errorCode, const Ev
   // Clear the event data slot
   //----------------------------------------------------------------------------
   // Need to copy the event context because it's managed by the event store and clearWBSlot deletes it
-  EventContext eventContextCopy = eventContext;
+  const EventContext eventContextCopy = eventContext;
   if (clearWBSlot(eventContext.slot()).isFailure())
     return failedEvent(HLT::OnlineErrorCode::AFTER_RESULT_SENT,eventContextCopy);
 
@@ -1237,7 +1213,7 @@ HltEventLoopMgr::DrainSchedulerStatusCode HltEventLoopMgr::drainScheduler()
     // Basic checks, select slot, retrieve event info
     //--------------------------------------------------------------------------
     // Check if the EventContext object exists
-    if (!thisFinishedEvtContext) markFailed();
+    if (thisFinishedEvtContext == nullptr) markFailed();
     HLT_DRAINSCHED_CHECK(sc, "Detected nullptr EventContext while finalising a processed event",
                          HLT::OnlineErrorCode::CANNOT_ACCESS_SLOT, thisFinishedEvtContext);
 
@@ -1289,7 +1265,7 @@ HltEventLoopMgr::DrainSchedulerStatusCode HltEventLoopMgr::drainScheduler()
                          HLT::OnlineErrorCode::NO_HLT_RESULT, thisFinishedEvtContext);
 
     DataObject* hltResultDO = m_evtStore->accessData(hltResult.clid(),hltResult.key());
-    if (!hltResultDO) markFailed();
+    if (hltResultDO == nullptr) markFailed();
     HLT_DRAINSCHED_CHECK(sc, "Failed to retrieve the HLTResult DataObject",
                          HLT::OnlineErrorCode::NO_HLT_RESULT, thisFinishedEvtContext);
 
@@ -1317,7 +1293,7 @@ HltEventLoopMgr::DrainSchedulerStatusCode HltEventLoopMgr::drainScheduler()
                           HLT::OnlineErrorCode::OUTPUT_BUILD_FAILURE, thisFinishedEvtContext);
 
       DataObject* l1TriggerResultDO = m_evtStore->accessData(l1TriggerResult.clid(),l1TriggerResult.key());
-      if (!l1TriggerResultDO) markFailed();
+      if (l1TriggerResultDO == nullptr) markFailed();
       HLT_DRAINSCHED_CHECK(sc, "Failed to retrieve the L1 Trigger Result DataObject for RewriteLVL1",
                           HLT::OnlineErrorCode::OUTPUT_BUILD_FAILURE, thisFinishedEvtContext);
 
@@ -1376,7 +1352,7 @@ HltEventLoopMgr::DrainSchedulerStatusCode HltEventLoopMgr::drainScheduler()
     // Fill the time monitoring histograms
     auto monTimeAny = Monitored::Scalar<int64_t>("TotalTime", eventTimeMillisec);
     auto monTimeAcc = Monitored::Scalar<int64_t>(eventAccepted ? "TotalTimeAccepted" : "TotalTimeRejected", eventTimeMillisec);
-    auto mon = Monitored::Group(m_monTool, monTimeAny, monTimeAcc);
+    Monitored::Group(m_monTool, monTimeAny, monTimeAcc);
 
     // Set ThreadLocalContext to an invalid context as we entering a context-less environment
     Gaudi::Hive::setCurrentContext( EventContext() );

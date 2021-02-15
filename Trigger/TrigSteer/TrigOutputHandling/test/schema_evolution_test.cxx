@@ -1,6 +1,6 @@
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include <iostream>
 
@@ -19,6 +19,8 @@
 #include "../src/TriggerEDMDeserialiserAlg.h"
 
 #include "CxxUtils/checker_macros.h"
+#include "CxxUtils/ubsan_suppress.h"
+#include "TInterpreter.h"
 
 std::vector<uint32_t> serialisedData ATLAS_THREAD_SAFE; //Only used in test program
 StatusCode tester( TriggerEDMSerialiserTool* ser) {
@@ -36,13 +38,15 @@ StatusCode tester( TriggerEDMSerialiserTool* ser) {
     cluster->setE277(0);
     
     // got trivial object to serialise, need to create addresses
-    TriggerEDMSerialiserTool::Address interfaceAddress( "xAOD::TrigEMClusterContainer", "xAOD::TrigEMClusterContainer_v1", 
-							1264979038/*clid*/, "HLT_one", {}, 
-							TriggerEDMSerialiserTool::Address::xAODInterface );
+    TriggerEDMSerialiserTool::Address interfaceAddress{
+      "xAOD::TrigEMClusterContainer", "xAOD::TrigEMClusterContainer_v1",
+      1264979038/*clid*/, "HLT_one", {},
+      TriggerEDMSerialiserTool::Address::Category::xAODInterface};
 
-    TriggerEDMSerialiserTool::Address auxAddress( "xAOD::TrigEMClusterAuxContainer", "xAOD::TrigEMClusterAuxContainer_v1", 
-						  1111649561/*clid*/, "HLT_oneAux.", {}, 
-						  TriggerEDMSerialiserTool::Address::xAODAux );
+    TriggerEDMSerialiserTool::Address auxAddress{
+      "xAOD::TrigEMClusterAuxContainer", "xAOD::TrigEMClusterAuxContainer_v1",
+      1111649561/*clid*/, "HLT_oneAux.", {},
+      TriggerEDMSerialiserTool::Address::Category::xAODAux};
      
     auto status = ser->serialiseContainer( (void*)em, interfaceAddress, serialisedData );
     VALUE( status ) EXPECTED( StatusCode::SUCCESS );
@@ -57,6 +61,7 @@ StatusCode tester( TriggerEDMSerialiserTool* ser) {
 }
 
 int main() {
+  CxxUtils::ubsan_suppress ( []() { TInterpreter::Instance(); } );
   using namespace std;
   ISvcLocator* pSvcLoc;
   if( !Athena_test::initGaudi("test.txt",  pSvcLoc) ) {

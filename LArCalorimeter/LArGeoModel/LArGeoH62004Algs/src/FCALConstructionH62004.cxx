@@ -63,7 +63,6 @@
 #include <stdexcept>
 
 #include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h" 
 
 //===================constructor
 

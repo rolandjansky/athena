@@ -310,7 +310,6 @@ protected:
       if(!service) {
         return nullptr;
       }
-      EXPECT_TRUE( service->setProperties().isSuccess() );
       EXPECT_TRUE( service->configure().isSuccess() );
       EXPECT_TRUE( m_svcMgr->addService(service).isSuccess() );
       // assert that finalize() gets called once per test case
@@ -333,7 +332,6 @@ protected:
         return nullptr;
       }
 
-      EXPECT_TRUE( tool->setProperties().isSuccess() );
       EXPECT_TRUE( tool->configure().isSuccess() );
 
       // assert that finalize() gets called once per test case

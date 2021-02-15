@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SRC_EVENTINFOREADER_H
@@ -12,9 +12,6 @@
  * geometry and conditions tags in EventInfo, checks tags on reading
  *
  * @author RD Schaffer <R.D.Schaffer@cern.ch>
- *
- * $Id: EventInfoReader.h,v 1.3 2005-03-16 14:54:02 schaffer Exp $
- *
  */
 
 /**
@@ -26,9 +23,12 @@
  */
 
 #include "GaudiKernel/ServiceHandle.h"
-
 #include "AthenaBaseComps/AthAlgorithm.h"
+
+#include "EventInfoMgt/ITagInfoMgr.h"
+// GeoModel
 #include "GeoModelInterfaces/IGeoModelSvc.h"
+
 
 class EventInfoReader : public AthAlgorithm {
 public:
@@ -65,6 +65,8 @@ private:
 private:
     /// Access to GeoModelSvc for tags
     ServiceHandle<IGeoModelSvc> m_geoModel;
+    /// Access to TagInfoMgr for tags
+    ServiceHandle<ITagInfoMgr> m_tagInfoMgr;
 };
 
 

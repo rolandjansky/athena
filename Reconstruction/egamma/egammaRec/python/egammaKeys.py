@@ -3,61 +3,110 @@
 __doc__ = "egammaKeys.py"
 __author__ = "Bruno Lenzi"
 
-# Name (i.e Electron) = [type =type of the collection, key = name of the collection,
+# Name (i.e Electron) = [
+# type =type of the collection, key = name of the collection,
 # option = for aux container applied in ALL cases (ESD and AOD),
 # option =  for additional suppression for  AOD only]
+
+from IsolationAlgs.IsoUpdatedTrackCones import iso_vars
 
 
 class egammaKeysDict:
     inputs = dict(
     )
 
-    ShowerShapesSuppress = '-e033.-e011.-e333.-e335.-e337.-e377'
+    ShowerShapesSuppress = '.-e033.-e011.-e333.-e335.-e337.-e377'
     PhotonisemSupress = '.-isEMLoose.-isEMTight'
     ElectronisemSupress = '.-isEMLHLoose.-isEMLHTight.-isEMLHMedium.-isEMLoose.-isEMMultiLepton.-isEMMedium.-isEMTight'
-    FwdElectronisemSupress = '-isEMTight.-isEMMedium.-isEMLoose'
+    FwdElectronisemSupress = '.-isEMTight.-isEMMedium.-isEMLoose'
+    # Strip off the leading dot
+    isovar_suppress = "-" + ".-".join(iso_vars())
 
     outputs = dict(
-        Conversion=['xAOD::VertexContainer',
-                    'GSFConversionVertices', '-vxTrackAtVertex.', ''],
-        Cluster=['xAOD::CaloClusterContainer', 'egammaClusters', '', ''],
-        EgammaLargeClusters=['xAOD::CaloClusterContainer',
-                             'egamma711Clusters', '', ''],  # not output to AOD
-        TopoSeededCluster=['xAOD::CaloClusterContainer',
-                           'egammaTopoSeededClusters', '', '-CellLink'],
-        Electron=['xAOD::ElectronContainer', 'Electrons',
-                  '', ShowerShapesSuppress+ElectronisemSupress],
-        EgammaRec=['egammaRecContainer', 'egammaRecCollection', '', ''],
-        PhotonSuperRec=['egammaRecContainer',
-                        'PhotonSuperRecCollection', '', ''],
-        ElectronSuperRec=['egammaRecContainer',
-                          'ElectronSuperRecCollection', '', ''],
+        Conversion=[
+            'xAOD::VertexContainer',
+            'GSFConversionVertices',
+            '-vxTrackAtVertex.',
+            ''],
+        Cluster=[
+            'xAOD::CaloClusterContainer',
+            'egammaClusters',
+            '',
+            ''],
+        EgammaLargeClusters=[
+            'xAOD::CaloClusterContainer',
+            'egamma711Clusters', '', ''],
+        EgammaLargeFWDClusters=[
+            'xAOD::CaloClusterContainer',
+            'egamma66FWDClusters',
+            '',
+            ''],
+        TopoSeededCluster=[
+            'xAOD::CaloClusterContainer',
+            'egammaTopoSeededClusters',
+            '',
+            '-CellLink'],
+        Electron=[
+            'xAOD::ElectronContainer',
+            'Electrons',
+            isovar_suppress,
+            ShowerShapesSuppress+ElectronisemSupress],
+        EgammaRec=['egammaRecContainer',
+                   'egammaRecCollection',
+                   '',
+                   ''],
+        PhotonSuperRec=[
+            'egammaRecContainer',
+            'PhotonSuperRecCollection', '', ''],
+        ElectronSuperRec=[
+            'egammaRecContainer',
+            'ElectronSuperRecCollection', '', ''],
         FwdElectron=['xAOD::ElectronContainer',
-                     'ForwardElectrons', '', FwdElectronisemSupress],
+                     'ForwardElectrons',
+                     isovar_suppress,
+                     FwdElectronisemSupress],
         FwdCluster=['xAOD::CaloClusterContainer',
-                    'ForwardElectronClusters', '-SisterCluster', '.-CellLink'],
-        Photon=['xAOD::PhotonContainer', 'Photons', '',
+                    'ForwardElectronClusters',
+                    '-SisterCluster', ''],
+        Photon=['xAOD::PhotonContainer',
+                'Photons', isovar_suppress,
                 ShowerShapesSuppress+PhotonisemSupress],
-        TrackParticle=['xAOD::TrackParticleContainer', 'GSFTrackParticles',
-                       '-caloExtension.-cellAssociation.-perigeeExtrapEta.-perigeeExtrapPhi', ''],
-        Track=['TrackCollection', 'GSFTracks', '', ''],
+        TrackParticle=[
+            'xAOD::TrackParticleContainer',
+            'GSFTrackParticles',
+            '-caloExtension.-cellAssociation.-perigeeExtrapEta.-perigeeExtrapPhi', ''],
+        Track=['TrackCollection',
+               'GSFTracks',
+               '',
+               ''],
         Truth=['xAOD::TruthParticleContainer',
-               'egammaTruthParticles', '-caloExtension', '']
+               'egammaTruthParticles',
+               '-caloExtension',
+               '']
     )
     #
-    outputs['CellLink'] = ['CaloClusterCellLinkContainer',
-                           outputs['Cluster'][1] + '_links', '', '']
-    outputs['TopoSeededCellLink'] = ['CaloClusterCellLinkContainer',
-                                     outputs['TopoSeededCluster'][1] +
-                                     '_links',
-                                     '', '']
-    outputs['FwdClusterCellLink'] = ['CaloClusterCellLinkContainer',
-                                     outputs['FwdCluster'][1] + '_links',
-                                     '', '']
-    outputs['EgammaLargeClustersCellLink'] = ['CaloClusterCellLinkContainer',
-                                              outputs['EgammaLargeClusters'][1] +
-                                              '_links',
-                                              '', '']
+    outputs['CellLink'] = [
+        'CaloClusterCellLinkContainer',
+        outputs['Cluster'][1] + '_links', '', '']
+    outputs['TopoSeededCellLink'] = [
+        'CaloClusterCellLinkContainer',
+        outputs['TopoSeededCluster'][1] +
+        '_links',
+        '', '']
+    outputs['FwdClusterCellLink'] = [
+        'CaloClusterCellLinkContainer',
+        outputs['FwdCluster'][1] + '_links',
+        '', '']
+    outputs['EgammaLargeClustersCellLink'] = [
+        'CaloClusterCellLinkContainer',
+        outputs['EgammaLargeClusters'][1] +
+        '_links',
+        '', '']
+    outputs['EgammaLargeFWDClustersCellLink'] = [
+        'CaloClusterCellLinkContainer',
+        outputs['EgammaLargeFWDClusters'][1] +
+        '_links',
+        '', '']
     #
 
 
@@ -93,3 +142,34 @@ def truthParticleKey():
 
 def truthEventKey():
     return 'TruthEvents'
+
+
+def getItem(cType, cKey):
+    """getItem(cType, cKey) -> Return item to be added
+    to the output list: <cType>#<cKey>"""
+    return '%s#%s' % (cType, cKey)
+
+
+def getAuxItem(cType, cKey, auxOptionAll='', auxOptionAOD=''):
+    """getAuxItem(cType, cKey, auxOption='')
+    -> <cType>#<cKey>Aux.<auxOption>"""
+    auxType = cType.replace('Container', 'AuxContainer')
+    auxKey = cKey + 'Aux.'
+    return '%s#%s%s%s' % (auxType, auxKey, auxOptionAll, auxOptionAOD)
+
+
+def addContainer(outputList, cType, cKey):
+    """addContainer(outputList, cType, cKey)
+    -> Add container to outputList"""
+    # Skip containers if already in outputList
+    item = getItem(cType, cKey)
+    if item not in outputList:
+        outputList.append(item)
+
+
+def addAuxContainer(outputList, cType, cKey, auxOptionAll='', auxOptionAOD=''):
+    """addAux(outputList, cType, cKey, auxOption='')
+     -> Add aux container to outputList"""
+    item = getAuxItem(cType, cKey, auxOptionAll, auxOptionAOD)
+    if item not in outputList:
+        outputList.append(item)

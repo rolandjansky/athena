@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ActsGeometry/ActsMaterialStepConverterTool.h"
@@ -58,7 +58,7 @@ ActsMaterialStepConverterTool::convertToMaterialTrack(const Trk::MaterialStepCol
   Acts::Vector3D v_imp{x_lengh*norm, y_lengh*norm, z_lengh*norm};
   Acts::Vector3D prev_pos = v_pos;
 
-  for(auto const& step: colStep) {
+  for(auto const step: colStep) {
 
     Acts::MaterialInteraction interaction;
 

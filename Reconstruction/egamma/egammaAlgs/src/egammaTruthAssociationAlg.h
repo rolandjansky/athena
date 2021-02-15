@@ -5,7 +5,7 @@
 #ifndef EGAMMAALGS_EGAMMATRUTHASSOCIATIONALG_H
 #define EGAMMAALGS_EGAMMATRUTHASSOCIATIONALG_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MCTruthClassifier/IMCTruthClassifier.h"
@@ -38,7 +38,7 @@
    @author B. Lenzi J. Mitrevski C. Anastopoulos
 */
 
-class egammaTruthAssociationAlg : public AthAlgorithm
+class egammaTruthAssociationAlg : public AthReentrantAlgorithm
 {
 
 public:
@@ -56,13 +56,7 @@ public:
   virtual StatusCode finalize() override final;
 
   /** @brief execute on container */
-  virtual StatusCode execute() override final
-  {
-    return execute_r(Algorithm::getContext());
-  }
-  // This will become the normal execute when
-  // inheriting from AthReentrantAlgorithm
-  StatusCode execute_r(const EventContext& ctx) const;
+  virtual StatusCode execute(const EventContext& ctx) const override final;
 
 private:
   struct MCTruthInfo_t
@@ -82,8 +76,8 @@ private:
   template<class T>
   struct writeDecorHandles
   {
-    writeDecorHandles(
-      const SG::WriteDecorHandleKeyArray<T>& keys); // constructor
+    writeDecorHandles(const SG::WriteDecorHandleKeyArray<T>& keys,
+                      const EventContext& ctx); // constructor
 
     SG::WriteDecorHandle<T, ElementLink<xAOD::TruthParticleContainer>> el;
     SG::WriteDecorHandle<T, int> type;
@@ -97,7 +91,8 @@ private:
    * info and decorate the truth particles with links to the reco ones
    * (reco<typeName>Link) **/
   template<class T, class L>
-  StatusCode match(const xAOD::TruthParticleContainer& truthParticles,
+  StatusCode match(const EventContext& ctx,
+                   const xAOD::TruthParticleContainer& truthParticles,
                    const SG::WriteDecorHandleKeyArray<T>& hkeys,
                    const SG::AuxElement::Accessor<L>& linkAccess,
                    xAOD::TruthParticleContainer* egammaTruthContainer) const;
@@ -106,17 +101,22 @@ private:
    * or do a second pass for electrons based on the cluster to find true photons
    * **/
   template<class T>
-  MCTruthInfo_t particleTruthClassifier(const T*, Cache*) const;
+  MCTruthInfo_t particleTruthClassifier(const EventContext& ctx,
+                                        const T*,
+                                        Cache*) const;
 
   /** @brief Create a copy a truth particle, add it to the new container and
    * decorate it with a link to the original particle **/
-  void getNewTruthParticle(xAOD::TruthParticleContainer& egammaTruthContainer,
-                           const xAOD::TruthParticle* truth,
-                           const xAOD::TruthParticleContainer* oldContainer) const;
+  void getNewTruthParticle(
+    const EventContext& ctx,
+    xAOD::TruthParticleContainer& egammaTruthContainer,
+    const xAOD::TruthParticle* truth,
+    const xAOD::TruthParticleContainer* oldContainer) const;
 
   /** @brief Return true if the truth particle is a prompt electron or photon
    * **/
-  bool isPromptEgammaParticle(const xAOD::TruthParticle* truth) const;
+  bool isPromptEgammaParticle(const EventContext& ctx,
+                              const xAOD::TruthParticle* truth) const;
 
   /** @brief Return the truth particle in the egamma truth container that
    * corresponds to the given truth particle (egammaTruthContainer is non-const

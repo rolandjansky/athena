@@ -34,12 +34,10 @@ def IOVDbSvcCfg(configFlags):
 
     # Set up IOVDbSvc
     iovDbSvc=IOVDbSvc()
-    dbname=configFlags.IOVDb.DatabaseInstance
-
-    localfile="sqlite://;schema=mycool.db;dbname="
-    iovDbSvc.dbConnection=localfile+dbname
+    
+    iovDbSvc.dbConnection=configFlags.IOVDb.DBConnection
     # setup knowledge of dbinstance in IOVDbSvc, for global tag x-check
-    iovDbSvc.DBInstance=dbname
+    iovDbSvc.DBInstance=configFlags.IOVDb.DatabaseInstance
 
     if 'FRONTIER_SERVER' in os.environ.keys() and os.environ['FRONTIER_SERVER']!="":
         iovDbSvc.CacheAlign=3
@@ -135,7 +133,7 @@ def addFolderList(configFlags,listOfFolderInfoTuple,extensible=False,db=None):
             if detDb not in _dblist.keys():
                 raise ConfigurationError("Error, db shorthand %s not known" % detDb)
             #Append database string to folder-name
-            fs+="<db>"+_dblist[detDb]+"/"+dbname+"</db>"
+            fs = "<db>"+_dblist[detDb]+"/"+dbname+"</db> " + fs
     
         if extensible:
             fs = fs + '<extensible/>'

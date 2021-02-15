@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOINTERFACE_ICALOTOPOTOWERBUILDERTOOLBASE_H
@@ -27,6 +27,7 @@ class CaloTopoTowerContainer;
 class CaloTowerSeg;
 class CaloCellContainer;
 class CaloClusterContainer;
+class EventContext;
 
 // Declaration of the interface ID ( interface id, major version, minor version) 
 static const InterfaceID IID_ICaloTopoTowerBuilderToolBase("ICaloTopoTowerBuilderToolBase", 1 , 0); 
@@ -41,7 +42,8 @@ class ICaloTopoTowerBuilderToolBase : virtual public IAlgTool
   /// common initialization
 
   /// execute is abstract
-  virtual StatusCode execute(CaloTopoTowerContainer* theContainer,const CaloCellContainer* theCell=0) const = 0;
+  virtual StatusCode execute(const EventContext& ctx,
+                             CaloTopoTowerContainer* theContainer,const CaloCellContainer* theCell=0) const = 0;
   virtual StatusCode initialize() =0;
 
   virtual StatusCode initializeTool() = 0;

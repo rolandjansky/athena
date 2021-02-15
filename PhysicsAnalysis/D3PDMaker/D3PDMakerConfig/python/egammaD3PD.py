@@ -16,8 +16,6 @@ from MuonD3PDMaker.MuonD3PDObject             import MuonD3PDObject
 from JetD3PDMaker.JetD3PDObject               import JetD3PDObject
 from CaloD3PDMaker.MBTSD3PDObject             import MBTSD3PDObject
 from CaloD3PDMaker.MBTSTimeD3PDObject         import MBTSTimeD3PDObject
-# from CaloD3PDMaker.MBTSTriggerBitsD3PDObject  import MBTSTriggerBitsD3PDObject
-# from CaloD3PDMaker.ZDCTriggerBitsD3PDObject   import ZDCTriggerBitsD3PDObject
 from CaloD3PDMaker.LArCollisionTimeD3PDObject import LArCollisionTimeD3PDObject
 from CaloD3PDMaker.CollisionDecisionD3PDObject import CollisionDecisionD3PDObject
 from MissingETD3PDMaker.MissingETD3PDObject   import MissingETD3PDObject
@@ -207,18 +205,10 @@ class MergeElectrons (PyAthena.Alg):
         sg.record (enew, 'AllElectrons')
         cfgKeyStore.addTransient ('xAOD::ElectronContainer', 'AllElectrons')
 
-        #e1 = sg['StacoMuonCollection']
-        e1 = sg.retrieve (ROOT.DataVector(ROOT.xAOD.Electron_v1), 'AllElectrons')
-        #if e1.size() > 0:
-        #    reg = ROOT.SG.AuxTypeRegistry.instance()
-        #    auxids = list(e1[0].getAuxIDs())
-        #    auxids = [(reg.getName(id), id) for id in auxids]
-        #    auxids.sort()
-        #    print 'aaa', auxids
-        # if e2.size() > 0:
-        #     acc = ROOT.SG.AuxElement.TypelessConstAccessor ('Loose')
-        #     print 'bbb2', acc.isAvailable(e2[0])
-
+        # Make sure these aux variables are defined at this point.
+        ROOT.xAOD.ElectronAuxContainer()
+        ROOT.xAOD.CaloClusterAuxContainer()
+               
         return StatusCode.Success
         
 
@@ -293,8 +283,6 @@ def egammaD3PD (alg = None,
                                                          'DQMoments']))
     alg += MBTSD3PDObject             (**_args (level, 'MBTS', kw))
     alg += MBTSTimeD3PDObject         (**_args (level, 'MBTSTime', kw))
-    # alg += MBTSTriggerBitsD3PDObject  (**_args (level, 'MBTSTriggerBits', kw))
-    # alg += ZDCTriggerBitsD3PDObject   (**_args (level, 'ZDCTriggerBits', kw))
     alg += CollisionDecisionD3PDObject(**_args (level, 'CollisionDecision', kw))
     alg += MissingETD3PDObject (**_args (level, 'MissingET', kw,
                                          sgkey = 'MET_Core_AntiKt4EMTopo',

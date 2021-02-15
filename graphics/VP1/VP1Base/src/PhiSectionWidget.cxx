@@ -9,7 +9,6 @@
 #include <QCursor>
 #include <QDrag>
 #include <QMenu>
-#include <QMouseEvent>
 #include <QDragEnterEvent>
 #include <QDropEvent>
 #include <QApplication>

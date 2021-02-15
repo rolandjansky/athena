@@ -61,12 +61,12 @@ public:
   QString key;
   VP1TruthVertexCollection * theclass;
   VertexSysController*controller;
-  std::map <SoNode *, const HepMC::GenVertex *> nodeToVertexMap;
+  std::map <SoNode *, HepMC::ConstGenVertexPtr> nodeToVertexMap;
   SoLineSet * createCross(const double& x, const double& y, const double& z, const double& extent = 10*Gaudi::Units::mm ); // 10*CLHEP::mm );
 
   class VertexHandle {
   public:
-    VertexHandle(const HepMC::GenVertex* v,VP1TruthVertexCollection::Imp * dd) : m_attached(false), m_vertex(v), m_line(0),m_d(dd) {}
+    VertexHandle(HepMC::ConstGenVertexPtr v,VP1TruthVertexCollection::Imp * dd) : m_attached(false), m_vertex(v), m_line(0),m_d(dd) {}
     ~VertexHandle() { if (m_line) m_line->unref(); }
 
     void recheckCutStatus() {
@@ -109,18 +109,23 @@ public:
       vertices->vertex.set1Value ( 4, x, y,z-extent );
       vertices->vertex.set1Value ( 5, x, y,z+extent );
     }
-    const HepMC::GenVertex * vertex() const { return m_vertex; }
+    HepMC::ConstGenVertexPtr vertex() const { return m_vertex; }
     SoLineSet * line() const { return m_line; }
 
     double quantityVal(const VertexCommonFlags::QUANTITY& q) {
       //Find total 4-momentum of incoming particles
       double px(0), py(0), pz(0), e(0);//HepMC::FourVector does NOT support operators + or += !!!!!!
+#ifdef HEPMC3
+      for (auto PartIn:  m_vertex->particles_in()){
+#else
       HepMC::GenVertex::particles_in_const_iterator itPartIn,itPartInE(m_vertex->particles_in_const_end());
       for ( itPartIn = m_vertex->particles_in_const_begin();itPartIn!=itPartInE;++itPartIn) {
-	px += (*itPartIn)->momentum().px();
-	py += (*itPartIn)->momentum().py();
-	pz += (*itPartIn)->momentum().pz();
-	e += (*itPartIn)->momentum().e();
+      auto PartIn=*itPartIn;
+#endif
+	px +=PartIn->momentum().px();
+	py +=PartIn->momentum().py();
+	pz +=PartIn->momentum().pz();
+	e += PartIn->momentum().e();
       }
       const HepMC::FourVector mom(px,py,pz,e);
       switch(q) {
@@ -172,7 +177,7 @@ public:
       return false;
     }
     bool m_attached;
-    const HepMC::GenVertex * m_vertex;
+    HepMC::ConstGenVertexPtr  m_vertex;
     SoLineSet * m_line;
     VP1TruthVertexCollection::Imp * m_d;
   };
@@ -250,9 +255,13 @@ bool VP1TruthVertexCollection::load()
     if (!genEvent)
       continue;
 
+#ifdef HEPMC3
+     for (auto vtx:  genEvent->vertices()) {
+#else
     HepMC::GenEvent::vertex_const_iterator itVertex, itVertexEnd(genEvent->vertices_end());
     for (itVertex = genEvent->vertices_begin(); itVertex != itVertexEnd; itVertex++ ) {
-      const HepMC::GenVertex * vtx(*itVertex);
+      auto  vtx=*itVertex;
+#endif
       if (!vtx)
 	continue;
       m_d->vertices << new Imp::VertexHandle(vtx,m_d);
@@ -279,31 +288,40 @@ QStringList VP1TruthVertexCollection::infoOnClicked(SoPath* pickedPath)
   }
   if (!vertexHandle)
     return QStringList() << "ERROR: Could not get truth vertex information for picked Node";
-  const HepMC::GenVertex * vtx = vertexHandle->vertex();
+  HepMC::ConstGenVertexPtr vtx = vertexHandle->vertex();
 
   QStringList l;
   if (m_d->controller->printInfoOnClick()) {
 
     //Make output:
     l <<"Truth vertex from collection "+text()+":" ;
-
+#ifdef HEPMC3
+     for ( auto PartIn: vtx->particles_in()) {
+#else
     HepMC::GenVertex::particles_in_const_iterator itPartIn,itPartInE(vtx->particles_in_const_end());
     for ( itPartIn = vtx->particles_in_const_begin();itPartIn!=itPartInE;++itPartIn) {
-      const int pdg = (*itPartIn)->pdg_id();
+      auto PartIn=*itPartIn;
+#endif
+      const int pdg = PartIn->pdg_id();
       bool ok;
       QString name = VP1ParticleData::particleName(pdg,ok);
       if (!ok)
 	name = "<unknown>";
-      l << "--> In: "+name+" ("+str(pdg)+")  [ P = "+str(m_d->mag((*itPartIn)->momentum())/Gaudi::Units::GeV)+" GeV ]";
+      l << "--> In: "+name+" ("+str(pdg)+")  [ P = "+str(m_d->mag(PartIn->momentum())/Gaudi::Units::GeV)+" GeV ]";
     }
+#ifdef HEPMC3
+     for ( auto PartOut: vtx->particles_out()) {
+#else
     HepMC::GenVertex::particles_out_const_iterator itPartOut,itPartOutE(vtx->particles_out_const_end());
     for ( itPartOut = vtx->particles_out_const_begin();itPartOut!=itPartOutE;++itPartOut) {
-      const int pdg = (*itPartOut)->pdg_id();
+      auto PartOut=*itPartOut;
+#endif
+      const int pdg = PartOut->pdg_id();
       bool ok;
       QString name = VP1ParticleData::particleName(pdg,ok);
       if (!ok)
 	name = "<unknown>";
-      l << "--> Out: "+name+" ("+str(pdg)+")  [ P = "+str(m_d->mag((*itPartOut)->momentum())/Gaudi::Units::GeV)+" GeV ]";
+      l << "--> Out: "+name+" ("+str(pdg)+")  [ P = "+str(m_d->mag(PartOut->momentum())/Gaudi::Units::GeV)+" GeV ]";
     }
 
     if (m_d->controller->printVerboseInfoOnClick()) {

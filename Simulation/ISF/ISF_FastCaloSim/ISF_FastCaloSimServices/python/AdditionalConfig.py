@@ -5,17 +5,10 @@ Tools configurations for ISF_FastCaloSimServices
 KG Tan, 04/12/2012
 """
 
-from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicTool,getPublicToolClone,\
-        getService,getServiceClone,getAlgorithm,getAlgorithmClone
-
+from AthenaCommon.CfgGetter import getService
 from AthenaCommon import CfgMgr
-from AthenaCommon.Constants import *  # FATAL,ERROR etc.
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.DetFlags import DetFlags
 
-from ISF_Config.ISF_jobProperties import ISF_Flags # IMPORTANT: Flags must be set before tools are retrieved
 from ISF_FastCaloSimServices.ISF_FastCaloSimJobProperties import ISF_FastCaloSimFlags
-
 from ISF_Algorithms.collection_merger_helpers import generate_mergeable_collection_name
 
 
@@ -666,11 +659,14 @@ def getPunchThroughTool(name="ISF_PunchThroughTool", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault("RandomNumberService"     , simFlags.RandomSvc()                               )
     kwargs.setdefault("RandomStreamName"        , ISF_FastCaloSimFlags.RandomStreamName()            )
-    kwargs.setdefault("FilenameLookupTable"     , "CaloPunchThroughParametrisation.root"             )
+    kwargs.setdefault("FilenameLookupTable"     , ISF_FastCaloSimFlags.PunchThroughParamsInputFilename())
     kwargs.setdefault("PunchThroughInitiators"  , [ 211 ]                                            )
+    kwargs.setdefault("InitiatorsMinEnergy"     , [ 65536 ]                                         )
+    kwargs.setdefault("InitiatorsEtaRange"      , [       -2.7,     2.7 ]                               )
     kwargs.setdefault("PunchThroughParticles"   , [    2212,     211,      22,      11,      13 ]    )
     kwargs.setdefault("DoAntiParticles"         , [   False,    True,   False,    True,    True ]    )
-    kwargs.setdefault("CorrelatedParticle"      , [     211,    2212,      11,      22,       0 ]    )
+    #kwargs.setdefault("CorrelatedParticle"      , [     211,    2212,      11,      22,       0 ]    )
+    kwargs.setdefault("CorrelatedParticle"      , []    )
     kwargs.setdefault("FullCorrelationEnergy"   , [ 100000., 100000., 100000., 100000.,      0. ]    )
     kwargs.setdefault("MinEnergy"               , [   938.3,   135.6,     50.,     50.,   105.7 ]    )
     kwargs.setdefault("MaxNumParticles"         , [      -1,      -1,      -1,      -1,      -1 ]    )
@@ -848,7 +844,7 @@ def getFastHitConvertTool(name="ISF_FastHitConvertTool", **kwargs):
     kwargs.setdefault('fcalHitContainername', FCAL_hits_collection_name)
     kwargs.setdefault('hecHitContainername', HEC_hits_collection_name)
     kwargs.setdefault('tileHitContainername', tile_hits_collection_name)
-    
+
     from FastCaloSimHit.FastCaloSimHitConf import FastHitConvertTool
     return FastHitConvertTool(name,**kwargs)
 
@@ -930,4 +926,3 @@ def getFastCaloSimV2Tool(name="ISF_FastCaloSimV2Tool", **kwargs):
     kwargs.setdefault("PunchThroughTool"                 , '') #ISF_PunchThroughTool
 
     return CfgMgr.ISF__FastCaloSimV2Tool(name, **kwargs )
-

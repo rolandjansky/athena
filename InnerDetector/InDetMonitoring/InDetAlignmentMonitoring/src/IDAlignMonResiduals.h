@@ -197,7 +197,9 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   std::vector<TString> m_siliconEndcapLayersLabels;
   bool m_useGausFit{};
   float m_maxPtEC{}; // threshold for low-pt EC distributions
-  
+  int m_TRTB_nSectorBins{};
+  int m_TRTEC_nSectorBins{};
+
   //tools
   const AtlasDetectorID*                m_idHelper{};
   const InDetDD::PixelDetectorManager*  m_PIX_Mgr{}; 
@@ -215,6 +217,7 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   //histograms
   
   TH1F* m_totalEvents{};
+  TH1F* m_hTotalTracks{};
   TH1F* m_sirescalcfailure{};
   std::vector<TH3F*> m_sct_b_Oxresxvsmodetaphi_3ds;
   std::vector<TH3F*> m_sct_b_Oyresxvsmodetaphi_3ds;

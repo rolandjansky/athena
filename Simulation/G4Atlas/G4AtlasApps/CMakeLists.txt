@@ -1,14 +1,9 @@
-################################################################################
-# Package: G4AtlasApps
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( G4AtlasApps )
 
-# External dependencies:
-find_package( COOL COMPONENTS CoolKernel )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
-
+# Tests in the package:
 atlas_add_test(test_AtlasG4_tf_configuration
                SCRIPT test/test_AtlasG4_tf_configuration.py
                PROPERTIES TIMEOUT 300
@@ -27,6 +22,6 @@ if( NOT SIMULATIONBASE )
 endif()
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 

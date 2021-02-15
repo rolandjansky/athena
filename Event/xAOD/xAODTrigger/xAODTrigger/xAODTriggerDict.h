@@ -68,6 +68,20 @@
 #include "xAODTrigger/versions/eFexEMRoIContainer_v1.h"
 #include "xAODTrigger/versions/eFexEMRoIAuxContainer_v1.h"
 
+#include "xAODTrigger/gFexJetRoI.h"
+#include "xAODTrigger/gFexJetRoIContainer.h"
+#include "xAODTrigger/gFexJetRoIAuxContainer.h"
+#include "xAODTrigger/versions/gFexJetRoI_v1.h"
+#include "xAODTrigger/versions/gFexJetRoIContainer_v1.h"
+#include "xAODTrigger/versions/gFexJetRoIAuxContainer_v1.h"
+
+#include "xAODTrigger/gFexGlobalRoI.h"
+#include "xAODTrigger/gFexGlobalRoIContainer.h"
+#include "xAODTrigger/gFexGlobalRoIAuxContainer.h"
+#include "xAODTrigger/versions/gFexGlobalRoI_v1.h"
+#include "xAODTrigger/versions/gFexGlobalRoIContainer_v1.h"
+#include "xAODTrigger/versions/gFexGlobalRoIAuxContainer_v1.h"
+
 #include "xAODTrigger/TrigDecision.h"
 #include "xAODTrigger/TrigDecisionAuxInfo.h"
 #include "xAODTrigger/versions/TrigDecision_v1.h"
@@ -129,6 +143,9 @@ namespace {
       XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, EmTauRoIContainer_v2 );
 
       XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, eFexEMRoIContainer_v1 );
+
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, gFexJetRoIContainer_v1 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, gFexGlobalRoIContainer_v1 );
 
       XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, TrigCompositeContainer_v1 );
       XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, TrigPassBitsContainer_v1 );

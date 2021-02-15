@@ -9,6 +9,7 @@
 #include "SCT_ReadoutGeometry/StripAnnulusDesign.h"
 #include "Identifier/Identifier.h"
 #include "TrkSurfaces/RectangleBounds.h"
+#include  "GeoPrimitives/GeoPrimitivesHelpers.h"
 
 namespace InDetDD {
 StripAnnulusDesign::StripAnnulusDesign(const SiDetectorDesign::Axis &stripDirection,
@@ -35,9 +36,9 @@ StripAnnulusDesign::StripAnnulusDesign(const SiDetectorDesign::Axis &stripDirect
     std::unique_ptr<Trk::SurfaceBounds> m_bounds = std::make_unique<Trk::RectangleBounds>(width / 2.0, length / 2.0); // Awaiting new boundclass for Annulus shape
 }
 
-HepGeom::Point3D<double> StripAnnulusDesign::sensorCenter() const {
+Amg::Vector3D StripAnnulusDesign::sensorCenter() const {
     double centerR = (m_stripStartRadius + m_stripEndRadius) * 0.5;
-    return HepGeom::Point3D<double>(centerR, 0., 0.);
+    return Amg::Vector3D(centerR, 0., 0.);
 }
 
 void StripAnnulusDesign::neighboursOfCell(const SiCellId &cellId, std::vector<SiCellId> &neighbours) const {
@@ -190,8 +191,8 @@ double StripAnnulusDesign::etaPitch() const { // DEPRECATED
     return length();
 }
 
-const HepGeom::Transform3D StripAnnulusDesign::SiHitToGeoModel() const {
-   return HepGeom::RotateY3D(90.*CLHEP::deg) ;
+const Amg::Transform3D StripAnnulusDesign::SiHitToGeoModel() const {
+  return Amg::getRotateY3D(90.*CLHEP::deg);
 }
 
 } // namespace InDetDD

@@ -4,7 +4,6 @@
 
 #include <cmath>
 #include <iostream>
-#include <cmath>
 #include <cstdlib>
 
 #include "HitWrapper.h"

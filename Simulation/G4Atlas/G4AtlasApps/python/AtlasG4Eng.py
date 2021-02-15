@@ -10,11 +10,8 @@ The basic elements and materials are also defined here. If custom materials are
 needed, they can be produced using the template atlas_materials.py.
 """
 
-from __future__ import print_function
-
 __author__ = "A. Dell`Acqua, M. Gallas"
 
-from AthenaCommon.SystemOfUnits import *
 from AthenaCommon import Logging
 from time import time
 import os, os.path, string, sys
@@ -76,7 +73,7 @@ class G4AtlasEngine:
         """
         if G4AtlasEngine._NumInstances > 0:
             msg = 'There is already an instance of the G4AtlasEngine class -- try to use it!'
-            G4AtlasEngine.log.error('G4AtlasEngine: ' + msg)
+            G4AtlasEngine.log.error('G4AtlasEngine: %s', msg)
             raise RuntimeError('PyG4Atlas: G4AtlasEngine: __init__(): Attempted multiple instantiation')
 
         ## Init dictionaries and lists
@@ -123,7 +120,7 @@ class G4AtlasEngine:
 
 
     def setUseISF(self, useISF) :
-        G4AtlasEngine.log.info('setting useISF to %s' % useISF)
+        G4AtlasEngine.log.info('setting useISF to %s', useISF)
         self.useISF = useISF
 
     def _init_G4(self):
@@ -173,26 +170,26 @@ class G4AtlasEngine:
         def _run_init_stage(name):
             # TODO: Set self.init_status at each sub-step and write that out in _run_init_callbacks
             self.init_status = "preInit" + name
-            G4AtlasEngine.log.debug("G4AtlasEngine:init stage " + self.init_status)
+            G4AtlasEngine.log.debug("G4AtlasEngine:init stage %s", self.init_status)
             _run_init_callbacks(self.init_status)
             self.init_status = "init" + name
-            G4AtlasEngine.log.debug("G4AtlasEngine:init stage " + self.init_status)
+            G4AtlasEngine.log.debug("G4AtlasEngine:init stage %s", self.init_status)
             getattr(self, "_init_" + name).__call__()
             self.init_status = "postInit" + name
-            G4AtlasEngine.log.debug("G4AtlasEngine:init stage " + self.init_status)
+            G4AtlasEngine.log.debug("G4AtlasEngine:init stage %s", self.init_status)
             _run_init_callbacks(self.init_status)
 
         _run_init_stage("G4")
 
         self.init_status = "postInit"
-        G4AtlasEngine.log.debug("G4AtlasEngine:init stage " + self.init_status)
+        G4AtlasEngine.log.debug("G4AtlasEngine:init stage %s", self.init_status)
         _run_init_callbacks(self.init_status)
 
         ## Check that all the callbacks were indeed called, and warn otherwise
         num_reg_callbacks = sum(len(cblist) for cblist in simFlags.InitFunctions.get_Value().values())
         if G4AtlasEngine._callback_counter != num_reg_callbacks:
-            G4AtlasEngine.log.warning("G4AtlasEngine: mismatch in num of callbacks regd/called = %d/%d" %
-                                      (num_reg_callbacks, G4AtlasEngine._callback_counter))
+            G4AtlasEngine.log.warning("G4AtlasEngine: mismatch in num of callbacks regd/called = %d/%d",
+                                      num_reg_callbacks, G4AtlasEngine._callback_counter)
 
         G4AtlasEngine._app_profiler('_init_Simulation')
 
@@ -206,13 +203,13 @@ class G4AtlasEngine:
         if dict_name and dict_name not in G4AtlasEngine.List_LoadedDict:
             try:
                 cppyy.loadDict(dict_name)
-            except:
+            except Exception:
                 print ("Unexpected error:", sys.exc_info(),'\n')
                 print ('ROOT5 migration problem: ', dict_name)
             try:
                 G4AtlasEngine.List_LoadedDict.append(dict_name)
-                G4AtlasEngine.log.debug(' G4AtlasEngine:load_Dict: %s loaded' % dict_name)
-            except:
+                G4AtlasEngine.log.debug(' G4AtlasEngine:load_Dict: %s loaded', dict_name)
+            except Exception:
                 raise RuntimeError('Dict %s can not be found' % dict_name)
 
 
@@ -301,7 +298,7 @@ class G4AtlasEngine:
             See the flag 'simFlags.EventFilter'
             """
             if self._Built:
-                G4AtlasEngine.log.debug('menu_EventFilter._build: init EventFilter manipulators already done\n%s' % self.getFilterStatus())
+                G4AtlasEngine.log.debug('menu_EventFilter._build: init EventFilter manipulators already done\n%s', self.getFilterStatus())
                 return
             self._Built = True
 
@@ -318,7 +315,7 @@ class G4AtlasEngine:
                     fobj.switchOff()
 
             G4AtlasEngine.Dict['EventFilters'] = self
-            G4AtlasEngine.log.debug('menu_EventFilter._build: init EventFilter manipulators\n%s' % self.getFilterStatus())
+            G4AtlasEngine.log.debug('menu_EventFilter._build: init EventFilter manipulators\n%s', self.getFilterStatus())
 
 
 

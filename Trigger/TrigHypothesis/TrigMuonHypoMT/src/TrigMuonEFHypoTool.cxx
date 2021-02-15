@@ -34,11 +34,13 @@ StatusCode TrigMuonEFHypoTool::initialize(){
     for(size_t j=0; j<m_ptBins.size(); j++){
       m_bins[j] = m_ptBins[j].size() - 1;
       if (m_bins[j] != m_ptThresholds[j].size()) {
-	ATH_MSG_ERROR("bad thresholds setup .... exiting!");
-	return StatusCode::FAILURE;
+        ATH_MSG_ERROR("bad thresholds setup .... exiting!");
+        return StatusCode::FAILURE;
       }
-      for (std::vector<float>::size_type i=0; i<m_bins[j];++i) {
-	ATH_MSG_INFO( "bin " << m_ptBins[j][i] << " - " <<  m_ptBins[j][i+1]<<" with Pt Threshold of " << (m_ptThresholds[j][i])/Gaudi::Units::GeV<< " GeV");
+      if (msgLvl(MSG::DEBUG)) {
+        for (std::vector<float>::size_type i=0; i<m_bins[j];++i) {
+          ATH_MSG_DEBUG( "bin " << m_ptBins[j][i] << " - " <<  m_ptBins[j][i+1]<<" with Pt Threshold of " << (m_ptThresholds[j][i])/Gaudi::Units::GeV<< " GeV");
+        }
       }
     }
   }

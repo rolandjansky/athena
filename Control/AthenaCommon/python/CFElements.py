@@ -1,8 +1,7 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.Configurable import Configurable
-AthSequencer=CompFactory.AthSequencer
 from AthenaCommon.AlgSequence import AthSequencer as LegacyAthSequencer
 import collections
 
@@ -15,7 +14,7 @@ def _append( seq, sub ):
 
 def parOR(name, subs=[]):
     """ parallel OR sequencer """
-    seq = AthSequencer( name ) if Configurable.configurableRun3Behavior else LegacyAthSequencer( name )
+    seq = CompFactory.AthSequencer( name ) if Configurable.configurableRun3Behavior else LegacyAthSequencer( name )
     seq.ModeOR = True
     seq.Sequential = False
     seq.StopOverride = True
@@ -25,7 +24,7 @@ def parOR(name, subs=[]):
 
 def seqAND(name, subs=[]):
     """ sequential AND sequencer """
-    seq = AthSequencer( name ) if Configurable.configurableRun3Behavior else LegacyAthSequencer( name )
+    seq = CompFactory.AthSequencer( name ) if Configurable.configurableRun3Behavior else LegacyAthSequencer( name )
     seq.ModeOR = False
     seq.Sequential = True
 #    seq.StopOverride = True
@@ -36,7 +35,7 @@ def seqAND(name, subs=[]):
 
 def seqOR(name, subs=[]):
     """ sequential OR sequencer, used when a barrier needs to be set by all subs reached irrespective of the decision """
-    seq = AthSequencer( name ) if Configurable.configurableRun3Behavior else LegacyAthSequencer( name )
+    seq = CompFactory.AthSequencer( name ) if Configurable.configurableRun3Behavior else LegacyAthSequencer( name )
     seq.ModeOR = True
     seq.Sequential = True
     seq.StopOverride = True

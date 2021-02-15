@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //===================================================================
@@ -33,6 +33,8 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/preprocessor/repetition.hpp>
+
+#include <memory>
 
 namespace {
 
@@ -155,7 +157,7 @@ bool ByteStreamEmonInputSvc::getIterator()
     delete m_provider;
     m_provider = nullptr;
 
-    std::auto_ptr<emon::SamplingAddress> address;
+    std::unique_ptr<emon::SamplingAddress> address;
 
     if(m_key_count > 0) {
         address.reset(new emon::SamplingAddress(m_key, m_key_count));
@@ -442,7 +444,7 @@ void ByteStreamEmonInputSvc::check_publish()
             m_provider = new OHRootProvider(part, m_is_server, m_publish);
         }
 
-        for(const std::string name : m_histSvc->getHists()) {
+        for(const std::string& name : m_histSvc->getHists()) {
 
             if(!m_include.empty() && !regex_match(name, m_include_rex)) {
                 continue;

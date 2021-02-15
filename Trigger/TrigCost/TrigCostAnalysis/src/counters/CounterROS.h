@@ -44,10 +44,10 @@ class CounterROS : public CounterBase {
     /**
      * @brief Concrete implementation. Monitors global properties in a single LB, or over all LB in a Range
      * @param[in] data Access to event data
-     * @param[in] incrementWalltime If 1, we should add the current events wall time to our internal histogram
+     * @param[in] index Index of data request to monitor
      * @param[in] weight Global event weight
      */
-    virtual StatusCode newEvent(const CostData& data, size_t incrementWalltime, const float weight = 1.) override;
+    virtual StatusCode newEvent(const CostData& data, size_t index, const float weight = 1.) override;
 
   private:
       /**
@@ -55,7 +55,8 @@ class CounterROS : public CounterBase {
      * @param[in] history ROBHistory value
      */
     int getROBHistoryBin(const unsigned history);
-    
+
+    std::vector<uint32_t> m_robIdsPerROS; //!< Cached mapping of ROB ids corresponding to ROS
 };
 
 #endif // TRIGCOSTANALYSIS_COUNTERROS_H

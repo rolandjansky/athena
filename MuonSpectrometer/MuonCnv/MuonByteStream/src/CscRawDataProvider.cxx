@@ -11,10 +11,8 @@
 
 Muon::CscRawDataProvider::CscRawDataProvider(const std::string& name,
                                       ISvcLocator* pSvcLocator) :
-  AthReentrantAlgorithm(name, pSvcLocator),
-  m_regionSelector  ("RegSelSvc",name)
+  AthReentrantAlgorithm(name, pSvcLocator)
 {
-  declareProperty ("RegionSelectionSvc", m_regionSelector, "Region Selector");
 }
 
 // --------------------------------------------------------------------
@@ -29,7 +27,8 @@ StatusCode Muon::CscRawDataProvider::initialize() {
   ATH_CHECK( m_rawDataTool.retrieve() );
 
   // We only need the region selector in RoI seeded mode
-  if(m_seededDecoding) ATH_CHECK( m_regionSelector.retrieve() );
+  if(m_seededDecoding) ATH_CHECK( m_regsel_csc.retrieve() );
+  else m_regsel_csc.disable();
 
   ATH_CHECK( m_ALineKey.initialize(m_seededDecoding) ); // !!! REMOVEME: when MuonDetectorManager in cond store
 
@@ -62,7 +61,7 @@ StatusCode Muon::CscRawDataProvider::execute(const EventContext& ctx) const {
     for(auto roi : *muonRoI){
       ATH_MSG_DEBUG("Get has IDs for RoI " << *roi);
       // get list of hash IDs from region selection
-      m_regionSelector->DetHashIDList(CSC, *roi, csc_hash_ids);
+      m_regsel_csc->HashIDList(*roi, csc_hash_ids);
 
       // decode the ROBs
       if(m_rawDataTool->convert(csc_hash_ids, ctx).isFailure()) {

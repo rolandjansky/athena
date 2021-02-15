@@ -16,7 +16,7 @@ metaSoftMuonTag = { 'IsATagger'            : True,
                     'PassByPointer'        : {#'LikelihoodTool'    : 'SoftMuonTagNewLikelihoodTool',
                                               #'TrackToVertexIPEstimator'   : 'BTagTrackToVertexIPEstimator',
                                               #'muonSelectorTool': 'MuonSelectorTool',
-										   },
+                        },
 #                                              'TrackToVertexTool' : 'BTagTrackToVertexTool'},
                     'JetCollectionList'    : 'jetCollectionList',
                     'ToolCollection'       : 'SoftMuonTag' }

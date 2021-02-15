@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -41,7 +41,7 @@ namespace InDetDD {
       - modified & maintained: Nick Styles, Andreas Salzburger
       */
    
-  class TRT_BarrelElement : public TRT_BaseElement  {
+  class TRT_BarrelElement final: public TRT_BaseElement  {
     
   public:
     
@@ -63,7 +63,7 @@ namespace InDetDD {
     virtual ~TRT_BarrelElement() = default;
 
     /** Type information */
-    virtual TRT_BaseElement::Type type() const {return TRT_BaseElement::BARREL;} 
+    virtual TRT_BaseElement::Type type() const override final;
 
     /**	Returns a pointer to conditions data.  This includes
     	information on dead and noisy wires, as well as wire
@@ -87,13 +87,13 @@ namespace InDetDD {
     inline double strawZPos (unsigned int i) const;
     
     /** Default Local -> global transform of the straw (ie before alignment corrections) */
-    virtual HepGeom::Transform3D defStrawTransform(int straw) const;
+    virtual HepGeom::Transform3D defStrawTransform(int straw) const override final;
     
     /** Get the length of the straws (active length): */
-    virtual const double & strawLength() const;
+    virtual const double & strawLength() const override final;
 
     /**  StrawDirection. +1 if axis is in same direction as local coordinate, -1 otherwise. */
-    virtual int strawDirection() const;
+    virtual int strawDirection() const override final;
 
     /**	Returns the next-in-phi detector element, or zero if none (forseeing gaps, in other words). */
     const TRT_BarrelElement * nextInPhi() const;
@@ -123,37 +123,30 @@ namespace InDetDD {
     const TRT_BarrelCode & getCode() const;
     
     /** Surface bounds */
-    virtual const Trk::SurfaceBounds & strawBounds() const;
+    virtual const Trk::SurfaceBounds & strawBounds() const override final;
 
   private:
-    
     /** Illegal Operations: */
-    TRT_BarrelElement(const TRT_BarrelElement &right);
-    const TRT_BarrelElement & operator=(const TRT_BarrelElement &right);
-
-  protected:
+    TRT_BarrelElement(const TRT_BarrelElement& right) = delete;
+    const TRT_BarrelElement& operator=(const TRT_BarrelElement& right) = delete;
     /** These transforms are effectively to the local coord
       system of a straw derived from GeoModel -> hence CLHEP */
-    HepGeom::Transform3D calculateStrawTransform(int straw) const;
+    virtual HepGeom::Transform3D calculateStrawTransform(int straw) const override;
     HepGeom::Transform3D calculateLocalStrawTransform(int straw) const;
-
     /** return the surface of the element */ 
-    const Trk::Surface & elementSurface() const;
-    
+    virtual const Trk::Surface & elementSurface() const override;
     /** create the cache for the element */
-    void createSurfaceCache() const;
+    virtual void createSurfaceCache() const override;
+    std::unique_ptr<SurfaceCache> createSurfaceCacheHelper() const;
 
-  protected:
-    // Protected Member data:
-    TRT_BarrelCode              m_code;
-    const TRT_BarrelDescriptor *m_descriptor;
-    const TRT_BarrelElement    *m_nextInPhi;
-    const TRT_BarrelElement    *m_previousInPhi;
-    const TRT_BarrelElement    *m_nextInR;
-    const TRT_BarrelElement    *m_previousInR;
-  };
-  
-
+    // Private Member data:
+    TRT_BarrelCode m_code;
+    const TRT_BarrelDescriptor* m_descriptor;
+    const TRT_BarrelElement* m_nextInPhi;
+    const TRT_BarrelElement* m_previousInPhi;
+    const TRT_BarrelElement* m_nextInR;
+    const TRT_BarrelElement* m_previousInR;
+    };
 }
 
 #include "TRT_BarrelElement.icc"

@@ -15,6 +15,7 @@
 
 #include "AtlasHepMC/GenEvent.h"
 #include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/Operators.h"
 #include "GeneratorObjectsTPCnv/initMcEventCollection.h"
 #include "InDetIdentifier/PixelID.h"
 #include "IdDictParser/IdDictParser.h"
@@ -89,10 +90,10 @@ void testit(const InDetSimDataCollection& trans1)
 // TCnv: InDetSimDataCollectionCnv_pX
 // T: InDetSimDataCollection_pX
 template<typename TCnv, typename T>
-void test1(std::vector<HepMC::GenParticle*>& genPartVector)
+void test1(std::vector<HepMC::GenParticlePtr>& genPartVector)
 {
   std::cout << "test1\n";
-  const HepMC::GenParticle *particle = genPartVector.at(0);
+  auto particle = genPartVector.at(0);
   // Create HepMcParticleLink outside of leak check.
   HepMcParticleLink dummyHMPL(HepMC::barcode(particle), particle->parent_event()->event_number());
   assert(dummyHMPL.cptr()==particle);
@@ -145,7 +146,7 @@ int commonMain()
   // Make PixelID for InDetSimDataCollectionCnv_pX (TCnv)
   makePixelID(pSvcLoc);
 
-  std::vector<HepMC::GenParticle*> genPartVector;
+  std::vector<HepMC::GenParticlePtr> genPartVector;
   // Fill genPartVector
   // false is to skip Athena_test::initGaudi in Athena_test::initMcEventCollection.
   if (!Athena_test::initMcEventCollection(pSvcLoc, genPartVector, false)) {

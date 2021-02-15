@@ -7,6 +7,7 @@ FilesInput = [ "AOD.pool.root" ]
 theApp.EvtMax=-1                                       #says how many events to run over. Set to -1 for all events
 
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
+ConfigFlags.Input.Files = FilesInput
 
 import AthenaPoolCnvSvc.ReadAthenaPool                   #sets up reading of POOL files (e.g. xAODs)
 # svcMgr.EventSelector.InputCollections=[os.environ['ASG_TEST_FILE_DATA']] #replace with input file
@@ -58,7 +59,7 @@ from AthenaCommon.AppMgr import ToolSvc
 from TrigInDetAnalysisExample.TrigInDetAnalysisExampleConf import TrigTestBase
 
 
-if ( True ) :
+if ( False ) :
 
   from TrigIDtrkMonitoring.TrigIDtrkMonitoringConfig import TrigIDtrkMonitoringTool
 
@@ -90,6 +91,9 @@ if ( True ) :
   # TestMonTool.RequireDecision = True
   TestMonTool.mcTruth = True
   TestMonTool.ntupleChainNames = ['']
+
+  if ( 'LRT' in dir() ) :
+    TestMonTool.FiducialRadius = 500.
 
   TestMonTool.KeepAllEvents = False
   # TestMonTool.TrigConfigTool = "TrigConf::xAODConfigTool"
@@ -130,22 +134,13 @@ if ( True ) :
     # "Taus_Loose_3Prong",
     # "Taus_Medium_3Prong",
     # "Taus_Tight_3Prong",
-    
-    # "HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_FTF",
-    # "HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_IDTrig",
-    # "HLT_mu.*_idperf.*:InDetTrigTrackingxAODCnv_Muon_IDTrig;DTE",
-    # "HLT_mu.*idperf.*:InDetTrigTrackingxAODCnv_Muon_IDTrig",
-    # "HLT_tau.*idperf.*track:key=InDetTrigTrackingxAODCnv_Tau_IDTrig",
-    # "HLT_tau.*idperf.*track:key=InDetTrigTrackingxAODCnv_Tau_FTF",
-    # "HLT_tau.*idperf.*tracktwo:key=InDetTrigTrackingxAODCnv_TauCore_FTF:roi=forID1",
-    # "HLT_tau.*idperf.*tracktwo:key=InDetTrigTrackingxAODCnv_TauIso_FTF:roi=forID3",
-    # "HLT_tau.*idperf.*tracktwo:key=InDetTrigTrackingxAODCnv_Tau_IDTrig:roi=forID3",
-    
-    # "HLT_tau.*idperf.*tracktwo:key=InDetTrigTrackingxAODCnv_TauCore_FTF:roi=forID1",
-    # "HLT_tau.*idperf.*tracktwo:key=InDetTrigTrackingxAODCnv_TauIso_FTF:roi=forID3",
-    # "HLT_tau.*idperf.*tracktwo:key=InDetTrigTrackingxAODCnv_Tau_IDTrig:roi=forID3",
 
+    "Taus:Medium:1Prong",
+    "Taus:Tight:1Prong",
 
+    "Electron:Tight",
+    "Electron:Medium",
+    
     #    ":HLT_IDTrack_FS_FTF",
     #    ":HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
 
@@ -161,6 +156,8 @@ if ( True ) :
     "HLT_mu.*i.*:HLT_IDTrack_MuonIso_FTF:roi=HLT_Roi_MuonIso",
     "HLT_mu.*i.*:HLT_IDTrack_MuonIso_IDTrig:roi=HLT_Roi_MuonIso",
 
+    "HLT_mu6_LRT_idperf_l2lrt_L1MU6:HLT_IDTrack_MuonLRT_FTF:HLT_Roi_L2SAMuon_LRT",
+
     "HLT_b.*perf.*:HLT_IDTrack_Bjet_FTF",
     "HLT_b.*perf.*:HLT_IDTrack_Bjet_IDTrig",
     "HLT_j.*perf.*:HLT_IDTrack_Bjet_FTF",
@@ -168,18 +165,33 @@ if ( True ) :
 
 #    "HLT_e.*_etcut.*:HLT_IDTrack_Electron_FTF",
 #    "HLT_e.*_etcut.*:HLT_IDTrack_Electron_IDTrig",
-    "HLT_e.*:HLT_IDTrack_Electron_FTF",
+    "HLT_e.*:HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",
     "HLT_e.*:HLT_IDTrack_Electron_IDTrig",
 
-    "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_FTF",
-    "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_FTF:roi=HLT_TAURoI"
-    "HLT_tau.*_idperf.*:HLT_IDTrack_TauCore_FTF",
-    "HLT_tau.*_idperf.*:HLT_IDTrack_TauIso_FTF",
-    "HLT_tau.*_idperf.*:HLT_IDTrack_TauCore_FTF:roi=HLT_Roi_TauCore",
-    "HLT_tau.*_idperf.*:HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIso",
+
+    # two stage tau FTF
+    "HLT_tau.*_idperf.*tracktwo.*:HLT_IDTrack_TauCore_FTF:roi=HLT_Roi_TauCore",
+    "HLT_tau.*_idperf.*tracktwo.*:HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIso",
+    "HLT_tau.*_idperf.*tracktwo.*:HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIsoBDT",
+
+    # two stage tau precision tracking - empty ???
+    "HLT_tau.*_idperf.*tracktwo.*:HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_TauIso",
+
+
+    # should get single stage tau
+    "HLT_tau.*_idperf.*_track_.*:HLT_IDTrack_Tau_FTF:roi=HLT_Roi_Tau",
+    "HLT_tau.*_idperf.*_track_.*:HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_Tau",
+
+
+    # none of these will work
     "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_IDTrig",
-    "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_IDTrig:roi=HLT_TAURoI",
-    "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_TauIso",
+
+    # should work for single stage tau ???
+    # "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_FTF",
+
+    # should work for a two stage tau ??
+    # "HLT_tau.*_idperf.*:HLT_IDTrack_TauIso_FTF",
+
 
     "HLT_mb.*:HLT_IDTrack_MinBias_FTF",
     

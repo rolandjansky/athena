@@ -40,22 +40,9 @@ namespace Trk
                           bool globalFit)
     :   AthAlgTool(type, name, parent),
     m_globalFit(globalFit),
-    m_materialAllocator("Trk::MaterialAllocator/MaterialAllocator", this),
-    m_rungeKuttaIntersector("Trk::RungeKuttaIntersector/RungeKuttaIntersector", this),
-    m_solenoidalIntersector("Trk::SolenoidalIntersector/SolenoidalIntersector", this),
-    m_stepPropagator("Trk::STEP_Propagator/AtlasSTEP_Propagator", this),
-    m_straightLineIntersector("Trk::StraightLineIntersector/StraightLineIntersector", this),
-    m_trackingVolumesSvc("TrackingVolumesSvc/TrackingVolumesSvc", name),
-    m_trackSummaryTool("MuonTrackSummaryTool"),
     m_stepField(Trk::MagneticFieldProperties(Trk::FullField)) {
     m_messageHelper = std::make_unique<MessageHelper>(*this);
     declareInterface<ITrackFitter>(this);
-    declareProperty("MaterialAllocator", m_materialAllocator);
-    declareProperty("RungeKuttaIntersector", m_rungeKuttaIntersector);
-    declareProperty("SolenoidalIntersector", m_solenoidalIntersector);
-    declareProperty("StraightLineIntersector", m_straightLineIntersector);
-    declareProperty("TrackingVolumesSvc", m_trackingVolumesSvc);
-    declareProperty("TrackSummaryTool", m_trackSummaryTool );
   }
 
   StatusCode
@@ -112,12 +99,12 @@ namespace Trk
       if (handle.retrieve().isFailure()) {
         ATH_MSG_FATAL("Failed to retrieve tool " << handle);
         return false;
-      } 
+      }
         ATH_MSG_INFO("Retrieved tool " << handle);
         return true;
-      
+
     };
-    if (!retrieveTool(m_materialAllocator)) { return StatusCode::FAILURE; }        
+    if (!retrieveTool(m_materialAllocator)) { return StatusCode::FAILURE; }
     if (!retrieveTool(m_rungeKuttaIntersector)) { return StatusCode::FAILURE; }
     if (!retrieveTool(m_solenoidalIntersector)) { return StatusCode::FAILURE; }
     if (!retrieveTool(m_stepPropagator)) { return StatusCode::FAILURE; };
@@ -127,13 +114,13 @@ namespace Trk
     if (m_trackingVolumesSvc.retrieve().isFailure()) {
       ATH_MSG_FATAL("Failed to retrieve Svc " << m_trackingVolumesSvc);
       return StatusCode::FAILURE;
-    } 
+    }
       ATH_MSG_INFO("Retrieved Svc " << m_trackingVolumesSvc);
       m_calorimeterVolume = std::make_unique<Trk::Volume>(
         m_trackingVolumesSvc->volume(ITrackingVolumesSvc::MuonSpectrometerEntryLayer));
       m_indetVolume = std::make_unique<Volume>(
         m_trackingVolumesSvc->volume(ITrackingVolumesSvc::CalorimeterEntryLayer));
-    
+
 
     ATH_CHECK(m_trackSummaryTool.retrieve());
 
@@ -209,8 +196,8 @@ namespace Trk
     if (runOutlier) { m_messageHelper->printWarning(0); } // TODO Make thread-safe
 
     // create Perigee if starting parameters are for a different surface type
-    const Perigee* perigeeParameters = track.perigeeParameters(); 
-    // Note: we don't own the Perigee from perigeeParameters(), but if it returns nullptr, we have to make our own, 
+    const Perigee* perigeeParameters = track.perigeeParameters();
+    // Note: we don't own the Perigee from perigeeParameters(), but if it returns nullptr, we have to make our own,
     // and we need to delete it, so it's put in this unique_ptr
     std::unique_ptr<Perigee> newPerigee;
     std::unique_ptr<PerigeeSurface> perigeeSurface;
@@ -281,8 +268,8 @@ namespace Trk
     return {std::move(fittedTrack), std::move(fitState)};
   }
 
-  std::unique_ptr<Track> 
-  iPatFitter::fit(const EventContext& ctx, 
+  std::unique_ptr<Track>
+  iPatFitter::fit(const EventContext& ctx,
                   const Track& track,
                   const RunOutlierRemoval runOutlier,
                   const ParticleHypothesis particleHypothesis) const {
@@ -544,7 +531,7 @@ namespace Trk
       }
 
       return fittedTrack;
-    
+
   }
 
   void
@@ -702,7 +689,7 @@ namespace Trk
           }
         }
         if (keepScatterer) {
-          measurement1 = std::make_unique<FitMeasurement>(s.materialEffectsOnTrack(), 
+          measurement1 = std::make_unique<FitMeasurement>(s.materialEffectsOnTrack(),
             ParticleMasses().mass[particleHypothesis], position, qOverP, calo);
           if (!calo
               && !haveMaterial
@@ -828,7 +815,7 @@ namespace Trk
           const Amg::Vector3D& position = intersection->position();
           bool calo = (!m_indetVolume->inside(position)
                        && m_calorimeterVolume->inside(position));
-          measurement1 = std::make_unique<FitMeasurement>(s.materialEffectsOnTrack(), 
+          measurement1 = std::make_unique<FitMeasurement>(s.materialEffectsOnTrack(),
             ParticleMasses().mass[particleHypothesis], intersection->position(), qOverP, calo);
           if (!calo
               && !haveMaterial
@@ -919,33 +906,30 @@ namespace Trk
 
     // perform fit
     MsgStream log(msgSvc(), name());
+    Trk::FitProcedure::Cache cache(m_fitProcedure->constrainedAlignmentEffects());
+
+    //This lock should no be needed , leaving it for now
+    // until we are sure all function pass thread safety
+    // requirements
     std::scoped_lock lock(m_fitProcedureMutex);
-    const FitProcedureQuality& quality = m_fitProcedure->execute(m_asymmetricCaloEnergy,
-                                                                 log,
-                                                                 measurements,
-                                                                 parameters,
-                                                                 perigeeQuality);
+
+    const FitProcedureQuality& quality =
+      m_fitProcedure->execute(cache,
+                              m_asymmetricCaloEnergy,
+                              log,
+                              measurements,
+                              parameters,
+                              perigeeQuality);
     std::unique_ptr<Track> fittedTrack;
     if (!quality.fitCode()) {
-//  // iterate if material reallocation needed
-//  if (m_materialAllocator->reallocateMaterial(*measurements,parameters))
-//  {
-//      // do something
-//      quality	= m_fitProcedure->execute(log,
-//                        measurements,
-//                        parameters,
-//                        perigeeQuality);
-//  }
 
       // include leading material
       m_materialAllocator->addLeadingMaterial(measurements, particleHypothesis, *parameters, garbage);
 
 
       // construct the fitted track
-      fittedTrack.reset(m_fitProcedure->constructTrack(measurements,
-                                                   *parameters,
-                                                   trackInfo,
-                                                   leadingTSOS));
+      fittedTrack.reset(m_fitProcedure->constructTrack(
+        cache, measurements, *parameters, trackInfo, leadingTSOS));
       if (fittedTrack) {
         // set StraightLine when momentum unfitted
         if (!parameters->fitMomentum()) { fittedTrack->info().setTrackProperties(TrackInfo::StraightTrack); }
@@ -955,13 +939,13 @@ namespace Trk
              s = fittedTrack->trackStateOnSurfaces()->begin();
              s != fittedTrack->trackStateOnSurfaces()->end();
              ++s) {
-          if (!(**s).type(TrackStateOnSurface::CaloDeposit)) { 
-            continue; 
+          if (!(**s).type(TrackStateOnSurface::CaloDeposit)) {
+            continue;
           }
           if ((**s).trackParameters()) {
             Amg::Vector3D position = (**s).trackParameters()->position();
-            if (!m_indetVolume->inside(position) && m_calorimeterVolume->inside(position)) { 
-              break; 
+            if (!m_indetVolume->inside(position) && m_calorimeterVolume->inside(position)) {
+              break;
             }
           }
 
@@ -1141,8 +1125,8 @@ namespace Trk
     if (runOutlier) { m_messageHelper->printWarning(0); }
 
     // create Perigee if starting parameters are for a different surface type
-    const Perigee* perigeeParameters = track.perigeeParameters(); 
-    // Note: we don't own the Perigee from perigeeParameters(), but if it returns nullptr, we have to make our own, 
+    const Perigee* perigeeParameters = track.perigeeParameters();
+    // Note: we don't own the Perigee from perigeeParameters(), but if it returns nullptr, we have to make our own,
     // and we need to delete it, so it's put in this unique_ptr
     std::unique_ptr<Perigee> newPerigee;
     std::unique_ptr<PerigeeSurface> perigeeSurface;
@@ -1184,7 +1168,7 @@ namespace Trk
       m_countIterations = countIterations;
       return;
     }
-    
+
     fitState.newMeasurements();
 
     bool haveMaterial = addMeasurements(ctx,

@@ -37,8 +37,7 @@ namespace Trk
  {
   public:
   
-  StatusCode initialize();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
 /**
  * Constructor 
  */
@@ -52,29 +51,29 @@ namespace Trk
 /**
  * Method adding a single track to the vertex estimate
  */
-   xAOD::Vertex * add(xAOD::Vertex& vtx, VxTrackAtVertex& trk) const;
+   virtual xAOD::Vertex * add(xAOD::Vertex& vtx, VxTrackAtVertex& trk) const override;
 
 /**
  * Method removing already added track from the vertex estimate
  */
-   xAOD::Vertex * remove(xAOD::Vertex& vtx,  VxTrackAtVertex& trk) const;
+   virtual xAOD::Vertex * remove(xAOD::Vertex& vtx,  VxTrackAtVertex& trk) const override;
 
 /**
  * Position update method. The 'mode' parameter is used to indicate whether we want to add or remove a track. 
  */
-  IVertexUpdator::positionUpdateOutcome positionUpdate (const xAOD::Vertex& vtx, const LinearizedTrack * trk, double trackWeight, IVertexUpdator::updateMode mode) const;
+  virtual IVertexUpdator::positionUpdateOutcome positionUpdate (const xAOD::Vertex& vtx, const LinearizedTrack * trk, double trackWeight, IVertexUpdator::updateMode mode) const override;
 
 /**
  * Method calculating the interstep Chi2 increment
  */ 
-  float trackParametersChi2(const xAOD::Vertex& new_vtx, const LinearizedTrack * trk) const;
-  float trackParametersChi2(const IVertexUpdator::positionUpdateOutcome& new_vtx, const LinearizedTrack * trk) const;
+  virtual float trackParametersChi2(const xAOD::Vertex& new_vtx, const LinearizedTrack * trk) const override;
+  virtual float trackParametersChi2(const IVertexUpdator::positionUpdateOutcome& new_vtx, const LinearizedTrack * trk) const override;
 
 /** 
  * Method calculating the vertex displacement-related part of the chi2   
  */
-  float vertexPositionChi2(const xAOD::Vertex& old_vtx, const xAOD::Vertex& new_vtx) const;
-  float vertexPositionChi2(const xAOD::Vertex& old_vtx, const IVertexUpdator::positionUpdateOutcome& new_vtx) const;
+  virtual float vertexPositionChi2(const xAOD::Vertex& old_vtx, const xAOD::Vertex& new_vtx) const override;
+  virtual float vertexPositionChi2(const xAOD::Vertex& old_vtx, const IVertexUpdator::positionUpdateOutcome& new_vtx) const override;
 
   private:
 

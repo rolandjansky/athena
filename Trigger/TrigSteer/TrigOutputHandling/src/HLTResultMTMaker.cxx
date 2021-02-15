@@ -50,13 +50,7 @@ namespace {
 // Standard constructor
 // =============================================================================
 HLTResultMTMaker::HLTResultMTMaker(const std::string& type, const std::string& name, const IInterface* parent)
-  : AthAlgTool(type, name, parent),
-  m_jobOptionsSvc("JobOptionsSvc", name) {}
-
-// =============================================================================
-// Standard destructor
-// =============================================================================
-HLTResultMTMaker::~HLTResultMTMaker() {}
+  : AthAlgTool(type, name, parent) {}
 
 // =============================================================================
 // Implementation of IStateful::initialize

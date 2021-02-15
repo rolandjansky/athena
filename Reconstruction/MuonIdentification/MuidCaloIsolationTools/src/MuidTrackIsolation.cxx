@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -7,7 +7,6 @@
 //  AlgTool for estimating the number, total charged momentum and most
 //  energetic inner detector tracks in a cone surrounding a muon
 //
-//  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
 #include "MuidCaloIsolationTools/MuidTrackIsolation.h"
@@ -57,22 +56,22 @@ MuidTrackIsolation::initialize()
     // create the calo barrel surfaces (cylinder) and 2 endcap discs)
     double radius	= 2.0*Gaudi::Units::meter;
     double halfLength	= 4.0*Gaudi::Units::meter;
-    m_caloCylinder	= new Trk::CylinderSurface(new Amg::Transform3D, radius, halfLength);
+    auto transform = std::make_unique<Amg::Transform3D>();
+    transform->setIdentity();
+    m_caloCylinder	= std::make_unique<Trk::CylinderSurface>(std::move(transform), radius, halfLength);
 
     // the corresponding max barrel cotTheta
     m_barrelCotTheta	= halfLength/radius;
 
     // and the forward/backward endcap disks
     Amg::Transform3D discRotation;
-    Amg::Transform3D* transform;
+    discRotation.setIdentity();
     Amg::Vector3D forwardDiscPosition(0.,0.,halfLength);
-    transform		= new Amg::Transform3D(discRotation);
-    *transform          *= Amg::Translation3D(forwardDiscPosition);
-    m_caloForwardDisc	= new Trk::DiscSurface(transform, 0., radius);
+    auto transform1 = std::make_unique<Amg::Transform3D> (discRotation * forwardDiscPosition);
+    m_caloForwardDisc	= std::make_unique<Trk::DiscSurface>(std::move(transform1), 0., radius);
     Amg::Vector3D backwardDiscPosition(0.,0.,-halfLength);
-    transform		= new Amg::Transform3D(discRotation);
-    *transform          *= Amg::Translation3D(backwardDiscPosition);
-    m_caloBackwardDisc	= new Trk::DiscSurface(transform, 0., radius);
+    auto transform2 = std::make_unique<Amg::Transform3D> (discRotation * backwardDiscPosition);
+    m_caloBackwardDisc	= std::make_unique<Trk::DiscSurface>(std::move (transform2), 0., radius);
 
     ATH_CHECK(m_inDetTracksLocation.initialize());
 
@@ -83,10 +82,6 @@ StatusCode
 MuidTrackIsolation::finalize()
 {
     ATH_MSG_INFO( "Finalizing MuidTrackIsolation" );
-
-    delete m_caloBackwardDisc;
-    delete m_caloCylinder;
-    delete m_caloForwardDisc;
 
     return StatusCode::SUCCESS;
 }
@@ -216,19 +211,19 @@ MuidTrackIsolation::trackExtrapolated(const TrackCollection* inDetTracks, double
 	double cotTheta	= 1/tan(perigee.parameters()[Trk::theta]);
 	Amg::Vector3D direction(cos(perigee.parameters()[Trk::phi]),sin(perigee.parameters()[Trk::phi]),cotTheta);
 	direction /= direction.mag();
-	const Trk::TrackSurfaceIntersection* idIntersection   =
-	    new Trk::TrackSurfaceIntersection(perigee.position(),direction,0.);
-	const Trk::Surface* surface = m_caloCylinder;
+	const Trk::TrackSurfaceIntersection idIntersection
+           (perigee.position(),direction,0.);
+	const Trk::Surface* surface = m_caloCylinder.get();
 	if (cotTheta > m_barrelCotTheta)
 	{
-	    surface = m_caloForwardDisc;
+            surface = m_caloForwardDisc.get();
 	}
 	else if (cotTheta < -m_barrelCotTheta)
 	{
-	    surface = m_caloBackwardDisc;
+            surface = m_caloBackwardDisc.get();
 	}	
-	const Trk::TrackSurfaceIntersection* caloIntersection =
-	    m_intersector->intersectSurface(*surface,idIntersection,qOverP);
+        std::unique_ptr<const Trk::TrackSurfaceIntersection> caloIntersection 
+          (m_intersector->intersectSurface(*surface,&idIntersection,qOverP));
 
 	// no intersection - should never happen !
 	if (! caloIntersection)
@@ -242,7 +237,6 @@ MuidTrackIsolation::trackExtrapolated(const TrackCollection* inDetTracks, double
 			   << "  and phi "		<< std::setw(8) << std::setprecision(3)
 			   << perigee.parameters()[Trk::phi] );
 
-	    delete idIntersection;
 	    continue;
 	}
 
@@ -274,8 +268,6 @@ MuidTrackIsolation::trackExtrapolated(const TrackCollection* inDetTracks, double
 	    
 	    if (msgLvl(MSG::VERBOSE)) msg() << "  inside cone, track#" << std::setw(3) << numberTracks;
 	}
-	delete caloIntersection;
-	delete idIntersection;
     }
     if (msgLvl(MSG::VERBOSE)) msg() << endmsg;
 

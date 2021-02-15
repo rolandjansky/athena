@@ -42,7 +42,12 @@ class CTPSimulationOnData(DefaultCTPSimulation):
         self.DoNIM=True
         self.DoRNDM=True
         self.DoPSCL=False
-                
+        self.ForceBunchGroupPattern = False # on data we will take the bunchgroups from COOL
+        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+        if hasattr(svcMgr,'DSConfigSvc'):
+            # this case is still needed for reading Run 2 data configuration from the TriggerDB
+            self.TrigConfigSvc = "TrigConfigSvc"
+
     def setDefaults(self, handle):
         pass
 
@@ -99,7 +104,6 @@ class CTPSimulationInDigi(DefaultCTPSimulation):
         handle.DoNIM=True
         handle.DoRNDM=True
         handle.DoPSCL=True
-        #handle.TrigConfigSvc="TrigConf::LVL1ConfigSvc/LVL1ConfigSvc"
         
 class CTPSimulationInOverlay(DefaultCTPSimulation):
     __slots__ = []
@@ -123,4 +127,3 @@ class CTPSimulationInOverlay(DefaultCTPSimulation):
 
     def setDefaults(self, handle):
         DefaultCTPSimulation.setDefaults(handle)
-        #handle.TrigConfigSvc="TrigConf::LVL1ConfigSvc/LVL1ConfigSvc"

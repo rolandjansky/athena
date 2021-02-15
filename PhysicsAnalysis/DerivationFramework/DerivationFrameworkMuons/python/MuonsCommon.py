@@ -35,35 +35,25 @@ if DFCommonMuonsTrtCutOff is not None: DFCommonMuonsSelector.TrtCutOff = DFCommo
 ToolSvc += DFCommonMuonsSelector
 print (DFCommonMuonsSelector)
 
-DFCommonMuonToolWrapper = DerivationFramework__AsgSelectionToolWrapper( name = "DFCommonMuonToolWrapper",
+DFCommonMuonToolWrapperIDCuts = DerivationFramework__AsgSelectionToolWrapper( name = "DFCommonMuonToolWrapperIDCuts",
                                                                         AsgSelectionTool = DFCommonMuonsSelector,
                                                                         CutType = "IDHits",
-                                                                        StoreGateEntryName = "DFCommonGoodMuon",
+                                                                        StoreGateEntryName = "DFCommonMuonPassIDCuts",
                                                                         ContainerName = "Muons")
-ToolSvc += DFCommonMuonToolWrapper
-print (DFCommonMuonToolWrapper)
-DFCommonMuonToolWrapperTools.append(DFCommonMuonToolWrapper)
-
-### Preselection
-DFCommonMuonsSelectorPreselection = CP__MuonSelectionTool(name = "DFCommonMuonsSelectorPreselection")
-DFCommonMuonsSelectorPreselection.MaxEta = 3.
-DFCommonMuonsSelectorPreselection.MuQuality = 3
-# turn of the momentum correction which is not needed for IDHits cut and Preselection
-DFCommonMuonsSelectorPreselection.TurnOffMomCorr = True
-
-if DFCommonMuonsTrtCutOff is not None: DFCommonMuonsSelectorPreselection.TrtCutOff = DFCommonMuonsTrtCutOff
-ToolSvc += DFCommonMuonsSelectorPreselection
-print (DFCommonMuonsSelectorPreselection)
+#preselection
+ToolSvc += DFCommonMuonToolWrapperIDCuts
+print (DFCommonMuonToolWrapperIDCuts)
+DFCommonMuonToolWrapperTools.append(DFCommonMuonToolWrapperIDCuts)
 
 DFCommonMuonToolWrapperPreselection = DerivationFramework__AsgSelectionToolWrapper( name = "DFCommonMuonToolWrapperPreselection",
-                                                                        AsgSelectionTool = DFCommonMuonsSelectorPreselection,
+                                                                        AsgSelectionTool = DFCommonMuonsSelector,
                                                                         CutType = "Preselection",
-                                                                        StoreGateEntryName = "DFCommonMuonsPreselection",
+                                                                        StoreGateEntryName = "DFCommonMuonPassPreselection",
                                                                         ContainerName = "Muons")
+
 ToolSvc += DFCommonMuonToolWrapperPreselection
 print (DFCommonMuonToolWrapperPreselection)
 DFCommonMuonToolWrapperTools.append(DFCommonMuonToolWrapperPreselection)
-
 ### Decoration of the muon objects with the ID track covariances
 #from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import DerivationFramework__MuonIDCovMatrixDecorator
 #DFCommonMuonIDCovMatrixDecorator = DerivationFramework__MuonIDCovMatrixDecorator( name = "DFCommonMuonIDCovMatrixDecorator")
@@ -78,6 +68,6 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("DFComm
                                                                          AugmentationTools = DFCommonMuonToolWrapperTools
                                                                         )
 
-#import IsolationAlgs.IsoUpdatedTrackCones as isoCones
-#if not hasattr(DerivationFrameworkJob,"IsolationBuilderTight1000"):
-#  DerivationFrameworkJob += isoCones.GetUpdatedIsoTrackCones()
+from IsolationAlgs.IsoUpdatedTrackCones import GetUpdatedIsoTrackCones
+if not hasattr(DerivationFrameworkJob,"IsolationBuilderTight1000"):
+    DerivationFrameworkJob += GetUpdatedIsoTrackCones()

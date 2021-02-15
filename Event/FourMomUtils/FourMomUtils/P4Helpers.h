@@ -37,7 +37,6 @@ namespace P4Helpers
 
 
 // STL includes
-#include <cmath>
 #include <algorithm> // for std::sort
 #include <limits>    // for std::numeric_limits
 

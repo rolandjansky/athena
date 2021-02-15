@@ -14,7 +14,7 @@ from DerivationFrameworkEGamma import EGammaCommon
 from DerivationFrameworkEGamma import ElectronsCPDetailedContent
 from DerivationFrameworkMuons import MuonsCommon
 from DerivationFrameworkJetEtMiss.JetCommon import OutputJets
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets, addDefaultTrimmedJets, addJetTruthLabel, addQGTaggerTool
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets, addDefaultTrimmedJets, addJetTruthLabel, addQGTaggerTool, getPFlowfJVT
 from DerivationFrameworkJetEtMiss import METCommon
 from TriggerMenu.api.TriggerAPI import TriggerAPI
 from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
@@ -98,9 +98,22 @@ trigger_names_notau = []
 trigger_names_tau = []
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaConfiguration.AutoConfigFlags import GetFileMD
-for chain_name in GetFileMD(athenaCommonFlags.FilesInput.get_Value())['TriggerMenu']['HLTChains']:
-   if chain_name in trigger_names_full_notau: trigger_names_notau.append(chain_name)
-   if chain_name in trigger_names_full_tau:   trigger_names_tau.append(chain_name) 
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
+if ConfigFlags.Trigger.EDMVersion == 3:
+   trigger_names_notau = [
+      "HLT_mu26_ivarmedium_L1MU20",
+      "HLT_mu50_L1MU20",
+      "HLT_e26_etcut_L1EM22VHI",
+      "HLT_e26_lhmedium_L1EM22VHI",
+      "HLT_mu22_mu8noL1_L1MU20",
+      "HLT_e7_lhmedium_mu24_L1MU20",
+   ]
+   trigger_names_tau = ["HLT_tau25_mediumRNN_tracktwoMVA_L1TAU12IM",]   
+else:
+   for chain_name in GetFileMD(ConfigFlags.Input.Files)['TriggerMenu']['HLTChains']:
+      if chain_name in trigger_names_full_notau: trigger_names_notau.append(chain_name)
+      if chain_name in trigger_names_full_tau:   trigger_names_tau.append(chain_name) 
 # Create trigger matching decorations
 trigmatching_helper_notau = TriggerMatchingHelper(name='PHYSTriggerMatchingToolNoTau',
         trigger_list = trigger_names_notau, add_to_df_job=True)
@@ -189,7 +202,7 @@ addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=SeqPHYS,algname="QGTaggerToolAlg
 addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqPHYS,algname="QGTaggerToolPFAlg")
 
 # fJVT
-# getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqPHYS, algname='PHYSJetForwardPFlowJvtToolAlg')
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqPHYS, algname='PHYSJetForwardPFlowJvtToolAlg')
 
 #====================================================================
 # EGAMMA
@@ -212,6 +225,7 @@ DerivationFrameworkJob += SeqPHYS
 #====================================================================
 # Tau   
 #====================================================================
+
 # Add low-pt di-tau reconstruction
 from DerivationFrameworkTau.TauCommon import addDiTauLowPt
 addDiTauLowPt(Seq=SeqPHYS)
@@ -233,6 +247,7 @@ PHYSDiTauLowPtTPThinningTool = DerivationFramework__DiTauTrackParticleThinning(n
                                                                                SelectionString         = "DiTauJetsLowPt.nSubjets > 1")
 ToolSvc += PHYSDiTauLowPtTPThinningTool
 thinningTools.append(PHYSDiTauLowPtTPThinningTool)
+
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   

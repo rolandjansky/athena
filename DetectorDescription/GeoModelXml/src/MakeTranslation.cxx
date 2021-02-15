@@ -6,7 +6,7 @@
 #include <xercesc/dom/DOM.hpp>
 //#include <CLHEP/Geometry/Transform3D.h>
 //#include <CLHEP/Geometry/Vector3D.h>
-#include "GeoModelXml/translate.h"
+#include "xercesc/util/XMLString.hpp"
 #include "GeoModelXml/GmxUtil.h"
 
 #include "GeoModelKernel/GeoDefinitions.h"
@@ -24,10 +24,9 @@ double p[nParams];
 char *toRelease;
 
     for (int i = 0; i < nParams; ++i) {
-        toRelease = Translate(translation->getAttribute(Translate(parName[i])));
+        toRelease = XMLString::transcode(translation->getAttribute(XMLString::transcode(parName[i])));
         p[i] = gmxUtil.evaluate(toRelease);
         XMLString::release(&toRelease);
     }
-    GeoTrf::Translate3D temp(p[0], p[1], p[2]);
-    return temp;
+    return GeoTrf::Translate3D(p[0], p[1], p[2]);
 }

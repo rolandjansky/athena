@@ -15,13 +15,18 @@ class BareDataBucket: public DataBucketBase {
 public:
   BareDataBucket() = delete;
 
-  BareDataBucket( void * data, CLID clid, const RootType& type )
-    : m_data(data), m_clid(clid), m_type( type ){}
+  BareDataBucket( void * data, CLID clid, RootType type )
+    : m_data(data), m_clid(clid), m_type( std::move(type) ){}
 
-  virtual ~BareDataBucket() {
-    if ( m_data )
+  virtual ~BareDataBucket() override {
+    if ( m_data != nullptr )
       m_type.Destruct( m_data );
   }
+
+  BareDataBucket(const BareDataBucket&) = delete;
+  BareDataBucket(BareDataBucket&&) = delete;
+  BareDataBucket& operator=(const BareDataBucket&) = delete;
+  BareDataBucket& operator=(BareDataBucket&&) = delete;
 
   // DataObject overrides
   virtual const CLID& clID() const override {
@@ -40,13 +45,13 @@ public:
 
   using DataBucketBase::cast;
   virtual void* cast (CLID clid,
-                      SG::IRegisterTransient* ,
+                      SG::IRegisterTransient* /*irt*/,
                       bool isConst = true) override {
     return ( m_clid == clid and isConst ) ? m_data : nullptr;
   }
 
   virtual void* cast (const std::type_info& tinfo,
-                      SG::IRegisterTransient* ,
+                      SG::IRegisterTransient* /*irt*/,
                       bool isConst = true) override {
     return ( tinfo == m_type.TypeInfo() and isConst ) ? m_data : nullptr;
   }
@@ -58,7 +63,7 @@ public:
   virtual void lock() override { /*not lockable I think */ };
 
 private:
-  void* m_data = 0;
+  void* m_data = nullptr;
   CLID m_clid  = 0;
   RootType m_type;
 };

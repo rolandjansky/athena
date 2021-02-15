@@ -37,8 +37,6 @@
 #include "GaudiKernel/ClassID.h"
 
 
-#include <string>
-
 using namespace Athena_test;
 using std::cerr;
 using std::cout;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -185,7 +185,7 @@ namespace Trk {
 
 
     /** Propagate parameters and covariance without returning the Jacobian */
-    virtual Trk::TrackParameters*
+    virtual std::unique_ptr<Trk::TrackParameters>
    propagate (const EventContext&                 ctx,
                const Trk::TrackParameters&         trackParameters,
                const Trk::Surface&                 targetSurface,
@@ -197,7 +197,7 @@ namespace Trk {
                const Trk::TrackingVolume*          tVol       = nullptr) const override final;
 
     /** Propagate parameters and covariance with search of closest surface */
-    virtual  Trk::TrackParameters*    
+    virtual  std::unique_ptr<Trk::TrackParameters>    
     propagate  (const EventContext&                ctx,
                 const Trk::TrackParameters&        trackParameters,
                 std::vector<Trk::DestSurf>&        targetSurfaces,
@@ -211,7 +211,7 @@ namespace Trk {
                 const Trk::TrackingVolume*         tVol = nullptr) const override final;       
 
     /** Propagate parameters and covariance with search of closest surface */
-    virtual  Trk::TrackParameters*    
+    virtual  std::unique_ptr<Trk::TrackParameters>    
       propagateT  (const EventContext&                ctx,
                    const Trk::TrackParameters&        trackParameters,
                    std::vector<Trk::DestSurf>&        targetSurfaces,
@@ -226,7 +226,7 @@ namespace Trk {
                    std::vector<Trk::HitInfo>*& hitVector) const override final;
 
     /** Propagate parameters and covariance with search of closest surface and material collection */
-    virtual Trk::TrackParameters*    
+    virtual std::unique_ptr<Trk::TrackParameters>    
       propagateM  (const EventContext&                ctx,
                    const Trk::TrackParameters&        trackParameters,
                    std::vector<Trk::DestSurf>&        targetSurfaces,
@@ -243,7 +243,7 @@ namespace Trk {
                    Trk::ExtrapolationCache*           = nullptr) const override final;       
 
     /** Propagate parameters and covariance, and return the Jacobian. WARNING: Multiple Scattering is not included in the Jacobian! */
-    virtual  Trk::TrackParameters*
+    virtual  std::unique_ptr<Trk::TrackParameters>
       propagate (const EventContext&                 ctx,
                  const Trk::TrackParameters&         trackParameters,
                  const Trk::Surface&                 targetSurface,
@@ -258,7 +258,7 @@ namespace Trk {
 
 
     /** Propagate parameters only */
-    virtual Trk::TrackParameters*
+    virtual std::unique_ptr<Trk::TrackParameters>
       propagateParameters (const EventContext&                 ctx,
                            const Trk::TrackParameters&         trackParameters,
                            const Trk::Surface&                 targetSurface,
@@ -271,7 +271,7 @@ namespace Trk {
 
 
     /** Propagate parameters and return Jacobian. WARNING: Multiple Scattering is not included in the Jacobian! */
-    virtual Trk::TrackParameters*
+    virtual std::unique_ptr<Trk::TrackParameters>
       propagateParameters (const EventContext&                 ctx,
                            const Trk::TrackParameters&         trackParameters,
                            const Trk::Surface&                 targetSurface,
@@ -295,12 +295,13 @@ namespace Trk {
 
     /** Intersection and propagation:
      */
-    virtual const TrackSurfaceIntersection* intersectSurface(const EventContext&              ctx,
-                                                             const Surface&                   surface,
-                                                             const TrackSurfaceIntersection*  trackIntersection,
-                                                             const double                     qOverP,
-                                                             const MagneticFieldProperties&   mft,
-                                                             ParticleHypothesis               particle) const override final; 
+    virtual const TrackSurfaceIntersection* 
+    intersectSurface(const EventContext&              ctx,
+                     const Surface&                   surface,
+                     const TrackSurfaceIntersection*  trackIntersection,
+                     const double                     qOverP,
+                     const MagneticFieldProperties&   mft,
+                     ParticleHypothesis               particle) const override final; 
 
     /** Return a list of positions along the track */
     virtual void
@@ -379,7 +380,7 @@ namespace Trk {
     /////////////////////////////////////////////////////////////////////////////////
     // Main functions for propagation
     /////////////////////////////////////////////////////////////////////////////////
-     Trk::TrackParameters*
+     std::unique_ptr<Trk::TrackParameters>
       propagateRungeKutta (Cache&                              cache,
                            bool 	                             errorPropagation,
                            const Trk::TrackParameters&         trackParameters,
@@ -395,7 +396,7 @@ namespace Trk {
     // Main function for propagation
     // with search of closest surface (ST) 
     /////////////////////////////////////////////////////////////////////////////////
-     Trk::TrackParameters*
+     std::unique_ptr<Trk::TrackParameters>
       propagateRungeKutta (Cache&                              cache,
                            bool 	                             errorPropagation,
                            const Trk::TrackParameters&         trackParameters,
@@ -442,7 +443,7 @@ namespace Trk {
                      double& h,
                      double* P,
                      double* dDir,
-                     float*  BG1,
+                     double*  BG1,
                      bool&   firstStep,
                      double& distanceStepped) const;
 
@@ -456,7 +457,7 @@ namespace Trk {
     getMagneticField(Cache& cache,
                      const Amg::Vector3D&  position,
                      bool            getGradients,
-                     float*          BG) const;
+                     double*          BG) const;
 
 
     /////////////////////////////////////////////////////////////////////////////////
@@ -515,7 +516,7 @@ namespace Trk {
     /////////////////////////////////////////////////////////////////////////////////
     // Create straight line in case q/p = 0
     /////////////////////////////////////////////////////////////////////////////////
-    Trk::TrackParameters*
+    std::unique_ptr<Trk::TrackParameters>
       createStraightLine( const Trk::TrackParameters*  inputTrackParameters) const;
 
     void clearCache(Cache& cache) const;
@@ -537,7 +538,7 @@ namespace Trk {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // propagation of neutrals (simulation mode)
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    Trk::TrackParameters*  propagateNeutral(const Trk::TrackParameters&   parm,
+    std::unique_ptr<Trk::TrackParameters>   propagateNeutral(const Trk::TrackParameters&   parm,
                                                   std::vector<DestSurf>&        targetSurfaces,
                                                   Trk::PropDirection            propagationDirection,
                                                   std::vector<unsigned int>&    solutions,

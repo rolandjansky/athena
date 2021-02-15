@@ -101,6 +101,8 @@ namespace LVL1TGCTrigger {
     m_tgcArgs.set_USE_CONDDB( m_USE_CONDDB.value() );
     m_tgcArgs.set_useRun3Config( m_useRun3Config.value() );
 
+    m_tgcArgs.set_NSWSideInfo( m_NSWSideInfo.value() );
+
     ATH_CHECK( m_readCondKey.initialize(!m_useRun3Config.value()) );
     ATH_CHECK( m_readLUTs_CondKey.initialize(m_useRun3Config.value()) );
 
@@ -108,7 +110,7 @@ namespace LVL1TGCTrigger {
     // will be removed the below part.
     if(m_useRun3Config.value()){
       m_tgcArgs.set_USE_CONDDB(false);
-      m_VerCW="1_01_00_00_02";
+      m_VerCW="1_01_01_06_02";
     }
 
     // initialize TGCDataBase
@@ -1259,23 +1261,33 @@ namespace LVL1TGCTrigger {
     // Since m_VerCW is set as default value above,
     // Here don't overwrite by any version if proper version number is provided.
     std::string ver=m_VerCW.value();
-    if((ver.size() != 10)) {
-      // default CW is v00070022
-      ver= "00_07_0022";
-      m_VerCW = ver;
-    }
+
+    if(!tgcArgs()->useRun3Config()){
+      if((ver.size() != 10)) {
+	// default CW is v00070022
+	ver= "00_07_0022";
+	m_VerCW = ver;
+      }
+
+      if (!m_tgcArgs.USE_CONDDB()) ATH_MSG_INFO("TGC CW version of " << ver << " is selected");
     
-    if (!m_tgcArgs.USE_CONDDB()) ATH_MSG_INFO("TGC CW version of " << ver << " is selected");
+      // check Inner /TileMu
+      std::vector<std::string> vers = TGCDatabaseManager::splitCW(ver, '_');
+      if (m_tgcArgs.USE_INNER()) {
+	if (vers.size() == 3) m_tgcArgs.set_USE_INNER( (vers[1] != "00") );
+      }
+      if (m_tgcArgs.TILE_MU()) {
+	if (vers.size() == 3) m_tgcArgs.set_TILE_MU( (vers[0] != "00") );
+      }
     
-    // check Inner /TileMu
-    std::vector<std::string> vers = TGCDatabaseManager::splitCW(ver, '_');
-    if (m_tgcArgs.USE_INNER()) {
-      if (vers.size() == 3) m_tgcArgs.set_USE_INNER( (vers[1] != "00") );
     }
-    if (m_tgcArgs.TILE_MU()) {
-      if (vers.size() == 3) m_tgcArgs.set_TILE_MU( (vers[0] != "00") );
+    else{
+      std::vector<std::string> vers = TGCDatabaseManager::splitCW(ver, '_');
+      m_tgcArgs.set_USE_INNER((vers[vers.size()-1] != "00") && m_tgcArgs.USE_INNER());
+      m_tgcArgs.set_TILE_MU((vers[vers.size()-2] != "00") && m_tgcArgs.TILE_MU());
     }
-    
+
+
     // create DataBase and TGCElectronicsSystem
     //m_db = new TGCDatabaseManager(m_VerCW);
     m_system = new TGCElectronicsSystem(&m_tgcArgs,m_db);

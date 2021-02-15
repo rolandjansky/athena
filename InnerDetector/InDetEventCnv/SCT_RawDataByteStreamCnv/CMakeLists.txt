@@ -32,7 +32,10 @@ atlas_add_test( TestSCTEncode
                 PROPERTIES TIMEOUT 300
                 ENVIRONMENT THREADS=1 )
 atlas_add_test( TestSCTDecodeNewConf
-                SCRIPT python -m SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConfig
+                SCRIPT python -m SCT_RawDataByteStreamCnv.testSCTDecodeNewConf
+                PROPERTIES TIMEOUT 600 )
+atlas_add_test( TestSCTEncodeNewConf
+                SCRIPT python -m SCT_RawDataByteStreamCnv.testSCTEncodeNewConf
                 PROPERTIES TIMEOUT 600 )
 
 # Install files from the package:

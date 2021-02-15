@@ -58,6 +58,8 @@ StatusCode AthenaPoolCnvSvc::initialize() {
       }
       // Put PoolSvc into share mode to avoid duplicating catalog.
       m_poolSvc->setShareMode(true);
+      // Disable PersistencySvc per output file mode
+      m_persSvcPerOutput.setValue(false);
    }
    if (!m_inputStreamingTool.empty() || !m_outputStreamingTool.empty()) {
       // Retrieve AthenaSerializeSvc
@@ -309,7 +311,11 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
          streamClient++;
       }
       if (streamClient == m_streamClientFiles.size()) {
-         m_streamClientFiles.push_back(outputConnection);
+         if (m_streamClientFiles.size() < m_outputStreamingTool.size()) {
+            m_streamClientFiles.push_back(outputConnection);
+         } else {
+            streamClient = 0;
+         }
       }
    }
 
@@ -329,6 +335,8 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
 
    std::unique_lock<std::mutex> lock(m_mutex);
    if (std::find(m_contextAttr.begin(), m_contextAttr.end(), contextId) == m_contextAttr.end()) {
+      std::size_t merge = outputConnection.find(m_streamPortString.value()); // Used to remove trailing TMemFile
+      int flush = m_numberEventsPerWrite.value();
       m_contextAttr.push_back(contextId);
       // Setting default 'TREE_MAX_SIZE' for ROOT to 1024 GB to avoid file chains.
       std::vector<std::string> maxFileSize;
@@ -340,25 +348,30 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
       for (std::vector<std::vector<std::string> >::iterator iter = m_databaseAttr.begin(), last = m_databaseAttr.end();
                       iter != last; ++iter) {
          const std::string& opt = (*iter)[0];
-         std::string data = (*iter)[1];
+         std::string& data = (*iter)[1];
          const std::string& file = (*iter)[2];
          const std::string& cont = (*iter)[3];
-         std::size_t colon = m_containerPrefixProp.value().find(":");
-         if (colon == std::string::npos) colon = 0; // Used to remove leading technology
-         else colon++;
          std::size_t equal = cont.find("="); // Used to remove leading "TTree="
          if (equal == std::string::npos) equal = 0;
          else equal++;
-         if (opt == "TREE_AUTO_FLUSH" && cont.substr(equal) == m_containerPrefixProp.value().substr(colon) && data != "int" && data != "DbLonglong" && data != "double" && data != "string") {
-            int flush = atoi(data.c_str());
-            if (flush < m_numberEventsPerWrite.value()) {
-               flush = flush * (int((m_numberEventsPerWrite.value() - 1) / flush) + 1);
-            }
-            if (flush > 0) {
-               ATH_MSG_DEBUG("connectOutput setting auto write for: " << file << " to " << flush << " events");
-               m_fileFlushSetting[file] = flush;
+         std::size_t colon = m_containerPrefixProp.value().find(":");
+         if (colon == std::string::npos) colon = 0; // Used to remove leading technology
+         else colon++;
+         if (merge != std::string::npos && opt == "TREE_AUTO_FLUSH" && file == outputConnection.substr(0, merge) && cont.substr(equal) == m_containerPrefixProp.value().substr(colon) && data != "int" && data != "DbLonglong" && data != "double" && data != "string") {
+            flush = atoi(data.c_str());
+            if (flush < 0 && m_numberEventsPerWrite.value() > 0) {
+               flush = m_numberEventsPerWrite.value();
+               std::ostringstream eventAutoFlush;
+               eventAutoFlush << flush;
+               data = eventAutoFlush.str();
+            } else if (flush > 0 && flush < m_numberEventsPerWrite.value()) {
+               flush = flush * (int((m_numberEventsPerWrite.value()) / flush - 0.5) + 1);
             }
          }
+      }
+      if (merge != std::string::npos) {
+         ATH_MSG_INFO("connectOutput setting auto write for: " << outputConnection << " to " << flush << " events");
+         m_fileFlushSetting[outputConnection.substr(0, merge)] = flush;
       }
    }
    if (!processPoolAttributes(m_domainAttr, outputConnection, contextId).isSuccess()) {
@@ -424,7 +437,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
 		   && m_outputStreamingTool[m_streamServer]->isServer()) {
       auto& streamingTool = m_outputStreamingTool[m_streamServer];
       // Clear object to get Placements for all objects in a Stream
-      char* placementStr = nullptr;
+      const char* placementStr = nullptr;
       int num = -1;
       StatusCode sc = streamingTool->clearObject(&placementStr, num);
       if (sc.isSuccess() && placementStr != nullptr && strlen(placementStr) > 6 && num > 0) {
@@ -778,7 +791,7 @@ Token* AthenaPoolCnvSvc::registerForWrite(Placement* placement, const void* obj,
          return(nullptr);
       }
       // Get Token back from Server
-      char* tokenStr = nullptr;
+      const char* tokenStr = nullptr;
       int num = -1;
       sc = m_outputStreamingTool[streamClient]->clearObject(&tokenStr, num);
       while (sc.isRecoverable()) {
@@ -846,10 +859,15 @@ Token* AthenaPoolCnvSvc::registerForWrite(Placement* placement, const void* obj,
    return(token);
 }
 //______________________________________________________________________________
-void AthenaPoolCnvSvc::setObjPtr(void*& obj, const Token* token) const {
+void AthenaPoolCnvSvc::setObjPtr(void*& obj, const Token* token) {
    ATH_MSG_VERBOSE("Requesting object for: " << token->toString());
    if (m_doChronoStat) {
       m_chronoStatSvc->chronoStart("cObjR_ALL");
+   }
+   if (m_makeStreamingToolClient.value() > 0 && !m_inputStreamingTool.empty() && !m_inputStreamingTool->isServer() && !m_inputStreamingTool->isClient()) {
+      if (!makeClient(-m_makeStreamingToolClient.value()).isSuccess()) {
+         ATH_MSG_ERROR("Could not make AthenaPoolCnvSvc a Share Client");
+      }
    }
    if (!m_outputStreamingTool.empty() && m_streamServer < m_outputStreamingTool.size()
 		   && m_outputStreamingTool[m_streamServer]->isServer()) {
@@ -888,7 +906,7 @@ void AthenaPoolCnvSvc::setObjPtr(void*& obj, const Token* token) const {
       }
    }
    if (!m_inputStreamingTool.empty() && m_inputStreamingTool->isClient()) {
-      ATH_MSG_VERBOSE("Requesting object for: " << token->toString());
+      ATH_MSG_VERBOSE("Requesting remote object for: " << token->toString());
       if (!m_inputStreamingTool->lockObject(token->toString().c_str()).isSuccess()) {
          ATH_MSG_ERROR("Failed to lock Data for " << token->toString());
          obj = nullptr;
@@ -940,6 +958,12 @@ StatusCode AthenaPoolCnvSvc::createAddress(long svcType,
       ATH_MSG_ERROR("createAddress: svcType != POOL_StorageType " << svcType << " " << POOL_StorageType);
       return(StatusCode::FAILURE);
    }
+   if (m_makeStreamingToolClient.value() > 0 && !m_inputStreamingTool.empty() && !m_inputStreamingTool->isServer() && !m_inputStreamingTool->isClient()) {
+      if (!makeClient(-m_makeStreamingToolClient.value()).isSuccess()) {
+         ATH_MSG_ERROR("Could not make AthenaPoolCnvSvc a Share Client");
+         return(StatusCode::FAILURE);
+      }
+   }
    Token* token = nullptr;
    if (par[0].substr(0, 3) == "SHM") {
       token = new Token();
@@ -968,7 +992,7 @@ StatusCode AthenaPoolCnvSvc::createAddress(long svcType,
          return(StatusCode::FAILURE);
       }
       token = new Token();
-      token->fromString(static_cast<char*>(buffer)); buffer = nullptr;
+      token->fromString(static_cast<const char*>(buffer)); buffer = nullptr;
       if (token->classID() == Guid::null()) {
          delete token; token = nullptr;
       }
@@ -1103,11 +1127,11 @@ StatusCode AthenaPoolCnvSvc::makeClient(int num) {
    return(m_inputStreamingTool->makeClient(num));
 }
 //________________________________________________________________________________
-StatusCode AthenaPoolCnvSvc::readData() const {
+StatusCode AthenaPoolCnvSvc::readData() {
    if (m_inputStreamingTool.empty()) {
       return(StatusCode::FAILURE);
    }
-   char* tokenStr = nullptr;
+   const char* tokenStr = nullptr;
    int num = -1;
    StatusCode sc = m_inputStreamingTool->clearObject(&tokenStr, num);
    if (sc.isSuccess() && tokenStr != nullptr && strlen(tokenStr) > 0 && num > 0) {
@@ -1189,7 +1213,7 @@ StatusCode AthenaPoolCnvSvc::abortSharedWrClients(int client_n)
       if (client_n >= 0) {
          sc = streamingTool->lockObject("ABORT", client_n);
       }
-      char* dummy;
+      const char* dummy;
       sc = streamingTool->clearObject(&dummy, client_n);
       while (sc.isRecoverable()) {
          sc = streamingTool->clearObject(&dummy, client_n);

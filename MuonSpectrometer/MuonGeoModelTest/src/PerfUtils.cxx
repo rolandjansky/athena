@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModelTest/PerfUtils.h"
@@ -8,28 +8,30 @@
 #include <sstream>
 #include <fstream>
 #include <iostream>
+#include <algorithm>
 
 // copied and modified from GEOMODELKERNEL GeoPerfUtils
 
 int PerfUtils::getMem() {
-  int memSize = 0;
-  {
+    int memSize = 0;
     pid_t pid = getpid();
     std::ostringstream procstream;
     procstream << "/proc/" << pid << "/status";
-    std::ifstream memfile(procstream.str().c_str());
-    
-    
-    char line[256];
-    while ((memfile >> line)) {
-      if (std::string(line)=="VmSize:") {
-	memfile >> line;
-	std::istringstream istream(line);
-	istream >> memSize;
-      }
+    std::ifstream memfile(procstream.str());
+    std::string line;
+    if (memfile.is_open()) {
+        while (std::getline(memfile, line)) {
+            std::size_t pos = line.find("VmSize:");
+            if (pos!=std::string::npos) {
+                std::string myStr = line.substr(pos+7);
+                myStr.erase(std::remove(myStr.begin(), myStr.end(), ' '), myStr.end());
+                myStr.erase(std::remove(myStr.begin(), myStr.end(), '\t'), myStr.end());
+                memSize=std::atoi(myStr.substr(0,myStr.find("kB")).c_str());
+            }
+        }
+        memfile.close();
     }
-  }
-  return memSize;
+    return memSize;
 }
 
 void PerfUtils::getCpu(int& uTime, int& sTime) {
@@ -37,13 +39,9 @@ void PerfUtils::getCpu(int& uTime, int& sTime) {
     pid_t pid = getpid();
     std::ostringstream procstream;
     procstream << "/proc/" << pid << "/stat";
-    //procstream << "/proc/" << pid << "/cpu";
-    std::ifstream memfile(procstream.str().c_str());
-    //std::cout<<memfile<<std::endl;
+    std::ifstream memfile(procstream.str());
     std::string longString;
     memfile >> longString;
-    
-    //std::cout<<"File /proc/<pid>/stat content \n "<<longString<<std::endl;
 
     int nblancks=0;
     uTime = 0;
@@ -51,20 +49,16 @@ void PerfUtils::getCpu(int& uTime, int& sTime) {
 
     char line[256];
     while ((memfile >> line)) {
-        //std::cout<<"while time = <"<<line<<">"<<std::endl;
         nblancks++;
-        //std::cout<<"nBlancks = "<<nblancks<<std::endl;
         if (nblancks==13) {
             memfile >> line;
             std::istringstream istream(line);
             istream >> uTime;
             uTime = uTime*10;
-            //std::cout<<"uTime = "<<uTime<<std::endl;
             memfile >> line;
             std::istringstream istream1(line);
             istream1 >> sTime;
             sTime = sTime*10;
-            //std::cout<<"sTime = "<<sTime<<std::endl;
             return;
         }
     }

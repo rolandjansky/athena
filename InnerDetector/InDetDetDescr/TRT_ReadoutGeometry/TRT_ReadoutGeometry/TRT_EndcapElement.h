@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -41,7 +41,7 @@ namespace InDetDD {
       */
   
   
-  class TRT_EndcapElement : public TRT_BaseElement   {
+  class TRT_EndcapElement final : public TRT_BaseElement   {
     
     public:
       /** Constructor */
@@ -61,16 +61,16 @@ namespace InDetDD {
       virtual ~TRT_EndcapElement();
       
       /** Type information: */
-      virtual TRT_BaseElement::Type type() const {return TRT_BaseElement::ENDCAP;} 
+      virtual TRT_BaseElement::Type type() const override final;
     
       /** Default Local -> global transform of the straw (ie before alignment corrections) */
-      virtual HepGeom::Transform3D defStrawTransform(int straw) const;
+      virtual HepGeom::Transform3D defStrawTransform(int straw) const override final;
     
       /** Active straw length */
-      virtual const double & strawLength() const;
+      virtual const double & strawLength() const override;
     
       /** StrawDirection. +1 if axis is in same direction as local coordinate, -1 otherwise. */
-      virtual int strawDirection() const;
+      virtual int strawDirection() const override final;
     
       /** Returns a pointer to conditions data.  This includes
          information on dead and noisy wires, as well as wire
@@ -97,30 +97,29 @@ namespace InDetDD {
       const TRT_EndcapCode & getCode() const;
       
       // Surface bounds
-      virtual const Trk::SurfaceBounds & strawBounds() const;
+      virtual const Trk::SurfaceBounds & strawBounds() const override final;
     
     
-    protected:
+    private:
       /** These transforms are effectively to the local coord
         system of a straw derived from GeoModel -> hence CLHEP */
-      HepGeom::Transform3D calculateStrawTransform(int straw) const;
+      virtual HepGeom::Transform3D calculateStrawTransform(int straw) const override;
       HepGeom::Transform3D calculateLocalStrawTransform(int straw) const;
     
       /** return the surface of the element */ 
-      const Trk::Surface & elementSurface() const;
-      
+      virtual const Trk::Surface & elementSurface() const override;
+
       /** create the cache for the element */
-      void createSurfaceCache() const;
-      
+      virtual void createSurfaceCache() const override;
+      std::unique_ptr<SurfaceCache> createSurfaceCacheHelper() const;
       /** create the cache for the straw of identifier id */
       void createSurfaceCache(Identifier id) const;
-    
-    private:
-      
+
       // Illegal Operations:
-      TRT_EndcapElement(const TRT_EndcapElement &right);
-      const TRT_EndcapElement & operator=(const TRT_EndcapElement &right);
-      
+      TRT_EndcapElement(const TRT_EndcapElement& right) = delete;
+      const TRT_EndcapElement& operator=(const TRT_EndcapElement& right) =
+        delete;
+
       // Private Member Data:
       TRT_EndcapCode              m_code;
       const TRT_EndcapDescriptor *m_descriptor;

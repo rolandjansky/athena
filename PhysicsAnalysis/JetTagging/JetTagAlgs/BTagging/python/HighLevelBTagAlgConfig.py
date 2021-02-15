@@ -11,13 +11,24 @@ def DL2ToolCfg(ConfigFlags, NNFile = '', **options):
 
     options['nnFile'] = NNFile
     options['name'] = "decorator"
+
+    # This is a hack to accomodate the older b-tagging training with
+    # old names for variables. We should be able to remove it when we
+    # move over to the 2020 / 2021 retraining.
+    if '201903' in NNFile and 'dl1' in NNFile:
+        remap = {}
+        for aggragate in ['minimum','maximum','average']:
+            remap[f'{aggragate}TrackRelativeEta'] = (
+                f'JetFitterSecondaryVertex_{aggragate}AllJetTrackRelativeEta')
+        options['variableRemapping'] = remap
+
     dl2 = FlavorTagDiscriminants__DL2Tool(**options)
 
     acc.setPrivateTools(dl2)
 
     return acc
 
-def HighLevelBTagAlgCfg(ConfigFlags, BTaggingCollection, TrackCollection, NNFile = "", sequenceName=None, **options):
+def HighLevelBTagAlgCfg(ConfigFlags, BTaggingCollection, TrackCollection, NNFile = "", **options):
     """Adds a SecVtxTool instance and registers it.
 
     input: name:               The tool's name.
@@ -26,10 +37,7 @@ def HighLevelBTagAlgCfg(ConfigFlags, BTaggingCollection, TrackCollection, NNFile
            options:            Python dictionary of options to be passed to the SecVtxTool.
     output: The tool."""
 
-    if sequenceName:
-        acc = ComponentAccumulator(sequenceName)
-    else:
-        acc = ComponentAccumulator()
+    acc = ComponentAccumulator()
 
     Name = NNFile.replace("/", "_").replace("_network.json", "")
     dl2 = acc.popToolsAndMerge(DL2ToolCfg(ConfigFlags, NNFile, **options))

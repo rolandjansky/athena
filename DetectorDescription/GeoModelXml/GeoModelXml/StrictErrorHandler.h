@@ -7,6 +7,7 @@
 //
 #ifndef GEO_MODEL_XML_STRICT_ERROR_HANDLER_H
 #define GEO_MODEL_XML_STRICT_ERROR_HANDLER_H
+#include <xercesc/util/XercesDefs.hpp>
 
 #include <xercesc/dom/DOMErrorHandler.hpp>
 #include <xercesc/util/XMLString.hpp>

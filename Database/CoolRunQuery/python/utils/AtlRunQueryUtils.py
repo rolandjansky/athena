@@ -12,7 +12,7 @@
 #
 
 from __future__ import with_statement, print_function
-from .AtlRunQueryTimer import timer
+from CoolRunQuery.utils.AtlRunQueryTimer import timer
 
 import sys, os, time, re, calendar
 from math import exp,sqrt,pi
@@ -20,14 +20,14 @@ from copy import copy
 import cx_Oracle
 import struct
 
-from httplib import HTTP
-from urlparse import urlparse
+import http.client
+import urllib.parse
 
 import DQDefects
 
 def checkURL(url):
-    p = urlparse(url)
-    h = HTTP(p[1])
+    p = urllib.parse(url)
+    h = http.client.HTTP(p[1])
     h.putrequest('HEAD', p[2])
     h.endheaders()
     if h.getreply()[0] == 200:

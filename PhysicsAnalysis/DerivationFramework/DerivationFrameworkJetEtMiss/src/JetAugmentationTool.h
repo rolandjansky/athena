@@ -43,6 +43,7 @@ namespace DerivationFramework {
   private:
     std::string m_momentPrefix;
     std::string m_containerName;
+    SG::ReadHandleKey<xAOD::JetContainer> m_container_key {this, "InputJetsKey", "", "Accessor for input JetContainer"};
     //
     // implement augmentations explicitly to avoid need to parse lists of moments to copy
     //
@@ -63,10 +64,15 @@ namespace DerivationFramework {
     ToolHandle<CP::IJetJvtEfficiency> m_jetJvtEfficiencyTool;
     std::string m_jvtMomentKey;
     bool m_dojvt;
+    std::unique_ptr< SG::AuxElement::ConstAccessor<float> > m_acc_JVT;
+    std::unique_ptr< SG::AuxElement::ConstAccessor<char> > m_acc_passJVT;
 
     //PFlow fJVT
-    std::unique_ptr< SG::AuxElement::ConstAccessor<float> > m_acc_fjvt;
+    SG::WriteDecorHandleKey<xAOD::JetContainer> m_fjvt_key {this, "fJVTKey", "", "Decoration for fJVT"};
+    ToolHandle<IJetModifier> m_fjvtTool;
     std::string m_fjvtMomentKey;
+    bool m_dofjvt;
+    std::unique_ptr< SG::AuxElement::ConstAccessor<float> > m_acc_fJVT;
 
     // b-tagging       @author tripiana@cern.ch
     std::vector<std::string> m_btagWP;

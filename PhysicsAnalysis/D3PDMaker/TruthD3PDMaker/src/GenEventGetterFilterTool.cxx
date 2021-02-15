@@ -38,7 +38,11 @@ GenEventGetterFilterTool::GenEventGetterFilterTool
  */
 bool GenEventGetterFilterTool::filter (const HepMC::GenEvent* p) const
 {
+#ifdef HEPMC3
+  return ! p->particles().empty();
+#else
   return ! p->particles_empty();
+#endif
 }
 
 

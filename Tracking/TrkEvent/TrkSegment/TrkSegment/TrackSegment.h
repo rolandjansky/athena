@@ -47,7 +47,7 @@ class FitQuality;
     @author Andreas.Salzburger@cern.ch
     */
 
-  class TrackSegment : public Segment {
+  class TrackSegment final : public Segment {
     
     public:
       /** Default Constructor for POOL */

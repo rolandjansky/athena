@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -142,7 +142,7 @@ InDet::TRT_DriftCircleOnTrack& InDet::TRT_DriftCircleOnTrack::operator=( const I
 
 //move assignment operator:
 InDet::TRT_DriftCircleOnTrack& InDet::TRT_DriftCircleOnTrack::operator=( InDet::TRT_DriftCircleOnTrack&& rot)
-{ 
+ noexcept { 
   if ( &rot != this) {
     Trk::RIO_OnTrack::operator= (rot);
     m_globalPosition        = std::move(rot.m_globalPosition);

@@ -1,12 +1,9 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #-----Python imports---#
-import os, sys, time, shutil
+import os, sys, shutil
 
 #-----Athena imports---#
-import AthenaCommon.SystemOfUnits as Units
-import AthenaPython.PyAthena as PyAthena
-from AthenaPython.PyAthena import StatusCode
 from AthenaCommon.Logging import log as msg
 
 from AthenaMP.AthenaMPConf import AthMpEvtLoopMgr
@@ -57,7 +54,7 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
         
     def configureStrategy(self,strategy,pileup,events_before_fork):
         from .AthenaMPFlags import jobproperties as jp
-        from AthenaCommon.ConcurrencyFlags import jobproperties as jp
+        import AthenaCommon.ConcurrencyFlags # noqa: F401
         event_range_channel = jp.AthenaMPFlags.EventRangeChannel()
         if (jp.AthenaMPFlags.ChunkSize() > 0):
             chunk_size = jp.AthenaMPFlags.ChunkSize()
@@ -123,6 +120,7 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
             if (self.nThreads >= 1):
                 from AthenaMPTools.AthenaMPToolsConf import SharedHiveEvtQueueConsumer
                 self.Tools += [ SharedHiveEvtQueueConsumer(UseSharedReader=use_shared_reader,
+                                                           UseSharedWriter=use_shared_writer,
                                                            IsPileup=pileup,
                                                            IsRoundRobin=(strategy=='RoundRobin'),
                                                            EventsBeforeFork=events_before_fork,
@@ -183,15 +181,15 @@ def setupEvtSelForSeekOps():
    
    if 'AthenaPoolCnvSvc.ReadAthenaPool' not in sys.modules:
       ## user did not import that module so we give up
-      msg.info( "Cannot enable 'seeking' b/c module " + \
-                 "[AthenaPoolCnvSvc.ReadAthenaPool] hasn't been imported..." )
-      msg.info( "Modify your jobOptions to import that module "+ \
-                 "(or just ignore this message)" )
+      msg.info( "Cannot enable 'seeking' b/c module "
+                "[AthenaPoolCnvSvc.ReadAthenaPool] hasn't been imported..." )
+      msg.info( "Modify your jobOptions to import that module "
+                "(or just ignore this message)" )
       return
 
    from AthenaCommon.AppMgr import theApp, AthAppMgr
    if theApp.state() != AthAppMgr.State.OFFLINE:
-      msg.info( "C++ ApplicationMgr already instantiated, probably seeking "+\
+      msg.info( "C++ ApplicationMgr already instantiated, probably seeking "
                 "will be ill-configured..." )
       msg.info( "EventSelector writers should implement updateHandlers" )
    

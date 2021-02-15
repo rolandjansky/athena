@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ArenaHandleBaseAllocT.icc 470529 2011-11-24 23:54:22Z ssnyder $
 /**
  * @file  AthAllocators/ArenaHandleBaseAllocT.icc
  * @author scott snyder
@@ -107,7 +105,9 @@ template <typename ALLOC>
 const typename ALLOC::Params&
 ArenaHandleBaseAllocT<ALLOC>::params() const
 {
-  return dynamic_cast<const ALLOC*>(this->baseAllocator())->params();
+  const ALLOC* alloc = dynamic_cast<const ALLOC*>(this->baseAllocator());
+  if (!alloc) std::abort();
+  return alloc->params();
 }
 
 

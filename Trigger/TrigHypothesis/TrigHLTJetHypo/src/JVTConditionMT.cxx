@@ -58,8 +58,8 @@ bool JVTConditionMT::isSatisfied(const HypoJetVector& ips, const std::unique_ptr
 
     std::stringstream ss1;
 
-    for(auto ip : ips){
-      address = static_cast<const void*>(ip);
+    for(const auto& ip : ips){
+      address = static_cast<const void*>(ip.get());
       ss1 << "    "  << address << " " << ip->eta() << " pt " << ip->pt() << '\n';
     }
     ss1 << '\n';

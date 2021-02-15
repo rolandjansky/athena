@@ -41,6 +41,11 @@ if 'LegacyEventInfo' in digitizationFlags.experimentalDigi() and \
     from xAODEventInfoCnv.xAODEventInfoCnvAlgDefault import xAODEventInfoCnvAlgDefault
     xAODEventInfoCnvAlgDefault (sequence = job)
 
+# Decorate zero pile-up
+if not (DetFlags.pileup.any_on() or digitizationFlags.doXingByXingPileUp()):
+    from PileUpComps.PileUpCompsConf import NoPileUpMuWriter
+    job += NoPileUpMuWriter()
+
 # Beam spot
 include( "Digitization/BeamSpot.py" )
 
@@ -75,3 +80,8 @@ if DetFlags.Muon_on():
 # LVL1 trigger simulation
 #if DetFlags.digitize.LVL1_on():
 include( "Digitization/LVL1Digitization.py" )
+
+# Run calculation of weight for the beam spot size reweighting
+if (digitizationFlags.doBeamSpotSizeReweighting()):
+    include( "Digitization/BeamSpotReweight.py" )
+

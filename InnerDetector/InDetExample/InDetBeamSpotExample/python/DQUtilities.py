@@ -1,15 +1,8 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import absolute_import, print_function
-
-import os, sys
-from operator import itemgetter
-from itertools import groupby
-from PyCool import cool
-from CoolConvUtilities import AtlCoolLib
-from DetectorStatus import DetStatusLib
+import os
 from DQDefects import DefectsDB
-from DQUtils.sugar import IOVSet,RANGEIOV_VAL,RunLumiType, RunLumi, define_iov_type
+from DQUtils.sugar import IOVSet, RunLumiType, RunLumi, define_iov_type
 from DQUtils import fetch_iovs, process_iovs    
 
 
@@ -167,7 +160,7 @@ class IDBSDefectWriter:
         Write a single defect to the database
         """
 
-        if not defect in self.db.defect_names:
+        if defect not in self.db.defect_names:
             self.db.create_defect(defect, description)
 
         self.db.insert(defect, since, until, comment, self.user, present, recoverable) 
@@ -366,7 +359,7 @@ class IDBSDefectEncoding:
     def defectToInt(cls, defect):
         """Encode defect as an int.  If defect is unknown raise error"""
 
-        if not defect in IDBSDefectEncoding.defectBitPos:
+        if defect not in IDBSDefectEncoding.defectBitPos:
             raise DefectError ('ERROR: Unknown defect %s encountered' % defect)
 
         return (1 << IDBSDefectEncoding.defectBitPos.index(defect))

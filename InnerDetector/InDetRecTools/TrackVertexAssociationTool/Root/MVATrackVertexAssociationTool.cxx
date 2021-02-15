@@ -145,10 +145,10 @@ xAOD::TrackVertexAssociationMap MVATrackVertexAssociationTool::getMatchMapIntern
 
   xAOD::TrackVertexAssociationMap trktovxmap;
 
-  for (const auto& vertex : vx_list) {
+  for (const auto *vertex : vx_list) {
     xAOD::TrackVertexAssociationList trktovxlist;
     trktovxlist.reserve(100);
-    for (const auto& track : trk_list) {
+    for (const auto *track : trk_list) {
       if (isCompatible(*track, *vertex)) {
         trktovxlist.push_back(track);
       }
@@ -167,7 +167,7 @@ const xAOD::Vertex* MVATrackVertexAssociationTool::getUniqueMatchVertexInternal(
   float maxValue = -1.0; // MVA output ranges between 0 and 1
   const xAOD::Vertex* bestMatchVertex = nullptr;
 
-  for (const auto& vertex : vx_list) {
+  for (const auto *vertex : vx_list) {
     match = isMatch(trk, *vertex, mvaOutput);
     if (match && (maxValue < mvaOutput)) {
       maxValue = mvaOutput;
@@ -189,14 +189,14 @@ xAOD::TrackVertexAssociationMap MVATrackVertexAssociationTool::getUniqueMatchMap
   xAOD::TrackVertexAssociationMap trktovxmap;
 
   // Initialize map
-  for (const auto& vertex : vx_list) {
+  for (const auto *vertex : vx_list) {
     xAOD::TrackVertexAssociationList trktovxlist;
     trktovxlist.clear();
     trktovxmap[vertex] = trktovxlist;
   }
 
   // Perform matching
-  for (const auto& track : trk_list) {
+  for (const auto *track : trk_list) {
     const xAOD::Vertex* vx_match = getUniqueMatchVertexInternal(*track, vx_list);
     if (vx_match) {
       // Found matched vertex

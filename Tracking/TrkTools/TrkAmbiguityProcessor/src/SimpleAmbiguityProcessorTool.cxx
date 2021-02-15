@@ -9,6 +9,7 @@
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTrack/TrackInfo.h"
+
 #include <map>
 #include <memory>
 #include "AmbiguityProcessorUtility.h"
@@ -77,19 +78,19 @@ StatusCode Trk::SimpleAmbiguityProcessorTool::initialize(){
      ATH_MSG_INFO( "Try brem fit and recovery for electron like tracks.");
   }
 
-  ATH_CHECK(m_clusterSplitProbContainerIn.initialize(!m_clusterSplitProbContainerIn.key().empty()));
-  ATH_CHECK(m_clusterSplitProbContainerOut.initialize(!m_clusterSplitProbContainerOut.key().empty()));
   // statistics
   if (m_etaBounds.size() != Counter::nRegions) {
      ATH_MSG_ERROR( "There must be exactly " << Counter::nRegions
                     << " etaBounds: barrel end, transition region end, end-cap end, DBM start, DBM end." );
      return StatusCode::FAILURE;
   }
+  if (initializeClusterSplitProbContainer().isFailure()) {
+     sc=StatusCode::FAILURE;
+  }
   return sc;
 }
+
 //==================================================================================================
-
-
 StatusCode Trk::SimpleAmbiguityProcessorTool::finalize(){
   return StatusCode::SUCCESS;
 }
@@ -197,28 +198,7 @@ Trk::SimpleAmbiguityProcessorTool::solveTracks(TrackScoreMap& trackScoreTrackMap
                                                                 std::vector<std::unique_ptr<const Trk::Track> >& trackDustbin,
                                                                 Counter &stat) const{
   const EventContext& ctx = Gaudi::Hive::currentContext();
-  SG::ReadHandle<Trk::ClusterSplitProbabilityContainer> splitProbContainerIn;
-  if (!m_clusterSplitProbContainerIn.key().empty()) {
-     splitProbContainerIn = SG::ReadHandle( m_clusterSplitProbContainerIn, ctx);
-     if (!splitProbContainerIn.isValid()) {
-        ATH_MSG_ERROR( "Failed to get input cluster split probability container "  << m_clusterSplitProbContainerIn.key());
-     }
-  }
-  std::unique_ptr<Trk::ClusterSplitProbabilityContainer> splitProbContainerCleanup(!m_clusterSplitProbContainerIn.key().empty()
-                                                                                      ? std::make_unique<ClusterSplitProbabilityContainer>(*splitProbContainerIn)
-                                                                                      : std::make_unique<ClusterSplitProbabilityContainer>());
-  SG::WriteHandle<Trk::ClusterSplitProbabilityContainer> splitProbContainerHandle;
-  Trk::ClusterSplitProbabilityContainer *splitProbContainer;
-  if (!m_clusterSplitProbContainerOut.key().empty()) {
-     splitProbContainerHandle = SG::WriteHandle<Trk::ClusterSplitProbabilityContainer>( m_clusterSplitProbContainerOut, ctx);
-     if (splitProbContainerHandle.record(std::move(splitProbContainerCleanup)).isFailure()) {
-        ATH_MSG_FATAL( "Failed to record output cluster split probability container "  << m_clusterSplitProbContainerOut.key());
-     }
-     splitProbContainer=splitProbContainerHandle.ptr();
-  }
-  else {
-     splitProbContainer=splitProbContainerCleanup.get();
-  }
+  UniqueClusterSplitProbabilityContainerPtr splitProbContainer(createAndRecordClusterSplitProbContainer(ctx));
 
   std::unique_ptr<TrackCollection> finalTracks(std::make_unique<TrackCollection>());
 

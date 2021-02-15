@@ -31,7 +31,7 @@ public:
   TrackHandle_TruthTrack( TrackCollHandleBase*,
 			  const SimBarCode&,
 			  const SimHitList&,
-			  const HepMC::GenParticle* genPart = 0 );
+			  HepMC::ConstGenParticlePtr genPart = nullptr );
 
   virtual ~TrackHandle_TruthTrack();
 

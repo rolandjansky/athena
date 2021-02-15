@@ -1,10 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import TruthD3PDMaker
-import D3PDMakerCoreComps
-from D3PDMakerCoreComps.D3PDObject import *
-from D3PDMakerConfig.D3PDMakerFlags import D3PDMakerFlags
-from TruthD3PDMaker.TruthD3PDMakerConf import *
+from D3PDMakerCoreComps.D3PDObject import make_SG_D3PDObject
 from D3PDMakerCoreComps.ContainedVectorMultiAssociation import ContainedVectorMultiAssociation
 
 

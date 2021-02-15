@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGHLTJETHYPO_IJETGROUPER_H
@@ -25,8 +25,7 @@ class IJetGrouper{
    */
   virtual std::vector<HypoJetGroupVector> group(HypoJetIter&,
 						HypoJetIter&) const = 0;
-  virtual std::optional<HypoJetGroupVector> next(HypoJetIter&,
-						 HypoJetIter&) const = 0;
+  virtual std::optional<HypoJetVector> next() = 0;
   virtual std::string toString() const = 0; 
   virtual std::string getName() const = 0; 
 };

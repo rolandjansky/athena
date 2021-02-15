@@ -26,7 +26,7 @@ namespace Trk {
  @author Andreas.Salzburger@cern.ch
  */
 
-class NoBounds : public SurfaceBounds
+class NoBounds final : public SurfaceBounds
 {
 public:
   /**Default Constructor*/
@@ -36,7 +36,7 @@ public:
   ~NoBounds() = default;
 
   /**Equality operator */
-  virtual bool operator==(const SurfaceBounds& sbo) const override;
+  virtual bool operator==(const SurfaceBounds& sbo) const override final;
 
   /** Return SurfaceBounds for persistency */
   virtual SurfaceBounds::BoundsType type() const override { return SurfaceBounds::Other; }
@@ -67,71 +67,8 @@ public:
   /** Output Method for std::ostream */
   virtual std::ostream& dump(std::ostream& sl) const override final;
 
-private:
 };
-
-inline bool
-NoBounds::operator==(const SurfaceBounds&) const
-{
-  return true;
-}
-
-inline bool
-NoBounds::inside(const Amg::Vector2D&, double, double) const
-{
-  return true;
-}
-
-inline bool
-NoBounds::inside(const Amg::Vector2D&, const BoundaryCheck&) const
-{
-  return true;
-}
-
-inline bool
-NoBounds::insideLoc1(const Amg::Vector2D&, double) const
-{
-  return true;
-}
-
-inline bool
-NoBounds::insideLoc2(const Amg::Vector2D&, double) const
-{
-  return true;
-}
-
-inline double
-NoBounds::minDistance(const Amg::Vector2D&) const
-{
-  return 0.;
-}
-
-inline NoBounds*
-NoBounds::clone() const
-{
-  return new NoBounds();
-}
-
-inline double
-NoBounds::r() const
-{
-  return 0.;
-}
-
-inline MsgStream&
-NoBounds::dump(MsgStream& sl) const
-{
-  sl << "Trk::NoBounds ... boundless surface" << endmsg;
-  return sl;
-}
-
-inline std::ostream&
-NoBounds::dump(std::ostream& sl) const
-{
-  sl << "Trk::NoBounds ... boundless surface" << std::endl;
-  return sl;
-}
-
 } // end of namespace
 
+#include "TrkSurfaces/NoBounds.icc"
 #endif // TRKSURFACES_NOBOUNDS_H

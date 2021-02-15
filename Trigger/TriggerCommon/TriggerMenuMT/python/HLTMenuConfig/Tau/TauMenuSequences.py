@@ -7,7 +7,7 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 # menu components   
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 
-from TriggerMenuMT.HLTMenuConfig.Tau.TauRecoSequences import tauCaloSequence, tauCaloMVASequence, tauFTFCoreSequence, tauFTFTauSequence, tauFTFIsoSequence, tauIDSequence, tauTrackSequence, tauTrackTwoSequence, tauEFSequence, tauMVASequence, tauPreSelSequence, tauPreSelTTSequence, tauPrecTrackSequence, tauPrecIsoTrackSequence
+from TriggerMenuMT.HLTMenuConfig.Tau.TauRecoSequences import tauCaloSequence, tauCaloMVASequence, tauFTFCoreSequence, tauFTFTauSequence, tauFTFIsoSequence, tauFTFIsoBDTSequence, tauIDSequence, tauTrackSequence, tauTrackTwoSequence, tauEFSequence, tauMVASequence, tauPreSelSequence, tauPreSelTTSequence, tauPrecTrackSequence, tauPrecIsoTrackSequence
 
 # ====================================================================================================  
 #    Get MenuSequences
@@ -117,6 +117,25 @@ def tauFTFTauIsoSeq():
 
     return  MenuSequence( Sequence    = sequence,
                           Maker       = ftfIsoViewsMaker,
+                          Hypo        = fastTrkHypo,
+                          HypoToolGen = TrigTauTrackHypoToolFromDict )
+
+# ===============================================================================================                                                                                                  
+#   Fast track finder (iso bdt) + Dummy Hypo step (tracktwoMVABDT)                                                                                                                                 
+# ===============================================================================================                                                                                                  
+
+def tauFTFTauIsoBDTSeq():
+    (sequence, ftfIsoBDTViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(tauFTFIsoBDTSequence,ConfigFlags )
+
+    from TrigTauHypo.TrigTauHypoConf import  TrigTrackPreSelHypoAlgMT
+    fastTrkHypo                 = TrigTrackPreSelHypoAlgMT("TrackPreSelHypoAlg_PassByIsoBDT")
+    fastTrkHypo.trackcollection = sequenceOut
+    fastTrkHypo.RoIForIDReadHandleKey = "UpdatedTrackBDTRoI"
+
+    from TrigTauHypo.TrigTauHypoTool import TrigTauTrackHypoToolFromDict
+
+    return  MenuSequence( Sequence    = sequence,
+                          Maker       = ftfIsoBDTViewsMaker,
                           Hypo        = fastTrkHypo,
                           HypoToolGen = TrigTauTrackHypoToolFromDict )
 

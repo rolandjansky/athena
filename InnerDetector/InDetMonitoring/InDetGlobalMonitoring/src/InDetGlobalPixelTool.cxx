@@ -33,7 +33,6 @@
 #include "TrkTrack/TrackCollection.h"            
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
-#include "InDetPrepRawData/PixelClusterContainer.h"         
 #include "TrkTrackSummary/TrackSummary.h"
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"

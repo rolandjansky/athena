@@ -49,8 +49,8 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
 
     auto tauPhi = Monitored::Scalar<float>("tauPhi",0.0);
     auto tauEt = Monitored::Scalar<float>("tauEt",0.0);
-    auto tauEtEt15BDTLoose = Monitored::Scalar<float>("tauEtEt15BDTLoose",0.0);
-    auto panModeEt15BDTLoose = Monitored::Scalar<float>("panModeEt15BDTLoose",0.0);
+    auto tauEtEt15RNNLoose = Monitored::Scalar<float>("tauEtEt15RNNLoose",0.0);
+    auto panModeEt15RNNLoose = Monitored::Scalar<float>("panModeEt15RNNLoose",0.0);
     auto panModeSubstructure = Monitored::Scalar<float>("panModeSubstructure",0.0);
     auto coreTrk = Monitored::Scalar<float>("coreTrk",0.0);
     auto PtTESMVA = Monitored::Scalar<float>("PtTESMVA",0.0);
@@ -60,30 +60,31 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     auto tauPhiEt15 = Monitored::Scalar<float>("tauPhiEt15",0.0);
     auto tauEtaEt15 = Monitored::Scalar<float>("tauEtaEt15",0.0);
 
-    auto tauPhiEt15BDTLoose = Monitored::Scalar<float>("tauPhiEt15BDTLoose",0.0);
-    auto tauEtaEt15BDTLoose = Monitored::Scalar<float>("tauEtaEt15BDTLoose",0.0);
+    auto tauPhiEt15RNNLoose = Monitored::Scalar<float>("tauPhiEt15RNNLoose",0.0);
+    auto tauEtaEt15RNNLoose = Monitored::Scalar<float>("tauEtaEt15RNNLoose",0.0);
 
 
     auto tauCharge = Monitored::Scalar<int>("tauCharge",0.0);
     auto RNNJetScore = Monitored::Scalar<float>("RNNJetScore",0.0);
+    auto RNNJetScoreSigTrans = Monitored::Scalar<float>("RNNJetScoreSigTrans",0.0);
 
     auto NumTracks = Monitored::Scalar<int>("NumTracks",0.0);
-    auto NumTracksEt15BDTLoose = Monitored::Scalar<int>("NumTracksEt15BDTLoose",0.0);
+    auto NumTracksEt15RNNLoose = Monitored::Scalar<int>("NumTracksEt15RNNLoose",0.0);
 
     auto nTauCandidates = Monitored::Scalar<int>("nTauCandidates",0.0);
     auto nHighPtTauCandidates = Monitored::Scalar<int>("nHighPtTauCandidates",0.0);
     auto nClusters = Monitored::Scalar<int>("nClusters",0.0);
-    auto nClustersEt15BDTLoose = Monitored::Scalar<int>("nClustersEt15BDTLoose",0.0);
+    auto nClustersEt15RNNLoose = Monitored::Scalar<int>("nClustersEt15RNNLoose",0.0);
 
-    auto tauEtBDTLoose = Monitored::Scalar<float>("tauEtBDTLoose",0.0);
-    auto tauEtaBDTLoose = Monitored::Scalar<float>("tauEtaBDTLoose",0.0);
-    auto tauPhiBDTLoose = Monitored::Scalar<float>("tauPhiBDTLoose",0.0);
-    auto NumTracksBDTLoose = Monitored::Scalar<float>("NumTracksBDTLoose",0.0);
+    auto tauEtRNNLoose = Monitored::Scalar<float>("tauEtRNNLoose",0.0);
+    auto tauEtaRNNLoose = Monitored::Scalar<float>("tauEtaRNNLoose",0.0);
+    auto tauPhiRNNLoose = Monitored::Scalar<float>("tauPhiRNNLoose",0.0);
+    auto NumTracksRNNLoose = Monitored::Scalar<float>("NumTracksRNNLoose",0.0);
 
-    auto tauEtBDTMedium = Monitored::Scalar<float>("tauEtBDTMedium",0.0);
-    auto tauEtaBDTMedium = Monitored::Scalar<float>("tauEtaBDTMedium",0.0);
-    auto tauPhiBDTMedium = Monitored::Scalar<float>("tauPhiBDTMedium",0.0);
-    auto NumTracksBDTMedium = Monitored::Scalar<float>("NumTracksBDTMedium",0.0);
+    auto tauEtRNNMedium = Monitored::Scalar<float>("tauEtRNNMedium",0.0);
+    auto tauEtaRNNMedium = Monitored::Scalar<float>("tauEtaRNNMedium",0.0);
+    auto tauPhiRNNMedium = Monitored::Scalar<float>("tauPhiRNNMedium",0.0);
+    auto NumTracksRNNMedium = Monitored::Scalar<float>("NumTracksRNNMedium",0.0);
 
     auto LB = Monitored::Scalar<int>("LB",0.0);
 
@@ -100,16 +101,13 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     auto jetSeedPhi = Monitored::Scalar<float>("jetSeedPhi",0.0);
     auto jetSeedPt = Monitored::Scalar<float>("jetSeedPt",0.0);
 
-    auto BDTJetScore = Monitored::Scalar<float>("BDTJetScore",0.0);
-    auto BDTJetScoreSigTrans = Monitored::Scalar<float>("BDTJetScoreSigTrans",0.0);
-    auto JetBDTBkgMedium  = Monitored::Scalar<float>("JetBDTBkgMedium",0.0);
 
     auto muonVeto = Monitored::Scalar<float>("muonVeto",0.0);
 
 
-    auto tauBDTLoose = Monitored::Scalar<float>("tauBDTLoose",0.0);
-    auto tauBDTMedium = Monitored::Scalar<float>("tauBDTMedium",0.0);
-    auto tauBDTTight = Monitored::Scalar<float>("tauBDTTight",0.0);
+    auto tauRNNLoose = Monitored::Scalar<float>("tauRNNLoose",0.0);
+    auto tauRNNMedium = Monitored::Scalar<float>("tauRNNMedium",0.0);
+    auto tauRNNTight = Monitored::Scalar<float>("tauRNNight",0.0);
 
     auto hadLeakFracFixed = Monitored::Scalar<float>("hadLeakFracFixed",0.0);
     auto PSSFrac = Monitored::Scalar<float>("PSSFrac",0.0);
@@ -208,17 +206,16 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
         ptIntermediateAxis     =    tau->ptIntermediateAxis()/GeV;
 
         //identification
-        BDTJetScore = tau->discriminant(xAOD::TauJetParameters::BDTJetScore);
-        BDTJetScoreSigTrans = tau->discriminant(xAOD::TauJetParameters::BDTJetScoreSigTrans);
         RNNJetScore =  tau->discriminant(xAOD::TauJetParameters::TauID::RNNJetScore);
+        RNNJetScoreSigTrans =  tau->discriminant(xAOD::TauJetParameters::TauID::RNNJetScoreSigTrans);
 
-        JetBDTBkgMedium = tau->isTau(xAOD::TauJetParameters::JetBDTBkgMedium);
+
 
 
         muonVeto     =       tau->isTau(xAOD::TauJetParameters::MuonVeto);
-        tauBDTLoose  =       tau->isTau(xAOD::TauJetParameters::JetBDTSigLoose);
-        tauBDTMedium =       tau->isTau(xAOD::TauJetParameters::JetBDTSigMedium);
-        tauBDTTight  =       tau->isTau(xAOD::TauJetParameters::JetBDTSigTight);
+        tauRNNLoose  =       tau->isTau(xAOD::TauJetParameters::JetRNNSigLoose);
+        tauRNNMedium =       tau->isTau(xAOD::TauJetParameters::JetRNNSigMedium);
+        tauRNNTight  =       tau->isTau(xAOD::TauJetParameters::JetRNNSigTight);
 
         dRmax           =    tau->detail<float>(xAOD::TauJetParameters::dRmax);
         EMPOverTrkSysP  =    tau->detail<float>(xAOD::TauJetParameters::EMPOverTrkSysP);
@@ -255,7 +252,8 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
         int panModeDummy = -1 ;
         int panModeSubstructureDummy = -1 ;
 
-        const auto& trigDecTool = getTrigDecisionTool();
+        const auto* trigDecTool = (getTrigDecisionTool().empty() ?
+                                   nullptr : getTrigDecisionTool().operator->());
 
         if (m_etaMin < std::abs(tauEta) && std::abs(tauEta) < m_etaMax){
             nTauCandidates +=1;
@@ -265,7 +263,7 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
                 nHighPtTaus +=1;
             }
 
-            if (m_kinGroupName != "tauMonKinGroupHighPt"&& m_kinGroupName!="tauMonKinGroupHighPtBDTLoose"){
+            if (m_kinGroupName != "tauMonKinGroupHighPt"&& m_kinGroupName!="tauMonKinGroupHighPtRNNLoose"){
 
                 if (
                      (
@@ -289,49 +287,49 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
                      (m_kinGroupName == "tauMonKinGroupJetTrig" && trigDecTool !=0 && trigDecTool->isPassed("HLT_j[2-9][0-9]_.*"))
                 ){
 
-                    if(m_kinGroupName != "tauMonKinGroupGlobal" && tauEt > lowerEtThreshold && tauBDTLoose){
-                        tauPhiEt15BDTLoose = tau->phi();
-                        tauEtaEt15BDTLoose = tau->eta();
-                        tauEtEt15BDTLoose = tau->pt()/GeV;
-                        nClustersEt15BDTLoose = tau->detail<int>(xAOD::TauJetParameters::numTopoClusters) ;
-                        NumTracksEt15BDTLoose = tau->nTracks();
+                    if(m_kinGroupName != "tauMonKinGroupGlobal" && tauEt > lowerEtThreshold && tauRNNLoose){
+                        tauPhiEt15RNNLoose = tau->phi();
+                        tauEtaEt15RNNLoose = tau->eta();
+                        tauEtEt15RNNLoose = tau->pt()/GeV;
+                        nClustersEt15RNNLoose = tau->detail<int>(xAOD::TauJetParameters::numTopoClusters) ;
+                        NumTracksEt15RNNLoose = tau->nTracks();
 
                         tau->panTauDetail(xAOD::TauJetParameters::PanTau_DecayMode, panModeDummy); 
-                        panModeEt15BDTLoose = panModeDummy;
+                        panModeEt15RNNLoose = panModeDummy;
                         fill(tool
-                        ,tauPhiEt15BDTLoose
-                        ,tauEtaEt15BDTLoose
-                        ,nClustersEt15BDTLoose
-                        ,NumTracksEt15BDTLoose
-                        ,tauEtEt15BDTLoose
-                        ,panModeEt15BDTLoose);
+                        ,tauPhiEt15RNNLoose
+                        ,tauEtaEt15RNNLoose
+                        ,nClustersEt15RNNLoose
+                        ,NumTracksEt15RNNLoose
+                        ,tauEtEt15RNNLoose
+                        ,panModeEt15RNNLoose);
                     }
 
                     
-                    if(m_kinGroupName != "tauMonKinGroupGlobal" && tauBDTLoose){
-                        tauPhiBDTLoose = tau->phi();
-                        tauEtaBDTLoose = tau->eta();
-                        tauEtBDTLoose = tau->pt()/GeV;
-                        NumTracksBDTLoose = tau->nTracks();
+                    if(m_kinGroupName != "tauMonKinGroupGlobal" && tauRNNLoose){
+                        tauPhiRNNLoose = tau->phi();
+                        tauEtaRNNLoose = tau->eta();
+                        tauEtRNNLoose = tau->pt()/GeV;
+                        NumTracksRNNLoose = tau->nTracks();
 
                         fill(tool
-                        ,tauPhiBDTLoose
-                        ,tauEtaBDTLoose
-                        ,NumTracksBDTLoose
-                        ,tauEtBDTLoose);
+                        ,tauPhiRNNLoose
+                        ,tauEtaRNNLoose
+                        ,NumTracksRNNLoose
+                        ,tauEtRNNLoose);
                     }
 
-                    if(m_kinGroupName != "tauMonKinGroupGlobal" && tauBDTMedium){
-                        tauPhiBDTMedium = tau->phi();
-                        tauEtaBDTMedium = tau->eta();
-                        tauEtBDTMedium = tau->pt()/GeV;
-                        NumTracksBDTMedium = tau->nTracks();
+                    if(m_kinGroupName != "tauMonKinGroupGlobal" && tauRNNMedium){
+                        tauPhiRNNMedium = tau->phi();
+                        tauEtaRNNMedium = tau->eta();
+                        tauEtRNNMedium = tau->pt()/GeV;
+                        NumTracksRNNMedium = tau->nTracks();
 
                         fill(tool
-                        ,tauPhiBDTMedium
-                        ,tauEtaBDTMedium
-                        ,NumTracksBDTMedium
-                        ,tauEtBDTMedium);
+                        ,tauPhiRNNMedium
+                        ,tauEtaRNNMedium
+                        ,NumTracksRNNMedium
+                        ,tauEtRNNMedium);
                     }
 
                     
@@ -461,15 +459,12 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
                     ,etEMAtEMScale
                     ,etHadAtEMScale
                     ,tauCharge
-                    ,BDTJetScore
-                    ,BDTJetScoreSigTrans
-                    ,JetBDTBkgMedium
                     ,RNNJetScore
+                    ,RNNJetScoreSigTrans
                     ,muonVeto
-                    ,tauBDTLoose
-                    ,tauBDTMedium
-                    ,tauBDTTight
-                    ,BDTJetScore
+                    ,tauRNNLoose
+                    ,tauRNNMedium
+                    ,tauRNNTight
                     ,PSSFrac
                     ,hadLeakFracFixed
                     ,etHotShotWinOverPtLeadTrk
@@ -513,20 +508,20 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
                 fill(tool,LB,tauPhiEt15,tauEtaEt15);
             }
 
-            if ((m_kinGroupName == "tauMonKinGroupHighPtBDTLoose") && tauEt > lowerEtThreshold &&tauBDTLoose){
-                tauPhiEt15BDTLoose = tau->phi();
-                tauEtaEt15BDTLoose = tau->eta();
-                tauEtEt15BDTLoose = tau->pt()/GeV; //GeV
+            if ((m_kinGroupName == "tauMonKinGroupHighPtRNNLoose") && tauEt > lowerEtThreshold &&tauRNNLoose){
+                tauPhiEt15RNNLoose = tau->phi();
+                tauEtaEt15RNNLoose = tau->eta();
+                tauEtEt15RNNLoose = tau->pt()/GeV; //GeV
 
-                nClustersEt15BDTLoose = tau->detail<int>(xAOD::TauJetParameters::numTopoClusters) ;
-                NumTracksEt15BDTLoose = tau->nTracks();
+                nClustersEt15RNNLoose = tau->detail<int>(xAOD::TauJetParameters::numTopoClusters) ;
+                NumTracksEt15RNNLoose = tau->nTracks();
                 fill(tool
                 ,LB
-                ,tauPhiEt15BDTLoose
-                ,tauEtaEt15BDTLoose
-                ,nClustersEt15BDTLoose
-                ,NumTracksEt15BDTLoose
-                ,tauEtEt15BDTLoose);
+                ,tauPhiEt15RNNLoose
+                ,tauEtaEt15RNNLoose
+                ,nClustersEt15RNNLoose
+                ,NumTracksEt15RNNLoose
+                ,tauEtEt15RNNLoose);
             }
         }
     }

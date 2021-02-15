@@ -3,6 +3,7 @@
 */
 
 #include "tauRecTools/TauVertexedClusterDecorator.h"
+#include "tauRecTools/HelperFunctions.h"
 
 #include "xAODCaloEvent/CaloVertexedTopoCluster.h"
 
@@ -10,7 +11,6 @@ TauVertexedClusterDecorator::TauVertexedClusterDecorator(const std::string& name
   TauRecToolBase(name) {
   declareProperty("SeedJet", m_seedJet = ""); 
   declareProperty("VertexCorrection", m_doVertexCorrection = true);
-  declareProperty("JetVertexCorrection", m_doJetVertexCorrection = true);
 }
 
 
@@ -25,7 +25,7 @@ StatusCode TauVertexedClusterDecorator::initialize() {
     ATH_MSG_INFO("Set the cluster state to UNCALIBRATED");
     m_clusterState = xAOD::CaloCluster::State::UNCALIBRATED;
   } 
-  else {
+  else if (! inTrigger()) {
     ATH_MSG_ERROR("Seed jet " << m_seedJet << " not supported !");
     return StatusCode::FAILURE;
   }
@@ -35,23 +35,6 @@ StatusCode TauVertexedClusterDecorator::initialize() {
 
 
   
-const xAOD::Vertex* TauVertexedClusterDecorator::getJetVertex(const xAOD::Jet& jet) const {
-  
-  const xAOD::Vertex* jetVertex = nullptr;
-  
-  if (m_doJetVertexCorrection && !inTrigger()) {
-    bool isAvailable = jet.getAssociatedObject("OriginVertex", jetVertex);
-    if (!isAvailable) {
-      ATH_MSG_WARNING("OriginVertex not available !");
-      jetVertex = nullptr;
-    }
-  }
-
-  return jetVertex;
-}
-
-
-
 StatusCode TauVertexedClusterDecorator::execute(xAOD::TauJet& tau) const {
   if (! tau.jetLink().isValid()) {
     ATH_MSG_WARNING("Link to the seed jet is invalid");
@@ -59,28 +42,29 @@ StatusCode TauVertexedClusterDecorator::execute(xAOD::TauJet& tau) const {
   }
   
   // Obtain the vertex to correct the cluster
-  const xAOD::Vertex* vertex = nullptr;
-  if (m_doVertexCorrection) {
-    if (tau.vertexLink().isValid()) {
-      vertex = tau.vertex();
-    }
-  }
-  else {
-    const xAOD::Jet* jetSeed = tau.jet();
-    vertex = getJetVertex(*jetSeed);
-  }
+  const xAOD::Vertex* vertex = tauRecTools::getTauVertex(tau, inTrigger());
 
   std::vector<const xAOD::IParticle*> particleList = tau.clusters();
   
   std::vector<xAOD::CaloVertexedTopoCluster> vertexedClusterList;
   for (const xAOD::IParticle* particle : particleList) {
     const xAOD::CaloCluster* cluster = static_cast<const xAOD::CaloCluster*>(particle);
-
-    if (vertex) {
-      vertexedClusterList.emplace_back(*cluster, m_clusterState, vertex->position());
+   
+    if (inTrigger()) { // In trigger, we use the default calibration state
+      if (vertex) {
+        vertexedClusterList.emplace_back(*cluster, vertex->position());
+      }
+      else {
+        vertexedClusterList.emplace_back(*cluster);
+      }
     }
-    else {
-      vertexedClusterList.emplace_back(*cluster, m_clusterState);
+    else { // In offline reconstruction, the calibration state is based on the name of seed jet
+      if (vertex) {
+        vertexedClusterList.emplace_back(*cluster, m_clusterState, vertex->position());
+      }
+      else {
+        vertexedClusterList.emplace_back(*cluster, m_clusterState);
+      }
     }
   }
 

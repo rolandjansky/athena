@@ -856,10 +856,10 @@ StatusCode ALFA_Ntuple::TruthInfo()
 	int vtx_counter[8];
 	memset(&vtx_counter, 0, sizeof(vtx_counter));
 
-	HepMC::GenParticle* pi1=0;
-	HepMC::GenParticle* pi2=0;
-	HepMC::GenParticle* p1=0;
-	HepMC::GenParticle* p2=0;
+	HepMC::ConstGenParticlePtr pi1{nullptr};
+	HepMC::ConstGenParticlePtr pi2{nullptr};
+	HepMC::ConstGenParticlePtr p1{nullptr};
+	HepMC::ConstGenParticlePtr p2{nullptr};
 
 	int pint = 0;
 	int pcount = 0;
@@ -887,37 +887,40 @@ StatusCode ALFA_Ntuple::TruthInfo()
 			break;
 		}
 
-		// comment to fix coverity 29013
-//		if (coll_counter == 0 )
-//		{
-//			ATH_MSG_DEBUG("no collection for the event ");
-//			return sc;
-//		}
+#ifdef HEPMC3
+		auto begGenVtxItr = (**mcTruBeg).vertices().begin();
+		auto endGenVtxItr = (**mcTruBeg).vertices().end();
+#else
 
 		HepMC::GenEvent::vertex_const_iterator begGenVtxItr = (**mcTruBeg).vertices_begin();
 		HepMC::GenEvent::vertex_const_iterator endGenVtxItr = (**mcTruBeg).vertices_end();
+#endif
 
 		//loop over verteces belonging to one event
 		for(;begGenVtxItr!=endGenVtxItr;++begGenVtxItr)
 		{
-//			std::cout << "coll_counter-1 = " << coll_counter-1 << endl;
 
 			vtx_counter[coll_counter-1]++;
 
-//			std::cout << " vtx_counter - 1 = " << vtx_counter[coll_counter-1]-1 << endl;
 
 			ATH_MSG_DEBUG(" * vertex no: " << vtx_counter[coll_counter-1]);
 			ATH_MSG_DEBUG(" * position x = " << (**begGenVtxItr).position().x() << ", y = " << (**begGenVtxItr).position().y()<< ", z =" << (**begGenVtxItr).position().z());
 
+#ifdef HEPMC3
+			auto children=(*begGenVtxItr)->particles_out();
+			auto parents=(*begGenVtxItr)->particles_in();
+                        children.insert( children.end(), parents.begin(), parents.end() );
+                        auto child = children.begin();
+			auto child_end = children.end();
+#else
 			HepMC::GenVertex::particle_iterator child;
 			child = (*begGenVtxItr)->particles_begin(HepMC::family);
 			HepMC::GenVertex::particle_iterator child_end;
 			child_end = (*begGenVtxItr)->particles_end(HepMC::family);
+#endif
 
 			for(; child != child_end; ++child)
 			{
-//				if ((*child == genEvt->beam_particles().first) || (*child == genEvt->beam_particles().second))
-//				{
 					px = (*child)->momentum().px();
 					py = (*child)->momentum().py();
 					pz = (*child)->momentum().pz();
@@ -938,7 +941,6 @@ StatusCode ALFA_Ntuple::TruthInfo()
 						{
 							pint++;
 
-//							std::cout << "pint = " << pint << endl;
 
 							if(pz > 0)
 							{
@@ -954,20 +956,16 @@ StatusCode ALFA_Ntuple::TruthInfo()
 							{
 								pi2=(*child);
 							}
-//							if(pint > 2){ATH_MSG_DEBUG("Strange: More than two incoming protons in this event!");}
 						}
 					}
 
-//					std::cout << "pip1" << endl;
 					// outgoing protons at the interaction point
 					if( (*child)->status() == 201 && (pcount < 2))
-//					if( (*child)->status() == 212 && (pcount < 2))
 					{
 						if( (*child)->pdg_id() == 2212)
 						{
 							pcount++;
 
-//							std::cout << "pip2" << endl;
 
 							if(pz > 0)
 							{
@@ -987,7 +985,6 @@ StatusCode ALFA_Ntuple::TruthInfo()
 								m_fvtx_beam2_f[2] = (**begGenVtxItr).position().y();
 								m_fvtx_beam2_f[3] = (**begGenVtxItr).position().z();
 							}
-//							if(pcount > 2){ATH_MSG_DEBUG("Strange: More than two outcoming protons in this event (elastic scaterring)!");}
 						}
 					}
 
@@ -995,7 +992,6 @@ StatusCode ALFA_Ntuple::TruthInfo()
 					{
 						if( (*child)->pdg_id() == 2212){
 
-//							std::cout << "pip" << endl;
 
 							if(pz > 0)
 							{
@@ -1021,11 +1017,8 @@ StatusCode ALFA_Ntuple::TruthInfo()
 								m_fp_C[2] = py;
 								m_fp_C[3] = pz;
 							}
-//							if(pint > 2){ATH_MSG_DEBUG("Strange: More than two incoming protons in this event!");}
 						}
 					}
-//					std::cout << "pip3" << endl;
-//				}
 			}
 		}
 
@@ -1035,37 +1028,14 @@ StatusCode ALFA_Ntuple::TruthInfo()
 		{
 			m_bVtxKinFillFlag = true;
 
-// 			HepMC::FourVector pv1 = (pi1->momentum());
-// 			HepMC::FourVector pv2 = (pi2->momentum());
-// 			HepMC::FourVector pv3 = (p1->momentum());
-// 			HepMC::FourVector pv4 = (p2->momentum());
 
-// 			CLHEP::HepLorentzVector hp1(pv1.px(),pv1.py(),pv1.pz(),pv1.e());
-// 			CLHEP::HepLorentzVector hp2(pv2.px(),pv2.py(),pv2.pz(),pv2.e());
-// 			CLHEP::HepLorentzVector hp3(pv3.px(),pv3.py(),pv3.pz(),pv3.e());
-// 			CLHEP::HepLorentzVector hp4(pv4.px(),pv4.py(),pv4.pz(),pv4.e());
 
-// 			m_ft_13 = (hp1-hp3).m2();
-// 			m_ft_24 = (hp2-hp4).m2();
 
-// 			ATH_MSG_DEBUG(" ******************************************************* ");
-// 			ATH_MSG_DEBUG(" ");
-// 			ATH_MSG_DEBUG(" t_13 = " << m_ft_13);
-// 			ATH_MSG_DEBUG(" t_24 = " << m_ft_24);
-// 			ATH_MSG_DEBUG(" ***************** ");
 
-// 			m_fp_beam1_i[0] = pi1->momentum().e();
-// 			m_fp_beam1_i[1] = pi1->momentum().px();
-// 			m_fp_beam1_i[2] = pi1->momentum().py();
-// 			m_fp_beam1_i[3] = pi1->momentum().pz();
 
 			ATH_MSG_DEBUG("initial particle 1: px = " << m_fp_beam1_i[1] << ", py = " << m_fp_beam1_i[2] << ", pz = " << m_fp_beam1_i[3] << ", E = " << m_fp_beam1_i[0]);
 			ATH_MSG_DEBUG(" ** ");
 
-// 			m_fp_beam2_i[0] = pi2->momentum().e();
-// 			m_fp_beam2_i[1] = pi2->momentum().px();
-// 			m_fp_beam2_i[2] = pi2->momentum().py();
-// 			m_fp_beam2_i[3] = pi2->momentum().pz();
 
 			ATH_MSG_DEBUG("initial particle 2: px = " << m_fp_beam2_i[1] << ", py = " << m_fp_beam2_i[2] << ", pz = " << m_fp_beam2_i[3] << ", E = " << m_fp_beam2_i[0]);
 			ATH_MSG_DEBUG(" ** ");
@@ -1348,9 +1318,7 @@ StatusCode ALFA_Ntuple::GetLocRecData()
 		}
 
 
-//		cout << "iAlgoID, iRPot, iNumTrackPot, iNumTrackPotMD << " << iAlgoID << ", " << iRPot << ", " << iNumTrackPot[iRPot] << ", " << mapNumTrackPotMD[iAlgoID][iRPot] << endl;
 
-//		cout << "iRPot, m_iDetector, fRecPosX = " << iRPot << ", " << m_iDetector << ", " << fRecPosX << endl;
 	}
 
 
@@ -1382,7 +1350,6 @@ StatusCode ALFA_Ntuple::GetLocRecData()
 		fOverY   = (*mcColODBeg)->getOverY();
 		iNumY    = (*mcColODBeg)->getNumY();
 
-//		cout << "iPot, algo, yOD = " << iRPot << ", " << iAlgoID << ", " << fRecPosY << endl;
 
 		if (mapNumTrackPotOD.find(iAlgoID)==mapNumTrackPotOD.end())
 		{
@@ -1429,7 +1396,6 @@ StatusCode ALFA_Ntuple::GetLocRecData()
 
 			mapNumTrackPotOD[iAlgoID][iRPot]++;
 		}
-//		cout << "iAlgoID, iRPot, iNumTrackPot, iNumTrackPotOD << " << iAlgoID << ", " << iRPot << ", " << iNumTrackPot[iRPot] << ", " << mapNumTrackPotOD[iAlgoID][iRPot] << endl;
 	}
 
 	Int_t iNumTrackPotMax = 1;
@@ -1448,7 +1414,6 @@ StatusCode ALFA_Ntuple::GetLocRecData()
 	{
 		for (int iPot=0; iPot<RPOTSCNT; iPot++)
 		{
-//			cout << "first, second = " << it->first << ", " << it->second[iPot] << endl;
 			if (mapNumTrackPotMax.find(it->first)==mapNumTrackPotMax.end()) mapNumTrackPotMax.insert(std::pair<int, int>(it->first, 0));
 
 			if (it->second[iPot] > mapNumTrackPotMax[it->first]) mapNumTrackPotMax[it->first] = it->second[iPot];
@@ -1458,7 +1423,6 @@ StatusCode ALFA_Ntuple::GetLocRecData()
 	std::map<int, int >::iterator itNum;
 	for (itNum=mapNumTrackPotMax.begin(); itNum!=mapNumTrackPotMax.end(); itNum++)
 	{
-//		cout << "first, second = " << itNum->first << ", " << itNum->second << endl;
 		m_MapAlgoTreeMD[itNum->first].iNumTrack = itNum->second;
 
 	}
@@ -1469,7 +1433,6 @@ StatusCode ALFA_Ntuple::GetLocRecData()
 	{
 		for (int iPot=0; iPot<RPOTSCNT; iPot++)
 		{
-//			cout << "first, second = " << it->first << ", " << it->second[iPot] << endl;
 			if (mapNumTrackPotMax.find(it->first)==mapNumTrackPotMax.end()) mapNumTrackPotMax.insert(std::pair<int, int>(it->first, 0));
 
 			if (it->second[iPot] > mapNumTrackPotMax[it->first]) mapNumTrackPotMax[it->first] = it->second[iPot];
@@ -1478,7 +1441,6 @@ StatusCode ALFA_Ntuple::GetLocRecData()
 
 	for (itNum=mapNumTrackPotMax.begin(); itNum!=mapNumTrackPotMax.end(); itNum++)
 	{
-//		cout << "first, second = " << itNum->first << ", " << itNum->second << endl;
 		m_MapAlgoTreeOD[itNum->first].iNumTrack = itNum->second;
 	}
 
@@ -1579,7 +1541,6 @@ StatusCode ALFA_Ntuple::GetLocRecCorrData()
 		}
 
 
-//		cout << "iRPot, iNumTrackPot, fRecPosX = " << iRPot << ", " << iNumTrackPot[iRPot]-1 << ", " << fRecPosX << endl;
 	}
 
 	sc = evtStore()->retrieve(pLocRecCorrODCol, m_strLocRecCorrODCollectionName);
@@ -1613,7 +1574,6 @@ StatusCode ALFA_Ntuple::GetLocRecCorrData()
 		fxBeam  = iSign*22;
 		fyBeam  = (*mcColODBeg)->getYpositionBeam();
 
-//		cout << "LocRecCorr = " << fxLHC << ", " << fyLHC << ", " << fzLHC << endl;
 
 		if (mapNumTrackPot.find(iAlgoID)==mapNumTrackPot.end())
 		{
@@ -1695,7 +1655,6 @@ StatusCode ALFA_Ntuple::GetGloRecData()
 
 		iNumGloTrack++;
 
-//		cout << "NumGloTrack, Arm, x, y, x_slope, y_slope = " << iNumGloTrack << ", " << iArm << ", " << fxPos << ", " << fyPos << ", " << fxSlope << ", " << fySlope << endl;
 	}
 
 	m_iNumGloTrack = iNumGloTrack;
@@ -1936,10 +1895,6 @@ StatusCode ALFA_Ntuple::COOLUpdate(IOVSVC_CALLBACK_ARGS_P(/*I*/, keys))
 				// to access individual elements by name, use e.g.
 				// float var1=(*atrlist)["T04"].data<float>();
 				// to get the value of a float column called T04 into var1
-//				std::ostringstream atrstring;
-//				atrlist->print(atrstring);
-//				cout<< "Values for folder /TDAQ/ALFA" << endl;
-//				cout << atrstring.str() << endl;
 
 				m_BPMALFA.bpmr_r_x_pos  = (*atrlist)["bpmr_r_x_pos"].data<float>();
 				m_BPMALFA.bpmr_r_y_pos  = (*atrlist)["bpmr_r_y_pos"].data<float>();

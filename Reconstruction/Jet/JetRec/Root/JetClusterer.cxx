@@ -66,6 +66,8 @@ StatusCode JetClusterer::initialize() {
   ATH_CHECK( m_inputPseudoJets.initialize() );
   m_finalPseudoJets = name() + "FinalPJ";
   ATH_CHECK( m_finalPseudoJets.initialize() );
+  m_clusterSequence = name() + "ClusterSequence";
+  ATH_CHECK( m_clusterSequence.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -95,18 +97,18 @@ std::pair<std::unique_ptr<xAOD::JetContainer>, std::unique_ptr<SG::IAuxStore> > 
   // -----------------------
   // Build the cluster sequence
   fastjet::JetDefinition jetdef(m_fjalg, m_jetrad);
-  fastjet::ClusterSequence *clSequence = nullptr;
+  std::unique_ptr<fastjet::ClusterSequence> clSequence(nullptr);
   bool useArea = m_ghostarea > 0 ;
   if ( useArea ) {
     // Prepare ghost area specifications -------------
     ATH_MSG_DEBUG("Creating input area cluster sequence");
     bool seedsok=true;
     fastjet::AreaDefinition adef = buildAreaDefinition(seedsok);
-    if(seedsok) {clSequence = new fastjet::ClusterSequenceArea(*pseudoJetVector, jetdef, adef);}
+    if(seedsok) {clSequence = std::make_unique<fastjet::ClusterSequenceArea>(*pseudoJetVector, jetdef, adef);}
     else {return nullreturn;}
   } else {
     ATH_MSG_DEBUG("Creating input cluster sequence");
-    clSequence = new fastjet::ClusterSequence(*pseudoJetVector, jetdef);
+    clSequence = std::make_unique<fastjet::ClusterSequence>(*pseudoJetVector, jetdef);
   } 
 
 
@@ -122,41 +124,49 @@ std::pair<std::unique_ptr<xAOD::JetContainer>, std::unique_ptr<SG::IAuxStore> > 
     }
   }
 
-  // Let fastjet deal with deletion of ClusterSequence, so we don't need to also put it in the EventStore.
-  clSequence->delete_self_when_unused();
+  // No PseudoJets, so there's nothing else to do
+  // Delete the cluster sequence before we go
+  if(!pjVector->empty()) {
 
+    // -------------------------------------
+    // translate to xAOD::Jet
+    ATH_MSG_DEBUG("Converting pseudojets to xAOD::Jet");
+    static SG::AuxElement::Accessor<const fastjet::PseudoJet*> pjAccessor("PseudoJet");
+    PseudoJetTranslator pjTranslator(useArea, useArea);
+    for (const fastjet::PseudoJet &  pj: *pjVector ) {
+      // create the xAOD::Jet from the PseudoJet, doing the signal & ghost constituents extraction
+      xAOD::Jet& jet = pjTranslator.translate(pj, *pjContHandle, *jets);
 
-  // -------------------------------------
-  // translate to xAOD::Jet
-  ATH_MSG_DEBUG("Converting pseudojets to xAOD::Jet");
-  static SG::AuxElement::Accessor<const fastjet::PseudoJet*> pjAccessor("PseudoJet");
-  PseudoJetTranslator pjTranslator(useArea, useArea);
-  for (const fastjet::PseudoJet &  pj: *pjVector ) {
-    // create the xAOD::Jet from the PseudoJet, doing the signal & ghost constituents extraction
-    xAOD::Jet& jet = pjTranslator.translate(pj, *pjContHandle, *jets);
+      // Add the PseudoJet onto the xAOD jet. Maybe we should do it in the above JetFromPseudojet call ??
+      pjAccessor(jet) = &pj;
 
-    // Add the PseudoJet onto the xAOD jet. Maybe we should do it in the above JetFromPseudojet call ??
-    pjAccessor(jet) = &pj;
+      jet.setInputType(  xAOD::JetInput::Type( (int) m_inputType) ) ;
+      xAOD::JetAlgorithmType::ID ialg = xAOD::JetAlgorithmType::algId(m_fjalg);
+      jet.setAlgorithmType(ialg);
+      jet.setSizeParameter((float)m_jetrad);
+      if(useArea) jet.setAttribute(xAOD::JetAttribute::JetGhostArea, (float)m_ghostarea);
 
-    jet.setInputType(  xAOD::JetInput::Type( (int) m_inputType) ) ;
-    xAOD::JetAlgorithmType::ID ialg = xAOD::JetAlgorithmType::algId(m_fjalg);
-    jet.setAlgorithmType(ialg);
-    jet.setSizeParameter((float)m_jetrad);
-    if(useArea) jet.setAttribute(xAOD::JetAttribute::JetGhostArea, (float)m_ghostarea);
+      ATH_MSG_VERBOSE( "  xAOD::Jet with pt " << std::setprecision(4) << jet.pt()*1e-3 << " has " << jet.getConstituents().size() << " constituents" );
+      ATH_MSG_VERBOSE( "  Leading constituent is of type " << jet.getConstituents()[0].rawConstituent()->type());
+    }
 
-    ATH_MSG_VERBOSE( "  xAOD::Jet with pt " << std::setprecision(4) << jet.pt()*1e-3 << " has " << jet.getConstituents().size() << " constituents" );
-    ATH_MSG_VERBOSE( "  Leading constituent is of type " << jet.getConstituents()[0].rawConstituent()->type());
+    // -------------------------------------
+    // record final PseudoJetVector
+    SG::WriteHandle<PseudoJetVector> pjVectorHandle(m_finalPseudoJets);
+    if(!pjVectorHandle.record(std::move(pjVector))){
+      ATH_MSG_ERROR("Can't record PseudoJetVector under key "<< m_finalPseudoJets);
+      return nullreturn;
+    }
+    // -------------------------------------
+    // record ClusterSequence
+    SG::WriteHandle<jet::ClusterSequence> clusterSeqHandle(m_clusterSequence);
+    if(!clusterSeqHandle.record(std::move(clSequence))){
+      ATH_MSG_ERROR("Can't record ClusterSequence under key "<< m_clusterSequence);
+      return nullreturn;
+    }
   }
 
-  // -------------------------------------
-  // record final PseudoJetVector
-  SG::WriteHandle<PseudoJetVector> pjVectorHandle(m_finalPseudoJets);
-  if(!pjVectorHandle.record(std::move(pjVector))){
-    ATH_MSG_ERROR("Can't record PseudoJetVector under key "<< m_finalPseudoJets);
-    return nullreturn;
-  }
-
-  ATH_MSG_DEBUG("Reconstructed jet count: " << jets->size() <<  "  clusterseq="<<clSequence);
+  ATH_MSG_DEBUG("Reconstructed jet count: " << jets->size() <<  "  clusterseq="<<clSequence.get());
   // Return the jet container and aux, use move to transfer
   // ownership of pointers to caller
   return std::make_pair(std::move(jets), std::move(auxCont));

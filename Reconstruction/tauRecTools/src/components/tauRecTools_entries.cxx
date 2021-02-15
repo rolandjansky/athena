@@ -20,7 +20,7 @@
 #include "tauRecTools/MvaTESVariableDecorator.h"
 #include "tauRecTools/TauTrackClassifier.h"
 #include "tauRecTools/TauTrackRNNClassifier.h"
-#include "tauRecTools/CombinedP4FromRecoTaus.h"
+#include "tauRecTools/TauCombinedTES.h"
 #include "tauRecTools/TauPi0ScoreCalculator.h"
 #include "tauRecTools/TauPi0Selector.h"
 #include "tauRecTools/TauWPDecorator.h"
@@ -28,7 +28,6 @@
 #include "tauRecTools/TauIDVarCalculator.h"
 #include "tauRecTools/TauJetRNNEvaluator.h"
 #include "tauRecTools/TauDecayModeNNClassifier.h"
-#include "tauRecTools/TauVertexCorrection.h"
 #include "tauRecTools/TauVertexedClusterDecorator.h"
 
 #ifndef XAOD_ANALYSIS
@@ -53,7 +52,7 @@ DECLARE_COMPONENT( tauRecTools::TauTrackClassifier )
 DECLARE_COMPONENT( tauRecTools::TauTrackRNNClassifier )
 DECLARE_COMPONENT( tauRecTools::TrackMVABDT )
 DECLARE_COMPONENT( tauRecTools::TrackRNN )
-DECLARE_COMPONENT( CombinedP4FromRecoTaus )
+DECLARE_COMPONENT( TauCombinedTES )
 DECLARE_COMPONENT( TauSubstructureVariables )
 DECLARE_COMPONENT( TauCommonCalcVars )
 DECLARE_COMPONENT( TauPi0ScoreCalculator )
@@ -63,5 +62,4 @@ DECLARE_COMPONENT( TauJetBDTEvaluator )
 DECLARE_COMPONENT( TauIDVarCalculator )
 DECLARE_COMPONENT( TauJetRNNEvaluator )
 DECLARE_COMPONENT( TauDecayModeNNClassifier )
-DECLARE_COMPONENT( TauVertexCorrection )
 DECLARE_COMPONENT( TauVertexedClusterDecorator )

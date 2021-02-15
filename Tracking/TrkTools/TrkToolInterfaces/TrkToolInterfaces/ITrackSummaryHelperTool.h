@@ -34,8 +34,6 @@ namespace Trk {
 
     @author Edward Moyse, Martin Siebel <http://consult.cern.ch/xwho>
 */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Woverloaded-virtual"
   class ITrackSummaryHelperTool : virtual public IAlgTool {
   public:
     static const InterfaceID& interfaceID();
@@ -44,35 +42,32 @@ namespace Trk {
     TrackSummaryHelperTools. It is mandatory that the RIO_OnTrack* points to exactly the object contained
       inside the TrackStateOnSurface. This is to avoid that the RTTI from the TrackSummaryTool is done twice.
         */
-      virtual void analyse(const Trk::Track& track, 
-			   const RIO_OnTrack* rot,
-			   const TrackStateOnSurface* tsos,
-			   std::vector<int>& information, 
-			   std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const = 0;
+    virtual void analyse(
+      const Trk::Track& track,
+      const RIO_OnTrack* rot,
+      const TrackStateOnSurface* tsos,
+      std::vector<int>& information,
+      std::bitset<Trk::numberOfDetectorTypes>& hitPattern) const = 0;
 
-      virtual void analyse(const Trk::Track& track, 
-			   const CompetingRIOsOnTrack* crot,
-			   const TrackStateOnSurface* tsos,
-			   std::vector<int>& information, 
-			   std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const = 0;
-      
-      virtual void searchForHoles(const Trk::Track& track, 
-				  std::vector<int>& information ,
-				  const Trk::ParticleHypothesis partHyp = Trk::pion) const =0;
-                  
-      virtual void updateSharedHitCount(const Trk::Track&, Trk::TrackSummary&) const {};
+    virtual void analyse(
+      const Trk::Track& track,
+      const CompetingRIOsOnTrack* crot,
+      const TrackStateOnSurface* tsos,
+      std::vector<int>& information,
+      std::bitset<Trk::numberOfDetectorTypes>& hitPattern) const = 0;
 
-      virtual void  updateExpectedHitInfo(const Trk::Track&, Trk::TrackSummary&) const {};
+    virtual void searchForHoles(
+      const Trk::Track& track,
+      std::vector<int>& information,
+      const Trk::ParticleHypothesis partHyp = Trk::pion) const = 0;
 
-      virtual void updateAdditionalInfo(Trk::TrackSummary&, std::vector<float>&, float&,int&, int&) const {};
-                  
+    virtual void addDetailedTrackSummary(const Trk::Track& track,
+                                         Trk::TrackSummary& summary) const = 0;
 
-      virtual void addDetailedTrackSummary(const Trk::Track& track, Trk::TrackSummary& summary ) const = 0;
-
-    
-
+    virtual void updateExpectedHitInfo(const Trk::Track&,
+                                       Trk::TrackSummary&) const = 0;
   };
-#pragma GCC diagnostic pop
+  
   inline const InterfaceID& Trk::ITrackSummaryHelperTool::interfaceID()
   { 
     return IID_ITrackSummaryHelperTool; 

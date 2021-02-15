@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -32,7 +32,6 @@ def MuonCaloTagAlgCfg(flags, name="MuonCaloTagAlg",**kwargs):
     kwargs.setdefault("TagMap","caloTagMap")
     kwargs.setdefault("CombinedTrackCollection","")
     kwargs.setdefault("METrackCollection","")
-    kwargs.setdefault("SegmentCollection","")
     kwargs.setdefault("HasCSC", flags.Detector.GeometryCSC )
     kwargs.setdefault("HasSTgc", flags.Detector.GeometrysTGC )
     kwargs.setdefault("HasMM", flags.Detector.GeometryMM )
@@ -111,6 +110,7 @@ def MuonInsideOutRecoAlgCfg(flags, name="MuonInsideOutRecoAlg", **kwargs ):
     kwargs.setdefault("HasSTgc", flags.Detector.GeometrysTGC )
     kwargs.setdefault("HasMM", flags.Detector.GeometryMM )
     kwargs.setdefault("TagMap","muGirlTagMap")
+    kwargs.setdefault("SegmentCollection","MuGirlSegments")
     alg = CompFactory.MuonCombinedInDetExtensionAlg(name,**kwargs)
     result.addEventAlgo( alg, primary=True )
     return result
@@ -238,6 +238,7 @@ def MuonCreatorAlgCfg( flags, name="MuonCreatorAlg",**kwargs ):
     if flags.Muon.MuonTrigger:
         kwargs.setdefault("MakeClusters", False)
         kwargs.setdefault("ClusterContainerName", "")
+        kwargs.setdefault("CopySegments", False)
         if flags.Muon.SAMuonTrigger:
             kwargs.setdefault("CreateSAmuons", True)
             kwargs.setdefault("TagMaps", [])
@@ -256,9 +257,11 @@ def StauCreatorAlgCfg(flags, name="StauCreatorAlg", **kwargs ):
     kwargs.setdefault("MSOnlyExtrapolatedLocation","MSOnlyExtrapolatedStau")
     kwargs.setdefault("MuonCandidateLocation","")
     kwargs.setdefault("SegmentContainerName","StauSegments")
+    kwargs.setdefault("TrackSegmentContainerName","TrkStauSegments")
     kwargs.setdefault("BuildSlowMuon",1)
     kwargs.setdefault("ClusterContainerName", "SlowMuonClusterCollection")
     kwargs.setdefault("TagMaps",["stauTagMap"])
+    kwargs.setdefault("CopySegments", False)
     # if not TriggerFlags.MuonSlice.doTrigMuonConfig:
     #     recordMuonCreatorAlgObjs (kwargs)
     acc = MuonCreatorAlgCfg(flags, name,**kwargs)

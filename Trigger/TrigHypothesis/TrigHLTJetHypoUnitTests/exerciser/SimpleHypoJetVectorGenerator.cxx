@@ -63,7 +63,7 @@ SimpleHypoJetVectorGenerator::get() {
     const auto& eta = m_etas[i];
     const auto& et = m_es[i];
     auto tlv = factory->make(eta, et);
-    result.push_back(new TLorentzVectorAsIJet(tlv));
+    result.push_back(std::shared_ptr<const HypoJet::IJet>(new TLorentzVectorAsIJet(tlv)));
   }
   
   if(m_nbkgd){
@@ -81,7 +81,7 @@ SimpleHypoJetVectorGenerator::get() {
       const auto& en = en_distribution(generator);
       // depending on the factory, en is e or et
       auto tlv = factory->make(eta, en);
-      result.push_back(new TLorentzVectorAsIJet(tlv));
+      result.push_back(std::shared_ptr<const HypoJet::IJet>(new TLorentzVectorAsIJet(tlv)));
     }
   }
 

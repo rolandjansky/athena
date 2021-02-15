@@ -7,7 +7,10 @@
 #--------------------------------------------------------------
 # RunNumber and number of events
 #--------------------------------------------------------------
-RunNumber = 364214
+#RunNumber = 332896
+#RunNumber = 364214
+RunNumber = 359678
+#RunNumber = 370059
 EvtMax    = -1  
 
 #--------------------------------------------------------------
@@ -34,11 +37,11 @@ ReadBS         = True
 # - Set only one flag to True and others to False
 #------------------------------------------------------------
 #--- Algs using TrkVal or BS
-DoNoisyStrip     = False
+DoNoisyStrip     = True
 DoNoisyLB        = False 
 DoHV             = False
 DoDeadStrip      = False
-DoDeadChip       = True
+DoDeadChip       = False
 #--- Algs using HIST
 DoNoiseOccupancy = False 
 DoRawOccupancy   = False
@@ -151,5 +154,5 @@ ConditionsTagNF  = 'CONDBR2-ES1PA-2016-03'    # Solenoid=OFF, BarrelToroid=OFF
 
 #-------------------------------------------------------------- 
 # Read /SCT/Derived/Monotoring in COOL 
-NoisyReadNumRuns = 5   # Used in a criteria for upload of NoisyStrips 
+NoisyReadNumRuns = 3   # Used in a criteria for upload of NoisyStrips 
 TagID4NoisyUploadTest = 'SctDerivedMonitoring-RUN2-UPD4-005'

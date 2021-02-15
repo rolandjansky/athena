@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1TopoSimulation_EMTauInputProviderFEX
@@ -8,13 +8,14 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "L1TopoSimulation/IInputTOBConverter.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "GaudiKernel/LockedHandle.h"
 
 //EM/Tau EDMs
-#include "xAODTrigCalo/TrigEMClusterContainer.h"
-#include "xAODTrigger/EmTauRoIContainer.h"
+#include "xAODTrigger/eFexEMRoIContainer.h"
 
-class TH1I;
-class TH2I;
+
+#include "TH1.h"
+#include "TH2.h"
 
 class ITHistSvc;
 
@@ -37,16 +38,16 @@ namespace LVL1 {
 
       /** \brief calculates eta and phi from roiWord*/
       void CalculateCoordinates(int32_t roiWord, double & eta, double & phi) const;
-
+      int ConvertEta(const int val) const;
+     
       ServiceHandle<ITHistSvc> m_histSvc;
 
-      StringProperty m_eFEXClusterLoc;
+      mutable LockedHandle<TH1> m_hEMEt ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hEMEtaPhi ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_hTauEt ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hTauEtaPhi ATLAS_THREAD_SAFE;
 
-      TH1I * m_hEMEt {nullptr};
-      TH2I * m_hEMEtaPhi {nullptr};
-      TH1I * m_hTauEt {nullptr};
-      TH2I * m_hTauEtaPhi {nullptr};
-
+     SG::ReadHandleKey<xAOD::eFexEMRoIContainer> m_eEDMKey {this, "L1_eEMRoI", "L1_eEMRoI", "eFEX EDM"};
    };
 }
 

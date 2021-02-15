@@ -1,10 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <math.h>
-#include "TH1.h"
-#include "TH2.h"
 
 #include "GaudiKernel/ITHistSvc.h"
 
@@ -54,19 +52,36 @@ JetInputProvider::handle(const Incident& incident) {
    string histPath = "/EXPERT/" + name() + "/";
    replace( histPath.begin(), histPath.end(), '.', '/'); 
 
-   m_hPt1 = new TH1I( "TOBPt1", "Jet TOB Pt 1", 40, 0, 200);
-   m_hPt1->SetXTitle("p_{T}");
+   auto hPt1 = std::make_unique<TH1I>( "TOBPt1", "Jet TOB Pt 1", 40, 0, 200);
+   hPt1->SetXTitle("p_{T}");
 
-   m_hPt2 = new TH1I( "TOBPt2", "Jet TOB Pt 2", 40, 0, 200);
-   m_hPt2->SetXTitle("p_{T}");
+   auto hPt2 = std::make_unique<TH1I>( "TOBPt2", "Jet TOB Pt 2", 40, 0, 200);
+   hPt2->SetXTitle("p_{T}");
 
-   m_hEtaPhi = new TH2I( "TOBPhiEta", "Jet TOB Location", 25, -50, 50, 64, 0, 64);
-   m_hEtaPhi->SetXTitle("#eta");
-   m_hEtaPhi->SetYTitle("#phi");
+   auto hEtaPhi = std::make_unique<TH2I>( "TOBPhiEta", "Jet TOB Location", 25, -50, 50, 64, 0, 64);
+   hEtaPhi->SetXTitle("#eta");
+   hEtaPhi->SetYTitle("#phi");
 
-   m_histSvc->regHist( histPath + "TOBPt1", m_hPt1 ).ignore();
-   m_histSvc->regHist( histPath + "TOBPt2", m_hPt2 ).ignore();
-   m_histSvc->regHist( histPath + "TOBPhiEta", m_hEtaPhi ).ignore();
+
+   if (m_histSvc->regShared( histPath + "TOBPt1", std::move(hPt1), m_hPt1 ).isSuccess()){
+     ATH_MSG_DEBUG("TOBPt1 histogram has been registered successfully for JetProvider.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register TOBPt1 histogram for JetProvider");
+   }
+
+   if (m_histSvc->regShared( histPath + "TOBPt2", std::move(hPt2), m_hPt2 ).isSuccess()){
+     ATH_MSG_DEBUG("TOBPt2 histogram has been registered successfully for JetProvider.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register TOBPt2 histogram for JetProvider");
+   }
+   if (m_histSvc->regShared( histPath + "TOBPhiEta", std::move(hEtaPhi), m_hEtaPhi ).isSuccess()){
+     ATH_MSG_DEBUG("TOBPhiEta histogram has been registered successfully for JetProvider.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register TOBPhiEta histogram for JetProvider");
+   }
 
 }
 

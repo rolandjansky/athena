@@ -21,14 +21,7 @@
 //
 #include "GeoModelXml/MulticopyProcessor.h"
 
-#ifndef STANDALONE_GMX
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
-#else
-#include <iostream>
-#endif
-
+#include "GeoModelXml/OutputDirector.h"
 #include <sstream>
 #include <string>
 #include <cstdlib>
@@ -38,9 +31,8 @@
 #include "GeoModelKernel/GeoVFullPhysVol.h"
 #include "GeoModelKernel/GeoNameTag.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-//  #include <CLHEP/Geometry/Transform3D.h>
 
-#include "GeoModelXml/translate.h"
+#include "xercesc/util/XMLString.hpp"
 #include "GeoModelXml/GeoNodeList.h"
 #include "GeoModelXml/ProcessorRegistry.h"
 #include "GeoModelXml/GmxUtil.h"
@@ -51,27 +43,24 @@ using namespace std;
 
 void MulticopyProcessor::process(const DOMElement *element, GmxUtil &gmxUtil, GeoNodeList &toAdd) {
 char *toRelease;
-const XMLCh *ref = Translate("ref");
+const XMLCh *ref = XMLString::transcode("ref");
 const XMLCh *idref;
 DOMDocument *doc = element->getOwnerDocument();
 
-#ifndef STANDALONE_GMX
-    ServiceHandle<IMessageSvc> msgh("MessageSvc", "GeoModelXml");
-    MsgStream log(&(*msgh), "GeoModelXml");
-#endif
+    OUTPUT_STREAM;
 
-    bool alignable = element->hasAttribute(Translate("alignable"));
+    bool alignable = element->hasAttribute(XMLString::transcode("alignable"));
 //
 //    How many copies?
 //
     int nCopies;
-    toRelease = Translate(element->getAttribute(Translate("n")));
+    toRelease = XMLString::transcode(element->getAttribute(XMLString::transcode("n")));
     nCopies = gmxUtil.evaluate(toRelease);
     XMLString::release(&toRelease);
 //
 //    See if it is in the map; if so, xfList is already done. If not, fill xfList.
 //
-    toRelease = Translate(element->getAttribute(Translate("name")));
+    toRelease = XMLString::transcode(element->getAttribute(XMLString::transcode("name")));
     string name(toRelease);
     XMLString::release(&toRelease);
     map<string, GeoNodeList>::iterator entry;
@@ -86,22 +75,16 @@ DOMDocument *doc = element->getOwnerDocument();
 //    Loopvar Variable name
 //
         string varname, firstElement;
-        bool hasVarname = (element->getAttributeNode(Translate("loopvar")) != 0);
+        bool hasVarname = (element->getAttributeNode(XMLString::transcode("loopvar")) != 0);
         if (hasVarname) {
-            toRelease = Translate(element->getAttribute(Translate("loopvar")));
+            toRelease = XMLString::transcode(element->getAttribute(XMLString::transcode("loopvar")));
             varname = toRelease;
             XMLString::release(&toRelease);
             // Check it is a vector
             firstElement = varname + "_0";
             if (!gmxUtil.eval.findVariable(firstElement.c_str())) {
-#ifndef STANDALONE_GMX
-                log << MSG::FATAL << "Error in .gmx file. Processing multicopy element with name " << name << 
+                msglog << MSG::FATAL << "Error in .gmx file. Processing multicopy element with name " << name << 
                 ". Found loopvar set to " << varname << ", but no vector with that name has been defined." << endmsg;
-#else
-		std::cout<< "Error in .gmx file. Processing multicopy element with name " << name << 
-                ". Found loopvar set to " << varname << ", but no vector with that name has been defined." << std::endl;
-#endif
-
                 exit(999); // Should do better
             }
         }
@@ -109,7 +92,7 @@ DOMDocument *doc = element->getOwnerDocument();
 //    Get the transformation-element
 //
         DOMElement *elXf = element->getFirstElementChild();
-        toRelease = Translate(elXf->getNodeName());
+        toRelease = XMLString::transcode(elXf->getNodeName());
         string nodeName(toRelease);
         XMLString::release(&toRelease);
         Element2GeoItem *xFormProcessor;
@@ -118,13 +101,8 @@ DOMDocument *doc = element->getOwnerDocument();
                 xFormProcessor = (Element2GeoItem *) &(gmxUtil.tagHandler.transformation);
             }
             else { // Not OK
-#ifndef STANDALONE_GMX
-                log << MSG::FATAL << "Error in .gmx file. Processing multicopy element with name " << name <<
+                msglog << MSG::FATAL << "Error in .gmx file. Processing multicopy element with name " << name <<
                 ". \nIt gives loopvar therefore should have a <transformation> and not a <transformationref> (despite the DTD)\n";
-#else
-		std::cout<<"Error in .gmx file. Processing multicopy element with name " << name <<
-                ". \nIt gives loopvar therefore should have a <transformation> and not a <transformationref> (despite the DTD)\n";
-#endif
                 exit(999); // Should do better
             }
         }
@@ -180,7 +158,7 @@ DOMDocument *doc = element->getOwnerDocument();
 //    Get object to be copied
 //
     DOMElement *object = element->getLastElementChild();
-    toRelease = Translate(object->getNodeName());
+    toRelease = XMLString::transcode(object->getNodeName());
     string nodeName(toRelease);
     XMLString::release(&toRelease);
     ElementProcessor *objectProcessor = gmxUtil.processorRegistry.find(nodeName);
@@ -199,29 +177,24 @@ DOMDocument *doc = element->getOwnerDocument();
         gmxUtil.tagHandler.assembly.zeroId(elem);
     }
     else if (nodeName == "transform") { // Object is either an assemlyref or logvolref, and there is only one of these
-        DOMNodeList *lvList = element->getElementsByTagName(Translate("logvolref"));
+        DOMNodeList *lvList = element->getElementsByTagName(XMLString::transcode("logvolref"));
         if (lvList->getLength() > 0) {
-            const XMLCh *idref =  dynamic_cast<DOMElement *> (lvList->item(0))->getAttribute(Translate("ref"));
+            const XMLCh *idref =  dynamic_cast<DOMElement *> (lvList->item(0))->getAttribute(XMLString::transcode("ref"));
             DOMElement *lv = doc->getElementById(idref);
             gmxUtil.tagHandler.logvol.zeroId(lv);
         }
         else {
-            DOMNodeList *asList = element->getElementsByTagName(Translate("assemblyref"));
+            DOMNodeList *asList = element->getElementsByTagName(XMLString::transcode("assemblyref"));
             if (asList->getLength() > 0) {
-                const XMLCh *idref =  dynamic_cast<DOMElement *> (asList->item(0))->getAttribute(Translate("ref"));
+                const XMLCh *idref =  dynamic_cast<DOMElement *> (asList->item(0))->getAttribute(XMLString::transcode("ref"));
                 DOMDocument *doc = element->getOwnerDocument();
                 DOMElement *as = doc->getElementById(idref);
                 gmxUtil.tagHandler.assembly.zeroId(as);
             }
             else {
-#ifndef STANDALONE_GMX
-                log << MSG::FATAL << 
+                msglog << MSG::FATAL << 
                     "multicopyprocessor: error in " << name << ". <transform> object was neither assemblyref nor logvolref\n"
                     << "Exiting Athena" << endmsg;
-#else
-		std::cout<<"multicopyprocessor: error in " << name << ". <transform> object was neither assemblyref nor logvolref\n"
-                    << "Exiting Athena" << std::endl;
-#endif
                 exit(999); // Should do better
             }
         }
@@ -240,7 +213,7 @@ DOMDocument *doc = element->getOwnerDocument();
 //
     int level;
     if (alignable) {
-        istringstream(Translate(element->getAttribute(Translate("alignable")))) >> level;
+        istringstream(XMLString::transcode(element->getAttribute(XMLString::transcode("alignable")))) >> level;
     }
 //
 //    Add transforms and physvols etc. to list to be added

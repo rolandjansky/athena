@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -66,7 +66,8 @@ namespace LVL1 {
     SG::ReadHandleKey<CaloCellContainer> m_scellsCollectionSGKey {this, "SCell", "SCell", "SCell"};
 
     std::map<int,jTower> m_jTowersColl;
-    
+    std::map<int, std::vector<uint32_t> > m_allSmallRJetTobs; 
+    std::map<int, std::vector<uint32_t> > m_allLargeRJetTobs;
   };
   
 } // end of namespace

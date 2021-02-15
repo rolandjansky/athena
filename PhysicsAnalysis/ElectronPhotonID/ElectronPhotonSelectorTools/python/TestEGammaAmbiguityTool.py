@@ -1,6 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
-from __future__ import print_function
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = "Class / methods to test EGammaAmbiguityTool. Scripts in test/ directory"
 __author__ = "Bruno Lenzi"
@@ -51,7 +49,7 @@ if 'AtlasVersion' in os.environ:
   
     def execute(self):
       for container in 'Photons', 'Electrons':
-        self.msg.info('\n*** %s ****' % container)
+        self.msg.info('\n*** %s ****', container)
         for obj in self.storeGateSvc[container]:
           printAmbiguityInfo(obj, self.tool, self.msg.info)
     

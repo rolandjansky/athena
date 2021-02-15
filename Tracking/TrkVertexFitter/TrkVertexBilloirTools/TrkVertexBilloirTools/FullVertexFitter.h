@@ -42,7 +42,6 @@ namespace Trk
     using Trk::IVertexFitter::fit;
 
     virtual StatusCode initialize() override;
-    virtual StatusCode finalize() override;
 
     enum FitError
     {

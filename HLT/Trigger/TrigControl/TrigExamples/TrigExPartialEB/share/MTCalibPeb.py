@@ -21,6 +21,7 @@ MTCalibPebConfig.default_options.BurnTimePerCycleMillisec = get_opt('BurnTimePer
 MTCalibPebConfig.default_options.NumBurnCycles = get_opt('NumBurnCycles', 10)
 MTCalibPebConfig.default_options.BurnTimeRandomly = get_opt('BurnTimeRandomly', True)
 MTCalibPebConfig.default_options.Crunch = get_opt('Crunch', False)
+MTCalibPebConfig.default_options.CheckDataConsistency = get_opt('CheckDataConsistency', False)
 MTCalibPebConfig.default_options.ROBAccessDict = get_opt('ROBAccessDict', MTCalibPebConfig.rob_access_dict)
 MTCalibPebConfig.default_options.TimeBetweenROBReqMillisec = get_opt('TimeBetweenROBReqMillisec', 0)
 MTCalibPebConfig.default_options.PEBROBList = get_opt('PEBROBList', [])

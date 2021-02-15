@@ -1,14 +1,9 @@
 /*
- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef EGAMMAALGS_EMBREMCOLLECTIONBUILDER_H
 #define EGAMMAALGS_EMBREMCOLLECTIONBUILDER_H
-/**
-  @class EMBremCollectionBuilder
-  @brief Algorithm which creates new brem-refitted tracks
-  @author Christos Anastopoulos,Anthony Morley
-  */
 
 #include "egammaInterfaces/IegammaTrkRefitterTool.h"
 #include "egammaInterfaces/IEMExtrapolationTools.h"
@@ -26,22 +21,55 @@
 
 #include "xAODTracking/TrackParticleFwd.h"
 #include "xAODTracking/TrackParticleContainerFwd.h"
-#include "TrkTrack/Track.h"      
+#include "TrkTrack/Track.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 
 #include <memory>
-class EMBremCollectionBuilder : public AthReentrantAlgorithm 
+
+
+/**
+ * @class EMBremCollectionBuilder
+ * @brief Algorithm which creates new brem-refitted tracks
+ * @author Christos Anastopoulos
+ * @author Anthony Morley
+ *
+ * Input containers:
+ * - TrackParticleContainerName (default=InDetTrackParticles): all the track particles
+ * - SelectedTrackParticleContainerName (default=egammaSelectedTrackParticles): selected track particle to be refitted
+ *
+ * Output continers:
+ * - OutputTrkPartContainerName (default=GSFTrackParticles): refitted track particle
+ * - OutputTrackContainerName (default=GSFTracks): refitted slimmed tracks
+ *
+ * Only selected tracks with a minimum number of Si-hits (minNoSiHits) are refitted. The refitted
+ * tracks, and the one that have not been refitted, are saved in the output containers.
+ *
+ * The GSF refitting can be done only when the full xAOD::Track is available (e.g. not in standard AOD).
+ *
+ * The refitting is delegated to a tool implementing the IegammaTrkRefitterTool interface,
+ * configured with the TrackRefitTool property (by default ElectronRefitterTool).
+ * The summary of the refitted tracks (which are new track objects) are updated with the
+ * a tool implementing the ITrackSummaryTool interface, configured with the TrackSummaryTool
+ * property (by default InDetTrackSummaryTool). The update is done for Pixel and SCT quanties
+ * according to the property usePixel and useSCT (by default false).
+ * The track particles are created from the xAOD::Track after refitting with a tool implementing
+ * the Trk::ITrackParticleCreatorTool interface configured with the property TrackParticleCreatorTool
+ * (by default TrackParticleCreatorTool).
+ * Truth informations are copied from the original xAOD::TrackParticle.
+ * The refitted tracks are saved after slimming with a tool implementing the Trk::ITrackSlimmingTool
+ * interface, configurable with the TrackSlimmingTool property (by default TrkTrackSlimmingTool).
+ */
+class EMBremCollectionBuilder : public AthReentrantAlgorithm
 {
 
 public:
-  /** @brief Default constructor*/
   EMBremCollectionBuilder(const std::string& name, ISvcLocator* pSvcLocator);
 
   virtual StatusCode initialize() override final;
   virtual StatusCode finalize() override final;
   virtual StatusCode execute(const EventContext& ctx) const override final;
 
-
+  /** Helper struct to store the track particle and the original index in the container. **/
   struct TrackWithIndex
   {
 
@@ -75,7 +103,8 @@ private:
     xAOD::TrackParticleContainer* finalTrkPartContainer,
     const xAOD::TrackParticleContainer* AllTracks) const;
 
-  StatusCode createNew(TrackWithIndex& Info,
+  StatusCode createNew(const EventContext& ctx,
+                       TrackWithIndex& Info,
                        TrackCollection* finalTracks,
                        xAOD::TrackParticleContainer* finalTrkPartContainer,
                        const xAOD::TrackParticleContainer* AllTracks) const;
@@ -90,8 +119,8 @@ private:
 
   /** @brief Tool to create track particle */
   ToolHandle< Trk::ITrackParticleCreatorTool > m_particleCreatorTool {this,
-    "TrackParticleCreatorTool", 
-    "TrackParticleCreatorTool", 
+    "TrackParticleCreatorTool",
+    "TrackParticleCreatorTool",
     "TrackParticle creator tool"};
 
   /** @brief Tool to slim tracks  */

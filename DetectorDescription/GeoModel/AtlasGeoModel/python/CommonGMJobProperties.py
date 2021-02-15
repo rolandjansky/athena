@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # Common Geometry job property base class
@@ -8,66 +8,7 @@ from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
 from AthenaCommon import Logging
 from AtlasGeoModel.AtlasGeoDBInterface import AtlasGeoDBInterface
-
-class CommonGMFlags:
-
-    def __init__(self, geoTag="none"):
-
-        self.__dict__={}
-
-        # set geometry tag name
-        self.__dict__["geomTag"]= globalflags.DetDescrVersion()
-        if geoTag!="none": self.__dict__["geomTag"] = geoTag
-        
-        self.dbGeomCursor = 0
-        self.connectToDB()
-    
-        self.InitializeGeometryParameters()
-
-
-    def connectToDB(self):
-
-        bVerbose=False
-        self.dbGeomCursor = AtlasGeoDBInterface(self.__dict__["geomTag"],bVerbose)
-        self.dbGeomCursor.ConnectAndBrowseGeoDB()
-
-        return
-
-
-    def InitializeGeometryParameters(self):
-
-        # ----------------------------------------------------------------------------    
-        # Read versionname, layout and dbm from AtlasCommon table
-
-        dbId,dbCommon,dbParam = self.dbGeomCursor.GetCurrentLeafContent("AtlasCommon")
-
-        _run = "UNDEFINED"
-        _geotype = "UNDEFINED"
-        _stripgeotype = "UNDEFINED"
-        if len(dbId)>0:
-            key=dbId[0] 
-            if "CONFIG" in dbParam : _run = dbCommon[key][dbParam.index("CONFIG")]
-            if "GEOTYPE" in dbParam : _geotype = dbCommon[key][dbParam.index("GEOTYPE")]
-            if "STRIPGEOTYPE" in dbParam : _stripgeotype = dbCommon[key][dbParam.index("STRIPGEOTYPE")]
-        
-        self.__dict__["Run"]=_run
-        self.__dict__["GeoType"]=_geotype
-        self.__dict__["StripGeoType"]=_stripgeotype
-
-
-    def getValue(self,name):
-
-        return self.__dict__[name]
-
-
-    def dump(self):
-
-        Logging.log.info("Geometry tag CommonGMFlags : "+self.__dict__["geomTag"]+" ------------------------------------")
-
-        Logging.log.info("RUN flag      : "+self.__dict__["Run"])
-        Logging.log.info("GeoType flag  : "+self.__dict__["GeoType"])
-        Logging.log.info("Strip GeoType flag  : "+self.__dict__["StripGeoType"])
-
+from AtlasGeoModel import CommonGeoDB
 
 # ------------------------------------------------------------------------------------------------------------------
 #  Geometry jobproperties defined for the common geometry (invented by the ID - no calo and muon specific flags ...)
@@ -100,16 +41,18 @@ class CommonGeometryFlags_JobProperties(JobPropertyContainer):
         return
 
 
-    def setupValuesFromDB(self,geoTagName="none"):
-        
-        CommonGeoFlags = CommonGMFlags(geoTagName)
+    def setupValuesFromDB(self, geoTagName=None):
 
-        self.Run.set_Value_and_Lock(CommonGeoFlags.getValue("Run"))
-        self.GeoType.set_Value_and_Lock(CommonGeoFlags.getValue("GeoType"))
-        self.StripGeoType.set_Value_and_Lock(CommonGeoFlags.getValue("StripGeoType"))
+        dbGeomCursor = AtlasGeoDBInterface(geoTagName or globalflags.DetDescrVersion())
+        dbGeomCursor.ConnectAndBrowseGeoDB()
+        params = CommonGeoDB.InitializeGeometryParameters(dbGeomCursor)
+
+        self.Run.set_Value_and_Lock(params["Run"])
+        self.GeoType.set_Value_and_Lock(params["GeoType"])
+        self.StripGeoType.set_Value_and_Lock(params["StripGeoType"])
 
 
-    def reset(self,geoTagName="none"):
+    def reset(self):
         
         self.Run.unlock()
         self.GeoType.unlock()
@@ -118,9 +61,9 @@ class CommonGeometryFlags_JobProperties(JobPropertyContainer):
 
     def dump(self):
 
-        Logging.log.info("RUN flag      :"+self.Run())
-        Logging.log.info("GeoType flag  : "+self.GeoType())
-        Logging.log.info("Strip geoType flag  : "+self.StripGeoType())
+        Logging.log.info("RUN flag      : %s", self.Run())
+        Logging.log.info("GeoType flag  : %s", self.GeoType())
+        Logging.log.info("Strip geoType flag  : %s", self.StripGeoType())
 
 
 jobproperties.add_Container(CommonGeometryFlags_JobProperties)

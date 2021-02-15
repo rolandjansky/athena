@@ -3,6 +3,7 @@
   <class name="AsgForwardElectronIsEMSelector" />
   <class name="AsgPhotonIsEMSelector" />
   <class name="AsgElectronLikelihoodTool" />
+  <class name="AsgForwardElectronLikelihoodTool" />
   <class name="EGammaAmbiguityTool" />
   <class name="AsgDeadHVCellRemovalTool" />
   <class name="AsgElectronChargeIDSelectorTool"/>

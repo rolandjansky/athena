@@ -535,12 +535,12 @@ namespace xAOD {
       return false;
     };
 
-    const std::vector<const Trk::CurvilinearParameters*>& intersections = caloExtension->caloLayerIntersections();
+    const std::vector<Trk::CurvilinearParameters>& intersections = caloExtension->caloLayerIntersections();
     if(!intersections.empty()){
       Amg::Vector3D avePoint(0,0,0);
       for (unsigned int i = 0; i < intersections.size(); ++i){
-        const Amg::Vector3D& point = intersections[i]->position();
-        ATH_MSG_DEBUG("Intersection: " << i << " ID: " << m_parsIdHelper.caloSample(intersections[i]->cIdentifier())
+        const Amg::Vector3D& point = intersections[i].position();
+        ATH_MSG_DEBUG("Intersection: " << i << " ID: " << m_parsIdHelper.caloSample(intersections[i].cIdentifier())
                       <<  " eta-phi (" << point.eta() << ", " << point.phi() << ")");
         avePoint += point;
       }

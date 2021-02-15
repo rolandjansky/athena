@@ -21,7 +21,7 @@ StatusCode HiggsTruthCategoryTool::initialize() {
   ATH_MSG_INFO ("Initializing " << name() << "...");
   // Rivet analysis :: Higgs truth event classifier class
   higgsTemplateCrossSections = new Rivet::HiggsTemplateCrossSections();
-  // crreate an instance of the Rivet analysis handler
+  // create an instance of the Rivet analysis handler
   rivetAnaHandler = new Rivet::AnalysisHandler();
   // Add the Higgs truth classifier class to the handler
   rivetAnaHandler->addAnalysis(&(*higgsTemplateCrossSections));
@@ -32,8 +32,10 @@ StatusCode HiggsTruthCategoryTool :: finalize () {
   ATH_MSG_INFO (" ====================================================== ");
   ATH_MSG_INFO (" ---- Finalizing" << name() << "...");
   ATH_MSG_INFO (" ====================================================== ");
-  if ( !m_outHistos )
-    higgsTemplateCrossSections->printClassificationSummary( );
+  if ( !m_outHistos ){
+    //this seems to thrown an exception
+    //higgsTemplateCrossSections->printClassificationSummary( );
+  }
   else{
     // TODO:: update the tool properly deal with output files/paths
     rivetAnaHandler->finalize();
@@ -43,7 +45,7 @@ StatusCode HiggsTruthCategoryTool :: finalize () {
   return StatusCode::SUCCESS;  
 }
 
-HTXS::HiggsClassification* HiggsTruthCategoryTool :: getHiggsTruthCategoryObject (const HepMC::GenEvent& HepMCEvent, const HTXS::HiggsProdMode prodMode){
+HTXS::HiggsClassification* HiggsTruthCategoryTool :: getHiggsTruthCategoryObject (const HepMC::GenEvent& HepMCEvent, const HTXS::HiggsProdMode prodMode) const {
   if ( !m_isInitialized ) {
     higgsTemplateCrossSections->setHiggsProdMode(prodMode); 
     rivetAnaHandler->init(HepMCEvent); 

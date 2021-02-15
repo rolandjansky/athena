@@ -11,7 +11,9 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Tau.TauChainConfiguration")
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 
-from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import tauCaloMenuSeq, tauCaloMVAMenuSeq, tauFTFTauSeq, tauFTFTauCoreSeq, tauFTFTauIsoSeq, tauIDPrecSeq, tauTrackPrecSeq, tauTrackTwoPrecSeq, tauTrackTwoEFSeq, tauTrackTwoMVASeq, tauPreSelSeq, tauPreSelTTSeq, tauPrecTrackSeq, tauPrecTrackIsoSeq
+from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import tauCaloMenuSeq, tauCaloMVAMenuSeq, tauFTFTauSeq, tauFTFTauCoreSeq, tauFTFTauIsoSeq, tauFTFTauIsoBDTSeq, tauIDPrecSeq, tauTrackPrecSeq, tauTrackTwoPrecSeq, tauTrackTwoEFSeq, tauTrackTwoMVASeq, tauPreSelSeq, tauPreSelTTSeq, tauPrecTrackSeq, tauPrecTrackIsoSeq
+
+from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 
 #--------------------------------------------------------
 # fragments generating config will be functions in new JO
@@ -30,6 +32,9 @@ def getFTFCoreCfg(flags):
 
 def getFTFIsoCfg(flags):
     return tauFTFTauIsoSeq()
+
+def getFTFIsoBDTCfg(flags):
+    return tauFTFTauIsoBDTSeq()
 
 def getIDPrecCfg(flags):
     return tauIDPrecSeq()
@@ -58,6 +63,18 @@ def getPrecTrackCfg(flags):
 def getPrecTrackIsoCfg(flags):
     return tauPrecTrackIsoSeq()
 
+# this must be moved to the HypoTool file:                                                                                                 
+def TrigTauXComboHypoToolFromDict(chainDict):
+    from TrigTauHypo.TrigTauHypoConf import TrigTauXComboHypoTool
+    name = chainDict['chainName']
+    monTool = GenericMonitoringTool("MonTool_"+name)
+    monTool.Histograms = [defineHistogram('dROfAccepted', type='TH1F', path='EXPERT', title="dR in accepted combinations [MeV]", xbins=50, xmin=0, xmax=5.)]
+    monTool.Histograms = [defineHistogram('dROfProcessed', type='TH1F', path='EXPERT', title="dR in accepted combinations [MeV]", xbins=50, xmin=0, xmax=5.)]
+    tool= TrigTauXComboHypoTool(name)
+    monTool.HistPath = 'EgammaMassHypo/'+tool.getName()
+    tool.MonTool = monTool
+    return tool
+
 ############################################# 
 ###  Class/function to configure muon chains 
 #############################################
@@ -78,11 +95,12 @@ class TauChainConfiguration(ChainConfigurationBase):
         # define here the names of the steps and obtain the chainStep configuration 
         # --------------------
         stepDictionary = {
-            "ptonly"     :['getCaloSeq'   , 'getFTFTau'  , 'getTrkEmpty' , 'getTauEmpty'  , 'getPrecTrack'    , 'getIDPrec'      ], 
-            "track"      :['getCaloSeq'   , 'getFTFTau'  , 'getTrkEmpty' , 'getPreSel'    , 'getPrecTrack'    , 'getTrackPrec'   ], 
-            "tracktwo"   :['getCaloSeq'   , 'getFTFCore' , 'getFTFIso'   , 'getPreSelTT'  , 'getPrecTrackIso' , 'getTrackTwoPrec'],
-            "tracktwoEF" :['getCaloSeq'   , 'getFTFCore' , 'getFTFIso'   , 'getTauEmpty'  , 'getPrecTrackIso' , 'getTrackTwoEF'  ],
-            "tracktwoMVA":['getCaloMVASeq', 'getFTFCore' , 'getFTFIso'   , 'getTauEmpty'  , 'getPrecTrackIso' , 'getTrackTwoMVA' ],
+            "ptonly"        :['getCaloSeq'   , 'getFTFTau'  , 'getTrkEmpty' , 'getTauEmpty'  , 'getPrecTrack'    , 'getIDPrec'      ], 
+            "track"         :['getCaloSeq'   , 'getFTFTau'  , 'getTrkEmpty' , 'getPreSel'    , 'getPrecTrack'    , 'getTrackPrec'   ], 
+            "tracktwo"      :['getCaloSeq'   , 'getFTFCore' , 'getFTFIso'   , 'getPreSelTT'  , 'getPrecTrackIso' , 'getTrackTwoPrec'],
+            "tracktwoEF"    :['getCaloSeq'   , 'getFTFCore' , 'getFTFIso'   , 'getTauEmpty'  , 'getPrecTrackIso' , 'getTrackTwoEF'  ],
+            "tracktwoMVA"   :['getCaloMVASeq', 'getFTFCore' , 'getFTFIso'   , 'getTauEmpty'  , 'getPrecTrackIso' , 'getTrackTwoMVA' ],
+            "tracktwoMVABDT":['getCaloMVASeq', 'getFTFCore' , 'getFTFIsoBDT', 'getTauEmpty'  , 'getPrecTrackIso' , 'getTrackTwoMVA' ],
         }
 
         # this should be extended by the signature expert to make full use of the dictionary!
@@ -120,6 +138,11 @@ class TauChainConfiguration(ChainConfigurationBase):
     def getFTFIso(self):
         stepName = 'FTFIso_tau'
         return self.getStep(3,stepName, [getFTFIsoCfg])
+
+    # --------------------                                                                                                                                                                         
+    def getFTFIsoBDT(self):
+        stepName = 'FTFIsoBDT_tau'
+        return self.getStep(3,stepName, [getFTFIsoBDTCfg])
 
     # --------------------                                                                                                                                   
     def getTrkEmpty(self):
@@ -173,5 +196,10 @@ class TauChainConfiguration(ChainConfigurationBase):
 
     # --------------------                                                                                                      
     def getTrackTwoMVA(self):
-        stepName = 'TrkTwoMVA_tau'
-        return self.getStep(6, stepName, [getTrackTwoMVACfg])
+
+        #if "03dRtt" in self.chainName:
+        #    stepName = "TauLep_Combo"
+        #    return self.getStep(6,stepName,sequenceCfgArray=[getTrackTwoMVACfg], comboTools=[TrigTauXComboHypoToolFromDict])
+        #else:
+            stepName = "TrkTwoMVA_tau"
+            return self.getStep(6,stepName,[getTrackTwoMVACfg])

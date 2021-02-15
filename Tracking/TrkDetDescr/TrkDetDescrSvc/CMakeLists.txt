@@ -7,8 +7,8 @@ atlas_subdir( TrkDetDescrSvc )
 atlas_add_library( TrkDetDescrSvcLib
                    src/*.cxx
                    PUBLIC_HEADERS TrkDetDescrSvc
-                   LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel TrkDetDescrInterfaces TrkDetDescrUtils TrkGeometry TrkVolumes
-                   PRIVATE_LINK_LIBRARIES EventInfo StoreGateLib )
+                   LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel TrkDetDescrInterfaces TrkDetDescrUtils TrkGeometry TrkVolumes EventInfoMgtLib
+                   PRIVATE_LINK_LIBRARIES StoreGateLib )
 
 atlas_add_component( TrkDetDescrSvc
                      src/components/*.cxx

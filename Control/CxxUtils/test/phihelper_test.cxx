@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_mean, T, test_types)
                                     {-0.25 * PI, -0.75 * PI},
                                     {-0.25 * PI, -0.75 * PI},
                                     {9 * PI / 4, 11 * PI / 4}};
-  for (const auto [a, b] : v) {
+  for (const auto& [a, b] : v) {
     // Check symmetry
     const auto r1 = phiMean<T>(a, b);
     const auto r2 = phiMean<T>(b, a);
@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_mean, T, test_types)
                                         {0.5 * PI, -0.5 * PI, 0.0},
                                         {0.75 * PI, -0.25 * PI, 0.25 * PI},
                                         {0.0, -1.0 * PI, -0.5 * PI}};
-  for (const auto [a, b, r] : w) {
+  for (const auto& [a, b, r] : w) {
     // Check symmetry and result
     const auto result = phiMean<T>(a, b);
     BOOST_TEST(result == phiMean<T>(b, a));

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuPatCandidateTool.h"
@@ -61,7 +61,9 @@ namespace Muon {
     return StatusCode::SUCCESS;
   }
 
-  MuPatSegment* MuPatCandidateTool::createSegInfo( const MuonSegment& segment ) const
+  MuPatSegment* MuPatCandidateTool::createSegInfo( const MuonSegment& segment,
+                                                   HitGarbage& hitsToBeDeleted,
+                                                   MeasGarbage& measurementsToBeDeleted ) const
   {
     Identifier chid = m_edmHelperSvc->chamberId(segment);
     if( m_idHelperSvc->isTrigger(chid) ){
@@ -98,18 +100,25 @@ namespace Muon {
       ATH_MSG_WARNING(" failed to create track parameter for segment " );
     }
 
-    updateHits(*info,info->segment->containedMeasurements(),m_doMdtRecreation,m_doCscRecreation, true );
+    updateHits(*info,info->segment->containedMeasurements(),
+               measurementsToBeDeleted,
+               m_doMdtRecreation,m_doCscRecreation, true );
     MuPatHitList& hitList = info->hitList();
-    m_hitHandler->create( segment, hitList );
+    m_hitHandler->create( segment, hitList,
+                          hitsToBeDeleted );
 
     return info;
   }
 
 
-  bool MuPatCandidateTool::extendWithSegment( MuPatTrack& can, MuPatSegment& segInfo, std::unique_ptr<Trk::Track>& track ) const {
+  bool MuPatCandidateTool::extendWithSegment( MuPatTrack& can, MuPatSegment& segInfo, std::unique_ptr<Trk::Track>& track,
+                                              HitGarbage& hitsToBeDeleted,
+                                              MeasGarbage& measurementsToBeDeleted ) const {
     // add segment to candidate
     can.addSegment(&segInfo,track);
-    return recalculateCandidateSegmentContent( can );
+    return recalculateCandidateSegmentContent( can,
+                                               hitsToBeDeleted,
+                                               measurementsToBeDeleted );
   }
   
   std::unique_ptr<MuPatTrack> MuPatCandidateTool::copyCandidate( MuPatTrack* canIn ) const {
@@ -118,52 +127,61 @@ namespace Muon {
     return can;
   }
 
-  std::unique_ptr<MuPatTrack> MuPatCandidateTool::createCandidate( MuPatSegment& segInfo, std::unique_ptr<Trk::Track>& track ) const {
+  std::unique_ptr<MuPatTrack> MuPatCandidateTool::createCandidate( MuPatSegment& segInfo, std::unique_ptr<Trk::Track>& track,
+                                                                   HitGarbage& hitsToBeDeleted,
+                                                                   MeasGarbage& measurementsToBeDeleted ) const {
 
     // create the new candidate
     std::unique_ptr<MuPatTrack> candidate(new MuPatTrack(&segInfo,track));
-    recalculateCandidateSegmentContent( *candidate );
+    recalculateCandidateSegmentContent( *candidate,
+                                        hitsToBeDeleted,
+                                        measurementsToBeDeleted );
     return candidate;
   }
 
-  bool MuPatCandidateTool::updateTrack( MuPatTrack& candidate, std::unique_ptr<Trk::Track>& track ) const {
+  bool MuPatCandidateTool::updateTrack( MuPatTrack& candidate, std::unique_ptr<Trk::Track>& track,
+                                        HitGarbage& hitsToBeDeleted,
+                                        MeasGarbage& measurementsToBeDeleted ) const {
     candidate.updateTrack( track );
-    return recalculateCandidateSegmentContent( candidate );
+    return recalculateCandidateSegmentContent( candidate,
+                                               hitsToBeDeleted,
+                                               measurementsToBeDeleted );
   }
 
   
   std::unique_ptr<MuPatTrack> MuPatCandidateTool::createCandidate( MuPatSegment& segInfo1, MuPatSegment& segInfo2, 
-								   std::unique_ptr<Trk::Track>& track ) const {
+								   std::unique_ptr<Trk::Track>& track,
+                                                                   HitGarbage& hitsToBeDeleted,
+                                                                   MeasGarbage& measurementsToBeDeleted ) const {
 
     // create the new candidate
     std::unique_ptr<MuPatTrack> candidate(new MuPatTrack(&segInfo1,&segInfo2,track));
-    recalculateCandidateSegmentContent( *candidate );
+    recalculateCandidateSegmentContent( *candidate,
+                                        hitsToBeDeleted,
+                                        measurementsToBeDeleted );
     return candidate;
   }
 
 
-  std::unique_ptr<MuPatTrack> MuPatCandidateTool::createCandidate( std::unique_ptr<Trk::Track>& track ) const {
+std::unique_ptr<MuPatTrack> MuPatCandidateTool::createCandidate( std::unique_ptr<Trk::Track>& track,
+                                                                 HitGarbage& hitsToBeDeleted,
+                                                                 MeasGarbage& measurementsToBeDeleted ) const {
 
     // create a dummy segment vector
     std::vector<MuPatSegment*> segments;
 
     // create the new candidate
     std::unique_ptr<MuPatTrack> candidate(new MuPatTrack(segments,track));
-    recalculateCandidateSegmentContent( *candidate );
+    recalculateCandidateSegmentContent( *candidate,
+                                        hitsToBeDeleted,
+                                        measurementsToBeDeleted );
     return candidate;
   }
 
-  void MuPatCandidateTool::updateHits( MuPatCandidateBase& entry, const MuPatCandidateTool::MeasVec& measurements, 
-				     bool recreateMDT, bool recreateCSC, bool createComp ) const {
-
-    std::lock_guard<std::mutex> lock{m_mutex};    
-    const EventContext& ctx = Gaudi::Hive::currentContext();
-    CacheEntry* ent{m_cache.get(ctx)};
-    if (ent->m_evt != ctx.evt()) {
-      ent->m_evt = ctx.evt();
-      ent->cleanUp();
-    }
-
+  void MuPatCandidateTool::updateHits( MuPatCandidateBase& entry, const MuPatCandidateTool::MeasVec& measurements,
+                                       MeasGarbage& measurementsToBeDeleted,
+                                       bool recreateMDT, bool recreateCSC, bool createComp) const
+  {
     MeasVec etaHits;
     MeasVec phiHits;
     MeasVec fakePhiHits;
@@ -239,7 +257,7 @@ namespace Muon {
 	    }
 	    ATH_MSG_DEBUG(" recreating MdtDriftCircleOnTrack " );
 	    const MdtDriftCircleOnTrack* newMdt = m_mdtRotCreator->createRIO_OnTrack(*mdt->prepRawData(),mdt->globalPosition());
-	    ent->m_measurementsToBeDeleted.push_back(newMdt);
+	    measurementsToBeDeleted.emplace_back(newMdt);
 	    meas = newMdt;
 	  }
 	}
@@ -282,7 +300,7 @@ namespace Muon {
 	    }
 	    ATH_MSG_DEBUG(" recreating CscClusterOnTrack " );
 	    const MuonClusterOnTrack* newCsc = m_cscRotCreator->createRIO_OnTrack(*csc->prepRawData(),csc->globalPosition());
-	    ent->m_measurementsToBeDeleted.push_back(newCsc);
+	    measurementsToBeDeleted.emplace_back(newCsc);
 	    meas = newCsc;
 
 	  }
@@ -313,8 +331,8 @@ namespace Muon {
     }
     
     if( createComp ){
-      if( m_createCompetingROTsEta && !triggerHitsEta.empty() ) createAndAddCompetingROTs(triggerHitsEta, etaHits, allHits, ent->m_measurementsToBeDeleted);
-      if( m_createCompetingROTsPhi && !triggerHitsPhi.empty() ) createAndAddCompetingROTs(triggerHitsPhi, phiHits, allHits, ent->m_measurementsToBeDeleted);
+      if( m_createCompetingROTsEta && !triggerHitsEta.empty() ) createAndAddCompetingROTs(triggerHitsEta, etaHits, allHits, measurementsToBeDeleted);
+      if( m_createCompetingROTsPhi && !triggerHitsPhi.empty() ) createAndAddCompetingROTs(triggerHitsPhi, phiHits, allHits, measurementsToBeDeleted);
     }
 
     entry.nmdtHitsMl1 = nmdtHitsMl1;
@@ -355,7 +373,7 @@ namespace Muon {
   void MuPatCandidateTool::createAndAddCompetingROTs( const std::vector<const MuonClusterOnTrack*>& rots, 
                                                       MuPatCandidateTool::MeasVec& hits,
                                                       MuPatCandidateTool::MeasVec& allHits,
-                                                      MuPatCandidateTool::MeasVec& measurementsToBeDeleted ) const {
+                                                      MeasGarbage& measurementsToBeDeleted ) const {
 
     typedef std::map<Identifier, std::vector<const MuonClusterOnTrack*> > IdClusMap;
     typedef IdClusMap::iterator IdClusIt;
@@ -428,12 +446,14 @@ namespace Muon {
       allHits.push_back(comprot);
       
       // add to garbage collection
-      measurementsToBeDeleted.push_back(comprot);
+      measurementsToBeDeleted.emplace_back(comprot);
     }
   }
 
 
-  bool MuPatCandidateTool::recalculateCandidateSegmentContent( MuPatTrack& candidate ) const {
+  bool MuPatCandidateTool::recalculateCandidateSegmentContent( MuPatTrack& candidate,
+                                                               HitGarbage& hitsToBeDeleted,
+                                                               MeasGarbage& measurementsToBeDeleted ) const {
 
     // loop over track and get the chambers on the track
     const DataVector<const Trk::TrackStateOnSurface>* states = candidate.track().trackStateOnSurfaces();
@@ -485,9 +505,11 @@ namespace Muon {
 
     // recalculate hit list
     candidate.hitList().clear();
-    m_hitHandler->create( candidate.track(),candidate.hitList() ); 	  
+    m_hitHandler->create( candidate.track(),candidate.hitList(),
+                          hitsToBeDeleted );
     // update the hit summary
-    updateHits(candidate,candidate.track().measurementsOnTrack()->stdcont());
+    updateHits(candidate,candidate.track().measurementsOnTrack()->stdcont(),
+               measurementsToBeDeleted);
 
     if( msgLvl(MSG::VERBOSE) ){
       msg(MSG::VERBOSE)  << m_hitHandler->print(candidate.hitList()) << endmsg;
@@ -526,18 +548,6 @@ namespace Muon {
   
 
   
-  void MuPatCandidateTool::cleanUp() const {
-    // delete segments and clear vector
-    std::lock_guard<std::mutex> lock{m_mutex};
-    const EventContext& ctx = Gaudi::Hive::currentContext();
-    CacheEntry* ent{m_cache.get(ctx)};
-    if (ent->m_evt != ctx.evt()) {
-      ent->m_evt = ctx.evt();
-    }
-    m_hitHandler->cleanUp();
-    ent->cleanUp();
-  }
-
   std::string MuPatCandidateTool::print( const MuPatSegment& segment, int level ) const {
     std::ostringstream oss;
     oss << segment.name << ": " << m_printer->print( *segment.segment ) << " q " << segment.quality;

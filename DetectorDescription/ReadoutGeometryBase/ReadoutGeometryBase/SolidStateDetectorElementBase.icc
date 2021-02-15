@@ -1,0 +1,292 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+/**
+ * @file SolidStateDetectorElementBase.icc
+ **/
+
+namespace InDetDD {
+
+  ///////////////////////////////////////////////////////////////////
+  // Inline methods:
+  ///////////////////////////////////////////////////////////////////
+    
+  inline void SolidStateDetectorElementBase::invalidate()
+  {
+    m_cacheValid = false;
+  }
+
+  inline void SolidStateDetectorElementBase::setCache()
+  {
+    updateCache();
+  }
+    
+  inline const SiCommonItems* SolidStateDetectorElementBase::getCommonItems() const
+  {
+    return m_commonItems;
+  }
+
+  inline Identifier SolidStateDetectorElementBase::identify() const
+  {
+    return m_id;
+  }
+
+  inline IdentifierHash SolidStateDetectorElementBase::identifyHash() const
+  {
+    return m_idHash;
+  }
+
+  inline const AtlasDetectorID* SolidStateDetectorElementBase::getIdHelper() const
+  {
+    return m_commonItems->getIdHelper();
+  }
+
+  inline const Trk::Surface& SolidStateDetectorElementBase::surface(const Identifier&) const
+  {
+    return surface();
+  }
+
+  inline const Amg::Transform3D& SolidStateDetectorElementBase::transform(const Identifier&) const
+  {
+    return transform();
+  }
+
+  inline double SolidStateDetectorElementBase::hitDepthDirection() const
+  {
+    if (!m_cacheValid) {
+      std::lock_guard<std::mutex> lock(m_mutex);
+      if (!m_cacheValid) updateCache();
+    }
+
+    return (m_depthDirection) ? 1. : -1.;
+  }
+    
+  inline double SolidStateDetectorElementBase::hitPhiDirection() const
+  {
+    if (!m_cacheValid) {
+      std::lock_guard<std::mutex> lock(m_mutex);
+      if (!m_cacheValid) updateCache();
+    }
+
+    return (m_phiDirection) ? 1. : -1.;
+  }
+    
+  inline double SolidStateDetectorElementBase::hitEtaDirection() const
+  {
+    if (!m_cacheValid) {
+      std::lock_guard<std::mutex> lock(m_mutex);
+      if (!m_cacheValid) updateCache();
+    }
+
+    return (m_etaDirection) ? 1. : -1.;
+  }
+    
+  inline const Amg::Vector3D& SolidStateDetectorElementBase::normal(const Identifier&) const
+  {
+    return normal();
+  }
+
+  inline const Amg::Vector3D& SolidStateDetectorElementBase::center(const Identifier&) const
+  {
+    return center();
+  }
+
+  inline HepGeom::Point3D<double> SolidStateDetectorElementBase::globalPositionHit(const HepGeom::Point3D<double>& simulationLocalPos) const
+  {
+    return Amg::EigenTransformToCLHEP(transformHit())*simulationLocalPos;
+  }
+
+  inline Amg::Vector3D SolidStateDetectorElementBase::globalPositionHit(const Amg::Vector3D& simulationLocalPos) const
+  {
+    return transformHit() * simulationLocalPos;
+  }
+
+  inline HepGeom::Point3D<double> SolidStateDetectorElementBase::globalPosition(const HepGeom::Point3D<double>& localPos) const
+  {
+    return transformCLHEP() * localPos;
+  }
+    
+  inline Amg::Vector3D SolidStateDetectorElementBase::globalPosition(const Amg::Vector3D& localPos) const
+  {
+    return transform() * localPos;
+  }
+  //NB - these methods use "origin" not "center" - these are equivalent for most cases
+  //For ITk Strip endcaps they differ because of the local sensor frame being defined with respect to the beamline, due to the sensor shape
+  //Therefore, "local" positions for these elements will have large r components     
+
+  inline Amg::Vector3D SolidStateDetectorElementBase::globalPosition(const Amg::Vector2D& localPos) const
+  {
+    if (!m_cacheValid) {
+      std::lock_guard<std::mutex> lock(m_mutex);
+      if (!m_cacheValid) updateCache();
+    }
+
+    return m_origin + localPos[Trk::distEta] * m_etaAxis + localPos[Trk::distPhi] * m_phiAxis;
+  }
+
+  inline Amg::Vector2D SolidStateDetectorElementBase::localPosition(const HepGeom::Point3D<double>& globalPosition) const
+  {
+    if (!m_cacheValid) {
+      std::lock_guard<std::mutex> lock(m_mutex);
+      if (!m_cacheValid) updateCache();
+    }
+
+    HepGeom::Vector3D<double> relativePos = globalPosition - m_centerCLHEP;
+    return Amg::Vector2D(relativePos.dot(m_phiAxisCLHEP), relativePos.dot(m_etaAxisCLHEP));
+  }
+
+  inline Amg::Vector2D SolidStateDetectorElementBase::localPosition(const Amg::Vector3D& globalPosition) const
+  {
+    if (!m_cacheValid) {
+      std::lock_guard<std::mutex> lock(m_mutex);
+      if (!m_cacheValid) updateCache();
+    }
+
+    Amg::Vector3D relativePos = globalPosition - m_center;
+    return Amg::Vector2D(relativePos.dot(m_phiAxis), relativePos.dot(m_etaAxis));
+  }
+
+  inline double SolidStateDetectorElementBase::rMin() const 
+  {
+    if (!m_cacheValid) {
+      std::lock_guard<std::mutex> lock(m_mutex);
+      if (!m_cacheValid) updateCache();
+    }
+
+    return m_minR;
+  }
+    
+  inline double SolidStateDetectorElementBase::rMax() const
+  {
+    if (!m_cacheValid) {
+      std::lock_guard<std::mutex> lock(m_mutex);
+      if (!m_cacheValid) updateCache();
+    }
+
+    return m_maxR;
+  }
+    
+  inline double SolidStateDetectorElementBase::zMin() const 
+  {
+    if (!m_cacheValid) {
+      std::lock_guard<std::mutex> lock(m_mutex);
+      if (!m_cacheValid) updateCache();
+    }
+
+    return m_minZ;
+  }
+    
+  inline double SolidStateDetectorElementBase::zMax() const 
+  {
+    if (!m_cacheValid) {
+      std::lock_guard<std::mutex> lock(m_mutex);
+      if (!m_cacheValid) updateCache();
+    }
+
+    return m_maxZ;
+  }
+    
+  inline double SolidStateDetectorElementBase::phiMin() const
+  {
+    if (!m_cacheValid) {
+      std::lock_guard<std::mutex> lock(m_mutex);
+      if (!m_cacheValid) updateCache();
+    }
+
+    return m_minPhi;
+  }
+    
+  inline double SolidStateDetectorElementBase::phiMax() const
+  {
+    if (!m_cacheValid) {
+      std::lock_guard<std::mutex> lock(m_mutex);
+      if (!m_cacheValid) updateCache();
+    }
+
+    return m_maxPhi;
+  }
+    
+  inline const DetectorDesign& SolidStateDetectorElementBase::design() const
+  {
+    return *m_design;
+  }
+    
+  inline const Trk::SurfaceBounds& SolidStateDetectorElementBase::bounds(const Identifier&) const
+  {
+    return bounds();
+  }
+
+  inline double SolidStateDetectorElementBase::width() const
+  {
+    return m_design->width();
+  }
+    
+  inline double SolidStateDetectorElementBase::minWidth() const
+  {
+    return m_design->minWidth();
+  }
+    
+  inline double SolidStateDetectorElementBase::maxWidth() const
+  {
+    return m_design->maxWidth();
+  }
+    
+  inline double SolidStateDetectorElementBase::length() const
+  {
+    return m_design->length();
+  }
+    
+  inline double SolidStateDetectorElementBase::thickness() const
+  {
+    return m_design->thickness();
+  }
+    
+  inline double SolidStateDetectorElementBase::etaPitch() const
+  {
+    return m_design->etaPitch();
+  }
+    
+  inline double SolidStateDetectorElementBase::phiPitch() const
+  {
+    return m_design->phiPitch();
+  }
+    
+  inline InDetDD::CarrierType SolidStateDetectorElementBase::carrierType() const
+  {
+    return m_design->carrierType();
+  }
+
+  inline bool SolidStateDetectorElementBase::swapPhiReadoutDirection() const
+  {
+    if (m_firstTime) {
+      std::lock_guard<std::mutex> lock(m_mutex);
+      if (m_firstTime) updateCache(); // In order to set m_phiDirection
+    }
+    // equivalent to (m_design->swapHitPhiReadoutDirection() xor !m_phiDirection)
+    return ((!m_design->swapHitPhiReadoutDirection() && !m_phiDirection)
+          || (m_design->swapHitPhiReadoutDirection() &&  m_phiDirection));
+  }
+    
+  inline bool SolidStateDetectorElementBase::swapEtaReadoutDirection() const
+  {
+    if (m_firstTime) {
+      std::lock_guard<std::mutex> lock(m_mutex);
+      if (m_firstTime) updateCache(); // In order to set m_etaDirection
+    }
+    // equivalent to (m_design->swapHitEtaReadoutDirection() xor !m_etaDirection)
+    return ((!m_design->swapHitEtaReadoutDirection() && !m_etaDirection)
+          || (m_design->swapHitEtaReadoutDirection() &&  m_etaDirection));
+  }
+    
+  inline MsgStream& SolidStateDetectorElementBase::msg(MSG::Level lvl) const
+  {
+    return m_commonItems->msg(lvl);
+  }
+
+  inline bool SolidStateDetectorElementBase::msgLvl(MSG::Level lvl) const
+  {
+    return m_commonItems->msgLvl(lvl);
+  }
+
+} // namespace InDetDD

@@ -34,7 +34,7 @@ class Volume;
    @author Andreas.Salzburger@cern.ch 
   */
   
-  template <class Tvol> class BoundaryPlaneSurface : 
+  template <class Tvol> class BoundaryPlaneSurface final: 
                                virtual public BoundarySurface<Tvol>, public PlaneSurface {
 
     /** typedef the BinnedArray */
@@ -69,23 +69,27 @@ class Volume;
      BoundaryPlaneSurface(const Tvol* inside, const Tvol* outside, const PlaneSurface& psf, const Amg::Transform3D& tr) :
        BoundarySurface<Tvol>(inside,outside),
        PlaneSurface(psf,tr)
-     {}     
-     
-     /** Get the next Volume depending on the TrackParameters and the requested direction,
-      gives back 0 if there's no volume attached to the requested direction
+     {}
+
+     /** Get the next Volume depending on the TrackParameters and the requested
+      direction, gives back 0 if there's no volume attached to the requested
+      direction
       */
-     const Tvol* attachedVolume(const TrackParameters& parms, PropDirection dir) const override;    
-     
+     virtual const Tvol* attachedVolume(const TrackParameters& parms,
+                                        PropDirection dir) const override final;
+
      /** Get the next Volume depending on GlobalPosition, GlobalMomentum, dir
       on the TrackParameters and the requested direction */
-     const Tvol* attachedVolume(const Amg::Vector3D& pos, const Amg::Vector3D& mom, PropDirection dir) const override;
-     
+     virtual const Tvol* attachedVolume(const Amg::Vector3D& pos,
+                                        const Amg::Vector3D& mom,
+                                        PropDirection dir) const override final;
+
      /** The Surface Representation of this */
-     const Surface& surfaceRepresentation() const override;
-     
+     virtual const Surface& surfaceRepresentation() const override final;
+
      /**Virtual Destructor*/
-     virtual ~BoundaryPlaneSurface(){}
-     
+     virtual ~BoundaryPlaneSurface() = default;
+
      /**Assignment operator*/
      BoundaryPlaneSurface& operator=(const BoundaryPlaneSurface& vol);
          

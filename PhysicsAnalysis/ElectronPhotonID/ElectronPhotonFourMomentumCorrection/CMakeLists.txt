@@ -20,10 +20,10 @@ atlas_add_library( ElectronPhotonFourMomentumCorrectionLib
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools AsgMessagingLib xAODCaloEvent xAODEgamma
-   xAODEventInfo PATInterfaces EgammaAnalysisInterfacesLib PATCoreAcceptLib
+   xAODEventInfo PATInterfaces EgammaAnalysisInterfacesLib egammaUtils PATCoreAcceptLib
    xAODRootAccess xAODTracking
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} AthLinks xAODMetaData egammaLayerRecalibTool
-   egammaMVACalibAnalysisLib egammaUtils PathResolver ${extra_libs} )
+   egammaMVACalibAnalysisLib PathResolver ${extra_libs} )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( ElectronPhotonFourMomentumCorrection
@@ -65,16 +65,6 @@ if( XAOD_STANDALONE )
       xAODCaloEvent xAODCore PATInterfaces ElectronPhotonFourMomentumCorrectionLib )
 endif()
 
-# Test(s) in the package:
-if( XAOD_STANDALONE )
-   # FIX ME: these tests were temporarily disabled as they were
-   # failing in the nightlies.
-
-   # atlas_add_test( ut_test SCRIPT test/ut_test.py )
-   # atlas_add_test( ut_test_factory SCRIPT test/ut_test_factory.py )
-   # atlas_add_test( ut_test_resolution SCRIPT test/ut_test_resolution.py )
-endif()
-
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} ) 
 atlas_install_joboptions( share/*.py )

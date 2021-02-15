@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CscOverlay/CscOverlay.h"
@@ -8,7 +8,7 @@
 #include "StoreGate/WriteHandle.h"
 #include "AthenaKernel/RNGWrapper.h"
 #include "CLHEP/Random/RandomEngine.h"
-#include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 
 namespace {
   constexpr uint16_t MAX_AMPL = 4095; // 12-bit ADC
@@ -167,7 +167,7 @@ StatusCode CscOverlay::overlayContainer(const CscRawDataContainer *bkgContainer,
                             << " continuing ...");
           } else {
             for (uint16_t sample : stripSamples) {
-              double sampleNoise = CLHEP::RandGauss::shoot(rndmEngine, 0.0, stripNoise);
+              double sampleNoise = CLHEP::RandGaussZiggurat::shoot(rndmEngine, 0.0, stripNoise);
               // TODO: rounding issue - some strange type conversion is going on
               // uint16_t adcCount = sample + std::lrint(sampleNoise);
               float adcCount = sample + sampleNoise;
@@ -567,7 +567,7 @@ std::vector<CscRawData*> CscOverlay::overlay( const std::map< int,std::vector<ui
       int myhashw=myhash+width; if (needtoflip(myaddress)) {myhashw=myhash-width;}
       double noise = m_cscCalibTool->stripNoise( (myhashw), false );//in ADC counts
        for ( unsigned int j=0; j<(*ovl).second.size(); ++j ) {
-          double theNoise = CLHEP::RandGauss::shoot(rndmEngine, 0.0, noise);
+          double theNoise = CLHEP::RandGaussZiggurat::shoot(rndmEngine, 0.0, noise);
           float adcCount = (*ovl).second.at(j) + theNoise ;//add noise
           if ( adcCount > MAX_AMPL ) {
             ATH_MSG_DEBUG("value out of range (adding noise): " << adcCount << " "

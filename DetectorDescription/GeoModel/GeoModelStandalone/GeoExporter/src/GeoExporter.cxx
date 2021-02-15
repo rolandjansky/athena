@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -207,10 +207,10 @@ void GeoExporter::init()
     }
   }
   // open the DB connection
-  GMDBManager db(path);
+  GMDBManager db(path.toStdString());
 
   // check the DB connection
-  if (db.isOpen())
+  if (db.checkIsDBOpen())
       qDebug() << "OK! Database is open!";
   else {
       qDebug() << "Database ERROR!! Exiting...";

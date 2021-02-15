@@ -45,7 +45,8 @@ class CaloTopoTowerBuilderToolBase : public AthAlgTool,
   virtual StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS) override;
 
   /// execute is abstract
-  virtual StatusCode execute(CaloTopoTowerContainer* theContainer,const CaloCellContainer* theCell=0) const override = 0;
+  virtual StatusCode execute(const EventContext& ctx,
+                             CaloTopoTowerContainer* theContainer,const CaloCellContainer* theCell=0) const override = 0;
 
   virtual StatusCode initializeTool() override = 0;
 

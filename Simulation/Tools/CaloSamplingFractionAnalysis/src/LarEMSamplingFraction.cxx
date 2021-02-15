@@ -157,8 +157,12 @@ StatusCode LarEMSamplingFraction::execute()
 		msg(MSG::ERROR) << "No McEventCollection found"<< endmsg;
 		return StatusCode::FAILURE;
 	}
+#ifdef HEPMC3
+    HepMC::ConstGenParticlePtr   gen=truthEvent->at(0)->particles().front();
+#else
 	HepMC::GenEvent::particle_const_iterator pit  = truthEvent->at(0)->particles_begin();
 	HepMC::ConstGenParticlePtr   gen  = *pit;
+#endif
 	m_mc_pdg = gen->pdg_id();
 	m_mc_eta = gen->momentum().pseudoRapidity();
 	m_mc_phi = gen->momentum().phi();

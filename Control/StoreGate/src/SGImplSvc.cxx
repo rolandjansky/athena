@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
@@ -21,7 +21,7 @@
 #include "AthenaKernel/IIOVSvc.h"
 #include "AthenaKernel/CLIDRegistry.h"
 #include "AthenaKernel/errorcheck.h"
-//#include "CxxUtils/PageAccessControl.h"
+#include "AthenaKernel/StoreID.h"
 #include "GaudiKernel/IHistorySvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IConversionSvc.h"
@@ -41,8 +41,6 @@
 #include "StoreGate/ActiveStoreSvc.h"
 #include "StoreGate/StoreClearedIncident.h"
 #include "AthAllocators/ArenaHeader.h"
-#include "AthenaKernel/errorcheck.h"
-#include "AthenaKernel/StoreID.h"
 
 // StoreGateSvc. must come before SGImplSvc.h
 #include "StoreGate/StoreGateSvc.h"
@@ -979,28 +977,9 @@ std::vector<const SG::DataProxy*>
 SGImplSvc::proxies() const
 {
   lock_t lock (m_mutex);
-  using std::distance;
-  DataStore::ConstStoreIterator s_iter, s_end;
-  store()->tRange(s_iter, s_end).ignore();
-
-  std::vector<const SG::DataProxy*> proxies;
-  proxies.reserve( distance( s_iter, s_end ) );
-
-  for (; s_iter != s_end; ++s_iter ) {
-
-    const CLID id = s_iter->first;
-    proxies.reserve( proxies.size() + store()->typeCount(id) );
-
-    // loop over each type:
-    SG::ConstProxyIterator p_iter = (s_iter->second).begin();
-    SG::ConstProxyIterator p_end =  (s_iter->second).end();
-
-    for ( ; p_iter != p_end; ++p_iter ) {
-      proxies.push_back( p_iter->second );
-    }
-  }
-
-  return proxies;
+  const std::vector<SG::DataProxy*>& proxies = store()->proxies();
+  std::vector<const SG::DataProxy*> ret (proxies.begin(), proxies.end());
+  return ret;
 }
 
 
@@ -1313,15 +1292,21 @@ SGImplSvc::removeProxy(DataProxy* proxy, const void* pTrans,
   }
 
   // remove all entries from t2p map
-  this->t2pRemove(pTrans);
-  SG::DataProxy::CLIDCont_t clids = proxy->transientID();
-  for (SG::DataProxy::CLIDCont_t::const_iterator i = clids.begin();
-       i != clids.end();
-       ++i)
+  //  --- only if the proxy actually has an object!
+  //      otherwise, we can trigger I/O.
+  //      besides being useless here, we can get deadlocks if we
+  //      call into the I/O code while holding the SG lock.
+  if (proxy->isValidObject()) {
+    this->t2pRemove(pTrans);
+    SG::DataProxy::CLIDCont_t clids = proxy->transientID();
+    for (SG::DataProxy::CLIDCont_t::const_iterator i = clids.begin();
+         i != clids.end();
+         ++i)
     {
       void* ptr = SG::DataProxy_cast (proxy, *i);
       this->t2pRemove(ptr);
     }
+  }
 
   // remove from store
   return m_pStore->removeProxy(proxy, forceRemove, true);

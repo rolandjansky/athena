@@ -28,7 +28,7 @@ TrigConf::L1Menu::update()
    try {
       m_name = getAttribute("name");
       // thresholds
-      for( const std::string & path : {"thresholds", "thresholds.legacyCalo" } ) {
+      for( const std::string path : {"thresholds", "thresholds.legacyCalo" } ) {
          for( auto & thrByType : data().get_child( path ) ) {
             const std::string & thrType = thrByType.first;
             if (thrType == "legacyCalo")
@@ -51,6 +51,9 @@ TrigConf::L1Menu::update()
             }
             for( auto & thr : v ) {
                m_thresholdsByName[ thr->name() ] = thr;
+            }
+            for (auto &thr : v) {
+               m_thresholdsByTypeAndMapping[thrType][thr->mapping()] = thr;
             }
          }
       }
@@ -93,7 +96,7 @@ TrigConf::L1Menu::update()
 
    try {
       // algorithms
-      for( const std::string & algoCategory : { "TOPO", "MULTTOPO", "MUTOPO", "R2TOPO" } ) {
+      for( const std::string algoCategory : { "TOPO", "MULTTOPO", "MUTOPO", "R2TOPO" } ) {
          auto & v = m_algorithmsByCategory[algoCategory] = std::vector<TrigConf::L1TopoAlgorithm>();
          if(algoCategory == "MULTTOPO") {
             for( auto & alg : data().get_child( "topoAlgorithms." + algoCategory + ".multiplicityAlgorithms" ) ) {
@@ -252,6 +255,22 @@ TrigConf::L1Menu::threshold(const std::string & thresholdName) const
    }
    catch(std::exception & ex) {
       std::cerr << "No threshold '" << thresholdName << "' defined in the thresholds section of the L1 menu" << std::endl;
+      throw;
+   }
+}
+
+/** Access to L1Threshold by type and mapping index */
+const TrigConf::L1Threshold &
+TrigConf::L1Menu::threshold(const std::string &typeName, unsigned int mapping) const
+{
+   try
+   {
+      return *m_thresholdsByTypeAndMapping.at(typeName).at(mapping);
+   }
+   catch (std::exception &ex)
+   {
+      std::cerr << "No threshold of type '" << typeName << "' with mapping " << mapping
+                << " defined in the thresholds section of the L1 menu" << std::endl;
       throw;
    }
 }

@@ -4,16 +4,16 @@
 
 #ifndef GEO_MODEL_XML_MAKE_ROTATION_H
 #define GEO_MODEL_XML_MAKE_ROTATION_H
+#include <xercesc/util/XercesDefs.hpp>
 //
 //    Create and return a HepRotation3d. Caller must delete it.
 //
 
-#include <xercesc/dom/DOM.hpp>
+XERCES_CPP_NAMESPACE_BEGIN
+class DOMElement;
+XERCES_CPP_NAMESPACE_END
 #include "GeoModelKernel/GeoDefinitions.h"
-
-//namespace HepGeom {class Rotate3D;}
 class GmxUtil;
-
 
 class MakeRotation {
 public:

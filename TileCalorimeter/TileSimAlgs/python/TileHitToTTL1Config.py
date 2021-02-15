@@ -3,8 +3,10 @@
 """Define method to construct configured Tile hits to TTL1 algorithm"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from TileSimAlgs.TileHitVecToCntConfig import TileHitVecToCntCfg
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
+from TileSimAlgs.TileHitVecToCntConfig import TileHitVecToCntCfg
+
 
 def TileHitToTTL1Cfg(flags, **kwargs):
     """Return component accumulator with configured Tile hits to TTL1 algorithm
@@ -41,7 +43,7 @@ def TileHitToTTL1Cfg(flags, **kwargs):
     if flags.Digitization.PileUpPremixing:
         kwargs.setdefault('TileTTL1Container', flags.Overlay.BkgPrefix + 'TileTTL1Cnt')
         kwargs.setdefault('TileMBTSTTL1Container', flags.Overlay.BkgPrefix + 'TileTTL1MBTS')
-    elif flags.Detector.OverlayTile:
+    elif flags.Common.ProductionStep == ProductionStep.Overlay:
         kwargs.setdefault('TileTTL1Container', flags.Overlay.SigPrefix + 'TileTTL1Cnt')
         kwargs.setdefault('TileMBTSTTL1Container', flags.Overlay.SigPrefix + 'TileTTL1MBTS')
     else:
@@ -137,7 +139,7 @@ if __name__ == "__main__":
 
     ConfigFlags.Input.Files = defaultTestFiles.HITS
     ConfigFlags.IOVDb.GlobalTag = 'OFLCOND-MC16-SDR-16'
-    ConfigFlags.Digitization.Pileup = False
+    ConfigFlags.Digitization.PileUp = False
     ConfigFlags.Output.RDOFileName = "myRDO.pool.root"
     ConfigFlags.fillFromArgs()
     ConfigFlags.lock()

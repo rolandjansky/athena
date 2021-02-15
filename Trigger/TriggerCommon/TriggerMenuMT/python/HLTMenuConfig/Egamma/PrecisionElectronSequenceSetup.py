@@ -12,7 +12,7 @@ from DecisionHandling.DecisionHandlingConf import ViewCreatorPreviousROITool
 
 
 def precisionElectronSequence(ConfigFlags):
-    """ fourth step:  precision electron....."""
+    """ fifth step:  precision electron....."""
     InViewRoIs = "precisionElectron"
     # EVCreator:
     precisionElectronViewsMaker = EventViewCreatorAlgorithm("IMprecisionElectron")
@@ -40,7 +40,7 @@ def precisionElectronMenuSequence():
 
     # make the Hypo
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionElectronHypoAlgMT
-    thePrecisionElectronHypo = TrigEgammaPrecisionElectronHypoAlgMT("TrigEgammaPrecisionElectronHypoAlgMT")
+    thePrecisionElectronHypo = TrigEgammaPrecisionElectronHypoAlgMT("TrigEgammaPrecisionElectronHypoAlgMT_noGSF")
     thePrecisionElectronHypo.Electrons = sequenceOut
     thePrecisionElectronHypo.RunInView = True
 
@@ -50,5 +50,6 @@ def precisionElectronMenuSequence():
                           Sequence    = electronPrecisionAthSequence,
                           Hypo        = thePrecisionElectronHypo,
                           HypoToolGen = TrigEgammaPrecisionElectronHypoToolFromDict )
+
 
 

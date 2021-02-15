@@ -7,18 +7,13 @@
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthParticleAuxContainer.h"
-
-#include "xAODTruth/TruthParticle.h"
-#include "xAODTruth/TruthParticleContainer.h"
-#include "xAODTruth/TruthParticleAuxContainer.h"
-
 #include <iostream>
 using namespace std;
 using namespace MCTruthPartClassifier;
 
 namespace Egamma{
 
-ElectronPlots::ElectronPlots(PlotBase* pParent, const std::string& sDir, 
+ElectronPlots::ElectronPlots(PlotBase* pParent, const std::string& sDir,
 			     const std::string& sParticleType):PlotBase(pParent, sDir),
 							m_oKinAllRecoPlots(this, "All/KinPlots/", "All Reco "+ sParticleType +" Electron"),
 							m_oShowerShapesAllRecoPlots(this, "All/ShowerShapesPlots/","All Reco "+ sParticleType +" Electron"  ),
@@ -37,7 +32,7 @@ ElectronPlots::ElectronPlots(PlotBase* pParent, const std::string& sDir,
 						        nParticles(nullptr),
 							nTypeParticles(nullptr),
 							m_sParticleType(sParticleType)
-{}	
+{}
 
 void ElectronPlots::initializePlots(){
   nParticles = Book1D("n", "Number of"+ m_sParticleType + "s;#" + m_sParticleType + " electrons;Events", 15, 0, 15.);
@@ -50,27 +45,27 @@ void ElectronPlots::initializePlots(){
   m_oShowerShapesAllRecoPlots.fill(electron);
   m_oIsolationAllRecoPlots.fill(electron);
   m_oTrackAllRecoPlots.fill(electron);
- 
-  if(!isPrompt) return; 
-   
+
+  if(!isPrompt) return;
+
   m_oKinIsoRecoPlots.fill(electron);
   m_oShowerShapesIsoRecoPlots.fill(electron);
   m_oIsolationIsoRecoPlots.fill(electron);
   m_oTrackIsoRecoPlots.fill(electron);
- 
-  bool val_loose=false;    
+
+  bool val_loose=false;
   electron.passSelection(val_loose, "Loose");
   if(val_loose) {
     m_oKinIsoLoosePPPlots.fill(electron);
   }
 
-  bool val_med=false;  
+  bool val_med=false;
   electron.passSelection(val_med, "Medium");
   if(val_med) {
     m_oKinIsoMediumPPPlots.fill(electron);
   }
 
-  bool val_tight=false;    
+  bool val_tight=false;
   electron.passSelection(val_tight, "Tight");
   if(val_tight) {
     m_oKinIsoTightPPPlots.fill(electron);

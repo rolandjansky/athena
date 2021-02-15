@@ -8,8 +8,10 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger('L1TopoSimulationTest.py')
          
 fmenu ,fTOBs = 'L1Topoconfig_MC_pp_v8_NewNaming.xml','eventdump_new.txt'
+fjson = 'L1Menu_LS2_v1_22.0.17.json'
 
 print ('File for menu :',fmenu)
+print ('File for menu (json):', fjson)
 print ('File for TOBs :',fTOBs)
    
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr, theApp
@@ -61,6 +63,8 @@ from L1TopoSimulation.L1TopoSimulationTestConfig import L1TopoSimulationTest
 topSequence += L1TopoSimulationTest()
 topSequence.L1TopoSimulationTest.InputASCIIFile = fTOBs
 topSequence.L1TopoSimulationTest.InputXMLFile = fmenu
+topSequence.L1TopoSimulationTest.InputJSONFile = fjson
+
 
 from GaudiSvc.GaudiSvcConf import THistSvc
 svcMgr += THistSvc()
@@ -71,15 +75,16 @@ svcMgr.THistSvc.Output += ["EXPERT DATAFILE='expert-monitoring.root' OPT='RECREA
 
 #  set algCardinality = 1 to disable cloning for all Algs
 algCardinality = nThreads
+
 #  Cloning can be disable for any alg  
 
-if (algCardinality > 1):
+if (algCardinality > 1):   
    for alg in topSequence:      
       name = alg.name()
-      if name in ["L1TopoSimulation"] :
+      if name in ["SGInputLoader"] :
          # suppress INFO message about Alg unclonability
          # set alg.Cardinality = 1 to disable cloning for specific Alg
-         alg.Cardinality = 1
+         alg.Cardinality = nThreads
       else:
          alg.Cardinality = algCardinality
 

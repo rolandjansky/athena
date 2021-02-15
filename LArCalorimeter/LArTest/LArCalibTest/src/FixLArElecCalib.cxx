@@ -66,7 +66,6 @@
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
-#include "CaloIdentifier/LArEM_ID.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 
 #include "LArRawConditions/LArDAC2uAMC.h"

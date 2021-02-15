@@ -37,21 +37,17 @@ namespace Trk {
   {
   public:
     static const InterfaceID& interfaceID();
-
-    /** fill 'information' and 'hitpattern' using information from 'rot'. Should
-      be overloaded by concrete TrackSummaryHelperTools. It is mandatory that
-      the RIO_OnTrack* points to exactly the object contained inside the
-      TrackStateOnSurface. This is to avoid that the RTTI from the
-      TrackSummaryTool is done twice.
-      */
-    using ITrackSummaryHelperTool::analyse;
-    using ITrackSummaryHelperTool::updateSharedHitCount;
     using ITrackSummaryHelperTool::addDetailedTrackSummary;
+    using ITrackSummaryHelperTool::analyse;
 
-    /*
-     * First the context aware methods.
-     * If this set is not overloaded , it
-     * will call the methods without EventContext
+    /* Expand/Extend the interface , with methods  using the EventContext
+     * and Trk::PRDtoTrackMap.
+     */
+
+     /*
+     * For now due to client compatibility 
+     * we provide a default  implementations
+     * in terms of the the older interface
      */
 
     virtual void analyse(
@@ -63,9 +59,10 @@ namespace Trk {
       std::vector<int>& information,
       std::bitset<Trk::numberOfDetectorTypes>& hitPattern) const
     {
-      (void)(ctx);
-      analyse(track, prd_to_track_map, rot, tsos, information, hitPattern);
-    }
+      (void)ctx;
+      (void) prd_to_track_map;
+      analyse(track, rot, tsos, information, hitPattern);
+    };
 
     virtual void analyse(
       const EventContext& ctx,
@@ -76,27 +73,53 @@ namespace Trk {
       std::vector<int>& information,
       std::bitset<Trk::numberOfDetectorTypes>& hitPattern) const
     {
-      (void)(ctx);
-      analyse(track, prd_to_track_map, crot, tsos, information, hitPattern);
+      (void)ctx;
+      (void)prd_to_track_map;
+      analyse(track, crot, tsos, information, hitPattern);
     }
 
-    /*
-     * The context unaware methods.
-     * If this set is not overloaded , it
-     * will call the methods with EventContext
-     */
+    virtual void addDetailedTrackSummary(const EventContext& ctx,
+                                         const Track& track,
+                                         Trk::TrackSummary& summary) const
+    {
+      (void)ctx;
+      addDetailedTrackSummary(track,summary);
+    };
 
+    virtual void updateExpectedHitInfo(const EventContext& ctx, 
+                                       const Trk::Track& track,
+                                       Trk::TrackSummary& summary) const{
+
+      (void)ctx;
+      updateExpectedHitInfo(track,summary);
+    }
+ 
+    virtual void updateSharedHitCount(
+      const Trk::Track&,
+      const Trk::PRDtoTrackMap*,
+      Trk::TrackSummary&) const {};
+
+   virtual void updateAdditionalInfo(Trk::TrackSummary&,
+                                      std::vector<float>&,
+                                      float&,
+                                      int&,
+                                      int&) const {};
+
+    /*
+     * Implement the ITrackSummaryHelperTool part
+     * of the interface for  the methods with the same
+     * name as the method above.
+     */
     virtual void analyse(
       const Trk::Track& track,
-      const Trk::PRDtoTrackMap* prd_to_track_map,
       const RIO_OnTrack* rot,
       const TrackStateOnSurface* tsos,
       std::vector<int>& information,
-      std::bitset<Trk::numberOfDetectorTypes>& hitPattern) const
+      std::bitset<Trk::numberOfDetectorTypes>& hitPattern) const override
     {
       analyse(Gaudi::Hive::currentContext(),
               track,
-              prd_to_track_map,
+              nullptr,
               rot,
               tsos,
               information,
@@ -105,29 +128,36 @@ namespace Trk {
 
     virtual void analyse(
       const Trk::Track& track,
-      const Trk::PRDtoTrackMap* prd_to_track_map,
       const CompetingRIOsOnTrack* crot,
       const TrackStateOnSurface* tsos,
       std::vector<int>& information,
-      std::bitset<Trk::numberOfDetectorTypes>& hitPattern) const
+      std::bitset<Trk::numberOfDetectorTypes>& hitPattern) const override
     {
       analyse(Gaudi::Hive::currentContext(),
               track,
-              prd_to_track_map,
+              nullptr,
               crot,
               tsos,
               information,
               hitPattern);
     }
 
-    virtual void updateSharedHitCount(
-      const Trk::Track&,
-      const Trk::PRDtoTrackMap* prd_to_track_map,
-      Trk::TrackSummary&) const = 0;
+    virtual void addDetailedTrackSummary(
+      const Track& track,
+      Trk::TrackSummary& summary) const override
+    {
+      addDetailedTrackSummary(Gaudi::Hive::currentContext(), track, summary);
+    }
+  
+     virtual void updateExpectedHitInfo(const Trk::Track& track,
+                                       Trk::TrackSummary& summary) const override{
 
-    virtual void addDetailedTrackSummary(const Track& track,
-                                         Trk::TrackSummary& summary) const = 0;
+      updateExpectedHitInfo(Gaudi::Hive::currentContext(),track,summary);
+    }
+  
+
   };
+
   inline const InterfaceID& Trk::IExtendedTrackSummaryHelperTool::interfaceID()
   {
     return IID_ITrackSummaryHelperTool;

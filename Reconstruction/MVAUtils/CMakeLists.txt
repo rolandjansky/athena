@@ -18,7 +18,7 @@ atlas_add_dictionary( MVAUtilsDict
                       MVAUtils/selection.xml
                       LINK_LIBRARIES MVAUtils)
 
-atlas_install_python_modules( util/*.py )
+atlas_install_python_modules( util/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 atlas_add_executable( convertXmlToRootTree util/convertXmlToRootTree.cxx
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} MVAUtils

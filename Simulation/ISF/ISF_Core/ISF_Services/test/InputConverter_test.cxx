@@ -102,7 +102,6 @@ class InputConverter_test: public ::testing::Test {
     SmartIF<IService>& serviceSmartPointer = m_svcLoc->service("ISF::InputConverter/InputConverter");
     m_svc = dynamic_cast<ISF::InputConverter*>(serviceSmartPointer.get());
     EXPECT_NE(nullptr, m_svc);
-    ASSERT_TRUE( m_svc->setProperties().isSuccess() );
     ASSERT_TRUE( m_svc->configure().isSuccess() );
   }
 
@@ -358,7 +357,6 @@ TEST_F(InputConverter_test, passesFilters_empty_filters_defaultconstructed_genpa
 TEST_F(InputConverter_test, passesFilters_empty_filters) {
   ASSERT_TRUE( m_svc->initialize().isSuccess() );
 
-  const int particleBarcode(546);
   HepMC::FourVector mom(12.3, 45.6, 78.9, 0.12);
 #ifdef HEPMC3
   //It seems this test makes no sense for HepMC3
@@ -368,6 +366,7 @@ TEST_F(InputConverter_test, passesFilters_empty_filters) {
                              );
   ASSERT_TRUE( true );
 #else
+  const int particleBarcode(546);
   HepMC::GenParticle genPart(mom,
                               11, // pdg id (e-)
                               1 // status

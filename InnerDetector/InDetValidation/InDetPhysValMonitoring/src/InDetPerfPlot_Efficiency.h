@@ -34,6 +34,7 @@ private:
   TEfficiency* m_efficiency_vs_eta;
   TEfficiency* m_efficiency_vs_pt;
   TEfficiency* m_efficiency_vs_pt_low;
+  TEfficiency* m_efficiency_vs_pt_high;
   TEfficiency* m_efficiency_vs_phi;
   TEfficiency* m_efficiency_vs_d0;
   TEfficiency* m_efficiency_vs_z0;
@@ -43,7 +44,9 @@ private:
   TEfficiency* m_extended_efficiency_vs_d0;
   TEfficiency* m_extended_efficiency_vs_z0;
   TEfficiency* m_efficiency_vs_prodR;
+  TEfficiency* m_efficiency_vs_prodR_extended;
   TEfficiency* m_efficiency_vs_prodZ;
+  TEfficiency* m_efficiency_vs_prodZ_extended;
 
   // plot base has nop default implementation of this; we use it to book the histos
   void initializePlots();

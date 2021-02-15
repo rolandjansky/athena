@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 # $Id: ProfileEventLoop_preInclude.py 496380 2012-04-18 12:28:09Z ritsch $
 #
 # This jobO fragment can be pre-included in Reco_trf.py jobs to profile
@@ -5,7 +7,7 @@
 #
 
 # First off, let's disable PerfMon. It doesn't mix well with GPT.
-include( "PerfMonGPerfTools/DisablePerfMon_jobOFragment.py" )
+include( "PerfMonGPerfTools/DisablePerfMon_jobOFragment.py" ) # noqa: F821
 
 # Set up the profiler service:
 from AthenaCommon.AppMgr import ServiceMgr
@@ -18,7 +20,7 @@ ServiceMgr.ProfilerService.InitEvent       = 10
 ServiceMgr.ProfilerService.ProfileFileName = "gpt-execute.profile"
 
 # Set up the profiler service as the first service to be created:
-theApp.CreateSvc.insert( 0, "GPT::ProfilerService/ProfilerService" )
+theApp.CreateSvc.insert( 0, "GPT::ProfilerService/ProfilerService" ) # noqa: F821
 
 # Print a message with what happened:
 from AthenaCommon.Logging import logging

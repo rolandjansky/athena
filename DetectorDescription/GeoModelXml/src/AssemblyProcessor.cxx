@@ -23,7 +23,7 @@
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "GeoModelXml/GmxUtil.h"
 #include "GeoModelXml/GeoNodeList.h"
-#include "GeoModelXml/translate.h"
+#include "xercesc/util/XMLString.hpp"
 
 // using namespace CLHEP;
 
@@ -36,7 +36,7 @@ GeoNameTag *physVolName;
 
     gmxUtil.positionIndex.incrementLevel();
 
-    char *name2release = Translate(element->getAttribute(Translate("name")));
+    char *name2release = XMLString::transcode(element->getAttribute(XMLString::transcode("name")));
     string name(name2release);
     XMLString::release(&name2release);
 //
@@ -67,7 +67,7 @@ GeoNameTag *physVolName;
     for (DOMNode *child = element->getFirstChild(); child != 0; child = child->getNextSibling()) {
         if (child->getNodeType() == DOMNode::ELEMENT_NODE) {
             DOMElement *el = dynamic_cast<DOMElement *> (child);
-            name2release = Translate(el->getNodeName());
+            name2release = XMLString::transcode(el->getNodeName());
             string name(name2release);
             XMLString::release(&name2release);
             gmxUtil.processorRegistry.find(name)->process(el, gmxUtil, childrenAdd);
@@ -76,7 +76,7 @@ GeoNameTag *physVolName;
 //
 //    Make a new PhysVol and add everything to it, then add it to the list of things for my caller to add
 //
-    char *toRelease = Translate(element->getAttribute(Translate("alignable")));
+    char *toRelease = XMLString::transcode(element->getAttribute(XMLString::transcode("alignable")));
     string alignable(toRelease);
     XMLString::release(&toRelease);
     if (alignable.compare(string("true")) == 0) {
@@ -101,7 +101,7 @@ GeoNameTag *physVolName;
 
 void AssemblyProcessor::zeroId(const xercesc::DOMElement *element) {
 
-    char *name2release = Translate(element->getAttribute(Translate("name")));
+    char *name2release = XMLString::transcode(element->getAttribute(XMLString::transcode("name")));
     string name(name2release);
     XMLString::release(&name2release);
 //

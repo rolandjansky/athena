@@ -13,6 +13,8 @@
 #include "TCanvas.h"
 #include "TGraph.h"
 #include "TAxis.h"
+//TBuffer include required for custom class streamer
+#include "TBuffer.h"
 
 class TFCSEnergyInterpolationPiecewiseLinear: public TFCSParametrization {
 
@@ -34,20 +36,21 @@ public:
   void InitFromArrayInLogEkin(Int_t np, const Double_t logEkin[], const Double_t response[]);
   void InitFromArrayInEkin(Int_t np, const Double_t Ekin[], const Double_t response[]);
 
-  virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
+  virtual FCSReturnCode simulate(TFCSSimulationState& simulstate, const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
 
   void Print(Option_t *option="") const override;
 
-  static void unit_test(TFCSSimulationState* simulstate = nullptr,TFCSTruthState* truth = nullptr, const TFCSExtrapolationState* extrapol = nullptr, TGraph* grlinear = nullptr);
+  static void unit_test(TFCSSimulationState* simulstate = nullptr, TFCSTruthState* truth = nullptr, const TFCSExtrapolationState* extrapol = nullptr, TGraph* grlinear = nullptr);
 
 private:
   
-  ROOT::Math::Interpolator m_linInterpol;
-  double m_minXValue;
-  double m_maxXValue;
-  int    m_nPoints;
+  ROOT::Math::Interpolator m_linInterpol; //! Do not persistify
 
-  ClassDefOverride(TFCSEnergyInterpolationPiecewiseLinear, 1)  //TFCSEnergyInterpolationPiecewiseLinear
+  std::vector<double> m_logEkin;
+  std::vector<double> m_response;
+  std::pair<double, double> m_MinMaxlogEkin;
+
+  ClassDefOverride(TFCSEnergyInterpolationPiecewiseLinear, 3)  //TFCSEnergyInterpolationPiecewiseLinear
 
 };
 

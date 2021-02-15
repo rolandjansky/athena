@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -9,9 +9,6 @@
  * geometry and conditions tags in EventInfo, checks tags on reading
  *
  * @author RD Schaffer <R.D.Schaffer@cern.ch>
- *
- * $Id: EventInfoReader.cxx,v 1.10 2007-04-07 17:48:49 schaffer Exp $
- *
  */
 
 #include "EventInfoReader.h"
@@ -20,16 +17,13 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventType.h"
-#include "EventInfo/TagInfo.h"
-
-// GeoModel
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 
 // Constructor with parameters:
 EventInfoReader::EventInfoReader(const std::string &name, 
 				 ISvcLocator *pSvcLocator) :
     AthAlgorithm(name,pSvcLocator),
-    m_geoModel("GeoModelSvc", name)
+    m_geoModel("GeoModelSvc", name),
+    m_tagInfoMgr("TagInfoMgr", name)
 {}
 
 // Initialize method:
@@ -37,6 +31,7 @@ StatusCode EventInfoReader::initialize()
 {
     ATH_MSG_INFO( "EventInfoReader::initialize()"  );
     ATH_CHECK( m_geoModel.retrieve() );
+    ATH_CHECK( m_tagInfoMgr.retrieve() );
     return StatusCode::SUCCESS;
 }
 
@@ -66,29 +61,13 @@ StatusCode EventInfoReader::execute()
 	ATH_MSG_DEBUG( name << " : " << tag );
     }
 
-
-
-    // Get TagInfo and add tags
-
-    TagInfo tagInfo_local;
-    const TagInfo* tagInfo = 0;
-    // Try to get tagInfo if there, otherwise create
-    if (detStore()->retrieve( tagInfo ).isFailure()) {
-	ATH_MSG_DEBUG("No TagInfo in DetectorStore - creating one" );
-	tagInfo = &tagInfo_local;
-    } 
-    else {
-	ATH_MSG_DEBUG("Retrieved TagInfo" );
-    } 
-
-    // Dump out contents of TagInfo
-    ATH_MSG_DEBUG("Tags from  TagInfo:" );
-    tagInfo->printTags(msg());
+    // Dump out Tags
+    ATH_MSG_DEBUG("Tags from TagInfoMgr:");
+    ATH_MSG_DEBUG( m_tagInfoMgr->dumpTagInfoToStr() );
     
     // Print out current Release version 
-    std::string releaseVersion;
-    tagInfo->findTag("AtlasRelease", releaseVersion);
-    ATH_MSG_DEBUG( "Found Release version from TagInfo: "  << releaseVersion  );
+    std::string releaseVersion = m_tagInfoMgr->findTag("AtlasRelease");
+    ATH_MSG_DEBUG("Found Release version from TagInfoMgr: " << releaseVersion);
 
     return StatusCode::SUCCESS;
 }

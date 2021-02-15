@@ -1,7 +1,7 @@
 //Dear emacs, this is -*-c++-*-*
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -17,7 +17,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
 #include "TrkEventUtils/PRDtoTrackMap.h"
-#include "TrkTrack/TrackCollection.h"
 
 namespace InDet {
 

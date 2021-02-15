@@ -204,7 +204,6 @@ namespace OverlayTesting {
       // the tested Algorithm
       m_alg = new TRTOverlay{"TRTOverlay", m_svcLoc};
       m_alg->addRef();
-      ASSERT_TRUE( m_alg->setProperties().isSuccess() );
       // ordering B, A, C, D is on purpose to test for unintended alphabetic ordering
       std::string        inputSigPropertyValue = "'StoreGateSvc+TRT_RDOs_SIG'";
       std::string        inputBkgPropertyValue = "'StoreGateSvc+TRT_RDOs_BKG'";
@@ -234,7 +233,6 @@ namespace OverlayTesting {
       if(!service) {
         return nullptr;
       }
-      EXPECT_TRUE( service->setProperties().isSuccess() );
       EXPECT_TRUE( service->configure().isSuccess() );
       EXPECT_TRUE( m_svcMgr->addService(service).isSuccess() );
       // assert that finalize() gets called once per test case
@@ -257,7 +255,6 @@ namespace OverlayTesting {
         return nullptr;
       }
 
-      EXPECT_TRUE( tool->setProperties().isSuccess() );
       EXPECT_TRUE( tool->configure().isSuccess() );
 
       // assert that finalize() gets called once per test case
@@ -280,7 +277,7 @@ namespace OverlayTesting {
       return digit;
     }
 
-    bool initMcEventCollection(std::vector<HepMC::GenParticle*>& genPartList)
+    bool initMcEventCollection(std::vector<HepMC::GenParticlePtr>& genPartList)
     {
       // create dummy input McEventCollection with a name that
       // HepMcParticleLink knows about
@@ -289,7 +286,7 @@ namespace OverlayTesting {
       // Add a dummy GenEvent
       const int process_id1(20);
       const int event_number1(17);
-      inputTestDataHandle->push_back(new HepMC::GenEvent(process_id1, event_number1));
+      inputTestDataHandle->push_back(HepMC::newGenEvent(process_id1, event_number1));
       HepMC::GenEvent& ge1 = *(inputTestDataHandle->at(0));
       populateGenEvent(ge1,-11,11,genPartList);
       populateGenEvent(ge1,-13,13,genPartList);
@@ -300,26 +297,26 @@ namespace OverlayTesting {
       return true;
     }
 
-    void populateGenEvent(HepMC::GenEvent & ge, int pdgid1, int pdgid2, std::vector<HepMC::GenParticle*>& genPartList)
+    void populateGenEvent(HepMC::GenEvent & ge, int pdgid1, int pdgid2, std::vector<HepMC::GenParticlePtr>& genPartList)
     {
-      CLHEP::HepLorentzVector myPos( 0.0, 0.0, 0.0, 0.0);
-      HepMC::GenVertex *myVertex = new HepMC::GenVertex( myPos, -1 );
+      HepMC::FourVector myPos( 0.0, 0.0, 0.0, 0.0);
+      HepMC::GenVertexPtr myVertex = HepMC::newGenVertexPtr( myPos, -1 );
       HepMC::FourVector fourMomentum1( 0.0, 0.0, 1.0, 1.0*CLHEP::TeV);
-      HepMC::GenParticle* inParticle1 = new HepMC::GenParticle(fourMomentum1, pdgid1, 2);
+      HepMC::GenParticlePtr inParticle1 = HepMC::newGenParticlePtr(fourMomentum1, pdgid1, 2);
       myVertex->add_particle_in(inParticle1);
       HepMC::FourVector fourMomentum2( 0.0, 0.0, -1.0, 1.0*CLHEP::TeV);
-      HepMC::GenParticle* inParticle2 = new HepMC::GenParticle(fourMomentum2, pdgid2, 2);
+      HepMC::GenParticlePtr inParticle2 = HepMC::newGenParticlePtr(fourMomentum2, pdgid2, 2);
       myVertex->add_particle_in(inParticle2);
       HepMC::FourVector fourMomentum3( 0.0, 1.0, 0.0, 1.0*CLHEP::TeV);
-      HepMC::GenParticle* inParticle3 = new HepMC::GenParticle(fourMomentum3, pdgid1, 1);
+      HepMC::GenParticlePtr inParticle3 = HepMC::newGenParticlePtr(fourMomentum3, pdgid1, 1);
       myVertex->add_particle_out(inParticle3);
       genPartList.push_back(inParticle3);
       HepMC::FourVector fourMomentum4( 0.0, -1.0, 0.0, 1.0*CLHEP::TeV);
-      HepMC::GenParticle* inParticle4 = new HepMC::GenParticle(fourMomentum4, pdgid2, 1);
+      HepMC::GenParticlePtr inParticle4 = HepMC::newGenParticlePtr(fourMomentum4, pdgid2, 1);
       myVertex->add_particle_out(inParticle4);
       genPartList.push_back(inParticle4);
       ge.add_vertex( myVertex );
-      ge.set_signal_process_vertex( myVertex );
+      HepMC::set_signal_process_vertex( &ge, myVertex );
       ge.set_beam_particles(inParticle1,inParticle2);
     }
 
@@ -623,11 +620,11 @@ namespace OverlayTesting {
     ASSERT_TRUE(inputBkgDataHandle->addCollection(bkgCollection.get(),sigElementHash).isSuccess());
     bkgCollection.release(); // Now owned by inputBkgDataHandle
 
-    std::vector<HepMC::GenParticle*> genPartList;
+    std::vector<HepMC::GenParticlePtr> genPartList;
     initMcEventCollection(genPartList);
     SG::WriteHandle<InDetSimDataCollection> inputSigSDODataHandle{"StoreGateSvc+TRT_SDO_Map_SIG"};
     inputSigSDODataHandle = std::make_unique<InDetSimDataCollection>();
-    const HepMC::GenParticle* pGenParticle = genPartList.at(0);
+    auto pGenParticle = genPartList.at(0);
     HepMcParticleLink trkLink(HepMC::barcode(pGenParticle),pGenParticle->parent_event()->event_number());
     InDetSimData::Deposit deposit( trkLink, 0.0 );
     std::vector<InDetSimData::Deposit> depositVector(1);
@@ -709,11 +706,11 @@ namespace OverlayTesting {
     const double outputTOT = TRT_LoLumRawData::timeOverThreshold(outWord);
     const unsigned int outputDriftTimeBin = TRT_LoLumRawData::driftTimeBin(outWord);
 
-    std::vector<HepMC::GenParticle*> genPartList;
+    std::vector<HepMC::GenParticlePtr> genPartList;
     initMcEventCollection(genPartList);
     SG::WriteHandle<InDetSimDataCollection> inputSigSDODataHandle{"StoreGateSvc+TRT_SDO_Map_SIG"};
     inputSigSDODataHandle = std::make_unique<InDetSimDataCollection>();
-    const HepMC::GenParticle* pGenParticle = genPartList.at(0);
+    auto pGenParticle = genPartList.at(0);
     HepMcParticleLink trkLink(HepMC::barcode(pGenParticle),pGenParticle->parent_event()->event_number());
     InDetSimData::Deposit deposit( trkLink, 0.0 );
     std::vector<InDetSimData::Deposit> depositVector(1);
@@ -804,11 +801,11 @@ namespace OverlayTesting {
     const double outputTOT = TRT_LoLumRawData::timeOverThreshold(outWord);
     const unsigned int outputDriftTimeBin = TRT_LoLumRawData::driftTimeBin(outWord);
 
-    std::vector<HepMC::GenParticle*> genPartList;
+    std::vector<HepMC::GenParticlePtr> genPartList;
     initMcEventCollection(genPartList);
     SG::WriteHandle<InDetSimDataCollection> inputSigSDODataHandle{"StoreGateSvc+TRT_SDO_Map_SIG"};
     inputSigSDODataHandle = std::make_unique<InDetSimDataCollection>();
-    const HepMC::GenParticle* pGenParticle = genPartList.at(0);
+    auto pGenParticle = genPartList.at(0);
     HepMcParticleLink trkLink(HepMC::barcode(pGenParticle),pGenParticle->parent_event()->event_number());
     ASSERT_EQ(trkLink.cptr()->pdg_id(), -11); // Sanity check to confirm that we are linking to a positron as expected
     InDetSimData::Deposit deposit( trkLink, 0.0 );
@@ -896,11 +893,11 @@ namespace OverlayTesting {
     ASSERT_TRUE(inputBkgDataHandle->addCollection(bkgCollection.get(),sigElementHash).isSuccess());
     bkgCollection.release(); // Now owned by inputBkgDataHandle
 
-    std::vector<HepMC::GenParticle*> genPartList;
+    std::vector<HepMC::GenParticlePtr> genPartList;
     initMcEventCollection(genPartList);
     SG::WriteHandle<InDetSimDataCollection> inputSigSDODataHandle{"StoreGateSvc+TRT_SDO_Map_SIG"};
     inputSigSDODataHandle = std::make_unique<InDetSimDataCollection>();
-    const HepMC::GenParticle* pGenParticle = genPartList.at(0);
+    auto pGenParticle = genPartList.at(0);
     HepMcParticleLink trkLink(HepMC::barcode(pGenParticle),pGenParticle->parent_event()->event_number());
     ASSERT_EQ(trkLink.cptr()->pdg_id(), -11); // Sanity check to confirm that we are linking to a positron as expected
     InDetSimData::Deposit deposit( trkLink, 0.0 );

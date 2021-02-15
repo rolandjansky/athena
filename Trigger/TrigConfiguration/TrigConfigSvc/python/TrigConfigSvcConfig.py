@@ -329,15 +329,8 @@ class SetupTrigConfigSvc(object):
             if not set(state) <= self.allowedStates:
                 raise (RuntimeError, 'unknown state %s, cannot set it!' % state)
             else:
+                self.mlog.info( "setting TrigConfigSvc states to %s", self.states )
                 self.states = state
-
-        def GetConfigurable(self):
-            try:
-                self.InitialiseSvc()
-            except Exception:
-                self.mlog.debug( 'ok, TrigConfigSvc already initialised' )
-
-            return self.GetPlugin()
 
 
         def InitialiseSvc(self):
@@ -354,19 +347,40 @@ class SetupTrigConfigSvc(object):
                 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 
-                if TriggerFlags.doLVL2() or TriggerFlags.doEF() or TriggerFlags.doHLT() or TriggerFlags.configForStartup()=='HLToffline':
+                if TriggerFlags.doHLT() or TriggerFlags.configForStartup()=='HLToffline':
                     self.mlog.info( "setup HLTConfigSvc and add instance to ServiceMgr (xml file="+self.hltXmlFile+")" )
                     hlt = HLTConfigSvc("HLTConfigSvc")
                     hlt.XMLMenuFile = self.hltXmlFile
                     hlt.doMergedHLT = TriggerFlags.doHLT()
                     ServiceMgr += hlt
                 else:
-                    self.mlog.info( "Will not setup HLTConfigSvc, since TriggerFlags doLVL2(), doEF(), and doHLT() are all False" )
+                    self.mlog.info( "Will not setup HLTConfigSvc, since doHLT() is False" )
                     self.states[self.states.index("xml")] = "xmll1"
 
-                self.mlog.info( "setup LVL1ConfigSvc and add instance to ServiceMgr (xml file="+self.l1XmlFile+")" )
+                # generating a json L1 menu for Physics_pp_v7_primaries
+                # is needed for a transition period where we still have jobs
+                # running on this old menu, but the software expects a
+                # json-style L1 menu
+                menuName = TriggerFlags.triggerMenuSetup()
+                doGenerateJsonMenuForRun2Menu = (menuName == "Physics_pp_v7_primaries")
+                if doGenerateJsonMenuForRun2Menu:
+                    self.mlog.info("Generating L1 menu %s", menuName)
+                    from TriggerMenuMT.L1.L1MenuConfig import L1MenuConfig
+                    l1cfg = L1MenuConfig(menuName = menuName) # create menu
+                    menuFileName = 'L1Menu_' + menuName + '_' + TriggerFlags.menuVersion() + '.json'
+                    bgsFileName = 'BunchGroupSet_' + menuName + '_' + TriggerFlags.menuVersion() + '.json'
+                    l1JsonFileName, jsonBgsFileName = l1cfg.writeJSON(outputFile = menuFileName, bgsOutputFile = bgsFileName) # write menu and bunchgroupset
+                self.mlog.info("setup LVL1 ConfigSvc and add instance to ServiceMgr")
+                self.mlog.info("xml file = %s", self.l1XmlFile)
+                if doGenerateJsonMenuForRun2Menu:
+                    self.mlog.info("L1Menu json file= %s", l1JsonFileName)
+                    self.mlog.info("Bunchgroup json file= %s", jsonBgsFileName)
+
                 l1 = LVL1ConfigSvc("LVL1ConfigSvc")
                 l1.XMLMenuFile = self.l1XmlFile
+                if doGenerateJsonMenuForRun2Menu:
+                    l1.JsonFileName = l1JsonFileName
+                    l1.JsonFileNameBGS = jsonBgsFileName
                 ServiceMgr += l1
 
                 self.mlog.info( "setup L1TopoConfigSvc and add instance to ServiceMgr (xml file="+self.l1topoXmlFile+")" )

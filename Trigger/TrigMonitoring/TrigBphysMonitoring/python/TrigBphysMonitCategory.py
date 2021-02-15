@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from TriggerJobOpts.TriggerFlags import TriggerFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 monitoring_bphys = [
                     # For individual chain monitoring folders, to fill DetailedIndividualChains - put them first
@@ -75,7 +75,7 @@ primary_bphys = [
                  'HLT_mu11_mu6_bDimu',
                  ]
 
-if TriggerFlags.EDMDecodingVersion == 3 :
+if ConfigFlags.Trigger.EDMVersion == 3 :
   monitoring_bphys = [
                       'HLT_2mu4_bJpsimumu_L12MU4',
                       'HLT_2mu4_bUpsimumu_L12MU4',

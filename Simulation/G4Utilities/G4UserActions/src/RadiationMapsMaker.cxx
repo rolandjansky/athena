@@ -31,7 +31,6 @@
 #include "G4AntiSigmaMinus.hh"
 #include "G4SigmaZero.hh"
 #include "G4AntiSigmaZero.hh"
-#include "G4AntiXiMinus.hh"
 #include "G4XiZero.hh"
 #include "G4AntiXiZero.hh"
 #include "G4XiMinus.hh"

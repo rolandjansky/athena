@@ -9,6 +9,7 @@
 
 #include "CoolKernel/IFolder.h"
 #include <string>
+#include <optional>
 class ITagInfoMgr;
 
 namespace IOVDbNamespace{

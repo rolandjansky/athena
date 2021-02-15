@@ -14,7 +14,7 @@
 #include "GeoGenericFunctions/Variable.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "DetDescrConditions/AlignableTransformContainer.h"
-#include "InDetReadoutGeometry/SiCommonItems.h"
+#include "ReadoutGeometryBase/SiCommonItems.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/ExtendedAlignableTransform.h"
@@ -27,8 +27,6 @@ namespace InDetDD
     SiDetectorManager::SiDetectorManager(StoreGateSvc * detStore, const std::string & name)
         : InDetDetectorManager(detStore, name)
     {
-  // Add default folder
-        addFolder("/Indet/Align");
     }
 
     SiDetectorManager::~SiDetectorManager()

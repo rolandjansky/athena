@@ -1,17 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
-from MuonCombinedRecExample.MuonCombinedKeys import MuonCombinedKeys as MuonCbKeys
-from MuonRecExample.MuonRecFlags import muonRecFlags
-from AthenaCommon.AppMgr import ToolSvc
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
-from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicTool,getAlgorithm,getPublicToolClone,getService,getServiceClone
-from AthenaCommon.BeamFlags import jobproperties
-beamFlags = jobproperties.Beam
+from AthenaCommon.CfgGetter import getPublicTool
 
-from AthenaCommon.GlobalFlags import globalflags
-from RecExConfig.RecFlags import rec
 
 def MuTagMatchingTool( name='MuTagMatchingTool', **kwargs ):
     kwargs.setdefault("AssumeLocalErrors", True )

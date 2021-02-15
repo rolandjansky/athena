@@ -52,11 +52,10 @@ TruthTauDecayAssociationTool::reset (const TruthParticle& p)
     // Loop over GenEvent's.
     for (const HepMC::GenEvent* ev_in : *mcec) {
       if (!ev_in) continue;
-      for (HepMC::GenEvent::particle_const_iterator itrPart = ev_in->particles_begin();
-           itrPart!=ev_in->particles_end();++itrPart){
-        if ( (*itrPart) && (*itrPart)->barcode()==p.barcode() ){
+      for (auto Part: *ev_in){
+        if ( (Part) && HepMC::barcode(Part)==p.barcode() ){
           // Found it!
-          addStableDaughters( (*itrPart) );
+          addStableDaughters( (Part) );
           break;
         }
       } // Loop over particles
@@ -79,25 +78,23 @@ TruthTauDecayAssociationTool::reset (const TruthParticle& p)
   return StatusCode::SUCCESS;
 }
 
-void TruthTauDecayAssociationTool::addStableDaughters(const HepMC::GenParticle* part) {
+void TruthTauDecayAssociationTool::addStableDaughters(HepMC::ConstGenParticlePtr part) {
   // Sanity check
   if (!part) return;
 
-  HepMC::GenVertex* endvx = part->end_vertex();
+  auto endvx = part->end_vertex();
   if(!endvx){ // no children
-    if ( part && part->status()==1 ) m_tau_prod_barcodes.push_back( part->barcode() );
+    if ( part && part->status()==1 ) m_tau_prod_barcodes.push_back( HepMC::barcode(part) );
     return;
   }
 
   // Loop over the parents of this particle.
-  HepMC::GenVertex::particle_iterator itrChild = endvx->particles_begin(HepMC::children);
-  HepMC::GenVertex::particle_iterator endChild = endvx->particles_end(HepMC::children);
-  for(;itrChild!=endChild; ++itrChild){
-    if ( (*itrChild) && (*itrChild)->status()==1 ){
+  for(auto Child: *endvx){
+    if ( (Child) && (Child)->status()==1 ){
       // Found a stable child!
-      m_tau_prod_barcodes.push_back( (*itrChild)->barcode() );
-    } else if ( (*itrChild) ){
-      addStableDaughters( (*itrChild) );
+      m_tau_prod_barcodes.push_back( HepMC::barcode(Child) );
+    } else if ( (Child) ){
+      addStableDaughters( (Child) );
     }
   } // End loop over children
 

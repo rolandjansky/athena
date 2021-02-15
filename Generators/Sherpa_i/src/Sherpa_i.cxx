@@ -1,6 +1,7 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
 #include "AtlasHepMC/GenEvent.h"
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
@@ -108,6 +109,7 @@ namespace SHERPA {
 #include <cstdio>
 #include <cstring>
 #include <signal.h>
+#include <stdlib.h>
 #include "CLHEP/Random/RandFlat.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
@@ -122,14 +124,21 @@ Sherpa_i::Sherpa_i(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("ExtraFiles", m_extrafiles);
   declareProperty("NCores", m_ncores=1);
   declareProperty("MemoryMB", m_memorymb=2500.);
+  declareProperty("PluginCode", m_plugincode = "");
 
+  declareProperty("VariationWeightCap", m_variation_weight_cap=10.0);
   declareProperty("CrossSectionScaleFactor", m_xsscale=1.0);
-  declareProperty("CleanupGeneratedFiles", m_cleanup=false);
+  declareProperty("CleanupGeneratedFiles", m_cleanup=true);
 }
 
 
 
 StatusCode Sherpa_i::genInitialize(){
+  if (m_plugincode != "") {
+    compilePlugin(m_plugincode);
+    m_params.push_back("SHERPA_LDADD=Sherpa_iPlugin");
+  }
+  
   ATH_MSG_INFO("Sherpa initialising...");
 
   p_rndEngine = atRndmGenSvc().GetEngine("SHERPA");
@@ -163,7 +172,7 @@ StatusCode Sherpa_i::genInitialize(){
 
     p_sherpa->InitializeTheEventHandler();
   }
-  catch (ATOOLS::Exception exception) {
+  catch (const ATOOLS::Exception& exception) {
     if (exception.Class()=="Matrix_Element_Handler" && exception.Type()==ATOOLS::ex::normal_exit) {
       ATH_MSG_ERROR("Have to compile Amegic libraries");
       ATH_MSG_ERROR("You probably want to run ./makelibs");
@@ -202,9 +211,16 @@ StatusCode Sherpa_i::fillEvt(HepMC::GenEvent* event) {
 
   p_sherpa->FillHepMCEvent(*event);
   if (event->weights().size()>2) {
-    double weight_normalisation = event->weights()[2];
+    //double weight_normalisation = event->weights()[2];
     for (size_t i=0; i<event->weights().size(); ++i) {
-      if (i==0 || i>3) event->weights()[i] /= weight_normalisation;
+      //if (i==0 || i>3) event->weights()[i] /= weight_normalisation;
+      if (i>3) { // cap variation weights
+        // cap variation weights at m_variation_weight_cap*nominal to avoid spikes from numerical instability
+        if (fabs(event->weights()[i]) > m_variation_weight_cap*fabs(event->weights()[0])) {
+          ATH_MSG_INFO("Capping variation" << i << " = " << event->weights()[i]/event->weights()[0] << "*nominal");
+          event->weights()[i] *= m_variation_weight_cap*fabs(event->weights()[0])/fabs(event->weights()[i]);
+        }
+      }
       ATH_MSG_DEBUG("Sherpa WEIGHT " << i << " value="<< event->weights()[i]);
     }
   }
@@ -229,7 +245,7 @@ StatusCode Sherpa_i::genFinalize() {
   std::cout << "MetaData: PDF = " << p_sherpa->PDFInfo() << std::endl;
 
   std::cout << "Named variations initialised by Sherpa:" << std::endl;
-  std::cout << "MN: disabled output because of CI link failure. REVERT once fixed. *p_sherpa->GetInitHandler()->GetVariations()" << std::endl;
+  std::cout << *p_sherpa->GetInitHandler()->GetVariations() << std::endl;
 
   p_sherpa->SummarizeRun();
   delete p_sherpa;
@@ -267,9 +283,19 @@ void Sherpa_i::getParameters(int &argc, char** &argv) {
   else{
     params.push_back("OUTPUT=15");
   }
+
+  // disregard manual RUNDATA setting if run card given in JO
+  if (m_runcard != "") m_params.push_back("RUNDATA=Run.dat");
   
   // allow to overwrite all parameters from JO file
   params.insert(params.begin()+params.size(), m_params.begin(), m_params.end());
+
+  // create Run.dat file if runcard explicitely given
+  if (m_runcard != "") {
+    FILE *file = fopen("Run.dat","w");
+    fputs(m_runcard.c_str(),file);
+    fclose(file);
+  }
 
   /***
       Convert into Sherpas argc/argv arguments
@@ -291,8 +317,25 @@ void Sherpa_i::getParameters(int &argc, char** &argv) {
 
 }
 
-
-
+void Sherpa_i::compilePlugin(std::string pluginCode) {
+  // TODO: not very pretty, should we eventually do this in Python instead (base fragment)
+  FILE *file = fopen("Sherpa_iPlugin.C","w");
+  fputs(pluginCode.c_str(),file);
+  fclose(file);
+  std::string command;
+  // Python -> C++ string conversion seems to add quote character as first
+  // and last line if the string contains quotes (like always in a plugin)
+  // thus removing them here
+  command += "tail -n +2 Sherpa_iPlugin.C | head -n -1 > Sherpa_iPlugin.C.tmp; mv Sherpa_iPlugin.C.tmp Sherpa_iPlugin.C; ";
+  command += "g++ -shared -std=c++0x -g ";
+  command += "-I`Sherpa-config --incdir` ";
+  command += "`Sherpa-config --ldflags` ";
+  command += "-fPIC -o libSherpa_iPlugin.so Sherpa_iPlugin.C";
+  ATH_MSG_INFO("Now compiling plugin library using: "+command);
+  if (system(command.c_str())!=0) {
+    ATH_MSG_ERROR("Error compiling plugin library.");
+  }
+}
 
 /**
    Use ATLAS random number generator for Sherpa's internal random numbers

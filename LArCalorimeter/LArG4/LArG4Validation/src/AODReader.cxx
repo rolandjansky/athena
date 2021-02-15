@@ -126,11 +126,11 @@ StatusCode AODReader::execute()
   ElectronContainer::const_iterator elecItr       = elecTES->begin();
   ElectronContainer::const_iterator elecItrE      = elecTES->end();
   
-  HepMC::GenParticle * trPart = 0;
+  HepMC::GenParticlePtr trPart{nullptr};
   if (mcEvtColl) {
 	  McEventCollection::const_iterator mcTrPart = mcEvtColl->begin();
 	  if (mcTrPart != mcEvtColl->end()) {
-		  trPart = (*mcTrPart)->barcode_to_particle(10001);
+		  trPart = HepMC::barcode_to_particle((*mcTrPart),10001);
 		  if (!trPart) {
 			  msg(MSG::WARNING) << "Not a single particle event. Truth information won't be available" << endmsg;
 		  }

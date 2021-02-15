@@ -54,7 +54,7 @@ FastChain_tf.py --maxEvents 500 \
     --conditionsTag OFLCOND-RUN12-SDR-31  \
     --inputRDOFile RDO_pileup_fullsim_fulldigi.pool.root \
     --outputAODFile AOD_newTracking_pseudoTracking_fullSim_fullDigi.pool.root \
-    --preExec "RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doPseudoTracking.set_Value_and_Lock(True);InDetFlags.doNewTracking.set_Value_and_Lock(True);rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);" \
+    --preExec "RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doPseudoTracking.set_Value_and_Lock(True);InDetFlags.doNewTracking.set_Value_and_Lock(True);rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);InDetFlags.doTrackSegmentsTRT.set_Value_and_Lock(True);" \
     --outputNTUP_PHYSVALFile 'physval-newTracking_PseudoT_fullSim_fullDigi.root' \
     --validationFlags 'doInDet' \
     --valid 'True' \

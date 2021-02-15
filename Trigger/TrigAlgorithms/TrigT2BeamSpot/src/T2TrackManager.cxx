@@ -67,7 +67,7 @@ T2TrackManager::split( const TrackCollection& cluster, const EventContext& ctx )
 }
 
 
-constexpr int T2TrackManager::alternatingSplit(int key) const
+int T2TrackManager::alternatingSplit(int& key) const
 {
   ++key;
   key %= m_nSplit;
@@ -75,7 +75,7 @@ constexpr int T2TrackManager::alternatingSplit(int key) const
 }
 
 
-constexpr int T2TrackManager::orderedSplit(int key, const int nEntries) const
+int T2TrackManager::orderedSplit(int& key, const int nEntries) const
 {
   ++key;
   return key * m_nSplit / nEntries;

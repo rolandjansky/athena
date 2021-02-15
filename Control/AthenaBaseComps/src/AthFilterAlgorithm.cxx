@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthFilterAlgorithm.cxx
@@ -74,10 +74,10 @@ AthFilterAlgorithm::sysInitialize()
   if ( Gaudi::StateMachine::INITIALIZED <= FSMState() ) return StatusCode::SUCCESS;
 
   // Set the Algorithm's properties
-  ATH_CHECK(setProperties());
+  bindPropertiesTo( serviceLocator()->getOptsSvc() );
 
   // Bypass the initialization if the algorithm is disabled.
-  // Need to do this after setProperties.
+  // Need to do this after bindPropertiesTo.
   if ( !isEnabled( ) ) return StatusCode::SUCCESS;
 
   // ---- stolen from GaudiKernel/Algorithm::sysInitialize ------- END ---

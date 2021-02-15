@@ -11,8 +11,6 @@
 #include <JetRecTools/JetConstituentModifierBase.h>
 #include <JetRecTools/CaloClusterConstituentsOrigin.h>
 #include <JetRecTools/ConstituentSubtractorTool.h>
-#include <JetRecTools/JetConstituentModifierBase.h>
-#include <JetRecTools/JetConstituentModSequence.h>
 #include <JetRecTools/SoftKillerWeightTool.h>
 #include <JetRecTools/VoronoiWeightTool.h>
 #include <JetRecTools/PFlowPseudoJetGetter.h>

@@ -43,8 +43,9 @@ def getOverallL1item(chainName):
         # During the transition period to the new menu format it is important to pick the correct kind based
         # on the temporary TriggerFlag readLVL1FromJSON.
         from TriggerJobOpts.TriggerFlags import TriggerFlags
-        if TriggerFlags.readLVL1FromJSON():
-            lvl1name = getL1MenuFileName()
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        if ConfigFlags.Trigger.readLVL1FromJSON:
+            lvl1name = getL1MenuFileName(ConfigFlags)
             lvl1access = L1MenuAccess(lvl1name)
             itemsDict = lvl1access.items(includeKeys = ['name','ctpid','triggerType'])
         else:
@@ -69,7 +70,7 @@ def getL1item(chainName):
     #replace the '_' left-closest-to ETA by '.' so that L1J75_31ETA49 becomes L1J75.31ETA49
     if 'ETA' in mainL1:
         r = re.compile("_(?P<eta>..ETA..)")
-        mainL1 = r.sub(".\\g<eta>", mainL1)
+        mainL1 = r.sub("p\\g<eta>", mainL1)
     return mainL1
 
 def getAllThresholdsFromItem(item):
@@ -186,23 +187,28 @@ def analyseChainName(chainName, L1thresholds, L1item):
     hltChainNameShort = '_'.join(cparts)
 
     # ---- identify the topo algorithm and add to genchainDict -----
-    from .SignatureDicts import AllowedTopos
+    from .SignatureDicts import AllowedTopos, AllowedTopos_comb
     topo = ''
     topos=[]
+    extraComboHypos = []
     toposIndexed={}
     topoindex = -5
     for cindex, cpart in enumerate(cparts):
-        if  cpart in AllowedTopos:
+        if cpart in AllowedTopos:
             log.debug('" %s" is in this part of the name %s -> topo alg', AllowedTopos, cpart)
             topo = cpart
             topoindex = cindex
             toposIndexed.update({topo : topoindex})
             hltChainNameShort=hltChainNameShort.replace('_'+cpart, '')
             topos.append(topo)
+        if cpart in AllowedTopos_comb:
+             log.debug('[analyseChainName] chain part %s is a combined topo hypo, adding to extraComboHypo', cpart)
+             extraComboHypos.append(cpart)
 
     genchainDict['topo'] = topos
+    genchainDict['extraComboHypos'] = extraComboHypos
 
-    # replace these lines belwo with cparts = chainName.split("_")
+    # replace these lines below with cparts = chainName.split("_")
     for t, i in enumerate(toposIndexed):
         if (t in cparts):
             log.debug('topo %s with index %s', t, i)
@@ -338,15 +344,22 @@ def analyseChainName(chainName, L1thresholds, L1item):
 
         chainpartsNoL1 = chainparts
         parts=chainpartsNoL1.split('_')
+        if None in parts:
+            log.error("[analyseChainName] chainpartsNoL1 -> parts: %s -> %s", chainpartsNoL1, parts)
+            raise Exception("[analyseChainName] parts contains None, please identify how this is happening")
         parts=list(filter(None,parts))
-
+        log.debug("[analyseChainName] chainpartsNoL1 %s, parts %s", chainpartsNoL1, parts)
+        
         chainProperties['trigType']=mdicts[chainindex]['trigType']
         chainProperties['extra']=mdicts[chainindex]['extra']
         multiplicity = mdicts[chainindex]['multiplicity'] if not mdicts[chainindex]['multiplicity'] == '' else '1'
         chainProperties['multiplicity'] = multiplicity
         chainProperties['threshold']=mdicts[chainindex]['threshold']
         chainProperties['signature']=mdicts[chainindex]['signature']
-        chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern(mdicts[chainindex]['signature'], mdicts[chainindex]['extra'])
+        if 'larnoiseburst' in chainName:
+            chainProperties['alignmentGroup'] = 'JetMET'
+        else:
+            chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern(mdicts[chainindex]['signature'], mdicts[chainindex]['extra'])
 
         # if we have a L1 topo in a multi-chain then we want to remove it from the chain name
         # but only if it's the same as the L1item_main; otherwise it belongs to chain part and we q
@@ -388,11 +401,9 @@ def analyseChainName(chainName, L1thresholds, L1item):
 
         # ---- check remaining parts for complete matches in allowedPropertiesAndValues Dict ----
         # ---- unmatched = list of tokens that are not found in the allowed values as a whole ----
-        parts = filter(None, parts)     #removing empty strings from list
 
         matchedparts = []
         for pindex, part in enumerate(parts):
-            origpart = part
             for prop, allowedValues in allowedSignaturePropertiesAndValues.items():
                 if part in allowedValues:
                     if type(chainProperties[prop]) is list:
@@ -438,7 +449,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
                             part = part.replace(aV,'')
                             break # done with allowed values for that property
 
-            assert len(part.split()) == 0, "These parts of the chain name {} are not understood {}".format(origpart,part)
+            assert len(part.split()) == 0, "These parts of the chain name {} are not understood: {}".format(chainpartsNoL1,part)
 
 
         # ---- remove properties that aren't allowed in the chain properties for a given siganture ----
@@ -476,7 +487,7 @@ def dictFromChainName(chainInfo):
     ---- Loop over all chains (keys) in dictionary ----
     ---- Then complete the dict with other info    ----
     Default input format will be namedtuple:
-    ChainProp: ['name', 'L1Thresholds'=[], 'stream', 'groups', 'merging'=[], 'topoStartFrom'=False],
+    ChainProp: ['name', 'L1Thresholds'=[], 'stream', 'groups', 'merging'=[], 'topoStartFrom'=False, 'monGroups' = []],
     but for nwo plain chain name is also supported
     
     """
@@ -492,6 +503,7 @@ def dictFromChainName(chainInfo):
         mergingOffset   = -1
         mergingOrder    = []
         topoStartFrom   = ''
+        monGroups       = []
 
     elif 'ChainProp' in str(type(chainInfo)):	
         #this is how we define chains in the menu - the normal behaviour of this function
@@ -503,6 +515,8 @@ def dictFromChainName(chainInfo):
         mergingOffset   = chainInfo.mergingOffset
         mergingOrder    = chainInfo.mergingOrder
         topoStartFrom   = chainInfo.topoStartFrom
+        monGroups       = chainInfo.monGroups
+
         
     else:
         assert True, "Format of chainInfo passed to genChainDict not known"
@@ -521,6 +535,7 @@ def dictFromChainName(chainInfo):
     chainDict['mergingOffset']   = mergingOffset
     chainDict['mergingOrder']    = mergingOrder
     chainDict['topoStartFrom']   = topoStartFrom
+    chainDict['monGroups']       = monGroups
     chainDict['chainNameHash']   = string2hash(chainDict['chainName'])
 
 

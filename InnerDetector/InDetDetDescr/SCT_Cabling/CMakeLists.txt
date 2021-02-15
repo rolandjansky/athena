@@ -19,7 +19,7 @@ atlas_install_joboptions( share/*.py )
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 # Test(s) in the package:
-atlas_add_test( TestSCT_CablingCfg
-                SCRIPT python -m SCT_Cabling.TestSCT_CablingCfg
+atlas_add_test( TestSCT_CablingConfig
+                SCRIPT python -m SCT_Cabling.TestSCT_CablingConfig
                 PROPERTIES TIMEOUT 600
                 ENVIRONMENT THREADS=1 )

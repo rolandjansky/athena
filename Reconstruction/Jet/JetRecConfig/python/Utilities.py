@@ -57,7 +57,7 @@ def make_alias( prop  ):
     def _getter(self):
         return getattr(self,prop,None)
     def _setter(self,v):
-        raise AttributeError("Cannot set alias "+pname+" from "+str(self) )
+        raise AttributeError("Cannot set alias "+prop+" from "+str(self) )
     return property(_getter, _setter)
 
 def listClassLProperties(cls):

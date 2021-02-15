@@ -20,13 +20,12 @@
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 
-#include "EventInfo/TagInfo.h"
-
 #include "GeoModelKernel/GeoPerfUtils.h"
 #include <fstream>
 
 #include "AthenaKernel/ClassID_traits.h"
 #include "SGTools/DataProxy.h"
+
 
 GeoModelSvc::GeoModelSvc(const std::string& name,ISvcLocator* svc)
   : AthService(name,svc),
@@ -103,13 +102,8 @@ StatusCode GeoModelSvc::initialize()
   ToolHandleArray< IGeoModelTool >::iterator itPriv = m_detectorTools.begin(),
     itPrivEnd = m_detectorTools.end();
 
-  // **** **** **** TagInfo **** **** ****
-  std::string tagInfoKey = "";
-
   if(m_useTagInfo) {
-    // get the key
     ATH_CHECK( m_tagInfoMgr.retrieve() );
-    tagInfoKey = m_tagInfoMgr->tagInfoKey();
   }
 
   // build regular geometry
@@ -134,12 +128,6 @@ StatusCode GeoModelSvc::initialize()
     }
   }
   else {
-    // _________________ Align functions NOT registered as callbacks _____________
-
-    // We want to register IGeoModelSvc::align() even if no alignment callback is registered by
-    // subsystem tools, such that clients like CaloTowerBuilder can simply go after IGeoModelSvc::align()
-    bool alignRegistered = false;
-
     // Register align() functions for all Tools 
     for (; itPriv!=itPrivEnd; ++itPriv) {
       IGeoModelTool* theTool = &(**itPriv);
@@ -148,19 +136,10 @@ StatusCode GeoModelSvc::initialize()
 	ATH_MSG_DEBUG("IGeoModelTool::align() was not registerred on CondDB object for the tool " << theTool->name());
       }
       else {
-	if(StatusCode::SUCCESS == m_detStore->regFcn(&IGeoModelTool::align,theTool,
-						      &IGeoModelSvc::align,dynamic_cast<IGeoModelSvc*>(this))) {
-	  ATH_MSG_DEBUG("IGeoModelSvc::align() callback registered for the tool " << theTool->name());
-	  alignRegistered = true;
-
-	  // Set useCaloAlign flag if the successful tool is LAr
-	  if((*itPriv).typeAndName().find("LAr")!=std::string::npos) {
-	      m_useCaloAlign = true;
-	  }
-	}
-	else {
-	  ATH_MSG_DEBUG("Unable to register callback on IGeoModelSvc::align() for the tool " << theTool->name());
-	}
+         // Set useCaloAlign flag if the successful tool is LAr
+         if((*itPriv).typeAndName().find("LAr")!=std::string::npos) {
+            m_useCaloAlign = true;
+         }
       }
     }
 
@@ -178,28 +157,9 @@ StatusCode GeoModelSvc::initialize()
     // Register a callback on TagInfo in order to compare geometry configurations defined in job options
     // to the one read from the input file
     if(m_useTagInfo) {
-      const DataHandle<TagInfo> tagInfoH;
-      if(m_detStore->regFcn(&IGeoModelSvc::compareTags,dynamic_cast<IGeoModelSvc*>(this), tagInfoH, tagInfoKey) != StatusCode::SUCCESS) {
-	ATH_MSG_WARNING("Cannot register compareTags function for key "  << tagInfoKey);
-      }
-      else {
-	ATH_MSG_DEBUG("Registered compareTags callback for key: " << tagInfoKey);
-	
-	if(!alignRegistered) {
-	  // There is no successfull alignment callback registration from subsystems
-	  // Register IGeoModelSvc::align() after IGeoModelSvc::compareTags() then
-	  if(m_detStore->regFcn(&IGeoModelSvc::compareTags,dynamic_cast<IGeoModelSvc*>(this),
-				 &IGeoModelSvc::align,dynamic_cast<IGeoModelSvc*>(this)) == StatusCode::SUCCESS) {
-	    ATH_MSG_DEBUG("Registered IGeoModelSvc::align() after IGeoModelSvc::compareTags()");
-	  }
-	  else {
-	    ATH_MSG_WARNING("Cannot register IGeoModelSvc::align() after IGeoModelSvc::compareTags()");
-	  }
-	}
-      }
-
-      // Fill in the contents of TagInfo
-      ATH_CHECK(fillTagInfo());
+       m_tagInfoMgr->addListener( this );
+       // Fill in the contents of TagInfo
+       ATH_CHECK(fillTagInfo());
     }
   }
 
@@ -208,6 +168,7 @@ StatusCode GeoModelSvc::initialize()
 
 StatusCode GeoModelSvc::finalize()
 {
+  m_tagInfoMgr->removeListener(this);
   return StatusCode::SUCCESS;
 }
 
@@ -374,24 +335,21 @@ StatusCode GeoModelSvc::geoInit()
   return StatusCode::SUCCESS;
 }
 
-StatusCode GeoModelSvc::align(IOVSVC_CALLBACK_ARGS)
+
+void GeoModelSvc::tagInfoUpdated()
 {
-  ATH_MSG_DEBUG("GeoModelSvc::align() called");
-  return StatusCode::SUCCESS;
+  compareTags().ignore();
 }
 
-StatusCode GeoModelSvc::compareTags(IOVSVC_CALLBACK_ARGS)
+
+StatusCode GeoModelSvc::compareTags()
 {
   bool tagsMatch = true;  
 
-  ATH_MSG_DEBUG("GeoModelSvc::compareTags() callback trigerred");
+  ATH_MSG_DEBUG("in compareTags()");
 
-  // Get TagInfo and retrieve tags
-  const TagInfo* tagInfo = 0;
-  ATH_CHECK( m_detStore->retrieve(tagInfo) );
-
-  TagInfo::NameTagPairVec pairs;
-  tagInfo->getInputTags(pairs);
+  // Get tags from TagInfoMgr
+  const ITagInfoMgr::NameTagPairVec pairs = m_tagInfoMgr->getInputTags();
   for( const auto& pair : pairs ) {
     std::string tagPairName = pair.first;
     if(tagPairName=="GeoAtlas") {
