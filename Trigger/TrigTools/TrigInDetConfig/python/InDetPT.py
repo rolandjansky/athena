@@ -4,9 +4,6 @@
 
 from __future__ import print_function
 
-from AthenaCommon.Include import include
-include.block("InDetTrigRecExample/EFInDetConfig.py")
-
 from AthenaCommon.Logging import logging 
 log = logging.getLogger("InDetPT")
 

@@ -5,7 +5,6 @@
 #https://gitlab.cern.ch/atlas/athena/blob/master/InnerDetector/InDetExample/InDetRecExample/share/ConfiguredNewTrackingSiPattern.py
 
 from AthenaCommon.Include import include
-include.block("InDetTrigRecExample/EFInDetConfig.py")
 include("InDetTrigRecExample/InDetTrigRec_jobOptions.py") # this is needed to get InDetTrigFlags
 
 from AthenaCommon.Logging import logging 
