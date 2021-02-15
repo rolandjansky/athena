@@ -26,10 +26,10 @@
 #include "GaudiKernel/IPartPropSvc.h"
 
 // HepMC
-#include "HepMC/SimpleVector.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/SimpleVector.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
 #include "HepPDT/ParticleDataTable.hh"
 
 // CLHEP
