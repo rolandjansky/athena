@@ -146,6 +146,10 @@ namespace InDet{
     PrimCovMtx(2,2) += SecVrtErr[5];
 
     Amg::MatrixX  WgtMtx = PrimCovMtx.inverse();
+    if( WgtMtx(0,0)<=0. || WgtMtx(1,1)<=0. || WgtMtx(2,2)<=0. ){
+       ATH_MSG_DEBUG(" Cov.matrix inversion failure in vertex distance significane");
+       return 1.e10;
+    }
 
     Signif = distx*WgtMtx(0,0)*distx
             +disty*WgtMtx(1,1)*disty
@@ -153,6 +157,7 @@ namespace InDet{
          +2.*distx*WgtMtx(0,1)*disty
          +2.*distx*WgtMtx(0,2)*distz
          +2.*disty*WgtMtx(1,2)*distz;
+    if(Signif<=0.)return 1.e10;        //Something is wrong in distance significance. 
     Signif=std::sqrt(Signif);
     if( Signif!=Signif ) Signif = 0.;
     return std::sqrt(distx*distx+disty*disty+distz*distz);
@@ -179,6 +184,10 @@ namespace InDet{
     PrimCovMtx(2,2) += SecVrtErr[5];
 
     AmgSymMatrix(3)  WgtMtx = PrimCovMtx.inverse();
+    if( WgtMtx(0,0)<=0. || WgtMtx(1,1)<=0. || WgtMtx(2,2)<=0. ){
+       ATH_MSG_DEBUG(" Cov.matrix inversion failure in vertex distance significane");
+       return 1.e10;
+    }
 
     Signif = distx*WgtMtx(0,0)*distx
             +disty*WgtMtx(1,1)*disty
@@ -186,6 +195,7 @@ namespace InDet{
          +2.*distx*WgtMtx(0,1)*disty
          +2.*distx*WgtMtx(0,2)*distz
          +2.*disty*WgtMtx(1,2)*distz;
+    if(Signif<=0.)return 1.e10;        //Something is wrong in distance significance. 
     Signif=std::sqrt(Signif);
     if( Signif!=Signif ) Signif = 0.;
     return std::sqrt(distx*distx+disty*disty+distz*distz);
@@ -207,10 +217,15 @@ namespace InDet{
     CovMtx(1,1) = PrimCovMtx(1,1) + SecVrtErr[2];
 
     AmgSymMatrix(2)  WgtMtx = CovMtx.inverse();
+    if( WgtMtx(0,0)<=0. || WgtMtx(1,1)<=0. ){
+       ATH_MSG_DEBUG(" Cov.matrix inversion failure in vertex distance significane");
+       return 1.e10;
+    }
 
     Signif = distx*WgtMtx(0,0)*distx
             +disty*WgtMtx(1,1)*disty
          +2.*distx*WgtMtx(0,1)*disty;
+    if(Signif<=0.)return 1.e10;        //Something is wrong in distance significance. 
     Signif=std::sqrt(Signif);
     if( Signif!=Signif ) Signif = 0.;
     return std::sqrt(distx*distx+disty*disty);
@@ -241,6 +256,11 @@ namespace InDet{
     PrimCovMtx(2,2) += SecVrtErr[5];
 
     AmgSymMatrix(3)  WgtMtx = PrimCovMtx.inverse();
+    if( WgtMtx(0,0)<=0. || WgtMtx(1,1)<=0. || WgtMtx(2,2)<=0. ){
+       ATH_MSG_DEBUG(" Cov.matrix inversion failure in vertex distance significane");
+       return 1.e10;
+    }
+
 
     double Signif = distx*WgtMtx(0,0)*distx
                    +disty*WgtMtx(1,1)*disty
@@ -248,6 +268,7 @@ namespace InDet{
                 +2.*distx*WgtMtx(0,1)*disty
                 +2.*distx*WgtMtx(0,2)*distz
                 +2.*disty*WgtMtx(1,2)*distz;
+    if(Signif<=0.)return 1.e10;        //Something is wrong in distance significance. 
     Signif=std::sqrt(Signif);
     if( Signif!=Signif ) Signif = 0.;
     if(projDist<0)Signif=-Signif;
@@ -279,6 +300,10 @@ namespace InDet{
     PrimCovMtx(2,2) += SecVrtErr[5];
 
     AmgSymMatrix(3)  WgtMtx = PrimCovMtx.inverse();
+    if( WgtMtx(0,0)<=0. || WgtMtx(1,1)<=0. || WgtMtx(2,2)<=0. ){
+       ATH_MSG_DEBUG(" Cov.matrix inversion failure in vertex distance significane");
+       return 1.e10;
+    }
 
     double Signif = distx*WgtMtx(0,0)*distx
                    +disty*WgtMtx(1,1)*disty
@@ -286,6 +311,7 @@ namespace InDet{
                 +2.*distx*WgtMtx(0,1)*disty
                 +2.*distx*WgtMtx(0,2)*distz
                 +2.*disty*WgtMtx(1,2)*distz;
+    if(Signif<=0.)return 1.e10;        //Something is wrong in distance significance. 
     Signif=std::sqrt(Signif);
     if( Signif!=Signif ) Signif = 0.;
     if(projDist<0)Signif=-Signif;
@@ -310,6 +336,10 @@ namespace InDet{
     PrimCovMtx(2,2) =                   VrtErr1[5]+VrtErr2[5];
 
     AmgSymMatrix(3)  WgtMtx = PrimCovMtx.inverse();
+    if( WgtMtx(0,0)<=0. || WgtMtx(1,1)<=0. || WgtMtx(2,2)<=0. ){
+       ATH_MSG_DEBUG(" Cov.matrix inversion failure in vertex distance significane");
+       return 1.e10;
+    }
 
 
     Signif =   distx*WgtMtx(0,0)*distx
@@ -318,6 +348,7 @@ namespace InDet{
            +2.*distx*WgtMtx(0,1)*disty
            +2.*distx*WgtMtx(0,2)*distz
            +2.*disty*WgtMtx(1,2)*distz;
+    if(Signif<=0.)return 1.e10;        //Something is wrong in distance significance. 
     Signif=std::sqrt(Signif);
     if(Signif != Signif)  Signif = 0.;
     return Signif;
