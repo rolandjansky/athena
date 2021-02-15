@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "tauRecTools/TauWPDecorator.h"
@@ -21,16 +21,19 @@ TauWPDecorator::TauWPDecorator(const std::string& name) :
   
   declareProperty("flatteningFile0Prong", m_file0p = "");
   declareProperty("flatteningFile1Prong", m_file1p = "");
+  declareProperty("flatteningFile2Prong", m_file2p = "");
   declareProperty("flatteningFile3Prong", m_file3p = "");
   
   declareProperty("CutEnumVals", m_EDMWPs);
   declareProperty("SigEff0P", m_EDMWPEffs0p);
   declareProperty("SigEff1P", m_EDMWPEffs1p);
+  declareProperty("SigEff2P", m_EDMWPEffs2p);
   declareProperty("SigEff3P", m_EDMWPEffs3p);
 
   declareProperty("DecorWPNames", m_decorWPs);
   declareProperty("DecorWPCutEffs0P", m_decorWPEffs0p);
   declareProperty("DecorWPCutEffs1P", m_decorWPEffs1p);
+  declareProperty("DecorWPCutEffs2P", m_decorWPEffs2p);
   declareProperty("DecorWPCutEffs3P", m_decorWPEffs3p);
 }
 
@@ -43,7 +46,7 @@ StatusCode TauWPDecorator::retrieveHistos(int nProng) {
   // Find and open file
   std::string fileName;
   std::shared_ptr<std::vector<m_pair_t>> histArray = nullptr;
-  if (nProng == 0) { 
+  if (nProng == 0) {
     fileName = m_file0p;
     histArray = m_hists0p;
   }
@@ -51,9 +54,17 @@ StatusCode TauWPDecorator::retrieveHistos(int nProng) {
     fileName = m_file1p;
     histArray = m_hists1p;
   }
-  else {
+  else if (nProng == 2) {
+    fileName = m_file2p;
+    histArray = m_hists2p;
+  }
+  else if (nProng == 3) {
     fileName = m_file3p;
     histArray = m_hists3p;
+  }
+  else {
+    ATH_MSG_ERROR("nProng " << nProng << " not supported.");
+    return StatusCode::FAILURE;
   }
 
   std::string fullPath = find_file(fileName);
@@ -64,15 +75,15 @@ StatusCode TauWPDecorator::retrieveHistos(int nProng) {
     return StatusCode::FAILURE;  
   }
   
-  ATH_MSG_INFO("Loading working points from " << fullPath.c_str());
+  ATH_MSG_INFO("Loading working points [" << nProng << "-prong]: " << fullPath.c_str());
   
   // Iterate over working points
   for (int i = 0; i < 100; ++i) {
     // Retrieve histogram
     TH2* graph = dynamic_cast<TH2*>(file->Get(Form("h2_%02d", i)));
     if (!graph){
-      ATH_MSG_WARNING("Failed to retrieve Graph " << i << " named " << Form("h2_%02d", i));
-      continue;
+      ATH_MSG_ERROR("Failed to retrieve Graph " << i << " named " << Form("h2_%02d", i));
+      return StatusCode::FAILURE;  
     }
     graph->SetDirectory(0);       
     std::shared_ptr<TH2> sharedGraph(graph);
@@ -80,11 +91,6 @@ StatusCode TauWPDecorator::retrieveHistos(int nProng) {
   }
   
   file->Close();
-  
-  if (histArray->size() == 0) {
-    ATH_MSG_ERROR("There is no histograms for " << nProng << "-prong taus");
-    return StatusCode::FAILURE;
-  }
 
   return StatusCode::SUCCESS;  
 }
@@ -98,8 +104,15 @@ StatusCode TauWPDecorator::storeLimits(int nProng) {
   else if (nProng == 1) {
     histArray = m_hists1p;
   }
-  else {
+  else if (nProng == 2) {
+    histArray = m_hists2p;
+  }
+  else if (nProng == 3) {
     histArray = m_hists3p;
+  }
+  else {
+    ATH_MSG_ERROR("nProng " << nProng << " not supported.");
+    return StatusCode::FAILURE;
   }
 
   std::shared_ptr<TH2> firstHist = histArray->at(0).second;
@@ -140,65 +153,75 @@ StatusCode TauWPDecorator::initialize() {
 
   ATH_CHECK( m_aveIntPerXKey.initialize() );
 
+  // 1p and 3p files must be provided
+  if (m_file1p.empty() || m_file3p.empty()) {
+    ATH_MSG_ERROR("1p/3p flattening file is not provided !");
+    return StatusCode::FAILURE;
+  }
+
   // 0p is for trigger only
   if (!m_file0p.empty()) {
     m_hists0p = std::make_shared<std::vector<m_pair_t>>();
     ATH_CHECK(retrieveHistos(0));
     ATH_CHECK(storeLimits(0));
   }
-  
-  // 1p and 3p file must be provided
-  if (m_file1p.empty() || m_file3p.empty()) {
-    ATH_MSG_ERROR("1p/3p flatterning file is not provided !");
-    return StatusCode::FAILURE;
-  }
 
   m_hists1p = std::make_shared<std::vector<m_pair_t>>();
   ATH_CHECK(retrieveHistos(1));
   ATH_CHECK(storeLimits(1));
+
+  // 2p is optional
+  if (!m_file2p.empty()) {
+    m_hists2p = std::make_shared<std::vector<m_pair_t>>();
+    ATH_CHECK(retrieveHistos(2));
+    ATH_CHECK(storeLimits(2));
+  }
   
   m_hists3p = std::make_shared<std::vector<m_pair_t>>();
   ATH_CHECK(retrieveHistos(3));
   ATH_CHECK(storeLimits(3));  
     
   for (size_t wpIndex=0; wpIndex < m_decorWPs.size(); ++wpIndex) {
-    const std::string& name = m_decorWPs[wpIndex];
-    m_charDecors.emplace_back(SG::AuxElement::Decorator<char>(name));
+    m_charDecors.emplace_back(SG::AuxElement::Decorator<char>( m_decorWPs[wpIndex] ));
   }
 
   return StatusCode::SUCCESS;
 }
 
 //______________________________________________________________________________
-StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau) const { 
+StatusCode TauWPDecorator::execute(xAOD::TauJet& tau) const { 
   // obtain the dependent variables of the efficiency 
-  // -- x variable is tau pt
-  double xVariable = pTau.pt();
+  // x variable is tau pt
+  double xVariable = tau.pt();
   
-  // -- y variable is |eta| of leading track in electron mode, and pileup in other cases
+  // y variable is |eta| of leading track in electron mode, and pileup in other cases
   double yVariable = 0.0;
   if (m_electronMode) {
-     const SG::AuxElement::ConstAccessor<float> acc_absEta("ABS_ETA_LEAD_TRACK");
-     yVariable = std::abs(acc_absEta(pTau));
+    static const SG::AuxElement::ConstAccessor<float> acc_absEta("ABS_ETA_LEAD_TRACK");
+    yVariable = std::abs(acc_absEta(tau));
   } 
   else {
     SG::ReadDecorHandle<xAOD::EventInfo, float> eventInfoDecorHandle( m_aveIntPerXKey );
     if (!eventInfoDecorHandle.isPresent()) {
-      ATH_MSG_WARNING ( "EventInfo decoration not available! Will set yVariable=0." );
+      ATH_MSG_ERROR( "EventInfo decoration " << m_aveIntPerXKey << " not available!" );
+      return StatusCode::FAILURE;  
     }
-    else {
-      yVariable = eventInfoDecorHandle(0);
-    } 
+    yVariable = eventInfoDecorHandle(0);
   }
 
-  int nProng = pTau.nTracks();
-  
-  // nProng >=2 is treated as 3 prong 
-  // 0 prong is treated as 3 prong when 0 prong calibraction file is not provided
-  if (nProng==0 && !m_hists0p) {
+  int nTracks = tau.nTracks();
+  int nProng = nTracks;
+
+  // 0p is treated as 3p when no calibration file is not provided for 0p
+  // 2p is treated as 3p when no calibration file is not provided for 2p
+  if (nTracks == 0 && !m_hists0p) {
+    // 0p->3p mapping was done for R21 backward compatibility reasons, may want to change this
     nProng = 3;
   }
-  else if (nProng>=2) {
+  else if (nTracks == 2 && !m_hists2p) {
+    nProng = 3;
+  }
+  else if (nTracks > 2) {
     nProng = 3;
   }
 
@@ -225,6 +248,7 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau) const {
   std::shared_ptr<std::vector<m_pair_t>> histArray = nullptr;
   if (nProng == 0) histArray = m_hists0p;
   else if (nProng == 1) histArray = m_hists1p;
+  else if (nProng == 2) histArray = m_hists2p;
   else histArray = m_hists3p;
   
   std::array<double, 2> cuts = {-1.01, 1.01}; // lower and upper bounday of the score
@@ -233,7 +257,7 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau) const {
   bool gotHigh = false; // whether upper bounday is found
   
   const SG::AuxElement::ConstAccessor<float> acc_score(m_scoreName);
-  double score = acc_score(pTau); // original score (BDT/RNN)
+  double score = acc_score(tau); // original score (BDT/RNN)
   
   // Loop over all histograms to find the lower and upper bounary of the score and corresponding efficiency
   for (unsigned int i = 0; i < histArray->size(); ++i) {
@@ -267,20 +291,24 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau) const {
   else {
     scoreTrans = transformScore(score, cuts[0], effs[0], cuts[1], effs[1]);
   }
-  SG::AuxElement::Accessor<float> acc_scoreTrans(m_scoreNameTrans);
-  acc_scoreTrans(pTau) = scoreTrans;
+
+  const SG::AuxElement::Accessor<float> acc_scoreTrans(m_scoreNameTrans);
+  acc_scoreTrans(tau) = scoreTrans;
   
   if(m_defineWPs) {
     // WPs in EDM
     for (size_t wpIndex=0; wpIndex < m_EDMWPs.size(); ++wpIndex) {
       if(nProng == 0) {
-        pTau.setIsTau((xAOD::TauJetParameters::IsTauFlag) m_EDMWPs[wpIndex], scoreTrans > (1-m_EDMWPEffs0p[wpIndex]));
+        tau.setIsTau((xAOD::TauJetParameters::IsTauFlag) m_EDMWPs[wpIndex], scoreTrans > (1-m_EDMWPEffs0p[wpIndex]));
       }
       else if(nProng == 1) {
-        pTau.setIsTau((xAOD::TauJetParameters::IsTauFlag) m_EDMWPs[wpIndex], scoreTrans > (1-m_EDMWPEffs1p[wpIndex]));
+        tau.setIsTau((xAOD::TauJetParameters::IsTauFlag) m_EDMWPs[wpIndex], scoreTrans > (1-m_EDMWPEffs1p[wpIndex]));
+      }
+      else if(nProng == 2) {
+        tau.setIsTau((xAOD::TauJetParameters::IsTauFlag) m_EDMWPs[wpIndex], scoreTrans > (1-m_EDMWPEffs2p[wpIndex]));
       }
       else {
-        pTau.setIsTau((xAOD::TauJetParameters::IsTauFlag) m_EDMWPs[wpIndex], scoreTrans > (1-m_EDMWPEffs3p[wpIndex]));
+        tau.setIsTau((xAOD::TauJetParameters::IsTauFlag) m_EDMWPs[wpIndex], scoreTrans > (1-m_EDMWPEffs3p[wpIndex]));
       }
     }
     // Decorate other WPs
@@ -288,13 +316,16 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau) const {
       const SG::AuxElement::Decorator<char>& decorator = m_charDecors[wpIndex];
 
       if(nProng == 0) {
-        decorator(pTau) = scoreTrans > (1-m_decorWPEffs0p[wpIndex]);
+        decorator(tau) = scoreTrans > (1-m_decorWPEffs0p[wpIndex]);
       }
       else if(nProng == 1) {
-        decorator(pTau) = scoreTrans > (1-m_decorWPEffs1p[wpIndex]);    
+        decorator(tau) = scoreTrans > (1-m_decorWPEffs1p[wpIndex]);
+      }
+      else if(nProng == 2) {
+        decorator(tau) = scoreTrans > (1-m_decorWPEffs2p[wpIndex]);
       }
       else {
-        decorator(pTau) = scoreTrans > (1-m_decorWPEffs3p[wpIndex]);    
+        decorator(tau) = scoreTrans > (1-m_decorWPEffs3p[wpIndex]);
       }
     }
   }
