@@ -259,7 +259,7 @@ GenAodValidationTool::executeTool( const HepMC::GenEvent* refMcEvts,
   // are comparable
   // loop over reference vertices
   for (auto checkVtx: checkMcEvts->vertices()) {
-    HepMC::GenVertexPtr refVtx = HepMC::barcode_to_vertex(refMcEvts,HepMC::barcode(checkVtx));
+    HepMC::ConstGenVertexPtr refVtx = HepMC::barcode_to_vertex(refMcEvts,HepMC::barcode(checkVtx));
     if (!refVtx) {
       ATH_MSG_WARNING("In Event [" << evtNbr
 		      << "]: got null ref-vertex (barcode: " 

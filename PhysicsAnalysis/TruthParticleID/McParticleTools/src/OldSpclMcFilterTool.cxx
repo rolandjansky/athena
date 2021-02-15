@@ -314,9 +314,8 @@ StatusCode OldSpclMcFilterTool::shapeGenEvent( McEventCollection* genAod )
     for ( std::list<int>::const_iterator itrBc = evtBarcodes.begin();
 	  itrBc != evtBarcodes.end();
 	  ++itrBc ) {
-
-      auto p = HepMC::barcode_to_particle(*evt,*itrBc);
-
+//AV: We modify event      
+      HepMC::GenParticlePtr p = HepMC::barcode_to_particle((HepMC::GenEvent*)(*evt),*itrBc);
       ATH_MSG_DEBUG("[pdg,bc]= " << p->pdg_id() << ", " <<HepMC::barcode( p));
       if ( m_barcodes.find(HepMC::barcode(p)) == m_barcodes.end() ) { 
 	going_out.push_back(p); // list of useless particles
@@ -549,8 +548,14 @@ StatusCode OldSpclMcFilterTool::rebuildLinks( const HepMC::GenEvent * mcEvt,
   // Cache some useful infos
   const int pdgId = mcPart->pdg_id();
   const int bc    = HepMC::barcode(mcPart);
+#ifdef HEPMC3
+  HepMC::ConstGenParticlePtr inPart = HepMC::barcode_to_particle(mcEvt,bc);
+  HepMC::ConstGenVertexPtr   dcyVtx = inPart->end_vertex();
+#else
+//AV: Const correctness is broken for HepMC2.
   HepMC::GenParticlePtr inPart = HepMC::barcode_to_particle(mcEvt,bc);
   HepMC::GenVertexPtr   dcyVtx = inPart->end_vertex();
+#endif
 
   if ( !dcyVtx ) {
     ATH_MSG_VERBOSE("No decay vertex for the particle #" << bc << " : " << "No link to rebuild...");
