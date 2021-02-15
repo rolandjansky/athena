@@ -82,17 +82,17 @@ if 'BadChannelsFolder' not in dir():
    BadChannelsFolder="/LAR/BadChannels/BadChannels"
 if 'MissingFEBsFolder' not in dir():
    MissingFEBsFolder="/LAR/BadChannels/MissingFEBs"
-if LArDBConnection is not "" and 'InputDBConnectionBadChannel' not in dir():
+if LArDBConnection != "" and 'InputDBConnectionBadChannel' not in dir():
   InputDBConnectionBadChannel = LArDBConnection
 
 
 from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelCondAlg,LArBadFebCondAlg
-if LArDBConnection is not "":
+if LArDBConnection != "":
   conddb.addFolder("",BadChannelsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className="CondAttrListCollection")
 else:  
   conddb.addFolder(LArDB,BadChannelsFolder,className="CondAttrListCollection")
 condSeq+=LArBadChannelCondAlg(ReadKey=BadChannelsFolder)
-if LArDBConnection is not "":
+if LArDBConnection != "":
    conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className='AthenaAttributeList')
 else:   
    conddb.addFolder(LArDB,MissingFEBsFolder,className='AthenaAttributeList')
