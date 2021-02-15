@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -55,7 +55,7 @@ namespace ISF
     std::string                         m_name;               //!< Give pdf a name for debug purposes
     std::map< double , std::map< std::vector<double>, TH1*> > m_energy_etaRange_hists1D; //!< map of energies to map of eta ranges to 1D histograms
     std::map< double , std::map< std::vector<double>, TH2*> > m_energy_etaRange_hists2D; //!< map of energies to map of eta ranges to 2D histograms
-    constexpr static double s_sqrtOf2 = std::sqrt(2);
+    constexpr static double s_sqrtOf2 = M_SQRT2;
 
   };
 }
