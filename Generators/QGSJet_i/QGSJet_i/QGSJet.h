@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GENERATORMODULESQGSJET_H
 #define GENERATORMODULESQGSJET_H
 
 #include "GeneratorModules/GenModule.h"
+#include "AtlasHepMC/HEPEVT_Wrapper.h"
 
 /**
 @class Epos
@@ -51,9 +52,7 @@ protected:
   int         m_ilheout;
   int         m_nEvents;
 
-    // max number of particles MUST BE EQUAL TO THE NUMBER SET IN crmc-aaa.f! (it is max. number allowed by HepMC2.6 now)
- static const size_t kMaxParticles = 10000; 
-//  static const size_t kMaxParticles = HEPEVT_SIZE_REPLACE;
+  static const size_t kMaxParticles = HEPEVT_EntriesAllocation; 
   int   m_partID[ kMaxParticles ];
   double m_partPx[ kMaxParticles ];
   double m_partPy[ kMaxParticles ];
