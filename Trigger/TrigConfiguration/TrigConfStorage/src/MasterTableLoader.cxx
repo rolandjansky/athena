@@ -18,7 +18,7 @@
 using namespace std;
 
 bool
-TrigConf::MasterTableLoader::loadMasterKeys(int SuperMasterKey, int& Lvl1MasterKey) {
+TrigConf::MasterTableLoader::loadMasterKeys(int SuperMasterKey, int& Lvl1MasterKey, std::string & menuName) {
    try {
 
       startSession();
@@ -36,8 +36,10 @@ TrigConf::MasterTableLoader::loadMasterKeys(int SuperMasterKey, int& Lvl1MasterK
       //Output data and types
       coral::AttributeList attList;
       attList.extend<int>( "SMT_L1_MASTER_TABLE_ID" );
+      attList.extend<std::string>( "SMT_NAME" );
       query->defineOutput(attList);
       query->addToOutputList( "SMT_L1_MASTER_TABLE_ID" );
+      query->addToOutputList( "SMT_NAME" );
 
       coral::ICursor& cursor = query->execute();
 
@@ -50,6 +52,7 @@ TrigConf::MasterTableLoader::loadMasterKeys(int SuperMasterKey, int& Lvl1MasterK
 	
       const coral::AttributeList& row = cursor.currentRow();
       Lvl1MasterKey = row["SMT_L1_MASTER_TABLE_ID"].data<int>();
+      menuName = row["SMT_NAME"].data<std::string>();
 
       delete query;
       commitSession();
@@ -81,7 +84,8 @@ TrigConf::MasterTableLoader::load(ThresholdConfig& thrcfg) {
          return false;
       }
       int Lvl1MasterKey(0);
-      loadMasterKeys(SuperMasterKey, Lvl1MasterKey);
+      std::string menuName{""};
+      loadMasterKeys(SuperMasterKey, Lvl1MasterKey, menuName);
       thrcfg.setLvl1MasterTableId(Lvl1MasterKey);
    }
    try {
@@ -109,12 +113,13 @@ TrigConf::MasterTableLoader::load(CTPConfig& ctpc) {
       int Lvl1MasterKey(0);
 
       msg() << "Load L1 master key" << std::endl;
-
-      loadMasterKeys(SuperMasterKey, Lvl1MasterKey);
+      std::string menuName{""};
+      loadMasterKeys(SuperMasterKey, Lvl1MasterKey, menuName);
 
       msg() << "Loaded L1 master key" << Lvl1MasterKey << std::endl;
 
       ctpc.setLvl1MasterTableId(Lvl1MasterKey);
+      ctpc.setName(menuName);
    }
    try {
       CTPConfigLoader& ctpLoader = 
@@ -144,7 +149,8 @@ TrigConf::MasterTableLoader::load(Muctpi& m) {
          return false;
       }
       int Lvl1MasterKey(0);
-      loadMasterKeys(SuperMasterKey, Lvl1MasterKey);
+      std::string menuName{""};
+      loadMasterKeys(SuperMasterKey, Lvl1MasterKey, menuName);
       m.setLvl1MasterTableId(Lvl1MasterKey);
    }
    try {

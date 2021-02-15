@@ -27,7 +27,7 @@ atlas_add_executable( TrigConfConsistencyChecker
                       LINK_LIBRARIES TrigConfStorage )
 
 atlas_add_executable( TrigConfReadWrite
-                      src/test/ReadWrite.cxx src/test/Run2toRun3Converters.cxx
+                      src/test/ReadWrite.cxx src/test/Run2toRun3ConvertersL1.cxx src/test/Run2toRun3ConvertersHLT.cxx
                       LINK_LIBRARIES L1TopoConfig TrigConfJobOptData TrigConfStorage TrigConfData TrigConfIO TrigCompositeUtilsLib )
 
 atlas_add_executable( TrigConfCoolFix

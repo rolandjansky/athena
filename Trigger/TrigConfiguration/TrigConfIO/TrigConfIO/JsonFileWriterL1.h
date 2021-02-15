@@ -7,8 +7,8 @@
  * To validate correct loading of the L1 menu
  */
 
-#ifndef TRIGCONFSTORAGE_JSONFILEWRITER_H
-#define TRIGCONFSTORAGE_JSONFILEWRITER_H
+#ifndef TRIGCONFSTORAGE_JSONFILEWRITERL1_H
+#define TRIGCONFSTORAGE_JSONFILEWRITERL1_H
 
 #include "TrigConfBase/TrigConfMessaging.h"
 #include "TrigConfData/L1Menu.h"
@@ -20,11 +20,11 @@ namespace TrigConf {
    /**
     * @brief Loader of trigger configurations from Json files
     */
-   class JsonFileWriter : public TrigConfMessaging {
+   class JsonFileWriterL1 : public TrigConfMessaging {
    public:
 
       /** Constructor */
-      JsonFileWriter();
+      JsonFileWriterL1();
 
       bool writeJsonFile(const std::string & filename, const L1Menu & l1menu) const;
       bool writeJsonFile(const std::string & filename, const L1BunchGroupSet & l1bgs) const;
