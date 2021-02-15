@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DerivationFrameworkSUSY/SUSYGenFilterTool.h"
@@ -139,7 +139,7 @@ namespace DerivationFramework {
 
     // Get HT
     genFiltHT = -1;
-    for (const auto& tj : *truthjets) {
+    for (const auto tj : *truthjets) {
       if ( tj->pt()>m_MinJetPt && fabs(tj->eta())<m_MaxJetEta ) {
 	ATH_MSG_VERBOSE("Adding truth jet with pt " << tj->pt()
 			<< ", eta " << tj->eta()
@@ -150,7 +150,7 @@ namespace DerivationFramework {
     }
 
     float MEx(0.), MEy(0.);
-    for (const auto& tp : *tpc){
+    for (const auto tp : *tpc){
       int pdgid = tp->pdgId();
       if (tp->barcode() >= m_SimBarcodeOffset) continue; // Particle is from G4
       if (pdgid==21 && tp->e()==0) continue; // Work around for an old generator bug

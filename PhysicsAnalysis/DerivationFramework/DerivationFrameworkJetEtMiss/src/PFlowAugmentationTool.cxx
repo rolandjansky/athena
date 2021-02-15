@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -64,7 +64,7 @@ namespace DerivationFramework {
       ATH_MSG_WARNING(" Failed to retrieve PrimaryVertices collection" );
       return StatusCode::FAILURE;
     }
-    for (const auto& vx : *pvcont) {
+    for (const auto vx : *pvcont) {
       if (vx->vertexType() == xAOD::VxType::PriVtx) {
         pv = vx;
         break;
