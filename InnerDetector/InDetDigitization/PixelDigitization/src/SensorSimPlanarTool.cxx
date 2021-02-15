@@ -201,7 +201,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
   //Set up physical detector properties, switch on detector material
   ATH_MSG_DEBUG("Applying planar sensor simulation");
   double sensorThickness = Module.design().thickness();
-  const InDet::SiliconProperties& siProperties = m_siPropertiesTool->getSiProperties(Module.identifyHash());
+  const InDet::SiliconProperties& siProperties = m_siPropertiesTool->getSiProperties(Module.identifyHash(), ctx);
 
   int etaCells = p_design.columns();
   int phiCells = p_design.rows();
