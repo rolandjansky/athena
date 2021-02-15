@@ -3,7 +3,6 @@
 #
 
 from AthenaCommon.Include import include
-include.block("InDetTrigRecExample/EFInDetConfig.py")
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger("InDetSetup")
