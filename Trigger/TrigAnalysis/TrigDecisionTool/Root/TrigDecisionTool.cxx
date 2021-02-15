@@ -128,7 +128,9 @@ Trig::TrigDecisionTool::initialize() {
 
      m_configTool.disable();
 
+     ATH_MSG_DEBUG("Fetching " << m_configSvc.typeAndName());
      ATH_CHECK(m_configSvc.retrieve());
+
      // call update if there is anything in config svc
      if ( m_configSvc->chainList() || m_configSvc->ctpConfig() ) {
        configurationUpdate( m_configSvc->chainList(), m_configSvc->ctpConfig() );
@@ -270,9 +272,9 @@ StatusCode Trig::TrigDecisionTool::beginEvent() {
 #endif
 
 #ifndef XAOD_ANALYSIS
-  if(m_configSvc.name() == "xAODConfigSvc") {
+  if(m_configSvc.name() == "xAODConfigSvc" or m_configSvc.name() == "TrigConfigSvc") {
     // ... and where we are using the xAOD service (instead of the TrigConfSvc)
-    ATH_MSG_VERBOSE("beginEvent: check if config update is nessecary (via xAOD config Svc)");
+    ATH_MSG_VERBOSE("beginEvent: check if config update is nessecary (via " << m_configSvc.name() << ")");
 
     bool keysMatch = configKeysMatch(m_configSvc->masterKey(),
       m_configSvc->lvl1PrescaleKey(),
@@ -348,6 +350,7 @@ Trig::TrigDecisionTool::handle(const Incident& inc) {
       if(m_configSvc.isSet()) {
          ATH_MSG_INFO("updating config via config svc");
          configurationUpdate( m_configSvc->chainList(), m_configSvc->ctpConfig());
+         setForceConfigUpdate(true, /*forceForAllSlots=*/ true);
       } else {
          ATH_MSG_DEBUG("No TrigConfigSvc, ignoring TrigConf incident.");
       }
