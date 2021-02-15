@@ -254,30 +254,58 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     auto L1_roi_Ey = Monitored::Scalar<float>("L1_roi_Ey",0.0);
     auto L1_roi_Et = Monitored::Scalar<float>("L1_roi_Et",0.0);
     auto L1_roi_sumEt = Monitored::Scalar<float>("L1_roi_sumEt",0.0);
+    auto L1_roi_Ex_log = Monitored::Scalar<float>("L1_roi_Ex_log",0.0);
+    auto L1_roi_Ey_log = Monitored::Scalar<float>("L1_roi_Ey_log",0.0);
+    auto L1_roi_Et_log = Monitored::Scalar<float>("L1_roi_Et_log",0.0);
+    auto L1_roi_sumEt_log = Monitored::Scalar<float>("L1_roi_sumEt_log",0.0);
     auto L1_jnc_Ex = Monitored::Scalar<float>("L1_jnc_Ex",0.0);
     auto L1_jnc_Ey = Monitored::Scalar<float>("L1_jnc_Ey",0.0);
     auto L1_jnc_Et = Monitored::Scalar<float>("L1_jnc_Et",0.0);
     auto L1_jnc_sumEt = Monitored::Scalar<float>("L1_jnc_sumEt",0.0);
+    auto L1_jnc_Ex_log = Monitored::Scalar<float>("L1_jnc_Ex_log",0.0);
+    auto L1_jnc_Ey_log = Monitored::Scalar<float>("L1_jnc_Ey_log",0.0);
+    auto L1_jnc_Et_log = Monitored::Scalar<float>("L1_jnc_Et_log",0.0);
+    auto L1_jnc_sumEt_log = Monitored::Scalar<float>("L1_jnc_sumEt_log",0.0);
     auto L1_jrho_Ex = Monitored::Scalar<float>("L1_jrho_Ex",0.0);
     auto L1_jrho_Ey = Monitored::Scalar<float>("L1_jrho_Ey",0.0);
     auto L1_jrho_Et = Monitored::Scalar<float>("L1_jrho_Et",0.0);
     auto L1_jrho_sumEt = Monitored::Scalar<float>("L1_jrho_sumEt",0.0);
+    auto L1_jrho_Ex_log = Monitored::Scalar<float>("L1_jrho_Ex_log",0.0);
+    auto L1_jrho_Ey_log = Monitored::Scalar<float>("L1_jrho_Ey_log",0.0);
+    auto L1_jrho_Et_log = Monitored::Scalar<float>("L1_jrho_Et_log",0.0);
+    auto L1_jrho_sumEt_log = Monitored::Scalar<float>("L1_jrho_sumEt_log",0.0);
     auto L1_gnc_Ex = Monitored::Scalar<float>("L1_gnc_Ex",0.0);
     auto L1_gnc_Ey = Monitored::Scalar<float>("L1_gnc_Ey",0.0);
     auto L1_gnc_Et = Monitored::Scalar<float>("L1_gnc_Et",0.0);
     auto L1_gnc_sumEt = Monitored::Scalar<float>("L1_gnc_sumEt",0.0);
+    auto L1_gnc_Ex_log = Monitored::Scalar<float>("L1_gnc_Ex_log",0.0);
+    auto L1_gnc_Ey_log = Monitored::Scalar<float>("L1_gnc_Ey_log",0.0);
+    auto L1_gnc_Et_log = Monitored::Scalar<float>("L1_gnc_Et_log",0.0);
+    auto L1_gnc_sumEt_log = Monitored::Scalar<float>("L1_gnc_sumEt_log",0.0);
     auto L1_grho_Ex = Monitored::Scalar<float>("L1_grho_Ex",0.0);
     auto L1_grho_Ey = Monitored::Scalar<float>("L1_grho_Ey",0.0);
     auto L1_grho_Et = Monitored::Scalar<float>("L1_grho_Et",0.0);
     auto L1_grho_sumEt = Monitored::Scalar<float>("L1_grho_sumEt",0.0);
+    auto L1_grho_Ex_log = Monitored::Scalar<float>("L1_grho_Ex_log",0.0);
+    auto L1_grho_Ey_log = Monitored::Scalar<float>("L1_grho_Ey_log",0.0);
+    auto L1_grho_Et_log = Monitored::Scalar<float>("L1_grho_Et_log",0.0);
+    auto L1_grho_sumEt_log = Monitored::Scalar<float>("L1_grho_sumEt_log",0.0);
     auto L1_gjwoj_Ex = Monitored::Scalar<float>("L1_gjwoj_Ex",0.0);
     auto L1_gjwoj_Ey = Monitored::Scalar<float>("L1_gjwoj_Ey",0.0);
     auto L1_gjwoj_Et = Monitored::Scalar<float>("L1_gjwoj_Et",0.0);
     auto L1_gjwoj_sumEt = Monitored::Scalar<float>("L1_gjwoj_sumEt",0.0);
+    auto L1_gjwoj_Ex_log = Monitored::Scalar<float>("L1_gjwoj_Ex_log",0.0);
+    auto L1_gjwoj_Ey_log = Monitored::Scalar<float>("L1_gjwoj_Ey_log",0.0);
+    auto L1_gjwoj_Et_log = Monitored::Scalar<float>("L1_gjwoj_Et_log",0.0);
+    auto L1_gjwoj_sumEt_log = Monitored::Scalar<float>("L1_gjwoj_sumEt_log",0.0);
     auto L1_gpufit_Ex = Monitored::Scalar<float>("L1_gpufit_Ex",0.0);
     auto L1_gpufit_Ey = Monitored::Scalar<float>("L1_gpufit_Ey",0.0);
     auto L1_gpufit_Et = Monitored::Scalar<float>("L1_gpufit_Et",0.0);
     auto L1_gpufit_sumEt = Monitored::Scalar<float>("L1_gpufit_sumEt",0.0);
+    auto L1_gpufit_Ex_log = Monitored::Scalar<float>("L1_gpufit_Ex_log",0.0);
+    auto L1_gpufit_Ey_log = Monitored::Scalar<float>("L1_gpufit_Ey_log",0.0);
+    auto L1_gpufit_Et_log = Monitored::Scalar<float>("L1_gpufit_Et_log",0.0);
+    auto L1_gpufit_sumEt_log = Monitored::Scalar<float>("L1_gpufit_sumEt_log",0.0);
     auto cell_Ex = Monitored::Scalar<float>("cell_Ex",0.0);
     auto cell_Ey = Monitored::Scalar<float>("cell_Ey",0.0);
     auto cell_Et = Monitored::Scalar<float>("cell_Et",0.0);
@@ -419,15 +447,29 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     auto pass_HLT13 = Monitored::Scalar<float>("pass_HLT13",0.0);
     auto pass_HLT14 = Monitored::Scalar<float>("pass_HLT14",0.0);
 
+    auto HLT_MET_status = Monitored::Scalar<int>("HLT_MET_status",0.0);
+    auto MET_status = Monitored::Scalar<float>("MET_status",0.0);
+    auto HLT_MET_component = Monitored::Scalar<int>("HLT_MET_component",0.0);
+    auto component_Et = Monitored::Scalar<float>("component_Et",0.0);
+    auto component = Monitored::Scalar<int>("component",0.0);
+    auto component_status = Monitored::Scalar<int>("component_status",0.0);
+    auto component_status_weight = Monitored::Scalar<int>("component_status_weight",0.0);
+
 
     // constant floor for log plots
     double epsilon = 1.189;
+
+    // for histogram filling
+    auto tool = getGroup("TrigMETMonitor");
 
     // access lepton values
     if ( hlt_electron_cont.isValid() && hlt_electron_cont->size() > 0 ) {
       hlt_el_mult = hlt_electron_cont->size();
       for (auto Electron: *hlt_electron_cont) {
         hlt_el_pt = (Electron->pt())*0.001;
+        if (hlt_el_mult > 0) {
+          fill(tool, hlt_el_pt);
+        }
       }
     }
 
@@ -435,6 +477,9 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       hlt_mu_mult = hlt_muon_cont->size();
       for (auto Muon: *hlt_muon_cont) {
         hlt_mu_pt = (Muon->pt())*0.001;
+        if (hlt_mu_mult > 0) {
+          fill(tool,hlt_mu_pt);
+        }
       }
     }
 
@@ -454,6 +499,10 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 	L1_roi_Ey = - (l1_roi_cont->energyY())/1000.;
         L1_roi_Et = std::sqrt(L1_roi_Ex*L1_roi_Ex + L1_roi_Ey*L1_roi_Ey);
         L1_roi_sumEt = (l1_roi_cont->energyT())/1000.;
+        L1_roi_Ex_log = signed_log(L1_roi_Ex, epsilon);
+        L1_roi_Ey_log = signed_log(L1_roi_Ey, epsilon);
+        L1_roi_Et_log = signed_log(L1_roi_Et, epsilon);
+        L1_roi_sumEt_log = signed_log(L1_roi_sumEt, epsilon);
       }
     }
 
@@ -464,6 +513,10 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
         L1_jnc_Ey = - (l1_jnc_cont->energyY())/1000.;
         L1_jnc_Et = std::sqrt(L1_jnc_Ex*L1_jnc_Ex + L1_jnc_Ey*L1_jnc_Ey);
         L1_jnc_sumEt = (l1_jnc_cont->energyT())/1000.;
+        L1_jnc_Ex_log = signed_log(L1_jnc_Ex, epsilon);
+        L1_jnc_Ey_log = signed_log(L1_jnc_Ey, epsilon);
+        L1_jnc_Et_log = signed_log(L1_jnc_Et, epsilon);
+        L1_jnc_sumEt_log = signed_log(L1_jnc_sumEt, epsilon);
       }
     }
 
@@ -474,6 +527,10 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
         L1_jrho_Ey = - (l1_jrho_cont->energyY())/1000.;
         L1_jrho_Et = std::sqrt(L1_jrho_Ex*L1_jrho_Ex + L1_jrho_Ey*L1_jrho_Ey);
         L1_jrho_sumEt = (l1_jrho_cont->energyT())/1000.;
+        L1_jrho_Ex_log = signed_log(L1_jrho_Ex, epsilon);
+        L1_jrho_Ey_log = signed_log(L1_jrho_Ey, epsilon);
+        L1_jrho_Et_log = signed_log(L1_jrho_Et, epsilon);
+        L1_jrho_sumEt_log = signed_log(L1_jrho_sumEt, epsilon);
       }
     }
 
@@ -484,6 +541,10 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
         L1_gnc_Ey = - (l1_gnc_cont->energyY())/1000.;
         L1_gnc_Et = std::sqrt(L1_gnc_Ex*L1_gnc_Ex + L1_gnc_Ey*L1_gnc_Ey);
         L1_gnc_sumEt = (l1_gnc_cont->energyT())/1000.;
+        L1_gnc_Ex_log = signed_log(L1_gnc_Ex, epsilon);
+        L1_gnc_Ey_log = signed_log(L1_gnc_Ey, epsilon);
+        L1_gnc_Et_log = signed_log(L1_gnc_Et, epsilon);
+        L1_gnc_sumEt_log = signed_log(L1_gnc_sumEt, epsilon);
       }
     }
 
@@ -494,6 +555,10 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
         L1_grho_Ey = - (l1_grho_cont->energyY())/1000.;
         L1_grho_Et = std::sqrt(L1_grho_Ex*L1_grho_Ex + L1_grho_Ey*L1_grho_Ey);
         L1_grho_sumEt = (l1_grho_cont->energyT())/1000.;
+        L1_grho_Ex_log = signed_log(L1_grho_Ex, epsilon);
+        L1_grho_Ey_log = signed_log(L1_grho_Ey, epsilon);
+        L1_grho_Et_log = signed_log(L1_grho_Et, epsilon);
+        L1_grho_sumEt_log = signed_log(L1_grho_sumEt, epsilon);
       }
     }
 
@@ -504,6 +569,10 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
         L1_gjwoj_Ey = - (l1_gjwoj_cont->energyY())/1000.;
         L1_gjwoj_Et = std::sqrt(L1_gjwoj_Ex*L1_gjwoj_Ex + L1_gjwoj_Ey*L1_gjwoj_Ey);
         L1_gjwoj_sumEt = (l1_gjwoj_cont->energyT())/1000.;
+        L1_gjwoj_Ex_log = signed_log(L1_gjwoj_Ex, epsilon);
+        L1_gjwoj_Ey_log = signed_log(L1_gjwoj_Ey, epsilon);
+        L1_gjwoj_Et_log = signed_log(L1_gjwoj_Et, epsilon);
+        L1_gjwoj_sumEt_log = signed_log(L1_gjwoj_sumEt, epsilon);
       }
     }
 
@@ -514,6 +583,10 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
         L1_gpufit_Ey = - (l1_gpufit_cont->energyY())/1000.;
         L1_gpufit_Et = std::sqrt(L1_gpufit_Ex*L1_gpufit_Ex + L1_gpufit_Ey*L1_gpufit_Ey);
         L1_gpufit_sumEt = (l1_gpufit_cont->energyT())/1000.;
+        L1_gpufit_Ex_log = signed_log(L1_gpufit_Ex, epsilon);
+        L1_gpufit_Ey_log = signed_log(L1_gpufit_Ey, epsilon);
+        L1_gpufit_Et_log = signed_log(L1_gpufit_Et, epsilon);
+        L1_gpufit_sumEt_log = signed_log(L1_gpufit_sumEt, epsilon);
       }
     }
 
@@ -534,6 +607,88 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       TVector3 v(cell_Ex, cell_Ey, cell_Ez);
       cell_eta = v.Eta();
       cell_phi = v.Phi();
+
+      // status, component
+      std::vector<std::string> compNames = {
+            "PreSamplB", "EMB1", "EMB2", "EMB3",  // LAr barrel
+            "PreSamplE", "EME1", "EME2", "EME3",  // LAr EM endcap
+            "HEC0",      "HEC1", "HEC2", "HEC3",  // Hadronic end cap cal.
+            "TileBar0", "TileBar1", "TileBar2",   // Tile barrel
+            "TileGap1", "TileGap2", "TileGap3",   // Tile gap (ITC & scint)
+            "TileExt0", "TileExt1", "TileExt2",   // Tile extended barrel
+            "FCalEM",   "FCalHad2", "FCalHad3",   // Forward cal endcap
+            "Muons"
+     };
+
+     std::vector<std::string> bitNames = {
+             "Processing",         // bit  0
+             "ErrBSconv",          // bit  1
+             "ErrMuon",            // bit  2
+             "ErrFEB",             // bit  3
+             "Skipped",            // bit  4
+             "CompBigMEtSEtRatio", // bit  5
+             "BadCompEnergy",      // bit  6
+             "BadEnergyRatio",     // bit  7
+             "spare",              // bit  8
+             "BadCellQuality",     // bit  9
+             "BadCellEnergy",      // bit 10
+             "BadCellTime",        // bit 11
+             "NoMuonTrack",        // bit 12
+             "spare",              // bit 13
+             "Processed",          // bit 14
+             "CompError",          // bit 15
+             "EMB_A_Missing",      // bit 16
+             "EMB_C_Missing",      // bit 17
+             "EME_A_Missing",      // bit 18
+             "EME_C_Missing",      // bit 19
+             "HEC_A_Missing",      // bit 20
+             "HEC_C_Missing",      // bit 21
+             "FCAL_A_Missing",     // bit 22
+             "FCAL_C_Missing",     // bit 23
+             "TileB_A_Missing",    // bit 24
+             "TileB_C_Missing",    // bit 25
+             "TileE_A_Missing",    // bit 26
+             "TileE_C_Missing",    // bit 27
+             "BadEMfraction",      // bit 28
+             "GlobBigMEtSEtRatio", // bit 29
+             "ObjInCrack",         // bit 30
+             "GlobError"           // bit 31
+      };  
+
+     for (int j=0; j<32; ++j) { //status loop
+       HLT_MET_status = j;
+       unsigned mask = (1<<j);
+       if (hlt_met->flag() & mask) {
+         MET_status = 1.;
+       } else {
+         MET_status = 0;
+       }
+       fill(tool,HLT_MET_status,MET_status);
+     }
+
+     for (int i=0; i<24; ++i) { //component loop
+       HLT_MET_component = i;
+       float ex = hlt_met->exComponent(i)*0.001;
+       float ey = hlt_met->eyComponent(i)*0.001;
+       component_Et = sqrt(ex*ex+ey*ey);
+       fill(tool,HLT_MET_component,component_Et);
+     }
+
+     for (int i=0; i<24; ++i) { //component loop
+       for (int j=0; j<32; ++j) { //status loop
+         component = i;
+         component_status = j;
+         unsigned mask = (1<<j);
+         if (hlt_met->statusComponent(i) & mask) {
+           component_status_weight = 1.;
+         } else {
+           component_status_weight = 0;
+         }
+         fill(tool,component,component_status,component_status_weight);
+       }
+     }
+
+
     }
     ATH_MSG_DEBUG("cell_Et = " << cell_Et);
 
@@ -781,25 +936,31 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     // all others are the variables to be saved.
     //fill("TrigMETMonitor",L1_Ex,L1_Ey,L1_Et,pass_HLT1);
     // Alternative fill method. Get the group yourself, and pass it to the fill function.
-    auto tool = getGroup("TrigMETMonitor");
     fill(tool,offline_Ex,offline_Ey,offline_Et,offline_sumEt,
          L1_roi_Ex,L1_roi_Ey,L1_roi_Et,L1_roi_sumEt,
+         L1_roi_Ex_log,L1_roi_Ey_log,L1_roi_Et_log,L1_roi_sumEt_log,
          L1_jnc_Ex,L1_jnc_Ey,L1_jnc_Et,L1_jnc_sumEt,
+         L1_jnc_Ex_log,L1_jnc_Ey_log,L1_jnc_Et_log,L1_jnc_sumEt_log,
          L1_jrho_Ex,L1_jrho_Ey,L1_jrho_Et,L1_jrho_sumEt,
+         L1_jrho_Ex_log,L1_jrho_Ey_log,L1_jrho_Et_log,L1_jrho_sumEt_log,
          L1_gnc_Ex,L1_gnc_Ey,L1_gnc_Et,L1_gnc_sumEt,
+         L1_gnc_Ex_log,L1_gnc_Ey_log,L1_gnc_Et_log,L1_gnc_sumEt_log,
          L1_grho_Ex,L1_grho_Ey,L1_grho_Et,L1_grho_sumEt,
+         L1_grho_Ex_log,L1_grho_Ey_log,L1_grho_Et_log,L1_grho_sumEt_log,
          L1_gjwoj_Ex,L1_gjwoj_Ey,L1_gjwoj_Et,L1_gjwoj_sumEt,
+         L1_gjwoj_Ex_log,L1_gjwoj_Ey_log,L1_gjwoj_Et_log,L1_gjwoj_sumEt_log,
          L1_gpufit_Ex,L1_gpufit_Ey,L1_gpufit_Et,L1_gpufit_sumEt,
+         L1_gpufit_Ex_log,L1_gpufit_Ey_log,L1_gpufit_Et_log,L1_gpufit_sumEt_log,
          pass_L101,pass_L102,pass_L103,pass_L104,pass_L105,
          pass_L106,pass_L107,
          pass_HLT01,pass_HLT02,pass_HLT03,pass_HLT04,pass_HLT05,
          pass_HLT05,pass_HLT06,pass_HLT07,pass_HLT08,pass_HLT09,
          pass_HLT11,pass_HLT12,pass_HLT13,pass_HLT14);
     if (hlt_el_mult > 0) {
-      fill(tool,hlt_el_mult, hlt_el_pt);
+      fill(tool,hlt_el_mult);
     }
     if (hlt_mu_mult > 0) {
-      fill(tool,hlt_mu_mult, hlt_mu_pt);
+      fill(tool,hlt_mu_mult);
     }
     if (hlt_cell_met_cont->size() > 0) {
       fill(tool,cell_Ex,cell_Ey,cell_Et,cell_sumEt,
