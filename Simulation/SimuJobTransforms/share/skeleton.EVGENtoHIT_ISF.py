@@ -98,12 +98,10 @@ atlasG4log.info( str(runArgs) )
 ## Set up the top sequence
 from AthenaCommon.AlgSequence import AlgSequence
 athAlgSeq = AlgSequence()
-athAlgSeq.OutputLevel = DEBUG
 if ISF_Flags.Resimulation.statusOn:
     # Here we are going to run conditional re-simulation
     simSequence = AlgSequence('SimSequence')
     topSeq = simSequence
-    topSeq.OutputLevel = DEBUG
     athAlgSeq += simSequence
     copyHitSequence = AlgSequence('CopyHitSequence')
     athAlgSeq += copyHitSequence
