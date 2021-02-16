@@ -949,7 +949,7 @@ void InDetGlobalTrackMonTool::FillTIDE()
 		    const xAOD::Vertex* foundVertex { nullptr };
 		    if ( vertices.isValid() )
 		    {
-		      for ( const auto& vx : *vertices )
+		      for ( const auto vx : *vertices )
 		      {
 			for ( const auto& tpLink : vx->trackParticleLinks() )
 			{
