@@ -1,20 +1,16 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "topoEgammaBuilder.h"
 
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/EventContext.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 
 #include "CaloDetDescr/CaloDetDescrManager.h"
-#include "xAODCaloEvent/CaloClusterContainer.h"
 
-#include "egammaRecEvent/egammaRecContainer.h"
 #include "xAODEgamma/EgammaContainer.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/ElectronAuxContainer.h"
@@ -25,9 +21,10 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/VertexContainer.h"
 
-// INCLUDE GAUDI HEADER FILES:
 #include <algorithm>
 #include <cmath>
+#include <vector>
+#include <memory>
 
 topoEgammaBuilder::topoEgammaBuilder(const std::string& name,
                                      ISvcLocator* pSvcLocator)
@@ -81,7 +78,6 @@ StatusCode
 topoEgammaBuilder::execute(const EventContext& ctx) const
 {
 
-  // Chrono name for each Tool
   const EgammaRecContainer* inputElRecs = nullptr;
   const EgammaRecContainer* inputPhRecs = nullptr;
   xAOD::ElectronContainer* electrons = nullptr;
