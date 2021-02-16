@@ -1,5 +1,5 @@
-#include "TrigLongLivedParticlesHypo/FastTrackFinderLRTHypoTool.h"
-#include "TrigLongLivedParticlesHypo/FastTrackFinderLRTHypoAlg.h"
+#include "../FastTrackFinderLRTHypoTool.h"
+#include "../FastTrackFinderLRTHypoAlg.h"
 #include "../TrigIsoHPtTrackTriggerHypoAlgMT.h"
 #include "../TrigIsoHPtTrackTriggerHypoTool.h"
 
