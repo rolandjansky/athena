@@ -97,12 +97,15 @@ def getHltMenu():
 
 if __name__=='__main__':
   import sys
-  from AthenaConfiguration.AllConfigFlags import ConfigFlags
-  parser = ConfigFlags.getArgumentParser()
+  from argparse import ArgumentParser
+  parser = ArgumentParser()
   parser.add_argument('--outputHist', type=str, default='TrigCostRoot_Results.root', help='Histogram output ROOT file')
   parser.add_argument('--baseWeight', type=float, default=1.0, help='Base events weight')
   parser.add_argument('--useEBWeights', type=bool, default=False, help='Apply Enhanced Bias weights')
-  parser.add_argument('flags', nargs='*', help='Config flag overrides')
+  parser.add_argument('--maxEvents', type=int, help='Maximum number of events to process')
+  parser.add_argument('--skipEvents",type=int, help="Number of events to skip')
+  parser.add_argument('--loglevel', type=int, default=3, help='Verbosity level')
+  parser.add_argument('flags', nargs='*', help='Config flag overrides')  
   args = parser.parse_args()
 
   # Setup the Run III behavior
@@ -110,6 +113,7 @@ if __name__=='__main__':
   Configurable.configurableRun3Behavior = 1
 
   # Set the Athena configuration flags
+  from AthenaConfiguration.AllConfigFlags import ConfigFlags
   ConfigFlags.fillFromArgs(args.flags)
   ConfigFlags.lock()
 
@@ -132,5 +136,5 @@ if __name__=='__main__':
   # exampleMonitorAcc.getEventAlgo('ExampleMonAlg').OutputLevel = 2 # DEBUG
   cfg.printConfig(withDetails=False) # set True for exhaustive info
 
-  sc = cfg.run(args.evtMax, args.loglevel)
+  sc = cfg.run(args.maxEvents, args.loglevel)
   sys.exit(0 if sc.isSuccess() else 1)
