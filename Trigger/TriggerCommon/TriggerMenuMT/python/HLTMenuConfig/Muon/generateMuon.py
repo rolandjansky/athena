@@ -46,7 +46,10 @@ def EFMuonCBViewDataVerifierCfg(name):
         EFMuonCBViewDataVerifier.DataObjects += [( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates_FS' )]
     else:
         EFMuonCBViewDataVerifier.DataObjects += [( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates' ),
-                                                 ( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+HLT_IDTrack_Muon_FTF' )]
+                                                 ( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+HLT_IDTrack_Muon_FTF' ),
+                                                 ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData' ),
+                                                 ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
+                                                 ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )]
     result = ComponentAccumulator()
     result.addEventAlgo(EFMuonCBViewDataVerifier)
     return result
@@ -378,7 +381,7 @@ def muEFCBStep(flags, chainDict, name='RoI'):
     recoCB.mergeReco(muonCombCfg)
 
     muonCreatorCBCfg = MuonCreatorAlgCfg(flags, name="TrigMuonCreatorAlgCB_"+name, MuonCandidateLocation=muonCandName, TagMaps=["muidcoTagMap"], 
-                                         InDetCandidateLocation="InDetCandidates_"+name, MuonContainerLocation = "MuonsCB_"+name, SegmentContainerName = "xaodCBSegments", TrackSegmentContainerName = "TrkCBSegments",
+                                         InDetCandidateLocation="IndetCandidates_"+name, MuonContainerLocation = "MuonsCB_"+name, SegmentContainerName = "xaodCBSegments", TrackSegmentContainerName = "TrkCBSegments",
                                          ExtrapolatedLocation = "CBExtrapolatedMuons", MSOnlyExtrapolatedLocation = "CBMSonlyExtrapolatedMuons", CombinedLocation = "HLT_CBCombinedMuon_"+name)
     recoCB.mergeReco(muonCreatorCBCfg)
     
@@ -399,7 +402,7 @@ def generateChains( flags, chainDict ):
     chainDict = splitChainDict(chainDict)[0]
 
     #Clone and replace offline flags so we can set muon trigger specific values
-    muonflags = flags.cloneAndReplace('Muon', 'Trigger.Offline.Muon')
+    muonflags = flags.cloneAndReplace('Muon', 'Trigger.Offline.SA.Muon')
 
 
     l1Thresholds=[]
@@ -410,15 +413,17 @@ def generateChains( flags, chainDict ):
     def _empty(name):
         return ChainStep(name="EmptyNoL2MuComb", Sequences=[EmptyMenuSequence("EmptyNoL2MuComb")], chainDicts=[chainDict])
     if 'noL1' in chainDict['chainName']:
-        chain = Chain(name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[muEFSAStep(muonflags, chainDict, 'FS'), muEFCBStep(muonflags, chainDict, 'FS')])
+        muonflagsCB = flags.cloneAndReplace('Muon', 'Trigger.Offline.Muon')
+        chain = Chain(name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[muEFSAStep(muonflags, chainDict, 'FS'), muEFCBStep(muonflagsCB, chainDict, 'FS')])
     else:
         muFast = muFastStep(muonflags, chainDict)
         muEFSA = muEFSAStep(muonflags, chainDict)
         if 'msonly' in chainDict['chainName']:
             chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ muFast, _empty("EmptyNoL2MuComb"), muEFSA, _empty("EmptyNoEFCB") ] )
         else:
-            muComb = muCombStep(muonflags, chainDict)
-            muEFCB = muEFCBStep(muonflags, chainDict)
+            muonflagsCB = flags.cloneAndReplace('Muon', 'Trigger.Offline.Muon')
+            muComb = muCombStep(muonflagsCB, chainDict)
+            muEFCB = muEFCBStep(muonflagsCB, chainDict)
             chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ muFast, muComb, muEFSA, muEFCB ] )
     return chain
 
