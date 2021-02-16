@@ -1366,10 +1366,10 @@ if rec.doWriteAOD():
             from ThinningUtils.ThinGeantTruth import ThinGeantTruth
             ThinGeantTruth()
 
-        if AODFlags.ThinNegativeEnergyCaloClusters:
+        if rec.doCalo and AODFlags.ThinNegativeEnergyCaloClusters:
             from ThinningUtils.ThinNegativeEnergyCaloClusters import ThinNegativeEnergyCaloClusters
             ThinNegativeEnergyCaloClusters()            
-        if AODFlags.ThinNegativeEnergyNeutralPFOs:
+        if rec.doCalo and AODFlags.ThinNegativeEnergyNeutralPFOs:
             from ThinningUtils.ThinNegativeEnergyNeutralPFOs import ThinNegativeEnergyNeutralPFOs
             ThinNegativeEnergyNeutralPFOs()
         if (AODFlags.ThinInDetForwardTrackParticles() and
