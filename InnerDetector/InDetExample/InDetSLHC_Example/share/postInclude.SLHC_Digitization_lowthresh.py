@@ -83,13 +83,24 @@ if DetFlags.digitize.pixel_on():
 
 if DetFlags.digitize.SCT_on():
     outStream.ItemList+=["SiHitCollection#SCT_Hits"]
-    if not hasattr( ToolSvc, 'SCT_FrontEnd'):
-        from SCT_Digitization.SCT_DigitizationConf import SCT_FrontEnd
-        ToolSvc += SCT_FrontEnd("SCT_FrontEnd")
-    getPublicTool("SCT_DigitizationTool").FrontEnd.UseCalibData = False
-    getPublicTool("SCT_DigitizationTool").FrontEnd.MaxStripsPerSide = 1280
-    getPublicTool("SCT_DigitizationTool").FrontEnd.DataReadOutMode = 0
-    getPublicTool("SCT_DigitizationTool").FrontEnd.DataCompressionMode = 2
+
+    if 'doStripDigi' in digitizationFlags.experimentalDigi():
+        if not hasattr( ToolSvc, 'StripFrontEnd'):
+            from StripDigitization.StripDigitizationConf import StripFrontEnd
+            ToolSvc += StripFrontEnd("StripFrontEnd")
+        getPublicTool("StripDigitizationTool").FrontEnd.UseCalibData = False
+        getPublicTool("StripDigitizationTool").FrontEnd.MaxStripsPerSide = 1280
+        getPublicTool("StripDigitizationTool").FrontEnd.DataReadOutMode = 0
+        getPublicTool("StripDigitizationTool").FrontEnd.DataCompressionMode = 2
+
+    else:
+        if not hasattr( ToolSvc, 'SCT_FrontEnd'):
+            from SCT_Digitization.SCT_DigitizationConf import SCT_FrontEnd
+            ToolSvc += SCT_FrontEnd("SCT_FrontEnd")
+        getPublicTool("SCT_DigitizationTool").FrontEnd.UseCalibData = False
+        getPublicTool("SCT_DigitizationTool").FrontEnd.MaxStripsPerSide = 1280
+        getPublicTool("SCT_DigitizationTool").FrontEnd.DataReadOutMode = 0
+        getPublicTool("SCT_DigitizationTool").FrontEnd.DataCompressionMode = 2
     
 
     if not digitizationFlags.doXingByXingPileUp():
