@@ -79,14 +79,14 @@ public :
   MM_StripsResponseSimulation();
 
   virtual ~MM_StripsResponseSimulation();
-  MM_StripToolOutput GetResponseFrom(const MM_DigitToolInput & digiInput);
+  MM_StripToolOutput GetResponseFrom(const MM_DigitToolInput & digiInput, double gainFraction);
 
   void initialize (unsigned long int seed);
   void writeHistos();
   void initHistos ();
   void clearValues ();
   void initFunctions ();
-  void whichStrips(const float & hitx, const int & stripOffest, const float & incidentAngleXZ, const float & incidentAngleYZ, const int & stripMinID, const int & stripMaxID, const MM_DigitToolInput & digiInput);
+  void whichStrips(const float & hitx, const int & stripOffest, const float & incidentAngleXZ, const float & incidentAngleYZ, const int & stripMinID, const int & stripMaxID, const MM_DigitToolInput & digiInput, double gainFraction);
 
   inline void setQThreshold (float val) { m_qThreshold = val; };
   inline void setTransverseDiffusionSigma (float val) { m_transverseDiffusionSigma = val; };
