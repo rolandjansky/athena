@@ -41,6 +41,13 @@ namespace Muon {
     bool getIdFields(const Identifier id, int& etaSector, int& phiSector,
 		     int& gasGap);
 
+    bool getPCBIdentifier(const Identifier id, Identifier& pcb_id) const;
+
+    double getMMEfficiencyFromHV(double hv) const;
+    double getMMGainFractionFromHV(double hv) const;
+
+    StatusCode readHighVoltages();
+
     ToolHandle<MuonIdHelperTool> m_idHelperTool;
 
     DoubleArrayProperty m_timeSmear;
@@ -54,6 +61,10 @@ namespace Muon {
 
     BooleanArrayProperty m_phiSectors;
     BooleanArrayProperty m_etaSectors;
+
+    BooleanProperty m_readEfficiencyFromFile;
+    BooleanProperty m_readGainFractionFromFile;
+    StringProperty m_fileName;
 
     TRandom3 m_random;
 
