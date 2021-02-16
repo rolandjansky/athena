@@ -654,8 +654,8 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
     auto per   = m_proptool->propagate(*upTP,persurf,Trk::oppositeMomentum,false,m_fieldprop,Trk::nonInteracting); //Propagate
     if(!per){
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"No extrapolated track parameters!"<<endmsg;
-      delete niTP; 
-      delete upTP; 
+      delete niTP;
+      delete upTP;
       continue;
     }
 
@@ -670,8 +670,8 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
     //delete per;
     if( int(DE.size()) < m_nclusmin){ //Not enough detector elements to satisfy the minimum number of clusters requirement. Stop
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Too few detector elements, not expected" << endmsg;
-      delete niTP; 
-      delete upTP; 
+      delete niTP;
+      delete upTP;
       continue;
     }
 
@@ -701,13 +701,13 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
 	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initial Track Parameters at 1st SP created and scaled from TRT segment, " << endmsg;
 	if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << (*mesTP) << endmsg;
       }else{
-        delete niTP; 
-        delete upTP; 
+        delete niTP;
+        delete upTP;
         continue;
       }
     }else{
-      delete niTP; 
-      delete upTP; 
+      delete niTP;
+      delete upTP;
       continue;
     }
 
@@ -772,10 +772,10 @@ InDet::TRT_SeededTrackFinder_ATL::getTP(MagField::AtlasFieldCache& fieldCache, c
   }else{
 
     //Based on the hit information update the track parameters and the error matrix
-    const Trk::TrackParameters* uTP         = 0;
-    Trk::FitQualityOnSurface*   sct_fitChi2 = 0;
+    const Trk::TrackParameters* uTP         = nullptr;
+    Trk::FitQualityOnSurface*   sct_fitChi2 = nullptr;
 
-    uTP = m_updatorTool->addToState(*eTP,SP->localParameters(),SP->localCovariance(),sct_fitChi2);
+    uTP = m_updatorTool->addToState(*eTP,SP->localParameters(),SP->localCovariance(),sct_fitChi2).release();
 
     if(!uTP) { //The updator failed
       if (sct_fitChi2) {
@@ -817,8 +817,8 @@ InDet::TRT_SeededTrackFinder_ATL::getTP(MagField::AtlasFieldCache& fieldCache, c
       }
 
       // Clean up
-      //delete eTP; 
-      delete uTP; 
+      //delete eTP;
+      delete uTP;
       delete sct_fitChi2;
     }
   }

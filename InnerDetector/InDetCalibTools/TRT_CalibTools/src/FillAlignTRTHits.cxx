@@ -352,7 +352,7 @@ bool FillAlignTRTHits::fill(const Trk::Track* aTrack, TRT::TrackInfo* output,
 							if(HitOnTrackToRemove){
 								unbiasedTrkParameters = m_updator->removeFromState(*(HitOnTrackToRemove->trackParameters()),
 								                                                   HitOnTrackToRemove->measurementOnTrack()->localParameters(),
-								                                                   HitOnTrackToRemove->measurementOnTrack()->localCovariance());
+								                                                   HitOnTrackToRemove->measurementOnTrack()->localCovariance()).release();
 								ATH_MSG_DEBUG ("TrackParameters 1: " << *(HitOnTrackToRemove->trackParameters()));
 							}
 							else if (msgLvl(MSG::DEBUG)) {
