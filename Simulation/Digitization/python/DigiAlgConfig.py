@@ -124,6 +124,8 @@ def getStandardInDetPileUpTools():
     if DetFlags.digitize.SCT_on():
         if 'doFastSCT_Digi' in digitizationFlags.experimentalDigi():
             PileUpToolsList += [ "SCT_FastDigitizationTool" ]
+        elif 'doStripDigi' in digitizationFlags.experimentalDigi():
+            PileUpToolsList += [ "StripDigitizationTool" ]
         else:
             PileUpToolsList += [ "SCT_DigitizationTool" ]
     if DetFlags.digitize.TRT_on():
