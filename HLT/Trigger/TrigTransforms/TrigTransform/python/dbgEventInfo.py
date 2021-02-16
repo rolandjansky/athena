@@ -22,8 +22,6 @@ class dbgEventInfo:
         self.Stream_Tag_Name                       = 'None'
         self.Stream_Tag_Type                       = 'None'
         self.Lvl1_ID                               = 0
-        self.Event_Counter_Lvl1_ID                 = 0
-        self.Event_Counter_Reset_Counter_Lvl1_ID   = 0
         self.Global_ID                             = 0
         self.Lumiblock                             = 0
         self.Node_ID                               = 0
@@ -293,8 +291,6 @@ class dbgEventInfo:
         self.Event_Info.Stream_Tag_Name        = self.Stream_Tag_Name
         self.Event_Info.Stream_Tag_Type        = self.Stream_Tag_Type
         self.Event_Info.Lvl1_ID                = self.Lvl1_ID
-        self.Event_Info.Event_Counter_Lvl1_ID  = self.Event_Counter_Lvl1_ID
-        self.Event_Info.Event_Counter_Reset_Counter_Lvl1_ID  = self.Event_Counter_Reset_Counter_Lvl1_ID 
         self.Event_Info.Global_ID              = self.Global_ID
         self.Event_Info.Node_ID                = self.Node_ID
         self.Event_Info.Lumiblock              = self.Lumiblock
@@ -320,8 +316,6 @@ class dbgEventInfo:
             Char_t  Stream_Tag_Name[80];\
             Char_t  Stream_Tag_Type[80];\
             UInt_t  Lvl1_ID;\
-            Int_t   Event_Counter_Lvl1_ID;\
-            Int_t   Event_Counter_Reset_Counter_Lvl1_ID;\
             Int_t   Global_ID;\
             Int_t   Lumiblock;\
             Int_t   Node_ID;\
@@ -341,8 +335,6 @@ class dbgEventInfo:
         self.event_info_tree.Branch('Stream_Tag_Name',  addressof(self.Event_Info, 'Stream_Tag_Name'),  'stream_Tag_Name/C')
         self.event_info_tree.Branch('Stream_Tag_Type',  addressof(self.Event_Info, 'Stream_Tag_Type'),  'stream_Tag_Type/C')
         self.event_info_tree.Branch('Lvl1_ID',          addressof(self.Event_Info, 'Lvl1_ID'),          'lvl1_ID/I')
-        self.event_info_tree.Branch('Event_Counter_Lvl1_ID',               addressof(self.Event_Info, 'Event_Counter_Lvl1_ID'),                 'event_Counter_Lvl1_ID/I')
-        self.event_info_tree.Branch('Event_Counter_Reset_Counter_Lvl1_ID', addressof(self.Event_Info, 'Event_Counter_Reset_Counter_Lvl1_ID'),   'event_Counter_Reset_Counter_Lvl1_ID/I')
         self.event_info_tree.Branch('Global_ID',        addressof(self.Event_Info, 'Global_ID'),        'global_ID/I')
         self.event_info_tree.Branch('Lumiblock',        addressof(self.Event_Info, 'Lumiblock'),        'lumiblock/I')
         self.event_info_tree.Branch('Node_ID',          addressof(self.Event_Info, 'Node_ID'),          'node_ID/I')
