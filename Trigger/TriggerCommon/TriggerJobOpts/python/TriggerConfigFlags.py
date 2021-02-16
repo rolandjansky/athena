@@ -303,7 +303,7 @@ def createTriggerFlags():
     flags.addFlag('Trigger.muon.doEFRoIDrivenAccess', False)
 
     # muon offline reco flags varaint for trigger
-    def __muon():
+    def __muonSA():
         from MuonConfig.MuonConfigFlags import createMuonConfigFlags
         muonflags = createMuonConfigFlags()
         muonflags.Muon.useTGCPriorNextBC=True
@@ -311,6 +311,15 @@ def createTriggerFlags():
         muonflags.Muon.SAMuonTrigger=True
         return muonflags 
 
+    def __muon():
+        from MuonConfig.MuonConfigFlags import createMuonConfigFlags
+        muonflags = createMuonConfigFlags()
+        muonflags.Muon.useTGCPriorNextBC=True
+        muonflags.Muon.MuonTrigger=True
+
+        return muonflags 
+
+    flags.addFlagsCategory('Trigger.Offline.SA', __muonSA, prefix=True)
     flags.addFlagsCategory('Trigger.Offline', __muon, prefix=True)
 
     from TrigInDetConfig.TrigTrackingCutFlags import createTrigTrackingFlags

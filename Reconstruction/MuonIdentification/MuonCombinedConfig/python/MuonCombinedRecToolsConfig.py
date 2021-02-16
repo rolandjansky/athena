@@ -200,7 +200,6 @@ def MuonMaterialProviderToolCfg(flags,  name = "MuonMaterialProviderTool"):
     kwargs["KeepAllPerigee"] = True 
     kwargs["PerigeeExpression"] = "Origin"
     track_particle_creator = CompFactory.Trk.TrackParticleCreatorTool(name="MuonCaloParticleCreator",**kwargs)
-    result.addPublicTool(track_particle_creator)
   
     muonCaloEnergyTool = CompFactory.Rec.MuonCaloEnergyTool(name="MuonCaloEnergy", ParticleCaloExtensionTool = particle_calo_extension_tool,
                                                  ParticleCaloCellAssociationTool = particle_calo_cell_association_tool,
@@ -347,7 +346,6 @@ def MuonCombinedToolCfg(flags, name="MuonCombinedTool",**kwargs):
         acc = MuonCombinedFitTagToolCfg(flags)
         tool = acc.popPrivateTools()
         tools.append( tool  )
-        result.addPublicTool(tool)
         result.merge(acc)
     if flags.MuonCombined.doStatisticalCombination and flags.Beam.Type != 'cosmics':
         acc = MuonCombinedStacoTagToolCfg(flags)
@@ -369,7 +367,6 @@ def MuonCombinedFitTagToolCfg(flags, name="MuonCombinedFitTagTool",**kwargs):
 
     result = CombinedMuonTrackBuilderCfg(flags)
     tool = result.popPrivateTools()
-    result.addPublicTool(tool)
     kwargs.setdefault("TrackBuilder",  tool )
 
     kwargs.setdefault("TrackQuery",   result.popToolsAndMerge(MuonTrackQueryCfg(flags)) )
