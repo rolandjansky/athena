@@ -70,11 +70,15 @@ HLT_2g35_medium_L12EM20VH:
   eventCount: 0
 HLT_2g50_loose_L12EM20VH:
   eventCount: 0
+HLT_2j250_subresjesgscIS_ftf_0eta240_L1J100:
+  eventCount: 0
 HLT_2j330_a10sd_cssk_pf_jes_ftf_35smcINF_L1J100:
   eventCount: 0
 HLT_2j330_a10sd_cssk_pf_nojcalib_ftf_35smcINF_L1J100:
   eventCount: 0
 HLT_2j330_a10t_lcw_jes_35smcINF_L1J100:
+  eventCount: 0
+HLT_2j330_a10t_lcw_jes_35smcINF_L1SC111-CJ15:
   eventCount: 0
 HLT_2j330_a10t_lcw_nojcalib_35smcINF_L1J100:
   eventCount: 0
@@ -964,6 +968,10 @@ HLT_g3_loose_LArPEBHLT_L1EM3:
     4: 3
 HLT_g40_loose_LArPEBHLT_L1EM20VHI:
   eventCount: 0
+HLT_g45_loose_tight_6j45_L14J15p0ETA25:
+  eventCount: 0
+  stepCounts:
+    0: 20
 HLT_g5_etcut_L1EM3:
   eventCount: 13
   stepCounts:
@@ -1048,6 +1056,12 @@ HLT_j0_perf_L1J12_EMPTY:
     0: 129
 HLT_j140_320eta490_LArPEBHLT_L1J75_31ETA49:
   eventCount: 0
+HLT_j150_subresjesgscIS_ftf_2j55_subresjesgscIS_ftf_L1J85_3J30:
+  eventCount: 0
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
 HLT_j165_LArPEBHLT_L1J100:
   eventCount: 0
 HLT_j225_subjesgscIS_ftf_bmv2c1040_split_L1J100:
@@ -1072,11 +1086,15 @@ HLT_j300_subjesgscIS_ftf_bdl1r70_split_L1J100:
   eventCount: 0
 HLT_j300_subjesgscIS_ftf_bmv2c1070_split_L1J100:
   eventCount: 0
+HLT_j360_a10t_lcw_jes_60smcINF_j360_a10t_lcw_jes_L1SC111-CJ15:
+  eventCount: 0
 HLT_j360_pf_subjesgscIS_ftf_bdl1r77_split_L1J100:
   eventCount: 0
 HLT_j360_subjesgscIS_ftf_bdl1r77_split_L1J100:
   eventCount: 0
 HLT_j360_subjesgscIS_ftf_bmv2c1077_split_L1J100:
+  eventCount: 0
+HLT_j370_a10t_lcw_jes_35smcINF_j370_a10t_lcw_jes_L1SC111-CJ15:
   eventCount: 0
 HLT_j40_LArPEBHLT_L1J20:
   eventCount: 5
@@ -1093,6 +1111,8 @@ HLT_j40_j0_aggSEP50htSEP10etSEP0eta320_L1J20:
   stepFeatures:
     0: 220
 HLT_j420_L1J100:
+  eventCount: 0
+HLT_j420_a10t_lcw_jes_35smcINF_L1SC111-CJ15:
   eventCount: 0
 HLT_j420_pf_subresjesgscIS_ftf_L1J100:
   eventCount: 0
@@ -1332,9 +1352,13 @@ HLT_j460_a10_lcw_subjes_L1J100:
   eventCount: 0
 HLT_j460_a10_lcw_subjes_L1J20:
   eventCount: 0
+HLT_j460_a10_lcw_subjes_L1SC111-CJ15:
+  eventCount: 0
 HLT_j460_a10r_L1J100:
   eventCount: 0
 HLT_j460_a10r_L1J20:
+  eventCount: 0
+HLT_j460_a10r_L1SC111-CJ15:
   eventCount: 0
 HLT_j460_a10sd_cssk_pf_jes_ftf_35smcINF_L1J100:
   eventCount: 0
@@ -1351,6 +1375,8 @@ HLT_j460_a10sd_pf_nojcalib_ftf_L1J100:
 HLT_j460_a10t_lcw_jes_30smcINF_L1J100:
   eventCount: 0
 HLT_j460_a10t_lcw_jes_L1J100:
+  eventCount: 0
+HLT_j460_a10t_lcw_jes_L1SC111-CJ15:
   eventCount: 0
 HLT_j460_a10t_lcw_nojcalib_35smcINF_L1J100:
   eventCount: 0
