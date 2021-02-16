@@ -513,9 +513,9 @@ def siCombinatorialTrackFinderTool_builder( name, trackingCuts ):
    DetFlags.ID_setOn()
    
    #Are we happy with these settings?
-   from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSCTConditionsSummaryTool, InDetTrigPatternUpdator
+   from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSCTConditionsSummaryTool, InDetTrigPatternUpdator, InDetTrigBoundaryCheckTool
    # @TODO ensure that PRD association map is used if usePrdAssociationTool is set ATR-22756
-   
+
    kwargs = {}
    #Prepare default parameter settings for the tool
    kwargs = setDefaults( kwargs,
@@ -546,6 +546,7 @@ def siCombinatorialTrackFinderTool_builder( name, trackingCuts ):
    
    from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiCombinatorialTrackFinder_xk
    return InDet__SiCombinatorialTrackFinder_xk(name  = name,
+                                               BoundaryCheckTool = InDetTrigBoundaryCheckTool,
                                                **kwargs)
    
 
@@ -683,7 +684,6 @@ def siSPSeededTrackFinder_builder( name, outputTracks, trackingCuts, usePrdAssoc
    # --- Local track finding using sdCaloSeededSSSpace point seed
    siCombinatorialTrackFinderTool = siCombinatorialTrackFinderTool_builder( name         = get_full_name( 'SiCombinatorialTrackFinder', nameSuffix),
                                                                             trackingCuts = trackingCuts)
-
 
    siTrackMakerTool =  siTrackMakerTool_builder( name                       = get_full_name( 'siTrackMaker', nameSuffix),
                                                  siDetElementsRoadMakerTool = siDetectorElementRoadMaker,

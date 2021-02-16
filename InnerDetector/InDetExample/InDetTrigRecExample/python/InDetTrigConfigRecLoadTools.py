@@ -628,6 +628,11 @@ InDetTrigPixelConditionsSummaryTool = PixelConditionsSetup.summaryTool
 if DetFlags.haveRIO.SCT_on():
   from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConditionsSummaryTool
   InDetTrigSCTConditionsSummaryTool = SCT_ConditionsSummaryTool(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryTool'))
+
+  # Use the HLT version of the flagged cond data - please tell me there's a better way
+  for tool in InDetTrigSCTConditionsSummaryTool.ConditionsTools:
+    if hasattr( tool, "SCT_FlaggedCondData" ):
+      tool.SCT_FlaggedCondData = "SCT_FlaggedCondData_TRIG"
 else:
   InDetTrigSCTConditionsSummaryTool = None
 
