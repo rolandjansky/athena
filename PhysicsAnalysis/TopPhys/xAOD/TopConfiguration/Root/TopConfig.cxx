@@ -889,7 +889,7 @@ namespace top {
       try {
         m_nominalWeightIndex = std::stoi(settings->value("NominalWeightFallbackIndex"));
       } catch (std::invalid_argument &e) {
-        std::cout << "Failed to parse NominalWeightFallbackIndex value: " << settings->value("NominalWeightFallbackIndex") << std::endl;
+        ATH_MSG_ERROR("Failed to parse NominalWeightFallbackIndex value: " << settings->value("NominalWeightFallbackIndex"));
         throw;
       }
 
