@@ -142,7 +142,7 @@ class trigRecoExecutor(athenaExecutor):
                     msg.info('Will use asetup string for debug stream analysis %s', dbgAsetupString)
 
                 # Set database in command line if it was missing
-                if 'DBserver' not in self.conf.argdict and dbAlias:
+                if 'useDB' in self.conf.argdict and 'DBserver' not in self.conf.argdict and dbAlias:
                     msg.warn("Database alias will be set to %s", dbAlias)
                     self._cmd.append("--db-server " + dbAlias)
             else:

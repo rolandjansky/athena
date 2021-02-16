@@ -27,6 +27,13 @@
             "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data_test.00386211.physics_Main.daq.RAW._lb0003._SFO-5._0001.data"
         ]
     },
+    "data_dbg_stream": {
+        "source": "data",
+        "format": "BS",
+        "paths": [
+            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data_test.00388197.debug_PUCrash.daq.RAW._lb0000._SFO-1._0001.data"
+        ]
+    },
     "data_cos": {
         "source": "data",
         "format": "BS",
