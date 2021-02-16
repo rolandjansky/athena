@@ -22,6 +22,7 @@ public:
   double thickness;
   double longWidth;   // for trapezoidal layers
   double yCutout;     // for Hexagonal layer
+  double yCutoutCathode;     // for Hexagonal layer
   int index;
 	
   sTGC(Component* s);
