@@ -448,7 +448,14 @@ def makeCombinedStep(parallel_steps, stepNumber, chainDefList, allSteps = [], cu
             log.debug("[makeCombinedStep]  step %s,  empty sequence %s", currentStepName, seqName)
 
             #stepNumber is indexed from 1, need the previous step indexed from 0, so do - 2
-            prev_step_mult = int(currentChainSteps[stepNumber-2].multiplicity[chain_index])
+            prev_step_mult = -1
+            if stepNumber > 1:
+                prev_step_mult = int(currentChainSteps[stepNumber-2].multiplicity[chain_index])
+                prev_step_mult_alt = int(new_stepDict['chainParts'][0]['multiplicity'])
+                assert prev_step_mult == prev_step_mult_alt, "[makeCombinedStep] The two methods of accessing step multiplicity are not equivalent!"
+            else:
+                #get the step multiplicity from the step dict. This should be 
+                prev_step_mult = int(new_stepDict['chainParts'][0]['multiplicity'])
             stepMult.append(prev_step_mult)
             # we need a chain dict here, use the one corresponding to this leg of the chain
             oldLegName = new_stepDict['chainName']
