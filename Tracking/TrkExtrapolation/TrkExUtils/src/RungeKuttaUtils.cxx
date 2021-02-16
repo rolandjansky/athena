@@ -159,11 +159,11 @@ globalToLocalVecHelper(double* ATH_RESTRICT P,
  * Jac[ 8] = Ay[0]*P[28]+Ay[1]*P[29]+Ay[2]*P[30]; // dL1/dThe
  * Jac[ 9] = Ay[0]*P[35]+Ay[1]*P[36]+Ay[2]*P[37]; // dL1/dCM
  * is replaces with
- *  mutl3x5Helper(&Jac[0],Ax,&P[7]);
- *  mutl3x5Helper(&Jac[5],Ay,&P[7]);
+ *  mult3x5Helper(&Jac[0],Ax,&P[7]);
+ *  mult3x5Helper(&Jac[5],Ay,&P[7]);
  */
 inline void
-mutl3x5Helper(double* ATH_RESTRICT Jac,
+mult3x5Helper(double* ATH_RESTRICT Jac,
               const double* ATH_RESTRICT V,
               const double* ATH_RESTRICT P)
 {
@@ -243,11 +243,11 @@ transformGlobalToPlane(const Amg::Transform3D&  T,
   S[0]*=A; S[1]*=A; S[2]*=A;
 
   double s[5]={};
-  mutl3x5Helper(s,S,&P[7]);
+  mult3x5Helper(s,S,&P[7]);
   globalToLocalVecHelper(P, s[0], s[1], s[2], s[3], s[4]);
   // Jacobian production
-  mutl3x5Helper(&Jac[0],Ax,&P[7]);
-  mutl3x5Helper(&Jac[5],Ay,&P[7]);
+  mult3x5Helper(&Jac[0],Ax,&P[7]);
+  mult3x5Helper(&Jac[5],Ay,&P[7]);
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -283,7 +283,7 @@ transformGlobalToDisc(const Amg::Transform3D&  T,
   S[0]*=A; S[1]*=A; S[2]*=A;
 
   double s[5]={};
-  mutl3x5Helper(s,S,&P[7]);
+  mult3x5Helper(s,S,&P[7]);
   globalToLocalVecHelper(P, s[0], s[1], s[2], s[3], s[4]);
   // Jacobian production
   //
@@ -296,8 +296,8 @@ transformGlobalToDisc(const Amg::Transform3D&  T,
                          (RC * Ay[1] - RS * Ax[1]) * Ri,
                          (RC * Ay[2] - RS * Ax[2]) * Ri };
 
-  mutl3x5Helper(&Jac[0],Av,&P[7]);
-  mutl3x5Helper(&Jac[5],Bv,&P[7]);
+  mult3x5Helper(&Jac[0],Av,&P[7]);
+  mult3x5Helper(&Jac[5],Bv,&P[7]);
 }
 /////////////////////////////////////////////////////////////////////////////////
 // Global position transformation to local Cylinder system coordinate
@@ -338,7 +338,7 @@ transformGlobalToCylinder(const Amg::Transform3D&  T,
 
   const double S[3] = { x, y, z };
   double s[5] = {};
-  mutl3x5Helper(s, S, &P[7]);
+  mult3x5Helper(s, S, &P[7]);
   globalToLocalVecHelper(P, s[0], s[1], s[2], s[3], s[4]);
   // Jacobian production
   //
@@ -346,8 +346,8 @@ transformGlobalToCylinder(const Amg::Transform3D&  T,
                          (RC * Ay[1] - RS * Ax[1]) * R,
                          (RC * Ay[2] - RS * Ax[2]) * R };
 
-  mutl3x5Helper(&Jac[0], Av, &P[7]);
-  mutl3x5Helper(&Jac[5], Az, &P[7]);
+  mult3x5Helper(&Jac[0], Av, &P[7]);
+  mult3x5Helper(&Jac[5], Az, &P[7]);
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -383,7 +383,7 @@ transformGlobalToLine(const Amg::Transform3D&  T,
   const double X = d*A[0]-P[3], Y = d*A[1]-P[4], Z = d*A[2]-P[5];
 
   double D[5] = {};
-  mutl3x5Helper(D, A, &P[10]);
+  mult3x5Helper(D, A, &P[10]);
   const double s0 = (((P[ 7]*X+P[ 8]*Y+P[ 9]*Z)+x*(D[0]*A[0]-P[10]))+(y*(D[0]*A[1]-P[11])+z*(D[0]*A[2]-P[12])))*a;
   const double s1 = (((P[14]*X+P[15]*Y+P[16]*Z)+x*(D[1]*A[0]-P[17]))+(y*(D[1]*A[1]-P[18])+z*(D[1]*A[2]-P[19])))*a;
   const double s2 = (((P[21]*X+P[22]*Y+P[23]*Z)+x*(D[2]*A[0]-P[24]))+(y*(D[2]*A[1]-P[25])+z*(D[2]*A[2]-P[26])))*a;
@@ -394,8 +394,8 @@ transformGlobalToLine(const Amg::Transform3D&  T,
   globalToLocalVecHelper(P, -1.*s0, -1.*s1, -1.*s2, -1.*s3, -1.*s4);
   // Jacobian production
   const double B[3]={Bx,By,Bz};
-  mutl3x5Helper(&Jac[0],B,&P[7]);
-  mutl3x5Helper(&Jac[5],A,&P[7]);
+  mult3x5Helper(&Jac[0],B,&P[7]);
+  mult3x5Helper(&Jac[5],A,&P[7]);
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -1125,7 +1125,7 @@ void Trk::RungeKuttaUtils::transformGlobalToCurvilinear
   S[0]*=A; S[1]*=A; S[2]*=A;
 
   double s[5]={};
-  mutl3x5Helper(s,S,&P[7]);
+  mult3x5Helper(s,S,&P[7]);
   globalToLocalVecHelper(P, s[0], s[1], s[2], s[3], s[4]);
 
   double P3,P4,C = P[3]*P[3]+P[4]*P[4];
