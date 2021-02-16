@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( L1TopoSimulation )
@@ -19,7 +19,7 @@ atlas_add_library( L1TopoSimulationLib
 atlas_add_component( L1TopoSimulation
    src/*.h src/*.cxx src/components/*.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaMonitoringLib L1TopoConfig L1TopoCoreSim L1TopoEvent L1TopoInterfaces L1TopoRDO L1TopoSimulationLib StoreGateLib TrigConfBase TrigConfInterfaces TrigConfL1Data TrigInterfacesLib TrigT1CaloEventLib TrigT1CaloUtilsLib TrigT1Interfaces TrigT1Result xAODTrigCalo xAODTrigger )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaMonitoringLib GaudiKernel L1TopoConfig L1TopoCoreSim L1TopoEvent L1TopoInterfaces L1TopoRDO L1TopoSimulationLib StoreGateLib TrigConfBase TrigConfInterfaces TrigConfData TrigConfL1Data TrigT1CaloEventLib TrigT1CaloUtilsLib TrigT1Interfaces TrigT1Result xAODTrigger )
 
 atlas_add_component( L1TopoSimulationTest
    src/test/*.h src/test/*.cxx src/test/components/*.cxx src/AthenaL1TopoHistSvc.h src/AthenaL1TopoHistSvc.cxx
