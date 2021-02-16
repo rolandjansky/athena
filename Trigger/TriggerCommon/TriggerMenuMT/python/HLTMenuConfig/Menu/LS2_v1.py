@@ -142,6 +142,8 @@ def setupMenu():
         ChainProp(name='HLT_2e24_lhvloose_L12EM20VH', stream=[PhysicsStream], groups=MultiElectronGroup),
         ChainProp(name='HLT_e24_lhvloose_2e12_lhvloose_L1EM20VH_3EM10VH', stream=[PhysicsStream], groups=MultiElectronGroup),
         ## ATR-22109
+        # Note: l1SeedThresholds needs to be given explicitly, as it cannot
+        # be auto-filled by DictFromChainName for L1Topo items
         ChainProp(name='HLT_e20_lhtight_ivarloose_L1ZAFB-25DPHI-EM18I', l1SeedThresholds=['EM12'], stream=[PhysicsStream], groups=MultiElectronGroup),
 
         # TnP triggers
@@ -414,6 +416,19 @@ def setupMenu():
         ChainProp(name='HLT_j80_j55_j28_j20_L1MU10_2J15_J20', l1SeedThresholds=['FSNOSEED']*4, groups=MultiJetGroup),
         ChainProp(name='HLT_j80_pf_ftf_j55_pf_ftf_j28_pf_ftf_j20_pf_ftf_L1MU10_2J15_J20', l1SeedThresholds=['FSNOSEED']*4, groups=MultiJetGroup),
 
+        # ATR-22594
+        ChainProp(name='HLT_2j250_subresjesgscIS_ftf_0eta240_L1J100', groups=MultiJetGroup),
+        ChainProp(name='HLT_j150_subresjesgscIS_ftf_2j55_subresjesgscIS_ftf_L1J85_3J30', l1SeedThresholds=['FSNOSEED']*2, groups=MultiJetGroup),
+        # SC L1 seed
+        # Note: l1SeedThresholds needs to be given explicitly, as it cannot
+        # be auto-filled by DictFromChainName for L1Topo items
+        ChainProp(name='HLT_j460_a10r_L1SC111-CJ15',                   l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup),
+        ChainProp(name='HLT_j460_a10_lcw_subjes_L1SC111-CJ15',         l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup),
+        ChainProp(name='HLT_j460_a10t_lcw_jes_L1SC111-CJ15',           l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup),
+        ChainProp(name='HLT_j420_a10t_lcw_jes_35smcINF_L1SC111-CJ15',  l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup),
+        ChainProp(name='HLT_2j330_a10t_lcw_jes_35smcINF_L1SC111-CJ15', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup),
+        ChainProp(name='HLT_j360_a10t_lcw_jes_60smcINF_j360_a10t_lcw_jes_L1SC111-CJ15', l1SeedThresholds=['FSNOSEED']*2, groups=MultiJetGroup),
+        ChainProp(name='HLT_j370_a10t_lcw_jes_35smcINF_j370_a10t_lcw_jes_L1SC111-CJ15', l1SeedThresholds=['FSNOSEED']*2, groups=MultiJetGroup),
     ]
 
     TriggerFlags.BjetSlice.signatures = TriggerFlags.BjetSlice.signatures() + [
@@ -609,6 +624,7 @@ def setupMenu():
 
         # photon + multijets (ATR-22594)
         ChainProp(name='HLT_g85_tight_3j50_L1EM22VHI',l1SeedThresholds=['EM22VHI','FSNOSEED'],stream=[PhysicsStream], groups=EgammaJetGroup),
+        ChainProp(name='HLT_g45_loose_tight_6j45_L14J15p0ETA25',l1SeedThresholds=['FSNOSEED']*2,stream=[PhysicsStream], groups=EgammaJetGroup),
 
         # photon + MET (ATR-22594)
         ChainProp(name='HLT_g90_loose_xe90_cell_L1EM22VHI',l1SeedThresholds=['EM22VHI','FSNOSEED'],stream=[PhysicsStream], groups=EgammaMETGroup),
