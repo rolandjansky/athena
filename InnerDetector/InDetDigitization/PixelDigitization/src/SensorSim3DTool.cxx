@@ -23,6 +23,8 @@
 
 #include "TFile.h"
 
+#include <memory>
+
 using namespace InDetDD;
 
 //===============================================
@@ -87,8 +89,11 @@ StatusCode SensorSim3DTool::initialize() {
 
   for (unsigned int i = 0; i < mapsPath_list.size(); i++) {
     ATH_MSG_INFO("Using maps located in: " << mapsPath_list.at(i));
-    //std::unique_ptr<TFile>  mapsFile=std::make_unique<TFile>( (mapsPath_list.at(i)).c_str() ); //this is the ramo potential.
-    TFile* mapsFile = new TFile((mapsPath_list.at(i)).c_str()); //this is the ramo potential.
+    std::unique_ptr<TFile> mapsFile(TFile::Open((mapsPath_list.at(i)).c_str(), "READ")); //this is the ramo potential.
+    if (!mapsFile) {
+        ATH_MSG_ERROR("Cannot open file: " << mapsPath_list.at(i));
+        return StatusCode::FAILURE;
+    }
 
     std::pair < int, int > Layer; // index for layer/end cap position
     Layer.first = 0; //Barrel (0) or End Cap (1)   -    Now only for Barrel. If we want to add End Caps, put them at iayer.first=1
@@ -97,66 +102,77 @@ StatusCode SensorSim3DTool::initialize() {
     //May want to be changed in the future, since there's no point having an index with only one possible value
 
     //Setup ramo weighting field map
-    TH3F* ramoPotentialMap_hold;
-    ramoPotentialMap_hold = 0;
-    ramoPotentialMap_hold = (TH3F* ) mapsFile->Get("ramo");
-    if (ramoPotentialMap_hold == 0) {
-      ATH_MSG_INFO("Did not find a Ramo potential map.  Will use an approximate form.");
+    std::unique_ptr<TH2F> ramoPotentialMap_hold(mapsFile->Get<TH2F>("ramo"));
+    if (!ramoPotentialMap_hold) {
+      ATH_MSG_ERROR("Did not find a Ramo potential map.  Will use an approximate form.");
       return StatusCode::FAILURE; //Obviously, remove this when gen. code is set up
     }
-    //ramoPotentialMap.push_back(ramoPotentialMap_hold);
+    ramoPotentialMap_hold->SetDirectory(nullptr);
     m_ramoPotentialMap.emplace_back();
-    ATH_CHECK(m_ramoPotentialMap.back().setHisto3D(ramoPotentialMap_hold));
+    ATH_CHECK(m_ramoPotentialMap.back().setHisto2D(ramoPotentialMap_hold.get()));
 
     ATH_MSG_INFO("Using fluence " << m_fluence_layers.at(i));
 
     //Now setup the E-field.
-    TH2F* eFieldMap_hold;
-    eFieldMap_hold = 0;
-    eFieldMap_hold = (TH2F* ) mapsFile->Get("efield");
-    if (eFieldMap_hold == 0) {
-      ATH_MSG_INFO("Unable to load sensor e-field map, so generating one using approximations.");
+    std::unique_ptr<TH2F> eFieldMap_hold(mapsFile->Get<TH2F>("efield"));
+    if (!eFieldMap_hold) {
+      ATH_MSG_ERROR("Unable to load sensor e-field map, so generating one using approximations.");
       return StatusCode::FAILURE; //Obviously, remove this when gen. code is set up
     }
+    eFieldMap_hold->SetDirectory(nullptr);
     m_eFieldMap.emplace_back();
-    ATH_CHECK(m_eFieldMap.back().setHisto2D(eFieldMap_hold));
+    ATH_CHECK(m_eFieldMap.back().setHisto2D(eFieldMap_hold.get()));
 
-    TH3F* xPositionMap_e_hold;
-    TH3F* xPositionMap_h_hold;
-    TH3F* yPositionMap_e_hold;
-    TH3F* yPositionMap_h_hold;
-    TH2F* timeMap_e_hold;
-    TH2F* timeMap_h_hold;
+    std::unique_ptr<TH3F> xPositionMap_e_hold(mapsFile->Get<TH3F>("xPosition_e"));
+    std::unique_ptr<TH3F> xPositionMap_h_hold(mapsFile->Get<TH3F>("xPosition_h"));
+    std::unique_ptr<TH3F> yPositionMap_e_hold(mapsFile->Get<TH3F>("yPosition_e"));
+    std::unique_ptr<TH3F> yPositionMap_h_hold(mapsFile->Get<TH3F>("yPosition_h"));
+    std::unique_ptr<TH2F> timeMap_e_hold(mapsFile->Get<TH2F>("etimes"));
+    std::unique_ptr<TH2F> timeMap_h_hold(mapsFile->Get<TH2F>("htimes"));
 
-    xPositionMap_e_hold = 0;
-    xPositionMap_h_hold = 0;
-    yPositionMap_e_hold = 0;
-    yPositionMap_h_hold = 0;
-    timeMap_e_hold = 0;
-    timeMap_h_hold = 0;
-    xPositionMap_e_hold = (TH3F* ) mapsFile->Get("xPosition_e");
-    xPositionMap_h_hold = (TH3F* ) mapsFile->Get("xPosition_h");
-    yPositionMap_e_hold = (TH3F* ) mapsFile->Get("yPosition_e");
-    yPositionMap_h_hold = (TH3F* ) mapsFile->Get("yPosition_h");
-    timeMap_e_hold = (TH2F* ) mapsFile->Get("etimes");
-    timeMap_h_hold = (TH2F* ) mapsFile->Get("htimes");
+    if (!xPositionMap_e_hold || !xPositionMap_h_hold || !yPositionMap_e_hold || !yPositionMap_h_hold ||
+        !timeMap_e_hold || !timeMap_h_hold) {
+      ATH_MSG_ERROR("Cannot find one of the maps.");
+      return StatusCode::FAILURE; //Obviously, remove this when gen. code is set up
+    }
+
+    xPositionMap_e_hold->SetDirectory(nullptr);
+    xPositionMap_h_hold->SetDirectory(nullptr);
+    yPositionMap_e_hold->SetDirectory(nullptr);
+    yPositionMap_h_hold->SetDirectory(nullptr);
+    timeMap_e_hold->SetDirectory(nullptr);
+    timeMap_h_hold->SetDirectory(nullptr);
+
     //Now, determine the time to reach the electrode and the trapping position.
     m_xPositionMap_e.emplace_back();
     m_xPositionMap_h.emplace_back();
     m_yPositionMap_e.emplace_back();
     m_yPositionMap_h.emplace_back();
-    ATH_CHECK(m_xPositionMap_e.back().setHisto3D(xPositionMap_e_hold));
-    ATH_CHECK(m_xPositionMap_h.back().setHisto3D(xPositionMap_h_hold));
-    ATH_CHECK(m_yPositionMap_e.back().setHisto3D(yPositionMap_e_hold));
-    ATH_CHECK(m_yPositionMap_h.back().setHisto3D(yPositionMap_h_hold));
+    ATH_CHECK(m_xPositionMap_e.back().setHisto3D(xPositionMap_e_hold.get()));
+    ATH_CHECK(m_xPositionMap_h.back().setHisto3D(xPositionMap_h_hold.get()));
+    ATH_CHECK(m_yPositionMap_e.back().setHisto3D(yPositionMap_e_hold.get()));
+    ATH_CHECK(m_yPositionMap_h.back().setHisto3D(yPositionMap_h_hold.get()));
     m_timeMap_e.emplace_back();
     m_timeMap_h.emplace_back();
-    ATH_CHECK(m_timeMap_e.back().setHisto2D(timeMap_e_hold));
-    ATH_CHECK(m_timeMap_h.back().setHisto2D(timeMap_h_hold));
+    ATH_CHECK(m_timeMap_e.back().setHisto2D(timeMap_e_hold.get()));
+    ATH_CHECK(m_timeMap_h.back().setHisto2D(timeMap_h_hold.get()));
+
+    std::unique_ptr<TH2F> avgCharge_e(mapsFile->Get<TH2F>("avgCharge_e"));
+    std::unique_ptr<TH2F> avgCharge_h(mapsFile->Get<TH2F>("avgCharge_h"));
+
+    if (!avgCharge_e || !avgCharge_h) {
+      ATH_MSG_ERROR("Cannot find one of the charge maps.");
+      return StatusCode::FAILURE; //Obviously, remove this when gen. code is set up
+    }
+
+    avgCharge_e->SetDirectory(nullptr);
+    avgCharge_h->SetDirectory(nullptr);
 
     // Get average charge data (for charge chunk effect correction)
-    ATH_CHECK(m_avgChargeMap_e.setHisto2D((TH2F*) mapsFile->Get("avgCharge_e")));
-    ATH_CHECK(m_avgChargeMap_h.setHisto2D((TH2F*) mapsFile->Get("avgCharge_h")));
+    ATH_CHECK(m_avgChargeMap_e.setHisto2D(avgCharge_e.get()));
+    ATH_CHECK(m_avgChargeMap_h.setHisto2D(avgCharge_h.get()));
+
+    mapsFile->Close();
   }
 
   return StatusCode::SUCCESS;
