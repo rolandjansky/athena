@@ -14,11 +14,6 @@
 #include <vector>
 #include <map>
 
-#include <mutex>          // std::call_once, std::once_flag
-
-std::once_flag metaDataFlag;
-
-
 class CopyTruthJetParticles : public CopyTruthParticles {
 ASG_TOOL_CLASS2(CopyTruthJetParticles, CopyTruthParticles, IJetExecuteTool)
 public:
