@@ -7,16 +7,16 @@
 //
 //  to do-list:
 //     o write out percentage of tracks with bad tracksummary
-//     o add energy of mctracks for Michael 
+//     o add energy of mctracks for Michael
 //     o don't save intermediate newTracking track's to ntuple
 //     o statistics prints hit association purity, (holes, shared hits in sct/pixels/b-layer, outliers, etc...)
-//     o navigation between hits and tracks       
-//     X check Propagator defaults (check with Andrei regarding Tool)    
+//     o navigation between hits and tracks
+//     X check Propagator defaults (check with Andrei regarding Tool)
 //     o count tracks with without associated hits, without truth, truth without beginvertex
 //     o improved navigation between truth and reconstructed tracks
 //     o follow atlas naming conventions for all variable and method names
 
-#include "GaudiKernel/SmartDataPtr.h" 
+#include "GaudiKernel/SmartDataPtr.h"
 #include "GaudiKernel/IPartPropSvc.h"
 #include "HepPDT/ParticleData.hh"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -98,7 +98,7 @@ InDet::InDetRecStatisticsAlg::InDetRecStatisticsAlg(const std::string& name, ISv
   m_maxZStartPrimary           ( 200.0*CLHEP::mm),
   m_maxZStartSecondary         (2000.0*CLHEP::mm),
   m_minREndPrimary             ( 400.0*CLHEP::mm),
-  m_minREndSecondary           (1000.0*CLHEP::mm), 
+  m_minREndSecondary           (1000.0*CLHEP::mm),
   m_minZEndPrimary             (2300.0*CLHEP::mm),
   //m_maxZIndet                (),
   m_minZEndSecondary           (3200.0*CLHEP::mm),
@@ -145,7 +145,7 @@ InDet::InDetRecStatisticsAlg::InDetRecStatisticsAlg(const std::string& name, ISv
   declareProperty("minREndPrimary",		m_minREndPrimary);
   declareProperty("minREndSecondary",		m_minREndSecondary);
   declareProperty("minZEndPrimary",		m_minZEndPrimary);
-  declareProperty("minZEndSecondary",	        m_minZEndSecondary);   
+  declareProperty("minZEndSecondary",	        m_minZEndSecondary);
   m_idHelper  = NULL;
   m_pixelID   = NULL;
   m_sctID     = NULL;
@@ -166,7 +166,7 @@ StatusCode InDet::InDetRecStatisticsAlg::initialize(){
   if (sc1.isFailure()) {
     ATH_MSG_FATAL("Error retrieving services !");
     return StatusCode::FAILURE;
-  }   
+  }
 
   if (m_RecTrackCollection_keys.size()<=0) {
     ATH_MSG_ERROR("No reco track collection specified! Aborting.");
@@ -175,10 +175,10 @@ StatusCode InDet::InDetRecStatisticsAlg::initialize(){
 
   if (m_doTruth && m_RecTrackCollection_keys.size() != m_TrackTruthCollection_keys.size()) {
     ATH_MSG_ERROR("You have specified "
-		  << m_RecTrackCollection_keys.size() 
-		  << " TrackCollection keys, and " <<  m_TrackTruthCollection_keys.size() 
+		  << m_RecTrackCollection_keys.size()
+		  << " TrackCollection keys, and " <<  m_TrackTruthCollection_keys.size()
 		  << " TrackTruthCollection keys."
-		  << " You have to specify one TrackTruthCollection for each" 
+		  << " You have to specify one TrackTruthCollection for each"
 		  << " TrackCollection! Exiting."
 		  );
     return StatusCode::FAILURE;
@@ -198,8 +198,8 @@ StatusCode InDet::InDetRecStatisticsAlg::initialize(){
       "No Updator for unbiased track states given, use normal states!");
     m_updator = 0;
   }
-  
-  
+
+
   //get residual and pull calculator
   if (m_residualPullCalculator.empty()) {
     ATH_MSG_INFO(
@@ -209,9 +209,9 @@ StatusCode InDet::InDetRecStatisticsAlg::initialize(){
       "It is recommended to give R/P calculators to the det-specific tool"
 	<< " handle lists then.");
   } else if (m_residualPullCalculator.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Could not retrieve "<< m_residualPullCalculator 
+    ATH_MSG_FATAL("Could not retrieve "<< m_residualPullCalculator
 	<<" (to calculate residuals and pulls) ");
-    
+
   } else {
     ATH_MSG_INFO("Generic hit residuals&pulls will be calculated in one or both "
 		 << "available local coordinates");
@@ -233,27 +233,27 @@ StatusCode InDet::InDetRecStatisticsAlg::initialize(){
   ct.minREndPrimary	 = m_minREndPrimary;
   ct.minREndSecondary	 = m_minREndSecondary;
   ct.minZEndPrimary	 = m_minZEndPrimary;
-  ct.minZEndSecondary  	 = m_minZEndSecondary;  
+  ct.minZEndSecondary  	 = m_minZEndSecondary;
   ct.minPt               = m_minPt;
   ct.minEtaDBM = m_minEtaDBM;
   ct.maxEtaDBM = m_maxEtaDBM;
 
   unsigned int nCollections = 0;
-  for (SG::ReadHandleKeyArray<TrackCollection>::const_iterator 
-       it = m_RecTrackCollection_keys.begin(); 
+  for (SG::ReadHandleKeyArray<TrackCollection>::const_iterator
+       it = m_RecTrackCollection_keys.begin();
        it < m_RecTrackCollection_keys.end(); ++ it) {
-    InDet::TrackStatHelper * collection = 
-      new TrackStatHelper(it->key(),(m_doTruth ? m_TrackTruthCollection_keys[nCollections].key() : ""), m_doTruth);  
+    InDet::TrackStatHelper * collection =
+      new TrackStatHelper(it->key(),(m_doTruth ? m_TrackTruthCollection_keys[nCollections].key() : ""), m_doTruth);
     nCollections ++;
-    collection->SetCuts(ct);        
-    m_SignalCounters.push_back(collection); 
+    collection->SetCuts(ct);
+    m_SignalCounters.push_back(collection);
   }
-  
+
   StatusCode sc3 = resetStatistics();     // reset all statistic counters
   if (sc3.isFailure()) {
     ATH_MSG_FATAL("Error in resetStatistics !");
     return StatusCode::FAILURE;
-  }     
+  }
 
   ATH_CHECK( m_RecTrackCollection_keys.initialize() );
   ATH_CHECK( m_McTrackCollection_key.initialize(m_doTruth && !m_McTrackCollection_key.key().empty()) );
@@ -293,12 +293,12 @@ StatusCode InDet::InDetRecStatisticsAlg::execute(const EventContext &ctx)  const
     // devide generated tracks into primary, truncated, secondary
 
     std::vector <std::pair<HepMC::ConstGenParticlePtr,int> > GenSignal;
-    //     GenSignalPrimary, GenSignalTruncated, GenSignalSecondary;   
+    //     GenSignalPrimary, GenSignalTruncated, GenSignalSecondary;
     unsigned int inTimeStart = 0;
     unsigned int inTimeEnd   = 0;
     if (m_doTruth) selectGenSignal ((SimTracks.isValid() ? &(*SimTracks) : nullptr), GenSignal, inTimeStart, inTimeEnd, counter);
 
-    // step through the various reconstructed TrackCollections and 
+    // step through the various reconstructed TrackCollections and
     // corresponding TrackTruthCollections and produce statistics for each
 
     if (m_SignalCounters.size()<=0) {
@@ -315,13 +315,13 @@ StatusCode InDet::InDetRecStatisticsAlg::execute(const EventContext &ctx)  const
       }
     }
     if (m_SignalCounters.size() != rec_track_collections.size()) {
-        ATH_MSG_ERROR("Number expected reco track collections does not match the actual number of such collections (" 
+        ATH_MSG_ERROR("Number expected reco track collections does not match the actual number of such collections ("
                       << m_SignalCounters.size() << "!=" << rec_track_collections.size() << ")" );
     }
 
     std::vector< SG::ReadHandle<TrackCollection> >::iterator rec_track_collections_iter = rec_track_collections.begin();
     std::vector< SG::ReadHandle<TrackTruthCollection> >::iterator truth_track_collections_iter = truth_track_collections.begin();
-    for (std::vector <class TrackStatHelper *>::const_iterator statHelper 
+    for (std::vector <class TrackStatHelper *>::const_iterator statHelper
 	 =  m_SignalCounters.begin();
 	 statHelper !=  m_SignalCounters.end();
          ++statHelper, ++rec_track_collections_iter) {
@@ -348,7 +348,7 @@ StatusCode InDet::InDetRecStatisticsAlg::execute(const EventContext &ctx)  const
       if (m_doSharedHits) {
         prd_to_track_map = m_assoTool->createPRDtoTrackMap();
 	// clear prdAssociationTool (this may be altered)
-	// loop over tracks and add PRD 
+	// loop over tracks and add PRD
 	TrackCollection::const_iterator trackIt    = RecCollection->begin();
 	TrackCollection::const_iterator trackItEnd = RecCollection->end();
 	for ( ; trackIt != trackItEnd ; ++trackIt) {
@@ -357,23 +357,23 @@ StatusCode InDet::InDetRecStatisticsAlg::execute(const EventContext &ctx)  const
 	  }
 	}
       }
-      
-      std::vector <const Trk::Track *>          RecTracks, RecSignal;    
+
+      std::vector <const Trk::Track *>          RecTracks, RecSignal;
       selectRecSignal                     (RecCollection, RecTracks,RecSignal,counter);
 
-      ATH_MSG_DEBUG( 
-		    "  RecTracks.size()="          << RecTracks.size()        
+      ATH_MSG_DEBUG(
+		    "  RecTracks.size()="          << RecTracks.size()
 		    << ", GenSignal.size()="          << GenSignal.size());
 
       ATH_MSG_DEBUG("Accumulating Statistics...");
-      (*statHelper)->addEvent    (RecCollection, 
-				  RecTracks, 
+      (*statHelper)->addEvent    (RecCollection,
+				  RecTracks,
                                   prd_to_track_map.get(),
-				  GenSignal, 
-				  TruthMap, 
-				  m_idHelper, 
-				  m_pixelID, 
-				  m_sctID, 
+				  GenSignal,
+				  TruthMap,
+				  m_idHelper,
+				  m_pixelID,
+				  m_sctID,
 				  m_trkSummaryTool.operator->(),
 				  m_UseTrackSummary,
 				  &inTimeStart,
@@ -381,10 +381,10 @@ StatusCode InDet::InDetRecStatisticsAlg::execute(const EventContext &ctx)  const
 
       counter.m_counter[kN_rec_tracks_processed] += RecCollection->size();
 
-      for (  TrackCollection::const_iterator it = RecCollection->begin() ; 
+      for (  TrackCollection::const_iterator it = RecCollection->begin() ;
 	     it < RecCollection->end(); ++ it){
 	std::vector<const Trk::RIO_OnTrack*> rioOnTracks;
-	Trk::RoT_Extractor::extract( rioOnTracks, 
+	Trk::RoT_Extractor::extract( rioOnTracks,
 				     (*it)->measurementsOnTrack()->stdcont() );
 	counter.m_counter[kN_spacepoints_processed] += rioOnTracks.size();
       }
@@ -406,16 +406,16 @@ StatusCode InDet :: InDetRecStatisticsAlg :: finalize() {
 
   printStatistics();
 
-  for (std::vector <class TrackStatHelper *>::const_iterator collection =  
-       m_SignalCounters.begin(); collection !=  m_SignalCounters.end(); 
+  for (std::vector <class TrackStatHelper *>::const_iterator collection =
+       m_SignalCounters.begin(); collection !=  m_SignalCounters.end();
        collection++) {
     ATH_MSG_DEBUG(s_linestr2);
     delete (*collection);
-  } 
+  }
   m_SignalCounters.clear();
   return StatusCode::SUCCESS;
 }
- 
+
 
 StatusCode InDet :: InDetRecStatisticsAlg :: getServices ()
 {
@@ -427,11 +427,11 @@ StatusCode InDet :: InDetRecStatisticsAlg :: getServices ()
         ATH_MSG_FATAL(" Could not initialize Particle Properties Service" );
         return StatusCode::FAILURE;
     }
-      
+
     m_particleDataTable = partPropSvc->PDT();
 
     //Set up ATLAS ID helper to be able to identify the RIO's det-subsystem.
-  
+
     // Get the dictionary manager from the detector store
     const IdDictManager*  idDictMgr = 0;
     sc = detStore()->retrieve(idDictMgr, "IdDict");
@@ -439,16 +439,16 @@ StatusCode InDet :: InDetRecStatisticsAlg :: getServices ()
       ATH_MSG_FATAL("Could not get IdDictManager !");
       return StatusCode::FAILURE;
     }
-    
+
     // Initialize the helper with the dictionary information.
     sc = detStore()->retrieve(m_idHelper, "AtlasID");
     if (sc.isFailure()) {
       ATH_MSG_FATAL("Could not get AtlasDetectorID helper.");
       return StatusCode::FAILURE;
     }
-   
+
    //get Pixel, SCT, TRT managers and helpers
- 
+
    if (detStore()->retrieve(m_pixelID, "PixelID").isFailure()) {
      msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
      return StatusCode::FAILURE;
@@ -458,12 +458,12 @@ StatusCode InDet :: InDetRecStatisticsAlg :: getServices ()
      return StatusCode::FAILURE;
    }
 
-   //retrieve the TRT helper only if not-SLHC layout used 
+   //retrieve the TRT helper only if not-SLHC layout used
    sc = detStore()->retrieve(m_idDictMgr, "IdDict");
    if (sc.isFailure()) {
      ATH_MSG_FATAL("Could not get IdDictManager !");
      return StatusCode::FAILURE;
-   } 
+   }
    const IdDictDictionary* dict = m_idDictMgr->manager()->find_dictionary("InnerDetector");
    if(!dict) {
      ATH_MSG_FATAL(" Cannot access InnerDetector dictionary ");
@@ -480,10 +480,10 @@ StatusCode InDet :: InDetRecStatisticsAlg :: getServices ()
      }
    }
    //
-  
+
    if (m_UseTrackSummary) {
      if (m_trkSummaryTool.retrieve().isFailure() ) {
-       ATH_MSG_FATAL("Failed to retrieve tool " 
+       ATH_MSG_FATAL("Failed to retrieve tool "
 	   << m_trkSummaryTool);
        return StatusCode::FAILURE;
      } else {
@@ -515,12 +515,12 @@ StatusCode InDet :: InDetRecStatisticsAlg :: getServices ()
    } else {
      m_truthToTrack.disable();
    }
-   
+
    //adding track selector tool
    if(m_useTrackSelection){
      if ( m_trackSelectorTool.retrieve().isFailure() ) {
        ATH_MSG_FATAL("Failed to retrieve tool " << m_trackSelectorTool);
-       return StatusCode::FAILURE;   
+       return StatusCode::FAILURE;
      } else {
        ATH_MSG_INFO("Retrieved tool " << m_trackSelectorTool);
      }
@@ -533,26 +533,26 @@ StatusCode InDet :: InDetRecStatisticsAlg :: getServices ()
 StatusCode InDet :: InDetRecStatisticsAlg :: resetStatistics() {
     m_counter.reset();
     m_events_processed           = 0;
-  
-    for (std::vector<InDet::TrackStatHelper *>::const_iterator counter = 
-	   m_SignalCounters.begin(); 
+
+    for (std::vector<InDet::TrackStatHelper *>::const_iterator counter =
+	   m_SignalCounters.begin();
 	 counter != m_SignalCounters.end(); ++ counter) {
       (*counter)->reset();
     }
     return StatusCode :: SUCCESS;
 }
 
-void InDet::InDetRecStatisticsAlg::selectRecSignal(const TrackCollection* RecCollection, 
+void InDet::InDetRecStatisticsAlg::selectRecSignal(const TrackCollection* RecCollection,
 						   std::vector <const Trk::Track *> & RecTracks ,
 						   std::vector <const Trk::Track *> & RecSignal,
                                                    InDet::InDetRecStatisticsAlg::CounterLocal &counter) const {
-  
+
   for (  TrackCollection::const_iterator it = RecCollection->begin() ;
 	 it != RecCollection->end(); ++ it){
     RecTracks.push_back(*it);
-    const DataVector<const Trk::TrackParameters>* trackpara = 
+    const DataVector<const Trk::TrackParameters>* trackpara =
       (*it)->trackParameters();
-    
+
     if(trackpara->size() > 0){
       const Trk::TrackParameters* para = trackpara->front();
       if (para){
@@ -570,14 +570,14 @@ void InDet::InDetRecStatisticsAlg::selectRecSignal(const TrackCollection* RecCol
 
 // select charged, stable particles in allowed pt and eta range
 void InDet :: InDetRecStatisticsAlg ::
-selectGenSignal  (const McEventCollection* SimTracks, 
+selectGenSignal  (const McEventCollection* SimTracks,
 		  std::vector <std::pair<HepMC::ConstGenParticlePtr,int> > & GenSignal,
 		  unsigned int /*inTimeStart*/, unsigned int /*inTimeEnd*/,
                   InDet::InDetRecStatisticsAlg::CounterLocal &counter) const //'unused' compiler warning
 {
   if (! SimTracks) return;
 
-  unsigned int nb_mc_event = SimTracks->size();  
+  unsigned int nb_mc_event = SimTracks->size();
   std::unique_ptr<PileUpType>  put = std::make_unique<PileUpType>(SimTracks);
 
   McEventCollection::const_iterator inTimeMBend;
@@ -604,15 +604,15 @@ selectGenSignal  (const McEventCollection* SimTracks,
 	  const HepPDT::ParticleData* pd = m_particleDataTable->particle(std::abs(pdgCode));
 	  if (!pd) {
 	    ATH_MSG_DEBUG("Could not get particle data for particle with "
-			 <<"pdgCode="<<pdgCode<< ", status=" << particle->status() 
+			 <<"pdgCode="<<pdgCode<< ", status=" << particle->status()
 			 << ", barcode=" << HepMC::barcode(particle));
 	    ATH_MSG_DEBUG("GenParticle= " << particle);
 	    continue;
 	  }
 	  float charge = pd->charge();
 	  if (std::abs(charge)<0.5) continue;
-	  if (std::abs(particle->momentum().perp()) >  m_minPt  &&  
-	      std::abs(particle->momentum().pseudoRapidity()) < m_maxEta ) { 
+	  if (std::abs(particle->momentum().perp()) >  m_minPt  &&
+	      std::abs(particle->momentum().pseudoRapidity()) < m_maxEta ) {
 	    std::pair<HepMC::ConstGenParticlePtr,int> thisPair(particle,ievt);
 	    GenSignal.push_back(thisPair);
 	  }
@@ -646,28 +646,28 @@ void InDet :: InDetRecStatisticsAlg :: printStatistics() {
   std::stringstream outstr;
   int def_precision(outstr.precision());
   outstr << "\n"
-         << MSG::INFO 
-	 << std::setiosflags(std::ios::fixed | std::ios::showpoint)  
+         << MSG::INFO
+	 << std::setiosflags(std::ios::fixed | std::ios::showpoint)
 	 << std::setw(7) << std::setprecision(2)
 	 << s_linestr << "\n"
-         << "Summary" << "\n" 
+         << "Summary" << "\n"
          << "\tProcessed              : " << m_events_processed
 	 << " events, "  << m_counter.m_counter[kN_rec_tracks_processed]
 	 << " reconstructed tracks with " << m_counter.m_counter[kN_spacepoints_processed]
 	 << " hits, and "  << m_counter.m_counter[kN_gen_tracks_processed]
 	 << " truth particles" << "\n"
          << "\tProblem objects        : " <<  m_counter.m_counter[kN_rec_tracks_without_perigee]
-	 << " tracks without perigee, " 
+	 << " tracks without perigee, "
 	 << m_counter.m_counter[kN_unknown_hits] << " unknown hits" << "\n"
          << "\t" << "Reco  TrackCollections : ";
   bool first = true;
-  for (std::vector <class TrackStatHelper *>::const_iterator collection =  
+  for (std::vector <class TrackStatHelper *>::const_iterator collection =
 	 m_SignalCounters.begin();
        collection !=  m_SignalCounters.end(); collection++)
     {
-      if (first) { 
+      if (first) {
       	first = false;
-      } 
+      }
       else {
 	outstr << ", ";
       }
@@ -685,9 +685,9 @@ void InDet :: InDetRecStatisticsAlg :: printStatistics() {
       for (std::vector <class TrackStatHelper *>::const_iterator collection =  m_SignalCounters.begin();
 	   collection !=  m_SignalCounters.end(); collection++)
 	{
-	  if (first) { 
+	  if (first) {
 	    first = false;
-	  } 
+	  }
 	  else {
 	    outstr << ", ";
 	  }
@@ -696,42 +696,42 @@ void InDet :: InDetRecStatisticsAlg :: printStatistics() {
       ATH_MSG_INFO(outstr.str());
       outstr.str("");
     }
-   outstr.str(""); 
-   outstr << "\n" 
+   outstr.str("");
+   outstr << "\n"
 	  << s_linestr2 << "\n"
-	  << "Cuts and Settings for Statistics Table" << "\n" 
-	  << "\t" << "TrackSummary Statistics" << "\t" 
-	  << (m_UseTrackSummary     ? "YES" : "NO") << "\n" 
-	  << "\t" << "Signal                \t" << "pT > " 
+	  << "Cuts and Settings for Statistics Table" << "\n"
+	  << "\t" << "TrackSummary Statistics" << "\t"
+	  << (m_UseTrackSummary     ? "YES" : "NO") << "\n"
+	  << "\t" << "Signal                \t" << "pT > "
 	  << m_minPt/1000 << " GeV/c, |eta| < " << m_maxEta << "\t\t"
-	  << "\t" << "Primary track start   \t" << "R < " 
-	  << m_maxRStartPrimary << "mm and |z| < " 
+	  << "\t" << "Primary track start   \t" << "R < "
+	  << m_maxRStartPrimary << "mm and |z| < "
 	  << m_maxZStartPrimary << "mm" << "\n"
-	  << "\t" << "Barrel                \t" << 0.0                
+	  << "\t" << "Barrel                \t" << 0.0
 	  << "< |eta| < " << m_maxEtaBarrel     << "\t\t\t"
-	  << "\t" << "Primary track end     \t" << "R > " 
-	  << m_minREndPrimary   << "mm or |z| > " << m_minZEndPrimary   
+	  << "\t" << "Primary track end     \t" << "R > "
+	  << m_minREndPrimary   << "mm or |z| > " << m_minZEndPrimary
 	  << "mm" << "\n"
-	  << "\t" << "Transition Region     \t" << m_maxEtaBarrel     
+	  << "\t" << "Transition Region     \t" << m_maxEtaBarrel
 	  << "< |eta| < " << m_maxEtaTransition << "\t\t\t"
-	  << "\t" << "Secondary (non-Primary) start \t" 
-	  << " R < "    << m_maxRStartSecondary << "mm and" 
+	  << "\t" << "Secondary (non-Primary) start \t"
+	  << " R < "    << m_maxRStartSecondary << "mm and"
 	  << " |z| < "  << m_maxZStartSecondary << " mm" << "\n"
-	  << "\t" << "Endcap                \t" << m_maxEtaTransition 
+	  << "\t" << "Endcap                \t" << m_maxEtaTransition
 	  << "< |eta| < " << m_maxEtaEndcap     << "\t\t\t"
 	  << "\t" << "Secondary (non-primary) end   \t"
 	  << " R > "    << m_minREndSecondary   << "mm or"
 	  << " |z| > "  << m_minREndSecondary   << "mm" << "\n"
           << "\t" << "Forward                \t"
           << "|eta| > " << m_minEtaDBM     << "\n"
-	  << "\t" << "Low prob tracks #1    \t" << "< "               
-	  << m_fakeTrackCut  << " of hits from single Truth Track " 
-	  << "\n"  
-	  << "\t" << "Low prob tracks #2    \t" << "< "               
-	  << m_fakeTrackCut2 << " of hits from single Truth Track " 
-	  << "\n"  
+	  << "\t" << "Low prob tracks #1    \t" << "< "
+	  << m_fakeTrackCut  << " of hits from single Truth Track "
+	  << "\n"
+	  << "\t" << "Low prob tracks #2    \t" << "< "
+	  << m_fakeTrackCut2 << " of hits from single Truth Track "
+	  << "\n"
 	  << "\t" << "No link tracks        \t  Track has no link associated to an HepMC Particle" << "\n"
-	  << "\t" << "Good reco tracks      \t" << "> "               
+	  << "\t" << "Good reco tracks      \t" << "> "
 	  << m_matchTrackCut << " of hits from single Truth Track + a link !";
   ATH_MSG_INFO(outstr.str());
   outstr.str("");
@@ -739,7 +739,7 @@ void InDet :: InDetRecStatisticsAlg :: printStatistics() {
   MsgStream &out = msg(MSG::INFO);
   {
   RestoreStream<MsgStream> restore(out);
-  for (std::vector <class TrackStatHelper *>::const_iterator collection =  
+  for (std::vector <class TrackStatHelper *>::const_iterator collection =
 	 m_SignalCounters.begin();
        collection !=  m_SignalCounters.end(); collection++) {
      if ((*collection)->key()=="CombinedInDetTracks"){
@@ -782,19 +782,19 @@ void InDet :: InDetRecStatisticsAlg :: printStatistics() {
   }
 
   if(m_printSecondary){
-    outstr.str("");    
+    outstr.str("");
     outstr << "\n" << std::setprecision(def_precision)
            <<s_linestr<<"\n"
            <<"Statistics for Secondaries (non-Primaries)"<<"\n"
-           << "\t" << "Secondary track start \t" 
-	   << " R < "   << m_maxRStartSecondary << "mm and" 
+           << "\t" << "Secondary track start \t"
+	   << " R < "   << m_maxRStartSecondary << "mm and"
 	   << " |z| < " << m_maxZStartSecondary << " mm" << "\n"
            << "\t" << "Secondary track end   \t"
 	   << " R > "    << m_minREndSecondary << "mm or"
            << " |z| > "  << m_minZEndSecondary << "mm";
-    ATH_MSG_INFO(outstr.str()); 
+    ATH_MSG_INFO(outstr.str());
     outstr.str("");
-    for (std::vector <class TrackStatHelper *>::const_iterator collection =  
+    for (std::vector <class TrackStatHelper *>::const_iterator collection =
 	   m_SignalCounters.begin();
 	 collection !=  m_SignalCounters.end(); collection++) {
      if ((*collection)->key()=="CombinedInDetTracks"){
@@ -815,7 +815,7 @@ void InDet :: InDetRecStatisticsAlg :: printStatistics() {
 void InDet :: InDetRecStatisticsAlg ::printTrackSummary (MsgStream &out, enum eta_region eta_reg)
 {
   bool printed = false;
-  for (std::vector <class TrackStatHelper *>::const_iterator collection =  
+  for (std::vector <class TrackStatHelper *>::const_iterator collection =
 	 m_SignalCounters.begin();
        collection !=  m_SignalCounters.end(); collection++) {
      if ((*collection)->key()=="CombinedInDetTracks"){
@@ -827,7 +827,7 @@ void InDet :: InDetRecStatisticsAlg ::printTrackSummary (MsgStream &out, enum et
          << "----------------------------------------------------------------------------------------------------------------------------------------------" << "\n";
   }
   printed = false;
-  for (std::vector <class TrackStatHelper *>::const_iterator collection =  
+  for (std::vector <class TrackStatHelper *>::const_iterator collection =
 	 m_SignalCounters.begin();
        collection !=  m_SignalCounters.end(); collection++) {
      if ((*collection)->key()=="CombinedInDetTracks"){
@@ -838,7 +838,7 @@ void InDet :: InDetRecStatisticsAlg ::printTrackSummary (MsgStream &out, enum et
      out << "\n"
          << "----------------------------------------------------------------------------------------------------------------------------------------------" << "\n";
   }
-  for (std::vector <class TrackStatHelper *>::const_iterator collection =  
+  for (std::vector <class TrackStatHelper *>::const_iterator collection =
 	 m_SignalCounters.begin();
        collection !=  m_SignalCounters.end(); collection++) {
      if ((*collection)->key()=="CombinedInDetTracks"){
@@ -848,10 +848,10 @@ void InDet :: InDetRecStatisticsAlg ::printTrackSummary (MsgStream &out, enum et
 }
 
 // =================================================================================================================
-// calculatePull 
+// calculatePull
 // =================================================================================================================
-float InDet :: InDetRecStatisticsAlg :: calculatePull(const float residual, 
-						      const float trkErr, 
+float InDet :: InDetRecStatisticsAlg :: calculatePull(const float residual,
+						      const float trkErr,
 						      const float hitErr){
   double ErrorSum;
   ErrorSum = sqrt(pow(trkErr, 2) + pow(hitErr, 2));
@@ -860,16 +860,16 @@ float InDet :: InDetRecStatisticsAlg :: calculatePull(const float residual,
 }
 
 const Trk::TrackParameters *  InDet::InDetRecStatisticsAlg::getUnbiasedTrackParameters(const Trk::TrackParameters* trkParameters, const Trk::MeasurementBase* measurement ){
-    
+
 
   const Trk::TrackParameters *unbiasedTrkParameters = 0;
-  
+
  // -----------------------------------------
   // use unbiased track states or normal ones?
   // unbiased track parameters are tried to retrieve if the updator tool
   //    is available and if unbiased track states could be produced before
   //    for the current track (ie. if one trial to get unbiased track states
-  //    fail						      
+  //    fail
 
   if (m_updator && (m_isUnbiased==1) ) {
     if ( trkParameters->covariance() ) {
@@ -878,8 +878,8 @@ const Trk::TrackParameters *  InDet::InDetRecStatisticsAlg::getUnbiasedTrackPara
       unbiasedTrkParameters =
 	m_updator->removeFromState( *trkParameters,
 				    measurement->localParameters(),
-				    measurement->localCovariance());
-      
+				    measurement->localCovariance()).release();
+
       if (!unbiasedTrkParameters) {
 	ATH_MSG_WARNING("Could not get unbiased track parameters, "
 	    <<"use normal parameters");
@@ -896,7 +896,7 @@ const Trk::TrackParameters *  InDet::InDetRecStatisticsAlg::getUnbiasedTrackPara
       m_isUnbiased = 0;
     }
   } // end if no measured track parameter
-  return unbiasedTrkParameters;  
+  return unbiasedTrkParameters;
 }
 
 
@@ -904,7 +904,7 @@ Identifier  InDet::InDetRecStatisticsAlg::getIdentifier(const Trk::MeasurementBa
   Identifier id;
   const Trk::CompetingRIOsOnTrack *comprot = 0;
   // identify by ROT:
-  const Trk::RIO_OnTrack *rot = 
+  const Trk::RIO_OnTrack *rot =
     dynamic_cast<const Trk::RIO_OnTrack*>(measurement);
   if (rot) {
     id = rot->identify();
@@ -921,5 +921,5 @@ Identifier  InDet::InDetRecStatisticsAlg::getIdentifier(const Trk::MeasurementBa
     }
   }
   delete comprot;
-  return id; 
+  return id;
 }
