@@ -98,12 +98,15 @@ namespace DerivationFramework{
           || (m_DSID>=410661 && m_DSID<=410664) //Sherpa 2.2.4 ttbb
           || (m_DSID>=421152 && m_DSID<=421158) //Sherpa2.2.8 ttbar
           || (m_DSID>=700051 && m_DSID<=700054) //Sherpa2.2.8 ttbb
+          || (m_DSID>=700121 && m_DSID<=700124) //Sherpa2.2.10 ttbar
+          || (m_DSID>=700164 && m_DSID<=700167) //Sherpa2.2.10 ttbb
            ){
       m_GenUsed=Sherpa;
       if( m_DSID==410051
           || (m_DSID>=410323 && m_DSID<=410325) || (m_DSID==410369)
           || (m_DSID>=410661 && m_DSID<=410664)
           || (m_DSID>=700051 && m_DSID<=700054)
+          || (m_DSID>=700164 && m_DSID<=700167)
         ){
         m_ttbb=true;
       }
