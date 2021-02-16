@@ -30,7 +30,8 @@ Muon::NSWCalibSmearingTool::NSWCalibSmearingTool(const std::string& t,
   declareProperty("EtaSectors", m_etaSectors = {true,true,true,true} );
 
   //initialize the efficiency values reading from a file
-  declareProperty("ReadFromFile",m_readFromFile=false);
+  declareProperty("ReadEfficiencyFromFile",m_readEfficiencyFromFile=false);
+  declareProperty("ReadGainFractionFromFile",m_readGainFractionFromFile=false);
   declareProperty("FileName",m_fileName);
 
 }
@@ -54,7 +55,7 @@ StatusCode Muon::NSWCalibSmearingTool::initialize()
  
   m_random = TRandom3();
 
-  if (m_readFromFile) {
+  if (m_readEfficiencyFromFile || m_readGainFractionFromFile) {
     ATH_CHECK(readHighVoltages());
   }
 
@@ -87,38 +88,32 @@ StatusCode Muon::NSWCalibSmearingTool::isAccepted(const Identifier id, bool& acc
 
   /// either efficiency per layer set via configuration, or read from file
   float efficiencyCut = 0.0;
-  if ( !m_readFromFile ) {
+  if ( !m_readEfficiencyFromFile ) {
     efficiencyCut = m_clusterEfficiency.value()[gasGap-1];
   }
   else {
-    // get the efficiency from the HV map and the parametrization
-    Identifier pcb_id;
-    if ( !getPCBIdentifier(id, pcb_id) ) {
-      ATH_MSG_ERROR("Could not convert the id " << m_idHelperTool->toString(id) << " to a PCB identifier" );
-      return StatusCode::FAILURE;
-    } 
+    float hv = getHighVoltage(id);
 
-    // get the HV
-    std::map<Identifier,float>::const_iterator it = m_hvMap.find(pcb_id);
-    if ( it != m_hvMap.end() ) {
-      double hv = it->second;
-      efficiencyCut = getMMEfficiencyFromHV(hv);
+    if(hv == -2.0) { // could not convert id to pcb id
+      return StatusCode::FAILURE;
     }
-    else {
-      ATH_MSG_WARNING("PCB Id not found in the HV map " << m_idHelperTool->toString(pcb_id));
+    else if(hv == -1.0) { // hv not found in hv map
       accepted = true;
       return StatusCode::SUCCESS;
     }
-
+    else {
+      efficiencyCut = getMMEfficiencyFromHV(hv);
+    }
   }
-
   /// check if a full hit can be accepted
   if ( m_random.Rndm() > efficiencyCut ) {
     accepted = false;
   }
-
   return StatusCode::SUCCESS;
 }
+
+
+
 
 //
 // smear only the charge
@@ -207,10 +202,24 @@ StatusCode Muon::NSWCalibSmearingTool::getGainFraction(Identifier id, float& gai
 
   gainFraction = 1.0;
 
-  if ( m_phiSectors.value()[phiSector-1] && m_etaSectors.value()[etaSector-1] ) {
-    gainFraction = m_gainFraction.value()[gasGap-1];
-  }  
-
+  if(!m_readGainFractionFromFile) {
+    if ( m_phiSectors.value()[phiSector-1] && m_etaSectors.value()[etaSector-1] ) {
+      gainFraction = m_gainFraction.value()[gasGap-1];
+    }
+  }
+  else {
+    float hv = getHighVoltage(id);
+    if(hv == -2.0) { // could not convert id to PCB id
+      return StatusCode::FAILURE;
+    }
+    else if(hv == -1.0) { // could not find PCB in HV map
+      gainFraction = 1;
+    }
+    else {
+      gainFraction=getMMGainFractionFromHV(hv);
+      ATH_MSG_DEBUG("Got gain fraction: "<< gainFraction << " for id " << m_idHelperTool->toString(id));     
+    }
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -261,8 +270,8 @@ double NSWCalibSmearingTool::getHighVoltage(Identifier stripId) const
   Identifier pcbId;
   bool foundPCB = getPCBIdentifier(stripId,pcbId);
   if ( !foundPCB ) {
-    ATH_MSG_DEBUG("Identifier " << m_idHelperTool->toString(stripId) << " not converted" );
-    return -1.0;
+    ATH_MSG_ERROR("Identifier " << m_idHelperTool->toString(stripId) << " not converted" );
+    return -2.0;
   } 
 
   double hv = -1.0;
@@ -287,6 +296,18 @@ double NSWCalibSmearingTool::getMMEfficiencyFromHV(double hv) const
 
   return eff;
 }
+
+//
+// get the gain fraction from the parametrization vs HV for the MM
+double NSWCalibSmearingTool::getMMGainFractionFromHV(double hv) const
+{
+
+  // initial values from BB5 measurements. Scale cluster charge with respect to 570 V
+  return  std::exp(-8.87971 + 0.0224561 * hv) / std::exp(-8.87971 + 0.0224561 * 570);
+
+}
+
+
 
 ///
 // get the PCB identifier as the identifier of the central strip ( 512 ) of each PCB (MM only)

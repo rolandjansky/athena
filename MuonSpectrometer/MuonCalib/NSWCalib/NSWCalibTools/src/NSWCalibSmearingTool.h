@@ -47,6 +47,7 @@ namespace Muon {
     bool getPCBIdentifier(const Identifier id, Identifier& pcb_id) const;
 
     double getMMEfficiencyFromHV(double hv) const;
+    double getMMGainFractionFromHV(double hv) const;
 
     StatusCode readHighVoltages();
 
@@ -63,7 +64,8 @@ namespace Muon {
     BooleanArrayProperty m_phiSectors;
     BooleanArrayProperty m_etaSectors;
 
-    BooleanProperty m_readFromFile;
+    BooleanProperty m_readEfficiencyFromFile;
+    BooleanProperty m_readGainFractionFromFile;
     StringProperty m_fileName;
 
     TRandom3 m_random;
