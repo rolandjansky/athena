@@ -79,15 +79,15 @@ public:
     // Access to the results:
     virtual HGTD_DetectorManager* getDetectorManager() const;
 
-    void setPrintIdentifierDict( bool ) ;
+    void setPrintIdentifierDict( bool );
 
   private:
     // Copy and assignments operations illegal and so are made private
     HGTD_DetectorFactory(HGTD_DetectorFactory &right);
     HGTD_DetectorFactory & operator=(HGTD_DetectorFactory &right);
 
-    const GeoTube* preBuildSolid();
-    const GeoLogVol* preBuild( const GeoTube* , int );
+    void readDbParameters();
+    GeoLogVol* buildEndcapLogicalVolume(bool isPositiveSide);
     GeoVPhysVol* build( const GeoLogVol* logicalEnvelope, bool bPos);
 
     InDetDD::HGTD_ModuleDesign* createHgtdDesign( double thickness );
@@ -95,8 +95,9 @@ public:
     //  below 3 members prepare 3-ring vs 2-ring layout controlled implicitly by geomVersion 
     std::array< PositionsInQuadrant, 4 > prepareLayersFromQuadrants( unsigned int ) ;
     PositionsInQuadrant prepareQuadrantsFromRows( int layer, unsigned int maxRow );
-    std::string RetrieveModule( int layer, int quadrant, unsigned int maxrows, int row, int mod,
-                    ModulePosition module, double & myx, double & myy, double & myrot, int & phi, int & eta ) ;
+    std::string formModuleName( int layer, int quadrant, unsigned int maxrows, int row, int mod,
+				ModulePosition module, double & myx, double & myy, double & myrot, 
+				int & phi, int & eta ) ;
 
     // 3-ring layout
     PositionsInQuadrant mirrorModulesInQuadrant( PositionsInQuadrant );
@@ -109,12 +110,12 @@ public:
     HGTD_DetectorManager* m_detectorManager;
     InDetDD::AthenaComps* m_athComps;
     InDetDD::SiCommonItems* m_commonItems;
-    const StoredMaterialManager* m_matMgr;
+    const StoredMaterialManager* m_materialMgr;
 
     int m_geomVersion;
 
     // whether print number of modules per row for to the input for Identifier dictionary
-    bool m_outputIdfr ;
+    bool m_outputIdfr;
 
     std::map<std::string,GeoCylVolParams> m_cylVolPars;
     std::map<std::string,GeoBoxVolParams> m_boxVolPars;

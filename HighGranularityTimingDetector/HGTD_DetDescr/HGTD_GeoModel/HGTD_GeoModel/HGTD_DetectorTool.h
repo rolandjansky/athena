@@ -48,21 +48,21 @@ class HGTD_DetectorTool : public GeoModelTool {
 
  private:
 
-    std::string m_detectorName ;
-    bool m_alignable ;
+    std::string m_detectorName;
+    bool m_alignable;
 
     std::string m_gmxFilename;
 
-    ServiceHandle<IGeoModelSvc> m_geoModelSvc ;
-    ServiceHandle<IRDBAccessSvc> m_rdbAccessSvc ;
-    ServiceHandle<IGeometryDBSvc> m_geometryDBSvc ;
+    ServiceHandle<IGeoModelSvc> m_geoModelSvc;
+    ServiceHandle<IRDBAccessSvc> m_rdbAccessSvc;
+    ServiceHandle<IGeometryDBSvc> m_geometryDBSvc;
     ServiceHandle<ISiLorentzAngleSvc> m_lorentzAngleSvc;
 
-    const HGTD_DetectorManager *m_detectorManager ;
-    InDetDD::AthenaComps  *m_athenaComps ;
-    InDetDD::SiCommonItems *m_commonItems ;
+    const HGTD_DetectorManager *m_detectorManager;
+    InDetDD::AthenaComps  *m_athenaComps;
+    InDetDD::SiCommonItems *m_commonItems;
 
-    bool m_printIDdict ;
+    bool m_printIDdict;
 };
 
 #endif // HGTD_GEOMODEL_HGTD_DETECTORTOOL_H

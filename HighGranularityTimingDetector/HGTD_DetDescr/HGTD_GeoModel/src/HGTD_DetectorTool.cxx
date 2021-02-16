@@ -36,7 +36,7 @@ HGTD_DetectorTool::HGTD_DetectorTool(const std::string &type,
   m_detectorManager(nullptr),
   m_athenaComps(0),
   m_commonItems(0),
-  m_printIDdict(false)  {
+  m_printIDdict(false) {
     // Get parameter values from the python configuration
     declareProperty("DetectorName", m_detectorName);
     declareProperty("Alignable", m_alignable);
@@ -45,7 +45,7 @@ HGTD_DetectorTool::HGTD_DetectorTool(const std::string &type,
     declareProperty("RDBAccessSvc", m_rdbAccessSvc);
     declareProperty("GeometryDBSvc", m_geometryDBSvc);
     declareProperty("LorentzAngleSvc", m_lorentzAngleSvc);
-    declareProperty("PrintModuleNumberPerRow", m_printIDdict );
+    declareProperty("PrintModuleNumberPerRow", m_printIDdict);
 }
 
 HGTD_DetectorTool::~HGTD_DetectorTool() {
@@ -53,9 +53,8 @@ HGTD_DetectorTool::~HGTD_DetectorTool() {
 }
 
 StatusCode HGTD_DetectorTool::create(StoreGateSvc* detStore) {
-    // Retrieve all services except LorentzAngleSvc, which has to be done later
-    StatusCode sc = StatusCode::SUCCESS ;
 
+    // Retrieve all services except LorentzAngleSvc, which has to be done later
     ATH_CHECK(m_geoModelSvc.retrieve());
     ATH_CHECK(m_rdbAccessSvc.retrieve());
     ATH_CHECK(m_geometryDBSvc.retrieve());
@@ -79,26 +78,20 @@ StatusCode HGTD_DetectorTool::create(StoreGateSvc* detStore) {
     GeoPhysVol *world = &*theExpt->getPhysVol();
 
     HGTDGeo::HGTD_DetectorFactory theHGTDFactory( m_athenaComps, m_commonItems );
-    theHGTDFactory.setPrintIdentifierDict( m_printIDdict ) ;
+    theHGTDFactory.setPrintIdentifierDict( m_printIDdict );
     theHGTDFactory.create(world);
 
     // Get the manager from the factory and store it in the detector store.
     m_detectorManager = theHGTDFactory.getDetectorManager();
     if (!m_detectorManager) {
-        msg(MSG::ERROR) << "HGTD_DetectorManager not found; not created in HGTD_DetectorFactory?" << endmsg;
+        ATH_MSG_ERROR( "HGTD_DetectorManager not found; not created in HGTD_DetectorFactory?" );
         return(StatusCode::FAILURE);
     }
 
     ATH_MSG_DEBUG("Registering HGTD_DetectorManager as " << m_detectorManager->getName() );
-    sc = detStore->record(m_detectorManager, m_detectorManager->getName()) ;
-    if ( sc.isFailure() ) {
-      msg(MSG::ERROR) << "Could not register HGTD_DetectorManager as " << m_detectorManager->getName() << endmsg;
-      return StatusCode::FAILURE;
-    } else
-      msg(MSG::INFO) << "Successfuly register HGTD_DetectorManager as " << m_detectorManager->getName() << endmsg;
+    ATH_CHECK( detStore->record(m_detectorManager, m_detectorManager->getName()) );
 
     theExpt->addManager(m_detectorManager);
-
     return StatusCode::SUCCESS;
 }
 
@@ -121,21 +114,18 @@ StatusCode HGTD_DetectorTool::registerCallback(StoreGateSvc* /*detStore*/) {
     if (m_alignable) {
         std::string folderName = "/Indet/AlignHGTD";
         if ( detStore()->contains<AlignableTransformContainer>(folderName) ) {
-            msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endmsg;
+	    ATH_MSG_DEBUG( "Registering callback on AlignableTransformContainer with folder " << folderName );
             const DataHandle<AlignableTransformContainer> atc;
-            sc =  detStore()->regFcn( &IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName );
-            if(sc.isFailure()) {
-                msg(MSG::ERROR) << "Could not register callback on AlignableTransformContainer with folder " << 
-                                    folderName << endmsg;
-            }
+            ATH_CHECK( detStore()->regFcn( &IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName ) );
+	    sc = StatusCode::SUCCESS;
         }
         else {
-            msg(MSG::WARNING) << "Unable to register callback on AlignableTransformContainer with folder " <<
-                                 folderName << ", Alignment disabled (only if no Run2 scheme is loaded)!" << endmsg;
+	    ATH_MSG_WARNING( "Unable to register callback on AlignableTransformContainer with folder " <<
+			     folderName << ", Alignment disabled (only if no Run-2 scheme is loaded)!" );
         }
     }
     else {
-        msg(MSG::INFO) << "Alignment disabled. No callback registered" << endmsg;
+        ATH_MSG_INFO( "Alignment disabled. No callback registered" );
         // We return failure otherwise it will try and register a GeoModelSvc callback associated with this callback.
     }
     return sc;
@@ -146,7 +136,7 @@ StatusCode HGTD_DetectorTool::align(IOVSVC_CALLBACK_ARGS_P( I, keys ) ) {
     //   The call-back routine, which just calls the real call-back routine from the manager.
 
     if ( ! m_detectorManager ) {
-        msg(MSG::WARNING) << "Manager does not exist for " << I <<" "<< keys << endmsg;
+        ATH_MSG_WARNING( "Manager does not exist for " << I <<" "<< keys );
         return StatusCode::FAILURE;
     }
 
@@ -162,5 +152,4 @@ StatusCode HGTD_DetectorTool::align(IOVSVC_CALLBACK_ARGS_P( I, keys ) ) {
     }
     **/
     return StatusCode::SUCCESS;
-
 }
