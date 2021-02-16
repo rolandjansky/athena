@@ -18,6 +18,7 @@ using TrigCompositeUtils::viewString;
 using TrigCompositeUtils::featureString;
 using TrigCompositeUtils::findLink;
 using TrigCompositeUtils::LinkInfo;
+using TrigCompositeUtils::hypoAlgNodeName;
 
 FastTrackFinderLRTHypoAlg::FastTrackFinderLRTHypoAlg(const std::string& name, ISvcLocator* pSvcLocator) :
 ::HypoBase(name, pSvcLocator)
@@ -117,8 +118,7 @@ StatusCode FastTrackFinderLRTHypoAlg::execute(const EventContext& context) const
   SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context );
   auto decisions = outputHandle.ptr();
 
-  auto d = newDecisionIn( decisions);
-  linkToPrevious( d, decisionInput().key(), 0 );
+  TrigCompositeUtils::Decision* d = newDecisionIn(decisions, previousDecisionsHandle->at(0), hypoAlgNodeName(), context);
 
   TrigCompositeUtils::DecisionIDContainer prev;
   TrigCompositeUtils::decisionIDs( previousDecisionsHandle->at(0), prev );
@@ -133,6 +133,6 @@ StatusCode FastTrackFinderLRTHypoAlg::execute(const EventContext& context) const
   SG::WriteHandle<xAOD::TrigCompositeContainer> trackCountHandle(m_trackCountKey, context);
   ATH_CHECK(trackCountHandle.record( std::move( trackCountContainer ), std::move( trackCountContainerAux ) ) );
   d->setObjectLink( featureString(), ElementLink<xAOD::TrigCompositeContainer>( m_trackCountKey.key(), 0) );
-  //ATH_CHECK( hypoBaseOutputProcessing(outputHandle) );
+  ATH_CHECK( hypoBaseOutputProcessing(outputHandle) );
   return StatusCode::SUCCESS;
 }

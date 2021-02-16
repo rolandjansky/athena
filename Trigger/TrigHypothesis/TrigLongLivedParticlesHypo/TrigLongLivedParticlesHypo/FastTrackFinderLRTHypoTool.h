@@ -1,8 +1,8 @@
 /*
 Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGT2MINBIAS_TRACKCOUNTHYPOTOOL_H
-#define TRIGT2MINBIAS_TRACKCOUNTHYPOTOOL_H
+#ifndef TRIGT2FTFLRT_TRACKCOUNTHYPOTOOL_H
+#define TRIGT2FTFLRT_TRACKCOUNTHYPOTOOL_H
 
 #include "Gaudi/Property.h"
 #include "AthenaBaseComps/AthAlgTool.h"
