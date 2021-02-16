@@ -22,6 +22,8 @@
 
 #include "TFile.h"
 
+#include <memory>
+
 using namespace InDetDD;
 
 //===============================================
@@ -80,39 +82,43 @@ StatusCode SensorSimPlanarTool::initialize() {
     for (unsigned int i = 0; i < mapsPath_list.size(); i++) {
       ATH_MSG_INFO("Using maps located in: " << mapsPath_list.at(i) << " for layer No." << i);
       ATH_MSG_INFO("Create E field via interpolation based on files from: " << TCADpath_list.at(i));
-      //std::unique_ptr<TFile>  mapsFile=std::make_unique<TFile>( (mapsPath_list.at(i)).c_str() ); //this is the ramo
-      // potential.
-      TFile* mapsFile = new TFile((mapsPath_list.at(i)).c_str()); //this is the ramo potential.
+      std::unique_ptr<TFile> mapsFile(TFile::Open((mapsPath_list.at(i)).c_str(), "READ")); //this is the ramo potential.
+      if (!mapsFile) {
+        ATH_MSG_ERROR("Cannot open file: " << mapsPath_list.at(i));
+        return StatusCode::FAILURE;
+      }
 
       //Setup ramo weighting field map
-      TH3F* ramoPotentialMap_hold;
-      ramoPotentialMap_hold = 0;
-      ramoPotentialMap_hold = (TH3F*) mapsFile->Get("hramomap1");
-      if (ramoPotentialMap_hold == 0) ramoPotentialMap_hold = (TH3F*) mapsFile->Get("ramo3d");
-      if (ramoPotentialMap_hold == 0) {
+      std::unique_ptr<TH3F> ramoPotentialMap_hold(mapsFile->Get<TH3F>("hramomap1"));
+      if (!ramoPotentialMap_hold) {
+        ramoPotentialMap_hold.reset(mapsFile->Get<TH3F>("ramo3d"));
         ATH_MSG_INFO("Did not find a Ramo potential map.  Will use an approximate form.");
+      }
+      if (!ramoPotentialMap_hold) {
         ATH_MSG_WARNING("Not implemented yet - exit");
         return StatusCode::FAILURE; //Obviously, remove this when gen. code is set up
       }
+      ramoPotentialMap_hold->SetDirectory(nullptr);
       m_ramoPotentialMap.emplace_back();
-      ATH_CHECK(m_ramoPotentialMap.back().setHisto3D(ramoPotentialMap_hold));
+      ATH_CHECK(m_ramoPotentialMap.back().setHisto3D(ramoPotentialMap_hold.get()));
       //Now setup the E-field.
-      TH1F* eFieldMap_hold;
-      eFieldMap_hold = new TH1F();
-      //ATH_MSG_INFO("Generating E field maps using interpolation.");
-      CHECK(m_radDamageUtil->generateEfieldMap(eFieldMap_hold, NULL, m_fluenceLayer[i], m_voltageLayer[i], i,
+      TH1F* eFieldMap_hold(nullptr);
+      CHECK(m_radDamageUtil->generateEfieldMap(eFieldMap_hold, nullptr, m_fluenceLayer[i], m_voltageLayer[i], i,
                                                TCADpath_list.at(i), true));
 
-      TH2F* lorentzMap_e_hold = new TH2F();
-      TH2F* lorentzMap_h_hold = new TH2F();
-      TH2F* distanceMap_h_hold = new TH2F();
-      TH2F* distanceMap_e_hold = new TH2F();
-      TH1F* timeMap_e_hold = new TH1F();
-      TH1F* timeMap_h_hold = new TH1F();
+      eFieldMap_hold->SetDirectory(nullptr);
+
+      TH2F* lorentzMap_e_hold(nullptr);
+      TH2F* lorentzMap_h_hold(nullptr);
+      TH2F* distanceMap_h_hold(nullptr);
+      TH2F* distanceMap_e_hold(nullptr);
+      TH1F* timeMap_e_hold(nullptr);
+      TH1F* timeMap_h_hold(nullptr);
 
       ATH_CHECK(m_radDamageUtil->generateDistanceTimeMap(distanceMap_e_hold, distanceMap_h_hold, timeMap_e_hold,
                                                          timeMap_h_hold, lorentzMap_e_hold, lorentzMap_h_hold,
-                                                         eFieldMap_hold, NULL));
+                                                         eFieldMap_hold, nullptr));
+
       // For debugging and documentation: uncomment to save different maps which are based on the interpolated E field
       if (m_radDamageUtil->saveDebugMaps()) {
         TString prename = "map_layer_";
@@ -131,11 +137,19 @@ StatusCode SensorSimPlanarTool::initialize() {
         lorentzMap_h_hold->SaveAs(prename);
       }
       //Safetycheck
-      if (distanceMap_e_hold == 0 || distanceMap_h_hold == 0 || timeMap_e_hold == 0 || timeMap_h_hold == 0 ||
-          lorentzMap_e_hold == 0 || lorentzMap_h_hold == 0) {
-        ATH_MSG_INFO("Unable to load at least one of the distance/time/Lorentz angle maps.");
+      if (!distanceMap_e_hold || !distanceMap_h_hold || !timeMap_e_hold || !timeMap_h_hold ||
+          !lorentzMap_e_hold || !lorentzMap_h_hold) {
+        ATH_MSG_ERROR("Unable to load at least one of the distance/time/Lorentz angle maps.");
         return StatusCode::FAILURE;//Obviously, remove this when gen. code is set up
       }
+
+      lorentzMap_e_hold->SetDirectory(nullptr);
+      lorentzMap_h_hold->SetDirectory(nullptr);
+      distanceMap_e_hold->SetDirectory(nullptr);
+      distanceMap_h_hold->SetDirectory(nullptr);
+      timeMap_e_hold->SetDirectory(nullptr);
+      timeMap_h_hold->SetDirectory(nullptr);
+
       m_distanceMap_e.emplace_back();
       m_distanceMap_h.emplace_back();
       ATH_CHECK(m_distanceMap_e.back().setHisto2D(distanceMap_e_hold));
@@ -144,6 +158,16 @@ StatusCode SensorSimPlanarTool::initialize() {
       m_lorentzMap_h.emplace_back();
       ATH_CHECK(m_lorentzMap_e.back().setHisto2D(lorentzMap_e_hold));
       ATH_CHECK(m_lorentzMap_h.back().setHisto2D(lorentzMap_h_hold));
+
+      delete eFieldMap_hold;
+      delete lorentzMap_e_hold;
+      delete lorentzMap_h_hold;
+      delete distanceMap_e_hold;
+      delete distanceMap_h_hold;
+      delete timeMap_e_hold;
+      delete timeMap_h_hold;
+
+      mapsFile->Close();
     }
   }
   return StatusCode::SUCCESS;
