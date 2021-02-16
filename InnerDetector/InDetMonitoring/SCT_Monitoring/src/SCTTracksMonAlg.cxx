@@ -47,7 +47,7 @@ namespace {
 }
 
 SCTTracksMonAlg::SCTTracksMonAlg(const std::string& name, ISvcLocator* pSvcLocator) :AthMonitorAlgorithm(name, pSvcLocator) {
- 
+
 }
 
 StatusCode SCTTracksMonAlg::initialize(){
@@ -66,8 +66,8 @@ StatusCode SCTTracksMonAlg::initialize(){
 }
 
 StatusCode SCTTracksMonAlg::fillHistograms(const EventContext& ctx) const{
-	
-ATH_MSG_DEBUG("SCTTracksMonAlg::fillHistograms()"); 
+
+ATH_MSG_DEBUG("SCTTracksMonAlg::fillHistograms()");
 
   const bool doThisSubsystem[N_REGIONS] = {
     m_doNegativeEndcap, true, m_doPositiveEndcap
@@ -77,14 +77,14 @@ ATH_MSG_DEBUG("SCTTracksMonAlg::fillHistograms()");
   if (m_doTrigger and (not checkTriggers(firedTriggers).isSuccess())) {
     ATH_MSG_WARNING("Triggers not found!");
   }
-  SG::ReadHandle<TrackCollection> tracks{m_tracksName,ctx}; 
+  SG::ReadHandle<TrackCollection> tracks{m_tracksName,ctx};
   if (not tracks.isValid()) {
     ATH_MSG_WARNING("No collection named " << m_tracksName.key() << " in StoreGate");
     return StatusCode::SUCCESS;
   }
 
 
-  ATH_MSG_DEBUG("Begin loop over " << tracks->size() << " tracks"); 
+  ATH_MSG_DEBUG("Begin loop over " << tracks->size() << " tracks");
   int goodTrks_N{0};
   int local_tot_trkhits{0};
   for (const Trk::Track* track: *tracks) {
@@ -103,10 +103,10 @@ ATH_MSG_DEBUG("SCTTracksMonAlg::fillHistograms()");
     if (trkSum) {
       scthits_on_trk = trkSum->get(Trk::numberOfSCTHits);
     } else {
-      ATH_MSG_WARNING("TrackSummary not found not using track!"); 
+      ATH_MSG_WARNING("TrackSummary not found not using track!");
     }
     if (scthits_on_trk < m_trackHitCut) {
-      ATH_MSG_DEBUG("track fails minimum SCT hit requirement"); 
+      ATH_MSG_DEBUG("track fails minimum SCT hit requirement");
       break;
     }
     goodTrks_N++;
@@ -119,12 +119,12 @@ ATH_MSG_DEBUG("SCTTracksMonAlg::fillHistograms()");
     }
     double trackPerigeeTheta{track->perigeeParameters()->parameters()[Trk::theta]};
     double trackPerigeeEta{-log(tan(0.5 * trackPerigeeTheta))};
-    auto tracksPerRegionAcc{Monitored::Scalar<float>("tracksPerRegion", etaRegion(trackPerigeeEta))}; 
+    auto tracksPerRegionAcc{Monitored::Scalar<float>("tracksPerRegion", etaRegion(trackPerigeeEta))};
 
     fill("SCTTracksMonitor", tracksPerRegionAcc);
 
     auto trk_etaAcc{Monitored::Scalar<float>("trk_eta", trackPerigeeEta)};
-    fill("SCTTracksMonitor", trk_etaAcc); 
+    fill("SCTTracksMonitor", trk_etaAcc);
 
     if (track->perigeeParameters()->parameters()[Trk::qOverP] != 0.) {
         auto trk_ptAcc{Monitored::Scalar<float>("trk_pt", std::abs(1. / (track->perigeeParameters()->parameters()[Trk::qOverP] * 1000.)))};
@@ -137,7 +137,7 @@ ATH_MSG_DEBUG("SCTTracksMonAlg::fillHistograms()");
     auto trk_phiAcc{Monitored::Scalar<float>("trk_phi", track->perigeeParameters()->parameters()[Trk::phi])};
     fill("SCTTracksMonitor", trk_phiAcc);
 
-    if (m_doTrigger) { 
+    if (m_doTrigger) {
       for (int trig{0}; trig < N_TRIGGER_TYPES; ++trig) {
         if (hasTriggerFired(trig, firedTriggers)) {
             auto trackTriggerAcc{Monitored::Scalar<int>("trackTriggers", trig)};
@@ -177,7 +177,11 @@ ATH_MSG_DEBUG("SCTTracksMonAlg::fillHistograms()");
 #endif
               if (m_doUnbiasedCalc) {
                 if (trkParam) {
-                  trkParameters.reset(m_updator->removeFromState(*trkParam, rio->localParameters(), rio->localCovariance())); //need to take ownership of the returned pointer
+                  trkParameters =m_updator->removeFromState(*trkParam,
+                                                      rio->localParameters(),
+                                                      rio->localCovariance());
+                  // need to take ownership of the returned
+                                // pointer
                   if (trkParameters) {
                     trkParam = trkParameters.get();
                   }
