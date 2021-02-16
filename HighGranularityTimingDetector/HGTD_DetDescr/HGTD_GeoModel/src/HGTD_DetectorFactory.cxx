@@ -15,6 +15,8 @@
 #include <sstream>
 #include <math.h>
 
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "AthenaBaseComps/AthCheckMacros.h"
 #include "StoreGate/StoreGateSvc.h" // For alignment getAlignableFolderType()
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "DetDescrConditions/AlignableTransformContainer.h"
@@ -53,31 +55,32 @@ using namespace std;
 namespace HGTDGeo {
 
 HGTD_DetectorFactory::HGTD_DetectorFactory( InDetDD::AthenaComps* athComps, InDetDD::SiCommonItems* commonItems ) :
-InDetDD::DetectorFactoryBase( athComps )
-, m_athComps( athComps )
-, m_commonItems( commonItems )
-, m_geomVersion( -1 )
-, m_outputIdfr( false ) {
-    //  Create the detector manager
+  InDetDD::DetectorFactoryBase( athComps ), 
+  m_athComps( athComps ), 
+  m_commonItems( commonItems ), 
+  m_materialMgr( nullptr ), 
+  m_geomVersion( -1 ),
+  m_outputIdfr( false ) {
+    // create the detector manager
     m_detectorManager = new HGTD_DetectorManager( detStore() );
 
-    // TODO :  minimal RDB for version control  following  SCT_GeoModelXml
-
+    // read HGTD geo tag from global geo tag
     DecodeVersionKey versionKey( m_athComps->geoModelSvc(), "HGTD");
     std::string hgtdTag = m_athComps->rdbAccessSvc()->getChildTag("HGTD", versionKey.tag(), versionKey.node(), false );
-    msg(MSG::INFO) << "HGTD Version: " << hgtdTag <<  "  Package Version: " << PACKAGE_VERSION << endmsg;
+    ATH_MSG_INFO( "HGTD tag from geometry db: " << hgtdTag <<  ", package Version: " << PACKAGE_VERSION );
 
-    if ( ! hgtdTag.empty() ) {
-        if ( hgtdTag.find( "HGTD-TDR" ) != std::string::npos ) m_geomVersion = 0 ;
-        if ( hgtdTag.find( "HGTD-3-ring-00" ) != std::string::npos ) m_geomVersion = 1 ;
+    // set m_geomVersion based on HGTD tag in global geo tag
+    if ( !hgtdTag.empty() ) {
+        // for the *full-sim studies* in the TDR, only the two-ring layout was used
+        if ( hgtdTag.find( "HGTD-TDR-" ) != std::string::npos ) m_geomVersion = 0; 
+        if ( hgtdTag.find( "HGTD-3-ring-" ) != std::string::npos ) m_geomVersion = 1; // to be created
     }
     else {
-        msg(MSG::WARNING) <<  "No HGTD Version. HGTD_SLHC will not be built." << endmsg;
-        // TODO: fail here, right? /CO
+        // fail already here if no HGTD info exists in db
+        ATH_MSG_ERROR( "No HGTD child tag in global geo tag. HGTD will not be built.");
     }
     
-    //  above code compiles but crash at runtime since HGTD stuff are still absent in RDB
-    // temporarily 1 for three-ring 0 for two-ring while -1 skip
+    // temporarily hardcode the HGTD version to build until the geo db has been updated with tables for 3-ring layout
     m_geomVersion = 0; // two-ring layout
     //m_geomVersion = 1; // three-ring layout
 }
@@ -86,57 +89,57 @@ HGTD_DetectorFactory::~HGTD_DetectorFactory() {
     // NB the detector manager (m_detectorManager) is stored in the detector store by the Tool and so we don't delete it.
 }
 
-void HGTD_DetectorFactory::setPrintIdentifierDict( bool print )
-{
+void HGTD_DetectorFactory::setPrintIdentifierDict( bool print ) {
     m_outputIdfr = print ;
     return ;
 }
 
 void HGTD_DetectorFactory::create(GeoPhysVol* world) {
 
-    msg(MSG::INFO) << "Building HGTD Detector." << endmsg;
+    ATH_MSG_INFO( "Building HGTD detector");
 
-    const GeoTube* solid = preBuildSolid();
-    const GeoLogVol* envelopePos = preBuild( solid , 1 );
+    // load the geo db content relevant for HGTD
+    readDbParameters();
 
+    // for now the position of the HGTD mother volumes is hardcoded - TODO: take from db!
+    float zMother = 3482.5;
+
+    // build logical volumes for the two endcaps
+    const GeoLogVol* positiveEndcapLogicalVolume = buildEndcapLogicalVolume(true);
+    const GeoLogVol* negativeEndcapLogicalVolume = buildEndcapLogicalVolume(false);
+
+    // create and place positive endcap
     world->add(new GeoNameTag("HGTD_Pos"));
-    // is it really 5 ?  Move to "9" according to David suggested for HGTD_Identifier  ?
     world->add(new GeoIdentifierTag(9));
-    world->add(new GeoTransform(HepGeom::TranslateZ3D( 3482.5))); // TODO: take from db! Also needs tweak?
-    GeoVPhysVol* endcapPos = build( envelopePos,  true);
+    ATH_MSG_INFO( "HGTD_Pos mother volume will be placed at z = " << zMother << " mm" );
+    world->add(new GeoTransform(HepGeom::TranslateZ3D( zMother ))); 
+    GeoVPhysVol* endcapPos = build( positiveEndcapLogicalVolume,  true);
     world->add( endcapPos );
     m_detectorManager->addTreeTop( endcapPos);
 
+    // create and place negative endcap
     world->add(new GeoNameTag("HGTD_Neg"));
     world->add(new GeoIdentifierTag(-9));
-    world->add(new GeoTransform(HepGeom::TranslateZ3D(-3482.5))); // TODO: take from db! Also needs tweak?
+    ATH_MSG_INFO( "HGTD_Neg mother volume will be placed at z = " << -zMother << " mm" );
+    world->add(new GeoTransform(HepGeom::TranslateZ3D( -zMother ))); 
     world->add(new GeoTransform(HepGeom::RotateY3D(180.0*CLHEP::deg)));
-    const GeoLogVol* envelopeNeg = preBuild( solid , -1 );
-    GeoVPhysVol* endcapNeg = build( envelopeNeg, false);
+    GeoVPhysVol* endcapNeg = build( negativeEndcapLogicalVolume, false);
     world->add( endcapNeg );
     m_detectorManager->addTreeTop( endcapNeg );
 
     return;
 }
 
-// prepare an envelope for HGTD
-const GeoTube* HGTD_DetectorFactory::preBuildSolid() {
+// read the parameters describing the HGTD geometry from the db
+void HGTD_DetectorFactory::readDbParameters() {
     // TODO : one day the LAr components should be replaced with HGTD's own dataBase
     std::string AtlasVersion = m_athComps->geoModelSvc()->atlasVersion();
     std::string LArVersion = m_athComps->geoModelSvc()->LAr_VersionOverride();
     std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
     std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";     // node in RDB
 
-    // CO: needed? We should fail hard earlier (constructor) if a non-valid geo is requested, I think
-    if ( m_geomVersion  == -1 ) {
-        msg(MSG::WARNING) << " unKnown geometry , skip prebuiding " << endmsg;
-        return nullptr;
-    }
-
-    // now extract the relevant parameters from the database
-    //  prepare something for later use
-    // then the boxes
-    IRDBRecordset_ptr hgtdBoxes   = m_athComps->rdbAccessSvc()->getRecordsetPtr("HGTDBox", detectorKey, detectorNode);
+    // let's first read the box volumes
+    IRDBRecordset_ptr hgtdBoxes = m_athComps->rdbAccessSvc()->getRecordsetPtr("HGTDBox", detectorKey, detectorNode);
     for (IRDBRecordset::const_iterator it = hgtdBoxes->begin(); it != hgtdBoxes->end(); it++) {
         std::string name = (*it)->getString("BOX");
         m_boxVolPars[name] = { name,
@@ -146,22 +149,41 @@ const GeoTube* HGTD_DetectorFactory::preBuildSolid() {
             (*it)->getDouble("ZPOS"),
             (*it)->getString("MATERIAL") };
 
-        msg(MSG::INFO) << "Read " << name << " from db: xHalf = " << m_boxVolPars[name].xHalf << " mm, yHalf = "
-        << m_boxVolPars[name].yHalf << " mm, zHalf = " << m_boxVolPars[name].zHalf << " mm, zOffsetLocal = "
-        << m_boxVolPars[name].zOffsetLocal << " mm, material = \"" << m_boxVolPars[name].material << "\"" << endmsg;
+        ATH_MSG_INFO( "Read " << name << " from db: xHalf = " << m_boxVolPars[name].xHalf << " mm, yHalf = "
+		      << m_boxVolPars[name].yHalf << " mm, zHalf = " << m_boxVolPars[name].zHalf << " mm, zOffsetLocal = "
+		      << m_boxVolPars[name].zOffsetLocal << " mm, material = \"" << m_boxVolPars[name].material << "\"");
     }
 
+    // Add a dummy entry that will be used to leave some space - no volume will actually be created for this
     // needed after fix of ASIC thickness (and material) in HGTD-TDR-01 tag (ATLAS-P2-ITK-17-04-02 and later), compared to HGTD-TDR-00
     double moduleSpaceHalfZ = 0.225;
-
-    // CO: The below introduces an air-filled volume placed on top of the hybrid, such that there is no gap and modules
-    // are placed tightly against the support plate on the cooling plate. However, let's try removing this air volume for
-    // now to see what things look like without it, while working on the three-ring layout /CO
     m_boxVolPars["HGTD::ModuleSpace"] = {"HGTD::ModuleSpace", 11, 20, moduleSpaceHalfZ, 0, "std::Air"};
 
+    // now the tubs
+    IRDBRecordset_ptr hgtdTubs = m_athComps->rdbAccessSvc()->getRecordsetPtr("HGTDTubs", detectorKey, detectorNode);
+    for (IRDBRecordset::const_iterator it = hgtdTubs->begin(); it != hgtdTubs->end(); it++) {
+        std::string name = (*it)->getString("TUBE");
+        m_cylVolPars[name] = { name,
+			       (*it)->getDouble("RMIN"),
+			       (*it)->getDouble("RMAX"),
+			       (*it)->getDouble("DZ"),
+			       (*it)->getDouble("ZPOS"), // no db values used currently, to be fixed when revising db scheme for master migration
+			       (*it)->getString("MATERIAL")
+        };
+        ATH_MSG_INFO( "Read " << name << " from db: rMin = " << m_cylVolPars[name].rMin << " mm, rMax = " << m_cylVolPars[name].rMax
+		      << " mm, zHalf = " << m_cylVolPars[name].zHalf << " mm, material = \"" << m_cylVolPars[name].material << "\"");
+    }
+
+    // a few of the volumes need to be tweaked, at least for HGTD-TDR-00 and HGTD-TDR-01 - they could go into the next HGTD tag
+    m_cylVolPars["HGTD_mother"].rMin= 100; // TODO: should go into db
+    //  below lines are not yet in db!
+    m_cylVolPars["HGTD::InnerRCover"]  = {"HGTD::InnerRCover", 115., 120., 105./2, -10., "sct::CFiberSupport"};
+    m_cylVolPars["HGTD::OuterRCover"]  = {"HGTD::OuterRCover", 995., 1000., 82./2, -6.5, "sct::CFiberSupport"};
+    m_cylVolPars["HGTD::CoolingTube"] = {"HGTD::CoolingTubes", 0, 0, 2.0, 0, "std::Titanium"}; // TODO: add to db
+    m_cylVolPars["HGTD::CoolingTubeFluid"] = {"HGTD::CoolingTubeFluid", 0, 0, 1.5, 0, "pix::CO2_Liquid"}; // TODO: to add to db
+    
     // These parameters are not in the db (yet) and don't fit into the cylinder or box structures used above
-    // TODO: put these (and others needed for three-ring layout) into a separate table in the db?
-    // Dec 15, recovered hgtdPars from original  R21.9
+    // TODO: put these (and others needed for three-ring layout) into a separate table in the db when migrating to master
     m_hgtdPars = { 320., // rMid
         640., // rOuter - only used in one place, and there 20 mm is added to it...
         15.,  // diskRotation (in degrees)
@@ -173,60 +195,36 @@ const GeoTube* HGTD_DetectorFactory::preBuildSolid() {
         0.456 // flexSheetSpacing
     };
 
-    //  NOW the tube as envelope
-    IRDBRecordset_ptr hgtdTubs = m_athComps->rdbAccessSvc()->getRecordsetPtr("HGTDTubs", detectorKey, detectorNode);
-    for (IRDBRecordset::const_iterator it = hgtdTubs->begin(); it != hgtdTubs->end(); it++) {
-        std::string name = (*it)->getString("TUBE");
-        m_cylVolPars[name] = { name,
-            (*it)->getDouble("RMIN"),
-            (*it)->getDouble("RMAX"),
-            (*it)->getDouble("DZ"),
-            (*it)->getDouble("ZPOS"),
-            // only the mother volume has meaningful z position info in the db, rest not used
-            (*it)->getString("MATERIAL")
-        };
-        msg(MSG::INFO) << "Read " << name << " from db: rMin = " << m_cylVolPars[name].rMin << " mm, rMax = " << m_cylVolPars[name].rMax
-        << " mm, zHalf = " << m_cylVolPars[name].zHalf << " mm, zOffsetLocal = " << m_cylVolPars[name].zOffsetLocal
-        << " mm, material = \"" << m_cylVolPars[name].material << "\"" << endmsg;
-
+    // can't use ATH_CHECK macros within create(), it seems..
+    StatusCode sc = detStore()->retrieve(m_materialMgr, std::string("MATERIALS"));
+    if (sc != StatusCode::SUCCESS) {
+      ATH_MSG_ERROR("Cannot retrieve material manager from DetStore");
     }
 
-    // To investigate the known "Overlap", it's necessary to further Xcheck these handcoded parameters
-    m_cylVolPars["HGTD::PeriphElec"].zHalf = 1.; // more accurate numbers from real PEB design, to be added to db
-    m_cylVolPars["HGTD::PeriphElec"].zOffsetLocal = 2.;//space wrt cooling layer, as above
-    m_cylVolPars["HGTD_mother"].rMin= 100; // TODO: should go into db
-    m_cylVolPars["HGTD::ToleranceBack"].rMax= 900; // Tolerance does not end at given radius... ?
-    //  below two lines are not yet in db!
-    m_cylVolPars["HGTD::InnerRCover"]  = {"HGTD::InnerRCover", 115., 120., 105./2, -10., "sct::CFiberSupport"};
-    m_cylVolPars["HGTD::OuterRCover"]  = {"HGTD::OuterRCover", 995., 1000., 82./2, -6.5, "sct::CFiberSupport"};
-    m_cylVolPars["HGTD::CoolingTube"] = {"HGTD::CoolingTubes", 0, 0, 2.0, 0, "std::SSteel"}; // TODO: add to db
-    m_cylVolPars["HGTD::CoolingTubeFluid"] = {"HGTD::CoolingTubeFluid", 0, 0, 1.5, 0, "pix::CO2_Liquid"}; // to add to db
-    
+    return;
+}
+
+// prepare an envelope for one HGTD side
+GeoLogVol* HGTD_DetectorFactory::buildEndcapLogicalVolume(bool isPositiveSide) {
+
+    // build the solid volume
     GeoTube* world_solid_hgtd = new GeoTube(m_cylVolPars["HGTD_mother"].rMin, m_cylVolPars["HGTD_mother"].rMax,
                                             m_cylVolPars["HGTD_mother"].zHalf);
 
-    return world_solid_hgtd;
-}
-
-const GeoLogVol* HGTD_DetectorFactory::preBuild( const GeoTube* world_solid, int endcap ) {
-
-    const StoredMaterialManager* materialManager = nullptr;
-    if (StatusCode::SUCCESS != detStore()->retrieve(materialManager, std::string("MATERIALS"))) return nullptr;
-
-    m_matMgr = materialManager;
-
-    std::string name = endcap > 0 ?  "HGTD_endcapPos" :  "HGTD_endcapNeg";
-    GeoLogVol* world_logical_hgtd  = new GeoLogVol( name.c_str(), world_solid,
-                                                   m_matMgr->getMaterial( m_cylVolPars[ "HGTD_mother"].material) );
+    // build the logical volume
+    std::string name = isPositiveSide ? "PositiveEndcap" : "NegativeEndcap";
+    GeoLogVol* world_logical_hgtd  = new GeoLogVol( name.c_str(), world_solid_hgtd,
+						    m_materialMgr->getMaterial( m_cylVolPars[ "HGTD_mother"].material) );
 
     return world_logical_hgtd;
 }
 
+
 GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool bPos) {
     
-    msg(MSG::INFO) << "**************************************************" << endmsg;
-    msg(MSG::INFO) << "       Building HGTD GeoTDR , side =  " << bPos << "    " << endmsg;
-    msg(MSG::INFO) << "**************************************************" << endmsg;
+    ATH_MSG_INFO( "**************************************************");
+    ATH_MSG_INFO( "       Building HGTD geometry , side =  " << bPos << "    ");
+    ATH_MSG_INFO( "**************************************************" );
 
     GeoFullPhysVol* HGTDparent = new GeoFullPhysVol( logicalEnvelope );
 
@@ -292,21 +290,20 @@ GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool
         if (flexVolume) reverse(rInner.begin(), rInner.end()); // reverse order for backside flex package
 
         GeoTube*    flexPackageSolid = new GeoTube(packagePars.rMin, packagePars.rMax, packagePars.zHalf);
-        GeoLogVol*  flexPackageLogical = new GeoLogVol(packagePars.name, flexPackageSolid, m_matMgr->getMaterial(packagePars.material));
+        GeoLogVol*  flexPackageLogical = new GeoLogVol(packagePars.name, flexPackageSolid, m_materialMgr->getMaterial(packagePars.material));
         flexPackagePhysical[flexVolume] = new GeoPhysVol(flexPackageLogical);
         // build up a volume of flex cables, starting in z at half a flex layer from the edge of the flex package volume
         double flexZoffset = packagePars.zHalf - flexPars.zHalf;
         for (int flexSheet = 0; flexSheet < 8; flexSheet++) {
             GeoTube*    hgtdFlexSolid    = new GeoTube(rInner[flexSheet], flexPars.rMax, flexPars.zHalf);
             GeoLogVol*  hgtdFlexLogical  = new GeoLogVol("HGTD::FlexTube"+std::to_string(flexSheet),
-                                                         hgtdFlexSolid, m_matMgr->getMaterial(flexPars.material));
+                                                         hgtdFlexSolid, m_materialMgr->getMaterial(flexPars.material));
             GeoPhysVol* hgtdFlexPhysical = new GeoPhysVol(hgtdFlexLogical);
             flexPackagePhysical[flexVolume]->add(new GeoTransform(HepGeom::TranslateZ3D(flexZoffset)));
             flexPackagePhysical[flexVolume]->add(hgtdFlexPhysical);
             // print out a line for each flex layer
-            msg(MSG::INFO) << "Flex layer (" << (flexSheet ? "front" : "back") << ")" << flexSheet << ", Rmin = " << std::setw(5)
-            << rInner[flexSheet] << " mm, flexZoffset = " << flexZoffset << " mm" << endmsg;
-
+            ATH_MSG_INFO( "Flex layer (" << (flexSheet ? "front" : "back") << ")" << flexSheet << ", Rmin = " << std::setw(5)
+			  << rInner[flexSheet] << " mm, flexZoffset = " << flexZoffset << " mm" );
             flexZoffset = flexZoffset - m_hgtdPars.flexSheetSpacing;
         }
     }
@@ -333,9 +330,9 @@ GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool
         coolingTubeRadius += (890-710.)/6;
         coolingTubeRadii.push_back(coolingTubeRadius);
     }
-    msg(MSG::INFO) << "Cooling tubes will be created at the following radii:" << endmsg;
+    ATH_MSG_INFO( "Cooling tubes will be created at the following radii (" << coolingTubeRadii.size() << " in total):");
     for (size_t i = 0; i < coolingTubeRadii.size(); i++) {
-        msg(MSG::INFO) << "   R = " << coolingTubeRadii[i] << " mm" << endmsg;
+        ATH_MSG_INFO( "   R = " << coolingTubeRadii[i] << " mm" );
     }
 
     ///////////////////////////////////
@@ -345,7 +342,7 @@ GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool
     //build peripheral electronics
     GeoCylVolParams periphElPars = m_cylVolPars["HGTD::PeriphElec"];
     GeoTube*    periphElec_solid  = new GeoTube(periphElPars.rMin, periphElPars.rMax, periphElPars.zHalf);
-    GeoLogVol*  periphElec_log    = new GeoLogVol(periphElPars.name, periphElec_solid, m_matMgr->getMaterial(periphElPars.material));
+    GeoLogVol*  periphElec_log    = new GeoLogVol(periphElPars.name, periphElec_solid, m_materialMgr->getMaterial(periphElPars.material));
     GeoPhysVol* periphElec_phys   = new GeoPhysVol(periphElec_log);
 
     std::array< GeoPhysVol*, 4 > moduleLayerPhysical = {}; // array of pointers to the physical volumes for the module layers which need special care
@@ -373,11 +370,13 @@ GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool
                 m_cylVolPars[v].zOffsetLocal = m_cylVolPars[vPrev].zOffsetLocal - m_cylVolPars[vPrev].zHalf - m_cylVolPars[v].zHalf;
             }
         }
+
+	// skip the tolerances - we don't actually want to create volumes for the space
+	if (v.substr(0,15) == "HGTD::Tolerance") continue;
+
         //  a disk volume to hold 4 quadrants
         GeoTube*    hgtdSubVolumeSolid    = new GeoTube(m_cylVolPars[v].rMin, m_cylVolPars[v].rMax, m_cylVolPars[v].zHalf);
-        
-        GeoLogVol*  hgtdSubVolumeLogical  = new GeoLogVol(m_cylVolPars[v].name, hgtdSubVolumeSolid,
-                                                          m_matMgr->getMaterial(m_cylVolPars[v].material));
+        GeoLogVol*  hgtdSubVolumeLogical  = new GeoLogVol(m_cylVolPars[v].name, hgtdSubVolumeSolid, m_materialMgr->getMaterial(m_cylVolPars[v].material));
         GeoPhysVol* hgtdSubVolumePhysical = new GeoPhysVol(hgtdSubVolumeLogical);
 
         // if building the cooling plate, also add peripheral electronics since position of those are relative to that of cooling plate
@@ -395,14 +394,14 @@ GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool
                 GeoTorus* coolingTubeSolid = new GeoTorus(m_cylVolPars["HGTD::CoolingTubeFluid"].zHalf, m_cylVolPars["HGTD::CoolingTube"].zHalf,
                                                           coolingTubeRadii[i], 0, 2*M_PI);
                 GeoLogVol* coolingTubeLogical = new GeoLogVol("HGTD::CoolingTube", coolingTubeSolid,
-                                                              m_matMgr->getMaterial(m_cylVolPars["HGTD::CoolingTube"].material));
+                                                              m_materialMgr->getMaterial(m_cylVolPars["HGTD::CoolingTube"].material));
                 GeoPhysVol* coolingTubePhysical = new GeoPhysVol(coolingTubeLogical);
                 hgtdSubVolumePhysical->add(coolingTubePhysical); // no transformations needed, concentric with cooling plate and centered in z
                 // and the contents, i.e. the cooling fluid
                 GeoTorus* coolingFluidSolid = new GeoTorus(0, m_cylVolPars["HGTD::CoolingTubeFluid"].zHalf,
                                                            coolingTubeRadii[i], 0, 2*M_PI);
                 GeoLogVol* coolingFluidLogical = new GeoLogVol("HGTD::CoolingFluid", coolingFluidSolid,
-                                                               m_matMgr->getMaterial(m_cylVolPars["HGTD::CoolingTubeFluid"].material));
+                                                               m_materialMgr->getMaterial(m_cylVolPars["HGTD::CoolingTubeFluid"].material));
                 GeoPhysVol* coolingFluidPhysical = new GeoPhysVol(coolingFluidLogical);
                 hgtdSubVolumePhysical->add(coolingFluidPhysical); // no transformations needed, concentric with cooling plate and centered in z
             }
@@ -448,10 +447,12 @@ GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool
             HGTDparent->add(hgtdSubVolumePhysical);
         }
 
-        // print out info about each main volume in the module layer
-        msg(MSG::DEBUG) << std::setw(20) << m_cylVolPars[v].name << " ( " << std::setw(20) << m_cylVolPars[v].material
-        << " ), local z = " << std::setw(6) << m_cylVolPars[v].zOffsetLocal << " mm" << ", Rmin = " <<  std::setw(4) << m_cylVolPars[v].rMin
-        << " mm, Rmax = " << std::setw(4) << m_cylVolPars[v].rMax << " mm, DZ = " << std::setw(5) << m_cylVolPars[v].zHalf << " mm" << endmsg;
+        // print out info about each main volume
+        ATH_MSG_INFO( std::setw(20) << m_cylVolPars[v].name << " ( " << std::setw(20) << m_cylVolPars[v].material
+		       << " ), local z = " << std::setw(6) << m_cylVolPars[v].zOffsetLocal 
+		       << " mm, Rmin = " <<  std::setw(4) << m_cylVolPars[v].rMin 
+		       << " mm, Rmax = " << std::setw(4) << m_cylVolPars[v].rMax 
+		       << " mm, DZ = " << std::setw(5) << m_cylVolPars[v].zHalf << " mm" );
 
     } // end loop over hgtdVolumes
 
@@ -485,7 +486,7 @@ GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool
     // Inside m_geomVersion implicitly control 3-ring layout vs 2-ring
 
     for (int layer = 0; layer < 4; layer++) {
-        if ( m_outputIdfr ) std::cout << "Layer #"<< layer << std::endl ;
+        if (m_outputIdfr) cout << "Layer #" << layer << std::endl;
         // select from front vs back side of a disk
         int Lside = layer % 2;
 
@@ -513,27 +514,27 @@ GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool
                 std::vector< ModulePosition > ModsPerRow = tmpQuadrant[ row ];
 
                 // print #modules per row to fill HGTD_Identifier dictionary etc.
-                if ( m_outputIdfr && q == 0 ) std::cout << " Row  #"<< row + 1 <<" :: " << ModsPerRow.size() << std::endl ;
+		if ( m_outputIdfr && q == 0 ) std::cout << " Row  #"<< row + 1 <<" :: " << ModsPerRow.size() << std::endl ;
 
                 for ( unsigned int mod = 0; mod < ModsPerRow.size() ; mod ++ ) {
                     ModulePosition module = ModsPerRow[ mod ];
 
                     double myx = -9999999.9 , myy = -9999999.9 , myrot = -9999999.9 ;
                     int myphi = -1 , myeta = - 1 ;
-                    std::string module_string = RetrieveModule( layer, q, maxRows, row, mod, module, myx, myy, myrot, myphi, myeta ) ;
+                    std::string module_string = formModuleName( layer, q, maxRows, row, mod, module, myx, myy, myrot, myphi, myeta ) ;
 
                     if ( module_string == "" || myrot == -9999999.9 || myeta == -1 )
-                        msg(MSG::WARNING ) << " Please check the module at layer "<< layer <<" quadrant " << q
-                        <<" row "<< row <<" mod " << mod <<" not well retrieved ! " << endmsg;
+		        ATH_MSG_WARNING ( " Please check the module at layer "<< layer <<" quadrant " << q
+					  <<" row "<< row <<" mod " << mod <<" not well retrieved ! " );
 
                     //  an hgtd module  defined in the form of  ( X, Y, Z )
                     GeoBox* moduleSolid            = new GeoBox( moduleHalfWidth, moduleHalfHeight, modulePackageHalfZ);
-                    GeoLogVol* moduleLogical       = new GeoLogVol( moduleName + module_string, moduleSolid, m_matMgr->getMaterial("std::Air"));
+                    GeoLogVol* moduleLogical       = new GeoLogVol( moduleName + module_string, moduleSolid, m_materialMgr->getMaterial("std::Air"));
                     GeoFullPhysVol* modulePhysical = new GeoFullPhysVol( moduleLogical );
 
                     // print out one module per layer
-                    if ( mod == 0 && q == 0 && ! m_outputIdfr )
-                        msg(MSG::INFO) << "Will now build up an individual HGTD module of layer " << layer << " and quadrant " << q << " (" << module_string << ")" << endmsg;
+                    if ( q == 0 && row == 0 && mod == 0 )
+		        ATH_MSG_INFO( "Will now build up an individual HGTD module of layer " << layer << " and quadrant " << q << " (" << module_string << ")" );
 
                     // loop over components in module
                     for (size_t comp = 0; comp < volumes.size(); comp++) {
@@ -563,19 +564,20 @@ GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool
                         std::string attach = (volumes[comp] == sensorName) ? "" : "_L" + std::to_string( layer ) + module_string;
 
                         GeoLogVol*  sensorCompLogicalVol  = new GeoLogVol( m_boxVolPars[c].name+attach, sensorCompSolidVol,
-                                                                          m_matMgr->getMaterial(m_boxVolPars[c].material));
+                                                                          m_materialMgr->getMaterial(m_boxVolPars[c].material));
                         GeoFullPhysVol* sensorCompPhysicalVol = new GeoFullPhysVol(sensorCompLogicalVol);
 
                         if (volumes[comp] == sensorName) {
                             const HGTD_ID* hgtdId = dynamic_cast<const HGTD_ID*>( m_commonItems->getIdHelper() );
                             Identifier idwafer = hgtdId->wafer_id( endcap, layer, myphi, myeta );
 
-                            // print only the 1'st and last of each row
-                            if ( ( mod == 0 || mod == ( ModsPerRow.size() - 1 ) ) && ! m_outputIdfr ) {
-                                msg(MSG::INFO) << "  waferHash :  " << hgtdId->wafer_hash( idwafer )
-                                << "  upon HGTD_ID =>  ec: "<< endcap <<" layer: "<< layer <<" quadrant: " << q
-                                <<" row: "<< myphi <<" modu: "<< myeta << endmsg;
-                                msg(MSG::INFO) << " HGTD Module: " << m_boxVolPars[c].name+module_string << "  posX:  "<< myx <<"  posY:  " << myy <<"  rot:  " << quadrot + myrot << endmsg;
+                            // print only the first and last module of each row in the first quadrant
+                            if ( q == 0 && ( mod == 0 || mod == ( ModsPerRow.size() - 1 ) ) && !m_outputIdfr ) {
+			        ATH_MSG_DEBUG( "  waferHash :  " << hgtdId->wafer_hash( idwafer )
+					      << " upon HGTD_ID =>  ec: " << endcap << ", layer: " << layer << ", quadrant: " << q
+					      << ", row: " << myphi <<", module: "<< myeta );
+				ATH_MSG_DEBUG( " HGTD Module: " << m_boxVolPars[c].name+module_string << ", posX: " << myx 
+					      << ", posY: " << myy << ", rot: " << quadrot + myrot );
                             }
 
                             if (m_geomVersion == 0) { // for now identifiers do not support 3-ring layout, protecting this part for testing purposes /CO
@@ -598,11 +600,11 @@ GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool
 
                         // print out each module component
                         if ( mod == 0 && q == 0 && volumes[comp] != sensorName )
-                            msg(MSG::DEBUG) << std::setw(20) << m_boxVolPars[c].name << " ( " << std::setw(15) << m_boxVolPars[c].material
-                            << " ), in-sensor-layer local z = " << std::setw(7) << m_boxVolPars[c].zOffsetLocal << " mm"
-                            << ", DX = " << std::setw(5) << m_boxVolPars[c].xHalf << " mm"
-                            << ", DY = " << std::setw(5) << m_boxVolPars[c].yHalf << " mm"
-                            << ", DZ = " << std::setw(5) << m_boxVolPars[c].zHalf << " mm" << endmsg;
+			    ATH_MSG_DEBUG( std::setw(20) << m_boxVolPars[c].name << " ( " << std::setw(15) << m_boxVolPars[c].material
+					   << " ), in-sensor-layer local z = " << std::setw(7) << m_boxVolPars[c].zOffsetLocal << " mm"
+					   << ", DX = " << std::setw(5) << m_boxVolPars[c].xHalf << " mm"
+					   << ", DY = " << std::setw(5) << m_boxVolPars[c].yHalf << " mm"
+					   << ", DZ = " << std::setw(5) << m_boxVolPars[c].zHalf << " mm" );
                     } // end of components loop
 
                     double zModule = ( Lside == 0 ? zModuleLayerF : zModuleLayerB );
@@ -614,16 +616,16 @@ GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool
                     moduleLayerPhysical[layer]->add( moduleTransform );
                     moduleLayerPhysical[layer]->add( modulePhysical );
                 } //end of modules loop
-                msg(MSG::DEBUG) << "Done placing modules for row " << row << endmsg;
+                ATH_MSG_DEBUG( "Done placing modules for row " << row );
             } // end of row loop
-            msg(MSG::DEBUG) << "Done placing modules for quadrant " << q << endmsg;
+            ATH_MSG_DEBUG( "Done placing modules for quadrant " << q );
         } // end of quadrants loop
-        msg(MSG::DEBUG) << "Done placing modules for layer " << layer << endmsg;
+        ATH_MSG_DEBUG( "Done placing modules for layer " << layer );
     }
 
-    msg(MSG::INFO) << "**************************************************" << endmsg;
-    msg(MSG::INFO) << "  Done building HGTD with " << totMod <<" modules " << endmsg;
-    msg(MSG::INFO) << "**************************************************" << endmsg;
+    ATH_MSG_INFO( "**************************************************" );
+    ATH_MSG_INFO( "  Done building HGTD with " << totMod <<" modules " );
+    ATH_MSG_INFO( "**************************************************" );
 
     return HGTDparent;
 }
@@ -662,9 +664,9 @@ std::array< PositionsInQuadrant, 4 > HGTD_DetectorFactory::prepareLayersFromQuad
 //  careful m_geomVersion control layout implicitly 
 // backward compatibility to pre-TDR two-ring layouts
 // 3-ring layout differ from 2-ring here.
-std::string HGTD_DetectorFactory::RetrieveModule( int layer, int quadrant, unsigned int maxrows, int row, int mod,
-                                                 ModulePosition module,
-                                                 double & myx, double & myy, double &myrot, int &phi, int &eta ) {
+std::string HGTD_DetectorFactory::formModuleName( int layer, int quadrant, unsigned int maxrows, int row, int mod,
+						  ModulePosition module,
+						  double& myx, double& myy, double& myrot, int& phi, int& eta ) {
 
     std::string module_string = "" ;
 
@@ -673,15 +675,18 @@ std::string HGTD_DetectorFactory::RetrieveModule( int layer, int quadrant, unsig
     double myphi  = atan(y/x);
     double radius = std::sqrt(x*x+y*y);
 
-    myx = radius*cos( quadrant*M_PI*0.5+myphi);
-    myy = radius*sin( quadrant*M_PI*0.5+myphi);
+    myx = radius*cos( quadrant*M_PI*0.5 + myphi );
+    myy = radius*sin( quadrant*M_PI*0.5 + myphi );
 
+    // three-ring layout
     if ( m_geomVersion == 1 ) {
         myrot = module.phiRotation;
         phi = quadrant*21 + row + 1;  // quadrant is absent ( hidden into row ) in HGTD-Identifier
         eta = mod + 1 ;
-        module_string = "_R"+std::to_string( phi )+"_M"+std::to_string( eta );
-    } else {
+        module_string = "_R" + std::to_string(phi) + "_M" + std::to_string(eta);
+    } 
+    // two-ring layout
+    else {
         double rot = module.flipped ? 90. : 0.;
         int myrow = module.row;
         double moduleRotation = 0;
@@ -694,25 +699,28 @@ std::string HGTD_DetectorFactory::RetrieveModule( int layer, int quadrant, unsig
         eta = ( quadrant*maxrows ) + myrow;
         phi = module.el_in_row;
         myrot = moduleRotation + rot ;
-        module_string = "_layer_"+std::to_string(layer)+"_"+std::to_string(phi)+"_"+std::to_string(eta);
+        module_string = "_layer_" + std::to_string(layer) + "_" + std::to_string(phi) + "_" + std::to_string(eta);
     }
 
     return module_string;
 }
 
-// backwards compatibility two-ring layout used for TDR studies
-// careful implicit dependence on m_geomVersion to make 3-ring layout different from 2-ring
+// calculate the positions of modules in a quadrant, taking care of separate schemes for two- and three-ring layouts
 PositionsInQuadrant HGTD_DetectorFactory::prepareQuadrantsFromRows( int layer, unsigned int maxRow ) {
+
     PositionsInQuadrant rowsInQuad;
     bool isBackside = (layer % 2);
+    // three-ring layout
     if ( m_geomVersion == 1 ) {
         for (size_t row = 0; row <= maxRow; row++) {
             if ( row == 13 ) continue;  // element #21 is tried since one row is skipped
             std::vector<ModulePosition> rowModulePositions = prepareModulePositionsInRowThreeRing( row, isBackside );
             rowsInQuad[ row > 13 ? row - 1 : row ] = rowModulePositions;
         }
-    } else {
-        for (size_t row = 0; row < maxRow ; row++) { // only 18/21 rows are filled
+    }
+    // two-ring layout
+    else {
+        for (size_t row = 0; row < maxRow; row++) {
             std::vector<ModulePosition> rowModulePositions = prepareModulePositionsInRowTwoRing(row, isBackside);
             rowsInQuad[ row ] = rowModulePositions ;
         }
@@ -742,24 +750,14 @@ PositionsInQuadrant HGTD_DetectorFactory::mirrorModulesInQuadrant( PositionsInQu
 // Based on Christina Agapopoulou's implementation of the three-ring layout in python in
 // https://gitlab.cern.ch/cagapopo/hgtdlayout/-/blob/master/python/place_modules_option2.py
 std::vector< ModulePosition > HGTD_DetectorFactory::prepareModulePositionsInRowThreeRing( int row, int back ) {
-    // below parameters should be collected into xml or RDB
-    bool fullModule = true ;
-    float extraSpace = 0.;
-    if ( fullModule ) extraSpace += 0.5;
-    int index_XYcoord_change = 14;   // 14
 
-    float HalfWidth = 20. , HalfHeight = 10. ;
-    float innerR = 120. , midR = 230. + extraSpace , midR2 = 470. + extraSpace , maxRcut = 660. , maxOuterR = 660. + extraSpace;
-    float readoutRowSpace = 1.5 , beforeReadoutRowSpace = 0.5 ;
+    int index_XYcoord_change = 14;
 
-    // TDR : spaceSmallR = 5.5 , spaceMediumR = 8.4 , spaceLargeR = 14.5 , while spaceLargeR = 13.6 is acceptable  ;
-    float spaceSmallR = 6.5 , spaceMediumR = 9.4 , spaceLargeR = 14.6 ;
-    if ( fullModule ) {
-        HalfWidth += 0.5;  //  HalfHeight = 10. will invite plenty of Overlaps during G4debugVolume
-        HalfHeight += 0.;
-        spaceSmallR -= 1.;  spaceMediumR -= 1.; spaceLargeR -= 1.;
-        readoutRowSpace -= 0.5; beforeReadoutRowSpace -= 0.5;
-    }
+    // TODO: below parameters should be collected into xml or RDB
+    float HalfWidth = 20.5 , HalfHeight = 10. ;
+    float innerR = 120., midR = 230.5, midR2 = 470.5, maxRcut = 660., maxOuterR = 660.5;
+    float readoutRowSpace = 1., beforeReadoutRowSpace = 0.;
+    float spaceSmallR = 5.5, spaceMediumR = 8.4, spaceLargeR = 13.6 ;
 
     float backsideSmallShift = spaceSmallR*1.33 ;
     float backsideMediumShift = spaceMediumR*1.22 ;
@@ -829,7 +827,8 @@ std::vector< ModulePosition > HGTD_DetectorFactory::prepareModulePositionsInRowT
                 }
             }
         }
-        else { // the rest of the modules follow sequential, radius-dependent placement rules
+	// the rest of the modules follow sequential, radius-dependent placement rules
+        else { 
             float prevX = rowModulePositions[ moduleCounter - 1 ].x;
             float prevY = rowModulePositions[ moduleCounter - 1 ].y;
             float spacing = spaceSmallR;
@@ -837,7 +836,7 @@ std::vector< ModulePosition > HGTD_DetectorFactory::prepareModulePositionsInRowT
             // if the previous module was completely outside R > 320 mm, increase the spacing
             float innermostCornerR = std::sqrt( ( prevY - HalfHeight)*( prevY - HalfHeight)
                                                +( prevX - HalfWidth )*( prevX - HalfWidth ) ) + 9.;
-            if ( fullModule && row < 6 ) innermostCornerR += 1.;
+            if ( row < 6 ) innermostCornerR += 1.;
             if ( innermostCornerR > midR && innermostCornerR <= midR2 ) {
                 spacing = spaceMediumR;
                 if ( row >= 20 ) spacing -= 0.5 ;
@@ -847,7 +846,6 @@ std::vector< ModulePosition > HGTD_DetectorFactory::prepareModulePositionsInRowT
                 if ( row >= 20 ) spacing -= 3. ; 
                 if ( row == 12 ) spacing -= 4. ;
             }
-            // Dec 24, Lianyou tuned to fit HalfWidth=10.5 together with 8032 modules
 
             // for the back the large spacing starts as soon as the space would entirely be outside R = 320 mm
             if ( back ) {
@@ -858,7 +856,6 @@ std::vector< ModulePosition > HGTD_DetectorFactory::prepareModulePositionsInRowT
                     spacing = spaceLargeR;
                     if ( row == 11 ) spacing -= 3. ;
                 }
-                // Dec 24, Lianyou tuned to fit HalfWidth=10.5 together with 8032 modules
             }   // endif back
 
             maxRcut = maxOuterR;
@@ -873,15 +870,12 @@ std::vector< ModulePosition > HGTD_DetectorFactory::prepareModulePositionsInRowT
         posRadius = std::sqrt( ( rowCentPos + HalfWidth )*( rowCentPos + HalfWidth )
                               +( modPos_row + HalfHeight)*( modPos_row + HalfHeight ) );
         if ( posRadius  > maxRcut ) {
-            msg(MSG::DEBUG) << " row " << row <<" finished with " << moduleCounter <<"  modules " << endmsg;
+            ATH_MSG_DEBUG( " row " << row <<" finished with " << moduleCounter <<"  modules " );
             break;
         }
 
-        // note the flipping of X Y coord if this row is horizontal --
-        // modPos_row should then be x and rowCentPos should be y
-        //    ModulePosition modu =  { modPos_row, rowCentPos, 0. };
-        //    ModulePosition moduFlipped =  { rowCentPos, modPos_row, 90. };
-        //  use below tentatively for backward compatibility to two-ring layout
+        // the X and Y coordinates need to be flipped if this row is horizontal,
+        // needed only for backwards compatibility for two-ring layout
         ModulePosition modu =  { modPos_row, rowCentPos, 0., false, row, moduleCounter };
         ModulePosition moduFlipped =  { rowCentPos, modPos_row, 90., true, row, moduleCounter };
 
@@ -891,13 +885,13 @@ std::vector< ModulePosition > HGTD_DetectorFactory::prepareModulePositionsInRowT
         posRadius = std::sqrt( ( rowCentPos + HalfWidth )*( rowCentPos + HalfWidth )
                               +( modPos_row + HalfHeight)*( modPos_row + HalfHeight ) );
 
-        msg(MSG::DEBUG) << " in row " << row << " Placed module " << moduleCounter <<" at (x,y) : "
+        ATH_MSG_DEBUG( "In row " << row << ", placed module " << moduleCounter <<" at (x,y) : "
                         << rowCentPos <<" "<< rowModulePositions.back().x <<" , "
-                        << modPos_row <<" "<<  rowModulePositions.back().y << endmsg;
+                        << modPos_row <<" "<<  rowModulePositions.back().y );
 
         posOfLastPlacedModule = modPos_row;
-        moduleCounter ++;
-    }  // endof while loop
+        moduleCounter++;
+    }
 
     return rowModulePositions;
 }
@@ -915,8 +909,8 @@ int HGTD_DetectorFactory::reorderRows( PositionsInQuadrant* quadrant ) {
     unsigned int numrow =  quadrant->size();
     for ( unsigned int r = 0; r < numrow; r ++ ) {
         unsigned int idx = r > 12 ?  12 + numrow - r : r;
-        msg(MSG::DEBUG) << " original row " << ( r <= 12 ? r : r + 1 ) <<" new row " << idx + 1 
-                        << " : "<< quadrant->at( r ).size() << endmsg ;
+        ATH_MSG_DEBUG( " original row " << ( r <= 12 ? r : r + 1 ) <<" new row " << idx + 1 
+                        << " : "<< quadrant->at( r ).size() ) ;
 
         tmpQuadrant[ idx ] = quadrant->at( r );
         if ( idx != r ) xchng++;
@@ -974,7 +968,7 @@ std::vector<ModulePosition> HGTD_DetectorFactory::prepareModulePositionsInRowTwo
     double posOfLastPlacedModule = 0.;
 
     while (true) {
-        //msg(MSG::INFO) << "Will now place module " << module << endmsg;
+        //ATH_MSG_INFO) << "Will now place module " << module );
         // horizontal rows need care (restart from other edge of quadrant), this variable helps get the inner radius right
         // in quadrant 0 - ie top right quadrant
         // row 0 = bottom horizontal row. numbering grows upwards and counterclockwise; row 17=leftmost vertical row
@@ -1072,7 +1066,7 @@ std::vector<ModulePosition> HGTD_DetectorFactory::prepareModulePositionsInRowTwo
 
     // finally, flip x and y for all modules if this row is horizontal
     if (row < 16) {
-        // msg(MSG::INFO) << "Flipping x and y for modules in row " << row << endmsg;
+        // ATH_MSG_INFO) << "Flipping x and y for modules in row " << row );
         for (size_t i=0; i < modulePositions.size(); i++) {
             ModulePosition old = modulePositions[i];
             ModulePosition rotated = old;
@@ -1085,9 +1079,9 @@ std::vector<ModulePosition> HGTD_DetectorFactory::prepareModulePositionsInRowTwo
         }
     }
 
-    msg(MSG::DEBUG) << "row = " << row << endmsg ;
+    ATH_MSG_DEBUG( "row = " << row ) ;
     for(size_t i=0; i < modulePositions.size(); i++) {
-        msg(MSG::DEBUG) << "Module " << i << " at (x,y) = (" << modulePositions[i].x << "," << modulePositions[i].y << ")" << endmsg ;
+        ATH_MSG_DEBUG( "Module " << i << " at (x,y) = (" << modulePositions[i].x << "," << modulePositions[i].y << ")" ) ;
     }
 
     return modulePositions;

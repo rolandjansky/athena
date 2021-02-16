@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           HighGranularityTimingDetector/HGTD_DetDescr/HGTD_Identifier
                           HighGranularityTimingDetector/HGTD_DetDescr/HGTD_ReadoutGeometry
                           PRIVATE
+			  Control/AthenaBaseComps
                           Control/SGTools
                           Control/StoreGate
                           Database/AthenaPOOL/AthenaPoolUtilities
@@ -36,7 +37,7 @@ atlas_add_library( HGTD_GeoModelLib
                    PUBLIC_HEADERS HGTD_GeoModel
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel GeoModelUtilities GaudiKernel InDetGeoModelUtils InDetCondServices HGTD_Identifier HGTD_ReadoutGeometry ReadoutGeometryBase StoreGateLib SGtests
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel GeoModelUtilities GaudiKernel InDetGeoModelUtils InDetCondServices HGTD_Identifier HGTD_ReadoutGeometry ReadoutGeometryBase StoreGateLib SGtests AthenaBaseComps
                    PRIVATE_LINK_LIBRARIES SGTools AthenaPoolUtilities DetDescrConditions Identifier )
 
 atlas_add_component( HGTD_GeoModel
