@@ -100,7 +100,7 @@ TrigConf::L1Menu::update()
    // algorithms
    try {
       auto topoCategories = isRun2() ? std::vector<std::string> {"R2TOPO"} : std::vector<std::string> {"TOPO", "MUTOPO", "MULTTOPO", "R2TOPO"};
-      for( const std::string algoCategory : topoCategories ) {
+      for( const std::string& algoCategory : topoCategories ) {
          auto & v = m_algorithmsByCategory[algoCategory] = std::vector<TrigConf::L1TopoAlgorithm>();
          if(algoCategory == "MULTTOPO") {
             for( auto & alg : data().get_child( "topoAlgorithms." + algoCategory + ".multiplicityAlgorithms" ) ) {
