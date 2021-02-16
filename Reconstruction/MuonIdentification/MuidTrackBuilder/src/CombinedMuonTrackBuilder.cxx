@@ -3962,8 +3962,8 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
 
         Trk::TrackParameters* perigee = new Trk::Perigee(mvertex->position(), momentum, 1., *mperigeeSurface);
 
-        parameters = std::move(m_propagator->propagate(*perigee, perigee->associatedSurface(), Trk::alongMomentum, false,
-                                                      m_magFieldProperties, Trk::nonInteracting));
+        parameters = m_propagator->propagate(*perigee, perigee->associatedSurface(), Trk::alongMomentum, false,
+                                             m_magFieldProperties, Trk::nonInteracting);
 
         //delete parameters;
         delete perigee;
