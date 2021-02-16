@@ -171,6 +171,8 @@ public:
     const SCT_ModuleSideDesign * getMother() const;
     std::unordered_map<int, const SCT_ModuleSideDesign *> getChildren() const;
     void addChildDesign(int index, const SCT_ModuleSideDesign * element);
+    virtual void getStripRow(SiCellId id, int *strip, int *row) const; //this might be better as reference than pointer? kepp for now for consistency
+
 
 
 
