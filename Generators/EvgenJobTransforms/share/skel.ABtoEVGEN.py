@@ -366,11 +366,6 @@ if evgenConfig.keywords:
     else:
         evgenLog.warning("keywords = not found ")
 
-## Configure and schedule jet finding algorithms
-## NOTE: This generates algorithms for jet containers defined in the user's JO fragment
-if evgenConfig.findJets:
-    include("EvgenJobTransforms/Generate_TruthJets.py")
-
 ## Configure POOL streaming to the output EVNT format file
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
