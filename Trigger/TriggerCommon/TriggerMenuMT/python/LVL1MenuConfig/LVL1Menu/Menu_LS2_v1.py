@@ -76,7 +76,7 @@ def defineMenu():
         'J35p0ETA23','J40p0ETA25', #'J20p28ETA31',
 
         # 6 Jets # replace J400 with J45.0ETA20 - ATR-19309
-        'J40', 'J50', 'J75', 'J85', 'J100', 'J45p0ETA23',  'J400', #'J120',
+        'J40', 'J50', 'J75', 'J85', 'J100', 'J45p0ETA21',  'J400', #'J120',
 
         # 6 x FJ              
         'J15p31ETA49', 'J20p31ETA49', 'J30p31ETA49', 'J50p31ETA49', 'J75p31ETA49',
@@ -388,7 +388,7 @@ def defineMenu():
         'L1_J100_FIRSTEMPTY',
         
         # multi jet
-        "L1_J45p0ETA23_3J15p0ETA25", "L1_J50_2J40p0ETA25_3J15p0ETA25",
+        "L1_J45p0ETA21_3J15p0ETA25", "L1_J50_2J40p0ETA25_3J15p0ETA25",
         "L1_3J50", "L1_4J15", "L1_4J20", #"L1_4J20.0ETA49",
         "L1_3J15p0ETA25_XE40",
         
@@ -829,7 +829,7 @@ def defineMenu():
         'L1_J50_UNPAIRED_NONISO' : 122,
         'L1_J50_ABORTGAPNOTCALIB' : 123,
         'L1_J100_FIRSTEMPTY' : 414,
-        'L1_J45p0ETA23_3J15p0ETA25' : 86,
+        'L1_J45p0ETA21_3J15p0ETA25' : 86,
         'L1_J50_2J40p0ETA25_3J15p0ETA25' : 87,
         'L1_3J50' : 130,
         'L1_4J15' : 131,
