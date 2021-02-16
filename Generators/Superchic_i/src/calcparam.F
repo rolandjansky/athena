@@ -76,7 +76,7 @@ ccc   reads input parameters and calculated needed parameters
       include 'varsi.f'
       include 'spA.f'
       include 'sAA.f'
-      include 'mphi.f'
+c      include 'mphi.f'
 
 c      include 'init.f'      
 c      include 'initpars.f'
@@ -272,7 +272,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccc
       mtau=1.77682d0
       mpip=0.13957018d0
       mkp=0.493677d0
-      mphi=1.019461d0
+c      mphi=1.019461d0
       alpha=7.2974d-3
       pi=dacos(-1d0)
       conv=389379d3
