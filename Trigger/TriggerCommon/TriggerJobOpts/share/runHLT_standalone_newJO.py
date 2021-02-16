@@ -60,9 +60,10 @@ flags.InDet.usePixelDCS = False
 # options that are defined in: AthConfigFlags are handled here
 # they override values from above
 parser = flags.getArgumentParser()
-flags.fillFromArgs(parser=parser)
+args = flags.fillFromArgs(parser=parser)
 
 flags.lock()
+
 
 
 from AthenaCommon.Constants import DEBUG, INFO, WARNING
@@ -96,7 +97,7 @@ acc.getEventAlgo("L1Decoder").ctpUnpacker.UseTBPBits = True # test setup
 
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger(__name__)
+log = logging.getLogger('runHLT_standalone_newJO')
 logging.getLogger('forcomps').setLevel(DEBUG)
 acc.foreach_component("*/L1Decoder").OutputLevel = INFO
 acc.foreach_component("*/L1Decoder/*Tool").OutputLevel = INFO # tools
@@ -113,12 +114,17 @@ if log.getEffectiveLevel() <= logging.DEBUG:
     acc.printConfig(withDetails=False, summariseProps=True, printDefaults=True)
 
 
-fName = "runHLT_standalone_newJO.pkl"
-print("Storing config in the file {}".format(fName))
+fName =  "runHLT_standalone_newJO.pkl"
+log.info("Storing config in the file %s ", fName)
 with open(fName, "wb") as p:
     acc.store(p)
     p.close()
-status = acc.run()
-if status.isFailure():
-    import sys
-    sys.exit(1)
+
+if not args.configOnly:
+    log.info("Running ...")
+    status = acc.run()
+    if status.isFailure():
+        import sys
+        sys.exit(1)
+else:
+    log.info("The configOnly option used ... exiting.")

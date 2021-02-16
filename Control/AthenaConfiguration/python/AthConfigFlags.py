@@ -390,15 +390,16 @@ class AthConfigFlags(object):
         """
         import argparse
         parser= argparse.ArgumentParser()
-        parser.add_argument("-d","--debug",default=None,help="attach debugger (gdb) before run, <stage>: conf, init, exec, fini")
-        parser.add_argument("--evtMax",type=int,default=None,help="Max number of events to process")
-        parser.add_argument("--skipEvents",type=int,default=None,help="Number of events to skip")
-        parser.add_argument("--filesInput",default=None,help="Input file(s)")
-        parser.add_argument("-l", "--loglevel",default=None,help="logging level (ALL, VERBOSE, DEBUG,INFO, WARNING, ERROR, or FATAL")
+        parser.add_argument("-d","--debug", default=None, help="attach debugger (gdb) before run, <stage>: conf, init, exec, fini")
+        parser.add_argument("--evtMax", type=int, default=None, help="Max number of events to process")
+        parser.add_argument("--skipEvents", type=int, default=None, help="Number of events to skip")
+        parser.add_argument("--filesInput", default=None, help="Input file(s)")
+        parser.add_argument("-l", "--loglevel", default=None, help="logging level (ALL, VERBOSE, DEBUG,INFO, WARNING, ERROR, or FATAL")
+        parser.add_argument("--configOnly", type=str, default=None, help="Stop after configuration phase (may not be respected by all diver scripts)")
         return parser
 
     # parser argument must be an ArgumentParser returned from getArgumentParser()
-    def fillFromArgs(self,listOfArgs=None,parser=None):
+    def fillFromArgs(self, listOfArgs=None, parser=None):
         """
         Used to set flags from command-line parameters, like ConfigFlags.fillFromArgs(sys.argv[1:])
         """
@@ -460,7 +461,7 @@ class AthConfigFlags(object):
 
             exec(argToExec)
             pass
-        return
+        return args
 
 
 
