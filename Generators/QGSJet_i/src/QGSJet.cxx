@@ -169,6 +169,13 @@ QGSJet::QGSJet( const std::string &name, ISvcLocator *pSvcLocator ):
   m_iout = 0; // output type (output)
 
   // initialize internally used arrays
+  m_partID.resize (kMaxParticles);
+  m_partPx.resize (kMaxParticles);
+  m_partPy.resize (kMaxParticles);
+  m_partPz.resize (kMaxParticles);
+  m_partEnergy.resize (kMaxParticles);
+  m_partMass.resize (kMaxParticles);
+  m_partStat.resize (kMaxParticles);
   for (size_t i = 0; i < kMaxParticles; ++i) {
     m_partID[i] = 0;
     m_partPx[i] = m_partPy[i] = m_partPz[i] = m_partEnergy[i] = m_partMass[i] = 0.0;
