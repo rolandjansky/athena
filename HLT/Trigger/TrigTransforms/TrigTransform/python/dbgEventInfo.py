@@ -176,8 +176,8 @@ class dbgEventInfo:
         self.L1_Triggered_AV.clear()
         self.L1_Triggered_IDs.clear()
 
+        # Map not available
         if not L1ItemNames:
-            msg.warn("L1 items map not available")
             return
 
         # Decode Lvl1 trigger info
@@ -206,8 +206,8 @@ class dbgEventInfo:
         self.HLT_Triggered_Names.clear()
         self.HLT_Triggered_IDs.clear()
 
+        # Map not available
         if not HLTChainNames:
-            msg.warn("HLT Chains map not available")
             return
 
         # Decode HLT trigger info

@@ -15,9 +15,8 @@ hlt.type = 'Trig_reco_tf'
 hlt.forks = 1
 hlt.threads = 1
 hlt.concurrent_events = 1
-hlt.max_events = -1 # Debug recovery does not handle maxEvents/skipEvents flag
+hlt.max_events = 50
 hlt.args  = '--precommand=\\\"setMenu=\\\'PhysicsP1_pp_run3_v1\\\'\\\"'
-hlt.args += ' --maxEvents=50'
 hlt.args += ' --streamSelection=All'
 hlt.args += ' --prodSysBSRDO True'
 hlt.args += ' --outputBSFile=RAW.pool.root'
