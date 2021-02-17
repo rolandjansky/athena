@@ -64,6 +64,11 @@ namespace top {
     void loadFromFile(const std::string& filename);
 
     /**
+     * @brief Validate that configured options make sense. This involves checking  if unsupported options are not specified.
+     */
+    void checkSettings();
+
+    /**
      * @brief All the user input that is stored as strings.
      *
      * @return a hased-map of the string name to the String data (description etc)
@@ -83,7 +88,8 @@ namespace top {
      * @param name The key used to refer to this variable.
      * @param message A human readable explanation
      */
-    void registerParameter(const std::string& name, const std::string& message, const std::string& default_val = "");
+    void registerParameter(const std::string& name, const std::string& message,
+        const std::string& default_val = "", const std::vector<std::string> allowed_values = {});
 
     /**
      * @brief test whether an (experimental) feature should be enabled
