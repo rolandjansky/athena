@@ -37,7 +37,7 @@
  * For each function, the compiler emits an object called a Frame Description
  * Entry (FDE).  This can be looked up by the instruction pointer.
  * FDEs are grouped together in sets described by a Common Information
- * Entry (CIE).  A FDE points at the corresponding CDE, and the CDE and FDE
+ * Entry (CIE).  A FDE points at the corresponding CIE, and the CIE and FDE
  * together include a set of instructions telling how, at any point in the
  * function, to find the CFA and the return address (as well as any other
  * saved registers which must be restored during unwinding).
