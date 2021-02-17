@@ -19,7 +19,7 @@ from DerivationFrameworkJetEtMiss import METCommon
 from TriggerMenu.api.TriggerAPI import TriggerAPI
 from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
 from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelper
-
+from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 #====================================================================
 # SET UP STREAM   
 #====================================================================
