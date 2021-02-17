@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( CxxUtils )
@@ -61,7 +61,8 @@ atlas_add_test( BitPackerUnpacker_test
 if( NOT XAOD_STANDALONE )
    atlas_add_test( stacktrace_test
       SOURCES test/stacktrace_test.cxx
-      LINK_LIBRARIES CxxUtils ${CMAKE_DL_LIBS} )
+      LINK_LIBRARIES CxxUtils ${CMAKE_DL_LIBS}
+      LOG_IGNORE_PATTERN "DebugAids::stacktrace|CxxUtils::backtraceByUnwind")
 endif()
 
 atlas_add_test( MD5_test
