@@ -5,7 +5,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 from TrigL2MuonSA.TrigL2MuonSAConfig_newJO import l2MuFastAlgCfg, l2MuFastHypoCfg
 from TrigmuComb.TrigmuCombConfig_newJO import l2MuCombRecoCfg, l2MuCombHypoCfg
-from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolFromDict, TrigmuCombHypoToolFromDict, TrigMuonEFMSonlyHypoToolFromDict, TrigMuonEFCombinerHypoToolFromDict
+from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolFromDict, TrigmuCombHypoToolFromDict, TrigMuonEFMSonlyHypoToolFromDict, TrigMuonEFCombinerHypoToolFromDict, TrigMuonEFTrackIsolationHypoToolFromDict
 from TrigInDetConfig.TrigInDetConfig import trigInDetFastTrackingCfg
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDict
@@ -27,6 +27,8 @@ from MuonConfig.MuonSegmentFindingConfig import MooSegmentFinderAlgCfg
 from MuonConfig.MuonTrackBuildingConfig import MuonTrackBuildingCfg
 from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedMuonCandidateAlgCfg
 from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedInDetCandidateAlg, MuonCombinedAlgCfg, MuonCreatorAlgCfg
+
+from TrigMuonEF.TrigMuonEFConfig_newJO import TrigMuonEFTrackIsolationAlgCfg
 
 import pprint
 from AthenaCommon.Logging import logging
@@ -91,6 +93,16 @@ def MuCombViewDataVerifier():
                                                  DataObjects = [( 'xAOD::L2StandAloneMuonContainer' , 'StoreGateSvc+MuonL2SAInfo' )])
     result.addEventAlgo(alg)
     return result
+
+def MuIsoViewDataVerifierCfg():
+    result = ComponentAccumulator()
+    alg = CompFactory.AthViews.ViewDataVerifier( name = "VDVMuIso",
+                                                 DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+EFMuIsoRecoRoIs' ),
+                                                                ( 'xAOD::MuonContainer' , 'StoreGateSvc+InViewIsoMuons' )])
+    result.addEventAlgo(alg)
+    return result
+
+
 
 #Not the ideal place to keep the track cnv alg configuration. Temproarily adding it here
 #until a better location can be found
@@ -226,6 +238,12 @@ def efMuHypoCfg(flags, name="UNSPECIFIED", inputMuons="UNSPECIFIED"):
     TrigMuonEFHypoAlg = CompFactory.TrigMuonEFHypoAlg
     efHypo = TrigMuonEFHypoAlg(name)
     efHypo.MuonDecisions = inputMuons
+    return efHypo
+
+def efMuIsoHypoCfg(flags, name="UNSPECIFIED", inputMuons="UNSPECIFIED"):
+    TrigMuonEFHypoAlg = CompFactory.TrigMuonEFTrackIsolationHypoAlg
+    efHypo = TrigMuonEFHypoAlg(name)
+    efHypo.EFMuonsName = inputMuons
     return efHypo
 
 def muFastStep(flags, chainDict):
@@ -398,6 +416,42 @@ def muEFCBStep(flags, chainDict, name='RoI'):
     
     return ChainStep( name=selAccEFCB.name, Sequences=[efmuCBSequence], chainDicts=[chainDict] )
 
+def muEFIsoStep(flags, chainDict):
+    #Track isolation
+    selAccEFIso = SelectionCA("EFIsoMuon")
+
+    viewName = 'EFMuIsoReco'                                                       
+    ViewCreatorCentredOnIParticleROITool=CompFactory.ViewCreatorCentredOnIParticleROITool
+    roiTool         = ViewCreatorCentredOnIParticleROITool(RoisWriteHandleKey="MuonIso_ROIs", RoIEtaWidth=0.15, RoIPhiWidth=0.15)
+    viewMakerAlg = CompFactory.EventViewCreatorAlgorithm("IM"+viewName,
+                                                         ViewFallThrough = True,
+                                                         mergeUsingFeature = True,
+                                                         PlaceMuonInView = True,
+                                                         RequireParentView = True,
+                                                         InViewMuons = "InViewIsoMuons",
+                                                         InViewMuonCandidates = "IsoMuonCandidates",
+                                                         RoITool         = roiTool,
+                                                         InViewRoIs      = viewName+'RoIs',
+                                                         Views           = viewName+'Views',
+                                                         ViewNodeName    = viewName+"InView")
+    recoIso = InViewReco("EFMuIsoReco", viewMaker=viewMakerAlg)
+    #ID tracking
+    recoIso.mergeReco(trigInDetFastTrackingCfg( flags, roisKey=recoIso.inputMaker().InViewRoIs, signatureName="MuonIso" ))
+    recoIso.mergeReco(MuIsoViewDataVerifierCfg())
+    recoIso.mergeReco(TrigMuonEFTrackIsolationAlgCfg(flags, IdTrackParticles="HLT_IDTrack_MuonIso_FTF", MuonEFContainer="InViewIsoMuons", ptcone02Name="InViewIsoMuons.ptcone02", ptcone03Name="InViewIsoMuons.ptcone03"))
+
+    selAccEFIso.mergeReco(recoIso)
+    efmuIsoHypo = efMuIsoHypoCfg( flags,
+                                  name = 'TrigMuonIsoHypo',
+                                  inputMuons = "MuonsIso" )
+    selAccEFIso.addHypoAlgo(efmuIsoHypo)
+
+    efmuIsoSequence = CAMenuSequence(selAccEFIso,
+                                     HypoToolGen = TrigMuonEFTrackIsolationHypoToolFromDict)
+    
+    return ChainStep( name=selAccEFIso.name, Sequences=[efmuIsoSequence], chainDicts=[chainDict] )
+
+
 def generateChains( flags, chainDict ):
     chainDict = splitChainDict(chainDict)[0]
 
@@ -421,9 +475,12 @@ def generateChains( flags, chainDict ):
         if 'msonly' in chainDict['chainName']:
             chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ muFast, _empty("EmptyNoL2MuComb"), muEFSA, _empty("EmptyNoEFCB") ] )
         else:
-            muonflagsCB = flags.cloneAndReplace('Muon', 'Trigger.Offline.Muon')
+            muonflagsCB = flags.cloneAndReplace('Muon', 'Trigger.Offline.Muon').cloneAndReplace('MuonCombined', 'Trigger.Offline.Combined.MuonCombined')
             muComb = muCombStep(muonflagsCB, chainDict)
             muEFCB = muEFCBStep(muonflagsCB, chainDict)
-            chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ muFast, muComb, muEFSA, muEFCB ] )
+            if 'ivar' in chainDict['chainName']:
+                chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ muFast, muComb, muEFSA, muEFCB, muEFIsoStep(muonflagsCB, chainDict) ] )
+            else:
+                chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ muFast, muComb, muEFSA, muEFCB ] )
     return chain
 

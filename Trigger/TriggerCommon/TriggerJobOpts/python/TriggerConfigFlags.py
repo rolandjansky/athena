@@ -319,8 +319,18 @@ def createTriggerFlags():
 
         return muonflags 
 
+    def __muonCombined():
+        from MuonCombinedConfig.MuonCombinedConfigFlags import createMuonCombinedConfigFlags
+        muonflags = createMuonCombinedConfigFlags()
+        muonflags.MuonCombined.doCaloTrkMuId = False
+        muonflags.MuonCombined.doSiAssocForwardMuons = False
+        muonflags.MuonCombined.doStatisticalCombination = False
+        muonflags.MuonCombined.doMuGirl = False
+        return muonflags
+
     flags.addFlagsCategory('Trigger.Offline.SA', __muonSA, prefix=True)
     flags.addFlagsCategory('Trigger.Offline', __muon, prefix=True)
+    flags.addFlagsCategory('Trigger.Offline.Combined', __muonCombined, prefix=True)
 
     from TrigInDetConfig.TrigTrackingCutFlags import createTrigTrackingFlags
     flags.addFlagsCategory( 'Trigger.InDetTracking', createTrigTrackingFlags )
