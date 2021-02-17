@@ -15,6 +15,8 @@
 #include "AsgDataHandles/WriteHandle.h"
 #include "AsgMessaging/Check.h"
 
+#include <mutex>          // std::call_once, std::once_flag
+
 #ifndef XAOD_STANDALONE
 // Usage of metadata is for now only possible in Athena...
 //#include "CoralBase/AttributeListException.h"
@@ -256,6 +258,7 @@ int CopyTruthJetParticles::execute() const {
   //  std::call_once(metaDataFlag,&CopyTruthJetParticles::basicMetaDataCheck,this,barcodeOffset);
   // this call happens only once and it modifies m_barcodeOffset
   // Note that catching the return value of this is rather complicated, so it throws rather than returning errors
+  static std::once_flag metaDataFlag;
   std::call_once(metaDataFlag,&CopyTruthJetParticles::setBarCodeFromMetaDataCheck, this);
 
   std::vector<const xAOD::TruthParticle*> promptLeptons;
