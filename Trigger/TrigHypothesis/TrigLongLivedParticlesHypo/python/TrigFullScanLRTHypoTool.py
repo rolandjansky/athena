@@ -1,12 +1,6 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon.SystemOfUnits import GeV
 from AthenaCommon.Logging import logging
-log = logging.getLogger("TrigLongLivedParticlesHypo.TrigLRTHypoTool")
-from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
-
-
-
 log = logging.getLogger('TrigLRTHypoTool')
 
 def TrigLRTHypoToolFromDict( chainDict ):

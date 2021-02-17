@@ -3,8 +3,6 @@ from AthenaCommon.CFElements import parOR
 from ..CommonSequences.FullScanDefs import trkFSRoI
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaCommon.Logging import logging
-from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
-from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool
 
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.UnconventionalTracking.FullScanLRTConfiguration")
@@ -17,7 +15,7 @@ def FullScanLRTTriggerSequence(ConfigFlags):
 
 
     from TrigEDMConfig.TriggerEDMRun3 import recordable
-    from TrigInDetConfig.InDetSetup import makeInDetAlgsNoView, makeInDetAlgs
+    from TrigInDetConfig.InDetSetup import makeInDetAlgsNoView
     view_algs = makeInDetAlgsNoView( config = fscfg, rois=trkFSRoI, secondStageConfig = lrtcfg)
 
     from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import getTrackingInputMaker

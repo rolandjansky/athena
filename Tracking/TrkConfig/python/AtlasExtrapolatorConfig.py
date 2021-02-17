@@ -24,7 +24,7 @@ def AtlasNavigatorCfg(flags, name='AtlasNavigator') :
               result.merge(acc)
        else :
             from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
-            result.merge( TrackingGeometryCondAlgCfg(flags) );
+            result.merge( TrackingGeometryCondAlgCfg(flags) )
             geom_cond_key = 'AtlasTrackingGeometry'
             # @TOOD how to get the key of the TrackingGeometry conditions data ?
        # the UNIQUE NAVIGATOR ( === UNIQUE GEOMETRY) --------------------------------------------------------------
