@@ -30,7 +30,8 @@ L1TriggerResultMaker::L1TriggerResultMaker(const std::string& name, ISvcLocator*
 StatusCode L1TriggerResultMaker::initialize() {
   ATH_MSG_DEBUG("Initialising " << name());
   ATH_CHECK(m_l1TriggerResultWHKey.initialize());
-  ATH_CHECK(m_muRoIKey.initialize());
+  ATH_CHECK(m_muRoIKey.initialize(SG::AllowEmpty));
+  ATH_CHECK(m_eFexEMRoIKey.initialize(SG::AllowEmpty));
   return StatusCode::SUCCESS;
 }
 
@@ -51,15 +52,22 @@ StatusCode L1TriggerResultMaker::execute(const EventContext& eventContext) const
   // Create new L1TriggerResult in the container
   l1trHandle->push_back(new xAOD::TrigComposite);
 
-  // Retrieve the L1 xAOD containers to verify they exist
-  auto muRoIHandle = SG::makeHandle(m_muRoIKey, eventContext);
-  ATH_CHECK(muRoIHandle.isValid());
+  auto retrieveAndLink = [this, &eventContext, &l1trHandle](auto key) -> StatusCode {
+    // Skip disabled inputs
+    if (key.empty()) {return StatusCode::SUCCESS;}
+    // Retrieve the L1 xAOD container to verify it exists
+    auto handle = SG::makeHandle(key, eventContext);
+    ATH_CHECK(handle.isValid());
+    // Link the L1 xAOD container (actually its first element) to L1TriggerResult
+    ATH_MSG_DEBUG(key.key() << " size: " << handle->size());
+    if (not handle->empty()) {
+      makeLink(key, *(l1trHandle->back()), key.key(), eventContext);
+    }
+    return StatusCode::SUCCESS;
+  };
 
-  // Link the L1 xAOD containers (actually their first elements) to L1TriggerResult
-  ATH_MSG_DEBUG(m_muRoIKey.key() << " size: " << muRoIHandle->size());
-  if (not muRoIHandle->empty()) {
-    makeLink(m_muRoIKey, *(l1trHandle->back()), m_muRoIKey.key(), eventContext);
-  }
+  ATH_CHECK(retrieveAndLink(m_muRoIKey));
+  ATH_CHECK(retrieveAndLink(m_eFexEMRoIKey));
 
   return StatusCode::SUCCESS;
 }
