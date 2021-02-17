@@ -1551,6 +1551,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_metMaker.setProperty("DoMuonEloss", m_metDoMuonEloss) );
     ATH_CHECK( m_metMaker.setProperty("GreedyPhotons", m_metGreedyPhotons) );
     ATH_CHECK( m_metMaker.setProperty("VeryGreedyPhotons", m_metVeryGreedyPhotons) );
+    ATH_CHECK( m_metMaker.setProperty("DoMuonPFlowBugfix", m_metDoMuonPFlowBugFix) );
 
     // set the jet selection if default empty string is overridden through config file
     if (m_metJetSelection.size()) {
