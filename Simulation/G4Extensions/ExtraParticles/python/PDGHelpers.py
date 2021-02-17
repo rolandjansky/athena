@@ -31,6 +31,20 @@ import os
 from AthenaCommon.SystemOfUnits import MeV, joule
 from AthenaCommon.PhysicalConstants import hbar_Planck, h_Planck
 from AthenaCommon.Logging import logging
+from G4AtlasApps.SimFlags import simFlags
+
+
+def getPDGTABLE(table):
+    # Delete a local file if present
+    if os.path.isfile(table):
+        os.remove(table)
+    # Grab the file
+    os.system('get_files -data %s' % table)
+    return True
+
+
+# retreive the PDGTABLE file
+tableRetrieved = getPDGTABLE(simFlags.ExtraParticlesPDGTABLE.get_Value())
 
 
 class ExtraParticle(object):
@@ -96,17 +110,7 @@ class PDGParser(object):
             if int(r[0]) <= pdg < int(r[1]):
                 return True
 
-    def getPDGTABLE(self):
-        # Delete a local file if present
-        if os.path.isfile(self.table):
-            os.remove(self.table)
-        # Grab the file
-        os.system('get_files -data %s' % self.table)
-
     def parsePDGTABLE(self):
-
-        # retreive the PDGTABLE file
-        self.getPDGTABLE()
 
         # parse the PDGTABLE
         with open(self.table, 'r') as f:

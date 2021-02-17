@@ -5,6 +5,8 @@
 def load_files_for_qball_scenario(MASS, CHARGE):
     import os, shutil, sys
 
+    import ExtraParticles.PDGHelpers
+
     CODE=10000000+int(float(CHARGE)*100)
 
     ALINE1="M {code}                         {intmass}.E+03       +0.0E+00 -0.0E+00 Qball           +".format(code=CODE,intmass=int(MASS))
@@ -12,10 +14,6 @@ def load_files_for_qball_scenario(MASS, CHARGE):
     BLINE1="{code}  {intmass}.00  {charge}  0.0 # Qball".format(code=CODE,intmass=int(MASS), charge=CHARGE)
     BLINE2="-{code}  {intmass}.00  -{charge}  0.0 # QballBar".format(code=CODE,intmass=int(MASS), charge=CHARGE)
 
-    pdgmod = os.path.isfile('PDGTABLE.MeV')
-    if pdgmod is True:
-        os.remove('PDGTABLE.MeV')
-    os.system('get_files -data PDGTABLE.MeV')
     f=open('PDGTABLE.MeV','a')
     f.writelines(str(ALINE1))
     f.writelines('\n')
