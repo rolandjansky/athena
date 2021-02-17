@@ -20,7 +20,7 @@ def TRTHoleSearch(name='TRTTrackHoleSearchTool', **kwargs) :
     kwargs.setdefault('name',name)
     if 'Extrapolator' not in kwargs :
         from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
-        kwargs=setDefaults(kwargs,Extrapolator = AtlasExtrapolator())
+        kwargs.setDefaults(kwargs,Extrapolator = AtlasExtrapolator())
 
     from TRT_TrackHoleSearch.TRT_TrackHoleSearchConf import TRTTrackHoleSearchTool
     return TRTTrackHoleSearchTool(**kwargs)

@@ -184,7 +184,7 @@ class ConfiguredInDetTrackingGeometryBuilderCond( InDet__RobustTrackingGeometryB
         ServiceMgr += AtlasEnvelopeSvc
         
         if name.find('CondCond')>=0 :
-            raise exception('invalid name composition %s ' % (name))
+            raise Exception('invalid name composition %s ' % name)
         # the tracking geometry builder
         super(ConfiguredInDetTrackingGeometryBuilderCond,self).__init__(name,\
                                                       BeamPipeBuilder   = BeamPipeBuilder,\

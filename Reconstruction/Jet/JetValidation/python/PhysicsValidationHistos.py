@@ -1,9 +1,7 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-
-from __future__ import print_function
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from JetMonitoring.JetHistoTools import jhm, selectionAndHistos
-from JetMonitoring.JetMonitoringConf import JetAttributeHisto, HistoDefinitionTool, JetMonitoringTool, JetKinematicHistos, JetContainerHistoFiller, JetSubStructureHistos
+from JetMonitoring.JetMonitoringConf import JetMonitoringTool, JetKinematicHistos, JetContainerHistoFiller, JetSubStructureHistos
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from PyUtils.MetaReader import read_metadata
 

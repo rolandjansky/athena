@@ -5,10 +5,9 @@ logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.UnconventionalTracking.UnconventionalTrackingDef")
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool, EmptyMenuSequence
-from AthenaCommon.CFElements import parOR, seqAND
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
+from AthenaCommon.CFElements import seqAND
 from ..CommonSequences.FullScanDefs import caloFSRoI
-from ..Menu.ChainMerging import mergeChainDefs
 
 def unconventionalTrackingChainParts(chainParts):
     unconvtrkChainParts = []
@@ -38,7 +37,6 @@ class UnconventionalTrackingChainConfiguration(ChainConfigurationBase):
 
 
         key = self.chainPart['extra']
-        import re
         #Work around to run isohpttrack with an alternative step without skip when there is an HLT_MET trigger
         # if key=="isohpttrack" and (re.match(".*_xe\d*_*",(self.chainName))):
         #     steps=stepDictionary["isohpttrackWithHLTMET"]

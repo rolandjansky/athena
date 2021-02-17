@@ -6,8 +6,6 @@ KG Tan, 04/12/2012
 Updated by J. Chapman
 """
 
-from __future__ import print_function
-
 from AthenaCommon import CfgMgr
 from AthenaCommon.CfgGetter import getPublicTool
 
@@ -178,7 +176,7 @@ def getFatrasNavigator(name="ISF_FatrasNavigator", **kwargs):
     condSeq = AthSequencer("AthCondSeq")
 
     if not hasattr (condSeq, 'AtlasTrackingGeometryCondAlg'):
-      from InDetCondFolders import InDetAlignFolders_FATRAS
+      from InDetCondFolders import InDetAlignFolders_FATRAS  # noqa: F401
       from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg
       TrkGeoCondAlg = ConfiguredTrackingGeometryCondAlg('AtlasTrackingGeometryCondAlg')
       condSeq+= TrkGeoCondAlg
@@ -409,7 +407,7 @@ def getFatrasMaterialUpdator(name="ISF_FatrasMaterialUpdator", **kwargs):
     condSeq = AthSequencer("AthCondSeq")
 
     if not hasattr (condSeq, 'AtlasTrackingGeometryCondAlg'):
-      from InDetCondFolders import InDetAlignFolders_FATRAS
+      from InDetCondFolders import InDetAlignFolders_FATRAS  # noqa: F401
       from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg
       TrkGeoCondAlg = ConfiguredTrackingGeometryCondAlg('AtlasTrackingGeometryCondAlg')
       condSeq+= TrkGeoCondAlg
