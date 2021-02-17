@@ -252,7 +252,7 @@ namespace met {
     // safe to assume a single SW cluster?
     // will do so for now...
     const xAOD::IParticle* swclus = eg->caloCluster();
-    ANA_MSG_INFO("Extract PFOs with DeltaR for " << eg->type()  << " with pT " << eg->pt());
+    ANA_MSG_VERBOSE("Extract PFOs with DeltaR for " << eg->type()  << " with pT " << eg->pt());
 
     // Preselect PFOs based on proximity: dR<0.4
     std::vector<const xAOD::PFO*> nearbyPFO;
