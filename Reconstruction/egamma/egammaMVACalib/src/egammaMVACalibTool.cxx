@@ -1,14 +1,18 @@
  /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaMVACalibTool.h"
+
+#include "xAODEgamma/Egamma.h"
+#include "xAODCaloEvent/CaloCluster.h"
 
 #include "PathResolver/PathResolver.h"
 
 #include "TFile.h"
 #include "TMath.h"
 #include "TObjString.h"
+#include "TTree.h"
 
 #include <cmath>
 
@@ -42,31 +46,31 @@ StatusCode egammaMVACalibTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  // get the BDTs
+  // get the BDTs and initialize functions
   ATH_MSG_DEBUG("get BDTs in folder: " << m_folder);
   switch (m_particleType) {
   case xAOD::EgammaParameters::electron:
     {
-      std::unique_ptr<egammaMVAFunctions::funcMap_t> funcLibraryPtr = 
-	egammaMVAFunctions::initializeElectronFuncs(m_useLayerCorrected);
-      ATH_CHECK(setupBDT(*funcLibraryPtr, 
-			 PathResolverFindCalibFile(m_folder + "/MVACalib_electron.weights.root")));
+      std::unique_ptr<egammaMVAFunctions::funcMap_t> funcLibraryPtr =
+        egammaMVAFunctions::initializeElectronFuncs(m_useLayerCorrected);
+      ATH_CHECK(setupBDT(*funcLibraryPtr,
+                         PathResolverFindCalibFile(m_folder + "/MVACalib_electron.weights.root")));
     }
     break;
   case xAOD::EgammaParameters::unconvertedPhoton:
     {
-      std::unique_ptr<egammaMVAFunctions::funcMap_t> funcLibraryPtr = 
-	egammaMVAFunctions::initializeUnconvertedPhotonFuncs(m_useLayerCorrected);
-      ATH_CHECK(setupBDT(*funcLibraryPtr, 
-			 PathResolverFindCalibFile(m_folder + "/MVACalib_unconvertedPhoton.weights.root")));
+      std::unique_ptr<egammaMVAFunctions::funcMap_t> funcLibraryPtr =
+        egammaMVAFunctions::initializeUnconvertedPhotonFuncs(m_useLayerCorrected);
+      ATH_CHECK(setupBDT(*funcLibraryPtr,
+                         PathResolverFindCalibFile(m_folder + "/MVACalib_unconvertedPhoton.weights.root")));
     }
     break;
   case xAOD::EgammaParameters::convertedPhoton:
     {
-      std::unique_ptr<egammaMVAFunctions::funcMap_t> funcLibraryPtr = 
-	egammaMVAFunctions::initializeConvertedPhotonFuncs(m_useLayerCorrected);
-      ATH_CHECK(setupBDT(*funcLibraryPtr, 
-			 PathResolverFindCalibFile(m_folder + "/MVACalib_convertedPhoton.weights.root")));
+      std::unique_ptr<egammaMVAFunctions::funcMap_t> funcLibraryPtr =
+        egammaMVAFunctions::initializeConvertedPhotonFuncs(m_useLayerCorrected);
+      ATH_CHECK(setupBDT(*funcLibraryPtr,
+                         PathResolverFindCalibFile(m_folder + "/MVACalib_convertedPhoton.weights.root")));
     }
     break;
   default:
@@ -83,13 +87,12 @@ StatusCode egammaMVACalibTool::finalize()
 }
 
 StatusCode egammaMVACalibTool::setupBDT(const egammaMVAFunctions::funcMap_t& funcLibrary,
-					const std::string& fileName)
+                                        const std::string& fileName)
 {
-
   ATH_MSG_DEBUG("Trying to open " << fileName);
 
   std::unique_ptr<TFile> f(TFile::Open(fileName.c_str()));
-  if (!f || f->IsZombie() ) {
+  if (!f || f->IsZombie()) {
     ATH_MSG_FATAL("Could not open file: " << fileName);
     return StatusCode::FAILURE;
   }
@@ -101,7 +104,7 @@ StatusCode egammaMVACalibTool::setupBDT(const egammaMVAFunctions::funcMap_t& fun
     ATH_MSG_FATAL("Could not find hPoly");
     return StatusCode::FAILURE;
   }
-  
+
   m_hPoly.reset(static_cast<TH2Poly*>(hPoly->Clone()));
   m_hPoly->SetDirectory(nullptr);
 
@@ -148,7 +151,7 @@ StatusCode egammaMVACalibTool::setupBDT(const egammaMVAFunctions::funcMap_t& fun
 
   // Ensure the objects have (the same number of) entries
   if (!trees->GetEntries() || !(trees->GetEntries() == variables->GetEntries())) {
-    ATH_MSG_FATAL("Tree has size " << trees->GetEntries() 
+    ATH_MSG_FATAL("Tree has size " << trees->GetEntries()
 		  << " while variables has size " << variables->GetEntries());
     return StatusCode::FAILURE;
   }
@@ -182,8 +185,8 @@ StatusCode egammaMVACalibTool::setupBDT(const egammaMVAFunctions::funcMap_t& fun
         funcs.push_back(funcLibrary.at(varName.Data()));
       } catch(const std::out_of_range& e) {
         ATH_MSG_FATAL("Could not find formula for variable " << varName << ", error: " << e.what());
-        return StatusCode::FAILURE;	
-      } 
+        return StatusCode::FAILURE;
+      }
     }
     m_funcs.push_back(std::move(funcs));
 
@@ -206,26 +209,26 @@ const TString& egammaMVACalibTool::getString(TObject* obj) const
   return objS->GetString();
 }
 
-float egammaMVACalibTool::getEnergy(const xAOD::CaloCluster& clus, 
+float egammaMVACalibTool::getEnergy(const xAOD::CaloCluster& clus,
                                     const xAOD::Egamma* eg) const
 {
 
   ATH_MSG_DEBUG("calling getEnergy with cluster index (" << clus.index());
 
-  // find the bin of BDT
-  const auto initEnergy = (m_useLayerCorrected ? 
-			   egammaMVAFunctions::compute_correctedcl_Eacc(clus) :
+  // find the bin of BDT and the shift
+  const auto initEnergy = (m_useLayerCorrected ?
+                           egammaMVAFunctions::compute_correctedcl_Eacc(clus) :
                            egammaMVAFunctions::compute_rawcl_Eacc(clus));
-  
-  const auto energyVarGeV = (initEnergy / std::cosh(clus.eta())) / GeV; 
+
+  const auto etVarGeV = (initEnergy / std::cosh(clus.eta())) / GeV;
   const auto etaVar = std::abs(clus.eta());
 
-  ATH_MSG_DEBUG("Looking at object with initEnergy = " << initEnergy 
-		<< ", energyVarGeV = " <<  energyVarGeV
-		<< ", etaVar = " << etaVar
-		<< ", clus->e() = " << clus.e());
+  ATH_MSG_DEBUG("Looking at object with initEnergy = " << initEnergy
+                << ", etVarGeV = " << etVarGeV
+                << ", etaVar = " << etaVar
+                << ", clus->e() = " << clus.e());
 
-  const int bin = m_hPoly->FindBin(etaVar, energyVarGeV) - 1; // poly bins are shifted by one
+  const int bin = m_hPoly->FindBin(etaVar, etVarGeV) - 1; // poly bins are shifted by one
 
   ATH_MSG_DEBUG("Using bin: " << bin);
 
@@ -239,17 +242,19 @@ float egammaMVACalibTool::getEnergy(const xAOD::CaloCluster& clus,
     return clus.e();
   }
 
-  // select the bdt and funcsions. (shifts are done later if needed)
-  const auto& bdt = m_BDTs[bin];
-  const auto& funcs = m_funcs[bin];
+  // select the bdt and functions. (shifts are done later if needed)
+  // if there is only one BDT just use that
+  const int bin_BDT = m_BDTs.size() != 1 ? bin : 0;
+  const auto& bdt = m_BDTs[bin_BDT];
+  const auto& funcs = m_funcs[bin_BDT];
 
   const size_t sz = funcs.size();
 
   // could consider adding std::array support to the BDTs
   std::vector<float> vars(sz);
 
-  for (size_t i = 0; i < sz; i++) {
-    vars[i] = funcs[i](eg,&clus);
+  for (size_t i = 0; i < sz; ++i) {
+    vars[i] = funcs[i](eg, &clus);
   }
 
   // evaluate the BDT response
@@ -259,12 +264,11 @@ float egammaMVACalibTool::getEnergy(const xAOD::CaloCluster& clus,
   if (mvaOutput == 0.) {
     if (m_clusterEif0) {
       return clus.e();
-    } 
-      return 0.;
-    
+    }
+    return 0.;
   }
 
-  // calcluate the unshifted energy
+  // calculate the unshifted energy
   const auto energy = (m_calibrationType == fullCalibration) ?
     mvaOutput : (initEnergy * mvaOutput);
 
@@ -276,15 +280,15 @@ float egammaMVACalibTool::getEnergy(const xAOD::CaloCluster& clus,
   }
 
   // have to do a shift if here. It's based on the corrected Et in GeV
-  const auto etGeV = (energy / std::cosh(clus.eta())) / GeV; 
+  const auto etGeV = (energy / std::cosh(clus.eta())) / GeV;
 
   // evaluate the TFormula associated with the bin
   const auto shift = m_shifts[bin].Eval(etGeV);
   ATH_MSG_DEBUG("shift = " << shift);
   if (shift > 0.5) {
     return energy / shift;
-  } 
+  }
     ATH_MSG_WARNING("Shift value too small: " << shift << "; not applying shift");
     return energy;
-  
+
 }

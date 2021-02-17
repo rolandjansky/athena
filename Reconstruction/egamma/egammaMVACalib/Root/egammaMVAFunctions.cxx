@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -37,6 +37,7 @@ namespace egammaMVAFunctions
     initializeClusterFuncs(funcLibrary, "el", useLayerCorrected);
     initializeEgammaFuncs(funcLibrary, "el", useLayerCorrected);
 
+    // specific functions only for electrons
     funcLibrary["el_charge"] = [](const xAOD::Egamma* eg, const xAOD::CaloCluster*)
       { return compute_el_charge(*(static_cast<const xAOD::Electron*>(eg))); };
     funcLibrary["el_tracketa"] = [](const xAOD::Egamma* eg, const xAOD::CaloCluster*)
@@ -79,11 +80,11 @@ namespace egammaMVAFunctions
 
     funcLibrary["convR"] = [](const xAOD::Egamma* eg, const xAOD::CaloCluster*)->float
       {
-	auto ph = static_cast<const xAOD::Photon*>(eg);
-	if (compute_ptconv(ph) > 3*GeV) {
-	  return xAOD::EgammaHelpers::conversionRadius(ph);
-	}
-	  return 799.0;
+        auto ph = static_cast<const xAOD::Photon*>(eg);
+        if (compute_ptconv(ph) > 3*GeV) {
+          return xAOD::EgammaHelpers::conversionRadius(ph);
+        }
+        return 799.0;
 
       };
     funcLibrary["ph_zconv"] = [](const xAOD::Egamma* eg, const xAOD::CaloCluster*)
@@ -97,38 +98,37 @@ namespace egammaMVAFunctions
 
     funcLibrary["convPtRatio"] = [](const xAOD::Egamma* eg, const xAOD::CaloCluster*)->float
       {
-	auto ph = static_cast<const xAOD::Photon*>(eg);
-	if (xAOD::EgammaHelpers::numberOfSiTracks(ph) == 2) {
-	  auto pt1 = compute_pt1conv(ph);
-	  auto pt2 = compute_pt2conv(ph);
-	  return std::max(pt1, pt2)/(pt1+pt2);
-	}
-	  return 1.0f;
-
+        auto ph = static_cast<const xAOD::Photon*>(eg);
+        if (xAOD::EgammaHelpers::numberOfSiTracks(ph) == 2) {
+          auto pt1 = compute_pt1conv(ph);
+          auto pt2 = compute_pt2conv(ph);
+          return std::max(pt1, pt2)/(pt1+pt2);
+        }
+          return 1.0f;
       };
 
     if (useLayerCorrected) {
       funcLibrary["convEtOverPt"] = [](const xAOD::Egamma* eg, const xAOD::CaloCluster*cl)->float
-	{
-	  auto ph = static_cast<const xAOD::Photon*>(eg);
+        {
+          auto ph = static_cast<const xAOD::Photon*>(eg);
 
-	  float rv = 0.0;
-	  if (xAOD::EgammaHelpers::numberOfSiTracks(ph) == 2) {
-	    rv = std::max(0.0f, compute_correctedcl_Eacc(*cl)/(std::cosh(compute_cl_eta(*cl))*compute_ptconv(ph)));
-	  }
-	  return std::min(rv, 2.0f);
-	};
+          float rv = 0.0;
+          if (xAOD::EgammaHelpers::numberOfSiTracks(ph) == 2) {
+            rv = std::max(0.0f, compute_correctedcl_Eacc(*cl)/(std::cosh(compute_cl_eta(*cl))*compute_ptconv(ph)));
+          }
+          return std::min(rv, 2.0f);
+        };
     } else {
       funcLibrary["convEtOverPt"] = [](const xAOD::Egamma* eg, const xAOD::CaloCluster*cl)->float
-	{
-	  auto ph = static_cast<const xAOD::Photon*>(eg);
+        {
+          auto ph = static_cast<const xAOD::Photon*>(eg);
 
-	  float rv = 0.0;
-	  if (xAOD::EgammaHelpers::numberOfSiTracks(ph) == 2) {
-	    rv = std::max(0.0f, compute_rawcl_Eacc(*cl)/(std::cosh(compute_cl_eta(*cl))*compute_ptconv(ph)));
-	  }
-	  return std::min(rv, 2.0f);
-	};
+          float rv = 0.0;
+          if (xAOD::EgammaHelpers::numberOfSiTracks(ph) == 2) {
+            rv = std::max(0.0f, compute_rawcl_Eacc(*cl)/(std::cosh(compute_cl_eta(*cl))*compute_ptconv(ph)));
+          }
+          return std::min(rv, 2.0f);
+        };
     }
 
     return funcLibraryPtr;
@@ -138,8 +138,8 @@ namespace egammaMVAFunctions
   // Initialize the functions that just depend on the cluster.
   // This helper function is not meant for external use.
   void initializeClusterFuncs(funcMap_t& funcLibrary,
-			      const std::string& prefix,
-			      bool useLayerCorrected)
+                              const std::string& prefix,
+                              bool useLayerCorrected)
   {
 
     funcLibrary[prefix + "_cl_eta"] = [](const xAOD::Egamma*, const xAOD::CaloCluster* cl)
@@ -159,8 +159,8 @@ namespace egammaMVAFunctions
       { return std::floor(std::abs(compute_cl_etaCalo(*cl))/0.025); };
     funcLibrary["phiModCalo"] = [](const xAOD::Egamma*, const xAOD::CaloCluster* cl)
       { return ((abs(compute_cl_eta(*cl)) < 1.425) ?
-		std::fmod(compute_cl_phiCalo(*cl), TMath::Pi()/512) :
-		std::fmod(compute_cl_phiCalo(*cl), TMath::Pi()/384));
+                  std::fmod(compute_cl_phiCalo(*cl), TMath::Pi() / 512) :
+                  std::fmod(compute_cl_phiCalo(*cl), TMath::Pi() / 384));
       };
     funcLibrary["etaModCalo"] = [](const xAOD::Egamma*, const xAOD::CaloCluster* cl)
       { return std::fmod(std::abs(compute_cl_etaCalo(*cl)), 0.025); };
