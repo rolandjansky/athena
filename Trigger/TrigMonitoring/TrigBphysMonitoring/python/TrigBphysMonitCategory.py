@@ -47,7 +47,6 @@ monitoring_bphys = [
                     'HLT_2mu6_bBmumux_BsmumuPhi_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
                     'HLT_mu6_bJpsi_Trkloose',
                     'HLT_mu4_mu4_idperf_bJpsimumu_noid',
-                    
                     ]
 
 primary_bphys = [ 
@@ -61,19 +60,25 @@ primary_bphys = [
                  'HLT_mu11_mu6_bTau', 
                  'HLT_2mu6_bDimu_L1BPH-2M9-2MU6_BPH-2DR15-2MU6', 
                  'HLT_mu11_mu6_bDimu_novtx_noos', 
-                 # then others, for individual chain folders
-                 'HLT_2mu4_bJpsimumu',
-                 'HLT_2mu4_bUpsimumu',
-                 'HLT_mu6_mu4_bJpsimumu',
-                 'HLT_mu6_mu4_bUpsimumu',
-                 'HLT_mu6_mu4_bDimu',
-                 'HLT_2mu6_bJpsimumu',
-                 'HLT_2mu6_bUpsimumu',
-                 'HLT_2mu6_bDimu',
-                 'HLT_mu11_mu6_bJpsimumu',
-                 'HLT_mu11_mu6_bUpsimumu',
-                 'HLT_mu11_mu6_bDimu',
                  ]
+
+# adjust these lists if the code is run for Run-2 data reprocessing 
+# (in view of rel. 22 reprocessing, see https://its.cern.ch/jira/browse/ATR-22816)
+if not ConfigFlags.Input.isMC :
+  # use different chains for 2015-2016 data
+  if ConfigFlags.Input.RunNumber[0] >= 266904 and ConfigFlags.Input.RunNumber[0] <= 311481 :
+    primary_bphys = [
+                     'HLT_2mu6_bJpsimumu',
+                     'HLT_2mu6_bBmumuxv2',
+                     'HLT_3mu6_bJpsi',
+                     'HLT_mu18_bJpsi_Trkloose',
+                     'HLT_2mu6_bDimu_novtx_noos',
+                    ]
+  # remove the _L1 suffix from non-L1Topo chains as it was not used in data
+  import re
+  monitoring_bphys = [re.sub('_L1(?!BPH).*$','',str) for str in monitoring_bphys]
+  monitoring_bphys = list(dict.fromkeys(monitoring_bphys))
+  
 
 if ConfigFlags.Trigger.EDMVersion == 3 :
   monitoring_bphys = [
