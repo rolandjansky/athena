@@ -333,7 +333,7 @@ namespace CP {
             return clusters;
         }
         const xAOD::IParticle* Ref = topoEtIsoRefPart(P);
-        for (const auto *cluster : *topoClusters) {
+        for (const auto cluster : *topoClusters) {
             if (!cluster || fabs(cluster->eta()) > 7.0 || cluster->pt() <= 1.e-3) continue;
             //Consider also the cluster of Egamma if they are in the container
             if (isSame(Ref, cluster) || overlap(cluster, Ref, P->type() == xAOD::Type::ObjectType::Muon ? m_coreConeMu: m_coreConeEl)){
