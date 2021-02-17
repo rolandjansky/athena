@@ -118,7 +118,7 @@ struct BitTraits
 class Signal
 {
 public:
-    /** Option that instructs #fatal() to call #coredump() on SIGUSR1.
+    /** Option that instructs #fatal(int, siginfo_t *, void *) to call #coredump() on SIGUSR1.
 	This is merely a request to drop a @c core; no attempt is made
 	to guarantee success.  Failure may result for example for lack
 	of permissions, for lack of disk space, or due to low resource
@@ -129,37 +129,37 @@ public:
     static const int USR1_DUMP_CORE	= 1;
 
     /** Option to make SIGHUP, SIGTERM and SIGQUIT fatal instead of
-	just #quit() signals.  */
+	just #quit(int , siginfo_t *, void *) signals.  */
     static const int FATAL_ON_QUIT	= 2;
 
     /** Option to make SIGINT fatal.  It will still just quit, not
         crash.  */
     static const int FATAL_ON_INT	= 4;
 
-    /** Option to make #fatal() dump a core file before crashing.  */
+    /** Option to make #fatal(int, siginfo_t *, void *) dump a core file before crashing.  */
     static const int FATAL_DUMP_CORE	= 8;
 
-    /** Option to make #fataldump() (invoked by #fatal()) to dump the
+    /** Option to make #fataldump(int, siginfo_t *, void *) (invoked by #fatal(int, siginfo_t *, void *)) to dump the
 	signal name (as reported by #name()).  */
     static const int FATAL_DUMP_SIG	= 16;
 
-    /** Option to make #fataldump() (invoked by #fatal()) to dump
+    /** Option to make #fataldump(int, siginfo_t *, void *) (invoked by #fatal(int, siginfo_t *, void *)) to dump
 	stack backtrace for the offending code location.  */
     static const int FATAL_DUMP_STACK	= 32;
 
-    /** Option to make #fataldump() (invoked by #fatal()) to dump the
+    /** Option to make #fataldump(int sig, siginfo_t *, void *) (invoked by #fatal(int, siginfo_t *, void *)) to dump the
 	list of currently loaded shared libraries.  */
     static const int FATAL_DUMP_LIBS	= 64;
 
-    /** Option to make #fataldump() (invoked by #fatal()) to dump the
+    /** Option to make #fataldump(int, siginfo_t *, void *) (invoked by #fatal(int, siginfo_t *, void *)) to dump the
 	machine context (registers etc.) from the fault position.  */
     static const int FATAL_DUMP_CONTEXT	= 128;
 
-    /** Option to make #fatal() exit via #quit().  This will cause all
+    /** Option to make #fatal(int, siginfo_t *, void *) exit via #quit(int , siginfo_t *, void *).  This will cause all
 	the application clean-up hook to run.  */
     static const int FATAL_AUTO_EXIT	= 256;
 
-    /** Default options to #handleFatal().  */
+    /** Default options to #handleFatal(const char *, IOFD fd,  FatalHook, FatalReturn, unsigned.  */
     static const int FATAL_DEFAULT  = (USR1_DUMP_CORE
 				       | FATAL_ON_INT
 				       | FATAL_DUMP_CORE
@@ -169,7 +169,7 @@ public:
 				       | FATAL_DUMP_CONTEXT
 				       | FATAL_AUTO_EXIT);
 
-    /** Application clean-up hook invoked before #quit() exits from
+    /** Application clean-up hook invoked before #quit(int , siginfo_t *, void *) exits from
 	program termination signals (SIGHUP, SIGTERM or SIGQUIT).
 
 	The handler should return @c true if the signal handler should
@@ -189,7 +189,7 @@ public:
 
 	The fatal hooks should, if possible, perform clean-ups similar
 	to #QuitHook.  The application may achieve this by actually
-	using the quit by setting #FATAL_AUTO_EXIT for #handleFatal(),
+	using the quit by setting #FATAL_AUTO_EXIT for #handleFatal(const char *, IOFD fd,  FatalHook, FatalReturn, unsigned),
 	or it could reuse an internal function in both handlers.  */
     typedef bool		(*FatalHook) (int sig, siginfo_t *info, void *x);
 
