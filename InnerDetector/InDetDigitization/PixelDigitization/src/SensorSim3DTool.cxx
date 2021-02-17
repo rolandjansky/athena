@@ -287,8 +287,8 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
           chargepos.z());
 
       // -- change origin of coordinates to the left bottom of module
-      double x_new = chargepos.x() + module_size_x / 2.;
-      double y_new = chargepos.y() + module_size_y / 2.;
+      double x_new = chargepos.x() + 0.5*module_size_x;
+      double y_new = chargepos.y() + 0.5*module_size_y;
 
 
       // -- change from module frame to pixel frame
@@ -322,11 +322,10 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
           double eHit = energy_per_step;
           //Need to determine how many elementary charges this charge chunk represents.
           double chunk_size = energy_per_step * eleholePairEnergy; //number of electrons/holes
-          ATH_MSG_DEBUG("Chunk size: " << energy_per_step << "*" << eleholePairEnergy << " = " << chunk_size);
 
           //set minimum limit to prevent dividing into smaller subcharges than one fundamental charge
           if (chunk_size < 1) chunk_size = 1;
-          double kappa = 1. / sqrt(chunk_size);
+          double kappa = 1. / std::sqrt(chunk_size);
 
           // Loop over everything twice: once for electrons and once for holes
           for (int eholes = 0; eholes < 2; eholes++) {
@@ -346,7 +345,7 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
             //Apply diffusion. rdif is teh max. diffusion
             double Dt =
               getMobility(efield, isHole) * (0.024) * std::min(driftTime, timeToElectrode) * m_temperature / 273.;
-            double rdif = sqrt(Dt) / 1000; //in mm
+            double rdif = 1e-3*std::sqrt(Dt); //in mm
             double xposDiff = x_pix + rdif * phiRand;
             double etaRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
             double yposDiff = y_pix + rdif * etaRand;
@@ -370,17 +369,11 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
             }
 
 
-            ATH_MSG_DEBUG(" -- diffused position w.r.t. pixel edge = " << xposDiff << "  " << yposDiff);
-
             float average_charge = isHole ? m_avgChargeMap_h.getContent(m_avgChargeMap_h.getBinY(1e3*y_pix), m_avgChargeMap_h.getBinX(1e3*x_pix)) :
                                             m_avgChargeMap_e.getContent(m_avgChargeMap_e.getBinY(1e3*y_pix), m_avgChargeMap_e.getBinX(1e3*x_pix));
 
-            ATH_MSG_DEBUG(" -- driftTime, timeToElectrode = " << driftTime << "  " << timeToElectrode);
-
             double xposFinal = getTrappingPositionY(yposDiff, xposDiff, std::min(driftTime, timeToElectrode), isHole);
             double yposFinal = getTrappingPositionX(yposDiff, xposDiff, std::min(driftTime, timeToElectrode), isHole);
-
-            ATH_MSG_DEBUG(" -- trapped position w.r.t. pixel edge = " << xposFinal << "  " << yposFinal);
 
             // -- Calculate signal in current pixel and in the neighboring ones
             // -- loop in the x-coordinate
@@ -393,13 +386,6 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
               for (int j = -1; j <= 1; j++) {
                 double yNeighbor = j * pixel_size_y;
 
-                ATH_MSG_DEBUG(
-                  " -- Ramo init position w.r.t. Ramo map edge = " << x_pix + pixel_size_x * 3 - xNeighbor << "  " << y_pix + pixel_size_y * 1 / 2 -
-                    yNeighbor);
-                ATH_MSG_DEBUG(
-                  " -- Ramo final position w.r.t. Ramo map edge = " << xposFinal + pixel_size_x * 3 - xNeighbor << "  " << yposFinal + pixel_size_y * 1 / 2 -
-                    yNeighbor);
-
                 //Ramo map over 500umx350um pixel area
                 //Ramo init different if charge diffused into neighboring pixel -> change primary pixel!!
                 float ramoInit  = m_ramoPotentialMap[index].getContent(m_ramoPotentialMap[index].getBinX(1000*(y_pix + 0.5*pixel_size_y - yNeighbor)), ramo_init_bin_y);
@@ -408,31 +394,24 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
                 // Record deposit
                 double eHitRamo = (1 - 2 * isHole) * eHit * (ramoFinal - ramoInit);
 
-                ATH_MSG_DEBUG(
-                  "At neighbor pixel " << i << " " << j << " Hit of " << eHitRamo << " including Ramo factor: " << ramoFinal -
-                    ramoInit);
-
                 if (m_doChunkCorrection) {
-                  ATH_MSG_DEBUG("Energy before chunk correction: " << eHitRamo);
                   eHitRamo = eHit * average_charge + kappa * (eHitRamo - eHit * average_charge);
-                  ATH_MSG_DEBUG("Energy after chunk correction: " << eHitRamo);
                 }
 
                 double induced_charge = eHitRamo * eleholePairEnergy;
 
                 // -- pixel coordinates --> module coordinates
-                double x_mod = x_pix + xNeighbor + pixel_size_x * extraNPixX - module_size_x / 2.;
-                double y_mod = y_pix + yNeighbor + pixel_size_y * extraNPixY - module_size_y / 2.;
-                SiLocalPosition chargePos = Module.hitLocalToLocal(y_mod, x_mod);
+                double x_mod = x_pix + xNeighbor + pixel_size_x * extraNPixX - 0.5*module_size_x;
+                double y_mod = y_pix + yNeighbor + pixel_size_y * extraNPixY - 0.5*module_size_y;
+                const SiLocalPosition& chargePos = Module.hitLocalToLocal(y_mod, x_mod);
 
-                SiSurfaceCharge scharge(chargePos, SiCharge(induced_charge, hitTime(
+                const SiSurfaceCharge scharge(chargePos, SiCharge(induced_charge, hitTime(
                                                               phit), SiCharge::track, HepMcParticleLink(
                                                               phit->trackNumber(), phit.eventId(), evColl, idxFlag, ctx)));
-                SiCellId diode = Module.cellIdOfPosition(scharge.position());
-                SiCharge charge = scharge.charge();
+                const SiCellId& diode = Module.cellIdOfPosition(scharge.position());
                 if (diode.isValid()) {
+                  const SiCharge& charge = scharge.charge();
                   chargedDiodes.add(diode, charge);
-                  ATH_MSG_DEBUG("induced charge: " << induced_charge << " x_mod: " << x_mod << " y_mod: " << y_mod);
                 }
               }
             }
@@ -474,8 +453,8 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
           chargepos.z());
 
       // -- change origin of coordinates to the left bottom of module
-      double x_new = chargepos.x() + module_size_x / 2.;
-      double y_new = chargepos.y() + module_size_y / 2.;
+      double x_new = chargepos.x() + 0.5*module_size_x;
+      double y_new = chargepos.y() + 0.5*module_size_y;
 
       // -- change from module frame to pixel frame
       int nPixX = int(x_new / pixel_size_x);
@@ -500,32 +479,32 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
           y_neighbor = y_pix_center - j * pixel_size_y;
 
           // -- check if the neighbor falls inside the charge collection prob map window
-          if ((fabs(x_neighbor) < pixel_size_x) && (fabs(y_neighbor) < pixel_size_y)) {
+          if ((std::abs(x_neighbor) < pixel_size_x) && (std::abs(y_neighbor) < pixel_size_y)) {
             // -- change origin of coordinates to the bottom left of the charge
             //    collection prob map "window", i.e. shift of 1-pixel twd bottom left
             double x_neighbor_map = x_neighbor + pixel_size_x;
             double y_neighbor_map = y_neighbor + pixel_size_y;
 
-            int x_bin_cc_map = static_cast<int>(x_neighbor_map / x_bin_size);
-            int y_bin_cc_map = static_cast<int>(y_neighbor_map / y_bin_size);
+            int x_bin_cc_map = x_neighbor_map / x_bin_size;
+            int y_bin_cc_map = y_neighbor_map / y_bin_size;
 
             // -- retrieve the charge collection probability from Svc
             // -- swap x and y bins to match Map coord convention
-            double ccprob_neighbor = getProbMapEntry("FEI4", y_bin_cc_map, x_bin_cc_map);
+            double ccprob_neighbor = getProbMapEntry(SensorType::FEI4, y_bin_cc_map, x_bin_cc_map);
             if (ccprob_neighbor == -1.) return StatusCode::FAILURE;
 
             double ed = es_current * eleholePairEnergy * ccprob_neighbor;
 
             // -- pixel coordinates --> module coordinates
-            double x_mod = x_neighbor + pixel_size_x / 2 + pixel_size_x * nPixX - module_size_x / 2.;
-            double y_mod = y_neighbor + pixel_size_y / 2 + pixel_size_y * nPixY - module_size_y / 2.;
-            SiLocalPosition chargePos = Module.hitLocalToLocal(y_mod, x_mod);
+            double x_mod = x_neighbor + 0.5*pixel_size_x + pixel_size_x * nPixX - 0.5*module_size_x;
+            double y_mod = y_neighbor + 0.5*pixel_size_y + pixel_size_y * nPixY - 0.5*module_size_y;
+            const SiLocalPosition& chargePos = Module.hitLocalToLocal(y_mod, x_mod);
 
-            SiSurfaceCharge scharge(chargePos, SiCharge(ed, hitTime(phit), SiCharge::track, HepMcParticleLink(
+            const SiSurfaceCharge scharge(chargePos, SiCharge(ed, hitTime(phit), SiCharge::track, HepMcParticleLink(
                                                           phit->trackNumber(), phit.eventId(), evColl, idxFlag, ctx)));
-            SiCellId diode = Module.cellIdOfPosition(scharge.position());
-            SiCharge charge = scharge.charge();
+            const SiCellId& diode = Module.cellIdOfPosition(scharge.position());
             if (diode.isValid()) {
+              const SiCharge& charge = scharge.charge();
               chargedDiodes.add(diode, charge);
             }
           }
@@ -595,13 +574,13 @@ StatusCode SensorSim3DTool::printProbMap(const std::string& readout) const {
 }
 
 // -- Returns the Charge Collection Probability at a given point (bin_x,bin_y)
-double SensorSim3DTool::getProbMapEntry(const std::string& readout, int binx, int biny) const {
+double SensorSim3DTool::getProbMapEntry(const SensorType& readout, int binx, int biny) const {
   std::pair<int, int> doublekey(binx, biny);
   double echarge;
-  if (readout == "FEI4") {
+  if (readout == SensorType::FEI4) {
     std::multimap<std::pair<int, int>, double>::const_iterator iter = m_probMapFEI4.find(doublekey);
     echarge = iter->second;
-  } else if (readout == "FEI3") {
+  } else if (readout == SensorType::FEI3) {
     std::multimap<std::pair<int, int>, double>::const_iterator iter = m_probMapFEI3.find(doublekey);
     echarge = iter->second;
   } else {
@@ -630,17 +609,17 @@ double SensorSim3DTool::getMobility(double electricField, bool isHoleBit) {
   // https://cds.cern.ch/record/684187/files/indet-2001-004.pdf).
 
   if (!isHoleBit) {
-    vsat = 15.3 * pow(m_temperature, -0.87); // mm/ns
-    ecrit = 1.01E-7 * pow(m_temperature, 1.55); // MV/mm
-    beta = 2.57E-2 * pow(m_temperature, 0.66);
+    vsat = 15.3 * std::pow(m_temperature, -0.87); // mm/ns
+    ecrit = 1.01E-7 * std::pow(m_temperature, 1.55); // MV/mm
+    beta = 2.57E-2 * std::pow(m_temperature, 0.66);
   }
   if (isHoleBit) {
-    vsat = 1.62 * pow(m_temperature, -0.52); // mm/ns
-    ecrit = 1.24E-7 * pow(m_temperature, 1.68); // MV/mm
-    beta = 0.46 * pow(m_temperature, 0.17);
+    vsat = 1.62 * std::pow(m_temperature, -0.52); // mm/ns
+    ecrit = 1.24E-7 * std::pow(m_temperature, 1.68); // MV/mm
+    beta = 0.46 * std::pow(m_temperature, 0.17);
   }
 
-  double mobility = (vsat / ecrit) / pow(1 + pow((electricField / ecrit), beta), (1 / beta));
+  double mobility = (vsat / ecrit) / std::pow(1 + std::pow((electricField / ecrit), beta), (1 / beta));
   return mobility; // mm^2/(MV*ns)
 }
 

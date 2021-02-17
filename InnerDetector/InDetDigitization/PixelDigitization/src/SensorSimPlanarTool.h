@@ -36,10 +36,11 @@ public:
                                   CLHEP::HepRandomEngine* rndmEngine,
                                   const EventContext &ctx) override;
 
-  //Apply slim edge inefficiencies for IBL sensors
-  StatusCode applyIBLSlimEdges(double& energyPerStep, double& eta_drifted);
 private:
   SensorSimPlanarTool();
+  
+  //Apply slim edge inefficiencies for IBL sensors
+  void applyIBLSlimEdges(double& energyPerStep, double& eta_drifted) const;
 
   // Map for radiation damage simulation
   std::vector<PixelHistoConverter> m_ramoPotentialMap;
