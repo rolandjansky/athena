@@ -7,8 +7,7 @@
 
 #include <vector>
 #include <string>
-
-/* maybe #include "tbb/mutex.h" */
+#include <mutex>
 
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -114,7 +113,8 @@ private:
   ServiceHandle<StoreGateSvc> m_hiveStore;
   size_t m_nSlots; //property settable also by setNumberOfStores
   std::vector<SG::HiveEventSlot> m_slots;
-    std::atomic<size_t> m_freeSlots {0};
+  std::mutex m_mutex; //< protects m_slots access
+  std::atomic<size_t> m_freeSlots {0};
   //maybe  ServiceHandle<ActiveStoreSvc> m_active;
 
 };
