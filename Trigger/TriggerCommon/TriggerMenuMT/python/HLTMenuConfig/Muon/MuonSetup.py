@@ -594,33 +594,6 @@ def muCombRecoSequence( RoIs, name ):
   return muCombRecoSequence, sequenceOut
 
 
-def l2muisoRecoSequence( RoIs ):
-
-  import AthenaCommon.CfgMgr as CfgMgr
-  from AthenaCommon.CFElements import parOR
-
-  l2muisoRecoSequence = parOR("l2muIsoViewNode")
-
-  ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muCombViewDataVerifier")
-  ViewVerify.DataObjects = [('xAOD::TrackParticleContainer' , 'StoreGateSvc+'+ getIDTracks()),
-                            ('xAOD::L2CombinedMuonContainer','StoreGateSvc+'+muNames.L2CBName)]
-
-  l2muisoRecoSequence += ViewVerify
-
-  # set up algs
-  from TrigmuIso.TrigmuIsoConfig import TrigmuIsoMTConfig
-  trigL2muIso = TrigmuIsoMTConfig("TrigL2muIso")
-  trigL2muIso.MuonL2CBInfoName = muNames.L2CBName
-  trigL2muIso.TrackParticlesName = getIDTracks()
-  trigL2muIso.MuonL2ISInfoName = muNames.L2IsoMuonName
-
-  l2muisoRecoSequence += trigL2muIso
-
-  sequenceOut = trigL2muIso.MuonL2ISInfoName
-
-  return l2muisoRecoSequence, sequenceOut
-
-
 def muEFSARecoSequence( RoIs, name ):
 
   import AthenaCommon.CfgGetter as CfgGetter
