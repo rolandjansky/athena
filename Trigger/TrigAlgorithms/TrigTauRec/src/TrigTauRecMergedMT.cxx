@@ -88,11 +88,11 @@ StatusCode TrigTauRecMergedMT::initialize()
   ATH_MSG_DEBUG("Initialising HandleKeys");
   ATH_CHECK(m_roIInputKey.initialize());
   ATH_CHECK(m_L1RoIKey.initialize());
-  ATH_CHECK(m_clustersKey.initialize(!m_clustersKey.key().empty()));
-  ATH_CHECK(m_tracksKey.initialize(!m_tracksKey.key().empty()));
-  ATH_CHECK(m_vertexKey.initialize(!m_vertexKey.key().empty()));
-  ATH_CHECK(m_trigTauJetKey.initialize(!m_trigTauJetKey.key().empty()));
-  ATH_CHECK(m_trigTauTrackInKey.initialize(!m_trigTauTrackInKey.key().empty()));
+  ATH_CHECK(m_clustersKey.initialize(SG::AllowEmpty));
+  ATH_CHECK(m_tracksKey.initialize(SG::AllowEmpty));
+  ATH_CHECK(m_vertexKey.initialize(SG::AllowEmpty));
+  ATH_CHECK(m_trigTauJetKey.initialize(SG::AllowEmpty));
+  ATH_CHECK(m_trigTauTrackInKey.initialize(SG::AllowEmpty));
   ATH_CHECK(m_trigtauSeedOutKey.initialize());
   ATH_CHECK(m_trigtauRecOutKey.initialize());
   ATH_CHECK(m_trigtauTrkOutKey.initialize());
