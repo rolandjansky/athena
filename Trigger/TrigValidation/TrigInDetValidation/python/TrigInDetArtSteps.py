@@ -186,6 +186,7 @@ class TrigInDetRdictStep(Step):
         os.system( 'get_files -data TIDAbeam.dat &> /dev/null' )
         os.system( 'get_files -data Test_bin.dat &> /dev/null' )
         os.system( 'get_files -data Test_bin_larged0.dat &> /dev/null' )
+        os.system( 'get_files -data Test_bin_lrt.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata-chains-run3.dat &> /dev/null' )
         os.system( 'get_files -data TIDAhisto-panel.dat &> /dev/null' )
         os.system( 'get_files -data TIDAhisto-panel-vtx.dat &> /dev/null' )
