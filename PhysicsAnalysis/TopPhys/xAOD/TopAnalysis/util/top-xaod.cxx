@@ -126,6 +126,9 @@ int main(int argc, char** argv) {
   settings->loadFromFile(settingsFilename);
   ATH_MSG_INFO("Configuration:\n" << *settings << "\n");
 
+  // only after printing full configuration check if there are issues and inform user and crash if necessary
+  settings->checkSettings();
+
   const std::string libraryNames = settings->value("LibraryNames");
   top::loadLibraries(libraryNames);
 
