@@ -15,7 +15,7 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 
 from DerivationFrameworkInDet.InDetCommon import *
 from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags
-from InDetRecExcample import TrackingCommon
+from InDetRecExample import TrackingCommon
 
 from AthenaCommon.Logging import logging
 msg = logging.getLogger( "IDTIDE1" )
