@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from TrigT1NSW.TrigT1NSWConf import NSWL1__NSWL1Simulation
 
@@ -21,11 +21,6 @@ class NSWL1Simulation(DefaultNSWL1Simulation):
     
     def __init__(self, name = "NSWL1Simulation"):
         super( NSWL1Simulation, self ).__init__( name )
-
-        # add validation histograms 
-        from TrigT1NSW.TrigT1NSWMonitoring import TrigT1NSWValidationMonitoring
-        self.AthenaMonTools += [ TrigT1NSWValidationMonitoring() ]
-
 
     def setDefaults(self, handle):
         #DefaultNSWL1Simulation.setDefault(handle)
