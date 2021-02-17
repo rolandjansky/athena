@@ -70,7 +70,6 @@ class NSWPRDValAlg:public AthAlgorithm
   CSCDigitVariables*      m_CscDigitVar;
   MDTSimHitVariables*     m_MDTSimHitVar;
   RPCSimHitVariables*     m_RPCSimHitVar;
-  RPCDigitVariables*      m_RPCDigitVar;
   CSCSimHitVariables*     m_CSCSimHitVar;
   TGCSimHitVariables*     m_TGCSimHitVar;
 

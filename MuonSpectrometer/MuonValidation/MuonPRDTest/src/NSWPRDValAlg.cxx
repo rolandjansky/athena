@@ -62,7 +62,6 @@ NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator)
     m_CscDigitVar(nullptr),
     m_MDTSimHitVar(nullptr),
     m_RPCSimHitVar(nullptr),
-    m_RPCDigitVar(nullptr),
     m_CSCSimHitVar(nullptr),
     m_TGCSimHitVar(nullptr),
     m_thistSvc(nullptr),
