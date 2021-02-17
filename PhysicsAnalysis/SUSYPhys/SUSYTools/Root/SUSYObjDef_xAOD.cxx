@@ -131,6 +131,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_metDoMuonEloss(false),
     m_metGreedyPhotons(false),
     m_metVeryGreedyPhotons(false),
+    m_metDoMuonPFlowBugFix(false),
     m_metsysConfigPrefix(""),
     m_trkMETsyst(true),
     m_caloMETsyst(false),
@@ -470,6 +471,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "METDoMuonEloss",  m_metDoMuonEloss );
   declareProperty( "METDoGreedyPhotons",  m_metGreedyPhotons );
   declareProperty( "METDoVeryGreedyPhotons",  m_metVeryGreedyPhotons );
+  declareProperty( "METDoMuonPFlowBugfix",  m_metDoMuonPFlowBugFix );
 
 
   declareProperty( "SoftTermParam",  m_softTermParam);
@@ -1267,6 +1269,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   m_conf_to_prop["MET.DoRemoveMuonJets"] = "METDoRemoveMuonJets";
   m_conf_to_prop["MET.DoUseGhostMuons"] = "METUseGhostMuons";
   m_conf_to_prop["MET.DoMuonEloss"] = "METDoMuonEloss";
+  m_conf_to_prop["MET.DoMuonPFlowBugfix"] = "METDoMuonPFlowBugfix";
 
   m_conf_to_prop["MET.DoTrkSyst"] = "METDoTrkSyst";
   m_conf_to_prop["MET.DoCaloSyst"] = "METDoCaloSyst";
@@ -1489,6 +1492,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_metDoMuonEloss, "MET.DoMuonEloss", rEnv, false);
   configFromFile(m_metGreedyPhotons, "MET.DoGreedyPhotons", rEnv, false);
   configFromFile(m_metVeryGreedyPhotons, "MET.DoVeryGreedyPhotons", rEnv, false);
+  configFromFile(m_metDoMuonPFlowBugFix, "MET.DoMuonPFlowBugfix", rEnv, false);
 
   configFromFile(m_trkMETsyst, "MET.DoTrkSyst", rEnv, true);
   configFromFile(m_caloMETsyst, "MET.DoCaloSyst", rEnv, false);

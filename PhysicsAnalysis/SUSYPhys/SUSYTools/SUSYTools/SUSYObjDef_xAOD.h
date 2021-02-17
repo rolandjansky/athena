@@ -513,6 +513,7 @@ namespace ST {
     bool m_metDoMuonEloss;
     bool m_metGreedyPhotons;
     bool m_metVeryGreedyPhotons;
+    bool m_metDoMuonPFlowBugFix;
     std::string m_metsysConfigPrefix;
 
     bool m_trkMETsyst;
