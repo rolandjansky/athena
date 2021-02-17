@@ -129,10 +129,9 @@ namespace TauJetParameters
         // = 12,
         // = 13,
         // = 14,
-        // = 15,
-        // = 16,
-        // = 17,
-        // = 18,
+        EleRNNLoose  = 15,
+        EleRNNMedium = 16,
+        EleRNNTight  = 17,
 	JetBDTSigVeryLoose      = 18, // new in r21
         JetBDTSigLoose          = 19, // rename (add sig)
         JetBDTSigMedium         = 20, // rename (add sig)
@@ -146,10 +145,7 @@ namespace TauJetParameters
 	JetRNNSigVeryLoose      = 28,
         JetRNNSigLoose          = 29,
         JetRNNSigMedium         = 30,
-        JetRNNSigTight          = 31,
-        EleRNNLoose          = 32,
-        EleRNNMedium         = 33,
-        EleRNNTight          = 34,	
+        JetRNNSigTight          = 31, // DON'T USE ANYTHING ABOVE 31, IsTauFlag is encoded on 32 bits!
       };
 
     //-------------------------------------------------------------------------
