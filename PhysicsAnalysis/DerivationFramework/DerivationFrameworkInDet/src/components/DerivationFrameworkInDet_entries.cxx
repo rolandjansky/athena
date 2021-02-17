@@ -16,6 +16,8 @@
 #include "DerivationFrameworkInDet/EventInfoPixelDecorator.h"
 #include "DerivationFrameworkInDet/PixelNtupleMaker.h"
 #include "DerivationFrameworkInDet/InDetTrackSelectionToolWrapper.h"
+#include "DerivationFrameworkInDet/HardScatterVertexDecorator.h"
+#include "DerivationFrameworkInDet/UsedInVertexFitTrackDecorator.h"
 
 using namespace DerivationFramework;
 
@@ -37,3 +39,5 @@ DECLARE_COMPONENT( TrackMeasurementThinning )
 DECLARE_COMPONENT( EventInfoPixelDecorator )
 DECLARE_COMPONENT( PixelNtupleMaker )
 DECLARE_COMPONENT( InDetTrackSelectionToolWrapper )
+DECLARE_COMPONENT( HardScatterVertexDecorator )
+DECLARE_COMPONENT( UsedInVertexFitTrackDecorator )

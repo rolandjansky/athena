@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -33,33 +33,33 @@ namespace DerivationFramework {
 
     private:
       ToolHandle< Trk::ITrackToVertexIPEstimator > m_tool
-         {this, "TrackToVertexIPEstimator", "Trk::TrackToVertexIPEstimator", ""};
+        {this, "TrackToVertexIPEstimator", "Trk::TrackToVertexIPEstimator", ""};
       Gaudi::Property<std::string> m_sgName
-         {this, "DecorationPrefix", "", ""};
+        {this, "DecorationPrefix", "", ""};
       SG::ReadHandleKey<xAOD::TrackParticleContainer> m_containerName
-         {this, "ContainerName", "", ""};
+        {this, "ContainerName", "", ""};
       SG::ReadHandleKey<xAOD::VertexContainer> m_vertexKey
-         {this, "VertexContainer", "PrimaryVertices", "primary vertex container"};
+        {this, "VertexContainer", "PrimaryVertices", "primary vertex container"};
 
-      enum ETrackFloatDecor {kdecnD0Decor,
-                             kdecnZ0Decor,
-                             kdecnZ0SinThetaDecor,
-                             kdecnD0ErrDecor,
-                             kdecnZ0ErrDecor,
-                             kdecnZ0SinThetaErrDecor,
-                             kdecnPVD0ErrDecor,
-                             kdecnPVZ0ErrDecor,
-                             kdecnPVZ0SinThetaErrDecor,
-                             kdecn_b_D0Decor,
-                             kdecn_b_Z0Decor,
-                             kdecn_b_Z0SinThetaDecor,
-                             kdecn_b_D0ErrDecor,
-                             kdecn_b_Z0ErrDecor,
-                             kdecn_b_Z0SinThetaErrDecor,
-                             kdecn_b_PVD0ErrDecor,
-                             kdecn_b_PVZ0ErrDecor,
-                             kdecn_b_PVZ0SinThetaErrDecor,
-                             kNFloatDecor};
+      enum ETrackFloatDecor{kdecnD0Decor,
+                            kdecnZ0Decor,
+                            kdecnZ0SinThetaDecor,
+                            kdecnD0ErrDecor,
+                            kdecnZ0ErrDecor,
+                            kdecnZ0SinThetaErrDecor,
+                            kdecnPVD0ErrDecor,
+                            kdecnPVZ0ErrDecor,
+                            kdecnPVZ0SinThetaErrDecor,
+                            kdecn_b_D0Decor,
+                            kdecn_b_Z0Decor,
+                            kdecn_b_Z0SinThetaDecor,
+                            kdecn_b_D0ErrDecor,
+                            kdecn_b_Z0ErrDecor,
+                            kdecn_b_Z0SinThetaErrDecor,
+                            kdecn_b_PVD0ErrDecor,
+                            kdecn_b_PVZ0ErrDecor,
+                            kdecn_b_PVZ0SinThetaErrDecor,
+                            kNFloatDecor};
       std::vector<SG::WriteDecorHandleKey<xAOD::TrackParticleContainer> > m_trackFloatDecorKeys;
   };
 }

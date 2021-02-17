@@ -1,37 +1,51 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
+// Includes from this package
 #include "TrackVertexAssociationTool/BaseTrackVertexAssociationTool.h"
 
+// FrameWork includes
 #include "AsgDataHandles/ReadHandle.h"
-#include "xAODEventInfo/EventInfo.h"
+#include "AsgDataHandles/ReadDecorHandle.h"
+
+// EDM includes
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
-#include "xAODTracking/TrackParticlexAODHelpers.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/TrackParticlexAODHelpers.h"
 #include "xAODTracking/TrackingPrimitives.h"
+
+// STL includes
+#include <stdexcept>
 
 using namespace std;
 
 namespace CP {
 
 BaseTrackVertexAssociationTool::BaseTrackVertexAssociationTool(std::string name)
-    : AsgTool(name)
+    : AsgTool(name),
+    m_d0sig_cut(-1),
+    m_dzSinTheta_cut(-1),
+    m_hardScatterDeco("hardScatterVertexLink")
+
 {
-  declareProperty("d0sig_cut", m_d0sig_cut = -1);
-  declareProperty("dzSinTheta_cut", m_dzSinTheta_cut = -1);
+  declareProperty("d0sig_cut", m_d0sig_cut);
+  declareProperty("dzSinTheta_cut", m_dzSinTheta_cut);
+  declareProperty("HardScatterLinkDeco", m_hardScatterDeco, "The decoration name of the ElementLink to the hardscatter vertex (found on xAOD::EventInfo)");
 }
 
 StatusCode BaseTrackVertexAssociationTool::initialize()
 {
   ATH_CHECK( m_eventInfo.initialize() );
+  m_hardScatterDecoKey = SG::ReadDecorHandleKey<xAOD::EventInfo>(m_eventInfo.key() + m_hardScatterDeco);
+  ATH_CHECK(m_hardScatterDecoKey.initialize());
 
   ATH_MSG_INFO("Cut on d0 significance: " << m_d0sig_cut << "\t(d0sig_cut)");
   ATH_MSG_INFO("Cut on Δz * sin θ: " << m_dzSinTheta_cut << "\t(dzSinTheta_cut)");
 
-  ATH_MSG_WARNING("BaseTrackVertexAssociationTool is being depricated. Please use the new TrackVertexAssociationTool instead.");
+  ATH_MSG_WARNING("BaseTrackVertexAssociationTool is being deprecated. Please use the new TrackVertexAssociationTool instead.");
 
   return StatusCode::SUCCESS;
 }
@@ -47,6 +61,22 @@ bool BaseTrackVertexAssociationTool::isCompatible(
   status = isMatch(trk, vx, dzSinTheta);
 
   return status;
+}
+
+bool BaseTrackVertexAssociationTool::isCompatible(
+    const xAOD::TrackParticle &trk) const
+{
+  SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfo);
+  if (!evt.isValid()) {
+    throw std::runtime_error("ERROR in CP::BaseTrackVertexAssociationTool::isCompatible : could not retrieve xAOD::EventInfo!");
+  }
+  SG::ReadDecorHandle<xAOD::EventInfo, ElementLink<xAOD::VertexContainer>> hardScatterDeco(m_hardScatterDecoKey);
+  ElementLink<xAOD::VertexContainer> vtxLink = hardScatterDeco(*evt);
+  if (!vtxLink.isValid()) {
+    throw std::runtime_error("ERROR in CP::BaseTrackVertexAssociationTool::isCompatible : hardscatter vertex link is not valid!");
+  }
+  float dzSinTheta = 0.;
+  return isMatch(trk, **vtxLink, dzSinTheta, evt.get());
 }
 
 xAOD::TrackVertexAssociationMap BaseTrackVertexAssociationTool::getMatchMap(
@@ -103,7 +133,8 @@ BaseTrackVertexAssociationTool::getUniqueMatchMap(
 
 bool BaseTrackVertexAssociationTool::isMatch(const xAOD::TrackParticle &trk,
                                              const xAOD::Vertex &vx,
-                                             float &dzSinTheta) const
+                                             float &dzSinTheta,
+                                             const xAOD::EventInfo* evtInfo) const
 {
   // ATH_MSG_DEBUG("<###### Enter: isMatch() function ######>");
 
@@ -113,9 +144,16 @@ bool BaseTrackVertexAssociationTool::isMatch(const xAOD::TrackParticle &trk,
     return false;
   }
 
-  SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfo);
-  if (!evt.isValid()) {
-    throw std::runtime_error("Could not retrieve EventInfo");
+  const xAOD::EventInfo* evt = nullptr;
+  if (!evtInfo) {
+    SG::ReadHandle<xAOD::EventInfo> evttmp(m_eventInfo);
+    if (!evttmp.isValid()) {
+      throw std::runtime_error("ERROR in CP::BaseTrackVertexAssociationTool::isMatch : could not retrieve xAOD::EventInfo!");
+    }
+    evt = evttmp.get();
+  }
+  else {
+    evt = evtInfo;
   }
 
   float vx_z0 = vx.z();
@@ -178,7 +216,7 @@ const xAOD::Vertex *BaseTrackVertexAssociationTool::getUniqueMatchVertexImpl(
 
   // check if get the matched Vertex, for the tracks not used in vertex fit
   if (!mini_vertex) {
-    ATH_MSG_DEBUG("Could not find any matched vertex for this track");
+    ATH_MSG_DEBUG("Could not find any matched vertex for this track.");
   }
 
   return mini_vertex;

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #********************************************************************
 # PHYSLITE.py 
 # reductionConf flag PHYSLITE in Reco_tf.py   
@@ -466,6 +466,8 @@ PHYSLITESlimmingHelper.ExtraVariables = [
   "TruthPrimaryVertices.t.x.y.z",
   "MET_Core_AnalysisMET.name.mpx.mpy.sumet.source",
   "METAssoc_AnalysisMET.",
+  "InDetTrackParticles.TTVA_AMVFVertices.TTVA_AMVFWeights",
+  "EventInfo.hardScatterVertexLink"
   ]
 
 if DerivationFrameworkIsMonteCarlo:

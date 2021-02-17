@@ -5,7 +5,7 @@
 from AthenaCommon.CFElements import parOR
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
-from JetRecTools.JetRecToolsConfig import getTrackSelTool, getTrackVertexAssocTool
+from JetRecTools.JetRecToolsConfig import getTrackSelTool, getTrackVertexAssocTool, getTrackUsedInFitTool
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 
@@ -50,11 +50,12 @@ def JetTrackingSequence(dummyFlags,trkopt,RoIs):
     jettrackselloose = getTrackSelTool(trkopt,doWriteTracks=True)
     jettracksname = jettrackselloose.OutputContainer
     jettvassoc = getTrackVertexAssocTool(trkopt)
+    JetUsedInFitTrkDecoTool = getTrackUsedInFitTool(trkopt)
 
     trackcollectionmap[trkopt]["JetTracks"] = jettracksname
 
     jettrkprepalg = CompFactory.JetAlgorithm("jetalg_TrackPrep")
-    jettrkprepalg.Tools = [ jettrackselloose, jettvassoc ]
+    jettrkprepalg.Tools = [ jettrackselloose, JetUsedInFitTrkDecoTool, jettvassoc ]
     jetTrkSeq += conf2toConfigurable( jettrkprepalg )
 
     pjgalg = CompFactory.PseudoJetAlgorithm(
