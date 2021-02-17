@@ -93,9 +93,13 @@ def getTranslated(runArgs, name, substep, first, output):
     optionList = list()
     for k, v in option.items():
         item = "--{0}={1}"
-        if(type(v) == list):
-            v = ''.join(v)
-        optionList.append(item.format(k, v))
+        if k == 'file':
+            for f in v:
+                optionList.append(item.format(k, f))
+        else:
+            if type(v) == list:
+                v = ''.join(v)
+            optionList.append(item.format(k, v))
 
     # Replace --use-database=True with no argument version
     if '--use-database=True' in optionList:
