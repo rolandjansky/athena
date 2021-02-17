@@ -1204,6 +1204,12 @@ class doTRTPIDNN(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = True
 
+class doTTVADecos(InDetFlagsJobProperty): 
+  """decorate tracks with their AMVF vertices+weights for TTVA""" 
+  statusOn     = True 
+  allowedTypes = ['bool']
+  StoredValue  = True
+
 ##-----------------------------------------------------------------------------
 ## 2nd step
 ## Definition of the InDet flag container
@@ -2800,7 +2806,8 @@ _list_InDetJobProperties = [Enabled,
                             nnCutLargeD0Threshold,
                             useMuForTRTErrorScaling,
                             writeSeedValNtuple,
-                            doTRTPIDNN
+                            doTRTPIDNN,
+                            doTTVADecos
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)

@@ -7,7 +7,7 @@ InDetAODList = []
 # -----------------------------
 
 if InDetFlags.doxAOD():
-  excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation."
+  excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-TTVA_AMVFVertices.-TTVA_AMVFWeights."
   if not InDetFlags.KeepFirstParameters() :
           excludedAuxData += '-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition'
 

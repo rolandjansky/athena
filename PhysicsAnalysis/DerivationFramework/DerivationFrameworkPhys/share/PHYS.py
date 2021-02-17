@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #====================================================================
 # DAOD_PHYS.py
@@ -364,7 +364,9 @@ PHYSSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.T
                                       "AntiKt2PV0TrackJets.pt.eta.phi.m",
                                       "AntiKt4EMTopoJets.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.PartonTruthLabelID",
                                       "AntiKt4EMPFlowJets.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.PartonTruthLabelID.DFCommonJets_fJvt",
-                                      "TruthPrimaryVertices.t.x.y.z"]
+                                      "TruthPrimaryVertices.t.x.y.z",
+                                      "InDetTrackParticles.TTVA_AMVFVertices.TTVA_AMVFWeights",
+                                      "EventInfo.hardScatterVertexLink"]
 
 # Add trigger matching
 trigmatching_helper_notau.add_to_slimming(PHYSSlimmingHelper)

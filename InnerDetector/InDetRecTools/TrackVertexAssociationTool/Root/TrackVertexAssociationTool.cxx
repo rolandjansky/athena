@@ -2,300 +2,423 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
+// Includes from this package
 #include "TrackVertexAssociationTool/TrackVertexAssociationTool.h"
 
+// FrameWork includes
 #include "AsgDataHandles/ReadHandle.h"
+#include "AsgDataHandles/ReadDecorHandle.h"
+#include "AsgTools/CurrentContext.h"
+
+// EDM includes
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/Vertex.h"
+#include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/TrackParticlexAODHelpers.h"
 #include "xAODTracking/TrackingPrimitives.h"
 
-using namespace std;
+// ROOT includes
+#include "TString.h"
+
+// STL includes
+#include <cmath>
+#include <map>
+#include <stdexcept>
+#include <utility>
+
+// Hidden namespace for functors
+namespace {
+
+  // ---------------------------------- //
+  // Retrieve the necessary decorations //
+  // ---------------------------------- //
+
+  #define GET_DECORATION(OBJECTYPE, DECORATION, TYPE)                                                                                                            \
+  TYPE DECORATION(const OBJECTYPE* obj) {                                                                                                                        \
+    static const OBJECTYPE::Accessor<TYPE> deco(#DECORATION);                                                                                                    \
+    if (!deco.isAvailable(*obj)) throw std::runtime_error(TString::Format("Decoration \"%s\" is not available for object %s!", #DECORATION, #OBJECTYPE).Data()); \
+    return deco(*obj);                                                                                                                                           \
+  }                                                                                                                                                              \
+
+  // Functions for retrieving our per-track decorations
+  GET_DECORATION(xAOD::TrackParticle, TTVA_AMVFVertices, std::vector<ElementLink<xAOD::VertexContainer>>)
+  GET_DECORATION(xAOD::TrackParticle, TTVA_AMVFWeights,  std::vector<float>)
+
+  // ------------------------------------------------------------------------------------------------------------ //
+  // Return the AMVF fit weight for track assuming a given vertex as well as the largest weight seen by the track //
+  // ------------------------------------------------------------------------------------------------------------ //
+
+  typedef std::pair<float, float> FitWeight; // (fit weight for a given vertex, max fit weight)
+
+  FitWeight fitWeight(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx) {
+
+    // Get our AMVF vertices/weights decorations
+    std::vector<ElementLink<xAOD::VertexContainer>> AMVFVertices = TTVA_AMVFVertices(trk);
+    std::vector<float> AMVFWeights = TTVA_AMVFWeights(trk);
+
+    // Determine if the vertex matches any of the vertices the track is used in the fit of
+    int leading = -1;
+    for (std::size_t i = 0; i < AMVFVertices.size(); i++) {
+      if (!AMVFVertices.at(i).isValid()) continue; // Skip non-valid vertex links
+      if (leading < 0) leading = i; // Set the leading (i.e., highest weight) vertex equal to the first valid vertex
+      if (vtx == *(AMVFVertices.at(i))) return ::FitWeight(AMVFWeights.at(i), AMVFWeights.at(leading)); // Safe to return leading element, wouldn't get here w/o >leading elements
+    }
+
+    // Default return - vertex doesn't correspond to ANY vertices the track is used in the fit of
+    return ::FitWeight(-1., (leading < 0) ? -1. : AMVFWeights.at(leading));
+  }
+
+  inline float absD0Sig(const xAOD::TrackParticle* trk, const xAOD::EventInfo* evt) {
+    return std::abs(xAOD::TrackingHelpers::d0significance(trk, evt->beamPosSigmaX(), evt->beamPosSigmaY(), evt->beamPosSigmaXY()));
+  }
+
+  inline float absD0(const xAOD::TrackParticle* trk) {
+    return std::abs(trk->d0());
+  }
+
+  inline float absDzSinTheta(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx) {
+    return std::abs((trk->z0() + trk->vz() - vtx->z()) * std::sin(trk->theta()));
+  }
+
+  // -------------------------------------- //
+  // Define all of the working points below //
+  // -------------------------------------- //
+
+  using WorkingPoint = CP::TrackVertexAssociationTool::WorkingPoint;
+
+  class Old_Loose
+    : public WorkingPoint
+  {
+  public:
+    virtual bool apply(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx, __attribute__((unused)) const xAOD::EventInfo* evt) const {
+      FitWeight weight = fitWeight(trk, vtx);
+      return ((weight.second > 0.) ? (weight.first > 0.) : (absDzSinTheta(trk, vtx) < 3.0));
+    };
+  };
+
+  class Old_Nominal
+    : public WorkingPoint
+  {
+  public:
+    virtual bool apply(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx, __attribute__((unused)) const xAOD::EventInfo* evt) const {
+      return (absD0(trk) < 2.0 && absDzSinTheta(trk, vtx) < 3.0);
+    };
+  };
+
+  class Old_Tight
+    : public WorkingPoint
+  {
+  public:
+    virtual bool apply(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx, __attribute__((unused)) const xAOD::EventInfo* evt) const {
+      return (absD0(trk) < 0.5 && absDzSinTheta(trk, vtx) < 0.5);
+    };
+  };
+
+  class Old_Electron
+    : public WorkingPoint
+  {
+  public:
+    virtual bool apply(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx, const xAOD::EventInfo* evt) const {
+      return (absD0Sig(trk, evt) < 5.0 && absDzSinTheta(trk, vtx) < 0.5);
+    };
+  };
+
+  class Old_Muon
+    : public WorkingPoint
+  {
+  public:
+    virtual bool apply(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx, const xAOD::EventInfo* evt) const {
+      return (absD0Sig(trk, evt) < 3.0 && absDzSinTheta(trk, vtx) < 0.5);
+    };
+  };
+
+  class Prompt_D0Sig
+    : public WorkingPoint
+  {
+  public:
+    virtual bool apply(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx, __attribute__((unused)) const xAOD::EventInfo* evt) const {
+      return (fitWeight(trk, vtx).first > 0.03);
+    }
+  };
+
+  #define NONPROMPT_D0SIG(CLASSNAME, RADIAL_CUT)                                                                                                      \
+  class CLASSNAME                                                                                                                                     \
+    : public WorkingPoint                                                                                                                             \
+  {                                                                                                                                                   \
+  public:                                                                                                                                             \
+    virtual bool apply(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx, const xAOD::EventInfo* evt) const {                                   \
+      return (absD0(trk) < RADIAL_CUT && ((absD0Sig(trk, evt) < 3.0) ? (fitWeight(trk, vtx).first > 0.03) : (absDzSinTheta(trk, vtx) < RADIAL_CUT))); \
+    }                                                                                                                                                 \
+  };                                                                                                                                                  \
+
+  NONPROMPT_D0SIG(Nonprompt_Hard_D0Sig,   1.0)
+  NONPROMPT_D0SIG(Nonprompt_Medium_D0Sig, 2.0)
+  NONPROMPT_D0SIG(Nonprompt_All_D0Sig,    5.0)
+
+  class Prompt_MaxWeight
+    : public WorkingPoint
+  {
+  public:
+    virtual bool apply(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx, __attribute__((unused)) const xAOD::EventInfo* evt) const {
+      FitWeight weight = fitWeight(trk, vtx);
+      return (weight.first > 0.03 && weight.first >= weight.second);
+    }
+  };
+
+  #define NONPROMPT_MAXWEIGHT(CLASSNAME, RADIAL_CUT)                                                                                        \
+  class CLASSNAME                                                                                                                           \
+    : public WorkingPoint                                                                                                                   \
+  {                                                                                                                                         \
+  public:                                                                                                                                   \
+    virtual bool apply(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx, __attribute__((unused)) const xAOD::EventInfo* evt) const { \
+      FitWeight weight = fitWeight(trk, vtx);                                                                                               \
+      return ((weight.second > 0.) ? (weight.first >= weight.second) : (absD0(trk) < RADIAL_CUT && absDzSinTheta(trk, vtx) < RADIAL_CUT));  \
+    }                                                                                                                                       \
+  };                                                                                                                                        \
+
+  NONPROMPT_MAXWEIGHT(Nonprompt_Hard_MaxWeight,   1.0)
+  NONPROMPT_MAXWEIGHT(Nonprompt_Medium_MaxWeight, 2.0)
+  NONPROMPT_MAXWEIGHT(Nonprompt_All_MaxWeight,    5.0)
+
+  // Backwards compatability for Custom WP
+  class Custom
+    : public WorkingPoint
+  {
+  public:
+    Custom(const float d0_cut, const bool use_d0sig, const float d0sig_cut, const float dzSinTheta_cut, const bool doUsedInFit) {
+      m_d0_cut         = d0_cut;
+      m_use_d0sig      = use_d0sig;
+      m_d0sig_cut      = d0sig_cut;
+      m_dzSinTheta_cut = dzSinTheta_cut;
+      m_doUsedInFit    = doUsedInFit;
+    }
+    virtual bool apply(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx, const xAOD::EventInfo* evt) const {
+      // If vertex fit information is flagged to be used
+      if (m_doUsedInFit) {
+        FitWeight weight = fitWeight(trk, vtx);
+        if (weight.first > 0.) {
+          return true;
+        }
+        else if (weight.second > 0.) {
+          return false;
+        }
+      }
+      // Now use cuts to determine a match
+      // Only arrive here if:
+      // 1. vertex fit info was flagged to be used but track wasn't used in any vertex fit
+      // 2. vertex fit info wasn't flagged to be used
+      if (m_use_d0sig) {
+        // d0 significance cut
+        if (m_d0sig_cut >= 0 && absD0Sig(trk, evt) > m_d0sig_cut) return false;
+      }
+      else {
+        // d0 cut
+        if (m_d0_cut >= 0 && absD0(trk) > m_d0_cut) return false;
+      }
+      if (m_dzSinTheta_cut >= 0 && absDzSinTheta(trk, vtx) > m_dzSinTheta_cut) return false;
+      return true;
+    }
+  private:
+    float m_d0_cut;
+    bool  m_use_d0sig;
+    float m_d0sig_cut;
+    float m_dzSinTheta_cut;
+    bool  m_doUsedInFit;
+  };
+
+} // end: namespace
 
 namespace CP {
 
 TrackVertexAssociationTool::TrackVertexAssociationTool(const std::string& name) :
   AsgTool(name),
-  m_wp("Nominal"),
+  m_wp("Old_Nominal"),
   m_d0_cut(-1),
   m_use_d0sig(false),
   m_d0sig_cut(-1),
   m_dzSinTheta_cut(-1),
   m_doUsedInFit(false),
-  m_requirePriVtx(false)
+  m_requirePriVtx(false),
+  m_hardScatterDeco("hardScatterVertexLink")
 {
-  declareProperty("WorkingPoint", m_wp);
-  declareProperty("d0_cut", m_d0_cut);
-  declareProperty("use_d0sig", m_use_d0sig);
-  declareProperty("d0sig_cut", m_d0sig_cut);
-  declareProperty("dzSinTheta_cut", m_dzSinTheta_cut);
-  declareProperty("doUsedInFit", m_doUsedInFit);
-  declareProperty("requirePriVtx", m_requirePriVtx);
+  declareProperty("WorkingPoint",        m_wp,              "Working point to operate on.");
+  declareProperty("d0_cut",              m_d0_cut,          "Cut on d0. Not applied if set to -1.");
+  declareProperty("use_d0sig",           m_use_d0sig,       "Flag to cut on d0sig instead of d0.");
+  declareProperty("d0sig_cut",           m_d0sig_cut,       "Cut on d0Sig. Not applied if set to -1.");
+  declareProperty("dzSinTheta_cut",      m_dzSinTheta_cut,  "Cut on |dz*sinTheta| (in mm). Not applied if set to -1.");
+  declareProperty("doUsedInFit",         m_doUsedInFit,     "Control whether to allow for a MatchStatus of UsedInFit.");
+  declareProperty("requirePriVtx",       m_requirePriVtx,   "Control whether a vertex must be VxType::PriVtx in order for a track (not UsedInFit) to be uniquely matched to it.");
+  declareProperty("HardScatterLinkDeco", m_hardScatterDeco, "The decoration name of the ElementLink to the hardscatter vertex (found on xAOD::EventInfo)");
 }
+
+#define IF_WORKING_POINT(WORKING_POINT, DO_USED_IN_FIT, REQUIRE_PRI_VTX)                               \
+if (m_wp == #WORKING_POINT) {                                                                          \
+  m_applicator = std::unique_ptr<CP::TrackVertexAssociationTool::WorkingPoint>(new ::WORKING_POINT()); \
+  m_doUsedInFit = DO_USED_IN_FIT;                                                                      \
+  m_requirePriVtx = REQUIRE_PRI_VTX;                                                                   \
+}                                                                                                      \
 
 StatusCode TrackVertexAssociationTool::initialize()
 {
-  ATH_MSG_INFO(" Initializing TrackVertexAssociationTool");
+  ATH_MSG_INFO("Initializing TrackVertexAssociationTool.");
 
-  ATH_CHECK( m_eventInfo.initialize() );
-
-  // WPs which are obsoleted in Run 2 and remapped to new values:
-  const std::map<std::string, std::string> remap_wps = {{"Loose", "SV_Reject"}, {"Nominal", "SV_Reject"}, {"Tight", "PU_SV_Reject"}};
-  std::string str_of_remapped_wps = "[";
-  for (auto it = remap_wps.begin(); it != remap_wps.end(); it++) {
-    str_of_remapped_wps += ("'" + it->first + "',");
-  }
-  str_of_remapped_wps += "]";
-
-  // If we specify to use an old (Run 2) WP, include special handling
-  if (m_wp.find("Old_") == 0) {
-    std::string wp_suffix = m_wp.substr(m_wp.find("_") + 1);
-    auto it = remap_wps.find(wp_suffix);
-    if (it != remap_wps.end()) {
-      m_wp = wp_suffix;
+  std::vector<std::string> run_2_wps = {"Loose", "Nominal", "Tight", "Electron", "Muon", "Old_Loose", "Old_Nominal", "Old_Tight", "Old_Electron", "Old_Muon"};
+  if (std::find(run_2_wps.begin(), run_2_wps.end(), m_wp) != run_2_wps.end()) {
+    std::string prefix = "Old_";
+    if (m_wp.compare(0, prefix.size(), prefix) == 0) {
+      ATH_MSG_WARNING("WorkingPoint '" << m_wp << "' corresponds to a Run 2 working point and is not recommended.");
     }
     else {
-      ATH_MSG_FATAL("TVA working point '" << wp_suffix << "' was prefixed by 'Old_', but it is not matched to any of " << str_of_remapped_wps << "!");
-    }
-  }
-  // Else, automatically remap old WPs to new ones
-  else {
-    auto it = remap_wps.find(m_wp);
-    if (it != remap_wps.end()) {
-      ATH_MSG_WARNING("TVA working point '" << m_wp << "' is not recommended for use and will eventually be obsoleted. Automatically remapping to '" << it->second << "' instead.");
-      m_wp = it->second;
+      ATH_MSG_WARNING("WorkingPoint '" << m_wp << "' corresponds to a Run 2 working point and is not recommended - remapping to 'Old_" << m_wp << "' (same definition, however).");
+      m_wp.insert(0, "Old_");
     }
   }
 
-  if ( m_wp == "PU_Reject" ) {
-    m_d0_cut = -1;
-    m_use_d0sig = false;
-    m_d0sig_cut = -1;
-    m_dzSinTheta_cut = 0.5;
-    m_doUsedInFit = false;
-    m_requirePriVtx = false;
-  } else if ( m_wp == "SV_Reject" ) {
-    m_d0_cut = 2.;
-    m_use_d0sig = false;
-    m_d0sig_cut = -1;
-    m_dzSinTheta_cut = 2.;
-    m_doUsedInFit = false;
-    m_requirePriVtx = false;
-  } else if ( m_wp == "PU_SV_Reject") {
-    m_d0_cut = 2.;
-    m_use_d0sig = false;
-    m_d0sig_cut = -1;
-    m_dzSinTheta_cut = 0.5;
-    m_doUsedInFit = false;
-    m_requirePriVtx = false;
-  } else if ( m_wp == "Electron" ) {
-    m_d0_cut = -1;
-    m_use_d0sig = true;
-    m_d0sig_cut = 5.0;
-    m_dzSinTheta_cut = 0.5;
-    m_doUsedInFit = false;
-    m_requirePriVtx = false;
-  } else if ( m_wp == "Muon" ) {
-    m_d0_cut = -1;
-    m_use_d0sig = true;
-    m_d0sig_cut = 3.0;
-    m_dzSinTheta_cut = 0.5;
-    m_doUsedInFit = false;
-    m_requirePriVtx = false;
-  } else if ( m_wp == "Loose" ) {
-    m_d0_cut = -1;
-    m_use_d0sig = false;
-    m_d0sig_cut = -1;
-    m_dzSinTheta_cut = 3.;
-    m_doUsedInFit = true;
-    m_requirePriVtx = true;
-  } else if ( m_wp == "Nominal" ) {
-    m_d0_cut = 2.;
-    m_use_d0sig = false;
-    m_d0sig_cut = -1;
-    m_dzSinTheta_cut = 3.;
-    m_doUsedInFit = false;
-    m_requirePriVtx = false;
-  } else if ( m_wp == "Tight" ) {
-    m_d0_cut = 0.5;
-    m_use_d0sig = false;
-    m_d0sig_cut = -1;
-    m_dzSinTheta_cut = 0.5;
-    m_doUsedInFit = false;
-    m_requirePriVtx = false;
-  } else if ( m_wp == "Custom" ) {
-    // nothing to do here
-  } else {
-    ATH_MSG_ERROR("Invalid TVA working point '" << m_wp << "' - for a custom configuration, please provide 'Custom' for the 'WorkingPoint' property");
+  IF_WORKING_POINT(Old_Loose, true, true)
+  else IF_WORKING_POINT(Old_Nominal, false, false)
+  else IF_WORKING_POINT(Old_Tight, false, false)
+  else IF_WORKING_POINT(Old_Electron, false, false)
+  else IF_WORKING_POINT(Old_Muon, false, false)
+  else IF_WORKING_POINT(Prompt_D0Sig, true, false)
+  else IF_WORKING_POINT(Nonprompt_Hard_D0Sig, true, false)
+  else IF_WORKING_POINT(Nonprompt_Medium_D0Sig, true, false)
+  else IF_WORKING_POINT(Nonprompt_All_D0Sig, true, false)
+  else IF_WORKING_POINT(Prompt_MaxWeight, true, false)
+  else IF_WORKING_POINT(Nonprompt_Hard_MaxWeight, true, false)
+  else IF_WORKING_POINT(Nonprompt_Medium_MaxWeight, true, false)
+  else IF_WORKING_POINT(Nonprompt_All_MaxWeight, true, false)
+  // Backwards compatability for Custom WP
+  else if (m_wp == "Custom") {
+    m_applicator = std::unique_ptr<CP::TrackVertexAssociationTool::WorkingPoint>(
+      new ::Custom(m_d0_cut, m_use_d0sig, m_d0sig_cut, m_dzSinTheta_cut, m_doUsedInFit));
+  }
+  else {
+    ATH_MSG_ERROR("Invalid TVA working point '" << m_wp << "' - for a custom configuration, please provide 'Custom' for the 'WorkingPoint' property.");
     return StatusCode::FAILURE;
   }
 
-  if ( m_wp == "Custom" ) {
-    ATH_MSG_INFO("TVA working point 'Custom' provided - tool properties are initialized to default values unless explicitly set by the user");
-  } else {
-    ATH_MSG_INFO("TVA working point '" << m_wp << "' provided - tool properties have been configured accordingly");
+  if (m_wp == "Custom") {
+    ATH_MSG_INFO("TVA working point 'Custom' provided - tool properties are initialized to default values unless explicitly set by the user.");
+  }
+  else {
+    ATH_MSG_INFO("TVA working point '" << m_wp << "' provided - tool properties have been configured accordingly.");
   }
 
-  if(m_use_d0sig){
-    ATH_MSG_INFO("Cut on d0 significance: " << m_d0sig_cut << "\t(d0sig_cut)");
-  } else {
-    ATH_MSG_INFO("Cut on d0: " << m_d0_cut << "\t(d0_cut)");
+  if (m_use_d0sig) {
+    ATH_MSG_INFO("(For Custom WP:) cut on d0 significance: " << m_d0sig_cut << "\t(d0sig_cut).");
   }
-  ATH_MSG_INFO("Cut on Δz * sin θ: " << m_dzSinTheta_cut << "\t(dzSinTheta_cut)");
+  else {
+    ATH_MSG_INFO("(For Custom WP:) cut on d0: " << m_d0_cut << "\t(d0_cut).");
+  }
+  ATH_MSG_INFO("(For Custom WP:) cut on Δz * sin θ: " << m_dzSinTheta_cut << "\t(dzSinTheta_cut).");
+  ATH_MSG_INFO("(For Custom WP:) allow UsedInFit MatchStatus: " << m_doUsedInFit << "\t(doUsedInFit).");
+  ATH_MSG_INFO("Require VxType::PriVtx for unique match: " << m_requirePriVtx << "\t(requirePriVtx).");
 
-  ATH_MSG_INFO("Allow UsedInFit MatchStatus: " << m_doUsedInFit << "\t(doUsedInFit)");
-  ATH_MSG_INFO("Require VxType::PriVtx for unique match: " << m_requirePriVtx << "\t(requirePriVtx)");
-
-  ATH_CHECK( m_vertexKey.initialize() );
+  // Initialize our EventInfo container and decoration reads
+  ATH_CHECK(m_eventInfo.initialize());
+  m_hardScatterDecoKey = SG::ReadDecorHandleKey<xAOD::EventInfo>(m_eventInfo.key() + m_hardScatterDeco);
+  ATH_CHECK(m_hardScatterDecoKey.initialize());
 
   return StatusCode::SUCCESS;
 }
 
-bool TrackVertexAssociationTool::isCompatible(
-    const xAOD::TrackParticle &trk, const xAOD::Vertex &vx) const
+bool TrackVertexAssociationTool::isCompatible(const xAOD::TrackParticle& trk, const xAOD::Vertex& vx) const
 {
-  float dzSinTheta = 0.;
-  bool status = false;
-
-  MatchStatus matchstatus = isMatch(trk, vx, dzSinTheta);
-
-  if(matchstatus == TrackVertexAssociationTool::UsedInFit || matchstatus == TrackVertexAssociationTool::Matched ) {
-    status = true;
-  }
-  else {
-    status = false;
-  }
-  return status;
+  ATH_MSG_DEBUG("In TrackVertexAssociationTool::isCompatible function.");
+  return isMatch(trk, vx);
 }
 
-xAOD::TrackVertexAssociationMap TrackVertexAssociationTool::getMatchMap(
-    std::vector<const xAOD::TrackParticle *> &trk_list,
-    std::vector<const xAOD::Vertex *> &vx_list) const
+bool TrackVertexAssociationTool::isCompatible(const xAOD::TrackParticle& trk) const {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfo, ctx);
+  if (!evt.isValid()) {
+    throw std::runtime_error("ERROR in CP::TrackVertexAssociationTool::isCompatible : could not retrieve xAOD::EventInfo!");
+  }
+  SG::ReadDecorHandle<xAOD::EventInfo, ElementLink<xAOD::VertexContainer>> hardScatterDeco(m_hardScatterDecoKey, ctx);
+  ElementLink<xAOD::VertexContainer> vtxLink = hardScatterDeco(*evt);
+  if (!vtxLink.isValid()) {
+    throw std::runtime_error("ERROR in CP::TrackVertexAssociationTool::isCompatible : hardscatter vertex link is not valid!");
+  }
+  return isMatch(trk, **vtxLink, evt.get());
+}
+
+xAOD::TrackVertexAssociationMap TrackVertexAssociationTool::getMatchMap(std::vector<const xAOD::TrackParticle*>& trk_list, std::vector<const xAOD::Vertex*>& vx_list) const
 {
   return getMatchMapInternal(trk_list, vx_list);
 }
 
-xAOD::TrackVertexAssociationMap TrackVertexAssociationTool::getMatchMap(
-    const xAOD::TrackParticleContainer &trkCont,
-    const xAOD::VertexContainer &vxCont) const
+xAOD::TrackVertexAssociationMap TrackVertexAssociationTool::getMatchMap(const xAOD::TrackParticleContainer& trkCont, const xAOD::VertexContainer& vxCont) const
 {
   return getMatchMapInternal(trkCont, vxCont);
 }
 
-const xAOD::Vertex *TrackVertexAssociationTool::getUniqueMatchVertex(
-    const xAOD::TrackParticle &trk,
-    std::vector<const xAOD::Vertex *> &vx_list) const
+const xAOD::Vertex* TrackVertexAssociationTool::getUniqueMatchVertex(const xAOD::TrackParticle& trk, std::vector<const xAOD::Vertex*>& vx_list) const
 {
   return getUniqueMatchVertexInternal(trk, vx_list);
 }
 
-ElementLink<xAOD::VertexContainer>
-TrackVertexAssociationTool::getUniqueMatchVertexLink(
-    const xAOD::TrackParticle &trk, const xAOD::VertexContainer &vxCont) const
+ElementLink<xAOD::VertexContainer> TrackVertexAssociationTool::getUniqueMatchVertexLink(const xAOD::TrackParticle& trk, const xAOD::VertexContainer& vxCont) const
 {
   ElementLink<xAOD::VertexContainer> vx_link_tmp;
-
-  const xAOD::Vertex *vx_tmp = getUniqueMatchVertexInternal(trk, vxCont);
+  const xAOD::Vertex* vx_tmp = getUniqueMatchVertexInternal(trk, vxCont);
   if (vx_tmp) {
     vx_link_tmp.toContainedElement(vxCont, vx_tmp);
   }
   return vx_link_tmp;
 }
 
-xAOD::TrackVertexAssociationMap
-TrackVertexAssociationTool::getUniqueMatchMap(
-    std::vector<const xAOD::TrackParticle *> &trk_list,
-    std::vector<const xAOD::Vertex *> &vx_list) const
+xAOD::TrackVertexAssociationMap TrackVertexAssociationTool::getUniqueMatchMap(std::vector<const xAOD::TrackParticle*>& trk_list, std::vector<const xAOD::Vertex*>& vx_list) const
 {
   return getUniqueMatchMapInternal(trk_list, vx_list);
 }
 
-xAOD::TrackVertexAssociationMap
-TrackVertexAssociationTool::getUniqueMatchMap(
-    const xAOD::TrackParticleContainer &trkCont,
-    const xAOD::VertexContainer &vxCont) const
+xAOD::TrackVertexAssociationMap TrackVertexAssociationTool::getUniqueMatchMap(const xAOD::TrackParticleContainer& trkCont, const xAOD::VertexContainer& vxCont) const
 {
   return getUniqueMatchMapInternal(trkCont, vxCont);
 }
 
-// private methods
+/////////////////////
+// Private methods //
+/////////////////////
 
-TrackVertexAssociationTool::MatchStatus TrackVertexAssociationTool::isMatch(const xAOD::TrackParticle &trk,
-                                                                            const xAOD::Vertex &vx,
-                                                                            float &dzSinTheta) const
-{
-  // ATH_MSG_DEBUG("<###### Enter: isMatch() function ######>");
+bool TrackVertexAssociationTool::isMatch(const xAOD::TrackParticle& trk, const xAOD::Vertex& vx, const xAOD::EventInfo* evtInfo) const {
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
+  // Return false for fake vertices
   if (vx.vertexType() == xAOD::VxType::NoVtx) {
-    // ATH_MSG_DEBUG(
-    //     "The Vertex is a fake one, will not do track-vertex association");
-    return UnMatch;
+    return false;
   }
 
-  float vx_z0 = vx.z();
-  float trk_z0 = trk.z0();
-  float beamspot_z0 = trk.vz();
-  float theta = trk.theta();
-  // calculate Δz * sin θ
-  dzSinTheta = fabs((trk_z0 - vx_z0 + beamspot_z0) * sin(theta));
-
-  // If vertex fit information is flagged to be used,
-  if(m_doUsedInFit) {
-    bool usedInFit = trackParticleUsedInVertexFit( trk, vx );
-    if( usedInFit ) { // check whether the track is used for the given vertex fit.
-      ATH_MSG_DEBUG("This track is used to fit the vertex");
-      return UsedInFit;
-    } else {
-      bool usedInAnyFit = trackParticleUsedInVertexFit( trk );
-      if( usedInAnyFit ) { // otherwise, automatically return UnMatch if it was used in another vertex fit
-        return UnMatch;
-      }
+  // Read our EventInfo
+  const xAOD::EventInfo* evt = nullptr;
+  if (!evtInfo) {
+    SG::ReadHandle<xAOD::EventInfo> evttmp(m_eventInfo, ctx);
+    if (!evttmp.isValid()) {
+      throw std::runtime_error("ERROR in CP::TrackVertexAssociationTool::isMatch : could not retrieve xAOD::EventInfo!");
     }
+    evt = evttmp.get();
+  }
+  else {
+    evt = evtInfo;
   }
 
-  // Now use cuts to determine a match
-  // Only arrive here if:
-  // 1. vertex fit info was flagged to be used but track wasn't used in any vertex fit
-  // 2. vertex fit info wasn't flagged to be used
+  // Apply the working point
+  return m_applicator->apply(&trk, &vx, evt);
 
-  SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfo);
-  if (!evt.isValid()) {
-    throw std::runtime_error("Could not retrieve EventInfo");
-  }
-
-  if (m_use_d0sig) {
-
-    double d0sig = xAOD::TrackingHelpers::d0significance(
-        &trk, evt->beamPosSigmaX(), evt->beamPosSigmaY(), evt->beamPosSigmaXY());
-    // d0 significance cut
-    if (m_d0sig_cut >= 0 && fabs(d0sig) > m_d0sig_cut)
-      return UnMatch;
-
-  } else {
-
-    float trk_d0=trk.d0();
-    // d0 cut
-    if (m_d0_cut >= 0 && fabs(trk_d0) > m_d0_cut)
-      return UnMatch;
-
-  }
-
-  if (m_dzSinTheta_cut >= 0 && dzSinTheta > m_dzSinTheta_cut)
-    return UnMatch;
-
-  return Matched;
 }
 
 template <typename U, typename V>
-xAOD::TrackVertexAssociationMap
-TrackVertexAssociationTool::getMatchMapInternal(U &trk_list, V &vx_list) const
+xAOD::TrackVertexAssociationMap TrackVertexAssociationTool::getMatchMapInternal(U& trk_list, V& vx_list) const
 {
   xAOD::TrackVertexAssociationMap trktovxmap;
 
-  for (auto *vertex : vx_list) {
+  for (const auto& vertex : vx_list) {
     xAOD::TrackVertexAssociationList trktovxlist;
     trktovxlist.clear();
-    for (auto *track : trk_list) {
+    trktovxlist.reserve(trk_list.size());
+    for (const auto& track : trk_list) {
       if (isCompatible(*track, *vertex)) {
         trktovxlist.push_back(track);
       }
@@ -307,86 +430,59 @@ TrackVertexAssociationTool::getMatchMapInternal(U &trk_list, V &vx_list) const
 }
 
 template <typename T>
-const xAOD::Vertex *TrackVertexAssociationTool::getUniqueMatchVertexInternal(
-    const xAOD::TrackParticle &trk, T &vx_list) const
+const xAOD::Vertex* TrackVertexAssociationTool::getUniqueMatchVertexInternal(const xAOD::TrackParticle& trk, T& vx_list) const
 {
-  float min_dz = m_dzSinTheta_cut;
-  const xAOD::Vertex *bestMatchVertex{0};
 
-  for (auto *vertex : vx_list) {
-    float dzSinTheta = 0.;
-    MatchStatus matchstatus = isMatch(trk, *vertex, dzSinTheta);
-    if(matchstatus == TrackVertexAssociationTool::UsedInFit) {
-      return vertex;
+  FitWeight weight;
+  float dzSinTheta;
+  float min_dz = ((m_dzSinTheta_cut >= 0) ? m_dzSinTheta_cut : +999.0);
+  const xAOD::Vertex* bestMatchVertex = nullptr;
+
+  for (const auto& vertex : vx_list) {
+    weight = ::fitWeight(&trk, vertex);
+    if (m_doUsedInFit && weight.first > 0.0 && weight.first >= weight.second) {
+      bestMatchVertex = vertex;
+      break;
     }
     else {
-      if ((m_requirePriVtx && vertex->vertexType()==xAOD::VxType::PriVtx) || (!m_requirePriVtx)) {
-        if (matchstatus == TrackVertexAssociationTool::Matched) {
-          if (dzSinTheta < min_dz) {
-            min_dz = dzSinTheta;
-            bestMatchVertex = vertex;
-          }
+      if (m_requirePriVtx && vertex->vertexType() != xAOD::VxType::PriVtx) continue;
+      if (isCompatible(trk, *vertex)) {
+        dzSinTheta = ::absDzSinTheta(&trk, vertex);
+        if (dzSinTheta < min_dz) {
+          min_dz = dzSinTheta;
+          bestMatchVertex = vertex;
         }
       }
     }
   }
 
-  // check if get the matched Vertex, for the tracks not used in vertex fit
+  // Check if get the matched vertex
   if (!bestMatchVertex) {
-    ATH_MSG_DEBUG("Could not find any matched vertex for this track");
+    ATH_MSG_DEBUG("Could not find any matched vertex for this track!");
   }
 
   return bestMatchVertex;
 }
 
 template <typename T, typename U>
-xAOD::TrackVertexAssociationMap
-TrackVertexAssociationTool::getUniqueMatchMapInternal(T &trk_list,
-                                                  U &vx_list) const
+xAOD::TrackVertexAssociationMap TrackVertexAssociationTool::getUniqueMatchMapInternal(T& trk_list, U& vx_list) const
 {
   xAOD::TrackVertexAssociationMap trktovxmap;
 
-  // initialize map
-  for (auto *vertex : vx_list) {
+  // Initialize our map
+  for (const auto& vertex : vx_list) {
     xAOD::TrackVertexAssociationList trktovxlist;
     trktovxlist.clear();
-
+    trktovxlist.reserve(trk_list.size());
     trktovxmap[vertex] = trktovxlist;
   }
 
-  for (auto *track : trk_list) {
-    const xAOD::Vertex *vx_match = getUniqueMatchVertexInternal(*track, vx_list);
-    if (vx_match) {
-      // can find matched vertex
-      trktovxmap[vx_match].push_back(track);
-    }
+  for (const auto& track : trk_list) {
+    const xAOD::Vertex* vx_match = getUniqueMatchVertexInternal(*track, vx_list);
+    if (vx_match) trktovxmap[vx_match].push_back(track); // Found matched vertex
   }
 
   return trktovxmap;
-}
-
-bool TrackVertexAssociationTool::trackParticleUsedInVertexFit(const xAOD::TrackParticle& trk,
-                     const xAOD::Vertex& vx) const
-{
-  for (const auto& tpLink : vx.trackParticleLinks())
-    if (*tpLink == &trk) return true;
-
-  return false;
-}
-
-bool TrackVertexAssociationTool::trackParticleUsedInVertexFit(const xAOD::TrackParticle& trk) const
-{
-  SG::ReadHandle<xAOD::VertexContainer> vertices { m_vertexKey };
-  if (!vertices.isValid())
-  {
-    ATH_MSG_WARNING("No VertexContainer with key = " << m_vertexKey.key());
-    return false;
-  }
-
-  for (const auto vx : *vertices)
-    if (trackParticleUsedInVertexFit(trk, *vx)) return true;
-
-  return false;
 }
 
 } // namespace CP

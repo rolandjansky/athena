@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ########################################################################
 #                                                                      #
@@ -63,7 +63,9 @@ def getTrackVertexAssocTool(trkopt=""):
     # but for a future MR
     idtvassoc = CompFactory.getComp("CP::TrackVertexAssociationTool")(
         "idloosetvassoc",
-        VertexContainer         = trackcollectionmap[trkopt]["Vertices"],
+        WorkingPoint = "Custom",
+        d0_cut = 2.0,
+        dzSinTheta_cut = 2.0
     )
 
     jettvassoc = CompFactory.TrackVertexAssociationTool(
@@ -75,3 +77,17 @@ def getTrackVertexAssocTool(trkopt=""):
     )
     return jettvassoc
 
+def getTrackUsedInFitTool(trkopt=""):
+    if trkopt: "_{}".format(trkopt)
+    # InDet decorator tool:
+    IDUsedInFitTrkDecoTool = CompFactory.getComp("InDet::InDetUsedInFitTrackDecoratorTool")(
+        "IDUsedInFitTrkDecoTool",
+        TrackContainer  = trackcollectionmap[trkopt]["Tracks"],
+        VertexContainer = trackcollectionmap[trkopt]["Vertices"]
+    )
+    # Jet wrapper:
+    JetUsedInFitTrkDecoTool = CompFactory.JetUsedInFitTrackDecoratorTool(
+        "JetUsedInFitTrkDecoTool",
+        Decorator = IDUsedInFitTrkDecoTool
+    )
+    return JetUsedInFitTrkDecoTool

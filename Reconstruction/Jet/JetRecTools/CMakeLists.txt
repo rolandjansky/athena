@@ -17,7 +17,7 @@ atlas_add_library( JetRecToolsLib
    LINK_LIBRARIES ${FASTJET_LIBRARIES} AsgMessagingLib AthContainers AsgTools xAODPFlow
    xAODTracking xAODCore xAODBase xAODCaloEvent xAODEgamma xAODJet
    TrackVertexAssociationToolLib JetEDM JetInterface JetRecLib
-   InDetTrackSelectionToolLib PFlowUtilsLib AthenaMonitoringKernelLib
+   InDetRecToolInterfaces InDetTrackSelectionToolLib PFlowUtilsLib AthenaMonitoringKernelLib
    PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} ${ROOT_LIBRARIES} xAODTruth )
 
 if( NOT XAOD_STANDALONE )

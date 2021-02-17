@@ -113,12 +113,6 @@ from JetRec.JetAlgorithm import jetalg
 if not runJetGrooming:
   dumpGroomed = False
 
-if len(vertexCollectionName):
-  print myname + "Overriding vertex collection name to " + vertexCollectionName
-  jtm.tvassoc.unlock()
-  jtm.tvassoc.VertexContainer = vertexCollectionName
-  jtm.tvassoc.lock()
-
 if 1:
   print myname + "Setting output level to VERBOSE for all jetrecs"
   for jetrec in jtm.jetrecs:
