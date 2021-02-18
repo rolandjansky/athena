@@ -812,9 +812,11 @@ def muEFCBRecoSequence( RoIs, name ):
   if 'FS' in name:
     cbMuonName = muNamesFS.EFCBName
 
+  import AthenaCommon.CfgGetter as CfgGetter
   themuoncbcreatoralg = MuonCreatorAlg("TrigMuonCreatorAlgCB_"+name, MuonCandidateLocation=candidatesName, TagMaps=["muidcoTagMap"], InDetCandidateLocation="InDetCandidates_"+name,
                                        MuonContainerLocation = cbMuonName, SegmentContainerName = "xaodCBSegments", TrackSegmentContainerName = "TrkCBSegments", ExtrapolatedLocation = "CBExtrapolatedMuons",
                                        MSOnlyExtrapolatedLocation = "CBMSonlyExtrapolatedMuons", CombinedLocation = "HLT_CBCombinedMuon_"+name,
+                                       MuonCreatorTool = CfgGetter.getPrivateToolClone("TrigMuonCreatorToolCB", "MuonCreatorTool", TrackSummaryTool = CfgGetter.getPublicTool("MuonTrackSummaryTool")),
                                        MonTool = MuonCreatorAlgMonitoring("MuonCreatorAlgCB_"+name))
 
   #Add all algorithms
