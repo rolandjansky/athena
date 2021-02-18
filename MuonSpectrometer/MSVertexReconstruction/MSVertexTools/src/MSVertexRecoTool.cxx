@@ -243,7 +243,6 @@ namespace Muon {
           emptycluster.ntrks=0;
           emptycluster.eta=-99999.;
           emptycluster.phi=-99999.;
-          for(unsigned int i=0; i<tracks.size(); ++i) emptycluster.trks[i]=0;
           emptycluster.isSystematic = false;
           return emptycluster;
       }
