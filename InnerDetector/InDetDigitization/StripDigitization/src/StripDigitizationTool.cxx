@@ -164,6 +164,7 @@ private:
 };
 
 
+
 void SiDigitizationSurfaceChargeInserter::operator ()
     (const SiSurfaceCharge &scharge) const {
     // get the diode in which this charge is
@@ -175,6 +176,54 @@ void SiDigitizationSurfaceChargeInserter::operator ()
         m_chargedDiodes->add(diode, scharge.charge());
     }
 }
+
+class MultiElementChargeInserter
+    : public ISiSurfaceChargesInserter
+{
+public:
+  MultiElementChargeInserter (std::unordered_map<int, SiChargedDiodeCollection *> & chargedDiodesVec, const InDetDD::SCT_ModuleSideDesign * mum)
+
+        : m_chargedDiodesVec(chargedDiodesVec),
+        m_mum(mum) {
+    }
+
+    void operator () (const SiSurfaceCharge &scharge) const;
+private:
+  std::unordered_map<int, SiChargedDiodeCollection *> m_chargedDiodesVec;
+  const InDetDD::SCT_ModuleSideDesign * m_mum;
+};
+
+
+
+void MultiElementChargeInserter::operator ()
+    (const SiSurfaceCharge &scharge) const {
+
+  // get the diode in which this charge is
+  SiCellId motherDiode = m_mum->cellIdOfPosition(scharge.position());
+  
+  int row = -1;
+  int strip = -1;
+  
+  if(motherDiode.isValid()){
+  m_mum->getStripRow(motherDiode,&strip,&row);
+
+  //now use this row
+
+  if(m_chargedDiodesVec.at(row)){
+    
+    SiCellId diode = m_chargedDiodesVec.at(row)->element()->cellIdOfPosition(scharge.position());
+    
+    
+    if (diode.isValid()) {
+      // add this charge to the collection (or merge in existing charged
+      // diode)
+      m_chargedDiodesVec.at(row)->add(diode, scharge.charge());
+    }
+  }
+  }
+  
+}
+
 } // anonymous namespace
 
 // ----------------------------------------------------------------------
@@ -307,6 +356,10 @@ StatusCode StripDigitizationTool::processAllSubEvents() {
         ATH_MSG_DEBUG("no hits found in event!");
     }
     delete m_chargedDiodes;
+    for(std::pair<int, SiChargedDiodeCollection *> item : m_chargedDiodesVector){
+      if(item.second) delete item.second;
+    }
+
     ATH_MSG_DEBUG("Digitized Elements with Hits");
 
     // loop over elements without hits
@@ -391,6 +444,9 @@ StatusCode StripDigitizationTool::mergeEvent() {
         digitizeAllHits();
     }
     delete m_chargedDiodes;
+    for(std::pair<int,SiChargedDiodeCollection *> item : m_chargedDiodesVector){
+      if(item.second) delete item.second;
+    }
 
     digitizeNonHits();
 
@@ -416,7 +472,7 @@ void StripDigitizationTool::digitizeAllHits() {
     ATH_MSG_DEBUG("Digitizing hits");
     int hitcount = 0; // First, elements with hits.
 
-    while (digitizeElement(m_chargedDiodes)) {
+    while (digitizeElement(m_chargedDiodesVector)) {
         ATH_MSG_DEBUG("Hit collection ID=" << m_detID->show_to_string(
                           m_chargedDiodes->identify()));
 
@@ -434,22 +490,29 @@ void StripDigitizationTool::digitizeAllHits() {
         // Have a flag to check if the module is present or not
         // Generally assume it is:
 
-        IdentifierHash idHash = m_chargedDiodes->identifyHash();
+	for (std::pair<int,SiChargedDiodeCollection *> sicoll : m_chargedDiodesVector){
 
-        assert(idHash < m_processedElements.size());
-        m_processedElements[idHash] = true;
+	  m_chargedDiodes = sicoll.second;
 
-        // create and store RDO and SDO
 
-        if (!m_chargedDiodes->empty()) {
+	  IdentifierHash idHash = m_chargedDiodes->identifyHash();
+	  
+	  assert(idHash < m_processedElements.size());
+	  m_processedElements[idHash] = true;
+	  
+	  // create and store RDO and SDO
+	  
+	  if (!m_chargedDiodes->empty()) {
             StatusCode sc = createAndStoreRDO(m_chargedDiodes);
             if (sc.isSuccess()) { // error msg is given inside
                                   // createAndStoreRDO()
-                addSDO(m_chargedDiodes);
+	      addSDO(m_chargedDiodes);
             }
-        }
-
-        m_chargedDiodes->clear();
+	  }
+	  
+	  m_chargedDiodes->clear();
+	  
+	}
     }
     ATH_MSG_DEBUG("hits processed");
     return;
@@ -503,18 +566,25 @@ void StripDigitizationTool::digitizeNonHits() {
     }
 
     delete m_chargedDiodes;
+    for(std::pair<int,SiChargedDiodeCollection *> item : m_chargedDiodesVector){
+      if(item.second) delete item.second;
+    }
+    
     return;
 }
 
 bool StripDigitizationTool::digitizeElement(
-    SiChargedDiodeCollection *chargedDiodes) {
+std::unordered_map<int, SiChargedDiodeCollection *> & chargedDiodes) {
     if (0 == m_thpcsi) {
         ATH_MSG_ERROR("thpcsi should not be zero!");
 
         return false;
     }
 
+
     // get the iterator pairs for this DetEl
+
+    chargedDiodes.clear();
 
     TimedHitCollection<SiHit>::const_iterator i, e;
     if (m_thpcsi->nextDetectorElement(i, e) == false) { // no more hits
@@ -530,26 +600,25 @@ bool StripDigitizationTool::digitizeElement(
 
     int Barrel = firstHit->getBarrelEndcap();
 
-    // For testbeam
+    if(!m_atlasID){
+      ATH_MSG_ERROR("No ID Helper found!");
+      return false;
+    }
 
-    if (m_atlasID == NULL) {
-        id = 0;
+    const SCT_ID *sctID = dynamic_cast<const SCT_ID *>(m_atlasID);
+    if (!sctID) {
+      ATH_MSG_ERROR("expected a SCT_ID but failed...");
+      return false;
     }
-    else {
-        const SCT_ID *sctID = dynamic_cast<const SCT_ID *>(m_atlasID);
-        if (sctID == 0) {
-            ATH_MSG_ERROR("expected a SCT_ID but failed...");
-            return false;
-        }
-        id = sctID->wafer_id(Barrel, firstHit->getLayerDisk(),
-                             firstHit->getPhiModule(), firstHit->getEtaModule(),
-                             firstHit->getSide());
-    }
+    
+    id = sctID->wafer_id(Barrel, firstHit->getLayerDisk(),
+			 firstHit->getPhiModule(), firstHit->getEtaModule(),
+			 firstHit->getSide());
 
 
     // get the det element from the manager
     InDetDD::SiDetectorElement *sielement = m_detMgr->getDetectorElement(id);
-
+ 
     if (sielement == 0) {
         ATH_MSG_DEBUG("Barrel=" << Barrel << " layer=" <<
             firstHit->getLayerDisk() << " Eta=" << firstHit->getEtaModule() <<
@@ -559,8 +628,50 @@ bool StripDigitizationTool::digitizeElement(
             id);
         return false;
     }
-    // create the charged diodes collection
-    chargedDiodes->setDetectorElement(sielement);
+
+    //Now we have to get the sub-elements if they exist!
+    const InDetDD::SCT_ModuleSideDesign * thisDesign = static_cast<const InDetDD::SCT_ModuleSideDesign*>(&sielement->design());
+    
+    const InDetDD::SCT_ModuleSideDesign * motherDesign = thisDesign->getMother();
+
+    std::unordered_map<int, const InDetDD::SCT_ModuleSideDesign *> children;
+
+    if(motherDesign){
+      children = motherDesign->getChildren();
+    }
+    else {
+      std::pair<int, const InDetDD::SCT_ModuleSideDesign *> singleElement(0,thisDesign);
+      children.insert(singleElement);
+    };//if no mother/children relationship, just use what you got intially
+    
+
+    for (std::pair <int, const InDetDD::SCT_ModuleSideDesign *> subDesign : children){
+
+      // create the charged diodes collection
+
+      if(sctID){
+	Identifier id_child = sctID->wafer_id(Barrel, firstHit->getLayerDisk(),
+					      firstHit->getPhiModule(), firstHit->getEtaModule()+subDesign.first,
+					      firstHit->getSide());
+
+
+	InDetDD::SiDetectorElement *sielement_child = m_detMgr->getDetectorElement(id_child);
+	if(sielement_child){
+
+	  SiChargedDiodeCollection * thisChargedDiode = new SiChargedDiodeCollection(); //need to work out where we delete this!
+	  int i_index = subDesign.first;
+	  thisChargedDiode->setDetectorElement(sielement_child);
+	  chargedDiodes.insert({i_index,thisChargedDiode});
+	 
+	}
+	else ATH_MSG_ERROR("detector manager could not find element with id = "<<id_child<<" Barrel=" << Barrel << " layer=" <<
+			   firstHit->getLayerDisk() << " Eta=" << firstHit->getEtaModule()+subDesign.first <<" Phi=" << firstHit->getPhiModule() 
+			   << " Side=" <<firstHit->getSide());
+      }
+      else{ ATH_MSG_ERROR("expected a SCT_ID but failed...");return false;}
+    
+    }
+
 
     // Loop over the hits and created charged diodes:
     while (i != e) {
@@ -568,29 +679,34 @@ bool StripDigitizationTool::digitizeElement(
 
         // skip hits which are more than 10us away
         if (fabs(phit->meanTime()) < 10000. * CLHEP::ns) {
-            ATH_MSG_DEBUG("HASH = " << m_detID->wafer_hash(m_detID->wafer_id(
-                                                               phit->
-                                                                getBarrelEndcap(),
-                                                               phit->
-            getLayerDisk(), phit->getPhiModule(),
-                                                               phit->
-                                                                getEtaModule(),
-                                                               phit->getSide())));
-            ATH_MSG_DEBUG("calling process() for all methods");
-            m_sct_SurfaceChargesGenerator->setDetectorElement(sielement);
 
-            // const ISiSurfaceChargesInserter *charge_inserter = 0;
-            // m_sct_SurfaceChargesGenerator->process(phit, *charge_inserter);
-            m_sct_SurfaceChargesGenerator->process(phit,
-                                                   SiDigitizationSurfaceChargeInserter(
-                                                       sielement,
-                                                       chargedDiodes));
-            ATH_MSG_DEBUG("charges filled!");
+	  ATH_MSG_DEBUG("HASH = " << m_detID->wafer_hash(m_detID->wafer_id(
+									   phit->
+									   getBarrelEndcap(),
+									   phit->
+									   getLayerDisk(), phit->getPhiModule(),
+									   phit->
+									   getEtaModule(),
+									   phit->getSide())));
+	  ATH_MSG_DEBUG("calling process() for all methods");
+	  
+	  //This doesn't get used anywhere (element pased below), so does this need to be set?
+	  m_sct_SurfaceChargesGenerator->setDetectorElement(sielement);
+	  if(!motherDesign) {
+	    //should only be one diodecollection here, so just use it
+	    if(chargedDiodes.size()>1) ATH_MSG_WARNING("More DiodesCollections("<<chargedDiodes.size()<<
+						       ") than expected (1). Please check your configuration!");
+	    m_sct_SurfaceChargesGenerator->process(phit,SiDigitizationSurfaceChargeInserter(sielement,chargedDiodes[0]));
+	  }
+	  else m_sct_SurfaceChargesGenerator->process(phit,MultiElementChargeInserter(chargedDiodes,motherDesign));
+	  ATH_MSG_DEBUG("charges filled!");
         }
     }
-    applyProcessorTools(chargedDiodes); // !< Use of the new AlgTool surface
-                                        // charges generator class
+    //loop over the set of diodes and apply processors
+    for (std::pair<int, SiChargedDiodeCollection *> theDiode : chargedDiodes) applyProcessorTools(theDiode.second); // !< Use of the new AlgTool surface
+    // charges generator class
     return true;
+
 }
 
 // -----------------------------------------------------------------------------
