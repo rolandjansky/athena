@@ -82,7 +82,7 @@ public:
 
 protected:
 
-  bool       digitizeElement(SiChargedDiodeCollection* chargedDiodes); //!
+  bool       digitizeElement(std::unordered_map<int, SiChargedDiodeCollection*> & chargedDiodes); //!
   void       applyProcessorTools(SiChargedDiodeCollection* chargedDiodes); //!
   void       addSDO(SiChargedDiodeCollection* collection);
 
@@ -180,7 +180,8 @@ private:
   const AtlasDetectorID* m_atlasID;  //FIXME should be replaced with m_detID usage
   std::list<ISiChargedDiodesProcessorTool* >         m_diodeCollectionTools;
   TimedHitCollection<SiHit>*                         m_thpcsi;
-  SiChargedDiodeCollection*                          m_chargedDiodes;
+  SiChargedDiodeCollection*                          m_chargedDiodes;//the one we're looking at right now
+  std::unordered_map<int, SiChargedDiodeCollection*> m_chargedDiodesVector;//the full set of the sensor (can be single element)
   IntegerProperty                                    m_vetoThisBarcode;
 
 

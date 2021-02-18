@@ -9,12 +9,16 @@ from os.path import exists, join
 from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags
 from AthenaCommon.DetFlags import DetFlags
 
+#If you wanted to try the Strip instead of SCT digi, uncomment below...
+#from Digitization.DigitizationFlags import digitizationFlags
+#digitizationFlags.experimentalDigi+=["doStripDigi"]
+
 from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 auto_isGMX = (SLHC_Flags.doGMX()) or (CommonGeometryFlags.StripGeoType() == "GMX") 
 
 dictVersion = "ITkHGTD"
 
-auto_generateDictionary = (SLHC_Flags.UseLocalGeometry()) or (SLHC_Flags.ForceDictionaryGeneration())
+auto_generateDictionary = SLHC_Flags.ForceDictionaryGeneration()
 
 from AthenaCommon.GlobalFlags import jobproperties
 DetDescrVersion = jobproperties.Global.DetDescrVersion()
@@ -29,8 +33,9 @@ class SLHC_Setup_XMLReader :
     # constructor requires the SLHC_Flags
     def __init__(self):
         from SLHC_Setup_XML import SLHC_Setup_XMLReader
-
-        SLHC_Setup_XMLReader(dictionaryFileName = "InDetIdDictFiles/IdDictInnerDetector_ITK_LOCAL.xml",
+        #NB, the dictionaryFileName here is only used if you are generating it
+        #Otherwise it will be ITKLayouts/IdDictInnerDetector_ITK_LOCAL.xml 
+        SLHC_Setup_XMLReader(dictionaryFileName = "ITKLayouts/IdDictInnerDetector_ITK_LOCAL_GEN.xml",
                             createXML = auto_generateDictionary,
                             doPix=True,
                             doSCT=True,
