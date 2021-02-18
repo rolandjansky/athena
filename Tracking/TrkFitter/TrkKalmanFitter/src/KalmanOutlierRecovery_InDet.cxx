@@ -48,7 +48,7 @@ Trk::KalmanOutlierRecovery_InDet::KalmanOutlierRecovery_InDet(const std::string&
 {
   // AlgTool stuff
   declareInterface<IKalmanOutlierLogic>( this );
-  
+
   // declare all properties needed to configure fitter, defaults
   declareProperty("TrackChi2PerNDFCut",  m_Trajectory_Chi2PerNdfCut=17.f,
                   "Chi2/ndf cut to reject a fit and start search for outliers");
@@ -68,7 +68,7 @@ StatusCode Trk::KalmanOutlierRecovery_InDet::initialize()
 
   m_Trajectory_Chi2ProbCut = 1.0-Genfun::CumulativeChiSquare(1)(m_Trajectory_Chi2PerNdfCut);
   ATH_MSG_INFO ("Trajectory quality cut set to chi2/ndf of " << m_Trajectory_Chi2PerNdfCut <<
-                " giving chi2-prob " << m_Trajectory_Chi2ProbCut ); // FIXME 
+                " giving chi2-prob " << m_Trajectory_Chi2ProbCut ); // FIXME
   ATH_MSG_INFO ("outlier state cut set to chi2/ndf of      " << m_State_Chi2PerNdfCut );
   ATH_MSG_INFO ("initialize() successful in " << name() );
   return sc;
@@ -89,7 +89,7 @@ StatusCode Trk::KalmanOutlierRecovery_InDet::configureWithTools(Trk::IExtrapolat
   m_extrapolator = extrap;
   m_updator      = updator;
   m_recalibrator = recal;
-  
+
   // protection, if not confiured
   if (!m_updator) {
     ATH_MSG_ERROR ("Updator missing, need to configure it !" );
@@ -143,18 +143,18 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
     if (it->measurementType()==Pixel) {if (it->isNewOutlier()) ++c_outPix; ++c_allPix;}
     if (it->measurementType()==SCT)   {if (it->isNewOutlier()) ++c_outSct; ++c_allSct;}
     if (it->measurementType()==TRT)   {if (it->isNewOutlier()) ++c_outTrt; ++c_allTrt;}
-    if ( (it->measurementType()==Pixel || it->measurementType()==SCT 
-          || it->measurementType()==TRT) && it->isNewOutlier() 
+    if ( (it->measurementType()==Pixel || it->measurementType()==SCT
+          || it->measurementType()==TRT) && it->isNewOutlier()
          && it->iterationShowingThisOutlier() == fitIteration) ++numberOfRejections;
   }
 
   // recovery of bad cases in the Silicon
-  if (numberOfRejections > 0 || 
+  if (numberOfRejections > 0 ||
       (m_utility->numberOfNewOutliers(T) > std::min(.4*T.size(),7.) )) {
     using namespace Trk::TrackState;
     Trk::Trajectory::iterator state1 = T.begin();
     while (!state1->forwardTrackParameters() && state1!=T.end()) ++state1;
-    if (state1 == T.end()) { 
+    if (state1 == T.end()) {
       ATH_MSG_WARNING ("outlier recovery internally inconsistent.");
       return false;
     }
@@ -164,7 +164,7 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
                    ") -- " << c_outSct<<"("<< c_allSct<<") -- " << c_outTrt<<"("<<c_allTrt<<")");
 
     // === part 1: pixel === recover occas. pixel outliers as broad clusters if SCT is reliable
-    if (fitIteration <= 2 && m_recalibrator!=nullptr 
+    if (fitIteration <= 2 && m_recalibrator!=nullptr
         && c_allPix > 0 && 2*c_outPix <= c_allPix
         && 2*c_outSct < c_allSct  ) {
 
@@ -183,7 +183,7 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
 
           if ( (it->measurement()->localCovariance()(Trk::locX,Trk::locX) < 0.02*0.02)
                || (it->measurement()->localCovariance()(Trk::locY,Trk::locY) < 0.2*0.2) ) {
-            const Trk::MeasurementBase* broadPixel = 
+            const Trk::MeasurementBase* broadPixel =
               m_recalibrator->makeBroadMeasurement(*it->measurement(),
                                                    *smoothedParAtOutlier, Pixel);
             if (broadPixel!=nullptr) {
@@ -198,7 +198,7 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
                                sqrt(broadPixel->localCovariance()(Trk::locY,Trk::locY)) );
                 it->replaceMeasurement(broadPixel,Trk::TrackState::BroadCluster);
                 it->isOutlier(false);
-                if (it->positionOnTrajectory() < firstNew) firstNew = it->positionOnTrajectory(); 
+                if (it->positionOnTrajectory() < firstNew) firstNew = it->positionOnTrajectory();
                 failureRecoveryNeedsRefit=true;
               } else {
                 delete broadPixel;
@@ -228,7 +228,7 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
           it->isOutlier(GeneralOutlier,fitIteration);
         firstNew = 1;
         return true;
-      } 
+      }
 
       const int badRankedNumberOfMeas = m_utility->rankedNumberOfMeasurements(T);
       Trk::Trajectory::iterator lastSctState = T.end();
@@ -263,20 +263,20 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
         *sctExitTemp->parameters()[Trk::qOverP];
 
       const Trk::TrackParameters* sctExit = sctExitTemp->associatedSurface().createTrackParameters(par[Trk::loc1],par[Trk::loc2],
-													 par[Trk::phi],par[Trk::theta],par[Trk::qOverP],cov); 
+													 par[Trk::phi],par[Trk::theta],par[Trk::qOverP],cov);
       delete sctExitTemp;
       ATH_MSG_DEBUG ("-O- At iteration " << fitIteration << " SCT exit: meas't (" <<
                      lastSctState->measurement()->localParameters()[Trk::locX] << ",  " <<
                      lastSctState->measurement()->localParameters()[Trk::locY] << ") vs. prediction ("<<
                      sctExit->parameters()[Trk::locX]<< ", "<<sctExit->parameters()[Trk::locY]<< ") ");
-      
+
       // switch to reverse gear and run a small filter through the SCT
       Trk::Trajectory::reverse_iterator lastSctState_r
         = Trk::Trajectory::reverse_iterator(++lastSctState);
       const Trk::TrackParameters* sctFitResult =
         m_updator->addToState(*sctExit, lastSctState_r->measurement()->localParameters(),
-                              lastSctState_r->measurement()->localCovariance());
-      delete sctExit; 
+                              lastSctState_r->measurement()->localCovariance()).release();
+      delete sctExit;
       Trk::Trajectory::reverse_iterator rit = lastSctState_r + 1;
       Trk::Trajectory::reverse_iterator firstSctState_r = T.rend();
       for( ; rit!=T.rend(); ++rit) {
@@ -299,7 +299,7 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
           }
           sctFitResult = m_updator->addToState(*predPar,
                                                rit->measurement()->localParameters(),
-                                               rit->measurement()->localCovariance());
+                                               rit->measurement()->localCovariance()).release();
           ATH_MSG_VERBOSE ("At "<<rit->positionOnTrajectory() << " errs in locX: "<<
                            rit->measurement()->localCovariance()(Trk::locX) );
           firstSctState_r = rit;
@@ -338,7 +338,7 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
                || (rit->isOutlier() && rit->trackStateType() != PredictedOutlier) )
              && (rit->measurement()->localCovariance()(Trk::locX) < 0.02)
              && (rit->measurement()->localCovariance()(Trk::locY) < 0.2) ) {
-          const Trk::MeasurementBase* broadPixel = 
+          const Trk::MeasurementBase* broadPixel =
             m_recalibrator->makeBroadMeasurement(*rit->measurement(), *filteredPar, Pixel);
           if (broadPixel!=nullptr) {
             if (( broadPixel->localCovariance()(Trk::locX)
@@ -369,7 +369,7 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
                        (testQuality? testQuality->chiSquared() : -1.0) );
 
         // next step: decide if outlier is too big for the current mini-filter
-        if (!testQuality || testQuality->chiSquared() > 
+        if (!testQuality || testQuality->chiSquared() >
 		    4*m_State_Chi2PerNdfCut * testQuality->numberDoF() ) {
           updatedPar = filteredPar;
           filteredPar=nullptr;
@@ -378,18 +378,18 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
         } else {
           updatedPar = m_updator->addToState(*filteredPar,
                                              rit->measurement()->localParameters(),
-                                             rit->measurement()->localCovariance());
+                                             rit->measurement()->localCovariance()).release();
           if (updatedPar==nullptr) updatedPar=filteredPar; else delete filteredPar;
           ATH_MSG_DEBUG ("At "<<rit->positionOnTrajectory()<<": using this state to proceed.");
         }
         if (!testQuality ||
-	    (testQuality->chiSquared() > 
+	    (testQuality->chiSquared() >
 		    0.5*m_State_Chi2PerNdfCut * testQuality->numberDoF() ) ) {
           rit->isOutlier(Trk::TrackState::TrackOutlier,fitIteration);
           ++numberOfChangedStates;
           ATH_MSG_DEBUG ("At "<<rit->positionOnTrajectory() <<": remove state with tightened "<<
                          "outlier cut, chi2="<<testQuality->chiSquared());
-        } else if (!rit->isOutlier() && 
+        } else if (!rit->isOutlier() &&
                    rit->measurement()->localCovariance()(Trk::locX) > 0.1) {
           rit->isOutlier(Trk::TrackState::TrackOutlier,fitIteration);
           ++numberOfChangedStates;
@@ -420,8 +420,8 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
               it->isOutlier(false);
         }
       }
-    
-    }      
+
+    }
 
   } // stop recovery for bad cases
 
@@ -437,24 +437,24 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
           if (it->isDriftCircle() && rot!=nullptr && rot->prepRawData()!=nullptr)
             msg(MSG::VERBOSE) << "Testing L/R of " << (it->isOutlier() ? "Outl." : "Hit  " )
                               << it->positionOnTrajectory() << " : Par = "
-                              << (it->smoothedTrackParameters() ? 
+                              << (it->smoothedTrackParameters() ?
                                   it->smoothedTrackParameters()->parameters()[Trk::locR] : -999.0)
-                              <<  " Mbs = " 
+                              <<  " Mbs = "
                               << it->measurement()->localParameters()[Trk::locR] << ", Prd = "
                               <<(rot->prepRawData() ? rot->prepRawData()->localPosition()[Trk::locR] : -999.)
                               << endmsg;
         }
-        
+
         const Trk::TrackParameters* refTrkPar = it->smoothedTrackParameters();
         // step 1 - try re-integrating drift radius outliers as tube hit inlayers
         if (it->measurementType() == Trk::TrackState::TRT && refTrkPar!=nullptr
             && (it->trackStateType() == Trk::TrackState::StateOutlier ||
                 it->trackStateType() == Trk::TrackState::TrackOutlier)
-            && it->iterationShowingThisOutlier() == fitIteration 
-            && (Trk::TrackState::TubeHit != 
+            && it->iterationShowingThisOutlier() == fitIteration
+            && (Trk::TrackState::TubeHit !=
                 m_recalibrator->calibrationStatus(*it->measurement(),Trk::TrackState::TRT))
             ) {
-          const Trk::RIO_OnTrack* recalibratedROT = 
+          const Trk::RIO_OnTrack* recalibratedROT =
             m_recalibrator->makeBroadMeasurement(*it->measurement(),*refTrkPar,
                                                  Trk::TrackState::TRT);
           if (recalibratedROT!=nullptr) {
@@ -470,14 +470,14 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
         // step 2 - try re-integrating tube hits as drift radius hits
         if (it->measurementType() == Trk::TrackState::TRT && refTrkPar!=nullptr
             && !it->isOutlier()
-            && (Trk::TrackState::TubeHit == 
+            && (Trk::TrackState::TubeHit ==
                 m_recalibrator->calibrationStatus(*it->measurement(),Trk::TrackState::TRT))
             ) {
 	  const Trk::RIO_OnTrack* trt=dynamic_cast<const Trk::RIO_OnTrack*>(it->measurement());
 	  const TrackParameters* mTP = it->smoothedTrackParameters();
 	  if (trt && trt->prepRawData() && mTP->covariance()
 	      && ( fabs(trt->prepRawData()->localPosition()[Trk::locR]
-                        - fabs(it->smoothedTrackParameters()->parameters()[Trk::locR])) 
+                        - fabs(it->smoothedTrackParameters()->parameters()[Trk::locR]))
 		   < 2.5*sqrt(trt->prepRawData()->localCovariance()(Trk::locR,Trk::locR)
 			      + (*mTP->covariance())(Trk::locR,Trk::locR)))
 	      ) {
@@ -530,8 +530,8 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
 	    if (!tubeHitMade && mTP
 		&& (m_recalibrator->calibrationStatus(*it->measurement(),Trk::TrackState::TRT)
 		    == Trk::TrackState::TubeHit)
-		&& ( fabs(trt->prepRawData()->localPosition()[Trk::locR] 
-                        - fabs(it->smoothedTrackParameters()->parameters()[Trk::locR])) 
+		&& ( fabs(trt->prepRawData()->localPosition()[Trk::locR]
+                        - fabs(it->smoothedTrackParameters()->parameters()[Trk::locR]))
 		     < 2.0*sqrt(trt->prepRawData()->localCovariance()(Trk::locR,Trk::locR)
 				+ (*mTP->covariance())(Trk::locR,Trk::locR)))
 		) {
@@ -578,7 +578,7 @@ bool Trk::KalmanOutlierRecovery_InDet::reject(const Trk::FitQuality& fitQuality)
       ATH_MSG_DEBUG ("-O- number d.o.f not positive - reject trajectory.");
     if ( !(fitQuality.chiSquared() > 0.0))
       ATH_MSG_DEBUG ("-O- chi2 is not positive - numerical problems?" );
-    return true;	    
+    return true;
   }
   // ok - it's accepted
   return false;

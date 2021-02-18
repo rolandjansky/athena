@@ -71,7 +71,7 @@ Trk::KalmanPiecewiseAnnealingFilter::~KalmanPiecewiseAnnealingFilter()
 
 StatusCode Trk::KalmanPiecewiseAnnealingFilter::initialize()
 {
-  
+
   StatusCode sc = AlgTool::initialize();
 
   if (sc.isFailure()) return sc;
@@ -152,7 +152,7 @@ bool Trk::KalmanPiecewiseAnnealingFilter::annealingProblem_driftCircles
 
   // stop if strategy won't work - like when it was already tried.
   Trk::Trajectory::const_iterator it = m_trajPiece.begin();
-  if (it->isOutlier() || alreadyTried 
+  if (it->isOutlier() || alreadyTried
       || m_option_annealingScheme.at(annealer) <= 2.0 ) return false;
 
   // strategy only shown to improve on drift-circle initiating fits
@@ -183,9 +183,9 @@ bool Trk::KalmanPiecewiseAnnealingFilter::annealingProblem_driftCircles
           fabs(m_trajPiece.front().measurement()->localParameters()[Trk::locR]) <= 0.01)) {
     m_trajPiece.front().isOutlier(Trk::TrackState::FilterOutlier, 1);
   } else {
-    const Trk::RIO_OnTrack* recalibratedROT = 
+    const Trk::RIO_OnTrack* recalibratedROT =
       m_recalibrator->makeBroadMeasurement((crot->rioOnTrack(crot->indexOfMaxAssignProb())),*tp);
-    if (recalibratedROT) 
+    if (recalibratedROT)
       m_trajPiece.front().replaceMeasurement(recalibratedROT, Trk::TrackState::TubeHit);
     else
       m_trajPiece.front().isOutlier(Trk::TrackState::FilterOutlier, 1);
@@ -219,7 +219,7 @@ bool Trk::KalmanPiecewiseAnnealingFilter::annealingProblem_all
   bool foundImprovement = false;
 
   for(Trajectory::iterator it = m_trajPiece.begin(); it != m_trajPiece.end(); ++it) {
-    const Trk::CompetingRIOsOnTrack* compROT = 
+    const Trk::CompetingRIOsOnTrack* compROT =
       dynamic_cast<const Trk::CompetingRIOsOnTrack*>(it->measurement());
     if (compROT == nullptr || it->isOutlier()) continue;
 
@@ -233,13 +233,13 @@ bool Trk::KalmanPiecewiseAnnealingFilter::annealingProblem_all
     bool   highPrecisionSCT = (it->measurementType() == Trk::TrackState::SCT)
       && (msErrX < 0.018);
     double chi2ts = (it->fitQuality()? it->fitQuality()->chiSquared() : -999.0);
-    const Trk::TrackParameters* refPars = it->smoothedTrackParameters() ? 
+    const Trk::TrackParameters* refPars = it->smoothedTrackParameters() ?
       it->smoothedTrackParameters() : it->forwardTrackParameters();
 
     if ( (assPrb < 0.90 || chi2ts > 1.0)
          && (highPrecisionPixel || highPrecisionSCT)
          && refPars ) {
-      const Trk::RIO_OnTrack* broadCluster = 
+      const Trk::RIO_OnTrack* broadCluster =
         m_recalibrator->makeBroadMeasurement(*compROT, *refPars,
                                              it->measurementType());
       if (broadCluster!=nullptr) {
@@ -291,7 +291,7 @@ bool Trk::KalmanPiecewiseAnnealingFilter::annealingProblem_all
   bool foundImprovement = false;
 
   for(Trajectory::iterator it = m_trajPiece.begin(); it != m_trajPiece.end(); ++it) {
-    const Trk::CompetingRIOsOnTrack* compROT = 
+    const Trk::CompetingRIOsOnTrack* compROT =
       dynamic_cast<const Trk::CompetingRIOsOnTrack*>(it->measurement());
     if (compROT == nullptr || it->isOutlier()) continue;
 
@@ -303,12 +303,12 @@ bool Trk::KalmanPiecewiseAnnealingFilter::annealingProblem_all
       && (msErrX < 0.010 || msErrY < 0.080);
     bool   highPrecisionSCT = (it->measurementType() == Trk::TrackState::SCT)
       && (msErrX < 0.018);
-    const Trk::TrackParameters* refPars = it->smoothedTrackParameters() ? 
+    const Trk::TrackParameters* refPars = it->smoothedTrackParameters() ?
       it->smoothedTrackParameters() : it->forwardTrackParameters();
 
     if ( (highPrecisionPixel || highPrecisionSCT)
 	 && refPars ) {
-      const Trk::RIO_OnTrack* broadCluster = 
+      const Trk::RIO_OnTrack* broadCluster =
 	m_recalibrator->makeBroadMeasurement(*compROT, *refPars,
 					     it->measurementType());
       if (broadCluster!=nullptr) {
@@ -347,7 +347,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectory
 //================ main method: the piece-wise filter ==========================
 
 Trk::FitterStatusCode
-Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece 
+Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
 (Trajectory& trajectory,
  Trajectory::iterator& start,
  const TrackParameters*&     start_updatedPar,
@@ -390,7 +390,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
           predDiffPar.reset(  start->checkoutParametersDifference() );
           predPar = CREATE_PARAMETERS(*start->referenceParameters(),
                                       (start->referenceParameters()->parameters() + (*predDiffPar)),
-                                      new AmgSymMatrix(5)(*start->parametersCovariance()));
+                                      new AmgSymMatrix(5)(*start->parametersCovariance())).release();
           delete start->checkoutParametersCovariance();
         }
       } else {
@@ -407,7 +407,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
       } else {
         // filter using differences
         const TransportJacobian& jac = *m_trajPiece.back().jacobian();
-        AmgVector(5) updDiffPar = updatedPar->parameters() 
+        AmgVector(5) updDiffPar = updatedPar->parameters()
                                   - m_trajPiece.back().referenceParameters()->parameters();
         predDiffPar = std::make_unique<AmgVector(5)>(  jac*updDiffPar );
         AmgSymMatrix(5)* C = new AmgSymMatrix(5) (jac*(*updatedPar->covariance())*jac.transpose());
@@ -417,16 +417,25 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
           (*C)(Trk::theta,Trk::theta) += std::pow(input_it->materialEffects()->sigmaDeltaTheta(),2);
           const double& mass = m_particleMasses.mass[particleType];
           const double currQOverPsquared = std::pow((*predDiffPar)(Trk::qOverP) + input_it->referenceParameters()->parameters()[Trk::qOverP], 2);
-          const double sigmaDeltaQoverPsquared = (currQOverPsquared > 0.) ? (std::pow(input_it->materialEffects()->sigmaDeltaE(), 2) * (mass*mass + 1./currQOverPsquared) * (currQOverPsquared*currQOverPsquared*currQOverPsquared)) : 0.;
-          (*C)(Trk::qOverP,Trk::qOverP)+= sigmaDeltaQoverPsquared;
-          ATH_MSG_VERBOSE ("mass=" << mass << ", qOverP_ref="<< std::scientific << input_it->referenceParameters()->parameters()[Trk::qOverP]
-                  << ", qOverP_diff=" << (*predDiffPar)(Trk::qOverP)
-                  << ", sigmaDeltaE=" << input_it->materialEffects()->sigmaDeltaE()
-                  << ", sigmaDeltaQoverP=" << sqrt(sigmaDeltaQoverPsquared) << std::fixed);//std::defaultfloat);
+          const double sigmaDeltaQoverPsquared =
+            (currQOverPsquared > 0.)
+              ? (std::pow(input_it->materialEffects()->sigmaDeltaE(), 2) *
+                 (mass * mass + 1. / currQOverPsquared) *
+                 (currQOverPsquared * currQOverPsquared * currQOverPsquared))
+              : 0.;
+          (*C)(Trk::qOverP, Trk::qOverP) += sigmaDeltaQoverPsquared;
+          ATH_MSG_VERBOSE(
+            "mass="
+            << mass << ", qOverP_ref=" << std::scientific
+            << input_it->referenceParameters()->parameters()[Trk::qOverP]
+            << ", qOverP_diff=" << (*predDiffPar)(Trk::qOverP)
+            << ", sigmaDeltaE=" << input_it->materialEffects()->sigmaDeltaE()
+            << ", sigmaDeltaQoverP=" << sqrt(sigmaDeltaQoverPsquared)
+            << std::fixed); // std::defaultfloat);
           ATH_MSG_VERBOSE ("Added material effects.");
         }
         const AmgVector(5) x = input_it->referenceParameters()->parameters()+(*predDiffPar);
-        predPar = CREATE_PARAMETERS(*input_it->referenceParameters(),x,C);
+        predPar = CREATE_PARAMETERS(*input_it->referenceParameters(),x,C).release();
         ATH_MSG_DEBUG("used difference to make predpar = " << *predPar);
       }
     }
@@ -439,7 +448,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
       return Trk::FitterStatusCode::ForwardFilterFailure;
     }
 
-    const Trk::RIO_OnTrack* testROT 
+    const Trk::RIO_OnTrack* testROT
       = dynamic_cast<const Trk::RIO_OnTrack*>(input_it->measurement());
 
     if (input_it->isOutlier() || testROT==nullptr || input_it->measurement()==nullptr) {
@@ -462,7 +471,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
       // --- make a simple competing ROT: Left/right ambiguity for drift circles and
       //     competition against outlier hypothesis for (unambiguous) clusters
 
-      const Trk::CompetingRIOsOnTrack* highBetaCluster = 
+      const Trk::CompetingRIOsOnTrack* highBetaCluster =
 	m_compRotTool->createSimpleCompetingROT(*testROT->prepRawData(),*predPar,beta);
       if (!highBetaCluster) {
 	ATH_MSG_DEBUG ("CompROT creation failed in filterTrajPiece() annealing " <<beta);
@@ -472,12 +481,12 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
       }
       if (input_it->isCluster() && msgLvl(MSG::VERBOSE))
 	std::cout << "DAF's CompCluster: " << *highBetaCluster << std::endl;
-      Trk::ProtoTrackStateOnSurface newState = 
+      Trk::ProtoTrackStateOnSurface newState =
 	Trk::ProtoTrackStateOnSurface(highBetaCluster,false,true,iDafSteps);
       m_trajPiece.push_back(newState);
       m_trajPiece.back().setMeasurementType(input_it->measurementType(),
 					    Trk::TrackState::HighPrecision);
-    } 
+    }
 
     if (m_forwardFitter->needsReferenceTrajectory()) {
       if (!input_it->referenceParameters()) {
@@ -491,7 +500,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
       m_trajPiece.back().checkinParametersDifference(predDiffPar.release() );
       m_trajPiece.back().checkinParametersCovariance(new AmgSymMatrix(5)(*predPar->covariance()));
     }
- 
+
     if (input_it->isOutlier() || !m_trajPiece.back().measurement() ) {
       delete updatedPar;
       updatedPar = predPar;
@@ -503,7 +512,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
       updatedPar = m_updator->addToState(*predPar,
 					 m_trajPiece.back().measurement()->localParameters(),
 					 m_trajPiece.back().measurement()->localCovariance(),
-					 fitQuality);
+					 fitQuality).release();
       if (!updatedPar) {
 	ATH_MSG_DEBUG ("addToState failed in filterTrajPiece(), annealing "<<beta);
 	m_trajPiece.clear();
@@ -521,7 +530,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
   delete updatedPar;
 
   FitQuality  currForwardFQ = m_utility->forwardFilterQuality(m_trajPiece);
-  m_chi2DuringAnnealing[0] = currForwardFQ.numberDoF()>0 ? 
+  m_chi2DuringAnnealing[0] = currForwardFQ.numberDoF()>0 ?
     currForwardFQ.chiSquared()/currForwardFQ.numberDoF() : 0.0;
 
   //////////////////////////////////////////////////////////////////////////////
@@ -540,8 +549,8 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
         ATH_MSG_WARNING ("Programming error - lost seed");
         m_utility->dumpTrajectory(m_trajPiece, name());
       }
-	/* old code for lost seed: 
-          const TrackParameters* newPredPar = 
+	/* old code for lost seed:
+          const TrackParameters* newPredPar =
 	  m_extrapolator->extrapolate(*start_predPar,
 				      ffs->measurement()->associatedSurface(),
 				      Trk::alongMomentum, false, particleType); */
@@ -551,9 +560,9 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
 							false /*no runOutlier*/, dafMec,
 							false, 1);
       FitQuality  currForwardFQ = m_utility->forwardFilterQuality(m_trajPiece);
-      m_chi2DuringAnnealing[annealer] = currForwardFQ.numberDoF()>0 ? 
+      m_chi2DuringAnnealing[annealer] = currForwardFQ.numberDoF()>0 ?
 	currForwardFQ.chiSquared()/currForwardFQ.numberDoF() : 0.0;
-      
+
       if ( this->annealingProblem_driftCircles(savedForwardFQ,currForwardFQ,
 					       fitStatus,annealer,hadAnnealingProblemDC) ) {
 	ATH_MSG_DEBUG ("AnnMonitor-DC sends piecewise DAF back to start!");
@@ -579,9 +588,9 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
 
     double assgnProbSum = 0.0;
     for(Trajectory::iterator it = m_trajPiece.begin(); it != m_trajPiece.end(); ++it) {
-      const Trk::CompetingRIOsOnTrack* compROT = 
+      const Trk::CompetingRIOsOnTrack* compROT =
 	dynamic_cast<const Trk::CompetingRIOsOnTrack*>(it->measurement());
-      if (compROT != nullptr && !it->isOutlier()) assgnProbSum += 
+      if (compROT != nullptr && !it->isOutlier()) assgnProbSum +=
 						 compROT->assignmentProbability(compROT->indexOfMaxAssignProb());
     }
     if (assgnProbSum < 0.5) {
@@ -607,7 +616,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
       m_trajPiece.clear();
       return fitStatus;
     }
-    if (m_trajPiece.begin()->forwardTrackParameters() ) 
+    if (m_trajPiece.begin()->forwardTrackParameters() )
       ATH_MSG_DEBUG ("check traj consistency " << *m_trajPiece.begin()->forwardTrackParameters() );
 
     beta      = ( annealer+1 >= m_option_annealingScheme.size() ?
@@ -617,7 +626,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
 
     // --loop and lower the annealing temperature
     for(Trajectory::iterator it = m_trajPiece.begin(); it != m_trajPiece.end(); ++it) {
-      const Trk::CompetingRIOsOnTrack* compROT = 
+      const Trk::CompetingRIOsOnTrack* compROT =
 	dynamic_cast<const Trk::CompetingRIOsOnTrack*>(it->measurement());
       if (compROT && it->smoothedTrackParameters() && !it->isOutlier()) {
         const Trk::TrackParameters* annealingPars = it->smoothedTrackParameters();
@@ -630,7 +639,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
 
     if (msgLvl(MSG::VERBOSE)) {
       for(Trajectory::iterator it = m_trajPiece.begin(); it != m_trajPiece.end(); ++it) {
-        const Trk::CompetingRIOsOnTrack* compROT = 
+        const Trk::CompetingRIOsOnTrack* compROT =
 	  dynamic_cast<const Trk::CompetingRIOsOnTrack*>(it->measurement());
         const Trk::FitQuality* testFQ = nullptr;
         if (it->smoothedTrackParameters() && it->measurement()) {
@@ -667,10 +676,10 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
       return Trk::FitterStatusCode::BadInput;
     }
     if (!it->isOutlier()) fittableState = itForKF;
-    const Trk::CompetingRIOsOnTrack* compROT = 
+    const Trk::CompetingRIOsOnTrack* compROT =
       dynamic_cast<const Trk::CompetingRIOsOnTrack*>(it->measurement());
 
-    if (msgLvl(MSG::VERBOSE) && it->measurement() && itForKF->measurement()) 
+    if (msgLvl(MSG::VERBOSE) && it->measurement() && itForKF->measurement())
       std::cout << std::setiosflags(std::ios::fixed)
 		<< "results: " << itForKF->positionOnTrajectory()
 		<< " predict " << (it->smoothedTrackParameters() ?
@@ -680,12 +689,12 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
 		<< (compROT? compROT->rioOnTrack(compROT->indexOfMaxAssignProb()).localParameters()[Trk::locX] : -999.0)
 		<<" prob="
 		<< (compROT? compROT->assignmentProbability(compROT->indexOfMaxAssignProb()) : -999.0);
-    
+
     std::string decision = "ex. outlier";
     if (it->isOutlier() && itForKF->trackStateType() != Trk::TrackState::ExternalOutlier)
       itForKF->isOutlier(Trk::TrackState::FilterOutlier);
 
-    if ( !it->isOutlier() && !compROT 
+    if ( !it->isOutlier() && !compROT
 	 && (it->measurement() != itForKF->measurement()) ) {
       itForKF->replaceMeasurement(it->checkoutMeasurement());
       itForKF->isOutlier(false);
@@ -694,11 +703,11 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
     if (!it->isOutlier() && compROT) {
       double predictedLocalR = it->smoothedTrackParameters()->parameters()[Trk::locR];
       double assProb = compROT->assignmentProbability(compROT->indexOfMaxAssignProb());
-      const PrepRawData* prd = compROT->rioOnTrack(compROT->indexOfMaxAssignProb()).prepRawData(); 
+      const PrepRawData* prd = compROT->rioOnTrack(compROT->indexOfMaxAssignProb()).prepRawData();
       if (it->isDriftCircle()) {
 	if (assProb > 1.5*m_option_outlierCut) {
 	  if (fabs(prd->localPosition()[Trk::locR])<0.30) {
-	    const Trk::RIO_OnTrack* recalibratedROT = 
+	    const Trk::RIO_OnTrack* recalibratedROT =
 	      m_recalibrator->makePreciseMeasurement(*compROT,*it->smoothedTrackParameters());
 	    itForKF->replaceMeasurement(recalibratedROT,Trk::TrackState::Nominal);
 	    itForKF->isOutlier(false);
@@ -708,7 +717,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
 	    decision = "drift circle (max prob)";
 	  }
 	} else if (fabs(predictedLocalR) < 2.10) {
-	  const Trk::RIO_OnTrack* recalibratedROT = 
+	  const Trk::RIO_OnTrack* recalibratedROT =
 	    m_recalibrator->makeBroadMeasurement(*compROT,*it->smoothedTrackParameters());
 	  itForKF->replaceMeasurement(recalibratedROT); itForKF->isOutlier(false);
 	  decision = "tube hit";
@@ -722,7 +731,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
 	  itForKF->isOutlier(Trk::TrackState::AssProbOutlier, 1);
 	  decision = "new outlier";
 	} else decision = "cluster hit";
-        
+
 	// TO-DO start doing broad-cluster association here.
       }
     }
@@ -737,7 +746,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
       if (it->parametersCovariance())
         itForKF->checkinParametersCovariance(it->checkoutParametersCovariance());
       itForKF->setForwardStateFitQuality(it->forwardStateChiSquared(),it->forwardStateNumberDoF());
-      if (it->dnaMaterialEffects()!=nullptr)      
+      if (it->dnaMaterialEffects()!=nullptr)
 	itForKF->checkinDNA_MaterialEffects(it->checkoutDNA_MaterialEffects());
     // }
   }
@@ -753,7 +762,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
   ATH_MSG_DEBUG ("now stepping the main trajectory iterators ahead." );
   Trajectory::iterator lastStateOnPiece= m_utility->lastFittableState(m_trajPiece);
   Trajectory::iterator resumeKfState   = m_utility->nextFittableState(trajectory,fittableState);
-  
+
   if (resumeKfState == trajectory.end()) { // ## case 1: DAF on full trajectory
    /* resumeKfState = fittableState;
     lastStateOnPiece = m_utility->previousFittableState(m_trajPiece,lastStateOnPiece);
@@ -772,7 +781,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
 
     if (m_forwardFitter->needsReferenceTrajectory()) ATH_MSG_ERROR("Code missing!");
     if (start_predPar) delete start_predPar;
-    start_predPar = 
+    start_predPar =
       m_extrapolator->extrapolate(*lastStateOnPiece->smoothedTrackParameters(),
 				  resumeKfState->measurement()->associatedSurface(),
 				  Trk::alongMomentum, false, particleType);

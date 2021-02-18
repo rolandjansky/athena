@@ -75,7 +75,7 @@ InDetPhysHitDecoratorAlg::initialize() {
 
   ATH_CHECK( m_trkParticleName.initialize() );
   IDPVM::createDecoratorKeys(*this,m_trkParticleName,m_prefix,float_decor_names,m_floatDecor);
-  
+
   IDPVM::createDecoratorKeys(*this,m_trkParticleName,m_prefix, int_decor_names, m_intDecor);
   assert( m_intDecor.size() == kNIntDecorators);
   assert( m_floatDecor.size() == kNFloatDecorators);
@@ -428,7 +428,7 @@ InDetPhysHitDecoratorAlg::getUnbiasedTrackParameters(const Trk::TrackParameters*
       // Get unbiased state
       unbiasedTrkParameters = m_updatorHandle->removeFromState(*trkParameters,
                                                                measurement->localParameters(),
-                                                               measurement->localCovariance());
+                                                               measurement->localCovariance()).release();
       if (!unbiasedTrkParameters) {
         ATH_MSG_INFO(  "Could not get unbiased track parameters, use normal parameters" );
         isUnbiased = false;
