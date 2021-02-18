@@ -60,7 +60,8 @@ def setupMenu():
         ChainProp(name='HLT_2mu6_L12MU6',     l1SeedThresholds=['MU6'],   groups=MultiMuonGroup),
         #Planned Primaries
         #-- 1 mu iso
-        ChainProp(name='HLT_mu26_ivarmedium_L1MU20', groups=['Primary']+SingleMuonGroup),
+        ChainProp(name='HLT_mu24_ivarmedium_L1MU20', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu26_ivarmedium_L1MU20', groups=['Primary']+SingleMuonGroup, monGroups=['muonMon:shifter','idMon:t0']),
         ChainProp(name='HLT_mu28_ivarmedium_L1MU20', groups=['Primary']+SingleMuonGroup),
         #-- 1 mu
         ChainProp(name='HLT_mu6_idperf_L1MU6', groups=SingleMuonGroup),

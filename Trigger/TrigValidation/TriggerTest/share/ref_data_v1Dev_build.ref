@@ -535,6 +535,8 @@ HLT_e24_lhmedium_g25_medium_L12EM20VH:
   eventCount: 0
 HLT_e24_lhmedium_ivarloose_tau20_mediumRNN_tracktwoMVA_03dRtt_L1EM22VHI:
   eventCount: 0
+HLT_e24_lhmedium_mu8noL1_L1EM22VHI:
+  eventCount: 0
 HLT_e24_lhvloose_2e12_lhvloose_L1EM20VH_3EM10VH:
   eventCount: 0
   stepFeatures:
@@ -618,6 +620,8 @@ HLT_e28_idperf_L1EM24VHI:
     1: 1
     2: 4
     3: 1
+HLT_e28_lhmedium_mu8noL1_L1EM24VHI:
+  eventCount: 0
 HLT_e300_etcut_L1EM22VHI:
   eventCount: 0
 HLT_e3_etcut1step_g5_etcut_L12EM3:
@@ -886,6 +890,8 @@ HLT_g140_etcut_L1EM24VHI:
   eventCount: 0
 HLT_g140_loose_L1EM22VHI:
   eventCount: 0
+HLT_g15_loose_2mu10_msonly_L12MU10:
+  eventCount: 0
 HLT_g20_loose_L1EM15VH:
   eventCount: 0
 HLT_g20_loose_L1EM15VHI:
@@ -944,13 +950,21 @@ HLT_g300_etcut_L1EM22VHI:
   eventCount: 0
 HLT_g35_loose_mu15_mu2noL1_L1EM22VHI:
   eventCount: 0
+HLT_g35_loose_mu15_mu2noL1_L1EM24VHI:
+  eventCount: 0
+HLT_g35_loose_mu18_L1EM22VHI:
+  eventCount: 0
 HLT_g35_loose_mu18_L1EM24VHI:
   eventCount: 0
 HLT_g35_medium_g25_medium_L12EM20VH:
   eventCount: 0
 HLT_g35_tight_icalotight_mu15noL1_mu2noL1_L1EM22VHI:
   eventCount: 0
+HLT_g35_tight_icalotight_mu15noL1_mu2noL1_L1EM24VHI:
+  eventCount: 0
 HLT_g35_tight_icalotight_mu18noL1_L1EM22VHI:
+  eventCount: 0
+HLT_g35_tight_icalotight_mu18noL1_L1EM24VHI:
   eventCount: 0
 HLT_g3_loose_LArPEBHLT_L1EM3:
   eventCount: 3
