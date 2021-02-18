@@ -946,11 +946,13 @@ class athenaExecutor(scriptExecutor):
             # For AthenaMP jobs we ensure that the athena outputs get the suffix _000
             # so that the mother process output file (if it exists) can be used directly
             # as soft linking can lead to problems in the PoolFileCatalog (see ATLASJT-317)
-            for dataType in output:
-                self.conf._dataDictionary[dataType].originalName = self.conf._dataDictionary[dataType].value[0]
-                if 'eventService' not in self.conf.argdict or 'eventService' in self.conf.argdict and self.conf.argdict['eventService'].value==False:
-                    self.conf._dataDictionary[dataType].value[0] += "_000"
-                    msg.info("Updated athena output filename for {0} to {1}".format(dataType, self.conf._dataDictionary[dataType].value[0]))
+            # This should not be done when running Gen_tf (only Gen_tf has 'lheOnly' as argument)
+            if 'lheOnly' not in self.conf.argdict:
+                for dataType in output:
+                    self.conf._dataDictionary[dataType].originalName = self.conf._dataDictionary[dataType].value[0]
+                    if 'eventService' not in self.conf.argdict or 'eventService' in self.conf.argdict and self.conf.argdict['eventService'].value==False:
+                        self.conf._dataDictionary[dataType].value[0] += "_000"
+                        msg.info("Updated athena output filename for {0} to {1}".format(dataType, self.conf._dataDictionary[dataType].value[0]))
         else:
             self._athenaMPWorkerTopDir = self._athenaMPFileReport = None
 
