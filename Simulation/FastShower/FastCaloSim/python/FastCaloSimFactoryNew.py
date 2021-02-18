@@ -147,7 +147,7 @@ def FastShowerCellBuilderToolBaseCfg(flags, name="ISF_FastShowerCellBuilderTool"
 
     kwargs.setdefault("AdditionalParticleParametrizationFileNames", localFileNameList)
     kwargs.setdefault("RandomService", acc.getService("AthRNGSvc"))
-    kwargs.setdefault("RandomStreamName", "AthRNGSvc")
+    kwargs.setdefault("RandomStreamName", "FastCaloSimRnd")
     kwargs.setdefault("DoSimulWithInnerDetectorTruthOnly", True)
     kwargs.setdefault("ID_cut_off_r", [1150])
     kwargs.setdefault("ID_cut_off_z", [3490])
