@@ -104,24 +104,26 @@ if DetFlags.pixel_on():
             alg.ReadKey = ''
         condSeq += alg
 
-    if globalflags.DataSource=='data' and InDetFlags.usePixelDCS():
-        if not conddb.folderRequested("/PIXEL/DCS/FSMSTATE"):
-            conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATE", className="CondAttrListCollection")
-        if not conddb.folderRequested("/PIXEL/DCS/FSMSTATUS"):
-            conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATUS", className="CondAttrListCollection")
-
     if not hasattr(condSeq, "PixelDCSCondStateAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStateAlg
         alg = PixelDCSCondStateAlg(name="PixelDCSCondStateAlg")
-        if athenaCommonFlags.isOnline():
+        if athenaCommonFlags.isOnline() or globalflags.DataSource!='data' or globalflags.isOverlay() or not InDetFlags.usePixelDCS():
             alg.ReadKeyState = ''
+        else :
+            if not conddb.folderRequested("/PIXEL/DCS/FSMSTATE"):
+                conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATE", className="CondAttrListCollection")
+            alg.ReadKeyState = '/PIXEL/DCS/FSMSTATE'
         condSeq += alg
 
     if not hasattr(condSeq, "PixelDCSCondStatusAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStatusAlg
         alg = PixelDCSCondStatusAlg(name="PixelDCSCondStatusAlg")
-        if athenaCommonFlags.isOnline():
+        if athenaCommonFlags.isOnline() or globalflags.DataSource!='data' or globalflags.isOverlay() or not InDetFlags.usePixelDCS():
             alg.ReadKeyStatus = ''
+        else :
+            if not conddb.folderRequested("/PIXEL/DCS/FSMSTATUS"):
+                conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATUS", className="CondAttrListCollection")
+            alg.ReadKeyStatus = '/PIXEL/DCS/FSMSTATUS'
         condSeq += alg
 
     #####################
