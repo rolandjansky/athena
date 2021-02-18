@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #********************************************************************
 # EGammaCommon.py 
@@ -439,8 +439,6 @@ if  rec.doTruth():
     # Schedule the two energy density tools for running
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
-    if not hasattr(topSequence, jtm.truthget.name()):
-        topSequence += jtm.truthget
     topSequence += EventDensityAthAlg("EDTruthCentralAlg", EventDensityTool = tc )
     topSequence += EventDensityAthAlg("EDTruthForwardAlg", EventDensityTool = tf )
 

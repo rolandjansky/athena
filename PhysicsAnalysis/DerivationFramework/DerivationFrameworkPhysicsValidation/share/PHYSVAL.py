@@ -14,7 +14,7 @@ from DerivationFrameworkEGamma import EGammaCommon
 from DerivationFrameworkEGamma import ElectronsCPDetailedContent
 from DerivationFrameworkMuons import MuonsCommon
 from DerivationFrameworkJetEtMiss.JetCommon import OutputJets
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets, addDefaultTrimmedJets, addJetTruthLabel, addQGTaggerTool
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets, addDefaultTrimmedJets, addJetTruthLabel, addQGTaggerTool, getPFlowfJVT
 from DerivationFrameworkJetEtMiss import METCommon
 from TriggerMenu.api.TriggerAPI import TriggerAPI
 from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
@@ -130,7 +130,7 @@ addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=SeqPHYSVAL,algname="QGTaggerTool
 addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqPHYSVAL,algname="QGTaggerToolPFAlg")
 
 # fJVT
-# getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqPHYSVAL, algname='PHYSVALJetForwardPFlowJvtToolAlg')
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqPHYSVAL, algname='PHYSVALJetForwardPFlowJvtToolAlg')
 
 #====================================================================
 # EGAMMA
