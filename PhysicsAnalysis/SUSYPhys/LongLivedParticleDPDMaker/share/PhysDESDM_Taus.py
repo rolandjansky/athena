@@ -61,25 +61,7 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 ## Tau filters
 ###########################################################
 
-# Lets avoid a prescale for now
-# DVPrescaleToolForMET = DerivationFramework__PrescaleTool(name = "DVPrescaleToolForMET",
-#                                                    Prescale = primRPVLLDESDM.DV_PrescalerFlags.prescale
-#                                                    )
-# ToolSvc+=DVPrescaleToolForMET
-
-
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-
-# Or of barrel only and full MS
-# DV_MuonFinalFilter = DerivationFramework__FilterCombinationOR( name = "DV_MuonFinalFilter",
-# 								FilterList=[DV_MuonBarrelFilter,DV_MuonFullMSFilter],
-# 								#OutputLevel=DEBUG
-# 								)
-# ToolSvc+=DV_MuonFinalFilter
-# topSequence += kernel("RPVLL_DVMuonFilterKernel",
-#                       SkimmingTools = [DV_MuonFinalFilter])
-# RPVLLfilterNames.extend(["RPVLL_DVMuonFilterKernel"])
-
 
 ############################################################
 ## Single Tau RNN filter
@@ -91,13 +73,6 @@ TauSingleTriggerFilter = skimtool( name = "TauSingleTriggerFilter",
 
 ToolSvc+=TauSingleTriggerFilter
 
-
-# TODO: This is where the tau filter tool will come into play
-# from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFramework__LargeRadTausFilterTool
-# DVMETFilterTool = DerivationFramework__LargeRadTausFilterTool(name = "LargeRadTausFilterTool",
-#                                                              METContainerKey = METContainer,
-#                                                              METCut=primRPVLLDESDM.DV_METFilterFlags.cutMetMin)
-# ToolSvc+=DVMETFilterTool
 
 Taus_SiFinalFilter = DerivationFramework__FilterCombinationAND( name = "LargeRadSiTaus_FinalFilter",
                                                                FilterList=[TauSingleTriggerFilter],
@@ -142,13 +117,6 @@ TauMETTriggerFilter = skimtool( name = "TauMETTriggerFilter",
 
 ToolSvc+=TauMETTriggerFilter
 
-
-# TODO: This is where the tau filter tool will come into play
-# from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFramework__LargeRadTausFilterTool
-# DVMETFilterTool = DerivationFramework__LargeRadTausFilterTool(name = "LargeRadTausFilterTool",
-#                                                              METContainerKey = METContainer,
-#                                                              METCut=primRPVLLDESDM.DV_METFilterFlags.cutMetMin)
-# ToolSvc+=DVMETFilterTool
 
 Taus_METFinalFilter = DerivationFramework__FilterCombinationAND( name = "LargeRadTaus_METFinalFilter",
                                                                FilterList=[TauMETTriggerFilter],
