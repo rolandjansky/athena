@@ -159,8 +159,6 @@ def getTopoMoments(configFlags):
 def getTopoTruthMoments(configFlags):
     CaloClusterMomentsMaker_DigiHSTruth=CompFactory.CaloClusterMomentsMaker_DigiHSTruth
     TopoMoments_Truth = CaloClusterMomentsMaker_DigiHSTruth ("TopoMoments_Truth")
-    LArHVFraction=CompFactory.LArHVFraction
-    TopoMoments_Truth.LArHVFraction=LArHVFraction(HVScaleCorrKey="LArHVScaleCorr")
     TopoMoments_Truth.WeightingOfNegClusters = configFlags.Calo.TopoCluster.doTreatEnergyCutAsAbsolute
     from AthenaCommon.SystemOfUnits import deg
     TopoMoments_Truth.MaxAxisAngle = 20*deg

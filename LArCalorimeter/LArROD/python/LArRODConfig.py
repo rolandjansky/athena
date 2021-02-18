@@ -60,20 +60,22 @@ def getLArRawChannelBuilder_DigiHSTruth(name="LArRawChannelBuilder_DigiHSTruth" 
     LArAutoCorrTotalCondAlgDefault()
     LArOFCCondAlgDefault()
 
-
+    kwargs.setdefault("ShapeKey","LArShapeSym")
     from LArROD.LArRODFlags import larRODFlags
     kwargs.setdefault('firstSample',larRODFlags.firstSample())
+    iovDbSvc=CfgGetter.getService("IOVDbSvc")
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+    condLoader=condSeq.CondInputLoader
+
 
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
     if CommonGeometryFlags.Run() == "RUN1": # back to flat threshold
        kwargs.setdefault('useDB', False)
        kwargs.setdefault('Run2DSPThresholdsKey', '')
     else:
-       iovDbSvc=CfgGetter.getService("IOVDbSvc")
-       from AthenaCommon.AlgSequence import AthSequencer
-       condSeq = AthSequencer("AthCondSeq")
-       condLoader=condSeq.CondInputLoader
        fld="/LAR/NoiseOfl/DSPThresholds"
+       kwargs.setdefault('Run2DSPThresholdsKey', fld)
        iovDbSvc.Folders.append(fld+"<db>COOLOFL_LAR/OFLP200</db>")
        condLoader.Load.append(("AthenaAttributeList",fld))
     
