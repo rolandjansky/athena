@@ -36,7 +36,7 @@ namespace {
 
   #define GET_DECORATION(OBJECTYPE, DECORATION, TYPE)                                                                                                            \
   TYPE DECORATION(const OBJECTYPE* obj) {                                                                                                                        \
-    static const OBJECTYPE::Accessor<TYPE> deco(#DECORATION);                                                                                                    \
+    static const SG::AuxElement::Accessor<TYPE> deco(#DECORATION);                                                                                               \
     if (!deco.isAvailable(*obj)) throw std::runtime_error(TString::Format("Decoration \"%s\" is not available for object %s!", #DECORATION, #OBJECTYPE).Data()); \
     return deco(*obj);                                                                                                                                           \
   }                                                                                                                                                              \
