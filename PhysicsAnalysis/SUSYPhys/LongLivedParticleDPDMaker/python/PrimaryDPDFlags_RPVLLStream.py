@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 
 ##=============================================================================
@@ -42,6 +42,8 @@ from LongLivedParticleDPDMaker import HNLFlags          # noqa: F401
 from LongLivedParticleDPDMaker import HVFlags           # noqa: F401
 from LongLivedParticleDPDMaker import SmpCaloIdFlags    # noqa: F401
 from LongLivedParticleDPDMaker import SmpMsFlags        # noqa: F401
+from LongLivedParticleDPDMaker import VHFlags           # noqa: F401
+from LongLivedParticleDPDMaker import TauFlags          # noqa: F401
 
 #===============================================================
 # Set specific properties for each of the analysis selections
