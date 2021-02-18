@@ -155,7 +155,7 @@ StatusCode TrigCostAnalysis::execute() {
   costData.setRosToRobMap(m_rosToRob);
   costData.setLb( context.eventID().lumi_block() );
   costData.setTypeMap( m_algTypeMap );
-  if (!m_enhancedBiasTool.name().empty()) {
+  if (!m_enhancedBiasTool.name().empty() && !m_enhancedBiasTool->isMC()) {
     double liveTime = m_enhancedBiasTool->getEBLiveTime(context);
     bool liveTimeIsPerEvent = true;
     if (liveTime == 0.0) { // Note: This comes from a direct "return 0.", hence no delta

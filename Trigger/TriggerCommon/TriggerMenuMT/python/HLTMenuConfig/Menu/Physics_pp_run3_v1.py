@@ -170,6 +170,7 @@ def setupMenu():
     TriggerFlags.StreamingSlice.signatures = [
     ]
     TriggerFlags.MonitorSlice.signatures   = [
+        ChainProp(name='HLT_costmonitor_CostMonDS_L1All',        l1SeedThresholds=['FSNOSEED'], stream=['CostMonitoring'], groups=['RATE:Monitoring','BW:Other']),
     ]
 
     # Random Seeded EB chains which select at the HLT based on L1 TBP bits
