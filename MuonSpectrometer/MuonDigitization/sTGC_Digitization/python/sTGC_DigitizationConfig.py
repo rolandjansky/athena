@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #
 # Import sTGC_Digitization job properties
@@ -30,6 +30,7 @@ def sTgcDigitizationTool(name="sTgcDigitizationTool",**kwargs):
     kwargs.setdefault("OutputObjectName", "sTGC_DIGITS")
     kwargs.setdefault("OutputSDOName", "sTGC_SDO")
     kwargs.setdefault("doToFCorrection", True)
+    kwargs.setdefault("doEfficiencyCorrection", False)
     kwargs.setdefault("SmearingTool","STgcCalibSmearingTool")
     if 'NewMerge' in jobproperties.Digitization.experimentalDigi():
         kwargs.setdefault("UseMcEventCollectionHelper",True)

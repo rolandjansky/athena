@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -112,6 +112,7 @@ sTgcDigitizationTool::sTgcDigitizationTool(const std::string& type, const std::s
     m_outputDigitCollectionName("sTGC_DIGITS"),
     m_outputSDO_CollectionName("sTGC_SDO"),
     m_doToFCorrection(0),
+    m_doEfficiencyCorrection(false),
     m_doChannelTypes(3),
     m_readoutThreshold(0),
     m_neighborOnThreshold(0),
@@ -142,6 +143,7 @@ sTgcDigitizationTool::sTgcDigitizationTool(const std::string& type, const std::s
   declareProperty("OutputSDOName",           m_outputSDO_CollectionName  = "sTGC_SDO"); 
   declareProperty("UseMcEventCollectionHelper", m_needsMcEventCollHelper = false);
   declareProperty("doToFCorrection",         m_doToFCorrection); 
+  declareProperty("doEfficiencyCorrection",  m_doEfficiencyCorrection); 
   declareProperty("doChannelTypes",          m_doChannelTypes); 
   declareProperty("DeadtimeElectronicsStrip",m_deadtimeStrip); 
   declareProperty("DeadtimeElectronicsPad",  m_deadtimePad); 
@@ -198,7 +200,7 @@ StatusCode sTgcDigitizationTool::initialize() {
   }
   
   // initialize class to execute digitization 
-  m_digitizer = new sTgcDigitMaker(m_hitIdHelper, m_mdManager);
+  m_digitizer = new sTgcDigitMaker(m_hitIdHelper, m_mdManager, m_doEfficiencyCorrection);
   m_digitizer->setMessageLevel(static_cast<MSG::Level>(msgLevel()));
   if(!m_rndmSvc.retrieve().isSuccess()) {
     ATH_MSG_FATAL(" Could not initialize Random Number Service");

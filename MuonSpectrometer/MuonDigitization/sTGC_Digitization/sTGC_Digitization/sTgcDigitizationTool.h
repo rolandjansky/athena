@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONDIGITIZATION_STGC_DIGITIZATIONTOOL_H
@@ -132,6 +132,7 @@ private:
   bool m_needsMcEventCollHelper;
 
   bool m_doToFCorrection;
+  bool m_doEfficiencyCorrection;
   int m_doChannelTypes;
   //double m_noiseFactor;
   float m_readoutThreshold;
