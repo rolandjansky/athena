@@ -150,7 +150,7 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
         else {
           sigmaSq = resolution;
         }
-        sigmaSq = sigmaSq/(totalCharge*totalCharge*12);
+        sigmaSq = sigmaSq/(totalCharge*totalCharge);
         ATH_MSG_DEBUG("Uncertainty on cluster position is: " << sqrt(sigmaSq));         
         Amg::MatrixX* covN = new Amg::MatrixX(1,1);
         (*covN)(0,0) = sigmaSq + m_addError*m_addError;
