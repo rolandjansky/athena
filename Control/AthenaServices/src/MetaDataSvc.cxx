@@ -500,7 +500,7 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
       } else {
          toolInstName = toolName;
       }
-      if (clid == 178309087) { // Some MetaData have multiple objects needing seperate tools for propagation
+      if (clid == 178309087 || clid == 243004407) { // Some MetaData have multiple objects needing seperate tools for propagation
          toolInstName += "_" + keyName;
       }
       bool foundTool = false;
