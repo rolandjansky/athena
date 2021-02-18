@@ -63,13 +63,14 @@ def FastSimulationMasterToolCfg(ConfigFlags, **kwargs):
     result = ComponentAccumulator()
     FastSimulationList = result.popToolsAndMerge(generateFastSimulationListCfg(ConfigFlags))
     kwargs.setdefault("FastSimulations", FastSimulationList)
-    result.addPublicTool(FastSimulationMasterTool(name="FastSimulationMasterTool", **kwargs))
+    result.setPrivateTools(FastSimulationMasterTool(name="FastSimulationMasterTool", **kwargs))
     return result
 
 
 def EmptyFastSimulationMasterToolCfg(ConfigFlags, **kwargs):
     result = ComponentAccumulator()
-    result.addPublicTool(FastSimulationMasterTool(name="EmptyFastSimulationMasterTool", **kwargs))
+    tool = result.popToolsAndMerge(FastSimulationMasterTool(name="EmptyFastSimulationMasterTool", **kwargs))
+    result.setPrivateTools(tool)
     return result
 
 
@@ -344,11 +345,12 @@ def SensitiveDetectorMasterToolCfg(ConfigFlags, name="SensitiveDetectorMasterToo
         accSensitiveDetector = generateTestBeamSensitiveDetectorList(ConfigFlags)
         kwargs.setdefault("SensitiveDetectors", result.popToolsAndMerge(accSensitiveDetector) ) #list of tools here!
 
-    result.addPublicTool(SensitiveDetectorMasterTool(name, **kwargs)) #note -this is still a public tool
+    result.setPrivateTools(SensitiveDetectorMasterTool(name, **kwargs))
     return result
 
 
 def getEmptySensitiveDetectorMasterTool(name="EmptySensitiveDetectorMasterTool", **kwargs):
     result = ComponentAccumulator()
-    result.addPublicTool(SensitiveDetectorMasterTool(name, **kwargs))
+    tool = result.popToolsAndMerge(SensitiveDetectorMasterTool(name, **kwargs))
+    result.setPrivateTools(tool)
     return result
