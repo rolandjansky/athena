@@ -53,7 +53,6 @@ class VHLowTrackJet_FilterFlags(JobProperty):
     nJets=1
     cutEl=27*Units.GeV
     cutMu=25*Units.GeV
-    pass
 primRPVLLDESDM.add_JobProperty(VHLowTrackJet_FilterFlags)
 
 

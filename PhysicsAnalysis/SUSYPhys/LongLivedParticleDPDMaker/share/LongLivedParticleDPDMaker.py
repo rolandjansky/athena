@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 ##=============================================================================
 ## Name:        LongLivedParticleDPDMaker
 ##
@@ -44,12 +45,10 @@ theJob = AlgSequence()
 ##--------------------------------
 if len( llDPD.OutputDirectoryName() ) >= 1 and not llDPD.OutputDirectoryName().endswith("/") :
     llDPD.OutputDirectoryName = llDPD.OutputDirectoryName()+"/"    
-    pass
 
 if rec.OutputLevel() <= INFO:
     llDPD_msg.info('Values of all LongLivedDPD flags:')    
     print(llDPD)
-    pass
 
 ##=============================================================================
 ## 3) Make primary DPD
@@ -69,8 +68,6 @@ if llDPD.MakePrimaryDPD():
     ##=======================================================
     if llDPD.WriteRPVLLStream():
         include("LongLivedParticleDPDMaker/PhysDESDM_RPVLL.py")
-        pass
-        pass
 
     #========================================================
     # Setting up the trigger decision tool. It will be only
@@ -79,9 +76,7 @@ if llDPD.MakePrimaryDPD():
     #========================================================
     if llDPD.SetupTrigDecisionTool():
         include("PrimaryDPDMaker/SetupTrigDecisionTool.py")
-        pass
 
-    pass
 
 
 ##=============================================================================

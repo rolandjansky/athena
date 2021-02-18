@@ -53,98 +53,84 @@ class doDiLep(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = True
-    pass
 primRPVLLDESDM.add_JobProperty(doDiLep)
     
 class doDV(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = True
-    pass
 primRPVLLDESDM.add_JobProperty(doDV)
 
 class doKinkedTrack(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = True
-    pass
 primRPVLLDESDM.add_JobProperty(doKinkedTrack)
 
 class doEmerging(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = True
-    pass
 primRPVLLDESDM.add_JobProperty(doEmerging)
     
 class doStopped(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = False
-    pass
 primRPVLLDESDM.add_JobProperty(doStopped)
 
 class doVH_DV(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = False
-    pass
 primRPVLLDESDM.add_JobProperty(doVH_DV)
 
 class doQuirks(JobProperty):
     statusOn=True
     allowedTypes = ["bool"]
     StoredValue = False
-    pass
 primRPVLLDESDM.add_JobProperty(doQuirks)
 
 class doHips(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = False
-    pass
 primRPVLLDESDM.add_JobProperty(doHips)
 
 class doHnl(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = True
-    pass
 primRPVLLDESDM.add_JobProperty(doHnl)
 
 class doHV(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = True
-    pass
 primRPVLLDESDM.add_JobProperty(doHV)
 
 class doSmpCaloId(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = False
-    pass
 primRPVLLDESDM.add_JobProperty(doSmpCaloId)
 
 class doSmpMs(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = False
-    pass
 primRPVLLDESDM.add_JobProperty(doSmpMs)
 
 class doVH(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = True
-    pass
 primRPVLLDESDM.add_JobProperty(doVH)
 
 class doTaus(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = True
-    pass
 primRPVLLDESDM.add_JobProperty(doTaus)
 
 

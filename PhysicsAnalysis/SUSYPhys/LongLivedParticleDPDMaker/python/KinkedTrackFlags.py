@@ -36,7 +36,6 @@ class KinkedTrack_containerFlags(JobProperty):
     METTermName = "FinalTrk" # or "FinalClus" ??
     egClusterCollectionName = "egammaClusters"
     msTrackCollectionName = "MuonSpectrometerTrackParticles"
-    pass
 primRPVLLDESDM.add_JobProperty(KinkedTrack_containerFlags)
 
 class KinkedTrack_singleJetMetFilterFlags(JobProperty):
@@ -196,7 +195,6 @@ class KinkedTrack_singleJetMetFilterFlags(JobProperty):
     cutMetMinForMultiJets = 170.0*Units.GeV
     jetMetDphiMin = 1.0
     preScaleStublet = 10
-    pass
 primRPVLLDESDM.add_JobProperty(KinkedTrack_singleJetMetFilterFlags)
 
 class KinkedTrack_ZeeFilterFlags(JobProperty):
@@ -254,7 +252,6 @@ class KinkedTrack_ZeeFilterFlags(JobProperty):
     deltaPhiMax = 1.5
     preScaleClusterEtMax = 60.0*Units.GeV
     preScale = 5
-    pass
 primRPVLLDESDM.add_JobProperty(KinkedTrack_ZeeFilterFlags)
 
 class KinkedTrack_ZmumuFilterFlags(JobProperty):
@@ -288,7 +285,6 @@ class KinkedTrack_ZmumuFilterFlags(JobProperty):
     deltaPhiMax = 1.5
     preScaleTrackPtMax = 60.0*Units.GeV
     preScale = 5
-    pass
 primRPVLLDESDM.add_JobProperty(KinkedTrack_ZmumuFilterFlags)
 
 

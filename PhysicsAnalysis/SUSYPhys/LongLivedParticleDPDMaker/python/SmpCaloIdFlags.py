@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.JobProperties import JobProperty
 from AthenaCommon.JobProperties import jobproperties
@@ -73,7 +73,6 @@ class SmpCaloId_triggerFilterFlags(JobProperty):
         "EF_xe60_tclcw_loose_delayed",
         "EF_xe60T_tclcw_loose_delayed"
     ]
-    pass
 primRPVLLDESDM.add_JobProperty(SmpCaloId_triggerFilterFlags)
 
 class SmpCaloId_muonFilterFlags(JobProperty):
@@ -83,7 +82,6 @@ class SmpCaloId_muonFilterFlags(JobProperty):
     cutEtMin = 60 * Units.GeV
     cutContainerMu = 'all'
     usingAOD = False
-    pass
 primRPVLLDESDM.add_JobProperty(SmpCaloId_muonFilterFlags)
 
 class SmpCaloId_trackParticleFilterFlags(JobProperty):
@@ -98,5 +96,4 @@ class SmpCaloId_trackParticleFilterFlags(JobProperty):
     cutInputCollection      = 'InDetTrackParticles'
     cutOutputLinkCollection = 'SmpId_TrackParticleLinkCollection'
     usingAOD = False
-    pass
 primRPVLLDESDM.add_JobProperty(SmpCaloId_trackParticleFilterFlags)

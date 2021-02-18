@@ -208,5 +208,4 @@ class doRPVLLTriggerAPI(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = False # TriggerAPI is not correctly working now. See DATREP-183
-    pass
 rpvllTrig.add_JobProperty(doRPVLLTriggerAPI)

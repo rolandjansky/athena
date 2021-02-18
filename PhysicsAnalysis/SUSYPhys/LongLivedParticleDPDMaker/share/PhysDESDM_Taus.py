@@ -28,17 +28,14 @@ def TauSelectionString(flags, container):
     cutList = []
     try:  
         cutList.append('%s.pt > %s'%(container,flags.cutEtMin))
-        pass
     except:
         pass
     try:
         cutList.append('abs(%s.eta) < %s'%(container,flags.cutEtaMax))
-        pass
     except:
         pass
     try:   
         cutList.append("DV%s%s"%(container,flags.cutIsEM))
-        pass
     except:
         pass
     cutString = 'count(' + ' && '.join(cutList) + ') > %i'%(flags.nPassed-1)

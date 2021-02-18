@@ -20,7 +20,6 @@ class Tau_containerFlags(JobProperty):
     muonCollectionName='Muons'
     jetCollectionName="AntiKt4EMTopoJets"
     METCollectionName="MET_LocHadTopo"
-    pass
 primRPVLLDESDM.add_JobProperty(Tau_containerFlags)
 
 
@@ -35,7 +34,6 @@ class Taus_SingleTauFilterFlags(JobProperty):
     # I preffer to not rely on the trigger API at the moment, while R&D in progress
     #if rpvllTrig.doRPVLLTriggerAPI:
     #     triggers += apitriggers.getTauSingleTriggers() ## TriggerAPI
-    pass
 primRPVLLDESDM.add_JobProperty(Taus_SingleTauFilterFlags)
 
 class Taus_DiTauFilterFlags(JobProperty):
@@ -48,7 +46,6 @@ class Taus_DiTauFilterFlags(JobProperty):
     # I preffer to not rely on the trigger API at the moment, while R&D in progress
     #if rpvllTrig.doRPVLLTriggerAPI:
     #     triggers += apitriggers.getTauDiTriggers() ## TriggerAPI
-    pass
 primRPVLLDESDM.add_JobProperty(Taus_DiTauFilterFlags)
 
 class Taus_TauMETFilterFlags(JobProperty):
@@ -62,7 +59,6 @@ class Taus_TauMETFilterFlags(JobProperty):
     # I preffer to not rely on the trigger API at the moment, while R&D in progress
     #if rpvllTrig.doRPVLLTriggerAPI:
     #     triggers += apitriggers.getTauMETTriggers() ## TriggerAPI
-    pass
 primRPVLLDESDM.add_JobProperty(Taus_TauMETFilterFlags)
 
 class Taus_PrescalerFlags(JobProperty):
@@ -70,5 +66,4 @@ class Taus_PrescalerFlags(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
     prescale=1
-    pass
 primRPVLLDESDM.add_JobProperty(Taus_PrescalerFlags)

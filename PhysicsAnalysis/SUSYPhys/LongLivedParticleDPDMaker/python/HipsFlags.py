@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.JobProperties import jobproperties
@@ -23,5 +23,4 @@ class HipsTriggerFilterExpression(JobProperty):
     triggers = ['HLT_g0_hiptrt_L1EM18VH', 'HLT_g0_hiptrt_L1EM20VH', 'HLT_g0_hiptrt_L1EM20VHI', 'HLT_g0_hiptrt_L1EM22VHI', 'HLT_g0_hiptrt_L1EM24VHI', 'HLT_g0_hiptrt_L1EM24VHIM']
     if rpvllTrig.doRPVLLTriggerAPI:
         triggers += apitriggers.getHIPsTriggers() # TriggerAPI
-    pass
 primHIPsDESD.add_JobProperty(HipsTriggerFilterExpression)

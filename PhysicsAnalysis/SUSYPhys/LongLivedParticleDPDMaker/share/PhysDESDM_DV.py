@@ -25,17 +25,14 @@ def DVSelectionString(flags, container):
     cutList = []
     try:  
         cutList.append('%s.pt > %s'%(container,flags.cutEtMin))
-        pass
     except:
         pass
     try:
         cutList.append('abs(%s.eta) < %s'%(container,flags.cutEtaMax))
-        pass
     except:
         pass
     try:   
         cutList.append("DV%s%s"%(container,flags.cutIsEM))
-        pass
     except:
         pass
     cutString = 'count(' + ' && '.join(cutList) + ') > %i'%(flags.nPassed-1)
@@ -51,11 +48,7 @@ def DVTriggerSelectionString(flags):
         if flags.triggers.__len__() >1:
             for trigger in flags.triggers[1:]:
                 cutString+=" || "+trigger
-                pass
-            pass
-        pass
     return cutString
-    pass
 
 ############################################################
 ## Tools for combining filters
