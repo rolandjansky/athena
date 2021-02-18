@@ -22,9 +22,13 @@ Rmatch = 0.05;
 
 dumpflag = 1;
 
-
-a0v = 10.5;
-z0v = 300.5;
+#if defined(LRT)
+	a0v = 100.;
+	z0v = 300.5;
+#else
+	a0v = 10.5;
+	z0v = 300.5;
+#endif
 
 // VertexSelection    = 0;
 // VertexSelectionRec = 0;

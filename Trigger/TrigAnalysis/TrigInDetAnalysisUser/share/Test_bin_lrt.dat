@@ -1,0 +1,42 @@
+// emacs: this is -*- c++ -*-
+
+// e_  for electron,
+// mu_  for muon,
+// tau_  for tau
+// bjet_ for bjets
+
+// current bins
+// eta :: 10
+// phi :: 30
+// z0 :: 30
+// d0 :: 2
+// pT :: 13
+
+e_ptNScale = 0.75;
+e_etaNScale = 0.50;
+e_phiNScale = 0.33;
+e_d0NScale = 1.0;
+e_a0NScale = 0.15;
+e_z0NScale = 0.33;
+
+mu_ptNScale = 0.75;
+mu_etaNScale = 0.5;
+mu_phiNScale = 0.33;
+mu_d0NScale = 1.0;
+mu_a0NScale = 0.15;
+mu_z0NScale = 0.33;
+mu_d0Max = 100.;
+mu_a0Max = 100.;
+
+
+tau_ptNScale = 0.75;
+tau_etaNScale = 0.5;
+tau_phiNScale = 0.33;
+tau_d0NScale = 1.0;
+tau_z0NScale = 0.33;
+
+bjet_ptNScale = 0.75;
+bjet_etaNScale = 0.5;
+bjet_phiNScale = 0.33;
+bjet_d0NScale = 1.0;
+bjet_z0NScale = 0.33;

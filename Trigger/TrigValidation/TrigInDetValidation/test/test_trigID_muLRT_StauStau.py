@@ -29,7 +29,6 @@
 
 Slices  = ['L2muonLRT']
 LRT     = True
-RunEF   = True
 Events  = 8000 
 Threads = 8 
 Slots   = 8
@@ -40,10 +39,12 @@ GridFiles = False
 Jobs = [ ( "Truth",  " TIDAdata-run3-lrt.dat -o data-hists.root -p 13" ),
          ( "Offline",    " TIDAdata-run3-offline-lrt.dat -r Offline -o data-hists-offline.root" ) ]
 
-Comp = [ ( "L2muonLRT",  "L2muonLRT",  "data-hists.root",  " -c TIDAhisto-panel.dat -d HLTL2-plots " ) ]
+Comp = [ ( "L2muonLRT",  "L2muonLRT",  "data-hists.root",  " -c TIDAhisto-panel.dat -d HLTL2-plots -sx Reference Truth " ),
+         #( "EFmuonLRT",  "EFmuonLRT", "data-hists.root",   " -c TIDAhisto-panel.dat -d HLTEF-plots -sx Reference Truth   " ),
+         ( "L2muonLRToffline",   "L2muonLRT","data-hists-offline.root",   " -c TIDAhisto-panel.dat -d HLTL2-plots-offline -sx Reference Offline " ),
+         #( "EFmuonLRToffline",   "E2muonLRT", "data-hists-offline.root",   " -c TIDAhisto-panel.dat -d HLTE2-plots-offline -sx Reference Offline " )
+       ]
 
-TrackReference = [ 'Truth', 'Offline' ]
-Lowpt          = [ False, True ] 
 
 from AthenaCommon.Include import include 
 include("TrigInDetValidation/TrigInDetValidation_Base.py")
