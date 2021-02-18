@@ -305,9 +305,9 @@ def setupMenu():
         ChainProp(name='HLT_j0_aggSEP1000ht_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j0_aggSEP500ht_L1J20', groups=SingleJetGroup),
 
-        ChainProp(name='HLT_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j0_dijetSEP80j1etSEP80j2etSEP700djmassSEP26djdphi_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j0_dijetSEP70j1etSEP70j2etSEP1000djmassSEP20djdphiSEP40djdeta_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j0_dijetSEP80j12etSEP0j12eta240SEP700djmass_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j0_dijetSEP80j12etSEP700djmassSEP26djdphi_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j0_dijetSEP70j12etSEP1000djmassSEP20djdphiSEP40djdeta_L1J20', groups=SingleJetGroup),
 
         ChainProp(name='HLT_j85_ftf_prefilterSEP300ceta210SEP300nphi10_L1J20',
                   groups=SingleJetGroup),
@@ -639,9 +639,8 @@ def setupMenu():
 
         # VBF triggers (ATR-22594)
         #these chains do not have properly formatted dijet selection strings
-        #ChainProp(name='HLT_2mu6_2j50_0eta490_dijetSEP50j1etSEP50j2etSEP900djmass_L1MJJ-500-NFF',l1SeedThresholds=['MU6','FSNOSEED'],stream=[PhysicsStream], groups=MuonJetGroup),
-        #ChainProp(name='HLT_g25_medium_4j35_0eta490_dijetSEP35j1etSEP35j2etSEP1000djmass_L1EM22VHI',l1SeedThresholds=['EM22VHI','FSNOSEED'],stream=[PhysicsStream], groups=EgammaJetGroup),
-
+        #ChainProp(name='HLT_2mu6_2j50_0eta490_j0_dijetSEP50j12etSEP900djmass_L1MJJ-500-NFF',l1SeedThresholds=['MU6','FSNOSEED'],stream=[PhysicsStream], groups=MuonJetGroup),
+        #ChainProp(name='HLT_g25_medium_4j35_0eta490_j0_dijetSEP35j12etSEP1000djmass_L1EM22VHI',l1SeedThresholds=['EM22VHI','FSNOSEED'],stream=[PhysicsStream], groups=EgammaJetGroup),
 
     ]
     TriggerFlags.HeavyIonSlice.signatures  = TriggerFlags.HeavyIonSlice.signatures() + []

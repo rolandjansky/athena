@@ -135,13 +135,27 @@ JetChainParts = {
     #   other dict contents. If it is not 'simple', then the configuration is 100%
     #   from the hypoScenario specification, and all other hypo entries are ignored.
     'hypoScenario' : ['simple', # Independent selections on individual jets, multiplicity+threshold cuts
+                      # 'agg' (forward-backward + dijet) scenario:
+                      #   default eta selection for dijet mass cut is 0eta490
                       'fbdjshared',  # Forward backward jets + dijet, default parameters, fb and dj can share
                       'fbdjnosharedSEP10etSEP20etSEP34massSEP50fbet', # f/b jets + dijet, expl. parameters, fb and dj do not share
                       # 'dijet' scenario applies always a mass cut (deta and dphi cuts are optional)
-                      # 0eta320 is the default eta selections for j1/j2
-                      'dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass', # Test dijet mass sel
-                      'dijetSEP80j1etSEP80j2etSEP700djmassSEP26djdphi', # Test dijet mass sel including dphi cut
-                      'dijetSEP70j1etSEP70j2etSEP1000djmassSEP20djdphiSEP40djdeta', # dijet mass sel including dphi and deta cuts
+                      #   0eta490 is the default eta selections for j1/j2
+                      #   j12et sets the same et cuts for j1et and j2et
+                      #   j12eta sets the same eta cuts for j1eta and j2eta
+                      #   order:
+                      #     et cuts    (mandatory)
+                      #     eta cuts   (optional, if missing will use default)
+                      #     djmass sel (mandatory)
+                      #     djdphi sel (optional)
+                      #     djdeta sel (optional)
+                      'dijetSEP80j12etSEP0j12eta240SEP700djmass', # Test dijet mass sel
+                      'dijetSEP80j12etSEP700djmassSEP26djdphi', # Test dijet mass sel including dphi cut
+                      'dijetSEP70j12etSEP1000djmassSEP20djdphiSEP40djdeta', # dijet mass sel including dphi and deta cuts
+                      'dijetSEP50j12etSEP1000djmass',
+                      'dijetSEP50j12etSEP1000djmassSEP24djdphi',
+                      'dijetSEP50j12etSEP900djmass',
+                      'dijetSEP35j12etSEP1000djmass',
                       # 'agg' category is for single variable computed by aggregation over single jets (default filtering: 30et and 0eta320)
                       'aggSEP1000ht',
                       'aggSEP500ht',
