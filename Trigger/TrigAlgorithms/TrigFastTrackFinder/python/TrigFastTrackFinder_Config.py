@@ -177,7 +177,7 @@ lrtSliceNames = ["electronLRT", "muonLRT", "tauLRT", "bjetLRT", "fullScanLRT"]
 
 class TrigFastTrackFinderBase(TrigFastTrackFinder):
     __slots__ = []
-    def __init__(self, name, slice_name):
+    def __init__(self, name, slice_name, conditionsTool=None):
         TrigFastTrackFinder.__init__(self,name)
 
         #Remapping should be now covered by SliceConfigurationSetting
@@ -229,8 +229,6 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
 
         # switch between Run-2/3 monitoring
         self.MonTool = TrigFastTrackFinderMonitoring(slice_name, self.doResMon)
-        from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
-        self.TrackSummaryTool = InDetTrigFastTrackSummaryTool
 
         # why is this TrigFastTrackFinderMonitoring() line added twice ???
         # Run3 monitoring
@@ -296,9 +294,12 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
 
         from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiComTrackFinder
         InDetTrigSiComTrackFinder_FTF = InDetTrigSiComTrackFinder.clone("InDetTrigSiComTrackFinder_FTF")
-        from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
-        from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConditionsSummaryTool
-        InDetTrigSiComTrackFinder_FTF.SctSummaryTool = SCT_ConditionsSummaryTool(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryToolWithoutFlagged'))
+        if conditionsTool == None:
+          from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConditionsSummaryTool
+          from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
+          InDetTrigSiComTrackFinder_FTF.SctSummaryTool = SCT_ConditionsSummaryTool(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryToolWithoutFlagged'))
+        else:
+          InDetTrigSiComTrackFinder_FTF.SctSummaryTool = conditionsTool
         ToolSvc += InDetTrigSiComTrackFinder_FTF
 
 
