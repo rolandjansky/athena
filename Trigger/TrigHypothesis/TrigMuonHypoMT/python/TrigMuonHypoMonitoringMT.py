@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
@@ -97,17 +97,6 @@ class TrigL2MuonOverlapRemoverMonitoringMucomb(TrigmuCombHypoMonitoring):
                              xbins=50, xmin=-3.2, xmax=3.2, ybins=25, ymin=-3.15, ymax=3.15)
         self.defineHistogram('OverlappedPt', type='TH1F', path='EXPERT', title="#muComb overlapped P_{T}; P_{T} (GeV)",
                              xbins=200, xmin=-100, xmax=100)
-
-
-class TrigMuisoHypoMonitoring(GenericMonitoringTool):
-
-    def __init__ (self, name):
-        super(TrigMuisoHypoMonitoring, self).__init__(name)
-
-        self.defineHistogram('CutCounter', type='TH1F', path='EXPERT', title="MuIsoHypo cut counter;cut; nevents",
-                             xbins=9, xmin=-1.5, xmax=7.5, opt="kCumulative")
-        self.defineHistogram('SumPtCone', type='TH1F', path='EXPERT', title="MuIsoHypo SumPt in cone around muon;E [GeV/c]; nevents",
-                             xbins=200, xmin=0., xmax=15.)
 
 
 class TrigMuonEFHypoMonitoring(GenericMonitoringTool):

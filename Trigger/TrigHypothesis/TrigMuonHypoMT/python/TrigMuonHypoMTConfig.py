@@ -5,7 +5,6 @@ from AthenaConfiguration.ComponentFactory import CompFactory # tools are importe
 from TrigMuonHypoMT.TrigMuonHypoMTConf import (  # noqa: F401 (algs not used here)
     TrigMufastHypoAlg, TrigMufastHypoTool,
     TrigmuCombHypoAlg, TrigmuCombHypoTool,
-    TrigMuisoHypoAlg, TrigMuisoHypoTool,
     TrigMuonEFHypoAlg, TrigMuonEFHypoTool,
     TrigMuonEFTrackIsolationHypoAlg, TrigMuonEFTrackIsolationHypoTool,
     TrigMuonEFInvMassHypoTool,
@@ -17,7 +16,6 @@ from TrigMuonHypoMT.TrigMuonHypoMTConf import (  # noqa: F401 (algs not used her
 from TrigMuonHypoMT.TrigMuonHypoMonitoringMT import (
     TrigMufastHypoMonitoring,
     TrigmuCombHypoMonitoring,
-    TrigMuisoHypoMonitoring,
     TrigMuonEFHypoMonitoring,
     TrigL2MuonOverlapRemoverMonitoringMufast,
     TrigL2MuonOverlapRemoverMonitoringMucomb,
@@ -474,43 +472,6 @@ class TrigmuCombHypoConfig(object):
 
 
 
-### for TrigMuisoHypo
-def TrigMuisoHypoToolFromDict( chainDict ):
-
-    config = TrigMuisoHypoConfig()
-    tool = config.ConfigurationHypoTool( chainDict['chainName'] )
-    addMonitoring( tool, TrigMuisoHypoMonitoring,  "TrigMuisoHypoTool", chainDict['chainName'])
-    return tool
-
-
-class TrigMuisoHypoConfig(object):
-
-    log = logging.getLogger('TrigMuisoHypoConfig')
-
-    def ConfigurationHypoTool( self, toolName ):
-
-        tool = CompFactory.TrigMuisoHypoTool( toolName )
-
-        # If configured with passthrough, set AcceptAll flag on, not quite there in the menu
-        tool.AcceptAll = False
-        if 'passthrough' in toolName:
-            tool.AcceptAll = True
-            log.debug('MuisoHypoConfig configured in pasthrough mode')
-
-        if "FTK" in toolName: # allows us to use different working points in FTK mode
-            tool.IDConeSize   = 2
-            tool.MaxIDIso_1   = 0.12
-            tool.MaxIDIso_2   = 0.12
-            tool.MaxIDIso_3   = 0.12
-        else:
-            tool.IDConeSize   = 2
-            tool.MaxIDIso_1   = 0.1
-            tool.MaxIDIso_2   = 0.1
-            tool.MaxIDIso_3   = 0.1
-
-        return tool
-
-
 def TrigMuonEFMSonlyHypoToolFromDict( chainDict ) :
     thresholds = getThresholdsFromDict( chainDict )
     config = TrigMuonEFMSonlyHypoConfig()
@@ -782,8 +743,6 @@ if __name__ == '__main__':
         assert toolMufast
         toolmuComb = TrigmuCombHypoToolFromDict(chainDict)
         assert toolmuComb
-        toolMuiso = TrigMuisoHypoToolFromDict(chainDict)
-        assert toolMuiso
         toolEFMSonly = TrigMuonEFMSonlyHypoToolFromDict(chainDict)
         assert toolEFMSonly
         toolEFCombiner = TrigMuonEFCombinerHypoToolFromDict(chainDict)
