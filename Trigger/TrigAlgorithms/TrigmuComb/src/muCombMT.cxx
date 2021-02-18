@@ -16,8 +16,6 @@
 
 #include "muCombMT.h"
 #include "muCombUtil.h"
-#include "PathResolver/PathResolver.h"
-#include "TrigConfHLTData/HLTTriggerElement.h"
 #include "xAODTrigMuon/TrigMuonDefs.h"
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "xAODTrigMuon/L2StandAloneMuonAuxContainer.h"
