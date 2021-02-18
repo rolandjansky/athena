@@ -12,7 +12,7 @@
 # art-output: dcube
 # art-html: dcube
 
-NEVENTS=500
+NEVENTS=200
 REF_DIR="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/tauRec/reference/q221"
 
 export ATHENA_CORE_NUMBER=4
