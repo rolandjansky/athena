@@ -21,15 +21,16 @@
 #include "CaloGeoHelpers/proxim.h"
 #include "CaloEvent/CaloPrefetch.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
+#include "CaloInterface/ILArHVFraction.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "AthAllocators/ArenaPoolSTLAllocator.h"
-#include "CLHEP/Geometry/Point3D.h"
-#include "CLHEP/Geometry/Vector3D.h"
+
+#include "GeoPrimitives/GeoPrimitives.h"
+#include "GeoPrimitives/GeoPrimitivesHelpers.h"
+
+#include "CLHEP/Units/SystemOfUnits.h"
 #include "CxxUtils/prefetch.h"
-#include "GaudiKernel/SystemOfUnits.h"
-#include "TLorentzVector.h"
 #include <Eigen/Dense>
 #include <cmath>
 #include <cstdint>
@@ -38,6 +39,8 @@
 #include <sstream>
 
 
+using CLHEP::deg;
+using CLHEP::cm;
 
 namespace {
 
@@ -113,11 +116,11 @@ bool operator< (const MomentName& m, const std::string& v)
 CaloClusterMomentsMaker_DigiHSTruth::CaloClusterMomentsMaker_DigiHSTruth(const std::string& type, 
 						 const std::string& name,
 						 const IInterface* parent)
-  : base_class(type, name, parent),
+  :AthAlgTool(type, name, parent),
     m_calo_id(nullptr),
-    m_maxAxisAngle(20*Gaudi::Units::deg), 
-    m_minRLateral(4*Gaudi::Units::cm), 
-    m_minLLongitudinal(10*Gaudi::Units::cm),
+    m_maxAxisAngle(20*deg),
+    m_minRLateral(4*cm),
+    m_minLLongitudinal(10*cm),
     m_minBadLArQuality(4000),
     m_calculateSignificance(false),
     m_calculateIsolation(false),
@@ -152,10 +155,11 @@ CaloClusterMomentsMaker_DigiHSTruth::CaloClusterMomentsMaker_DigiHSTruth(const s
   // use 2-gaussian noise for Tile
   declareProperty("TwoGaussianNoise",m_twoGaussianNoise);
   declareProperty("LArHVFraction",m_larHVFraction,"Tool Handle for LArHVFraction");
-  declareProperty("WeightingOfNegClusters", m_absOpt);
 
   /// Not used anymore (with xAOD), but required when configured from COOL.
   declareProperty("AODMomentsNames",m_momentsNamesAOD);
+  // Use weighting of neg. clusters option?
+  declareProperty("WeightingOfNegClusters", m_absOpt);
 }
 
 //###############################################################################
@@ -164,8 +168,8 @@ StatusCode CaloClusterMomentsMaker_DigiHSTruth::initialize()
 {
 
   //FIXME: All that could be done at initialize!
-  m_calculateSignificance = true;
-  m_calculateIsolation = true;
+  m_calculateSignificance = false;
+  m_calculateIsolation = false;
 
   // translate all moment names specified in MomentsNames property to moment enums,
   // check that they are all valid and there are no repeating names
@@ -205,7 +209,6 @@ StatusCode CaloClusterMomentsMaker_DigiHSTruth::initialize()
     }
   }
 
-  m_calculateLArHVFraction = false;
   // sort and remove duplicates, order is not required for any of the code below
   // but still may be useful property
   std::stable_sort(m_validMoments.begin(), m_validMoments.end());
@@ -327,9 +330,7 @@ CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& ctx,
         const CaloDetDescrElement * caloDDE = myCell->caloDDE();
         IdentifierHash hashid=caloDDE->calo_hash() ;
         if(! hashid.is_valid() ) continue;
-
         if(hashid >= (signalCells)->size()) continue;
-
         myCell = (*signalCells).findCell(hashid);
         if(!myCell) continue;
 
@@ -374,7 +375,6 @@ CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& ctx,
     int nbad(0),nbad_dac(0),nBadLArHV(0);
     unsigned int ncell(0),i,nSigSampl(0);
     unsigned int theNumOfCells = theCluster->size();
-		TLorentzVector clusterPJ(0,0,0,0);
 		double theClusterEnergy = 0;
 		double theClusterAbsEnergy = 0;
 		double theClusterEta = 0;
@@ -388,6 +388,7 @@ CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& ctx,
       cellinfo.reserve (theNumOfCells*2);
     cellinfo.resize (theNumOfCells);
     
+    double phi0 = theCluster->phi();;
     for(i=0;i<(unsigned int)CaloCell_ID::Unknown;i++) 
       maxSampE[i] = 0;
     
@@ -411,29 +412,32 @@ CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& ctx,
 
         if(hashid >= (signalCells)->size()) continue;
         pCell = (*signalCells).findCell(hashid);
-        TLorentzVector cellPJ(0,0,0,0);
 
-	Identifier myId = pCell->ID();
-	const CaloDetDescrElement* myCDDE = pCell->caloDDE();
-	double ene = pCell->e();
-  if(m_absOpt) ene = fabs(ene);
-	double weight = cellIter.weight();//theCluster->getCellWeight(cellIter);
-  cellPJ.SetPtEtaPhiM(weight*pCell->pt(), myCDDE->eta(), myCDDE->phi(), 0);
-  clusterPJ = clusterPJ + cellPJ;
-  theClusterEnergy += weight * ene;
-  theClusterAbsEnergy += weight*fabs(ene);
-  theClusterEta += weight*fabs(ene)*pCell->eta(); 
-  theClusterPhi += weight*fabs(ene)*pCell->phi(); 
-	if ( pCell->badcell() ) {
-	  eBad += ene*weight;
-	  nbad++;
-	  if(ene!=0){
-	    ebad_dac+=ene*weight;
-	    nbad_dac++;
-	  }
-	}
-	else {
-	  if ( ! (myCDDE->is_tile()) 
+      	Identifier myId = pCell->ID();
+
+      	const CaloDetDescrElement* myCDDE = pCell->caloDDE();
+      	double ene = pCell->e();
+        if(m_absOpt) ene = std::abs(ene);
+      	double weight = cellIter.weight();//theCluster->getCellWeight(cellIter);
+
+        double thePhi;
+        double cellPhi = myCDDE->phi();
+        thePhi = proxim (cellPhi, phi0);
+
+        theClusterEnergy += weight * ene;
+        theClusterAbsEnergy += weight*std::abs(ene);
+        theClusterEta += weight*std::abs(ene)*pCell->eta(); 
+        theClusterPhi += weight*std::abs(ene)* thePhi; 
+      	if ( pCell->badcell() )       {
+      	  eBad += ene*weight;
+      	  nbad++;
+      	  if(ene!=0){
+      	    ebad_dac+=ene*weight;
+      	    nbad_dac++;
+	        }
+      	}
+  	else {
+	  if ( myCDDE && ! (myCDDE->is_tile()) 
 	       && ((pCell->provenance() & 0x2000) == 0x2000) 
 	       && !((pCell->provenance() & 0x0800) == 0x0800)) {
 	    if ( pCell->quality() > m_minBadLArQuality ) {
@@ -442,7 +446,7 @@ CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& ctx,
 	    eLAr2  += ene*weight*ene*weight;
 	    eLAr2Q += ene*weight*ene*weight*pCell->quality();
 	  }
-	  if ( myCDDE->is_tile() ) {
+	  if ( myCDDE && myCDDE->is_tile() ) {
 	    uint16_t tq = pCell->quality();
 	    uint8_t tq1 = (0xFF00&tq)>>8; // quality in channel 1
 	    uint8_t tq2 = (0xFF&tq); // quality in channel 2
@@ -465,7 +469,7 @@ CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& ctx,
 	  sumSig2 += sigma*sigma;
 	  // use geomtery weighted energy of cell for leading cell significance
 	  double Sig = (sigma>0?ene*weight/sigma:0);
-	  if ( fabs(Sig) > fabs(maxAbsSig) ) {
+	  if ( std::abs(Sig) > std::abs(maxAbsSig) ) {
 	    maxAbsSig = Sig;
             nSigSampl = myCDDE->getSampling();
 	  }
@@ -495,7 +499,7 @@ CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& ctx,
 	  }
 	}
 
-	if ( ene > 0. && weight > 0) {
+	if ( myCDDE && ene > 0. && weight > 0) {
 	  // get all geometric information needed ...
           CaloClusterMomentsMaker_detail::cellinfo& ci = cellinfo[ncell];
 	  ci.x      = myCDDE->x();
@@ -532,7 +536,7 @@ CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& ctx,
 	xc/=w;
 	yc/=w;
 	zc/=w;
-	HepGeom::Point3D<double> showerCenter(xc,yc,zc);
+  Amg::Vector3D showerCenter(xc,yc,zc);
 	w=0;
 	
 
@@ -541,8 +545,8 @@ CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& ctx,
 	// shower axis is just the vector pointing from the IP to the shower center
 	// in case there are less than 3 cells in the cluster
 	
-	HepGeom::Vector3D<double> showerAxis(xc,yc,zc);
-	showerAxis.setMag(1);
+  Amg::Vector3D showerAxis(xc,yc,zc);
+  Amg::setMag(showerAxis,1.0);
 
 	// otherwise the principal direction with the largest absolute 
 	// eigenvalue will be used unless it's angle w.r.t. the vector pointing
@@ -567,15 +571,8 @@ CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& ctx,
 	    w += e2;
 	  } 
 
-	  //Symmetrize matrix (Eigen has not symmetric matrix class)
-	  C(0,1)=C(1,0);
-	  C(0,2)=C(2,0);
-	  C(1,2)=C(2,1);
 	  C/=w;
 	  
-
-	  //HepSymMatrix S(C);
-	  //HepMatrix U = diagonalize(&S);
 
 	  Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> eigensolver(C);
 	  if (eigensolver.info() != Eigen::Success) {
@@ -585,32 +582,35 @@ CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& ctx,
 	    // don't use the principal axes if at least one of the 3 
 	    // diagonal elements is 0
 
-	    const Eigen::Vector3d& S=eigensolver.eigenvalues(); 
-	    const Eigen::Matrix3d& U=eigensolver.eigenvectors();
 
-	    if ( !( S[0] == 0.0 || S[1] == 0.0 || S[2] == 0.0 ) ) { 
-	    
-	      HepGeom::Vector3D<double> prAxis(showerAxis);
+      const Eigen::Vector3d& S=eigensolver.eigenvalues();
+      const Eigen::Matrix3d& U=eigensolver.eigenvectors();
+
+            const double epsilon = 1.E-6;
+
+      if ( !( std::abs(S[0]) < epsilon || std::abs(S[1]) < epsilon || std::abs(S[2]) < epsilon ) ) {
+
+        Amg::Vector3D prAxis(showerAxis);
+
 	      int iEigen = -1;
 	    
 	      for (i=0;i<3;i++) {
-		if ( S[i] != 0 ) {
-		  HepGeom::Vector3D<double> tmpAxis = HepGeom::Vector3D<double>(U(0,i),U(1,i),U(2,i));
-		
-		  // calculate the angle
-		  
-		  double tmpAngle = tmpAxis.angle(showerAxis);
-		  if ( tmpAngle > 90*Gaudi::Units::deg ) { 
-		    tmpAngle = 180*Gaudi::Units::deg - tmpAngle;
-		    tmpAxis = -tmpAxis;
-		  }
-		
-		  if ( iEigen == -1 || tmpAngle < angle ) {
-		    iEigen = i;
-		    angle = tmpAngle;
-		    prAxis = tmpAxis;
-		  }
-		}
+      Amg::Vector3D tmpAxis=U.col(i);
+
+      // calculate the angle    
+      double tmpAngle=Amg::angle(tmpAxis,showerAxis);
+
+      if ( tmpAngle > 90*deg ) {
+        tmpAngle = 180*deg - tmpAngle;
+        tmpAxis = -tmpAxis;
+      }
+
+      if ( iEigen == -1 || tmpAngle < angle ) {
+        iEigen = i;
+        angle = tmpAngle;
+        prAxis = tmpAxis;
+      }
+
 	      }//end for loop 	  
 	    
 	      // calculate theta and phi angle differences
@@ -621,14 +621,15 @@ CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& ctx,
 	    
 	      // check the angle
 	    
-	      if ( angle < m_maxAxisAngle ) 
+	      if ( angle < m_maxAxisAngle ) {
 		showerAxis = prAxis;
+        }
 	      else 
-		ATH_MSG_DEBUG("principal Direction (" << prAxis.x() << ", " 
-			      << prAxis.y() << ", " << prAxis.z() << ") deviates more than " 
-			      << m_maxAxisAngle/Gaudi::Units::deg 
-			      << " deg from IP-to-ClusterCenter-axis (" << showerAxis.x() << ", "
-			      << showerAxis.y() << ", " << showerAxis.z() << ")");
+    ATH_MSG_DEBUG("principal Direction (" << prAxis[Amg::x] << ", "
+            << prAxis[Amg::y] << ", " << prAxis[Amg::z] << ") deviates more than "
+            << m_maxAxisAngle*(1./deg)
+            << " deg from IP-to-ClusterCenter-axis (" << showerAxis[Amg::x] << ", "
+            << showerAxis[Amg::y] << ", " << showerAxis[Amg::z] << ")");
 	    }//end if !S[i]==0
 	  }// end else got Eigenvalues
 	} //end if ncell>2
@@ -640,9 +641,8 @@ CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& ctx,
 	// along the shower axis for each cell. The cluster center is 
 	// at r=0 and lambda=0
 	
-	for(i=0;i<ncell;i++) {
-          CaloClusterMomentsMaker_detail::cellinfo& ci = cellinfo[i];
-	  HepGeom::Point3D<double> currentCell(ci.x,ci.y,ci.z);
+  for (auto& ci : cellinfo) {
+    const Amg::Vector3D currentCell(ci.x,ci.y,ci.z);
 	  // calculate distance from shower axis r
 	  ci.r = ((currentCell-showerCenter).cross(showerAxis)).mag();
 	  // calculate distance from shower center along shower axis
@@ -664,11 +664,14 @@ CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& ctx,
           {
 	    // now calculate the actual moments
 	    switch (m_validMoments[iMoment]) {
+       case xAOD::CaloCluster::FIRST_ETA_DigiHSTruth:
+        myMoments[iMoment] += ci.energy*ci.eta;
+        break;
 	    case xAOD::CaloCluster::FIRST_PHI_DigiHSTruth:
 	      // first cell decides the sign in order to avoid
 	      // overlap problem at phi = -pi == +pi
 	      // need to be normalized to the range [-pi,+pi] in the end
-              myMoments[iMoment] += ci.energy * proxim (ci.phi, phi0);
+        myMoments[iMoment] += ci.energy * proxim (ci.phi, phi0);
 	      break;
 	    case xAOD::CaloCluster::SECOND_R_DigiHSTruth:
 	      myMoments[iMoment] += ci.energy*ci.r*ci.r;
@@ -803,7 +806,7 @@ CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& ctx,
 							   showerCenter.eta(),
 							   showerCenter.phi());
 		if ( z_calo != 0 && showerAxis.z() != 0 ) {
-		  lambda_c = fabs((z_calo-showerCenter.z())/showerAxis.z());
+		  lambda_c = std::abs((z_calo-showerCenter.z())/showerAxis.z());
 		}
 	      }
 	      else {
@@ -821,10 +824,10 @@ CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& ctx,
 		    double l2(l1);
 		    l1 += det;
 		    l2 -= det;
-		    if ( fabs(l1) < fabs(l2) ) 
-		      lambda_c = fabs(l1);
+		    if ( std::abs(l1) < std::abs(l2) ) 
+		      lambda_c = std::abs(l1);
 		    else
-		      lambda_c = fabs(l2);
+		      lambda_c = std::abs(l2);
 		  }
 		}
 	      }
@@ -906,7 +909,7 @@ CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& ctx,
             break;
 	  case xAOD::CaloCluster::PHI_DigiHSTruth:
       if(theClusterAbsEnergy > 0)
-	    myMoments[iMoment] = theClusterPhi / theClusterAbsEnergy;
+	    myMoments[iMoment] = CaloPhiRange::fix(theClusterPhi / theClusterAbsEnergy);
       else{
 	    myMoments[iMoment] = 0;
 			}
