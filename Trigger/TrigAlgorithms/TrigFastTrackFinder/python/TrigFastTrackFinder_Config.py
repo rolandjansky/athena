@@ -294,7 +294,7 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
 
         from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiComTrackFinder
         InDetTrigSiComTrackFinder_FTF = InDetTrigSiComTrackFinder.clone("InDetTrigSiComTrackFinder_FTF")
-        if conditionsTool == None:
+        if conditionsTool is None:
           from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConditionsSummaryTool
           from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
           InDetTrigSiComTrackFinder_FTF.SctSummaryTool = SCT_ConditionsSummaryTool(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryToolWithoutFlagged'))
