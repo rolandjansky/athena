@@ -580,10 +580,10 @@ if rec.doTrigger:
             rec.doTrigger = recAlgs.doTrigger = False
     else:
         try:
-            from TriggerJobOpts.TriggerGetter import TriggerGetter
-            triggerGetter = TriggerGetter()
+            from TriggerJobOpts.T0TriggerGetter import T0TriggerGetter
+            triggerGetter = T0TriggerGetter()
         except Exception:
-            treatException("Could not import TriggerJobOpts.TriggerGetter . Switched off !" )
+            treatException("Could not import TriggerJobOpts.T0TriggerGetter . Switched off !" )
             rec.doTrigger = recAlgs.doTrigger = False
 
     # ESDtoAOD Run-3 Trigger Outputs: Don't run any trigger - only pass the HLT contents from ESD to AOD
