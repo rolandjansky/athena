@@ -67,6 +67,9 @@ namespace MuonGM {
     /** pad corners */
     bool padCorners ( const Identifier& id, std::vector<Amg::Vector2D> &corners) const;
 
+    /** is eta=0 of QL1 or QS1? */
+    bool isEtaZero ( const Identifier& id, double posY) const;
+
     /** number of layers in phi/eta projection */
     virtual int numberOfLayers( bool ) const override;
 
@@ -314,6 +317,19 @@ namespace MuonGM {
 
     return design->channelCorners(std::pair<int,int>(padEta,padPhi),corners);
 
+  }
+
+  inline bool sTgcReadoutElement::isEtaZero( const Identifier& id, double posY ) const {
+    // This function returns true if we are in the eta 0 region of QL1/QS1
+
+    const MuonChannelDesign* design = getDesign(id);
+    if( !design ) return false;
+
+    if (design->wireCutout == 0.) return false; // Not QL1 / QS1
+
+    if (posY < 0.5*design->xSize - design->wireCutout) return true;
+
+    return false;
   }
 
   inline int sTgcReadoutElement::numberOfLayers( bool ) const { return m_nlayers; }
