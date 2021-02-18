@@ -9,6 +9,9 @@
 // class header
 #include "PDFcreator.h"
 
+// std
+#include <algorithm>
+
 // Random number generators
 #include "CLHEP/Random/RandFlat.h"
 
