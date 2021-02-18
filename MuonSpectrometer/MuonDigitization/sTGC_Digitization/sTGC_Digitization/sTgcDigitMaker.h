@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // sTgcDigitMaker.h
@@ -43,7 +43,7 @@ class sTgcDigitMaker {
   //------ for public
  public:
 
-  sTgcDigitMaker(sTgcHitIdHelper* hitIdHelper, const MuonGM::MuonDetectorManager * mdManager);
+  sTgcDigitMaker(sTgcHitIdHelper* hitIdHelper, const MuonGM::MuonDetectorManager * mdManager, bool doEfficiencyCorrection);
 
   virtual ~sTgcDigitMaker();
 
@@ -105,6 +105,8 @@ class sTgcDigitMaker {
   //void readFileOfCrossTalk();
   /** Read share/sTGC_Digitization_deadChamber.dat file */
   void readFileOfDeadChamber();
+  /** Read share/sTGC_Digitization_EffChamber.dat file */
+  void readFileOfEffChamber();
   /** Read share/sTGC_Digitization_timeWindowOffset.dat file */
   void readFileOfTimeWindowOffset();
   /** Read share/sTGC_Digitization_alignment.dat file */
@@ -115,6 +117,7 @@ class sTgcDigitMaker {
   //                     const float posInStrip, const double digitTime);
   /** Method to check a chamber is dead or active */
   bool isDeadChamber(const std::string stationName, int stationEta, int stationPhi, int multiPlet, int gasGap);
+  float getChamberEfficiency(int stationName, int stationEta, int stationPhi, int multiPlet, int gasGap);
   double getTimeWindowOffset(const std::string stationName, int stationEta, int channelType) const;
   /** Get stationName integer from stationName string */
   int getIStationName(const std::string staionName) const;
@@ -128,6 +131,7 @@ class sTgcDigitMaker {
   //double m_crossTalk[N_STATIONNAME][N_STATIONETA][N_STATIONPHI][N_GASGAP][N_CHANNELTYPE][N_CROSSTALK_PARAMETER];
   /** Dead chamber flag for each chamber */
   bool m_isDeadChamber[N_STATIONNAME][N_STATIONETA][N_STATIONPHI][N_MULTIPLET][N_GASGAP];
+  float m_ChamberEfficiency[2][4][8][2][4];
   /** Time window offset for each chamber */
   double m_timeWindowOffset[N_STATIONNAME][N_STATIONETA][N_CHANNELTYPE];
 
@@ -150,6 +154,7 @@ class sTgcDigitMaker {
   float m_efficiencyOfWireGangs;
   float m_efficiencyOfStrips;
   float m_IntegralTimeOfElectr;
+  bool m_doEfficiencyCorrection;
  
   /**
      define offsets and widths of time windows for signals from
