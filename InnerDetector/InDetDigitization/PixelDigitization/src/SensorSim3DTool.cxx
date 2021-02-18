@@ -240,8 +240,6 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
   const double x_bin_size = 0.001;
   const double y_bin_size = 0.001;
 
-  std::string readout;
-
   // determine which readout is used
   // FEI4 : 50 X 250 microns
   double pixel_size_x = Module.width() / p_design.rows();
@@ -316,6 +314,9 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
         continue;
       }
 
+      const double mobilityElectron = getMobility(efield, false);
+      const double mobilityHole     = getMobility(efield, true);
+
       //Loop over charge-carrier pairs
       for (int j = 0; j < ncharges; j++) {
         if (m_doRadDamage && m_fluence > 0) {
@@ -329,25 +330,23 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
 
           // Loop over everything twice: once for electrons and once for holes
           for (int eholes = 0; eholes < 2; eholes++) {
-            bool isHole = false; // Set a condition to keep track of electron/hole-specific functions
-            if (eholes == 1) isHole = true;
+            const bool isHole = (eholes == 1); // Set a condition to keep track of electron/hole-specific functions
 
             // Reset extraPixel coordinates each time through loop
             extraNPixX = nPixX;
             extraNPixY = nPixY;
 
-            double timeToElectrode = getTimeToElectrode(y_pix, x_pix, isHole);
-            double driftTime = getDriftTime(isHole);
+            const double timeToElectrode = getTimeToElectrode(y_pix, x_pix, isHole);
+            const double driftTime = getDriftTime(isHole);
 
             //Apply drift due to diffusion
-            double phiRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
+            const double phiRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
 
             //Apply diffusion. rdif is teh max. diffusion
-            double Dt =
-              getMobility(efield, isHole) * (0.024) * std::min(driftTime, timeToElectrode) * m_temperature / 273.;
-            double rdif = 1e-3*std::sqrt(Dt); //in mm
+            const double Dt = (isHole ? mobilityHole : mobilityElectron) * (0.024) * std::min(driftTime, timeToElectrode) * m_temperature / 273.;
+            const double rdif = 1e-3*std::sqrt(Dt); //in mm
             double xposDiff = x_pix + rdif * phiRand;
-            double etaRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
+            const double etaRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
             double yposDiff = y_pix + rdif * etaRand;
 
             // Account for drifting into another pixel
@@ -608,15 +607,14 @@ double SensorSim3DTool::getMobility(double electricField, bool isHoleBit) {
   //These parameterizations come from C. Jacoboni et al., Solid-State Electronics 20 (1977) 77-89. (see also
   // https://cds.cern.ch/record/684187/files/indet-2001-004.pdf).
 
-  if (!isHoleBit) {
-    vsat = 15.3 * std::pow(m_temperature, -0.87); // mm/ns
-    ecrit = 1.01E-7 * std::pow(m_temperature, 1.55); // MV/mm
-    beta = 2.57E-2 * std::pow(m_temperature, 0.66);
-  }
   if (isHoleBit) {
     vsat = 1.62 * std::pow(m_temperature, -0.52); // mm/ns
     ecrit = 1.24E-7 * std::pow(m_temperature, 1.68); // MV/mm
     beta = 0.46 * std::pow(m_temperature, 0.17);
+  } else {
+    vsat = 15.3 * std::pow(m_temperature, -0.87); // mm/ns
+    ecrit = 1.01E-7 * std::pow(m_temperature, 1.55); // MV/mm
+    beta = 2.57E-2 * std::pow(m_temperature, 0.66);
   }
 
   double mobility = (vsat / ecrit) / std::pow(1 + std::pow((electricField / ecrit), beta), (1 / beta));
@@ -627,8 +625,11 @@ double SensorSim3DTool::getDriftTime(bool isHoleBit) {
   double u = CLHEP::RandFlat::shoot(0., 1.); //
   double driftTime = 0;
 
-  if (!isHoleBit) driftTime = (-1.) * m_trappingTimeElectrons * TMath::Log(u); // ns
-  if (isHoleBit) driftTime = (-1.) * m_trappingTimeHoles * TMath::Log(u); // ns
+  if (isHoleBit) {
+    driftTime = (-1.) * m_trappingTimeHoles * std::log(u); // ns
+  } else {
+    driftTime = (-1.) * m_trappingTimeElectrons * std::log(u); // ns
+  }
   return driftTime;
 }
 
@@ -645,7 +646,7 @@ double SensorSim3DTool::getTimeToElectrode(double x, double y, bool isHoleBit) {
 
 double SensorSim3DTool::getTrappingPositionX(double initX, double initY, double driftTime, bool isHoleBit) {
   std::size_t index = 0;
-  double finalX = initX;
+  double finalX(0);
   if (!isHoleBit) {
     finalX = m_xPositionMap_e[index].getContent(m_xPositionMap_e[index].getBinX(1e3*initX), m_xPositionMap_e[index].getBinY(1e3*initY), m_xPositionMap_e[index].getBinZ(driftTime));
   } else {
@@ -657,7 +658,7 @@ double SensorSim3DTool::getTrappingPositionX(double initX, double initY, double 
 
 double SensorSim3DTool::getTrappingPositionY(double initX, double initY, double driftTime, bool isHoleBit) {
   std::size_t index = 0;
-  double finalY = initY;
+  double finalY(0);
   if (!isHoleBit) {
     finalY = m_yPositionMap_e[index].getContent(m_yPositionMap_e[index].getBinX(1e3*initX), m_yPositionMap_e[index].getBinY(1e3*initY), m_yPositionMap_e[index].getBinZ(driftTime));
   } else {

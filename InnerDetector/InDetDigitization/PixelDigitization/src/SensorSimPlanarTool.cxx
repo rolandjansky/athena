@@ -385,8 +385,8 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
           for (int q = nnLoop_pixelPhiMin; q <= nnLoop_pixelPhiMax; q++) {
             //Since both e-h charge carriers start in the same place, they have the same initial ramo value
             //Centre of nearest neighbour (nn) pixel
-            SiLocalPosition centreOfPixel_nn = p_design.positionFromColumnRow(pixel_i.etaIndex() - p,
-                                                                              pixel_i.phiIndex() - q);
+            const SiLocalPosition& centreOfPixel_nn = p_design.positionFromColumnRow(pixel_i.etaIndex() - p,
+                                                                                     pixel_i.phiIndex() - q);
 
             //What is the displacement of the nn pixel from the primary pixel.
             //This is to index the correct entry in the Ramo weighting potential map
@@ -415,24 +415,21 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
             double ramo_f_e = 0.0;
             double ramo_f_h = 0.0;
 
-            if (!isFirstZ_e) {
-              ramo_f_e = ramoPotentialMap.getContent(ramoPotentialMap.getBinX(1e3*dPhi_f_e), ramoPotentialMap.getBinY(1e3*dEta_f_e), ramo_f_e_bin_z);
-            }
-
-            if (!isOverflowZ_h) {
-              ramo_f_h = ramoPotentialMap.getContent(ramoPotentialMap.getBinX(dPhi_f_h), ramoPotentialMap.getBinY(dEta_f_h), ramo_f_h_bin_z);
-            }
-            //Account for the imperfect binning that would cause charge to be double-counted
-            if (isOverflowZ_h) {
-              ramo_f_h = 0;
-            }
-
             if (isFirstZ_e) {
               if (dEta_f_e >= 0.5*Module.etaPitch() || dPhi_f_e >= 0.5*Module.phiPitch()) {
                 ramo_f_e = 0.0;
               } else if (dEta_f_e < 0.5*Module.etaPitch() && dPhi_f_e < 0.5*Module.phiPitch()) {
                 ramo_f_e = 1.0;
               }
+            } else {
+              ramo_f_e = ramoPotentialMap.getContent(ramoPotentialMap.getBinX(1e3*dPhi_f_e), ramoPotentialMap.getBinY(1e3*dEta_f_e), ramo_f_e_bin_z);
+            }
+
+            //Account for the imperfect binning that would cause charge to be double-counted
+            if (isOverflowZ_h) {
+              ramo_f_h = 0;
+            } else {
+              ramo_f_h = ramoPotentialMap.getContent(ramoPotentialMap.getBinX(dPhi_f_h), ramoPotentialMap.getBinY(dEta_f_h), ramo_f_h_bin_z);
             }
 
             //Given final position of charge carrier, find induced charge. The difference in Ramo weighting potential
