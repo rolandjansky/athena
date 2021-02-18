@@ -9,11 +9,18 @@
 def TrigMinBias(configFlags):
 
     from AthenaMonitoring import AthMonitorCfgHelper
-    monConfig = AthMonitorCfgHelper(configFlags,'HLTMinBiasMonAlgMTAcc')
+    monConfig = AthMonitorCfgHelper(configFlags,'HLTMinBiasTrkMonAlg')
 
     from AthenaConfiguration.ComponentFactory import CompFactory
-    alg    = monConfig.addAlgorithm(CompFactory.HLTMinBiasMonAlgMT,'HLTMinBiasMonAlgMT')
+    alg    = monConfig.addAlgorithm(CompFactory.HLTMinBiasTrkMonAlg,'HLTMinBiasTrkMonAlg')
+    trkSel = CompFactory.InDet.InDetTrackSelectionTool("InDetTrackSelectionTool_TightPrimary",
+                                                        CutLevel = "TightPrimary")
+
+    alg.TrackSelectionTool = trkSel
+
+
     alg.triggerList = ["HLT_mb_sptrk_L1RD0_FILLED", "HLT_mb_sp_L1RD0_FILLED"]
+
     mbEffAllGroup = monConfig.addGroup(alg, 'EffAll',
                                        topPath='HLT/MinBiasMon/')
     length = len(alg.triggerList)
@@ -24,16 +31,17 @@ def TrigMinBias(configFlags):
 
     for chain in alg.triggerList:        
 
-        mbEffGroup = monConfig.addGroup(alg, chain+'_Eff',
+        mbEffGroup = monConfig.addGroup(alg, chain+'_Tracking',
                                         topPath='HLT/MinBiasMon/Tracking/'+chain+'/')
         mbEffGroup.defineHistogram( 'decision,nTrkOffline', type='TEfficiency', title='Efficiency;Offline Good nTrk', xbins=100, xmin=0, xmax=1000)
         mbEffGroup.defineHistogram( 'decision,nTrkOffline;efficiency_low_mult', type='TEfficiency', title='Efficiency;Offline Good nTrk', xbins=50, xmin=0, xmax=50)
-        mbEffGroup.defineHistogram( 'nTrkRatio', title='Number of tracks reconstructed online/offline', xbins=100, xmin=-1, xmax=4)
+        mbEffGroup.defineHistogram( 'nTrkRatio', title='Number of tracks reconstructed online/offline;track counts online/offline', xbins=100, xmin=-1, xmax=4)
         mbEffGroup.defineHistogram( 'decision,nTrk', type='TEfficiency', title='Efficiency (step curve);Online nTrk', xbins=1000, xmin=0, xmax=1000)
         # expert plots
-        mbEffGroup.defineHistogram( 'nTrkOnline,nTrkOffline', type='TH2F',  path='Expert', title='N online tracks;N oflfine tracks', xbins=20, xmin=0, xmax=2000, ybins=20, ymin=0, ymax=2000)
+        mbEffGroup.defineHistogram( 'trkSelOfflineRatio', path='Expert', title='Number of tracks reconstructed offline(selected)/offline; N sel/all', xbins=100, xmin=-1, xmax=4)
+        mbEffGroup.defineHistogram( 'nTrkOnline,nTrkOffline', type='TH2F', path='Expert', title=';N online tracks;N oflfine tracks', xbins=20, xmin=0, xmax=2000, ybins=20, ymin=0, ymax=2000)
 
-        mbSpGroup = monConfig.addGroup(alg, chain+'_SP',
+        mbSpGroup = monConfig.addGroup(alg, chain+'_SpacePoints',
                                        topPath='HLT/MinBiasMon/SPacePoints/'+chain+'/')
         mbSpGroup.defineHistogram( 'PixelCL;PixelCLNarrowRange', title='Number of SP in whole Pixels detector for all events', xbins=100, xmin=0, xmax=100)
         mbSpGroup.defineHistogram( 'PixelCL;PixelCLWideRange', title='Number of SP in whole Pixels detector for all events', xbins=100, xmin=0, xmax=30000)
@@ -81,8 +89,8 @@ if __name__=='__main__':
     cfg.merge(TrigMinBias(ConfigFlags))
 
     # If you want to turn on more detailed messages ...
-    # cfg.getEventAlgo('HLTMinBiasMonAlgMT').OutputLevel = 2 # DEBUG #either this line or the next works!!
-    cfg.getEventAlgo('HLTMinBiasMonAlgMT').OutputLevel = DEBUG # DEBUG
+    # cfg.getEventAlgo('HLTMinBiasTrkMonAlg').OutputLevel = 2 # DEBUG #either this line or the next works!!
+    cfg.getEventAlgo('HLTMinBiasTrkMonAlg').OutputLevel = DEBUG # DEBUG
     cfg.printConfig(withDetails=True) # set True for exhaustive info
     with open("cfg.pkl", "wb") as f:
         cfg.store(f)

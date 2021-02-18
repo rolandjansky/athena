@@ -2,17 +2,17 @@
 Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "HLTMinBiasMonAlgMT.h"
+#include "HLTMinBiasTrkMonAlg.h"
 
-HLTMinBiasMonAlgMT::HLTMinBiasMonAlgMT(const std::string &name, ISvcLocator *pSvcLocator) : AthMonitorAlgorithm(name, pSvcLocator)
+HLTMinBiasTrkMonAlg::HLTMinBiasTrkMonAlg(const std::string &name, ISvcLocator *pSvcLocator) : AthMonitorAlgorithm(name, pSvcLocator)
 {
 }
 
-HLTMinBiasMonAlgMT::~HLTMinBiasMonAlgMT()
+HLTMinBiasTrkMonAlg::~HLTMinBiasTrkMonAlg()
 {
 }
 
-StatusCode HLTMinBiasMonAlgMT::initialize()
+StatusCode HLTMinBiasTrkMonAlg::initialize()
 {
   ATH_CHECK(AthMonitorAlgorithm::initialize());
   ATH_CHECK(m_spCountsKey.initialize());
@@ -23,29 +23,29 @@ StatusCode HLTMinBiasMonAlgMT::initialize()
   return AthMonitorAlgorithm::initialize();
 }
 
-StatusCode HLTMinBiasMonAlgMT::finalize()
+StatusCode HLTMinBiasTrkMonAlg::finalize()
 {
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode HLTMinBiasMonAlgMT::fillHistograms(const EventContext &context) const
+StatusCode HLTMinBiasTrkMonAlg::fillHistograms(const EventContext &context) const
 {
 
   ATH_CHECK(monitorPurities(context));
   ATH_CHECK(monitorSPCounts(context));
   ATH_CHECK(monitorTrkCounts(context));
-
+  ATH_CHECK(m_trackSelectionTool.retrieve());
   return StatusCode::SUCCESS;
 }
 
-StatusCode HLTMinBiasMonAlgMT::monitorPurities(const EventContext & /*context*/) const
+StatusCode HLTMinBiasTrkMonAlg::monitorPurities(const EventContext & /*context*/) const
 {
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode HLTMinBiasMonAlgMT::monitorSPCounts(const EventContext &context) const
+StatusCode HLTMinBiasTrkMonAlg::monitorSPCounts(const EventContext &context) const
 {
   auto spCountsHandle = SG::makeHandle(m_spCountsKey, context);
   ATH_MSG_DEBUG("SP monitoring, handle validity " << spCountsHandle.isValid());
@@ -65,7 +65,7 @@ StatusCode HLTMinBiasMonAlgMT::monitorSPCounts(const EventContext &context) cons
 
   for (auto &trig : m_triggerList)
   {
-    if (trigDecTool->isPassed(trig))
+    if (trigDecTool->isPassed(trig, TrigDefs::requireDecision))
     {
       ATH_MSG_DEBUG("Chain " << trig << " is passed: YES");
       auto pixelCL = Scalar("PixelCL", spCountsHandle->at(0)->getDetail<int>("pixCL"));
@@ -78,7 +78,7 @@ StatusCode HLTMinBiasMonAlgMT::monitorSPCounts(const EventContext &context) cons
       auto SctECA_SP = Scalar("SctECA_SP", spCountsHandle->at(0)->getDetail<int>("sctSPEndcapA"));
       auto SctECC_SP = Scalar("SctECC_SP", spCountsHandle->at(0)->getDetail<int>("sctSPEndcapC"));
 
-      fill(trig+"_SP", pixelCL, PixBarr_SP, PixECA_SP, PixECC_SP, SctTot, SctBarr_SP, SctECA_SP, SctECC_SP);
+      fill(trig+"_SpacePoints", pixelCL, PixBarr_SP, PixECA_SP, PixECC_SP, SctTot, SctBarr_SP, SctECA_SP, SctECC_SP);
     }
     else
       ATH_MSG_DEBUG("Chain " << trig << " is passed: NO");
@@ -87,7 +87,7 @@ StatusCode HLTMinBiasMonAlgMT::monitorSPCounts(const EventContext &context) cons
   return StatusCode::SUCCESS;
 }
 
-StatusCode HLTMinBiasMonAlgMT::monitorTrkCounts(const EventContext &context) const
+StatusCode HLTMinBiasTrkMonAlg::monitorTrkCounts(const EventContext &context) const
 {
   using namespace Monitored;
 
@@ -106,31 +106,41 @@ StatusCode HLTMinBiasMonAlgMT::monitorTrkCounts(const EventContext &context) con
 
   auto offlineTrkHandle = SG::makeHandle(m_offlineTrkKey, context);
   // TODO, instead counting all tracks need to count tracks passing offline min-bias selection
-  auto nTrkOffline = Scalar("nTrkOffline", offlineTrkHandle->size());
+
+  int countPassing = 0;
+  for(const auto& trk : *offlineTrkHandle)
+  {
+    if(m_trackSelectionTool->accept(*trk)) ++countPassing;
+  }
+  ATH_MSG_DEBUG("::monitorTrkCounts countPassing  =" << countPassing );
+
+  auto nTrkOffline = Scalar("nTrkOffline", countPassing);
+  auto nAllTrkOffline = Scalar("nAllTrkOffline", offlineTrkHandle->size());
+
+  auto nMBTrkTrkOfflineRatio = Scalar("trkSelOfflineRatio", (offlineTrkHandle->size() == 0 ? -1 : static_cast<double>(nTrkOffline)/offlineTrkHandle->size() ));
 
   const auto &trigDecTool = getTrigDecisionTool();
-  auto sptrkTriggers = trigDecTool->getChainGroup("HLT_mb_sp.*_L1.*")->getListOfTriggers();
   for (auto &trig : m_triggerList )
   {
-    if ( std::find(sptrkTriggers.begin(), sptrkTriggers.end(), trig) == sptrkTriggers.end() ) continue; //not the mbsptrk trigger
-
-    ATH_MSG_DEBUG("Chain " << trig << "  " << (trigDecTool->isPassed(trig) ? "passed" : "did not pass"));
+    ATH_MSG_DEBUG("::monitorTrkCounts Chain " << trig << "  " << (trigDecTool->isPassed(trig, TrigDefs::requireDecision) ? "passed" : "did not pass"));
   
     const unsigned int passBits = trigDecTool->isPassedBits(trig);
-    ATH_MSG_DEBUG("Pass Bits: " << passBits);
-    if ((!(passBits & TrigDefs::EF_prescaled)) && (passBits & TrigDefs::L1_isPassedAfterVeto))
+    ATH_MSG_DEBUG("::monitorTrkCountsPass Bits: " << passBits);
+
+//    if ((!(passBits & TrigDefs::EF_prescaled)) && (passBits & TrigDefs::L1_isPassedAfterVeto))
+    if ( ! (passBits & TrigDefs::EF_prescaled) )
     {
-      auto decision = Scalar<int>("decision", trigDecTool->isPassed(trig) ? 1 : 0);
+      auto decision = Scalar<int>("decision", trigDecTool->isPassed(trig, TrigDefs::requireDecision) ? 1 : 0);
       auto nTrk = Scalar("nTrkOnline", trkCountsHandle->at(0)->getDetail<int>("ntrks"));
       auto whichtrigger = Scalar<std::string>("whichTrigger", trig);
 
       double nTrkRatio = offlineTrkHandle->size() > 0 ? static_cast<double>(offlineTrkHandle->size()) / static_cast<double>(trkCountsHandle->at(0)->getDetail<int>("ntrks")) : -1.0;
       auto trkRatio = Scalar("nTrkRatio", nTrkRatio);
-      fill(trig + "_Eff", nTrkOffline, decision, whichtrigger, trkRatio);
+      fill(trig + "_Tracking", nTrkOffline, nAllTrkOffline, decision, whichtrigger, trkRatio, nMBTrkTrkOfflineRatio);
       fill("EffAll", decision, whichtrigger);
     }
 
-    if (trigDecTool->isPassed(trig))
+    if (trigDecTool->isPassed(trig, TrigDefs::requireDecision))
     {
       auto whichtrigger = Scalar("whichTrigger", trig);
       auto PurityPassed = Scalar<int>("PurityPassed", nTrkOffline > 0 ? 1 : 0);
