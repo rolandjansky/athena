@@ -24,3 +24,6 @@ atlas_add_test( NewJOL1SimSetup
    SCRIPT python -m TriggerJobOpts.Lvl1SimulationConfig
    POST_EXEC_SCRIPT nopost.sh )
 
+atlas_add_test( NewJOL1MuonSimSetup
+   SCRIPT python -m TriggerJobOpts.Lvl1MuonSimulationConfig
+   POST_EXEC_SCRIPT nopost.sh )

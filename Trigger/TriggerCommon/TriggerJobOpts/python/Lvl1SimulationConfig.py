@@ -381,11 +381,17 @@ def Lvl1SimulationMCCfg(flags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
 
-    from TrigT1CaloSim.TrigT1CaloSimRun2Config import L1LegacyCaloSimMCCfg
     from AthenaCommon.CFElements import seqAND
     acc.addSequence(seqAND('L1SimSeq'), parentName='AthAlgSeq')
     acc.addSequence(seqAND('L1CaloLegacySimSeq'), parentName='L1SimSeq')
+
+    from TrigT1CaloSim.TrigT1CaloSimRun2Config import L1LegacyCaloSimMCCfg
     acc.merge(L1LegacyCaloSimMCCfg(flags), sequenceName='L1CaloLegacySimSeq')
+
+    acc.addSequence(seqAND('L1MuonLegacySimSeq'), parentName='L1SimSeq')
+    from TriggerJobOpts.Lvl1MuonSimulationConfig import Lvl1MCMuonSimulationCfg
+    acc.merge(Lvl1MCMuonSimulationCfg(flags), sequenceName='L1MuonLegacySimSeq')
+    
     return acc
 
 if __name__ == '__main__':    
