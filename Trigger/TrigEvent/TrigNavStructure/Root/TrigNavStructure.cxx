@@ -42,12 +42,14 @@ TrigNavStructure::~TrigNavStructure() {
  *
  *****************************************************************************/
 TriggerElement* TrigNavStructure::getInitialNode() {
+  std::lock_guard<std::recursive_mutex> lock(m_rmutex);
   if ( m_factory.empty() )
     m_factory.produce(0);
   return m_factory.listOfProduced().front();
 }
 
 const TriggerElement* TrigNavStructure::getInitialNode() const {
+  std::lock_guard<std::recursive_mutex> lock(m_rmutex);
   if ( not m_factory.empty() )
     return m_factory.listOfProduced().front();
   return 0;
@@ -55,6 +57,7 @@ const TriggerElement* TrigNavStructure::getInitialNode() const {
 
 
 TriggerElement* TrigNavStructure::addRoINode( TriggerElement* initial ) {
+  std::lock_guard<std::recursive_mutex> lock(m_rmutex);
   if ( isInitialNode(initial)  ) {
     TriggerElement* te = m_factory.produce(0);
 
@@ -79,6 +82,8 @@ TriggerElement* TrigNavStructure::addNode( TriggerElement* seednode, unsigned in
 }
 
 TriggerElement* TrigNavStructure::addNode( std::vector<TriggerElement* >& seeds,  unsigned int id, bool ghost, bool nofwd ) {
+  std::lock_guard<std::recursive_mutex> lock(m_rmutex);
+
   TriggerElement* te = m_factory.produce(id, ghost, nofwd);
 
 
@@ -204,6 +209,7 @@ void TrigNavStructure::printASCIIArt (std::string& str, const TriggerElement* te
 }
 
 bool TrigNavStructure::serializeTEs( std::vector<uint32_t>& output ) const {
+  std::lock_guard<std::recursive_mutex> lock(m_rmutex);
   ::HLTNavDetails::FillSize fs(output);
 
   const std::vector<TriggerElement*>& fullList =  m_factory.listOfProduced();
@@ -248,6 +254,7 @@ bool TrigNavStructure::serializeTEs( std::vector<uint32_t>& output ) const {
  *****************************************************************************/
 
 bool TrigNavStructure::deserializeTEs(std::vector<uint32_t>::const_iterator& start, unsigned int totalSize) {
+  std::lock_guard<std::recursive_mutex> lock(m_rmutex);
   m_factory.reset();
   
   std::vector<uint32_t>::const_iterator& inputIt = start;
@@ -327,6 +334,7 @@ void TrigNavStructure::getAllRoIThresholdTEs( std::vector< TriggerElement* >& ou
 void TrigNavStructure::getAllOfType ( const te_id_type id,
 				      std::vector< TriggerElement* >& output,
 				      const bool activeOnly) const {
+  std::lock_guard<std::recursive_mutex> lock(m_rmutex);
   if ( not m_factory.listOfProduced(id).empty() ) {
     std::back_insert_iterator<std::vector<TriggerElement*> > outputIt( output );
 
@@ -341,6 +349,7 @@ void TrigNavStructure::getAllOfType ( const te_id_type id,
 }
 
 void TrigNavStructure::getAll ( std::vector< TriggerElement* >& output, const bool activeOnly) const {
+  std::lock_guard<std::recursive_mutex> lock(m_rmutex);
   if ( not m_factory.listOfProduced().empty() ) {
     std::back_insert_iterator<std::vector<TriggerElement*> > outputIt( output );
     if (activeOnly)
@@ -351,6 +360,7 @@ void TrigNavStructure::getAll ( std::vector< TriggerElement* >& output, const bo
 }
 
 unsigned int TrigNavStructure::countAllOfType( const te_id_type id, const bool activeOnly ) const {
+  std::lock_guard<std::recursive_mutex> lock(m_rmutex);
   if ( activeOnly )
     return m_factory.listOfProduced(id).size()
       - count_if(m_factory.listOfProduced(id).begin(), m_factory.listOfProduced(id).end(), isNotActive);
@@ -515,6 +525,7 @@ bool TrigNavStructure::isCompatibleTree( const TriggerElement* te1, const Trigge
 
 
 bool TrigNavStructure::propagateDeactivation(const TrigNavStructure* nav) {
+  std::lock_guard<std::recursive_mutex> lock(m_rmutex);
   // basic checks first
   if (  nav->m_factory.listOfProduced().size() > m_factory.listOfProduced().size() )
     return false;
@@ -710,16 +721,20 @@ unsigned int TrigNavStructure::copyAllFeatures( const TriggerElement* sourceTE, 
  *
  *****************************************************************************/
 void TrigNavStructure::reset() {
+    std::lock_guard<std::recursive_mutex> lock(m_rmutex);
+
   //  std::cerr << "resetting" << std::endl;
   m_factory.reset();
   m_holderstorage.reset();
 }
 
 sub_index_type TrigNavStructure::subType(class_id_type clid, const index_or_label_type& sti_or_label) const {
+  std::lock_guard<std::recursive_mutex> lock(m_rmutex);
   return m_holderstorage.getSubTypeIndex(clid,sti_or_label);
 }
 
 std::string TrigNavStructure::label(class_id_type clid, const index_or_label_type& sti_or_label) const {
+  std::lock_guard<std::recursive_mutex> lock(m_rmutex);
   return m_holderstorage.getLabel(clid,sti_or_label);
 }
 

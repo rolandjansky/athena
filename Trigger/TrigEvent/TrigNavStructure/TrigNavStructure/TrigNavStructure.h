@@ -9,6 +9,7 @@
 #define TRIGNAVSTRUCTURE_TRIGNAVSTRUCTURE_H
 
 #include <vector>
+#include <mutex>
 
 #include "CxxUtils/checker_macros.h"
 #include "TrigNavStructure/TriggerElement.h"
@@ -371,6 +372,8 @@ namespace HLT {
     TrigHolderStructure m_holderstorage;                 //!< structure for feature holders
     static const TriggerElement* m_unspecifiedTE ATLAS_THREAD_SAFE;
     static std::string m_unspecifiedLabel ATLAS_THREAD_SAFE;
+
+    mutable std::recursive_mutex m_rmutex;
 
 
   };
