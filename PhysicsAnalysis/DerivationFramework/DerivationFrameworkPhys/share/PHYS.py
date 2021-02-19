@@ -190,7 +190,7 @@ largeRJetCollections = [
 ]
 
 OutputJets["PHYS"] = largeRJetCollections
-reducedJetList = ["AntiKt2PV0TrackJets","AntiKt4PV0TrackJets", "AntiKtVR30Rmax4Rmin02TrackJets"]
+reducedJetList = ["AntiKt2PV0TrackJets","AntiKt4PV0TrackJets", "AntiKtVR30Rmax4Rmin02PV0TrackJets"]
 
 if (DerivationFrameworkIsMonteCarlo):
    OutputJets["PHYS"].append("AntiKt10TruthTrimmedPtFrac5SmallR20Jets")
@@ -301,7 +301,7 @@ PHYSSlimmingHelper.SmartCollections = ["Electrons",
                                        "DiTauJets",
                                        "DiTauJetsLowPt",
                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-                                       "AntiKtVR30Rmax4Rmin02TrackJets",
+                                       "AntiKtVR30Rmax4Rmin02PV0TrackJets",
                                        #"BTagging_AntiKtVR30Rmax4Rmin02Track_201903"
                                       ]
 

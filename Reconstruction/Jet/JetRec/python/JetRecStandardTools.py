@@ -408,9 +408,9 @@ jtm += PseudoJetAlgorithm(
 # Standard VR track jets.
 jtm += PseudoJetAlgorithm(
   "gvrtrackget", # give a unique name
-  InputContainer = jetFlags.containerNamePrefix() + "AntiKtVR30Rmax4Rmin02TrackJets", # SG key
-  Label = "GhostVR30Rmax4Rmin02TrackJet",   # this is the name you'll use to retrieve associated ghosts
-  OutputContainer = "PseudoJetGhostVR30Rmax4Rmin02TrackJet",
+  InputContainer = jetFlags.containerNamePrefix() + "AntiKtVR30Rmax4Rmin02PV0TrackJets", # SG key
+  Label = "GhostVR30Rmax4Rmin02PV0TrackJet",   # this is the name you'll use to retrieve associated ghosts
+  OutputContainer = "PseudoJetGhostVR30Rmax4Rmin02PV0TrackJet",
   SkipNegativeEnergy = True,
 )
 

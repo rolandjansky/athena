@@ -484,10 +484,10 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
 
 #####################################################################
 
-def addStandardVRTrackJets(jetalg, vrMassScale, maxR, minR, ptmin=0.,
+def addStandardVRTrackJets(jetalg, vrMassScale, maxR, minR, inputtype, ptmin=0.,
                            ghostArea=0, algseq=None, outputGroup="CustomJets"):
     
-    VRJetNameBase = "{0}VR{1}Rmax{2}Rmin0{3}Track".format(jetalg,int(vrMassScale/1000),int(maxR*10),int(minR*100))
+    VRJetNameBase = "{0}VR{1}Rmax{2}Rmin0{3}{4}".format(jetalg,int(vrMassScale/1000),int(maxR*10),int(minR*100),inputtype)
     VRJetOptions = dict(calibOpt = "none", ivtxin = 0)
     VRJetOptions['variableRMinRadius'] = minR
     VRJetOptions['variableRMassScale'] = vrMassScale
@@ -499,13 +499,19 @@ def addStandardVRTrackJets(jetalg, vrMassScale, maxR, minR, ptmin=0.,
 
     from JetRec.JetRecStandard import jtm
 
+    # map the input to the jtm code for PseudoJetGetter
+    getterMap = dict( LCTopo = 'lctopo', EMTopo = 'emtopo', EMPFlow = 'empflow', EMCPFlow = 'emcpflow', EMPFlowFE = 'empflowfe',
+                      Truth = 'truth',  TruthWZ = 'truthwz', TruthDressedWZ = 'truthdressedwz', TruthCharged = 'truthcharged',
+                      PV0Track='pv0track')
+
     # Slice the array - this forces a copy so that when we modify it we don't also
     # change the array in jtm.
-    pseudoJetGetters = jtm.gettersMap["pv0track"][:]
+    pseudoJetGetters = jtm.gettersMap[getterMap[inputtype]][:]
 
     # We want to include ghost associated tracks in the pv0 tracks so that
     # we can use the looser ghost association criteria for b-tagging.
-    pseudoJetGetters += [jtm.gtrackget]
+    if inputtype == 'PV0Track':
+        pseudoJetGetters += [jtm.gtrackget]
 
     algname = "jetalg"+VRJetNameBase
     OutputJets.setdefault(outputGroup , [] ).append(VRJetName)
@@ -526,7 +532,7 @@ def addStandardVRTrackJets(jetalg, vrMassScale, maxR, minR, ptmin=0.,
 
         mods = []
 
-        if jetFlags.useTruth and jtm.haveParticleJetTools:
+        if jetFlags.useTruth and jtm.haveParticleJetTools and inputtype == 'PV0Track':
             mods += [jtm.trackjetdrlabeler, jtm.ghostlabeler]
 
         VRJetOptions['modifiersin'] = mods
