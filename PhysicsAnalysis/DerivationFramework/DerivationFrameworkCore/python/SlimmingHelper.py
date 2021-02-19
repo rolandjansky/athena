@@ -551,6 +551,9 @@ class SlimmingHelper:
                 elif collectionName=="AntiKt8EMPFlowExKt3GASubJets":
                         from DerivationFrameworkJetEtMiss.AntiKt8EMPFlowExKt3GASubJetsCPContent import AntiKt8EMPFlowExKt3GASubJetsCPContent
                         items.extend(AntiKt8EMPFlowExKt3GASubJetsCPContent)
+                elif collectionName=="AntiKtVR30Rmax4Rmin02TrackJets":
+                        from DerivationFrameworkJetEtMiss.AntiKtVR30Rmax4Rmin02TrackJetsCPContent import AntiKtVR30Rmax4Rmin02TrackJetsCPContent
+                        items.extend(AntiKtVR30Rmax4Rmin02TrackJetsCPContent)
                 elif collectionName=="AntiKtVR30Rmax4Rmin02TrackGhostTagJets":
                         from DerivationFrameworkFlavourTag.AntiKtVR30Rmax4Rmin02TrackGhostTagJetsCPContent import AntiKtVR30Rmax4Rmin02TrackGhostTagJetsCPContent
                         items.extend(AntiKtVR30Rmax4Rmin02TrackGhostTagJetsCPContent)

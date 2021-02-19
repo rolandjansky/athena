@@ -301,7 +301,7 @@ PHYSSlimmingHelper.SmartCollections = ["Electrons",
                                        "DiTauJets",
                                        "DiTauJetsLowPt",
                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-                                       #"AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
+                                       "AntiKtVR30Rmax4Rmin02TrackJets",
                                        #"BTagging_AntiKtVR30Rmax4Rmin02Track_201903"
                                       ]
 

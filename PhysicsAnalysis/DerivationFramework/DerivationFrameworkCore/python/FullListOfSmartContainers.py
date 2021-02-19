@@ -66,6 +66,7 @@ FullListOfSmartContainers = [
    "AntiKt8EMPFlowExKt3SubJets",
    "AntiKt8EMPFlowExKt2GASubJets",
    "AntiKt8EMPFlowExKt3GASubJets",
+   "AntiKtVR30Rmax4Rmin02TrackJets",
    "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810",
    "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810GhostTag",
    "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",

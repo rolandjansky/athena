@@ -46,6 +46,8 @@ ContainersOnTheFly = [
                         ["AntiKt4PV0TrackJetsAux","xAOD::JetAuxContainer"],
                         ["AntiKtVR30Rmax4Rmin02TrackGhostTagJets","xAOD::JetContainer"],
                         ["AntiKtVR30Rmax4Rmin02TrackGhostTagJetsAux","xAOD::JetAuxContainer"],
+                        ["AntiKtVR30Rmax4Rmin02TrackJets","xAOD::JetContainer"],
+                        ["AntiKtVR30Rmax4Rmin02TrackJetsAux","xAOD::JetAuxContainer"],
                         ["AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810","xAOD::JetContainer"],
                         ["AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810Aux","xAOD::JetAuxContainer"],
                         ["AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810GhostTag","xAOD::JetContainer"],
