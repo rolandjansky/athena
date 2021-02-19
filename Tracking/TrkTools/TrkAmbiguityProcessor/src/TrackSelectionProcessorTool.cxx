@@ -62,7 +62,7 @@ Trk::TrackSelectionProcessorTool::finalize(){
 /** Do actual processing of event. Takes a track container, 
     and then returns the tracks which have been selected*/
 
-TrackCollection*  
+const TrackCollection*  
 Trk::TrackSelectionProcessorTool::process(const TrackCollection* tracksCol,
                                           Trk::PRDtoTrackMap *pPrdToTrackMap) const{
   //TODO: make sure the ownership; delete origin tracks from map?
@@ -92,10 +92,10 @@ Trk::TrackSelectionProcessorTool::process(const TrackCollection* tracksCol,
   // - take track with highest score
   // - remove shared hits from all other tracks
   // - take next highest scoring tracks, and repeat 
-  std::unique_ptr<TrackCollection> result(std::make_unique<TrackCollection>(SG::VIEW_ELEMENTS)); //TODO, old or new
+  std::unique_ptr<ConstDataVector<TrackCollection> > result(std::make_unique<ConstDataVector<TrackCollection> >(SG::VIEW_ELEMENTS)); //TODO, old or new
   solveTracks(trackScoreTrackMap, *pPrdToTrackMap, *result);
-  if (msgLvl(MSG::DEBUG)) dumpTracks(*result);
-  return result.release();
+  if (msgLvl(MSG::DEBUG)) dumpTracks(*result->asDataVector());
+  return result.release()->asDataVector();
 }
 
 
@@ -148,7 +148,7 @@ Trk::TrackSelectionProcessorTool::addNewTracks(TrackScoreMap &trackScoreTrackMap
 void
 Trk::TrackSelectionProcessorTool::solveTracks(TrackScoreMap &trackScoreTrackMap,
                                               Trk::PRDtoTrackMap &prdToTrackMap,
-                                              TrackCollection &result) const
+                                              ConstDataVector<TrackCollection> &result) const
 {
   using namespace std;
 
@@ -194,8 +194,7 @@ Trk::TrackSelectionProcessorTool::solveTracks(TrackScoreMap &trackScoreTrackMap,
       StatusCode sc = m_assoTool->addPRDs(prdToTrackMap,*atrack);
       if (sc.isFailure()) ATH_MSG_ERROR( "addPRDs() failed" );
       // add to output list
-      Track *track_view ATLAS_THREAD_SAFE = const_cast<Track*>(atrack.track()); // ok, becasue the destination container is just a view on elements stored in  the input track collection.
-      result.push_back( track_view );
+      result.push_back( atrack.track() );
 
     } else if ( !cleanedTrack ) {
       // track should be discarded

@@ -9,6 +9,7 @@
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTrack/TrackInfo.h"
+#include "AthContainers/ConstDataVector.h"
 
 #include <map>
 #include <memory>
@@ -110,25 +111,24 @@ void Trk::SimpleAmbiguityProcessorTool::statistics(){
 /** Do actual processing of event. Takes a track container, 
     and then returns the tracks which have been selected*/
 
-TrackCollection*  
+const TrackCollection*  
 Trk::SimpleAmbiguityProcessorTool::process(const TrackCollection* trackCol, Trk::PRDtoTrackMap *prdToTrackMap) const {
   return processVector(*trackCol, prdToTrackMap);
 }
 
 
-TrackCollection*  
+const TrackCollection*  
 Trk::SimpleAmbiguityProcessorTool::process(const TracksScores* tracksScores) const {
-  TrackCollection tracks(SG::VIEW_ELEMENTS);
+  ConstDataVector<TrackCollection> tracks(SG::VIEW_ELEMENTS);
   tracks.reserve(tracksScores->size());
   for(const std::pair<const Trk::Track *, float>& e: *tracksScores){
-    auto atrack ATLAS_THREAD_SAFE = const_cast<Trk::Track *>(e.first);
-    tracks.push_back(atrack);
+    tracks.push_back(e.first);
   }
-  TrackCollection* re_tracks = processVector(tracks,nullptr /* no external PRD-to-track map*/);
+  const TrackCollection* re_tracks = processVector(*tracks.asDataVector(),nullptr /* no external PRD-to-track map*/);
   return re_tracks;
 }
 
-TrackCollection*  
+const TrackCollection*  
 Trk::SimpleAmbiguityProcessorTool::processVector(const TrackCollection &tracks, Trk::PRDtoTrackMap *prdToTrackMap) const{
   TrackScoreMap trackScoreTrackMap;
   std::unique_ptr<Trk::PRDtoTrackMap> prdToTrackMap_cleanup;
@@ -147,7 +147,7 @@ Trk::SimpleAmbiguityProcessorTool::processVector(const TrackCollection &tracks, 
   // - take next highest scoring tracks, and repeat
   ATH_MSG_DEBUG ("Solving Tracks");
   std::vector<std::unique_ptr<const Trk::Track> > trackDustbin;
-  TrackCollection* finalTracks = solveTracks(trackScoreTrackMap, *prdToTrackMap,trackDustbin, stat);
+  const TrackCollection* finalTracks = solveTracks(trackScoreTrackMap, *prdToTrackMap,trackDustbin, stat);
   {
      std::lock_guard<std::mutex> lock(m_statMutex);
      m_stat += stat;
@@ -192,7 +192,7 @@ void Trk::SimpleAmbiguityProcessorTool::addNewTracks(const TrackCollection &trac
 
 //==================================================================================================
 
-TrackCollection *
+const TrackCollection *
 Trk::SimpleAmbiguityProcessorTool::solveTracks(TrackScoreMap& trackScoreTrackMap,
                                                                 Trk::PRDtoTrackMap &prdToTrackMap,
                                                                 std::vector<std::unique_ptr<const Trk::Track> >& trackDustbin,
@@ -200,7 +200,7 @@ Trk::SimpleAmbiguityProcessorTool::solveTracks(TrackScoreMap& trackScoreTrackMap
   const EventContext& ctx = Gaudi::Hive::currentContext();
   UniqueClusterSplitProbabilityContainerPtr splitProbContainer(createAndRecordClusterSplitProbContainer(ctx));
 
-  std::unique_ptr<TrackCollection> finalTracks(std::make_unique<TrackCollection>());
+  std::unique_ptr<ConstDataVector<TrackCollection> > finalTracks(std::make_unique<ConstDataVector<TrackCollection> >());
 
   ATH_MSG_DEBUG ("Starting to solve tracks");
   // now loop as long as map is not empty
@@ -225,7 +225,7 @@ Trk::SimpleAmbiguityProcessorTool::solveTracks(TrackScoreMap& trackScoreTrackMap
       // add track to PRD_AssociationTool
       if (m_assoTool->addPRDs(prdToTrackMap, *atrack.track()).isFailure()) ATH_MSG_ERROR("addPRDs() failed" );
       // add to output list 
-      finalTracks->push_back( const_cast<Track*>(atrack.release()) );
+      finalTracks->push_back( atrack.release() );
     } else if ( keep_orig ) {
       // don't forget to drop track from map
       // track can be kept as is, but is not yet fitted
@@ -262,7 +262,7 @@ Trk::SimpleAmbiguityProcessorTool::solveTracks(TrackScoreMap& trackScoreTrackMap
     }
   }
   ATH_MSG_DEBUG ("Finished, number of track on output: "<<finalTracks->size());
-  return finalTracks.release();
+  return finalTracks.release()->asDataVector();
 }
 
 
