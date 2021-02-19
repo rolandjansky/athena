@@ -63,7 +63,7 @@ class sTgcDigitMaker {
  private:
 
   int m_channelTypes; // 1 -> strips, 2 -> strips+wires, 3 -> strips/wires/pads
-
+  double m_theta, m_mean;  
   enum NumberOfDimensions {
     N_STATIONNAME = 2,
     OFFSET_STATIONNAME = 0,
