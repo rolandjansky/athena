@@ -900,8 +900,15 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       m_n_hitIncomingAngleRads = inAngle_XZ * CLHEP::degree;
       m_n_hitOnSurface_x=positionOnSurface.x();
       m_n_hitOnSurface_y = positionOnSurface.y();
+
+      float gainFraction = 1.0;
+      if ( m_doSmearing ) {
+        // build identifier including the strip since layerId does not contain teh strip number
+        Identifier id = m_idHelperSvc->mmIdHelper().channelID(layerID, m_idHelperSvc->mmIdHelper().multilayer(layerID), m_idHelperSvc->mmIdHelper().gasGap(layerID), stripNumber);
+        ATH_CHECK(m_smearingTool->getGainFraction(id, gainFraction));
+      }
       
-      MM_StripToolOutput tmpStripOutput = m_StripsResponseSimulation->GetResponseFrom(stripDigitInput);
+      MM_StripToolOutput tmpStripOutput = m_StripsResponseSimulation->GetResponseFrom(stripDigitInput,gainFraction);
       MM_ElectronicsToolInput stripDigitOutput( tmpStripOutput.NumberOfStripsPos(), tmpStripOutput.chipCharge(), tmpStripOutput.chipTime(), digitID , hit.kineticEnergy());
       
       // This block is purely validation
@@ -947,12 +954,6 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
 
     // get the threshold scale factor from the gain factor of the smearing tool
     float thresholdScaleFactor = 1.0;
-    if ( m_doSmearing ) {
-      float gainFraction = 1.0;
-      ATH_CHECK(m_smearingTool->getGainFraction(layerID,gainFraction));
-      /// now transform the gain fraction into a threshold scale factor
-      thresholdScaleFactor = 1. / gainFraction;
-    }
     
     // Combine all strips (for this VMM) into a single VMM-level object
     //
