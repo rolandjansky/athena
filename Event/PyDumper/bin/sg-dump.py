@@ -119,6 +119,11 @@ if __name__ == "__main__":
          default = "",
          help = "comma-separated list of glob patterns of keys/types to ignore")
          
+    _add("--conditions-tag",
+         dest = "conditions_tag",
+         default = "",
+         help = "override setting of global conditions tag")
+         
     (options, args) = parser.parse_args()
 
     input_files = []
@@ -152,6 +157,7 @@ if __name__ == "__main__":
             file_type=options.file_type,
             do_clean_up=options.do_clean_up,
             athena_opts=options.athena_opts,
+            conditions_tag = options.conditions_tag,
             msg=msg
             )
     except Exception as err:
