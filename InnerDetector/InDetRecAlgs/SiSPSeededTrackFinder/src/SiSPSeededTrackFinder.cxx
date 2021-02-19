@@ -424,6 +424,16 @@ StatusCode InDet::SiSPSeededTrackFinder::itkStrategy()
   // Loop through all SSS seeds
   //
   m_seedsmaker->newEvent(0); m_seedsmaker->find3Sp(VZ);
+  
+  /// Get the value of the seed maker validation ntuple writing switch
+  bool doWriteNtuple = m_seedsmaker->getWriteNtupleBoolProperty();
+  long EvNumber = 0.;            //Event number variable to be used for the validation ntuple 
+  
+  if (doWriteNtuple) {
+    const xAOD::EventInfo* eventInfo = nullptr;
+    ATH_CHECK( evtStore()->retrieve(eventInfo,"EventInfo") );
+    EvNumber = eventInfo->eventNumber();
+  }
  
   while((seed = m_seedsmaker->next())) {
 
@@ -433,6 +443,11 @@ StatusCode InDet::SiSPSeededTrackFinder::itkStrategy()
       qualityTrack.insert(std::make_pair(-trackQuality((*t)),(*t)));
 
     }
+    /// Call the ntuple writing method
+    if(doWriteNtuple) { 
+      m_seedsmaker->writeNtuple(seed, !T.empty() ? T.front() : nullptr, ISiSpacePointsSeedMaker::StripSeed, EvNumber) ; 
+    }
+    
     if( m_nseeds >= m_maxNumberSeeds) {
       ERR = true; ++m_problemsTotal;  break;
     }
@@ -466,7 +481,10 @@ StatusCode InDet::SiSPSeededTrackFinder::itkStrategy()
     const std::list<Trk::Track*>& T = m_trackmaker->getTracks(seed->spacePoints());
     for(std::list<Trk::Track*>::const_iterator t=T.begin(); t!=T.end(); ++t) {
       qualityTrack.insert(std::make_pair(-trackQuality((*t)),(*t)));
-
+    }
+     /// Call the ntuple writing method
+    if(doWriteNtuple) { 
+      m_seedsmaker->writeNtuple(seed, !T.empty() ? T.front() : nullptr, ISiSpacePointsSeedMaker::PixelSeed, EvNumber) ; 
     }
     if( m_nseeds >= m_maxNumberSeeds) {
       ERR = true; ++m_problemsTotal;  break;

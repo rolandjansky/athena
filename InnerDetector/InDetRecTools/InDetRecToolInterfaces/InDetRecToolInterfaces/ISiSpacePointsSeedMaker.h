@@ -47,6 +47,8 @@
 
 class MsgStream;
 
+namespace Trk { class Track; }
+
 namespace InDet {
 
   class SiSpacePointsSeed;
@@ -117,6 +119,12 @@ namespace InDet {
       ///////////////////////////////////////////////////////////////////
       
       virtual const SiSpacePointsSeed* next()=0;
+      
+      virtual void writeNtuple(const SiSpacePointsSeed* seed, const Trk::Track*, int seedType, long eventNumber) const =0;
+
+      virtual bool getWriteNtupleBoolProperty() const =0;
+
+      enum seedType { StripSeed = 0, PixelSeed = 1 };
       
       ///////////////////////////////////////////////////////////////////
       // Print internal tool parameters and status

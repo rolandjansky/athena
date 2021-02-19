@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -1211,4 +1211,11 @@ bool InDet::SiSpacePointsSeedMaker_Cosmic::isUsed(const Trk::SpacePoint* sp)
   if(!d || m_assoTool->isUsed(*d)) return true;
 
   return false;
+}
+
+void InDet::SiSpacePointsSeedMaker_Cosmic::writeNtuple(const SiSpacePointsSeed*, const Trk::Track*, int, long) const{
+}
+
+bool InDet::SiSpacePointsSeedMaker_Cosmic::getWriteNtupleBoolProperty() const{
+    return false;
 }
