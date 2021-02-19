@@ -205,7 +205,7 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
     covN->setIdentity();
     //  TMP Keeping loose uncertainty until final calibration will be in place
     //  Uncertainty will come from the calibration tool under development
-    double localUncertainty = 1.5*(0.074+0.66*theta-0.15*theta*theta);
+    double localUncertainty = 5*(0.074+0.66*theta-0.15*theta*theta);
     //      if ( m_mmIdHelper->isStereo(MMprds[i].identify()) ) {
     //	localUncertainty = 10.;
     //      }
