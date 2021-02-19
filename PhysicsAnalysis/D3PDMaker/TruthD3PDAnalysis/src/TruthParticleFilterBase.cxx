@@ -140,6 +140,17 @@ TruthParticleFilterBase::buildMcAod (const McEventCollection* mc_in,
   for (const HepMC::GenEvent* ev_in : *mc_in) {
     if (!ev_in) continue;
 #ifdef HEPMC3
+    HepMC::GenEvent* ev_out = HepMC::copyemptyGenEvent( ev_in);
+    // Copy and filter the contents.
+    CHECK( filterEvent (ev_in, ev_out) );
+    // Maybe throw out empty GenEvent's.
+    if (m_removeEmpty && ev_out->particles().empty())
+      delete ev_out;
+    else
+      mc_out->push_back (ev_out);
+    // If we don't want pileup, only do the first non-empty GenEvent.
+    if (!m_doPileup && ev_in->particles().size() != 0)
+      break;
 
 #else
     // Copy the GenEvent.
@@ -182,15 +193,11 @@ TruthParticleFilterBase::filterEvent (const HepMC::GenEvent* ev_in, HepMC::GenEv
   // Loop over particles.
   // (range-based for doesn't work here because particle_const_iterator
   // isn't consistent in the use of const...)
-  for (auto ip: *ev_in)
+  for (auto ip: *((HepMC::GenEvent*)ev_in))
   {
     // Copy the particle if we want to keep it.
-#ifdef HEPMC3
-
-#else
     if (isAccepted (ip))
       CHECK( addParticle (ip, ev_out) );
-#endif
   }
   return StatusCode::SUCCESS;
 }
@@ -212,6 +219,19 @@ TruthParticleFilterBase::addParticle (HepMC::GenParticlePtr p, HepMC::GenEvent* 
     return StatusCode::FAILURE;
   }
 #ifdef HEPMC3
+  // Find the particle in the event.
+  // If it doesn't exist yet, copy it.
+  HepMC::GenParticlePtr pnew = HepMC::barcode_to_particle (ev,HepMC::barcode(p));
+  if (!pnew) pnew = std::make_shared<HepMC::GenParticle>(*p);
+  // Add ourself to our vertices.
+  if (p->production_vertex()) {
+    HepMC::GenVertexPtr v = HepMC::barcode_to_vertex (ev,HepMC::barcode(p->production_vertex()));
+    if (v) v->add_particle_out (pnew);
+  }
+  if (p->end_vertex()) {
+    HepMC::GenVertexPtr v =  HepMC::barcode_to_vertex (ev, HepMC::barcode(p->end_vertex()));
+    if (v) v->add_particle_in (pnew);
+  }
 
 #else
   // Find the particle in the event.
@@ -234,6 +254,7 @@ TruthParticleFilterBase::addParticle (HepMC::GenParticlePtr p, HepMC::GenEvent* 
     if (v)
       v->add_particle_in (pnew);
   }
+//AV: here is a memory leak in case the p has no prod/no end vertex
 #endif
 
   return StatusCode::SUCCESS;
@@ -247,6 +268,29 @@ StatusCode
 TruthParticleFilterBase::addVertex (HepMC::GenVertexPtr v, HepMC::GenEvent* ev)
 {
 #ifdef HEPMC3
+  // See if this vertex has already been copied.
+  HepMC::GenVertexPtr vnew = HepMC::barcode_to_vertex (ev,HepMC::barcode(v));
+  if (!vnew) {
+    // No ... make a new one.
+    vnew = HepMC::newGenVertexPtr();
+    ev->add_vertex (vnew);
+    vnew->set_position (v->position());
+    vnew->set_status (v->status());
+    HepMC::suggest_barcode (vnew,HepMC::barcode(v));
+//AV: Are these needed?FIXME?    vnew->weights() = v->weights();
+    // Fill in the existing relations of the new vertex.
+    for (auto  p : v->particles_in())
+    {
+      HepMC::GenParticlePtr pnew = HepMC::barcode_to_particle (ev,HepMC::barcode(p));
+      if (pnew) vnew->add_particle_in (pnew);
+    }
+    
+   for (auto  p :v->particles_out())
+    {
+      HepMC::GenParticlePtr pnew = HepMC::barcode_to_particle (ev,HepMC::barcode(p));
+      if (pnew) vnew->add_particle_out (pnew);
+    }
+  }
 
 #else
   // See if this vertex has already been copied.
@@ -313,7 +357,5 @@ TruthParticleFilterBase::isolations (TruthEtIsolationsContainer const* &isocont)
 
   return StatusCode::SUCCESS;
 }
-
-
 
 } // namespace D3PD
