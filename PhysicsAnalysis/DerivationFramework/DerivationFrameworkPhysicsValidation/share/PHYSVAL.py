@@ -113,7 +113,7 @@ trigmatching_helper_tau = TriggerMatchingHelper(name='PHYSVALTriggerMatchingTool
 #====================================================================
 
 OutputJets["PHYSVAL"] = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
-reducedJetList = ["AntiKt2PV0TrackJets","AntiKt4PV0TrackJets","AntiKt10PV0TrackJets","AntiKt10LCTopoJets"]
+reducedJetList = ["AntiKt2PV0TrackJets","AntiKt4PV0TrackJets","AntiKt10PV0TrackJets","AntiKtVR30Rmax4Rmin02TrackJets","AntiKt10LCTopoJets"]
 
 if (DerivationFrameworkIsMonteCarlo):
    OutputJets["PHYSVAL"].append("AntiKt10TruthTrimmedPtFrac5SmallR20Jets")
@@ -195,6 +195,7 @@ PHYSVALSlimmingHelper.SmartCollections = ["Electrons",
                                        "DiTauJets",
                                        "DiTauJetsLowPt",
                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                                       "AntiKtVR30Rmax4Rmin02TrackJets",
                                       ]
 
 PHYSVALSlimmingHelper.AllVariables =  ["Electrons", "ForwardElectrons",
