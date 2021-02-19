@@ -275,18 +275,20 @@ if jobproperties.eflowRecFlags.useFlowElements:
   PFLCNeutralFlowElementCreatorAlgorithm = PFLCNeutralFlowElementCreatorAlgorithm("PFLCNeutralFlowElementCreatorAlgorithm")
   topSequence += PFLCNeutralFlowElementCreatorAlgorithm
 
-  # Electron/Photon linkers to flow elements
-  from eflowRec.eflowRecConf import PFEGamFlowElementAssoc
-  PFEGamFlowElementAssocAlg=PFEGamFlowElementAssoc("PFEGamFlowElementAssoc")
-  topSequence +=PFEGamFlowElementAssocAlg
+  if jobproperties.eflowRecFlags.usePFFlowElementAssoc:
 
-  # Muon linker to flow elements
-  from eflowRec.eflowRecConf import PFMuonFlowElementAssoc
-  PFMuonFlowElementAssocAlg=PFMuonFlowElementAssoc("PFMuonFlowElementAssocAlgorithm")
-  #Gaudi switch to add the experimental linker between muon clusters and neutral flow elements (FE)
-  PFMuonFlowElementAssocAlg.m_LinkNeutralFEClusters=True
-  PFMuonFlowElementAssocAlg.m_UseMuonTopoClusters=False # requires m_LinkNeutralFEClusters=True and if set to True= Retrieves TopoClusters from Aux. If not, cell-match muon calocluster to NFE topocluster.
-  topSequence += PFMuonFlowElementAssocAlg
+    # Electron/Photon linkers to flow elements
+    from eflowRec.eflowRecConf import PFEGamFlowElementAssoc
+    PFEGamFlowElementAssocAlg=PFEGamFlowElementAssoc("PFEGamFlowElementAssoc")
+    topSequence +=PFEGamFlowElementAssocAlg
+
+    # Muon linker to flow elements
+    from eflowRec.eflowRecConf import PFMuonFlowElementAssoc
+    PFMuonFlowElementAssocAlg=PFMuonFlowElementAssoc("PFMuonFlowElementAssocAlgorithm")
+    #Gaudi switch to add the experimental linker between muon clusters and neutral flow elements (FE)
+    PFMuonFlowElementAssocAlg.m_LinkNeutralFEClusters=True
+    PFMuonFlowElementAssocAlg.m_UseMuonTopoClusters=False # requires m_LinkNeutralFEClusters=True and if set to True= Retrieves TopoClusters from Aux. If not, cell-match muon calocluster to NFE topocluster.
+    topSequence += PFMuonFlowElementAssocAlg
 
       
 
