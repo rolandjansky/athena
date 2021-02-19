@@ -21,7 +21,8 @@ if jobproperties.CaloRecFlags.doCaloTopoTower.get_Value():
     CaloClusterKeys+=["CaloCalTopoTowers"]
 if jobproperties.CaloRecFlags.doCaloTopoSignal.get_Value():
     CaloClusterKeys+=["CaloCalTopoSignals"]
-##CaloClusterKeys+=["CaloCalFwdTopoTowers"]
+if jobproperties.CaloRecFlags.doCaloFwdTopoTower.get_Value():
+    CaloClusterKeys+=["CaloCalFwdTopoTowers"]
 
 CaloClusterKeys+=["CombinedCluster"]
 #CaloClusterKeys+=["EMTopoCluster430"]
@@ -170,6 +171,7 @@ if jobproperties.CaloRecFlags.doCaloTopoTower.get_Value():
 if jobproperties.CaloRecFlags.doCaloTopoSignal.get_Value():
     CaloClusterKeys+=["CaloCalTopoSignals"]
 
+
 CaloClusterKeys+=["CombinedCluster"]
 #CaloClusterKeys+=["EMTopoCluster430"]
 CaloClusterKeys+=["EMTopoSW35"]
@@ -196,6 +198,25 @@ for theKey in CaloClusterKeys: #Fixme .. Apply this only to TopoClusters?
 # for tau clusters (CaloCalTopoClusters within 0.2 of the tau axis)
 CaloClusterItemList += ["CaloClusterCellLinkContainer#CaloCalTopoClusters_links"]
 
+#CaloCalFwdTopoClusters are also clusters but with a dedicated sliming:
+if jobproperties.CaloRecFlags.doCaloFwdTopoTower.get_Value():
+    theKey="CaloCalFwdTopoTowers"
+    CaloClusterItemList+=["xAOD::CaloClusterContainer#"+theKey]
+    AuxListItem="xAOD::CaloClusterAuxContainer#"+theKey+"Aux"
+    for moment in ("CENTER_LAMBDA", 
+                   "CENTER_MAG",
+                   "LONGITUDINAL",
+                   "FIRST_ENG_DENS",
+                   "ENG_FRAC_MAX",
+                   "ENG_FRAC_EM",
+                   "PTD",
+                   "SIGNIFICANCE",
+                   "ENG_POS"):
+         AuxListItem+="."+moment
+    CaloClusterItemList+=[AuxListItem]
+
+
+
 CaloAODList+=CaloClusterItemList
 
 # E4' cells
@@ -209,3 +230,4 @@ CaloAODList+=["TileMuContainer#TileMuObj"]
 
 # LAr noisy Feb/PA summary
 CaloAODList +=  ["LArNoisyROSummary#LArNoisyROSummary"]
+
