@@ -56,7 +56,7 @@ StatusCode Muon::NSWCalibSmearingTool::initialize()
   m_random = TRandom3();
 
   if (m_readEfficiencyFromFile || m_readGainFractionFromFile) {
-    ATH_CHECK(readHighVoltages());
+    ATH_CHECK(readHighVoltagesStatus());
   }
 
   return StatusCode::SUCCESS;
@@ -292,7 +292,7 @@ double NSWCalibSmearingTool::getMMEfficiencyFromHV(double hv) const
 {
 
   // sigmoid to paramtrize efficiency  (initial values from BB5 measurements)
-  double eff = 100.0/(1+exp(-0.0551*(hv-510.54)));
+  double eff = 1.0/(1+exp(-0.0551*(hv-510.54)));
 
   return eff;
 }
@@ -342,17 +342,17 @@ bool NSWCalibSmearingTool::getPCBIdentifier(const Identifier id, Identifier& pcb
 //
 // read the MM HV map from a set of ascii files
 //
-StatusCode NSWCalibSmearingTool::readHighVoltages()
+StatusCode NSWCalibSmearingTool::readHighVoltagesStatus()
 {
 
-  std::string fileNamesA[16] = {"A01_HV.txt","A02_HV.txt","A03_HV.txt","A04_HV.txt",
-				"A05_HV.txt","A06_HV.txt","A07_HV.txt","A08_HV.txt",
-				"A09_HV.txt","A10_HV.txt","A11_HV.txt","A12_HV.txt",
-				"A13_HV.txt","A14_HV.txt","A15_HV.txt","A16_HV.txt" };
+  std::string fileNamesA[16] = {"A01.txt","A02.txt","A03.txt","A04.txt",
+				"A05.txt","A06.txt","A07.txt","A08.txt",
+				"A09.txt","A10.txt","A11.txt","A12.txt",
+				"A13.txt","A14.txt","A15.txt","A16.txt" };
   
   for (int ifile = 0 ; ifile<16 ; ++ifile) {
 
-    std::string fileName = PathResolverFindCalibFile(Form("NSWCalibTools/210128_initial/%s", fileNamesA[ifile].c_str()));
+    std::string fileName = PathResolverFindCalibFile(Form("NSWCalibTools/210216_initial/%s", fileNamesA[ifile].c_str()));
 
     std::ifstream file(fileName,std::ios::in);
     if ( !file.is_open() ) {
@@ -360,14 +360,23 @@ StatusCode NSWCalibSmearingTool::readHighVoltages()
       continue;
     } 
     ATH_MSG_INFO("Reading HV from configuration file: " << fileName);
+
+    //LM sector
+    //Layer PCB HV_left HV_right HV_min
+    //LM1 - IP
+
     std::string line;
-    bool isLM,isSM,isSec,isIP,isHO;
+    bool isLM,isSM,isIP,isHO;
     int stationName,stationEta,stationPhi,multilayer,gasGap,HVval;
     int side = 0;
     std::string layerId[4] = {"L1","L2","L3","L4"};
-    
-    int initPCB=0;
+
     int endPCB=0;
+
+    getline(file,line);
+    ATH_MSG_VERBOSE(line);
+    getline(file,line);
+    ATH_MSG_VERBOSE(line);
     
     while ( getline(file,line) ) {
       ATH_MSG_VERBOSE(line);
@@ -375,21 +384,16 @@ StatusCode NSWCalibSmearingTool::readHighVoltages()
       isIP=false;
       isHO=false;
       
-      size_t fSec = line.find("PCB");
-      isSec = (fSec!=std::string::npos);
-      // decode module line - get the sector and stationPhi
-      if ( isSec ) {
-	std::string secName = line.substr(0,3);
+      std::string secName = fileNamesA[ifile].substr(0,2);
 	
-	if ( secName.substr(0,1)=="A" ) side = +1;
-	else if ( secName.substr(0,1)=="C" ) side = -1;
-	else {
-	  ATH_MSG_ERROR("ERROR side not defined");
-	  return StatusCode::FAILURE;
-	}
-	int phiSec = std::stoi(secName.substr(1,2));
-	stationPhi = (phiSec-1)/2+1;
+      if ( secName.substr(0,1)=="A" ) side = +1;
+      else if ( secName.substr(0,1)=="C" ) side = -1;
+      else {
+	ATH_MSG_ERROR("ERROR side not defined");
+	return StatusCode::FAILURE;
       }
+      int phiSec = std::stoi(fileNamesA[ifile].substr(1,2));
+      stationPhi = (phiSec-1)/2+1;
       
       size_t fLM = line.find("LM");
       size_t fSM = line.find("SM");
@@ -405,15 +409,9 @@ StatusCode NSWCalibSmearingTool::readHighVoltages()
 	  stationEta = side*std::stoi(line.substr(fLM+2,1));
 	}
 	
-	/// PCB range is 1 to 5 for stations 1, 6 to 8 for stations 2
-	if (stationEta==1) {
-	  initPCB=1;
-	  endPCB=5;
-	}
-	else if (stationEta==2) {
-	  initPCB=6;
-	  endPCB=8;
-	}
+	/// PCB range is 1 to 5 for stations 1, 1 to 3 for stations 2
+	if (stationEta==1) endPCB=5;
+	else if (stationEta==2) endPCB=3;
 	else {
 	  ATH_MSG_ERROR("wrong stationEta value = " << stationEta);
 	}
@@ -440,109 +438,48 @@ StatusCode NSWCalibSmearingTool::readHighVoltages()
 	}
 	
 	// now read the various layers
-	int ilayer = 0;
-	
-	while (ilayer<4) {
-	  
-	  getline(file,line);
-	  ATH_MSG_VERBOSE(line);
-	  
-	  size_t flayer  = line.find(layerId[ilayer]);
-	  bool   isLayer = (flayer!=std::string::npos);
-	  // check if it's an hospital line
-	  size_t fHOL = line.find("HOL");
-	  bool isHOL = (fHOL!=std::string::npos );
-
-	  
-	  if ( isLayer ) {     /// if a layer is found the format is the one with the new SBOX
-	    /// read all the layers and PCB
-	    int ipcb=initPCB;
-	    gasGap = ilayer+1;
-	    while ( ipcb<=endPCB) { 
-	      /// read the first PCB in the layer
-	      int stringPos = 0;
-	      for ( std::string::iterator it = line.begin() ; it != line.end() ; ++it ) {
-		if ( (*it) != ' ' && line.substr(stringPos,2)==layerId[ilayer] ) {
-		  /// read the first PCB
-		  HVval=std::stoi(line.substr(stringPos+13,3));
-		  break;
-		}
-		else if ( (*it) != ' ' && line.substr(stringPos,2)!=layerId[ilayer]  ) {
-		  /// read the other PCB's
-		  HVval=std::stoi(line.substr(stringPos+6,3));
-		  break;
-		}
-		stringPos++;
-	      }
-	      ATH_MSG_DEBUG("PCB done, stationName, stationEta, stationPhi, ml, layer, pcb, hv: "
-			    << stationName<< " " << stationEta << " " << stationPhi << " " << multilayer << " "
-			    << gasGap << " " << ipcb << " " << HVval );
-
-	      int chanNum = (ipcb-1)*1024+512;
-	      /// add the PCB to the map
-	      Identifier pcbId = m_idHelperTool->mmIdHelper().channelID(stationName,stationEta,stationPhi,
-									multilayer,gasGap,chanNum);
-	      float hv = (float)HVval;
-	      m_hvMap.insert(std::pair<Identifier,float>(pcbId,hv));
-	      
-	      if ( ipcb<endPCB ) { 
-		getline(file,line);
-		ATH_MSG_VERBOSE(line);
-	      }
-	      ipcb++;
+	//int ilayer = 1;
+	//int ipcb = 1;
+	for (int ilayer = 1; ilayer <= 4; ilayer++) {
+	  for (int ipcb = 1; ipcb <= endPCB; ipcb++) { 	  
+	    getline(file,line);
+	    ATH_MSG_VERBOSE(line);
+	    
+	    std::istringstream elem(line);
+	    std::vector<std::string> elements;
+	    
+	    while(elem) {
+	      std::string subs_elem;
+	      elem >> subs_elem;
+	      if (subs_elem != "") elements.push_back(subs_elem);
 	    }
 	    
-	  }  // new splitter box
-	  
-	  else if (isHOL) {   /// old splitter box
-	    /// read the layer and set the same HV for all PCB
-	    int lowHV = std::stoi(line.substr(fHOL+8,3));
-	    float fraction = std::stof(line.substr(fHOL+14,4)); 
+	    gasGap = std::stoi(elements[0]);
+	    int readed_pcb = std::stoi(elements[1]);
+	    if (gasGap != ilayer || readed_pcb != ipcb) {
+	      ATH_MSG_ERROR("Layer or pcb wrong!");
+	      return StatusCode::FAILURE;
+	    }	    
 
-	    while ( ilayer<4 ) { 
-	      getline(file,line);
-	      ATH_MSG_VERBOSE(line);
-	      int stringPos=0;
-	      float HVnom=0.0;
-	      for ( std::string::iterator it = line.begin() ; it != line.end() ; ++it ) {
-		if ( (*it) != ' ' ) {
-		  HVnom=std::stoi(line.substr(stringPos+6,3));
-		  break;
-		}
-		stringPos++;
-	      }
-	      gasGap = ilayer+1;
-	      /// now set the HV for all the PCB's of that layer
-	      for ( int ipcb = initPCB ; ipcb<=endPCB ; ++ipcb ) {
-		
-		/// generate randomly a fraction of PCB at the HOL value
-		if ( m_random.Rndm() < fraction ) {
-		  HVval = lowHV;
-		} 
-		else {
-		  HVval = HVnom;
-		}
-
-		ATH_MSG_DEBUG("PCB done, stationName, stationEta, stationPhi, ml, layer, pcb, hv: "
-			      << stationName<< " " << stationEta << " " << stationPhi << " " << multilayer << " "
-			      << gasGap << " " << ipcb << " " << HVval);
-		
-		int chanNum = (ipcb-1)*1024+512;
-		/// add the PCB to the map
-		Identifier pcbId = m_idHelperTool->mmIdHelper().channelID(stationName,stationEta,stationPhi,
-									  multilayer,gasGap,chanNum);
-		float hv = (float)HVval;
-		m_hvMap.insert(std::pair<Identifier,float>(pcbId,hv));
-
-	      }
-	      
-	      ilayer++;
-	    } 
-	  }  /// old splitter box
-	  
-	  ilayer++;
+	    HVval=std::stoi(elements[4]);
+	    
+	    ATH_MSG_DEBUG("PCB done, stationName, stationEta, stationPhi, ml, layer, pcb, hv: "
+			  << stationName<< " " << stationEta << " " << stationPhi << " " << multilayer << " "
+			  << ilayer << " " << ipcb << " " << HVval );
+	    
+	    int chanNum = (ipcb-1)*1024+512;
+	    /// add the PCB to the map
+	    Identifier pcbId = m_idHelperTool->mmIdHelper().channelID(stationName,stationEta,stationPhi,
+									multilayer,ilayer,chanNum);
+	    float hv = (float)HVval;
+	    m_hvMap.insert(std::pair<Identifier,float>(pcbId,hv));
+	    
+	  }
+	  if ( ilayer == 4 ) { 
+	    getline(file,line);
+	    ATH_MSG_VERBOSE(line);
+	  }
 	} // loop on the layers
-	
       }
     }
   }   // loop on the files
