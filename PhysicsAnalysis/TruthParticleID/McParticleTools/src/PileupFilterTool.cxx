@@ -47,10 +47,6 @@ PileupFilterTool::PileupFilterTool( const std::string& type,
   m_barcodes (   ),
   m_tesIO    ( 0 )
 {
-  //
-  // Property declaration
-  // 
-  //declareProperty( "Property", m_nProperty );
 
   declareProperty( "rIsolation",
 		   m_rIsol = 0.45,
@@ -397,6 +393,9 @@ StatusCode PileupFilterTool::shapeGenEvent( McEventCollection* genAod )
 	} 
       }  //> loop over vertices 
 //AV: We don't set nullptr as signal vertex in HepMC3
+     if ( !isInColl ) { 
+         (*evt)->remove_attribute("signal_process_vertex");
+      }
 #else 
       for ( HepMC::GenEvent::vertex_const_iterator itrVtx = (*evt)->vertices_begin(); 
 	    itrVtx != (*evt)->vertices_end(); 
