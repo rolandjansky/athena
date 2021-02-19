@@ -63,6 +63,15 @@ def MuonCombinedTrackSummaryToolCfg(flags, name="", **kwargs):
     result.setPrivateTools(track_summary_tool)
     return result
 
+def MuonTrackToVertexCfg(flags, name = 'MuonTrackToVertexTool', **kwargs ):
+    acc = ComponentAccumulator()
+    if 'Extrapolator' not in kwargs:
+        accExtrapolator = AtlasExtrapolatorCfg(flags, 'AtlasExtrapolator')
+        atlasExtrapolator = accExtrapolator.popPrivateTools()
+        acc.merge(accExtrapolator)
+        kwargs.setdefault('Extrapolator', atlasExtrapolator)
+    acc.setPrivateTools(CompFactory.Reco.TrackToVertex( name, **kwargs))
+    return acc
 
 def MuonCombinedInDetDetailedTrackSelectorToolCfg(flags, name="MuonCombinedInDetDetailedTrackSelectorTool",**kwargs):
     if flags.Beam.Type == 'collisions':
@@ -122,6 +131,9 @@ def MuonCombinedParticleCreatorCfg(flags, name="MuonCombinedParticleCreator",**k
         acc = MuonCombinedTrackSummaryToolCfg(flags)
         kwargs.setdefault("TrackSummaryTool", acc.getPrimary() ) 
         result.merge (acc)
+
+    if 'TrackToVertex' not in kwargs :
+        kwargs.setdefault('TrackToVertex',result.popToolsAndMerge(MuonTrackToVertexCfg(flags)))
 
     kwargs.setdefault("KeepAllPerigee",True )
     kwargs.setdefault("UseMuonSummaryTool",True )
@@ -188,7 +200,6 @@ def MuonMaterialProviderToolCfg(flags,  name = "MuonMaterialProviderTool"):
     kwargs["KeepAllPerigee"] = True 
     kwargs["PerigeeExpression"] = "Origin"
     track_particle_creator = CompFactory.Trk.TrackParticleCreatorTool(name="MuonCaloParticleCreator",**kwargs)
-    result.addPublicTool(track_particle_creator)
   
     muonCaloEnergyTool = CompFactory.Rec.MuonCaloEnergyTool(name="MuonCaloEnergy", ParticleCaloExtensionTool = particle_calo_extension_tool,
                                                  ParticleCaloCellAssociationTool = particle_calo_cell_association_tool,
@@ -335,7 +346,6 @@ def MuonCombinedToolCfg(flags, name="MuonCombinedTool",**kwargs):
         acc = MuonCombinedFitTagToolCfg(flags)
         tool = acc.popPrivateTools()
         tools.append( tool  )
-        result.addPublicTool(tool)
         result.merge(acc)
     if flags.MuonCombined.doStatisticalCombination and flags.Beam.Type != 'cosmics':
         acc = MuonCombinedStacoTagToolCfg(flags)
@@ -357,7 +367,6 @@ def MuonCombinedFitTagToolCfg(flags, name="MuonCombinedFitTagTool",**kwargs):
 
     result = CombinedMuonTrackBuilderCfg(flags)
     tool = result.popPrivateTools()
-    result.addPublicTool(tool)
     kwargs.setdefault("TrackBuilder",  tool )
 
     kwargs.setdefault("TrackQuery",   result.popToolsAndMerge(MuonTrackQueryCfg(flags)) )

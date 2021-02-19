@@ -1,6 +1,6 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
- */
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+*/
 
 #include "SensorSimPlanarTool.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
@@ -21,6 +21,8 @@
 #include "PathResolver/PathResolver.h"
 
 #include "TFile.h"
+
+#include <memory>
 
 using namespace InDetDD;
 
@@ -80,38 +82,43 @@ StatusCode SensorSimPlanarTool::initialize() {
     for (unsigned int i = 0; i < mapsPath_list.size(); i++) {
       ATH_MSG_INFO("Using maps located in: " << mapsPath_list.at(i) << " for layer No." << i);
       ATH_MSG_INFO("Create E field via interpolation based on files from: " << TCADpath_list.at(i));
-      //std::unique_ptr<TFile>  mapsFile=std::make_unique<TFile>( (mapsPath_list.at(i)).c_str() ); //this is the ramo
-      // potential.
-      TFile* mapsFile = new TFile((mapsPath_list.at(i)).c_str()); //this is the ramo potential.
+      std::unique_ptr<TFile> mapsFile(TFile::Open((mapsPath_list.at(i)).c_str(), "READ")); //this is the ramo potential.
+      if (!mapsFile) {
+        ATH_MSG_ERROR("Cannot open file: " << mapsPath_list.at(i));
+        return StatusCode::FAILURE;
+      }
 
       //Setup ramo weighting field map
-      TH3F* ramoPotentialMap_hold;
-      ramoPotentialMap_hold = 0;
-      ramoPotentialMap_hold = (TH3F*) mapsFile->Get("hramomap1");
-      if (ramoPotentialMap_hold == 0) ramoPotentialMap_hold = (TH3F*) mapsFile->Get("ramo3d");
-      if (ramoPotentialMap_hold == 0) {
+      std::unique_ptr<TH3F> ramoPotentialMap_hold(mapsFile->Get<TH3F>("hramomap1"));
+      if (!ramoPotentialMap_hold) {
+        ramoPotentialMap_hold.reset(mapsFile->Get<TH3F>("ramo3d"));
         ATH_MSG_INFO("Did not find a Ramo potential map.  Will use an approximate form.");
+      }
+      if (!ramoPotentialMap_hold) {
         ATH_MSG_WARNING("Not implemented yet - exit");
         return StatusCode::FAILURE; //Obviously, remove this when gen. code is set up
       }
-      m_ramoPotentialMap.push_back(ramoPotentialMap_hold);
+      ramoPotentialMap_hold->SetDirectory(nullptr);
+      m_ramoPotentialMap.emplace_back();
+      ATH_CHECK(m_ramoPotentialMap.back().setHisto3D(ramoPotentialMap_hold.get()));
       //Now setup the E-field.
-      TH1F* eFieldMap_hold;
-      eFieldMap_hold = new TH1F();
-      //ATH_MSG_INFO("Generating E field maps using interpolation.");
-      CHECK(m_radDamageUtil->generateEfieldMap(eFieldMap_hold, NULL, m_fluenceLayer[i], m_voltageLayer[i], i,
+      TH1F* eFieldMap_hold(nullptr);
+      CHECK(m_radDamageUtil->generateEfieldMap(eFieldMap_hold, nullptr, m_fluenceLayer[i], m_voltageLayer[i], i,
                                                TCADpath_list.at(i), true));
 
-      TH2F* lorentzMap_e_hold = new TH2F();
-      TH2F* lorentzMap_h_hold = new TH2F();
-      TH2F* distanceMap_h_hold = new TH2F();
-      TH2F* distanceMap_e_hold = new TH2F();
-      TH1F* timeMap_e_hold = new TH1F();
-      TH1F* timeMap_h_hold = new TH1F();
+      eFieldMap_hold->SetDirectory(nullptr);
+
+      TH2F* lorentzMap_e_hold(nullptr);
+      TH2F* lorentzMap_h_hold(nullptr);
+      TH2F* distanceMap_h_hold(nullptr);
+      TH2F* distanceMap_e_hold(nullptr);
+      TH1F* timeMap_e_hold(nullptr);
+      TH1F* timeMap_h_hold(nullptr);
 
       ATH_CHECK(m_radDamageUtil->generateDistanceTimeMap(distanceMap_e_hold, distanceMap_h_hold, timeMap_e_hold,
                                                          timeMap_h_hold, lorentzMap_e_hold, lorentzMap_h_hold,
-                                                         eFieldMap_hold, NULL));
+                                                         eFieldMap_hold, nullptr));
+
       // For debugging and documentation: uncomment to save different maps which are based on the interpolated E field
       if (m_radDamageUtil->saveDebugMaps()) {
         TString prename = "map_layer_";
@@ -130,18 +137,38 @@ StatusCode SensorSimPlanarTool::initialize() {
         lorentzMap_h_hold->SaveAs(prename);
       }
       //Safetycheck
-      if (distanceMap_e_hold == 0 || distanceMap_h_hold == 0 || timeMap_e_hold == 0 || timeMap_h_hold == 0 ||
-          lorentzMap_e_hold == 0 || lorentzMap_h_hold == 0) {
-        ATH_MSG_INFO("Unable to load at least one of the distance/time/Lorentz angle maps.");
+      if (!distanceMap_e_hold || !distanceMap_h_hold || !timeMap_e_hold || !timeMap_h_hold ||
+          !lorentzMap_e_hold || !lorentzMap_h_hold) {
+        ATH_MSG_ERROR("Unable to load at least one of the distance/time/Lorentz angle maps.");
         return StatusCode::FAILURE;//Obviously, remove this when gen. code is set up
       }
-      m_distanceMap_e.push_back(distanceMap_e_hold);
-      m_distanceMap_h.push_back(distanceMap_h_hold);
-      m_lorentzMap_e.push_back(lorentzMap_e_hold);
-      m_lorentzMap_h.push_back(lorentzMap_h_hold);
+
+      lorentzMap_e_hold->SetDirectory(nullptr);
+      lorentzMap_h_hold->SetDirectory(nullptr);
+      distanceMap_e_hold->SetDirectory(nullptr);
+      distanceMap_h_hold->SetDirectory(nullptr);
+      timeMap_e_hold->SetDirectory(nullptr);
+      timeMap_h_hold->SetDirectory(nullptr);
+
+      m_distanceMap_e.emplace_back();
+      m_distanceMap_h.emplace_back();
+      ATH_CHECK(m_distanceMap_e.back().setHisto2D(distanceMap_e_hold));
+      ATH_CHECK(m_distanceMap_h.back().setHisto2D(distanceMap_h_hold));
+      m_lorentzMap_e.emplace_back();
+      m_lorentzMap_h.emplace_back();
+      ATH_CHECK(m_lorentzMap_e.back().setHisto2D(lorentzMap_e_hold));
+      ATH_CHECK(m_lorentzMap_h.back().setHisto2D(lorentzMap_h_hold));
+
+      delete eFieldMap_hold;
+      delete lorentzMap_e_hold;
+      delete lorentzMap_h_hold;
+      delete distanceMap_e_hold;
+      delete distanceMap_h_hold;
+      delete timeMap_e_hold;
+      delete timeMap_h_hold;
+
+      mapsFile->Close();
     }
-    // Define necessary variables to describe hists stored in ramoPotentialMap
-    // to skip calling FindBin during induceCharge for speed reasons
   }
   return StatusCode::SUCCESS;
 }
@@ -157,12 +184,15 @@ StatusCode SensorSimPlanarTool::finalize() {
 //===============================================
 //    I N D U C E    C H A R G E
 //===============================================
-StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit, SiChargedDiodeCollection& chargedDiodes,
+StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
+                                             SiChargedDiodeCollection& chargedDiodes,
                                              const InDetDD::SiDetectorElement& Module,
                                              const InDetDD::PixelModuleDesign& p_design,
+                                             const PixelModuleData *moduleData,
                                              std::vector< std::pair<double, double> >& trfHitRecord,
                                              std::vector<double>& initialConditions,
-                                             CLHEP::HepRandomEngine* rndmEngine) {
+                                             CLHEP::HepRandomEngine* rndmEngine,
+                                             const EventContext &ctx) {
   // So far, this is only discriminating variable from 3D sensor.
   if (p_design.numberOfCircuits() < 2) {
     if (!Module.isDBM()) {  //DBM modules also processed here
@@ -172,9 +202,6 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit, SiC
 
   const PixelID* p_pixelId = static_cast<const PixelID*>(Module.getIdHelper());
   int layer = p_pixelId->layer_disk(Module.identify());
-
-  // retrieve conditions data
-  SG::ReadCondHandle<PixelModuleData> moduleData(m_moduleDataKey);
 
   std::pair<double, double> trappingTimes;
   if (m_doRadDamage && Module.isBarrel()) {
@@ -198,7 +225,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit, SiC
   //Set up physical detector properties, switch on detector material
   ATH_MSG_DEBUG("Applying planar sensor simulation");
   double sensorThickness = Module.design().thickness();
-  const InDet::SiliconProperties& siProperties = m_siPropertiesTool->getSiProperties(Module.identifyHash());
+  const InDet::SiliconProperties& siProperties = m_siPropertiesTool->getSiProperties(Module.identifyHash(), ctx);
 
   int etaCells = p_design.columns();
   int phiCells = p_design.rows();
@@ -218,7 +245,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit, SiC
   double collectionDist = 0.2 * CLHEP::mm;
   double smearScale = 1. + 0.35 * smearRand;
   double tanLorentz = m_lorentzAngleTool->getTanLorentzAngle(Module.identifyHash());
-  double coLorentz = std::sqrt(1.0 + pow(tanLorentz, 2));
+  double coLorentz = std::sqrt(1.0 + (tanLorentz*tanLorentz));
 
   const EBC_EVCOLL evColl = EBC_MAINEVCOLL;
   const HepMcParticleLink::PositionFlag idxFlag =
@@ -227,6 +254,9 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit, SiC
   //**************************************//
   //*** Now diffuse charges to surface *** //
   //**************************************//
+  // pre-make HepMcParticleLink
+  auto particleLink = HepMcParticleLink(phit->trackNumber(), phit.eventId(), evColl, idxFlag, ctx);
+
   for (unsigned int i = 0; i < trfHitRecord.size(); i++) {
     std::pair<double, double> iHitRecord = trfHitRecord[i];
 
@@ -245,16 +275,10 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit, SiC
 
     SiLocalPosition centreOfPixel_i;
 
-    int nnLoop_pixelEtaMax = 0;
-    int nnLoop_pixelEtaMin = 0;
-    int nnLoop_pixelPhiMax = 0;
-    int nnLoop_pixelPhiMin = 0;
-
-    int numBins_driftTime_e = 0;
-    int numBins_driftTime_h = 0;
-    int numBins_weightingPotential_x = 0;
-    int numBins_weightingPotential_y = 0;
-    int numBins_weightingPotential_z = 0;
+    int nnLoop_pixelEtaMax(0);
+    int nnLoop_pixelEtaMin(0);
+    int nnLoop_pixelPhiMax(0);
+    int nnLoop_pixelPhiMin(0);
 
     if (m_doRadDamage && !(Module.isDBM()) && Module.isBarrel()) {
       centreOfPixel_i = p_design.positionFromColumnRow(pixel_i.etaIndex(), pixel_i.phiIndex());
@@ -265,21 +289,6 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit, SiC
 
       nnLoop_pixelPhiMax = std::min(1, pixel_i.phiIndex());
       nnLoop_pixelPhiMin = std::max(-1, pixel_i.phiIndex() + 1 - phiCells);
-
-      //Setup values to check for overflow when using maps
-      if (m_doInterpolateEfield) {
-        numBins_driftTime_e = m_distanceMap_e[layer]->GetNbinsY(); //Returns nBins = totalBins - underflow - overflow
-        numBins_driftTime_h = m_distanceMap_h[layer]->GetNbinsY();
-        numBins_weightingPotential_x = m_ramoPotentialMap[layer]->GetNbinsX();
-        numBins_weightingPotential_y = m_ramoPotentialMap[layer]->GetNbinsY();
-        numBins_weightingPotential_z = m_ramoPotentialMap[layer]->GetNbinsZ();
-      } else { // use fluence value from conditions data
-        numBins_driftTime_e = moduleData->getDistanceMap_e(layer)->GetNbinsY();
-        numBins_driftTime_h = moduleData->getDistanceMap_h(layer)->GetNbinsY();
-        numBins_weightingPotential_x = moduleData->getRamoPotentialMap(layer)->GetNbinsX();
-        numBins_weightingPotential_y = moduleData->getRamoPotentialMap(layer)->GetNbinsY();
-        numBins_weightingPotential_z = moduleData->getRamoPotentialMap(layer)->GetNbinsZ();
-      }
     }
 
     // Distance between charge and readout side.  p_design->readoutSide() is
@@ -295,130 +304,69 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit, SiC
       nontrappingProbability = exp(-dist_electrode / collectionDist);
     }
 
-    if (m_doInterpolateEfield) {
-      m_ramo_x_binMap = 1000. *
-                        (m_ramoPotentialMap[layer]->GetNbinsX() /
-                         (m_ramoPotentialMap[layer]->GetXaxis()->GetXmax() -
-                          m_ramoPotentialMap[layer]->GetXaxis()->GetXmin()));
-      m_ramo_y_binMap = 1000. *
-                        (m_ramoPotentialMap[layer]->GetNbinsY() /
-                         (m_ramoPotentialMap[layer]->GetYaxis()->GetXmax() -
-                          m_ramoPotentialMap[layer]->GetYaxis()->GetXmin()));
-      m_ramo_z_binMap = 1000. *
-                        (m_ramoPotentialMap[layer]->GetNbinsZ() /
-                         (m_ramoPotentialMap[layer]->GetZaxis()->GetXmax() -
-                          m_ramoPotentialMap[layer]->GetZaxis()->GetXmin()));
-    } else {
-      m_ramo_x_binMap = 1000. *
-                        (moduleData->getRamoPotentialMap(layer)->GetNbinsX() /
-                         (moduleData->getRamoPotentialMap(layer)->GetXaxis()->GetXmax() -
-                          moduleData->getRamoPotentialMap(layer)->GetXaxis()->GetXmin()));
-      m_ramo_y_binMap = 1000. *
-                        (moduleData->getRamoPotentialMap(layer)->GetNbinsY() /
-                         (moduleData->getRamoPotentialMap(layer)->GetYaxis()->GetXmax() -
-                          moduleData->getRamoPotentialMap(layer)->GetYaxis()->GetXmin()));
-      m_ramo_z_binMap = 1000. *
-                        (moduleData->getRamoPotentialMap(layer)->GetNbinsZ() /
-                         (moduleData->getRamoPotentialMap(layer)->GetZaxis()->GetXmax() -
-                          moduleData->getRamoPotentialMap(layer)->GetZaxis()->GetXmin()));
-    }
+    if (m_doRadDamage && !(Module.isDBM()) && Module.isBarrel()) {
 
-    for (int j = 0; j < ncharges; j++) {
-      if (m_doRadDamage && !(Module.isDBM()) && Module.isBarrel()) {
+      const PixelHistoConverter& distanceMap_e    = m_doInterpolateEfield ? m_distanceMap_e[layer] : moduleData->getDistanceMap_e(layer);
+      const PixelHistoConverter& distanceMap_h    = m_doInterpolateEfield ? m_distanceMap_h[layer] : moduleData->getDistanceMap_h(layer);
+      const PixelHistoConverter& lorentzMap_e     = m_doInterpolateEfield ? m_lorentzMap_e[layer] : moduleData->getLorentzMap_e(layer);
+      const PixelHistoConverter& lorentzMap_h     = m_doInterpolateEfield ? m_lorentzMap_h[layer] : moduleData->getLorentzMap_h(layer);
+      const PixelHistoConverter& ramoPotentialMap = m_doInterpolateEfield ? m_ramoPotentialMap[layer] : moduleData->getRamoPotentialMap(layer);
+
+      const std::size_t distance_f_e_bin_x = distanceMap_e.getBinX(dist_electrode);
+      const std::size_t distance_f_h_bin_x = distanceMap_h.getBinX(dist_electrode);
+      const std::size_t tanLorentz_e_bin_x = lorentzMap_e.getBinX(dist_electrode);
+      const std::size_t tanLorentz_h_bin_x = lorentzMap_h.getBinX(dist_electrode);
+
+      for (int j = 0; j < ncharges; j++) {
         double u = CLHEP::RandFlat::shoot(0., 1.);
-        double drifttime_e = (-1.) * (trappingTimes.first) * TMath::Log(u); //ns
+        const double drifttime_e = (-1.) * (trappingTimes.first) * std::log(u); //ns
         u = CLHEP::RandFlat::shoot(0., 1.);
-        double drifttime_h = (-1.) * (trappingTimes.second) * TMath::Log(u); //ns
+        const double drifttime_h = (-1.) * (trappingTimes.second) * std::log(u); //ns
 
         //Now, need the z-position at the trap.
-        double depth_f_e = 0.0;
-        double depth_f_h = 0.0;
-        double tanLorentz_e = 0.0;
-        double tanLorentz_h = 0.0;
         //TODO: the holes map does not currently extend for a drift time long enough that, any hole will reach
         //the corresponding electrode. This needs to be rectified by either (a) extrapolating the current map or
         //(b) making a new map with a y-axis (drift time) that extends to at least 18 ns so all charge carriers reach
         // electrode.
         //However, if choose (b), will need to reduce granularity of map.
-        if (m_doInterpolateEfield) {
-          int nbin_z_e_xbin = m_distanceMap_e[layer]->GetXaxis()->FindBin(dist_electrode);
-          int nbin_z_e_ybin = m_distanceMap_e[layer]->GetYaxis()->FindBin(drifttime_e);
-          if (nbin_z_e_ybin > numBins_driftTime_e) {
-            nbin_z_e_ybin = numBins_driftTime_e;
-          }
-          depth_f_e = m_distanceMap_e[layer]->GetBinContent(nbin_z_e_xbin, nbin_z_e_ybin);
-          int nbin_z_h_xbin = m_distanceMap_h[layer]->GetXaxis()->FindBin(dist_electrode);
-          int nbin_z_h_ybin = m_distanceMap_h[layer]->GetYaxis()->FindBin(drifttime_h);
-          if (nbin_z_h_ybin > numBins_driftTime_h) {
-            nbin_z_h_ybin = numBins_driftTime_h;
-          }
-          depth_f_h = m_distanceMap_h[layer]->GetBinContent(nbin_z_h_xbin, nbin_z_h_ybin);
-          int nbin_Lorentz_e = m_lorentzMap_e[layer]->FindBin(dist_electrode, depth_f_e);
-          tanLorentz_e = m_lorentzMap_e[layer]->GetBinContent(nbin_Lorentz_e);
-          int nbin_Lorentz_h = m_lorentzMap_h[layer]->FindBin(dist_electrode, depth_f_h);
-          tanLorentz_h = m_lorentzMap_h[layer]->GetBinContent(nbin_Lorentz_h);
-        } else { // use fluence value from conditions data
-          int nbin_z_e_xbin = moduleData->getDistanceMap_e(layer)->GetXaxis()->FindBin(dist_electrode);
-          int nbin_z_e_ybin = moduleData->getDistanceMap_e(layer)->GetYaxis()->FindBin(drifttime_e);
-          if (nbin_z_e_ybin > numBins_driftTime_e) {
-            nbin_z_e_ybin = numBins_driftTime_e;
-          }
-          depth_f_e = moduleData->getDistanceMap_e(layer)->GetBinContent(nbin_z_e_xbin, nbin_z_e_ybin);
-          int nbin_z_h_xbin = moduleData->getDistanceMap_h(layer)->GetXaxis()->FindBin(dist_electrode);
-          int nbin_z_h_ybin = moduleData->getDistanceMap_h(layer)->GetYaxis()->FindBin(drifttime_h);
-          if (nbin_z_h_ybin > numBins_driftTime_h) {
-            nbin_z_h_ybin = numBins_driftTime_h;
-          }
-          depth_f_h = moduleData->getDistanceMap_h(layer)->GetBinContent(nbin_z_h_xbin, nbin_z_h_ybin);
-          int nbin_Lorentz_e = moduleData->getLorentzMap_e(layer)->FindBin(dist_electrode, depth_f_e);
-          tanLorentz_e = moduleData->getLorentzMap_e(layer)->GetBinContent(nbin_Lorentz_e);
-          int nbin_Lorentz_h = moduleData->getLorentzMap_h(layer)->FindBin(dist_electrode, depth_f_h);
-          tanLorentz_h = moduleData->getLorentzMap_h(layer)->GetBinContent(nbin_Lorentz_h);
-        }
-        double dz_e = fabs(dist_electrode - depth_f_e);
-        double dz_h = fabs(depth_f_h - dist_electrode);
-        double coLorentz_e = std::sqrt(1.0 + std::pow(tanLorentz_e, 2));
+        const double depth_f_e = distanceMap_e.getContent(distance_f_e_bin_x, distanceMap_e.getBinY(drifttime_e));
+        const double depth_f_h = distanceMap_h.getContent(distance_f_h_bin_x, distanceMap_h.getBinY(drifttime_h));
+        const double tanLorentz_e = lorentzMap_e.getContent(tanLorentz_e_bin_x, lorentzMap_e.getBinY(depth_f_e));
+        const double tanLorentz_h = lorentzMap_h.getContent(tanLorentz_h_bin_x, lorentzMap_h.getBinY(depth_f_h));
+        const double dz_e = std::abs(dist_electrode - depth_f_e);
+        const double dz_h = std::abs(depth_f_h - dist_electrode);
+        const double coLorentz_e = std::sqrt(1.0 + (tanLorentz_e*tanLorentz_e));
 
         //Apply drift due to Lorentz force and diffusion
         double phiRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
 
         //Apply diffusion. rdif is teh max. diffusion
-        double rdif_e = this->m_diffusionConstant * sqrt(fabs(dist_electrode - depth_f_e) * coLorentz_e / 0.3);
-        double phi_f_e = phi_i + dz_e * tanLorentz_e + rdif_e * phiRand;
+        const double rdif_e = this->m_diffusionConstant * std::sqrt(std::abs(dist_electrode - depth_f_e) * coLorentz_e / 0.3);
+        const double phi_f_e = phi_i + dz_e * tanLorentz_e + rdif_e * phiRand;
         double etaRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
         double eta_f_e = eta_i + rdif_e * etaRand;
 
         phiRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
-        double coLorentz_h = std::sqrt(1.0 + std::pow(tanLorentz_h, 2));
-        double rdif_h = this->m_diffusionConstant * sqrt(fabs(dist_electrode - depth_f_h) * coLorentz_h / 0.3);
-        double phi_f_h = phi_i + dz_h * tanLorentz_h + rdif_h * phiRand;
+        const double coLorentz_h = std::sqrt(1.0 + (tanLorentz_h*tanLorentz_h));
+        const double rdif_h = this->m_diffusionConstant * std::sqrt(std::abs(dist_electrode - depth_f_h) * coLorentz_h / 0.3);
+        const double phi_f_h = phi_i + dz_h * tanLorentz_h + rdif_h * phiRand;
         etaRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
         double eta_f_h = eta_i + rdif_h * etaRand;
-
+        
         // amount of energy to be converted into charges at current step
         double energy_per_step = 1.0 * iHitRecord.second / 1.E+6 / ncharges;
 
         // Slim Edge for IBL planar sensors:
         if (p_design.getReadoutTechnology() == InDetDD::PixelModuleDesign::FEI4) {
-          ATH_CHECK(applyIBLSlimEdges(energy_per_step, eta_f_e));
-          ATH_CHECK(applyIBLSlimEdges(energy_per_step, eta_f_h));
+          applyIBLSlimEdges(energy_per_step, eta_f_e);
+          applyIBLSlimEdges(energy_per_step, eta_f_h);
         }
 
-        int nbin_ramo_f_e_z;
-        int nbin_ramo_f_h_z;
-        // distinction necessary because of min(z) = -0.5
-        float minz = 1;
-        if (layer != 0) minz = 1.5;
-        nbin_ramo_f_e_z = int( minz + depth_f_e * m_ramo_z_binMap );
-        nbin_ramo_f_h_z = int( minz + depth_f_h * m_ramo_z_binMap );
+        const std::size_t ramo_f_e_bin_z = ramoPotentialMap.getBinZ(1e3*depth_f_e);
+        const std::size_t ramo_f_h_bin_z = ramoPotentialMap.getBinZ(1e3*depth_f_h);
 
-        // Check for overflow in ramo hists in z-direction
-        if (nbin_ramo_f_h_z > numBins_weightingPotential_z) {
-          nbin_ramo_f_h_z = numBins_weightingPotential_z + 1;
-        }
-        if (nbin_ramo_f_e_z > numBins_weightingPotential_z) {
-          nbin_ramo_f_e_z = numBins_weightingPotential_z + 1;
-        }
+        const bool isFirstZ_e = ramoPotentialMap.isFirstZ(1e3*depth_f_e);
+        const bool isOverflowZ_h = ramoPotentialMap.isOverflowZ(1e3*depth_f_h);
 
         //Loop over nearest neighbours in x and y
         //We assume that the lateral diffusion is minimal
@@ -437,13 +385,13 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit, SiC
           for (int q = nnLoop_pixelPhiMin; q <= nnLoop_pixelPhiMax; q++) {
             //Since both e-h charge carriers start in the same place, they have the same initial ramo value
             //Centre of nearest neighbour (nn) pixel
-            SiLocalPosition centreOfPixel_nn = p_design.positionFromColumnRow(pixel_i.etaIndex() - p,
-                                                                              pixel_i.phiIndex() - q);
+            const SiLocalPosition& centreOfPixel_nn = p_design.positionFromColumnRow(pixel_i.etaIndex() - p,
+                                                                                     pixel_i.phiIndex() - q);
 
             //What is the displacement of the nn pixel from the primary pixel.
             //This is to index the correct entry in the Ramo weighting potential map
-            double dPhi_nn_centre = centreOfPixel_nn.xPhi() - centreOfPixel_i.xPhi(); //in mm
-            double dEta_nn_centre = centreOfPixel_nn.xEta() - centreOfPixel_i.xEta(); //in mm
+            const double dPhi_nn_centre = centreOfPixel_nn.xPhi() - centreOfPixel_i.xPhi(); //in mm
+            const double dEta_nn_centre = centreOfPixel_nn.xEta() - centreOfPixel_i.xEta(); //in mm
 
             //This all has to be done relative to the (0,0) position since the
             //Ramo weighting potential is only mapped out for 1/8th of a pixel. Much of this logic is reflecting the
@@ -451,120 +399,67 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit, SiC
             //carrier across the boundaries.
             //Find the displacment of the charge carriers from the centre of the pixel in +ve quadrant
 
-            double pixelEta_f_e = eta_f_e - centreOfPixel_i.xEta();
-            double pixelPhi_f_e = phi_f_e - centreOfPixel_i.xPhi();
+            const double pixelEta_f_e = eta_f_e - centreOfPixel_i.xEta();
+            const double pixelPhi_f_e = phi_f_e - centreOfPixel_i.xPhi();
 
-            double pixelEta_f_h = eta_f_h - centreOfPixel_i.xEta();
-            double pixelPhi_f_h = phi_f_h - centreOfPixel_i.xPhi();
+            const double pixelEta_f_h = eta_f_h - centreOfPixel_i.xEta();
+            const double pixelPhi_f_h = phi_f_h - centreOfPixel_i.xPhi();
 
             //Final position of charge carriers wrt nn centre
-            double dEta_f_e = pixelEta_f_e - dEta_nn_centre;
-            double dPhi_f_e = pixelPhi_f_e - dPhi_nn_centre;
-            dEta_f_e *= scale_f;
-            double dEta_f_h = pixelEta_f_h - dEta_nn_centre;
-            double dPhi_f_h = pixelPhi_f_h - dPhi_nn_centre;
-            dEta_f_h *= scale_f;
+            const double dEta_f_e = std::abs(pixelEta_f_e - dEta_nn_centre)*scale_f;
+            const double dPhi_f_e = std::abs(pixelPhi_f_e - dPhi_nn_centre);
+            const double dEta_f_h = 1e3*std::abs(pixelEta_f_h - dEta_nn_centre)*scale_f;
+            const double dPhi_f_h = 1e3*std::abs(pixelPhi_f_h - dPhi_nn_centre);
 
             //Boundary check on maps
             double ramo_f_e = 0.0;
             double ramo_f_h = 0.0;
 
-            int nbin_ramo_f_e_x = int( 1 + std::abs(dPhi_f_e) * m_ramo_x_binMap );
-            int nbin_ramo_f_e_y = int( 1 + std::abs(dEta_f_e) * m_ramo_y_binMap );
-
-            // Check for overflow in ramo hists in x- and y-direction
-            if (nbin_ramo_f_e_x > numBins_weightingPotential_x) {
-              nbin_ramo_f_e_x = numBins_weightingPotential_x + 1;
-            }
-            if (nbin_ramo_f_e_y > numBins_weightingPotential_y) {
-              nbin_ramo_f_e_y = numBins_weightingPotential_y + 1;
-            }
-
-            if (nbin_ramo_f_e_x <= numBins_weightingPotential_x && nbin_ramo_f_e_y <= numBins_weightingPotential_y &&
-                nbin_ramo_f_e_z <= numBins_weightingPotential_z) {
-              if (m_doInterpolateEfield) {
-                ramo_f_e = m_ramoPotentialMap[layer]->GetBinContent(nbin_ramo_f_e_x, nbin_ramo_f_e_y, nbin_ramo_f_e_z);
-              } else {
-                ramo_f_e = moduleData->getRamoPotentialMap(layer)->GetBinContent(nbin_ramo_f_e_x, nbin_ramo_f_e_y,
-                                                                                 nbin_ramo_f_e_z);
-              }
-            }
-
-            int nbin_ramo_f_h_x = int( 1 + std::abs(dPhi_f_h) * m_ramo_x_binMap );
-            int nbin_ramo_f_h_y = int( 1 + std::abs(dEta_f_h) * m_ramo_y_binMap );
-
-            // Check for overflow in ramo hists in x- and y-direction
-            if (nbin_ramo_f_h_x > numBins_weightingPotential_x) {
-              nbin_ramo_f_h_x = numBins_weightingPotential_x + 1;
-            }
-            if (nbin_ramo_f_h_y > numBins_weightingPotential_y) {
-              nbin_ramo_f_h_y = numBins_weightingPotential_y + 1;
-            }
-
-            if (nbin_ramo_f_h_x <= numBins_weightingPotential_x && nbin_ramo_f_h_y <= numBins_weightingPotential_y &&
-                nbin_ramo_f_h_z <= numBins_weightingPotential_z) {
-              if (m_doInterpolateEfield) {
-                ramo_f_h = m_ramoPotentialMap[layer]->GetBinContent(nbin_ramo_f_h_x, nbin_ramo_f_h_y, nbin_ramo_f_h_z);
-              } else {
-                ramo_f_h = moduleData->getRamoPotentialMap(layer)->GetBinContent(nbin_ramo_f_h_x, nbin_ramo_f_h_y,
-                                                                                 nbin_ramo_f_h_z);
-              }
-            }
-            //Account for the imperfect binning that would cause charge to be double-counted
-
-            if (m_doInterpolateEfield) {
-              if (m_ramoPotentialMap[layer]->GetZaxis()->FindBin(depth_f_h * 1000) ==
-                  m_ramoPotentialMap[layer]->GetNbinsZ() + 1) {
-                ramo_f_h = 0.0;
-              } //this means the hole has reached the back end
-
-              if (m_ramoPotentialMap[layer]->GetZaxis()->FindBin(depth_f_e * 1000) == 1) {
-                if (fabs(dEta_f_e) >= Module.etaPitch() / 2.0 || fabs(dPhi_f_e) >= Module.phiPitch() / 2.0) {
-                  ramo_f_e = 0.0;
-                } else if (fabs(dEta_f_e) < Module.etaPitch() / 2.0 && fabs(dPhi_f_e) < Module.phiPitch() / 2.0) {
-                  ramo_f_e = 1.0;
-                }
+            if (isFirstZ_e) {
+              if (dEta_f_e >= 0.5*Module.etaPitch() || dPhi_f_e >= 0.5*Module.phiPitch()) {
+                ramo_f_e = 0.0;
+              } else if (dEta_f_e < 0.5*Module.etaPitch() && dPhi_f_e < 0.5*Module.phiPitch()) {
+                ramo_f_e = 1.0;
               }
             } else {
-              if (moduleData->getRamoPotentialMap(layer)->GetZaxis()->FindBin(depth_f_h * 1000)
-                  == moduleData->getRamoPotentialMap(layer)->GetNbinsZ() + 1) {
-                ramo_f_h = 0;
-              } //this means the hole has reached the back end
+              ramo_f_e = ramoPotentialMap.getContent(ramoPotentialMap.getBinX(1e3*dPhi_f_e), ramoPotentialMap.getBinY(1e3*dEta_f_e), ramo_f_e_bin_z);
+            }
 
-              if (moduleData->getRamoPotentialMap(layer)->GetZaxis()->FindBin(depth_f_e * 1000) == 1) {
-                if (fabs(dEta_f_e) >= Module.etaPitch() / 2.0 || fabs(dPhi_f_e) >= Module.phiPitch() / 2.0) {
-                  ramo_f_e = 0.0;
-                } else if (fabs(dEta_f_e) < Module.etaPitch() / 2.0 && fabs(dPhi_f_e) < Module.phiPitch() / 2.0) {
-                  ramo_f_e = 1.0;
-                }
-              }
+            //Account for the imperfect binning that would cause charge to be double-counted
+            if (isOverflowZ_h) {
+              ramo_f_h = 0;
+            } else {
+              ramo_f_h = ramoPotentialMap.getContent(ramoPotentialMap.getBinX(dPhi_f_h), ramoPotentialMap.getBinY(dEta_f_h), ramo_f_h_bin_z);
             }
 
             //Given final position of charge carrier, find induced charge. The difference in Ramo weighting potential
             // gives the fraction of charge induced.
             //The energy_per_step is transformed into charge with the eleholePair per Energy
-            double induced_charge = (ramo_f_e - ramo_f_h) * energy_per_step * eleholePairEnergy;
+            const double potentialDiff = ramo_f_e - ramo_f_h;
+            // this variable ^ can be used to apply some cut to skip the loop
+            const double induced_charge = potentialDiff * energy_per_step * eleholePairEnergy;
 
             //Collect charge in centre of each pixel, since location within pixel doesn't matter for record
-            SiLocalPosition chargePos = Module.hitLocalToLocal(centreOfPixel_nn.xEta(), centreOfPixel_nn.xPhi());
+            const SiLocalPosition& chargePos = Module.hitLocalToLocal(centreOfPixel_nn.xEta(), centreOfPixel_nn.xPhi());
 
             //The following lines are adapted from SiDigitization's Inserter class
-            SiSurfaceCharge scharge(
+            const SiSurfaceCharge scharge(
               chargePos,
-              SiCharge(induced_charge, hitTime(phit), SiCharge::track,
-                       HepMcParticleLink(phit->trackNumber(), phit.eventId(), evColl, idxFlag)
-                       )
+              SiCharge(induced_charge, hitTime(phit), SiCharge::track, particleLink)
               );
-            SiCellId diode = Module.cellIdOfPosition(scharge.position());
-            SiCharge charge = scharge.charge();
+            const SiCellId& diode = Module.cellIdOfPosition(scharge.position());
             if (diode.isValid()) {
+              const SiCharge& charge = scharge.charge();
               chargedDiodes.add(diode, charge);
             } //IF
+
           } //For q
         } //for p
-      } else { //If no radDamage, run original
+      }
+    } else { //If no radDamage, run original
+      for (int j = 0; j < ncharges; j++) {
         // diffusion sigma
-        double rdif = this->m_diffusionConstant * sqrt(dist_electrode * coLorentz / 0.3);
+        double rdif = this->m_diffusionConstant * std::sqrt(dist_electrode * coLorentz / 0.3);
 
         // position at the surface
         double phiRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
@@ -577,11 +472,11 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit, SiC
 
         // Slim Edge for IBL planar sensors:
         if (!(Module.isDBM()) && p_design.getReadoutTechnology() == InDetDD::PixelModuleDesign::FEI4) {
-          ATH_CHECK(applyIBLSlimEdges(energy_per_step, eta_drifted));
+          applyIBLSlimEdges(energy_per_step, eta_drifted);
         }
 
         // Get the charge position in Reconstruction local coordinates.
-        SiLocalPosition chargePos = Module.hitLocalToLocal(eta_drifted, phi_drifted);
+        const SiLocalPosition& chargePos = Module.hitLocalToLocal(eta_drifted, phi_drifted);
 
         // The parametrization of the sensor efficiency (if needed)
         double ed = 0;
@@ -592,14 +487,12 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit, SiC
         }
 
         //The following lines are adapted from SiDigitization's Inserter class
-        SiSurfaceCharge scharge(chargePos, SiCharge(ed, hitTime(phit), SiCharge::track, HepMcParticleLink(
-                                                      phit->trackNumber(), phit.eventId(), evColl, idxFlag)));
+        const SiSurfaceCharge scharge(chargePos, SiCharge(ed, hitTime(phit), SiCharge::track, particleLink));
 
-        SiCellId diode = Module.cellIdOfPosition(scharge.position());
-
-        SiCharge charge = scharge.charge();
+        const SiCellId& diode = Module.cellIdOfPosition(scharge.position());
 
         if (diode.isValid()) {
+          const SiCharge& charge = scharge.charge();
           chargedDiodes.add(diode, charge);
         }
       } //else: no radDamage, run original
@@ -608,11 +501,11 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit, SiC
   return StatusCode::SUCCESS;
 }
 
-StatusCode SensorSimPlanarTool::applyIBLSlimEdges(double& energy_per_step, double& eta_drifted) {
-  if (fabs(eta_drifted) > 20.440) {
+void SensorSimPlanarTool::applyIBLSlimEdges(double& energy_per_step, double& eta_drifted) const{
+  if (std::abs(eta_drifted) > 20.440) {
     energy_per_step = 0.0;
   }
-  if (fabs(eta_drifted) < 20.440 && fabs(eta_drifted) > 20.200) {
+  if (std::abs(eta_drifted) < 20.440 && std::abs(eta_drifted) > 20.200) {
     if (eta_drifted > 0) {
       energy_per_step = energy_per_step * (68.13 - eta_drifted * 3.333);
       eta_drifted = eta_drifted - 0.250;
@@ -621,7 +514,7 @@ StatusCode SensorSimPlanarTool::applyIBLSlimEdges(double& energy_per_step, doubl
       eta_drifted = eta_drifted + 0.250;
     }
   }
-  if (fabs(eta_drifted) < 20.200 && fabs(eta_drifted) > 20.100) {
+  if (std::abs(eta_drifted) < 20.200 && std::abs(eta_drifted) > 20.100) {
     if (eta_drifted > 0) {
       energy_per_step = energy_per_step * (41.2 - eta_drifted * 2.0);
       eta_drifted = eta_drifted - 0.250;
@@ -630,5 +523,4 @@ StatusCode SensorSimPlanarTool::applyIBLSlimEdges(double& energy_per_step, doubl
       eta_drifted = eta_drifted + 0.250;
     }
   }
-  return StatusCode::SUCCESS;
 }

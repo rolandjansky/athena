@@ -109,6 +109,7 @@ atlas_install_scripts( scripts/generateLVL1MenuMT.py
                        scripts/verify_menu_config.py
                        scripts/test_full_menu_cf.py
                        scripts/generateBunchGroupSetFromOldKey.py
+                       scripts/extract_chain_from_json.py
                        POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 # Shell scripts without flake8 checking:

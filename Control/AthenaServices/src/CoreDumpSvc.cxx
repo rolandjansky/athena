@@ -27,7 +27,6 @@
 
 // Package includes
 #include "CoreDumpSvc.h"
-#include "SetFatalHandler.h"
 
 // ROOT includes
 #include "TSystem.h"
@@ -51,10 +50,21 @@
 #include "CxxUtils/SealDebug.h"
 #include "CxxUtils/read_athena_statm.h"
 
-
 namespace {
+
   inline static const std::string horizLine = std::string(85,'-')+'\n';
-}
+
+   void ExitOnInt( int sig, siginfo_t*, void* ) {
+      if ( sig == SIGINT ) {
+      // called on user ^C
+	 std::cout << std::endl;
+         std::cerr << "Athena           CRITICAL stopped by user interrupt\n";
+	 raise(SIGKILL);
+      }
+   }
+
+} // unnamed namespace
+
 
 /**
  * @brief  Signal handler for CoreDumpSvc
@@ -191,7 +201,7 @@ CoreDumpSvc::CoreDumpSvc( const std::string& name, ISvcLocator* pSvcLocator ) :
   m_fastStackTrace.declareUpdateHandler(&CoreDumpSvc::propertyHandler, this);
   m_coreDumpStream.declareUpdateHandler(&CoreDumpSvc::propertyHandler, this);
   m_fatalHandlerFlags.declareUpdateHandler(&CoreDumpSvc::propertyHandler, this);
-  
+  m_killOnSigInt.declareUpdateHandler(&CoreDumpSvc::propertyHandler, this);
   // Allocate for 2 slots just for now.
   m_usrCoreDumps.resize(2);
   m_sysCoreDumps.resize(2); 
@@ -223,10 +233,21 @@ void CoreDumpSvc::propertyHandler(Gaudi::Details::PropertyBase& p)
   } else if ( p.name() == m_fatalHandlerFlags.name() ) {
     if (m_fatalHandlerFlags.fromString(p.toString()).isSuccess()) {
       if (m_fatalHandlerFlags != 0) {
-        AthenaServices::SetFatalHandler( m_fatalHandlerFlags );
+	Athena::Signal::handleFatal(nullptr, IOFD_INVALID, nullptr, nullptr, m_fatalHandlerFlags);
       }
     } else {
       ATH_MSG_INFO("could not convert [" << p.toString() << "] to integer");
+    }
+  }
+  else if (p.name() ==  m_killOnSigInt.name()) {
+    if (m_killOnSigInt.fromString(p.toString()).isSuccess()) {
+      if (m_killOnSigInt) {
+	ATH_MSG_DEBUG("Will kill job on SIGINT (Ctrl-C)");
+	Athena::Signal::handle( SIGINT, ExitOnInt );
+      }
+    }
+    else {
+      ATH_MSG_WARNING("Could not convert [" << p.toString() << "] to bool");
     }
   }
 
@@ -238,10 +259,15 @@ void CoreDumpSvc::propertyHandler(Gaudi::Details::PropertyBase& p)
 StatusCode CoreDumpSvc::initialize()
 {
   if (m_fatalHandlerFlags != 0) {
-    ATH_MSG_INFO("install f-a-t-a-l handler... (flag = " << m_fatalHandlerFlags.value() << ")");
-    AthenaServices::SetFatalHandler(m_fatalHandlerFlags);
+      ATH_MSG_INFO("install f-a-t-a-l handler... (flag = " << m_fatalHandlerFlags.value() << ")");
+      Athena::Signal::handleFatal(nullptr, IOFD_INVALID, nullptr, nullptr, m_fatalHandlerFlags);
   }
 
+  if (m_killOnSigInt) {
+      ATH_MSG_DEBUG("Will kill job on SIGINT (Ctrl-C)");
+      Athena::Signal::handle( SIGINT, ExitOnInt );
+  }
+  
   if ( installSignalHandler().isFailure() ) {
     ATH_MSG_ERROR ("Could not install signal handlers");
     return StatusCode::FAILURE;

@@ -60,10 +60,20 @@ namespace met{
                           std::vector<const xAOD::IParticle*>& pfolist,
                           const met::METAssociator::ConstitHolder& constits,
                           std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const final;
+
     StatusCode extractFE(const xAOD::IParticle* obj,
                          std::vector<const xAOD::IParticle*>& felist,
                          const met::METAssociator::ConstitHolder& constits,
-                         std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const final;
+                         std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const final; 
+
+    StatusCode extractFEsFromLinks(const xAOD::Muon* mu, //TODO
+    				    std::vector<const xAOD::IParticle*>& felist,
+				    const met::METAssociator::ConstitHolder& constits) const;
+
+    StatusCode extractFEs(const xAOD::Muon* mu, 
+				 std::vector<const xAOD::IParticle*>& felist,
+				 const met::METAssociator::ConstitHolder& constits) const;
+
     StatusCode extractTracks(const xAOD::IParticle* obj,
                              std::vector<const xAOD::IParticle*>& constlist,
                              const met::METAssociator::ConstitHolder& constits) const final;
@@ -71,10 +81,13 @@ namespace met{
     private:
 
     bool m_doMuonClusterMatch;
+    bool m_useFEMuonLinks; 
 
     /// Default constructor: 
     METMuonAssociator();  
     SG::ReadHandleKey<xAOD::MuonContainer> m_muContKey;
+    SG::ReadDecorHandleKey<xAOD::MuonContainer> m_neutralFEReadDecorKey{this,"NeutralFEReadDecorKey","", "Neutral FlowElement links key"};
+    SG::ReadDecorHandleKey<xAOD::MuonContainer> m_chargedFEReadDecorKey{this,"ChargedFEReadDecorKey","", "Charged FlowElement links key"};
     SG::ReadDecorHandleKey<xAOD::CaloClusterContainer> m_elementLinkName{this,"ElementLinkName","CaloCalTopoClusters.constituentClusterLinks"};
   }; 
 

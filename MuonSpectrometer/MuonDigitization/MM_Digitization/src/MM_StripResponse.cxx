@@ -62,11 +62,15 @@ void MM_StripResponse::calculateTimeSeries(float /*thetaD*/, int /*gasgap*/) {
 
 void MM_StripResponse::simulateCrossTalk(float crossTalk1, float crossTalk2) {
 
+
 	// Unfortunately get stuck in the loop if you edit the map in the loop
 	//     So make a copy!
 
 	std::map< int, std::map<int,float> > stripChargesCopy1;
 	stripChargesCopy1.insert(m_stripCharges.begin(), m_stripCharges.end());
+
+	// clear strip charge map since charge on the main strip needs to be scaled
+	m_stripCharges.clear();
 
 	if (crossTalk1 > 0.){
 		for (auto & stripTimeSeries : stripChargesCopy1){
@@ -78,16 +82,21 @@ void MM_StripResponse::simulateCrossTalk(float crossTalk1, float crossTalk2) {
 
 				if (stripChargeVal==0.) continue;
 
+        // scale factcor for the charge on the main strip to account for the cross talk charge
+        float chargeScaleFactor = 1.0/ (1. + ( (stripVal-1 > 0) + (stripVal+1 < m_maxstripID) ) * crossTalk1  + ( (stripVal-2 > 0) + (stripVal+2 < m_maxstripID) ) * crossTalk2);
+        stripChargeVal *= chargeScaleFactor;
+        
+        (m_stripCharges[timeBin])[stripVal] += stripChargeVal;
+
+
         // Allow crosstalk between strips that exist.
         // Will check for read out strips in calculateSummaries function
 				if (stripVal-1 > 0) (m_stripCharges[timeBin])[stripVal-1] += stripChargeVal * crossTalk1;
 				if (stripVal+1 < m_maxstripID) (m_stripCharges[timeBin])[stripVal+1] += stripChargeVal * crossTalk1;
-				(m_stripCharges[timeBin])[stripVal] -= stripChargeVal * crossTalk1 * ( (stripVal-1 > 0) + (stripVal+1 < m_maxstripID) );
 
 				if (crossTalk2 > 0.){
 					if (stripVal-2 > 0) (m_stripCharges[timeBin])[stripVal-2] += stripChargeVal * crossTalk2;
 					if (stripVal+2 < m_maxstripID) (m_stripCharges[timeBin])[stripVal+2] += stripChargeVal * crossTalk2;
-					(m_stripCharges[timeBin])[stripVal] -= stripChargeVal * crossTalk2 * ( (stripVal-2 > 0) + (stripVal+2 < m_maxstripID) );
 				}
 			}
 		}

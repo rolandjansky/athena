@@ -49,7 +49,6 @@ excludeTracePattern.append ("*/IOVDbSvc/CondDB.py")
 excludeTracePattern.append("*/TrigConfigSvcConfig.py")
 excludeTracePattern.append("*/LArCalib.py")
 excludeTracePattern.append("*/_xmlplus/*")
-excludeTracePattern.append("*/InDetTrigRecExample/EFInDetConfig.py")
 excludeTracePattern.append("*/CaloClusterCorrection/CaloSwEtaoff*")
 excludeTracePattern.append("*/PyUtils/Helpers.py")
 excludeTracePattern.append("*/RecExConfig/RecoFunctions.py")
@@ -581,10 +580,10 @@ if rec.doTrigger:
             rec.doTrigger = recAlgs.doTrigger = False
     else:
         try:
-            from TriggerJobOpts.TriggerGetter import TriggerGetter
-            triggerGetter = TriggerGetter()
+            from TriggerJobOpts.T0TriggerGetter import T0TriggerGetter
+            triggerGetter = T0TriggerGetter()
         except Exception:
-            treatException("Could not import TriggerJobOpts.TriggerGetter . Switched off !" )
+            treatException("Could not import TriggerJobOpts.T0TriggerGetter . Switched off !" )
             rec.doTrigger = recAlgs.doTrigger = False
 
     # ESDtoAOD Run-3 Trigger Outputs: Don't run any trigger - only pass the HLT contents from ESD to AOD
@@ -1307,9 +1306,16 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
                                                  StreamName = 'StreamAOD',
                                                  Cells = 'AllCalo',
                                                  CellLinks = 'CaloCalTopoClusters_links',
-                                                 Taus = "TauJets")
+                                                 Taus = "TauJets",
+                                                 MinTauPt = tauFlags.tauRecMinPt())
                 topSequence += tauCellAlg3
-                
+
+                if tauFlags.tauRecMinPt() > 0:
+                    from tauRec.tauRecConf import TauThinningAlg
+                    tauThinningAlg = TauThinningAlg('TauThinningAlg',
+                                                    MinTauPt = tauFlags.tauRecMinPt())
+                    topSequence += tauThinningAlg
+
         except Exception:
             treatException("Could not make AOD cells" )
 
@@ -1360,10 +1366,10 @@ if rec.doWriteAOD():
             from ThinningUtils.ThinGeantTruth import ThinGeantTruth
             ThinGeantTruth()
 
-        if AODFlags.ThinNegativeEnergyCaloClusters:
+        if rec.doCalo and AODFlags.ThinNegativeEnergyCaloClusters:
             from ThinningUtils.ThinNegativeEnergyCaloClusters import ThinNegativeEnergyCaloClusters
             ThinNegativeEnergyCaloClusters()            
-        if AODFlags.ThinNegativeEnergyNeutralPFOs:
+        if rec.doCalo and AODFlags.ThinNegativeEnergyNeutralPFOs:
             from ThinningUtils.ThinNegativeEnergyNeutralPFOs import ThinNegativeEnergyNeutralPFOs
             ThinNegativeEnergyNeutralPFOs()
         if (AODFlags.ThinInDetForwardTrackParticles() and

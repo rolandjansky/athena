@@ -63,8 +63,30 @@ inline GenEvent* copyemptyGenEvent(const GenEvent* inEvt) {
   return e;
 }
 
-inline GenVertexPtr  barcode_to_vertex(const GenEvent* e, int id ) {
-    auto vertices=((GenEvent*)e)->vertices();
+inline ConstGenVertexPtr  barcode_to_vertex(const GenEvent* e, int id ) {
+    auto vertices=e->vertices();
+    for (auto v: vertices) {
+        auto barcode_attr=e->attribute<HepMC3::IntAttribute>("barcode");
+        if (!barcode_attr) continue;
+        if (barcode_attr->value()==id) return v;
+    }
+    if (-id>0&&-id<=(int)vertices.size()) return vertices[-id-1];
+    return  HepMC3::ConstGenVertexPtr();
+}
+
+inline ConstGenParticlePtr  barcode_to_particle(const GenEvent* e, int id ) {
+    auto particles=e->particles();
+    for (auto p: particles) {
+        auto barcode_attr=p->attribute<HepMC3::IntAttribute>("barcode");
+        if (!barcode_attr) continue;
+        if (barcode_attr->value()==id) return p;
+    }
+    if (id>0&&id<=(int)particles.size()) return particles[id-1];
+    return  HepMC3::ConstGenParticlePtr();
+}
+
+inline GenVertexPtr  barcode_to_vertex(GenEvent* e, int id ) {
+    auto vertices=e->vertices();
     for (auto v: vertices) {
         auto barcode_attr=e->attribute<HepMC3::IntAttribute>("barcode");
         if (!barcode_attr) continue;
@@ -74,8 +96,8 @@ inline GenVertexPtr  barcode_to_vertex(const GenEvent* e, int id ) {
     return  HepMC3::GenVertexPtr();
 }
 
-inline GenParticlePtr  barcode_to_particle(const GenEvent* e, int id ) {
-    auto particles=((GenEvent*)e)->particles();
+inline GenParticlePtr  barcode_to_particle(GenEvent* e, int id ) {
+    auto particles=e->particles();
     for (auto p: particles) {
         auto barcode_attr=p->attribute<HepMC3::IntAttribute>("barcode");
         if (!barcode_attr) continue;

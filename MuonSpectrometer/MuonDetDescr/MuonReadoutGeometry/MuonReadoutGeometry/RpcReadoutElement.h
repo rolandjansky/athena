@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -11,23 +11,27 @@
 #define MUONREADOUTGEOMETRY_RPCREADOUTELEMENT_H
 
 #include "MuonReadoutGeometry/MuonClusterReadoutElement.h"
+
+#include "Identifier/Identifier.h"
+#include "Identifier/IdentifierHash.h"
+#include "MuonIdHelpers/RpcIdHelper.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MuonStripDesign.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
+
+#include <memory>
+#include <string>
+#include <vector>
+
+class GeoVFullPhysVol;
+
+namespace Muon {
+  class CombinedMuonAlignModule;
+  class RpcAlignModule;
+}
 
 //<<<<<< PUBLIC DEFINES >>>>>>
 #define maxphipanels  2
 #define maxetapanels  2
-
-namespace Trk{
-  class RectangleBounds;
-  class PlaneSurface;
-}
-
-namespace Muon {
-  class RpcAlignModule;
-  class CombinedMuonAlignModule;
-}
 
 namespace MuonGM {
   /**
@@ -61,7 +65,6 @@ namespace MuonGM {
      from G4, are expressed).
   */
 
-  class MuonDetectorManager;
   class RpcReadoutSet;
  
   class RpcReadoutElement: public MuonClusterReadoutElement 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -33,9 +33,10 @@ Interface definition for jTowerBuilder
     virtual void BuildTRANSjTowers(std::unique_ptr<jTowerContainer> & jTowerContainer) const = 0;
     virtual void BuildEMEjTowers(std::unique_ptr<jTowerContainer> & jTowerContainer) const = 0 ;
     virtual void BuildEMIEjTowers(std::unique_ptr<jTowerContainer> & jTowerContainer) const = 0 ;
+    virtual void BuildFCALjTowers(std::unique_ptr<jTowerContainer> & jTowerContainer) const = 0 ;
     virtual void BuildHECjTowers(std::unique_ptr<jTowerContainer> & jTowerContainer) const = 0;
     virtual void BuildAllTowers(std::unique_ptr<jTowerContainer> & jTowerContainer) const = 0;
-    virtual void BuildSingleTower(std::unique_ptr<jTowerContainer> & jTowerContainer,float eta, float phi, float keybase, int posneg) const = 0;
+    virtual void BuildSingleTower(std::unique_ptr<jTowerContainer> & jTowerContainer,float eta, float phi, float keybase, int posneg, float centre_eta, float centre_phi, int fcal_layer) const = 0;
     
     virtual void init(std::unique_ptr<jTowerContainer> & jTowerContainer) = 0;
     virtual void execute(std::unique_ptr<jTowerContainer> & jTowerContainer) = 0;

@@ -47,6 +47,7 @@ StatusCode CpmMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
 
   // Retrieve Trigger Towers from SG
   SG::ReadHandle<xAOD::TriggerTowerContainer> triggerTowerTES(m_xAODTriggerTowerContainerName, ctx);
+
   ATH_CHECK(triggerTowerTES.isValid());
 
   // Retrieve Core CPM Towers from SG
@@ -122,12 +123,15 @@ StatusCode CpmMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
   //cpmTowerTES
   std::vector<MonitorCpmTT> monCpmTTs_em;
   std::vector<MonitorCpmTT> monCpmTTs_had;
+  // scalars to fill bitwise histograms directly
+  Monitored::Scalar<int> GLinkParityError = Monitored::Scalar<int>("GLinkParityError", 0);
+  Monitored::Scalar<int> cpmLoc = Monitored::Scalar<int>("cpmLoc", 0);
   bool core=true;
-  ATH_CHECK(fillCpmTowerVectors(cpmTowerTES, monCpmTTs_em, monCpmTTs_had, errorsCPM, core));
+  ATH_CHECK(fillCpmTowerVectors(cpmTowerTES, monCpmTTs_em, monCpmTTs_had, errorsCPM, core, cpmLoc, GLinkParityError));
   std::vector<MonitorCpmTT> monCpmOverlapTTs_em;
   std::vector<MonitorCpmTT> monCpmOverlapTTs_had;
   core=false;
-  ATH_CHECK(fillCpmTowerVectors(cpmTowerOverlapTES, monCpmOverlapTTs_em, monCpmOverlapTTs_had, errorsCPM, core));
+  ATH_CHECK(fillCpmTowerVectors(cpmTowerOverlapTES, monCpmOverlapTTs_em, monCpmOverlapTTs_had, errorsCPM, core, cpmLoc, GLinkParityError));
 
   // add the CPM global variables to be monitored - exclude Overlap
   auto etCpmTT_em = Monitored::Collection("etCpmTT_em", monCpmTTs_em, []( const auto &tt ){return tt.ttower->emEnergy();} ); variables.push_back( etCpmTT_em );
@@ -188,6 +192,11 @@ StatusCode CpmMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
   LVL1::CPRoIDecoder decoder;
   xAOD::CPMTobRoIContainer::const_iterator crIterator    = (*cpmTobRoiTES).begin();
   xAOD::CPMTobRoIContainer::const_iterator crIteratorEnd = (*cpmTobRoiTES).end();
+  // fill thresholds and bits as scalars in the loop
+  auto thresholdsEm = Monitored::Scalar("bitsTobRoIsIsolEm", 0.);
+  auto thresholdWeightsEm = Monitored::Scalar<float>("bitsTobRoIsIsolEmWeight", 1.);
+  auto thresholdsTau = Monitored::Scalar("bitsTobRoIsIsolTau", 0.);
+  auto thresholdWeightsTau = Monitored::Scalar("bitsTobRoIsIsolTauWeight", 0.);
   for (; crIterator != crIteratorEnd; ++crIterator) {
     const int type      = (*crIterator)->type();  // 0=EM, 1=Tau
     const int energy    = (*crIterator)->energy();
@@ -205,23 +214,26 @@ StatusCode CpmMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
       monTobRoIsEner.push_back(monTobRoI);
     }
     if (isolation) {
-      // have a go at isolation bits
+      // fill isolation bits
       int * isolbits=getIsolationBits(isolation, m_isolBits, 1);
-      bool isolationBits[4]={false}; //cannot use Gaudi::Property<int> so set size
-
-      bool isolationBitSet=false;
       for (int thr = 0; thr < m_isolBits; ++thr) {
-	isolationBits[thr]=isolbits[thr];
-	if (isolationBits[thr])
-	  isolationBitSet=true;
+	if (isolbits[thr]){
+	  if(type==0) {
+	    thresholdsEm = thr;
+	    thresholdWeightsEm = isolbits[thr];
+	    fill(m_packageName, thresholdsEm, thresholdWeightsEm);
+	  } else {
+	    thresholdsTau = thr;
+	    thresholdWeightsTau = isolbits[thr];
+	    fill(m_packageName, thresholdsTau, thresholdWeightsTau);
+	  }
+	}
       }
       //
       MonitorTobRoI monTobRoI;
       monTobRoI.tobroi=(*crIterator);
       monTobRoI.etaMod=etaMod;
       monTobRoI.phiMod=phiMod;
-      memcpy(monTobRoI.isolationBits, isolationBits , sizeof(isolationBits));
-      monTobRoI.isolationBitSet=isolationBitSet;
       monTobRoIsIsol.push_back(monTobRoI);
     }
     const int crate = (*crIterator)->crate();
@@ -284,14 +296,21 @@ StatusCode CpmMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
   //  CMX-CP TOBs
   //=============================================
 
-  std::vector<MonitorCmxCpTob> monCmxCpTobEner;
-  std::vector<MonitorCmxCpTob> monCmxCpTobIsol;
+  std::vector<MonitorCmxCpTob> monCmxCpTobEnerLeft;
+  std::vector<MonitorCmxCpTob> monCmxCpTobEnerRight;
   std::vector<MonitorCmxCpTob> monCmxCpTobError;
+  std::vector<MonitorCmxCpTob> monCmxCpTobIsolLeft;
+  std::vector<MonitorCmxCpTob> monCmxCpTobIsolRight;
 
   tobCount.assign(vecSize, 0);
   std::vector<int> cmxCount(m_crates * 2);
   xAOD::CMXCPTobContainer::const_iterator cmxCpTobIter    = (*cmxCpTobTES).begin();
   xAOD::CMXCPTobContainer::const_iterator cmxCpTobIterEnd = (*cmxCpTobTES).end();
+  //
+  auto cmxCpmTobsIsolBitsLeft = Monitored::Scalar("cmxCpmTobsIsolBitsLeft", 0.);
+  auto cmxCpmTobsIsolBitsLeftW = Monitored::Scalar<float>("cmxCpmTobsIsolBitsLeftWeight", 1.);
+  auto cmxCpmTobsIsolBitsRight= Monitored::Scalar("cmxCpmTobsIsolBitsRight", 0.);
+  auto cmxCpmTobsIsolBitsRightW = Monitored::Scalar<float>("cmxCpmTobsIsolBitsRightWeight", 1.);
   for (; cmxCpTobIter != cmxCpTobIterEnd; ++cmxCpTobIter) {
     const uint8_t crate     = (*cmxCpTobIter)->crate();
     const uint8_t cpm       = (*cmxCpTobIter)->cpm();     // 1-14
@@ -308,52 +327,413 @@ StatusCode CpmMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
       monCmxCpTob.tob=(*cmxCpTobIter);
       monCmxCpTob.x=x;
       monCmxCpTob.y=y;
-      monCmxCpTobEner.push_back(monCmxCpTob);
-
+      if (cmx)
+	monCmxCpTobEnerRight.push_back(monCmxCpTob);
+      else
+	monCmxCpTobEnerLeft.push_back(monCmxCpTob);
     }
     if (isolation) {
       MonitorCmxCpTob monCmxCpTob;
       monCmxCpTob.tob=(*cmxCpTobIter);
       monCmxCpTob.x=x;
       monCmxCpTob.y=y;
-      monCmxCpTobIsol.push_back(monCmxCpTob);
-    }
+      if (cmx)
+	monCmxCpTobIsolRight.push_back(monCmxCpTob);
+      else
+	monCmxCpTobIsolLeft.push_back(monCmxCpTob);
+
+      int nBits=1; int offset = 0;
+      const int mask = (1 << nBits) - 1;
+      for (int thr = 0; thr < m_isolBits; ++thr) {
+	const int hit = (isolation >> (nBits*thr)) & mask;
+	if (hit) {
+	  if(cmx) {
+	    cmxCpmTobsIsolBitsRight=thr+offset;	  
+	    cmxCpmTobsIsolBitsRightW=hit;	  
+	    fill(m_packageName, cmxCpmTobsIsolBitsRight, cmxCpmTobsIsolBitsRightW);
+	  } else {
+	    cmxCpmTobsIsolBitsLeft=thr+offset;	  
+	    cmxCpmTobsIsolBitsLeftW=hit;	  
+	    fill(m_packageName, cmxCpmTobsIsolBitsLeft, cmxCpmTobsIsolBitsLeftW);
+	  }
+	}
+      } // isol bits
+    } // isolation
     if (error) {
+      MonitorCmxCpTob monCmxCpTob;
+      monCmxCpTob.tob=(*cmxCpTobIter);
+      monCmxCpTob.x=x;
+      monCmxCpTob.parityError=false;
+
       const LVL1::DataError err(error);
       if (err.get(LVL1::DataError::Overflow)) {
 	tobCount[x * 2 + cmx] = m_tobsPerCPM + 1;
       }
       const int ybase = cmx * 5;
+      monCmxCpTob.ybase=ybase;
       bool parity = false;
       if (err.get(LVL1::DataError::ParityMerge)) {
 	parity = true;
+	monCmxCpTob.parityError=true;
+	monCmxCpTob.ybaseError=ybase;
       }
       if (err.get(LVL1::DataError::ParityPhase0)) {
 	parity = true;
+	monCmxCpTob.parityError=true;
+	monCmxCpTob.ybaseError=ybase+1;
       }
       if (err.get(LVL1::DataError::ParityPhase1)) {
 	parity = true;
+	monCmxCpTob.parityError=true;
+	monCmxCpTob.ybaseError=ybase+2;
       }
       if (err.get(LVL1::DataError::ParityPhase2)) {
 	parity = true;
+	monCmxCpTob.parityError=true;
+	monCmxCpTob.ybaseError=ybase+3;
       }
       if (err.get(LVL1::DataError::ParityPhase3)) {
 	parity = true;
+	monCmxCpTob.parityError=true;
+	monCmxCpTob.ybaseError=ybase+4;
       }
       if (parity) errorsCMX[crate * 2 + cmx] |= (1 << TOBParity);
 
-      MonitorCmxCpTob monCmxCpTob;
-      monCmxCpTob.tob=(*cmxCpTobIter);
-      monCmxCpTob.x=x;
-      monCmxCpTob.ybase=ybase;
-      monCmxCpTobEner.push_back(monCmxCpTob);
-    }
+      // and now push error structs
+      monCmxCpTobError.push_back(monCmxCpTob);
+    } // end of error 
+    //
     if (energy || isolation || error) {
       ++tobCount[x * 2 + cmx];
       ++cmxCount[crate * 2 + cmx];
     }
+
+    //
+    auto cmxCpmTobsLeft = Monitored::Scalar("cmxCpmTobsLeft", 0.);
+    auto cmxCpmTobsRight = Monitored::Scalar("cmxCpmTobsRight", 0.);
+    auto cmxTobsCmxLeft = Monitored::Scalar("cmxTobsCmxLeft", 0.);
+    auto cmxTobsCmxRight = Monitored::Scalar("cmxTobsCmxRight", 0.);
+    for (int crate = 0; crate < m_crates; ++crate) {
+      for (int cpm = 1; cpm <= m_modules; ++cpm) {
+        for (int cmx = 0; cmx < 2; ++cmx) {
+          int val = tobCount[(crate * m_modules + cpm - 1) * 2 + cmx];
+          if (val) {
+            if (val > m_tobsPerCPM) val = m_tobsPerCPM + 1;
+            if (cmx == 0) {
+	      cmxCpmTobsLeft=val;
+	      fill(m_packageName, cmxCpmTobsLeft);
+            } else {
+	      cmxCpmTobsRight=val;
+	      fill(m_packageName, cmxCpmTobsRight);
+	    }
+          }
+        }
+      }
+      for (int cmx = 0; cmx < 2; ++cmx) {
+        int val = cmxCount[crate * 2 + cmx];
+        if (val) {
+          if (val >= m_maxTobsPerCmx) val = m_maxTobsPerCmx - 1;
+          if (cmx == 0) {
+	    cmxTobsCmxLeft=val;
+	    fill(m_packageName, cmxTobsCmxLeft);
+          } else { 
+	    cmxTobsCmxRight=val;
+	    fill(m_packageName, cmxTobsCmxRight);
+	  }
+        }
+      }
+    }
+  } // CMX loop end
+
+  // now fill CMX-CP TOB monitor items
+  // Energy
+  auto cmxCpmTobsEnerLeft = Monitored::Collection("cmxCpmTobsEnerLeft", monCmxCpTobEnerLeft, []( const auto &tob ){return tob.tob->energy();} ); 
+  variables.push_back(cmxCpmTobsEnerLeft);
+  auto cmxCpmTobsEnerRight = Monitored::Collection("cmxCpmTobsEnerRight", monCmxCpTobEnerRight, []( const auto &tob ){return tob.tob->energy();} ); 
+  variables.push_back(cmxCpmTobsEnerRight);
+  
+  auto cmxCpmTobsEnerXLeft = Monitored::Collection("cmxCpmTobsEnerXLeft", monCmxCpTobEnerLeft, []( const auto &tob ){return tob.x;} ); 
+  variables.push_back(cmxCpmTobsEnerXLeft);
+  auto cmxCpmTobsEnerYLeft = Monitored::Collection("cmxCpmTobsEnerYLeft", monCmxCpTobEnerLeft, []( const auto &tob ){return tob.y;} ); 
+  variables.push_back(cmxCpmTobsEnerYLeft);
+  auto cmxCpmTobsEnerXRight = Monitored::Collection("cmxCpmTobsEnerXRight", monCmxCpTobEnerRight, []( const auto &tob ){return tob.x;} ); 
+  variables.push_back(cmxCpmTobsEnerXRight);
+  auto cmxCpmTobsEnerYRight = Monitored::Collection("cmxCpmTobsEnerYRight", monCmxCpTobEnerRight, []( const auto &tob ){return tob.y;} ); 
+  variables.push_back(cmxCpmTobsEnerYRight);
+
+  // isolation
+  auto cmxCpmTobsIsolLeft = Monitored::Collection("cmxCpmTobsIsolLeft", monCmxCpTobIsolLeft, []( const auto &tob ){return tob.tob->isolation();} ); 
+  variables.push_back(cmxCpmTobsIsolLeft);
+  auto cmxCpmTobsIsolRight = Monitored::Collection("cmxCpmTobsIsolRight", monCmxCpTobIsolRight, []( const auto &tob ){return tob.tob->isolation();} ); 
+  variables.push_back(cmxCpmTobsIsolRight);
+
+  auto cmxCpmTobsIsolXLeft = Monitored::Collection("cmxCpmTobsIsolXLeft", monCmxCpTobIsolLeft, []( const auto &tob ){return tob.x;} ); 
+  variables.push_back(cmxCpmTobsIsolXLeft);
+  auto cmxCpmTobsIsolYLeft = Monitored::Collection("cmxCpmTobsIsolYLeft", monCmxCpTobIsolLeft, []( const auto &tob ){return tob.y;} ); 
+  variables.push_back(cmxCpmTobsIsolYLeft);
+  auto cmxCpmTobsIsolXRight = Monitored::Collection("cmxCpmTobsIsolXRight", monCmxCpTobIsolRight, []( const auto &tob ){return tob.x;} ); 
+  variables.push_back(cmxCpmTobsIsolXRight);
+  auto cmxCpmTobsIsolYRight = Monitored::Collection("cmxCpmTobsIsolYRight", monCmxCpTobIsolRight, []( const auto &tob ){return tob.y;} ); 
+  variables.push_back(cmxCpmTobsIsolYRight);
+
+  // errors
+  auto cmxCpmTobsErrorX = Monitored::Collection("cmxCpmTobsErrorX", monCmxCpTobError, []( const auto &tob ){return tob.x;} ); 
+  variables.push_back(cmxCpmTobsErrorX);
+  auto cmxCpmTobsErrorCmx = Monitored::Collection("cmxCpmTobsErrorCmx", monCmxCpTobError, []( const auto &tob ){return tob.tob->cmx();} ); 
+  variables.push_back(cmxCpmTobsErrorCmx);
+  auto cmxCpmTobsErrorYbase = Monitored::Collection("cmxCpmTobsErrorYbase", monCmxCpTobError, []( const auto &tob ){return tob.ybaseError;} ); 
+  variables.push_back(cmxCpmTobsErrorYbase);
+  // parity error mask
+  auto cmxCpmTobsErrorParity = Monitored::Collection("cmxCpmTobsErrorParity", monCmxCpTobError, []( const auto &tob ){return tob.parityError;} ); 
+  variables.push_back(cmxCpmTobsErrorParity);
+
+  //
+  //=============================================
+  //  CMX-CP Hits
+  //=============================================
+
+  std::vector<MonitorCmxCpHits> monCmxCpHits;
+  std::vector<MonitorCmxCpHits> monCmxCpHitsLeft;
+  std::vector<MonitorCmxCpHits> monCmxCpHitsRight;
+
+  // scalars to fill bitwise histograms directly
+  Monitored::Scalar<int> cmxCpMapX = Monitored::Scalar<int>("cmxCpMapX", 0);
+  Monitored::Scalar<int> cmxCpMapY = Monitored::Scalar<int>("cmxCpMapY", 0);
+  Monitored::Scalar<int> cmxCpMapHit = Monitored::Scalar<int>("cmxCpMapHit", 0);
+  Monitored::Scalar<int> cmxCpCountsX = Monitored::Scalar<int>("cmxCpCountsX", 0);
+  Monitored::Scalar<int> cmxCpCountsY = Monitored::Scalar<int>("cmxCpCountsY", 0);
+  Monitored::Scalar<int> cmxCpCountsHit = Monitored::Scalar<int>("cmxCpCountsHit", 0);
+  //
+  Monitored::Scalar<int> cmxTopoTobsCpmRight = Monitored::Scalar<int>("cmxTopoTobsCpmRight", 0);
+  Monitored::Scalar<int> cmxTopoTobsCpmLeft = Monitored::Scalar<int>("cmxTopoTobsCpmLeft", 0);
+  //
+  Monitored::Scalar<int> cmxCpThresBinLeftX = Monitored::Scalar<int>("cmxCpThresBinLeftX", 0);
+  Monitored::Scalar<int> cmxCpThresBinLeftY = Monitored::Scalar<int>("cmxCpThresBinLeftY", 0);
+  Monitored::Scalar<int> cmxCpThresBinLeftHit = Monitored::Scalar<int>("cmxCpThresBinLeftHit", 0);
+  Monitored::Scalar<int> cmxCpThresBinRightX = Monitored::Scalar<int>("cmxCpThresBinRightX", 0);
+  Monitored::Scalar<int> cmxCpThresBinRightY = Monitored::Scalar<int>("cmxCpThresBinRightY", 0);
+  Monitored::Scalar<int> cmxCpThresBinRightHit = Monitored::Scalar<int>("cmxCpThresBinRightHit", 0);
+
+  cmxCount.assign(m_crates * 2, 0);
+  xAOD::CMXCPHitsContainer::const_iterator cmIterator    = (*cmxCpHitsTES).begin();
+  xAOD::CMXCPHitsContainer::const_iterator cmIteratorEnd = (*cmxCpHitsTES).end();
+  for (; cmIterator != cmIteratorEnd; ++cmIterator) {
+    const uint32_t hits0 = (*cmIterator)->hits0();
+    const uint32_t hits1 = (*cmIterator)->hits1();
+    const uint8_t crate  = (*cmIterator)->crate();
+    const uint8_t cmx    = (*cmIterator)->cmx();
+    const uint8_t source = (*cmIterator)->sourceComponent();
+    const uint8_t slices = ((*cmIterator)->hitsVec0()).size();
+    const uint8_t crateCmx = crate * 2 + cmx;
+
+    //
+    MonitorCmxCpHits monCmxCpHit;
+    monCmxCpHit.hit=(*cmIterator);
+    monCmxCpHit.crateCmx=crateCmx;
+    monCmxCpHit.srcTopoCheckSum=false;
+    monCmxCpHit.crateSlices=crate * m_maxSlices + slices - 1;
+    if (source == xAOD::CMXCPHits::TOPO_CHECKSUM) {
+      monCmxCpHit.srcTopoCheckSum=true;
+    } else if (source == xAOD::CMXCPHits::TOPO_OCCUPANCY_MAP) {
+      if (hits0) {
+	const int nBits = 1;
+	const int offset = 1;
+	const int mask = (1 << nBits) - 1;
+	for (int thr = 0; thr < m_modules; ++thr) {
+	  const int hit = (hits0 >> (nBits*thr)) & mask;
+	  if (hit) {
+	    cmxCpMapX=thr+offset;
+	    cmxCpMapY=crateCmx;
+	    cmxCpMapHit=hit;
+	    fill(m_packageName,cmxCpMapX,cmxCpMapY,cmxCpMapHit);
+	  }
+	}
+      }   
+    } else if (source == xAOD::CMXCPHits::TOPO_OCCUPANCY_COUNTS) {
+
+      if (hits0) {
+	const int nBits = 3;
+	const int offset = 1;
+	const int mask = (1 << nBits) - 1;
+	for (int thr = 0; thr < (m_modules/2); ++thr) {
+	  const int hit = (hits0 >> (nBits*thr)) & mask;
+	  if (hit) {
+	    cmxCpCountsX=thr+offset;
+	    cmxCpCountsY=crateCmx;
+	    cmxCpCountsHit=hit;
+	    fill(m_packageName,cmxCpCountsX,cmxCpCountsY,cmxCpCountsHit);
+	  }
+	}
+      }
+      for (int mod = 0; mod < m_modules / 2; ++mod) {
+	const int val = (hits0 >> (mod * 3)) & 0x7;
+	if (val) {
+	  if (cmx) {	    
+	    cmxTopoTobsCpmRight=val;
+	    fill(m_packageName,cmxTopoTobsCpmRight);
+	  } else {
+	    cmxTopoTobsCpmLeft=val;
+	    fill(m_packageName,cmxTopoTobsCpmLeft);
+	  }
+	}
+	cmxCount[crate * 2 + cmx] += val;
+      } // hits0
+
+      if (hits1) {
+	const int nBits = 3;
+	const int offset = m_modules / 2 + 1;
+	const int mask = (1 << nBits) - 1;
+	for (int thr = 0; thr < (m_modules/2); ++thr) {
+	  const int hit = (hits1 >> (nBits*thr)) & mask;
+	  if (hit) {
+	    cmxCpCountsX=thr+offset;
+	    cmxCpCountsY=crateCmx;
+	    cmxCpCountsHit=hit;
+	    fill(m_packageName,cmxCpCountsX,cmxCpCountsY,cmxCpCountsHit);
+	  }
+	}
+	for (int mod = 0; mod < m_modules / 2; ++mod) {
+	  const int val = (hits1 >> (mod * 3)) & 0x7;
+	  if (val) {
+	    if (cmx) {	    
+	      cmxTopoTobsCpmRight=val;
+	      fill(m_packageName,cmxTopoTobsCpmRight);
+	    } else {
+	      cmxTopoTobsCpmLeft=val;
+	      fill(m_packageName,cmxTopoTobsCpmLeft);
+	    }
+	  }
+	  cmxCount[crate * 2 + cmx] += val;
+	}
+      } // hits1
+    } else {
+      int bin = 0;
+      if      (source == xAOD::CMXCPHits::LOCAL)    bin = crate;
+      else if (source == xAOD::CMXCPHits::REMOTE_0) bin = m_crates;
+      else if (source == xAOD::CMXCPHits::REMOTE_1) bin = m_crates + 1;
+      else if (source == xAOD::CMXCPHits::REMOTE_2) bin = m_crates + 2;
+      else if (source == xAOD::CMXCPHits::TOTAL)    bin = m_crates + 3;
+      const int nThresh = m_thresholds / 2;
+      if (hits0) {
+	const int nBits = m_threshBits;
+	const int offset = 0;
+	const int mask = (1 << nBits) - 1;
+
+	for (int thr = 0; thr < nThresh; ++thr) {
+	  const int hit = (hits0 >> (nBits*thr)) & mask;
+	  if (hit) {
+	    if (cmx) {
+	      cmxCpThresBinRightX=bin;
+	      cmxCpThresBinRightY=thr+offset;
+	      cmxCpThresBinRightHit=hit;
+	      fill(m_packageName,cmxCpThresBinRightX,cmxCpThresBinRightY,cmxCpThresBinRightHit);
+	    } else {
+	      cmxCpThresBinLeftX=bin;
+	      cmxCpThresBinLeftY=thr+offset;
+	      cmxCpThresBinLeftHit=hit;
+	      fill(m_packageName,cmxCpThresBinLeftX,cmxCpThresBinLeftY,cmxCpThresBinLeftHit);
+	    }
+	  }
+	}
+      } // hits0
+
+      if (hits1) {
+	// 
+	const int nBits = 3;
+	const int offset = nThresh;
+	const int mask = (1 << nBits) - 1;
+	for (int thr = 0; thr < nThresh; ++thr) {
+	  const int hit = (hits0 >> (nBits*thr)) & mask;
+	  if (hit) {
+	    if (cmx) {
+	      cmxCpThresBinRightX=bin;
+	      cmxCpThresBinRightY=thr+offset;
+	      cmxCpThresBinRightHit=hit;
+	      fill(m_packageName,cmxCpThresBinRightX,cmxCpThresBinRightY,cmxCpThresBinRightHit);
+	    } else {
+	      cmxCpThresBinLeftX=bin;
+	      cmxCpThresBinLeftY=thr+offset;
+	      cmxCpThresBinLeftHit=hit;
+	      fill(m_packageName,cmxCpThresBinLeftX,cmxCpThresBinLeftY,cmxCpThresBinLeftHit);
+	    }
+	  }
+	}
+      } // hits1
+
+    }
+
+    monCmxCpHits.push_back(monCmxCpHit);
+    if (cmx)
+      monCmxCpHitsRight.push_back(monCmxCpHit);
+    else
+      monCmxCpHitsLeft.push_back(monCmxCpHit);
+
+  } //CmxCpHitsCollection iterator
+  //  
+  auto cmxCpmHitsPeak = Monitored::Collection("cmxCpHitsPeak", monCmxCpHits, []( const auto &hit ){return hit.hit->peak();} ); 
+  variables.push_back(cmxCpmHitsPeak);
+  auto cmxCpmHitsCrateSlices = Monitored::Collection("cmxCpHitsCrateSlices", monCmxCpHits, []( const auto &hit ){return hit.crateSlices;} ); 
+  variables.push_back(cmxCpmHitsCrateSlices);
+  auto cmxCpmHitsCrateCmx = Monitored::Collection("cmxCpHitsCrateCmx", monCmxCpHits, []( const auto &hit ){return hit.crateCmx;} ); 
+  variables.push_back(cmxCpmHitsCrateCmx);
+  // for masks
+  auto cmxCpmHitsHits0 = Monitored::Collection("cmxCpHitsHits0", monCmxCpHits, []( const auto &hit ){return hit.hit->hits0();} ); 
+  variables.push_back(cmxCpmHitsHits0);
+  auto cmxCpmHitsHits1 = Monitored::Collection("cmxCpHitsHits1", monCmxCpHits, []( const auto &hit ){return hit.hit->hits1();} ); 
+  variables.push_back(cmxCpmHitsHits1);
+  // mask for checksum plus hits0
+  auto cmxCpmHits0TopoCheckSum = Monitored::Collection("cmxCpHits0TopoCheckSum", monCmxCpHits, []( const auto &hit ){return (hit.hit->hits0() && hit.srcTopoCheckSum);} ); 
+  variables.push_back(cmxCpmHits0TopoCheckSum);
+
+  //  CMX-CP Topo Tobs
+  Monitored::Scalar<int> cmxCpTopoTobsCmxLeft = Monitored::Scalar<int>("cmxCpTopoTobsCmxLeft", 0);
+  Monitored::Scalar<int> cmxCpTopoTobsCmxRight = Monitored::Scalar<int>("cmxCpTopoTobsCmxRight", 0);
+  for (int crate = 0; crate < m_crates; ++crate) {
+    for (int cmx = 0; cmx < 2; ++cmx) {
+      int val = cmxCount[crate * 2 + cmx];
+      if (val) {
+        if (val >= m_maxTobsPerCmx) val = m_maxTobsPerCmx - 1;
+        if (cmx == 0) {
+	  cmxCpTopoTobsCmxLeft=val;
+	  fill(m_packageName,cmxCpTopoTobsCmxLeft);
+        } else {          
+	  cmxCpTopoTobsCmxRight=val;
+	  fill(m_packageName,cmxCpTopoTobsCmxRight);
+	}
+      }
+    }
   }
   
+  // Update error summary plot
+  Monitored::Scalar<int> cpmErrorX = Monitored::Scalar<int>("cpmErrorX", 0);
+  Monitored::Scalar<int> cpmErrorY = Monitored::Scalar<int>("cpmErrorY", 0);
+  Monitored::Scalar<int> cpmErrorSummary = Monitored::Scalar<int>("cpmErrorSummary", 0);
+  std::vector<int> crateErr(4);
+  for (int err = 0; err < NumberOfSummaryBins; ++err) {
+    int error = 0;
+    for (int loc = 0; loc < m_crates * m_modules; ++loc) {
+      if ((errorsCPM[loc] >> err) & 0x1) {
+	cpmErrorX=loc;
+	cpmErrorY=err;
+	fill(m_packageName,cpmErrorX,cpmErrorY);
+        error = 1;
+        crateErr[loc / m_modules] |= (1 << err);
+      }
+      if (loc < m_crates * 2) {
+        if ((errorsCMX[loc] >> err) & 0x1) {
+	  cpmErrorX=loc+(m_crates*m_modules);
+	  cpmErrorY=err;
+	  fill(m_packageName,cpmErrorX,cpmErrorY);
+          error = 1;
+          crateErr[loc / 2] |= (1 << err);
+        }
+      }
+    }
+    if (error) {
+      cpmErrorSummary=err;
+      fill(m_packageName,cpmErrorSummary);
+    }
+  } // NSummaryBins
 
   fill(m_packageName,variables);
   variables.clear();
@@ -387,7 +767,9 @@ int* CpmMonitorAlgorithm::getIsolationBits(int val, int nThresh, int nBits, int 
 StatusCode CpmMonitorAlgorithm::fillCpmTowerVectors(SG::ReadHandle<xAOD::CPMTowerContainer> &cpmTower,
 						    std::vector<MonitorCpmTT> &monCpmTTs_em, std::vector<MonitorCpmTT> &monCpmTTs_had,
 						    std::vector<int> &errorsCPM,
-						    bool core
+						    bool core,
+						    Monitored::Scalar<int> &cpmLoc,
+						    Monitored::Scalar<int> &GLinkParityError
 						    ) const
 {
   //   
@@ -414,12 +796,16 @@ StatusCode CpmMonitorAlgorithm::fillCpmTowerVectors(SG::ReadHandle<xAOD::CPMTowe
 		    " max slices " << m_maxSlices << " m_modules " << m_modules <<
 		    " slice " << slice);
     }
+    GLinkParityError=1; 
+    cpmLoc=1;
+    fill(m_packageName, GLinkParityError, cpmLoc);
+
 
     // Errors    
-    bool emParityError=true;
-    bool emLinkDownError=true;
+    bool emParityError=false; 
+    bool emLinkDownError=false; 
     bool emGLinkParityError[8]={false};
-    uint32_t error = ct->emError(); // uint8_t
+    uint32_t error = ct->emError(); 
     if (error) {
       const LVL1::DataError emError(error);
       if (emError.get(LVL1::DataError::Parity)) {
@@ -430,17 +816,22 @@ StatusCode CpmMonitorAlgorithm::fillCpmTowerVectors(SG::ReadHandle<xAOD::CPMTowe
 	emLinkDownError=true;
         errorsCPM[loc] |= (1 << EMLink);
       }
-      const int status = (error >> LVL1::DataError::GLinkParity) & 0xff;
+      // fix me
+      const int status = (error >> LVL1::DataError::GLinkParity) & 0xff; 
       if (status) {
+	cpmLoc=loc;
         for (int bit = 0; bit < 8; ++bit) {
-          if ((status >> bit) & 0x1) emGLinkParityError[bit]=true; 
+          if ((status >> bit) & 0x1) { 
+	    GLinkParityError=bit; 
+	    fill(m_packageName, GLinkParityError, cpmLoc);
+	  }
         }
         errorsCPM[loc] |= (1 << CPMStatus);
       }
     }
 
-    bool hadParityError=true;
-    bool hadLinkDownError=true;
+    bool hadParityError=false;
+    bool hadLinkDownError=false;
     error = ct->hadError();
     if (error) {
       const LVL1::DataError hadError(error);

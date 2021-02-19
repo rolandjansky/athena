@@ -17,6 +17,7 @@
 // METReconstruction includes
 #include "METReconstruction/METAssociator.h"
 //Includes for DataHandles
+#include "StoreGate/ReadDecorHandle.h"
 #include "StoreGate/DataHandle.h"
 
 
@@ -67,8 +68,16 @@ namespace met{
     StatusCode extractFE(const xAOD::IParticle* obj,
                          std::vector<const xAOD::IParticle*>& felist,
                          const met::METAssociator::ConstitHolder& constits,
-                         std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const final;
-    
+                         std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const final;   
+
+   StatusCode extractFEsFromLinks(const xAOD::TauJet* tau,
+    				    std::vector<const xAOD::IParticle*>& felist,
+				    const met::METAssociator::ConstitHolder& constits) const;
+
+    StatusCode extractFEs(const xAOD::TauJet* tau, 
+				 std::vector<const xAOD::IParticle*>& felist,
+				 const met::METAssociator::ConstitHolder& constits) const;
+
     StatusCode extractTracks(const xAOD::IParticle* obj,
                              std::vector<const xAOD::IParticle*>& constlist,
                              const met::METAssociator::ConstitHolder& constits) const final;
@@ -78,6 +87,9 @@ namespace met{
     /// Default constructor: 
     METTauAssociator();
     SG::ReadHandleKey<xAOD::TauJetContainer> m_tauContKey;
+    SG::ReadDecorHandleKey<xAOD::TauJetContainer> m_neutralFEReadDecorKey{this,"NeutralFEReadDecorKey","", "Neutral FlowElement links key"};
+    SG::ReadDecorHandleKey<xAOD::TauJetContainer> m_chargedFEReadDecorKey{this,"ChargedFEReadDecorKey","", "Charged FlowElement links key"};
+    bool m_useFETauLinks;
 
   }; 
 

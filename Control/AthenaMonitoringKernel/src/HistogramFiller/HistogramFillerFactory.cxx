@@ -7,6 +7,7 @@
 #include "StaticHistogramProvider.h"
 #include "LumiblockHistogramProvider.h"
 #include "OfflineHistogramProvider.h"
+#include "LiveHistogramProvider.h"
 
 #include "HistogramFiller1D.h"
 #include "HistogramFillerEfficiency.h"
@@ -65,6 +66,8 @@ std::shared_ptr<IHistogramProvider> HistogramFillerFactory::createHistogramProvi
     result.reset(new OfflineHistogramProvider(m_gmTool, m_factory, def));
   } else if (def.kLBNHistoryDepth) {
     result.reset(new LumiblockHistogramProvider(m_gmTool, m_factory, def));
+  } else if (def.kLive) {
+    result.reset(new LiveHistogramProvider(m_gmTool, m_factory, def));
   } else {
     result.reset(new StaticHistogramProvider(m_factory, def));
   }

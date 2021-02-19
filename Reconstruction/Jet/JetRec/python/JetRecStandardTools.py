@@ -32,6 +32,7 @@ from JetRecTools.JetRecToolsConf import ChargedHadronSubtractionTool
 from JetRecTools.JetRecToolsConf import JetTrackSelectionTool
 from JetRecTools.JetRecToolsConf import JetTrackSelectionTool2
 from JetRecTools.JetRecToolsConf import SimpleJetTrackSelectionTool
+from JetRecTools.JetRecToolsConf import JetUsedInFitTrackDecoratorTool
 from JetRecTools.JetRecToolsConf import TrackVertexAssociationTool
 
 try:
@@ -157,8 +158,14 @@ else:
 # Track-vertex association.
 #--------------------------------------------------------------
 
+# Need to add used-in-fit decorator beforehand:
+from InDetUsedInFitTrackDecoratorTool.InDetUsedInFitTrackDecoratorToolConf import InDet__InDetUsedInFitTrackDecoratorTool
+jtm += InDet__InDetUsedInFitTrackDecoratorTool("jetUsedInFitTrkDecoTool", TrackContainer = jtm.trackContainer, VertexContainer = jtm.vertexContainer)
+
+jtm += JetUsedInFitTrackDecoratorTool("tvassocdeco", Decorator = jtm.jetUsedInFitTrkDecoTool)
+
 from TrackVertexAssociationTool.TrackVertexAssociationToolConf import CP__TrackVertexAssociationTool
-jtm += CP__TrackVertexAssociationTool("jetLooseTVAtool", WorkingPoint='Loose')
+jtm += CP__TrackVertexAssociationTool("jetLooseTVAtool", WorkingPoint="Custom", d0_cut=2.0, dzSinTheta_cut=2.0)
 
 jtm += TrackVertexAssociationTool(
   "tvassoc",

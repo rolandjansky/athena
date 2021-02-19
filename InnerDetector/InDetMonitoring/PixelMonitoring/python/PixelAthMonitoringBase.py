@@ -288,7 +288,7 @@ def define2DProfHist(helper, alg, name, title, path, type='TProfile2D', doWeight
          title      -- Title of histogram (Title = title +' '+layer)
          path       -- Path in output file for histogram
          type       -- Type of histogram (TH2D, TProfile2D)
-         lifecycle  -- global life duration of histograms (run, lowstat [i.e. 20 LB], lumiblock) - APPLIES to MonGroup only
+         lifecycle  -- global life duration of histograms (run, lowStat [i.e. 20 LB], lumiblock) - APPLIES to MonGroup only
          zmin(zmax) -- fix the displayed range - simply chopping the range!!!
          opt        -- history depth of a histogram e.g. 'kLBNHistoryDepth=10'
          histname   -- another way of naming the histogram(s), useful when multiple histograms are filled from exactly the same variables, but in a different way
@@ -330,7 +330,7 @@ def define2DProfPerFEHist(helper, alg, name, title, path, type='TProfile2D', doW
          title      -- Title of histogram (Title = title +' '+layer)
          path       -- Path in output file for histogram
          type       -- Type of histogram (TH2D, TProfile2D)
-         lifecycle  -- global life duration of histograms (run, lowstat [i.e. 20 LB], lumiblock) - APPLIES to MonGroup only
+         lifecycle  -- global life duration of histograms (run, lowStat [i.e. 20 LB], lumiblock) - APPLIES to MonGroup only
          zmin(zmax) -- fix the displayed range - simply chopping the range!!!
          opt        -- history depth of a histogram e.g. 'kLBNHistoryDepth=10'
          histname   -- another way of naming the histogram(s), useful when multiple histograms are filled from exactly the same variables, but in a different way

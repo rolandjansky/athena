@@ -1,32 +1,37 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModel/sTGC.h"
 
-#include "MuonAGDDDescription/sTGC_Technology.h"
+#include <GaudiKernel/IMessageSvc.h>
+#include <GaudiKernel/MsgStream.h>
+#include <GeoModelKernel/GeoDefinitions.h>
+#include <GeoModelKernel/GeoShape.h>
+#include "AGDDKernel/AGDDDetectorStore.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include "GeoModelInterfaces/StoredMaterialManager.h"
+#include "GeoModelKernel/GeoFullPhysVol.h"
+#include "GeoModelKernel/GeoIdentifierTag.h"
+#include "GeoModelKernel/GeoLogVol.h"
+#include "GeoModelKernel/GeoNameTag.h"
+#include "GeoModelKernel/GeoPhysVol.h"
+#include "GeoModelKernel/GeoSerialIdentifier.h"
+#include "GeoModelKernel/GeoShapeShift.h"
+#include "GeoModelKernel/GeoShapeSubtraction.h"
+#include "GeoModelKernel/GeoSimplePolygonBrep.h"
+#include "GeoModelKernel/GeoTransform.h"
+#include "GeoModelKernel/GeoTrd.h"
 #include "MuonAGDDDescription/sTGCDetectorDescription.h"
 #include "MuonAGDDDescription/sTGCDetectorHelper.h"
-#include "AGDDKernel/AGDDDetectorStore.h"
-#include "MuonGeoModel/Station.h"
-#include "MuonGeoModel/MYSQL.h"
+#include "MuonAGDDDescription/sTGC_Technology.h"
+#include "MuonGeoModel/Component.h"
 #include "MuonGeoModel/sTGCComponent.h"
-#include "MuonGeoModel/Cutout.h"
-#include "GeoModelKernel/GeoTrd.h"
-#include "GeoModelKernel/GeoBox.h"
-#include "GeoModelKernel/GeoSimplePolygonBrep.h"
-#include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoFullPhysVol.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
-#include "GeoModelKernel/GeoNameTag.h"
-#include "GeoModelKernel/GeoSerialDenominator.h"
-#include "GeoModelKernel/GeoTransform.h"
-#include "GeoModelKernel/GeoSerialIdentifier.h"
-#include "GeoModelKernel/GeoIdentifierTag.h"
-#include "GeoModelKernel/GeoShapeSubtraction.h"
-#include "GeoModelKernel/GeoShapeIntersection.h"
-#include "GeoModelKernel/GeoShapeShift.h"
+
+#include <cmath>
+#include <string>
+
+class GeoMaterial;
 
 namespace MuonGM {
 
@@ -38,6 +43,7 @@ sTGC::sTGC(Component* ss): DetectorElement(ss->name)
   width = s->dx1;
   longWidth = s->dx2;
   yCutout= s->yCutout;
+  yCutoutCathode= s->yCutoutCathode;
   length = s->dy;
   name=s->name;
   index = s->index;
@@ -182,36 +188,50 @@ GeoFullPhysVol* sTGC::build(int minimalgeo, int , std::vector<Cutout*> )
 
     //Cutouts
     if (!yCutout) {
-        double lW=longWidth/2.-((longWidth-width)/2.)*f4/length;
-        double W=width/2.+((longWidth-width)/2.)*f5/length;
-        const GeoShape* trd1 = new GeoTrd(gasTck/2,gasTck/2, width/2,
-                                  longWidth/2, length/2);
-        const GeoShape* trd2 = new GeoTrd(gasTck,gasTck, W-f6,
-                                  lW-f6, length/2-(f4+f5)/2.);
-        GeoTrf::Translate3D c(0,0,(f5-f4)/2.);
-        trd1= &(trd1->subtract( (*trd2) << c ));
-        GeoLogVol* ltrdframe = new GeoLogVol("sTGC_Frame", trd1,
-                                              getMaterialManager()->getMaterial("std::Aluminium"));
-        GeoPhysVol* ptrdframe = new GeoPhysVol(ltrdframe);
-
-        ptrdgas->add(ptrdframe);
-    } else {
-      double W = width/2.+((longWidth-width)/2.)*f5/(length);
-      GeoSimplePolygonBrep *sGasV = new GeoSimplePolygonBrep(gasTck);
-      sGasV->addVertex(longWidthActive/2.-f6,lengthActive/2.-f4);
-      sGasV->addVertex(-longWidthActive/2.+f6,lengthActive/2.-f4);
-      sGasV->addVertex(-longWidthActive/2.+f6,lengthActive/2.-yCutout);
-      sGasV->addVertex(-W+f6,-lengthActive/2.+f5);
-      sGasV->addVertex(W-f6,-lengthActive/2.+f5);
-      sGasV->addVertex(longWidthActive/2.-f6,lengthActive/2.-yCutout);
-
-      const GeoShape *sGasV1 = new GeoShapeShift(sGasV,rot);
-      const GeoShape* sGasV2 = &(sGasVolume1->subtract(*sGasV1));
-
-      GeoLogVol* ltrdframe = new GeoLogVol("sTGC_Frame", sGasV2,
-                                           getMaterialManager()->getMaterial("std::Aluminium"));
+      double lW=longWidth/2.-((longWidth-width)/2.)*f4/length;
+      double W=width/2.+((longWidth-width)/2.)*f5/length;
+      const GeoShape* trd1 = new GeoTrd(gasTck/2,gasTck/2, width/2,
+                                longWidth/2, length/2);
+      const GeoShape* trd2 = new GeoTrd(gasTck,gasTck, W-f6,
+                                lW-f6, length/2-(f4+f5)/2.);
+      GeoTrf::Translate3D c(0,0,(f5-f4)/2.);
+      trd1= &(trd1->subtract( (*trd2) << c ));
+      GeoLogVol* ltrdframe = new GeoLogVol("sTGC_Frame", trd1,
+                                     getMaterialManager()->getMaterial("std::Aluminium"));
       GeoPhysVol* ptrdframe = new GeoPhysVol(ltrdframe);
 
+      ptrdgas->add(ptrdframe);
+    } else {
+      double W=width/2.+((longWidth-width)/2.)*f5/(length);
+      // This describes the active area
+    	GeoSimplePolygonBrep *sGasV=new GeoSimplePolygonBrep(gasTck/2.);
+      sGasV->addVertex(longWidthActive/2.-f6,lengthActive/2.-f4);
+		  sGasV->addVertex(-longWidthActive/2.+f6,lengthActive/2.-f4);
+		  sGasV->addVertex(-longWidthActive/2.+f6,lengthActive/2.-f4-yCutoutCathode);
+		  sGasV->addVertex(-W+f6,-lengthActive/2.+f5);
+		  sGasV->addVertex(W-f6,-lengthActive/2.+f5);
+		  sGasV->addVertex(longWidthActive/2.-f6,lengthActive/2.-f4-yCutoutCathode);
+      
+      // This describes the enveloppe (active area + frames) 
+    	GeoSimplePolygonBrep *sGasV2=new GeoSimplePolygonBrep(gasTck/2.);
+      sGasV2->addVertex(longWidth/2.,length/2.);
+		  sGasV2->addVertex(-longWidth/2.,length/2.);
+		  sGasV2->addVertex(-longWidth/2.,length/2.-yCutout);
+		  sGasV2->addVertex(-width/2.,-length/2.);
+		  sGasV2->addVertex(width/2.,-length/2.);
+		  sGasV2->addVertex(longWidth/2.,length/2.-yCutout);
+	
+      // define the final geo shapes
+	    const GeoShape *sGasV1=new GeoShapeShift(sGasV,rot);
+	    const GeoShape *sGasV3=new GeoShapeShift(sGasV2,rot);
+      // Remove active from active+frames to only get frames
+      sGasV3= &(sGasV3->subtract( (*sGasV1)));
+	
+	    GeoLogVol* ltrdframe = new GeoLogVol("sTGC_Frame", sGasV3,
+                                       getMaterialManager()->getMaterial("std::Aluminium"));
+      GeoPhysVol* ptrdframe = new GeoPhysVol(ltrdframe);
+
+      // Add frame volume to QL3
       ptrdgas->add(ptrdframe);
     }
 

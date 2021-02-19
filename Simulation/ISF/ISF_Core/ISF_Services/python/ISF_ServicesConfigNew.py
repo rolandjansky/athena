@@ -139,8 +139,10 @@ def TruthServiceCfg(ConfigFlags, **kwargs):
 
 
 def GenericTruthServiceCfg(ConfigFlags, name="ISF_TruthService", **kwargs):
-    result = BarcodeSvcCfg(ConfigFlags)
-    kwargs.setdefault("BarcodeSvc", result.getPrimary())
+    result = ComponentAccumulator()
+    tmpAcc = BarcodeSvcCfg(ConfigFlags)
+    kwargs.setdefault("BarcodeSvc", tmpAcc.getPrimary())
+    result.merge(tmpAcc)
 
     kwargs.setdefault("SkipIfNoChildren", True)
     kwargs.setdefault("SkipIfNoParentBarcode", True)

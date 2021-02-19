@@ -2,6 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "TrigErrorMonTool.h"
+#include "AthenaKernel/AthStatusCode.h"
 #include "GaudiKernel/IAlgExecStateSvc.h"
 
 // =============================================================================
@@ -57,7 +58,7 @@ std::unordered_map<std::string_view, StatusCode> TrigErrorMonTool::algExecErrors
         Monitored::Group(m_monTool, monErrorChainNames, monErrorCode);
       }
 
-      if (state.execStatus().message() == "Athena::Status::TIMEOUT") {
+      if (state.execStatus() == Athena::Status::TIMEOUT) {
         // Print report of most time consuming algorithms
         wasTimeout = true;
       }

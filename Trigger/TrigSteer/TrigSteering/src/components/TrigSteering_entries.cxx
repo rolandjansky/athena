@@ -9,7 +9,6 @@
 #include "TrigSteering/RandomScaler.h"
 //#include "TrigSteering/PeriodicScaler.h"
 #include "TrigSteering/ScalerSvc.h"
-#include "TrigSteering/Lvl1ResultAccessTool.h"
 #include "TrigSteering/HLTResultAccessTool.h"
 #include "TrigSteering/EventInfoAccessTool.h"
 #include "TrigSteering/Lvl1ConsistencyChecker.h"
@@ -27,7 +26,6 @@ DECLARE_COMPONENT( HLT::ScalerSvc )
 
 DECLARE_COMPONENT( HLT::ResultBuilder )
 DECLARE_COMPONENT( HLT::RandomScaler )
-DECLARE_COMPONENT( HLT::Lvl1ResultAccessTool )
 DECLARE_COMPONENT( HLT::HLTResultAccessTool )
 DECLARE_COMPONENT( HLT::EventInfoAccessTool )
 DECLARE_COMPONENT( HLT::Lvl1Converter )

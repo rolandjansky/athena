@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_DIGITIZATION_SCTINDUCEDCHARGEDMODEL_H
@@ -68,7 +68,8 @@ class SCT_InducedChargeModel {
                                const float bulk_depth,
                                const EFieldModel model,
                                const ToolHandle<ISiliconConditionsTool> siConditionsTool,
-                               CLHEP::HepRandomEngine* rndmEngine) {
+                               CLHEP::HepRandomEngine* rndmEngine,
+                               const EventContext& ctx) {
       m_VD = vdepl; // full depletion voltage [Volt] negative for type-P
       m_VB = vbias; // applied bias voltage [Volt]
       m_element = element;
@@ -85,7 +86,7 @@ class SCT_InducedChargeModel {
       }
 
       m_EFieldModel = model;
-      m_T = siConditionsTool->temperature(m_element->identifyHash()) + Gaudi::Units::STP_Temperature;
+      m_T = siConditionsTool->temperature(m_element->identifyHash(), ctx) + Gaudi::Units::STP_Temperature;
       m_rndmEngine = rndmEngine;
     }
   };
@@ -98,7 +99,8 @@ class SCT_InducedChargeModel {
                  const InDetDD::SiDetectorElement* element,
                  const AtlasFieldCacheCondObj* fieldCondObj,
                  const ToolHandle<ISiliconConditionsTool> siConditionsTool,
-                 CLHEP::HepRandomEngine* rndmEngine) const;
+                 CLHEP::HepRandomEngine* rndmEngine,
+                 const EventContext& ctx) const;
 
   void setEField(SCT_InducedChargeModelData& data) const;
 
@@ -107,17 +109,20 @@ class SCT_InducedChargeModel {
                  const double x0, const double y0,
                  double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2,
                  const IdentifierHash hashId,
-                 const ToolHandle<ISiPropertiesTool> siPropertiesTool) const;
+                 const ToolHandle<ISiPropertiesTool> siPropertiesTool,
+                 const EventContext& ctx) const;
   void holeTransport(const SCT_InducedChargeModelData& data,
                      const double x0, const double y0,
                      double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2,
                      const IdentifierHash hashId,
-                     const ToolHandle<ISiPropertiesTool> siPropertiesTool) const;
+                     const ToolHandle<ISiPropertiesTool> siPropertiesTool,
+                     const EventContext& ctx) const;
   void electronTransport(const SCT_InducedChargeModelData& data,
                          const double x0, const double y0,
                          double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2,
                          const IdentifierHash hashId,
-                         const ToolHandle<ISiPropertiesTool> siPropertiesTool) const;
+                         const ToolHandle<ISiPropertiesTool> siPropertiesTool,
+                         const EventContext& ctx) const;
 
  private:
  
@@ -127,7 +132,8 @@ class SCT_InducedChargeModel {
                 const bool isElectron,
                 const double x, const double y, double& vx, double& vy, double& D,
                 const IdentifierHash hashId,
-                const ToolHandle<ISiPropertiesTool> siPropertiesTool) const;
+                const ToolHandle<ISiPropertiesTool> siPropertiesTool,
+                const EventContext& ctx) const;
   double induced(const SCT_InducedChargeModelData& data,
                  const int istrip, const double x, const double y) const;
   void getEField(const SCT_InducedChargeModelData& data,

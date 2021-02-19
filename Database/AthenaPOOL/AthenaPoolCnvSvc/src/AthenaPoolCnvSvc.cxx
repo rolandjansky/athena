@@ -313,6 +313,9 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
       if (streamClient == m_streamClientFiles.size()) {
          m_streamClientFiles.push_back(outputConnection);
       }
+      if (m_streamClientFiles.size() >= m_outputStreamingTool.size()) {
+         streamClient = 0;
+      }
    }
 
    if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient() && m_streamMetaDataOnly) {
@@ -390,11 +393,10 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
          streamClient++;
       }
       if (streamClient == m_streamClientFiles.size()) {
-         if (m_streamClientFiles.size() < m_outputStreamingTool.size()) {
-            m_streamClientFiles.push_back(outputConnection);
-         } else {
-            streamClient = 0;
-         }
+         m_streamClientFiles.push_back(outputConnection);
+      }
+      if (m_streamClientFiles.size() >= m_outputStreamingTool.size()) {
+         streamClient = 0;
       }
       StatusCode sc = m_outputStreamingTool[streamClient]->lockObject("release");
       while (sc.isRecoverable()) {
@@ -730,11 +732,10 @@ Token* AthenaPoolCnvSvc::registerForWrite(Placement* placement, const void* obj,
          streamClient++;
       }
       if (streamClient == m_streamClientFiles.size()) {
-         if (m_streamClientFiles.size() < m_outputStreamingTool.size()) {
-            m_streamClientFiles.push_back(fileName);
-         } else {
-            streamClient = 0;
-         }
+         m_streamClientFiles.push_back(fileName);
+      }
+      if (m_streamClientFiles.size() >= m_outputStreamingTool.size()) {
+         streamClient = 0;
       }
       // Lock object
       std::string placementStr = placement->toString() + "[PNAME=" + classDesc.Name() + "]";

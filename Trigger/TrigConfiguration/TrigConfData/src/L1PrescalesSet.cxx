@@ -68,6 +68,6 @@ TrigConf::L1PrescalesSet::prescales() const {
 */
 double
 TrigConf::L1PrescalesSet::getPrescaleFromCut(uint32_t cut) const {
-   return 0xFFFFFF / ( 0x1000000 - cut );
+   return static_cast<double>(0xFFFFFF) / ( 0x1000000 - cut );
 }
 

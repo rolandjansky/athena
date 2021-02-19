@@ -72,7 +72,7 @@ def defineLegacyInputsMenu():
             "type" : "ctpin",
             "legacy" : True,
             "thresholds" : [
-                'J12', 'J12p0ETA23', 'J15', 'J15p0ETA25','J20', 'J25','J25p0ETA23','J30', # 8 x JETs and central jets
+                'J12', 'J12p0ETA25', 'J15', 'J15p0ETA25','J20', 'J25','J25p0ETA23','J30', # 8 x JETs and central jets
                 'J12p0ETA28', 'J20p0ETA49', # 2 x VBF
             ]
         },
@@ -85,7 +85,7 @@ def defineLegacyInputsMenu():
             "legacy" : True,
             "thresholds" : [
                 'J30p0ETA49', 'J35p0ETA23', 'J40p0ETA25', # 3 x central Jet
-                'J40', 'J50', 'J75', 'J85', 'J100', 'J45p0ETA23', 'J400', # 6 jets + 1 central jet
+                'J40', 'J50', 'J75', 'J85', 'J100', 'J45p0ETA21', 'J400', # 6 jets + 1 central jet
                 'J15p31ETA49', 'J20p31ETA49', 'J30p31ETA49', 'J50p31ETA49', 'J75p31ETA49', # 6 x FJ
             ]
         },

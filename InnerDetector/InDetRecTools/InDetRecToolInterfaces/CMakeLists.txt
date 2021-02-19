@@ -8,4 +8,4 @@ atlas_add_library( InDetRecToolInterfaces
                    InDetRecToolInterfaces/*.h
                    INTERFACE
                    PUBLIC_HEADERS InDetRecToolInterfaces
-                   LINK_LIBRARIES GaudiKernel GeoPrimitives IRegionSelector Identifier InDetPrepRawData MagFieldElements SiSPSeededTrackFinderData SiSpacePointsSeed TrkEventPrimitives TrkMeasurementBase TrkParameters TrkParticleBase TrkSegment TrkSpacePoint TrkTrack VxVertex xAODCaloEvent xAODTracking )
+                   LINK_LIBRARIES AsgTools AthLinks GaudiKernel GeoPrimitives IRegionSelector Identifier InDetPrepRawData MagFieldElements SiSPSeededTrackFinderData SiSpacePointsSeed TrkEventPrimitives TrkMeasurementBase TrkParameters TrkParticleBase TrkSegment TrkSpacePoint TrkTrack VxVertex xAODCaloEvent xAODTracking )

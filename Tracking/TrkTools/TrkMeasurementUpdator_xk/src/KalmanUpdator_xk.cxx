@@ -40,7 +40,7 @@ Trk::KalmanUpdator_xk::KalmanUpdator_xk
 }
 
 ///////////////////////////////////////////////////////////////////
-// Destructor  
+// Destructor
 ///////////////////////////////////////////////////////////////////
 
 Trk::KalmanUpdator_xk::~KalmanUpdator_xk()
@@ -58,7 +58,7 @@ StatusCode Trk::KalmanUpdator_xk::initialize()
   msg(MSG::INFO) << "initialize() successful in " << name() << endmsg;
 
   if( m_cov0.size()!=5) {
-    
+
       m_cov0.erase(m_cov0.begin(),m_cov0.end());
       m_cov0.push_back(  10.);
       m_cov0.push_back(  10.);
@@ -81,32 +81,32 @@ StatusCode Trk::KalmanUpdator_xk::finalize()
 ///////////////////////////////////////////////////////////////////
 // Add local position together with erro matrix  without Xi2 calculation
 ///////////////////////////////////////////////////////////////////
-    
-Trk::TrackParameters* Trk::KalmanUpdator_xk::addToState 
+
+std::unique_ptr<Trk::TrackParameters> Trk::KalmanUpdator_xk::addToState
 (const Trk::TrackParameters& T,
  const Amg::Vector2D       & P,
  const Amg::MatrixX        & E) const
 {
-  Trk::FitQualityOnSurface* Q=nullptr; 
+  Trk::FitQualityOnSurface* Q=nullptr;
   return update(T,P,E,Q, 1,false);
 }
 
 ///////////////////////////////////////////////////////////////////
 
-bool                        Trk::KalmanUpdator_xk::addToState 
+bool                        Trk::KalmanUpdator_xk::addToState
 (Trk::PatternTrackParameters& T,
  const Amg::Vector2D        & P,
  const Amg::MatrixX         & E,
  Trk::PatternTrackParameters& Ta) const
 {
-  int    n ; 
+  int    n ;
   double x2;
   return update(T,P,E, 1,false,Ta,x2,n);
 }
 
 ///////////////////////////////////////////////////////////////////
 
-bool                        Trk::KalmanUpdator_xk::addToStateOneDimension  
+bool                        Trk::KalmanUpdator_xk::addToStateOneDimension
 (Trk::PatternTrackParameters& T,
  const Amg::Vector2D        & P,
  const Amg::MatrixX         & E,
@@ -120,24 +120,24 @@ bool                        Trk::KalmanUpdator_xk::addToStateOneDimension
 // Remove local position together with erro matrix  without Xi2 calculation
 ///////////////////////////////////////////////////////////////////
 
-Trk::TrackParameters* Trk::KalmanUpdator_xk::removeFromState 
+std::unique_ptr<Trk::TrackParameters> Trk::KalmanUpdator_xk::removeFromState
 (const Trk::TrackParameters& T,
  const Amg::Vector2D       & P,
  const Amg::MatrixX        & E) const
 {
-  Trk::FitQualityOnSurface* Q=nullptr; 
+  Trk::FitQualityOnSurface* Q=nullptr;
   return update(T,P,E,Q,-1,false);
 }
 
 ///////////////////////////////////////////////////////////////////
 
-bool                        Trk::KalmanUpdator_xk::removeFromState 
+bool                        Trk::KalmanUpdator_xk::removeFromState
 (Trk::PatternTrackParameters& T,
  const Amg::Vector2D        & P,
  const Amg::MatrixX         & E,
  Trk::PatternTrackParameters& Ta) const
 {
-  int    n ; 
+  int    n ;
   double x2;
   return update(T,P,E,-1,false,Ta,x2,n);
 }
@@ -146,24 +146,24 @@ bool                        Trk::KalmanUpdator_xk::removeFromState
 // Add local parameters together with error matrix  without Xi2 calculation
 ///////////////////////////////////////////////////////////////////
 
-Trk::TrackParameters* Trk::KalmanUpdator_xk::addToState 
+std::unique_ptr<Trk::TrackParameters> Trk::KalmanUpdator_xk::addToState
 (const Trk::TrackParameters& T,
  const Trk::LocalParameters& P,
  const Amg::MatrixX        & E) const
 {
-  Trk::FitQualityOnSurface* Q=nullptr; 
+  Trk::FitQualityOnSurface* Q=nullptr;
   return update(T,P,E,Q, 1,false);
 }
 
 ///////////////////////////////////////////////////////////////////
 
-bool                        Trk::KalmanUpdator_xk::addToState 
+bool                        Trk::KalmanUpdator_xk::addToState
 (Trk::PatternTrackParameters& T,
  const LocalParameters      & P,
  const Amg::MatrixX         & E,
  Trk::PatternTrackParameters& Ta) const
 {
-  int    n ; 
+  int    n ;
   double x2;
   return update(T,P,E, 1,false,Ta,x2,n);
 }
@@ -172,24 +172,24 @@ bool                        Trk::KalmanUpdator_xk::addToState
 // Remove local parameters together with error matrix  without Xi2 calculation
 ///////////////////////////////////////////////////////////////////
 
-Trk::TrackParameters* Trk::KalmanUpdator_xk::removeFromState 
+std::unique_ptr<Trk::TrackParameters> Trk::KalmanUpdator_xk::removeFromState
 (const Trk::TrackParameters& T,
  const Trk::LocalParameters& P,
  const Amg::MatrixX        & E) const
 {
-  Trk::FitQualityOnSurface* Q=nullptr; 
+  Trk::FitQualityOnSurface* Q=nullptr;
   return update(T,P,E,Q,-1,false);
 }
 
 ///////////////////////////////////////////////////////////////////
 
-bool                       Trk::KalmanUpdator_xk::removeFromState 
+bool                       Trk::KalmanUpdator_xk::removeFromState
 (Trk::PatternTrackParameters& T,
  const LocalParameters      & P,
  const Amg::MatrixX         & E,
  Trk::PatternTrackParameters& Ta) const
 {
-  int    n ; 
+  int    n ;
   double x2;
   return update(T,P,E,-1,false,Ta,x2,n);
 }
@@ -198,7 +198,7 @@ bool                       Trk::KalmanUpdator_xk::removeFromState
 // Add local position together with error matrix  with Xi2 calculation
 ///////////////////////////////////////////////////////////////////
 
-Trk::TrackParameters* Trk::KalmanUpdator_xk::addToState 
+std::unique_ptr<Trk::TrackParameters> Trk::KalmanUpdator_xk::addToState
 (const Trk::TrackParameters& T,
  const Amg::Vector2D       & P,
  const Amg::MatrixX        & E,
@@ -209,7 +209,7 @@ Trk::TrackParameters* Trk::KalmanUpdator_xk::addToState
 
 ///////////////////////////////////////////////////////////////////
 
-bool                        Trk::KalmanUpdator_xk::addToState 
+bool                        Trk::KalmanUpdator_xk::addToState
 (Trk::PatternTrackParameters& T ,
  const Amg::Vector2D        & P ,
  const Amg::MatrixX         & E ,
@@ -222,7 +222,7 @@ bool                        Trk::KalmanUpdator_xk::addToState
 
 ///////////////////////////////////////////////////////////////////
 
-bool                        Trk::KalmanUpdator_xk::addToStateOneDimension  
+bool                        Trk::KalmanUpdator_xk::addToStateOneDimension
 (Trk::PatternTrackParameters& T ,
  const Amg::Vector2D        & P ,
  const Amg::MatrixX         & E ,
@@ -239,7 +239,7 @@ bool                        Trk::KalmanUpdator_xk::addToStateOneDimension
 // Remove local position together with error matrix  with Xi2 calculation
 ///////////////////////////////////////////////////////////////////
 
-Trk::TrackParameters* Trk::KalmanUpdator_xk::removeFromState 
+std::unique_ptr<Trk::TrackParameters> Trk::KalmanUpdator_xk::removeFromState
 (const Trk::TrackParameters& T,
  const Amg::Vector2D       & P,
  const Amg::MatrixX        & E,
@@ -250,7 +250,7 @@ Trk::TrackParameters* Trk::KalmanUpdator_xk::removeFromState
 
 ///////////////////////////////////////////////////////////////////
 
-bool                        Trk::KalmanUpdator_xk::removeFromState 
+bool                        Trk::KalmanUpdator_xk::removeFromState
 (Trk::PatternTrackParameters& T ,
  const Amg::Vector2D        & P ,
  const Amg::MatrixX         & E ,
@@ -265,7 +265,7 @@ bool                        Trk::KalmanUpdator_xk::removeFromState
 // Add local parameters together with error matrix  with Xi2 calculation
 ///////////////////////////////////////////////////////////////////
 
-Trk::TrackParameters* Trk::KalmanUpdator_xk::addToState 
+std::unique_ptr<Trk::TrackParameters> Trk::KalmanUpdator_xk::addToState
 (const Trk::TrackParameters& T,
  const Trk::LocalParameters& P,
  const Amg::MatrixX        & E,
@@ -278,11 +278,11 @@ Trk::TrackParameters* Trk::KalmanUpdator_xk::addToState
 // Add local parameters together with error matrix  with Xi2 calculation
 ///////////////////////////////////////////////////////////////////
 
-std::pair<AmgVector(5),AmgSymMatrix(5)>* Trk::KalmanUpdator_xk::updateParameterDifference 
+std::pair<AmgVector(5),AmgSymMatrix(5)>* Trk::KalmanUpdator_xk::updateParameterDifference
 (const AmgVector(5)       & T ,
- const AmgSymMatrix(5)    & Et, 
- const Amg::VectorX       & P , 
- const Amg::MatrixX       & Ep, 
+ const AmgSymMatrix(5)    & Et,
+ const Amg::VectorX       & P ,
+ const Amg::MatrixX       & Ep,
  const int                & K ,
  Trk::FitQualityOnSurface*& Q ,
  bool                       X) const
@@ -295,7 +295,7 @@ std::pair<AmgVector(5),AmgSymMatrix(5)>* Trk::KalmanUpdator_xk::updateParameterD
   double m[5];
   double mv[15];
 
-  m [ 0]=P (0  ); 
+  m [ 0]=P (0  );
   mv[ 0]=Ep(0,0);
 
   if(n>1) {
@@ -323,24 +323,24 @@ std::pair<AmgVector(5),AmgSymMatrix(5)>* Trk::KalmanUpdator_xk::updateParameterD
 		   Et(2,0),Et(2,1),Et(2,2),
 		   Et(3,0),Et(3,1),Et(3,2),Et(3,3),
 		   Et(4,0),Et(4,1),Et(4,2),Et(4,3),Et(4,4)};
-  
+
   bool update = false;
   double x2;
   if     (n==2 && K==3) {
     update = updateWithTwoDim(1,X,m,mv,p,pv,x2);
-    if(update && X) Q = new Trk::FitQualityOnSurface(x2,2); 
+    if(update && X) Q = new Trk::FitQualityOnSurface(x2,2);
   }
   else if(n==1 && K==1) {
     update = updateWithOneDim(1,X,m,mv,p,pv,x2);
-    if(update && X) Q = new Trk::FitQualityOnSurface(x2,1); 
+    if(update && X) Q = new Trk::FitQualityOnSurface(x2,1);
   }
   else                  {
     update = updateWithAnyDim(1,X,m,mv,p,pv,x2,n,K);
-    if(update && X) Q = new Trk::FitQualityOnSurface(x2,n); 
+    if(update && X) Q = new Trk::FitQualityOnSurface(x2,n);
   }
   if(!update) return nullptr;
 
-  testAngles(p,pv); 
+  testAngles(p,pv);
 
   AmgVector(5)    nT ; nT <<p[0],p[1],p[2],p[3],p[4];
   AmgSymMatrix(5) nEt; nEt<<
@@ -351,13 +351,13 @@ std::pair<AmgVector(5),AmgSymMatrix(5)>* Trk::KalmanUpdator_xk::updateParameterD
 			 pv[10],pv[11],pv[12],pv[13],pv[14];
 
   return new std::pair<AmgVector(5),AmgSymMatrix(5)>(std::make_pair(nT,nEt));
-} 
+}
 
 ///////////////////////////////////////////////////////////////////
 
-bool                        Trk::KalmanUpdator_xk::addToState 
+bool                        Trk::KalmanUpdator_xk::addToState
 (Trk::PatternTrackParameters& T ,
- const Trk::LocalParameters & P , 
+ const Trk::LocalParameters & P ,
  const Amg::MatrixX         & E ,
  Trk::PatternTrackParameters& Ta,
  double                     & Q ,
@@ -370,7 +370,7 @@ bool                        Trk::KalmanUpdator_xk::addToState
 // Remove local parameters together with error matrix  with Xi2 calculation
 ///////////////////////////////////////////////////////////////////
 
-Trk::TrackParameters* Trk::KalmanUpdator_xk::removeFromState 
+std::unique_ptr<Trk::TrackParameters> Trk::KalmanUpdator_xk::removeFromState
 (const Trk::TrackParameters& T,
  const Trk::LocalParameters& P,
  const Amg::MatrixX        & E,
@@ -381,7 +381,7 @@ Trk::TrackParameters* Trk::KalmanUpdator_xk::removeFromState
 
 ///////////////////////////////////////////////////////////////////
 
-bool                        Trk::KalmanUpdator_xk::removeFromState 
+bool                        Trk::KalmanUpdator_xk::removeFromState
 (Trk::PatternTrackParameters& T ,
  const Trk::LocalParameters & P ,
  const Amg::MatrixX         & E ,
@@ -396,7 +396,7 @@ bool                        Trk::KalmanUpdator_xk::removeFromState
 // Combine two state without Xi2 calculation
 ///////////////////////////////////////////////////////////////////
 
-Trk::TrackParameters* Trk::KalmanUpdator_xk::combineStates   
+std::unique_ptr<Trk::TrackParameters> Trk::KalmanUpdator_xk::combineStates
 (const Trk::TrackParameters& T1, const Trk::TrackParameters& T2) const
 {
   double M[5];
@@ -416,7 +416,7 @@ Trk::TrackParameters* Trk::KalmanUpdator_xk::combineStates
 
 ///////////////////////////////////////////////////////////////////
 
-bool                        Trk::KalmanUpdator_xk::combineStates 
+bool                        Trk::KalmanUpdator_xk::combineStates
 (Trk::PatternTrackParameters& T1,
  Trk::PatternTrackParameters& T2,
  Trk::PatternTrackParameters& T3) const
@@ -449,7 +449,7 @@ bool                        Trk::KalmanUpdator_xk::combineStates
 // Combine two state with Xi2 calculation
 ///////////////////////////////////////////////////////////////////
 
-Trk::TrackParameters* Trk::KalmanUpdator_xk::combineStates   
+std::unique_ptr<Trk::TrackParameters> Trk::KalmanUpdator_xk::combineStates
 (const TrackParameters& T1, const TrackParameters& T2,
  FitQualityOnSurface*& Q) const
 {
@@ -471,7 +471,7 @@ Trk::TrackParameters* Trk::KalmanUpdator_xk::combineStates
 
 ///////////////////////////////////////////////////////////////////
 
-bool                        Trk::KalmanUpdator_xk::combineStates 
+bool                        Trk::KalmanUpdator_xk::combineStates
 (Trk::PatternTrackParameters& T1,
  Trk::PatternTrackParameters& T2,
  Trk::PatternTrackParameters& T3,
@@ -504,9 +504,9 @@ bool                        Trk::KalmanUpdator_xk::combineStates
 ///////////////////////////////////////////////////////////////////
 // Xi2 of Local position
 ///////////////////////////////////////////////////////////////////
-      
-const Trk::FitQualityOnSurface* 
-Trk::KalmanUpdator_xk::predictedStateFitQuality 
+
+const Trk::FitQualityOnSurface*
+Trk::KalmanUpdator_xk::predictedStateFitQuality
 (const Trk::TrackParameters& T,
  const Amg::Vector2D       & P,
  const Amg::MatrixX        & E) const
@@ -517,14 +517,14 @@ Trk::KalmanUpdator_xk::predictedStateFitQuality
   double t[5] = {T.parameters()[0],T.parameters()[1],
 		 (*v)(0,0),(*v)(1,0),(*v)(1,1)};
 
-  int N; double x2; 
+  int N; double x2;
   if(predictedStateFitQuality(t,P,E,N,x2)) return new Trk::FitQualityOnSurface(x2,N);
   return nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////
 
-bool Trk::KalmanUpdator_xk::predictedStateFitQuality 
+bool Trk::KalmanUpdator_xk::predictedStateFitQuality
 (const Trk::PatternTrackParameters& T,
  const Amg::Vector2D              & P,
  const Amg::MatrixX               & E,
@@ -539,14 +539,14 @@ bool Trk::KalmanUpdator_xk::predictedStateFitQuality
   double t[5] = {p[0],p[1],
 		 cov(0, 0),cov(0, 1),cov(1, 1)};
 
-  return predictedStateFitQuality(t,P,E,N,X2); 
+  return predictedStateFitQuality(t,P,E,N,X2);
 }
 
 ///////////////////////////////////////////////////////////////////
 // Xi2 of Local parameters
 ///////////////////////////////////////////////////////////////////
 
-const Trk::FitQualityOnSurface* 
+const Trk::FitQualityOnSurface*
 Trk::KalmanUpdator_xk::predictedStateFitQuality
 (const Trk::TrackParameters& T,
  const Trk::LocalParameters& P,
@@ -620,8 +620,8 @@ bool Trk::KalmanUpdator_xk::predictedStateFitQuality
 ///////////////////////////////////////////////////////////////////
 // Xi2 of Local position
 ///////////////////////////////////////////////////////////////////
-      
-const Trk::FitQualityOnSurface* 
+
+const Trk::FitQualityOnSurface*
 Trk::KalmanUpdator_xk::fullStateFitQuality
 (const Trk::TrackParameters& T,
  const Amg::Vector2D       & P,
@@ -639,7 +639,7 @@ Trk::KalmanUpdator_xk::fullStateFitQuality
 
 ///////////////////////////////////////////////////////////////////
 
-bool Trk::KalmanUpdator_xk::fullStateFitQuality 
+bool Trk::KalmanUpdator_xk::fullStateFitQuality
 (const Trk::PatternTrackParameters& T,
  const Amg::Vector2D              & P,
  const Amg::MatrixX               & E,
@@ -654,7 +654,7 @@ bool Trk::KalmanUpdator_xk::fullStateFitQuality
   double t[5] = {p[0],p[1],
 		 cov(0, 0),cov(0, 1),cov(1, 1)};
 
-  return fullStateFitQuality(t,P,E,N,X2); 
+  return fullStateFitQuality(t,P,E,N,X2);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -676,7 +676,7 @@ const Trk::FitQualityOnSurface* Trk::KalmanUpdator_xk::fullStateFitQuality
   int k;
   double m[5];
   double mv[15]; if(!localParametersToUpdator(P,E,n,k,m,mv)) return nullptr;
-  
+
   // Xi2 calculation
   //
   double r[5];
@@ -684,7 +684,7 @@ const Trk::FitQualityOnSurface* Trk::KalmanUpdator_xk::fullStateFitQuality
   int ib = m_key[k];
   int ie=m_key[k+1];
   for(int i=ib; i!=ie; ++i) {w[i-ib] = mv[i-ib]-pv[m_map[i]];}
-  
+
   bool q=true; if(n!=1) q=invert(n,w,w); else w[0]=1./w[0];
 
   if(q) {
@@ -820,7 +820,7 @@ bool Trk::KalmanUpdator_xk::predictedStateFitQuality
 
 ///////////////////////////////////////////////////////////////////
 // let the client tools know how the assumptions on the initial
-// precision for non-measured track parameters are configured 
+// precision for non-measured track parameters are configured
 ///////////////////////////////////////////////////////////////////
 
 std::vector<double> Trk::KalmanUpdator_xk::initialErrors() const
@@ -840,11 +840,11 @@ std::vector<double> Trk::KalmanUpdator_xk::initialErrors() const
 ///////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////
-// Add or remove local position together with error matrix  
+// Add or remove local position together with error matrix
 // with or witout Xi2 calculation
 ///////////////////////////////////////////////////////////////////
 
-Trk::TrackParameters* Trk::KalmanUpdator_xk::update 
+std::unique_ptr<Trk::TrackParameters> Trk::KalmanUpdator_xk::update
 (const Trk::TrackParameters& T,
  const Amg::Vector2D       & P,
  const Amg::MatrixX        & E,
@@ -855,7 +855,7 @@ Trk::TrackParameters* Trk::KalmanUpdator_xk::update
   // Measurement information preparation
   //
   double m[2];
-  double mv[3];  
+  double mv[3];
   int  n = E.rows(); if(n<=0) return nullptr;
   m [0]  = P[0];
   mv[0]  = E(0,0);
@@ -875,38 +875,38 @@ Trk::TrackParameters* Trk::KalmanUpdator_xk::update
     double x2;
     if     (n==2) {
       update = updateWithTwoDim(O,X,m,mv,p,pv,x2);
-      if(update && X && !Q) Q = new Trk::FitQualityOnSurface(x2,2); 
+      if(update && X && !Q) Q = new Trk::FitQualityOnSurface(x2,2);
     }
     else if(n==1) {
       update = updateWithOneDim(O,X,m,mv,p,pv,x2);
-      if(update && X && !Q) Q = new Trk::FitQualityOnSurface(x2,1); 
+      if(update && X && !Q) Q = new Trk::FitQualityOnSurface(x2,1);
     }
     if(update) {
       testAngles(p,pv); return updatorToTrackParameters(T,p,pv);
-    } 
+    }
     return nullptr;
   }
 
   // For no measured track parameters
   //
   if(O<0) return nullptr;
-  
+
   if     (n==1) {
     update = updateNoMeasuredWithOneDim(m,mv,p,pv);
-    if(update && X && !Q)  Q = new Trk::FitQualityOnSurface(0.,1); 
+    if(update && X && !Q)  Q = new Trk::FitQualityOnSurface(0.,1);
   }
   else if(n==2) {
     update = updateNoMeasuredWithTwoDim(m,mv,p,pv);
-    if(update && X && !Q)  Q = new Trk::FitQualityOnSurface(0.,2); 
+    if(update && X && !Q)  Q = new Trk::FitQualityOnSurface(0.,2);
   }
- 
-  if(update) return updatorToTrackParameters(T,p,pv); 
+
+  if(update) return updatorToTrackParameters(T,p,pv);
   return nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////
 
-bool Trk::KalmanUpdator_xk::update 
+bool Trk::KalmanUpdator_xk::update
 (Trk::PatternTrackParameters& T ,
  const Amg::Vector2D        & P ,
  const Amg::MatrixX         & E ,
@@ -919,7 +919,7 @@ bool Trk::KalmanUpdator_xk::update
   // Measurement information preparation
   //
   double m[2];
-  double mv[3];  
+  double mv[3];
   N      = E.rows(); if(N<=0) return false;
   m [0]  = P[0];
   mv[0]  = E(0,0);
@@ -960,7 +960,7 @@ bool Trk::KalmanUpdator_xk::update
 
 ///////////////////////////////////////////////////////////////////
 
-bool Trk::KalmanUpdator_xk::updateOneDimension 
+bool Trk::KalmanUpdator_xk::updateOneDimension
 (Trk::PatternTrackParameters& T ,
  const Amg::Vector2D        & P ,
  const Amg::MatrixX         & E ,
@@ -972,7 +972,7 @@ bool Trk::KalmanUpdator_xk::updateOneDimension
   // Measurement information preparation
   //
   double m[2];
-  double mv[3];  
+  double mv[3];
   int N  = E.rows(); if(N!=2 ) return false;
   m [0]  = P[0];
   m [1]  = P[1];
@@ -1012,11 +1012,11 @@ bool Trk::KalmanUpdator_xk::updateOneDimension
 
 
 ///////////////////////////////////////////////////////////////////
-// Add or remove local parameters together with error matrix  
+// Add or remove local parameters together with error matrix
 // with or witout Xi2 calculation
 ///////////////////////////////////////////////////////////////////
 
-Trk::TrackParameters* Trk::KalmanUpdator_xk::update 
+std::unique_ptr<Trk::TrackParameters> Trk::KalmanUpdator_xk::update
 (const Trk::TrackParameters& T,
  const Trk::LocalParameters& P,
  const Amg::MatrixX        & E,
@@ -1042,15 +1042,15 @@ Trk::TrackParameters* Trk::KalmanUpdator_xk::update
     double x2;
     if     (n==2 && k==3) {
       update = updateWithTwoDim(O,X,m,mv,p,pv,x2);
-      if(update && X && !Q) Q = new Trk::FitQualityOnSurface(x2,2); 
+      if(update && X && !Q) Q = new Trk::FitQualityOnSurface(x2,2);
     }
     else if(n==1 && k==1) {
       update = updateWithOneDim(O,X,m,mv,p,pv,x2);
-      if(update && X && !Q) Q = new Trk::FitQualityOnSurface(x2,1); 
+      if(update && X && !Q) Q = new Trk::FitQualityOnSurface(x2,1);
     }
     else                  {
       update = updateWithAnyDim(O,X,m,mv,p,pv,x2,n,k);
-      if(update && X && !Q)  Q = new Trk::FitQualityOnSurface(x2,n); 
+      if(update && X && !Q)  Q = new Trk::FitQualityOnSurface(x2,n);
     }
     if(update) {testAngles(p,pv); return updatorToTrackParameters(T,p,pv);}
     return nullptr;
@@ -1061,15 +1061,15 @@ Trk::TrackParameters* Trk::KalmanUpdator_xk::update
   if(O<0) return nullptr;
   if     (n==1 && k==1) {
     update = updateNoMeasuredWithOneDim(m,mv,p,pv);
-    if(update && X && !Q)  Q = new Trk::FitQualityOnSurface(0.,1); 
+    if(update && X && !Q)  Q = new Trk::FitQualityOnSurface(0.,1);
   }
   else if(n==2 && k==3) {
     update = updateNoMeasuredWithTwoDim(m,mv,p,pv);
-    if(update && X && !Q)  Q = new Trk::FitQualityOnSurface(0.,2); 
+    if(update && X && !Q)  Q = new Trk::FitQualityOnSurface(0.,2);
   }
   else                 {
     update = updateNoMeasuredWithAnyDim(m,mv,p,pv,k);
-    if(update && X && !Q)  Q = new Trk::FitQualityOnSurface(0.,n); 
+    if(update && X && !Q)  Q = new Trk::FitQualityOnSurface(0.,n);
   }
   if(update) return updatorToTrackParameters(T,p,pv);
   return nullptr;
@@ -1077,7 +1077,7 @@ Trk::TrackParameters* Trk::KalmanUpdator_xk::update
 
 ///////////////////////////////////////////////////////////////////
 
-bool Trk::KalmanUpdator_xk::update 
+bool Trk::KalmanUpdator_xk::update
 (Trk::PatternTrackParameters& T ,
  const Trk::LocalParameters & P ,
  const Amg::MatrixX         & E ,
@@ -1092,7 +1092,7 @@ bool Trk::KalmanUpdator_xk::update
   int k;
   double m[5];
   double mv[15]; if(!localParametersToUpdator(P,E,N,k,m,mv)) return false;
- 
+
   // Conversion track parameters to updator presentation
   //
   double p[5];
@@ -1125,8 +1125,8 @@ bool Trk::KalmanUpdator_xk::update
 ///////////////////////////////////////////////////////////////////
 // Xi2 of Local position
 ///////////////////////////////////////////////////////////////////
-      
-bool Trk::KalmanUpdator_xk::predictedStateFitQuality 
+
+bool Trk::KalmanUpdator_xk::predictedStateFitQuality
 (const double*             T,
  const Amg::Vector2D     & P,
  const Amg::MatrixX      & E,
@@ -1136,12 +1136,12 @@ bool Trk::KalmanUpdator_xk::predictedStateFitQuality
   // Measurement information preparation
   //
   double m[2];
-  double mv[3]; X2 = 0.;  
+  double mv[3]; X2 = 0.;
   N      = E.rows(); if(N<=0) return false;
   m [0]  = P[0]-T[0];
-  mv[0]  = E(0,0)+T[2];  
+  mv[0]  = E(0,0)+T[2];
   if(N==1) {
-    
+
     if(mv[0]>0.) X2 = m[0]*m[0]/mv[0];
     return true;
   }
@@ -1149,7 +1149,7 @@ bool Trk::KalmanUpdator_xk::predictedStateFitQuality
     m [1]     = P[1]-T[1];
     mv[1]     = E(1,0)+T[3];
     mv[2]     = E(1,1)+T[4];
-    double d  = mv[0]*mv[2]-mv[1]*mv[1]; 
+    double d  = mv[0]*mv[2]-mv[1]*mv[1];
     if(d>0.) X2 = (m[0]*m[0]*mv[2]+m[1]*m[1]*mv[0]-2.*m[0]*m[1]*mv[1])/d;
     return true;
   }
@@ -1159,7 +1159,7 @@ bool Trk::KalmanUpdator_xk::predictedStateFitQuality
 ///////////////////////////////////////////////////////////////////
 // Xi2 of Local position
 ///////////////////////////////////////////////////////////////////
-      
+
 bool Trk::KalmanUpdator_xk::fullStateFitQuality
 (const double*               T,
  const Amg::Vector2D       & P,
@@ -1170,12 +1170,12 @@ bool Trk::KalmanUpdator_xk::fullStateFitQuality
   // Measurement information preparation
   //
   double m[2];
-  double mv[3]; X2 = 0.; 
+  double mv[3]; X2 = 0.;
   N      = E.rows(); if(N<=0) return false;
   m [0]  = P[0]-T[0];
-  mv[0]  = E(0,0)-T[2];  
+  mv[0]  = E(0,0)-T[2];
   if(N==1) {
-    
+
     if(mv[0]>0.) X2 = m[0]*m[0]/mv[0];
     return true;
   }
@@ -1183,7 +1183,7 @@ bool Trk::KalmanUpdator_xk::fullStateFitQuality
     m [1]     = P[1]-T[1];
     mv[1]     = E(1,0)-T[3];
     mv[2]     = E(1,1)-T[4];
-    double d  = mv[0]*mv[2]-mv[1]*mv[1]; 
+    double d  = mv[0]*mv[2]-mv[1]*mv[1];
     if(d>0.) X2 = (m[0]*m[0]*mv[2]+m[1]*m[1]*mv[0]-2.*m[0]*m[1]*mv[1])/d;
     return true;
   }
@@ -1191,7 +1191,7 @@ bool Trk::KalmanUpdator_xk::fullStateFitQuality
 }
 
 ///////////////////////////////////////////////////////////////////
-// Add one dimension information to no measured track parameters 
+// Add one dimension information to no measured track parameters
 // M and MV is measuremet           together with covariance
 // P and PV is new track parameters together with covarianace
 ///////////////////////////////////////////////////////////////////
@@ -1219,7 +1219,7 @@ bool  Trk::KalmanUpdator_xk::updateNoMeasuredWithOneDim
 }
 
 ///////////////////////////////////////////////////////////////////
-// Add two dimension information to no measured track parameters 
+// Add two dimension information to no measured track parameters
 // M and MV is measuremet           together with covariance
 // P and PV is new track parameters together with covarianace
 ///////////////////////////////////////////////////////////////////
@@ -1248,8 +1248,8 @@ bool Trk::KalmanUpdator_xk::updateNoMeasuredWithTwoDim
 }
 
 ///////////////////////////////////////////////////////////////////
-// Add any dimension information (>=1 and <=5)  to no measured 
-// track parameters 
+// Add any dimension information (>=1 and <=5)  to no measured
+// track parameters
 // M and MV is measuremet           together with covariance
 // P and PV is new track parameters together with covarianace
 // K is key word
@@ -1260,7 +1260,7 @@ bool  Trk::KalmanUpdator_xk::updateNoMeasuredWithAnyDim
 {
 
   int i=0;
-  int j=0; 
+  int j=0;
   while(K) {if(K&1) P[i]=M[j++]; K>>=1; ++i;} if(i==0) return false;
 
   PV[ 0] = m_cov0[0];
@@ -1285,7 +1285,7 @@ bool  Trk::KalmanUpdator_xk::updateNoMeasuredWithAnyDim
 }
 
 ///////////////////////////////////////////////////////////////////
-// Add or remove one dimension information to measured track parameters 
+// Add or remove one dimension information to measured track parameters
 // M and MV is measuremet           together with covariance
 // P and PV is new track parameters together with covarianace
 ///////////////////////////////////////////////////////////////////
@@ -1310,7 +1310,7 @@ bool  Trk::KalmanUpdator_xk::updateWithOneDim
   double k4 = PV[10]*w0;
 
   if(O<0) {k0=-k0; k1=-k1; k2=-k2; k3=-k3; k4=-k4;}
-  
+
   // New parameters
   //
   P[0]+=(k0*r0);
@@ -1321,28 +1321,28 @@ bool  Trk::KalmanUpdator_xk::updateWithOneDim
 
   // New covariance matrix
   //
-  if((PV[14]-= (k4*PV[10]))<=0.) return false; 
+  if((PV[14]-= (k4*PV[10]))<=0.) return false;
       PV[13]-= (k4*PV[ 6]);
       PV[12]-= (k4*PV[ 3]);
       PV[11]-= (k4*PV[ 1]);
       PV[10]-= (k4*PV[ 0]);
-  if((PV[ 9]-= (k3*PV[ 6]))<=0.) return false; 
-      PV[ 8]-= (k3*PV[ 3]); 
-      PV[ 7]-= (k3*PV[ 1]); 
-      PV[ 6]-= (k3*PV[ 0]); 
-  if((PV[ 5]-= (k2*PV[ 3]))<=0.) return false; 
+  if((PV[ 9]-= (k3*PV[ 6]))<=0.) return false;
+      PV[ 8]-= (k3*PV[ 3]);
+      PV[ 7]-= (k3*PV[ 1]);
+      PV[ 6]-= (k3*PV[ 0]);
+  if((PV[ 5]-= (k2*PV[ 3]))<=0.) return false;
       PV[ 4]-= (k2*PV[ 1]);
       PV[ 3]-= (k2*PV[ 0]);
-  if((PV[ 2]-= (k1*PV[ 1]))<=0.) return false; 
+  if((PV[ 2]-= (k1*PV[ 1]))<=0.) return false;
       PV[ 1]-= (k1*PV[ 0]);
-  if((PV[ 0]-= (k0*PV[ 0]))<=0.) return false; 
-  
+  if((PV[ 0]-= (k0*PV[ 0]))<=0.) return false;
+
   if(X) xi2 = r0*r0*w0;
   return true;
 }
 
 ///////////////////////////////////////////////////////////////////
-// Add or remove one dimension information to measured track parameters 
+// Add or remove one dimension information to measured track parameters
 // and check boundary for second parameters
 // M and MV is measuremet           together with covariance
 // P and PV is new track parameters together with covarianace
@@ -1368,13 +1368,13 @@ bool  Trk::KalmanUpdator_xk::updateWithOneDimWithBoundary
   double k4 = PV[10]*w0;
 
   if(O<0) {k0=-k0; k1=-k1; k2=-k2; k3=-k3; k4=-k4;}
-  
+
   // Boundary check
   //
   double P1 = P[1]+k1*r0          ;
   double dP = P1-M[1]             ;
-  double W  = sqrt(MV[2])*1.732051; 
-  
+  double W  = sqrt(MV[2])*1.732051;
+
   if(fabs(dP) <= W) {
 
     P[0]+=(k0*r0);
@@ -1392,25 +1392,25 @@ bool  Trk::KalmanUpdator_xk::updateWithOneDimWithBoundary
 
   // New covariance matrix
   //
-  if((PV[14]-= (k4*PV[10]))<=0.) return false; 
+  if((PV[14]-= (k4*PV[10]))<=0.) return false;
       PV[13]-= (k4*PV[ 6]);
       PV[12]-= (k4*PV[ 3]);
       PV[11]-= (k4*PV[ 1]);
       PV[10]-= (k4*PV[ 0]);
-  if((PV[ 9]-= (k3*PV[ 6]))<=0.) return false; 
-      PV[ 8]-= (k3*PV[ 3]); 
-      PV[ 7]-= (k3*PV[ 1]); 
-      PV[ 6]-= (k3*PV[ 0]); 
-  if((PV[ 5]-= (k2*PV[ 3]))<=0.) return false; 
+  if((PV[ 9]-= (k3*PV[ 6]))<=0.) return false;
+      PV[ 8]-= (k3*PV[ 3]);
+      PV[ 7]-= (k3*PV[ 1]);
+      PV[ 6]-= (k3*PV[ 0]);
+  if((PV[ 5]-= (k2*PV[ 3]))<=0.) return false;
       PV[ 4]-= (k2*PV[ 1]);
       PV[ 3]-= (k2*PV[ 0]);
-  if((PV[ 2]-= (k1*PV[ 1]))<=0.) return false; 
+  if((PV[ 2]-= (k1*PV[ 1]))<=0.) return false;
       PV[ 1]-= (k1*PV[ 0]);
   return (PV[ 0]-= (k0*PV[ 0])) > 0.;
 }
 
 ///////////////////////////////////////////////////////////////////
-// Add or remove two dimension information to measured track parameters 
+// Add or remove two dimension information to measured track parameters
 // M and MV is measuremet           together with covariance
 // P and PV is new track parameters together with covarianace
 ///////////////////////////////////////////////////////////////////
@@ -1434,7 +1434,7 @@ bool  Trk::KalmanUpdator_xk::updateWithTwoDim
   // K matrix with (5x2) size
   //
   double k0 = PV[ 0]*w0+PV[ 1]*w1;
-  double k1 = PV[ 0]*w1+PV[ 1]*w2; 
+  double k1 = PV[ 0]*w1+PV[ 1]*w2;
   double k2 = PV[ 1]*w0+PV[ 2]*w1;
   double k3 = PV[ 1]*w1+PV[ 2]*w2;
   double k4 = PV[ 3]*w0+PV[ 4]*w1;
@@ -1445,10 +1445,10 @@ bool  Trk::KalmanUpdator_xk::updateWithTwoDim
   double k9 = PV[10]*w1+PV[11]*w2;
 
   if(O<0) {
-    k0=-k0; k1=-k1; k2=-k2; k3=-k3; k4=-k4; 
+    k0=-k0; k1=-k1; k2=-k2; k3=-k3; k4=-k4;
     k5=-k5; k6=-k6; k7=-k7; k8=-k8; k9=-k9;
   }
-  
+
   // New parameters
   //
   P[0]+=(k0*r0+k1*r1);
@@ -1465,9 +1465,9 @@ bool  Trk::KalmanUpdator_xk::updateWithTwoDim
       PV[11]-= (k8*PV[ 1]+k9*PV[ 2]);
       PV[10]-= (k8*PV[ 0]+k9*PV[ 1]);
   if((PV[ 9]-= (k6*PV[ 6]+k7*PV[ 7]))<=0.) return false;
-      PV[ 8]-= (k6*PV[ 3]+k7*PV[ 4]); 
-      PV[ 7]-= (k6*PV[ 1]+k7*PV[ 2]); 
-      PV[ 6]-= (k6*PV[ 0]+k7*PV[ 1]); 
+      PV[ 8]-= (k6*PV[ 3]+k7*PV[ 4]);
+      PV[ 7]-= (k6*PV[ 1]+k7*PV[ 2]);
+      PV[ 6]-= (k6*PV[ 0]+k7*PV[ 1]);
   if((PV[ 5]-= (k4*PV[ 3]+k5*PV[ 4]))<=0.) return false;
       PV[ 4]-= (k4*PV[ 1]+k5*PV[ 2]);
       PV[ 3]-= (k4*PV[ 0]+k5*PV[ 1]);
@@ -1475,13 +1475,13 @@ bool  Trk::KalmanUpdator_xk::updateWithTwoDim
   double c1 = (1.-k3)*PV[ 1]-k2*PV[ 0];
   if((PV[ 0]-= (k0*PV[ 0]+k1*PV[ 1]))<=0.) return false;
       PV[ 1] = c1;
-  
+
   if(X) xi2 = (r0*r0*w0+r1*r1*w2+2.*r0*r1*w1);
   return true;
 }
 
 ///////////////////////////////////////////////////////////////////
-// Add or remove two dimension information to measured track parameters 
+// Add or remove two dimension information to measured track parameters
 // without calculation new covariance matrix
 // M and MV is measuremet           together with covariance
 // P and PV is new track parameters together with covarianace
@@ -1506,7 +1506,7 @@ bool  Trk::KalmanUpdator_xk::updateWithTwoDimParameters
   // K matrix with (5x2) size
   //
   double k0 = PV[ 0]*w0+PV[ 1]*w1;
-  double k1 = PV[ 0]*w1+PV[ 1]*w2; 
+  double k1 = PV[ 0]*w1+PV[ 1]*w2;
   double k2 = PV[ 1]*w0+PV[ 2]*w1;
   double k3 = PV[ 1]*w1+PV[ 2]*w2;
   double k4 = PV[ 3]*w0+PV[ 4]*w1;
@@ -1517,10 +1517,10 @@ bool  Trk::KalmanUpdator_xk::updateWithTwoDimParameters
   double k9 = PV[10]*w1+PV[11]*w2;
 
   if(O<0) {
-    k0=-k0; k1=-k1; k2=-k2; k3=-k3; k4=-k4; 
+    k0=-k0; k1=-k1; k2=-k2; k3=-k3; k4=-k4;
     k5=-k5; k6=-k6; k7=-k7; k8=-k8; k9=-k9;
   }
-  
+
   // New parameters
   //
   P[0]+=(k0*r0+k1*r1);
@@ -1533,7 +1533,7 @@ bool  Trk::KalmanUpdator_xk::updateWithTwoDimParameters
 }
 
 ///////////////////////////////////////////////////////////////////
-// Add or remove two dimension information to measured track parameters 
+// Add or remove two dimension information to measured track parameters
 // as one dimension and check boundary for second parameter
 // M and MV is measuremet           together with covariance
 // P and PV is new track parameters together with covarianace
@@ -1557,35 +1557,35 @@ bool  Trk::KalmanUpdator_xk::updateWithTwoDimWithBoundary
   double c   = sqrt(c2)               ;
   double s   = sc/c                   ;
 
-  // New measurement 
+  // New measurement
   //
   double M0 = c*M[0]+s*M[1];
   M [ 1]    = c*M[1]-s*M[0];
   M [ 0]    = M0           ;
   MV[ 0]    = V0           ;
   MV[ 1]    = 0.           ;
-  MV[ 2]    = V1           ; 
-  
+  MV[ 2]    = V1           ;
+
   // Rotate track parameters and covariance matrix
   //
   double P0  = P[0]                     ;
   P [ 0]     = c*P0  +s*P[1]            ;
   P [ 1]     = c*P[1]-s*P0              ;
-  double B   = 2.*sc*PV[ 1]             ;    
+  double B   = 2.*sc*PV[ 1]             ;
   double PV0 = PV[ 0]                   ;
   double PV3 = PV[ 3]                   ;
   double PV6 = PV[ 6]                   ;
   double PV10= PV[10]                   ;
   PV[ 0]     = c2*PV0+s2*PV[ 2]+B       ;
-  PV[ 1]     = sc*(PV[ 2]-PV0)+PV[ 1]*al; 
+  PV[ 1]     = sc*(PV[ 2]-PV0)+PV[ 1]*al;
   PV[ 2]     = s2*PV0+c2*PV[ 2]-B       ;
   PV[ 3]     = c*PV3   +s*PV[ 4]        ;
   PV[ 4]     = c*PV[ 4]-s*PV3           ;
   PV[ 6]     = c*PV6   +s*PV[ 7]        ;
   PV[ 7]     = c*PV[ 7]-s*PV6           ;
   PV[10]     = c*PV10  +s*PV[11]        ;
-  PV[11]     = c*PV[11]-s*PV10          ;  
-  
+  PV[11]     = c*PV[11]-s*PV10          ;
+
   if(!updateWithOneDimWithBoundary(O,X,M,MV,P,PV,xi2)) return false;
 
   // Back rotation new track parameters and covariance matrix
@@ -1595,25 +1595,25 @@ bool  Trk::KalmanUpdator_xk::updateWithTwoDimWithBoundary
   P0         = P[0]                     ;
   P [ 0]     = c*P0  +s*P[1]            ;
   P [ 1]     = c*P[1]-s*P0              ;
-  B          = 2.*sc*PV[ 1]             ;    
+  B          = 2.*sc*PV[ 1]             ;
   PV0        = PV[ 0]                   ;
   PV3        = PV[ 3]                   ;
   PV6        = PV[ 6]                   ;
   PV10       = PV[10]                   ;
   PV[ 0]     = c2*PV0+s2*PV[ 2]+B       ;
-  PV[ 1]     = sc*(PV[ 2]-PV0)+PV[ 1]*al; 
+  PV[ 1]     = sc*(PV[ 2]-PV0)+PV[ 1]*al;
   PV[ 2]     = s2*PV0+c2*PV[ 2]-B       ;
   PV[ 3]     = c*PV3   +s*PV[ 4]        ;
   PV[ 4]     = c*PV[ 4]-s*PV3           ;
   PV[ 6]     = c*PV6   +s*PV[ 7]        ;
   PV[ 7]     = c*PV[ 7]-s*PV6           ;
   PV[10]     = c*PV10  +s*PV[11]        ;
-  PV[11]     = c*PV[11]-s*PV10          ;  
+  PV[11]     = c*PV[11]-s*PV10          ;
   return true;
 }
 
 ///////////////////////////////////////////////////////////////////
-// Add  five dimension information to measured track parameters 
+// Add  five dimension information to measured track parameters
 // M and MV is measuremet           together with covariance
 // P and PV is new track parameters together with covarianace
 ///////////////////////////////////////////////////////////////////
@@ -1624,12 +1624,12 @@ bool  Trk::KalmanUpdator_xk::updateWithFiveDim
   const double pi2 = 2.*M_PI;
   const double pi = M_PI;
 
-  double w[15]={MV[ 0]+PV[ 0],MV[ 1]+PV[ 1],MV[ 2]+PV[ 2], 
-		MV[ 3]+PV[ 3],MV[ 4]+PV[ 4],MV[ 5]+PV[ 5], 
- 		MV[ 6]+PV[ 6],MV[ 7]+PV[ 7],MV[ 8]+PV[ 8], 
- 		MV[ 9]+PV[ 9],MV[10]+PV[10],MV[11]+PV[11], 
+  double w[15]={MV[ 0]+PV[ 0],MV[ 1]+PV[ 1],MV[ 2]+PV[ 2],
+		MV[ 3]+PV[ 3],MV[ 4]+PV[ 4],MV[ 5]+PV[ 5],
+ 		MV[ 6]+PV[ 6],MV[ 7]+PV[ 7],MV[ 8]+PV[ 8],
+ 		MV[ 9]+PV[ 9],MV[10]+PV[10],MV[11]+PV[11],
   		MV[12]+PV[12],MV[13]+PV[13],MV[14]+PV[14]};
-  
+
   if(!invert5(w,w)) return false;
 
   double k00 =(PV[ 0]*w[ 0]+PV[ 1]*w[ 1]+PV[ 3]*w[ 3])+(PV[ 6]*w[ 6]+PV[10]*w[10]);
@@ -1698,17 +1698,17 @@ bool  Trk::KalmanUpdator_xk::updateWithFiveDim
   if((PV[ 0]-=v0 )<=0.) return false;
       PV[ 1]-=v1 ;
   if((PV[ 2]-=v2 )<=0.) return false;
-      PV[ 3]-=v3 ; 
-      PV[ 4]-=v4 ; 
+      PV[ 3]-=v3 ;
+      PV[ 4]-=v4 ;
   if((PV[ 5]-=v5 )<=0.) return false;
-      PV[ 6]-=v6 ; 
-      PV[ 7]-=v7 ; 
-      PV[ 8]-=v8 ; 
+      PV[ 6]-=v6 ;
+      PV[ 7]-=v7 ;
+      PV[ 8]-=v8 ;
   if((PV[ 9]-=v9 )<=0.) return false;
-      PV[10]-=v10; 
-      PV[11]-=v11; 
-      PV[12]-=v12; 
-      PV[13]-=v13; 
+      PV[10]-=v10;
+      PV[11]-=v11;
+      PV[12]-=v12;
+      PV[13]-=v13;
   if((PV[14]-=v14)<=0.) return false;
 
   if(X) xi2 = Xi2(5,r,w);
@@ -1716,7 +1716,7 @@ bool  Trk::KalmanUpdator_xk::updateWithFiveDim
 }
 
 ///////////////////////////////////////////////////////////////////
-// Add or remove any dimension information to measured track parameters 
+// Add or remove any dimension information to measured track parameters
 // M and MV is measuremet           together with covariance
 // P and PV is new track parameters together with covarianace
 ///////////////////////////////////////////////////////////////////
@@ -1732,9 +1732,9 @@ bool Trk::KalmanUpdator_xk::updateWithAnyDim
 
   if(O>0) {s= 1.; for(int i=ib; i!=ie; ++i) {w[i-ib] = MV[i-ib]+PV[m_map[i]];}}
   else    {s=-1.; for(int i=ib; i!=ie; ++i) {w[i-ib] = MV[i-ib]-PV[m_map[i]];}}
-  
+
   if(N==1) w[0] = 1./w[0]; else if(!invert(N,w,w)) return false;
-  double v[15]={0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.}; 
+  double v[15]={0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
   for(int i=ib; i!=ie; ++i) {v[m_map[i]] =w[i-ib];}
 
   double k00 =((PV[ 0]*v[ 0]+PV[ 1]*v[ 1]+PV[ 3]*v[ 3])+(PV[ 6]*v[ 6]+PV[10]*v[10]))*s;
@@ -1799,13 +1799,13 @@ bool Trk::KalmanUpdator_xk::updateWithAnyDim
   PV[10]-=v10; PV[11]-=v11; PV[12]-=v12; PV[13]-=v13; PV[14]-=v14;
 
   if(PV[0]<=0.||PV[2]<=0.||PV[5]<=0.||PV[9]<=0.||PV[14]<=0.) return false;
- 
+
   if(X) xi2 = Xi2(5,r,v);
   return true;
 }
 
 ///////////////////////////////////////////////////////////////////
-// Transformation track parameters to updator presentation 
+// Transformation track parameters to updator presentation
 // true if it is measured track parameters
 ///////////////////////////////////////////////////////////////////
 
@@ -1823,15 +1823,15 @@ bool Trk::KalmanUpdator_xk::trackParametersToUpdator
   if(!v) return false;
 
   const AmgSymMatrix(5)& c = *v;
-  V[ 0] = c(0,0); 
+  V[ 0] = c(0,0);
   V[ 1] = c(1,0);
   V[ 2] = c(1,1);
   V[ 3] = c(2,0);
-  V[ 4] = c(2,1); 
+  V[ 4] = c(2,1);
   V[ 5] = c(2,2);
-  V[ 6] = c(3,0); 
+  V[ 6] = c(3,0);
   V[ 7] = c(3,1);
-  V[ 8] = c(3,2); 
+  V[ 8] = c(3,2);
   V[ 9] = c(3,3);
   V[10] = c(4,0);
   V[11] = c(4,1);
@@ -1842,7 +1842,7 @@ bool Trk::KalmanUpdator_xk::trackParametersToUpdator
 }
 
 ///////////////////////////////////////////////////////////////////
-// Transformation track parameters to updator presentation 
+// Transformation track parameters to updator presentation
 // true if it is measured track parameters
 ///////////////////////////////////////////////////////////////////
 
@@ -1857,7 +1857,7 @@ bool Trk::KalmanUpdator_xk::trackParametersToUpdator
   P[3] = par[3];
   P[4] = par[4];
 
-  if(!T.iscovariance()) return false; 
+  if(!T.iscovariance()) return false;
 
   const AmgSymMatrix(5) & cov = *T.covariance();
 
@@ -1881,8 +1881,8 @@ bool Trk::KalmanUpdator_xk::trackParametersToUpdator
 
 ///////////////////////////////////////////////////////////////////
 // Transformation local parameters to updator presentation
-// N - dimension of local parameters,K - key  word 
-// P - parameters, V -covariance 
+// N - dimension of local parameters,K - key  word
+// P - parameters, V -covariance
 ///////////////////////////////////////////////////////////////////
 
 bool  Trk::KalmanUpdator_xk::localParametersToUpdator
@@ -1895,7 +1895,7 @@ bool  Trk::KalmanUpdator_xk::localParametersToUpdator
 
   //const CLHEP::HepVector& H = L;
 
-  P[ 0]=L(0); 
+  P[ 0]=L(0);
   V[ 0]=C(0,0);
 
   if(N>1) {
@@ -1921,9 +1921,9 @@ bool  Trk::KalmanUpdator_xk::localParametersToUpdator
 // Track parameters production from updator presentation
 ///////////////////////////////////////////////////////////////////
 
-Trk::TrackParameters* Trk::KalmanUpdator_xk::updatorToTrackParameters
+std::unique_ptr<Trk::TrackParameters> Trk::KalmanUpdator_xk::updatorToTrackParameters
 (const Trk::TrackParameters& T,double* P,double* V) const
-{  
+{
   AmgSymMatrix(5)* e = new AmgSymMatrix(5);
 
   (*e)<<
@@ -1932,19 +1932,19 @@ Trk::TrackParameters* Trk::KalmanUpdator_xk::updatorToTrackParameters
     V[ 3],V[ 4],V[ 5],V[ 8],V[12],
     V[ 6],V[ 7],V[ 8],V[ 9],V[13],
     V[10],V[11],V[12],V[13],V[14];
-  return T.associatedSurface().createTrackParameters(P[0],P[1],P[2],P[3],P[4],e); 
+  return T.associatedSurface().createUniqueTrackParameters(P[0],P[1],P[2],P[3],P[4],e);
 }
 
 ///////////////////////////////////////////////////////////////////
-// Inversion of a positive definite symmetric matrix 
-// with size (2x2), (3x3), (4x4) and (5x5)                 
+// Inversion of a positive definite symmetric matrix
+// with size (2x2), (3x3), (4x4) and (5x5)
 // Input parameters  : n - size of matrix
-//                     a - the elements of the lower triangle of     
-//                               the matrix to be inverted                 
-// Output parameters : b -  inverted matrix                           
+//                     a - the elements of the lower triangle of
+//                               the matrix to be inverted
+// Output parameters : b -  inverted matrix
 ///////////////////////////////////////////////////////////////////
 
-bool Trk::KalmanUpdator_xk::invert(int n,double* a,double* b) const 
+bool Trk::KalmanUpdator_xk::invert(int n,double* a,double* b) const
 {
   if(n==2) return invert2(a,b);
   if(n==3) return invert3(a,b);
@@ -1954,19 +1954,19 @@ bool Trk::KalmanUpdator_xk::invert(int n,double* a,double* b) const
 }
 
 ///////////////////////////////////////////////////////////////////
-// Inversion of a positive definite symmetric matrix (2x2)                 
-// using Kramer's rule                                                                            
-// Input parameters  : a(0/2) -  the elements of the lower triangle of     
-//                               the matrix to be inverted                 
-//                               0                                         
-//                               1   2                                     
-// Output parameters : b(0/2) -  inverted matrix                           
+// Inversion of a positive definite symmetric matrix (2x2)
+// using Kramer's rule
+// Input parameters  : a(0/2) -  the elements of the lower triangle of
+//                               the matrix to be inverted
+//                               0
+//                               1   2
+// Output parameters : b(0/2) -  inverted matrix
 ///////////////////////////////////////////////////////////////////
 
-bool  Trk::KalmanUpdator_xk::invert2 (double* a,double* b) const 
+bool  Trk::KalmanUpdator_xk::invert2 (double* a,double* b) const
 {
   double d  = a[0]*a[2]-a[1]*a[1]; if(d<=0.) return false; d=1./d;
-  double b0 = a[2]*d; 
+  double b0 = a[2]*d;
   b[1]      =-a[1]*d;
   b[2]      = a[0]*d;
   b[0]      =     b0;
@@ -1974,17 +1974,17 @@ bool  Trk::KalmanUpdator_xk::invert2 (double* a,double* b) const
 }
 
 ///////////////////////////////////////////////////////////////////
-// Inversion of a positive definite symmetric matrix (3x3)                 
-// using Kramer's rule                                                                            
-// Input parameters  : a(0/5) -  the elements of the lower triangle of     
-//                               the matrix to be inverted                 
-//                               0                                         
-//                               1   2                                     
-//                               3   4  5                                  
-// Output parameters : b(0/5) -  inverted matrix                           
+// Inversion of a positive definite symmetric matrix (3x3)
+// using Kramer's rule
+// Input parameters  : a(0/5) -  the elements of the lower triangle of
+//                               the matrix to be inverted
+//                               0
+//                               1   2
+//                               3   4  5
+// Output parameters : b(0/5) -  inverted matrix
 ///////////////////////////////////////////////////////////////////
 
-bool  Trk::KalmanUpdator_xk::invert3(double* a,double* b) const 
+bool  Trk::KalmanUpdator_xk::invert3(double* a,double* b) const
 {
   double b0 = (a[2]*a[5]-a[4]*a[4]);
   double b1 =-(a[1]*a[5]-a[3]*a[4]);
@@ -1992,7 +1992,7 @@ bool  Trk::KalmanUpdator_xk::invert3(double* a,double* b) const
   double b3 = (a[1]*a[4]-a[2]*a[3]);
   double b4 =-(a[0]*a[4]-a[1]*a[3]);
   double b5 = (a[0]*a[2]-a[1]*a[1]);
-  double  d = a[0]*b0+a[1]*b1+a[3]*b3; if(d<=0.) return false; 
+  double  d = a[0]*b0+a[1]*b1+a[3]*b3; if(d<=0.) return false;
   b[0]    = b0*(d=1./d);
   b[1]    = b1*d;
   b[2]    = b2*d;
@@ -2003,15 +2003,15 @@ bool  Trk::KalmanUpdator_xk::invert3(double* a,double* b) const
 }
 
 ///////////////////////////////////////////////////////////////////
-// Inversion of a positive definite symmetric matrix (4x4)       
-// using Kramer's rule 
-// Input parameters  : a(0/9) - the elements of the lower triangle of         
-//                               the matrix to be inverted                     
-//                               0                                             
-//                               1   2                                         
-//                               3   4  5                                      
-//                               6   7  8  9                                   
-// Output parameters : b(0/9) - inverted matrix                               
+// Inversion of a positive definite symmetric matrix (4x4)
+// using Kramer's rule
+// Input parameters  : a(0/9) - the elements of the lower triangle of
+//                               the matrix to be inverted
+//                               0
+//                               1   2
+//                               3   4  5
+//                               6   7  8  9
+// Output parameters : b(0/9) - inverted matrix
 ///////////////////////////////////////////////////////////////////
 
 bool Trk::KalmanUpdator_xk::invert4(double* a,double* b) const
@@ -2030,25 +2030,25 @@ bool Trk::KalmanUpdator_xk::invert4(double* a,double* b) const
   double d11 = a[4]*a[8]-a[5]*a[7];
   double d12 = a[4]*a[9]-a[8]*a[7];
   double d13 = a[5]*a[9]-a[8]*a[8];
-  
+
   // Determinant calculation
   //
-  double c0  = a[2]*d13-a[4]*d12+a[7]*d11; 
+  double c0  = a[2]*d13-a[4]*d12+a[7]*d11;
   double c1  = a[1]*d13-a[4]*d10+a[7]*d09;
   double c2  = a[1]*d12-a[2]*d10+a[7]*d08;
   double c3  = a[1]*d11-a[2]*d09+a[4]*d08;
   double det = a[0]*c0-a[1]*c1+a[3]*c2-a[6]*c3;
-  
+
   if (det <= 0.) return false;
   det = 1./det;
-   
+
   b[2] =  (a[0]*d13-a[3]*d10+a[6]*d09)*det;
   b[4] = -(a[0]*d12-a[1]*d10+a[6]*d08)*det;
   b[5] =  (a[0]*d07-a[1]*d05+a[6]*d03)*det;
   b[7] =  (a[0]*d11-a[1]*d09+a[3]*d08)*det;
   b[8] = -(a[0]*d06-a[1]*d04+a[3]*d03)*det;
   b[9] =  (a[0]*d02-a[1]*d01+a[3]*d00)*det;
-  b[0] =  c0                          *det; 
+  b[0] =  c0                          *det;
   b[1] = -c1                          *det;
   b[3] =  c2                          *det;
   b[6] = -c3                          *det;
@@ -2056,17 +2056,17 @@ bool Trk::KalmanUpdator_xk::invert4(double* a,double* b) const
 }
 
 ///////////////////////////////////////////////////////////////////
-// Inversion of a positive definite symmetric matrix (5x5)                     
-// by a modification of the Gauss-Jordan method                                
-//                                                                             
-// Input parameters  : a(0/14) - the elements of the lower triangle of         
-//                               the matrix to be inverted                     
-//                               0                                             
-//                               1   2                                         
-//                               3   4  5                                      
-//                               6   7  8  9                                   
-//                               10 11 12 13 14                                
-// Output parameters : b(0/14) - inverted matrix                               
+// Inversion of a positive definite symmetric matrix (5x5)
+// by a modification of the Gauss-Jordan method
+//
+// Input parameters  : a(0/14) - the elements of the lower triangle of
+//                               the matrix to be inverted
+//                               0
+//                               1   2
+//                               3   4  5
+//                               6   7  8  9
+//                               10 11 12 13 14
+// Output parameters : b(0/14) - inverted matrix
 ///////////////////////////////////////////////////////////////////
 
 bool Trk::KalmanUpdator_xk::invert5(double* a,double* b) const
@@ -2104,7 +2104,7 @@ bool Trk::KalmanUpdator_xk::invert5(double* a,double* b) const
   b8           = x5+x2*y4;
   b9           = x1+x2*y5;
   x1           = 1./b0;
-  x2           =-b1*x1; 
+  x2           =-b1*x1;
   x3           =-b3*x1;
   x4           = b6*x1;
   x5           = y2*x1;
@@ -2119,7 +2119,7 @@ bool Trk::KalmanUpdator_xk::invert5(double* a,double* b) const
   b8           = y5+y2*x4;
   b9           = y1+y2*x5;
   y1           = 1./b0;
-  y2           =-b1*y1; 
+  y2           =-b1*y1;
   y3           = b3*y1;
   y4           = b6*y1;
   y5           = x2*y1;
@@ -2133,7 +2133,7 @@ bool Trk::KalmanUpdator_xk::invert5(double* a,double* b) const
   b7           = x4+x2*y3;
   b8           = x5+x2*y4;
   b9           = x1+x2*y5;
-  b[14]        = 1./b0;     
+  b[14]        = 1./b0;
   b[10]        = b1*b[14];
   b[11]        = b3*b[14];
   b[12]        = b6*b[14];
@@ -2152,7 +2152,7 @@ bool Trk::KalmanUpdator_xk::invert5(double* a,double* b) const
 }
 
 ///////////////////////////////////////////////////////////////////
-// Xi2 for 2x2, 3x3, 4x4 and 5x5 matrix calculation 
+// Xi2 for 2x2, 3x3, 4x4 and 5x5 matrix calculation
 // R - residial  and W -weight matrix
 ///////////////////////////////////////////////////////////////////
 
@@ -2241,27 +2241,27 @@ double Trk::KalmanUpdator_xk::Xi2for5(double* R,double* W) const
 ///////////////////////////////////////////////////////////////////
 
 int Trk::KalmanUpdator_xk::differenceParLoc
-(int K,double* L,double* T, double* R) const 
+(int K,double* L,double* T, double* R) const
 {
   const double pi2 = 2.*M_PI;
   const double pi = M_PI;
-  
+
   int i = 0;
-  if(K &  1) {R[i]=L[i]-T[0]; ++i;} 
+  if(K &  1) {R[i]=L[i]-T[0]; ++i;}
   if(K &  2) {R[i]=L[i]-T[1]; ++i;}
   if(K &  4) {
-    R[i]=L[i]-T[2]; 
+    R[i]=L[i]-T[2];
     if     (R[i] > pi) R[i] = fmod(R[i]+pi,pi2)-pi;
     else if(R[i] <-pi) R[i] = fmod(R[i]-pi,pi2)+pi;
     ++i;
   }
   if(K &  8) {
-    R[i]=L[i]-T[3]; 
+    R[i]=L[i]-T[3];
     if     (R[i] > pi) R[i] = fmod(R[i]+pi,pi2)-pi;
     else if(R[i] <-pi) R[i] = fmod(R[i]-pi,pi2)+pi;
     ++i;
   }
-  if(K & 16) {R[i]=L[i]-T[4]; ++i;}  
+  if(K & 16) {R[i]=L[i]-T[4]; ++i;}
   return i;
 }
 
@@ -2271,20 +2271,20 @@ int Trk::KalmanUpdator_xk::differenceParLoc
 ///////////////////////////////////////////////////////////////////
 
 void Trk::KalmanUpdator_xk::differenceLocPar
-(int K,double* L,double* T, double* R) const 
+(int K,double* L,double* T, double* R) const
 {
   const double pi2 = 2.*M_PI;
   const double pi = M_PI;
   int i = 0;
   R[0]=0.; if(K &  1) R[0]=L[i++]-T[0];
-  R[1]=0.; if(K &  2) R[1]=L[i++]-T[1]; 
+  R[1]=0.; if(K &  2) R[1]=L[i++]-T[1];
   R[2]=0.; if(K &  4) {
-    R[2]=L[i++]-T[2]; 
+    R[2]=L[i++]-T[2];
     if     (R[2] > pi) R[2] = fmod(R[2]+pi,pi2)-pi;
     else if(R[2] <-pi) R[2] = fmod(R[2]-pi,pi2)+pi;
   }
   R[3]=0.; if(K &  8){
-    R[3]=L[i++]-T[3]; 
+    R[3]=L[i++]-T[3];
     if     (R[3] > pi) R[3] = fmod(R[3]+pi,pi2)-pi;
     else if(R[3] <-pi) R[3] = fmod(R[3]-pi,pi2)+pi;
   }
@@ -2302,7 +2302,7 @@ void Trk::KalmanUpdator_xk::mapKeyProduction()
   for(int K=1; K!= 32; ++K) {
 
     unsigned int I[5]={0,0,0,0,0};
-    unsigned int m=0; 
+    unsigned int m=0;
     for(int i=0; i!=5; ++i) {if((K>>i)&1) I[i]=1;}
 
     for(int i=0; i!=5; ++i) {
@@ -2314,7 +2314,7 @@ void Trk::KalmanUpdator_xk::mapKeyProduction()
 
 /////////////////////////////////////////////////////////////////////////////////
 // Test angles inside boundaries
-// Azimuthal angle p[2] shoud be > -pi and < +pi  
+// Azimuthal angle p[2] shoud be > -pi and < +pi
 // Polar     angle p[3] shoud be >  0  and < +pi
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -2327,14 +2327,14 @@ void Trk::KalmanUpdator_xk::testAngles(double* p,double* v) const
   //
   if     (p[3] > pi) p[3] = fmod(p[3]+pi,pi2)-pi;
   else if(p[3] <-pi) p[3] = fmod(p[3]-pi,pi2)+pi;
-  
+
   if     (p[3] < 0.) {
 
     p[ 3] = -p[ 3];
     p[ 2]+=     pi;
-    v[ 6] = -v[ 6]; 
-    v[ 7] = -v[ 7]; 
-    v[ 8] = -v[ 8]; 
+    v[ 6] = -v[ 6];
+    v[ 7] = -v[ 7];
+    v[ 8] = -v[ 8];
     v[13] = -v[13];
   }
 

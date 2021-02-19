@@ -93,6 +93,8 @@ def createDigitizationCfgFlags():
     flags.addFlag("Digitization.TruthOutput", False)
     # Write out calorimeter digits
     flags.addFlag("Digitization.AddCaloDigi", False)
+    # Write out thinned calorimeter digits
+    flags.addFlag("Digitization.AddCaloDigiThinned", False)
     # Integer offset to random seed initialisation
     flags.addFlag("Digitization.RandomSeedOffset", 0)
     # Digitization extra input dependencies

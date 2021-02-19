@@ -106,6 +106,7 @@ TriggerHLTListRun3 = [
     ('xAOD::TrigConfKeys#TrigConfKeysOnline' ,               'BS ESD AODFULL AODSLIM', 'Steer'),
 
     ('TrigRoiDescriptorCollection#HLT_EMRoIs',                   'BS ESD AODFULL AODSLIM',  'Steer'),
+    ('TrigRoiDescriptorCollection#HLT_eEMRoIs',                  'BS ESD AODFULL AODSLIM',  'Steer'),
     ('TrigRoiDescriptorCollection#HLT_MURoIs',                   'BS ESD AODFULL AODSLIM',  'Steer'),
     ('TrigRoiDescriptorCollection#HLT_METRoI',                   'BS ESD AODFULL AODSLIM',  'Steer'),
     ('TrigRoiDescriptorCollection#HLT_JETRoI',                   'BS ESD AODFULL AODSLIM',  'Steer'),
@@ -146,7 +147,7 @@ TriggerHLTListRun3 = [
 
     ('xAOD::TrackParticleContainer#HLT_IDTrack_Electron_IDTrig',        'BS ESD AODFULL', 'Egamma', 'inViews:precisionEtcutViews'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Electron_IDTrigAux.', 'BS ESD AODFULL', 'Egamma'),
-    
+
     ('xAOD::TrackParticleContainer#HLT_IDTrack_Electron_GSF',               'BS ESD AODFULL', 'Egamma', 'inViews:precisionElectronViews_GSF'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Electron_GSFAux.',           'BS ESD AODFULL', 'Egamma'),
 
@@ -314,10 +315,10 @@ TriggerHLTListRun3 = [
 
     ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_subjesIS_ftf',                        'BS ESD AODFULL', 'Jet', 'alias:JetContainerShallowCopy'),
     ('xAOD::ShallowAuxContainer#HLT_AntiKt4EMTopoJets_subjesIS_ftfAux.'+JetCopyVars, 'BS ESD AODFULL', 'Jet'),
-                    
+
     ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_subjesgscIS_ftf',                        'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet', 'alias:JetContainerShallowCopy'),
     ('xAOD::ShallowAuxContainer#HLT_AntiKt4EMTopoJets_subjesgscIS_ftfAux.'+JetCopyVars, 'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
-    
+
     ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_subresjesgscIS_ftf',                        'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet', 'alias:JetContainerShallowCopy'),
     ('xAOD::ShallowAuxContainer#HLT_AntiKt4EMTopoJets_subresjesgscIS_ftfAux.'+JetCopyVars, 'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
 
@@ -339,8 +340,8 @@ TriggerHLTListRun3 = [
     ('xAOD::JetContainer#HLT_AntiKt10LCTopoJets_nojcalib',                     'BS ESD AODFULL', 'Jet'),
     ('xAOD::JetAuxContainer#HLT_AntiKt10LCTopoJets_nojcalibAux.'+JetVars,      'BS ESD AODFULL', 'Jet'),
 
-    ('xAOD::JetContainer#HLT_AntiKt10JetRCJets_subjesIS',                      'BS ESD AODFULL', 'Jet'),
-    ('xAOD::JetAuxContainer#HLT_AntiKt10JetRCJets_subjesISAux.'+JetVars,       'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetContainer#HLT_AntiKt10EMTopoRCJets_subjesIS',                      'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt10EMTopoRCJets_subjesISAux.'+JetVars,       'BS ESD AODFULL', 'Jet'),
 
     ('xAOD::JetContainer#HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes',                'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
     ('xAOD::JetAuxContainer#HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jesAux.'+JetVars, 'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
@@ -394,6 +395,15 @@ TriggerHLTListRun3 = [
     ('xAOD::VertexContainer#HLT_IDVertex_FS',                  'BS ESD AODFULL', 'Jet'),
     ('xAOD::VertexAuxContainer#HLT_IDVertex_FSAux.',          'BS ESD AODFULL', 'Jet'),
 
+    #FSLRT
+    ('xAOD::TrackParticleContainer#HLT_IDTrack_FSLRT_FTF',                  'BS ESD AODFULL', 'Jet'),
+    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_FSLRT_FTFAux.',          'BS ESD AODFULL', 'Jet'),
+
+    ('xAOD::VertexContainer#HLT_IDVertex_FSLRT',                  'BS ESD AODFULL', 'Jet'),
+    ('xAOD::VertexAuxContainer#HLT_IDVertex_FSLRTAux.',          'BS ESD AODFULL', 'Jet'),
+
+    ('xAOD::TrigCompositeContainer#HLT_FSLRT_TrackCount',                                             'BS ESD AODFULL AODSLIM', 'Jet'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_FSLRT_TrackCountAux.ntrks.pTcuts.z0cuts.counts',            'BS ESD AODFULL AODSLIM', 'Jet'),
 
     # custom BeamSpot tracks - we don't want to write these out in general so this
     # is commented, if we want to write them out at some point, then these lines
@@ -484,7 +494,7 @@ TriggerHLTListRun3 = [
 
     # bjet Second Stage Precision tracks
     ('xAOD::TrackParticleContainer#HLT_IDTrack_Bjet_IDTrig',        'BS ESD AODFULL', 'Bjet', 'inViews:BTagViews'),
-    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Bjet_IDTrigAux.', 'BS ESD AODFULL', 'Bjet'),
+    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Bjet_IDTrigAux.btagIp_d0.btagIp_d0Uncertainty.btagIp_trackDisplacement.btagIp_trackMomentum.btagIp_z0SinTheta.btagIp_z0SinThetaUncertainty', 'BS ESD AODFULL', 'Bjet'),
 
     # FIXME: add vertex tracks
 
@@ -510,10 +520,20 @@ TriggerHLTListRun3 = [
     ('xAOD::TrackParticleContainer#HLT_IDTrack_MinBias_IDTrig',                 'BS ESD AODFULL', 'MinBias', 'inViews:TrkView'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_MinBias_IDTrigAux.',          'BS ESD AODFULL', 'MinBias'),
 
+    ('xAOD::TrigT2MbtsBitsContainer#HLT_MbtsBitsContainer',                 'BS ESD AODFULL', 'MinBias'),
+    ('xAOD::TrigT2MbtsBitsAuxContainer#HLT_MbtsBitsContainerAux.',          'BS ESD AODFULL', 'MinBias'),
+
 
     # Cosmic
     ('xAOD::TrackParticleContainer#HLT_IDTrack_Cosmic_FTF',                 'BS ESD AODFULL', 'Cosmic'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Cosmic_FTFAux.',             'BS ESD AODFULL', 'Cosmic'),
+
+    #FullScan version from offline patern recognition (these will potentially be removed,, as the ones from the precision tracking might be sufficient)
+    ('xAOD::TrackParticleContainer#HLT_IDTrack_Cosmic_EFID',                 'BS ESD AODFULL', 'Cosmic'),
+    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Cosmic_EFIDAux.',          'BS ESD AODFULL', 'Cosmic'),
+    #And their respective precision tracks
+    ('xAOD::TrackParticleContainer#HLT_IDTrack_Cosmic_IDTrig',               'BS ESD AODFULL', 'Cosmic'),
+    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Cosmic_IDTrigAux.',        'BS ESD AODFULL', 'Cosmic'),
 
     # ID
     # Requested by TrigUpgradeTest/IDCalo.py

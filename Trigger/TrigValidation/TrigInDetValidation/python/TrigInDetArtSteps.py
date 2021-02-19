@@ -11,7 +11,6 @@ import os
 import json
 
 from TrigValTools.TrigValSteering.ExecStep import ExecStep
-from TrigAnalysisTest.TrigAnalysisSteps import AthenaCheckerStep
 from TrigValTools.TrigValSteering.Step import Step
 from TrigValTools.TrigValSteering.CheckSteps import RefComparisonStep
 from AthenaCommon.Utils.unixtools import FindFile
@@ -86,8 +85,7 @@ class TrigInDetReco(ExecStep):
             if (i=='muon') :
                 chains += "'HLT_mu6_idperf_L1MU6',"
                 chains += "'HLT_mu24_idperf_L1MU20',"
-                chains += "'HLT_mu26_ivarmedium_L1MU20',"
-                chains += "'HLT_mu28_ivarmedium_L1MU20',"
+                chains += "'HLT_mu26_ivarperf_L1MU20',"
                 flags += 'doMuonSlice=True;'
             if (i=='electron') :
                 chains +=  "'HLT_e5_etcut_L1EM3',"  ## need an idperf chain once one is in the menu
@@ -154,14 +152,20 @@ class TrigInDetReco(ExecStep):
 # Additional exec (athena) steps - AOD to TrkNtuple
 ##################################################
 
-class TrigInDetAna(AthenaCheckerStep):
-    def __init__(self, name='TrigInDetAna', in_file='AOD.pool.root'):
-        AthenaCheckerStep.__init__(self, name, 'TrigInDetValidation/TrigInDetValidation_AODtoTrkNtuple.py')
+class TrigInDetAna(ExecStep):
+    def __init__(self, name='TrigInDetAna', lrt=False):
+        ExecStep.__init__(self, name )
+        self.type = 'athena'
+        self.job_options = 'TrigInDetValidation/TrigInDetValidation_AODtoTrkNtuple.py'
         self.max_events=-1
         self.required = True
         self.depends_on_previous = False
-        self.input_file = in_file
-
+        #self.input = 'AOD.pool.root'
+        self.input = ''
+        self.perfmon=False
+        self.imf=False
+        if (lrt):
+            self.args = ' -c "LRT=True" '
 ##################################################
 # Additional post-processing steps
 ##################################################
@@ -182,6 +186,7 @@ class TrigInDetRdictStep(Step):
         os.system( 'get_files -data TIDAbeam.dat &> /dev/null' )
         os.system( 'get_files -data Test_bin.dat &> /dev/null' )
         os.system( 'get_files -data Test_bin_larged0.dat &> /dev/null' )
+        os.system( 'get_files -data Test_bin_lrt.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata-chains-run3.dat &> /dev/null' )
         os.system( 'get_files -data TIDAhisto-panel.dat &> /dev/null' )
         os.system( 'get_files -data TIDAhisto-panel-vtx.dat &> /dev/null' )

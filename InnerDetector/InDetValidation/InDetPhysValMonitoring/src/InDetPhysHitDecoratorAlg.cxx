@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -75,7 +75,7 @@ InDetPhysHitDecoratorAlg::initialize() {
 
   ATH_CHECK( m_trkParticleName.initialize() );
   IDPVM::createDecoratorKeys(*this,m_trkParticleName,m_prefix,float_decor_names,m_floatDecor);
-  
+
   IDPVM::createDecoratorKeys(*this,m_trkParticleName,m_prefix, int_decor_names, m_intDecor);
   assert( m_intDecor.size() == kNIntDecorators);
   assert( m_floatDecor.size() == kNFloatDecorators);
@@ -174,7 +174,7 @@ InDetPhysHitDecoratorAlg::decorateTrack(const xAOD::TrackParticle &particle,
       }
       ATH_MSG_DEBUG("Num. track states in track " << ++trackNumber << ": " << allTrackStates.size());
 
-      for (const auto& thisTrackState: allTrackStates) {
+      for (const auto thisTrackState: allTrackStates) {
         // Copy logic from InDetRttPerformance to get hits/outliers/holes
         // Variable specifying measurement type filled
         SingleResult_t thisResult(invalidResult);
@@ -428,7 +428,7 @@ InDetPhysHitDecoratorAlg::getUnbiasedTrackParameters(const Trk::TrackParameters*
       // Get unbiased state
       unbiasedTrkParameters = m_updatorHandle->removeFromState(*trkParameters,
                                                                measurement->localParameters(),
-                                                               measurement->localCovariance());
+                                                               measurement->localCovariance()).release();
       if (!unbiasedTrkParameters) {
         ATH_MSG_INFO(  "Could not get unbiased track parameters, use normal parameters" );
         isUnbiased = false;

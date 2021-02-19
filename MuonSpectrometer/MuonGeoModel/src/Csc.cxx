@@ -1,28 +1,29 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #include "MuonGeoModel/Csc.h"
-#include "MuonGeoModel/CSC_Technology.h"
-#include "MuonGeoModel/Station.h"
-#include "MuonGeoModel/CscComponent.h"
-#include "MuonGeoModel/DetectorElement.h"
-#include "MuonGeoModel/CscMultiLayer.h"
-#include "MuonGeoModel/Cutout.h"
-#include "GeoModelKernel/GeoFullPhysVol.h"
-#include "GeoModelKernel/GeoBox.h"
-#include "GeoModelKernel/GeoTrd.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
-#include "GeoModelKernel/GeoNameTag.h"
-#include "GeoModelKernel/GeoShapeShift.h"
-#include "GeoModelKernel/GeoShapeSubtraction.h"
-#include "GeoModelKernel/GeoShapeUnion.h"
+
+#include <GaudiKernel/IMessageSvc.h>
+#include <GeoModelKernel/GeoDefinitions.h>
+#include <GeoModelKernel/GeoShape.h>
+#include <GeoModelKernel/GeoVPhysVol.h>
+#include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
-#include <cassert>
-// for cutouts:
-#include "GeoModelKernel/GeoShapeIntersection.h"
+#include "GeoModelInterfaces/StoredMaterialManager.h"
+#include "GeoModelKernel/GeoFullPhysVol.h"
+#include "GeoModelKernel/GeoLogVol.h"
+#include "GeoModelKernel/GeoShapeShift.h"
+#include "GeoModelKernel/GeoShapeUnion.h"
+#include "GeoModelKernel/GeoTrd.h"
+#include "MuonGeoModel/Component.h"
+#include "MuonGeoModel/CscComponent.h"
+#include "MuonGeoModel/CscMultiLayer.h"
+#include "MuonGeoModel/DetectorElement.h"
+
+#include <string>
+
+class GeoMaterial;
 
 #define skip_csc false
 
@@ -40,7 +41,7 @@ Csc::Csc(Component* ss): DetectorElement(ss->name)
   physicalLength = s->dy;
   length = physicalLength;
   double num = longWidth*(excent - physicalLength);
-  if (fabs(num) < 1e-10) {
+  if (std::abs(num) < 1e-10) {
     upWidth = 0;
   } else {
     upWidth = num/(excent-maxwLength);
@@ -77,8 +78,8 @@ GeoFullPhysVol *Csc::build(int minimalgeo)
 GeoFullPhysVol*
 Csc::build(int minimalgeo, int cutoutson, std::vector<Cutout*> vcutdef)
 {
-  GeoFullPhysVol* pcsc   = NULL;
-  GeoLogVol* lcsc   = NULL;
+  GeoFullPhysVol* pcsc   = nullptr;
+  GeoLogVol* lcsc   = nullptr;
   const GeoMaterial* mcsc = getMaterialManager()->getMaterial("std::Air");
 
   if (excent == length) {

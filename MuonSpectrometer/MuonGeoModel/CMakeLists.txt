@@ -8,7 +8,6 @@
 atlas_subdir( MuonGeoModel )
 
 # External dependencies:
-find_package( Eigen )
 find_package( GeoModel COMPONENTS GeoModelKernel )
 
 # Component(s) in the package:

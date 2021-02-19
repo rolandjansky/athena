@@ -479,7 +479,7 @@ class ItemDef(object):
         LVL1MenuItem('L1_J40p0ETA25_2J15p31ETA49' ).setLogic( d.J400ETA25 & d.J1531ETA49.x(2)    & physcond).setTriggerType(TT.calo)
         LVL1MenuItem('L1_J40p0ETA25_2J25_J20p31ETA49' ).setLogic( d.J400ETA25 & d.J25.x(2) & d.J2031ETA49   & physcond).setTriggerType(TT.calo) 
         LVL1MenuItem('L1_J40p0ETA25_2J30_J20p31ETA49' ).setLogic( d.J400ETA25 & d.J30.x(2) & d.J2031ETA49   & physcond).setTriggerType(TT.calo)
-        LVL1MenuItem('L1_J45p0ETA20_3J15p0ETA25'  ).setLogic( d.J450ETA20 & d.J150ETA25.x(3) & physcond).setTriggerType(TT.calo)
+        LVL1MenuItem('L1_J45p0ETA21_3J15p0ETA25'  ).setLogic( d.J450ETA21 & d.J150ETA25.x(3) & physcond).setTriggerType(TT.calo)
         LVL1MenuItem('L1_J50_2J40p0ETA25_3J15p0ETA25'  ).setLogic( d.J50 & d.J400ETA25.x(2) & d.J150ETA25.x(3) & physcond).setTriggerType(TT.calo)
         LVL1MenuItem('L1_J25p0ETA23_2J15p31ETA49'  ).setLogic( d.J250ETA23 & d.J1531ETA49.x(2) & physcond).setTriggerType(TT.calo)
 
@@ -1407,6 +1407,7 @@ class ItemDef(object):
 
                     LVL1MenuItem('L1_ZAFB-04DPHI-EM15I' ).setLogic( d.TOPO_60INVM9999_04DPHI32_EM15abhi_FJj15s623ETA49 & physcond) # noqa: F821
                     LVL1MenuItem('L1_ZAFB-25DPHI-EM15I' ).setLogic( d.TOPO_60INVM9999_25DPHI32_EM15abhi_FJj15s623ETA49 & physcond) # noqa: F821
+                    LVL1MenuItem('L1_ZAFB-25DPHI-EM18I' ).setLogic( d.TOPO_60INVM9999_25DPHI32_EM15abhi_FJj15s623ETA49 & d.EM18VHI & physcond) # required for ATR-22109
                     #LVL1MenuItem('L1_DPHI-M70-2EM12I' ).setLogic( d.TOPO_0INVM70_27DPHI32_EM12his1_EM12his6 & physcond)  # noqa: F821
 
                                 

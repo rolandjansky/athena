@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUANALYSISTOOLS_UT_TAUANALYSISTOOLS_TEST_H
@@ -11,7 +11,6 @@
 #include "GaudiKernel/ToolHandle.h" //for better working with tools
 
 #include "AsgMessaging/MessageCheck.h" //messaging
-using namespace asg::msgUserCode;  //messaging
 
 //ROOT includes
 #include "TString.h"
@@ -27,6 +26,8 @@ using namespace asg::msgUserCode;  //messaging
 
 // EDM include(s):
 #include "xAODTau/TauJetContainer.h"
+
+using namespace asg::msgUserCode;  //messaging
 
 int main( int argc, char* argv[] )
 {

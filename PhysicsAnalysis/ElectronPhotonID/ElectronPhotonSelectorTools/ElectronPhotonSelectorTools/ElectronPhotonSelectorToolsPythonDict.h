@@ -11,6 +11,7 @@
 #include "ElectronPhotonSelectorTools/AsgForwardElectronIsEMSelector.h"
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 #include "ElectronPhotonSelectorTools/AsgElectronChargeIDSelectorTool.h"
+#include "ElectronPhotonSelectorTools/AsgForwardElectronLikelihoodTool.h"
 #include "ElectronPhotonSelectorTools/EGammaAmbiguityTool.h"
 #include "ElectronPhotonSelectorTools/AsgDeadHVCellRemovalTool.h"
 #endif

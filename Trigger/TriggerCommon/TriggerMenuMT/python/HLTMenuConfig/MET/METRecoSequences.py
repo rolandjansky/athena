@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 
@@ -38,7 +38,8 @@ log = logging.getLogger(__name__)
 
 def jetRecoDictForMET(**recoDict):
     """ Get a jet reco dict that's usable for the MET slice """
-    jrd = {k: recoDict.get(k, JetChainParts_Default[k]) for k in jetRecoKeys}
+    jrd = {k: recoDict.get(k, JetChainParts_Default[k]) for k in jetRecoKeys if not k=='cleaning'}
+    jrd.update({'cleaning':'noCleaning'})
     # Rename the cluster calibration
     try:
         jrd["clusterCalib"] = recoDict["calib"]
@@ -260,7 +261,7 @@ class CVFClusterInputConfig(AlgInputConfig):
             OutputCVFKey="CVF",
             TrackSelectionTool=InDet__InDetTrackSelectionTool(CutLevel="TightPrimary"),
             TVATool=CP__TrackVertexAssociationTool(
-                WorkingPoint="Loose", VertexContainer=inputs["Vertices"]
+                WorkingPoint="Custom", d0_cut=2.0, dzSinTheta_cut=2.0
             ),
             ExtensionTool=ApproximateTrackToLayerTool(),
         )

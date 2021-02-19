@@ -225,7 +225,9 @@ def test(model_file, tree_file,
     # binary and xentropy are not the exact same thing when training but the output value is the same
     # (https://lightgbm.readthedocs.io/en/latest/Parameters.html)
     binary_aliases = ('binary', 'cross_entropy', 'xentropy')
-    regression_aliases = ('regression_l2', 'l2', 'mean_squared_error', 'mse', 'l2_root', 'root_mean_squared_error', 'rmse')
+    regression_aliases = ('regression_l2', 'l2', 'mean_squared_error', 'mse', 'l2_root', 'root_mean_squared_error', 'rmse') + \
+                         ('regression_l1', 'l1', 'mean_absolute_error', 'mae') + \
+                         ('huber',)
     multiclass_aliases = ('multiclass', 'softmax')
     if objective in multiclass_aliases:
         logging.info("assuming multiclass, testing")

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -8,26 +8,35 @@
 ***************************************************************************/
 
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
-#include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoTrd.h"
-#include "GeoModelKernel/GeoBox.h"
-#include "GeoModelKernel/GeoSimplePolygonBrep.h"
-#include "GeoModelKernel/GeoShapeSubtraction.h"
-#include "GeoModelKernel/GeoShapeShift.h"
+
+#include <GaudiKernel/IMessageSvc.h>
+#include <GeoModelKernel/GeoLogVol.h>
+#include <GeoModelKernel/GeoPVConstLink.h>
+#include <GeoModelKernel/GeoVFullPhysVol.h>
+#include <GeoModelKernel/GeoVPhysVol.h>
+#include "AthenaKernel/getMessageSvc.h"
+#include "EventPrimitives/AmgMatrixBasePlugin.h"
+#include "GaudiKernel/MsgStream.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
-#include "TrkSurfaces/PlaneSurface.h"
-#include "TrkSurfaces/RectangleBounds.h"
-#include "TrkSurfaces/RotatedTrapezoidBounds.h"
-#include "TrkSurfaces/TrapezoidBounds.h"
-#include "TrkSurfaces/DiamondBounds.h"
-#include "TrkSurfaces/RotatedDiamondBounds.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
+#include "Identifier/IdentifierHash.h"
 #include "MuonAGDDDescription/sTGCDetectorDescription.h"
 #include "MuonAGDDDescription/sTGCDetectorHelper.h"
-#include "AGDDModel/AGDDParameterStore.h"
-#include "AthenaKernel/getMessageSvc.h"
-#include "GaudiKernel/MsgStream.h"
-#include <TString.h> // for Form
+#include "MuonAGDDDescription/sTGC_Technology.h"
+#include "MuonAlignmentData/ALinePar.h"
+#include "MuonAlignmentData/CorrContainer.h"
+#include "TrkSurfaces/DiamondBounds.h"
+#include "TrkSurfaces/PlaneSurface.h"
+#include "TrkSurfaces/RotatedDiamondBounds.h"
+#include "TrkSurfaces/RotatedTrapezoidBounds.h"
+#include "TrkSurfaces/TrapezoidBounds.h"
+
+#include <TString.h>
+#include <ext/alloc_traits.h>
+#include <map>
+#include <memory>
+#include <cmath>
+#include <stdexcept>
 
 namespace MuonGM {
 

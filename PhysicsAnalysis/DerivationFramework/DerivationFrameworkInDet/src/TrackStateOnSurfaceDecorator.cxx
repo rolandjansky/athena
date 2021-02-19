@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -322,7 +322,7 @@ namespace DerivationFramework {
     std::vector<SG::WriteDecorHandle<xAOD::TrackParticleContainer,float> >
        trackPixFloatDecorators = createDecorators<xAOD::TrackParticleContainer,float>(m_trackPixFloatDecorKeys,ctx);
     // -- Run over each track and decorate it
-    for (const auto& track : *tracks) {
+    for (const auto track : *tracks) {
       //-- Start with things that do not need a Trk::Track object
 
       // -- Now things that require a Trk::Track object
@@ -410,7 +410,7 @@ namespace DerivationFramework {
 
       // -- Add Track states to the current track, filtering on their type
       std::vector<const Trk::TrackStateOnSurface*> tsoss;
-      for (const auto& trackState: *(trkTrack->trackStateOnSurfaces())){
+      for (const auto trackState: *(trkTrack->trackStateOnSurfaces())){
         //Get rid of any holes that already exist  --  we are doing the search again
         if( trackState->types()[Trk::TrackStateOnSurface::Hole] )
           continue;

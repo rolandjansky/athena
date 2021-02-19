@@ -31,7 +31,13 @@ def dbgPreRun(inputFileList, outputFileList, argdict = None):
     outFile = outputFileList[0]
     hfile = TFile(outFile, 'RECREATE')
 
-    # Inicialize dbgEventInfo, this is the main event analysis class
+    maxEvents = argdict.get('maxEvents')
+    maxEvents = maxEvents.value.get('first') if maxEvents else -1
+
+    skipEvents = argdict.get('skipEvents')
+    skipEvents = skipEvents.value.get('first') if skipEvents else 0
+
+    # Initialize dbgEventInfo, this is the main event analysis class
     eventInfo = dbgEventInfo('_Pre', inputFileList.value[0])
     data = []
     l1Info = []
@@ -42,12 +48,20 @@ def dbgPreRun(inputFileList, outputFileList, argdict = None):
         n = 0
         isFirstEvent = True
 
+        bsfile = bsfile[skipEvents:skipEvents+maxEvents] if maxEvents > -1 else bsfile[skipEvents:]
+
         for event in bsfile:
+
             if isFirstEvent:
                 runNumber = event.run_no() if event.run_no() else int(inputFile.split(".")[1])
                 configKeys = getHLTConfigKeys(runNumber, argdict)
 
-                l1Info, hltInfo = TriggerDBInfo(configKeys['DB'], configKeys['SMK'])
+                if not argdict.get('useDB'):
+                    msg.debug("Reading chains and items from database is skipped (missing --useDB=True)")
+                    l1Info, hltInfo = ([], [])
+                else:
+                    l1Info, hltInfo = TriggerDBInfo(configKeys.get('DB'), configKeys.get('SMK'))
+
                 isFirstEvent = False
 
             # Log the details of first 5 events
@@ -69,6 +83,8 @@ def dbgPreRun(inputFileList, outputFileList, argdict = None):
 
     msg.info('Finished running debug_stream analysis PreRun operations')
 
+    dbAlias = configKeys.get('DB')
+
     # Check release format, if relInfo is 'unknown' then print error
     if 'REL' in configKeys:
         release = configKeys['REL']
@@ -77,12 +93,12 @@ def dbgPreRun(inputFileList, outputFileList, argdict = None):
             msg.error('Problem with DB configuration in COOL DB, most likely during data-taking')        
 
         # Returns the local asetupString from runs in input files and to be used by asetup
-        return getAsetupString(configKeys['REL'], configKeys['PROJ'])
+        return getAsetupString(configKeys['REL'], configKeys['PROJ']), dbAlias
     else:
         msg.warn("Release not found in configuration - asetup string won't be created")
 
     # Without release and project asetup string is not available
-    return None
+    return None, dbAlias
 
 
 def dbgPostRun(inputFileList, outputFileList, argdict = None):
@@ -118,7 +134,12 @@ def dbgPostRun(inputFileList, outputFileList, argdict = None):
             if isFirstEvent:
                 configKeys = getHLTConfigKeys(event.run_no(), argdict)
 
-                l1Info, hltInfo = TriggerDBInfo(configKeys['DB'], configKeys['SMK'])
+                if not argdict.get('useDB'):
+                    msg.debug("Reading chains and items from database is skipped (missing --useDB=True)")
+                    l1Info, hltInfo = ([], [])
+                else:
+                    l1Info, hltInfo = TriggerDBInfo(configKeys.get('DB'), configKeys.get('SMK'))
+
                 isFirstEvent = False
 
             # Log the details of first 5 events
@@ -144,34 +165,46 @@ def TriggerDBInfo(dbalias = None, smk = None):
     l1Info = []
     hltInfo = []
 
+    if not dbalias or not smk:
+        msg.warn("Reading chains and items from database is skipped (config keys are not available)") 
+        return (l1Info, hltInfo)
+
     # L1 DB Info
-    l1Cfg = L1MenuAccess(dbalias = dbalias, smkey = smk)
+    try:
+        l1Cfg = L1MenuAccess(dbalias = dbalias, smkey = smk)
 
-    # Create map id to item and then fill the array
-    #   that on i spot has item with i ctpid
-    l1Items = l1Cfg.items()
-    l1ItemsMap = {}
-    for item in l1Items:
-        ctpid = l1Items[item]['ctpid']
-        l1ItemsMap[ctpid] = item
+        # Create map id to item and then fill the array
+        #   that on i spot has item with i ctpid
+        l1Items = l1Cfg.items()
+        l1ItemsMap = {}
+        for item in l1Items:
+            ctpid = l1Items[item]['ctpid']
+            l1ItemsMap[ctpid] = item
 
-    l1Info = (max(l1ItemsMap.keys()) + 1) * [0]
+        l1Info = (max(l1ItemsMap.keys()) + 1) * [0]
 
-    for item in l1ItemsMap:
-        l1Info[item] = l1ItemsMap[item]
+        for item in l1ItemsMap:
+            l1Info[item] = l1ItemsMap[item]
+
+    except RuntimeError:
+        msg.info("Database for L1 Menu not available")
 
     # HLT DB Info
-    hltCfg = HLTMenuAccess(dbalias = dbalias, smkey = smk)
-    hltChains = hltCfg.chains()
-    hltChainsMap = {}
-    for chain in hltChains:
-        counter = hltChains[chain]['counter']
-        hltChainsMap[counter] = chain
+    try:
+        hltCfg = HLTMenuAccess(dbalias = dbalias, smkey = smk)
+        hltChains = hltCfg.chains()
+        hltChainsMap = {}
+        for chain in hltChains:
+            counter = hltChains[chain]['counter']
+            hltChainsMap[counter] = chain
 
-    hltInfo = (max(hltChainsMap.keys()) + 1) * [0]
+        hltInfo = (max(hltChainsMap.keys()) + 1) * [0]
 
-    for chain in hltChainsMap:
-        hltInfo[chain] = hltChainsMap[chain]
+        for chain in hltChainsMap:
+            hltInfo[chain] = hltChainsMap[chain]
+    except RuntimeError:
+        msg.info("Database for HLT Menu not available")
+
 
     return (l1Info, hltInfo)
 
@@ -215,7 +248,7 @@ def getHLTConfigKeys(runNumber = None, args = None):
     dbconn = TriggerCoolUtil.GetConnection("CONDBR2")
     configKeys = TriggerCoolUtil.getHLTConfigKeys(dbconn, [[runNumber, runNumber]])
 
-    if configKeys:
+    if configKeys and runNumber in configKeys.keys():
         configKeys = configKeys[runNumber]
 
         # Split db info into dbalias and atlas project,
@@ -229,6 +262,11 @@ def getHLTConfigKeys(runNumber = None, args = None):
     else:
         msg.info("Config keys not found in COOL")
         configKeys = getHLTConfigFromArgs(args)
+
+    if 'DB' in configKeys:
+        if 'DBserver' in args and configKeys['DB'] != args['DBserver'].value:
+            msg.warn("Different database read from config keys ({0}) and from args ({1})".format(configKeys['DB'], args['DBserver'].value))
+            msg.warn("Database {0} from config keys will be used.".format(configKeys['DB']))   
 
     return configKeys
 

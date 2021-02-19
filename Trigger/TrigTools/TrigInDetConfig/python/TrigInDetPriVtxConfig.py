@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 __author__ =   "Mark Sutton and Lukas Novotny"
 __doc__    =   "vertexFinder_builder"
@@ -376,9 +376,10 @@ def adaptiveMultiVertexSeedFinder_builder( signature , doVtx3DFinding):
                                                     trackdistexppower = 2)
     
     else:
-    
+        from InDetTrigRecExample.InDetTrigConfigRecLoadToolsPost import getInDetTrigTrackToVertexIPEstimator
         from TrkVertexSeedFinderTools.TrkVertexSeedFinderToolsConf import Trk__ZScanSeedFinder
-        seedFinder = Trk__ZScanSeedFinder(name = "InDetTrigZScanSeedFinder" + signature
+        seedFinder = Trk__ZScanSeedFinder(name = "InDetTrigZScanSeedFinder" + signature,
+                                          IPEstimator = getInDetTrigTrackToVertexIPEstimator()
                                                       # Mode1dFinder = # default, no setting needed
                                                      )
     ToolSvc += seedFinder

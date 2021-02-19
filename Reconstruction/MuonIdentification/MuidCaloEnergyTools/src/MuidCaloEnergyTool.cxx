@@ -128,7 +128,7 @@ MuidCaloEnergyTool::energyLoss(double trackMomentum, double eta, double phi) con
     ATH_MSG_VERBOSE("Muon with : p = " << trackMomentum / Units::GeV << " Phi = " << phi << " Eta =  " << eta);
 
 
-    CaloEnergy* caloEnergy = 0;
+    CaloEnergy* caloEnergy = nullptr;
     if (m_energyLossMeasurement) {
         // Energy Dep/Iso from calorimeters (projective assumption)
         CaloMeas* caloMeas = m_caloMeasTool->energyMeasurement(eta, phi, eta, phi);
@@ -195,7 +195,7 @@ MuidCaloEnergyTool::trackStateOnSurface(const Trk::TrackParameters& middleParame
                                        << " Phi = " << middleParameters.position().phi()
                                        << " Eta =  " << middleParameters.position().eta());
 
-    CaloEnergy* caloEnergy = 0;
+    CaloEnergy* caloEnergy = nullptr;
     if (m_energyLossMeasurement) {
         // energy deposition according to the calo measurement
         double eta    = middleParameters.position().eta();
@@ -239,8 +239,8 @@ MuidCaloEnergyTool::trackStateOnSurface(const Trk::TrackParameters& middleParame
         new const Trk::MaterialEffectsOnTrack(0., caloEnergy, middleParameters.associatedSurface(), typePattern);
 
     // create TSOS
-    const Trk::FitQualityOnSurface*                                         fitQoS          = 0;
-    const Trk::MeasurementBase*                                             measurementBase = 0;
+    const Trk::FitQualityOnSurface*                                         fitQoS          = nullptr;
+    const Trk::MeasurementBase*                                             measurementBase = nullptr;
     std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> pattern(0);
     pattern.set(Trk::TrackStateOnSurface::CaloDeposit);
 
@@ -302,7 +302,7 @@ MuidCaloEnergyTool::measurement(double trackMomentum, double eta, double phi, Ca
     // if (caloParamMop->deltaE() < 0.) cosmic = true;
 
     // mop energy deposition
-    double MopLoss = fabs(caloParamMop->deltaE());
+    double MopLoss = std::abs(caloParamMop->deltaE());
     // mop energy deposition uncertainty
     double MopError = mopPeak->sigmaDeltaE();
     // mop energy deposition corrected
@@ -331,7 +331,7 @@ MuidCaloEnergyTool::measurement(double trackMomentum, double eta, double phi, Ca
 
     // Correction for forward calorimetry
     double ForwardHECCorrection = 0.;
-    if (fabs(eta) > 2. && caloMeas->LArHEC_EnergyMeasured() > 100.)
+    if (std::abs(eta) > 2. && caloMeas->LArHEC_EnergyMeasured() > 100.)
         ForwardHECCorrection = (1. - LArHECMeasurementMaterial) * HECMaterial * MopLossCorrected;
     const double LArHECEnergy =
         caloMeas->LArHEC_EnergyMeasured() + ForwardHECCorrection;  // Measured energy deposition in LArHEC
@@ -348,9 +348,9 @@ MuidCaloEnergyTool::measurement(double trackMomentum, double eta, double phi, Ca
     bool bEM  = false;  // performed Em measurement?
 
     // If muon isolated, and no significant measurement is made then use the mop parameterization, else the mean
-    if (fabs(eta) < 1.4) {
+    if (std::abs(eta) < 1.4) {
         if (LArHECEnergy + TileEnergy > 0.1 * MopLoss * HECMaterial) bHEC = true;
-    } else if (fabs(eta) > 1.8) {
+    } else if (std::abs(eta) > 1.8) {
         if (LArHECEnergy + TileEnergy > 0.2 * MopLoss * HECMaterial) bHEC = true;
     } else {
         if (LArHECEnergy + TileEnergy > 0.25 * MopLoss * HECMaterial) bHEC = true;
@@ -371,7 +371,7 @@ MuidCaloEnergyTool::measurement(double trackMomentum, double eta, double phi, Ca
     // Muons of 10 GeV are already in the relativistic rise region
     // in order to obtain the mip deposition from the mean energy deposition of 10 GeV muons
     // should divide by approximately 1.4 (Review of Particle Physics Figure 27.3 p.243)
-    const double IonizationLoss = (1. / 1.4) * fabs(caloParamMip->deltaE());
+    const double IonizationLoss = (1. / 1.4) * std::abs(caloParamMip->deltaE());
 
     double eOverMipCorrectionEm  = 0.;
     double eOverMipCorrectionHEC = 0.;
@@ -396,18 +396,24 @@ MuidCaloEnergyTool::measurement(double trackMomentum, double eta, double phi, Ca
     }
     const double eOverMipCorrection = eOverMipCorrectionEm + eOverMipCorrectionHEC;
 
-
-    //  additional offset from high-statistics Z->mumu MC (measured by Peter K 30/11/2011)
-    double fix1FromPeter[26] = {0.424104,   0.479637,   0.483419,  0.490242, 0.52806,  0.573582, 0.822098,
-                                0.767301,   0.809919,   0.658745,  0.157187, 0.413214, 0.771074, 0.61815,
-                                0.350113,   0.322785,   0.479294,  0.806183, 0.822161, 0.757731, -0.0857186,
-                                -0.0992693, -0.0492252, 0.0650174, 0.261538, 0.360413};
+    //  additional offset from high-statistics Z->mumu MC (measured by Peter K
+    //  30/11/2011)
+    constexpr double fix1FromPeter[26] = {
+      0.424104, 0.479637, 0.483419,   0.490242,   0.52806,    0.573582,
+      0.822098, 0.767301, 0.809919,   0.658745,   0.157187,   0.413214,
+      0.771074, 0.61815,  0.350113,   0.322785,   0.479294,   0.806183,
+      0.822161, 0.757731, -0.0857186, -0.0992693, -0.0492252, 0.0650174,
+      0.261538, 0.360413
+    };
     //  (update from Peter K 09/12/2011)
-    double fix2FromPeter[26] = {-0.647703, -0.303498,  -0.268645, -0.261292, -0.260152, -0.269253, -0.266212,
-                                -0.240837, -0.130172,  -0.111638, -0.329423, -0.321011, -0.346050, -0.305592,
-                                -0.313293, -0.317111,  -0.428393, -0.524839, -0.599547, -0.464013, -0.159663,
-                                -0.140879, -0.0975618, 0.0225352, 0.0701925, -0.24778};
-    int    ieta              = static_cast<int>(fabs(eta) / 0.10);
+    constexpr double fix2FromPeter[26] = {
+      -0.647703, -0.303498, -0.268645, -0.261292, -0.260152,  -0.269253,
+      -0.266212, -0.240837, -0.130172, -0.111638, -0.329423,  -0.321011,
+      -0.346050, -0.305592, -0.313293, -0.317111, -0.428393,  -0.524839,
+      -0.599547, -0.464013, -0.159663, -0.140879, -0.0975618, 0.0225352,
+      0.0701925, -0.24778
+    };
+    int ieta = static_cast<int>(std::abs(eta) / 0.10);
     if (ieta > 25) ieta = 25;
     double FinalMeasuredEnergy =
         MeasCorrected + eOverMipCorrection + (fix1FromPeter[ieta] + fix2FromPeter[ieta]) * Units::GeV;
@@ -457,14 +463,14 @@ MuidCaloEnergyTool::measurement(double trackMomentum, double eta, double phi, Ca
                            << ", nTracks= " << nTracks << ",PassCut= " << PassCut);
 
     CaloEnergy::EnergyLossType lossType   = CaloEnergy::NotIsolated;
-    CaloEnergy*                caloEnergy = 0;
+    CaloEnergy*                caloEnergy = nullptr;
 
     // choose between lossTypes MOP, Tail, FSR and NotIsolated according
     // to measured energy, isolation cut and Et in em
     if (FinalMeasuredEnergy < MopLoss + 2. * MopError && FinalMeasuredEnergy > m_minFinalEnergy) {
         ++m_countMop;
         caloEnergy = mopPeak;
-        mopPeak    = 0;
+        mopPeak    = nullptr;
     } else if (PassCut) {
         //  tail offset from high-statistics Z->mumu MC (measured by Peter K 09/12/2011),
         //  but next we try to separate any FSR contribution from the Landau tail
@@ -554,10 +560,10 @@ MuidCaloEnergyTool::muSpecResolParam(double trackMomentum, double eta) const
     const double pT    = trackMomentum * sin(Theta) / Units::GeV;  // pt in GeV
     double       a     = 0.;
     double       b     = 0.;
-    if (fabs(eta) < 1.) {
+    if (std::abs(eta) < 1.) {
         a = 0.02255;
         b = 7.708e-5;
-    } else if (fabs(eta) > 1. && fabs(eta) < 2.) {
+    } else if (std::abs(eta) > 1. && std::abs(eta) < 2.) {
         a = 0.04198;
         b = 8.912e-5;
     } else {
@@ -598,62 +604,99 @@ MuidCaloEnergyTool::landau(double x, double mpv, double sigma, bool norm) const
     // This function has been adapted from the CERNLIB routine G110 denlan.
     // If norm=kTRUE (default is kFALSE) the result is divided by sigma
 
-    double p1[5] = {0.4259894875, -0.1249762550, 0.03984243700, -0.006298287635, 0.001511162253};
-    double q1[5] = {1.0, -0.3388260629, 0.09594393323, -0.01608042283, 0.003778942063};
+    constexpr double p1[5] = { 0.4259894875,
+                               -0.1249762550,
+                               0.03984243700,
+                               -0.006298287635,
+                               0.001511162253 };
+    constexpr double q1[5] = {
+      1.0, -0.3388260629, 0.09594393323, -0.01608042283, 0.003778942063
+    };
 
-    double p2[5] = {0.1788541609, 0.1173957403, 0.01488850518, -0.001394989411, 0.0001283617211};
-    double q2[5] = {1.0, 0.7428795082, 0.3153932961, 0.06694219548, 0.008790609714};
+    constexpr double p2[5] = { 0.1788541609,
+                               0.1173957403,
+                               0.01488850518,
+                               -0.001394989411,
+                               0.0001283617211 };
+    constexpr double q2[5] = {
+      1.0, 0.7428795082, 0.3153932961, 0.06694219548, 0.008790609714
+    };
 
-    double p3[5] = {0.1788544503, 0.09359161662, 0.006325387654, 0.00006611667319, -0.000002031049101};
-    double q3[5] = {1.0, 0.6097809921, 0.2560616665, 0.04746722384, 0.006957301675};
+    constexpr double p3[5] = { 0.1788544503,
+                               0.09359161662,
+                               0.006325387654,
+                               0.00006611667319,
+                               -0.000002031049101 };
+    constexpr double q3[5] = {
+      1.0, 0.6097809921, 0.2560616665, 0.04746722384, 0.006957301675
+    };
 
-    double p4[5] = {0.9874054407, 118.6723273, 849.2794360, -743.7792444, 427.0262186};
-    double q4[5] = {1.0, 106.8615961, 337.6496214, 2016.712389, 1597.063511};
+    constexpr double p4[5] = {
+      0.9874054407, 118.6723273, 849.2794360, -743.7792444, 427.0262186
+    };
+    constexpr double q4[5] = {
+      1.0, 106.8615961, 337.6496214, 2016.712389, 1597.063511
+    };
 
-    double p5[5] = {1.003675074, 167.5702434, 4789.711289, 21217.86767, -22324.94910};
-    double q5[5] = {1.0, 156.9424537, 3745.310488, 9834.698876, 66924.28357};
+    constexpr double p5[5] = {
+      1.003675074, 167.5702434, 4789.711289, 21217.86767, -22324.94910
+    };
+    constexpr double q5[5] = {
+      1.0, 156.9424537, 3745.310488, 9834.698876, 66924.28357
+    };
 
-    double p6[5] = {1.000827619, 664.9143136, 62972.92665, 475554.6998, -5743609.109};
-    double q6[5] = {1.0, 651.4101098, 56974.73333, 165917.4725, -2815759.939};
+    constexpr double p6[5] = {
+      1.000827619, 664.9143136, 62972.92665, 475554.6998, -5743609.109
+    };
+    constexpr double q6[5] = {
+      1.0, 651.4101098, 56974.73333, 165917.4725, -2815759.939
+    };
 
-    double a1[3] = {0.04166666667, -0.01996527778, 0.02709538966};
+    constexpr double a1[3] = { 0.04166666667, -0.01996527778, 0.02709538966 };
 
-    double a2[2] = {-1.845568670, -4.284640743};
+    constexpr double a2[2] = { -1.845568670, -4.284640743 };
 
-    if (sigma <= 0) return 0.;
+    if (sigma <= 0)
+      return 0.;
     double v = (x - mpv) / sigma;
     double u, ue, us, den;
     if (v < -5.5) {
-        u = exp(v + 1.0);
-        if (u < 1e-10) return 0.0;
-        ue  = exp(-1 / u);
-        us  = sqrt(u);
-        den = 0.3989422803 * (ue / us) * (1 + (a1[0] + (a1[1] + a1[2] * u) * u) * u);
+      u = exp(v + 1.0);
+      if (u < 1e-10)
+        return 0.0;
+      ue = exp(-1 / u);
+      us = sqrt(u);
+      den =
+        0.3989422803 * (ue / us) * (1 + (a1[0] + (a1[1] + a1[2] * u) * u) * u);
     } else if (v < -1) {
-        u   = exp(-v - 1);
-        den = exp(-u) * sqrt(u) * (p1[0] + (p1[1] + (p1[2] + (p1[3] + p1[4] * v) * v) * v) * v)
-              / (q1[0] + (q1[1] + (q1[2] + (q1[3] + q1[4] * v) * v) * v) * v);
+      u = exp(-v - 1);
+      den = exp(-u) * sqrt(u) *
+            (p1[0] + (p1[1] + (p1[2] + (p1[3] + p1[4] * v) * v) * v) * v) /
+            (q1[0] + (q1[1] + (q1[2] + (q1[3] + q1[4] * v) * v) * v) * v);
     } else if (v < 1) {
-        den = (p2[0] + (p2[1] + (p2[2] + (p2[3] + p2[4] * v) * v) * v) * v)
-              / (q2[0] + (q2[1] + (q2[2] + (q2[3] + q2[4] * v) * v) * v) * v);
+      den = (p2[0] + (p2[1] + (p2[2] + (p2[3] + p2[4] * v) * v) * v) * v) /
+            (q2[0] + (q2[1] + (q2[2] + (q2[3] + q2[4] * v) * v) * v) * v);
     } else if (v < 5) {
-        den = (p3[0] + (p3[1] + (p3[2] + (p3[3] + p3[4] * v) * v) * v) * v)
-              / (q3[0] + (q3[1] + (q3[2] + (q3[3] + q3[4] * v) * v) * v) * v);
+      den = (p3[0] + (p3[1] + (p3[2] + (p3[3] + p3[4] * v) * v) * v) * v) /
+            (q3[0] + (q3[1] + (q3[2] + (q3[3] + q3[4] * v) * v) * v) * v);
     } else if (v < 12) {
-        u   = 1 / v;
-        den = u * u * (p4[0] + (p4[1] + (p4[2] + (p4[3] + p4[4] * u) * u) * u) * u)
-              / (q4[0] + (q4[1] + (q4[2] + (q4[3] + q4[4] * u) * u) * u) * u);
+      u = 1 / v;
+      den = u * u *
+            (p4[0] + (p4[1] + (p4[2] + (p4[3] + p4[4] * u) * u) * u) * u) /
+            (q4[0] + (q4[1] + (q4[2] + (q4[3] + q4[4] * u) * u) * u) * u);
     } else if (v < 50) {
-        u   = 1 / v;
-        den = u * u * (p5[0] + (p5[1] + (p5[2] + (p5[3] + p5[4] * u) * u) * u) * u)
-              / (q5[0] + (q5[1] + (q5[2] + (q5[3] + q5[4] * u) * u) * u) * u);
+      u = 1 / v;
+      den = u * u *
+            (p5[0] + (p5[1] + (p5[2] + (p5[3] + p5[4] * u) * u) * u) * u) /
+            (q5[0] + (q5[1] + (q5[2] + (q5[3] + q5[4] * u) * u) * u) * u);
     } else if (v < 300) {
-        u   = 1 / v;
-        den = u * u * (p6[0] + (p6[1] + (p6[2] + (p6[3] + p6[4] * u) * u) * u) * u)
-              / (q6[0] + (q6[1] + (q6[2] + (q6[3] + q6[4] * u) * u) * u) * u);
+      u = 1 / v;
+      den = u * u *
+            (p6[0] + (p6[1] + (p6[2] + (p6[3] + p6[4] * u) * u) * u) * u) /
+            (q6[0] + (q6[1] + (q6[2] + (q6[3] + q6[4] * u) * u) * u) * u);
     } else {
-        u   = 1 / (v - v * log(v) / (v + 1));
-        den = u * u * (1 + (a2[0] + a2[1] * u) * u);
+      u = 1 / (v - v * log(v) / (v + 1));
+      den = u * u * (1 + (a2[0] + a2[1] * u) * u);
     }
     if (!norm) return den;
     return den / sigma;

@@ -105,7 +105,8 @@ namespace LVL1
       
       /** pointer to LVL1ConfigSvc */
       ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
-
+      Gaudi::Property<bool> m_useNewConfig { this, "UseNewConfig", true, "When true, read the menu from detector store, when false use the L1ConfigSvc" };
+      const TrigConf::L1Menu * m_l1menu{nullptr};
 
      /** member variables for algorithm properties: */
 

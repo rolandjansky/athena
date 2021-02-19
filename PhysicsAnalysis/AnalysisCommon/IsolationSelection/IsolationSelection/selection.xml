@@ -4,6 +4,16 @@
   <class name="CP::IsolationWP" />
   <class name="CP::IsolationCondition" />
   <class name="CP::IsolationConditionFormula" />
+  <class name="CP::IsolationConditionCombined" />
   <class name="CP::IsolationConditionHist" />
   <class name="Interp3D" />
+  <class name="CP::IsolationCloseByCorrectionTool" />
+  <class name="CP::IIsolationCloseByCorrectionTool" />
+  <class name="CP::IsolationLowPtPLVTool" />
+  <class name="CP::IIsolationLowPtPLVTool" />
+  <class name="CP::IsoVariableHelper" />
+  <class name="CP::IsoCorrectionTestHelper" />
+  <class name="ToolHandle<CP::IIsolationSelectionTool>" />
+  <class name="ToolHandle<CP::IIsolationCloseByCorrectionTool>" />
+  <class name="ToolHandle<CP::IIsolationLowPtPLVTool>" />
 </lcgdict>

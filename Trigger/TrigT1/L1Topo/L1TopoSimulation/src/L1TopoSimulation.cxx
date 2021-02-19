@@ -1,8 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "./L1TopoSimulation.h"
+#include "L1TopoSimulation.h"
+#include "AthenaL1TopoHistSvc.h"
 
 #include "L1TopoConfig/L1TopoMenu.h"
 #include "L1TopoEvent/TopoInputEvent.h"
@@ -17,33 +18,8 @@
 #include "L1TopoRDO/L1TopoTOB.h"
 #include "L1TopoRDO/L1TopoRDOCollection.h"
 
-#include "./AthenaL1TopoHistSvc.h"
-
 // using namespace std;
 using namespace LVL1;
-
-namespace {
-   // needed for monitoring
-   class TopoResultBit : public IMonitoredAlgo::IGetter {
-   public:
-    
-      //! constructor
-      TopoResultBit(const TCS::GlobalDecision & decision, std::string connName) :
-         m_decision(decision),
-         m_connName(connName)
-      {}
-
-      //! return size of data
-      virtual unsigned int size() const { return 64; } // Change this when implementing multiplicity algorithms (size could change for Topo1)
-
-      //! indexed access to data
-      virtual double get(unsigned pos) const { return m_decision.passed(m_connName, pos) ? pos : -1.; }
-
-   private:
-      const TCS::GlobalDecision & m_decision;
-      std::string m_connName;
-   };
-}
 
 
 L1TopoSimulation::L1TopoSimulation(const std::string &name, ISvcLocator *pSvcLocator) :
@@ -51,15 +27,8 @@ L1TopoSimulation::L1TopoSimulation(const std::string &name, ISvcLocator *pSvcLoc
    m_topoSteering( std::make_unique<TCS::TopoSteering>() ),
    m_scaler( std::make_unique<LVL1::PeriodicScaler>() )
 {
-   // const TCS::GlobalDecision & dec = m_topoSteering->simulationResult().globalDecision();
-   // declareMonitoredCustomVariable("DecisionModule1", new TopoResultBit(dec, 0));
-   // declareMonitoredCustomVariable("DecisionModule2", new TopoResultBit(dec, 1));
-   // declareMonitoredCustomVariable("DecisionModule3", new TopoResultBit(dec, 2));
 }
 
-
-L1TopoSimulation::~L1TopoSimulation()
-{}
 
 bool
 L1TopoSimulation::isClonable() const
@@ -75,9 +44,6 @@ L1TopoSimulation::initialize() {
 
    m_topoSteering->setLegacyMode(m_isLegacyTopo);
    
-   ATH_MSG_DEBUG("retrieving " << m_monitors);
-   CHECK( m_monitors.retrieve() );
-
    ATH_MSG_DEBUG("retrieving " << m_l1topoConfigSvc);
    CHECK( m_l1topoConfigSvc.retrieve() );
 
@@ -137,18 +103,6 @@ L1TopoSimulation::initialize() {
    return StatusCode::SUCCESS;
 }
 
-// Exectued once per offline job and for every new run online
-StatusCode
-L1TopoSimulation::stop() {
-   ATH_MSG_DEBUG("stop");
-
-   // monitoring
-   for (auto mt : m_monitors )
-      mt->finalHists().ignore();
-
-   return StatusCode::SUCCESS;
-}
-                           
 
 // Exectued once per offline job and for every new run online
 StatusCode
@@ -156,11 +110,6 @@ L1TopoSimulation::start() {
    ATH_MSG_DEBUG("start");
 
    m_scaler->reset();
-
-   // TODO monitoring : book histogram
-   //   for (auto mt : m_monitors )
-   //      CHECK( mt->bookHists() );
-
 
    try {
       m_topoSteering->initializeAlgorithms();
@@ -278,16 +227,6 @@ L1TopoSimulation::execute() {
    
    CHECK(SG::makeHandle(m_topoCTPLocation)        .record(std::move(topoDecision2CTP)));
    CHECK(SG::makeHandle(m_topoOverflowCTPLocation).record(std::move(topoOverflow2CTP)));
-
-
-   // TODO: get the output combination data and put into SG
-
-   // fill histograms
-   // Commenting out temporarily to avoid crash 
-   // when L1TopoSimulation run without menu confifuration. 
-   //   for (auto mt : m_monitors )
-   //      if ( ! mt->preSelector() ) 
-   //         mt->fillHists().ignore();
 
    return StatusCode::SUCCESS;
 }

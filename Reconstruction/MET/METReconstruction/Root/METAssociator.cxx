@@ -74,6 +74,12 @@ namespace met {
     declareProperty( "CentralTrackPtThr",  m_cenTrackPtThr = 30e+3               );
     declareProperty( "ForwardTrackPtThr",  m_forTrackPtThr = 30e+3               );
     declareProperty( "CleanCPFO",          m_cleanChargedPFO = true              );
+    declareProperty( "UsePFOLinks",        m_usePFOLinks = false                 ); 
+    declareProperty( "UseFELinks",         m_useFELinks = false                  ); 
+    declareProperty( "NeutralPFOLinksKey", m_neutralPFOLinksKey = "neutralpfoLinks"); 
+    declareProperty( "ChargedPFOLinksKey", m_chargedPFOLinksKey = "chargedpfoLinks"); 
+    declareProperty( "NeutralFELinksKey",  m_neutralFELinksKey  = "neutralFELinks"); 
+    declareProperty( "ChargedFELinksKey",  m_chargedFELinksKey  = "chargedFELinks"); 
   }
 
   // Destructor

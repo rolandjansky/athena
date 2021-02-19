@@ -5149,6 +5149,8 @@ dumpspecs = [
     ['xAOD::MissingETContainer',             dump_xAOD],
     ['xAOD::MissingETComponentMap_v1',       dump_xAOD],
     ['xAOD::MissingETComponentMap',          dump_xAOD],
+    ['DataVector<xAOD::FlowElement_v1>',     dump_xAOD],
+    ['xAOD::FlowElementContainer',           dump_xAOD],
     ['xAOD::EventInfo_v1',                   dump_xAODObject],
     ['xAOD::EventInfo',                      dump_xAODObject],
     ['xAOD::EventShape_v1',                  dump_xAODObjectNL],

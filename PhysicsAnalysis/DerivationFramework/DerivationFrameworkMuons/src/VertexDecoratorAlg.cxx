@@ -35,7 +35,7 @@ StatusCode VertexDecoratorAlg::execute() {
     ATH_MSG_DEBUG("in execute");
     const xAOD::VertexContainer* Vertices = nullptr;
     ATH_CHECK(evtStore()->retrieve(Vertices, m_VertexContainer));
-    for (const auto& vertex  : *Vertices ){
+    for (const auto vertex  : *Vertices ){
         unsigned int n_Trks = 0;
         float sum_pt = 0;
         for (unsigned int t = 0 ; t < vertex->nTrackParticles(); ++t){

@@ -38,7 +38,6 @@ namespace Trk{
   class EnergyLoss;
   class CylinderVolumeBounds;
   class TrackingGeometry;
-  class ITrackingGeometrySvc;
 }
 
 namespace ISF {
@@ -181,11 +180,6 @@ namespace iFatras {
     CLHEP::HepRandomEngine*                          m_randomEngine;
     /** Name of the random number stream */
     std::string                                      m_randomEngineName;                 
-    
-    /** ToolHandle to the TrackingGeometrySvc */
-    ServiceHandle<Trk::ITrackingGeometrySvc>         m_trackingGeometrySvc;          
-    /** default name of the TrackingGeometry  */
-    std::string                                      m_trackingGeometryName;    
     
     /** struct of Particle Masses */
     Trk::ParticleMasses                              m_particleMasses;

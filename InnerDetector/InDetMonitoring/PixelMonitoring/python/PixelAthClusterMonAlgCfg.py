@@ -35,12 +35,23 @@ def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
 
     if doLumiBlock:
         title = 'Modules Status (0=Active+Good, 1=Active+Bad, 2=Inactive)'
-        define2DProfHist(helper, alg, histoGroupName, title, pathLowStat, type='TProfile2D', lifecycle='lowstat', histname='MapOfModulesStatusLB')
+        define2DProfHist(helper, alg, histoGroupName, title, pathLowStat, type='TProfile2D', lifecycle='lumiblock', histname='MapOfModulesStatusLB')
 
-    if doFEPlots:
-        histoGroupName = 'MapOfFEsStatus' 
-        title = 'FEs Status (0=Active+Good, 1=Active+Bad, 2=Inactive)'
-        define2DProfPerFEHist(helper, alg, histoGroupName, title, path, type='TProfile2D')
+### disabled for the moment - filling code requires more testing
+
+#    if doFEPlots:
+#        histoGroupName = 'MapOfFEsStatus' 
+#        title = 'FEs Status (0=Active+Good, 1=Active+Bad, 2=Inactive)'
+#        histlbname = 'MapOfFEsStatusLB'
+#        define2DProfPerFEHist(helper, alg, histoGroupName, title, path, type='TProfile2D')
+#
+#    if doLumiBlock:
+#        if not doFEPlots:
+#            title = 'Modules Status (0=Active+Good, 1=Active+Bad, 2=Inactive)'
+#            define2DProfHist(helper, alg, histoGroupName, title, pathLowStat, type='TProfile2D', lifecycle='lumiblock', histname='MapOfModulesStatusLB')
+#        else:
+#            title = 'FEs Status (0=Active+Good, 1=Active+Bad, 2=Inactive)'
+#            define2DProfPerFEHist(helper, alg, histoGroupName, title, pathLowStat, type='TProfile2D', lifecycle='lumiblock', histname='MapOfFEsStatusLB')
 
     histoGroupName = 'BadModulesPerLumi'
     title          = 'Number of bad modules (bad+active) per event per LB'
@@ -273,16 +284,21 @@ def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
             title = addOnTrackTxt('Average per module(FE) cluster occupancy reset every 5 min', ontrack, True)
             definePP0Histos(helper, alg, histoGroupName, title, pathGroup, opt='kLBNHistoryDepth=5')
 
-        if not ontrack and doFEPlots:
-            histoGroupName = 'ClusterFEOccupancy' 
-            title = 'Cluster occupancy per FE'
+        if doFEPlots:
+            histoGroupName = addOnTrackTxt('ClusterFEOccupancy', ontrack) 
+            title = addOnTrackTxt('Cluster occupancy per FE', ontrack, True)
             define2DProfPerFEHist(helper, alg, histoGroupName, title, pathGroup, type='TH2F')
 
         if doLumiBlock:
             pathGroup = addOnTrackToPath(pathLowStat, ontrack)
-            histoGroupName = addOnTrackTxt('ClusterOccupancyLB', ontrack)
-            title = addOnTrackTxt('Cluster Occupancy', ontrack, True)
-            define2DProfHist(helper, alg, addOnTrackTxt('ClusterOccupancy', ontrack), title, pathGroup, type='TH2D', lifecycle='lowStat', histname=histoGroupName)
+            if not doFEPlots:
+                histoGroupName = addOnTrackTxt('ClusterOccupancyLB', ontrack)
+                title = addOnTrackTxt('Cluster occupancy', ontrack, True)
+                define2DProfHist(helper, alg, addOnTrackTxt('ClusterOccupancy', ontrack), title, pathGroup, type='TH2D', lifecycle='lumiblock', histname=histoGroupName)
+            else:
+                histoGroupName = addOnTrackTxt('ClusterFEOccupancyLB', ontrack)
+                title = addOnTrackTxt('Cluster occupancy per FE', ontrack, True)
+                define2DProfPerFEHist(helper, alg, addOnTrackTxt('ClusterFEOccupancy', ontrack), title, pathGroup, type='TH2F', lifecycle='lumiblock', histname=histoGroupName)
 
 
 ### 
@@ -294,7 +310,7 @@ def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
             histoGroupName = addOnTrackTxt('ClusterToTxCosAlpha', ontrack)
             title = addOnTrackTxt('Cluster ToTxCosAlpha', ontrack, True)
             define1DLayers(helper, alg, histoGroupName, title, pathGroup, ';ToT [BC]', ';# clusters', xbins=[300], xmins=[-0.5])
-            if (not doOnline):
+            if not doOnline:
                 histoGroupName = addOnTrackTxt('ClusterQxCosAlpha', ontrack)
                 title = addOnTrackTxt('Cluster Q normalized', ontrack, True)
                 define1DLayers(helper, alg, histoGroupName, title, pathGroup, ';Charge [e]', ';# clusters', xbins=[70], xmins=[-0.5], binsizes=[3000.])

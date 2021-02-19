@@ -77,22 +77,24 @@ class TrigCaloDataAccessSvc(_TrigCaloDataAccessSvc):
                     condSequence += LArOFCCondAlg (ReadKey="/LAR/ElecCalibFlat/OFC", WriteKey='LArOFC')
                     from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgOnlineDefault
                     LuminosityCondAlgOnlineDefault()
-                    from CaloRec.CaloBCIDAvgAlgDefault import CaloBCIDAvgAlgDefault
-                    CaloBCIDAvgAlgDefault()
                 else:
                     log.info('Enable HLT calo offset correction for MC')
-                    from CaloRec.CaloBCIDAvgAlgDefault import CaloBCIDAvgAlgDefault
-                    CaloBCIDAvgAlgDefault()
 
+                # Place the CaloBCIDAvgAlg in HltBeginSeq
                 from AthenaCommon.AlgSequence import AlgSequence
                 topSequence = AlgSequence()
-                if not hasattr(topSequence,"CaloBCIDAvgAlg"):
+                from AthenaCommon.CFElements import findSubSequence
+                hltBeginSeq = findSubSequence(topSequence, 'HltBeginSeq')
+                from CaloRec.CaloBCIDAvgAlgDefault import CaloBCIDAvgAlgDefault
+                bcidAvgAlg = CaloBCIDAvgAlgDefault(sequence=hltBeginSeq)
+
+                if not bcidAvgAlg:
                     log.info('Cannot use timer for CaloBCIDAvgAlg')
                 else:
                     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
                     monTool = GenericMonitoringTool('MonTool')
                     monTool.defineHistogram('TIME_exec', path='EXPERT', type='TH1F', title="CaloBCIDAvgAlg execution time; time [ us ] ; Nruns", xbins=80, xmin=0.0, xmax=4000)
-                    topSequence.CaloBCIDAvgAlg.MonTool = monTool
+                    bcidAvgAlg.MonTool = monTool
                     log.info('using timer for CaloBCIDAvgAlg')
 
 

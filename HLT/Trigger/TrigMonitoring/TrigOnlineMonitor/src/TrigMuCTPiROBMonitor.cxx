@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigOnlineMonitor/TrigMuCTPiROBMonitor.h"
+#include "TrigMuCTPiROBMonitor.h"
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigT1Result/MuCTPI_RDO.h"
 #include "TrigT1Result/MuCTPI_MultiplicityWord_Decoder.h"

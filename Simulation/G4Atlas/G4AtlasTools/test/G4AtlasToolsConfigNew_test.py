@@ -50,9 +50,8 @@ if __name__ == '__main__':
 
   from G4AtlasTools.G4AtlasToolsConfigNew import SensitiveDetectorMasterToolCfg
   acc  = SensitiveDetectorMasterToolCfg(ConfigFlags)
-  #tool = cfg.popToolsAndMerge(acc)
-  #cfg.setPrivateTools(tool)
-  cfg.merge(acc)
+  tool = cfg.popToolsAndMerge(acc)
+  cfg.setPrivateTools(tool)
 
   cfg.printConfig(withDetails=True, summariseProps = True)
   ConfigFlags.dump()

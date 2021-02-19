@@ -1,23 +1,25 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONREADOUTGEOMETRY_TGCREADOUTELEMENT_H
 #define MUONREADOUTGEOMETRY_TGCREADOUTELEMENT_H
 
 #include "MuonReadoutGeometry/MuonClusterReadoutElement.h"
+
+#include "Identifier/Identifier.h"
+#include "Identifier/IdentifierHash.h"
+#include "MuonIdHelpers/TgcIdHelper.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/TgcReadoutParams.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
+
+#include <string>
+
+class GeoVFullPhysVol;
 
 //<<<<<< PUBLIC DEFINES >>>>>>
 #define maxwpl   3
 #define maxstrp  3
-
-namespace Trk{
-  class TrapezoidBounds;
-  class RotatedTrapezoidBounds;
-}
 
 namespace Muon {
   class TgcAlignModule;

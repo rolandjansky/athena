@@ -134,14 +134,19 @@ class trigRecoExecutor(athenaExecutor):
                 fileNameDbg = outputFiles['HIST_DEBUGSTREAMMON'].value
 
                 # Do debug stream preRun step and get asetup string from debug stream input files
-                dbgAsetupString = dbgStream.dbgPreRun(inputFiles['BS_RDO'], fileNameDbg, self.conf.argdict)
+                dbgAsetupString, dbAlias = dbgStream.dbgPreRun(inputFiles['BS_RDO'], fileNameDbg, self.conf.argdict)
                 # Setup asetup from debug stream
                 # if no --asetup r2b:string was given and is not running with tzero/software/patches as TestArea
                 if asetupString is None and dbgAsetupString is not None:
                     asetupString = dbgAsetupString
-                    msg.info('Will use asetup string for debug stream analsys %s', dbgAsetupString)
+                    msg.info('Will use asetup string for debug stream analysis %s', dbgAsetupString)
+
+                # Set database in command line if it was missing
+                if 'useDB' in self.conf.argdict and 'DBserver' not in self.conf.argdict and dbAlias:
+                    msg.warn("Database alias will be set to %s", dbAlias)
+                    self._cmd.append("--db-server " + dbAlias)
             else:
-                msg.warn("Flag outputHIST_DEBUGSTREAMMONFile or outputBSFile not defined - debug stream anaylsis will not run.")
+                msg.info("Flag outputHIST_DEBUGSTREAMMONFile or outputBSFile not defined - debug stream analysis will not run.")
 
 
         # Call athenaExecutor parent as the above overrides what athenaExecutor would have done

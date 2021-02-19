@@ -10,7 +10,7 @@ ATLAS_PROJECT_NAME="AthDataQuality"
 ATLAS_PROJECT_DIR=$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)
 ATLAS_BUILDTYPE="RelWithDebInfo"
 ATLAS_EXTRA_CMAKE_ARGS=(-DLCG_VERSION_NUMBER=98
-                        -DLCG_VERSION_POSTFIX="python3_ATLAS_4")
+                        -DLCG_VERSION_POSTFIX="python3_ATLAS_6")
 ATLAS_EXTRA_MAKE_ARGS=()
 
 # Let "the common script" do all the heavy lifting.

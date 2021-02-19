@@ -1,6 +1,31 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
+
+def TRTHoleSearchCfg(flags, **kwargs) :
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    from AthenaConfiguration.ComponentFactory import CompFactory
+
+    acc=ComponentAccumulator()
+    kwargs.setdefault('name','TRTTrackHoleSearchTool')
+    if 'Extrapolator' not in kwargs :
+        extrapolator = acc.popToolsAndMerge( AtlasExtrapolatorCfg(flags) )
+        acc.addPublicTool(extrapolator)
+        kwargs.setdefault('extrapolator',extrapolator)
+    acc.setPrivateTools( CompFactory.TRTTrackHoleSearchTool(**kwargs) )
+    return acc
+
+def TRTHoleSearch(name='TRTTrackHoleSearchTool', **kwargs) :
+    kwargs.setdefault('name',name)
+    if 'Extrapolator' not in kwargs :
+        from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+        kwargs.setDefaults(kwargs,Extrapolator = AtlasExtrapolator())
+
+    from TRT_TrackHoleSearch.TRT_TrackHoleSearchConf import TRTTrackHoleSearchTool
+    return TRTTrackHoleSearchTool(**kwargs)
+
+
 def TRTMonitoringRun3RAW_AlgConfig(inputFlags):
     from AthenaConfiguration.ComponentFactory import isRun3Cfg
     if isRun3Cfg():
@@ -21,9 +46,14 @@ def TRTMonitoringRun3RAW_AlgConfig(inputFlags):
                                                   TrackSummaryTool= "InDetTrackSummaryTool"
                                               )
 
+    # @TODO really run the TRT hole search ? Hole search still seems to use a condition service
     if isRun3Cfg():
         from SCT_Monitoring.TrackSummaryToolWorkaround import TrackSummaryToolWorkaround
         algTRTMonitoringRun3RAW.TrackSummaryTool = rv.popToolsAndMerge(TrackSummaryToolWorkaround(inputFlags))
+        algTRTMonitoringRun3RAW.trt_hole_search= rv.popToolsAndMerge( TRTHoleSearchCfg(inputFlags) )
+    else :
+        algTRTMonitoringRun3RAW.trt_hole_search=TRTHoleSearch()
+
 
     maxLumiBlock         = 200
     numberOfBarrelStacks = 32
@@ -38,8 +68,9 @@ def TRTMonitoringRun3RAW_AlgConfig(inputFlags):
     sideId               = ('A', 'C')
     stackOrSector        = ('Barrel Stack', 'Endcap Sector')
     moduleNumAssign      = ( 'Modules Type 1 (1-32), Type 2 (33-64), Type 3 (65-96)', 'Wheels A (1-32), B (33-64)')
-    
-    algTRTMonitoringRun3RAW.binsHitWMapS = (1642, 3840)
+
+    algTRTMonitoringRun3RAW.strawMax = strawMax
+    algTRTMonitoringRun3RAW.iChipMax = iChipMax
 
     ### Booking TRT RDO Histograms ###
     # ibe = 0 (Barrel), ibe = 1 (Endcap)
@@ -85,6 +116,7 @@ def TRTMonitoringRun3RAW_AlgConfig(inputFlags):
             if   ibe == 0: rdoStackGroup.defineHistogram('HtoBCMapB_x,HtoBCMapB_y;hHtoBCMapB',type='TH2F',title='HL in BC: Boards;Bunch Crossing ID;Board Number in Stack',path=oss,xbins=3,xmin=0,xmax=3,ybins=9,ymin=0,ymax=9)
             elif ibe == 1: rdoStackGroup.defineHistogram('HtoBCMapB_x,HtoBCMapB_y;hHtoBCMapB',type='TH2F',title='HL in BC: Boards;Bunch Crossing ID;Board Number in Stack',path=oss,xbins=3,xmin=0,xmax=3,ybins=20,ymin=-0.5,ymax=19.5)
 
+
     ### Registering Collisions Histograms ###
     rdoShiftSmryGroup = helper.addGroup(algTRTMonitoringRun3RAW,'RDOShiftSmryHistograms')
 
@@ -111,15 +143,15 @@ def TRTMonitoringRun3RAW_AlgConfig(inputFlags):
         rdoGroup = helper.addGroup(algTRTMonitoringRun3RAW,'RDOHistograms{0}'.format(ibe))
         rdoGroup.defineHistogram('BCIDvsOcc_x,BCIDvsOcc_y;hBCIDvsOcc',type='TProfile',title='Avg. Occupancy vs BCID{0};Bunch Crossing ID;Occupancy'.format(regionTag),path='TRT/{0}/Expert'.format(barrelOrEndcap[ibe]),xbins=3564,xmin=0,xmax=3564)
         if ibe == 0:
-            rdoGroup.defineHistogram('HitWMap_passed,strawNumber;hHitWMap',cutmask='isNotAr',type='TEfficiency',title='Leading Edge in Time Window: Xenon Straws (Barrel);Straw Number in Stack;Probability',path='TRT/Shift/{0}'.format(str(barrelOrEndcap[ibe])),xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
-            rdoGroup.defineHistogram('HitWMap_passed,strawNumber;hHitWMap_Ar',cutmask='isAr',type='TEfficiency',title='Leading Edge in Time Window: Argon Straws (Barrel);Straw Number in Stack;Probability',path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
+            rdoGroup.defineHistogram('HitWMap_passed,HitWMap;hHitWMap',type='TEfficiency',title='Leading Edge in Time Window: Xenon Straws (Barrel);Straw Number in Stack;Probability',path='TRT/Shift/{0}'.format(str(barrelOrEndcap[ibe])),xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
+            rdoGroup.defineHistogram('HitWMap_Ar_passed,HitWMap_Ar;hHitWMap_Ar',type='TEfficiency',title='Leading Edge in Time Window: Argon Straws (Barrel);Straw Number in Stack;Probability',path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
             rdoGroup.defineHistogram('OccAll;hOccAll',type='TH1F',title='Occupancy per Event;Occupancy;Events',path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=400,xmin=0.0,xmax=1.0)
         elif ibe == 1:
             for iside in range(2):
                 side = ('A', 'C')
                 rdoEndcapGroup = helper.addGroup(algTRTMonitoringRun3RAW,'RDOHistograms1{0}'.format(iside))
-                rdoEndcapGroup.defineHistogram('HitWMap_passed,strawNumber;hHitWMap_{0}'.format(side[iside]),cutmask='isNotAr',type='TEfficiency',title='Leading Edge in Time Window: Xenon Straws (E{0});Straw Number in Stack;Probability'.format(side[iside]),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
-                rdoEndcapGroup.defineHistogram('HitWMap_passed,strawNumber;hHitWMap_Ar_{0}'.format(side[iside]),cutmask='isAr',type='TEfficiency',title='Leading Edge in Time Window: Argon Straws (E{0});Straw Number in Stack;Probability'.format(side[iside]),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])   
+                rdoEndcapGroup.defineHistogram('HitWMap_passed,HitWMap;hHitWMap_{0}'.format(side[iside]),type='TEfficiency',title='Leading Edge in Time Window: Xenon Straws (E{0});Straw Number in Stack;Probability'.format(side[iside]),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
+                rdoEndcapGroup.defineHistogram('HitWMap_Ar_passed,HitWMap_Ar;hHitWMap_Ar_{0}'.format(side[iside]),type='TEfficiency',title='Leading Edge in Time Window: Argon Straws (E{0});Straw Number in Stack;Probability'.format(side[iside]),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])   
         for iside in range(2):
             regionTag = ' (' + beId[ibe] + sideId[iside] + ')'
             regionMarker = (beId[ibe] + sideId[iside]) if isOnline is True else (sideId[iside])

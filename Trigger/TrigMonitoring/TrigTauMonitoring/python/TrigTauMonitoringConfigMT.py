@@ -314,10 +314,11 @@ class TrigTauMonAlgBuilder:
     for l1seed in l1seeds:
         if not l1seed : 
             continue
-        self.bookL1( monAlg, l1seed )
+        self.bookL1( monAlg, l1seed, nProng='1P')
+        self.bookL1( monAlg, l1seed, nProng='MP')
         self.bookL1EffHistograms( monAlg, l1seed, nProng='1P')
         self.bookL1EffHistograms( monAlg, l1seed, nProng='MP') 
-   
+           
 
   #
   # Booking HLT efficiencies
@@ -369,10 +370,10 @@ class TrigTauMonAlgBuilder:
   # Booking L1 Variables
   #
 
-  def bookL1( self, monAlg, trigL1Item):
+  def bookL1( self, monAlg, trigL1Item, nProng):
 
-    monGroupName = trigL1Item+'_L1'
-    monGroupPath = 'L1/'+trigL1Item+'/L1'
+    monGroupName = trigL1Item+'_L1_'+nProng
+    monGroupPath = 'L1/'+trigL1Item+'/L1_' + nProng
 
     monGroup = self.helper.addGroup( monAlg, monGroupName,
                               self.basePath+'/'+monGroupPath )
@@ -386,16 +387,16 @@ class TrigTauMonAlgBuilder:
     monGroup.defineHistogram('L1RoIEta,L1RoIPhi', type='TH2F', title='L1 RoI Eta vs Phi; #eta; #phi',
                             xbins=100,xmin=-2.6,xmax=2.6,
                             ybins=100,ymin=-3.2,ymax=3.2)
-    monGroup.defineHistogram('L1RoIEMIsol', title='L1 RoI EM Isol ; E_{T}^{EM Isol}[GeV]; N RoI',xbins=16,xmin=-2,xmax=30)
-    monGroup.defineHistogram('L1RoIEta', title='L1 RoI Eta ; #eta; N RoI',xbins=100,xmin=-2.6,xmax=2.6)
-    monGroup.defineHistogram('L1RoIHadCore', title='L1 RoI HAD Core ; E_{T}^{HAD}[GeV]; N RoI',xbins=16,xmin=-2,xmax=30)
-    monGroup.defineHistogram('L1RoIHadIsol', title='L1 RoI HAD Isol ; E_{T}^{HAD Isol}[GeV]; N RoI',xbins=16,xmin=-2,xmax=30)
-    monGroup.defineHistogram('L1RoIPhi', title='L1 RoI Phi ; #phi; N RoI',xbins=100,xmin=-3.2,xmax=3.2)
-    monGroup.defineHistogram('L1RoITauClus', title='L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI',xbins=260,xmin=0,xmax=130)
-    monGroup.defineHistogram('L1RoITauClus,L1RoIEMIsol', type='TH2F', title='L1 RoI TauClus vs EMiso ; E_{T}[GeV]; E_{T}^{EM Isol}[GeV]',
+    monGroup.defineHistogram('L1RoIEMIsol', title='L1 RoI EM Isol (offline ' + nProng + ' tau); E_{T}^{EM Isol}[GeV]; N RoI',xbins=16,xmin=-2,xmax=30)
+    monGroup.defineHistogram('L1RoIEta', title='L1 RoI Eta (offline ' + nProng + ' tau) ; #eta; N RoI',xbins=100,xmin=-2.6,xmax=2.6)
+    monGroup.defineHistogram('L1RoIHadCore', title='L1 RoI HAD Core (offline ' + nProng + ' tau) ; E_{T}^{HAD}[GeV]; N RoI',xbins=16,xmin=-2,xmax=30)
+    monGroup.defineHistogram('L1RoIHadIsol', title='L1 RoI HAD Isol (offline ' + nProng + ' tau) ; E_{T}^{HAD Isol}[GeV]; N RoI',xbins=16,xmin=-2,xmax=30)
+    monGroup.defineHistogram('L1RoIPhi', title='L1 RoI Phi (offline ' + nProng + ' tau) ; #phi; N RoI',xbins=100,xmin=-3.2,xmax=3.2)
+    monGroup.defineHistogram('L1RoITauClus', title='L1 RoI Tau Clust Energy (offline ' + nProng + ' tau) ; E_{T}[GeV]; N RoI',xbins=260,xmin=0,xmax=130)
+    monGroup.defineHistogram('L1RoITauClus,L1RoIEMIsol', type='TH2F', title='L1 RoI TauClus vs EMiso (offline ' + nProng + ' tau) ; E_{T}[GeV]; E_{T}^{EM Isol}[GeV]',
                             xbins=140,xmin=10,xmax=80,
                             ybins=42,ymin=-1,ymax=20)
-    monGroup.defineHistogram('L1RoIEt', title='L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI',xbins=30,xmin=0,xmax=150)
+    monGroup.defineHistogram('L1RoIEt', title='L1 RoI Tau Clust Energy (offline ' + nProng + ' tau); E_{T}[GeV]; N RoI',xbins=30,xmin=0,xmax=150)
 
                              
   #

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -90,7 +90,7 @@ namespace InDetDD {
     - modified & maintained: Nick Styles, Andreas Salzburger
     **/
     
-    class PixelDiodeMatrix : public std::enable_shared_from_this<PixelDiodeMatrix> {
+    class PixelDiodeMatrix {
       
     public:
       
@@ -118,20 +118,26 @@ namespace InDetDD {
           That is, it adds the relative cellId to the cellId passed to the function. 
           A pointer to the correspond cell is returned. This can be used to get the
           size of the cell. */
-      std::shared_ptr<const PixelDiodeMatrix> cellIdOfPosition(const Amg::Vector2D & position, SiCellId & cellId) const;
+      const PixelDiodeMatrix *cellIdOfPosition(const Amg::Vector2D & position, SiCellId & cellId) const;
       
       /** Return position correspong to cell with relative id withing the matrix.
           Returns the relative position added to the position passed in.
           A pointer to the correspond cell is returned. This can be used to get the
           size of the cell. */
-      std::shared_ptr<const PixelDiodeMatrix> positionOfCell(const SiCellId & cellId, Amg::Vector2D & position) const;
+      const PixelDiodeMatrix *positionOfCell(const SiCellId & cellId, Amg::Vector2D & position) const;
       
       /** Width in phi (x) direction.*/
       double phiWidth() const;
-      
+
+      /** Inverse of width in phi (x) direction.*/
+      double phiWidthInverse() const;
+
       /** Width in eta (y) direction. */
       double etaWidth() const;
-      
+
+      /** Inverse of width in eta (y) direction. */
+      double etaWidthInverse() const;
+
       /** Number of cells in phi (x) direction. */
       int phiCells() const;
       
@@ -160,7 +166,9 @@ namespace InDetDD {
                       std::shared_ptr<const PixelDiodeMatrix> upperCells);
 
       double        m_phiWidth;
+      double        m_phiWidthInverse;
       double        m_etaWidth;
+      double        m_etaWidthInverse;
       int           m_phiCells;    
       int           m_etaCells;
       Direction     m_direction;
@@ -176,10 +184,20 @@ namespace InDetDD {
     { 
       return m_phiWidth;
     }
+
+    inline double PixelDiodeMatrix::phiWidthInverse() const
+    { 
+      return m_phiWidthInverse;
+    }
     
     inline double PixelDiodeMatrix::etaWidth() const
     { 
       return m_etaWidth;
+    }
+    
+    inline double PixelDiodeMatrix::etaWidthInverse() const
+    { 
+      return m_etaWidthInverse;
     }
     
     inline int PixelDiodeMatrix::phiCells() const

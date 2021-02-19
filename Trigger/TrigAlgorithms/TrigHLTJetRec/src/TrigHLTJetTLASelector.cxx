@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration  
+ *   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration  
  */
 
 #include "TrigHLTJetRec/TrigHLTJetTLASelector.h"
@@ -42,15 +42,15 @@ StatusCode TrigHLTJetTLASelector::initialize()
 
   ATH_MSG_DEBUG("Initializing " << name() << "...");
 
-  ATH_MSG_DEBUG("pT threshold for output jet collection: " << (float) m_jetPtThreshold );
-  ATH_MSG_DEBUG("Maximum number of jets kept " << (int) m_maxNJets );
+  ATH_MSG_DEBUG("pT threshold for output jet collection: " << m_jetPtThreshold );
+  ATH_MSG_DEBUG("Maximum number of jets kept " << m_maxNJets );
 
   //check that the handlers are correctly initialized
   CHECK( m_inputJetsKey.initialize() );
   CHECK( m_outputJetsKey.initialize() );
 
-  if (m_maxNJets == 0) {
-    ATH_MSG_ERROR("This algorithm will keep no jets (m_maxNJets property <=0), so it should not be running at all.");
+  if (static_cast<int>(m_maxNJets) == 0) {
+    ATH_MSG_ERROR("This algorithm will keep no jets (m_maxNJets property == 0), so it should not be running at all.");
     return StatusCode::FAILURE;
   }
 
@@ -64,8 +64,8 @@ StatusCode TrigHLTJetTLASelector::execute (const EventContext& ctx) const
   ATH_MSG_DEBUG("Executing " << name() << ".");
 
   //get jets
-  auto h_inJets = SG::makeHandle(m_inputJetsKey, ctx );
-  auto h_outJets = SG::makeHandle(m_outputJetsKey, ctx );
+  SG::ReadHandle<xAOD::JetContainer> h_inJets = SG::makeHandle(m_inputJetsKey, ctx );
+  SG::WriteHandle<xAOD::JetContainer> h_outJets = SG::makeHandle(m_outputJetsKey, ctx );
   ATH_MSG_DEBUG("Retrieving jets from: " << h_inJets.key());
   ATH_MSG_DEBUG("Placing jets in: " << h_outJets.key());
   ATH_CHECK(h_inJets.isValid());
@@ -75,7 +75,11 @@ StatusCode TrigHLTJetTLASelector::execute (const EventContext& ctx) const
   // define the maximum number of jets we care about: either equivalent to m_maxNJets if smaller than size of vector, or keep all jets (in case of negative value)
   std::vector<const xAOD::Jet*>::iterator it_maxJetBound;
 
-  if ((int)m_maxNJets > 0) it_maxJetBound = m_maxNJets < int(originalJets.size()) ? originalJets.begin()+m_maxNJets : originalJets.end();
+  int maxNJets = static_cast<int>(m_maxNJets);
+  int sizeOfOriginalJetContainer = static_cast<int>(originalJets.size()); 
+
+  // take the largest between the number of jets requested and the size of the vector, in iterator form       
+  if (m_maxNJets > 0) it_maxJetBound = maxNJets < sizeOfOriginalJetContainer ? originalJets.begin() + maxNJets : originalJets.end();
   else it_maxJetBound = originalJets.end();
 
   // check the sort order of the input container is ok
@@ -84,7 +88,7 @@ StatusCode TrigHLTJetTLASelector::execute (const EventContext& ctx) const
 
   // get an iterator to the last element above the pT threshold (because we ordered the jets, this is the last jet we want)
   std::vector<const xAOD::Jet*>::iterator it_ptThresholdBound;
-  it_ptThresholdBound = std::partition(originalJets.begin(), it_maxJetBound, HasPtAboveThreshold((float)m_jetPtThreshold)); 
+  it_ptThresholdBound = std::partition(originalJets.begin(), it_maxJetBound, HasPtAboveThreshold(static_cast<float>(m_jetPtThreshold))); 
 
   //make the output jet container
   ATH_CHECK( h_outJets.record (std::make_unique<xAOD::JetContainer>(),
@@ -99,10 +103,8 @@ StatusCode TrigHLTJetTLASelector::execute (const EventContext& ctx) const
     ATH_CHECK(setOriginalObjectLink(*(*it_jet),*copiedJet));
 
     h_outJets->push_back(copiedJet);
-  }
-
-  for (const xAOD::Jet* jet : *h_outJets) {
-    ATH_MSG_DEBUG("Jet pT: " << jet->pt()); 
+    ATH_MSG_DEBUG("Selected jet pT: " << copiedJet->pt()); 
+    
   }
 
   return StatusCode::SUCCESS;

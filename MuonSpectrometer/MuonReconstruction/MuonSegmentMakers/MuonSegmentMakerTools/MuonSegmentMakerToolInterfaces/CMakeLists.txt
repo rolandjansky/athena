@@ -5,9 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonSegmentMakerToolInterfaces )
 
-# External dependencies:
-find_package( Eigen )
-
 atlas_add_library( MuonSegmentMakerToolInterfaces
                    MuonSegmentMakerToolInterfaces/*.h
                    INTERFACE

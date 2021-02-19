@@ -8,15 +8,13 @@
 atlas_subdir( MuonTrackingGeometry )
 
 # External dependencies:
-find_package( Eigen )
 find_package( GeoModel COMPONENTS GeoModelKernel )
 
 # Component(s) in the package:
 atlas_add_component( MuonTrackingGeometry
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} ${GEOMODEL_LIBRARIES} AthenaBaseComps GaudiKernel TrkDetDescrGeoModelCnv TrkDetDescrInterfaces TrkDetDescrUtils TrkGeometry TrkVolumes StoreGateLib SGtests GeoPrimitives MuonReadoutGeometry MuonIdHelpersLib TrkGeometrySurfaces TrkSurfaces GeoModelUtilities SubDetectorEnvelopesLib )
+                     LINK_LIBRARIES ${GEOMODEL_LIBRARIES} AthenaBaseComps GaudiKernel TrkDetDescrGeoModelCnv TrkDetDescrInterfaces TrkDetDescrUtils TrkGeometry TrkVolumes StoreGateLib SGtests GeoPrimitives MuonReadoutGeometry MuonIdHelpersLib TrkGeometrySurfaces TrkSurfaces GeoModelUtilities SubDetectorEnvelopesLib )
 
 # Install files from the package:
 atlas_install_headers( MuonTrackingGeometry )

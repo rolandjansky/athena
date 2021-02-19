@@ -1632,11 +1632,24 @@ StatusCode HLTXAODBphysMonTool::fillTriggerGroup(const std::string & groupName, 
         
         for( auto cont_bphys : fc_bphys ) {
             ATH_MSG_DEBUG("REGTEST Got Bphysics container, size = " << cont_bphys.cptr()->size());
+            
+            // Check that the combination has actually passed the trigger
+            // based on exmple in Trigger/TrigAnalysis/TrigAnalysisExamples/src/TDTExample.cxx
+            const xAOD::TrigPassBits *bits=(getTDT()->ancestor<xAOD::TrigPassBits>(cont_bphys.te())).cptr();
+            if( !bits )
+              ATH_MSG_WARNING("TrigPassBits is null; will use all combinations");
+            
             for ( auto bphys:  *(cont_bphys.cptr()) )  {
                 ATH_MSG_DEBUG("REGTEST Level = " << bphys->level());
 
                 // ignore l2 objects
                 if ((bphys->level() != xAOD::TrigBphys::EF) &&  (bphys->level() != xAOD::TrigBphys::HLT)) continue;
+                
+                if(bits) {
+                  bool objPass = bits->isPassing( bphys, cont_bphys.cptr() );
+                  ATH_MSG_DEBUG("TrigBphys object pass: " << objPass << ", mass: " << bphys->mass() );
+                  if(!objPass) continue;
+                }
                 
                 fillTrigBphysHists(bphys,groupName,  m_prefix,groupName,chainName, fullSetOfHists);
                 // to be added with more complete informations

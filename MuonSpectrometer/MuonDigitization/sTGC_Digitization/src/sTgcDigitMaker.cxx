@@ -19,6 +19,7 @@
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGamma.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
@@ -53,6 +54,8 @@ sTgcDigitMaker::sTgcDigitMaker(const sTgcHitIdHelper* hitIdHelper, const MuonGM:
   m_StripResolution         = 0.07; // Angular strip resolution parameter
   m_ChargeSpreadFactor      = 0.;
   m_channelTypes            = 3; // 1 -> strips, 2 -> strips+pad, 3 -> strips/wires/pads
+  m_theta = 0.8; // theta=0.8 value best matches the PDF
+  m_mean = 2E5;  // mean gain estimated from ATLAS note "ATL-MUON-PUB-2014-001" 
 }
 
 //----- Destructor
@@ -96,7 +99,6 @@ StatusCode sTgcDigitMaker::initialize(CLHEP::HepRandomEngine *rndmEngine, const 
 
   //// Read share/sTGC_Digitization_alignment.dat file and store values in m_alignmentZ, m_alignmentT, m_alignmentS, m_alignmentTHS
   //readFileOfAlignment();
-
   return StatusCode::SUCCESS;
 }
 
@@ -272,8 +274,11 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   // Constant determined from ionization study within Garfield
   // Note titled Charge Energy Relation which outlines conversion can be found here https://cernbox.cern.ch/index.php/apps/files/?dir=/__myshares/Documents (id:274113) 
   double ionized_charge = (5.65E-6)*energyDeposit/CLHEP::keV; // initial ionized charge in pC per keV deposited
-  double gain = 1.6E5; // mean value for total gain due to E field; needs to be verified; statistical flucuation calculation incoming
-  double total_charge = gain*ionized_charge; // total charge after avalanche using average gain of 2E5
+
+ // To get avalanche gain, polya function is taken from Blum paper https://inspirehep.net/literature/807304
+ // m_polyaFunction = new TF1("m_polyaFunction","(1.0/[1])*(TMath::Power([0]+1,[0]+1)/TMath::Gamma([0]+1))*TMath::Power(x/[1],[0])*TMath::Exp(-([0]+1)*x/[1])",0,3000000);
+  float gain =  CLHEP::RandGamma::shoot(m_engine, 1. + m_theta, (1. + m_theta)/m_mean); // mean value for total gain due to E field; To calculate this gain from polya distibution we replace "alpha = 1+theta and beta = 1+theta/mean" in gamma PDF. With this gamma PDF gives us same sampling values as we get from polya PDF. 
+  double total_charge = gain*ionized_charge; // total charge after avalanche
 
   //************************************ spread charge among readout element ************************************** 
   //spread charge to a gaussian distribution

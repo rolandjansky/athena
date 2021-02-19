@@ -498,16 +498,16 @@ int TRTStrawEfficiency::fill_hit_data(const Trk::TrackStateOnSurface& hit) {
 	m_hit_HL.push_back( (det == 3)&&(trtcircle != 0) ? trtcircle->highLevel() : -1 );
 
 	// unbiased trk parameters
-	const Trk::TrackParameters* unbiased_track_parameters = nullptr;
-	unbiased_track_parameters = m_updator->removeFromState(*(hit.trackParameters()),
-	                                                       hit.measurementOnTrack()->localParameters(),
-	                                                       hit.measurementOnTrack()->localCovariance());
+  std::unique_ptr<Trk::TrackParameters> unbiased_track_parameters =
+    m_updator->removeFromState(
+      *(hit.trackParameters()),
+      hit.measurementOnTrack()->localParameters(),
+      hit.measurementOnTrack()->localCovariance());
 
-	m_hit_ub_locR.push_back( det == 3 && unbiased_track_parameters ? unbiased_track_parameters->parameters()[Trk::locR] : -1 );
+  m_hit_ub_locR.push_back( det == 3 && unbiased_track_parameters ? unbiased_track_parameters->parameters()[Trk::locR] : -1 );
 	m_hit_ub_x.push_back( unbiased_track_parameters ? unbiased_track_parameters->position().x() : -1 );
 	m_hit_ub_y.push_back( unbiased_track_parameters ? unbiased_track_parameters->position().y() : -1 );
 	m_hit_ub_z.push_back( unbiased_track_parameters ? unbiased_track_parameters->position().z() : -1 );
-	delete unbiased_track_parameters;
 
 	// ------- added by dan -------
 	int is_tube_hit = -1;

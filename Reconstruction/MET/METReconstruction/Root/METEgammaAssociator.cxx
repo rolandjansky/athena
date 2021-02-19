@@ -26,6 +26,11 @@
 // DeltaR calculation
 #include "FourMomUtils/xAODP4Helpers.h"
 
+typedef ElementLink<xAOD::ElectronContainer> ElectronLink_t;
+typedef ElementLink<xAOD::PhotonContainer> PhotonLink_t;
+typedef ElementLink<xAOD::PFOContainer> PFOLink_t;
+typedef ElementLink<xAOD::FlowElementContainer> FELink_t;
+
 namespace met {
 
   using namespace xAOD;
@@ -44,6 +49,12 @@ namespace met {
     declareProperty( "TCMatchDeltaR",     m_tcMatch_dR     = 0.1    );
 
     declareProperty( "ExtraTrackMatchDeltaR", m_extraTrkMatch_dR = 0.05 );
+
+    declareProperty( "UsePFOElectronLinks", m_usePFOElectronLinks = false );
+    declareProperty( "UsePFOPhotonLinks", m_usePFOPhotonLinks = false);
+    declareProperty( "UseFEElectronLinks", m_useFEElectronLinks = false ); 
+    declareProperty( "UseFEPhotonLinks", m_useFEPhotonLinks = false); 
+    declareProperty( "CheckUnmatched", m_checkUnmatched = false); 
   }
 
   // Destructor
@@ -64,6 +75,7 @@ namespace met {
       ATH_MSG_WARNING( "Invalid topocluster match method configured!" );
       return StatusCode::FAILURE;
     } 
+
     return StatusCode::SUCCESS;
   }
 
@@ -151,9 +163,96 @@ namespace met {
                                              std::map<const IParticle*,MissingETBase::Types::constvec_t> &/*momenta*/) const
   {
     const xAOD::Egamma *eg = static_cast<const xAOD::Egamma*>(obj);
+
+    if (((m_usePFOElectronLinks || m_usePFOLinks)&& eg->type() == xAOD::Type::Electron) || ((m_usePFOPhotonLinks || m_usePFOLinks) && eg->type() == xAOD::Type::Photon)) { 
+      ATH_CHECK( extractPFOsFromLinks(eg, pfolist,constits) );
+    } 
+    else {
+      ATH_CHECK( extractPFOs(eg, pfolist, constits) );
+    }
+
+    return StatusCode::SUCCESS;
+  }
+
+  StatusCode METEgammaAssociator::extractPFOsFromLinks(const xAOD::Egamma* eg,
+						       std::vector<const xAOD::IParticle*>& pfolist,
+						       const met::METAssociator::ConstitHolder& constits) const
+  {
+
+    ATH_MSG_DEBUG("Extract PFOs From Links for " << eg->type()  << " with pT " << eg->pt());
+
+    std::vector<PFOLink_t> cPFOLinks;
+    std::vector<PFOLink_t> nPFOLinks;
+
+    if (eg->type() == xAOD::Type::Electron){
+      SG::ReadDecorHandle<xAOD::ElectronContainer, std::vector<PFOLink_t> > neutralPFOReadDecorHandle (m_electronNeutralPFOReadDecorKey);
+      SG::ReadDecorHandle<xAOD::ElectronContainer, std::vector<PFOLink_t> > chargedPFOReadDecorHandle (m_electronChargedPFOReadDecorKey);
+      nPFOLinks=neutralPFOReadDecorHandle(*eg);
+      cPFOLinks=chargedPFOReadDecorHandle(*eg);
+    }
+    if (eg->type() == xAOD::Type::Photon) {
+      SG::ReadDecorHandle<xAOD::PhotonContainer, std::vector<PFOLink_t> > neutralPFOReadDecorHandle (m_photonNeutralPFOReadDecorKey);
+      SG::ReadDecorHandle<xAOD::PhotonContainer, std::vector<PFOLink_t> > chargedPFOReadDecorHandle (m_photonChargedPFOReadDecorKey);
+      nPFOLinks=neutralPFOReadDecorHandle(*eg);
+      cPFOLinks=chargedPFOReadDecorHandle(*eg);
+    }
+
+
+    // Charged PFOs
+    for (PFOLink_t pfoLink : cPFOLinks) {
+      if (pfoLink.isValid()){
+	const xAOD::PFO* pfo_init = *pfoLink;
+	for (const auto& pfo : *constits.pfoCont){
+	  if (pfo->index() == pfo_init->index() && pfo->isCharged()){ //index-based match between JetETmiss and CHSParticleFlow collections
+	    const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");
+	    if(  pfo->isCharged() && PVMatchedAcc(*pfo)&& ( !m_cleanChargedPFO || isGoodEoverP(pfo->track(0)) ) ) {
+	      ATH_MSG_DEBUG("Accept cPFO with pt " << pfo->pt() << ", e " << pfo->e() << ", eta " << pfo->eta() << ", phi " << pfo->phi() );
+	      if (!m_checkUnmatched) {pfolist.push_back(pfo);} 
+	      else {
+	        bool has_unmatched=hasUnmatchedClusters(eg,pfo_init);
+	        if (!has_unmatched) {pfolist.push_back(pfo);} 
+	      }
+	    } 
+	  }
+	}
+      }
+    } // end cPFO loop
+
+    // Neutral PFOs
+    double eg_cl_e = eg->caloCluster()->e();
+    double sumE_pfo = 0.;
+
+    for (PFOLink_t pfoLink : nPFOLinks) {
+      if (pfoLink.isValid()){
+        const xAOD::PFO* pfo_init = *pfoLink;
+	for (const auto& pfo : *constits.pfoCont){
+	  if (pfo->index() == pfo_init->index() && !pfo->isCharged()){ //index-based match between JetETmiss and CHSParticleFlow collections
+	    double pfo_e = pfo->eEM();
+	    if( ( !pfo->isCharged()&& pfo->e() > FLT_MIN ) ){   
+	      sumE_pfo += pfo_e;
+	      ATH_MSG_DEBUG("E match with new nPFO: " << fabs(sumE_pfo+pfo_e - eg_cl_e) / eg_cl_e);
+	      ATH_MSG_DEBUG("Accept nPFO with pt " << pfo->pt() << ", e " << pfo->e() << ", eta " << pfo->eta() << ", phi " << pfo->phi() << " in sum.");
+	      ATH_MSG_DEBUG("Energy ratio of nPFO to eg: " << pfo_e / eg_cl_e);
+	      pfolist.push_back(pfo);
+	    }   
+	  }
+	}
+      }
+    } // end nPFO links loop
+
+
+    return StatusCode::SUCCESS;
+  }
+
+  StatusCode METEgammaAssociator::extractPFOs(const xAOD::Egamma* eg,
+						    std::vector<const xAOD::IParticle*>& pfolist,
+						    const met::METAssociator::ConstitHolder& constits) const
+
+  {
     // safe to assume a single SW cluster?
     // will do so for now...
     const xAOD::IParticle* swclus = eg->caloCluster();
+    ANA_MSG_VERBOSE("Extract PFOs with DeltaR for " << eg->type()  << " with pT " << eg->pt());
 
     // Preselect PFOs based on proximity: dR<0.4
     std::vector<const xAOD::PFO*> nearbyPFO;
@@ -223,12 +322,96 @@ namespace met {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode METEgammaAssociator::extractFE(const xAOD::IParticle* obj,
+  StatusCode METEgammaAssociator::extractFE(const xAOD::IParticle* obj, 
                                             std::vector<const xAOD::IParticle*>& felist,
                                             const met::METAssociator::ConstitHolder& constits,
                                             std::map<const IParticle*,MissingETBase::Types::constvec_t> &/*momenta*/) const
   {
     const xAOD::Egamma *eg = static_cast<const xAOD::Egamma*>(obj);
+
+    if (((m_useFEElectronLinks || m_useFELinks) && eg->type() == xAOD::Type::Electron) || ((m_useFEPhotonLinks || m_useFELinks) && eg->type() == xAOD::Type::Photon)) { 
+      ATH_CHECK( extractFEsFromLinks(eg, felist,constits) );
+    } 
+    else {
+      ATH_CHECK( extractFEs(eg, felist, constits) );
+    }
+
+    return StatusCode::SUCCESS;
+  }
+
+
+  StatusCode METEgammaAssociator::extractFEsFromLinks(const xAOD::Egamma* eg, // TODO: to be tested
+						       std::vector<const xAOD::IParticle*>& felist,
+						       const met::METAssociator::ConstitHolder& constits) const
+  {
+
+    ATH_MSG_DEBUG("Extract FEs From Links for " << eg->type()  << " with pT " << eg->pt());
+
+    std::vector<FELink_t> nFELinks;
+    std::vector<FELink_t> cFELinks;
+
+    if (eg->type() == xAOD::Type::Electron){
+      SG::ReadDecorHandle<xAOD::ElectronContainer, std::vector<FELink_t> > neutralFEReadDecorHandle (m_electronNeutralFEReadDecorKey);
+      SG::ReadDecorHandle<xAOD::ElectronContainer, std::vector<FELink_t> > chargedFEReadDecorHandle (m_electronChargedFEReadDecorKey);
+      nFELinks=neutralFEReadDecorHandle(*eg);
+      cFELinks=chargedFEReadDecorHandle(*eg);
+    }
+    if (eg->type() == xAOD::Type::Photon) {
+      SG::ReadDecorHandle<xAOD::PhotonContainer, std::vector<FELink_t> > neutralFEReadDecorHandle (m_photonNeutralFEReadDecorKey);
+      SG::ReadDecorHandle<xAOD::PhotonContainer, std::vector<FELink_t> > chargedFEReadDecorHandle (m_photonChargedFEReadDecorKey);
+      nFELinks=neutralFEReadDecorHandle(*eg);
+      cFELinks=chargedFEReadDecorHandle(*eg);
+    }
+
+
+    // Charged FEs
+    for (FELink_t feLink : cFELinks) {
+      if (feLink.isValid()){
+	const xAOD::FlowElement* fe_init = *feLink;
+	for (const auto& fe : *constits.feCont){
+	  if (fe->index() == fe_init->index() && fe->isCharged()){ //index-based match between JetETmiss and CHSFlowElements collections
+	    const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");
+	    if(  fe->isCharged() && PVMatchedAcc(*fe)&& ( !m_cleanChargedPFO || isGoodEoverP(static_cast<const xAOD::TrackParticle*>(fe->chargedObject(0))) ) ) {
+	      ATH_MSG_DEBUG("Accept cFE with pt " << fe->pt() << ", e " << fe->e() << ", eta " << fe->eta() << ", phi " << fe->phi() );
+	      felist.push_back(fe);
+	    } 
+	  }
+	}
+      }
+    } // end cFE loop
+
+    // Neutral FEs
+    double eg_cl_e = eg->caloCluster()->e();
+    double sumE_fe = 0.;
+
+    for (FELink_t feLink : nFELinks) {
+      if (feLink.isValid()){
+        const xAOD::FlowElement* fe_init = *feLink;
+	for (const auto& fe : *constits.feCont){
+	  if (fe->index() == fe_init->index() && !fe->isCharged()){ //index-based match between JetETmiss and CHSFlowElements collections
+	    double fe_e = fe->e();
+	    if( ( !fe->isCharged()&& fe->e() > FLT_MIN ) ){   
+	      sumE_fe += fe_e;
+	      ATH_MSG_DEBUG("E match with new nFE: " << fabs(sumE_fe+fe_e - eg_cl_e) / eg_cl_e);
+	      ATH_MSG_DEBUG("Accept nFE with pt " << fe->pt() << ", e " << fe->e() << ", eta " << fe->eta() << ", phi " << fe->phi() << " in sum.");
+	      ATH_MSG_DEBUG("Energy ratio of nFE to eg: " << fe_e / eg_cl_e);
+	      felist.push_back(fe);
+	    }   
+	  }
+	}
+      }
+    } // end nFE links loop
+
+
+    return StatusCode::SUCCESS;
+  }
+
+ StatusCode METEgammaAssociator::extractFEs(const xAOD::Egamma* eg,
+                                            std::vector<const xAOD::IParticle*>& felist,
+                                            const met::METAssociator::ConstitHolder& constits) const
+  {
+    ATH_MSG_VERBOSE("Extract FEs From DeltaR for " << eg->type()  << " with pT " << eg->pt());
+
     // safe to assume a single SW cluster?
     // will do so for now...
     const xAOD::IParticle* swclus = eg->caloCluster();
@@ -305,6 +488,7 @@ namespace met {
 
     return StatusCode::SUCCESS;
   }
+
 
   //**********************************************************************
   // Select Egamma tracks & clusters
@@ -405,4 +589,69 @@ namespace met {
     return StatusCode::SUCCESS;
   }
 
+
+  bool METEgammaAssociator::hasUnmatchedClusters(const xAOD::Egamma* eg, const xAOD::PFO* pfo) const{
+
+          bool   has_unmatched=false;
+	  float  totSumpt=0;
+	  float  unmatchedSumpt=0;
+	  float  unmatchedE=0;
+	  float  unmatchedTotEMFrac=0;
+	  double emfrac=0;
+
+    	  static SG::AuxElement::Decorator<Float_t> dec_unmatchedFrac("unmatchedFrac");
+    	  static SG::AuxElement::Decorator<Float_t> dec_unmatchedFracSumpt("unmatchedFracSumpt");
+    	  static SG::AuxElement::Decorator<Float_t> dec_unmatchedFracPt("unmatchedFracPt");
+    	  static SG::AuxElement::Decorator<Float_t> dec_unmatchedFracE("unmatchedFracE");
+    	  static SG::AuxElement::Decorator<Float_t> dec_unmatchedFracEClusterPFO("unmatchedFracEClusterPFO");
+    	  static SG::AuxElement::Decorator<Float_t> dec_unmatchedFracPtClusterPFO("unmatchedFracPtClusterPFO");
+    	  static SG::AuxElement::Decorator<Float_t> dec_unmatchedTotEMFrac("unmatchedTotEMFrac");
+
+	  TLorentzVector totVec(0.,0.,0.,0.), unmatchedVec(0.,0.,0.,0.);
+	  const std::vector<const xAOD::CaloCluster*> egClusters = xAOD::EgammaHelpers::getAssociatedTopoClusters(eg->caloCluster());
+	  std::set<const xAOD::CaloCluster*> cPFOClusters;
+	  int nCluscPFO = pfo->nCaloCluster();
+
+	  for (int cl = 0; cl < nCluscPFO; ++cl) {
+	      if (pfo->cluster(cl)) cPFOClusters.insert( pfo->cluster(cl) );
+	  }
+
+	  std::vector<const xAOD::CaloCluster*> unmatchedClusters;
+	  for (const xAOD::CaloCluster* pfoclus : cPFOClusters) {
+	      TLorentzVector tmpVec;
+	      tmpVec.SetPtEtaPhiE(pfoclus->pt(),pfoclus->eta(),pfoclus->phi(),pfoclus->e());
+	      totSumpt+=pfoclus->pt();
+	      totVec+=tmpVec;
+	      bool inEgamma = false;
+	      for (const xAOD::CaloCluster* phclus : egClusters) {
+	        if (pfoclus == phclus) {
+		   inEgamma = true;
+	        }
+	    }
+	    if (!inEgamma) {
+	        unmatchedClusters.push_back(pfoclus);
+		unmatchedSumpt+=pfoclus->pt();
+		unmatchedE+=pfoclus->e();
+		unmatchedVec+=tmpVec;
+		pfoclus->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM ,emfrac);
+		unmatchedTotEMFrac=unmatchedTotEMFrac+emfrac*pfoclus->e(); 
+	    }
+
+	  }
+
+	  ATH_MSG_DEBUG("PFO associated to "<<nCluscPFO<< " cluster, of which " << unmatchedClusters.size() << "unmatched one and unmatched pt "<<unmatchedSumpt);
+	  dec_unmatchedFrac(*pfo)=nCluscPFO>0 ?  float(unmatchedClusters.size())/float(nCluscPFO) : -1;
+	  dec_unmatchedFracPt(*pfo)= totVec.Pt()>0 ? float(unmatchedVec.Pt()/totVec.Pt()): -1;
+	  dec_unmatchedFracSumpt(*pfo)= totSumpt>0 ? float(unmatchedSumpt/totSumpt): -1;
+	  dec_unmatchedFracE(*pfo)= totVec.E()>0 ? float(unmatchedE/totVec.E()): -1;
+	  dec_unmatchedTotEMFrac(*pfo)= totVec.E()>0 ? float(unmatchedTotEMFrac/totVec.E()): -1; 
+	  dec_unmatchedFracEClusterPFO(*pfo)= pfo->e()>0 ? float(unmatchedE/pfo->e()): -1;
+	  dec_unmatchedFracPtClusterPFO(*pfo)= pfo->pt()>0 ? float(unmatchedE/pfo->pt()): -1;
+                                                                                                                                           	  
+   return has_unmatched;
+  }
+
+
+
 }
+

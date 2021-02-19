@@ -1,14 +1,25 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from DerivationFrameworkTrigger.DerivationFrameworkTriggerConf import DerivationFramework__TriggerMatchingTool
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
-from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob # noqa: F401
+from DerivationFrameworkTrigger.DerivationFrameworkTriggerConf import (
+    DerivationFramework__TriggerMatchingTool,
+)
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import (
+    DerivationFramework__CommonAugmentation,
+)
+from DerivationFrameworkCore.DerivationFrameworkMaster import (  # noqa: F401
+    DerivationFrameworkJob,
+)
+from TriggerMatchingTool.TriggerMatchingToolConf import Trig__R3IParticleRetrievalTool
+from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 import AthenaCommon.AppMgr as AppMgr
 from AthenaCommon.Configurable import Configurable
 import copy
 from AthenaCommon.Logging import logging
+
 log = logging.getLogger(__name__)
+
 
 class TriggerMatchingHelper(object):
     """ Helper class for setting up shared trigger matching.
@@ -23,33 +34,49 @@ class TriggerMatchingHelper(object):
         right now we only really expect this to be used with its default
         settings.
     """
+
     # Register of tool and algorithm pairs
     _register = {}
 
     @classmethod
     def get_alg_and_tool(cls, **kwargs):
         properties = copy.deepcopy(
-                DerivationFramework__TriggerMatchingTool.getDefaultProperties())
+            DerivationFramework__TriggerMatchingTool.getDefaultProperties()
+        )
         if "name" not in kwargs or kwargs["name"] == Configurable.DefaultName:
             kwargs["name"] = "DFTriggerMatchingTool"
         properties.update(kwargs)
+        if ConfigFlags.Trigger.EDMVersion == 3:
+            if "TrigDecisionTool" not in AppMgr.ToolSvc:
+                AppMgr.ToolSvc += Trig__TrigDecisionTool(
+                    "TrigDecisionTool", NavigationFormat="TrigComposite"
+                )
+            if "OnlineParticleTool" not in AppMgr.ToolSvc:
+                AppMgr.ToolSvc += Trig__R3IParticleRetrievalTool(
+                    "OnlineParticleTool",
+                    TrigDecisionTool=AppMgr.ToolSvc.TrigDecisionTool,
+                )
+            properties["OnlineParticleTool"] = AppMgr.ToolSvc.OnlineParticleTool
         # We don't want to hash the ChainNames as they don't affect the physics
         keys = sorted(k for k in properties if k != "ChainNames")
-        hashval = hash(tuple(str(properties[k]) for k in keys) )
+        hashval = hash(tuple(str(properties[k]) for k in keys))
         if hashval not in cls._register:
             # We need to make a new alg and tool, but first we have to check
             # that two arguments do not collide - the name and the output prefix.
             # The name mustn't collide because otherwise athena will just return
             # us the same object, the output prefix mustn't collide because
             # otherwise we'll get errors trying to write containers
-            if any(t.name() == properties["name"]
-                   for _, t in iter(cls._register.values()) ):
-                raise ValueError("Attempting to create a new trigger matching tool with the same name as an existing one")
+            if any(
+                t.name() == properties["name"] for _, t in iter(cls._register.values())
+            ):
+                raise ValueError(
+                    "Attempting to create a new trigger matching tool with the same name as an existing one"
+                )
             tool = DerivationFramework__TriggerMatchingTool(**properties)
             AppMgr.ToolSvc += tool
             alg = DerivationFramework__CommonAugmentation(
-                    name=properties["name"]+"_Alg",
-                    AugmentationTools = [tool])
+                name=properties["name"] + "_Alg", AugmentationTools=[tool]
+            )
             cls._register[hashval] = (alg, tool)
         return cls._register[hashval]
 
@@ -90,12 +117,18 @@ class TriggerMatchingHelper(object):
 
     def output_containers(self):
         """ Get the full list of containers to be written out """
-        return ["{0}{1}".format(self.container_prefix, chain).replace(".", "_")
-                for chain in self.trigger_list]
+        return [
+            "{0}{1}".format(self.container_prefix, chain).replace(".", "_")
+            for chain in self.trigger_list
+        ]
+
     def add_to_slimming(self, slimming_helper):
         """ Add the created containers to the output """
         slimming_helper.AllVariables += self.output_containers()
         for cont in self.output_containers():
-            slimming_helper.AppendToDictionary.update({
-                cont : "xAOD::TrigCompositeContainer",
-                cont+"Aux" : "AOD::AuxContainerBase!"})
+            slimming_helper.AppendToDictionary.update(
+                {
+                    cont: "xAOD::TrigCompositeContainer",
+                    cont + "Aux": "AOD::AuxContainerBase!",
+                }
+            )

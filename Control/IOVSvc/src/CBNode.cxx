@@ -17,7 +17,7 @@
 
 #include "SGTools/DataProxy.h"
 
-unsigned int CBNode::s_serial = 0;
+std::atomic<unsigned int> CBNode::s_serial = 0;
 
 CBNode::CBNode(const std::string& name, CBNode* parent): 
   m_name(name), m_proxy(0), m_fcn(0), m_trig(false), m_flag(false) {

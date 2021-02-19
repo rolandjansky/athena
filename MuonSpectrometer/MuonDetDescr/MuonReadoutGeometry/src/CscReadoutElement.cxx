@@ -1,20 +1,39 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonReadoutGeometry/CscReadoutElement.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-#include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoFullPhysVol.h"
-#include "TrkSurfaces/PlaneSurface.h"
-#include "TrkSurfaces/TrapezoidBounds.h"
-#include "TrkSurfaces/RotatedTrapezoidBounds.h"
-#include "MuonAlignmentData/CscInternalAlignmentPar.h"
-#include "MuonAlignmentData/CorrContainer.h"
-#include "GaudiKernel/MsgStream.h"
+
+#include <GaudiKernel/IMessageSvc.h>
+#include <GeoModelKernel/GeoDefinitions.h>
+#include <GeoModelKernel/GeoLogVol.h>
+#include <GeoModelKernel/GeoPVConstLink.h>
+#include <GeoModelKernel/GeoVFullPhysVol.h>
+#include <GeoModelKernel/GeoVPhysVol.h>
 #include "AthenaKernel/getMessageSvc.h"
-#include <TString.h> // for Form
+#include "EventPrimitives/AmgMatrixBasePlugin.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GeoModelKernel/GeoFullPhysVol.h"
+#include "Identifier/IdContext.h"
+#include "MuonAlignmentData/CorrContainer.h"
+#include "MuonAlignmentData/CscInternalAlignmentPar.h"
+#include "MuonIdHelpers/CscIdHelper.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "TrkSurfaces/PlaneSurface.h"
+#include "TrkSurfaces/RotatedTrapezoidBounds.h"
+#include "TrkSurfaces/TrapezoidBounds.h"
+
+#include <TString.h>
+#include <map>
+#include <memory>
+#include <stdexcept>
+#include <utility>
+#include <vector>
+#include <cmath>
+
+namespace Trk {
+  class SurfaceBounds;
+}
 
 namespace MuonGM {
 
@@ -192,10 +211,9 @@ double CscReadoutElement::activeWidth(int measuresPhi) const
       }
     else 
       {
-	double beta = atan ( (longWidth()-shortWidth())
+	double beta = std::atan ( (longWidth()-shortWidth())
 			     /(2.*lengthUpToMaxWidth()) );
-	//double sWidth = shortWidth() - 2*roxacellWidth() * (1-sin(beta))/cos(beta);
-	double lWidth = longWidth()  - 2*roxacellWidth() * (1+sin(beta))/cos(beta);
+	double lWidth = longWidth()  - 2*roxacellWidth() * (1+std::sin(beta))/std::cos(beta);
 	midWidth = lWidth;
       }
  
@@ -205,22 +223,22 @@ double CscReadoutElement::activeWidth(int measuresPhi) const
 double CscReadoutElement::z0() const
 {
 
-    double beta = atan ( (longWidth()-shortWidth())
+    double beta = std::atan ( (longWidth()-shortWidth())
 			   /(2.*lengthUpToMaxWidth()) );
-    double sWidth = shortWidth() - 2*roxacellWidth() * (1-sin(beta))/cos(beta);
-    double lWidth = longWidth()  - 2*roxacellWidth() * (1+sin(beta))/cos(beta);
+    double sWidth = shortWidth() - 2*roxacellWidth() * (1-std::sin(beta))/std::cos(beta);
+    double lWidth = longWidth()  - 2*roxacellWidth() * (1+std::sin(beta))/std::cos(beta);
     if ( lengthUpToMaxWidth() == length() ) {
       double realLength = lengthUpToMaxWidth()-2*roxacellWidth();
       return (realLength*sWidth/(lWidth-sWidth));
     } else {
       double bigLength = length()- 2*roxacellWidth();
-      double alpha = atan ( (excent()-lengthUpToMaxWidth()) / (longWidth()/2.) );
+      double alpha = std::atan ( (excent()-lengthUpToMaxWidth()) / (longWidth()/2.) );
       double shortLongWidth = longWidth()*(excent()-length())
 	    /(excent()-lengthUpToMaxWidth());
-      double gslWidth = shortLongWidth - 2*roxacellWidth()*(1-cos(alpha))/sin(alpha);
-      lWidth = 2*(bigLength + 0.5*sWidth/tan(beta)+0.5*gslWidth*tan(alpha)) /
-                   (tan(alpha)+1.0/tan(beta));
-      double shortLength  = bigLength - (lWidth-gslWidth)*tan(alpha)/2.;
+      double gslWidth = shortLongWidth - 2*roxacellWidth()*(1-std::cos(alpha))/std::sin(alpha);
+      lWidth = 2*(bigLength + 0.5*sWidth/std::tan(beta)+0.5*gslWidth*std::tan(alpha)) /
+                   (std::tan(alpha)+1.0/std::tan(beta));
+      double shortLength  = bigLength - (lWidth-gslWidth)*std::tan(alpha)/2.;
       return (shortLength*sWidth/(lWidth-sWidth));
     }
 }
@@ -337,21 +355,21 @@ double CscReadoutElement::stripLength(int chamberLayer, int measuresPhi,
   int   numberOfStrips  = maxNumberOfStrips(measuresPhi,stripWidth);
 
   double chamberLength  = length()-2*roxacellWidth();
-  double beta = atan ( (longWidth()-shortWidth())/(2.*lengthUpToMaxWidth()) );
+  double beta = std::atan ( (longWidth()-shortWidth())/(2.*lengthUpToMaxWidth()) );
 
-  double smallWidth     = shortWidth()- 2*roxacellWidth() * (1.0-sin(beta))/cos(beta);
-  double bigWidth       = longWidth() - 2*roxacellWidth() * (1.0+sin(beta))/cos(beta);
+  double smallWidth     = shortWidth()- 2*roxacellWidth() * (1.0-std::sin(beta))/std::cos(beta);
+  double bigWidth       = longWidth() - 2*roxacellWidth() * (1.0+std::sin(beta))/std::cos(beta);
   double gslWidth = 0.0;
 
   double sLength        = 0;
 
-  double alpha = atan ( (excent()-lengthUpToMaxWidth()) / (longWidth()/2.) );
+  double alpha = std::atan ( (excent()-lengthUpToMaxWidth()) / (longWidth()/2.) );
   if (length() != lengthUpToMaxWidth()) {
      double shortLongWidth = longWidth()*(excent()-length())
 	    /(excent()-lengthUpToMaxWidth());
-     gslWidth = shortLongWidth - 2*roxacellWidth()*(1-cos(alpha))/sin(alpha);
-     bigWidth = 2*(chamberLength + 0.5*smallWidth/tan(beta)+0.5*gslWidth*tan(alpha)) /
-                   (tan(alpha)+1.0/tan(beta));
+     gslWidth = shortLongWidth - 2*roxacellWidth()*(1-std::cos(alpha))/std::sin(alpha);
+     bigWidth = 2*(chamberLength + 0.5*smallWidth/std::tan(beta)+0.5*gslWidth*std::tan(alpha)) /
+                   (std::tan(alpha)+1.0/std::tan(beta));
   }
 
   double pos = stripWidth * (stripNumber-0.5-numberOfStrips/2.0);
@@ -360,7 +378,7 @@ double CscReadoutElement::stripLength(int chamberLayer, int measuresPhi,
 
   if (measuresPhi==0) {
     double effectiveLength = stripWidth * numberOfStrips;
-    sLength = 2.0*(effectiveLength/2.0+pos)*tan(beta) + smallWidth;
+    sLength = 2.0*(effectiveLength/2.0+pos)*std::tan(beta) + smallWidth;
   } else {
 
     if (stripPos <= (smallWidth/2.0)) sLength = chamberLength;
@@ -368,7 +386,7 @@ double CscReadoutElement::stripLength(int chamberLayer, int measuresPhi,
       {
 	double diff = stripPos-smallWidth/2.0;
         if (length() != lengthUpToMaxWidth() ) {
-	  double shortLength  = chamberLength - (bigWidth-gslWidth)*tan(alpha)/2.;
+	  double shortLength  = chamberLength - (bigWidth-gslWidth)*std::tan(alpha)/2.;
 	  sLength = chamberLength - 2.0*diff*shortLength/(bigWidth-smallWidth);
 	}
         else
@@ -384,27 +402,27 @@ double CscReadoutElement::lengthCorrection(int measuresPhi, double stripPos) con
   if ( lengthUpToMaxWidth() == length() ) return 0.0;  // CSS
 
   double epsilon = 0.0;
-  double alpha = atan ( (excent()-lengthUpToMaxWidth()) / (longWidth()/2.) );
-  double beta = atan ( (longWidth()-shortWidth())/(2.*lengthUpToMaxWidth()) );
+  double alpha = std::atan ( (excent()-lengthUpToMaxWidth()) / (longWidth()/2.) );
+  double beta = std::atan ( (longWidth()-shortWidth())/(2.*lengthUpToMaxWidth()) );
 
   double bigLength = length()- 2*roxacellWidth();
   double shortLongWidth = longWidth()*(excent()-length())/(excent()-lengthUpToMaxWidth());
-  double gslWidth = shortLongWidth - 2*roxacellWidth()*(1-cos(alpha))/sin(alpha);
-  double smallWidth = shortWidth() - 2*roxacellWidth() * (1-sin(beta))/cos(beta);
-  double bigWidth = 2*(bigLength + 0.5*smallWidth/tan(beta)+0.5*gslWidth*tan(alpha)) /
-                   (tan(alpha)+1.0/tan(beta));
-  double shortLength  = bigLength - (bigWidth-gslWidth)*tan(alpha)/2.;
+  double gslWidth = shortLongWidth - 2*roxacellWidth()*(1-std::cos(alpha))/std::sin(alpha);
+  double smallWidth = shortWidth() - 2*roxacellWidth() * (1-std::sin(beta))/std::cos(beta);
+  double bigWidth = 2*(bigLength + 0.5*smallWidth/std::tan(beta)+0.5*gslWidth*std::tan(alpha)) /
+                   (std::tan(alpha)+1.0/std::tan(beta));
+  double shortLength  = bigLength - (bigWidth-gslWidth)*std::tan(alpha)/2.;
 
   if (measuresPhi == 1) {
      if ( std::abs(stripPos) > (gslWidth/2.) ) 
-        epsilon = ( std::abs(stripPos)-gslWidth/2. ) * tan(alpha);
+        epsilon = ( std::abs(stripPos)-gslWidth/2. ) * std::tan(alpha);
   }
   else {
      double z0 =  shortLength-bigLength/2;
      if (stripPos > z0) {
         double diff = stripPos-z0;
-        double corr1 = diff / tan(alpha);
-        double corr2 = diff * tan(beta);
+        double corr1 = diff / std::tan(alpha);
+        double corr2 = diff * std::tan(beta);
         epsilon = 2.0*(corr1+corr2);
      }
   }
@@ -672,7 +690,7 @@ void CscReadoutElement::setCscInternalAlignmentParams()
   // get id helper 
   const CscIdHelper* idh = manager()->cscIdHelper();
 
-  if (manager()->CscInternalAlignmentContainer() == NULL)
+  if (!manager()->CscInternalAlignmentContainer())
   {
     MsgStream log(Athena::getMessageSvc(),"CscReadoutElement");
     if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<<"No CscInternalAlignmenContainer has been built - nothing to do in CscReadouElement::setCscInternalAlignmentParams"<<endmsg;

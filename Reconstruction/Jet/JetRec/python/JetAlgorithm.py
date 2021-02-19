@@ -104,7 +104,7 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
   if jetFlags.useTracks:
     ctools += [jtm.tracksel, jtm.trackselloose_trackjets]
     if jetFlags.useVertices:
-      ctools += [jtm.tvassoc]
+      ctools += [jtm.tvassocdeco, jtm.tvassoc]
    
   # LCOriginTopoClusters and EMOriginTopoClusters are shallow copies
   # of CaloCalTopoClusters.  This means that if CaloCalTopoClusters gets

@@ -14,13 +14,13 @@ from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool
 
 #----------------------------------------------------------------
 
-# fragments generating configuration will be functions in New JO, 
+# fragments generating configuration will be functions in New JO,
 # so let's make them functions already now
 #----------------------------------------------------------------
 
 def trkFS_trkfast_Cfg( flags ):
         return allTE_trkfast( signature="FS" )
- 
+
 def allTE_trkfast_Cfg( flags ):
         return allTE_trkfast( signature="BeamSpot" )
 
@@ -38,6 +38,9 @@ def allTE_trkfast( signature="FS" ):
         #Load signature configuration (containing cut values, names of collections, etc)
         from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
         IDTrigConfig = getInDetTrigConfig( signature )
+
+        if(signature == "FS"):
+            IDTrigConfig = getInDetTrigConfig("beamSpotFS")
 
         viewAlgs, viewVerify  = makeInDetAlgs( config = IDTrigConfig,  rois=inputMakerAlg.InViewRoIs)
 
@@ -81,25 +84,25 @@ class BeamspotChainConfiguration(ChainConfigurationBase):
     # ----------------------
     # Assemble the chain depending on information from chainName
     # ----------------------
-    def assembleChain(self):                            
+    def assembleChain(self):
         chainSteps = []
         log.debug("Assembling chain for %s", self.chainName)
 
         stepDictionary = self.getStepDictionary()
-      
+
         #key = self.chainPart['EFrecoAlg']
         key = self.chainPart['addInfo'][0] + "_" + self.chainPart['l2IDAlg'][0]#TODO: hardcoded index
         steps=stepDictionary[key]
         for step in steps:
             chainstep = getattr(self, step)()
             chainSteps+=[chainstep]
-            
+
         myChain = self.buildChain(chainSteps)
         return myChain
 
     def getStepDictionary(self):
         # --------------------
-        # define here the names of the steps and obtain the chainStep configuration 
+        # define here the names of the steps and obtain the chainStep configuration
         # --------------------
         stepDictionary = {
             "allTE_trkfast":['getAllTEStep'],
@@ -107,7 +110,7 @@ class BeamspotChainConfiguration(ChainConfigurationBase):
             "trkFS_trkfast":['getTrkFSStep']
         }
         return stepDictionary
-       
+
     # --------------------
     # Configuration of costmonitor (costmonitor ?? but isn't this is the actua chain configuration ??)
     # --------------------

@@ -1,6 +1,7 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
- */
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+*/
+
 /**
  * @file PixelDigitization/SensorSimPlanarTool.h
  * @author Soshi Tsuno <Soshi.Tsuno@cern.ch>
@@ -12,9 +13,11 @@
 #define PIXELDIGITIZATION_SensorSimPlanarTool_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "SensorSimTool.h"
 #include "InDetCondTools/ISiLorentzAngleTool.h"
+#include "SensorSimTool.h"
 #include "RadDamageUtil.h"
+#include "PixelConditionsData/PixelHistoConverter.h"
+
 
 class SensorSimPlanarTool: public SensorSimTool {
 public:
@@ -23,27 +26,28 @@ public:
   virtual StatusCode finalize() override;
   virtual ~SensorSimPlanarTool();
 
-  virtual StatusCode induceCharge(const TimedHitPtr<SiHit>& phit, SiChargedDiodeCollection& chargedDiodes,
-                                  const InDetDD::SiDetectorElement& Module, const InDetDD::PixelModuleDesign& p_design,
+  virtual StatusCode induceCharge(const TimedHitPtr<SiHit>& phit,
+                                  SiChargedDiodeCollection& chargedDiodes,
+                                  const InDetDD::SiDetectorElement& Module,
+                                  const InDetDD::PixelModuleDesign& p_design,
+                                  const PixelModuleData *moduleData, 
                                   std::vector< std::pair<double, double> >& trfHitRecord,
-                                  std::vector<double>& initialConditions, CLHEP::HepRandomEngine* rndmEngine) override;
+                                  std::vector<double>& initialConditions,
+                                  CLHEP::HepRandomEngine* rndmEngine,
+                                  const EventContext &ctx) override;
 
-  //Apply slim edge inefficiencies for IBL sensors
-  StatusCode applyIBLSlimEdges(double& energyPerStep, double& eta_drifted);
 private:
   SensorSimPlanarTool();
+  
+  //Apply slim edge inefficiencies for IBL sensors
+  void applyIBLSlimEdges(double& energyPerStep, double& eta_drifted) const;
 
   // Map for radiation damage simulation
-  std::vector<TH3F*> m_ramoPotentialMap;
-  std::vector<TH2F*> m_distanceMap_e;
-  std::vector<TH2F*> m_distanceMap_h;
-  std::vector<TH2F*> m_lorentzMap_e;
-  std::vector<TH2F*> m_lorentzMap_h;
-
-  // maps to directly get factor to calculate bin instead of calling FindBin
-  double m_ramo_x_binMap;
-  double m_ramo_y_binMap;
-  double m_ramo_z_binMap;
+  std::vector<PixelHistoConverter> m_ramoPotentialMap;
+  std::vector<PixelHistoConverter> m_distanceMap_e;
+  std::vector<PixelHistoConverter> m_distanceMap_h;
+  std::vector<PixelHistoConverter> m_lorentzMap_e;
+  std::vector<PixelHistoConverter> m_lorentzMap_h;
 
   Gaudi::Property<int> m_numberOfSteps
   {

@@ -20,3 +20,15 @@ atlas_add_component( PixelCalibAlgs
    src/components/*.cxx
    LINK_LIBRARIES GaudiKernel InDetByteStreamErrors PixelConditionsData PixelCalibAlgsLib )
 
+atlas_add_executable( makeInactiveModuleList
+   Application/makeInactiveModuleList.C
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} PixelConditionsData PixelCalibAlgsLib )
+
+message(${CMAKE_CURRENT_SOURCE_DIR})
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/share/HashVSdcsID.dat
+     DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../../../x86_64-centos7-gcc8-opt/share)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/share/table_Run2.txt
+     DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../../../x86_64-centos7-gcc8-opt/share)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/share/PixelMapping_Run2.dat
+     DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../../../x86_64-centos7-gcc8-opt/share)

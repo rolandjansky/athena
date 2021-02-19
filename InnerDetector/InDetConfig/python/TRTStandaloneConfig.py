@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory     import CompFactory
 import InDetConfig.TrackingCommonConfig         as   TC
@@ -47,7 +47,7 @@ def TRT_SegmentToTrackToolCfg(flags, name ='InDetTRT_SegmentToTrackTool', extens
     #
 
     if usePrdAssociationTool:
-        asso_tool = TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags)
+        asso_tool = acc.popToolsAndMerge( TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags) )
         acc.addPublicTool(asso_tool)
     else:
         asso_tool = None
@@ -139,7 +139,7 @@ def TRT_SegmentsToTrackCfg( flags, name ='InDetTRT_SegmentsToTrack_Barrel', exte
     InDetTrackSummaryToolTRTTracks = acc.popToolsAndMerge(TC.InDetTrackSummaryToolTRTTracksCfg(flags))
     acc.addPublicTool(InDetTrackSummaryToolTRTTracks)
 
-    InDetPRDtoTrackMapToolGangedPixels = TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags)
+    InDetPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge( TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags) )
     acc.addPublicTool(InDetPRDtoTrackMapToolGangedPixels)
 
     kwargs.setdefault("InputSegmentsCollection", BarrelSegments)

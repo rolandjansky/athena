@@ -160,7 +160,7 @@ StatusCode PixelAthHitMonAlg::fillHistograms( const EventContext& ctx ) const {
       int pixlayer = getPixLayersID(m_pixelid->barrel_ec(rdoID), m_pixelid->layer_disk(rdoID) );
       if (pixlayer == 99) continue;
       HitMap.add(pixlayer, rdoID, m_pixelid, 1.0);
-      if (m_doFEPlots && !m_doOnline) HitFEMap.add(pixlayer, rdoID, m_pixelid, m_pixelCablingSvc->getFE(&rdoID, rdoID), 1.0);
+      if (m_doFEPlots) HitFEMap.add(pixlayer, rdoID, m_pixelid, m_pixelCablingSvc->getFE(&rdoID, rdoID), 1.0);
       nhits++;
       nhits_layer[pixlayer]++;
       hitLvl1a.push_back( (*p_rdo)->getLVL1A() );
@@ -191,7 +191,7 @@ StatusCode PixelAthHitMonAlg::fillHistograms( const EventContext& ctx ) const {
   }
 
   fill2DProfLayerAccum( HitMap );
-  if (m_doFEPlots && !m_doOnline) fill2DProfLayerAccum( HitFEMap );
+  if (m_doFEPlots) fill2DProfLayerAccum( HitFEMap );
 
   auto vals = Monitored::Collection( "Hit_LVL1A_pixel", hitLvl1a );
   fill( hitGroup, vals);

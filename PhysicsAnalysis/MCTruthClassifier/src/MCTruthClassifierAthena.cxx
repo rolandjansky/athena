@@ -125,7 +125,7 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus, bool isFwrdEle
   }
 
   std::vector<const xAOD::TruthParticle*> tps;
-  if (!m_truthInConeTool->particlesInCone(etaClus, phiClus, 0.5, tps)) {
+  if (!m_truthInConeTool->particlesInCone(ctx,etaClus, phiClus, 0.5, tps)) {
     ATH_MSG_WARNING("Truth Particle in Cone failed");
     return theMatchPart;
   }

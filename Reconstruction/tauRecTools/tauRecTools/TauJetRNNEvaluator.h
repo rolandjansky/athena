@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUREC_TAUJETRNNEVALUATOR_H
-#define TAUREC_TAUJETRNNEVALUATOR_H
+#ifndef TAURECTOOLS_TAUJETRNNEVALUATOR_H
+#define TAURECTOOLS_TAUJETRNNEVALUATOR_H
 
 #include "tauRecTools/TauRecToolBase.h"
 
@@ -36,6 +36,7 @@ public:
     // Getter for the underlying RNN implementation
     const TauJetRNN* get_rnn_0p() const;
     const TauJetRNN* get_rnn_1p() const;
+    const TauJetRNN* get_rnn_2p() const;
     const TauJetRNN* get_rnn_3p() const;
 
     // Selects tracks to be used as input to the network
@@ -50,6 +51,7 @@ private:
     std::string m_output_varname;
     std::string m_weightfile_0p;
     std::string m_weightfile_1p;
+    std::string m_weightfile_2p;
     std::string m_weightfile_3p;
     std::size_t m_max_tracks;
     std::size_t m_max_clusters;
@@ -66,7 +68,8 @@ private:
     // Wrappers for lwtnn
     std::unique_ptr<TauJetRNN> m_net_0p; //!
     std::unique_ptr<TauJetRNN> m_net_1p; //!
+    std::unique_ptr<TauJetRNN> m_net_2p; //!
     std::unique_ptr<TauJetRNN> m_net_3p; //!
 };
 
-#endif // TAUREC_TAUJETRNNEVALUATOR_H
+#endif // TAURECTOOLS_TAUJETRNNEVALUATOR_H

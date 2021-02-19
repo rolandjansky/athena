@@ -1155,6 +1155,10 @@ TRT_ToT_dEdx::hitOccupancyCorrection(const EventContext& ctx,
     }
   }
 
+  if (!driftcircle) {
+    return 0.;
+  }
+
   const Trk::TrackParameters* trkP = itr->trackParameters();
   Identifier DCId = driftcircle->identify();
   int isHT = driftcircle->highLevel();

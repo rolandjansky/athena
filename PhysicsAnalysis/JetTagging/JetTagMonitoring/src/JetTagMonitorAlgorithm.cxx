@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetTagMonitorAlgorithm.h"
@@ -173,7 +173,7 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
 
   bool foundVxTypePriVtx = false;
 
-  for (const auto& vertItr : *vertices) {
+  for (const auto vertItr : *vertices) {
     ATH_MSG_DEBUG("Simple vertex: x = " << PV_x << ", y = " << PV_y << ", z = " << PV_z);
    
     if (vertItr->vertexType() == xAOD::VxType::PriVtx && vertItr->numberDoF() > 0 ) { 
@@ -283,7 +283,7 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
   Tracks_n = tracks->size();
   fill(tool,Tracks_n);
 
-  for (const auto& trackItr : *tracks) {
+  for (const auto trackItr : *tracks) {
     trackItr->summaryValue(nBLayerHits, xAOD::numberOfBLayerHits);
     Hits_IBL = (float)nBLayerHits;
     trackItr->summaryValue(nPixelHits, xAOD::numberOfPixelHits);
@@ -318,7 +318,7 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
     return StatusCode::FAILURE;
   }
 
-  for (const auto& muonItr : *muons) {
+  for (const auto muonItr : *muons) {
     ATH_MSG_DEBUG("Muon kinematics: eta = " << muonItr->eta() << ", phi= " << muonItr->phi() << ", pT= " << muonItr->pt() / Gaudi::Units::GeV);
     Muon_pT = muonItr->pt();
     fill(tool,Muon_pT);
@@ -357,7 +357,7 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
     return StatusCode::FAILURE;
   }
 
-  for (const auto& electronItr : *electrons) {
+  for (const auto electronItr : *electrons) {
     ATH_MSG_DEBUG("Electron kinematics: eta = " << electronItr->eta() << ", phi= " << electronItr->phi() << ", pT= " << electronItr->pt() / Gaudi::Units::GeV);
     Electron_pT = electronItr->pt();
     fill(tool,Electron_pT);
@@ -458,7 +458,7 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
   jet_n_all = jets->size();
   fill(tool,jet_n_all);
 
-  for (const auto& jetItr : *jets) {
+  for (const auto jetItr : *jets) {
     
     jet_pT_all = jetItr->pt() / Gaudi::Units::GeV;
     jet_eta_all = jetItr->eta();
@@ -511,7 +511,7 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
 
     // loop over muon container  
     int n_isoMuons = 0, n_ptMuons = 0;
-    for (const auto& muonItr : *muons) {
+    for (const auto muonItr : *muons) {
       //select muons which passed pT cut
       if (muonItr->pt() / Gaudi::Units::GeV < m_MuonPtCut) continue;
       bool inAcceptance = TMath::Abs(muonItr->eta()) < m_MuonEtaCut;
@@ -602,7 +602,7 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
 
       SoftMuons_n = 0; //restarting counter;
 
-      for (const auto& softMuonItr : *muons) {
+      for (const auto softMuonItr : *muons) {
 	//Look for soft muons (for SMT jets selection)
 	//select soft muons which pass eta and pT cut
 	bool inAcceptance = TMath::Abs(softMuonItr->eta()) < m_MuonEtaCut;

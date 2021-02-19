@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -10,16 +10,26 @@
 #ifndef MUONREADOUTGEOMETRY_RPCDETECTORELEMENT_H
 #define MUONREADOUTGEOMETRY_RPCDETECTORELEMENT_H
 
-#include "Identifier/IdentifierHash.h"
-#include "Identifier/Identifier.h"
-#include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorElement.h"
 
+#include "Identifier/Identifier.h"
+#include "Identifier/IdentifierHash.h"
+
+#include <vector>
+
+namespace Trk{
+  class Surface;
+  class SurfaceBounds;
+}
+
+class GeoVFullPhysVol;
 class RpcIdHelper;
 
 namespace MuonGM {
     
+  class MuonDetectorManager;
   class MuonStation;
+  class RpcReadoutElement;
 
   typedef std::vector<const RpcReadoutElement *> REVector;
   typedef std::vector<const RpcReadoutElement *>::const_iterator REIterator;

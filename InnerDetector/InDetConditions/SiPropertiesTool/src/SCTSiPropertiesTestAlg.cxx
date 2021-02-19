@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCTSiPropertiesTestAlg.h"
@@ -22,11 +22,11 @@ StatusCode SCTSiPropertiesTestAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCTSiPropertiesTestAlg::execute(const EventContext& /*ctx*/) const {
+StatusCode SCTSiPropertiesTestAlg::execute(const EventContext& ctx) const {
   unsigned int maxHash{static_cast<unsigned int>(m_id->wafer_hash_max())};
   for (unsigned int hash{0}; hash<maxHash; hash++) {
     const IdentifierHash elementHash{hash};
-    const InDet::SiliconProperties& siProperties{m_tool->getSiProperties(elementHash)};
+    const InDet::SiliconProperties& siProperties{m_tool->getSiProperties(elementHash, ctx)};
     const double electronDriftMobility{siProperties.electronDriftMobility()};
     const double holeDriftMobility{siProperties.holeDriftMobility()};
     const double electronHallMobility{siProperties.electronHallMobility()};

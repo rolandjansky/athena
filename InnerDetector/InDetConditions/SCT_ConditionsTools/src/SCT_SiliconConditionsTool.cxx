@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_SiliconConditionsTool.h"
@@ -62,26 +62,26 @@ StatusCode SCT_SiliconConditionsTool::finalize() {
 } 
 
 // Silicon temperature (by Identifier)
-float SCT_SiliconConditionsTool::temperature(const Identifier& elementId) const {
+float SCT_SiliconConditionsTool::temperature(const Identifier& elementId, const EventContext& ctx) const {
   const IdentifierHash elementHash{m_sct_id->wafer_hash(elementId)};
-  return temperature(elementHash);
+  return temperature(elementHash, ctx);
 }
 
 // Silicon bias voltage (by Identifier)
-float SCT_SiliconConditionsTool::biasVoltage(const Identifier& elementId) const {
+float SCT_SiliconConditionsTool::biasVoltage(const Identifier& elementId, const EventContext& ctx) const {
   const IdentifierHash elementHash{m_sct_id->wafer_hash(elementId)};
-  return biasVoltage(elementHash);
+  return biasVoltage(elementHash, ctx);
 }
 
 // Silicon depletion voltage (by Identifier)
-float SCT_SiliconConditionsTool::depletionVoltage(const Identifier& /*elementId*/) const {
+float SCT_SiliconConditionsTool::depletionVoltage(const Identifier& /*elementId*/, const EventContext& /*ctx*/) const {
   return m_defaultDepletionVoltage;
 }
 
 // Silicon temperature (by IdentifierHash)
-float SCT_SiliconConditionsTool::temperature(const IdentifierHash& elementHash) const {
+float SCT_SiliconConditionsTool::temperature(const IdentifierHash& elementHash, const EventContext& ctx) const {
   if (m_useDB and (not m_useGeoModel)) {
-    const SCT_DCSFloatCondData* data{getCondDataTemp()};
+    const SCT_DCSFloatCondData* data{getCondDataTemp(ctx)};
     if (data==nullptr) return m_defaultTemperature;
     float temperature{m_defaultTemperature};
     if (not data->getValue(elementHash, temperature)) return m_defaultTemperature;
@@ -95,10 +95,10 @@ float SCT_SiliconConditionsTool::temperature(const IdentifierHash& elementHash) 
 }
 
 // Silicon bias voltage (by IdentifierHash)
-float SCT_SiliconConditionsTool::biasVoltage(const IdentifierHash& elementHash) const {
+float SCT_SiliconConditionsTool::biasVoltage(const IdentifierHash& elementHash, const EventContext& ctx) const {
 
   if (m_useDB and (not m_useGeoModel)) {
-    const SCT_DCSFloatCondData* data{getCondDataHV()};
+    const SCT_DCSFloatCondData* data{getCondDataHV(ctx)};
     if (data==nullptr) return m_defaultBiasVoltage;
     float hv{m_defaultBiasVoltage};
     if (not data->getValue(elementHash, hv)) return m_defaultBiasVoltage;
@@ -112,7 +112,7 @@ float SCT_SiliconConditionsTool::biasVoltage(const IdentifierHash& elementHash) 
 }
 
 // Silicon deplition voltage (by IdentifierHash)
-float SCT_SiliconConditionsTool::depletionVoltage(const IdentifierHash& /*elementHash*/) const {
+float SCT_SiliconConditionsTool::depletionVoltage(const IdentifierHash& /*elementHash*/, const EventContext& /*ctx*/) const {
   return m_defaultDepletionVoltage;
 }
 
@@ -160,8 +160,8 @@ SCT_SiliconConditionsTool::setConditionsFromGeoModel()
 
 }
 
-const SCT_DCSFloatCondData* SCT_SiliconConditionsTool::getCondDataHV() const {
-  SG::ReadCondHandle<SCT_DCSFloatCondData> condData{m_condKeyHV};
+const SCT_DCSFloatCondData* SCT_SiliconConditionsTool::getCondDataHV(const EventContext& ctx) const {
+  SG::ReadCondHandle<SCT_DCSFloatCondData> condData{m_condKeyHV, ctx};
   if (not condData.isValid()) {
     ATH_MSG_ERROR("Failed to get " << m_condKeyHV.key());
     return nullptr;
@@ -169,8 +169,8 @@ const SCT_DCSFloatCondData* SCT_SiliconConditionsTool::getCondDataHV() const {
   return *condData;
 }
 
-const SCT_DCSFloatCondData* SCT_SiliconConditionsTool::getCondDataTemp() const {
-  SG::ReadCondHandle<SCT_DCSFloatCondData> condData{m_condKeyTemp};
+const SCT_DCSFloatCondData* SCT_SiliconConditionsTool::getCondDataTemp(const EventContext& ctx) const {
+  SG::ReadCondHandle<SCT_DCSFloatCondData> condData{m_condKeyTemp, ctx};
   if (not condData.isValid()) {
     ATH_MSG_ERROR("Failed to get " << m_condKeyTemp.key());
     return nullptr;

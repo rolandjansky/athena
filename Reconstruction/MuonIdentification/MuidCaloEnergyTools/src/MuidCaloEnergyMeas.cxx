@@ -34,9 +34,9 @@ namespace Rec {
 
 MuidCaloEnergyMeas::MuidCaloEnergyMeas(const std::string& type, const std::string& name, const IInterface* parent)
     : AthAlgTool(type, name, parent),
-      m_tileID(0),
-      m_emID(0),
-      m_hecID(0),
+      m_tileID(nullptr),
+      m_emID(nullptr),
+      m_hecID(nullptr),
       m_sigmasAboveNoise(4.),
       m_sigmasAboveNoiseCore(1.5),
       m_totalCoreCellsEM(0),
@@ -115,11 +115,11 @@ MuidCaloEnergyMeas::energyMeasurement(double etaEM, double phiEM, double etaHad,
     SG::ReadHandle<CaloCellContainer> cellContainer(m_cellContainerLocation);
     if (!cellContainer.isPresent()) {
         ATH_MSG_DEBUG("No calo cell container " << m_cellContainerLocation.key() << ", energy measurement is 0");
-        return 0;
+        return nullptr;
     }
     if (!cellContainer.isValid()) {
         ATH_MSG_WARNING("Calo cell container " << m_cellContainerLocation.key() << " not valid!");
-        return 0;
+        return nullptr;
     }
 
     // set measured tile energy, measured sampling fraction and isolation energy into CaloMeas
@@ -223,7 +223,7 @@ MuidCaloEnergyMeas::energyInCalo(CaloMeas& caloMeas, const CaloCellContainer* ce
 
     double        totalEnergy   = 0.;
     double        leadingEnergy = 0.;
-    CaloCellList* myList        = 0;
+    CaloCellList* myList        = nullptr;
 
     if (isubcalo == 0) {
         CaloCell_ID::SUBCALO iCalo = CaloCell_ID::TILE;
@@ -246,13 +246,13 @@ MuidCaloEnergyMeas::energyInCalo(CaloMeas& caloMeas, const CaloCellContainer* ce
 
     if (myList) {
         // get last cell (as CaloCellList->back() method doesn't work)
-        const CaloCell*             lastCell = 0;
+        const CaloCell*             lastCell = nullptr;
         CaloCellList::list_iterator cell     = myList->begin();
         for (; cell != myList->end(); ++cell) lastCell = *cell;
 
         // flag core in each sampling
         for (int coreSampling = 0; coreSampling != 4; ++coreSampling) {
-            const CaloCell* coreCell   = 0;
+            const CaloCell* coreCell   = nullptr;
             double          coreRadius = 0.;
             for (cell = myList->begin(); cell != myList->end(); ++cell) {
                 int sampling = -1;
@@ -330,7 +330,7 @@ MuidCaloEnergyMeas::energyInCalo(CaloMeas& caloMeas, const CaloCellContainer* ce
                             info = "  cell in core NOT selected";
                         }
 
-                        if (info == "") {
+                        if (info.empty()) {
                             ATH_MSG_VERBOSE(std::setiosflags(std::ios::fixed)
                                             << type << " Sampling: " << std::setw(1) << coreSampling << " Radius :"
                                             << std::setw(6) << std::setprecision(0) << (**cell2).caloDDE()->r()
@@ -401,7 +401,7 @@ MuidCaloEnergyMeas::isolationEnergy(CaloMeas& caloMeas, const CaloCellContainer*
                                     double muPhi, int isubcalo) const
 {
     double        totalEnergy = 0.;
-    CaloCellList* myList      = 0;
+    CaloCellList* myList      = nullptr;
 
     SG::ReadCondHandle<CaloNoise> noiseHdl{m_noiseCDOKey};
     const CaloNoise*              noiseCDO = *noiseHdl;
@@ -422,13 +422,13 @@ MuidCaloEnergyMeas::isolationEnergy(CaloMeas& caloMeas, const CaloCellContainer*
 
     if (myList) {
         // get last cell (as CaloCellList->back() method doesn't work)
-        const CaloCell*             lastCell = 0;
+        const CaloCell*             lastCell = nullptr;
         CaloCellList::list_iterator cell     = myList->begin();
         for (; cell != myList->end(); ++cell) lastCell = *cell;
 
         // flag core in each sampling
         for (int coreSampling = 0; coreSampling != 4; ++coreSampling) {
-            const CaloCell* coreCell   = 0;
+            const CaloCell* coreCell   = nullptr;
             double          coreRadius = 0.;
             for (cell = myList->begin(); cell != myList->end(); ++cell) {
                 int sampling = -1;

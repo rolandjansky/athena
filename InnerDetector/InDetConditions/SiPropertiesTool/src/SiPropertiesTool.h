@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -30,7 +30,7 @@ public:
   virtual StatusCode finalize() override;
 
   /// Get properties for the detector element.
-  virtual const InDet::SiliconProperties& getSiProperties(const IdentifierHash& elementHash) const override;
+  virtual const InDet::SiliconProperties& getSiProperties(const IdentifierHash& elementHash, const EventContext& ctx) const override;
 
 private:
   // Properties

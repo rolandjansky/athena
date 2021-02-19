@@ -56,6 +56,9 @@ StatusCode PixelRawDataProvider::initialize() {
   if (m_roiSeeded) {
     ATH_CHECK( m_roiCollectionKey.initialize() );
     ATH_CHECK(m_regionSelector.retrieve());
+  }else{
+    ATH_CHECK( m_roiCollectionKey.initialize(false) ); //clear if unneeded
+    m_regionSelector.disable();
   }
 
   ATH_CHECK(m_condCablingKey.initialize());

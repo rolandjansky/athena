@@ -50,6 +50,7 @@ def defaultTestFlags(configFlags, args):
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     configFlags.Input.RunNumber = [284500]
     configFlags.Input.OverrideRunNumber = True
+    configFlags.Input.LumiBlockNumber = [1]
     configFlags.Input.Files = defaultTestFiles.EVNT # ["root://eosuser.cern.ch///eos/atlas/atlascerngroupdisk/proj-simul/OutputSamples/rel21/mc16_13TeV.photon.E65536.eta20_25.EVNT.merged.pool.root"]
     configFlags.Output.HITSFileName = "myHITSnew.pool.root"
     configFlags.Common.ProductionStep = ProductionStep.Simulation

@@ -99,7 +99,8 @@ class TrigBmumuxComboHypo: public ::ComboHypo {
   StatusCode findDimuonCandidates(TrigBmumuxState&) const;
   StatusCode findBmumuxCandidates(TrigBmumuxState&) const;
   StatusCode createDecisionObjects(TrigBmumuxState&) const;
-  xAOD::Vertex* fit(const std::vector<ElementLink<xAOD::TrackParticleContainer>>& tracklist, Decay = kPsi_2mu, const xAOD::TrigBphys* dimuon = nullptr) const;
+  xAOD::Vertex* fit(const EventContext* context, const std::vector<ElementLink<xAOD::TrackParticleContainer>>& tracklist,
+                                     Decay = kPsi_2mu, const xAOD::TrigBphys* dimuon = nullptr) const;
   xAOD::TrigBphys* makeTriggerObject(const xAOD::Vertex*,
                                      xAOD::TrigBphys::pType type = xAOD::TrigBphys::MULTIMU,
                                      const std::vector<double>& trkMass = {PDG::mMuon, PDG::mMuon},

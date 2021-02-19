@@ -47,7 +47,7 @@ for opt,arg in opts:
     if opt=="-p":
         postproc=True
     if opt=="-n":
-        Events_local=arg
+        Events_local=int(arg)
     if opt in ("-c", "--config"):
         testconfig = True
     if opt=="-t":
@@ -105,11 +105,17 @@ if GridFiles:
 
 test = Test.Test()
 test.art_type = Art_type
+
+lrt_mode = False
+if 'LRT' in dir() :
+    lrt_mode = LRT
+aod_to_ntup = TrigInDetAna(lrt=lrt_mode)
+
+
 if dry_run:
     test.dry_run = True
 if (not exclude):
-    test.exec_steps = [rdo2aod]
-    test.exec_steps.append(TrigInDetAna())
+    test.exec_steps = [rdo2aod, aod_to_ntup]
     test.check_steps = CheckSteps.default_check_steps(test)
 
 # Run TIDArdict

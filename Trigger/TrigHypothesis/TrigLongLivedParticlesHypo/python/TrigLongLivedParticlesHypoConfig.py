@@ -15,9 +15,9 @@ def getCaloRatioHypoInstance( instance, threshold, logratio, dotrackiso):
         else:
             name=instance+"_"+str(threshold)+"GeV_reversed_notrackiso"
 
-    return CaloRatioHypo( threshold=threshold, 
-                          logratio=logratio, 
-                          dotrackiso=dotrackiso, 
+    return CaloRatioHypo( threshold=threshold,
+                          logratio=logratio,
+                          dotrackiso=dotrackiso,
                           name=name )
 
 
@@ -29,8 +29,8 @@ class MuonClusterHypoConfig (Conf.MuonClusterHypo):
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll           = False
-        self.nRoIEndCap          = 4 
-        self.nRoIBarrel          = 3 
+        self.nRoIEndCap          = 4
+        self.nRoIBarrel          = 3
         self.maxEta              = maxEta
         self.midEta              = midEta
 
@@ -236,7 +236,7 @@ class CaloRatioHypo (Conf.TrigCaloRatioHypo):
             self.EtaCut      = 2.5
             self.Reversed    = True
             self.DoTrackIso  = dotrackiso
-        
+
         from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoMonitoring import TrigCaloRatioHypoValidationMonitoring, TrigCaloRatioHypoOnlineMonitoring, TrigCaloRatioHypoCosmicMonitoring
         validation = TrigCaloRatioHypoValidationMonitoring()
         online = TrigCaloRatioHypoOnlineMonitoring()
@@ -247,4 +247,11 @@ class CaloRatioHypo (Conf.TrigCaloRatioHypo):
 
         self.AthenaMonTools = [ time, validation, online, cosmic ]
 
+#LRT hypothesis, configuration for tool
+_lrt_pt_min = {"default": 0.1}
 
+class FastTrackFinderLRTHypoTool (Conf.FastTrackFinderLRTHypoTool):
+    def __init__(self, name, threshold_name):
+        super( FastTrackFinderLRTHypoTool, self ).__init__( name )
+
+        self.pt_min = _lrt_pt_min[threshold_name]

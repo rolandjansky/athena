@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -16,6 +16,7 @@
 #include "L1CaloFEXSim/jFEXLargeRJetTOB.h"
 #include "L1CaloFEXSim/jFEXLargeRJetAlgo.h" 
 #include "L1CaloFEXSim/jFEXOutputCollection.h" 
+#include "L1CaloFEXSim/FEXAlgoSpaceDefs.h"
 //#include "L1CaloFEXSim/jFEXtauAlgo.h" //for the future
 //#include "L1CaloFEXSim/jFEXtauTOB.h" //for the future
 #include "CaloEvent/CaloCellContainer.h"
@@ -31,7 +32,6 @@
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/ReadHandle.h"
 #include "SGTools/TestStore.h"
-
 
 namespace LVL1 {
 
@@ -201,19 +201,19 @@ StatusCode jFEXFPGA::execute(){
     return StatusCode::SUCCESS;
 } //end of the execute function 
 
-void jFEXFPGA::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[][17]){
+  void jFEXFPGA::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width]){
     
-  const int rows = 16*2;
+  const int rows = FEXAlgoSpaceDefs::jFEX_algoSpace_height;
   const int cols = sizeof tmp_jTowersIDs_subset[0] / sizeof tmp_jTowersIDs_subset[0][0];
   
   std::copy(&tmp_jTowersIDs_subset[0][0], &tmp_jTowersIDs_subset[0][0]+(rows*cols),&m_jTowersIDs_Wide[0][0]);
   
-  //this prints out the jTower IDs that each FPGA is responsible for
   ATH_MSG_DEBUG("\n==== jFEXFPGA ========= FPGA (" << m_id << ") [on jFEX " << m_jfexid << "] IS RESPONSIBLE FOR jTOWERS :");
 
   //comment below due to mapping bug 12.01.21 
 
-/* for (int thisRow=rows-1; thisRow>=0; thisRow--){
+  /* 
+   for (int thisRow=rows-1; thisRow>=0; thisRow--){
     for (int thisCol=0; thisCol<cols; thisCol++){
       if(thisCol != cols-1){ ATH_MSG_DEBUG("|  " << m_jTowersIDs_Wide[thisRow][thisCol] << "  "); }
       else { ATH_MSG_DEBUG("|  " << m_jTowersIDs_Wide[thisRow][thisCol] << "  |"); }
@@ -222,9 +222,9 @@ void jFEXFPGA::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[][17]){
   
 }
 
-void jFEXFPGA::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[][24]){
+void jFEXFPGA::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width]){
 
-    const int rows = 16*2;
+  const int rows = FEXAlgoSpaceDefs::jFEX_algoSpace_height;
     const int cols = sizeof tmp_jTowersIDs_subset[0] / sizeof tmp_jTowersIDs_subset[0][0];
     
     std::copy(&tmp_jTowersIDs_subset[0][0], &tmp_jTowersIDs_subset[0][0]+(rows*cols),&m_jTowersIDs_Thin[0][0]);
@@ -234,7 +234,8 @@ void jFEXFPGA::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[][24]){
     
     //comment below due to mapping bug 12.01.21 
 
- /* for (int thisRow=rows-1; thisRow>=0; thisRow--){
+    /* 
+    for (int thisRow=rows-1; thisRow>=0; thisRow--){
       for (int thisCol=0; thisCol<cols; thisCol++){
 	if(thisCol != cols-1){ ATH_MSG_DEBUG("|  " << m_jTowersIDs_Thin[thisRow][thisCol] << "  "); }
 	else { ATH_MSG_DEBUG("|  " << m_jTowersIDs_Thin[thisRow][thisCol] << "  |"); }

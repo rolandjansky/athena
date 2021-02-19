@@ -49,7 +49,7 @@ StatusCode Muon::TgcRawDataProvider::execute(const EventContext& ctx) const
     SG::ReadHandle<TrigRoiDescriptorCollection> muonRoI(m_roiCollectionKey, ctx);
     if(!muonRoI.isValid()){
       ATH_MSG_WARNING("Cannot retrieve muonRoI "<<m_roiCollectionKey.key());
-      return StatusCode::SUCCESS;
+      return StatusCode::FAILURE;
     }
 
     // loop on RoIs

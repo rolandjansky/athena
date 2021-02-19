@@ -1,11 +1,10 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # import Hypo Algs/Tools
 from AthenaConfiguration.ComponentFactory import CompFactory # tools are imported from the factory, (NewJO)
 from TrigMuonHypoMT.TrigMuonHypoMTConf import (  # noqa: F401 (algs not used here)
     TrigMufastHypoAlg, TrigMufastHypoTool,
     TrigmuCombHypoAlg, TrigmuCombHypoTool,
-    TrigMuisoHypoAlg, TrigMuisoHypoTool,
     TrigMuonEFHypoAlg, TrigMuonEFHypoTool,
     TrigMuonEFTrackIsolationHypoAlg, TrigMuonEFTrackIsolationHypoTool,
     TrigMuonEFInvMassHypoTool,
@@ -17,7 +16,6 @@ from TrigMuonHypoMT.TrigMuonHypoMTConf import (  # noqa: F401 (algs not used her
 from TrigMuonHypoMT.TrigMuonHypoMonitoringMT import (
     TrigMufastHypoMonitoring,
     TrigmuCombHypoMonitoring,
-    TrigMuisoHypoMonitoring,
     TrigMuonEFHypoMonitoring,
     TrigL2MuonOverlapRemoverMonitoringMufast,
     TrigL2MuonOverlapRemoverMonitoringMucomb,
@@ -214,6 +212,7 @@ muFastThresholdsForECWeakBRegion = {
 # 'WPname' : cut on 0.3 cone
 # put < 0 for no cut
 trigMuonEFTrkIsoThresholds = {
+    'ivarloose'       : 0.16, #ivarloose
     'ivarmedium'      : 0.07, #ivarmedium
     'ivartight'       : 0.06, #ivartight
     'ivarverytight'  : 0.04   #ivarverytight
@@ -473,43 +472,6 @@ class TrigmuCombHypoConfig(object):
 
 
 
-### for TrigMuisoHypo
-def TrigMuisoHypoToolFromDict( chainDict ):
-
-    config = TrigMuisoHypoConfig()
-    tool = config.ConfigurationHypoTool( chainDict['chainName'] )
-    addMonitoring( tool, TrigMuisoHypoMonitoring,  "TrigMuisoHypoTool", chainDict['chainName'])
-    return tool
-
-
-class TrigMuisoHypoConfig(object):
-
-    log = logging.getLogger('TrigMuisoHypoConfig')
-
-    def ConfigurationHypoTool( self, toolName ):
-
-        tool = CompFactory.TrigMuisoHypoTool( toolName )
-
-        # If configured with passthrough, set AcceptAll flag on, not quite there in the menu
-        tool.AcceptAll = False
-        if 'passthrough' in toolName:
-            tool.AcceptAll = True
-            log.debug('MuisoHypoConfig configured in pasthrough mode')
-
-        if "FTK" in toolName: # allows us to use different working points in FTK mode
-            tool.IDConeSize   = 2
-            tool.MaxIDIso_1   = 0.12
-            tool.MaxIDIso_2   = 0.12
-            tool.MaxIDIso_3   = 0.12
-        else:
-            tool.IDConeSize   = 2
-            tool.MaxIDIso_1   = 0.1
-            tool.MaxIDIso_2   = 0.1
-            tool.MaxIDIso_3   = 0.1
-
-        return tool
-
-
 def TrigMuonEFMSonlyHypoToolFromDict( chainDict ) :
     thresholds = getThresholdsFromDict( chainDict )
     config = TrigMuonEFMSonlyHypoConfig()
@@ -661,7 +623,10 @@ class TrigMuonEFCombinerHypoConfig(object):
 
 def TrigMuonEFTrackIsolationHypoToolFromDict( chainDict ) :
     cparts = [i for i in chainDict['chainParts'] if i['signature']=='Muon']
-    thresholds = cparts[0]['isoInfo']
+    if 'ivarperf' in chainDict['chainParts'][0]['chainPartName']:
+        thresholds = 'passthrough'
+    else:
+        thresholds = cparts[0]['isoInfo']
     config = TrigMuonEFTrackIsolationHypoConfig()
     tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds )
     return tool
@@ -675,22 +640,26 @@ class TrigMuonEFTrackIsolationHypoConfig(object) :
         tool = CompFactory.TrigMuonEFTrackIsolationHypoTool(toolName)
 
         try:
-            ptcone03 = trigMuonEFTrkIsoThresholds[ isoCut ]
+            if(isoCut=='passthrough') :
+                tool.AcceptAll = True
 
-            tool.PtCone02Cut = 0.0
-            tool.PtCone03Cut = ptcone03
-            tool.AcceptAll = False
-
-            if 'MS' in isoCut:
-                tool.RequireCombinedMuon = False
             else:
-                tool.RequireCombinedMuon = True
+                ptcone03 = trigMuonEFTrkIsoThresholds[ isoCut ]
 
-            tool.DoAbsCut = False
-            if 'var' in isoCut :
-                tool.useVarIso = True
-            else :
-                tool.useVarIso = False
+                tool.PtCone02Cut = 0.0
+                tool.PtCone03Cut = ptcone03
+                tool.AcceptAll = False
+
+                if 'MS' in isoCut:
+                    tool.RequireCombinedMuon = False
+                else:
+                    tool.RequireCombinedMuon = True
+
+                tool.DoAbsCut = False
+                if 'var' in isoCut :
+                    tool.useVarIso = True
+                else :
+                    tool.useVarIso = False
         except LookupError:
             if(isoCut=='passthrough') :
                 log.debug('Setting passthrough')
@@ -761,11 +730,8 @@ if __name__ == '__main__':
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
 
-    configToTest = [ 'HLT_mu6fast_L1MU6',
-                     'HLT_mu6Comb_L1MU6',
-                     'HLT_mu6_L1MU6',
-                     'HLT_mu20_ivar_L1MU20',
-                     'HLT_2mu6Comb_L12MU6',
+    configToTest = [ 'HLT_mu6_L1MU6',
+                     'HLT_mu20_ivarmedium_L1MU20',
                      'HLT_2mu6_L12MU6']
 
     from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
@@ -777,8 +743,6 @@ if __name__ == '__main__':
         assert toolMufast
         toolmuComb = TrigmuCombHypoToolFromDict(chainDict)
         assert toolmuComb
-        toolMuiso = TrigMuisoHypoToolFromDict(chainDict)
-        assert toolMuiso
         toolEFMSonly = TrigMuonEFMSonlyHypoToolFromDict(chainDict)
         assert toolEFMSonly
         toolEFCombiner = TrigMuonEFCombinerHypoToolFromDict(chainDict)

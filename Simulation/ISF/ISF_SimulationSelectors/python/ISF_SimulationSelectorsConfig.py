@@ -261,6 +261,8 @@ def getChargedKaonG4FastCaloGeant4Selector(name="ISF_ChargedKaonG4FastCaloGeant4
 def getChargedKaonG4FastCalo_QS_Geant4Selector(name="ISF_ChargedKaonG4FastCalo_QS_Geant4Selector", **kwargs):
     kwargs.setdefault('MaxEkin'         , 400)
     kwargs.setdefault('ParticlePDG'     , 321)
+    if usesSimKernelMT():
+        kwargs.setdefault('Simulator', '')
     kwargs.setdefault('Simulator'       , 'ISF_AFII_QS_Geant4SimSvc')
     return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
 
@@ -276,6 +278,8 @@ def getKLongG4FastCaloGeant4Selector(name="ISF_KLongG4FastCaloGeant4Selector", *
 def getKLongG4FastCalo_QS_Geant4Selector(name="ISF_KLongG4FastCalo_QS_Geant4Selector", **kwargs):
     kwargs.setdefault('MaxEkin'         , 400)
     kwargs.setdefault('ParticlePDG'     , 130)
+    if usesSimKernelMT():
+        kwargs.setdefault('Simulator', '')
     kwargs.setdefault('Simulator'       , 'ISF_AFII_QS_Geant4SimSvc')
     return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
 
@@ -327,6 +331,8 @@ def getMuonGeant4Selector(name="ISF_MuonGeant4Selector", **kwargs):
     return getMuonSelector(name, **kwargs)
 
 def getMuonAFIIGeant4Selector(name="ISF_MuonAFIIGeant4Selector", **kwargs):
+    if usesSimKernelMT():
+        kwargs.setdefault('Simulator', '')
     kwargs.setdefault('Simulator'       , 'ISF_AFIIGeant4SimSvc')
     kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
     return getMuonGeant4Selector(name, **kwargs)

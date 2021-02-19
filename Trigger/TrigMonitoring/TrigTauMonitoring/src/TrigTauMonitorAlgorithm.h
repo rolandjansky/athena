@@ -50,7 +50,7 @@ class TrigTauMonitorAlgorithm : public AthMonitorAlgorithm {
   void fillRNNTrack(const std::string trigger, std::vector<const xAOD::TauJet*> tau_vec, bool online) const;
   void fillRNNCluster(const std::string trigger, std::vector<const xAOD::TauJet*> tau_vec, bool online) const;
   void fillbasicVars(const std::string trigger, std::vector<const xAOD::TauJet*> tau_vec, bool online) const;
-  void fillL1(const std::string trigL1Item, std::vector<const xAOD::EmTauRoI*> L1rois)  const;
+  void fillL1(const std::string trigL1Item, std::vector<const xAOD::EmTauRoI*> L1rois, const std::string nProng)  const;
   void fillBDTNoCorr(const std::string trigger, std::vector<const xAOD::TauJet*> tau_vec,const std::string nProng) const;
   void fillBDTOut(const std::string trigger, std::vector<const xAOD::TauJet*> tau_vec,const std::string nProng) const;
   void fillDistributions(const EventContext& ctx, std::vector< std::pair< const xAOD::TauJet*, const TrigCompositeUtils::Decision * >> pairObjs, const std::string trigger, float HLTthr) const;
@@ -77,18 +77,15 @@ class TrigTauMonitorAlgorithm : public AthMonitorAlgorithm {
   };
 
   
-  inline bool L1Matching(const xAOD::TauJet* offline_tau, std::vector<const xAOD::EmTauRoI*> L1roi_vec, float threshold) const
+  inline bool L1Matching(const xAOD::TauJet* offline_tau, const xAOD::EmTauRoI* l1roi, float threshold) const
   {
-    for(auto l1roi: L1roi_vec){
-      float deltaR = dR(offline_tau->eta(),offline_tau->phi(), l1roi->eta(),l1roi->phi());
-      if(deltaR < threshold){
-          return true;
-      }
+    float deltaR = dR(offline_tau->eta(),offline_tau->phi(), l1roi->eta(),l1roi->phi());
+    if(deltaR < threshold){
+       return true;
+    } else {
+       return false;
     }
-    return false;
   }; 
-
-  const xAOD::EmTauRoI* findLVL1_ROI(const EventContext& ctx, const TrigRoiDescriptor* roiDesc) const;
  
   SG::ReadHandleKey< xAOD::TauJetContainer> m_offlineTauJetKey { this, "offlineTauJetKey", "TauJets", "Offline taujet container key" };
   SG::ReadHandleKey< xAOD::EmTauRoIContainer > m_l1TauRoIKey    { this, "l1TauRoIKey","LVL1EmTauRoIs","Tau L1 RoI key"};

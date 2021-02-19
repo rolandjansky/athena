@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCTLorentzMonAlg.h"
@@ -10,6 +10,7 @@
 #include "InDetPrepRawData/SiCluster.h"
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "TrkTrackSummary/TrackSummary.h"
+#include "TrkEventUtils/PRDtoTrackMap.h"
 
 #include <cmath>
 #include <memory>
@@ -24,12 +25,7 @@ StatusCode SCTLorentzMonAlg::initialize() {
   ATH_CHECK(m_trackSummaryTool.retrieve());
   ATH_CHECK(m_tracksName.initialize());
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
-
-  if (m_rejectSharedHits) {
-    ATH_CHECK(m_assoTool.retrieve());
-  } else {
-    m_assoTool.disable();
-  }
+  ATH_CHECK(m_assoTool.retrieve(DisableTool{!m_rejectSharedHits} ));
 
   return AthMonitorAlgorithm::initialize();
 }
@@ -72,9 +68,12 @@ StatusCode SCTLorentzMonAlg::fillHistograms(const EventContext& ctx) const {
   }
 
   // Prepare AssociationTool
-  Trk::IPRD_AssociationTool::Maps maps;
-  for (const Trk::Track* track : *tracks) {
-    ATH_CHECK(m_assoTool->addPRDs(maps, *track));
+  std::unique_ptr<Trk::PRDtoTrackMap> prd_to_track_map;
+  if (m_rejectSharedHits) {
+     prd_to_track_map = m_assoTool->createPRDtoTrackMap();
+     for (const Trk::Track* track : *tracks) {
+        ATH_CHECK( m_assoTool->addPRDs(*prd_to_track_map,*track) );
+     }
   }
 
   for (const Trk::Track* track: *tracks) {
@@ -106,7 +105,7 @@ StatusCode SCTLorentzMonAlg::fillHistograms(const EventContext& ctx) const {
         const InDet::SiClusterOnTrack* clus{dynamic_cast<const InDet::SiClusterOnTrack*>(tsos->measurementOnTrack())};
         if (clus) { // Is it a SiCluster? If yes...
           // Reject shared hits if you want
-          if (m_rejectSharedHits and m_assoTool->isShared(maps, *(clus->prepRawData()))) {
+          if (prd_to_track_map and prd_to_track_map->isShared(*(clus->prepRawData())) ) {
             continue;
           }
 

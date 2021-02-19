@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelSiLorentzAngleCondAlg.h"
@@ -156,7 +156,7 @@ PixelSiLorentzAngleCondAlg::execute(const EventContext& ctx) const {
       forceLorentzToZero = 0.0;
     }
 
-    const InDet::SiliconProperties &siProperties = m_siPropertiesTool->getSiProperties(elementHash);
+    const InDet::SiliconProperties &siProperties = m_siPropertiesTool->getSiProperties(elementHash, ctx);
     double mobility = siProperties.signedHallMobility(element->carrierType());
 
     // Get magnetic field. This first checks that field cache is valid.

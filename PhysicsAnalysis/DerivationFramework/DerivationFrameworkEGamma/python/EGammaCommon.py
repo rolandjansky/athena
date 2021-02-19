@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #********************************************************************
 # EGammaCommon.py 
@@ -88,16 +88,11 @@ ToolSvc += ElectronLHSelectorLooseBL
 #====================================================================
 # ELECTRON CHARGE SELECTION
 #====================================================================
-#
-# Disabled as is missing in R22
-#
-
 from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AsgElectronChargeIDSelectorTool
 ElectronChargeIDSelector = AsgElectronChargeIDSelectorTool("ElectronChargeIDSelectorLoose")
 ElectronChargeIDSelector.primaryVertexContainer = "PrimaryVertices"
 ElectronChargeIDSelector.TrainingFile = "ElectronPhotonSelectorTools/ChargeID/ECIDS_20180731rel21Summer2018.root"
 ToolSvc += ElectronChargeIDSelector
-
 
 #====================================================================
 # FWD ELECTRON LH SELECTORS
@@ -105,7 +100,7 @@ ToolSvc += ElectronChargeIDSelector
 #
 # Disabled as is missing in R22
 #
-'''
+
 from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AsgForwardElectronLikelihoodTool
 
 ForwardElectronLHSelectorLoose = AsgForwardElectronLikelihoodTool("ForwardElectronLHSelectorLoose", WorkingPoint="LooseLHForwardElectron")
@@ -116,7 +111,7 @@ ToolSvc += ForwardElectronLHSelectorMedium
 
 ForwardElectronLHSelectorTight = AsgForwardElectronLikelihoodTool("ForwardElectronLHSelectorTight", WorkingPoint="TightLHForwardElectron")
 ToolSvc += ForwardElectronLHSelectorTight 
-'''
+
 
 #====================================================================
 # PHOTON SELECTION (loose and tight cut-based)
@@ -148,28 +143,28 @@ ToolSvc += PhotonIsEMSelectorTightPtIncl
 from CaloClusterCorrection.CaloClusterCorrectionConf import CaloFillRectangularCluster
 
 EGAMCOM_caloFillRect55 = CaloFillRectangularCluster (	name = "EGAMCOMCaloFillRectangularCluster55",
-                                                        cells_name = "AODCellContainer",
+                                                        cells_name = "AllCalo",
                                                         eta_size = 5,
                                                         phi_size = 5,
                                                         fill_cluster = True)
 ToolSvc += EGAMCOM_caloFillRect55
 
 EGAMCOM_caloFillRect35 = CaloFillRectangularCluster (	name = "EGAMCOMCaloFillRectangularCluster35",
-                                                        cells_name = "AODCellContainer",
+                                                        cells_name = "AllCalo",
                                                         eta_size = 3,
                                                         phi_size = 5,
                                                         fill_cluster = True)
 ToolSvc += EGAMCOM_caloFillRect35
 
 EGAMCOM_caloFillRect37 = CaloFillRectangularCluster (	name = "EGAMCOMCaloFillRectangularCluster37",
-                                                        cells_name = "AODCellContainer",
+                                                        cells_name = "AllCalo",
                                                         eta_size = 3,
                                                         phi_size = 7,
                                                         fill_cluster = True)
 ToolSvc += EGAMCOM_caloFillRect37
 
 EGAMCOM_caloFillRect711 = CaloFillRectangularCluster (	name = "EGAMCOMCaloFillRectangularCluster711",
-                                                        cells_name = "AODCellContainer",
+                                                        cells_name = "AllCalo",
                                                         eta_size = 7,
                                                         phi_size = 11,
                                                         fill_cluster = True)
@@ -237,11 +232,7 @@ ElectronPassLHTight = DerivationFramework__EGElectronLikelihoodToolWrapper( name
 ToolSvc += ElectronPassLHTight
 print(ElectronPassLHTight)
 
-#
-# Disabled as is missing in R22
-#
-
-# decorate electrons with the output of ECIDS ----------------------------------------------------------------------
+# decorate electrons with the output of ECIDS
 ElectronPassECIDS = DerivationFramework__EGElectronLikelihoodToolWrapper( name = "ElectronPassECIDS",
                                                                           EGammaElectronLikelihoodTool = ElectronChargeIDSelector,
                                                                           EGammaFudgeMCTool = "",
@@ -251,10 +242,10 @@ ElectronPassECIDS = DerivationFramework__EGElectronLikelihoodToolWrapper( name =
                                                                           StoreTResult = True)
 ToolSvc += ElectronPassECIDS
 print (ElectronPassECIDS)
-'''
+
 # decorate forward electrons with the output of LH loose
-ForwardElectronPassLHLoose = DerivationFramework__EGSelectionToolWrapper( name = "ForwardElectronPassLHLoose",
-                                                                          EGammaSelectionTool = ForwardElectronLHSelectorLoose,
+ForwardElectronPassLHLoose = DerivationFramework__EGElectronLikelihoodToolWrapper( name = "ForwardElectronPassLHLoose",
+                                                                          EGammaElectronLikelihoodTool = ForwardElectronLHSelectorLoose,
                                                                           EGammaFudgeMCTool = "",
                                                                           CutType = "",
                                                                           StoreGateEntryName = "DFCommonForwardElectronsLHLoose",
@@ -263,8 +254,8 @@ ToolSvc += ForwardElectronPassLHLoose
 print (ForwardElectronPassLHLoose)
 
 # decorate forward electrons with the output of LH medium
-ForwardElectronPassLHMedium = DerivationFramework__EGSelectionToolWrapper( name = "ForwardElectronPassLHMedium",
-                                                                          EGammaSelectionTool = ForwardElectronLHSelectorMedium,
+ForwardElectronPassLHMedium = DerivationFramework__EGElectronLikelihoodToolWrapper( name = "ForwardElectronPassLHMedium",
+                                                                          EGammaElectronLikelihoodTool = ForwardElectronLHSelectorMedium,
                                                                           EGammaFudgeMCTool = "",
                                                                           CutType = "",
                                                                           StoreGateEntryName = "DFCommonForwardElectronsLHMedium",
@@ -273,15 +264,15 @@ ToolSvc += ForwardElectronPassLHMedium
 print (ForwardElectronPassLHMedium)
 
 # decorate forward electrons with the output of LH tight
-ForwardElectronPassLHTight = DerivationFramework__EGSelectionToolWrapper( name = "ForwardElectronPassLHTight",
-                                                                          EGammaSelectionTool = ForwardElectronLHSelectorTight,
+ForwardElectronPassLHTight = DerivationFramework__EGElectronLikelihoodToolWrapper( name = "ForwardElectronPassLHTight",
+                                                                          EGammaElectronLikelihoodTool = ForwardElectronLHSelectorTight,
                                                                           EGammaFudgeMCTool = "",
                                                                           CutType = "",
                                                                           StoreGateEntryName = "DFCommonForwardElectronsLHTight",
                                                                           ContainerName = "ForwardElectrons")
 ToolSvc += ForwardElectronPassLHTight
 print (ForwardElectronPassLHTight)
-'''
+
 
 # decorate photons with the output of IsEM loose
 # on MC, fudge the shower shapes before computing the ID (but the original shower shapes are not overridden)
@@ -366,12 +357,12 @@ ElectronAmbiguity = DF_EGEAT(name               = "ElectronAdditionnalAmbiguity"
 ToolSvc += ElectronAmbiguity
 
 #
-# Commented ForwardElectronPassLHLoose, ForwardElectronPassLHMedium, ForwardElectronPassLHTight, tools due to they are not available in R22 yet
+# Commented ForwardElectronPassLHLoose, ForwardElectronPassLHMedium, ForwardElectronPassLHTight tools due to they are not available in R22 yet
 #
 # list of all the decorators so far
 EGAugmentationTools = [DFCommonPhotonsDirection,
                        ElectronPassLHVeryLoose, ElectronPassLHLoose, ElectronPassLHLooseBL, ElectronPassLHMedium, ElectronPassLHTight,
-                       #ForwardElectronPassLHLoose, ForwardElectronPassLHMedium, ForwardElectronPassLHTight,
+                       ForwardElectronPassLHLoose, ForwardElectronPassLHMedium, ForwardElectronPassLHTight,
                        ElectronPassECIDS,
                        PhotonPassIsEMLoose, PhotonPassIsEMTight, 
                        PhotonPassIsEMTightPtIncl, 
@@ -463,6 +454,8 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("EGamma
 # ADD TOOLS
 #=======================================
 
-from IsolationAlgs.IsoUpdatedTrackCones import GetUpdatedIsoTrackCones
+import IsolationAlgs.IsoUpdatedTrackCones as isoCones
 if not hasattr(DerivationFrameworkJob,"IsolationBuilderTight1000"):
-    DerivationFrameworkJob += GetUpdatedIsoTrackCones()
+    DerivationFrameworkJob += isoCones.GetUpdatedIsoTrackCones()
+
+

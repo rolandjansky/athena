@@ -1,7 +1,5 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef ISOLATIONSELECTION_ISOLATIONCONDITION_H
@@ -29,26 +27,29 @@ struct strObj {
 namespace CP {
     class IsolationCondition {
         public:
-            IsolationCondition(std::string name, xAOD::Iso::IsolationType isoType);
+            IsolationCondition(const std::string& name, xAOD::Iso::IsolationType isoType);
+            IsolationCondition(const std::string& name, const std::vector<xAOD::Iso::IsolationType>& isoTypes);
+            IsolationCondition(const std::string& name, std::string &isoType);
+            IsolationCondition(const std::string& name, const std::vector<std::string>& isoTypes);
+           
             IsolationCondition(const IsolationCondition& rhs) = delete;
             IsolationCondition& operator=(const IsolationCondition& rhs) = delete;
-
             virtual ~IsolationCondition();
-            IsolationCondition();
-            void setName(const std::string &name);
-            void setCut(xAOD::Iso::IsolationType isoType);
-
+         
             std::string name() const;
-            xAOD::Iso::IsolationType  type() const;
-            const SG::AuxElement::Accessor<float>* accessor() const;
-
+            
+            unsigned int num_types() const;
+            xAOD::Iso::IsolationType  type(unsigned int n = 0) const;
+            SG::AuxElement::Accessor<float>* accessor(unsigned int n = 0) const;
+            
             virtual bool accept(const xAOD::IParticle& x, std::map<xAOD::Iso::IsolationType, float>* cutValues = 0) = 0;
             virtual bool accept(const strObj& x, std::map<xAOD::Iso::IsolationType, float>* cutValues = 0) = 0;
 
-        protected:
+        private:
             std::string m_name;
-            xAOD::Iso::IsolationType m_isolationType;
-            const SG::AuxElement::Accessor<float>* m_acc;
+            std::vector<xAOD::Iso::IsolationType> m_isolationType;
+            std::vector< std::unique_ptr<SG::AuxElement::Accessor<float>>> m_acc;           
+        protected:
             float m_cutValue;
     };
 }

@@ -1406,13 +1406,13 @@ CombinedMuonTrackBuilder::standaloneFit(const Trk::Track& inputSpectrometerTrack
         // pRatio is the ratio of fitted to start momentum value at calo exit
         //  find parameters at calo exit
         const Trk::TrackParameters* params_pRat = nullptr;
-        
-        for (const auto& s : *extrapolated->trackStateOnSurfaces()){
-            if (s->trackParameters() && !m_calorimeterVolume->inside(s->trackParameters()->position()) && s->type(Trk::TrackStateOnSurface::Perigee)){
-                  params_pRat = s->trackParameters(); 
-                  break; 
-            }
-        }        
+	auto s = extrapolated->trackStateOnSurfaces()->begin();
+	while (!(**s).trackParameters() || m_calorimeterVolume->inside((**s).trackParameters()->position())) {
+	  if ((**s).trackParameters() && !(**s).type(Trk::TrackStateOnSurface::Perigee))
+	    params_pRat = (**s).trackParameters();
+	  ++s;
+        }
+
         //  extrapolated fit with missing calo parameters - this should never happen!
         if (params_pRat) {
             pRatio = momentum / parameters->momentum().mag();
@@ -2916,7 +2916,7 @@ CombinedMuonTrackBuilder::createExtrapolatedTrack(const Trk::Track&           sp
                         parameterVector[Trk::qOverP] = parameters.charge() / Emax;
                     }
                 }
-                std::unique_ptr<const Trk::TrackParameters> correctedParameters ( parameters.associatedSurface().createTrackParameters(
+                auto correctedParameters ( parameters.associatedSurface().createUniqueTrackParameters(
                     parameterVector[Trk::loc1], parameterVector[Trk::loc2], parameterVector[Trk::phi],
                     parameterVector[Trk::theta], parameterVector[Trk::qOverP], nullptr));
 
@@ -3104,7 +3104,7 @@ CombinedMuonTrackBuilder::createExtrapolatedTrack(const Trk::Track&           sp
           
             // delete leading material TSOS
             if (leadingTSOS) {
-                for (const auto& to_del : *caloTSOS) {
+                for (const auto& to_del : *leadingTSOS) {
                     delete to_del;
                 }                  
             }
@@ -3477,7 +3477,7 @@ CombinedMuonTrackBuilder::createMuonTrack(const Trk::Track& muonTrack, const Trk
 const Trk::TrackStateOnSurface*
 CombinedMuonTrackBuilder::createPhiPseudoMeasurement(const Trk::Track& track) const
 {
-    const Trk::TrackParameters* parameters = m_trackQuery->spectrometerParameters(track);
+    auto parameters = m_trackQuery->spectrometerParameters(track);
     Amg::MatrixX                covarianceMatrix(1, 1);
     covarianceMatrix.setZero();
     covarianceMatrix(0, 0) = m_sigmaPhiSector * m_sigmaPhiSector * parameters->position().perp2();
@@ -3488,7 +3488,7 @@ CombinedMuonTrackBuilder::createPhiPseudoMeasurement(const Trk::Track& track) co
     std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> type;
     type.set(Trk::TrackStateOnSurface::Measurement);
 
-    const Trk::TrackStateOnSurface* tsos = new Trk::TrackStateOnSurface(pseudo, parameters, nullptr, nullptr, type);
+    const Trk::TrackStateOnSurface* tsos = new Trk::TrackStateOnSurface(pseudo, std::move(parameters), nullptr, nullptr, type);
 
     return tsos;
 }
@@ -3700,7 +3700,7 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
     }
 
     // set starting parameters and measured momentum error
-    const Trk::TrackParameters* parameters = m_trackQuery->spectrometerParameters(spectrometerTrack);
+    auto parameters = m_trackQuery->spectrometerParameters(spectrometerTrack);
     if (!parameters || !parameters->covariance()) {
         // missing spectrometer parameters on spectrometer track
         m_messageHelper->printWarning(43);
@@ -3711,7 +3711,8 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
         std::sqrt(measuredPerigee->momentum().mag2() * (*measuredPerigee->covariance())(Trk::qOverP, Trk::qOverP));
 
     // corrected parameters ensure the track fitting starts with a projective approximation
-    const Trk::TrackParameters* correctedParameters = nullptr;
+    //const Trk::TrackParameters* correctedParameters = nullptr;
+    std::unique_ptr<Trk::TrackParameters> correctedParameters{};
     Amg::VectorX                parameterVector     = parameters->parameters();
     double                      trackEnergy         = 1. / std::abs(parameterVector[Trk::qOverP]);
 
@@ -3720,13 +3721,12 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
         trackEnergy                  = m_lineMomentum;
         parameterVector[Trk::qOverP] = parameters->charge() / trackEnergy;
 
-        correctedParameters = parameters->associatedSurface().createTrackParameters(
+        parameters = parameters->associatedSurface().createUniqueTrackParameters(
             parameterVector[Trk::loc1], parameterVector[Trk::loc2], parameterVector[Trk::phi],
             parameterVector[Trk::theta], parameterVector[Trk::qOverP], new AmgSymMatrix(5)(*parameters->covariance()));
 
-        delete parameters;
-        parameters          = correctedParameters;
-        correctedParameters = nullptr;
+        //delete parameters;
+        //parameters          = correctedParameters;
     }
 
     // check if the track curvature is well determined (with sufficient energy to penetrate material)
@@ -3764,13 +3764,13 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
         if (trackEnergy + caloEnergy->deltaE() < m_minEnergy) {
             ATH_MSG_DEBUG("standaloneFit: trapped in calorimeter");
             delete caloEnergy;
-            delete parameters;
+            //delete parameters;
 
             return nullptr;
         }
 
         parameterVector[Trk::qOverP] = parameters->charge() / (trackEnergy + caloEnergy->deltaE());
-        correctedParameters          = parameters->associatedSurface().createTrackParameters(
+        correctedParameters          = parameters->associatedSurface().createUniqueTrackParameters(
             parameterVector[Trk::loc1], parameterVector[Trk::loc2], parameterVector[Trk::phi],
             parameterVector[Trk::theta], parameterVector[Trk::qOverP], new AmgSymMatrix(5)(*parameters->covariance()));
 
@@ -3807,8 +3807,8 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
                 parameters = nullptr;
             }
 
-            delete correctedParameters;
-            correctedParameters = nullptr;
+            //delete correctedParameters;
+            //correctedParameters = nullptr;
 
             ATH_MSG_DEBUG("standaloneFit: excessive energy loss in spectrometer "
                           << std::abs(spectrometerEnergyLoss / Gaudi::Units::GeV) << " GeV"
@@ -3827,8 +3827,8 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
 
         if (!perigee) {
             ATH_MSG_DEBUG("standaloneFit: failed back extrapolation to perigee");
-            delete correctedParameters;
-            delete parameters;
+            //delete correctedParameters;
+            //delete parameters;
             return nullptr;
         }
 
@@ -3837,10 +3837,10 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
             if (correctedParameters == parameters) {
                 ATH_MSG_WARNING(
                     "deleting parameters pointer that could be used further down in execution, setting it to zero!");
-                parameters = nullptr;
+                //parameters = nullptr;
             }
-            delete correctedParameters;
-            correctedParameters = nullptr;
+            //delete correctedParameters;
+            //correctedParameters = nullptr;
         } else {
             Amg::Vector3D position = correctedParameters->position();
 
@@ -3862,10 +3862,10 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
                 parameterVector[Trk::phi0] += 2. * M_PI;
             }
 
-            delete correctedParameters;
+            //delete correctedParameters;
             delete perigee;
 
-            correctedParameters = parameters->associatedSurface().createTrackParameters(
+            correctedParameters = parameters->associatedSurface().createUniqueTrackParameters(
                 parameterVector[Trk::loc1], parameterVector[Trk::loc2], parameterVector[Trk::phi],
                 parameterVector[Trk::theta], parameterVector[Trk::qOverP],
                 new AmgSymMatrix(5)(*parameters->covariance()));
@@ -3892,9 +3892,9 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
                     parameterVector[Trk::phi0] += 2. * M_PI;
                 }
 
-                delete correctedParameters;
+                //delete correctedParameters;
                 delete perigee;
-                correctedParameters = parameters->associatedSurface().createTrackParameters(
+                correctedParameters = parameters->associatedSurface().createUniqueTrackParameters(
                     parameterVector[Trk::loc1], parameterVector[Trk::loc2], parameterVector[Trk::phi],
                     parameterVector[Trk::theta], parameterVector[Trk::qOverP],
                     new AmgSymMatrix(5)(*parameters->covariance()));
@@ -3914,15 +3914,15 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
                 parameters = nullptr;
             }
 
-            delete correctedParameters;
+            //delete correctedParameters;
             parameterVector[Trk::qOverP] = parameters->charge() / trackEnergy;
-            correctedParameters          = parameters->associatedSurface().createTrackParameters(
+            correctedParameters          = parameters->associatedSurface().createUniqueTrackParameters(
                 parameterVector[Trk::loc1], parameterVector[Trk::loc2], parameterVector[Trk::phi],
                 parameterVector[Trk::theta], parameterVector[Trk::qOverP],
                 new AmgSymMatrix(5)(*parameters->covariance()));
 
-            delete parameters;
-            parameters = correctedParameters;
+            //delete parameters;
+            parameters = std::move(correctedParameters);
         }
 
         // cut if perigee outside indet (but keep endcap halo)
@@ -3932,7 +3932,7 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
                                                                               << perigee->position().z());
             } else {
                 ATH_MSG_DEBUG("standaloneFit: perigee outside indet volume");
-                delete parameters;
+                //delete parameters;
                 delete perigee;
                 ///  if (haveSpectrometerRefit) delete spectrometerFit;
                 return nullptr;
@@ -3962,13 +3962,13 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
 
         Trk::TrackParameters* perigee = new Trk::Perigee(mvertex->position(), momentum, 1., *mperigeeSurface);
 
-        correctedParameters = m_propagator->propagate(*perigee, perigee->associatedSurface(), Trk::alongMomentum, false,
-                                                      m_magFieldProperties, Trk::nonInteracting).release();
+        parameters = m_propagator->propagate(*perigee, perigee->associatedSurface(), Trk::alongMomentum, false,
+                                             m_magFieldProperties, Trk::nonInteracting);
 
-        delete parameters;
+        //delete parameters;
         delete perigee;
         delete trigParameters;
-        parameters = correctedParameters;
+        //parameters = std::move(correctedParameters);
 
         if (!parameters) {
             ATH_MSG_DEBUG("standaloneFit: failed back extrapolation to perigee");
@@ -3976,7 +3976,7 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
         }
     }
 
-    return parameters;
+    return parameters.release();
 }
 
 

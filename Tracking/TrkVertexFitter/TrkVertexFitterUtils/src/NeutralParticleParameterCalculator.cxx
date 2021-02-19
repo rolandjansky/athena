@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
@@ -33,16 +33,9 @@ namespace Trk
   NeutralParticleParameterCalculator::~NeutralParticleParameterCalculator() = default;
   
   StatusCode NeutralParticleParameterCalculator::initialize() 
-  { 
-    if (!m_LinearizedTrackFactory.empty()) {
-      StatusCode sc=m_LinearizedTrackFactory.retrieve();
-      if (sc.isFailure()) {
-        msg(MSG::WARNING) << "Could not find TrackLinearizer tool." << endmsg;
-        m_linearizedTrackFactoryIsAvailable=false;
-      } else {
-        m_linearizedTrackFactoryIsAvailable=true;
-      }
-    }
+  {
+    ATH_CHECK(m_LinearizedTrackFactory.retrieve( DisableTool{ m_LinearizedTrackFactory.empty() } ));
+    m_linearizedTrackFactoryIsAvailable = !m_LinearizedTrackFactory.empty();
 
     return StatusCode::SUCCESS;
   }

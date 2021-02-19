@@ -155,7 +155,7 @@ bool TGCTileMuCoincidenceMap::readMap()
   //----- 
   
   std::string fullName;
-  fullName = PathResolver::find_file( dbname.c_str(), "DATAPATH" );
+  fullName = PathResolver::FindCalibDirectory("dev")+"/TrigT1TGC/TILE/"+dbname;
   bool isFound =( fullName.length() > 0 );
   if( !isFound) {
     log << MSG::WARNING 

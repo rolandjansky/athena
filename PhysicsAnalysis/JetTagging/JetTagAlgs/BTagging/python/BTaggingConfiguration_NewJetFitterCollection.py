@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Configuration functions for NewJetFitterTag
 # Author: Wouter van den Wollenberg (2013-2014)
@@ -91,6 +91,8 @@ def toolJetFitterFullLinearizedTrackFactory(name, useBTagFlagsDefaults = True, *
                   **options: Python dictionary with options for the tool.
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     options['name'] = name
+    if 'Extrapolator' not in options :
+        options.setdefault('Extrapolator',toolJetFitterExtrapolator('JetFitterExtrapolator')) #@TODO ro use InDetExtrapolator ?
     from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__FullLinearizedTrackFactory
     return Trk__FullLinearizedTrackFactory(**options)
 

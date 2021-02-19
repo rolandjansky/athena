@@ -57,8 +57,6 @@ class T2VertexBeamSpot_Fex ( PESA__T2VertexBeamSpot ) :
     __slots__ = []
     def __init__ (self, name="T2VertexBeamSpot_Fex", detail=1):
         super(T2VertexBeamSpot_Fex, self).__init__(name)
-        self.attachVertices      = True     # Write the good vertices to StoreGate
-        self.attachSplitVertices = False    # Write split vertices to StoreGate
         self.BeamSpotTool = InDetTrigMTBeamSpotTool    
         self.MonTool = bsAlgMonitoring
         
@@ -86,8 +84,6 @@ class T2VertexBeamSpot ( T2VertexBeamSpot_Fex ) :
     __slots__ = []
     def __init__ (self, name="T2VertexBeamSpot", detail=1):
         super(T2VertexBeamSpot, self).__init__(name, detail)
-        self.activateTE     = False  # Activate the output TE if a good vertex is found
-        self.activateAllTE  = False  # Activate the output TE for all events where this trigger is run
         self.nSplitVertices = 2      # Turn on vertex splitting
         self.vertexCollName = name
 
@@ -96,16 +92,12 @@ class T2VertexBeamSpot_activeAllTE ( T2VertexBeamSpot_Fex ) :
     __slots__ = []
     def __init__ (self, name="T2VertexBeamSpot_activeAllTE", detail=1):
         super(T2VertexBeamSpot_activeAllTE, self).__init__(name, detail)
-        self.activateTE     = False  # Activate the output TE if a good vertex is found
-        self.activateAllTE  = True   # Activate the output TE for all events where this trigger is run
 
 # Setup for writing out events with a "good" vertex seen by the BeamSpot algorithm
 class T2VertexBeamSpot_activeTE ( T2VertexBeamSpot_Fex ) :
     __slots__ = []
     def __init__ (self, name="T2VertexBeamSpot_activeTE", detail=1):
         super(T2VertexBeamSpot_activeTE, self).__init__(name, detail)
-        self.activateTE     = True    # Activate the output TE if a good vertex is found
-        self.activateAllTE  = False   # Activate the output TE for active events where this trigger is run
         self.nSplitVertices = 1       # Turn OFF vertex splitting
         self.vertexCollName = name
 

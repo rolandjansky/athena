@@ -208,16 +208,17 @@ private:
 
   /** Method to initialise navigation parameters including starting state, layer
    * and volume, and destination volume */
-  void initialiseNavigation(const EventContext& ctx,
-                            Cache& cache,
-                            const IPropagator& propagator,
-                            const MultiComponentState& initialState,
-                            const Surface& surface,
-                            const Layer*& associatedLayer,
-                            const TrackingVolume*& currentVolume,
-                            const TrackingVolume*& destinationVolume,
-                            const TrackParameters*& referenceParameters,
-                            PropDirection direction) const;
+  void initialiseNavigation(
+    const EventContext& ctx,
+    Cache& cache,
+    const IPropagator& propagator,
+    const MultiComponentState& initialState,
+    const Surface& surface,
+    const Layer*& associatedLayer,
+    const TrackingVolume*& currentVolume,
+    const TrackingVolume*& destinationVolume,
+    std::unique_ptr<TrackParameters>& referenceParameters,
+    PropDirection direction) const;
 
   bool radialDirectionCheck(const EventContext& ctx,
                             const IPropagator& prop,

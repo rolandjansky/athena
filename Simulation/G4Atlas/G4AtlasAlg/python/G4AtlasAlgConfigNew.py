@@ -62,14 +62,14 @@ def G4AtlasAlgBasicCfg(ConfigFlags, name="G4AtlasAlg", **kwargs):
     kwargs.setdefault("InputConverter", result.getService("ISF_InputConverter"))
 
     #sensitive detector master tool
-    accSensitiveDetector = SensitiveDetectorMasterToolCfg(ConfigFlags)
-    result.merge(accSensitiveDetector)
-    kwargs.setdefault("SenDetMasterTool", result.getPublicTool("SensitiveDetectorMasterTool")) #NOTE - is still a public tool
+    SensitiveDetector = result.popToolsAndMerge(SensitiveDetectorMasterToolCfg(ConfigFlags))
+    result.addPublicTool(SensitiveDetector)
+    kwargs.setdefault("SenDetMasterTool", result.getPublicTool(SensitiveDetector.name))
 
     #fast simulation master tool
-    accFastSimulation = FastSimulationMasterToolCfg(ConfigFlags)
-    result.merge(accFastSimulation)
-    kwargs.setdefault("FastSimMasterTool", result.getPublicTool("FastSimulationMasterTool")) # NOTE - is still a public tool
+    FastSimulation = result.popToolsAndMerge(FastSimulationMasterToolCfg(ConfigFlags))
+    result.addPublicTool(FastSimulation)
+    kwargs.setdefault("FastSimMasterTool", result.getPublicTool(FastSimulation.name))
 
     #Write MetaData container
     result.merge(writeSimulationParametersMetadata(ConfigFlags))

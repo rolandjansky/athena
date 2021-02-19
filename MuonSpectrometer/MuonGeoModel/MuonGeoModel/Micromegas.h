@@ -1,18 +1,20 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef Micromegas_H
 #define Micromegas_H
 
+#include <vector>
 #include "MuonGeoModel/DetectorElement.h"
-#include "MuonGeoModel/MicromegasComponent.h"
 
 class GeoFullPhysVol;
 
 namespace MuonGM {
 
 class Cutout;
+class Component;
+class MicromegasComponent;
 
 class Micromegas: public DetectorElement {
 

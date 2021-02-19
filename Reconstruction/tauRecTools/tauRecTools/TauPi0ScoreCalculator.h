@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUREC_TAUPI0SCORECALCULATOR_H
-#define	TAUREC_TAUPI0SCORECALCULATOR_H
+#ifndef TAURECTOOLS_TAUPI0SCORECALCULATOR_H
+#define TAURECTOOLS_TAUPI0SCORECALCULATOR_H
 
 #include "tauRecTools/TauRecToolBase.h"
 #include "tauRecTools/BDTHelper.h"
@@ -42,5 +42,5 @@ private:
   std::unique_ptr<tauRecTools::BDTHelper> m_mvaBDT = nullptr;
 };
 
-#endif	/* TAUPI0SCORECALCULATOR_H */
+#endif	// TAURECTOOLS_TAUPI0SCORECALCULATOR_H
 
