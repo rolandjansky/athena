@@ -546,10 +546,12 @@ jtm += JetVertexFractionTool(
 )
 
 # Jet vertex tagger.
+# This is never used without jtm.jvf when configured from here, so suppress input dependence.
 jtm += JetVertexTaggerTool(
   "jvt",
   VertexContainer = jtm.vertexContainer,
   JVTName = "Jvt",
+  SuppressInputDependence = True,
 )
 
 # Jet track info.
