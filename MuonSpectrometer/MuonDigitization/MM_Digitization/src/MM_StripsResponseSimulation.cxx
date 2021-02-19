@@ -141,7 +141,7 @@ void MM_StripsResponseSimulation::initialize(unsigned long int seed)
 }
 
 /*******************************************************************************/
-MM_StripToolOutput MM_StripsResponseSimulation::GetResponseFrom(const MM_DigitToolInput & digiInput)
+MM_StripToolOutput MM_StripsResponseSimulation::GetResponseFrom(const MM_DigitToolInput & digiInput, double gainFraction)
 {
 
     ATH_MSG_DEBUG("Starting to get response from strips");
@@ -157,7 +157,8 @@ MM_StripToolOutput MM_StripsResponseSimulation::GetResponseFrom(const MM_DigitTo
 		digiInput.incomingAngleYZ(), //degrees
 		digiInput.stripMinID(),
 		digiInput.stripMaxID(),
-		digiInput
+		digiInput,
+		gainFraction
 		);
 
 	ATH_MSG_DEBUG("Creating MmDigitToolOutput object");
@@ -178,7 +179,8 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 											const float & incidentAngleYZ,
 											const int & stripMinID,
 											const int & stripMaxID,
-											const MM_DigitToolInput & digiInput)
+											const MM_DigitToolInput & digiInput,
+                      double gainFraction)
 {
 
 	ATH_MSG_DEBUG("Starting to calculate strips that got fired");
@@ -245,7 +247,7 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 		for (auto& Electron : IonizationCluster->getElectrons()){
 
 			//float effectiveCharge = m_polyaFunction->GetRandom();
-			float effectiveCharge = getEffectiveCharge();
+			float effectiveCharge = getEffectiveCharge() * gainFraction;
 
 			Electron->setCharge( effectiveCharge );
 
