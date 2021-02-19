@@ -4,8 +4,8 @@ __author__  = 'Javier Montejo'
 __version__="$Revision: 1.00 $"
 __doc__="Script generating lists of future unprescaled triggers when the package is built"
 
-from TriggerMenu.api.TriggerAPI import TriggerAPI
-from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
+from TriggerMenuMT.TriggerAPI.TriggerAPI import TriggerAPI
+from TriggerMenuMT.TriggerAPI.TriggerEnums import TriggerPeriod, TriggerType
 
 def main(outfolder):
     TriggerAPI.setRelease("current")

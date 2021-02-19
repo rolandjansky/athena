@@ -1,14 +1,12 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
-from __future__ import print_function
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 __author__  = 'Javier Montejo'
-__version__="$Revision: 1.01 $"
+__version__="$Revision: 2.0 $"
 __doc__="Class defining data periods and access to GRLs"
 
 import sys
 import xml.etree.ElementTree as ET
-from TriggerMenu.api.TriggerEnums import TriggerPeriod
+from TriggerMenuMT.TriggerAPI.TriggerEnums import TriggerPeriod
 
 class TriggerPeriodData:
     # From https://atlas-tagservices.cern.ch/tagservices/RunBrowser/runBrowserReport/rBR_Period_Report.php?fnt=data17_13TeV
@@ -215,12 +213,14 @@ class TriggerPeriodData:
                 ranges.append( self.periodMap2018['N'] )
                 ranges.append( self.periodMap2018['O'] )
                 ranges.append( self.periodMap2018['Q'] )
-            for run in self.grl.keys()[:]:
+            for run in list(self.grl.keys()):
                 if not any([run >= x[0] and run <= x[1] for x in ranges]): self.grl.pop(run)
 
 def test():
-    print (TriggerPeriodData( TriggerPeriod.y2017 ).grl)
-    print (TriggerPeriodData( TriggerPeriod.y2017lowmu ).grl)
+    from AthenaCommon.Logging import logging
+    log = logging.getLogger( 'TriggerMenuMT.TriggerAPI.TriggerEnums' )
+    log.info(TriggerPeriodData( TriggerPeriod.y2017 ).grl)
+    log.info(TriggerPeriodData( TriggerPeriod.y2017lowmu ).grl)
 
 if __name__ == "__main__":
     sys.exit(test())

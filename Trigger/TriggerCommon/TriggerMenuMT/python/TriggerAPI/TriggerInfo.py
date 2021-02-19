@@ -1,15 +1,15 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
-from __future__ import print_function
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 __author__  = 'Javier Montejo'
-__version__="$Revision: 1.01 $"
+__version__="$Revision: 2.0 $"
 __doc__="Class containing all the information of an HLT chain"
 
 import re
-from TriggerMenu.api.TriggerEnums import TriggerType, TriggerPeriod
+from TriggerMenuMT.TriggerAPI.TriggerEnums import TriggerType, TriggerPeriod
 from collections import Counter
 import six
+from AthenaCommon.Logging import logging
+log = logging.getLogger( 'TriggerMenuMT.TriggerAPI.TriggerInfo' )
 
 class TriggerInfo:
     ''' Object containing all the HLT information related to a given period.
@@ -46,7 +46,7 @@ class TriggerInfo:
 
     @classmethod
     def testCustomGRL(cls, grl):
-        from TriggerMenu.api.TriggerPeriodData import TriggerPeriodData
+        from TriggerMenuMT.TriggerAPI.TriggerPeriodData import TriggerPeriodData
         return TriggerPeriodData.testCustomGRL(grl)
 
     def reparse(self):
@@ -139,7 +139,7 @@ class TriggerLeg:
                 elif legtype == 'ht':
                     self.legtype = TriggerType.ht
                 else:
-                    print ("Unknown trigger type:",legtype)
+                    log.info("Unknown trigger type:",legtype)
                 if noL1: details.append(noL1)
             else:
                 if self.bjetpattern.match(token):
@@ -181,15 +181,15 @@ class TriggerLeg:
             Returns  1 if self  is lower than other.
         '''
         if debug:
-            print ("DEBUG LEGS --------")
-            print (self.legname, other.legname)
-            print (self.legtype, other.legtype)
-            print (self.l1seed, other.l1seed)
-            print (self.details, other.details)
-            print (self.thr, other.thr)
-            print (self.compareDetails(other, is2015, debug=True))
-            print (self.details == other.details)
-            print ("DEBUG LEGS END --------")
+            log.info("DEBUG LEGS --------")
+            log.info(self.legname, other.legname)
+            log.info(self.legtype, other.legtype)
+            log.info(self.l1seed, other.l1seed)
+            log.info(self.details, other.details)
+            log.info(self.thr, other.thr)
+            log.info(self.compareDetails(other, is2015, debug=True))
+            log.info(self.details == other.details)
+            log.info("DEBUG LEGS END --------")
 
         if self.legtype != other.legtype: return -9
         if self.compareDetails(other, is2015) == -1:
@@ -209,7 +209,7 @@ class TriggerLeg:
         '''
         from copy import deepcopy
 
-        if debug: print ("compareDetails:",len(self.details), len(other.details),(self.l1seed == other.l1seed),(self.details == other.details) )
+        if debug: log.info("compareDetails:",len(self.details), len(other.details),(self.l1seed == other.l1seed),(self.details == other.details) )
         if len(self.details) != len(other.details): 
             if not is2015 and any([x.startswith("noL1") for x in self.details]):
                 cloneself = deepcopy(self)
@@ -252,11 +252,11 @@ class TriggerLeg:
         compdetails = self.compareTags(" ".join(self.details), " ".join(other.details), debug=debug )
         if self.l1seed == other.l1seed:
             if self.details == other.details: return -1
-            if debug: print ("compareTags 1:",compdetails)
+            if debug: log.info("compareTags 1:",compdetails)
             return compdetails
 
         if self.details == other.details:
-            if debug: print ("compareTags 2:",compl1seed)
+            if debug: log.info("compareTags 2:",compl1seed)
             return compl1seed
 
         if compl1seed == compdetails:
@@ -299,7 +299,7 @@ class TriggerLeg:
 
         if len(reself) != len(reother): return -9
         thecomp = [mycomp(a,b) for a,b in zip(reself,reother)]
-        if debug: print ("thecomp:",thecomp,reself,reother)
+        if debug: log.info("thecomp:",thecomp,reself,reother)
         if any([x == -9 for x in thecomp]): return -9
         if all([x !=0 for x in thecomp]) and any([x == 1 for x in thecomp]): return 1
         if all([x !=1 for x in thecomp]) and any([x == 0 for x in thecomp]): return 0
@@ -316,7 +316,7 @@ class TriggerLeg:
             elif legsname: 
                 legsname[-1] += "_"+token
             else: #first token doesn't match
-                #print ("parse_legs: Problem parsing",name)
+                #log.info("parse_legs: Problem parsing",name)
                 return []
         return [TriggerLeg(l,l1seed,chainname) for l in legsname]
 
@@ -418,7 +418,7 @@ class TriggerChain:
                 elif legtype == 'HT':
                     mtype |= TriggerType.ht
                 else:
-                    print ("Unknown trigger type:",(legtype, mtype, token, self.name))
+                    log.info("Unknown trigger type:",(legtype, mtype, token, self.name))
         return mtype
 
     def isActive(self, livefraction=1e-99):
@@ -453,7 +453,7 @@ class TriggerChain:
         return tmpType == TriggerType.UNDEFINED #After matches nothing remains
 
     def __repr__(self):
-        print (self.name, self.legs, "{0:b}".format(self.triggerType), self.livefraction, self.activeLB)
+        log.info(self.name, self.legs, "{0:b}".format(self.triggerType), self.livefraction, self.activeLB)
         return ""
 
     def isSubsetOf(self, other):
@@ -484,27 +484,27 @@ class TriggerChain:
         comp = -1
         debug = False
         #if re.search("HLT_j55_gsc75_bmv2c1040_split_3j55_gsc75_boffperf_split", self.name): debug = True
-        if debug: print ("DEBUG:",self.name,other.name)
+        if debug: log.info("DEBUG:",self.name,other.name)
         for selfleg, otherleg in zip(self.legs, other.legs):
             legcomp = selfleg.isLegLowerThan(otherleg, is2015, debug)
-            if debug: print ("DEBUG LEG return:", legcomp)
+            if debug: log.info("DEBUG LEG return:", legcomp)
             if legcomp == -9: return -1
             elif legcomp == -1: continue
             elif legcomp == 0 and comp == 1: return -1
             elif legcomp == 1 and comp == 0: return -1
             elif legcomp == 0 : comp = 0
             elif legcomp == 1 : comp = 1
-        if debug: print ("DEBUG FINAL:",comp)
+        if debug: log.info("DEBUG FINAL:",comp)
         return comp
 
 
 def test():
     a = TriggerChain("HLT_j50_gsc65_bmv2c1040_split_3j50_gsc65_boffperf_split", "L1J100",1)
-    print (a)
-    print (bin(a.getType()))
-    print (a.passType(TriggerType.j_multi, TriggerType.UNDEFINED))
-    print (a.passType(TriggerType.j_multi | TriggerType.bj_single, TriggerType.UNDEFINED))
-    print (a.isUnprescaled())
+    log.info(a)
+    log.info(bin(a.getType()))
+    log.info(a.passType(TriggerType.j_multi, TriggerType.UNDEFINED))
+    log.info(a.passType(TriggerType.j_multi | TriggerType.bj_single, TriggerType.UNDEFINED))
+    log.info(a.isUnprescaled())
 
 if __name__ == "__main__":
     import sys

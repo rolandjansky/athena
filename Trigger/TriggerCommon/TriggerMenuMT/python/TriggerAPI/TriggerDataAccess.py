@@ -1,14 +1,14 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
-from __future__ import print_function
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 __author__  = 'Javier Montejo'
-__version__="$Revision: 1.01 $"
+__version__="$Revision: 2.0 $"
 __doc__="Access to Trigger DB and TriggerMenu to read past and future prescales"
 
 import sys
-from TriggerMenu.api.TriggerEnums import TriggerPeriod, LBexceptions, TriggerRenaming
-from TriggerMenu.api.TriggerPeriodData import TriggerPeriodData
+from TriggerMenuMT.TriggerAPI.TriggerEnums import TriggerPeriod, LBexceptions, TriggerRenaming
+from TriggerMenuMT.TriggerAPI.TriggerPeriodData import TriggerPeriodData
+from AthenaCommon.Logging import logging
+log = logging.getLogger( 'TriggerAPI.TriggerDataAccess' )
 
 import six
 
@@ -23,9 +23,9 @@ def getReadyForPhysicsInRange(period):
     returns all runs in the given period which have the ReadyForPhysics flag set in at least 1 LB
     """
 
-    print ("Loading COOL libs...")
+    log.info("Loading COOL libs...")
     from CoolLumiUtilities.CoolDataReader import CoolDataReader
-    print ("Done loading libs, starting now ...")
+    log.info("Done loading libs, starting now ...")
 
     myReader = CoolDataReader('COOLONL_TDAQ/CONDBR2', '/TDAQ/RunCtrl/DataTakingMode')
     runsWithReady = {}
@@ -45,14 +45,14 @@ def getReadyForPhysicsInRange(period):
         sincerun, sincelb = getRunLBFromU64(obj.since())
         untilrun, untillb = getRunLBFromU64(obj.until())
         if sincerun != untilrun:
-            print ("WARNING: ready block crosses run boundaries:", sincerun, untilrun)
+            log.info("WARNING: ready block crosses run boundaries:", sincerun, untilrun)
         if sincerun not in period: continue
         if sincerun in runsWithReady:
             runsWithReady[sincerun] += [ (sincelb, untillb) ]
         else:
             runsWithReady[sincerun] = [ (sincelb, untillb) ]
 
-    print (runsWithReady)
+    log.info(runsWithReady)
 
     return runsWithReady
 
@@ -72,7 +72,7 @@ def getKeys( listOfRuns, doPrint = False ):
 
         listOfReadyBlocks = listOfRuns[run]
 
-        print ("Getting keys for run %i, lbs %r" % (run, listOfReadyBlocks))
+        log.info("Getting keys for run %i, lbs %r",run, listOfReadyBlocks)
 
         since = (run << 32) 
         until = ((run+1) << 32)
@@ -121,7 +121,7 @@ def getKeys( listOfRuns, doPrint = False ):
             #    keysByRun.setdefault(run,{}).setdefault('bgsk',[]).append(bgsk)
 
     if doPrint:
-        print (keysByRun)
+        log.info(keysByRun)
 
     return keysByRun
 
@@ -163,10 +163,9 @@ def queryHLTPrescaleTableRun2(connection,psk):
 
 def fillHLTmap( info, hltMap_prev , lbCount, run, grlblocks):
     from TrigConfigSvc.TrigConfigSvcUtils import getL1Items, getL1Prescales
-    from AthenaCommon.Logging import logging
 
-    log = logging.getLogger( "TrigConfigSvcUtils.py" )
-    log.setLevel(logging.ERROR) #avoid the spam from TrigConfigSvcUtils
+    mutelog = logging.getLogger( "TrigConfigSvcUtils.py" )
+    mutelog.setLevel(logging.ERROR) #avoid the spam from TrigConfigSvcUtils
 
     items = getL1Items('TRIGGERDB', info['smk']) # returs map item name => CTP ID
     chainsHLT = getChainsWithL1seed('TRIGGERDB', info['smk']) # returns map HLT ID => (HLT name, L1 seed)
@@ -209,13 +208,13 @@ def fillHLTmap( info, hltMap_prev , lbCount, run, grlblocks):
     for lbstart, lbend, hltprescales, l1prescales in mergedList:
         lboverlap = max([min(lbend,grllbend) - max(lbstart,grllbstart) for (grllbstart,grllbend) in grlblocks])+1
         if lboverlap <= 0:
-            #print ("Rejected:",(lboverlap, lbstart, lbend, grlblocks))
+            #log.info("Rejected:",(lboverlap, lbstart, lbend, grlblocks))
             continue
         if run in LBexceptions.exceptions:
             if any([lbstart>=exc_start and lbstart<=exc_end for exc_start, exc_end in LBexceptions.exceptions[run]]): continue
             if any([lbend>=exc_start and lbend<=exc_end for exc_start, exc_end in LBexceptions.exceptions[run]]): continue
 
-        #print ("Accepted:",(lboverlap, lbstart, lbend, grlblocks))
+        #log.info("Accepted:",(lboverlap, lbstart, lbend, grlblocks))
         lbCount += lboverlap
         for hltid, (hltps, hltrerun) in six.iteritems (hltprescales):
             if hltid not in chainsHLT: continue
@@ -229,7 +228,7 @@ def fillHLTmap( info, hltMap_prev , lbCount, run, grlblocks):
                 l1ps = min(l1ps, tmpl1ps)
             
             #if hltps*l1ps!=1 and chainsHLT[hltid][0]=="HLT_mu60_0eta105_msonly": #muon primary since 2015 as standard candle to find problematic LBs
-            #    print ("WARNING: Prescaled HLT_mu60_0eta105_msonly",l1ps,hltps,lbstart, lbend, grlblocks)
+            #    log.info("WARNING: Prescaled HLT_mu60_0eta105_msonly",l1ps,hltps,lbstart, lbend, grlblocks)
 
             if hltps*l1ps < 1e99: efflb = lboverlap/(hltps*l1ps)
             else:                 efflb = 0
@@ -289,7 +288,7 @@ def getHLTmap_fromDB(period, customGRL):
     hltMap = {}
     lbCount = 0
     for run in keys:
-        print ("Filling run:",run)
+        log.info("Filling run:",run)
         hltMap, lbCount = fillHLTmap( keys[run], hltMap, lbCount , run, triggerPeriod[run])
 
     return hltMap, lbCount
@@ -300,38 +299,44 @@ def getHLTmap_fromTM(period, release):
         The format is the same as for TriggerDBAccess for compatibility but rerun is always false
     '''
 
-    from os import getenv
-    asetupversion = getenv('AtlasVersion','')
-    forceRel21 = not (asetupversion.startswith("21.1") or asetupversion.startswith("22."))
-    if (forceRel21 or release) and release!="current":
-        sys.path.insert(0, getMenuPathFromRelease(release))
-        import Physics_pp_v7_primaries as theMenu
-    else:
-        from TriggerMenu.menu import Physics_pp_v7_primaries as theMenu
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
+    menu = "Physics_pp_run3_v1"
     
-    theMenu.setupMenu()
-    if not period & TriggerPeriod.future: return {}, 0
-    maxlumi = 20000
-    if   period & TriggerPeriod.future1p8e34: maxlumi = 17000
-    elif period & TriggerPeriod.future2e34:   maxlumi = 20000
-    else: print ("Warning non-recongnized future",period)
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ConfigFlags.Trigger.EDMVersion = 3
+    from TriggerJobOpts.TriggerFlags import TriggerFlags
+    TriggerFlags.triggerMenuSetup = menu
+    TriggerFlags.readLVL1configFromXML = True
+    TriggerFlags.outputLVL1configFile = None
+    
+    mutelog = logging.getLogger( 'Menu.L1.L1MenuConfig' )
+    mutelog.setLevel(logging.WARNING) #avoid spam from Menu.L1.L1MenuConfig
 
+    ConfigFlags.Trigger.triggerMenuSetup = menu
+    from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu, createL1PrescalesFileFromMenu
+    generateL1Menu(ConfigFlags)
+    createL1PrescalesFileFromMenu(ConfigFlags)
+    
+    try:
+        from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
+        menu = GenerateMenuMT()
+        menu.getChainsFromMenu()
+    except AttributeError: #JobProperties.Rec.Trigger does not have property UnconventionalTrackingSlice
+        log.warning("Could not load TriggerMenuMT, the non-MT version is already loaded")
+        log.warning("Will not provide Run3 trigger information")
+        ConfigFlags.Trigger.EDMVersion = 2
+        return {},0
+        
+
+    if not period & TriggerPeriod.future: return {}, 0
     hltMap = {}
     dummyfutureLBs = 1e6
-    for prop in dir(TriggerFlags):
-        if prop[-5:]!='Slice': continue
-        sliceName=prop
-        m_slice=getattr(TriggerFlags,sliceName)
-        for m in m_slice.signatures():
-            #['mu28_ivarmedium', 'L1_MU20MU21',   ['L1_MU20'], [PhysicsStream], ['Primary:20000','RATE:SingleMuon', 'BW:Muon'], -1],
-            hltname = 'HLT_'+m[0]
-            l1seed  = m[1]
-            comment = m[4][0]
-            ps = 0
-            if maxlumi <= 20000 and 'Primary:20000' in comment: ps = 1
-            if maxlumi <= 17000 and 'Primary:17000' in comment: ps = 1
-            hltMap[hltname] = (l1seed, dummyfutureLBs*ps, False)  #hasRerun=False
+
+    for chain in menu.chainsInMenu:
+        hltname = chain.name
+        l1seed  = chain.name[chain.name.rfind("_L1")+3:] #surely a better way to do this
+        primary = any('Primary' in g for g in chain.groups)
+        ps = 1 if primary else 0
+        hltMap[hltname] = (l1seed, dummyfutureLBs*ps, False)  #hasRerun=False
         
     return hltMap, dummyfutureLBs
 
@@ -371,7 +376,7 @@ def cleanHLTmap(hltmap, totalLB):
     return hltlist
 
 def test():
-    print (getHLTlist(TriggerPeriod.y2017,None))
+    log.info(getHLTlist(TriggerPeriod.future,None, None))
 
 if __name__ == "__main__":
     sys.exit(test())
