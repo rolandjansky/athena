@@ -18,7 +18,7 @@
 #define TRIGT2CALOEGAMMA_CALOALLFEXEGAMMA_H
 
 
-#include "TrigT2CaloCommon/IAlgToolCalo.h"
+#include "TrigT2CaloCommon/IReAlgToolCalo.h"
 #include "GaudiKernel/AlgTool.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -31,10 +31,8 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
 class IRoiDescriptor;
 
 /** Feature extraction Tool for LVL2 Calo. Second EM Calorimeter sample. */
-class EgammaAllFex: public IAlgToolCalo {
+class EgammaAllFex: public IReAlgToolCalo {
   public:
-    // to avoid compiler warning about hidden virtuals
-    using IAlgToolCalo::execute;
   
     /** Constructor */
     EgammaAllFex(const std::string & type, const std::string & name, 
@@ -47,47 +45,11 @@ class EgammaAllFex: public IAlgToolCalo {
     *   @param[out] rtrigEmCluster is the output cluster.
     *   @param[in] eta/phi-min/max = RoI definition.
     */
-    StatusCode execute(xAOD::TrigEMCluster &rtrigEmCluster,
+    virtual StatusCode execute(xAOD::TrigEMCluster &rtrigEmCluster,
 		       const IRoiDescriptor& roi,
 		       const CaloDetDescrElement*& /*caloDDE*/,
-                       const EventContext* /*context*/ );
+                       const EventContext& context ) const override;
 
-    /// OBSOLETE, DO NOT USE!!
-    /** @brief execute feature extraction for the EM Calorimeter
-    *	second layer 
-    *   @param[out] rtrigEmCluster is the output cluster.
-    *   @param[in] eta/phi-min/max = RoI definition.
-    */
-    StatusCode execute(xAOD::TrigEMCluster &rtrigEmCluster,
-		       double etamin, double etamax, 
-		       double phimin, double phimax) { 
-      TrigRoiDescriptor roi( 0.5*(etamin+etamax), etamin, etamax,
-                             CxxUtils::phiMean(phimin,phimax), phimin, phimax);
-      return execute( rtrigEmCluster, roi, caloDDENull, nullptr );
-    }
-
-
-    /** Special initialize for All to include eta as a
-	trigger timer item monitored parameter. Important
-	to compare time performance as a function of cluster
-	position.
-    */
-
-    StatusCode initialize() {
-		// Very important to call base class initialize
-                if ( IAlgToolCalo::initialize().isFailure() ) {
-                	*(new MsgStream(AlgTool::msgSvc(), name()))
-			<< MSG::FATAL 
-			<< "Could not init base class IAlgTooCalo" << endmsg;
-                }
-                std::string basename(name().substr(25,5)+".");
-		//std::string basename(name().substr(6,1)+name().substr(name().find("Fex",0)-5,5));
-                //basename+=(name().substr(6,1)+name().substr(name().find("Fex",0)-5,5));
-		if (m_timersvc) {
-                	m_timer[0]->propName(basename+"Eta");
-		}
-                return StatusCode::SUCCESS;
-    }
    private:
      bool  m_includeHad;
 
