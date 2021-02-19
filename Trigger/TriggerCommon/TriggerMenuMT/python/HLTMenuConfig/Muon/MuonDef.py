@@ -130,7 +130,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
     # --------------------
     def getmuFast(self):
         doOvlpRm = False
-        if "bTau" in self.chainName or "bJpsi" in self.chainName or "bUpsi" in self.chainName or "bDimu" in self.chainName or "bBmu" in self.chainName or "l2io" in self.chainName:
+        if any(x in self.chainName for x in ['bJpsi', 'bUpsi', 'bDimu', 'bBmu', 'bPhi', 'bTau', 'l2io']):
            doOvlpRm = False
         elif self.mult>1:
            doOvlpRm = True
@@ -148,7 +148,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
     def getmuComb(self):
 
         doOvlpRm = False
-        if "bTau" in self.chainName or "bJpsi" in self.chainName or "bUpsi" in self.chainName or "bDimu" in self.chainName or "bBmu" in self.chainName:
+        if any(x in self.chainName for x in ['bJpsi', 'bUpsi', 'bDimu', 'bBmu', 'bPhi', 'bTau']):
            doOvlpRm = False
         elif self.mult>1:
            doOvlpRm = True

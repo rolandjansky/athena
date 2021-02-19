@@ -12,8 +12,7 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Bphysics.BphysicsDef")
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 from TriggerMenuMT.HLTMenuConfig.Muon.MuonDef import MuonChainConfiguration as MuonChainConfiguration
 
-from TriggerMenuMT.HLTMenuConfig.Muon.MuonDef import muCombSequenceCfg
-from TriggerMenuMT.HLTMenuConfig.Bphysics.BphysicsSequenceSetup import bmumuxSequence, dimuSequence
+from TriggerMenuMT.HLTMenuConfig.Bphysics.BphysicsSequenceSetup import dimuL2Sequence, dimuEFSequence, bmumuxSequence
 
 from TrigBphysHypo.TrigMultiTrkComboHypoConfig import DimuL2ComboHypoCfg, DimuEFComboHypoCfg, TrigMultiTrkComboHypoToolFromDict
 from TrigBphysHypo.TrigBmumuxComboHypoConfig import BmumuxComboHypoCfg, TrigBmumuxComboHypoToolFromDict
@@ -23,8 +22,11 @@ from TrigBphysHypo.TrigBmumuxComboHypoConfig import BmumuxComboHypoCfg, TrigBmum
 # I have no idea what the above sentence means - copy/paste from muons...
 #--------------------------------------------------------
 
-def dimuSequenceCfg(flags):
-    return dimuSequence()
+def dimuL2SequenceCfg(flags):
+    return dimuL2Sequence()
+
+def dimuEFSequenceCfg(flags):
+    return dimuEFSequence()
 
 def bmumuxSequenceCfg(flags):
     return bmumuxSequence()
@@ -61,9 +63,9 @@ class BphysicsChainConfiguration(MuonChainConfiguration):
     def getBphysStepDictionary(self):
 
         stepDictionary = {
-            'dimu'   : [['getmuFast', 'getDimuComb'], ['getmuEFSA', 'getmuEFCB', 'getDimu']],
-            'bl2io'  : [['getmuFast', 'getmuCombIO'], ['getmuEFSA', 'getmuEFCB', 'getDimu']],
-            'bmumux' : [['getmuFast', 'getDimuComb'], ['getmuEFSA', 'getmuEFCB', 'getBmumux']],
+            'dimu'   : [['getmuFast', 'getDimuL2'], ['getmuEFSA', 'getmuEFCB', 'getDimuEF']],
+            'bl2io'  : [['getmuFast', 'getmuCombIO'], ['getmuEFSA', 'getmuEFCB', 'getDimuEF']],
+            'bmumux' : [['getmuFast', 'getDimuL2'], ['getmuEFSA', 'getmuEFCB', 'getBmumux']],
         }
         return stepDictionary
 
@@ -88,11 +90,11 @@ class BphysicsChainConfiguration(MuonChainConfiguration):
 
         return topo_dict[the_topo]
 
-    def getDimuComb(self):
-        return self.getStep(2, 'dimuComb', [muCombSequenceCfg], comboHypoCfg=DimuL2ComboHypoCfg)
+    def getDimuL2(self):
+        return self.getStep(2, 'dimuL2', [dimuL2SequenceCfg], comboHypoCfg=DimuL2ComboHypoCfg)
 
-    def getDimu(self):
-        return self.getStep(5, 'dimu', [dimuSequenceCfg], comboHypoCfg=DimuEFComboHypoCfg, comboTools=[TrigMultiTrkComboHypoToolFromDict])
+    def getDimuEF(self):
+        return self.getStep(5, 'dimuEF', [dimuEFSequenceCfg], comboHypoCfg=DimuEFComboHypoCfg, comboTools=[TrigMultiTrkComboHypoToolFromDict])
 
     def getBmumux(self):
         return self.getStep(5, 'bmumux', [bmumuxSequenceCfg], comboHypoCfg=BmumuxComboHypoCfg, comboTools=[TrigBmumuxComboHypoToolFromDict])
