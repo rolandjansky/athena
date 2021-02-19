@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
+from AthenaConfiguration.ComponentFactory import CompFactory
 from TrigBphysHypo.TrigBphysHypoConf import TrigMultiTrkComboHypo, TrigMultiTrkComboHypoTool
 from TrigBphysHypo.TrigMultiTrkComboHypoMonitoringConfig import TrigMultiTrkComboHypoMonitoring, TrigMultiTrkComboHypoToolMonitoring
 
@@ -61,21 +62,21 @@ class TrigMultiTrkComboHypoConfig(object):
 
         from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
         from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
-        VertexFitter = Trk__TrkVKalVrtFitter(
+        VertexFitter = CompFactory.Trk__TrkVKalVrtFitter(
             name = 'TrigBphysFitter_'+trigSequenceName+trigLevel,
             FirstMeasuredPoint = False,
             MakeExtendedVertex = False,
             Extrapolator = AtlasExtrapolator())
 
         from InDetConversionFinderTools.InDetConversionFinderToolsConf import InDet__VertexPointEstimator
-        VertexPointEstimator = InDet__VertexPointEstimator(
+        VertexPointEstimator = CompFactory.InDet__VertexPointEstimator(
             name = 'VertexPointEstimator_'+trigSequenceName+trigLevel,
             MinDeltaR = [-10000., -10000., -10000.],
             MaxDeltaR = [ 10000.,  10000.,  10000.],
             MaxPhi    = [ 10000.,  10000.,  10000.],
             MaxChi2OfVtxEstimation = 2000.)
 
-        tool = TrigMultiTrkComboHypo(
+        tool = CompFactory.TrigMultiTrkComboHypo(
             name = trigSequenceName+trigLevel+'ComboHypo',
             trigLevel = trigLevel,
             nTracks = 2,
@@ -94,7 +95,7 @@ class TrigMultiTrkComboHypoConfig(object):
 
     def ConfigurationComboHypoTool(self, chainDict):
 
-        tool = TrigMultiTrkComboHypoTool(chainDict['chainName'])
+        tool = CompFactory.TrigMultiTrkComboHypoTool(chainDict['chainName'])
 
         try:
             topo = chainDict['topo'][0]
