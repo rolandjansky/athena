@@ -4459,17 +4459,17 @@ HLT_xe110_tcpufit_L1XE50:
   stepFeatures:
     0: 6
 HLT_xe30_cell_L1XE10:
-  eventCount: 17
+  eventCount: 16
   stepCounts:
-    0: 17
+    0: 16
   stepFeatures:
-    0: 17
+    0: 16
 HLT_xe30_cell_xe30_tcpufit_L1XE10:
-  eventCount: 14
+  eventCount: 13
   stepCounts:
-    0: 14
+    0: 13
   stepFeatures:
-    0: 31
+    0: 30
 HLT_xe30_cvfpufit_L1XE10:
   eventCount: 14
   stepCounts:

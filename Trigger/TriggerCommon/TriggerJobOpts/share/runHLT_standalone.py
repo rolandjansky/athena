@@ -373,10 +373,10 @@ if ConfigFlags.Trigger.doID:
     include("InDetRecExample/InDetRecConditionsAccess.py")
 
 if ConfigFlags.Trigger.doCalo:
-    from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigDataAccess
-    svcMgr.ToolSvc += TrigDataAccess()
+    from TrigT2CaloCommon.CaloDef import setMinimalCaloSetup
+    setMinimalCaloSetup()
     if ConfigFlags.Input.Format == 'POOL':
-        ConfigFlags.Trigger.doTransientByteStream = True # enable transient BS if TrigDataAccess is used with pool data
+        ConfigFlags.Trigger.doTransientByteStream = True # enable transient BS if TrigCaloDataAccessSvc is used with pool data
 
 if ConfigFlags.Trigger.doMuon:
     TriggerFlags.MuonSlice.doTrigMuonConfig=True
