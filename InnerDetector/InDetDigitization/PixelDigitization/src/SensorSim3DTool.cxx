@@ -319,99 +319,97 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
 
       //Loop over charge-carrier pairs
       for (int j = 0; j < ncharges; j++) {
-        if (m_doRadDamage && m_fluence > 0) {
-          double eHit = energy_per_step;
-          //Need to determine how many elementary charges this charge chunk represents.
-          double chunk_size = energy_per_step * eleholePairEnergy; //number of electrons/holes
+        double eHit = energy_per_step;
+        //Need to determine how many elementary charges this charge chunk represents.
+        double chunk_size = energy_per_step * eleholePairEnergy; //number of electrons/holes
 
-          //set minimum limit to prevent dividing into smaller subcharges than one fundamental charge
-          if (chunk_size < 1) chunk_size = 1;
-          double kappa = 1. / std::sqrt(chunk_size);
+        //set minimum limit to prevent dividing into smaller subcharges than one fundamental charge
+        if (chunk_size < 1) chunk_size = 1;
+        double kappa = 1. / std::sqrt(chunk_size);
 
-          // Loop over everything twice: once for electrons and once for holes
-          for (int eholes = 0; eholes < 2; eholes++) {
-            const bool isHole = (eholes == 1); // Set a condition to keep track of electron/hole-specific functions
+        // Loop over everything twice: once for electrons and once for holes
+        for (int eholes = 0; eholes < 2; eholes++) {
+          const bool isHole = (eholes == 1); // Set a condition to keep track of electron/hole-specific functions
 
-            // Reset extraPixel coordinates each time through loop
-            extraNPixX = nPixX;
-            extraNPixY = nPixY;
+          // Reset extraPixel coordinates each time through loop
+          extraNPixX = nPixX;
+          extraNPixY = nPixY;
 
-            const double timeToElectrode = getTimeToElectrode(y_pix, x_pix, isHole);
-            const double driftTime = getDriftTime(isHole);
+          const double timeToElectrode = getTimeToElectrode(y_pix, x_pix, isHole);
+          const double driftTime = getDriftTime(isHole);
 
-            //Apply drift due to diffusion
-            const double phiRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
+          //Apply drift due to diffusion
+          const double phiRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
 
-            //Apply diffusion. rdif is teh max. diffusion
-            const double Dt = (isHole ? mobilityHole : mobilityElectron) * (0.024) * std::min(driftTime, timeToElectrode) * m_temperature / 273.;
-            const double rdif = 1e-3*std::sqrt(Dt); //in mm
-            double xposDiff = x_pix + rdif * phiRand;
-            const double etaRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
-            double yposDiff = y_pix + rdif * etaRand;
+          //Apply diffusion. rdif is teh max. diffusion
+          const double Dt = (isHole ? mobilityHole : mobilityElectron) * (0.024) * std::min(driftTime, timeToElectrode) * m_temperature / 273.;
+          const double rdif = 1e-3*std::sqrt(Dt); //in mm
+          double xposDiff = x_pix + rdif * phiRand;
+          const double etaRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
+          double yposDiff = y_pix + rdif * etaRand;
 
-            // Account for drifting into another pixel
-            while (xposDiff > pixel_size_x) {
-              extraNPixX = extraNPixX + 1;               // increments or decrements pixel count in x
-              xposDiff = xposDiff - pixel_size_x;        // moves xpos coordinate 1 pixel over in x
-            }
-            while (xposDiff < 0) {
-              extraNPixX = extraNPixX - 1;
-              xposDiff = xposDiff + pixel_size_x;
-            }
-            while (yposDiff > pixel_size_y) {
-              extraNPixY = extraNPixY + 1;               // increments or decrements pixel count in y
-              yposDiff = yposDiff - pixel_size_y;        // moves xpos coordinate 1 pixel over in y
-            }
-            while (yposDiff < 0) {
-              extraNPixY = extraNPixY - 1;
-              yposDiff = yposDiff + pixel_size_y;
-            }
+          // Account for drifting into another pixel
+          while (xposDiff > pixel_size_x) {
+            extraNPixX = extraNPixX + 1;               // increments or decrements pixel count in x
+            xposDiff = xposDiff - pixel_size_x;        // moves xpos coordinate 1 pixel over in x
+          }
+          while (xposDiff < 0) {
+            extraNPixX = extraNPixX - 1;
+            xposDiff = xposDiff + pixel_size_x;
+          }
+          while (yposDiff > pixel_size_y) {
+            extraNPixY = extraNPixY + 1;               // increments or decrements pixel count in y
+            yposDiff = yposDiff - pixel_size_y;        // moves xpos coordinate 1 pixel over in y
+          }
+          while (yposDiff < 0) {
+            extraNPixY = extraNPixY - 1;
+            yposDiff = yposDiff + pixel_size_y;
+          }
 
 
-            float average_charge = isHole ? m_avgChargeMap_h.getContent(m_avgChargeMap_h.getBinY(1e3*y_pix), m_avgChargeMap_h.getBinX(1e3*x_pix)) :
-                                            m_avgChargeMap_e.getContent(m_avgChargeMap_e.getBinY(1e3*y_pix), m_avgChargeMap_e.getBinX(1e3*x_pix));
+          float average_charge = isHole ? m_avgChargeMap_h.getContent(m_avgChargeMap_h.getBinY(1e3*y_pix), m_avgChargeMap_h.getBinX(1e3*x_pix)) :
+                                          m_avgChargeMap_e.getContent(m_avgChargeMap_e.getBinY(1e3*y_pix), m_avgChargeMap_e.getBinX(1e3*x_pix));
 
-            double xposFinal = getTrappingPositionY(yposDiff, xposDiff, std::min(driftTime, timeToElectrode), isHole);
-            double yposFinal = getTrappingPositionX(yposDiff, xposDiff, std::min(driftTime, timeToElectrode), isHole);
+          double xposFinal = getTrappingPositionY(yposDiff, xposDiff, std::min(driftTime, timeToElectrode), isHole);
+          double yposFinal = getTrappingPositionX(yposDiff, xposDiff, std::min(driftTime, timeToElectrode), isHole);
 
-            // -- Calculate signal in current pixel and in the neighboring ones
-            // -- loop in the x-coordinate
-            for (int i = -1; i <= 1; i++) {
-              double xNeighbor = i * pixel_size_x;
-              // -- loop in the y-coordinate
-              const std::size_t index = 0;
-              const std::size_t ramo_init_bin_y  = m_ramoPotentialMap[index].getBinY(1000*(x_pix + pixel_size_x * 3 - xNeighbor));
-              const std::size_t ramo_final_bin_y = m_ramoPotentialMap[index].getBinY(1000*(xposFinal + pixel_size_x * 3 - xNeighbor));
-              for (int j = -1; j <= 1; j++) {
-                double yNeighbor = j * pixel_size_y;
+          // -- Calculate signal in current pixel and in the neighboring ones
+          // -- loop in the x-coordinate
+          for (int i = -1; i <= 1; i++) {
+            double xNeighbor = i * pixel_size_x;
+            // -- loop in the y-coordinate
+            const std::size_t index = 0;
+            const std::size_t ramo_init_bin_y  = m_ramoPotentialMap[index].getBinY(1000*(x_pix + pixel_size_x * 3 - xNeighbor));
+            const std::size_t ramo_final_bin_y = m_ramoPotentialMap[index].getBinY(1000*(xposFinal + pixel_size_x * 3 - xNeighbor));
+            for (int j = -1; j <= 1; j++) {
+              double yNeighbor = j * pixel_size_y;
 
-                //Ramo map over 500umx350um pixel area
-                //Ramo init different if charge diffused into neighboring pixel -> change primary pixel!!
-                float ramoInit  = m_ramoPotentialMap[index].getContent(m_ramoPotentialMap[index].getBinX(1000*(y_pix + 0.5*pixel_size_y - yNeighbor)), ramo_init_bin_y);
-                float ramoFinal = m_ramoPotentialMap[index].getContent(m_ramoPotentialMap[index].getBinX(1000*(yposFinal + 0.5*pixel_size_y - yNeighbor)), ramo_final_bin_y);
+              //Ramo map over 500umx350um pixel area
+              //Ramo init different if charge diffused into neighboring pixel -> change primary pixel!!
+              float ramoInit  = m_ramoPotentialMap[index].getContent(m_ramoPotentialMap[index].getBinX(1000*(y_pix + 0.5*pixel_size_y - yNeighbor)), ramo_init_bin_y);
+              float ramoFinal = m_ramoPotentialMap[index].getContent(m_ramoPotentialMap[index].getBinX(1000*(yposFinal + 0.5*pixel_size_y - yNeighbor)), ramo_final_bin_y);
 
-                // Record deposit
-                double eHitRamo = (1 - 2 * isHole) * eHit * (ramoFinal - ramoInit);
+              // Record deposit
+              double eHitRamo = (isHole ? -1. : 1.) * eHit * (ramoFinal - ramoInit);
 
-                if (m_doChunkCorrection) {
-                  eHitRamo = eHit * average_charge + kappa * (eHitRamo - eHit * average_charge);
-                }
+              if (m_doChunkCorrection) {
+                eHitRamo = eHit * average_charge + kappa * (eHitRamo - eHit * average_charge);
+              }
 
-                double induced_charge = eHitRamo * eleholePairEnergy;
+              double induced_charge = eHitRamo * eleholePairEnergy;
 
-                // -- pixel coordinates --> module coordinates
-                double x_mod = x_pix + xNeighbor + pixel_size_x * extraNPixX - 0.5*module_size_x;
-                double y_mod = y_pix + yNeighbor + pixel_size_y * extraNPixY - 0.5*module_size_y;
-                const SiLocalPosition& chargePos = Module.hitLocalToLocal(y_mod, x_mod);
+              // -- pixel coordinates --> module coordinates
+              double x_mod = x_pix + xNeighbor + pixel_size_x * extraNPixX - 0.5*module_size_x;
+              double y_mod = y_pix + yNeighbor + pixel_size_y * extraNPixY - 0.5*module_size_y;
+              const SiLocalPosition& chargePos = Module.hitLocalToLocal(y_mod, x_mod);
 
-                const SiSurfaceCharge scharge(chargePos, SiCharge(induced_charge, hitTime(
-                                                              phit), SiCharge::track, HepMcParticleLink(
-                                                              phit->trackNumber(), phit.eventId(), evColl, idxFlag, ctx)));
-                const SiCellId& diode = Module.cellIdOfPosition(scharge.position());
-                if (diode.isValid()) {
-                  const SiCharge& charge = scharge.charge();
-                  chargedDiodes.add(diode, charge);
-                }
+              const SiSurfaceCharge scharge(chargePos, SiCharge(induced_charge, hitTime(
+                                                            phit), SiCharge::track, HepMcParticleLink(
+                                                            phit->trackNumber(), phit.eventId(), evColl, idxFlag, ctx)));
+              const SiCellId& diode = Module.cellIdOfPosition(scharge.position());
+              if (diode.isValid()) {
+                const SiCharge& charge = scharge.charge();
+                chargedDiodes.add(diode, charge);
               }
             }
           }

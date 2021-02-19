@@ -281,6 +281,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
     int nnLoop_pixelPhiMin(0);
 
     if (m_doRadDamage && !(Module.isDBM()) && Module.isBarrel()) {
+      if (!pixel_i.isValid()) continue;
       centreOfPixel_i = p_design.positionFromColumnRow(pixel_i.etaIndex(), pixel_i.phiIndex());
 
       //Make limits for NN loop
@@ -316,6 +317,22 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
       const std::size_t distance_f_h_bin_x = distanceMap_h.getBinX(dist_electrode);
       const std::size_t tanLorentz_e_bin_x = lorentzMap_e.getBinX(dist_electrode);
       const std::size_t tanLorentz_h_bin_x = lorentzMap_h.getBinX(dist_electrode);
+      
+      const std::size_t sizeEta = std::abs(nnLoop_pixelEtaMax - nnLoop_pixelEtaMin) + 1;
+      const std::size_t sizePhi = std::abs(nnLoop_pixelPhiMax - nnLoop_pixelPhiMin) + 1;
+
+      std::vector<std::pair<double,double> > centrePixelNNEtaPhi(sizeEta*sizePhi);
+      for (int p = nnLoop_pixelEtaMin; p <= nnLoop_pixelEtaMax; p++) {
+        for (int q = nnLoop_pixelPhiMin; q <= nnLoop_pixelPhiMax; q++) {
+          const SiLocalPosition& centreOfPixel_nn = p_design.positionFromColumnRow(pixel_i.etaIndex() - p,
+                                                                                   pixel_i.phiIndex() - q);
+          const std::size_t ieta = p - nnLoop_pixelEtaMin;
+          const std::size_t iphi = q - nnLoop_pixelPhiMin;
+          const std::size_t index = iphi + ieta*sizePhi;
+          centrePixelNNEtaPhi[index].first  = centreOfPixel_nn.xEta(); 
+          centrePixelNNEtaPhi[index].second = centreOfPixel_nn.xPhi(); 
+        }
+      }
 
       for (int j = 0; j < ncharges; j++) {
         double u = CLHEP::RandFlat::shoot(0., 1.);
@@ -381,17 +398,19 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
           } else if (std::abs(columnWidth - 0.5) < 1e-9) {
             scale_f = 25. / 50.;
           }
+          const std::size_t ieta = p - nnLoop_pixelEtaMin;
 
           for (int q = nnLoop_pixelPhiMin; q <= nnLoop_pixelPhiMax; q++) {
             //Since both e-h charge carriers start in the same place, they have the same initial ramo value
             //Centre of nearest neighbour (nn) pixel
-            const SiLocalPosition& centreOfPixel_nn = p_design.positionFromColumnRow(pixel_i.etaIndex() - p,
-                                                                                     pixel_i.phiIndex() - q);
 
+            const std::size_t iphi = q - nnLoop_pixelPhiMin;
+            const std::size_t index = iphi + ieta*sizePhi;
             //What is the displacement of the nn pixel from the primary pixel.
             //This is to index the correct entry in the Ramo weighting potential map
-            const double dPhi_nn_centre = centreOfPixel_nn.xPhi() - centreOfPixel_i.xPhi(); //in mm
-            const double dEta_nn_centre = centreOfPixel_nn.xEta() - centreOfPixel_i.xEta(); //in mm
+            const std::pair<double,double>& centrePixelNN = centrePixelNNEtaPhi[index];
+            const double dPhi_nn_centre = centrePixelNN.second - centreOfPixel_i.xPhi(); //in mm
+            const double dEta_nn_centre = centrePixelNN.first  - centreOfPixel_i.xEta(); //in mm
 
             //This all has to be done relative to the (0,0) position since the
             //Ramo weighting potential is only mapped out for 1/8th of a pixel. Much of this logic is reflecting the
@@ -440,7 +459,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
             const double induced_charge = potentialDiff * energy_per_step * eleholePairEnergy;
 
             //Collect charge in centre of each pixel, since location within pixel doesn't matter for record
-            const SiLocalPosition& chargePos = Module.hitLocalToLocal(centreOfPixel_nn.xEta(), centreOfPixel_nn.xPhi());
+            const SiLocalPosition& chargePos = Module.hitLocalToLocal(centrePixelNN.first, centrePixelNN.second);
 
             //The following lines are adapted from SiDigitization's Inserter class
             const SiSurfaceCharge scharge(
