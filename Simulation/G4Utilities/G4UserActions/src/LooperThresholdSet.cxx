@@ -91,6 +91,10 @@ void LooperThresholdSet::ChangeLooperParameters(const G4ParticleDefinition* part
                 }
                 else
                         ATH_MSG_WARNING("Invalid NumberOfTrials: " << m_config.NumberOfTrials);
+                // Geant4 printout
+#if G4VERSION_NUMBER > 1049
+                coupledTransport->ReportLooperThresholds();
+#endif
         }
 }
 
