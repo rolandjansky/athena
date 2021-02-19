@@ -284,6 +284,10 @@ void
 TRT_LocalOccupancy::countHitsNearTrack (OccupancyData& data,
                                         int track_local[NLOCAL][NLOCALPHI]) const
 {
+    if ( m_trt_rdo_location.empty() ) {
+      ATH_MSG_DEBUG( "TRT_RDO_Container key is empty" );
+      return;
+    }
     SG::ReadHandle<TRT_RDO_Container> p_trtRDOContainer(m_trt_rdo_location);
     if ( !p_trtRDOContainer.isValid() ) {
       ATH_MSG_DEBUG( "Could not find the TRT_RDO_Container "
@@ -511,8 +515,6 @@ const TRT_LocalOccupancy::OccupancyData* TRT_LocalOccupancy::getData(const Event
 std::unique_ptr<TRT_LocalOccupancy::OccupancyData>
 TRT_LocalOccupancy::makeData(const EventContext& ctx) const
 {
-
-  SG::ReadHandle<TRT_DriftCircleContainer> driftCircleContainer( m_trt_driftcircles,ctx );
   // count live straws
   SG::ReadCondHandle<TRTCond::AliveStraws> strawHandle(m_strawReadKey,ctx);
   const TRTCond::AliveStraws* strawCounts{*strawHandle};
@@ -520,30 +522,35 @@ TRT_LocalOccupancy::makeData(const EventContext& ctx) const
   auto data = std::make_unique<OccupancyData>(strawCounts->getStwLocal());
 
   // put # hits in vectors
-  if ( driftCircleContainer.isValid() ) {
-    ATH_MSG_DEBUG("Found Drift Circles in StoreGate");
-    for (const InDet::TRT_DriftCircleCollection *colNext : *driftCircleContainer) {
-      if(!colNext) continue;
-      // loop over DCs
-      DataVector<TRT_DriftCircle>::const_iterator p_rdo           =    colNext->begin();
-      DataVector<TRT_DriftCircle>::const_iterator p_rdo_end       =    colNext->end();
-      for(; p_rdo!=p_rdo_end; ++p_rdo){
-	const TRT_DriftCircle* rdo = (*p_rdo);
-	if(!rdo)        continue;
-	Identifier id = rdo->identify();
-
-	int det      = m_TRTHelper->barrel_ec(         id)     ;
-	int lay      = m_TRTHelper->layer_or_wheel(    id)     ;
-	int phi      = m_TRTHelper->phi_module(        id)     ;
-	int i_total  = findArrayTotalIndex(det, lay);
-
-	data->m_hit_total[0]                        +=1;
-	data->m_hit_total[i_total]                  +=1;
-	data->m_hit_local[i_total-1][phi]           +=1;
-      }
-    }
+  if ( m_trt_driftcircles.empty() ) {
+    ATH_MSG_WARNING("No TRT Drift Circles key is empty");
   } else {
-    ATH_MSG_WARNING("No TRT Drift Circles in StoreGate");
+    SG::ReadHandle<TRT_DriftCircleContainer> driftCircleContainer( m_trt_driftcircles,ctx );
+    if ( driftCircleContainer.isValid() ) {
+      ATH_MSG_DEBUG("Found Drift Circles in StoreGate");
+      for (const InDet::TRT_DriftCircleCollection *colNext : *driftCircleContainer) {
+        if(!colNext) continue;
+        // loop over DCs
+        DataVector<TRT_DriftCircle>::const_iterator p_rdo           =    colNext->begin();
+        DataVector<TRT_DriftCircle>::const_iterator p_rdo_end       =    colNext->end();
+        for(; p_rdo!=p_rdo_end; ++p_rdo){
+          const TRT_DriftCircle* rdo = (*p_rdo);
+          if(!rdo)        continue;
+          Identifier id = rdo->identify();
+
+          int det      = m_TRTHelper->barrel_ec(         id)     ;
+          int lay      = m_TRTHelper->layer_or_wheel(    id)     ;
+          int phi      = m_TRTHelper->phi_module(        id)     ;
+          int i_total  = findArrayTotalIndex(det, lay);
+
+          data->m_hit_total[0]                        +=1;
+          data->m_hit_total[i_total]                  +=1;
+          data->m_hit_local[i_total-1][phi]           +=1;
+        }
+      }
+    } else {
+      ATH_MSG_WARNING("No TRT Drift Circles in StoreGate");
+    }
   }
 
   const std::array<int,NTOTAL> &stw_total = strawCounts->getStwTotal();
