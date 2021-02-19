@@ -44,9 +44,9 @@ augmentationTools = []
 
 from DerivationFrameworkTau.DerivationFrameworkTauConf import DerivationFramework__TauSelectionWrapper
 HIGG8D1TauWrapper = DerivationFramework__TauSelectionWrapper(name = "HIGG8D1TauSelectionWrapper",
-                                                             IsTauFlag			= 29,
-                                                             CollectionName		= "TauJets",
-                                                             StoreGateEntryName	= "HIGG8D1JetRNNSigLoose")
+                                                             IsTauFlag      = 29,
+                                                             CollectionName    = "TauJets",
+                                                             StoreGateEntryName  = "HIGG8D1JetRNNSigLoose")
 ToolSvc += HIGG8D1TauWrapper
 augmentationTools.append(HIGG8D1TauWrapper)
 
@@ -177,7 +177,24 @@ HIGG8D1DSIDList=[
                  410501,#in HOC, Pythia8
                  410503,#in HOC, Pythia8
                  410544,
-                 411287
+                 411287,
+                 410155,#aMC@NlO+P8 ttW
+                 412123,#MG+P8 ttW
+                 410218,#aMC@NlO+P8 ttZ
+                 410219,#aMC@NlO+P8 ttZ
+                 410220,#aMC@NlO+P8 ttZ
+                 410276,#aMC@NlO+P8 ttZ_lowMass
+                 410277,#aMC@NlO+P8 ttZ_lowMass
+                 410278,#aMC@NlO+P8 ttZ_lowMass
+                 413023,#sherpa 2.2.1 ttZ
+                 504329,#amc@NLO+H7.2.1 refined ttZ
+                 504330,#aMC@NLO+P8 refined ttZ
+                 504333,#amc@NLO+H7.2.1 refined ttZ
+                 504334,#aMC@NLO+P8 refined ttZ
+                 504341,#amc@NLO+H7.2.1 refined ttZ
+                 504342,#aMC@NLO+P8 refined ttZ
+                 700000,#Sherpa 2.2.8 ttW
+                 700168,#Sherpa 2.2.10 ttW
                 ]
 
 import PyUtils.AthFile as af
@@ -466,7 +483,7 @@ FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = HIGG8D1Seq)
 # Augment AntiKt4 jets with QG tagging variables
 truthjetalg='AntiKt4TruthJets'
 if not DerivationFrameworkHasTruth:
-	truthjetalg=None
+  truthjetalg=None
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
 addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=HIGG8D1Seq,algname="QGTaggerToolAlg",truthjetalg=truthjetalg)
 addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=HIGG8D1Seq,algname="QGTaggerToolPFAlg",truthjetalg=truthjetalg) 
@@ -529,7 +546,7 @@ HIGG8D1SlimmingHelper.ExtraVariables = [
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 HIGG8D1SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
 if StoreAdditionalAmbiguityContent:
-		HIGG8D1SlimmingHelper.ExtraVariables += ElectronsAddAmbiguityContent
+    HIGG8D1SlimmingHelper.ExtraVariables += ElectronsAddAmbiguityContent
 
 HIGG8D1SlimmingHelper.ExtraVariables += LepTagConfig.GetExtraPromptVariablesForDxAOD(onlyBDT=False)
 HIGG8D1SlimmingHelper.ExtraVariables += LepTagConfig.GetExtraPromptTauVariablesForDxAOD()
@@ -550,7 +567,7 @@ ExtraContentTaus=[
         "ele_olr_pass."
         "electronLink.ptDetectorAxis.etaDetectorAxis.phiDetectorAxis.mDetectorAxis"
         "jetLink.seedTrackWidthPt500.seedTrackWidthPt1000."
-				#"jetLink.TrackWidthPt1000.TrackWidthPt500"
+        #"jetLink.TrackWidthPt1000.TrackWidthPt500"
         #,
         #"TauNeutralParticleFlowObjects."
         #"pt."

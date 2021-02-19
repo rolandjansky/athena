@@ -46,6 +46,7 @@ namespace DerivationFramework{
           || (m_DSID>=411329 && m_DSID<=411334) //Powheg+H7.1.3 ttbar HF-filtered
           || (m_DSID>=411335 && m_DSID<=411337) //Powheg+H7.1.3 ttbar HT-filtered
           || m_DSID ==412116 || m_DSID == 412117 //amc@NLO+H7.1.3 ttbar 
+          || m_DSID ==504329 || m_DSID == 504333 || m_DSID == 504341 //amc@NLO+H7.2.1 refined ttZ
           ){
       m_GenUsed=HerwigPP;
       if (m_DSID==410245){
@@ -58,7 +59,11 @@ namespace DerivationFramework{
           || (m_DSID>=410501 && m_DSID<=410508) //Powheg+P8 new main31, hdamp=1.5m // Boosted samples are included 410507 410508
           || (m_DSID>=410511 && m_DSID<=410524) //Powheg+P8 new main31, hdamp=1.5mt, radiation systematics
           || (m_DSID>=410531 && m_DSID<=410535) //Powheg+P8 allhad samples
+          || m_DSID==412123 // MG+P8 ttW
+          || m_DSID==410155 // aMC@NlO+P8 ttW
           || m_DSID==410159 || m_DSID==410160 //aMC@NLO+P8, old settings
+          || (m_DSID>=410218 && m_DSID<=410220) // aMC@NlO+P8 ttZ
+          || (m_DSID>=410276 && m_DSID<=410278) // aMC@NlO+P8 ttZ_lowMass
           || (m_DSID>=410225 && m_DSID<=410227) || m_DSID==410274 || m_DSID==410275 //aMC@NLO+P8, new settings
           || m_DSID==410568 || m_DSID==410569 // nonallhad boosted c-filtered
           || m_DSID==410244 //aMC@NLO+P8, ttbb (old)
@@ -73,6 +78,7 @@ namespace DerivationFramework{
           || (m_DSID>=411178 && m_DSID<=411180) || (m_DSID==411275) //Powheg+P8 ttbb OTF production - ATLMCPROD-7240
           || (m_DSID>=407342 && m_DSID<=407344) //Powheg+P8 ttbar HT-filtered
           || (m_DSID>=407348 && m_DSID<=407350) //aMC@NLO+P8 ttbar HT-filtered
+          ||  m_DSID==504330 || m_DSID==504334 || m_DSID==504342 //aMC@NLO+P8 refined ttZ
            ){
       m_GenUsed=Pythia8;
       if ( m_DSID==410244 //aMC@NLO+P8, ttbb (old)
@@ -97,6 +103,9 @@ namespace DerivationFramework{
           || (m_DSID>=410424 && m_DSID<=410427) //Sherpa 2.2.4
           || (m_DSID>=410661 && m_DSID<=410664) //Sherpa 2.2.4 ttbb
           || (m_DSID>=421152 && m_DSID<=421158) //Sherpa2.2.8 ttbar
+          ||  m_DSID==413023 // sherpa 2.2.1 ttZ 
+          ||  m_DSID==700000 // Sherpa 2.2.8 ttW
+          ||  m_DSID==700168 // Sherpa 2.2.10 ttW
           || (m_DSID>=700051 && m_DSID<=700054) //Sherpa2.2.8 ttbb
            ){
       m_GenUsed=Sherpa;
