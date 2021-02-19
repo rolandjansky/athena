@@ -48,6 +48,7 @@ def createTriggerFlags():
 
     # Checks the validity of each Decision Object produced by a HypoAlg, including all of its
     # parents all the way back to the L1 decoder. Potentially CPU expensive.
+    # also enables per step decison printouts
     flags.addFlag('Trigger.doRuntimeNaviVal', False)
 
     # if 1, Run1 decoding version is set; if 2, Run2; if 3, Run 3
