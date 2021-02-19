@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -37,9 +37,6 @@
 #include "xAODTrigMuon/L2CombinedMuonContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticle.h"
-
-//#include "TrigSteeringEvent/TrigRoiDescriptor.h"
-//#include "TrigT1Interfaces/RecMuonRoI.h"
 
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
