@@ -16,6 +16,7 @@
 #include "monitors/MonitorThreadOccupancy.h"
 #include "monitors/MonitorROS.h"
 
+
 TrigCostAnalysis::TrigCostAnalysis( const std::string& name, ISvcLocator* pSvcLocator ) :
   AthHistogramAlgorithm(name, pSvcLocator),
   m_fullEventDumps(0),
