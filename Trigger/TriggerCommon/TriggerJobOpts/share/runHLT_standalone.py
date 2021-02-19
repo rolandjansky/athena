@@ -217,9 +217,7 @@ setModifiers = ['noLArCalibFolders',
                 'ForceMuonDataType',
                 'useNewRPCCabling',
                 'enableCostMonitoring',
-                #'enableCoherentPS',
                 'useOracle',
-                'enableHotIDMasking',
 ]
 
 if ConfigFlags.Input.isMC:  # MC modifiers
@@ -230,21 +228,12 @@ else:           # More data modifiers
                      'useDynamicAlignFolders',
                      'useHLTMuonAlign',
                      #Check for beamspot quality flag
-                     'UseBeamSpotFlagForBjet',
-                     'UseParamFromDataForBjet',
-                     #Use online luminosity
                      'useOnlineLumi',
                      #for running with real data
                      'DisableMdtT0Fit',
-                     #Setup mufast tuning for data
-                     'UseLUTFromDataForMufast',
-                     'UseRPCTimeDelayFromDataForMufast',
                      #Set muComb/muIso Backextrapolator tuned for real data
-                     'UseBackExtrapolatorDataForMuIso',
                      #Monitoring for L1 muon group
-                     #'muCTPicheck',
                      #Monitoring L1Topo at ROB level
-                     #'L1TopoCheck',
                      'forceTileRODMap',
                      'enableSchedulerMon'
     ]
