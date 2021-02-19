@@ -47,7 +47,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
             BunchSpace=25.0,
             FEI4BarrelHitDiscConfig=[2],
             ChargeScaleFEI4=1.0,
-            UseFEI4SpecialScalingFunction=False
+            UseFEI4SpecialScalingFunction=True
         )
         #====================================================================================
         # Run-dependent SIMULATION(digitization) parameters:
