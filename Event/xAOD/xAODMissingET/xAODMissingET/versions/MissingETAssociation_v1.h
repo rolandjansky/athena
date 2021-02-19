@@ -285,22 +285,22 @@ namespace xAOD
     bool identifyOverlaps(size_t objIdx);                                 /*!< @brief Search association for particles that share constituents with this one */
     bool identifyOverlaps(const IParticle* pPart);                        /*!< @brief Search association for particles that share constituents with this one */
 
-    bool hasOverlaps(const MissingETAssociationHelper* helper, size_t objIdx,MissingETBase::UsageHandler::Policy p=MissingETBase::UsageHandler::OnlyCluster) const;
+    bool hasOverlaps(const MissingETAssociationHelper& helper, size_t objIdx,MissingETBase::UsageHandler::Policy p=MissingETBase::UsageHandler::OnlyCluster) const;
                                                                           /*!< @brief Check if any selected particles overlap this one */
-    bool hasOverlaps(const MissingETAssociationHelper* helper, const IParticle* pPart,
+    bool hasOverlaps(const MissingETAssociationHelper& helper, const IParticle* pPart,
 		     MissingETBase::UsageHandler::Policy p=MissingETBase::UsageHandler::OnlyCluster) const;
                                                                           /*!< @brief Check if any selected particles overlap this one */
 
     bool hasAlternateConstVec() const;
     xAOD::JetFourMom_t getAlternateConstVec() const;
 
-    ConstVec overlapCalVec(const MissingETAssociationHelper* helper) const;    /*!< @brief Retrieve total cluster-based vector to be subtracted from the jet */
-    ConstVec overlapTrkVec(const MissingETAssociationHelper* helper) const;    /*!< @brief Retrieve total track-based vector to be subtracted from the jet */
+    ConstVec overlapCalVec(const MissingETAssociationHelper& helper) const;    /*!< @brief Retrieve total cluster-based vector to be subtracted from the jet */
+    ConstVec overlapTrkVec(const MissingETAssociationHelper& helper) const;    /*!< @brief Retrieve total track-based vector to be subtracted from the jet */
 
     bool containsSignal(const IParticle* pSig) const;                     /*!< @brief Check if this signal object matches the constituents of any contributing objects */
     bool containsPhysics(const IParticle* pPhys) const;                   /*!< @brief Check if this physics object matches any contributing objects */
     bool isMisc() const;                                                  /*!< @brief Check if this association is a miscellaneous association */
-    bool checkUsage(const MissingETAssociationHelper* helper, const IParticle* pSig, MissingETBase::UsageHandler::Policy p) const; /*!< @brief Check if this signal object matches the constituents of any flagged contributing objects */
+    bool checkUsage(const MissingETAssociationHelper& helper, const IParticle* pSig, MissingETBase::UsageHandler::Policy p) const; /*!< @brief Check if this signal object matches the constituents of any flagged contributing objects */
 
     /*! @name Allocating and accessing objects in the contribution
      *  @anchor contrib_alloc

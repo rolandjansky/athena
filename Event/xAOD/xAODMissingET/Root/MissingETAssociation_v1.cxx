@@ -711,14 +711,13 @@ namespace xAOD {
     return overlapIndices(objIdx).size()>0;
   }
 
-  bool MissingETAssociation_v1::hasOverlaps(const MissingETAssociationHelper* helper, size_t objIdx,MissingETBase::UsageHandler::Policy p) const
+  bool MissingETAssociation_v1::hasOverlaps(const MissingETAssociationHelper& helper, size_t objIdx,MissingETBase::UsageHandler::Policy p) const
   {
-    if(!helper) throw std::runtime_error("MissingETAssociation::hasOverlaps received a null pointer");
     if ( objIdx == MissingETBase::Numerical::invalidIndex() ) return false;
     vector<size_t> indices = this->overlapIndices(objIdx);
     vector<unsigned char> types = this->overlapTypes(objIdx);
     for(size_t iOL=0; iOL<indices.size(); ++iOL) {
-      if(helper->objSelected(this, indices[iOL])) {
+      if(helper.objSelected(this, indices[iOL])) {
         // printf("Test object %lu for overlaps: OL type %i\n",indices[iOL],(int)types[iOL]);
         switch(p) {
         case MissingETBase::UsageHandler::TrackCluster:      
@@ -767,23 +766,21 @@ namespace xAOD {
     return newvec; 
   }
 
-  constvec_t MissingETAssociation_v1::overlapCalVec(const MissingETAssociationHelper* helper) const
+  constvec_t MissingETAssociation_v1::overlapCalVec(const MissingETAssociationHelper& helper) const
   {
-    if(!helper) throw std::runtime_error("MissingETAssociation::overlapCalVec received a null pointer");
     constvec_t calvec;
     for (size_t iKey = 0; iKey < this->sizeCal(); iKey++) {
-      bool selector = (helper->getObjSelectionFlags(this) & this->calkey()[iKey]) ? !this->isMisc() : this->isMisc();
+      bool selector = (helper.getObjSelectionFlags(this) & this->calkey()[iKey]) ? !this->isMisc() : this->isMisc();
       if (selector) calvec+=this->calVec(iKey);
     }
     return calvec;
   }
 
-  constvec_t MissingETAssociation_v1::overlapTrkVec(const MissingETAssociationHelper* helper) const
+  constvec_t MissingETAssociation_v1::overlapTrkVec(const MissingETAssociationHelper& helper) const
   {
-    if(!helper) throw std::runtime_error("MissingETAssociation::overlapTrkVec received a null pointer");
     constvec_t trkvec;
     for (size_t iKey = 0; iKey < this->sizeTrk(); iKey++) {
-      bool selector = (helper->getObjSelectionFlags(this) & this->trkkey()[iKey]) ? !this->isMisc() : this->isMisc();
+      bool selector = (helper.getObjSelectionFlags(this) & this->trkkey()[iKey]) ? !this->isMisc() : this->isMisc();
       if (selector) trkvec+=ConstVec(this->trkpx()[iKey],this->trkpy()[iKey],this->trkpz()[iKey],this->trke()[iKey],this->trksumpt()[iKey]);
     }
     return trkvec;
@@ -815,14 +812,13 @@ namespace xAOD {
     return false;
   }
 
-  bool MissingETAssociation_v1::checkUsage(const MissingETAssociationHelper* helper, const IParticle* pSig, MissingETBase::UsageHandler::Policy p) const
+  bool MissingETAssociation_v1::checkUsage(const MissingETAssociationHelper& helper, const IParticle* pSig, MissingETBase::UsageHandler::Policy p) const
   {
-    if(!helper) throw std::runtime_error("MissingETAssociation::checkUsage received a null pointer");
     if(MissingETAssociation_v1::testPolicy(pSig->type(),p)) {
       const IParticleContainer* pCont = static_cast<const IParticleContainer*>(pSig->container());
       MissingETBase::Types::objlink_t el(*pCont,pSig->index());
       for(size_t iObj=0; iObj<this->objectLinks().size(); ++iObj) {
-        if(helper->objSelected(this,iObj)) {
+        if(helper.objSelected(this,iObj)) {
           for(const auto& link : m_objConstLinks[iObj]) {
             if(el == link) return true;
           }

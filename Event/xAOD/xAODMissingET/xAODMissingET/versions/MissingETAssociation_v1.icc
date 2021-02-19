@@ -266,7 +266,7 @@ inline void xAOD::MissingETAssociation_v1::addOverrideMom(std::map<const IPartic
 inline bool xAOD::MissingETAssociation_v1::identifyOverlaps(const IParticle* pPart)
 { return this->identifyOverlaps(this->findIndex(pPart)); }
 
-inline bool xAOD::MissingETAssociation_v1::hasOverlaps(const MissingETAssociationHelper* helper,const IParticle* pPart,MissingETBase::UsageHandler::Policy p) const
+inline bool xAOD::MissingETAssociation_v1::hasOverlaps(const MissingETAssociationHelper& helper,const IParticle* pPart,MissingETBase::UsageHandler::Policy p) const
 { return this->hasOverlaps(helper,this->findIndex(pPart),p); }
 
 inline bool xAOD::MissingETAssociation_v1::addOverlap(const IParticle* pPart,size_t overlapIndex,unsigned char overlapType)
