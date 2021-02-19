@@ -655,7 +655,7 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     {this, "ChargeScaleFEI4", 1.0, "Scaling of the FEI4 charge"};
 
     Gaudi::Property<bool> m_UseFEI4SpecialScalingFunction
-    {this, "UseFEI4SpecialScalingFunction", false, "Use FEI4 special scaling function"};
+    {this, "UseFEI4SpecialScalingFunction", true, "Use FEI4 special scaling function"};
 
     // Charge calibration parameters
     Gaudi::Property<float> m_CalibrationParameterA
