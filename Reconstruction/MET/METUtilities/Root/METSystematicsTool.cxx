@@ -106,13 +106,17 @@ namespace met {
   StatusCode METSystematicsTool::initialize()
   {
     ATH_MSG_VERBOSE (__PRETTY_FUNCTION__ );
-    // ReadHandleKey(s)
+    // ReadHandleKey(s)
+
     ATH_CHECK( m_VertexContKey.assign(m_vertexCont) );
-    ATH_CHECK( m_VertexContKey.initialize() );
+    ATH_CHECK( m_VertexContKey.initialize() );
+
     ATH_CHECK( m_TruthContKey.assign(m_truthCont) );
-    ATH_CHECK( m_TruthContKey.initialize() );
+    ATH_CHECK( m_TruthContKey.initialize() );
+
     ATH_CHECK( m_EventInfoKey.assign(m_eventInfo) );
-    ATH_CHECK( m_EventInfoKey.initialize() );
+    ATH_CHECK( m_EventInfoKey.initialize() );
+
 
 
     const char lastchar = m_configPrefix.back();
@@ -281,16 +285,11 @@ namespace met {
   }
 
   CP::CorrectionCode METSystematicsTool::applyCorrection(xAOD::MissingET& inputMet,
-							 const xAOD::MissingETAssociationHelper * helper) const{
+							 const xAOD::MissingETAssociationHelper& helper) const{
 
     //if asking for jet track systematics, the user needs to give a met association helper (with a map)  as well
     //if using a different jetContainer, you can give it as an option to applyCorrection
     ATH_MSG_VERBOSE (__PRETTY_FUNCTION__ );
-
-    if(!helper) {
-      ATH_MSG_ERROR("MissingETAssociationHelper is null, returning without applying correction.");
-      return CP::CorrectionCode::Error;
-    }
 
     if( getDefaultEventInfo() == nullptr) {
 	ATH_MSG_WARNING("event info is empty, returning without applying correction");
@@ -316,7 +315,7 @@ namespace met {
   //  if( MissingETBase::Source::isTrackTerm(inputMet.source()) &&
     if(MissingETBase::Source::isJetTerm  (inputMet.source())
 					    ){
-      if( helper->map() == nullptr) {
+      if( helper.map() == nullptr) {
 	ATH_MSG_WARNING("The MissingETAssociationMap for the given MissingETAssociationHelper is null.  Returning without applying correction ");
 	return CP::CorrectionCode::Error;
       }
@@ -330,14 +329,9 @@ namespace met {
 
 
   CP::CorrectionCode METSystematicsTool::correctedCopy(const xAOD::MissingET& met, xAOD::MissingET*& outputmet,
-						       const xAOD::MissingETAssociationHelper * helper) const
+						       const xAOD::MissingETAssociationHelper& helper) const
   { ATH_MSG_VERBOSE (__PRETTY_FUNCTION__ );
     xAOD::MissingET * copy = nullptr;
-
-    if(outputmet != nullptr ){
-      ATH_MSG_WARNING("MissingETAssociationHelper was null, returning without making a correctedCopy");
-      return CP::CorrectionCode::Error;
-    }
 
     if(outputmet != nullptr ){
       ATH_MSG_WARNING("Please pass a nullptr to the 2nd argument of correctedCopy to fill the output pointer");
@@ -373,7 +367,7 @@ namespace met {
     }//soft term source
     if( //MissingETBase::Source::isTrackTerm(met.source()) &&
 	   MissingETBase::Source::isJetTerm  (met.source())){
-      if( helper->map() == nullptr) {
+      if( helper.map() == nullptr) {
         ATH_MSG_WARNING("MissingETAssociationHelper contained a null MissingETAssociationMap pointer");
         outputmet = nullptr; delete copy;
         return CP::CorrectionCode::Error;
@@ -514,16 +508,11 @@ namespace met {
   }
 
   CP::CorrectionCode METSystematicsTool::calcJetTrackMETWithSyst(xAOD::MissingET& jettrkmet,
-  								 const xAOD::MissingETAssociationHelper* helper,
+  								 const xAOD::MissingETAssociationHelper& helper,
  								 const xAOD::Jet* jet) const
 
   {
     ATH_MSG_VERBOSE(__PRETTY_FUNCTION__);
-
-    if(!helper) {
-      ATH_MSG_ERROR("MissingETAssociationHelper null, error calculating jet track systematics.");
-      return CP::CorrectionCode::Error;
-    }
 
     if( m_jet_systRpt_pt_eta == nullptr ) {
       ATH_MSG_ERROR("jet track systematics histogram not initialized properly.") ;
@@ -531,7 +520,7 @@ namespace met {
     }
 
     if(m_appliedSystEnum==MET_JETTRK_SCALEUP || m_appliedSystEnum==MET_JETTRK_SCALEDOWN) {
-      xAOD::MissingETAssociation const * const assoc = MissingETComposition::getAssociation(helper->map(),jet);
+      xAOD::MissingETAssociation const * const assoc = MissingETComposition::getAssociation(helper.map(),jet);
       MissingETBase::Types::constvec_t trkvec = assoc->overlapTrkVec(helper);
 
       int phbin  = m_jet_systRpt_pt_eta->GetXaxis()->FindBin(jet->pt()/1e3);
@@ -564,15 +553,10 @@ namespace met {
   }
 
   CP::CorrectionCode METSystematicsTool::calcJetTrackMETWithSyst(xAOD::MissingET& jettrkmet,
-  								 const xAOD::MissingETAssociationHelper* helper) const
+  								 const xAOD::MissingETAssociationHelper& helper) const
 
   {
     ATH_MSG_VERBOSE(__PRETTY_FUNCTION__);
-
-    if(!helper) {
-      ATH_MSG_ERROR("MissingETAssociationHelper null, error calculating jet track systematics.");
-      return CP::CorrectionCode::Error;
-    }
 
     if( m_jet_systRpt_pt_eta == nullptr ) {
       ATH_MSG_ERROR("jet track systematics histogram not initialized properly.") ;
@@ -594,7 +578,7 @@ namespace met {
       bool originalInputs = jets.empty() ? false : !acc_originalObject.isAvailable(*jets.front());
       for(const xAOD::Jet *jet : jets) {
 	const MissingETAssociation* assoc = 0;
-        const MissingETAssociationMap* map = helper->map();
+        const MissingETAssociationMap* map = helper.map();
 	if(originalInputs) {
 	  assoc = MissingETComposition::getAssociation(map,jet);
 	} else {
@@ -647,16 +631,12 @@ namespace met {
 
 
   CP::CorrectionCode METSystematicsTool::getCorrectedJetTrackMET(xAOD::MissingET& jettrkmet,
-  								 const xAOD::MissingETAssociationHelper* helper
+  								 const xAOD::MissingETAssociationHelper& helper
   								 ) const
    {
     ATH_MSG_VERBOSE( __PRETTY_FUNCTION__ );
 
-    if(!helper) {
-      ATH_MSG_ERROR("MissingETAssociationHelper null, error calculating jet track systematics.");
-      return CP::CorrectionCode::Error;
-    }
-    const MissingETAssociationMap* map = helper->map();
+    const MissingETAssociationMap* map = helper.map();
     if(!map) {
       ATH_MSG_ERROR("MissingETAssociationMap null, error calculating jet track systematics.");
       return CP::CorrectionCode::Error;
@@ -741,7 +721,8 @@ namespace met {
 
     //get truth container
     SG::ReadHandle<xAOD::MissingETContainer> truthCont(m_TruthContKey);
-    if (!truthCont.isValid()) {
+    if (!truthCont.isValid()) {
+
       ATH_MSG_ERROR(m_truthCont<<" container empty or doesn't exist, calcPtHard returning zero.");
       return missingEt();
     }
@@ -904,7 +885,8 @@ namespace met {
   {   ATH_MSG_VERBOSE (__PRETTY_FUNCTION__ );
 
     SG::ReadHandle<xAOD::EventInfo> eInfoConst(m_EventInfoKey);
-    if (!eInfoConst.isValid()) {
+    if (!eInfoConst.isValid()) {
+
       ATH_MSG_ERROR("Failed to retrieve default EventInfo object");
     }
     return &*eInfoConst;
@@ -914,7 +896,8 @@ namespace met {
     ATH_MSG_VERBOSE (__PRETTY_FUNCTION__ );
     SG::ReadHandle<xAOD::VertexContainer> vertices(m_VertexContKey);
 
-    if (!vertices.isValid()) {
+    if (!vertices.isValid()) {
+
       ATH_MSG_ERROR("Failed to retrieve default NPV value from PrimaryVertices");
       return 0;
     }

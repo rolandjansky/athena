@@ -370,21 +370,19 @@ namespace xAOD {
     return totalvec;
   } 
   
-  bool MissingETComposition::objSelected(const MissingETAssociationHelper* helper,const IParticle* obj) {
-    if(!helper) throw std::runtime_error("MissingETComposition::objSelected received a null pointer");
-    std::vector<const MissingETAssociation*> assocs = getAssociations(helper->map(),obj);
-    for(size_t i = 0; i < assocs.size(); i++) if(helper->objSelected(assocs[i],obj)) return true;
+  bool MissingETComposition::objSelected(const MissingETAssociationHelper& helper,const IParticle* obj) {
+    std::vector<const MissingETAssociation*> assocs = getAssociations(helper.map(),obj);
+    for(size_t i = 0; i < assocs.size(); i++) if(helper.objSelected(assocs[i],obj)) return true;
     return false;
   }
 
 
-  bool MissingETComposition::selectIfNoOverlaps(MissingETAssociationHelper* helper,const IParticle* obj,MissingETBase::UsageHandler::Policy p) {
-    if(!helper) throw std::runtime_error("MissingETComposition::objSelected received a null pointer");
-    std::vector<const MissingETAssociation*> assocs = getAssociations(helper->map(),obj);
+  bool MissingETComposition::selectIfNoOverlaps(MissingETAssociationHelper& helper,const IParticle* obj,MissingETBase::UsageHandler::Policy p) {
+    std::vector<const MissingETAssociation*> assocs = getAssociations(helper.map(),obj);
     bool overlaps(false);
     for(size_t i = 0; i < assocs.size(); i++) overlaps |= assocs[i]->hasOverlaps(helper,obj,p);
     if (overlaps) return false; 
-    for(size_t i = 0; i < assocs.size(); i++) helper->setObjSelectionFlag(assocs[i],obj,true);
+    for(size_t i = 0; i < assocs.size(); i++) helper.setObjSelectionFlag(assocs[i],obj,true);
     return true;
   }
 

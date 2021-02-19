@@ -93,7 +93,7 @@ namespace CP
         if (m_invisHandle) {
           const xAOD::IParticleContainer* invisible = nullptr;
           ATH_CHECK( m_invisHandle.retrieve(invisible, sys) );
-          ATH_CHECK( m_makerTool->markInvisible(invisible, &metHelper, met.get() ) );
+          ATH_CHECK( m_makerTool->markInvisible(invisible, metHelper, met.get() ) );
         }
 
         // Lambda helping with calculating the MET terms coming from the leptons
@@ -108,7 +108,7 @@ namespace CP
             const xAOD::IParticleContainer* particles = nullptr;
             ANA_CHECK (handle.retrieve (particles, sys));
             ANA_CHECK (m_makerTool->rebuildMET (term, type, met.get(),
-                                                particles, &metHelper));
+                                                particles, metHelper));
             return StatusCode::SUCCESS;
           };
 
@@ -126,10 +126,10 @@ namespace CP
 	
         if (m_doTrackMet)
         {
-          ANA_CHECK (m_makerTool->rebuildTrackMET (m_jetsKey, m_softTermKey, met.get(), jets, metcore, &metHelper, m_doJetJVT));
+          ANA_CHECK (m_makerTool->rebuildTrackMET (m_jetsKey, m_softTermKey, met.get(), jets, metcore, metHelper, m_doJetJVT));
         } else
         {
-          ANA_CHECK (m_makerTool->rebuildJetMET (m_jetsKey, m_softTermKey, met.get(), jets, metcore, &metHelper, m_doJetJVT));
+          ANA_CHECK (m_makerTool->rebuildJetMET (m_jetsKey, m_softTermKey, met.get(), jets, metcore, metHelper, m_doJetJVT));
         }
 
         // Systematics
@@ -148,7 +148,7 @@ namespace CP
           // return an `OutOfValidity` result, but I have no idea what
           // that would mean or how to handle it, so I'm implicitly
           // converting it into a `FAILURE` instead.
-          ANA_CHECK (m_systematicsTool->applyCorrection (*softTerm, &metHelper));
+          ANA_CHECK (m_systematicsTool->applyCorrection (*softTerm, metHelper));
         }
 
         ANA_CHECK (m_metHandle.record (std::move (met), std::move (aux), sys));

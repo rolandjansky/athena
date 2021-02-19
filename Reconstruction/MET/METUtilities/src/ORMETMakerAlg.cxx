@@ -178,7 +178,7 @@ namespace met {
       }
       if( m_metmaker->rebuildMET("RefEle", xAOD::Type::Electron, newMet,
     				 metElectrons.asDataVector(),
-    				 &metHelper, objScale).isFailure() ) {
+    				 metHelper, objScale).isFailure() ) {
     	ATH_MSG_WARNING("Failed to build electron term.");
       }
       ATH_MSG_DEBUG("Selected " << metElectrons.size() << " MET electrons. "
@@ -195,7 +195,7 @@ namespace met {
       }
       if( m_metmaker->rebuildMET("RefGamma", xAOD::Type::Photon, newMet,
     				 metPhotons.asDataVector(),
-    				 &metHelper, objScale).isFailure() ) {
+    				 metHelper, objScale).isFailure() ) {
     	ATH_MSG_WARNING("Failed to build photon term.");
       }
       ATH_MSG_DEBUG("Selected " << metPhotons.size() << " MET photons. "
@@ -212,7 +212,7 @@ namespace met {
       }
       if( m_metmaker->rebuildMET("RefTau", xAOD::Type::Tau, newMet,
     				 metTaus.asDataVector(),
-    				 &metHelper, objScale).isFailure() ){
+    				 metHelper, objScale).isFailure() ){
     	ATH_MSG_WARNING("Failed to build tau term.");
       }
       ATH_MSG_DEBUG("Selected " << metTaus.size() << " MET taus. "
@@ -233,13 +233,13 @@ namespace met {
       if (m_doORMet && m_retainMuonConstit) {
         if( m_metmaker->rebuildMET("Muons", xAOD::Type::Muon, newMet,
     				 metMuons.asDataVector(),
-    				 &ORMetHelper, objScale).isFailure() ) {
+    				 ORMetHelper, objScale).isFailure() ) {
     	  ATH_MSG_WARNING("Failed to build muon term.");
         }
       } else {
         if( m_metmaker->rebuildMET("Muons", xAOD::Type::Muon, newMet,
     				 metMuons.asDataVector(),
-    				 &metHelper, objScale).isFailure() ) {
+    				 metHelper, objScale).isFailure() ) {
     	  ATH_MSG_WARNING("Failed to build muon term.");
         }
       }
@@ -259,8 +259,8 @@ namespace met {
 
       const xAOD::PFOContainer *OR_pfos; 
    
-      if (metMuons.size()>0 && m_retainMuonConstit) {ATH_CHECK(m_metmaker->retrieveOverlapRemovedConstituents(met_PFO.asDataVector(),&metHelper, &OR_pfos, true, metMuons.asDataVector()));}
-      else {ATH_CHECK(m_metmaker->retrieveOverlapRemovedConstituents(met_PFO.asDataVector(),&metHelper, &OR_pfos, false));}
+      if (metMuons.size()>0 && m_retainMuonConstit) {ATH_CHECK(m_metmaker->retrieveOverlapRemovedConstituents(met_PFO.asDataVector(),metHelper, &OR_pfos, true, metMuons.asDataVector()));}
+      else {ATH_CHECK(m_metmaker->retrieveOverlapRemovedConstituents(met_PFO.asDataVector(),metHelper, &OR_pfos, false));}
 
       *PFOContainerWriteHandle=*OR_pfos;
 
@@ -293,8 +293,8 @@ namespace met {
       xAOD::PFOContainer* or_cPFO = chargedPFOContainerWriteHandle.ptr();
       xAOD::PFOContainer* or_nPFO = neutralPFOContainerWriteHandle.ptr();
 
-      if (metMuons.size()>0 && m_retainMuonConstit) {ATH_CHECK(m_metmaker->retrieveOverlapRemovedConstituents(met_cPFO.asDataVector(), met_nPFO.asDataVector(),&metHelper,or_cPFO,or_nPFO,true, metMuons.asDataVector()));}
-      else {ATH_CHECK(m_metmaker->retrieveOverlapRemovedConstituents(met_cPFO.asDataVector(), met_nPFO.asDataVector(),&metHelper,or_cPFO,or_nPFO,false));}
+      if (metMuons.size()>0 && m_retainMuonConstit) {ATH_CHECK(m_metmaker->retrieveOverlapRemovedConstituents(met_cPFO.asDataVector(), met_nPFO.asDataVector(),metHelper,or_cPFO,or_nPFO,true, metMuons.asDataVector()));}
+      else {ATH_CHECK(m_metmaker->retrieveOverlapRemovedConstituents(met_cPFO.asDataVector(), met_nPFO.asDataVector(),metHelper,or_cPFO,or_nPFO,false));}
 
     (*PFOContainerWriteHandle).assign((*neutralPFOContainerWriteHandle).begin(), (*neutralPFOContainerWriteHandle).end());
     (*PFOContainerWriteHandle).insert((*PFOContainerWriteHandle).end(),
@@ -308,7 +308,7 @@ namespace met {
     m_doJVT= (m_soft=="Clus" ? false : true);
     if (m_doORMet) {
       if( m_metmaker->rebuildJetMET("RefJet", (m_soft=="Clus" ? m_softclname : m_softtrkname), newMet,
-				  Jets.cptr(), coreMet.cptr(), &ORMetHelper, m_doJVT ).isFailure() ) {
+				  Jets.cptr(), coreMet.cptr(), ORMetHelper, m_doJVT ).isFailure() ) {
         ATH_MSG_WARNING("Failed to build jet and soft terms.");
       } 
       ATH_MSG_DEBUG("Of " << Jets.cptr()->size()  << " jets, "
@@ -316,7 +316,7 @@ namespace met {
 		  << acc_constitObjLinks(*(*newMet)[(m_soft=="Clus" ? m_softclname : m_softtrkname)]).size() << " are soft");
     } else {
       if( m_metmaker->rebuildJetMET("RefJet", (m_soft=="Clus" ? m_softclname : m_softtrkname), newMet,
-				  Jets.cptr(), coreMet.cptr(), &metHelper, m_doJVT ).isFailure() ) {
+				  Jets.cptr(), coreMet.cptr(), metHelper, m_doJVT ).isFailure() ) {
         ATH_MSG_WARNING("Failed to build jet and soft terms.");
       }
       ATH_MSG_DEBUG("Of " << Jets.cptr()->size()  << " jets, "
