@@ -1,19 +1,17 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-
-from __future__ import print_function
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 __author__  = 'Javier Montejo'
-__version__="$Revision: 1.01 $"
+__version__="$Revision: 2.0 $"
 __doc__="Interface to retrieve lists of unprescaled triggers according to types and periods"
 
 import sys, pickle, os.path
-from TriggerMenu.api.TriggerInfo import TriggerInfo
-from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
+from TriggerMenuMT.TriggerAPI.TriggerInfo import TriggerInfo
+from TriggerMenuMT.TriggerAPI.TriggerEnums import TriggerPeriod, TriggerType
 from PathResolver import PathResolver
 from AthenaCommon.Logging import logging
 
 class TriggerAPI:
-    log = logging.getLogger( 'TriggerMenu.api.TriggerAPI.py' )
+    log = logging.getLogger( 'TriggerMenuMT.TriggerAPI.TriggerAPI.py' )
     centralPickleFile = PathResolver.FindCalibFile("TriggerMenu/TriggerInfo_20181112.pickle")
     if not centralPickleFile: 
         log.warning("Couldn't find primary pickle file, try backup")
@@ -41,6 +39,13 @@ class TriggerAPI:
             except (pickle.PickleError, ValueError):
                 cls.log.info("Reading cached information failed")
                 cls.dbQueries = {}
+            except ModuleNotFoundError:
+                cls.log.warning("Tricking the pickle into old the module structure")
+                from TriggerMenuMT import TriggerAPI
+                sys.modules['TriggerMenu.api'] = TriggerAPI
+                with open(cls.centralPickleFile, 'rb') as f:
+                    cls.log.info("Reading cached information from: "+cls.centralPickleFile)
+                    cls.dbQueries = pickle.load(f)
         else:
             cls.dbQueries = {}
         try:
@@ -51,6 +56,9 @@ class TriggerAPI:
             cls.log.error("Error unpickling the private file")
         except IOError:
             pass
+        todel = [(p,grl) for p,grl in cls.dbQueries if p  & TriggerPeriod.future]
+        for key in todel:
+            del cls.dbQueries[key]
 
     @classmethod
     def setRelease(cls, release):
@@ -74,7 +82,7 @@ class TriggerAPI:
     @classmethod
     def getLowestUnprescaled(cls, period, triggerType=TriggerType.ALL, additionalTriggerType=TriggerType.UNDEFINED, matchPattern="", livefraction=1.0, reparse=False):
         ''' Returns a list of the lowest-pt-threshold HLT chains that were always unprescaled in the given period.
-            period: see TriggerEnums.TriggerPeriod for all possibilities, recommeded TriggerPeriod.y2017
+            period: see TriggerEnums.TriggerPeriod for all possibilities, recommeded TriggerPeriod.y2018
             triggerType: see TriggerEnums.TriggerType for all possibilities, example TriggerType.el_single
             additionalTriggerType: can request additional types to match, use TriggerType.ALL to show combined triggers of any kind
                                    accepts also a list as input in that case all types have to match
@@ -182,33 +190,35 @@ class TriggerAPI:
 
     @classmethod
     def dumpFullPickle(cls):
-        for period,grl in cls.dbQueries.keys():
+        for period,grl in list(cls.dbQueries.keys()):
             if TriggerPeriod.isRunNumber(period) or (isinstance(period,TriggerPeriod) and period.isBasePeriod()): continue
             del cls.dbQueries[(period,grl)]
         with open(cls.privatePickleFile, 'wb') as f:
             pickle.dump( cls.dbQueries , f)
-        print (sorted(cls.dbQueries.keys()))
+        cls.log.info("Dumped private pickle file to ",cls.privatePickleFile)
+        cls.log.info(sorted(cls.dbQueries.keys()))
 
 def main(dumpFullPickle=False):
     ''' Run some tests or dump the full pickle for CalibPath '''
+    log = logging.getLogger( 'TriggerMenuMT.TriggerAPI.main' )
 
     if dumpFullPickle:
         for triggerPeriod in TriggerPeriod:
             unprescaled = TriggerAPI.getLowestUnprescaled(triggerPeriod,TriggerType.mu_single)
-            print (triggerPeriod)
-            print (sorted(unprescaled))
+            log.info(triggerPeriod)
+            log.info(sorted(unprescaled))
         #Cache also one run for the example script
         unprescaled = TriggerAPI.getLowestUnprescaled(337833,TriggerType.mu_single)
-        print (337833)
-        print (sorted(unprescaled))
+        log.info(337833)
+        log.info(sorted(unprescaled))
         TriggerAPI.dumpFullPickle()
     else:
         try: period = int(sys.argv[1])
         except Exception: period = TriggerPeriod.y2018
         for triggerType in TriggerType:
             unprescaled = TriggerAPI.getLowestUnprescaled(period,triggerType)
-            print (triggerType)
-            print (sorted(unprescaled))
+            log.info(triggerType)
+            log.info(sorted(unprescaled))
 
 if __name__ == "__main__":
         dumpFullPickle = ("dumpFullPickle" in sys.argv)

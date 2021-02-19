@@ -100,6 +100,7 @@ atlas_install_python_modules( python/*.py
                               python/LVL1MenuConfig
                               python/L1
                               python/HLTMenuConfig
+                              python/TriggerAPI
                               POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-extensions=ATL900,ATL901 )
 
 atlas_install_scripts( scripts/generateLVL1MenuMT.py
@@ -110,6 +111,8 @@ atlas_install_scripts( scripts/generateLVL1MenuMT.py
                        scripts/test_full_menu_cf.py
                        scripts/generateBunchGroupSetFromOldKey.py
                        scripts/extract_chain_from_json.py
+                       scripts/runTriggerAPIExample.py
+                       scripts/generateUnprescaledLists.py
                        POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 # Shell scripts without flake8 checking:
@@ -167,6 +170,11 @@ atlas_add_test( EventBuildingSequenceSetup
                 SCRIPT python -m TriggerMenuMT.HLTMenuConfig.CommonSequences.EventBuildingSequenceSetup
                 PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_EventBuildingSequenceSetup
                 POST_EXEC_SCRIPT nopost.sh )
+
+atlas_add_test( checkMenuPrimaries SCRIPT scripts/checkMenuPrimaries.py 
+                PROPERTIES TIMEOUT 200 
+                POST_EXEC_SCRIPT "check_log.py --errors --config checklogTriggerTest.conf checkMenuPrimaries.log" 
+              )
 
 #----------------------------------
 # List of menus to be created:

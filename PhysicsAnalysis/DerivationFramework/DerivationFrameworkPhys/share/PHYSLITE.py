@@ -18,8 +18,8 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
 from DerivationFrameworkFlavourTag.HbbCommon import *
-from TriggerMenu.api.TriggerAPI import TriggerAPI
-from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
+from TriggerMenuMT.TriggerAPI.TriggerAPI import TriggerAPI
+from TriggerMenuMT.TriggerAPI.TriggerEnums import TriggerPeriod, TriggerType
 from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelper
 
 #====================================================================

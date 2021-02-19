@@ -5,8 +5,8 @@
 ####################################################
 
 # needed for dynamic determination of lowest-unprescaled single-muon and dimuon triggers
-from TriggerMenu.api.TriggerAPI import TriggerAPI
-from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
+from TriggerMenuMT.TriggerAPI.TriggerAPI import TriggerAPI
+from TriggerMenuMT.TriggerAPI.TriggerEnums import TriggerPeriod, TriggerType
 
 # Sequence
 from AthenaCommon.AlgSequence import AlgSequence 
