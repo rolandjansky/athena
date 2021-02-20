@@ -1287,34 +1287,12 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
                 addClusterToCaloCellAOD("InDetTrackParticlesAssociatedClusters")
 
             from tauRec.tauRecFlags import tauFlags
-            if ( rec.readESD() or tauFlags.Enabled() ) and rec.doTau:                
-                from CaloRec.CaloRecConf import CaloThinCellsByClusterAlg
-                tauCellAlg1 = CaloThinCellsByClusterAlg('CaloThinCellsByClusterAlg_TauPi0Clusters',
-                                                        StreamName = 'StreamAOD',
-                                                        Clusters = 'TauPi0Clusters',
-                                                        Cells = 'AllCalo')
-                topSequence += tauCellAlg1
-
-                tauCellAlg2 = CaloThinCellsByClusterAlg('CaloThinCellsByClusterAlg_TauShotClusters',
-                                                        StreamName = 'StreamAOD',
-                                                        Clusters = 'TauShotClusters',
-                                                        Cells = 'AllCalo')
-                topSequence += tauCellAlg2
-
-                from tauRec.tauRecConf import TauCellThinningAlg
-                tauCellAlg3 = TauCellThinningAlg('TauCellThinningAlg',
-                                                 StreamName = 'StreamAOD',
-                                                 Cells = 'AllCalo',
-                                                 CellLinks = 'CaloCalTopoClusters_links',
-                                                 Taus = "TauJets",
-                                                 MinTauPt = tauFlags.tauRecMinPt())
-                topSequence += tauCellAlg3
-
-                if tauFlags.tauRecMinPt() > 0:
-                    from tauRec.tauRecConf import TauThinningAlg
-                    tauThinningAlg = TauThinningAlg('TauThinningAlg',
-                                                    MinTauPt = tauFlags.tauRecMinPt())
-                    topSequence += tauThinningAlg
+            if ( rec.readESD() or tauFlags.Enabled() ) and rec.doTau:
+                # TauThinningAlg takes care of all tau-related thinning operations (taus, clusters, cells, cell links, PFOs, tracks, vertices)
+                from tauRec.tauRecConf import TauThinningAlg
+                tauThinningAlg = TauThinningAlg('TauThinningAlg',
+                                                MinTauPt = tauFlags.tauRecMinPt())
+                topSequence += tauThinningAlg
 
         except Exception:
             treatException("Could not make AOD cells" )
