@@ -1,7 +1,6 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
-from TrigBphysHypo.TrigBphysHypoConf import TrigBmumuxComboHypo, TrigBmumuxComboHypoTool
 from TrigBphysHypo.TrigBmumuxComboHypoMonitoringConfig import TrigBmumuxComboHypoMonitoring, TrigBmumuxComboHypoToolMonitoring
 
 from AthenaCommon.Logging import logging
@@ -13,14 +12,12 @@ def BmumuxComboHypoCfg(name):
     suffix = 'Bmumux'
 
     from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
-    from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
     vertexFitter = CompFactory.Trk__TrkVKalVrtFitter(
         name = 'TrigBphysFitter_'+suffix,
         FirstMeasuredPoint = False,
         MakeExtendedVertex = False,
         Extrapolator = AtlasExtrapolator())
 
-    from InDetConversionFinderTools.InDetConversionFinderToolsConf import InDet__VertexPointEstimator
     vertexPointEstimator = CompFactory.InDet__VertexPointEstimator(
         name = 'VertexPointEstimator_'+suffix,
         MinDeltaR = [-10000., -10000., -10000.],
@@ -28,7 +25,6 @@ def BmumuxComboHypoCfg(name):
         MaxPhi    = [ 10000.,  10000.,  10000.],
         MaxChi2OfVtxEstimation = 2000.)
 
-    from TrackToVertex.TrackToVertexConf import Reco__TrackToVertex
     trackToVertexTool = CompFactory.Reco__TrackToVertex(
         name = 'TrackToVertexTool_'+suffix,
         Extrapolator = AtlasExtrapolator())

@@ -99,6 +99,6 @@ def getDefaultChainNames():
     chains = []
     if bphysSlice:
         for chain in bphysSlice:
-            if any(x in chain.name for x in ['bJpsi', 'bUpsi', 'bDimu', 'bBmu', 'bPhi', 'bTau']) and not 'l2io' in chain.name:
+            if any(x in chain.name for x in ['bJpsi', 'bUpsi', 'bDimu', 'bBmu', 'bPhi', 'bTau']) and 'l2io' not in chain.name:
                 chains.append(chain.name)
     return chains
