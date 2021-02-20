@@ -32,6 +32,9 @@ NSWPRDValAlg.doSTGCFastDigit = False
 NSWPRDValAlg.doRPCHit = True
 NSWPRDValAlg.doRPCDigit = True
 
+NSWPRDValAlg.doMDTHit = True
+NSWPRDValAlg.doMDTDigit = True
+
 #-----------------------------------------------------------------------------
 # save ROOT histograms and Tuple
 #-----------------------------------------------------------------------------
