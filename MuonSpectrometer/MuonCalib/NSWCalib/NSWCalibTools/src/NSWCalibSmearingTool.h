@@ -49,7 +49,7 @@ namespace Muon {
     double getMMEfficiencyFromHV(double hv) const;
     double getMMGainFractionFromHV(double hv) const;
 
-    StatusCode readHighVoltages();
+    StatusCode readHighVoltagesStatus();
 
     ToolHandle<MuonIdHelperTool> m_idHelperTool;
 
