@@ -1,7 +1,6 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
-from TrigBphysHypo.TrigBphysHypoConf import TrigMultiTrkComboHypo, TrigMultiTrkComboHypoTool
 from TrigBphysHypo.TrigMultiTrkComboHypoMonitoringConfig import TrigMultiTrkComboHypoMonitoring, TrigMultiTrkComboHypoToolMonitoring
 
 from AthenaCommon.Logging import logging
@@ -61,14 +60,12 @@ class TrigMultiTrkComboHypoConfig(object):
             raise Exception('TrigMultiTrkComboHypo.trigLevel should be L2 or EF, but %s provided.', trigLevel)
 
         from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
-        from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
         VertexFitter = CompFactory.Trk__TrkVKalVrtFitter(
             name = 'TrigBphysFitter_'+trigSequenceName+trigLevel,
             FirstMeasuredPoint = False,
             MakeExtendedVertex = False,
             Extrapolator = AtlasExtrapolator())
 
-        from InDetConversionFinderTools.InDetConversionFinderToolsConf import InDet__VertexPointEstimator
         VertexPointEstimator = CompFactory.InDet__VertexPointEstimator(
             name = 'VertexPointEstimator_'+trigSequenceName+trigLevel,
             MinDeltaR = [-10000., -10000., -10000.],
