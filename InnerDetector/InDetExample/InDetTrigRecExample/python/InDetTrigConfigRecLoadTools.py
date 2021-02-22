@@ -46,17 +46,6 @@ if (InDetTrigFlags.doPrintConfigurables()):
   print (InDetTrigSiSpacePointMakerTool)
 ToolSvc += InDetTrigSiSpacePointMakerTool      
   
-from SiTrigSpacePointFormation.SiTrigSpacePointFormationConf import InDet__SCT_TrigSpacePointTool
-SCT_TrigSpacePointTool = InDet__SCT_TrigSpacePointTool(name="InDetTrigSCTSpacePointTool",
-                                                       ProcessOverlaps = InDetTrigFlags.doOverlapSP(),
-                                                       SiSpacePointMakerToolName="InDet::SiSpacePointMakerTool/InDetTrigSiSpacePointMakerTool",
-                                                       SpacePointsOverlapName = 'SPTrigOverlap'
-                                                       )
-
-if (InDetTrigFlags.doPrintConfigurables()):
-  print (SCT_TrigSpacePointTool )
-ToolSvc +=  SCT_TrigSpacePointTool
-
 
 #
 # ----------- control loading of ROT_creator
