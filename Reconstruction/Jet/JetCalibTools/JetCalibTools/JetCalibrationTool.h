@@ -118,7 +118,6 @@ private:
   std::vector<TString> m_timeDependentInsituConfigs;
   std::vector<double>  m_runBins;
   bool m_doSetDetectorEta;
-  bool m_doOnlyResidual;
   std::string m_vertexContainerName;
 
   //TEnv to hold the global text config
