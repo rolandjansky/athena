@@ -165,7 +165,7 @@ def generateMenu(flags):
     """
     loadChains(flags)
 
-    menuAcc = generateDecisionTree(TriggerConfigHLT.configsList())
+    menuAcc = generateDecisionTree(flags, TriggerConfigHLT.configsList())
     menuAcc.wasMerged()
     if log.getEffectiveLevel() <= logging.DEBUG:
         menuAcc.printConfig()
