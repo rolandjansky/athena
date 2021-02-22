@@ -79,19 +79,6 @@ if hasattr(runArgs,"outputNTUP_BTAGFile"):
     BTaggingFlags.doJetTagNtuple = True
     BTaggingFlags.JetTagNtupleName = runArgs.outputNTUP_BTAGFile
 
-if hasattr(runArgs, "outputNTUP_HIGHMULTFile"):
-    from TrigMbD3PDMaker.TrigMbD3PDMakerFlags import trigMbD3PDflags
-    trigMbD3PDflags.FileName=runArgs.outputNTUP_HIGHMULTFile
-    include("TrigMbD3PDMaker/HighMultD3PD_jobOptions.py")
-
-if hasattr(runArgs,"outputNTUP_ENHBIASFile"):
-    from TrigCostAthena.TrigCostAthenaFlags import TrigCostAthenaFlags
-    TrigCostAthenaFlags.StoreNtVerticesOutputFile.set_Value_and_Lock( runArgs.outputNTUP_ENHBIASFile )
-    TrigCostAthenaFlags.DoStoreNtVertices.set_Value_and_Lock( True )
-    if hasattr(runArgs,"inputESDFile") and not hasattr(runArgs,"inputFile"):
-        athenaCommonFlags.FilesInput.set_Value_and_Lock( runArgs.inputESDFile )
-    include("TrigCostAthena/ESDtoNTUP_ENHBIAS.py")
-
 if hasattr(runArgs,"outputHIST_PHYSVALMONFile"):
     rec.doPhysValMonHists=True
     
