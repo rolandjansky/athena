@@ -14,8 +14,9 @@
 #include <vector>
 
 class MDTSimHitVariables;
+class MdtDigitVariables;
 class RPCSimHitVariables;
-class RPCDigitVariables;
+class RpcDigitVariables;
 class CSCSimHitVariables;
 class TGCSimHitVariables;
 class MMDigitVariables;
@@ -69,7 +70,9 @@ class NSWPRDValAlg:public AthAlgorithm
   MMPRDVariables*         m_MmPrdVar;
   CSCDigitVariables*      m_CscDigitVar;
   MDTSimHitVariables*     m_MDTSimHitVar;
+  MdtDigitVariables*      m_MDTDigitVar;
   RPCSimHitVariables*     m_RPCSimHitVar;
+  RpcDigitVariables*      m_RPCDigitVar;
   CSCSimHitVariables*     m_CSCSimHitVar;
   TGCSimHitVariables*     m_TGCSimHitVar;
 
@@ -100,7 +103,8 @@ class NSWPRDValAlg:public AthAlgorithm
   BooleanProperty  m_doMMRDO;            // switch on the output of the MicroMegas RDO
   BooleanProperty  m_doMMPRD;            // switch on the output of the MicroMegas prepdata
   BooleanProperty  m_doCSCDigit;         // switch on the output of the MicroMegas digitization
-  BooleanProperty  m_doMDTHit;
+  BooleanProperty  m_doMDTHit;           // switch on the output of the MDT data 
+  BooleanProperty  m_doMDTDigit;         // switch on the output of the MDT digitization 
   BooleanProperty  m_doRPCHit;           // switch on the output of the RPC data   
   BooleanProperty  m_doRPCDigit;         // switch on the output of the RPC digitization 
   BooleanProperty  m_doCSCHit;
@@ -123,6 +127,7 @@ class NSWPRDValAlg:public AthAlgorithm
   std::string m_NSWMM_PRDContainerName;
   std::string m_CSC_DigitContainerName;
   std::string m_MDT_SimContainerName;
+  std::string m_MDT_DigitContainerName;
   std::string m_RPC_DigitContainerName;
   std::string m_RPC_SimContainerName;
   std::string m_CSC_SimContainerName;
