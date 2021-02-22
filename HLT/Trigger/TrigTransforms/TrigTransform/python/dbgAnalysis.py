@@ -152,7 +152,7 @@ def dbgPostRun(inputFileList, outputFileList, argdict = None):
             # Run debug event analysis and fill output TTree
             eventInfo.eventCount(event)
             eventInfo.eventInfo(event, l1Info, hltInfo)
-            eventInfo.eventConfig(configKeys)
+            eventInfo.eventConfig(configKeys, event)
             eventInfo.fillTree()
 
     # Close output TFile
@@ -241,7 +241,7 @@ def getHLTConfigKeys(runNumber = None, args = None):
         DB - database alias
         REL - release
         SMK - Super Master Key
-        HLTPSC - HLT Prescale key
+        HLTPSK - HLT Prescale key
         PROJ - Atlas project
     '''
 
@@ -257,6 +257,7 @@ def getHLTConfigKeys(runNumber = None, args = None):
 
         configKeys['DB'] = dbInfo[0]
         configKeys['PROJ'] = dbInfo[2]
+        configKeys['HLTPSK'] = TriggerCoolUtil.getHLTPrescaleKeys(dbconn, [[runNumber, runNumber]])[runNumber]['HLTPSK2']
 
         msg.info("Found config keys %s", configKeys)
     else:
