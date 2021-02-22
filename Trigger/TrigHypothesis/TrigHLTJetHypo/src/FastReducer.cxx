@@ -194,11 +194,11 @@ bool FastReducer::findInitialJetGroups(const HypoJetCIter& jets_b,
 					    filtered_jets.end());
 
     while(true){
-      auto ojg = grouper->next();
+      auto ojg = grouper->next();  // obtain a vector of jet ptrs
       if (!ojg.has_value()) {break;}
 
       auto jg = *ojg;
-      auto jg_ind = m_jgRegister.record(jg);
+      auto jg_ind = m_jgRegister.record(jg);  // obtain an int index for the jg
       m_testedBy[leaf].insert(jg_ind);
       if (m_conditions[leaf]->isSatisfied(jg, collector)){
 	if(collector){recordJetGroup(jg_ind, jg, collector);}
@@ -341,52 +341,55 @@ bool FastReducer::propagate_(std::size_t child,
     
     auto jg_indices = *next;
 
-    std::vector<std::size_t> elem_jgs;
+    std::vector<std::size_t> elem_indices;
 
     // flatten the jet groups participating in the product to a list of
     // elemental jet groups (ie the incoming jets). The entities being
     // manipulated are integer indexes.
     
     for(auto i : jg_indices){
-      elem_jgs.insert(elem_jgs.end(),
+      elem_indices.insert(elem_indices.end(),
 		      m_jg2elemjgs[i].begin(),
 		      m_jg2elemjgs[i].end());
     }
 
     // if any of the elemental jet group indices are repeated,
-    // stop processing of the new jet group. (do not allow sharing for
-    // among leaf nodes. Sharing is handled by processing > 1 leaf groups
-    // each of which does not share.
+    // stop processing the new jet group. (do not allow sharing for
+    // among Conditions. Sharing is handled by having the matcher use
+    // multiple FastReducer instances).
 
-    std::set<std::size_t> unique_indices(elem_jgs.begin(),
-					 elem_jgs.end());
-    if(unique_indices.size() != elem_jgs.size()){
+    std::sort(elem_indices.begin(), elem_indices.end());
+    if (std::unique(elem_indices.begin(),
+		    elem_indices.end()) != elem_indices.end()){
       next = jg_product->next(collector);
       continue;
     }
 
+    // use the elemental jet group indices to form a vector of jet pointers
     HypoJetVector jg;
-    for(const auto& i : elem_jgs){
-      jg.push_back(m_indJetGroup.at(i)[0]);  // why [0]? assume elemental jg has size 1
+    for(const auto& i : elem_indices){
+      const auto& jetGroup = m_indJetGroup.at(i);
+      jg.insert(jg.end(), jetGroup.begin(), jetGroup.end());
     }
     
     // obtain an index for the new jet group.
-    // auto cur_jg = m_jgIndAllocator(elem_jgs);
     auto cur_jg = m_jgRegister.record(jg);
+
+    // keep track of which jet groups a Condition sees.
     if(m_testedBy[par].find(cur_jg) != m_testedBy[par].end()){
       next = jg_product->next(collector);
       continue;
     }
+    
     m_testedBy[par].insert(cur_jg);
-	
 
-
+    // check if parent is satisfied by a jet group (vector of jet ptrs)
     if (m_conditions[par]->isSatisfied(jg, collector)){// par is a tree ind.
 
-      // get an index for this set of elementary jet group indices
+      // get an index for this vector of elementary jet group indices
       m_satisfiedBy[par].push_back(cur_jg);
 
-      m_jg2elemjgs[cur_jg] = elem_jgs;
+      m_jg2elemjgs[cur_jg] = elem_indices;
       if(collector){recordJetGroup(cur_jg, jg, collector);}
     }
     

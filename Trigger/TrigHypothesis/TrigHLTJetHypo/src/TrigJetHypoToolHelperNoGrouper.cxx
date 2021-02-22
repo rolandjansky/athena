@@ -60,9 +60,9 @@ TrigJetHypoToolHelperNoGrouper::pass(HypoJetVector& jetsIn,
   timer.start();
   
   if(jetsIn.empty()){   
-    timer.stop();
+    timer.update();
     bool pass = false;
-    collectData(timer.readAndReset(), collector, pass);
+    collectData(timer.read(), collector, pass);
     return pass;
   }
 
@@ -93,8 +93,8 @@ TrigJetHypoToolHelperNoGrouper::pass(HypoJetVector& jetsIn,
     }
   }
   
-  timer.stop();
-  collectData(timer.readAndReset(), collector, pass);
+  timer.update();
+  collectData(timer.read(), collector, pass);
 
   return pass;
 }

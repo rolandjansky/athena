@@ -11,13 +11,16 @@ ProductGen::ProductGen() {}
 
 ProductGen::ProductGen(const std::vector<std::size_t>& ends):
   m_ends(ends), m_counters(ends.size(), 0), m_ncounters(ends.size()){
-  
-  for(auto& i : m_ends){
-    if(i < 1) {
-      m_done = true;
-      break;
-    } else {
-      i -= 1;
+
+  if (!m_ends.empty()){
+    m_done = false;
+    for(auto& i : m_ends){
+      if(i < 1) {
+	m_done = true;
+	break;
+      } else {
+	i -= 1;
+      }
     }
   }
   

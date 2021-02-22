@@ -23,7 +23,7 @@ class ProductGen{
   std::vector<std::size_t> m_ends;
   std::vector<std::size_t> m_counters;
   std::size_t m_ncounters;
-  bool m_done{false};
+  bool m_done{true};
   bool atEnd(){return (m_counters == m_ends);}
 };
 
