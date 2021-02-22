@@ -2,8 +2,8 @@
    Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
  */
 
-#include "TrigAFPHypo/AFPProtonTransportTool.h"
-#include "TrigAFPHypo/AFPProtonTransportPolynomial.h"
+#include "AFPProtonTransportTool.h"
+#include "AFPProtonTransportPolynomial.h"
 #include <string>
 #include <fstream>
 #include <math.h>
