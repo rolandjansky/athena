@@ -96,7 +96,7 @@ StatusCode
 ByteStreamEventStorageInputSvc::finalize() {
 
   ATH_CHECK(m_storeGate.release());
-  ATH_CHECK(m_robProvider.release()); 
+  ATH_CHECK(m_robProvider.release());
   ATH_CHECK(m_inputMetadata.release());
 
   return(ByteStreamInputSvc::finalize());
@@ -169,8 +169,12 @@ ByteStreamEventStorageInputSvc::previousEvent()
   // Use buffer to build FullEventFragment
   try {
     buildFragment(cache, buf, eventSize, true);
+    delete[] buf;
+    buf = nullptr;
   }
   catch (...) {
+    delete[] buf;
+    buf = nullptr;
     // rethrow any exceptions
     throw;
   }
@@ -208,7 +212,7 @@ ByteStreamEventStorageInputSvc::nextEvent() {
     DRError ecode;
     // Check if have moved back from high water mark
     m_evtInFile++; // increment iterator
-    if (m_evtInFile+1 > m_evtOffsets.size()) { 
+    if (m_evtInFile+1 > m_evtOffsets.size()) {
       //get current event position (cast to long long until native tdaq implementation)
       ATH_MSG_DEBUG("nextEvent _above_ high water mark");
       m_evtFileOffset = static_cast<long long>(m_reader->getPosition());
@@ -339,10 +343,10 @@ ByteStreamEventStorageInputSvc::buildFragment(
     const DataType formatVersion = eformat::helper::Version(fragment[3]).major_version();
     ATH_MSG_DEBUG("Format version" << MSG::hex << formatVersion << MSG::dec);
     // error message
-    if((formatVersion != eformat::MAJOR_DEFAULT_VERSION) && 
-       (formatVersion != eformat::MAJOR_V24_VERSION) && 
-       (formatVersion != eformat::MAJOR_V30_VERSION) && 
-       (formatVersion != eformat::MAJOR_V40_VERSION) && 
+    if((formatVersion != eformat::MAJOR_DEFAULT_VERSION) &&
+       (formatVersion != eformat::MAJOR_V24_VERSION) &&
+       (formatVersion != eformat::MAJOR_V30_VERSION) &&
+       (formatVersion != eformat::MAJOR_V40_VERSION) &&
        (formatVersion != eformat::MAJOR_V31_VERSION) ) {
       ATH_MSG_ERROR("unsupported Format Version : "
           << MSG::hex << formatVersion << MSG::dec);
@@ -528,7 +532,7 @@ ByteStreamEventStorageInputSvc::getBlockIterator(const std::string& fileName)
   if(m_reader == nullptr) {
     ATH_MSG_ERROR("Failed to open file " << fileName);
     closeBlockIterator();
-    return std::make_pair(-1,"END"); 
+    return std::make_pair(-1,"END");
   }
 
   // Initilaize offset vector
@@ -671,7 +675,7 @@ ByteStreamEventStorageInputSvc::queryInterface(const InterfaceID& riid,
     *ppvInterface = dynamic_cast<ByteStreamInputSvc*>(this);
   else // Interface is not directly available: try out a base class
     return(::AthService::queryInterface(riid, ppvInterface));
- 
+
   addRef();
   return(StatusCode::SUCCESS);
 }
@@ -690,4 +694,3 @@ ByteStreamEventStorageInputSvc::makeBSProvenance() const
     return std::make_unique<DataHeaderElement>(ClassID_traits<DataHeader>::ID(),
         "StreamRAW", token.release());
 }
-
