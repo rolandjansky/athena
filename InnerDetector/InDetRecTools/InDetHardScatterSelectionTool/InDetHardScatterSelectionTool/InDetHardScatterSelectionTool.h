@@ -63,6 +63,7 @@ namespace InDet {
 
     class Sum {
     public:
+      virtual ~Sum() = default;
       virtual float add(const float a, const float b) const = 0;
     };
 
