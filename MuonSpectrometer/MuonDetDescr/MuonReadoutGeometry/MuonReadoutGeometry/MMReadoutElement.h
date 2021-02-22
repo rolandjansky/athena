@@ -51,7 +51,9 @@ namespace MuonGM {
     bool stripGlobalPosition( const Identifier& id, Amg::Vector3D& gpos ) const;
 
     double stripLength( const Identifier& id) const;
-
+    double stripLengthLeft( const Identifier& id) const;
+    double stripLengthRight( const Identifier& id) const;
+    
     /** number of layers in phi/eta projection */
     virtual int numberOfLayers( bool ) const override;
 
@@ -228,7 +230,24 @@ namespace MuonGM {
   inline double MMReadoutElement::stripLength( const Identifier& id) const {
     const MuonChannelDesign* design = getDesign(id);
     if(!design) return -1;
-    return design->channelLength(manager()->mmIdHelper()->channel(id));
+    //return design->channelLength(manager()->mmIdHelper()->channel(id));
+
+    // temporary way to pass MM correction for passivation
+    return std::max(0., design->channelLength(manager()->mmIdHelper()->channel(id)) - manager()->getMMPassivationCorrection());
+  }
+  
+  inline double MMReadoutElement::stripLengthLeft( const Identifier& id) const {
+    const MuonChannelDesign* design = getDesign(id);
+    if(!design) return -1;
+    // temporary way to pass MM correction for passivation
+    return std::max(0., 0.5*(design->channelLength(manager()->mmIdHelper()->channel(id)) - manager()->getMMPassivationCorrection()));
+  }
+
+  inline double MMReadoutElement::stripLengthRight( const Identifier& id) const {
+    const MuonChannelDesign* design = getDesign(id);
+    if(!design) return -1;
+    // temporary way to pass MM correction for passivation
+    return std::max(0., 0.5*(design->channelLength(manager()->mmIdHelper()->channel(id)) - manager()->getMMPassivationCorrection()));
   }
 
   inline bool MMReadoutElement::stripGlobalPosition( const Identifier& id, Amg::Vector3D& gpos ) const {

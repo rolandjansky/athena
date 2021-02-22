@@ -103,6 +103,10 @@ if conddb.dbdata != 'COMP200' and conddb.dbmc != 'COMP200' and \
 
 from MuonGeoModel.MuonGeoModelConf import MuonDetectorCondAlg
 MuonDetectorManagerCond = MuonDetectorCondAlg()
+# temporary way to pass MM correction for passivation:
+from MuonGeoModel.MMPassivationFlag import MMPassivationFlag
+MuonDetectorManagerCond.MMPassivationCorrection = MMPassivationFlag.correction
+
 MuonDetectorManagerCond.MuonDetectorTool = MuonDetectorTool
 if conddb.dbdata != 'COMP200' and conddb.dbmc != 'COMP200' and \
    'HLT' not in globalflags.ConditionsTag() and not conddb.isOnline :

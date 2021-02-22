@@ -9,7 +9,6 @@ Muon__MuonIdHelperSvc=CompFactory.Muon.MuonIdHelperSvc
 AGDDtoGeoSvc=CompFactory.AGDDtoGeoSvc
 MuonAGDDTool, NSWAGDDTool=CompFactory.getComps("MuonAGDDTool","NSWAGDDTool",)
 
-
 def MuonIdHelperSvcCfg(flags):
     acc = ComponentAccumulator()
     acc.addService( Muon__MuonIdHelperSvc("MuonIdHelperSvc",
@@ -155,11 +154,15 @@ def MuonAlignmentCondAlgCfg(flags):
     acc.addCondAlgo(MuonAlign)
     return acc
 
-
 def MuonDetectorCondAlgCfg(flags):
     acc = MuonAlignmentCondAlgCfg(flags)
     MuonDetectorCondAlg = CompFactory.MuonDetectorCondAlg
     MuonDetectorManagerCond = MuonDetectorCondAlg()
+    
+    # temporary way to pass MM correction for passivation
+    from MuonGeoModel.MMPassivationFlag import MMPassivationFlag
+    MuonDetectorManagerCond.MMPassivationCorrection = MMPassivationFlag.correction
+
     detTool = acc.popToolsAndMerge(MuonDetectorToolCfg(flags))
     MuonDetectorManagerCond.MuonDetectorTool = detTool
     acc.addCondAlgo(MuonDetectorManagerCond)
