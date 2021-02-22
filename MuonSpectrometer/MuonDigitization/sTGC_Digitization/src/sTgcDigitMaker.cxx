@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "sTGC_Digitization/sTgcDigitMaker.h"
@@ -33,12 +33,13 @@
 //---------------------------------------------------
 
 //----- Constructor
-sTgcDigitMaker::sTgcDigitMaker(const sTgcHitIdHelper* hitIdHelper, const MuonGM::MuonDetectorManager* mdManager)
+sTgcDigitMaker::sTgcDigitMaker(const sTgcHitIdHelper* hitIdHelper, const MuonGM::MuonDetectorManager* mdManager, bool doEfficiencyCorrection)
 {
   m_hitIdHelper             = hitIdHelper;
   m_mdManager               = mdManager;
   m_efficiencyOfWireGangs   = 1.000; // 100% efficiency for sTGCSimHit_p1
   m_efficiencyOfStrips      = 1.000; // 100% efficiency for sTGCSimHit_p1
+  m_doEfficiencyCorrection  = doEfficiencyCorrection;
   m_doTimeCorrection        = true;
   m_timeWindowOffsetPad     = 0.;
   m_timeWindowOffsetStrip   = 25.;
@@ -94,6 +95,9 @@ StatusCode sTgcDigitMaker::initialize(CLHEP::HepRandomEngine *rndmEngine, const 
   // Read share/sTGC_Digitization_deadChamber.dat file and store values in m_isDeadChamber.
   readFileOfDeadChamber();
 
+  // Read share/sTGC_Digitization_effChamber.dat file and store values in m_ChamberEfficiency.
+  readFileOfEffChamber();
+
   // Read share/sTGC_Digitization_timeWindowOffset.dat file and store values in m_timeWindowOffset.
   readFileOfTimeWindowOffset();
 
@@ -146,6 +150,25 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   int multiPlet = m_idHelper->multilayer(layid);
   int gasGap = m_idHelper->gasGap(layid);
 
+  // Get wire surface here for effiency purposes
+  int surfHash_wire =  detEl->surfaceHash(gasGap, 2);
+  const Trk::PlaneSurface& SURF_WIRE = detEl->surface(surfHash_wire); // get the wire surface
+
+  Amg::Vector3D GPOS(hit->globalPosition().x(),hit->globalPosition().y(),hit->globalPosition().z());
+  Amg::Vector3D hitOnSurface_wire = SURF_WIRE.transform().inverse()*GPOS;
+  Amg::Vector2D posOnSurf_wire(hitOnSurface_wire.x(), hitOnSurface_wire.y());
+
+  if (m_doEfficiencyCorrection){ // HV efficiency correction
+    Identifier tempId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, 2, 1, true);
+    // Transform STL and STS to 0 and 1 respectively
+    int stNameInt = (stationName=="STL") ? 0 : 1;
+    // If inside eta0 bin of QL1/QS1, remove 1 from eta index
+    int etaZero = detEl->isEtaZero(tempId, hitOnSurface_wire.y()) ? 1 : 0;
+    float efficiency = getChamberEfficiency(stNameInt, std::abs(stationEta)-etaZero, stationPhi-1, multiPlet-1, gasGap-1);
+    // Lose Hits to match HV efficiency
+    if (CLHEP::RandFlat::shoot(m_engine,0.0,1.0) > efficiency) return 0;
+  }
+
   //// Check the chamber is dead or not.
   if(isDeadChamber(stationName, stationEta, stationPhi, multiPlet, gasGap)) return 0;
 
@@ -167,7 +190,6 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   // get the GlobalPosition (propergated to the wire surface)
   // #################################################################
 
-  Amg::Vector3D GPOS(hit->globalPosition().x(),hit->globalPosition().y(),hit->globalPosition().z());
   const Amg::Vector3D GLODIRE(hit->globalDirection().x(), hit->globalDirection().y(), hit->globalDirection().z());
 
   // get strip surface 
@@ -415,12 +437,6 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
     Identifier WIREGP_ID = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, 1, true);
         
     //************************************ find the nearest readout element ************************************** 
-    int surfHash_wire =  detEl->surfaceHash(gasGap, 2);
-    const Trk::PlaneSurface& SURF_WIRE = detEl->surface(surfHash_wire); // get the wire surface
-
-    Amg::Vector3D hitOnSurface_wire = SURF_WIRE.transform().inverse()*GPOS;
-    Amg::Vector2D posOnSurf_wire(hitOnSurface_wire.x(), hitOnSurface_wire.y());
-
     insideBounds = SURF_WIRE.insideBounds(posOnSurf_wire);
 
     if(insideBounds) {
@@ -862,6 +878,90 @@ void sTgcDigitMaker::readFileOfDeadChamber() {
   ATH_MSG_INFO("sTgcDigitMaker::readFileOfDeadChamber: the number of dead chambers = " << nDeadChambers );
 }
 
+void sTgcDigitMaker::readFileOfEffChamber() {
+  // Indices to be used
+  int iStationName, stationEta, stationPhi, multiPlet, gasGap;
+  float eff;
+
+  for(iStationName=0; iStationName<2; iStationName++) { // Small - Large
+    for(stationEta=0; stationEta<4; stationEta++) { // 4 eta
+      for(stationPhi=0; stationPhi<8; stationPhi++) { // 8 phi sectors
+        for(multiPlet=0; multiPlet<2; multiPlet++) { // pivot- confirm
+          for(gasGap=0; gasGap<4; gasGap++) { // 4 layers
+            m_ChamberEfficiency[iStationName][stationEta][stationPhi][multiPlet][gasGap] = 1.;
+          }
+        } 
+      }
+    }
+  }
+
+  // Find path to the sTGC_Digitization_EffChamber.dat file
+  const std::string fileName = "sTGC_Digitization_EffChamber.dat";
+  std::string fileWithPath = PathResolver::find_file(fileName.c_str(), "DATAPATH");
+  if(fileWithPath == "") {
+    ATH_MSG_FATAL("readFileOfEffChamber(): Could not find file " << fileName.c_str() );
+    return;
+  }
+
+  // Open the sTGC_Digitization_EffChamber.dat file
+  std::ifstream ifs;
+  ifs.open(fileWithPath.c_str(), std::ios::in);
+  if(ifs.bad()) {
+    ATH_MSG_FATAL("readFileOfEffChamber(): Could not open file " << fileName.c_str() );
+    return;
+  }
+
+  // Read the sTGC_Digitization_EffChamber.dat file
+  /* Each line has 6 values:
+     value #1 : Large (0) or Small (1)
+     value #2 : Eta 0,1,2,3 : Mirroring A side efficiency to C side for now.
+     value #3 : Phi 1 to 8
+     value #4 : Multiplet 0 for Large pivot or small confirm.
+                Multiplet 1 for Large Confirm or Small Pivot
+     value #5 : gasGap (1-4)
+     value #6 : Efficiency
+  */
+  unsigned int nDeadChambers = 0;
+  std::string comment;
+  // This is just to skip the first line which describes the format
+  getline(ifs, comment);
+  while(ifs.good()) {
+    ifs >> iStationName >> stationEta >> stationPhi >> multiPlet >> gasGap >> eff;
+    bool valid = getline(ifs, comment).good();
+    if(!valid) break;
+
+    ATH_MSG_DEBUG( "sTgcDigitMaker::readFileOfEffChamber"
+                    << " stationName= " << iStationName
+                    << " stationEta= " << stationEta
+                    << " stationPhi= " << stationPhi
+                    << " multiPlet= "  << multiPlet
+                    << " gasGap= " << gasGap
+                    << " efficiency= " << eff
+                    << " comment= " << comment );
+
+    // Subtract offsets to use indices of efficiency array
+    stationPhi = stationPhi - 1;
+    gasGap = gasGap - 1;
+
+    // Check the indices are valid
+    if(iStationName<0 || iStationName>=2) continue;
+    if(stationEta  <0 || stationEta  >=4 ) continue;
+    if(stationPhi  <0 || stationPhi  >=8 ) continue;
+    if(multiPlet   <0 || multiPlet   >=2  ) continue;
+    if(gasGap      <0 || gasGap      >=4     ) continue;
+
+    m_ChamberEfficiency[iStationName][stationEta][stationPhi][multiPlet][gasGap] = eff;
+    if (eff==0) nDeadChambers++;
+
+    // If it is the end of the file, get out from while loop.
+    if(ifs.eof()) break;
+  }
+
+  // Close the sTGC_Digitization_deadChamber.dat file
+  ifs.close();
+
+  ATH_MSG_INFO("sTgcDigitMaker::readFileOfEffChamber: the number of dead chambers = " << nDeadChambers );
+}
 //+++++++++++++++++++++++++++++++++++++++++++++++
 void sTgcDigitMaker::readFileOfTimeWindowOffset() {
   // Indices to be used
@@ -994,6 +1094,22 @@ bool sTgcDigitMaker::isDeadChamber(const std::string stationName, int stationEta
                     << " isDeadChamber= " << v_isDeadChamber );
 
   return v_isDeadChamber;
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++
+float sTgcDigitMaker::getChamberEfficiency(int stationName, int stationEta, int stationPhi, int multiPlet, int gasGap) {
+
+  // If the indices are valid, the energyThreshold array is fetched.
+  if((stationName>=0 && stationName<2 ) &&
+     (stationEta  >=0 && stationEta<4 ) &&
+     (stationPhi  >=0 && stationPhi<8 ) &&
+     (multiPlet   >=0 && multiPlet<2  ) &&
+     (gasGap      >=0 && gasGap<4     )) {
+    return m_ChamberEfficiency[stationName][stationEta][stationPhi][multiPlet][gasGap];
+  }
+  else ATH_MSG_INFO("sTGC getChamberEfficiency bug! Indexes not ok!");
+
+  return 1.;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++
