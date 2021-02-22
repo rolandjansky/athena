@@ -963,7 +963,7 @@ StatusCode MdtCalibDbAlg::loadTube(const MuonGM::MuonDetectorManager* muDetMgr){
     if (!isValid) {
       static std::atomic<bool> idWarningPrinted = false;
       if (!idWarningPrinted) {
-        ATH_MSG_WARNING("Element Identifier " << chId.get_compact() << " retrieved for station name " << name << " is not valid, skipping, cf. ATLASRECTS-5826");
+        ATH_MSG_WARNING("Element Identifier " << chId.get_compact() << " retrieved for station name " << name << " is not valid, skipping, cf. ATLASRECTS-6035");
         idWarningPrinted.store(true, std::memory_order_relaxed);
       }
       continue;
