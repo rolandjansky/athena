@@ -32,12 +32,12 @@ def nameJetsFromAlg(alg):
 # Jet helpers for large-radius groomed jets
 ##################################################################
 
-def addDefaultTrimmedJets(sequence,outputlist,dotruth=True,writeUngroomed=False):
+def addDefaultTrimmedJets(sequence,outputlist,dotruth=True,writeUngroomed=False,linkVRGhosts=False):
     if DerivationFrameworkIsMonteCarlo and dotruth:
         addTrimmedJets('AntiKt', 1.0, 'Truth', rclus=0.2, ptfrac=0.05, mods="truth_groomed",
                        algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
     addTrimmedJets('AntiKt', 1.0, 'LCTopo', rclus=0.2, ptfrac=0.05, mods="lctopo_groomed",
-                   algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed, includeVRGhosts=True)
+                   algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed, includeVRGhosts=linkVRGhosts)
 
 def addTCCTrimmedJets(sequence,outputlist,dotruth=True,writeUngroomed=False):
     addTrimmedJets('AntiKt', 1.0, 'TrackCaloCluster', rclus=0.2, ptfrac=0.05, mods="tcc_groomed",

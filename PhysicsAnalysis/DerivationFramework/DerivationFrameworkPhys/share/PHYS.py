@@ -197,7 +197,7 @@ if (DerivationFrameworkIsMonteCarlo):
 
 replaceAODReducedJets(reducedJetList,SeqPHYS,"PHYS")
 add_largeR_truth_jets = DerivationFrameworkIsMonteCarlo and not hasattr(SeqPHYS,'jetalgAntiKt10TruthTrimmedPtFrac5SmallR20')
-addDefaultTrimmedJets(SeqPHYS,"PHYS",dotruth=add_largeR_truth_jets)
+addDefaultTrimmedJets(SeqPHYS,"PHYS",dotruth=add_largeR_truth_jets, linkVRGhosts=True)
 
 # Add large-R jet truth labeling
 if (DerivationFrameworkIsMonteCarlo):
