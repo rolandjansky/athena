@@ -95,7 +95,7 @@ def addGhostAssociation(DerivationFrameworkJob):
 
 ##################################################################
 
-def reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale=-1.0, variableRMinRadius=-1.0, algseq=None, constmods=[]):
+def reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale=-1.0, variableRMinRadius=-1.0, algseq=None, constmods=[], includeVRGhosts=False):
     """Return a list of tools (possibly empty) to be run in a jetalg. These tools will make sure PseudoJets will be associated
     to the container specified by the input arguments.    
     """
@@ -168,11 +168,18 @@ def reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale=-1.0, variab
                       PV0Track='pv0track')
     # create the finder for the temporary collection.
 
-    getters = getterMap[inputtype]
+    getters = jtm.gettersMap[getterMap[inputtype]]
 
-    for getter in jtm.gettersMap[getters]:
+    for getter in getters:
         if not hasattr(algseq, getter.name()):
             algseq += getter
+
+    if includeVRGhosts:
+        if not hasattr(algseq, jtm.gvrtrackget.name()):
+            algseq += jtm.gvrtrackget
+        getters = getters.copy() # So we don't modify the one in jtm
+        getters += [jtm.gvrtrackget]
+        
 
     if len(constmods) > 0:
         finderArgs['modifiersin'] = []
@@ -211,7 +218,7 @@ def reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale=-1.0, variab
 ##################################################################
 
 def buildGenericGroomAlg(jetalg, rsize, inputtype, groomedName, jetToolBuilder,
-                         includePreTools=False, algseq=None, outputGroup="CustomJets",
+                         includePreTools=False, algseq=None, outputGroup="CustomJets", doVRGhosts = False,
                          writeUngroomed=False, variableRMassScale=-1.0, variableRMinRadius=-1.0, constmods=[]):
     algname = "jetalg"+groomedName[:-4]
 
@@ -247,7 +254,7 @@ def buildGenericGroomAlg(jetalg, rsize, inputtype, groomedName, jetToolBuilder,
     else:
         # 1. make sure we have pseudo-jet in our original container
         # this returns a list of the needed tools to do so.
-        jetalgTools = reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale, variableRMinRadius, algseq, constmods=constmods)
+        jetalgTools = reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale, variableRMinRadius, algseq, constmods=constmods, includeVRGhosts=doVRGhosts)
 
         if includePreTools and jetFlags.useTracks() and "Truth" not in inputtype:
             # enable track ghost association and JVF
@@ -275,7 +282,7 @@ def buildGenericGroomAlg(jetalg, rsize, inputtype, groomedName, jetToolBuilder,
 
 ##################################################################
 def addTrimmedJets(jetalg, rsize, inputtype, rclus=0.3, ptfrac=0.05, mods="groomed",
-                   includePreTools=False, algseq=None, outputGroup="Trimmed",
+                   includePreTools=False, algseq=None, outputGroup="Trimmed", includeVRGhosts=False,
                    writeUngroomed=False, variableRMassScale=-1.0, variableRMinRadius=-1.0, constmods=[]):
     from JetRec.JetRecUtils import buildJetAlgName
     inputname = inputtype + "".join(constmods)
@@ -291,7 +298,7 @@ def addTrimmedJets(jetalg, rsize, inputtype, rclus=0.3, ptfrac=0.05, mods="groom
     # pass the trimmedName and our specific trimming tool builder to the generic function :
     return buildGenericGroomAlg(jetalg, rsize, inputtype, trimmedName, trimToolBuilder,
                                 includePreTools, algseq, outputGroup,
-                                writeUngroomed=writeUngroomed,
+                                writeUngroomed=writeUngroomed, doVRGhosts=includeVRGhosts,
                                 variableRMassScale=variableRMassScale, variableRMinRadius=variableRMinRadius, constmods=constmods)
 
 
@@ -504,9 +511,8 @@ def addStandardVRTrackJets(jetalg, vrMassScale, maxR, minR, inputtype, ptmin=0.,
                       Truth = 'truth',  TruthWZ = 'truthwz', TruthDressedWZ = 'truthdressedwz', TruthCharged = 'truthcharged',
                       PV0Track='pv0track')
 
-    # Slice the array - this forces a copy so that when we modify it we don't also
-    # change the array in jtm.
-    pseudoJetGetters = jtm.gettersMap[getterMap[inputtype]][:]
+    # Copy so that if we modify it we don't also change the array in jtm.
+    pseudoJetGetters = jtm.gettersMap[getterMap[inputtype]].copy()
 
     # We want to include ghost associated tracks in the pv0 tracks so that
     # we can use the looser ghost association criteria for b-tagging.
