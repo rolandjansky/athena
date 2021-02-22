@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigHLTJetHypoUnitTests )
@@ -18,24 +18,15 @@ atlas_add_component( TrigHLTJetHypoUnitTests
                      exerciser/components/*.cxx
                      LINK_LIBRARIES TrigHLTJetHypoUnitTestsLib)
 		     
-# Test(s) in the package:
-atlas_add_test( TrigHLTJetHypoTimerTest
-   SOURCES src/Timer.cxx
-   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} TrigHLTJetHypoLib )
-
-atlas_add_test( TrigHLTJetHypoUnitTests
+atlas_add_test( TrigHLTJetHypoUnitTestsg
    SOURCES tests/all_tests.cxx
    tests/CombinationsGenTest.cxx
-   tests/DijetDEtaMassConditionTest.cxx
-   tests/EtaEtConditionTest.cxx
-   tests/FlowEdgeTest.cxx
-   tests/FlowNetworkTest.cxx
-   tests/LlpCleanerTest.cxx
-   tests/LooseCleanerTest.cxx
+   tests/ProductGenTest.cxx
+   tests/JetGroupProductTest.cxx
+   tests/JetGroupUnionTest.cxx
    tests/TLorentzVectorFactoryTest.cxx
-   tests/TightCleanerTest.cxx
    tests/xAODJetCollectorTest.cxx
+   tests/JetTrigTimerTest.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} GoogleTestTools ${GMOCK_LIBRARIES} TrigHLTJetHypoLib TrigHLTJetHypoUnitTestsLib )
    

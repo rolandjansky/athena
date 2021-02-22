@@ -41,7 +41,11 @@ class JetGroupProduct: public IJetGroupProduct{
   
  private:
   std::vector<std::vector<std::size_t>>  m_condIndices;
+  std::vector<bool>  m_jetMask;
+  std::size_t  m_jetEnd{0};
   ProductGen m_productGen;
+  std::vector<std::vector<std::size_t>> m_seenIndices;
+
 };
 
 #endif

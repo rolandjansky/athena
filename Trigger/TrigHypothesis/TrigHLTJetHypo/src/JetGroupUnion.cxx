@@ -26,6 +26,7 @@ JetGroupUnion::JetGroupUnion(const std::vector<std::size_t>& siblings,
   }
   
   m_jetIndices.assign(j_elem_indices.begin(), j_elem_indices.end());
+  if (m_jetIndices.empty()) {m_done = true;}
 }
   
 std::optional<std::vector<std::size_t>>
