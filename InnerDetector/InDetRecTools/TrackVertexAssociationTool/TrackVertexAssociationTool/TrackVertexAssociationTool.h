@@ -63,6 +63,7 @@ namespace CP {
     typedef SG::ReadDecorHandle<xAOD::TrackParticleContainer, std::vector<float>> AMVFWeightsRDH;
     class WorkingPoint {
     public:
+      virtual ~WorkingPoint() = default;
       virtual bool apply(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx, const xAOD::EventInfo* evt,
         const AMVFVerticesRDH& vtxDeco, const AMVFWeightsRDH& wgtDeco) const = 0;
     };
