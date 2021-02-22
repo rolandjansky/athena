@@ -1062,7 +1062,6 @@ StatusCode MM_DigitizationTool::doDigitization() {
       m_sdoContainer->insert ( std::make_pair ( digitID, simData ) );
       ATH_MSG_DEBUG(" added MM SDO " <<  m_sdoContainer->size());
       
-      
       m_n_hitStripID=stripNumber;
       m_n_hitDistToChannel=distToChannel;
       m_n_hitIncomingAngle=inAngle_XZ;
@@ -1076,8 +1075,9 @@ StatusCode MM_DigitizationTool::doDigitization() {
         Identifier id = m_idHelper->channelID(layerID, m_idHelper->multilayer(layerID), m_idHelper->gasGap(layerID), stripNumber);
         ATH_CHECK(m_smearingTool->getGainFraction(id, gainFraction));
       }
+      double stripPitch = detectorReadoutElement->getDesign(layerID)->channelWidth(positionOnSurface); 
       
-      MM_StripToolOutput tmpStripOutput = m_StripsResponseSimulation->GetResponseFrom(stripDigitInput,gainFraction);
+      MM_StripToolOutput tmpStripOutput = m_StripsResponseSimulation->GetResponseFrom(stripDigitInput,gainFraction, stripPitch);
       MM_ElectronicsToolInput stripDigitOutput( tmpStripOutput.NumberOfStripsPos(), tmpStripOutput.chipCharge(), tmpStripOutput.chipTime(), digitID , hit.kineticEnergy());
       
       // This block is purely validation
