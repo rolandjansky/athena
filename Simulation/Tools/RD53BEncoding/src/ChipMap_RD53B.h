@@ -15,8 +15,7 @@ public:
   //// This is the chip map constructor:
   //   - cols: number of columns in the chip
   //   - rows: number of rows in the chip
-  //   - cols_core: number of columns in a core
-  //   - rows_core: number of rows in a core
+  //   - use50x50: boolean to chose the pixel dimension, this triggers the needed quarter-core dimension
   ChipMap_RD53B(int cols, int rows, bool use50x50=true):
           m_cols(cols), m_rows(rows),
           m_use50x50(use50x50)
@@ -26,8 +25,6 @@ public:
             // In the RD53B manual you have:
             // - 8 x 2 (cols x rows) quarter cores for 50x50 pixels
             // - 4 x 4 (cols x rows) quarter cores for 100x25 pixels
-            
-            // SETTING ALL QUANTITIES
             if (m_use50x50) {
              m_cols_core = 8;
              m_rows_core = 2;             

@@ -23,6 +23,7 @@ RD53BEncodingTool::RD53BEncodingTool(const std::string& t,
   m_addressCompression(true),
   m_bitTreeCompression(true),
   m_suppressToT(false),
+  m_enableLinkSharing(false),
   m_auroraFactor(1.04),
   m_safetyFactor(1.25),
   m_eventsPerStream(1),
@@ -38,6 +39,7 @@ RD53BEncodingTool::RD53BEncodingTool(const std::string& t,
   declareProperty("DoAddressCompression"  , m_addressCompression);
   declareProperty("DoBitTreeCompression"  , m_bitTreeCompression);
   declareProperty("DoToTSuppression"      , m_suppressToT       );
+  declareProperty("EnableLinkSharing"     , m_enableLinkSharing );
   declareProperty("EventsPerStream"       , m_eventsPerStream   );
   declareProperty("AuroraFactor"          , m_auroraFactor      ); 
   declareProperty("SafetyFactor"          , m_safetyFactor      ); 
@@ -150,7 +152,7 @@ void RD53BEncodingTool::fillStreams(ChipMap& chip_map, Identifier Id, int chip, 
   
   bool dumpStream = (m_testStream and  barrel_endcap == m_testBarrelEndcap and layer_disk == m_testLayerDisc and eta_module == m_testModuleEta and phi_module==m_testModulePhi and chip==0);
   if (dumpStream) {
-    testStream(chip_map, m_testStreams, m_testCores, event);    
+    testStream(chip_map, m_testStreams, m_testCores, chip, event);    
   }
 }
 
@@ -159,7 +161,7 @@ void RD53BEncodingTool::fillStreams(ChipMap& chip_map, Identifier Id, int chip, 
 void RD53BEncodingTool::testStream(ChipMap& chipmap,
                                    std::vector <float>& streams, 
                                    std::vector <float>& cores,
-                                   int event){
+                                   int& chipId, int event) {
   ATH_MSG_DEBUG("In RD53BEncodingTool::testStream ... starting");
   ATH_MSG_DEBUG("testing " << m_testBarrelEndcap << ", " << m_testLayerDisc << ", " << m_testModuleEta << ", " << m_testModulePhi);
   
@@ -169,9 +171,15 @@ void RD53BEncodingTool::testStream(ChipMap& chipmap,
   // they are defined in the RD53B manual 
   // as well as the algorithm
   // https://cds.cern.ch/record/2665301
-  const std::string NS_new       = "1" ;
-  const std::string NS_old       = "0" ;
-  const int NS                 =  1 ;
+  
+  // adding the bits for the chipId to the NS if link sharing is enabled (for multi-chip encoding)
+  std::bitset<2> chipIdTag;
+  chipIdTag |= chipId;
+  std::string chipId_bits_string = m_enableLinkSharing ? "" : chipIdTag.to_string();
+  const std::string NS_new       = "1"+chipId_bits_string;
+  const std::string NS_old       = "0"+chipId_bits_string;
+  const int NS                   =  (int)NS_new.size();
+  
   const int TagX               =  8 ;
   const int TagY               =  11;  
   const int ccol_bits          =  6 ;
@@ -472,8 +480,7 @@ void RD53BEncodingTool::createStream(ChipMap& chipmap,
                                      std::vector<float>& orphans,
                                      std::vector<float>& cores,
                                      int& streams_per_event,
-                                     int event, bool test                                     
-                                    ) {
+                                     int event, bool test) {
   
   ATH_MSG_DEBUG("In RD53BEncodingTool::createStream ... starting!" );
   
@@ -484,7 +491,9 @@ void RD53BEncodingTool::createStream(ChipMap& chipmap,
   // they are defined in the RD53B manual 
   // as well as the algorithm
   // https://cds.cern.ch/record/2665301
-  const int NS                 = 1 ;
+  
+  // adding the bits for the chipId to the NS if link sharing is enabled (for multi-chip encoding)
+  const int NS                 = m_enableLinkSharing ? (1+2) : 1 ;
   const int TagX               = 8 ;
   const int TagY               = 11;
   const int ccol_bits          = 6 ;
