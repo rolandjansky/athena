@@ -32,7 +32,6 @@ MM_StripsResponseSimulation::MM_StripsResponseSimulation():
 	m_qThreshold(0),                 // 0.001
 	m_transverseDiffusionSigma(0),   // 0.360/10.
 	m_longitudinalDiffusionSigma(0), // 0.190/10.
-	m_pitch(0.500),
 	m_crossTalk1(0),                 // 0.1
 	m_crossTalk2(0),                 // 0.03
 	m_driftGapWidth(0),              // 5.128
@@ -139,7 +138,7 @@ void MM_StripsResponseSimulation::initialize(unsigned long int seed)
 }
 
 /*******************************************************************************/
-MM_StripToolOutput MM_StripsResponseSimulation::GetResponseFrom(const MM_DigitToolInput & digiInput, double gainFraction)
+MM_StripToolOutput MM_StripsResponseSimulation::GetResponseFrom(const MM_DigitToolInput & digiInput, double gainFraction, double stripPitch)
 {
 
     ATH_MSG_DEBUG("Starting to get response from strips");
@@ -156,7 +155,8 @@ MM_StripToolOutput MM_StripsResponseSimulation::GetResponseFrom(const MM_DigitTo
 		digiInput.stripMinID(),
 		digiInput.stripMaxID(),
 		digiInput,
-		gainFraction
+		gainFraction,
+		stripPitch
 		);
 
 	ATH_MSG_DEBUG("Creating MmDigitToolOutput object");
@@ -178,7 +178,8 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 											const int & stripMinID,
 											const int & stripMaxID,
 											const MM_DigitToolInput & digiInput,
-                      double gainFraction)
+											double gainFraction,
+											double stripPitch)
 {
 
 	ATH_MSG_DEBUG("Starting to calculate strips that got fired");
@@ -277,7 +278,7 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 
 	float timeresolution = 0.01; //ns
 
-	MM_StripResponse stripResponseObject(m_IonizationClusters, timeresolution, m_pitch, stripID, stripMinID, stripMaxID);
+	MM_StripResponse stripResponseObject(m_IonizationClusters, timeresolution, stripPitch, stripID, stripMinID, stripMaxID);
 	stripResponseObject.timeOrderElectrons();
 	stripResponseObject.calculateTimeSeries(incidentAngleXZ, digiInput.gasgap());
 	stripResponseObject.simulateCrossTalk( m_crossTalk1,  m_crossTalk2);
