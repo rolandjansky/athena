@@ -91,7 +91,8 @@ def MuonDetectorToolCfg(flags):
 
     # call fill cache of MuonDetectorTool such that all MdtReadoutElement caches are filled
     # already during initialize() -> this will increase memory -> needs to be measured
-    detTool.FillCacheInitTime = 1
+    detTool.FillCacheInitTime = 1 
+
     # turn on/off caching of MdtReadoutElement surfaces
     detTool.CachingFlag = 1
 
@@ -170,6 +171,7 @@ def MuonGeoModelCfg(flags):
     acc=GeoModelCfg(flags)
     gms=acc.getPrimary()
     detTool = acc.popToolsAndMerge(MuonDetectorToolCfg(flags))
+    detTool.FillCacheInitTime = 0 # We do not need to fill cache for the MuonGeoModel MuonDetectorTool, just for the condAlg
     gms.DetectorTools += [ detTool ]
 
     enableAlignment = flags.Common.Project != 'AthSimulation' \
