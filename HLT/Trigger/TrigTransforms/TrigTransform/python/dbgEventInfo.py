@@ -106,7 +106,11 @@ class dbgEventInfo:
     def eventConfig(self, configKeys=None, event=None):
         # Set configuration data: PSK and SMK
         if configKeys:
-            self.HLTPrescaleKey = configKeys['HLTPSK']
+            for key in configKeys['HLTPSK']:
+                if event.lumi_block() >= key[1] and event.lumi_block() <= key[2]:
+                    self.HLTPrescaleKey = key[0]
+                    break
+
             self.SuperMasterKey = configKeys['SMK']
         elif event:
             # Find TrigConfKeys EDM collection and extract data
