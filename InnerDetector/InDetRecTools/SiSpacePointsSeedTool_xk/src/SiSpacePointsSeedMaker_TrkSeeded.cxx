@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
      
@@ -1903,6 +1903,13 @@ void InDet::SiSpacePointsSeedMaker_TrkSeeded::fillSeeds ()
 
     m_seeds.insert(std::make_pair(w,s)); ++m_fillOneSeeds;
   }
+}
+
+void InDet::SiSpacePointsSeedMaker_TrkSeeded::writeNtuple(const SiSpacePointsSeed*, const Trk::Track*, int, long) const{
+}
+
+bool InDet::SiSpacePointsSeedMaker_TrkSeeded::getWriteNtupleBoolProperty() const{
+    return false;
 }
 
 

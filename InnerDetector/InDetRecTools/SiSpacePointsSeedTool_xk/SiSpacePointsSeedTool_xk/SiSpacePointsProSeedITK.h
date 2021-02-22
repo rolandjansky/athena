@@ -48,11 +48,11 @@ namespace InDet {
 
   protected:
     
-    SiSpacePointForSeedITK* m_s0;
-    SiSpacePointForSeedITK* m_s1;
-    SiSpacePointForSeedITK* m_s2;
-    float                   m_z ;
-    float                   m_q ;
+    SiSpacePointForSeedITK* m_s0    ;
+    SiSpacePointForSeedITK* m_s1    ;
+    SiSpacePointForSeedITK* m_s2    ;
+    float                   m_z     ;
+    float                   m_q     ;
   };
 
 
@@ -151,6 +151,23 @@ namespace InDet {
       s.add(m_s1->spacepoint);
       s.add(m_s2->spacepoint);
       s.setZVertex(double(m_z)); 
+      s.setD0(m_s2->param());
+      s.setEta(m_s2->eta());
+      s.setX1(m_s0->x());
+      s.setX2(m_s1->x());
+      s.setX3(m_s2->x());
+      s.setY1(m_s0->y());
+      s.setY2(m_s1->y());
+      s.setY3(m_s2->y());
+      s.setZ1(m_s0->z());
+      s.setZ2(m_s1->z());
+      s.setZ3(m_s2->z());
+      s.setR1(m_s0->radius());
+      s.setR2(m_s1->radius());
+      s.setR3(m_s2->radius());
+      s.setDZDR_B(m_s0->dzdr());
+      s.setDZDR_T(m_s2->dzdr());
+      s.setPt(m_s2->pt()); 
       return true;
     }
 

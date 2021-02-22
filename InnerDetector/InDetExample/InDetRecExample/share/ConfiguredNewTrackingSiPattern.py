@@ -159,6 +159,14 @@ class  ConfiguredNewTrackingSiPattern:
                InDetSiSpacePointsSeedMaker.usePixel              = False
                InDetSiSpacePointsSeedMaker.etaMax = NewTrackingCuts.maxEta()
 
+         if InDetFlags.writeSeedValNtuple():
+           InDetSiSpacePointsSeedMaker.writeNtuple        = True
+           from AthenaCommon.AppMgr import ServiceMgr
+           if not hasattr(ServiceMgr, 'THistSvc'):
+             from GaudiSvc.GaudiSvcConf import THistSvc
+             ServiceMgr += THistSvc()
+           ServiceMgr.THistSvc.Output  = ["valNtuples DATAFILE='SeedMakerValidation.root' OPT='RECREATE'"]
+
          #InDetSiSpacePointsSeedMaker.OutputLevel = VERBOSE
          ToolSvc += InDetSiSpacePointsSeedMaker
          if (InDetFlags.doPrintConfigurables()):

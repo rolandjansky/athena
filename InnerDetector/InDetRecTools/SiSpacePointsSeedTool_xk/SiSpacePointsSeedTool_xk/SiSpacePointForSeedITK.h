@@ -40,6 +40,9 @@ namespace InDet {
     void set(Trk::SpacePoint*const&,const float*,const float*);
     void setQuality(float);
     void setParam(const float&);
+    void setEta(const float&);
+    void setDZDR(const float&);
+    void setPt(const float&);
 
     const Trk::SpacePoint* spacepoint              ; 
     const float&          x() const {return m_x;}
@@ -50,6 +53,9 @@ namespace InDet {
     const float&       covr() const {return m_covr;}
     const float&       covz() const {return m_covz;}
     const float&      param() const {return m_param;}
+    const float&        eta() const {return m_eta;}
+    const float&         pt() const {return m_pt;}
+    const float&       dzdr() const {return m_dzdr;}
     const float&    quality() const {return m_q ;}
 
     bool coordinates(float*,float*);
@@ -64,6 +70,9 @@ namespace InDet {
     float m_covz; //
     float m_param;
     float m_q   ;
+    float m_eta ;
+    float m_pt  ;
+    float m_dzdr;
 
     float m_b0[3];
     float m_b1[3];
@@ -87,6 +96,9 @@ namespace InDet {
       m_covz  = 0.;
       m_param = 0.;
       m_q     = 0.;
+      m_eta   = 0.;
+      m_pt    = 0.;
+      m_dzdr  = 0.;
       for(int i=0; i!=3; ++i) {m_b0[i]=0.; m_b1[i]=0.; m_dr[i]=0.; m_r0[i]=0.;}
    }
 
@@ -102,6 +114,9 @@ namespace InDet {
         m_covr      = sp.m_covr    ;
         m_covz      = sp.m_covz    ;
         m_q         = sp.m_q       ;
+        m_eta       = sp.m_eta     ;
+        m_pt        = sp.m_pt      ;
+        m_dzdr      = sp.m_dzdr    ;
         
         for(int i=0; i!=3; ++i) {
           m_b0[i]=sp.m_b0[i];
@@ -223,10 +238,26 @@ namespace InDet {
     {
       m_param = p;
     }
-  inline void  SiSpacePointForSeedITK::setQuality(float q)
+    
+  inline void SiSpacePointForSeedITK::setQuality(float q)
     {
       if(q <= m_q) m_q = q;
     }
+    
+  inline void SiSpacePointForSeedITK::setEta(const float& eta)
+   {
+     m_eta = eta;
+   }
+   
+  inline void SiSpacePointForSeedITK::setDZDR(const float& dzdr)
+   {
+     m_dzdr = dzdr;
+   }
+ 
+  inline void SiSpacePointForSeedITK::setPt(const float& pt)
+   {
+     m_pt = pt;
+   }
 
   /////////////////////////////////////////////////////////////////////////////////
   // Coordinate of cross points two SCT strip calculation for given direction

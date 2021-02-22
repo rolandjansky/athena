@@ -27,6 +27,9 @@
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "SiSpacePointsSeedTool_xk/SiSpacePointForSeedITK.h"
 #include "SiSpacePointsSeedTool_xk/SiSpacePointsProSeedITK.h" 
+#include "GaudiKernel/ITHistSvc.h"
+#include "TFile.h"
+#include "TTree.h"
 
 class MsgStream   ;
 class IBeamCondSvc;
@@ -109,6 +112,15 @@ namespace InDet {
 
       MsgStream&    dump          (MsgStream   & out) const;
       std::ostream& dump          (std::ostream& out) const;
+      
+      /** This method is called by the SiSPSeededTrackFinder algorithm to fill ntuples for 
+      * seeds seen by the algorithm. seedType represents Pixel/SCT type seeds, where 0->SCT
+      * and 1->Pixel. givesTrack is determined by whether or not the given seed forms atleast 
+      * one track candidate. 0->No track candidate 1->At least one track Candidate
+      **/  
+      virtual void writeNtuple(const SiSpacePointsSeed* seed, const Trk::Track* track, int seedType, long eventNumber) const override;
+      
+      virtual bool getWriteNtupleBoolProperty() const override;
 
     protected:
       
@@ -337,6 +349,40 @@ namespace InDet {
       void SmallSort(FloatInt*,int);
       int  Partition(FloatInt*,int);
       void Middle   (FloatInt*,int);
+      
+      
+      // for validation purpose
+      bool                        m_writeNtuple                   ;
+      ITHistSvc*                  m_thistSvc                      ;
+      TTree*                      m_outputTree                    ;
+      std::string                 m_treeName                      ;
+      std::string                 m_treeFolder                    ;
+      mutable float                       m_d0                            ;
+      mutable float                       m_z0                            ;
+      mutable float                       m_pt                            ;
+      mutable float                       m_eta                           ;
+      mutable double                      m_x1                            ;
+      mutable double                      m_x2                            ;
+      mutable double                      m_x3                            ;
+      mutable double                      m_y1                            ;
+      mutable double                      m_y2                            ;
+      mutable double                      m_y3                            ;
+      mutable double                      m_z1                            ;
+      mutable double                      m_z2                            ;
+      mutable double                      m_z3                            ;
+      mutable double                      m_r1                            ;
+      mutable double                      m_r2                            ;
+      mutable double                      m_r3                            ;
+      mutable float                       m_quality                       ;
+      mutable int                         m_type                          ;
+      mutable double                      m_dzdr_t                        ;
+      mutable double                      m_dzdr_b                        ;
+      mutable bool                        m_givesTrack                    ;
+      mutable float                       m_trackPt                       ;
+      mutable float                       m_trackEta                      ;
+      mutable long                        m_eventNumber                   ;
+      
+      
 
 };
 

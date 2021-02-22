@@ -1291,6 +1291,12 @@ class useSCTSLHCLargeD0(InDetFlagsJobProperty):
    statusOn     = True
    allowedTypes = ['bool']
    StoredValue  = True
+   
+class writeSeedValNtuple(InDetFlagsJobProperty):
+   """Turn writing of seed validation ntuple on and off"""
+   statusOn     = True
+   allowedTypes = ['bool']
+   StoredValue  = False
 
 ##-----------------------------------------------------------------------------
 ## 2nd step
@@ -2944,7 +2950,8 @@ _list_InDetJobProperties = [Enabled,
                             doHIP300,
                             checkDeadElementsOnTrack,
                             doPixelDigitalClustering,
-                            doSCT_DigitalClustering
+                            doSCT_DigitalClustering,
+                            writeSeedValNtuple
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)

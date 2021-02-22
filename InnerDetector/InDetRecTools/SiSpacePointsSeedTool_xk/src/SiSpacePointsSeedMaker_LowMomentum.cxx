@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -1307,4 +1307,11 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newOneSeed
       if((*i).second==s) {m_mapOneSeeds.erase(i); return;}
     }
   }
+}
+
+void InDet::SiSpacePointsSeedMaker_LowMomentum::writeNtuple(const SiSpacePointsSeed*, const Trk::Track*, int, long) const{
+}
+
+bool InDet::SiSpacePointsSeedMaker_LowMomentum::getWriteNtupleBoolProperty() const{
+    return false;
 }
