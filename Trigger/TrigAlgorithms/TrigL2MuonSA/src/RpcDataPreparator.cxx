@@ -55,6 +55,9 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::initialize()
    ATH_CHECK(m_readKey.initialize());
    ATH_CHECK(m_rpcPrepContainerKey.initialize());
 
+   ATH_CHECK(m_clusterPreparator.retrieve());
+   ATH_MSG_DEBUG("Retrieved service " << m_clusterPreparator);
+
    return StatusCode::SUCCESS; 
 }
 
@@ -301,3 +304,107 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
 
   return StatusCode::SUCCESS;
 }
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*         p_roids,
+                                                        bool&                            isRpcFakeRoi,
+                                                        unsigned int roiWord,
+                                                        TrigL2MuonSA::RpcLayerClusters&  rpcLayerClusters,
+                                                        const ToolHandle<ClusterPatFinder>*    clusterPatFinder) const
+{
+  // RPC data extraction referring TrigMuonEFStandaloneTrackTool and MuonHoughPatternFinderTool
+  
+  // set to false the flag indicating whether the roi is a fake one.
+  isRpcFakeRoi = false;
+
+  if( m_emulateNoRpcHit )
+    return StatusCode::SUCCESS;
+
+  // check the roi ID
+  
+  //  decode  roIWord
+  unsigned int sectorAddress = (roiWord & 0x003FC000) >> 14;
+  unsigned int sectorRoIOvl  = (roiWord & 0x000007FC) >> 2;
+  unsigned int side =  sectorAddress & 0x00000001;
+  unsigned int sector = (sectorAddress & 0x0000003e) >> 1;
+  unsigned int roiNumber =  sectorRoIOvl & 0x0000001F;
+
+  SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey};
+  const RpcCablingCondData* readCdo{*readHandle};
+  unsigned int padIdHash;
+  if ( !readCdo->give_PAD_address( side, sector, roiNumber, padIdHash) ) {
+    ATH_MSG_WARNING("Roi Number: " << roiNumber << " not compatible with side, sector: "
+        << side <<  " " << sector << " (padIdHash=" << padIdHash << ")");
+    // set the bool flag to send the event to the debug stream
+    isRpcFakeRoi = true;
+  }
+  else {
+    ATH_MSG_DEBUG("Roi Number: " << roiNumber << " side, sector: " << side <<  " " << sector);
+  }
+
+   const IRoiDescriptor* iroi = (IRoiDescriptor*) p_roids;
+
+   std::vector<const Muon::RpcPrepDataCollection*> rpcCols;
+   std::vector<IdentifierHash> rpcHashList;
+   std::vector<IdentifierHash> rpcHashList_cache;
+
+   if (m_use_RoIBasedDataAccess) {
+
+     ATH_MSG_DEBUG("Use RoI based data access");
+     
+     if (iroi) m_regionSelector->HashIDList(*iroi, rpcHashList);
+     else {
+       TrigRoiDescriptor fullscan_roi( true );
+       m_regionSelector->HashIDList(fullscan_roi, rpcHashList);
+     }
+     ATH_MSG_DEBUG("rpcHashList.size()=" << rpcHashList.size());
+     
+   } else {
+     
+     ATH_MSG_DEBUG("Use full data access");
+     
+     TrigRoiDescriptor fullscan_roi( true );
+     m_regionSelector->HashIDList(fullscan_roi, rpcHashList);
+     ATH_MSG_DEBUG("rpcHashList.size()=" << rpcHashList.size());
+     
+   }
+   
+   if (!rpcHashList.empty()) {
+     
+     // Get RPC container
+     const Muon::RpcPrepDataContainer* rpcPrds;
+     auto rpcPrepContainerHandle = SG::makeHandle(m_rpcPrepContainerKey);
+     rpcPrds = rpcPrepContainerHandle.cptr();
+     if (!rpcPrepContainerHandle.isValid()) {
+       ATH_MSG_ERROR("Cannot retrieve RPC PRD Container key: " << m_rpcPrepContainerKey.key());
+       return StatusCode::FAILURE;
+     } else {
+       ATH_MSG_DEBUG("RPC PRD Container retrieved with key: " << m_rpcPrepContainerKey.key());
+     }
+
+     // Get RPC collections
+     for(const IdentifierHash& id : rpcHashList) {
+
+       auto RPCcoll = rpcPrds->indexFindPtr(id);
+
+       if( RPCcoll == nullptr ) {
+         continue;
+       }
+
+       if( RPCcoll->size() == 0) {
+         ATH_MSG_DEBUG("Empty RPC list");
+         continue;
+       }
+
+       rpcHashList_cache.push_back(id);
+       rpcCols.push_back(RPCcoll);
+     }
+   }
+   ATH_MSG_DEBUG("Do rpc clustering");
+   ATH_CHECK( m_clusterPreparator->clusteringRPCs(m_doMultiMuon, roiWord, rpcCols, p_roids, clusterPatFinder, rpcLayerClusters) );
+
+  return StatusCode::SUCCESS;
+}
+

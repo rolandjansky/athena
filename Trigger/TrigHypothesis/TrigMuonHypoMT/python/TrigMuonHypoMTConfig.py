@@ -276,6 +276,33 @@ def TrigMufastHypoToolwORFromDict( chainDict ):
 
     return tool
 
+# muFast Hypo for L2 multi-track SA mode
+def Trigl2mtSAHypoToolwORFromDict( chainDict ):
+
+    thresholds = getThresholdsFromDict( chainDict )
+    config = TrigMufastHypoConfig()
+    tool=config.ConfigurationHypoTool( chainDict['chainName'], thresholds )
+    #tight = False # can be probably decoded from some of the proprties of the chain, expert work
+    #acceptAll = False
+    
+    # Overlap Removal
+    tool.ApplyOR = True
+    tool.RequireDR       = True
+    tool.RequireMass     = True
+    tool.RequireSameSign = True
+    # BB
+    tool.DRThresBB       = 0.05
+    tool.MassThresBB     = 0.20
+    # BE
+    tool.DRThresBE       = 0.05
+    tool.MassThresBE     = 0.20
+    # EE
+    tool.EtaBinsEC       = [0, 1.9, 2.1, 9.9]
+    tool.DRThresEC       = [0.06, 0.05, 0.05]
+    tool.MassThresEC     = [0.20, 0.15, 0.10]
+    
+    return tool
+
 
 class TrigMufastHypoConfig(object):
 
@@ -429,6 +456,35 @@ def Trigl2IOHypoToolwORFromDict( chainDict ):
 
     return tool
 
+
+# muComb Hypo for L2 multi-track SA mode
+def Trigl2mtCBHypoToolwORFromDict( chainDict ):
+
+    if 'idperf' in chainDict['chainParts'][0]['chainPartName']:
+       thresholds = ['passthrough']
+    else:
+       thresholds = getThresholdsFromDict( chainDict )
+
+    config = TrigmuCombHypoConfig()
+
+    tight = False # can be probably decoded from some of the proprties of the chain, expert work
+
+    acceptAll = False
+
+    tool=config.ConfigurationHypoTool( chainDict['chainName'], thresholds, tight, acceptAll )
+
+    # Overlap Removal
+    tool.ApplyOR = True
+    tool.RequireDR       = True
+    tool.RequireMufastDR = True
+    tool.RequireMass     = True
+    tool.RequireSameSign = True
+    tool.EtaBins         = [0, 0.9, 1.1, 1.9, 2.1, 9.9]
+    tool.DRThres         = [0.002, 0.001, 0.002, 0.002, 0.002]
+    tool.MufastDRThres   = [0.4,   0.4,   0.4,   0.4,   0.4]
+    tool.MassThres       = [0.004, 0.002, 0.006, 0.006, 0.006]
+
+    return tool
 
 
 class TrigmuCombHypoConfig(object):

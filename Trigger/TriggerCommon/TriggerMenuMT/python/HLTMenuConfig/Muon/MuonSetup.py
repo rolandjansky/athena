@@ -359,7 +359,7 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
   return muDecodeRecoSequence
 
 
-def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False ):
+def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False, extraLoads=None, l2mtmode=False ):
 
   from AthenaCommon.AppMgr import ToolSvc
   from AthenaCommon.CFElements import parOR
@@ -368,6 +368,8 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False ):
   postFix = ""
   if InsideOutMode:
     postFix = "IOmode"
+  elif l2mtmode:
+    postFix = "l2mtmode"
   muFastRecoSequence = parOR("l2Mu"+postFix+"ViewNode")
 
   # In insideout mode, need to inherit muon decoding objects for TGC, RPC, MDT, CSC
@@ -390,6 +392,10 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False ):
   ViewVerify.DataObjects += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
                              ( 'DataVector< LVL1::RecMuonRoI >' , 'StoreGateSvc+HLT_RecMURoIs' )]
 
+  #For L2 multi-track SA mode
+  if extraLoads:
+    ViewVerify.DataObjects += extraLoads
+  
   muFastRecoSequence += ViewVerify
 
   if MuonGeometryFlags.hasCSC():
@@ -507,12 +513,18 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False ):
   #Do not run topo road and inside-out mode at the same time
   if InsideOutMode:
     muFastAlg.topoRoad = False
+  
+  if l2mtmode:
+    muFastAlg.multitrackMode = True
+    muFastAlg.doEndcapForl2mt = False
+  
   muFastRecoSequence += muFastAlg
   sequenceOut = muFastAlg.MuonL2SAInfo
 
   return muFastRecoSequence, sequenceOut
 
-def muonIDFastTrackingSequence( RoIs, name, extraLoads=None, doLRT=False ):
+
+def muonIDFastTrackingSequence( RoIs, name, extraLoads=None, extraLoadsForl2mtmode=None, doLRT=False ):
 
   from AthenaCommon.CFElements import parOR
 
@@ -530,6 +542,9 @@ def muonIDFastTrackingSequence( RoIs, name, extraLoads=None, doLRT=False ):
   viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs )]
   if extraLoads:
     viewVerify.DataObjects += extraLoads
+
+  if extraLoadsForl2mtmode:
+    viewVerify.DataObjects += extraLoadsForl2mtmode
 
   for viewAlg in viewAlgs:
       muonIDFastTrackingSequence += viewAlg
@@ -568,25 +583,32 @@ def muonIDCosmicTrackingSequence( RoIs, name, extraLoads=None ):
 
 
 
-def muCombRecoSequence( RoIs, name ):
+def muCombRecoSequence( RoIs, name, l2mtmode=False ):
 
   from AthenaCommon.CFElements import parOR
-  muCombRecoSequence = parOR("l2muCombViewNode_"+name)
+  postFix = ""
+  if l2mtmode:
+    postFix = "l2mtmode"
+
+  muCombRecoSequence = parOR("l2muCombViewNode_"+name+postFix)
   ### A simple algorithm to confirm that data has been inherited from parent view ###
   ### Required to satisfy data dependencies                                       ###
   import AthenaCommon.CfgMgr as CfgMgr
-  ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muFastViewDataVerifier_"+name)
-  ViewVerify.DataObjects = [('xAOD::L2StandAloneMuonContainer','StoreGateSvc+%s' % muNames.L2SAName)]
+  ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muFast"+postFix+"ViewDataVerifier_"+name)
+  ViewVerify.DataObjects = [('xAOD::L2StandAloneMuonContainer','StoreGateSvc+%s' % muNames.L2SAName+postFix)]
 
   muCombRecoSequence+=ViewVerify
 
   ### please read out TrigmuCombMTConfig file ###
   ### and set up to run muCombMT algorithm    ###
   from TrigmuComb.TrigmuCombMTConfig import TrigmuCombMTConfig
-  muCombAlg = TrigmuCombMTConfig("Muon",name)
-  muCombAlg.L2StandAloneMuonContainerName = muNames.L2SAName
-  muCombAlg.L2CombinedMuonContainerName   = muNames.L2CBName
-  muCombAlg.TrackParticlesContainerName   = getIDTracks(name)
+  muCombAlg = TrigmuCombMTConfig("Muon"+postFix,name)
+  muCombAlg.L2StandAloneMuonContainerName = muNames.L2SAName+postFix
+  muCombAlg.L2CombinedMuonContainerName   = muNames.L2CBName+postFix
+  if l2mtmode:
+    muCombAlg.TrackParticlesContainerName   = getIDTracks()
+  else:
+    muCombAlg.TrackParticlesContainerName   = getIDTracks(name)
 
   muCombRecoSequence += muCombAlg
   sequenceOut = muCombAlg.L2CombinedMuonContainerName

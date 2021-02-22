@@ -78,6 +78,9 @@ def setupMenu():
         ChainProp(name='HLT_2mu14_l2io_L12MU10', groups=MultiMuonGroup),
         ChainProp(name='HLT_2mu6_l2io_L12MU6',     l1SeedThresholds=['MU6'],   groups=MultiMuonGroup),
 
+        #ATR-22537
+        ChainProp(name='HLT_2mu10_l2mt_L1MU10', groups=MultiMuonGroup),
+        
         #performance chain for isolation (ATR-21905)
         ChainProp(name='HLT_mu26_ivarperf_L1MU20', groups=SingleMuonGroup),
     ]

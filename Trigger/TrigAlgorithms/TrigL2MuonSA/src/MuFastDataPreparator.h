@@ -39,6 +39,10 @@
 #include "RPC_CondCabling/RpcCablingCondData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
+#include "ClusterRoadDefiner.h"
+#include "RpcClusterPreparator.h"
+#include "ClusterPatFinder.h"
+
 namespace TrigL2MuonSA {
 
 class MuFastDataPreparator: public AthAlgTool {
@@ -76,6 +80,16 @@ class MuFastDataPreparator: public AthAlgTool {
 			 TrigL2MuonSA::StgcHits&     stgcHits,
 			 TrigL2MuonSA::MmHits&       mmHits);
   
+  //for multi-track mode
+  StatusCode prepareData(const LVL1::RecMuonRoI*              p_roi,
+			 const TrigRoiDescriptor*             p_roids,
+                         bool&                                isRpcFakeRoi,
+                         std::vector<TrigL2MuonSA::MuonRoad>& clusterRoad,
+                         std::vector<TrigL2MuonSA::RpcFitResult>&  clusterFitResults,
+                         TrigL2MuonSA::MdtHits&               mdtHits_normal,
+                         TrigL2MuonSA::MdtHits&               mdtHits_overlap,
+                         std::vector<TrigL2MuonSA::MdtHits>&  mdtHits_cluster_normal);
+  
   void setOptions(const TrigL2MuonSA::MuFastDataPreparatorOptions& options);
 
   void setRoadWidthForFailure(double rWidth_RPC_Failed, double rWidth_TGC_Failed);
@@ -110,6 +124,11 @@ class MuFastDataPreparator: public AthAlgTool {
   ToolHandle<RpcRoadDefiner>      m_rpcRoadDefiner{this, "RpcRoadDefiner", "TrigL2MuonSA::RpcRoadDefiner"};
   ToolHandle<TgcRoadDefiner>      m_tgcRoadDefiner{this, "TgcRoadDefiner", "TrigL2MuonSA::TgcRoadDefiner"};
   ToolHandle<RpcPatFinder>        m_rpcPatFinder{"TrigL2MuonSA::RpcPatFinder"};
+  
+  //for multimu-in-pad mode
+  ToolHandle<ClusterRoadDefiner>  m_clusterRoadDefiner{"TrigL2MuonSA::ClusterRoadDefiner"};
+  ToolHandle<ClusterPatFinder>    m_clusterPatFinder{"TrigL2MuonSA::ClusterPatFinder"};
+  //
   
   ToolHandle<ITrigMuonBackExtrapolator>* m_backExtrapolatorTool{nullptr};
 

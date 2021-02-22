@@ -88,6 +88,8 @@ HLT_2mu10_bJpsimumu_L12MU10:
   eventCount: 0
 HLT_2mu10_bUpsimumu_L12MU10:
   eventCount: 0
+HLT_2mu10_l2mt_L1MU10:
+  eventCount: 0
 HLT_2mu14_L12MU10:
   eventCount: 0
 HLT_2mu14_l2io_L12MU10:

@@ -92,6 +92,11 @@ class MuFastSteering : public HLT::FexAlgo,
 				 DataVector<xAOD::L2CombinedMuon>&              outputCBs,
 				 DataVector<xAOD::L2StandAloneMuon>&            outputSAs );
 
+  /** findMultiTrackSignature(), includes reconstract algorithms for multi-track mode **/
+  StatusCode findMultiTrackSignature(const std::vector<const TrigRoiDescriptor*>&	roi,
+			             const std::vector<const LVL1::RecMuonRoI*>& 	muonRoIs,
+                                     DataVector<xAOD::L2StandAloneMuon>& 		outputTracks);
+
   int L2MuonAlgoMap(const std::string& name);
 
   // handler for "UpdateAfterFork" actions
@@ -238,6 +243,8 @@ class MuFastSteering : public HLT::FexAlgo,
   Gaudi::Property< double > m_winPt { this, "WinPt", 4.0 };
 
   Gaudi::Property< bool > m_insideOut { this, "InsideOutMode", false, "" };
+  Gaudi::Property< bool > m_multiTrack { this, "multitrackMode", false, "" };
+  Gaudi::Property< bool > m_doEndcapForl2mt { this, "doEndcapForl2mt", false, "" };
   Gaudi::Property< float > m_ftfminPt { this, "FTFminPt", 3500, "pT [MeV] threshold to FTF tracks for L2Muon Inside-out mode" };
   Gaudi::Property< bool > m_topoRoad { this, "topoRoad", false, "create road in barrel not to highly overlap surrounding L1 RoIs" };
   Gaudi::Property< float > m_dPhisurrRoI { this, "dPhisurrRoI", 99, "phi range to find surrounding L1 RoIs" };
