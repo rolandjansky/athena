@@ -1,8 +1,9 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory     import CompFactory
 import InDetConfig.TrackingCommonConfig         as   TC
 import AthenaCommon.SystemOfUnits               as   Units
+from InDetConfig                              import InDetRecToolConfig
 
 #///////////// Temporary location TrackingSiPatternConfig configurations ///////////////////////
 def SiCombinatorialTrackFinder_xkCfg(flags, name="InDetSiComTrackFinder", **kwargs) :
@@ -46,9 +47,9 @@ def SiCombinatorialTrackFinder_xkCfg(flags, name="InDetSiComTrackFinder", **kwar
         kwargs.setdefault("TrackQualityCut", 9.3)
 
     if flags.Detector.RecoSCT:
-        InDetSCT_ConditionsSummaryTool = CompFactory.SCT_ConditionsSummaryTool(name = 'InDetSCT_ConditionsSummaryTool')
+        InDetSCT_ConditionsSummaryTool = acc.popToolsAndMerge( InDetRecToolConfig.InDetSCT_ConditionsSummaryToolCfg(flags) )
         acc.addPublicTool(InDetSCT_ConditionsSummaryTool)
-        kwargs.setdefault("SctSummaryTool", InDetSCT_ConditionsSummaryTool)
+        kwargs.setdefault("SctSummaryTool", InDetSCT_ConditionsSummaryTool )
     else:
         kwargs.setdefault("SctSummaryTool", None)
 
