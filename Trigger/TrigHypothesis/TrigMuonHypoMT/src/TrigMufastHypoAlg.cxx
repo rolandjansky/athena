@@ -69,24 +69,27 @@ StatusCode TrigMufastHypoAlg::execute( const EventContext& context ) const
     ATH_CHECK( muFastHandle.isValid() );
     ATH_MSG_DEBUG ( "Muinfo handle size: " << muFastHandle->size() << "..." );
 
-    auto muonEL = ViewHelper::makeLink( *viewEL, muFastHandle, 0 );
-    ATH_CHECK( muonEL.isValid() );
-    const xAOD::L2StandAloneMuon* muon = *muonEL;
+    //loop over muFast (more than one muon can be found by L2 multimu-in-pad algo)
+    for(uint i=0; i < muFastHandle->size(); i++){
+      auto muonEL = ViewHelper::makeLink( *viewEL, muFastHandle, i );
+      ATH_CHECK( muonEL.isValid() );
+      const xAOD::L2StandAloneMuon* muon = *muonEL;
 
-    // create new decision
-    auto newd = newDecisionIn( decisions, hypoAlgNodeName() );
+      // create new decision
+      auto newd = newDecisionIn( decisions, hypoAlgNodeName() );
 
-    // push_back to toolInput
-    toolInput.emplace_back( newd, roi, muon, previousDecision );
-    
-    newd->setObjectLink( featureString(), muonEL );
-    TrigCompositeUtils::linkToPrevious( newd, previousDecision, context );
-    
-    ATH_MSG_DEBUG("REGTEST: " << m_muFastKey.key() << " pT = " << (*muonEL)->pt() << " GeV");
-    ATH_MSG_DEBUG("REGTEST: " << m_muFastKey.key() << " eta/phi = " << (*muonEL)->eta() << "/" << (*muonEL)->phi());
-    ATH_MSG_DEBUG("REGTEST:  RoI  = eta/phi = " << (*roiEL)->eta() << "/" << (*roiEL)->phi());
-    ATH_MSG_DEBUG("Added view, roi, feature, previous decision to new decision "<<counter <<" for view "<<(*viewEL)->name()  );
-    counter++;
+      // push_back to toolInput
+      toolInput.emplace_back( newd, roi, muon, previousDecision );
+
+      newd->setObjectLink( featureString(), muonEL );
+      TrigCompositeUtils::linkToPrevious( newd, previousDecision, context );
+
+      ATH_MSG_DEBUG("REGTEST: " << m_muFastKey.key() << " pT = " << (*muonEL)->pt() << " GeV");
+      ATH_MSG_DEBUG("REGTEST: " << m_muFastKey.key() << " eta/phi = " << (*muonEL)->eta() << "/" << (*muonEL)->phi());
+      ATH_MSG_DEBUG("REGTEST:  RoI  = eta/phi = " << (*roiEL)->eta() << "/" << (*roiEL)->phi());
+      ATH_MSG_DEBUG("Added view, roi, feature, previous decision to new decision "<<counter <<" for view "<<(*viewEL)->name()  );
+      counter++;
+    }
   }
 
   ATH_MSG_DEBUG("Found "<<toolInput.size()<<" inputs to tools");

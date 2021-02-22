@@ -11,7 +11,7 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Muon.MuonDef")
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 
-from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muFastOvlpRmSequence, muCombSequence, muCombLRTSequence, muCombOvlpRmSequence, mul2IOOvlpRmSequence, muEFSASequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, efLateMuRoISequence, efLateMuSequence
+from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muFastOvlpRmSequence, mul2mtSAOvlpRmSequence, muCombSequence, muCombLRTSequence, muCombOvlpRmSequence, mul2mtCBOvlpRmSequence, mul2IOOvlpRmSequence, muEFSASequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, efLateMuRoISequence, efLateMuSequence
 from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFInvMassHypoToolFromDict
 
 # this must be moved to the HypoTool file:
@@ -32,6 +32,9 @@ def muFastSequenceCfg(flags):
 def muFastOvlpRmSequenceCfg(flags):
     return muFastOvlpRmSequence()
 
+def mul2mtSAOvlpRmSequenceCfg(flags):
+    return mul2mtSAOvlpRmSequence()
+
 def muCombSequenceCfg(flags):
     return muCombSequence()
 
@@ -43,6 +46,9 @@ def muCombOvlpRmSequenceCfg(flags):
 
 def mul2IOOvlpRmSequenceCfg(flags):
     return mul2IOOvlpRmSequence()
+
+def mul2mtCBOvlpRmSequenceCfg(flags):
+    return mul2mtCBOvlpRmSequence()
 
 def muEFSASequenceCfg(flags):
     return muEFSASequence()
@@ -113,6 +119,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
         stepDictionary = {
             "":[['getmuFast', 'getmuComb'], ['getmuEFSA', 'getmuEFCB']],
             "l2io":[['getmuFast', 'getmuCombIO'], ['getmuEFSA', 'getmuEFCB']],
+            "l2mt":[['getmuFastl2mt', 'getmuCombl2mt'], ['getmuEFSA', 'getmuEFCB']],
             "noL2Comb" : [['getmuFast'], ['getmuEFSA', 'getmuEFCB']],
             "noL1":[[],['getFSmuEFSA', 'getFSmuEFCB']],
             "msonly":[['getmuFast', 'getmuMSEmpty'], ['getmuEFSA']],
@@ -145,6 +152,10 @@ class MuonChainConfiguration(ChainConfigurationBase):
            return self.getStep(1,"mufast", [muFastSequenceCfg] )
          
     # --------------------
+    def getmuFastl2mt(self):
+        return self.getStep(1,"mufastl2mt", [mul2mtSAOvlpRmSequenceCfg] )
+         
+    # --------------------
     def getmuComb(self):
 
         doOvlpRm = False
@@ -170,9 +181,12 @@ class MuonChainConfiguration(ChainConfigurationBase):
         return self.getStep(2, 'muCombIO', [mul2IOOvlpRmSequenceCfg] )
 
     # --------------------
+    def getmuCombl2mt(self):
+          return self.getStep(2,"muCombl2mt", [mul2mtCBOvlpRmSequenceCfg] )
+
+    # --------------------
     def getmuEFSA(self):
         return self.getStep(3,'muEFSA',[ muEFSASequenceCfg])
-
 
     # --------------------
     def getmuEFCB(self):

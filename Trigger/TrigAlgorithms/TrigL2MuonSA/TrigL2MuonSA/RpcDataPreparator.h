@@ -18,6 +18,7 @@
 #include "../src/RpcFitResult.h"
 #include "../src/RpcPatFinder.h"
 #include "../src/RecMuonRoIUtils.h"
+#include "../src/RpcClusterPreparator.h"
 #include "IRegionSelector/IRegSelTool.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
@@ -57,6 +58,13 @@ class RpcDataPreparator: public AthAlgTool
                              TrigL2MuonSA::RpcLayerHits& rpcLayerHits,
 			     ToolHandle<RpcPatFinder>*   rpcPatFinder);
 
+      //for multi-track SA mode
+      StatusCode prepareData(const TrigRoiDescriptor*         p_roids,
+                             bool&                            isRpcFakeRoi,
+                             unsigned int roiWord,
+                             TrigL2MuonSA::RpcLayerClusters&  rpcLayerClusters,
+                             const ToolHandle<ClusterPatFinder>*    clusterPatFinder) const;
+
       void setRoIBasedDataAccess(bool use_RoIBasedDataAccess);
 
       void setMultiMuonTrigger( const bool multiMuonTrigger );
@@ -77,6 +85,9 @@ class RpcDataPreparator: public AthAlgTool
 
       SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_rpcPrepContainerKey{
        this, "RpcPrepDataContainer", "RPC_Measurements", "Name of the RPCContainer to read in"};
+
+      //for multi-track SA mode
+      ToolHandle<RpcClusterPreparator>  m_clusterPreparator{this, "RpcClusterPreparator", "TrigL2MuonSA::RpcClusterPreparator"};
 
       // Declare the keys used to access the data: one for reading and one
       // for writing.

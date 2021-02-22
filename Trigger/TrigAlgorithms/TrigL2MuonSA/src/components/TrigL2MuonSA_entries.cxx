@@ -32,6 +32,9 @@
 #include "../NswPatternFinder.h"
 #include "../NswStationFitter.h"
 #include "../FtfRoadDefiner.h"
+#include "../RpcClusterPreparator.h"
+#include "../ClusterPatFinder.h"
+#include "../ClusterRoadDefiner.h"
 
 using namespace TrigL2MuonSA;
 
@@ -69,4 +72,8 @@ DECLARE_COMPONENT( FtfRoadDefiner )
 DECLARE_COMPONENT( PtBarrelLUTSvc )
 DECLARE_COMPONENT( PtEndcapLUTSvc )
 DECLARE_COMPONENT( AlignmentBarrelLUTSvc )
+
+DECLARE_COMPONENT( RpcClusterPreparator )
+DECLARE_COMPONENT( ClusterPatFinder )
+DECLARE_COMPONENT( ClusterRoadDefiner )
 

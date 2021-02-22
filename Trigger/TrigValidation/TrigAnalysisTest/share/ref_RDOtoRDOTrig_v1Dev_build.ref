@@ -164,6 +164,18 @@ HLT_2mu10_bUpsimumu_L12MU10:
     2: 2
     3: 2
     4: 2
+HLT_2mu10_l2mt_L1MU10:
+  eventCount: 2
+  stepCounts:
+    0: 2
+    1: 2
+    2: 2
+    3: 2
+  stepFeatures:
+    0: 4
+    1: 4
+    2: 4
+    3: 4
 HLT_2mu14_L12MU10:
   eventCount: 1
   stepCounts:
