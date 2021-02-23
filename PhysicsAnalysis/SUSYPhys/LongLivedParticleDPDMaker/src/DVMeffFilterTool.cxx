@@ -80,7 +80,7 @@ bool DerivationFramework::DVMeffFilterTool::eventPassesFilter() const
      }
      for (unsigned int i=0; i< jetContainer->size(); ++i) { 
        const xAOD::Jet* jet = jetContainer->at(i);
-       if (( jet->pt() < m_jetPtCut) || (fabs(jet->eta())>m_jetEtaCut))  continue;
+       if (( jet->pt() < m_jetPtCut) || (std::abs(jet->eta())>m_jetEtaCut))  continue;
        totalJetPT += jet->pt();
      }
      

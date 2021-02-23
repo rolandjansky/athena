@@ -1,16 +1,14 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
+from AthenaCommon.JobProperties import JobProperty
 from AthenaCommon.JobProperties import jobproperties
-
-import AthenaCommon.SystemOfUnits as Units
 
 primRPVLLDESDM=jobproperties.PrimaryDPDFlags_RPVLLStream
 
 ## TriggerAPI ##
 from LongLivedParticleDPDMaker.RPVLLTriggers import RPVLLTriggers
 apitriggers = RPVLLTriggers()
-from LongLivedParticleDPDMaker.RPVLLTriggers import rpvllTrig
+#from LongLivedParticleDPDMaker.RPVLLTriggers import rpvllTrig
 
 
 class Tau_containerFlags(JobProperty):

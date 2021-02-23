@@ -14,7 +14,7 @@
 __doc__ = """job flags for the RPV/LL VH DESD"""
 __version__ = "0.0.1"
 
-from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
+from AthenaCommon.JobProperties import JobProperty
 from AthenaCommon.JobProperties import jobproperties
 
 import AthenaCommon.SystemOfUnits as Units

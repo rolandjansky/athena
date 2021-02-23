@@ -159,7 +159,7 @@ bool DerivationFramework::KinkTrkZmumuTagTool::checkMSTrack(const xAOD::TrackPar
 
 bool DerivationFramework::KinkTrkZmumuTagTool::checkMuonTrackPair(const xAOD::Muon *muon, const xAOD::TrackParticle *track) const
 {
-  if (fabs(muon->p4().DeltaPhi(track->p4())) > m_dPhiMax) return false;
+  if (std::abs(muon->p4().DeltaPhi(track->p4())) > m_dPhiMax) return false;
   if (m_doOppositeSignReq) {
     if (muon->charge()*track->charge() > 0) return false;
   }
@@ -173,7 +173,7 @@ bool DerivationFramework::KinkTrkZmumuTagTool::checkMuonTrackPair(const xAOD::Mu
 bool DerivationFramework::KinkTrkZmumuTagTool::passMuonQuality(const xAOD::Muon *muon) const
 {
   if( muon->pt() < m_muonPtCut                    ) return false;
-  if( fabs(muon->eta()) > m_muonEtaMax            ) return false;
+  if( std::abs(muon->eta()) > m_muonEtaMax            ) return false;
   if( !m_muonSelectionTool->passedMuonCuts(*muon) ) return false;
   if( muon->muonType() != xAOD::Muon::Combined    ) return false;
 
@@ -185,7 +185,7 @@ bool DerivationFramework::KinkTrkZmumuTagTool::passMuonQuality(const xAOD::Muon 
 bool DerivationFramework::KinkTrkZmumuTagTool::passMSTrackQuality(const xAOD::TrackParticle *track) const
 {
   if (track->pt() < m_trackPtCut) return false;
-  if (fabs(track->eta()) > m_trackEtaMax) return false;
+  if (std::abs(track->eta()) > m_trackEtaMax) return false;
   return true;
 }
 

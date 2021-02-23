@@ -100,7 +100,7 @@ bool DerivationFramework::EmergingJetsFilterTool::eventPassesFilter() const
   int nJetsPassed = 0;
   for( unsigned int i = 0; i < jets->size(); ++i ){ 
     const xAOD::Jet* jet = jets->at(i);
-    if( (jet->pt() < m_ptCut) || (fabs(jet->eta()) > m_etaCut) ) continue;
+    if( (jet->pt() < m_ptCut) || (std::abs(jet->eta()) > m_etaCut) ) continue;
     nJetsPassed += 1;
     ATH_MSG_INFO( "pt cut passing jet pt: " << jet->pt() * 0.001);
   }

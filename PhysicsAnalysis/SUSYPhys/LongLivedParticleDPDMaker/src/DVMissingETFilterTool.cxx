@@ -76,7 +76,7 @@ bool DerivationFramework::DVMissingETFilterTool::eventPassesFilter() const
 	 }
 	 if ((jetContainer->size() > 0) && (jetContainer->at(0)->pt() > m_jetPtCut)){
 	   double phiJet = jetContainer->at(0)->phi();
-	   double deltaPhi = fabs(phiMET-phiJet);
+	   double deltaPhi = std::abs(phiMET-phiJet);
 	   if (deltaPhi > M_PI) deltaPhi = 2.0*M_PI - deltaPhi;
 	   passesEvent = passesEvent && (deltaPhi > m_deltaPhiCut);
 	 }

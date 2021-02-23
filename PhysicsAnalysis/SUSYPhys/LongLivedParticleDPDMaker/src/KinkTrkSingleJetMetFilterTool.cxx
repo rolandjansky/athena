@@ -133,14 +133,14 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
   //for (const auto jet: *jetContainer) {
   for(int i=0;i<nJet;i++){
     // search for good jets which are used for dphi calculation
-    if (sortedJetContainer.at(i)->pt() > m_jetMetPtMin && fabs(sortedJetContainer.at(i)->eta()) < m_jetEtaMax) {
+    if (sortedJetContainer.at(i)->pt() > m_jetMetPtMin && std::abs(sortedJetContainer.at(i)->eta()) < m_jetEtaMax) {
       goodJets.push_back(sortedJetContainer.at(i));
       valHt += sortedJetContainer.at(i)->pt();
     }
     
     // search for required jets
     if(nJetRequired < m_jetNumCut){
-      if (sortedJetContainer.at(i)->pt() > m_jetPtCuts[nJetRequired] && fabs(sortedJetContainer.at(i)->eta()) < m_jetEtaMax){
+      if (sortedJetContainer.at(i)->pt() > m_jetPtCuts[nJetRequired] && std::abs(sortedJetContainer.at(i)->eta()) < m_jetEtaMax){
 	nJetRequired++;
       }
     }
@@ -154,8 +154,8 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
   float minDphi = 9999;
   for (unsigned int i=0; i<goodJets.size(); i++) {
     if (i >= m_jetPtCuts.size()) break;
-    if (fabs(P4Helpers::deltaPhi(goodJets.at(i)->phi(), met->phi())) < minDphi) {
-      minDphi = fabs(P4Helpers::deltaPhi(goodJets.at(i)->phi(), met->phi()));
+    if (std::abs(P4Helpers::deltaPhi(goodJets.at(i)->phi(), met->phi())) < minDphi) {
+      minDphi = std::abs(P4Helpers::deltaPhi(goodJets.at(i)->phi(), met->phi()));
     }
   }
   if (minDphi < m_jetMetDphiMin) return acceptEvent; 
@@ -187,7 +187,7 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
       if (m_muonSelectionTool->getQuality(*muon) <= qflag) {
         passID = true;
       }
-      if (muon->pt() > m_leptonPtCut && fabs(muon->eta()) < m_leptonEtaMax && passID) {
+      if (muon->pt() > m_leptonPtCut && std::abs(muon->eta()) < m_leptonEtaMax && passID) {
         return acceptEvent; 
       }
     }
@@ -203,7 +203,7 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
       if (!ele->passSelection(passID, m_electronIDKey)) {
         ATH_MSG_WARNING("Cannot find the electron quality flag " << m_muonIDKey);
       }
-      if (ele->pt() > m_leptonPtCut && fabs(ele->eta()) < m_leptonEtaMax && passID) {
+      if (ele->pt() > m_leptonPtCut && std::abs(ele->eta()) < m_leptonEtaMax && passID) {
         return acceptEvent; 
       }
     }
@@ -240,8 +240,8 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
     for(const auto& Tracklet : *pixelTrackletContainer){
       passIsolatedTracklet = true;
       for(unsigned int i=0;i<goodJets.size();i++){
-	double deltaPhi = (fabs(Tracklet->phi() - goodJets.at(i)->phi()) > M_PI) ? 2.0*M_PI-fabs(Tracklet->phi()-goodJets.at(i)->phi()) : fabs(Tracklet->phi()-goodJets.at(i)->phi());
-	double deltaEta = fabs(Tracklet->eta() - goodJets.at(i)->eta());
+	double deltaPhi = (std::abs(Tracklet->phi() - goodJets.at(i)->phi()) > M_PI) ? 2.0*M_PI-std::abs(Tracklet->phi()-goodJets.at(i)->phi()) : std::abs(Tracklet->phi()-goodJets.at(i)->phi());
+	double deltaEta = std::abs(Tracklet->eta() - goodJets.at(i)->eta());
 	double deltaR = sqrt(deltaPhi*deltaPhi + deltaEta*deltaEta);
 
 	//if(P4Helpers::deltaR(Tracklet->p4(), goodJets.at(i)->eta(), goodJets.at(i)->phi()) < 0.3){
@@ -279,7 +279,7 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
       }
 
       double z0SinTheta = (Tracklet->z0() + Tracklet->vz() - pv->z() ) * TMath::Sin(Tracklet->p4().Theta());
-      if( fabs(z0SinTheta) > 5.0 ){
+      if( std::abs(z0SinTheta) > 5.0 ){
         passIsolatedTracklet = false;
         continue;
       }
@@ -306,8 +306,8 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
 	passIsolatedStdTrack = true;
 
 	for(unsigned int i=0;i<goodJets.size();i++){
-	  double deltaPhi = (fabs(StdTrack->phi() - goodJets.at(i)->phi()) > M_PI) ? 2.0*M_PI-fabs(StdTrack->phi()-goodJets.at(i)->phi()) : fabs(StdTrack->phi()-goodJets.at(i)->phi());
-	  double deltaEta = fabs(StdTrack->eta() - goodJets.at(i)->eta());
+	  double deltaPhi = (std::abs(StdTrack->phi() - goodJets.at(i)->phi()) > M_PI) ? 2.0*M_PI-std::abs(StdTrack->phi()-goodJets.at(i)->phi()) : std::abs(StdTrack->phi()-goodJets.at(i)->phi());
+	  double deltaEta = std::abs(StdTrack->eta() - goodJets.at(i)->eta());
 	  double deltaR = sqrt(deltaPhi*deltaPhi + deltaEta*deltaEta);
 	  //if(P4Helpers::deltaR(StdTrack->p4(), goodJets.at(i)->eta(), goodJets.at(i)->phi()) < 0.3){
 	  if(deltaR < 0.3){
@@ -321,8 +321,8 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
 	    if(Track->pt()/1000.0 < 0.4)
 	      continue;
 
-	    double deltaPhi = (fabs(StdTrack->phi() - Track->phi()) > M_PI) ? 2.0*M_PI-fabs(StdTrack->phi()-Track->phi()) : fabs(StdTrack->phi()-Track->phi());
-	    double deltaEta = fabs(StdTrack->eta() - Track->eta());
+	    double deltaPhi = (std::abs(StdTrack->phi() - Track->phi()) > M_PI) ? 2.0*M_PI-std::abs(StdTrack->phi()-Track->phi()) : std::abs(StdTrack->phi()-Track->phi());
+	    double deltaEta = std::abs(StdTrack->eta() - Track->eta());
 	    double deltaR = sqrt(deltaPhi*deltaPhi + deltaEta*deltaEta);
 	    //if(P4Helpers::deltaR(StdTrack->p4(), Track->p4()) < 0.2)
 	    if(deltaR < 0.2)

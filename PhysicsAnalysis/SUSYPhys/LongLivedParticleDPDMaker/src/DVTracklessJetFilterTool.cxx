@@ -64,7 +64,7 @@ bool DerivationFramework::DVTracklessJetFilterTool::eventPassesFilter() const
   
   for (unsigned int i=0; i< jetContainer->size(); ++i) { 
     const xAOD::Jet* jet = jetContainer->at(i);
-    if (( jet->pt() < m_ptCut) || (fabs(jet->eta())>m_etaCut))  continue;
+    if (( jet->pt() < m_ptCut) || (std::abs(jet->eta())>m_etaCut))  continue;
     
     std::vector<float> sumPtTrkvec;
     jet->getAttribute(xAOD::JetAttribute::SumPtTrkPt500, sumPtTrkvec);

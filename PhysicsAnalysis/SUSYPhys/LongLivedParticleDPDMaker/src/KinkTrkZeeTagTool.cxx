@@ -144,7 +144,7 @@ bool DerivationFramework::KinkTrkZeeTagTool::checkCluster(const xAOD::CaloCluste
 
 bool DerivationFramework::KinkTrkZeeTagTool::checkEleClusPair(const xAOD::Electron *ele, const xAOD::CaloCluster *clu) const
 {
-  if (fabs(ele->p4().DeltaPhi(clu->p4())) > m_dPhiMax) return false;
+  if (std::abs(ele->p4().DeltaPhi(clu->p4())) > m_dPhiMax) return false;
   float mass = (ele->p4()+clu->p4()).M();
   if (mass < m_diEleMassLow) return false;
   if (mass > m_diEleMassHigh) return false;
@@ -155,7 +155,7 @@ bool DerivationFramework::KinkTrkZeeTagTool::checkEleClusPair(const xAOD::Electr
 bool DerivationFramework::KinkTrkZeeTagTool::passElectronQuality(const xAOD::Electron *ele) const
 {
   if (ele->pt() < m_electronPtCut) return false;
-  if (fabs(ele->eta()) > m_electronEtaMax) return false;
+  if (std::abs(ele->eta()) > m_electronEtaMax) return false;
   bool passID(false);
   for (unsigned int i=0; i<m_electronIDKeys.size(); i++) {
     if (ele->passSelection(passID, m_electronIDKeys[i])) {
@@ -172,7 +172,7 @@ bool DerivationFramework::KinkTrkZeeTagTool::passElectronQuality(const xAOD::Ele
 bool DerivationFramework::KinkTrkZeeTagTool::passClusterQuality(const xAOD::CaloCluster *clu) const
 {
   if (clu->et() < m_clusterEtCut) return false;
-  if (fabs(clu->eta()) > m_clusterEtaMax) return false;
+  if (std::abs(clu->eta()) > m_clusterEtaMax) return false;
   return true;
 }
 

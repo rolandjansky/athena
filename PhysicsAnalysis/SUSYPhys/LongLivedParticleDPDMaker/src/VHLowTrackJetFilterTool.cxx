@@ -125,8 +125,8 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
   for (auto electron : *electrons){
 
     if(electron->pt()<m_electronPtCut) continue;
-    if( (fabs(electron->caloCluster()->etaBE(2))>1.37 && fabs(electron->caloCluster()->etaBE(2))<1.52)
-       || fabs(electron->caloCluster()->etaBE(2))>2.47 ) continue;
+    if( (std::abs(electron->caloCluster()->etaBE(2))>1.37 && std::abs(electron->caloCluster()->etaBE(2))<1.52)
+       || std::abs(electron->caloCluster()->etaBE(2))>2.47 ) continue;
 
     if(electron->isolation(xAOD::Iso::topoetcone20)/electron->pt()>0.2) continue;
     
@@ -141,10 +141,10 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
       // Select good primary vertex
       if (vertex->vertexType() == xAOD::VxType::PriVtx) {
         const xAOD::TrackParticle* tp = electron->trackParticle() ; //your input track particle from the electron
-        float sigd0 =fabs( xAOD::TrackingHelpers::d0significance( tp, eventInfo->beamPosSigmaX(), eventInfo->beamPosSigmaY(), eventInfo->beamPosSigmaXY() ));
+        float sigd0 =std::abs( xAOD::TrackingHelpers::d0significance( tp, eventInfo->beamPosSigmaX(), eventInfo->beamPosSigmaY(), eventInfo->beamPosSigmaXY() ));
         double delta_z0 = tp->z0() + tp->vz() - vertex->z();
         double theta = tp->theta();
-        float z0sintheta = fabs(delta_z0 * sin(theta));
+        float z0sintheta = std::abs(delta_z0 * sin(theta));
 
         if (sigd0>5) continue;
         if (z0sintheta>0.5) continue;
@@ -175,7 +175,7 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
   for(auto muon : *muons){
 
     if (muon->pt()<m_muonPtCut) continue;
-    if (fabs(muon->eta())>2.5) continue;
+    if (std::abs(muon->eta())>2.5) continue;
     if (!(m_muonSelectionTool->passedMuonCuts(*muon))) continue;
     if (muon->muonType()!=xAOD::Muon::Combined) continue;
     if (muon->isolation(xAOD::Iso::topoetcone20)/muon->pt()>0.3) continue;
@@ -186,13 +186,13 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
         
         double d0sig = xAOD::TrackingHelpers::d0significance( tp, eventInfo->beamPosSigmaX(), eventInfo->beamPosSigmaY(), eventInfo->beamPosSigmaXY() );
 
-        if (fabs(d0sig)>3) continue;
+        if (std::abs(d0sig)>3) continue;
           
 	float delta_z0 = tp->z0() + tp->vz() - vertex->z();
         float theta = tp->theta();
         double z0sintheta = delta_z0 * sin(theta);
 
-        if (fabs(z0sintheta)>0.5) continue;
+        if (std::abs(z0sintheta)>0.5) continue;
        
         passesMu = true;
         break;
@@ -220,7 +220,7 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
   for (auto jet : *jets) {
 
     if (jet->pt() < m_jetPtCut) continue;
-    if (fabs(jet->eta()) > m_jetEtaCut) continue;
+    if (std::abs(jet->eta()) > m_jetEtaCut) continue;
 
     TLorentzVector VJet = TLorentzVector(0.0,0.0,0.0,0.0);
     VJet.SetPtEtaPhiE(jet->pt(), jet->eta(), jet->phi(), jet->e());
@@ -230,7 +230,7 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
     for (auto electron : *electrons ){
 
       if (electron->pt()<20000) continue;
-      if (fabs(electron->eta())>2.47) continue;
+      if (std::abs(electron->eta())>2.47) continue;
 
       bool passLoose=false;
       if (!electron->passSelection(passLoose, "LHLoose")){
@@ -280,11 +280,11 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
         TLorentzVector VTrack = TLorentzVector(0.0,0.0,0.0,0.0);
         VTrack.SetPtEtaPhiE(track->pt(),track->eta(), track->phi(), track->e());
         alphaDen=alphaDen+VTrack;
-        if (fabs(track->d0()) > m_TrackD0Max) continue;
+        if (std::abs(track->d0()) > m_TrackD0Max) continue;
         
         float z0 = track->z0() + track->vz() - vertex->z();
         float theta = track->theta();
-        if (fabs(z0*sin(theta)) > m_TrackZ0Max) continue;
+        if (std::abs(z0*sin(theta)) > m_TrackZ0Max) continue;
         
         alphaNum=alphaNum+VTrack;
       }
@@ -297,7 +297,7 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
     CHFNum = TLorentzVector(0.0,0.0,0.0,0.0);
     for(auto track : goodTracks) {
       if (track->pt() < m_TrackMinPt) continue;
-      if (fabs(track->d0()) > m_TrackD0Max) continue;
+      if (std::abs(track->d0()) > m_TrackD0Max) continue;
       
       TLorentzVector VTrack = TLorentzVector(0.0,0.0,0.0,0.0);
       VTrack.SetPtEtaPhiE(track->pt(),track->eta(), track->phi(), track->e());
