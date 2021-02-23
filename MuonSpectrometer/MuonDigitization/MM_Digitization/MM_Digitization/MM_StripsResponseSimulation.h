@@ -62,14 +62,14 @@ public :
   MM_StripsResponseSimulation();
 
   virtual ~MM_StripsResponseSimulation();
-  MM_StripToolOutput GetResponseFrom(const MM_DigitToolInput & digiInput, double gainFraction);
+  MM_StripToolOutput GetResponseFrom(const MM_DigitToolInput & digiInput, double gainFraction, double stripPitch);
 
   void initialize (unsigned long int seed);
   void writeHistos();
   void initHistos ();
   void clearValues ();
   void initFunctions ();
-  void whichStrips(const float & hitx, const int & stripOffest, const float & incidentAngleXZ, const float & incidentAngleYZ, const int & stripMinID, const int & stripMaxID, const MM_DigitToolInput & digiInput, double gainFraction);
+  void whichStrips(const float & hitx, const int & stripOffest, const float & incidentAngleXZ, const float & incidentAngleYZ, const int & stripMinID, const int & stripMaxID, const MM_DigitToolInput & digiInput, double gainFraction, double stripPitch);
 
   inline void setQThreshold (float val) { m_qThreshold = val; };
   inline void setTransverseDiffusionSigma (float val) { m_transverseDiffusionSigma = val; };
@@ -116,8 +116,6 @@ private:
   /** // 0.350/10 diffusSigma=transverse diffusion (350 microm per 1cm ) for 93:7 @ 600 V/cm, according to garfield  */
   float m_transverseDiffusionSigma;
   float m_longitudinalDiffusionSigma;
-  float m_pitch;
-  /** //pitch=0.500 properties of the micromegas ToDo: to be reviewed */
   /** crosstalk of neighbor strips, it's 15%  */
   float m_crossTalk1;//0.10; //
   /** // crosstalk of second neighbor strips, it's 6% */
