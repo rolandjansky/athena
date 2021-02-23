@@ -110,7 +110,7 @@ public:
     HGTD_DetectorManager* m_detectorManager;
     InDetDD::AthenaComps* m_athComps;
     InDetDD::SiCommonItems* m_commonItems;
-    const StoredMaterialManager* m_materialMgr;
+    StoredMaterialManager* m_materialMgr;
 
     int m_geomVersion;
 

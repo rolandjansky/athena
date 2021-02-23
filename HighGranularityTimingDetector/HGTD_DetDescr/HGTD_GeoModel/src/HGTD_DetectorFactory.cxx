@@ -24,6 +24,7 @@
 #include "InDetGeoModelUtils/InDetDDAthenaComps.h"
 #include "GeoModelKernel/GeoNameTag.h"
 #include "GeoModelKernel/GeoIdentifierTag.h"
+#include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoTorus.h"
@@ -138,6 +139,12 @@ void HGTD_DetectorFactory::readDbParameters() {
     std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
     std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";     // node in RDB
 
+    // retrieve the material manager (can't use ATH_CHECK macros within create(), it seems..)
+    StatusCode sc = detStore()->retrieve(m_materialMgr, std::string("MATERIALS"));
+    if (sc != StatusCode::SUCCESS) {
+      ATH_MSG_ERROR("Cannot retrieve material manager from DetStore");
+    }
+
     // let's first read the box volumes
     IRDBRecordset_ptr hgtdBoxes = m_athComps->rdbAccessSvc()->getRecordsetPtr("HGTDBox", detectorKey, detectorNode);
     for (IRDBRecordset::const_iterator it = hgtdBoxes->begin(); it != hgtdBoxes->end(); it++) {
@@ -176,11 +183,30 @@ void HGTD_DetectorFactory::readDbParameters() {
 
     // a few of the volumes need to be tweaked, at least for HGTD-TDR-00 and HGTD-TDR-01 - they could go into the next HGTD tag
     m_cylVolPars["HGTD_mother"].rMin= 100; // TODO: should go into db
+    m_cylVolPars["HGTD::CoolingPlate"].material = "std::Aluminium"; // TODO: should go into the db
+
     //  below lines are not yet in db!
-    m_cylVolPars["HGTD::InnerRCover"]  = {"HGTD::InnerRCover", 115., 120., 105./2, -10., "sct::CFiberSupport"};
-    m_cylVolPars["HGTD::OuterRCover"]  = {"HGTD::OuterRCover", 995., 1000., 82./2, -6.5, "sct::CFiberSupport"};
+    m_cylVolPars["HGTD::InnerRCover1"] = {"HGTD::InnerRCover1", 110., 111., 105./2, -10., "sct::CFRP"};
+    // the InnerRCover bulk should be 70% aerogel and 30% honeycomb made from "aradime" (not defined - using "muo::Honeycomb" for now)
+    // proportions should be 50/50 by weight, which is used for GeoMaterial fractions
+    // TODO: these should be double-checked, or at least that the density/weight matches engineering drawings
+    GeoMaterial* innerRCoverBulkMaterial = new GeoMaterial("AerogelAndHoneycomb", 0.);
+    innerRCoverBulkMaterial->add(m_materialMgr->getMaterial("std::Aerogel"), 0.5);
+    innerRCoverBulkMaterial->add(m_materialMgr->getMaterial("muo::Honeycomb"), 0.5);
+    m_materialMgr->addMaterial("hgtd", innerRCoverBulkMaterial);
+    m_cylVolPars["HGTD::InnerRCover2"] = {"HGTD::InnerRCover2", 111., 119., 105./2, -10., "hgtd::AerogelAndHoneycomb"}; 
+    m_cylVolPars["HGTD::InnerRCover3"] = {"HGTD::InnerRCover3", 119., 120., 105./2, -10., "sct::CFRP"};
+    m_cylVolPars["HGTD::OuterRCover"]  = {"HGTD::OuterRCover", 980., 1000., 82./2, -6.5, "pix::Peek"};
+    m_cylVolPars["HGTD::PeripheralCoolingLines"] = {"HGTD::PeripheralCoolingLines", 920., 980., 3./2, 31., "std::SSteel"};
+    // TODO: outer cover should be 40% "pix::Peek" and 60% electrical connectors (unclear material)
+
     m_cylVolPars["HGTD::CoolingTube"] = {"HGTD::CoolingTubes", 0, 0, 2.0, 0, "std::Titanium"}; // TODO: add to db
-    m_cylVolPars["HGTD::CoolingTubeFluid"] = {"HGTD::CoolingTubeFluid", 0, 0, 1.5, 0, "pix::CO2_Liquid"}; // TODO: to add to db
+    // Coolant should be 50% liquid and 50% gas CO2 ("trt::CO2")
+    GeoMaterial* coolantMaterial = new GeoMaterial("CO2CoolantMix", 0);
+    coolantMaterial->add(m_materialMgr->getMaterial("pix::CO2_Liquid"), 0.5);
+    coolantMaterial->add(m_materialMgr->getMaterial("trt::CO2"), 0.5);
+    m_materialMgr->addMaterial("hgtd", coolantMaterial);
+    m_cylVolPars["HGTD::CoolingTubeFluid"] = {"HGTD::CoolingTubeFluid", 0, 0, 1.5, 0, "hgtd::CO2CoolantMix"}; // TODO: to add to db
     
     // These parameters are not in the db (yet) and don't fit into the cylinder or box structures used above
     // TODO: put these (and others needed for three-ring layout) into a separate table in the db when migrating to master
@@ -194,12 +220,6 @@ void HGTD_DetectorFactory::readDbParameters() {
         12.5, // moduleSpaceOuter
         0.456 // flexSheetSpacing
     };
-
-    // can't use ATH_CHECK macros within create(), it seems..
-    StatusCode sc = detStore()->retrieve(m_materialMgr, std::string("MATERIALS"));
-    if (sc != StatusCode::SUCCESS) {
-      ATH_MSG_ERROR("Cannot retrieve material manager from DetStore");
-    }
 
     return;
 }
@@ -260,8 +280,11 @@ GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool
     hgtdVolumes.push_back("HGTD::ToleranceFront");
     hgtdVolumes.push_back("HGTD::FrontCover");
     // Important - these must come last since they will otherwise shift positions of the previous volumes!
-    hgtdVolumes.push_back("HGTD::InnerRCover"); // don't reorder!
+    hgtdVolumes.push_back("HGTD::InnerRCover1"); // don't reorder!
+    hgtdVolumes.push_back("HGTD::InnerRCover2"); // don't reorder!
+    hgtdVolumes.push_back("HGTD::InnerRCover3"); // don't reorder!
     hgtdVolumes.push_back("HGTD::OuterRCover"); // don't reorder!
+    hgtdVolumes.push_back("HGTD::PeripheralCoolingLines"); // don't reorder!
 
     // Now build up the solid, logical and physical volumes as appropriate (starting from the outermost volume)
     // We first start with the volumes we'll reuse several times
@@ -316,19 +339,43 @@ GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool
     std::vector<double> coolingTubeRadii;
     double coolingTubeRadius = 130.;
     coolingTubeRadii.push_back(coolingTubeRadius);
-    for (int i = 0; i < 18; i++) {
+
+    // two-ring layout
+    if (m_geomVersion == 0) {
+      ATH_MSG_INFO("Will now calculate cooling-loop positions for the two-ring layout");
+      for (int i = 0; i < 18; i++) {
         coolingTubeRadius += (418-130.)/18;
         coolingTubeRadii.push_back(coolingTubeRadius);
-    }
-    for (int i = 0; i < 12; i++) {
+      }
+      for (int i = 0; i < 12; i++) {
         coolingTubeRadius += (658-418.)/14;
         coolingTubeRadii.push_back(coolingTubeRadius);
-    }
-    coolingTubeRadius = 710.;
-    coolingTubeRadii.push_back(coolingTubeRadius);
-    for (int i = 0; i < 7; i++) {
+      }
+      coolingTubeRadius = 710.;
+      coolingTubeRadii.push_back(coolingTubeRadius);
+      for (int i = 0; i < 7; i++) {
         coolingTubeRadius += (890-710.)/6;
         coolingTubeRadii.push_back(coolingTubeRadius);
+      }
+    }
+    else if (m_geomVersion == 1) {
+      ATH_MSG_INFO("Will now calculate cooling-loop positions for the three-ring layout");
+      // inner part, even spacing from 130 mm to 674 mm, 35 rings with 16 mm spacing (first one already placed above)
+      int numberOfLoops = 34;
+      float loopDistance = (674.-130.)/numberOfLoops; // in mm
+      for (int i = 0; i < numberOfLoops; i++) {
+        coolingTubeRadius += loopDistance;
+        coolingTubeRadii.push_back(coolingTubeRadius);
+      }
+      // outer part, even spacing from 720 mm to 900 mm, 7 rings with 30 mm spacing
+      coolingTubeRadius = 720;
+      coolingTubeRadii.push_back(coolingTubeRadius);
+      numberOfLoops = 6;
+      loopDistance = (900.-720.)/numberOfLoops;
+      for (int i = 0; i < numberOfLoops; i++) {
+        coolingTubeRadius += loopDistance;
+        coolingTubeRadii.push_back(coolingTubeRadius);
+      }
     }
     ATH_MSG_INFO( "Cooling tubes will be created at the following radii (" << coolingTubeRadii.size() << " in total):");
     for (size_t i = 0; i < coolingTubeRadii.size(); i++) {
@@ -362,10 +409,10 @@ GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool
         if (vol == 0) // special treatment for the first one
             m_cylVolPars[v].zOffsetLocal = motherHalfZ - m_cylVolPars[v].zHalf;
 
-        // All but the InnerRCover and OuterRCover are placed relative to other components,
-        // but the zOffsetLocal parameter of these two volumes is left as read from the db
+        // All but the InnerRCover, OuterRCover and peripheral cooling lines are placed relative to other components,
+        // but the zOffsetLocal parameter of these volumes is left as read from the db
         else {
-            if (v.substr(9,16) != "erRCover") {
+            if (v.substr(9,8) != "erRCover" && v != "HGTD::PeripheralCoolingLines") {
                 std::string vPrev = hgtdVolumes[vol-1];
                 m_cylVolPars[v].zOffsetLocal = m_cylVolPars[vPrev].zOffsetLocal - m_cylVolPars[vPrev].zHalf - m_cylVolPars[v].zHalf;
             }
@@ -482,8 +529,8 @@ GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool
     unsigned int maxRows = 21;
     if ( m_geomVersion == 0 ) maxRows = 18;
 
-    std::array< PositionsInQuadrant, 4 > positions = prepareLayersFromQuadrants( maxRows );
-    // Inside m_geomVersion implicitly control 3-ring layout vs 2-ring
+    std::array< PositionsInQuadrant, 4 > positions = prepareLayersFromQuadrants( maxRows ) ;
+    // inside m_geomVersion implicitly control 3-ring layout vs 2-ring
 
     for (int layer = 0; layer < 4; layer++) {
         if (m_outputIdfr) cout << "Layer #" << layer << std::endl;
