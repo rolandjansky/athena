@@ -339,8 +339,8 @@ if DetFlags.haveRIO.SCT_on():
     else :
         InDetSCT_ConditionsSummaryTool.ConditionsTools= [ InDetSCT_ConfigurationConditionsTool,
                                                           InDetSCT_FlaggedConditionTool,
-                                                          InDetSCT_MonitorConditionsTool,
-                                                          InDetSCT_ReadCalibDataTool ]
+                                                          InDetSCT_ReadCalibDataTool,
+                                                          InDetSCT_MonitorConditionsTool ]
         if InDetFlags.useSctDCS():
             InDetSCT_ConditionsSummaryTool.ConditionsTools += [ InDetSCT_DCSConditionsTool ]
 
@@ -365,7 +365,7 @@ if DetFlags.haveRIO.SCT_on():
             if condTool != InDetSCT_FlaggedConditionTool:
                 condTools.append(condTool)
     InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools = condTools
-        
+
     # Setup Lorentz angle tool.
     from SiLorentzAngleTool.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
 
