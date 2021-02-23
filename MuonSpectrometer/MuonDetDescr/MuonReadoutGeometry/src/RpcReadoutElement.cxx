@@ -284,7 +284,16 @@ namespace MuonGM {
 					 <<" lstrip, ldoublerZ "<<lstrip<<" "<<ldoubletZ<<endmsg;
 #endif
       }
-        
+
+    // the only RPCs in ATLAS which have 3 gasGaps (layers) are BI RPCs and those only have 1 doubletPhi
+    if (m_nlayers==3 && ldoubletPhi!=1) {
+#ifdef NDEBUG
+      MsgStream log(Athena::getMessageSvc(),"RpcReadoutElement");
+#endif
+      if (log.level()<=MSG::WARNING) log << MSG::WARNING<<"localStripPos() - found ldoubletPhi="<<ldoubletPhi<<" for BI RPC which cannot be true, setting to 1"<<endmsg;
+      ldoubletPhi=1;
+    }
+
     Amg::Vector3D localP(
 				    localGasGapDepth(lgg),
 				    localStripSCoord(ldoubletZ, ldoubletPhi, measPhi, lstrip),

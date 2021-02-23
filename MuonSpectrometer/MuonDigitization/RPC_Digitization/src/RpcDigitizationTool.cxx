@@ -51,6 +51,7 @@
 #include <iostream>
 #include <fstream>
 #include <atomic>
+#include <TString.h> // for Form
 
 //12 charge points, 15 BetaGamma points, 180 efficiency points for fcp search
 namespace {
@@ -576,10 +577,8 @@ StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigit
 		      << " gasGap "	 <<    gasGap
 		      << " measphi "	 <<    measphi );//
 
-      const Identifier idpaneleta = m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR,
-                                                          doubletZ, doubletPhi,gasGap, 0, 1);
-      const Identifier idpanelphi = m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR,
-                                                          doubletZ, doubletPhi,gasGap, 1, 1);
+      const Identifier idpaneleta = m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi,gasGap, 0, 1);
+      const Identifier idpanelphi = m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi,gasGap, 1, 1);
 
       //loop on eta and phi to apply correlated efficiency between the two views
       //      Identifier atlasRpcId;
@@ -762,7 +761,7 @@ StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigit
         simData.setPosition(it->second.gpos);
         simData.setTime(it->second.simTime);
         auto insertResult = sdoContainer->insert(std::make_pair( it->first,simData) );
-        if (!insertResult.second) ATH_MSG_ERROR ( "Attention: this sdo is not recorded, since the identifier already exists in the sdoContainer map" );
+        if (!insertResult.second) ATH_MSG_WARNING ( "Attention: this sdo is not recorded, since the identifier already exists in the sdoContainer map" );
       }
     }
 
@@ -821,7 +820,7 @@ StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigit
 	      deposits.push_back((*map_dep_iter).second);
 	      std::pair<std::map<Identifier,MuonSimData>::iterator, bool> insertResult =
 		sdoContainer->insert(std::make_pair( theId, MuonSimData(deposits,0) ) );
-	      if (!insertResult.second) ATH_MSG_ERROR ( "Attention: this sdo is not recorded, since the identifier already exists in the sdoContainer map" );
+	      if (!insertResult.second) ATH_MSG_ERROR ( "Attention TEMP: this sdo is not recorded, since the identifier already exists in the sdoContainer map" );
 	    }
 	}
       //apply dead time
@@ -918,7 +917,7 @@ StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigit
 		  deposits.push_back((*map_dep_iter).second);
 		  std::pair<std::map<Identifier,MuonSimData>::iterator, bool> insertResult =
 		    sdoContainer->insert(std::make_pair( theId, MuonSimData(deposits,0) ) );
-		  if (!insertResult.second) ATH_MSG_ERROR("Attention: this sdo is not recorded, since teh identifier already exists in the sdoContainer map");
+		  if (!insertResult.second) ATH_MSG_ERROR("Attention: this sdo is not recorded, since the identifier already exists in the sdoContainer map");
 		}
 	    }
 
@@ -948,7 +947,9 @@ std::vector<int> RpcDigitizationTool::PhysicalClusterSize(const EventContext& ct
   std::vector<int> result(3,0);
 
   const RpcReadoutElement* ele= m_GMmgr->getRpcReadoutElement(*id);
-
+  if (!ele) throw std::runtime_error(Form("File: %s, Line: %d\nRpcDigitizationTool::PhysicalClusterSize() - Could not retrieve RpcReadoutElement for stationName=%d (%s), stationEta=%d, stationPhi=%d, doubletZ=%d, doubletR=%d, doubletPhi=%d, gasGap=%d", 
+                                          __FILE__, __LINE__, m_idHelper->stationName(*id), m_idHelper->stationNameString(m_idHelper->stationName(*id)).c_str(),
+                                          m_idHelper->stationEta(*id), m_idHelper->stationPhi(*id), m_idHelper->doubletZ(*id), m_idHelper->doubletR(*id), m_idHelper->doubletPhi(*id), m_idHelper->gasGap(*id)));
   pitch = ele->StripPitch(measuresPhi);
 
   int nstrip;
@@ -1372,8 +1373,6 @@ int RpcDigitizationTool::findStripNumber(Amg::Vector3D posInGap, Identifier digi
 
   Amg::Vector3D posInElement=ele->SDtoModuleCoords(posInGap, digitId);
 
-  //std::cout << "posx,y,z " << posInGap.x() << " " << posInElement.x()<< " " << posInGap.y()<< " " << posInElement.y()<< " " <<posInGap.z() << " " << posInElement.z()<< std::endl;
-
   // extract from digit id the relevant info
 
   int measuresPhi = m_idHelper->measuresPhi(digitId);
@@ -1381,9 +1380,6 @@ int RpcDigitizationTool::findStripNumber(Amg::Vector3D posInGap, Identifier digi
   int doubletPhi = m_idHelper->doubletPhi(digitId);
   int gasGap = m_idHelper->gasGap(digitId);
   double stripWidth = ele->StripWidth(measuresPhi);
-
-  //const Identifier& id,  int doubletZ, int doubletPhi,
-  //                       int gasGap, int measuresPhi, int strip
 
   // find position of first and last strip
 
@@ -1396,45 +1392,29 @@ int RpcDigitizationTool::findStripNumber(Amg::Vector3D posInGap, Identifier digi
   try {
     firstPos=ele->localStripPos(firstStrip);
   }
-  catch (...) {
+  catch (const std::exception &exc) {
     ATH_MSG_ERROR("RpcReadoutElement::localStripPos call failed.");
-    ATH_MSG_WARNING("firstPos determination failed.");
+    ATH_MSG_WARNING("firstPos determination failed. "<<exc.what());
   }
   Amg::Vector3D lastPos(0.,0.,0);
   try {
     lastPos=ele->localStripPos(lastStrip);
   }
-  catch (...) {
+  catch (const std::exception &exc) {
     ATH_MSG_ERROR("RpcReadoutElement::localStripPos call failed.");
-    ATH_MSG_WARNING("lastPos determination failed.");
+    ATH_MSG_WARNING("lastPos determination failed. "<<exc.what());
   }
-
-  // if(ele->Nphigasgaps()!=1) return result; //all but BMS/F and ribs chambers
-
-  //   else if(ele->NphiStripPanels()==1) return result; // for rib chambers no correction needed
-  //   else {
-
-  //     //std::cout<<"position in gap is "<<posInGap<<std::endl;
-
-  //     if(result.y()<0) result.y() = gaplength/2.-fabs(result.y()); // wrt the beginning of the panel
-
-  //     result.y() = result.y()-panelXlength/2.; // wrt the center of the panel
-
-  //     //std::cout<<"position in panel is"<< result<<std::endl;
-
-  //     return result;
-  //   }
 
   double start, stop, impact;
   double pitch = ele->StripPitch(measuresPhi);
   double dead=pitch-stripWidth;
 
   if(measuresPhi){
-    impact =  (posInElement.y());  //std::cout<<"position in element is y "<< posInElement.y() << " "<< impact << std::endl;
+    impact =  (posInElement.y());
     start  =  (firstPos.y());
     stop   =  (lastPos.y());
   } else {
-    impact =  (posInElement.z());  //std::cout<<"position in element is z "<< posInElement.z() << " " << impact << std::endl;
+    impact =  (posInElement.z());
     start  =  (firstPos.z());
     stop   =  (lastPos.z());
   }
@@ -1445,11 +1425,6 @@ int RpcDigitizationTool::findStripNumber(Amg::Vector3D posInGap, Identifier digi
   min_=min_-pitch/2.-dead/2.*0;
   max_=max_+pitch/2.+dead/2.*0;
 
-  //  std::cout<<" Nphigasgaps, NphiStripPanels "<< ele->Nphigasgaps()<< " "<< ele->NphiStripPanels()<<std::endl;
-
-
-  //  int result= abs(int((min_-impact)/pitch))+1; // the original 
-  //  int result= abs(int((min_-impact)/pitch)+1);
   int result= int((impact-min_)/pitch)+1;
   if (result<1 || result>nstrips) 
     {
