@@ -58,6 +58,7 @@ private:
     std::string m_dictionaryFileName;
 
     bool m_doHGTD, m_createDict;
+    int m_geomVersion ;
 };
 
 #endif //INDETTRACKINGGEOMETRY_HGTD_IDDICTSVC_H
