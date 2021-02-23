@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -57,7 +57,8 @@ StatusCode TileCellNoiseTool::finalize() {
 //
 //____________________________________________________________________
 float TileCellNoiseTool::getCellNoise(const Identifier& cell_id,
-    CaloGain::CaloGain caloGain) const {
+                                      CaloGain::CaloGain caloGain,
+                                      const EventContext& ctx) const {
 
   CaloGain::CaloGain gain(caloGain);
 
@@ -119,12 +120,12 @@ float TileCellNoiseTool::getCellNoise(const Identifier& cell_id,
       Identifier pmt_id = cabling->getTileID()->pmt_id(cell_id, 0); // first pmt offline ID
       HWIdentifier hwid = cabling->getTileHWID()->adc_id(cabling->s2h_channel_id(pmt_id), gain1); // ADC HWID ch1,gain1
       m_tileIdTrans->getIndices(hwid, drawerIdx, channel, adc);
-      noise1 = m_tileToolNoise->getNoise(drawerIdx, channel, adc, TileRawChannelUnit::MegaElectronVolts);
+      noise1 = m_tileToolNoise->getNoise(drawerIdx, channel, adc, TileRawChannelUnit::MegaElectronVolts, ctx);
 
       if (CaloGain::LARMEDIUMGAIN == caloGain) { // swap gains to take max noise later
         hwid = cabling->getTileHWID()->adc_id(cabling->s2h_channel_id(pmt_id), 1 - gain1); // ADC HWID other gain
         m_tileIdTrans->getIndices(hwid, drawerIdx, channel, adc);
-        noise12 = m_tileToolNoise->getNoise(drawerIdx, channel, adc, TileRawChannelUnit::MegaElectronVolts);
+        noise12 = m_tileToolNoise->getNoise(drawerIdx, channel, adc, TileRawChannelUnit::MegaElectronVolts, ctx);
       }
     }
 
@@ -132,12 +133,12 @@ float TileCellNoiseTool::getCellNoise(const Identifier& cell_id,
       Identifier pmt_id = cabling->getTileID()->pmt_id(cell_id, 1); // second pmt offline ID
       HWIdentifier hwid = cabling->getTileHWID()->adc_id(cabling->s2h_channel_id(pmt_id), gain2); // ADC HWID ch2,gain2
       m_tileIdTrans->getIndices(hwid, drawerIdx, channel, adc);
-      noise2 = m_tileToolNoise->getNoise(drawerIdx, channel, adc, TileRawChannelUnit::MegaElectronVolts);
+      noise2 = m_tileToolNoise->getNoise(drawerIdx, channel, adc, TileRawChannelUnit::MegaElectronVolts, ctx);
 
       if (CaloGain::LARMEDIUMGAIN == caloGain) { // swap gains to take max noise later
         hwid = cabling->getTileHWID()->adc_id(cabling->s2h_channel_id(pmt_id), 1 - gain2); // ADC HWID other gain
         m_tileIdTrans->getIndices(hwid, drawerIdx, channel, adc);
-        noise21 = m_tileToolNoise->getNoise(drawerIdx, channel, adc, TileRawChannelUnit::MegaElectronVolts);
+        noise21 = m_tileToolNoise->getNoise(drawerIdx, channel, adc, TileRawChannelUnit::MegaElectronVolts, ctx);
       }
     }
   } catch (TileCalib::Exception& e) {

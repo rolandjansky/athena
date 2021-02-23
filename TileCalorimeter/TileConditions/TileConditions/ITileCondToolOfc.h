@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_ITILECONDTOOLOFC_H
 #define TILECONDITIONS_ITILECONDTOOLOFC_H
 
 #include "GaudiKernel/IAlgTool.h"
+#include "GaudiKernel/EventContext.h"
 
 
 //--------------------------------------------------------------
@@ -28,7 +29,8 @@ public:
                                    unsigned int adc,
                                    float& phase,
                                    bool of2,
-                                   TileOfcWeightsStruct& weights) const  = 0;
+                                   TileOfcWeightsStruct& weights,
+                                   const EventContext& ctx) const  = 0;
 };
 
 #endif

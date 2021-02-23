@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 /**
  * @file CaloTools/src/CaloEstimatedGainTool.cxx
@@ -72,7 +72,7 @@ CaloEstimatedGainTool::estimatedGain (const EventContext& ctx,
   }
   else if (iCalo == CaloCell_ID::TILE)
   {
-    return estimatedTileGain (caloCell, caloDDE, step);
+    return estimatedTileGain (ctx, caloCell, caloDDE, step);
   }
   else
   {
@@ -168,7 +168,8 @@ CaloEstimatedGainTool::estimatedLArGain (const EventContext& ctx,
 
 
 CaloGain::CaloGain
-CaloEstimatedGainTool::estimatedTileGain(const CaloCell& caloCell,
+CaloEstimatedGainTool::estimatedTileGain(const EventContext& ctx,
+                                         const CaloCell& caloCell,
                                          const CaloDetDescrElement& caloDDE,
                                          const Step /*step*/) const
 {
@@ -194,7 +195,7 @@ CaloEstimatedGainTool::estimatedTileGain(const CaloCell& caloCell,
                                                  TileRawChannelUnit::ADCcounts,
                                                  TileRawChannelUnit::MegaElectronVolts);
 
-  double pedestal1 = m_tileToolNoiseSample->getPed (drawerIdx1, channel1, adc1);
+  double pedestal1 = m_tileToolNoiseSample->getPed (drawerIdx1, channel1, adc1, TileRawChannelUnit::ADCcounts, ctx);
 
   int igain1;
 
@@ -220,7 +221,7 @@ CaloEstimatedGainTool::estimatedTileGain(const CaloCell& caloCell,
                                                    TileRawChannelUnit::ADCcounts,
                                                    TileRawChannelUnit::MegaElectronVolts);
 
-    double pedestal2 = m_tileToolNoiseSample->getPed (drawerIdx2, channel2, adc2);
+    double pedestal2 = m_tileToolNoiseSample->getPed (drawerIdx2, channel2, adc2, TileRawChannelUnit::ADCcounts, ctx);
 
     if (amplitude2 + pedestal2 < threshold) {
       // igain2 high

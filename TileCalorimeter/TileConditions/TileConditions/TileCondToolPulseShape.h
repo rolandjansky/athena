@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_TILECONDTOOLPULSESHAPE_H
@@ -25,8 +25,9 @@ class TileCondToolPulseShape: public AthAlgTool {
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
 
-    bool getPulseShapeYDY(unsigned int drawerIdx, unsigned int channel, unsigned int adc
-                         , float time, float &y, float &dy) const;
+    bool getPulseShapeYDY(unsigned int drawerIdx, unsigned int channel, unsigned int adc,
+                          float time, float &y, float &dy,
+                          const EventContext &ctx) const;
 
   private:
 

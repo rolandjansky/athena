@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -167,7 +167,7 @@ std::unique_ptr<TileEMScale> getCalibEms() {
 }
 
 
-void testTileCondToolNoiseSample(ISvcLocator* svcLoc) {
+void testTileCondToolNoiseSample(ISvcLocator* svcLoc, const EventContext &ctx) {
 
   std::cout << "\nTest TileCondToolNoiseSample\n";
 
@@ -175,7 +175,7 @@ void testTileCondToolNoiseSample(ISvcLocator* svcLoc) {
     SG::WriteCondHandleKey<TileEMScale> emScaleKey{TILE_SAMPLE_EMS};
     assert(emScaleKey.initialize().isSuccess());
 
-    SG::WriteCondHandle<TileEMScale> emScale{emScaleKey};
+    SG::WriteCondHandle<TileEMScale> emScale{emScaleKey, ctx};
     std::unique_ptr<TileEMScale> emScaleData = getCalibEms();
     assert(emScale.record(EVENT_RANGE, emScaleData.release()).isSuccess());
 
@@ -183,7 +183,7 @@ void testTileCondToolNoiseSample(ISvcLocator* svcLoc) {
     SG::WriteCondHandleKey<TileCalibDataFlt> calibSampleNoiseKey{TILE_SAMPLE_NOISE};
     assert(calibSampleNoiseKey.initialize().isSuccess());
 
-    SG::WriteCondHandle<TileCalibDataFlt> calibSampleNoise{calibSampleNoiseKey};
+    SG::WriteCondHandle<TileCalibDataFlt> calibSampleNoise{calibSampleNoiseKey, ctx};
     std::unique_ptr<TileCalibDataFlt> calibSampleNoiseData = getCalibData(SAMPLE_NOISE);
     assert(calibSampleNoise.record(EVENT_RANGE, calibSampleNoiseData.release()).isSuccess());
 
@@ -191,7 +191,7 @@ void testTileCondToolNoiseSample(ISvcLocator* svcLoc) {
     SG::WriteCondHandleKey<TileCalibDataFlt> calibOnlineSampleNoiseKey{TILE_ONLINE_SAMPLE_NOISE};
     assert(calibOnlineSampleNoiseKey.initialize().isSuccess());
 
-    SG::WriteCondHandle<TileCalibDataFlt> calibOnlineSampleNoise{calibOnlineSampleNoiseKey};
+    SG::WriteCondHandle<TileCalibDataFlt> calibOnlineSampleNoise{calibOnlineSampleNoiseKey, ctx};
     std::unique_ptr<TileCalibDataFlt> calibOnlineSampleNoiseData = getCalibData(ONLINE_PEDESTAL);
     assert(calibOnlineSampleNoise.record(EVENT_RANGE, calibOnlineSampleNoiseData.release()).isSuccess());
 
@@ -211,91 +211,91 @@ void testTileCondToolNoiseSample(ISvcLocator* svcLoc) {
   assert(sampleNoise->setProperty("TileOnlineSampleNoise", TILE_ONLINE_SAMPLE_NOISE));
   assert(sampleNoise->initialize().isSuccess());
 
-  const float adcPedestal(sampleNoise->getPed(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::ADCcounts));
+  const float adcPedestal(sampleNoise->getPed(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::ADCcounts, ctx));
   assert(Athena_test::isEqual(adcPedestal, PEDESTAL));
 
-  const float picoCoulombsPedestal(sampleNoise->getPed(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::PicoCoulombs));
+  const float picoCoulombsPedestal(sampleNoise->getPed(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::PicoCoulombs, ctx));
   assert(Athena_test::isEqual(picoCoulombsPedestal, (adcPedestal / LIN_FACTOR) * NLN_FACTOR));
 
-  const float cesPicoCoulombsPedestal(sampleNoise->getPed(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::CesiumPicoCoulombs));
+  const float cesPicoCoulombsPedestal(sampleNoise->getPed(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::CesiumPicoCoulombs, ctx));
   assert(Athena_test::isEqual(cesPicoCoulombsPedestal, picoCoulombsPedestal / LIN_FACTOR / LIN_FACTOR * NLN_FACTOR));
 
-  const float mevPedestal(sampleNoise->getPed(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::MegaElectronVolts));
+  const float mevPedestal(sampleNoise->getPed(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::MegaElectronVolts, ctx));
   assert(Athena_test::isEqual(mevPedestal, cesPicoCoulombsPedestal / LIN_FACTOR));
 
 
 
-  const float adcHfn(sampleNoise->getHfn(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::ADCcounts));
+  const float adcHfn(sampleNoise->getHfn(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::ADCcounts, ctx));
   assert(Athena_test::isEqual(adcHfn, HFN));
 
-  const float picoCoulombsHfn(sampleNoise->getHfn(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::PicoCoulombs));
+  const float picoCoulombsHfn(sampleNoise->getHfn(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::PicoCoulombs, ctx));
   assert(Athena_test::isEqual(picoCoulombsHfn, (adcHfn / LIN_FACTOR) * NLN_FACTOR));
 
-  const float cesPicoCoulombsHfn(sampleNoise->getHfn(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::CesiumPicoCoulombs));
+  const float cesPicoCoulombsHfn(sampleNoise->getHfn(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::CesiumPicoCoulombs, ctx));
   assert(Athena_test::isEqual(cesPicoCoulombsHfn, picoCoulombsHfn / LIN_FACTOR / LIN_FACTOR * NLN_FACTOR));
 
-  const float mevHfn(sampleNoise->getHfn(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::MegaElectronVolts));
+  const float mevHfn(sampleNoise->getHfn(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::MegaElectronVolts, ctx));
   assert(Athena_test::isEqual(mevHfn, cesPicoCoulombsHfn / LIN_FACTOR));
 
 
 
-  const float adcNoise(sampleNoise->getNoise(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::ADCcounts));
+  const float adcNoise(sampleNoise->getNoise(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::ADCcounts, ctx));
   assert(Athena_test::isEqual(adcNoise, HFN));
 
-  const float picoCoulombsNoise(sampleNoise->getNoise(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::PicoCoulombs));
+  const float picoCoulombsNoise(sampleNoise->getNoise(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::PicoCoulombs, ctx));
   assert(Athena_test::isEqual(picoCoulombsNoise, (adcNoise / LIN_FACTOR) * NLN_FACTOR));
 
-  const float cesPicoCoulombsNoise(sampleNoise->getNoise(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::CesiumPicoCoulombs));
+  const float cesPicoCoulombsNoise(sampleNoise->getNoise(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::CesiumPicoCoulombs, ctx));
   assert(Athena_test::isEqual(cesPicoCoulombsNoise, picoCoulombsNoise / LIN_FACTOR / LIN_FACTOR * NLN_FACTOR));
 
-  const float mevNoise(sampleNoise->getNoise(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::MegaElectronVolts));
+  const float mevNoise(sampleNoise->getNoise(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::MegaElectronVolts, ctx));
   assert(Athena_test::isEqual(mevNoise, cesPicoCoulombsNoise / LIN_FACTOR));
 
 
 
-  const float adcLfn(sampleNoise->getLfn(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::ADCcounts));
+  const float adcLfn(sampleNoise->getLfn(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::ADCcounts, ctx));
   assert(Athena_test::isEqual(adcLfn, LFN));
 
-  const float picoCoulombsLfn(sampleNoise->getLfn(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::PicoCoulombs));
+  const float picoCoulombsLfn(sampleNoise->getLfn(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::PicoCoulombs, ctx));
   assert(Athena_test::isEqual(picoCoulombsLfn, (adcLfn / LIN_FACTOR) * NLN_FACTOR));
 
-  const float cesPicoCoulombsLfn(sampleNoise->getLfn(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::CesiumPicoCoulombs));
+  const float cesPicoCoulombsLfn(sampleNoise->getLfn(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::CesiumPicoCoulombs, ctx));
   assert(Athena_test::isEqual(cesPicoCoulombsLfn, picoCoulombsLfn / LIN_FACTOR / LIN_FACTOR * NLN_FACTOR));
 
-  const float mevLfn(sampleNoise->getLfn(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::MegaElectronVolts));
+  const float mevLfn(sampleNoise->getLfn(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::MegaElectronVolts, ctx));
   assert(Athena_test::isEqual(mevLfn, cesPicoCoulombsLfn / LIN_FACTOR));
 
 
 
-  const float hfn1(sampleNoise->getHfn1(DRAWER_IDX, CHANNEL, ADC));
+  const float hfn1(sampleNoise->getHfn1(DRAWER_IDX, CHANNEL, ADC, ctx));
   assert(Athena_test::isEqual(hfn1, HFN1));
 
-  const float hfn2(sampleNoise->getHfn2(DRAWER_IDX, CHANNEL, ADC));
+  const float hfn2(sampleNoise->getHfn2(DRAWER_IDX, CHANNEL, ADC, ctx));
   assert(Athena_test::isEqual(hfn2, HFN2));
 
-  const float hfnNorm(sampleNoise->getHfnNorm(DRAWER_IDX, CHANNEL, ADC));
+  const float hfnNorm(sampleNoise->getHfnNorm(DRAWER_IDX, CHANNEL, ADC, ctx));
   assert(Athena_test::isEqual(hfnNorm, HFN_NORM));
 
 
 
   const float adcPedestalDifferene(sampleNoise->getOnlinePedestalDifference(DRAWER_IDX, CHANNEL, ADC,
-                                                                                TileRawChannelUnit::OnlineADCcounts));
+                                                                            TileRawChannelUnit::OnlineADCcounts, ctx));
   assert(Athena_test::isEqual(adcPedestalDifferene, PEDESTAL_DIF));
 
   const float picoCoulombsPedestalDifference =
-    sampleNoise->getOnlinePedestalDifference(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::OnlinePicoCoulombs);
+    sampleNoise->getOnlinePedestalDifference(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::OnlinePicoCoulombs, ctx);
 
   assert(Athena_test::isEqual(picoCoulombsPedestalDifference, (adcPedestalDifferene / LIN_FACTOR)));
 
 
   const float cesPicoCoulombsPedestalDifference =
-    sampleNoise->getOnlinePedestalDifference(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::OnlineCesiumPicoCoulombs);
+    sampleNoise->getOnlinePedestalDifference(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::OnlineCesiumPicoCoulombs, ctx);
 
   assert(Athena_test::isEqual(cesPicoCoulombsPedestalDifference,
                               picoCoulombsPedestalDifference / LIN_FACTOR / LIN_FACTOR));
 
   const float mevPedestalDifference =
-    sampleNoise->getOnlinePedestalDifference(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::OnlineMegaElectronVolts);
+    sampleNoise->getOnlinePedestalDifference(DRAWER_IDX, CHANNEL, ADC, TileRawChannelUnit::OnlineMegaElectronVolts, ctx);
 
   assert(Athena_test::isEqual(mevPedestalDifference, cesPicoCoulombsPedestalDifference / LIN_FACTOR));
 
@@ -303,7 +303,7 @@ void testTileCondToolNoiseSample(ISvcLocator* svcLoc) {
 
 
 
-void testTileCondToolNoiseRawChn(ISvcLocator* svcLoc) {
+void testTileCondToolNoiseRawChn(ISvcLocator* svcLoc, const EventContext &ctx) {
 
   std::cout << "\nTest TileCondToolNoiseRawChn\n";
 
@@ -311,7 +311,7 @@ void testTileCondToolNoiseRawChn(ISvcLocator* svcLoc) {
     SG::WriteCondHandleKey<TileEMScale> emScaleKey{TILE_RAW_CHANNEL_EMS};
     assert(emScaleKey.initialize().isSuccess());
 
-    SG::WriteCondHandle<TileEMScale> emScale{emScaleKey};
+    SG::WriteCondHandle<TileEMScale> emScale{emScaleKey, ctx};
     std::unique_ptr<TileEMScale> emScaleData = getCalibEms();
     assert(emScale.record(EVENT_RANGE, emScaleData.release()).isSuccess());
 
@@ -319,7 +319,7 @@ void testTileCondToolNoiseRawChn(ISvcLocator* svcLoc) {
     SG::WriteCondHandleKey<TileCalibDataFlt> calibSampleNoiseKey{TILE_RAW_CHANNEL_NOISE};
     assert(calibSampleNoiseKey.initialize().isSuccess());
 
-    SG::WriteCondHandle<TileCalibDataFlt> calibSampleNoise{calibSampleNoiseKey};
+    SG::WriteCondHandle<TileCalibDataFlt> calibSampleNoise{calibSampleNoiseKey, ctx};
     std::unique_ptr<TileCalibDataFlt> calibSampleNoiseData = getCalibData(RAW_CHANNEL_NOISE);
     assert(calibSampleNoise.record(EVENT_RANGE, calibSampleNoiseData.release()).isSuccess());
 
@@ -340,25 +340,25 @@ void testTileCondToolNoiseRawChn(ISvcLocator* svcLoc) {
 
 
   const float adcElectronicNoise(rawChannelNoise->getElectronicNoise(DRAWER_IDX, CHANNEL, ADC,
-                                                                     TileRawChannelUnit::ADCcounts));
+                                                                     TileRawChannelUnit::ADCcounts, ctx));
   assert(Athena_test::isEqual(adcElectronicNoise, ELECTRONIC_NOISE));
 
   const float picoCoulombsElectronicNoise(rawChannelNoise->getElectronicNoise(DRAWER_IDX, CHANNEL, ADC,
-                                                                              TileRawChannelUnit::PicoCoulombs));
+                                                                              TileRawChannelUnit::PicoCoulombs, ctx));
   assert(Athena_test::isEqual(picoCoulombsElectronicNoise, ELECTRONIC_NOISE / LIN_FACTOR * NLN_FACTOR));
 
   const float cesPicoCoulombsElectronicNoise(rawChannelNoise->getElectronicNoise(DRAWER_IDX, CHANNEL, ADC,
-                                                                                 TileRawChannelUnit::CesiumPicoCoulombs));
+                                                                                 TileRawChannelUnit::CesiumPicoCoulombs, ctx));
   assert(Athena_test::isEqual(cesPicoCoulombsElectronicNoise,
                               picoCoulombsElectronicNoise / LIN_FACTOR / LIN_FACTOR * NLN_FACTOR));
 
 
   const float mevElectronicNoise(rawChannelNoise->getElectronicNoise(DRAWER_IDX, CHANNEL, ADC,
-                                                                     TileRawChannelUnit::MegaElectronVolts));
+                                                                     TileRawChannelUnit::MegaElectronVolts, ctx));
   assert(Athena_test::isEqual(mevElectronicNoise, cesPicoCoulombsElectronicNoise / LIN_FACTOR));
 
 
-  const float pileUpNoise(rawChannelNoise->getPileUpNoise(DRAWER_IDX, CHANNEL, ADC));
+  const float pileUpNoise(rawChannelNoise->getPileUpNoise(DRAWER_IDX, CHANNEL, ADC, ctx));
   assert(Athena_test::isEqual(pileUpNoise, PILEUP_NOISE));
 
 }
@@ -389,8 +389,8 @@ int main() {
   Gaudi::Hive::setCurrentContext(ctx);
 
 
-  testTileCondToolNoiseSample(svcLoc);
-  testTileCondToolNoiseRawChn(svcLoc);
+  testTileCondToolNoiseSample(svcLoc, ctx);
+  testTileCondToolNoiseRawChn(svcLoc, ctx);
 
   return 0;
 }

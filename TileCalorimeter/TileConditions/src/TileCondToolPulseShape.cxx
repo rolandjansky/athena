@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
@@ -52,10 +52,11 @@ StatusCode TileCondToolPulseShape::finalize() {
 
 //
 //____________________________________________________________________
-bool TileCondToolPulseShape::getPulseShapeYDY(unsigned int drawerIdx, unsigned int channel, unsigned int adc
-                                              , float time, float &y, float &dy) const {
+bool TileCondToolPulseShape::getPulseShapeYDY(unsigned int drawerIdx, unsigned int channel, unsigned int adc,
+                                              float time, float &y, float &dy,
+                                              const EventContext &ctx) const {
 
-  SG::ReadCondHandle<TileCalibData<TileCalibDrawerFlt>> calibPulseShape(m_calibPulseShapeKey);
+  SG::ReadCondHandle<TileCalibData<TileCalibDrawerFlt>> calibPulseShape(m_calibPulseShapeKey, ctx);
   return calibPulseShape->getCalibDrawer(drawerIdx)->getYDY(channel, adc, time, y, dy);
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILERECUTILS_TILERAWCHANNELBUILDERWIENERFILTER_H
@@ -72,10 +72,10 @@ class TileRawChannelBuilderWienerFilter: public TileRawChannelBuilder {
     ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;
 
     //!< Applies OF algorithm
-    double filter(int ros, int drawer, int channel, int &gain, double &pedestal, double &amplitude, double &time);
+    double filter(int ros, int drawer, int channel, int &gain, double &pedestal, double &amplitude, double &time, const EventContext &ctx);
     int findMaxDigitPosition();  //!< Finds maximum digit position in the pulse
     //!< Gets pedestal estimation for OF1
-    float getPedestal(int ros, int drawer, int channel, int gain);
+    float getPedestal(int ros, int drawer, int channel, int gain, const EventContext &ctx);
     //!< Computes A,time,ped using OF. If iterations are required, the Iterator method is used
     double compute(int ros, int drawer, int channel, int gain, double &pedestal, double &amplitude, double &time, double& phase);
     //!< Gets the BCID index within the train

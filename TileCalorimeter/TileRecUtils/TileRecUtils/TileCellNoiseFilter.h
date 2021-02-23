@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////
@@ -72,7 +72,8 @@ class TileCellNoiseFilter: public extends<AthAlgTool, ICaloCellMakerTool> {
 
     // calculate common-mode for all the motherboards
     int calcCM(const CaloNoise* caloNoise,
-               const CaloCellContainer *cellcoll, cmdata_t& commonMode) const;
+               const CaloCellContainer *cellcoll, cmdata_t& commonMode,
+               const EventContext& ctx) const;
 
     // derive a value of common-mode shift
     float getCMShift(const cmdata_t& commonMode,

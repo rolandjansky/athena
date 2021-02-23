@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -309,6 +309,8 @@ StatusCode TileDigiNoiseMonTool::updateSummaryHistograms() {
 
   ATH_MSG_DEBUG( "in updateSummaryHistograms()" );
 
+  const EventContext &ctx = Gaudi::Hive::currentContext();
+
   for (unsigned int ros = 1; ros < TileCalibUtils::MAX_ROS; ++ros) {
     for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer) {
       unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
@@ -326,7 +328,7 @@ StatusCode TileDigiNoiseMonTool::updateSummaryHistograms() {
           if (n_rms_events > 0) {
             hi_rms = m_sumRms1[ros][drawer][channel][adc] / n_rms_events;
           } else if ( m_fillEmtyFromDB && !(m_tileBadChanTool->getAdcStatus(drawerIdx, channel, adc).isBad()) ) {
-            hi_rms = m_tileToolNoiseSample->getHfn(drawerIdx, channel, adc);
+            hi_rms = m_tileToolNoiseSample->getHfn(drawerIdx, channel, adc, TileRawChannelUnit::ADCcounts, ctx);
           }
 
           if (n_ped_events > 1) {
@@ -337,12 +339,12 @@ StatusCode TileDigiNoiseMonTool::updateSummaryHistograms() {
             pedestal_error = pedestal_rms / std::sqrt(n_ped_events);
 
             if(m_fillPedestalDifference) {
-              if (!isDisconnected(ros, drawer, channel)) pedestal -= m_tileToolNoiseSample->getPed(drawerIdx, channel, adc);
+              if (!isDisconnected(ros, drawer, channel)) pedestal -= m_tileToolNoiseSample->getPed(drawerIdx, channel, adc, TileRawChannelUnit::ADCcounts, ctx);
               else pedestal = 0.0;
             }
 
           } else if ( m_fillEmtyFromDB && !(m_tileBadChanTool->getAdcStatus(drawerIdx, channel, adc).isBad()) ) {
-            pedestal_rms = m_tileToolNoiseSample->getLfn(drawerIdx, channel, adc);
+            pedestal_rms = m_tileToolNoiseSample->getLfn(drawerIdx, channel, adc, TileRawChannelUnit::ADCcounts, ctx);
           }
 
 

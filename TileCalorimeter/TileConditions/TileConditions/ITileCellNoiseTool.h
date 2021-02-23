@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_ITILECELLNOISETOOL_H
 #define TILECONDITIONS_ITILECELLNOISETOOL_H
 
 #include "GaudiKernel/IAlgTool.h"
+#include "GaudiKernel/EventContext.h"
 #include "Identifier/Identifier.h"
 #include "CaloIdentifier/CaloGain.h"
 
@@ -17,7 +18,9 @@ class ITileCellNoiseTool : virtual public IAlgTool {
 
   virtual ~ITileCellNoiseTool() {}
 
-  virtual float getCellNoise(const Identifier& cell_id, CaloGain::CaloGain caloGain) const = 0;
+  virtual float getCellNoise(const Identifier& cell_id,
+                             CaloGain::CaloGain caloGain,
+                             const EventContext& ctx) const = 0;
 
   DeclareInterfaceID(ITileCellNoiseTool, 1, 0);
 };

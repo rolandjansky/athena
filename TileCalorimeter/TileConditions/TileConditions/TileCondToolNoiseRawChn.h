@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_TILECONDTOOLNOISERAWCHN_H
@@ -30,15 +30,15 @@ class TileCondToolNoiseRawChn: public AthAlgTool
     virtual StatusCode finalize() override;
 
     float getElectronicNoise(unsigned int drawerIdx, unsigned int channel, unsigned int adc,
-                             TileRawChannelUnit::UNIT unit = TileRawChannelUnit::ADCcounts) const;
+                             TileRawChannelUnit::UNIT unit, const EventContext &ctx) const;
 
-    float getPileUpNoise(unsigned int drawerIdx, unsigned int channel, unsigned int adc) const;
+    float getPileUpNoise(unsigned int drawerIdx, unsigned int channel, unsigned int adc, const EventContext &ctx) const;
 
     virtual
     float getNoise(unsigned int drawerIdx, unsigned int channel, unsigned int adc,
-                   TileRawChannelUnit::UNIT unit = TileRawChannelUnit::ADCcounts) const override
+                   TileRawChannelUnit::UNIT unit, const EventContext &ctx) const override
     {
-      return getElectronicNoise(drawerIdx, channel, adc, unit);
+      return getElectronicNoise(drawerIdx, channel, adc, unit, ctx);
     }
 
   private:
