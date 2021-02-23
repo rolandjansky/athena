@@ -11,9 +11,11 @@
 
 // Framework includes
 #include "AsgTools/AsgTool.h"
+#include "AsgTools/CurrentContext.h"
 #include "AthLinks/ElementLink.h"
 #include "AsgDataHandles/ReadHandleKey.h"
 #include "AsgDataHandles/ReadDecorHandleKey.h"
+#include "AsgDataHandles/ReadDecorHandle.h"
 
 // EDM includes
 #include "xAODEventInfo/EventInfo.h"
@@ -57,9 +59,12 @@ namespace CP {
 
     /// @name Public helper class for applying the difference TTVA WPs
 
+    typedef SG::ReadDecorHandle<xAOD::TrackParticleContainer, std::vector<ElementLink<xAOD::VertexContainer>>> AMVFVerticesRDH;
+    typedef SG::ReadDecorHandle<xAOD::TrackParticleContainer, std::vector<float>> AMVFWeightsRDH;
     class WorkingPoint {
     public:
-      virtual bool apply(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx, const xAOD::EventInfo* evt) const = 0;
+      virtual bool apply(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx, const xAOD::EventInfo* evt,
+        const AMVFVerticesRDH& vtxDeco, const AMVFWeightsRDH& wgtDeco) const = 0;
     };
 
     /// @}
@@ -123,6 +128,15 @@ namespace CP {
     /// The decoration name of the ElementLink to the hardscatter vertex (found on xAOD::EventInfo)
     std::string m_hardScatterDeco;
 
+    /// xAOD::TrackParticleContaier name (for building the accessors below)
+    std::string m_trkContName;
+
+    /// AMVF vertices decoration name
+    std::string m_vtxDecoName;
+
+    /// AMVF weights decoration name
+    std::string m_wgtDecoName;
+
     /// @}
 
   private:
@@ -132,6 +146,12 @@ namespace CP {
 
     /// EventInfo key
     SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo {this, "EventInfo", "EventInfo", "EventInfo key"};
+
+    /// AMVF vertices decoration key
+    SG::ReadDecorHandleKey<xAOD::TrackParticleContainer> m_vtxDecoKey;
+
+    /// AMVF weights decoration key
+    SG::ReadDecorHandleKey<xAOD::TrackParticleContainer> m_wgtDecoKey;
 
     /// Hardscatter vertex link key
     SG::ReadDecorHandleKey<xAOD::EventInfo> m_hardScatterDecoKey;
