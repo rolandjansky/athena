@@ -6,7 +6,7 @@
 #********************************************************************
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob, DerivationFrameworkIsMonteCarlo
-from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets, addSoftDropJets, addTrimmedJets
+from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets, addStandardVRTrackJets, addSoftDropJets, addTrimmedJets
 from JetJvtEfficiency.JetJvtEfficiencyToolConfig import (getJvtEffTool, getJvtEffToolName)
 
 from AthenaCommon import CfgMgr
@@ -32,12 +32,12 @@ def nameJetsFromAlg(alg):
 # Jet helpers for large-radius groomed jets
 ##################################################################
 
-def addDefaultTrimmedJets(sequence,outputlist,dotruth=True,writeUngroomed=False):
+def addDefaultTrimmedJets(sequence,outputlist,dotruth=True,writeUngroomed=False,linkVRGhosts=False):
     if DerivationFrameworkIsMonteCarlo and dotruth:
         addTrimmedJets('AntiKt', 1.0, 'Truth', rclus=0.2, ptfrac=0.05, mods="truth_groomed",
                        algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
     addTrimmedJets('AntiKt', 1.0, 'LCTopo', rclus=0.2, ptfrac=0.05, mods="lctopo_groomed",
-                   algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
+                   algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed, includeVRGhosts=linkVRGhosts)
 
 def addTCCTrimmedJets(sequence,outputlist,dotruth=True,writeUngroomed=False):
     addTrimmedJets('AntiKt', 1.0, 'TrackCaloCluster', rclus=0.2, ptfrac=0.05, mods="tcc_groomed",
@@ -99,6 +99,9 @@ def addAntiKt4PV0TrackJets(sequence, outputlist):
 def addAntiKt10PV0TrackJets(sequence, outputlist):
     addStandardJets("AntiKt", 1.0, "PV0Track", ptmin=2000, ptminFilter=40000, mods="track_ungroomed", algseq=sequence, outputGroup=outputlist)
 
+def addAntiKtVR30Rmax4Rmin02PV0TrackJets(sequence, outputlist):
+    addStandardVRTrackJets("AntiKt", 30000, 0.4, 0.02, "PV0Track", ptmin=4000, algseq=sequence, outputGroup=outputlist)
+
 def addAntiKt2TruthJets(sequence,outputlist):
     if DerivationFrameworkIsMonteCarlo:
         addStandardJets("AntiKt", 0.2, "Truth", ptmin=5000, mods="truth_ungroomed", algseq=sequence, outputGroup=outputlist)
@@ -153,6 +156,9 @@ def replaceAODReducedJets(jetlist,sequence,outputlist):
         addAntiKt2LCTopoJets(sequence,outputlist)  # noqa: F821 (FIXME, does not exist)
     if "AntiKt10LCTopoJets" in jetlist:
         addAntiKt10LCTopoJets(sequence,outputlist)
+    if "AntiKtVR30Rmax4Rmin02PV0TrackJets" in jetlist:
+        addAntiKtVR30Rmax4Rmin02PV0TrackJets(sequence,outputlist)
+
 
 ##################################################################
 # Jet helpers for adding low-pt jets needed for calibration 

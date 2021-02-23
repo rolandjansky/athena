@@ -184,15 +184,20 @@ thinningTools.append(PHYSDiTauTPThinningTool)
 # JET/MET   
 #====================================================================
 
-OutputJets["PHYS"] = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
-reducedJetList = ["AntiKt2PV0TrackJets","AntiKt4PV0TrackJets"]
+# TODO: UFO jets to be added in the future
+largeRJetCollections = [
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" #, "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets"
+]
+
+OutputJets["PHYS"] = largeRJetCollections
+reducedJetList = ["AntiKt2PV0TrackJets","AntiKt4PV0TrackJets", "AntiKtVR30Rmax4Rmin02PV0TrackJets"]
 
 if (DerivationFrameworkIsMonteCarlo):
    OutputJets["PHYS"].append("AntiKt10TruthTrimmedPtFrac5SmallR20Jets")
 
 replaceAODReducedJets(reducedJetList,SeqPHYS,"PHYS")
 add_largeR_truth_jets = DerivationFrameworkIsMonteCarlo and not hasattr(SeqPHYS,'jetalgAntiKt10TruthTrimmedPtFrac5SmallR20')
-addDefaultTrimmedJets(SeqPHYS,"PHYS",dotruth=add_largeR_truth_jets)
+addDefaultTrimmedJets(SeqPHYS,"PHYS",dotruth=add_largeR_truth_jets, linkVRGhosts=True)
 
 # Add large-R jet truth labeling
 if (DerivationFrameworkIsMonteCarlo):
@@ -296,7 +301,7 @@ PHYSSlimmingHelper.SmartCollections = ["Electrons",
                                        "DiTauJets",
                                        "DiTauJetsLowPt",
                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-                                       #"AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
+                                       "AntiKtVR30Rmax4Rmin02PV0TrackJets",
                                        #"BTagging_AntiKtVR30Rmax4Rmin02Track_201903"
                                       ]
 

@@ -98,6 +98,7 @@ if jtm.haveParticleJetTools:
   from ParticleJetTools.ParticleJetToolsConf import Analysis__JetPartonTruthLabel
   from ParticleJetTools.ParticleJetToolsConf import CopyTruthJetParticles
   from ParticleJetTools.ParticleJetToolsConf import ParticleJetDeltaRLabelTool
+  from ParticleJetTools.ParticleJetToolsConf import ParticleJetGhostLabelTool
 
 
 #--------------------------------------------------------------
@@ -404,6 +405,15 @@ jtm += PseudoJetAlgorithm(
   SkipNegativeEnergy = True,
 )
 
+# Standard VR track jets.
+jtm += PseudoJetAlgorithm(
+  "gvrtrackget", # give a unique name
+  InputContainer = jetFlags.containerNamePrefix() + "AntiKtVR30Rmax4Rmin02PV0TrackJets", # SG key
+  Label = "GhostVR30Rmax4Rmin02PV0TrackJet",   # this is the name you'll use to retrieve associated ghosts
+  OutputContainer = "PseudoJetGhostVR30Rmax4Rmin02PV0TrackJet",
+  SkipNegativeEnergy = True,
+)
+
 # Truth.
 if jetFlags.useTruth and jtm.haveParticleJetTools:
   jtm += PseudoJetAlgorithm(
@@ -487,6 +497,16 @@ if jetFlags.useTruth and jtm.haveParticleJetTools:
     JetPtMin = 4500.0,
     DRMax = 0.3,
     MatchMode = "MinDR"
+  )
+
+  jtm += ParticleJetGhostLabelTool(
+    "ghostlabeler",
+    LabelName = "HadronGhostTruthLabelID",
+    DoubleLabelName = "HadronGhostExtendedTruthLabelID",
+    GhostBName = "GhostBHadronsFinal",
+    GhostCName = "GhostCHadronsFinal",
+    GhostTauName = "GhostTausFinal",
+    PartPtMin = 5000.0
   )
 
 #--------------------------------------------------------------
