@@ -80,40 +80,6 @@ void TauAnalysisTools::split(TEnv& rEnv, const std::string& sKey, const char cDe
   while (std::getline(sSS, sItem, cDelim))
     vOut.push_back(stod(sItem));
 }
-
-//______________________________________________________________________________
-double TauAnalysisTools::caloTauPt(const xAOD::TauJet& xTau)
-{
-  // return calo based tau pt in GeV
-  return xTau.auxdata<float>("ptTauEtaCalib")/1000.;
-}
-
-//______________________________________________________________________________
-double TauAnalysisTools::caloTauEta(const xAOD::TauJet& xTau)
-{
-  // return calo based tau eta
-  return xTau.auxdata<float>("etaTauEtaCalib");
-}
-
-//______________________________________________________________________________
-double TauAnalysisTools::caloTauAbsEta(const xAOD::TauJet& xTau)
-{
-  // return calo based absolute tau eta
-  return std::abs(xTau.auxdata<float>("etaTauEtaCalib"));
-}
-
-//______________________________________________________________________________
-double TauAnalysisTools::caloTauP(const xAOD::TauJet& xTau)
-{
-  TLorentzVector tlv;
-  tlv.SetPtEtaPhiM( xTau.auxdata<float>("ptTauEtaCalib"),
-                    xTau.auxdata<float>("etaTauEtaCalib"),
-                    xTau.auxdata<float>("phiTauEtaCalib"),
-                    xTau.auxdata<float>("mTauEtaCalib") );
-  // return tau P in GeV
-  return tlv.P()/1000.;
-}
-
 //______________________________________________________________________________
 double TauAnalysisTools::tauPt(const xAOD::TauJet& xTau)
 {
@@ -173,7 +139,7 @@ double TauAnalysisTools::finalTauP(const xAOD::TauJet& xTau)
 //______________________________________________________________________________
 double TauAnalysisTools::tauLeadTrackEta(const xAOD::TauJet& xTau)
 {
-  // return lead tau track eta
+  // return leading charge tau track eta
   double dTrackEta = 0;
   double dTrackMaxPt = 0;
   for( unsigned int iNumTrack = 0; iNumTrack < xTau.nTracks(); iNumTrack++)
@@ -645,9 +611,6 @@ e_TruthMatchedParticleType TauAnalysisTools::getTruthParticleType(const xAOD::Ta
   return Unknown;
 }
 
-//______________________________________________________________________________
-// Migrate DiTau tools pending in R22
-/*
 e_TruthMatchedParticleType TauAnalysisTools::getTruthParticleType(const xAOD::DiTauJet& xDiTau)
 {
   if (!xDiTau.isAvailable<char>("IsTruthHadronic"))
@@ -661,7 +624,6 @@ e_TruthMatchedParticleType TauAnalysisTools::getTruthParticleType(const xAOD::Di
 
   return eTruthMatchedParticleType;
 }
-*/
 // This double is needed to save the average/actual mu for the y-axis in CommonEfficiencyTool.
 // The new trigger systematics (from tag 00-03-14 onwards) use mu dependent values.
 // The functions average_mu() and set_mu() are also needed to support this.

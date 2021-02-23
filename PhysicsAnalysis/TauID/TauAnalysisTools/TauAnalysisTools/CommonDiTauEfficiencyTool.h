@@ -1,19 +1,18 @@
-/*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
+/**
+ * @file CommonDiTauEfficiencyTool.h
+ * @author David Kirchmeier
+ * @author Guillermo Hamity (ghamity@cern.ch)
+ * @brief 
+ * @date 2021-02-18
+ * 
+ * @copyright Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ * 
+ */
+
 
 #ifndef TAUANALYSISTOOLS_COMMONDITAUEFFICIENCYTOOL_H
 #define TAUANALYSISTOOLS_COMMONDITAUEFFICIENCYTOOL_H
 
-/*
-  author: David Kirchmeier
-  mail: david.kirchmeier@cern.ch
-  documentation in: ../README.rst
-                    or
-                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-<tag>/README.rst
-        or
-                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/README.rst
-*/
 
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
@@ -30,9 +29,12 @@
 
 namespace TauAnalysisTools
 {
-
-double DiTauPt(const xAOD::DiTauJet& xDiTau);
-double DiTauEta(const xAOD::DiTauJet& xDiTau);
+/** return the truth vis pT of the leading pT matched particle.*/
+double TruthLeadPt(const xAOD::DiTauJet& xDiTau);
+/** return the truth vis pT of the subleading pT matched particle.*/
+double TruthSubleadPt(const xAOD::DiTauJet& xDiTau);
+/** return the dR of between the leading and subleading pT matched particle.*/
+double TruthDeltaR(const xAOD::DiTauJet& xDiTau);
 
 class CommonDiTauEfficiencyTool
   : public CommonEfficiencyTool
@@ -47,26 +49,63 @@ public:
 
   ~CommonDiTauEfficiencyTool();
 
+  virtual StatusCode initialize() override;
+
   // next two lines are needed to achieve overloading of those methods 
   using CommonEfficiencyTool::getEfficiencyScaleFactor;
   using CommonEfficiencyTool::applyEfficiencyScaleFactor;
-  virtual CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::DiTauJet& xDiTau, double& dEfficiencyScaleFactor);
-  virtual CP::CorrectionCode applyEfficiencyScaleFactor(const xAOD::DiTauJet& xDiTau);
 
-  double (*m_fDiX)(const xAOD::DiTauJet& xDiTau);
-  double (*m_fDiY)(const xAOD::DiTauJet& xDiTau);
+  /**
+   * @brief Get the Efficiency Scale Factor of ditau jet
+   * 
+   * @param xDiTau : reco DiTauJet
+   * @param dEfficiencyScaleFactor : reference to output variable where efficiency is returned
+   * @param iRunNumber : run number
+   * @param iMu : number of interactions
+   * @return CP::CorrectionCode 
+   */
+  virtual CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::DiTauJet& xDiTau, double& dEfficiencyScaleFactor, 
+    unsigned int iRunNumber = 0, unsigned int iMu = 0 ) override;
 
-  void ReadInputs(TFile* fFile);
+  /**
+   * @brief Get the Efficiency Scale Factor of ditau jet
+   * 
+   * @param xDiTau 
+   * @param iRunNumber 
+   * @param iMu 
+   * @return CP::CorrectionCode 
+   */
+  virtual CP::CorrectionCode applyEfficiencyScaleFactor(const xAOD::DiTauJet& xDiTau,
+    unsigned int iRunNumber = 0, unsigned int iMu = 0 ) override;
+
+  /** scale factor bin x (e.g. lead match pT)*/
+  double (*m_fX)(const xAOD::DiTauJet& xDiTau);
+  /** scale factor bin y (e.g. sublead match pT)*/
+  double (*m_fY)(const xAOD::DiTauJet& xDiTau);
+  /** scale factor bin z (e.g. dR match particles)*/
+  double (*m_fZ)(const xAOD::DiTauJet& xDiTau);
+
+  void ReadInputs(std::unique_ptr<TFile> &fFile);
 
   using CommonEfficiencyTool::getValue;
-  virtual CP::CorrectionCode getValue(const std::string& sHistName,
-                                      const xAOD::DiTauJet& xDiTau,
-                                      double& dEfficiencyScaleFactor) const;
+  /**
+   * @brief Get the scale factor from a particular recommendations histogram.
+   * 
+   * @param sHistName 
+   * @param xDiTau 
+   * @param dEfficiencyScaleFactor 
+   * @return CP::CorrectionCode 
+   */
+  CP::CorrectionCode getValue(const std::string& sHistName,
+                              const xAOD::DiTauJet& xDiTau,
+                              double& dEfficiencyScaleFactor) const;
 
-  e_TruthMatchedParticleType checkTruthMatch(const xAOD::DiTauJet& xDiTau) const;
-
-  bool m_bDiSFIsAvailable;
-  bool m_bDiSFIsAvailableChecked;
+  /** generate a set of relevant systematic variations to be applied*/
+  void generateSystematicSets();
+  /** true if scale factor name is already decorated*/ 
+  bool m_bSFIsAvailable;
+  /** true if cale factor name is already decorated has already been checked*/
+  bool m_bSFIsAvailableChecked;
 
 };
 } // namespace TauAnalysisTools

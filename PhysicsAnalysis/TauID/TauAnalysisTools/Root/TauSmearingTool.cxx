@@ -9,7 +9,6 @@
 // Local include(s):
 #include "TauAnalysisTools/TauSmearingTool.h"
 #include "TauAnalysisTools/SharedFilesVersion.h"
-#include "TauAnalysisTools/TauSmearingRun1Tool.h"
 
 #include <boost/algorithm/string.hpp>
 
