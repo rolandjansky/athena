@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -20,7 +20,7 @@
 
 using namespace pool;
 
-RootCallEnv::RootCallEnv( RootDataPtr object, const DbTypeInfo *typ )
+RootCallEnv::RootCallEnv( const RootDataPtr& object, const DbTypeInfo *typ )
       : m_object( object ), m_objType( typ )
 {}
 

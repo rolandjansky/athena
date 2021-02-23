@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -1041,7 +1041,7 @@ DbStatus RootTreeContainer::getOption(DbOption& opt)  const  {
     else if ( !strcasecmp(n,"TREE") )  {
       return opt._setValue((void*)m_tree);
     }
-    else if ( ::toupper(n[0]=='T') && opt.name().length() > 6 ) {
+    else if ( ::toupper(n[0])=='T' && opt.name().length() > 6 ) {
       switch(::toupper(n[5]))   {
       case 'B':
         if ( !strcasecmp(n+5,"BRANCH_IDX") )  {
