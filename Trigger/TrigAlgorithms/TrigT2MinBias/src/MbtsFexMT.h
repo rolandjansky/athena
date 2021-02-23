@@ -11,7 +11,6 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #include "xAODTrigMinBias/TrigT2MbtsBitsAuxContainer.h"
 #include "xAODTrigMinBias/TrigT2MbtsBitsContainer.h"
 #include "TileIdentifier/TileTBID.h"
-#include "xAODEventInfo/EventInfo.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
