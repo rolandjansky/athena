@@ -166,6 +166,22 @@ class TrigInDetAna(ExecStep):
         self.imf=False
         if (lrt):
             self.args = ' -c "LRT=True" '
+
+##################################################
+# Additional exec (athena) steps - RDO to CostMonitoring
+##################################################
+
+class TrigCostStep(Step):
+    def __init__(self, name='TrigCostStep'):
+        super(TrigCostStep, self).__init__(name)
+        self.required = True
+        self.depends_on_previous = False
+        self.input = 'tmp.RDO_TRIG'
+        self.args = ' --MCCrossSection=0.5 Input.Files=\'["tmp.RDO_TRIG"]\' '
+        self.executable = 'RunTrigCostAnalysis.py'
+
+
+
 ##################################################
 # Additional post-processing steps
 ##################################################
@@ -249,33 +265,28 @@ class TrigInDetCompStep(RefComparisonStep):
         Step.configure(self, test)
 
 
+
+
 class TrigInDetCpuCostStep(RefComparisonStep):
     '''
-    Execute TIDAcpucost for expert-monitoring.root files.
+    Execute TIDAcpucost for data.root files.
     '''
-    def __init__(self, name='TrigInDetCpuCost', ftf_times=True):
+    def __init__( self, name='TrigInDetCpuCost', outdir=None, infile=None, extra=None ):
         super(TrigInDetCpuCostStep, self).__init__(name)
-        self.input_file = 'expert-monitoring.root'
-##      self.ref_file = 'expert-monitoring.root'   #### need to add reference file here 
-        self.output_dir = 'times'
-        self.args = '--auto '
+
+        self.input_file = infile
+        self.output_dir = outdir
         self.auto_report_result = True
-        self.required = True
+        self.required   = True
+        self.extra = extra
         self.executable = 'TIDAcpucost'
-
-        if ftf_times:
-            self.args += ' -d TrigFastTrackFinder_'
-            self.output_dir = 'times-FTF'
     
+
     def configure(self, test):
-        #self.args += self.input_file+' '+self.ref_file+' '+' -o '+self.output_dir
-        if (self.reference is None):
-            ## if not reference found, run with "--noref" option
-            self.args += ' {} --noref -o {} -p TIME'.format(self.input_file,self.output_dir)
+        RefComparisonStep.configure(self, test)
+        if self.reference is None :
+            self.args  = self.input_file + " -o " + self.output_dir + " " + self.extra + "--noref"
         else:
-            self.args += ' {} {} -o {} -p TIME'.format(self.input_file,self.reference,self.output_dir)
-
-        print( "TIDAcpucost " + self.args )    
-
-        super(TrigInDetCpuCostStep, self).configure(test)
+            self.args  = self.input_file + " " + self.reference + " -o " + self.output_dir + " " + self.extra
+        Step.configure(self, test)
 
