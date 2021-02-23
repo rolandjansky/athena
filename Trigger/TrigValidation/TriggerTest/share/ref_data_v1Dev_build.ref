@@ -3037,6 +3037,102 @@ HLT_xe65_cell_L1XE50:
   eventCount: 0
 HLT_xe65_cell_xe110_tcpufit_L1XE50:
   eventCount: 0
+HLT_xe80_tcpufit_unconvtrk120_isohpttrack_loose_iaggrloose_L1XE50:
+  eventCount: 0
+  stepCounts:
+    0: 1
+    1: 1
+  stepFeatures:
+    0: 1
+    1: 1
+HLT_xe80_tcpufit_unconvtrk120_isohpttrack_loose_iaggrmedium_L1XE50:
+  eventCount: 0
+  stepCounts:
+    0: 1
+    1: 1
+  stepFeatures:
+    0: 1
+    1: 1
+HLT_xe80_tcpufit_unconvtrk120_isohpttrack_loose_iloose_L1XE50:
+  eventCount: 0
+  stepCounts:
+    0: 1
+    1: 1
+  stepFeatures:
+    0: 1
+    1: 1
+HLT_xe80_tcpufit_unconvtrk120_isohpttrack_loose_imedium_L1XE50:
+  eventCount: 0
+  stepCounts:
+    0: 1
+    1: 1
+  stepFeatures:
+    0: 1
+    1: 1
+HLT_xe80_tcpufit_unconvtrk120_isohpttrack_medium_iaggrloose_L1XE50:
+  eventCount: 0
+  stepCounts:
+    0: 1
+    1: 1
+  stepFeatures:
+    0: 1
+    1: 1
+HLT_xe80_tcpufit_unconvtrk120_isohpttrack_medium_iaggrmedium_L1XE50:
+  eventCount: 0
+  stepCounts:
+    0: 1
+    1: 1
+  stepFeatures:
+    0: 1
+    1: 1
+HLT_xe80_tcpufit_unconvtrk120_isohpttrack_medium_iloose_L1XE50:
+  eventCount: 0
+  stepCounts:
+    0: 1
+    1: 1
+  stepFeatures:
+    0: 1
+    1: 1
+HLT_xe80_tcpufit_unconvtrk120_isohpttrack_medium_imedium_L1XE50:
+  eventCount: 0
+  stepCounts:
+    0: 1
+    1: 1
+  stepFeatures:
+    0: 1
+    1: 1
+HLT_xe80_tcpufit_unconvtrk120_isohpttrack_tight_iaggrloose_L1XE50:
+  eventCount: 0
+  stepCounts:
+    0: 1
+    1: 1
+  stepFeatures:
+    0: 1
+    1: 1
+HLT_xe80_tcpufit_unconvtrk120_isohpttrack_tight_iaggrmedium_L1XE50:
+  eventCount: 0
+  stepCounts:
+    0: 1
+    1: 1
+  stepFeatures:
+    0: 1
+    1: 1
+HLT_xe80_tcpufit_unconvtrk120_isohpttrack_tight_iloose_L1XE50:
+  eventCount: 0
+  stepCounts:
+    0: 1
+    1: 1
+  stepFeatures:
+    0: 1
+    1: 1
+HLT_xe80_tcpufit_unconvtrk120_isohpttrack_tight_imedium_L1XE50:
+  eventCount: 0
+  stepCounts:
+    0: 1
+    1: 1
+  stepFeatures:
+    0: 1
+    1: 1
 HLT_xe95_trkmht_xe90_tcpufit_xe75_cell_L1XE50:
   eventCount: 0
   stepFeatures:
