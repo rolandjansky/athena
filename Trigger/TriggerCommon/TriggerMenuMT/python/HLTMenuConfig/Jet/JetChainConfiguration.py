@@ -110,7 +110,8 @@ class JetChainConfiguration(ChainConfigurationBase):
                                                      ConfigFlags, isPerf=self.isPerf, **self.recoDict )
         jetCollectionName = str(jetSeq.hypo.Alg.Jets)
 
-        return jetCollectionName, jetDef ,ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
+        from TrigGenericAlgs.TrigGenericAlgsConfig import PassthroughComboHypoCfg
+        return jetCollectionName, jetDef ,ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict], comboHypoCfg=PassthroughComboHypoCfg)
 
     def getJetTrackingHypoChainStep(self, clustersKey):
         jetDefStr = jetRecoDictToString(self.recoDict)
@@ -122,8 +123,8 @@ class JetChainConfiguration(ChainConfigurationBase):
                                                      ConfigFlags, clustersKey=clustersKey,
                                                      isPerf=self.isPerf, **self.recoDict )
         jetCollectionName = str(jetSeq.hypo.Alg.Jets)
-
-        return jetCollectionName, jetDef, ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
+        from TrigGenericAlgs.TrigGenericAlgsConfig import PassthroughComboHypoCfg
+        return jetCollectionName, jetDef, ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict], comboHypoCfg=PassthroughComboHypoCfg)
 
     def getJetCaloRecoChainStep(self):
         stepName = "CaloRecoPTStep_jet_"+self.recoDict["clusterCalib"]
@@ -132,7 +133,8 @@ class JetChainConfiguration(ChainConfigurationBase):
         jetSeq, clustersKey = RecoFragmentsPool.retrieve( jetCaloRecoMenuSequence,
                                                           ConfigFlags, clusterCalib=self.recoDict["clusterCalib"] )
 
-        return str(clustersKey), ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
+        from TrigGenericAlgs.TrigGenericAlgsConfig import PassthroughComboHypoCfg
+        return str(clustersKey), ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict], comboHypoCfg=PassthroughComboHypoCfg)
 
     def getJetCaloPreselChainStep(self):
         # Define a fixed preselection dictionary for prototyping -- we may expand the options
@@ -185,14 +187,16 @@ class JetChainConfiguration(ChainConfigurationBase):
         jetSeq, jetDef, clustersKey = RecoFragmentsPool.retrieve( jetCaloPreselMenuSequence,
                                                                   ConfigFlags, **preselRecoDict )
 
-        return str(clustersKey), ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[preselChainDict])
+        from TrigGenericAlgs.TrigGenericAlgsConfig import PassthroughComboHypoCfg
+        return str(clustersKey), ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[preselChainDict], comboHypoCfg=PassthroughComboHypoCfg)
 
     def getJetTLAChainStep(self, jetCollectionName):
         from TriggerMenuMT.HLTMenuConfig.Jet.JetTLASequences import jetTLAMenuSequence
 
         stepName = "TLAStep_"+jetCollectionName
         jetSeq = RecoFragmentsPool.retrieve( jetTLAMenuSequence, jetCollectionName )
-        chainStep = ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
+        from TrigGenericAlgs.TrigGenericAlgsConfig import PassthroughComboHypoCfg
+        chainStep = ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict], comboHypoCfg=PassthroughComboHypoCfg)
 
         return chainStep
 
