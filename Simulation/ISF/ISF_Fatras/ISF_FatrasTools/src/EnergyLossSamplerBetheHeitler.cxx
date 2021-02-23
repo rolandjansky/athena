@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -22,7 +22,7 @@ Trk::ParticleMasses iFatras::EnergyLossSamplerBetheHeitler::s_particleMasses;
 iFatras::EnergyLossSamplerBetheHeitler::EnergyLossSamplerBetheHeitler( const std::string& type, const std::string& name, const IInterface* parent )
   :  base_class( type, name, parent ),
      m_rndmGenSvc("AtDSFMTGenSvc", name),
-     m_randomEngine(0),
+     m_randomEngine(nullptr),
      m_randomEngineName("FatrasRnd"),
      m_scaleFactor(1.0)
 {

@@ -572,12 +572,13 @@ Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
 
     const Trk::TrackParameters* clonePars =
       (updatedPar->associatedSurface())
-        .createTrackParameters(updatedParameters[0],
-                               updatedParameters[1],
-                               updatedParameters[2],
-                               updatedParameters[3],
-                               updatedParameters[4],
-                               updatedCovariance);
+        .createUniqueTrackParameters(updatedParameters[0],
+                                     updatedParameters[1],
+                                     updatedParameters[2],
+                                     updatedParameters[3],
+                                     updatedParameters[4],
+                                     updatedCovariance)
+        .release();
     delete updatedPar;
     updatedPar = clonePars;
 

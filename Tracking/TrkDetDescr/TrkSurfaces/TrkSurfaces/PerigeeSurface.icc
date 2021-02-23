@@ -5,20 +5,6 @@
 namespace Trk {
 /** Use the Surface as a ParametersBase constructor, from local parameters -
  * charged */
-inline ParametersT<5, Charged, PerigeeSurface>*
-PerigeeSurface::createTrackParameters(double l1,
-                                      double l2,
-                                      double phi,
-                                      double theta,
-                                      double qop,
-                                      AmgSymMatrix(5) * cov) const
-{
-  return new ParametersT<5, Charged, PerigeeSurface>(
-    l1, l2, phi, theta, qop, *this, cov);
-}
-
-/** Use the Surface as a ParametersBase constructor, from local parameters -
- * charged */
 inline Surface::ChargedTrackParametersUniquePtr
 PerigeeSurface::createUniqueTrackParameters(double l1,
                                       double l2,
@@ -30,7 +16,8 @@ PerigeeSurface::createUniqueTrackParameters(double l1,
   return std::make_unique<ParametersT<5, Charged, PerigeeSurface>>(
     l1, l2, phi, theta, qop, *this, cov);
 }
-
+/** Use the Surface as a ParametersBase constructor, from global parameters -
+ * charged*/
 inline Surface::ChargedTrackParametersUniquePtr
 PerigeeSurface::createUniqueTrackParameters(const Amg::Vector3D& position,
                                       const Amg::Vector3D& momentum,
@@ -41,18 +28,6 @@ PerigeeSurface::createUniqueTrackParameters(const Amg::Vector3D& position,
     position, momentum, charge, *this, cov);
 }
 
-
-/** Use the Surface as a ParametersBase constructor, from global parameters -
- * charged*/
-inline ParametersT<5, Charged, PerigeeSurface>*
-PerigeeSurface::createTrackParameters(const Amg::Vector3D& position,
-                                      const Amg::Vector3D& momentum,
-                                      double charge,
-                                      AmgSymMatrix(5) * cov) const
-{
-  return new ParametersT<5, Charged, PerigeeSurface>(
-    position, momentum, charge, *this, cov);
-}
 
 /** Use the Surface as a ParametersBase constructor, from local parameters -
  * neutral */

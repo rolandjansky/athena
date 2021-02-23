@@ -12,20 +12,6 @@ StraightLineSurface::type() const
 
 /** Use the Surface as a ParametersBase constructor, from local parameters -
  * charged */
-inline ParametersT<5, Charged, StraightLineSurface>*
-StraightLineSurface::createTrackParameters(double l1,
-                                           double l2,
-                                           double phi,
-                                           double theta,
-                                           double qop,
-                                           AmgSymMatrix(5) * cov) const
-{
-  return new ParametersT<5, Charged, StraightLineSurface>(
-    l1, l2, phi, theta, qop, *this, cov);
-}
-
-/** Use the Surface as a ParametersBase constructor, from local parameters -
- * charged */
 inline Surface::ChargedTrackParametersUniquePtr
 StraightLineSurface::createUniqueTrackParameters(double l1,
                                            double l2,
@@ -37,7 +23,8 @@ StraightLineSurface::createUniqueTrackParameters(double l1,
   return std::make_unique<ParametersT<5, Charged, StraightLineSurface>>(
     l1, l2, phi, theta, qop, *this, cov);
 }
-
+/** Use the Surface as a ParametersBase constructor, from global parameters -
+ * charged*/
 inline Surface::ChargedTrackParametersUniquePtr
 StraightLineSurface::createUniqueTrackParameters(const Amg::Vector3D& position,
                                            const Amg::Vector3D& momentum,
@@ -45,18 +32,6 @@ StraightLineSurface::createUniqueTrackParameters(const Amg::Vector3D& position,
                                            AmgSymMatrix(5) * cov) const
 {
   return std::make_unique<ParametersT<5, Charged, StraightLineSurface>>(
-    position, momentum, charge, *this, cov);
-}
-
-/** Use the Surface as a ParametersBase constructor, from global parameters -
- * charged*/
-inline ParametersT<5, Charged, StraightLineSurface>*
-StraightLineSurface::createTrackParameters(const Amg::Vector3D& position,
-                                           const Amg::Vector3D& momentum,
-                                           double charge,
-                                           AmgSymMatrix(5) * cov) const
-{
-  return new ParametersT<5, Charged, StraightLineSurface>(
     position, momentum, charge, *this, cov);
 }
 

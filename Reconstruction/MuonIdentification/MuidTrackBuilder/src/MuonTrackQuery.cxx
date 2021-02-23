@@ -392,8 +392,7 @@ MuonTrackQuery::isCombined(const Trk::Track& track) const
         }
     }
 
-    if (indet && spectrometer) return true;
-    return false;
+    return indet && spectrometer;
 }
 
 
@@ -463,8 +462,7 @@ MuonTrackQuery::isExtrapolated(const Trk::Track& track) const
         }
     }
 
-    if (!indet && spectrometer) return true;
-    return false;
+    return !indet && spectrometer;
 }
 
 
@@ -905,7 +903,7 @@ MuonTrackQuery::spectrometerParameters(const Trk::Track& track) const
 
     DataVector<const Trk::TrackStateOnSurface>::const_iterator s = track.trackStateOnSurfaces()->begin();
     for (; s != track.trackStateOnSurfaces()->end(); ++s) {
-        const auto pThisTrackState = *s;
+        const auto *const pThisTrackState = *s;
         if (!pThisTrackState->measurementOnTrack() || pThisTrackState->type(Trk::TrackStateOnSurface::Outlier) || !pThisTrackState->trackParameters()
             || dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(pThisTrackState->measurementOnTrack())
             || calorimeterVolume->inside(pThisTrackState->trackParameters()->position()))

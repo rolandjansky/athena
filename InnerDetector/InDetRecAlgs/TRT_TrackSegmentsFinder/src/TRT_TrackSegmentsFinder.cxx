@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -41,7 +41,7 @@ StatusCode InDet::TRT_TrackSegmentsFinder::initialize()
   ////////////////////////////////////////////////////////////////////////////////
   ATH_CHECK( m_fieldCondObjInputKey.initialize());
   ////////////////////////////////////////////////////////////////////////////////
-  
+
   // Get output print level
   //
   if (msgLvl(MSG::DEBUG)) {
@@ -98,8 +98,8 @@ StatusCode InDet::TRT_TrackSegmentsFinder::execute(const EventContext &ctx) cons
         double y = global_pos.y();
         double z = global_pos.z();
 
-        std::unique_ptr<const Trk::TrackParameters>
-           par(PS.createTrackParameters(0.,0.,atan2(y,x), atan2(1.,z/sqrt(x*x+y*y)),0.,0));
+        std::unique_ptr<Trk::TrackParameters> par = PS.createUniqueTrackParameters(
+          0., 0., atan2(y, x), atan2(1., z / sqrt(x * x + y * y)), 0., nullptr);
 
         // Get AtlasFieldCache
         MagField::AtlasFieldCache fieldCache;
@@ -111,7 +111,7 @@ StatusCode InDet::TRT_TrackSegmentsFinder::execute(const EventContext &ctx) cons
             return StatusCode::FAILURE;
         }
         fieldCondObj->getInitializedCache (fieldCache);
-  
+
 	// TRT detector elements road builder
 	//
 	m_roadtool->detElementsRoad(ctx, fieldCache, *par, Trk::alongMomentum, DE);

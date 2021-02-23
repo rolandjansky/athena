@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 /***************************************************************************
@@ -34,7 +34,7 @@ namespace Trk
   MaterialAllocator::MaterialAllocator (const std::string& type,
                                         const std::string& name,
                                         const IInterface* parent)
-    :   AthAlgTool(type, name, parent), 
+    :   AthAlgTool(type, name, parent),
     m_aggregateMaterial(true),
     m_allowReordering(false),
     m_useStepPropagator(1),
@@ -46,11 +46,11 @@ namespace Trk
     m_sectorMaxPhi(0.28),
     m_stationMaxGap(0.6 * Gaudi::Units::meter),
     m_calorimeterVolume(nullptr),
-    m_indetVolume(nullptr),    
+    m_indetVolume(nullptr),
     m_messageHelper(nullptr) {
     m_messageHelper = std::make_unique< MessageHelper>(*this);
     declareInterface<IMaterialAllocator>(this);
-    
+
     declareProperty("AggregateMaterial", m_aggregateMaterial);
     declareProperty("AllowReordering", m_allowReordering);
 
@@ -64,7 +64,7 @@ namespace Trk
     declareProperty("MaxNumberOfWarnings", m_maxWarnings,
                     "Maximum number of permitted WARNING messages per message type.");
   }
- 
+
   StatusCode
   MaterialAllocator::initialize() {
 
@@ -110,7 +110,7 @@ namespace Trk
 
   StatusCode MaterialAllocator::finalize() {
     // summarize WARNINGs
-    m_messageHelper->printSummary();    
+    m_messageHelper->printSummary();
     return StatusCode::SUCCESS;
   }
 
@@ -392,7 +392,7 @@ namespace Trk
                                                 qOverP);
               if (newIntersectionSTEP && intersection) {
                 delete newIntersectionSTEP;
-              } 
+              }
             } else {
               intersection = m_useStepPropagator >= 1 ?
                              m_stepPropagator->intersectSurface((**r).trackParameters()->associatedSurface(),
@@ -657,7 +657,7 @@ namespace Trk
   std::vector<const TrackStateOnSurface*>*
   MaterialAllocator::leadingSpectrometerTSOS(const TrackParameters& spectrometerParameters,
                                              Garbage_t& garbage) const {
-  
+
     const Trk::TrackingVolume* spectrometerEntrance = getSpectrometerEntrance();
     if (!spectrometerEntrance) return nullptr;
     // check input parameters are really in the spectrometer
@@ -687,7 +687,7 @@ namespace Trk
                                                                                            false,
                                                                                            Trk::muon,
                                                                                            garbage));
-    
+
     if (!extrapolatedTSOS
         || extrapolatedTSOS->empty()
         || !extrapolatedTSOS->front()->trackParameters()) {
@@ -698,7 +698,7 @@ namespace Trk
                       << std::setw(10) << std::setprecision(3)
                       << spectrometerParameters.position().z()
                       << "  with p " << std::setw(8) << std::setprecision(3)
-                      << spectrometerParameters.momentum().mag() / Gaudi::Units::GeV);      
+                      << spectrometerParameters.momentum().mag() / Gaudi::Units::GeV);
       return nullptr;
     }
 
@@ -855,11 +855,14 @@ namespace Trk
     }
 
 // correct track parameters for high momentum track (otherwise Eloss is too large)
-    trackParameters = (trackParameters->associatedSurface()).createTrackParameters(parameterVector[Trk::loc1],
-                                                                                   parameterVector[Trk::loc2],
-                                                                                   parameterVector[Trk::phi],
-                                                                                   parameterVector[Trk::theta],
-                                                                                   parameterVector[Trk::qOverP], nullptr);
+    trackParameters =
+      (trackParameters->associatedSurface())
+        .createUniqueTrackParameters(parameterVector[Trk::loc1],
+                                     parameterVector[Trk::loc2],
+                                     parameterVector[Trk::phi],
+                                     parameterVector[Trk::theta],
+                                     parameterVector[Trk::qOverP],
+                                     nullptr).release();
 
     for (std::vector<Trk::FitMeasurement*>::reverse_iterator r = measurements.rbegin();
          r != measurements.rend();
@@ -2323,11 +2326,14 @@ namespace Trk
     }
 
 // correct track parameters for high momentum track (otherwise Eloss is too large)
-    endParameters.reset((endParameters->associatedSurface()).createTrackParameters(parameterVector[Trk::loc1],
-                                                                                   parameterVector[Trk::loc2],
-                                                                                   parameterVector[Trk::phi],
-                                                                                   parameterVector[Trk::theta],
-                                                                                   parameterVector[Trk::qOverP], nullptr));
+    endParameters =
+      endParameters->associatedSurface().createUniqueTrackParameters(
+        parameterVector[Trk::loc1],
+        parameterVector[Trk::loc2],
+        parameterVector[Trk::phi],
+        parameterVector[Trk::theta],
+        parameterVector[Trk::qOverP],
+        nullptr);
 
     if (entranceParameters) {
       const Surface& entranceSurface = entranceParameters->associatedSurface();

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -25,7 +25,7 @@ iFatras::McEnergyLossUpdator::McEnergyLossUpdator( const std::string& type, cons
   m_energyLossUpdator("Trk::EnergyLossUpdator/AtlasEnergyLossUpdator" ),
   m_energyLossDistribution(3),
   m_rndGenSvc("AtDSFMTGenSvc", name),
-  m_randomEngine(0),
+  m_randomEngine(nullptr),
   m_randomEngineName("FatrasRnd"),
   m_usePDGformula(false)
 {
@@ -95,7 +95,7 @@ Trk::EnergyLoss* iFatras::McEnergyLossUpdator::energyLoss(
                    bool, bool) const
 {
 
-  bool mpvSwitch = m_energyLossDistribution<2 ? false : true;
+  bool mpvSwitch = m_energyLossDistribution >= 2;
  
   // get the number of the material effects distribution
   Trk::EnergyLoss* sampledEloss = m_energyLossUpdator->energyLoss( 
@@ -108,7 +108,7 @@ Trk::EnergyLoss* iFatras::McEnergyLossUpdator::energyLoss(
 					  m_usePDGformula);     
 
 
-  if (!sampledEloss) return 0; 
+  if (!sampledEloss) return nullptr; 
 
   // smear according to preselected distribution
   switch (m_energyLossDistribution) {

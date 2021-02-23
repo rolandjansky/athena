@@ -187,18 +187,6 @@ public:
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * charged. The caller assumes ownership of the returned ptr.
    */
-  virtual ParametersBase<5, Trk::Charged>* createTrackParameters(
-    double,
-    double,
-    double,
-    double,
-    double,
-    AmgSymMatrix(5) * cov = nullptr) const = 0;
-
-
-  /** Use the Surface as a ParametersBase constructor, from local parameters -
-   * charged. The caller assumes ownership of the returned ptr.
-   */
   virtual ChargedTrackParametersUniquePtr createUniqueTrackParameters(
     double,
     double,
@@ -207,15 +195,6 @@ public:
     double,
     AmgSymMatrix(5) * cov = nullptr) const = 0;
 
-
-  /** Use the Surface as a ParametersBase constructor, from global parameters -
-   * charged  The caller assumes ownership of the returned ptr
-   */
-  virtual ParametersBase<5, Trk::Charged>* createTrackParameters(
-    const Amg::Vector3D&,
-    const Amg::Vector3D&,
-    double,
-    AmgSymMatrix(5) * cov = nullptr) const = 0;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -
    * charged  The caller assumes ownership of the returned ptr
