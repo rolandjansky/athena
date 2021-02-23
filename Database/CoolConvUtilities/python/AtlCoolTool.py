@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -368,7 +368,7 @@ class AtlCoolTool:
             i+= " ["+spec[idx].name() + " (" + typename + ") : "
             if (typename.startswith("Blob")):
                 blob=payload[idx]
-                i+= "size=%i,chk=%i" % (blob.size(),crc32(blob.read()))
+                i+= "size=%i,chk=%i" % (blob.size(),crc32(blob.read().encode()))
             else:
                 i+= str(payload[idx])
             i+="]"
