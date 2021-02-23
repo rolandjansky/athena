@@ -25,7 +25,7 @@
 #include "Acts/Geometry/DetectorElementBase.hpp"
 #include "Acts/Geometry/TrackingGeometry.hpp"
 #include "Acts/Surfaces/Surface.hpp"
-#include "Acts/Utilities/Definitions.hpp"
+#include "Acts/Definitions/Algebra.hpp"
 
 // STL
 #include <memory>

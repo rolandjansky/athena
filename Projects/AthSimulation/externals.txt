@@ -6,4 +6,4 @@
 # forbidden.
 
 # The version of atlas/atlasexternals to use:
-AthSimulationExternalsVersion = 2.0.100
+AthSimulationExternalsVersion = 2.0.101

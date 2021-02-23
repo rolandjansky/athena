@@ -7,8 +7,8 @@
 
 #include "StoreGate/ReadCondHandleKey.h"
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
-#include "Acts/Utilities/Definitions.hpp"
-#include "Acts/Utilities/Units.hpp"
+#include "Acts/Definitions/Algebra.hpp"
+#include "Acts/Definitions/Units.hpp"
 #include "Acts/MagneticField/MagneticFieldContext.hpp"
 
 class ATLASMagneticFieldWrapper
@@ -19,9 +19,10 @@ public:
 
   struct Cache {
 
-    Cache(std::reference_wrapper<const Acts::MagneticFieldContext> mctx) {
-      const Acts::MagneticFieldContext& mctxref = mctx.get();
-      std::any_cast<const AtlasFieldCacheCondObj*>(mctxref)->getInitializedCache(fieldCache);
+    Cache(const Acts::MagneticFieldContext mctx) {
+      const auto* atlasField = mctx.get<const AtlasFieldCacheCondObj*>();
+      atlasField->getInitializedCache(fieldCache);
+
     }
 
     MagField::AtlasFieldCache fieldCache;
@@ -29,8 +30,8 @@ public:
 
   ATLASMagneticFieldWrapper() = default;
 
-  Acts::Vector3D
-  getField(const Acts::Vector3D& position, Cache& cache) const
+  Acts::Vector3
+  getField(const Acts::Vector3& position, Cache& cache) const
   {
     double posXYZ[3];
     posXYZ[0] = position.x();
@@ -41,16 +42,16 @@ public:
     cache.fieldCache.getField(posXYZ, BField);
 
     // Magnetic field
-    Acts::Vector3D bfield{BField[0],BField[1],BField[2]};
+    Acts::Vector3 bfield{BField[0],BField[1],BField[2]};
 
     bfield *= m_bFieldUnit; // kT -> T;
 
     return bfield;
   }
 
-  Acts::Vector3D
-  getFieldGradient(const Acts::Vector3D& position,
-                   Acts::ActsMatrixD<3, 3>& gradient,
+  Acts::Vector3
+  getFieldGradient(const Acts::Vector3& position,
+                   Acts::ActsMatrix<3, 3>& gradient,
                    Cache& cache) const
   {
     double posXYZ[3];
@@ -63,8 +64,8 @@ public:
     cache.fieldCache.getField(posXYZ, BField, grad);
 
     // Magnetic field
-    Acts::Vector3D bfield{BField[0], BField[1],BField[2]};
-    Acts::ActsMatrixD<3, 3> tempGrad;
+    Acts::Vector3 bfield{BField[0], BField[1],BField[2]};
+    Acts::ActsMatrix<3, 3> tempGrad;
     tempGrad << grad[0], grad[1], grad[2], grad[3], grad[4], grad[5], grad[6], grad[7], grad[8]; 
     gradient = tempGrad;
 

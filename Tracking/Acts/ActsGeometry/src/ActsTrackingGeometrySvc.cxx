@@ -213,7 +213,7 @@ ActsTrackingGeometrySvc::initialize()
 
   ATH_MSG_VERBOSE("Begin building process");
   m_trackingGeometry = trackingGeometryBuilder
-    ->trackingGeometry(constructionContext.any());
+    ->trackingGeometry(constructionContext.context());
   ATH_MSG_VERBOSE("Building process completed");
 
   ATH_MSG_VERBOSE("Building nominal alignment store");

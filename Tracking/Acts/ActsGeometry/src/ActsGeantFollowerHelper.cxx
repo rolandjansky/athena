@@ -192,9 +192,9 @@ void ActsGeantFollowerHelper::trackParticle(const G4ThreeVector& pos,
         Acts::Surface::makeShared<Acts::PerigeeSurface>(
         npos);
 
-    Acts::Vector4D actsStart(pos.x(),pos.y(),pos.z(),0);
-    Acts::Vector3D dir = nmom.normalized();
-    m_actsParameterCache = std::make_unique<const Acts::BoundTrackParameters>(Acts::BoundTrackParameters(surface, gctx.any(), actsStart, dir, mom.mag()/1000, charge));
+    Acts::Vector4 actsStart(pos.x(),pos.y(),pos.z(),0);
+    Acts::Vector3 dir = nmom.normalized();
+    m_actsParameterCache = std::make_unique<const Acts::BoundTrackParameters>(Acts::BoundTrackParameters(surface, gctx.context(), actsStart, dir, mom.mag()/1000, charge));
   }
   // jumping over inital step
   m_treeData->m_g4_steps = (m_treeData->m_g4_steps == -1) ? 0 : m_treeData->m_g4_steps;
@@ -221,7 +221,7 @@ void ActsGeantFollowerHelper::trackParticle(const G4ThreeVector& pos,
   auto destinationSurfaceActs = Acts::Surface::makeShared<Acts::PlaneSurface>(destinationSurface.center(), destinationSurface.normal());
   std::unique_ptr<const Acts::BoundTrackParameters> actsParameters = m_actsExtrapolator->propagate(ctx, *m_actsParameterCache, *destinationSurfaceActs);
   double X0Acts = m_actsExtrapolator->propagationSteps(ctx, *m_actsParameterCache, *destinationSurfaceActs).second.materialInX0;
-  int volID = trackingGeometry->lowestTrackingVolume(gctx.any(), actsParameters->position(gctx.any()))->geometryId().volume();
+  int volID = trackingGeometry->lowestTrackingVolume(gctx.context(), actsParameters->position(gctx.context()))->geometryId().volume();
 
   // fill the geant information and the trk information
   m_treeData->m_g4_p[m_treeData->m_g4_steps]       =  mom.mag();
@@ -255,10 +255,10 @@ void ActsGeantFollowerHelper::trackParticle(const G4ThreeVector& pos,
   m_treeData->m_acts_eta[m_treeData->m_g4_steps]    = actsParameters ? actsParameters->momentum().eta()     : 0.;
   m_treeData->m_acts_theta[m_treeData->m_g4_steps]  = actsParameters ? actsParameters->momentum().theta()   : 0.;
   m_treeData->m_acts_phi[m_treeData->m_g4_steps]    = actsParameters ? actsParameters->momentum().phi()     : 0.;
-  m_treeData->m_acts_x[m_treeData->m_g4_steps]      = actsParameters ? actsParameters->position(gctx.any()).x()   : 0.;
-  m_treeData->m_acts_y[m_treeData->m_g4_steps]      = actsParameters ? actsParameters->position(gctx.any()).y()   : 0.;
-  m_treeData->m_acts_z[m_treeData->m_g4_steps]      = actsParameters ? actsParameters->position(gctx.any()).z()   : 0.;
-  float tActs = (actsParameters->position(gctx.any()) - m_actsParameterCache->position(gctx.any())).norm();
+  m_treeData->m_acts_x[m_treeData->m_g4_steps]      = actsParameters ? actsParameters->position(gctx.context()).x()   : 0.;
+  m_treeData->m_acts_y[m_treeData->m_g4_steps]      = actsParameters ? actsParameters->position(gctx.context()).y()   : 0.;
+  m_treeData->m_acts_z[m_treeData->m_g4_steps]      = actsParameters ? actsParameters->position(gctx.context()).z()   : 0.;
+  float tActs = (actsParameters->position(gctx.context()) - m_actsParameterCache->position(gctx.context())).norm();
   m_tX0CacheActs              += X0Acts;
   m_treeData->m_acts_tX0[m_treeData->m_g4_steps]     = X0Acts;
   m_treeData->m_acts_accX0[m_treeData->m_g4_steps]   = m_tX0CacheActs;

@@ -96,7 +96,7 @@ namespace Trk
         , m_geometryContext(ctx) {};
 
         /** Position getter */
-        Acts::Vector3D position() const {return m_params->position(m_geometryContext);}
+        Acts::Vector3 position() const {return m_params->position(m_geometryContext);}
         /** Parameter getter */
         Acts::BoundVector parameters() const {return m_params->parameters();}
         /** Covariance getter */
