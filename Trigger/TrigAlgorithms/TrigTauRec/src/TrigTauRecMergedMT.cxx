@@ -1,18 +1,14 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "TrigTauRecMergedMT.h"
+
 #include "GaudiKernel/SystemOfUnits.h"
+#include "AthenaMonitoringKernel/Monitored.h"
+#include "AthAnalysisBaseComps/AthAnalysisHelper.h"
 
-#include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-
-#include "EventKernel/INavigable4Momentum.h"
-#include "NavFourMom/INavigable4MomentumCollection.h"
-
-#include "CaloEvent/CaloCellContainer.h"
-#include "Particle/TrackParticleContainer.h"
-#include "VxVertex/VxContainer.h"
 
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/VertexContainer.h"
@@ -30,11 +26,6 @@
 #include "xAODTau/TauTrackContainer.h"
 #include "xAODTau/TauTrackAuxContainer.h"
 
-#include "TrigTauRecMergedMT.h"
-#include "AthenaMonitoringKernel/Monitored.h"
-
-#include "AthAnalysisBaseComps/AthAnalysisHelper.h"
-
 #include <iterator>
 #include <algorithm>
 
@@ -43,10 +34,6 @@
 TrigTauRecMergedMT::TrigTauRecMergedMT(const std::string& name,ISvcLocator* pSvcLocator)
   :AthReentrantAlgorithm(name, pSvcLocator)
 {
-}
-
-TrigTauRecMergedMT::~TrigTauRecMergedMT()
-{ 
 }
 
 StatusCode TrigTauRecMergedMT::initialize()
@@ -100,10 +87,6 @@ StatusCode TrigTauRecMergedMT::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigTauRecMergedMT::finalize()
-{
-  return StatusCode::SUCCESS;
-}
 StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG("Execution");

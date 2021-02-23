@@ -1,38 +1,33 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGTAURECMERGEDMT_H
-#define TRIGTAURECMERGEDMT_H
+#ifndef TRIGTAUREC_TRIGTAURECMERGEDMT_H
+#define TRIGTAUREC_TRIGTAURECMERGEDMT_H
 
-// general athena stuff
-#include "TrigTimeAlgs/TrigTimerSvc.h"
+#include "GaudiKernel/ToolHandle.h"
 
-//Gaudi 
-#include "GaudiKernel/ToolHandle.h" 
-#include "GaudiKernel/ServiceHandle.h"
-
-// Base class
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 #include "tauRecTools/ITauToolBase.h"
-
-#include "BeamSpotConditionsData/BeamSpotData.h"
-
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
+
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODJet/JetContainer.h"
+#include "xAODTau/TauJetContainer.h"
+#include "xAODTau/TauTrackContainer.h"
 
 class TrigTauRecMergedMT: public AthReentrantAlgorithm {
 
  public:
 
   TrigTauRecMergedMT(const std::string& name, ISvcLocator* pSvcLocator);
-  ~TrigTauRecMergedMT();
 
   virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override;
   virtual StatusCode execute(const EventContext& ctx) const override;
 
  private:
