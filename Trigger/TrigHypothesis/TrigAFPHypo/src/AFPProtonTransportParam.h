@@ -5,7 +5,7 @@
 #ifndef TRIGAFPHYPO_AFPPROTONTRANSPORTPARAM_H
 #define TRIGAFPHYPO_AFPPROTONTRANSPORTPARAM_H
 
-#include "TrigAFPHypo/AFPProtonTransportPolynomial.h"
+#include "AFPProtonTransportPolynomial.h"
 
 /**
  * @brief Class for the parameterization used by the proton transport tool

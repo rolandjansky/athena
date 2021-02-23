@@ -2,7 +2,7 @@
    Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
  */
 
-#include "TrigAFPHypo/TrigAFPDijetComboHypoTool.h"
+#include "TrigAFPDijetComboHypoTool.h"
 
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/Jet.h"
