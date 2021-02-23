@@ -69,7 +69,7 @@ private:
   void testStream(ChipMap& chipmap, 
                   std::vector <float>& streams, 
                   std::vector <float>& cores,
-                  int event);
+                  int& chipId, int event);
   
   void fillStreams(ChipMap& chip_map, Identifier id, int chip, int event);
   
@@ -82,8 +82,7 @@ private:
                     std::vector<float>& orphans,
                     std::vector<float>& cores,
                     int& streams_per_event,
-                    int event, bool test=false
-                   );
+                    int event, bool test=false);
   
   void fillHistograms(ChipMap chipmap, int streams_per_event, float z, bool isBarrel, int layer);
  
@@ -94,6 +93,7 @@ private:
   bool m_addressCompression;
   bool m_bitTreeCompression;
   bool m_suppressToT;
+  bool m_enableLinkSharing;
   float m_auroraFactor;
   float m_safetyFactor;
   int m_eventsPerStream;
