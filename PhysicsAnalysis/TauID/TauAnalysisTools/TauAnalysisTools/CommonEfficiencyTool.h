@@ -1,5 +1,7 @@
+// Dear emacs, this is -*- c++ -*-
+
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUANALYSISTOOLS_COMMONEFFICIENCYTOOL_H
@@ -32,7 +34,7 @@
 #include "TROOT.h"
 #include "TClass.h"
 #include "TFile.h"
-#include "TH1F.h"
+#include "TH1.h"
 #include "TF1.h"
 #include "TKey.h"
 
@@ -60,8 +62,10 @@ public:
   // CommonEfficiencyTool pure virtual public functionality
   //__________________________________________________________________________
 
-  virtual CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::TauJet& tau, double& dEfficiencyScaleFactor);
-  virtual CP::CorrectionCode applyEfficiencyScaleFactor(const xAOD::TauJet& xTau);
+  virtual CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::TauJet& tau, double& dEfficiencyScaleFactor, 
+    unsigned int iRunNumber = 0, unsigned int iMu = 0 );
+  virtual CP::CorrectionCode applyEfficiencyScaleFactor(const xAOD::TauJet& xTau, 
+    unsigned int iRunNumber = 0, unsigned int iMu = 0);
 
   /// returns: whether this tool is affected by the given systematis
   virtual bool isAffectedBySystematic( const CP::SystematicVariation& systematic ) const;
@@ -86,14 +90,16 @@ public:
 protected:
 
   std::string ConvertProngToString(const int& iProngness);
+  std::string ConvertMuToString(const int& iMu);
+  std::string GetMcCampaignString(const int& iMu);
+  std::string ConvertDecayModeToString(const int& iDecayMode);
 
   typedef std::tuple<TObject*,
           CP::CorrectionCode (*)(const TObject* oObject,
                                  double& dEfficiencyScaleFactor,
-                                 double dPt,
-                                 double dEta) > tTupleObjectFunc;
+                                 double dVars[] ) > tTupleObjectFunc;
   typedef std::map<std::string, tTupleObjectFunc > tSFMAP;
-  tSFMAP* m_mSF;
+  std::unique_ptr< tSFMAP > m_mSF;
 
   std::unordered_map < CP::SystematicSet, std::string > m_mSystematicSets;
   const CP::SystematicSet* m_sSystematicSet;
@@ -104,30 +110,26 @@ protected:
   double (*m_fX)(const xAOD::TauJet& xTau);
   double (*m_fY)(const xAOD::TauJet& xTau);
 
-  void ReadInputs(TFile* fFile);
+  void ReadInputs(TFile& fFile);
   void addHistogramToSFMap(TKey* kKey, const std::string& sKeyName);
 
   virtual CP::CorrectionCode getValue(const std::string& sHistName,
                                       const xAOD::TauJet& xTau,
                                       double& dEfficiencyScaleFactor) const;
 
-  static CP::CorrectionCode getValueTH2F(const TObject* oObject,
-                                         double& dEfficiencyScaleFactor,
-                                         double dPt,
-                                         double dEta
+  static CP::CorrectionCode getValueTH2(const TObject* oObject,
+                                        double& dEfficiencyScaleFactor,
+                                        double dVars[]
                                         );
-  static CP::CorrectionCode getValueTH2D(const TObject* oObject,
-                                         double& dEfficiencyScaleFactor,
-                                         double dPt,
-                                         double dEta
+  static CP::CorrectionCode getValueTH3(const TObject* oObject,
+                                        double& dEfficiencyScaleFactor,
+                                        double dVars[]
                                         );
   static CP::CorrectionCode getValueTF1(const TObject* oObject,
                                         double& dEfficiencyScaleFactor,
-                                        double dPt,
-                                        double dEta
+                                        double dVars[]
                                        );
 
-  e_TruthMatchedParticleType checkTruthMatch(const xAOD::TauJet& xTau) const;
   void generateSystematicSets();
 
 protected:
@@ -144,6 +146,7 @@ protected:
   bool m_bUseHighPtUncert;
   bool m_bNoMultiprong;
   bool m_bUseInclusiveEta;
+  bool m_bUseTauSubstructure;
   int m_iIDLevel;
   int m_iEVLevel;
   int m_iOLRLevel;
@@ -155,6 +158,9 @@ protected:
   bool m_bSFIsAvailableChecked;
   bool m_bPtTauEtaCalibIsAvailable;
   bool m_bPtTauEtaCalibIsAvailableIsChecked;
+  bool m_bSplitMu;
+  bool m_bSplitMCCampaign;
+  std::string m_sMCCampaign;
 };
 } // namespace TauAnalysisTools
 

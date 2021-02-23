@@ -1,25 +1,24 @@
+/**
+ * @file DiTauTruthMatchingTool.h
+ * @author David Kirchmeier
+ * @author Guillermo Hamity (ghamity@cern.ch)
+ * @brief Tau, lepton and jet truth matching for ditau jets
+ * @date 2021-02-17
+ * 
+ * @copyright Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ * 
+ */
 // Dear emacs, this is -*- c++ -*-
 
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
 
 #ifndef  TAUANALYSISTOOLS_DITAUTRUTHMATCHINGTOOL_H
 #define  TAUANALYSISTOOLS_DITAUTRUTHMATCHINGTOOL_H
 
-/*
-  author: David Kirchmeier
-  mail: david.kirchmeier@cern.ch
-  implementation close to TauTruthMatchingTool.h
-  documentation in: 
-                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-<tag>/doc/README-DiTauTruthMatchingTool.rst
-        or
-                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-DiTauTruthMatchingTool.rst
-*/
 
 // Local include(s):
 #include "TauAnalysisTools/IDiTauTruthMatchingTool.h"
 #include "TauAnalysisTools/BuildTruthTaus.h"
+#include "xAODBase/IParticle.h"
 
 namespace TauAnalysisTools
 {
@@ -42,13 +41,14 @@ public:                         // Interface functions
   // initialize the tool
   virtual StatusCode initialize();
 
-  // get pointer to the truth matched particle, if no truth particle was found a null pointer is returned
+  /** get pointer to the truth matched particle.
+   *  if no truth particle was found a null pointer is returned */
   virtual void getTruth(const xAOD::DiTauJet& xDiTau);
 
-  // apply match to a single tau
+  /** apply match to a single tau */
   virtual void applyTruthMatch(const xAOD::DiTauJet& xDiTau);
 
-  // apply match to all taus in a vector
+  /** apply match to all taus in a vector*/
   virtual void applyTruthMatch(const std::vector<const xAOD::DiTauJet*>& vDiTaus);
 
 private:                        // private helper functions
@@ -59,6 +59,7 @@ private:                        // private helper functions
                          const xAOD::TruthParticleContainer& xTruthTauContainer, 
                          const xAOD::TruthParticle* &xTruthMatch,
                          TruthMatchedParticleType &eTruthMatchedParticleType) const;
+  ElementLink<xAOD::TruthParticleContainer> checkTruthLepton(const xAOD::IParticle* pLepton) const;
 
 private:                        // steering variables
 
@@ -70,7 +71,6 @@ private:                        // private helper variables
   SG::AuxElement::ConstAccessor<double> m_accEtaVis;
   SG::AuxElement::ConstAccessor<double> m_accPhiVis;
   SG::AuxElement::ConstAccessor<double> m_accMVis;
-
 }; // class DiTauTruthMatchingTool
 
 }

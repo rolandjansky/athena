@@ -119,7 +119,16 @@ Jet ID scale factors are provided for a couple of working points:
    * - value
      - description
 
+   * - ``JETIDNONE``
+     - only reconstruction uncertainties are applied
+
+   * - ``JETIDBDTVERYLOOSE``
+     - corresponding to a cut on jet BDT score > 0.60
+
    * - ``JETIDBDTLOOSE``
+     - corresponding to a cut on jet BDT score > 0.65
+     
+   * - ``JETIDBDTMEDIUM``
      - corresponding to a cut on jet BDT score > 0.72
 
    * - ``JETIDBDTTIGHT``
@@ -152,14 +161,7 @@ Navigation
 
 * `TauAnalysisTools <../README.rst>`_
 
-  * `TauSelectionTool <README-TauSelectionTool.rst>`_
-  * `TauSmearingTool <README-TauSmearingTool.rst>`_
-  * `TauEfficiencyCorrectionsTool <README-TauEfficiencyCorrectionsTool.rst>`_
+  * `DiTauTruthMatchingTool <README-DiTauTruthMatchingTool.rst>`_
+  * `DiTauSmearingTool <README-DiTauSmearingTool.rst>`_
+  * `DiTauEfficiencyCorrectionsTool <README-DiTauEfficiencyCorrectionsTool.rst>`_
 
-    * `mc12 recommendations <README-TauEfficiencyCorrectionsTool-mc12.rst>`_ 
-    * `mc15 pre-recommendations <README-TauEfficiencyCorrectionsTool-mc15_pre-recommendations.rst>`_
-    * `TauEfficiencyCorrectionsTool Trigger <README-TauEfficiencyCorrectionsTool_Trigger.rst>`_
-  
-  * `TauTruthMatchingTool <README-TauTruthMatchingTool.rst>`_
-  * `TauTruthTrackMatchingTool <README-TauTruthTrackMatchingTool.rst>`_
-  * `TauOverlappingElectronLLHDecorator <README-TauOverlappingElectronLLHDecorator.rst>`_
