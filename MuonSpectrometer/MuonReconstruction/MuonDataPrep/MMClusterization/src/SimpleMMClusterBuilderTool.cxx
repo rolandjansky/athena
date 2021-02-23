@@ -169,7 +169,7 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
     Amg::MatrixX* covN = new Amg::MatrixX(1,1);
     covN->setIdentity();
     /// keeping 50% looser uncertainties until the final calibrations will be in place
-    double localUncertainty = 1.5*(0.074+0.66*theta-0.15*theta*theta);
+    double localUncertainty = 5.*(0.074+0.66*theta-0.15*theta*theta);
     (*covN)(0,0) = localUncertainty * localUncertainty;
 
     ATH_MSG_VERBOSE(" make merged prepData at strip " << m_idHelperSvc->mmIdHelper().channel(MMprds[j].identify()) << " nmerge " << nmerge << " sqrt covX " << sqrt((*covN)(0,0)));
