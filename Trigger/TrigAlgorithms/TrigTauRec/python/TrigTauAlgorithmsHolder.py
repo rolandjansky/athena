@@ -720,7 +720,7 @@ def getTauJetBDTEvaluator(suffix="TauJetBDT", weightsFile="", calibFolder="", mi
 ########################################################################
 # TauJetRNNEvaluator
 def getTauJetRNNEvaluator(NetworkFile0P="", NetworkFile1P="", NetworkFile3P="", OutputVarname="RNNJetScore", 
-                          MaxTracks=10, MaxClusters=6, MaxClusterDR=1.0, 
+                          MaxTracks=10, MaxClusters=6, MaxClusterDR=1.0, TrackClassification=False,
                           InputLayerScalar="scalar", InputLayerTracks="tracks", InputLayerClusters="clusters", 
                           OutputLayer="rnnid_output", OutputNode="sig_prob"):
 
@@ -731,20 +731,21 @@ def getTauJetRNNEvaluator(NetworkFile0P="", NetworkFile1P="", NetworkFile3P="", 
 
     from AthenaCommon.AppMgr import ToolSvc
     from tauRecTools.tauRecToolsConf import TauJetRNNEvaluator
-    TauJetRNNEvaluator = TauJetRNNEvaluator(name=_name,
-                                      NetworkFile0P=NetworkFile0P,
-                                      NetworkFile1P=NetworkFile1P,
-                                      NetworkFile3P=NetworkFile3P,
-                                      OutputVarname=OutputVarname,
-                                      MaxTracks=MaxTracks,
-                                      MaxClusters=MaxClusters,
-                                      MaxClusterDR=MaxClusterDR,
-                                      VertexCorrection=doVertexCorrection,
-                                      InputLayerScalar=InputLayerScalar,
-                                      InputLayerTracks=InputLayerTracks,
-                                      InputLayerClusters=InputLayerClusters,
-                                      OutputLayer=OutputLayer,
-                                      OutputNode=OutputNode)
+    TauJetRNNEvaluator = TauJetRNNEvaluator(name = _name,
+                                            NetworkFile0P = NetworkFile0P,
+                                            NetworkFile1P = NetworkFile1P,
+                                            NetworkFile3P = NetworkFile3P,
+                                            OutputVarname = OutputVarname,
+                                            MaxTracks = MaxTracks,
+                                            MaxClusters = MaxClusters,
+                                            MaxClusterDR = MaxClusterDR,
+                                            VertexCorrection = doVertexCorrection,
+                                            TrackClassification = TrackClassification,
+                                            InputLayerScalar = InputLayerScalar,
+                                            InputLayerTracks = InputLayerTracks,
+                                            InputLayerClusters = InputLayerClusters,
+                                            OutputLayer = OutputLayer,
+                                            OutputNode = OutputNode)
 
     ToolSvc += TauJetRNNEvaluator
     cached_instances[_name] = TauJetRNNEvaluator

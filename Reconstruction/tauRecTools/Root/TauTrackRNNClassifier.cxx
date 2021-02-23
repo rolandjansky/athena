@@ -23,8 +23,9 @@ using namespace tauRecTools;
 //==============================================================================
 
 //______________________________________________________________________________
-TauTrackRNNClassifier::TauTrackRNNClassifier(const std::string& sName)
-  : TauRecToolBase(sName) {
+TauTrackRNNClassifier::TauTrackRNNClassifier(const std::string& name)
+  : TauRecToolBase(name) {
+  declareProperty("classifyLRT", m_classifyLRT = true);
 }
 
 //______________________________________________________________________________
@@ -35,11 +36,9 @@ TauTrackRNNClassifier::~TauTrackRNNClassifier()
 //______________________________________________________________________________
 StatusCode TauTrackRNNClassifier::initialize()
 {
-  ATH_MSG_DEBUG("intialize classifiers");
-
-  for (auto cClassifier : m_vClassifier){
-    ATH_MSG_INFO("TauTrackRNNClassifier tool : " << cClassifier );
-    ATH_CHECK(cClassifier.retrieve());
+  for (auto classifier : m_vClassifier){
+    ATH_MSG_INFO("Intialize TauTrackRNNClassifier tool : " << classifier );
+    ATH_CHECK(classifier.retrieve());
   }
  
   return StatusCode::SUCCESS;
@@ -50,21 +49,41 @@ StatusCode TauTrackRNNClassifier::executeTrackClassifier(xAOD::TauJet& xTau, xAO
 
   std::vector<xAOD::TauTrack*> vTracks = xAOD::TauHelpers::allTauTracksNonConst(&xTau, &tauTrackCon);
 
-  for (xAOD::TauTrack* xTrack : vTracks)
-    {
-      // reset all track flags and set status to unclassified
-      xTrack->setFlag(xAOD::TauJetParameters::classifiedCharged, false);
-      xTrack->setFlag(xAOD::TauJetParameters::classifiedConversion, false);
-      xTrack->setFlag(xAOD::TauJetParameters::classifiedIsolation, false);
-      xTrack->setFlag(xAOD::TauJetParameters::classifiedFake, false);
-      xTrack->setFlag(xAOD::TauJetParameters::unclassified, true);
-    }
-  
-  for (auto cClassifier : m_vClassifier) {
-    ATH_CHECK(cClassifier->classifyTracks(vTracks, xTau));
+  for (xAOD::TauTrack* xTrack : vTracks) {
+    // reset all track flags and set status to unclassified
+    xTrack->setFlag(xAOD::TauJetParameters::classifiedCharged, false);
+    xTrack->setFlag(xAOD::TauJetParameters::classifiedConversion, false);
+    xTrack->setFlag(xAOD::TauJetParameters::classifiedIsolation, false);
+    xTrack->setFlag(xAOD::TauJetParameters::classifiedFake, false);
+    xTrack->setFlag(xAOD::TauJetParameters::unclassified, true);
   }
 
-  std::vector< ElementLink< xAOD::TauTrackContainer > > &tauTrackLinks(xTau.allTauTrackLinksNonConst());
+  // don't classify LRTs even if LRTs were associated with taus in TauTrackFinder
+  if(!m_classifyLRT) {
+    std::vector<xAOD::TauTrack*> vLRTs;
+    std::vector<xAOD::TauTrack*>::iterator it = vTracks.begin(); 
+    while(it != vTracks.end()) {      
+      if((*it)->flag(xAOD::TauJetParameters::LargeRadiusTrack)) {	
+	vLRTs.push_back(*it);
+        it = vTracks.erase(it);
+      }
+      else {
+	++it;
+      }
+    }
+
+    // decorate LRTs with default RNN scores
+    for (auto classifier : m_vClassifier) {
+      ATH_CHECK(classifier->classifyTracks(vLRTs, xTau, true));
+    }
+  }
+
+  // classify tracks
+  for (auto classifier : m_vClassifier) {
+    ATH_CHECK(classifier->classifyTracks(vTracks, xTau));
+  }
+
+  std::vector< ElementLink< xAOD::TauTrackContainer > >& tauTrackLinks(xTau.allTauTrackLinksNonConst());
   std::sort(tauTrackLinks.begin(), tauTrackLinks.end(), sortTracks);
   float charge=0.0;
   for( const xAOD::TauTrack* trk : xTau.tracks(xAOD::TauJetParameters::classifiedCharged) ){
@@ -82,12 +101,14 @@ StatusCode TauTrackRNNClassifier::executeTrackClassifier(xAOD::TauJet& xTau, xAO
 
   //set modifiedIsolationTrack
   for (xAOD::TauTrack* xTrack : vTracks) {
-    if( not xTrack->flag(xAOD::TauJetParameters::classifiedCharged) and 
-	xTrack->flag(xAOD::TauJetParameters::passTrkSelector) ) xTrack->setFlag(xAOD::TauJetParameters::modifiedIsolationTrack, true);
-    else xTrack->setFlag(xAOD::TauJetParameters::modifiedIsolationTrack, false);
+    if( not xTrack->flag(xAOD::TauJetParameters::classifiedCharged) and xTrack->flag(xAOD::TauJetParameters::passTrkSelector) ) {
+      xTrack->setFlag(xAOD::TauJetParameters::modifiedIsolationTrack, true);
+    }
+    else {
+      xTrack->setFlag(xAOD::TauJetParameters::modifiedIsolationTrack, false);
+    }
   }
   xTau.setDetail(xAOD::TauJetParameters::nModifiedIsolationTracks, (int) xTau.nTracks(xAOD::TauJetParameters::modifiedIsolationTrack));
-
 
   return StatusCode::SUCCESS;
 }
@@ -97,13 +118,13 @@ StatusCode TauTrackRNNClassifier::executeTrackClassifier(xAOD::TauJet& xTau, xAO
 //==============================================================================
 
 //______________________________________________________________________________
-TrackRNN::TrackRNN(const std::string& sName)
-  : TauRecToolBase(sName)
-  , m_sInputWeightsPath("")
+TrackRNN::TrackRNN(const std::string& name)
+  : TauRecToolBase(name)
+  , m_inputWeightsPath("")
 {
   // for conversion compatibility cast nTracks 
   int nMaxNtracks = 0;
-  declareProperty( "InputWeightsPath", m_sInputWeightsPath );
+  declareProperty( "InputWeightsPath", m_inputWeightsPath );
   declareProperty( "MaxNtracks",  nMaxNtracks);
   m_nMaxNtracks = (unsigned int)nMaxNtracks;
 }
@@ -122,17 +143,29 @@ StatusCode TrackRNN::initialize()
 }
 
 //______________________________________________________________________________
-StatusCode TrackRNN::classifyTracks(std::vector<xAOD::TauTrack*>& vTracks, xAOD::TauJet& xTau) const
+StatusCode TrackRNN::classifyTracks(std::vector<xAOD::TauTrack*>& vTracks, xAOD::TauJet& xTau, bool skipTracks) const
 {
-  if(vTracks.size() == 0)
+  if(vTracks.size() == 0) {
     return StatusCode::SUCCESS;
-
-  std::sort(vTracks.begin(), vTracks.end(), [](const xAOD::TauTrack * a, const xAOD::TauTrack * b) {return a->pt() > b->pt();});
+  }
 
   static const SG::AuxElement::Accessor<float> idScoreCharged("rnn_chargedScore");
   static const SG::AuxElement::Accessor<float> idScoreIso("rnn_isolationScore");
   static const SG::AuxElement::Accessor<float> idScoreConv("rnn_conversionScore");
   static const SG::AuxElement::Accessor<float> idScoreFake("rnn_fakeScore");
+
+  // don't classify tracks, set default decorations
+  if(skipTracks) {
+    for(xAOD::TauTrack* track : vTracks) {
+      idScoreCharged(*track) = 0.;
+      idScoreConv(*track) = 0.;
+      idScoreIso(*track) = 0.;
+      idScoreFake(*track) = 0.;
+    }
+    return StatusCode::SUCCESS;
+  }
+
+  std::sort(vTracks.begin(), vTracks.end(), [](const xAOD::TauTrack * a, const xAOD::TauTrack * b) {return a->pt() > b->pt();});
 
   VectorMap valueMap;
   ATH_CHECK(calulateVars(vTracks, xTau, valueMap));
@@ -167,9 +200,13 @@ StatusCode TrackRNN::classifyTracks(std::vector<xAOD::TauTrack*>& vTracks, xAOD:
     idScoreIso(*vTracks[i]) = vClassProb[2];
     idScoreFake(*vTracks[i]) = vClassProb[3];
 
-    int iMaxIndex = 3; // for safty reasons set this to FT to circumvent bias
+    int iMaxIndex = 3; // for safety reasons set this to FT to circumvent bias
     for (unsigned int j = 0; j < vClassProb.size(); ++j){
       if(vClassProb[j] > vClassProb[iMaxIndex]) iMaxIndex = j;
+    }
+
+    if(iMaxIndex < 4) {
+      vTracks[i]->setFlag(xAOD::TauJetParameters::unclassified, false);
     }
 
     if(iMaxIndex == 3){
@@ -180,8 +217,6 @@ StatusCode TrackRNN::classifyTracks(std::vector<xAOD::TauTrack*>& vTracks, xAOD:
       vTracks[i]->setFlag(xAOD::TauJetParameters::classifiedConversion, true);
     }else if(iMaxIndex == 2){
       vTracks[i]->setFlag(xAOD::TauJetParameters::classifiedIsolation, true);
-    }else if(iMaxIndex == 4){
-      vTracks[i]->setFlag(xAOD::TauJetParameters::unclassified, true);
     }
   }
   
@@ -198,10 +233,10 @@ StatusCode TrackRNN::classifyTracks(std::vector<xAOD::TauTrack*>& vTracks, xAOD:
 //______________________________________________________________________________
 StatusCode TrackRNN::addWeightsFile()
 {
-  std::string sInputWeightsPath = find_file(m_sInputWeightsPath);
-  ATH_MSG_DEBUG("InputWeightsPath: " << sInputWeightsPath);
+  std::string inputWeightsPath = find_file(m_inputWeightsPath);
+  ATH_MSG_DEBUG("InputWeightsPath: " << inputWeightsPath);
 
-  std::ifstream nn_config_istream(sInputWeightsPath);
+  std::ifstream nn_config_istream(inputWeightsPath);
   
   lwtDev::GraphConfig NNconfig = lwtDev::parse_json_graph(nn_config_istream);
   
@@ -221,8 +256,9 @@ StatusCode TrackRNN::calulateVars(const std::vector<xAOD::TauTrack*>& vTracks, c
   // initialize map with values
   valueMap.clear();
   unsigned int n_timeSteps = vTracks.size();
-  if(m_nMaxNtracks > 0 && n_timeSteps>m_nMaxNtracks)
+  if(m_nMaxNtracks > 0 && n_timeSteps > m_nMaxNtracks) {
     n_timeSteps = m_nMaxNtracks;
+  }
 
   valueMap["log(trackPt)"] = std::vector<double>(n_timeSteps);
   valueMap["log(jetSeedPt)"] = std::vector<double>(n_timeSteps);
@@ -270,9 +306,6 @@ StatusCode TrackRNN::calulateVars(const std::vector<xAOD::TauTrack*>& vTracks, c
       uint8_t iTracksNSCTDeadSensors = 0; ATH_CHECK( xTrackParticle->summaryValue(iTracksNSCTDeadSensors, xAOD::numberOfSCTDeadSensors) );
       uint8_t iTracksNTRTHighThresholdHits = 0; ATH_CHECK( xTrackParticle->summaryValue( iTracksNTRTHighThresholdHits, xAOD::numberOfTRTHighThresholdHits) );
       uint8_t iTracksNTRTHits = 0; ATH_CHECK( xTrackParticle->summaryValue( iTracksNTRTHits, xAOD::numberOfTRTHits) );
-      //uint8_t iNumberOfContribPixelLayers = 0; ATH_CHECK( xTrackParticle->summaryValue(iNumberOfContribPixelLayers, xAOD::numberOfContribPixelLayers) );
-      //uint8_t iNumberOfPixelHoles = 0; ATH_CHECK( xTrackParticle->summaryValue(iNumberOfPixelHoles, xAOD::numberOfPixelHoles) );
-      //uint8_t iNumberOfSCTHoles = 0; ATH_CHECK( xTrackParticle->summaryValue(iNumberOfSCTHoles, xAOD::numberOfSCTHoles) );
 
       float fTracksEProbabilityHT; ATH_CHECK( xTrackParticle->summaryValue( fTracksEProbabilityHT, xAOD::eProbabilityHT) );
   
@@ -296,8 +329,9 @@ StatusCode TrackRNN::calulateVars(const std::vector<xAOD::TauTrack*>& vTracks, c
       valueMap["charge"][i] = fTrackCharge;
 
       ++i;
-      if(m_nMaxNtracks > 0 && i >= m_nMaxNtracks)
+      if(m_nMaxNtracks > 0 && i >= m_nMaxNtracks) {
 	break;
+      }
     }
 
   return StatusCode::SUCCESS;

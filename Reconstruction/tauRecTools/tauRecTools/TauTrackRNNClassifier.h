@@ -49,7 +49,7 @@ public:
 
   ASG_TOOL_CLASS2( TauTrackRNNClassifier, TauRecToolBase, ITauToolBase )
 
-  TauTrackRNNClassifier(const std::string& sName="TauTrackRNNClassifier");
+  TauTrackRNNClassifier(const std::string& name="TauTrackRNNClassifier");
   ~TauTrackRNNClassifier();
 
   // retrieve all track classifier sub tools
@@ -59,6 +59,8 @@ public:
 
  private:
   ToolHandleArray<TrackRNN> m_vClassifier {this, "Classifiers", {}};
+  bool m_classifyLRT;
+
 }; // class TauTrackRNNClassifier
   
 //______________________________________________________________________________
@@ -72,7 +74,7 @@ class TrackRNN
   
   public:
   
-  TrackRNN(const std::string& sName);
+  TrackRNN(const std::string& name);
   ~TrackRNN();
 
   // configure the MVA object and build a general map to store variables
@@ -82,7 +84,7 @@ class TrackRNN
   
   // executes MVA object to get the BDT score, makes the decision and resets
   // classification flags
-  StatusCode classifyTracks(std::vector<xAOD::TauTrack*>& vTracks, xAOD::TauJet& xTau) const;
+  StatusCode classifyTracks(std::vector<xAOD::TauTrack*>& vTracks, xAOD::TauJet& xTau, bool skipTracks=false) const;
   
 private:
   // set BDT input variables in the corresponding map entries
@@ -99,7 +101,7 @@ private:
   
 private:
   // configurable variables
-  std::string m_sInputWeightsPath; 
+  std::string m_inputWeightsPath; 
   unsigned int m_nMaxNtracks;
 
 private:
