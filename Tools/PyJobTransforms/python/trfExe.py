@@ -23,8 +23,9 @@ from fnmatch import fnmatch
 msg = logging.getLogger(__name__)
 
 from PyJobTransforms.trfJobOptions import JobOptionsTemplate
-from PyJobTransforms.trfUtils import asetupReport, unpackDBRelease, setupDBRelease, cvmfsDBReleaseCheck, forceToAlphaNum
-from PyJobTransforms.trfUtils import ValgrindCommand, isInteractiveEnv, calcCpuTime, calcWallTime, analytic
+from PyJobTransforms.trfUtils import asetupReport, asetupReleaseIsOlderThan, unpackDBRelease, setupDBRelease, \
+    cvmfsDBReleaseCheck, forceToAlphaNum, \
+    ValgrindCommand, isInteractiveEnv, calcCpuTime, calcWallTime, analytic
 from PyJobTransforms.trfExitCodes import trfExit
 from PyJobTransforms.trfLogger import stdLogLevels
 from PyJobTransforms.trfMPTools import detectAthenaMPProcs, athenaMPOutputHandler
@@ -954,7 +955,7 @@ class athenaExecutor(scriptExecutor):
         legacyThreadingRelease = False
         if 'asetup' in self.conf.argdict:
             asetupString = self.conf.argdict['asetup'].returnMyValue(name=self._name, substep=self._substep, first=self.conf.firstExecutor)
-            legacyThreadingRelease = True if asetupString and 'Athena,21' in asetupString else False
+            legacyThreadingRelease = asetupReleaseIsOlderThan(asetupString, 22)
         else:
             msg.info('Asetup report: {0}'.format(asetupReport()))
 
