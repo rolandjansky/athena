@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -478,6 +478,7 @@ StatusCode GetLCSinglePionsPerf::initialize()
   delete [] xbins;
 
   ATH_CHECK( m_clusterBasicCollName.initialize() );
+  ATH_CHECK( m_clusterCollNames.initialize() );
   ATH_CHECK( m_CalibrationHitContainerNames.initialize() );
   ATH_CHECK( m_DMCalibrationHitContainerNames.initialize() );
 
