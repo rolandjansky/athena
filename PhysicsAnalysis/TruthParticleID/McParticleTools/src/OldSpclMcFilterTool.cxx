@@ -439,6 +439,9 @@ StatusCode OldSpclMcFilterTool::shapeGenEvent( McEventCollection* genAod )
 	} 
       }  //> loop over vertices 
 //AV: We don't set nullptr as signal vertex in HepMC3
+	if ( !isInColl ) { 
+	  (*evt)->remove_attribute("signal_process_vertex");
+	}
 #else
     const HepMC::GenVertex * sigProcVtx = (*evt)->signal_process_vertex(); 
     if ( 0 != sigProcVtx ) { 
