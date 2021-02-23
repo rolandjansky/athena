@@ -1,3 +1,8 @@
+
+import os
+
+import ExtraParticles.PDGHelpers
+
 quirk_firststring=1e-6 #mm
 quirk_maxboost=1e-2
 quirk_maxmerge=1e-6 #mm
@@ -27,10 +32,6 @@ quirk_charge = float(simdict["CHARGE"])
 quirk_pdgid = int(simdict["PDGID"])
 quirk_stringforce = float(simdict["STRINGFORCE"])
 
-import os
-if os.path.isfile('PDGTABLE.MeV'):
-    os.remove('PDGTABLE.MeV')
-os.system('get_files -data PDGTABLE.MeV')
 f = open('PDGTABLE.MeV', 'a')
 f.write("M%8d                          %.8E +0.0E+00 -0.0E+00 Quirk               +\n" % (quirk_pdgid, quirk_mass))
 f.write("W%8d                          0.E+00         +0.0E+00 -0.0E+00 Quirk               +\n" % quirk_pdgid)
