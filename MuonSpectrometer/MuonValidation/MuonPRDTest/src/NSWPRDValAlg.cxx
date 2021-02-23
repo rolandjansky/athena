@@ -252,19 +252,25 @@ StatusCode NSWPRDValAlg::initialize() {
      ATH_CHECK( m_MDTDigitVar->initializeVariables() );
   }
 
-    if (m_doRPCHit){
+  if (m_doRPCHit){
      m_RPCSimHitVar = new RPCSimHitVariables(&(*(evtStore())), m_muonDetMgrDS,
                                              &m_idHelperSvc->rpcIdHelper(), m_tree, m_RPC_SimContainerName, msgLevel());
      ATH_CHECK( m_RPCSimHitVar->initializeVariables() );
   }
 
-    if (m_doCSCHit){
+  if (m_doRPCDigit){
+     m_RPCDigitVar = new RpcDigitVariables(&(*(evtStore())), m_muonDetMgrDS,
+                                             &m_idHelperSvc->rpcIdHelper(), m_tree, m_RPC_DigitContainerName, msgLevel());
+     ATH_CHECK( m_RPCDigitVar->initializeVariables() );
+  }
+  
+  if (m_doCSCHit){
      m_CSCSimHitVar = new CSCSimHitVariables(&(*(evtStore())), m_muonDetMgrDS,
                                              &m_idHelperSvc->cscIdHelper(), m_tree, m_CSC_SimContainerName, msgLevel());
      ATH_CHECK( m_CSCSimHitVar->initializeVariables() );
   }
 
-    if (m_doTGCHit){
+  if (m_doTGCHit){
      m_TGCSimHitVar = new TGCSimHitVariables(&(*(evtStore())), m_muonDetMgrDS,
                                              &m_idHelperSvc->tgcIdHelper(), m_tree, m_TGC_SimContainerName, msgLevel());
      ATH_CHECK( m_TGCSimHitVar->initializeVariables() );
@@ -295,6 +301,7 @@ StatusCode NSWPRDValAlg::finalize()
   if (m_MDTSimHitVar) { delete m_MDTSimHitVar; m_MDTSimHitVar=0;}
   if (m_MDTDigitVar) { delete m_MDTDigitVar; m_MDTDigitVar=0;}
   if (m_RPCSimHitVar) { delete m_RPCSimHitVar; m_RPCSimHitVar=0;}
+  if (m_RPCDigitVar) { delete m_RPCDigitVar; m_RPCDigitVar=0;}
   if (m_CSCSimHitVar) { delete m_CSCSimHitVar; m_CSCSimHitVar=0;}
   if (m_TGCSimHitVar) { delete m_TGCSimHitVar; m_TGCSimHitVar=0;}
 
@@ -360,6 +367,7 @@ StatusCode NSWPRDValAlg::execute()
   if (m_doMDTDigit) ATH_CHECK( m_MDTDigitVar->fillVariables(muonDetMgr) );
 
   if (m_doRPCHit) ATH_CHECK( m_RPCSimHitVar->fillVariables(muonDetMgr) );
+  if (m_doRPCDigit) ATH_CHECK( m_RPCDigitVar->fillVariables(muonDetMgr) );
 
   if (m_doCSCHit) ATH_CHECK( m_CSCSimHitVar->fillVariables(muonDetMgr) );
 

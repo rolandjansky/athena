@@ -128,8 +128,8 @@ class NSWPRDValAlg:public AthAlgorithm
   std::string m_CSC_DigitContainerName;
   std::string m_MDT_SimContainerName;
   std::string m_MDT_DigitContainerName;
-  std::string m_RPC_DigitContainerName;
   std::string m_RPC_SimContainerName;
+  std::string m_RPC_DigitContainerName;
   std::string m_CSC_SimContainerName;
   std::string m_TGC_SimContainerName;
 

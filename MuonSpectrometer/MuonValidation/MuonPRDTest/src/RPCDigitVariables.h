@@ -38,6 +38,7 @@ class RpcDigitVariables : public ValAlgVariables
     }
   }
   
+  void deleteVariables(){};
   StatusCode clearVariables();
   
   const RpcIdHelper* m_RpcIdHelper;
