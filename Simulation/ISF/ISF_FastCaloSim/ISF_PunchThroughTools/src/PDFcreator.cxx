@@ -303,7 +303,7 @@ double ISF::PDFcreator::getRand(const std::vector<double>& inputParameters, cons
 
 
     //incase we select an empty x bin, chose next closest appropriate bin by stepping towards maxBin
-    while (hist->GetEntries() == 0.){
+    while (hist->Integral() == 0.){
       if(binx > maxBin){
         binx--; //increment bin choice towards maxBin
       }
