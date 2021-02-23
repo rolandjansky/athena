@@ -33,6 +33,7 @@ class ExecStep(Step):
         self.use_pickle = False
         self.imf = True
         self.perfmon = True
+        self.costmon = False
         self.prmon = True
         self.config_only = False
         self.auto_report_result = True
@@ -168,6 +169,8 @@ class ExecStep(Step):
                 athenaopts += ' --imf'
             if self.perfmon:
                 athenaopts += ' --perfmon'
+            if self.costmon:
+                athenaopts += " -c 'forceCostMonitoring=True ' "
 
         # Run config-only if requested
         if self.config_only :
