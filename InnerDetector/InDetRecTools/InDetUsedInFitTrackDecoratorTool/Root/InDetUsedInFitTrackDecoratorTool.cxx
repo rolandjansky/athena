@@ -21,44 +21,6 @@
 #include <utility>
 #include <vector>
 
-// Helper functions, let's put them in a nameless namespace:
-namespace {
-
-  std::vector<const xAOD::TrackParticle*> convertLinksToTracks(const std::vector<ElementLink<xAOD::TrackParticleContainer>>& trackLinks) {
-    std::vector<const xAOD::TrackParticle*> outTracks;
-    outTracks.reserve(trackLinks.size());
-    for (const auto& trkLink : trackLinks) {
-        if (trkLink.isValid()) {
-            outTracks.push_back((const xAOD::TrackParticle*)(*trkLink));
-        }
-    }
-    return outTracks;
-  }
-
-  inline int positionInVector(const xAOD::TrackParticle* track, const std::vector<const xAOD::TrackParticle*>& trackVec) {
-    auto it = std::find(trackVec.begin(), trackVec.end(), track);
-    return ((it != trackVec.end()) ? it - trackVec.begin() : -1);
-  }
-
-  // Functions for helping sort 2 vectors according to a comparison using only one of the vectors
-  // See: https://stackoverflow.com/a/17074810
-  template <typename T, typename Compare>
-  std::vector<std::size_t> sort_permutation(const std::vector<T>& vec, const Compare& compare) {
-    std::vector<std::size_t> p(vec.size());
-    std::iota(p.begin(), p.end(), 0);
-    std::sort(p.begin(), p.end(), [&](std::size_t i, std::size_t j){ return compare(vec[i], vec[j]); });
-    return p;
-  }
-
-  template <typename T>
-  std::vector<T> apply_permutation(const std::vector<T>& vec, const std::vector<std::size_t>& p) {
-    std::vector<T> sorted_vec(vec.size());
-    std::transform(p.begin(), p.end(), sorted_vec.begin(), [&](std::size_t i){ return vec[i]; });
-    return sorted_vec;
-  }
-
-} // end: namespace
-
 // Constructor
 InDet::InDetUsedInFitTrackDecoratorTool::InDetUsedInFitTrackDecoratorTool(const std::string& name) :
   asg::AsgTool(name),
@@ -127,47 +89,49 @@ void InDet::InDetUsedInFitTrackDecoratorTool::decorate(const xAOD::TrackParticle
   SG::WriteDecorHandle<xAOD::TrackParticleContainer, std::vector<ElementLink<xAOD::VertexContainer>>> vtxDeco(m_vtxDecoKey, ctx);
   SG::WriteDecorHandle<xAOD::TrackParticleContainer, std::vector<float>> wgtDeco(m_wgtDecoKey, ctx);
 
-  // A few declarations
-  std::vector<ElementLink<xAOD::VertexContainer>> AMVFVertices;
-  std::vector<float> AMVFWeights;
-  std::vector<const xAOD::TrackParticle*> fitTracks;
-  int posInFitTrks;
-  ElementLink<xAOD::VertexContainer> vtxLink;
+  //vector to collect results
+  std::vector<std::pair<const xAOD::Vertex*,float> > vxWithWeight;
 
   // Iterate over our tracks:
-  for (const auto& trk : *trkCont) {
+  for (const xAOD::TrackParticle*  trk : *trkCont) {
     if (!trk) continue;
-
-    // Don't expect more than 5 vertex fits per track
-    AMVFVertices.clear();
-    AMVFVertices.reserve(5);
-    AMVFWeights.clear();
-    AMVFWeights.reserve(5);
+    
+    vxWithWeight.clear();
 
     // Iterate over our vertices
-    for (const auto& vtx : *vtxCont) {
+    for (const auto vtx : *vtxCont) {
       if (!vtx) continue;
 
-      // Get our fit tracks and weights (inefficient? done for **each** vertex trkCont->size() times)
-      fitTracks = ::convertLinksToTracks(vtx->trackParticleLinks());
-      posInFitTrks = ::positionInVector(trk, fitTracks);
-      if (posInFitTrks != -1) {
-        vtxLink.reset();
-        vtxLink.toContainedElement(*vtxCont, vtx, ctx);
-        AMVFVertices.push_back(vtxLink);
-        AMVFWeights.push_back(vtx->trackWeights().at(posInFitTrks));
+      //Search for vertex linked to this track
+      const auto& trkLinks=vtx->trackParticleLinks();
+      const size_t nTrackLinks=trkLinks.size();
+      for (unsigned i=0;i<nTrackLinks;++i) {
+	if (*(trkLinks[i]) == trk ) {//ptr comparison
+	  vxWithWeight.emplace_back(vtx,vtx->trackWeights()[i]);
+	  break; //Found pointer, quit loop
+	}
       }
+    }//end loop over vertices
+    
+    //sort by weight
+    std::sort(vxWithWeight.begin(),vxWithWeight.end(),
+	      [](std::pair<const xAOD::Vertex*,float>& a, std::pair<const xAOD::Vertex*,float>& b){ return a.second > b.second; } );
+  
+    //split vector of pairs into two vectors in sync:
+    
+    std::vector<ElementLink<xAOD::VertexContainer>> AMVFVertices;
+    std::vector<float> AMVFWeights;
+    AMVFVertices.reserve(vxWithWeight.size());
+    AMVFWeights.reserve(vxWithWeight.size());
 
-    } // end, loop over vertices
-
-    // Sort our vertices and weights in order of highest to lowest weight
-    std::vector<std::size_t> p = ::sort_permutation(AMVFWeights, [](const float& w1, const float& w2){ return w1 > w2; });
-    AMVFVertices = ::apply_permutation(AMVFVertices, p);
-    AMVFWeights  = ::apply_permutation(AMVFWeights, p);
+    for (const auto& p : vxWithWeight) {
+      AMVFVertices.emplace_back(p.first,*vtxCont,ctx);
+      AMVFWeights.emplace_back(p.second);
+    }
 
     // Actually perform the decoration
-    vtxDeco(*trk) = AMVFVertices;
-    wgtDeco(*trk) = AMVFWeights;
+    vtxDeco(*trk) = std::move(AMVFVertices);
+    wgtDeco(*trk) = std::move(AMVFWeights);
 
   } // end, loop over tracks
 
