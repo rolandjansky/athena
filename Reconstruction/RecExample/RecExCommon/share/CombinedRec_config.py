@@ -145,6 +145,14 @@ if jetOK and rec.doBTagging() and  DetFlags.ID_on() and DetFlags.Muon_on():
         ConfigFlags.Input.Files = jps.AthenaCommonFlags.FilesInput.get_Value()
         ConfigFlags.IOVDb.GlobalTag=globalflags.ConditionsTag()
         ConfigFlags.GeoModel.AtlasVersion = jps.Global.DetDescrVersion()
+        # Placeholder - to be replaced with a function to fill standard values.
+        ConfigFlags.Detector.GeometryPixel = DetFlags.geometry.pixel_on()
+        ConfigFlags.Detector.GeometrySCT = DetFlags.geometry.SCT_on()
+        ConfigFlags.Detector.GeometryTRT =  DetFlags.geometry.TRT_on()
+        ConfigFlags.Detector.RecoIBL = DetFlags.makeRIO.pixel_on()
+        ConfigFlags.Detector.RecoPixel = DetFlags.makeRIO.pixel_on()
+        ConfigFlags.Detector.RecoSCT = DetFlags.makeRIO.SCT_on()
+        ConfigFlags.Detector.RecoTRT = DetFlags.makeRIO.TRT_on()
         # Additional b-tagging related flags
         ConfigFlags.BTagging.SaveSV1Probabilities = True
         ConfigFlags.BTagging.RunJetFitterNN = True

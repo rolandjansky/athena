@@ -1054,26 +1054,39 @@ def conf2toConfigurable( comp, indent="", suppressDupes=False ):
                         _log.info("%s Could not set attribute. Type of existingConfigurableInstance %s.",indent, type(existingConfigurableInstance) )
                         raise
                 elif alreadySetProperties[pname] != pvalue:
-                    _log.debug( "%sMerging property: %s for %s", indent, pname, newConf2Instance.getName() )
-                    # create surrogate
-                    clone = newConf2Instance.getInstance("Clone")
-                    setattr(clone, pname, alreadySetProperties[pname])
-                    try:
-                        updatedPropValue = __listHelperToList(newConf2Instance._descriptors[pname].semantics.merge( getattr(newConf2Instance, pname), getattr(clone, pname)))
-                    except ValueError:
-                        _log.warning( "Failed merging new config value (%s) and old config value (%s) for (%s) property of %s (%s) old (new). Will take value from NEW configuration, but this should be checked!",
-                            getattr(newConf2Instance, pname),getattr(clone, pname),pname,existingConfigurableInstance.getFullJobOptName() ,newConf2Instance.getFullJobOptName() )
-                        updatedPropValue=getattr(newConf2Instance, pname)
-                        # Necessary because default value is returned for lists... see e.g.:
-                        # https://gitlab.cern.ch/atlas/athena/-/blob/630b82d0540fff24c2a1da6716efc0adb53727c9/Control/AthenaCommon/python/PropertyProxy.py#L109
-                    _log.debug("existingConfigurable.name: %s, pname: %s, updatedPropValue: %s", existingConfigurableInstance.name(), pname, updatedPropValue )
+                    # Old configuration writes some properties differently e.g. like ConditionStore+TileBadChannels instead of just TileBadChannels
+                    # So check this isn't a false postive before continuing
+                    merge = True
+                    try: 
+                        if '+' in alreadySetProperties[pname].toStringProperty() and alreadySetProperties[pname].toStringProperty().split('+')[-1] == pvalue: 
+                            # Okay. sot they ARE actually the same
+                            merge=False
+                            _log.debug( "%sAdding property: %s for %s", indent, pname, newConf2Instance.getName() )
+                    except AttributeError:
+                        # This is fine - it just means it's not e.g. a DataHandle and doesn't have toStringProperty()
+                        pass
 
-                    setattr(existingConfigurableInstance, pname, updatedPropValue)
-                    del clone
-                    _log.debug("%s invoked GaudiConf2 semantics to merge the %s and the %s to %s "
-                               "for property %s of %s",
-                               indent, alreadySetProperties[pname], pvalue, pname,
-                               updatedPropValue, existingConfigurable.getFullName())
+                    if merge:
+                        _log.debug( "%sMerging property: %s for %s", indent, pname, newConf2Instance.getName() )
+                        # create surrogate
+                        clone = newConf2Instance.getInstance("Clone")
+                        setattr(clone, pname, alreadySetProperties[pname])
+                        try:
+                            updatedPropValue = __listHelperToList(newConf2Instance._descriptors[pname].semantics.merge( getattr(newConf2Instance, pname), getattr(clone, pname)))
+                        except ValueError:
+                            _log.warning( "Failed merging new config value (%s) and old config value (%s) for (%s) property of %s (%s) old (new). Will take value from NEW configuration, but this should be checked!",
+                                getattr(newConf2Instance, pname),getattr(clone, pname),pname,existingConfigurableInstance.getFullJobOptName() ,newConf2Instance.getFullJobOptName() )
+                            updatedPropValue=getattr(newConf2Instance, pname)
+                            # Necessary because default value is returned for lists... see e.g.:
+                            # https://gitlab.cern.ch/atlas/athena/-/blob/630b82d0540fff24c2a1da6716efc0adb53727c9/Control/AthenaCommon/python/PropertyProxy.py#L109
+                        _log.debug("existingConfigurable.name: %s, pname: %s, updatedPropValue: %s", existingConfigurableInstance.name(), pname, updatedPropValue )
+
+                        setattr(existingConfigurableInstance, pname, updatedPropValue)
+                        del clone
+                        _log.debug("%s invoked GaudiConf2 semantics to merge the %s and the %s to %s "
+                                "for property %s of %s",
+                                indent, alreadySetProperties[pname], pvalue, pname,
+                                updatedPropValue, existingConfigurable.getFullName())
 
     _log.debug( "%s Conf2 Full name: %s ", indent, comp.getFullJobOptName() )
     existingConfigurable = __alreadyConfigured( comp.name )
