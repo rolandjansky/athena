@@ -279,7 +279,7 @@ StatusCode TrigDecisionChecker::execute()
     ATH_MSG_DEBUG("SMK = " << smk);
     
     // Check to see whether this is an event which we should process
-    if(smk!=m_smKey && m_smKey!=0) {
+    if(smk!=m_smKey && m_smKey!=0u) {
         // We do not have a matching super master key so skip the event and return success
         return StatusCode::SUCCESS;
     }
