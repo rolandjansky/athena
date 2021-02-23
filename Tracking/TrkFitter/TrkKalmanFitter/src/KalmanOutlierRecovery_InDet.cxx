@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -262,8 +262,14 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
       (*cov)(4,4) = 0.04*sctExitTemp->parameters()[Trk::qOverP]
         *sctExitTemp->parameters()[Trk::qOverP];
 
-      const Trk::TrackParameters* sctExit = sctExitTemp->associatedSurface().createTrackParameters(par[Trk::loc1],par[Trk::loc2],
-													 par[Trk::phi],par[Trk::theta],par[Trk::qOverP],cov);
+      std::unique_ptr<Trk::TrackParameters> sctExit =
+        sctExitTemp->associatedSurface().createUniqueTrackParameters(
+          par[Trk::loc1],
+          par[Trk::loc2],
+          par[Trk::phi],
+          par[Trk::theta],
+          par[Trk::qOverP],
+          cov);
       delete sctExitTemp;
       ATH_MSG_DEBUG ("-O- At iteration " << fitIteration << " SCT exit: meas't (" <<
                      lastSctState->measurement()->localParameters()[Trk::locX] << ",  " <<
@@ -276,7 +282,6 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
       const Trk::TrackParameters* sctFitResult =
         m_updator->addToState(*sctExit, lastSctState_r->measurement()->localParameters(),
                               lastSctState_r->measurement()->localCovariance()).release();
-      delete sctExit;
       Trk::Trajectory::reverse_iterator rit = lastSctState_r + 1;
       Trk::Trajectory::reverse_iterator firstSctState_r = T.rend();
       for( ; rit!=T.rend(); ++rit) {

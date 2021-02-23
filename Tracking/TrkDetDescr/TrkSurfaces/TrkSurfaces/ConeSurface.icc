@@ -13,20 +13,6 @@ ConeSurface::type() const
 
 /** Use the Surface as a ParametersBase constructor, from local parameters -
  * charged */
-inline ParametersT<5, Charged, ConeSurface>*
-ConeSurface::createTrackParameters(double l1,
-                                   double l2,
-                                   double phi,
-                                   double theta,
-                                   double qop,
-                                   AmgSymMatrix(5) * cov) const
-{
-  return new ParametersT<5, Charged, ConeSurface>(
-    l1, l2, phi, theta, qop, *this, cov);
-}
-
-/** Use the Surface as a ParametersBase constructor, from local parameters -
- * charged */
 inline Surface::ChargedTrackParametersUniquePtr
 ConeSurface::createUniqueTrackParameters(double l1,
                                    double l2,
@@ -38,7 +24,8 @@ ConeSurface::createUniqueTrackParameters(double l1,
   return std::make_unique<ParametersT<5, Charged, ConeSurface>>(
     l1, l2, phi, theta, qop, *this, cov);
 }
-
+/** Use the Surface as a ParametersBase constructor, from global parameters -
+ * charged*/
 inline Surface::ChargedTrackParametersUniquePtr
 ConeSurface::createUniqueTrackParameters( const Amg::Vector3D& position,
                                    const Amg::Vector3D& momentum,
@@ -49,18 +36,6 @@ ConeSurface::createUniqueTrackParameters( const Amg::Vector3D& position,
     position, momentum, charge, *this, cov);
 }
 
-
-/** Use the Surface as a ParametersBase constructor, from global parameters -
- * charged*/
-inline ParametersT<5, Charged, ConeSurface>*
-ConeSurface::createTrackParameters(const Amg::Vector3D& position,
-                                   const Amg::Vector3D& momentum,
-                                   double charge,
-                                   AmgSymMatrix(5) * cov) const
-{
-  return new ParametersT<5, Charged, ConeSurface>(
-    position, momentum, charge, *this, cov);
-}
 
 /** Use the Surface as a ParametersBase constructor, from local parameters -
  * neutral */

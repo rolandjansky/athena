@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@
 #include "TTree.h"
 #include "GaudiKernel/ITHistSvc.h"
 // STD
-#include <math.h>
+#include <cmath>
 
 #include "TrkGeometry/Material.h"
 #include "TrkGeometry/MaterialProperties.h"
@@ -52,7 +52,7 @@ iFatras::HadIntProcessorParametric::HadIntProcessorParametric(const std::string&
   m_truthRecordSvc("ISF_TruthRecordSvc", n),
   m_rndGenSvc("AtDSFMTGenSvc", n),
   m_processCode(121),
-  m_randomEngine(0),
+  m_randomEngine(nullptr),
   m_randomEngineName("FatrasRnd"),
   m_validationMode(false),
   m_validationTool(""),
@@ -60,7 +60,7 @@ iFatras::HadIntProcessorParametric::HadIntProcessorParametric(const std::string&
   m_hadIntValidationTreeName("FatrasHadronicInteractions"),
   m_hadIntValidationTreeDescription("Validation output from the HadIntProcessorParametric"),
   m_hadIntValidationTreeFolder("/val/FatrasHadronicInteractions"),
-  m_hadIntValidationTree(0),
+  m_hadIntValidationTree(nullptr),
   m_hadIntPointX(0.),
   m_hadIntPointY(0.),
   m_hadIntPointR(0.),
@@ -143,7 +143,7 @@ StatusCode iFatras::HadIntProcessorParametric::initialize()
 
     if (m_hadIntValidation){
 
-      ITHistSvc* tHistSvc = 0;
+      ITHistSvc* tHistSvc = nullptr;
       // now register the Tree
       if (service("THistSvc",tHistSvc).isFailure())
            ATH_MSG_ERROR( "initialize() Could not find Hist Service -> Switching ValidationMode Off !" );
@@ -181,7 +181,7 @@ StatusCode iFatras::HadIntProcessorParametric::initialize()
 
         if ((tHistSvc->regTree(m_hadIntValidationTreeFolder, m_hadIntValidationTree)).isFailure()) {
            ATH_MSG_ERROR("initialize() Could not register the validation Tree -> Switching ValidationMode Off !" );
-           delete m_hadIntValidationTree; m_hadIntValidationTree = 0;
+           delete m_hadIntValidationTree; m_hadIntValidationTree = nullptr;
         } else
            ATH_MSG_INFO( "TTree for Hadronic Interactions validation booked." );
       }
@@ -646,7 +646,7 @@ ISF::ISFParticleVector iFatras::HadIntProcessorParametric::getHadState(const ISF
 
   // save info for validation
   if (m_validationMode && m_validationTool) {
-    Amg::Vector3D* nMom = 0;
+    Amg::Vector3D* nMom = nullptr;
     m_validationTool->saveISFVertexInfo(m_processCode,vertex,*parent,p*particleDir,nMom,children);
     delete nMom;
   }
@@ -677,7 +677,7 @@ bool iFatras::HadIntProcessorParametric::doHadronicInteraction(double time, cons
 
   // push onto ParticleStack
 
-  if (processSecondaries && ispVec.size() ) {
+  if (processSecondaries && !ispVec.empty() ) {
        for (unsigned int ic=0; ic<ispVec.size(); ic++) {
  	        if (!ispVec[ic]->getTruthBinding()) {
  	                ispVec[ic]->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
@@ -715,7 +715,7 @@ bool iFatras::HadIntProcessorParametric::recordHadState(double time, double p,
   //  if (!ispVec.size()) return false;
 
   // push onto ParticleStack
-  if (ispVec.size() ) {
+  if (!ispVec.empty() ) {
 	for (unsigned int ic=0; ic<ispVec.size(); ic++) {
 	        if (!ispVec[ic]->getTruthBinding()) {
 	                ispVec[ic]->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));

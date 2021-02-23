@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPC_PrepDataToxAOD.h"
@@ -15,10 +15,10 @@
 RPC_PrepDataToxAOD::RPC_PrepDataToxAOD(const std::string &name, ISvcLocator *pSvcLocator) :
   MuonPrepDataToxAOD(name,pSvcLocator,"RPC_Measurements","RPC_SDO"),
   m_inversePropagationSpeed(0.0048)
-{  
+{
 }
 
-StatusCode RPC_PrepDataToxAOD::initialize() 
+StatusCode RPC_PrepDataToxAOD::initialize()
 {
   ATH_CHECK(MuonPrepDataToxAOD::initialize());
   ATH_CHECK(m_clusterCreator.retrieve());
@@ -27,7 +27,7 @@ StatusCode RPC_PrepDataToxAOD::initialize()
 }
 
 // Execute method:
-StatusCode RPC_PrepDataToxAOD::execute() 
+StatusCode RPC_PrepDataToxAOD::execute()
 {
   SG::ReadHandle<Muon::RpcPrepDataContainer> rpcPrds(m_inputContainerName);
   SG::ReadHandle<MuonSimDataCollection> rpcSdos(m_sdoContainerName);
@@ -68,7 +68,7 @@ void RPC_PrepDataToxAOD::addSDO_TechnologyInformation( xAOD::TrackMeasurementVal
     }else{
       distToReadout = prd.detectorElement()->distanceToEtaReadout(gpos);
     }
-    if( distToReadout > -998 ) propagationTime  =  distToReadout*m_inversePropagationSpeed;    
+    if( distToReadout > -998 ) propagationTime  =  distToReadout*m_inversePropagationSpeed;
   }
 
   float& residual = xprd.auxdata<float>("residual");
@@ -84,15 +84,19 @@ void RPC_PrepDataToxAOD::addSDO_TechnologyInformation( xAOD::TrackMeasurementVal
     Amg::Vector3D gposCor = gToL.inverse()*lposCor;
     const Muon::MuonClusterOnTrack* clus = m_clusterCreator->createRIO_OnTrack(prd,gposCor);
     if( clus ) {
-      const Trk::TrackParameters* pars = clus->associatedSurface().createTrackParameters(gposCor,gposCor.unit(),1.,NULL);
-      if( pars ){
+      const Trk::TrackParameters* pars =
+        clus->associatedSurface()
+          .createUniqueTrackParameters(gposCor, gposCor.unit(), 1., nullptr)
+          .release();
+      if (pars) {
         const Trk::ResidualPull* resPull = m_pullCalculator->residualPull( clus, pars, Trk::ResidualPull::HitOnly );
         if( resPull && !resPull->residual().empty() ) {
           residual = resPull->residual().front();
           pull     = resPull->pull().front();
         }else ATH_MSG_DEBUG("Failed to calculate residual");
         delete resPull;
-      }else ATH_MSG_DEBUG("Failed to create track parameters");
+      } else
+        ATH_MSG_DEBUG("Failed to create track parameters");
       delete pars;
     }else ATH_MSG_DEBUG("Failed to create cluster on track");
     delete clus;

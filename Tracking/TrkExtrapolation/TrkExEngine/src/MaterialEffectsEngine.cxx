@@ -16,17 +16,17 @@
 Trk::MaterialEffectsEngine::MaterialEffectsEngine(const std::string& t, const std::string& n, const IInterface* p)
 : AthAlgTool(t,n,p),
   m_eLossCorrection(true),
-  m_eLossMpv(true),       
-  m_mscCorrection(true)   
+  m_eLossMpv(true),
+  m_mscCorrection(true)
 {
     declareInterface<Trk::IMaterialEffectsEngine>(this);
     // steering of the screen outoput (SOP)
     declareProperty("OutputPrefix"                          , m_sopPrefix);
     declareProperty("OutputPostfix"                         , m_sopPostfix);
     // steering of the material effects engine behaviour
-    declareProperty("EnergyLossCorrection"                  , m_eLossCorrection); 
-    declareProperty("MostProbableEnergyLoss"                , m_eLossMpv);         
-    declareProperty("MultipleScatteringCorrection"          , m_mscCorrection);    
+    declareProperty("EnergyLossCorrection"                  , m_eLossCorrection);
+    declareProperty("MostProbableEnergyLoss"                , m_eLossMpv);
+    declareProperty("MultipleScatteringCorrection"          , m_mscCorrection);
 }
 
 // destructor
@@ -39,11 +39,11 @@ StatusCode Trk::MaterialEffectsEngine::initialize()
 {
     EX_MSG_DEBUG( "", "initialize","",  "successful" );
     return StatusCode::SUCCESS;
-}    
+}
 
 // the interface method finalize
 StatusCode Trk::MaterialEffectsEngine::finalize()
-{    
+{
     EX_MSG_DEBUG( "", "finalize","",  "successful" );
     return StatusCode::SUCCESS;
 }
@@ -56,38 +56,38 @@ Trk::ExtrapolationCode Trk::MaterialEffectsEngine::handleMaterial(Trk::ExCellNeu
 
     // the Extrapolator made sure that the layer is the lead layer && the parameters are the lead parameters
     if (eCell.leadLayer && eCell.leadLayer->layerMaterialProperties()){
-        EX_MSG_DEBUG( ++eCell.navigationStep, "layer",  eCell.leadLayer->layerIndex().value(), "handleMaterial for neutral parameters called - collect material."); 
+        EX_MSG_DEBUG( ++eCell.navigationStep, "layer",  eCell.leadLayer->layerIndex().value(), "handleMaterial for neutral parameters called - collect material.");
         // now calculate the pathCorrection from the layer surface - it is signed, gives you the relative direction to the layer
         const Trk::Layer* layer = eCell.leadLayer;
-        // path correction 
+        // path correction
         double pathCorrection = layer->surfaceRepresentation().pathCorrection(eCell.leadParameters->position(),dir*(eCell.leadParameters->momentum()));
         // the relative direction wrt with the layer
         Trk::PropDirection rlDir = (pathCorrection > 0. ? Trk::alongMomentum : Trk::oppositeMomentum);
         // multiply by the pre-and post-update factor
         double mFactor = layer->layerMaterialProperties()->factor(rlDir, matupstage);
         if (mFactor == 0.){
-            EX_MSG_VERBOSE(eCell.navigationStep, "layer",  layer->layerIndex().value(), "material collection with "  << (matupstage > 0. ? "pre " : "post ")  << "factor 0."); 
+            EX_MSG_VERBOSE(eCell.navigationStep, "layer",  layer->layerIndex().value(), "material collection with "  << (matupstage > 0. ? "pre " : "post ")  << "factor 0.");
             // return the parameters untouched -
             return Trk::ExtrapolationCode::InProgress;
         }
         pathCorrection = mFactor*pathCorrection;
         // screen output
-        EX_MSG_VERBOSE(eCell.navigationStep, "layer",  layer->layerIndex().value(), "material update with corr factor = " << pathCorrection); 
+        EX_MSG_VERBOSE(eCell.navigationStep, "layer",  layer->layerIndex().value(), "material update with corr factor = " << pathCorrection);
         // get the actual material bin
         const Trk::MaterialProperties* materialProperties = layer->layerMaterialProperties()->fullMaterial(eCell.leadParameters->position());
         // and let's check if there's acutally something to do
         if (materialProperties){
-            // thickness in X0 
+            // thickness in X0
             double thicknessInX0          = materialProperties->thicknessInX0();
             // check if material filling was requested
             if (eCell.checkConfigurationMode(Trk::ExtrapolationMode::CollectMaterial)){
-                EX_MSG_VERBOSE(eCell.navigationStep, "layer",  layer->layerIndex().value(), "collecting material of [t/X0] = " << thicknessInX0); 
+                EX_MSG_VERBOSE(eCell.navigationStep, "layer",  layer->layerIndex().value(), "collecting material of [t/X0] = " << thicknessInX0);
                 eCell.stepMaterial(eCell.leadParameters->associatedSurface(), layer, eCell.leadParameters->position(), pathCorrection, materialProperties);
             } else {
-                EX_MSG_VERBOSE(eCell.navigationStep, "layer",  layer->layerIndex().value(), "adding material of [t/X0] = " << thicknessInX0); 
+                EX_MSG_VERBOSE(eCell.navigationStep, "layer",  layer->layerIndex().value(), "adding material of [t/X0] = " << thicknessInX0);
                 eCell.addMaterial(pathCorrection, materialProperties);
             }
-        }    
+        }
     }
     // only in case of post update it should not return InProgress
     return Trk::ExtrapolationCode::InProgress;
@@ -102,8 +102,8 @@ Trk::ExtrapolationCode Trk::MaterialEffectsEngine::handleMaterial(Trk::ExCellCha
 
     // the Extrapolator made sure that the layer is the lead layer && the parameters are the lead parameters
     if (eCell.leadLayer && eCell.leadLayer->layerMaterialProperties()){
-        EX_MSG_DEBUG( ++eCell.navigationStep, "layer",  eCell.leadLayer->layerIndex().value(), "handleMaterial for charged parameters called."); 
-        // update the track parameters    
+        EX_MSG_DEBUG( ++eCell.navigationStep, "layer",  eCell.leadLayer->layerIndex().value(), "handleMaterial for charged parameters called.");
+        // update the track parameters
         eCell.leadParameters = updateTrackParameters(*eCell.leadParameters,eCell,dir,matupstage);
     }
     // only in case of post update it should not return InProgress
@@ -114,29 +114,29 @@ Trk::ExtrapolationCode Trk::MaterialEffectsEngine::handleMaterial(Trk::ExCellCha
 const Trk::TrackParameters* Trk::MaterialEffectsEngine::updateTrackParameters(const Trk::TrackParameters& parameters,
                                                                               Trk::ExCellCharged& eCell,
                                                                               Trk::PropDirection dir,
-                                                                              Trk::MaterialUpdateStage matupstage) const 
+                                                                              Trk::MaterialUpdateStage matupstage) const
 {
     // now calculate the pathCorrection from the layer surface - it is signed, gives you the relative direction to the layer
     const Trk::Layer* layer = eCell.leadLayer;
-    // path correction 
+    // path correction
     double pathCorrection = layer->surfaceRepresentation().pathCorrection(parameters.position(),dir*(parameters.momentum()));
     // the relative direction wrt with the layer
     Trk::PropDirection rlDir = (pathCorrection > 0. ? Trk::alongMomentum : Trk::oppositeMomentum);
     // multiply by the pre-and post-update factor
     double mFactor = layer->layerMaterialProperties()->factor(rlDir, matupstage);
     if (mFactor == 0.){
-        EX_MSG_VERBOSE(eCell.navigationStep, "layer",  layer->layerIndex().value(), "material update with "  << (matupstage > 0. ? "pre " : "post ")  << "factor 0. No update done."); 
+        EX_MSG_VERBOSE(eCell.navigationStep, "layer",  layer->layerIndex().value(), "material update with "  << (matupstage > 0. ? "pre " : "post ")  << "factor 0. No update done.");
         // return the parameters untouched -
         return (&parameters);
     }
     pathCorrection = mFactor*pathCorrection;
     // screen output
-    EX_MSG_VERBOSE(eCell.navigationStep, "layer",  layer->layerIndex().value(), "material update with corr factor = " << pathCorrection); 
+    EX_MSG_VERBOSE(eCell.navigationStep, "layer",  layer->layerIndex().value(), "material update with corr factor = " << pathCorrection);
     // get the actual material bin
     const Trk::MaterialProperties* materialProperties = layer->layerMaterialProperties()->fullMaterial(parameters.position());
     // and let's check if there's acutally something to do
     if (materialProperties && ( m_eLossCorrection || m_mscCorrection || eCell.checkConfigurationMode(Trk::ExtrapolationMode::CollectMaterial)) ){
-        // and add them 
+        // and add them
         int sign = int(eCell.materialUpdateMode);
         // a simple cross-check if the parameters are the initial ones
         AmgVector(5)      uParameters = parameters.parameters();
@@ -155,7 +155,7 @@ const Trk::TrackParameters* Trk::MaterialEffectsEngine::updateTrackParameters(co
             double sigmaP = 0.;
             double kazl   = 0.;
             /** dE/dl ionization energy loss per path unit */
-            double dEdl = sign*dir*m_interactionFormulae.dEdl_ionization(p, &material, eCell.pHypothesis, sigmaP, kazl);    
+            double dEdl = sign*dir*m_interactionFormulae.dEdl_ionization(p, &material, eCell.pHypothesis, sigmaP, kazl);
             double dE   = thickness*pathCorrection*dEdl;
             sigmaP *= thickness*pathCorrection;
             // calcuate the new momentum
@@ -170,7 +170,7 @@ const Trk::TrackParameters* Trk::MaterialEffectsEngine::updateTrackParameters(co
         // (B) - update the covariance if needed
         if (uCovariance && m_mscCorrection){
 	        /** multiple scattering as function of dInX0 */
-	        double sigmaMS = m_interactionFormulae.sigmaMS(thicknessInX0*pathCorrection, p, beta);    
+	        double sigmaMS = m_interactionFormulae.sigmaMS(thicknessInX0*pathCorrection, p, beta);
 	        double sinTheta = sin(parameters.parameters()[Trk::theta]);
 	        double sigmaDeltaPhiSq = sigmaMS*sigmaMS/(sinTheta*sinTheta);
 	        double sigmaDeltaThetaSq = sigmaMS*sigmaMS;
@@ -180,29 +180,30 @@ const Trk::TrackParameters* Trk::MaterialEffectsEngine::updateTrackParameters(co
         }
         // check if material filling was requested
         if (eCell.checkConfigurationMode(Trk::ExtrapolationMode::CollectMaterial)){
-	        EX_MSG_VERBOSE(eCell.navigationStep, "layer",  layer->layerIndex().value(), "collecting material of [t/X0] = " << thicknessInX0); 
+	        EX_MSG_VERBOSE(eCell.navigationStep, "layer",  layer->layerIndex().value(), "collecting material of [t/X0] = " << thicknessInX0);
 	        eCell.stepMaterial(parameters.associatedSurface(), layer, parameters.position(), pathCorrection, materialProperties);
         } else {
-	        EX_MSG_VERBOSE(eCell.navigationStep, "layer",  layer->layerIndex().value(), "adding material of [t/X0] = " << thicknessInX0); 
+	        EX_MSG_VERBOSE(eCell.navigationStep, "layer",  layer->layerIndex().value(), "adding material of [t/X0] = " << thicknessInX0);
 	        eCell.addMaterial(pathCorrection, materialProperties);
         }
         // now either create new ones or update - only start parameters can not be updated
         if (eCell.leadParameters != eCell.startParameters ){
-            EX_MSG_VERBOSE(eCell.navigationStep, "layer",  layer->layerIndex().value(), "material update on non-initial parameters."); 
-            const_cast<Trk::TrackParameters*>(&parameters)->updateParameters(uParameters,uCovariance);	    
+            EX_MSG_VERBOSE(eCell.navigationStep, "layer",  layer->layerIndex().value(), "material update on non-initial parameters.");
+            const_cast<Trk::TrackParameters*>(&parameters)->updateParameters(uParameters,uCovariance);
         } else {
-            EX_MSG_VERBOSE(eCell.navigationStep, "layer",  layer->layerIndex().value(), "material update on initial parameters, creating new ones."); 
+            EX_MSG_VERBOSE(eCell.navigationStep, "layer",  layer->layerIndex().value(), "material update on initial parameters, creating new ones.");
             // create new parameters
             const Trk::Surface& tSurface = parameters.associatedSurface();
-            const Trk::TrackParameters* tParameters = tSurface.createTrackParameters(uParameters[Trk::loc1],
-                                                                                     uParameters[Trk::loc2],
-                                                                                     uParameters[Trk::phi],
-                                                                                     uParameters[Trk::theta],
-                                                                                     uParameters[Trk::qOverP],
-                                                                                     uCovariance);
-	    // these are newly created
-	    return tParameters;                     
-        }                
-    }        
+            const Trk::TrackParameters* tParameters = tSurface.createUniqueTrackParameters(uParameters[Trk::loc1],
+                                                                                           uParameters[Trk::loc2],
+                                                                                           uParameters[Trk::phi],
+                                                                                           uParameters[Trk::theta],
+                                                                                           uParameters[Trk::qOverP],
+                                                                                           uCovariance).release();
+            // these are newly created
+            return tParameters;
+        }
+    }
+    //note aliaing input ...
     return (&parameters);
 }

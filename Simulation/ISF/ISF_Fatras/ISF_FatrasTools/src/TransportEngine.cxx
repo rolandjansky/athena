@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -50,7 +50,7 @@ iFatras::TransportEngine::TransportEngine( const std::string& t,
 				       const IInterface*  p )
   : base_class(t,n,p),
     m_rndGenSvc("AtDSFMTGenSvc", n), 
-    m_randomEngine(0),
+    m_randomEngine(nullptr),
     m_randomEngineName("FatrasRnd"),
     m_particleDecayHelper(""),
     m_simHitCreatorID(""),
@@ -163,18 +163,18 @@ ISF::ISFParticle* iFatras::TransportEngine::process( const ISF::ISFParticle& isp
   if ( absPdg == 999 ) pHypothesis = Trk::geantino;
 
   // chose the filter & extrapolator
-  const ISF::IParticleFilter* filter  = m_trackFilter.empty() ? 0 :  &(*m_trackFilter); 
+  const ISF::IParticleFilter* filter  = m_trackFilter.empty() ? nullptr :  &(*m_trackFilter); 
   
   // switch the cases based on the particle PDG value
   if ( absPdg == 22 ) {
     ATH_MSG_VERBOSE( "[ fatras transport ] Particle is photon   -> neutral transport and eventual conversion");
-    filter        =  m_photonFilter.empty() ? 0 :  &(*m_photonFilter);
+    filter        =  m_photonFilter.empty() ? nullptr :  &(*m_photonFilter);
   } else if  ( (absPdg == 12) || (absPdg == 14) || (absPdg == 16) ) {
     ATH_MSG_VERBOSE( "[ fatras transport ] Particle is neutrino -> particle going to be ignored.");
-    return 0;
+    return nullptr;
   } else if ( !((isp.charge()*isp.charge()) > 0.) ){
     ATH_MSG_VERBOSE( "[ fatras transport ] Particle not charged -> neutral transport and eventual (hadronic) interaction");
-    filter        =  m_neutralHadronFilter.empty() ? 0 :  &(*m_neutralHadronFilter);
+    filter        =  m_neutralHadronFilter.empty() ? nullptr :  &(*m_neutralHadronFilter);
   } else {
     ATH_MSG_VERBOSE( "[ fatras transport ] Particle is a lepton or charged hadron -> charged transport and according material interactions.");
     // filter is already track filter at default
@@ -214,7 +214,7 @@ ISF::ISFParticle* iFatras::TransportEngine::process( const ISF::ISFParticle& isp
       Trk::CurvilinearParameters inputPar(isp.position(),isp.momentum(),isp.charge());
       m_validationTool->saveISFParticleInfo(isp,201,&inputPar,isp.timeStamp(),0.); 
     }
-    return 0;
+    return nullptr;
   }
   
   // [b] MATERIAL section ------------------------------------------------------------------------------
@@ -226,7 +226,7 @@ ISF::ISFParticle* iFatras::TransportEngine::process( const ISF::ISFParticle& isp
   double materialX0=0.;
   double materialL0=0.;
   // now sample the path limit if not done already
-  ISF::MaterialPathInfo* matLimit = isp.getUserInformation() ? isp.getUserInformation()->materialLimit() : 0;
+  ISF::MaterialPathInfo* matLimit = isp.getUserInformation() ? isp.getUserInformation()->materialLimit() : nullptr;
   if (matLimit) {
     materialProcess = matLimit->process;
     if (materialProcess==121) materialLimitL0 = matLimit->dMax;
@@ -244,7 +244,7 @@ ISF::ISFParticle* iFatras::TransportEngine::process( const ISF::ISFParticle& isp
   //  - TRANSPORT THROUGH THE DETECTOR
   //
   // the return particle (if any)
-  ISF::ISFParticle* rParticle = 0;
+  ISF::ISFParticle* rParticle = nullptr;
   // 
   // [A] Neutral transport, includes
   //  - no hit creation 
@@ -305,7 +305,7 @@ ISF::ISFParticle* iFatras::TransportEngine::process( const ISF::ISFParticle& isp
       return rParticle;
     } else {
       ATH_MSG_WARNING( "Error code " << eCode.toString() << " running the Extrapolator for neutral particle!" );
-      return 0;
+      return nullptr;
     }
   } else {
     // [B] Charged transport 
@@ -369,12 +369,12 @@ ISF::ISFParticle* iFatras::TransportEngine::process( const ISF::ISFParticle& isp
         // get the parameters
          const Trk::TrackParameters* parameters = es.parameters;
          // transfer into a detector ID (by layer type)
-	 hitVector.push_back(Trk::HitInfo(parameters, (parameters->position()).mag()/CLHEP::c_light, 1, 0.));
+	 hitVector.emplace_back(parameters, (parameters->position()).mag()/CLHEP::c_light, 1, 0.);
     }
     // [B - 3] create hits ----------------------------------------------------------------------------------------
     //   
     // create hits 
-    if (hitVector.size()>0){
+    if (!hitVector.empty()){
        ATH_MSG_INFO( "[ fatras transport ] processing " << hitVector.size() << " hits from charged extrapolation.");
        if (!m_simHitCreatorID.empty()) m_simHitCreatorID->createHits(isp, hitVector);
        ATH_MSG_INFO( "[ fatras transport ] ID hits processed.");
@@ -411,7 +411,7 @@ ISF::ISFParticle* iFatras::TransportEngine::handleExtrapolationResult(const ISF:
 {
 
     // the return particle
-    ISF::ISFParticle* rParticle = 0;
+    ISF::ISFParticle* rParticle = nullptr;
     // switch the extrapolation code returns
     if (eCode == Trk::ExtrapolationCode::SuccessBoundaryReached){
         ATH_MSG_VERBOSE( "[ fatras transport ] Successfully reached detector boundary with the particle -> return particle at boundary.");
