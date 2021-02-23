@@ -24,6 +24,7 @@
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "L1CaloFEXSim/eFEXFPGATowerIdProvider.h"
 #include "L1CaloFEXToolInterfaces/IeFakeTower.h"
+#include "L1CaloFEXSim/eFEXCompression.h"
 
 
 namespace LVL1 {
@@ -43,6 +44,7 @@ namespace LVL1 {
     StatusCode loadFPGA(int);
     StatusCode loaddic(int);
     StatusCode changeTowerET(LVL1::eTower*, int, int, int);
+    int getFPGAnumber(int, int);
     eTowerContainer* m_eTowerContainer;
     std::vector<int>* loadBlock(std::string, int);
     int m_numberofevents;

@@ -40,7 +40,17 @@ StatusCode LVL1::eFakeTower::init(std::string input_fileadress) {
   ATH_CHECK( m_eFEXFPGATowerIdProviderTool.retrieve() );
   m_numberofevents = 1;
   m_inputfile = input_fileadress;
-  ATH_CHECK( loaddic(1) ); //TODO
+  std::string txt = ".txt";
+  for (int efex{ 0 }; efex < 23; efex++) {
+    for (int fpga{ 0 }; fpga < 4; fpga++) {
+      std::fstream fileStream;
+      fileStream.open(m_inputfile + std::to_string(getFPGAnumber(efex, fpga)) + txt);
+      if (fileStream.fail()) {
+          continue;
+      }
+      ATH_CHECK( loaddic(getFPGAnumber(efex, fpga)) );
+    }
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -80,7 +90,17 @@ StatusCode LVL1::eFakeTower::loadnext()
   for (auto& allfpga : m_alltowers) {
     delete allfpga.second;
   }
-  ATH_CHECK( loadFPGA(1) ); //TODO
+  std::string txt = ".txt";
+  for (int efex{ 0 }; efex < 23; efex++) {
+    for (int fpga{ 0 }; fpga < 4; fpga++) {
+      std::fstream fileStream;
+      fileStream.open(m_inputfile + std::to_string(getFPGAnumber(efex, fpga)) + txt);
+      if (fileStream.fail()) {
+          continue;
+      }
+      ATH_CHECK( loadFPGA(getFPGAnumber(efex, fpga)) );
+    }
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -105,13 +125,11 @@ StatusCode LVL1::eFakeTower::seteTowers(eTowerContainer* input) {
 }
 
 StatusCode LVL1::eFakeTower::changeFPGAET(int tmp_eTowersIDs_subset[][6], int FPGAnumber, int eFEXnumber) {
-  FPGAnumber += 1; //TODO
-  eFEXnumber += 1; //TODO
   // replace all supercell energies in the FPGA using the test vector.
   for (int myrow = 0; myrow<10; myrow++){
     for (int mycol = 0; mycol<6; mycol++){
       LVL1::eTower* thistower = m_eTowerContainer->findTower(tmp_eTowersIDs_subset[myrow][mycol]);
-      ATH_CHECK( changeTowerET(thistower, mycol, myrow, 1) ); //todo
+      ATH_CHECK( changeTowerET(thistower, mycol, myrow, getFPGAnumber(eFEXnumber, FPGAnumber)) );
     }
   }
   return StatusCode::SUCCESS;
@@ -140,6 +158,7 @@ StatusCode LVL1::eFakeTower::changeTowerET(LVL1::eTower* inputtower, int eta, in
 }
 
 StatusCode LVL1::eFakeTower::loadFPGA(int FPGAid) {
+  std::string txt = ".txt";
   // load ETs of an FPGA and store them in m_alltowers.
 
   // Check if the mapping exists.
@@ -147,7 +166,7 @@ StatusCode LVL1::eFakeTower::loadFPGA(int FPGAid) {
     ATH_MSG_ERROR( "Mapping for FPGA "<< FPGAid << " does not exist!");
     return StatusCode::FAILURE;
   }
-  std::vector<int>* Ets = loadBlock(m_inputfile, m_numberofevents);
+  std::vector<int>* Ets = loadBlock(m_inputfile + std::to_string(FPGAid) + txt, m_numberofevents);
 
   // check if the vector ETs have the same size as the mapping vector.
   if (Ets->size() != (*m_dict[FPGAid]).size()) {
@@ -165,7 +184,8 @@ StatusCode LVL1::eFakeTower::loadFPGA(int FPGAid) {
 
 StatusCode LVL1::eFakeTower::loaddic(int FPGAid) {
   // load mapping information and store it in the m_dict object.
-  std::vector<int>* dic0 = loadBlock(m_inputfile, 0);
+  std::string txt = ".txt";
+  std::vector<int>* dic0 = loadBlock(m_inputfile + std::to_string(FPGAid) + txt, 0);
   m_dict.insert(std::make_pair(FPGAid, dic0));
   return StatusCode::SUCCESS;
 }
@@ -191,7 +211,13 @@ std::vector<int>* LVL1::eFakeTower::loadBlock(std::string inputfile, int eventnu
       std::string temvalue;
       std::stringstream ss(eachline);
       while (ss >> temvalue) {
-        output->push_back(std::stoi(temvalue)); //TODO digitization
+        // the first block is always the dic
+        if (eventnumber == 0) {
+          output->push_back(std::stoi(temvalue));
+        } else {
+          int et = eFEXCompression::Expand(int(strtoull(temvalue.c_str(), nullptr, 16)));
+          output->push_back(et);
+        }
       }
     }
     myfile.close();
@@ -199,3 +225,6 @@ std::vector<int>* LVL1::eFakeTower::loadBlock(std::string inputfile, int eventnu
   return output;
 }
 
+int LVL1::eFakeTower::getFPGAnumber(int iefex, int ifpga) {
+  return iefex * 10 + ifpga;
+}
