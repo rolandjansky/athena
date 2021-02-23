@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 /*  Three-ring detector layout, created by Christian and David
@@ -56,9 +56,9 @@ namespace HGTDGeo {
 
 HGTD_DetectorFactory::HGTD_DetectorFactory( InDetDD::AthenaComps* athComps, InDetDD::SiCommonItems* commonItems ) :
   InDetDD::DetectorFactoryBase( athComps ), 
-  m_athComps( athComps ), 
-  m_commonItems( commonItems ), 
-  m_materialMgr( nullptr ), 
+  m_athComps( athComps ),
+  m_commonItems( commonItems ),
+  m_materialMgr( nullptr ),
   m_geomVersion( -1 ),
   m_outputIdfr( false ) {
     // create the detector manager
@@ -81,8 +81,8 @@ HGTD_DetectorFactory::HGTD_DetectorFactory( InDetDD::AthenaComps* athComps, InDe
     }
     
     // temporarily hardcode the HGTD version to build until the geo db has been updated with tables for 3-ring layout
-    m_geomVersion = 0; // two-ring layout
-    //m_geomVersion = 1; // three-ring layout
+    // m_geomVersion = 0; // two-ring layout
+    m_geomVersion = 1; // three-ring layout
 }
 
 HGTD_DetectorFactory::~HGTD_DetectorFactory() {
@@ -90,8 +90,8 @@ HGTD_DetectorFactory::~HGTD_DetectorFactory() {
 }
 
 void HGTD_DetectorFactory::setPrintIdentifierDict( bool print ) {
-    m_outputIdfr = print ;
-    return ;
+    m_outputIdfr = print;
+    return;
 }
 
 void HGTD_DetectorFactory::create(GeoPhysVol* world) {
@@ -480,9 +480,9 @@ GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool
     int totMod = 0;
     //  this should be taken from DB or XML
     unsigned int maxRows = 21;
-    if ( m_geomVersion == 0 ) maxRows = 18 ;
+    if ( m_geomVersion == 0 ) maxRows = 18;
 
-    std::array< PositionsInQuadrant, 4 > positions = prepareLayersFromQuadrants( maxRows ) ;
+    std::array< PositionsInQuadrant, 4 > positions = prepareLayersFromQuadrants( maxRows );
     // Inside m_geomVersion implicitly control 3-ring layout vs 2-ring
 
     for (int layer = 0; layer < 4; layer++) {
@@ -505,7 +505,7 @@ GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool
 
         // loop over quadrants in the current layer
         // take a prepared quadrant as protype
-        PositionsInQuadrant tmpQuadrant = positions[ layer ] ;
+        PositionsInQuadrant tmpQuadrant = positions[ layer ];
         //  The relative rotation between two disks is supposed to be defined/accounted within tmpQuadrant
         for (int q = 0; q < 4; q++) {
             float quadrot = q*90.;
@@ -514,14 +514,14 @@ GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool
                 std::vector< ModulePosition > ModsPerRow = tmpQuadrant[ row ];
 
                 // print #modules per row to fill HGTD_Identifier dictionary etc.
-		if ( m_outputIdfr && q == 0 ) std::cout << " Row  #"<< row + 1 <<" :: " << ModsPerRow.size() << std::endl ;
+		if ( m_outputIdfr && q == 0 ) std::cout << " Row  #"<< row + 1 <<" :: " << ModsPerRow.size() << std::endl;
 
-                for ( unsigned int mod = 0; mod < ModsPerRow.size() ; mod ++ ) {
+                for ( unsigned int mod = 0; mod < ModsPerRow.size(); mod ++ ) {
                     ModulePosition module = ModsPerRow[ mod ];
 
-                    double myx = -9999999.9 , myy = -9999999.9 , myrot = -9999999.9 ;
-                    int myphi = -1 , myeta = - 1 ;
-                    std::string module_string = formModuleName( layer, q, maxRows, row, mod, module, myx, myy, myrot, myphi, myeta ) ;
+                    double myx = -9999999.9 , myy = -9999999.9 , myrot = -9999999.9;
+                    int myphi = -1 , myeta = - 1;
+                    std::string module_string = formModuleName( layer, q, maxRows, row, mod, module, myx, myy, myrot, myphi, myeta );
 
                     if ( module_string == "" || myrot == -9999999.9 || myeta == -1 )
 		        ATH_MSG_WARNING ( " Please check the module at layer "<< layer <<" quadrant " << q
@@ -534,7 +534,7 @@ GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool
 
                     // print out one module per layer
                     if ( q == 0 && row == 0 && mod == 0 )
-		        ATH_MSG_INFO( "Will now build up an individual HGTD module of layer " << layer << " and quadrant " << q << " (" << module_string << ")" );
+		        ATH_MSG_DEBUG( "Will now build up an individual HGTD module of layer " << layer << " and quadrant " << q << " (" << module_string << ")" );
 
                     // loop over components in module
                     for (size_t comp = 0; comp < volumes.size(); comp++) {
@@ -648,17 +648,17 @@ std::array< PositionsInQuadrant, 4 > HGTD_DetectorFactory::prepareLayersFromQuad
         PositionsInQuadrant d1q0front = mirrorModulesInQuadrant( d0q0back );
         PositionsInQuadrant d1q0back = mirrorModulesInQuadrant( d0q0front );
 
-        positions[ 0 ] = d0q0front ; // front-side module positions
-        positions[ 1 ] = d0q0back ; // back-side module positions
-        positions[ 2 ] = d1q0front ; // front-side module positions
-        positions[ 3 ] = d1q0back ; // back-side module positions
+        positions[ 0 ] = d0q0front; // front-side module positions
+        positions[ 1 ] = d0q0back; // back-side module positions
+        positions[ 2 ] = d1q0front; // front-side module positions
+        positions[ 3 ] = d1q0back; // back-side module positions
 
     } else {
-        nRows = 18 ; // note  21-18 = 3 elements with positions of modules in rows are left empty
-        positions[0] = positions[2] = prepareQuadrantsFromRows(0, nRows ) ; // front-side module positions
-        positions[1] = positions[3] = prepareQuadrantsFromRows(1, nRows ) ; // back-side module positions
+        nRows = 18; // note  21-18 = 3 elements with positions of modules in rows are left empty
+        positions[0] = positions[2] = prepareQuadrantsFromRows(0, nRows ); // front-side module positions
+        positions[1] = positions[3] = prepareQuadrantsFromRows(1, nRows ); // back-side module positions
     }
-    return positions ;
+    return positions;
 }
 
 //  careful m_geomVersion control layout implicitly 
@@ -668,7 +668,7 @@ std::string HGTD_DetectorFactory::formModuleName( int layer, int quadrant, unsig
 						  ModulePosition module,
 						  double& myx, double& myy, double& myrot, int& phi, int& eta ) {
 
-    std::string module_string = "" ;
+    std::string module_string = "";
 
     double x = module.x;
     double y = module.y;
@@ -682,7 +682,7 @@ std::string HGTD_DetectorFactory::formModuleName( int layer, int quadrant, unsig
     if ( m_geomVersion == 1 ) {
         myrot = module.phiRotation;
         phi = quadrant*21 + row + 1;  // quadrant is absent ( hidden into row ) in HGTD-Identifier
-        eta = mod + 1 ;
+        eta = mod + 1;
         module_string = "_R" + std::to_string(phi) + "_M" + std::to_string(eta);
     } 
     // two-ring layout
@@ -698,7 +698,7 @@ std::string HGTD_DetectorFactory::formModuleName( int layer, int quadrant, unsig
         }
         eta = ( quadrant*maxrows ) + myrow;
         phi = module.el_in_row;
-        myrot = moduleRotation + rot ;
+        myrot = moduleRotation + rot;
         module_string = "_layer_" + std::to_string(layer) + "_" + std::to_string(phi) + "_" + std::to_string(eta);
     }
 
@@ -722,7 +722,7 @@ PositionsInQuadrant HGTD_DetectorFactory::prepareQuadrantsFromRows( int layer, u
     else {
         for (size_t row = 0; row < maxRow; row++) {
             std::vector<ModulePosition> rowModulePositions = prepareModulePositionsInRowTwoRing(row, isBackside);
-            rowsInQuad[ row ] = rowModulePositions ;
+            rowsInQuad[ row ] = rowModulePositions;
         }
     }
     return rowsInQuad;
@@ -746,154 +746,148 @@ PositionsInQuadrant HGTD_DetectorFactory::mirrorModulesInQuadrant( PositionsInQu
     return rowsInQuad;
 }
 
-// Calculate module positions for a given row, shifted slightly for backside of cooling plate,
-// Based on Christina Agapopoulou's implementation of the three-ring layout in python in
-// https://gitlab.cern.ch/cagapopo/hgtdlayout/-/blob/master/python/place_modules_option2.py
+// calculate module positions for the three-ring layout, updated to agree with post-TDR developments
 std::vector< ModulePosition > HGTD_DetectorFactory::prepareModulePositionsInRowThreeRing( int row, int back ) {
 
-    int index_XYcoord_change = 14;
+  // below parameters should be collected into xml or RDB
+  int index_XYcoord_change = 14;
 
-    // TODO: below parameters should be collected into xml or RDB
-    float HalfWidth = 20.5 , HalfHeight = 10. ;
-    float innerR = 120., midR = 230.5, midR2 = 470.5, maxRcut = 660., maxOuterR = 660.5;
-    float readoutRowSpace = 1., beforeReadoutRowSpace = 0.;
-    float spaceSmallR = 5.5, spaceMediumR = 8.4, spaceLargeR = 13.6 ;
+  // height is the short edge of module, width is the longer edge
+  float halfWidth = .5*40., halfHeight = .5*21.8; // bare module
+  float midR = 230., midR2 = 470.5, maxRcut = 660., maxOuterR = 670.;
+  float readoutRowSpace = 1.0;
+  bool extrude = ( ( row == 6 || row == 18 ) && !back  ) || // front side
+                 ( ( row == 2 || row == 11 || row == 12 || row == 17 ) && back ); // back side
 
-    float backsideSmallShift = spaceSmallR*1.33 ;
-    float backsideMediumShift = spaceMediumR*1.22 ;
-    float backsideLargeShift = spaceLargeR*1.13 ;
+  // instead of attempting to re-calculate the leading module per row, just pick up from dataBase,
+  // numbers here taken from spreadsheet at https://cernbox.cern.ch/index.php/s/PPXEWSBnBjwI7UU
+  std::array< float, 22 > ModStarting = { 122., 122.7, 89.85, 123.5, 175.4, 257.4, 287.5, 298.4, 287.5, 304.5, 287.5, 304.5, 287.5, 0.0, 299.7,  
+                                          130., 114.7, 131.45, 164.45, 216.35, 205.45, 257.35 };
 
-    float extendedWidth = readoutRowSpace + 2.*HalfWidth;
+  std::array< float, 22 > ModStartBack = { 130., 114.7, 97.85, 131.5, 164.5, 246.5, 298.4, 287.5, 298.4, 287.5, 304.5, 287.5, 304.5, 0.0, 287.5, 
+                                           122., 122.7, 123.45, 172.45, 205.45, 216.35, 246.45 };
+  /*  row == 13 will be skipped from outside, and, since row == 15 XY flip take place. */
 
-    float posRadius = 0.;
-    float posOfLastPlacedModule = 0.; // start with dummy position
-    int moduleCounter = 0;
-    std::vector< ModulePosition > rowModulePositions;
+  // this is a bit hacky for this layout, a db-based solution will help in the future
+  int useCorner = 0;
+  if ( (  ( row == 1 || row == 5 || row == 15 || row == 19 ) && ! back ) || // front side
+       (  ( row == 0 || row == 8 || row == 16 || row == 18 || row == 21 ) && back ) // back side
+     )  useCorner = 1;
+  if ( row == 17 ) useCorner = 2;  
+  // in some exceptional cases the spacing will be smaller even though the module crossed the ring boundary 
+  float backshift = 6.;
 
-    while ( posRadius < maxRcut ) {
-        //  horizontal rows need care (restart from other edge of quadrant), this variable helps get the inner radius right
-        // y coordinate for vertical rows, then x coordinate for modules
-        float modPos_row = -999. , rowCentPos = -999.;  //  mock value for now
-        float innerRadiusRow = row;
-        // note the flipping of innerRadiusRow, it is the cause of XY flipping in later occurrance
-        if ( row >= index_XYcoord_change ) innerRadiusRow -= index_XYcoord_change;
+  // the new layout tune makes small adjustments (usually 2~3 mm) for the last modules of some rows.
+  // even though most of element is zero for most of modules, we store these adjustments in a 2D array for now
+  float tailModCorrection[ 22 ][ 19 ];  
+  for ( int r = 0; r < 22; r ++ ) 
+    for ( int m = 0; m < 19; m ++ ) tailModCorrection[r][m] = 0.;
+  tailModCorrection[11][4] = tailModCorrection[12][2] = 10.;
 
-        float shifted_R = innerR*innerR - extendedWidth*innerRadiusRow*extendedWidth*innerRadiusRow;
-        // the inner radius is round/curved at the conner of module
-        shifted_R = std::sqrt( shifted_R  >= 0. ? shifted_R : - shifted_R );
-        // x coordinate for vertical rows
-        rowCentPos =  0.5*extendedWidth*( 2*innerRadiusRow + 1 );
+  // TDR layout: spaceSmallR = 5.5 , spaceMediumR = 8.4 , spaceLargeR = 14.5
+  float spaceSmallR = 3.7 , spaceMediumR = 6.6, spaceLargeR = 12.7; // updated spacings from post-TDR developments
 
-        float reducedrowCentPos2 = ( rowCentPos - HalfWidth )*( rowCentPos - HalfWidth );
-        // y coordinate for vertical rows
+  float backsideSmallR = spaceSmallR; 
+  float backsideMediumR = spaceMediumR;
+  float backsideLargeR = spaceLargeR;
 
-        // for the first module, pick the right starting point
-        float backSpacing = backsideSmallShift;
-        if ( moduleCounter == 0 )  { // leading module per row
-            // start at R = 120 and include potential offset for backside.
-            if ( row < index_XYcoord_change ) {  //  erect rows
-                if ( row < 3 ) {
-                    modPos_row = shifted_R + beforeReadoutRowSpace + back*backsideSmallShift + HalfHeight;
-                } else if ( row < 8 ) {
-                    backSpacing = backsideSmallShift;
-                    modPos_row = 3*extendedWidth + HalfHeight  + beforeReadoutRowSpace + ( row - 3 )*extendedWidth;
-                    float R_mid = std::sqrt( reducedrowCentPos2 + modPos_row*modPos_row );
-                    if ( back && R_mid > midR && R_mid <=  midR2 )  backSpacing = backsideMediumShift;
-                    if ( back && R_mid > midR2 ) backSpacing = backsideLargeShift;
-                } else {
-                    backSpacing = backsideSmallShift;
-                    modPos_row = 8*extendedWidth + HalfHeight  + beforeReadoutRowSpace;
-                    float R_mid =  std::sqrt( reducedrowCentPos2 + modPos_row*modPos_row );
-                    if ( back && R_mid > midR && R_mid <=  midR2 ) backSpacing = backsideMediumShift;
-                    if ( back && R_mid > midR2) {
-                        backSpacing = backsideLargeShift;
-                        if ( row == 11 ) backSpacing -= 2.5 ;
-                    }
-                    modPos_row += back*(backSpacing);
-                    if ( row == 12 && ! back ) modPos_row -= 4. ;
-                }
-            } else { //  horizontal rows
-                if ( row < 16 ) {
-                    modPos_row = shifted_R + beforeReadoutRowSpace + back*backsideSmallShift + HalfHeight;
-                }
-                else { //  later modules start at 2*modWidth, with offset for the backside
-                    backSpacing = backsideSmallShift;
-                    modPos_row = 3*extendedWidth + HalfHeight  + beforeReadoutRowSpace +( row-16 )*extendedWidth;
-                    float R_mid =  std::sqrt( reducedrowCentPos2 + modPos_row*modPos_row );
-                    if ( back && R_mid > midR && R_mid <= midR2) backSpacing = backsideMediumShift;
-                    if ( back && R_mid > midR2) backSpacing = backsideLargeShift;
-                    
-                    modPos_row+=back*(backSpacing);
-                }
-            }
+  float extendedWidth = readoutRowSpace + 2.*halfWidth;
+
+  float posRadius = 0.;
+  float posOfLastPlacedModule = 0.; // start with dummy position
+  int moduleCounter = 0;
+  std::vector< ModulePosition > rowModulePositions;
+
+  float effectiveRow = row;
+  // note the flipping of effectiveRow, it is the cause of XY flipping in later occurrance 
+  if ( row == index_XYcoord_change ) effectiveRow = 13;
+  if ( row > index_XYcoord_change ) effectiveRow -= ( index_XYcoord_change + 1 );
+
+  // x coordinate for vertical rows
+  float rowCentPos = 0.5*extendedWidth*( 2*effectiveRow + 1 ); 
+
+  if ( extrude )  maxRcut = maxOuterR;
+  while ( posRadius < maxRcut ) {
+    // horizontal rows need care (restart from other edge of quadrant), this variable helps get the inner radius right
+    // y coordinate for vertical rows, then x coordinate for modules
+    float modPos_row = -999.;
+
+    // for the first module in each row, take the starting position from the arrays created earlier from the spreadsheet
+    if ( moduleCounter == 0 )  { // leading module per row
+      modPos_row = ( back ?  ModStartBack[row] : ModStarting[row] );
+      modPos_row += halfHeight;
+    } 
+    // the rest of the modules follow sequential, radius-dependent placement rules
+    else { 
+      float prevX = rowModulePositions[ moduleCounter - 1 ].x;
+      float prevY = rowModulePositions[ moduleCounter - 1 ].y;
+      float spacing = back ? backsideSmallR : spaceSmallR;
+
+      // increase the spacing by the ring it will fallin
+      float ringCrossRcorner =  std::sqrt( ( prevY + halfHeight)*( prevY + halfHeight) + 
+					   ( prevX + halfWidth )*( prevX + halfWidth ) );
+      float ringCrossRcenter =  std::sqrt( prevY*prevY + prevX*prevX ); 
+
+      bool tuned_center = ( row == 3 && (  moduleCounter == 3 && !back ) ) || // front, row 3
+	                  ( row == 20 && moduleCounter == 8 && !back ) || // front, row 20
+	                  ( row == 21 && moduleCounter == 6 && back ); // back, row 21
+      if ( useCorner == 2 ) {
+        if ( ( moduleCounter == 3 && ! back ) || ( ( moduleCounter ==  3 || moduleCounter == 4 ) && back ) ) {
+          ringCrossRcenter -= backshift;
+          if ( ringCrossRcenter > midR && ringCrossRcenter <= midR2 ) spacing = back ? backsideMediumR : spaceMediumR;
+          if ( ringCrossRcenter > midR2 ) spacing = back ? backsideLargeR : spaceLargeR; 
+        } 
+	else {
+          if ( ringCrossRcorner > midR && ringCrossRcorner <= midR2 ) spacing = back ? backsideMediumR : spaceMediumR;
+          if ( ringCrossRcorner > midR2 ) spacing = back ? backsideLargeR : spaceLargeR; 
         }
-	// the rest of the modules follow sequential, radius-dependent placement rules
-        else { 
-            float prevX = rowModulePositions[ moduleCounter - 1 ].x;
-            float prevY = rowModulePositions[ moduleCounter - 1 ].y;
-            float spacing = spaceSmallR;
+      }
+      else if ( useCorner == 1 ) {
+        if ( ringCrossRcorner > midR && ringCrossRcorner <= midR2 ) spacing = back ? backsideMediumR : spaceMediumR;
+        if ( ringCrossRcorner > midR2 ) spacing = back ? backsideLargeR : spaceLargeR; 
+      } 
+      else {
+        if ( tuned_center ) ringCrossRcenter -= backshift;
+        if ( ringCrossRcenter > midR && ringCrossRcenter <= midR2 ) spacing = back ? backsideMediumR : spaceMediumR;
+        if ( ringCrossRcenter > midR2 ) spacing = back ? backsideLargeR : spaceLargeR; 
+      }
 
-            // if the previous module was completely outside R > 320 mm, increase the spacing
-            float innermostCornerR = std::sqrt( ( prevY - HalfHeight)*( prevY - HalfHeight)
-                                               +( prevX - HalfWidth )*( prevX - HalfWidth ) ) + 9.;
-            if ( row < 6 ) innermostCornerR += 1.;
-            if ( innermostCornerR > midR && innermostCornerR <= midR2 ) {
-                spacing = spaceMediumR;
-                if ( row >= 20 ) spacing -= 0.5 ;
-            }
-            if ( innermostCornerR > midR2 ) {
-                spacing = spaceLargeR;
-                if ( row >= 20 ) spacing -= 3. ; 
-                if ( row == 12 ) spacing -= 4. ;
-            }
+      modPos_row = posOfLastPlacedModule + 2.*halfHeight + spacing;
 
-            // for the back the large spacing starts as soon as the space would entirely be outside R = 320 mm
-            if ( back ) {
-            float spaceStartAlongRow = std::sqrt( ( prevY + HalfHeight )*( prevY + HalfHeight )
-                                                     +( prevX - HalfWidth )*( prevX - HalfWidth ) ) + 8;
-                if ( spaceStartAlongRow > midR && innermostCornerR <= midR2 ) spacing = spaceMediumR;
-                if ( spaceStartAlongRow > midR2 ) {
-                    spacing = spaceLargeR;
-                    if ( row == 11 ) spacing -= 3. ;
-                }
-            }   // endif back
+      if ( back ) modPos_row -= tailModCorrection[ row ][ moduleCounter ];
 
-            maxRcut = maxOuterR;
+    } // endif  non-leading module
 
-            if ( row == 11 && back ) maxRcut = 665;
-            if ( row == 12 && ! back )  maxRcut = 668;
-
-            modPos_row = posOfLastPlacedModule + 2.*HalfHeight + spacing;
-        }  // endif  non-leading module
-
-        //  Eventually arrived at a module to append into this row :
-        posRadius = std::sqrt( ( rowCentPos + HalfWidth )*( rowCentPos + HalfWidth )
-                              +( modPos_row + HalfHeight)*( modPos_row + HalfHeight ) );
-        if ( posRadius  > maxRcut ) {
-            ATH_MSG_DEBUG( " row " << row <<" finished with " << moduleCounter <<"  modules " );
-            break;
-        }
-
-        // the X and Y coordinates need to be flipped if this row is horizontal,
-        // needed only for backwards compatibility for two-ring layout
-        ModulePosition modu =  { modPos_row, rowCentPos, 0., false, row, moduleCounter };
-        ModulePosition moduFlipped =  { rowCentPos, modPos_row, 90., true, row, moduleCounter };
-
-        if ( row >= index_XYcoord_change ) rowModulePositions.push_back( modu );
-        else rowModulePositions.push_back( moduFlipped );
-
-        posRadius = std::sqrt( ( rowCentPos + HalfWidth )*( rowCentPos + HalfWidth )
-                              +( modPos_row + HalfHeight)*( modPos_row + HalfHeight ) );
-
-        ATH_MSG_DEBUG( "In row " << row << ", placed module " << moduleCounter <<" at (x,y) : "
-                        << rowCentPos <<" "<< rowModulePositions.back().x <<" , "
-                        << modPos_row <<" "<<  rowModulePositions.back().y );
-
-        posOfLastPlacedModule = modPos_row;
-        moduleCounter++;
+    // check and limit the length of the row
+    posRadius = std::sqrt( ( rowCentPos + halfWidth )*( rowCentPos + halfWidth ) +
+                           ( modPos_row + halfHeight)*( modPos_row + halfHeight ) );
+    if ( posRadius  > maxRcut ) {
+      ATH_MSG_DEBUG(" row " << row <<" finished with " << moduleCounter <<"  modules ");
+      break;
     }
 
-    return rowModulePositions;
+    // the X and Y coordinates need to be flipped if this row is horizontal,
+    // needed only for backwards compatibility for two-ring layout
+    ModulePosition modu =  { modPos_row, rowCentPos, 0., false, row, moduleCounter };
+    ModulePosition moduFlipped =  { rowCentPos, modPos_row, 90., true, row, moduleCounter };
+
+    // eventually arrived at a module to append into this row
+    if ( row > index_XYcoord_change ) rowModulePositions.push_back( modu );
+    else rowModulePositions.push_back( moduFlipped );
+
+    // the spreadsheet gave the center of bottom edge of a module, so an adjustment by halfHeight is needed
+    if ( m_outputIdfr ) ATH_MSG_DEBUG( " Row " << ( row <= index_XYcoord_change ? effectiveRow + 1 : 36 - row ) 
+				       << " Module " << moduleCounter + 1 <<" at (x,y) : " 
+				       << ( row > index_XYcoord_change ? rowModulePositions.back().x - halfHeight : rowModulePositions.back().x ) << ", "
+				       << ( row > index_XYcoord_change ? rowModulePositions.back().y : rowModulePositions.back().y - halfHeight ) );
+
+    posOfLastPlacedModule = modPos_row;
+    moduleCounter ++;
+  }  // endof while loop
+
+  if ( m_outputIdfr ) std::cout << "Total #Module " << rowModulePositions.size() <<" at original row " << row << std::endl;
+
+  return rowModulePositions;
 }
 
 // adjust row ordering to adhere to a convention in upper right quadrant of front :
@@ -908,10 +902,9 @@ int HGTD_DetectorFactory::reorderRows( PositionsInQuadrant* quadrant ) {
     int xchng = 0;
     unsigned int numrow =  quadrant->size();
     for ( unsigned int r = 0; r < numrow; r ++ ) {
-        unsigned int idx = r > 12 ?  12 + numrow - r : r;
+        unsigned int idx = r > 13 ?  13 + numrow - r : r;
         ATH_MSG_DEBUG( " original row " << ( r <= 12 ? r : r + 1 ) <<" new row " << idx + 1 
-                        << " : "<< quadrant->at( r ).size() ) ;
-
+                        << " : "<< numrow  );
         tmpQuadrant[ idx ] = quadrant->at( r );
         if ( idx != r ) xchng++;
     }
@@ -945,8 +938,7 @@ InDetDD::HGTD_ModuleDesign* HGTD_DetectorFactory::createHgtdDesign( double thick
     InDetDD::PixelDiodeMatrix* fullMatrix = new InDetDD::PixelDiodeMatrix(InDetDD::PixelDiodeMatrix::phiDir, 0,
                                                                           singleRow, 2*diodeRowsPerCircuit, 0); // note 30 = 2*15 rows adopted
 
-    InDetDD::HGTD_ModuleDesign* design = new InDetDD::HGTD_ModuleDesign(
-                                                                        thickness,
+    InDetDD::HGTD_ModuleDesign* design = new InDetDD::HGTD_ModuleDesign(thickness,
                                                                         circuitsPerColumn, circuitsPerRow,
                                                                         cellColumnsPerCircuit, cellRowsPerCircuit,
                                                                         diodeColumnsPerCircuit, diodeRowsPerCircuit,
@@ -1016,7 +1008,7 @@ std::vector<ModulePosition> HGTD_DetectorFactory::prepareModulePositionsInRowTwo
             }
             // for the back the large spacing starts as soon as the space would entirely be outside R = 320 mm
             if (back) {
-          double startOfSpaceAlongRow = std::sqrt( pow(prev.y + moduleHeight/2, 2) + pow(prev.x - moduleWidth/2, 2)) - 2;
+	        double startOfSpaceAlongRow = std::sqrt( pow(prev.y + moduleHeight/2, 2) + pow(prev.x - moduleWidth/2, 2) ) - 2;
                 if (startOfSpaceAlongRow > rMid) {
                     spacing = m_hgtdPars.moduleSpaceOuter;
                 }
@@ -1079,12 +1071,13 @@ std::vector<ModulePosition> HGTD_DetectorFactory::prepareModulePositionsInRowTwo
         }
     }
 
-    ATH_MSG_DEBUG( "row = " << row ) ;
+    ATH_MSG_DEBUG( "row = " << row );
     for(size_t i=0; i < modulePositions.size(); i++) {
-        ATH_MSG_DEBUG( "Module " << i << " at (x,y) = (" << modulePositions[i].x << "," << modulePositions[i].y << ")" ) ;
+        ATH_MSG_DEBUG( "Module " << i << " at (x,y) = (" << modulePositions[i].x << "," << modulePositions[i].y << ")" );
     }
 
     return modulePositions;
 }
 
-} // End HGTDGeo namespace
+} // end HGTDGeo namespace
+
