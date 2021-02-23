@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TrigDecisionTool.h 775686 2016-09-28 16:26:51Z lheinric $
@@ -154,8 +154,6 @@ namespace Trig {
 
     #endif
 
-    HLT::TrigNavStructure* m_navigation;
-    
     Gaudi::Property<bool> m_acceptMultipleInstance{this, "AcceptMultipleInstance", false};
 
     SG::ReadHandleKey<xAOD::TrigNavigation> m_navigationKey {this, "NavigationKey", "TrigNavigation",
