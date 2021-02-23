@@ -12,6 +12,8 @@ from BLM_G4_SD.BLM_G4_SDToolConfig import BLMSensorSDCfg
 
 from PixelG4_SD.PixelG4_SDToolConfig import PixelSensorSDCfg
 from PixelG4_SD.PixelG4_SDToolConfig import PixelSensor_CTBCfg
+from PixelG4_SD.PixelG4_SDToolConfig import ITkPixelSensorSDCfg
+
 
 from SCT_G4_SD.SCT_G4_SDToolConfig import SctSensorSDCfg
 from SCT_G4_SD.SCT_G4_SDToolConfig import SLHC_SctSensorSD_GmxCfg #Change name?
@@ -105,9 +107,11 @@ def generateITkSensitiveDetectorList(ConfigFlags):
     SensitiveDetectorList=[]
 
     if ConfigFlags.Detector.SimulateITkPixel:
-        accITkPixel, toolITkPixel = PixelSensorSDCfg(ConfigFlags)
-        SensitiveDetectorList += [ toolITkPixel ]
-        result.merge(accITkPixel)
+        print("ITkPixel has no Sensitive Detectors defined yet...")
+        #The lines below show how to active ITkPixel SDs once defined
+        accITkPixel, toolITkPixel = ITkPixelSensorSDCfg(ConfigFlags)
+        #SensitiveDetectorList += [ toolITkPixel ]
+        #result.merge(accITkPixel)
     if ConfigFlags.Detector.SimulateITkStrip:
         accITkStrip,toolITkStrip = SLHC_SctSensorSD_GmxCfg(ConfigFlags) #This tool should be renamed, and maybe moved to separate package?
         SensitiveDetectorList += [ toolITkStrip ]
