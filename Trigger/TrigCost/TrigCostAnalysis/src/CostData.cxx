@@ -130,3 +130,12 @@ const std::string& CostData::algNameToClassType(size_t algNameHash) const {
 void CostData::setTypeMap( const std::unordered_map<uint32_t, std::string>& typeMap ) {
   m_typeMapPtr = &typeMap;
 }
+
+void CostData::setAlgToChainsMap( const std::map<std::string, std::vector<TrigConf::Chain>>& algToChains ) {
+  m_algToChains = &algToChains;
+}
+
+
+const std::map<std::string, std::vector<TrigConf::Chain>>& CostData::algToChainsMap() const {
+  return *m_algToChains;
+}

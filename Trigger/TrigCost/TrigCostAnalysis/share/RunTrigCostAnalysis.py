@@ -39,6 +39,7 @@ def trigCostAnalysisCfg(flags, baseWeight=1.0, useEBWeights=False, isMC=False, M
   trigCostAnalysis.RootStreamName = "COSTSTREAM"
   trigCostAnalysis.BaseEventWeight = baseWeight
   trigCostAnalysis.EnhancedBiasTool = enhancedBiasWeighter
+  trigCostAnalysis.AlgToChainTool = CompFactory.getComp("TrigCompositeUtils::AlgToChainTool")()
   trigCostAnalysis.UseEBWeights = useEBWeights
   trigCostAnalysis.MaxFullEventDumps = 100
   trigCostAnalysis.FullEventDumpProbability = 1 # X. Where probability is 1 in X

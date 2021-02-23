@@ -154,6 +154,7 @@ StatusCode TrigCostAnalysis::execute() {
   CostData costData;
   ATH_CHECK( costData.set(costDataHandle.get(), rosDataHandle.get(), onlineSlot) );
   costData.setRosToRobMap(m_rosToRob);
+  costData.setAlgToChainsMap(m_algToChainTool->getChainsForAllAlgs());
   costData.setLb( context.eventID().lumi_block() );
   costData.setTypeMap( m_algTypeMap );
   if (!m_enhancedBiasTool.name().empty() && !m_enhancedBiasTool->isMC()) {
