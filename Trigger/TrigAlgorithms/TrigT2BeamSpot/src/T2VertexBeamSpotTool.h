@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 ///============================================================
 /// Trigger/TrigAlgorithms/TrigT2BeamSpot/T2VertexBeamSpot
@@ -65,9 +65,8 @@ namespace PESA {
       public:
 
          T2VertexBeamSpotTool( const std::string& type, const std::string& name, const IInterface* parent );
-         ~T2VertexBeamSpotTool(){ }
 
-         virtual StatusCode initialize() final;
+         virtual StatusCode initialize() override final;
 
 
          bool isGoodTrack     ( const T2Track & track  ) const;

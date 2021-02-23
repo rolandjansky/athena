@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 ///============================================================
 /// T2VertexBeamSpot.h, (c) ATLAS Detector software
@@ -52,10 +52,10 @@ namespace PESA {
       T2VertexBeamSpot( const std::string& name, ISvcLocator* pSvcLocator ); //!< std Gaudi Algorithm constructor
 
       /** Loop over events, selecting tracks and reconstructing vertices out of these tracks   */
-      virtual StatusCode execute(const EventContext& ctx) const final;
+      virtual StatusCode execute(const EventContext& ctx) const override final;
 
       /** Initialize the beamspot algorithm for Run3 Athena MT configuration, initialize all the handles and retrieve the tools associated with the algorithm */
-      virtual StatusCode initialize() final;
+      virtual StatusCode initialize() override final;
 
       
 

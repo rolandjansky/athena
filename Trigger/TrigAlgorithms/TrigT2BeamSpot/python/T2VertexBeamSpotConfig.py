@@ -1,5 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-# $Id: T2VertexBeamSpotConfig.py 775662 2016-09-28 15:46:38Z masik $
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from TrigT2BeamSpot.TrigT2BeamSpotConf import PESA__T2VertexBeamSpot
 from TrigVertexFitter.TrigVertexFitterConf import TrigPrimaryVertexFitter
 from AthenaCommon.AppMgr import ToolSvc
@@ -118,40 +117,3 @@ class T2VertexBeamSpot_activeTE_FTF ( T2VertexBeamSpot_activeTE ) :
     __slots__ = []
     def __init__ (self, name="T2VertexBeamSpot_activeTE_FTF"):
         super(T2VertexBeamSpot_activeTE_FTF, self).__init__(name, detail=0)
-
- # Setup for using FTK tracks
-class T2VertexBeamSpot_FTK ( T2VertexBeamSpot ) :
-    __slots__ = []
-    def __init__ (self, name="T2VertexBeamSpot_FTK"):
-        super(T2VertexBeamSpot_FTK, self).__init__(name, detail=2)
- 
-# Setup for writing out all events seen by the BeamSpot algorithm with FTK tracks
-class T2VertexBeamSpot_activeAllTE_FTK ( T2VertexBeamSpot_activeAllTE ) :
-    __slots__ = []
-    def __init__ (self, name="T2VertexBeamSpot_activeAllTE_FTK"):
-        super(T2VertexBeamSpot_activeAllTE_FTK, self).__init__(name, detail=0)
- 
-# Setup for writing out events with a "good" vertex seen by the BeamSpot algorithm with FTK tracks
-class T2VertexBeamSpot_activeTE_FTK ( T2VertexBeamSpot_activeTE ) :
-    __slots__ = []
-    def __init__ (self, name="T2VertexBeamSpot_activeTE_FTK"):
-        super(T2VertexBeamSpot_activeTE_FTK, self).__init__(name, detail=0)
-
- # Setup for using FTKRefit tracks
-class T2VertexBeamSpot_FTKRefit ( T2VertexBeamSpot ) :
-    __slots__ = []
-    def __init__ (self, name="T2VertexBeamSpot_FTKRefit"):
-        super(T2VertexBeamSpot_FTKRefit, self).__init__(name, detail=2)
- 
-# Setup for writing out all events seen by the BeamSpot algorithm with FTK tracks
-class T2VertexBeamSpot_activeAllTE_FTKRefit ( T2VertexBeamSpot_activeAllTE ) :
-    __slots__ = []
-    def __init__ (self, name="T2VertexBeamSpot_activeAllTE_FTKRefit"):
-        super(T2VertexBeamSpot_activeAllTE_FTKRefit, self).__init__(name, detail=0)
- 
-# Setup for writing out events with a "good" vertex seen by the BeamSpot algorithm with FTK tracks
-class T2VertexBeamSpot_activeTE_FTKRefit ( T2VertexBeamSpot_activeTE ) :
-    __slots__ = []
-    def __init__ (self, name="T2VertexBeamSpot_activeTE_FTKRefit"):
-        super(T2VertexBeamSpot_activeTE_FTKRefit, self).__init__(name, detail=0)
-
