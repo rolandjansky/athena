@@ -9,6 +9,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFr
 from AthenaCommon.CFElements import seqAND
 from ..CommonSequences.FullScanDefs import caloFSRoI
 
+
 def unconventionalTrackingChainParts(chainParts):
     unconvtrkChainParts = []
     for p in chainParts:
@@ -37,11 +38,8 @@ class UnconventionalTrackingChainConfiguration(ChainConfigurationBase):
 
 
         key = self.chainPart['extra']
-        #Work around to run isohpttrack with an alternative step without skip when there is an HLT_MET trigger
-        # if key=="isohpttrack" and (re.match(".*_xe\d*_*",(self.chainName))):
-        #     steps=stepDictionary["isohpttrackWithHLTMET"]
-        # else:
         steps=stepDictionary[key]
+        
 
 
         for step_level in steps:
@@ -49,11 +47,6 @@ class UnconventionalTrackingChainConfiguration(ChainConfigurationBase):
                 chainstep = getattr(self, step)()
                 chainSteps+=[chainstep]
 
-
-        # from ..MET.METChainConfiguration import METChainConfiguration
-        # METChain =  METChainConfiguration(self.chainDict).assembleChain()
-
-        # myChain = mergeChainDefs([METChain] + [self.buildChain(chainSteps)])
         myChain = self.buildChain(chainSteps)
 
         return myChain
@@ -71,7 +64,6 @@ class UnconventionalTrackingChainConfiguration(ChainConfigurationBase):
 
         stepDictionary = {
             "isohpttrack" : [['getSkipStep'],['getFTFTrackReco'],['getIsoHPtTrackTrigger']],
-            "isohpttrackWithHLTMET" : [['getFTFTrackReco'],['getIsoHPtTrackTrigger']],
             "fslrt": [['getFSLRTEmpty'], ['getFSLRTTrigger']]
         }
 
@@ -95,30 +87,17 @@ class UnconventionalTrackingChainConfiguration(ChainConfigurationBase):
         return self.getEmptyStep(1, 'FSLRTEmptyStep')
 
 
-
-
-
 def FTFTrackSequence(ConfigFlags):
-
-
-    # from TrigT2CaloCommon.CaloDef import clusterFSInputMaker
-    # InputMakerAlg= clusterFSInputMaker()
 
     from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import getTrackingInputMaker
     InputMakerAlg=getTrackingInputMaker()
 
-
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
     IDTrigConfig = getInDetTrigConfig( 'jet' )
-
-
-
 
     from TrigEDMConfig.TriggerEDMRun3 import recordable
     from TrigInDetConfig.InDetSetup import makeInDetAlgsNoView
     TrkInputNoViewAlg = makeInDetAlgsNoView( config = IDTrigConfig, rois=caloFSRoI)
-
-
 
     from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
 
@@ -126,16 +105,8 @@ def FTFTrackSequence(ConfigFlags):
     vtxAlgs = makeVertices( "jet", IDTrigConfig.FT.tracksFTF( doRecord = IDTrigConfig.isRecordable ) , verticesname, IDTrigConfig )
     prmVtx = vtxAlgs[-1]
 
-
     TrkSeq =  [InputMakerAlg,TrkInputNoViewAlg, prmVtx]
     sequenceOut = IDTrigConfig.FT.tracksFTF( doRecord = IDTrigConfig.isRecordable )
-
-
-    # from .JetTrackingConfig import JetTrackingSequence
-    # (jettrkseq, trkcolls) = RecoFragmentsPool.retrieve( JetTrackingSequence, configFlags, trkopt=jetRecoDict["ftf"], RoIs=RoIs)
-    # recoSeq += jettrkseq
-
-
 
     return (TrkSeq, InputMakerAlg, sequenceOut)
 
@@ -144,14 +115,8 @@ def FTFTrackSequence(ConfigFlags):
 
 
 def IsoHPtTrackTriggerHypoSequence():
-
         from TrigLongLivedParticlesHypo.TrigIsoHPtTrackTriggerHypoTool import TrigIsoHPtTrackTriggerHypoToolFromDict
         from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConf import (TrigIsoHPtTrackTriggerHypoAlgMT)
-
-
-        # from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        # ( TrkSeq, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(FTFTrackSequence,ConfigFlags)
-
 
         # Get sequence name
         from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
@@ -173,17 +138,6 @@ def IsoHPtTrackTriggerHypoSequence():
                             Hypo        = theIsoHPtTrackTriggerHypo,
                             HypoToolGen = TrigIsoHPtTrackTriggerHypoToolFromDict,
                             )
-
-        # log.info("Building the Step dictinary for IsoHPt!")
-        # return MenuSequence( Sequence    = seqAND("UncTrkEmptySeq",TrkSeq), #,parOR("UncTrkEmptySeq",[InputMakerAlg]),
-        #                     Maker       = InputMakerAlg,# DummyInputMakerAlg,
-        #                     Hypo        = theIsoHPtTrackTriggerHypo,
-        #                     HypoToolGen = TrigIsoHPtTrackTriggerHypoToolFromDict,
-        #                     )
-
-
-
-
 
 def FTFRecoOnlySequence():
         from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlgMT
