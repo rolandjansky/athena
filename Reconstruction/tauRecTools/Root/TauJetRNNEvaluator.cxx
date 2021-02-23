@@ -27,6 +27,7 @@ TauJetRNNEvaluator::TauJetRNNEvaluator(const std::string &name):
   declareProperty("MaxClusters", m_max_clusters = 6);
   declareProperty("MaxClusterDR", m_max_cluster_dr = 1.0f);
   declareProperty("VertexCorrection", m_doVertexCorrection = true);
+  declareProperty("TrackClassification", m_doTrackClassification = true);
 
   // Naming conventions for the network weight files:
   declareProperty("InputLayerScalar", m_input_layer_scalar = "scalar");
@@ -182,7 +183,23 @@ const TauJetRNN* TauJetRNNEvaluator::get_rnn_3p() const {
 }
 
 StatusCode TauJetRNNEvaluator::get_tracks(const xAOD::TauJet &tau, std::vector<const xAOD::TauTrack *> &out) const {
-  auto tracks = tau.allTracks();
+  std::vector<const xAOD::TauTrack*> tracks = tau.allTracks();
+
+  // Skip unclassified tracks:
+  // - the track is a LRT and classifyLRT = false
+  // - the track is not among the MaxNtracks highest-pt tracks in the track classifier
+  // - track classification is not run (trigger)
+  if(m_doTrackClassification) {
+    std::vector<const xAOD::TauTrack*>::iterator it = tracks.begin();
+    while(it != tracks.end()) {
+      if((*it)->flag(xAOD::TauJetParameters::unclassified)) {
+	it = tracks.erase(it);
+      }
+      else {
+	++it;
+      }
+    }
+  }
 
   // Sort by descending pt
   auto cmp_pt = [](const xAOD::TauTrack *lhs, const xAOD::TauTrack *rhs) {

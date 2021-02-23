@@ -57,6 +57,7 @@ private:
     std::size_t m_max_clusters;
     float m_max_cluster_dr;
     bool m_doVertexCorrection;
+    bool m_doTrackClassification;
 
     // Configuration of the weight file
     std::string m_input_layer_scalar;
