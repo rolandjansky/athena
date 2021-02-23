@@ -23,9 +23,9 @@ public:
   const ActsAlignmentStore* alignmentStore{nullptr};
 
   Acts::GeometryContext
-  any() const
+  context() const
   {
-    return {this};
+    return Acts::GeometryContext(this);
   }
 };
 

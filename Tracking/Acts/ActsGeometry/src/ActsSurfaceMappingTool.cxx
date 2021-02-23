@@ -51,7 +51,7 @@ ActsSurfaceMappingTool::initialize()
       std::move(propagator),
       makeActsAthenaLogger(this, "SurfaceMaterialMapper"));
 
-  m_geoContext = m_trackingGeometryTool->getNominalGeometryContext().any();
+  m_geoContext = m_trackingGeometryTool->getNominalGeometryContext().context();
 
   ATH_MSG_INFO("ACTS Surface Mapper successfully initialized");
   return StatusCode::SUCCESS;

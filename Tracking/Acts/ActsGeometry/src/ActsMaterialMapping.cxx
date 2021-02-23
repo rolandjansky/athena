@@ -14,7 +14,7 @@
 // ACTS
 #include "Acts/Propagator/detail/SteppingLogger.hpp"
 #include "Acts/Utilities/Helpers.hpp"
-#include "Acts/Utilities/Units.hpp"
+#include "Acts/Definitions/Units.hpp"
 
 // PACKAGE
 #include "ActsInterop/Logger.h"
@@ -80,11 +80,18 @@ StatusCode ActsMaterialMapping::execute(const EventContext &ctx) const {
   if(m_mapSurfaces){
     auto mappingState
          = const_cast<Acts::SurfaceMaterialMapper::State *>(&m_mappingState);
+    auto context = m_surfaceMappingTool->trackingGeometryTool()->getNominalGeometryContext().context();
+    std::reference_wrapper<const Acts::GeometryContext> geoContext(context);
+    mappingState->geoContext = geoContext;
+
     m_surfaceMappingTool->mapper()->mapMaterialTrack(*mappingState, mTrack);
   }
   if(m_mapVolumes){
     auto mappingStateVol
          = const_cast<Acts::VolumeMaterialMapper::State *>(&m_mappingStateVol);
+    auto context = m_volumeMappingTool->trackingGeometryTool()->getNominalGeometryContext().context();
+    std::reference_wrapper<const Acts::GeometryContext> geoContext(context);
+    mappingStateVol->geoContext = geoContext;       
     m_volumeMappingTool->mapper()->mapMaterialTrack(*mappingStateVol, mTrack);
   }
   m_materialTrackWriterSvc->write(mTrack);
@@ -93,7 +100,6 @@ StatusCode ActsMaterialMapping::execute(const EventContext &ctx) const {
 }
 
 StatusCode ActsMaterialMapping::finalize() {
-
   Acts::DetectorMaterialMaps detectorMaterial;
 
   // Finalize all the maps using the cached state

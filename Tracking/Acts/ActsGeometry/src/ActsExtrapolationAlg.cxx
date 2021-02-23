@@ -15,7 +15,7 @@
 #include "Acts/Propagator/detail/SteppingLogger.hpp"
 #include "Acts/Surfaces/PerigeeSurface.hpp"
 #include "Acts/Utilities/Helpers.hpp"
-#include "Acts/Utilities/Units.hpp"
+#include "Acts/Definitions/Units.hpp"
 #include "Acts/Utilities/Logger.hpp"
 
 // PACKAGE
@@ -40,7 +40,7 @@ namespace Acts{
   /// - this is start:  position, start momentum
   ///   and the Recorded material
   using RecordedMaterialTrack =
-      std::pair<std::pair<Acts::Vector3D, Acts::Vector3D>, RecordedMaterial>;
+      std::pair<std::pair<Acts::Vector3, Acts::Vector3>, RecordedMaterial>;
 }
 
 ActsExtrapolationAlg::ActsExtrapolationAlg(const std::string &name,
@@ -93,7 +93,7 @@ StatusCode ActsExtrapolationAlg::execute(const EventContext &ctx) const {
 
     double pt = rngEngine->flat() * std::abs(ptMax - ptMin) + ptMin;
 
-    Acts::Vector3D momentum(pt * std::cos(phi), pt * std::sin(phi),
+    Acts::Vector3 momentum(pt * std::cos(phi), pt * std::sin(phi),
                             pt * std::sinh(eta));
 
     double theta = Acts::VectorHelpers::theta(momentum);
@@ -104,7 +104,7 @@ StatusCode ActsExtrapolationAlg::execute(const EventContext &ctx) const {
 
     std::shared_ptr<Acts::PerigeeSurface> surface =
         Acts::Surface::makeShared<Acts::PerigeeSurface>(
-            Acts::Vector3D(0, 0, 0));
+            Acts::Vector3(0, 0, 0));
 
     double t = 0;
     ATH_MSG_VERBOSE("Pseudo-particle: eta: " << eta << " phi: " << phi);
@@ -130,7 +130,7 @@ StatusCode ActsExtrapolationAlg::execute(const EventContext &ctx) const {
 
       if(m_writeMaterialTracks){
         Acts::RecordedMaterialTrack track;
-        track.first.first = Acts::Vector3D(0,0,0);
+        track.first.first = Acts::Vector3(0,0,0);
         track.first.second = momentum;
         track.second = std::move(output.second);
         m_materialTrackWriterSvc->write(track);

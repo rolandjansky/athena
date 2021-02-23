@@ -143,7 +143,7 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
   const ActsGeometryContext& gctx
     = m_trackingGeometryTool->getGeometryContext(ctx);
 
-  auto anygctx = gctx.any();
+  auto anygctx = gctx.context();
 
   // Action list and abort list
   using ActionList =
@@ -217,7 +217,7 @@ ActsExtrapolationTool::propagate(const EventContext& ctx,
   const ActsGeometryContext& gctx
     = m_trackingGeometryTool->getGeometryContext(ctx);
 
-  auto anygctx = gctx.any();
+  auto anygctx = gctx.context();
 
   // Action list and abort list
   using ActionList =
@@ -267,7 +267,7 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
   const ActsGeometryContext& gctx
     = m_trackingGeometryTool->getGeometryContext(ctx);
 
-  auto anygctx = gctx.any();
+  auto anygctx = gctx.context();
 
   // Action list and abort list
   using ActionList =
@@ -333,7 +333,7 @@ ActsExtrapolationTool::propagate(const EventContext& ctx,
   const ActsGeometryContext& gctx
     = m_trackingGeometryTool->getGeometryContext(ctx);
 
-  auto anygctx = gctx.any();
+  auto anygctx = gctx.context();
 
   // Action list and abort list
   using ActionList =

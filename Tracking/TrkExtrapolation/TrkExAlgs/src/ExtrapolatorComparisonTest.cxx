@@ -32,8 +32,8 @@
 #include "Acts/Propagator/detail/SteppingLogger.hpp"
 #include "ActsGeometryInterfaces/IActsTrackingGeometryTool.h"
 #include "Acts/Geometry/GeometryContext.hpp"
-#include "Acts/Utilities/Definitions.hpp"
-#include "Acts/Utilities/ParameterDefinitions.hpp"
+#include "Acts/Definitions/Algebra.hpp"
+#include "Acts/Definitions/TrackParametrization.hpp"
 #include "Acts/Propagator/detail/SteppingLogger.hpp"
 
 // OTHER
@@ -136,9 +136,9 @@ StatusCode Trk::ExtrapolatorComparisonTest::initialize()
        // create the Surface triplet
        std::vector<std::shared_ptr<const Acts::Surface>> actsSurfaceTriplet;
        
-       Acts::Transform3D posTransf(Acts::Transform3D::Identity()*Acts::Translation3D(Acts::Vector3D(0.,0., halfZ)));
-       Acts::Transform3D   cTransf(Acts::Transform3D::Identity()*Acts::Translation3D(Acts::Vector3D(0.,0.,    0.)));
-       Acts::Transform3D negTransf(Acts::Transform3D::Identity()*Acts::Translation3D(Acts::Vector3D(0.,0.,-halfZ)));
+       Acts::Transform3 posTransf(Acts::Transform3::Identity()*Acts::Translation3(Acts::Vector3(0.,0., halfZ)));
+       Acts::Transform3   cTransf(Acts::Transform3::Identity()*Acts::Translation3(Acts::Vector3(0.,0.,    0.)));
+       Acts::Transform3 negTransf(Acts::Transform3::Identity()*Acts::Translation3(Acts::Vector3(0.,0.,-halfZ)));
        
        auto posSurface = Acts::Surface::makeShared<Acts::DiscSurface>    (posTransf ,    0.,radius);
        auto cSurface   = Acts::Surface::makeShared<Acts::CylinderSurface>(  cTransf ,radius, halfZ);
@@ -201,7 +201,7 @@ StatusCode Trk::ExtrapolatorComparisonTest::execute(const EventContext& ctx) con
   auto start = xclock::now();
   for (auto& perigee : parameters) {
     
-    Acts::Vector3D momentum(perigee.m_pt * std::cos(perigee.m_phi), perigee.m_pt * std::sin(perigee.m_phi), perigee.m_pt * std::sinh(perigee.m_eta));
+    Acts::Vector3 momentum(perigee.m_pt * std::cos(perigee.m_phi), perigee.m_pt * std::sin(perigee.m_phi), perigee.m_pt * std::sinh(perigee.m_eta));
     double theta = Acts::VectorHelpers::theta(momentum);
     double qOverP = perigee.m_charge / momentum.norm();
     
@@ -276,11 +276,11 @@ StatusCode Trk::ExtrapolatorComparisonTest::execute(const EventContext& ctx) con
   n_extraps = 0;  
   start = xclock::now();
   for (auto& perigee : parameters) {
-    Acts::Vector3D momentum(perigee.m_pt * std::cos(perigee.m_phi), perigee.m_pt * std::sin(perigee.m_phi), perigee.m_pt * std::sinh(perigee.m_eta));
+    Acts::Vector3 momentum(perigee.m_pt * std::cos(perigee.m_phi), perigee.m_pt * std::sin(perigee.m_phi), perigee.m_pt * std::sinh(perigee.m_eta));
     double theta = Acts::VectorHelpers::theta(momentum);
     double qOverP = perigee.m_charge / momentum.norm();
     
-    std::shared_ptr<Acts::PerigeeSurface> actsPerigeeSurface = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3D(0, 0, 0));
+    std::shared_ptr<Acts::PerigeeSurface> actsPerigeeSurface = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3(0, 0, 0));
     double t = 0.;
     Acts::BoundVector pars;
     pars << perigee.m_d0, perigee.m_z0, perigee.m_phi, theta, qOverP, t;
@@ -288,7 +288,7 @@ StatusCode Trk::ExtrapolatorComparisonTest::execute(const EventContext& ctx) con
     
     // Perigee, no alignment -> default geo context
     ActsGeometryContext gctx = m_extrapolationTool->trackingGeometryTool()->getNominalGeometryContext();
-    auto anygctx = gctx.any();
+    auto anygctx = gctx.context();
     const Acts::BoundTrackParameters* startParameters = new const Acts::BoundTrackParameters(std::move(actsPerigeeSurface), std::move(pars), std::move(cov));
     
     for (unsigned int surface = 0; surface < m_actsReferenceSurfaceTriples.size(); surface++) {

@@ -210,7 +210,7 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, std::vect
     using namespace Acts::UnitLiterals;
 
     SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx};
-    const Acts::Vector3D& beamSpotPos = beamSpotHandle->beamVtx().position();
+    const Acts::Vector3& beamSpotPos = beamSpotHandle->beamVtx().position();
     Acts::Vertex<TrackWrapper> beamSpotConstraintVtx(beamSpotPos);
     beamSpotConstraintVtx.setCovariance(beamSpotHandle->beamVtx().covariancePosition());
 
@@ -218,7 +218,7 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, std::vect
     Acts::MagneticFieldContext magFieldContext = m_extrapolationTool->getMagneticFieldContext(ctx);
 
     const auto& geoContext
-    = m_trackingGeometryTool->getGeometryContext(ctx).any();
+    = m_trackingGeometryTool->getGeometryContext(ctx).context();
 
     // The output vertex containers
     xAOD::VertexContainer* theVertexContainer = new xAOD::VertexContainer;
@@ -276,8 +276,8 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, std::vect
        magFieldContext);
 
     if(!m_useBeamConstraint){
-      beamSpotConstraintVtx.setPosition(Acts::Vector3D::Zero());
-      beamSpotConstraintVtx.setCovariance(Acts::ActsSymMatrixD<3>::Zero());
+      beamSpotConstraintVtx.setPosition(Acts::Vector3::Zero());
+      beamSpotConstraintVtx.setCovariance(Acts::ActsSymMatrix<3>::Zero());
     }
 
     vertexingOptions.vertexConstraint = beamSpotConstraintVtx;
@@ -376,12 +376,12 @@ return std::make_pair(theVertexContainer, theVertexAuxContainer);
 
 
 Trk::Perigee* ActsAdaptiveMultiPriVtxFinderTool::actsBoundToTrkPerigee(
-  const Acts::BoundTrackParameters& bound, const Acts::Vector3D& surfCenter) const {
+  const Acts::BoundTrackParameters& bound, const Acts::Vector3& surfCenter) const {
   using namespace Acts::UnitLiterals;
   AmgSymMatrix(5)* cov =  new AmgSymMatrix(5)(bound.covariance()->block<5,5>(0,0));
   cov->col(Trk::qOverP) *= 1_MeV;
   cov->row(Trk::qOverP) *= 1_MeV;
-  Acts::ActsVectorD<5> params = bound.parameters().head<5>();
+  Acts::ActsVector<5> params = bound.parameters().head<5>();
   params[Trk::qOverP] *= 1_MeV;
 
   return new Trk::Perigee(params, Trk::PerigeeSurface(surfCenter), cov);
