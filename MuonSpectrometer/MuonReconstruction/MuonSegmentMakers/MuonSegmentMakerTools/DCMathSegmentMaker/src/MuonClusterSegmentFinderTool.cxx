@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonClusterSegmentFinderTool.h"
@@ -1025,7 +1025,7 @@ MuonClusterSegmentFinderTool::belowThreshold(std::vector<const Muon::MuonCluster
     int n_surf_with_hits = 0;
     if (muonClusters.size() > 1) {
         for (std::vector<const Muon::MuonClusterOnTrack*>::const_iterator cit = muonClusters.begin() + 1;
-             cit != muonClusters.end(); cit++)
+             cit != muonClusters.end(); ++cit)
         {
             if ((*cit) && (*(cit - 1))) {
                 if ((*cit)->detectorElement()->center((*cit)->identify())
@@ -1054,10 +1054,10 @@ MuonClusterSegmentFinderTool::belowThreshold(std::vector<const Muon::MuonCluster
     
     for ( ; cit != clusters.end() ; ++cit ) {
       const Muon::MuonClusterOnTrack* clus = *cit;      
-      const Muon::MuonClusterOnTrack* newClus;
       /// get the intercept of the seed direction with the cluster surface
       const Trk::PlaneSurface* surf = dynamic_cast<const Trk::PlaneSurface*> (&clus->associatedSurface());
       if(surf) {
+        const Muon::MuonClusterOnTrack* newClus = nullptr;
 	Amg::Vector3D posOnSurf = intersectPlane( *surf, seed.first, seed.second );
 	Amg::Vector2D lpos;
         surf->globalToLocal(posOnSurf,posOnSurf,lpos);	
@@ -1081,8 +1081,8 @@ MuonClusterSegmentFinderTool::belowThreshold(std::vector<const Muon::MuonCluster
           /// if it's STGC just copy the cluster -> calibration to be added
           newClus = clus;
         }
+        calibratedClusters.push_back(newClus);
       }
-      calibratedClusters.push_back(newClus);
     }
     return calibratedClusters;
   }
