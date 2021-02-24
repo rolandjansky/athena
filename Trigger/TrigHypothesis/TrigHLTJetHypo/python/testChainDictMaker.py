@@ -89,6 +89,10 @@ chains = [
 
     # bad chain, missing '_j0'
     ChainProp(name='HLT_2mu6_2j50_0eta490_dijetSEP50j1etSEP50j2etSEP900djmass_L1MJJ-500-NFF',l1SeedThresholds=['MU6','FSNOSEED'],stream=[PhysicsStream], groups=MuonJetGroup),
+
+    ChainProp(name='HLT_j60_dijetSEP70j1etSEP70j2etSEP1000djmassSEP20djdphiSEP40djdeta_L1J20', groups=SingleJetGroup),
+
+    
 ]
 
 def testChainDictMaker(idict):
@@ -131,13 +135,18 @@ if __name__ == '__main__':
     
     for d in dicts:
         logger.debug (d[0])
-        logger.debug (chainDict2jetLabel(d[1])+ '\n')
-
+        try: 
+            logger.debug (chainDict2jetLabel(d[1])+ '\n')
+        except Exception as e:
+            logger.error(e)
+            sys.exit(0)
         
     logger.debug ('\n node trees:\n')
     
     for d in dicts:
         logger.debug(d[0])
+
+        
         label = chainDict2jetLabel(d[1])
         chain_name = d[1]['chainName']
 
@@ -156,4 +165,8 @@ if __name__ == '__main__':
     logger.debug ('\nMaking TrigJetHypoTool for each dictiomary\n')
     for d in dicts:
         logger.debug (d[0])
-        logger.debug (str(trigJetHypoToolFromDict(d[1]))+'\n')
+        try:
+            logger.debug (str(trigJetHypoToolFromDict(d[1]))+'\n')
+        except Exception as e:
+            logger.error(e)
+            

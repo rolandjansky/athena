@@ -24,6 +24,7 @@ atlas_add_test( TrigHLTJetHypoUnitTestsg
    tests/ProductGenTest.cxx
    tests/JetGroupProductTest.cxx
    tests/JetGroupUnionTest.cxx
+   tests/JetGroupRegisterTest.cxx
    tests/TLorentzVectorFactoryTest.cxx
    tests/xAODJetCollectorTest.cxx
    tests/JetTrigTimerTest.cxx

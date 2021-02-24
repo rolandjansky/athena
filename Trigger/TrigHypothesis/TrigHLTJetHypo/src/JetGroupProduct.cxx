@@ -48,8 +48,7 @@ JetGroupProduct::JetGroupProduct(const std::vector<std::size_t>& siblings,
   m_productGen = ProductGen(ends);
 }
   
-std::optional<std::vector<std::size_t>>
-JetGroupProduct::next(const Collector& collector){
+std::vector<std::size_t> JetGroupProduct::next(const Collector& collector){
   // Produce an ordered set sequence of jet indices, one from each Condition
   // with no duplicate indices.
   //
@@ -57,7 +56,7 @@ JetGroupProduct::next(const Collector& collector){
   // use these to create a sequences of jet indices. The process is blocked
   // if there is a duplicate jet index using m_jetMask
   //
-  // finally, m_seenInidces keeps track of jet index seqiences that have
+  // finally, m_seenIndices keeps track of jet index seqiences that have
   // already been generated. If this is the first time the sequece has
   // been generated, it will be added to m_seenJetIndices, and then requrned
   // to the caller. If it has already been seen, it will be abandoned.
@@ -73,15 +72,12 @@ JetGroupProduct::next(const Collector& collector){
                          "loop start pass" + std::to_string(ipass++));
     }
       
-    auto opt_indices = m_productGen.next();
-    if(!opt_indices.has_value()){
-      return std::optional<std::vector<std::size_t>>();
+    auto indices = m_productGen.next();
+    if(indices.empty()){
+      return indices;  //an empty vector of size_t ints
     }
 
-    // indices index jet groups in the indJetGroups table
-    auto indices = *opt_indices;
-
-    // select indicies from the child jet group indicies. Form a vector
+    // select indices from the child jet group indicies. Form a vector
     // of indices.
     bool blocked{false};
     for(std::size_t i = 0; i < indices.size(); ++i){
@@ -104,17 +100,13 @@ JetGroupProduct::next(const Collector& collector){
 	jg_indices.push_back(i);
       }
     }
-
-   
       
     if (std::find(m_seenIndices.begin(),
 		  m_seenIndices.end(),
 		  jg_indices) == m_seenIndices.end()){
       
-	m_seenIndices.push_back(jg_indices);
-	return std::make_optional<std::vector<std::size_t>>(jg_indices);
-      }
+      m_seenIndices.push_back(jg_indices);
+      return jg_indices;
+    }
   }		       
- 
-  std::optional<std::vector<std::size_t>>();
 }

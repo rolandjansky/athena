@@ -28,6 +28,7 @@ class JetTrigTimer{
   std::size_t m_nCalls{0};
   std::chrono::system_clock::time_point m_start;
   std::chrono::system_clock::time_point m_stop;
+
   double m_elapsedDelta{0.};
   bool m_nanoseconds;
   void accumulate();

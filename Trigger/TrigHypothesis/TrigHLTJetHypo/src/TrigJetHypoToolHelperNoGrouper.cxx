@@ -5,7 +5,6 @@
 #include "./TrigJetHypoToolHelperNoGrouper.h"
 #include "./ITrigJetHypoInfoCollector.h"
 #include "./xAODJetCollector.h"
-#include "./JetTrigTimer.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/xAODJetAsIJet.h"  // TLorentzVec
 #include "./nodeIDPrinter.h"
 #include "./DebugInfoCollector.h"
@@ -30,20 +29,6 @@ StatusCode TrigJetHypoToolHelperNoGrouper::initialize() {
   return StatusCode::SUCCESS;
 }
 
-void
-TrigJetHypoToolHelperNoGrouper::collectData(const std::string& exetime,
-					    const std::unique_ptr<ITrigJetHypoInfoCollector>& collector,
-					    const std::optional<bool>& pass) const {
-  if(!collector){return;}
-  auto helperInfo = nodeIDPrinter("TrigJetHypoToolHelperNoGrouper",
-                                  pass,
-                                  exetime
-                                  );
-  
-  collector->collect(name(), helperInfo);
-}
-
-
 bool
 TrigJetHypoToolHelperNoGrouper::pass(HypoJetVector& jetsIn,
 				     xAODJetCollector& jetCollector,
@@ -56,23 +41,21 @@ TrigJetHypoToolHelperNoGrouper::pass(HypoJetVector& jetsIn,
     collector->collect(name(), ss.str());
   }
 
-  JetTrigTimer timer;
-  timer.start();
-  
-  if(jetsIn.empty()){   
-    timer.update();
+  if(jetsIn.empty()){
+    if (collector){
+      collector->collect(name(), "empty input jet collection");
+    }
     bool pass = false;
-    collectData(timer.read(), collector, pass);
     return pass;
   }
 
   // prefiltering.
 
   auto jets = m_prefilter.filter(jetsIn, collector);
-
+  
   HypoJetIter jets_begin = jets.begin(); 
   HypoJetIter jets_end = jets.end(); 
- 
+  
   // see if matchers pass. Each matcher conatains a FastReducer tree.
   // if  > matcher, this means the conditions of different trees may
   // share jets.
@@ -86,21 +69,17 @@ TrigJetHypoToolHelperNoGrouper::pass(HypoJetVector& jetsIn,
       ATH_MSG_ERROR("Matcher cannot determine result. Config error?");
       return false;
     }
-
+    
     if (!(*matcher_pass)){
       pass = false;
       break;
     }
   }
   
-  timer.update();
-  collectData(timer.read(), collector, pass);
-
   return pass;
 }
 
 std::string TrigJetHypoToolHelperNoGrouper::toString() const {
-  
   
   std::stringstream ss;
   ss << name();

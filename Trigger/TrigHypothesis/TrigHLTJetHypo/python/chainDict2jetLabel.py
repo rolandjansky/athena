@@ -353,8 +353,23 @@ def chainDict2jetLabel(chain_dict, debug=False):
                                         chain_dict['chainName'])
     bad_headers = '\n'.join(bad_headers)
     if bad_headers:
-        logger.info('scenario mismatches, %s', bad_headers)
-        
+        logger.error('scenario mismatches, %s', str(bad_headers))
+        raise ValueError('Jet hypo, bad scenario(s) in chain %s: %s' % (
+            chain_dict['chainName'], bad_headers))
+
+    # check the threshold value is zero if the scenario is not "simple"
+    for cp in chain_parts:
+        scenario =  cp['hypoScenario']
+        threshold = float(cp['threshold'])
+        if scenario != 'simple' and threshold != 0:
+            msg = 'scenario is not "simple", threshold should be 0, but is %f chain %s' % (
+                threshold, chain_dict['chainName'])
+            
+            logger.error(msg)
+            msg = 'jet hypo: ' + msg
+            raise ValueError(msg)
+            
+    
     for cp in chain_parts:
         for k in cp_sorter:
             if cp['hypoScenario'].startswith(k):

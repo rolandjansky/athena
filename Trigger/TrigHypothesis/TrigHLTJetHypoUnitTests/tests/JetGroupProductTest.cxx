@@ -19,7 +19,7 @@ TEST(JetGroupProductTester, empty) {
   JetGroupProduct jgp(siblings, satisfiedBy, condMult);
   auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
 
-  EXPECT_FALSE((jgp.next(collector)).has_value());
+  EXPECT_TRUE((jgp.next(collector)).empty());
 }
 
 
@@ -37,16 +37,15 @@ TEST(JetGroupProductTester, onecond) {
   auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
   
   auto exp = std::vector<std::size_t>{0};
-  EXPECT_EQ(*(jgp.next(collector)), exp);
+  EXPECT_EQ(jgp.next(collector), exp);
 
   exp = std::vector<std::size_t>{1};
-  EXPECT_EQ(*(jgp.next(collector)), exp);
+  EXPECT_EQ(jgp.next(collector), exp);
 
   exp = std::vector<std::size_t>{2};
-  EXPECT_EQ(*(jgp.next(collector)), exp);
+  EXPECT_EQ(jgp.next(collector), exp);
 
-  EXPECT_FALSE((jgp.next(collector)).has_value());
-
+  EXPECT_TRUE(jgp.next(collector).empty());
 }
 
 TEST(JetGroupProductTester, repeatedcond) {
@@ -62,17 +61,16 @@ TEST(JetGroupProductTester, repeatedcond) {
   auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
   
   auto exp = std::vector<std::size_t>{0, 1};
-  EXPECT_EQ(*(jgp.next(collector)), exp);
+  EXPECT_EQ(jgp.next(collector), exp);
 
   exp = std::vector<std::size_t>{0, 2};
-  EXPECT_EQ(*(jgp.next(collector)), exp);
+  EXPECT_EQ(jgp.next(collector), exp);
 
  
   exp = std::vector<std::size_t>{1, 2};
-  EXPECT_EQ(*(jgp.next(collector)), exp);
+  EXPECT_EQ(jgp.next(collector), exp);
 
-  EXPECT_FALSE((jgp.next(collector)).has_value());
-
+  EXPECT_TRUE(jgp.next(collector).empty());
 }
 
 TEST(JetGroupProductTester, twocond) {
@@ -89,18 +87,16 @@ TEST(JetGroupProductTester, twocond) {
   auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
   
   auto exp = std::vector<std::size_t>{0, 1};
-  EXPECT_EQ(*(jgp.next(collector)), exp);
+  EXPECT_EQ(jgp.next(collector), exp);
 
   exp = std::vector<std::size_t>{0, 2};
-  EXPECT_EQ(*(jgp.next(collector)), exp);
+  EXPECT_EQ(jgp.next(collector), exp);
   
   exp = std::vector<std::size_t>{1, 2};
-  EXPECT_EQ(*(jgp.next(collector)), exp);
+  EXPECT_EQ(jgp.next(collector), exp);
 
-  EXPECT_FALSE((jgp.next(collector)).has_value());
-
+  EXPECT_TRUE(jgp.next(collector).empty());
   if(collector) {collector->write();}
-
 
 }
 
