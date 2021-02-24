@@ -291,7 +291,7 @@ protected: //!< data members
   //!< bounds (shared)
   SharedObject<const SurfaceBounds> m_bounds;
   //!< reference Point on the Surface
-  CxxUtils::CachedUniquePtrT<Amg::Vector3D> m_referencePoint;
+  CxxUtils::CachedUniquePtr<Amg::Vector3D> m_referencePoint;
   //!< static member for boundless approach
   static const NoBounds s_boundless;
 };

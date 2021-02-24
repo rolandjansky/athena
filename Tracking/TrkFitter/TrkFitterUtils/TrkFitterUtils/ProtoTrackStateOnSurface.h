@@ -122,7 +122,7 @@ namespace Trk {
     const AmgVector(5)* checkoutParametersDifference();
     //! read access for data member: ParametersDifference
     const AmgVector(5)* parametersDifference() const;
-    
+
     //! checkin for data member: Covariance of Track Parameters as simple matrix
     void checkinParametersCovariance(const AmgSymMatrix(5)*,
                     bool  classShallOwnCovariance=true);
@@ -130,7 +130,7 @@ namespace Trk {
     const AmgSymMatrix(5)* checkoutParametersCovariance();
     //! read access for data member: Covariance
     const AmgSymMatrix(5)* parametersCovariance() const;
-    
+
     //! checkin method for data member: TPs from forward fit
     void checkinForwardPar(const TrackParameters*);
     //! checkout method for data member: TPs from forward fit
@@ -144,7 +144,7 @@ namespace Trk {
     const TrackParameters* checkoutSmoothedPar();
     //! read access method for data member: TPs from smoothing
     const TrackParameters* smoothedTrackParameters() const;
-    
+
     //! checkin method for data member: FitQualityOnSurface (smoothed state)
     void checkinFitQuality(const FitQualityOnSurface*);
     //! checkout method for data member: FitQualityOnSurface (smoothed state)
@@ -161,7 +161,7 @@ namespace Trk {
     double forwardStateNumberDoF() const;
     void backwardStateChiSquared(double);
     double backwardStateChiSquared() const;
-    
+
     //! checkin method for data member: ProtoMaterialEffects
     void checkinMaterialEffects(const ProtoMaterialEffects*);
     //! checkout method for data member: ProtoMaterialEffects
@@ -201,7 +201,7 @@ namespace Trk {
 
     //! create an EDM TrackStateOnSurface object from the internal information
     const Trk::TrackStateOnSurface* createState ATLAS_NOT_THREAD_SAFE (bool makeSlimOutlier=true);
-    
+
     //! get surface (either from measurement or from material effects)
     const Trk::Surface *surface() const;
 
@@ -233,7 +233,7 @@ namespace Trk {
     bool                       m_iOwnParametersDifference; //!< flag to steer ownership on difference
     const AmgSymMatrix(5)*     m_parametersCovariance; //!< covariance matrix of fitted parameters
     bool                       m_iOwnParametersCovariance; //!< flag for ownership of covarinace matrix of fitted parameters
-    CxxUtils::CachedUniquePtrT<Amg::VectorX>   m_measurementDifferenceVector; //!< cached difference between reference TrkParameters and measurement
+    CxxUtils::CachedUniquePtr<Amg::VectorX>   m_measurementDifferenceVector; //!< cached difference between reference TrkParameters and measurement
   };
 
   /// general swap function for ProtoTrackStateOnSurface (to speed up sort, etc)
@@ -243,8 +243,8 @@ namespace Trk {
 // hmm ... inline means this code is copied into each object -> takes more space in vector, but faster.
 
 inline bool Trk::ProtoTrackStateOnSurface::isOutlier() const { return (m_tsType != TrackState::Fittable && m_tsType!=TrackState::AnyState); }
-inline bool Trk::ProtoTrackStateOnSurface::isNewOutlier() const 
-{ return (m_tsType!=TrackState::Fittable 
+inline bool Trk::ProtoTrackStateOnSurface::isNewOutlier() const
+{ return (m_tsType!=TrackState::Fittable
           && m_tsType!=TrackState::AnyState
           && m_tsType!=TrackState::ExternalOutlier); }
 inline void Trk::ProtoTrackStateOnSurface::isOutlier(bool outlier, int i) {
@@ -277,15 +277,15 @@ inline const Trk::ProtoMaterialEffects* Trk::ProtoTrackStateOnSurface::materialE
 {return m_protoMaterialEffects; }
 inline const Identifier Trk::ProtoTrackStateOnSurface::identify() const
   {return m_identifier; }
-inline void  Trk::ProtoTrackStateOnSurface::identifier(Identifier id) 
+inline void  Trk::ProtoTrackStateOnSurface::identifier(Identifier id)
   {m_identifier = id; }
-inline Trk::TrackState::MeasurementType 
+inline Trk::TrackState::MeasurementType
 Trk::ProtoTrackStateOnSurface::measurementType() const
   {return m_mType; }
-inline Trk::TrackState::CalibrationType 
+inline Trk::TrackState::CalibrationType
 Trk::ProtoTrackStateOnSurface::calibrationType() const
   {return m_calib; }
-inline Trk::TrackState::TrackStateType 
+inline Trk::TrackState::TrackStateType
 Trk::ProtoTrackStateOnSurface::trackStateType() const
   {return m_tsType; }
 inline void Trk::ProtoTrackStateOnSurface::setMeasurementType(TrackState::MeasurementType mt,
