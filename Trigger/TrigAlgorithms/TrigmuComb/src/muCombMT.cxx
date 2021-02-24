@@ -60,11 +60,6 @@ StatusCode muCombMT::initialize()
    return StatusCode::SUCCESS;
 }
 
-StatusCode muCombMT::finalize()
-{
-   return StatusCode::SUCCESS;
-}
-
 // muon-trk match based on angular distance
 // return 0 --> match,  1 --> no match
 int muCombMT::drptMatch(const xAOD::L2StandAloneMuon* feature, double id_pt, double id_eta, double id_phi, int algo,
@@ -75,6 +70,7 @@ int muCombMT::drptMatch(const xAOD::L2StandAloneMuon* feature, double id_pt, dou
    double eta    = feature->etaMS();
    return muCombMT::drptMatch(pt, eta, phi, id_pt, id_eta, id_phi, algo, combPtInv, combPtRes, deta, dphi, dr);
 }
+
 int muCombMT::drptMatch(double pt, double eta, double phi, double id_pt, double id_eta, double id_phi, int algo,
                       double& combPtInv, double& combPtRes, double& deta, double& dphi, double& dr)
 {

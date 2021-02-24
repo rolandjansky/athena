@@ -12,19 +12,15 @@
 // PURPOSE:  LVL2 Combined Muon FEX Algorithm (MT version)
 // ********************************************************************
 
-#ifndef MUCOMBMT_H
-#define MUCOMBMT_H
+#ifndef TRIGMUCOMB_MUCOMBMT_H
+#define TRIGMUCOMB_MUCOMBMT_H
 
 // standard stuff
 #include <vector>
 #include <cmath>
 
-// general athena stuff
-#include "GaudiKernel/IToolSvc.h"
-
 //Gaudi
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
 // Base class
@@ -36,7 +32,6 @@
 
 #include "xAODTrigMuon/L2CombinedMuonContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
-#include "xAODTracking/TrackParticle.h"
 
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
@@ -47,15 +42,12 @@ class muCombMT : public AthAlgorithm
  public:
   /** Constructor */
   muCombMT(const std::string&, ISvcLocator*);
-  /** Destructor */
-  ~muCombMT(){};
 
   /** initialize. Called by the Steering. */
-  StatusCode initialize();
-  /** finalize. Called by the Steering. */
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+
   /** execute execute the combined muon FEX. */
-  StatusCode execute();
+  virtual StatusCode execute() override;
 
  private:
 
@@ -209,4 +201,4 @@ class muCombMT : public AthAlgorithm
 
 };
 
-#endif // MUCOMBMT_H
+#endif
