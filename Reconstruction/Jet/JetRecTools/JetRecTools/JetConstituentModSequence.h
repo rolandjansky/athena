@@ -28,7 +28,9 @@
 #include "xAODPFlow/PFOContainer.h"
 #include "xAODPFlow/FlowElementContainer.h"
 
+#ifndef XAOD_ANALYSIS
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
+#endif
 
 class JetConstituentModSequence: public asg::AsgTool, virtual public IJetExecuteTool {
   // Changed from IJetExecute
@@ -56,8 +58,10 @@ protected:
   
   ToolHandleArray<IJetConstituentModifier> m_modifiers;
 
+#ifndef XAOD_ANALYSIS
   ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
-
+#endif
+  
   bool m_saveAsShallow = true;
 
   // note: not all keys will be used for a particular instantiation
