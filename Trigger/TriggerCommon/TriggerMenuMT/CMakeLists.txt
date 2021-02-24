@@ -123,6 +123,8 @@ atlas_install_scripts( scripts/generateL1MenuMT.sh
 atlas_install_joboptions( share/*.py
                           POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-ignore=F821 )
 
+# Temporary copy of LVL1 XML DTD (remove this and the file once XML menu is deprecated)
+atlas_install_xmls( share/*.dtd )
 
 # Tests:
 file( REMOVE_RECURSE ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_generateMenuMT_newJO )
