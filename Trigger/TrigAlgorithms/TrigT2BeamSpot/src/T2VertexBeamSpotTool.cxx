@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 //============================================================
 // T2VertexBeamSpot.cxx, (c) ATLAS Detector software
@@ -13,9 +13,8 @@
 //
 //============================================================
 // This algorithm
-#include "TrigT2BeamSpot/T2VertexBeamSpotTool.h"
+#include "T2VertexBeamSpotTool.h"
 #include "T2TrackManager.h"
-#include "T2Timer.h"
 // Specific to this algorithm
 #include "TrigInDetEvent/TrigVertex.h"
 #include "TrigInDetEvent/TrigVertexCollection.h"

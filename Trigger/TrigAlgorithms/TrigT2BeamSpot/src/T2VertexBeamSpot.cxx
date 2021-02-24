@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 //============================================================
-// $Id: T2VertexBeamSpot.cxx 793164 2017-01-20 03:59:26Z ssnyder $
 //
 // T2VertexBeamSpot.cxx, (c) ATLAS Detector software
 // Trigger/TrigAlgorithms/TrigT2BeamSpot/T2VertexBeamSpot
@@ -13,11 +12,8 @@
 // Authors : David W. Miller, Rainer Bartoldus,   
 //           Su Dong
 //============================================================
-#include "TrigT2BeamSpot/T2VertexBeamSpot.h"
-#include "T2TrackClusterer.h"
-#include "T2Timer.h"
+#include "T2VertexBeamSpot.h"
 // General ATHENA/Trigger stuff
-#include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "TrigInDetEvent/TrigVertexCollection.h"
