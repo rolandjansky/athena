@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -18,14 +18,14 @@
 SiTotalCharge::SiTotalCharge(const alloc_t& alloc) :
   m_charge(0),
   m_chargeComposition(alloc),
-  m_emptyLink((unsigned int) 0, 0)
+  m_emptyLink()
 {}
 
 // Copy constructor:
 SiTotalCharge::SiTotalCharge(const SiTotalCharge &totalCharge) :
   m_charge(totalCharge.m_charge),
   m_chargeComposition(totalCharge.m_chargeComposition),
-  m_emptyLink((unsigned int) 0, 0)
+  m_emptyLink()
 {}
 
 // Assignment operator:

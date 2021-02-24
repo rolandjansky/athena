@@ -305,7 +305,7 @@ public:
    * @brief Default constructor.  Makes a null link.
    * @param sg Optional specification of a specific store to reference.
    */
-  HepMcParticleLink (IProxyDict* sg = SG::CurrentEventStore::store());
+  HepMcParticleLink (IProxyDict* sg = nullptr);
 
 
   /**

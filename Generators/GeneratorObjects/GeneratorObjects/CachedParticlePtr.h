@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file GeneratorObjects/CachedParticlePtr.h
@@ -104,6 +104,12 @@ public:
    * the same parameters.
    */
   void set (const IProxyDict* sg, const HepMC::GenParticle* part) const;
+
+
+  /**
+   * @brief Check if the cached pointer is valid
+   */
+  bool isValid () const;
 
 
 private:
