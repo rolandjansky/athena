@@ -15,6 +15,7 @@
 // HepMC includes
 #include "AtlasHepMC/GenParticle.h"
 #include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/SimpleVector.h"
 
 // STL includes
 #include <limits>
