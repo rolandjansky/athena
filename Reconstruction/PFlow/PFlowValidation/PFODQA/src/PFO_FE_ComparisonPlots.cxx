@@ -19,6 +19,10 @@ bool PFO_FE_ComparisonPlots::Match (const xAOD::PFO* pfo, const xAOD::FlowElemen
   if(pfo == nullptr or fe==nullptr){
     return false;
   }
+  // debug statement: check the charge of the FE and PFO to see if we're comparing the right things
+  bool fe_ischarged=fe->isCharged(); // check the charge of the FE
+  bool pfo_ischarged=pfo->isCharged(); // check the charge of the PFO
+    
   if(m_isNeutral){
     // define match if PFO and FE share same cluster index
     //nullptr catch
@@ -27,11 +31,14 @@ bool PFO_FE_ComparisonPlots::Match (const xAOD::PFO* pfo, const xAOD::FlowElemen
       if(pfo->cluster(0)==nullptr){
 	ATH_MSG_ERROR("PFO first cluster is a dud");	
       }
-      if(fe->otherObjects().size()){
+      if(fe->otherObjects().size()==0){
 	ATH_MSG_ERROR("FE has no clusters");
       }
       if(fe->otherObjects().at(0)==nullptr){
 	ATH_MSG_ERROR("FE cluster ptr is a dud");
+      }
+      if(pfo_ischarged or fe_ischarged){
+	ATH_MSG_ERROR("pfo or FE are misconfigured - one of these is charged when it is expected to be neutral");
       }
       return false;
     }
@@ -45,6 +52,7 @@ bool PFO_FE_ComparisonPlots::Match (const xAOD::PFO* pfo, const xAOD::FlowElemen
     //nullptr catch
     if(pfo->track(0)==nullptr or fe->chargedObjects().size()==0 or fe->chargedObjects().at(0)==nullptr){
       ATH_MSG_ERROR("PFO vs FE validation has nullptr in track matching/ no tracks");
+
       if(pfo->track(0)==nullptr){
 	ATH_MSG_ERROR("PFO track is a dud");
       }
@@ -53,6 +61,9 @@ bool PFO_FE_ComparisonPlots::Match (const xAOD::PFO* pfo, const xAOD::FlowElemen
       }
       if(fe->chargedObjects().at(0)==nullptr){
 	ATH_MSG_ERROR("FE track ptr is a dud");
+      }
+      if(!pfo_ischarged or !fe_ischarged){
+	ATH_MSG_ERROR("pfo or FE are misconfigured - one of these is neutral when it is expected to be ");
       }
       return false;
     }

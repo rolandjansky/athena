@@ -172,6 +172,10 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
       CaloClusterCellLink::const_iterator FE_FirstCell=CellLink->begin();
       CaloClusterCellLink::const_iterator FE_LastCell=CellLink->end();
 					     
+      // debug for Negative energy cluster
+
+      double cluster_E=FE_cluster->p4().E();
+      bool neg_E_cluster=(cluster_E<0.0);
       
       //design the vector of ElementLinks
       std::vector<MuonLink_t> FEMuonLinks;
@@ -205,6 +209,8 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
 		muonNeutralFEVec.at(muon->index()).push_back(FlowElementLink_t(*NeutralFEReadHandle,FE->index()));
 		ATH_MSG_VERBOSE("Got a match between NFE and Muon");
 		nMatchedFE++; // count number of matches between FE and muons
+		if(neg_E_cluster)
+		  ATH_MSG_ERROR("Muon cluster matched to negative E topocluster from FE");
 	      } // check block of index matching	      
 	    } // end of loop over element links
 	  } //end of TopoCluster specific block
@@ -268,6 +274,9 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
 	      FE_efrac_clustermatch.push_back(frac_FE_cluster_energy_matched); // fraction of FE cluster energy matched
 	      muonNeutralFE_frac_cluster_energy_matched_Vec.at(muon->index()).push_back(frac_muon_cluster_energy_matched);//fraction of Muon cluster energy matched
 	      nMatchedFE++; // count number of matches incrementally
+	      if(neg_E_cluster){
+		ATH_MSG_ERROR("Muon cluster matched to negative E topocluster from FE");
+	      }
 	    }
 
 	    

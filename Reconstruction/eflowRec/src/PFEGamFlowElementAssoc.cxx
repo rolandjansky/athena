@@ -126,6 +126,9 @@ StatusCode PFEGamFlowElementAssoc::execute(const EventContext &ctx) const
     std::vector<ElectronLink_t> FEElectronLinks;
     std::vector<PhotonLink_t> FEPhotonLinks;
     
+    double FE_cluster_E=FE->otherObjects().at(0)->p4().E();
+    bool neg_E_cluster=(FE_cluster_E<0);
+    
     //Loop over electrons:
     for (const xAOD::Electron* electron: *electronNeutralFEWriteDecorHandle){
       // get the calo clusters from the electron
@@ -142,6 +145,10 @@ StatusCode PFEGamFlowElementAssoc::execute(const EventContext &ctx) const
 	  //Add Flow Element (FE) link to a vector
 	  //index() is the unique index of the Flow Element in the container
 	  electronNeutralFEVec.at(electron->index()).push_back(FlowElementLink_t(*neutralFEReadHandle, FE->index()) );
+	  if(neg_E_cluster){
+	    ATH_MSG_ERROR("Negative energy cluster found and matched to electron");
+	    ATH_MSG_ERROR("Cluster Energy: "<<FE_cluster_E<<"");
+	  }
 	}// end of matching block
 
       } // end loop over cluster
@@ -163,6 +170,11 @@ StatusCode PFEGamFlowElementAssoc::execute(const EventContext &ctx) const
 	  //Add Flow Element (FE) link to a vector
 	  //index() is the unique index of the Flow Element in the container
 	  photonNeutralFEVec.at(photon->index()).push_back(FlowElementLink_t(*neutralFEReadHandle, FE->index()) );	  
+
+	  if(neg_E_cluster){
+	    ATH_MSG_ERROR("Negative energy cluster found and matched to photon");
+	    ATH_MSG_ERROR("Cluster Energy: "<<FE_cluster_E<<"");
+	  }
 	}// end of matching block
       } // end of neutral loop
       
