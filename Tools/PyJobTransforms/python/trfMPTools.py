@@ -23,7 +23,7 @@ import PyJobTransforms.trfExceptions as trfExceptions
 ## @brief Detect if AthenaMP has been requested
 #  @param argdict Argument dictionary, used to access athenaopts for the job
 #  @return Integer with the number of processes, N.B. 0 means non-MP serial mode
-def detectAthenaMPProcs(argdict = {}, currentSubstep = ''):
+def detectAthenaMPProcs(argdict = {}, currentSubstep = '', legacyThreadingRelease = False):
     athenaMPProcs = 0
     
     # Try and detect if any AthenaMP has been enabled 
@@ -35,7 +35,7 @@ def detectAthenaMPProcs(argdict = {}, currentSubstep = ''):
                     if len(procArg) == 0:
                         athenaMPProcs = 0
                     elif len(procArg) == 1:
-                        if 'multiprocess' in argdict:
+                        if 'multiprocess' in argdict and substep == 'all':
                             raise ValueError("Detected conflicting methods to configure AthenaMP: --multiprocess and --nprocs=N (via athenaopts). Only one method must be used")
                         athenaMPProcs = int(procArg[0])
                         if athenaMPProcs < -1:
@@ -46,7 +46,7 @@ def detectAthenaMPProcs(argdict = {}, currentSubstep = ''):
                         msg.info('AthenaMP detected from "nprocs" setting with {0} workers for substep {1}'.format(athenaMPProcs,substep))
         if (athenaMPProcs == 0 and
             'ATHENA_CORE_NUMBER' in os.environ and
-            'multiprocess' in argdict):
+            ('multiprocess' in argdict or legacyThreadingRelease)):
             athenaMPProcs = int(os.environ['ATHENA_CORE_NUMBER'])
             if athenaMPProcs < -1:
                 raise ValueError("ATHENA_CORE_NUMBER value was less than -1")

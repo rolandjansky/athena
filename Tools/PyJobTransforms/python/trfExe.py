@@ -23,8 +23,9 @@ from fnmatch import fnmatch
 msg = logging.getLogger(__name__)
 
 from PyJobTransforms.trfJobOptions import JobOptionsTemplate
-from PyJobTransforms.trfUtils import asetupReport, unpackDBRelease, setupDBRelease, cvmfsDBReleaseCheck, forceToAlphaNum
-from PyJobTransforms.trfUtils import ValgrindCommand, isInteractiveEnv, calcCpuTime, calcWallTime, analytic
+from PyJobTransforms.trfUtils import asetupReport, asetupReleaseIsOlderThan, unpackDBRelease, setupDBRelease, \
+    cvmfsDBReleaseCheck, forceToAlphaNum, \
+    ValgrindCommand, isInteractiveEnv, calcCpuTime, calcWallTime, analytic
 from PyJobTransforms.trfExitCodes import trfExit
 from PyJobTransforms.trfLogger import stdLogLevels
 from PyJobTransforms.trfMPTools import detectAthenaMPProcs, athenaMPOutputHandler
@@ -949,11 +950,20 @@ class athenaExecutor(scriptExecutor):
             raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_SETUP'),
                                                             'either --multithreaded nor --multiprocess command line option provided but ATHENA_CORE_NUMBER environment has not been set')
 
+        ## Do we need to run asetup first?
+        asetupString = None
+        legacyThreadingRelease = False
+        if 'asetup' in self.conf.argdict:
+            asetupString = self.conf.argdict['asetup'].returnMyValue(name=self._name, substep=self._substep, first=self.conf.firstExecutor)
+            legacyThreadingRelease = asetupReleaseIsOlderThan(asetupString, 22)
+        else:
+            msg.info('Asetup report: {0}'.format(asetupReport()))
+
         # Try to detect AthenaMT mode, number of threads and number of concurrent events
-        self._athenaMT, self._athenaConcurrentEvents = detectAthenaMTThreads(self.conf.argdict,self.name)
+        self._athenaMT, self._athenaConcurrentEvents = detectAthenaMTThreads(self.conf.argdict, self.name, legacyThreadingRelease)
 
         # Try to detect AthenaMP mode and number of workers
-        self._athenaMP = detectAthenaMPProcs(self.conf.argdict,self.name)
+        self._athenaMP = detectAthenaMPProcs(self.conf.argdict, self.name, legacyThreadingRelease)
 
         if self._disableMP:
             self._athenaMP = 0
@@ -1042,13 +1052,6 @@ class athenaExecutor(scriptExecutor):
         if len(output) > 0:
             self._extraMetadata['outputs'] = list(output)
 
-        ## Do we need to run asetup first?
-        asetupString = None
-        if 'asetup' in self.conf.argdict:
-            asetupString = self.conf.argdict['asetup'].returnMyValue(name=self._name, substep=self._substep, first=self.conf.firstExecutor)
-        else:
-            msg.info('Asetup report: {0}'.format(asetupReport()))
-        
         ## DBRelease configuration
         dbrelease = dbsetup = None
         if 'DBRelease' in self.conf.argdict:

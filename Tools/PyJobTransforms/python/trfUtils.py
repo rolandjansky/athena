@@ -293,6 +293,67 @@ def releaseIsOlderThan(major, minor=None):
         msg.warning('Exception thrown when attempting to detect athena version ({0}). No release check possible'.format(e))
     return False
 
+
+## @brief Test (to the best of our knowledge) if the asetup release is older
+#  than a major, minor version number
+#  @param asetup_string asetup string
+#  @param major Major release number
+#  @param minor Minor release number (if not specified, will not be matched against)
+#  @return Boolean if current release is found to be older
+def asetupReleaseIsOlderThan(asetup_string, major, minor=None):
+    try:
+        relmajor = None
+        relminor = None
+
+        # First split the asetup_string by comma
+        split_string = asetup_string.split(',')
+        # master is always the newest
+        if 'master' in split_string:
+            return False
+
+        # First try major.minor.bugfix
+        reg_exp = re.compile(r'(?P<major>\d+)\.(?P<minor>\d+)\.(?P<other>.*)')
+        for part in split_string:
+            part = part.strip()
+            match = re.match(reg_exp, part)
+            if match:
+                relmajor = int(match.group('major'))
+                relminor = int(match.group('minor'))
+                msg.info('Detected asetup release {0}.{1}(.{2})'.format(relmajor, relminor, match.group('other')))
+                break
+
+        # Then try major.minor
+        if relmajor is None:
+            reg_exp = re.compile(r'(?P<major>\d+)\.(?P<minor>\d+)')
+            for part in split_string:
+                part = part.strip()
+                match = re.match(reg_exp, part)
+                if match:
+                    relmajor = int(match.group('major'))
+                    relminor = int(match.group('minor'))
+                    msg.info('Detected asetup release {0}.{1}'.format(relmajor, relminor))
+                    break
+
+        # Bail out
+        if relmajor is None:
+            raise RuntimeError('asetup version could not be parsed')
+
+        # Major beats minor, so test this first
+        if relmajor < major:
+            return True
+        if relmajor > major:
+            return False
+
+        # First case is major equality and don't care about minor
+        if minor is None or relminor >= minor:
+            return False
+        return True
+
+    except Exception as e:
+        msg.warning('Exception thrown when attempting to detect asetup athena version ({0}) from {1}. No release check possible'.format(e, asetup_string))
+    return False
+
+
 ## @brief Quote a string array so that it can be echoed back on the command line in a cut 'n' paste safe way
 #  @param strArray: Array of strings to quote
 #  @details Technique is to first quote any pre-existing single quotes, then single quote all of the array
