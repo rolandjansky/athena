@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -40,11 +40,11 @@ Trig::TrigDecisionTool::TrigDecisionTool(const std::string& name) :
 #endif
 #ifndef XAOD_ANALYSIS
   ,m_fullNavigation("HLT::Navigation/Navigation", this)
-  ,m_navigation(nullptr) //should initialize it... it's dangerous not to
-#else
-  ,m_navigation(new HLT::StandaloneNavigation())
 #endif
 {
+#ifdef XAOD_ANALYSIS
+  m_navigation = new HLT::StandaloneNavigation();
+#endif
 
   //full Athena env
 #ifndef XAOD_ANALYSIS
