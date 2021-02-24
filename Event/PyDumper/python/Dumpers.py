@@ -69,6 +69,10 @@ if hasattr (ROOT, 'TrigInDetParticleTruth'):
     getattr(ROOT, 'ElementLinkVector<TrigInDetTrackCollection>')
     getattr(ROOT, 'std::vector<Trig3Momentum>')
     ROOT.TrigSpacePointCounts().droppedSctModules()
+hasattr (ROOT, 'xAOD::TruthParticle_v1')
+ROOT.TClass.GetClass('ElementLink<DataVector<xAOD::TruthParticle_v1> >')
+ROOT.gROOT.ProcessLine ('#include "xAODMuon/MuonContainer.h"')
+ROOT.TClass.GetClass('ElementLink<DataVector<xAOD::Muon_v1> >')
 
 
 ### helper methods ------------------------------------------------------------
