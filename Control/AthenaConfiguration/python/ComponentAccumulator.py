@@ -1083,7 +1083,7 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
             elif "PrivateToolHandle" in propType or "GaudiConfig2.Configurables" in propType or "ServiceHandle" in propType:
                 existingVal = getattr(existingConfigurableInstance, pname)
                 if isinstance( pvalue, str ):
-                    _log.warning("%sThe handle %s of component %s.%s is just a string %s, "
+                    _log.warning("%sThe handle %s of new-config component %s.%s is just a string %s, "
                                  "skipping deeper checks, configuration may be incorrect",
                                  indent, propType, newConf2Instance.name, pname, pvalue)
                 else:
@@ -1125,11 +1125,11 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
                         try:
                             updatedPropValue = __listHelperToList(newConf2Instance._descriptors[pname].semantics.merge( getattr(newConf2Instance, pname), getattr(clone, pname)))
                         except ValueError:
-                            _log.warning( "Failed merging new config value (%s) and old config value (%s) for (%s) property of %s (%s) old (new). Will take value from NEW configuration, but this should be checked!",
+                            _log.fatal( ("Failed merging new config value (%s) and old config value (%s) for (%s) property of %s (%s) old (new).",
+                                getattr(newConf2Instance, pname),getattr(clone, pname),pname,existingConfigurableInstance.getFullJobOptName() ,newConf2Instance.getFullJobOptName() ) )
+                            raise ConfigurationError("Failed merging new config value (%s) and old config value (%s) for (%s) property of %s (%s) old (new).",
                                 getattr(newConf2Instance, pname),getattr(clone, pname),pname,existingConfigurableInstance.getFullJobOptName() ,newConf2Instance.getFullJobOptName() )
-                            updatedPropValue=getattr(newConf2Instance, pname)
-                            # Necessary because default value is returned for lists... see e.g.:
-                            # https://gitlab.cern.ch/atlas/athena/-/blob/630b82d0540fff24c2a1da6716efc0adb53727c9/Control/AthenaCommon/python/PropertyProxy.py#L109
+
                         _log.debug("existingConfigurable.name: %s, pname: %s, updatedPropValue: %s", existingConfigurableInstance.name(), pname, updatedPropValue )
 
                         setattr(existingConfigurableInstance, pname, updatedPropValue)
