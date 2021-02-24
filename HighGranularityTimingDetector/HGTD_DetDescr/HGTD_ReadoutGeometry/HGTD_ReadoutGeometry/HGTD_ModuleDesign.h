@@ -72,7 +72,9 @@ public:
                       const int diodeRowsPerCircuit,
                       const InDetDD::PixelDiodeMatrix * matrix,
                       InDetDD::CarrierType carrierType,
-                      int readoutSide);
+                      int readoutSide,
+                      DetectorDesign::Axis yDirection = InDetDD::DetectorDesign::xAxis,
+                      DetectorDesign::Axis depthDirection = InDetDD::DetectorDesign::zAxis);
 
     // Destructor:
     virtual ~HGTD_ModuleDesign();

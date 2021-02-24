@@ -571,8 +571,7 @@ GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool
                     std::string module_string = formModuleName( layer, q, maxRows, row, mod, module, myx, myy, myrot, myphi, myeta );
 
                     if ( module_string == "" || myrot == -9999999.9 || myeta == -1 )
-		        ATH_MSG_WARNING ( " Please check the module at layer "<< layer <<" quadrant " << q
-					  <<" row "<< row <<" mod " << mod <<" not well retrieved ! " );
+                      ATH_MSG_WARNING ( " Please check the module at layer "<< layer <<" quadrant " << q <<" row "<< row <<" mod " << mod <<" not well retrieved ! " );
 
                     //  an hgtd module  defined in the form of  ( X, Y, Z )
                     GeoBox* moduleSolid            = new GeoBox( moduleHalfWidth, moduleHalfHeight, modulePackageHalfZ);
@@ -581,7 +580,7 @@ GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool
 
                     // print out one module per layer
                     if ( q == 0 && row == 0 && mod == 0 )
-		        ATH_MSG_DEBUG( "Will now build up an individual HGTD module of layer " << layer << " and quadrant " << q << " (" << module_string << ")" );
+                      ATH_MSG_DEBUG( "Will now build up an individual HGTD module of layer " << layer << " and quadrant " << q << " (" << module_string << ")" );
 
                     // loop over components in module
                     for (size_t comp = 0; comp < volumes.size(); comp++) {
@@ -620,17 +619,14 @@ GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool
 
                             // print only the first and last module of each row in the first quadrant
                             if ( q == 0 && ( mod == 0 || mod == ( ModsPerRow.size() - 1 ) ) && !m_outputIdfr ) {
-			        ATH_MSG_DEBUG( "  waferHash :  " << hgtdId->wafer_hash( idwafer )
-					      << " upon HGTD_ID =>  ec: " << endcap << ", layer: " << layer << ", quadrant: " << q
-					      << ", row: " << myphi <<", module: "<< myeta );
-				ATH_MSG_DEBUG( " HGTD Module: " << m_boxVolPars[c].name+module_string << ", posX: " << myx 
-					      << ", posY: " << myy << ", rot: " << quadrot + myrot );
+                              ATH_MSG_DEBUG( "  waferHash :  " << hgtdId->wafer_hash( idwafer )
+                              << " upon HGTD_ID =>  ec: " << endcap << ", layer: " << layer << ", quadrant: " << q
+                              << ", row: " << myphi <<", module: "<< myeta );
+                              ATH_MSG_DEBUG( " HGTD Module: " << m_boxVolPars[c].name+module_string << ", posX: " << myx << ", posY: " << myy << ", rot: " << quadrot + myrot );
                             }
-
-                            if (m_geomVersion == 0) { // for now identifiers do not support 3-ring layout, protecting this part for testing purposes /CO
-                                InDetDD::HGTD_DetectorElement* detElement = new InDetDD::HGTD_DetectorElement(idwafer, moduleDesign, sensorCompPhysicalVol, m_commonItems);
-                                m_detectorManager->addDetectorElement( detElement );
-                            }
+                            
+                            InDetDD::HGTD_DetectorElement* detElement = new InDetDD::HGTD_DetectorElement(idwafer, moduleDesign, sensorCompPhysicalVol, m_commonItems);
+                            m_detectorManager->addDetectorElement( detElement );                            
 
                             HepGeom::Transform3D sensorTransform = HepGeom::TranslateZ3D(m_boxVolPars[c].zOffsetLocal)*HepGeom::TranslateX3D(xOffsetLocal);
                             GeoAlignableTransform* xform = new GeoAlignableTransform(sensorTransform);
@@ -647,11 +643,11 @@ GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool
 
                         // print out each module component
                         if ( mod == 0 && q == 0 && volumes[comp] != sensorName )
-			    ATH_MSG_DEBUG( std::setw(20) << m_boxVolPars[c].name << " ( " << std::setw(15) << m_boxVolPars[c].material
-					   << " ), in-sensor-layer local z = " << std::setw(7) << m_boxVolPars[c].zOffsetLocal << " mm"
-					   << ", DX = " << std::setw(5) << m_boxVolPars[c].xHalf << " mm"
-					   << ", DY = " << std::setw(5) << m_boxVolPars[c].yHalf << " mm"
-					   << ", DZ = " << std::setw(5) << m_boxVolPars[c].zHalf << " mm" );
+                          ATH_MSG_DEBUG( std::setw(20) << m_boxVolPars[c].name << " ( " << std::setw(15) << m_boxVolPars[c].material
+                          << " ), in-sensor-layer local z = " << std::setw(7) << m_boxVolPars[c].zOffsetLocal << " mm"
+                          << ", DX = " << std::setw(5) << m_boxVolPars[c].xHalf << " mm"
+                          << ", DY = " << std::setw(5) << m_boxVolPars[c].yHalf << " mm"
+                          << ", DZ = " << std::setw(5) << m_boxVolPars[c].zHalf << " mm" );
                     } // end of components loop
 
                     double zModule = ( Lside == 0 ? zModuleLayerF : zModuleLayerB );
@@ -712,8 +708,8 @@ std::array< PositionsInQuadrant, 4 > HGTD_DetectorFactory::prepareLayersFromQuad
 // backward compatibility to pre-TDR two-ring layouts
 // 3-ring layout differ from 2-ring here.
 std::string HGTD_DetectorFactory::formModuleName( int layer, int quadrant, unsigned int maxrows, int row, int mod,
-						  ModulePosition module,
-						  double& myx, double& myy, double& myrot, int& phi, int& eta ) {
+                                                  ModulePosition module,
+                                                  double& myx, double& myy, double& myrot, int& phi, int& eta ) {
 
     std::string module_string = "";
 
@@ -924,9 +920,9 @@ std::vector< ModulePosition > HGTD_DetectorFactory::prepareModulePositionsInRowT
 
     // the spreadsheet gave the center of bottom edge of a module, so an adjustment by halfHeight is needed
     if ( m_outputIdfr ) ATH_MSG_DEBUG( " Row " << ( row <= index_XYcoord_change ? effectiveRow + 1 : 36 - row ) 
-				       << " Module " << moduleCounter + 1 <<" at (x,y) : " 
-				       << ( row > index_XYcoord_change ? rowModulePositions.back().x - halfHeight : rowModulePositions.back().x ) << ", "
-				       << ( row > index_XYcoord_change ? rowModulePositions.back().y : rowModulePositions.back().y - halfHeight ) );
+      << " Module " << moduleCounter + 1 <<" at (x,y) : " 
+      << ( row > index_XYcoord_change ? rowModulePositions.back().x - halfHeight : rowModulePositions.back().x ) << ", "
+      << ( row > index_XYcoord_change ? rowModulePositions.back().y : rowModulePositions.back().y - halfHeight ) );
 
     posOfLastPlacedModule = modPos_row;
     moduleCounter ++;
@@ -984,13 +980,17 @@ InDetDD::HGTD_ModuleDesign* HGTD_DetectorFactory::createHgtdDesign( double thick
                                                                           normalCell, diodeColumnsPerCircuit, 0);
     InDetDD::PixelDiodeMatrix* fullMatrix = new InDetDD::PixelDiodeMatrix(InDetDD::PixelDiodeMatrix::phiDir, 0,
                                                                           singleRow, 2*diodeRowsPerCircuit, 0); // note 30 = 2*15 rows adopted
-
+    
+    DetectorDesign::Axis yDirection = InDetDD::DetectorDesign::xAxis;
+    if (m_geomVersion == 0 )
+      yDirection = InDetDD::DetectorDesign::yAxis;
+    
     InDetDD::HGTD_ModuleDesign* design = new InDetDD::HGTD_ModuleDesign(thickness,
                                                                         circuitsPerColumn, circuitsPerRow,
                                                                         cellColumnsPerCircuit, cellRowsPerCircuit,
                                                                         diodeColumnsPerCircuit, diodeRowsPerCircuit,
                                                                         fullMatrix,
-                                                                        InDetDD::CarrierType::electrons, 1 );
+                                                                        InDetDD::CarrierType::electrons, 1, yDirection );
 
     return design;
 }
