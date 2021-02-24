@@ -11,6 +11,8 @@ from argparse import ArgumentParser
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 # Set up logging and new style config
 Configurable.configurableRun3Behavior = True
@@ -61,7 +63,7 @@ def printAndRun(accessor, configFlags, args):
 
 
 def setupITkDetectorFlags(configFlags, detectors, args):
-    #configFlags.Detector.GeometryBpipe = True #things seem to misbehave (hang on first event) if there is no beampipe...
+    #configFlags.Detector.GeometryBpipe = True #You may want to turn on the beam pipe?
     configFlags.Detector.GeometryMuon  = False #Not sure why this is there by default... and crashes if present :-(
     configFlags.Detector.GeometryMM  = False #Not sure why this is there by default... does no harm though
     configFlags.Detector.GeometrysTGC  = False #Not sure why this is there by default... does no harm though
@@ -89,6 +91,30 @@ def ITkTestCfg(configFlags):
     
     return acc
 
+def LengthIntegratorUserActionSvcCfg(configFlags, name="G4UA::LengthIntegratorUserActionSvc", **kwargs):
+    
+    result = ComponentAccumulator()
+    
+    #Setting up the CA for the LengthIntegrator
+    from G4UserActions.G4UserActionsConfigNew import LengthIntegratorToolCfg
+    actionAcc = ComponentAccumulator()
+    actions = []
+    actions += [actionAcc.popToolsAndMerge(LengthIntegratorToolCfg(configFlags))]
+    actionAcc.setPrivateTools(actions)
+    lengthIntegratorAction = result.popToolsAndMerge(actionAcc)
+    
+    #Retrieving the default action list
+    from G4AtlasServices.G4AtlasUserActionConfigNew import getDefaultActions
+    defaultActions = result.popToolsAndMerge(getDefaultActions(configFlags))
+
+    #Adding LengthIntegrator to defaults
+    actionList = (defaultActions + lengthIntegratorAction)
+
+    #Setting up UserActionsService
+    kwargs.setdefault("UserActionTools",actionList)
+    result.addService(CompFactory.G4UA.UserActionSvc(name, **kwargs))
+
+    return result
 
 # Argument parsing
 parser = ArgumentParser("ITkTest.py")
@@ -113,6 +139,8 @@ parser.add_argument("--inputevntfile",
                     help="The input EVNT file to use")
 parser.add_argument("--outputhitsfile",default="myHITS.pool.root", type=str,
                     help="The output HITS filename")
+parser.add_argument("--lengthintegrator", default=False, action="store_true",
+                    help="Run LengthIntegrator to produce material distribution")
 args = parser.parse_args()
 
 
@@ -135,10 +163,14 @@ ConfigFlags.lock()
 
 # Construct our accumulator to run
 acc = ITkTestCfg(ConfigFlags)
+kwargs = {}
+if args.lengthintegrator:
+    svcName = "G4UA::LengthIntegratorUserActionSvc"
+    acc.merge(LengthIntegratorUserActionSvcCfg(ConfigFlags,svcName,**kwargs))
+    kwargs.update(UserActionSvc=svcName)
 if args.simulate:
     from G4AtlasAlg.G4AtlasAlgConfigNew import G4AtlasAlgCfg
-    acc.merge(G4AtlasAlgCfg(ConfigFlags))
-
+    acc.merge(G4AtlasAlgCfg(ConfigFlags, "ITkG4AtlasAlg", **kwargs))
 
 # dump pickle
 with open("ITkTest.pkl", "wb") as f:
