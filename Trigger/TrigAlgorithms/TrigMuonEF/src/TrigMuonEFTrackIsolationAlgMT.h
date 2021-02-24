@@ -1,22 +1,22 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _TRIGMUONEF_TRIGMUONEFTRACKISOLATIONALGMT_H
-#define _TRIGMUONEF_TRIGMUONEFTRACKISOLATIONALGMT_H 1
+#ifndef TRIGMUONEF_TRIGMUONEFTRACKISOLATIONALGMT_H
+#define TRIGMUONEF_TRIGMUONEFTRACKISOLATIONALGMT_H 1
 
 // Base class
 #include "AthenaBaseComps/AthReentrantAlgorithm.h" 
 #include "StoreGate/ReadHandleKey.h" 
 #include "StoreGate/WriteHandleKey.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 // Retrieve containers
 #include "Particle/TrackParticleContainer.h" 
 #include "xAODMuon/MuonContainer.h"
 
-#include "TrigMuonToolInterfaces/IMuonEFTrackIsolationTool.h" 
-#include "AthenaMonitoringKernel/Monitored.h"
+#include "TrigMuonToolInterfaces/IMuonEFTrackIsolationTool.h"
 
 
 //#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
@@ -31,13 +31,10 @@ class TrigMuonEFTrackIsolationAlgMT : public AthReentrantAlgorithm
     ~TrigMuonEFTrackIsolationAlgMT(){};
   
     /** initialize. Called by the Steering. */
-    StatusCode initialize();
-  
-    /** finalize. Called by the Steering. */
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
   
     /** execute execute the combined muon FEX. */
-    StatusCode execute(const EventContext& ctx) const;
+    virtual StatusCode execute(const EventContext& ctx) const override;
 
 
   private :

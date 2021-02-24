@@ -20,9 +20,8 @@
 class MuonChainFilterAlg : public ::AthAlgorithm {
  public:
   MuonChainFilterAlg(const std::string& name, ISvcLocator* pSvcLocator);
-  StatusCode initialize();
-  StatusCode finalize() { return StatusCode::SUCCESS; }
-  StatusCode execute();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
 
  private:
     StatusCode createDummyMuonContainers();
