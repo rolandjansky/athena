@@ -13,6 +13,7 @@
 # art-output: *.txt
 # art-output: *.png
 # art-output: log.*
+# art-output: dcube
 
 echo "ArtProcess: $ArtProcess"
 
@@ -46,9 +47,13 @@ case $ArtProcess in
 
 	echo  "art-result: $? athena_job"
 
-	EgammaARTmonitoring_plotsMaker.py /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/egammaValidation/Baseline_Files/rootFiles/Baseline-monitoring_gamma.hist.root Nightly-monitoring_gamma.hist.root gamma
-
-	echo  "art-result: $? final_comparison"
+	art.py download --user=artprod --dst=last_results "$ArtPackage" "$ArtJobName"
+	$ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
+	   -p -x dcube \
+	   -c /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/egammaValidation/DCube_Config/gamma.xml \
+	   -r last_results/Nightly-monitoring_gamma.hist.root \
+	   Nightly-monitoring_gamma.hist.root
+	echo "art-result: $? plots"
 
 	;;
 
