@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -576,6 +576,11 @@ StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigit
 		      << " doubletPhi "   <<    doubletPhi
 		      << " gasGap "	 <<    gasGap
 		      << " measphi "	 <<    measphi );//
+
+ 	    if (doubletZ>m_idHelper->doubletZMax()) {
+	      ATH_MSG_WARNING("doubletZ retrieved from RpcHitIdHelper ("<<doubletZ<<") larger than doubletZMax="<<m_idHelper->doubletZMax()<<" for stationName="<<stationName<<", stationEta="<<stationEta<<", doubletPhi="<<doubletPhi<<", continuing...");
+	      continue;
+	    }
 
       const Identifier idpaneleta = m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi,gasGap, 0, 1);
       const Identifier idpanelphi = m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi,gasGap, 1, 1);
