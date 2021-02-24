@@ -46,6 +46,10 @@ namespace G4UA
       /// Handle to the histogram service
       ServiceHandle<ITHistSvc> m_hSvc;
 
+      //do we fill histograms as well as TTree?
+      //(very large filesize...)
+      bool m_doHistos;
+
   }; // class LengthIntegratorTool
 
 } // namespace G4UA
