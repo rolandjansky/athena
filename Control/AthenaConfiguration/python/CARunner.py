@@ -1,34 +1,54 @@
 #!/usr/bin/env python 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 import sys,os
-import pickle 
+import pickle
+import getopt
+from AthenaCommon.Debugging import DbgStage
 
 def usage():
-    print ("CARunner, to execute a pickled ComponentAccumulator")
-    print ("Usage:")
-    print ("CARunner.py <picklefile> [nEvents]")
+    print ("""CARunner, to execute a pickled ComponentAccumulator
+Usage:
+CARunner.py [options] <picklefile> [nEvents]
+
+Accepted command line options:
+ -d, --debug <stage>                  ...  attach debugger (gdb) before run,
+                                            w/ <stage>: conf, init, exec, fini
+                                           -d is a shorthand for --debug init and takes no argument
+""")
+    
     sys.exit(-1)
 
 
 
 if __name__=="__main__":
 
-    if not (len(sys.argv)==2 or len(sys.argv)==3):
+    opts = 'd'
+    longopts = ['debug=']
+
+    try:
+        optlist, args = getopt.getopt (sys.argv[1:], opts, longopts)
+    except getopt.error:
+        print (sys.exc_info()[1])
         usage()
 
-    inputName=sys.argv[1]
+    if not (len(args)==1 or len(args)==2):
+        usage()
+
+        
+
+    inputName=args[0]
     if not os.access(inputName,os.R_OK):
         print("ERROR, can't read file",inputName)
         usage()
     
     nEvt=10
-    if len(sys.argv)==3:
+    if len(args)==2:
         try:
-            nEvt=int(sys.argv[2])
+            nEvt=int(args[1])
         except ValueError:
-            print("Failed to interpret nEvent, got",sys.arv[2])
+            print("Failed to interpret nEvent, got",args[1])
             usage()
 
     inFile=open(inputName, 'rb')
@@ -40,6 +60,15 @@ if __name__=="__main__":
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         acc1=MainServicesCfg(ConfigFlags)
         acc1.merge(acc)
-        acc1.run(nEvt)
     else:
-        acc.run(nEvt)
+        acc1 = acc
+
+    for opt, arg in optlist:
+        if opt in ('-d', '--debug'):
+            if not arg:
+                arg = 'init'
+            elif arg not in DbgStage.allowed_values:
+                usage()
+            acc1.setDebugStage (arg)
+
+    acc1.run(nEvt)
