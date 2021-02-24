@@ -4,7 +4,7 @@
 
 from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator 
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, ConfigurationError 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from AthenaCommon.CFElements import findSubSequence,findAlgorithm, seqAND, seqOR, parOR, findAllAlgorithms
 from AthenaCommon.Configurable import Configurable # guinea pig algorithms
@@ -54,6 +54,11 @@ class TestComponentAccumulator( unittest.TestCase ):
         acc.merge(acc1)
         acc.addEventAlgo(algs)
 
+        # and some other comps to the mix
+        acc.addPublicTool(CompFactory.HelloTool("TestPublicTool", MyMessage="The first"))
+        acc.addCondAlgo(TestAlgo("Cond1", MyInt=7))
+        acc.addService(CompFactory.CoreDumpSvc("CD", Signals=[15]))
+
         def AlgsConf3(flags):
             acc = ComponentAccumulator()
             na1=TestAlgo("NestedAlgo1")
@@ -79,7 +84,45 @@ class TestComponentAccumulator( unittest.TestCase ):
         with open("testFile.pkl", "wb") as outf:
             acc.store(outf)
         acc.printConfig(withDetails=True, summariseProps=True)
+        acc.popPrivateTools()
         self.acc = acc
+
+    def test_conflict_in_public_tools(self):
+        def _failingAdd():
+            self.acc.addPublicTool(CompFactory.HelloTool("TestPublicTool", MyMessage="I am different than the one above"))
+        self.assertRaises(ValueError, _failingAdd)
+
+    def test_conflict_in_event_alg(self):
+        def _failingAdd():
+            self.acc.addEventAlgo(TestAlgo("Algo1", MyInt = 0)) # value 8 conflicts with earlier set value 12345
+        self.assertRaises(ValueError, _failingAdd)
+
+    def test_conflict_in_cond_alg(self):
+        def _failingAdd():
+            self.acc.addCondAlgo(TestAlgo("Cond1", MyInt=8)) # value 8 conflicts with earlier set value 7
+        self.assertRaises(ValueError, _failingAdd)
+
+    def test_conflict_in_svc(self):
+        def _failingAdd():
+            self.acc.addService(CompFactory.CoreDumpSvc("CD", Signals=[17])) # different setting [17] vs [15]
+        self.assertRaises(ValueError, _failingAdd)
+
+    def test_conflict_in_merge(self):
+        def _failingAdd():
+            other = ComponentAccumulator()
+            other.addCondAlgo(TestAlgo("Cond1", MyInt=8))
+            other.addEventAlgo(TestAlgo("Algo1", MyInt = 0))
+
+            self.acc.merge(other)
+        self.assertRaises(ValueError, _failingAdd)
+
+
+    def test_conflict_in_private_tools(self):
+        def _failingAdd():
+            self.acc.setPrivateTools(CompFactory.HelloTool("TestPrivateTool1", MyMessage="A"))
+            self.acc.setPrivateTools(CompFactory.HelloTool("TestPrivateTool1", MyMessage="A"))
+        self.assertRaises(ConfigurationError, _failingAdd) # different error, private tools are never de-duplicated, they are simply not allowed to be added twice
+        self.acc.popPrivateTools()
 
 
     def test_algorithmsAreAdded( self ):
