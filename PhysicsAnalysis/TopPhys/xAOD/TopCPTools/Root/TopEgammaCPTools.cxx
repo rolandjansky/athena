@@ -740,7 +740,6 @@ namespace top {
     }
     if (type == "FwdLoose" || type == "FwdMedium" || type == "FwdTight") working_point = type;
 
-    // Temporary ISO map to handle the mess that is EGamma+IFF right now...
     if (type.find("Pflow") != std::string::npos) {
       ATH_MSG_WARNING("You selected a Pflow isolation WP for at least one of your electron collections - BE WARNED THAT THESE ARE NOT YET READY TO BE RELEASED FOR USE IN PHYSICS ANALYSES AND OF COURSE DON'T HAVE ASSOCIATED SCALE FACTORS YET!!!");
       if (type == "PflowLoose") working_point = "FCLoose";
@@ -749,8 +748,14 @@ namespace top {
     if (type == "Tight") working_point = "FCTight";
     if (type == "Loose") working_point = "FCLoose";
     if (type == "HighPtCaloOnly") working_point = "FCHighPtCaloOnly";
-    if (type == "TightTrackOnly") working_point = "Gradient";
-    if (type == "TightTrackOnly_FixedRad") working_point = "Gradient";
+    if (type == "TightTrackOnly") {
+      ATH_MSG_WARNING("You selected the TightTrackOnly isolation WP for at least one of your electron collections - BE WARNED THAT THESE ARE NOT YET READY TO BE RELEASED FOR USE IN PHYSICS ANALYSES AND OF COURSE DON'T HAVE ASSOCIATED SCALE FACTORS YET!!! Setting to \"Gradient\" SFs to allow the code to run");
+      working_point = "Gradient";
+    }
+    if (type == "TightTrackOnly_FixedRad") {
+      ATH_MSG_WARNING("You selected the TightTrackOnly_FixedRad isolation WP for at least one of your electron collections - BE WARNED THAT THESE ARE NOT YET READY TO BE RELEASED FOR USE IN PHYSICS ANALYSES AND OF COURSE DON'T HAVE ASSOCIATED SCALE FACTORS YET!!! Setting to \"Gradient\" SFs to allow the code to run");
+      working_point = "Gradient";
+    }
     if (type == "FCTight" || type == "FCLoose" || type == "FCHighPtCaloOnly" || type == "Gradient" || type == "PLVTight" || type == "PLVLoose") working_point = type;
 
     return working_point;
