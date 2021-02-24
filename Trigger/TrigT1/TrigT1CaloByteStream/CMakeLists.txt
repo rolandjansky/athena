@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigT1CaloByteStream )
@@ -18,7 +18,7 @@ atlas_add_component( TrigT1CaloByteStream
                      src/xaod/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaKernel ByteStreamCnvSvcBaseLib ByteStreamCnvSvcLib ByteStreamData CxxUtils SGTools StoreGateLib TrigT1CaloByteStreamLib TrigT1CaloEventLib TrigT1CaloToolInterfaces TrigT1CaloUtilsLib TrigT1Interfaces ZdcByteStreamLib )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AsgTools AthContainers AthenaBaseComps AthenaKernel ByteStreamCnvSvcBaseLib ByteStreamCnvSvcLib ByteStreamData CxxUtils GaudiKernel SGTools StoreGateLib TrigT1CaloByteStreamLib TrigT1CaloEventLib TrigT1CaloToolInterfaces TrigT1CaloUtilsLib TrigT1Interfaces ZdcByteStreamLib xAODTrigL1Calo )
 
 atlas_add_dictionary( TrigT1CaloByteStreamDict
                       TrigT1CaloByteStream/TrigT1CaloByteStreamDict.h
