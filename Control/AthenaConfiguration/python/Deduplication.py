@@ -43,3 +43,15 @@ def deduplicate(newComp,compList):
         pass
     return True #True means something got added
 
+def deduplicateOne(newComp, oldComp):
+    exception = None
+    try:
+        assert oldComp.__cpp_type__ == newComp.__cpp_type__ , "Deduplicating components of different type"
+        assert oldComp.name == newComp.name, "Deduplicating components of differnet name"
+        oldComp.merge(newComp)
+    except Exception as e:
+        exception = e # the exception is not rised here to avoid python complaining that exception is raised while handling other one
+    if exception:
+        raiseWithCurrentContext(exception)
+
+    
