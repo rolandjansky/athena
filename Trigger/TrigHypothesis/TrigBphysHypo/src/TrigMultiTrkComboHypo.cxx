@@ -26,7 +26,6 @@
 
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
-#include "TrigConfHLTData/HLTUtils.h"
 
 #include "AthViews/View.h"
 #include "AthViews/ViewHelper.h"
@@ -154,12 +153,6 @@ StatusCode TrigMultiTrkComboHypo::initialize() {
   }
 
   ATH_CHECK( m_beamSpotKey.initialize(m_trigLevelString == "EF")); //Only enable for EF
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode TrigMultiTrkComboHypo::finalize() {
-  TrigConf::HLTUtils::hashes2file();
   return StatusCode::SUCCESS;
 }
 
