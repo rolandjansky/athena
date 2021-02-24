@@ -19,13 +19,15 @@ HGTD_ModuleDesign::HGTD_ModuleDesign(const double thickness,
                                      const int diodeRowsPerCircuit,
                                      const PixelDiodeMatrix * matrix,
                                      InDetDD::CarrierType carrierType,
-                                     int readoutSide):
+                                     int readoutSide,
+                                     DetectorDesign::Axis yDirection,
+                                     DetectorDesign::Axis depthDirection):
     DetectorDesign(thickness, 
                    true, true, true, // phi,eta,depth axes symmetric
                    carrierType,
                    readoutSide,
-                   InDetDD::DetectorDesign::yAxis,
-                   InDetDD::DetectorDesign::zAxis),
+                   yDirection,
+                   depthDirection),
     m_diodeMap(matrix),
     m_readoutScheme(circuitsPerColumn,circuitsPerRow,
                     cellColumnsPerCircuit,cellRowsPerCircuit,
