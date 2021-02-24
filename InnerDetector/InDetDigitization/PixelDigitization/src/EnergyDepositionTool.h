@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 /**
  * @file PixelDigitization/EnergyDepositionTool.h
@@ -59,7 +59,8 @@ public:
 
   virtual StatusCode depositEnergy(const TimedHitPtr<SiHit>& phit, const InDetDD::SiDetectorElement& Module,
                                    std::vector<std::pair<double, double> >& trfHitRecord,
-                                   std::vector<double>& initialConditions, CLHEP::HepRandomEngine* rndmEngine);
+                                   std::vector<double>& initialConditions, CLHEP::HepRandomEngine* rndmEngine,
+                                   const EventContext &ctx);
 
   // Variables
 private:

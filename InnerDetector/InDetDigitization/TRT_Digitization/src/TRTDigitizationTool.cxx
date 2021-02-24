@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -428,7 +428,7 @@ StatusCode TRTDigitizationTool::processStraws(const EventContext& ctx,
     for (TimedHitCollection<TRTUncompressedHit>::const_iterator hit_iter(i); hit_iter != e; ++hit_iter ) {
       const HepMcParticleLink::PositionFlag idxFlag = (hit_iter->eventId()==0) ? HepMcParticleLink::IS_POSITION: HepMcParticleLink::IS_INDEX; // suspect that we could use evtIndex here rather than hit_iter->eventId()
       // create a new deposit
-      InDetSimData::Deposit deposit( HepMcParticleLink((*hit_iter)->GetTrackID(), hit_iter->eventId(), evColl, idxFlag), (*hit_iter)->GetEnergyDeposit() );
+      InDetSimData::Deposit deposit( HepMcParticleLink((*hit_iter)->GetTrackID(), hit_iter->eventId(), evColl, idxFlag, ctx), (*hit_iter)->GetEnergyDeposit() );
       if(deposit.first.barcode()==0 || deposit.first.barcode() == m_vetoThisBarcode){
         continue;
       }
