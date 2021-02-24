@@ -69,6 +69,8 @@ if __name__=='__main__':
     from AthenaCommon.Constants import DEBUG
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ConfigFlags.DQ.Environment="AOD"
+    ConfigFlags.Concurrency.NumConcurrentEvents = 1
     # ConfigFlags.Input.Files = ['/afs/cern.ch/user/s/somadutt/public/testUPC2.AOD.pool.root'] #Local HI-UPC file
 
     # data AOD file
@@ -87,6 +89,8 @@ if __name__=='__main__':
 
     cfg.merge(PoolReadCfg(ConfigFlags))
     cfg.merge(TrigMinBias(ConfigFlags))
+
+
 
     # If you want to turn on more detailed messages ...
     # cfg.getEventAlgo('HLTMinBiasTrkMonAlg').OutputLevel = 2 # DEBUG #either this line or the next works!!
