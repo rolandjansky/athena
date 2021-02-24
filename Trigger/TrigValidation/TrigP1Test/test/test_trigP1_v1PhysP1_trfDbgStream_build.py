@@ -31,6 +31,14 @@ test.art_type = 'build'
 test.exec_steps = [hlt]
 test.check_steps = CheckSteps.default_check_steps(test)
 
+from TrigValTools.TrigValSteering.CheckSteps import LogMergeStep
+
+# Rename Trig_reco_tf.BSRDOtoRAW.log to athena.log to fill athena status
+logmerge = LogMergeStep()
+logmerge.merged_name = 'athena.log'
+logmerge.log_files = ['Trig_reco_tf.BSRDOtoRAW.log']
+test.check_steps.append(logmerge)
+
 # Overwrite default MessageCount settings
 msgcount = test.get_step("MessageCount")
 msgcount.thresholds = {
