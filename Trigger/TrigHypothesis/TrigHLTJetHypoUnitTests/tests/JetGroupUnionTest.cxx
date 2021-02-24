@@ -19,7 +19,7 @@ TEST(JetGroupUnionTester, empty) {
 
   JetGroupUnion jgu(siblings, satisfiedBy, jg2elemjgs, collector);
 
-  EXPECT_FALSE((jgu.next(collector)).has_value());
+  EXPECT_TRUE(jgu.next(collector).empty());
 }
 
 
@@ -40,9 +40,8 @@ TEST(JetGroupUnionTester, one_elementary_cond) {
   JetGroupUnion jgu(siblings, satisfiedBy, jg2elemjgs, collector);
   
   auto exp = std::vector<std::size_t>{0, 1, 2};
-  EXPECT_EQ(*(jgu.next(collector)), exp);
-
-  EXPECT_FALSE((jgu.next(collector)).has_value());
+  EXPECT_EQ(jgu.next(collector), exp);
+  EXPECT_TRUE(jgu.next(collector).empty());
 }
 
 
@@ -67,9 +66,8 @@ TEST(JetGroupUnionTester, two_elem_nooverlap) {
   JetGroupUnion jgu(siblings, satisfiedBy, jg2elemjgs, collector);
   
   auto exp = std::vector<std::size_t>{0, 1, 2, 3, 4, 5};
-  EXPECT_EQ(*(jgu.next(collector)), exp);
-
-  EXPECT_FALSE((jgu.next(collector)).has_value());
+  EXPECT_EQ(jgu.next(collector), exp);
+  EXPECT_TRUE(jgu.next(collector).empty());
 }
 
 TEST(JetGroupUnionTester, two_elem_withoverlap) {
@@ -93,9 +91,8 @@ TEST(JetGroupUnionTester, two_elem_withoverlap) {
   JetGroupUnion jgu(siblings, satisfiedBy, jg2elemjgs, collector);
   
   auto exp = std::vector<std::size_t>{0, 1, 2, 3, 5};
-  EXPECT_EQ(*(jgu.next(collector)), exp);
-
-  EXPECT_FALSE((jgu.next(collector)).has_value());
+  EXPECT_EQ(jgu.next(collector), exp);
+  EXPECT_TRUE(jgu.next(collector).empty());
 }
 
 
@@ -122,9 +119,8 @@ TEST(JetGroupUnionTester, two_comp_nooverlap) {
   JetGroupUnion jgu(siblings, satisfiedBy, jg2elemjgs, collector);
   
   auto exp = std::vector<std::size_t>{0, 1, 2, 3, 4, 5};
-  EXPECT_EQ(*(jgu.next(collector)), exp);
-
-  EXPECT_FALSE((jgu.next(collector)).has_value());
+  EXPECT_EQ(jgu.next(collector), exp);
+  EXPECT_TRUE(jgu.next(collector).empty());
 }
 
 
@@ -151,7 +147,6 @@ TEST(JetGroupUnionTester, two_comp_withoverlap) {
   JetGroupUnion jgu(siblings, satisfiedBy, jg2elemjgs, collector);
   
   auto exp = std::vector<std::size_t>{0, 1, 2, 5};
-  EXPECT_EQ(*(jgu.next(collector)), exp);
-
-  EXPECT_FALSE((jgu.next(collector)).has_value());
+  EXPECT_EQ(jgu.next(collector), exp);
+  EXPECT_TRUE(jgu.next(collector).empty());
 }

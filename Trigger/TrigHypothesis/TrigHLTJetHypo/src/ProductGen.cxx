@@ -26,11 +26,12 @@ ProductGen::ProductGen(const std::vector<std::size_t>& ends):
   
 }
 
-std::optional<std::vector<std::size_t>>  ProductGen::next() {
-  
-  if(m_done){return std::optional<std::vector<std::size_t>>();}
 
-  auto result =  std::make_optional<std::vector<std::size_t>>(m_counters);
+std::vector<std::size_t>  ProductGen::next() {
+  
+  if(m_done){return std::vector<std::size_t>();}
+
+  auto result =  std::vector<std::size_t>(m_counters);
   m_done = atEnd();
   for(std::size_t i = 0; i < m_ncounters; ++i){
     

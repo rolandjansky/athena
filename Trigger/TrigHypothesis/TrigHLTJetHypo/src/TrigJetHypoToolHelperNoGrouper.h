@@ -77,11 +77,6 @@ public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
   Gaudi::Property<bool>
   m_debug {this, "debug", false, "instantantiate helpers with this debug flag"};
   
-
- void collectData(const std::string& exetime,
-                  const std::unique_ptr<ITrigJetHypoInfoCollector>&,
-                  const std::optional<bool>& pass) const;
-
   StatusCode makePrefilter();
   
   virtual std::string toString() const override;
