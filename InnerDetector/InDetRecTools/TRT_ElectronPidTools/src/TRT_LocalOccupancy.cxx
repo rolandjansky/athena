@@ -1,4 +1,3 @@
-
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
@@ -82,8 +81,8 @@ StatusCode TRT_LocalOccupancy::initialize()
   ATH_MSG_INFO ("initialize() successful in " << name());
 
   //Initlalize ReadHandleKey
-  ATH_CHECK( m_trt_rdo_location.initialize(!m_trt_rdo_location.empty()) );
-  ATH_CHECK( m_trt_driftcircles.initialize(!m_trt_driftcircles.empty()) );
+  ATH_CHECK( m_trt_rdo_location.initialize( m_isTrigger));
+  ATH_CHECK( m_trt_driftcircles.initialize( SG::AllowEmpty));
   ATH_CHECK( m_strawReadKey.initialize() );
 
   std::string OccupancyCacheName = name() + "OccupancyData";
@@ -284,13 +283,9 @@ void
 TRT_LocalOccupancy::countHitsNearTrack (OccupancyData& data,
                                         int track_local[NLOCAL][NLOCALPHI]) const
 {
-    if ( m_trt_rdo_location.empty() ) {
-      ATH_MSG_DEBUG( "TRT_RDO_Container key is empty" );
-      return;
-    }
     SG::ReadHandle<TRT_RDO_Container> p_trtRDOContainer(m_trt_rdo_location);
     if ( !p_trtRDOContainer.isValid() ) {
-      ATH_MSG_DEBUG( "Could not find the TRT_RDO_Container "
+      ATH_MSG_ERROR( "Could not find the TRT_RDO_Container "
 		     << m_trt_rdo_location.key() );
       return;
     }

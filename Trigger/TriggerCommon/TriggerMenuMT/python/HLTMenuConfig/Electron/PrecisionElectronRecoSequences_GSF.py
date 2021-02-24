@@ -38,8 +38,9 @@ def precisionElectronRecoSequence_GSF(RoIs):
     from AthenaCommon.GlobalFlags import globalflags
     if (globalflags.InputFormat.is_bytestream()):
       ViewVerifyTrk_GSF.DataObjects += [( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' )]
-    if (globalflags.DataSource() == "data"):
       ViewVerifyTrk_GSF.DataObjects += [( 'TRT_RDO_Container' , 'StoreGateSvc+%s' % TrigTRTKeys.RDOs )]
+    else:
+      ViewVerifyTrk_GSF.DataObjects += [( 'TRT_RDO_Container' , 'StoreGateSvc+%s' % "TRT_RDOs" )]
 
     """ Retrieve the factories now """
     from TriggerMenuMT.HLTMenuConfig.Electron.TrigElectronFactories import TrigEgammaRecElectron, TrigElectronSuperClusterBuilder, TrigTopoEgammaElectronCfg
