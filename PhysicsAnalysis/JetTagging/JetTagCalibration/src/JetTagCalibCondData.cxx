@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetTagCalibration/JetTagCalibCondData.h"
@@ -56,7 +56,7 @@ void JetTagCalibCondData::deleteBdts() {
 }
 
 
-void JetTagCalibCondData::resize(const std::vector<std::string> taggers) {
+void JetTagCalibCondData::resize(const std::vector<std::string>& taggers) {
     m_histos.reserve(taggers.size());
     for(uint i=0;i<taggers.size();i++) {
       m_taggers.push_back(taggers[i]);
