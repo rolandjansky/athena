@@ -13,6 +13,14 @@ if InDetGeometryFlags.isSLHC():
 topSequence.PixelHitAnalysis.ExpertMode= "off"
 topSequence.SCTHitAnalysis.ExpertMode= "off"
 
+from AthenaCommon.DetFlags import DetFlags
+if DetFlags.HGTD_on():
+  topSequence += SiHitAnalysis('HGTDHitAnalysis')
+  topSequence.HGTDHitAnalysis.CollectionName='HGTD_Hits'
+  topSequence.HGTDHitAnalysis.HistPath='/SiHitAnalysis/'
+  topSequence.HGTDHitAnalysis.isHGTD = True
+  topSequence.HGTDHitAnalysis.ExpertMode= "off"
+
 if not hasattr(ServiceMgr, 'THistSvc'):
     from GaudiSvc.GaudiSvcConf import THistSvc
     ServiceMgr += THistSvc()

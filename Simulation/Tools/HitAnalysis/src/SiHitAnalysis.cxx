@@ -51,12 +51,14 @@ SiHitAnalysis::SiHitAnalysis(const std::string& name, ISvcLocator* pSvcLocator)
    , m_path("/SiHitAnalysis/")
    , m_thistSvc("THistSvc", name)
    , m_isITK(false)
+   , m_isHGTD(false)
 {
   declareProperty("CollectionName",  m_collection="BCMHits");
   declareProperty("ExpertMode", m_expert = "off");
   declareProperty("NtupleFileName", m_ntupleFileName);
   declareProperty("HistPath", m_path);
   declareProperty("isITK", m_isITK);
+  declareProperty("isHGTD", m_isHGTD);
 }
 
 StatusCode SiHitAnalysis::initialize() {
@@ -80,6 +82,10 @@ StatusCode SiHitAnalysis::initialize() {
   else if (m_collection=="BLMHits") {
     detName = "BLM";
     ntupName = "SiBLM";
+  }
+  else if (m_collection=="HGTD_Hits") {
+    detName = "HGTD";
+    ntupName = "SiHGTD";
   }
   else {
     ATH_MSG_ERROR("SiHitsAnalysis for "<< name()<<"not supported!!! \n");
@@ -109,7 +115,16 @@ StatusCode SiHitAnalysis::initialize() {
       radius_up = 350;
       radius_down = 0; 
     }
+  }  
+  if (m_isHGTD) {
+    bin_down = -1000;
+    bin_up = 1000;
+    radius_up = 1000;
+    radius_down = 350;
+    z_min = -3600;
+    z_max = 3600;
   }
+  
   else if (detName=="Pixel") {
     bin_down = -170;
     bin_up = 170;
@@ -216,6 +231,7 @@ StatusCode SiHitAnalysis::execute() {
     for (SiHitConstIterator i_hit = p_collection->begin(); i_hit != p_collection->end() ;++i_hit) {
       GeoSiHit ghit(*i_hit);
       HepGeom::Point3D<double> p = ghit.getGlobalPosition();
+      
       m_h_hits_x->Fill(p.x());
       m_h_hits_y->Fill(p.y());
       m_h_hits_z->Fill(p.z());
@@ -229,13 +245,13 @@ StatusCode SiHitAnalysis::execute() {
       m_h_hits_barcode->Fill(i_hit->particleLink().barcode());
       
       if (m_expert == "on") {
-	m_h_time_eloss->Fill(i_hit->meanTime(), i_hit->energyLoss());
-	if (i_hit->getBarrelEndcap()==0) {
-	  m_h_z_eloss->Fill(p.z(), i_hit->energyLoss());
-	}
-	else {
-	  m_h_r_eloss->Fill(p.perp(), i_hit->energyLoss());
-	}
+        m_h_time_eloss->Fill(i_hit->meanTime(), i_hit->energyLoss());
+        if (i_hit->getBarrelEndcap()==0) {
+          m_h_z_eloss->Fill(p.z(), i_hit->energyLoss());
+        }
+        else {
+          m_h_r_eloss->Fill(p.perp(), i_hit->energyLoss());
+        }
       }
       
       m_hits_x->push_back(p.x());
