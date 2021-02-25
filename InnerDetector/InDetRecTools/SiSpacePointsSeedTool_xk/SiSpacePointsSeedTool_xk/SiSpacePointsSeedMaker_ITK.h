@@ -27,6 +27,7 @@
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "SiSpacePointsSeedTool_xk/SiSpacePointForSeedITK.h"
 #include "SiSpacePointsSeedTool_xk/SiSpacePointsProSeedITK.h" 
+#include "SiSpacePointsSeedTool_xk/SiSpacePointsSeedMakerEventData.h" // Load Indet::FloatInt
 #include "GaudiKernel/ITHistSvc.h"
 #include "TFile.h"
 #include "TTree.h"
@@ -39,12 +40,6 @@ namespace Trk {
 }
 
 namespace InDet {
-
-  class FloatInt {
-  public:
-    float Fl;
-    int   In;
-  };
 
   class SiSpacePointsSeedMaker_ITK : 
     virtual public ISiSpacePointsSeedMaker, public AthAlgTool

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,8 @@ namespace InDet {
     void set(Trk::SpacePoint*const&,const float*,const float*);
     void setQuality(float);
     void setParam(const float&);
+    void setScorePenalty(const float& par) {m_scorePenalty=par;}
+    void setDR(const float& par) {m_dR=par;}
     void setEta(const float&);
     void setDZDR(const float&);
     void setPt(const float&);
@@ -53,10 +55,13 @@ namespace InDet {
     const float&       covr() const {return m_covr;}
     const float&       covz() const {return m_covz;}
     const float&      param() const {return m_param;}
+    const float&      scorePenalty() const {return m_scorePenalty;} /// penalty term in the seed score
+    const float&         dR() const {return m_dR;} /// distance between top and central SP
     const float&        eta() const {return m_eta;}
     const float&         pt() const {return m_pt;}
     const float&       dzdr() const {return m_dzdr;}
     const float&    quality() const {return m_q ;}
+    const Trk::Surface* sur() const {return m_su;}
 
     bool coordinates(float*,float*);
     
@@ -69,6 +74,8 @@ namespace InDet {
     float m_covr; //
     float m_covz; //
     float m_param;
+    float m_scorePenalty; /// penalty term in the seed score
+    float m_dR;
     float m_q   ;
     float m_eta ;
     float m_pt  ;
@@ -78,6 +85,8 @@ namespace InDet {
     float m_b1[3];
     float m_dr[3];
     float m_r0[3];
+
+    const Trk::Surface* m_su;
   };
 
 
@@ -95,7 +104,10 @@ namespace InDet {
       m_covr  = 0.;
       m_covz  = 0.;
       m_param = 0.;
+      m_scorePenalty = 0.;
+      m_dR = 0.;
       m_q     = 0.;
+      m_su    = 0 ;
       m_eta   = 0.;
       m_pt    = 0.;
       m_dzdr  = 0.;
@@ -114,6 +126,9 @@ namespace InDet {
         m_covr      = sp.m_covr    ;
         m_covz      = sp.m_covz    ;
         m_q         = sp.m_q       ;
+        m_scorePenalty = sp.m_scorePenalty;
+        m_dR = sp.m_dR;
+        m_su        = sp.m_su      ;
         m_eta       = sp.m_eta     ;
         m_pt        = sp.m_pt      ;
         m_dzdr      = sp.m_dzdr    ;
@@ -192,6 +207,7 @@ namespace InDet {
           m_b0[i]=r[3 +i]; m_b1[i]=r[6 +i]; m_dr[i]=r[9 +i]; m_r0[i]=r[12+i];
         }
       }
+      m_su = &sp->clusterList().first->detectorElement()->surface();
     }
 
   /////////////////////////////////////////////////////////////////////////////////
@@ -232,6 +248,7 @@ namespace InDet {
           m_b0[i]=r[3 +i]; m_b1[i]=r[6 +i]; m_dr[i]=r[9 +i]; m_r0[i]=r[12+i];
         }
       }
+      m_su = &sp->clusterList().first->detectorElement()->surface();
     }
 
   inline void SiSpacePointForSeedITK::setParam(const float& p)
