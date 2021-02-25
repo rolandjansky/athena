@@ -50,15 +50,15 @@ namespace Trk {
    AtaPlane    AtaStraightLine      AtaDisc       AtaCylinder      Perigee
    |               |               |               |              |
    |               |               |               |              |
-   V               V               V               V              V 
-   ----------------------------------------------------------------- 
+   V               V               V               V              V
+   -----------------------------------------------------------------
    |              Local->Global transformation
    V
    Global position (Runge Kutta presentation)
    |
    |
    Propagation to next surface with or without jacobian
-   using Nystroem algorithm 
+   using Nystroem algorithm
    (See Handbook Net. Bur. of Standards, procedure 25.5.20)
    |
    V              Global->Local transformation
@@ -66,22 +66,22 @@ namespace Trk {
    |               |               |               |              |
    |               |               |               |              |
    V               V               V               V              V
-   PlaneSurface StraightLineSurface DiscSurface CylinderSurface PerigeeSurface 
+   PlaneSurface StraightLineSurface DiscSurface CylinderSurface PerigeeSurface
 
    For propagation using Runge Kutta method we use global coordinate, direction,
-   inverse momentum and Jacobian of transformation. All this parameters we save 
+   inverse momentum and Jacobian of transformation. All this parameters we save
    in array P[42].
    /dL0    /dL1    /dPhi   /dThe   /dCM
-   X  ->P[0]  dX /   P[ 7]   P[14]   P[21]   P[28]   P[35]  
-   Y  ->P[1]  dY /   P[ 8]   P[15]   P[22]   P[29]   P[36]  
-   Z  ->P[2]  dZ /   P[ 9]   P[16]   P[23]   P[30]   P[37]   
-   Ax ->P[3]  dAx/   P[10]   P[17]   P[24]   P[31]   P[38]  
-   Ay ->P[4]  dAy/   P[11]   P[18]   P[25]   P[32]   P[39]  
-   Az ->P[5]  dAz/   P[12]   P[19]   P[26]   P[33]   P[40]  
-   CM ->P[6]  dCM/   P[13]   P[20]   P[27]   P[34]   P[41] 
+   X  ->P[0]  dX /   P[ 7]   P[14]   P[21]   P[28]   P[35]
+   Y  ->P[1]  dY /   P[ 8]   P[15]   P[22]   P[29]   P[36]
+   Z  ->P[2]  dZ /   P[ 9]   P[16]   P[23]   P[30]   P[37]
+   Ax ->P[3]  dAx/   P[10]   P[17]   P[24]   P[31]   P[38]
+   Ay ->P[4]  dAy/   P[11]   P[18]   P[25]   P[32]   P[39]
+   Az ->P[5]  dAz/   P[12]   P[19]   P[26]   P[33]   P[40]
+   CM ->P[6]  dCM/   P[13]   P[20]   P[27]   P[34]   P[41]
 
-   where 
-   in case local presentation 
+   where
+   in case local presentation
 
    L0  - first  local coordinate  (surface dependent)
    L1  - second local coordinate  (surface dependent)
@@ -99,13 +99,13 @@ namespace Trk {
    Az  - direction cosine to z-axis = Cos(The)
    CM  - charge/momentum            = local CM
 
-   Comment: 
-   if pointer to const *  = 0 algorithm will propagate track 
+   Comment:
+   if pointer to const *  = 0 algorithm will propagate track
    parameters and jacobian of transformation according straight line model
 
    @author Igor.Gavrilenko@cern.ch
-   
-   @authors AthenaMT modifications RD Schaffer C Anastopoulos 
+
+   @authors AthenaMT modifications RD Schaffer C Anastopoulos
 */
 
     class RungeKuttaPropagator final
@@ -143,7 +143,7 @@ namespace Trk {
 
         /** Main propagation method NeutralParameters */
 
-        virtual NeutralParameters* propagate
+        virtual std::unique_ptr<NeutralParameters> propagate
         (const NeutralParameters        &,
          const Surface                  &,
          PropDirection                   ,
@@ -158,7 +158,7 @@ namespace Trk {
          const Surface                  &,
          const PropDirection             ,
          const BoundaryCheck            &,
-         const MagneticFieldProperties  &, 
+         const MagneticFieldProperties  &,
          ParticleHypothesis              ,
          bool                            ,
          const TrackingVolume*           ) const override final;
@@ -171,7 +171,7 @@ namespace Trk {
          const Surface                  &,
          const PropDirection             ,
          const BoundaryCheck            &,
-         const MagneticFieldProperties  &, 
+         const MagneticFieldProperties  &,
          TransportJacobian             *&,
          double                         &,
          ParticleHypothesis              ,
@@ -201,7 +201,7 @@ namespace Trk {
          const Surface                  &,
          const PropDirection             ,
          const BoundaryCheck            &,
-         const MagneticFieldProperties  &, 
+         const MagneticFieldProperties  &,
          ParticleHypothesis              ,
          bool                            ,
          const TrackingVolume*          ) const override final;
@@ -215,7 +215,7 @@ namespace Trk {
          const Surface                  &,
          const PropDirection             ,
          const BoundaryCheck            &,
-         const MagneticFieldProperties  &, 
+         const MagneticFieldProperties  &,
          TransportJacobian             *&,
          ParticleHypothesis              ,
          bool                            ,
@@ -227,8 +227,8 @@ namespace Trk {
         (const EventContext&          ctx,
          const TrackParameters          &,
          const Surface                  &,
-         const MagneticFieldProperties  &, 
-         ParticleHypothesis particle=pion, 
+         const MagneticFieldProperties  &,
+         ParticleHypothesis particle=pion,
          const TrackingVolume*   tvol=nullptr  ) const override final;
 
         /** GlobalPositions list interface:*/
@@ -255,7 +255,7 @@ namespace Trk {
          const Surface                  &,
          PatternTrackParameters         &,
          PropDirection                   ,
-         const MagneticFieldProperties  &, 
+         const MagneticFieldProperties  &,
          ParticleHypothesis particle=pion) const  override final;
 
         /** Main propagation method with step to surface calculation*/
@@ -336,7 +336,7 @@ namespace Trk {
             bool    m_maxPathLimit                       = false;
             bool    m_mcondition                         = false;
             bool    m_solenoid                           = true;
-            bool    m_needgradient                       = false;  
+            bool    m_needgradient                       = false;
             bool    m_newfield                           = true;
         };
 
@@ -349,8 +349,8 @@ namespace Trk {
          const Surface                &,
          const MagneticFieldProperties&) const;
 
- 
-        /** Internal RungeKutta propagation method for charge track parameters*/   
+
+        /** Internal RungeKutta propagation method for charge track parameters*/
 
         std::unique_ptr<TrackParameters>      propagateRungeKutta
         (Cache& cache                  ,
@@ -363,9 +363,9 @@ namespace Trk {
          double                       *,
          bool                returnCurv) const;
 
-        /** Internal RungeKutta propagation method for neutral track parameters*/   
+        /** Internal RungeKutta propagation method for neutral track parameters*/
 
-        NeutralParameters*    propagateStraightLine
+        std::unique_ptr<NeutralParameters>     propagateStraightLine
         (Cache& cache                  ,
          bool                          ,
          const NeutralParameters      &,
@@ -387,10 +387,10 @@ namespace Trk {
          const MagneticFieldProperties&,
          double                       &) const;
 
-        /** Internal RungeKutta propagation method for propation with jacobian*/     
+        /** Internal RungeKutta propagation method for propation with jacobian*/
 
         bool propagateWithJacobian
-        (Cache& cache                  , 
+        (Cache& cache                  ,
          bool                          ,
          int                           ,
          double                       *,
@@ -399,7 +399,7 @@ namespace Trk {
 
         /** Propagation methods runge kutta step*/
 
-        double rungeKuttaStep  
+        double rungeKuttaStep
         (Cache& cache,
          bool                          ,
          double                        ,
@@ -408,7 +408,7 @@ namespace Trk {
 
         /** Propagation methods runge kutta step*/
 
-        double rungeKuttaStepWithGradient  
+        double rungeKuttaStepWithGradient
         (Cache& cache                  ,
          double                        ,
          double                       *,
@@ -448,18 +448,18 @@ namespace Trk {
          ParticleHypothesis particle=pion) const;
 
         void getField(
-          Cache& cache, 
-          double*, 
+          Cache& cache,
+          double*,
           double*) const;
 
         void getFieldGradient(
-          Cache& cache, 
-          double*, 
-          double*, 
+          Cache& cache,
+          double*,
+          double*,
           double*) const;
 
         void getFieldCacheObject(
-          Cache& cache, 
+          Cache& cache,
           const EventContext& ctx) const;
 
         // Private data members:
