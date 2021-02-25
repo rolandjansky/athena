@@ -84,7 +84,7 @@ def generateChains(flags, chainDict):
 
         from TrigCaloRec.TrigCaloRecConfig import hltCaloTopoClusteringCfg
         recoAcc.mergeReco(hltCaloTopoClusteringCfg(flags,
-                                                   FS=False,
+                                                   namePrefix="Electron",
                                                    roisKey=recoAcc.inputMaker().InViewRoIs)) # RoI
 
         copier = CompFactory.egammaTopoClusterCopier('TrigEgammaTopoClusterCopierPrecisionCaloRoIs',

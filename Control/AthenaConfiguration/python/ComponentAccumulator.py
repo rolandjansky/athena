@@ -39,6 +39,8 @@ def printProperties(msg, c, nestLevel = 0, printDefaults=False, onlyComponentsOn
         if  not c.is_property_set(propname) and propname in ["DetStore","EvtStore", "AuditFinalize", "AuditInitialize", "AuditReinitialize", "AuditRestart", "AuditStart", "AuditStop", "AuditTools", "ExtraInputs", "ExtraOutputs"]:
             continue
 
+
+
         if isinstance( propval, GaudiConfig2.Configurable ):
             msg.info( "%s    * %s: %s/%s", " "*nestLevel, propname, propval.__cpp_type__, propval.getName() )
             printProperties(msg, propval, nestLevel+3)
@@ -48,16 +50,19 @@ def printProperties(msg, c, nestLevel = 0, printDefaults=False, onlyComponentsOn
             ths = [th.getName() for th in propval]
             propstr = "PublicToolHandleArray([ {0} ])".format(', '.join(ths))
         elif isinstance(propval,GaudiHandles.PrivateToolHandleArray):
-            ths = [th.getName() for th in propval]
-            propstr = "PrivateToolHandleArray([ {0} ])".format(', '.join(ths))
+            msg.info( "%s    * %s: PrivateToolHandleArray of size %s", " "*nestLevel, propname, len(propval))
+            propstr = ""            
+            for el in propval:
+                msg.info( "%s    * %s/%s", " "*(nestLevel+3), el.__cpp_type__, el.getName())
+                printProperties(msg, el, nestLevel+6)
         elif isinstance(propval,GaudiHandles.GaudiHandle): # Any other handle
             propstr = "Handle( {0} )".format(propval.typeAndName)
         elif not onlyComponentsOnly:
             propstr = str(propval)
         if propstr:
-            msg.info( " "*nestLevel +"    * {}: {} {}".format(propname,
-                                                              propstr,
-                                                              "set" if c.is_property_set(propname) else "default"))
+            msg.info( " "*nestLevel +"    * %s: %s %s", propname,
+                                                        propstr,
+                                                        "set" if c.is_property_set(propname) else "default")
     return
 
 

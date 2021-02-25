@@ -130,9 +130,8 @@ def TrigEFTauMVHypoToolFromDict( chainDict ):
 
     criteria  = chainPart['selection']
     threshold = chainPart['threshold']
-
-    from TrigTauHypo.TrigTauHypoConf import TrigEFTauMVHypoTool
-    currentHypo = TrigEFTauMVHypoTool(name)
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    currentHypo = CompFactory.TrigEFTauMVHypoTool(name)
     currentHypo.MonTool       = ""
 
     theThresh = thresholdsEF[(criteria, int(threshold))]
@@ -159,9 +158,8 @@ def TrigTauTrackHypoToolFromDict( chainDict ):
 
     criteria  = chainPart['selection']
     threshold = chainPart['threshold']
-
-    from TrigTauHypo.TrigTauHypoConf import TrigTrackPreSelHypoTool
-    currentHypo = TrigTrackPreSelHypoTool(name)
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    currentHypo = CompFactory.TrigTrackPreSelHypoTool(name)
     currentHypo.MonTool = ""
 
     if criteria == 'cosmic':
@@ -180,8 +178,8 @@ def TrigTrkPrecHypoToolFromDict( chainDict ):
     criteria  = chainPart['selection']
     threshold = chainPart['threshold']
 
-    from TrigTauHypo.TrigTauHypoConf import TrigTrkPrecHypoTool
-    currentHypo = TrigTrkPrecHypoTool(name)
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    currentHypo = CompFactory.TrigTrkPrecHypoTool(name)
     currentHypo.MonTool = ""
 
     if criteria == 'cosmic':
@@ -200,9 +198,8 @@ def TrigL2TauHypoToolFromDict( chainDict ):
 
     criteria  = chainPart['selection']
     threshold = chainPart['threshold']
-
-    from TrigTauHypo.TrigTauHypoConf import TrigTauGenericHypoMT
-    currentHypo = TrigTauGenericHypoMT(name)
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    currentHypo = CompFactory.TrigTauGenericHypoMT(name)
     currentHypo.MonTool  = ""
     currentHypo.Details  = [int(-1)]
     currentHypo.Formulas = ['y > '+threshold+'*1000.0']
