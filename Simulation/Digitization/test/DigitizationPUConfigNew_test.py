@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """ComponentAccumulator PileUp (PU) Digitization configuration test
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 import sys
 from AthenaCommon.Logging import log
@@ -9,7 +9,7 @@ from AthenaCommon.Constants import DEBUG
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.TestDefaults import defaultTestFiles
-from Digitization.DigitizationSteering import DigitizationMainCfg, DigitizationMessageSvcCfg, DigitizationTestingPostInclude, setupDigitizationDetectorFlags
+from Digitization.DigitizationSteering import DigitizationMainCfg, DigitizationMessageSvcCfg, DigitizationTestingPostInclude
 from Digitization.PileUpUtils import generateBackgroundInputCollections, setupPileUpFlags
 
 # Set up logging and new style config
@@ -52,7 +52,8 @@ ConfigFlags.Digitization.PU.NumberOfCavern = 0.0
 ConfigFlags.Digitization.PU.NumberOfHighPtMinBias = 0.2099789464
 ConfigFlags.Digitization.PU.NumberOfLowPtMinBias = 80.290021063135
 
-setupDigitizationDetectorFlags(ConfigFlags, '')
+# TODO: temporary
+ConfigFlags.Digitization.TruthOutput = True
 
 cols = generateBackgroundInputCollections(ConfigFlags, defaultTestFiles.HITS_MINBIAS_HIGH,
                        ConfigFlags.Digitization.PU.NumberOfHighPtMinBias, True)

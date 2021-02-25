@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Main steering for MC+MC and MC+data overlay
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -61,64 +61,33 @@ def OverlayMainCfg(configFlags):
     acc.merge(CopyTrackRecordCollectionsCfg(configFlags))
 
     # Inner detector
-    if configFlags.Detector.OverlayBCM:
+    if configFlags.Detector.EnableBCM:
         acc.merge(BCMOverlayCfg(configFlags))
-    if configFlags.Detector.OverlayPixel:
+    if configFlags.Detector.EnablePixel:
         acc.merge(PixelOverlayCfg(configFlags))
-    if configFlags.Detector.OverlaySCT:
+    if configFlags.Detector.EnableSCT:
         acc.merge(SCTOverlayCfg(configFlags))
-    if configFlags.Detector.OverlayTRT:
+    if configFlags.Detector.EnableTRT:
         acc.merge(TRTOverlayCfg(configFlags))
 
     # Calorimeters
-    if configFlags.Detector.OverlayLAr:
+    if configFlags.Detector.EnableLAr:
         acc.merge(LArOverlayCfg(configFlags))
-    if configFlags.Detector.OverlayTile:
+        if configFlags.Detector.EnableL1Calo:
+            acc.merge(OverlayTTL1Cfg(configFlags))
+    if configFlags.Detector.EnableTile:
         acc.merge(TileDigitizationCfg(configFlags))
-    if configFlags.Detector.OverlayL1Calo:
-        acc.merge(OverlayTTL1Cfg(configFlags))
-        acc.merge(TileOverlayTriggerDigitizationCfg(configFlags))
+        if configFlags.Detector.EnableL1Calo:
+            acc.merge(TileOverlayTriggerDigitizationCfg(configFlags))
 
     # Muon system
-    if configFlags.Detector.OverlayCSC:
+    if configFlags.Detector.EnableCSC:
         acc.merge(CscOverlayCfg(configFlags))
-    if configFlags.Detector.OverlayMDT:
+    if configFlags.Detector.EnableMDT:
         acc.merge(MdtOverlayCfg(configFlags))
-    if configFlags.Detector.OverlayRPC:
+    if configFlags.Detector.EnableRPC:
         acc.merge(RpcOverlayCfg(configFlags))
-    if configFlags.Detector.OverlayTGC:
+    if configFlags.Detector.EnableTGC:
         acc.merge(TgcOverlayCfg(configFlags))
 
     return acc
-
-
-def setupOverlayDetectorFlags(configFlags, detectors):
-    """Setup Overlay detector flags"""
-    if not detectors or 'BCM' in detectors or 'ID' in detectors:
-        configFlags.Detector.OverlayBCM = True
-    if not detectors or 'DBM' in detectors or 'ID' in detectors:
-        configFlags.Detector.OverlayDBM = True
-    if not detectors or 'Pixel' in detectors or 'ID' in detectors:
-        configFlags.Detector.OverlayPixel = True
-    if not detectors or 'SCT' in detectors or 'ID' in detectors:
-        configFlags.Detector.OverlaySCT = True
-    if not detectors or 'TRT' in detectors or 'ID' in detectors:
-        configFlags.Detector.OverlayTRT = True
-    if not detectors or 'LAr' in detectors or 'Calo' in detectors or 'L1Calo' in detectors:
-        configFlags.Detector.OverlayLAr = True
-    if not detectors or 'Tile' in detectors or 'Calo' in detectors or 'L1Calo' in detectors:
-        configFlags.Detector.OverlayTile = True
-    if not detectors or 'L1Calo' in detectors:
-        configFlags.Detector.OverlayL1Calo = not configFlags.Overlay.DataOverlay
-    if not detectors or 'CSC' in detectors or 'Muon' in detectors:
-        configFlags.Detector.OverlayCSC = True
-    if not detectors or 'MDT' in detectors or 'Muon' in detectors:
-        configFlags.Detector.OverlayMDT = True
-    if not detectors or 'RPC' in detectors or 'Muon' in detectors:
-        configFlags.Detector.OverlayRPC = True
-    if not detectors or 'TGC' in detectors or 'Muon' in detectors:
-        configFlags.Detector.OverlayTGC = True
-    if not detectors or 'sTGC' in detectors or 'Muon' in detectors:
-        configFlags.Detector.OverlaysTGC = True
-    if not detectors or 'MM' in detectors or 'Muon' in detectors:
-        configFlags.Detector.OverlayMM = True

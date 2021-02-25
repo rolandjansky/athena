@@ -74,30 +74,30 @@ def DigitizationMainCfg(flags):
         acc.merge(TruthDigitizationOutputCfg(flags))
 
     # Inner Detector
-    if flags.Detector.DigitizeBCM:
+    if flags.Detector.EnableBCM:
         acc.merge(BCM_DigitizationCfg(flags))
-    if flags.Detector.DigitizePixel:
+    if flags.Detector.EnablePixel:
         acc.merge(PixelDigitizationCfg(flags))
-    if flags.Detector.DigitizeSCT:
+    if flags.Detector.EnableSCT:
         acc.merge(SCT_DigitizationCfg(flags))
-    if flags.Detector.DigitizeTRT:
+    if flags.Detector.EnableTRT:
         acc.merge(TRT_DigitizationCfg(flags))
 
     # Calorimeter
-    if flags.Detector.DigitizeLAr:
+    if flags.Detector.EnableLAr:
         acc.merge(LArTriggerDigitizationCfg(flags))
-    if flags.Detector.DigitizeTile:
+    if flags.Detector.EnableTile:
         acc.merge(TileDigitizationCfg(flags))
         acc.merge(TileTriggerDigitizationCfg(flags))
 
     # Muon Spectrometer
-    if flags.Detector.DigitizeMDT:
+    if flags.Detector.EnableMDT:
         acc.merge(MDT_DigitizationDigitToRDOCfg(flags))
-    if flags.Detector.DigitizeTGC:
+    if flags.Detector.EnableTGC:
         acc.merge(TGC_DigitizationDigitToRDOCfg(flags))
-    if flags.Detector.DigitizeRPC:
+    if flags.Detector.EnableRPC:
         acc.merge(RPC_DigitizationDigitToRDOCfg(flags))
-    if flags.Detector.DigitizeCSC:
+    if flags.Detector.EnableCSC:
         acc.merge(CSC_DigitizationDigitToRDOCfg(flags))
 
     # Timing
@@ -140,38 +140,3 @@ def setupDigitizationFlags(flags):
         flags.Input.OverrideRunNumber = True
         # keep this one True by default in CA-based config
         flags.Digitization.DoXingByXingPileUp = True
-
-
-def setupDigitizationDetectorFlags(flags, detectors):
-    """Setup digitization detector flags"""
-    if not detectors or 'BCM' in detectors or 'ID' in detectors:
-        flags.Detector.DigitizeBCM = True
-    if not detectors or 'DBM' in detectors or 'ID' in detectors:
-        flags.Detector.DigitizeDBM = True
-    if not detectors or 'Pixel' in detectors or 'ID' in detectors:
-        flags.Detector.DigitizePixel = True
-    if not detectors or 'SCT' in detectors or 'ID' in detectors:
-        flags.Detector.DigitizeSCT = True
-    if not detectors or 'TRT' in detectors or 'ID' in detectors:
-        flags.Detector.DigitizeTRT = True
-    if not detectors or 'LAr' in detectors or 'Calo' in detectors or 'L1Calo' in detectors:
-        flags.Detector.DigitizeLAr = True
-    if not detectors or 'Tile' in detectors or 'Calo' in detectors or 'L1Calo' in detectors:
-        flags.Detector.DigitizeTile = True
-    if not detectors or 'L1Calo' in detectors:
-        flags.Detector.DigitizeL1Calo = True
-    if not detectors or 'CSC' in detectors or 'Muon' in detectors:
-        flags.Detector.DigitizeCSC = True
-    if not detectors or 'MDT' in detectors or 'Muon' in detectors:
-        flags.Detector.DigitizeMDT = True
-    if not detectors or 'RPC' in detectors or 'Muon' in detectors:
-        flags.Detector.DigitizeRPC = True
-    if not detectors or 'TGC' in detectors or 'Muon' in detectors:
-        flags.Detector.DigitizeTGC = True
-    if not detectors or 'sTGC' in detectors or 'Muon' in detectors:
-        flags.Detector.DigitizesTGC = True
-    if not detectors or 'MM' in detectors or 'Muon' in detectors:
-        flags.Detector.DigitizeMM = True
-
-    # temporary
-    flags.Digitization.TruthOutput = True

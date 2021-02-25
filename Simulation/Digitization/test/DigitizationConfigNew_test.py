@@ -9,7 +9,7 @@ from AthenaCommon.Constants import DEBUG
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.TestDefaults import defaultTestFiles
-from Digitization.DigitizationSteering import DigitizationMainCfg, DigitizationMessageSvcCfg, setupDigitizationDetectorFlags
+from Digitization.DigitizationSteering import DigitizationMainCfg, DigitizationMessageSvcCfg
 
 # Set up logging and new style config
 log.setLevel(DEBUG)
@@ -24,7 +24,8 @@ ConfigFlags.Concurrency.NumThreads = 1
 ConfigFlags.Concurrency.NumConcurrentEvents=1
 ConfigFlags.Beam.NumberOfCollisions = 0.
 
-setupDigitizationDetectorFlags(ConfigFlags, '')
+# TODO: temporary
+ConfigFlags.Digitization.TruthOutput = True
 
 ConfigFlags.lock()
 

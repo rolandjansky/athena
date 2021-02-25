@@ -18,7 +18,7 @@ set -o pipefail
 events=2
 
 Overlay_tf.py \
---detectors L1Calo \
+--detectors Calo L1Calo \
 --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000425.pool.root.1 \
 --inputRDO_BKGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/22.0/v4/RDO.merged-pileup-MT.100events.pool.root \
 --outputRDOFile legacyMcOverlayRDO.pool.root \
@@ -30,7 +30,7 @@ Overlay_tf.py \
 --athenaopts '"--config-only=ConfigLegacy.pkl"'
 
 Overlay_tf.py \
---detectors L1Calo \
+--detectors Calo L1Calo \
 --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000425.pool.root.1 \
 --inputRDO_BKGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/22.0/v4/RDO.merged-pileup-MT.100events.pool.root \
 --outputRDOFile legacyMcOverlayRDO.pool.root \
@@ -50,7 +50,7 @@ if [ $rc -eq 0 ]
 then
     Overlay_tf.py \
     --CA \
-    --detectors L1Calo \
+    --detectors Calo L1Calo \
     --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000425.pool.root.1 \
     --inputRDO_BKGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/22.0/v4/RDO.merged-pileup-MT.100events.pool.root \
     --outputRDOFile mcOverlayRDO.pool.root \

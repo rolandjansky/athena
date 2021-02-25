@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 """Overlay test helpers
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 
 from argparse import ArgumentParser
 
-from OverlayConfiguration.OverlaySteering import setupOverlayDetectorFlags
 from AthenaConfiguration.JobOptsDumper import JobOptsDumperCfg
 
 
@@ -77,7 +76,9 @@ def defaultTestFlags(configFlags, args):
     if args.outputSig:
         configFlags.Output.RDO_SGNLFileName = args.outputSig
 
-    setupOverlayDetectorFlags(configFlags, args.detectors if 'detectors' in args else None)
+    if 'detectors' in args:
+        from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
+        setupDetectorsFromList(configFlags, args.detectors)
 
 
 def postprocessAndLockFlags(configFlags, args):
