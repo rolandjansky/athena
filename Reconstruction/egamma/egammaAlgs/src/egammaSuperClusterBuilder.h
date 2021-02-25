@@ -29,7 +29,7 @@ class CaloDetDescrManager;
 /** Base class for electronSuperClusterBuilder and photonSuperClusterBuilder.
  * This class cannot be instantiated by itself since the execute method is not
  * implemented.
- * 
+ *
  * This class provides functions which are used to build supercluster and are
  * independet from the nature of the particles, for example a function to decide
  * if two clusters are compatible to be added in a supercluster
@@ -66,17 +66,17 @@ protected:
   /** should be called by the derived class in the initialize phase */
   virtual StatusCode initialize() override;
 
-  /** 
+  /**
    * @brief Is clus in window center around ref?
-   * 
+   *
    * @param ref: reference cluster
    * @param clus: cluster to be tested
-   * 
+   *
    * The matching is done using delta-eta and delta-phi comparing them
    * with the values of
    * \ref egammaSuperClusterBuilder.m_searchWindowEtaCellsBarrel "SearchWindowEtaCellsBarrel",
    * \ref egammaSuperClusterBuilder.m_searchWindowPhiCellsBarrel "SearchWindowPhiCellsBarrel",
-   * \ref egammaSuperClusterBuilder.m_searchWindowEtaCellsEndcap "SearchWindowEtaCellsEndcap" and 
+   * \ref egammaSuperClusterBuilder.m_searchWindowEtaCellsEndcap "SearchWindowEtaCellsEndcap" and
    * \ref egammaSuperClusterBuilder.m_searchWindowPhiCellsEndcap "SearchWindowPhiCellsEndcap",
    * depending if the seed is barrel or endcap. If it is in the crack, an OR of the conditions
    * (using both seeds) is used.
@@ -87,7 +87,7 @@ protected:
   /** Creates a new supercluster out of the input clusters.
    * It decides which cells of the seed and the satellite clusters
    *  to add (boxing / cookie cutter).
-   * 
+   *
    * The reference point is computed with findCentralPosition
    * which returns the hottest cells looping on the cells of all the
    * considered topo-clusters. Two references are computed,
@@ -95,20 +95,20 @@ protected:
    * calo-frame. Once the reference is computed the decision is made by
    * egammaSuperClusterBuilder::fillClusterConstrained which add the cells for
    * the accordeon.
-   * 
+   *
    * Cells from the tile gap are added using
    * egammaSuperClusterBuilder::addTileGap3CellsinWindow.
-   * 
+   *
    * Kinematic properties of the cluster are computed from the property
    * of the cells.
-   * 
-   * If the supercluster has a cluster energy less then EtThresholdCut (also 
+   *
+   * If the supercluster has a cluster energy less then EtThresholdCut (also
    * used as threshould for the seed) a null pointer is returned.
-   * 
+   *
    * The supercluster need to pass egammaCheckEnergyDepositTool::checkFractioninSamplingCluster.
-   * 
+   *
    * Calibrations on eta1, energy are applied with egammaSuperClusterBuilder::calibrateCluster
-   * 
+   *
    */
   std::unique_ptr<xAOD::CaloCluster> createNewCluster(
     const EventContext& ctx,
@@ -137,15 +137,15 @@ protected:
 
 private:
   /** Find the size of the cluster in phi using L2 cells.
-   * 
+   *
    * @param cp0: the reference position in calo-coordinates
    * @param cluster: the cluster filled with L2 and L3 cells
-   * 
+   *
    * The window is computed using only cells in the second layer.
    * Asymmetric sizes are computed for barrel and endcap. The size
    * is the maximum difference in phi between the center of a cell
    * and the refence, considering separately cells in the barrel
-   * and in the endcap. The computation is done separately for the 
+   * and in the endcap. The computation is done separately for the
    * cells with phi < reference phi or >=. A cutoff value of 1 is used.
    */
   PhiSize findPhiSize(const CentralPosition& cp0,
@@ -169,7 +169,9 @@ private:
   * First L2 and L3 LAR EM cells are considered (excluding inner wheel endcap cells).
   * A cut in eta is used. The range of the eta-window depends if the seed cell
   * is in barrel or endcap. For example for the barrel, cells in L2 are added if they are
-  * inside +/- (\ref egammaSuperClusterBuilder.m_addCellsWindowEtaCellsBarrel "AddCellsWindowEtaCellsBarrel" * s_cellEtaSize / 2) where \ref egammaSuperClusterBuilder.s_cellEtaSize "s_cellEtaSize" is
+  * inside +/- (\ref egammaSuperClusterBuilder.m_addCellsWindowEtaCellsBarrel
+  * "AddCellsWindowEtaCellsBarrel" * s_cellEtaSize / 2)
+  * where \ref egammaSuperClusterBuilder.s_cellEtaSize "s_cellEtaSize" is
   * the eta size of one cell in L2. For L3 the semi-window is increased by
   * (\ref egammaSuperClusterBuilder.m_extraL3EtaSizeCells "ExtraL3EtaSizeCells" * s_cellEtaSize / 2).
   *
@@ -194,7 +196,7 @@ private:
                                       const CaloDetDescrManager& mgr) const;
 
   /** function to calibrate the new clusters energy
-   * 
+   *
    * Calibrate with
    * - egammaSuperClusterBuilder.refineEta1Position
    * - \ref egammaSuperClusterBuilder.m_clusterCorrectionTool "ClusterCorrectionTool" (default=egammaSwTool)
