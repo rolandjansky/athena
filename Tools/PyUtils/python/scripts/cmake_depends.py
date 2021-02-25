@@ -122,13 +122,23 @@ class AthGraph:
       # Build dictionary for node names:
       self.node = { n.attr['label'] : n.get_name() for n in self.graph.nodes_iter() }
 
-      # Extract package dependencies:
-      for e in self.graph.edges_iter():
-         p = e[0].attr['label']
+      def decorate_package(n0, n1=None):
+         """Asssign package name to n0 -> n1 if n0 is a package target"""
+         p = n0.attr['label']
          # Decorate target with package name:
          if p.startswith('Package_'):
             pkg = lrstrip(p, 'Package_', '_tests')
-            e[0].attr['package'] = e[1].attr['package'] = package_paths.get(pkg,pkg)
+            n0.attr['package'] = package_paths.get(pkg,pkg)
+            if n1 is not None:
+               n1.attr['package'] = n0.attr['package']
+
+      # Extract package dependencies:
+      for e in self.graph.edges_iter():
+         decorate_package(e[0], e[1])
+
+      # Another pass on nodes to cover packages without dependendencies:
+      for n in self.graph.nodes_iter():
+         decorate_package(n)
 
       # Assign "package" names to externals if possible:
       external_nodes = filter(lambda n : 'package' not in n.attr.keys(),
