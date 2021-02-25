@@ -715,8 +715,7 @@ def muEFCBRecoSequence( RoIs, name ):
   if "FS" in name:
     ViewVerifyMS.DataObjects +=[( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates_FS' )]
   else:
-    ViewVerifyMS.DataObjects +=[( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates'),
-                                ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData' )]
+    ViewVerifyMS.DataObjects +=[( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates')]
 
   if MuonGeometryFlags.hasCSC():
     ViewVerifyMS.DataObjects += [( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' )]
@@ -750,9 +749,7 @@ def muEFCBRecoSequence( RoIs, name ):
     ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("muonCBIDViewDataVerifier")
     ViewVerifyTrk.DataObjects = [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+'+getIDTracks() ),
                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
-                                 ( 'xAOD::IParticleContainer' , 'StoreGateSvc+'+ getIDTracks() ),
-                                 ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
-                                 ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )] #seems to be necessary, despite the load below
+                                 ( 'xAOD::IParticleContainer' , 'StoreGateSvc+'+ getIDTracks() )]
 
     if globalflags.InputFormat.is_bytestream():
       ViewVerifyTrk.DataObjects += [( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
@@ -790,11 +787,11 @@ def muEFCBRecoSequence( RoIs, name ):
   #No easy way to access AtlasHoleSearchTool in theIndetCandidateAlg
   from AthenaCommon.AppMgr import ToolSvc
   from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
-  from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConditionsSummaryTool
-  ToolSvc.AtlasHoleSearchTool.BoundaryCheckTool.SctSummaryTool = SCT_ConditionsSummaryTool(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryToolWithoutFlagged'))
-
-  from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSCTConditionsSummaryTool
-  ToolSvc.CombinedMuonIDHoleSearch.BoundaryCheckTool.SctSummaryTool = InDetTrigSCTConditionsSummaryTool
+  from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
+  sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryToolWithoutFlagged'))
+  sct_ConditionsSummaryToolSetupWithoutFlagged.setup()
+  ToolSvc.AtlasHoleSearchTool.BoundaryCheckTool.SctSummaryTool = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()
+  ToolSvc.CombinedMuonIDHoleSearch.BoundaryCheckTool.SctSummaryTool = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()
 
   #MS ID combination
   candidatesName = "MuonCandidates"
@@ -891,8 +888,11 @@ def muEFInsideOutRecoSequence(RoIs, name):
                                                          InDetCandidateLocation="InDetCandidates_"+name)
     from AthenaCommon.AppMgr import ToolSvc
     from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
-    from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConditionsSummaryTool
-    ToolSvc.CombinedMuonIDHoleSearch.BoundaryCheckTool.SctSummaryTool = SCT_ConditionsSummaryTool(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryToolWithoutFlagged'))
+    from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
+    sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryToolWithoutFlagged'))
+    sct_ConditionsSummaryToolSetupWithoutFlagged.setup()
+    ToolSvc.AtlasHoleSearchTool.BoundaryCheckTool.SctSummaryTool = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()
+    ToolSvc.CombinedMuonIDHoleSearch.BoundaryCheckTool.SctSummaryTool = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()
 
     efAlgs.append(theIndetCandidateAlg)
 
