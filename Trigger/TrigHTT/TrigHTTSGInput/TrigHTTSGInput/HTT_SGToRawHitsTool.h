@@ -17,6 +17,7 @@
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "TrigHTTSGInput/HTT_IInputTool.h"
+#include "TrigHTTObjects/HTTOptionalEventInfo.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "TrigHTTSGInput/TrigHTTInputUtils.h"
 
@@ -76,9 +77,9 @@ private:
 
   typedef std::map<Identifier,int> HitIndexMap;
   StatusCode read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelClusterIndexMap ) ; // dump raw silicon data to text file and populate hitIndexMap for rec. track processing
-  StatusCode read_truth_tracks(std::vector<HTTTruthTrack>&   truth);
-  StatusCode read_offline_tracks(std::vector<HTTOfflineTrack>& Track);
-  StatusCode read_offline_clusters(std::vector<HTTCluster>& Clusters);
+  StatusCode read_truth_tracks(HTTOptionalEventInfo& optional);
+  StatusCode read_offline_tracks(HTTOptionalEventInfo& optional);
+  StatusCode read_offline_clusters(HTTOptionalEventInfo& optional);
   StatusCode ReadPixelSimulation( HitIndexMap& hitIndexMap, unsigned int &hitIndex );
   StatusCode ReadStripSimulation( HitIndexMap& hitIndexMap, unsigned int &hitIndex );  
   StatusCode DumpPixelClusters(HitIndexMap& pixelClusterIndexMap );
