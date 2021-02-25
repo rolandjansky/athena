@@ -30,7 +30,7 @@ StatusCode TrigCompositeUtils::AlgToChainTool::start() {
     // Fill the maps
     for ( const TrigConf::Chain& chain : *hltMenuHandle ) {
         for ( const std::string& sequencer : chain.sequencers() ) {
-            m_sequencerToChainMap[sequencer].push_back(chain.name());
+            m_sequencerToChainMap[sequencer].push_back(chain);
         }
     }
 
@@ -46,12 +46,28 @@ StatusCode TrigCompositeUtils::AlgToChainTool::start() {
 }
 
 
-std::set<std::string> TrigCompositeUtils::AlgToChainTool::getChainsForAlg(const std::string& algorithmName) const {
+std::set<std::string> TrigCompositeUtils::AlgToChainTool::getChainsNamesForAlg(const std::string& algorithmName) const {
     std::set<std::string> result;
+
+    std::vector<TrigConf::Chain> chainsSet = getChainsForAlg(algorithmName);
+    for (const TrigConf::Chain& chain : chainsSet) {
+        result.insert(chain.name());
+    }
+
+    return result;
+}
+
+
+std::vector<TrigConf::Chain> TrigCompositeUtils::AlgToChainTool::getChainsForAlg(const std::string& algorithmName) const {
+    std::vector<TrigConf::Chain> result;
 
     try {
         for ( const std::string& sequencer : m_algToSequencersMap.at(algorithmName) ) {
-            result.insert(m_sequencerToChainMap.at(sequencer).begin(), m_sequencerToChainMap.at(sequencer).end());
+            result.insert(
+                result.end(),
+                m_sequencerToChainMap.at(sequencer).begin(), 
+                m_sequencerToChainMap.at(sequencer).end()
+            );
         }
     } catch ( const std::out_of_range & ex ) {
         ATH_MSG_DEBUG ( algorithmName << " is not part of the menu!" );
@@ -60,11 +76,12 @@ std::set<std::string> TrigCompositeUtils::AlgToChainTool::getChainsForAlg(const 
     return result;
 }
 
+
 std::set<std::string> TrigCompositeUtils::AlgToChainTool::getActiveChainsForAlg(const std::string& algorithmName, const EventContext& context) const {
     std::set<std::string> result;
 
     std::set<std::string> allActiveChains = retrieveActiveChains(context);
-    std::set<std::string> allAlgChains = getChainsForAlg(algorithmName);
+    std::set<std::string> allAlgChains = getChainsNamesForAlg(algorithmName);
 
     // Save the chains that are used by selected algorithm and active
     std::set_intersection(allAlgChains.begin(), allAlgChains.end(),
@@ -118,6 +135,15 @@ std::set<std::string> TrigCompositeUtils::AlgToChainTool::retrieveActiveChains(c
     }
 
     return activeChainsNames;
+}
+
+std::map<std::string, std::vector<TrigConf::Chain>> TrigCompositeUtils::AlgToChainTool::getChainsForAllAlgs() const{
+    std::map<std::string, std::vector<TrigConf::Chain>> algToChain;
+
+    for (const auto& algSeqPair : m_algToSequencersMap){
+        algToChain[algSeqPair.first] = getChainsForAlg(algSeqPair.first);
+    }
+    return algToChain;
 }
 
 #endif // XAOD_STANDALONE

@@ -9,6 +9,7 @@
 #include "StoreGate/ReadHandleKeyArray.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "TrigConfData/HLTMenu.h"
+#include "TrigCompositeUtils/AlgToChainTool.h"
 
 #include "EnhancedBiasWeighter/EnhancedBiasWeighter.h"
 
@@ -127,6 +128,9 @@ class TrigCostAnalysis: public ::AthHistogramAlgorithm {
 
     ToolHandle<IEnhancedBiasWeighter> m_enhancedBiasTool{this, "EnhancedBiasTool", "",
       "Enhanced bias weighting tool."};
+
+    ToolHandle<TrigCompositeUtils::AlgToChainTool> m_algToChainTool{this, "AlgToChainTool", "",
+      "Tool to retrieve chains for algorithm."};
    
   private:
 

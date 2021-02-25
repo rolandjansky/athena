@@ -32,18 +32,24 @@ namespace TrigCompositeUtils {
 
       virtual StatusCode start() override;
 
+      /// Request set of chains' names for given algorithm - static lookup
+      std::set<std::string> getChainsNamesForAlg(const std::string& algorithmName) const;
+
       /// Request set of chains for given algorithm - static lookup
-      std::set<std::string> getChainsForAlg(const std::string& algorithmName) const;
+      std::vector<TrigConf::Chain> getChainsForAlg(const std::string& algorithmName) const;
 
       /// Request set of active chains for given algorithm - dynamic lookup
       std::set<std::string> getActiveChainsForAlg(const std::string& algorithmName, const EventContext& context) const;
+
+      /// Request set of chains for all algorithms in the menu
+      std::map<std::string, std::vector<TrigConf::Chain>> getChainsForAllAlgs() const;
 
   private:
       std::set<std::string> retrieveActiveChains(const EventContext& context) const;
 
       SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{ this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu", "HLT Menu" };
 
-      std::map<std::string, std::vector<std::string>> m_sequencerToChainMap;
+      std::map<std::string, std::vector<TrigConf::Chain>> m_sequencerToChainMap;
       std::map<std::string, std::vector<std::string>> m_algToSequencersMap;
   };
 }
