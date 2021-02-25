@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOLOCALHADCALIB_CALOHADDMCOEFFMINIM_H
@@ -42,7 +42,7 @@ class ATLAS_NOT_THREAD_SAFE CaloHadDMCoeffMinim {
         double      upperLim;
         double      value;
         double      error;
-        MinimPar(std::string the_name, double the_initVal, double the_initErr,
+        MinimPar(const std::string& the_name, double the_initVal, double the_initErr,
                    double the_lowerLim, double the_upperLim) 
         : name(the_name),
           fixIt(true),
