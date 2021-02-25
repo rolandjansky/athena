@@ -40,8 +40,8 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
   SG::WriteHandle<DecisionContainer> outputHandle = createAndStore( m_summaryKey, context );
   auto container = outputHandle.ptr();
 
-  Decision* passRawOutput = newDecisionIn( container, "HLTPassRaw" );
-  Decision* prescaledOutput = newDecisionIn( container, "HLTPrescaled" );
+  Decision* passRawOutput = newDecisionIn( container, summaryPassNodeName() );
+  Decision* prescaledOutput = newDecisionIn( container, summaryPrescaledNodeName() );
 
   DecisionIDContainer allPassingFinalIDs;
 
@@ -80,7 +80,7 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
       // may accept the event via other objects
 
       // filter -> HypoAlg
-      Decision* filter = newDecisionIn( container, decisionObject, filterNodeName(), context );
+      Decision* filter = newDecisionIn( container, decisionObject, summaryFilterNodeName(), context );
       decisionIDs(filter).insert( decisionIDs(filter).end(), passingFinalIDs.begin(), passingFinalIDs.end() );
 
       // HLTPassRaw -> filter

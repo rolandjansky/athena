@@ -421,11 +421,11 @@ StatusCode TrigSignatureMoniMT::execute( const EventContext& context ) const {
   auto finalDecisionsHandle = SG::makeHandle( m_finalDecisionKey, context );
   ATH_CHECK( finalDecisionsHandle.isValid() );
   TrigCompositeUtils::DecisionIDContainer finalIDs;
-  for (const TrigCompositeUtils::Decision* decisionObject : *finalDecisionsHandle) {
-    if (decisionObject->name() == "HLTPassRaw") {
-      TrigCompositeUtils::decisionIDs(decisionObject, finalIDs);
-      break;
-    }
+  const TrigCompositeUtils::Decision* decisionObject = TrigCompositeUtils::getTerminusNode(finalDecisionsHandle);
+  if (!decisionObject) {
+    ATH_MSG_WARNING("Unable to locate trigger navigation terminus node. Cannot tell which chains passed the event.");
+  } else {
+    TrigCompositeUtils::decisionIDs(decisionObject, finalIDs);
   }
   
   ATH_CHECK( fillStreamsAndGroups( m_streamToChainMap, finalIDs ) );

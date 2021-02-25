@@ -45,7 +45,7 @@ namespace TrigCompositeUtils {
 
   template<typename T>
   void
-  findLinks(const Decision* start, const std::string& linkName, std::vector<LinkInfo<T>>& links, unsigned int behaviour, std::set<const Decision*>* visitedCache) {
+  findLinks(const Decision* start, const std::string& linkName, std::vector<LinkInfo<T>>& links, unsigned int behaviour, std::set<const Decision*>* fullyExploredFrom) {
     using namespace msgFindLink;
     ElementLinkVector<T> featureLinks;
     if (start->hasObjectCollectionLinks(linkName, ClassID_traits<T>::ID())) {
@@ -87,18 +87,20 @@ namespace TrigCompositeUtils {
     }
     // If not Early Exit, then recurse
     for (const auto seed : getLinkToPrevious(start)) {
-      if (visitedCache != nullptr) {
+#if TRIGCOMPUTILS_ENABLE_EARLY_EXIT == 1
+      if (fullyExploredFrom != nullptr) {
         // We only need to recursivly explore back from each node in the graph once.
         // We can keep a record of nodes which we have already explored, these we can safely skip over.
-        if (visitedCache->count(*seed) == 1) {
+        if (fullyExploredFrom->count(*seed) == 1) {
           continue;
         }
       }
-      findLinks<T>(*seed, linkName, links, behaviour, visitedCache);
+#endif
+      findLinks<T>(*seed, linkName, links, behaviour, fullyExploredFrom);
     }
     // Fully explored this node
-    if (visitedCache != nullptr) {
-      visitedCache->insert(start);
+    if (fullyExploredFrom != nullptr) {
+      fullyExploredFrom->insert(start);
     }
   }
 
@@ -106,8 +108,8 @@ namespace TrigCompositeUtils {
   std::vector<LinkInfo<T>>
   findLinks(const Decision* start, const std::string& linkName, unsigned int behaviour) {
     std::vector<LinkInfo<T>> links;
-    std::set<const Decision*> visitedCache;
-    findLinks(start, linkName, links, behaviour, &visitedCache);
+    std::set<const Decision*> fullyExploredFrom;
+    findLinks(start, linkName, links, behaviour, &fullyExploredFrom);
     return links;
   }
 
@@ -267,9 +269,11 @@ namespace TrigCompositeUtils {
 
     // Recurse to decisionObj's seeds
     for (const NavGraphNode* seedNavNode : navGraphNode->seeds()) {
+#if TRIGCOMPUTILS_ENABLE_EARLY_EXIT == 1
       if (fullyExploredFrom.count(seedNavNode) == 1) {
         continue; // Already explored down from here
       }
+#endif
       recursiveGetFeaturesOfTypeInternal<CONTAINER>(features,
         fullyExploredFrom,
         seedNavNode,
