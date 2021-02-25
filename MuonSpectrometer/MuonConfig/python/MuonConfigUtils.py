@@ -40,7 +40,10 @@ def SetupMuonStandaloneConfigFlags(args):
     ConfigFlags.Detector.GeometryMDT   = True 
     ConfigFlags.Detector.GeometryTGC   = True
     ConfigFlags.Detector.GeometryCSC   = True     
-    ConfigFlags.Detector.GeometryRPC   = True 
+    ConfigFlags.Detector.GeometryRPC   = True
+    # TODO: disable these for now, to be determined if needed
+    ConfigFlags.Detector.GeometryCalo  = False
+    ConfigFlags.Detector.GeometryID    = False
     
     ConfigFlags.Output.ESDFileName=args.output
     
