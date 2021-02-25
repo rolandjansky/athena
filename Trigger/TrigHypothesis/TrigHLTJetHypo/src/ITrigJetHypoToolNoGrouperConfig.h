@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGHLTJETHYPO_ITRIGJETHYPOTOOLNOGROUPERCONFIG_H
 #define TRIGHLTJETHYPO_ITRIGJETHYPOTOOLNOGROUPERCONFIG_H
@@ -9,8 +9,6 @@
 #include "./ConditionsDefsMT.h"
 #include "./IJetsMatcherMT.h"
 #include "./ConditionFilter.h"
-
-#include <optional>
 
 class ITrigJetHypoToolNoGrouperConfig : virtual public ::IAlgTool {
   /** PABC (Pure Abstract Base Class) for JetHypoTool Condiguration classes.
@@ -29,10 +27,6 @@ public:
   /** return an object that tests jet group - Conditions matching */
   virtual std::unique_ptr<IJetsMatcherMT> getMatcher() const = 0;
 
-  /** return the Conditions (which check whether a jet group satisfies one
-      or more requirements 
-  */
-   virtual std::optional<ConditionsMT> getConditions() const = 0;
 
   /** return the ConditionFilters. These reduce the input jet collection
       before it is passed to a Condition. Example: HT conditions sometimes
