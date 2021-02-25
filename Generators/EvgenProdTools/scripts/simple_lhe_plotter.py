@@ -5,7 +5,6 @@ from __future__ import print_function
 
 # Basic ROOT setup
 import ROOT,sys,math,glob
-ROOT.SetSignalPolicy( ROOT.kSignalFast )
 ROOT.gROOT.SetBatch(True)
 ROOT.gErrorIgnoreLevel = ROOT.kError
 
