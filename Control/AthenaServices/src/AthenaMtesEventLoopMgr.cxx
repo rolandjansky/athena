@@ -717,14 +717,16 @@ StatusCode AthenaMtesEventLoopMgr::stop()
 }
 
 
-StatusCode AthenaMtesEventLoopMgr::nextEvent(int /*maxevt*/)
+StatusCode AthenaMtesEventLoopMgr::nextEvent(int maxevt)
 {
+  if(maxevt==0) return StatusCode::SUCCESS;
+
   yampl::ISocketFactory* socketFactory = new yampl::SocketFactory();
   // Create a socket to communicate with the Pilot
-  yampl::ISocket* socket2Pilot = socketFactory->createClientSocket(yampl::Channel(m_eventRangeChannel.value(),yampl::LOCAL),yampl::MOVE_DATA);
+  m_socket = socketFactory->createClientSocket(yampl::Channel(m_eventRangeChannel.value(),yampl::LOCAL),yampl::MOVE_DATA);
 
   // Reset the application return code.
-  Gaudi::setAppReturnCode(m_appMgrProperty, Gaudi::ReturnCode::Success, true).ignore();  
+  resetAppReturnCode();
 
   int finishedEvts =0;
   int createdEvts =0;
@@ -740,7 +742,7 @@ StatusCode AthenaMtesEventLoopMgr::nextEvent(int /*maxevt*/)
 
   std::unique_ptr<RangeStruct> range;
   while(!range) {
-    range = getNextRange(socket2Pilot);
+    range = getNextRange(m_socket);
     usleep(1000);
   }
 
@@ -782,7 +784,7 @@ StatusCode AthenaMtesEventLoopMgr::nextEvent(int /*maxevt*/)
 	  // Fetch next event range
 	  range.reset();
 	  while(!range) {
-	    range = getNextRange(socket2Pilot);
+	    range = getNextRange(m_socket);
 	    usleep(1000);
 	  }
 	  if(range->eventRangeID.empty()) {
@@ -803,7 +805,7 @@ StatusCode AthenaMtesEventLoopMgr::nextEvent(int /*maxevt*/)
       debug() << "Draining the scheduler" << endmsg;
 
       // Pull out of the scheduler the finished events
-      int ir = drainScheduler(finishedEvts,socket2Pilot);
+      int ir = drainScheduler(finishedEvts,true);
       if(ir < 0) {
 	// some sort of error draining scheduler;
 	loop_ended = true;
@@ -825,7 +827,8 @@ StatusCode AthenaMtesEventLoopMgr::nextEvent(int /*maxevt*/)
 
   info() << "---> Loop Finished (seconds): " << secsFromStart() <<endmsg;
 
-  delete socket2Pilot;
+  delete m_socket;
+  m_socket=nullptr;
   delete socketFactory;
   return sc;
 }
@@ -1204,10 +1207,22 @@ EventContext AthenaMtesEventLoopMgr::createEventContext() {
   return ctx;
 }
 
+void AthenaMtesEventLoopMgr::resetAppReturnCode()
+{
+  Gaudi::setAppReturnCode(m_appMgrProperty, Gaudi::ReturnCode::Success, true).ignore();
+}
+
+void AthenaMtesEventLoopMgr::setCurrentEventNum(int num) {
+  m_currentEvntNum = num;
+}
+
+bool AthenaMtesEventLoopMgr::terminateLoop() {
+  return m_terminateLoop;
+}
 //---------------------------------------------------------------------------
 
 int 
-AthenaMtesEventLoopMgr::drainScheduler(int& finishedEvts,yampl::ISocket* socket){
+AthenaMtesEventLoopMgr::drainScheduler(int& finishedEvts,bool report){
 
   StatusCode sc(StatusCode::SUCCESS);
     
@@ -1273,20 +1288,23 @@ AthenaMtesEventLoopMgr::drainScheduler(int& finishedEvts,yampl::ISocket* socket)
     
     // Some code still needs global context in addition to that passed in the incident
     Gaudi::Hive::setCurrentContext( *thisFinishedEvtContext );
+    info() << "Firing EndProcessing" << endmsg;
     m_incidentSvc->fireIncident(Incident(name(), IncidentType::EndProcessing, *thisFinishedEvtContext ));
 
-    // If we completed an event range, then report it to the pilot
-    OutputStreamSequencerSvc::RangeReport_ptr rangeReport = m_outSeqSvc->getRangeReport();
-    if(rangeReport) {
-      std::string outputFileReport = rangeReport->second + std::string(",ID:")
-	+ rangeReport->first + std::string(",CPU:N/A,WALL:N/A");
-      if( not m_inTestMode ) {
-         // In standalone test mode there is no pilot to talk to
-         void* message2pilot = malloc(outputFileReport.size());
-         memcpy(message2pilot,outputFileReport.data(),outputFileReport.size());
-         socket->send(message2pilot,outputFileReport.size());
+    if(report) {
+      // If we completed an event range, then report it to the pilot
+      OutputStreamSequencerSvc::RangeReport_ptr rangeReport = m_outSeqSvc->getRangeReport();
+      if(rangeReport) {
+	std::string outputFileReport = rangeReport->second + std::string(",ID:")
+	  + rangeReport->first + std::string(",CPU:N/A,WALL:N/A");
+	if( not m_inTestMode ) {
+	  // In standalone test mode there is no pilot to talk to
+	  void* message2pilot = malloc(outputFileReport.size());
+	  memcpy(message2pilot,outputFileReport.data(),outputFileReport.size());
+	  m_socket->send(message2pilot,outputFileReport.size());
+	}
+	info() << "Reported the output " << outputFileReport << endmsg;
       }
-      info() << "Reported the output " << outputFileReport << endmsg;
     }
 
     debug() << "Clearing slot " << thisFinishedEvtContext->slot() 

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_ATHENAMTESEVENTLOOPMGR_H
@@ -23,6 +23,7 @@
 #include "AthenaKernel/IEventSeek.h"
 #include "AthenaKernel/ICollectionSize.h"
 #include "AthenaKernel/IConditionsCleanerSvc.h"
+#include "AthenaKernel/IHybridProcessorHelper.h"
 #include "StoreGate/ActiveStoreSvc.h"
 
 #include <memory>
@@ -52,6 +53,7 @@ class AthenaMtesEventLoopMgr
   : virtual public IEventSeek,
     virtual public ICollectionSize,
     virtual public IIncidentListener,
+    virtual public IHybridProcessorHelper,
             public MinimalEventLoopMgr,
             public Athena::TimeoutMaster
 {
@@ -167,10 +169,6 @@ protected:
   StatusCode clearWBSlot(int evtSlot);
   /// Declare the root address of the event
   int declareEventRootAddress(EventContext&);
-  /// Create event context
-  virtual EventContext createEventContext() override;
-  /// Drain the scheduler from all actions that may be queued
-  int drainScheduler(int& finishedEvents,yampl::ISocket* socket);
   /// Instance of the incident listener waiting for AbortEvent. 
   SmartIF< IIncidentListener >  m_abortEventListener;
   /// Name of the scheduler to be used
@@ -201,6 +199,8 @@ public:
   virtual StatusCode finalize() override;
   /// implementation of IAppMgrUI::nextEvent. maxevt==0 returns immediately
   virtual StatusCode nextEvent(int maxevt) override;
+  /// implementation of IEventProcessor::createEventContext()
+  virtual EventContext createEventContext() override;
   /// implementation of IEventProcessor::executeEvent(void* par)
   virtual StatusCode executeEvent( EventContext&& ctx ) override;
   /// implementation of IEventProcessor::executeRun(int maxevt)
@@ -219,6 +219,15 @@ public:
   virtual int size() override;
   /// IIncidentListenet interfaces
   virtual void handle(const Incident& inc) override;
+
+  /// Reset the application return code
+  virtual void resetAppReturnCode() override;
+  
+  virtual void setCurrentEventNum(int num) override;
+  virtual bool terminateLoop() override;
+
+  /// Drain the scheduler from all actions that may be queued
+  virtual int drainScheduler(int& finishedEvents, bool report) override;
 
   /// interface dispatcher
   virtual StatusCode queryInterface( const InterfaceID& riid, 
@@ -294,6 +303,9 @@ private:
   // Hopefully a temporary measurement. For the time being we cannot
   // support event ranges from different input files.
   std::string m_pfn{""};
+
+  // For the event service running:
+  yampl::ISocket* m_socket{nullptr};
 };
 
 #endif // ATHENASERVICES_ATHENAHIVEEVENTLOOPMGR_H
