@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelAthClusterMonAlg.h"
@@ -109,23 +109,27 @@ StatusCode PixelAthClusterMonAlg::fillHistograms( const EventContext& ctx ) cons
 
     // Per FE Status
     //
-    /* 
+
     // code requires testing w/ different pixel conditions - could cause segfault!
     if (m_doFEPlots) {
       int nFE = getNumberOfFEs(pixlayer, m_pixelid->eta_module(waferID));
       for (int iFE=0; iFE<nFE; iFE++) {
 	Identifier pixelID = m_pixelCablingSvc->getPixelIdfromHash(id_hash, iFE, 1, 1);
-	if (m_pixelCondSummaryTool->isActive(id_hash, pixelID) == true && m_pixelCondSummaryTool->isGood(id_hash) == true) {
-	  index = 0;  // active and good FE
-	} else if (m_pixelCondSummaryTool->isActive(id_hash, pixelID) == false) {
-	  index = 2;  // inactive or bad FE
+	if (pixelID.is_valid()) {
+	  if (m_pixelCondSummaryTool->isActive(id_hash, pixelID) == true && m_pixelCondSummaryTool->isGood(id_hash, pixelID) == true) {
+	    index = 0;  // active and good FE
+	  } else if (m_pixelCondSummaryTool->isActive(id_hash, pixelID) == false) {
+	    index = 2;  // inactive or bad FE
+	  } else {
+	    index = 1;  // active and bad FE
+	  }
+	  Map_Of_FEs_Status.add(pixlayer, waferID, m_pixelid, iFE, index);
 	} else {
-	  index = 1;  // active and bad FE
+	  ATH_MSG_ERROR("PixelMonitoring: got invalid pixelID " << pixelID << " from id_hash " << id_hash << " with FE#"<< iFE << ".");
 	}
-	Map_Of_FEs_Status.add(pixlayer, waferID, m_pixelid, iFE, index);
       }
     }
-    */
+
   }  // end of pixelid wafer loop
 
   fill2DProfLayerAccum( Map_Of_Modules_Status );

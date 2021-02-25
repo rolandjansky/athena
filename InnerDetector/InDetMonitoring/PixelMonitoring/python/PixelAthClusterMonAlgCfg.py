@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -33,25 +33,20 @@ def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
     title = 'Modules Status Reset (0=Active+Good, 1=Active+Bad, 2=Inactive)'
     define2DProfHist(helper, alg, histoGroupName, title, path, type='TProfile2D', zmin=0, zmax=2, opt='kLBNHistoryDepth=2', histname='MapOfModulesStatusMon')
 
+    if doFEPlots:
+        histoGroupName = 'MapOfFEsStatus' 
+        title = 'FEs Status (0=Active+Good, 1=Active+Bad, 2=Inactive)'
+        define2DProfPerFEHist(helper, alg, histoGroupName, title, path, type='TProfile2D')
+
     if doLumiBlock:
-        title = 'Modules Status (0=Active+Good, 1=Active+Bad, 2=Inactive)'
-        define2DProfHist(helper, alg, histoGroupName, title, pathLowStat, type='TProfile2D', lifecycle='lumiblock', histname='MapOfModulesStatusLB')
-
-### disabled for the moment - filling code requires more testing
-
-#    if doFEPlots:
-#        histoGroupName = 'MapOfFEsStatus' 
-#        title = 'FEs Status (0=Active+Good, 1=Active+Bad, 2=Inactive)'
-#        histlbname = 'MapOfFEsStatusLB'
-#        define2DProfPerFEHist(helper, alg, histoGroupName, title, path, type='TProfile2D')
-#
-#    if doLumiBlock:
-#        if not doFEPlots:
-#            title = 'Modules Status (0=Active+Good, 1=Active+Bad, 2=Inactive)'
-#            define2DProfHist(helper, alg, histoGroupName, title, pathLowStat, type='TProfile2D', lifecycle='lumiblock', histname='MapOfModulesStatusLB')
-#        else:
-#            title = 'FEs Status (0=Active+Good, 1=Active+Bad, 2=Inactive)'
-#            define2DProfPerFEHist(helper, alg, histoGroupName, title, pathLowStat, type='TProfile2D', lifecycle='lumiblock', histname='MapOfFEsStatusLB')
+        if not doFEPlots:
+            histoGroupName = 'MapOfModulesStatus'
+            title = 'Modules Status (0=Active+Good, 1=Active+Bad, 2=Inactive)'
+            define2DProfHist(helper, alg, histoGroupName, title, pathLowStat, type='TProfile2D', lifecycle='lumiblock', histname='MapOfModulesStatusLB')
+        else:
+            histoGroupName = 'MapOfFEsStatus'
+            title = 'FEs Status (0=Active+Good, 1=Active+Bad, 2=Inactive)'
+            define2DProfPerFEHist(helper, alg, histoGroupName, title, pathLowStat, type='TProfile2D', lifecycle='lumiblock', histname='MapOfFEsStatusLB')
 
     histoGroupName = 'BadModulesPerLumi'
     title          = 'Number of bad modules (bad+active) per event per LB'

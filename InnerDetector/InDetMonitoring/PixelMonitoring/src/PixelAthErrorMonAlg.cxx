@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelAthErrorMonAlg.h"
@@ -247,35 +247,38 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
       if (pixlayer == PixLayers::kIBL) {
 	pixID = m_pixelCablingSvc->getPixelIdfromHash(modHash, iFE, 1, 1);
       }
-
-      for (int i = 0; i < ErrorCategoryRODMOD::COUNT; i++) {
-	if (nerrors_cat_rodmod[i][iFE]) {
-	  if (getErrorCategory(i+1)!=99) has_err_cat[getErrorCategory(i+1)][iFE] = true;
-	  num_errormodules_per_cat_rodmod[i][pixlayer]++;
-	  if (!m_doOnline) {
-	    all_errors_maps.add(pixlayer, pixID, m_pixelid, nerrors_cat_rodmod[i][iFE]);
-	    if (i<ErrorCategoryRODMOD::kTruncROD+1) {
-	      error_maps_per_cat_rodmod[i].add(pixlayer, pixID, m_pixelid, 1.0);
-	      if (i==0) modsync_errors_maps.add(pixlayer, pixID, m_pixelid, 1.0);
-	      if (i==1) rodsync_errors_maps.add(pixlayer, pixID, m_pixelid, 1.0);
+      if (pixID.is_valid()) {
+	for (int i = 0; i < ErrorCategoryRODMOD::COUNT; i++) {
+	  if (nerrors_cat_rodmod[i][iFE]) {
+	    if (getErrorCategory(i+1)!=99) has_err_cat[getErrorCategory(i+1)][iFE] = true;
+	    num_errormodules_per_cat_rodmod[i][pixlayer]++;
+	    if (!m_doOnline) {
+	      all_errors_maps.add(pixlayer, pixID, m_pixelid, nerrors_cat_rodmod[i][iFE]);
+	      if (i<ErrorCategoryRODMOD::kTruncROD+1) {
+		error_maps_per_cat_rodmod[i].add(pixlayer, pixID, m_pixelid, 1.0);
+		if (i==0) modsync_errors_maps.add(pixlayer, pixID, m_pixelid, 1.0);
+		if (i==1) rodsync_errors_maps.add(pixlayer, pixID, m_pixelid, 1.0);
+	      }
 	    }
 	  }
 	}
-      }
-      for (int i = 0; i < ErrorCategory::COUNT; i++) {
-	if (has_err_cat[i][iFE]) {
-	  num_errormodules_per_cat[i][pixlayer]++;
-	  if (!m_doOnline) {
-	    error_maps_per_cat[i].add(pixlayer, pixID, m_pixelid, 1.0);
+	for (int i = 0; i < ErrorCategory::COUNT; i++) {
+	  if (has_err_cat[i][iFE]) {
+	    num_errormodules_per_cat[i][pixlayer]++;
+	    if (!m_doOnline) {
+	      error_maps_per_cat[i].add(pixlayer, pixID, m_pixelid, 1.0);
+	    }
 	  }
 	}
-      }
-
-    // filling nActive modules per layer for later normalization
-    // for IBL (and DBM) normalization isdone by number of FEI4 
-      if ( (pixlayer != PixLayers::kIBL && m_pixelCondSummaryTool->isActive(modHash) == true) ||
-	   (pixlayer == PixLayers::kIBL && m_pixelCondSummaryTool->isActive(modHash, pixID) == true) ) {
-	nActive_layer[pixlayer]++;
+	
+	// filling nActive modules per layer for later normalization
+	// for IBL (and DBM) normalization isdone by number of FEI4 
+	if ( (pixlayer != PixLayers::kIBL && m_pixelCondSummaryTool->isActive(modHash) == true) ||
+	     (pixlayer == PixLayers::kIBL && m_pixelCondSummaryTool->isActive(modHash, pixID) == true) ) {
+	  nActive_layer[pixlayer]++;
+	}
+      } else {
+	ATH_MSG_ERROR("PixelMonitoring: got invalid pixID " << pixID);
       }
     } // loop over FEs
 
