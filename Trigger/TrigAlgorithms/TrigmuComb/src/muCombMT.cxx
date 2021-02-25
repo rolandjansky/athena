@@ -571,187 +571,190 @@ StatusCode muCombMT::execute()
    // useL1 commented code to be removed once full muon chain with MT tested (SG)
    //xAOD::L2StandAloneMuonContainer* muonColl = const_cast<xAOD::L2StandAloneMuonContainer*>(const_muonColl);
 
-   // retrieve L2StandAloneMuon (assumed to be the first element)
-   const xAOD::L2StandAloneMuon* muonSA = muonColl->front();
+   // retrieve L2StandAloneMuon (loop for L2 multi-track SA)
+   for(uint i_muonSA = 0; i_muonSA < muonColl->size(); i_muonSA++){
 
-   xAOD::L2CombinedMuon* muonCB = new xAOD::L2CombinedMuon();
-   muonCB->makePrivateStore();
-   muonCB->setPt(0.0);
-   muonCB->setStrategy(usealgo);
+     const xAOD::L2StandAloneMuon* muonSA = muonColl->at(i_muonSA);
 
-   // check muonSA pt != 0
-   if (muonSA->pt() == 0.) {
-      ErrorFlagMC = 1;
-      if (usealgo == 2 || usealgo == 4) {
+     xAOD::L2CombinedMuon* muonCB = new xAOD::L2CombinedMuon();
+     muonCB->makePrivateStore();
+     muonCB->setPt(0.0);
+     muonCB->setStrategy(usealgo);
+
+     // Save SA muon EL into CB muon
+     ElementLink<xAOD::L2StandAloneMuonContainer> muonSAEL(*muonColl, i_muonSA);
+     muonCB->setMuSATrackLink(muonSAEL);
+
+     // check muonSA pt != 0
+     if (muonSA->pt() == 0.) {
+       ErrorFlagMC = 1;
+       if (usealgo == 2 || usealgo == 4) {
          ATH_MSG_DEBUG(" L2StandAloneMuon pt = 0 --> using angular match" );
          //if (usealgo == 2) useL1 = true;
-      } else {
+       } else {
          ATH_MSG_DEBUG(" L2StandAloneMuon pt = 0 --> stop processing RoI, no match" );
          muonCB->setErrorFlag(ErrorFlagMC);
          muonCBColl->push_back(muonCB);
          return StatusCode::SUCCESS;
-      }
-   }
+       }
+     }
 
-   // useL1 commented code to be removed once full muon chain with MT tested (SG)
-   //double ptL1    = -999.;
-   //double etaL1   = -999.;
-   //double phiL1   = -999.;
-   double pt      = -999.;
-   double eta     = -999.;
-   double phi     = -999.;
-   double eta_ms  = -999.;
-   double phi_ms  = -999.;
-   double zeta_ms = -999.;
-   // useL1 commented code to be removed once full muon chain with MT tested (SG)
-   //if (useL1) {
-   //   auto muonROIColl = SG::makeHandle(m_muonROICollKey, ctx); // L1 muon ROI
-   //   if (muonROIColl->size() == 0) {
-   //      ATH_MSG_DEBUG(" L1 Muon RoI collection size = 0");
-   //      ATH_MSG_DEBUG(" L2StandAloneMuon pt == 0. && no L1 && torid=OFF --> no match" );
-   //      ErrorFlagMC = 1;
-   //      muonCB->setErrorFlag(ErrorFlagMC);
-   //      return StatusCode::SUCCESS;
-   //   } else {
-   //      const TrigRoiDescriptor* muonROI = *(muonROIColl->begin());
-   //      ptL1  = (muonRoI)->getThresholdValue();
-   //      etaL1 = (muonRoI)->eta();
-   //      phiL1 = (muonRoI)->phi();
-   //      ATH_MSG_DEBUG( " Input L1 muon pt (GeV) = " << (muonROI)->getThresholdValue()
-   //           <<  " / eta   = " << (muonROI)->eta()
-   //           <<  " / phi   = " << (muonROI)->phi()
-   //           <<  " / roiID = " << (muonROI)->roiId() );
-   //   }
-   //} else {
-      // Save SA muon EL into CB muon
-      ElementLink<xAOD::L2StandAloneMuonContainer> muonSAEL(*muonColl, 0);
-      muonCB->setMuSATrackLink(muonSAEL);
+     // useL1 commented code to be removed once full muon chain with MT tested (SG)
+     //double ptL1    = -999.;
+     //double etaL1   = -999.;
+     //double phiL1   = -999.;
+     double pt      = -999.;
+     double eta     = -999.;
+     double phi     = -999.;
+     double eta_ms  = -999.;
+     double phi_ms  = -999.;
+     double zeta_ms = -999.;
+     // useL1 commented code to be removed once full muon chain with MT tested (SG)
+     //if (useL1) {
+     //   auto muonROIColl = SG::makeHandle(m_muonROICollKey, ctx); // L1 muon ROI
+     //   if (muonROIColl->size() == 0) {
+     //      ATH_MSG_DEBUG(" L1 Muon RoI collection size = 0");
+     //      ATH_MSG_DEBUG(" L2StandAloneMuon pt == 0. && no L1 && torid=OFF --> no match" );
+     //      ErrorFlagMC = 1;
+     //      muonCB->setErrorFlag(ErrorFlagMC);
+     //      return StatusCode::SUCCESS;
+     //   } else {
+     //      const TrigRoiDescriptor* muonROI = *(muonROIColl->begin());
+     //      ptL1  = (muonRoI)->getThresholdValue();
+     //      etaL1 = (muonRoI)->eta();
+     //      phiL1 = (muonRoI)->phi();
+     //      ATH_MSG_DEBUG( " Input L1 muon pt (GeV) = " << (muonROI)->getThresholdValue()
+     //           <<  " / eta   = " << (muonROI)->eta()
+     //           <<  " / phi   = " << (muonROI)->phi()
+     //           <<  " / roiID = " << (muonROI)->roiId() );
+     //   }
+     //} else {
 
-      pt       = muonSA->pt();
-      eta      = muonSA->eta();
-      phi      = muonSA->phi();
-      eta_ms   = muonSA->etaMS();
-      phi_ms   = muonSA->phiMS();
-      zeta_ms  = muonSA->zMS();
+     pt       = muonSA->pt();
+     eta      = muonSA->eta();
+     phi      = muonSA->phi();
+     eta_ms   = muonSA->etaMS();
+     phi_ms   = muonSA->phiMS();
+     zeta_ms  = muonSA->zMS();
 
-      ATH_MSG_DEBUG(" Input L2StandaloneMuon pt (GeV) = " << pt
-               << " / eta = "                    << eta
-               << " / phi = "                    << phi
-               << " / etaMS = "                  << eta_ms
-               << " / phiMS = "                  << phi_ms
-               << " / zMS = "                    << zeta_ms);
-   //}
+     ATH_MSG_DEBUG(" Input L2StandaloneMuon pt (GeV) = " << pt
+                << " / eta = "                    << eta
+                << " / phi = "                    << phi
+                << " / etaMS = "                  << eta_ms
+                << " / phiMS = "                  << phi_ms
+                << " / zMS = "                    << zeta_ms);
+     //}
 
-   // ID tracks Decoding
+     // ID tracks Decoding
 
-   // how to retrieve a specific colection name?
-   SG::ReadHandle<xAOD::TrackParticleContainer> idTrackParticles(m_TrackParticleContainerKey, ctx); //L2 ID trks
-   if (!idTrackParticles.isValid()){
-      ATH_MSG_DEBUG(" Failed to get xAOD::TrackParticleContainer --> no match" );
-      ErrorFlagMC = 2;
-      muonCB->setErrorFlag(ErrorFlagMC);
-      muonCBColl->push_back(muonCB);
-      return StatusCode::SUCCESS;
-   }
-   if (idTrackParticles->size() < 1){
-      ATH_MSG_DEBUG(" xAOD::TrackParticleContainer has 0 tracks --> no match" );
-      ErrorFlagMC = 2;
-      muonCB->setErrorFlag(ErrorFlagMC);
-      muonCBColl->push_back(muonCB);
-      return StatusCode::SUCCESS;
-   }
+     // how to retrieve a specific colection name?
+     SG::ReadHandle<xAOD::TrackParticleContainer> idTrackParticles(m_TrackParticleContainerKey, ctx); //L2 ID trks
+     if (!idTrackParticles.isValid()){
+       ATH_MSG_DEBUG(" Failed to get xAOD::TrackParticleContainer --> no match" );
+       ErrorFlagMC = 2;
+       muonCB->setErrorFlag(ErrorFlagMC);
+       muonCBColl->push_back(muonCB);
+       return StatusCode::SUCCESS;
+     }
+     if (idTrackParticles->size() < 1){
+       ATH_MSG_DEBUG(" xAOD::TrackParticleContainer has 0 tracks --> no match" );
+       ErrorFlagMC = 2;
+       muonCB->setErrorFlag(ErrorFlagMC);
+       muonCBColl->push_back(muonCB);
+       return StatusCode::SUCCESS;
+     }
 
-   ATH_MSG_DEBUG( " Found xAOD::TrackParticleContainer with size: " << idTrackParticles->size() );
+     ATH_MSG_DEBUG( " Found xAOD::TrackParticleContainer with size: " << idTrackParticles->size() );
 
-   // matching
-   double ptinv_comb = 0.;
-   double ptres_comb = 0.001;
-   double chi2_comb  = 1.0e33;
-   int    ndof_comb  = -1;
-   double best_dr    = 1.0e33;
-   double best_deta  = 1.0e33;
-   double best_dphi  = 1.0e33;
-   bool   has_match  = false;
-   int    imatch     = -1;
-   int    matched_trk_idx = -1;
-   int    matched_trk_idx_tmp = -1;
+     // matching
+     double ptinv_comb = 0.;
+     double ptres_comb = 0.001;
+     double chi2_comb  = 1.0e33;
+     int    ndof_comb  = -1;
+     double best_dr    = 1.0e33;
+     double best_deta  = 1.0e33;
+     double best_dphi  = 1.0e33;
+     bool   has_match  = false;
+     int    imatch     = -1;
+     int    matched_trk_idx = -1;
+     int    matched_trk_idx_tmp = -1;
 
 
-   for(const auto trkit:(*idTrackParticles)) {
+     for(const auto trkit:(*idTrackParticles)) {
 
-      matched_trk_idx_tmp++;
-      double ptinv_tmp = 0.;
-      double ptres_tmp = 0.001;
-      double deta_tmp  = 0.;
-      double dphi_tmp  = 0.;
-      double dr_tmp    = 0.;
-      double chi2_tmp  = 0.;
-      int    ndof_tmp  = 0;
-      bool   has_match_tmp = false;
-      int    imatch_tmp    = -1;
+       matched_trk_idx_tmp++;
+       double ptinv_tmp = 0.;
+       double ptres_tmp = 0.001;
+       double deta_tmp  = 0.;
+       double dphi_tmp  = 0.;
+       double dr_tmp    = 0.;
+       double chi2_tmp  = 0.;
+       int    ndof_tmp  = 0;
+       bool   has_match_tmp = false;
+       int    imatch_tmp    = -1;
 
-      //Select tracks
-      double phi_id    = (trkit)->phi();
-      double eta_id    = (trkit)->eta();
-      double qoverp_id = (trkit)->qOverP();
-      double q_id      = ((trkit)->qOverP() > 0 ? 1.0 : -1.0);
-      double pt_id     = (trkit)->pt() * q_id;
+       //Select tracks
+       double phi_id    = (trkit)->phi();
+       double eta_id    = (trkit)->eta();
+       double qoverp_id = (trkit)->qOverP();
+       double q_id      = ((trkit)->qOverP() > 0 ? 1.0 : -1.0);
+       double pt_id     = (trkit)->pt() * q_id;
 
-      double e_qoverp_id = std::sqrt((trkit)->definingParametersCovMatrix()(Trk::qOverP,Trk::qOverP));
-      double e_phi_id = std::sqrt((trkit)->definingParametersCovMatrix()(Trk::phi0,Trk::phi0));
-      double e_theta_id = std::sqrt((trkit)->definingParametersCovMatrix()(Trk::theta,Trk::theta));
-      double tanthetaov2 = fabs(std::exp(-eta));
-      double e_eta_id = fabs(0.5 * (1./tanthetaov2 + tanthetaov2) * e_theta_id);
+       double e_qoverp_id = std::sqrt((trkit)->definingParametersCovMatrix()(Trk::qOverP,Trk::qOverP));
+       double e_phi_id = std::sqrt((trkit)->definingParametersCovMatrix()(Trk::phi0,Trk::phi0));
+       double e_theta_id = std::sqrt((trkit)->definingParametersCovMatrix()(Trk::theta,Trk::theta));
+       double tanthetaov2 = fabs(std::exp(-eta));
+       double e_eta_id = fabs(0.5 * (1./tanthetaov2 + tanthetaov2) * e_theta_id);
 
-      double e_qoverpt_id = e_qoverp_id;
-      double theta_id = (trkit)->theta();
-      if (sin(theta_id) != 0) e_qoverpt_id /= fabs(sin(theta_id)); //approximate
+       double e_qoverpt_id = e_qoverp_id;
+       double theta_id = (trkit)->theta();
+       if (sin(theta_id) != 0) e_qoverpt_id /= fabs(sin(theta_id)); //approximate
 
-      ATH_MSG_DEBUG( " Found track: "
-               << "  with pt (GeV) = " << pt_id / Gaudi::Units::GeV
-               << ", q    = " << q_id
-               << ", eta  = " << eta_id
-               << ", phi  = " << phi_id
-               << ", th   = " << theta_id
-               << ", ephi = " << e_phi_id
-               << ", eth  = " << e_theta_id
-               << ", eeta = " << e_eta_id
-               << ", ip   = " << qoverp_id
-               << ", eip  = " << e_qoverp_id
-               << ", eipt = " << e_qoverpt_id );
+       ATH_MSG_DEBUG( " Found track: "
+                   << "  with pt (GeV) = " << pt_id / Gaudi::Units::GeV
+                   << ", q    = " << q_id
+                   << ", eta  = " << eta_id
+                   << ", phi  = " << phi_id
+                   << ", th   = " << theta_id
+                   << ", ephi = " << e_phi_id
+                   << ", eth  = " << e_theta_id
+                   << ", eeta = " << e_eta_id
+                   << ", ip   = " << qoverp_id
+                   << ", eip  = " << e_qoverp_id
+                   << ", eipt = " << e_qoverpt_id );
 
-      if (usealgo != 3) {
+       if (usealgo != 3) {
          if ((fabs(pt_id) / Gaudi::Units::GeV) < m_PtMinTrk)       continue;
-      }
-      if (fabs(eta_id)  > m_EtaMaxTrk)      continue;
+       }
+       if (fabs(eta_id)  > m_EtaMaxTrk)      continue;
 
-      ATH_MSG_DEBUG(" Track selected " );
+       ATH_MSG_DEBUG(" Track selected " );
 
-      if (usealgo > 0) {//DeltaR match
+       if (usealgo > 0) {//DeltaR match
          // commented code (useL1) to be removed once full muon chain with MT tested
          //if (useL1) {
          //   imatch_tmp = drptMatch(ptL1, etaL1, phiL1, pt_id, eta_id, phi_id, usealgo, ptinv_tmp, ptres_tmp, deta_tmp, dphi_tmp, chi2_tmp);
          //} else {
-            imatch_tmp = drptMatch(muonSA, pt_id, eta_id, phi_id, usealgo, ptinv_tmp, ptres_tmp, deta_tmp, dphi_tmp, chi2_tmp);
+         imatch_tmp = drptMatch(muonSA, pt_id, eta_id, phi_id, usealgo, ptinv_tmp, ptres_tmp, deta_tmp, dphi_tmp, chi2_tmp);
          //}
          if (imatch_tmp == 0) has_match_tmp = true;
-      } else { //Std match
+       } else { //Std match
          if (!m_useBackExtrapolatorG4) {
-            imatch_tmp = mfMatch(muonSA, eta_id, phi_id, pt_id, q_id, ptinv_tmp, ptres_tmp, deta_tmp, dphi_tmp, chi2_tmp, ndof_tmp);
-            if (imatch_tmp == 0) has_match_tmp = true;
+           imatch_tmp = mfMatch(muonSA, eta_id, phi_id, pt_id, q_id, ptinv_tmp, ptres_tmp, deta_tmp, dphi_tmp, chi2_tmp, ndof_tmp);
+           if (imatch_tmp == 0) has_match_tmp = true;
          } else { //G4 match
-            imatch_tmp = g4Match(muonSA, eta_id, phi_id, pt_id, q_id, e_eta_id, e_phi_id, e_qoverpt_id, ptinv_tmp, ptres_tmp, deta_tmp, dphi_tmp, chi2_tmp, ndof_tmp);
-            if (imatch_tmp == 0) has_match_tmp = true;
+           imatch_tmp = g4Match(muonSA, eta_id, phi_id, pt_id, q_id, e_eta_id, e_phi_id, e_qoverpt_id, ptinv_tmp, ptres_tmp, deta_tmp, dphi_tmp, chi2_tmp, ndof_tmp);
+           if (imatch_tmp == 0) has_match_tmp = true;
          }
-      }
+       }
 
-      imatch = imatch_tmp;
-      if (!has_match_tmp) continue;
+       imatch = imatch_tmp;
+       if (!has_match_tmp) continue;
 
-      // select nearest track
-      dr_tmp = sqrt(deta_tmp * deta_tmp + dphi_tmp * dphi_tmp);
+       // select nearest track
+       dr_tmp = sqrt(deta_tmp * deta_tmp + dphi_tmp * dphi_tmp);
 
-      if (chi2_tmp <= chi2_comb) {//Select nearest track
+       if (chi2_tmp <= chi2_comb) {//Select nearest track
          has_match  = true;
          chi2_comb  = chi2_tmp;
          ndof_comb  = ndof_tmp;
@@ -762,95 +765,95 @@ StatusCode muCombMT::execute()
          best_dr    = dr_tmp;
          imatch     = imatch_tmp;
          matched_trk_idx  = matched_trk_idx_tmp;
-      }
+       }
 
-   }//Tracks loop
+     }//Tracks loop
 
-   //Set monitored quantities (monitor only pt>6 GeV/c && standard matching)
-   if (usealgo == 0 && fabs(pt) >= 6.) {
-      ptMS       = pt;
-      etaMS      = eta;
-      phiMS      = phi;
-      zetaMS     = zeta_ms;
-      ptFL       = pt;
-      etaFL      = eta;
-      phiFL      = phi;
-      if (ptMS >  100.) ptMS =  101.5;
-      if (ptMS < -100.) ptMS = -101.5;
-      if (ptFL >  100.) ptFL =  101.5;
-      if (ptFL < -100.) ptFL = -101.5;
+     //Set monitored quantities (monitor only pt>6 GeV/c && standard matching)
+     if (usealgo == 0 && fabs(pt) >= 6.) {
+       ptMS       = pt;
+       etaMS      = eta;
+       phiMS      = phi;
+       zetaMS     = zeta_ms;
+       ptFL       = pt;
+       etaFL      = eta;
+       phiFL      = phi;
+       if (ptMS >  100.) ptMS =  101.5;
+       if (ptMS < -100.) ptMS = -101.5;
+       if (ptFL >  100.) ptFL =  101.5;
+       if (ptFL < -100.) ptFL = -101.5;
+     }
+
+     if (!has_match) {
+       ErrorFlagMC = 3;
+       MatchFlagMC = imatch;
+       if (usealgo == 0 && fabs(pt) >= 6.)  efficiency = 0; //monitor only efficiency for mu6 && standard matching
+       ATH_MSG_DEBUG( " No matched ID tracks --> no match" );
+       muonCB->setErrorFlag(ErrorFlagMC);
+       muonCB->setMatchFlag(MatchFlagMC);
+       muonCBColl->push_back(muonCB);
+       return StatusCode::SUCCESS;
+     }
+
+     //Save EL to ID trk into CB muon
+     ElementLink<xAOD::TrackParticleContainer> idtrkEL(*idTrackParticles, matched_trk_idx);
+     muonCB->setIdTrackLink(idtrkEL);
+
+     double pt_id        = muonCB->idTrack()->pt();
+     double q_id         = ((muonCB->idTrack()->qOverP()) > 0 ? 1.0 : -1.0);
+     double phi_id       = muonCB->idTrack()->phi();
+     double eta_id       = muonCB->idTrack()->eta();
+     //const Trk::Perigee& idtrk_perigee = muonCB->idTrack()->perigeeParameters();
+     double zPos_id      = muonCB->idTrack()->z0(); //idtrk_perigee.parameters()[Trk::z0];
+
+     ATH_MSG_DEBUG(" SA muon macthed to ID track ..." );
+
+     //Update monitored vars
+     MatchFlagMC = imatch;
+     ptFL        = -9999.;
+     etaFL       = -9999.;
+     phiFL       = -9999.;
+     if (usealgo == 0 && fabs(pt) >= 6.) {
+       efficiency = 1;
+       ptID       = pt_id / Gaudi::Units::GeV; //in GeV/c
+       etaID      = eta_id;
+       phiID      = phi_id;
+       zetaID     = zPos_id;
+       ptMC       = 1. / (ptinv_comb * Gaudi::Units::GeV); //in GeV/c
+       dZeta      = zeta_ms - zPos_id;
+       dPhi       = best_dphi;
+       dEta       = best_deta;
+       dR         = best_dr;
+
+       if (ptMC >  100.) ptMC =  101.5;
+       if (ptMC < -100.) ptMC = -101.5;
+       if (ptID >  100.) ptID =  101.5;
+       if (ptID < -100.) ptID = -101.5;
+     }
+
+     double prt_pt = pt;
+     // commented code (useL1) to be removed once full muon chain with MT tested
+     //if (useL1) prt_pt = ptL1;
+     ATH_MSG_DEBUG( " REGTEST Combination chosen: "
+                 << " usealgo / IdPt (GeV) / muonPt (GeV) / CombPt (GeV) / chi2 / ndof: " << " / " << usealgo << " / " << pt_id*q_id / Gaudi::Units::GeV << " / " << prt_pt << " / " << 1. / ptinv_comb / Gaudi::Units::GeV << " / " << chi2_comb << " / " << ndof_comb );
+
+     muonCB->setPt(fabs(1. / ptinv_comb));
+     muonCB->setEta(eta_id);
+     muonCB->setPhi(phi_id);
+
+     float mcq = -1.0;
+     if (ptinv_comb > 0) mcq = 1.0;
+
+     muonCB->setCharge(mcq);
+
+     float mcresu = fabs(ptres_comb / (ptinv_comb * ptinv_comb));
+     ATH_MSG_DEBUG( " SigmaPt (GeV) is: " << mcresu / Gaudi::Units::GeV );
+     muonCB->setSigmaPt(mcresu);
+
+     muonCB->setErrorFlag(ErrorFlagMC);
+     muonCB->setMatchFlag(MatchFlagMC);
+
+     muonCBColl->push_back(muonCB);
    }
-
-   if (!has_match) {
-      ErrorFlagMC = 3;
-      MatchFlagMC = imatch;
-      if (usealgo == 0 && fabs(pt) >= 6.)  efficiency = 0; //monitor only efficiency for mu6 && standard matching
-      ATH_MSG_DEBUG( " No matched ID tracks --> no match" );
-      muonCB->setErrorFlag(ErrorFlagMC);
-      muonCB->setMatchFlag(MatchFlagMC);
-      muonCBColl->push_back(muonCB);
-      return StatusCode::SUCCESS;
-   }
-
-   //Save EL to ID trk into CB muon
-   ElementLink<xAOD::TrackParticleContainer> idtrkEL(*idTrackParticles, matched_trk_idx);
-   muonCB->setIdTrackLink(idtrkEL);
-
-   double pt_id        = muonCB->idTrack()->pt();
-   double q_id         = ((muonCB->idTrack()->qOverP()) > 0 ? 1.0 : -1.0);
-   double phi_id       = muonCB->idTrack()->phi();
-   double eta_id       = muonCB->idTrack()->eta();
-   //const Trk::Perigee& idtrk_perigee = muonCB->idTrack()->perigeeParameters();
-   double zPos_id      = muonCB->idTrack()->z0(); //idtrk_perigee.parameters()[Trk::z0];
-
-   ATH_MSG_DEBUG(" SA muon macthed to ID track ..." );
-
-   //Update monitored vars
-   MatchFlagMC = imatch;
-   ptFL        = -9999.;
-   etaFL       = -9999.;
-   phiFL       = -9999.;
-   if (usealgo == 0 && fabs(pt) >= 6.) {
-      efficiency = 1;
-      ptID       = pt_id / Gaudi::Units::GeV; //in GeV/c
-      etaID      = eta_id;
-      phiID      = phi_id;
-      zetaID     = zPos_id;
-      ptMC       = 1. / (ptinv_comb * Gaudi::Units::GeV); //in GeV/c
-      dZeta      = zeta_ms - zPos_id;
-      dPhi       = best_dphi;
-      dEta       = best_deta;
-      dR         = best_dr;
-
-      if (ptMC >  100.) ptMC =  101.5;
-      if (ptMC < -100.) ptMC = -101.5;
-      if (ptID >  100.) ptID =  101.5;
-      if (ptID < -100.) ptID = -101.5;
-   }
-
-   double prt_pt = pt;
-   // commented code (useL1) to be removed once full muon chain with MT tested
-   //if (useL1) prt_pt = ptL1;
-   ATH_MSG_DEBUG( " REGTEST Combination chosen: "
-         << " usealgo / IdPt (GeV) / muonPt (GeV) / CombPt (GeV) / chi2 / ndof: "
-         << " / " << usealgo << " / " << pt_id*q_id / Gaudi::Units::GeV << " / " << prt_pt << " / " << 1. / ptinv_comb / Gaudi::Units::GeV << " / " << chi2_comb << " / " << ndof_comb );
-
-   muonCB->setPt(fabs(1. / ptinv_comb));
-   muonCB->setEta(eta_id);
-   muonCB->setPhi(phi_id);
-
-   float mcq = -1.0;
-   if (ptinv_comb > 0) mcq = 1.0;
-
-   muonCB->setCharge(mcq);
-
-   float mcresu = fabs(ptres_comb / (ptinv_comb * ptinv_comb));
-   ATH_MSG_DEBUG( " SigmaPt (GeV) is: " << mcresu / Gaudi::Units::GeV );
-   muonCB->setSigmaPt(mcresu);
-
-   muonCB->setErrorFlag(ErrorFlagMC);
-   muonCB->setMatchFlag(MatchFlagMC);
-
-   muonCBColl->push_back(muonCB);
    return StatusCode::SUCCESS;
 }
