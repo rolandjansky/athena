@@ -24,13 +24,15 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
-
+#include "StoreGate/ReadCondHandleKey.h"
+#include "MuonCablingData/MuonMDT_CablingMap.h"
 class RegSelSiLUT;
-class MuonMDT_CablingSvc;
 #include <iostream>
 #include <string>
 
-
+namespace MuonGM{
+    class MuonDetectorManager;
+}
 
 
 class MDT_RegionSelectorTable : public AthAlgTool, virtual public IRegionIDLUT_Creator {
@@ -42,17 +44,16 @@ public:
 			   const IInterface*);
   virtual ~MDT_RegionSelectorTable();
 
-  StatusCode initialize();
-  StatusCode finalize();
-  
-  virtual RegSelSiLUT* getLUT();
+  StatusCode initialize() override; 
+  StatusCode finalize() override;
+  virtual RegSelSiLUT* getLUT() override;
 
 private:
   
-  StatusCode createTable();
-  
-  RegSelSiLUT*   m_regionLUT;
-  ServiceHandle<MuonMDT_CablingSvc> m_mdtCabling;
+  void createTable();
+  const MuonGM::MuonDetectorManager* m_detMgr{nullptr};
+  std::unique_ptr<RegSelSiLUT>   m_regionLUT;
+  SG::ReadCondHandleKey<MuonMDT_CablingMap> m_cablingKey{this, "MDTCablingKey", "MuonMDT_CablingMap", "Key of output MDT cabling map"};
 };
 
 
