@@ -261,7 +261,8 @@ class CVFClusterInputConfig(AlgInputConfig):
             OutputCVFKey="CVF",
             TrackSelectionTool=InDet__InDetTrackSelectionTool(CutLevel="TightPrimary"),
             TVATool=CP__TrackVertexAssociationTool(
-                WorkingPoint="Custom", d0_cut=2.0, dzSinTheta_cut=2.0
+                WorkingPoint="Custom", d0_cut=2.0, dzSinTheta_cut=2.0,
+                TrackContName = inputs["Tracks"],
             ),
             ExtensionTool=ApproximateTrackToLayerTool(),
         )
