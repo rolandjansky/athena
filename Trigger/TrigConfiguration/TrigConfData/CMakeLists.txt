@@ -13,25 +13,14 @@ endif()
 find_package( Boost )
 find_package( CORAL QUIET COMPONENTS RelationalAccess )
 
-# athena library for the package:
-# defines CLID for some data objects
+# Component(s) in the package:
 atlas_add_library ( TrigConfData
                     TrigConfData/*.h src/*.cxx
                     PUBLIC_HEADERS TrigConfData
-                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
-                    LINK_LIBRARIES ${Boost_LIBRARIES} ${extra_libs} CxxUtils
-                    )
-
-# standalone library for use by detector software:
-# no Athena / Gaudi dependency
-atlas_add_library ( TrigConfDataSA
-                    TrigConfData/*.h src/*.cxx
-                    PUBLIC_HEADERS TrigConfData
                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                    LINK_LIBRARIES ${Boost_LIBRARIES}
-                    DEFINITIONS -DTRIGCONF_STANDALONE
-                    )
+                    LINK_LIBRARIES ${Boost_LIBRARIES} ${extra_libs} CxxUtils )
 
+# Tests in the package:
 atlas_add_test( ConstIter SOURCES test/itertest.cxx
                 LINK_LIBRARIES TrigConfData
                 POST_EXEC_SCRIPT nopost.sh )

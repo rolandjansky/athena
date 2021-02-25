@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigConfIO )
@@ -18,19 +18,9 @@ atlas_add_library( TrigConfIO
   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} nlohmann_json::nlohmann_json -lstdc++fs
   )
 
-atlas_add_library( TrigConfIOSA
-  TrigConfIO/*.h src/*.cxx
-  PUBLIC_HEADERS TrigConfIO
+atlas_add_executable( TestTriggerMenuAccess utils/TestTriggerMenuAccess.cxx
   INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-  PRIVATE_INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-  LINK_LIBRARIES TrigConfDataSA TrigConfBase
-  DEFINITIONS -DTRIGCONF_STANDALONE
-  PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} nlohmann_json::nlohmann_json -lstdc++fs
-  )
-
-atlas_add_executable( TestTriggerMenuAccess utils/TestTriggerMenuAccess.cxx 
-  INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-  LINK_LIBRARIES ${Boost_LIBRARIES} TrigConfDataSA TrigConfIOSA
+  LINK_LIBRARIES ${Boost_LIBRARIES} TrigConfData TrigConfIO
   )
 
 atlas_add_executable( TriggerMenuRW utils/TriggerMenuRW.cxx 
