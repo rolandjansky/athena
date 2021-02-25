@@ -1374,24 +1374,25 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 
-def hltCaloCellMakerCfg(flags, FS=False, roisKey='UNSPECIFIED'):
+def hltCaloCellMakerCfg(flags, name=None, roisKey='UNSPECIFIED'):
     acc = ComponentAccumulator()
-    from TrigT2CaloCommon.TrigCaloDataAccessConfig import trigCaloDataAccessSvcCfg
+    from TrigT2CaloCommon.TrigCaloDataAccessConfig import trigCaloDataAccessSvcCfg, CaloDataAccessSvcDependencies
     acc.merge(trigCaloDataAccessSvcCfg(flags))
 
-    cellMaker = CompFactory.HLTCaloCellMaker('HLTCaloCellMaker'+ ('FS' if FS else 'RoI'),
+    cellMaker = CompFactory.HLTCaloCellMaker(name,
                                              CellsName='CaloCells',
-                                             TrigDataAccessMT=acc.getService('TrigCaloDataAccessSvc'),
-                                             monitorCells=True,
-                                             ExtraInputs=[('TileEMScale', 'ConditionStore+TileEMScale'),
-                                                          ('TileBadChannels', 'ConditionStore+TileBadChannels'),
-                                                          ('LArOnOffIdMapping', 'ConditionStore+LArOnOffIdMap')], # TODO check if this depends on data/MC
+                                             TrigDataAccessMT = acc.getService('TrigCaloDataAccessSvc'),
+                                             monitorCells = True,
+                                             ExtraInputs = CaloDataAccessSvcDependencies+
+                                                          [('TileEMScale', 'ConditionStore+TileEMScale'),
+                                                           ('TileBadChannels', 'ConditionStore+TileBadChannels'),
+                                                           ('LArOnOffIdMapping', 'ConditionStore+LArOnOffIdMap')], # TODO check if this depends on data/MC
                                              RoIs=roisKey)
 
     acc.addEventAlgo(cellMaker)
     return acc
 
-def hltTopoClusterMakerCfg(flags, FS=False):
+def hltTopoClusterMakerCfg(flags, name=None, clustersKey=None):
     acc = ComponentAccumulator()
     from CaloRec.CaloTopoClusterConfig import CaloTopoClusterToolCfg, CaloTopoClusterSplitterToolCfg
     topoMaker = acc.popToolsAndMerge(CaloTopoClusterToolCfg(flags, cellsname='CaloCells'))
@@ -1436,17 +1437,19 @@ def hltTopoClusterMakerCfg(flags, FS=False):
                                 'AVG_TILE_Q'
                                 ]
     from TrigEDMConfig.TriggerEDMRun3 import recordable
-    alg = CompFactory.TrigCaloClusterMakerMT('TrigCaloClusterMaker_topo'+('FS' if FS else 'RoI'),
+    alg = CompFactory.TrigCaloClusterMakerMT(name,
                                              Cells = 'CaloCells',
-                                             CaloClusters=recordable('HLT_TopoCaloClustersRoI'),
+                                             CaloClusters=recordable(clustersKey),
                                              ClusterMakerTools = [ topoMaker, topoSplitter, topoMoments] # moments are missing yet
                                             )
+    from CaloTools.CaloNoiseCondAlgConfig import CaloNoiseCondAlgCfg
+    acc.merge(CaloNoiseCondAlgCfg(flags))
     acc.addEventAlgo(alg)
     return acc
 
 
-def hltCaloTopoClusteringCfg(flags, FS=False, roisKey='UNSPECIFIED'):
+def hltCaloTopoClusteringCfg(flags, namePrefix=None, roisKey='UNSPECIFIED', clustersKey='HLT_TopoCaloClustersRoI'):
     acc = ComponentAccumulator()
-    acc.merge(hltCaloCellMakerCfg(flags, FS=FS, roisKey=roisKey))
-    acc.merge(hltTopoClusterMakerCfg(flags, FS=FS))
+    acc.merge(hltCaloCellMakerCfg(flags, namePrefix+"HLTCaloCellMaker", roisKey=roisKey))
+    acc.merge(hltTopoClusterMakerCfg(flags, namePrefix+'TrigCaloClusterMaker_topo', clustersKey=clustersKey))
     return acc
