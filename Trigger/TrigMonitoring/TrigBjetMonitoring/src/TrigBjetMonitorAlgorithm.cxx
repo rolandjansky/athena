@@ -15,8 +15,6 @@
 #include "xAODBTagging/BTaggingContainer.h"
 #include "xAODBTagging/BTagging.h"
 
-#include "EventPrimitives/EventPrimitivesHelpers.h"
-
 #include "Particle/TrackParticleContainer.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 

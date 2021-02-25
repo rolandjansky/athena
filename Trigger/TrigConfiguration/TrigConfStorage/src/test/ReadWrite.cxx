@@ -24,12 +24,8 @@
 
 #include "TrigConfStorage/StorageMgr.h"
 #include "TrigConfStorage/XMLStorageMgr.h"
-
-#include "TrigConfStorage/TrigConfCoolWriter.h"
-
 #include "TrigConfStorage/DBLoader.h"
 #include "TrigConfStorage/IStorageMgr.h"
-#include "TrigConfStorage/StorageMgr.h"
 #include "TrigConfStorage/IHLTFrameLoader.h"
 #include "TrigConfStorage/TrigConfCoolWriter.h"
 #include "TrigConfStorage/MCKLoader.h"

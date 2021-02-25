@@ -31,8 +31,6 @@
 
 #include "MuonRecToolInterfaces/IMuonCombinePatternTool.h"
 
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
-
 #include "RPC_CondCabling/RpcCablingCondData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 

@@ -28,9 +28,6 @@
 #include "TrigDecisionTool/FeatureContainer.h"
 #include "TrigDecisionTool/ChainGroup.h"
 
-#include "TrigDecisionTool/Logger.h"
-
-
 #if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
 #include "TrigNavigation/NavigationCore.h"
 #include "AthenaKernel/SlotSpecificObj.h"

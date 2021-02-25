@@ -27,7 +27,6 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 #include "AthLinks/ElementLink.h"
 #include "DataModelAthenaPool/ElementLinkCnv_p3.h"
-#include "DataModelAthenaPool/ElementLinkCnv_p3.h"
 
 
 class MsgStream;

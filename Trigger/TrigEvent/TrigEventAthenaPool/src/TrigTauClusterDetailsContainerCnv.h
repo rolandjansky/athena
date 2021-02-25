@@ -9,7 +9,6 @@
 #include "GaudiKernel/MsgStream.h"
  
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
-#include "TrigCaloEvent/TrigTauClusterDetailsContainer.h"
 
 #include "TrigCaloEvent/TrigTauClusterDetailsContainer.h"
 #include "TrigCaloEventTPCnv/TrigTauClusterDetailsContainer_p2.h"

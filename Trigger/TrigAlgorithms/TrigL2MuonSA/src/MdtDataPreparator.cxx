@@ -22,7 +22,6 @@
 #include "xAODTrigMuon/TrigMuonDefs.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
 #include "MuonCablingData/MdtAmtMap.h"
 #include "MuonCablingData/MdtRODMap.h"

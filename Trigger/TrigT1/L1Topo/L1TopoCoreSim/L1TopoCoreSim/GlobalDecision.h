@@ -14,7 +14,6 @@
 #include "TrigConfData/L1Connector.h"
 
 #include <iostream>
-#include <vector>
 #include <set>
 #include <string>
 #include <vector>

@@ -11,7 +11,6 @@
 #include "TrigConfHLTData/HLTSequenceList.h"
 #include "TrigConfHLTData/HLTPrescaleSet.h"
 
-#include <iostream>
 #include <map>
 #include <vector>
 #include <string>

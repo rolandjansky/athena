@@ -15,7 +15,6 @@
 #include "TrigStorageDefinitions/EDM_TypeInfo.h"
 
 #include "TrigSerializeCnvSvc/TrigStreamAddress.h"
-#include "Particle/TrackParticleContainer.h"
 
 #include "TrigNavigation/TriggerElement.h"
 
@@ -26,12 +25,6 @@
 #include "TrigMissingEtEvent/TrigMissingETContainer.h"
 #include "xAODTrigMissingET/TrigMissingETContainer.h"
 #include "xAODTrigMissingET/TrigMissingETAuxContainer.h"
-
-// #include "TrigParticle/TrigPhotonContainer.h"
-// #include "xAODTrigEgamma/TrigPhotonContainer.h"
-// #include "xAODTrigEgamma/TrigPhotonAuxContainer.h"
-
-#include "TrigNavigation/Holder.h"
 
 #include "TrigCaloEvent/TrigCaloClusterContainer.h"
 #include "TrigCaloEvent/TrigEMClusterContainer.h"
@@ -87,8 +80,6 @@
 
 #include "TrkTrack/TrackCollection.h"
 #include "Particle/TrackParticleContainer.h"
-#include "xAODTracking/TrackParticleContainer.h"
-#include "xAODTracking/TrackParticleAuxContainer.h"
 
 #include "tauEvent/TauJetContainer.h"
 #include "xAODTau/TauJetContainer.h"

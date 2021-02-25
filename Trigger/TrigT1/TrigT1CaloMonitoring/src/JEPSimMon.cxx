@@ -29,7 +29,6 @@
 #include "xAODTrigL1Calo/RODHeaderContainer.h"
 
 #include "xAODTrigL1Calo/TriggerTowerAuxContainer.h"
-#include "xAODTrigL1Calo/JetElementAuxContainer.h"
 #include "xAODTrigL1Calo/CMXJetTobAuxContainer.h"
 #include "xAODTrigL1Calo/CMXJetHitsAuxContainer.h"
 #include "xAODTrigL1Calo/JEMEtSumsAuxContainer.h"
