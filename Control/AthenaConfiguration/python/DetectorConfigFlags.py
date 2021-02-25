@@ -110,8 +110,6 @@ def createDetectorConfigFlags():
 
     ## Detector.Enable* flags (currently) represent the default full geometry,
     ## autoconfigured from the geometry tag
-    dcf.addFlag('Detector.EnableBpipe', True)
-
     # Inner Detector
     dcf.addFlag('Detector.EnableBCM',   lambda prevFlags : DetDescrInfo(prevFlags.GeoModel.AtlasVersion)['Pixel']['Layout'] != 'SLHC')
     dcf.addFlag('Detector.EnableDBM',   lambda prevFlags : DetDescrInfo(prevFlags.GeoModel.AtlasVersion)['Pixel']['DBM'])
@@ -157,9 +155,6 @@ def createDetectorConfigFlags():
     dcf.addFlag('Detector.EnableForward',   lambda prevFlags : (prevFlags.Detector.EnableLucid or prevFlags.Detector.EnableZDC or
                                                                 prevFlags.Detector.EnableALFA or prevFlags.Detector.EnableAFP or
                                                                 prevFlags.Detector.EnableFwdRegion))
-
-    # Cavern (disabled by default)
-    dcf.addFlag('Detector.EnableCavern', False)
 
 
     #Detector.Simulate
@@ -285,3 +280,60 @@ def createDetectorConfigFlags():
     dcf.addFlag('Detector.RecoITk',    lambda prevFlags : (prevFlags.Detector.RecoITkPixel or prevFlags.Detector.RecoITkStrip or prevFlags.Detector.RecoBCMPrime))
 
     return dcf
+
+
+def setupDetectorsFromList(flags, detectors, toggle_geometry=False, validate_only=False):
+    """Enable detectors from a pre-defined list"""
+    changed = False
+    # setup logging
+    from AthenaCommon.Logging import logging
+    log = logging.getLogger('DetectorConfigFlags')
+    # load flags
+    flags._loadDynaFlags('Detector')
+    # first check if we have groups
+    groups = [d for d in detectors if d in allGroups.keys()]
+    detectors = [d for d in detectors if d not in allGroups.keys()]
+    for g in groups:
+        log.debug("Evaluating detector group '%s'", g)
+        for d in allGroups[g]:
+            # in case of groups only take the defaults from geometry
+            # TODO: for now from Enable
+            if flags.hasFlag(f'Detector.Enable{d}') and flags(f'Detector.Enable{d}'):
+                log.debug("Appending detector '%s'", d)
+                detectors.append(d)
+
+    # print summary
+    if validate_only:
+        log.info('Required detectors: %s', detectors)
+    else:
+        log.info('Setting detectors to: %s', detectors)
+
+    # check if valid detectors are required
+    for d in detectors:
+        if d not in allDetectors:
+            log.warning("Unknown detector '%s'", d)
+
+    # go through all of the detectors and check what should happen
+    for d in allDetectors:
+        status = d in detectors
+        name = f'Detector.Enable{d}'
+        if flags.hasFlag(name):
+            if flags(name) != status:
+                changed = True
+                if validate_only:
+                    log.warning("Flag '%s' should be %s but is set to %s", name, status, not status)
+                else:
+                    log.info("Toggling '%s' from %s to %s", name, not status, status)
+                    flags._set(name, status)
+        if toggle_geometry:
+            name = f'Detector.Geometry{d}'
+            if flags.hasFlag(name):
+                if flags(name) != status:
+                    changed = True
+                    if validate_only:
+                        log.warning("Flag '%s' should be %s but is set to %s", name, status, not status)
+                    else:
+                        log.info("Toggling '%s' from %s to %s", name, not status, status)
+                        flags._set(name, status)
+
+    return changed

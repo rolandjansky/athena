@@ -357,13 +357,16 @@ class AthConfigFlags(object):
             self._dynaflags[fullName] = loader
         return
 
-    def dump(self, pattern=".*"):
+    def dump(self, pattern=".*", evaluate=False):
         import re
         compiled = re.compile(pattern)
         print("{:40} : {}".format( "Flag Name","Value" ) )
         for name in sorted(self._flagdict):
             if compiled.match(name):
-                print("{:40} : {}".format( name, repr(self._flagdict[name] ) ) )
+                if evaluate:
+                    print("{:40} : {}".format( name, self._flagdict[name].get(self) ) )
+                else:
+                    print("{:40} : {}".format( name, repr(self._flagdict[name] ) ) )
 
         if len(self._dynaflags) == 0:
             return

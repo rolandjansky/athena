@@ -35,3 +35,15 @@ for tag in test_tags:
     assert flags.Detector.EnableCSC == (tag in ['ATLAS-R1-2012-03-01-00', 'ATLAS-R2-2016-01-00-01'])
     assert flags.Detector.EnablesTGC == (tag in ['ATLAS-R3S-2021-01-00-01', 'ATLAS-P2-ITK-23-00-03'])
     assert flags.Detector.EnableMM == (tag in ['ATLAS-R3S-2021-01-00-01', 'ATLAS-P2-ITK-23-00-03'])
+
+# test setup for Run 2
+flags = flags_runs['ATLAS-R2-2016-01-00-01']
+
+assert not setupDetectorsFromList(flags, ['ID', 'Calo', 'Muon'], validate_only=True)
+print()
+assert setupDetectorsFromList(flags, ['Muon'], validate_only=True)
+print()
+assert setupDetectorsFromList(flags, ['Muon'])
+print()
+assert setupDetectorsFromList(flags, ['ID'], toggle_geometry=True)
+print()
