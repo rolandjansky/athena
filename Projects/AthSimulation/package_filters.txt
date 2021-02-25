@@ -72,7 +72,6 @@
 + Database/AthenaPOOL/AthenaPoolCnvSvc
 + Database/AthenaPOOL/AthenaPoolServices
 + Database/AthenaPOOL/AthenaPoolUtilities
-+ Database/AthenaPOOL/DBDataModel
 + Database/AthenaPOOL/EventSelectorAthenaPool
 + Database/AthenaPOOL/OutputStreamAthenaPool
 + Database/AthenaPOOL/PoolSvc

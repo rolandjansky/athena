@@ -21,7 +21,7 @@ atlas_add_component( RegistrationServices
                      src/OutputConditionsAlg.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${COOL_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities CollectionBase DBDataModel FileCatalog IOVDbSvcLib PersistentDataModel PoolSvcLib RegistrationServicesLib SGTools StoreGateLib )
+                     LINK_LIBRARIES ${COOL_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities CollectionBase FileCatalog IOVDbSvcLib PersistentDataModel PoolSvcLib RegistrationServicesLib SGTools StoreGateLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

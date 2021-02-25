@@ -11,7 +11,7 @@ atlas_add_component( AthenaPoolMultiTest
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps AthenaPoolExampleData AthenaPoolTestData AthenaPoolUtilities DBDataModel GaudiKernel GoodRunsListsLib PersistentDataModel SGTools StoreGateLib xAODEventInfo )
+                     LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps AthenaPoolExampleData AthenaPoolTestData AthenaPoolUtilities GaudiKernel GoodRunsListsLib PersistentDataModel SGTools StoreGateLib xAODEventInfo )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

@@ -12,8 +12,6 @@
 #include "GoodRunsLists/TGoodRunsListReader.h"
 #include "xAODLuminosity/SortLumiBlockRangeByStart.h"
 
-#include "DBDataModel/CollectionMetadata.h"
-
 #include "GoodRunsLists/TGoodRunsList.h"
 
 #include "TROOT.h"
