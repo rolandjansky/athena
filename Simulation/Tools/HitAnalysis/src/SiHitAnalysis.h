@@ -64,6 +64,7 @@ class SiHitAnalysis : public AthAlgorithm {
    std::string m_path;
    ServiceHandle<ITHistSvc>  m_thistSvc;
    bool m_isITK;
+   bool m_isHGTD;
 
 };
 
