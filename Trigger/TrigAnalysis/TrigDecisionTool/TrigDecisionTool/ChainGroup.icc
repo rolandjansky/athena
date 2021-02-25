@@ -36,12 +36,7 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
   // We always want to search from the passed raw terminus node to find features for passed chains.
   const TrigCompositeUtils::Decision* terminusNode = nullptr;
   if (!errState) {
-    for (const TrigCompositeUtils::Decision* decision : *navigationSummaryRH) {
-      if (decision->name() == "HLTPassRaw") {
-        terminusNode = decision;
-        break;
-      }
-    }
+    terminusNode = TrigCompositeUtils::getTerminusNode(navigationSummaryRH);
     if (terminusNode == nullptr) {
       ATH_MSG_ERROR("Unable to locate HLTPassRaw element of HLTNav_Summary");
       errState = true;

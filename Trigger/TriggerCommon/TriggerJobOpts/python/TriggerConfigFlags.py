@@ -127,8 +127,8 @@ def createTriggerFlags():
             elif "TrigNavigation" in flags.Input.Collections:
                 _log.info("Determined EDMVersion to be 2, because TrigNavigation found in POOL file")
                 return 2
-            elif "HLTNav_Summary" in flags.Input.Collections:
-                _log.info("Determined EDMVersion to be 3, because HLTNav_Summary found in POOL file")
+            elif any("HLTNav_Summary" in s for s in flags.Input.Collections):
+                _log.info("Determined EDMVersion to be 3, because HLTNav_Summary.* found in POOL file")
                 return 3
 
         _log.warning("Could not determine EDM version from the input file. Return default EDMVersion=%d",

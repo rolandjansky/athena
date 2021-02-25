@@ -77,8 +77,10 @@ int main ATLAS_NOT_THREAD_SAFE () {
   // In the following 
   //    F = Filter
   //    IM = Input Maker
-  //    H = Hypo
-  //    CH = CombinedHypo
+  //    H = HypoAlg
+  //    CH = ComboHypoAlg
+  //    SF = Summary Maker Filter (passed chains)
+  //    HLTPassRaw = Summary Maker Terminus Node (passed chains)
 
   constexpr unsigned HLT_mufast_chain = 1;
   constexpr unsigned HLT_mu_chain = 2;
@@ -93,12 +95,12 @@ int main ATLAS_NOT_THREAD_SAFE () {
 
 
   // Starting nodes
-  Decision* MU0 = newDecisionIn(decisionContainerPtr, "MU0");
-  Decision* MU1 = newDecisionIn(decisionContainerPtr, "MU1");
-  Decision* EM0 = newDecisionIn(decisionContainerPtr, "EM0");
+  Decision* MU0 = newDecisionIn(decisionContainerPtr, l1DecoderNodeName());
+  Decision* MU1 = newDecisionIn(decisionContainerPtr, l1DecoderNodeName());
+  Decision* EM0 = newDecisionIn(decisionContainerPtr, l1DecoderNodeName());
 
   // Terminus node
-  Decision* END = newDecisionIn(decisionContainerPtr, "HLTPassRaw"); // This name is important
+  Decision* END = newDecisionIn(decisionContainerPtr, summaryPassNodeName()); // This name is important
   ElementLink<DecisionContainer> end_link(*decisionContainerPtr, decisionContainerPtr->size() - 1, ctx1);
 
   // First muon ROI
@@ -143,29 +145,29 @@ int main ATLAS_NOT_THREAD_SAFE () {
     addDecisionID(HLT_mu_chain, MU0);
     addDecisionID(HLT_mu_em_chain, MU0);
 
-    Decision* MU_F_1__MU0 = newDecisionIn(decisionContainerPtr, "MU_F_1__MU0");
+    Decision* MU_F_1__MU0 = newDecisionIn(decisionContainerPtr, filterNodeName());
     linkToPrevious(MU_F_1__MU0, MU0);
     addDecisionID(HLT_mufast_chain, MU_F_1__MU0);
     addDecisionID(HLT_mu_chain, MU_F_1__MU0);
 
-    Decision* MUEM_F_1__MU0 = newDecisionIn(decisionContainerPtr, "MUEM_F_1__MU0");
+    Decision* MUEM_F_1__MU0 = newDecisionIn(decisionContainerPtr, filterNodeName());
     linkToPrevious(MUEM_F_1__MU0, MU0);
     addDecisionID(HLT_mu_em_chain, MUEM_F_1__MU0);
 
-    Decision* MU_IM_1__MU0 = newDecisionIn(decisionContainerPtr, "MU_IM_1__MU0");
+    Decision* MU_IM_1__MU0 = newDecisionIn(decisionContainerPtr, inputMakerNodeName());
     linkToPrevious(MU_IM_1__MU0, MU_F_1__MU0);
     linkToPrevious(MU_IM_1__MU0, MUEM_F_1__MU0);
     addDecisionID(HLT_mufast_chain, MU_IM_1__MU0);
     addDecisionID(HLT_mu_chain, MU_IM_1__MU0);
     addDecisionID(HLT_mu_em_chain, MU_IM_1__MU0);
 
-    Decision* MU_H_1__MU0 = newDecisionIn(decisionContainerPtr, "MU_H_1__MU0");
+    Decision* MU_H_1__MU0 = newDecisionIn(decisionContainerPtr, hypoAlgNodeName());
     linkToPrevious(MU_H_1__MU0, MU_IM_1__MU0);
     MU_H_1__MU0->setObjectLink<xAOD::MuonContainer>(featureString(), rec_1__mu0_link);
     // Fails HLT_mufast_chain
     // Fails HLT_mu_chain
 
-    Decision* MUEM_CH_1__MU0 = newDecisionIn(decisionContainerPtr, "MUEM_CH_1__MU0");
+    Decision* MUEM_CH_1__MU0 = newDecisionIn(decisionContainerPtr, comboHypoAlgNodeName());
     linkToPrevious(MUEM_CH_1__MU0, MU_H_1__MU0);
     // Note: Combo hypo does not re-link to feature.
     // Fails HLT_mu_em_chain
@@ -182,74 +184,74 @@ int main ATLAS_NOT_THREAD_SAFE () {
     addDecisionID(HLT_mu_chain, MU1);
     addDecisionID(HLT_mu_em_chain, MU1);
 
-    Decision* MU_F_1__MU1 = newDecisionIn(decisionContainerPtr, "MU_F_1__MU1");
+    Decision* MU_F_1__MU1 = newDecisionIn(decisionContainerPtr, filterNodeName());
     linkToPrevious(MU_F_1__MU1, MU1);
     addDecisionID(HLT_mufast_chain, MU_F_1__MU1);
     addDecisionID(HLT_mu_chain, MU_F_1__MU1);
 
-    Decision* MUEM_F_1__MU1 = newDecisionIn(decisionContainerPtr, "MUEM_F_1__MU1");
+    Decision* MUEM_F_1__MU1 = newDecisionIn(decisionContainerPtr, filterNodeName());
     linkToPrevious(MUEM_F_1__MU1, MU1);
     addDecisionID(HLT_mu_em_chain, MUEM_F_1__MU1);
 
-    Decision* MU_IM_1__MU1 = newDecisionIn(decisionContainerPtr, "MU_IM_1__MU1");
+    Decision* MU_IM_1__MU1 = newDecisionIn(decisionContainerPtr, inputMakerNodeName());
     linkToPrevious(MU_IM_1__MU1, MU_F_1__MU1);
     linkToPrevious(MU_IM_1__MU1, MUEM_F_1__MU1);
     addDecisionID(HLT_mufast_chain, MU_IM_1__MU1);
     addDecisionID(HLT_mu_chain, MU_IM_1__MU1);
     addDecisionID(HLT_mu_em_chain, MU_IM_1__MU1);
 
-    Decision* MU_H_1__MU1 = newDecisionIn(decisionContainerPtr, "MU_H_1__MU1");
+    Decision* MU_H_1__MU1 = newDecisionIn(decisionContainerPtr, hypoAlgNodeName());
     linkToPrevious(MU_H_1__MU1, MU_IM_1__MU1);
     MU_H_1__MU1->setObjectLink<xAOD::MuonContainer>(featureString(), rec_1__mu1_link);
     addDecisionID(HLT_mufast_chain, MU_H_1__MU1);
     addDecisionID(HLT_mu_chain, MU_H_1__MU1);
     addDecisionID(HLT_mu_em_chain, MU_H_1__MU1);
     // HLT_mufast_chain passes the event
-    Decision* MU_ENDF_H_1__MU1 = newDecisionIn(decisionContainerPtr, "MU_ENDF_H_1__MU1");
-    addDecisionID(HLT_mufast_chain, MU_ENDF_H_1__MU1);
+    Decision* MU_SUMF_H_1__MU1 = newDecisionIn(decisionContainerPtr, summaryFilterNodeName());
+    addDecisionID(HLT_mufast_chain, MU_SUMF_H_1__MU1);
     addDecisionID(HLT_mufast_chain, END);
-    linkToPrevious(MU_ENDF_H_1__MU1, MU_H_1__MU1);
-    linkToPrevious(END, MU_ENDF_H_1__MU1);
+    linkToPrevious(MU_SUMF_H_1__MU1, MU_H_1__MU1);
+    linkToPrevious(END, MU_SUMF_H_1__MU1);
 
-    Decision* MUEM_CH_1__MU1 = newDecisionIn(decisionContainerPtr, "MUEM_CH_1__MU1");
+    Decision* MUEM_CH_1__MU1 = newDecisionIn(decisionContainerPtr, comboHypoAlgNodeName());
     linkToPrevious(MUEM_CH_1__MU1, MU_H_1__MU1);
     addDecisionID(HLT_mu_em_chain, MUEM_CH_1__MU1);
 
-    Decision* MU_F_2__MU1 = newDecisionIn(decisionContainerPtr, "MU_F_2__MU1");
+    Decision* MU_F_2__MU1 = newDecisionIn(decisionContainerPtr, filterNodeName());
     linkToPrevious(MU_F_2__MU1, MU_H_1__MU1);
     addDecisionID(HLT_mu_chain, MU_F_2__MU1);
 
-    Decision* MUEM_F_2__MU1 = newDecisionIn(decisionContainerPtr, "MUEM_F_2__MU1");
+    Decision* MUEM_F_2__MU1 = newDecisionIn(decisionContainerPtr, filterNodeName());
     linkToPrevious(MUEM_F_2__MU1, MUEM_CH_1__MU1);
     addDecisionID(HLT_mu_em_chain, MUEM_F_2__MU1);
 
-    Decision* MU_IM_2__MU1 = newDecisionIn(decisionContainerPtr, "MU_IM_2__MU1");
+    Decision* MU_IM_2__MU1 = newDecisionIn(decisionContainerPtr, inputMakerNodeName());
     linkToPrevious(MU_IM_2__MU1, MU_F_2__MU1);
     linkToPrevious(MU_IM_2__MU1, MUEM_F_2__MU1);
     addDecisionID(HLT_mu_chain, MU_IM_2__MU1);
     addDecisionID(HLT_mu_em_chain, MU_IM_2__MU1);
 
-    Decision* MU_H_2__MU1 = newDecisionIn(decisionContainerPtr, "MU_H_2__MU1");
+    Decision* MU_H_2__MU1 = newDecisionIn(decisionContainerPtr, hypoAlgNodeName());
     linkToPrevious(MU_H_2__MU1, MU_IM_2__MU1);
     MU_H_2__MU1->setObjectLink<xAOD::MuonContainer>(featureString(), rec_2__mu1_link);
     addDecisionID(HLT_mu_chain, MU_H_2__MU1);
     addDecisionID(HLT_mu_em_chain, MU_H_2__MU1);
     // HLT_mu_chain passes the event
-    Decision* MU_ENDF_H_2__MU1 = newDecisionIn(decisionContainerPtr, "MU_ENDF_H_2__MU1");
-    addDecisionID(HLT_mu_chain, MU_ENDF_H_2__MU1);
+    Decision* MU_SUMF_H_2__MU1 = newDecisionIn(decisionContainerPtr, summaryFilterNodeName());
+    addDecisionID(HLT_mu_chain, MU_SUMF_H_2__MU1);
     addDecisionID(HLT_mu_chain, END);
-    linkToPrevious(MU_ENDF_H_2__MU1, MU_H_2__MU1);
-    linkToPrevious(END, MU_ENDF_H_2__MU1);
+    linkToPrevious(MU_SUMF_H_2__MU1, MU_H_2__MU1);
+    linkToPrevious(END, MU_SUMF_H_2__MU1);
 
-    Decision* MUEM_CH_2__MU1 = newDecisionIn(decisionContainerPtr, "MUEM_CH_2__MU1");
+    Decision* MUEM_CH_2__MU1 = newDecisionIn(decisionContainerPtr, comboHypoAlgNodeName());
     linkToPrevious(MUEM_CH_2__MU1, MU_H_2__MU1);
     addDecisionID(HLT_mu_em_chain, MUEM_CH_2__MU1);
     // HLT_mu_em_chain passes the event
-    Decision* MU_ENDF_CH_2__MU1 = newDecisionIn(decisionContainerPtr, "MU_ENDF_CH_2__MU1");
-    addDecisionID(HLT_mu_em_chain, MU_ENDF_CH_2__MU1);
+    Decision* MU_SUMF_CH_2__MU1 = newDecisionIn(decisionContainerPtr, summaryFilterNodeName());
+    addDecisionID(HLT_mu_em_chain, MU_SUMF_CH_2__MU1);
     addDecisionID(HLT_mu_em_chain, END);
-    linkToPrevious(MU_ENDF_CH_2__MU1, MUEM_CH_2__MU1);
-    linkToPrevious(END, MU_ENDF_CH_2__MU1);
+    linkToPrevious(MU_SUMF_CH_2__MU1, MUEM_CH_2__MU1);
+    linkToPrevious(END, MU_SUMF_CH_2__MU1);
   }
 
 
@@ -262,65 +264,70 @@ int main ATLAS_NOT_THREAD_SAFE () {
     addDecisionID(HLT_em_chain, EM0);
     addDecisionID(HLT_mu_em_chain, EM0);
 
-    Decision* EM_F_1__EM0 = newDecisionIn(decisionContainerPtr, "EM_F_1__EM0");
+    Decision* EM_F_1__EM0 = newDecisionIn(decisionContainerPtr, filterNodeName());
     linkToPrevious(EM_F_1__EM0, EM0);
     addDecisionID(HLT_em_chain, EM_F_1__EM0);
 
-    Decision* MUEM_F_1__EM0 = newDecisionIn(decisionContainerPtr, "MUEM_F_1__EM0");
+    Decision* MUEM_F_1__EM0 = newDecisionIn(decisionContainerPtr, filterNodeName());
     linkToPrevious(MUEM_F_1__EM0, EM0);
     addDecisionID(HLT_mu_em_chain, MUEM_F_1__EM0);
 
-    Decision* EM_IM_1__EM0 = newDecisionIn(decisionContainerPtr, "EM_IM_1__EM0");
+    Decision* EM_IM_1__EM0 = newDecisionIn(decisionContainerPtr, inputMakerNodeName());
     linkToPrevious(EM_IM_1__EM0, EM_F_1__EM0);
     linkToPrevious(EM_IM_1__EM0, MUEM_F_1__EM0);
     addDecisionID(HLT_em_chain, EM_IM_1__EM0);
     addDecisionID(HLT_mu_em_chain, EM_IM_1__EM0);
 
-    Decision* EM_H_1__EM0 = newDecisionIn(decisionContainerPtr, "EM_H_1__EM0");
+    Decision* EM_H_1__EM0 = newDecisionIn(decisionContainerPtr, hypoAlgNodeName());
     linkToPrevious(EM_H_1__EM0, EM_IM_1__EM0);
     EM_H_1__EM0->setObjectLink<xAOD::ElectronContainer>(featureString(), rec_1__em0_link);
     addDecisionID(HLT_em_chain, EM_H_1__EM0);
     addDecisionID(HLT_mu_em_chain, EM_H_1__EM0);
 
-    Decision* MUEM_CH_1__EM0 = newDecisionIn(decisionContainerPtr, "MUEM_CH_1__EM0");
+    Decision* MUEM_CH_1__EM0 = newDecisionIn(decisionContainerPtr, comboHypoAlgNodeName());
     linkToPrevious(MUEM_CH_1__EM0, EM_H_1__EM0);
     addDecisionID(HLT_mu_em_chain, MUEM_CH_1__EM0);
 
-    Decision* EM_F_2__EM0 = newDecisionIn(decisionContainerPtr, "EM_F_2__EM0");
+    Decision* EM_F_2__EM0 = newDecisionIn(decisionContainerPtr, filterNodeName());
     linkToPrevious(EM_F_2__EM0, EM_H_1__EM0);
     addDecisionID(HLT_em_chain, EM_F_2__EM0);
 
-    Decision* MUEM_F_2__EM0 = newDecisionIn(decisionContainerPtr, "MUEM_F_2__EM0");
+    Decision* MUEM_F_2__EM0 = newDecisionIn(decisionContainerPtr, filterNodeName());
     linkToPrevious(MUEM_F_2__EM0, MUEM_CH_1__EM0);
     addDecisionID(HLT_mu_em_chain, MUEM_F_2__EM0);
 
-    Decision* EM_IM_2__EM0 = newDecisionIn(decisionContainerPtr, "EM_IM_2__EM0");
+    Decision* EM_IM_2__EM0 = newDecisionIn(decisionContainerPtr, inputMakerNodeName());
     linkToPrevious(EM_IM_2__EM0, EM_F_2__EM0);
     linkToPrevious(EM_IM_2__EM0, MUEM_F_2__EM0);
     addDecisionID(HLT_em_chain, EM_IM_2__EM0);
     addDecisionID(HLT_mu_em_chain, EM_IM_2__EM0);
 
-    Decision* EM_H_2__EM0 = newDecisionIn(decisionContainerPtr, "EM_H_2__EM0");
+    Decision* EM_H_2__EM0 = newDecisionIn(decisionContainerPtr, hypoAlgNodeName());
     linkToPrevious(EM_H_2__EM0, EM_IM_2__EM0);
     EM_H_2__EM0->setObjectLink<xAOD::ElectronContainer>(featureString(), rec_2__em0_link);
     addDecisionID(HLT_em_chain, EM_H_2__EM0);
     addDecisionID(HLT_mu_em_chain, EM_H_2__EM0);
     // HLT_em_chain passes the event
-    Decision* EM_ENDF_H_2__EM0 = newDecisionIn(decisionContainerPtr, "EM_ENDF_H_2__EM0");
-    addDecisionID(HLT_em_chain, EM_ENDF_H_2__EM0);
+    Decision* EM_SUMF_H_2__EM0 = newDecisionIn(decisionContainerPtr, summaryFilterNodeName());
+    addDecisionID(HLT_em_chain, EM_SUMF_H_2__EM0);
     addDecisionID(HLT_em_chain, END);
-    linkToPrevious(EM_ENDF_H_2__EM0, EM_H_2__EM0);
-    linkToPrevious(END, EM_ENDF_H_2__EM0);
+    linkToPrevious(EM_SUMF_H_2__EM0, EM_H_2__EM0);
+    linkToPrevious(END, EM_SUMF_H_2__EM0);
 
-    Decision* MUEM_CH_2__EM0 = newDecisionIn(decisionContainerPtr, "MUEM_CH_2__EM0");
+    Decision* MUEM_CH_2__EM0 = newDecisionIn(decisionContainerPtr, comboHypoAlgNodeName());
     linkToPrevious(MUEM_CH_2__EM0, EM_H_2__EM0);
     addDecisionID(HLT_mu_em_chain, MUEM_CH_2__EM0);
     // HLT_mu_em_chain passes the event
-    Decision* EM_ENDF_CH_2__EM0 = newDecisionIn(decisionContainerPtr, "EM_ENDF_CH_2__EM0");
-    addDecisionID(HLT_mu_em_chain, EM_ENDF_CH_2__EM0);
+    Decision* EM_SUMF_CH_2__EM0 = newDecisionIn(decisionContainerPtr, summaryFilterNodeName());
+    addDecisionID(HLT_mu_em_chain, EM_SUMF_CH_2__EM0);
     addDecisionID(HLT_mu_em_chain, END);
-    linkToPrevious(EM_ENDF_CH_2__EM0, MUEM_CH_2__EM0);
-    linkToPrevious(END, EM_ENDF_CH_2__EM0);
+    linkToPrevious(EM_SUMF_CH_2__EM0, MUEM_CH_2__EM0);
+    linkToPrevious(END, EM_SUMF_CH_2__EM0);
+  }
+
+  // Apply uniqueness
+  for (Decision* d : *decisionContainerPtr) {
+    uniqueDecisionIDs(d);
   }
 
   // Test the graph
@@ -432,8 +439,93 @@ int main ATLAS_NOT_THREAD_SAFE () {
   printFeatures(features_passfail_final_HLT_em_chain, "[Final passing/failing feature] HLT_em_chain", log);
   printFeatures(features_passfail_final_HLT_all, "[Final passing/failing feature] All chains", log);  
 
+  std::cout << " ----------" << std::endl << " ---------- Check Thinning " << std::endl << " ----------" << std::endl;
 
-  std::cout << " ---------- Check Explicit Type " << std::endl;
+  std::cout << " ----------" << std::endl << " ---------- Thinning out '" << filterNodeName() << "' nodes." << std::endl << "----------" << std::endl;
+
+  // First pass. Flagging the removing all the "Filter" nodes
+  recursiveFlagForThinning(graph_HLT_mufast_chain, /*keepOnlyFinalFeatures*/ false, {filterNodeName()});
+  recursiveFlagForThinning(graph_HLT_mu_chain, /*keepOnlyFinalFeatures*/ false, {filterNodeName()});
+  recursiveFlagForThinning(graph_HLT_mu_em_chain, /*keepOnlyFinalFeatures*/ false, {filterNodeName()});
+  recursiveFlagForThinning(graph_HLT_em_chain, /*keepOnlyFinalFeatures*/ false, {filterNodeName()});
+  recursiveFlagForThinning(graph_HLT_all, /*keepOnlyFinalFeatures*/ false, {filterNodeName()});
+
+
+  // Collect statistics from before thinning
+  size_t muf_n, mu_n, muem_n, em_n, all_n, muf_e, mu_e, muem_e, em_e, all_e = 0;
+
+  muf_n = graph_HLT_mufast_chain.nodes();
+  mu_n = graph_HLT_mu_chain.nodes();
+  muem_n = graph_HLT_mu_em_chain.nodes();
+  em_n = graph_HLT_em_chain.nodes();
+  all_n = graph_HLT_all.nodes();
+
+  muf_e = graph_HLT_mu_chain.edges();
+  mu_e = graph_HLT_mu_chain.edges();
+  muem_e = graph_HLT_mu_em_chain.edges();
+  em_e = graph_HLT_em_chain.edges();
+  all_e = graph_HLT_all.edges();
+
+  // Do the thinning
+  graph_HLT_mufast_chain.thin();
+  graph_HLT_mu_chain.thin();
+  graph_HLT_mu_em_chain.thin();
+  graph_HLT_em_chain.thin();
+  graph_HLT_all.thin();
+
+  log << MSG::INFO << "HLT_mufast_chain goes from " << muf_n << " nodes, " << muf_e << " edges, to " << graph_HLT_mufast_chain.nodes() << " nodes, " << graph_HLT_mufast_chain.edges() << " edges." << endmsg;
+  graph_HLT_mufast_chain.printAllPaths(log, MSG::INFO);
+  log << MSG::INFO << "HLT_mu_chain goes from " << mu_n << " nodes, " << mu_e << " edges, to " << graph_HLT_mu_chain.nodes() << " nodes, " << graph_HLT_mu_chain.edges() << " edges." << endmsg;
+  graph_HLT_mu_chain.printAllPaths(log, MSG::INFO);
+  log << MSG::INFO << "HLT_mu_em_chain goes from " << muem_n << " nodes, " << muem_e << " edges, to " << graph_HLT_mu_em_chain.nodes() << " nodes, " << graph_HLT_mu_em_chain.edges() << " edges." << endmsg;
+  graph_HLT_mu_em_chain.printAllPaths(log, MSG::INFO);
+  log << MSG::INFO << "HLT_em_chain goes from " << em_n << " nodes, " << em_e << " edges, to " << graph_HLT_em_chain.nodes() << " nodes, " << graph_HLT_em_chain.edges() << " edges." << endmsg;
+  graph_HLT_em_chain.printAllPaths(log, MSG::INFO);
+  log << MSG::INFO << "All goes from " << all_n << " nodes, " << all_e << " edges, to " << graph_HLT_all.nodes() << " nodes, " << graph_HLT_all.edges() << " edges." << endmsg;
+  graph_HLT_all.printAllPaths(log, MSG::INFO);
+ 
+  std::cout << " ----------" << std::endl << " ---------- Thinning with mode 'keepOnlyFinalFeatures'." << std::endl << " ----------" << std::endl;
+
+  // Second pass. Flagging the removal of everything except for the final "feature" (and the preceding InputMaker)
+  recursiveFlagForThinning(graph_HLT_mufast_chain, /*keepOnlyFinalFeatures*/ true, {});
+  recursiveFlagForThinning(graph_HLT_mu_chain, /*keepOnlyFinalFeatures*/ true, {});
+  recursiveFlagForThinning(graph_HLT_mu_em_chain, /*keepOnlyFinalFeatures*/ true, {});
+  recursiveFlagForThinning(graph_HLT_em_chain, /*keepOnlyFinalFeatures*/ true, {});
+  recursiveFlagForThinning(graph_HLT_all, /*keepOnlyFinalFeatures*/ true, {});
+
+  // Collect statistics from before thinning
+  muf_n = graph_HLT_mufast_chain.nodes();
+  mu_n = graph_HLT_mu_chain.nodes();
+  muem_n = graph_HLT_mu_em_chain.nodes();
+  em_e = graph_HLT_em_chain.nodes();
+  all_n = graph_HLT_all.nodes();
+
+  muf_e = graph_HLT_mu_chain.edges();
+  mu_e = graph_HLT_mu_chain.edges();
+  muem_e = graph_HLT_mu_em_chain.edges();
+  em_e = graph_HLT_em_chain.edges();
+  all_e = graph_HLT_all.edges();
+
+  // Do the thinning
+  graph_HLT_mufast_chain.thin();
+  graph_HLT_mu_chain.thin();
+  graph_HLT_mu_em_chain.thin();
+  graph_HLT_em_chain.thin();
+  graph_HLT_all.thin();
+
+
+  log << MSG::INFO << "HLT_mufast_chain goes from " << muf_n << " nodes, " << muf_e << " edges, to " << graph_HLT_mufast_chain.nodes() << " nodes, " << graph_HLT_mufast_chain.edges() << " edges." << endmsg;
+  graph_HLT_mufast_chain.printAllPaths(log, MSG::INFO);
+  log << MSG::INFO << "HLT_mu_chain goes from " << mu_n << " nodes, " << mu_e << " edges, to " << graph_HLT_mu_chain.nodes() << " nodes, " << graph_HLT_mu_chain.edges() << " edges." << endmsg;
+  graph_HLT_mu_chain.printAllPaths(log, MSG::INFO);
+  log << MSG::INFO << "[HLT_mu_em_chain goes from " << muem_n << " nodes, " << muem_e << " edges, to " << graph_HLT_mu_em_chain.nodes() << " nodes, " << graph_HLT_mu_em_chain.edges() << " edges." << endmsg;
+  graph_HLT_mu_em_chain.printAllPaths(log, MSG::INFO);
+  log << MSG::INFO << "HLT_em_chain goes from " << em_n << " nodes, " << em_e << " edges, to " << graph_HLT_em_chain.nodes() << " nodes, " << graph_HLT_em_chain.edges() << " edges." << endmsg;
+  graph_HLT_em_chain.printAllPaths(log, MSG::INFO);
+  log << MSG::INFO << "All goes from " << all_n << " nodes, " << all_e << " edges, to " << graph_HLT_all.nodes() << " nodes, " << graph_HLT_all.edges() << " edges." << endmsg;
+  graph_HLT_all.printAllPaths(log, MSG::INFO);
+  
+  std::cout << " ----------" << std::endl << " ---------- Check Explicit Type " << std::endl << " ----------" << std::endl;
 
   // Check typed retrieval too
   // Note we are *not* passing the set of interested chains here so expect the state to be unset
@@ -451,7 +543,7 @@ int main ATLAS_NOT_THREAD_SAFE () {
   // Check retrieval of a link which does NOT derive from IParticle
   END->setObjectLink<DecisionContainer>("notAnIParticle", end_link);
   EXPECT_EXCEPTION (SG::ExcCLIDMismatch, END->objectLink<xAOD::IParticleContainer>("notAnIParticle"));
-  
+
   return 0;
   
 }
