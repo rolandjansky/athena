@@ -23,7 +23,7 @@ Sim_tf.py \
 --physicsList 'FTFP_BERT_ATL' \
 --truthStrategy 'MC15aPlus' \
 --simulator 'FullG4' \
---postInclude 'default:PyJobTransforms/UseFrontier.py'
+--postInclude 'default:PyJobTransforms/UseFrontier.py' \
 --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' \
 --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' \
 --DataRunNumber '284500' \
