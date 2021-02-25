@@ -19,9 +19,9 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "CaloEvent/CaloTowerContainer.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 
-class IAlgToolEFCalo;
 class ICaloCellMakerTool; 
 class CaloTowerBuilderToolBase;
 class CaloTowerContainer;

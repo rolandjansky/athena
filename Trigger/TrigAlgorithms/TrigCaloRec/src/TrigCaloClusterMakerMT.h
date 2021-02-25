@@ -30,7 +30,6 @@
 #include "StoreGate/WriteDecorHandleKey.h"
 
 
-class IAlgToolEFCalo;
 class CaloClusterCollectionProcessor;
 class CaloClusterProcessor;
 class CaloClusterContainer;
