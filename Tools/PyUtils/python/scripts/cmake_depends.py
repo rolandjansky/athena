@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # Created: June 2020, Frank Winklmeier
 #
@@ -9,6 +9,7 @@ name, the dependencies are printed as a plain list or DOT graph. The recursion
 depth is configurable.
 """
 
+import sys
 import os
 import re
 from collections import deque
@@ -121,13 +122,23 @@ class AthGraph:
       # Build dictionary for node names:
       self.node = { n.attr['label'] : n.get_name() for n in self.graph.nodes_iter() }
 
-      # Extract package dependencies:
-      for e in self.graph.edges_iter():
-         p = e[0].attr['label']
+      def decorate_package(n0, n1=None):
+         """Asssign package name to n0 -> n1 if n0 is a package target"""
+         p = n0.attr['label']
          # Decorate target with package name:
          if p.startswith('Package_'):
             pkg = lrstrip(p, 'Package_', '_tests')
-            e[0].attr['package'] = e[1].attr['package'] = package_paths.get(pkg,pkg)
+            n0.attr['package'] = package_paths.get(pkg,pkg)
+            if n1 is not None:
+               n1.attr['package'] = n0.attr['package']
+
+      # Extract package dependencies:
+      for e in self.graph.edges_iter():
+         decorate_package(e[0], e[1])
+
+      # Another pass on nodes to cover packages without dependendencies:
+      for n in self.graph.nodes_iter():
+         decorate_package(n)
 
       # Assign "package" names to externals if possible:
       external_nodes = filter(lambda n : 'package' not in n.attr.keys(),
@@ -148,6 +159,101 @@ class AthGraph:
       return True if (label.startswith('__') or   # internal targets
                       label.startswith('-') or    # compiler flags (e.g. -pthread)
                       node.attr['shape']==self.types['Custom Target']) else False
+
+
+def create_dep_graph(graph, target, deps, pydeps, args):
+   """Create dependency graph.
+
+   @param graph   output graph
+   @param target  name of target
+   @param deps    cmake dependnecies
+   @param pydeps  python dependencies
+   @param args    command line arguments
+   """
+   # Helper for graph traversal below:
+   def getnode(node):
+      if not args.all and deps.ignore_target(node): return None
+      if args.externals or not node.attr['external']:
+         a = 'label' if args.target else 'package'
+         return node.attr[a]
+
+   target = target.split('/')[-1]  # in case of full package path
+
+   # In package mode we have one extra level due to the Package_ target:
+   depth = args.recursive
+   if not args.target and not args.clients and args.recursive is not None:
+      depth += 1
+
+   # With regex, find all matching targets:
+   if args.regex:
+      r = re.compile(target)
+      targets = [getnode(n) for n in deps.graph.nodes_iter() if r.match(n.attr['label'])]
+      targets = list(filter(lambda t : t is not None, targets))
+   else:
+      targets = [target]
+
+   # Find the nodes from which graph traversal starts:
+   sources = []
+   for l in targets:
+      if not args.target:
+         l = 'Package_'+l
+      try:
+         if deps.get_node(l).attr['external'] and not args.externals:
+            print(f"{l} is an external target. Run with -e/--externals.")
+            return 1
+
+         # To find clients of a package means finding clients of the targets
+         # within that package. First find all targets within the package:
+         if args.clients and not args.target:
+            sources.extend([b for a,b in traverse(deps.graph, deps.get_node(l), maxdepth=1)])
+         else:
+            sources.extend([deps.get_node(l)])
+      except KeyError:
+         print(f"Target with name {l} does not exist.")
+         return 1
+
+   # Extract the dependency subgraph:
+   g = subgraph(deps.graph, sources, reverse=args.clients,
+                maxdepth=depth, nodegetter=getnode)
+
+   graph.add_subgraph(name=target)
+   graph.get_subgraph(target).add_edges_from(g.edges())
+
+   # Add python dependencies:
+   if args.py:
+      # Here the nodes are the actual package names:
+      pysources = [pydeps.get_node(t) for t in targets if pydeps.has_node(t)]
+      g = subgraph(pydeps, pysources, reverse=args.clients,
+                   maxdepth=args.recursive, nodegetter=lambda n : n.name)
+
+      graph.get_subgraph(target).add_edges_from(g.edges(), style=py_style)
+
+      # Change style of nodes that have only Python dependencies:
+      g = graph.get_subgraph(target)
+      for n in g.nodes_iter():
+         if all(e.attr['style']==py_style for e in g.edges_iter(n)):
+            n.attr['style'] = py_style
+
+
+def print_dep_graph(graph, args):
+   """Output final graph"""
+
+   # txt output
+   if args.batch or not args.dot:
+      f = open(graph.name+'.txt', 'w') if args.batch else sys.stdout
+      nodes = [e[0] for e in graph.in_edges_iter()] if args.clients \
+         else [e[1] for e in graph.out_edges_iter()]
+      for p in sorted(set(nodes)):
+         suffix = ':py' if p.attr['style']==py_style else ''
+         print(f'{p}{suffix}', file=f)
+
+   # dot output
+   if args.batch or args.dot:
+      f = open(graph.name+'.dot', 'w') if args.batch else sys.stdout
+      if args.legend:
+         add_legend(graph)
+      print(graph, file=f)
+
 
 #
 # Main function and command line arguments
@@ -189,6 +295,10 @@ class AthGraph:
 @acmdlib.argument('--legend', action='store_true',
                   help='add legend to graph')
 
+@acmdlib.argument('--batch', nargs='?', metavar='N', type=int, const=1,
+                  help='Batch mode using N jobs (default: 1). Create dot and txt dependencies '
+                  'for all NAMEs and store them in separate files.')
+
 
 # Debugging/expert options:
 @acmdlib.argument('--cmakedot', help=argparse.SUPPRESS)
@@ -207,14 +317,14 @@ def main(args):
          main.parser.error("Cannot find 'packages.dot'. Setup a release or use --cmakedot.")
 
    # Find packages.py.dot:
-   pygraph = None
+   pydeps = None
    if args.py:
       if args.target:
          main.parser.error("Python dependencies not possible in target mode.")
 
       args.pydot = args.pydot or args.cmakedot.replace('.dot','.py.dot')
       try:
-         pygraph = pygraphviz.AGraph(args.pydot)
+         pydeps = pygraphviz.AGraph(args.pydot)
       except Exception:
          main.parser.error(f"Cannot read '{args.pydot}'. Setup a release or use --pydot.")
 
@@ -227,85 +337,24 @@ def main(args):
       except Exception:
          main.parser.error("Cannot read 'packages.txt'. Setup a release or run without -l/--long.")
 
-   # In package mode we have one extra level due to the Package_ target:
-   depth = args.recursive
-   if not args.target and not args.clients and args.recursive is not None:
-      depth += 1
-
    # Read dependencies:
-   d = AthGraph(args.cmakedot, package_paths)
+   deps = AthGraph(args.cmakedot, package_paths)
 
-   # Helper for graph traversal below:
-   def getnode(node):
-      if not args.all and d.ignore_target(node): return None
-      if args.externals or not node.attr['external']:
-         a = 'label' if args.target else 'package'
-         return node.attr[a]
+   # Create combined graph for all given targets:
+   if not args.batch:
+      graph = pygraphviz.AGraph(name='AthGraph', directed=True, strict=False)
+      for target in args.names:
+         create_dep_graph(graph, target, deps, pydeps, args)
+      print_dep_graph(graph, args)
 
-   graph = pygraphviz.AGraph(name='AthGraph', directed=True, strict=False)
-   for p in args.names:
-      target = p.split('/')[-1]  # in case of full package path
-
-      # With regex, find all matching targets:
-      if args.regex:
-         r = re.compile(target)
-         targets = [getnode(n) for n in d.graph.nodes_iter() if r.match(n.attr['label'])]
-         targets = list(filter(lambda t : t is not None, targets))
-      else:
-         targets = [target]
-
-      # Find the nodes from which graph traversal starts:
-      sources = []
-      for l in targets:
-         if not args.target:
-            l = 'Package_'+l
-         try:
-            if d.get_node(l).attr['external'] and not args.externals:
-               print(f"{l} is an external target. Run with -e/--externals.")
-               return 1
-
-            # To find clients of a package means finding clients of the targets
-            # within that package. First find all targets within the package:
-            if args.clients and not args.target:
-               sources.extend([b for a,b in traverse(d.graph, d.get_node(l), maxdepth=1)])
-            else:
-               sources.extend([d.get_node(l)])
-         except KeyError:
-            print(f"Target with name {l} does not exist.")
-            return 1
-
-      # Extract the dependency subgraph:
-      g = subgraph(d.graph, sources, reverse=args.clients,
-                   maxdepth=depth, nodegetter=getnode)
-
-      graph.add_subgraph(name=target)
-      graph.get_subgraph(target).add_edges_from(g.edges())
-
-      # Add python dependencies:
-      if args.py:
-         # Here the nodes are the actual package names:
-         pysources = [pygraph.get_node(t) for t in targets if pygraph.has_node(t)]
-         g = subgraph(pygraph, pysources, reverse=args.clients,
-                      maxdepth=args.recursive, nodegetter=lambda n : n.name)
-
-         graph.get_subgraph(target).add_edges_from(g.edges(), style=py_style)
-
-         # Change style of nodes that have only Python dependencies:
-         g = graph.get_subgraph(target)
-         for n in g.nodes_iter():
-            if all(e.attr['style']==py_style for e in g.edges_iter(n)):
-               n.attr['style'] = py_style
-
-
-   # Output final graph:
-   if args.dot and args.legend:
-      add_legend(graph)
-
-   if args.dot:
-      print(graph)
+   # Batch mode: create separte graph for each target:
    else:
-      nodes = [e[0] for e in graph.in_edges_iter()] if args.clients \
-         else [e[1] for e in graph.out_edges_iter()]
-      for p in sorted(set(nodes)):
-         suffix = ':py' if p.attr['style']==py_style else ''
-         print(f'{p}{suffix}')
+      import multiprocessing
+      global doit   # required for use in multiprocessing
+      def doit(target):
+         graph = pygraphviz.AGraph(name=target.replace('/','_'), directed=True, strict=False)
+         create_dep_graph(graph, target, deps, pydeps, args)
+         print_dep_graph(graph, args)
+
+      pool = multiprocessing.Pool(args.batch)
+      pool.map(doit, args.names)
