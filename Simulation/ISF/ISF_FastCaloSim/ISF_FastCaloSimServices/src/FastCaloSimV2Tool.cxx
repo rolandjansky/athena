@@ -190,24 +190,31 @@ StatusCode ISF::FastCaloSimV2Tool::simulate(const ISF::ISFParticle& isfp, ISFPar
   }
 
   TFCSExtrapolationState extrapol;
-  m_FastCaloSimCaloExtrapolation->extrapolate(extrapol,&truth);
-  ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this, m_randomEngineName);
-  TFCSSimulationState simulstate(*rngWrapper);
-
+  m_FastCaloSimCaloExtrapolation->extrapolate(extrapol, &truth);
+  
   ATH_MSG_DEBUG(" particle: " << isfp.pdgCode() << " Ekin: " << isfp.ekin() << " position eta: " << particle_position.eta() << " direction eta: " << particle_direction.eta() << " position phi: " << particle_position.phi() << " direction phi: " << particle_direction.phi());
 
-  ATH_CHECK(m_paramSvc->simulate(simulstate, &truth, &extrapol));
+  //only simulate if extrapolation to calo surface succeeded
+  if(extrapol.CaloSurface_eta() != -999){
 
-  ATH_MSG_DEBUG("Energy returned: " << simulstate.E());
-  ATH_MSG_VERBOSE("Energy fraction for layer: ");
-  for (int s = 0; s < CaloCell_ID_FCS::MaxSample; s++)
-  ATH_MSG_VERBOSE(" Sampling " << s << " energy " << simulstate.E(s));
+    ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this, m_randomEngineName);
+    TFCSSimulationState simulstate(*rngWrapper);
 
-  //Now deposit all cell energies into the CaloCellContainer
-  for(const auto& iter : simulstate.cells()) {
-    CaloCell* theCell = (CaloCell*)m_theContainer->findCell(iter.first->calo_hash());
-    theCell->addEnergy(iter.second);
+    ATH_CHECK(m_paramSvc->simulate(simulstate, &truth, &extrapol));
+
+    ATH_MSG_DEBUG("Energy returned: " << simulstate.E());
+    ATH_MSG_VERBOSE("Energy fraction for layer: ");
+    for (int s = 0; s < CaloCell_ID_FCS::MaxSample; s++)
+    ATH_MSG_VERBOSE(" Sampling " << s << " energy " << simulstate.E(s));
+
+    //Now deposit all cell energies into the CaloCellContainer
+    for(const auto& iter : simulstate.cells()) {
+      CaloCell* theCell = (CaloCell*)m_theContainer->findCell(iter.first->calo_hash());
+      theCell->addEnergy(iter.second);
+    }
   }
+  else ATH_MSG_DEBUG("Skipping simulation as extrapolation to ID-Calo boundary failed.");
+
 
   return StatusCode::SUCCESS;
 
