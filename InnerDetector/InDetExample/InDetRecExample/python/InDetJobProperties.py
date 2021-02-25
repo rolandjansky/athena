@@ -1210,6 +1210,12 @@ class doTTVADecos(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = True
 
+class minPrecHitFractionTrtExt(InDetFlagsJobProperty):
+  """ Min fraction of precision hits on TRT extension in track finding """
+  statusOn     = True
+  allowedTypes = ['float']
+  StoredValue  = 0.4
+
 ##-----------------------------------------------------------------------------
 ## 2nd step
 ## Definition of the InDet flag container
@@ -2807,7 +2813,8 @@ _list_InDetJobProperties = [Enabled,
                             useMuForTRTErrorScaling,
                             writeSeedValNtuple,
                             doTRTPIDNN,
-                            doTTVADecos
+                            doTTVADecos,
+                            minPrecHitFractionTrtExt
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)
