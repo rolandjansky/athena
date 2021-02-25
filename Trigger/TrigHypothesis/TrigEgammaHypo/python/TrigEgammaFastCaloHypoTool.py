@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.SystemOfUnits import GeV
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -15,9 +15,8 @@ log = logging.getLogger('TrigEgammaFastCaloHypoTool')
 
 def _GetPath( cand, sel, basepath = 'RingerSelectorTools/TrigL2_20180903_v9' ):
     
-    from TriggerMenu.egamma.EgammaSliceFlags import EgammaSliceFlags
-    if EgammaSliceFlags.ringerVersion():
-       basepath = EgammaSliceFlags.ringerVersion()
+    if TriggerFlags.EgammaSlice.ringerVersion():
+       basepath = TriggerFlags.EgammaSlice.ringerVersion()
     log.debug('_GetPath: TrigMultiVarHypo version: %s', basepath)
     if sel not in _possibleSel.keys():
        raise RuntimeError( "Bad selection name: %s" % sel )

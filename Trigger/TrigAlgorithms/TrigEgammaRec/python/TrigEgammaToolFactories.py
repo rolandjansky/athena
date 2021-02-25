@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # vim:fenc=utf-8
 #
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 """
@@ -153,11 +153,11 @@ TrigEMShowerBuilder = EMShowerBuilder.copyPublic(
   Print = True,
 )
 
-from TriggerMenu.egamma.EgammaSliceFlags import EgammaSliceFlags
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 
-mlog.info("MVA version version %s", EgammaSliceFlags.calibMVAVersion() )
-mlog.info("Cluster Correction version %s", EgammaSliceFlags.clusterCorrectionVersion() )
-EgammaSliceFlags.calibMVAVersion.set_On()
+mlog.info("MVA version version %s", TriggerFlags.EgammaSlice.calibMVAVersion() )
+mlog.info("Cluster Correction version %s", TriggerFlags.EgammaSlice.clusterCorrectionVersion() )
+TriggerFlags.EgammaSlice.calibMVAVersion.set_On()
 
 
 from TrigCaloRec.TrigCaloRecConf import TrigCaloClusterMaker
@@ -195,7 +195,7 @@ def configureClusterCorrections(slwAlg):
     from CaloClusterCorrection.CaloSwCorrections import  make_CaloSwCorrections
     clusterTypes = ("ele37","ele55")
     for cl in clusterTypes:
-        for tool in make_CaloSwCorrections (cl,version=EgammaSliceFlags.clusterCorrectionVersion()):
+        for tool in make_CaloSwCorrections (cl,version=TriggerFlags.EgammaSlice.clusterCorrectionVersion()):
             slwAlg += tool
             slwAlg.ClusterCorrectionTools += [tool.getFullName()]
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # flake8: noqa  (legacy trigger)
 
@@ -43,10 +43,10 @@ from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import BitDefElectron
 
 mlog = logging.getLogger ('TrigEgammaPidTools')
 # Path for versioned configuration
-from TriggerMenu.egamma.EgammaSliceFlags import EgammaSliceFlags
-EgammaSliceFlags.pidVersion.set_On()
-mlog.info("TrigEgammaPidTools version %s"%EgammaSliceFlags.pidVersion())
-ConfigFilePath = EgammaSliceFlags.pidVersion() 
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+TriggerFlags.EgammaSlice.pidVersion.set_On()
+mlog.info("TrigEgammaPidTools version %s", TriggerFlags.EgammaSlice.pidVersion())
+ConfigFilePath = TriggerFlags.EgammaSlice.pidVersion()
 
 # Dictionaries for ToolNames
 ElectronToolName = {'vloose':'AsgElectronIsEMVLooseSelector',

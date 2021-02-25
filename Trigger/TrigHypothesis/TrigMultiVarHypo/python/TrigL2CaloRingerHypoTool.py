@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -19,9 +19,9 @@ def _GetPath( cand, sel, basepath = 'RingerSelectorTools/TrigL2_20180903_v9' ):
   
   from AthenaCommon.Logging import logging
   logger = logging.getLogger("TrigMultiVarHypo.GetPath")
-  from TriggerMenu.egamma.EgammaSliceFlags import EgammaSliceFlags
-  if EgammaSliceFlags.ringerVersion():
-    basepath = EgammaSliceFlags.ringerVersion()
+  from TriggerJobOpts.TriggerFlags import TriggerFlags
+  if TriggerFlags.EgammaSlice.ringerVersion():
+    basepath = TriggerFlags.EgammaSlice.ringerVersion()
   logger.info('TrigMultiVarHypo version: %s', basepath)
   if sel not in _possibleSel.keys():
     raise RuntimeError( "Bad selection name: %s" % sel )
