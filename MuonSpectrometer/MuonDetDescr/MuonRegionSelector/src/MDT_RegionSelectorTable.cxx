@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonRegionSelector/MDT_RegionSelectorTable.h"
@@ -16,7 +16,6 @@
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
 #include "MuonReadoutGeometry/RpcReadoutSet.h"
 #include "MuonReadoutGeometry/MuonStation.h"
-#include "MuonMDT_Cabling/MuonMDT_CablingSvc.h"
 
 #include <iostream>
 #include <vector>
@@ -26,49 +25,44 @@
 MDT_RegionSelectorTable::MDT_RegionSelectorTable(const std::string& type, 
 						 const std::string& name,
 						 const IInterface*  parent)
-  :  AthAlgTool(type,name,parent),  m_regionLUT(NULL),
-     m_mdtCabling("MuonMDT_CablingSvc",name)
+  :  AthAlgTool(type,name,parent),  m_regionLUT(nullptr)
 {
   declareInterface<IRegionIDLUT_Creator>(this);
 }
 
 
-MDT_RegionSelectorTable::~MDT_RegionSelectorTable() { 
-  if ( m_regionLUT ) delete m_regionLUT;
+MDT_RegionSelectorTable::~MDT_RegionSelectorTable() = default;
 
-}
-
-
+StatusCode MDT_RegionSelectorTable::finalize()
+{return StatusCode::SUCCESS;}
+  
 StatusCode MDT_RegionSelectorTable::initialize() { 
-  msg(MSG::INFO) << "initialize() MDT_RegionSelectorTable" << endmsg;
-  if(m_mdtCabling.retrieve().isFailure()) {
-    ATH_MSG_FATAL("MDTCablingSvc not found !");
-    return StatusCode::FAILURE;
-  }
-  return createTable();
-}
-
-
-StatusCode MDT_RegionSelectorTable::finalize() { 
-  msg(MSG::INFO) << "finalize()" << endmsg;
+  ATH_MSG_INFO( "initialize() MDT_RegionSelectorTable");
+  ATH_CHECK(m_cablingKey.initialize());
+  ATH_CHECK( detStore()->retrieve( m_detMgr ) );
   return StatusCode::SUCCESS;
 }
 
-
 RegSelSiLUT* MDT_RegionSelectorTable::getLUT() {
-  return m_regionLUT;
+  if (!m_regionLUT) createTable();
+  return m_regionLUT.get();
 } 
 
 
 
   
-StatusCode MDT_RegionSelectorTable::createTable() { 
+void MDT_RegionSelectorTable::createTable() { 
+
+   SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_cablingKey};
+   const MuonMDT_CablingMap* readCdo{*readHandle};
+   if (!readCdo) {
+        ATH_MSG_ERROR("Null pointer to the read conditions object");
+        return;
+   }
   
-  const MuonGM::MuonDetectorManager*	p_MuonMgr = NULL;
+ 
   
-  ATH_CHECK( detStore()->retrieve( p_MuonMgr ) );
-  
-  const MdtIdHelper*  p_IdHelper = p_MuonMgr->mdtIdHelper();
+  const MdtIdHelper*  p_IdHelper = m_detMgr->mdtIdHelper();
   
   RegSelSiLUT* mdtlut = new RegSelSiLUT();
 
@@ -97,19 +91,19 @@ StatusCode MDT_RegionSelectorTable::createTable() {
         IdContext mdtChannelContext = p_IdHelper->channel_context();
 
         // get the element corresponding to multilayer = 1
-        const MuonGM::MdtReadoutElement* mdt1 = p_MuonMgr->getMdtReadoutElement(Id);
-	if (mdt1 == NULL) {
+        const MuonGM::MdtReadoutElement* mdt1 = m_detMgr->getMdtReadoutElement(Id);
+	if (!mdt1) {
 	  continue;
         }
 
         Identifier Id2 = p_IdHelper->channelID(Id, 2, 1, 1);
         // get the element corresponding to multilayer = 2
-        const MuonGM::MdtReadoutElement* mdt2 = p_MuonMgr->getMdtReadoutElement(Id2);
+        const MuonGM::MdtReadoutElement* mdt2 = m_detMgr->getMdtReadoutElement(Id2);
         double tubePitch = mdt1->tubePitch();
         int ntlay = mdt1->getNLayers();
         int ntubesl1 = mdt1->getNtubesperlayer();
         int ntubesl2 = 0;
-	if (mdt2 != NULL) ntubesl2 = mdt2->getNtubesperlayer();
+	if (mdt2) ntubesl2 = mdt2->getNtubesperlayer();
 
         Identifier Idv[4];
         Idv[0] = p_IdHelper->channelID(Id, 1, 1, 1);
@@ -142,18 +136,18 @@ StatusCode MDT_RegionSelectorTable::createTable() {
         
 	// what are is this loop over?
         for (int i=0; i<4; i++) {
-	  const MuonGM::MdtReadoutElement* mdt = NULL;
+	  const MuonGM::MdtReadoutElement* mdt = nullptr;
 	  if ( i<2 )  mdt = mdt1;
 	  else mdt = mdt2;
-	  if (mdt == NULL) {
+	  if (!mdt) {
 	    //  std::cout<<" element not found for index i = "<<i<<" --------- "<<std::endl;
                 if (i==2) {
                     Idv[2] = p_IdHelper->channelID(Id, 1, ntlay, 1);
-                    mdt = p_MuonMgr->getMdtReadoutElement(Idv[2]);
+                    mdt = m_detMgr->getMdtReadoutElement(Idv[2]);
                 }
                 else if (i==3) {
                     Idv[3] = p_IdHelper->channelID(Id, 1, ntlay, ntubesl1);
-                    mdt = p_MuonMgr->getMdtReadoutElement(Idv[3]);
+                    mdt = m_detMgr->getMdtReadoutElement(Idv[3]);
                 }
                 else
                 {
@@ -356,7 +350,7 @@ StatusCode MDT_RegionSelectorTable::createTable() {
 	//	if ( mdt1->sideC() )  detid = -1;
 	
 	//	std::cout << " -> " << detid << std::endl;
-	uint32_t RobId = m_mdtCabling->getROBId(Idhash);
+	uint32_t RobId = readCdo->getROBId(Idhash);
 
 	RegSelModule m( zmin, zmax, rmin, rmax, phimin, phimax, layerid, detid, RobId, Idhash );
 
@@ -368,9 +362,7 @@ StatusCode MDT_RegionSelectorTable::createTable() {
     mdtlut->initialise();
     //    mdtlut->write("mdt.map");
 
-    m_regionLUT = mdtlut;
-
-  return StatusCode::SUCCESS;
+    m_regionLUT.reset(mdtlut);
 }
 
 

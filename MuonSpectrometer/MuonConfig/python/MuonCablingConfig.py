@@ -83,29 +83,21 @@ def MDTCablingConfigCfg(flags):
 
     MuonMDT_CablingAlg=CompFactory.MuonMDT_CablingAlg
     MDTCablingAlg = MuonMDT_CablingAlg("MuonMDT_CablingAlg")
-
-    MDTCablingDbTool=CompFactory.MDTCablingDbTool
-    MDTCablingDbTool = MDTCablingDbTool()
-
+   
     from IOVDbSvc.IOVDbSvcConfig import addFolders
     if flags.Input.isMC is True:
-        MDTCablingDbTool.MapFolders = "/MDT/Ofl/CABLING/MAP_SCHEMA"
-        MDTCablingDbTool.MezzanineFolders  = "/MDT/Ofl/CABLING/MEZZANINE_SCHEMA"
         MDTCablingAlg.MapFolders = "/MDT/Ofl/CABLING/MAP_SCHEMA" 
         MDTCablingAlg.MezzanineFolders    = "/MDT/Ofl/CABLING/MEZZANINE_SCHEMA" 
         acc.merge( addFolders( flags, ["/MDT/Ofl/CABLING/MAP_SCHEMA",
                                        "/MDT/Ofl/CABLING/MEZZANINE_SCHEMA"], 'MDT_OFL', className="CondAttrListCollection") )
     else:
-        MDTCablingDbTool.MapFolders = "/MDT/CABLING/MAP_SCHEMA"
-        MDTCablingDbTool.MezzanineFolders  = "/MDT/CABLING/MEZZANINE_SCHEMA"
         MDTCablingAlg.MapFolders = "/MDT/CABLING/MAP_SCHEMA" 
         MDTCablingAlg.MezzanineFolders    = "/MDT/CABLING/MEZZANINE_SCHEMA" 
         acc.merge( addFolders( flags, ["/MDT/CABLING/MAP_SCHEMA",
                                        "/MDT/CABLING/MEZZANINE_SCHEMA"], 'MDT', className="CondAttrListCollection") )
 
     acc.addCondAlgo( MDTCablingAlg )
-    acc.addPublicTool( MDTCablingDbTool )
-
+   
     return acc
 
 
