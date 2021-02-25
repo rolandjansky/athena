@@ -167,7 +167,7 @@ public:
 
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * neutral */
-  virtual ParametersT<5, Neutral, PlaneSurface>* createNeutralParameters(
+  virtual NeutralTrackParametersUniquePtr createUniqueNeutralParameters(
     double l1,
     double l2,
     double phi,
@@ -177,7 +177,7 @@ public:
 
   /** Use the Surface as a ParametersBase constructor, from global parameters
    * - neutral */
-  virtual ParametersT<5, Neutral, PlaneSurface>* createNeutralParameters(
+  virtual NeutralTrackParametersUniquePtr createUniqueNeutralParameters(
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge = 0.,

@@ -113,7 +113,7 @@ buildTrackParametersWithoutPropagation(
 // Build new neutral track parameters without propagation
 /////////////////////////////////////////////////////////////////////////////////
 
-Trk::NeutralParameters*
+std::unique_ptr<Trk::NeutralParameters>
 buildTrackParametersWithoutPropagation(
   const Trk::NeutralParameters& Tp,
   double* Jac)
@@ -122,7 +122,7 @@ buildTrackParametersWithoutPropagation(
   Jac[1] = Jac[2] = Jac[3] = Jac[4] = Jac[5] = Jac[7] = Jac[8] = Jac[9] =
     Jac[10] = Jac[11] = Jac[13] = Jac[14] = Jac[15] = Jac[16] = Jac[17] =
       Jac[19] = 0.;
-  return Tp.clone();
+  return std::unique_ptr<Trk::NeutralParameters>(Tp.clone());
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -268,7 +268,7 @@ Trk::RungeKuttaPropagator::~RungeKuttaPropagator()= default;
 // Main function for NeutralParameters propagation
 /////////////////////////////////////////////////////////////////////////////////
 
-Trk::NeutralParameters* Trk::RungeKuttaPropagator::propagate
+std::unique_ptr<Trk::NeutralParameters> Trk::RungeKuttaPropagator::propagate
 (const Trk::NeutralParameters        & Tp,
  const Trk::Surface                  & Su,
  Trk::PropDirection                    D ,
@@ -285,7 +285,7 @@ Trk::NeutralParameters* Trk::RungeKuttaPropagator::propagate
 // without transport Jacobian production
 /////////////////////////////////////////////////////////////////////////////////
 
-std::unique_ptr<Trk::TrackParameters> 
+std::unique_ptr<Trk::TrackParameters>
 Trk::RungeKuttaPropagator::propagate
 (const ::EventContext&               ctx,
  const Trk::TrackParameters  & Tp,
@@ -312,7 +312,7 @@ Trk::RungeKuttaPropagator::propagate
 // with transport Jacobian production
 /////////////////////////////////////////////////////////////////////////////////
 
-std::unique_ptr<Trk::TrackParameters> 
+std::unique_ptr<Trk::TrackParameters>
 Trk::RungeKuttaPropagator::propagate
 (const ::EventContext&               ctx,
  const Trk::TrackParameters   & Tp ,
@@ -348,7 +348,7 @@ Trk::RungeKuttaPropagator::propagate
 // Main function to finds the closest surface
 /////////////////////////////////////////////////////////////////////////////////
 
-std::unique_ptr<Trk::TrackParameters> 
+std::unique_ptr<Trk::TrackParameters>
 Trk::RungeKuttaPropagator::propagate
 (const ::EventContext&               ctx,
  const TrackParameters        & Tp  ,
@@ -554,15 +554,16 @@ std::unique_ptr<Trk::TrackParameters> Trk::RungeKuttaPropagator::propagateParame
 /////////////////////////////////////////////////////////////////////////////////
 // Main function for neutral track parameters propagation with or without jacobian
 /////////////////////////////////////////////////////////////////////////////////
-Trk::NeutralParameters* Trk::RungeKuttaPropagator::propagateStraightLine
-(Cache&                         cache ,
- bool                           useJac,
- const Trk::NeutralParameters&  Tp    ,
- const Trk::Surface&            Su    ,
- Trk::PropDirection             D     ,
- const Trk::BoundaryCheck&      B     ,
- double                       * Jac   ,
- bool                       returnCurv) const
+std::unique_ptr<Trk::NeutralParameters>
+Trk::RungeKuttaPropagator::propagateStraightLine(
+  Cache& cache,
+  bool useJac,
+  const Trk::NeutralParameters& Tp,
+  const Trk::Surface& Su,
+  Trk::PropDirection D,
+  const Trk::BoundaryCheck& B,
+  double* Jac,
+  bool returnCurv) const
 {
   const Trk::Surface* su = &Su;
   if(su == &Tp.associatedSurface()) return buildTrackParametersWithoutPropagation(Tp,Jac);
@@ -647,17 +648,19 @@ Trk::NeutralParameters* Trk::RungeKuttaPropagator::propagateStraightLine
 
   // Transformation to curvilinear presentation
   //
-  if(returnCurv)  Trk::RungeKuttaUtils::transformGlobalToCurvilinear(useJac,P,p,Jac);
+  if(returnCurv) {
+    Trk::RungeKuttaUtils::transformGlobalToCurvilinear(useJac,P,p,Jac);
+  }
 
 
   if(!useJac || !Tp.covariance()) {
 
     if(!returnCurv) {
-      return Su.createNeutralParameters(p[0],p[1],p[2],p[3],p[4],nullptr);
+      return Su.createUniqueNeutralParameters(p[0],p[1],p[2],p[3],p[4],nullptr);
     }
     else            {
       Amg::Vector3D gp(P[0],P[1],P[2]);
-      return new Trk::NeutralCurvilinearParameters(gp,p[2],p[3],p[4]);
+      return std::make_unique<Trk::NeutralCurvilinearParameters>(gp,p[2],p[3],p[4]);
     }
   }
 
@@ -669,11 +672,11 @@ Trk::NeutralParameters* Trk::RungeKuttaPropagator::propagateStraightLine
   }
 
   if(!returnCurv) {
-    return Su.createNeutralParameters(p[0],p[1],p[2],p[3],p[4],e);
+    return Su.createUniqueNeutralParameters(p[0],p[1],p[2],p[3],p[4],e);
   }
   else            {
     Amg::Vector3D gp(P[0],P[1],P[2]);
-    return new Trk::NeutralCurvilinearParameters(gp,p[2],p[3],p[4],e);
+    return std::make_unique<Trk::NeutralCurvilinearParameters>(gp,p[2],p[3],p[4],e);
   }
 }
 
@@ -681,7 +684,7 @@ Trk::NeutralParameters* Trk::RungeKuttaPropagator::propagateStraightLine
 // Main function for charged track parameters propagation with or without jacobian
 /////////////////////////////////////////////////////////////////////////////////
 
-std::unique_ptr<Trk::TrackParameters> 
+std::unique_ptr<Trk::TrackParameters>
 Trk::RungeKuttaPropagator::propagateRungeKutta
 (Cache&                         cache ,
  bool                           useJac,
@@ -744,7 +747,7 @@ Trk::RungeKuttaPropagator::propagateRungeKutta
     // For cylinder we do test for next cross point
     //
     if(cyl->bounds().halfPhiSector() < 3.1 && newCrossPoint(*cyl,r0,P)) {
-      s[8] = 0.; 
+      s[8] = 0.;
       if(!propagateWithJacobian(cache,useJac,2,s,P,Step)) return nullptr;
     }
   }
@@ -795,7 +798,7 @@ Trk::RungeKuttaPropagator::propagateRungeKutta
   AmgSymMatrix(5)& cv = *e;
 
   if(cv(0,0)<=0. || cv(1,1)<=0. || cv(2,2)<=0. || cv(3,3)<=0. || cv(4,4)<=0.) {
-    delete e; 
+    delete e;
     return nullptr;
   }
 

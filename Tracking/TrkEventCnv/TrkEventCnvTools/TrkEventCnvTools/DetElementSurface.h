@@ -15,7 +15,7 @@
 namespace Trk
 {
 
-/** Dummy class used to allow special convertors to be called for surfaces owned by a detector element. 
+/** Dummy class used to allow special convertors to be called for surfaces owned by a detector element.
 Only intended for use within the persistency framework.*/
 // template <class SURFACE>
 // class DetElementSurface : public SURFACE
@@ -51,27 +51,56 @@ class DetElementSurface : public Surface
     void                        localToGlobal(const Amg::Vector2D&, const Amg::Vector3D&, Amg::Vector3D&) const {}
     bool                        globalToLocal(const Amg::Vector3D&, const Amg::Vector3D&, Amg::Vector2D&) const {return false;}
     std::string                 name() const { return "Trk::DetElementSurface";}
-// A dummy method required for consistency of the package and 
-    virtual ParametersBase<5, Trk::Charged>* createTrackParameters(double, double, double, double, double, AmgSymMatrix(5)*) const {return nullptr;}
-    virtual ParametersBase<5, Trk::Charged>* createTrackParameters(const Amg::Vector3D&, const Amg::Vector3D&, double, AmgSymMatrix(5)*) const {return nullptr;}     
-    virtual std::unique_ptr<ParametersBase<5, Trk::Charged>> createUniqueTrackParameters(double, double, double, double, double, AmgSymMatrix(5)*) const {return nullptr;}
-    virtual std::unique_ptr<ParametersBase<5, Trk::Charged>> createUniqueTrackParameters(const Amg::Vector3D&, const Amg::Vector3D&, double, AmgSymMatrix(5)*) const {return nullptr;}
-    
-    virtual ParametersBase<5, Trk::Neutral>* createNeutralParameters(double, double, double, double, double, AmgSymMatrix(5)*) const {return nullptr;}
-    virtual ParametersBase<5, Trk::Neutral>* createNeutralParameters(const Amg::Vector3D&, const Amg::Vector3D&, double, AmgSymMatrix(5)*) const {return nullptr;}
+    // A dummy method required for consistency of the package and
+    virtual std::unique_ptr<ParametersBase<5, Trk::Charged>>
+    createUniqueTrackParameters(double,
+                                double,
+                                double,
+                                double,
+                                double,
+                                AmgSymMatrix(5) *) const
+    {
+      return nullptr;
+    }
+    virtual std::unique_ptr<ParametersBase<5, Trk::Charged>>
+    createUniqueTrackParameters(const Amg::Vector3D&,
+                                const Amg::Vector3D&,
+                                double,
+                                AmgSymMatrix(5) *) const
+    {
+      return nullptr;
+    }
 
+    virtual std::unique_ptr<ParametersBase<5, Trk::Neutral>>
+    createUniqueNeutralParameters(double,
+                                  double,
+                                  double,
+                                  double,
+                                  double,
+                                  AmgSymMatrix(5) *) const
+    {
+      return nullptr;
+    }
+    virtual std::unique_ptr<ParametersBase<5, Trk::Neutral>>
+    createUniqueNeutralParameters(const Amg::Vector3D&,
+                                  const Amg::Vector3D&,
+                                  double,
+                                  AmgSymMatrix(5) *) const
+    {
+      return nullptr;
+    }
 
-    virtual Intersection straightLineIntersection(const Amg::Vector3D&, 
-                                                  const Amg::Vector3D&, 
+    virtual Intersection straightLineIntersection(const Amg::Vector3D&,
+                                                  const Amg::Vector3D&,
                                                   bool, Trk::BoundaryCheck) const { return Trk::Intersection(Amg::Vector3D(0.,0.,0.),0.,false); }
-    
 
-// persistency libraries.. 
-    virtual Trk::DistanceSolution straightLineDistanceEstimate(const Amg::Vector3D&, 
+
+// persistency libraries..
+    virtual Trk::DistanceSolution straightLineDistanceEstimate(const Amg::Vector3D&,
                                            const Amg::Vector3D&, bool) const {return 0;}
 
-    virtual bool isOnSurface(const Amg::Vector3D&, Trk::BoundaryCheck, double, double) const {return false;}  
-    
+    virtual bool isOnSurface(const Amg::Vector3D&, Trk::BoundaryCheck, double, double) const {return false;}
+
 private:
     Identifier  m_id;
 };
