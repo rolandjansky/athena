@@ -136,8 +136,9 @@ inline void set_random_states(GenEvent* e, std::vector<long int>& a) {
     e->add_attribute("random_states",std::make_shared<HepMC3::VectorLongIntAttribute>(a));
 }
 template <class T> void set_signal_process_vertex(GenEvent* e, T v) {
-    if (!v) return;
-    if (v->parent_event()!=e) return;
+    if (!v || !e) return;
+/* AV: HepMC2 adds the vertex to event */
+    e->add_vertex(v);
     v->add_attribute("signal_process_vertex",std::make_shared<HepMC3::IntAttribute>(1));
 }
 inline ConstGenVertexPtr signal_process_vertex(const GenEvent* e) { for (auto v: e->vertices()) if (v->attribute<HepMC3::IntAttribute>("signal_process_vertex")) return v; return nullptr; }
