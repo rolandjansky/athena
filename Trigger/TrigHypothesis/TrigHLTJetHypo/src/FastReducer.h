@@ -120,8 +120,5 @@ class FastReducer {
 
   bool capacitySatisfied(std::size_t ind,
 			 const Collector& collector) const;
-
-  PtrLess m_ptrLess;
-  PtrEq m_ptrEq;
 };
 #endif
