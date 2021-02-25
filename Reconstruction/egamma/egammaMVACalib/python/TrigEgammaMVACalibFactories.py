@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = "Tool and service factories to instantiate MVA calibration for trigger"
 __author__ = "Jovan Mitrevski"
@@ -10,10 +10,10 @@ import logging
 mlog = logging.getLogger ('TrigEgammaMVACalibFactories')
 
 from egammaMVACalib import egammaMVACalibConf
-from TriggerMenu.egamma.EgammaSliceFlags import EgammaSliceFlags
-mlog.info("MVA version version %s", EgammaSliceFlags.calibMVAVersion() )
-mlog.info("Cluster Correction version %s", EgammaSliceFlags.clusterCorrectionVersion() )
-EgammaSliceFlags.calibMVAVersion.set_On()
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+mlog.info("MVA version version %s", TriggerFlags.EgammaSlice.calibMVAVersion() )
+mlog.info("Cluster Correction version %s", TriggerFlags.EgammaSlice.clusterCorrectionVersion() )
+TriggerFlags.EgammaSlice.calibMVAVersion.set_On()
 
 from xAODEgamma.xAODEgammaParameters import xAOD
 
@@ -21,13 +21,13 @@ from xAODEgamma.xAODEgammaParameters import xAOD
 TrigElectronMVATool = ToolFactory(egammaMVACalibConf.egammaMVACalibTool,
                                   name = "TrigElectronMVATool",
                                   ParticleType = xAOD.EgammaParameters.electron,
-                                  folder=EgammaSliceFlags.calibMVAVersion(),
+                                  folder=TriggerFlags.EgammaSlice.calibMVAVersion(),
                                   use_layer_corrected = False)
 
 TrigPhotonMVATool = ToolFactory(egammaMVACalibConf.egammaMVACalibTool,
                                 name = "TrigPhotonMVATool",
                                 ParticleType = xAOD.EgammaParameters.unconvertedPhoton,
-                                folder=EgammaSliceFlags.calibMVAVersion(),
+                                folder=TriggerFlags.EgammaSlice.calibMVAVersion(),
                                 use_layer_corrected = False)
 
 
