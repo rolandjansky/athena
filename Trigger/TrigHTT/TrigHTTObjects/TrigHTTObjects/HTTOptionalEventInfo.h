@@ -25,8 +25,8 @@ class HTTOptionalEventInfo: public  TObject {
 
   //offline clusters
   const std::vector<HTTCluster>& getOfflineClusters()  const { return m_OfflineClusters; }
-  int  nOfflineClusters()  const { return m_OfflineClusters.size(); }  
-  void addOfflineClusters(HTTCluster cluster) { m_OfflineClusters.push_back(cluster); };
+  int  nOfflineClusters()  const { return m_OfflineClusters.size(); }
+  void addOfflineCluster(HTTCluster c) { m_OfflineClusters.push_back(c); }; 
 
    // tracks
   const std::vector<HTTTruthTrack>& getTruthTracks()  const { return m_Truth; }
@@ -37,6 +37,12 @@ class HTTOptionalEventInfo: public  TObject {
   const std::vector<HTTOfflineTrack>&  getOfflineTracks()  const { return m_Track; }
   int  nOfflineTracks()  const { return m_Track.size(); }
   void addOfflineTrack(HTTOfflineTrack d) { m_Track.push_back(d); };
+
+
+  //reserve sizes
+  void reserveOffClust(size_t size)        { m_OfflineClusters.reserve(size); }
+  void reserveTruth(size_t size)        { m_Truth.reserve(size); }
+  void reserveTrack(size_t size)        { m_Track.reserve(size); } 
 
  
  private:

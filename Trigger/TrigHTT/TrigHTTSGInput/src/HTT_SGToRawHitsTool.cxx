@@ -160,29 +160,23 @@ StatusCode HTT_SGToRawHitsTool::readData(HTTEventInputHeader* header)
   HTTOptionalEventInfo optional;
 
   if (m_readOfflineClusters){
-    std::vector <HTTCluster> clusters;
-    ATH_CHECK( read_offline_clusters(clusters));
-    for (auto cluster: clusters) optional.addOfflineClusters(cluster);
+    ATH_CHECK( read_offline_clusters(optional));
     ATH_MSG_INFO ("Saved "<<optional.nOfflineClusters()<<" offline clusters");
   }
 
   if (m_readTruthTracks){
-    std::vector <HTTTruthTrack> truth;
-    if (read_truth_tracks(truth) != StatusCode::SUCCESS){
+    if (read_truth_tracks(optional) != StatusCode::SUCCESS){
       ATH_MSG_ERROR ("Error in reading truth tracks");
       return StatusCode::FAILURE;
     }
-    for (auto trk: truth) optional.addTruthTrack(trk);
     ATH_MSG_INFO ("Saved "<<optional.nTruthTracks()<<" truth tracks");
   }
 
-  std::vector <HTTOfflineTrack> offline;
   if (m_readOfflineTracks){
-    if (read_offline_tracks(offline)!= StatusCode::SUCCESS){
+    if (read_offline_tracks(optional)!= StatusCode::SUCCESS){
       ATH_MSG_ERROR ("Error in reading offline tracks");
       return StatusCode::FAILURE;
     }
-    for (auto trk: offline) optional.addOfflineTrack(trk);
     ATH_MSG_INFO ("Saved "<<optional.nOfflineTracks()<<" offline tracks");
   }
 
@@ -194,7 +188,7 @@ StatusCode HTT_SGToRawHitsTool::readData(HTTEventInputHeader* header)
 }
 
 
-StatusCode HTT_SGToRawHitsTool::read_offline_tracks(std::vector<HTTOfflineTrack>& offline)
+StatusCode HTT_SGToRawHitsTool::read_offline_tracks(HTTOptionalEventInfo& optional)
 {
   const xAOD::TrackParticleContainer *offlineTracks = nullptr;
   if(evtStore()->retrieve(offlineTracks,m_offlineName).isFailure()) {
@@ -205,6 +199,7 @@ StatusCode HTT_SGToRawHitsTool::read_offline_tracks(std::vector<HTTOfflineTrack>
   ATH_MSG_INFO ("read Offline tracks, size= "<< offlineTracks->size());
   auto track_it   = offlineTracks->begin();
   auto last_track = offlineTracks->end();
+  optional.reserveTrack(offlineTracks->size());
   for (int iTrk=0 ; track_it!= last_track; track_it++, iTrk++){
     auto track = (*track_it)->track();
     HTTOfflineTrack tmpOfflineTrack;
@@ -260,7 +255,7 @@ StatusCode HTT_SGToRawHitsTool::read_offline_tracks(std::vector<HTTOfflineTrack>
 	}
       }
     }
-    offline.push_back(tmpOfflineTrack);
+    optional.addOfflineTrack(tmpOfflineTrack);
   }//end of loop over tracks
 
 
@@ -307,6 +302,7 @@ HTT_SGToRawHitsTool::ReadPixelSimulation( HitIndexMap& hitIndexMap, unsigned int
   ATH_MSG_INFO ("Found Pixel SDO Map");
 
   if( evtStore()->retrieve(pixel_rdocontainer_iter, "PixelRDOs").isSuccess()  ) {
+    m_eventHeader->reserveHits(pixel_rdocontainer_iter->size());
     pixel_rdocontainer_iter->clID(); // anything to dereference the DataHandle
     for( PixelRDO_Container::const_iterator iColl=pixel_rdocontainer_iter->begin(), fColl=pixel_rdocontainer_iter->end(); iColl!=fColl; ++iColl ) {
       const InDetRawDataCollection<PixelRDORawData>* pixel_rdoCollection(*iColl);
@@ -524,7 +520,7 @@ HTT_SGToRawHitsTool::DumpPixelClusters(HitIndexMap& pixelClusterIndexMap ) {
 }
 
 StatusCode
-HTT_SGToRawHitsTool::read_offline_clusters(std::vector <HTTCluster>& clusters)
+HTT_SGToRawHitsTool::read_offline_clusters(HTTOptionalEventInfo& optional)
 {
 
   //Lets do the Pixel clusters first
@@ -538,6 +534,7 @@ HTT_SGToRawHitsTool::read_offline_clusters(std::vector <HTTCluster>& clusters)
   }
 
    m_pixelContainer->clID(); // anything to dereference the DataHandle
+   optional.reserveOffClust(m_pixelContainer->size());
   for( InDet::SiClusterContainer::const_iterator iColl=m_pixelContainer->begin(), fColl=m_pixelContainer->end(); iColl!=fColl; ++iColl ) {
     const InDet::SiClusterCollection* pixelClusterCollection(*iColl);
     if( !pixelClusterCollection ) {
@@ -609,7 +606,7 @@ HTT_SGToRawHitsTool::read_offline_clusters(std::vector <HTTCluster>& clusters)
       clusterEquiv.setBarcodePt( static_cast<unsigned long>(std::ceil(bestParent ? bestParent->momentum().perp() : 0.)) );
       clusterEquiv.setParentageMask(parentMask.to_ulong());
       clusterOut.setClusterEquiv(clusterEquiv);
-      clusters.push_back(clusterOut);
+      optional.addOfflineCluster(clusterOut);
     }
   }
 
@@ -677,7 +674,7 @@ HTT_SGToRawHitsTool::read_offline_clusters(std::vector <HTTCluster>& clusters)
         clusterEquiv.setBarcodePt( static_cast<unsigned long>(std::ceil(bestParent ? bestParent->momentum().perp() : 0.)) );
         clusterEquiv.setParentageMask(parentMask.to_ulong());
 	clusterOut.setClusterEquiv(clusterEquiv);
-	clusters.push_back(clusterOut);
+	optional.addOfflineCluster(clusterOut);
       } // end for each RDO in the strip collection
     } // end for each strip RDO collection
     // dump all RDO's and SDO's for a given event, for debugging purposes
@@ -688,7 +685,7 @@ HTT_SGToRawHitsTool::read_offline_clusters(std::vector <HTTCluster>& clusters)
 }
 
 StatusCode
-HTT_SGToRawHitsTool::read_truth_tracks(std::vector <HTTTruthTrack>& truth)
+HTT_SGToRawHitsTool::read_truth_tracks(HTTOptionalEventInfo& optional)
 {
 
   // retrieve truth tracks from athena
@@ -708,6 +705,7 @@ HTT_SGToRawHitsTool::read_truth_tracks(std::vector <HTTTruthTrack>& truth)
 
 
   // dump each truth track
+  optional.reserveOffClust(SimTracks->size());
   for( unsigned int ievt=0;  ievt<SimTracks->size(); ++ievt ) {
 
     const HepMC::GenEvent* genEvent = SimTracks->at( ievt );
@@ -774,6 +772,7 @@ HTT_SGToRawHitsTool::read_truth_tracks(std::vector <HTTTruthTrack>& truth)
       const double track_truth_costheta = tP ? std::cos(tP->parameters()[Trk::theta]) : -1.;
       double truth_d0corr = track_truth_d0-( primaryVtx.y()*cos(track_truth_phi)-primaryVtx.x()*sin(track_truth_phi) );
       double truth_zvertex = 0.;
+      delete tP;
 
       const HepGeom::Point3D<double> startVertex(particle->production_vertex()->point3d().x(), particle->production_vertex()->point3d().y(), particle->production_vertex()->point3d().z());
       // categorize particle (prompt, secondary, etc.) based on InDetPerformanceRTT/detector paper criteria.
@@ -807,7 +806,7 @@ HTT_SGToRawHitsTool::read_truth_tracks(std::vector <HTTTruthTrack>& truth)
       tmpSGTrack.setPDGCode(pdgcode);
       tmpSGTrack.setBarcode(extBarcode2.barcode());
       tmpSGTrack.setEventIndex(extBarcode2.eventIndex());
-      truth.push_back(tmpSGTrack);
+      optional.addTruthTrack(tmpSGTrack);
     } // end for each GenParticle in this GenEvent
   } // end for each GenEvent
 

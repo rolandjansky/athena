@@ -38,7 +38,7 @@ class HTTEventInputHeader: public TObject
         int  nHits()                      const { return m_Hits.size(); }
         void addHit(HTTHit const & s)        { m_Hits.push_back(s); }
         void clearHits()                     { m_Hits.clear(); }
-
+	void reserveHits(size_t size)        { m_Hits.reserve(size); }
 
     private:
         HTTEventInfo                 m_event;
