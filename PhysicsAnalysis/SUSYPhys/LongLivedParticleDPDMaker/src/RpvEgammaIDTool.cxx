@@ -63,15 +63,8 @@ StatusCode DerivationFramework::RpvEgammaIDTool::addBranches() const
        
      // Make vectors for the cut results
      std::vector<SG::WriteHandle<std::vector<int> > > allSelectionResults;
-     for (auto str : m_qualFlags) {
-        std::string sgKey("");
-        if (m_sgPrefix=="") {
-                sgKey = str;
-        } else {
-                sgKey = m_sgPrefix+str;
-        }
-        SG::WriteHandle< std::vector<int> > tmp(sgKey);
-        allSelectionResults.push_back(tmp);
+     for (const auto& stItr : m_qualFlags) {
+        allSelectionResults.emplace_back(m_sgPrefix + stItr); 
         ATH_CHECK(allSelectionResults.back().record(std::make_unique< std::vector<int> >()));
      } 
      // Loop over egammas, set decisions   
