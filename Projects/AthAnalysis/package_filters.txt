@@ -175,7 +175,6 @@
 + Database/ConnectionManagement/.*
 - Database/AthenaPOOL/AthenaPoolExample.*
 - Database/AthenaPOOL/.*Tools
-+ Database/AthenaPOOL/DBDataModel
 + Database/AthenaPOOL/.*
 + Database/IOVDb.*
 + Database/PersistentDataModel.*
