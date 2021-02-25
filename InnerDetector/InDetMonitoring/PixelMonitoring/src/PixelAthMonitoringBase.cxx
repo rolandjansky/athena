@@ -291,10 +291,12 @@ int PixelAthMonitoringBase::getPixLayersID(int ec, int ld) const {
 ///
 int PixelAthMonitoringBase::getNumberOfFEs(int pixlayer, int etaMod) const {
   int nFE(16);
-  if (pixlayer == PixLayers::kIBL || pixlayer == PixLayers::kDBMC || pixlayer == PixLayers::kDBMA) {
+  if (pixlayer == PixLayers::kIBL) {
+    nFE = 1; // IBL 3D
+    if (etaMod>-7 && etaMod<6) nFE = 2; // IBL Planar
+  } else if (pixlayer == PixLayers::kDBMC || pixlayer == PixLayers::kDBMA) {
     nFE = 1;
-    if (etaMod>-7 && etaMod<6) nFE = 2; //IBL Planar
-  } 
+  }
   return nFE;
 }
 //////////////////////////////////////////////
