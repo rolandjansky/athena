@@ -15,6 +15,8 @@
 // ********************************************************************
 //
 //
+#ifndef TRIGCALOREC_TRIGCALOTOWERMAKERMT
+#define TRIGCALOREC_TRIGCALOTOWERMAKERMT
 #include <sstream>
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
@@ -24,6 +26,7 @@
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 //
 #include "CaloEvent/CaloCellContainer.h"
 
@@ -285,3 +288,4 @@ StatusCode TrigCaloTowerMakerMT::execute()
 
   return StatusCode::SUCCESS;
 }
+#endif
