@@ -70,7 +70,7 @@ def _createCfgFlags():
     acf.addFlag('Scheduler.ShowControlFlow', True)
     acf.addFlag('Scheduler.EnableVerboseViews', True)
 
-    acf.addFlag('Common.MsgSourceLength',50) #Lenght of the source-field in the format str of MessageSvc
+    acf.addFlag('Common.MsgSourceLength',50) #Length of the source-field in the format str of MessageSvc
     acf.addFlag('Common.isOnline', False ) #  Job runs in an online environment (access only to resources available at P1) # former global.isOnline
     acf.addFlag('Common.useOnlineLumi', lambda prevFlags : prevFlags.Common.isOnline ) #  Use online version of luminosity. ??? Should just use isOnline?
     acf.addFlag('Common.doExpressProcessing', False)

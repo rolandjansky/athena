@@ -9,7 +9,41 @@ msg = logging.getLogger('AutoConfigFlags')
 # Module level cache of file-metadata:
 _fileMetaData = dict()
 
+class DynamicallyLoadMetadata:
+    def __init__(self, filename):
+        self.metadata = {}
+        self.filename = filename
+        self.metAccessLevel = 'lite'
+        thisFileMD = read_metadata(filename, None, 'lite')
+        self.metadata.update(thisFileMD[self.filename])
+        msg.debug("Loaded using 'lite' %s", str(self.metadata))
+
+    def _loadMore(self):
+        thisFileMD = read_metadata(self.filename, None, 'peeker')
+        self.metadata.update(thisFileMD[self.filename])
+
+    def get(self, key, default):
+        if key in self.metadata:
+            return self.metadata[key]
+        if self.metAccessLevel != 'peeker':
+            msg.info("Looking into the file in 'peeker' mode as the configuration requires more details: %s ", key)
+            self.metAccessLevel = 'peeker'
+            self._loadMore()
+            if key in self.metadata:
+                return self.metadata[key]
+        return default
+
+    def __contains__(self, key):
+        return self.get(key, None) is not None
+
+    def __getitem__(self, key):
+        result =  self.get(key, None)
+        if result is None:
+            raise RuntimeError("Key {} not found".format(key))
+        return result
+
 def GetFileMD(filenames):
+
     filename=filenames[0]
     if filename == '_ATHENA_GENERIC_INPUTFILE_NAME_':
         raise RuntimeError('Input file name not set, instead _ATHENA_GENERIC_INPUTFILE_NAME_ found. Cannot read metadata.')
@@ -17,16 +51,13 @@ def GetFileMD(filenames):
         if len(filenames)>1:
             msg.info("Multiple input files. Use the first one for auto-configuration")
         msg.info("Obtaining metadata of auto-configuration by peeking into %s", filename)
-
-
-        thisFileMD=read_metadata(filename,None,'peeker')
-        _fileMetaData.update(thisFileMD)
+        _fileMetaData[filename] = DynamicallyLoadMetadata(filename)
 
     return _fileMetaData[filename]
 
 
 def _initializeGeometryParameters(geoTag):
-    """Read geometry database for all detetors"""
+    """Read geometry database for all detectors"""
 
     from AtlasGeoModel import CommonGeoDB
     from PixelGeoModel import PixelGeoDB
@@ -50,7 +81,7 @@ def DetDescrInfo(geoTag):
     """Query geometry DB for detector description. Returns dictionary with
     detector description. Queries DB for each tag only once.
 
-    geoTag: gemometry tag (e.g. ATLAS-R2-2016-01-00-01)
+    geoTag: geometry tag (e.g. ATLAS-R2-2016-01-00-01)
     """
     detDescrInfo = _initializeGeometryParameters(geoTag)
     detDescrInfo["geomTag"] = geoTag
