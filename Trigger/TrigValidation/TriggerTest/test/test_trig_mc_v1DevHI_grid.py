@@ -27,6 +27,7 @@ ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'pbpb'
 ex.threads = 4
 ex.concurrent_events = 4
+ex.max_events = 500
 ex.args = '-c "setMenu=\'Dev_HI_run3_v1\';doWriteBS=False;doWriteRDOTrigger=True;"'
 
 test = Test.Test()
