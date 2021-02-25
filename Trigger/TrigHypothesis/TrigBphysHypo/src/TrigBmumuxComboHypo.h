@@ -81,7 +81,6 @@ class TrigBmumuxComboHypo: public ::ComboHypo {
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute(const EventContext& context) const override;
-  virtual StatusCode finalize() override;
 
   enum Decay : size_t {
     kPsi_2mu,      // psi -> mu+ mu-

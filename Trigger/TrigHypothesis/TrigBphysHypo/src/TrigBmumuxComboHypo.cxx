@@ -20,7 +20,6 @@
 
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
-#include "TrigConfHLTData/HLTUtils.h"
 
 #include "AthViews/View.h"
 #include "AthViews/ViewHelper.h"
@@ -115,12 +114,6 @@ StatusCode TrigBmumuxComboHypo::initialize() {
     ATH_MSG_DEBUG( "No GenericMonitoringTool configured: no monitoring histograms will be available" );
   }
 
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode TrigBmumuxComboHypo::finalize() {
-  TrigConf::HLTUtils::hashes2file();
   return StatusCode::SUCCESS;
 }
 
