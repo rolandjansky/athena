@@ -133,7 +133,6 @@ private:
   bool m_bIsConfigured;
   bool m_bReadRandomRunNumber;
   int m_iIDLevel;
-  int m_iEVLevel;
   int m_iOLRLevel;
   int m_iContSysType;
   int m_iTriggerPeriodBinning;
