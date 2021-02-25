@@ -183,18 +183,19 @@ bool FastReducer::findInitialJetGroups(const HypoJetCIter& jets_b,
   for(const auto& leaf: leaves){
 
     auto& filter = m_conditionFilters[leaf];
-    auto filtered_jets = filter->filter(jets_b, jets_e, collector);
+    std::pair<HypoJetCIter, HypoJetCIter> iters =
+      filter->filter(jets_b, jets_e, collector);
 
-    recordFiltering(leaf, jets_e-jets_b, filtered_jets.size(), collector);
+    recordFiltering(leaf, jets_e-jets_b, iters.second-iters.first, collector);
 
     auto grouper = grouperByCapacityFactory(m_conditions[leaf]->capacity(),
-					    filtered_jets.begin(),
-					    filtered_jets.end());
+					    iters.first,
+					    iters.second);
 
     while(true){
       auto ojg = grouper->next();  // obtain a vector of jet ptrs
       if (!ojg.has_value()) {break;}
-
+      
       auto jg = *ojg;
       auto jg_ind = m_jgRegister.record(jg);  // obtain an int index for the jg
       m_testedBy[leaf].insert(jg_ind);
@@ -247,7 +248,7 @@ bool FastReducer::findInitialJetGroups(const HypoJetCIter& jets_b,
       }
     }
   }
-    
+  
   if(collector){
     for(const auto& p : m_indJetGroup){
       recordJetGroup(p.first, p.second, collector);
