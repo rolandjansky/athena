@@ -27,10 +27,14 @@ if( NOT XAOD_ANALYSIS )
 
    atlas_add_test( AllConfigFlagsTest_EVNT_test
       SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/python/testAllConfigFlags_EVNT.py
-      PROPERTIES TIMEOUT 300  )
+      PROPERTIES TIMEOUT 300 )
 endif()
 
 if( NOT GENERATIONBASE AND NOT XAOD_ANALYSIS )
+    atlas_add_test( DetectorConfigFlags_test
+                    SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/python/testDetectorFlags.py
+                    PROPERTIES TIMEOUT 300 )
+
     atlas_add_test( AllConfigFlagsTest_HITS_test
                     SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/python/testAllConfigFlags_HITS.py
                     PROPERTIES TIMEOUT 300  )
