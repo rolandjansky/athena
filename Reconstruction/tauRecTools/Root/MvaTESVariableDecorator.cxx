@@ -170,12 +170,12 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) const {
   
   double Pi0_totalE = Pi0_totalP4.E();
   
-  // summing charged PFO energies
+  // summing tau track momenta
   TLorentzVector charged_totalP4;
   charged_totalP4.SetPtEtaPhiM(0,0,0,0);
-  
-  for(size_t i=0; i<xTau.nChargedPFOs(); i++){
-    charged_totalP4 += xTau.chargedPFO(i)->p4();
+
+  for(const xAOD::TauTrack* track : xTau.tracks()) {
+    charged_totalP4 += track->p4();
   }
   
   double charged_totalE = charged_totalP4.E();
