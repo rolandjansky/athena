@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 
@@ -50,7 +50,7 @@ def createSimConfigFlags():
     scf.addFlag("Sim.RecordStepInfo",False)
     scf.addFlag("Sim.StoppedParticleFile", False)
     scf.addFlag("Sim.BeamPipeSimMode", "Normal")  ## ["Normal", "FastSim", "EGammaRangeCuts", "EGammaPRangeCuts"]
-    scf.addFlag("Sim.LArParameterization", 2)  ## 0 = No frozen showers, 1 = Frozen Showers, 2 = DeadMaterial Frozen Showers
+    scf.addFlag("Sim.LArParameterization", 0)  ## 0 = No frozen showers, 1 = Frozen Showers, 2 = DeadMaterial Frozen Showers
 
     #For BeameffectsAlg
     scf.addFlag("Sim.Vertex.Source", "CondDB" ) #"CondDB", "VertexOverrideEventFile.txt", "VertexOverride.txt","LongBeamspot"
