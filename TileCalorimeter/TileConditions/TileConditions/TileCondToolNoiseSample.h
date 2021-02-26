@@ -27,8 +27,8 @@ class TileCondToolNoiseSample: public AthAlgTool
         const IInterface* parent);
     virtual ~TileCondToolNoiseSample();
 
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
     float getPed(unsigned int drawerIdx, unsigned int channel, unsigned int adc,
                  TileRawChannelUnit::UNIT unit, const EventContext &ctx) const;
