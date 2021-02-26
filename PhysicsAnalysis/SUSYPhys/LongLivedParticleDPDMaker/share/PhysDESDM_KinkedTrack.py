@@ -170,7 +170,8 @@ KinkTrkZeeTagTool = DerivationFramework__KinkTrkZeeTagTool(name                 
                                                            DiEleMassLow         = primRPVLLDESDM.KinkedTrack_ZeeFilterFlags.diElectronMassLow,
                                                            DiEleMassHigh        = primRPVLLDESDM.KinkedTrack_ZeeFilterFlags.diElectronMassHigh,
                                                            DeltaPhiMax          = primRPVLLDESDM.KinkedTrack_ZeeFilterFlags.deltaPhiMax,
-                                                           StoreGateKeyPrefix   = "KinkTrk")
+                                                           KinkTrkDiEleMassKey  = "KinkTrkDiEleMass",
+                                                           KinkTrkProbeEleEtKey = "KinkTrkProbeEleEt")
 
 print(KinkTrkZeeTagTool)
 ToolSvc += KinkTrkZeeTagTool
@@ -190,7 +191,8 @@ KinkTrkZmumuTagTool = DerivationFramework__KinkTrkZmumuTagTool(name            =
                                                            DiMuonMassLow       = primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags.diMuonMassLow,
                                                            DiMuonMassHigh      = primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags.diMuonMassHigh,
                                                            DeltaPhiMax         = primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags.deltaPhiMax,
-                                                           StoreGateKeyPrefix  = "KinkTrk")
+                                                           KinkTrkDiMuMassKey  = "KinkTrkDiMuMass",
+                                                           KinkTrkProbeMuPtKey = "KinkTrkProbeMuPt")
 
 print(KinkTrkZmumuTagTool)
 ToolSvc += KinkTrkZmumuTagTool

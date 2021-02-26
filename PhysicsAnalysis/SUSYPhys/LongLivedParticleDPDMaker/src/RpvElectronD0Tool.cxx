@@ -17,11 +17,9 @@
 DerivationFramework::RpvElectronD0Tool::RpvElectronD0Tool( const std::string& t,
 							   const std::string& n,
 							   const IInterface* p ) :
-  AthAlgTool(t,n,p),
-  m_sgPrefix("")
+  AthAlgTool(t,n,p)
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
-    declareProperty("SGPrefix", m_sgPrefix);
   }
  
 // Destructor
@@ -33,6 +31,7 @@ StatusCode DerivationFramework::RpvElectronD0Tool::initialize()
 {
      ATH_MSG_VERBOSE("initialize() ...");
      ATH_CHECK(m_collName.initialize());
+     ATH_CHECK(m_electronsd0.initialize());
      return StatusCode::SUCCESS;
 }
 StatusCode DerivationFramework::RpvElectronD0Tool::finalize()
@@ -53,8 +52,7 @@ StatusCode DerivationFramework::RpvElectronD0Tool::addBranches() const
      }
 	
      // Write decision to SG for access by downstream algs 
-     std::string sgKey(m_sgPrefix+"D0");
-     SG::WriteHandle< std::vector<float> > d0vec(sgKey);
+     SG::WriteHandle< std::vector<float> > d0vec(m_electronsd0);
      ATH_CHECK(d0vec.record(std::make_unique< std::vector<float> >()));
 
      // Loop over electrons, set decisions

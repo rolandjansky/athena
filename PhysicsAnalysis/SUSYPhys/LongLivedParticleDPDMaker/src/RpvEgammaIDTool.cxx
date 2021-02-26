@@ -21,12 +21,10 @@
 DerivationFramework::RpvEgammaIDTool::RpvEgammaIDTool( const std::string& t,
 						       const std::string& n,
 						       const IInterface* p ) :
-  AthAlgTool(t,n,p),
-  m_sgPrefix("")
+  AthAlgTool(t,n,p)
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
-    declareProperty("SelectionVariables",m_qualFlags);
-    declareProperty("SGPrefix", m_sgPrefix);
+    declareProperty("SelectionVariable",m_selectionString);
   }
  
 // Destructor
@@ -36,12 +34,9 @@ DerivationFramework::RpvEgammaIDTool::~RpvEgammaIDTool() {
 // Athena initialize and finalize
 StatusCode DerivationFramework::RpvEgammaIDTool::initialize()
 {
-     if (m_qualFlags.size()==0) {
-        ATH_MSG_ERROR("No selection variables for the egamma passSelection wrapper tool!");
-        return StatusCode::FAILURE;
-     }
      ATH_MSG_VERBOSE("initialize() ...");
      ATH_CHECK(m_collName.initialize());
+     ATH_CHECK(m_egammaSelection.initialize());
      return StatusCode::SUCCESS;
 }
 StatusCode DerivationFramework::RpvEgammaIDTool::finalize()
@@ -61,24 +56,20 @@ StatusCode DerivationFramework::RpvEgammaIDTool::addBranches() const
         return StatusCode::FAILURE;
      }
        
-     // Make vectors for the cut results
-     std::vector<SG::WriteHandle<std::vector<int> > > allSelectionResults;
-     for (const auto& stItr : m_qualFlags) {
-        allSelectionResults.emplace_back(m_sgPrefix + stItr); 
-        ATH_CHECK(allSelectionResults.back().record(std::make_unique< std::vector<int> >()));
-     } 
+     // Make WriteHandle for the cut results
+     SG::WriteHandle< std::vector<int> > egammaSelection(m_egammaSelection);
+     ATH_CHECK(egammaSelection.record(std::make_unique< std::vector<int> >()));
+
      // Loop over egammas, set decisions   
      for (xAOD::EgammaContainer::const_iterator eIt = egammas->begin(); eIt!=egammas->end(); ++eIt) {
-        unsigned int itr(0);
-        for (std::vector<std::string>::const_iterator strItr = m_qualFlags.begin(); strItr!=m_qualFlags.end(); ++strItr, ++itr) {
-                bool val(0);
-                if ( (*eIt)->passSelection(val,*strItr) ) {
-                        if (val) {allSelectionResults[itr]->push_back(1);}
-                        else {allSelectionResults[itr]->push_back(0);}
-                } else {
-                        ATH_MSG_WARNING("Evident problem with quality flag " << *strItr << " so setting to false!");
-                        allSelectionResults[itr]->push_back(0);
-                }
+        bool val(0);
+        if ( (*eIt)->passSelection(val,m_selectionString) ) {
+          if (val) {egammaSelection->push_back(1);}
+          else {egammaSelection->push_back(0);}
+        }
+        else{
+          ATH_MSG_WARNING("Evident problem with quality flag " << m_selectionString << " so setting to false!");
+          egammaSelection->push_back(0);
         }
      }     
 

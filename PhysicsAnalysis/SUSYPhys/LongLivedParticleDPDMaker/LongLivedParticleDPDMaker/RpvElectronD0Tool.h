@@ -46,7 +46,7 @@ namespace DerivationFramework {
 
   private:
     SG::ReadHandleKey<xAOD::ElectronContainer> m_collName { this, "ElectronContainerKey", "Electrons", ""};
-    std::string m_sgPrefix;
+    SG::WriteHandleKey<std::vector<float>> m_electronsd0 { this, "SGPrefixD0", "ElectronsD0", ""};
 
   }; 
  

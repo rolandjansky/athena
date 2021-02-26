@@ -28,8 +28,7 @@ DerivationFramework::KinkTrkZeeTagTool::KinkTrkZeeTagTool(const std::string& t,
   m_clusterEtaMax(2.8),
   m_diEleMassLow(50.),
   m_diEleMassHigh(-1),
-  m_dPhiMax(10),
-  m_sgKeyPrefix("KinkTrk")
+  m_dPhiMax(10)
 {
   declareInterface<DerivationFramework::IAugmentationTool>(this);
   declareProperty("TriggerDecisionTool", m_trigDecisionTool);
@@ -45,7 +44,6 @@ DerivationFramework::KinkTrkZeeTagTool::KinkTrkZeeTagTool(const std::string& t,
   declareProperty("DiEleMassLow", m_diEleMassLow);
   declareProperty("DiEleMassHigh", m_diEleMassHigh);
   declareProperty("DeltaPhiMax", m_dPhiMax);
-  declareProperty("StoreGateKeyPrefix", m_sgKeyPrefix);
 }
   
 
@@ -77,6 +75,8 @@ StatusCode DerivationFramework::KinkTrkZeeTagTool::initialize()
 
   ATH_CHECK(m_electronSGKey.initialize());
   ATH_CHECK(m_clusterSGKey.initialize());
+  ATH_CHECK(m_KinkTrkDiEleMassKey.initialize());
+  ATH_CHECK(m_KinkTrkProbeEleEtKey.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -93,10 +93,10 @@ StatusCode DerivationFramework::KinkTrkZeeTagTool::finalize()
 // Augmentation
 StatusCode DerivationFramework::KinkTrkZeeTagTool::addBranches() const
 {
-  SG::WriteHandle< std::vector<float> > diEleMass(m_sgKeyPrefix+"DiEleMass");
+  SG::WriteHandle< std::vector<float> > diEleMass(m_KinkTrkDiEleMassKey);
   ATH_CHECK(diEleMass.record(std::make_unique< std::vector<float> >()));
 
-  SG::WriteHandle< std::vector<float> > probeEleEt(m_sgKeyPrefix+"ProbeEleEt");
+  SG::WriteHandle< std::vector<float> > probeEleEt(m_KinkTrkProbeEleEtKey);
   ATH_CHECK(probeEleEt.record(std::make_unique< std::vector<float> >()));
 
   SG::ReadHandle<xAOD::ElectronContainer> electrons(m_electronSGKey);

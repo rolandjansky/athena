@@ -75,7 +75,8 @@ namespace DerivationFramework {
     float m_dPhiMax;
     bool m_doOppositeSignReq;
 
-    std::string m_sgKeyPrefix;
+    SG::WriteHandleKey<std::vector<float>> m_KinkTrkDiMuMassKey { this, "KinkTrkDiMuMassKey", "KinkTrkDiMuMass", ""};
+    SG::WriteHandleKey<std::vector<float>> m_KinkTrkProbeMuPtKey { this, "KinkTrkProbeMuPtKey", "KinkTrkProbeMuPt", ""};
 
 
   }; 

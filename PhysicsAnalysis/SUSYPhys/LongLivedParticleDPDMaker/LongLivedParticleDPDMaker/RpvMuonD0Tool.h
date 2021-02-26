@@ -46,7 +46,8 @@ namespace DerivationFramework {
 
   private:
     SG::ReadHandleKey<xAOD::MuonContainer> m_collName { this, "MuonContainerKey", "Muons", ""};
-    std::string m_sgPrefix;
+    SG::WriteHandleKey<std::vector<float>> m_collNameD0 { this, "SGPrefixD0", "MuonsD0", ""};
+    SG::WriteHandleKey<std::vector<int>> m_collNameIsComb { this, "SGPrefixIsComb", "MuonsisCombined", ""};
 
   }; 
  

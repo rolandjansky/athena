@@ -31,8 +31,7 @@ DerivationFramework::KinkTrkZmumuTagTool::KinkTrkZmumuTagTool(const std::string&
   m_diMuonMassLow(50.),
   m_diMuonMassHigh(-1),
   m_dPhiMax(10),
-  m_doOppositeSignReq(false),
-  m_sgKeyPrefix("KinkTrk")
+  m_doOppositeSignReq(false)
 {
   declareInterface<DerivationFramework::IAugmentationTool>(this);
   declareProperty("TriggerDecisionTool", m_trigDecisionTool);
@@ -49,7 +48,6 @@ DerivationFramework::KinkTrkZmumuTagTool::KinkTrkZmumuTagTool(const std::string&
   declareProperty("DiMuonMassHigh", m_diMuonMassHigh);
   declareProperty("DeltaPhiMax", m_dPhiMax); 
   declareProperty("RequireOppositeSign", m_doOppositeSignReq);
-  declareProperty("StoreGateKeyPrefix", m_sgKeyPrefix); 
 }
   
 
@@ -83,6 +81,8 @@ StatusCode DerivationFramework::KinkTrkZmumuTagTool::initialize()
 
   ATH_CHECK(m_muonSGKey.initialize());
   ATH_CHECK(m_trackSGKey.initialize());
+  ATH_CHECK(m_KinkTrkDiMuMassKey.initialize());
+  ATH_CHECK(m_KinkTrkProbeMuPtKey.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -99,10 +99,11 @@ StatusCode DerivationFramework::KinkTrkZmumuTagTool::finalize()
 // Augmentation
 StatusCode DerivationFramework::KinkTrkZmumuTagTool::addBranches() const
 {
-  SG::WriteHandle< std::vector<float> > diMuonTrkMass(m_sgKeyPrefix+"DiMuMass");
+
+  SG::WriteHandle< std::vector<float> > diMuonTrkMass(m_KinkTrkDiMuMassKey);
   ATH_CHECK(diMuonTrkMass.record(std::make_unique< std::vector<float> >()));
 
-  SG::WriteHandle< std::vector<float> > probeMuPt(m_sgKeyPrefix+"ProbeMuPt");
+  SG::WriteHandle< std::vector<float> > probeMuPt(m_KinkTrkProbeMuPtKey);
   ATH_CHECK(probeMuPt.record(std::make_unique< std::vector<float> >()));
 
   SG::ReadHandle<xAOD::MuonContainer> muons(m_muonSGKey);

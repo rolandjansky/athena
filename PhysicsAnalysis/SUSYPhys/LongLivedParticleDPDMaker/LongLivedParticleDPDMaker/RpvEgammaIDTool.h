@@ -49,7 +49,8 @@ namespace DerivationFramework {
   private:
     std::vector<std::string> m_qualFlags;
     SG::ReadHandleKey<xAOD::EgammaContainer> m_collName { this, "CollectionName", "ElectronCollection", ""};
-    std::string m_sgPrefix;
+    SG::WriteHandleKey<std::vector<int>> m_egammaSelection { this, "EGammaSelectionKey", "DVPhotonsLoose", ""};
+    std::string m_selectionString;
 
   };
  

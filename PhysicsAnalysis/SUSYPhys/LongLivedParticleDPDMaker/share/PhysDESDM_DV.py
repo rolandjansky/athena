@@ -201,9 +201,9 @@ ToolSvc += DVPhotonTriggerFilter
 
 from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFramework__RpvEgammaIDTool
 DVPhotonSelection = DerivationFramework__RpvEgammaIDTool( name               = "DVPhotonSelection",
-                                                             SelectionVariables = ["Loose", "Tight"],
-                                                             CollectionName     =photonContainer ,
-                                                             SGPrefix           = "DV" + photonContainer,
+                                                             SelectionVariable = primRPVLLDESDM.DV_PhotonFilterFlags.cutIsEM,
+                                                             CollectionName     = photonContainer,
+                                                             EGammaSelectionKey = "DV"+photonContainer+primRPVLLDESDM.DV_PhotonFilterFlags.cutIsEM,
                                                            )
 ToolSvc += DVPhotonSelection
 topSequence += DerivationFramework__DerivationKernel( "DVPhotonAugmentationKernel",

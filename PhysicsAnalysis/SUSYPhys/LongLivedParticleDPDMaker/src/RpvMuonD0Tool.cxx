@@ -17,11 +17,9 @@
 DerivationFramework::RpvMuonD0Tool::RpvMuonD0Tool( const std::string& t,
 						   const std::string& n,
 						   const IInterface* p ) :
-  AthAlgTool(t,n,p),
-  m_sgPrefix("")
+  AthAlgTool(t,n,p)
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
-    declareProperty("SGPrefix", m_sgPrefix);
   }
  
 // Destructor
@@ -33,6 +31,8 @@ StatusCode DerivationFramework::RpvMuonD0Tool::initialize()
 {
      ATH_MSG_VERBOSE("initialize() ...");
      ATH_CHECK(m_collName.initialize());
+     ATH_CHECK(m_collNameD0.initialize());
+     ATH_CHECK(m_collNameIsComb.initialize());
      return StatusCode::SUCCESS;
 }
 StatusCode DerivationFramework::RpvMuonD0Tool::finalize()
@@ -54,12 +54,10 @@ StatusCode DerivationFramework::RpvMuonD0Tool::addBranches() const
 	
      // Make a vector for the cut results
      // Write decision to SG for access by downstream algs 
-     std::string sgKeyd0(m_sgPrefix+"D0");
-     SG::WriteHandle< std::vector<float> > d0vec(sgKeyd0);
+     SG::WriteHandle< std::vector<float> > d0vec(m_collNameD0);
      ATH_CHECK(d0vec.record(std::make_unique< std::vector<float> >()));
 
-     std::string sgKeycomb(m_sgPrefix+"isCombined");
-     SG::WriteHandle< std::vector<int> > isCombinedVec(sgKeycomb);
+     SG::WriteHandle< std::vector<int> > isCombinedVec(m_collNameIsComb);
      ATH_CHECK(isCombinedVec.record(std::make_unique< std::vector<int> >()));
 
 
