@@ -16,7 +16,7 @@
 
 // Athena includes:
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "ByteStreamCnvSvcBase/FullEventAssembler.h"
+#include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h"
 #include "ByteStreamData/RawEvent.h"
 
 // System includes
@@ -153,8 +153,8 @@ private:
   // ------------------------- Other private members ---------------------------
   /// Vector of ROB IDs corresponding to the modules configured for decoding
   std::vector<uint32_t> m_configuredROBIds;
-  /// Object used in creating the RoI Builder ROB fragments
-  FullEventAssembler<L1SrcIdMap> m_fea;
+  /// Interface to get raw event pointer for updating event header when writing to BS
+  SmartIF<IByteStreamEventAccess> m_byteStreamEventAccess;
   /// @name Flags to switch decoding/encoding of each system
   /// @{
   bool m_doCTP {true};
