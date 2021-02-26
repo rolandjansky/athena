@@ -31,12 +31,12 @@ atlas_add_test( interpolate_test
 atlas_add_test( config_test
                 SCRIPT python ${CMAKE_CURRENT_SOURCE_DIR}/test/config_t.py
                 ENVIRONMENT FRONTIER_SERVER=$ENV{FRONTIER_SERVER}
-                LOG_IGNORE_PATTERN "Current filenames|by peeking" )
+                LOG_IGNORE_PATTERN "Current filenames|by peeking|^Py:MetaReader|^Py:AutoConfigFlags" )
 
 atlas_add_test( CaloScaleCluster_test
                 SCRIPT python ${CMAKE_CURRENT_SOURCE_DIR}/test/CaloScaleCluster_test.py
                 PROPERTIES TIMEOUT 300
-                LOG_IGNORE_PATTERN "Reading file|no dictionary for class|by peeking|IdDictDetDescrCnv|Unable to locate catalog|Current filenames|Global tag|Cache alignment" )
+                LOG_IGNORE_PATTERN "Reading file|no dictionary for class|by peeking|IdDictDetDescrCnv|Unable to locate catalog|Current filenames|Global tag|Cache alignment|^Py:MetaReader" )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
