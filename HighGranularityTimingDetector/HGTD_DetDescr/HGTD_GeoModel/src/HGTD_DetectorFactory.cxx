@@ -726,7 +726,8 @@ std::string HGTD_DetectorFactory::formModuleName( int layer, int quadrant, unsig
         myrot = module.phiRotation;
         phi = quadrant*21 + row + 1;  // quadrant is absent ( hidden into row ) in HGTD-Identifier
         eta = mod + 1;
-        module_string = "_R" + std::to_string(phi) + "_M" + std::to_string(eta);
+        //module_string = "_R" + std::to_string(phi) + "_M" + std::to_string(eta); //This was the previous string, but doesn't match expectations of HGTDSensorSD
+	module_string = "_layer_" + std::to_string(layer) + "_" + std::to_string(phi) + "_" + std::to_string(eta);
     } 
     // two-ring layout
     else {
