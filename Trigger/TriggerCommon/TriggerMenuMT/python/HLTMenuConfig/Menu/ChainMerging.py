@@ -18,7 +18,7 @@ def mergeChainDefs(listOfChainDefs, chainDict):
 
     strategy = chainDict["mergingStrategy"]
     offset = chainDict["mergingOffset"]
-    log.info("[mergeChainDefs] %s: Combine by using %s merging", chainDict['chainName'], strategy)
+    log.debug("[mergeChainDefs] %s: Combine by using %s merging", chainDict['chainName'], strategy)
 
     if strategy=="parallel":
         return mergeParallel(listOfChainDefs,  offset)
@@ -282,17 +282,17 @@ def serial_zip(allSteps, chainName, chainDefList):
                         log.debug("[serial_zip] emptyChainDicts %s",emptyChainDicts)
 
                     if len(emptySequences) != len(emptyChainDicts):
-                        log.error("[serial_zip] different number of empty sequences/legs %d to stepDicts %d", len(emptySequences), len(emptyChainDicts))
+                        log.error("[serial_zip] %s has a different number of empty sequences/legs %d than stepDicts %d", chainName, len(emptySequences), len(emptyChainDicts))
                         raise Exception("[serial_zip] Cannot create this chain step, exiting.")
 
                     for sd in emptyChainDicts:
                         if len(sd['chainParts']) != 1:
-                            log.error("[serial_zip] stepDict chainParts has length != 1 within a leg! %s",sd)
+                            log.error("[serial_zip] %s has chainParts has length != 1 within a leg! chain dictionary for this step: \n %s", chainName, sd)
                             raise Exception("[serial_zip] Cannot create this chain step, exiting.")
                         step_mult += [int(sd['chainParts'][0]['multiplicity'])] 
 
                     if len(emptySequences) != len(step_mult):
-                        log.error("[serial_zip] different number of empty sequences/legs %d to multiplicities %d", len(emptySequences), len(step_mult))
+                        log.error("[serial_zip] %s has a different number of empty sequences/legs %d than multiplicities %d",  chainName, len(emptySequences), len(step_mult))
                         raise Exception("[serial_zip] Cannot create this chain step, exiting.")
 
                     if doBonusDebug:
@@ -339,14 +339,7 @@ def mergeSerial(chainDefList):
         mySteps = list(steps)
         combStep = makeCombinedStep(mySteps, step_index+1, chainDefList)
         combChainSteps.append(combStep)
-
-    # check if all chain parts have the same number of steps
-    sameNSteps = all(x==nSteps[0] for x in nSteps) 
-    if sameNSteps is True:
-        log.info("[mergeSerial] All chain parts have the same number of steps")
-    else:
-        log.info("[mergeSerial] Have to deal with uneven number of chain steps, there might be none's appearing in sequence list => to be fixed")
-                                  
+                        
     combinedChainDef = Chain(chainName, ChainSteps=combChainSteps, L1Thresholds=l1Thresholds,
                                nSteps = nSteps, alignmentGroups = alignmentGroups)
 
@@ -423,7 +416,7 @@ def makeCombinedStep(parallel_steps, stepNumber, chainDefList, allSteps = [], cu
             stepName += '_' + currentStepName
 
         theChainStep = ChainStep(stepName, Sequences=[], multiplicity=[], chainDicts=stepDicts, comboHypoCfg=ComboHypoCfg) 
-        log.info("[makeCombinedStep] Merged empty step: \n %s", theChainStep)
+        log.debug("[makeCombinedStep] Merged empty step: \n %s", theChainStep)
         return theChainStep
 
     for chain_index, step in enumerate(parallel_steps): #this is a horizontal merge!
@@ -508,7 +501,7 @@ def makeCombinedStep(parallel_steps, stepNumber, chainDefList, allSteps = [], cu
     
     comboHypoTools = list(set(comboHypoTools))
     theChainStep = ChainStep(stepName, Sequences=stepSeq, multiplicity=stepMult, chainDicts=stepDicts, comboHypoCfg=comboHypo, comboToolConfs=comboHypoTools) 
-    log.info("[makeCombinedStep] Merged step: \n %s", theChainStep)
+    log.debug("[makeCombinedStep] Merged step: \n %s", theChainStep)
   
     
     return theChainStep

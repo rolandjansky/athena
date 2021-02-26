@@ -20,9 +20,9 @@ def addP1Signatures():
 
     from TriggerJobOpts.TriggerFlags          import TriggerFlags
     from AthenaCommon.Logging import logging
-    log = logging.getLogger( __name__+" + addP1Signatures" )
-    log.info('addP1Signatures ...')
-
+    log = logging.getLogger( __name__ )
+    log.info('[setupMenu] going to add the PhysicsP1 menu chains now')
+    
     TriggerFlags.TestSlice.signatures = TriggerFlags.TestSlice.signatures() + []
 
     TriggerFlags.MuonSlice.signatures = TriggerFlags.MuonSlice.signatures() + [

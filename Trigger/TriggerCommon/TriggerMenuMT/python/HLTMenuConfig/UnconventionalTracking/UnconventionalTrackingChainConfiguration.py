@@ -2,7 +2,7 @@
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
-log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.UnconventionalTracking.UnconventionalTrackingDef")
+log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.UnconventionalTracking.UnconventionalTrackingChainConfiguration")
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
@@ -132,7 +132,7 @@ def IsoHPtTrackTriggerHypoSequence():
         DummyInputMakerAlg = conf2toConfigurable(CompFactory.InputMakerForRoI( "IM_IsoHPtTrack_HypoOnlyStep" ))
         DummyInputMakerAlg.RoITool = conf2toConfigurable(CompFactory.ViewCreatorInitialROITool())
 
-        log.info("Building the Step dictinary for IsoHPt!")
+        log.debug("Building the Step dictinary for IsoHPt!")
         return MenuSequence( Sequence    = seqAND("UncTrkEmptySeq",[DummyInputMakerAlg]),
                             Maker       = DummyInputMakerAlg,
                             Hypo        = theIsoHPtTrackTriggerHypo,
@@ -149,7 +149,7 @@ def FTFRecoOnlySequence():
         HypoAlg = TrigStreamerHypoAlgMT("UncTrkDummyStream")
 
 
-        log.info("Building the Step dictinary for IsoHPt!")
+        log.debug("Building the Step dictinary for IsoHPt!")
         return MenuSequence( Sequence    = seqAND("UncTrkrecoSeq", TrkSeq),
                             Maker       = InputMakerAlg,
                             Hypo        = HypoAlg,

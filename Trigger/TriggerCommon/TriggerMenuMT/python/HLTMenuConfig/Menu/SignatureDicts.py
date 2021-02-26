@@ -948,18 +948,22 @@ AllowedTopos = AllowedTopos_e + AllowedTopos_g + AllowedTopos_mu + AllowedTopos_
 # Obtain signature type
 #==========================================================
 def getSignatureNameFromToken(chainpart):
+    import re
     theMatchingTokens = []
     reverseSliceIDDict = { value: key for key, value in SliceIDDict.items() } #reversed SliceIDDict
     for sig,token in SliceIDDict.items():
-        if (token in chainpart):
+        if re.match(r'^\d*'+token+r'\d*\w*$', chainpart):
             theMatchingTokens += [token]
-    theToken = max(theMatchingTokens, key=len) # gets the longest string in t
-    if len(theMatchingTokens)>0:
-        if len(theMatchingTokens)>1:
-            log.info('There are several signatures tokens, %s, matching this chain part %s. Picked %s.',
-                                  theMatchingTokens,chainpart,theToken)
-        return reverseSliceIDDict[theToken]
-    log.error('No signature matching chain part %s was found.', chainpart)
+    if len(theMatchingTokens) == 1:
+        return reverseSliceIDDict[theMatchingTokens[0]]
+    elif len(theMatchingTokens)>1:
+        log.error('[getSignatureNameFromToken] There are several signatures tokens, %s, matching the chain part %s. I don\'t know which one to use!',
+                                  theMatchingTokens,chainpart)
+    else:
+        log.error('No signature matching chain part %s was found.', chainpart)
+    
+    raise Exception('[getSignatureNameFromToken] Cannot find signature from chain name, exiting.')
+    
     return False
 
 
@@ -1019,5 +1023,5 @@ def getBasePattern():
     import re
     allTrigTypes = SliceIDDict.values()
     possibleTT = '|'.join(allTrigTypes)
-    pattern = re.compile("(?P<multiplicity>\d*)(?P<trigType>(%s))(?P<threshold>\d+)(?P<extra>\w*)" % (possibleTT)) # noqa: W605
+    pattern = re.compile(r"(?P<multiplicity>\d*)(?P<trigType>(%s))(?P<threshold>\d+)(?P<extra>\w*)" % (possibleTT))
     return pattern

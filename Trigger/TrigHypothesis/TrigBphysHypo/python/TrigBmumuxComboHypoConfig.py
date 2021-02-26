@@ -5,7 +5,6 @@ from TrigBphysHypo.TrigBmumuxComboHypoMonitoringConfig import TrigBmumuxComboHyp
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TrigBmumuxComboHypoConfig')
-log.setLevel(logging.DEBUG)
 
 def BmumuxComboHypoCfg(name):
     log.debug('BmumuxComboHypoCfg.name = %s ', name)
