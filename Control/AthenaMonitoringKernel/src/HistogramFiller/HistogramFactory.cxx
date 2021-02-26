@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include "CxxUtils/checker_macros.h"
 
@@ -220,6 +220,7 @@ TTree* HistogramFactory::createTree(const HistogramDef& def) {
   if ( !m_histSvc->regTree(fullName,std::unique_ptr<TTree>(t) ) ) {
     throw HistogramException("Tree >"+ fullName + "< can not be registered in THistSvc");
   }
+  // cppcheck-suppress deallocret; false positive
   return t;
 }
 
