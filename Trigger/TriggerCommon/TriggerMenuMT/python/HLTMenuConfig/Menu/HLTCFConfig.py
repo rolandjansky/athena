@@ -74,7 +74,7 @@ def createStepFilterNode(name, seq_list, dump=False):
     filter_list=[]
     for seq in seq_list:
         filterAlg = seq.filter.Alg
-        log.info("createStepFilterNode: Add  %s to filter node %s", filterAlg.name(), name)
+        log.debug("createStepFilterNode: Add  %s to filter node %s", filterAlg.name(), name)
         if filterAlg not in filter_list:
             filter_list.append(filterAlg)
 
@@ -143,10 +143,15 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
 
     hltFinalizeSeq = seqAND("HLTFinalizeSeq")
 
+    log.info("[makeHLTTree] will now make the DF and CF tree from chains")
+
     # make DF and CF tree from chains
     finalDecisions = decisionTreeFromChains(steps, triggerConfigHLT.configsList(), triggerConfigHLT.dictsList(), newJO)
 
-    sequenceScanner( steps )
+    successful_scan = sequenceScanner( steps )
+    
+    if not successful_scan:
+        raise Exception("[makeHLTTree] At least one sequence is expected in more than one step. Check error messages and fix!")    
 
     flatDecisions=[]
     for step in finalDecisions:
@@ -155,6 +160,7 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     summary = makeSummary("Final", flatDecisions)
     hltEndSeq += summary
 
+    log.info("[makeHLTTree] created the final summary tree")
     # TODO - check we are not running things twice. Once here and once in TriggerConfig.py
 
     from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectViewMakers, collectDecisionObjects,\
@@ -278,16 +284,16 @@ def matrixDisplay( allCFSeq ):
     from collections import  OrderedDict
     sorted_mx = OrderedDict(sorted( list(mx.items()), key= lambda k: k[0]))
 
-    log.info( "" )
-    log.info( "="*90 )
-    log.info( "Cumulative Summary of steps")
-    log.info( "="*90 )
+    log.debug( "" )
+    log.debug( "="*90 )
+    log.debug( "Cumulative Summary of steps")
+    log.debug( "="*90 )
     for (step, seq), chains in list(sorted_mx.items()):
-        log.info( "(step, sequence)  ==> (%d, %s) is in chains: ",  step, seq)
+        log.debug( "(step, sequence)  ==> (%d, %s) is in chains: ",  step, seq)
         for chain in chains:
-            log.info( "              %s",chain)
+            log.debug( "              %s",chain)
 
-    log.info( "="*90 )
+    log.debug( "="*90 )
 
 
 def sequenceScanner( HLTNode ):
@@ -334,10 +340,10 @@ def sequenceScanner( HLTNode ):
 def decisionTreeFromChains(HLTNode, chains, allDicts, newJO):
     """ creates the decision tree, given the starting node and the chains containing the sequences  """
 
-    log.debug("Run decisionTreeFromChains on %s", HLTNode.name())
+    log.info("[decisionTreeFromChains] Run decisionTreeFromChains on %s", HLTNode.name())
     HLTNodeName= HLTNode.name()
     if len(chains) == 0:
-        log.info("Configuring empty decisionTree")
+        log.info("[decisionTreeFromChains] Configuring empty decisionTree")
         return []
 
     (finalDecisions, CFseq_list) = createDataFlow(chains, allDicts)
@@ -358,7 +364,8 @@ def decisionTreeFromChains(HLTNode, chains, allDicts, newJO):
         all_DataFlow_to_dot(HLTNodeName, CFseq_list)
 
     # matrix display
-    matrixDisplay( CFseq_list )
+    # uncomment for serious debugging
+    # matrixDisplay( CFseq_list )
 
     return finalDecisions
 
@@ -370,7 +377,7 @@ def createDataFlow(chains, allDicts):
     chainWithMaxSteps = max(chains, key=lambda chain: len(chain.steps))
     NSTEPS = len(chainWithMaxSteps.steps)
 
-    log.debug("createDataFlow for %d chains and total %d steps", len(chains), NSTEPS)
+    log.info("[createDataFlow] creating DF for %d chains and total %d steps", len(chains), NSTEPS)
 
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CFSequence
     # initialize arrays for monitor
@@ -390,8 +397,8 @@ def createDataFlow(chains, allDicts):
             log.debug("Seeds added; having in the filter now: %s", filterInput)
 
             if len(filterInput) == 0 :
-                log.error("ERROR: Filter for step %s has %d inputs! At least one is expected", chainStep.name, len(filterInput))
-
+                log.error("[createDataFlow] Filter for step %s has %d inputs! At least one is expected", chainStep.name, len(filterInput))
+                raise Exception("[createDataFlow] Cannot proceed, exiting.")
 
             # make one filter per step:
             sequenceFilter= None
@@ -427,7 +434,8 @@ def createDataFlow(chains, allDicts):
             # add chains to the filter:
             chainLegs = chainStep.getChainLegs()
             if len(chainLegs) != len(filterInput):
-                log.error("chainlegs = %i differ from inputs=%i", len(chainLegs), len(filterInput))
+                log.error("[createDataFlow] chainlegs = %i differ from inputs=%i", len(chainLegs), len(filterInput))
+                raise Exception("[createDataFlow] Cannot proceed, exiting.")
             for finput, leg in zip(filterInput, chainLegs):
                 sequenceFilter.addChain(leg, finput)
                 log.debug("Adding chain %s to input %s of %s", leg, finput,sequenceFilter.Alg.name())
@@ -447,7 +455,7 @@ def createDataFlow(chains, allDicts):
                     log.debug(dec)
                     
         #end of loop over steps
-        log.info("\n Built CF for chain %s with %d steps: \n   - %s ", chain.name,len(chain.steps),'\n   - '.join(map(str, [{step.name:step.multiplicity} for step in chain.steps])))
+        log.debug("\n Built CF for chain %s with %d steps: \n   - %s ", chain.name,len(chain.steps),'\n   - '.join(map(str, [{step.name:step.multiplicity} for step in chain.steps])))
     #end of loop over chains
 
 
@@ -488,7 +496,7 @@ def createControlFlow(HLTNode, CFseqList):
             stepCF_DataFlow_to_dot(stepRecoNode.name(), CFseqList[nstep])
             stepCF_ControlFlow_to_dot(stepRecoNode)
 
-        log.info("************* End of step %d, %s", nstep+1, stepSequenceName)
+        log.debug("************* End of step %d, %s", nstep+1, stepSequenceName)
 
     return
 

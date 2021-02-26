@@ -49,7 +49,7 @@ def setupMenu():
     from TriggerJobOpts.TriggerFlags          import TriggerFlags
     from AthenaCommon.Logging import logging
     log = logging.getLogger( __name__ )
-    log.info('setupMenu ...')
+    log.info('[setupMenu] going to add the Physics menu chains now')
 
 
     TriggerFlags.Slices_all_setOff()

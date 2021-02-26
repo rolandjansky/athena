@@ -144,4 +144,4 @@ if __name__ == "__main__":
     assert tool, "Not configured simple tool"
 
 
-    log.info("ALL OK")
+    log.debug("ALL OK")
