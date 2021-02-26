@@ -48,7 +48,7 @@ StatusCode DerivationFramework::RpvMuonD0Tool::addBranches() const
      // Retrieve data
      SG::ReadHandle<xAOD::MuonContainer> muons(m_collNameKey);
      if( !muons.isValid() ) {
-	ATH_MSG_ERROR("Couldn't retrieve muon container with key: " << m_collName);
+	ATH_MSG_ERROR("Couldn't retrieve muon container with key: " << m_collNameKey);
 	return StatusCode::FAILURE;
      }
 	

@@ -23,6 +23,8 @@
 #include "xAODJet/JetContainer.h"
 #include "xAODMuon/MuonContainer.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODTracking/TrackParticlexAODHelpers.h"
 
 
 namespace DerivationFramework {

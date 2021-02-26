@@ -14,6 +14,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ITHistSvc.h"
+#include "EventBookkeeperMetaData/SkimDecisionCollection.h" 
 
 #include "TH1.h"
 #include "TH2.h"
