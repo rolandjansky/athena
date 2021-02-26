@@ -3,7 +3,7 @@
 import logging
 msg = logging.getLogger(__name__)
 
-from PyJobTransforms.trfArgClasses import argFactory, argFile, argInt, argFloat, argString, argBool, argPOOLFile, argEVNT_TRFile, argHITSFile, argRDOFile, argSubstepInt, argSubstepBool, argSubstepString
+from PyJobTransforms.trfArgClasses import argFactory, argFile, argInt, argFloat, argList, argString, argBool, argPOOLFile, argEVNT_TRFile, argHITSFile, argRDOFile, argSubstepInt, argSubstepBool, argSubstepString
 #from PyJobTransforms.trfLogger import stdLogLevels
 #from PyJobTransforms.trfDecorators import silent
 #from PyJobTransforms.trfExitCodes import trfExit
@@ -198,7 +198,7 @@ def addCommonSimDigTrfArgs(parser):
                         type=argFactory(argInt),
                         help='The number of this job in the current RunDependentSimulation task.', group='SimDigi')
     parser.add_argument('--detectors', nargs='*',
-                        type=argFactory(argString),
+                        type=argFactory(argList),
                         help='Detectors autoconfiguration string', group='SimDigi')
 
 def addHITSMergeArgs(parser):

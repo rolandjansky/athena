@@ -3,7 +3,7 @@
 Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 
-from PyJobTransforms.trfArgClasses import argBSFile, argFactory, argRDOFile, argString, argSubstep
+from PyJobTransforms.trfArgClasses import argBSFile, argFactory, argList, argRDOFile, argSubstep
 from PyJobTransforms.trfExe import athenaExecutor
 
 
@@ -11,7 +11,7 @@ def addOverlayTrfArgs(parser):
     """Add common overlay command-line parser arguments."""
     parser.defineArgGroup('Overlay', 'Common Overlay Options')
     parser.add_argument('--detectors', nargs='*',
-                        type=argFactory(argString),
+                        type=argFactory(argList),
                         help='Detectors autoconfiguration string',
                         group='Overlay')
     parser.add_argument('--outputRDO_SGNLFile', nargs='+',
