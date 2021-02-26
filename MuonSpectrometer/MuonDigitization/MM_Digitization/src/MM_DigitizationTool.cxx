@@ -90,6 +90,17 @@
 #include <fstream>
 #include <memory>
 
+
+namespace {
+ // thresholds for the shortest and longest strips
+ // values from https://indico.cern.ch/event/1002207/contributions/4240818
+ // slide 10
+
+ static constexpr float maxNoise = 2600;
+ static constexpr float minNoise = 1000;
+
+}
+
 using namespace MuonGM;
 
 /*******************************************************************************/
@@ -236,6 +247,9 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
   declareProperty("RandomSeed", m_randomSeed = 42);
 
   declareProperty("correctShift", m_correctShift = -0.244); // purely empirical shift to fix the z positions of clusters: 12/20  pscholer
+
+  declareProperty("useThresholdScaling", m_useThresholdScaling = true);
+  declareProperty("thresholdScaleFactor", m_thresholdScaleFactor = 9.); // current default value for cosmics testing of MM double wedges
   
 }
 
@@ -351,7 +365,6 @@ StatusCode MM_DigitizationTool::initialize() {
 	m_ElectronicsResponseSimulation->setPeakTime(m_peakTime); // VMM peak time parameter
 	m_ElectronicsResponseSimulation->setTimeWindowLowerOffset(m_timeWindowLowerOffset);
 	m_ElectronicsResponseSimulation->setTimeWindowUpperOffset(m_timeWindowUpperOffset);
-	m_ElectronicsResponseSimulation->setElectronicsThreshold(m_electronicsThreshold);
 	m_ElectronicsResponseSimulation->setStripdeadtime(m_stripdeadtime);
 	m_ElectronicsResponseSimulation->setARTdeadtime(m_ARTdeadtime);
 	m_ElectronicsResponseSimulation->setNeighborLogic(m_vmmNeighborLogic);
@@ -380,6 +393,34 @@ StatusCode MM_DigitizationTool::initialize() {
 
 	}
 
+  // get shortest and longest strip length for threshold scaling
+  //
+  Identifier tmpId; // temporary identifier to work with ReadoutElement
+  
+  // identifier for first gas gap in a large MM sector, layer is eta layer, station Eta = 1 to get shortest strip
+  tmpId = m_idHelper->channelID("MML",1,1,1,1,1); 
+  
+  const MuonGM::MMReadoutElement* detectorReadoutElement = m_MuonGeoMgr->getMMReadoutElement(tmpId);
+  int stripNumberShortestStrip = (detectorReadoutElement->getDesign(tmpId))->nMissedBottomEta + 1;
+  Identifier tmpIdShortestStrip = m_idHelper->channelID("MML",1,1,1,1,stripNumberShortestStrip); // identifier for first gas gap in a large MM sector, layer is eta layer
+  float shortestStripLength = detectorReadoutElement->stripLength(tmpIdShortestStrip);
+
+
+  // identifier for first gas gap in a large MM sector, layer is eta layer, station Eta = 2 to get the longest strip
+  Identifier tmpId2 = m_idHelper->channelID("MML",2,1,1,1,1);
+  
+  detectorReadoutElement = m_MuonGeoMgr->getMMReadoutElement(tmpId2);
+  int stripNumberLongestStrip = (detectorReadoutElement->getDesign(tmpId))->totalStrips - (detectorReadoutElement->getDesign(tmpId))->nMissedTopEta;
+  Identifier tmpIdLongestStrip = m_idHelper->channelID("MML",2,1,1,1,stripNumberLongestStrip); // identifier for first gas gap in a large MM sector, layer is eta layer
+  float longestStripLength = detectorReadoutElement->stripLength(tmpIdLongestStrip);
+
+  // now get the slope and intercept for the threshold scaling
+  // function is m_noiseSlope * stripLength + m_noiseIntercept
+  m_noiseSlope = (maxNoise - minNoise)/(longestStripLength-shortestStripLength);
+  m_noiseIntercept = minNoise - m_noiseSlope*shortestStripLength;
+
+
+  ATH_MSG_DEBUG(" Shortest strip number: " << stripNumberShortestStrip  << " length: " << shortestStripLength << " longest strip number: " << stripNumberLongestStrip << " length " << longestStripLength);
 
 	ATH_MSG_DEBUG ( "Configuration  MM_DigitizationTool " );
 	ATH_MSG_DEBUG ( "RndmSvc                " << m_rndmSvc             );
@@ -1122,9 +1163,6 @@ StatusCode MM_DigitizationTool::doDigitization() {
     // VMM Simulation
     //
 
-    // get the threshold scale factor from the gain factor of the smearing tool
-    float thresholdScaleFactor = 1.0;
-    
     // Combine all strips (for this VMM) into a single VMM-level object
     //
     MM_ElectronicsToolInput stripDigitOutputAllHits = combinedStripResponseAllHits(v_stripDigitOutput);
@@ -1133,13 +1171,13 @@ StatusCode MM_DigitizationTool::doDigitization() {
     
     // Create Electronics Output with peak finding setting
     //
-    MM_DigitToolOutput electronicsPeakOutput( m_ElectronicsResponseSimulation->getPeakResponseFrom(stripDigitOutputAllHits, thresholdScaleFactor) );
+    MM_DigitToolOutput electronicsPeakOutput( m_ElectronicsResponseSimulation->getPeakResponseFrom(stripDigitOutputAllHits) );
     if(!electronicsPeakOutput.isValid())
       ATH_MSG_DEBUG ( "MM_DigitizationTool::doDigitization() -- there is no electronics response (peak finding mode) even though there is a strip response." );
     
     // Create Electronics Output with threshold setting
     //
-    MM_DigitToolOutput electronicsThresholdOutput( m_ElectronicsResponseSimulation->getThresholdResponseFrom(stripDigitOutputAllHits,thresholdScaleFactor) );
+    MM_DigitToolOutput electronicsThresholdOutput( m_ElectronicsResponseSimulation->getThresholdResponseFrom(stripDigitOutputAllHits) );
     if(!electronicsThresholdOutput.isValid())
       ATH_MSG_DEBUG ( "MM_DigitizationTool::doDigitization() -- there is no electronics response (threshold mode) even though there is a strip response." );
     
@@ -1309,9 +1347,13 @@ MM_ElectronicsToolInput MM_DigitizationTool::combinedStripResponseAllHits(const 
 	std::vector <int> v_stripStripResponseAllHits;
 	std::vector < std::vector <float> > v_timeStripResponseAllHits;
 	std::vector < std::vector <float> > v_qStripResponseAllHits;
+	std::vector<float> v_stripThresholdResponseAllHits;
 	v_stripStripResponseAllHits.clear();
 	v_timeStripResponseAllHits.clear();
 	v_qStripResponseAllHits.clear();
+	v_stripThresholdResponseAllHits.clear();
+	v_stripThresholdResponseAllHits.clear();
+
 
 	Identifier digitID;
 	float max_kineticEnergy = 0.0;
@@ -1342,6 +1384,17 @@ MM_ElectronicsToolInput MM_DigitizationTool::combinedStripResponseAllHits(const 
 				v_stripStripResponseAllHits.push_back(strip_id);
 				v_timeStripResponseAllHits.push_back(i_stripDigitOutput.chipTime()[i]);
 				v_qStripResponseAllHits.push_back(i_stripDigitOutput.chipCharge()[i]);
+				if(m_useThresholdScaling) {
+
+					Identifier id = m_idHelper->channelID(digitID, m_idHelper->multilayer(digitID), m_idHelper->gasGap(digitID), strip_id);
+					const MuonGM::MMReadoutElement* detectorReadoutElement = m_MuonGeoMgr->getMMReadoutElement(id);
+					float stripLength = detectorReadoutElement->stripLength(id);
+					float threshold = (m_noiseSlope*stripLength + m_noiseIntercept) * m_thresholdScaleFactor;
+					v_stripThresholdResponseAllHits.push_back(threshold);        
+				}
+				else {
+					v_stripThresholdResponseAllHits.push_back(m_electronicsThreshold);
+				}
 			}
 		}
 	}
@@ -1349,6 +1402,7 @@ MM_ElectronicsToolInput MM_DigitizationTool::combinedStripResponseAllHits(const 
 	MM_ElectronicsToolInput stripDigitOutputAllHits( v_stripStripResponseAllHits,
 													v_qStripResponseAllHits,
 													v_timeStripResponseAllHits,
+													v_stripThresholdResponseAllHits,
 													digitID,
 													max_kineticEnergy
 													);
