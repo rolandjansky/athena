@@ -250,6 +250,11 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 
     double m_correctShift;
 
+    float m_noiseSlope;
+    float m_noiseIntercept;
+    bool m_useThresholdScaling;
+    float m_thresholdScaleFactor;
+
 };
 
 #endif // MM_DigitizationTool
