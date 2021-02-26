@@ -126,6 +126,7 @@ if __name__ == "__main__":
     ConfigFlags.Detector.GeometryPixel = True
     ConfigFlags.Detector.GeometrySCT = True
     ConfigFlags.Detector.GeometryTRT = True
+    ConfigFlags.Detector.GeometryCalo = False
     ConfigFlags.Detector.GeometryMuon = False
     ConfigFlags.lock()
 
