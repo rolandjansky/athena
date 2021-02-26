@@ -28,7 +28,6 @@ TrigL2MuonSA::MuCalStreamerTool::MuCalStreamerTool(const std::string& type,
 						   const std::string& name,
 						   const IInterface*  parent): 
    AthAlgTool(type,name,parent),
-   m_regionSelector( "RegSelSvc", name ),
    m_robDataProvider( "ROBDataProviderSvc", name )
 {
 }
@@ -39,12 +38,12 @@ TrigL2MuonSA::MuCalStreamerTool::MuCalStreamerTool(const std::string& type,
 StatusCode TrigL2MuonSA::MuCalStreamerTool::initialize()
 {
    // locate the region selector
-   ATH_CHECK( m_regionSelector.retrieve() );
-   ATH_MSG_DEBUG("Retrieved the region selector");
+   ATH_CHECK( m_regSel_MDT.retrieve() );
+   ATH_CHECK( m_regSel_CSC.retrieve() );
+   ATH_CHECK( m_regSel_TGC.retrieve() );
 
    // Locate ROBDataProvider
    ATH_CHECK( m_robDataProvider.retrieve() );
-   ATH_MSG_DEBUG("Retrieved service " << m_robDataProvider.name());
 
    m_localBuffer.clear();
 
@@ -199,7 +198,7 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRoiFragment(const LVL1::RecMuo
 
   uint32_t mrods[4] = {0, 0, 0, 0};
   // prepare the header information
-  std::vector<uint32_t> robIdList;
+  std::vector<uint32_t> robIdList_MDT;
   double etaMin = m_roi->eta()-0.05;
   double etaMax = m_roi->eta()+0.05;
   double phi_roi = m_roi->phi();
@@ -212,24 +211,24 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRoiFragment(const LVL1::RecMuo
   TrigRoiDescriptor roiDescr( m_roi->eta(), etaMin, etaMax, phi_roi, phiMin, phiMax );
     
   const IRoiDescriptor* iroi = (IRoiDescriptor*) &roiDescr;
-  m_regionSelector->DetROBIDListUint(MDT, *iroi, robIdList);
+  m_regSel_MDT->ROBIDList(*iroi,robIdList_MDT);
 
   // dump the list of robs for debugging 
-  int isize = robIdList.size()<5 ? robIdList.size() : 4;
+  int isize = robIdList_MDT.size()<5 ? robIdList_MDT.size() : 4;
   for (int ii = 0 ; ii<isize ; ++ii ) {
-    ATH_MSG_DEBUG("robId: 0x" << std::hex << robIdList.at(ii) << std::dec);
-    mrods[ii] = robIdList.at(ii);
+    ATH_MSG_DEBUG("robId: 0x" << std::hex << robIdList_MDT.at(ii) << std::dec);
+    mrods[ii] = robIdList_MDT.at(ii);
   }
   
   // get the list of TGC robs
-  std::vector<uint32_t> tgcRobIdList;
-  m_regionSelector->DetROBIDListUint(TGC, *iroi, tgcRobIdList);
-  ATH_MSG_DEBUG("Size of the tgc rob list: " << tgcRobIdList.size());
+  std::vector<uint32_t> robIdList_TGC;
+  m_regSel_TGC->ROBIDList(*iroi,robIdList_TGC);
+  ATH_MSG_DEBUG("Size of the TGC rob list: " << robIdList_TGC.size());
 
   // get the list of CSC robs
-  std::vector<uint32_t> cscRobIdList;
-  m_regionSelector->DetROBIDListUint(CSC, *iroi, cscRobIdList);
-  ATH_MSG_DEBUG("Size of the tgc rob list: " << cscRobIdList.size());
+  std::vector<uint32_t> robIdList_CSC;
+  m_regSel_CSC->ROBIDList(*iroi,robIdList_CSC);
+  ATH_MSG_DEBUG("Size of the CSC rob list: " << robIdList_CSC.size());
 
   LVL2_MUON_CALIBRATION::CalibEvent  event(1,runId,lvl1Id,1,1,mrods,name().c_str(),eta,phi,pt);
   LVL2_MUON_CALIBRATION::MdtCalibFragment mdtFragment;
@@ -258,7 +257,7 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRoiFragment(const LVL1::RecMuo
   if ( tgcHits.size() > 0 ) {    
     LVL2_MUON_CALIBRATION::TgcCalibFragment tgcFragment;
 
-    if ( createTgcFragment(tgcRobIdList,tgcFragment) != StatusCode::SUCCESS ) {
+    if ( createTgcFragment(robIdList_TGC,tgcFragment) != StatusCode::SUCCESS ) {
       ATH_MSG_ERROR("Could not create the Tgc fragment of the calibration stream");
     }
     else {
@@ -270,10 +269,10 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRoiFragment(const LVL1::RecMuo
 
 
   // if there is any CSC rob, add also the CSC fragment
-  if ( cscRobIdList.size()>0 ) {
+  if ( robIdList_CSC.size()>0 ) {
     
     LVL2_MUON_CALIBRATION::CscCalibFragment cscFragment;
-    if ( createCscFragment(cscRobIdList,cscFragment) != StatusCode::SUCCESS ) {
+    if ( createCscFragment(robIdList_CSC,cscFragment) != StatusCode::SUCCESS ) {
       ATH_MSG_ERROR("Could not create the Csc fragment of the calibration stream");
     }
     else {
@@ -516,12 +515,12 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(const LVL1::RecMuo
 // prepare the TGC fragment of the stream
 //
 ////////////////////////////////////////////////////////////////////////////////
-StatusCode TrigL2MuonSA::MuCalStreamerTool::createTgcFragment(std::vector<uint32_t>& tgcRobIdList,
+StatusCode TrigL2MuonSA::MuCalStreamerTool::createTgcFragment(std::vector<uint32_t>& robIdList_TGC,
 							      LVL2_MUON_CALIBRATION::TgcCalibFragment& tgcFragment)
 {
 
 
-  if ( tgcRobIdList.size()<1 ) {
+  if ( robIdList_TGC.size()<1 ) {
     ATH_MSG_DEBUG("No TGC Rob found");
     return StatusCode::SUCCESS;
   }
@@ -529,8 +528,8 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createTgcFragment(std::vector<uint32
   // system Id = 1 should correspond to the endcap
   uint16_t systemId = 1;
   // this is the subdetector Id
-  uint16_t subSystemId = ( (tgcRobIdList.at(0) & 0xff0000) >> 16 );
-  uint16_t rdoId = ( tgcRobIdList.at(0) & 0xff );
+  uint16_t subSystemId = ( (robIdList_TGC.at(0) & 0xff0000) >> 16 );
+  uint16_t rdoId = ( robIdList_TGC.at(0) & 0xff );
 
   uint16_t roiNumber = 0;
 
@@ -658,13 +657,13 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createTgcFragment(std::vector<uint32
 // prepare the CSC fragment of the stream
 //
 ////////////////////////////////////////////////////////////////////////////////
-StatusCode TrigL2MuonSA::MuCalStreamerTool::createCscFragment(std::vector<uint32_t>& cscRobIdList,
+StatusCode TrigL2MuonSA::MuCalStreamerTool::createCscFragment(std::vector<uint32_t>& robIdList_CSC,
 							      LVL2_MUON_CALIBRATION::CscCalibFragment& cscFragment) 
 {
   
   // retreive the csc rob data
   std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> robFragments;
-  m_robDataProvider->getROBData(cscRobIdList,robFragments);
+  m_robDataProvider->getROBData(robIdList_CSC,robFragments);
 
   // transfer the rob data to the CSC fragment
   std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>::const_iterator it;

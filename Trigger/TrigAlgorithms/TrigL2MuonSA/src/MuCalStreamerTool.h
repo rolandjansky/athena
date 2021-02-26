@@ -18,7 +18,7 @@
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "RPC_CondCabling/RpcCablingCondData.h"
 #include "StoreGate/ReadCondHandleKey.h"
-#include "RegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 #include "MuonRDO/TgcRdoContainer.h"
 #include "StoreGate/ReadHandleKey.h"
 
@@ -104,7 +104,9 @@ namespace TrigL2MuonSA {
     std::ofstream m_outputFile;
 
     // the region selector
-    ServiceHandle<IRegSelSvc>  m_regionSelector;
+    ToolHandle<IRegSelTool> m_regSel_MDT{this, "RegionSelectorTool", "RegSelTool/RegSelTool_MDT", "MDT Region Selector Tool"};
+    ToolHandle<IRegSelTool> m_regSel_CSC{this, "RegionSelectorTool", "RegSelTool/RegSelTool_CSC", "CSC Region Selector Tool"};
+    ToolHandle<IRegSelTool> m_regSel_TGC{this, "RegionSelectorTool", "RegSelTool/RegSelTool_TGC", "TGC Region Selector Tool"};
 
     SG::ReadCondHandleKey<RpcCablingCondData> m_readKey{this, "ReadKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
 
