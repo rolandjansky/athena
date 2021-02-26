@@ -78,7 +78,6 @@ namespace Trk {
       using INavigator::highestVolume;
       using INavigator::nextBoundarySurface;
       using INavigator::nextTrackingVolume;
-      using INavigator::nextDenseTrackingVolume;
 
 
       /** INavigator interface method - returns the TrackingGeometry used for
@@ -140,22 +139,8 @@ namespace Trk {
         PropDirection dir,
         const TrackingVolume& vol) const override final;
 
-      /** INavigator interface method - getting the next Volume and the
-        parameter for the next Navigation
-        - contains full loop over volume boundaries
-      */
-      virtual NavigationCell nextDenseTrackingVolume(
-        const EventContext& ctx,
-        const IPropagator& prop,
-        const TrackParameters& parms,
-        const Surface* destination,
-        PropDirection dir,
-        ParticleHypothesis particle,
-        const TrackingVolume& vol,
-        double& path) const override final;
-
     private:
-      
+
 
       SG::ReadCondHandleKey<TrackingGeometry> m_trackingGeometryReadKey{
         this,

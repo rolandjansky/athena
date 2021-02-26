@@ -57,24 +57,5 @@ INavigator::nextTrackingVolume(const IPropagator& prop,
     Gaudi::Hive::currentContext(), prop, parms, dir, vol);
 }
 
-inline NavigationCell
-INavigator::nextDenseTrackingVolume(const IPropagator& prop,
-                                    const TrackParameters& parms,
-                                    const Surface* destination,
-                                    PropDirection dir,
-                                    ParticleHypothesis particle,
-                                    const TrackingVolume& vol,
-                                    double& path) const
-{
-
-  return nextDenseTrackingVolume(Gaudi::Hive::currentContext(),
-                                 prop,
-                                 parms,
-                                 destination,
-                                 dir,
-                                 particle,
-                                 vol,
-                                 path);
-}
 
 }
