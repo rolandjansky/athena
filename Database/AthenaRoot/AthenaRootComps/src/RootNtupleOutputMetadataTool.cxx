@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // RootNtupleOutputMetadataTool.cxx 
@@ -159,7 +159,7 @@ RootNtupleOutputMetadataTool::handle(const Incident& inc)
     SG::ConstIterator<TransferTree> tend; 
     StatusCode pc = m_ometaStore->retrieve(titer,tend); 
     if (pc.isSuccess()) { 
-      for (; titer != tend; titer++) { 
+      for (; titer != tend; ++titer) { 
         if (m_ometaStore->removeDataAndProxy(&*titer).isFailure()) { 
           ATH_MSG_ERROR("Unable to remove TransferTree after writing"); 
         } 
@@ -196,7 +196,7 @@ RootNtupleOutputMetadataTool::writeMetadata()
     StatusCode pc = m_ometaStore->retrieve(iter,end);
     bool failure = false; 
     if (pc.isSuccess()) {
-      for (; iter != end; iter++) {
+      for (; iter != end; ++iter) {
         std::string key = iter.key();
         if (this->addMetadata(key,&(*iter),typeid(std::string)).isFailure()) failure=true;
       }
@@ -212,7 +212,7 @@ RootNtupleOutputMetadataTool::writeMetadata()
   StatusCode pc = m_ometaStore->retrieve(titer,tend);
   bool failure = false; 
   if (pc.isSuccess()) {
-    for (; titer != tend; titer++) {
+    for (; titer != tend; ++titer) {
       std::string key = titer.key();
       if (m_treesWritten.find(key) == m_treesWritten.end()) {
         const TTree* x = (TTree*)titer->tree(); 
@@ -243,7 +243,7 @@ RootNtupleOutputMetadataTool::copyMetadata()
   StatusCode pc = m_imetaStore->retrieve(iter,end);
   bool failure = false; 
   if (pc.isSuccess()) {
-    for (; iter != end; iter++) {
+    for (; iter != end; ++iter) {
       if (!m_ometaStore->contains<std::string>(iter.key())) {
         std::string* toCopy = new std::string(*iter);
         if (m_ometaStore->record(toCopy,iter.key()).isFailure()) failure=true;
@@ -259,7 +259,7 @@ RootNtupleOutputMetadataTool::copyMetadata()
   pc = m_imetaStore->retrieve(titer,tend);
   failure = false; 
   if (pc.isSuccess()) {
-    for (; titer != tend; titer++) {
+    for (; titer != tend; ++titer) {
       auto toCopy = std::make_unique<TransferTree>(*titer);
       if (!m_ometaStore->contains<TransferTree>(titer.key())) {
         if (m_ometaStore->record(std::move(toCopy),titer.key()).isFailure()) failure=true;
