@@ -388,7 +388,7 @@ StatusCode MuFastSteering::execute()
 
   }
   else if(m_multiTrack){ //multi-track SA mode
-    ATH_MSG_DEBUG("start multi-trrack SA mode...");
+    ATH_MSG_DEBUG("start multi-track SA mode...");
     ATH_CHECK(findMultiTrackSignature(internalRoI, recRoIVector, *muFastContainer));
   }
   else {
@@ -1522,7 +1522,6 @@ StatusCode MuFastSteering::findMultiTrackSignature(const std::vector<const TrigR
         
         if(tmp_trkPats.size() > 0){
           ATH_MSG_DEBUG("temp pT calculated 2mu-in-1RoI alg = " << tmp_trkPats[0].pt << " GeV");
-          ATH_MSG_DEBUG("check overlap with other tracks reconstructed by MPmode");
           if( (std::abs(tmp_trkPats[0].barrelSagitta) < ZERO_LIMIT && 
                std::abs(tmp_trkPats[0].barrelRadius) < ZERO_LIMIT) ||
                std::abs(tmp_trkPats[0].pt) < ZERO_LIMIT )
@@ -1536,7 +1535,7 @@ StatusCode MuFastSteering::findMultiTrackSignature(const std::vector<const TrigR
 
       } // end the clusterRoad loop
       if(trackPatterns.empty()){
-	ATH_MSG_DEBUG("MPmode falied to reconstruct muons");
+	ATH_MSG_DEBUG("multi-track SA falied to reconstruct muons");
  	TrigL2MuonSA::TrackPattern trackPattern;
 	trackPatterns.push_back(trackPattern);
 	storeMuonSA(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
