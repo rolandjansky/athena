@@ -257,7 +257,8 @@ class allowCOOLUpdates(_modifier):
     """
     def postSetup(self):
         if hasattr(svcMgr,'HltEventLoopMgr'):
-            svcMgr.HltEventLoopMgr.CoolUpdateTool.enable()
+            from TrigServices.TrigServicesConfig import enableCOOLFolderUpdates
+            enableCOOLFolderUpdates(svcMgr.HltEventLoopMgr.CoolUpdateTool)
 
 class useOracle(_modifier):
     """
