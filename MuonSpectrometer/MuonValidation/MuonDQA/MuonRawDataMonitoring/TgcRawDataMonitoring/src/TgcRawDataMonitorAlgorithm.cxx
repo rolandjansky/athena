@@ -62,7 +62,7 @@ StatusCode TgcRawDataMonitorAlgorithm::initialize() {
 }
 
 StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) const {
-    std::vector < std::reference_wrapper < Monitored::IMonitoredVariable >> variables;
+  MonVariables variables;
     
 
     auto bcid = Monitored::Scalar<int>("bcid", GetEventInfo(ctx)->bcid());
@@ -96,7 +96,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
             return StatusCode::FAILURE;
         }
         
-        std::vector< std::reference_wrapper < Monitored::IMonitoredVariable >>  roi_variables;
+        MonVariables  roi_variables;
         auto roi_eta = Monitored::Collection("roi_eta", *rois, [](const xAOD::MuonRoI *m) {
             return m->eta();
         });
@@ -625,12 +625,28 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
     tgcCoin[0] = tgcCoinCurr;
     tgcCoin[+1] = tgcCoinNext;
     tgcCoin[-1] = tgcCoinPrev;
-    std::vector < TgcTrig > tgcTrigs;
+    std::vector < TgcTrig > tgcTrigs_SL;
+    std::vector < TgcTrig > tgcTrigs_SL_Endcap;
+    std::vector < TgcTrig > tgcTrigs_SL_Forward;
+    std::vector < TgcTrig > tgcTrigs_HPT_Wire;
+    std::vector < TgcTrig > tgcTrigs_HPT_Endcap_Wire;
+    std::vector < TgcTrig > tgcTrigs_HPT_Forward_Wire;
+    std::vector < TgcTrig > tgcTrigs_HPT_Strip;
+    std::vector < TgcTrig > tgcTrigs_HPT_Endcap_Strip;
+    std::vector < TgcTrig > tgcTrigs_HPT_Forward_Strip;
+    std::vector < TgcTrig > tgcTrigs_LPT_Wire;
+    std::vector < TgcTrig > tgcTrigs_LPT_Endcap_Wire;
+    std::vector < TgcTrig > tgcTrigs_LPT_Forward_Wire;
+    std::vector < TgcTrig > tgcTrigs_LPT_Strip;
+    std::vector < TgcTrig > tgcTrigs_LPT_Endcap_Strip;
+    std::vector < TgcTrig > tgcTrigs_LPT_Forward_Strip;
+
     for (auto thisCoin : tgcCoin) {
         int bunch = thisCoin.first;
         for (auto tgccnt : *(thisCoin.second)) {
             for (const auto &data : *tgccnt) {
                 TgcTrig tgcTrig;
+                tgcTrig.lb = GetEventInfo(ctx)->lumiBlock();
                 const int type = data->type();
                 const Amg::Vector3D &posIn = data->globalposIn();
                 tgcTrig.x_In = posIn[0];
@@ -640,6 +656,8 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
                 tgcTrig.x_Out = posOut[0];
                 tgcTrig.y_Out = posOut[1];
                 tgcTrig.z_Out = posOut[2];
+                tgcTrig.eta = posOut.eta();
+                tgcTrig.phi = posOut.phi();
                 tgcTrig.width_In = data->widthIn();
                 tgcTrig.width_Out = data->widthOut();
                 if (type == Muon::TgcCoinData::TYPE_SL) {
@@ -650,6 +668,18 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
                     tgcTrig.width_R = 0.;
                     tgcTrig.width_Phi = 0.;
                 }
+		int etaout = 0;
+		int etain = 0;
+		const Identifier tcdidout = data->channelIdOut();
+		if (tcdidout.is_valid()) {
+		  etaout = std::abs(int(m_idHelperSvc->tgcIdHelper().stationEta(tcdidout)));
+		}
+		const Identifier tcdidin  = data->channelIdIn();
+		if (tcdidin.is_valid()) {
+		  etain  = std::abs(int(m_idHelperSvc->tgcIdHelper().stationEta(tcdidin)));
+		}
+		tgcTrig.etaout = etaout;
+		tgcTrig.etain = etain;
                 tgcTrig.isAside = data->isAside();
                 tgcTrig.isForward = data->isForward();
                 tgcTrig.isStrip = data->isStrip();
@@ -658,7 +688,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
                 tgcTrig.type = type;
                 tgcTrig.trackletId = data->trackletId();
                 tgcTrig.trackletIdStrip = data->trackletIdStrip();
-                tgcTrig.phi = data->phi();
+                tgcTrig.sector = (data->isAside())?(data->phi()):(-data->phi());
                 tgcTrig.roi = data->roi();
                 tgcTrig.pt = data->pt();
                 tgcTrig.delta = data->delta();
@@ -666,30 +696,186 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
                 tgcTrig.veto = data->veto();
                 tgcTrig.bunch = bunch;
                 tgcTrig.inner = data->inner();
-                tgcTrigs.push_back(tgcTrig);
+                if (type == Muon::TgcCoinData::TYPE_SL && !tgcTrig.isForward) {
+		  tgcTrigs_SL_Endcap.push_back(tgcTrig);
+		  tgcTrigs_SL.push_back(tgcTrig);
+		}else if (type == Muon::TgcCoinData::TYPE_SL && tgcTrig.isForward) {
+		  tgcTrigs_SL_Forward.push_back(tgcTrig);
+		  tgcTrigs_SL.push_back(tgcTrig);
+		}else if(type == Muon::TgcCoinData::TYPE_HIPT && !tgcTrig.isForward){
+		  if(tgcTrig.isStrip){
+		    tgcTrigs_HPT_Endcap_Strip.push_back(tgcTrig);
+		    tgcTrigs_HPT_Strip.push_back(tgcTrig);
+		  }else{
+		    tgcTrigs_HPT_Endcap_Wire.push_back(tgcTrig);
+		    tgcTrigs_HPT_Wire.push_back(tgcTrig);
+		  }
+		}else if(type == Muon::TgcCoinData::TYPE_HIPT && tgcTrig.isForward){
+		  if(tgcTrig.isStrip){
+		    tgcTrigs_HPT_Forward_Strip.push_back(tgcTrig);
+		    tgcTrigs_HPT_Strip.push_back(tgcTrig);
+		  }else{
+		    tgcTrigs_HPT_Forward_Wire.push_back(tgcTrig);
+		    tgcTrigs_HPT_Wire.push_back(tgcTrig);
+		  }
+		}else if(type == Muon::TgcCoinData::TYPE_TRACKLET && !tgcTrig.isForward){
+		  if(tgcTrig.isStrip){
+		    tgcTrigs_LPT_Endcap_Strip.push_back(tgcTrig);
+		    tgcTrigs_LPT_Strip.push_back(tgcTrig);
+		  }else{
+		    tgcTrigs_LPT_Endcap_Wire.push_back(tgcTrig);
+		    tgcTrigs_LPT_Wire.push_back(tgcTrig);
+		  }
+		}else if(type == Muon::TgcCoinData::TYPE_TRACKLET && tgcTrig.isForward){
+		  if(tgcTrig.isStrip){
+		    tgcTrigs_LPT_Forward_Strip.push_back(tgcTrig);
+		    tgcTrigs_LPT_Strip.push_back(tgcTrig);
+		  }else{
+		    tgcTrigs_LPT_Forward_Wire.push_back(tgcTrig);
+		    tgcTrigs_LPT_Wire.push_back(tgcTrig);
+		  }
+		}
             }
         }
     }
 
-    auto coin_n = Monitored::Scalar<int>("coin_n", tgcTrigs.size());
-    variables.push_back(coin_n);
-    auto coin_bunch = Monitored::Collection("coin_bunch", tgcTrigs, [](const TgcTrig &m) {
-        return m.bunch;
-    });
-    variables.push_back(coin_bunch);
-    auto coin_sideA = Monitored::Collection("coin_sideA", tgcTrigs, [](const TgcTrig &m) {
-        return m.isAside == 1;
-    });
-    variables.push_back(coin_sideA);
-    auto coin_sideC = Monitored::Collection("coin_sideC", tgcTrigs, [](const TgcTrig &m) {
-        return m.isAside != 1;
-    });
-    variables.push_back(coin_sideC);
+    fillTgcCoin(tgcTrigs_SL,"SL");
+    fillTgcCoin(tgcTrigs_SL_Endcap,"SL_Endcap");
+    fillTgcCoin(tgcTrigs_SL_Forward,"SL_Forward");
+
+    fillTgcCoin(tgcTrigs_HPT_Wire,"HPT_Wire");
+    fillTgcCoin(tgcTrigs_HPT_Endcap_Wire,"HPT_Endcap_Wire");
+    fillTgcCoin(tgcTrigs_HPT_Forward_Wire,"HPT_Forward_Wire");
+
+    fillTgcCoin(tgcTrigs_HPT_Strip,"HPT_Strip");
+    fillTgcCoin(tgcTrigs_HPT_Endcap_Strip,"HPT_Endcap_Strip");
+    fillTgcCoin(tgcTrigs_HPT_Forward_Strip,"HPT_Forward_Strip");
+
+    fillTgcCoin(tgcTrigs_LPT_Wire,"LPT_Wire");
+    fillTgcCoin(tgcTrigs_LPT_Endcap_Wire,"LPT_Endcap_Wire");
+    fillTgcCoin(tgcTrigs_LPT_Forward_Wire,"LPT_Forward_Wire");
+
+    fillTgcCoin(tgcTrigs_LPT_Strip,"LPT_Strip");
+    fillTgcCoin(tgcTrigs_LPT_Endcap_Strip,"LPT_Endcap_Strip");
+    fillTgcCoin(tgcTrigs_LPT_Forward_Strip,"LPT_Forward_Strip");
 
     fill(m_packageName, variables);
     return StatusCode::SUCCESS;
 }
 
+void TgcRawDataMonitorAlgorithm::fillTgcCoin(const std::vector<TgcTrig>& tgcTrigs, const std::string type ) const {
+
+  MonVariables variables;
+
+  auto coin_lb = Monitored::Collection(type+"_coin_lb", tgcTrigs, [](const TgcTrig &m) {
+      return m.lb;
+    });
+  variables.push_back(coin_lb);
+  auto coin_eta = Monitored::Collection(type+"_coin_eta", tgcTrigs, [](const TgcTrig &m) {
+      return m.eta;
+    });
+  variables.push_back(coin_eta);
+  auto coin_phi = Monitored::Collection(type+"_coin_phi", tgcTrigs, [](const TgcTrig &m) {
+      return m.phi;
+    });
+  variables.push_back(coin_phi);
+  auto coin_bunch = Monitored::Collection(type+"_coin_bunch", tgcTrigs, [](const TgcTrig &m) {
+      return m.bunch;
+    });
+  variables.push_back(coin_bunch);
+  auto coin_roi = Monitored::Collection(type+"_coin_roi", tgcTrigs, [](const TgcTrig &m) {
+      return m.roi;
+    });
+  variables.push_back(coin_roi);
+  auto coin_sector = Monitored::Collection(type+"_coin_sector", tgcTrigs, [](const TgcTrig &m) {
+      return m.sector;
+    });
+  variables.push_back(coin_sector);
+  auto coin_pt = Monitored::Collection(type+"_coin_pt", tgcTrigs, [](const TgcTrig &m) {
+      return m.pt;
+    });
+  variables.push_back(coin_pt);
+  auto coin_veto = Monitored::Collection(type+"_coin_veto", tgcTrigs, [](const TgcTrig &m) {
+      return m.veto;
+    });
+  variables.push_back(coin_veto);
+  auto coin_veto_sector = Monitored::Collection(type+"_coin_veto_sector", tgcTrigs, [](const TgcTrig &m) {
+      return (m.veto==1)?(m.sector):(-1);
+    });
+  variables.push_back(coin_veto_sector);
+  auto coin_veto_roi = Monitored::Collection(type+"_coin_veto_roi", tgcTrigs, [](const TgcTrig &m) {
+      return (m.veto==1)?(m.roi):(-1);
+    });
+  variables.push_back(coin_veto_roi);
+  auto coin_isPositiveDeltaR = Monitored::Collection(type+"_coin_isPositiveDeltaR", tgcTrigs, [](const TgcTrig &m) {
+      return m.isPositiveDeltaR;
+    });
+  variables.push_back(coin_isPositiveDeltaR);
+
+  auto coin_cutmask_pt1 = Monitored::Collection(type+"_coin_cutmask_pt1", tgcTrigs, [](const TgcTrig &m) {
+      return (m.pt==1);
+    });
+  variables.push_back(coin_cutmask_pt1);
+  auto coin_cutmask_pt2 = Monitored::Collection(type+"_coin_cutmask_pt2", tgcTrigs, [](const TgcTrig &m) {
+      return (m.pt==2);
+    });
+  variables.push_back(coin_cutmask_pt2);
+  auto coin_cutmask_pt3 = Monitored::Collection(type+"_coin_cutmask_pt3", tgcTrigs, [](const TgcTrig &m) {
+      return (m.pt==3);
+    });
+  variables.push_back(coin_cutmask_pt3);
+  auto coin_cutmask_pt4 = Monitored::Collection(type+"_coin_cutmask_pt4", tgcTrigs, [](const TgcTrig &m) {
+      return (m.pt==4);
+    });
+  variables.push_back(coin_cutmask_pt4);
+  auto coin_cutmask_pt5 = Monitored::Collection(type+"_coin_cutmask_pt5", tgcTrigs, [](const TgcTrig &m) {
+      return (m.pt==5);
+    });
+  variables.push_back(coin_cutmask_pt5);
+  auto coin_cutmask_pt6 = Monitored::Collection(type+"_coin_cutmask_pt6", tgcTrigs, [](const TgcTrig &m) {
+      return (m.pt==6);
+    });
+  variables.push_back(coin_cutmask_pt6);
+  auto coin_cutmask_pt7 = Monitored::Collection(type+"_coin_cutmask_pt7", tgcTrigs, [](const TgcTrig &m) {
+      return (m.pt==7);
+    });
+  variables.push_back(coin_cutmask_pt7);
+  auto coin_cutmask_pt8 = Monitored::Collection(type+"_coin_cutmask_pt8", tgcTrigs, [](const TgcTrig &m) {
+      return (m.pt==8);
+    });
+  variables.push_back(coin_cutmask_pt8);
+  auto coin_cutmask_pt9 = Monitored::Collection(type+"_coin_cutmask_pt9", tgcTrigs, [](const TgcTrig &m) {
+      return (m.pt==9);
+    });
+  variables.push_back(coin_cutmask_pt9);
+  auto coin_cutmask_pt10 = Monitored::Collection(type+"_coin_cutmask_pt10", tgcTrigs, [](const TgcTrig &m) {
+      return (m.pt==10);
+    });
+  variables.push_back(coin_cutmask_pt10);
+  auto coin_cutmask_pt11 = Monitored::Collection(type+"_coin_cutmask_pt11", tgcTrigs, [](const TgcTrig &m) {
+      return (m.pt==11);
+    });
+  variables.push_back(coin_cutmask_pt11);
+  auto coin_cutmask_pt12 = Monitored::Collection(type+"_coin_cutmask_pt12", tgcTrigs, [](const TgcTrig &m) {
+      return (m.pt==12);
+    });
+  variables.push_back(coin_cutmask_pt12);
+  auto coin_cutmask_pt13 = Monitored::Collection(type+"_coin_cutmask_pt13", tgcTrigs, [](const TgcTrig &m) {
+      return (m.pt==13);
+    });
+  variables.push_back(coin_cutmask_pt13);
+  auto coin_cutmask_pt14 = Monitored::Collection(type+"_coin_cutmask_pt14", tgcTrigs, [](const TgcTrig &m) {
+      return (m.pt==14);
+    });
+  variables.push_back(coin_cutmask_pt14);
+  auto coin_cutmask_pt15 = Monitored::Collection(type+"_coin_cutmask_pt15", tgcTrigs, [](const TgcTrig &m) {
+      return (m.pt==15);
+    });
+  variables.push_back(coin_cutmask_pt15);
+
+  fill(m_packageName, variables);
+
+}
 ///////////////////////////////////////////////////////////////
 bool TgcRawDataMonitorAlgorithm::triggerMatching(const xAOD::Muon *offline_muon, const std::vector<TagDef> &list_of_triggers) const {
     if (!m_TagAndProbe.value()) return true;
@@ -726,6 +912,7 @@ void TgcRawDataMonitorAlgorithm::extrapolate(const xAOD::Muon *muon, MyMuon &mym
             TVector3 vec, pos;
             pos.SetPtEtaPhi(pt, etaDeta[0], phiDphi[0]);
             vec.SetXYZ(mom.x(), mom.y(), mom.z());
+            mymuon.extPosZ.push_back(z);
             mymuon.extPos.push_back(pos);
             mymuon.extVec.push_back(vec);
         }

@@ -31,6 +31,7 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
   struct MyMuon{
     const xAOD::Muon* muon;
     TLorentzVector fourvec;
+    std::vector<double> extPosZ;
     std::vector<TVector3> extPos;
     std::vector<TVector3> extVec;
     bool tagged;
@@ -70,12 +71,17 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
     TString side;
   };
   struct TgcTrig{
+    int lb;
     float x_In;
     float y_In;
     float z_In;
     float x_Out;
     float y_Out;
     float z_Out;
+    float eta;
+    float phi;
+    float etain;
+    float etaout;
     float width_In;
     float width_Out;
     float width_R;
@@ -88,7 +94,7 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
     int type;
     int trackletId;
     int trackletIdStrip;
-    int phi;
+    int sector;
     int roi;
     int pt;
     int delta;
@@ -138,6 +144,9 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
   
   std::vector<TagDef> m_trigTagDefs;
   std::vector<double> m_extZposition;
+
+  using MonVariables=std::vector < std::reference_wrapper < Monitored::IMonitoredVariable >>;
+  void fillTgcCoin(const std::vector<TgcTrig>&, const std::string ) const;
   
   bool triggerMatching(const xAOD::Muon* , const std::vector<TagDef>& ) const;
 
