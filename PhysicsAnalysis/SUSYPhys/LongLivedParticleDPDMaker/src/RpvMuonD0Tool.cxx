@@ -30,9 +30,9 @@ DerivationFramework::RpvMuonD0Tool::~RpvMuonD0Tool() {
 StatusCode DerivationFramework::RpvMuonD0Tool::initialize()
 {
      ATH_MSG_VERBOSE("initialize() ...");
-     ATH_CHECK(m_collName.initialize());
-     ATH_CHECK(m_collNameD0.initialize());
-     ATH_CHECK(m_collNameIsComb.initialize());
+     ATH_CHECK(m_collNameKey.initialize());
+     ATH_CHECK(m_collNameD0Key.initialize());
+     ATH_CHECK(m_collNameIsCombKey.initialize());
      return StatusCode::SUCCESS;
 }
 StatusCode DerivationFramework::RpvMuonD0Tool::finalize()
@@ -46,7 +46,7 @@ StatusCode DerivationFramework::RpvMuonD0Tool::addBranches() const
 {
 
      // Retrieve data
-     SG::ReadHandle<xAOD::MuonContainer> muons(m_collName);
+     SG::ReadHandle<xAOD::MuonContainer> muons(m_collNameKey);
      if( !muons.isValid() ) {
 	ATH_MSG_ERROR("Couldn't retrieve muon container with key: " << m_collName);
 	return StatusCode::FAILURE;
@@ -54,10 +54,10 @@ StatusCode DerivationFramework::RpvMuonD0Tool::addBranches() const
 	
      // Make a vector for the cut results
      // Write decision to SG for access by downstream algs 
-     SG::WriteHandle< std::vector<float> > d0vec(m_collNameD0);
+     SG::WriteHandle< std::vector<float> > d0vec(m_collNameD0Key);
      ATH_CHECK(d0vec.record(std::make_unique< std::vector<float> >()));
 
-     SG::WriteHandle< std::vector<int> > isCombinedVec(m_collNameIsComb);
+     SG::WriteHandle< std::vector<int> > isCombinedVec(m_collNameIsCombKey);
      ATH_CHECK(isCombinedVec.record(std::make_unique< std::vector<int> >()));
 
 

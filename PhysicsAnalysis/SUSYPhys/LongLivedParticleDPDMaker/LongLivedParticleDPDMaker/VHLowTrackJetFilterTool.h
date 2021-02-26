@@ -67,6 +67,8 @@ namespace DerivationFramework {
     ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
     SG::ReadHandleKey<xAOD::MuonContainer> m_muonSGKey { this, "MuonContainerKey", "Muons", ""};
     std::string m_muonIDKey;
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey {this, "EventInfoKey", "EventInfo", ""}; 
+    SG::ReadHandleKey<xAOD::VertexContainer> m_primaryVerticesKey {this, "PrimaryVerticesKey", "PrimaryVertices", ""}; 
     float m_muonPtCut;
 
   }; 

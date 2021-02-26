@@ -55,6 +55,9 @@ namespace DerivationFramework {
     SG::ReadHandleKey<xAOD::MissingETContainer> m_metSGKey { this, "MetContainerKey", "MET_RefFinal", ""};
     SG::ReadHandleKey<xAOD::MuonContainer> m_muonSGKey { this, "MuonContainerKey", "Muons", ""};
     SG::ReadHandleKey<xAOD::ElectronContainer> m_electronSGKey { this, "ElectronContainerKey", "ElectronCollection", ""};
+    SG::ReadHandleKey<xAOD::TrackParticleContainer> m_pixelTrackletKey{this, "PixelTrackletKey", "InDetDisappearingTrackParticles", ""};
+    SG::ReadHandleKey<xAOD::VertexContainer> m_primaryVerticesKey{this, "PrimaryVerticesKey", "PrimaryVertices", ""};
+    SG::ReadHandleKey<xAOD::TrackParticleContainer> m_standardTrackKey{this, "StandardTrackKey", "InDetTrackParticles", ""};
     float m_metCut;
     std::vector<float> m_jetPtCuts;
     float m_jetEtaMax;

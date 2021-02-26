@@ -68,6 +68,9 @@ StatusCode DerivationFramework::KinkTrkSingleJetMetFilterTool::initialize()
   ATH_CHECK(m_metSGKey.initialize());
   ATH_CHECK(m_muonSGKey.initialize());
   ATH_CHECK(m_electronSGKey.initialize());
+  ATH_CHECK(m_pixelTrackletKey.initialize());
+  ATH_CHECK(m_primaryVerticesKey.initialize());
+  ATH_CHECK(m_standardTrackKey.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -213,13 +216,13 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
   if(m_isolatedTrack){
 
     // Find IsolatedTracklet
-    SG::ReadHandle<xAOD::TrackParticleContainer> pixelTrackletContainer("InDetDisappearingTrackParticles");
+    SG::ReadHandle<xAOD::TrackParticleContainer> pixelTrackletContainer(m_pixelTrackletKey);
     if( !pixelTrackletContainer.isValid() ) {
       msg(MSG::WARNING) << "No pixel tracklet container found, will skip this event" << endmsg;
       return false;
     }
  
-    SG::ReadHandle<xAOD::VertexContainer> vertices("PrimaryVertices");
+    SG::ReadHandle<xAOD::VertexContainer> vertices(m_primaryVerticesKey);
     if( !vertices.isValid() ) {
       msg(MSG::WARNING) << "No primary vertices container found, will skip this event" << endmsg;
       return false;
@@ -292,7 +295,7 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
       return acceptEvent; // std track OFF
 
       bool passIsolatedStdTrack = false;
-      SG::ReadHandle<xAOD::TrackParticleContainer> standardTrackContainer("InDetTrackParticles");
+      SG::ReadHandle<xAOD::TrackParticleContainer> standardTrackContainer(m_standardTrackKey);
       if( !standardTrackContainer.isValid() ) {
         msg(MSG::WARNING) << "No Standard Track container found, will skip this event" << endmsg;
         return false;

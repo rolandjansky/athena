@@ -45,9 +45,9 @@ namespace DerivationFramework {
     virtual StatusCode addBranches() const;
 
   private:
-    SG::ReadHandleKey<xAOD::MuonContainer> m_collName { this, "MuonContainerKey", "Muons", ""};
-    SG::WriteHandleKey<std::vector<float>> m_collNameD0 { this, "SGPrefixD0", "MuonsD0", ""};
-    SG::WriteHandleKey<std::vector<int>> m_collNameIsComb { this, "SGPrefixIsComb", "MuonsisCombined", ""};
+    SG::ReadHandleKey<xAOD::MuonContainer> m_collNameKey { this, "MuonContainerKey", "Muons", ""};
+    SG::WriteHandleKey<std::vector<float>> m_collNameD0Key { this, "SGPrefixD0", "MuonsD0", ""};
+    SG::WriteHandleKey<std::vector<int>> m_collNameIsCombKey { this, "SGPrefixIsComb", "MuonsisCombined", ""};
 
   }; 
  

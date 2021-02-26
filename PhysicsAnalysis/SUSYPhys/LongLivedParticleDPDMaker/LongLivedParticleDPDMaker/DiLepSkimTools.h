@@ -39,6 +39,10 @@ namespace DerivationFramework
 
       int m_filter_prop;
       Filters m_filter;
+
+      SG::ReadHandleKey<xAOD::ElectronContainer> m_electronKey { this, "ElectronContainerKey", "Electrons", ""};
+      SG::ReadHandleKey<xAOD::MuonContainer> m_muonKey { this, "MuonContainerKey", "Muons", ""};
+      SG::ReadHandleKey<xAOD::PhotonContainer> m_photonKey { this, "PhotonContainerKey", "Photons", ""};
   };
 }
 

@@ -45,8 +45,8 @@ namespace DerivationFramework {
     virtual StatusCode addBranches() const;
 
   private:
-    SG::ReadHandleKey<xAOD::ElectronContainer> m_collName { this, "ElectronContainerKey", "Electrons", ""};
-    SG::WriteHandleKey<std::vector<float>> m_electronsd0 { this, "SGPrefixD0", "ElectronsD0", ""};
+    SG::ReadHandleKey<xAOD::ElectronContainer> m_collNameKey { this, "ElectronContainerKey", "Electrons", ""};
+    SG::WriteHandleKey<std::vector<float>> m_electronsd0Key { this, "SGPrefixD0", "ElectronsD0", ""};
 
   }; 
  

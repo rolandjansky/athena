@@ -34,6 +34,10 @@ StatusCode DerivationFramework::DiLepSkim::initialize()
     return StatusCode::FAILURE;
   }
 
+  ATH_CHECK(m_electronKey.initialize());
+  ATH_CHECK(m_muonKey.initialize());
+  ATH_CHECK(m_photonKey.initialize());
+
   return StatusCode::SUCCESS;
 }
 
@@ -44,17 +48,17 @@ bool DerivationFramework::DiLepSkim::eventPassesFilter() const
   if(!m_dlf->GetTriggers(passFlags)) return false;
 
   // retrieve particle containers
-  SG::ReadHandle<xAOD::ElectronContainer> elc("Electrons");
+  SG::ReadHandle<xAOD::ElectronContainer> elc(m_electronKey);
   if( !elc.isValid() ) {
     msg(MSG::WARNING) << "No Jet container found, will skip this event" << endmsg;
     return false;
   }
-  SG::ReadHandle<xAOD::MuonContainer> muc("Muons");
+  SG::ReadHandle<xAOD::MuonContainer> muc(m_muonKey);
   if( !muc.isValid() ) {
     msg(MSG::WARNING) << "No Muon container found, will skip this event" << endmsg;
     return false;
   }
-  SG::ReadHandle<xAOD::PhotonContainer> phc("Photons");
+  SG::ReadHandle<xAOD::PhotonContainer> phc(m_photonKey);
   if( !phc.isValid() ) {
     msg(MSG::WARNING) << "No Photon container found, will skip this event" << endmsg;
     return false;

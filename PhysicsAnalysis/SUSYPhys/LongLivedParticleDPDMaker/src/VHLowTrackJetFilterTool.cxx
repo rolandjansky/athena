@@ -71,6 +71,8 @@ StatusCode DerivationFramework::VHLowTrackJetFilterTool::initialize()
      ATH_CHECK(m_electronSGKey.initialize());
      ATH_CHECK(m_muonSGKey.initialize());
      ATH_CHECK(m_jetSGKey.initialize());
+     ATH_CHECK(m_eventInfoKey.initialize());
+     ATH_CHECK(m_primaryVerticesKey.initialize());
      return StatusCode::SUCCESS;
 }
 // Athena finalize
@@ -98,13 +100,13 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
   bool passesEl=false, passesMu=false, passesJet=false;
   m_nEventsTotal++;
   
-  SG::ReadHandle<xAOD::EventInfo> eventInfo("EventInfo"); 
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey); 
   if( !eventInfo.isValid() ) {
     ATH_MSG_ERROR( "Could not retrieve event info" );
   }
   
   //Vertex Container
-  SG::ReadHandle<xAOD::VertexContainer> vertices("PrimaryVertices"); 
+  SG::ReadHandle<xAOD::VertexContainer> vertices(m_primaryVerticesKey); 
   if( !eventInfo.isValid() ) {
     ATH_MSG_FATAL("No vertex collection with name PrimaryVertices found in StoreGate!");
     return false;

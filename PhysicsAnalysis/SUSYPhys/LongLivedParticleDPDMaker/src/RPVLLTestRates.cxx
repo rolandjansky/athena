@@ -38,7 +38,7 @@ StatusCode RPVLLTestRates::initialize() {
   m_EventCounter=0;
 
   ATH_CHECK(m_tHistSvc.retrieve());
-
+  ATH_CHECK(m_SDcollKey.initialize());
   m_myTree= new TTree("myTree","myTree");
   StatusCode sc = m_tHistSvc->regTree("/AANT/myTree",m_myTree);
   if (sc.isFailure()) ATH_MSG_ERROR("Failed to book TTree");
@@ -61,7 +61,7 @@ StatusCode RPVLLTestRates::execute() {
   if (m_EventCounter==0) {
 
     ////////// first event! ////////////////////////
-    SG::ReadHandle<SkimDecisionCollection> SDcoll("StreamDESDM_RPVLL_SkimDecisionsContainer");
+    SG::ReadHandle<SkimDecisionCollection> SDcoll(m_SDcollKey);
     if (SDcoll.isValid()) {
       std::cout<<"nick - booking skimPasshist"<<std::endl;
       m_skimPassHist = new TH1F("skim","skim",SDcoll->size(), 0.,(float)SDcoll->size());
@@ -96,7 +96,7 @@ StatusCode RPVLLTestRates::execute() {
   
   
   //// these are the ones that are useful for RPVLL filters
-  SG::ReadHandle<SkimDecisionCollection> SDcoll("StreamDESDM_RPVLL_SkimDecisionsContainer");
+  SG::ReadHandle<SkimDecisionCollection> SDcoll(m_SDcollKey);
   int isAc=0;
 
   if (SDcoll.isValid()) {

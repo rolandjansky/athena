@@ -55,7 +55,9 @@ StatusCode DerivationFramework::EmergingJetsHighPtFilterTool::initialize()
        return StatusCode::FAILURE;
      }
      ATH_MSG_INFO("Retrieved tool: " << m_tdt);
-     
+  
+     ATH_CHECK(m_jetSGKey.initialize());    
+ 
      return StatusCode::SUCCESS;
      
 }

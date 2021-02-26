@@ -35,8 +35,8 @@ DerivationFramework::RpvEgammaIDTool::~RpvEgammaIDTool() {
 StatusCode DerivationFramework::RpvEgammaIDTool::initialize()
 {
      ATH_MSG_VERBOSE("initialize() ...");
-     ATH_CHECK(m_collName.initialize());
-     ATH_CHECK(m_egammaSelection.initialize());
+     ATH_CHECK(m_collNameKey.initialize());
+     ATH_CHECK(m_egammaSelectionKey.initialize());
      return StatusCode::SUCCESS;
 }
 StatusCode DerivationFramework::RpvEgammaIDTool::finalize()
@@ -50,14 +50,13 @@ StatusCode DerivationFramework::RpvEgammaIDTool::addBranches() const
 {
 
      // Retrieve data
-     SG::ReadHandle<xAOD::EgammaContainer> egammas(m_collName);
+     SG::ReadHandle<xAOD::EgammaContainer> egammas(m_collNameKey);
      if( !egammas.isValid() ) {
-        ATH_MSG_ERROR("Couldn't retrieve e-gamma container with key: " << m_collName);
+        ATH_MSG_ERROR("Couldn't retrieve e-gamma container with key: " << m_collNameKey);
         return StatusCode::FAILURE;
      }
        
-     // Make WriteHandle for the cut results
-     SG::WriteHandle< std::vector<int> > egammaSelection(m_egammaSelection);
+     SG::WriteHandle< std::vector<int> > egammaSelection(m_egammaSelectionKey);
      ATH_CHECK(egammaSelection.record(std::make_unique< std::vector<int> >()));
 
      // Loop over egammas, set decisions   

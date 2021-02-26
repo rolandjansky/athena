@@ -49,7 +49,8 @@ class RPVLLTestRates : public AthAlgorithm  {
    int m_runNum;
    int m_lumiBlock;
    int m_evtNum;
-   std::vector<int>         m_filterPassed;   
+   std::vector<int>         m_filterPassed;  
+   SG::ReadHandleKey<SkimDecisionCollection> m_SDcollKey {this, "SDcollKey", "StreamDESDM_RPVLL_SkimDecisionsContainer", ""}; 
 };
 
 #endif 
