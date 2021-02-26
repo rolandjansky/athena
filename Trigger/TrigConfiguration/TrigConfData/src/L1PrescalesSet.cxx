@@ -10,14 +10,14 @@ TrigConf::L1PrescalesSet::L1PrescalesSet()
 TrigConf::L1PrescalesSet::L1PrescalesSet(const boost::property_tree::ptree & data) 
    : DataStructure(data)
 {
-   update();
+   load();
 }
 
 TrigConf::L1PrescalesSet::~L1PrescalesSet()
 {}
 
 void
-TrigConf::L1PrescalesSet::update()
+TrigConf::L1PrescalesSet::load()
 {
    m_name = getAttribute("name");
    const auto & cuts = data().get_child("cutValues");
@@ -28,6 +28,13 @@ TrigConf::L1PrescalesSet::update()
       ps.prescale = getPrescaleFromCut(ps.cut);
       m_prescales[c.first] = ps;
    }
+}
+
+void
+TrigConf::L1PrescalesSet::clear()
+{
+   m_psk = 0;
+   m_prescales.clear();
 }
 
 std::size_t 
