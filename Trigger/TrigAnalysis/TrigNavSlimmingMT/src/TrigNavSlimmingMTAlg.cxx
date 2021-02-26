@@ -140,7 +140,7 @@ StatusCode TrigNavSlimmingMTAlg::execute(const EventContext& ctx) const {
 
 
 StatusCode TrigNavSlimmingMTAlg::fillChainIDs(DecisionIDContainer& chainIDs) const {
-  for (const std::string filter : m_chainsFilter) {
+  for (const std::string& filter : m_chainsFilter) {
     // We do this as filter->chains stage as filter could be a regexp matching a large number of chains
     const Trig::ChainGroup* cg = m_trigDec->getChainGroup(filter);
     std::vector<std::string> chains = cg->getListOfTriggers();
