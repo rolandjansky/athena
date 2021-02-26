@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCONFDATA_L1MENU_H
@@ -149,10 +149,14 @@ namespace TrigConf {
 
       bool isRun2() const { return m_run<3; }
 
+      /** Clearing the configuration data */
+      virtual void clear() override;
+
    private:
 
       /** Update the internal data after modification of the data object */
-      virtual void update() override;
+      virtual void update() override { load(); };
+      void load();
 
       /** the supermasterkey */
       unsigned int m_smk {0};

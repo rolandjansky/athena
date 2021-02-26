@@ -41,6 +41,13 @@ TrigConf::L1ThrExtraInfo::createExtraInfo(const std::string & thrTypeName, const
    return std::make_unique<L1ThrExtraInfoBase>(thrTypeName, data);
 }
 
+void
+TrigConf::L1ThrExtraInfo::clear()
+{
+   m_thrExtraInfo.clear();
+}
+
+
 std::weak_ptr<TrigConf::L1ThrExtraInfoBase>
 TrigConf::L1ThrExtraInfo::addExtraInfo(const std::string & thrTypeName, const boost::property_tree::ptree & data) {
    try {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfData/L1CTP.h"
@@ -40,8 +40,12 @@ TrigConf::L1CTP::load()
                         std::forward_as_tuple(multiplicity, thr)
                         );
    }
-   
+}
 
+void
+TrigConf::L1CTP::clear()
+{
+   m_ctpmon.clear();
 }
 
 const std::string &
