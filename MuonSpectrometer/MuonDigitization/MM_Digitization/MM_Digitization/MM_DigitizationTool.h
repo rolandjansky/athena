@@ -173,6 +173,9 @@ class MM_DigitizationTool : public PileUpToolBase {
 		// Temporary until moving away from TRandom
 		Gaudi::Property<unsigned long int> m_randomSeed{this, "RandomSeed", 42, ""};
 
+		Gaudi::Property<bool> m_useThresholdScaling{this, "useThresholdScaling", true, "Use a strip length dependent threshold in MM digitiation"};
+		Gaudi::Property<float> m_thresholdScaleFactor{this,"thresholdScaleFactor", 9.0, "Use x times the strip length dependent noise as MM threshold"};
+
 		Gaudi::Property<double> m_correctShift{this,"correctShift",-0.244,"purely empirical shift to fix the z positions of clusters"}; //  12/20  pscholer
 
 		TFile *m_file{};
@@ -215,6 +218,9 @@ class MM_DigitizationTool : public PileUpToolBase {
 		std::vector<int> m_n_StrRespID;
 		std::vector<float> m_n_StrRespCharge;
 		std::vector<float> m_n_StrRespTime;
+
+		float m_noiseSlope;
+		float m_noiseIntercept;
 };
 
 #endif // MM_DigitizationTool
