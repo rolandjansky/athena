@@ -30,7 +30,8 @@ class TrigMuonEFTrackIsolationTool : public AthAlgTool, virtual public IMuonEFTr
   virtual StatusCode initialize() override;
 
   // Do the isolation calculation for an EF muon
-  StatusCode calcTrackIsolation(const xAOD::Muon* efmuon,           const xAOD::TrackParticleContainer* idtrks, std::vector<double> conesizes, std::vector<double>& results, std::vector<double>* dzvals, std::vector<double>* drvals, std::vector<double>* selfremoval) const;
+  virtual
+  StatusCode calcTrackIsolation(const xAOD::Muon* efmuon,           const xAOD::TrackParticleContainer* idtrks, std::vector<double> conesizes, std::vector<double>& results, std::vector<double>* dzvals, std::vector<double>* drvals, std::vector<double>* selfremoval) const override;
 
  private:
 
