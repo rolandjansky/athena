@@ -42,7 +42,6 @@ namespace top {
     m_jetCalibrationToolLargeR("JetCalibrationToolLargeR"),
 
     m_jetUncertaintiesTool("JetUncertaintiesTool"),
-    m_jetUncertaintiesToolFrozenJMS("JetUncertaintiesToolFrozenJMS"),
     m_jetUncertaintiesToolReducedNPScenario1("JetUncertaintiesToolReducedNPScenario1"),
     m_jetUncertaintiesToolReducedNPScenario2("JetUncertaintiesToolReducedNPScenario2"),
     m_jetUncertaintiesToolReducedNPScenario3("JetUncertaintiesToolReducedNPScenario3"),
@@ -55,7 +54,6 @@ namespace top {
     m_jetSubstructure(nullptr),
 
     m_systMap_AllNP(),
-    m_systMap_AllNP_FrozenJMS(),
     m_systMap_ReducedNPScenario1(),
     m_systMap_ReducedNPScenario2(),
     m_systMap_ReducedNPScenario3(),
@@ -67,7 +65,6 @@ namespace top {
     declareProperty("JetCalibrationToolLargeR", m_jetCalibrationToolLargeR);
 
     declareProperty("JetUncertaintiesTool", m_jetUncertaintiesTool);
-    declareProperty("JetUncertaintiesToolFrozenJMS", m_jetUncertaintiesToolFrozenJMS);
     declareProperty("JetUncertaintiesToolReducedNPScenario1", m_jetUncertaintiesToolReducedNPScenario1);
     declareProperty("JetUncertaintiesToolReducedNPScenario2", m_jetUncertaintiesToolReducedNPScenario2);
     declareProperty("JetUncertaintiesToolReducedNPScenario3", m_jetUncertaintiesToolReducedNPScenario3);
@@ -123,9 +120,6 @@ namespace top {
     if (m_isMC || m_doFull_JER) {
       if (!m_doMultipleJES) {
         top::check(m_jetUncertaintiesTool.retrieve(), "Failed to retrieve JetUncertaintiesTool");
-        if (m_config->jetCalibSequence() == "JMS") {
-          top::check(m_jetUncertaintiesToolFrozenJMS.retrieve(), "Failed to retrieve JetUncertaintiesTool (FrozenJMS)");
-        }
       } else {
         top::check(
           m_jetUncertaintiesToolReducedNPScenario1.retrieve(),
@@ -184,17 +178,11 @@ namespace top {
     if (m_isMC || m_doFull_JER) {
       std::string allNP(m_config->jetUncertainties_NPModel() + "_"),
       np1("SR_Scenario1_"), np2("SR_Scenario2_"), np3("SR_Scenario3_"), np4("SR_Scenario4_");
-      std::string allNP_FrozenJMS(m_config->jetUncertainties_NPModel() + "_FrozenJMS_");
 
       bool onlyJER = ((!m_isMC) && m_doFull_JER) || (m_isMC && m_doFull_JER_Pseudodata);
 
       if (!m_doMultipleJES) {
         addSystematics(syst, m_jetUncertaintiesTool->recommendedSystematics(), m_systMap_AllNP, allNP, false, onlyJER);
-        if (m_config->jetCalibSequence() == "JMS") {
-          addSystematics(syst,
-                         m_jetUncertaintiesToolFrozenJMS->recommendedSystematics(), m_systMap_AllNP_FrozenJMS, allNP_FrozenJMS, false,
-                         onlyJER);
-        }
       } else {
         addSystematics(syst,
                        m_jetUncertaintiesToolReducedNPScenario1->recommendedSystematics(), m_systMap_ReducedNPScenario1, np1, false,
@@ -340,10 +328,6 @@ namespace top {
       if (m_isMC || m_doFull_JER) {
         if (!m_doMultipleJES) {
           top::check(applySystematic(m_jetUncertaintiesTool, m_systMap_AllNP), "Failed to apply JES");
-          if (m_config->jetCalibSequence() == "JMS") {
-            top::check(applySystematic(m_jetUncertaintiesToolFrozenJMS,
-                                       m_systMap_AllNP_FrozenJMS), "Failed to apply JES Frozen JMS");
-          }
         }
         if (m_doMultipleJES) {
           top::check(applySystematic(m_jetUncertaintiesToolReducedNPScenario1,
