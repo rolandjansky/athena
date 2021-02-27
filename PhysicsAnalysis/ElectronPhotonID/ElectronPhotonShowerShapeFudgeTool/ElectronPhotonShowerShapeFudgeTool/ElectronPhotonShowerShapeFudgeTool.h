@@ -28,7 +28,7 @@ class ElectronPhotonShowerShapeFudgeTool : public asg::AsgTool, virtual public  
 
 public:
   /** Standard constructor */
-  ElectronPhotonShowerShapeFudgeTool( const std::string myname);
+  ElectronPhotonShowerShapeFudgeTool( const std::string& myname);
 
 
   /** Standard destructor */
