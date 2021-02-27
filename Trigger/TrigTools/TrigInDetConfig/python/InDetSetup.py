@@ -339,7 +339,8 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
 
       if secondStageConfig is not None:
         #have been supplied with a second stage config, create another instance of FTF
-        theFTF2 = TrigFastTrackFinderBase("TrigFastTrackFinder_" + secondStageConfig.name, secondStageConfig.FT.signatureType )
+        theFTF2 = TrigFastTrackFinderBase("TrigFastTrackFinder_" + secondStageConfig.name, secondStageConfig.FT.signatureType,
+                                          conditionsTool = InDetSCT_ConditionsSummaryToolWithoutFlagged )
         theFTF2.RoIs           = rois
         theFTF2.TracksName     = secondStageConfig.FT.trkTracksFTF()
         theFTF2.inputTracksName = config.FT.trkTracksFTF()
