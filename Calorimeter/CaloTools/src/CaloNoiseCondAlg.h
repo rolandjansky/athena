@@ -15,6 +15,7 @@
 #include "LArElecCalib/ILArHVScaleCorr.h"
 #include "CaloConditions/CaloNoise.h"
 #include "LArCabling/LArOnOffIdMapping.h"
+#include "CaloIdentifier/CaloNoiseHashRanges.h"
 
 class CaloCell_ID;
 
@@ -53,20 +54,7 @@ class CaloNoiseCondAlg: public AthAlgorithm {
 
   const CaloCell_ID* m_caloCellID;
 
-
- //SYSTEM == COOL channel number
-  enum SYSTEM{EMECZNEG = 0,
-              EMBZNEG  = 1,
-              EMBZPOS  = 2,
-              EMECZPOS = 3,
-              HEC      =16,
-              FCAL     =32,
-              TILE     =48};
-
-  std::map<SYSTEM,IdentifierHash> m_hashOffsets;
-  std::size_t m_maxLArCells=0;
-  std::size_t m_maxTileCells=0;
-  void buildHashRanges();
+  std::unique_ptr<CaloNoiseHashRanges> m_hashRange;
 
   CaloNoise::NOISETYPE m_noiseType=CaloNoise::TOTAL;
 
