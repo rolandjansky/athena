@@ -242,7 +242,8 @@ namespace top {
     registerParameter("JetJERSmearingModel",
                       "All (inc. data smearing), All_PseudoData (use MC as pseudo-data), Full (inc. data smearing), Full_PseudoData (use MC as pseudo-data) or Simple (MC only - default)",
                       "Simple");
-    registerParameter("JetCalibSequence", "Jet calibaration sequence, GSC (default) or JMS", "GSC");
+    registerParameter("JetCalibSequence", "Jet calibaration sequence.", "GSC", {"GSC", "JMS"});
+    registerParameter("AllowJMSforAFII", "Enable use of UNSUPPORTED small-R jet JMS calibration use on AFII samples.", "False", {"True", "False"});
     registerParameter("StoreJetTruthLabels", "Flag to store truth labels for jets - True (default) or False", "True");
 
     registerParameter("JSF", "Used for top mass analysis, default is 1.0", "1.0");

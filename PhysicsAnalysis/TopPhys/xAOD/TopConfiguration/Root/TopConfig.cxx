@@ -263,6 +263,7 @@ namespace top {
     m_doMultipleJES(false),
     m_jetJERSmearingModel("Simple"),
     m_jetCalibSequence("GSC"),
+    m_allowSmallRJMSforAFII(false),
     m_jetStoreTruthLabels("True"),
     m_doJVTInMETCalculation(true),
     m_saveFailJVTJets(false),
@@ -1340,6 +1341,7 @@ namespace top {
     this->jetUncertainties_QGHistPatterns(settings->value("JetUncertainties_QGHistPatterns"));
     this->jetJERSmearingModel(settings->value("JetJERSmearingModel"));
     this->jetCalibSequence(settings->value("JetCalibSequence"));
+    this->allowSmallRJMSforAFII(settings->value("AllowJMSforAFII") == "True");
     this->doJVTinMET(settings->retrieve("JVTinMETCalculation"));
     this->saveFailJVTJets(settings->retrieve("SaveFailJVTJets"));
     this->setJVTWP(settings->value("JVTWP"));
