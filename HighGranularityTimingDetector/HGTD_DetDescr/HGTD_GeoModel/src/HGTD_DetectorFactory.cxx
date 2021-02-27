@@ -799,6 +799,10 @@ std::vector< ModulePosition > HGTD_DetectorFactory::prepareModulePositionsInRowT
   // height is the short edge of module, width is the longer edge
   float halfWidth = .5*40., halfHeight = .5*21.8; // bare module
   float midR = 230., midR2 = 470.5, maxRcut = 660., maxOuterR = 670.;
+  // special tweak needed to avoid overlapping holes on front and back
+  if (row == 21 and back==1) {
+    midR2 = 510.;
+  }
   float readoutRowSpace = 1.0;
   bool extrude = ( ( row == 6 || row == 18 ) && !back  ) || // front side
                  ( ( row == 2 || row == 11 || row == 12 || row == 17 ) && back ); // back side
