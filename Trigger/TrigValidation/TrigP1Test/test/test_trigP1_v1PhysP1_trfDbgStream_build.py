@@ -10,7 +10,7 @@ from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 
 #====================================================================================================
 # HLT BS_RDO->RAW
-hlt = ExecStep.ExecStep('BSRDOtoRAW')
+hlt = ExecStep.ExecStep()
 hlt.type = 'Trig_reco_tf'
 hlt.forks = 1
 hlt.threads = 1
