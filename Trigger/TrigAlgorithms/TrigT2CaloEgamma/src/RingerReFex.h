@@ -8,7 +8,6 @@
 
 
 #include <string>
-#include "xAODTrigRinger/TrigRingerRings.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "CaloEvent/CaloCell.h"
 #include "TrigT2CaloCommon/IReAlgToolCalo.h"

@@ -23,7 +23,6 @@
 #include "RelationalAccess/SchemaException.h"
 #include "RelationalAccess/ITransaction.h"
 #include "RelationalAccess/ITable.h"
-#include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ICursor.h"
 #include "RelationalAccess/IQuery.h"
 #include "RelationalAccess/ISchema.h"

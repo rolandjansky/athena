@@ -17,8 +17,6 @@
 
 #include "boost/lexical_cast.hpp"
 
-#include "RelationalAccess/ITable.h"
-
 #include <string>
 
 namespace TrigConf {

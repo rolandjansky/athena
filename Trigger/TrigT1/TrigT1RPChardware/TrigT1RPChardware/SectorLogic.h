@@ -10,8 +10,6 @@
 #include <cmath>
 #include <cstring>
 #include <cctype>
-#include <cstdlib>
-#include <fstream>
 #include <cerrno>
 #include <ctime>
 #include <clocale>

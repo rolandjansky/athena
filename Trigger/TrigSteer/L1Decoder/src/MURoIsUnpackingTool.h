@@ -10,9 +10,7 @@
 #include "TrigConfL1Data/ThresholdConfig.h"
 #include "TrigConfL1Data/TriggerThreshold.h"
 
-#include "TrigT1Interfaces/RecMuonRoI.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"

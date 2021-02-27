@@ -19,7 +19,6 @@ PURPOSE:  Updates TrigMissingET using TrigMissingETHelper info
 
 #include "TrigEFMissingET/EFMissingETBaseTool.h"
 #include "TrigEFMissingET/EFMissingETHelper.h"
-// #include "TrigMissingEtEvent/TrigMissingET.h"
 #include "TrigMissingEtEvent/TrigMissingET.h"
 
 

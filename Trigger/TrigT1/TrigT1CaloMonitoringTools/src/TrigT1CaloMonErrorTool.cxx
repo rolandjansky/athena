@@ -11,7 +11,6 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/TriggerInfo.h"
 
-#include "xAODTrigL1Calo/CMXCPHitsContainer.h"
 #include "xAODTrigL1Calo/CMXEtSumsContainer.h"
 #include "xAODTrigL1Calo/CMXJetTobContainer.h"
 #include "xAODTrigL1Calo/CMXJetHitsContainer.h"

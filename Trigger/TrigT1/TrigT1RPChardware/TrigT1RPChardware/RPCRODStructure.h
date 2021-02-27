@@ -11,7 +11,6 @@
 #include "TrigT1RPChardware/PadReadOutStructure.h"
 #include "TrigT1RPChardware/RXReadOutStructure.h"
 #include "TrigT1RPChardware/SectorLogicReadOut.h"
-#include "TrigT1RPChardware/RXReadOutStructure.h"
 #include "TrigT1RPChardware/Lvl1Def.h"
 
 class RPCRODStructure : public RPCReadOut {

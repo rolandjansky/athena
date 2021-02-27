@@ -42,10 +42,6 @@
 #include "TrigConfHLTData/HLTPrescaleSetCollection.h"
 #include "AthenaMonitoringKernel/OHLockedHist.h"
 
-#include "TrigConfData/HLTMenu.h"
-
-#include "TrigConfInterfaces/IJobOptionsSvc.h"
-
 #include "TrigConfInterfaces/IJobOptionsSvc.h"
 
 #include "boost/algorithm/string/case_conv.hpp"

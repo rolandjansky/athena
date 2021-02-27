@@ -18,7 +18,6 @@
 #include "TrigTauEmulation/IHltTauSelectionTool.h"
 #include "TrigTauEmulation/ILevel1SelectionTool.h"
 #include "TrigTauEmulation/EmTauSelectionTool.h"
-#include "TrigTauEmulation/EmTauSelectionTool.h"
 #include "TrigTauEmulation/Utils.h"
 
 // Athena has an old version of ASG Tools, so alias the function to something

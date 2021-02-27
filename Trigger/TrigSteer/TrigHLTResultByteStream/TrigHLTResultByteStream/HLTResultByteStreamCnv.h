@@ -27,8 +27,6 @@
 #include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 
-#include <string>
-
 // forward declarations
 class DataObject;
 class StatusCode;

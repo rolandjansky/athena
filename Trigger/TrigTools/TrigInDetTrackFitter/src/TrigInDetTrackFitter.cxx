@@ -32,7 +32,6 @@
 #include "TrkDistributedKalmanFilter/TrkBaseNode.h"
 #include "TrkDistributedKalmanFilter/TrkFilteringNodes.h"
 #include "TrkDistributedKalmanFilter/TrkTrackState.h"
-#include "TrkDistributedKalmanFilter/TrkTrackState.h"
 #include "TrkDistributedKalmanFilter/TrkPlanarSurface.h"
 
 #include "TrigInDetToolInterfaces/ITrigInDetTrackFitter.h"
