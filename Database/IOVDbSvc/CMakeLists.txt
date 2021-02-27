@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( IOVDbSvc )
@@ -17,7 +17,7 @@ atlas_add_library( IOVDbSvcLib
    INTERFACE
    PUBLIC_HEADERS IOVDbSvc
    INCLUDE_DIRS ${COOL_INCLUDE_DIRS}
-   LINK_LIBRARIES ${COOL_LIBRARIES} GaudiKernel )
+   LINK_LIBRARIES ${COOL_LIBRARIES} GaudiKernel DBLock )
 
 atlas_add_component( IOVDbSvc
    src/*.h src/*.cxx src/components/*.cxx
