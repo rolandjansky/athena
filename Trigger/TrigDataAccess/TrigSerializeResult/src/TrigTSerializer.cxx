@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///
@@ -217,7 +217,7 @@ void* TBufferFileWorkaround::ReadObjectAnyNV(const TClass *clCast)
 } // namespace ROOT8367Workaround
 
 
-bool TrigTSerializer::s_decodingError;
+bool TrigTSerializer::s_decodingError = false;
 
 TrigTSerializer::TrigTSerializer(const std::string& toolname, const std::string& type, const IInterface* parent) : AthAlgTool(toolname, type, parent) {
   declareInterface<ITrigSerializerToolBase>( this );
