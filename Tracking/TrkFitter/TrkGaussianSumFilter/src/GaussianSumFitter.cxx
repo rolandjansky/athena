@@ -66,7 +66,7 @@ Trk::GaussianSumFitter::GaussianSumFitter(const std::string& type,
   : AthAlgTool(type, name, parent)
   , m_updator{}
   , m_directionToPerigee(Trk::oppositeMomentum)
-  , m_trkParametersComparisonFunction(nullptr)
+  , m_trkParametersComparisonFunction{}
   , m_inputPreparator(nullptr)
   , m_cutChiSquaredPerNumberDOF(50.)
   , m_overideMaterialEffects(4)
@@ -129,7 +129,7 @@ Trk::GaussianSumFitter::initialize()
                                   m_sortingReferencePoint[2]);
 
   m_trkParametersComparisonFunction =
-    std::make_unique<Trk::TrkParametersComparisonFunction>(referencePosition);
+    Trk::TrkParametersComparisonFunction(referencePosition);
   Trk::ParticleSwitcher particleSwitcher;
   m_overideParticleHypothesis =
     particleSwitcher.particle[m_overideMaterialEffects];
@@ -188,7 +188,7 @@ Trk::GaussianSumFitter::fit(
   const Trk::TrackParameters* parametersNearestReference =
     *(std::min_element(inputTrack.trackParameters()->begin(),
                        inputTrack.trackParameters()->end(),
-                       *m_trkParametersComparisonFunction));
+                       m_trkParametersComparisonFunction));
 
   // If refitting of track is at the MeasurementBase level
   // extract the MeasurementBase from the input track and create a new vector
@@ -535,7 +535,7 @@ Trk::GaussianSumFitter::fit(const EventContext& ctx,
   const TrackParameters* estimatedStartParameters =
     m_doHitSorting ? *(std::min_element(intrk.trackParameters()->begin(),
                                         intrk.trackParameters()->end(),
-                                        *m_trkParametersComparisonFunction))
+                                        m_trkParametersComparisonFunction))
                    : *intrk.trackParameters()->begin();
 
   // use external preparator class to prepare PRD set for fitter interface
@@ -584,7 +584,7 @@ Trk::GaussianSumFitter::fit(const EventContext& ctx,
   const Trk::TrackParameters* parametersNearestReference =
     *(std::min_element(inputTrack.trackParameters()->begin(),
                        inputTrack.trackParameters()->end(),
-                       *m_trkParametersComparisonFunction));
+                       m_trkParametersComparisonFunction));
 
   MeasurementSet combinedMS = m_inputPreparator->stripMeasurements(
     inputTrack, measurementSet, true, false);
@@ -1368,11 +1368,11 @@ Trk::GaussianSumFitter::combine(
         *forwardMeasuredCov + *smootherMeasuredCov;
       const AmgSymMatrix(5) K =
         *forwardMeasuredCov * summedCovariance.inverse();
-      const Amg::VectorX newParameters =
+      const AmgVector(5) newParameters =
         forwardsComponent.first->parameters() +
         K * (smootherComponent.first->parameters() -
              forwardsComponent.first->parameters());
-      const Amg::VectorX parametersDiff =
+      const AmgVector(5) parametersDiff =
         forwardsComponent.first->parameters() -
         smootherComponent.first->parameters();
 
