@@ -65,7 +65,8 @@ def getTrackVertexAssocTool(trkopt=""):
         "idloosetvassoc",
         WorkingPoint = "Custom",
         d0_cut = 2.0,
-        dzSinTheta_cut = 2.0
+        dzSinTheta_cut = 2.0,
+        TrackContName = trackcollectionmap[trkopt]["Tracks"]
     )
 
     jettvassoc = CompFactory.TrackVertexAssociationTool(

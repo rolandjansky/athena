@@ -247,9 +247,7 @@ TrackVertexAssociationTool::TrackVertexAssociationTool(const std::string& name) 
   m_doUsedInFit(false),
   m_requirePriVtx(false),
   m_hardScatterDeco("hardScatterVertexLink"),
-  m_trkContName("InDetTrackParticles"),
-  m_vtxDecoName("TTVA_AMVFVertices"),
-  m_wgtDecoName("TTVA_AMVFWeights")
+  m_trkContName("InDetTrackParticles")
 {
   declareProperty("WorkingPoint",        m_wp,              "Working point to operate on.");
   declareProperty("d0_cut",              m_d0_cut,          "Cut on d0. Not applied if set to -1.");
@@ -260,8 +258,8 @@ TrackVertexAssociationTool::TrackVertexAssociationTool(const std::string& name) 
   declareProperty("requirePriVtx",       m_requirePriVtx,   "Control whether a vertex must be VxType::PriVtx in order for a track (not UsedInFit) to be uniquely matched to it.");
   declareProperty("HardScatterLinkDeco", m_hardScatterDeco, "The decoration name of the ElementLink to the hardscatter vertex (found on xAOD::EventInfo)");
   declareProperty("TrackContName",       m_trkContName,     "The name of the xAOD::TrackParticleContainer to access the AMVF vertices+weights for (not actually read).");
-  declareProperty("AMVFVerticesDeco",    m_vtxDecoName,     "The per-track decoration name of the vector of AMVF used-in-fit vertex ElementLinks.");
-  declareProperty("AMVFWeightsDeco",     m_wgtDecoName,     "The per-track decoration name of the vector of AMVF used-in-fit annealing weights.");
+  declareProperty("AMVFVerticesDeco",    m_vtxDecoKey = "TTVA_AMVFVertices",     "The per-track decoration name of the vector of AMVF used-in-fit vertex ElementLinks.");
+  declareProperty("AMVFWeightsDeco",     m_wgtDecoKey = "TTVA_AMVFWeights",     "The per-track decoration name of the vector of AMVF used-in-fit annealing weights.");
 }
 
 #define IF_WORKING_POINT(WORKING_POINT, DO_USED_IN_FIT, REQUIRE_PRI_VTX)                               \
@@ -331,9 +329,9 @@ StatusCode TrackVertexAssociationTool::initialize()
   ATH_CHECK(m_eventInfo.initialize());
   m_hardScatterDecoKey = SG::ReadDecorHandleKey<xAOD::EventInfo>(m_eventInfo.key() + m_hardScatterDeco);
   ATH_CHECK(m_hardScatterDecoKey.initialize());
-  m_vtxDecoKey = SG::ReadDecorHandleKey<xAOD::TrackParticleContainer>(m_trkContName + "." + m_vtxDecoName);
+  m_vtxDecoKey = SG::ReadDecorHandleKey<xAOD::TrackParticleContainer>(m_trkContName + "." + m_vtxDecoKey.key());
   ATH_CHECK(m_vtxDecoKey.initialize());
-  m_wgtDecoKey = SG::ReadDecorHandleKey<xAOD::TrackParticleContainer>(m_trkContName + "." + m_wgtDecoName);
+  m_wgtDecoKey = SG::ReadDecorHandleKey<xAOD::TrackParticleContainer>(m_trkContName + "." + m_wgtDecoKey.key());
   ATH_CHECK(m_wgtDecoKey.initialize());
 
   return StatusCode::SUCCESS;

@@ -1,11 +1,11 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.CFElements import parOR
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
-from JetRecTools.JetRecToolsConfig import getTrackSelTool, getTrackVertexAssocTool, getTrackUsedInFitTool
+from JetRecTools.JetRecToolsConfig import getTrackSelTool, getTrackVertexAssocTool
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 
@@ -46,16 +46,27 @@ def JetTrackingSequence(dummyFlags,trkopt,RoIs):
     if trkopt not in trackcollectionmap.keys():
         trackcollectionmap[trkopt] = trkcolls
 
+    # Track decoration.
+    trkdecortool = CompFactory.getComp('InDet::InDetUsedInFitTrackDecoratorTool') \
+                   ("jetTrkDecorTool",
+                    TrackContainer  = trackcollectionmap[trkopt]["Tracks"],
+                    VertexContainer = trackcollectionmap[trkopt]["Vertices"]
+                    )
+    trkdecoralg = CompFactory.getComp('InDet::InDetUsedInVertexFitTrackDecorator') \
+                  ("jetTrkDecorAlg",
+                   UsedInFitDecoratorTool = trkdecortool
+                   )
+    jetTrkSeq += conf2toConfigurable( trkdecoralg )
+
     # Jet track selection
     jettrackselloose = getTrackSelTool(trkopt,doWriteTracks=True)
     jettracksname = jettrackselloose.OutputContainer
     jettvassoc = getTrackVertexAssocTool(trkopt)
-    JetUsedInFitTrkDecoTool = getTrackUsedInFitTool(trkopt)
 
     trackcollectionmap[trkopt]["JetTracks"] = jettracksname
 
     jettrkprepalg = CompFactory.JetAlgorithm("jetalg_TrackPrep")
-    jettrkprepalg.Tools = [ jettrackselloose, JetUsedInFitTrkDecoTool, jettvassoc ]
+    jettrkprepalg.Tools = [ jettrackselloose, jettvassoc ]
     jetTrkSeq += conf2toConfigurable( jettrkprepalg )
 
     pjgalg = CompFactory.PseudoJetAlgorithm(

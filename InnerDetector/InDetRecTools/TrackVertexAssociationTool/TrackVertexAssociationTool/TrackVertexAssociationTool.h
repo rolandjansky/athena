@@ -132,12 +132,6 @@ namespace CP {
     /// xAOD::TrackParticleContaier name (for building the accessors below)
     std::string m_trkContName;
 
-    /// AMVF vertices decoration name
-    std::string m_vtxDecoName;
-
-    /// AMVF weights decoration name
-    std::string m_wgtDecoName;
-
     /// @}
 
   private:
