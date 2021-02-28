@@ -39,10 +39,10 @@ namespace TrigConf {
       using AthService::AthMessaging::msg;
 
       // implementing IIHLTConfigSvc
-      const HLTChainList*    chainList() const __attribute__ ((deprecated));
+      const HLTChainList*    chainList() const;
       const HLTChainList&    chains() const;
       
-      const HLTSequenceList* sequenceList() const __attribute__ ((deprecated));
+      const HLTSequenceList* sequenceList() const;
       const HLTSequenceList& sequences() const;
       
       /*@brief constructor*/

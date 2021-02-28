@@ -39,8 +39,10 @@ bool TrigConf::L1TopoMenuLoader::load( TXC::L1TopoMenu& tcaTarget ) {
         tcaTarget.print();
    } catch( const std::exception& e ) {
       TRG_MSG_ERROR("L1TopoMenuLoader::load >> Standard C++ exception: " << e.what());
+      throw;
    } catch( ... ) {
       TRG_MSG_ERROR("L1TopoMenuLoader::load >> ... caught ");
+      throw;
    }
    TRG_MSG_INFO( "Loaded L1 TopoMenu with " << tcaTarget.getL1TopoConfigAlgs().size() << " algorithms and " 
                  << tcaTarget.getL1TopoConfigOutputList().getTriggerLines().size() << " trigger lines");

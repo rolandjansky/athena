@@ -704,7 +704,11 @@ namespace Trig {
       }
       std::vector< float > result;
       for( size_t i = 0; i < tmpresult.size(); ++i ) {
-         result.push_back( static_cast< float >( average * tmpresult[ i ] ) );
+         if( x == 4 ) {
+            result.push_back( static_cast< float >( tmpresult[ i ] ) );
+         } else {
+            result.push_back( static_cast< float >( average * tmpresult[ i ] ) );
+         }
       }
 
       return result;
@@ -808,7 +812,11 @@ namespace Trig {
       }
       std::vector< float > result;
       for( size_t i = 0; i < tmpresult.size(); ++i ) {
-         result.push_back( static_cast< float >( average * tmpresult[ i ] ) );
+         if( x == 4 ) {
+            result.push_back( static_cast< float >( tmpresult[ i ] ) );
+         } else {
+            result.push_back( static_cast< float >( average * tmpresult[ i ] ) );
+         }
       }
 
       return result;
@@ -912,7 +920,11 @@ namespace Trig {
       }
       std::vector< float > result;
       for( size_t i = 0; i < tmpresult.size(); ++i ) {
-         result.push_back( static_cast< float >( average * tmpresult[ i ] ) );
+         if( x == 4 ) {
+            result.push_back( static_cast< float >( tmpresult[ i ] ) );
+         } else {
+            result.push_back( static_cast< float >( average * tmpresult[ i ] ) );
+         }
       }
 
       return result;
@@ -1016,7 +1028,11 @@ namespace Trig {
       }
       std::vector< float > result;
       for( size_t i = 0; i < tmpresult.size(); ++i ) {
-         result.push_back( static_cast< float >( average * tmpresult[ i ] ) );
+         if( x == 4 ) {
+            result.push_back( static_cast< float >( tmpresult[ i ] ) );
+         } else {
+            result.push_back( static_cast< float >( average * tmpresult[ i ] ) );
+         }
       }
 
       return result;

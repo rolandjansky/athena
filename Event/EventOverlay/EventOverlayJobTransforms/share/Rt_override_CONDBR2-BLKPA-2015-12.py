@@ -126,6 +126,13 @@ conddb.addFolderSplitMC("SCT","/SCT/DAQ/Config/Chip","/SCT/DAQ/Config/Chip",forc
 conddb.blockFolder("/SCT/DAQ/Config/Module")
 conddb.addFolderSplitMC("SCT","/SCT/DAQ/Config/Module","/SCT/DAQ/Config/Module",force=True)
 
+conddb.blockFolder("/LAR/BadChannels/BadChannels")
+conddb.blockFolder("/LAR/BadChannelsOfl/BadChannels")
+conddb.addFolderWithTag("LAR_OFL","/LAR/BadChannels/BadChannels","LARBadChannelsBadChannels-HECAQ3Missing",force=True,forceMC=True)
+conddb.blockFolder("/LAR/BadChannels/MissingFEBs")
+conddb.blockFolder("/LAR/BadChannelsOfl/MissingFEBs")
+conddb.addFolderWithTag("LAR_OFL","/LAR/BadChannels/MissingFEBs","LArBadChannelsMissingFEBs-IOVDEP-04",force=True,forceMC=True)
+
 dofolderoverrides = True
 if dofolderoverrides:
         print "ACH - overriding folder access patterns"
@@ -138,6 +145,15 @@ def adjustlongfolder(name):
                 conddb.addMarkup(name,"<cache>100000000</cache>")
                 global overlaylongfolders
                 overlaylongfolders += [name]
+
+overlaydayfolders = []
+def adjustdayfolder(name):
+        if conddb.folderRequested(name):
+                print "setting "+name+" to day(86400s) cache"
+                conddb.addMarkup(name,"<cache>86400</cache>")
+                global overlaydayfolders
+                overlaydayfolders += [name]
+
 
 if dofolderoverrides:
         adjustlongfolder("/CALO/CaloSwClusterCorrections/calhits")
@@ -227,13 +243,21 @@ if dofolderoverrides:
         adjustlongfolder("/RPC/TRIGGER/CM_THR_ETA")
         adjustlongfolder("/RPC/TRIGGER/CM_THR_PHI")
         adjustlongfolder("/TRT/AlignL2")
+        adjustdayfolder("/SCT/DAQ/Config/Chip")
+        adjustdayfolder("/SCT/DAQ/Config/Module")
+        adjustdayfolder("/SCT/DAQ/Config/MUR")
+        adjustdayfolder("/SCT/DAQ/Config/ROD")
  
 print "overlaylongfolders: ", overlaylongfolders
- 
+print "overlaydayfolders: ", overlaydayfolders 
+
 def adjustshortfolder(name):
         global overlaylongfolders
+        global overlaydayfolders
         if name in overlaylongfolders:
                 print "already made "+name+" long"
+        elif name in overlaydayfolders:
+                print "already made "+name+" day long"
         else:
                 if conddb.folderRequested(name):
                         print "setting "+name+" to 10s cache"

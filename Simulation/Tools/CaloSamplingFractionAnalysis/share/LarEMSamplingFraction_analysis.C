@@ -2,9 +2,13 @@
 Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-void LarEMSamplingFraction_barrel()
+void LarEMSamplingFraction_barrel(std::string filebarrel="LArEM_SF_barrel.root")
 {
-  TFile* file = TFile::Open("LArEM_SF_barrel.root");
+  TFile* file = TFile::Open(filebarrel.c_str());
+  if(!file || !file->IsOpen()) {
+    std::cout<<filebarrel<<" not found or corrupt"<<std::endl;
+    return;
+  }
   TTree* mytree=(TTree*)file->Get("mytree");
   new TCanvas("Etot_barrel","Etot_barrel");
   mytree->Draw("Sum$(energy_active_total+energy_inactive_total)");
@@ -81,9 +85,13 @@ void LarEMSamplingFraction_barrel()
   c->SaveAs(".pdf");
 }
 
-void LarEMSamplingFraction_endcap()
+void LarEMSamplingFraction_endcap(std::string fileendcap="LArEM_SF_endcap.root")
 {
-  TFile* file = TFile::Open("LArEM_SF_endcap.root");
+  TFile* file = TFile::Open(fileendcap.c_str());
+  if(!file || !file->IsOpen()) {
+    std::cout<<fileendcap<<" not found or corrupt"<<std::endl;
+    return;
+  }
   TTree* mytree=(TTree*)file->Get("mytree");
 
   new TCanvas("ELAr_hit_endcap","ELAr_hit_endcap");
@@ -145,8 +153,8 @@ void LarEMSamplingFraction_endcap()
   c->SaveAs(".pdf");
 }
 
-void LarEMSamplingFraction_analysis()
+void LarEMSamplingFraction_analysis(std::string filebarrel="LArEM_SF_barrel.root", std::string fileendcap="LArEM_SF_endcap.root")
 {
-  LarEMSamplingFraction_barrel();
-  LarEMSamplingFraction_endcap();
+  LarEMSamplingFraction_barrel(filebarrel);
+  LarEMSamplingFraction_endcap(fileendcap);
 }

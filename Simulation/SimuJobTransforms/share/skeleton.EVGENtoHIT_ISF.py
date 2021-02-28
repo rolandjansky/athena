@@ -51,6 +51,13 @@ elif hasattr(runArgs, "inputEVNT_TRFile"):
 elif jobproperties.Beam.beamType.get_Value() == 'cosmics':
     atlasG4log.debug('No inputEVNTFile provided. OK, as performing cosmics simulation.')
     athenaCommonFlags.PoolEvgenInput.set_Off()
+elif hasattr(runArgs, "inputHITS_RNMFile"):
+    from AthenaCommon.GlobalFlags import globalflags
+    globalflags.InputFormat.set_Value_and_Lock('pool')
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    athenaCommonFlags.PoolEvgenInput.set_Value_and_Lock( runArgs.inputHITS_RNMFile )
+    athenaCommonFlags.FilesInput.set_Value_and_Lock( runArgs.inputHITS_RNMFile )
+    ISF_Flags.Resimulation="YES" # HACK
 else:
     atlasG4log.info('No inputEVNTFile provided. Assuming that you are running a generator on the fly.')
     athenaCommonFlags.PoolEvgenInput.set_Off()
@@ -72,6 +79,8 @@ if jobproperties.Beam.beamType.get_Value() == 'cosmics':
 ## Output hits file config
 if hasattr(runArgs, "outputHITSFile"):
     athenaCommonFlags.PoolHitsOutput.set_Value_and_Lock( runArgs.outputHITSFile )
+elif hasattr(runArgs, "outputHITS_RSMFile"):
+    athenaCommonFlags.PoolHitsOutput.set_Value_and_Lock( runArgs.outputHITS_RSMFile )
 else:
     if hasattr(runArgs, "outputEVNT_TRFile"):
         if hasattr(runArgs,"trackRecordType") and runArgs.trackRecordType=="stopped":
@@ -88,7 +97,16 @@ atlasG4log.info( str(runArgs) )
 
 ## Set up the top sequence
 from AthenaCommon.AlgSequence import AlgSequence
-topSeq = AlgSequence()
+athAlgSeq = AlgSequence()
+if ISF_Flags.Resimulation.statusOn:
+    # Here we are going to run conditional re-simulation
+    simSequence = AlgSequence('SimSequence')
+    topSeq = simSequence
+    athAlgSeq += simSequence
+    copyHitSequence = AlgSequence('CopyHitSequence')
+    athAlgSeq += copyHitSequence
+else:
+    topSeq = athAlgSeq
 
 ## Set Overall per-Algorithm time-limit on the AlgSequence
 topSeq.TimeOut = 43200 * Units.s
@@ -251,6 +269,20 @@ if hasattr(runArgs, "enableLooperKiller") and not runArgs.enableLooperKiller:
     simFlags.OptionalUserActionList.removeAction('G4UA::LooperKillerTool', ['Step'])
     atlasG4log.warning("The looper killer will NOT be run in this job.")
 
+
+if ISF_Flags.Resimulation.statusOn:
+    from McEventCollectionFilter.McEventCollectionFilterConf import TruthResetAlg
+    topSeq += TruthResetAlg("TruthResetAlg",InputMcEventCollection="TruthEventOLD", OutputMcEventCollection="BeamTruthEvent")
+
+    from AthenaCommon.CfgGetter import getAlgorithm
+    topSeq += getAlgorithm("ISF_SimEventFilter")
+
+    copyHitSequence += getAlgorithm("ISF_InvertedSimEventFilter")
+    copyHitSequence += getAlgorithm('RenameHitCollections')
+    print(copyHitSequence)
+
+
+
 #### *********** import ISF_Example code here **************** ####
 include("ISF_Config/ISF_ConfigJobInclude.py")
 
@@ -283,3 +315,5 @@ if hasattr(runArgs, "postExec"):
     for cmd in runArgs.postExec:
         atlasG4log.info(cmd)
         exec(cmd)
+
+ServiceMgr.StoreGateSvc.Dump=True # temp

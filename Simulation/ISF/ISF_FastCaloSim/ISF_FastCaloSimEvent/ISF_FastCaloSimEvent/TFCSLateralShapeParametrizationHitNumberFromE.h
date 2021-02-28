@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TFCSLateralShapeParametrizationHitNumberFromE_h
@@ -33,7 +33,13 @@ public:
 
   int get_number_of_hits(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
 
+  virtual bool operator==(const TFCSParametrizationBase& ref) const override;
+
   void Print(Option_t *option = "") const override;
+
+protected:  
+  bool compare(const TFCSParametrizationBase& ref) const;
+
 private:
   // Information for the fluctuation terms
   // The variation is calculated as:

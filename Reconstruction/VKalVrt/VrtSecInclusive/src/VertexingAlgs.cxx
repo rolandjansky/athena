@@ -1132,6 +1132,10 @@ namespace VKalVrtAthena {
           baseTracks.emplace_back( m_selectedTracks->at( index ) );
           wrkvrt.Chi2PerTrk.emplace_back( AlgConsts::chi2PerTrackInitValue );
         }
+        for( const auto& index : wrkvrt.associatedTrackIndices ) {
+          baseTracks.emplace_back( m_associatedTracks->at( index ) );
+          wrkvrt.Chi2PerTrk.emplace_back( AlgConsts::chi2PerTrackInitValue );
+        }
         
         baseTracks.emplace_back( trk );
         wrkvrt.Chi2PerTrk.emplace_back( AlgConsts::chi2PerTrackInitValue );

@@ -52,6 +52,7 @@ namespace ISF {
       std::vector<std::string>          m_whiteLists;            //!< The location of the white lists
       std::vector<long int>             m_pdgId;                //!< Allowed PDG IDs
       bool                              m_qs;                   //!< Switch for quasi-stable particle simulation
+      double m_minDecayRadiusQS;                         //!< Decay radius below which QS particles should be ignored
   };
 
 }

@@ -79,6 +79,7 @@ if DetFlags.overlay.Tile_on():
        ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileDigitsContainer/TileDigitsCnt"]
        ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileL2Container/TileL2Cnt"]
        ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileLaserObject/TileLaserObj"]
+       ServiceMgr.ByteStreamCnvSvc.ROD2ROBmap = [ "-1" ]
 
 #--------------------
 

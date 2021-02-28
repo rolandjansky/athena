@@ -43,6 +43,8 @@ namespace ISF {
        /** Add the given particle to the corresponding Entry/Exit layer if applicable */
        virtual ISF::EntryLayer registerParticle( const ISFParticle& particle,
                                                  EntryLayer layer=fUnsetEntryLayer) = 0;
+
+       virtual void setupEvent() = 0;
   };
 
 } // end of namespace

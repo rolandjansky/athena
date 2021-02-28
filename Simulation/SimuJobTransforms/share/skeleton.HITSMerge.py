@@ -103,9 +103,13 @@ ServiceMgr.EventSelector.SkipEvents = SkipEvents
 #--------------------------------------------------------------
 # Setup Output
 #--------------------------------------------------------------
-if not hasattr(runArgs,"outputHITS_MRGFile"):
+Out = None
+if hasattr(runArgs,"outputHITS_RNMFile"):
+    Out = runArgs.outputHITS_RNMFile
+elif not hasattr(runArgs,"outputHITS_MRGFile"):
     raise RuntimeError("No outputHITS_MRGFile provided.")
-Out = runArgs.outputHITS_MRGFile
+else:
+    Out = runArgs.outputHITS_MRGFile
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 try:
   StreamHITS = AthenaPoolOutputStream( "StreamHITS", Out, True )

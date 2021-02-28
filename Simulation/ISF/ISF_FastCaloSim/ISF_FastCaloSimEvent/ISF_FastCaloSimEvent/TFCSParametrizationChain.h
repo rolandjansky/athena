@@ -30,6 +30,7 @@ public:
   virtual unsigned int size() const override {return m_chain.size();};
   virtual const TFCSParametrizationBase* operator[](unsigned int ind) const override {return m_chain[ind];};
   virtual TFCSParametrizationBase* operator[](unsigned int ind) override {return m_chain[ind];};
+  virtual void set_daughter(unsigned int ind,TFCSParametrizationBase* param) override {m_chain.at(ind)=param;};
   const Chain_t& chain() const {return m_chain;};
   Chain_t& chain() {return m_chain;};
   void push_back(const Chain_t::value_type& param) {m_chain.push_back(param);recalc();};

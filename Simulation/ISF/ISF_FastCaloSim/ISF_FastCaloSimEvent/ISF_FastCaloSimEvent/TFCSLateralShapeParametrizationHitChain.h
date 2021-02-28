@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TFCSLateralShapeParametrizationHitChain_h
@@ -14,19 +14,22 @@ public:
   TFCSLateralShapeParametrizationHitChain(const char* name=nullptr, const char* title=nullptr);
   TFCSLateralShapeParametrizationHitChain(TFCSLateralShapeParametrizationHitBase* hitsim);
 
+  virtual FCSReturnCode init_hit(TFCSLateralShapeParametrizationHitBase::Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const;
+
   virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
 
-  virtual void set_geometry(ICaloGeometry* geo) override;
-
   typedef std::vector< TFCSLateralShapeParametrizationHitBase* > Chain_t;
-  virtual unsigned int size() const override {return m_chain.size();};
-  virtual const TFCSParametrizationBase* operator[](unsigned int ind) const override {return m_chain[ind];};
-  virtual TFCSParametrizationBase* operator[](unsigned int ind) override {return m_chain[ind];};
+  virtual unsigned int size() const override;
+  virtual const TFCSParametrizationBase* operator[](unsigned int ind) const override;
+  virtual TFCSParametrizationBase* operator[](unsigned int ind) override;
+  virtual void set_daughter(unsigned int ind,TFCSParametrizationBase* param) override;
   const Chain_t& chain() const {return m_chain;};
   Chain_t& chain() {return m_chain;};
   void push_back( const Chain_t::value_type& value ) {m_chain.push_back(value);};
-  //TODO: add generic functionality to determine the number of hits or center position only once
-  // and not for every iteration of the hit chain
+  void push_back_init( const Chain_t::value_type& value );
+
+  unsigned int get_nr_of_init() const {return m_ninit;};
+  void set_nr_of_init(unsigned int ninit) {m_ninit=ninit;};
 
   /// set which instance should determine the number of hits
   virtual void set_number_of_hits_simul(TFCSLateralShapeParametrizationHitBase* sim) {m_number_of_hits_simul=sim;};
@@ -48,21 +51,16 @@ public:
 
   void Print(Option_t *option = "") const override;
 
-#if defined(__FastCaloSimStandAlone__)
-  /// Update outputlevel
-  virtual void setLevel(int level,bool recursive=false) override {
-    TFCSLateralShapeParametrization::setLevel(level,recursive);
-    if(recursive) if(m_number_of_hits_simul) m_number_of_hits_simul->setLevel(level,recursive);
-  }
-#endif
-
-
 protected:
+  void PropagateMSGLevel(MSG::Level level) const;
+  
   Chain_t m_chain;
   
 private:
   TFCSLateralShapeParametrizationHitBase* m_number_of_hits_simul;
-  ClassDefOverride(TFCSLateralShapeParametrizationHitChain,1)  //TFCSLateralShapeParametrizationHitChain
+  unsigned int m_ninit=0;
+
+  ClassDefOverride(TFCSLateralShapeParametrizationHitChain,2)  //TFCSLateralShapeParametrizationHitChain
 };
 
 #endif
