@@ -778,7 +778,7 @@ HTT_SGToRawHitsTool::read_truth_tracks(HTTOptionalEventInfo& optional)
       // categorize particle (prompt, secondary, etc.) based on InDetPerformanceRTT/detector paper criteria.
       bool isPrimary = true;
       if( std::abs(truth_d0corr)>2. ) { isPrimary=false;}
-      if( particle->barcode()>100000 || particle->barcode()==0 ) { isPrimary=false;}
+      if( particle->barcode()>10000000 || particle->barcode()==0 ) { isPrimary=false;}
 
       if( isPrimary && particle->production_vertex() ) {
         const HepGeom::Point3D<double> startVertex(particle->production_vertex()->point3d().x(), particle->production_vertex()->point3d().y(), particle->production_vertex()->point3d().z());
@@ -827,7 +827,7 @@ void HTT_SGToRawHitsTool::GetTruthInformation(InDetSimDataCollection::const_iter
     // reject unstable particles
     if( particle->status()%1000!=1 ) { continue; }
     // reject secondaries and low pT (<400 MeV) pileup
-    if( particle->barcode()>100000 || particle->barcode()==0 ) { continue; }
+    if( particle->barcode()>10000000 || particle->barcode()==0 ) { continue; }
     // reject far forward particles
     if( fabs(genEta)>m_maxEta ) { continue; }
     // "bestParent" is the highest pt particle
