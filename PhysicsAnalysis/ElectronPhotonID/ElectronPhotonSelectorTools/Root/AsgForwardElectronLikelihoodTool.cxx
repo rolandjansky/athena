@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -89,7 +89,7 @@ StatusCode AsgForwardElectronLikelihoodTool::initialize()
   if (!m_configFile.empty())
   {
     std::string configFile = PathResolverFindCalibFile(m_configFile);
-    if (configFile == "")
+    if (configFile.empty())
     {
       ATH_MSG_ERROR("Could not locate " << m_configFile);
       return StatusCode::FAILURE;
