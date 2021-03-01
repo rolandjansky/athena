@@ -1,11 +1,12 @@
 /*
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrackCountHypoAlgMT.h"
 #include "TrackCountHypoTool.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
 #include "AthViews/ViewHelper.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 
 using TrigCompositeUtils::createAndStore;
 using TrigCompositeUtils::DecisionAuxContainer;
