@@ -273,18 +273,18 @@ Trk::Navigator::nextTrackingVolume(const EventContext& ctx,
     const Trk::Surface& currentSurface =
       currentBoundary->surfaceRepresentation();
     // try the propagation
-    const Trk::TrackParameters* trackPar = nullptr;
+    std::unique_ptr<Trk::TrackParameters> trackPar = nullptr;
     // do either RungeKutta (always after first unsuccessful try) or straight
     // line
     if (!currentSurface.isOnSurface(parms.position(), true, 0., 0.)) {
       trackPar =
         (!m_useStraightLineApproximation || tryBoundary > 1)
           ? prop.propagateParameters(
-              ctx, parms, currentSurface, searchDir, true, m_fieldProperties).release()
+              ctx, parms, currentSurface, searchDir, true, m_fieldProperties)
           : prop.propagateParameters(
-              ctx, parms, currentSurface, searchDir, true, s_zeroMagneticField).release();
+              ctx, parms, currentSurface, searchDir, true, s_zeroMagneticField);
     } else {
-      trackPar = parms.clone(); //to be revisited
+      trackPar.reset(parms.clone()); //to be revisited
     }
     if (trackPar) {
       // the next volume pointer
@@ -307,7 +307,7 @@ Trk::Navigator::nextTrackingVolume(const EventContext& ctx,
       }
 
       return Trk::NavigationCell(
-        nextVolume, trackPar, Trk::BoundarySurfaceFace(surface_id));
+        nextVolume, std::move(trackPar), Trk::BoundarySurfaceFace(surface_id));
     }
 
     // ---------------------------------------------------

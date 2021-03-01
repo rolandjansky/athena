@@ -3654,8 +3654,8 @@ Trk::Extrapolator::insideVolumeStaticLayers(const EventContext& ctx,
         m_navigator->nextTrackingVolume(ctx, *navPropagator, *navParameters, dir, tvol);
       nextVolume = nextNavCell.nextVolume;
 
-      navParameters =
-        ManagedTrackParmPtr::recapture(navParameters, nextNavCell.parametersOnBoundary);
+      navParameters = ManagedTrackParmPtr::recapture(
+        navParameters, nextNavCell.parametersOnBoundary.release());
 
       bParameters = navParameters;
       // set the new exit Cell
@@ -3671,7 +3671,8 @@ Trk::Extrapolator::insideVolumeStaticLayers(const EventContext& ctx,
 
     nextVolume = nextNavCell.nextVolume;
 
-    navParameters = ManagedTrackParmPtr::recapture(navParameters, nextNavCell.parametersOnBoundary);
+    navParameters = ManagedTrackParmPtr::recapture(
+      navParameters, nextNavCell.parametersOnBoundary.release());
     bParameters = navParameters;
     // set the new exit Cell
     exitFace = nextNavCell.exitFace;
