@@ -265,9 +265,9 @@ def createDetectorConfigFlags():
 
     dcf.addFlag('Detector.RecoBCM',   False)
     dcf.addFlag('Detector.RecoIBL', lambda prevFlags : (prevFlags.Detector.RecoPixel and prevFlags.GeoModel.Run in ["RUN2", "RUN3"])) # TODO Review if a separate RecoIBL flag is really required here
-    dcf.addFlag('Detector.RecoPixel', True)
-    dcf.addFlag('Detector.RecoSCT',   True)
-    dcf.addFlag('Detector.RecoTRT',   True)
+    dcf.addFlag('Detector.RecoPixel', False)
+    dcf.addFlag('Detector.RecoSCT',   False)
+    dcf.addFlag('Detector.RecoTRT',   False)
     dcf.addFlag('Detector.RecoID',    lambda prevFlags : (prevFlags.Detector.RecoBCM or prevFlags.Detector.RecoIBL or
                                                           prevFlags.Detector.RecoPixel or prevFlags.Detector.RecoSCT or
                                                           prevFlags.Detector.RecoTRT))
