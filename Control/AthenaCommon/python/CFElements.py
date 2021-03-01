@@ -172,7 +172,7 @@ def findAllAlgorithmsByName(sequence, namesToLookFor=None):
     Finds all algorithms in sequence and groups them by name
     
     Resulting dict has a following structure
-    {"Alg1Name":(Alg1Instance, parentSequence, indexInThisSequence),
+    {"Alg1Name":[(Alg1Instance, parentSequenceA, indexInSequenceA),(Alg1Instance, parentSequenceB, indexInSequenceB)],
      "Alg2Name":(Alg2Instance, parentSequence, indexInThisSequence),
      ....}
     """

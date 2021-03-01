@@ -31,6 +31,7 @@ class AthMonitorCfgHelper(object):
         self.monName = monName
         self.monSeq = AthSequencer('AthMonSeq_' + monName)
         self.resobj = ComponentAccumulator()
+        self.resobj.addSequence(self.monSeq)
         if inputFlags.DQ.useTrigger:
             from .TriggerInterface import getTrigDecisionTool
             self.resobj.merge(getTrigDecisionTool(inputFlags))
@@ -77,8 +78,7 @@ class AthMonitorCfgHelper(object):
             self.resobj.merge (TrigLiveFractionCondAlgCfg (self.inputFlags))
         else:
             algObj.EnableLumi = False
-
-        self.monSeq.Members.append(algObj)
+        self.resobj.addEventAlgo(algObj, sequenceName=self.monSeq.name)
         return algObj
 
     def addGroup(self, alg, name, topPath='', defaultDuration='run'):
@@ -148,7 +148,6 @@ class AthMonitorCfgHelper(object):
         Returns:
         resobj -- a ComponentAccumulator 
         '''
-        self.resobj.addSequence(self.monSeq)
         return self.resobj
 
 class AthMonitorCfgHelperOld(object):

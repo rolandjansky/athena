@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
-from AthenaCommon.CFElements import isSequence,findSubSequence,findAlgorithm,flatSequencers,findOwningSequence,\
+from AthenaCommon.CFElements import isSequence,findSubSequence,findAlgorithm,flatSequencers,\
     checkSequenceConsistency, findAllAlgorithmsByName
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.Debugging import DbgStage
@@ -95,7 +95,7 @@ class ComponentAccumulator(object):
 
         self._theAppProps=dict()        #Properties of the ApplicationMgr
 
-        #Backward compatiblity hack: Allow also public tools:
+        #Backward compatibility hack: Allow also public tools:
         self._publicTools=[]
 
         #To check if this accumulator was merged:
@@ -234,10 +234,15 @@ class ComponentAccumulator(object):
         """ Adds new sequence. If second argument is present then it is added under another sequence  """
         from AthenaCommon.AlgSequence import AthSequencer as LegacySequence
         if isinstance( newseq, LegacySequence ):
-            raise ConfigurationError('{} is not the Conf2 Sequence, ComponentAccumulator handles only the former'.format(newseq.name()))
+            raise ConfigurationError('{} is not the Conf2 Sequence, ComponentAccumulator handles only the former'.format(newseq.name))
 
         if not isSequence(newseq):
             raise TypeError('{} is not a sequence'.format(newseq.name))
+
+        algorithmsInside = findAllAlgorithmsByName(newseq)
+        if len(algorithmsInside) != 0:
+            raise ConfigurationError('{} contains algorithms (or sub-sequences contain them). That is not supported. Construct ComponentAccumulator and merge it instead'.format(newseq.name))
+
 
         if parentName is None:
             parent=self._sequence
@@ -247,40 +252,10 @@ class ComponentAccumulator(object):
                 raise ConfigurationError("Missing sequence {} to add new sequence to".format(parentName))
 
         parent.Members.append(newseq)
-        algsByName = findAllAlgorithmsByName(newseq)
-        for name, existingAlgs in algsByName.items():
-            startingIndex = 0
-            if name not in self._algorithms:
-                firstAlg, parent, idx = existingAlgs[0]
-                self._algorithms[name] = firstAlg
-                startingIndex = 1
-            for alg, parent, idx in existingAlgs[startingIndex:]:
-                self._algorithms[name].merge(alg)
-                parent.Members[idx] = self._algorithms[name]
-
         checkSequenceConsistency(self._sequence)
         if ComponentAccumulator.debugMode:
             self._componentsContext[newseq] += shortCallStack()
         return newseq
-
-    def moveSequence(self, sequence, destination ):
-        """ moves sequence from one sub-sequence to another, primary use case HLT Control Flow """
-        seq = findSubSequence(self._sequence, sequence )
-        if seq is None:
-            raise ConfigurationError("Can not find sequence to move {} ".format(sequence))
-
-        owner = findOwningSequence(self._sequence, sequence)
-        if owner is None:
-            raise ConfigurationError("Can not find the sequence owning the {} ".format(sequence))
-
-        dest = findSubSequence(self._sequence, destination )
-        if dest is None:
-            raise ConfigurationError("Can not find destination sequence {} to move to ".format(destination))
-
-        owner.Members.remove( seq )
-        dest.Members.append( seq )
-        checkSequenceConsistency(self._sequence)
-        return seq
 
 
     def getSequence(self,sequenceName=None):
@@ -302,7 +277,7 @@ class ComponentAccumulator(object):
                     raise  ConfigurationError("ComponentAccumulator.setPrivateTools accepts only ConfigurableAlgTools or lists of ConfigurableAlgTools. Encountered {} in a list" % format(type(t)))
         else:
             if privTool.__component_type__ != "AlgTool":
-                raise  ConfigurationError("ComponentAccumulator.setPrivateTools accepts only cCnfigurableAlgTools or lists of ConfigurableAlgTools. Encountered {} ".format(type(privTool)))
+                raise  ConfigurationError("ComponentAccumulator.setPrivateTools accepts only ConfigurableAlgTools or lists of ConfigurableAlgTools. Encountered {} ".format(type(privTool)))
 
         self._privateTools=privTool
         if ComponentAccumulator.debugMode:
@@ -320,7 +295,7 @@ class ComponentAccumulator(object):
         return tool
 
     def popToolsAndMerge(self, other):
-        """ Merging in the other accumulator and getting the (list of) private AlgTools from this CompoentAccumulator.
+        """ Merging in the other accumulator and getting the (list of) private AlgTools from this ComponentAccumulator.
         """
         if other is None:
             raise RuntimeError("merge called on object of type None: did you forget to return a CA from a config function?")
@@ -431,7 +406,7 @@ class ComponentAccumulator(object):
             if self._primaryComp:
                 self._msg.warning("Overwriting primary component of this CA. Was %s/%s, now %s/%s",
                                   self._primaryComp.__cpp_type__,self._primaryComp.name,newSvc.__cpp_type__,newSvc.name)
-            #keep a ref of the de-duplicated srevice as primary component
+            #keep a ref of the de-duplicated service as primary component
             self._primaryComp=self.__getOne( self._services, newSvc.name, "Services")
         self._lastAddedComponent=newSvc.name
 
@@ -559,17 +534,17 @@ class ComponentAccumulator(object):
                     if sub:
                         mergeSequences(sub, c )
                     else:
-                        self._msg.debug("  Merging sequence %s to a sequence %s", c.name, dest.name )
-                        algorithmsByName = findAllAlgorithmsByName(c)
+                        self._msg.debug("  Merging sequence %s to a destination sequence %s", c.name, dest.name )
+                        algorithmsByName = findAllAlgorithmsByName(c) # dictionary: algName (alg, parentSeq, indexInParentSeq)                        
                         for name, existingAlgs in algorithmsByName.items():
-                            startingIndex = 0
+                            # all algorithms from incoming CA are already deduplicated, so we can only handle the fist one
+                            algInstance, _, _ = existingAlgs[0]
                             if name not in self._algorithms:
-                                firstAlg, parent, idx = existingAlgs[0]
-                                self._algorithms[name] = firstAlg
-                                startingIndex = 1
-                            for alg, parent, idx in existingAlgs[startingIndex:]:
-                                deduplicateOne(self._algorithms[name], alg)
-                                deduplicateOne(alg, self._algorithms[name])
+                                self._algorithms[name] = algInstance
+                            else:
+                                deduplicateOne(self._algorithms[name], algInstance)
+                                deduplicateOne(algInstance, self._algorithms[name])
+                            for _, parent, idx in existingAlgs: # put the deduplicated algo back into original sequences
                                 parent.Members[idx] = self._algorithms[name]
                         dest.Members.append(c)
                 else: # an algorithm
@@ -591,7 +566,7 @@ class ComponentAccumulator(object):
         # Merge sequences:
         # mergeSequences(destSeq, other._sequence)
         # if sequenceName is provided it means we should be ignoring the actual MAIN seq name there and use the sequenceName
-        # that means the first search in the destination seqence needs to be cheated
+        # that means the first search in the destination sequence needs to be cheated
         # the sequenceName argument is only relevant for the MAIN sequence, 
         # secondary top sequences are treated as if the sequenceName argument would not be provided
 
@@ -603,7 +578,6 @@ class ComponentAccumulator(object):
                     destSeqName = sequenceName
                     self._msg.verbose("   Will move sequence %s to %s", otherSeq.name, destSeqName )
 
-#                destSeq = self.getSequence(sequenceName) if sequenceName else self._sequence:
                 ourSeq = findSubSequence(ourSeq, destSeqName) # try to add sequence to the main structure first, to each seq in parent?
                 if ourSeq:
                     mergeSequences(ourSeq, otherSeq)
@@ -742,7 +716,7 @@ class ComponentAccumulator(object):
                 if isinstance(v, Configurable):
                     # Add the name of the tool as property to the parent
                     bshPropsToSet.append((name, k, v.getFullName()))
-                    # Recursivly add properties of this tool to the JobOptionSvc
+                    # Recursively add properties of this tool to the JobOptionSvc
                     getCompsToBeAdded(v, namePrefix=name + ".")
                 # 2. PrivateToolHandleArray
                 elif isinstance(v, GaudiHandles.PrivateToolHandleArray):
@@ -750,12 +724,12 @@ class ComponentAccumulator(object):
                     bshPropsToSet.append(
                         (name, k, str([v1.getFullName() for v1 in v]),)
                     )
-                    # Recusivly add properties of tools to JobOptionsSvc
+                    # Recursively add properties of tools to JobOptionsSvc
                     for v1 in v:
                         getCompsToBeAdded(v1, namePrefix=name + ".")
                 elif (
                     not isSequence(comp) and k != "Members"
-                ):  # This property his handled separatly
+                ):  # This property his handled separately
                     vstr = "" if v is None else str(v)
                     bshPropsToSet.append((name, k, vstr))
 
@@ -776,7 +750,7 @@ class ComponentAccumulator(object):
         for seqName, algoList in flatSequencers(self._sequence, algsCollection=self._algorithms).items():
             seq = self.getSequence(seqName)
             for k, v in seq._properties.items():
-                if k != "Members":  # This property his handled separatly
+                if k != "Members":  # This property his handled separately
                     vstr = "" if v is None else str(v)
                     bshPropsToSet.append((seqName, k, vstr))
             bshPropsToSet.append(
@@ -861,9 +835,9 @@ class ComponentAccumulator(object):
         Example:
         forcomps(ca, "*/HLTTop/*/*Hypo*").OutputLevel=VERBOSE
 
-        The compoments name & locations in the CF tree are translated into the unix like path.
+        The components name & locations in the CF tree are translated into the unix like path.
         Components of matching path are taken under consideration in setting the property.
-        If the property is set succesfully an INFO message is printed. Else, a warning is printed.
+        If the property is set successfully an INFO message is printed. Else, a warning is printed.
 
         The convention for path of nested components is as follows:
         Sequencer - only the name is used in the path
@@ -878,7 +852,7 @@ class ComponentAccumulator(object):
 
 ##################################################################################
 # Compatibility layer allowing to convert between new (as of 2020) Gaudi Configurable2
-# and old Confiburable classes
+# and old Configurable classes
 
 def __indent( indent = ""):
     return indent + "  "
@@ -1075,7 +1049,7 @@ def conf2toConfigurable( comp, indent="", suppressDupes=False ):
                         raise
                 elif alreadySetProperties[pname] != pvalue:
                     # Old configuration writes some properties differently e.g. like ConditionStore+TileBadChannels instead of just TileBadChannels
-                    # So check this isn't a false postive before continuing
+                    # So check this isn't a false positive before continuing
                     merge = True
                     try: 
                         if '+' in alreadySetProperties[pname].toStringProperty() and alreadySetProperties[pname].toStringProperty().split('+')[-1] == pvalue: 

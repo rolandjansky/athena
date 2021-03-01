@@ -201,7 +201,6 @@ class TestHLTCF( unittest.TestCase ):
         acc.addSequence( parOR("hltStep_1"), parentName="hltSteps" )
         acc.addSequence( seqAND("L2CaloEgammaSeq"), "hltStep_1" )
         acc.addSequence( parOR("hltStep_2"), parentName="hltSteps" )
-        acc.moveSequence( "L2CaloEgammaSeq", "hltStep_2" )
 
         fout = open("testFile2.pkl", "wb")
         acc.store(fout)
@@ -220,17 +219,16 @@ class MultipleParentsInSequences( unittest.TestCase ):
 
         accTop = ComponentAccumulator()
 
-        recoSeq = seqAND("seqReco")
-        recoAlg = TestAlgo( "recoAlg" )
-        recoSeq.Members.append( recoAlg )
 
         acc1 = ComponentAccumulator()
         acc1.addSequence( seqAND("seq1") )
-        acc1.addSequence( recoSeq, parentName="seq1" )
+        acc1.addSequence( seqAND("seqReco"), parentName="seq1" )
+        acc1.addEventAlgo( TestAlgo("recoAlg"), sequenceName="seqReco")
 
         acc2 = ComponentAccumulator()
         acc2.addSequence( seqAND("seq2") )
-        acc2.addSequence( recoSeq, parentName="seq2" )
+        acc2.addSequence( seqAND("seqReco"), parentName="seq2" )
+        acc2.addEventAlgo( TestAlgo("recoAlg"), sequenceName="seqReco")
 
         accTop.merge( acc1 )
         accTop.merge( acc2 )
@@ -242,7 +240,6 @@ class MultipleParentsInSequences( unittest.TestCase ):
         s = accTop.getSequence( "seqReco" )
         self.assertEqual( len( s.Members ), 1, "Wrong number of algorithms in reco seq: %d " % len( s.Members ) )
         self.assertIs( findAlgorithm( accTop.getSequence( "seq1" ), "recoAlg" ), findAlgorithm( accTop.getSequence( "seq2" ), "recoAlg" ), "Algorithms are cloned" )
-        self.assertIs( findAlgorithm( accTop.getSequence( "seq1" ), "recoAlg" ), recoAlg, "Clone of the original inserted in sequence" )
 
         fout = open("dummy.pkl", "wb")
         accTop.store( fout )
