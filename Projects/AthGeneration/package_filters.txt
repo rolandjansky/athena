@@ -83,6 +83,7 @@
 + Database/ConnectionManagement/AtlasAuthentication
 + Database/ConnectionManagement/DBReplicaSvc
 + Database/CoraCool
++ Database/DBLock
 + Database/IOVDbAthenaPool
 + Database/IOVDbDataModel
 + Database/IOVDbMetaDataTools
