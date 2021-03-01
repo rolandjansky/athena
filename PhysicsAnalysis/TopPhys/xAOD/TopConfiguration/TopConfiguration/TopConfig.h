@@ -1130,23 +1130,6 @@ namespace top {
       }
     }
     
-    inline virtual void ghostTrackspTLargeR(const float pt) {
-      if (!m_configFixed) {
-        m_ghostTrackspTLargeR = pt;
-      }
-    }
-    
-    inline virtual void ghostTracksVertexAssociationLargeR(const std::string& vertexassociation) {
-      if (!m_configFixed) {
-        m_ghostTracksVertexAssociationLargeR = vertexassociation;
-      }
-    }
-    
-    inline virtual void ghostTracksQualityLargeR(const std::string& ghostTracksQuality) {
-     if (!m_configFixed) {
-        m_ghostTracksQualityLargeR = ghostTracksQuality;
-     }
-    }
 
     inline virtual float jetPtcut()  const {return m_jetPtcut;}
     inline virtual float jetEtacut() const {return m_jetEtacut;}
@@ -1154,10 +1137,6 @@ namespace top {
     inline virtual float ghostTrackspT()  const {return m_ghostTrackspT;}
     inline virtual const std::string& ghostTracksVertexAssociation()  const {return m_ghostTracksVertexAssociation;}
     inline virtual const std::string& ghostTracksQuality()  const {return m_ghostTracksQuality;}
-    
-    inline virtual float ghostTrackspTLargeR()  const {return m_ghostTrackspTLargeR;}
-    inline virtual const std::string& ghostTracksVertexAssociationLargeR()  const {return m_ghostTracksVertexAssociationLargeR;}
-    inline virtual const std::string& ghostTracksQualityLargeR()  const {return m_ghostTracksQualityLargeR;}
     
     inline virtual float jetPtGhostTracks()  const {return m_jetPtGhostTracks;}
     inline virtual float jetEtaGhostTracks()  const {return m_jetEtaGhostTracks;}
@@ -2361,10 +2340,6 @@ namespace top {
     std::string m_ghostTracksVertexAssociation;
     std::string m_ghostTracksQuality;
     
-    float m_ghostTrackspTLargeR;
-    std::string m_ghostTracksVertexAssociationLargeR;
-    std::string m_ghostTracksQualityLargeR;
-
     // Large R jet configuration
     float m_largeRJetPtcut; // large R jet object selection pT cut
     float m_largeRJetEtacut; // large R jet object selection (abs) eta cut

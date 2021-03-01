@@ -278,10 +278,6 @@ namespace top {
     m_ghostTrackspT(500.),
     m_ghostTracksVertexAssociation("nominal"),
     m_ghostTracksQuality("TightPrimary"),
-    
-    m_ghostTrackspTLargeR(500.),
-    m_ghostTracksVertexAssociationLargeR("nominal"),
-    m_ghostTracksQualityLargeR("TightPrimary"),
 
     m_largeRJetPtcut(25000.),
     m_largeRJetEtacut(2.5),
@@ -1392,10 +1388,6 @@ namespace top {
     this->ghostTrackspT(std::stof(settings->value("GhostTrackspT")));
     this->ghostTracksVertexAssociation(settings->value("GhostTracksVertexAssociation"));
     this->ghostTracksQuality(settings->value("GhostTracksQuality"));
-    
-    this->ghostTrackspTLargeR(std::stof(settings->value("GhostTrackspTLargeR")));
-    this->ghostTracksVertexAssociationLargeR(settings->value("GhostTracksVertexAssociationLargeR"));
-    this->ghostTracksQualityLargeR(settings->value("GhostTracksQualityLargeR"));
 
     this->trackPtcut(std::stof(settings->value("TrackPt")));
     this->trackEtacut(std::stof(settings->value("TrackEta")));
