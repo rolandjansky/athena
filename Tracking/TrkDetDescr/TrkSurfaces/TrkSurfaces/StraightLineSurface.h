@@ -120,21 +120,40 @@ public:
 
   /** Use the Surface as a ParametersBase constructor, from local parameters */
   template<int DIM, class T>
-  ParametersT<DIM, T, StraightLineSurface>* createParameters(double l1,
-                                                             double l2,
-                                                             double phi,
-                                                             double theta,
-                                                             double qop,
-                                                             AmgSymMatrix(DIM) *
-                                                               cov = 0) const;
+  std::unique_ptr<ParametersT<DIM, T, StraightLineSurface>> createUniqueParameters(
+    double l1,
+    double l2,
+    double phi,
+    double theta,
+    double qop,
+    AmgSymMatrix(DIM) * cov = 0) const;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters */
   template<int DIM, class T>
-  ParametersT<DIM, T, StraightLineSurface>* createParameters(
+  std::unique_ptr<ParametersT<DIM, T, StraightLineSurface>> createUniqueParameters(
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
     AmgSymMatrix(DIM) * cov = 0) const;
+
+  /** Use the Surface as a ParametersBase constructor, from local parameters */
+  template<int DIM, class T>
+  ParametersT<DIM, T, StraightLineSurface> createParameters(double l1,
+                                                     double l2,
+                                                     double phi,
+                                                     double theta,
+                                                     double qop,
+                                                     AmgSymMatrix(DIM) *
+                                                       cov = 0) const;
+
+  /** Use the Surface as a ParametersBase constructor, from global parameters */
+  template<int DIM, class T>
+  ParametersT<DIM, T, StraightLineSurface> createParameters(
+    const Amg::Vector3D& position,
+    const Amg::Vector3D& momentum,
+    double charge,
+    AmgSymMatrix(DIM) * cov = 0) const;
+
 
   /** Return the measurement frame - this is needed for alignment, in particular
      for StraightLine and Perigee Surface

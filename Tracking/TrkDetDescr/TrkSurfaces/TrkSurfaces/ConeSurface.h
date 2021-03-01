@@ -129,16 +129,35 @@ public:
 
   /** Use the Surface as a ParametersBase constructor, from local parameters */
   template<int DIM, class T>
-  ParametersT<DIM, T, ConeSurface>* createParameters(double l1,
+  std::unique_ptr<ParametersT<DIM, T, ConeSurface>> createUniqueParameters(
+    double l1,
+    double l2,
+    double phi,
+    double theta,
+    double qop,
+    AmgSymMatrix(DIM) * cov = 0) const;
+
+  /** Use the Surface as a ParametersBase constructor, from global parameters */
+  template<int DIM, class T>
+  std::unique_ptr<ParametersT<DIM, T, ConeSurface>> createUniqueParameters(
+    const Amg::Vector3D& position,
+    const Amg::Vector3D& momentum,
+    double charge,
+    AmgSymMatrix(DIM) * cov = 0) const;
+
+  /** Use the Surface as a ParametersBase constructor, from local parameters */
+  template<int DIM, class T>
+  ParametersT<DIM, T, ConeSurface> createParameters(double l1,
                                                      double l2,
                                                      double phi,
                                                      double theta,
                                                      double qop,
-                                                     AmgSymMatrix(DIM) * cov = 0) const;
+                                                     AmgSymMatrix(DIM) *
+                                                       cov = 0) const;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters */
   template<int DIM, class T>
-  ParametersT<DIM, T, ConeSurface>* createParameters(
+  ParametersT<DIM, T, ConeSurface> createParameters(
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,

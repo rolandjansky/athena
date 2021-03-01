@@ -22,7 +22,7 @@
 namespace Muon {
 
   MuonEDMHelperSvc::MuonEDMHelperSvc(const std::string& name, ISvcLocator* svc) : base_class(name, svc) {}
-    
+
   StatusCode MuonEDMHelperSvc::initialize() {
     ATH_CHECK(AthService::initialize());
     ATH_CHECK(m_idHelperSvc.retrieve());
@@ -61,11 +61,11 @@ namespace Muon {
 
       // create chamber ID
       chid = m_idHelperSvc->chamberId(id);
-      
+
       // stop at first none trigger hit
       if( !m_idHelperSvc->isTrigger(id) ) break;
     }
-    
+
     if( !chid.is_valid() ){
       ATH_MSG_WARNING("Got segment without valide identifiers");
     }
@@ -88,7 +88,7 @@ namespace Muon {
 
       // create chamber ID
       chid = m_idHelperSvc->chamberId(id);
-      
+
       // stop at first none trigger hit
       if( !m_idHelperSvc->isTrigger(id) ){
 	chIds.insert(chid);
@@ -99,7 +99,7 @@ namespace Muon {
     if( chIds.empty() ) {
       chIds.insert(chidTrig);
     }
-    
+
     return chIds;
   }
 
@@ -108,7 +108,7 @@ namespace Muon {
   }
 
   bool MuonEDMHelperSvc::isEndcap( const Trk::Track& track ) const {
-    
+
     const DataVector<const Trk::MeasurementBase>* measurements = track.measurementsOnTrack();
     if( !measurements ) return true;
 
@@ -118,7 +118,7 @@ namespace Muon {
     for( ;rit!=rit_end;++rit ){
       Identifier id = getIdentifier(**rit);
       if( !id.is_valid() ) continue;
-      
+
       if( m_idHelperSvc->isEndcap(id) ) return true;
     }
     return false;
@@ -135,9 +135,15 @@ namespace Muon {
     double locx = seg.localParameters().contains(Trk::locX) ? seg.localParameters()[Trk::locX] : 0.;
     double locy = seg.localParameters().contains(Trk::locY) ? seg.localParameters()[Trk::locY] : 0.;
     double qoverp = charge/momentum;
-    return dynamic_cast<const Trk::AtaPlane*>(seg.associatedSurface().createParameters<5,Trk::Charged>(locx,locy,seg.globalDirection().phi(),seg.globalDirection().theta(),qoverp));
+    return dynamic_cast<const Trk::AtaPlane*>(
+      seg.associatedSurface()
+        .createUniqueParameters<5, Trk::Charged>(locx,
+                                           locy,
+                                           seg.globalDirection().phi(),
+                                           seg.globalDirection().theta(),
+                                           qoverp)
+        .release());
   }
-
 
   bool MuonEDMHelperSvc::goodTrack( const Trk::Track& track, double chi2Cut ) const {
 
@@ -146,8 +152,8 @@ namespace Muon {
     if( !fq || fq->numberDoF() == 0 ){
       return false;
     }
-    
-    double reducedChi2 = fq->chiSquared()/fq->numberDoF();	
+
+    double reducedChi2 = fq->chiSquared()/fq->numberDoF();
     // reject fit if larger than cut
     if( reducedChi2 > chi2Cut ) {
       return false;
