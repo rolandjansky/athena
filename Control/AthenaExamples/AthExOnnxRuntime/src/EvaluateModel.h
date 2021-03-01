@@ -5,7 +5,6 @@
 
 // Local include(s).
 #include "AthOnnxruntimeService/IONNXRuntimeSvc.h"
-
 // Framework include(s).
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -79,7 +78,7 @@ namespace AthONNX {
 
       /// The "session" of ONNX Runtime that we'll be using
       std::unique_ptr< Ort::Session > m_session;
-      std::vector<std::vector<float>> m_input_tensor_values;
+      std::vector<std::vector<std::vector<float>>> m_input_tensor_values_notFlat;
       std::vector<int> m_output_tensor_values;
 
    }; // class EvaluateModel

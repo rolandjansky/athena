@@ -20,6 +20,7 @@ AthONNX.TestSample = randint(0, 9999)
 AthONNX.DoBatches = False
 AthONNX.NumberOfBatches = 1
 AthONNX.SizeOfBatch = 1
+AthONNX.OutputLevel = DEBUG
 
 # Run for 10 "events".
 theApp.EvtMax = 2
