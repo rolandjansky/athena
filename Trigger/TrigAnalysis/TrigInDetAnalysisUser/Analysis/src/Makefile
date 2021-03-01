@@ -144,7 +144,7 @@ TAR = tar
 
 
 COBJECTS  = $(OBJDIR)/comparitor.o $(OBJDIR)/computils.o $(OBJDIR)/AtlasStyle.o $(OBJDIR)/AtlasLabels.o 
-CCOBJECTS = $(OBJDIR)/cpucost.o $(OBJDIR)/computils.o 
+CCOBJECTS = $(OBJDIR)/cpucost.o $(OBJDIR)/computils.o $(OBJDIR)/AtlasStyle.o $(OBJDIR)/AtlasLabels.o
 CHOBJECTS = $(OBJDIR)/chains.o 
 WOBJECTS  = $(OBJDIR)/wmain.o 
 SOBJECTS  = $(OBJDIR)/skim.o 
