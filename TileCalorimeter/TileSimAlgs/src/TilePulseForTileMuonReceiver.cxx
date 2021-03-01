@@ -70,7 +70,7 @@ using CLHEP::MeV;
 
 // constructor
 //
-TilePulseForTileMuonReceiver::TilePulseForTileMuonReceiver(std::string name, ISvcLocator* pSvcLocator)
+TilePulseForTileMuonReceiver::TilePulseForTileMuonReceiver(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
   , m_tileID(nullptr)
   , m_tileHWID(nullptr)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -75,13 +75,13 @@ class TileCablingService;
 class TileHitToRawChannel: public AthAlgorithm {
   public:
 
-    TileHitToRawChannel(std::string name, ISvcLocator* pSvcLocator); //!< Constructor
+    TileHitToRawChannel(const std::string& name, ISvcLocator* pSvcLocator); //!< Constructor
 
     virtual ~TileHitToRawChannel(); //!< Destructor                         
 
-    StatusCode initialize(); //!< initialize method   
-    StatusCode execute();    //!< execute method   
-    StatusCode finalize();   //!< finalize method   
+    virtual StatusCode initialize() override; //!< initialize method   
+    virtual StatusCode execute() override;    //!< execute method   
+    virtual StatusCode finalize() override;   //!< finalize method   
 
   private:
 

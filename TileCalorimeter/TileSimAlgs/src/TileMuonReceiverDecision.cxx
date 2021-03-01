@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -37,7 +37,7 @@
 #include "StoreGate/WriteHandle.h"
 #include "AthenaKernel/errorcheck.h"
 
-TileMuonReceiverDecision::TileMuonReceiverDecision(std::string name, ISvcLocator* pSvcLocator)
+TileMuonReceiverDecision::TileMuonReceiverDecision(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     m_tileID(nullptr),
     m_tileHWID(nullptr),

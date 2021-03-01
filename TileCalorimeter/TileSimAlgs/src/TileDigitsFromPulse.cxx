@@ -58,7 +58,7 @@ using CLHEP::RandFlat;
 //
 // Constructor
 //
-TileDigitsFromPulse::TileDigitsFromPulse(std::string name, ISvcLocator* pSvcLocator) :
+TileDigitsFromPulse::TileDigitsFromPulse(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_tileHWID(0),
   m_tileInfo(0)
