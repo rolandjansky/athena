@@ -40,9 +40,10 @@ def L1TriggerByteStreamDecoderCfg(flags):
   Configurable.configurableRun3Behavior += 1
 
   decoderTools = []
-  if flags.Trigger.enableL1CaloLegacy or not flags.Trigger.enableL1Phase1:
-    roibResultTool = RoIBResultByteStreamToolCfg(name="RoIBResultBSDecoderTool", writeBS=False)
-    decoderTools += [roibResultTool]
+  if not flags.Trigger.doLVL1: #if we rerun L1, don't decode the original RoIBResult
+    if flags.Trigger.enableL1CaloLegacy or not flags.Trigger.enableL1Phase1:
+      roibResultTool = RoIBResultByteStreamToolCfg(name="RoIBResultBSDecoderTool", writeBS=False)
+      decoderTools += [roibResultTool]
 
   if flags.Trigger.enableL1Phase1:
     # Placeholder for real decoder tools - now it's just an example

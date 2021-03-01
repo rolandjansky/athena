@@ -121,7 +121,6 @@ def Lvl1SimulationSequence_Data( ConfigFlags ):
         roib = RoIBuilder("RoIBuilder")
         roib.DoCalo = ConfigFlags.Trigger.enableL1CaloLegacy
         roib.DoMuon = isMUCTPIOutputProvided
-        roib.RoIBRDOLocation = "RoIBResult_Rerun"
         ctpSimDataSeq += [roib]
 
     l1SimDataSeq = seqAND("L1SimDataSeq", [l1CaloSimDataSeq, l1MuonSimDataSeq, ctpSimDataSeq] )
