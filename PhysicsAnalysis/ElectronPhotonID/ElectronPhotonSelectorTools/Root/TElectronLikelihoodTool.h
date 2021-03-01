@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 // Dear emacs, this is -*-c++-*-
@@ -336,7 +336,8 @@ private:
   static const unsigned int s_fnEtaBins = 10;
   static const unsigned int s_fnVariables = 13;
   // 5D array of ptr to SafeTH1  // [sig(0)/bkg(1)][ip][et][eta][variable]
-  EGSelectors::SafeTH1* fPDFbins[2][IP_BINS][s_fnEtBinsHist][s_fnEtaBins][s_fnVariables];
+  EGSelectors::SafeTH1* fPDFbins[2][IP_BINS][s_fnEtBinsHist][s_fnEtaBins]
+                                [s_fnVariables];
   static const std::string fVariables[s_fnVariables];
 
   unsigned int getIpBin(double ip) const;
