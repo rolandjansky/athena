@@ -15,6 +15,7 @@
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/WriteDecorHandleKey.h"
 
 namespace DerivationFramework {
 
@@ -27,12 +28,15 @@ namespace DerivationFramework {
       virtual StatusCode addBranches() const;
 
     private:
-      ToolHandle< InDet::IInDetTrackSelectionTool > m_tool;
-      std::string m_sgName;
-      SG::ReadHandleKey<xAOD::TrackParticleContainer> m_tracksKey{ 
-      this, "TrackParticlesKey", "InDetTrackParticles", "The input TrackParticleCollection"};
+      ToolHandle< InDet::IInDetTrackSelectionTool > m_tool
+         {this,"TrackSelectionTool","InDet::InDetTrackSelectionTool/TrackSelectionTool"}; // @TODO should not have a default value, since there is not generally correct default
 
-  }; 
+      SG::ReadHandleKey<xAOD::TrackParticleContainer> m_tracksKey
+         {this, "ContainerName", "InDetTrackParticles", "The input TrackParticleCollection"};
+
+      SG::WriteDecorHandleKey<xAOD::TrackParticleContainer>               m_decorationKey
+         {this, "DecorationName", "","Name of the decoration which provides the track selection result."};
+  };
 }
 
 #endif // DERIVATIONFRAMEWORK_INDETTRACKSELECTIONTOOLWRAPPER_H
