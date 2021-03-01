@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArG4TBCryostatCalibrationCalculator
@@ -31,13 +31,13 @@
 #include <cmath>
 
 LArTBCryostatCalibrationCalculator::LArTBCryostatCalibrationCalculator(const std::string& name, ISvcLocator *pSvcLocator)
-  : LArCalibCalculatorSvcImp(name, pSvcLocator)
-  // , m_geometry(nullptr)
+  : LArCalibCalculatorSvcImp(name, pSvcLocator),
+    // improvement would be to fetch this from database (for accordion)
+    m_radiusPS (0.5*(1385.+1447.)*CLHEP::mm),
+    m_rminAcc (1500.24*CLHEP::mm),
+    m_rmaxAcc (1960.00*CLHEP::mm)
+    // , m_geometry(nullptr)
 {
-  // improvement would be to fetch this from database (for accordion)
-  m_radiusPS = 0.5*(1385.+1447.)*CLHEP::mm;
-  m_rminAcc = 1500.24*CLHEP::mm;
-  m_rmaxAcc = 1960.00*CLHEP::mm;
 }
 
 // StatusCode LArTBCryostatCalibrationCalculator::initialize()
