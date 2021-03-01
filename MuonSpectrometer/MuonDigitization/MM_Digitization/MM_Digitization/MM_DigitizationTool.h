@@ -248,8 +248,6 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 
 		ToolHandle<Muon::INSWCalibTool> m_calibrationTool;
 
-    double m_correctShift;
-
     float m_noiseSlope;
     float m_noiseIntercept;
     bool m_useThresholdScaling;
