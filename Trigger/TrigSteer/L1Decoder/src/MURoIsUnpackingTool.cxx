@@ -134,6 +134,7 @@ StatusCode MURoIsUnpackingTool::unpack(const EventContext& ctx,
   for (const xAOD::MuonRoI* roi : rois) {
     // Create new RoI descriptor
     roiDescriptors->push_back(std::make_unique<TrigRoiDescriptor>(
+      roi->roiWord(), 0u, 0u,
       roi->eta(), roi->eta()-m_roIWidth, roi->eta()+m_roIWidth,
       roi->phi(), roi->phi()-m_roIWidth, roi->phi()+m_roIWidth
     ));
