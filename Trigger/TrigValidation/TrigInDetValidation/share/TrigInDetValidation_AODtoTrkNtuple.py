@@ -194,7 +194,10 @@ if ( True ) :
     # "HLT_tau.*_idperf.*:HLT_IDTrack_TauIso_FTF",
 
 
-    "HLT_mb.*:HLT_IDTrack_MinBias_FTF",
+    #"HLT_mb.*:HLT_IDTrack_Cosmic_EFID",
+    #"HLT_mb.*:HLT_IDTrack_MinBias_FTF",  #There are no tracks here
+    "HLT_mb.*:HLT_IDTrack_MinBias_IDTrig",
+    #"HLT_mb.*:HLT_IDTrack_MinBias_EFID"  #There are no tracks here
     
 
     ]

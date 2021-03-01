@@ -106,7 +106,7 @@ class TrigInDetReco(ExecStep):
                 flags  += 'doBeamspotSlice=True;'
             if (i=='minbias') :
                 chains += "'HLT_mb_sptrk_L1RD0_FILLED',"
-                flags  += 'doMinBiasSlice=True;'
+                flags  += "doMinBiasSlice=True;setMenu='LS2_v1';"
 
         if ( flags=='' ) : 
             print( "ERROR: no chains configured" )
