@@ -964,8 +964,6 @@ void  PixelPrepDataToxAOD::addNNTruthInfo(  xAOD::TrackMeasurementValidation* xp
     InDetDD::SiCellId cellIdOfTruthPosition = design->cellIdOfPosition(siLocalTruthPosition);
 
     
-//    InDetDD::SiLocalPosition siLocalTruthPosition(averagePosition.z(),YposC ) ;
-//    InDetDD::SiCellId cellIdOfTruthPosition =design->cellIdOfPosition(siLocalTruthPosition);
 
     int truthEtaIndex =  cellIdOfTruthPosition.etaIndex();
     int truthPhiIndex =  cellIdOfTruthPosition.phiIndex();
@@ -994,8 +992,6 @@ void  PixelPrepDataToxAOD::addNNTruthInfo(  xAOD::TrackMeasurementValidation* xp
     
 
     // truth index
-//    double truthIndexY =  truthEtaIndex + (averagePosition.z() - pixelCenterY)/pitchY;
-//    double truthIndexX =  truthPhiIndex + (YposC               - pixelCenterX)/pitchX;
     double truthIndexY =  truthEtaIndex + (siLocalTruthPosition[Trk::distEta] - pixelCenterY)/pitchY;
     double truthIndexX =  truthPhiIndex + (siLocalTruthPosition[Trk::distPhi] - pixelCenterX)/pitchX;
 
