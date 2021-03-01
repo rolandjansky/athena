@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArPhysWaveTool.h" 
@@ -185,14 +185,14 @@ double LArPhysWaveTool::caliPhysCorr ( double t ) const {
 /*******************************************************************
  * Injection point correction
  *******************************************************************/
-LArWave LArPhysWaveTool::injResp (LArWave w) const {
+LArWave LArPhysWaveTool::injResp (const LArWave& w) const {
   return  w % injCorr() ;
 }
                                                                                 
 LArWave LArPhysWaveTool::stepResp () const {
   return m_gCali + m_gCali % stepCorr() ;
 }
-LArWave LArPhysWaveTool::step2Tri (LArWave w) const {
+LArWave LArPhysWaveTool::step2Tri (const LArWave& w) const {
   return  w + w % stepPhysCorr() ;
 }
 /* =================================================================
