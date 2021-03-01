@@ -21,10 +21,10 @@
 
 
 //Standard Constructor
-ElectronPhotonShowerShapeFudgeTool::ElectronPhotonShowerShapeFudgeTool(std::string myname) :
+ElectronPhotonShowerShapeFudgeTool::ElectronPhotonShowerShapeFudgeTool(const std::string& myname) :
   AsgTool(myname),
-  m_ph_rootTool(0),
-  m_el_rootTool(0),
+  m_ph_rootTool(nullptr),
+  m_el_rootTool(nullptr),
   m_configFile("")
 {
 
@@ -154,7 +154,7 @@ const CP::CorrectionCode ElectronPhotonShowerShapeFudgeTool::applyCorrection( xA
 
   // protection against bad clusters
   const xAOD::CaloCluster* cluster  = ph.caloCluster();
-  if ( cluster == 0 ) {
+  if ( cluster == nullptr ) {
     ATH_MSG_ERROR("cluster == " << cluster);
     return CP::CorrectionCode::Error;
   }
@@ -261,7 +261,7 @@ const CP::CorrectionCode ElectronPhotonShowerShapeFudgeTool::applyCorrection( xA
 
   // protection against bad clusters
   const xAOD::CaloCluster* cluster  = el.caloCluster();
-  if ( cluster == 0 ) {
+  if ( cluster == nullptr ) {
     ATH_MSG_ERROR("cluster == " << cluster);
     return CP::CorrectionCode::Error;
   }
@@ -335,10 +335,10 @@ const CP::CorrectionCode ElectronPhotonShowerShapeFudgeTool::correctedCopy( cons
 std::vector<float> ElectronPhotonShowerShapeFudgeTool::GetFloatVector(const std::string& input,  TEnv& env){
 	  std::vector<float> CutVector;
 	  std::string env_input(env.GetValue(input.c_str(), ""));
-	  if (env_input.size() > 0) {
+	  if (!env_input.empty()) {
 	    std::string::size_type end;
 	    do {
-	      end = env_input.find(";");
+	      end = env_input.find(';');
 	      float myValue(0);
 	      if(ElectronPhotonShowerShapeFudgeTool::strtof(env_input.substr(0,end),myValue)){
 	        CutVector.push_back(myValue);
@@ -356,13 +356,13 @@ bool ElectronPhotonShowerShapeFudgeTool::strtof(const std::string& input, float&
   std::string::size_type first(0);
   std::string::size_type last(0);
 
-  first = ( input.find("#") ) ;
+  first = ( input.find('#') ) ;
   if (first == std::string::npos) {
     f = ( atof (input.c_str() ) ) ;
     return true;
   }
   else {
-    last = (input.find("#",first+1) );
+    last = (input.find('#',first+1) );
     if (last == std::string::npos) {
       static asg::AsgMessaging msg("Egamma::ElectronPhotonShowerShapeFudgeTool");
       msg.msg(MSG::WARNING)<<" Improper comment format , inline comment should be enclosed between two #  "<<endmsg;

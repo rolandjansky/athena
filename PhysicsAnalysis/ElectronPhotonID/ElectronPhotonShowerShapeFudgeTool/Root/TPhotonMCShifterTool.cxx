@@ -134,7 +134,7 @@ void TPhotonMCShifterTool::FudgeShowers(  std::vector<float> clE,
 }
 
 
-void TPhotonMCShifterTool::LoadFFs(int preselection, std::string file)
+void TPhotonMCShifterTool::LoadFFs(int preselection, const std::string& file)
 {
   if (preselection == m_preselection) return;
   m_preselection = preselection;
@@ -156,76 +156,76 @@ void TPhotonMCShifterTool::LoadFFs(int preselection, std::string file)
   }
   
   h_u_rhad1 = (TH2D*) f->Get(Form("TUNE%d/FF_RHAD1_UNCONV",preselection));
-  h_u_rhad1->SetDirectory(0);
+  h_u_rhad1->SetDirectory(nullptr);
  
   h_u_rhad = (TH2D*) f->Get(Form("TUNE%d/FF_RHAD_UNCONV",preselection));
-  h_u_rhad->SetDirectory(0);
+  h_u_rhad->SetDirectory(nullptr);
     
   h_u_e277 = (TH2D*) f->Get(Form("TUNE%d/FF_E277_UNCONV",preselection));
-  h_u_e277->SetDirectory(0);
+  h_u_e277->SetDirectory(nullptr);
     
   h_u_reta = (TH2D*) f->Get(Form("TUNE%d/FF_RETA_UNCONV",preselection));
-  h_u_reta->SetDirectory(0);
+  h_u_reta->SetDirectory(nullptr);
     
   h_u_rphi = (TH2D*) f->Get(Form("TUNE%d/FF_RPHI_UNCONV",preselection));
-  h_u_rphi->SetDirectory(0);
+  h_u_rphi->SetDirectory(nullptr);
     
   h_u_weta2 =(TH2D*) f->Get(Form("TUNE%d/FF_WETA2_UNCONV",preselection));
-  h_u_weta2->SetDirectory(0);
+  h_u_weta2->SetDirectory(nullptr);
     
   h_u_f1 = (TH2D*) f->Get(Form("TUNE%d/FF_F1_UNCONV",preselection));
-  h_u_f1->SetDirectory(0);
+  h_u_f1->SetDirectory(nullptr);
     
   h_u_fside = (TH2D*) f->Get(Form("TUNE%d/FF_FSIDE_UNCONV",preselection));
-  h_u_fside->SetDirectory(0);
+  h_u_fside->SetDirectory(nullptr);
     
   h_u_wtot = (TH2D*) f->Get(Form("TUNE%d/FF_WTOT_UNCONV",preselection));
-  h_u_wtot->SetDirectory(0);
+  h_u_wtot->SetDirectory(nullptr);
     
   h_u_w1 = (TH2D*) f->Get(Form("TUNE%d/FF_W1_UNCONV",preselection));
-  h_u_w1->SetDirectory(0);
+  h_u_w1->SetDirectory(nullptr);
     
   h_u_de = (TH2D*) f->Get(Form("TUNE%d/FF_DE_UNCONV",preselection));
-  h_u_de->SetDirectory(0);
+  h_u_de->SetDirectory(nullptr);
     
   h_u_eratio = (TH2D*) f->Get(Form("TUNE%d/FF_ERATIO_UNCONV",preselection));
-  h_u_eratio->SetDirectory(0);
+  h_u_eratio->SetDirectory(nullptr);
 
   h_c_rhad1 = (TH2D*) f->Get(Form("TUNE%d/FF_RHAD1_CONV",preselection));
-  h_c_rhad1->SetDirectory(0);
+  h_c_rhad1->SetDirectory(nullptr);
     
   h_c_rhad = (TH2D*) f->Get(Form("TUNE%d/FF_RHAD_CONV",preselection));
-  h_c_rhad->SetDirectory(0);
+  h_c_rhad->SetDirectory(nullptr);
     
   h_c_e277 = (TH2D*) f->Get(Form("TUNE%d/FF_E277_CONV",preselection));
-  h_c_e277->SetDirectory(0);
+  h_c_e277->SetDirectory(nullptr);
     
   h_c_reta = (TH2D*) f->Get(Form("TUNE%d/FF_RETA_CONV",preselection));
-  h_c_reta->SetDirectory(0);
+  h_c_reta->SetDirectory(nullptr);
     
   h_c_rphi = (TH2D*) f->Get(Form("TUNE%d/FF_RPHI_CONV",preselection));
-  h_c_rphi->SetDirectory(0);
+  h_c_rphi->SetDirectory(nullptr);
     
   h_c_weta2 = (TH2D*) f->Get(Form("TUNE%d/FF_WETA2_CONV",preselection));
-  h_c_weta2->SetDirectory(0);
+  h_c_weta2->SetDirectory(nullptr);
     
   h_c_f1 = (TH2D*) f->Get(Form("TUNE%d/FF_F1_CONV",preselection));
-  h_c_f1->SetDirectory(0);
+  h_c_f1->SetDirectory(nullptr);
     
   h_c_fside = (TH2D*) f->Get(Form("TUNE%d/FF_FSIDE_CONV",preselection));
-  h_c_fside->SetDirectory(0);
+  h_c_fside->SetDirectory(nullptr);
     
   h_c_wtot = (TH2D*) f->Get(Form("TUNE%d/FF_WTOT_CONV",preselection));
-  h_c_wtot->SetDirectory(0);
+  h_c_wtot->SetDirectory(nullptr);
     
   h_c_w1 = (TH2D*) f->Get(Form("TUNE%d/FF_W1_CONV",preselection));
-  h_c_w1->SetDirectory(0);
+  h_c_w1->SetDirectory(nullptr);
     
   h_c_de = (TH2D*) f->Get(Form("TUNE%d/FF_DE_CONV",preselection));
-  h_c_de->SetDirectory(0);
+  h_c_de->SetDirectory(nullptr);
     
   h_c_eratio = (TH2D*) f->Get(Form("TUNE%d/FF_ERATIO_CONV",preselection));
-  h_c_eratio->SetDirectory(0);
+  h_c_eratio->SetDirectory(nullptr);
 
   f->Close();
 }
@@ -236,7 +236,7 @@ TGraphErrors* TPhotonMCShifterTool::GetFFmap(int var, double eta, int isConv, in
   if (preselection>=0 && preselection != m_preselection)
     this->LoadFFs(preselection,m_corr_file);
 
-  if (h_u_rhad1==0) return 0;
+  if (h_u_rhad1==nullptr) return nullptr;
   
   const int ptbins = h_u_rhad1->GetNbinsX();
 
