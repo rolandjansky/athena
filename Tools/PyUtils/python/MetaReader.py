@@ -814,7 +814,7 @@ def convert_itemList(metadata, layout):
         current_key = None
 
         for key in metadata:
-            if key in metadata['metadata_items'] and metadata['metadata_items'][key] == 'EventStreamInfo_p3':
+            if 'metadata_items' in metadata and key in metadata['metadata_items'] and metadata['metadata_items'][key] == 'EventStreamInfo_p3':
                 current_key = key
                 break
         if current_key is not None:
