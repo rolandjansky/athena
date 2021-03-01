@@ -215,7 +215,7 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
   //Timing scheme
   declareProperty("UseTimeWindow",       m_useTimeWindow  =  true);
   declareProperty("WindowLowerOffset",   m_timeWindowLowerOffset = -300.); // processBunchXing between -250 and 150 ns (look at config file)
-  declareProperty("WindowUpperOffset",   m_timeWindowUpperOffset = +300.);
+  declareProperty("WindowUpperOffset",   m_timeWindowUpperOffset =  200.);
   declareProperty("DiffMagSecondMuonHit",m_DiffMagSecondMuonHit = 0.1);
   
   // Constants vars for the MM_StripsResponseSimulation class
@@ -225,8 +225,8 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
   //each mode have different transverseDiffusionSigma/longitudinalDiffusionSigma/driftVelocity/avalancheGain/interactionDensityMean/interactionDensitySigma/lorentzAngle
   declareProperty("qThreshold",                 m_qThreshold = 0.001);     // Charge Threshold
   declareProperty("DriftGapWidth",              m_driftGapWidth = 5.04);  // Drift Gap Width of 5.04 mm + 0.128 mm (the amplification gap)
-  declareProperty("crossTalk1",		          m_crossTalk1 = 0.2);       // Strip Cross Talk with Nearest Neighbor
-  declareProperty("crossTalk2",		          m_crossTalk2 = 0.04);      // Strip Cross Talk with 2nd Nearest Neighbor
+  declareProperty("crossTalk1",		          m_crossTalk1 = 0.3);       // Strip Cross Talk with Nearest Neighbor
+  declareProperty("crossTalk2",		          m_crossTalk2 = 0.09);      // Strip Cross Talk with 2nd Nearest Neighbor
 
   declareProperty("AvalancheGain",				m_avalancheGain = 8.0e3); //avalanche Gain for rach gas mixture
   
@@ -234,19 +234,18 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
   declareProperty("vmmARTMode",                 m_vmmARTMode     = "threshold" ); // For ART (trigger) path. Can be "peak" or "threshold"
   
   // Constants vars for the MM_ElectronicsResponseSimulation
-  declareProperty("peakTime",                m_peakTime = 100.);                 // The VMM peak time setting.
+  declareProperty("peakTime",                m_peakTime = 200.);                 // The VMM peak time setting.
+
   declareProperty("electronicsThreshold",    m_electronicsThreshold = 15000.0);  // 2*(Intrinsic noise ~3k e)
   declareProperty("StripDeadTime",           m_stripdeadtime = 200.0);          // default value 200 ns = 8 BCs
   declareProperty("ARTDeadTime",             m_ARTdeadtime   = 200.0);          // default value 200 ns = 8 BCs
-  declareProperty("VMMNeighborLogic",   m_vmmNeighborLogic  = true);  // default vmm neighbor logic on
+  declareProperty("VMMNeighborLogic",   m_vmmNeighborLogic  = false);  // default vmm neighbor logic on
 
   declareProperty("doSmearing", m_doSmearing=false);    // set the usage or not of the smearing tool for realistic detector performance
   declareProperty("SmearingTool",m_smearingTool);
 
   declareProperty("CalibrationTool", m_calibrationTool);
   declareProperty("RandomSeed", m_randomSeed = 42);
-
-  declareProperty("correctShift", m_correctShift = -0.244); // purely empirical shift to fix the z positions of clusters: 12/20  pscholer
 
   declareProperty("useThresholdScaling", m_useThresholdScaling = true);
   declareProperty("thresholdScaleFactor", m_thresholdScaleFactor = 9.); // current default value for cosmics testing of MM double wedges
@@ -364,6 +363,7 @@ StatusCode MM_DigitizationTool::initialize() {
 	m_ElectronicsResponseSimulation = new MM_ElectronicsResponseSimulation();
 	m_ElectronicsResponseSimulation->setPeakTime(m_peakTime); // VMM peak time parameter
 	m_ElectronicsResponseSimulation->setTimeWindowLowerOffset(m_timeWindowLowerOffset);
+	m_timeWindowUpperOffset += m_peakTime; // account for peak time in time window
 	m_ElectronicsResponseSimulation->setTimeWindowUpperOffset(m_timeWindowUpperOffset);
 	m_ElectronicsResponseSimulation->setStripdeadtime(m_stripdeadtime);
 	m_ElectronicsResponseSimulation->setARTdeadtime(m_ARTdeadtime);
@@ -942,7 +942,6 @@ StatusCode MM_DigitizationTool::doDigitization() {
       /// move the initial track point to the readout plane
       int gasGap = m_idHelper->gasGap(layerID);
       double shift = 0.5*detectorReadoutElement->getDesign(layerID)->thickness;
-      shift += m_correctShift;
       double scale = 0.0;
       if ( gasGap==1 || gasGap == 3) {
 	scale = -(stripLayerPosition.z() + shift)/localDirection.z();
