@@ -28,6 +28,7 @@ atlas_add_library(
         TrigAnalysisInterfaces
         TrigDecisionInterface
         TrigDecisionToolLib
+        TrigNavToolsLib
     PRIVATE_LINK_LIBRARIES
         ${Boost_LIBRARIES}
         ${CORAL_LIBRARIES}
