@@ -3,6 +3,7 @@
 */
 
 #include "TrigNavigationThinningSvc.h"
+#include "TrigNavTools/TrigNavigationThinningSvcMutex.h"
 #include "getLabel.h"
 #include "TrigDecisionTool/ChainGroup.h"
 #include "TrigConfHLTData/HLTTriggerElement.h"
@@ -15,11 +16,10 @@
 #include <sstream>
 #include <iostream>
 
-
+std::mutex TrigNavigationThinningSvcMutex::s_mutex ATLAS_THREAD_SAFE;
 
 using HLT::TrigNavTools::SlimmingHelper;
 using namespace HLT;
-
 
 /**********************************************************************
  *
@@ -282,7 +282,8 @@ StatusCode TrigNavigationThinningSvc::dropChains(State& state) const {
 StatusCode TrigNavigationThinningSvc::doSlimming( const EventContext& ctx,
                                                   std::vector<uint32_t>& slimmed_and_serialized) const {
 
-  std::lock_guard<std::mutex> lock(m_mutex);
+  ATH_MSG_DEBUG(name() << " is obtaining the TrigNavigationThinningSvc lock in slot " << ctx.slot() << " for event " << ctx.eventID().event_number() );
+  std::lock_guard<std::mutex> lock(TrigNavigationThinningSvcMutex::s_mutex);
 
   // grab the navigation
   Trig::ExpertMethods *navAccess = m_trigDecisionTool->ExperimentalAndExpertMethods();
@@ -293,6 +294,7 @@ StatusCode TrigNavigationThinningSvc::doSlimming( const EventContext& ctx,
   if(cnav == 0) {
     ATH_MSG_WARNING ( "Could not get navigation from Trigger Decision Tool" );
     ATH_MSG_WARNING ( "Navigation will not be slimmed in this event" );
+    ATH_MSG_DEBUG(name() << " is releasing the TrigNavigationThinningSvc lock");
     return StatusCode::SUCCESS;
   }
     
@@ -312,6 +314,7 @@ StatusCode TrigNavigationThinningSvc::doSlimming( const EventContext& ctx,
       CHECK( (this->*function)(state) );
     }
   }
+  ATH_MSG_DEBUG(name() << " is releasing the TrigNavigationThinningSvc lock");
   return StatusCode::SUCCESS;
 }
 
