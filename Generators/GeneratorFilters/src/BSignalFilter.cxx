@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // -----------------------------------------------------------------------------------------------
@@ -600,7 +600,7 @@ bool BSignalFilter::FinalStatePassedCuts(HepMC::ConstGenParticlePtr child) const
 
 
 void BSignalFilter::PrintChild(HepMC::ConstGenParticlePtr child,
-			       const std::string treeIDStr, const bool fromFinalB) const
+			       const std::string& treeIDStr, const bool fromFinalB) const
 {
   int pID = child->pdg_id();
   // ** Find name **

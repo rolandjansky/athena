@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Class: ReadMLP
@@ -385,7 +385,7 @@ inline double ReadMLP::GetMvaValue( const std::vector<double>& inputValues ) con
          std::vector<double> iV;
          int ivar = 0;
          for (std::vector<double>::const_iterator varIt = inputValues.begin();
-              varIt != inputValues.end(); varIt++, ivar++) {
+              varIt != inputValues.end(); ++varIt, ++ivar) {
             iV.push_back(NormVariable( *varIt, m_Vmin[ivar], m_Vmax[ivar] ));
          }
          retval = GetMvaValue__( iV );
