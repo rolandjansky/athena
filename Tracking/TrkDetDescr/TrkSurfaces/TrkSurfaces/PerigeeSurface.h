@@ -110,20 +110,38 @@ public:
     double charge,
     AmgSymMatrix(5) * cov = nullptr) const override final;
 
+
   /** Use the Surface as a ParametersBase constructor, from local parameters */
   template<int DIM, class T>
-  ParametersT<DIM, T, PerigeeSurface>* createParameters(double l1,
-                                                        double l2,
-                                                        double phi,
-                                                        double theta,
-                                                        double qop,
-                                                        AmgSymMatrix(DIM) *
-                                                          cov = 0) const;
+  std::unique_ptr<ParametersT<DIM, T, PerigeeSurface>> createUniqueParameters(
+    double l1,
+    double l2,
+    double phi,
+    double theta,
+    double qop,
+    AmgSymMatrix(DIM) * cov = 0) const;
 
-  /** Use the Surface as a ParametersBase constructor, from global parameters
-   */
+  /** Use the Surface as a ParametersBase constructor, from global parameters */
   template<int DIM, class T>
-  ParametersT<DIM, T, PerigeeSurface>* createParameters(
+  std::unique_ptr<ParametersT<DIM, T, PerigeeSurface>> createUniqueParameters(
+    const Amg::Vector3D& position,
+    const Amg::Vector3D& momentum,
+    double charge,
+    AmgSymMatrix(DIM) * cov = 0) const;
+
+  /** Use the Surface as a ParametersBase constructor, from local parameters */
+  template<int DIM, class T>
+  ParametersT<DIM, T, PerigeeSurface> createParameters(double l1,
+                                                     double l2,
+                                                     double phi,
+                                                     double theta,
+                                                     double qop,
+                                                     AmgSymMatrix(DIM) *
+                                                       cov = 0) const;
+
+  /** Use the Surface as a ParametersBase constructor, from global parameters */
+  template<int DIM, class T>
+  ParametersT<DIM, T, PerigeeSurface> createParameters(
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,

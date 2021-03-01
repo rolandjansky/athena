@@ -62,29 +62,53 @@ StraightLineSurface::createUniqueNeutralParameters(
     position, momentum, charge, *this, cov);
 }
 
-/** Use the Surface as a ParametersBase constructor, from local parameters */
 template<int DIM, class T>
-ParametersT<DIM, T, StraightLineSurface>*
-StraightLineSurface::createParameters(double l1,
-                                      double l2,
-                                      double phi,
-                                      double theta,
-                                      double qop,
-                                      AmgSymMatrix(DIM) * cov) const
+std::unique_ptr<ParametersT<DIM, T, StraightLineSurface>>
+StraightLineSurface::createUniqueParameters(double l1,
+                                     double l2,
+                                     double phi,
+                                     double theta,
+                                     double qop,
+                                     AmgSymMatrix(DIM) * cov) const
 {
-  return new ParametersT<DIM, T, StraightLineSurface>(
+  return std::make_unique<ParametersT<DIM, T, StraightLineSurface>>(
     l1, l2, phi, theta, qop, *this, cov);
 }
 
 /** Use the Surface as a ParametersBase constructor, from global parameters */
 template<int DIM, class T>
-ParametersT<DIM, T, StraightLineSurface>*
-StraightLineSurface::createParameters(const Amg::Vector3D& position,
-                                      const Amg::Vector3D& momentum,
-                                      double charge,
-                                      AmgSymMatrix(DIM) * cov) const
+std::unique_ptr<ParametersT<DIM, T, StraightLineSurface>>
+StraightLineSurface::createUniqueParameters(const Amg::Vector3D& position,
+                                     const Amg::Vector3D& momentum,
+                                     double charge,
+                                     AmgSymMatrix(DIM) * cov) const
 {
-  return new ParametersT<DIM, T, StraightLineSurface>(
+  return std::make_unique<ParametersT<DIM, T, StraightLineSurface>>(
+    position, momentum, charge, *this, cov);
+}
+
+/** Use the Surface as a ParametersBase constructor, from local parameters */
+template<int DIM, class T>
+ParametersT<DIM, T, StraightLineSurface>
+StraightLineSurface::createParameters(double l1,
+                               double l2,
+                               double phi,
+                               double theta,
+                               double qop,
+                               AmgSymMatrix(DIM) * cov) const
+{
+  return ParametersT<DIM, T, StraightLineSurface>(l1, l2, phi, theta, qop, *this, cov);
+}
+
+/** Use the Surface as a ParametersBase constructor, from global parameters */
+template<int DIM, class T>
+ParametersT<DIM, T, StraightLineSurface>
+StraightLineSurface::createParameters(const Amg::Vector3D& position,
+                               const Amg::Vector3D& momentum,
+                               double charge,
+                               AmgSymMatrix(DIM) * cov) const
+{
+  return ParametersT<DIM, T, StraightLineSurface>(
     position, momentum, charge, *this, cov);
 }
 

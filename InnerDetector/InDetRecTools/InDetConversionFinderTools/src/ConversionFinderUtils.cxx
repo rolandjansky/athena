@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -280,7 +280,11 @@ namespace InDet {
       AmgSymMatrix(5) em(*(vtxPer->covariance()));
       Trk::PerigeeSurface surface (globalVertexPosition);
 
-      Trk::TrackParameters* tmpMeasPer = surface.createParameters<5,Trk::Charged>(0.,0.,iv[2],iv[3],iv[4],&em);
+      Trk::TrackParameters* tmpMeasPer =
+        surface
+          .createUniqueParameters<5, Trk::Charged>(
+            0., 0., iv[2], iv[3], iv[4], &em)
+          .release();
 
       Trk::VxTrackAtVertex trkV(vtxTrack.trackQuality().chiSquared(),
                                 tmpMeasPer);
