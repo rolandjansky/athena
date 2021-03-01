@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETTAGMONITORALGORITHM_H
@@ -36,71 +36,74 @@ class JetTagMonitorAlgorithm : public AthMonitorAlgorithm {
   virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
 
  private:
-  SG::ReadHandleKey<xAOD::VertexContainer> m_vertContainerKey{this,"VerticesKey","PrimaryVertices","RHK for primary veritces"};
-  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackContainerKey{this,"TracksKey","InDetTrackParticles","RHK for ID tracks"};
+  SG::ReadHandleKey<xAOD::VertexContainer> m_VertContainerKey{this,"VerticesKey","PrimaryVertices","RHK for primary vertices"};
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_TrackContainerKey{this,"TracksKey","InDetTrackParticles","RHK for ID tracks"};
 
-  SG::ReadHandleKey<xAOD::JetContainer> m_jetContainerKey;
-  SG::ReadHandleKey<xAOD::MuonContainer> m_muonContainerKey;
-  SG::ReadHandleKey<xAOD::ElectronContainer> m_electronContainerKey;
+  SG::ReadHandleKey<xAOD::JetContainer> m_JetContainerKey;
+  SG::ReadHandleKey<xAOD::MuonContainer> m_MuonContainerKey;
+  SG::ReadHandleKey<xAOD::ElectronContainer> m_ElectronContainerKey;
   SG::ReadDecorHandleKey<xAOD::JetContainer> m_btagLinkKey{this,"BTagLinkKey","","RDHK for btag links"};
   SG::ReadDecorHandleKey<xAOD::BTaggingContainer> m_btagResultKey{this,"BTagResultKey","","RDHK for monitored BTag variables"};
 
-  // isolation decoration keys
-  SG::ReadDecorHandleKey<xAOD::MuonContainer> m_MuonEtIsoDecorKey { this, "MuonEtIsoDecorKey", "Muons.topoetcone20" };
-  SG::ReadDecorHandleKey<xAOD::MuonContainer> m_MuonPtIsoDecorKey { this, "MuonPtIsoDecorKey", "Muons.ptvarcone30" };
-  SG::ReadDecorHandleKey<xAOD::ElectronContainer> m_EleEtIsoDecorKey { this, "EleEtIsoDecorKey", "Electrons.topoetcone20" };
-  SG::ReadDecorHandleKey<xAOD::ElectronContainer> m_ElePtIsoDecorKey { this, "ElePtIsoDecorKey", "Electrons.ptvarcone20" };
+  SG::ReadDecorHandleKey<xAOD::MuonContainer> m_MuonEtIsoDecorKey {this,"MuonEtIsoDecorKey","Muons.topoetcone20"};
+  SG::ReadDecorHandleKey<xAOD::MuonContainer> m_MuonPtIsoDecorKey {this,"MuonPtIsoDecorKey","Muons.ptvarcone30"};
+  SG::ReadDecorHandleKey<xAOD::ElectronContainer> m_EleEtIsoDecorKey {this,"EleEtIsoDecorKey","Electrons.topoetcone20"};
+  SG::ReadDecorHandleKey<xAOD::ElectronContainer> m_ElePtIsoDecorKey {this,"ElePtIsoDecorKey","Electrons.ptvarcone20"};
 
-  bool m_skipJetFilter; //true for HI/HI-p collisions, false for pp collisions
-  std::string m_trackParticleName;
-  std::string m_primaryVertexName;
-  std::string m_jetName;
-  std::string m_electronName;
-  std::string m_muonName;
+  bool m_SkipJetFilter; //true for HI/HI-p collisions, false for pp collisions
+  bool m_DoExtraTaggerHistos; //true if interested in IP2D, IP3D, SV1, JetFitter, RRNIP and MV2c10 (r21) histograms
 
-  bool m_do_cuts;
-  double m_trk_d0_min_cut;
-  double m_trk_d0_max_cut;
-  unsigned int m_pri_vtx_trk_min_cut;
-  double m_jet_pt_cut;
-  double m_jet_eta_cut;
-  unsigned int m_trk_n;
+  int m_MinGoodTrackCut;
+  float m_TrackPtCut;
+  float m_TrackEtaCut;
+  float m_Trackd0Cut;
+  float m_Trackz0sinCut;
+  float m_TrackChi2ndfCut;
+  int m_TrackHitIBLCut;
+  int m_TrackHitPixCut;
+  int m_TrackHolePixCut;
+  int m_TrackHitSCTCut;
+  int m_TrackHoleSCTCut;
+  int m_TrackHitSiCut;
+  int m_TrackHoleSiCut;
 
-  double m_JetPtCut;
-  double m_JetEtaCut;
-  double m_softMuonPtCut;
-  double m_MuonPtCut;
-  double m_MuonEtaCut;
-  double m_ElectronPtCut;
-  double m_ElectronEtaCut;
-  double m_ElectronEtaCrackLowCut;
-  double m_ElectronEtaCrackHighCut;
-  double m_ElectronTopoEtCone20Cut;
-  double m_ElectronPtVarCone20Cut;
-  double m_MuonTopoEtCone20Cut;
-  double m_MuonPtVarCone20Cut;
-  double m_MuonPtVarCone30Cut;
+  float m_JetPtCut;
+  float m_JetEtaCut;
+  float m_SoftMuonPtCut;
+  float m_MuonPtCut;
+  float m_MuonEtaCut;
+  float m_ElectronPtCut;
+  float m_ElectronEtaCut;
+  float m_ElectronEtaCrackLowCut;
+  float m_ElectronEtaCrackHighCut;
+  float m_ElectronTopoEtCone20Cut;
+  float m_ElectronPtVarCone20Cut;
+  float m_MuonTopoEtCone20Cut;
+  float m_MuonPtVarCone20Cut;
+  float m_MuonPtVarCone30Cut;
+  float m_JVTCut;
+  float m_JVTpTCut;
+  float m_JVTetaCut;
  
-  std::string m_mv_algorithmName;
-  double m_mv_cFraction;
-  double m_mv_bFraction;
-  double m_mv_60_weight_cut;
-  double m_mv_70_weight_cut;
-  double m_mv_77_weight_cut;
-  double m_mv_85_weight_cut;
+  std::string m_TaggerName;
+  float m_cFraction;
+  float m_bFraction;
+  float m_WP60Cut;
+  float m_WP70Cut;
+  float m_WP77Cut;
+  float m_WP85Cut;
 
-  enum Jet_t { goodJet, suspectJet, badJet };
+  enum Jet_t {goodJet, suspectJet, badJet};
   void fillGoodJetHistos(const xAOD::Jet *jet) const;
-  void fillLowLevelJetHistos(const xAOD::Jet *jet) const;
   void fillSuspectJetHistos(const xAOD::Jet *jet) const;
-  void fillBadJetHistos(const xAOD::Jet *jet) const;
-  void fillTTbarHistograms(const xAOD::Jet *jet) const;
-  bool passJetFilterCuts(const xAOD::Jet *jet) const;
-  bool passKinematicCuts(const xAOD::Jet *jet) const;
-  bool passJVTCuts(const xAOD::Jet *jet) const;
-  bool passMuonOverlap(const xAOD::Jet *jet) const;
-  double getMVweight(const xAOD::Jet *jet) const;
-  Jet_t getTaggabilityLabel(const xAOD::Jet *jet) const; 
+  void fillJetTracksHistos(const xAOD::Jet *jet, float PV_Z)  const;
+  void fillExtraTaggerHistos(const xAOD::Jet *jet) const;
+  void fillTTbarEventJetHistos(const xAOD::Jet *jet) const;
+  bool passJetFilterCut(const xAOD::Jet *jet) const;
+  bool passKinematicCut(const xAOD::Jet *jet) const;
+  bool passJVTCut(const xAOD::Jet *jet) const;
+  double getTaggerWeight(const xAOD::Jet *jet) const;
+  Jet_t getQualityLabel(const xAOD::Jet *jet, float PV_Z) const; 
 
   std::string m_ElectronTrigger_201X;
   std::string m_MuonTrigger_201X;
