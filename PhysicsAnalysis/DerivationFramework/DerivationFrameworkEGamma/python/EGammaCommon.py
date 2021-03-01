@@ -25,7 +25,7 @@ ToolSvc += DFCommonPhotonsDirection
 
 #====================================================================
 # SHOWER SHAPE FUDGING IN MC 
-# (PRESELECTION=22: FUDGE FACTORS RUN2 2015+2016 DATA, Rel 21)
+# (TUNE22: FUDGE FACTORS RUN2 2015+2016 DATA, Rel 21)
 #====================================================================
 
 from PyUtils import AthFile
@@ -45,11 +45,11 @@ if isMC:
     print("EGammaCommon: isFullSim = ", isFullSim)
 
 if isFullSim:
-    from ElectronPhotonShowerShapeFudgeTool.ElectronPhotonShowerShapeFudgeToolConf import ElectronPhotonShowerShapeFudgeTool
-    DF_ElectronPhotonShowerShapeFudgeTool = ElectronPhotonShowerShapeFudgeTool(Preselection=22)
-    ToolSvc += DF_ElectronPhotonShowerShapeFudgeTool
-    print(DF_ElectronPhotonShowerShapeFudgeTool)
-
+    from EGammaVariableCorrection.EGammaVariableCorrectionConf import ElectronPhotonVariableCorrectionTool
+    EGVariableCorrectionTool = ElectronPhotonVariableCorrectionTool(name = 'EGVariableCorrectionTool',
+                                                    ConfigFile  = 'EGammaVariableCorrection/TUNE22/ElPhVariableNominalCorrection.conf')
+    ToolSvc += EGVariableCorrectionTool
+    print(EGVariableCorrectionTool)
 
 #====================================================================
 # ELECTRON LH SELECTORS
@@ -97,10 +97,6 @@ ToolSvc += ElectronChargeIDSelector
 #====================================================================
 # FWD ELECTRON LH SELECTORS
 #====================================================================
-#
-# Disabled as is missing in R22
-#
-
 from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AsgForwardElectronLikelihoodTool
 
 ForwardElectronLHSelectorLoose = AsgForwardElectronLikelihoodTool("ForwardElectronLHSelectorLoose", WorkingPoint="LooseLHForwardElectron")
@@ -279,7 +275,7 @@ print (ForwardElectronPassLHTight)
 if isFullSim:
     PhotonPassIsEMLoose = DerivationFramework__EGSelectionToolWrapper( name = "PhotonPassIsEMLoose",
                                                                        EGammaSelectionTool = PhotonIsEMSelectorLoose,
-                                                                       EGammaFudgeMCTool = DF_ElectronPhotonShowerShapeFudgeTool,
+                                                                       EGammaFudgeMCTool = EGVariableCorrectionTool,
                                                                        CutType = "",
                                                                        StoreGateEntryName = "DFCommonPhotonsIsEMLoose",
                                                                        ContainerName = "Photons")
@@ -298,7 +294,7 @@ print(PhotonPassIsEMLoose)
 if isFullSim:
     PhotonPassIsEMTight = DerivationFramework__EGSelectionToolWrapper( name = "PhotonPassIsEMTight",
                                                                        EGammaSelectionTool = PhotonIsEMSelectorTight,
-                                                                       EGammaFudgeMCTool = DF_ElectronPhotonShowerShapeFudgeTool,
+                                                                       EGammaFudgeMCTool = EGVariableCorrectionTool,
                                                                        CutType = "",
                                                                        StoreGateEntryName = "DFCommonPhotonsIsEMTight",
                                                                        ContainerName = "Photons")
@@ -317,7 +313,7 @@ print(PhotonPassIsEMTight)
 # On full-sim MC, fudge the shower shapes before computing the ID (but the original shower shapes are not overridden)
 PhotonPassIsEMTightPtIncl = DerivationFramework__EGSelectionToolWrapper( name = "PhotonPassIsEMTightPtIncl",
                                                                          EGammaSelectionTool = PhotonIsEMSelectorTightPtIncl,
-                                                                         EGammaFudgeMCTool = (DF_ElectronPhotonShowerShapeFudgeTool if isFullSim else None),
+                                                                         EGammaFudgeMCTool = (EGVariableCorrectionTool if isFullSim else None),
                                                                          CutType = "",
                                                                          StoreGateEntryName = "DFCommonPhotonsIsEMTightPtIncl",
                                                                          ContainerName = "Photons")
@@ -329,7 +325,7 @@ print (PhotonPassIsEMTightPtIncl)
 from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGPhotonCleaningWrapper
 if isFullSim:
     PhotonPassCleaning = DerivationFramework__EGPhotonCleaningWrapper( name = "PhotonPassCleaning",
-                                                                       EGammaFudgeMCTool = DF_ElectronPhotonShowerShapeFudgeTool,
+                                                                       EGammaFudgeMCTool = EGVariableCorrectionTool,
                                                                        StoreGateEntryName = "DFCommonPhotonsCleaning",
                                                                        ContainerName = "Photons")
 else:
