@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 /**
@@ -228,23 +228,7 @@ private:
                             PropDirection dir,
                             ParticleHypothesis particle) const;
 
-  /** Method to set the recall information */
-  void setRecallInformation(Cache& cache,
-                            const Surface&,
-                            const Layer&,
-                            const TrackingVolume&) const;
 
-  /** Method to reset the recall information */
-  void resetRecallInformation(Cache& cache) const;
-
-  /** Private method to throw a multi-component state into the garbage bin */
-  void throwIntoGarbageBin(Cache& cache, const MultiComponentState*) const;
-
-  /** Private method to throw a set of track parameters into the garbage bin */
-  void throwIntoGarbageBin(Cache& cache, const TrackParameters*) const;
-
-  /** Private method to empty garbage bins */
-  void emptyGarbageBins(Cache& cache) const;
   /** Add material to vector*/
   void addMaterialtoVector(
     Cache& cache,
@@ -305,6 +289,4 @@ private:
 
 } // end namespace Trk
 
-// for the inline implementations
-#include "GsfExtrapolator.icc"
 #endif
