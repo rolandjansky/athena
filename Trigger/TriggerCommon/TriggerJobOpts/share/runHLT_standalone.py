@@ -279,11 +279,9 @@ CAtoGlobalWrapper(IOVDbSvcCfg, ConfigFlags)
 #-------------------------------------------------------------
 # Setting DetFlags
 #-------------------------------------------------------------
-if ConfigFlags.Input.Format == 'BS':
-    ConfigFlags.Trigger.doLVL1 = False
 
 from AthenaCommon.DetFlags import DetFlags
-if ConfigFlags.Trigger.doLVL1:
+if not ConfigFlags.Input.Format == 'BS':
     DetFlags.detdescr.all_setOn()
     #if not ConfigFlags.Input.isMC or ConfigFlags.Common.isOnline:
     #    DetFlags.detdescr.ALFA_setOff()
