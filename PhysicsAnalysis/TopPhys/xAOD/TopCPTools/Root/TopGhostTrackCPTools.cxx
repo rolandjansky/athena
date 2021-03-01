@@ -88,7 +88,7 @@ namespace top {
         if (asg::ToolStore::contains<InDet::InDetTrackSelectionTool>(m_TrkSelNameLargeR)) {
             m_trackseltoolLargeR = asg::ToolStore::get<InDet::InDetTrackSelectionTool>(m_TrkSelNameLargeR);
         } else {
-            auto selTool = std::make_unique<InDet::InDetTrackSelectionTool>( m_TrkSelNameLargeR ,m_config->ghostTracksQualityLargeR());    
+            auto selTool = std::make_unique<InDet::InDetTrackSelectionTool>( m_TrkSelNameLargeR ,m_config->ghostTracksQuality());    
             top::check(selTool -> initialize(), "Failed to initialize InDetTrackSelectionTool for GA tracks in LargeR jets");
             m_trackseltoolLargeR = selTool.release();
             ATH_MSG_INFO("Creating selection tool " + m_TrkSelNameLargeR);

@@ -136,7 +136,7 @@ namespace top {
     
         ///-- Ghost Track Jets --///
     if (topConfig->useLargeRJetGhostTrack() && topConfig->useLargeRJets()) {
-      objectSelection->jetGhostTrackSelectionLargeR(new top::JetGhostTrackSelection(topConfig->ghostTrackspTLargeR(),2.5,topConfig->ghostTracksVertexAssociationLargeR(),topConfig->largeRjetPtGhostTracks(),topConfig->largeRjetEtaGhostTracks(),false));
+      objectSelection->jetGhostTrackSelectionLargeR(new top::JetGhostTrackSelection(topConfig->ghostTrackspT(),2.5,topConfig->ghostTracksVertexAssociation(),topConfig->largeRjetPtGhostTracks(),topConfig->largeRjetEtaGhostTracks(),false));
     }
     
     ///-- Tracks --///                                                                                                                                                                              
