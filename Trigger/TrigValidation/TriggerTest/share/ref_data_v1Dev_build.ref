@@ -1536,6 +1536,78 @@ HLT_mb_mbts_L1MBTS_1_EMPTY:
     0: 9
   stepFeatures:
     0: 9
+HLT_mb_sp1200_trk60_hmt_L1RD0_FILLED:
+  eventCount: 19
+  stepCounts:
+    0: 19
+    1: 19
+  stepFeatures:
+    0: 19
+    1: 19
+HLT_mb_sp1400_trk80_hmt_L1RD0_FILLED:
+  eventCount: 19
+  stepCounts:
+    0: 19
+    1: 19
+  stepFeatures:
+    0: 19
+    1: 19
+HLT_mb_sp2000_trk100_hmt_L1RD0_FILLED:
+  eventCount: 19
+  stepCounts:
+    0: 19
+    1: 19
+  stepFeatures:
+    0: 19
+    1: 19
+HLT_mb_sp3000_trk100_hmt_L1RD0_FILLED:
+  eventCount: 19
+  stepCounts:
+    0: 19
+    1: 19
+  stepFeatures:
+    0: 19
+    1: 19
+HLT_mb_sp400_trk40_hmt_L1RD0_FILLED:
+  eventCount: 19
+  stepCounts:
+    0: 20
+    1: 19
+  stepFeatures:
+    0: 20
+    1: 19
+HLT_mb_sp5000_trk100_hmt_L1RD0_FILLED:
+  eventCount: 19
+  stepCounts:
+    0: 19
+    1: 19
+  stepFeatures:
+    0: 19
+    1: 19
+HLT_mb_sp5000_trk200_hmt_L1RD0_FILLED:
+  eventCount: 19
+  stepCounts:
+    0: 19
+    1: 19
+  stepFeatures:
+    0: 19
+    1: 19
+HLT_mb_sp5000_trk80_hmt_L1RD0_FILLED:
+  eventCount: 19
+  stepCounts:
+    0: 19
+    1: 19
+  stepFeatures:
+    0: 19
+    1: 19
+HLT_mb_sp600_trk45_hmt_L1RD0_FILLED:
+  eventCount: 19
+  stepCounts:
+    0: 20
+    1: 19
+  stepFeatures:
+    0: 20
+    1: 19
 HLT_mb_sp_L1RD0_FILLED:
   eventCount: 20
   stepCounts:
