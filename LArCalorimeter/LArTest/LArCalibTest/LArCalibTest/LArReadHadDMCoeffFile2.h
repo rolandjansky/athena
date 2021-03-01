@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCALIBTEST_LARREADHADDMCOEFFFILE2
@@ -21,7 +21,7 @@ class LArReadHadDMCoeffFile2 : public AthAlgorithm
     StatusCode initialize(); 
     StatusCode execute();
     StatusCode finalize();
-    StatusCode initDataFromFile(std::string hadDMCoeffFileName);
+    StatusCode initDataFromFile(const std::string& hadDMCoeffFileName);
     int parse_dim(std::string &sLine, CaloHadDMCoeff2::HadDMDimension &dim);
 
   private:

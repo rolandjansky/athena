@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #define _TESTBEAM_
@@ -619,7 +619,7 @@ void extract_pileup()
   } 
 
   //////////////////////    
-  for(int index=0;index<NCELLS++index)
+  for(int index=0;index<NCELLS;++index)
     //ici, on boucle sur des cellules deja symetrisees
   {    
     // METHODE 1
@@ -677,7 +677,7 @@ void extract_variable(TString variable)
 
   int index;
   for(int iDet=0;iDet<m_nDets;++iDet)    
-    for(int indexSymm=0;indexSymm<m_indexSymmMax[iDet]++indexSymm)
+    for(int indexSymm=0;indexSymm<m_indexSymmMax[iDet];++indexSymm)
     {
       index=m_indexContainer[iDet][indexSymm];
       switch(variable) 
