@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file AthenaRootSharedWriterSvc.cxx
@@ -35,7 +35,8 @@ public:
    void*     dummyAddr()
    {
       if (clazz) {
-         std::function<void(void*)> del = std::bind(&TClass::Destructor, clazz, std::placeholders::_1, false);
+         void(TClass::*dxtor)(void*, Bool_t) = &TClass::Destructor;
+         std::function<void(void*)> del = std::bind(dxtor, clazz, std::placeholders::_1, false);
          dummyptr = std::unique_ptr<void, std::function<void(void*)> >(clazz->New(), std::move(del));
          dummy = dummyptr.get();
          return &dummy;
