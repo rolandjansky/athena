@@ -50,6 +50,16 @@ namespace Muon {
     virtual const MuonClusterOnTrack* createRIO_OnTrack(const Trk::PrepRawData& DC,
                                                         const Amg::Vector3D& GP,
                                                         const Amg::Vector3D& GD) const = 0;
+
+    /** @brief Calibrate a NSW PrepRawData object. The result is stored in a new Muon::MuonClusterOnTrack object
+        @param DC Trk::PrepRawData object
+        @param GP Predicted global position (including second coordinate along the strip).
+        @return Fully calibrated Muon::MuonClusterOnTrack.
+	        The memory management of the new Muon::MuonClusterOnTrack is passed to the person calling the function.
+    */
+    virtual const MuonClusterOnTrack* calibratedCluster(const Trk::PrepRawData& DC,
+                                                        const Amg::Vector3D& GP) const;
+
     
   };
   
@@ -57,6 +67,14 @@ namespace Muon {
   {
     return IID_IMuonClusterOnTrackCreator;
   }
+
+  inline const MuonClusterOnTrack* IMuonClusterOnTrackCreator::calibratedCluster(const Trk::PrepRawData& DC,
+										 const Amg::Vector3D& GP) const
+  {
+    return createRIO_OnTrack(DC,GP);
+  }
+
+
 } // end of name space
 
 #endif // MUON_IMUONCLUSTERONTRACKCREATOR_H
