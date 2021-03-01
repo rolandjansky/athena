@@ -50,17 +50,33 @@ namespace top {
     std::string m_jetAntiKt4_MCFS_ConfigFile;
     std::string m_jetAntiKt4_MCFS_CalibSequence;
 
+    // small-R calibration with jet mass calibration included
+    std::string m_jetAntiKt4_Data_JMS_ConfigFile;
+    std::string m_jetAntiKt4_Data_JMS_CalibSequence;
+
+    // only for fullsim, AFII not supported
+    std::string m_jetAntiKt4_MCFS_JMS_ConfigFile;
+    std::string m_jetAntiKt4_MCFS_JMS_CalibSequence;
+
     std::string m_jetAntiKt4_MCAFII_ConfigFile;
     std::string m_jetAntiKt4_MCAFII_CalibSequence;
 
     std::string m_jetAntiKt4_MCAFII_PFlow_ConfigFile;
     std::string m_jetAntiKt4_MCAFII_PFlow_CalibSequence;
 
+    std::string m_jetAntiKt4_Data_PFlow_ConfigFile;
+    std::string m_jetAntiKt4_Data_PFlow_CalibSequence;
+
     std::string m_jetAntiKt4_PFlow_MCFS_ConfigFile;
     std::string m_jetAntiKt4_PFlow_MCFS_CalibSequence;
 
-    std::string m_jetAntiKt4_Data_PFlow_ConfigFile;
-    std::string m_jetAntiKt4_Data_PFlow_CalibSequence;
+    // small-R calibration with jet mass calibration included
+    std::string m_jetAntiKt4_Data_PFlow_JMS_ConfigFile;
+    std::string m_jetAntiKt4_Data_PFlow_JMS_CalibSequence;
+
+    // only for fullsim, AFII not supported
+    std::string m_jetAntiKt4_PFlow_MCFS_JMS_ConfigFile;
+    std::string m_jetAntiKt4_PFlow_MCFS_JMS_CalibSequence;
 
     ToolHandle<IJetCalibrationTool> m_jetCalibrationTool;
     ToolHandle<IJetCalibrationTool> m_jetCalibrationToolLargeR;
@@ -68,7 +84,6 @@ namespace top {
     ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolLargeR;
 
     ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesTool;
-    ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolFrozenJMS;
     ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolReducedNPScenario1;
     ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolReducedNPScenario2;
     ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolReducedNPScenario3;

@@ -1332,6 +1332,14 @@ namespace top {
 
     inline virtual const std::string& jetCalibSequence() const {return m_jetCalibSequence;}
 
+    inline virtual void allowSmallRJMSforAFII(const bool setting) {
+      if (!m_configFixed) {
+        m_allowSmallRJMSforAFII = setting;
+      }
+    }
+
+    inline virtual bool allowSmallRJMSforAFII() const {return m_allowSmallRJMSforAFII;}
+
     inline virtual void jetStoreTruthLabels(bool b) {
       if (!m_configFixed) {
         m_jetStoreTruthLabels = b;
@@ -2278,6 +2286,7 @@ namespace top {
     bool m_doMultipleJES;
     std::string m_jetJERSmearingModel; // Full or Simple
     std::string m_jetCalibSequence; // GCC or JMS
+    bool m_allowSmallRJMSforAFII; // JMS is not supported on AFII so we crash, unless people override this option
     bool m_jetStoreTruthLabels; // True or False
     bool m_doJVTInMETCalculation;
     bool m_saveFailJVTJets;
