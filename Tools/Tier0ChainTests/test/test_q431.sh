@@ -8,7 +8,9 @@
 Reco_tf.py \
 --AMI=q431 \
 --athenaopts='--threads=8' \
---maxEvents=100 \
+--maxEvents=200 \
+--steering doRAWtoALL \
+--conditionsTag 'all:CONDBR2-BLKPA-RUN2-03' \
 --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root --outputHISTFile=myHIST.root --imf False
 
 rc1=$?
