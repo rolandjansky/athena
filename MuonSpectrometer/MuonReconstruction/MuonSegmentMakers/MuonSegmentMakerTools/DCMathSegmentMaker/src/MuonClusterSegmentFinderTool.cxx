@@ -979,30 +979,30 @@ namespace Muon {
         /// correct the eta position of the MM stereo layers only, based on the 
         Identifier clus_id = clus->identify();
         if ( m_idHelperTool->isMM(clus_id) ) {
-          if ( m_idHelperTool->mmIdHelper().isStereo(clus_id) ) {
-            /// build a  new MM cluster on track with correct position 
-            newClus = m_mmClusterCreator->createRIO_OnTrack(*(clus->prepRawData()),posOnSurf);
-	    ATH_MSG_VERBOSE("Position before correction: " << clus->globalPosition().x() << " "
-			    << clus->globalPosition().y() << " " << clus->globalPosition().z());
-	    ATH_MSG_VERBOSE("Position after correction: " << newClus->globalPosition().x() << " "
-			    << newClus->globalPosition().y() << " " << newClus->globalPosition().z());
-          }
-          else {
-	    /// here calibration of the MM eta strip ( all phi-dependent effects )
-            newClus = clus;
-          }
-        }
-        else if ( m_idHelperTool->issTgc(clus->identify()) ) {
-          /// if it's STGC just copy the cluster -> calibration to be added
-          newClus = clus;
-        }
+	  /// build a  new MM cluster on track with correct position 
+	  newClus = m_mmClusterCreator->calibratedCluster(*(clus->prepRawData()),posOnSurf);
+	  //newClus = clus;
+	  ATH_MSG_VERBOSE("Position before correction: " << clus->globalPosition().x() << " "
+			  << clus->globalPosition().y() << " " << clus->globalPosition().z());
+	  ATH_MSG_VERBOSE("Position after correction: " << newClus->globalPosition().x() << " "
+			  << newClus->globalPosition().y() << " " << newClus->globalPosition().z());
+	}
+	
+	else if ( m_idHelperTool->issTgc(clus->identify()) ) {
+	  /// if it's STGC just copy the cluster -> calibration to be added
+	  newClus = clus;
+	}
       }
+      else {
+	ATH_MSG_WARNING("Surface associated to cluster not found, not calibrating");
+	newClus=clus;
+      }
+
       calibratedClusters.push_back(newClus);
     }
+  
     return calibratedClusters;
   }
-
-
 
 
 }//end namespace
