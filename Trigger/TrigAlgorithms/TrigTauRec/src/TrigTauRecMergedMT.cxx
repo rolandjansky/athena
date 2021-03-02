@@ -72,6 +72,13 @@ StatusCode TrigTauRecMergedMT::initialize()
     ATH_CHECK( m_monTool.retrieve() );
   }
 
+  // Retrieve beam conditions
+  if(m_beamSpotKey.initialize().isFailure()) {
+    ATH_MSG_WARNING( "Unable to retrieve Beamspot key" );
+  } else {
+    ATH_MSG_DEBUG( "Successfully retrieved Beamspot key" );
+  }
+  
   ATH_MSG_DEBUG("Initialising HandleKeys");
   ATH_CHECK(m_roIInputKey.initialize());
   ATH_CHECK(m_L1RoIKey.initialize());
@@ -147,7 +154,11 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
   auto ptDetectorAxis     = Monitored::Scalar<float>("ptDetectorAxis",-99.9);
   auto RNN_tracknumber    = Monitored::Scalar<int>("RNN_tracknumber",0);
   auto RNN_clusternumber  = Monitored::Scalar<int>("RNN_clusternumber",0); 
-   
+ 
+  auto EF_beamspot_x    = Monitored::Scalar<float>("beamspot_x",-999.9);
+  auto EF_beamspot_y    = Monitored::Scalar<float>("beamspot_y",-999.9);
+  auto EF_beamspot_z    = Monitored::Scalar<float>("beamspot_z",-999.9);
+
   auto EF_calo_errors     = Monitored::Collection("calo_errors",calo_errors);
   auto EF_track_errors    = Monitored::Collection("track_errors",track_errors);
 
@@ -171,7 +182,7 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
                    EtFinal, Et, EtHad, EtEm, EMFrac, IsoFrac, centFrac, nWideTrk, ipSigLeadTrk, trFlightPathSig, massTrkSys,
                    dRmax, numTrack, trkAvgDist, etovPtLead, PSSFraction, EMPOverTrkSysP, ChPiEMEOverCaloEME, SumPtTrkFrac,
                    innerTrkAvgDist, Ncand, EtaL1, PhiL1, EtaEF, PhiEF, mEflowApprox, ptRatioEflowApprox, pt_jetseed_log, ptDetectorAxis, RNN_clusternumber, Cluster_et_log, Cluster_dEta, Cluster_dPhi, Cluster_log_SECOND_R,
-                   Cluster_SECOND_LAMBDA, Cluster_CENTER_LAMBDA, RNN_tracknumber, Track_pt_log, Track_dEta, Track_dPhi, Track_z0sinThetaTJVA_abs_log, Track_d0_abs_log, Track_nIBLHitsAndExp,
+                   Cluster_SECOND_LAMBDA, Cluster_CENTER_LAMBDA, RNN_tracknumber, EF_beamspot_x, EF_beamspot_y, EF_beamspot_z, EF_calo_errors, EF_track_errors, Track_pt_log, Track_dEta, Track_dPhi, Track_z0sinThetaTJVA_abs_log, Track_d0_abs_log, Track_nIBLHitsAndExp,
                    Track_nPixelHitsPlusDeadSensors, Track_nSCTHitsPlusDeadSensors); 
 
 
@@ -196,6 +207,7 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
   }
   else {
     ATH_MSG_ERROR("Failed to find RoiDescriptor ");
+    calo_errors.push_back(NoROIDescr);
     return StatusCode::FAILURE;
   }
 
@@ -258,9 +270,13 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
     if(RoICaloClusterContainer != nullptr) {
       ATH_MSG_DEBUG( "CaloCluster container found of size: " << RoICaloClusterContainer->size());
       //If size is zero, don't stop just continue to produce empty TauJetCollection
+      if( RoICaloClusterContainer->size() < 1) {
+          calo_errors.push_back(NoClustCont);
+      }
     }
     else {
       ATH_MSG_ERROR( "no CaloCluster container found " );
+      calo_errors.push_back(NoClustCont);
       return StatusCode::FAILURE;
     }
 
@@ -453,6 +469,7 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
     }
     else {
       ATH_MSG_WARNING("Failed to retrieve L1 RoI descriptor!");
+
     }
 
     // get tau detail variables for Monitoring
@@ -568,7 +585,25 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
         cluster_CENTER_LAMBDA.push_back(center_lambda);
      
     }
-   
+  
+    // Get beamspot
+    // Copy the first vertex from a const object
+    xAOD::Vertex theBeamspot;
+    theBeamspot.makePrivateStore();
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
+    if(beamSpotHandle.isValid()){
+
+        // Alter the position of the vertex
+        theBeamspot.setPosition(beamSpotHandle->beamPos()); 
+
+        EF_beamspot_x=theBeamspot.x();
+        EF_beamspot_y=theBeamspot.y();
+        EF_beamspot_z=theBeamspot.z();
+
+        // Create a AmgSymMatrix to alter the vertex covariance mat.
+        const AmgSymMatrix(3) &cov = beamSpotHandle->beamVtx().covariancePosition();
+        theBeamspot.setCovariancePosition(cov);
+    }
 
     ATH_MSG_DEBUG(" Roi: " << roiDescriptor->roiId()
 		  << " Tau being saved eta: " << EtaEF << " Tau phi: " << PhiEF

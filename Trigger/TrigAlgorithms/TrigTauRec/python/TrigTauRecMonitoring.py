@@ -4,6 +4,12 @@ from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
 def tauMonitoringCaloOnly():
    monTool = GenericMonitoringTool('MonTool')
+
+   monTool.defineHistogram('beamspot_x',path='EXPERT', type='TH1F', title=" Beamspot position;Beamspot x;nevents", xbins=50, xmin=-10.0, xmax=10.)
+   monTool.defineHistogram('beamspot_y',path='EXPERT', type='TH1F', title=" Beamspot position;Beamspot y;nevents", xbins=50, xmin=-10.0, xmax=10.)
+   monTool.defineHistogram('beamspot_z',path='EXPERT', type='TH1F', title=" Beamspot position;Beamspot z;nevents", xbins=100, xmin=-500.0, xmax=500.)
+   monTool.defineHistogram('track_errors',path='EXPERT', type='TH1F', title=" EF Track Errors ; nRoIs", xbins=2, xmin=-0.5, xmax=1.5)
+   monTool.defineHistogram('calo_errors',path='EXPERT', type='TH1F', title=" EF Calo Errors ; nRoIs", xbins=10, xmin=-0.5, xmax=9.5)
    monTool.defineHistogram('mEflowApprox',path="EXPERT", type='TH1F', title=" EF RNN scalar mEflowApprox; Log10(max(mEflowApprox 140.)", xbins=50, xmin=0., xmax=5.)
    monTool.defineHistogram('ptRatioEflowApprox', path="EXPERT",type='TH1F', title=" EF RNN scalar ptRatioEflowApprox; min(ptRatioEflowApprox 4.)", xbins=50, xmin=0., xmax=4.) 
    monTool.defineHistogram('ptDetectorAxis', path='EXPERT',type='TH1F', title=" EF RNN ptDetectorAxis log; ptDetectorAxis_log ", xbins=50, xmin=0., xmax=5.)
@@ -57,7 +63,12 @@ def tauMonitoringCaloOnly():
 
 def tauMonitoringCaloOnlyMVA():
    monTool = GenericMonitoringTool('MonTool')
-   
+  
+   monTool.defineHistogram('beamspot_x',path='EXPERT', type='TH1F', title=" Beamspot position;Beamspot x;nevents", xbins=50, xmin=-10.0, xmax=10.)
+   monTool.defineHistogram('beamspot_y',path='EXPERT', type='TH1F', title=" Beamspot position;Beamspot y;nevents", xbins=50, xmin=-10.0, xmax=10.)
+   monTool.defineHistogram('beamspot_z',path='EXPERT', type='TH1F', title=" Beamspot position;Beamspot z;nevents", xbins=100, xmin=-500.0, xmax=500.)
+   monTool.defineHistogram('track_errors',path='EXPERT', type='TH1F', title=" EF Track Errors ; nRoIs", xbins=2, xmin=-0.5, xmax=1.5) 
+   monTool.defineHistogram('calo_errors',path='EXPERT', type='TH1F', title=" EF Calo Errors ; nRoIs", xbins=10, xmin=-0.5, xmax=9.5)
    monTool.defineHistogram('mEflowApprox',path="EXPERT", type='TH1F', title=" EF RNN scalar mEflowApprox; Log10(max(mEflowApprox 140.)", xbins=50, xmin=0., xmax=5.)
    monTool.defineHistogram('ptRatioEflowApprox', path="EXPERT",type='TH1F', title=" EF RNN scalar ptRatioEflowApprox; min(ptRatioEflowApprox 4.)", xbins=50, xmin=0., xmax=4.)
    monTool.defineHistogram('ptDetectorAxis', path='EXPERT',type='TH1F', title=" EF RNN ptDetectorAxis log; ptDetectorAxis_log ", xbins=50, xmin=0., xmax=5.)
@@ -106,6 +117,11 @@ def tauMonitoringPreselection():
 
    monTool = GenericMonitoringTool('MonTool')
    
+   monTool.defineHistogram('beamspot_x',path='EXPERT', type='TH1F', title=" Beamspot position;Beamspot x;nevents", xbins=50, xmin=-10.0, xmax=10.)
+   monTool.defineHistogram('beamspot_y',path='EXPERT', type='TH1F', title=" Beamspot position;Beamspot y;nevents", xbins=50, xmin=-10.0, xmax=10.)
+   monTool.defineHistogram('beamspot_z',path='EXPERT', type='TH1F', title=" Beamspot position;Beamspot z;nevents", xbins=100, xmin=-500.0, xmax=500.)
+   monTool.defineHistogram('track_errors',path='EXPERT', type='TH1F', title=" EF Track Errors ; nRoIs", xbins=2, xmin=-0.5, xmax=1.5)
+   monTool.defineHistogram('calo_errors',path='EXPERT', type='TH1F', title=" EF Calo Errors ; nRoIs", xbins=10, xmin=-0.5, xmax=9.5)
    monTool.defineHistogram('mEflowApprox',path="EXPERT", type='TH1F', title=" EF RNN scalar mEflowApprox; Log10(max(mEflowApprox 140.)", xbins=50, xmin=0., xmax=5.)
    monTool.defineHistogram('ptRatioEflowApprox', path="EXPERT",type='TH1F', title=" EF RNN scalar ptRatioEflowApprox; min(ptRatioEflowApprox 4.)", xbins=50, xmin=0., xmax=4.)
    monTool.defineHistogram('ptDetectorAxis', path='EXPERT',type='TH1F', title=" EF RNN ptDetectorAxis log; ptDetectorAxis_log ", xbins=50, xmin=0., xmax=5.)
@@ -172,7 +188,12 @@ def tauMonitoringPreselection():
 def tauMonitoringPrecision():
 
    monTool = GenericMonitoringTool('MonTool')
- 
+
+   monTool.defineHistogram('beamspot_x',path='EXPERT', type='TH1F', title=" Beamspot position;Beamspot x;nevents", xbins=50, xmin=-10.0, xmax=10.)
+   monTool.defineHistogram('beamspot_y',path='EXPERT', type='TH1F', title=" Beamspot position;Beamspot y;nevents", xbins=50, xmin=-10.0, xmax=10.)
+   monTool.defineHistogram('beamspot_z',path='EXPERT', type='TH1F', title=" Beamspot position;Beamspot z;nevents", xbins=100, xmin=-500.0, xmax=500.)
+   monTool.defineHistogram('track_errors',path='EXPERT', type='TH1F', title=" EF Track Errors ; nRoIs", xbins=2, xmin=-0.5, xmax=1.5) 
+   monTool.defineHistogram('calo_errors',path='EXPERT', type='TH1F', title=" EF Calo Errors ; nRoIs", xbins=10, xmin=-0.5, xmax=9.5)
    monTool.defineHistogram('mEflowApprox',path="EXPERT", type='TH1F', title=" EF RNN scalar mEflowApprox; Log10(max(mEflowApprox 140.)", xbins=50, xmin=0., xmax=5.)
    monTool.defineHistogram('ptRatioEflowApprox', path="EXPERT",type='TH1F', title=" EF RNN scalar ptRatioEflowApprox; min(ptRatioEflowApprox 4.)", xbins=50, xmin=0., xmax=4.)
    monTool.defineHistogram('ptDetectorAxis', path='EXPERT',type='TH1F', title=" EF RNN ptDetectorAxis log; ptDetectorAxis_log ", xbins=50, xmin=0., xmax=5.)
@@ -239,6 +260,11 @@ def tauMonitoringPrecision():
 def tauMonitoringPrecisionMVA():
    monTool = GenericMonitoringTool('MonTool')
 
+   monTool.defineHistogram('beamspot_x',path='EXPERT', type='TH1F', title=" Beamspot position;Beamspot x;nevents", xbins=50, xmin=-10.0, xmax=10.)
+   monTool.defineHistogram('beamspot_y',path='EXPERT', type='TH1F', title=" Beamspot position;Beamspot y;nevents", xbins=50, xmin=-10.0, xmax=10.)
+   monTool.defineHistogram('beamspot_z',path='EXPERT', type='TH1F', title=" Beamspot position;Beamspot z;nevents", xbins=100, xmin=-500.0, xmax=500.)
+   monTool.defineHistogram('track_errors',path='EXPERT', type='TH1F', title=" EF Track Errors ; nRoIs", xbins=2, xmin=-0.5, xmax=1.5)
+   monTool.defineHistogram('calo_errors',path='EXPERT', type='TH1F', title=" EF Calo Errors ; nRoIs", xbins=10, xmin=-0.5, xmax=9.5)
    monTool.defineHistogram('mEflowApprox',path="EXPERT", type='TH1F', title=" EF RNN scalar mEflowApprox; Log10(max(mEflowApprox 140.)", xbins=50, xmin=0., xmax=5.)
    monTool.defineHistogram('ptRatioEflowApprox', path="EXPERT",type='TH1F', title=" EF RNN scalar ptRatioEflowApprox; min(ptRatioEflowApprox 4.)", xbins=50, xmin=0., xmax=4.)
    monTool.defineHistogram('pt_jetseed_log', path='EXPERT',type='TH1F', title=" EF RNN scalar pt_jetseed_log; Log10(tau.ptJetSeed)", xbins=50, xmin=3.5, xmax=7.)
