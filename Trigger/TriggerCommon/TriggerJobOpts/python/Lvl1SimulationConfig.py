@@ -36,9 +36,11 @@ def Lvl1SimulationSequence_Data( ConfigFlags ):
     l1CaloSimDataSeq = seqAND('L1CaloSimDataSeq',[])
     if ConfigFlags.Trigger.enableL1CaloLegacy:
         log.info("Configuring legacy L1Calo simulation on data")
-        from AthenaCommon.Include import include
-        # sets up bytestream tools and BytestreamAddressProviderSvc for L1Calo and L1Topo
-        include ("TrigT1CaloByteStream/ReadLVL1CaloBS_jobOptions.py")
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+        from TrigT1CaloByteStream.LVL1CaloRun2ByteStreamConfig import LVL1CaloRun2ReadBSCfg
+        CAtoGlobalWrapper(LVL1CaloRun2ReadBSCfg, ConfigFlags)
+
         l1CaloSimDataSeq += seqAND('L1CaloLegacySimSeq',[
             CfgMgr.LVL1__CPMSim( 'CPMSim' ),
             CfgMgr.LVL1__JEMJetSim( 'JEMJetSim' ),

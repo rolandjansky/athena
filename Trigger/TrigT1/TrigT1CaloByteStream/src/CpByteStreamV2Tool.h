@@ -88,8 +88,11 @@ class CpByteStreamV2Tool : public AthAlgTool {
    const std::vector<uint32_t>& sourceIDs() const;
 
  private:
-   ServiceHandle<ByteStreamCnvSvc> m_byteStreamCnvSvc
-   { this, "ByteStreamCnvSvc", "ByteStreamCnvSvc" };
+   // Need option to disable dependency on offline ByteStreamCnvSvc to be able to run
+   // decoding in online HLT framework (which uses TrigByteStreamCnvSvc)
+   Gaudi::Property<bool> m_enableEncoding{
+     this, "enableEncoding", true, "Enable conversion from RDO to ByteStream"};
+   SmartIF<ByteStreamCnvSvc> m_byteStreamCnvSvc;
 
    struct LocalData
    {
