@@ -59,7 +59,7 @@ class RingerReFexConfig( CompFactory.RingerReFex ):
 
   def __init__(self, name = "RingerReMaker"):
     super(RingerReFexConfig, self).__init__(name)
-    self.EtaBins              = [0.0000, 999.999] # bin pairs: min < eta <= max, PS,barrel,crack,endcap
+    self.EtaBins              = [0.0000, 2.500] # bin pairs: min < eta <= max, PS,barrel,crack,endcap
     self.GlobalCenter         = False
     self.RingerKey            = "L2CaloRings"
     self.EtaSearchWindowSize  = 0.1
