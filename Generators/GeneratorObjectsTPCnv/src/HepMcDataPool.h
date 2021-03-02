@@ -40,14 +40,14 @@ namespace SG {
 
   template<>
   inline void
-  ArenaAllocatorBase::destroy_fcn<HepMC::GenParticlePtr>(ArenaAllocatorBase::pointer p)
+  ArenaAllocatorBase::destroy_fcn<HepMC::GenParticlePtr>(ArenaAllocatorBase::pointer )
   {
   //GenParticlePtr is smart pointer
   }
 
   template<>
   inline void
-  ArenaAllocatorBase::destroy_fcn<HepMC::GenVertexPtr>(ArenaAllocatorBase::pointer p)
+  ArenaAllocatorBase::destroy_fcn<HepMC::GenVertexPtr>(ArenaAllocatorBase::pointer )
   {
   //GenVertexPtr is smart pointer
   }
