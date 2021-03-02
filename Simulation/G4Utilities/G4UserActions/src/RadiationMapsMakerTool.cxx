@@ -117,7 +117,14 @@ namespace G4UA{
       << "Mass frac. Maps: " << m_config.elemZMax-m_config.elemZMin+1        << " Element bins, " 
       <<                        m_config.elemZMin   << " <= Z <= < "         << m_config.elemZMax 
       << endmsg;
-      
+
+    // clear the activation file if requested
+    if ( !m_config.activationFileName.empty() ) {
+      std::ofstream actf;
+      actf.open(m_config.activationFileName);
+      actf.close();
+    }
+
     return StatusCode::SUCCESS;
   }
 

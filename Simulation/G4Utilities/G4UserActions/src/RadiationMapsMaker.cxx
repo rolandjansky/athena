@@ -179,7 +179,7 @@ namespace G4UA{
 
     // open activation file if wanted
     if ( !m_config.activationFileName.empty() ) {
-      m_activationFile.open(m_config.activationFileName); 
+      m_activationFile.open(m_config.activationFileName,std::ios_base::app); 
     }
     // first make sure the vectors are empty
 
