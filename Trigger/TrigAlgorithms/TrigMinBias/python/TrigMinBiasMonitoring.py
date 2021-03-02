@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 def SpCountMonitoring():
 
@@ -31,4 +31,17 @@ def MbtsFexMTMonitoring():
     monTool.defineHistogram('triggerEta', path='EXPERT', type='TH1D', title='triggerEta', xbins = 250, xmin=-5, xmax=5)
     monTool.defineHistogram('triggerPhi', path='EXPERT', type='TH1I', title='triggerPhi',xbins=100, xmin=-3.2, xmax=3.2)
     monTool.defineHistogram('triggerTimes', path='EXPERT', type='TH1I', title='triggerTimes',xbins=100, xmin=-0, xmax=60999.5)
+    return monTool
+
+
+def TrackCountMonitoring():
+    from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
+    monTool = GenericMonitoringTool('MonTool')
+    monTool.defineHistogram('ntrks', path='EXPERT', type='TH1I', title='ntrks', xbins=100, xmin=-0.5, xmax=4999.5)
+    from TrigMinBias.TrigMinBiasConf import TrackCountHypoAlgMT
+    alg=TrackCountHypoAlgMT()
+    for i in range(len(alg.minPt)):
+        monTool.defineHistogram('countsForSelection{}'.format(i),
+                                path='EXPERT', type='TH1I', title='counts for min pT and max z0 cut',
+                                xbins=100, xmin=-0.5, xmax=4999.5)
     return monTool

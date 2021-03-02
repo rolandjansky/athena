@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGT2MINBIAS_TRIGCOUNTSPACEPOINTSMT_H
-#define TRIGT2MINBIAS_TRIGCOUNTSPACEPOINTSMT_H
+#ifndef TRIGMINBIAS_TRIGCOUNTSPACEPOINTSMT_H
+#define TRIGMINBIAS_TRIGCOUNTSPACEPOINTSMT_H
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "TrkSpacePoint/SpacePointContainer.h"
@@ -54,4 +54,4 @@ private:
   ToolHandle<GenericMonitoringTool> m_monTool{this, "MonTool", "", "Monitoring tool"};
 };
 
-#endif // TRIGT2MINBIAS_TRIGCOUNTSPACEPOINTSMT_H
+#endif // TRIGMINBIAS_TRIGCOUNTSPACEPOINTSMT_H

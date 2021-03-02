@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """ MinBias slice specific flags  """
 
@@ -49,8 +49,3 @@ del _flags
 
 # make an alias
 MinBiasSliceFlags = TriggerFlags.MinBiasSlice
-
-# add MinBias algs cuts as sub-container
-
-#from TrigT2MinBias.TrigT2MinBiasProperties import TrigT2MinBiasProperties
-#from TrigMinBias.TrigMinBiasProperties import TrigMinBiasProperties

@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGT2MINBIAS_MBTSHYPOALG_H
-#define TRIGT2MINBIAS_MBTSHYPOALG_H
+#ifndef TRIGMINBIAS_MBTSHYPOALG_H
+#define TRIGMINBIAS_MBTSHYPOALG_H
 
 #include "DecisionHandling/HypoBase.h"
 #include "MbtsHypoTool.h"
@@ -30,4 +30,4 @@ private:
   SG::ReadHandleKey<xAOD::TrigT2MbtsBitsContainer> m_MbtsBitsKey{this, "MbtsBitsKey", "Undefined", ""};
 };
 
-#endif // TRIGT2MINBIAS_MBTSHYPOALG_H
+#endif // TRIGMINBIAS_MBTSHYPOALG_H

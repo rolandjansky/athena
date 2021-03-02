@@ -1,8 +1,8 @@
 /*
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGT2MINBIAS_SPCOUNTHYPOALGMT_H
-#define TRIGT2MINBIAS_SPCOUNTHYPOALGMT_H
+#ifndef TRIGMINBIAS_SPCOUNTHYPOALGMT_H
+#define TRIGMINBIAS_SPCOUNTHYPOALGMT_H
 
 // Framework includes
 #include "DecisionHandling/HypoBase.h"
@@ -30,4 +30,4 @@ private:
   ToolHandleArray<SPCountHypoTool> m_hypoTools{this, "HypoTools", {}, "Tools that perform actual selection"};
   SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_spacePointsKey{this, "SpacePointsKey", "Undefined", ""};
 };
-#endif // TRIGT2MINBIAS_SPCOUNTHYPOALGMT_H
+#endif // TRIGMINBIAS_SPCOUNTHYPOALGMT_H

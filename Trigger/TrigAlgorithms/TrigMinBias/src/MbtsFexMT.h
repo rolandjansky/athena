@@ -2,8 +2,8 @@
 Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGT2MINBIAS_MBTS_FEX_MT_H
-#define TRIGT2MINBIAS_MBTS_FEX_MT_H
+#ifndef TRIGMINBIAS_MBTS_FEX_MT_H
+#define TRIGMINBIAS_MBTS_FEX_MT_H
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthenaMonitoringKernel/Monitored.h"

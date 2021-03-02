@@ -1,8 +1,8 @@
 /*
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGT2MINBIAS_TRACKCOUNTHYPOTOOL_H
-#define TRIGT2MINBIAS_TRACKCOUNTHYPOTOOL_H
+#ifndef TRIGMINBIAS_TRACKCOUNTHYPOTOOL_H
+#define TRIGMINBIAS_TRACKCOUNTHYPOTOOL_H
 
 #include "Gaudi/Property.h"
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -38,4 +38,4 @@ public:
     Gaudi::Property<bool> m_acceptAll{this, "acceptAll", false, "Accept all events"};
   };
 
-  #endif //> !TRIGT2MINBIAS_TRACKCOUNTHYPOTOOL_H
+  #endif //> !TRIGMINBIAS_TRACKCOUNTHYPOTOOL_H
