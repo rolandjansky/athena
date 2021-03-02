@@ -7,7 +7,6 @@
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 #include "TrigEgammaMatchingTool/TrigEgammaMatchingToolMT.h"
-#include "TrigEgammaAnalysisTools/TrigEgammaInfo.h"
 
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
@@ -35,7 +34,23 @@
 #include "PATCore/AcceptData.h"
 
 
-
+// Trigger Information struct
+typedef struct _triginfo
+{
+    std::string trigName; //Trigger Name
+    std::string trigType; //Electron or Photon
+    std::string trigL1Item; //L1 item for HLT
+    std::string trigL1Type; //VHI
+    std::string trigPidType; //Loose, Medium, Tight, etc...
+    std::string trigPidDecorator; //Aux decoration
+    bool trigL1; // Level1 Trigger
+    bool trigPerf; // Performance chain
+    bool trigEtcut; // Et cut only chain
+    float trigThrHLT; // HLT Et threshold
+    float trigThrL1; // L1 Et threshold
+    bool trigIsEmulation;
+    bool isGSF; // GSF chain
+} TrigInfo;
 
 class TrigEgammaMonitorBaseAlgorithm : public AthMonitorAlgorithm {
   public:

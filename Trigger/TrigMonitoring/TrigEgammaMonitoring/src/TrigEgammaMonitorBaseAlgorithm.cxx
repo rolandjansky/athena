@@ -196,7 +196,11 @@ asg::AcceptData TrigEgammaMonitorBaseAlgorithm::setAccept( const TrigCompositeUt
               if (info.trigEtcut){
                 passedEF=true;
               }else{
-                passedEF    = match()->ancestorPassed<xAOD::ElectronContainer>(dec, trigger, "HLT_egamma_Electrons", condition);
+                  if(info.isGSF){
+                    passedEF    = match()->ancestorPassed<xAOD::ElectronContainer>(dec, trigger, "HLT_egamma_Electrons_GSF", condition);
+                    }else{
+                        passedEF    = match()->ancestorPassed<xAOD::ElectronContainer>(dec, trigger, "HLT_egamma_Electrons", condition);
+                    }
               }
               passedEFTrk = true; //match()->ancestorPassed<xAOD::TrackParticleContainer>(dec);
           }
@@ -558,6 +562,7 @@ void TrigEgammaMonitorBaseAlgorithm::setTrigInfo(const std::string trigger){
       bool trigL1; // Level1 Trigger
       bool trigPerf; // Performance chain
       bool trigEtcut; // Et cut only chain
+      bool isGSF; // GSF Chain
       float trigThrHLT; // HLT Et threshold
       float trigThrL1; // L1 Et threshold
      *******************************************/
@@ -570,6 +575,8 @@ void TrigEgammaMonitorBaseAlgorithm::setTrigInfo(const std::string trigger){
     std::string pidname="";
     bool perf=false;
     bool etcut=false;
+    bool trigIsEmulation=false;
+    bool trigGSF=false;
     parseTriggerName(trigger,m_defaultProbePid,isL1,type,etthr,l1thr,l1type,pidname,etcut,perf); // Determines probe PID from trigger
 
     std::string l1item = "";
@@ -578,7 +585,11 @@ void TrigEgammaMonitorBaseAlgorithm::setTrigInfo(const std::string trigger){
     std::string decorator="is"+pidname;
 
     if(isL1) etthr=l1thr; // Should be handled elsewhere
-    TrigInfo info{trigger,type,l1item,l1type,pidname,decorator,isL1,perf,etcut,etthr,l1thr,false};
+
+    if (boost::contains(trigger,"gsf")){
+        trigGSF=true;
+    }
+    TrigInfo info{trigger,type,l1item,l1type,pidname,decorator,isL1,perf,etcut,etthr,l1thr,trigIsEmulation,trigGSF};
     m_trigInfo[trigger] = info;
 }
 

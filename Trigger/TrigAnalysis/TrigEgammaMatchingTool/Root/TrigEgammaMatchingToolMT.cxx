@@ -36,12 +36,13 @@ StatusCode TrigEgammaMatchingToolMT::initialize()
 
   ATH_CHECK( m_emTauRoIKey.initialize() );
   m_keys[ "Electron"]   = "HLT_egamma_Electrons" ;
+  m_keys[ "ElectronGSF"]   = "HLT_egamma_Electrons_GSF" ;
   m_keys[ "Photon"]     = "HLT_egamma_Photons" ;
   m_keys[ "Track"]      = "";
   m_keys[ "EFCalo"]     = "HLT_CaloEMClusters" ;
-  m_keys[ "L2Electron"] = "HLT_L2Electrons" ;
-  m_keys[ "L2Photon"]   = "HLT_L2Photons" ;
-  m_keys[ "L2Calo"]     = "HLT_L2CaloEMClusters" ;
+  m_keys[ "L2Electron"] = "HLT_FastElectrons" ;
+  m_keys[ "L2Photon"]   = "HLT_FastPhotons" ;
+  m_keys[ "L2Calo"]     = "HLT_FastCaloEMClusters" ;
   m_keys[ "L1Calo"]     = "LVL1EmTauRoIs" ;
 
   return StatusCode::SUCCESS;
@@ -116,8 +117,13 @@ bool TrigEgammaMatchingToolMT::matchHLTPhoton(const xAOD::Photon *eg,const std::
 
 bool TrigEgammaMatchingToolMT::matchHLTElectron(const xAOD::Electron *eg,const std::string &trigger, const TrigCompositeUtils::Decision *&dec, unsigned int condition ) const
 { 
-  ATH_MSG_DEBUG("Match HLT Electron");
-  return closestObject<xAOD::ElectronContainer>( eg, dec , trigger, key("Electron"), condition );
+  if (boost::contains(trigger,"gsf")){
+      ATH_MSG_DEBUG("Matched HLT Electron GSF");
+      return closestObject<xAOD::ElectronContainer>( eg, dec , trigger, key("ElectronGSF"), condition );
+    }else {
+      ATH_MSG_DEBUG("Matched HLT Electron");
+      return closestObject<xAOD::ElectronContainer>( eg, dec , trigger, key("Electron"), condition );     
+    }
 }
 
 
