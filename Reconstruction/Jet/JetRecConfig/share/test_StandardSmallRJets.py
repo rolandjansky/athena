@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from JetRecConfig.StandardSmallRJets import AntiKt4EMPFlow, AntiKt4LCTopo
 from JetRecConfig.JetRecConfig import JetRecCfg, jetlog
@@ -85,11 +85,11 @@ if __name__=="__main__":
     originaljets = ["AntiKt4EMPFlowJets","AntiKt4EMTopoJets"]
     for jetcoll in originaljets:
         outputlist += ["xAOD::JetContainer#"+jetcoll,
-                       "xAOD::JetAuxContainer#"+jetcoll+"Aux."]
+                       "xAOD::JetAuxContainer#"+jetcoll+"Aux.-PseudoJet"]
     for jetdef in jetdefs:
         key = jetdef.fullname()
         outputlist += ["xAOD::JetContainer#"+key,
-                       "xAOD::JetAuxContainer#"+key+"Aux."]
+                       "xAOD::JetAuxContainer#"+key+"Aux.-PseudoJet"]
 
     # Now get the output stream components
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
