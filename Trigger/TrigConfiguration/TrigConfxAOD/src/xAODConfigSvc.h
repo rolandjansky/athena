@@ -202,10 +202,13 @@ namespace TrigConf {
       /// Helper function for copying into the service's private data store
       void copyMetadataToPersonalStore(const xAOD::TriggerMenuJsonContainer* input, xAOD::TriggerMenuJsonContainer* existing);
 
-      /// Do per-event decoding for R3 serialised xAOD::TriggerMenuJson metadata
+      /// Do per-event updating of R3 JSON-based metadata, reading the data direct from the Conditions and Detector stores (UseInFileMetadata=False case).
+      StatusCode prepareEventRun3Athena(const EventContext& context);
+
+      /// Do per-event decoding for R3 in-file serialised xAOD::TriggerMenuJson metadata
       StatusCode prepareEventxAODTriggerMenuJson(const xAOD::TrigConfKeys* keys, const EventContext& context);
 
-      /// Do per-event decoding for R2 serliased xAOD::TriggerMenu metadata 
+      /// Do per-event decoding for R2 in-file serialised xAOD::TriggerMenu metadata 
       StatusCode prepareEventxAODTriggerMenu(const xAOD::TrigConfKeys* keys, const EventContext& context);
 
       /// Helper function to find a JSON in a given TriggerMenuJsonContainer using a given key, extract its ptree data
@@ -246,6 +249,26 @@ namespace TrigConf {
       Gaudi::Property< std::string > m_metaNameJSON_bg {this, "JSONMetaObjectNameBunchgroup", "TriggerMenuJson_BG",
         "StoreGate key for the xAOD::TriggerMenuJson BunchGroup configuration object"};
       /// @}
+
+      /// @name Names for reading the R3 payload directly (RAWtoESD, RAWtoALL)
+      /// @{
+
+      Gaudi::Property< std::string > m_hltMenuName{this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu",
+        "HLT Menu Key, for when UseInFileMetadata=False. Not a ReadHandleKey, as from the DetectorStore."};
+
+      Gaudi::Property< std::string > m_l1MenuName{this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu",
+        "L1 Menu Key, for when UseInFileMetadata=False. Not a ReadHandleKey, as from the DetectorStore"};
+
+      SG::ReadCondHandleKey<TrigConf::HLTPrescalesSet> m_HLTPrescaleSetKey{this, "HLTPrescales", "HLTPrescales", 
+         "HLT prescales set condition handle, for when UseInFileMetadata=False"};
+ 
+       SG::ReadCondHandleKey<TrigConf::L1PrescalesSet> m_L1PrescaleSetKey{this, "L1Prescales", "L1Prescales", 
+         "L1 prescales set condition handle, for when UseInFileMetadata=False"};
+      /// @}
+
+      Gaudi::Property<bool> m_useInFileMetadata{this, "UseInFileMetadata", true, "Flag for reading all configuration from the input POOL file(s). "
+        "This mode should be used everywhere except for: RAWtoALL from bytestream, RAWtoESD from bytestream. "
+        "If set to false, only the R3 configuration is supported."};
 
       Gaudi::Property<bool> m_stopOnFailure{this, "StopOnFailure", true, "Flag for stopping the job in case of a failure"};
       /// Internal state of the service
