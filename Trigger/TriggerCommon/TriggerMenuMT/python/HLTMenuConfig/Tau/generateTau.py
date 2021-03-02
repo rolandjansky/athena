@@ -1,11 +1,11 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, CAMenuSequence, SelectionCA, InViewReco, EmptyMenuSequence
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, MenuSequenceCA, SelectionCA, InViewRecoCA, EmptyMenuSequence
 from AthenaConfiguration.ComponentFactory import CompFactory
 from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import getChainMultFromDict
 
 def generateChains( flags, chainDict ):
     def __calo():
-        recoAcc = InViewReco('CaloTauReco')
+        recoAcc = InViewRecoCA('CaloTauReco')
         from TrigCaloRec.TrigCaloRecConfig import hltCaloTopoClusteringCfg
         recoAcc.addRecoAlgo(CompFactory.AthViews.ViewDataVerifier(name='VDV'+recoAcc.name,
                                                                   DataObjects=[('TrigRoiDescriptorCollection', recoAcc.inputMaker().InViewRoIs),
@@ -31,7 +31,7 @@ def generateChains( flags, chainDict ):
                                                     taujets = "HLT_TrigTauRecMerged_CaloOnly" )
         selAcc.addHypoAlgo(hypoAlg)
         from TrigTauHypo.TrigTauHypoTool import TrigL2TauHypoToolFromDict
-        menuCA = CAMenuSequence(selAcc, HypoToolGen=TrigL2TauHypoToolFromDict)
+        menuCA = MenuSequenceCA(selAcc, HypoToolGen=TrigL2TauHypoToolFromDict)
         return ChainStep(name=selAcc.name, Sequences=[menuCA], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
 
     thresholds = [p["L1threshold"] for p in chainDict['chainParts'] if p['signature'] == 'Tau' ]
