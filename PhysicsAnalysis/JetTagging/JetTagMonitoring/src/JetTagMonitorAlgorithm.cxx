@@ -1241,7 +1241,7 @@ void JetTagMonitorAlgorithm::fillJetTracksHistos(const xAOD::Jet *jet, float PV_
 
   fill(tool,JetTracks_n,JetTracks_nSV);
 
-  for ( const ElementLink< xAOD::TrackParticleContainer > jetTracks : assocTracks ) {
+  for ( const ElementLink< xAOD::TrackParticleContainer >& jetTracks : assocTracks ) {
     if ( not jetTracks.isValid() ) continue;
     const xAOD::TrackParticle* jetTrackItr = *jetTracks;
 
@@ -1333,7 +1333,7 @@ JetTagMonitorAlgorithm::Jet_t JetTagMonitorAlgorithm::getQualityLabel(const xAOD
 
   std::vector<ElementLink<xAOD::TrackParticleContainer>> assocTracks = bTaggingObject->auxdata< std::vector< ElementLink<xAOD::TrackParticleContainer > > >("BTagTrackToJetAssociator");
 
-  for ( const ElementLink< xAOD::TrackParticleContainer > jetTracks : assocTracks ) {
+  for ( const ElementLink< xAOD::TrackParticleContainer >& jetTracks : assocTracks ) {
     if ( not jetTracks.isValid() ) continue;
     const xAOD::TrackParticle* jetTrackItr = *jetTracks;
     
