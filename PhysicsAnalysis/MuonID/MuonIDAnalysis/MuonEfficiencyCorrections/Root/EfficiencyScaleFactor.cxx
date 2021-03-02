@@ -46,6 +46,7 @@ namespace CP {
     
         if (ref_tool.measurement() == CP::MuonEfficiencyType::Iso){
             dRJetAxisHandler::set_close_jet_decorator(ref_tool.close_by_jet_decoration());
+            dRJetAxisHandler::set_use_2D_sf(ref_tool.use_2D_iso_corrections());
         }    
         // open the file
         std::unique_ptr<TFile> f (TFile::Open(file.c_str(), "READ"));
