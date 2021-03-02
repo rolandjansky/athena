@@ -54,10 +54,11 @@ namespace PFO {
     if(m_isNeutral){
       //Neutral FE vs PFO plots
       // since these are based on FEs/ PFOs which share the same topocluster, expect values very close to (if not exactly 1, so bin as finely as possible in this interval) - easier to rebin using TH1 rebin in plot generation if necessary
-      m_PFO_FE_SECOND_R_RelComparison=Book1D("_second_R_RelComparison",m_sPFOContainerName+m_sFEContainerName+"_second_R_RelComparison",300,-1,2);
-      m_PFO_FE_CENTER_LAMBDA_RelComparison=Book1D("_CENTER_LAMBDA",m_sPFOContainerName +m_sFEContainerName+"_CENTER_LAMBDA_RelComparison",300,-1,2);
+
+      m_PFO_FE_SECOND_R_RelComparison=Book1D("_SECOND_R_RelComparison",m_sPFOContainerName+m_sFEContainerName+"_SECOND_R_RelComparison",300,-1,2);
+      m_PFO_FE_CENTER_LAMBDA_RelComparison=Book1D("_CENTER_LAMBDA_RelComparison",m_sPFOContainerName+m_sFEContainerName+"_CENTER_LAMBDA_RelComparison",300,-1,2);
       
-      m_PFO_FE_ISOLATION_RelComparison=Book1D("_ISOLATION_RelComparison",m_sPFOContainerName+m_sFEContainerName + "_ISOLATION",300,-1,2);
+      m_PFO_FE_ISOLATION_RelComparison=Book1D("_ISOLATION_RelComparison",m_sPFOContainerName+m_sFEContainerName + "_ISOLATION_RelComparison",300,-1,2);
       m_PFO_FE_ENG_BAD_CELLS_RelComparison=Book1D("_ENG_BAD_CELLS_RelComparison",m_sPFOContainerName+m_sFEContainerName + "_ENG_BAD_CELLS_RelComparison",300,-1,2);
       m_PFO_FE_N_BAD_CELLS_RelComparison=Book1D("_N_BAD_CELLS_RelComparison",m_sPFOContainerName+m_sFEContainerName + "_N_BAD_CELLS_RelComparison",300,-1,2);
       m_PFO_FE_BADLARQ_FRAC_RelComparison=Book1D("_BADLARQ_FRAC_RelComparison",m_sPFOContainerName+m_sFEContainerName + "_BADLARQ_FRAC_RelComparison",300,-1,2);
@@ -68,14 +69,14 @@ namespace PFO {
       m_PFO_FE_EM_PROBABILITY_RelComparison=Book1D("_EM_PROBABILITY_RelComparison",m_sPFOContainerName+m_sFEContainerName + "_EM_PROBABILITY_RelComparison",300,-1,2);
       m_PFO_FE_SECOND_LAMBDA_RelComparison=Book1D("_SECOND_LAMBDA_RelComparison",m_sPFOContainerName+m_sFEContainerName + "_SECOND_LAMBDA_RelComparison",300,-1.0,2);            
 
-      m_PFO_FE_TIMING_RelComparison=Book1D("_TIMING_RelComparison",m_sPFOContainerName+"_TIMING_RelComparison",400,-2,2);
+      m_PFO_FE_TIMING_RelComparison=Book1D("_TIMING_RelComparison",m_sPFOContainerName+m_sFEContainerName+"_TIMING_RelComparison",400,-2,2);
       
     } // end of NFE specific block
     else{
       //charged pfo/flow element comparison using track matched PFO and FE
       //binning is chosen so that we can be sensitive to small variations around 1, since we expect the retrievals to be close if not identical. -1 lower bound kept to pick up misconfigurations/debug errors
-      m_PFO_FE_isInDenseEnvironment_RelComparison=Book1D("_isInDenseEnvironment_RelComparison",m_sPFOContainerName+"_isInDenseEnvironment_RelComparison",30,-1,2);
-      m_PFO_FE_tracksExpectedEnergyDeposit=Book1D("_tracksExpectedEnergyDeposit_RelComparison",m_sPFOContainerName+"_tracksExpectedEnergyDeposit_RelComparison",300,-1,2);
+      m_PFO_FE_isInDenseEnvironment_RelComparison=Book1D("_isInDenseEnvironment_RelComparison",m_sPFOContainerName+m_sFEContainerName+"_isInDenseEnvironment_RelComparison",30,-1,2);
+      m_PFO_FE_tracksExpectedEnergyDeposit=Book1D("_tracksExpectedEnergyDeposit_RelComparison",m_sPFOContainerName+m_sFEContainerName+"_tracksExpectedEnergyDeposit_RelComparison",300,-1,2);
 
       
 
@@ -114,6 +115,7 @@ namespace PFO {
     m_PFO_FE_delta_R->Fill(dR);
     m_PFO_FE_delta_eta->Fill(abs_dEta);
     m_PFO_FE_delta_phi->Fill(dphi);
+
     if(m_isNeutral){
       // for the more complex observables, need the following
       // 1) Flow Element -> Retrieve cluster moments from auxdata
@@ -281,7 +283,6 @@ namespace PFO {
       m_PFO_FE_EM_PROBABILITY_RelComparison->Fill(Ratio_PFO_FE_moment_EM_PROBABILITY);
       m_PFO_FE_SECOND_LAMBDA_RelComparison->Fill(Ratio_PFO_FE_moment_SECOND_LAMBDA);      
       m_PFO_FE_TIMING_RelComparison->Fill(Ratio_PFO_FE_TIMING);
-      
       
     } // end of NFE specific block
     else{
