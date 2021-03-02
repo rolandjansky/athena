@@ -56,15 +56,25 @@ else:
 ##################################################################
 
 def defineEDAlg(R=0.4, inputtype="LCTopo"):
-    from EventShapeTools.EventDensityConfig import configEventDensityTool, EventDensityAlg
+    from EventShapeTools.EventDensityConfig import configEventDensityTool, EventDensityAthAlg
     from AthenaCommon.AppMgr import ToolSvc
+    from JetRec.JetRecStandard import jtm
+
+    # map a getter to the input argument
+    inputgetter = { "LCTopo" : jtm.lcget,
+                    "EMTopo" : jtm.emget,
+                    "LCTopoOrigin" : jtm.lcoriginget,
+                    "EMTopoOrigin" : jtm.emoriginget,
+                    "EMPFlow": jtm.empflowget,
+                    "EMPFlowFE": jtm.empflowget_fe
+                    }[inputtype]
 
     t=configEventDensityTool("EDTool"+str(int(R*10))+inputtype,
-                             inputlabel = inputtype,
+                             inputgetter.Label,
                              radius = R)
     t.OutputLevel = 3
     ToolSvc += t
-    return EventDensityAlg( "EventDensityAlg"+t.name(), EventDensityTool = t , OutputLevel=3)
+    return EventDensityAthAlg( "EventDensityAlg"+t.name(), EventDensityTool = t , OutputLevel=3)
 
 ##################################################################
 

@@ -61,13 +61,15 @@
 #include "JetEDM/TrackVertexAssociation.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetAuxContainer.h"
+#include "xAODPFlow/FlowElementContainer.h"
 
 #include "AsgDataHandles/ReadDecorHandleKey.h"
 #include "AsgDataHandles/ReadDecorHandle.h"
 #include "AsgDataHandles/WriteDecorHandleKey.h"
 #include "AsgDataHandles/WriteDecorHandle.h"
 
-// Pflow tools 
+// Pflow / FE tools 
+#include "PFlowUtils/FEHelpers.h"
 #include "PFlowUtils/IWeightPFOTool.h"
 #include "PFlowUtils/WeightPFOTool.h"
 #include "JetCalibTools/IJetCalibrationTool.h"
@@ -113,6 +115,7 @@ namespace pflow {
     bool hasCloseByHSjet(const xAOD::Jet *jet, const xAOD::JetContainer *pjets ) const;
     double getRpt(const xAOD::Jet *jet) const;
     fastjet::PseudoJet pfoToPseudoJet(const xAOD::PFO* pfo, const CP::PFO_JetMETConfig_charge& theCharge, const xAOD::Vertex *vx) const;
+    fastjet::PseudoJet feToPseudoJet(const xAOD::FlowElement* fe, const CP::PFO_JetMETConfig_charge& theCharge, const xAOD::Vertex *vx) const;
 
   private:
 
@@ -152,10 +155,12 @@ namespace pflow {
 
     SG::ReadHandleKey<xAOD::VertexContainer> m_vxContKey{this, "verticesName", "PrimaryVertices", "Container name of vertices to be retrieved"};
     SG::ReadHandleKey<xAOD::PFOContainer> m_PFOKey{this, "PFOName", "CHSParticleFlowObjects", "SG Key for CHS PFO Container"};
+    SG::ReadHandleKey<xAOD::FlowElementContainer> m_FEKey{this, "FEName", "", "SG Key for CHS FlowElement Container (overrides PFO if not empty)"};
 
     SG::ReadDecorHandleKey<xAOD::JetContainer> m_jvtKey{this, "jvtName", "Jvt", "SG key for the Jvt decoration"};
     SG::ReadDecorHandleKey<xAOD::PFO> m_orKey{this, "ORName", "", "OR label"};
-    
+    SG::ReadDecorHandleKey<xAOD::FlowElement> m_orFEKey{this, "ORNameFE", "", "OR label"};
+
     SG::WriteDecorHandleKey<xAOD::JetContainer> m_fjvtKey{this, "FjvtName", "passOnlyFJVT", "Decorator for passing fJVT threshold (tight or loose)"};
     SG::WriteDecorHandleKey<xAOD::JetContainer> m_fjvtRawKey{this, "FjvtRawName", "fJvt", "Decorator for raw fJVT variable"};
     SG::WriteDecorHandleKey<xAOD::JetContainer> m_isHSKey{this, "isHSName", "isJVTHS", "SG key for output isJVTHS decoration"};

@@ -51,7 +51,8 @@ class JetRecCalibrationFinder:
     "triggerNoPileup" : "JES_Full2012dataset_Preliminary_Trigger_NoPileup.config",
     "trigger2016"     : "JES_MC15cRecommendation_May2016_Trigger.config",
     "triggerTrim"     : "JES_MC15recommendation_FatJet_June2015.config",
-    "pflow"           : "JES_MC15cRecommendation_PFlow_Aug2016_rel21.config"
+    "pflow"           : "JES_MC15cRecommendation_PFlow_Aug2016_rel21.config",
+    "pflowFE"         : "JES_MC15cRecommendation_PFlow_Aug2016_rel21.config"
   }
 
   # Default the calibration area tag to that used for T0 reconstruction for consistency
@@ -60,7 +61,7 @@ class JetRecCalibrationFinder:
     from JetCalibTools.JetCalibToolsConf import JetCalibrationTool
     from JetRec.JetRecStandardToolManager import jtm
     inp = inpin
-    if inpin == "PFlowCustomVtx":
+    if inpin == "PFlowCustomVtx" or inpin == "EMPFlowFE":
       inp = "EMPFlow"
     # Find the configuration file.
     configkey = configkeyin
@@ -110,6 +111,8 @@ class JetRecCalibrationFinder:
         evssuf="LCTopoOriginEventShape"
       elif inpin == "EMPFlow":
         evssuf="EMPFlowEventShape"
+      elif inpin == "EMPFlowFE":
+        evssuf="EMPFlowFEEventShape"
       elif inpin == "EMCPFlow":
         evssuf="EMCPFlowEventShape"
       elif inpin == "LCPFlow":

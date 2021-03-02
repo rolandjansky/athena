@@ -19,7 +19,9 @@ def getJvtEffTool( jetalg , toolname = ''):
 
   configs = {
     "AntiKt4EMTopo": "JetJvtEfficiency/Moriond2018/JvtSFFile_EMTopoJets.root",
-    "AntiKt4EMPFlow": "JetJvtEfficiency/Moriond2018/JvtSFFile_EMPFlow.root"
+    "AntiKt4EMPFlow": "JetJvtEfficiency/Moriond2018/JvtSFFile_EMPFlow.root",
+    "AntiKt4EMPFlowFE": "JetJvtEfficiency/Moriond2018/JvtSFFile_EMPFlow.root"
+    
   }
 
   jvtefftool = CfgMgr.CP__JetJvtEfficiency(toolname)
