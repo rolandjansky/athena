@@ -12,7 +12,7 @@ atlas_add_component( TrigBjetHypo
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} AthContainers AthLinks AthViews AthenaBaseComps AthenaMonitoringKernelLib BTaggingLib BeamSpotConditionsData CxxUtils DecisionHandlingLib EventInfo EventPrimitives FourMomUtils GaudiKernel GeoPrimitives JetCalibToolsLib JetEvent Particle TrigCaloEvent TrigCompositeUtilsLib TrigInDetEvent TrigInterfacesLib TrigNavigationLib TrigParticle TrigSteeringEvent TrigInDetToolInterfacesLib VxSecVertex VxVertex xAODBTagging xAODBase xAODCore xAODJet xAODMuon xAODTracking xAODTrigger )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} AthContainers AthLinks AthViews AthenaBaseComps AthenaMonitoringKernelLib BeamSpotConditionsData CxxUtils DecisionHandlingLib EventInfo EventPrimitives GaudiKernel TrigCompositeUtilsLib TrigInDetEvent TrigInterfacesLib TrigNavigationLib TrigParticle TrigSteeringEvent TrigInDetToolInterfacesLib VxSecVertex VxVertex xAODBTagging xAODBase xAODCore xAODJet xAODMuon xAODTracking xAODTrigger )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-extensions=ATL900,ATL901 )
