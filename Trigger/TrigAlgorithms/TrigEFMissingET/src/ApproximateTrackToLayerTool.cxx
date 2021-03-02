@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigEFMissingET/ApproximateTrackToLayerTool.h"
+#include "ApproximateTrackToLayerTool.h"
 
 ApproximateTrackToLayerTool::ApproximateTrackToLayerTool(const std::string &name) : asg::AsgTool(name)
 {
