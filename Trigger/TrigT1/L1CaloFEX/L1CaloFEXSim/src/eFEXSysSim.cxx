@@ -93,6 +93,9 @@ namespace LVL1 {
       return StatusCode::FAILURE;
     }
 
+    // remove TOBs of the previous events from the map
+    m_allEmTobs.clear();
+
     // We need to split the towers into 3 blocks in eta and 8 blocks in phi.
 
     // boundaries in eta: -2.5, -0.8, 0.8, 2.5
