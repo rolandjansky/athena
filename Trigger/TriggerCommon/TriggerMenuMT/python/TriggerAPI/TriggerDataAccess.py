@@ -302,7 +302,6 @@ def getHLTmap_fromTM(period, release):
     menu = "Physics_pp_run3_v1"
     
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    ConfigFlags.Trigger.EDMVersion = 3
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     TriggerFlags.triggerMenuSetup = menu
     TriggerFlags.readLVL1configFromXML = True
@@ -323,7 +322,6 @@ def getHLTmap_fromTM(period, release):
     except AttributeError: #JobProperties.Rec.Trigger does not have property UnconventionalTrackingSlice
         log.warning("Could not load TriggerMenuMT, the non-MT version is already loaded")
         log.warning("Will not provide Run3 trigger information")
-        ConfigFlags.Trigger.EDMVersion = 2
         return {},0
         
 
