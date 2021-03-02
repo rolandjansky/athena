@@ -180,7 +180,7 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     lumiPerBCID = lbAverageInteractionsPerCrossing(ctx);
     coreTrk = tau->nTracks( xAOD::TauJetParameters::coreTrack ) ;
     PtTESMVA = tau->ptFinalCalib() /GeV; 
-    PtCombined = tau->auxdata<float>( "pt_combined" )/GeV; 
+    PtCombined = tau->auxdata<float>( "ptCombined" )/GeV; 
 
     //calo
     EMRadius =  tau->detail<float>(xAOD::TauJetParameters::EMRadius);
