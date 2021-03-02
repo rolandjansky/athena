@@ -60,13 +60,6 @@ import MagFieldServices.SetupField
 #ElectronTrkMagField = Trk__MagneticFieldTool('ElectronTrkMagField')
 #ToolSvc += ElectronTrkMagField
 #
-# set up geometry
-#
-
-#include('TrkDetDescrSvc/AtlasTrackingGeometrySvc.py')
-#include('/afs/cern.ch/user/s/sthenkel/work/ProjectArea/Tracking/TrkDetDescr/TrkDetDescrSvc/python/AtlasTrackingGeometrySvc.py')
-#from __main__ import AtlasTrackingGeometrySvc
-#
 # get propagator
 #
 from TrkExRungeKuttaPropagator.TrkExRungeKuttaPropagatorConf import Trk__RungeKuttaPropagator as Propagator
@@ -81,9 +74,20 @@ ToolSvc += ElectronTrkStepPropagator
 #
 # Setup the Navigator (default, could be removed)
 #
+from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
+geom_svc=None
+geom_cond_key=''
+if not use_tracking_geometry_cond_alg :
+	from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+	acc = TrackingGeometrySvcCfg(flags)
+	geom_svc = acc.getPrimary()
+else :
+	geom_cond_key = 'AtlasTrackingGeometry'
+
 from TrkExTools.TrkExToolsConf import Trk__Navigator
 ElectronTrkNavigator = Trk__Navigator(name = 'ElectronTrkNavigator',
-                                #TrackingGeometrySvc = AtlasTrackingGeometrySvc
+			TrackingGeometrySvc = geom_svc,
+			TrackingGeometryKey = geom_cond_key
                                 )
 ToolSvc += ElectronTrkNavigator
 #
