@@ -80,7 +80,10 @@ StatusCode PhysValFE::bookHistograms(){
   hists.insert(hists.end(),additional_hists.begin(),additional_hists.end()); // append lepton-FE linker plots to collection of hists
 
   hists.insert(hists.end(),PFO_FE_comparison_hists.begin(),PFO_FE_comparison_hists.end());  // add the PFO vs FE comparison plots
+
+  
   for (auto hist : hists) {
+    ATH_MSG_DEBUG("Processing histogram named: "<<hist.first->GetName()<<" (title) "<<hist.first->GetTitle());
     ATH_CHECK(regHist(hist.first,hist.second,all));
   }
   

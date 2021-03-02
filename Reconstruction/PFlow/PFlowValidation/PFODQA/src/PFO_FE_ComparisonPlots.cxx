@@ -7,7 +7,7 @@ PFO_FE_ComparisonPlots::PFO_FE_ComparisonPlots(PlotBase* pParent, std::string sD
   PlotBase(pParent,sDir), 
   asg::AsgMessaging("PFO_FE_comparison_plots"), 
   m_isNeutral(isNeutral), // classdef
-  m_PlotMaker(this,"",sPFOContainerName,sFEContainerName)
+  m_PlotMaker(this,"",sPFOContainerName,sFEContainerName,m_isNeutral)
 {
    ATH_MSG_VERBOSE("PFO_FE_ComparisonPlots constructor call");
 }
