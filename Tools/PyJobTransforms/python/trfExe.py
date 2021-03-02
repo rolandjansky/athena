@@ -945,10 +945,10 @@ class athenaExecutor(scriptExecutor):
         
         # Check the consistency of parallel configuration: CLI flags + evnironment.
         # At least one of the parallel command-line flags has been provided but ATHENA_CORE_NUMBER environment has not been set
-        if (('multithreaded' in self.conf._argdict or 'multiprocess' in self.conf._argdict) and
+        if ((('multithreaded' in self.conf._argdict and self.conf._argdict['multithreaded'].value) or ('multiprocess' in self.conf._argdict and self.conf._argdict['multiprocess'].value)) and
             ('ATHENA_CORE_NUMBER' not in os.environ)):
             raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_SETUP'),
-                                                            'either --multithreaded nor --multiprocess command line option provided but ATHENA_CORE_NUMBER environment has not been set')
+                                                            'either --multithreaded or --multiprocess argument used but ATHENA_CORE_NUMBER environment not set')
 
         ## Do we need to run asetup first?
         asetupString = None

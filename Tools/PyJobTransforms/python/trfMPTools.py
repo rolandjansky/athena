@@ -46,7 +46,7 @@ def detectAthenaMPProcs(argdict = {}, currentSubstep = '', legacyThreadingReleas
                         msg.info('AthenaMP detected from "nprocs" setting with {0} workers for substep {1}'.format(athenaMPProcs,substep))
         if (athenaMPProcs == 0 and
             'ATHENA_CORE_NUMBER' in os.environ and
-            ('multiprocess' in argdict or legacyThreadingRelease)):
+            (('multiprocess' in argdict and argdict['multiprocess'].value) or legacyThreadingRelease)):
             athenaMPProcs = int(os.environ['ATHENA_CORE_NUMBER'])
             if athenaMPProcs < -1:
                 raise ValueError("ATHENA_CORE_NUMBER value was less than -1")

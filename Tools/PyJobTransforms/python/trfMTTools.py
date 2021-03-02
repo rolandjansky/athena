@@ -55,7 +55,7 @@ def detectAthenaMTThreads(argdict = {}, currentSubstep = '', legacyThreadingRele
                         athenaConcurrentEvents = athenaMTThreads
         if (athenaMTThreads == 0 and
             'ATHENA_CORE_NUMBER' in os.environ and
-            'multithreaded' in argdict):
+            'multithreaded' in argdict and argdict['multithreaded'].value):
             athenaMTThreads = int(os.environ['ATHENA_CORE_NUMBER'])
             if athenaMTThreads < -1:
                 raise ValueError("ATHENA_CORE_NUMBER value was less than -1")
