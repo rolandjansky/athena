@@ -1,6 +1,6 @@
 // Dear emacs, this is -*- c++ -*-
 //
-// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 //
 #ifndef XAODCORE_TOOLS_DICTHELPERS_H
 #define XAODCORE_TOOLS_DICTHELPERS_H
@@ -12,6 +12,12 @@
 
 // System include(s).
 #include <vector>
+
+#ifdef XAOD_STANDALONE
+# define XAOD_BASEINFO_TYPE(TYPE) int
+#else
+# define XAOD_BASEINFO_TYPE(TYPE) SG::BaseInfo<TYPE>
+#endif
 
 /// Macro instantiating all the container "interface" and smart pointer types
 /// that we need a dictionary for.
@@ -25,7 +31,8 @@
    SG::AuxTypeVectorFactory< DataLink< TYPE > > dummy_##TYPE##_7;              \
    SG::AuxTypeVectorFactory< ElementLink< TYPE > > dummy_##TYPE##_8;           \
    SG::AuxTypeVectorFactory< std::vector< ElementLink< TYPE > > >              \
-      dummy_##TYPE##_9
+     dummy_##TYPE##_9;                                                         \
+   XAOD_BASEINFO_TYPE(TYPE) dummy_##TYPE##_10
 
 /// Macro instantiating all the container "interface" and smart pointer types
 /// that we need a dictionary for.
@@ -40,7 +47,8 @@
    SG::AuxTypeVectorFactory< DataLink< NS::TYPE > > dummy_##NS##_##TYPE##_7;   \
    SG::AuxTypeVectorFactory< ElementLink< NS::TYPE > > dummy_##NS##_##TYPE##_8;\
    SG::AuxTypeVectorFactory< std::vector< ElementLink< NS::TYPE > > >          \
-      dummy_##NS##_##TYPE##_9
+      dummy_##NS##_##TYPE##_9;                                                 \
+   XAOD_BASEINFO_TYPE(NS::TYPE) dummy_##NS##_##TYPE##_10
 
 /// Macro instantiating all the single object smart pointer types that we need
 /// a dictionary for.
