@@ -21,6 +21,9 @@
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauTrackContainer.h"
 
+#include "BeamSpotConditionsData/BeamSpotData.h"
+
+
 class TrigTauRecMergedMT: public AthReentrantAlgorithm {
 
  public:
@@ -70,6 +73,7 @@ class TrigTauRecMergedMT: public AthReentrantAlgorithm {
   SG::ReadHandleKey< xAOD::VertexContainer> m_vertexKey          { this, "Key_vertexInputContainer", "", "input vertex container key"};
   SG::ReadHandleKey< xAOD::TauJetContainer> m_trigTauJetKey      { this, "Key_trigTauJetInputContainer", "HLT_taujet", "input taujet container" };
   SG::ReadHandleKey< xAOD::TauTrackContainer> m_trigTauTrackInKey      { this, "Key_trigTauTrackInputContainer", "HLT_tautrack_input", "input tautrack container" };
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
   SG::WriteHandleKey< xAOD::JetContainer > m_trigtauSeedOutKey   { this,"Key_trigJetSeedOutputKey","HLT_jet_seed","Key for output jets which are seed for tau jets"};
   SG::WriteHandleKey< xAOD::TauJetContainer > m_trigtauRecOutKey {this,"Key_trigTauJetOutputContainer","HLT_taujet","Output taujet container"};
