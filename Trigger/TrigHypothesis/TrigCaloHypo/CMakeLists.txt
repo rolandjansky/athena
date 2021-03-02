@@ -1,16 +1,18 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigCaloHypo )
 
-# External dependencies:
-find_package( tdaq-common COMPONENTS hltinterface )
-
 # Component(s) in the package:
+atlas_add_library( TrigCaloHypoLib
+                   TrigCaloHypo/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS TrigCaloHypo
+                   LINK_LIBRARIES CaloEvent DecisionHandlingLib GaudiKernel Identifier TrigSteeringEvent )
+
 atlas_add_component( TrigCaloHypo
                      src/*.cxx src/components/*.cxx
-                     INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthViews CaloInterfaceLib DecisionHandlingLib GaudiKernel LArRecConditions LArRecEvent StoreGateLib TrigCaloEvent TrigInterfacesLib TrigSteeringEvent TrigTimeAlgsLib xAODCaloEvent xAODEventInfo )
+                     LINK_LIBRARIES AthenaBaseComps AthenaMonitoringKernelLib CaloEvent CaloInterfaceLib DecisionHandlingLib GaudiKernel Identifier LArRecConditions LArRecEvent StoreGateLib TrigCaloHypoLib TrigCompositeUtilsLib TrigSteeringEvent )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-extensions=ATL900,ATL901 )

@@ -1,14 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGCALOHYPO_TRIGLARNOISEBURSTALGOHYPOTOOLINC_H
 #define TRIGCALOHYPO_TRIGLARNOISEBURSTALGOHYPOTOOLINC_H 1
 
-//#include "GaudiKernel/IAlgTool.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CaloEvent/CaloCellContainer.h"
-
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
@@ -27,7 +22,6 @@ class TrigLArNoiseBurstHypoToolInc : public extends<AthAlgTool, ITrigLArNoiseBur
              const std::string& name, 
              const IInterface* parent );
 
-  virtual ~TrigLArNoiseBurstHypoToolInc();
   virtual StatusCode initialize() override;
 
   virtual StatusCode decide( std::vector<ITrigLArNoiseBurstHypoTool::CaloCellNoiseInfo>& input )  const override;
