@@ -115,6 +115,12 @@ StatusCode RoIBResultByteStreamTool::initialize() {
     m_configuredROBIds.push_back( sid.code() );
   }
 
+  // Retrieve the ByteStreamCnvSvc for updating event header when writing CTP data to BS
+  if (m_doCTP && !m_roibResultReadKey.empty()) {
+    m_byteStreamEventAccess = serviceLocator()->service("ByteStreamCnvSvc");
+    ATH_CHECK(m_byteStreamEventAccess.isValid());
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -149,6 +155,29 @@ StatusCode RoIBResultByteStreamTool::convertToBS(std::vector<OFFLINE_FRAGMENTS_N
     const eformat::helper::SourceIdentifier ctpSID{eformat::TDAQ_CTP, m_ctpModuleID};
     const std::vector<ROIB::CTPRoI>& ctpDataVec = roibResult->cTPResult().roIVec();
     convertDataToRob(ctpSID, ctpDataVec);
+
+    // Update L1 bits in event header
+    // TODO: change to context-aware method when it is added to the IByteStreamEventAccess interface
+    RawEventWrite* rawEvent = m_byteStreamEventAccess->getRawEvent();
+    std::bitset<512> tbp = ROIB::convertToBitset(roibResult->cTPResult().TBP());
+    std::bitset<512> tap = ROIB::convertToBitset(roibResult->cTPResult().TAP());
+    std::bitset<512> tav = ROIB::convertToBitset(roibResult->cTPResult().TAV());
+    constexpr size_t word_size = 32; // ATLAS raw event format word size
+    constexpr size_t words_per_set = 512 / word_size; // 512 CTP bits / word size
+    constexpr size_t num_words = 3 * words_per_set; // 3 sets: TBP, TAP, TAV
+    uint32_t* l1bits_data = newRodData(eventContext, num_words);
+    size_t iset{0};
+    for (const std::bitset<512>& bset : {tbp, tap, tav}) {
+      const std::string sbits = bset.to_string();
+      const size_t iword_output_start = words_per_set * iset;
+      for (size_t iword_in_set = 0; iword_in_set < words_per_set; ++iword_in_set) {
+        const size_t bword_pos = 512 - (iword_in_set+1) * word_size;
+        std::bitset<word_size> bword{sbits.substr(bword_pos, word_size)};
+        l1bits_data[iword_output_start + iword_in_set] = static_cast<uint32_t>(bword.to_ulong());
+      }
+      ++iset;
+    }
+    rawEvent->lvl1_trigger_info(num_words, l1bits_data);
   }
 
   // Muon
