@@ -329,17 +329,11 @@ if DQMonFlags.doMonitoring():
 
    else:
       local_logger.info("DQ: setting up ConfigFlags")
+      from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
+      # Translate all needed flags from old jobProperties to a new AthConfigFlag Container
+      ConfigFlags = getNewConfigFlags()
       from AthenaConfiguration.AllConfigFlags import ConfigFlags
-      if globalflags.InputFormat() == 'bytestream':
-         ConfigFlags.Input.Files=athenaCommonFlags.BSRDOInput()
-      elif globalflags.InputFormat() == 'pool':
-         ConfigFlags.Input.Files=svcMgr.EventSelector.InputCollections
 
-      from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
-      ConfigFlags.GeoModel.Align.Dynamic=InDetGeometryFlags.useDynamicAlignFolders()
-      ConfigFlags.Detector.GeometryPixel=DetFlags.pixel_on()
-      ConfigFlags.Detector.GeometrySCT=DetFlags.SCT_on()
-      ConfigFlags.Detector.GeometryTRT=DetFlags.TRT_on()
       ConfigFlags.InDet.usePixelDCS=InDetFlags.usePixelDCS()
       ConfigFlags.InDet.doTIDE_Ambi=InDetFlags.doTIDE_Ambi()
 
