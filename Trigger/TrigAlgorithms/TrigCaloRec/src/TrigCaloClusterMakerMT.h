@@ -2,7 +2,7 @@
 // Hi Emacs ! this is  -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -24,26 +24,18 @@
 #include "CaloRec/CaloClusterCollectionProcessor.h"
 #include "CaloRec/CaloClusterProcessor.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
-#include "TrigCaloRec/TrigCaloQuality.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/WriteDecorHandleKey.h"
 
-
-class CaloClusterCollectionProcessor;
-class CaloClusterProcessor;
-class CaloClusterContainer;
-class CaloCellLinkContainer;
 
 class TrigCaloClusterMakerMT : public AthReentrantAlgorithm {
 
  public:
 
   TrigCaloClusterMakerMT(const std::string& name, ISvcLocator* pSvcLocator);
-  virtual ~TrigCaloClusterMakerMT();
 
   virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override;
   virtual StatusCode execute(const EventContext& ctx) const override;
 
  private:
@@ -72,18 +64,6 @@ class TrigCaloClusterMakerMT : public AthReentrantAlgorithm {
       "Cells",                  // property name
       "cells",                                             // default value of StoreGate key
       "input CaloCellContainer "};
-
-#if 0
-  SG::ReadHandleKey<TrigCaloQuality> m_inputCaloQualityKey{ this,
-      "CaloQuality",                  // property name
-      "caloquality",                                             // default value of StoreGate key
-      "input TrigCaloQuality"};
-
-  SG::ReadHandleKey<CaloTowerContainer> m_inputTowersKey{ this,
-      "CaloTowers",                  // property name
-      "calotowers",                                             // default value of StoreGate key
-      "output CaloTowerContainer"};
-#endif
 
   SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outputClustersKey{ this,
       "CaloClusters",                  // property name
