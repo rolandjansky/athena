@@ -1,0 +1,74 @@
+/*
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+*/
+#include "ExpressionEvaluation/SGxAODProxyLoader.h"
+#include "ExpressionEvaluation/SGNTUPProxyLoader.h"
+#include "ExpressionEvaluation/MultipleProxyLoader.h"
+#include "ExpressionEvaluation/ExpressionParser.h"
+#include "ExpressionParserUser.h"
+#include <cassert>
+
+namespace ExpressionParsing {
+   template <unsigned short NUM_PARSER>
+   std::array< std::unique_ptr<ExpressionParsing::ExpressionParser>, NUM_PARSER >
+   MultiParserHelper<NUM_PARSER>::createParser(ExpressionParsing::IProxyLoader &proxy_loader, const std::vector< std::string> &selection_string, unsigned short num_parser) {
+      if (selection_string.size() !=  num_parser) { throw std::logic_error("Dimension mismtach between selection strings and number of parsers."); }
+      std::array< std::unique_ptr<ExpressionParsing::ExpressionParser>,NUM_PARSER > parser;
+      unsigned int idx=0;
+      for (const std::string &a_selection_string : selection_string) {
+         assert( idx < parser.size() );
+         parser[idx]=std::make_unique<ExpressionParsing::ExpressionParser>(&proxy_loader );
+         parser[idx]->loadExpression( a_selection_string );
+         ++idx;
+      }
+      return parser;
+   }
+
+   std::unique_ptr<ExpressionParsing::ExpressionParser>
+   SingleParserHelper::createParser(ExpressionParsing::IProxyLoader &proxy_loader, const std::string &selection_string, [[maybe_unused]] unsigned short num_parser) {
+      assert( num_parser == 1);
+      std::unique_ptr<ExpressionParsing::ExpressionParser>
+         parser = std::make_unique<ExpressionParsing::ExpressionParser>(&proxy_loader );
+      parser->loadExpression( selection_string );
+      return parser;
+   }
+
+}
+
+template <class T_Base, unsigned short const NUM_PARSER>
+StatusCode ExpressionParserUserBase<T_Base,NUM_PARSER>::_initializeParser(const ExpressionParsing::SelectionArg<NUM_PARSER> &selection_string,
+                                                                          ExpressionParsing::AppendLoaderFunc pre_xaod_loader,
+                                                                          ExpressionParsing::AppendLoaderFunc post_xaod_loader)
+{
+   std::unique_ptr<ExpressionParsing::MultipleProxyLoader> proxyLoaders = std::make_unique<ExpressionParsing::MultipleProxyLoader>();
+
+   StatusCode sc = pre_xaod_loader(*proxyLoaders);
+   if (sc.isFailure()) return sc;
+
+   m_xAODProxyLoader=new ExpressionParsing::SGxAODProxyLoader(this->evtStore());
+   proxyLoaders->push_back(m_xAODProxyLoader);
+
+   sc = post_xaod_loader(*proxyLoaders);
+   if (sc.isFailure()) return sc;
+
+   // load the expressions
+   m_proxyLoaders.reset( proxyLoaders.release() );
+   m_parser = ExpressionParsing::ParserHelper<NUM_PARSER>::createParser( *m_proxyLoaders, selection_string, NUM_PARSER );
+   return sc;
+}
+
+template <class T_Base, unsigned short const NUM_PARSER>
+StatusCode ExpressionParserUserBase<T_Base, NUM_PARSER>::finalizeParser() {
+   m_parser = {};
+   return StatusCode::SUCCESS;
+}
+
+template <class T_Base, unsigned short const NUM_PARSER>
+StatusCode ExpressionParserUser<T_Base, NUM_PARSER>::initializeParser(const ExpressionParsing::SelectionArg<NUM_PARSER> &selection_string) {
+   return this->_initializeParser(selection_string,
+                                  ExpressionParsing::NoLoaderFunc,
+                                  [this](ExpressionParsing::MultipleProxyLoader &proxy_loaders) -> StatusCode {
+                                     proxy_loaders.push_back(new ExpressionParsing::SGNTUPProxyLoader(this->evtStore()));
+                                     return StatusCode::SUCCESS;
+                                  });
+}
