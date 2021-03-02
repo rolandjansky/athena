@@ -33,9 +33,12 @@ def get_idtrig_view_verifier(name):
                                        ( 'InDet::SCT_ClusterContainer',   TrigSCTKeys.Clusters ),
                                        ( 'InDet::PixelClusterContainer',  TrigPixelKeys.Clusters ),
                                        ( 'IDCInDetBSErrContainer',        'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
-                                       ( 'IDCInDetBSErrContainer',        'StoreGateSvc+SCT_ByteStreamErrs' ),
-                                       ( 'IDCInDetBSErrContainer',        'StoreGateSvc+PixelByteStreamErrs' ),
                                       ]
+      if globalflags.InputFormat.is_bytestream():
+         viewDataVerifier.DataObjects += [
+                                          ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ),
+                                          ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
+                                         ]
    
    #FIXME:
    #Align with the data preparation, are all of them  really needed in the EFID ?
