@@ -140,6 +140,8 @@ namespace CP {
             /// float AuxElement the information of the separation
             /// to the closest jet is stored
             std::string close_by_jet_decoration() const;
+            /// option to set if we want to use 1D or 2D isolation SFs
+            bool use_2D_iso_corrections() const;
             
        
     private:
@@ -177,6 +179,7 @@ namespace CP {
             float m_lowpt_threshold;
             /// Name of the decoration to catch up the close by jets
             std::string m_iso_jet_dR;
+            bool m_use2DIsoCorr;
             CP::SystematicSet m_affectingSys;
             /// It turned out that the code spends a large time in the look up of
             /// the systematics. This map tries to mitigate this issue.
