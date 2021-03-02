@@ -130,7 +130,6 @@ SiSmearedDigitizationTool::SiSmearedDigitizationTool(const std::string &type, co
   declareProperty("SCT_ClusterContainerName",     m_Sct_SiClustersName="SCT_Clusters");
   declareProperty("CheckSmear",                   m_checkSmear);
 
-  // get the service handle for the TrackingGeometry
   declareProperty("HardScatterSplittingMode"     , m_HardScatterSplittingMode, "Control pileup & signal splitting" );
 
 }

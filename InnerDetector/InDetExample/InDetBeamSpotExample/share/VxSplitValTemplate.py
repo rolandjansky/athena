@@ -145,7 +145,17 @@ include("BFieldAth/BFieldAth_jobOptions.py")
 
 # LEVEL 5: Extrapolator
 
-include('TrkDetDescrSvc/AtlasTrackingGeometrySvc.py')
+from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
+geom_svc=None
+geom_cond_key=''
+if not use_tracking_geometry_cond_alg :
+	from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+	acc = TrackingGeometrySvcCfg(flags)
+	geom_svc = acc.getPrimary()
+else :
+	from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
+	geom_cond_key = 'AtlasTrackingGeometry'
+
 
 if InDetFlags.propagatorType() is "STEP":
   from TrkExSTEP_Propagator.TrkExSTEP_PropagatorConf import Trk__STEP_Propagator as Propagator
@@ -168,7 +178,9 @@ if InDetFlags.doPrintConfigurables:
 #
 from TrkExTools.TrkExToolsConf import Trk__Navigator
 InDetNavigator = Trk__Navigator(name                = 'InDetNavigator',
-                                TrackingGeometrySvc = AtlasTrackingGeometrySvc)
+			TrackingGeometrySvc = geom_svc,
+			TrackingGeometryKey = geom_cond_key
+                                )
 ToolSvc += InDetNavigator
 if InDetFlags.doPrintConfigurables:
   printfunc (     InDetNavigator)
