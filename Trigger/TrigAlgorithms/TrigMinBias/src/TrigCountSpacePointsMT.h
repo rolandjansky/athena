@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMINBIAS_TRIGCOUNTSPACEPOINTSMT_H
@@ -7,7 +7,6 @@
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "TrkSpacePoint/SpacePointContainer.h"
-#include "InDetPrepRawData/PixelCluster.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
@@ -15,17 +14,14 @@
 #include "AthenaMonitoringKernel/Monitored.h"
 
 #include <string>
-class PixelID;
 
 class TrigCountSpacePointsMT : public AthReentrantAlgorithm
 {
 public:
   TrigCountSpacePointsMT(const std::string &name, ISvcLocator *pSvcLocator);
-  virtual ~TrigCountSpacePointsMT() override;
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute(const EventContext &context) const override;
-  virtual StatusCode finalize() override;
 
 private:
   Gaudi::Property<bool> m_doOnlyBLayer{this, "doOnlyBLayer", false, " "};

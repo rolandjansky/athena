@@ -17,9 +17,6 @@ public:
     const std::string& name,
     const IInterface* parent );
 
-    virtual ~TrackCountHypoTool() = default;
-    virtual StatusCode initialize() override;
-
     struct TrkCountsInfo {
       TrigCompositeUtils::Decision* decision;
       const xAOD::TrigComposite* counts;

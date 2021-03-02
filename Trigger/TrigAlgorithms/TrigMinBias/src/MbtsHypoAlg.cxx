@@ -16,20 +16,11 @@ MbtsHypoAlg::MbtsHypoAlg(const std::string &name, ISvcLocator *pSvcLocator)
 {
 }
 
-MbtsHypoAlg::~MbtsHypoAlg()
-{
-}
-
 StatusCode MbtsHypoAlg::initialize()
 {
   ATH_CHECK(m_hypoTools.retrieve());
   ATH_CHECK(m_MbtsBitsKey.initialize());
   ATH_CHECK(m_hypoTools.retrieve());
-  return StatusCode::SUCCESS;
-}
-
-StatusCode MbtsHypoAlg::finalize()
-{
   return StatusCode::SUCCESS;
 }
 
