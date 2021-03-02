@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigConfData )
@@ -11,6 +11,7 @@ endif()
 
 # External dependencies:
 find_package( Boost )
+find_package( CORAL QUIET COMPONENTS RelationalAccess )
 
 # athena library for the package:
 # defines CLID for some data objects
@@ -43,3 +44,13 @@ atlas_add_test( TestFileRW SOURCES test/testfilerw.cxx
                 LINK_LIBRARIES TrigConfData
                 ENVIRONMENT "TESTFILEPATH=${CMAKE_CURRENT_SOURCE_DIR}/test/"
                 POST_EXEC_SCRIPT nopost.sh )
+
+if( NOT XAOD_ANALYSIS )
+# test excluded from AnalysisBase and AthAnalysis where TrigConfIO is absent
+atlas_add_test( TestDoubleMenuLoad SOURCES test/doubleLoad.cxx
+                INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
+                LINK_LIBRARIES ${CORAL_LIBRARIES} TrigConfData TrigConfIO
+                ENVIRONMENT "CLArgs=TRIGGERDBDEV1 45 179 152 4"
+                PRE_EXEC_SCRIPT "rm -f *1.json *2.json NoDBConnection.txt"
+                POST_EXEC_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/share/doubleTestComp.py )
+endif()

@@ -70,8 +70,13 @@ namespace TrigConf {
       /** print overview of L1 Menu */
       void printMenu(bool full = false) const;
 
+      /** Clearing the configuration data */
+      virtual void clear() override;
+
    private:
-      void update() override;
+   
+      /** Update the internal data after modification of the data object */
+      virtual void update() override { load(); };
       void load();
 
       /** the supermasterkey */

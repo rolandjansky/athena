@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfData/L1Menu.h"
@@ -13,14 +13,14 @@ TrigConf::L1Menu::L1Menu()
 TrigConf::L1Menu::L1Menu(const boost::property_tree::ptree & data) 
    : DataStructure(data)
 {
-   update();
+   load();
 }
 
 TrigConf::L1Menu::~L1Menu()
 {}
 
 void
-TrigConf::L1Menu::update()
+TrigConf::L1Menu::load()
 {
    if(! isInitialized() || empty() ) {
       return;
@@ -143,6 +143,30 @@ TrigConf::L1Menu::update()
       std::cerr << "ERROR: problem when building L1 menu structure (CTP). " << ex.what() << std::endl;
       throw;
    }
+}
+
+void
+TrigConf::L1Menu::clear()
+{
+   DataStructure::clear();
+
+   m_smk = 0;
+   m_run = 3;
+   m_connectors.clear();
+   m_threshold2ConnectorName.clear();
+   m_boards.clear();
+   m_thresholdsByType.clear();
+   m_thresholdsByName.clear();
+   m_thresholdsByTypeAndMapping.clear();
+
+   m_thrExtraInfo.clear();
+
+   m_algorithmsByCategory.clear();
+   m_algorithmsByName.clear();
+   m_algorithmsByOutput.clear(); 
+
+   m_ctp.clear();
+
 }
 
 unsigned int 

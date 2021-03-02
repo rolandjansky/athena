@@ -15,7 +15,7 @@
 TrigConf::L1BunchGroup::L1BunchGroup( const boost::property_tree::ptree & data ) 
    : DataStructure(data)
 {
-   update();
+   load();
 }
 
 TrigConf::L1BunchGroup::~L1BunchGroup()
@@ -27,7 +27,7 @@ TrigConf::L1BunchGroup::className() const {
 }
 
 void
-TrigConf::L1BunchGroup::update()
+TrigConf::L1BunchGroup::load()
 {
    if(! isInitialized() || empty() ) {
       return;
@@ -102,7 +102,7 @@ TrigConf::L1BunchGroupSet::L1BunchGroupSet()
 TrigConf::L1BunchGroupSet::L1BunchGroupSet( const boost::property_tree::ptree & data ) 
    : DataStructure(data)
 {
-   update();
+   load();
 }
 
 TrigConf::L1BunchGroupSet::~L1BunchGroupSet()
@@ -114,7 +114,7 @@ TrigConf::L1BunchGroupSet::className() const {
 }
 
 void
-TrigConf::L1BunchGroupSet::update()
+TrigConf::L1BunchGroupSet::load()
 {
    if(! isInitialized() || empty() ) {
       return;
@@ -130,6 +130,13 @@ TrigConf::L1BunchGroupSet::update()
    }
 }
 
+void
+TrigConf::L1BunchGroupSet::clear()
+{
+   m_bgsk = 0;
+   m_bunchGroupsByName.clear();
+   m_bunchGroups.clear();
+}
 
 const std::shared_ptr<TrigConf::L1BunchGroup> &
 TrigConf::L1BunchGroupSet::getBunchGroup(const std::string & name) const {

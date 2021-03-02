@@ -46,6 +46,8 @@ namespace TrigConf {
 
       bool hasInfo(const std::string & typeName) const;
 
+      void clear();
+
    private:
       // map from threshold type to L1ThrExtraInfo object
       std::map<std::string, std::shared_ptr<TrigConf::L1ThrExtraInfoBase>> m_thrExtraInfo{};
