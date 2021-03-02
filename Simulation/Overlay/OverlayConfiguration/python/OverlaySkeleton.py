@@ -6,7 +6,7 @@ from PyJobTransforms.CommonRunArgsToFlags import commonRunArgsToFlags
 from PyJobTransforms.TransformUtils import processPreExec, processPreInclude, processPostExec, processPostInclude
 
 
-def defaultOverlayFlags(configFlags, detectors):
+def defaultOverlayFlags(configFlags):
     """Fill default overlay flags"""
     # TODO: how to autoconfigure those
     configFlags.GeoModel.Align.Dynamic = False
@@ -87,10 +87,12 @@ def fromRunArgs(runArgs):
     digitizationRunArgsToFlags(runArgs, ConfigFlags)
 
     # Setup common overlay flags
-    defaultOverlayFlags(ConfigFlags, detectors)
+    defaultOverlayFlags(ConfigFlags)
 
-    from OverlayConfiguration.OverlaySteering import setupOverlayDetectorFlags
-    setupOverlayDetectorFlags(ConfigFlags, detectors)
+    # Setup detector flags
+    if detectors:
+        from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
+        setupDetectorsFromList(ConfigFlags, detectors)
 
     # Pre-include
     processPreInclude(runArgs, ConfigFlags)

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from AthenaConfiguration.AutoConfigFlags import DetDescrInfo
@@ -131,9 +131,10 @@ def createDetectorConfigFlags():
     dcf.addFlag('Detector.EnableHGTD', False)  # TODO: needs specific folders
 
     # Calorimeters
-    dcf.addFlag('Detector.EnableLAr',  True)  # Add separate em HEC and FCAL flags?
-    dcf.addFlag('Detector.EnableTile', True)
-    dcf.addFlag('Detector.EnableCalo', lambda prevFlags : (prevFlags.Detector.EnableLAr or prevFlags.Detector.EnableTile))
+    dcf.addFlag('Detector.EnableLAr',    True)  # Add separate em HEC and FCAL flags?
+    dcf.addFlag('Detector.EnableTile',   True)
+    dcf.addFlag('Detector.EnableL1Calo', lambda prevFlags : (prevFlags.Detector.EnableLAr or prevFlags.Detector.EnableTile))
+    dcf.addFlag('Detector.EnableCalo',   lambda prevFlags : (prevFlags.Detector.EnableLAr or prevFlags.Detector.EnableTile))
 
     # Muon Spectrometer
     dcf.addFlag('Detector.EnableCSC',  lambda prevFlags : DetDescrInfo(prevFlags.GeoModel.AtlasVersion)['Muon']['HasCSC'])
@@ -200,68 +201,6 @@ def createDetectorConfigFlags():
     dcf.addFlag('Detector.Simulate',      lambda prevFlags : (prevFlags.Detector.SimulateBpipe or prevFlags.Detector.SimulateID or
                                                               prevFlags.Detector.SimulateCalo or prevFlags.Detector.SimulateMuon or
                                                               prevFlags.Detector.SimulateForward or prevFlags.Detector.SimulateCavern))
-
-    #Detector.Digitize
-    dcf.addFlag('Detector.DigitizeBCM',   False)
-    dcf.addFlag('Detector.DigitizeDBM',   False)
-    dcf.addFlag('Detector.DigitizePixel', False)
-    dcf.addFlag('Detector.DigitizeSCT',   False)
-    dcf.addFlag('Detector.DigitizeTRT',   False) # Set default according to prevFlags.GeoModel.Run?
-    dcf.addFlag('Detector.DigitizeID',    lambda prevFlags : (prevFlags.Detector.DigitizeBCM or prevFlags.Detector.DigitizeDBM or
-                                                              prevFlags.Detector.DigitizePixel or prevFlags.Detector.DigitizeSCT or
-                                                              prevFlags.Detector.DigitizeTRT))
-    
-    dcf.addFlag('Detector.DigitizeBCMPrime',   False)
-    dcf.addFlag('Detector.DigitizeITkPixel',   False)
-    dcf.addFlag('Detector.DigitizeITkStrip',   False)
-    dcf.addFlag('Detector.DigitizeITk',    lambda prevFlags : (prevFlags.Detector.DigitizeBCMPrime or prevFlags.Detector.DigitizeITkPixel or prevFlags.Detector.DigitizeITkStrip))
-
-    dcf.addFlag('Detector.DigitizeLAr',   False) # Add separate em HEC and FCAL flags?
-    dcf.addFlag('Detector.DigitizeTile',  False)
-    dcf.addFlag('Detector.DigitizeCalo',  lambda prevFlags : (prevFlags.Detector.DigitizeLAr or prevFlags.Detector.DigitizeTile))
-    dcf.addFlag('Detector.DigitizeL1Calo',False)
-    dcf.addFlag('Detector.DigitizeCSC',   False)
-    dcf.addFlag('Detector.DigitizeMDT',   False)
-    dcf.addFlag('Detector.DigitizeRPC',   False)
-    dcf.addFlag('Detector.DigitizeTGC',   False)
-    dcf.addFlag('Detector.DigitizesTGC',  False) # Set default according to prevFlags.GeoModel.Run?
-    dcf.addFlag('Detector.DigitizeMM',    False) # Set default according to prevFlags.GeoModel.Run?
-    #Forward Detector digitization not supported yet
-    dcf.addFlag('Detector.DigitizeMuon',  lambda prevFlags : (prevFlags.Detector.DigitizeCSC or prevFlags.Detector.DigitizeMDT or
-                                                              prevFlags.Detector.DigitizeRPC or prevFlags.Detector.DigitizeTGC or
-                                                              prevFlags.Detector.DigitizesTGC or prevFlags.Detector.DigitizeMM))
-    dcf.addFlag('Detector.Digitize',      lambda prevFlags : (prevFlags.Detector.DigitizeID or prevFlags.Detector.DigitizeCalo or prevFlags.Detector.DigitizeMuon))
-
-    #Detector.Overlay
-    dcf.addFlag('Detector.OverlayBCM',   False)
-    dcf.addFlag('Detector.OverlayDBM',   False)
-    dcf.addFlag('Detector.OverlayPixel', False)
-    dcf.addFlag('Detector.OverlaySCT',   False)
-    dcf.addFlag('Detector.OverlayTRT',   False) # Set default according to prevFlags.GeoModel.Run?
-    dcf.addFlag('Detector.OverlayID',    lambda prevFlags : (prevFlags.Detector.OverlayBCM or prevFlags.Detector.OverlayDBM or
-                                                              prevFlags.Detector.OverlayPixel or prevFlags.Detector.OverlaySCT or
-                                                              prevFlags.Detector.OverlayTRT))
-    
-    dcf.addFlag('Detector.OverlayBCMPrime',   False)
-    dcf.addFlag('Detector.OverlayITkPixel',   False)
-    dcf.addFlag('Detector.OverlayITkStrip',   False)
-    dcf.addFlag('Detector.OverlayITk',    lambda prevFlags : (prevFlags.Detector.OverlayBCMPrime or prevFlags.Detector.OverlayITkPixel or prevFlags.Detector.OverlayITkStrip))
-
-    dcf.addFlag('Detector.OverlayLAr',   False) # Add separate em HEC and FCAL flags?
-    dcf.addFlag('Detector.OverlayTile',  False)
-    dcf.addFlag('Detector.OverlayCalo',  lambda prevFlags : (prevFlags.Detector.OverlayLAr or prevFlags.Detector.OverlayTile))
-    dcf.addFlag('Detector.OverlayL1Calo',False)
-    dcf.addFlag('Detector.OverlayCSC',   False)
-    dcf.addFlag('Detector.OverlayMDT',   False)
-    dcf.addFlag('Detector.OverlayRPC',   False)
-    dcf.addFlag('Detector.OverlayTGC',   False)
-    dcf.addFlag('Detector.OverlaysTGC',  False) # Set default according to prevFlags.GeoModel.Run?
-    dcf.addFlag('Detector.OverlayMM',    False) # Set default according to prevFlags.GeoModel.Run?
-    #Forward Detector Overlay not supported yet
-    dcf.addFlag('Detector.OverlayMuon',  lambda prevFlags : (prevFlags.Detector.OverlayCSC or prevFlags.Detector.OverlayMDT or
-                                                             prevFlags.Detector.OverlayRPC or prevFlags.Detector.OverlayTGC or
-                                                             prevFlags.Detector.OverlaysTGC or prevFlags.Detector.OverlayMM))
-    dcf.addFlag('Detector.Overlay',      lambda prevFlags : (prevFlags.Detector.OverlayID or prevFlags.Detector.OverlayCalo or prevFlags.Detector.OverlayMuon))
 
     dcf.addFlag('Detector.RecoBCM',   False)
     dcf.addFlag('Detector.RecoIBL', lambda prevFlags : (prevFlags.Detector.RecoPixel and prevFlags.GeoModel.Run in ["RUN2", "RUN3"])) # TODO Review if a separate RecoIBL flag is really required here
