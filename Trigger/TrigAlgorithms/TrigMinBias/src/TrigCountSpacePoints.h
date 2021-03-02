@@ -2,8 +2,8 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGMINBIAS_TRIGCOUNTSPACEPOINTSMT_H
-#define TRIGMINBIAS_TRIGCOUNTSPACEPOINTSMT_H
+#ifndef TRIGMINBIAS_TRIGCOUNTSPACEPOINTS_H
+#define TRIGMINBIAS_TRIGCOUNTSPACEPOINTS_H
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "TrkSpacePoint/SpacePointContainer.h"
@@ -15,10 +15,10 @@
 
 #include <string>
 
-class TrigCountSpacePointsMT : public AthReentrantAlgorithm
+class TrigCountSpacePoints : public AthReentrantAlgorithm
 {
 public:
-  TrigCountSpacePointsMT(const std::string &name, ISvcLocator *pSvcLocator);
+  TrigCountSpacePoints(const std::string &name, ISvcLocator *pSvcLocator);
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute(const EventContext &context) const override;
@@ -50,4 +50,4 @@ private:
   ToolHandle<GenericMonitoringTool> m_monTool{this, "MonTool", "", "Monitoring tool"};
 };
 
-#endif // TRIGMINBIAS_TRIGCOUNTSPACEPOINTSMT_H
+#endif // TRIGMINBIAS_TRIGCOUNTSPACEPOINTS_H

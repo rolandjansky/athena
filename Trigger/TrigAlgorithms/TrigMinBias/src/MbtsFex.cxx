@@ -1,19 +1,19 @@
 /*
 Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-#include "MbtsFexMT.h"
+#include "MbtsFex.h"
 
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "TileEvent/TileCellCollection.h"
 #include "TileEvent/TileCell.h"
 
-MbtsFexMT::MbtsFexMT(const std::string& name, ISvcLocator* pSvcLocator):
+MbtsFex::MbtsFex(const std::string& name, ISvcLocator* pSvcLocator):
 AthReentrantAlgorithm(name, pSvcLocator)
 {
 
 }
 
-StatusCode MbtsFexMT::initialize()
+StatusCode MbtsFex::initialize()
 {
   ATH_CHECK( m_emScaleKey.initialize() );
   ATH_CHECK( m_badChannelsKey.initialize() );
@@ -25,7 +25,7 @@ StatusCode MbtsFexMT::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode MbtsFexMT::execute(const EventContext& context) const
+StatusCode MbtsFex::execute(const EventContext& context) const
 {
 
   TileCellCollection mbtsContainer (SG::VIEW_ELEMENTS); // testing

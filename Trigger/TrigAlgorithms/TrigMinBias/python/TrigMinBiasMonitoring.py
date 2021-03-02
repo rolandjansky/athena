@@ -23,7 +23,7 @@ def SpCountMonitoring():
     return monTool
 
 
-def MbtsFexMTMonitoring():
+def MbtsFexMonitoring():
 
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
     monTool = GenericMonitoringTool('MonTool')
@@ -38,8 +38,8 @@ def TrackCountMonitoring():
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
     monTool = GenericMonitoringTool('MonTool')
     monTool.defineHistogram('ntrks', path='EXPERT', type='TH1I', title='ntrks', xbins=100, xmin=-0.5, xmax=4999.5)
-    from TrigMinBias.TrigMinBiasConf import TrackCountHypoAlgMT
-    alg=TrackCountHypoAlgMT()
+    from TrigMinBias.TrigMinBiasConf import TrackCountHypoAlg
+    alg=TrackCountHypoAlg()
     for i in range(len(alg.minPt)):
         monTool.defineHistogram('countsForSelection{}'.format(i),
                                 path='EXPERT', type='TH1I', title='counts for min pT and max z0 cut',

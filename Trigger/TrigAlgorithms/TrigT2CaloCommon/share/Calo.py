@@ -46,8 +46,8 @@ if TriggerFlags.doCalo:
      steps+=stepSeq("finalCaloSequence", filterL1RoIsAlg, [ fastCaloSequence ])
 
   if (True):
-    from TrigMinBias.TrigMinBiasConf import MbtsFexMT
-    alg=MbtsFexMT()
+    from TrigMinBias.TrigMinBiasConf import MbtsFex
+    alg=MbtsFex()
     steps += alg
 
 

@@ -1,8 +1,8 @@
 /*
 Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGMINBIAS_SPCOUNTHYPOALGMT_H
-#define TRIGMINBIAS_SPCOUNTHYPOALGMT_H
+#ifndef TRIGMINBIAS_SPCOUNTHYPOALG_H
+#define TRIGMINBIAS_SPCOUNTHYPOALG_H
 
 // Framework includes
 #include "SPCountHypoTool.h"
@@ -13,18 +13,19 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 // STL includes
 #include <string>
 
-class SPCountHypoAlgMT : public ::HypoBase
+class SPCountHypoAlg : public ::HypoBase
 {
 
 public:
-  SPCountHypoAlgMT(const std::string &name, ISvcLocator *pSvcLocator);
+  SPCountHypoAlg(const std::string &name, ISvcLocator *pSvcLocator);
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute(const EventContext &context) const override;
 
 private:
-  SPCountHypoAlgMT();
+  SPCountHypoAlg();
   ToolHandleArray<SPCountHypoTool> m_hypoTools{this, "HypoTools", {}, "Tools that perform actual selection"};
   SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_spacePointsKey{this, "SpacePointsKey", "Undefined"};
 };
-#endif // TRIGMINBIAS_SPCOUNTHYPOALGMT_H
+
+#endif // TRIGMINBIAS_SPCOUNTHYPOALG_H

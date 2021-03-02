@@ -2,8 +2,8 @@
 Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGMINBIAS_MBTS_FEX_MT_H
-#define TRIGMINBIAS_MBTS_FEX_MT_H
+#ifndef TRIGMINBIAS_MBTSFEX_H
+#define TRIGMINBIAS_MBTSFEX_H
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/StatusCode.h"
@@ -20,9 +20,9 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #include "xAODTrigMinBias/TrigT2MbtsBitsAuxContainer.h"
 #include "xAODTrigMinBias/TrigT2MbtsBitsContainer.h"
 
-class MbtsFexMT : public AthReentrantAlgorithm {
+class MbtsFex : public AthReentrantAlgorithm {
 public:
-  MbtsFexMT(const std::string& name, ISvcLocator* pSvcLocator);
+  MbtsFex(const std::string& name, ISvcLocator* pSvcLocator);
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute(const EventContext& context) const override;

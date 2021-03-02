@@ -44,7 +44,7 @@ def TrackCountHypoToolGen(chainDict):
 
 def MinBiasSPSequence():
     spAlgsList = []
-    from TrigMinBias.TrigMinBiasConf import TrigCountSpacePointsMT, SPCountHypoAlgMT
+    from TrigMinBias.TrigMinBiasConf import TrigCountSpacePoints, SPCountHypoAlg
 
     spInputMakerAlg = EventViewCreatorAlgorithm("IM_SPEventViewCreator")
     spInputMakerAlg.ViewFallThrough = True
@@ -73,7 +73,7 @@ def MinBiasSPSequence():
     spAlgsList = idAlgs
 
 
-    spCount = TrigCountSpacePointsMT()
+    spCount = TrigCountSpacePoints()
     spCount.SpacePointsKey = recordable("HLT_SpacePointCounts")
 
     from TrigMinBias.TrigMinBiasMonitoring import SpCountMonitoring
@@ -84,7 +84,7 @@ def MinBiasSPSequence():
     spInputMakerAlg.ViewNodeName = spRecoSeq.name()
 
 
-    spCountHypo =SPCountHypoAlgMT()
+    spCountHypo =SPCountHypoAlg()
     spCountHypo.SpacePointsKey=recordable("HLT_SpacePointCounts")
 
     return MenuSequence(Sequence    = spSequence,
@@ -94,7 +94,7 @@ def MinBiasSPSequence():
 
 
 def MinBiasTrkSequence():
-        from TrigMinBias.TrigMinBiasConf import TrackCountHypoAlgMT
+        from TrigMinBias.TrigMinBiasConf import TrackCountHypoAlg
 
         trkInputMakerAlg = EventViewCreatorAlgorithm("IM_TrkEventViewCreator")
         trkInputMakerAlg.ViewFallThrough = True
@@ -108,7 +108,7 @@ def MinBiasTrkSequence():
         idTrigConfig = getInDetTrigConfig('minBias')
 
         algs,_ = makeInDetPatternRecognition(idTrigConfig, verifier='VDVMinBiasIDTracking')
-        trackCountHypo = TrackCountHypoAlgMT()
+        trackCountHypo = TrackCountHypoAlg()
         trackCountHypo.trackCountKey = recordable("HLT_TrackCount")
         trackCountHypo.tracksKey = recordable("HLT_IDTrack_MinBias_IDTrig")
 
@@ -126,8 +126,8 @@ def MinBiasTrkSequence():
 
 def MinBiasMbtsSequence():
     from TrigMinBias.TrigMinBiasConf import MbtsHypoAlg, MbtsHypoTool
-    from TrigMinBias.MbtsConfig import MbtsFexMTCfg
-    fex = MbtsFexMTCfg(MbtsBitsKey=recordable("HLT_MbtsBitsContainer"))
+    from TrigMinBias.MbtsConfig import MbtsFexCfg
+    fex = MbtsFexCfg(MbtsBitsKey=recordable("HLT_MbtsBitsContainer"))
     MbtsRecoSeq = parOR("MbtsRecoSeq", [fex])
 
     from DecisionHandling.DecisionHandlingConf import InputMakerForRoI, ViewCreatorInitialROITool
