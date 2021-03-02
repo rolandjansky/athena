@@ -412,7 +412,6 @@ class TriggerConfigGetter(Configured):
             log.info("     /TRIGGER/%s", f)
             conddb.addFolderWithTag(TrigCoolDbConnection, "/TRIGGER/%s" % f, "HEAD")
 
-
     def setupxAODWriting( self ):
         """
         Method setting up the writing of the ROOT-readable trigger configuration
@@ -430,71 +429,117 @@ class TriggerConfigGetter(Configured):
 
         # Add the algorithm creating the trigger configuration metadata for
         # the output:
-        try: 
-            writeTriggerMenu = True
-            writeMenuJSON = False
-            from AthenaConfiguration.AllConfigFlags import ConfigFlags
-            if ConfigFlags.Trigger.EDMVersion <= 2:
-                from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriter
-                topAlgs += TrigConf__xAODMenuWriter( OverwriteEventObj = True )
-            else:
+        writeTriggerMenu = True
+        writeMenuJSON = False
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        if ConfigFlags.Trigger.EDMVersion <= 2:
+            if ConfigFlags.Trigger.doEDMVersionConversion:
+                # also save the menu in JSON format
+                from RecExConfig.AutoConfiguration  import GetRunNumber, GetLBNumber
+                dbKeys = fetchRun3ConfigFiles(GetRunNumber(), GetLBNumber())
+
+                from TrigConfigSvc.TrigConfigSvcConf import TrigConf__LVL1ConfigSvc, TrigConf__HLTConfigSvc, TrigConf__HLTPrescaleCondAlg, TrigConf__L1PrescaleCondAlg
+                from AthenaCommon.AlgSequence import AthSequencer
+                condSeq = AthSequencer ('AthCondSeq')
+                from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+                from AthenaCommon.AppMgr import theApp
+
+                l1ConfigSvc = TrigConf__LVL1ConfigSvc("LVL1ConfigSvcRun3", InputType="file", JsonFileName="L1Menu.json", SMK=dbKeys["SMK"], JsonFileNameBGS="BunchGroups.json", BGSK=dbKeys["BGSK"])
+                svcMgr += l1ConfigSvc
+                theApp.CreateSvc += [ l1ConfigSvc.getFullName() ]
+
+                condSeq += TrigConf__L1PrescaleCondAlg("L1PrescaleCondAlgRun3", Source="FILE", L1Psk=dbKeys["L1PSK"], Filename="L1PrescalesSet.json")
+                hltConfigSvc = TrigConf__HLTConfigSvc("HLTConfigSvcRun3", InputType="file", SMK=dbKeys["SMK"], JsonFileName="HLTMenu.json")
+                svcMgr += hltConfigSvc
+                theApp.CreateSvc += [ hltConfigSvc.getFullName() ]
+                condSeq += TrigConf__HLTPrescaleCondAlg("HLTPrescaleCondAlgRun3", Source="FILE", HLTPsk=dbKeys["HLTPSK"], Filename="HLTPrescalesSet.json")
+
+
                 from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriterMT, TrigConf__KeyWriterTool
                 menuwriter = TrigConf__xAODMenuWriterMT()
                 menuwriter.IsHLTJSONConfig = True
-                menuwriter.IsL1JSONConfig = ConfigFlags.Trigger.readLVL1FromJSON
+                menuwriter.IsL1JSONConfig = True
                 menuwriter.WritexAODTriggerMenu = True # This should be removed in the future
                 menuwriter.WritexAODTriggerMenuJson = True
                 menuwriter.KeyWriterTool = TrigConf__KeyWriterTool('KeyWriterToolOffline')
+                menuwriter.LVL1ConfigSvc = l1ConfigSvc
+                menuwriter.HLTConfigSvc = hltConfigSvc
                 writeTriggerMenu = menuwriter.WritexAODTriggerMenu
                 writeMenuJSON = menuwriter.WritexAODTriggerMenuJson
                 topAlgs += menuwriter
-                # Schedule also the prescale conditions algs
-                from AthenaCommon.Configurable import Configurable
-                Configurable.configurableRun3Behavior += 1
-                from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, appendCAtoAthena
-                from TrigConfigSvc.TrigConfigSvcCfg import  L1PrescaleCondAlgCfg, HLTPrescaleCondAlgCfg
-                acc = ComponentAccumulator()
-                acc.merge( L1PrescaleCondAlgCfg( ConfigFlags ) )
-                acc.merge( HLTPrescaleCondAlgCfg( ConfigFlags ) )
-                appendCAtoAthena( acc )
-                Configurable.configurableRun3Behavior -= 1
+            else:
+                from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriter
+                topAlgs += TrigConf__xAODMenuWriter( OverwriteEventObj = True )
+
+        else:
+            from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriterMT, TrigConf__KeyWriterTool
+            menuwriter = TrigConf__xAODMenuWriterMT()
+            menuwriter.IsHLTJSONConfig = True
+            menuwriter.IsL1JSONConfig = ConfigFlags.Trigger.readLVL1FromJSON
+            menuwriter.WritexAODTriggerMenu = True # This should be removed in the future
+            menuwriter.WritexAODTriggerMenuJson = True
+            menuwriter.KeyWriterTool = TrigConf__KeyWriterTool('KeyWriterToolOffline')
+            writeTriggerMenu = menuwriter.WritexAODTriggerMenu
+            writeMenuJSON = menuwriter.WritexAODTriggerMenuJson
+            topAlgs += menuwriter
+            # Schedule also the prescale conditions algs
+            from AthenaCommon.Configurable import Configurable
+            Configurable.configurableRun3Behavior += 1
+            from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, appendCAtoAthena
+            from TrigConfigSvc.TrigConfigSvcCfg import  L1PrescaleCondAlgCfg, HLTPrescaleCondAlgCfg
+            acc = ComponentAccumulator()
+            acc.merge( L1PrescaleCondAlgCfg( ConfigFlags ) )
+            acc.merge( HLTPrescaleCondAlgCfg( ConfigFlags ) )
+            appendCAtoAthena( acc )
+            Configurable.configurableRun3Behavior -= 1
 
 
-            # Set up the metadata for the output ESD and AOD:
-            from RecExConfig.ObjKeyStore import objKeyStore
+          # Set up the metadata for the output ESD and AOD:
+        from RecExConfig.ObjKeyStore import objKeyStore
 
-            # The metadata objects to add to the output:
-            if writeTriggerMenu:
-                metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",
-                                  "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
-                objKeyStore.addManyTypesMetaData( metadataItems )
+         # The metadata objects to add to the output:
+        if writeTriggerMenu:
+            metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",
+                              "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
+            objKeyStore.addManyTypesMetaData( metadataItems )
 
-            if writeMenuJSON:
-                metadataItems = [ "xAOD::TriggerMenuJsonContainer#MenuJSON_HLT",
-                                  "xAOD::TriggerMenuJsonAuxContainer#MenuJSON_HLTAux.",
-                                  "xAOD::TriggerMenuJsonContainer#MenuJSON_L1",
-                                  "xAOD::TriggerMenuJsonAuxContainer#MenuJSON_L1Aux.",
-                                  "xAOD::TriggerMenuJsonContainer#MenuJSON_HLTPS",
-                                  "xAOD::TriggerMenuJsonAuxContainer#MenuJSON_HLTPSAux.",
-                                  "xAOD::TriggerMenuJsonContainer#MenuJSON_L1PS",
-                                  "xAOD::TriggerMenuJsonAuxContainer#MenuJSON_L1PSAux.",
-                                  # "xAOD::TriggerMenuJsonContainer#MenuJSON_BG", // TODO
-                                  # "xAOD::TriggerMenuJsonAuxContainer#MenuJSON_BGAux.", // TODO
-                                ]
-                objKeyStore.addManyTypesMetaData( metadataItems )
+        if writeMenuJSON:
+            metadataItems = [ "xAOD::TriggerMenuJsonContainer#MenuJSON_HLT",
+                              "xAOD::TriggerMenuJsonAuxContainer#MenuJSON_HLTAux.",
+                              "xAOD::TriggerMenuJsonContainer#MenuJSON_L1",
+                              "xAOD::TriggerMenuJsonAuxContainer#MenuJSON_L1Aux.",
+                              "xAOD::TriggerMenuJsonContainer#MenuJSON_HLTPS",
+                              "xAOD::TriggerMenuJsonAuxContainer#MenuJSON_HLTPSAux.",
+                              "xAOD::TriggerMenuJsonContainer#MenuJSON_L1PS",
+                              "xAOD::TriggerMenuJsonAuxContainer#MenuJSON_L1PSAux.",
+                              # "xAOD::TriggerMenuJsonContainer#MenuJSON_BG", // TODO
+                              # "xAOD::TriggerMenuJsonAuxContainer#MenuJSON_BGAux.", // TODO
+                            ]
+            objKeyStore.addManyTypesMetaData( metadataItems )
 
-            if ConfigFlags.Trigger.EDMVersion >= 3:
-                from TrigEDMConfig.TriggerEDMRun3 import recordable
-                from AthenaConfiguration.ComponentFactory import CompFactory
-                from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
+        if ConfigFlags.Trigger.EDMVersion >= 3:
+            from TrigEDMConfig.TriggerEDMRun3 import recordable
+            from AthenaConfiguration.ComponentFactory import CompFactory
+            from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 
-                enhancedBiasWeightCompAlg = CompFactory.EnhancedBiasWeightCompAlg()
-                enhancedBiasWeightCompAlg.EBWeight = recordable("HLT_EBWeight")
+            enhancedBiasWeightCompAlg = CompFactory.EnhancedBiasWeightCompAlg()
+            enhancedBiasWeightCompAlg.EBWeight = recordable("HLT_EBWeight")
 
-                topAlgs += conf2toConfigurable( enhancedBiasWeightCompAlg )
+            topAlgs += conf2toConfigurable( enhancedBiasWeightCompAlg )
 
-        except ImportError: # don't want to branch in rel 18
-            pass
 
-        # Return gracefully:
-        return
+def fetchRun3ConfigFiles(run, lb):
+    import subprocess
+    from TrigConfigSvc.TrigConfigSvcCfg import getTrigConfFromCool
+    triggerDBKeys = getTrigConfFromCool(run, lb)
+    filesFetchStatus = subprocess.run("TrigConfReadWrite -i TRIGGERDB {SMK},{L1PSK},{HLTPSK},{BGSK} -o r3json > Run3ConfigFetchJSONFiles.log".format(**triggerDBKeys), shell=True)
+    assert filesFetchStatus.returncode == 0, "TrigConfReadWrite failed to fetch JSON files"
+    return triggerDBKeys
+    
+
+
+if __name__ == "__main__":
+    keys = fetchRun3ConfigFiles(360026, 151)
+    for k,v in {"SMK" : 2749, "L1PSK" : 23557, "HLTPSK" : 17824, "BGSK" : 2181}.items():
+        assert  k in keys, "Missing key {}".format(k)
+        assert v == keys[k], "Wrong value {}".format(v)
