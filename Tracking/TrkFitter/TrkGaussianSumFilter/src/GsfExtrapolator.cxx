@@ -791,7 +791,7 @@ Trk::GsfExtrapolator::extrapolateToVolumeBoundary(
     if (navigationPropagatorIndex >= 1) {
       delete navigationParameters;
     }
-    navigationParameters = nextNavigationCell.parametersOnBoundary;
+    navigationParameters = nextNavigationCell.parametersOnBoundary.release();
 
     ++navigationPropagatorIndex;
 
@@ -822,11 +822,10 @@ Trk::GsfExtrapolator::extrapolateToVolumeBoundary(
     // If so, apply material effects update.
 
     // Get layer associated with boundary surface.
-    const Trk::TrackParameters* paramsAtBoundary =
-      nextNavigationCell.parametersOnBoundary;
     const Trk::Layer* layerAtBoundary =
-      (paramsAtBoundary)
-        ? (paramsAtBoundary->associatedSurface()).materialLayer()
+      (nextNavigationCell.parametersOnBoundary)
+        ? (nextNavigationCell.parametersOnBoundary->associatedSurface())
+            .materialLayer()
         : nullptr;
     const Trk::TrackParameters* matUpdatedParameters = nullptr;
     Trk::MultiComponentState matUpdatedState{};

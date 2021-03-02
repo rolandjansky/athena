@@ -36,16 +36,17 @@ class DetachedTrackingVolume;
 /**useful struct for a single navigation cell*/
 struct NavigationCell
 {
-
+  //Not Ownig ptr to volume from geometry
   const TrackingVolume* nextVolume;
-  const TrackParameters* parametersOnBoundary;
+  //Owning ptr for parameters
+  std::unique_ptr<TrackParameters> parametersOnBoundary;
   BoundarySurfaceFace exitFace;
   /** Constructor */
   NavigationCell(const TrackingVolume* nVol,
-                 const TrackParameters* lPar,
+                 std::unique_ptr<TrackParameters> lPar,
                  BoundarySurfaceFace face = undefinedFace)
     : nextVolume(nVol)
-    , parametersOnBoundary(lPar)
+    , parametersOnBoundary(std::move(lPar))
     , exitFace(face)
   {}
 };
