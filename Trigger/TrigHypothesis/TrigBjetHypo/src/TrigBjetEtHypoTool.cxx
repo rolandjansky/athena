@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ************************************************
@@ -12,7 +12,7 @@
 // 
 // ************************************************
 
-#include "src/TrigBjetEtHypoTool.h"
+#include "TrigBjetEtHypoTool.h"
 
 TrigBjetEtHypoTool::TrigBjetEtHypoTool( const std::string& type, 
 					const std::string& name, 
