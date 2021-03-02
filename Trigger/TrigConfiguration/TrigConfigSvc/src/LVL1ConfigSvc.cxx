@@ -107,6 +107,7 @@ TrigConf::LVL1ConfigSvc::loadRun3StyleMenu() {
       TrigConf::TrigDBMenuLoader dbmenuloader(m_dbConnection);
       dbmenuloader.setLevel(TrigConf::MSGTC::WARNING);
       if( dbmenuloader.loadL1Menu( m_smk, *l1menu ) ) {
+         l1menu->setSMK(m_smk);
          ATH_MSG_INFO( "Loaded L1 menu from DB " << m_dbConnection << " for SMK " << m_smk.value() );
       } else {
          ATH_MSG_WARNING( "Failed loading L1 menu from DB for SMK " << m_smk.value());
@@ -120,6 +121,7 @@ TrigConf::LVL1ConfigSvc::loadRun3StyleMenu() {
          dbbgsloader.setLevel(TrigConf::MSGTC::WARNING);
          if (dbbgsloader.loadBunchGroupSet(m_bgsk, *l1bgset))
          {
+            l1bgset->setBGSK(m_bgsk);
             ATH_MSG_INFO("Loaded L1 bunchgroups set from DB " << m_dbConnection << " for BGSK " << m_bgsk.value());
          }
          else

@@ -96,6 +96,7 @@ HLTConfigSvc::writeConfigToDetectorStore() {
       fileLoader.setLevel(TrigConf::MSGTC::WARNING);
 
       if( fileLoader.loadFile( m_hltFileName, *hltmenu ) ) {
+         hltmenu->setSMK(m_smk);
          ATH_MSG_INFO( "Loaded HLT menu file " << m_hltFileName.value() );
       } else {
          ATH_MSG_WARNING( "Failed loading HLT menu file " << m_hltFileName.value());

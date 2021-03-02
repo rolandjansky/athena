@@ -57,7 +57,7 @@ namespace TrigConf {
       // properties
       Gaudi::Property< std::string > m_configSource { this, "Source", "FILE", "Configuration source, can be 'FILE', 'DB', or 'COOL'" };
       Gaudi::Property< std::string > m_dbConnection { this, "TriggerDB", "", "DB connection alias or 'JOSVC', used when property Source set to 'DB' or set to 'COOL'." };
-      Gaudi::Property< unsigned int > m_psk { this, "L1Psk", 0, "L1 prescale key, used when property 'Source' set to 'DB'" };
+      Gaudi::Property< unsigned int > m_psk { this, "L1Psk", 0, "L1 prescale key, used when property 'Source' set to 'DB' or 'FILE'" };
       Gaudi::Property< std::string > m_filename { this, "Filename", "", "L1 prescale json file, used when property 'Source' set to 'FILE'" };
 
    };
