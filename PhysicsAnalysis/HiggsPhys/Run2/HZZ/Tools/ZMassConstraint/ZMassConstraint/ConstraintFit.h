@@ -117,6 +117,9 @@ namespace ZMassConstraint
         double   m_conWidth;
         double   m_resolution;
         bool     m_ignoreInputChecks;
+        std::string m_decorationName;
+        bool     m_doCalibCov;
+        int      m_stepForLikelihoodFit;
 
         // Calibration tools
         ToolHandle<CP::IEgammaCalibrationAndSmearingTool>  m_energyRescaler; // electron resolution
