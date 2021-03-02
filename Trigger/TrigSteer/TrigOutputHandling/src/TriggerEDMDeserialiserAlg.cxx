@@ -131,6 +131,8 @@ namespace PayloadHelpers {
   }
 }
 
+std::unique_ptr<TList> TriggerEDMDeserialiserAlg::s_streamerInfoList{};
+std::mutex TriggerEDMDeserialiserAlg::s_mutex;
 
 TriggerEDMDeserialiserAlg::TriggerEDMDeserialiserAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthReentrantAlgorithm(name, pSvcLocator) {}
@@ -340,14 +342,20 @@ StatusCode TriggerEDMDeserialiserAlg::checkSanity( const std::string& transientT
 }
 
 
-
 void TriggerEDMDeserialiserAlg::add_bs_streamerinfos(){
+  std::lock_guard<std::mutex> lock(s_mutex);
+
+  if (s_streamerInfoList) {
+    return;
+  }
+
   std::string extStreamerInfos = "bs-streamerinfos.root";
   std::string extFilePath = PathResolver::find_file(extStreamerInfos, "DATAPATH");
   ATH_MSG_DEBUG( "Using " << extFilePath );
   TFile extFile(extFilePath.c_str());
-  m_streamerInfoList = std::unique_ptr<TList>(extFile.GetStreamerInfoList());
-  for(const auto&& infObj: *m_streamerInfoList) {
+
+  s_streamerInfoList = std::unique_ptr<TList>(extFile.GetStreamerInfoList());
+  for(const auto&& infObj: *s_streamerInfoList) {
     TString t_name=infObj->GetName();
     if (t_name.BeginsWith("listOfRules")){
       ATH_MSG_WARNING( "Could not re-load  class " << t_name );
