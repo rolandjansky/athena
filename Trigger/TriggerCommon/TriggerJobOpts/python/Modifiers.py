@@ -607,6 +607,10 @@ class rewriteLVL1(_modifier):
             # online
             from AthenaCommon.AppMgr import ServiceMgr as svcMgr
             svcMgr.HltEventLoopMgr.RewriteLVL1 = True
+            if ConfigFlags.Trigger.enableL1Phase1:
+                svcMgr.HltEventLoopMgr.L1TriggerResultRHKey = 'L1TriggerResult'
+            if ConfigFlags.Trigger.enableL1CaloLegacy or not ConfigFlags.Trigger.enableL1Phase1:
+                svcMgr.HltEventLoopMgr.RoIBResultRHKey = 'RoIBResult'
         else:
             # offline
             from AthenaCommon.AlgSequence import AthSequencer
@@ -614,13 +618,11 @@ class rewriteLVL1(_modifier):
             seq = AthSequencer('AthOutSeq')
             streamBS = findAlgorithm(seq, 'BSOutputStreamAlg')
             if ConfigFlags.Trigger.enableL1Phase1:
-                out_type = 'xAOD::TrigCompositeContainer'
-                out_name = 'L1TriggerResult'
-            else:
-                out_type = 'ROIB::RoIBResult'
-                out_name = 'RoIBResult'
-            streamBS.ExtraInputs += [ (out_type, 'StoreGateSvc+'+out_name) ]
-            streamBS.ItemList += [ out_type+'#'+out_name ]
+                streamBS.ExtraInputs += [ ('xAOD::TrigCompositeContainer', 'StoreGateSvc+L1TriggerResult') ]
+                streamBS.ItemList += [ 'xAOD::TrigCompositeContainer#L1TriggerResult' ]
+            if ConfigFlags.Trigger.enableL1CaloLegacy or not ConfigFlags.Trigger.enableL1Phase1:
+                streamBS.ExtraInputs += [ ('ROIB::RoIBResult', 'StoreGateSvc+RoIBResult') ]
+                streamBS.ItemList += [ 'ROIB::RoIBResult#RoIBResult' ]
 
 
 class writeBS(_modifier):

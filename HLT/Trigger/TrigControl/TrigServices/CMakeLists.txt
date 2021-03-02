@@ -22,7 +22,8 @@ atlas_add_component( TrigServices
                      ${TDAQ-COMMON_LIBRARIES} ${TDAQ_LIBRARIES} ${CORAL_LIBRARIES}
                      AthenaBaseComps AthenaInterprocess AthenaKernel AthenaMonitoringKernelLib AthenaPoolUtilities
                      ByteStreamCnvSvcBaseLib ByteStreamData EventInfoUtils GaudiKernel RDBAccessSvcLib StoreGateLib TrigKernel
-                     TrigDataAccessMonitoringLib TrigOutputHandlingLib TrigSteeringEvent TrigSteerMonitorLib xAODEventInfo xAODTrigger )
+                     TrigDataAccessMonitoringLib TrigOutputHandlingLib TrigSteeringEvent TrigSteerMonitorLib xAODEventInfo
+                     xAODTrigger TrigT1Result )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py
