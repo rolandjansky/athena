@@ -56,7 +56,6 @@ def generateMonitoringJSON(menuName, chainDicts, fileName):
                     summaryDict['signatures'][monSignature][chain_name].append(monGroup)
 
     # # then writing the summary to a file is as simple as:
-    summaryFileName = "Summary_"+fileName
-    __log.info( "[HLTMonitoring::generateMonitoringJSON] Writing Summary of HLT Monitoring JSON to %s",  summaryFileName)
-    with open(summaryFileName, 'w') as outfile:
+    __log.info( "[HLTMonitoring::generateMonitoringJSON] Writing Summary of HLT Monitoring JSON to %s",  fileName)
+    with open(fileName, 'w') as outfile:
         json.dump(summaryDict, outfile, indent = 4, sort_keys=False )
