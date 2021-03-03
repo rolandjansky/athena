@@ -28,7 +28,7 @@
 
 // SCT_Digitization tools
 #include "SCT_Digitization/ISCT_FrontEnd.h"
-#include "SCT_Digitization/ISCT_SurfaceChargesGenerator.h"
+#include "StripDigitization/IStripSurfaceChargesGenerator.h"
 #include "SCT_Digitization/ISCT_RandomDisabledCellGenerator.h"
 
 // C++ Standard Library
@@ -690,15 +690,18 @@ std::unordered_map<int, SiChargedDiodeCollection *> & chargedDiodes) {
 									   phit->getSide())));
 	  ATH_MSG_DEBUG("calling process() for all methods");
 	  
-	  //This doesn't get used anywhere (element pased below), so does this need to be set?
 	  m_sct_SurfaceChargesGenerator->setDetectorElement(sielement);
+	  
 	  if(!motherDesign) {
 	    //should only be one diodecollection here, so just use it
 	    if(chargedDiodes.size()>1) ATH_MSG_WARNING("More DiodesCollections("<<chargedDiodes.size()<<
 						       ") than expected (1). Please check your configuration!");
 	    m_sct_SurfaceChargesGenerator->process(phit,SiDigitizationSurfaceChargeInserter(sielement,chargedDiodes[0]));
 	  }
-	  else m_sct_SurfaceChargesGenerator->process(phit,MultiElementChargeInserter(chargedDiodes,motherDesign));
+	  else {
+	    m_sct_SurfaceChargesGenerator->setMotherDesign(motherDesign);
+	    m_sct_SurfaceChargesGenerator->process(phit,MultiElementChargeInserter(chargedDiodes,motherDesign));
+	  }
 	  ATH_MSG_DEBUG("charges filled!");
         }
     }

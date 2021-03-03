@@ -341,10 +341,11 @@ float StripSurfaceChargesGenerator::surfaceDriftTime(float ysurf) const {
 // AthAlgorithm
 // -------------------------------------------------------------------------------------------
 void StripSurfaceChargesGenerator::process(const SiDetectorElement* element,
+					   const SCT_ModuleSideDesign * motherDesign,
                                            const TimedHitPtr<SiHit>& phit,
                                            const ISiSurfaceChargesInserter& inserter, CLHEP::HepRandomEngine * rndmEngine) const {
   ATH_MSG_VERBOSE("SCT_SurfaceChargesGenerator::process starts");
-  processSiHit(element, *phit, inserter, phit.eventTime(), phit.pileupType(), rndmEngine);
+  processSiHit(element, motherDesign, *phit, inserter, phit.eventTime(), phit.pileupType(), rndmEngine);
   return;
 }
 
@@ -353,11 +354,17 @@ void StripSurfaceChargesGenerator::process(const SiDetectorElement* element,
 // and PileUpTool
 // -------------------------------------------------------------------------------------------
 void StripSurfaceChargesGenerator::processSiHit(const SiDetectorElement* element,
+						const SCT_ModuleSideDesign * motherDesign,
                                                 const SiHit& phit,
                                                 const ISiSurfaceChargesInserter& inserter,
                                                 float p_eventTime,
                                                 unsigned short p_pileupType, CLHEP::HepRandomEngine * rndmEngine) const {
-  const SCT_ModuleSideDesign* design{dynamic_cast<const SCT_ModuleSideDesign*>(&(element->design()))};
+  const SCT_ModuleSideDesign* design;
+  if (motherDesign){
+    ATH_MSG_DEBUG("Using Mother Design");
+    design = motherDesign;
+  }
+  else design = dynamic_cast<const SCT_ModuleSideDesign*>(&(element->design()));
   if (design==nullptr) {
     ATH_MSG_ERROR("SCT_SurfaceChargesGenerator::process can not get " << design);
     return;

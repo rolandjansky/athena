@@ -35,7 +35,7 @@ class ComTime;
 class SCT_ID;
 
 class ISCT_FrontEnd;
-class ISCT_SurfaceChargesGenerator;
+class IStripSurfaceChargesGenerator;
 class ISCT_RandomDisabledCellGenerator;
 class ISiSurfaceChargesInserter;
 
@@ -161,8 +161,8 @@ private:
   const SCT_ID*                                      m_detID;                             //!< Handle to the ID helper
   const InDetDD::SCT_DetectorManager*                m_detMgr;
               //!< Handle to Si detector manager
-  ToolHandle<ISCT_FrontEnd>                          m_sct_FrontEnd;                      //!< Handle the Front End Electronic tool
-  ToolHandle<ISCT_SurfaceChargesGenerator>           m_sct_SurfaceChargesGenerator;       //!< Handle the surface chage generator tool
+  ToolHandle<ISCT_FrontEnd>                          m_sct_FrontEnd;                      //!< Handle the Front End Electronic tool      
+  ToolHandle<IStripSurfaceChargesGenerator>           m_sct_SurfaceChargesGenerator;       //!< Handle the surface chage generator tool
   ToolHandle<ISCT_RandomDisabledCellGenerator>       m_sct_RandomDisabledCellGenerator;   //!< Handle the Ampilifier tool for the Front End
 
   std::vector<SiHitCollection*>                      m_hitCollPtrs;

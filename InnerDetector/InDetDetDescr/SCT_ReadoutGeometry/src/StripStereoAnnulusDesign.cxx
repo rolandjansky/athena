@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <stdexcept>
@@ -145,12 +145,15 @@ SiCellId StripStereoAnnulusDesign::cellIdOfPosition(SiLocalPosition const &pos) 
       return SiCellId(); // return an invalid id
     }
 
-    vector<double>::const_iterator endPtr = upper_bound(m_stripStartRadius.begin(), m_stripStartRadius.end(), r);
-    int row = distance(m_stripStartRadius.begin(), endPtr) - 1;
-    // Following should never happen, check is done on r above
-    if (row < 0 || row >= m_nRows) {
-      REPORT_MESSAGE( MSG::DEBUG ) << "Invalid SiLocalPosition, returning invalid SiCellId: bad row = " << row << " for r = " << r << " \n";
-      return SiCellId(); // return an invalid id
+    int row = 0;
+    if(m_nRows>1){ //only do this if we have multiple rows...
+      vector<double>::const_iterator endPtr = upper_bound(m_stripStartRadius.begin(), m_stripStartRadius.end(), r);
+      row = distance(m_stripStartRadius.begin(), endPtr) - 1;
+      // Following should never happen, check is done on r above
+      if (row < 0 || row >= m_nRows) {
+	REPORT_MESSAGE( MSG::DEBUG ) << "Invalid SiLocalPosition, returning invalid SiCellId: bad row = " << row << " for r = " << r << " \n";
+	return SiCellId(); // return an invalid id
+      }
     }
 //
 //    Find the strip

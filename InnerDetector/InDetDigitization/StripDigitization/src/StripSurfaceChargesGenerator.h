@@ -12,7 +12,7 @@
 
 //Inheritance
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "SCT_Digitization/ISCT_SurfaceChargesGenerator.h"
+#include "StripDigitization/IStripSurfaceChargesGenerator.h"
 
 #include "Identifier/IdentifierHash.h"
 #include "InDetConditionsSummaryService/ISiliconConditionsSvc.h"
@@ -49,7 +49,7 @@ namespace CLHEP {
 template <class HIT> class TimedHitPtr;
 
 //class StripSurfaceChargesGenerator : public AthAlgTool, virtual public ISCT_SurfaceChargesGenerator {
-class StripSurfaceChargesGenerator : public extends<AthAlgTool, ISCT_SurfaceChargesGenerator> {
+class StripSurfaceChargesGenerator : public extends<AthAlgTool, IStripSurfaceChargesGenerator> {
 public:
 
   /**  constructor */
@@ -74,14 +74,16 @@ private:
   bool   m_useComTime{false};   //!< Flag to decide the use of cosmics time for timing
   bool   m_cosmicsRun{false};   //!< Flag to set Cosmics Run
   const InDetDD::SiDetectorElement * m_element{nullptr};
+  const InDetDD::SCT_ModuleSideDesign * m_motherDesign{nullptr};
   CLHEP::HepRandomEngine *           m_rndmEngine{nullptr};
   void setDetectorElement(const InDetDD::SiDetectorElement *ele) override {m_element = ele;};
+  void setMotherDesign(const InDetDD::SCT_ModuleSideDesign *mum) override {m_motherDesign = mum;};
   void setCosmicsRun(bool cosmicsRun) override {m_cosmicsRun = cosmicsRun;};
   void setComTimeFlag(bool useComTime) override {m_useComTime = useComTime;};
   void setComTime(float comTime) override {m_comTime = comTime;};
   void setRandomEngine(CLHEP::HepRandomEngine *rndmEngine) override {m_rndmEngine = rndmEngine;};
   void process(const TimedHitPtr<SiHit> & phit, const ISiSurfaceChargesInserter& inserter) const override {
-    process(m_element, phit, inserter, m_rndmEngine);
+    process(m_element, m_motherDesign, phit, inserter, m_rndmEngine);
   };
   void processFromTool(const SiHit*, const ISiSurfaceChargesInserter&,
                        const float, const unsigned short) const override {};
@@ -96,7 +98,9 @@ private:
 
   /** create a list of surface charges from a hit */
   void process(const InDetDD::SiDetectorElement* element, const TimedHitPtr<SiHit>& phit, const ISiSurfaceChargesInserter& inserter, CLHEP::HepRandomEngine * rndmEngine) const;
+  void process(const InDetDD::SiDetectorElement* element, const InDetDD::SCT_ModuleSideDesign* motherDesign, const TimedHitPtr<SiHit>& phit, const ISiSurfaceChargesInserter& inserter, CLHEP::HepRandomEngine * rndmEngine) const;
   void processSiHit(const InDetDD::SiDetectorElement* element, const SiHit& phit, const ISiSurfaceChargesInserter& inserter, float eventTime, unsigned short pileupType, CLHEP::HepRandomEngine * rndmEngine) const;
+  void processSiHit(const InDetDD::SiDetectorElement* element, const InDetDD::SCT_ModuleSideDesign * motherDesign, const SiHit& phit, const ISiSurfaceChargesInserter& inserter, float eventTime, unsigned short pileupType, CLHEP::HepRandomEngine * rndmEngine) const;
 
   // some diagnostics methods are needed here too
   float driftTime(float zhit, const InDetDD::SiDetectorElement* element) const; //!< calculate drift time perpandicular to the surface for a charge at distance zhit from mid gap

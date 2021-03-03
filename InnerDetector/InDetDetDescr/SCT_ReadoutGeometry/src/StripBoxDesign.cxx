@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ReadoutGeometry/StripBoxDesign.h"
@@ -95,10 +95,13 @@ SiCellId StripBoxDesign::cellIdOfPosition(SiLocalPosition const &pos) const {
         return SiCellId(); // return an invalid id
     }
 
-    int row = (int) floor(pos.xEta() / m_length) + m_nRows / 2; 
-    if (row < 0 || row >= m_nRows) {
-
+    int row = 0;
+    if(m_nRows>1){ //only do this if we have multiple rows
+      row = (int) floor(pos.xEta() / m_length) + m_nRows / 2; 
+      if (row < 0 || row >= m_nRows) {
+	
         return SiCellId(); // return an invalid id
+      }
     }
     int strip1D = strip1Dim(strip, row);
 
