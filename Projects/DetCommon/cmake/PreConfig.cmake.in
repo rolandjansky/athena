@@ -1,0 +1,18 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#
+# File taking care of pointing the downstream projects at the right
+# version of LCG.
+#
+
+# Set the version of LCG to use.
+set( LCG_VERSION_POSTFIX "@LCG_VERSION_POSTFIX@" CACHE STRING
+   "Version postfix for the LCG release to use" )
+set( LCG_VERSION_NUMBER @LCG_VERSION_NUMBER@ CACHE STRING
+   "Version number for the LCG release to use" )
+
+# Find LCG.
+if( DetCommon_FIND_QUIETLY )
+   find_package( LCG ${LCG_VERSION_NUMBER} REQUIRED EXACT QUIET )
+else()
+   find_package( LCG ${LCG_VERSION_NUMBER} REQUIRED EXACT )
+endif()
