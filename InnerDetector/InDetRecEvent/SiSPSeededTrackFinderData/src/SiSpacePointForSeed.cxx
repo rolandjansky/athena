@@ -2,6 +2,10 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <cmath>
+
+
+
 #include "SiSPSeededTrackFinderData/SiSpacePointForSeed.h"
 
 #include "InDetPrepRawData/SiCluster.h"
@@ -13,7 +17,7 @@ namespace InDet {
 
   SiSpacePointForSeed::SiSpacePointForSeed ()
   {
-    spacepoint = 0;
+    spacepoint = nullptr;
     m_x     = 0.;
     m_y     = 0.;
     m_z     = 0.;
@@ -26,8 +30,8 @@ namespace InDet {
     m_dzdr  = 0.;
     m_pt    = 0.;
     m_q     = 0.;
-    m_su    = 0 ;
-    m_sn    = 0 ;
+    m_su    = nullptr ;
+    m_sn    = nullptr ;
   }
 
   SiSpacePointForSeed& SiSpacePointForSeed::operator = 
@@ -92,7 +96,7 @@ namespace InDet {
     m_x        = r[0];
     m_y        = r[1];
     m_z        = r[2];
-    m_r        =sqrt(m_x*m_x+m_y*m_y);
+    m_r        =std::sqrt(m_x*m_x+m_y*m_y);
     m_q        = 100000.;
 
     const InDet::SiCluster*           c  = static_cast<const InDet::SiCluster*>(sp->clusterList().first);
@@ -106,7 +110,7 @@ namespace InDet {
       float cov = wid*wid*.08333; if(cov < f22) cov = f22;
       if(de->isBarrel()) {m_covz = 9.*cov; m_covr = .06;}
       else               {m_covr = 9.*cov; m_covz = .06;}
-      m_sn = 0;
+      m_sn = nullptr;
     }
     else                {
 
@@ -134,7 +138,7 @@ namespace InDet {
     m_x        = r[0];
     m_y        = r[1];
     m_z        = r[2];
-    m_r        =sqrt(m_x*m_x+m_y*m_y);
+    m_r        =std::sqrt(m_x*m_x+m_y*m_y);
     m_q        = 100000.;
 
     const InDet::SiCluster*           c  = static_cast<const InDet::SiCluster*>(sp->clusterList().first);
@@ -148,7 +152,7 @@ namespace InDet {
       float cov = wid*wid*.08333; if(cov < f22) cov = f22;
       if(de->isBarrel()) {m_covz = 9.*cov*sc[0]; m_covr = .06;}
       else               {m_covr = 9.*cov*sc[1]; m_covz = .06;}
-      m_sn = 0;
+      m_sn = nullptr;
     }
     else                {
 

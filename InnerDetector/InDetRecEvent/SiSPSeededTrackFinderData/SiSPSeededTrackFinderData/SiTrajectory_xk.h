@@ -105,7 +105,7 @@ namespace InDet{
       bool forwardFilter    ();
       bool backwardSmoother (bool);
       bool isLastPixel      ();
-      const Trk::TrackParameters* firstTrackParameters();
+      Trk::TrackParameters* firstTrackParameters();
       void getClusters(std::list<const InDet::SiCluster*>&);
 
       DataVector<const Trk::TrackStateOnSurface>* convertToTrackStateOnSurface();

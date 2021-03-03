@@ -60,7 +60,7 @@ namespace InDet {
     const Trk::Surface* sur() const {return m_su;}
     const Trk::Surface* sun() const {return m_sn;}
 
-    bool coordinates(float*,float*);
+    bool coordinates(const float*,float*);
 
   private:
     

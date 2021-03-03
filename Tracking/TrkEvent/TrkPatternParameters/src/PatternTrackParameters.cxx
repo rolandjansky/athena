@@ -21,14 +21,17 @@
 // Conversion Trk::PatternTrackParameters to  Trk::TrackParameters
 ///////////////////////////////////////////////////////////////////
 
-const Trk::ParametersBase<5,Trk::Charged>*  Trk::PatternTrackParameters::convert(bool covariance) const
+std::unique_ptr<Trk::ParametersBase<5, Trk::Charged>>
+Trk::PatternTrackParameters::convert(bool covariance) const
 {
   AmgSymMatrix(5)* e = nullptr;
-  if(covariance && m_covariance != nullptr) {
+  if (covariance && m_covariance != nullptr) {
     e = new AmgSymMatrix(5)(*m_covariance);
   }
   const AmgVector(5)& p = m_parameters;
-  return m_surface ? (m_surface->createUniqueTrackParameters(p[0],p[1],p[2],p[3],p[4],e)).release(): nullptr;
+  return m_surface ? m_surface->createUniqueTrackParameters(
+                        p[0], p[1], p[2], p[3], p[4], e)
+                   : nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -588,5 +591,6 @@ int Trk::PatternTrackParameters::surfaceType() const {
   return m_surface->type();
 }
 
-void Trk::PatternTrackParameters::updateParametersHelper(const AmgVector(5) &) {
+void Trk::PatternTrackParameters::updateParametersHelper(const AmgVector(5)& params){
+  m_parameters = params;
 }
