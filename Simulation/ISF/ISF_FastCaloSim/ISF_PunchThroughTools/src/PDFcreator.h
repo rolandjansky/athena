@@ -45,10 +45,10 @@ namespace ISF
     /** get the random value with this method, by providing the input parameters */
     double getRand( const std::vector<double>& inputPar, const double& outEnergy = 0., const double& randMin = 0., const double& randMax = 0.) const;
     std::string getName() const {return m_name;};
-    static bool compareEnergy1D(const std::pair< double , std::map< std::vector<double>, TH1*> > map, const double value){ return map.first < value; };
-    static bool compareEnergy2D(const std::pair< double , std::map< std::vector<double>, TH2*> > map, const double value){ return map.first < value; };
-    static bool compareEtaMax1D(const std::pair< std::vector<double>, TH1*> map, const double value){ return map.first.at(1) < value; };
-    static bool compareEtaMax2D(const std::pair< std::vector<double>, TH2*> map, const double value){ return map.first.at(1) < value; };
+    static bool compareEnergy1D(const std::pair< double , std::map< std::vector<double>, TH1*> > &map, const double &value){ return map.first < value; };
+    static bool compareEnergy2D(const std::pair< double , std::map< std::vector<double>, TH2*> > &map, const double &value){ return map.first < value; };
+    static bool compareEtaMax1D(const std::pair< std::vector<double>, TH1*> &map, const double &value){ return map.first.at(1) < value; };
+    static bool compareEtaMax2D(const std::pair< std::vector<double>, TH2*> &map, const double &value){ return map.first.at(1) < value; };
 
   private:
     CLHEP::HepRandomEngine             *m_randomEngine;       //!< Random Engine
