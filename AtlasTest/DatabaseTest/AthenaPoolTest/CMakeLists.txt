@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthenaPoolTest )
@@ -37,10 +37,12 @@ function (athenapooltest_run_test testName jo pattern)
                   LOG_IGNORE_PATTERN "DEBUG Try item:|AthenaAttribute.*DB=|AtlasRelease|Release version"
                   PROPERTIES TIMEOUT 900 )
   if( ARG_DEPENDS )
+    set( _alldeps  )
     foreach( _dep ${ARG_DEPENDS} )
-      set_tests_properties( AthenaPoolTest_${testName}_ctest
-                            PROPERTIES DEPENDS AthenaPoolTest_${_dep}_ctest )
+      list( APPEND _alldeps AthenaPoolTest_${_dep}_ctest )
     endforeach()
+    set_tests_properties( AthenaPoolTest_${testName}_ctest
+                          PROPERTIES DEPENDS "${_alldeps}" )
   endif()
 endfunction (athenapooltest_run_test)
 
