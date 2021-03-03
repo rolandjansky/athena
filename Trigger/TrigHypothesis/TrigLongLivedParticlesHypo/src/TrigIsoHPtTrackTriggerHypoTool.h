@@ -37,6 +37,7 @@ class TrigIsoHPtTrackTriggerHypoTool : virtual public ::AthAlgTool
     TrigCompositeUtils::Decision* decision;
     const xAOD::TrackParticle_v1* track;
     const xAOD::TrackParticleContainer* AllTracks;
+    const TrigCompositeUtils::DecisionIDContainer previousDecisionsIDs;
   };
 
   /**
