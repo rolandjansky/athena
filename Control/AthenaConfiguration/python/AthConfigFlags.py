@@ -399,6 +399,8 @@ class AthConfigFlags(object):
         parser.add_argument("--filesInput", default=None, help="Input file(s)")
         parser.add_argument("-l", "--loglevel", default=None, help="logging level (ALL, VERBOSE, DEBUG,INFO, WARNING, ERROR, or FATAL")
         parser.add_argument("--configOnly", type=str, default=None, help="Stop after configuration phase (may not be respected by all diver scripts)")
+        parser.add_argument("--threads", type=int, default=0, help="Run with given number of threads")
+
         return parser
 
     # parser argument must be an ArgumentParser returned from getArgumentParser()
@@ -435,6 +437,9 @@ class AthConfigFlags(object):
                 self.Exec.OutputLevel=getattr(Constants,args.loglevel)
             else:
                 raise ValueError("Unknown log-level, allowed values are ALL, VERBOSE, DEBUG,INFO, WARNING, ERROR, FATAL")
+        
+        if args.threads:
+            self.Concurrency.NumThreads = args.threads
 
         #All remaining arguments are assumed to be key=value pairs to set arbitrary flags:
 

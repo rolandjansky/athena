@@ -27,8 +27,6 @@ if __name__=='__main__':
                         help='Maximum number of events to process (alias for --evtMax)')
     parser.add_argument('--printDetailedConfig', action='store_true',
                         help='Print detailed Athena configuration')
-    parser.add_argument('--threads', type=int, default=0,
-                        help='Number of threads/concurrent events')
     parser.add_argument('--perfmon', action='store_true',
                         help='Run perfmon')
     args, _ = parser.parse_known_args()
@@ -36,10 +34,6 @@ if __name__=='__main__':
     # Setup the Run III behavior
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior = 1
-
-    # set threads
-    ConfigFlags.Concurrency.NumThreads=args.threads
-    ConfigFlags.Concurrency.NumConcurrentEvents=args.threads
 
     # Set the Athena configuration flags
     from AthenaConfiguration.AutoConfigFlags import GetFileMD
