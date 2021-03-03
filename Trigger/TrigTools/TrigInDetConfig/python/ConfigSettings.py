@@ -462,29 +462,29 @@ class _PrecisionTracking():
       return (self._signatureType == signature)
 
 class _EFIDTracking():
-   def __init__( self, signatureType, nameSuffix ) : 
+   def __init__( self, signatureType, nameSuffix ) :
       self._signatureType = signatureType #Steer which cuts,flags to load
       self._config        = getInDetTrigTrackingConfig( signatureType )
       self._suffix        = nameSuffix
-   
+
    #Retrieve trackCollection key
    @makeRecordable #Allows to record collection if doRecord = True
    def trkTracksEFID(self, doRecord=False):
       return 'HLT_IDTrkTrack_{}_EFID'.format( self._suffix )
-   
+
    #Retrieve TrackParticle key
    @makeRecordable #Allows to record collection if doRecord = True
    def tracksEFID(self, doRecord = True):
       return 'HLT_IDTrack_{}_EFID'.format( self._suffix )
-   
-   @property 
+
+   @property
    def setting(self):
       return self._config
-   
+
    def isSignature(self, signature):
       return (self._signatureType == signature)
-   
-   @property 
+
+   @property
    def signatureType(self):
       return self._signatureType
 
@@ -710,7 +710,7 @@ class _Settings_cosmics( _GlobalSettings ):
       self._configFT    = _FastTracking(      signatureType = 'cosmics',  nameSuffix = 'Cosmic' )
       self._configPT    = _PrecisionTracking( signatureType = 'cosmics',  nameSuffix = 'Cosmic' )
       self._configEFID  = _EFIDTracking(      signatureType = 'cosmics',  nameSuffix = 'Cosmic' )
-      self._doRecord    = True 
+      self._doRecord    = True
 
 class _Settings_bmumux( _GlobalSettings ):
    def __init__( self ):
@@ -765,7 +765,7 @@ class _Settings_bjetLRT( _GlobalSettings ):
 class _Settings_fullScanLRT( _GlobalSettings ):
    def __init__( self ):
       _GlobalSettings.__init__(self)
-      self._name     = "fullScanLrt" #To be appended to alg names
+      self._name     = "fullScanLRT" #To be appended to alg names
       self._roi      = "HLT_Roi_FS" #FIXME ATR-22755
       self._configFT = _FastTracking(   signatureType = 'fullScanLRT',  nameSuffix = 'FSLRT' ) #
       self._doRecord = True #record track collections
