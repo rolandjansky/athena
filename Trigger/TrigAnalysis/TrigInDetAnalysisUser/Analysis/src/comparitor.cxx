@@ -480,6 +480,7 @@ int main(int argc, char** argv) {
 
     if ( arg.find("-")!=0 && addinglabels ) {
       std::string label = arg;
+      fullreplace( label, "__", " " );
       replace( label, "#", " " );
       usrlabels.push_back( label );
       continue;
