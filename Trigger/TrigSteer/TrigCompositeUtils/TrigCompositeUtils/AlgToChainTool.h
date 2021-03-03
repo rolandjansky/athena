@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigCompositeUtils_AlgToChainTool_h
@@ -42,11 +42,14 @@ namespace TrigCompositeUtils {
       std::set<std::string> getActiveChainsForAlg(const std::string& algorithmName, const EventContext& context) const;
 
       /// Request set of chains for all algorithms in the menu
-      std::map<std::string, std::vector<TrigConf::Chain>> getChainsForAllAlgs() const;
+      std::map<std::string, std::vector<TrigConf::Chain>> getChainsForAllAlgs(const EventContext& context) const;
+
+      /// Request set of chains from given navigation collection
+      std::set<TrigCompositeUtils::DecisionID> retrieveActiveChains(const EventContext& context, const std::string& collectionName = "") const;
+
+      StatusCode getAllChainNames(std::vector<std::string>&) const;
 
   private:
-      std::set<std::string> retrieveActiveChains(const EventContext& context) const;
-
       SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{ this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu", "HLT Menu" };
 
       std::map<std::string, std::vector<TrigConf::Chain>> m_sequencerToChainMap;

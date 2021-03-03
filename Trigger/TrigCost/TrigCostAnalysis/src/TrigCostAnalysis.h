@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCOSTANALYSIS_TRIGCOSTALYSIS_H
@@ -101,6 +101,9 @@ class TrigCostAnalysis: public ::AthHistogramAlgorithm {
 
     Gaudi::Property<bool> m_doMonitorROS { this, "DoMonitorROS", true,
       "Monitor Read-Out System" };
+
+    Gaudi::Property<bool> m_doMonitorChain { this, "DoMonitorChain", true,
+      "Monitor individual chains by instance name" };
 
     Gaudi::Property<bool> m_useEBWeights { this, "UseEBWeights", true,
       "Apply Enhanced Bias weights" };

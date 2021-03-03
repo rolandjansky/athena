@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigCompositeUtils/AlgToChainTool.h"
@@ -45,6 +45,16 @@ StatusCode TrigCompositeUtils::AlgToChainTool::start() {
     return StatusCode::SUCCESS;
 }
 
+StatusCode TrigCompositeUtils::AlgToChainTool::getAllChainNames(std::vector<std::string>& chainNames) const {
+    SG::ReadHandle<TrigConf::HLTMenu>  hltMenuHandle = SG::makeHandle( m_HLTMenuKey );
+    ATH_CHECK( hltMenuHandle.isValid() );
+
+    for ( const TrigConf::Chain& chain : *hltMenuHandle ) {
+        chainNames.push_back(chain.name());
+    }
+    return StatusCode::SUCCESS;
+}
+
 
 std::set<std::string> TrigCompositeUtils::AlgToChainTool::getChainsNamesForAlg(const std::string& algorithmName) const {
     std::set<std::string> result;
@@ -80,7 +90,14 @@ std::vector<TrigConf::Chain> TrigCompositeUtils::AlgToChainTool::getChainsForAlg
 std::set<std::string> TrigCompositeUtils::AlgToChainTool::getActiveChainsForAlg(const std::string& algorithmName, const EventContext& context) const {
     std::set<std::string> result;
 
-    std::set<std::string> allActiveChains = retrieveActiveChains(context);
+    std::set<TrigCompositeUtils::DecisionID> allActiveChainsID = retrieveActiveChains(context);
+
+    // Convert DecisionID to names
+    std::set<std::string> allActiveChains;
+    for ( const TrigCompositeUtils::DecisionID& id : allActiveChainsID ) {
+        allActiveChains.insert( HLT::Identifier(id).name() );
+    }
+
     std::set<std::string> allAlgChains = getChainsNamesForAlg(algorithmName);
 
     // Save the chains that are used by selected algorithm and active
@@ -91,7 +108,7 @@ std::set<std::string> TrigCompositeUtils::AlgToChainTool::getActiveChainsForAlg(
     return result;
 }
 
-std::set<std::string> TrigCompositeUtils::AlgToChainTool::retrieveActiveChains(const EventContext& context) const {
+std::set<TrigCompositeUtils::DecisionID> TrigCompositeUtils::AlgToChainTool::retrieveActiveChains(const EventContext& context, const std::string& collectionName) const {
     std::set<TrigCompositeUtils::DecisionID> activeChainsID;
 
     // Retrieve EventStore and keys
@@ -101,11 +118,14 @@ std::set<std::string> TrigCompositeUtils::AlgToChainTool::retrieveActiveChains(c
     std::vector<std::string> keys;
     eventStore->keys(static_cast<CLID>( ClassID_traits<TrigCompositeUtils::DecisionContainer>::ID() ), keys);
 
-    // Retrieve active chains
-    std::set<std::string> activeChains;
-
+    // Retrieve active chains name hashes
     for ( const std::string& key : keys ) {
-        if( key.find("HLTNav") != 0 || key == "HLTNav_Summary" ) {
+        // Look for given collection
+        if ( !collectionName.empty() && key.find("HLTNav_" + collectionName) != 0 ){
+            continue;
+        }
+
+        if( collectionName.empty() && (key.find("HLTNav") != 0 || key == "HLTNav_Summary") ) {
             continue;
         }
 
@@ -127,21 +147,35 @@ std::set<std::string> TrigCompositeUtils::AlgToChainTool::retrieveActiveChains(c
         } 
     }
 
-    // Convert DecisionID to names
-    std::set<std::string> activeChainsNames;
-
-    for ( const TrigCompositeUtils::DecisionID& id : activeChainsID ) {
-        activeChainsNames.insert( HLT::Identifier(id).name() );
-    }
-
-    return activeChainsNames;
+    return activeChainsID;
 }
 
-std::map<std::string, std::vector<TrigConf::Chain>> TrigCompositeUtils::AlgToChainTool::getChainsForAllAlgs() const{
+std::map<std::string, std::vector<TrigConf::Chain>> TrigCompositeUtils::AlgToChainTool::getChainsForAllAlgs(const EventContext& context) const{
     std::map<std::string, std::vector<TrigConf::Chain>> algToChain;
 
+    // Look for chains which were active for any of the algorithms of the sequence
+    // Name of collection for given sequencer consist sequence's filter's name
+    std::map<std::string, std::set<TrigCompositeUtils::DecisionID>> seqToActiveChains;
+    for (const auto& sequence : m_sequencerToChainMap) {
+        seqToActiveChains[sequence.first] = retrieveActiveChains(context, "F" + sequence.first);
+    }
+
     for (const auto& algSeqPair : m_algToSequencersMap){
-        algToChain[algSeqPair.first] = getChainsForAlg(algSeqPair.first);
+        std::set<TrigCompositeUtils::DecisionID> activeChains;
+        for (const std::string& seq : algSeqPair.second){
+            // Save all active chains per sequences that algorithm was executed
+            activeChains.insert(seqToActiveChains[seq].begin(), seqToActiveChains[seq].end());
+        }
+        std::vector<TrigConf::Chain> chainsPerAlg = getChainsForAlg(algSeqPair.first);
+
+        // Remove not active chains
+        chainsPerAlg.erase(
+            std::remove_if(chainsPerAlg.begin(), chainsPerAlg.end(),
+                [&](const TrigConf::Chain& c) { return activeChains.find(c.namehash()) == activeChains.end(); }),
+            chainsPerAlg.end()
+        );
+
+        algToChain[algSeqPair.first] = chainsPerAlg;
     }
     return algToChain;
 }
