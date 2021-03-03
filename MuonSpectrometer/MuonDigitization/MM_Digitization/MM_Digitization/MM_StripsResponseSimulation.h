@@ -71,6 +71,13 @@ class TRandom3;
 class MM_DigitToolInput;
 class MM_StripToolOutput;
 
+namespace CLHEP {
+   class HepRandomEngine;
+   class HepRandom;
+   class RandGeneral;
+}
+
+
 class MM_StripsResponseSimulation {
 
 public :
@@ -81,11 +88,10 @@ public :
   virtual ~MM_StripsResponseSimulation();
   MM_StripToolOutput GetResponseFrom(const MM_DigitToolInput & digiInput, double gainFraction, double stripPitch);
 
-  void initialize (unsigned long int seed);
+  void initialize (CLHEP::HepRandomEngine* rndmEngine);
   void writeHistos();
   void initHistos ();
   void clearValues ();
-  void initFunctions ();
   void whichStrips(const float & hitx, const int & stripOffest, const float & incidentAngleXZ, const float & incidentAngleYZ, const int & stripMinID, const int & stripMaxID, const MM_DigitToolInput & digiInput, double gainFraction, double stripPitch);
 
   inline void setQThreshold (float val) { m_qThreshold = val; };
@@ -172,11 +178,7 @@ private:
   vector <float> m_l;
 
   /// ToDo: random number from custom functions
-  TF1 *m_polyaFunction;
   TF1 *m_lorentzAngleFunction;
-  TF1 *m_longitudinalDiffusionFunction;
-  TF1 *m_transverseDiffusionFunction;
-  TF1 *m_interactionDensityFunction;
 
   MM_StripsResponseSimulation & operator=(const MM_StripsResponseSimulation &right);
   MM_StripsResponseSimulation(const MM_StripsResponseSimulation&);
@@ -186,8 +188,10 @@ private:
   std::map<TString, TH1F* > m_mapOfHistograms;
   std::map<TString, TH2F* > m_mapOf2DHistograms;
 
-  TRandom3 * m_random;
+  CLHEP::HepRandomEngine* m_engine;
 
+  std::unique_ptr<CLHEP::RandGeneral> m_randNelectrons;
+  int m_NelectronPropBins;
 
   bool m_writeOutputFile;
   bool m_writeEventDisplays;

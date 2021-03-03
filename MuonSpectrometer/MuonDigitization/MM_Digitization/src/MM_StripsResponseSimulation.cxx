@@ -8,6 +8,12 @@
 #include "MM_Digitization/MM_StripResponse.h"
 #include "PathResolver/PathResolver.h"
 
+#include "CLHEP/Random/RandomEngine.h"
+#include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGeneral.h"
+#include "CLHEP/Random/RandGamma.h"
+
 #include<map>
 #include<algorithm>
 
@@ -23,6 +29,7 @@ Check Lorentz Angle is in correct direction...
 
 namespace {
     static constexpr float electronsToFC = 1./6241.;
+    static constexpr float polyaTheta = 1.765;
 }
 
 /*******************************************************************************/
@@ -44,12 +51,8 @@ MM_StripsResponseSimulation::MM_StripsResponseSimulation():
 	m_interactionDensitySigma(0),  //   Spread in this number.
 
 	// Function Pointers
-	m_polyaFunction(0),
 	m_lorentzAngleFunction(0),
-	m_longitudinalDiffusionFunction(0),
-	m_transverseDiffusionFunction(0),
-	m_interactionDensityFunction(0),
-	m_random(0),
+	m_engine(0),
 	m_writeOutputFile(false),
 	m_writeEventDisplays(false),
 	m_outputFile(0)
@@ -93,45 +96,26 @@ void MM_StripsResponseSimulation::writeHistos()
 
 }
 /*******************************************************************************/
-void MM_StripsResponseSimulation::initFunctions()
-{
-
-	// Probability of having an interaction (per unit length traversed) is sampled from a gaussian provided by G. Iakovidis
-	m_interactionDensityFunction = new TF1("interactionDensityFunction","gaus", 0., 10.);
-	m_interactionDensityFunction->SetParameter(0, 1.0); // normalization
-    m_interactionDensityFunction->SetParameter(1, m_interactionDensityMean ); // mean
-    m_interactionDensityFunction->SetParameter(2, m_interactionDensitySigma); // width
-
-    // Polya function for gain per primary electron. Fit and parameters from G. Iakovidis
-	m_polyaFunction = new TF1("m_polyaFunction","[2]*(TMath::Power([0]+1,[0]+1)/TMath::Gamma([0]+1))*TMath::Power(x/[1],[0])*TMath::Exp(-([0]+1)*x/[1])",0,50000);
-    m_polyaFunction->SetParameter(0, 1.765); // polya theta
-    m_polyaFunction->SetParameter(1, m_avalancheGain ); // mean gain
-    m_polyaFunction->SetParameter(2, 104.9); // constant
-
-	m_longitudinalDiffusionFunction = new TF1("longdiff","gaus", -5., 5.);
-
-	//m_transverseDiffusionFunction = new TF1("transdiff", "1.*TMath::Exp(-TMath::Power(x,2.)/(2.*[0]*[0])) + 0.001*TMath::Exp(-TMath::Power(x,2)/(2.*[1]*[1]))", -1., 1.);
-	m_transverseDiffusionFunction = new TF1("transdiff", "gaus(0) + gaus(3)", -1., 1.);
-  m_transverseDiffusionFunction->SetParameters(1.,0.,1.,0.001,0.,1.);
-	//m_transverseDiffusionFunction = new TF1("transdiff", "gaus", -1., 1.);
-  //m_transverseDiffusionFunction->SetParameters(1.,0.,1.);
-
-	ATH_MSG_DEBUG("MM_StripsResponseSimulation::initFunctions DONE");
-
-}
-/*******************************************************************************/
 void MM_StripsResponseSimulation::clearValues()
 {
 }
 
 /*******************************************************************************/
-void MM_StripsResponseSimulation::initialize(unsigned long int seed)
+void MM_StripsResponseSimulation::initialize(CLHEP::HepRandomEngine* rndmEngine)
 {
-
+  m_engine = rndmEngine;
 	initHistos ();
-	initFunctions();
 
-	m_random = new TRandom3(seed);
+  // initialization for the random number generator for the number of secondary electrons
+  // values are from G. Iakovidis
+  
+  m_NelectronPropBins = 300;
+  std::vector<double> NelectronProb = {65.6,15,6.4,3.5,2.25,1.55,1.05,0.81,0.61,0.49,0.39,0.3,0.25,0.2,0.16,0.12,0.095,0.075,0.063,0.054,0.049,0.045,0.044};
+  NelectronProb.reserve(m_NelectronPropBins);
+  for(int Nelectron = 23; Nelectron<m_NelectronPropBins; Nelectron++) NelectronProb.push_back(21.6/((Nelectron)*(Nelectron)));
+
+  m_randNelectrons=std::make_unique<CLHEP::RandGeneral>(m_engine,&NelectronProb[0],m_NelectronPropBins,1); // 1 means non-continious random numbers
+
 
 	ATH_MSG_DEBUG("MM_StripsResponseSimulation::initializationFrom set values");
 
@@ -191,8 +175,6 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 
 	int nPrimaryIons = 0;
 
-	m_random->SetSeed((int)fabs(hitx*10000));
-
 	Amg::Vector3D b = digiInput.magneticField() * 1000.;
 
 	// Still need to understand which sign is which... But I think this is correct...
@@ -204,7 +186,6 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 	}
 
 	ATH_MSG_DEBUG("LorentzAngle vs theta: " <<lorentzAngle <<" " <<theta);
-    ATH_MSG_DEBUG("Function pointer points to " << m_interactionDensityFunction);
 
 	float pathLengthTraveled = getPathLengthTraveled(); 
 
@@ -222,7 +203,9 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 
 		// N.B. Needs correction from alpha angle still...
 		std::unique_ptr<MM_IonizationCluster> IonizationCluster = std::make_unique<MM_IonizationCluster>(hitx, pathLengthTraveled*sin(theta), pathLengthTraveled*cos(theta));
-		IonizationCluster -> createElectrons(m_random);
+		
+    int nElectrons = m_randNelectrons->shoot(m_engine) * m_NelectronPropBins + 1; // +1 since first entry in electron probability vector corresponds to 1 electron and not to 0 electrons 
+    IonizationCluster -> createElectrons(nElectrons);
 
 		TVector2 initialPosition = IonizationCluster->getIonizationStart();
 
@@ -245,7 +228,6 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 
 		for (auto& Electron : IonizationCluster->getElectrons()){
 
-			//float effectiveCharge = m_polyaFunction->GetRandom();
 			float effectiveCharge = getEffectiveCharge() * gainFraction;
 
 			Electron->setCharge( effectiveCharge );
@@ -339,9 +321,9 @@ float MM_StripsResponseSimulation::generateTransverseDiffusion(float posY) {
     // need to scale weigths since initial distributions were not normalized
     double scale = 0.001/(posY*m_transverseDiffusionSigma);
 
-    double uni = m_random->Uniform(0, 1.0+scale);
-    if (uni < scale) return m_random->Gaus(0.0, 1.0);
-    return m_random->Gaus(0., m_transverseDiffusionSigma * posY);
+    double uni = CLHEP::RandFlat::shoot(m_engine,0, 1.0+scale);
+    if (uni < scale) return CLHEP::RandGaussZiggurat::shoot(m_engine,0.0, 1.0);
+    return CLHEP::RandGaussZiggurat::shoot(m_engine,0., m_transverseDiffusionSigma * posY);
 }
 
 
@@ -356,9 +338,9 @@ float MM_StripsResponseSimulation::getTransverseDiffusion(float posY) {
 
     // if one of the diffusions is off, the tail is not present
     if (m_longitudinalDiffusionSigma == 0 || m_transverseDiffusionSigma == 0) {
-        float tmp =  m_random->Gaus(0.0, posY*m_transverseDiffusionSigma);
+        float tmp =  CLHEP::RandGaussZiggurat::shoot(m_engine,0.0, posY*m_transverseDiffusionSigma);
         // limit random number to be -1 < x < 1
-        while (std::abs(tmp) > 1.) tmp =  m_random->Gaus(0.0, posY*m_transverseDiffusionSigma);
+        while (std::abs(tmp) > 1.) tmp =  CLHEP::RandGaussZiggurat::shoot(m_engine,0.0, posY*m_transverseDiffusionSigma);
         return tmp;
     }
     float tmp = generateTransverseDiffusion(posY);
@@ -368,22 +350,35 @@ float MM_StripsResponseSimulation::getTransverseDiffusion(float posY) {
   }
 
 float MM_StripsResponseSimulation::getLongitudinalDiffusion(float posY) {
-  float tmp = m_random->Gaus(0.0, posY*m_longitudinalDiffusionSigma);
+  float tmp = CLHEP::RandGaussZiggurat::shoot(m_engine,0.0, posY*m_longitudinalDiffusionSigma);
   // We only want random numbers between -5 and 5
-  while (std::abs(tmp) > 5) { tmp = m_random->Gaus(0.0, posY*m_longitudinalDiffusionSigma); }
+  while (std::abs(tmp) > 5) { tmp = CLHEP::RandGaussZiggurat::shoot(m_engine,0.0, posY*m_longitudinalDiffusionSigma); }
   return tmp;
 }
 
-float  MM_StripsResponseSimulation::getEffectiveCharge() {return m_polyaFunction->GetRandom();}
+float  MM_StripsResponseSimulation::getEffectiveCharge() {
+        // charge fluctuatation is described by Polya function
+    	  //m_polyaFunction = new TF1("m_polyaFunction","(TMath::Power([0]+1,[0]+1)/TMath::Gamma([0]+1))*TMath::Power(x/[1],[0])*TMath::Exp(-([0]+1)*x/[1])",0,50000);
+       // m_polyaFunction->SetParameter(0, 1.765); // polya theta
+       // m_polyaFunction->SetParameter(1, m_avalancheGain ); // mean gain
+       
+       // To calculate the gain from polya distibution we replace "alpha = 1+theta and beta = 1+theta/mean" in gamma PDF. With this gamma PDF gives us same sampling values as we get from polya PDF.
+       // Idea taken from MR 40547
+
+        return CLHEP::RandGamma::shoot(m_engine, 1. + polyaTheta, (1. + polyaTheta)/m_avalancheGain);    
+
+}
 
 float MM_StripsResponseSimulation::getPathLengthTraveled() {
-    float rndGaus = m_random->Gaus(m_interactionDensityMean, m_interactionDensitySigma);
+
+	  // Probability of having an interaction (per unit length traversed) is sampled from a gaussian provided by G. Iakovidis
+    float rndGaus = CLHEP::RandGaussZiggurat::shoot(m_engine,m_interactionDensityMean, m_interactionDensitySigma);
 
 
     // gaussian random number should be in the range from 0 to 10
-    while (rndGaus < 0. || rndGaus > 10.) {rndGaus = m_random->Gaus(m_interactionDensityMean, m_interactionDensitySigma);}
+    while (rndGaus < 0. || rndGaus > 10.) {rndGaus = CLHEP::RandGaussZiggurat::shoot(m_engine,m_interactionDensityMean, m_interactionDensitySigma);}
 
-    return  ( 1. / rndGaus) * -1. * log( m_random->Uniform() );
+    return  ( 1. / rndGaus) * -1. * log( CLHEP::RandFlat::shoot(m_engine) );
 }
 
 
