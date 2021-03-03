@@ -863,7 +863,7 @@ namespace Muon {
       return;
     }
 
-    std::unique_ptr<TrackCollection> resolvedTracks(m_ambiTool->process(trkColl.get()));
+    std::unique_ptr<const TrackCollection> resolvedTracks(m_ambiTool->process(trkColl.get()));
     if( !resolvedTracks ){
       return;
     }
@@ -871,13 +871,11 @@ namespace Muon {
     ATH_MSG_DEBUG("   resolved track candidates: old size " << trkColl->size()
       << " new size " << resolvedTracks->size() );
 
-    TrackCollection::iterator tit;
-    TrackCollection::iterator tit_end = resolvedTracks->end();
     std::vector<std::unique_ptr<MuPatTrack> >::iterator pat = tracks.begin();
     for(;pat!=tracks.end();){
       bool found=false;
-      for(tit=resolvedTracks->begin();tit!=tit_end;++tit ){
-        if ( &(*pat)->track() == *tit ) {
+      for (const Trk::Track* rtrk : *resolvedTracks) {
+        if ( &(*pat)->track() == rtrk ) {
 	  found=true;
           break;
         }
