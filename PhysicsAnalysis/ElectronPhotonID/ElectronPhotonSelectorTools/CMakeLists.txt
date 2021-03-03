@@ -5,16 +5,19 @@ atlas_subdir( ElectronPhotonSelectorTools )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core MathCore Hist MathMore )
+find_package( lwtnn )
+find_package( Eigen )
 
 # Component(s) in the package:
 atlas_add_library( ElectronPhotonSelectorToolsLib
   ElectronPhotonSelectorTools/*.h Root/*.cxx
   PUBLIC_HEADERS ElectronPhotonSelectorTools
   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+  INCLUDE_DIRS ${LWTNN_INCLUDE_DIRS}  ${EIGEN_INCLUDE_DIRS}
   LINK_LIBRARIES EgammaAnalysisInterfacesLib AsgTools xAODEgamma  xAODTracking MVAUtils
   xAODHIEvent PATCoreAcceptLib AsgDataHandlesLib
   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib FourMomUtils xAODCaloEvent
-  xAODEventInfo PathResolver )
+  xAODEventInfo PathResolver ${LWTNN_LIBRARIES} ${EIGEN_LIBRARIES} )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( ElectronPhotonSelectorTools

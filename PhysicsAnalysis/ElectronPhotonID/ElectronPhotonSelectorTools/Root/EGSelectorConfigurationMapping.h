@@ -58,6 +58,9 @@ namespace EgammaSelectors {
                                                                  {"MediumPhoton",egammaPID::PhotonMedium},
                                                                  {"TightPhoton",egammaPID::PhotonTight},
   };
+  const std::map<std::string,std::string> ElectronDNNPointToConfFile={
+    {"LooseDNNElectron", "ElectronPhotonSelectorTools/offline/mc16_20210204/ElectronDNNLooseConfig.conf"}
+  };
 }
 ////////////////////////////////////////////
 #endif

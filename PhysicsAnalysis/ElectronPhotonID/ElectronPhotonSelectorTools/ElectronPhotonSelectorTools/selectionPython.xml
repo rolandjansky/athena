@@ -7,4 +7,5 @@
   <class name="EGammaAmbiguityTool" />
   <class name="AsgDeadHVCellRemovalTool" />
   <class name="AsgElectronChargeIDSelectorTool"/>
+  <class name="AsgElectronSelectorTool"/>
 </lcgdict>

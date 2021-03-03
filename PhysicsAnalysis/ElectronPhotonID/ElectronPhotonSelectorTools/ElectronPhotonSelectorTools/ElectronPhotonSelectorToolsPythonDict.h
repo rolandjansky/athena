@@ -14,4 +14,5 @@
 #include "ElectronPhotonSelectorTools/AsgForwardElectronLikelihoodTool.h"
 #include "ElectronPhotonSelectorTools/EGammaAmbiguityTool.h"
 #include "ElectronPhotonSelectorTools/AsgDeadHVCellRemovalTool.h"
+#include "ElectronPhotonSelectorTools/AsgElectronSelectorTool.h"
 #endif
