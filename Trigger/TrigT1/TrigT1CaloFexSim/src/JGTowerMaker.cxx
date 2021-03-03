@@ -23,6 +23,11 @@
 #include "TrigT1CaloFexSim/JGTower.h"
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
 #include "TFile.h"
+
+namespace {
+  const static SG::AuxElement::Decorator<float> decArea("area");
+}
+
 JGTowerMaker::JGTowerMaker( const std::string& name, ISvcLocator* pSvcLocator ) : AthAlgorithm( name, pSvcLocator ){
 
   declareProperty("useSCQuality",m_useSCQuality=true);
@@ -189,13 +194,13 @@ StatusCode JGTowerMaker::execute() {
    CHECK( FexAlg(m_jT,jTContainer));
    CHECK( FexAlg(m_gT,gTContainer));
 
-   CHECK( evtStore()->record( gTContainer, "GTower" ) );
-   CHECK( evtStore()->record( gTAuxContainer, "GTowerAux." )) ;
-   ATH_MSG_DEBUG ( "Recorded JGTowerAuxContainer::GTower with " << gTContainer->size() << " elements");
+   CHECK( evtStore()->record( gTContainer, "GCaloTowers" ) );
+   CHECK( evtStore()->record( gTAuxContainer, "GCaloTowersAux." )) ;
+   ATH_MSG_DEBUG ( "Recorded JGTowerAuxContainer::GTowers with " << gTContainer->size() << " elements");
 
-   CHECK( evtStore()->record( jTContainer, "JTower" ) );
-   CHECK( evtStore()->record( jTAuxContainer, "JTowerAux." )) ;
-   ATH_MSG_DEBUG ( "Recorded JGTowerAuxContainer::JTower with " << jTContainer->size() << " elements");
+   CHECK( evtStore()->record( jTContainer, "JTowers" ) );
+   CHECK( evtStore()->record( jTAuxContainer, "JTowersAux." )) ;
+   ATH_MSG_DEBUG ( "Recorded JGTowerAuxContainer::JTowers with " << jTContainer->size() << " elements");
 
 
    return StatusCode::SUCCESS;
@@ -236,8 +241,8 @@ StatusCode JGTowerMaker::ForwardMapping(){
   }
   //define gTowers geometry
 
-  float fgT_Etas[5] = {3.2, 3.5, 4.0, 4.45,4.9};
-  int nTowers = 17;
+  float fgT_Etas[5] = {3.1, 3.5, 4.0, 4.45,4.9};
+  unsigned int nTowers = 16;
   float fgT_dPhi = 2*TMath::Pi()/nTowers;
 
 
@@ -247,7 +252,7 @@ StatusCode JGTowerMaker::ForwardMapping(){
 
      for(int isign=1; isign>-2; isign=isign-2){
         fgT_Eta = fgT_Eta*isign;
-        for(unsigned int iPhi = 0; iPhi< 17; iPhi++ ){
+        for(unsigned int iPhi = 0; iPhi< nTowers; iPhi++ ){
            float fgT_Phi = iPhi*fgT_dPhi+fgT_dPhi/2;
            if(fgT_Phi>TMath::Pi()) fgT_Phi = fgT_Phi-2*TMath::Pi();
            //Allocate supercells into gTowers

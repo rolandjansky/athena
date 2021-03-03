@@ -64,7 +64,7 @@ int GFEX_pFPGA_Int(std::string in){
 
 int GFEX_iEta(float eta){
   
-  float etaBins [] = {0.0,0.2,0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8,2.0,2.2,2.4,2.5,2.7,2.9,3.1,3.2,3.5,4.0,4.45,4.9};
+  float etaBins [] = {0.0,0.2,0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8,2.0,2.2,2.5,2.7,2.9,3.1,3.5,4.0,4.45,4.9};
   int N = sizeof(etaBins)/sizeof(float)-1;
   TH1F* h_eta = new TH1F("h_eta", "", N, etaBins);
 
@@ -91,11 +91,10 @@ float GTowerArea(float eta){
      3.1-3.2 has A = 1 
    */ 
   float abs_eta = fabs(eta); 
-  if(abs_eta < 2.4) return 1; 
-  else if(abs_eta >= 2.4 && abs_eta < 2.5) return 0.5; 
-  else if(abs_eta >=2.5 && abs_eta < 3.1) return 1.; 
-  else if(abs_eta >= 3.1 && abs_eta < 3.2) return 1.; 
-  else if(abs_eta >= 3.2) return 4.; 
+  if(abs_eta < 2.2) return 1; 
+  else if(abs_eta >= 2.2 && abs_eta < 2.5) return 1.5; 
+  else if(abs_eta >= 2.5 && abs_eta < 3.1) return 1.;
+  else if(abs_eta >= 3.1) return 4.; 
   
   return -1; 
 

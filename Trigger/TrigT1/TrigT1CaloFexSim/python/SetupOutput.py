@@ -10,10 +10,10 @@ def fillOutStream ( stream, SuperCellContainer="SCellBCID", WriteAllCalo=False, 
 
     # Run 2 towers
     itemList += [ "xAOD::TriggerTowerContainer#xAODTriggerTowers",
-                  "xAOD::TriggerTowerAuxContainer#xAODTriggerTowersAux." ]                                                       
+                  "xAOD::TriggerTowerAuxContainer#xAODTriggerTowersAux." ]                                                  
 
     # New JTowers and GTowers
-    for tower in [ "JTower", "GTower" ]:
+    for tower in [ "JTowers", "GTowers", "GCaloTowers", "JTowerRhoSubtracted", "pu_subTowers"]:
         itemList += [ "xAOD::JGTowerContainer#%s" % tower, 
                       "xAOD::JGTowerAuxContainer#%sAux.*" % tower ]
 

@@ -28,7 +28,7 @@ def createJGTowerReader( SuperCellType = "SCell", **kwargs ) :
     towerReader = JGTowerReader( outputNoise = False, 
                                  debugJetAlg = False,
                                  SuperCellType = SuperCellType, 
-                                 noise_file = "Run3L1CaloSimulation/Noise/noise_r10684_v3.root",
+                                 noise_file = "Run3L1CaloSimulation/Noise/jTowergTowerNoise.20210209.r11881.root",
                                  plotSeeds = False,
                                  saveSeeds = True,
                                  dumpTowerInfo = False,
