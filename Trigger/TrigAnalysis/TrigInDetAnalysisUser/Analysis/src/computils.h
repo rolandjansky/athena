@@ -368,10 +368,9 @@ public:
     /// ha ! don't actually create the legend until we want to draw it, 
     /// then we can determine the size etc automatically
 
-    if ( m_entries.size()>2 ) { 
-      m_y[0] = m_y[1] - 0.5*m_entries.size()*(m_y[1]-m_y[0]);
-    }
-    
+    if ( m_entries.size()>2 ) m_y[0] = m_y[1] - 0.5*m_entries.size()*(m_y[1]-m_y[0]);
+    else                      m_y[0] = m_y[1] - m_entries.size()*(m_y[1]-m_y[0]);
+
     m_leg = new TLegend( m_x[0], m_y[0], m_x[1], m_y[1] );
 
     m_leg->SetBorderSize(0);
@@ -598,7 +597,7 @@ public:
 	if ( LINEF || leg.size() < m_max_entries ) { 
 	  dkey += std::string(" : ");
 
-	  if ( dkey.size()>30 ) { 
+	  if ( (dkey+meanc).size()>58 ) { 
 	    leg.AddEntry( htest(), dkey.c_str(), "p" );
 	    leg.AddEntry( hnull,   meanc,        "p" ); 
 	  }
@@ -611,9 +610,9 @@ public:
 	    rkey += std::string(" : ");
 	    leg.AddEntry( hnull, "", "l" );
 
-	    if ( rkey.size()>30 ) { 
+	    if ( (rkey+meanrefc).size()>58 ) { 
 	      leg.AddEntry( href(), rkey.c_str(), "l" );
-	      leg.AddEntry( hnull,  meanrefc,     "l" );  // leave this commented until we decide we really want to go with one line 
+	      leg.AddEntry( hnull,  meanrefc,     "l" ); 
 	    }
 	    else {
 	      leg.AddEntry( href(), (rkey+meanrefc).c_str(), "l" );
