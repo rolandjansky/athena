@@ -101,6 +101,7 @@ table.resulttable table.dqdefects td.lb { vertical-align: middle; padding: 0; bo
 -->
  
 table.resulttable td.intolerable { font-weight: bold; color: black;}
+table.resulttable td.ignored { font-weight: bold; font-style: italic; color: black;}
 table.resulttable td.lb { vertical-align: middle; padding: 0; border: 0px white solid; color: blue; font-size: 85%; max-width: 130px;} 
 
 

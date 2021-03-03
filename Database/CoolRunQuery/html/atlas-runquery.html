@@ -4,13 +4,14 @@
     <title>ATLAS Run Query</title>
 
     <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1"></meta>
-    <meta name="ATLAS_Run_Query" content="ATLAS Run Query"></meta>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <link rel="stylesheet" type="text/css" href="html/atlas-runquery.css" media="screen"></link>
-    <link rel="stylesheet" type="text/css" href="html/atlas-runquery-results.css" media="screen"></link>
-    <link rel="stylesheet" type="text/css" href="html/atlas-runquery-tabview.css" media="screen"></link>
-    <!--link rel="stylesheet" type="text/css" href="atlas-runquery-print.css" media="print"-->
-    <link rel="shortcut icon" href="html/atlas1.ico"></link>
+    <base href="/">
+
+    <link rel="stylesheet" type="text/css" href="css/atlas-runquery.css" media="screen"></link>
+    <link rel="stylesheet" type="text/css" href="css/atlas-runquery-results.css" media="screen"></link>
+    <link rel="stylesheet" type="text/css" href="css/atlas-runquery-tabview.css" media="screen"></link>
+    <link rel="shortcut icon" href="favicon.ico"></link>
 
     <script type="text/javascript" src="js/switcher.js"></script>
     <script type="text/javascript" src="js/tabView.js"></script>
@@ -74,7 +75,7 @@
           <table class="toptableLinks">
             <tr>
               <td><a href="https://atlasop.cern.ch/wmi/current/Run%20Status_wmi/ATLAS.html" target='_blank'>Current run</a></td>
-              <td><a href="https://atlas.web.cern.ch/Atlas/GROUPS/DATAPREPARATION/DataSummary/2015/daysum.py" target='_blank'>Data Summary</a></td>
+              <td><a href="https://atlas.web.cern.ch/Atlas/GROUPS/DATAPREPARATION/DataSummary/2018/daysum.py" target='_blank'>Data Summary</a></td>
               <td><a href="http://atlas-trigconf.cern.ch/" target='_blank'>Trigger Configuration Query</a></td>
               <td><a href="http://ami.in2p3.fr:8080/AMI/servlet/net.hep.atlas.Database.Bookkeeping.AMI.Servlet.Command?linkId=512" target='_blank'>AMI Data Search</a></td>
               <td><a href="http://dashb-atlas-ddm.cern.ch/ddm2" target='_blank'>DDM Dashboard</a></td>
@@ -247,6 +248,28 @@
 
     <script type="text/javascript">
       tabview_initialize('TabView');
+
+      document.getElementById("RunQueryInput").addEventListener('submit', sendQuery);
+
+      function sendQuery() {
+          var xhr = new XMLHttpRequest();
+    
+          // OPEN - type, url/file, async
+          xhr.open('GET', 'sample.txt', true);
+          
+          xhr.onload = function() {
+              console.log(this);
+              if(this.status == 200){
+                  document.getElementById('text').innerHTML = this.responseText;
+              } else if(this.status = 404){
+                  document.getElementById('text').innerHTML = 'Not Found';
+              }
+          }
+          
+          //xhr.send();
+      }
+
+
     </script>
   </body>
 </html>
