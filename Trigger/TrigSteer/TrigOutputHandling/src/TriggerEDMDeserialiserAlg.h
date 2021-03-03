@@ -37,6 +37,8 @@ public:
   static constexpr size_t CLIDOffset = 1;
   static constexpr size_t NameLengthOffset = 2;
   static constexpr size_t NameOffset = 3;
+  static std::unique_ptr<TList> s_streamerInfoList ATLAS_THREAD_SAFE;
+  static std::mutex s_mutex ATLAS_THREAD_SAFE;
 
   TriggerEDMDeserialiserAlg(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~TriggerEDMDeserialiserAlg() override = default;
@@ -60,8 +62,6 @@ private:
   ServiceHandle<IAthenaSerializeSvc> m_serializerSvc{ this, "Serializer", "AthenaRootSerializeSvc", "Service that translates persistent to transient representation" };
   
   ToolHandle<TrigSerTPTool> m_tpTool{ this, "TPTool", "TrigSerTPTool/TrigSerTPTool", "Tool to do Transient/Persistent conversion (Old EDM)"};
-
-  std::unique_ptr<TList> m_streamerInfoList;
 
   /**
    * Performs actual deserialisation loop
