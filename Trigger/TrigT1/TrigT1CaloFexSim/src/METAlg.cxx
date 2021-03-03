@@ -17,16 +17,22 @@
 #include "TrigT1CaloFexSim/Pufit.h"
 std::map<TString, std::shared_ptr<METAlg::MET>> METAlg::m_METMap;
 
+namespace {
+  const static SG::AuxElement::Decorator<std::vector<float>> decRhos("rhoValues");
+}
+
 std::vector <int> METAlg::check_in_bin (const float &eta, const float &phi, const std::vector < std::pair < float, float> > &eta_bins, const  std::vector < std::pair < float, float> > &phi_bins, const float &phi_offset) {
     int calculation_bin=-1;
     std::vector < int > result;
+    float phi2 = TVector2::Phi_0_2pi(phi - phi_offset * TMath::Pi())/TMath::Pi();
     for (const auto &eta_bin : eta_bins) {
         for (const auto &phi_bin : phi_bins) {
             calculation_bin++;
             if (eta< eta_bin.first || eta > eta_bin.second) continue;;
-            float phi_t=(phi/TMath::Pi())+1;
-            if (phi_t<phi_bin.first) phi_t=phi_t+2;
-            if (phi_t< phi_bin.first+phi_offset || phi_t> phi_bin.second+phi_offset) continue;
+            // float phi_t=(phi/TMath::Pi())+1;
+            // if (phi_t<phi_bin.first) phi_t=phi_t+2;
+            // if (phi_t< phi_bin.first+phi_offset || phi_t> phi_bin.second+phi_offset) continue;
+            if (phi2 < phi_bin.first || phi2 > phi_bin.second) continue;
             result.push_back(calculation_bin);
         }
     }
@@ -167,7 +173,7 @@ StatusCode METAlg::NoiseCut_MET(const xAOD::JGTowerContainer*towers, TString met
   for(unsigned t=0; t<towers->size(); t++){
     const xAOD::JGTower* tower = towers->at(t);
     if(noise.size()>0){
-      if(tower->sampling()==0       && tower->eta()<3.2 && tower->et()<4.5*noise.at(t)) continue;
+      if(tower->sampling()==0       && std::abs(tower->eta())<3.2 && tower->et()<4.5*noise.at(t)) continue;
       else if(tower->sampling()!=0  && tower->et()<5.*noise.at(t)) continue;
     }
     float phi=tower->phi();
@@ -189,7 +195,7 @@ StatusCode METAlg::NoiseCut_MET(const xAOD::JGTowerContainer*towers, TString met
   return StatusCode::SUCCESS;
 }
 //------------------------------------------------------------------------------------------------
-StatusCode METAlg::jXERHO(const xAOD::JGTowerContainer* towers, TString metName, const std::vector<float> jTowerArea, const std::vector < std::vector < int > > jFEX_bins, const std::vector < std::vector < int > > jFEX_bins_core, float fixed_noise_cut, float rho_up_threshold, float min_noise_cut, xAOD::JGTowerContainer* towers_PUsub ){
+StatusCode METAlg::jXERHO(const xAOD::JGTowerContainer* towers, TString metName, const std::vector<float> jTowerArea, const std::vector < std::vector < int > > jFEX_bins, const std::vector < std::vector < int > > jFEX_bins_core, float fixed_noise_cut, float rho_up_threshold, float min_noise_cut, xAOD::JGTowerContainer* towers_PUsub, xAOD::EnergySumRoI* rhos ){
     std::vector < int   > count  ( jFEX_bins.size ( ) , -1  ) ;
     std::vector < float > jT_Sum ( jFEX_bins.size ( ) , 0.0 ) ;
     std::vector < float > rho    ( jFEX_bins.size ( ) , 0.0 ) ;
@@ -270,6 +276,7 @@ StatusCode METAlg::jXERHO(const xAOD::JGTowerContainer* towers, TString metName,
     met->ey=MET_sub_y; 
     met->phi = phi_MET_sub;
     met->et = sumET_sub;
+    decRhos(*rhos) = rho;
 
 
     if(m_METMap.find(metName)==m_METMap.end()) m_METMap[metName] = met;

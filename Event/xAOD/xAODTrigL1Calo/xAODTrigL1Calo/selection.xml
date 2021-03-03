@@ -181,6 +181,21 @@
   </read>
   <class name="xAOD::JGTowerAuxContainer_v1" id="b12228ce-de5c-49dd-82ba-d2d5436f42c1" />
 
+  <!-- GBlock -->
+  <class name="xAOD::GBlock_v1">
+    <field name="m_p4" transient="true"/>
+    <field name="m_p4Cached" transient="true"/>
+  </class>
+  <class name="xAOD::GBlockContainer_v1"
+         id="C199624A-2DFE-4FD5-A3C7-26C381BE811B"/>
+  <read sourceClass="xAOD::GBlock_v1" version="[1-]"
+        targetClass="xAOD::GBlock_v1" source="" target="m_p4Cached" >
+    <![CDATA[
+       m_p4Cached = false;
+    ]]>]
+  </read>
+  <class name="xAOD::GBlockAuxContainer_v1"
+         id="52F340EE-B2CB-4F65-A865-670E20D43383"/>
 
   <!-- CMXCPHits_v1 -->
   <class name="xAOD::CMXCPHits_v1" />

@@ -23,6 +23,7 @@
 #include "xAODTrigL1Calo/JGTower.h"
 #include "xAODTrigL1Calo/JGTowerContainer.h"
 #include "xAODTrigL1Calo/JGTowerAuxContainer.h"
+#include "xAODTrigger/EnergySumRoI.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "JetCalibTools/IJetCalibrationTool.h"
 #include "JetInterface/IJetUpdateJvt.h"
@@ -34,19 +35,21 @@
 #include "TProfile.h"
 #include "TFile.h"
 
-class METAlg{
-    private:
-        std::vector < std::vector < int > > m_jFEX_bins;
-        std::vector < std::vector < int > > m_jFEX_bins_core;
-        bool m_buildbins=false;
+class METAlg
+{
+private:
+  std::vector<std::vector<int>> m_jFEX_bins;
+  std::vector<std::vector<int>> m_jFEX_bins_core;
+  bool m_buildbins = false;
 
-    public:
-  struct MET{
-    float ex; 
-    float ey; 
+public:
+  struct MET
+  {
+    float ex;
+    float ey;
     float phi;
     float et;
-    float rho = 0; 
+    float rho = 0;
     float mht = 0;
     float mst = 0;
     float mht_x = 0;
@@ -60,35 +63,34 @@ class METAlg{
   /**
    *@brief Calculate MET using a fixed 4 sigma noise cut
    */
-  static StatusCode NoiseCut_MET(const xAOD::JGTowerContainer*towers, TString metname, std::vector<float> noise, bool useNegTowers);
+  static StatusCode NoiseCut_MET(const xAOD::JGTowerContainer *towers, TString metname, std::vector<float> noise, bool useNegTowers);
   /**
    *@brief Calculates MET with pileup subtraction
    */
-  static StatusCode SubtractRho_MET(const xAOD::JGTowerContainer* towers, TString metname, bool useEtaBins, bool useRMS,bool useNegTowers);
+  static StatusCode SubtractRho_MET(const xAOD::JGTowerContainer *towers, TString metname, bool useEtaBins, bool useRMS, bool useNegTowers);
   /**
    *@brief Calculates MET with pileup subtraction in jFEX
    */
-  static std::vector <int> check_in_bin (const float &eta, const float &phi, const std::vector < std::pair < float, float> > &eta_bins, const  std::vector < std::pair < float, float> > &phi_bins, const float &phi_offset);
-  static StatusCode build_jFEX_bins( std::vector < std::vector < int > > &bins, std::vector < std::vector < int > > &bins_core, const xAOD::JGTowerContainer* towers ); 
-  static StatusCode jXERHO(const xAOD::JGTowerContainer* towers, TString metName, const std::vector<float> jTowerArea, const std::vector < std::vector < int > > jFEX_bins, const std::vector < std::vector < int > > jFEX_bins_core, float fixed_noise_cut, float rho_up_threshold, float min_noise_cut, xAOD::JGTowerContainer* towers_PUsub );
+  static std::vector<int> check_in_bin(const float &eta, const float &phi, const std::vector<std::pair<float, float>> &eta_bins, const std::vector<std::pair<float, float>> &phi_bins, const float &phi_offset);
+  static StatusCode build_jFEX_bins(std::vector<std::vector<int>> &bins, std::vector<std::vector<int>> &bins_core, const xAOD::JGTowerContainer *towers);
+  static StatusCode jXERHO(const xAOD::JGTowerContainer *towers, TString metName, const std::vector<float> jTowerArea, const std::vector<std::vector<int>> jFEX_bins, const std::vector<std::vector<int>> jFEX_bins_core, float fixed_noise_cut, float rho_up_threshold, float min_noise_cut, xAOD::JGTowerContainer *towers_PUsub, xAOD::EnergySumRoI *rho);
   /**
    *@brief Calculates MET with Softkiller
    */
-  static StatusCode Softkiller_MET(const xAOD::JGTowerContainer* towers, TString metname, bool useNegTowers);
+  static StatusCode Softkiller_MET(const xAOD::JGTowerContainer *towers, TString metname, bool useNegTowers);
   /**
    *@brief Calculates MET with Jets without Jets
    */
-  static StatusCode JwoJ_MET(const xAOD::JGTowerContainer* towers, const std::vector<TowerObject::Block> gBlocks, TString metname, float pTcone_cut, bool useRho, float RhoA, float RhoB, float RhoC, bool useNegTowers);
+  static StatusCode JwoJ_MET(const xAOD::JGTowerContainer *towers, const std::vector<TowerObject::Block> gBlocks, TString metname, float pTcone_cut, bool useRho, float RhoA, float RhoB, float RhoC, bool useNegTowers);
   /**
    *@brief Calculates MET using PUfit
    */
-  static StatusCode Pufit_MET(const xAOD::JGTowerContainer* towers, TString metname, bool useNegTowers);
- 
-  static float Rho_avg_barrel(const xAOD::JGTowerContainer* towers, bool useNegTowers);
-  static float Rho_avg_etaRings(const xAOD::JGTowerContainer* towers, bool useNegTowers);
+  static StatusCode Pufit_MET(const xAOD::JGTowerContainer *towers, TString metname, bool useNegTowers);
 
-  static StatusCode RhoRMS_LUT(const xAOD::JGTowerContainer* towers, TString metName, float rhoA, float rhoB, float rhoC, TFile* lut_file, bool correctMean);
+  static float Rho_avg_barrel(const xAOD::JGTowerContainer *towers, bool useNegTowers);
+  static float Rho_avg_etaRings(const xAOD::JGTowerContainer *towers, bool useNegTowers);
 
+  static StatusCode RhoRMS_LUT(const xAOD::JGTowerContainer *towers, TString metName, float rhoA, float rhoB, float rhoC, TFile *lut_file, bool correctMean);
 };
 
 #endif
