@@ -134,6 +134,7 @@ namespace top {
     m_doParticleLevelOverlapRemovalMuJet(true),
     m_doParticleLevelOverlapRemovalElJet(true),
     m_doParticleLevelOverlapRemovalJetPhoton(false),
+    m_useParticleLevelOverlapRemovalWithRapidity(false),
 
     // KLFitter
     m_doKLFitter(false),
@@ -938,6 +939,13 @@ namespace top {
           // Remove the last token in the container.
           tokens.pop_back();
         }
+      }
+      // Particle level overlap removal use rapidity in deltaR calculation
+      if(settings->value("OverlapRemovalParticleLevelUseRapidity") == "True"){
+        this->setParticleLevelOverlapRemovalWithRapidity(true);
+      }
+      else{
+        this->setParticleLevelOverlapRemovalWithRapidity(false);
       }
 
       // check if you are running over AFII samples

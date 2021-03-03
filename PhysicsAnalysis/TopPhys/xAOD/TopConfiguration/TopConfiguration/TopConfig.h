@@ -416,6 +416,7 @@ namespace top {
     inline bool doParticleLevelOverlapRemovalMuJet() const {return m_doParticleLevelOverlapRemovalMuJet;}
     inline bool doParticleLevelOverlapRemovalElJet() const {return m_doParticleLevelOverlapRemovalElJet;}
     inline bool doParticleLevelOverlapRemovalJetPhoton() const {return m_doParticleLevelOverlapRemovalJetPhoton;}
+    inline bool useParticleLevelOverlapRemovalWithRapidity() const {return m_useParticleLevelOverlapRemovalWithRapidity;}
     inline void setParticleLevelOverlapRemovalMuJet(bool value) {
       if (!m_configFixed) {
         m_doParticleLevelOverlapRemovalMuJet = value;
@@ -431,6 +432,12 @@ namespace top {
     inline void setParticleLevelOverlapRemovalJetPhoton(bool value) {
       if (!m_configFixed) {
         m_doParticleLevelOverlapRemovalJetPhoton = value;
+      }
+    }
+
+    inline void setParticleLevelOverlapRemovalWithRapidity(bool value){
+      if(!m_configFixed){
+        m_useParticleLevelOverlapRemovalWithRapidity = value;
       }
     }
 
@@ -2189,6 +2196,7 @@ namespace top {
     bool m_doParticleLevelOverlapRemovalMuJet;
     bool m_doParticleLevelOverlapRemovalElJet;
     bool m_doParticleLevelOverlapRemovalJetPhoton;
+    bool m_useParticleLevelOverlapRemovalWithRapidity;
 
     // KLFitter
     bool m_doKLFitter;
