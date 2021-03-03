@@ -458,19 +458,6 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
 		    << " Tau phi: " << p_tau->phi()
 		    << " Tau pT : "<< p_tau->pt());
     }
-	  
-    // Get L1 RoiDescriptor
-    SG::ReadHandle< TrigRoiDescriptorCollection > L1roisHandle = SG::makeHandle( m_L1RoIKey, ctx );
-
-    if ( L1roisHandle.isValid() && (L1roisHandle->size() != 0) ) {
-      const TrigRoiDescriptor *roiL1Descriptor = L1roisHandle->at(0);      
-      EtaL1 = roiL1Descriptor->eta();
-      PhiL1 = roiL1Descriptor->phi();
-    }
-    else {
-      ATH_MSG_WARNING("Failed to retrieve L1 RoI descriptor!");
-
-    }
 
     // get tau detail variables for Monitoring
 
@@ -507,7 +494,9 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
     PhiEF = p_tau->phi();
 	  
     if( Et !=0) EMFrac =  EtEm/ Et ;
-	  
+
+    EtaL1 = roiDescriptor->eta();
+    PhiL1 = roiDescriptor->phi();	  
     dEta =  EtaEF - roiDescriptor->eta();
     dPhi =  PhiEF - roiDescriptor->phi();
     if(dPhi<-M_PI) dPhi += 2.0*M_PI;

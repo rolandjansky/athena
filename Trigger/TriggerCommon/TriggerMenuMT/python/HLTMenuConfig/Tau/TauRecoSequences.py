@@ -141,7 +141,7 @@ def _algoTauPrecisionMVA(inputRoIs, tracks, step):
     from TrigTauRec.TrigTauRecConfigMT import TrigTauRecMerged_TauPrecisionMVA
     algo                                 = TrigTauRecMerged_TauPrecisionMVA(name= "TrigTauRecMerged_TauPrecisionMVA", doMVATES=True, doTrackBDT=False, doRNN=True)
     if "EF" in step:
-       algo                              = TrigTauRecMerged_TauPrecisionMVA(name= "TrigTauRecMerged_TauPrecisionMVA"+step, doMVATES=False, doTrackBDT=False, doRNN=True)
+       algo                              = TrigTauRecMerged_TauPrecisionMVA(name= "TrigTauRecMerged_TauPrecision"+step, doMVATES=False, doTrackBDT=False, doRNN=True)
     algo.RoIInputKey                     = inputRoIs
     algo.L1RoIKey                        = "HLT_TAURoI"
     algo.clustersKey                     = ""
