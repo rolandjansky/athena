@@ -1,8 +1,8 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TriggerMenuMT.HLTMenuConfig.Electron.ElectronRecoSequences import l2CaloRecoCfg, l2CaloHypoCfg
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CAMenuSequence, \
-    ChainStep, Chain, EmptyMenuSequence, InViewReco, SelectionCA
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequenceCA, \
+    ChainStep, Chain, EmptyMenuSequence, InViewRecoCA, SelectionCA
 
 from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoToolFromDict
 from TrigEDMConfig.TriggerEDMRun3 import recordable
@@ -27,7 +27,7 @@ def generateChains(flags, chainDict):
 
         selAcc.addHypoAlgo(l2CaloHypo)
 
-        fastCaloSequence = CAMenuSequence(selAcc,
+        fastCaloSequence = MenuSequenceCA(selAcc,
                                           HypoToolGen=TrigEgammaFastCaloHypoToolFromDict)
 
         # this cannot work for asymmetric combined chains....FP
@@ -51,7 +51,7 @@ def generateChains(flags, chainDict):
         from TrigInDetConfig.TrigInDetConfig import trigInDetFastTrackingCfg
         idTracking = trigInDetFastTrackingCfg(flags, roisKey=evtViewMaker.InViewRoIs, signatureName="Electron")
 
-        fastInDetReco = InViewReco('FastElectron', viewMaker=evtViewMaker)
+        fastInDetReco = InViewRecoCA('FastElectron', viewMaker=evtViewMaker)
         fastInDetReco.mergeReco(idTracking)
         fastInDetReco.addRecoAlgo(CompFactory.AthViews.ViewDataVerifier(name='VDVElectronFastCalo',
                                   DataObjects=[('xAOD::TrigEMClusterContainer', 'StoreGateSvc+HLT_FastCaloEMClusters')]) )
@@ -66,7 +66,7 @@ def generateChains(flags, chainDict):
         selAcc.addHypoAlgo(fastElectronHypoAlg)
 
         from TrigEgammaHypo.TrigEgammaFastElectronHypoTool import TrigEgammaFastElectronHypoToolFromDict
-        fastInDetSequence = CAMenuSequence(selAcc,
+        fastInDetSequence = MenuSequenceCA(selAcc,
                                            HypoToolGen=TrigEgammaFastElectronHypoToolFromDict)
 
         return ChainStep( name=selAcc.name, Sequences=[fastInDetSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
@@ -77,7 +77,7 @@ def generateChains(flags, chainDict):
 
     # # # Precision calo
     def __precisonCalo():
-        recoAcc = InViewReco('ElectronRoITopoClusterReco')
+        recoAcc = InViewRecoCA('ElectronRoITopoClusterReco')
         recoAcc.addRecoAlgo(CompFactory.AthViews.ViewDataVerifier(name='VDV'+recoAcc.name,
                                                                   DataObjects=[('TrigRoiDescriptorCollection', recoAcc.inputMaker().InViewRoIs),
                                                                                ('CaloBCIDAverage', 'StoreGateSvc+CaloBCIDAverage')]))
@@ -99,7 +99,7 @@ def generateChains(flags, chainDict):
                                                                CaloClusters=recordable('HLT_CaloEMClusters'))
         selAcc.addHypoAlgo(hypoAlg)
         from TrigEgammaHypo.TrigEgammaPrecisionCaloHypoTool import TrigEgammaPrecisionCaloHypoToolFromDict
-        menuSequence = CAMenuSequence(selAcc,
+        menuSequence = MenuSequenceCA(selAcc,
                                       HypoToolGen=TrigEgammaPrecisionCaloHypoToolFromDict)
         return ChainStep(name=selAcc.name, Sequences=[menuSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
 

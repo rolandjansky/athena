@@ -113,9 +113,9 @@ def photonViewDataVerifierCfg():
     return result
 
 def l2PhotonRecoCfg( flags ):
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewRecoCA
 
-    reco = InViewReco("L2PhotonReco")
+    reco = InViewRecoCA("L2PhotonReco")
     reco.inputMaker().RequireParentView = True
     reco.inputMaker().RoIsLink="initialRoI"
 

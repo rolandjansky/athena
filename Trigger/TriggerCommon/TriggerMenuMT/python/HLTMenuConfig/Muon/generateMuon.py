@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CAMenuSequence, ChainStep, Chain, EmptyMenuSequence, SelectionCA, InViewReco
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequenceCA, ChainStep, Chain, EmptyMenuSequence, SelectionCA, InViewRecoCA
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 from TrigL2MuonSA.TrigL2MuonSAConfig_newJO import l2MuFastAlgCfg, l2MuFastHypoCfg
@@ -250,7 +250,7 @@ def muFastStep(flags, chainDict):
     # Step 1 (L2MuonSA)
     selAcc = SelectionCA("L2MuFastReco")
     # Set EventViews for L2MuonSA step
-    reco = InViewReco("L2MuFastReco")
+    reco = InViewRecoCA("L2MuFastReco")
 
     #external data loading to view
     reco.mergeReco( MuFastViewDataVerifier() )
@@ -270,7 +270,7 @@ def muFastStep(flags, chainDict):
 
     selAcc.addHypoAlgo(l2muFastHypo)
 
-    l2muFastSequence = CAMenuSequence(selAcc, 
+    l2muFastSequence = MenuSequenceCA(selAcc, 
                                       HypoToolGen = TrigMufastHypoToolFromDict )
 
     return ChainStep( name=selAcc.name, Sequences=[l2muFastSequence], chainDicts=[chainDict] )
@@ -295,7 +295,7 @@ def muCombStep(flags, chainDict):
                                    muCombInfo = 'HLT_MuonL2CBInfo' )
 
     selAccL2CB.addHypoAlgo(l2muCombHypo)
-    l2muCombSequence = CAMenuSequence(selAccL2CB,
+    l2muCombSequence = MenuSequenceCA(selAccL2CB,
                                       HypoToolGen = TrigmuCombHypoToolFromDict)
 
     return ChainStep( name=selAccL2CB.name, Sequences=[l2muCombSequence], chainDicts=[chainDict] )
@@ -322,7 +322,7 @@ def muEFSAStep(flags, chainDict, name='RoI'):
                                                          InViewRoIs      = viewName+'RoIs',
                                                          Views           = viewName+'Views',
                                                          ViewNodeName    = viewName+"InView")
-    recoMS = InViewReco(name=viewName, viewMaker=viewMakerAlg)
+    recoMS = InViewRecoCA(name=viewName, viewMaker=viewMakerAlg)
     
     #Probably this block will eventually need to move somewhere more central
     recoMS.merge( BeamPipeGeometryCfg(flags) )
@@ -354,7 +354,7 @@ def muEFSAStep(flags, chainDict, name='RoI'):
 
     selAccMS.addHypoAlgo(efmuMSHypo)
 
-    efmuMSSequence = CAMenuSequence(selAccMS,
+    efmuMSSequence = MenuSequenceCA(selAccMS,
                                     HypoToolGen = TrigMuonEFMSonlyHypoToolFromDict)
 
     return ChainStep( name=selAccMS.name, Sequences=[efmuMSSequence], chainDicts=[chainDict] )
@@ -381,12 +381,12 @@ def muEFCBStep(flags, chainDict, name='RoI'):
                                                              InViewRoIs      = viewName+'RoIs',
                                                              Views           = viewName+'Views',
                                                              ViewNodeName    = viewName+"InView")
-        recoCB = InViewReco("EFMuCBReco_"+name, viewMaker=viewMakerAlg)
+        recoCB = InViewRecoCA("EFMuCBReco_"+name, viewMaker=viewMakerAlg)
         #ID tracking
         recoCB.mergeReco(trigInDetFastTrackingCfg( flags, roisKey=recoCB.inputMaker().InViewRoIs, signatureName="MuonFS" ))
         trackName = "HLT_IDTrack_MuonFS_FTF"
     else:
-        recoCB = InViewReco(viewName)
+        recoCB = InViewRecoCA(viewName)
         recoCB.inputMaker().RequireParentView = True
 
     recoCB.mergeReco(EFMuonCBViewDataVerifierCfg(name))
@@ -411,7 +411,7 @@ def muEFCBStep(flags, chainDict, name='RoI'):
 
     selAccEFCB.addHypoAlgo(efmuCBHypo)
 
-    efmuCBSequence = CAMenuSequence(selAccEFCB,
+    efmuCBSequence = MenuSequenceCA(selAccEFCB,
                                     HypoToolGen = TrigMuonEFCombinerHypoToolFromDict)
     
     return ChainStep( name=selAccEFCB.name, Sequences=[efmuCBSequence], chainDicts=[chainDict] )
@@ -434,7 +434,7 @@ def muEFIsoStep(flags, chainDict):
                                                          InViewRoIs      = viewName+'RoIs',
                                                          Views           = viewName+'Views',
                                                          ViewNodeName    = viewName+"InView")
-    recoIso = InViewReco("EFMuIsoReco", viewMaker=viewMakerAlg)
+    recoIso = InViewRecoCA("EFMuIsoReco", viewMaker=viewMakerAlg)
     #ID tracking
     recoIso.mergeReco(trigInDetFastTrackingCfg( flags, roisKey=recoIso.inputMaker().InViewRoIs, signatureName="MuonIso" ))
     recoIso.mergeReco(MuIsoViewDataVerifierCfg())
@@ -446,7 +446,7 @@ def muEFIsoStep(flags, chainDict):
                                   inputMuons = "MuonsIso" )
     selAccEFIso.addHypoAlgo(efmuIsoHypo)
 
-    efmuIsoSequence = CAMenuSequence(selAccEFIso,
+    efmuIsoSequence = MenuSequenceCA(selAccEFIso,
                                      HypoToolGen = TrigMuonEFTrackIsolationHypoToolFromDict)
     
     return ChainStep( name=selAccEFIso.name, Sequences=[efmuIsoSequence], chainDicts=[chainDict] )

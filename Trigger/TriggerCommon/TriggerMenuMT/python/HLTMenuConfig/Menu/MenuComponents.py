@@ -528,7 +528,7 @@ class MenuSequence(object):
           %(self.name, hyponame, self._maker.Alg.getName(), self.sequence.Alg.getName(), hypotool)
 
 
-class CAMenuSequence(MenuSequence):
+class MenuSequenceCA(MenuSequence):
     ''' MenuSequence with Compoment Accumulator '''
 
     def __init__(self, ca, HypoToolGen ):
@@ -858,10 +858,10 @@ def createComboAlg(dummyFlags, name, multiplicity, comboHypoCfg):
 
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-class InEventReco( ComponentAccumulator ):
+class InEventRecoCA( ComponentAccumulator ):
     """ Class to handle in-event reco """
     def __init__(self, name, inputMaker=None):
-        super( InEventReco, self ).__init__()
+        super( InEventRecoCA, self ).__init__()
         self.name = name
         self.mainSeq = seqAND( name )
         self.addSequence( self.mainSeq )
@@ -885,10 +885,10 @@ class InEventReco( ComponentAccumulator ):
 
 
 
-class InViewReco(ComponentAccumulator):
+class InViewRecoCA(ComponentAccumulator):
     """ Class to handle in-view reco, sets up the View maker if not provided and exposes InputMaker so that more inputs to it can be added in the process of assembling the menu """
     def __init__(self, name, viewMaker=None, roisKey=None):
-        super( InViewReco, self ).__init__()
+        super( InViewRecoCA, self ).__init__()
         self.name = name
         self.mainSeq = seqAND( name )
         self.addSequence( self.mainSeq )
