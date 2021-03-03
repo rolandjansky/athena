@@ -15,6 +15,7 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaCommon.AppMgr import theApp
 from AthenaCommon.AppMgr import ToolSvc
 import AthenaPoolCnvSvc.ReadAthenaPool
+from xAODEventFormatCnv.xAODEventFormatCnvConf import xAODMaker__EventFormatStreamHelperTool
 from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 
@@ -32,8 +33,15 @@ def makeStream(name='TestStream'):
         noTag=True,
     )
     # Add dummy items for testing
-    test_stream.AddItem("xAOD::ElectronContainer#TestElectrons")
-    test_stream.AddItem("xAOD::ElectronAuxContainer#TestElectronsAux.")
+    test_stream.AddItem("xAODMakerTest::AVec#TestObject")
+    test_stream.AddItem("xAODMakerTest::AAuxContainer#TestObjectAux.")
+    test_stream.AddItem("xAODMakerTest::AVec#TestObject2")
+    test_stream.AddItem("xAODMakerTest::AAuxContainer#TestObject2Aux.")
+    for tool in test_stream.GetMetaDataStream().HelperTools:
+        if isinstance(tool, xAODMaker__EventFormatStreamHelperTool):
+            tool.TypeNames += ['.*xAODMakerTest::.*']
+            tool.OutputLevel = VERBOSE
+            break
     return test_stream
 
 
@@ -58,7 +66,7 @@ algSeq += CfgMgr.xAODMakerTest__EventFormatPrinterAlg()
 
 # Add (an) xAOD creator algorithm(s) to the job.
 algSeq += CfgMgr.xAODMakerTest__ACreatorAlg(
-    "ACreator", OutputKey="TestObjects2"
+    "ACreator", OutputKey="TestObject2"
 )
 
 # Write some output streams to file with this container.
