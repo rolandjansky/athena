@@ -6,7 +6,7 @@
 #include <vector>
 
 namespace Muon {
-struct NSW_PadTriggerData_p1 : public std::vector<NSW_PadTriggerSegment_p1> {
+struct NSW_PadTriggerData_p1 {
     unsigned int m_identifierHash;
     uint8_t m_sectorID;
     uint8_t m_sectorSize;
@@ -17,6 +17,9 @@ struct NSW_PadTriggerData_p1 : public std::vector<NSW_PadTriggerSegment_p1> {
     std::vector<uint16_t> m_precedingHitlist;
     std::vector<uint16_t> m_currentHitlist;
     std::vector<uint16_t> m_followingHitlist;
+
+    // Decision data
+    std::vector<NSW_PadTriggerSegment_p1> m_segments;
 };
 } // namespace Muon
 
