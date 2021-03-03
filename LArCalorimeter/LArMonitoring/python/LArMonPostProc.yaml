@@ -1,0 +1,146 @@
+#
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#
+# Author: Margherita Spalla (margherita.spalla@cern.ch)
+# Post-processing of histograms from LArMonitoring 
+#
+
+# Separate blocks with ---
+
+#Affected regions
+---
+Input: [ 'LAr/AffectedRegions/RAW_LArAffectedRegions(?P<id>\S+)' ]
+Output: [ 'LAr/AffectedRegions/LArAffectedRegions{id}' ]
+Function: LArMonTransforms.setMaxMin
+Parameters: { maxVal : 2, minVal : 0 }
+Description: LAr_AffectedRegions_SetMinMax
+
+#Coverage
+---
+Input: [ 'LAr/Coverage/BadChannels/RAW_DBBadChannels(?P<id>\S+)' ]
+Output: [ 'LAr/Coverage/BadChannels/DBBadChannels{id}' ]
+Function: LArMonTransforms.setMaxMin
+Parameters: { maxVal : 10, minVal : 0}
+Description: LAr_Coverage_DBBadChannels_SetMinMax
+
+---
+Input: [ 'LAr/Coverage/perPartition/RAW_CoverSampling(?P<sampling>[0123])(?P<part>\S+)_StatusCode_(?P<sc>\d+)' ]
+Output: [ 'LAr/Coverage/perPartition/CoverSampling{sampling}{part}' ]
+Function: LArMonTransforms.fillWithMaxCoverage
+Parameters: { isFtSlotPlot : False }
+Description: LAr_Coverage_FillWithMax
+
+---
+Input: [ 'LAr/Coverage/perPartition/RAW_CoverageHW(?P<sampling>[0123])(?P<part>\S+)_StatusCode_(?P<sc>\d+)' ]
+Output: [ 'LAr/Coverage/perPartition/CoverSampling{sampling}{part}' ]
+Function: LArMonTransforms.fillWithMaxCoverage
+Parameters: { isFtSlotPlot : True }
+Description: LAr_Coverage_HW_FillWithMax
+
+#FEB mon
+---
+Input: [ 'LAr/FEBMon/(?P<fold>\S+)/RAW_EventsRejectedLB' ]
+Output: [ 'LAr/FEBMon/{fold}/EventsRejectedLB' ]
+Function: LArMonTransforms.setMaxMin
+Parameters: { maxVal : 100, minVal : 0}
+Description: LAr_FEBmon_EventsRejectedLB_SetMinMax
+
+---
+Input: [ 'LAr/FEBMon/Summary/RAW_YieldOfRejectedEventsVsLB(?P<end>\S*)' ]
+Output: [ 'LAr/FEBMon/Summary/YieldOfRejectedEventsVsLB{end}' ]
+Function: LArMonTransforms.setMaxMin
+Parameters: { minVal : -5, useMax : False}
+Description: LAr_FEBmon_YieldOfRejectedEventsVsLB_SetMinMax
+
+
+---
+Input: [ 'LAr/FEBMon/(?P<fold>EMB|EMEC|HEC|FCal)/RAW_(?P<histname>Parity|BCID|RADD|EVTID|SCACStatus|scaOutOfRange|gainMismatch|typeMismatch|badNbOfSamp|zeroSamp|checkSum|missingHeader|badGain|LArFEBMonErrorsAbsolute|missingTriggerType|nbOfEvts|NbOfSweet1PerFEB|NbOfSweet2PerFEB|knownFaultyFEB)_(?P=fold)(?P<side>A|C)' ]
+Output: [ 'LAr/FEBMon/{fold}/{histname}_{fold}{side}' ]
+Function: LArMonTransforms.setMaxMin
+Parameters: { minVal : 0, useMax : False}
+Description: LAr_FEBmon_SetMin0
+
+
+
+#Digits
+---
+Input: [ 'LAr/Digits/(?P<fold>EMB|EMEC|HEC|FCal)/RAW_(?P<histname>OutOfRange|Saturation|SaturationLow|NullDigit|AvePosMaxDig)_(?P=fold)(?P<side>A|C)' ]
+Output: [ 'LAr/Digits/{fold}/{histname}_{fold}{side}' ]
+Function: LArMonTransforms.setMaxMin
+Parameters: { minVal : 0, useMax : False}
+Description: LAr_Digits_SetMin0
+
+---
+Input: [ 'LAr/Digits/(?P<fold>EMB|EMEC|HEC|FCal)/RAW_(?P<histname>OutOfRangeChan|SaturationChan|SaturationChanLow|NullDigitChan)_(?P=fold)(?P<side>A|C)', 'LAr/Digits/LBN' ]
+Output: [ 'LAr/Digits/{fold}/{histname}_{fold}{side}' ]
+Function: LArMonTransforms.normToEntriesAndSetMin
+Parameters: { minVal : 0}
+Description: LAr_Digits_NormaliseToEntriesAndSetMin
+
+---
+Input: [ 'LAr/Digits/(?P<part>EMB|EMEC|HEC|FCal)/(?P<histname>RAW_OutOfRange|RAW_Saturation|RAW_NullDigit|EnVsTime)_(?P=part)(?P<side>A|C)' ]
+Output: [ 'LAr/Digits/Summary/Summary' ]
+Function: LArMonTransforms.digitSummary
+Parameters: { TreshOut : 5, TreshSat : 5, TreshNull : 5 }
+Description: LAr_Digits_summary_plot
+
+
+
+#DSPMonitoring
+---
+Input: [ 'LAr/DSPMonitoring/perPartition/RAW_Out_(?P<var>E|T|Q)_FT_vs_SLOT_(?P<part>EMB|EMEC|HEC|FCal)(?P<side>A|C)' ]
+Output: [ 'LAr/DSPMonitoring/perPartition/Out_{var}_FT_vs_SLOT_{part}{side}' ]
+Function: LArMonTransforms.setMaxMin
+Parameters: { minVal : 0, useMax : False}
+Description: LAr_DSPMon_SetMin0
+
+
+#NoisyRO
+---
+Input: [  'LAr/NoisyRO/(?P<part>EMB|EMEC|HEC|FCal)/(?P<type>Noisy|MNBTight|MNBTight_PsVeto|MNBLoose|CandidateMNBTight|CandidateMNBTight_PsVeto|CandidateMNBLoose)FEBPerEvt_(?P=part)(?P<side>A|C)', 'LAr/NoisyRO/Summary/NoisyFEB' ]
+Output: [ 'LAr/NoisyRO/{part}/{type}FEBFracPerEvt_{part}{side}' ]
+Function: LArMonTransforms.normToEntries
+Parameters: { titleToReplace : 'Yields of events with', replaceWith: 'Fraction of events with' }
+Description: LAr_NoisyRO_normToEntries
+
+---
+Input: [  'LAr/NoisyRO/(?P<part>EMB|EMEC|HEC|FCal)/(?P<type>NoisyEvent|SaturatedNoisyEvent|MNBTightEvent|MNBTight_PsVetoEvent|MNBLooseEvent|NoisyEvent_TimeVeto|SaturatedNoisyEvent_TimeVeto|MNBTightEvent_TimeVeto|MNBTight_PsVetoEvent_TimeVeto|MNBLooseEvent_TimeVeto)_(?P=part)(?P<side>A|C)', 'LAr/NoisyRO/Summary/LBN' ]
+Output: [ 'LAr/NoisyRO/{part}/{type}Frac_{part}{side}' ]
+Function: LArMonTransforms.divideHist
+Parameters: { titleToReplace : 'Yields of events', replaceWith: 'Fraction of events' }
+Description: LAr_NoisyRO_normToEntriesLB
+
+
+
+#Coherent noise
+---
+Input: [ 'LAr/NoiseCorrelation/Barrel(?P<side>A|C)/RAW_NoiseCorr_(?P<name>\S+)_Barrel(?P=side)ft(?P<ftid>\d+)slot(?P<slotid>\d+)' ]
+Output: [ 'LAr/NoiseCorrelation/EMB{side}/NoiseCorr_EMB{side}ft{ftid}slot{slotid}' ]
+Function: LArMonTransforms.computeCorrelations
+Description: NoiseCorrelationMon_Barrel
+
+---
+Input: [ 'LAr/NoiseCorrelation/Endcap(?P<side>A|C)/RAW_NoiseCorr_(?P<name>\S+)_Endcap(?P=side)ft(?P<ftid>00|01|04|07|08|11|12|13|14|17|18|19|20|23|24|02|09|15|21)slot(?P<slotid>\d+)' ]
+Output: [ 'LAr/NoiseCorrelation/EMEC{side}/NoiseCorr_EMEC{side}ft{ftid}slot{slotid}' ]
+Function: LArMonTransforms.computeCorrelations
+Description: NoiseCorrelationMon_EMECstandardANDspecialCrates
+
+---
+Input: [ 'LAr/NoiseCorrelation/Endcap(?P<side>A|C)/RAW_NoiseCorr_(?P<name>\S+)_Endcap(?P=side)ft(?P<ftid>03|10|16|22)slot(?P<slotid>01|02)' ]
+Output: [ 'LAr/NoiseCorrelation/EMEC{side}/NoiseCorr_EMEC{side}ft{ftid}slot{slotid}' ]
+Function: LArMonTransforms.computeCorrelations
+Description: NoiseCorrelationMon_EMECinHECCrates
+
+---
+Input: [ 'LAr/NoiseCorrelation/Endcap(?P<side>A|C)/RAW_NoiseCorr_(?P<name>\S+)_Endcap(?P=side)ft(?P<ftid>03|10|16|22)slot(?P<slotid>05|06|07|08|09|10)' ]
+Output: [ 'LAr/NoiseCorrelation/HEC{side}/NoiseCorr_HEC{side}ft{ftid}slot{slotid}' ]
+Function: LArMonTransforms.computeCorrelations
+Description: NoiseCorrelationMon_HEC
+
+---
+Input: [ 'LAr/NoiseCorrelation/Endcap(?P<side>A|C)/RAW_NoiseCorr_(?P<name>\S+)_Endcap(?P=side)ft(?P<ftid>06|25|26|27)slot(?P<slotid>\d+)' ]
+Output: [ 'LAr/NoiseCorrelation/FCal{side}/NoiseCorr_FCal{side}ft{ftid}slot{slotid}' ]
+Function: LArMonTransforms.computeCorrelations
+Description: NoiseCorrelationMon_FCal
+
+
