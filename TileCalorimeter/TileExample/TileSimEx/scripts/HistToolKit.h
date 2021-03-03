@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ##########################################
@@ -198,7 +198,7 @@ int SetHistDrawOption(TH1F* hist, TLegend *leg, bool DrawHistorNot=false)
 }
 int SetHistDrawOption(std::vector< std::pair< TH1F*, bool > > histvec, TLegend *leg)
 {
-  for(std::vector< std::pair< TH1F*, bool > >::iterator itr=histvec.begin() ; itr!=histvec.end() ; itr++)
+  for(std::vector< std::pair< TH1F*, bool > >::iterator itr=histvec.begin() ; itr!=histvec.end() ; ++itr)
   {
     if(itr->second)
     { 
