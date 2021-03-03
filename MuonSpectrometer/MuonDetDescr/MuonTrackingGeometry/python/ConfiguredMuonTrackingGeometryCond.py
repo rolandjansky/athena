@@ -1,23 +1,25 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 
 from AthenaCommon.AppMgr import ToolSvc
 
 from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
 
+from MuonRecExample import MuonAlignConfig  # noqa: F401 (import side-effects)
+
 from MuonTrackingGeometry.MuonTrackingGeometryConf import Muon__MuonStationTypeBuilder
 MuonStationTypeBuilder= Muon__MuonStationTypeBuilder(name = 'MuonStationTypeBuilder')
 ToolSvc += MuonStationTypeBuilder
 
 # muon active/passive geometry setup
-from MuonTrackingGeometry.MuonTrackingGeometryConf import Muon__MuonStationBuilder
-MuonStationBuilder= Muon__MuonStationBuilder(name = 'MuonStationBuilder')
-MuonStationBuilder.StationTypeBuilder = MuonStationTypeBuilder
-ToolSvc += MuonStationBuilder
+from MuonTrackingGeometry.MuonTrackingGeometryConf import Muon__MuonStationBuilderCond
+MuonStationBuilderCond = Muon__MuonStationBuilderCond(name = 'MuonStationBuilderCond')
+MuonStationBuilderCond.StationTypeBuilder = MuonStationTypeBuilder
+ToolSvc += MuonStationBuilderCond
 
-from MuonTrackingGeometry.MuonTrackingGeometryConf import Muon__MuonInertMaterialBuilder
-MuonInertMaterialBuilder= Muon__MuonInertMaterialBuilder(name = 'MuonInertMaterialBuilder')
-ToolSvc += MuonInertMaterialBuilder 
+from MuonTrackingGeometry.MuonTrackingGeometryConf import Muon__MuonInertMaterialBuilderCond
+MuonInertMaterialBuilderCond= Muon__MuonInertMaterialBuilderCond(name = 'MuonInertMaterialBuilderCond')
+ToolSvc += MuonInertMaterialBuilderCond
 
 # muon tracking geometry builder
 from MuonTrackingGeometry.MuonTrackingGeometryConf import Muon__MuonTrackingGeometryBuilderCond
@@ -27,4 +29,3 @@ MuonTrackingGeometryBuilderCond.ExitVolumeName  = TrkDetFlags.MuonSystemContaine
 MuonTrackingGeometryBuilderCond.OutputLevel     = TrkDetFlags.MuonBuildingOutputLevel()
 ToolSvc += MuonTrackingGeometryBuilderCond
 
-#print MuonTrackingGeometryBuilder

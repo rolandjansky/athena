@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRACKINGGEOMETRYCONDALGTEST_H
@@ -37,7 +37,7 @@ public:
 private:
 
   /// Input conditions object.
-  SG::ReadCondHandleKey<TrackingGeometry>   m_trackingGeometryReadKey{this, "TrackingGeometryReadKey", "AlignedTrackingGeometry", "Key of input TrackingGeometry"};
+  SG::ReadCondHandleKey<TrackingGeometry>   m_trackingGeometryReadKey{this, "TrackingGeometryReadKey", "AtlasTrackingGeometry", "Key of input TrackingGeometry"};
   mutable const TrackingGeometry*           m_trackingGeometry;          //!< the tracking geometry
   ServiceHandle<Trk::ITrackingGeometrySvc>  m_trackingGeometrySvc;       //!< ToolHandle to the TrackingGeometrySvc
   ToolHandleArray<Trk::IGeometryProcessor>  m_trackingGeometryProcessors; //!< Tool to write out a Display format for external viewers
