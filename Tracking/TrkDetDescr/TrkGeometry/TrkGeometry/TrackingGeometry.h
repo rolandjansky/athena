@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -25,6 +25,11 @@
 #include "CxxUtils/checker_macros.h"
 
 class MsgStream;
+
+//must be known to declare friend class
+namespace Muon {
+  class MuonTrackingGeometryBuilderCond;
+}
 
 namespace Trk {
 
@@ -59,10 +64,12 @@ namespace Trk {
 
     /** Give the GeometryBuilder friend rights */  
     friend class GeometryBuilder;
-    friend class IGeometryBuilder;
     
     friend class GeometryBuilderCond;
-    friend class IGeometryBuilderCond;
+
+
+    // gives ownership over MuonTG constituents 
+    friend class Muon::MuonTrackingGeometryBuilderCond;
 
     // give access to private members to allow the  class below to mirror a TrackingGeometry.
     // This is needed for a temporary workaround to allow using the TrackingGeometryCondAlg and
@@ -164,6 +171,10 @@ namespace Trk {
       /** The Navigation level for identification */
       NavigationLevel                                       m_navigationLevel;
       
+      /** keep ownership of MuonTrackingGeometry elements in here */
+      std::unique_ptr<std::vector<std::vector<std::pair<std::unique_ptr<const Trk::Volume>,float> > > >  m_muonInertMaterialConstituents;
+      std::unique_ptr<const std::vector<std::unique_ptr<const Trk::DetachedTrackingVolume> > > m_muonStations;    // muon chambers 
+      std::unique_ptr<const std::vector<std::unique_ptr<const Trk::DetachedTrackingVolume> > > m_muonInertObjs;   // muon inert material 
 
   };
   

@@ -3,14 +3,13 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// MuonInertMaterialBuilder.h, (c) ATLAS Detector software
+// MuonInertMaterialBuilderCond.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#ifndef MUONTRACKINGGEOMETRY_MUONINERTMATERIALBUILDER_H
-#define MUONTRACKINGGEOMETRY_MUONINERTMATERIALBUILDER_H
+#ifndef MUONTRACKINGGEOMETRY_MUONINERTMATERIALBUILDERCOND_H
+#define MUONTRACKINGGEOMETRY_MUONINERTMATERIALBUILDERCOND_H
 
 //Trk
-#include "TrkDetDescrInterfaces/IDetachedTrackingVolumeBuilder.h"
 #include "TrkGeometry/MaterialProperties.h"
 #include "TrkGeometry/DetachedTrackingVolume.h"
 #include "TrkGeometry/TrackingVolume.h"
@@ -30,6 +29,9 @@
 #include "TrkVolumes/BevelledCylinderVolumeBounds.h"
 #include "TrkVolumes/CylinderVolumeBounds.h"
 
+// CondData
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
+
 namespace Trk {
  class TrackingGeometry;
  class TrackingVolume;
@@ -46,46 +48,50 @@ namespace Trk {
 }
 
 namespace MuonGM {
-  class MuonDetectorManager;
   class MuonStation;
 }
  
 namespace Muon {
         
-  /** @class MuonInertMaterialBuilder
+  /** @class MuonInertMaterialBuilderCond
   
-      The Muon::MuonInertMaterialBuilder retrieves muon stations from Muon Geometry Tree
+      The Muon::MuonInertMaterialBuilderCond retrieves muon stations from Muon Geometry Tree
       
       by Sarka.Todorova@cern.ch, Marcin.Wolter@cern.ch
     */
     
-  class MuonInertMaterialBuilder : public AthAlgTool,
-                                   public Trk::TrackingVolumeManipulator,
-                             virtual public Trk::IDetachedTrackingVolumeBuilder {
+  class MuonInertMaterialBuilderCond : public AthAlgTool,
+                                       public Trk::TrackingVolumeManipulator {
   public:
       /** Constructor */
-      MuonInertMaterialBuilder(const std::string&,const std::string&,const IInterface*);
+      MuonInertMaterialBuilderCond(const std::string&,const std::string&,const IInterface*);
       /** Destructor */
-      virtual ~MuonInertMaterialBuilder() = default;
+      virtual ~MuonInertMaterialBuilderCond() = default;
       /** AlgTool initailize method.*/
       StatusCode initialize();
       /** AlgTool finalize method */
       StatusCode finalize();
 
       /** Method returning cloned and positioned material objects */
-      const std::vector<const Trk::DetachedTrackingVolume*>* buildDetachedTrackingVolumes(bool blend=false); 
+      std::tuple<EventIDRange,
+           std::unique_ptr<const std::vector<std::unique_ptr<const Trk::DetachedTrackingVolume> > >,
+           std::unique_ptr<std::vector<std::vector<std::pair<std::unique_ptr<const Trk::Volume>,float> > > > >
+      buildDetachedTrackingVolumes(const EventContext& ctx, bool blend=false) const; 
 
     private:
 
       /** Method creating material object prototypes */
-      const std::vector<std::pair<const Trk::DetachedTrackingVolume*,std::vector<Amg::Transform3D> > >* buildDetachedTrackingVolumeTypes(bool blend); 
+      std::tuple<EventIDRange,
+           const std::vector<std::pair<const Trk::DetachedTrackingVolume*,std::vector<Amg::Transform3D> > >*,
+           std::unique_ptr<std::vector<std::vector<std::pair<std::unique_ptr<const Trk::Volume>,float> > > > >
+      buildDetachedTrackingVolumeTypes(const EventContext& ctx, bool blend) const; 
       /** Method extracting material objects from GeoModel tree */
       void getObjsForTranslation(const GeoVPhysVol* pv,Amg::Transform3D , std::vector<std::pair<const GeoLogVol*,std::vector<Amg::Transform3D> > >& vols ) const;
       /** Dump from GeoModel tree  */
       void printInfo(const GeoVPhysVol* pv) const;
       void printChildren(const GeoVPhysVol* pv) const;
       /** Simplification of GeoModel object + envelope */
-      const Trk::TrackingVolume* simplifyShape(const Trk::TrackingVolume* tr, bool blend);
+      const Trk::TrackingVolume* simplifyShape(const Trk::TrackingVolume* tr, bool blend, std::vector<std::vector<std::pair<std::unique_ptr<const Trk::Volume>,float> > >* constituentsVector) const;
       /** Envelope creation & material fraction calculation */
       const Trk::Volume* createEnvelope(const Amg::Transform3D transf, std::vector<std::pair<const Trk::Volume*,std::pair<float,float> > > ) const;
       /** Simplification of objects, material fraction calculation */
@@ -95,8 +101,8 @@ namespace Muon {
       /** Volume calculation */
       double calculateVolume( const Trk::Volume* envelope) const;
 
-      const MuonGM::MuonDetectorManager*  m_muonMgr;               //!< the MuonDetectorManager
-      Gaudi::Property<std::string>        m_muonMgrLocation{this,"MuonDetManagerLocation","MuonMgr"};//!< the location of the Muon Manager
+      SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_muonMgrReadKey{this, "MuonMgrReadKey", "MuonDetectorManager", "Key of input MuonDetectorMgr"};
+
       Gaudi::Property<bool>               m_simplify{this,"SimplifyGeometry",false};                 // switch geometry simplification on/off 
       Gaudi::Property<bool>               m_simplifyToLayers{this,"SimplifyGeometryToLayers",false}; // switch geometry simplification to layers on/off 
       Gaudi::Property<bool>               m_debugMode{this,"DebugMode",false};                       // build layers & dense volumes in parallel - double counting material !!! 
@@ -115,8 +121,6 @@ namespace Muon {
       ServiceHandle<IRndmGenSvc>          m_rndmGenSvc{this,"randomGen","RndmGenSvc"};                 //!< Random number generator
       std::unique_ptr<Rndm::Numbers>                      m_flatDist;
       
-      std::vector<std::vector<std::pair<std::unique_ptr<const Trk::Volume>,float> > >  m_constituents;
-
       Gaudi::Property<bool>               m_extraMaterial{this,"AddMaterial",false};
       Gaudi::Property<float>              m_extraX0{this,"AMradLength",0.3};
       Gaudi::Property<float>              m_extraFraction{this,"AMsplit",0.5};
@@ -128,6 +132,6 @@ namespace Muon {
 } // end of namespace
 
 
-#endif //MUONTRACKINGGEOMETRY_MUONINERTMATERIALBUILDER_H
+#endif //MUONTRACKINGGEOMETRY_MUONINERTMATERIALBUILDERCOND_H
 
 
