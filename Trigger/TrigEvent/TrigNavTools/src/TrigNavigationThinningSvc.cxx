@@ -332,7 +332,7 @@ TrigNavigationThinningSvc::lateFillConfiguration(State& state) const {
   // ??? Originally, this was done once and cached in the tool.
   //     If this takes too long, consider storing it in the detector store.
   auto chainGroup = m_trigDecisionTool->getChainGroup(m_chainsRegex);
-  ATH_MSG_INFO("Will keep information related to this chains" << chainGroup->getListOfTriggers());
+  ATH_MSG_DEBUG("Will keep information related to this chains" << chainGroup->getListOfTriggers());
   auto confTEs = chainGroup->getHLTTriggerElements();
   for ( auto& vec: confTEs) {
     for ( auto confTEPtr: vec) {
