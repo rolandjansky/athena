@@ -43,6 +43,10 @@ def _is_exit_early():
 @acmdlib.argument('-t', '--tree-name',
                   default='CollectionTree',
                   help='name of the TTree to compare')
+@acmdlib.argument('--branches-of-interest',
+                  nargs='*',
+                  default='',
+                  help='set of regex matching names of branches to compare; assumes all if none specified.')
 @acmdlib.argument('--ignore-leaves',
                   nargs='*',
                   default=('Token', 'index_ref',),
@@ -121,14 +125,15 @@ def main(args):
     msg.info('comparing tree [%s] in files:', args.tree_name)
     msg.info(' old: [%s]', args.old)
     msg.info(' new: [%s]', args.new)
-    msg.info('ignore  leaves: %s', args.ignore_leaves)
-    msg.info('enforce leaves: %s', args.enforce_leaves)
-    msg.info('leaves prefix:  %s', args.leaves_prefix)
-    msg.info('hacks:          %s', args.known_hacks)
-    msg.info('entries:        %s', args.entries)
-    msg.info('mode:           %s', args.mode)
-    msg.info('error mode:     %s', args.error_mode)
-    msg.info('order trees:    %s', args.order_trees)
+    msg.info('branches of interest: %s', args.branches_of_interest)
+    msg.info('ignore  leaves:       %s', args.ignore_leaves)
+    msg.info('enforce leaves:       %s', args.enforce_leaves)
+    msg.info('leaves prefix:        %s', args.leaves_prefix)
+    msg.info('hacks:                %s', args.known_hacks)
+    msg.info('entries:              %s', args.entries)
+    msg.info('mode:                 %s', args.mode)
+    msg.info('error mode:           %s', args.error_mode)
+    msg.info('order trees:          %s', args.order_trees)
 
     import PyUtils.Helpers as H
     with H.ShutUp() :
@@ -226,9 +231,33 @@ def main(args):
         skip_leaves = [ l.rstrip('.') for l in old_leaves | new_leaves | set(args.ignore_leaves) ]
         for l in skip_leaves:
             msg.debug('skipping [%s]', l)
+        
+        oldBranches = set(b.GetName().rstrip('\0') for b in fold.tree.GetListOfBranches())
+        newBranches = set(b.GetName().rstrip('\0') for b in fnew.tree.GetListOfBranches())
+        branches = oldBranches & newBranches
 
-        leaves = infos['old']['leaves'] & infos['new']['leaves']
-        msg.info('comparing [%s] leaves over entries...', len(leaves))
+        if args.branches_of_interest:
+            BOI_matches = set()
+            #branches_of_interest = [ b.rstrip('.') for b in set(args.branches_of_interest) ]
+            branches_of_interest = args.branches_of_interest
+
+            for branch_of_interest in branches_of_interest:
+                try:
+                    r = re.compile(branch_of_interest)
+                    BOI_matches.update(filter(r.match, branches))
+                     
+                except TypeError:
+                    continue
+
+            if len(BOI_matches)<1:
+              msg.error('No matching branches found in both files for supplied branches of interest, quitting.')
+              return 1
+            msg.info('only the following branches of interest will be compared: ')
+            for l in BOI_matches:
+              msg.info(' - [%s]', l)
+            branches = BOI_matches
+
+        msg.info('comparing [%s] leaves over entries...', len(infos['old']['leaves'] & infos['new']['leaves']))
         n_good = 0
         n_bad = 0
         import collections
@@ -244,8 +273,8 @@ def main(args):
             itr_entries_old = itr_entries
             itr_entries_new = itr_entries
 
-        old_dump_iter = fold.dump(args.tree_name, itr_entries_old)
-        new_dump_iter = fnew.dump(args.tree_name, itr_entries_new)
+        old_dump_iter = fold.dump(args.tree_name, itr_entries_old, branches)
+        new_dump_iter = fnew.dump(args.tree_name, itr_entries_new, branches)
 
         def leafname_fromdump(entry):
             if entry is None:
