@@ -2,7 +2,7 @@
 Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrackCountHypoAlgMT.h"
+#include "TrackCountHypoAlg.h"
 #include "TrackCountHypoTool.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
 #include "AthViews/ViewHelper.h"
@@ -21,11 +21,11 @@ using TrigCompositeUtils::newDecisionIn;
 using TrigCompositeUtils::viewString;
 using TrigCompositeUtils::hypoAlgNodeName;
 
-TrackCountHypoAlgMT::TrackCountHypoAlgMT(const std::string &name, ISvcLocator *pSvcLocator) : ::HypoBase(name, pSvcLocator)
+TrackCountHypoAlg::TrackCountHypoAlg(const std::string &name, ISvcLocator *pSvcLocator) : ::HypoBase(name, pSvcLocator)
 {
 }
 
-StatusCode TrackCountHypoAlgMT::initialize()
+StatusCode TrackCountHypoAlg::initialize()
 {
   ATH_CHECK(m_tracksKey.initialize());
   ATH_CHECK(m_trackCountKey.initialize());
@@ -45,7 +45,7 @@ StatusCode TrackCountHypoAlgMT::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrackCountHypoAlgMT::execute(const EventContext &context) const
+StatusCode TrackCountHypoAlg::execute(const EventContext &context) const
 {
   ATH_MSG_DEBUG("Executing " << name() << "...");
   auto previousDecisionsHandle = SG::makeHandle(decisionInput(), context);

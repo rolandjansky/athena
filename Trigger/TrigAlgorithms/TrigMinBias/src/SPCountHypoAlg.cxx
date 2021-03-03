@@ -2,7 +2,7 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "SPCountHypoAlgMT.h"
+#include "SPCountHypoAlg.h"
 #include "AthViews/ViewHelper.h"
 
 using TrigCompositeUtils::createAndStore;
@@ -18,10 +18,10 @@ using TrigCompositeUtils::newDecisionIn;
 using TrigCompositeUtils::viewString;
 using TrigCompositeUtils::hypoAlgNodeName;
 
-SPCountHypoAlgMT::SPCountHypoAlgMT(const std::string &name, ISvcLocator *pSvcLocator) : ::HypoBase(name, pSvcLocator)
+SPCountHypoAlg::SPCountHypoAlg(const std::string &name, ISvcLocator *pSvcLocator) : ::HypoBase(name, pSvcLocator)
 {
 }
-StatusCode SPCountHypoAlgMT::initialize()
+StatusCode SPCountHypoAlg::initialize()
 {
 
   ATH_CHECK(m_spacePointsKey.initialize());
@@ -30,7 +30,7 @@ StatusCode SPCountHypoAlgMT::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode SPCountHypoAlgMT::execute(const EventContext &context) const
+StatusCode SPCountHypoAlg::execute(const EventContext &context) const
 {
 
   ATH_MSG_DEBUG("Executing " << name() << "...");
@@ -40,7 +40,7 @@ StatusCode SPCountHypoAlgMT::execute(const EventContext &context) const
 
   if (previousDecisionsHandle->size() > 1)
   {
-    ATH_MSG_ERROR("Found " << previousDecisionsHandle->size() << " previous decisions. SPCountHypoAlgMT is a full-scan HypoAlg and expects exactly one previous decision.");
+    ATH_MSG_ERROR("Found " << previousDecisionsHandle->size() << " previous decisions. SPCountHypoAlg is a full-scan HypoAlg and expects exactly one previous decision.");
     return StatusCode::FAILURE;
   }
 

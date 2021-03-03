@@ -1,8 +1,8 @@
 /*
 Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGMINBIAS_TRACKCOUNTHYPOALGMT_H
-#define TRIGMINBIAS_TRACKCOUNTHYPOALGMT_H
+#ifndef TRIGMINBIAS_TRACKCOUNTHYPOALG_H
+#define TRIGMINBIAS_TRACKCOUNTHYPOALG_H
 
 // Framework includes
 #include "TrackCountHypoTool.h"
@@ -15,9 +15,9 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 // STL includes
 #include <string>
 
-class TrackCountHypoAlgMT : public ::HypoBase  {
+class TrackCountHypoAlg : public ::HypoBase  {
 public:
-  TrackCountHypoAlgMT(const std::string& name, ISvcLocator* pSvcLocator);
+  TrackCountHypoAlg(const std::string& name, ISvcLocator* pSvcLocator);
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute(const EventContext& context) const override;

@@ -1,18 +1,15 @@
 /*
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigCountSpacePointsMT.h"
+#include "TrigCountSpacePoints.h"
+#include "InDetPrepRawData/PixelCluster.h"
 
-TrigCountSpacePointsMT::TrigCountSpacePointsMT(const std::string &name, ISvcLocator *pSvcLocator) : AthReentrantAlgorithm(name, pSvcLocator)
+TrigCountSpacePoints::TrigCountSpacePoints(const std::string &name, ISvcLocator *pSvcLocator) : AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
-TrigCountSpacePointsMT::~TrigCountSpacePointsMT()
-{
-}
-
-StatusCode TrigCountSpacePointsMT::initialize()
+StatusCode TrigCountSpacePoints::initialize()
 {
   ATH_CHECK(m_pixelSpKey.initialize());
   ATH_CHECK(m_pixelHelperKey.initialize());
@@ -23,12 +20,8 @@ StatusCode TrigCountSpacePointsMT::initialize()
     ATH_CHECK(m_monTool.retrieve());
   return StatusCode::SUCCESS;
 }
-StatusCode TrigCountSpacePointsMT::finalize()
-{
-  return StatusCode::SUCCESS;
-}
 
-StatusCode TrigCountSpacePointsMT::execute(const EventContext &context) const
+StatusCode TrigCountSpacePoints::execute(const EventContext &context) const
 {
 
   //For Pixel info decoding

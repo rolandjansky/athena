@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """ HeavyIon slice specific flags  """
 
@@ -46,8 +46,3 @@ del _flags
 
 # make an alias
 HeavyIonSliceFlags = TriggerFlags.HeavyIonSlice
-
-# add HeavyIon algs cuts as sub-container
-
-#from TrigT2MinBias.TrigT2MinBiasProperties import TrigT2MinBiasProperties
-#from TrigMinBias.TrigMinBiasProperties import TrigMinBiasProperties

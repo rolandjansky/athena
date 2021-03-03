@@ -1,8 +1,8 @@
 /*
 Copyright! (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGT2MINBIAS_SPCOUNTHYPOTOOL_H
-#define TRIGT2MINBIAS_SPCOUNTHYPOTOOL_H
+#ifndef TRIGMINBIAS_SPCOUNTHYPOTOOL_H
+#define TRIGMINBIAS_SPCOUNTHYPOTOOL_H
 
 #include "Gaudi/Property.h"
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -45,4 +45,4 @@ private:
   Gaudi::Property<bool> m_logicAnd{this, "TriggerTypeAnd", true, "And/Or Logic"};
 };
 
-#endif //> !TRIGT2MINBIAS_SPCOUNTHYPOTOOL_H
+#endif //> !TRIGMINBIAS_SPCOUNTHYPOTOOL_H

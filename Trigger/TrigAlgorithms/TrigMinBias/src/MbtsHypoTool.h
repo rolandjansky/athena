@@ -1,8 +1,8 @@
 /*
 Copyright! (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGT2MINBIAS_MbtsHypoTool_H
-#define TRIGT2MINBIAS_MbtsHypoTool_H
+#ifndef TRIGMINBIAS_MbtsHypoTool_H
+#define TRIGMINBIAS_MbtsHypoTool_H
 
 #include "Gaudi/Property.h"
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -61,4 +61,4 @@ private:
   Counts calculateMultiplicities(const xAOD::TrigT2MbtsBits *t2mbtsBits) const;
 };
 
-#endif //> !TRIGT2MINBIAS_MbtsHypoTool_H
+#endif //> !TRIGMINBIAS_MbtsHypoTool_H

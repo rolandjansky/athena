@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 if not 'doHLTCaloTopo' in dir() :
@@ -46,8 +46,8 @@ if TriggerFlags.doCalo:
      steps+=stepSeq("finalCaloSequence", filterL1RoIsAlg, [ fastCaloSequence ])
 
   if (True):
-    from TrigT2MinBias.TrigT2MinBiasConf import MbtsFexMT
-    alg=MbtsFexMT()
+    from TrigMinBias.TrigMinBiasConf import MbtsFex
+    alg=MbtsFex()
     steps += alg
 
 

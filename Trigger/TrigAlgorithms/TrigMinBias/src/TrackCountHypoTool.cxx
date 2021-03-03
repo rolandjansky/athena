@@ -1,6 +1,6 @@
 
 /*
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigCompositeUtils/HLTIdentifier.h"
@@ -14,10 +14,6 @@ TrackCountHypoTool::TrackCountHypoTool(const std::string &type, const std::strin
 	: AthAlgTool(type, name, parent),
 	  m_decisionId(HLT::Identifier::fromToolName(name)) {}
 
-StatusCode TrackCountHypoTool::initialize()
-{
-	return StatusCode::SUCCESS;
-}
 
 StatusCode TrackCountHypoTool::decide(TrkCountsInfo &trkinfo) const
 {
