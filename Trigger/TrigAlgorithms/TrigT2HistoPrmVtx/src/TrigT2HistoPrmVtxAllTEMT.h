@@ -27,7 +27,7 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
-namespace InDet { class BeamSpotData; }
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 /**
  * @brief Class for a fast primary vertex reconstruction in the HLT framework.
