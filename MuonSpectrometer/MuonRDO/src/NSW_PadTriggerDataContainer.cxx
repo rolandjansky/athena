@@ -18,7 +18,7 @@ const CLID& NSW_PadTriggerDataContainer::clID() const {
 
 std::string NSW_PadTriggerDataContainer::string() const {
     std::stringstream sstream{};
-    sstream << "Number of collections: " << numberOfCollections() << ". Contains collections: \n" << std::endl;
+    sstream << "Number of collections: " << numberOfCollections() << ". Contains collections: " << std::endl;
     for (const auto& collection : *this) {
         sstream << collection->string() << std::endl;
     }
