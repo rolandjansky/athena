@@ -121,10 +121,10 @@ StatusCode TauCombinedTES::execute(xAOD::TauJet& tau) const {
     combinedP4 = getCombinedP4(tau, variables);
   }
   
-  static const SG::AuxElement::Decorator<float> decPtCombined("pt_combined");
-  static const SG::AuxElement::Decorator<float> decEtaCombined("eta_combined");
-  static const SG::AuxElement::Decorator<float> decPhiCombined("phi_combined");
-  static const SG::AuxElement::Decorator<float> decMCombined("m_combined");
+  static const SG::AuxElement::Decorator<float> decPtCombined("ptCombined");
+  static const SG::AuxElement::Decorator<float> decEtaCombined("etaCombined");
+  static const SG::AuxElement::Decorator<float> decPhiCombined("phiCombined");
+  static const SG::AuxElement::Decorator<float> decMCombined("mCombined");
 
   decPtCombined(tau) = combinedP4.Pt();
   decEtaCombined(tau) = combinedP4.Eta();

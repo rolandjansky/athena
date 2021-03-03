@@ -89,17 +89,17 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau) const {
     vars.etaConstituent = xTau.etaPanTauCellBased();
     float ptLC = xTau.ptDetectorAxis();
     float ptConstituent = xTau.ptPanTauCellBased();
-    static const SG::AuxElement::ConstAccessor<float> acc_pt_combined("pt_combined");
-    vars.ptCombined = acc_pt_combined(xTau);
+    static const SG::AuxElement::ConstAccessor<float> acc_ptCombined("ptCombined");
+    vars.ptCombined = acc_ptCombined(xTau);
 
     if(vars.ptCombined>0.) {
       vars.ptLC_D_ptCombined = ptLC / vars.ptCombined;
       vars.ptConstituent_D_ptCombined = ptConstituent / vars.ptCombined;
     }
     else {
-      xTau.setP4(xAOD::TauJetParameters::FinalCalib, 1., vars.etaConstituent, xTau.phiPanTauCellBased(), 0);
+      xTau.setP4(xAOD::TauJetParameters::FinalCalib, 1., vars.etaConstituent, xTau.phiPanTauCellBased(), 0.);
       // apply MVA calibration as default
-      xTau.setP4(1., vars.etaConstituent, xTau.phiPanTauCellBased(), 0);
+      xTau.setP4(1., vars.etaConstituent, xTau.phiPanTauCellBased(), 0.);
       return StatusCode::SUCCESS;
     }
 
@@ -114,11 +114,11 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau) const {
     xTau.detail(xAOD::TauJetParameters::PFOEngRelDiff, vars.PFOEngRelDiff);
     
     float ptMVA = float( vars.ptCombined * m_bdtHelper->getResponse(availableVars) );
-    if(ptMVA<1) ptMVA=1;
-    xTau.setP4(xAOD::TauJetParameters::FinalCalib, ptMVA, vars.etaConstituent, xTau.phiPanTauCellBased(), 0);
+    if(ptMVA<1.) ptMVA=1.;
+    xTau.setP4(xAOD::TauJetParameters::FinalCalib, ptMVA, vars.etaConstituent, xTau.phiPanTauCellBased(), 0.);
 
     // apply MVA calibration as default
-    xTau.setP4(ptMVA, vars.etaConstituent, xTau.phiPanTauCellBased(), 0);
+    xTau.setP4(ptMVA, vars.etaConstituent, xTau.phiPanTauCellBased(), 0.);
   }
   else {
 
@@ -131,14 +131,14 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau) const {
     vars.lead_cluster_frac = acc_LeadClusterFrac(xTau);
 
     float ptMVA = float( vars.ptDetectorAxis * m_bdtHelper->getResponse(availableVars) );
-    if(ptMVA<1) ptMVA=1;
+    if(ptMVA<1.) ptMVA=1.;
 
     // this may have to be changed if we apply a calo-only MVA calibration first, followed by a calo+track MVA calibration
     // in which case, the calo-only would be TauJetParameters::TrigCaloOnly, and the final one TauJetParameters::FinalCalib
-    xTau.setP4(xAOD::TauJetParameters::FinalCalib, ptMVA, vars.etaDetectorAxis, xTau.phiDetectorAxis(), 0);
+    xTau.setP4(xAOD::TauJetParameters::FinalCalib, ptMVA, vars.etaDetectorAxis, xTau.phiDetectorAxis(), 0.);
     
     // apply MVA calibration
-    xTau.setP4(ptMVA, vars.etaDetectorAxis, xTau.phiDetectorAxis(), 0);
+    xTau.setP4(ptMVA, vars.etaDetectorAxis, xTau.phiDetectorAxis(), 0.);
   }
   
   ATH_MSG_DEBUG("final calib:" << xTau.pt() << " " << xTau.eta() << " " << xTau.phi() << " " << xTau.e());
