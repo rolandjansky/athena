@@ -13,26 +13,15 @@ def FullScanLRTTriggerSequence(ConfigFlags):
     fscfg = getInDetTrigConfig("jet")
     lrtcfg = getInDetTrigConfig( 'fullScanLRT' )
 
-
-    from TrigEDMConfig.TriggerEDMRun3 import recordable
     from TrigInDetConfig.InDetSetup import makeInDetAlgsNoView
-    view_algs = makeInDetAlgsNoView( config = fscfg, rois=trkFSRoI, secondStageConfig = lrtcfg)
+    reco_algs = makeInDetAlgsNoView( config = fscfg, rois=trkFSRoI, secondStageConfig = lrtcfg)
 
     from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import getTrackingInputMaker
     im_alg = getTrackingInputMaker()
 
 
-    from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
-
-    verticesname = recordable("HLT_IDVertex_FSLRT")
-    vtxAlgs = makeVertices( "fullScanLRT", lrtcfg.FT.tracksFTF( doRecord = lrtcfg.isRecordable ) , verticesname, lrtcfg )
-    prmVtx = vtxAlgs[-1]
-
-
-    TrkSeq = parOR("UncTrkrecoSeqFSLRT", [im_alg, view_algs, prmVtx])
+    TrkSeq = parOR("UncTrkrecoSeqFSLRT", [im_alg, reco_algs])
     sequenceOut = lrtcfg.FT.tracksFTF( doRecord = lrtcfg.isRecordable )
-
-
 
     return (TrkSeq,im_alg, sequenceOut)
 
