@@ -79,7 +79,6 @@ class JetTagMonitorAlgorithm : public AthMonitorAlgorithm {
   float m_ElectronTopoEtCone20Cut;
   float m_ElectronPtVarCone20Cut;
   float m_MuonTopoEtCone20Cut;
-  float m_MuonPtVarCone20Cut;
   float m_MuonPtVarCone30Cut;
   float m_JVTCut;
   float m_JVTpTCut;
