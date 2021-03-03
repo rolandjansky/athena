@@ -227,6 +227,10 @@ bool TrigIsoHPtTrackTriggerHypoTool::decideOnSingleObject( const xAOD::TrackPart
 StatusCode TrigIsoHPtTrackTriggerHypoTool::inclusiveSelection( std::vector<TrackInfo>& input ) const {
     for ( auto i: input ) {
 
+      if ( i.previousDecisionsIDs.count( m_decisionId.numeric() ) == 0 ) {
+	continue;
+      }
+
       auto objDecision = decideOnSingleObject( i.track, i.AllTracks, 0 );
       if ( objDecision == true ) {
 
@@ -252,6 +256,10 @@ StatusCode TrigIsoHPtTrackTriggerHypoTool::multiplicitySelection( std::vector<Tr
   for ( size_t cutIndex = 0; cutIndex < m_multiplicity; ++ cutIndex ) {
     size_t trkIndex{ 0 };
     for ( auto trkIter =  input.begin(); trkIter != input.end(); ++trkIter, ++trkIndex ) {
+      
+      if ( trkIter->previousDecisionsIDs.count( m_decisionId.numeric() ) == 0 ) {
+	continue;
+      }
       
       if ( decideOnSingleObject( trkIter->track, trkIter->AllTracks, cutIndex ) ) {
 	  passingSelection[cutIndex].push_back( trkIndex );

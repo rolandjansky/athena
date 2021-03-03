@@ -58,6 +58,8 @@ StatusCode TrigIsoHPtTrackTriggerHypoAlgMT::execute( const EventContext& context
   }
   const Decision * previousDecision = previousDecisionsHandle->at(0);
 
+  TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
+  TrigCompositeUtils::decisionIDs(previousDecision, previousDecisionIDs);
 
   ATH_MSG_DEBUG( "Getting Track Handle "<<m_trackKey);
   // get tracks from the key :
@@ -78,7 +80,7 @@ StatusCode TrigIsoHPtTrackTriggerHypoAlgMT::execute( const EventContext& context
     auto d = newDecisionIn( decisions , previousDecision, hypoAlgNodeName(), context);
     d->setObjectLink( featureString(), ElementLink<xAOD::TrackParticleContainer>( *AllTracks, track->index() ) );
       
-    hypoToolInput.emplace_back( TrigIsoHPtTrackTriggerHypoTool::TrackInfo{ d, track, AllTracks} );
+    hypoToolInput.emplace_back( TrigIsoHPtTrackTriggerHypoTool::TrackInfo{ d, track, AllTracks, previousDecisionIDs} );
   }
 
   //Loop over all hypoToolinputs and get their decisions

@@ -99,19 +99,19 @@ def TrigIsoHPtTrackTriggerHypoToolFromDict( chainDict ):
         if cpart['IDinfo'] =="loose":
             log.debug("Loose ID working point is set")
             TrackEta.append(2.5)
-            Trackd0.append(5.)
-            Trackd0Sig.append(100.)
+            Trackd0.append(1000.)
+            Trackd0Sig.append(10.)
             
         elif cpart['IDinfo'] =="tight":
             log.debug("Tight ID working point is set")
             TrackEta.append(2.0)
-            Trackd0.append(0.1)
-            Trackd0Sig.append(100.)
+            Trackd0.append(1000.)
+            Trackd0Sig.append(5.)
         else:
             log.debug("Medium ID working point is set")
             TrackEta.append(2.5)
-            Trackd0.append(1.)
-            Trackd0Sig.append(100.)
+            Trackd0.append(1000.)
+            Trackd0Sig.append(5.)
 
 
 
