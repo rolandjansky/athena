@@ -136,17 +136,17 @@ namespace PFO {
       
       float FE_TIMING=-50;
 
-      static SG::AuxElement::ConstAccessor<float>acc_FE_moment_SECOND_R("moment_SECOND_R");
-      static SG::AuxElement::ConstAccessor<float>acc_FE_moment_CENTER_LAMBDA("moment_CENTER_LAMBDA");
-      static SG::AuxElement::ConstAccessor<float>acc_FE_moment_ISOLATION("moment_ISOLATION");
-      static SG::AuxElement::ConstAccessor<float>acc_FE_moment_ENG_BAD_CELLS("moment_ENG_BAD_CELLS");
-      static SG::AuxElement::ConstAccessor<float>acc_FE_moment_N_BAD_CELLS("moment_N_BAD_CELLS");
-      static SG::AuxElement::ConstAccessor<float>acc_FE_moment_BADLARQ_FRAC("moment_BADLARQ_FRAC");
-      static SG::AuxElement::ConstAccessor<float>acc_FE_moment_ENG_POS("moment_ENG_POS");
-      static SG::AuxElement::ConstAccessor<float>acc_FE_moment_AVG_LAR_Q("moment_AVG_LAR_Q");
-      static SG::AuxElement::ConstAccessor<float>acc_FE_moment_AVG_TILE_Q("moment_AVG_TILE_Q");
-      static SG::AuxElement::ConstAccessor<float>acc_FE_moment_EM_PROBABILITY("moment_EM_PROBABILITY");
-      static SG::AuxElement::ConstAccessor<float>acc_FE_moment_SECOND_LAMBDA("moment_SECOND_LAMBDA");
+      static SG::AuxElement::ConstAccessor<float>acc_FE_moment_SECOND_R("SECOND_R");
+      static SG::AuxElement::ConstAccessor<float>acc_FE_moment_CENTER_LAMBDA("CENTER_LAMBDA");
+      static SG::AuxElement::ConstAccessor<float>acc_FE_moment_ISOLATION("ISOLATION");
+      static SG::AuxElement::ConstAccessor<float>acc_FE_moment_ENG_BAD_CELLS("ENG_BAD_CELLS");
+      static SG::AuxElement::ConstAccessor<float>acc_FE_moment_N_BAD_CELLS("N_BAD_CELLS");
+      static SG::AuxElement::ConstAccessor<float>acc_FE_moment_BADLARQ_FRAC("BADLARQ_FRAC");
+      static SG::AuxElement::ConstAccessor<float>acc_FE_moment_ENG_POS("ENG_POS");
+      static SG::AuxElement::ConstAccessor<float>acc_FE_moment_AVG_LAR_Q("AVG_LAR_Q");
+      static SG::AuxElement::ConstAccessor<float>acc_FE_moment_AVG_TILE_Q("AVG_TILE_Q");
+      static SG::AuxElement::ConstAccessor<float>acc_FE_moment_EM_PROBABILITY("EM_PROBABILITY");
+      static SG::AuxElement::ConstAccessor<float>acc_FE_moment_SECOND_LAMBDA("SECOND_LAMBDA");
       static SG::AuxElement::ConstAccessor<float>acc_FE_TIMING("PF_TIMING");
 
 
@@ -224,7 +224,8 @@ namespace PFO {
       }
       float Ratio_PFO_FE_moment_CENTER_LAMBDA = -1.0;
       if(FE_moment_CENTER_LAMBDA!=0){
-	Ratio_PFO_FE_moment_CENTER_LAMBDA=pfo_moment_CENTER_LAMBDA/Ratio_PFO_FE_moment_CENTER_LAMBDA;
+	Ratio_PFO_FE_moment_CENTER_LAMBDA=pfo_moment_CENTER_LAMBDA/FE_moment_CENTER_LAMBDA;
+	ATH_MSG_DEBUG("CENTER_LAMBDA: (PFO) "<<pfo_moment_CENTER_LAMBDA<<" (FE) "<<FE_moment_CENTER_LAMBDA);	
       }
       float Ratio_PFO_FE_moment_ISOLATION = -1.0;
       if(FE_moment_ISOLATION!=0){
@@ -242,6 +243,7 @@ namespace PFO {
       float Ratio_PFO_FE_moment_BADLARQ_FRAC = -1.0;
       if(FE_moment_BADLARQ_FRAC!=0){
 	Ratio_PFO_FE_moment_BADLARQ_FRAC=pfo_moment_BADLARQ_FRAC/FE_moment_BADLARQ_FRAC;
+	ATH_MSG_DEBUG("BADLARQ_FRAC: (PFO) "<<pfo_moment_BADLARQ_FRAC<<" (FE) "<<FE_moment_BADLARQ_FRAC);
       }
       float Ratio_PFO_FE_moment_ENG_POS = -1.0;
       if(FE_moment_ENG_POS!=0){
@@ -250,6 +252,7 @@ namespace PFO {
       float Ratio_PFO_FE_moment_AVG_LAR_Q = -1.0;
       if(FE_moment_AVG_LAR_Q){
 	Ratio_PFO_FE_moment_AVG_LAR_Q=pfo_moment_AVG_LAR_Q/FE_moment_AVG_LAR_Q;
+	ATH_MSG_INFO("AVG_LAR_Q: (PFO) "<<pfo_moment_AVG_LAR_Q<<" (FE) "<<FE_moment_AVG_LAR_Q);
       }
       float Ratio_PFO_FE_moment_AVG_TILE_Q = -1.0; 
       if(FE_moment_AVG_TILE_Q){
@@ -318,13 +321,16 @@ namespace PFO {
       
       // Step 3: Calculate Ratio
       float Ratio_PFO_FE_isInDenseEnvironment=-1.0;
-      if(FE_isInDenseEnvironment!=0)
+      if(FE_isInDenseEnvironment!=0){
 	Ratio_PFO_FE_isInDenseEnvironment=pfo_isInDenseEnvironment/FE_isInDenseEnvironment;
-      
+	ATH_MSG_DEBUG("isInDenseEnvironment: (pfo) "<<pfo_isInDenseEnvironment<<" (FE) "<<FE_isInDenseEnvironment);
+      }
       float Ratio_PFO_FE_tracksExpectedEnergyDeposit=-1.0;
-      if(FE_tracksExpectedEnergyDeposit!=0)
+      if(FE_tracksExpectedEnergyDeposit!=0){
+	
 	Ratio_PFO_FE_tracksExpectedEnergyDeposit=pfo_tracksExpectedEnergyDeposit/FE_tracksExpectedEnergyDeposit;
-
+	ATH_MSG_DEBUG("tracksExpectedEnergyDeposit: (pfo) "<<pfo_tracksExpectedEnergyDeposit<<" (FE) "<<FE_tracksExpectedEnergyDeposit);
+      }
       // Step 4: Dump
       m_PFO_FE_isInDenseEnvironment_RelComparison->Fill(Ratio_PFO_FE_isInDenseEnvironment);
       m_PFO_FE_tracksExpectedEnergyDeposit->Fill(Ratio_PFO_FE_tracksExpectedEnergyDeposit);  
