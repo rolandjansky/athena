@@ -49,6 +49,7 @@
 
 // Run 3
 #include "xAODTrigL1Calo/versions/JGTowerContainer_v1.h"
+#include "xAODTrigL1Calo/versions/GBlockContainer_v1.h"
 
 // Set up the collection proxies:
 // Run 1
@@ -90,3 +91,4 @@ ADD_NS_DV_PROXY( xAOD , L1TopoRawDataContainer_v1 );
 
 // Run 3
 ADD_NS_DV_PROXY( xAOD , JGTowerContainer_v1 );
+ADD_NS_DV_PROXY( xAOD, GBlockContainer_v1);

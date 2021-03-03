@@ -28,6 +28,7 @@
 #include "Identifier/IdentifierHash.h"
 #include "TH1.h"
 #include "TH2.h"
+#include "TProfile.h"
 #include "TrigT1CaloFexSim/Objects.h"
 #include "TrigT1CaloFexSim/JetAlg.h"
 #include "TrigT1CaloFexSim/METAlg.h"
@@ -183,6 +184,9 @@ class JGTowerReader: public ::AthAlgorithm {
   int m_gTowerHashMax;
   std::shared_ptr<TowerHelper> jT_helper;
   std::shared_ptr<TowerHelper> gT_helper;
+
+  TProfile *g_pr_eta; TProfile *j_pr_eta_EM; TProfile *j_pr_eta_HAD; TProfile *j_pr_eta_FCAL; 
+  TH1F *h_jT_eta; 
 
   unsigned int m_eventCount = 0;
   SG::AuxElement::Accessor<float>* acc_rho_barrel = new SG::AuxElement::Accessor<float>("Rho_barrel");
