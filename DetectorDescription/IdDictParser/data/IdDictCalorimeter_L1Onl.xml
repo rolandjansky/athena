@@ -1020,14 +1020,6 @@
      <range field="GTeta" minvalue="0" maxvalue="2"/>
      <range field="GTphi" minvalue="0" maxvalue="31" wraparound="TRUE" />
    </region>
-<!-- Up to eta=3.2 -\-> -->
-   <region group="Reg_GTower" name="GTower_3" 
-             eta0="3.1" deta="0.1" phi0="0.0" dphi="0.2" >
-     <reference subregion="GTower" />
-     <range field="GTregion" value="3" />
-     <range field="GTeta" minvalue="0" maxvalue="0"/>
-     <range field="GTphi" minvalue="0" maxvalue="31" wraparound="TRUE" />
-   </region>
 
 
 </IdDictionary>

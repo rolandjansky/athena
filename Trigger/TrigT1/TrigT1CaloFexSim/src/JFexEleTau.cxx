@@ -61,7 +61,7 @@ StatusCode JFexEleTau::execute() {
   
   // Retrieve jTower container
   const xAOD::JGTowerContainer* jTowers =0;
-  CHECK( evtStore()->retrieve( jTowers,"JTower"));
+  CHECK( evtStore()->retrieve( jTowers,"JTowers"));
 
   // Create noise profile
   std::vector<float> jT_noise;

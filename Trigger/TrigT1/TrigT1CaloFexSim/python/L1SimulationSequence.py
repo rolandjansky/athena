@@ -3,6 +3,7 @@
 from AthenaCommon.Include import include  # to include old style job options
 
 def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False, useAlgSequence = False, setupOutput = False):
+    setupOutput = True
 
     outputCollections = list()
 
