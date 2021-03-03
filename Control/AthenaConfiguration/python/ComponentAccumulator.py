@@ -39,8 +39,6 @@ def printProperties(msg, c, nestLevel = 0, printDefaults=False, onlyComponentsOn
         if  not c.is_property_set(propname) and propname in ["DetStore","EvtStore", "AuditFinalize", "AuditInitialize", "AuditReinitialize", "AuditRestart", "AuditStart", "AuditStop", "AuditTools", "ExtraInputs", "ExtraOutputs"]:
             continue
 
-
-
         if isinstance( propval, GaudiConfig2.Configurable ):
             msg.info( "%s    * %s: %s/%s", " "*nestLevel, propname, propval.__cpp_type__, propval.getName() )
             printProperties(msg, propval, nestLevel+3)
@@ -51,7 +49,7 @@ def printProperties(msg, c, nestLevel = 0, printDefaults=False, onlyComponentsOn
             propstr = "PublicToolHandleArray([ {0} ])".format(', '.join(ths))
         elif isinstance(propval,GaudiHandles.PrivateToolHandleArray):
             msg.info( "%s    * %s: PrivateToolHandleArray of size %s", " "*nestLevel, propname, len(propval))
-            propstr = ""            
+            propstr = ""
             for el in propval:
                 msg.info( "%s    * %s/%s", " "*(nestLevel+3), el.__cpp_type__, el.getName())
                 printProperties(msg, el, nestLevel+6)
@@ -219,7 +217,7 @@ class ComponentAccumulator(object):
         self._msg.info( "]" )
         self._msg.info( "Private Tools")
         self._msg.info( "[" )
-        if self._privateTools:        
+        if self._privateTools:
             for tool in self._privateTools if isinstance(self._privateTools, collections.abc.Sequence) else [self._privateTools]:
                 self._msg.info( "  %s,", self._privateTools.getFullJobOptName() + self._componentsContext[tool.name])
                 if summariseProps:
@@ -228,6 +226,51 @@ class ComponentAccumulator(object):
         self._msg.info( "theApp properties" )
         for k, v in self._theAppProps.items():
             self._msg.info("  %s : %s", k, v)
+
+    def getIO(self):
+        """
+        Returns information about inputs needed and outputs produced by this CA
+
+        It is a list of dictionaries containing the: type, key, R / W, the component and name of the property via which it is set
+        """
+        def __getHandles(comp):
+            io = []
+            for i in comp.ExtraInputs:
+                io.append({"type": i.split("#")[0],
+                            "key": i.split("#")[1],
+                            "comp": comp.getFullJobOptName(),
+                            "mode":  "R",
+                            "prop": "ExtraInputs"})
+            for i in comp.ExtraOutputs:
+                io.append({"type": i.split("#")[0],
+                            "key": i.split("#")[1],
+                            "comp": comp.getFullJobOptName(),
+                            "mode":  "W",
+                            "prop": "ExtraOutputs"})
+            from GaudiKernel.DataHandle import DataHandle
+            for prop, descr in comp._descriptors.items():
+                if isinstance(descr.default, DataHandle):
+                    io.append( {"type": descr.default.type(),
+                                "key":  comp._properties[prop] if prop in comp._properties else  descr.default.path(),
+                                "comp": comp.getFullJobOptName(),
+                                "mode": descr.default.mode(),
+                                "prop": prop })
+                # TODO we should consider instantiating c++ defaults and fetching corresponsing props
+                if "PrivateToolHandle" == descr.cpp_type and prop in comp._properties:
+                    io.extend( __getHandles(comp._properties[prop]) )
+                if "PrivateToolHandleArray" == descr.cpp_type and prop in comp._properties:
+                    for tool in getattr(comp, prop):
+                        io.extend( __getHandles(tool))
+            return io
+
+        ret = []
+        import itertools
+        for c in itertools.chain(self._publicTools,
+                                self._privateTools if self._privateTools else [],
+                                self._algorithms.values(),
+                                self._conditionsAlgs):
+            ret.extend(__getHandles(c))
+        return ret
 
 
     def addSequence(self, newseq, parentName = None ):
@@ -319,14 +362,14 @@ class ComponentAccumulator(object):
         for algo in algorithms:
             if not isinstance(algo,GaudiConfig2._configurables.Configurable) and not isinstance(algo,AthenaPython.Configurables.CfgPyAlgorithm):
                 raise TypeError("Attempt to add wrong type: {} as event algorithm".format(type( algo ).__name__))
-                
+
             if algo.__component_type__ != "Algorithm":
-                raise TypeError("Attempt to add an {} as event algorithm".format(algo.__component_type__)) 
+                raise TypeError("Attempt to add an {} as event algorithm".format(algo.__component_type__))
 
             if algo.name in self._algorithms:
                 context = createContextForDeduplication("Adding Event Algorithm", algo.name, self._componentsContext, ComponentAccumulator.debugMode) # noqa : F841
                 deduplicateOne(algo, self._algorithms[algo.name])
-                deduplicateOne(self._algorithms[algo.name], algo)                
+                deduplicateOne(self._algorithms[algo.name], algo)
             else:
                 self._algorithms[algo.name]=algo
 
@@ -400,7 +443,7 @@ class ComponentAccumulator(object):
             pass
 
         context = createContextForDeduplication("Adding Service", newSvc.name, self._componentsContext, ComponentAccumulator.debugMode) # noqa : F841
-        
+
         deduplicate(newSvc,self._services)  #may raise on conflict
         if primary:
             if self._primaryComp:
@@ -426,7 +469,7 @@ class ComponentAccumulator(object):
             raise TypeError("Attempt to add wrong type: {} as public AlgTool".format(newTool.__component_type__))
 
         context = createContextForDeduplication("Adding Public Tool", newTool.name, self._componentsContext, ComponentAccumulator.debugMode) # noqa : F841
-        
+
         deduplicate(newTool,self._publicTools)
         if primary:
             if self._primaryComp:
@@ -524,9 +567,9 @@ class ComponentAccumulator(object):
 
         def mergeSequences( dest, src ):
             if dest.name == src.name:
-                for seqProp in dest._descriptors.keys():                
+                for seqProp in dest._descriptors.keys():
                     if getattr(dest, seqProp) != getattr(src, seqProp) and seqProp != "Members":
-                        raise RuntimeError("merge called with sequences: '%s' having property '%s' of different values %s vs %s (from ComponentAccumulator being merged)" % 
+                        raise RuntimeError("merge called with sequences: '%s' having property '%s' of different values %s vs %s (from ComponentAccumulator being merged)" %
                                             (str((dest.name, src.name)), seqProp, str(getattr(dest, seqProp)), str(getattr(src, seqProp))) )
             for childIdx, c in enumerate(src.Members):
                 if isSequence( c ):
@@ -588,7 +631,7 @@ class ComponentAccumulator(object):
             if not found: # just copy the sequence as a dangling one
                 self._allSequences.append( otherSeq )
                 mergeSequences( self._allSequences[-1], otherSeq )
-        
+
 
 
 
@@ -1051,8 +1094,8 @@ def conf2toConfigurable( comp, indent="", suppressDupes=False ):
                     # Old configuration writes some properties differently e.g. like ConditionStore+TileBadChannels instead of just TileBadChannels
                     # So check this isn't a false positive before continuing
                     merge = True
-                    try: 
-                        if '+' in alreadySetProperties[pname].toStringProperty() and alreadySetProperties[pname].toStringProperty().split('+')[-1] == pvalue: 
+                    try:
+                        if '+' in alreadySetProperties[pname].toStringProperty() and alreadySetProperties[pname].toStringProperty().split('+')[-1] == pvalue:
                             # Okay. sot they ARE actually the same
                             merge=False
                             _log.debug( "%sAdding property: %s for %s", indent, pname, newConf2Instance.getName() )

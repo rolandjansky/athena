@@ -624,5 +624,8 @@ class TestDifferentSequencesMerging( unittest.TestCase ):
         self.assertRaises(RuntimeError, _merge) # expect to raise issue
         ca.wasMerged()
 
+
+
+
 if __name__ == "__main__":
     unittest.main()

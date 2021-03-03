@@ -48,4 +48,8 @@ if( NOT SIMULATIONBASE AND NOT GENERATIONBASE AND NOT XAOD_ANALYSIS )
     atlas_add_test( AllConfigFlagsTest
                     SCRIPT python -m AthenaConfiguration.AllConfigFlags
                     POST_EXEC_SCRIPT nopost.sh )
+   atlas_add_test( ComponentAccumulatorTestReco
+                    SCRIPT python -m unittest -v AthenaConfiguration.ComponentAccumulatorTestReco
+                    POST_EXEC_SCRIPT nopost.sh )
+                               
 endif()
