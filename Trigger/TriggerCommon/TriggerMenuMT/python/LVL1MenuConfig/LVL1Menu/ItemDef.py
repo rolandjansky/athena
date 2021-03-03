@@ -903,7 +903,7 @@ class ItemDef(object):
 
         
 
-        LVL1MenuItem('L1_RD1_FILLED'         ).setLogic( d.RNDM1 & physcond           ).setTriggerType(TT.rand)
+        LVL1MenuItem('L1_RD1_FILLED'         ).setLogic( d.RNDM1 & physcond           ).setTriggerType(TT.zerobs) # used to be TT.rand
         LVL1MenuItem('L1_RD1_EMPTY'          ).setLogic( d.RNDM1 & cosmiccond         ).setTriggerType(TT.zerobs)
         LVL1MenuItem('L1_RD1_BGRP10'         ).setLogic( d.RNDM1 & alfacalib          ).setTriggerType(TT.zerobs)
 
