@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CostData.h"
@@ -131,11 +131,19 @@ void CostData::setTypeMap( const std::unordered_map<uint32_t, std::string>& type
   m_typeMapPtr = &typeMap;
 }
 
-void CostData::setAlgToChainsMap( const std::map<std::string, std::vector<TrigConf::Chain>>& algToChains ) {
-  m_algToChains = &algToChains;
+void CostData::setChainToAlgMap( const std::map<std::string, std::set<size_t>>& chainToAlgIdx ) {
+  m_chainToAlgIdx = &chainToAlgIdx;
 }
 
 
-const std::map<std::string, std::vector<TrigConf::Chain>>& CostData::algToChainsMap() const {
-  return *m_algToChains;
+const std::map<std::string, std::set<size_t>>& CostData::chainToAlgMap() const {
+  return *m_chainToAlgIdx;
+}
+
+const std::set<TrigCompositeUtils::DecisionID>& CostData::seededChains() const {
+  return *m_seededChains;
+}
+
+void CostData::setSeededChains(const std::set<TrigCompositeUtils::DecisionID>& seededChains) {
+  m_seededChains = &seededChains;
 }
