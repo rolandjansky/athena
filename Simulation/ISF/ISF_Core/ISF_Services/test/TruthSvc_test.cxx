@@ -130,7 +130,6 @@ namespace ISFTesting {
 
     virtual ~MockTruthIncident() {};
     MOCK_METHOD0(geoID, AtlasDetDescr::AtlasRegion());
-    //MOCK_CONST_METHOD0(position, HepMC::FourVector&());
     MOCK_CONST_METHOD0(physicsProcessCode, Barcode::PhysicsProcessCode());
     MOCK_CONST_METHOD0(parentParticle, HepMC::GenParticlePtr ());
     MOCK_CONST_METHOD0(parentBarcode, Barcode::ParticleBarcode());
@@ -139,24 +138,6 @@ namespace ISFTesting {
     MOCK_CONST_METHOD0(numberOfChildren, unsigned short());
   };
 
-  // class AllGoodMatcher : public ::testing::MatcherInterface<ISF::ITruthIncident> {
-  // public:
-  //   virtual bool MatchAndExplain(ISF::ITruthIncident n, ::testing::MatchResultListener* listener) const {
-  //     return true;
-  //   }
-
-  //   virtual void DescribeTo(::std::ostream* os) const {
-  //     *os << "is divisible by 7";
-  //   }
-
-  //   virtual void DescribeNegationTo(::std::ostream* os) const {
-  //     *os << "is not divisible by 7";
-  //   }
-  // };
-
-  // inline ::testing::Matcher<ISF::ITruthIncident> AllGood() {
-  //   return ::testing::MakeMatcher(new AllGoodMatcher);
-  // }
 
   class TruthSvc_test: public ::testing::Test {
 
@@ -240,12 +221,6 @@ namespace ISFTesting {
       return m_svc->m_geoStrategies[AtlasDetDescr::fAtlasID];
     }
 
-    // void forceEndVertexInID() const {
-    //   m_svc->m_forceEndVtx[1] = true;
-    // }
-
-    // protected member variables
-    //
 
     // Core Gaudi components
     IAppMgrUI*             m_appMgr = nullptr;

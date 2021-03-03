@@ -37,15 +37,11 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "StoreGate/StoreGateSvc.h"
-//#include "StoreGate/DataHandle.h"
 #include "GeneratorObjects/McEventCollection.h"
 
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Vector/LorentzVector.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
-
-//#include <string.h>
-//#include <stdlib.h>
 
 
 EvtDecay::EvtDecay(const std::string& name, ISvcLocator* pSvcLocator):Algorithm( name, pSvcLocator ) {

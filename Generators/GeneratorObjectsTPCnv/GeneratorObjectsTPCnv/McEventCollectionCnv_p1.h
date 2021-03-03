@@ -83,9 +83,4 @@ class McEventCollectionCnv_p1 : public T_AthenaPoolTPCnvBase<
                             McEventCollection_p1* persObj,
                             MsgStream& msg ) ;
 };
-
-///////////////////////////////////////////////////////////////////
-/// Inline methods:
-///////////////////////////////////////////////////////////////////
-
 #endif //> GENERATOROBJECTSTPCNV_MCEVENTCOLLECTIONCNV_P1_H

@@ -159,9 +159,4 @@ class McEventCollectionCnv_p5 : public T_AthenaPoolTPCnvBase<
   bool m_isPileup;
     ServiceHandle<IHepMCWeightSvc> m_hepMCWeightSvc;
 };
-
-///////////////////////////////////////////////////////////////////
-/// Inline methods:
-///////////////////////////////////////////////////////////////////
-
 #endif //> GENERATOROBJECTSTPCNV_MCEVENTCOLLECTIONCNV_P5_H
