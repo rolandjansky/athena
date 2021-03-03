@@ -83,8 +83,8 @@ namespace Trk {
       // Convertors
       ///////////////////////////////////////////////////////////////////
 
-      const ParametersBase<5, Trk::Charged>* convert(bool) const;
-      bool  production(const ParametersBase<5, Trk::Charged>*);
+      std::unique_ptr<ParametersBase<5, Trk::Charged>> convert(bool) const;
+      bool production(const ParametersBase<5, Trk::Charged>*);
 
       ///////////////////////////////////////////////////////////////////
       // Initiation

@@ -259,9 +259,9 @@ namespace InDet{
       /// @name TrackParameters production  
       ///////////////////////////////////////////////////////////////////
       //@{
-      const Trk::TrackParameters* trackParameters(bool,int);
-      const Trk::TrackParameters* trackParametersWithNewDirection(bool,int);
-      const Trk::TrackParameters* trackParameters(Trk::PatternTrackParameters&,bool);
+      std::unique_ptr<Trk::TrackParameters> trackParameters(bool,int);
+      std::unique_ptr<Trk::TrackParameters> trackParametersWithNewDirection(bool,int);
+      std::unique_ptr<Trk::TrackParameters> trackParameters(Trk::PatternTrackParameters&,bool);
       //@}
 
       ///////////////////////////////////////////////////////////////////
@@ -505,7 +505,7 @@ namespace InDet{
       /// Private Methods
       ///////////////////////////////////////////////////////////////////
       
-      void patternCovariances(const InDet::SiCluster*,double&,double&,double&);
+      void patternCovariances(const InDet::SiCluster*,double&,double&,double&) const;
       void checkBoundaries(const Trk::PatternTrackParameters & pars);
     };
   

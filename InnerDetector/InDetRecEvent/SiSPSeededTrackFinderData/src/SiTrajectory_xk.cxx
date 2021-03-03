@@ -687,7 +687,7 @@ bool InDet::SiTrajectory_xk::initialize
     /// Case if we already have clusters from the seed on track, 
     /// and some clusters left to put on it, but no seed cluster on this element 
     /// Corresponds to have a hole in the seed. 
-    else if (m_nclusters && lSiCluster.size()) {
+    else if (m_nclusters && !lSiCluster.empty()) {
       /// propagate to the current DE from the last one where we had a cluster from the seed
       /// if the propagation fails
       if (!m_elements[m_nElements-1].ForwardPropagationWithoutSearch(m_elements[up])) {
@@ -710,7 +710,7 @@ bool InDet::SiTrajectory_xk::initialize
   } /// end of loop over boundary links
 
   /// did we manage to assign all our seed hits to elements on the road? 
-  if (lSiCluster.size()) {
+  if (!lSiCluster.empty()) {
     /// no? Then our search road was badly chosen. Return this info for logging and bail out 
     rquality = false;
     return false;
@@ -857,9 +857,7 @@ bool InDet::SiTrajectory_xk::trackParametersToClusters
     if ( m_ndf >= ndfCut ) break;
   }
 
-  if (m_ndf < 6) return false;
-
-  return true;
+  return m_ndf >= 6;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -952,8 +950,7 @@ bool InDet::SiTrajectory_xk::globalPositionsToClusters
       lSiCluster.push_back(c);
     }
   }
-  if (m_ndf < 6) return false;
-  return true;
+  return m_ndf >= 6;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -1214,7 +1211,7 @@ bool InDet::SiTrajectory_xk::backwardExtension(int itmax)
       En.setCluster(CL[m]); if (--nbest==0) break;
     }
     else     {
-      En.setCluster(  0  );
+      En.setCluster(  nullptr  );
     }
   } 
   return true;
@@ -1642,13 +1639,13 @@ bool InDet::SiTrajectory_xk::forwardExtension(bool smoother,int itmax)
         if (index_currentElement<0) {
           index_currentElement=n; 
           /// tell this DE to not use a cluster, and propagate info from prev. element
-          En.addNextClusterF(m_elements[m_elementsMap[n-1]],0);
+          En.addNextClusterF(m_elements[m_elementsMap[n-1]],nullptr);
         }
         /// if we already updated one element: Can't use addNextClusterF directly, 
         /// need to clean up later. For now, just update the cluster info itself
         else    {     
           /// tell this DE to not use a cluster 
-          En.setCluster(0);                                    
+          En.setCluster(nullptr);                                    
         }
       }
     }
@@ -1941,7 +1938,7 @@ InDet::SiTrajectory_xk::convertToNextTrackStateOnSurface()
     if (m_itos[i]+1 < m_elements[m_atos[i]].ntsos()) {++m_itos[i]; break;}
     m_itos[i] = 0;
   }
-  if (i==m_ntos) return 0;
+  if (i==m_ntos) return nullptr;
 
   DataVector<const Trk::TrackStateOnSurface>* 
     dtsos = new DataVector<const Trk::TrackStateOnSurface>;

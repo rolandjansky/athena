@@ -24,7 +24,7 @@
 InDet::SiDetElementBoundaryLink_xk::SiDetElementBoundaryLink_xk
 ( const InDetDD::SiDetectorElement*& Si)
 {
-  m_detelement = 0;
+  m_detelement = nullptr;
   const Trk::PlaneSurface* pla = dynamic_cast<const Trk::PlaneSurface*>(& Si->surface());
   if(!pla) return;
   m_detelement = Si;
