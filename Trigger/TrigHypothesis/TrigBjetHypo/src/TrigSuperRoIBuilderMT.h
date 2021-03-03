@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef  TRIG_SUPERROIBUILDER_H
-#define  TRIG_SUPERROIBUILDER_H
+#ifndef TRIGBJETHYPO_TRIGSUPERROIBUILDER_H
+#define TRIGBJETHYPO_TRIGSUPERROIBUILDER_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 

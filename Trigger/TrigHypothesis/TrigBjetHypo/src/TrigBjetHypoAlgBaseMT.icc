@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-
+#include "AthViews/ViewHelper.h"
 
 template < class CONTAINER >
 StatusCode TrigBjetHypoAlgBaseMT::retrieveCollectionFromView( const EventContext& context,
