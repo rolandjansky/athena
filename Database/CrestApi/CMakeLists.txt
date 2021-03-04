@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Set the name of the package.
 atlas_subdir( CrestApi )
@@ -9,7 +9,7 @@ find_package( nlohmann_json )
 find_package( Boost )
 
 # Component(s) in the package.
-atlas_add_library( CrestApi
+atlas_add_library( CrestApiLib
    CrestApi/CrestApi.h src/CrestApi.cxx
    PUBLIC_HEADERS CrestApi
    LINK_LIBRARIES nlohmann_json::nlohmann_json
@@ -19,7 +19,7 @@ atlas_add_library( CrestApi
 # Test(s) in the package.
 atlas_add_test( test
    SOURCES test/test.cxx
-   LINK_LIBRARIES CrestApi nlohmann_json::nlohmann_json
+   LINK_LIBRARIES CrestApiLib nlohmann_json::nlohmann_json
    INCLUDE_DIRS ${CURL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES ${CURL_LIBRARIES} ${Boost_LIBRARIES} -lstdc++fs
    POST_EXEC_SCRIPT nopost.sh )

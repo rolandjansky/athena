@@ -176,6 +176,7 @@
 - Database/AthenaPOOL/AthenaPoolExample.*
 - Database/AthenaPOOL/.*Tools
 + Database/AthenaPOOL/.*
++ Database/CrestApi
 + Database/DBLock
 + Database/IOVDb.*
 + Database/PersistentDataModel.*

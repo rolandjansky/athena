@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2019, 2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2019-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 
@@ -34,8 +34,6 @@
 
 // Boost Function Fragment (begin)
 
-#include <stdlib.h>     /* getenv */
-#include <iostream>
 #include <boost/parameter/name.hpp>
 #include <boost/parameter/preprocessor.hpp>
 
@@ -600,7 +598,7 @@ namespace Crest {
 
 /**
  * This method finds payload data by hash; the payload object contains the real BLOB. The result returns in the stream
- *"out" (BE CARREFULL!).
+ *"out" (BE CAREFUL!).
  * (This method is an analogue of the get_blob method in Python)
  * @param hash - hash
  * @param[out] out - output stream to get the result.

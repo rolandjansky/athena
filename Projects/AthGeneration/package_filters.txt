@@ -84,6 +84,7 @@
 + Database/ConnectionManagement/DBReplicaSvc
 + Database/CoraCool
 + Database/DBLock
++ Database/CrestApi
 + Database/IOVDbAthenaPool
 + Database/IOVDbDataModel
 + Database/IOVDbMetaDataTools

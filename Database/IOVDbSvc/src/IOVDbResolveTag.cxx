@@ -7,7 +7,7 @@
 // @date 10 April 2018
 
 #include "IOVDbResolveTag.h"
-#include "IOVDbSvcCurl.h"
+#include "CrestApi/CrestApi.h"
 #include "nlohmann/json.hpp"
 #include <sstream>
 #include <iostream>
@@ -18,19 +18,10 @@ namespace IOVDbNamespace{
   std::string
   resolveCrestTag(const std::string & globalTagName, const std::string & folderName, const std::string & forceTag){
     std::string result{};
-    static std::string curlReply{};//preserves state, not very threadsafe
     if (not forceTag.empty()) return forceTag;
-    if (curlReply.empty()){
-      const std::string urlBase{"http://crest-undertow.web.cern.ch/crestapi"};
-      const std::string getTagMap="/globaltagmaps/"+globalTagName;
-      const std::string url=urlBase+getTagMap;
-      //std::cout<<"Calling CURL"<<std::endl;
-      IOVDbSvcCurl request(url);
-      curlReply=request.get();
-    }
-    std::istringstream ss(curlReply);
-    json j;
-    ss>>j;
+    const std::string urlBase{"http://crest-01.cern.ch:8080"};
+    auto crestClient = Crest::CrestClient(urlBase);
+    auto j = crestClient.findGlobalTagMap(globalTagName);
     for (const auto &i:j){
       if (i["label"] == folderName){
         result=i["tagName"];
