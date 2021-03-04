@@ -108,7 +108,7 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
     return StatusCode::FAILURE;
   }
 
-  for(const auto& it : * myRoIContainer){
+  for(const auto it : * myRoIContainer){
     const xAOD::eFexEMRoI* eFexRoI = it;
     ATH_MSG_DEBUG( "EDM eFex Number: " 
 		   << +eFexRoI->eFexNumber() // returns an 8 bit unsigned integer referring to the eFEX number 
