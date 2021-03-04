@@ -144,10 +144,10 @@ for _slice in Comp :
 # cputest defined with "name" "output directory" "filename" "args" 
 cputest = [ ( "CpuCostStep1", " times ", "expert-monitoring.root", " --auto  -p TIME" ),
             ( "CpuCostStep2", " times-FTF ", "expert-monitoring.root", " --auto -p TIME -d TrigFastTrackFinder_" ),
-            ( "CpuCostStep3", " cost-perCall ", " TrigCostRoot_Results.root", " --auto -p _Time_perCall -d /Algorithm " ),
-            ( "CpuCostStep4", " cost-perEvent ", " TrigCostRoot_Results.root", " --auto -p _Time_perEvent -d /Algorithm " ),
-            ( "CpuCostStep5", " cost-perCall-chain ", " TrigCostRoot_Results.root", " --auto -p _Time_perCall -d /Chain_Algorithm " ),
-            ( "CpuCostStep6", " cost-perEvent-chain ", " TrigCostRoot_Results.root", " --auto -p _Time_perEvent -d /Chain_Algorithm " ),
+            ( "CpuCostStep3", " cost-perCall ", "TrigCostRoot_Results.root", " --auto -p _Time_perCall -d /Algorithm " ),
+            ( "CpuCostStep4", " cost-perEvent ", "TrigCostRoot_Results.root", " --auto -p _Time_perEvent -d /Algorithm " ),
+            ( "CpuCostStep5", " cost-perCall-chain ", "TrigCostRoot_Results.root", " --auto -p _Time_perCall -d /Chain_Algorithm " ),
+            ( "CpuCostStep6", " cost-perEvent-chain ", "TrigCostRoot_Results.root", " --auto -p _Time_perEvent -d /Chain_Algorithm " ),
             ]
 
 if ((not exclude) or postproc ):
