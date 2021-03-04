@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EFLOWOBJECTCREATORTOOL_H
@@ -28,6 +28,7 @@ CREATED:  15th August, 2005
 
 #include "xAODPFlow/PFO.h"
 #include "xAODPFlow/PFOContainer.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
 
 #include <cassert>
 
@@ -38,39 +39,42 @@ class eflowCaloObjectContainer;
 
 static const InterfaceID IID_eflowObjectCreatorTool("eflowObjectCreatorTool", 1, 0);
 
-class eflowObjectCreatorTool : virtual public eflowBaseAlgTool, public AthAlgTool {
+class eflowObjectCreatorTool : virtual public eflowBaseAlgTool, public AthAlgTool
+{
 
-  public:
-  
-  eflowObjectCreatorTool(const std::string& type,const std::string& name,const IInterface* parent);
+public:
+  eflowObjectCreatorTool(const std::string &type, const std::string &name, const IInterface *parent);
 
-  ~eflowObjectCreatorTool() {};
+  ~eflowObjectCreatorTool(){};
 
-  static const InterfaceID& interfaceID();
+  static const InterfaceID &interfaceID();
 
   StatusCode initialize();
-  StatusCode execute(eflowCaloObject* energyFlowCaloObject);
-  void execute(eflowCaloObjectContainer* theEflowCaloObjectContainer);
+  StatusCode execute(eflowCaloObject *energyFlowCaloObject);
+  void execute(eflowCaloObjectContainer *theEflowCaloObjectContainer);
   StatusCode finalize();
 
-  private:
+private:
   StatusCode setupPFOContainers();
-  void createChargedEflowObjects(eflowCaloObject* energyFlowCaloObject, bool addClusters = false);
-  void createChargedEflowObject(eflowRecTrack* efRecTrack, bool addClusters = false);
-  void createNeutralEflowObjects(eflowCaloObject* energyFlowCaloObject);
+  void createChargedEflowObjects(eflowCaloObject *energyFlowCaloObject, bool addClusters = false);
+  void createChargedEflowObject(eflowRecTrack *efRecTrack, bool addClusters = false);
+  void createNeutralEflowObjects(eflowCaloObject *energyFlowCaloObject);
 
   /** Function to add links to the vertex to which a charged PFO is matched (using the tracking CP loose vertex association tool) */
-  void addVertexLinksToChargedEflowObjects(const xAOD::VertexContainer* theVertexContainer);
+  void addVertexLinksToChargedEflowObjects(const xAOD::VertexContainer *theVertexContainer);
 
   /** Function to add cluster moments onto PFO */
-  void addMoment(xAOD::CaloCluster::MomentType momentType, xAOD::PFODetails::PFOAttributes pfoAttribute, const xAOD::CaloCluster* theCluster, xAOD::PFO* thePFO);
+  void addMoment(xAOD::CaloCluster::MomentType momentType, xAOD::PFODetails::PFOAttributes pfoAttribute, const xAOD::CaloCluster *theCluster, xAOD::PFO *thePFO);
 
   /* Name of PFO container to write out: */
   std::string m_PFOOutputName;
 
-  xAOD::PFOContainer* m_chargedPFOContainer;
-  xAOD::PFOContainer* m_neutralPFOContainer;
-  xAOD::PFOContainer* m_neutralPFOContainer_nonModified;
+  xAOD::PFOContainer *m_chargedPFOContainer;
+  xAOD::PFOContainer *m_neutralPFOContainer;
+  xAOD::PFOContainer *m_neutralPFOContainer_nonModified;
+
+  std::string m_caloClusterName;
+  const xAOD::CaloClusterContainer *m_caloClusterContainer;
 
   bool m_eOverPMode;
 
@@ -86,6 +90,9 @@ class eflowObjectCreatorTool : virtual public eflowBaseAlgTool, public AthAlgToo
   /* Bool to determine whether to calculate and attach DigiTruth moments */
   bool m_doDigiTruth;
 
+  /* Bool to determine whether we are in HeavyIon running or p-p running. The latter is the default */
+  bool m_heavyIonMode;
+
   /* ToolHandle to tracking CP loose vertex selection tool */
   ToolHandle<CP::ITrackVertexAssociationTool> m_trackVertexAssociationTool;
 
@@ -94,9 +101,8 @@ class eflowObjectCreatorTool : virtual public eflowBaseAlgTool, public AthAlgToo
 
   /* Bool to toggle AOD reduction task force cluster moment list */
   bool m_useAODReductionMomentList;
-  
 };
 
-inline const InterfaceID& eflowObjectCreatorTool::interfaceID() { return IID_eflowObjectCreatorTool; }
+inline const InterfaceID &eflowObjectCreatorTool::interfaceID() { return IID_eflowObjectCreatorTool; }
 
 #endif
