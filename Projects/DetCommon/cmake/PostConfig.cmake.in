@@ -6,7 +6,7 @@
 
 # This is a standalone project, so set the appropriate compile flags:
 add_definitions( -DXAOD_STANDALONE )
-add_defintiions( -DTRIGCONF_STANDALONE )
+add_definitions( -DTRIGCONF_STANDALONE )
 
 # And some variables for CMake as well:
 set( XAOD_STANDALONE TRUE CACHE BOOL
