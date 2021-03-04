@@ -1144,8 +1144,8 @@ class useNNTTrainedNetworks(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = False
 
-class keepAdditionalHitsOnTrackParticle(InDetFlagsJobProperty): 
-  """Do not drop first/last hits on track (only for special cases - will blow up TrackParticle szie!!!)""" 
+class keepAdditionalHitsOnTrackParticle(InDetFlagsJobProperty):
+  """Do not drop first/last hits on track (only for special cases - will blow up TrackParticle size!!!)"""
   statusOn     = True 
   allowedTypes = ['bool']
   StoredValue  = False

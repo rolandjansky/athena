@@ -135,19 +135,19 @@ if globalflags.InputFormat()=='bytestream':
    InDetESDList+=['IDCInDetBSErrContainer#'+InDetKeys.SCT_ByteStreamErrs()]
 
 if InDetFlags.doxAOD():
-  excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-TTVA_AMVFVertices.-TTVA_AMVFWeights."
-  if not InDetFlags.KeepFirstParameters() :
-      excludedAuxData += '-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition'
+
+  excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-TTVA_AMVFVertices.-TTVA_AMVFWeights"
+
+  if not (InDetFlags.KeepFirstParameters() or InDetFlags.keepAdditionalHitsOnTrackParticle()):
+    excludedAuxData += '.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition'
 
   excludedVertexAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
 
-  if InDetFlags.keepAdditionalHitsOnTrackParticle():
-   excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation"
   InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODTrackParticleContainer()]
   InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODTrackParticleContainer()+'Aux.' + excludedAuxData]
 
-  from  InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags
-  from  InDetPhysValMonitoring.ConfigUtils import extractCollectionPrefix
+  from InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags
+  from InDetPhysValMonitoring.ConfigUtils import extractCollectionPrefix
   for col in InDetPhysValFlags.validateExtraTrackCollections() :
     prefix=extractCollectionPrefix(col)
     InDetESDList+=['xAOD::TrackParticleContainer#'+prefix+'TrackParticles']
