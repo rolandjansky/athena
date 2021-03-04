@@ -38,7 +38,7 @@ LVL1::eFakeTower::~eFakeTower() {
 
 StatusCode LVL1::eFakeTower::init(std::string input_fileadress) {
   ATH_CHECK( m_eFEXFPGATowerIdProviderTool.retrieve() );
-  m_numberofevents = 1;
+  m_numberofevents = 0;
   m_inputfile = input_fileadress;
   std::string txt = ".txt";
   for (int efex{ 0 }; efex < 23; efex++) {
