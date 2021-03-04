@@ -41,7 +41,7 @@ StatusCode LVL1::eFakeTower::init(std::string input_fileadress) {
   m_numberofevents = 0;
   m_inputfile = input_fileadress;
   std::string txt = ".txt";
-  for (int efex{ 0 }; efex < 23; efex++) {
+  for (int efex{ 0 }; efex < 24; efex++) {
     for (int fpga{ 0 }; fpga < 4; fpga++) {
       std::fstream fileStream;
       fileStream.open(m_inputfile + std::to_string(getFPGAnumber(efex, fpga)) + txt);
@@ -91,7 +91,7 @@ StatusCode LVL1::eFakeTower::loadnext()
     delete allfpga.second;
   }
   std::string txt = ".txt";
-  for (int efex{ 0 }; efex < 23; efex++) {
+  for (int efex{ 0 }; efex < 24; efex++) {
     for (int fpga{ 0 }; fpga < 4; fpga++) {
       std::fstream fileStream;
       fileStream.open(m_inputfile + std::to_string(getFPGAnumber(efex, fpga)) + txt);
@@ -107,7 +107,7 @@ StatusCode LVL1::eFakeTower::loadnext()
 StatusCode LVL1::eFakeTower::execute() {
   // replace all supercell energies in the eTowerContainer using the test vector.
   int FPGAtowerids[10][6];
-  for (int efex{ 0 }; efex < 23; efex++) {
+  for (int efex{ 0 }; efex < 24; efex++) {
     for (int fpga{ 0 }; fpga < 4; fpga++) {
       StatusCode sc = m_eFEXFPGATowerIdProviderTool->getRankedTowerIDinFPGA(efex, fpga, FPGAtowerids);
       if (sc ==  StatusCode::FAILURE) {
