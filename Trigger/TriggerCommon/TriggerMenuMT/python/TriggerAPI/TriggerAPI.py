@@ -4,58 +4,24 @@ __author__  = 'Javier Montejo'
 __version__="$Revision: 2.0 $"
 __doc__="Interface to retrieve lists of unprescaled triggers according to types and periods"
 
-import sys, pickle, os.path
+import sys
 from TriggerMenuMT.TriggerAPI.TriggerInfo import TriggerInfo
 from TriggerMenuMT.TriggerAPI.TriggerEnums import TriggerPeriod, TriggerType
-from PathResolver import PathResolver
+from TriggerMenuMT.TriggerAPI import SerializeAPI
 from AthenaCommon.Logging import logging
 
 class TriggerAPI:
-    log = logging.getLogger( 'TriggerMenuMT.TriggerAPI.TriggerAPI.py' )
-    centralPickleFile = PathResolver.FindCalibFile("TriggerMenu/TriggerInfo_20181112.pickle")
-    if not centralPickleFile: 
-        log.warning("Couldn't find primary pickle file, try backup")
-        centralPickleFile = PathResolver.FindCalibFile("TriggerMenu/TriggerInfo_20180925.pickle")
-    if centralPickleFile: 
-        log.info("Found pickle file:"+centralPickleFile)
-        centralPickleFile = os.path.realpath(centralPickleFile)
-    else: log.error("Couldn't find backup pickle file")
-    privatePickleFile = "TriggerInfo.pickle"
+    log = logging.getLogger( 'TriggerMenuMT.TriggerAPI' )
     dbQueries = {}
-    privatedbQueries = {}
     customGRL = None
     release   = None
-    pickleread = False
+    cacheread = False
 
     @classmethod
     def init(cls):
-        if cls.pickleread: return
-        cls.pickleread = True
-        if cls.centralPickleFile:
-            try:
-                with open(cls.centralPickleFile, 'rb') as f:
-                    cls.log.info("Reading cached information from: "+cls.centralPickleFile)
-                    cls.dbQueries = pickle.load(f)
-            except (pickle.PickleError, ValueError):
-                cls.log.info("Reading cached information failed")
-                cls.dbQueries = {}
-            except ModuleNotFoundError:
-                cls.log.warning("Tricking the pickle into old the module structure")
-                from TriggerMenuMT import TriggerAPI
-                sys.modules['TriggerMenu.api'] = TriggerAPI
-                with open(cls.centralPickleFile, 'rb') as f:
-                    cls.log.info("Reading cached information from: "+cls.centralPickleFile)
-                    cls.dbQueries = pickle.load(f)
-        else:
-            cls.dbQueries = {}
-        try:
-            with open(cls.privatePickleFile, 'rb') as f:
-                cls.privatedbQueries = pickle.load(f)
-                cls.dbQueries.update(cls.privatedbQueries)
-        except (pickle.PickleError, ValueError):
-            cls.log.error("Error unpickling the private file")
-        except IOError:
-            pass
+        if cls.cacheread: return
+        cls.cacheread = True
+        cls.dbQueries = SerializeAPI.load()
         todel = [(p,grl) for p,grl in cls.dbQueries if p  & TriggerPeriod.future]
         for key in todel:
             del cls.dbQueries[key]
@@ -175,34 +141,27 @@ class TriggerAPI:
         if (period,cls.customGRL) not in cls.dbQueries:
             if TriggerPeriod.isRunNumber(period) or (isinstance(period,TriggerPeriod) and period.isBasePeriod()):
                 cls.dbQueries[(period,cls.customGRL)] = TriggerInfo(period,cls.customGRL,cls.release)
-                cls.privatedbQueries[(period,cls.customGRL)] = cls.dbQueries[(period,cls.customGRL)]
-                if not period & TriggerPeriod.future or TriggerPeriod.isRunNumber(period): 
-                    #Don't pickle TM information since it can change, very cheap to retrieve anyway
-                    with open(cls.privatePickleFile, 'wb') as f:
-                        pickle.dump( cls.privatedbQueries , f)
             else:
                 basePeriods = [tp for tp in TriggerPeriod.basePeriods() if tp & period]
                 for bp in basePeriods:
                     cls._loadTriggerPeriod(bp,reparse)
                 cls.dbQueries[(period,cls.customGRL)] = TriggerInfo.merge([cls.dbQueries[(bp,cls.customGRL)] for bp in basePeriods])
-                cls.privatedbQueries[(period,cls.customGRL)] = cls.dbQueries[(period,cls.customGRL)]
         if reparse: cls.dbQueries[(period,cls.customGRL)].reparse()
 
     @classmethod
-    def dumpFullPickle(cls):
-        for period,grl in list(cls.dbQueries.keys()):
-            if TriggerPeriod.isRunNumber(period) or (isinstance(period,TriggerPeriod) and period.isBasePeriod()): continue
-            del cls.dbQueries[(period,grl)]
-        with open(cls.privatePickleFile, 'wb') as f:
-            pickle.dump( cls.dbQueries , f)
-        cls.log.info("Dumped private pickle file to ",cls.privatePickleFile)
+    def dumpAPI(cls, full=False):
+        if not full: #store only what is not in the central pickle/json
+            for period,grl in list(cls.dbQueries.keys()):
+                if TriggerPeriod.isRunNumber(period) or (isinstance(period,TriggerPeriod) and period.isBasePeriod()): continue
+                del cls.dbQueries[(period,grl)]
+        SerializeAPI.dump(cls.dbQueries)
         cls.log.info(sorted(cls.dbQueries.keys()))
 
-def main(dumpFullPickle=False):
-    ''' Run some tests or dump the full pickle for CalibPath '''
+def main(dumpFullAPI=False):
+    ''' Run some tests or dump the full pickle/json for CalibPath '''
     log = logging.getLogger( 'TriggerMenuMT.TriggerAPI.main' )
 
-    if dumpFullPickle:
+    if dumpFullAPI:
         for triggerPeriod in TriggerPeriod:
             unprescaled = TriggerAPI.getLowestUnprescaled(triggerPeriod,TriggerType.mu_single)
             log.info(triggerPeriod)
@@ -211,7 +170,7 @@ def main(dumpFullPickle=False):
         unprescaled = TriggerAPI.getLowestUnprescaled(337833,TriggerType.mu_single)
         log.info(337833)
         log.info(sorted(unprescaled))
-        TriggerAPI.dumpFullPickle()
+        TriggerAPI.dumpAPI(full=True)
     else:
         try: period = int(sys.argv[1])
         except Exception: period = TriggerPeriod.y2018
@@ -221,6 +180,6 @@ def main(dumpFullPickle=False):
             log.info(sorted(unprescaled))
 
 if __name__ == "__main__":
-        dumpFullPickle = ("dumpFullPickle" in sys.argv)
-        sys.exit(main(dumpFullPickle))
+        dumpFullAPI = ("dumpFullAPI" in sys.argv)
+        sys.exit(main(dumpFullAPI))
 

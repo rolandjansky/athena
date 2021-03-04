@@ -41,15 +41,7 @@ print("Single muon lowest-unprescaled 2.0e34 items:",TriggerAPI.getLowestUnpresc
 # - can also retrieve all unprescaled items, including higher thresholds
 print("Single muon unprescaled 2.0e34 items:"       ,TriggerAPI.getUnprescaled(TriggerPeriod.future2e34, TriggerType.mu_single))
 
-# Use the lists that are build with the release with the expected unprescaled items of the current/future menu
-# Will return the same as TriggerAPI.getUnprescaled(TriggerPeriod.future2e34, ...)
-# The list has been already processed and takes therefore ~0 time
-from TriggerMenuMT.TriggerAPI import list_unprescaled1p8e34, list_unprescaled2e34
-print("Precomputed single muon 2.0e34 items:",list_unprescaled2e34.list_mu_single)
-print("Precomputed single muon 1.8e34 items:",list_unprescaled1p8e34.list_mu_single)
-
 # Set a custom GRL, affects *ALL* calls after it has been set 
 print("Multi-bjet in periods GHIK (default GRL)", TriggerAPI.getLowestUnprescaled(TriggerPeriod.y2017periodGHIK, TriggerType.bj_multi))
 TriggerAPI.setCustomGRL("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data17_13TeV/20171130/data17_13TeV.periodAllYear_DetStatus-v97-pro21-13_Unknown_PHYS_StandardGRL_All_Good_25ns_BjetHLT_Normal2017.xml")
-print("Multi-bjet in periods GHIK (Bjet GRL)   ", TriggerAPI.getLowestUnprescaled(TriggerPeriod.y2017periodGHIK, TriggerType.bj_multi))
-
+#print("Multi-bjet in periods GHIK (Bjet GRL)   ", TriggerAPI.getLowestUnprescaled(TriggerPeriod.y2017periodGHIK, TriggerType.bj_multi))
