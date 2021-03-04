@@ -99,7 +99,14 @@ protected:
                                  double& dEfficiencyScaleFactor,
                                  double dVars[] ) > tTupleObjectFunc;
   typedef std::map<std::string, tTupleObjectFunc > tSFMAP;
+  // In gcc10 builds, cling gets confused by the type of m_mSF and produces
+  // an ugly warning message.  Hide this from cling to suppress that
+  // (substitute another unique_ptr so that the class layout remains the same).
+#ifdef __CLING__
+  std::unique_ptr<int> m_dummy;
+#else
   std::unique_ptr< tSFMAP > m_mSF;
+#endif
 
   std::unordered_map < CP::SystematicSet, std::string > m_mSystematicSets;
   const CP::SystematicSet* m_sSystematicSet;
