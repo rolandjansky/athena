@@ -157,7 +157,7 @@ StatusCode NoiseStudy::execute(const EventContext& context) const{
 	for( auto tt : *truth ){
 		if ( tt->parent() == nullptr ) continue;
                 if ( tt->parent()->pdgId() != 23 ) continue;
-                if ( fabsf(tt->absPdgId()) != 11 ) continue;
+                if ( std::abs(tt->absPdgId()) != 11 ) continue;
                 if ( tt->barcode() >= 10000 ) continue;
                 if ( tt->pt() < 1e3 ) continue;
 		el_etas.push_back ( tt->eta() );
@@ -235,10 +235,10 @@ StatusCode NoiseStudy::execute(const EventContext& context) const{
 		bool inconeFinal=false;
 		for( unsigned int ie = 0 ; ie < el_etas_size ; ++ie ){
 		   bool incone=true;
-		   if ( fabsf( c_eta - el_etas[ie] ) > 0.2 ) { incone=false; continue;}
-		   float dphi = fabsf( c_phi - el_phis[ie] );
-                   dphi = fabsf( M_PI - dphi );
-                   dphi = fabsf( M_PI - dphi );
+		   if ( std::abs( c_eta - el_etas[ie] ) > 0.2 ) { incone=false; continue;}
+		   float dphi = std::abs( c_phi - el_phis[ie] );
+                   dphi = std::abs( M_PI - dphi );
+                   dphi = std::abs( M_PI - dphi );
                    if ( dphi > 0.2 ) {incone=false; continue; }
 		   inconeFinal |= incone;
 		}
