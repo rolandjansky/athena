@@ -641,29 +641,10 @@ void TRTProcessingOfStraw::ClustersToDeposits (MagField::AtlasFieldCache& fieldC
       // Get the cluster radius and energy.
       const double cluster_x(currentClusterIter->xpos);
       const double cluster_y(currentClusterIter->ypos);
-      const double cluster_z(currentClusterIter->zpos);
+      const double cluster_z(this->setClusterZ(currentClusterIter->zpos, isLong, isShort, isEC));
       const double cluster_x2(cluster_x*cluster_x);
       const double cluster_y2(cluster_y*cluster_y);
       double cluster_r2(cluster_x2+cluster_y2);
-
-      // The active gas volume along the straw z-axis is: Barrel long +-349.315 mm; Barrel short +-153.375 mm; End caps +-177.150 mm.
-      // Here we give a warning for clusters that are outside of the straw gas volume in in z. Since T/P version 3 cluster z values
-      // can go several mm outside these ranges; 30 mm is plenty allowance in the checks below.
-      const double  longBarrelStrawHalfLength(349.315*CLHEP::mm);
-      const double shortBarrelStrawHalfLength(153.375*CLHEP::mm);
-      const double      EndcapStrawHalfLength(177.150*CLHEP::mm);
-      if ( isLong  && fabs(cluster_z)>longBarrelStrawHalfLength+30 ) {
-        double d = cluster_z<0 ? cluster_z+longBarrelStrawHalfLength : cluster_z-longBarrelStrawHalfLength;
-        ATH_MSG_WARNING ("Long barrel straw cluster is outside the active gas volume z = +- 349.315 mm by " << d << " mm.");
-      }
-      if ( isShort && fabs(cluster_z)>shortBarrelStrawHalfLength+30 ) {
-        double d = cluster_z<0 ? cluster_z+shortBarrelStrawHalfLength : cluster_z-shortBarrelStrawHalfLength;
-        ATH_MSG_WARNING ("Short barrel straw cluster is outside the active gas volume z = +- 153.375 mm by " << d << " mm.");
-      }
-      if ( isEC    && fabs(cluster_z)>EndcapStrawHalfLength+30 ) {
-        double d = cluster_z<0 ? cluster_z+EndcapStrawHalfLength : cluster_z-EndcapStrawHalfLength;
-        ATH_MSG_WARNING ("End cap straw cluster is outside the active gas volume z = +- 177.150 mm by " << d << " mm.");
-      }
 
       // These may never occur, but could be very problematic for getAverageDriftTime(), so check and correct this now.
       if (cluster_r2<wire_r2)  cluster_r2=wire_r2;  // Compression may (v. rarely) cause r to be smaller than the wire radius. If r=0 then NaN's later!
@@ -834,4 +815,35 @@ Amg::Vector3D TRTProcessingOfStraw::getGlobalPosition (  int hitID, const TimedH
   const Amg::Vector3D def(0.0,0.0,0.0);
   return def;
 
+}
+
+
+double TRTProcessingOfStraw::setClusterZ(double cluster_z_in, bool isLong, bool isShort, bool isEC) const {
+  double cluster_z(cluster_z_in);
+
+  // The active gas volume along the straw z-axis is: Barrel long +-349.315 mm; Barrel short +-153.375 mm; End caps +-177.150 mm.
+  // Here we give a warning for clusters that are outside of the straw gas volume in in z. Since T/P version 3 cluster z values
+  // can go several mm outside these ranges; 30 mm is plenty allowance in the checks below.
+  const double  longBarrelStrawHalfLength(349.315*CLHEP::mm);
+  const double shortBarrelStrawHalfLength(153.375*CLHEP::mm);
+  const double      EndcapStrawHalfLength(177.150*CLHEP::mm);
+  if ( isLong  && fabs(cluster_z)>longBarrelStrawHalfLength+30 ) {
+    double d = cluster_z<0 ? cluster_z+longBarrelStrawHalfLength : cluster_z-longBarrelStrawHalfLength;
+    ATH_MSG_WARNING ("Long barrel straw cluster is outside the active gas volume z = +- 349.315 mm by " << d << " mm.");
+    ATH_MSG_WARNING ("Setting cluster_z = 0.0");
+    cluster_z = 0.0;
+  }
+  if ( isShort && fabs(cluster_z)>shortBarrelStrawHalfLength+30 ) {
+    double d = cluster_z<0 ? cluster_z+shortBarrelStrawHalfLength : cluster_z-shortBarrelStrawHalfLength;
+    ATH_MSG_WARNING ("Short barrel straw cluster is outside the active gas volume z = +- 153.375 mm by " << d << " mm.");
+    ATH_MSG_WARNING ("Setting cluster_z = 0.0");
+    cluster_z = 0.0;
+  }
+  if ( isEC    && fabs(cluster_z)>EndcapStrawHalfLength+30 ) {
+    double d = cluster_z<0 ? cluster_z+EndcapStrawHalfLength : cluster_z-EndcapStrawHalfLength;
+    ATH_MSG_WARNING ("End cap straw cluster is outside the active gas volume z = +- 177.150 mm by " << d << " mm.");
+    ATH_MSG_WARNING ("Setting cluster_z = 0.0");
+    cluster_z = 0.0;
+  }
+  return cluster_z;
 }
