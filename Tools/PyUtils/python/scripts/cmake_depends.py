@@ -84,16 +84,16 @@ def traverse(graph, root, reverse=False, maxdepth=None, nodegetter=lambda n:n):
 
 def subgraph(graph, sources, reverse=False, maxdepth=None, nodegetter=lambda n : n.attr.get('label')):
    """Extract subgraph created by traversing from one or more sources.
-   Parameters are the same as in `traverse`.
+   Parameters are the same as in `traverse`. Return list of edge tuples.
    """
-   g = pygraphviz.AGraph(directed=True)
+   edges = set()
    for root in sources:
       for a,b in traverse(graph, root, reverse=reverse, maxdepth=maxdepth, nodegetter=nodegetter):
          if a and b and a!=b:
-            if reverse: g.add_edge(b,a)
-            else: g.add_edge(a,b)
+            if reverse: edges.add((b,a))
+            else: edges.add((a,b))
 
-   return g
+   return edges
 
 
 def add_legend(graph):
@@ -104,6 +104,14 @@ def add_legend(graph):
       l.add_node(n, shape='point', style='invis')
    l.add_edge('a','b', label='C++', constraint=False)
    l.add_edge('c','d', label='Python', style=py_style, constraint=False)
+
+
+def copy_graph(source, dest):
+   """Copy graph nodes and edges from source to dest including attributes"""
+   for e in source.edges_iter():
+      dest.add_edge(e, **e.attr)
+   for n in source.nodes_iter():
+      dest.add_node(n, **n.attr)
 
 
 class AthGraph:
@@ -123,7 +131,7 @@ class AthGraph:
       self.node = { n.attr['label'] : n.get_name() for n in self.graph.nodes_iter() }
 
       def decorate_package(n0, n1=None):
-         """Asssign package name to n0 -> n1 if n0 is a package target"""
+         """Assign package name to n0 -> n1 if n0 is a package target"""
          p = n0.attr['label']
          # Decorate target with package name:
          if p.startswith('Package_'):
@@ -161,12 +169,11 @@ class AthGraph:
                       node.attr['shape']==self.types['Custom Target']) else False
 
 
-def create_dep_graph(graph, target, deps, pydeps, args):
-   """Create dependency graph.
+def create_dep_graph(target, deps, pydeps, args):
+   """Create and return dependency graph.
 
-   @param graph   output graph
    @param target  name of target
-   @param deps    cmake dependnecies
+   @param deps    AthGraph cmake dependencies
    @param pydeps  python dependencies
    @param args    command line arguments
    """
@@ -216,8 +223,8 @@ def create_dep_graph(graph, target, deps, pydeps, args):
    g = subgraph(deps.graph, sources, reverse=args.clients,
                 maxdepth=depth, nodegetter=getnode)
 
-   graph.add_subgraph(name=target)
-   graph.get_subgraph(target).add_edges_from(g.edges())
+   graph = pygraphviz.AGraph(name=target, directed=True, strict=False)
+   graph.add_edges_from(g)
 
    # Add python dependencies:
    if args.py:
@@ -226,13 +233,14 @@ def create_dep_graph(graph, target, deps, pydeps, args):
       g = subgraph(pydeps, pysources, reverse=args.clients,
                    maxdepth=args.recursive, nodegetter=lambda n : n.name)
 
-      graph.get_subgraph(target).add_edges_from(g.edges(), style=py_style)
+      graph.add_edges_from(g, style=py_style)
 
       # Change style of nodes that have only Python dependencies:
-      g = graph.get_subgraph(target)
-      for n in g.nodes_iter():
-         if all(e.attr['style']==py_style for e in g.edges_iter(n)):
+      for n in graph.nodes_iter():
+         if all(e.attr['style']==py_style for e in graph.edges_iter(n)):
             n.attr['style'] = py_style
+
+   return graph
 
 
 def print_dep_graph(graph, args):
@@ -342,9 +350,15 @@ def main(args):
 
    # Create combined graph for all given targets:
    if not args.batch:
-      graph = pygraphviz.AGraph(name='AthGraph', directed=True, strict=False)
-      for target in args.names:
-         create_dep_graph(graph, target, deps, pydeps, args)
+      subgraphs = [create_dep_graph(target, deps, pydeps, args) for target in args.names]
+      if len(subgraphs)>1:
+         graph = pygraphviz.AGraph(name='AthGraph', directed=True, strict=False)
+         for g in subgraphs:
+            graph.add_subgraph(name=g.get_name())
+            copy_graph(g, graph.subgraphs()[-1])
+      else:
+         graph = subgraphs[0]
+
       print_dep_graph(graph, args)
 
    # Batch mode: create separte graph for each target:
@@ -352,8 +366,7 @@ def main(args):
       import multiprocessing
       global doit   # required for use in multiprocessing
       def doit(target):
-         graph = pygraphviz.AGraph(name=target.replace('/','_'), directed=True, strict=False)
-         create_dep_graph(graph, target, deps, pydeps, args)
+         graph = create_dep_graph(target, deps, pydeps, args)
          print_dep_graph(graph, args)
 
       pool = multiprocessing.Pool(args.batch)
