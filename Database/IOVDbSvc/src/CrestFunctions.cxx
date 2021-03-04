@@ -7,7 +7,7 @@
 // @date 1 July 2019
 
 #include "CrestFunctions.h"
-#include "IOVDbSvcCurl.h"
+#include "CrestApi/CrestApi.h"
 #include <iostream>
 #include <exception>
 #include <regex>
@@ -16,7 +16,7 @@
 namespace IOVDbNamespace{
   const std::string
   urlBase(){
-    return  "http://crest-undertow.web.cern.ch/crestapi";
+    return  "http://crest-01.cern.ch:8080";
   }
 
   std::string
@@ -39,23 +39,25 @@ namespace IOVDbNamespace{
 
   std::string 
   getIovsForTag(const std::string & tag, const bool testing){
-    std::string url=urlBase()+"/iovs?tagname="+tag;
+    //std::string url=urlBase()+"/iovs?tagname="+tag;
     std::string reply{R"delim([{"tagName":"Indet_Align-channelList","since":0,"insertionTime":"2019-07-08T15:33:46.124+0000","payloadHash":"551e8b2807dea49dd91933ba963d8eff78b3441ae5836cd17cddad26ec14ecc3"}])delim"};
     if (not testing){
-      IOVDbSvcCurl request(url);
-      reply=request.get();
+      //...CrestApi returns Iovs as a json object
+      auto myCrestClient = Crest::CrestClient(urlBase());
+      const auto & jsonIovsList = myCrestClient.findAllIovs(tag);
     }
     return extractHashFromJson(reply);
   }
 
   std::string 
   getPayloadForHash(const std::string & hash, const bool testing){
-    auto payloadForHash=[](const std::string &h){return "/payloads/"+h+"/data";};
-    std::string url=urlBase()+payloadForHash(hash);
+    //auto payloadForHash=[](const std::string &h){return "/payloads/"+h+"/data";};
+    //std::string url=urlBase()+payloadForHash(hash);
     std::string reply{R"delim({"channel_list": ["0", "100", "101", "200", "201", "202", "203", "204", "205", "206", "207", "208", "209", "210", "211", "212", "213", "214", "215", "216", "217", "218", "219", "220", "221", "222", "223", "224", "225", "226", "227", "228", "229", "230"]})delim"};
     if (not testing){
-      IOVDbSvcCurl request(url);
-      reply = request.get();
+      //CrestApi method:
+      auto   myCrestClient = Crest::CrestClient(urlBase());
+      return myCrestClient.getPayloadAsString(hash);
     }
     return reply;
   }

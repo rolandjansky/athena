@@ -12,7 +12,7 @@
 #include <boost/uuid/uuid_generators.hpp> // generators
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/asio.hpp>
-
+#include <iostream>
 #include <fstream>
 #include <filesystem>
 
