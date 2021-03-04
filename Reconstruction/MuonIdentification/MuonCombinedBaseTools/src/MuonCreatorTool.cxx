@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,7 @@
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 #include "MuidEvent/FieldIntegral.h"
 #include "StoreGate/ReadCondHandle.h"
+#include "AthContainers/ConstDataVector.h"
 
 namespace MuonCombined {
  
@@ -1036,7 +1037,7 @@ namespace MuonCombined {
                                          std::vector<const MuonCombined::MuonCandidate*>& resolvedMuonCandidates) const
   {
     
-    TrackCollection* resolvedTracks=0;
+    std::unique_ptr<const TrackCollection> resolvedTracks;
     std::set<size_t> alreadyIncluded;
     std::hash<const Trk::Track*> trackHash;
     //TrackCollection will hold copies of tracks used for overlap removal
@@ -1165,7 +1166,7 @@ namespace MuonCombined {
       }
       
       // Resolve ambiguity between muon tracks
-      resolvedTracks = m_ambiguityProcessor->process(&muonTracks); 
+      resolvedTracks = std::unique_ptr<const TrackCollection>(m_ambiguityProcessor->process(&muonTracks)); 
       resolvedInDetCandidates.clear();
       
       // link back to InDet candidates and fill the resolved container  
@@ -1203,8 +1204,9 @@ namespace MuonCombined {
       }
 
       
-      if(!resolvedTracks) {
-        resolvedTracks = new TrackCollection(SG::VIEW_ELEMENTS);
+      ConstDataVector<TrackCollection> resolvedTracks2 (SG::VIEW_ELEMENTS);
+      if (resolvedTracks) {
+        resolvedTracks2.assign (resolvedTracks->begin(), resolvedTracks->end());
       }
 
       // add MS tracks to resolvedTrack collection and store a link between tracks and muon candidates
@@ -1220,22 +1222,20 @@ namespace MuonCombined {
 	//the important thing is to end up with the right candidates at the end anyway
 	Trk::Track* copyTrack=new Trk::Track(*track);
 	//this is a little awkward, but the ambi processing returns a VIEW_ELEMENTS collection
-        resolvedTracks->push_back(copyTrack); //VIEW_ELEMENTS, pointer only
+        resolvedTracks2.push_back(copyTrack); //VIEW_ELEMENTS, pointer only
 	muonTracks.push_back(copyTrack); //OWN_ELEMENTS, takes ownership
         trackMuonCandLinks[ copyTrack ] = candidate;
       }
       
       // solve ambiguity
-      TrackCollection* resolvedAllTracks = m_ambiguityProcessor->process(resolvedTracks); 
+      std::unique_ptr<const TrackCollection> resolvedAllTracks (m_ambiguityProcessor->process(resolvedTracks2.asDataVector()));
       
       // loop over resolved tracks and fill resolved muon candidates
-      for(auto track : *resolvedAllTracks) {
+      for(const Trk::Track* track : *resolvedAllTracks) {
         auto trackCandLink = trackMuonCandLinks.find( track );
         if( trackCandLink != trackMuonCandLinks.end() ) 
           resolvedMuonCandidates.push_back( trackCandLink->second );
       }    
-      if(resolvedTracks) delete resolvedTracks;
-      if(resolvedAllTracks) delete resolvedAllTracks;
 
       // print-out
       if( msgLvl(MSG::DEBUG) ){

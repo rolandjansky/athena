@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -131,14 +131,14 @@ namespace MuonCombined {
     ATH_MSG_DEBUG("Finished back-tracking, total number of successfull fits " << ntracks);
 
     // Resolve ambiguity between extrapolated tracks (where available)
-    std::unique_ptr<TrackCollection> resolvedTracks(m_ambiguityProcessor->process(extrapTracks.get()));
+    std::unique_ptr<const TrackCollection> resolvedTracks(m_ambiguityProcessor->process(extrapTracks.get()));
     
     ATH_MSG_DEBUG("Finished ambiguity solving: "<<extrapTracks->size()<<" track(s) in -> "<<resolvedTracks->size()<<" track(s) out");
     
 
     // Loop over resolved tracks and build MuonCondidate collection
     int nfailed=0;
-    for( auto track : *resolvedTracks ) {
+    for( const Trk::Track* track : *resolvedTracks ) {
       auto tLink = trackLinks.find(track);
       if(tLink == trackLinks.end()) {
 	ATH_MSG_WARNING("Unable to find internal link between MS and SA tracks!");
