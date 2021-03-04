@@ -93,7 +93,7 @@ namespace EL
 
 
   ::StatusCode AnaReentrantAlgorithm ::
-  execute (const EventContext& /*ctx*/)
+  execute (const EventContext& /*ctx*/) const
   {
     return StatusCode::SUCCESS;
   }

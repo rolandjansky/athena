@@ -44,7 +44,7 @@ namespace EL
 
 
   ::StatusCode UnitTestAlg6 ::
-  execute (const EventContext& /*ctx*/)
+  execute (const EventContext& /*ctx*/) const
   {
     if (!m_wasInitialized)
     {
