@@ -288,7 +288,7 @@ def getHLTmap_fromDB(period, customGRL):
     hltMap = {}
     lbCount = 0
     for run in keys:
-        log.info("Filling run:",run)
+        log.info("Filling run: %d",run)
         hltMap, lbCount = fillHLTmap( keys[run], hltMap, lbCount , run, triggerPeriod[run])
 
     return hltMap, lbCount
@@ -315,15 +315,9 @@ def getHLTmap_fromTM(period, release):
     generateL1Menu(ConfigFlags)
     createL1PrescalesFileFromMenu(ConfigFlags)
     
-    try:
-        from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
-        menu = GenerateMenuMT()
-        menu.getChainsFromMenu()
-    except AttributeError: #JobProperties.Rec.Trigger does not have property UnconventionalTrackingSlice
-        log.warning("Could not load TriggerMenuMT, the non-MT version is already loaded")
-        log.warning("Will not provide Run3 trigger information")
-        return {},0
-        
+    from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
+    menu = GenerateMenuMT()
+    menu.getChainsFromMenu()
 
     if not period & TriggerPeriod.future: return {}, 0
     hltMap = {}

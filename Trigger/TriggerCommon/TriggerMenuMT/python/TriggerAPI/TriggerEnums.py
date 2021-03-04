@@ -73,11 +73,23 @@ class TriggerPeriod(IntEnum):
 
     @classmethod
     def isRunNumber(cls, number):
-        return (number >= TriggerPeriod.runNumber and number < TriggerPeriod.runNumber*2)
+        try:
+            number = int(number)
+        except ValueError:
+            return False
+        return (number==0 or (number > TriggerPeriod.runNumber and number < TriggerPeriod.runNumber*2))
 
     @classmethod
     def basePeriods(cls):
         return [x for x in TriggerPeriod if x.isBasePeriod()]
+
+    @classmethod
+    def toName(cls, p):
+        return p if TriggerPeriod.isRunNumber(p) else p.name
+
+    @classmethod
+    def fromName(cls, p):
+        return p if TriggerPeriod.isRunNumber(p) else TriggerPeriod[p]
 
 class LBexceptions:
     ''' List of LBs to be skipped. 

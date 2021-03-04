@@ -27,6 +27,9 @@ class TriggerInfo:
         for hlt, l1, livefraction, activeLB, hasRerun in HLTlist:
             self.triggerChains.append( TriggerChain(hlt, l1, livefraction, activeLB, hasRerun))
 
+    def toJSON(self):
+        return dict(period= TriggerPeriod.toName(self.period), totalLB=self.totalLB,triggerChains=self.triggerChains)
+
     @classmethod
     def merge(cls,listofTI):
         from copy import deepcopy
@@ -106,7 +109,7 @@ class TriggerLeg:
     exoticspattern = re.compile('llp|LLP|muvtx|hiptrt|LATE|NOMATCH')
     afppattern     = re.compile('afp|AFP')
 
-    def __init__(self,legname, chainseed, chainname):
+    def __init__(self,legname, chainseed, chainname=None):
         self.legname = legname
         self.l1seed = ""
         details = []
@@ -334,6 +337,9 @@ class TriggerChain:
         self.hasRerun = hasRerun
         self.triggerType = self.getTriggerType(self.legs, l1seed)
 
+    def toJSON(self):
+        return dict(name=self.name, l1seed=self.l1seed, livefraction=self.livefraction, activeLB=self.activeLB, hasRerun=self.hasRerun)
+
     def splitAndOrderLegs(self, legs):
         from copy import deepcopy
         newLegs = []
@@ -464,10 +470,10 @@ class TriggerChain:
         if not self.legs or not other.legs: return -1 #problems with AFP
         selfcounter = Counter(self.legs)
         othercounter = Counter(other.legs)
-        for leg, count in selfcounter.iteritems():
+        for leg, count in selfcounter.items():
             if leg not in othercounter or count > othercounter[leg]: break
         else: return 1
-        for leg, count in othercounter.iteritems():
+        for leg, count in othercounter.items():
             if leg not in selfcounter or count > selfcounter[leg]: break
         else: return 0
         return -1

@@ -114,6 +114,7 @@ class TriggerPeriodData:
     y2017lowmugrlpath = grlbase+"data17_13TeV/20180117/data17_13TeV.periodN_DetStatus-v98-pro21-16_Unknown_PHYS_StandardGRL_All_Good_25ns_ignore_GLOBAL_LOWMU.xml"
     y2018lowmugrlpath = grlbase+"data18_13TeV/20180830/data18_13TeV.periodG4J_MERGED_PHYS_StandardGRL_All_Good_25ns_ignore_GLOBAL_LOWMU.xml"
     def __init__(self, period, customGRL=None):
+        self.grl = {}
         if customGRL:
             self.loadGRL(customGRL)
         elif TriggerPeriod.isRunNumber(period): #run number assume 2018
@@ -134,7 +135,6 @@ class TriggerPeriodData:
 
     def loadGRL(self, grlpath):
         grlroot = ET.parse(grlpath).getroot()
-        self.grl = {}
         for run in grlroot.findall('NamedLumiRange/LumiBlockCollection'):
             self.grl[ int(run.find('Run').text)] = [(int(x.get('Start')), int(x.get('End'))) for x in run.findall('LBRange')]
 
@@ -145,7 +145,7 @@ class TriggerPeriodData:
             testgrl = {}
             for run in grlroot.findall('NamedLumiRange/LumiBlockCollection'):
                 testgrl[ int(run.find('Run').text)] = [(int(x.get('Start')), int(x.get('End'))) for x in run.findall('LBRange')]
-            return any(len(lb)!=0 for lb in testgrl.itervalues())
+            return any(len(lb)!=0 for lb in testgrl.values())
         except Exception:
             return False
 
