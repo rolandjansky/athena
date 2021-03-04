@@ -135,7 +135,7 @@ namespace EL
     /// This gets called once on every event and is where the bulk of
     /// the processing ought to be happening.
   protected:
-    virtual ::StatusCode execute (const EventContext& ctx);
+    virtual ::StatusCode execute (const EventContext& ctx) const;
 
     /// \brief finalize this algorithm
     ///
