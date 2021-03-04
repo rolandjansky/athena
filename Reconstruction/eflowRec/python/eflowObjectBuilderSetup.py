@@ -100,6 +100,9 @@ def setup_eflowObjectBuilder(Configured, nameModifier,mlog):
         ObjectCreatorTool.EOverPMode = True
         ObjectBuilder.EflowClustersOutputName="eflowCluster01"
 
+    if jobproperties.eflowRecFlags.useHeavyIonSetup:
+        ObjectCreatorTool.HeavyIonMode=True
+
     ObjectBuilder.PrivateToolList += [ObjectCreatorTool]
 
     from AthenaCommon.AlgSequence import AlgSequence

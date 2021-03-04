@@ -24,3 +24,7 @@ if rec.doESD :
      #these jet tools clash w/ HIJetRec
      from JetRec.JetRecFlags import jetFlags
      jetFlags.skipTools+=["jetisol","run1jetisol"]
+
+     #Enable HeavyIon configuration of particle flow
+     from eflowRec.eflowRecFlags import jobproperties as pflowProps
+     pflowProps.eflowRecFlags.useHeavyIonSetup=True
