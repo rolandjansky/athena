@@ -2,10 +2,9 @@
 
 from TriggerMenuMT.HLTMenuConfig.Electron.ElectronRecoSequences import l2CaloRecoCfg, l2CaloHypoCfg
 from TriggerMenuMT.HLTMenuConfig.Photon.PhotonRecoSequences import l2PhotonRecoCfg, l2PhotonHypoCfg
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequenceCA, \
-    ChainStep, Chain, createStepView
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequenceCA, SelectionCA, ChainStep, Chain
+from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import getChainMultFromDict
+from TrigEDMConfig.TriggerEDMRun3 import recordable
 from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoToolFromDict
 from TrigEgammaHypo.TrigEgammaFastPhotonHypoTool import TrigEgammaFastPhotonHypoToolFromDict
 
@@ -13,52 +12,43 @@ import pprint
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Photon.generatePhoton' )
 
-def generateChains(flags, chainDict):
-    firstStepName = 'FastCaloPhoton'
-    stepReco, stepView = createStepView(firstStepName)
+# TODO reuse electron calo setup (these two could share all algorithms)
+def _fastCalo(flags, chainDict):
+    selAcc=SelectionCA('FastCaloPhoton')
+    selAcc.mergeReco(l2CaloRecoCfg(flags))
 
-    accCalo = ComponentAccumulator()
-    accCalo.addSequence(stepView)
-
-    l2CaloReco = l2CaloRecoCfg(flags)
-    accCalo.merge(l2CaloReco, sequenceName=stepReco.getName())
-
-    # this alg needs EventInfo decorated with the  pileup info
+     # this alg needs EventInfo decorated with the  pileup info
     from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
-    accCalo.merge( LumiBlockMuWriterCfg(flags) )
+    selAcc.merge(LumiBlockMuWriterCfg(flags))
 
-    l2CaloHypo = l2CaloHypoCfg( flags,
-                                name = 'L2PhotonCaloHypo',
-                                CaloClusters = 'HLT_FastCaloEMClusters' )
+    l2CaloHypo = l2CaloHypoCfg(flags,
+                               name='L2PhotonCaloHypo',
+                               CaloClusters=recordable('HLT_FastCaloEMClusters'))
 
-    accCalo.addEventAlgo(l2CaloHypo, sequenceName=stepView.getName())
+    selAcc.addHypoAlgo(l2CaloHypo)
 
-    fastCaloSequence = MenuSequenceCA(accCalo,
-                                      HypoToolGen = TrigEgammaFastCaloHypoToolFromDict)
+    fastCaloSequence = MenuSequenceCA(selAcc,
+                                      HypoToolGen=TrigEgammaFastCaloHypoToolFromDict)
 
-    fastCaloStep = ChainStep(firstStepName, [fastCaloSequence], multiplicity=[1],chainDicts=[chainDict] )
+    return ChainStep(name=selAcc.name, Sequences=[fastCaloSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
 
 
-    secondStepName = 'FastPhoton'
-    stepReco, stepView = createStepView(secondStepName)
-
-    accPhoton = ComponentAccumulator()
-    accPhoton.addSequence(stepView)
-
-    l2PhotonReco = l2PhotonRecoCfg(flags)
-    accPhoton.merge(l2PhotonReco, sequenceName=stepReco.getName())
+def _fastPhoton(flags, chainDict):
+    selAcc=SelectionCA('FastPhoton')
+    selAcc.mergeReco(l2PhotonRecoCfg(flags))
 
     l2PhotonHypo = l2PhotonHypoCfg( flags,
                                     Photons = 'HLT_FastPhotons',
                                     RunInView = True )
+    selAcc.addHypoAlgo(l2PhotonHypo)
 
-    accPhoton.addEventAlgo(l2PhotonHypo, sequenceName=stepView.getName())
-
-    l2PhotonSequence = MenuSequenceCA(accPhoton,
+    l2PhotonSequence = MenuSequenceCA(selAcc,
                                       HypoToolGen = TrigEgammaFastPhotonHypoToolFromDict)
 
-    l2PhotonStep = ChainStep(secondStepName, [l2PhotonSequence], multiplicity=[1],chainDicts=[chainDict] )
+    return ChainStep(selAcc.name, Sequences=[l2PhotonSequence], chainDicts=[chainDict],  multiplicity=getChainMultFromDict(chainDict) )
 
+
+def generateChains(flags, chainDict):
 
     l1Thresholds=[]
     for part in chainDict['chainParts']:
@@ -66,6 +56,5 @@ def generateChains(flags, chainDict):
 
     log.debug('dictionary is: %s\n', pprint.pformat(chainDict))
 
-
-    chain = Chain(chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[fastCaloStep, l2PhotonStep])
+    chain = Chain(chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[_fastCalo(flags, chainDict), _fastPhoton(flags, chainDict)])
     return chain
