@@ -169,13 +169,19 @@ namespace MuonCombined {
     }else{
     
       // more than 1 track call ambiguity solver and select first track
-      TrackCollection* resolvedTracks = m_trackAmbiguityResolver->process(&tracks);
+      std::unique_ptr<const TrackCollection> resolvedTracks (m_trackAmbiguityResolver->process(&tracks));
       if (!resolvedTracks || resolvedTracks->empty() ) {
          ATH_MSG_WARNING("Ambiguity resolver returned no tracks. Arbitrarily using the first track of initial collection.");
          selectedTrack = tracks.front();
       } else {
-        selectedTrack = resolvedTracks->front();
-        delete resolvedTracks;
+        auto it = std::find (tracks.begin(), tracks.end(), resolvedTracks->front());
+        if (it != tracks.end()) {
+          selectedTrack = *it;
+        }
+        else {
+         ATH_MSG_ERROR("Ambiguity resolver returned an unknown track. Arbitrarily using the first track of initial collection.");
+         selectedTrack = tracks.front();
+        }
       }
     }
     // get candidate
