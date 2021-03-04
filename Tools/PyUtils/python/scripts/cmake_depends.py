@@ -117,7 +117,7 @@ def copy_graph(source, dest):
 class AthGraph:
    """Class to hold dependency information for release"""
 
-   def __init__(self, dotfile, package_paths={}):
+   def __init__(self, dotfile):
       """Read dotfile and and optionally transform package names to full paths"""
 
       # Read dot file:
@@ -135,8 +135,7 @@ class AthGraph:
          p = n0.attr['label']
          # Decorate target with package name:
          if p.startswith('Package_'):
-            pkg = lrstrip(p, 'Package_', '_tests')
-            n0.attr['package'] = package_paths.get(pkg,pkg)
+            n0.attr['package'] = lrstrip(p, 'Package_', '_tests')
             if n1 is not None:
                n1.attr['package'] = n0.attr['package']
 
@@ -206,8 +205,7 @@ def create_dep_graph(target, deps, pydeps, args):
          l = 'Package_'+l
       try:
          if deps.get_node(l).attr['external'] and not args.externals:
-            print(f"{l} is an external target. Run with -e/--externals.")
-            return 1
+            raise RuntimeError(f"{l} is an external target. Run with -e/--externals.")
 
          # To find clients of a package means finding clients of the targets
          # within that package. First find all targets within the package:
@@ -216,8 +214,7 @@ def create_dep_graph(target, deps, pydeps, args):
          else:
             sources.extend([deps.get_node(l)])
       except KeyError:
-         print(f"Target with name {l} does not exist.")
-         return 1
+         raise RuntimeError(f"Target with name {l} does not exist.")
 
    # Extract the dependency subgraph:
    g = subgraph(deps.graph, sources, reverse=args.clients,
@@ -243,7 +240,7 @@ def create_dep_graph(target, deps, pydeps, args):
    return graph
 
 
-def print_dep_graph(graph, args):
+def print_dep_graph(graph, args, package_paths={}):
    """Output final graph"""
 
    # txt output
@@ -251,9 +248,12 @@ def print_dep_graph(graph, args):
       f = open(graph.name+'.txt', 'w') if args.batch else sys.stdout
       nodes = [e[0] for e in graph.in_edges_iter()] if args.clients \
          else [e[1] for e in graph.out_edges_iter()]
-      for p in sorted(set(nodes)):
+
+      output = []
+      for p in set(nodes):
          suffix = ':py' if p.attr['style']==py_style else ''
-         print(f'{p}{suffix}', file=f)
+         output.append('%s%s' % (package_paths.get(p,p), suffix))
+      print('\n'.join(sorted(output)), file=f)
 
    # dot output
    if args.batch or args.dot:
@@ -282,7 +282,7 @@ def print_dep_graph(graph, args):
                   help='include external dependencies')
 
 @acmdlib.argument('-l', '--long', action='store_true',
-                  help='show full package names')
+                  help='show full package names (only for txt output)')
 
 @acmdlib.argument('-r', '--recursive', nargs='?', metavar='DEPTH',
                   type=int, default=1, const=None,
@@ -313,7 +313,7 @@ def print_dep_graph(graph, args):
 @acmdlib.argument('--pydot', help=argparse.SUPPRESS)
 
 
-def main(args):
+def run(args):
    """Inspect cmake build dependencies"""
 
    # Find packages.dot:
@@ -346,7 +346,7 @@ def main(args):
          main.parser.error("Cannot read 'packages.txt'. Setup a release or run without -l/--long.")
 
    # Read dependencies:
-   deps = AthGraph(args.cmakedot, package_paths)
+   deps = AthGraph(args.cmakedot)
 
    # Create combined graph for all given targets:
    if not args.batch:
@@ -359,7 +359,7 @@ def main(args):
       else:
          graph = subgraphs[0]
 
-      print_dep_graph(graph, args)
+      print_dep_graph(graph, args, package_paths)
 
    # Batch mode: create separte graph for each target:
    else:
@@ -367,7 +367,15 @@ def main(args):
       global doit   # required for use in multiprocessing
       def doit(target):
          graph = create_dep_graph(target, deps, pydeps, args)
-         print_dep_graph(graph, args)
+         print_dep_graph(graph, args, package_paths)
 
       pool = multiprocessing.Pool(args.batch)
       pool.map(doit, args.names)
+
+
+def main(args):
+   try:
+      run(args)
+   except RuntimeError as e:
+      print(e)
+      return 1
