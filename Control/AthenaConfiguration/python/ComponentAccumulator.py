@@ -957,19 +957,18 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
         _log.warning( "%sComponent: \"%s\" is of type string, no conversion, some properties possibly not set?", indent, comp )
         return comp
 
-    _log.debug( "%sConverting from GaudiConfig2 object %s type %s", indent, compName(comp), comp.__class__.__name__ )
+    _log.debug( "%sConverting from GaudiConfig2 object %s type %s, parent %s", indent, compName(comp), comp.__class__.__name__ , parent)
 
     def __alreadyConfigured( comp, parent ):
         from AthenaCommon.Configurable import Configurable
         instanceName = comp.getName()
-        if instanceName in Configurable.allConfigurables:
-            conf = Configurable.allConfigurables[instanceName]
-            if conf.getParent() == parent:
-                return conf
-            else:
-                if not parent:
-                    parent='[not set]'
-                _log.warning( "%sComponent: \"%s\" had parent %s whilst allConfigurables match had parent %s.", indent, instanceName, parent, conf.getParent() )
+        for name, conf in Configurable.allConfigurables.items():
+            if name==instanceName:
+                if conf.getParent() == parent:
+                    _log.debug( "%s Matched component: \"%s\" with parent %s with same from allConfigurables match.", indent, instanceName, parent if parent else "[not set]" )
+                    return conf
+                else:
+                    _log.debug( "%sComponent: \"%s\" had parent %s whilst this allConfigurables match had parent %s.", indent, instanceName, parent if parent else "[not set]", conf.getParent() )
         return None
 
     def __createConf2Object( name ):
@@ -1108,15 +1107,26 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
                     # Old configuration writes some properties differently e.g. like ConditionStore+TileBadChannels instead of just TileBadChannels
                     # So check this isn't a false positive before continuing
                     merge = True
-                    try:
-                        if '+' in alreadySetProperties[pname].toStringProperty() and alreadySetProperties[pname].toStringProperty().split('+')[-1] == pvalue:
-                            # Okay. sot they ARE actually the same
+
+                    # Could be strings e.g. alreadySetProperties[pname]==RPCCablingDbTool and pvalue == RPCCablingDbTool/RPCCablingDbTool 
+                    if (isinstance(pvalue, str) and isinstance(alreadySetProperties[pname], str)):
+                        if ('/' in pvalue \
+                               and pvalue.split('/')[-1] == alreadySetProperties[pname]):
+                            # Okay. so they probably are actually the same. Can't check type. 
                             merge=False
-                            _log.debug( "%sAdding property: %s for %s", indent, pname, newConf2Instance.getName() )
+                            _log.warning( "%s Properties here are strings and not exactly the same. ASSUMING they match types but we cannot check. %s for %s", indent, pname, newConf2Instance.getName() )
+
+                    try:
+                        if ('+' in alreadySetProperties[pname].toStringProperty() \
+                            and alreadySetProperties[pname].toStringProperty().split('+')[-1] == pvalue):
+                            # Okay. so they ARE actually the same
+                            merge=False
                     except AttributeError:
                         # This is fine - it just means it's not e.g. a DataHandle and doesn't have toStringProperty()
                         pass
 
+  
+                    # Okay, not the same ... let's merge
                     if merge:
                         _log.debug( "%sMerging property: %s for %s", indent, pname, newConf2Instance.getName() )
                         # create surrogate
@@ -1125,10 +1135,9 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
                         try:
                             updatedPropValue = __listHelperToList(newConf2Instance._descriptors[pname].semantics.merge( getattr(newConf2Instance, pname), getattr(clone, pname)))
                         except ValueError:
-                            _log.fatal( ("Failed merging new config value (%s) and old config value (%s) for (%s) property of %s (%s) old (new).",
-                                getattr(newConf2Instance, pname),getattr(clone, pname),pname,existingConfigurableInstance.getFullJobOptName() ,newConf2Instance.getFullJobOptName() ) )
-                            raise ConfigurationError("Failed merging new config value (%s) and old config value (%s) for (%s) property of %s (%s) old (new).",
-                                getattr(newConf2Instance, pname),getattr(clone, pname),pname,existingConfigurableInstance.getFullJobOptName() ,newConf2Instance.getFullJobOptName() )
+                            err_message = f"Failed merging new config value ({getattr(newConf2Instance, pname)}) and old config value ({getattr(clone, pname)}) for the ({pname}) property of {existingConfigurableInstance.getFullJobOptName() } ({newConf2Instance.getFullJobOptName()}) old (new)." 
+                            _log.fatal( err_message )
+                            raise ConfigurationError(err_message)
 
                         _log.debug("existingConfigurable.name: %s, pname: %s, updatedPropValue: %s", existingConfigurableInstance.name(), pname, updatedPropValue )
 
@@ -1180,7 +1189,7 @@ def appendCAtoAthena(ca):
     from AthenaCommon.AppMgr import ServiceMgr,ToolSvc,theApp,athCondSeq,athOutSeq,athAlgSeq,topSequence
     if len( ca.getPublicTools() ) != 0:
         for comp in ca.getPublicTools():
-            instance = conf2toConfigurable( comp, indent="  " )
+            instance = conf2toConfigurable( comp, indent="  ", parent="ToolSvc" )
             if instance not in ToolSvc:
                 ToolSvc += instance
 
