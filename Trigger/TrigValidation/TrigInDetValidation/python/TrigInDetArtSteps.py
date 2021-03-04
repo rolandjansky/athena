@@ -159,7 +159,7 @@ class TrigInDetAna(ExecStep):
         self.job_options = 'TrigInDetValidation/TrigInDetValidation_AODtoTrkNtuple.py'
         self.max_events=-1
         self.required = True
-        self.depends_on_previous = False
+        self.depends_on_previous = True
         #self.input = 'AOD.pool.root'
         self.input = ''
         self.perfmon=False
@@ -175,7 +175,7 @@ class TrigCostStep(Step):
     def __init__(self, name='TrigCostStep'):
         super(TrigCostStep, self).__init__(name)
         self.required = True
-        self.depends_on_previous = False
+        self.depends_on_previous = True
         self.input = 'tmp.RDO_TRIG'
         self.args = ' --MCCrossSection=0.5 Input.Files=\'["tmp.RDO_TRIG"]\' '
         self.executable = 'RunTrigCostAnalysis.py'
