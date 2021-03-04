@@ -1,0 +1,21 @@
+# 
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Separate blocks with ---
+#
+---
+Input: [ 
+         'SCT(?P<sec>[A-E]*)/Noise/noiseoccupancymaptrigger(?P<sec2>[ECm,ECp]*)_(?P<L>\d)_(?P<S>\d)',
+         'SCT(?P<sec>[A-E]*)/eff/ineff.*_(?P<L>\d)_(?P<S>\d)',
+         'SCT(?P<sec>[A-E]*)/errors/Errors/SCT_NumberOfErrors(?P=sec)_(?P<L>\d)_(?P<S>\d)',
+         'GENERAL/errors/Masked\ Links',
+         #'GENERAL/errors/Flagged\ Links', #Location of this hist yet to be defined
+]
+Output: [ 'SCTConfNew' ]
+Function: SCT_Monitoring.SCTPostProcessing.conf
+Parameters: { label: ['Noisy','Inefficieny','Errors','Masked Links','Flagged Links'], thr: [150,0.1,0.7] }
+Description: SCTCONF
+---
+Input: [ 'SCT(?P<sec>[EC,B,EA]*)/eff/[m_,p_]*eff_(?P<L>\d)_(?P<S>\d)$' ]
+Output: [ 'SctEffDistribution' ]
+Function: SCT_Monitoring.SCTPostProcessing.effcomb
+Description: Combining
