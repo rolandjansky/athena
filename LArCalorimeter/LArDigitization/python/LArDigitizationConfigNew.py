@@ -163,8 +163,6 @@ def LArOutputCfg(flags):
             ItemList.append("LArDigitContainer#LArDigitContainer_MC_Thinned")
         if not flags.Digitization.PileUpPremixing:
             ItemList.append("LArRawChannelContainer#LArRawChannels")
-        if flags.Detector.SimulateHGTD:
-            ItemList.append("LArHitContainer#HGTDDigitContainer_MC")
         if flags.Digitization.TruthOutput:
             ItemList.append("CaloCalibrationHitContainer#*")
             acc.merge(TruthDigitizationOutputCfg(flags))
