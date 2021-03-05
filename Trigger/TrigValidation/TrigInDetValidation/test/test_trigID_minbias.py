@@ -5,7 +5,6 @@
 # art-type: grid
 # art-include: master/Athena
 # art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
-# art-athena-nfiles: 4
 # art-athena-mt: 8
 # art-memory: 4096
 # art-output: *.txt
