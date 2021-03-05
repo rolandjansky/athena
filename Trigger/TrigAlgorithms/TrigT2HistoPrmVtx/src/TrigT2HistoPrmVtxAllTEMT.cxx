@@ -35,14 +35,16 @@ TrigT2HistoPrmVtxAllTEMT::TrigT2HistoPrmVtxAllTEMT(const std::string& name, ISvc
   TrigT2HistoPrmVtxBaseMT( name,pSvcLocator ),
   m_hisVtx( std::unique_ptr< HistoVertexHelper >( new HistoVertexHelper(8000, -200, 200) ) )
 {
+
   // declareMonitoredVariable("PrmVtx",          m_c->m_zPrmVtx[0]          = -1);
   // declareMonitoredVariable("PrmVtxSigmaAll",  m_c->m_zPrmVtxSigmaAll[0]  = -1);
   // declareMonitoredVariable("PrmVtxSigma2Trk", m_c->m_zPrmVtxSigma2Trk[0] = -1);
   // declareMonitoredVariable("TracksPerVtx",    m_c->m_nTrackVtx[0]        = -1);
   // declareMonitoredVariable("NVtxFound",       m_c->m_nVtxFound           = -1);
-
   // declareMonitoredObject("Trk_selectedTracks", m_constTrigT2HistoPrmVtxBase, &TrigT2HistoPrmVtxBase::totSelectedTracks);
   // declareMonitoredStdContainer("Trk_stepsToSelect", m_c->m_listCutApplied);
+
+
 }
 
 
