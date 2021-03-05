@@ -72,40 +72,10 @@ def defaultTestFlags(configFlags, args):
     configFlags.GeoModel.Align.Dynamic = False
     configFlags.GeoModel.AtlasVersion = 'ATLAS-R2-2016-01-00-01'
 
-    # Set the detector flags:
-    # Beam pipe
-    configFlags.Detector.SimulateBpipe = True
-    configFlags.Detector.GeometryBpipe = True
-
-    # Inner detectors
-    configFlags.Detector.SimulateBCM = True
-    configFlags.Detector.GeometryBCM = True
-    configFlags.Detector.SimulateDBM = True
-    configFlags.Detector.GeometryDBM = True
-    configFlags.Detector.SimulatePixel = True
-    configFlags.Detector.GeometryPixel = True
-    configFlags.Detector.SimulateSCT = True
-    configFlags.Detector.GeometrySCT = True
-    configFlags.Detector.SimulateTRT = True
-    configFlags.Detector.GeometryTRT = True
-
-    # Muon
-    configFlags.Detector.SimulateMuon = True
-    configFlags.Detector.GeometryMuon = True
-    configFlags.Detector.SimulateMDT = True
-    configFlags.Detector.GeometryMDT = True
-    configFlags.Detector.SimulateRPC = True
-    configFlags.Detector.GeometryRPC = True
-    configFlags.Detector.SimulateTGC = True
-    configFlags.Detector.GeometryTGC = True
-    configFlags.Detector.SimulateCSC = True
-    configFlags.Detector.GeometryCSC = True
-
-    # LAr
-    configFlags.Detector.SimulateLAr = True
-    configFlags.Detector.GeometryLAr = True
-    configFlags.Detector.SimulateTile = True
-    configFlags.Detector.GeometryTile = True
+    detectors =['Bpipe', 'BCM', 'DBM',  'Pixel', 'SCT', 'TRT', 'LAr', 'Tile', 'CSC', 'MDT', 'RPC', 'TGC']
+    # Setup detector flags
+    from SimuJobTransforms.SimulationTestHelpers import setupDetectorSimulateFlagsFromList
+    setupDetectorSimulateFlagsFromList(configFlags, detectors)
 
     # Frozen showers OFF = 0
     configFlags.Sim.LArParameterization = 0

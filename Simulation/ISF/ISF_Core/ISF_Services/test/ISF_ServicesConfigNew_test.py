@@ -17,15 +17,18 @@ if __name__ == '__main__':
 
   #import config flags
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
-  
+
   from AthenaConfiguration.TestDefaults import defaultTestFiles
   inputDir = defaultTestFiles.d
   ConfigFlags.Input.Files = defaultTestFiles.EVNT
 
   ConfigFlags.Sim.WorldRRange = 15000
   ConfigFlags.Sim.WorldZRange = 27000 #change defaults?
-  ConfigFlags.Detector.SimulateForward = False
-  # Finalize 
+  detectors =['Bpipe', 'BCM', 'DBM',  'Pixel', 'SCT', 'TRT', 'LAr', 'Tile', 'CSC', 'MDT', 'RPC', 'TGC']
+  # Setup detector flags
+  from SimuJobTransforms.SimulationTestHelpers import setupDetectorSimulateFlagsFromList
+  setupDetectorSimulateFlagsFromList(ConfigFlags, detectors)
+  # Finalize
   ConfigFlags.lock()
 
   from ISF_Services.ISF_ServicesConfigNew import MC15aPlusTruthServiceCfg, InputConverterCfg
