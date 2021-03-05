@@ -25,6 +25,7 @@ class ITrigInDetTrackFitter: virtual public IAlgTool
     return IID_ITrigInDetTrackFitter;
   }
   virtual void fit(const TrackCollection&, TrackCollection&, const EventContext&, const Trk::ParticleHypothesis& matEffects) const = 0;
+  virtual void fit(const TrackCollection&, TrackCollection&, const EventContext&, const Trk::ParticleHypothesis& matEffects, const bool) const = 0;
   virtual StatusCode getUnbiasedResiduals(const Trk::Track&, std::vector<TrigL2HitResidual>&, const EventContext&) const = 0;
 };
 

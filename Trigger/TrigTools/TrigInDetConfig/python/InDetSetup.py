@@ -317,6 +317,8 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
         theFTF.HitDVSeed      = "HLT_HitDVSeed"
         theFTF.HitDVTrk       = "HLT_HitDVTrk"
         theFTF.HitDVSP        = "HLT_HitDVSP"
+        theFTF.dEdxTrk        = "HLT_dEdxTrk"
+        theFTF.dEdxHit        = "HLT_dEdxHit"
 
 
       viewAlgs.append(theFTF)
