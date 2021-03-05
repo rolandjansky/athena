@@ -392,7 +392,15 @@ def Lvl1SimulationMCCfg(flags):
     acc.addSequence(seqAND('L1MuonLegacySimSeq'), parentName='L1SimSeq')
     from TriggerJobOpts.Lvl1MuonSimulationConfig import Lvl1MCMuonSimulationCfg
     acc.merge(Lvl1MCMuonSimulationCfg(flags), sequenceName='L1MuonLegacySimSeq')
-    
+
+    from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulationMCCfg
+    acc.merge(L1TopoSimulationMCCfg(flags), sequenceName='L1SimSeq')
+
+    acc.addSequence(seqAND('L1CTPSimSeq'), parentName='L1SimSeq')
+    from TrigT1CTP.CTPSimulationConfig import CTPMCSimulationCfg
+    acc.merge(CTPMCSimulationCfg(flags), sequenceName="L1CTPSimSeq")
+
+
     return acc
 
 if __name__ == '__main__':    
@@ -415,6 +423,8 @@ if __name__ == '__main__':
     acc.merge(PoolReadCfg(flags))
 
     acc.merge(Lvl1SimulationMCCfg(flags))
+    from AthenaCommon.Constants import DEBUG
+    acc.getEventAlgo("CTPSimulation").OutputLevel=DEBUG
 
     acc.printConfig(withDetails=True, summariseProps=True, printDefaults=True)
     with open("L1Sim.pkl", "wb") as p:
