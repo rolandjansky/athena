@@ -58,7 +58,7 @@ public:
 
   /// Return the current event status
   virtual unsigned int currentEventStatus() const;
-  virtual void         validateEvent     (); 
+  virtual void         validateEvent     ();
 
   virtual long positionInBlock   ();
   virtual std::pair<long,std::string> getBlockIterator(const std::string& fileName);
@@ -73,6 +73,7 @@ private: // data
 
   struct EventCache {
     std::unique_ptr<RawEvent> rawEvent    = nullptr; //!< current event
+    char*                     data        = nullptr; //!< take ownership of RawEvent content
     unsigned int              eventStatus = 0;       //!< check_tree() status of the current event
     long long int             eventOffset = 0;       //!< event offset within a file, can be -1
     void                      releaseEvent();        //!< deletes fragments and raw event
@@ -85,7 +86,7 @@ private: // data
 
   std::vector<long long int> m_evtOffsets;  //!< offset for event i in that file
   unsigned int       m_evtInFile;
-  long long int      m_evtFileOffset;   //!< last read in event offset within a file, can be -1     
+  long long int      m_evtFileOffset;   //!< last read in event offset within a file, can be -1
   // Event back navigation info
   std::string        m_fileGUID;      //!< current file GUID
 
@@ -105,7 +106,7 @@ private: // properties
 
 private: // internal helper functions
   StatusCode loadMetadata    ();
-  void       buildFragment   (EventCache* cache, char* data, uint32_t eventSize, bool validate) const;
+  void       buildFragment   (EventCache* cache, uint32_t eventSize, bool validate) const;
   bool       readerReady     () const;
   bool       ROBFragmentCheck(const RawEvent*) const;
   unsigned   validateEvent   (const RawEvent* const rawEvent) const;
