@@ -62,11 +62,11 @@ def getTransform():
 
     # RAWtoCOST is new option for trigger transform
     # runs in athena and will succeed if input BS file has costmon enabled
-    executorSet.add(trigCostExecutor(name = 'RAWtoCOST',
+    executorSet.add(trigCostExecutor(name = 'DRAWCOSTtoNTUPCOST',
                                      exe = 'RunTrigCostAnalysis.py',
                                      inData = ['DRAW_TRIGCOST'], outData = ['NTUP_TRIGCOST']))
 
-    executorSet.add(trigRateExecutor(name = 'AODtoRATE',
+    executorSet.add(trigRateExecutor(name = 'AODtoNTUPRATE',
                                      exe = 'RatesAnalysisFullMenu.py',
                                      inData = ['AOD'], outData = ['NTUP_TRIGRATE']))
 

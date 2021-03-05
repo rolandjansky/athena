@@ -739,7 +739,8 @@ def default_check_steps(test):
         reco_tf_logmerge = LogMergeStep('LogMerge_Reco_tf')
         reco_tf_logmerge.warn_if_missing = False
         tf_names = ['HITtoRDO', 'RDOtoRDOTrigger', 'RAWtoESD', 'ESDtoAOD',
-                    'PhysicsValidation', 'RAWtoALL', 'BSRDOtoRAW']
+                    'PhysicsValidation', 'RAWtoALL',
+                    'BSRDOtoRAW', 'DRAWCOSTtoNTUPCOST', 'AODtoNTUPRATE']
         reco_tf_logmerge.log_files = ['log.'+tf_name for tf_name in tf_names]
         if not get_step_from_list('LogMerge', check_steps):
             for step in reco_tf_steps:
