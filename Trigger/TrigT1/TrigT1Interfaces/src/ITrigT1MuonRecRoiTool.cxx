@@ -54,6 +54,9 @@ namespace LVL1{
       m_ForwardPhiMask        = 0x0000000c;
       m_OverflowPerRoIMask    = 0x00000002;
       m_OverflowPerSectorMask = 0x00000001;
+      m_BW2Or3Mask            = 0x00000000; // undef
+      m_InnerCoinMask         = 0x00000000; // undef
+      m_GoodMFMask            = 0x00000000; // undef
     }else if( format == Run3 ){
       m_IsRun3Mask            = 0x80000000;
       m_IsVetoedMask          = 0x00010000;
@@ -75,6 +78,9 @@ namespace LVL1{
       m_ForwardPhiMask        = 0x00000003;
       m_OverflowPerRoIMask    = 0x00001000;
       m_OverflowPerSectorMask = 0x00020000;
+      m_BW2Or3Mask            = 0x00002000;
+      m_InnerCoinMask         = 0x00004000;
+      m_GoodMFMask            = 0x00008000;
     }else{
       // no update
     }

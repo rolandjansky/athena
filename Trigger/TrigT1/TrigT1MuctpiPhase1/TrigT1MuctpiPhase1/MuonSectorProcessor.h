@@ -21,19 +21,7 @@ namespace LVL1 {
 
 namespace LVL1MUCTPIPHASE1 {
   class OverlapHelper;
-
-  class ROIObject
-  {
-  public:
-    float etamin;
-    float etamax;
-    float phimin;
-    float phimax;
-    float eta;
-    float phi;
-    int ieta;
-    int iphi;
-  };
+  class L1TopoLUT;
 
   class MuonSectorProcessor
   {
@@ -43,21 +31,20 @@ namespace LVL1MUCTPIPHASE1 {
     MuonSectorProcessor(bool side /*1=A,0=C*/);
     ~MuonSectorProcessor();
     
-    void configureTopo(const std::string& xmlName);
+    void setL1TopoLUT(const L1TopoLUT* l1topoLUT) {m_l1topoLUT=l1topoLUT;}
     void configureOverlapRemoval(const std::string& lutFile);
     void setInput(LVL1MUONIF::Lvl1MuCTPIInputPhase1* input);
-    void runOverlapRemoval();
-    void makeTriggerObjectSelections();
-    void makeL1TopoData();
-    LVL1::MuCTPIL1Topo getL1TopoData(int bcidOffset);
+    void runOverlapRemoval(int bcid);
+    void makeL1TopoData(int bcid);
+    LVL1::MuCTPIL1Topo* getL1TopoData(int bcid);
     LVL1MUONIF::Lvl1MuCTPIInputPhase1* getOutput();
 
   private:
     
     LVL1MUONIF::Lvl1MuCTPIInputPhase1* m_muctpiInput;
-    LVL1::MuCTPIL1Topo* m_l1topo;
-    std::map<std::string, std::map<unsigned int, ROIObject> > m_roiConfig;
+    std::map<int, LVL1::MuCTPIL1Topo*> m_bcid_to_l1topo;
     OverlapHelper* m_overlapHelper;
+    const L1TopoLUT* m_l1topoLUT;
     bool m_side;
   };
 }
