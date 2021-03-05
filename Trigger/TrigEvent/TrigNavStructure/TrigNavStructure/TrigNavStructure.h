@@ -11,6 +11,10 @@
 #include <vector>
 #include <mutex>
 
+#ifndef XAOD_STANDALONE
+#include "AthenaKernel/SlotSpecificObj.h"
+#endif
+
 #include "CxxUtils/checker_macros.h"
 #include "TrigNavStructure/TriggerElement.h"
 #include "TrigNavStructure/TriggerElementFactory.h"
@@ -44,7 +48,7 @@ namespace HLT {
     /**
      * @brief resets all the navigation, goes to the factory and asks to withdraw all produced objects
      */
-    virtual void reset();
+    virtual void reset(bool inFinalize = false);
 
     /**
      * @brief gets initial node, if node is not there then it is created on fly
@@ -186,12 +190,12 @@ namespace HLT {
     /**
      * @brief access needed by slimming tools.
      */
-    std::vector<TriggerElement*>& getAllTEs() { return m_factory.listOfProduced(); } 
+    std::vector<TriggerElement*>& getAllTEs();
 
     /**
      * @brief access needed by slimming tools.
      */
-    const std::vector<TriggerElement*>& getAllTEs() const { return m_factory.listOfProduced(); } 
+    const std::vector<TriggerElement*>& getAllTEs() const;
 
     /**
      * @brief The query returning a collection of all TriggerElements if name is given
@@ -367,14 +371,32 @@ namespace HLT {
                      unsigned int maxResults = 1000, bool onlyActive = 1);
 
 
+    TriggerElementFactory& getFactory();
 
-    TriggerElementFactory m_factory;                     //!< factory of trigger elements
-    TrigHolderStructure m_holderstorage;                 //!< structure for feature holders
+    TrigHolderStructure& getHolderStorage();
+
+    std::recursive_mutex& getMutex();
+
+    const TriggerElementFactory& getFactory() const;
+
+    const TrigHolderStructure& getHolderStorage() const;  
+
+    std::recursive_mutex& getMutex() const;
+
     static const TriggerElement* m_unspecifiedTE ATLAS_THREAD_SAFE;
     static std::string m_unspecifiedLabel ATLAS_THREAD_SAFE;
 
-    mutable std::recursive_mutex m_rmutex;
+  private:
 
+#ifndef XAOD_STANDALONE
+    SG::SlotSpecificObj<TriggerElementFactory> m_factory;                     //!< factory of trigger elements (one per processing slot)
+    SG::SlotSpecificObj<TrigHolderStructure> m_holderstorage;                 //!< structure for feature holders (one per processing slot)
+#else
+    TriggerElementFactory m_factory;                     //!< factory of trigger elements 
+    TrigHolderStructure m_holderstorage;                 //!< structure for feature holders
+#endif
+
+    mutable std::recursive_mutex m_rmutex;
 
   };
 } // end of HLT namespace
