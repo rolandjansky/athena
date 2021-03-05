@@ -188,6 +188,12 @@ def setupMenu():
         ChainProp(name='HLT_g20_tight_icaloloose_L1EM15VH', groups=SinglePhotonGroup),
         ChainProp(name='HLT_g20_tight_icalomedium_L1EM15VH', groups=SinglePhotonGroup),
         ChainProp(name='HLT_g20_tight_icalotight_L1EM15VH', groups=SinglePhotonGroup),
+        # Low eT photon chains for TLA
+        ChainProp(name='HLT_g35_loose_L1EM15VHI', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g35_medium_L1EM15VHI', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g35_tight_L1EM15VHI', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g35_tight_icaloloose_L1EM15VHI', groups=SinglePhotonGroup),
+
         # Primary photon chains
         ChainProp(name='HLT_g120_loose_L1EM22VHI', groups=SinglePhotonGroup),
         ChainProp(name='HLT_g140_loose_L1EM22VHI', groups=SinglePhotonGroup),
@@ -203,6 +209,8 @@ def setupMenu():
 
         # 3photon chains
         ChainProp(name='HLT_2g25_loose_g15_loose_L12EM20VH', groups=MultiPhotonGroup),
+
+
 
         # ATR-21355 - cannot be moved to the calibSlice because they need to configure the photon/ sequence
         ChainProp(name='HLT_g3_loose_LArPEBHLT_L1EM3',	   stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
