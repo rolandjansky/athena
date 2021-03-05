@@ -1754,7 +1754,7 @@ class argLHEFile(argFile):
                     fileTXT = tar.extractfile(untar)
                     if fileTXT is not None :
                         lines = fileTXT.read()
-                        lhecount = lines.find('/event')
+                        lhecount = lines.count('/event')
 
                 self._fileMetadata[fname]['nentries'] = lhecount
             except :
