@@ -20,7 +20,6 @@ MM_ElectronicsResponseSimulation::MM_ElectronicsResponseSimulation():
   m_peakTime(0),
   m_timeWindowLowerOffset(0),
   m_timeWindowUpperOffset(0),
-  m_electronicsThreshold(0),
   m_stripDeadTime(0),
   m_artDeadTime(0),
   m_useNeighborLogic(true)
@@ -40,28 +39,28 @@ void MM_ElectronicsResponseSimulation::clearValues()
   m_nStripElectronics.clear();
 }
 /*******************************************************************************/
-MM_DigitToolOutput MM_ElectronicsResponseSimulation::getPeakResponseFrom(const MM_ElectronicsToolInput & digiInput, const float thresholdScaleFactor)
-{
-	clearValues();
-
-	vmmPeakResponseFunction(digiInput.NumberOfStripsPos(), digiInput.chipCharge(), digiInput.chipTime(), thresholdScaleFactor);
-
-	/// ToDo: include loop for calculating Trigger study vars
-	MM_DigitToolOutput tmp(true, m_nStripElectronics, m_tStripElectronicsAbThr, m_qStripElectronics, 5, 0.3);
-
-	return tmp;
-}
-/*******************************************************************************/
-MM_DigitToolOutput MM_ElectronicsResponseSimulation::getThresholdResponseFrom(const MM_ElectronicsToolInput & digiInput, const float thresholdScaleFactor)
+MM_DigitToolOutput MM_ElectronicsResponseSimulation::getPeakResponseFrom(const MM_ElectronicsToolInput & digiInput)
 {
   clearValues();
-  vmmThresholdResponseFunction(digiInput.NumberOfStripsPos(), digiInput.chipCharge(), digiInput.chipTime(), thresholdScaleFactor);
+  
+  vmmPeakResponseFunction(digiInput.NumberOfStripsPos(), digiInput.chipCharge(), digiInput.chipTime(), digiInput.stripThreshold() );
+  
+  /// ToDo: include loop for calculating Trigger study vars
+  // MM_DigitToolOutput(bool hitWasEff, std::vector <int> strpos, std::vector<float> time, std::vector<int> charge, std::vector<float> threshold, int strTrig, float strTimeTrig ):
+  MM_DigitToolOutput tmp(true, m_nStripElectronics, m_tStripElectronicsAbThr, m_qStripElectronics, 5, 0.3);
+  
+  return tmp;
+}
+/*******************************************************************************/
+MM_DigitToolOutput MM_ElectronicsResponseSimulation::getThresholdResponseFrom(const MM_ElectronicsToolInput & digiInput)
+{
+  clearValues();
+  vmmThresholdResponseFunction(digiInput.NumberOfStripsPos(), digiInput.chipCharge(), digiInput.chipTime(), digiInput.stripThreshold());
   MM_DigitToolOutput tmp(true, m_nStripElectronics, m_tStripElectronicsAbThr, m_qStripElectronics, 5, 0.3);
   return tmp;
 }
 /*******************************************************************************/
-void MM_ElectronicsResponseSimulation::vmmPeakResponseFunction(const std::vector <int> & numberofStrip, const std::vector<std::vector <float>> & qStrip, const std::vector<std::vector <float>> & tStrip, const float thresholdScaleFactor){
-  float scaledThreshold = m_electronicsThreshold * thresholdScaleFactor;
+void MM_ElectronicsResponseSimulation::vmmPeakResponseFunction(const std::vector <int> & numberofStrip, const std::vector<std::vector <float>> & qStrip, const std::vector<std::vector <float>> & tStrip, const std::vector<float>& stripsElectronicsThreshold){
   for (unsigned int ii = 0; ii < numberofStrip.size(); ii++) {
 
     // find min and max times for each strip:
@@ -72,15 +71,15 @@ void MM_ElectronicsResponseSimulation::vmmPeakResponseFunction(const std::vector
     // find the maximum charge:
     if (m_useNeighborLogic) {  // only check neighbor strips if VMM neighbor logic is enabled
       if ( ii > 0 ) {
-       leftStripFired =  m_vmmShaper->hasChargeAboveThreshold(qStrip.at(ii-1), tStrip.at(ii-1), scaledThreshold);
+       leftStripFired =  m_vmmShaper->hasChargeAboveThreshold(qStrip.at(ii-1), tStrip.at(ii-1), stripsElectronicsThreshold.at(ii-1));
       }
 
       if ( ii+1 < numberofStrip.size() ) {
-       rightStripFired =  m_vmmShaper->hasChargeAboveThreshold(qStrip.at(ii+1), tStrip.at(ii+1), scaledThreshold);
+       rightStripFired =  m_vmmShaper->hasChargeAboveThreshold(qStrip.at(ii+1), tStrip.at(ii+1), stripsElectronicsThreshold.at(ii+1) );
       }
     }
 
-    thisStripFired = m_vmmShaper->hasChargeAboveThreshold(qStrip.at(ii), tStrip.at(ii), scaledThreshold);
+    thisStripFired = m_vmmShaper->hasChargeAboveThreshold(qStrip.at(ii), tStrip.at(ii), stripsElectronicsThreshold.at(ii));
 
     // check if neighbor strip was above threshold
     bool neighborFired = leftStripFired || rightStripFired;
@@ -90,7 +89,7 @@ void MM_ElectronicsResponseSimulation::vmmPeakResponseFunction(const std::vector
       double charge, time;
 
       // if strip is below threshold but read through NL reduce threshold to low value of 1e to still find the peak
-      float tmpScaledThreshold = (thisStripFired ? scaledThreshold : 1);
+      float tmpScaledThreshold = (thisStripFired ? stripsElectronicsThreshold.at(ii) : 1);
 
       m_vmmShaper->vmmPeakResponse(qStrip.at(ii), tStrip.at(ii), tmpScaledThreshold, charge, time);
 
@@ -102,14 +101,13 @@ void MM_ElectronicsResponseSimulation::vmmPeakResponseFunction(const std::vector
 }
 
 
-void MM_ElectronicsResponseSimulation::vmmThresholdResponseFunction(const std::vector <int> & numberofStrip, const std::vector<std::vector <float>> & qStrip, const std::vector<std::vector <float>> & tStrip, const float thresholdScaleFactor){
-  float scaledThreshold = m_electronicsThreshold*thresholdScaleFactor;
-
+void MM_ElectronicsResponseSimulation::vmmThresholdResponseFunction(const std::vector <int> & numberofStrip, const std::vector<std::vector <float>> & qStrip, const std::vector<std::vector <float>> & tStrip, const std::vector<float> &electronicsThreshold){
+  
   for (unsigned int ii = 0; ii < numberofStrip.size(); ii++) {
     double localThresholdt = 0;
     double localThresholdq = 0;
 
-    m_vmmShaper->vmmThresholdResponse(qStrip.at(ii), tStrip.at(ii), scaledThreshold, localThresholdq, localThresholdt);
+    m_vmmShaper->vmmThresholdResponse(qStrip.at(ii), tStrip.at(ii), electronicsThreshold.at(ii), localThresholdq, localThresholdt);
 
     if (localThresholdt  > 0) {
         m_nStripElectronics.push_back(numberofStrip.at(ii));
