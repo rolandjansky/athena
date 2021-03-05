@@ -10,8 +10,8 @@
  * @author Caterina Doglioni
 **/ 
 
-#ifndef TRIGHLTJETTLASELECTOR_H
-#define TRIGHLTJETTLASELECTOR_H
+#ifndef TRIGHLTJETREC_TRIGHLTJETTLASELECTOR_H
+#define TRIGHLTJETREC_TRIGHLTJETTLASELECTOR_H
 
 #include "Gaudi/Property.h"
 #include "xAODJet/JetContainer.h"
