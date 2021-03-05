@@ -1,4 +1,4 @@
-#include "TrigHLTJetRec/TrigHLTJetTLASelector.h"
+#include "../TrigHLTJetTLASelector.h"
 
 DECLARE_COMPONENT( TrigHLTJetTLASelector )
 

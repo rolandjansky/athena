@@ -2,7 +2,7 @@
  *   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration  
  */
 
-#include "TrigHLTJetRec/TrigHLTJetTLASelector.h"
+#include "TrigHLTJetTLASelector.h"
 #include "xAODBase/IParticleHelpers.h"
 
 
