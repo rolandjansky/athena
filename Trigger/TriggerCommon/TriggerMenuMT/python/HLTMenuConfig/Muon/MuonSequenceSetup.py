@@ -661,8 +661,8 @@ def efLateMuSequence():
 def muEFIsoAlgSequence(ConfigFlags):
     efmuIsoViewsMaker = EventViewCreatorAlgorithm("IMefmuIso")
     newRoITool = ViewCreatorCentredOnIParticleROITool()
-    newRoITool.RoIEtaWidth=0.15
-    newRoITool.RoIPhiWidth=0.15
+    newRoITool.RoIEtaWidth=0.35
+    newRoITool.RoIPhiWidth=0.35
     newRoITool.RoisWriteHandleKey = recordable("HLT_Roi_MuonIso")
     #
     efmuIsoViewsMaker.mergeUsingFeature = True
