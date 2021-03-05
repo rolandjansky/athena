@@ -174,8 +174,7 @@ namespace Muon {
       Gaudi::Property<std::string>        m_exitVolume{this,"ExitVolumeName","All::Container::CompleteDetector"};
 
       
-      const std::vector<const Trk::DetachedTrackingVolume*>*   m_stations;    // muon chambers 
-      const std::vector<const Trk::DetachedTrackingVolume*>*   m_inertObjs;   // muon inert material 
+      //const std::vector<const Trk::DetachedTrackingVolume*>*   m_inertObjs;   // muon inert material 
       //mutable std::vector<std::pair<std::string,std::pair<double, unsigned int> > >   m_dilFact;
       //mutable std::vector<Trk::MaterialProperties>               m_matProp;
       typedef ServiceHandle<IChronoStatSvc> IChronoStatSvc_t;
