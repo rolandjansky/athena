@@ -49,11 +49,7 @@ class MonitorChainConfiguration(ChainConfigurationBase):
         chainSteps = []
         log.debug("Assembling chain for %s", self.chainName)
 
-        if self.chainPartName == 'costmonitor':
-            pass  # costmonitor is a streamer so has no steps
-        elif self.chainPartName == 'cscmon':
-            pass
-        elif self.chainPartName == 'timeburner':
+        if self.chainPartName == 'timeburner':
             chainSteps.append(self.getTimeBurnerStep())
         else:
             raise RuntimeError('Unexpected chainPartName '+self.chainPartName+' in MonitorChainConfiguration')
