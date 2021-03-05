@@ -322,7 +322,7 @@ int main(int argc, char** argv) {
             
       double x1 = xoffset;
       double x2 = xoffset+0.25;
-      double y1 = 0.80;
+      double y1 = 0.75;
       double y2 = 0.87;
 
       /// adjust the legend if no reference times are to be plotted
