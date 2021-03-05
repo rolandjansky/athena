@@ -13,5 +13,8 @@ atlas_add_component( TrigT2BeamSpot
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthenaBaseComps AthenaMonitoringKernelLib BeamSpotConditionsData EventPrimitives GaudiKernel StoreGateLib TrigInDetEvent TrigInDetToolInterfacesLib TrkParameters TrkTrack TrkTrackSummary )
 
+atlas_add_test( T2TrackBSLLPoly_test
+                SOURCES test/T2TrackBSLLPoly_test.cxx src/T2TrackBSLLPoly.cxx )
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

@@ -25,28 +25,34 @@ using std::string;
 using namespace PESA;
 using Gaudi::Units::mm;
 using Gaudi::Units::GeV;
+using TrackData = T2BSTrackFilterTool::TrackData;
+
+namespace {
 
 //Loads all TEs into one vector
 
+} // namespace
+
 // Constructor
 T2VertexBeamSpot::T2VertexBeamSpot( const std::string& name, ISvcLocator* pSvcLocator )
-  : AthReentrantAlgorithm(name, pSvcLocator){ 
+  : AthReentrantAlgorithm(name, pSvcLocator){
    
    declareProperty( "TrackCollection",  m_trackCollectionKey = "TrigFastTrackFinder_Tracks"  );
    declareProperty( "VertexCollection",  m_outputVertexCollectionKey =  "myVertices"  );
+
+   declareProperty("filterBS",            m_filterBS         = true);
+   declareProperty("doTrackBeamSpot",     m_doTrackBeamSpot  = true);
 }
 
 StatusCode T2VertexBeamSpot::initialize() {
 
+   ATH_CHECK(m_trackFilterTool.retrieve());
    ATH_CHECK(m_beamSpotTool.retrieve());
+   ATH_CHECK(m_trackBSTool.retrieve());
+   ATH_CHECK( m_monTool.retrieve());
 
    ATH_CHECK( m_trackCollectionKey.initialize() );
-
-
    ATH_CHECK( m_outputVertexCollectionKey.initialize() );
-
-
-   ATH_CHECK( m_monTool.retrieve());
 
    return StatusCode::SUCCESS;
 }
@@ -55,6 +61,8 @@ StatusCode T2VertexBeamSpot::initialize() {
 StatusCode T2VertexBeamSpot::execute(const EventContext& ctx) const{
    // Start the overall timer
    auto tTotal = Monitored::Timer("TIME_TotalTime");
+
+   auto& eventID = ctx.eventID();
 
    //// Initialize vertex collections
    SG::WriteHandle<TrigVertexCollection> myVertexCollection(m_outputVertexCollectionKey, ctx);
@@ -80,6 +88,7 @@ StatusCode T2VertexBeamSpot::execute(const EventContext& ctx) const{
       auto nTotalTracks = Monitored::Scalar<unsigned>("nTotalTracks");
       auto nTotalPassedTracks = Monitored::Scalar<unsigned>("nTotalPassedTracks");
       auto nTotalHighPTTracks = Monitored::Scalar<unsigned>("nTotalHighPTTracks");
+
       //Loop over track collections and select tracks
       SG::ReadHandle<TrackCollection> trackCollection (m_trackCollectionKey, ctx);
       ATH_CHECK(trackCollection.isValid());
@@ -88,18 +97,48 @@ StatusCode T2VertexBeamSpot::execute(const EventContext& ctx) const{
       const TrackCollection* tracks = trackCollection.cptr();
 
       //Select tracks
-      std::vector<unsigned> trackCounter(3,0);//returning all tracks[0]/passed tracks[1]/ hipt tracks[2] counts
-      m_beamSpotTool->selectTracks( tracks, mySelectedTrackCollection, trackCounter );
+      auto selectedTracks = m_trackFilterTool->filter(*tracks);
+      mySelectedTrackCollection.insert(mySelectedTrackCollection.end(),
+                                       selectedTracks.begin(), selectedTracks.end());
+
+      std::vector<TrackData> bsTracks;
+      bool has_bs = m_trackFilterTool->updateBS(selectedTracks, eventID.lumi_block(),
+                                                eventID.bunch_crossing_id(),
+                                                &bsTracks);
+
+      std::vector<const Trk::Track*> selectedTracksBS;
+      if ((m_doTrackBeamSpot or m_filterBS) and has_bs) {
+         selectedTracksBS = m_trackFilterTool->filterBS(selectedTracks);
+      }
+
+      // collect tracks for vertex-based tool into a single colelction
+      if (m_filterBS and has_bs) {
+         mySelectedTrackCollection.insert(mySelectedTrackCollection.end(),
+                                          selectedTracksBS.begin(), selectedTracksBS.end());
+      } else {
+         mySelectedTrackCollection.insert(mySelectedTrackCollection.end(),
+                                          selectedTracks.begin(), selectedTracks.end());
+      }
+
+      // call track-based tool
+      if (m_doTrackBeamSpot and has_bs) {
+         if (not bsTracks.empty()) {
+            m_trackBSTool->updateBS(bsTracks);
+         } else {
+            m_trackBSTool->updateBS(selectedTracksBS, eventID.bunch_crossing_id());
+         }
+      }
 
       //FIXME: make a counter class
-      nTotalTracks       += trackCounter[0];   
-      nTotalPassedTracks += trackCounter[1]; 
-      nTotalHighPTTracks += trackCounter[2];
+      nTotalTracks       += tracks->size();
+      nTotalPassedTracks += selectedTracks.size();
+      nTotalHighPTTracks += 0;
 
       //Store counts for all/highPt/selected tracks
       nAllTracks = nTotalTracks;
-      nHighPtTracks = nTotalHighPTTracks;
       nSelectedTracks = nTotalPassedTracks;
+      nTotalHighPTTracks = m_beamSpotTool->numHighPTTrack(mySelectedTrackCollection);
+      nHighPtTracks = nTotalHighPTTracks;
 
       //Monitor total number of tracks
       auto monitor = Monitored::Group(m_monTool, tSelectingTracks, nTotalTracks, nTotalPassedTracks, nTotalHighPTTracks );
@@ -108,7 +147,7 @@ StatusCode T2VertexBeamSpot::execute(const EventContext& ctx) const{
 
 
    // Check for seed tracks (= high-pT tracks)
-   if ( ! m_beamSpotTool->isHighPTTrack(nHighPtTracks) ) {
+   if ( nHighPtTracks == 0  ) {
       ATH_MSG_DEBUG( " No seed tracks for vertex");
       return StatusCode::SUCCESS;
    }
@@ -139,4 +178,3 @@ StatusCode T2VertexBeamSpot::execute(const EventContext& ctx) const{
 
    return StatusCode::SUCCESS;
 } 
-
