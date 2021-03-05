@@ -40,8 +40,8 @@ class ITrackAmbiguityProcessorTool : virtual public IAlgTool
         If no prd-to-track map is given the processor might create one internally (for internal
         use only, or exported to storegate).
         */
-        virtual TrackCollection*  process(const TrackCollection *, Trk::PRDtoTrackMap *prd_to_track_map=nullptr) const = 0;
-        virtual TrackCollection*  process(const TracksScores *) const = 0 ;
+        virtual const TrackCollection*  process(const TrackCollection *, Trk::PRDtoTrackMap *prd_to_track_map=nullptr) const = 0;
+        virtual const TrackCollection*  process(const TracksScores *) const = 0 ;
 
         /** Print statistics at the end of the processing.
         */

@@ -236,13 +236,13 @@ MuonClusterSegmentFinderTool::findPrecisionSegments(std::vector<const Muon::Muon
         return;
     }
 
-    TrackCollection* resolvedTracks = m_ambiTool->process(segTrkColl.get());
+    std::unique_ptr<const TrackCollection> resolvedTracks (m_ambiTool->process(segTrkColl.get()));
     ATH_MSG_DEBUG("Resolved track candidates: old size " << segTrkColl->size() << " new size "
                                                          << resolvedTracks->size());
     // store the resolved segments
 
-    for (TrackCollection::const_iterator it = resolvedTracks->begin(); it != resolvedTracks->end(); ++it) {
-        MuonSegment* seg = m_trackToSegmentTool->convert(**it);
+    for (const Trk::Track* rtrk : *resolvedTracks) {
+        MuonSegment* seg = m_trackToSegmentTool->convert(*rtrk);
         if (!seg) {
             ATH_MSG_VERBOSE("Segment conversion failed, no segment created. ");
         } else {
@@ -251,9 +251,6 @@ MuonClusterSegmentFinderTool::findPrecisionSegments(std::vector<const Muon::Muon
             etaSegs.push_back(seg);
         }
     }
-
-    // memory cleanup
-    delete resolvedTracks;
 }
 
 void
@@ -459,12 +456,12 @@ MuonClusterSegmentFinderTool::find3DSegments(std::vector<const Muon::MuonCluster
         }
     }  // end loop on precision plane segments
 
-    TrackCollection* resolvedTracks = m_ambiTool->process(segTrkColl);
+    std::unique_ptr<const TrackCollection> resolvedTracks (m_ambiTool->process(segTrkColl));
     ATH_MSG_DEBUG("Resolved track candidates: old size " << segTrkColl->size() << " new size "
                                                          << resolvedTracks->size());
     // store the resolved segments
-    for (TrackCollection::const_iterator it = resolvedTracks->begin(); it != resolvedTracks->end(); ++it) {
-        MuonSegment* seg = m_trackToSegmentTool->convert(**it);
+    for (const Trk::Track* rtrk : *resolvedTracks) {
+        MuonSegment* seg = m_trackToSegmentTool->convert(*rtrk);
         if (!seg) {
             ATH_MSG_VERBOSE("Segment conversion failed, no segment created. ");
         } else {
@@ -477,7 +474,6 @@ MuonClusterSegmentFinderTool::find3DSegments(std::vector<const Muon::MuonCluster
 
     // memory cleanup
     delete segTrkColl;
-    delete resolvedTracks;
 
     for (std::vector<Muon::MuonSegment*>::iterator sit = etaSegs.begin(); sit != etaSegs.end(); ++sit) {
         delete *sit;
