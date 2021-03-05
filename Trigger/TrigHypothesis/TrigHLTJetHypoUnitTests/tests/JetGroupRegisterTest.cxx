@@ -29,11 +29,11 @@ TEST(JetGroupRegisterTester, empty) {
 
   std::size_t idx = jg_register.record(jets);
 
-  EXPECT_EQ(idx, 0);
+  EXPECT_EQ(idx, 0u);
 
   idx = jg_register.record(jets);
 
-  EXPECT_EQ(idx, 0);
+  EXPECT_EQ(idx, 0u);
 
   HypoJetVector jets2 = jets;
 
@@ -41,10 +41,10 @@ TEST(JetGroupRegisterTester, empty) {
 
   idx = jg_register.record(jets2);
 
-  EXPECT_EQ(idx, 1);
+  EXPECT_EQ(idx, 1u);
 
   idx = jg_register.record(jets);
-  EXPECT_EQ(idx, 0);
+  EXPECT_EQ(idx, 0u);
 }
 
 
