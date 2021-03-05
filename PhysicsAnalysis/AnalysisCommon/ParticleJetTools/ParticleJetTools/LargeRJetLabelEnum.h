@@ -1,5 +1,12 @@
+// Dear emacs, this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef PARTICLEJETTOOLS_LARGERJETLABELENUM_H
 #define PARTICLEJETTOOLS_LARGERJETLABELENUM_H
+
+// ROOT include(s).
+#include <TString.h>
 
 namespace LargeRJetTruthLabel
 {
@@ -16,7 +23,7 @@ namespace LargeRJetTruthLabel
     qcd,       // not matched to top or W/Z (background jet)
     Hbb,       // full-contained H->bb
     other_From_H, //matched to H
-  };  
+  };
   inline int enumToInt(const TypeEnum type)
   {
     switch (type)
@@ -33,7 +40,7 @@ namespace LargeRJetTruthLabel
       case other_From_H: return 10;
       default:           return 0;
       }
-  }  
+  }
   inline TypeEnum intToEnum(const int type)
   {
     if ( type==1 ){
@@ -57,7 +64,7 @@ namespace LargeRJetTruthLabel
     }else if ( type == 10){
       return other_From_H;
     }
-    
+
     return UNKNOWN;
   }
   inline TypeEnum stringToEnum(const TString& name)
