@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // std
@@ -115,10 +115,9 @@ MdtCalibrationSvc::Imp::Imp(std::string name) :
   m_BMGid(-1)
 {}
 
-MdtCalibrationSvc::MdtCalibrationSvc(const std::string &name,ISvcLocator *sl)
-  : AthService(name,sl),
-  m_muIdHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-  m_hasBISsMDT(false) {
+MdtCalibrationSvc::MdtCalibrationSvc(const std::string &name,ISvcLocator *sl) :
+    AthService(name,sl),
+    m_muIdHelper("Muon::MuonIdHelperTool/MuonIdHelperTool") {
   m_imp = new MdtCalibrationSvc::Imp(name);
   // settable properties
   declareProperty("TimeWindowLowerBound",m_imp->settings.windowLowerBound );
@@ -179,9 +178,6 @@ StatusCode MdtCalibrationSvc::initialize() {
     ATH_MSG_INFO("Processing configuration for layouts with BMG chambers.");
     m_imp->m_BMGid = m_muIdHelper->mdtIdHelper().stationNameIndex("BMG");
   }
-  int bisIndex=m_muIdHelper->mdtIdHelper().stationNameIndex("BIS");
-  Identifier bis7Id = m_muIdHelper->mdtIdHelper().elementID(bisIndex, 7, 1);
-  if (m_muIdHelper->issMdt(bis7Id)) m_hasBISsMDT=true;
 
   // initialise MuonGeoModel access
   if ( detStore->retrieve( m_imp->m_muonGeoManager ).isFailure() ) {
@@ -334,15 +330,7 @@ bool MdtCalibrationSvc::driftRadiusFromTime( MdtCalibHit &hit,
     // get t0 shift from tool (default: no shift, value is zero)
     if (m_imp->m_doT0Shift) t0 += m_imp->m_t0ShiftSvc->getValue(id);
   } else {
-    if (m_hasBISsMDT) {
-      static bool bisWarningPrinted=false;
-      if (!bisWarningPrinted) {
-        ATH_MSG_WARNING("MdtTubeCalibContainer not found for " << m_imp->m_mdtIdHelper->print_to_string( id ) << " - Tube cannot be calibrated, cf. ATLASRECTS-5819");
-        bisWarningPrinted=true;
-      }
-    } else {
-      ATH_MSG_WARNING("MdtTubeCalibContainer not found for " << m_imp->m_mdtIdHelper->print_to_string( id ) << " - Tube cannot be calibrated!");
-    }
+    ATH_MSG_WARNING("MdtTubeCalibContainer not found for " << m_imp->m_mdtIdHelper->print_to_string( id ) << " - Tube cannot be calibrated!");
     return false;
   }
 
@@ -353,10 +341,6 @@ bool MdtCalibrationSvc::driftRadiusFromTime( MdtCalibHit &hit,
 
   // in order to have clean info in the ntuple set to 0 the
   // corrections which are not used
-  /*    hit.setSlewingTime( 0 );
-	hit.setLorentzTime( 0 );
-	hit.setTemperatureTime( 0 );
-	hit.setWiresagTime( 0 );*/
   // set propagation delay
   double propTime(0.);
   if ( settings.doProp ){

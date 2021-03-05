@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -122,10 +122,7 @@ private:
   bool m_createSlewingFunction;   //<! flag to switch on loading of slewing correction
 
   bool m_getTubeConstants; //<! flag to switch off loading of tube constants
-  bool m_getCorrections;   //<! flag to switch off loading of correction function constants
-
-  bool m_hasBISsMDT;
-    
+  bool m_getCorrections;   //<! flag to switch off loading of correction function constants    
 };
 
 #endif // MDTCALIBSVC_MDTCALIBRATIONDBSVC_H
