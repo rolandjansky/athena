@@ -29,6 +29,8 @@
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 //Interface for the beam spot tool
 #include "T2VertexBeamSpotTool.h"
+#include "T2BSTrackFilterTool.h"
+#include "T2TrackBeamSpotTool.h"
 
 namespace PESA {
   /**
@@ -45,7 +47,7 @@ namespace PESA {
    *   
    */
 
-  class T2VertexBeamSpot : public AthReentrantAlgorithm 
+  class T2VertexBeamSpot : public AthReentrantAlgorithm
     {
     public:
 
@@ -57,12 +59,15 @@ namespace PESA {
       /** Initialize the beamspot algorithm for Run3 Athena MT configuration, initialize all the handles and retrieve the tools associated with the algorithm */
       virtual StatusCode initialize() override final;
 
-      
-
     private:
 
+      bool m_filterBS;         // if true then filter tracks against local beamspot estimate for vertex BS
+      bool m_doTrackBeamSpot;  // if true then run track-based beam spot
+
       //Tools
+      ToolHandle<T2BSTrackFilterTool> m_trackFilterTool{this, "TrackFilterTool", "PESA::T2BSTrackFilterTool/T2BSTrackFilterTool" };
       ToolHandle<T2VertexBeamSpotTool> m_beamSpotTool {this, "BeamSpotTool", "PESA::T2VertexBeamSpotTool/T2VertexBeamSpotTool" };
+      ToolHandle<T2TrackBeamSpotTool> m_trackBSTool{this, "TrackBeamSpotTool", "PESA::T2VertexBeamSpotTool/T2TrackBeamSpotTool" };
       ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
 
       SG::ReadHandleKey<TrackCollection> m_trackCollectionKey;   /*track collection name which should be used for the algorithms*/
@@ -70,7 +75,6 @@ namespace PESA {
       //The same as in Run2 (m_vertexCollName)
       SG::WriteHandleKey<TrigVertexCollection> m_outputVertexCollectionKey;
       //TODO: to be added SG::WriteHandleKeyArray<TrigVertexCollection> m_outputSplitVertexCollectionKey;   /*Input list of track collection names which should be used for the algorithms*/
-
 
     };
 

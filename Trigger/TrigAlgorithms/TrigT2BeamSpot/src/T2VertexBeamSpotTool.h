@@ -81,9 +81,9 @@ namespace PESA {
 
 
 
-         /**  Return true if there is at least one high pT track in the event
+         /**  Return count of high pT track in the track list,
           * the total number of these high pT tracks is checked in the selectTracks function and the threshold can be set via TrackSeedPt (by default 1 GeV) */
-         inline bool isHighPTTrack( unsigned &nTracks ) const{return ( nTracks > 0 );}
+         unsigned numHighPTTrack( ConstDataVector<TrackCollection>& tracks ) const;
 
 
          /**  Return true if the number of tracks which passed the selection in goodTrack function is lower than a given threshold

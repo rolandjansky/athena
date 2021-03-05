@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
-from TrigT2BeamSpot.TrigT2BeamSpotConf import PESA__T2VertexBeamSpot
+from TrigT2BeamSpot.TrigT2BeamSpotConf import (PESA__T2VertexBeamSpot, PESA__T2BSTrackFilterTool,
+        PESA__T2TrackBeamSpotTool, PESA__T2VertexBeamSpotTool)
 from TrigVertexFitter.TrigVertexFitterConf import TrigPrimaryVertexFitter
 from AthenaCommon.AppMgr import ToolSvc
 
@@ -8,13 +9,14 @@ primaryVertexFitter = TrigPrimaryVertexFitter(zVariance=3.0, CreateTrackLists=Tr
 ToolSvc += primaryVertexFitter
 
 #Adding new monitoring tool
-from TrigT2BeamSpot.T2VertexBeamSpotMonitoring import  T2VertexBeamSpotMonitoring, T2VertexBeamSpotToolMonitoring
+from TrigT2BeamSpot.T2VertexBeamSpotMonitoring import (T2VertexBeamSpotMonitoring, T2VertexBeamSpotToolMonitoring,
+        T2BSTrackFilterToolMonitoring, T2TrackBeamSpotToolMonitoring)
+filtermon = T2BSTrackFilterToolMonitoring()
 bsToolMonitoring = T2VertexBeamSpotToolMonitoring()
+trackBSmon = T2TrackBeamSpotToolMonitoring()
 bsAlgMonitoring = T2VertexBeamSpotMonitoring()
 
-
 #TODO: create an instance which can be called and adjusted
-from TrigT2BeamSpot.TrigT2BeamSpotConf import PESA__T2VertexBeamSpotTool
 InDetTrigMTBeamSpotTool = PESA__T2VertexBeamSpotTool(
     name = "T2VertexBeamSpotTool",
     MonTool = bsToolMonitoring,
@@ -51,12 +53,46 @@ InDetTrigMTBeamSpotTool = PESA__T2VertexBeamSpotTool(
     PrimaryVertexFitter = primaryVertexFitter
 )
 
+InDetTrigMTTrackFilterTool = PESA__T2BSTrackFilterTool(
+    name = "T2TrackFilterTool",
+    MonTool = filtermon,
+    TrackMinPt          = 0.5,      # Minimum track pT to be considered for vertexing
+    TrackMaxEta         = 2.5,      # Maximum absolute value of eta
+    TrackMaxZ0          = 200.0,    # Maximum track Z0 to be considered for vertexing
+    TrackMaxD0          = 10.0,     # Maximum track d0 to be considered for vertexing
+    TrackMaxZ0err       = 5.0,      # Maximum track Z0 error to be considered for vertexing
+    TrackMaxD0err       = 5.0,      # Maximum track d0 error to be considered for vertexing
+    TrackMinNDF         = 2.0,      # Minimum track NDF to be considered for vertexing
+    TrackMinQual        = 0.0,      # Minimum track chi^2/NDF to be considered for vertexing
+    TrackMaxQual        = 10.0,     # Maximum track chi^2/NDF to be considered for vertexing
+    TrackMinChi2Prob    = -10.0,    # Minimum track cumulative chi2 probability
+    TrackMinSiHits      = 7,        # Minimum # track silicon (PIX + SCT) hits to be considered for vertexing
+    TrackMinPIXHits     = 0,        # Minimum # track silicon (PIX + SCT) hits to be considered for vertexing
+    TrackMinSCTHits     = 0,        # Minimum # track silicon (PIX + SCT) hits to be considered for vertexing
+    TrackMinTRTHits     = -10,      # Minimum # track TRT hits to be considered for vertexing
+    GoalSeedTracks      = 500,      # Number of tracks for local beamspot estimate
+    D0Chi2Cutoff        = 30.,      # Cutoff on D0 Chi^2 for BS-based filtering
+    BeamSizeLS          = 0.01,     # Approximate beam size, mm
+)
+
+InDetTrigMTTrackBeamSpotTool = PESA__T2TrackBeamSpotTool(
+    name = "T2TrackBeamSpotTool",
+    MonTool = trackBSmon,
+    doLeastSquares      = True,
+    doLogLikelihood     = True,
+    beamSizeLS          = 0.01,      # Approximate beam size, mm
+)
+
 
 class T2VertexBeamSpot_Fex ( PESA__T2VertexBeamSpot ) :
     __slots__ = []
     def __init__ (self, name="T2VertexBeamSpot_Fex", detail=1):
         super(T2VertexBeamSpot_Fex, self).__init__(name)
-        self.BeamSpotTool = InDetTrigMTBeamSpotTool    
+        self.filterBS = True                # filter tracks w.r.t. beamspot
+        self.doTrackBeamSpot = True         # run track-based calibration tool
+        self.TrackFilterTool = InDetTrigMTTrackFilterTool
+        self.TrackBeamSpotTool = InDetTrigMTTrackBeamSpotTool
+        self.BeamSpotTool = InDetTrigMTBeamSpotTool
         self.MonTool = bsAlgMonitoring
         
 # Setup for relaxed cuts at 900 GeV LHC center-of-mass
