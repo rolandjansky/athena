@@ -20,7 +20,7 @@ class trigCostExecutor(scriptExecutor):
         # All arguments have to be provided for step to be called
         # inputDRAW_TRIGCOSTFile can be multiple files?
         self._cmd = [self._exe]
-        self._cmd.extend(['Input.Files=' + str(self.conf.argdict['inputDRAW_TRIGCOSTFile'].value) ])
+        self._cmd.extend(['Input.Files=' + str(self.conf.dataDictionary['DRAW_TRIGCOST'].value) ])
         self._cmd.extend(['--outputHist='+self.conf.argdict['outputNTUP_TRIGCOSTFile'].value[0]])
 
         super(trigCostExecutor, self).preExecute()
