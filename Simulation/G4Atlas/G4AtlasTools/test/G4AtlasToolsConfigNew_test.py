@@ -29,13 +29,10 @@ if __name__ == '__main__':
   ConfigFlags.GeoModel.Run = "RUN2" 
 
   #ConfigFlags.Beam.Type = "cosmics"
-  ConfigFlags.Detector.SimulateBCM = True
-  ConfigFlags.Detector.SimulatePixel = True
-  ConfigFlags.Detector.SimulateSCT = True
-  ConfigFlags.Detector.SimulateTRT = True
-  ConfigFlags.Detector.SimulateLAr = True
-  ConfigFlags.Detector.SimulateHGTD = False
-  ConfigFlags.Detector.SimulateTile = False
+  detectors =['BCM', 'Pixel', 'SCT', 'TRT', 'LAr']
+  # Setup detector flags
+  from SimuJobTransforms.SimulationTestHelpers import setupDetectorSimulateFlagsFromList
+  setupDetectorSimulateFlagsFromList(ConfigFlags, detectors)
 
   #ConfigFlags.GeoModel.AtlasVersion = "tb_Tile2000_2003"
   #ConfigFlags.GeoModel.AtlasVersion = "ctbh8"

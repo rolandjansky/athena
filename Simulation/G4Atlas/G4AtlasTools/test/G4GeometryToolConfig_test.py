@@ -25,20 +25,16 @@ if __name__ == '__main__':
   inputDir = defaultTestFiles.d
   ConfigFlags.Input.Files = defaultTestFiles.EVNT
 
-  ConfigFlags.Detector.GeometryPixel = True
-  ConfigFlags.Detector.GeometrySCT = True
-  ConfigFlags.Detector.GeometryTRT = True
-  ConfigFlags.Detector.SimulateMuon = True
-  ConfigFlags.Detector.SimulateID = True
-  ConfigFlags.Detector.SimulateCalo = True
-  ConfigFlags.Detector.SimulateBpipe = True
-  ConfigFlags.Detector.SimulateFwdRegion = True
-  ConfigFlags.Detector.GeometryLAr = True
-  ConfigFlags.Detector.GeometryTile = True
-  ConfigFlags.Detector.GeometryLucid = True
-  ConfigFlags.Detector.GeometryZDC = True
-  ConfigFlags.Detector.GeometryALFA = True
-  ConfigFlags.Detector.GeometryAFP = True
+  import os
+  if "AthSimulation_DIR" in os.environ:
+    detectors =['Bpipe', 'BCM', 'DBM',  'Pixel', 'SCT', 'TRT', 'LAr', 'Tile', 'CSC', 'MDT', 'RPC', 'TGC'] # Forward Detector geometry not currently included in AthSimulation
+  else:
+    detectors =['Bpipe', 'BCM', 'DBM',  'Pixel', 'SCT', 'TRT', 'LAr', 'Tile', 'CSC', 'MDT', 'RPC', 'TGC', 'FwdRegion', 'Lucid', 'ZDC', 'ALFA', 'AFP']
+
+  # Setup detector flags
+  from SimuJobTransforms.SimulationTestHelpers import setupDetectorSimulateFlagsFromList
+  setupDetectorSimulateFlagsFromList(ConfigFlags, detectors)
+
   ConfigFlags.Sim.WorldRRange = 15000
   ConfigFlags.Sim.WorldZRange = 27000
 

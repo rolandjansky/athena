@@ -1,15 +1,15 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import sys
 from PyJobTransforms.CommonRunArgsToFlags import commonRunArgsToFlags
 from PyJobTransforms.TransformUtils import processPreExec, processPreInclude, processPostExec, processPostInclude
 
-def defaultSimulationFlags(ConfigFlags):
+def defaultSimulationFlags(ConfigFlags, detectors):
     """Fill default simulation flags"""
     # TODO: how to autoconfigure those
     from AthenaConfiguration.Enums import ProductionStep
     ConfigFlags.Common.ProductionStep = ProductionStep.Simulation
-    ConfigFlags.Sim.CalibrationRun = "Off" #"DeadLAr" 
+    ConfigFlags.Sim.CalibrationRun = "Off" #"DeadLAr"
     ConfigFlags.Sim.RecordStepInfo = False
     ConfigFlags.Sim.CavernBG = "Signal"
     ConfigFlags.Sim.BeamPipeSimMode = 'FastSim'
@@ -20,55 +20,9 @@ def defaultSimulationFlags(ConfigFlags):
     #Frozen showers OFF = 0
     # ConfigFlags.Sim.LArParameterization = 2
 
-
-    #set the detector flags: - all on currently
-    #inner detectors
-    ConfigFlags.Detector.SimulateBCM = True
-    ConfigFlags.Detector.GeometryBCM = True
-    ConfigFlags.Detector.SimulateDBM = True
-    ConfigFlags.Detector.GeometryDBM = True
-    ConfigFlags.Detector.SimulatePixel = True
-    ConfigFlags.Detector.GeometryPixel = True
-    ConfigFlags.Detector.SimulateSCT = True
-    ConfigFlags.Detector.GeometrySCT = True
-    ConfigFlags.Detector.SimulateTRT = True
-    ConfigFlags.Detector.GeometryTRT = True
-
-    #muon
-    ConfigFlags.Detector.SimulateMuon = True #True
-    ConfigFlags.Detector.GeometryMuon = True #True <these two break it (others can be true)
-    ConfigFlags.Detector.SimulateMDT = True #True
-    ConfigFlags.Detector.GeometryMDT = True #True
-    ConfigFlags.Detector.SimulateRPC = True #True
-    ConfigFlags.Detector.GeometryRPC = True #True
-    ConfigFlags.Detector.SimulateTGC = True #True
-    ConfigFlags.Detector.GeometryTGC = True #True
-    ConfigFlags.Detector.SimulateCSC = True #True
-    ConfigFlags.Detector.GeometryCSC = True #True
-
-    #LAr
-    ConfigFlags.Detector.SimulateLAr = True
-    ConfigFlags.Detector.GeometryLAr = True
-    ConfigFlags.Detector.SimulateTile = True
-    ConfigFlags.Detector.GeometryTile = True
-
-    ConfigFlags.Detector.SimulateHGTD = False
-    #ConfigFlags.Detector.GeometryHGTD = False #isn't a flag -- is it needed?
-
-
-    ConfigFlags.Detector.SimulateBpipe = True
-    ConfigFlags.Detector.GeometryBpipe = True
-
-
-    #forward region not migrated yet
-    ConfigFlags.Detector.SimulateLucid = False
-    ConfigFlags.Detector.SimulateZDC = False
-    ConfigFlags.Detector.SimulateALFA = False
-    ConfigFlags.Detector.SimulateAFP = False
-    ConfigFlags.Detector.SimulateFwdRegion = False
-    ConfigFlags.Detector.SimulateForward = False
-
-
+    # Setup detector flags
+    from SimuJobTransforms.SimulationTestHelpers import setupDetectorSimulateFlagsFromList
+    setupDetectorSimulateFlagsFromList(ConfigFlags, detectors)
 
 
 def fromRunArgs(runArgs):
@@ -76,7 +30,7 @@ def fromRunArgs(runArgs):
     Configurable.configurableRun3Behavior = True
 
     from AthenaCommon.Logging import logging
-    log = logging.getLogger('Overlay')
+    log = logging.getLogger('Sim_tf')
     log.info('****************** STARTING Simulation *****************')
 
     log.info('**** Transformation run arguments')
@@ -85,6 +39,30 @@ def fromRunArgs(runArgs):
     log.info('**** Setting-up configuration flags')
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     commonRunArgsToFlags(runArgs, ConfigFlags)
+
+    if hasattr(runArgs, 'detectors'):
+        detectors = runArgs.detectors
+    else:
+        from SimuJobTransforms.SimulationTestHelpers import getDefaultDetectorsForRun
+        detectors = getDefaultDetectorsForRun(ConfigFlags.GeoModel.Run)
+
+    # Support switching on simulation of Forward Detectors
+    if hasattr(runArgs, 'LucidOn'):
+        detectors = detectors+['Lucid']
+    if hasattr(runArgs, 'ZDCOn'):
+        detectors = detectors+['ZDC']
+    if hasattr(runArgs, 'AFPOn'):
+        detectors = detectors+['AFP']
+    if hasattr(runArgs, 'ALFAOn'):
+        detectors = detectors+['ALFA']
+    if hasattr(runArgs, 'FwdRegionOn'):
+        detectors = detectors+['FwdRegion']
+    #TODO here support switching on Cavern geometry
+    #if hasattr(runArgs, 'CavernOn'):
+    #    detectors = detectors+['Cavern']
+
+    # Setup common simulation flags
+    defaultSimulationFlags(ConfigFlags, detectors)
 
     if hasattr(runArgs, 'inputEVNTFile'):
         ConfigFlags.Input.Files = runArgs.inputEVNTFile
@@ -120,9 +98,6 @@ def fromRunArgs(runArgs):
         evtMax = runArgs.maxEvents
     else:
         evtMax = -1
-    
-    # Setup common simulation flags
-    defaultSimulationFlags(ConfigFlags)
 
     # Pre-include
     processPreInclude(runArgs, ConfigFlags)
@@ -154,7 +129,7 @@ def fromRunArgs(runArgs):
     from TileGeoG4SD.TileGeoG4SDToolConfig import TileGeoG4SDCalcCfg
     cfg.merge(TileGeoG4SDCalcCfg(ConfigFlags))
 
-    #Add to item list 
+    #Add to item list
     #TODO - make a separate function (combine with G4AtlasAlg one?)
     ItemList = ["EventInfo#*",
                 "McEventCollection#TruthEvent",
@@ -235,11 +210,5 @@ def fromRunArgs(runArgs):
     # Run the final accumulator
     sc = cfg.run(maxEvents=evtMax)
     log.info("Run ISF_MainConfigNew_Test in " + str(time.time()-tic) + " seconds")
-    
-    sys.exit(not sc.isSuccess())
-    
-    f = open("test.pkl","wb")
-    cfg.store(f)
-    f.close()
 
-    sys.exit(0)
+    sys.exit(not sc.isSuccess())
