@@ -15,7 +15,7 @@
 // Include this class's header
 #include "ElectronPhotonSelectorTools/AsgElectronSelectorTool.h"
 #include "ElectronPhotonSelectorTools/ElectronSelectorHelpers.h"
-#include "AsgElectronPhotonIsEMSelectorConfigHelper.h"
+#include "EgammaAnalysisHelpers/AsgEGammaConfigHelper.h"
 #include "EGSelectorConfigurationMapping.h"
 #include "ElectronDNNCalculator.h"
 // STL includes
