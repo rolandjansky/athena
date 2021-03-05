@@ -225,8 +225,7 @@ private:
 
   PropDirection m_directionToPerigee;
 
-  std::unique_ptr<TrkParametersComparisonFunction>
-    m_trkParametersComparisonFunction;
+  TrkParametersComparisonFunction m_trkParametersComparisonFunction;
 
   std::unique_ptr<TrackFitInputPreparator> m_inputPreparator;
   std::vector<double> m_sortingReferencePoint;
