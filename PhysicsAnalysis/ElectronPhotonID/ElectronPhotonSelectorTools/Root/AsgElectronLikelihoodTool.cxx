@@ -12,7 +12,7 @@
 */
 
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
-#include "AsgElectronPhotonIsEMSelectorConfigHelper.h"
+#include "EgammaAnalysisHelpers/AsgEGammaConfigHelper.h"
 #include "EGSelectorConfigurationMapping.h"
 #include "ElectronPhotonSelectorTools/ElectronSelectorHelpers.h"
 #include "TElectronLikelihoodTool.h"

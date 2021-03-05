@@ -14,7 +14,7 @@
 
 // Include this class's header
 #include "ElectronPhotonSelectorTools/AsgPhotonIsEMSelector.h"
-#include "AsgElectronPhotonIsEMSelectorConfigHelper.h"
+#include "EgammaAnalysisHelpers/AsgEGammaConfigHelper.h"
 #include "TPhotonIsEMSelector.h"
 #include "EGSelectorConfigurationMapping.h"
 #include "ElectronPhotonSelectorTools/egammaPIDdefs.h"

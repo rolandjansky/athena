@@ -16,8 +16,9 @@ atlas_add_library( ElectronPhotonSelectorToolsLib
   INCLUDE_DIRS ${LWTNN_INCLUDE_DIRS}  ${EIGEN_INCLUDE_DIRS}
   LINK_LIBRARIES EgammaAnalysisInterfacesLib AsgTools xAODEgamma  xAODTracking MVAUtils
   xAODHIEvent PATCoreAcceptLib AsgDataHandlesLib
-  PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib FourMomUtils xAODCaloEvent
-  xAODEventInfo PathResolver ${LWTNN_LIBRARIES} ${EIGEN_LIBRARIES} )
+  PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib FourMomUtils 
+  xAODCaloEvent xAODEventInfo PathResolver EgammaAnalysisHelpersLib
+  ${LWTNN_LIBRARIES} ${EIGEN_LIBRARIES} )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( ElectronPhotonSelectorTools
@@ -47,10 +48,7 @@ if( XAOD_STANDALONE )
       EgammaAnalysisInterfacesLib ElectronPhotonSelectorToolsLib
       PATCoreAcceptLib xAODCore xAODEgamma )
 
-   # Disabling this because the underlying tool no longer seems to
-   # exist.  Whoever is the expert should either make this work or
-   # remove it completely.
-
+   # Tool migrated need to check the test
    # atlas_add_executable( EGIdentification_testEGChargeIDSelector
    #    util/testEGChargeIDSelector.cxx
    #    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
