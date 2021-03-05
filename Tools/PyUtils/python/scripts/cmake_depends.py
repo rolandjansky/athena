@@ -84,16 +84,16 @@ def traverse(graph, root, reverse=False, maxdepth=None, nodegetter=lambda n:n):
 
 def subgraph(graph, sources, reverse=False, maxdepth=None, nodegetter=lambda n : n.attr.get('label')):
    """Extract subgraph created by traversing from one or more sources.
-   Parameters are the same as in `traverse`.
+   Parameters are the same as in `traverse`. Return list of edge tuples.
    """
-   g = pygraphviz.AGraph(directed=True)
+   edges = set()
    for root in sources:
       for a,b in traverse(graph, root, reverse=reverse, maxdepth=maxdepth, nodegetter=nodegetter):
          if a and b and a!=b:
-            if reverse: g.add_edge(b,a)
-            else: g.add_edge(a,b)
+            if reverse: edges.add((b,a))
+            else: edges.add((a,b))
 
-   return g
+   return edges
 
 
 def add_legend(graph):
@@ -106,10 +106,18 @@ def add_legend(graph):
    l.add_edge('c','d', label='Python', style=py_style, constraint=False)
 
 
+def copy_graph(source, dest):
+   """Copy graph nodes and edges from source to dest including attributes"""
+   for e in source.edges_iter():
+      dest.add_edge(e, **e.attr)
+   for n in source.nodes_iter():
+      dest.add_node(n, **n.attr)
+
+
 class AthGraph:
    """Class to hold dependency information for release"""
 
-   def __init__(self, dotfile, package_paths={}):
+   def __init__(self, dotfile):
       """Read dotfile and and optionally transform package names to full paths"""
 
       # Read dot file:
@@ -123,12 +131,11 @@ class AthGraph:
       self.node = { n.attr['label'] : n.get_name() for n in self.graph.nodes_iter() }
 
       def decorate_package(n0, n1=None):
-         """Asssign package name to n0 -> n1 if n0 is a package target"""
+         """Assign package name to n0 -> n1 if n0 is a package target"""
          p = n0.attr['label']
          # Decorate target with package name:
          if p.startswith('Package_'):
-            pkg = lrstrip(p, 'Package_', '_tests')
-            n0.attr['package'] = package_paths.get(pkg,pkg)
+            n0.attr['package'] = lrstrip(p, 'Package_', '_tests')
             if n1 is not None:
                n1.attr['package'] = n0.attr['package']
 
@@ -161,12 +168,11 @@ class AthGraph:
                       node.attr['shape']==self.types['Custom Target']) else False
 
 
-def create_dep_graph(graph, target, deps, pydeps, args):
-   """Create dependency graph.
+def create_dep_graph(target, deps, pydeps, args):
+   """Create and return dependency graph.
 
-   @param graph   output graph
    @param target  name of target
-   @param deps    cmake dependnecies
+   @param deps    AthGraph cmake dependencies
    @param pydeps  python dependencies
    @param args    command line arguments
    """
@@ -199,8 +205,7 @@ def create_dep_graph(graph, target, deps, pydeps, args):
          l = 'Package_'+l
       try:
          if deps.get_node(l).attr['external'] and not args.externals:
-            print(f"{l} is an external target. Run with -e/--externals.")
-            return 1
+            raise RuntimeError(f"{l} is an external target. Run with -e/--externals.")
 
          # To find clients of a package means finding clients of the targets
          # within that package. First find all targets within the package:
@@ -209,15 +214,14 @@ def create_dep_graph(graph, target, deps, pydeps, args):
          else:
             sources.extend([deps.get_node(l)])
       except KeyError:
-         print(f"Target with name {l} does not exist.")
-         return 1
+         raise RuntimeError(f"Target with name {l} does not exist.")
 
    # Extract the dependency subgraph:
    g = subgraph(deps.graph, sources, reverse=args.clients,
                 maxdepth=depth, nodegetter=getnode)
 
-   graph.add_subgraph(name=target)
-   graph.get_subgraph(target).add_edges_from(g.edges())
+   graph = pygraphviz.AGraph(name=target, directed=True, strict=False)
+   graph.add_edges_from(g)
 
    # Add python dependencies:
    if args.py:
@@ -226,16 +230,17 @@ def create_dep_graph(graph, target, deps, pydeps, args):
       g = subgraph(pydeps, pysources, reverse=args.clients,
                    maxdepth=args.recursive, nodegetter=lambda n : n.name)
 
-      graph.get_subgraph(target).add_edges_from(g.edges(), style=py_style)
+      graph.add_edges_from(g, style=py_style)
 
       # Change style of nodes that have only Python dependencies:
-      g = graph.get_subgraph(target)
-      for n in g.nodes_iter():
-         if all(e.attr['style']==py_style for e in g.edges_iter(n)):
+      for n in graph.nodes_iter():
+         if all(e.attr['style']==py_style for e in graph.edges_iter(n)):
             n.attr['style'] = py_style
 
+   return graph
 
-def print_dep_graph(graph, args):
+
+def print_dep_graph(graph, args, package_paths={}):
    """Output final graph"""
 
    # txt output
@@ -243,9 +248,12 @@ def print_dep_graph(graph, args):
       f = open(graph.name+'.txt', 'w') if args.batch else sys.stdout
       nodes = [e[0] for e in graph.in_edges_iter()] if args.clients \
          else [e[1] for e in graph.out_edges_iter()]
-      for p in sorted(set(nodes)):
+
+      output = []
+      for p in set(nodes):
          suffix = ':py' if p.attr['style']==py_style else ''
-         print(f'{p}{suffix}', file=f)
+         output.append('%s%s' % (package_paths.get(p,p), suffix))
+      print('\n'.join(sorted(output)), file=f)
 
    # dot output
    if args.batch or args.dot:
@@ -274,7 +282,7 @@ def print_dep_graph(graph, args):
                   help='include external dependencies')
 
 @acmdlib.argument('-l', '--long', action='store_true',
-                  help='show full package names')
+                  help='show full package names (only for txt output)')
 
 @acmdlib.argument('-r', '--recursive', nargs='?', metavar='DEPTH',
                   type=int, default=1, const=None,
@@ -305,7 +313,7 @@ def print_dep_graph(graph, args):
 @acmdlib.argument('--pydot', help=argparse.SUPPRESS)
 
 
-def main(args):
+def run(args):
    """Inspect cmake build dependencies"""
 
    # Find packages.dot:
@@ -338,23 +346,36 @@ def main(args):
          main.parser.error("Cannot read 'packages.txt'. Setup a release or run without -l/--long.")
 
    # Read dependencies:
-   deps = AthGraph(args.cmakedot, package_paths)
+   deps = AthGraph(args.cmakedot)
 
    # Create combined graph for all given targets:
    if not args.batch:
-      graph = pygraphviz.AGraph(name='AthGraph', directed=True, strict=False)
-      for target in args.names:
-         create_dep_graph(graph, target, deps, pydeps, args)
-      print_dep_graph(graph, args)
+      subgraphs = [create_dep_graph(target, deps, pydeps, args) for target in args.names]
+      if len(subgraphs)>1:
+         graph = pygraphviz.AGraph(name='AthGraph', directed=True, strict=False)
+         for g in subgraphs:
+            graph.add_subgraph(name=g.get_name())
+            copy_graph(g, graph.subgraphs()[-1])
+      else:
+         graph = subgraphs[0]
+
+      print_dep_graph(graph, args, package_paths)
 
    # Batch mode: create separte graph for each target:
    else:
       import multiprocessing
       global doit   # required for use in multiprocessing
       def doit(target):
-         graph = pygraphviz.AGraph(name=target.replace('/','_'), directed=True, strict=False)
-         create_dep_graph(graph, target, deps, pydeps, args)
-         print_dep_graph(graph, args)
+         graph = create_dep_graph(target, deps, pydeps, args)
+         print_dep_graph(graph, args, package_paths)
 
       pool = multiprocessing.Pool(args.batch)
       pool.map(doit, args.names)
+
+
+def main(args):
+   try:
+      run(args)
+   except RuntimeError as e:
+      print(e)
+      return 1

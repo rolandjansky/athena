@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # Test for cmake_depends.py.
 # Run this script with/without changes and diff output.
@@ -16,6 +16,11 @@ cmds+=("acmd.py cmake depends xAODEventInfo --recursive --regex --dot")
 cmds+=("acmd.py cmake depends LArReadoutGeometry --clients --dot")
 cmds+=("acmd.py cmake depends LArReadoutGeometry --clients --target --dot")
 cmds+=("acmd.py cmake depends IOVDbDataModel --clients --recursive --dot")
+# Multiple targets:
+cmds+=("acmd.py cmake depends xAODEventInfo IOVDbSvc AthenaKernel --dot")
+# Python dependencies:
+cmds+=("acmd.py cmake depends IOVDbSvc --py --dot")
+cmds+=("acmd.py cmake depends xAODEventInfo IOVDbSvc AthenaKernel --py --dot")
 # Test of an external library:
 cmds+=("acmd.py cmake depends ActsCore --clients --target --recursive --external --dot")
 cmds+=("acmd.py cmake depends ActsCore --clients --target --recursive")
