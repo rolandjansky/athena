@@ -22,7 +22,7 @@ namespace EL
     virtual ::StatusCode initialize () override;
 
   public:
-    virtual ::StatusCode execute (const EventContext& ctx) override;
+    virtual ::StatusCode execute (const EventContext& ctx) const override;
 
   public:
     virtual ::StatusCode finalize () override;
