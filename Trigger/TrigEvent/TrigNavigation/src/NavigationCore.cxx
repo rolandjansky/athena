@@ -146,9 +146,12 @@ bool NavigationCore::serialize( std::vector<uint32_t>& output, std::vector<unsig
   std::vector<uint32_t> holderdata;
   std::vector<unsigned int> holderblobsizes;
 
+  std::lock_guard<std::recursive_mutex> lock(getMutex());
+  const TrigHolderStructure& holderstorage = getHolderStorage();
+
   bool status = false;
   if ( m_classesToPayload.empty() ) { // this is offline case
-    status = serializeHoldersWithoutPayload(m_holderstorage.getAllHolders<IHolder>(),holderdata, holderblobsizes, clid_name);
+    status = serializeHoldersWithoutPayload(holderstorage.getAllHolders<IHolder>(),holderdata, holderblobsizes, clid_name);
   } else { // this is online case when list of classes to payload is not empty
     status = serializeHoldersWithPayload(m_classesToPayload,holderdata,holderblobsizes,clid_name,true);
   }
@@ -199,6 +202,9 @@ bool NavigationCore::serialize_DSonly( std::vector<uint32_t>& output, std::vecto
  *****************************************************************************/
 
 bool NavigationCore::deserialize( const std::vector<uint32_t>& input ) {
+  std::lock_guard<std::recursive_mutex> lock(getMutex());
+  TrigHolderStructure& holderstorage = getHolderStorage();
+
   std::vector<uint32_t>::const_iterator inputIt = input.begin();
 
   MLOG(DEBUG) << "deserialize: deserializing input of size:  " << input.size() << endmsg;
@@ -247,7 +253,7 @@ bool NavigationCore::deserialize( const std::vector<uint32_t>& input ) {
       continue;
     }
  
-    if(!m_holderstorage.registerHolder(holder)){
+    if(!holderstorage.registerHolder(holder)){
       MLOG(WARNING) << "deserialize: holder registration for holder with clid: " << holder->typeClid() << " and label: " << holder->label() << " failed." << endmsg;
     }
   }
@@ -255,8 +261,11 @@ bool NavigationCore::deserialize( const std::vector<uint32_t>& input ) {
 }
 
 bool NavigationCore::merge(const NavigationCore& l2) {
+  std::lock_guard<std::recursive_mutex> l2lock(l2.getMutex());
+  const TrigHolderStructure& l2Holderstorage = l2.getHolderStorage();
+
   // we need to pick the holders which are at L2 and move them to EF
-  for(auto l2holder : l2.m_holderstorage.getAllHolders<IHolder>()){
+  for(auto l2holder : l2Holderstorage.getAllHolders<IHolder>()){
     if ( m_log->level()<=MSG::DEBUG )
         *m_log << MSG::DEBUG << "will add holder " << *l2holder << endmsg;
     std::string label(l2holder->label());
@@ -301,15 +310,18 @@ bool NavigationCore::merge(const NavigationCore& l2) {
  * very important RESET
  *
  *****************************************************************************/
-void NavigationCore::reset() {
-  TrigNavStructure::reset();
+void NavigationCore::reset(bool inFinalize) {
+  TrigNavStructure::reset(inFinalize);
 
   if ( m_log->level()<=MSG::DEBUG )
     *m_log << MSG::DEBUG << "Navigation reset done" << endmsg;
 }
 
 uint16_t NavigationCore::nextSubTypeIndex(CLID clid, const std::string& /*label*/) {
-  auto holders = m_holderstorage.getHoldersOfClid(clid);
+  std::lock_guard<std::recursive_mutex> lock(getMutex());
+  TrigHolderStructure& holderstorage = getHolderStorage();
+
+  auto holders = holderstorage.getHoldersOfClid(clid);
 
   if ( holders.empty() )
     return m_objectsIndexOffset;
@@ -376,8 +388,11 @@ void NavigationCore::prepare() {
 }
 
 bool NavigationCore::registerHolder(IHolder* holder) {
+  std::lock_guard<std::recursive_mutex> lock(getMutex());
+  TrigHolderStructure& holderstorage = getHolderStorage();
+
   auto shared_holder = std::shared_ptr<HLT::BaseHolder>(holder);
-  m_holderstorage.registerHolder(shared_holder);
+  holderstorage.registerHolder(shared_holder);
   *m_log << MSG::DEBUG <<  "registerHolder for OK " << *holder << endmsg;
   return true;
 }
@@ -401,11 +416,17 @@ bool NavigationCore::createHolder( IHolder*& holder,  CLID clid, const std::stri
 }
 
 IHolder* NavigationCore::getHolder(CLID clid, uint16_t subTypeIndex) const {
-  return m_holderstorage.getHolder<IHolder>(clid, subTypeIndex);
+  std::lock_guard<std::recursive_mutex> lock(getMutex());
+  const TrigHolderStructure& holderstorage = getHolderStorage();
+
+  return holderstorage.getHolder<IHolder>(clid, subTypeIndex);
 }
 
 IHolder* NavigationCore::getHolder(CLID clid, const std::string& label) const {
-  return m_holderstorage.getHolder<IHolder>(clid, label);
+  std::lock_guard<std::recursive_mutex> lock(getMutex());
+  const TrigHolderStructure& holderstorage = getHolderStorage();
+
+  return holderstorage.getHolder<IHolder>(clid, label);
 }
 
 bool NavigationCore::toBePutToPayload(const HLTNavDetails::IHolder* holder) const {

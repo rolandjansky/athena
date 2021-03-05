@@ -33,7 +33,15 @@ const TriggerElement* TrigNavStructure::m_unspecifiedTE = 0;
 
 
 TrigNavStructure::~TrigNavStructure() {
+#ifndef XAOD_STANDALONE
+  for (size_t dummySlot = 0; dummySlot < SG::getNSlots(); ++dummySlot) {
+    EventContext dummyContext(/*dummyEventNumber*/0, dummySlot);
+    m_factory.get(dummyContext)->reset();
+  }
+#else
   m_factory.reset();
+#endif
+
 }
 
 /*****************************************************************************
@@ -42,24 +50,30 @@ TrigNavStructure::~TrigNavStructure() {
  *
  *****************************************************************************/
 TriggerElement* TrigNavStructure::getInitialNode() {
-  std::lock_guard<std::recursive_mutex> lock(m_rmutex);
-  if ( m_factory.empty() )
-    m_factory.produce(0);
-  return m_factory.listOfProduced().front();
+  std::lock_guard<std::recursive_mutex> lock(getMutex());
+  TriggerElementFactory& factory = getFactory();
+
+  if ( factory.empty() )
+    factory.produce(0);
+  return factory.listOfProduced().front();
 }
 
 const TriggerElement* TrigNavStructure::getInitialNode() const {
-  std::lock_guard<std::recursive_mutex> lock(m_rmutex);
-  if ( not m_factory.empty() )
-    return m_factory.listOfProduced().front();
+  std::lock_guard<std::recursive_mutex> lock(getMutex());
+  const TriggerElementFactory& factory = getFactory();
+
+  if ( not factory.empty() )
+    return factory.listOfProduced().front();
   return 0;
 }
 
 
 TriggerElement* TrigNavStructure::addRoINode( TriggerElement* initial ) {
-  std::lock_guard<std::recursive_mutex> lock(m_rmutex);
+  std::lock_guard<std::recursive_mutex> lock(getMutex());
+  TriggerElementFactory& factory = getFactory();
+
   if ( isInitialNode(initial)  ) {
-    TriggerElement* te = m_factory.produce(0);
+    TriggerElement* te = factory.produce(0);
 
     // build seeds, seeededBy relations
     te->relate( initial, TriggerElement::seededByRelation );
@@ -82,9 +96,10 @@ TriggerElement* TrigNavStructure::addNode( TriggerElement* seednode, unsigned in
 }
 
 TriggerElement* TrigNavStructure::addNode( std::vector<TriggerElement* >& seeds,  unsigned int id, bool ghost, bool nofwd ) {
-  std::lock_guard<std::recursive_mutex> lock(m_rmutex);
+  std::lock_guard<std::recursive_mutex> lock(getMutex());
+  TriggerElementFactory& factory = getFactory();
 
-  TriggerElement* te = m_factory.produce(id, ghost, nofwd);
+  TriggerElement* te = factory.produce(id, ghost, nofwd);
 
 
   std::vector<TriggerElement* >::iterator it;
@@ -153,12 +168,16 @@ void TrigNavStructure::printASCIIArt (std::string& str, const TriggerElement* te
   if ( initialNode == 0 )
     return;
 
+  std::lock_guard<std::recursive_mutex> lock(getMutex());
+  const TriggerElementFactory& factory = getFactory();
+
+
   if ( !te )
     te = initialNode;
 
   if ( te == initialNode ) {
     // loop over all TEs which are not seeded by anything but are not initial nodes
-    const std::vector< TriggerElement* >& allTEs = m_factory.listOfProduced();
+    const std::vector< TriggerElement* >& allTEs = factory.listOfProduced();
     std::vector< TriggerElement* >::const_iterator allIt;
     for (allIt = allTEs.begin(); allIt != allTEs.end(); ++allIt) {
       if ((*allIt)->getRelated(TriggerElement::seededByRelation).size() == 0 && *allIt != getInitialNode() )
@@ -209,10 +228,12 @@ void TrigNavStructure::printASCIIArt (std::string& str, const TriggerElement* te
 }
 
 bool TrigNavStructure::serializeTEs( std::vector<uint32_t>& output ) const {
-  std::lock_guard<std::recursive_mutex> lock(m_rmutex);
+  std::lock_guard<std::recursive_mutex> lock(getMutex());
+  const TriggerElementFactory& factory = getFactory();
+
   ::HLTNavDetails::FillSize fs(output);
 
-  const std::vector<TriggerElement*>& fullList =  m_factory.listOfProduced();
+  const std::vector<TriggerElement*>& fullList =  factory.listOfProduced();
   std::vector<TriggerElement*> all;
   all.reserve(fullList.size());
 
@@ -254,8 +275,10 @@ bool TrigNavStructure::serializeTEs( std::vector<uint32_t>& output ) const {
  *****************************************************************************/
 
 bool TrigNavStructure::deserializeTEs(std::vector<uint32_t>::const_iterator& start, unsigned int totalSize) {
-  std::lock_guard<std::recursive_mutex> lock(m_rmutex);
-  m_factory.reset();
+  std::lock_guard<std::recursive_mutex> lock(getMutex());
+  TriggerElementFactory& factory = getFactory();
+
+  factory.reset();
   
   std::vector<uint32_t>::const_iterator& inputIt = start;
   const size_t payloadSize = *inputIt++; 
@@ -272,14 +295,14 @@ bool TrigNavStructure::deserializeTEs(std::vector<uint32_t>::const_iterator& sta
   
   for ( unsigned int i = 0; i < size; ++i ) {
     // create new TE
-    TriggerElement* te = m_factory.produce(TriggerElement::enquireId(inputIt)); //
+    TriggerElement* te = factory.produce(TriggerElement::enquireId(inputIt)); //
     te->deserialize(inputIt, keys, previous);
     previous = te;
     // keys table for deserialization of other TEs
     keys[i] = te;
   }
   
-  if ( not m_factory.empty() ) {
+  if ( not factory.empty() ) {
     // rebuild  sameRoI relations (this can't be done by TEs deserialization)
     TriggerElement* initialNode = getInitialNode();
     std::vector<TriggerElement*>::const_iterator roiTEit;
@@ -334,38 +357,58 @@ void TrigNavStructure::getAllRoIThresholdTEs( std::vector< TriggerElement* >& ou
 void TrigNavStructure::getAllOfType ( const te_id_type id,
 				      std::vector< TriggerElement* >& output,
 				      const bool activeOnly) const {
-  std::lock_guard<std::recursive_mutex> lock(m_rmutex);
-  if ( not m_factory.listOfProduced(id).empty() ) {
+  std::lock_guard<std::recursive_mutex> lock(getMutex());
+  const TriggerElementFactory& factory = getFactory();
+
+  if ( not factory.listOfProduced(id).empty() ) {
     std::back_insert_iterator<std::vector<TriggerElement*> > outputIt( output );
 
     // 2 cases: only active ones, and all
     // one can consider sorting the TEs according to the activation status and then assume that collection is sorted
     // the same functor can be used as in copy_if
     if (activeOnly)
-      remove_copy_if ( m_factory.listOfProduced(id).begin(), m_factory.listOfProduced(id).end(), outputIt, isNotActive );
+      remove_copy_if ( factory.listOfProduced(id).begin(), factory.listOfProduced(id).end(), outputIt, isNotActive );
     else
-      copy ( m_factory.listOfProduced(id).begin(), m_factory.listOfProduced(id).end(), outputIt );
+      copy ( factory.listOfProduced(id).begin(), factory.listOfProduced(id).end(), outputIt );
   }
 }
 
 void TrigNavStructure::getAll ( std::vector< TriggerElement* >& output, const bool activeOnly) const {
-  std::lock_guard<std::recursive_mutex> lock(m_rmutex);
-  if ( not m_factory.listOfProduced().empty() ) {
+  std::lock_guard<std::recursive_mutex> lock(getMutex());
+  const TriggerElementFactory& factory = getFactory();
+
+  if ( not factory.listOfProduced().empty() ) {
     std::back_insert_iterator<std::vector<TriggerElement*> > outputIt( output );
     if (activeOnly)
-      remove_copy_if ( m_factory.listOfProduced().begin(), m_factory.listOfProduced().end(), outputIt, isNotActive );
+      remove_copy_if ( factory.listOfProduced().begin(), factory.listOfProduced().end(), outputIt, isNotActive );
     else
-      copy ( m_factory.listOfProduced().begin(), m_factory.listOfProduced().end(), outputIt ); 
+      copy ( factory.listOfProduced().begin(), factory.listOfProduced().end(), outputIt ); 
   }
 }
 
+std::vector<TriggerElement*>& TrigNavStructure::getAllTEs() { 
+  std::lock_guard<std::recursive_mutex> lock(getMutex());
+  TriggerElementFactory& factory = getFactory();
+
+  return factory.listOfProduced();
+} 
+
+const std::vector<TriggerElement*>& TrigNavStructure::getAllTEs() const { 
+  std::lock_guard<std::recursive_mutex> lock(getMutex());
+  const TriggerElementFactory& factory = getFactory();
+
+  return factory.listOfProduced();
+} 
+
 unsigned int TrigNavStructure::countAllOfType( const te_id_type id, const bool activeOnly ) const {
-  std::lock_guard<std::recursive_mutex> lock(m_rmutex);
+  std::lock_guard<std::recursive_mutex> lock(getMutex());
+  const TriggerElementFactory& factory = getFactory();
+
   if ( activeOnly )
-    return m_factory.listOfProduced(id).size()
-      - count_if(m_factory.listOfProduced(id).begin(), m_factory.listOfProduced(id).end(), isNotActive);
+    return factory.listOfProduced(id).size()
+      - count_if(factory.listOfProduced(id).begin(), factory.listOfProduced(id).end(), isNotActive);
   //else
-  return m_factory.listOfProduced(id).size();
+  return factory.listOfProduced(id).size();
 }
 
 
@@ -525,19 +568,23 @@ bool TrigNavStructure::isCompatibleTree( const TriggerElement* te1, const Trigge
 
 
 bool TrigNavStructure::propagateDeactivation(const TrigNavStructure* nav) {
-  std::lock_guard<std::recursive_mutex> lock(m_rmutex);
+  std::lock_guard<std::recursive_mutex> lock(getMutex());
+  TriggerElementFactory& factory = getFactory();
+  const TriggerElementFactory& oldFactory = nav->getFactory();
+
+
   // basic checks first
-  if (  nav->m_factory.listOfProduced().size() > m_factory.listOfProduced().size() )
+  if (  oldFactory.listOfProduced().size() > factory.listOfProduced().size() )
     return false;
 
-  std::vector< TriggerElement* >::const_iterator old = nav->m_factory.listOfProduced().begin();
-  std::vector< TriggerElement* >::iterator me = m_factory.listOfProduced().begin();
+  std::vector< TriggerElement* >::const_iterator old = oldFactory.listOfProduced().begin();
+  std::vector< TriggerElement* >::iterator me = factory.listOfProduced().begin();
   //  int i = 0;
   do {
     (*me)->setActiveState((*old)->getActiveState());
     ++me;
     ++old;
-  } while ( old != nav->m_factory.listOfProduced().end() );
+  } while ( old != oldFactory.listOfProduced().end() );
   return true;
 }
 
@@ -720,22 +767,44 @@ unsigned int TrigNavStructure::copyAllFeatures( const TriggerElement* sourceTE, 
  * very important RESET
  *
  *****************************************************************************/
-void TrigNavStructure::reset() {
-    std::lock_guard<std::recursive_mutex> lock(m_rmutex);
-
+void TrigNavStructure::reset(bool inFinalize) {
+  std::lock_guard<std::recursive_mutex> lock(getMutex());
+#ifndef XAOD_STANDALONE
+  if (inFinalize) {
+    for (size_t dummySlot = 0; dummySlot < SG::getNSlots(); ++dummySlot) {
+      EventContext dummyContext(/*dummyEventNumber*/0, dummySlot);
+      m_factory.get(dummyContext)->reset();
+      m_holderstorage.get(dummyContext)->reset();
+    }
+  } else {
+    getFactory().reset();
+    getHolderStorage().reset();
+  }
+#else
   //  std::cerr << "resetting" << std::endl;
-  m_factory.reset();
-  m_holderstorage.reset();
+  if (inFinalize) { // Note: Makes no difference for analysis base
+    m_factory.reset();
+    m_holderstorage.reset();
+  } else {
+    m_factory.reset();
+    m_holderstorage.reset(); 
+  }
+#endif
 }
 
+
 sub_index_type TrigNavStructure::subType(class_id_type clid, const index_or_label_type& sti_or_label) const {
-  std::lock_guard<std::recursive_mutex> lock(m_rmutex);
-  return m_holderstorage.getSubTypeIndex(clid,sti_or_label);
+  std::lock_guard<std::recursive_mutex> lock(getMutex());
+  const TrigHolderStructure& holderstorage = getHolderStorage();
+
+  return holderstorage.getSubTypeIndex(clid,sti_or_label);
 }
 
 std::string TrigNavStructure::label(class_id_type clid, const index_or_label_type& sti_or_label) const {
-  std::lock_guard<std::recursive_mutex> lock(m_rmutex);
-  return m_holderstorage.getLabel(clid,sti_or_label);
+  std::lock_guard<std::recursive_mutex> lock(getMutex());
+  const TrigHolderStructure& holderstorage = getHolderStorage();
+
+  return holderstorage.getLabel(clid,sti_or_label);
 }
 
 
@@ -883,6 +952,56 @@ bool TrigNavStructure::matchFeature(const TriggerElement::FeatureAccessHelper& f
   return false;
 }
 
+
 const BaseHolder* TrigNavStructure::getHolder(const TriggerElement::FeatureAccessHelper& fea) const { 
-  return m_holderstorage.getHolderForFeature(fea);
+  std::lock_guard<std::recursive_mutex> lock(getMutex());
+  const TrigHolderStructure& holderstorage = getHolderStorage();
+
+  return holderstorage.getHolderForFeature(fea);
+}
+
+
+TriggerElementFactory& TrigNavStructure::getFactory() {
+#ifndef XAOD_STANDALONE
+  return *(m_factory.get());
+#else
+  return m_factory;
+#endif
+}
+
+
+const TriggerElementFactory& TrigNavStructure::getFactory() const {
+#ifndef XAOD_STANDALONE
+  return *(m_factory.get());
+#else
+  return m_factory;
+#endif
+}
+
+
+TrigHolderStructure& TrigNavStructure::getHolderStorage() {
+#ifndef XAOD_STANDALONE
+  return *(m_holderstorage.get());
+#else
+  return m_holderstorage;
+#endif
+}
+
+
+const TrigHolderStructure& TrigNavStructure::getHolderStorage() const {
+#ifndef XAOD_STANDALONE
+  return *(m_holderstorage.get());
+#else
+  return m_holderstorage;
+#endif
+}
+
+
+std::recursive_mutex& TrigNavStructure::getMutex() {
+  return m_rmutex;
+}
+
+
+std::recursive_mutex& TrigNavStructure::getMutex() const {
+  return m_rmutex; // Note: Mutable
 }

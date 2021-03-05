@@ -93,11 +93,15 @@ bool HLT::Navigation::associateExternalCollection(const std::string& label) {
 template<class T>
 __attribute__((__used__))
 bool HLT::Navigation::findOwners(const T* obj, std::vector<const TriggerElement*>& owners, unsigned int id) {
-  std::vector<TriggerElement*>::const_iterator it      = m_factory.listOfProduced().begin();
-  std::vector<TriggerElement*>::const_iterator itEnd   = m_factory.listOfProduced().end();
+  std::lock_guard<std::recursive_mutex> lock(getMutex());
+  TriggerElementFactory& factory = getFactory();
+  TrigHolderStructure& holderstorage = getHolderStorage();
+
+  std::vector<TriggerElement*>::const_iterator it      = factory.listOfProduced().begin();
+  std::vector<TriggerElement*>::const_iterator itEnd   = factory.listOfProduced().end();
   if ( id != 0 ) {
-    it      = m_factory.listOfProduced(id).begin();
-    itEnd   = m_factory.listOfProduced(id).end();
+    it      = factory.listOfProduced(id).begin();
+    itEnd   = factory.listOfProduced(id).end();
     MLOG(VERBOSE) << "findOwners will scann TEs of ID : " << id << " #: " << itEnd-it << endmsg;
   } else {
     MLOG(VERBOSE) << "findOwners will scann ALL TEs (slow):" << itEnd-it << endmsg;
@@ -105,7 +109,7 @@ bool HLT::Navigation::findOwners(const T* obj, std::vector<const TriggerElement*
 
   CLID clid = ClassID_traits<T>::ID();
 
-  auto holders_of_clid = m_holderstorage.getHoldersOfClid<HLTNavDetails::Holder<T> >(clid); 
+  auto holders_of_clid = holderstorage.getHoldersOfClid<HLTNavDetails::Holder<T> >(clid); 
   
   if(holders_of_clid.empty())
     return true;

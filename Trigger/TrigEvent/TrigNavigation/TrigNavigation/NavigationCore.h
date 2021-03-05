@@ -119,7 +119,7 @@ namespace HLT {
     /**
      * @brief resets all the navigation, goes to the factory and asks to withdraw all produced objects
      */
-    virtual void reset();
+    virtual void reset(bool inFinalize = false);
 
     /**
      * @brief method serizlizes the navigation structure

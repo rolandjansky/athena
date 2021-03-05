@@ -329,7 +329,7 @@ bool Trig::TrigDecisionTool::configKeysMatch(uint32_t smk, uint32_t lvl1psk, uin
 StatusCode
 Trig::TrigDecisionTool::finalize() {
    // release all chaingroups
-   m_navigation->reset();
+   m_navigation->reset(true);
 
    auto it = std::find(s_instances.begin(), s_instances.end(), name());
    if(it != s_instances.end()){

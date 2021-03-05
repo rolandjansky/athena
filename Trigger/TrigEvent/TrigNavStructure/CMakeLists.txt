@@ -19,10 +19,12 @@ atlas_add_library( TrigNavStructure
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools AthContainers CxxUtils xAODCore ${extra_libs} )
 
-# Test(s) in the package:
-foreach( test_name ut_iterators_test ut_build_trignav_test ut_features_test
-      ut_serializer_test )
-   atlas_add_test( ${test_name}
-      SOURCES test/${test_name}.cxx
-      LINK_LIBRARIES TrigNavStructure )
-endforeach()
+if( NOT XAOD_STANDALONE )
+	# Test(s) in the package:
+	foreach( test_name ut_iterators_test ut_build_trignav_test ut_features_test
+	      ut_serializer_test )
+	   atlas_add_test( ${test_name}
+	      SOURCES test/${test_name}.cxx
+	      LINK_LIBRARIES TrigNavStructure SGTools TestTools AthenaKernel)
+	endforeach()
+endif()

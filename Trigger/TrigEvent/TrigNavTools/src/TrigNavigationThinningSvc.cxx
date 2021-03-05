@@ -193,7 +193,11 @@ StatusCode TrigNavigationThinningSvc::dropFeatures(State& state) const
   //HLT::NavigationCore::FeaturesStructure::const_iterator types_iterator;
   //typedef  std::map<uint16_t, HLTNavDetails::IHolder*> HoldersBySubType;
   //std::map<uint16_t, HLTNavDetails::IHolder*>::const_iterator holders_iterator;
-  for( auto h : state.navigation.m_holderstorage.getAllHolders<HLTNavDetails::IHolder>() ) {
+
+  std::lock_guard<std::recursive_mutex> lock(state.navigation.getMutex());
+  const TrigHolderStructure& holderstorage = state.navigation.getHolderStorage();
+
+  for( auto h : holderstorage.getAllHolders<HLTNavDetails::IHolder>() ) {
     if(!h) { // check if h is null
       ATH_MSG_WARNING("holder.second is null pointer; skipping...");
       continue;
@@ -735,7 +739,11 @@ namespace {
 StatusCode TrigNavigationThinningSvc::syncThinning(State& state) const {
   const EventContext& ctx = Gaudi::Hive::currentContext();
   ATH_MSG_DEBUG ( "Running the syncThinning" );
-  auto holders = state.navigation.m_holderstorage.getAllHolders<HLTNavDetails::IHolder>();
+
+  std::lock_guard<std::recursive_mutex> lock(state.navigation.getMutex());
+  const TrigHolderStructure& holderstorage = state.navigation.getHolderStorage();
+
+  auto holders = holderstorage.getAllHolders<HLTNavDetails::IHolder>();
   for(auto holder : holders) {
     const IProxyDict* ipd = Atlas::getExtendedEventContext(ctx).proxy();
     if ( not ipd->proxy(holder->containerClid(), holder->label() ) ) {
