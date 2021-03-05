@@ -221,26 +221,9 @@ def Lvl1SimulationSequence_MC( ConfigFlags ):
     LVL1TGCTrigger__LVL1TGCTrigger.useRun3Config = ConfigFlags.Trigger.enableL1Phase1
 
     if ConfigFlags.Trigger.enableL1Phase1:
-        # Placeholder for phase-I MUCTPI simulation
         log.info("Configuring Phase-I MUCTPI simulation")
         from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1
-        from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1Tool
-
-        ToolSvc += L1MuctpiPhase1Tool("MUCTPI_AthTool")
-        ToolSvc.MUCTPI_AthTool.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
-
-        #Add the RecRoiTools
-        from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3RPCRecRoiTool
-        from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3TGCRecRoiTool
-        ToolSvc += getRun3RPCRecRoiTool("RPCRecRoiTool")
-        ToolSvc += getRun3TGCRecRoiTool("TGCRecRoiTool")
-
-        ToolSvc.MUCTPI_AthTool.RPCRecRoiTool = ToolSvc.RPCRecRoiTool
-        ToolSvc.MUCTPI_AthTool.TGCRecRoiTool = ToolSvc.TGCRecRoiTool
-
-        #Add the LVL1 config service to the MUCTPI algorithm
-        muctpi = L1MuctpiPhase1()
-        muctpi.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
+        muctpi = L1MuctpiPhase1("MUCTPI_AthAlg")
 
     else:
         log.info("Configuring legacy (Run 2) MUCTPI simulation")
@@ -301,6 +284,8 @@ def Lvl1SimulationSequence_MC( ConfigFlags ):
     l1TopoSim = L1TopoSimulation()
     l1TopoSim.MuonInputProvider.ROIBResultLocation = "" #disable input from RoIBResult
     if ConfigFlags.Trigger.enableL1Phase1:
+        from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1Tool
+        ToolSvc += L1MuctpiPhase1Tool("MUCTPI_AthTool")
         l1TopoSim.MuonInputProvider.MuctpiSimTool = ToolSvc.MUCTPI_AthTool
         l1TopoSim.EMTAUInputProvider = 'LVL1::EMTauInputProviderFEX/EMTauInputProviderFEX'
     else:
