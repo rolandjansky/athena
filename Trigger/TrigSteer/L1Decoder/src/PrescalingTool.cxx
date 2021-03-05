@@ -92,7 +92,7 @@ StatusCode PrescalingTool::prescaleChains( const EventContext& ctx,
          const auto & prescale = hltPrescaleSet->prescale( ch.numeric() );
          if( prescale.enabled ) {
             auto flat = engine->flat();
-            if(ch.numeric() == 843341480) { // this is to explicitly monitor the chain HLT_costmonitor_CostMonDS_L1All (hash 843341480)
+            if(ch.numeric() == 1891459708) { // this is to explicitly monitor the chain HLT_noalg_CostMonDS_L1All (hash 1891459708)
                auto mon_rndm = Monitored::Scalar<double>("Random", flat);
                Monitored::Group(m_monTool, mon_rndm);
             }

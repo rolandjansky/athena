@@ -178,11 +178,13 @@ class GenerateMenuMT(object, metaclass=Singleton):
         # and then import them!
         log.debug("[getSignaturesInMenu] signaturesToGenerate: %s",  self.signaturesToGenerate)
 
-        for sig in self.signaturesToGenerate:
+        extendedSignatureToGenerate = self.signaturesToGenerate+['Streaming'] # always import the Streaming sig because noalg chains are moved to StreamingSlice
+
+        for sig in extendedSignatureToGenerate:
             log.debug("[getSignaturesInMenu] sig: %s", sig)
             
             try:
-                if eval('self.do' + sig + 'Chains'):
+                if eval('self.do' + sig + 'Chains') or sig=='Streaming':  
                     if sig == 'Egamma':
                         sigFolder = sig
                         subSigs = ['Electron', 'Photon']

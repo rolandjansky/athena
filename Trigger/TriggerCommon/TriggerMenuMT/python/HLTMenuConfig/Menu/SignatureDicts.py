@@ -633,7 +633,6 @@ HeavyIonChainParts_Default = {
 # ---- CosmicDef chains -----
 #==========================================================
 AllowedCosmicChainIdentifiers = ['larps','larhec',
-                                 'tilecalib',
                                  'sct',  'id',]
 
 # ---- Cosmic Chain Dictionary of all allowed Values ----
@@ -719,10 +718,10 @@ StreamingChainParts_Default = {
 #==========================================================
 AllowedCalibChainIdentifiers = ['csccalib',     'larcalib',
                                 'idcalib',      'l1calocalib',
-                                'tilelarcalib', 'alfacalib',
+                                'tilelarcalib',
                                 'larnoiseburst','ibllumi',
                                 'l1satmon',     'zdcpeb',
-                                'calibAFP', 'larpebcalib',
+                                'calibAFP',
                                 ]
 
 # ---- Calib Chain Dictionary of all allowed Values ----
@@ -770,8 +769,8 @@ CalibChainParts_Default = {
 #==========================================================
 # ---- MonitorDef chains -----
 #==========================================================
-AllowedMonitorChainIdentifiers = ['robrequest', 'timeburner',  'costmonitor',
-                                  'cscmon', 'idmon',
+AllowedMonitorChainIdentifiers = ['robrequest', 'timeburner',
+                                  'idmon',
                                   'l1calooverflow', 'l1topodebug',
                                   'mistimemonl1bccorr','mistimemonl1bccorrnomu',
                                   'mistimemoncaltimenomu','mistimemoncaltime',

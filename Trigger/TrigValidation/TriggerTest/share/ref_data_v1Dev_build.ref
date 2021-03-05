@@ -448,12 +448,6 @@ HLT_7j45_subresjesgscIS_ftf_L14J15:
     0: 7
 HLT_JetDS_j0_L1J100:
   eventCount: 0
-HLT_alfacalib_AlfaPEB_L1ALFA_ANY:
-  eventCount: 20
-  stepCounts:
-    0: 20
-  stepFeatures:
-    0: 20
 HLT_beamspot_allTE_trkfast_BeamSpotPEB_L1J15:
   eventCount: 20
   stepCounts:
@@ -470,18 +464,6 @@ HLT_beamspot_trkFS_trkfast_BeamSpotPEB_L1J15:
   stepFeatures:
     0: 20
     1: 20
-HLT_costmonitor_CostMonDS_L1All:
-  eventCount: 20
-  stepCounts:
-    0: 20
-  stepFeatures:
-    0: 20
-HLT_cscmon_CSCPEB_L1All:
-  eventCount: 20
-  stepCounts:
-    0: 20
-  stepFeatures:
-    0: 20
 HLT_e12_lhloose_2mu10_L12MU10:
   eventCount: 0
   stepFeatures:
@@ -1518,18 +1500,6 @@ HLT_j85_pf_ftf_L1J20:
     1: 3
 HLT_larnoiseburst_L1XE60:
   eventCount: 0
-HLT_larpebcalib_LArPEBCalib_L1RD0_BGRP11:
-  eventCount: 20
-  stepCounts:
-    0: 20
-  stepFeatures:
-    0: 20
-HLT_larpebcalib_LArPEBCalib_L1RD0_EMPTY:
-  eventCount: 20
-  stepCounts:
-    0: 20
-  stepFeatures:
-    0: 20
 HLT_mb_mbts_L1MBTS_1_EMPTY:
   eventCount: 9
   stepCounts:
@@ -1867,6 +1837,24 @@ HLT_mu8_L1MU6:
   stepFeatures:
     0: 1
     1: 1
+HLT_noalg_AlfaPEB_L1ALFA_ANY:
+  eventCount: 20
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
+HLT_noalg_CSCPEB_L1All:
+  eventCount: 20
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
+HLT_noalg_CostMonDS_L1All:
+  eventCount: 20
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
 HLT_noalg_L1All:
   eventCount: 20
 HLT_noalg_L1Calo:
@@ -1957,6 +1945,36 @@ HLT_noalg_L1XE70:
   eventCount: 20
 HLT_noalg_L1XE80:
   eventCount: 20
+HLT_noalg_LArPEBCalib_L1RD0_BGRP11:
+  eventCount: 20
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
+HLT_noalg_LArPEBCalib_L1RD0_EMPTY:
+  eventCount: 20
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
+HLT_noalg_SCTPEB_L1RD0_EMPTY:
+  eventCount: 20
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
+HLT_noalg_TilePEB_L1CALREQ1:
+  eventCount: 20
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
+HLT_noalg_TilePEB_L1CALREQ2:
+  eventCount: 20
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
 HLT_noalg_bkg_L1Bkg:
   eventCount: 20
 HLT_noalg_cosmiccalo_L1EM3_EMPTY:
@@ -2007,12 +2025,6 @@ HLT_noalg_mb_L1RD2_EMPTY:
   eventCount: 20
 HLT_noalg_zb_L1ZB:
   eventCount: 20
-HLT_sct_noise_SCTPEB_L1RD0_EMPTY:
-  eventCount: 20
-  stepCounts:
-    0: 20
-  stepFeatures:
-    0: 20
 HLT_tau0_perf_ptonly_L1TAU12:
   eventCount: 3
   stepCounts:
@@ -2837,18 +2849,6 @@ HLT_tau80_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA_L1TAU60_DR-TAU20ITAU
     0: 4
 HLT_tau80_mediumRNN_tracktwoMVA_tau60_mediumRNN_tracktwoMVA_L1TAU60_2TAU40:
   eventCount: 0
-HLT_tilecalib_CIS_TilePEB_L1CALREQ1:
-  eventCount: 20
-  stepCounts:
-    0: 20
-  stepFeatures:
-    0: 20
-HLT_tilecalib_laser_TilePEB_L1CALREQ2:
-  eventCount: 20
-  stepCounts:
-    0: 20
-  stepFeatures:
-    0: 20
 HLT_timeburner_L1All:
   eventCount: 0
 HLT_unconvtrk0_fslrt_L1All:

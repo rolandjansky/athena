@@ -277,7 +277,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
         elif cpart =='noalg':
             multichainindex.append(hltChainNameShort.index(cpart))
             buildDict( 'Streaming', 'streamer')
-            break # stop loop here so mb doesn't get picked up from min bias slice as it's streaming info
+            break # stop loop here so that further parts like noalg_idmon are discarded, this allows have copies with different output streams and prescales. Caveat: all noalg chains go into the Streaming slice
         else:
             for chainCategory in [(['mb'], 'MinBias', 'mb'),
                                   (['hi'], 'HeavyIon', 'mb'),
