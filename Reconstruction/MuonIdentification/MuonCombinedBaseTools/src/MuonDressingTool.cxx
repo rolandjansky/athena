@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonDressingTool.h"
@@ -156,11 +156,13 @@ void MuonDressingTool::addMuonHitSummary( xAOD::Muon& muon, const Trk::TrackSumm
   uint8_t cscEtaHits = 0;
   uint8_t cscUnspoiledEtaHits = 0;
 
-  const Trk::TrackSummary* mstpTrackSummary = 0;
+  const Trk::TrackSummary* mstpTrackSummary = nullptr;
 
   if ( !trackSummary ) {
     // get link to track particle
     ElementLink< xAOD::TrackParticleContainer > tpLink = muon.combinedTrackParticleLink();
+    if ( !tpLink.isValid() ) tpLink = muon.extrapolatedMuonSpectrometerTrackParticleLink();
+    if ( !tpLink.isValid() ) tpLink = muon.msOnlyExtrapolatedMuonSpectrometerTrackParticleLink();
     if ( !tpLink.isValid() ) tpLink = muon.muonSpectrometerTrackParticleLink();
     if ( tpLink.isValid() ) {
 
