@@ -22,6 +22,10 @@ set( LCG_VERSION_POSTFIX "python3"   # Needs to match tdaq release (NO layer, AT
    CACHE STRING "Version postfix for the LCG release to use" )
 set( LCG_VERSION_NUMBER 98
    CACHE STRING "Version number for the LCG release to use" )
+# Reduced set of LCG components (i.e. no generators):
+set( LCG_COMPONENTS "externals"
+   CACHE STRING "LCG components to set up" )
+
 find_package( LCG ${LCG_VERSION_NUMBER} EXACT REQUIRED )
 
 # Set up the build/runtime environment:
