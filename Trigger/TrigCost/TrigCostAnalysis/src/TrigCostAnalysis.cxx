@@ -170,14 +170,20 @@ StatusCode TrigCostAnalysis::execute() {
     }
   }
 
-  const std::set<TrigCompositeUtils::DecisionID> seededChains = m_algToChainTool->retrieveActiveChains(context, "L1");
+  const std::set<TrigCompositeUtils::DecisionID> seededChains = m_algToChainTool->retrieveActiveChains(context, "HLTNav_L1");
+  std::vector<TrigCompositeUtils::AlgToChainTool::ChainInfo> seededChainsInfo;
+  for (auto id : seededChains){
+      TrigCompositeUtils::AlgToChainTool::ChainInfo chainInfo;
+      ATH_CHECK(m_algToChainTool->getChainInfo(context, id, chainInfo));
+      seededChainsInfo.push_back(chainInfo);
+  }
 
   const uint32_t onlineSlot = getOnlineSlot( costDataHandle.get() );
   CostData costData;
   ATH_CHECK( costData.set(costDataHandle.get(), rosDataHandle.get(), onlineSlot) );
   costData.setRosToRobMap(m_rosToRob);
   costData.setChainToAlgMap(chainToAlgIdx);
-  costData.setSeededChains(seededChains);
+  costData.setSeededChains(seededChainsInfo);
   costData.setLb( context.eventID().lumi_block() );
   costData.setTypeMap( m_algTypeMap );
   if (!m_enhancedBiasTool.name().empty() && !m_enhancedBiasTool->isMC()) {

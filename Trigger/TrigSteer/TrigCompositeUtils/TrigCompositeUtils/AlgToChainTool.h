@@ -25,7 +25,16 @@ namespace TrigCompositeUtils {
 
   class AlgToChainTool : public AthAlgTool {
   public:
+     // Helper struct to save chain info
+    struct ChainInfo {
+        TrigCompositeUtils::DecisionID id;
+        std::string name;
+        std::vector<std::string> groups;
+        bool isPassRaw;
+      };
+
       AlgToChainTool(const std::string& type, const std::string& name, const IInterface* parent);
+
       virtual ~AlgToChainTool();
 
       virtual StatusCode initialize() override;
@@ -47,7 +56,11 @@ namespace TrigCompositeUtils {
       /// Request set of chains from given navigation collection
       std::set<TrigCompositeUtils::DecisionID> retrieveActiveChains(const EventContext& context, const std::string& collectionName = "") const;
 
+      /// Request names of all chains
       StatusCode getAllChainNames(std::vector<std::string>&) const;
+
+      /// Retrieve chain information for gived chain id
+      StatusCode getChainInfo(const EventContext& context, TrigCompositeUtils::DecisionID id, ChainInfo& info) const;
 
   private:
       SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{ this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu", "HLT Menu" };

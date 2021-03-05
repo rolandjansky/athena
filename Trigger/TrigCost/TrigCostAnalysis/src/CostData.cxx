@@ -140,10 +140,10 @@ const std::map<std::string, std::set<size_t>>& CostData::chainToAlgMap() const {
   return *m_chainToAlgIdx;
 }
 
-const std::set<TrigCompositeUtils::DecisionID>& CostData::seededChains() const {
+const std::vector<TrigCompositeUtils::AlgToChainTool::ChainInfo>& CostData::seededChains() const {
   return *m_seededChains;
 }
 
-void CostData::setSeededChains(const std::set<TrigCompositeUtils::DecisionID>& seededChains) {
+void CostData::setSeededChains(const std::vector<TrigCompositeUtils::AlgToChainTool::ChainInfo>& seededChains) {
   m_seededChains = &seededChains;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCOSTANALYSIS_VARIABLE_H
@@ -92,11 +92,25 @@ class Variable {
     StatusCode fill(float value, float weight = 1.0);
 
     /**
+     * @brief Fill histogram's bin (per-Call Variable) with given label
+     * @param[in] label Label of bin to fill
+     * @param[in] weight Global event weight
+     */
+    StatusCode fill(const std::string& label, float weight = 1.0);
+
+    /**
      * @brief Convenience function. Equivalent of fill(1.0, weight). For use with per-Event counting type variables.
      * @param[in] weight Global event weight
      */
     StatusCode increment(float weight = 1.0);
 
+    /**
+     * @brief Set label on given bin in cached histogram
+     * @param[in] bin Bin number
+     * @param[in] label Label to set
+     */
+    StatusCode setBinLabel(int bin, const std::string& label);
+  
     /**
      * @brief Sets, until the end of the event, a denominator which will be used to normalise every Fill.
      * @pram[in] value The denominator to normalise Fill operations.

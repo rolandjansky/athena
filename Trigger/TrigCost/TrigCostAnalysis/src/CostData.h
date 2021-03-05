@@ -8,6 +8,7 @@
 #include "GaudiKernel/StatusCode.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "TrigConfData/HLTChain.h"
+#include "TrigCompositeUtils/AlgToChainTool.h"
 
 #include <map>
 #include <vector>
@@ -80,12 +81,12 @@ class CostData {
     /**
      * @brief Getter of the seeded chains set.
      */
-    const std::set<TrigCompositeUtils::DecisionID>& seededChains() const;
+    const std::vector<TrigCompositeUtils::AlgToChainTool::ChainInfo>& seededChains() const;
 
     /**
      * @brief Set the seeded chains set.
      */
-    void setSeededChains(const std::set<TrigCompositeUtils::DecisionID>& seededChains);
+    void setSeededChains(const std::vector<TrigCompositeUtils::AlgToChainTool::ChainInfo>& seededChains);
 
     /**
      * @brief Getter of map between algorithm (index in costCollection) and ROS requests (indicies in rosCollection)
@@ -172,7 +173,7 @@ class CostData {
     std::map<size_t, std::vector<size_t>> m_algToRos; //!< Mapping of indexes from m_costCollection to corresponding ROS requests made by algorithm
     const std::map<std::string, std::vector<uint32_t>>* m_rosToRob; //!< Mapping of ROS corresponding to ROB requests
     const std::map<std::string, std::set<size_t>>* m_chainToAlgIdx; //!<Mapping of algorithm name to chains
-    const std::set<TrigCompositeUtils::DecisionID>* m_seededChains; //!<Set of seeded chains to monitor
+    const std::vector<TrigCompositeUtils::AlgToChainTool::ChainInfo>* m_seededChains; //!<Set of seeded chains to monitor
 
 };
 
