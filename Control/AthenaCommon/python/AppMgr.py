@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/share/AppMgr.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
@@ -270,7 +270,7 @@ class AthAppMgr( AppMgr ):
          athMasterSeq = _as.AthSequencer ("AthMasterSeq",Sequential = True)
          athBeginSeq  = _as.AthSequencer ("AthBeginSeq",Sequential=True)
          athCondSeq   = _as.AthSequencer ("AthCondSeq", StopOverride=True)
-         athAlgSeq    = _as.AthSequencer ("AthAlgSeq",IgnoreFilterPassed=True, StopOverride=True)
+         athAlgSeq    = _as.AthSequencer ("AthAlgSeq",IgnoreFilterPassed=True, StopOverride=True, ProcessDynamicDataDependencies=True, ExtraDataForDynamicConsumers=[])
          athEndSeq    = _as.AthSequencer ("AthEndSeq",Sequential=True)
          athOutSeq    = _as.AthSequencer ("AthOutSeq", StopOverride=True)
          athAllAlgSeq = _as.AthSequencer ("AthAllAlgSeq", StopOverride=True)
