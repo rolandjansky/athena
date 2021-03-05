@@ -38,7 +38,6 @@
 
 # Packages temporarily turned off:
 - Reconstruction/Jet/JetAnalysisTools/.*
-- Reconstruction/Jet/JetMomentTools
 
 # Analysis Tools:
 + DataQuality/GoodRunsLists
@@ -95,7 +94,7 @@
 - Reconstruction/Jet/JetSimTools
 - Reconstruction/Jet/JetValidation
 + Reconstruction/Jet/Jet.*
-#+ Reconstruction/Jet/BoostedJetTaggers
++ Reconstruction/Jet/BoostedJetTaggers
 + Reconstruction/MET/METInterface
 + Reconstruction/MET/METUtilities
 + Reconstruction/MVAUtils
