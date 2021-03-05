@@ -124,6 +124,11 @@ def getDefaultFatrasNewExtrapolationSelector(name="ISF_DefaultFatrasNewExtrapola
     kwargs.setdefault('SimulationFlavor', SimulationFlavor.Fatras)
     return getDefaultSimSelector(name, **kwargs )
 
+def getDefaultActsSelector(name="ISF_DefaultActsSelector", **kwargs):
+    kwargs.setdefault("Simulator"   , 'ISF_ActsSimSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Fatras) 
+    return getDefaultSimSelector(name, **kwargs)
+
 def getDefaultParametricSimulationSelector(name="ISF_DefaultParametricSimulationSelector", **kwargs):
     if usesSimKernelMT():
         kwargs.setdefault('Simulator', '')
