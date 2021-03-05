@@ -18,6 +18,8 @@ class TrigFastTrackFinderMonitoring(GenericMonitoringTool):
         self.addTrackHistograms(type)
         if doResMon:
             self.addResidualHistograms()
+        if type=='fullScanUTT':
+            self.addUTTHistograms()
 
     def addSPHistograms(self, type):
         if type=='FS' or type=='JetFS' or type=='FullScan' or type=='fullScan' or type=='fullScanUTT':
@@ -52,7 +54,8 @@ class TrigFastTrackFinderMonitoring(GenericMonitoringTool):
             self.defineHistogram('TIME_CmbTrack',             path='EXPERT',type='TH1F',title="Combined Tracking time (ms)", xbins = 200, xmin=0.0, xmax=40000.0)
             self.defineHistogram('TIME_TrackFitter',          path='EXPERT',type='TH1F',title="Track Fitter time (ms)",      xbins = 200, xmin=0.0, xmax=2000.0)
             if type=='fullScanUTT':
-                self.defineHistogram('TIME_JseedHitDV',       path='EXPERT',type='TH1F',title="Jet-seeded Hit DV (ms)",      xbins = 200, xmin=0.0, xmax=2000.0)
+                self.defineHistogram('TIME_JseedHitDV',       path='EXPERT',type='TH1F',title="Jet-seeded Hit DV (ms)",      xbins = 200, xmin=0.0, xmax=200.0)
+                self.defineHistogram('TIME_dEdxTrk',          path='EXPERT',type='TH1F',title="Large dEdx search (ms)",      xbins = 200, xmin=0.0, xmax=20.0)
         elif type=='fullScanLRT':
             self.defineHistogram('roi_nSPs, TIME_PattReco',   path='EXPERT',type='TH2F',title="PattReco time; nSPs",    xbins = 200, xmin=0.0, xmax=3000.0, ybins = 100, ymin=0.0, ymax=500.0)
             self.defineHistogram('roi_nTracks, TIME_PattReco',path='EXPERT',type='TH2F',title="PattReco time; nTracks", xbins = 50,  xmin=0.0, xmax=200.0,  ybins = 100, ymin=0.0, ymax=500.0)
@@ -165,6 +168,9 @@ class TrigFastTrackFinderMonitoring(GenericMonitoringTool):
         self.defineHistogram('hit_SCTEndcapL9PhiResidual',path='EXPERT',type='TH1F',title="SCT Endcap L9 hit-track phi residual",xbins = 100, xmin=-0.5, xmax=0.5)
         self.defineHistogram('hit_SCTEndcapPull',         path='EXPERT',type='TH1F',title="SCT EC hit-track pull",xbins = 100, xmin=-5., xmax=5.)
 
+    def addUTTHistograms(self):
+        self.defineHistogram('trk_dedx',           path='EXPERT',type='TH1F',title="Track dEdx (pT > 3 GeV)", xbins = 140, xmin=-0.5, xmax=6.5)
+        self.defineHistogram('trk_dedx_nusedhits', path='EXPERT',type='TH1F',title="Nr of used hits for dEdx",xbins =  11, xmin=-0.5, xmax=10.5)
 
 remap  = {
     "Muon"     : "muon",
@@ -201,6 +207,7 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         remapped_type = slice_name
         if slice_name == "fullScanUTT" :
             self.doJseedHitDV = True
+            self.dodEdxTrk    = True
 
         #There are still some places which relies on this remapping such as:
         #https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigTools/TrigInDetConf/python/TrigInDetSequence.py
@@ -364,8 +371,6 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         theTrigInDetTrackFitter = TrigInDetTrackFitter()
         #theTrigInDetTrackFitter.correctClusterPos = False #Flag to control whether to correct cluster position
         theTrigInDetTrackFitter.correctClusterPos = True  #temporarily to true to improve err(z0) estimates
-
-
 
         from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigRotCreator
         theTrigInDetTrackFitter.ROTcreator = InDetTrigRotCreator
