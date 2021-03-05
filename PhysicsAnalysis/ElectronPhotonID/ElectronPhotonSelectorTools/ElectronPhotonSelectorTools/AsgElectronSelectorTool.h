@@ -156,8 +156,6 @@ private:
   int m_cutPosition_ambiguity;
   /// The position of the MVA cut bit in the AcceptInfo return object
   int m_cutPosition_MVA;
-  /// The position of the MVA value bit in the TResult return object
-  int m_resultPosition_MVA;
 
 
   /// number of discrimintants vs Et
