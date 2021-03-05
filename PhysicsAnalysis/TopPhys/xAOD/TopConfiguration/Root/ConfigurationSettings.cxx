@@ -606,7 +606,8 @@ namespace top {
                       "Overlap removal inner radius to be used for electron SlidingDR ,", "0.2");
     registerParameter("OverlapRemovalSlidingInnerDRmu", "Overlap removal inner radius to be used for muon SlidingDR ,",
                       "0.2");
-
+    registerParameter("OverlapRemovalParticleLevelUseRapidity", "Use rapidity instead of pseudo-rapidity for DeltaR"
+                                                                " calculation for overlap removal in particle level", "True", {"True", "False"});
     registerParameter("LargeJetOverlapRemoval",
                       "Perform overlap removal including large-R jets. True or False (default: False).", "False");
 
