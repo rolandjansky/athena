@@ -120,8 +120,9 @@ std::set<TrigCompositeUtils::DecisionID> TrigCompositeUtils::AlgToChainTool::ret
 
     // Retrieve active chains name hashes
     for ( const std::string& key : keys ) {
+
         // Look for given collection
-        if ( !collectionName.empty() && key.find("HLTNav_" + collectionName) != 0 ){
+        if ( !collectionName.empty() && key.find(collectionName) != 0 ){
             continue;
         }
 
@@ -157,7 +158,7 @@ std::map<std::string, std::vector<TrigConf::Chain>> TrigCompositeUtils::AlgToCha
     // Name of collection for given sequencer consist sequence's filter's name
     std::map<std::string, std::set<TrigCompositeUtils::DecisionID>> seqToActiveChains;
     for (const auto& sequence : m_sequencerToChainMap) {
-        seqToActiveChains[sequence.first] = retrieveActiveChains(context, "F" + sequence.first);
+        seqToActiveChains[sequence.first] = retrieveActiveChains(context, "HLTNav_F" + sequence.first);
     }
 
     for (const auto& algSeqPair : m_algToSequencersMap){
@@ -178,6 +179,44 @@ std::map<std::string, std::vector<TrigConf::Chain>> TrigCompositeUtils::AlgToCha
         algToChain[algSeqPair.first] = chainsPerAlg;
     }
     return algToChain;
+}
+
+StatusCode TrigCompositeUtils::AlgToChainTool::getChainInfo(const EventContext& context, TrigCompositeUtils::DecisionID id, ChainInfo& info) const {
+    info.id = id;
+
+    SG::ReadHandle<TrigConf::HLTMenu>  hltMenuHandle = SG::makeHandle( m_HLTMenuKey, context );
+    ATH_CHECK( hltMenuHandle.isValid() );
+
+    // Find chain with given id
+    TrigConf::HLTMenu::const_iterator chain = std::find_if(hltMenuHandle->begin(), hltMenuHandle->end(), 
+        [&id](const TrigConf::Chain& c) {return c.namehash() == id;}
+    );
+
+    if(chain == hltMenuHandle->end()){
+        ATH_MSG_WARNING("Chain " << id << " not found in the menu!");
+        info.name = "UNKNOWN CHAIN ID";
+        return StatusCode::SUCCESS;
+    }
+
+    info.name = (*chain).name();
+    info.groups = (*chain).groups();
+
+    // Check if chain passed - is in HLTPassRaw collection
+    IProxyDict* storeProxy = Atlas::getExtendedEventContext(context).proxy();
+    SmartIF<SGImplSvc> eventStore (storeProxy);
+    SG::DataProxy* dp = eventStore->proxy( static_cast<CLID>(ClassID_traits<TrigCompositeUtils::DecisionContainer>::ID()), "HLTNav_Summary", true);
+
+    SG::ReadHandle<TrigCompositeUtils::DecisionContainer> dc (dp);
+    if ( !dc.isValid() ) {
+        ATH_MSG_WARNING("Missing HLTNav_Summary for this context!");
+        return StatusCode::SUCCESS;
+    }
+    const TrigCompositeUtils::Decision* passRaw = TrigCompositeUtils::getTerminusNode(dc);
+    TrigCompositeUtils::DecisionIDContainer chainsID;
+    TrigCompositeUtils::decisionIDs( passRaw, chainsID );
+    info.isPassRaw = std::find(chainsID.begin(), chainsID.end(), id) != chainsID.end();
+
+    return StatusCode::SUCCESS;
 }
 
 #endif // XAOD_STANDALONE

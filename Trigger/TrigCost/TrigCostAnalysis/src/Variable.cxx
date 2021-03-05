@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Variable.h"
@@ -60,8 +60,20 @@ StatusCode Variable::fill(float value, float weight) {
 }
 
 
+StatusCode Variable::fill(const std::string& label, float weight) {
+  m_cacheHistoPtr->Fill(label.c_str(), weight);
+  return StatusCode::SUCCESS;
+}
+
+
 StatusCode Variable::increment(float weight) {
   ATH_CHECK(fill(1.0, weight));
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode Variable::setBinLabel(int bin, const std::string& label) {
+  m_cacheHistoPtr->GetXaxis()->SetBinLabel(bin, label.c_str());
   return StatusCode::SUCCESS;
 }
 
