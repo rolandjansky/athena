@@ -368,10 +368,9 @@ public:
     /// ha ! don't actually create the legend until we want to draw it, 
     /// then we can determine the size etc automatically
 
-    if ( m_entries.size()>2 ) m_y[0] = m_y[1] - 0.5*m_entries.size()*(m_y[1]-m_y[0]);
-    else                      m_y[0] = m_y[1] - m_entries.size()*(m_y[1]-m_y[0]);
+    double y0 = m_y[1] - 0.3*m_entries.size()*(m_y[1]-m_y[0]);
 
-    m_leg = new TLegend( m_x[0], m_y[0], m_x[1], m_y[1] );
+    m_leg = new TLegend( m_x[0], y0, m_x[1], m_y[1] );
 
     m_leg->SetBorderSize(0);
     m_leg->SetTextFont(42);
@@ -551,10 +550,6 @@ public:
 
       std::string key = m_plotfilename;
 
-      //      std::cout << "adding key " << key << std::endl; 
-      
-      //      std::cout << "cost size " << key.size() << std::endl;
-
       static TH1D* hnull = new TH1D("hnull", "", 1, 0, 1);
       hnull->SetMarkerColor(kWhite);
       hnull->SetLineColor(kWhite);
@@ -594,6 +589,9 @@ public:
      	
 	std::string rkey = dkey;
 
+
+	
+
 	if ( LINEF || leg.size() < m_max_entries ) { 
 	  dkey += std::string(" : ");
 
@@ -604,7 +602,6 @@ public:
 	  else { 
 	    leg.AddEntry( htest(), (dkey+meanc).c_str(), "p" );
 	  }	  
-
 
 	  if ( displayref ) { 
 	    rkey += std::string(" : ");

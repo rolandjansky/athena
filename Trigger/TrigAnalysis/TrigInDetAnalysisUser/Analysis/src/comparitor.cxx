@@ -1933,9 +1933,12 @@ int main(int argc, char** argv) {
         actual_chain = std::regex_replace( actual_chain, std::regex( "_HLT_IDTrack.*" ), "" );
 	
         collection = std::regex_replace(  collection, std::regex(".*HLT_IDTrack_"), "IDTrack " );
+        collection = std::regex_replace(  collection, std::regex("IDTrack "), "" );
 	collection = std::regex_replace(  std::regex_replace( collection, rx, "" ), rx1, "" );
 	
 	if ( actual_chain.find("HLT_IDTrack_")!=std::string::npos )    actual_chain.erase( actual_chain.find("HLT_IDTrack_"), 12 );
+	if ( actual_chain.find("_IDTrack_")!=std::string::npos )    actual_chain.erase( actual_chain.find("_IDTrack_"), 9 );
+	if ( actual_chain.find("IDTrack")!=std::string::npos )    actual_chain.erase( actual_chain.find("IDTrack"), 7 );
 	if ( actual_chain.find("_idperf")!=std::string::npos )    actual_chain.erase( actual_chain.find("_idperf"), 7 );
 	if ( actual_chain.find("_bperf")!=std::string::npos )     actual_chain.erase( actual_chain.find("_bperf"), 6 );
 	if ( actual_chain.find("_boffperf")!=std::string::npos )  actual_chain.erase( actual_chain.find("_boffperf"), 9 );
@@ -2028,10 +2031,11 @@ int main(int argc, char** argv) {
 	  std::cout << "test: " << chains[j] << "chains colour: " << htest->GetMarkerColor() << std::endl;
 
 	} 
-	
+       
      
-	  
 
+
+	 
 	std::cout << "movin' on ..." << std::endl;
 
 	std::cout << "chain: " << chains[j] << " \t marker colour: " << htest->GetMarkerColor() << std::endl;
