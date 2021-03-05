@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2019, 2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2019-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCalibSvc/MdtCalibrationDbTool.h"
@@ -14,8 +14,7 @@
 
 MdtCalibrationDbTool::MdtCalibrationDbTool(const std::string& type, const std::string &name, const IInterface* parent)
   : base_class(type, name, parent),
-    m_regionSvc("MdtCalibrationRegionSvc", name),
-    m_hasBISsMDT(false)
+    m_regionSvc("MdtCalibrationRegionSvc", name)
 {
   declareProperty("AccessTubeConstants", m_getTubeConstants = true,
 		  "configure the Tool to retrieve the constants per tube (t0)");
@@ -37,9 +36,6 @@ StatusCode MdtCalibrationDbTool::initialize() {
   }
 
   ATH_CHECK(m_idHelperSvc.retrieve());
-  int bisIndex=m_idHelperSvc->mdtIdHelper().stationNameIndex("BIS");
-  Identifier bis7Id = m_idHelperSvc->mdtIdHelper().elementID(bisIndex, 7, 1);
-  if (m_idHelperSvc->issMdt(bis7Id)) m_hasBISsMDT=true;
   ATH_CHECK(m_readKeyRt.initialize());
   ATH_CHECK(m_readKeyTube.initialize());
   ATH_CHECK(m_readKeyCor.initialize (m_createSlewingFunction || m_createWireSagFunction || m_create_b_field_function));
@@ -96,19 +92,10 @@ MuonCalib::MdtFullCalibData MdtCalibrationDbTool::getCalibration( const Identifi
 
   // find t0's
   if( m_getTubeConstants && tubeHash.is_valid() ) {
-    if (m_hasBISsMDT) {
-      // the following check/warning can be removed as soon as sMDT calibration data is available for BIS sMDTs
-      static std::atomic<bool> bisWarningPrinted = false;
-      if (!bisWarningPrinted) {
-        ATH_MSG_WARNING("skipping retrieval of TubeCalibContainer since no BIS sMDT calibrations available in conditions database, cf. ATLASRECTS-5805");
-        bisWarningPrinted.store(true, std::memory_order_relaxed);
-      }
-    } else {
       tube = getTubeCalibContainer( tubeHash );
       if( !tube ){
         ATH_MSG_WARNING( "Not valid MdtTubeCalibContainer found " );
       }
-    }
   }
   
   return MuonCalib::MdtFullCalibData( cor, rt, tube );

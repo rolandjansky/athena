@@ -110,6 +110,7 @@ Reco_tf.py --inputRDOFile OUT_RDO.root \
            --autoConfiguration everything \
            --imf False \
            --postInclude MuonPRDTest/NSWPRDValAlg.reco.py \
+           --postExec 'conddb.addOverride("/MDT/RTBLOB","MDTRT_Sim-R3ASYM-01");conddb.addOverride("/MDT/T0BLOB","MDTT0_Sim-R3ASYM-01")' \
            --outputESDFile OUT_ESD.root
 exit_code=$?
 echo  "art-result: ${exit_code} Reco_tf.py"
@@ -139,6 +140,7 @@ fi
 Reco_tf.py --inputRDOFile OUT_RDO.root \
            --autoConfiguration everything \
            --athenaopts="--threads=1" \
+           --postExec 'conddb.addOverride("/MDT/RTBLOB","MDTRT_Sim-R3ASYM-01");conddb.addOverride("/MDT/T0BLOB","MDTT0_Sim-R3ASYM-01")' \
            --outputESDFile OUT_ESD_1thread.root
 exit_code=$?
 echo  "art-result: ${exit_code} Reco_tf.py_1thread"
@@ -154,6 +156,7 @@ mv log.RAWtoESD log.RAWtoESD_1thread
 Reco_tf.py --inputRDOFile OUT_RDO.root \
            --autoConfiguration everything \
            --athenaopts="--threads=5" \
+           --postExec 'conddb.addOverride("/MDT/RTBLOB","MDTRT_Sim-R3ASYM-01");conddb.addOverride("/MDT/T0BLOB","MDTT0_Sim-R3ASYM-01")' \
            --outputESDFile OUT_ESD_5thread.root
 exit_code=$?
 echo  "art-result: ${exit_code} Reco_tf.py_5thread"
