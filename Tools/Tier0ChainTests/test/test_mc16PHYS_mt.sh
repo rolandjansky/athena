@@ -1,6 +1,5 @@
 #!/bin/sh
 
-# art-include: master/Athena
 # art-description: DAOD building PHYS mc16 MT
 # art-type: grid
 # art-output: *.pool.root
