@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -8,10 +8,6 @@
 // Author: James Catmore (James.Catmore@cern.ch)
 
 #include "DerivationFrameworkInDet/EgammaTrackParticleThinning.h"
-#include "ExpressionEvaluation/ExpressionParser.h"
-#include "ExpressionEvaluation/SGxAODProxyLoader.h"
-#include "ExpressionEvaluation/SGNTUPProxyLoader.h"
-#include "ExpressionEvaluation/MultipleProxyLoader.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
@@ -48,13 +44,7 @@ StatusCode DerivationFramework::EgammaTrackParticleThinning::initialize()
     
     // Set up the text-parsing machinery for selectiong the photon directly according to user cuts
     if (!m_selectionString.empty()) {
-	    ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
-	    proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
-	    proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
-	    if (!m_selectionString.empty()) {
-               m_parser = std::make_unique<ExpressionParsing::ExpressionParser>(proxyLoaders);
-               m_parser->loadExpression(m_selectionString);
-            }
+       ATH_CHECK(initializeParser(m_selectionString));
     }
     
     return StatusCode::SUCCESS;
@@ -65,8 +55,7 @@ StatusCode DerivationFramework::EgammaTrackParticleThinning::finalize()
     ATH_MSG_VERBOSE("finalize() ...");
     ATH_MSG_INFO("Processed "<< m_ntot <<" tracks, of which "<< m_npass<< " were retained ");
     ATH_MSG_INFO("Processed "<< m_ntotGSF <<" GSF tracks, of which "<< m_nGSFPass << " were retained ");
-    m_parser.reset();
-    
+    ATH_CHECK( finalizeParser() );
     return StatusCode::SUCCESS;
 }
 

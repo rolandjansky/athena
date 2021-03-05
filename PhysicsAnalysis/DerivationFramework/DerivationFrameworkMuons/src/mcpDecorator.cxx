@@ -3,17 +3,14 @@
 */
 
 #include "DerivationFrameworkMuons/mcpDecorator.h"
-#include "ExpressionEvaluation/ExpressionParser.h"
-#include "ExpressionEvaluation/MultipleProxyLoader.h"
-#include "ExpressionEvaluation/SGxAODProxyLoader.h"
 #include "xAODMuon/MuonContainer.h"
 
 #include "AthenaKernel/errorcheck.h"
 
 namespace DerivationFramework {
   mcpDecorator::mcpDecorator(const std::string& t, const std::string& n, const IInterface* p):
-    AthAlgTool(t, n, p),
-    m_parser(nullptr) {
+    ExpressionParserUser<AthAlgTool>(t, n, p)
+  {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     declareProperty("TargetContainer",    m_containerName = "InDetTrackParticles");
     declareProperty("SelectionString",    m_selectionString = "");
@@ -24,11 +21,8 @@ namespace DerivationFramework {
     ATH_MSG_INFO ("Initializing " << name() << "...");
 
     // Set up the text-parsing machinery for thinning the tracks directly according to user cuts
-    if (m_selectionString!="") {
-            ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader(); // not deleted
-            proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore())); // not deleted
-            m_parser = std::make_unique< ExpressionParsing::ExpressionParser>(proxyLoaders);
-            m_parser->loadExpression(m_selectionString);
+    if (!m_selectionString.empty()) {
+       ATH_CHECK( initializeParser(m_selectionString) );
     }
 
     return StatusCode::SUCCESS;

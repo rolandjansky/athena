@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ParticleSelectionAlg.cxx
@@ -15,12 +15,6 @@
 // FrameWork includes
 #include "Gaudi/Property.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
-#include "ExpressionEvaluation/ExpressionParser.h"
-#include "ExpressionEvaluation/SGxAODProxyLoader.h"
-#include "ExpressionEvaluation/MultipleProxyLoader.h"
-#include "ExpressionEvaluation/StackElement.h"
-// #include "TrigDecisionTool/TrigDecisionTool.h"
-// #include "ExpressionEvaluation/TriggerDecisionProxyLoader.h"
 
 // EDM includes
 #include "EventInfo/EventStreamInfo.h"
@@ -63,7 +57,7 @@
 ////////////////
 ParticleSelectionAlg::ParticleSelectionAlg( const std::string& name,
                                             ISvcLocator* pSvcLocator ) :
-  ::AthAnalysisAlgorithm( name, pSvcLocator ),
+  ExpressionParserUser< ::AthAnalysisAlgorithm>( name, pSvcLocator ),
   m_selTools(),     // makes these tools public
   m_evtInfoName("EventInfo"),
   m_inCollKey(""),
@@ -73,7 +67,6 @@ ParticleSelectionAlg::ParticleSelectionAlg( const std::string& name,
   m_selection(""),
   m_doCutFlow(false),
   m_cutBKCName(name),
-  m_parser(nullptr),
   // m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"),
   m_nEventsProcessed(0),
   m_outOwnPolicy(SG::VIEW_ELEMENTS),
@@ -127,14 +120,10 @@ StatusCode ParticleSelectionAlg::initialize()
   ATH_MSG_DEBUG ( " using DoCutBookkeeping = " << m_doCutFlow );
   ATH_MSG_DEBUG ( " using CutBookkeeperContainer = " << m_cutBKCName );
 
+  
   // initialize proxy loaders for expression parsing
   if ( !(m_selection.value().empty()) ){
-    ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
-    // proxyLoaders->push_back(new ExpressionParsing::TriggerDecisionProxyLoader(m_trigDecisionTool));
-    proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
-    // load the expressions
-    m_parser = new ExpressionParsing::ExpressionParser(proxyLoaders);
-    m_parser->loadExpression( m_selection.value() );
+     ATH_CHECK( initializeParser(m_selection.value()));
   }
 
   // initialize the counters
@@ -168,11 +157,7 @@ StatusCode ParticleSelectionAlg::finalize()
   // Release all tools and services
   ATH_CHECK( m_selTools.release() );
 
-  // Clean up the memory
-  if (m_parser) {
-    delete m_parser;
-    m_parser = 0;
-  }
+  ATH_CHECK( finalizeParser() );
 
   return StatusCode::SUCCESS;
 }

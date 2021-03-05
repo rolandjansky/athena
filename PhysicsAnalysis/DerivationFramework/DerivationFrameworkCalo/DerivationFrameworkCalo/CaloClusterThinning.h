@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -19,13 +19,11 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "StoreGate/ThinningHandleKey.h"
 
-namespace ExpressionParsing {
-  class ExpressionParser;
-}
+#include "ExpressionEvaluation/ExpressionParserUser.h"
 
 namespace DerivationFramework {
 
-  class CaloClusterThinning : public extends<AthAlgTool,IThinningTool> {
+  class CaloClusterThinning : public extends<ExpressionParserUser<AthAlgTool>,IThinningTool> {
     public:
       CaloClusterThinning(const std::string& t, const std::string& n, const IInterface* p);
       virtual ~CaloClusterThinning();
@@ -48,7 +46,6 @@ namespace DerivationFramework {
       //std::string m_FrwdClSGKey;
       std::string m_selectionString;
       float m_coneSize;
-      ExpressionParsing::ExpressionParser *m_parser;
 
       StatusCode setClustersMask(std::vector<bool>& mask, const xAOD::IParticle* particle, const xAOD::CaloClusterContainer* cps,
                                  bool is_muons,

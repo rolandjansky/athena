@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -10,10 +10,6 @@
 
 #include "DerivationFrameworkSUSY/Truth3CollectionMaker.h"
 #include "MCTruthClassifier/IMCTruthClassifier.h"
-#include "ExpressionEvaluation/ExpressionParser.h"
-#include "ExpressionEvaluation/SGxAODProxyLoader.h"
-#include "ExpressionEvaluation/SGNTUPProxyLoader.h"
-#include "ExpressionEvaluation/MultipleProxyLoader.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthParticleAuxContainer.h"
 //#include "xAODTruth/TruthVertexContainer.h"
@@ -24,7 +20,7 @@
 DerivationFramework::Truth3CollectionMaker::Truth3CollectionMaker(const std::string& t,
                                                                   const std::string& n,
                                                                   const IInterface* p ) :
-AthAlgTool(t,n,p),
+ExpressionParserUser<AthAlgTool>(t,n,p),
 //m_ntotvtx(0),
 m_ntotpart(0),
 //m_npassvtx(0),
@@ -71,14 +67,8 @@ StatusCode DerivationFramework::Truth3CollectionMaker::initialize()
     } else {ATH_MSG_INFO("Truth particle selection string: " << m_partString );}
     
     // Set up the text-parsing machinery for thinning the truth directly according to user cuts
-    if ( m_partString!="") {
-	    ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
-	    proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
-	    proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
-	    if (m_partString!="") {
-		m_partParser = new ExpressionParsing::ExpressionParser(proxyLoaders);
-	    	m_partParser->loadExpression(m_partString);
-	    }	
+    if ( !m_partString.empty() ) {
+       ATH_CHECK( initializeParser(m_partString) );
     }
     return StatusCode::SUCCESS;
 }
@@ -88,10 +78,7 @@ StatusCode DerivationFramework::Truth3CollectionMaker::finalize()
     ATH_MSG_VERBOSE("finalize() ...");
     //ATH_MSG_INFO("Processed "<< m_ntotvtx <<" truth vertices, "<< m_npassvtx << " were retained ");
     ATH_MSG_INFO("Processed "<< m_ntotpart <<" truth particles, "<< m_npasspart << " were retained ");
-    if (m_partString!="") {
-        delete m_partParser;
-        m_partParser = 0;
-    }
+    ATH_CHECK( finalizeParser() );
     return StatusCode::SUCCESS;
 }
 
@@ -129,8 +116,8 @@ StatusCode DerivationFramework::Truth3CollectionMaker::addBranches() const
     std::vector<int> entries;
 
     // Execute the text parsers and update the mask
-    if (m_partString!="") {
-    	entries =  m_partParser->evaluateAsVector();
+    if (!m_partString.empty()) {
+    	entries =  m_parser->evaluateAsVector();
     	unsigned int nEntries = entries.size();
     	// check the sizes are compatible
     	if (nParticles != nEntries ) {

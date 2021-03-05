@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -9,11 +9,6 @@
 
 // Base class
 #include "DerivationFrameworkMCTruth/TruthCollectionMaker.h"
-// For evaluating the expression of what particles to keep
-#include "ExpressionEvaluation/ExpressionParser.h"
-#include "ExpressionEvaluation/SGxAODProxyLoader.h"
-#include "ExpressionEvaluation/SGNTUPProxyLoader.h"
-#include "ExpressionEvaluation/MultipleProxyLoader.h"
 // EDM includes
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthParticleAuxContainer.h"
@@ -32,7 +27,7 @@ DerivationFramework::TruthCollectionMaker::TruthCollectionMaker(const std::strin
 //m_do_compress = true: removes particles with the same pdgId in a decay chain (but keeps first and last)
 //m_do_sherpa = true: checks if there are truth W bosons in the current record.  If not, tries to combine W daughters to create one.
 //Disclaimer: m_do_sherpa currently only works for W+jets.  It will not work for Z+jets for dibosons (coming soon).
-  : AthAlgTool(t,n,p)
+  : ExpressionParserUser<AthAlgTool>(t,n,p)
   , m_ntotpart(0)
   , m_npasspart(0)
   , m_metaStore( "MetaDataStore", n )
@@ -73,14 +68,8 @@ StatusCode DerivationFramework::TruthCollectionMaker::initialize()
     } else {ATH_MSG_INFO("Truth particle selection string: " << m_partString );}
     
     // Set up the text-parsing machinery for thinning the truth directly according to user cuts
-    if ( m_partString!="") {
-        ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
-        proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
-        proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
-        if (m_partString!="") {
-            m_partParser = new ExpressionParsing::ExpressionParser(proxyLoaders);
-            m_partParser->loadExpression(m_partString);
-        }
+    if (!m_partString.empty()) {
+       ATH_CHECK( initializeParser(m_partString) );
     }
     return StatusCode::SUCCESS;
 }
@@ -90,10 +79,7 @@ StatusCode DerivationFramework::TruthCollectionMaker::finalize()
     ATH_MSG_VERBOSE("finalize() ...");
     //ATH_MSG_INFO("Processed "<< m_ntotvtx <<" truth vertices, "<< m_npassvtx << " were retained ");
     ATH_MSG_INFO("Processed "<< m_ntotpart <<" truth particles, "<< m_npasspart << " were retained ");
-    if (m_partString!="") {
-        delete m_partParser;
-        m_partParser = 0;
-    }
+    ATH_CHECK( finalizeParser() );
     return StatusCode::SUCCESS;
 }
 
@@ -163,8 +149,8 @@ StatusCode DerivationFramework::TruthCollectionMaker::addBranches() const
     const static SG::AuxElement::Decorator< int > HadronOriginDecorator("TopHadronOriginFlag");
     
     // Execute the text parsers and update the mask
-    if (m_partString!="") {
-        std::vector<int> entries =  m_partParser->evaluateAsVector();
+    if (!m_partString.empty()) {
+        std::vector<int> entries =  m_parser->evaluateAsVector();
         unsigned int nEntries = entries.size();
         // check the sizes are compatible
         if (nParticles != nEntries ) {
