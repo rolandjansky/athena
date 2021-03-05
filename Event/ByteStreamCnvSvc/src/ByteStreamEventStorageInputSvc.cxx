@@ -131,15 +131,17 @@ ByteStreamEventStorageInputSvc::previousEvent()
 {
   std::lock_guard<std::mutex> lock(m_readerMutex);
   const EventContext context{Gaudi::Hive::currentContext()};
+  EventCache* cache = m_eventsCache.get(context);
+  // initialize before building RawEvent
+  cache->releaseEvent();
 
   // Load data buffer from file
-  char *buf;
   unsigned int eventSize;
   if (readerReady()) {
     //get current event position (cast to long long until native tdaq implementation)
     m_evtInFile--;
     m_evtFileOffset = m_evtOffsets.at(m_evtInFile);
-    DRError ecode = m_reader->getData(eventSize, &buf, m_evtOffsets.at(m_evtInFile - 1));
+    DRError ecode = m_reader->getData(eventSize, &(cache->data), m_evtOffsets.at(m_evtInFile - 1));
 
     if (DRWAIT == ecode && m_wait > 0) {
       do {
@@ -150,7 +152,7 @@ ByteStreamEventStorageInputSvc::previousEvent()
           ATH_MSG_ERROR("System Error while running sleep");
           return nullptr;
         }
-      } while(m_reader->getData(eventSize, &buf, m_evtFileOffset) == DRWAIT);
+      } while(m_reader->getData(eventSize, &(cache->data), m_evtFileOffset) == DRWAIT);
     } else if (DROK != ecode) {
       ATH_MSG_ERROR("Error reading previous event");
       throw ByteStreamExceptions::readError();
@@ -162,19 +164,11 @@ ByteStreamEventStorageInputSvc::previousEvent()
     return 0;
   }
 
-  EventCache* cache = m_eventsCache.get(context);
-  // initialize before building RawEvent
-  cache->releaseEvent();
-
   // Use buffer to build FullEventFragment
   try {
-    buildFragment(cache, buf, eventSize, true);
-    delete[] buf;
-    buf = nullptr;
+    buildFragment(cache, eventSize, true);
   }
   catch (...) {
-    delete[] buf;
-    buf = nullptr;
     // rethrow any exceptions
     throw;
   }
@@ -204,9 +198,12 @@ ByteStreamEventStorageInputSvc::nextEvent() {
 
   std::lock_guard<std::mutex> lock( m_readerMutex );
   const EventContext context{ Gaudi::Hive::currentContext() };
+  EventCache* cache = m_eventsCache.get(context);
+
+  // initialize before building RawEvent
+  cache->releaseEvent();
 
   // Load data buffer from file
-  char *buf;
   unsigned int eventSize;
   if (readerReady()) {
     DRError ecode;
@@ -217,12 +214,12 @@ ByteStreamEventStorageInputSvc::nextEvent() {
       ATH_MSG_DEBUG("nextEvent _above_ high water mark");
       m_evtFileOffset = static_cast<long long>(m_reader->getPosition());
       m_evtOffsets.push_back(m_evtFileOffset);
-      ecode = m_reader->getData(eventSize, &buf);
+      ecode = m_reader->getData(eventSize, &(cache->data));
     } else {
       // Load from previous offset
       ATH_MSG_DEBUG("nextEvent below high water mark");
       m_evtFileOffset = m_evtOffsets.at(m_evtInFile - 1);
-      ecode = m_reader->getData(eventSize, &buf, m_evtFileOffset);
+      ecode = m_reader->getData(eventSize, &(cache->data), m_evtFileOffset);
     }
 
     if (DRWAIT == ecode && m_wait > 0) {
@@ -234,7 +231,7 @@ ByteStreamEventStorageInputSvc::nextEvent() {
           ATH_MSG_ERROR("System Error while running sleep");
           return 0;
         }
-      } while(m_reader->getData(eventSize, &buf) == DRWAIT);
+      } while(m_reader->getData(eventSize, &(cache->data)) == DRWAIT);
     } else if (DROK != ecode) {
       ATH_MSG_ERROR("Error reading next event");
       throw ByteStreamExceptions::readError();
@@ -246,14 +243,9 @@ ByteStreamEventStorageInputSvc::nextEvent() {
     return 0;
   }
 
-  EventCache* cache = m_eventsCache.get(context);
-
-  // initialize before building RawEvent
-  cache->releaseEvent();
-
   // Use buffer to build FullEventFragment
   try {
-    buildFragment(cache, buf, eventSize, true);
+    buildFragment(cache, eventSize, true);
   }
   catch (...) {
     // rethrow any exceptions
@@ -328,12 +320,10 @@ ByteStreamEventStorageInputSvc::validateEvent(const RawEvent* const rawEvent) co
 /******************************************************************************/
 void
 ByteStreamEventStorageInputSvc::buildFragment(
-    EventCache* cache, char* data, uint32_t eventSize,
-    bool validate) const
-{
+    EventCache* cache, uint32_t eventSize, bool validate) const {
   using OFFLINE_FRAGMENTS_NAMESPACE::DataType;
   using OFFLINE_FRAGMENTS_NAMESPACE::PointerType;
-  DataType* fragment = reinterpret_cast<DataType*>(data);
+  DataType* fragment = reinterpret_cast<DataType*>(cache->data);
 
   if (validate) {
     // check fragment type
@@ -366,6 +356,7 @@ ByteStreamEventStorageInputSvc::buildFragment(
 
           // set new pointer
           fragment = newFragment;
+          cache->data = reinterpret_cast< char* >(fragment);
         }
       } catch (const eformat::Issue& ex) {
         // bad event
@@ -465,11 +456,14 @@ void
 ByteStreamEventStorageInputSvc::EventCache::releaseEvent()
 {
   // cleanup parts of previous event and re-init them
-  if(rawEvent) {
-    OFFLINE_FRAGMENTS_NAMESPACE::PointerType fragment = rawEvent->start();
-    delete [] fragment; fragment = nullptr;
+  if (rawEvent) {
     rawEvent.reset(nullptr);
     eventStatus = 0;
+  }
+
+  if (data) {
+    delete [] data;
+    data = nullptr;
   }
 }
 
