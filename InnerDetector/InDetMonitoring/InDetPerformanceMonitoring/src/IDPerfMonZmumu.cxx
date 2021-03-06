@@ -830,7 +830,7 @@ StatusCode IDPerfMonZmumu::execute()
     // vertex
     const EventContext& ctx = Gaudi::Hive::currentContext();
     SG::ReadHandle<xAOD::VertexContainer> vertices { m_vertexKey, ctx };
-    for (const auto& V : *vertices) {
+    for (const auto V : *vertices) {
       if (V->vertexType() == xAOD::VxType::VertexType::PriVtx) {
 	// primaryVertex =V;
 	p1_comb_v = V;
