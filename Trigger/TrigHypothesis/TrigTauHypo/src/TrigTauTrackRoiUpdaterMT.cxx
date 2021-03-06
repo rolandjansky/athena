@@ -39,11 +39,13 @@ StatusCode TrigTauTrackRoiUpdaterMT::initialize()
   ATH_MSG_DEBUG( "declareProperty review:"   );
   ATH_MSG_DEBUG( " TrigTauTrackRoiUpdaterMT parameters 	" 	);
   ATH_MSG_DEBUG( " z0HalfWidth               " 	<< m_z0HalfWidth );
+  if ( m_etaHalfWidth>0 ) ATH_MSG_DEBUG( " etaHalfWidth              "  << m_etaHalfWidth );
+  if ( m_phiHalfWidth>0 ) ATH_MSG_DEBUG( " phiHalfWidth              "  << m_phiHalfWidth );
   ATH_MSG_DEBUG( " nHitPix            			" 	<< m_nHitPix );
-  ATH_MSG_DEBUG( " nSiHoles            		" 	<< m_nSiHoles );
+  ATH_MSG_DEBUG( " nSiHoles            		        " 	<< m_nSiHoles );
   ATH_MSG_DEBUG( " UpdateEta            		" 	<< m_updateEta );
   ATH_MSG_DEBUG( " UpdatePhi            		" 	<< m_updatePhi );
-  ATH_MSG_DEBUG(  " useBDT               		" 	<< m_useBDT );
+  ATH_MSG_DEBUG( " useBDT               		" 	<< m_useBDT );
 
   if(m_useBDT) {
     ATH_MSG_DEBUG( " BDTweights     	        	" << m_BDTweights );
@@ -101,6 +103,10 @@ StatusCode TrigTauTrackRoiUpdaterMT::execute(const EventContext& ctx) const
   double leadTrkZ0  = roiDescriptor->zed();
   double leadTrkEta = roiDescriptor->eta();
   double leadTrkPhi = roiDescriptor->phi();
+
+  double deta = roiDescriptor->etaPlus() - roiDescriptor->eta();
+  double dphi = roiDescriptor->phiPlus() - roiDescriptor->phi();
+
 
   if(foundTracks!=0) ATH_MSG_DEBUG(" Input track collection has size " << foundTracks->size() );
   else ATH_MSG_DEBUG(" Input track collection not found " );  
@@ -177,6 +183,11 @@ StatusCode TrigTauTrackRoiUpdaterMT::execute(const EventContext& ctx) const
       leadTrkZ0  = leadTrack->perigeeParameters()->parameters()[Trk::z0];
       leadTrkEta = leadTrack->perigeeParameters()->eta();
       leadTrkPhi = leadTrack->perigeeParameters()->parameters()[Trk::phi0];
+
+      /// update Roi width if round a leading track for the second stage
+      if ( m_etaHalfWidth>0 ) deta = m_etaHalfWidth;
+      if ( m_phiHalfWidth>0 ) dphi = m_phiHalfWidth;
+
     }else ATH_MSG_DEBUG(" no leading track pT found " );
   }
 
@@ -187,31 +198,24 @@ StatusCode TrigTauTrackRoiUpdaterMT::execute(const EventContext& ctx) const
 
   /// update eta if required (by default)
   double eta      = roiDescriptor->eta();
-  double etaMinus = roiDescriptor->etaMinus();
-  double etaPlus  = roiDescriptor->etaPlus();
 
   if ( leadTrack && m_updateEta ) { 
     eta      = leadTrkEta;
-    etaMinus = leadTrkEta - (roiDescriptor->eta() - roiDescriptor->etaMinus() );
-    etaPlus  = leadTrkEta + (roiDescriptor->etaPlus() - roiDescriptor->eta() );
   }
 
+  double etaMinus = eta - deta; 
+  double etaPlus  = eta + deta;
 
   /// update phi if required
   double phi      = roiDescriptor->phi();
-  double phiMinus = roiDescriptor->phiMinus();
-  double phiPlus  = roiDescriptor->phiPlus();
-
   
   if ( leadTrack && m_updatePhi ) { 
     phi      = leadTrkPhi;
-    double deltaPhiMinus = roiDescriptor->phi() - roiDescriptor->phiMinus();
-    double deltaPhiPlus  = roiDescriptor->phiPlus()-roiDescriptor->phiMinus();
-    phiMinus = leadTrkPhi - CxxUtils::wrapToPi(deltaPhiMinus);  
-    phiPlus  = leadTrkPhi + CxxUtils::wrapToPi(deltaPhiPlus); 
-
   }
-  
+ 
+  double phiMinus = CxxUtils::wrapToPi( phi - dphi ); 
+  double phiPlus  = CxxUtils::wrapToPi( phi + dphi ); 
+
   // Prepare the new RoI
   TrigRoiDescriptor *outRoi = new TrigRoiDescriptor(roiDescriptor->roiWord(), roiDescriptor->l1Id(), roiDescriptor->roiId(),
 						    eta, etaMinus, etaPlus,
