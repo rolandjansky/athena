@@ -156,6 +156,7 @@ namespace InDet {
       /// maximum number of seeds to keep per central space point. 
       /// the top N seeds sorted by quality are preserved if more candidates
       /// than the limit exist 
+      int                         m_maxOneSize                    ;
       int                         m_maxOneSizeSSS                 ;
       int                         m_maxOneSizePPP                 ;
       /// This flag will lead to all confirmed seeds (seeds where a second compatible seed
@@ -509,12 +510,10 @@ namespace InDet {
   inline
   void SiSpacePointsSeedMaker_ITKNew::sort(std::vector<FloatInt>& s, int start, int size)
   {
-    if(m_fastTracking){
-      if(size>1) QuickSort(s,start,size-1);
-    }
-    else{
-      std::sort(s.begin()+start,s.begin()+start+size,[](const FloatInt a,const FloatInt b)->bool {return a.Fl < b.Fl;});
-    }
+    //QuickSort for fast tracking currently buggy
+    //TBC if really faster than std::sort
+    //Using std::sort in all cases for now
+    std::sort(s.begin()+start,s.begin()+start+size,[](const FloatInt a,const FloatInt b)->bool {return a.Fl < b.Fl;});
   }
 
 }

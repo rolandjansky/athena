@@ -61,7 +61,7 @@ InDet::SiSpacePointsSeedMaker_ITKNew::SiSpacePointsSeedMaker_ITKNew
   declareProperty("minZ"                  , m_zmin         = -250. );
   declareProperty("maxZ"                  , m_zmax         = +250. );
   declareProperty("mindRadiusPPP"         , m_drminPPP     = 6.    );
-  declareProperty("maxdRadiusPPP"         , m_drmaxPPP     = 120.  );
+  declareProperty("maxdRadiusPPP"         , m_drmaxPPP     = 140.  );
   declareProperty("mindRadiusSSS"         , m_drminSSS     = 20.   );
   declareProperty("maxdRadiusSSS"         , m_drmaxSSS     = 300.  );
   declareProperty("maxdZver"              , m_dzver        = 5.    );
@@ -72,6 +72,7 @@ InDet::SiSpacePointsSeedMaker_ITKNew::SiSpacePointsSeedMaker_ITKNew
   declareProperty("radMaxSSS"             , m_rmaxSSS      = 1000. );
   declareProperty("dImpactCutSlopeUnconfirmedSSS", m_dImpactCutSlopeUnconfirmedSSS = 1.0);
   declareProperty("dImpactCutSlopeUnconfirmedPPP", m_dImpactCutSlopeUnconfirmedPPP = 0.);
+  declareProperty("maxSeedsForSpacePoint",       m_maxOneSize = -1);
   declareProperty("maxSeedsForSpacePointStrips", m_maxOneSizeSSS = 5);
   declareProperty("maxSeedsForSpacePointPixels", m_maxOneSizePPP = 5);
   declareProperty("seedScoreBonusPPP"     , m_seedScoreBonusPPP = -200.);
@@ -83,6 +84,11 @@ InDet::SiSpacePointsSeedMaker_ITKNew::SiSpacePointsSeedMaker_ITKNew
   declareProperty("SpacePointsOverlapName", m_spacepointsOverlap   );
   declareProperty("BeamConditionsService" , m_beamconditions = "BeamCondSvc");  
   declareProperty("MagFieldSvc"           , m_fieldServiceHandle   );
+
+  if(m_maxOneSize>0){
+    m_maxOneSizeSSS = m_maxOneSize;
+    m_maxOneSizePPP = m_maxOneSize;
+  }
 
 }
 
@@ -964,10 +970,9 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::buildFrameWork()
     /// case 1: PPP seeds, if we use them
     const float radiusPixelStart = m_fastTracking ? 50. : 40.; /// approximate lowest R location of pixel hits (driven by barrel)
     const float radiusPixelEnd = m_fastTracking ? 250. : 320.;  /// approximate largest R location of pixel hits (driven by endcap)
-    /// Unlike what's done in SiSpacePointsSeedMaker_ATLxk in master, no factor 3 is used here
-    const float binSizePhi_PPP = m_pixel ? azimuthalStep(m_ptmin,m_maxdImpact,radiusPixelStart,radiusPixelEnd) : 0.; 
+    const float binSizePhi_PPP = m_pixel ? azimuthalStep(m_ptmin,m_maxdImpact,radiusPixelStart,radiusPixelEnd)/3. : 0.;
     /// case 2: SSS seeds, if we use them
-    const float binSizePhi_SSS = m_sct ? azimuthalStep(m_ptmin,m_maxdImpactSSS,m_rminSSS,m_rmaxSSS) : 0.; 
+    const float binSizePhi_SSS = m_sct ? azimuthalStep(m_ptmin,m_maxdImpactSSS,m_rminSSS,m_rmaxSSS)/3. : 0.;
     /// pick the larger of the two and invert
     m_inverseBinSizePhi = 1./std::max(binSizePhi_PPP, binSizePhi_SSS); 
   }
@@ -1362,8 +1367,15 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::fillListsFast(EventData& data)
 	
 	/// 2D bin index - computed from the 1D using standard 2D array bin arithmetics
 	int twoDbin = phiBin*arraySizeZ+zBin;
+	/// increment total counter of space points.
+	/// This is not reset between iterations.
+	++data.nsaz;
+	// push our space point into the 2D binned array
 	data.rfz_Sorted_ITK[twoDbin].push_back(sps);
-	++data.ns;
+	/// the conditional seems to always be true. The rfz_index vector stores
+	/// the 2D bin for each SP in the radius-sorted map. This way,
+	/// we obtain effectively a *3D binning* in r(via the r-sorted vector), phi and z (via the 2D index)
+	if (!data.rfz_map[twoDbin]++) data.rfz_index[data.nrfz++] = twoDbin;
       }
     }
   }
@@ -1490,7 +1502,7 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::production3Sp(EventData& data)
   /// prevent another pass from being run when we run out of Seeds
   data.endlist = true;
 
-  /// Loop thorugh all azimuthal regions
+  /// Loop through all azimuthal regions
   for (int phiBin=data.fNmin; phiBin<=m_maxPhiBin; ++phiBin) {
     
     /// For each azimuthal region loop through all Z regions
@@ -2071,8 +2083,8 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::production3SpPPP
           continue;
         }
 
-	/// if we are to far, the next ones will be even farther, so abort
-	if (dR>m_drmaxPPP) break;
+	/// if we are too far, the next ones will be even farther, so abort
+	if (!m_fastTracking && dR>m_drmaxPPP) break;
 	
 	const float dz   = (*iter_otherSP)->z()-Z;
 	const float dZdR = dz/dR;
@@ -2187,7 +2199,7 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::production3SpPPP
         data.SP_ITK[Nb]->setDR(std::sqrt(dxy+dz*dz));
         data.SP_ITK[Nb]->setDZDR(dZdR);
         data.Tn[Nb].Fl = tz;
-        data.Tn[Nb].In = Nt;
+        data.Tn[Nb].In = Nb;
 
         /// if we are exceeding the SP capacity of our data object,
         /// make it resize its vectors. Will add 50 slots by default,
@@ -2542,7 +2554,7 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::newOneSeedWithCurvaturesComparisonSSS
 	/// abort once the the curvature gets too large
 	if ( (*it_otherSP).first > maxCurvature       ) break;
         
-	float L = SPt->dR();
+	float L = (*it_otherSP).second->dR();
         
 	int k = 0;
 	for(; k!=NT; ++k) {
