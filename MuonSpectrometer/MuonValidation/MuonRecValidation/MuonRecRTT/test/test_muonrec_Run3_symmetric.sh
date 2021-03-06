@@ -24,6 +24,7 @@ Reco_tf.py --inputRDOFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Muon
            --autoConfiguration everything \
            --imf False \
            --postInclude MuonPRDTest/NSWPRDValAlg.reco.py \
+           --postExec 'conddb.addOverride("/MDT/RTBLOB","MDTRT_Sim-R3ASYM-01");conddb.addOverride("/MDT/T0BLOB","MDTT0_Sim-R3ASYM-01")' \
            --outputESDFile OUT_ESD.root
 exit_code=$?
 echo  "art-result: ${exit_code} Reco_tf.py"
