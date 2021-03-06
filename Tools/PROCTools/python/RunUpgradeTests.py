@@ -37,11 +37,11 @@ def RunCleanSTest(stest,input_file,pwd,release,extraArg,CleanRunHeadDir,UniqID):
     ###This is the config for the latest (and future) configuration, and differs in several ways from the older configurations - for the time being it relies on a local geometry
     if s == 'sim_updated':
 
-        geotag = "ATLAS-P2-ITK-23-00-02_VALIDATION"
+        geotag = "ATLAS-P2-ITK-23-01-00_VALIDATION"
         logging.info("Running clean "+s)
         logging.info("\"Sim_tf.py "+s+" ("+geotag+") --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root --imf False " + extraArg+"\"")
 
-        trfcmd = " Sim_tf.py --randomSeed 873254 --geometryVersion "+geotag+" --conditionsTag OFLCOND-MC15c-SDR-14-03 --truthStrategy   MC15aPlus --DataRunNumber 242000 --preInclude  all:'InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SLHC_Setup.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py,G4UserActions/LengthIntegrator_options.py' --preExec all:'from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags;SLHC_Flags.UseLocalGeometry.set_Value_and_Lock(True)' --postInclude all:'PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Setup_ITK.py,InDetSLHC_Example/postInclude.SiHitAnalysis.py' --postExec EVNTtoHITS:'ServiceMgr.DetDescrCnvSvc.DoInitNeighbours=False;ServiceMgr.DetDescrCnvSvc.OutputLevel=VERBOSE; from AthenaCommon import CfgGetter; CfgGetter.getService(\"ISF_MC15aPlusTruthService\").BeamPipeTruthStrategies+=[\"ISF_MCTruthStrategyGroupIDHadInt_MC15\"];ServiceMgr.PixelLorentzAngleSvc.ITkL03D = True' --inputEVNTFile "+input_file+" --outputHITSFile myHITS.pool.root --imf False  "
+        trfcmd = " Sim_tf.py --randomSeed 873254 --geometryVersion "+geotag+" --conditionsTag OFLCOND-MC15c-SDR-14-05 --truthStrategy   MC15aPlus --DataRunNumber 242000 --preInclude  all:'InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SLHC_Setup.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py,G4UserActions/LengthIntegrator_options.py' --preExec all:'from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags;SLHC_Flags.UseLocalGeometry.set_Value_and_Lock(True)' --postInclude all:'PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Setup_ITK.py,InDetSLHC_Example/postInclude.SiHitAnalysis.py' --postExec EVNTtoHITS:'ServiceMgr.DetDescrCnvSvc.DoInitNeighbours=False;ServiceMgr.DetDescrCnvSvc.OutputLevel=VERBOSE; from AthenaCommon import CfgGetter; CfgGetter.getService(\"ISF_MC15aPlusTruthService\").BeamPipeTruthStrategies+=[\"ISF_MCTruthStrategyGroupIDHadInt_MC15\"];ServiceMgr.PixelLorentzAngleSvc.ITkL03D = True' --inputEVNTFile "+input_file+" --outputHITSFile myHITS.pool.root --imf False  "
      
     else:
      
@@ -75,7 +75,7 @@ def RunPatchedSTest(stest,input_file,pwd,release,extraArg,nosetup=False,voldebug
 
     if s == 'sim_updated':
        extra_pre = ""
-       geotag = "ATLAS-P2-ITK-23-00-02_VALIDATION"
+       geotag = "ATLAS-P2-ITK-23-01-00_VALIDATION"
 
        if voldebug:
            extra_pre = ",InDetSLHC_Example/preInclude.VolumeDebugger.py"
@@ -116,19 +116,19 @@ def RunPatchedSTest(stest,input_file,pwd,release,extraArg,nosetup=False,voldebug
 def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID):
     q=qtest
     trfcmd="echo \"NO VALID CONFIGURATION SELECTED!\""
-    inputfile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetSLHC_Example/inputs/s3551.pool.root" 
+    inputfile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetSLHC_Example/inputs/s3654.pool.root" 
     
     if q == "reco_updated":
-        geotag = "ATLAS-P2-ITK-23-00-02"
+        geotag = "ATLAS-P2-ITK-23-01-00"
         inputfile =  pwd+"/run_sim_updated/myHITS.pool.root"
 
         logging.info("Running patched "+q+" ("+geotag+") \"Reco_tf.py --AMI "+q+" --imf False "+extraArg+"\"")
 
-        trfcmd = " Reco_tf.py --inputHITSFile "+inputfile+" --outputRDOFile myRDO.pool.root --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputDAOD_IDTRKVALIDFile myIDTRKVALID.pool.root --maxEvents 10 --digiSteeringConf StandardInTimeOnlyTruth --geometryVersion "+geotag+" --conditionsTag OFLCOND-MC15c-SDR-14-03 --DataRunNumber 242000 --postInclude all:'InDetSLHC_Example/postInclude.SLHC_Setup_ITK.py' HITtoRDO:'InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py' RAWtoESD:'InDetSLHC_Example/postInclude.DigitalClustering.py' --preExec all:'from AthenaCommon.GlobalFlags import globalflags; globalflags.DataSource.set_Value_and_Lock(\"geant4\"); from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags; SLHC_Flags.doGMX.set_Value_and_Lock(True);SLHC_Flags.UseLocalGeometry.set_Value_and_Lock(True)' HITtoRDO:'from Digitization.DigitizationFlags import digitizationFlags; digitizationFlags.doInDetNoise.set_Value_and_Lock(False); digitizationFlags.overrideMetadata+=[\"SimLayout\",\"PhysicsList\"];' ESDtoDPD:'rec.DPDMakerScripts.set_Value_and_Lock([\"InDetPrepRawDataToxAOD/InDetDxAOD.py\",\"PrimaryDPDMaker/PrimaryDPDMaker.py\"]);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.useDCS.set_Value_and_Lock(True);from PixelConditionsServices.PixelConditionsServicesConf import PixelCalibSvc;ServiceMgr +=PixelCalibSvc();ServiceMgr.PixelCalibSvc.DisableDB=True' --preInclude  all:'InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.SLHC_Setup.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py,InDetSLHC_Example/preInclude.SLHC_Calorimeter_mu0.py' HITtoRDO:'InDetSLHC_Example/preInclude.SLHC.py' default:'InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Reco.py,InDetSLHC_Example/SLHC_Setup_Reco_TrackingGeometry_GMX.py' RDOMergeAthenaMP:'InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.SLHC.py' POOLMergeAthenaMPAOD0:'InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Ana.py' POOLMergeAthenaMPDAODIDTRKVALID0:'InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Ana.py' --postExec HITtoRDO:'CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"];' RAWtoESD:'ToolSvc.InDetSCT_ClusteringTool.useRowInformation=True; from AthenaCommon.AppMgr import ToolSvc; ToolSvc.InDetTrackSummaryTool.OutputLevel=INFO' --imf False"
+        trfcmd = " Reco_tf.py --inputHITSFile "+inputfile+" --outputRDOFile myRDO.pool.root --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputDAOD_IDTRKVALIDFile myIDTRKVALID.pool.root --maxEvents 10 --digiSteeringConf StandardInTimeOnlyTruth --geometryVersion "+geotag+" --conditionsTag OFLCOND-MC15c-SDR-14-05 --DataRunNumber 242000 --postInclude all:'InDetSLHC_Example/postInclude.SLHC_Setup_ITK.py' HITtoRDO:'InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py' RAWtoESD:'InDetSLHC_Example/postInclude.DigitalClustering.py' --preExec all:'from AthenaCommon.GlobalFlags import globalflags; globalflags.DataSource.set_Value_and_Lock(\"geant4\"); from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags; SLHC_Flags.doGMX.set_Value_and_Lock(True);SLHC_Flags.UseLocalGeometry.set_Value_and_Lock(True)' HITtoRDO:'from Digitization.DigitizationFlags import digitizationFlags; digitizationFlags.doInDetNoise.set_Value_and_Lock(False); digitizationFlags.overrideMetadata+=[\"SimLayout\",\"PhysicsList\"];' ESDtoDPD:'rec.DPDMakerScripts.set_Value_and_Lock([\"InDetPrepRawDataToxAOD/InDetDxAOD.py\",\"PrimaryDPDMaker/PrimaryDPDMaker.py\"]);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.useDCS.set_Value_and_Lock(True);from PixelConditionsServices.PixelConditionsServicesConf import PixelCalibSvc;ServiceMgr +=PixelCalibSvc();ServiceMgr.PixelCalibSvc.DisableDB=True' --preInclude  all:'InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.SLHC_Setup.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py,InDetSLHC_Example/preInclude.SLHC_Calorimeter_mu0.py' HITtoRDO:'InDetSLHC_Example/preInclude.SLHC.py' default:'InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Reco.py,InDetSLHC_Example/SLHC_Setup_Reco_TrackingGeometry_GMX.py' RDOMergeAthenaMP:'InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.SLHC.py' POOLMergeAthenaMPAOD0:'InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Ana.py' POOLMergeAthenaMPDAODIDTRKVALID0:'InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Ana.py' --postExec HITtoRDO:'CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"];' RAWtoESD:'ToolSvc.InDetSCT_ClusteringTool.useRowInformation=True; from AthenaCommon.AppMgr import ToolSvc; ToolSvc.InDetTrackSummaryTool.OutputLevel=INFO' --imf False"
         
     else:
-        if q == 'r11838':
-         inputfile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetSLHC_Example/inputs/s3547.HITS.pool.root" 
+        if q == 'r11851':
+         inputfile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetSLHC_Example/inputs/s3551.pool.root" 
         
         trfcmd = " Reco_tf.py --inputHITSFile "+inputfile+" --outputRDOFile myRDO.pool.root --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputDAOD_IDTRKVALIDFile myIDTRKVALID.pool.root --maxEvents 10 --AMI "+q
 
@@ -152,21 +152,21 @@ def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID):
 
 def RunPatchedQTest(qtest,pwd,release,extraArg, nosetup=False):
     q=qtest
-    inputfile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetSLHC_Example/inputs/s3551.pool.root" 
+    inputfile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetSLHC_Example/inputs/s3654.pool.root" 
     trfcmd = "echo \"NO VALID CONFIGURATION SELECTED!\""
 
     if q == "reco_updated":
-        geotag = "ATLAS-P2-ITK-23-00-02"
+        geotag = "ATLAS-P2-ITK-23-01-00"
         layoutoption = ""
         inputfile = pwd+"/run_sim_updated/myHITS.pool.root"
 
         logging.info("Running patched "+q+" ("+geotag+") \"Reco_tf.py --AMI "+q+" --imf False "+extraArg+"\"")
 
-        trfcmd = " Reco_tf.py --inputHITSFile "+inputfile+" --outputRDOFile myRDO.pool.root --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputDAOD_IDTRKVALIDFile myIDTRKVALID.pool.root --maxEvents 10 --digiSteeringConf StandardInTimeOnlyTruth --geometryVersion "+geotag+" --conditionsTag OFLCOND-MC15c-SDR-14-03 --DataRunNumber 242000 --postInclude all:'InDetSLHC_Example/postInclude.SLHC_Setup_ITK.py' HITtoRDO:'InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py' RAWtoESD:'InDetSLHC_Example/postInclude.DigitalClustering.py' --preExec all:'from AthenaCommon.GlobalFlags import globalflags; globalflags.DataSource.set_Value_and_Lock(\"geant4\"); from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags; SLHC_Flags.doGMX.set_Value_and_Lock(True);SLHC_Flags.UseLocalGeometry.set_Value_and_Lock(True)' HITtoRDO:'from Digitization.DigitizationFlags import digitizationFlags; digitizationFlags.doInDetNoise.set_Value_and_Lock(False); digitizationFlags.overrideMetadata+=[\"SimLayout\",\"PhysicsList\"];' ESDtoDPD:'rec.DPDMakerScripts.set_Value_and_Lock([\"InDetPrepRawDataToxAOD/InDetDxAOD.py\",\"PrimaryDPDMaker/PrimaryDPDMaker.py\"]);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.useDCS.set_Value_and_Lock(True);from PixelConditionsServices.PixelConditionsServicesConf import PixelCalibSvc;ServiceMgr +=PixelCalibSvc();ServiceMgr.PixelCalibSvc.DisableDB=True' --preInclude  all:'InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.SLHC_Setup.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py,InDetSLHC_Example/preInclude.SLHC_Calorimeter_mu0.py' HITtoRDO:'InDetSLHC_Example/preInclude.SLHC.py' default:'InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Reco.py,InDetSLHC_Example/SLHC_Setup_Reco_TrackingGeometry_GMX.py' RDOMergeAthenaMP:'InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.SLHC.py' POOLMergeAthenaMPAOD0:'InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Ana.py' POOLMergeAthenaMPDAODIDTRKVALID0:'InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Ana.py' --postExec HITtoRDO:'CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"];' RAWtoESD:'ToolSvc.InDetSCT_ClusteringTool.useRowInformation=True; from AthenaCommon.AppMgr import ToolSvc; ToolSvc.InDetTrackSummaryTool.OutputLevel=INFO' --imf False"
+        trfcmd = " Reco_tf.py --inputHITSFile "+inputfile+" --outputRDOFile myRDO.pool.root --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputDAOD_IDTRKVALIDFile myIDTRKVALID.pool.root --maxEvents 10 --digiSteeringConf StandardInTimeOnlyTruth --geometryVersion "+geotag+" --conditionsTag OFLCOND-MC15c-SDR-14-05 --DataRunNumber 242000 --postInclude all:'InDetSLHC_Example/postInclude.SLHC_Setup_ITK.py' HITtoRDO:'InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py' RAWtoESD:'InDetSLHC_Example/postInclude.DigitalClustering.py' --preExec all:'from AthenaCommon.GlobalFlags import globalflags; globalflags.DataSource.set_Value_and_Lock(\"geant4\"); from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags; SLHC_Flags.doGMX.set_Value_and_Lock(True);SLHC_Flags.UseLocalGeometry.set_Value_and_Lock(True)' HITtoRDO:'from Digitization.DigitizationFlags import digitizationFlags; digitizationFlags.doInDetNoise.set_Value_and_Lock(False); digitizationFlags.overrideMetadata+=[\"SimLayout\",\"PhysicsList\"];' ESDtoDPD:'rec.DPDMakerScripts.set_Value_and_Lock([\"InDetPrepRawDataToxAOD/InDetDxAOD.py\",\"PrimaryDPDMaker/PrimaryDPDMaker.py\"]);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.useDCS.set_Value_and_Lock(True);from PixelConditionsServices.PixelConditionsServicesConf import PixelCalibSvc;ServiceMgr +=PixelCalibSvc();ServiceMgr.PixelCalibSvc.DisableDB=True' --preInclude  all:'InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.SLHC_Setup.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py,InDetSLHC_Example/preInclude.SLHC_Calorimeter_mu0.py' HITtoRDO:'InDetSLHC_Example/preInclude.SLHC.py' default:'InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Reco.py,InDetSLHC_Example/SLHC_Setup_Reco_TrackingGeometry_GMX.py' RDOMergeAthenaMP:'InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.SLHC.py' POOLMergeAthenaMPAOD0:'InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Ana.py' POOLMergeAthenaMPDAODIDTRKVALID0:'InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Ana.py' --postExec HITtoRDO:'CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"];' RAWtoESD:'ToolSvc.InDetSCT_ClusteringTool.useRowInformation=True; from AthenaCommon.AppMgr import ToolSvc; ToolSvc.InDetTrackSummaryTool.OutputLevel=INFO' --imf False"
   
     else:
-        if q == 'r11838':
-         inputfile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetSLHC_Example/inputs/s3547.HITS.pool.root"
+        if q == 'r11851':
+         inputfile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetSLHC_Example/inputs/s3551.pool.root"
 
         trfcmd = " Reco_tf.py --inputHITSFile "+inputfile+" --outputRDOFile myRDO.pool.root --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputDAOD_IDTRKVALIDFile myIDTRKVALID.pool.root --maxEvents 10 --AMI "+q
 
@@ -712,11 +712,11 @@ def main():
             logging.warning("Please be aware that you are running a release which seems to not be a Tier0 release, where in general q-tests are not guaranteed to work.")
 
 ########### Define which q-tests to run
-        sTestTag = 's3551'
-        rTestTag = 'r11851'
+        sTestTag = 's3654'
+        rTestTag = 'r12438'
         if RunOld:
-         sTestTag = 's3547'
-         rTestTag = 'r11838'   
+         sTestTag = 's3551'
+         rTestTag = 'r11851'   
 
         qTestsToRun = {}
         if RunUpdated:
