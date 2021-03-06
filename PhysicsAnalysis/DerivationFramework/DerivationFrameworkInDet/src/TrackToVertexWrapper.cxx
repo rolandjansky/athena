@@ -93,7 +93,7 @@ namespace DerivationFramework {
       std::unique_ptr<const Trk::ImpactParametersAndSigma> iPandSigma;
       std::unique_ptr<const Trk::ImpactParametersAndSigma> iPandSigmaBiased;
       const xAOD::Vertex* foundVertex { nullptr };
-      for (const auto& vx : *vertices) {
+      for (const auto vx : *vertices) {
         for (const auto& tpLink : vx->trackParticleLinks()) {
           if (*tpLink == *trItr) {
             foundVertex = vx;
