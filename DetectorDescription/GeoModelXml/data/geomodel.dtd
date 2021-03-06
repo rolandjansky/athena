@@ -211,7 +211,8 @@
                      shape IDREF #REQUIRED
                      material IDREF #REQUIRED
                      sensitive IDREF #IMPLIED 
-                     alignable (true|false) "false"> 
+                     alignable (true|false) "false"
+	             splitLevel CDATA #IMPLIED> 
 
   <!ELEMENT index EMPTY>
     <!ATTLIST index ref   IDREF #REQUIRED
