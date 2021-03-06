@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 This module defines the standard JetModifier tools used in jet reco
 
@@ -86,11 +86,11 @@ jetmomentmods = {
                                    prereqs = [ "mod:JVF" ]),
     "TrackMoments":    JetModifier("JetTrackMomentsTool", "trkmoms",
                                    createfn=JetMomentToolsConfig.getTrackMomentsTool,
-                                   prereqs = [ "input:JetTrackVtxAssoc","ghost:Track" ]),
+                                   prereqs = [ "input:JetTrackUsedInFitDeco","input:JetTrackVtxAssoc","ghost:Track" ]),
 
     "TrackSumMoments": JetModifier("JetTrackSumMomentsTool", "trksummoms",
                                    createfn=JetMomentToolsConfig.getTrackSumMomentsTool,
-                                   prereqs = [ "input:JetTrackVtxAssoc","ghost:Track" ]),
+                                   prereqs = [ "input:JetTrackUsedInFitDeco","input:JetTrackVtxAssoc","ghost:Track" ]),
     "Charge" : JetModifier("JetChargeTool", "jetcharge", 
                                    prereqs = [ "ghost:Track" ]),
 }
