@@ -65,6 +65,8 @@ namespace Monitored {
      **/
     virtual void remove(const HistogramDef& def);
 
+    static std::mutex& globalROOTMutex() { return s_histDirMutex; }
+
   private:
     /**
      * @brief Create and register histogram
@@ -166,6 +168,7 @@ namespace Monitored {
     std::string m_groupName;  //!< defines location of group of histograms
 
     mutable std::mutex m_createLock;
+    inline static std::mutex s_histDirMutex;
   };
 }
 
