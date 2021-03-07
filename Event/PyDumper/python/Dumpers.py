@@ -71,8 +71,9 @@ if hasattr (ROOT, 'TrigInDetParticleTruth'):
     ROOT.TrigSpacePointCounts().droppedSctModules()
 hasattr (ROOT, 'xAOD::TruthParticle_v1')
 ROOT.TClass.GetClass('ElementLink<DataVector<xAOD::TruthParticle_v1> >')
-ROOT.gROOT.ProcessLine ('#include "xAODMuon/MuonContainer.h"')
-ROOT.TClass.GetClass('ElementLink<DataVector<xAOD::Muon_v1> >')
+if hasattr (ROOT, 'xAOD::Muon_v1'):
+    ROOT.gROOT.ProcessLine ('#include "xAODMuon/MuonContainer.h"')
+    ROOT.TClass.GetClass('ElementLink<DataVector<xAOD::Muon_v1> >')
 
 
 ### helper methods ------------------------------------------------------------
