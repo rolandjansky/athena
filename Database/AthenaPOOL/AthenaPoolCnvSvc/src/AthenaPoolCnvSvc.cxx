@@ -297,16 +297,11 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
          ATH_MSG_DEBUG("connectOutput SKIPPED for expired server.");
          return(StatusCode::SUCCESS);
       }
-      std::size_t streamClient = 0;
-      for (std::vector<std::string>::const_iterator iter = m_streamClientFiles.begin(), last = m_streamClientFiles.end(); iter != last; iter++) {
-         if (*iter == outputConnection) break;
-         streamClient++;
-      }
-      if (streamClient == m_streamClientFiles.size()) {
+      auto it = std::find (m_streamClientFiles.begin(),
+                           m_streamClientFiles.end(),
+                           outputConnection);
+      if (it == m_streamClientFiles.end()) {
          m_streamClientFiles.push_back(outputConnection);
-      }
-      if (m_streamClientFiles.size() >= m_outputStreamingTool.size()) {
-         streamClient = 0;
       }
    }
 
@@ -379,11 +374,10 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
    std::string outputConnection = outputConnectionSpec.substr(0, outputConnectionSpec.find("["));
    if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient()
 	   && (!m_streamMetaDataOnly || outputConnectionSpec.find("[PoolContainerPrefix=" + m_metadataContainerProp.value() + "]") != std::string::npos)) {
-      std::size_t streamClient = 0;
-      for (std::vector<std::string>::const_iterator iter = m_streamClientFiles.begin(), last = m_streamClientFiles.end(); iter != last; iter++) {
-         if (*iter == outputConnection) break;
-         streamClient++;
-      }
+      auto it = std::find (m_streamClientFiles.begin(),
+                           m_streamClientFiles.end(),
+                           outputConnection);
+      size_t streamClient = it - m_streamClientFiles.begin();
       if (streamClient == m_streamClientFiles.size()) {
          m_streamClientFiles.push_back(outputConnection);
       }
@@ -411,12 +405,10 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
       return(StatusCode::SUCCESS);
    }
    if (!m_outputStreamingTool.empty() && !m_outputStreamingTool[0]->isClient() && m_streamServer == m_outputStreamingTool.size()) {
-      std::size_t streamClient = 0;
-      for (std::vector<std::string>::const_iterator iter = m_streamClientFiles.begin(), last = m_streamClientFiles.end(); iter != last; iter++) {
-         if (*iter == outputConnection) break;
-         streamClient++;
-      }
-      if (streamClient == m_streamClientFiles.size()) {
+      auto it = std::find (m_streamClientFiles.begin(),
+                           m_streamClientFiles.end(),
+                           outputConnection);
+      if (it == m_streamClientFiles.end()) {
          ATH_MSG_DEBUG("commitOutput SKIPPED for unconnected file: " << outputConnection << ".");
          return(StatusCode::SUCCESS);
       }
@@ -717,12 +709,11 @@ Token* AthenaPoolCnvSvc::registerForWrite(Placement* placement, const void* obj,
    Token* token = nullptr;
    if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient()
 	   && (!m_streamMetaDataOnly || placement->containerName().substr(0, m_metadataContainerProp.value().size()) == m_metadataContainerProp.value())) {
-      std::size_t streamClient = 0;
       std::string fileName = placement->fileName();
-      for (std::vector<std::string>::const_iterator iter = m_streamClientFiles.begin(), last = m_streamClientFiles.end(); iter != last; iter++) {
-         if (*iter == fileName) break;
-         streamClient++;
-      }
+      auto it = std::find (m_streamClientFiles.begin(),
+                           m_streamClientFiles.end(),
+                           fileName);
+      size_t streamClient = it - m_streamClientFiles.begin();
       if (streamClient == m_streamClientFiles.size()) {
          m_streamClientFiles.push_back(fileName);
       }
@@ -815,13 +806,11 @@ Token* AthenaPoolCnvSvc::registerForWrite(Placement* placement, const void* obj,
          tempToken->setClassID(pool::DbReflex::guid(classDesc));
          token = tempToken; tempToken = nullptr;
       } else if (!m_outputStreamingTool.empty() && !m_outputStreamingTool[0]->isClient() && m_streamServer == m_outputStreamingTool.size()) {
-         std::size_t streamClient = 0;
          std::string fileName = placement->fileName();
-         for (std::vector<std::string>::const_iterator iter = m_streamClientFiles.begin(), last = m_streamClientFiles.end(); iter != last; iter++) {
-            if (*iter == fileName) break;
-            streamClient++;
-         }
-         if (streamClient == m_streamClientFiles.size()) {
+         auto it = std::find (m_streamClientFiles.begin(),
+                              m_streamClientFiles.end(),
+                              fileName);
+         if (it == m_streamClientFiles.end()) {
             ATH_MSG_DEBUG("registerForWrite SKIPPED for unconnected file: " << fileName << ".");
             Token* tempToken = new Token();
             tempToken->setClassID(pool::DbReflex::guid(classDesc));
