@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -25,18 +25,15 @@
 #include <vector>
 #include <cmath> 
 
-// general athena stuff
-#include "GaudiKernel/IToolSvc.h"
-
 //Gaudi
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/SystemOfUnits.h"
+
 // Base class
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
-#include "TrigT1Interfaces/RecEmTauRoI.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 #include "xAODTracking/TrackParticleContainer.h"
@@ -46,10 +43,7 @@
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h" 
 
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 
-//namespace Trk
-//{ class IParticleCaloExtensionTool; } 
 
 /**
  * \class TrigEgammaFastElectronFexMT 
@@ -68,12 +62,10 @@ class TrigEgammaFastElectronFexMT : public AthAlgorithm  {
  public:
 
   TrigEgammaFastElectronFexMT(const std::string & name, ISvcLocator* pSvcLocator);
-  ~TrigEgammaFastElectronFexMT();
 
   virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override;
   virtual StatusCode execute() override;
-
+  virtual StatusCode finalize() override;
 
  private:
   
@@ -95,17 +87,17 @@ class TrigEgammaFastElectronFexMT : public AthAlgorithm  {
   
    // Algorithm properties: the parameters are {this, <name>, <default value>, <documentation>}
   Gaudi::Property<bool>  m_acceptAll  {this, "AcceptAll", false, "Build electrons for all tracks"};
-  Gaudi::Property<float> m_clusEtthr {this,  "ClusEt",  20.0*CLHEP::GeV , " lower limit on cluster Et"};
-  Gaudi::Property<float> m_trackPtthr {this,  "TrackPt",  5.0*CLHEP::GeV , "lower limit on TrackPt cut" };
+  Gaudi::Property<float> m_clusEtthr {this,  "ClusEt",  20.0*Gaudi::Units::GeV , " lower limit on cluster Et"};
+  Gaudi::Property<float> m_trackPtthr {this,  "TrackPt",  5.0*Gaudi::Units::GeV , "lower limit on TrackPt cut" };
   Gaudi::Property<float> m_calotrkdeta_noextrap {this,  "CaloTrackdEtaNoExtrap",   0.5, "Upper limit on DEta between Calo cluster and Track for track preselection before extrapolation"};
-  Gaudi::Property<float> m_trackPtthr_highet  {this,  "TrackPtHighEt",  2.0*CLHEP::GeV , "lower limit on TrackPt cut High Et Cluster (20GeV)"};
+  Gaudi::Property<float> m_trackPtthr_highet  {this,  "TrackPtHighEt",  2.0*Gaudi::Units::GeV , "lower limit on TrackPt cut High Et Cluster (20GeV)"};
   Gaudi::Property<float> m_calotrkdeta_noextrap_highet {this,  "CaloTrackdEtaNoExtrapHighEt",  0, "upper limit on DEta between Calo cluster and Track for track preselection before extrapolation for High Et cluster (20GeV)"};
   Gaudi::Property<float> m_calotrackdeta {this,  "CaloTrackdETA",    0, "Upper limit on DEta between Calo cluster and Track"};
   Gaudi::Property<float> m_calotrackdphi {this,  "CaloTrackdPHI",     0, "Upper limit on DPhi between Calo cluster and Track"}; 
   Gaudi::Property<float> m_calotrackdeoverp_low {this,  "CaloTrackdEoverPLow",  0, "lower limit on E(calo)/p(track)"};
   Gaudi::Property<float> m_calotrackdeoverp_high {this,  "CaloTrackdEoverPHigh", 0, "upper limit on track E(calo)/p(track)"};
-  Gaudi::Property<float> m_RCAL {this,  "RCalBarrelFace",  1470.0*CLHEP::mm , "Radius of inner face of the barrel calorimeter"};
-  Gaudi::Property<float> m_ZCAL {this,  "ZCalEndcapFace",     3800.0*CLHEP::mm, "z of the inner face of endcap calorimeter"};
+  Gaudi::Property<float> m_RCAL {this,  "RCalBarrelFace",  1470.0*Gaudi::Units::mm , "Radius of inner face of the barrel calorimeter"};
+  Gaudi::Property<float> m_ZCAL {this,  "ZCalEndcapFace",     3800.0*Gaudi::Units::mm, "z of the inner face of endcap calorimeter"};
   // Too be changed Public Tools depreciated
   ToolHandle<Trk::IParticleCaloExtensionTool > m_caloExtensionTool {this,  "ParticleCaloExtensionTool",  "Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", "Tool to extrapolate Track to Calo inner surface"};
  

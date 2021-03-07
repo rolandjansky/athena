@@ -1,20 +1,19 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "Gaudi/Property.h"
 #include "TrigEgammaPrecisionElectronHypoAlgMT.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "AthViews/ViewHelper.h"
 
-using namespace TrigCompositeUtils;
+namespace TCU = TrigCompositeUtils;
 
 TrigEgammaPrecisionElectronHypoAlgMT::TrigEgammaPrecisionElectronHypoAlgMT( const std::string& name, 
 					  ISvcLocator* pSvcLocator ) :
   ::HypoBase( name, pSvcLocator ) {}
 
-TrigEgammaPrecisionElectronHypoAlgMT::~TrigEgammaPrecisionElectronHypoAlgMT() {}
 
 StatusCode TrigEgammaPrecisionElectronHypoAlgMT::initialize() {
   ATH_MSG_DEBUG ( "Initializing " << name() << "..." );
@@ -25,10 +24,6 @@ StatusCode TrigEgammaPrecisionElectronHypoAlgMT::initialize() {
   ATH_CHECK( m_electronsKey.initialize() );
   renounce( m_electronsKey );// electrons are made in views, so they are not in the EvtStore: hide them
 
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TrigEgammaPrecisionElectronHypoAlgMT::finalize() {   
   return StatusCode::SUCCESS;
 }
 
@@ -43,7 +38,7 @@ StatusCode TrigEgammaPrecisionElectronHypoAlgMT::execute( const EventContext& co
   // new decisions
 
   // new output decisions
-  SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context ); 
+  SG::WriteHandle<TCU::DecisionContainer> outputHandle = TCU::createAndStore(decisionOutput(), context );
   auto decisions = outputHandle.ptr();
 
   // input for decision
@@ -54,11 +49,11 @@ StatusCode TrigEgammaPrecisionElectronHypoAlgMT::execute( const EventContext& co
   for ( auto previousDecision: *previousDecisionsHandle ) {
 
     //get updated RoI  
-    auto roiELInfo = findLink<TrigRoiDescriptorCollection>( previousDecision, roiString() );
+    auto roiELInfo = TCU::findLink<TrigRoiDescriptorCollection>( previousDecision, TCU::roiString() );
 
     ATH_CHECK( roiELInfo.isValid() );
     const TrigRoiDescriptor* roi = *(roiELInfo.link);
-    const auto viewEL = previousDecision->objectLink<ViewContainer>( viewString() );
+    const auto viewEL = previousDecision->objectLink<ViewContainer>( TCU::viewString() );
     ATH_CHECK( viewEL.isValid() );
     auto electronHandle = ViewHelper::makeHandle( *viewEL, m_electronsKey, context);
     ATH_CHECK( electronHandle.isValid() );
@@ -75,9 +70,9 @@ StatusCode TrigEgammaPrecisionElectronHypoAlgMT::execute( const EventContext& co
 	    ATH_CHECK(ph.isValid());
 
 	    ATH_MSG_DEBUG ( "ElectronHandle in position " << cl << " processing...");
-	    auto d = newDecisionIn( decisions, hypoAlgNodeName() );
-	    d->setObjectLink( featureString(),  ph );
-	    TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
+	    auto d = TCU::newDecisionIn( decisions, TCU::hypoAlgNodeName() );
+	    d->setObjectLink( TCU::featureString(),  ph );
+	    TCU::linkToPrevious( d, decisionInput().key(), counter );
 	    toolInput.emplace_back( d, roi, electronHandle.cptr()->at(cl), previousDecision );
 	    validelectrons++;
 

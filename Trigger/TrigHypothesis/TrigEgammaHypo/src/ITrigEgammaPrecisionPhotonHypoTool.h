@@ -1,12 +1,13 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGEGAMMAHYPO_ITRIGPRECISIONPHOTONHYPOTOOL_H
 #define TRIGEGAMMAHYPO_ITRIGPRECISIONPHOTONHYPOTOOL_H 1
 
 #include "GaudiKernel/IAlgTool.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
-
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include "xAODEgamma/Photon.h"
 
 /**
  * @class Base for tools dooing precision Photon Hypo selection

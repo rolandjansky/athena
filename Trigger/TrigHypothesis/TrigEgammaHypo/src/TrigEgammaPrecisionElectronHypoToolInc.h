@@ -1,24 +1,16 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGEGAMMAHYPO_TRIGPRECISIONELECTRONPRECISIONHYPOTOOLINC_H
 #define TRIGEGAMMAHYPO_TRIGPRECISIONELECTRONPRECISIONHYPOTOOLINC_H 1
 
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "xAODBase/IParticleContainer.h"
-#include "xAODEgamma/ElectronContainer.h"
-#include "xAODEgamma/Electron.h"
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
-#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "ITrigEgammaPrecisionElectronHypoTool.h"
-#include "PATCore/AcceptData.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
-#include "StoreGate/ReadCondHandleKey.h"
-#include "LumiBlockData/LuminosityCondData.h"
 #include "StoreGate/ReadDecorHandle.h"
+#include "xAODEventInfo/EventInfo.h"
 
 /**
  * @class Implementation of the precision selection for electrons

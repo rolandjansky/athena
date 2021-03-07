@@ -1,11 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGEGAMMAHYPO_TRIGEGAMMAFASTCALOHYPOTOOLINC_H
 #define TRIGEGAMMAHYPO_TRIGEGAMMAFASTCALOHYPOTOOLINC_H 1
 
-//#include "GaudiKernel/IAlgTool.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
 
 #include "xAODTrigRinger/TrigRingerRings.h"

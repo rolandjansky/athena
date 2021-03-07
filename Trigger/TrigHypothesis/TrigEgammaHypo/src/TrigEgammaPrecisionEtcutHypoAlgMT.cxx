@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Gaudi/Property.h"
@@ -7,8 +7,9 @@
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "AthViews/ViewHelper.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
 
-using namespace TrigCompositeUtils;
+namespace TCU = TrigCompositeUtils;
 
 TrigEgammaPrecisionEtcutHypoAlgMT::TrigEgammaPrecisionEtcutHypoAlgMT( const std::string& name, 
 					  ISvcLocator* pSvcLocator ) :
@@ -31,22 +32,22 @@ StatusCode TrigEgammaPrecisionEtcutHypoAlgMT::execute( const EventContext& conte
   // new decisions
 
   // new output decisions
-  SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context ); 
-  DecisionContainer* outputDecision = outputHandle.ptr();
+  SG::WriteHandle<TCU::DecisionContainer> outputHandle = TCU::createAndStore(decisionOutput(), context );
+  TCU::DecisionContainer* outputDecision = outputHandle.ptr();
 
   // input for decision
   std::vector<ITrigEgammaPrecisionEtcutHypoTool::ClusterInfo> toolInput;
 
   // loop over previous decisions
   size_t counter=0;
-  for ( const Decision* previousDecision: *previousDecisionsHandle ) {
+  for ( const TCU::Decision* previousDecision: *previousDecisionsHandle ) {
   
-    const auto featureEL = findLink<xAOD::CaloClusterContainer>( previousDecision, featureString() );
+    const auto featureEL = TCU::findLink<xAOD::CaloClusterContainer>( previousDecision, TCU::featureString() );
     ATH_CHECK(featureEL.isValid());
-    auto d = newDecisionIn( outputDecision, hypoAlgNodeName() );
-    d->setObjectLink<xAOD::CaloClusterContainer>( featureString(),  featureEL.link );
+    auto d = TCU::newDecisionIn( outputDecision, TCU::hypoAlgNodeName() );
+    d->setObjectLink<xAOD::CaloClusterContainer>( TCU::featureString(),  featureEL.link );
     
-    TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
+    TCU::linkToPrevious( d, decisionInput().key(), counter );
     toolInput.emplace_back( d, previousDecision );   
 
     ATH_MSG_DEBUG( "previous decision to new decision " << counter << " for roi " );

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
@@ -10,7 +10,7 @@
 #include "TrigEgammaPrecisionEtcutHypoTool.h"
 
 
-using namespace TrigCompositeUtils;
+namespace TCU = TrigCompositeUtils;
 
 TrigEgammaPrecisionEtcutHypoTool::TrigEgammaPrecisionEtcutHypoTool( const std::string& type, 
 		    const std::string& name, 
@@ -28,10 +28,6 @@ StatusCode TrigEgammaPrecisionEtcutHypoTool::initialize()  {
 
   return StatusCode::SUCCESS;
 }
-
-
-
-TrigEgammaPrecisionEtcutHypoTool::~TrigEgammaPrecisionEtcutHypoTool(){}
 
 
 bool TrigEgammaPrecisionEtcutHypoTool::decide() const {
@@ -53,7 +49,7 @@ bool TrigEgammaPrecisionEtcutHypoTool::decide() const {
 StatusCode TrigEgammaPrecisionEtcutHypoTool::decide( std::vector<ClusterInfo>& input )  const {
   for ( auto& i: input ) {
     if ( i.previousDecisionIDs.count( m_decisionId.numeric() ) == 0 ) continue;
-    addDecisionID( m_decisionId, i.decision );
+    TCU::addDecisionID( m_decisionId, i.decision );
   }
   return StatusCode::SUCCESS;
 }
