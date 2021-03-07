@@ -4320,6 +4320,15 @@ HLT_tau35_tightRNN_tracktwo_L1TAU12IM:
     0: 19
     1: 12
     2: 7
+HLT_tau60_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_xe50_cell_L1TAU40_2TAU12IM_XE40:
+  eventCount: 0
+  stepCounts:
+    0: 3
+    1: 1
+  stepFeatures:
+    0: 12
+    1: 7
+    2: 2
 HLT_tau80_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA_L1TAU60_DR-TAU20ITAU12I:
   eventCount: 0
   stepCounts:
