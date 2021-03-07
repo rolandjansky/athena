@@ -15,15 +15,9 @@
 // standard stuff
 #include <string>
 #include <vector>
-#include <cmath>
-#include <fstream>
-
-// general athena stuff
-#include "GaudiKernel/IToolSvc.h"
 
 //Gaudi
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
 
 // Base class
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -37,27 +31,19 @@
 #include "Identifier/IdentifierHash.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h" 
 
-#include "TrigCaloEvent/TrigEMCluster.h"
 #include "xAODTrigRinger/TrigRNNOutput.h"
 #include "xAODTrigRinger/TrigRNNOutputContainer.h"
 #include "xAODTrigRinger/TrigRNNOutputAuxContainer.h"
-#include "GeoPrimitives/GeoPrimitives.h" 
 
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 
-class TRT_ID;
-class ITrigTRT_DriftCircleProviderTool;
-class IdentifierHash;
 
 class TrigTRTHTHCounterMT: public AthAlgorithm {
  public:
   
   TrigTRTHTHCounterMT(const std::string& name, ISvcLocator* pSvcLocator); 
-  ~TrigTRTHTHCounterMT();
-  
+
   virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override;
   virtual StatusCode execute() override;
 
  private:
