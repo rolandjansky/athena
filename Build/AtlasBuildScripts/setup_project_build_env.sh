@@ -11,7 +11,9 @@
 #  - ATLAS_PROJECT_DIR: Directory of the project that this script is being used
 #    from.
 #  - ATLAS_EXT_PROJECT_NAME: The name of the "externals project" needed by the
-#    ATLAS project being built.
+#    ATLAS project being built. If not specified, an "externals project" is not
+#    looked for. Instead environment variables are set up to find the AtlasCMake
+#    and AtlasLCG modules in the atlasexternals checkout.
 #
 
 # Function printing the usage information for the script.
@@ -59,13 +61,24 @@ atlas_env_setup() {
    source "${ATLAS_BUILD_SCRIPTS_DIR}/TDAQ_RELEASE_BASE.sh"
 
    # Set up the environment of the "externals project".
-   ATLAS_EXT_DIR="${ATLAS_BUILD_DIR}/install/${ATLAS_EXT_PROJECT_NAME}/${ATLAS_PROJECT_VERSION}/InstallArea"
-   if [ ! -d ${ATLAS_EXT_DIR} ]; then
-	   echo "Warning: Didn't find ${ATLAS_EXT_PROJECT_NAME} under ${ATLAS_EXT_DIR}"
-      echo "         (Hopefully this is intentional and you have done e.g. asetup AthenaExternals,master,latest)"
+   if [ -z "${ATLAS_EXT_PROJECT_NAME}" ]; then
+      ATLAS_EXT_DIR="${ATLAS_BUILD_DIR}/src/atlasexternals"
+      if [ ! -d ${ATLAS_EXT_DIR} ]; then
+         echo "Warning: Didn't find atlasexternals under ${ATLAS_EXT_DIR}!"
+      fi
+      export AtlasCMake_DIR="${ATLAS_EXT_DIR}/Build/AtlasCMake"
+      export LCG_DIR="${ATLAS_EXT_DIR}/Build/AtlasLCG"
+      echo "Picking up AtlasCMake from: ${AtlasCMake_DIR}"
+      echo "Picking up AtlasLCG from  : ${LCG_DIR}"
    else
-      echo "Setting up ${ATLAS_EXT_PROJECT_NAME} from: ${ATLAS_EXT_DIR}"
-      source ${ATLAS_EXT_DIR}/*/setup.sh
+      ATLAS_EXT_DIR="${ATLAS_BUILD_DIR}/install/${ATLAS_EXT_PROJECT_NAME}/${ATLAS_PROJECT_VERSION}/InstallArea"
+      if [ ! -d ${ATLAS_EXT_DIR} ]; then
+	      echo "Warning: Didn't find ${ATLAS_EXT_PROJECT_NAME} under ${ATLAS_EXT_DIR}"
+         echo "         (Hopefully this is intentional and you have done e.g. asetup AthenaExternals,master,latest)"
+      else
+         echo "Setting up ${ATLAS_EXT_PROJECT_NAME} from: ${ATLAS_EXT_DIR}"
+         source ${ATLAS_EXT_DIR}/*/setup.sh
+      fi
    fi
 
    # Return gracefully.
