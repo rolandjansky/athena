@@ -82,6 +82,8 @@ if DetFlags.digitize.pixel_on():
        pixeldigi.OfflineCalibSvc=""
 
 if DetFlags.digitize.SCT_on():
+    
+    
     outStream.ItemList+=["SiHitCollection#SCT_Hits"]
 
     if 'doStripDigi' in digitizationFlags.experimentalDigi():
