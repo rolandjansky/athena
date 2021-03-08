@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// VertexBeamCondPositioner.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef BEAMEFFECTS_LONGBEAMSPOTVERTEXPOSITIONER_H
 #define BEAMEFFECTS_LONGBEAMSPOTVERTEXPOSITIONER_H 1
@@ -46,7 +42,7 @@ namespace Simulation {
                                     const IInterface* p );
 
       /** Destructor */
-      ~LongBeamspotVertexPositioner();
+      virtual ~LongBeamspotVertexPositioner() = default;
 
       /** Athena algtool's Hooks */
       StatusCode initialize() override final;
@@ -60,13 +56,13 @@ namespace Simulation {
       inline double heaviside(double val) const {return (val >= 0.0) ? 1.0 : 0.0;};
       double getZpos(CLHEP::HepRandomEngine*) const;
       double beamspotFunction(double z) const;
-      double m_L; //!< Parameter in the Z distribution of the beamspot
+      Gaudi::Property<double> m_L{this, "LParameter", 150.}; //!< Parameter in the Z distribution of the beamspot - default 150.0 mm
       SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
-      ServiceHandle<IAthRNGSvc>       m_rndGenSvc;
-      ATHRNG::RNGWrapper*             m_randomEngine;             //!< Slot-local RNG
+      ServiceHandle<IAthRNGSvc>   m_rndGenSvc{this, "RandomSvc", "AthRNGSvc"};
+      ATHRNG::RNGWrapper*             m_randomEngine{};             //!< Slot-local RNG
 
-      std::string                     m_randomEngineName;         //!< Name of the random number stream
-      bool                            m_timeSmearing;             //!< Do time smearing
+      Gaudi::Property<std::string>    m_randomEngineName{this, "RandomStream", "VERTEX"};         //!< Name of the random number stream
+      Gaudi::Property<bool>             m_timeSmearing{this, "SimpleTimeSmearing", false};             //!< Do time smearing
 
   };
 
