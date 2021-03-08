@@ -105,12 +105,12 @@ class ActsFatrasSimTool : public extends<AthAlgTool, ISF::IParticleProcessor> {
   /**Constructor */
   ActsFatrasSimTool(const std::string&, const std::string&, const IInterface*);
   /**Destructor*/
-  ~ActsFatrasSimTool();
+  virtual ~ActsFatrasSimTool();
 
   /** AlgTool initailize method.*/
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
   /** AlgTool finalize method */
-  StatusCode finalize();
+  virtual StatusCode finalize() override;
 
   virtual ISF::ISFParticle* process(const ISFParticle& isp,
                                     CLHEP::HepRandomEngine*) const override;
@@ -139,7 +139,6 @@ class ActsFatrasSimTool : public extends<AthAlgTool, ISF::IParticleProcessor> {
   }
 
   std::string m_idHelperName;
-  const AtlasDetectorID* m_idHelper;
   ToolHandle<IActsTrackingGeometryTool> m_trackingGeometryTool{
       this, "ActsTrackingGeometryTool", "ActsTrackingGeometryTool"};
   ToolHandle<IActsExtrapolationTool> m_actsExtrapolationTool{
@@ -148,7 +147,6 @@ class ActsFatrasSimTool : public extends<AthAlgTool, ISF::IParticleProcessor> {
   ActsGeometryContext m_geoCtx;
   Acts::MagneticFieldContext m_magCtx;
 
-  Acts::Logging::Level m_logLevel = Acts::Logging::Level::DEBUG;
   std::unique_ptr<const Acts::Logger> m_logger{nullptr};
   // construct the example detector
   std::shared_ptr<const Acts::TrackingGeometry> m_trackingGeometry;
