@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 from TrigExPartialEB import MTCalibPebConfig
@@ -39,15 +39,20 @@ AlgScheduler.CheckDependencies( True )
 AlgScheduler.ShowControlFlow( True )
 AlgScheduler.ShowDataDependencies( True )
 
-# The top algo sequence
-from AthenaCommon.AlgSequence import AlgSequence
-topSequence = AlgSequence()
-topSequence += MTCalibPebConfig.make_l1_seq()
-topSequence += MTCalibPebConfig.make_hlt_seq(num_chains, concurrent)
+# Set flags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+MTCalibPebConfig.set_flags(ConfigFlags)
+
+# Configure the L1 and HLT sequences
+from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+CAtoGlobalWrapper(MTCalibPebConfig.l1_seq_cfg, ConfigFlags)
+CAtoGlobalWrapper(MTCalibPebConfig.hlt_seq_cfg, ConfigFlags,
+                  num_chains=num_chains, concurrent=concurrent, hackCA2Global=True)
 
 # Print configuration for debugging
 log.info('Dump of topSequence')
-from AthenaCommon.AlgSequence import dumpSequence
+from AthenaCommon.AlgSequence import AlgSequence, dumpSequence
+topSequence = AlgSequence()
 dumpSequence(topSequence)
 log.info('Dump of ServiceMgr')
 from AthenaCommon.AppMgr import ServiceMgr
