@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PtEndcapLUT.h"
@@ -125,7 +125,7 @@ double TrigL2MuonSA::PtEndcapLUT::alpha(double z1, double r1, double z2, double 
   CLHEP::Hep2Vector mid1(z1, r1);
   CLHEP::Hep2Vector mid2(z2, r2);
   CLHEP::Hep2Vector dir = mid2 - mid1;
-  double a = acos(mid1.unit() * dir.unit());
+  double a = std::acos(mid1.unit() * dir.unit());
 
   return a;
 }
@@ -139,13 +139,13 @@ double TrigL2MuonSA::PtEndcapLUT::radius(double z1, double r1, double s1, double
   float cr2 = cr1;
   double x1 = z1;
 
-  if (fabs(x1)>=0.1) {
+  if (std::abs(x1)>=0.1) {
     double x2 = z2;
     double y1 = r1;
     double y2 = r2;
     double A1 = s1;
     double A2 = s2;
-    if(!(fabs(s2+999)<0.1)) {
+    if(!(std::abs(s2+999)<0.1)) {
       A2 = s2;
       cr2 = cr1/10;
     }
@@ -163,8 +163,8 @@ double TrigL2MuonSA::PtEndcapLUT::radius(double z1, double r1, double s1, double
     
     double xR = ((1./cr1)*xR1+(1./cr2)*xR2)/((1./cr1)+(1./cr2));
     double yR = ((1./cr1)*yR1+(1./cr2)*yR2)/((1./cr1)+(1./cr2));
-    double sign = deltar / fabs(deltar);
-    double radius = 0.5*(sqrt((xR-x1)*(xR-x1)+(yR-y1)*(yR-y1))+sqrt((xR-x2)*(xR-x2)+(yR-y2)*(yR-y2)));
+    double sign = deltar / std::abs(deltar);
+    double radius = 0.5*(std::sqrt((xR-x1)*(xR-x1)+(yR-y1)*(yR-y1))+std::sqrt((xR-x2)*(xR-x2)+(yR-y2)*(yR-y2)));
     return(sign * radius);
   } else {
     return 0.0;
@@ -205,9 +205,9 @@ double TrigL2MuonSA::PtEndcapLUT::lookup(int side, int charge, DataType type, in
   const double PT_MAX = 500; // 500 GeV upper limit
   const double ZERO_LIMIT = 1e-5;
 
-  if( fabs(c) < ZERO_LIMIT ) {
+  if( std::abs(c) < ZERO_LIMIT ) {
 
-    if( fabs(b) < ZERO_LIMIT ) {
+    if( std::abs(b) < ZERO_LIMIT ) {
 
       pt = PT_MAX;
 
@@ -348,13 +348,13 @@ double TrigL2MuonSA::PtEndcapLUT::ptcombined(int iEta, int iPhi, double ApT, dou
   double Bsigmac = m_sigmac[ietabin][iphibin][1];
 
   
-  double MeanAP  = ( fabs(ApT) > ZERO_LIMIT)? (Ameana + Ameanb * exp( Ameanc / ApT)) : 1.0;
-  double MeanBP  = ( fabs(BpT) > ZERO_LIMIT)? (Bmeana + Bmeanb * exp( Bmeanc / BpT)) : 1.0;
-  double ApT_tmp = ( fabs(1-MeanAP) > ZERO_LIMIT)? (fabs(ApT) / (1-MeanAP)) : 1.0;
-  ApT_tmp = fabs(ApT_tmp);
+  double MeanAP  = ( std::abs(ApT) > ZERO_LIMIT)? (Ameana + Ameanb * std::exp( Ameanc / ApT)) : 1.0;
+  double MeanBP  = ( std::abs(BpT) > ZERO_LIMIT)? (Bmeana + Bmeanb * std::exp( Bmeanc / BpT)) : 1.0;
+  double ApT_tmp = ( std::abs(1-MeanAP) > ZERO_LIMIT)? (std::abs(ApT) / (1-MeanAP)) : 1.0;
+  ApT_tmp = std::abs(ApT_tmp);
   if(ApT_tmp >= 500) ApT_tmp = 500;
-  double BpT_tmp = ( fabs(1-MeanBP) > ZERO_LIMIT)? (fabs(BpT) / (1-MeanBP)) : 1.0;
-  BpT_tmp = fabs(BpT_tmp);
+  double BpT_tmp = ( std::abs(1-MeanBP) > ZERO_LIMIT)? (std::abs(BpT) / (1-MeanBP)) : 1.0;
+  BpT_tmp = std::abs(BpT_tmp);
   if(BpT_tmp >= 500) BpT_tmp = 500;
 
   CApT = ApT_tmp;
@@ -362,17 +362,17 @@ double TrigL2MuonSA::PtEndcapLUT::ptcombined(int iEta, int iPhi, double ApT, dou
   
   if(ApT == 0. ) CApT = 0.;
   if(BpT == 0. ) CBpT = 0.;
-  double NSigmaA= Asigmaa * fabs(ApT_tmp) * fabs(ApT_tmp) + Asigmab * fabs(ApT_tmp) + Asigmac;
-  double NSigmaB= Bsigmaa * fabs(BpT_tmp) * fabs(BpT_tmp) + Bsigmab * fabs(BpT_tmp) + Bsigmac;
+  double NSigmaA= Asigmaa * std::abs(ApT_tmp) * std::abs(ApT_tmp) + Asigmab * std::abs(ApT_tmp) + Asigmac;
+  double NSigmaB= Bsigmaa * std::abs(BpT_tmp) * std::abs(BpT_tmp) + Bsigmab * std::abs(BpT_tmp) + Bsigmac;
 
-  double NVsigpTA =(fabs(ApT_tmp) > ZERO_LIMIT&& fabs(NSigmaA) > ZERO_LIMIT)? (1/(NSigmaA * ApT_tmp) ): 1.0; 
-  double NVsigpTB =(fabs(BpT_tmp) > ZERO_LIMIT&& fabs(NSigmaB) > ZERO_LIMIT)? (1/(NSigmaB * BpT_tmp) ): 1.0; 
-  double NVsigAsq =(fabs(NSigmaA) > ZERO_LIMIT)? (1/(NSigmaA * NSigmaA))  : 1.0; 
-  double NVsigBsq =(fabs(NSigmaB) > ZERO_LIMIT)? (1/(NSigmaB * NSigmaB))  : 1.0; 
+  double NVsigpTA =(std::abs(ApT_tmp) > ZERO_LIMIT&& std::abs(NSigmaA) > ZERO_LIMIT)? (1/(NSigmaA * ApT_tmp) ): 1.0; 
+  double NVsigpTB =(std::abs(BpT_tmp) > ZERO_LIMIT&& std::abs(NSigmaB) > ZERO_LIMIT)? (1/(NSigmaB * BpT_tmp) ): 1.0; 
+  double NVsigAsq =(std::abs(NSigmaA) > ZERO_LIMIT)? (1/(NSigmaA * NSigmaA))  : 1.0; 
+  double NVsigBsq =(std::abs(NSigmaB) > ZERO_LIMIT)? (1/(NSigmaB * NSigmaB))  : 1.0; 
 
   double NVsigpTAsq = NVsigpTA * NVsigpTA;
   double NVsigpTBsq = NVsigpTB * NVsigpTB;
-  double pt = (fabs(NVsigAsq + NVsigBsq) > ZERO_LIMIT)? (1/sqrt((NVsigpTAsq + NVsigpTBsq)/(NVsigAsq + NVsigBsq))) : 0.;
+  double pt = (std::abs(NVsigAsq + NVsigBsq) > ZERO_LIMIT)? (1/std::sqrt((NVsigpTAsq + NVsigpTBsq)/(NVsigAsq + NVsigBsq))) : 0.;
   if(pt>500) pt = 500.;
   return pt;
 }

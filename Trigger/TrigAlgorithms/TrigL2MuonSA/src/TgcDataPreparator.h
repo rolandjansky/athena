@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_TGCDATAPREPARATOR_H
@@ -11,6 +11,7 @@
 
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
+#include "xAODTrigger/MuonRoI.h"
 #include "MuonRDO/TgcRdoContainer.h"
 #include "TgcDataPreparatorOptions.h"
 #include "TgcData.h"
@@ -52,6 +53,9 @@ class TgcDataPreparator: public AthAlgTool
       virtual StatusCode initialize() override;
     
       StatusCode prepareData(const LVL1::RecMuonRoI*  p_roi,
+			     TrigL2MuonSA::TgcHits&   tgcHits);
+
+      StatusCode prepareData(const xAOD::MuonRoI*     p_roi,
 			     TrigL2MuonSA::TgcHits&   tgcHits);
 
       void setOptions(const TrigL2MuonSA::TgcDataPreparatorOptions& options) { m_options = options; };

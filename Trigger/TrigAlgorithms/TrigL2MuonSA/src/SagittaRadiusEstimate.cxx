@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cmath>
@@ -34,7 +34,7 @@ void TrigL2MuonSA::SagittaRadiusEstimate::setMCFlag(BooleanProperty use_mcLUT,
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigL2MuonSA::SagittaRadiusEstimate::setSagittaRadius(const LVL1::RecMuonRoI*     p_roi,
+StatusCode TrigL2MuonSA::SagittaRadiusEstimate::setSagittaRadius(const TrigRoiDescriptor*    p_roids,
 								 TrigL2MuonSA::RpcFitResult& rpcFitResult,
 								 TrigL2MuonSA::TrackPattern& trackPattern) const
 {
@@ -107,37 +107,37 @@ StatusCode TrigL2MuonSA::SagittaRadiusEstimate::setSagittaRadius(const LVL1::Rec
     c33 = 3.*c3;
     
     nit = 1;
-    while((nit++)<=nitmx&&fabs(x0-xn)>=eps) {
+    while((nit++)<=nitmx&&std::abs(x0-xn)>=eps) {
       xn = x0 - f(x0,c0,c1,c2,c3)/fp(x0,c33,c22,c1);
       x0 = xn;
     }
-    if (fabs(xn)<ZERO_LIMIT) xn = ZERO_LIMIT;//To avoid divergence
+    if (std::abs(xn)<ZERO_LIMIT) xn = ZERO_LIMIT;//To avoid divergence
     
     x1 = xn;
     y1 = y0;    
     
     if (superPoints[0]->R > ZERO_LIMIT ) {
       rad = superPoints[0]->R;
-      theta = atan2(rad,(double)fabs(superPoints[0]->Z));
-      signZ = (fabs(superPoints[0]->Z) > ZERO_LIMIT)? superPoints[0]->Z/fabs(superPoints[0]->Z): 1.;
+      theta = std::atan2(rad,(double)std::abs(superPoints[0]->Z));
+      signZ = (std::abs(superPoints[0]->Z) > ZERO_LIMIT)? superPoints[0]->Z/std::abs(superPoints[0]->Z): 1.;
     } else {
       rad = y1;
-      theta = atan2(rad,(double)fabs(x1));
-      signZ = (fabs(x1) > ZERO_LIMIT)? x1/fabs(x1): 1.;
+      theta = std::atan2(rad,(double)std::abs(x1));
+      signZ = (std::abs(x1) > ZERO_LIMIT)? x1/std::abs(x1): 1.;
     }
         
-    trackPattern.etaMap = (-log(tan(theta/2.)))*signZ;
+    trackPattern.etaMap = (-std::log(std::tan(theta/2.)))*signZ;
     if (rpcFitResult.isSuccess ) {
-      //      one = (fabs(rpcFitResult.rpc1[0]) > 0.)? 1. * rpcFitResult.rpc1[0] / fabs(rpcFitResult.rpc1[0]): 1.;
-      one = (cos(rpcFitResult.phi)>0)? 1: -1;
+      //      one = (std::abs(rpcFitResult.rpc1[0]) > 0.)? 1. * rpcFitResult.rpc1[0] / std::abs(rpcFitResult.rpc1[0]): 1.;
+      one = (std::cos(rpcFitResult.phi)>0)? 1: -1;
     } else {
-      one = (cos(p_roi->phi())>0)? 1: -1;
+      one = (std::cos(p_roids->phi())>0)? 1: -1;
     }
-    phi = atan2(trackPattern.phiMSDir*one,one);
+    phi = std::atan2(trackPattern.phiMSDir*one,one);
 
     if(phim>=M_PI+0.1) phim = phim - 2*M_PI;
     
-    if(phim>=0) trackPattern.phiMap = (phi>=0.)? phi - phim : phim -fabs(phi);
+    if(phim>=0) trackPattern.phiMap = (phi>=0.)? phi - phim : phim -std::abs(phi);
     else trackPattern.phiMap = phi - phim;
     
     trackPattern.phiMS = phi;
@@ -156,28 +156,28 @@ StatusCode TrigL2MuonSA::SagittaRadiusEstimate::setSagittaRadius(const LVL1::Rec
     
     x0 = -a/2. + x1;
     y0 = -b/2. + y1;
-    trackPattern.barrelRadius  = sqrt(x0*x0 + y0*y0);
+    trackPattern.barrelRadius  = std::sqrt(x0*x0 + y0*y0);
     trackPattern.charge = -1;
     if(a<=0.) trackPattern.charge = 1;
     
   } else if (count==3) {
         
     rad = superPoints[0]->R;
-    theta = atan2(rad,(double)fabs(superPoints[0]->Z));
-    signZ = superPoints[0]->Z/fabs(superPoints[0]->Z);
+    theta = std::atan2(rad,(double)std::abs(superPoints[0]->Z));
+    signZ = superPoints[0]->Z/std::abs(superPoints[0]->Z);
 
-    trackPattern.etaMap = (-log(tan(theta/2.)))*signZ;
+    trackPattern.etaMap = (-std::log(std::tan(theta/2.)))*signZ;
 
     if (rpcFitResult.isSuccess ) {
-      //      one = (fabs(rpcFitResult.rpc1[0]) > 0.)? 1. * rpcFitResult.rpc1[0] / fabs(rpcFitResult.rpc1[0]): 1;
-      one = (cos(rpcFitResult.phi)>0)? 1: -1;
+      //      one = (std::abs(rpcFitResult.rpc1[0]) > 0.)? 1. * rpcFitResult.rpc1[0] / std::abs(rpcFitResult.rpc1[0]): 1;
+      one = (std::cos(rpcFitResult.phi)>0)? 1: -1;
     } else {
-      one = (cos(p_roi->phi())>0)? 1: -1;
+      one = (std::cos(p_roids->phi())>0)? 1: -1;
     }
-    phi = atan2(trackPattern.phiMSDir*one,one);
+    phi = std::atan2(trackPattern.phiMSDir*one,one);
     if(phim>=M_PI+0.1) phim = phim - 2*M_PI;
 
-    if(phim>=0) trackPattern.phiMap = (phi>=0.)? phi - phim : phim -fabs(phi);
+    if(phim>=0) trackPattern.phiMap = (phi>=0.)? phi - phim : phim -std::abs(phi);
     else trackPattern.phiMap = phi - phim;
 
     trackPattern.phiMS = phi;
@@ -203,7 +203,7 @@ StatusCode TrigL2MuonSA::SagittaRadiusEstimate::setSagittaRadius(const LVL1::Rec
     trackPattern.barrelSagitta = superPoints[1]->Z - superPoints[1]->R*a3 - superPoints[0]->Z + superPoints[0]->R*a3;
     
     m = a3;
-    cost = cos(atan(m));
+    cost = std::cos(std::atan(m));
     x2 = superPoints[1]->R - superPoints[0]->R;
     y2 = superPoints[1]->Z - superPoints[0]->Z;
     x3 = superPoints[2]->R - superPoints[0]->R;
@@ -220,8 +220,8 @@ StatusCode TrigL2MuonSA::SagittaRadiusEstimate::setSagittaRadius(const LVL1::Rec
     x0 = x3/2.;
     y0 = (y2*y2 + x2*x2 -x2*x3)/(2*y2);
     
-    trackPattern.barrelRadius = sqrt(x0*x0 + y0*y0);
-    trackPattern.charge = (trackPattern.barrelSagitta!=0)? -1.*trackPattern.barrelSagitta/fabs(trackPattern.barrelSagitta): 0;
+    trackPattern.barrelRadius = std::sqrt(x0*x0 + y0*y0);
+    trackPattern.charge = (trackPattern.barrelSagitta!=0)? -1.*trackPattern.barrelSagitta/std::abs(trackPattern.barrelSagitta): 0;
 
   }
 
@@ -258,37 +258,37 @@ StatusCode TrigL2MuonSA::SagittaRadiusEstimate::setSagittaRadius(const LVL1::Rec
     c33 = 3.*c3;
 
     nit = 1;
-    while((nit++)<=nitmx&&fabs(x0-xn)>=eps) {
+    while((nit++)<=nitmx&&std::abs(x0-xn)>=eps) {
       xn = x0 - f(x0,c0,c1,c2,c3)/fp(x0,c33,c22,c1);
       x0 = xn;
     }
-    if (fabs(xn)<ZERO_LIMIT) xn = ZERO_LIMIT;//To avoid divergence
+    if (std::abs(xn)<ZERO_LIMIT) xn = ZERO_LIMIT;//To avoid divergence
 
     x1 = xn;
     y1 = y0;    
 
     if (superPoints[0]->R > ZERO_LIMIT ) {
       rad = superPoints[0]->R;
-      theta = atan2(rad,(double)fabs(superPoints[0]->Z));
-      signZ = (fabs(superPoints[0]->Z) > ZERO_LIMIT)? superPoints[0]->Z/fabs(superPoints[0]->Z): 1.;
+      theta = std::atan2(rad,(double)std::abs(superPoints[0]->Z));
+      signZ = (std::abs(superPoints[0]->Z) > ZERO_LIMIT)? superPoints[0]->Z/std::abs(superPoints[0]->Z): 1.;
     } else {
       rad = y1;
-      theta = atan2(rad,(double)fabs(x1));
-      signZ = (fabs(x1) > ZERO_LIMIT)? x1/fabs(x1): 1.;
+      theta = std::atan2(rad,(double)std::abs(x1));
+      signZ = (std::abs(x1) > ZERO_LIMIT)? x1/std::abs(x1): 1.;
     }
 
-    trackPattern.etaMap = (-log(tan(theta/2.)))*signZ;
+    trackPattern.etaMap = (-std::log(std::tan(theta/2.)))*signZ;
     if (rpcFitResult.isSuccess ) {
-      //      one = (fabs(rpcFitResult.rpc1[0]) > 0.)? 1. * rpcFitResult.rpc1[0] / fabs(rpcFitResult.rpc1[0]): 1.;
-      one = (cos(rpcFitResult.phi)>0)? 1: -1;
+      //      one = (std::abs(rpcFitResult.rpc1[0]) > 0.)? 1. * rpcFitResult.rpc1[0] / std::abs(rpcFitResult.rpc1[0]): 1.;
+      one = (std::cos(rpcFitResult.phi)>0)? 1: -1;
     } else {
-      one = (cos(p_roi->phi())>0)? 1: -1;
+      one = (std::cos(p_roids->phi())>0)? 1: -1;
     }
-    phi = atan2(trackPattern.phiMSDir*one,one);
+    phi = std::atan2(trackPattern.phiMSDir*one,one);
 
     if(phim>=M_PI+0.1) phim = phim - 2*M_PI;
 
-    if(phim>=0) trackPattern.phiMap = (phi>=0.)? phi - phim : phim -fabs(phi);
+    if(phim>=0) trackPattern.phiMap = (phi>=0.)? phi - phim : phim -std::abs(phi);
     else trackPattern.phiMap = phi - phim;
 
     trackPattern.phiMS = phi;
@@ -307,7 +307,7 @@ StatusCode TrigL2MuonSA::SagittaRadiusEstimate::setSagittaRadius(const LVL1::Rec
     
     x0 = -a/2. + x1;
     y0 = -b/2. + y1;
-    double barrelRadius = sqrt(x0*x0 + y0*y0);
+    double barrelRadius = std::sqrt(x0*x0 + y0*y0);
     trackPattern.barrelRadius  = barrelRadius;
     trackPattern.charge = -1;
     if(a<=0.) trackPattern.charge = 1;

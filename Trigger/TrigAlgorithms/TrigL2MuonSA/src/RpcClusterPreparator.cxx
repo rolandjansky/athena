@@ -24,8 +24,7 @@ StatusCode TrigL2MuonSA::RpcClusterPreparator::initialize()
 {
    ATH_CHECK(m_idHelperSvc.retrieve());
    ATH_MSG_DEBUG("Retrieved " << m_idHelperSvc);
-   ATH_CHECK( m_recRPCRoiSvc.retrieve() );
-   ATH_MSG_DEBUG( "Retrieved Service " << m_recRPCRoiSvc );
+   ATH_CHECK( m_recRPCRoiTool.retrieve() );
 
 
    return StatusCode::SUCCESS; 
@@ -34,7 +33,6 @@ StatusCode TrigL2MuonSA::RpcClusterPreparator::initialize()
 // --------------------------------------------------------------------------------
 
 StatusCode TrigL2MuonSA::RpcClusterPreparator::clusteringRPCs(const bool doMultiMuon,
-                                                              unsigned int roiWord, 
                                                               std::vector<const Muon::RpcPrepDataCollection*> rpcCols, 
                                                               const TrigRoiDescriptor*          p_roids, 
                                                               const ToolHandle<ClusterPatFinder>*     clusterPatFinder, 
@@ -49,7 +47,7 @@ StatusCode TrigL2MuonSA::RpcClusterPreparator::clusteringRPCs(const bool doMulti
 
     if(theCollection->size()>0){
       // build the patterns
-      if(buildPatterns(doMultiMuon, roiWord, p_roids, theCollection, digits)){
+      if(buildPatterns(doMultiMuon, p_roids, theCollection, digits)){
         buildClusters(clusterPatFinder, digits, rpcLayerClusters);
       }
     }
@@ -63,7 +61,6 @@ StatusCode TrigL2MuonSA::RpcClusterPreparator::clusteringRPCs(const bool doMulti
 // --------------------------------------------------------------------------------
 
 int TrigL2MuonSA::RpcClusterPreparator::buildPatterns(const bool doMultiMuon, 
-                                                      unsigned int roiWord,
                                                       const TrigRoiDescriptor*        p_roids, 
                                                       const Muon::RpcPrepDataCollection* rpcCollection,
                                                       std::map<Identifier, pattern>&     digits) const 
@@ -74,14 +71,15 @@ int TrigL2MuonSA::RpcClusterPreparator::buildPatterns(const bool doMultiMuon,
   float dynamic_add = 0.02;
   if(doMultiMuon){
     ATH_MSG_DEBUG("# dynamic search window of RPC");
-    m_recRPCRoiSvc->reconstruct( roiWord );
-    float RoiPhiMin = m_recRPCRoiSvc->phiMin();
-    float RoiPhiMax = m_recRPCRoiSvc->phiMax();
-    float RoiEtaMin = m_recRPCRoiSvc->etaMin();
-    float RoiEtaMax = m_recRPCRoiSvc->etaMax();
+    m_recRPCRoiTool->roiData( p_roids->roiWord() );
+    double RoiPhiMin(0);
+    double RoiPhiMax(0);
+    double RoiEtaMin(0);
+    double RoiEtaMax(0);
+    m_recRPCRoiTool->RoIsize(p_roids->roiWord(), RoiEtaMin, RoiEtaMax, RoiPhiMin, RoiPhiMax);
     ATH_MSG_DEBUG( "  ... RoI Phi min = " << RoiPhiMin << " RoI Phi max = " << RoiPhiMax << " RoI Eta min = " << RoiEtaMin << " RoI Eta max = " << RoiEtaMax );
     deta_thr = std::abs( RoiEtaMax - RoiEtaMin )/2. + dynamic_add;
-    dphi_thr = std::abs( acos( cos( RoiPhiMax - RoiPhiMin ) ) )/2. + dynamic_add;
+    dphi_thr = std::abs( std::acos( std::cos( RoiPhiMax - RoiPhiMin ) ) )/2. + dynamic_add;
     ATH_MSG_DEBUG( "## deta/dphi threshold = " << deta_thr << "/" << dphi_thr);
   }
   

@@ -20,7 +20,6 @@
 #include "../src/RecMuonRoIUtils.h"
 #include "../src/RpcClusterPreparator.h"
 #include "IRegionSelector/IRegSelTool.h"
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
@@ -31,8 +30,7 @@
 
 #include "MuonRecToolInterfaces/IMuonCombinePatternTool.h"
 
-#include "RPC_CondCabling/RpcCablingCondData.h"
-#include "StoreGate/ReadCondHandleKey.h"
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -50,16 +48,12 @@ class RpcDataPreparator: public AthAlgTool
       virtual StatusCode initialize() override;
 
       StatusCode prepareData(const TrigRoiDescriptor*    p_roids,
-			     unsigned int roiWord,
-                             bool&        isFakeRoi,
 			     TrigL2MuonSA::RpcHits&      rpcHits,
                              TrigL2MuonSA::RpcLayerHits& rpcLayerHits,
 			     ToolHandle<RpcPatFinder>*   rpcPatFinder);
 
       //for multi-track SA mode
       StatusCode prepareData(const TrigRoiDescriptor*         p_roids,
-                             bool&                            isRpcFakeRoi,
-                             unsigned int roiWord,
                              TrigL2MuonSA::RpcLayerClusters&  rpcLayerClusters,
                              const ToolHandle<ClusterPatFinder>*    clusterPatFinder) const;
 
@@ -69,7 +63,6 @@ class RpcDataPreparator: public AthAlgTool
 
  private:
       ToolHandle<IRegSelTool> m_regionSelector{this,"RegSel_RPC","RegSelTool/RegSelTool_RPC"};
-      SG::ReadCondHandleKey<RpcCablingCondData> m_readKey{this, "ReadKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
       ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
       ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_recRPCRoiTool{ this, "TrigT1RPCRecRoiTool", "LVL1::TrigT1RPCRecRoiTool/TrigT1RPCRecRoiTool"};

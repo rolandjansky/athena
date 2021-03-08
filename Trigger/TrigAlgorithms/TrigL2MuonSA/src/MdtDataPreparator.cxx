@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtDataPreparator.h"
@@ -50,7 +50,6 @@ TrigL2MuonSA::MdtDataPreparator::MdtDataPreparator(const std::string& type,
    AthAlgTool(type,name,parent),
    m_regionSelector("RegSelTool/RegSelTool_MDT",this),
    m_robDataProvider("ROBDataProviderSvc", name), 
-   m_recMuonRoIUtils(),
    m_use_mdtcsm(true),
    m_BMGpresent(false),
    m_BMGid(-1)
@@ -129,8 +128,7 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::initialize()
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigL2MuonSA::MdtDataPreparator::prepareData(const LVL1::RecMuonRoI*  p_roi,
-							const TrigRoiDescriptor*    p_roids,
+StatusCode TrigL2MuonSA::MdtDataPreparator::prepareData(const TrigRoiDescriptor*    p_roids,
 							const TrigL2MuonSA::RpcFitResult& rpcFitResult,
 							TrigL2MuonSA::MuonRoad&  muonRoad,
 							TrigL2MuonSA::MdtRegion& mdtRegion,
@@ -138,9 +136,9 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::prepareData(const LVL1::RecMuonRoI* 
 							TrigL2MuonSA::MdtHits&   mdtHits_overlap)
 {
   // define regions
-  ATH_CHECK( m_mdtRegionDefiner->getMdtRegions(p_roi, rpcFitResult, muonRoad, mdtRegion) );
+  ATH_CHECK( m_mdtRegionDefiner->getMdtRegions(p_roids, rpcFitResult, muonRoad, mdtRegion) );
 
-  ATH_CHECK( getMdtHits(p_roi, p_roids, mdtRegion, muonRoad, mdtHits_normal, mdtHits_overlap) );
+  ATH_CHECK( getMdtHits(p_roids, mdtRegion, muonRoad, mdtHits_normal, mdtHits_overlap) );
 
   return StatusCode::SUCCESS;
 }
@@ -148,8 +146,7 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::prepareData(const LVL1::RecMuonRoI* 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigL2MuonSA::MdtDataPreparator::prepareData(const LVL1::RecMuonRoI*           p_roi,
-							const TrigRoiDescriptor*          p_roids,
+StatusCode TrigL2MuonSA::MdtDataPreparator::prepareData(const TrigRoiDescriptor*          p_roids,
 							const TrigL2MuonSA::TgcFitResult& tgcFitResult,
 							TrigL2MuonSA::MuonRoad&           muonRoad,
 							TrigL2MuonSA::MdtRegion&          mdtRegion,
@@ -157,9 +154,9 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::prepareData(const LVL1::RecMuonRoI* 
 							TrigL2MuonSA::MdtHits&            mdtHits_overlap)
 {
   // define regions
-  ATH_CHECK( m_mdtRegionDefiner->getMdtRegions(p_roi, tgcFitResult, muonRoad, mdtRegion) );
+  ATH_CHECK( m_mdtRegionDefiner->getMdtRegions(p_roids, tgcFitResult, muonRoad, mdtRegion) );
 
-  ATH_CHECK( getMdtHits(p_roi, p_roids, mdtRegion, muonRoad, mdtHits_normal, mdtHits_overlap) );
+  ATH_CHECK( getMdtHits(p_roids, mdtRegion, muonRoad, mdtHits_normal, mdtHits_overlap) );
 
   return StatusCode::SUCCESS;
 }
@@ -168,8 +165,7 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::prepareData(const LVL1::RecMuonRoI* 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtHits(const LVL1::RecMuonRoI*  p_roi,
-						       const TrigRoiDescriptor* p_roids, 
+StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtHits(const TrigRoiDescriptor* p_roids, 
 						       const TrigL2MuonSA::MdtRegion& mdtRegion,
 						       TrigL2MuonSA::MuonRoad& muonRoad,
 						       TrigL2MuonSA::MdtHits& mdtHits_normal,
@@ -181,16 +177,16 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtHits(const LVL1::RecMuonRoI*  
 
     // preload ROBs
     std::vector<uint32_t> v_robIds;
-    double etaMin = p_roi->eta() - 0.2;
-    double etaMax = p_roi->eta() + 0.2;
-    double phi = p_roi->phi();
-    double phiMin = p_roi->phi() - 0.1;
-    double phiMax = p_roi->phi() + 0.1;
+    double etaMin = p_roids->eta() - 0.2;
+    double etaMax = p_roids->eta() + 0.2;
+    double phi = p_roids->phi();
+    double phiMin = p_roids->phi() - 0.1;
+    double phiMax = p_roids->phi() + 0.1;
     if( phi < 0 ) phi += 2*M_PI;
     if( phiMin < 0 ) phiMin += 2*M_PI;
     if( phiMax < 0 ) phiMax += 2*M_PI;
     
-    TrigRoiDescriptor* roi = new TrigRoiDescriptor( p_roi->eta(), etaMin, etaMax, phi, phiMin, phiMax );
+    TrigRoiDescriptor* roi = new TrigRoiDescriptor( p_roids->eta(), etaMin, etaMax, phi, phiMin, phiMax );
     
     const IRoiDescriptor* iroi = (IRoiDescriptor*) roi;
     
@@ -580,7 +576,7 @@ bool TrigL2MuonSA::MdtDataPreparator::decodeMdtCsm(const MdtCsm* csm,
      double cphi  = muonRoad.phi[chamber][0];
      if( cPhip*cphi>0 ) dphi = std::abs(cPhip - cphi);
      else {
-       if(fabs(cphi) > M_PI/2.) {
+       if(std::abs(cphi) > M_PI/2.) {
 	 double phi1 = (cPhip>0.)? cPhip-M_PI : cPhip+M_PI;
 	 double phi2 = (cphi >0.)? cphi -M_PI : cphi +M_PI;
 	 dphi = std::abs(phi1) + std::abs(phi2);
@@ -591,16 +587,16 @@ bool TrigL2MuonSA::MdtDataPreparator::decodeMdtCsm(const MdtCsm* csm,
      }
      
      if(muonStation->endcap()==1)
-       R = sqrt(R*R+R*R*tan(dphi)*tan(dphi));
+       R = std::sqrt(R*R+R*R*std::tan(dphi)*std::tan(dphi));
      
      Amg::Vector3D OrigOfMdtInAmdbFrame = 
        Amg::Hep3VectorToEigen( muonStation->getBlineFixedPointInAmdbLRS() );
      double Rmin =(trans*OrigOfMdtInAmdbFrame).perp();
 
-     float cInCo = 1./cos(std::abs(atan(OrtoRadialPos/Rmin)));
-     float cPhi0 = cPhip - atan(OrtoRadialPos/Rmin);
+     float cInCo = 1./std::cos(std::abs(std::atan(OrtoRadialPos/Rmin)));
+     float cPhi0 = cPhip - std::atan(OrtoRadialPos/Rmin);
      if(cPhi0 > M_PI) cPhip -= 2*M_PI;
-     if(cPhip<0. && (fabs(M_PI+cPhip) < 0.05) ) cPhip = acos(0.)*2.;
+     if(cPhip<0. && (std::abs(M_PI+cPhip) < 0.05) ) cPhip = std::acos(0.)*2.;
      
      uint32_t OnlineId = ChannelId | (TdcId << 5) |
        (LinkId << 10) | (get_system_id(SubsystemId) << 13) | (MrodId <<16);
@@ -959,7 +955,7 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std
       if( cPhip*cphi>0 ) {
 	dphi = std::abs(cPhip - cphi);
       } else {
-	if(fabs(cphi) > M_PI/2.) {
+	if(std::abs(cphi) > M_PI/2.) {
 	  double phi1 = (cPhip>0.)? cPhip-M_PI : cPhip+M_PI;
 	  double phi2 = (cphi >0.)? cphi -M_PI : cphi +M_PI;
 	  dphi = std::abs(phi1) + std::abs(phi2);
@@ -970,16 +966,16 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std
       }
 
       if(muonStation->endcap()==1)
-	R = sqrt(R*R+R*R*tan(dphi)*tan(dphi));
+	R = std::sqrt(R*R+R*R*std::tan(dphi)*std::tan(dphi));
 
       Amg::Vector3D OrigOfMdtInAmdbFrame =
 	Amg::Hep3VectorToEigen( muonStation->getBlineFixedPointInAmdbLRS() );
       double Rmin =(trans*OrigOfMdtInAmdbFrame).perp();
 
-      float cInCo = 1./cos(std::abs(atan(OrtoRadialPos/Rmin)));
-      float cPhi0 = cPhip - atan(OrtoRadialPos/Rmin);
+      float cInCo = 1./std::cos(std::abs(std::atan(OrtoRadialPos/Rmin)));
+      float cPhi0 = cPhip - std::atan(OrtoRadialPos/Rmin);
       if(cPhi0 > M_PI) cPhip -= 2*M_PI;
-      if(cPhip<0. && (fabs(M_PI+cPhip) < 0.05) ) cPhip = acos(0.)*2.;
+      if(cPhip<0. && (std::abs(M_PI+cPhip) < 0.05) ) cPhip = std::acos(0.)*2.;
 
       ATH_MSG_DEBUG(" ...MDT hit Z/R/chamber/MultiLater/TubeLayer/Tube/Layer/adc/tdc = "
 		    << Z << "/" << R << "/" << chamber << "/" << MultiLayer << "/" << TubeLayer << "/" 

@@ -389,8 +389,11 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False, extraLo
     #muFastRecoSequence+=ViewVerify
   else:
     ViewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs )]
-  ViewVerify.DataObjects += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
-                             ( 'DataVector< LVL1::RecMuonRoI >' , 'StoreGateSvc+HLT_RecMURoIs' )]
+  ViewVerify.DataObjects += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
+  if ConfigFlags.Trigger.enableL1Phase1:
+    ViewVerify.DataObjects += [( 'xAOD::MuonRoIContainer' , 'StoreGateSvc+LVL1MuonRoIs' )]
+  else:
+    ViewVerify.DataObjects += [( 'DataVector< LVL1::RecMuonRoI >' , 'StoreGateSvc+HLT_RecMURoIs' )]
 
   #For L2 multi-track SA mode
   if extraLoads:
@@ -437,6 +440,10 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False, extraLo
   from RegionSelector.RegSelToolConfig import makeRegSelTool_RPC
   L2RpcDataPreparator.RegSel_RPC = makeRegSelTool_RPC()
 
+  from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__RpcClusterPreparator
+  L2RpcClusterPreparator = TrigL2MuonSA__RpcClusterPreparator(name = "L2RpcClusterPreparator",
+                                                              TrigT1RPCRecRoiTool = trigRpcRoiTool)
+  ToolSvc += L2RpcClusterPreparator
 
   ### TGC data preparation - turn off the data decoding here ###
   from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__TgcDataPreparator
@@ -500,7 +507,8 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False, extraLo
   
   muFastAlg.DataPreparator = MuFastDataPreparator
 
-  muFastAlg.RecMuonRoI = "HLT_RecMURoIs"
+  muFastAlg.Run2RecMuonRoI = "HLT_RecMURoIs"
+  muFastAlg.RecMuonRoI = "LVL1MuonRoIs"
   muFastAlg.MuRoIs = RoIs
   muFastAlg.MuonL2SAInfo = muNames.L2SAName+postFix
   muFastAlg.L2IOCB = muNames.L2CBName+postFix
@@ -517,7 +525,12 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False, extraLo
   if l2mtmode:
     muFastAlg.multitrackMode = True
     muFastAlg.doEndcapForl2mt = False
-  
+
+  if ConfigFlags.Trigger.enableL1Phase1:
+    muFastAlg.UseRun3Config = True
+  else:
+    muFastAlg.UseRun3Config = False
+
   muFastRecoSequence += muFastAlg
   sequenceOut = muFastAlg.MuonL2SAInfo
 

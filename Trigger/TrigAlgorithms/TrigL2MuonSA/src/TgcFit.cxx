@@ -251,14 +251,14 @@ TrigL2MuonSA::TgcFit::Status TrigL2MuonSA::TgcFit::runTgcMiddle(TrigL2MuonSA::Tg
   {
     if (!wirePoints[iPt].bOutlier)
     {
-      if (lowZ > fabs(wirePoints[iPt].fX))
+      if (lowZ > std::abs(wirePoints[iPt].fX))
       {
-        lowZ = fabs(wirePoints[iPt].fX);
+        lowZ = std::abs(wirePoints[iPt].fX);
         iLow = iPt;
       }
-      if (highZ < fabs(wirePoints[iPt].fX))
+      if (highZ < std::abs(wirePoints[iPt].fX))
       {
-        highZ = fabs(wirePoints[iPt].fX);
+        highZ = std::abs(wirePoints[iPt].fX);
         iHigh = iPt;
       }
     }

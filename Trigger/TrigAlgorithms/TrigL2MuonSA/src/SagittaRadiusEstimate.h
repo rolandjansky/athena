@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_SAGITTARADIUSESTIMATE_H
@@ -9,7 +9,7 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 
-#include "TrigT1Interfaces/RecMuonRoI.h"
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 #include "RpcFitResult.h"
 #include "TrackData.h"
@@ -34,7 +34,7 @@ namespace TrigL2MuonSA {
   
  public:
   
-  StatusCode setSagittaRadius(const LVL1::RecMuonRoI*     p_roi,
+  StatusCode setSagittaRadius(const TrigRoiDescriptor*    p_roids,
 			      TrigL2MuonSA::RpcFitResult& rpcFitResult,
 			      TrigL2MuonSA::TrackPattern& trackPattern) const;
   

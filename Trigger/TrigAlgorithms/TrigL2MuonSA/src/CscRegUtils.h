@@ -27,14 +27,14 @@ class UtilTools{
 public:
   UtilTools(){}
 
-  double calc_theta(double eta) const{ return 2*atan(exp((-1)*eta)); }
-  double calc_theta(double x, double y, double z) const{ return acos(z/sqrt(x*x+y*y+z*z)); } // for position not for direction theta in [0,pi]
-  double calc_eta(double x, double y, double z) const {return (-1)*log(tan(calc_theta(x,y,z)/2.));}
+  double calc_theta(double eta) const{ return 2*std::atan(std::exp((-1)*eta)); }
+  double calc_theta(double x, double y, double z) const{ return std::acos(z/std::sqrt(x*x+y*y+z*z)); } // for position not for direction theta in [0,pi]
+  double calc_eta(double x, double y, double z) const {return (-1)*std::log(std::tan(calc_theta(x,y,z)/2.));}
   double calc_phi( double x, double y) const;
   double calc_dphi(double phi1, double phi2) const;
-  double calc_sumsq(double x, double y) const { return sqrt(x*x+y*y); }
-  double calc_sumsq(double x, double y, double z) const { return sqrt(x*x+y*y+z*z);}
-  double cotan(double theta) const { return tan(M_PI-theta); }
+  double calc_sumsq(double x, double y) const { return std::sqrt(x*x+y*y); }
+  double calc_sumsq(double x, double y, double z) const { return std::sqrt(x*x+y*y+z*z);}
+  double cotan(double theta) const { return std::tan(M_PI-theta); }
   double relative_error(double measured, double reference) const {return (measured-reference)/reference; }
   double average_phi(double phi1, double phi2) const;
 

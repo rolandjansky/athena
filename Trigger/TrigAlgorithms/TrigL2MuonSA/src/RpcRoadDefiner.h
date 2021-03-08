@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_RPCROADDEFINER_H
@@ -17,6 +17,7 @@
 #include "RpcFitResult.h"
 #include "BarrelRoadData.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
+#include "xAODTrigger/MuonRoI.h"
 #include "IRegionSelector/IRegSelTool.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
@@ -36,9 +37,21 @@ class RpcRoadDefiner: public AthAlgTool
                  const IInterface*  parent);
 
   virtual StatusCode initialize() override;
-  
+
  public:
   StatusCode defineRoad(const LVL1::RecMuonRoI*             p_roi,
+			const bool                          insideOut,
+			TrigL2MuonSA::MuonRoad&             muonRoad,
+			TrigL2MuonSA::RpcHits&              rpcHits,
+                        const TrigL2MuonSA::RpcLayerHits&   rpcLayerHits,
+			ToolHandle<RpcPatFinder>*           rpcPatFinder,
+			TrigL2MuonSA::RpcFitResult&         rpcFitResult,
+			double                              roiEtaMinLow,
+			double                              roiEtaMaxLow,
+			double                              roiEtaMinHigh,
+			double                              roiEtaMaxHigh) const;
+
+  StatusCode defineRoad(const xAOD::MuonRoI*                p_roi,
 			const bool                          insideOut,
 			TrigL2MuonSA::MuonRoad&             muonRoad,
 			TrigL2MuonSA::RpcHits&              rpcHits,
@@ -67,12 +80,12 @@ class RpcRoadDefiner: public AthAlgTool
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
- 
+
  inline float TrigL2MuonSA::RpcRoadDefiner::f(float x, float c0, float c1, float c2, float c3) const
    {
      return c0 + x * (c1 + x * (c2 + x * c3)); // faster
    }
- 
+
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
  inline float TrigL2MuonSA::RpcRoadDefiner::fp(float x, float c33, float c22, float c1) const
