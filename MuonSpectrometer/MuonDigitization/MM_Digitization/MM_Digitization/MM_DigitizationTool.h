@@ -135,7 +135,7 @@ class MM_DigitizationTool : public PileUpToolBase {
 
 		Gaudi::Property<double> m_energyThreshold{this,"EnergyThreshold",50,"Minimal energy to produce a PRD"};
 		Gaudi::Property<double> m_timeWindowLowerOffset{this,"WindowLowerOffset",-300,"processBunchXing between -250 and 150 ns (look at config file)"};
-		Gaudi::Property<double> m_timeWindowUpperOffset{this,"WindowUpperOffset",300};
+		Gaudi::Property<double> m_timeWindowUpperOffset{this,"WindowUpperOffset",200};
 		Gaudi::Property<double> m_DiffMagSecondMuonHit{this,"DiffMagSecondMuonHit",0.1};
 
 		Gaudi::Property<int> m_maskMultiplet{this,"MaskMultiplet",0,"0: all, 1: first, 2: second, 3: both"};
@@ -144,7 +144,7 @@ class MM_DigitizationTool : public PileUpToolBase {
 		Gaudi::Property<bool> m_needsMcEventCollHelper{this,"UseMcEventCollectionHelper",false};
 		Gaudi::Property<bool> m_checkMMSimHits{this,"CheckSimHits",true,"Control on the hit validity"};
 		Gaudi::Property<bool> m_useTimeWindow{this,"UseTimeWindow",true};
-		Gaudi::Property<bool> m_vmmNeighborLogic{this,"VMMNeighborLogic",true};
+		Gaudi::Property<bool> m_vmmNeighborLogic{this,"VMMNeighborLogic",false};
 		Gaudi::Property<bool> m_doSmearing{this,"doSmearing",false,"set the usage or not of the smearing tool for realistic detector performance"};
 
 		// Constants vars for the MM_StripsResponseSimulation class
@@ -154,13 +154,13 @@ class MM_DigitizationTool : public PileUpToolBase {
 		//each mode have different transverseDiffusionSigma/longitudinalDiffusionSigma/driftVelocity/avalancheGain/interactionDensityMean/interactionDensitySigma/lorentzAngle
 		Gaudi::Property<float> m_qThreshold{this,"qThreshold",0.001,"Charge Threshold"};
 		Gaudi::Property<float> m_driftGapWidth{this,"DriftGapWidth",5.04,"Drift Gap Width of 5.04 mm"};
-		Gaudi::Property<float> m_crossTalk1{this,"crossTalk1",0.2,"Strip Cross Talk with Nearest Neighbor"};
-		Gaudi::Property<float> m_crossTalk2{this,"crossTalk2",0.04,"Strip Cross Talk with 2nd Nearest Neighbor"};
+		Gaudi::Property<float> m_crossTalk1{this,"crossTalk1",0.3,"Strip Cross Talk with Nearest Neighbor"};
+		Gaudi::Property<float> m_crossTalk2{this,"crossTalk2",0.09,"Strip Cross Talk with 2nd Nearest Neighbor"};
 
 		Gaudi::Property<float> m_avalancheGain{this,"AvalancheGain",8.0e3,"avalanche Gain for rach gas mixture"};
 
 		// Constants vars for the MM_ElectronicsResponseSimulation
-		Gaudi::Property<float> m_peakTime{this,"peakTime",100,"The VMM peak time setting"};
+		Gaudi::Property<float> m_peakTime{this,"peakTime",200,"The VMM peak time setting"};
 		Gaudi::Property<float> m_electronicsThreshold{this,"electronicsThreshold",15000,"threshold Voltage for histoBNL, 2*(Intrinsic noise ~3k e)"};
 		Gaudi::Property<float> m_stripdeadtime{this,"StripDeadTime",200,"dead-time for strip, default value 200 ns = 8 BCs"};
 		Gaudi::Property<float> m_ARTdeadtime{this,"ARTDeadTime",200,"dead-time for ART, default value 200 ns = 8 BCs"};
@@ -175,8 +175,6 @@ class MM_DigitizationTool : public PileUpToolBase {
 
 		Gaudi::Property<bool> m_useThresholdScaling{this, "useThresholdScaling", true, "Use a strip length dependent threshold in MM digitiation"};
 		Gaudi::Property<float> m_thresholdScaleFactor{this,"thresholdScaleFactor", 9.0, "Use x times the strip length dependent noise as MM threshold"};
-
-		Gaudi::Property<double> m_correctShift{this,"correctShift",-0.244,"purely empirical shift to fix the z positions of clusters"}; //  12/20  pscholer
 
 		TFile *m_file{};
 		TTree *m_ntuple{};

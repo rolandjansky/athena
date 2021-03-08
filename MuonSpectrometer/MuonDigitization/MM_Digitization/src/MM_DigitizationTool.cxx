@@ -220,6 +220,7 @@ StatusCode MM_DigitizationTool::initialize() {
 	m_ElectronicsResponseSimulation = std::make_unique<MM_ElectronicsResponseSimulation>();
 	m_ElectronicsResponseSimulation->setPeakTime(m_peakTime); // VMM peak time parameter
 	m_ElectronicsResponseSimulation->setTimeWindowLowerOffset(m_timeWindowLowerOffset);
+	m_timeWindowUpperOffset += m_peakTime; // account for peak time in time window
 	m_ElectronicsResponseSimulation->setTimeWindowUpperOffset(m_timeWindowUpperOffset);
 	m_ElectronicsResponseSimulation->setStripdeadtime(m_stripdeadtime);
 	m_ElectronicsResponseSimulation->setARTdeadtime(m_ARTdeadtime);
@@ -762,7 +763,6 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       /// move the initial track point to the readout plane
       int gasGap = m_idHelperSvc->mmIdHelper().gasGap(layerID);
       double shift = 0.5*detectorReadoutElement->getDesign(layerID)->thickness;
-      shift += m_correctShift;
       double scale = 0.0;
       if ( gasGap==1 || gasGap == 3) {
 	scale = -(stripLayerPosition.z() + shift)/localDirection.z();
