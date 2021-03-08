@@ -50,6 +50,7 @@
 #include "G4Step.hh"
 #include "G4StepPoint.hh"
 #include "G4VSensitiveDetector.hh"
+#include "Randomize.hh"
 #include "PathResolver/PathResolver.h"
 
 namespace G4UA{
@@ -510,8 +511,8 @@ namespace G4UA{
       double z1 = aStep->GetPostStepPoint()->GetPosition().z()*0.1;
 
       double l = sqrt(pow(x1-x0,2)+pow(y1-y0,2)+pow(z1-z0,2));
-      // make 1 mm steps but at least 1 step
-      double dl0 = 0.1;
+      // make 5 mm steps but at least 1 step
+      double dl0 = 0.5;
       unsigned int nStep = l/dl0+1;
       double dx = (x1-x0)/nStep;
       double dy = (y1-y0)/nStep;
@@ -564,13 +565,15 @@ namespace G4UA{
       double dE_ION = dE_TOT-dE_NIEL;
 
       for(unsigned int i=0;i<nStep;i++) {
-	double abszorz = z0+dz*(i+0.5);
+      // randomize position along current sub-step (flat fraction from 0-1) 
+	double subpos = G4UniformRand();
+	double abszorz = z0+dz*(i+subpos);
 	// if |z| instead of z take abs value
 	if ( m_config.zMinFull >= 0 ) abszorz = fabs(abszorz);
 
-	double rr = sqrt(pow(x0+dx*(i+0.5),2)+
-			 pow(y0+dy*(i+0.5),2));
-	double pphi = atan2(y0+dy*(i+0.5),x0+dx*(i+0.5))*180/M_PI;
+	double rr = sqrt(pow(x0+dx*(i+subpos),2)+
+			 pow(y0+dy*(i+subpos),2));
+	double pphi = atan2(y0+dy*(i+subpos),x0+dx*(i+subpos))*180/M_PI;
 
 	int vBinZoom      = -1;
 	int vBinFull      = -1;
@@ -682,15 +685,15 @@ namespace G4UA{
 	// TID & EION
 	if ( goodMaterial && vBinZoom >=0 ) {
 	  if ( pdgid == 999 ) {
-	    m_maps.m_rz_tid [vBinZoom] += dl;
-	    m_maps.m_rz_eion[vBinZoom] += rho*dl;
+	    m_maps.m_rz_tid [vBinZoom] += rr*dl;
+	    m_maps.m_rz_eion[vBinZoom] += rho*rr*dl;
 	    for (size_t ie=0;ie<theMaterial->GetNumberOfElements();ie++ ) {
 	      const G4Element * theElement = theMaterial->GetElement (ie);
 	      const double mFrac = theMaterial->GetFractionVector()[ie];
 	      const int zElem = theElement->GetZ();
 	      if ( zElem >= m_config.elemZMin && 
 		   zElem <= m_config.elemZMax) {
-		m_maps.m_rz_element[vBinZoom*(m_config.elemZMax-m_config.elemZMin+1)+zElem-m_config.elemZMin] += rho*dl*mFrac;
+		m_maps.m_rz_element[vBinZoom*(m_config.elemZMax-m_config.elemZMin+1)+zElem-m_config.elemZMin] += rho*rr*dl*mFrac;
 	      }
 	    }
 	  }
@@ -713,15 +716,15 @@ namespace G4UA{
 	}
 	if ( goodMaterial && vBinFull >=0 ) {
 	  if ( pdgid == 999 ) {
-	    m_maps.m_full_rz_tid [vBinFull] += dl;
-	    m_maps.m_full_rz_eion[vBinFull] += rho*dl;
+	    m_maps.m_full_rz_tid [vBinFull] += rr*dl;
+	    m_maps.m_full_rz_eion[vBinFull] += rho*rr*dl;
 	    for (size_t ie=0;ie<theMaterial->GetNumberOfElements();ie++ ) {
 	      const G4Element * theElement = theMaterial->GetElement (ie);
 	      const double mFrac = theMaterial->GetFractionVector()[ie];
 	      const int zElem = theElement->GetZ();
 	      if ( zElem >= m_config.elemZMin && 
 		   zElem <= m_config.elemZMax) {
-		m_maps.m_full_rz_element[vBinFull*(m_config.elemZMax-m_config.elemZMin+1)+zElem-m_config.elemZMin] += rho*dl*mFrac;
+		m_maps.m_full_rz_element[vBinFull*(m_config.elemZMax-m_config.elemZMin+1)+zElem-m_config.elemZMin] += rho*rr*dl*mFrac;
 	      }
 	    }
 	  }
@@ -744,8 +747,8 @@ namespace G4UA{
 	}
 	if ( goodMaterial && vBin3d >=0 ) {
 	  if ( pdgid == 999 ) {
-	    m_maps.m_3d_tid [vBin3d] += dl;
-	    m_maps.m_3d_eion[vBin3d] += rho*dl;
+	    m_maps.m_3d_tid [vBin3d] += rr*dl;
+	    m_maps.m_3d_eion[vBin3d] += rho*rr*dl;
 	  }
 	  else {
 	    m_maps.m_3d_tid [vBin3d] += dE_ION/rho;
