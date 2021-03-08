@@ -45,7 +45,7 @@ function check()				# check input, accept only well-formed lines
 {
     if ($0 ~ /^(dir|hist|output|algorithm|compositeAlgorithm|reference|thresholds|limits|metadata) [[:graph:]]+ {$/) return; # block opening
     if ($0 ~ /^[[:graph:]]+ = [[:graph:]]+$/) return;			# must not contain whitespace
-    if ($0 ~ /^(display|description) = [[:print:]]+$/) return;		# may contain whitespace
+    if ($0 ~ /^(display|description|info) = [[:print:]]+$/) return;		# may contain whitespace
     if ($0 ~ /^Revision = \$Revision: [[:digit:]]* ?\$$/) return;	# SVN keyword
     if ($0 ~ /^URL = \$URL: [[:graph:]]* ?\$$/) return;			# SVN keyword
     if ($0 ~ /^}$/) return;			# block closing
