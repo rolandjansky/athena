@@ -66,6 +66,8 @@ StatusCode TrigEgammaEventSelection::childInitialize(){
     ATH_MSG_ERROR( "Could not retrieve HLT IsEM Selector Tool! Can't work");
     return StatusCode::FAILURE;
   }
+
+  ATH_CHECK( m_eleIsoKey.initialize() );
   
   return StatusCode::SUCCESS;
 }

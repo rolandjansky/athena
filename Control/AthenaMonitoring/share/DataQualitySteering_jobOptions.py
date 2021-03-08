@@ -13,6 +13,95 @@ TRTELEMON=False
 local_logger = logging.getLogger('DataQualitySteering_jobOptions')
 
 if DQMonFlags.doMonitoring():
+   def doOldStylePostSetup():
+      #------------------------#
+      # Trigger chain steering #
+      #------------------------#
+      trigMap = DQMonFlags.triggerChainMap.get_Value()
+      for toolName, trigChain in six.iteritems(trigMap):
+         local_logger.debug("Applying trigger %s to %s", trigChain, toolName)
+         if hasattr(ToolSvc,toolName):
+            tool = getattr(ToolSvc,toolName)
+            tool.TriggerChain = trigChain
+         else:
+            local_logger.debug("%s is not found in ToolSvc. Cannot set trigger chain!", toolName)
+
+      # force conditions update because the converter can't do it
+      if DQMonFlags.monManEnvironment in ('tier0ESD', 'AOD'):
+         from AthenaCommon.AlgSequence import AthSequencer
+         from AthenaMonitoring.AthenaMonitoringConf import ForceIDConditionsAlg
+         asq = AthSequencer("AthBeginSeq") 
+         asq += [ForceIDConditionsAlg()]
+
+      local_logger.debug('DQ Post-Setup Configuration')
+      import re
+      from AthenaMonitoring.EventFlagFilterTool import GetEventFlagFilterTool
+      from AthenaMonitoring.AtlasReadyFilterTool import GetAtlasReadyFilterTool
+
+      # now the DQ tools are private, extract them from the set of monitoring algorithms
+      toolset = set()
+      from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
+      for _ in topSequence:
+         if isinstance(_, AthenaMonManager):
+            toolset.update(_.AthenaMonTools)
+
+            # in MT the initialization can be in random order ... force all managers to have common setup
+            _.FileKey             = DQMonFlags.monManFileKey()
+            _.ManualDataTypeSetup = DQMonFlags.monManManualDataTypeSetup()
+            _.DataType            = DQMonFlags.monManDataType()
+            _.Environment         = DQMonFlags.monManEnvironment()
+            _.LBsInLowStatInterval = DQMonFlags.monManLBsInLowStatInterval()
+            _.LBsInMediumStatInterval = DQMonFlags.monManLBsInMediumStatInterval()
+            _.LBsInHighStatInterval = DQMonFlags.monManLBsInHighStatInterval()
+            _.ManualRunLBSetup    = DQMonFlags.monManManualRunLBSetup()
+            _.Run                 = DQMonFlags.monManRun()
+            _.LumiBlock           = DQMonFlags.monManLumiBlock()
+
+      for tool in toolset:
+         # stop lumi access if we're in MC or enableLumiAccess == False
+         if 'EnableLumi' in dir(tool):
+            if globalflags.DataSource.get_Value() == 'geant4' or not DQMonFlags.enableLumiAccess():
+               tool.EnableLumi = False
+            else:
+               tool.EnableLumi = True
+         # if we have the FilterTools attribute, assume this is in fact a
+         # monitoring tool
+         if hasattr(tool, 'FilterTools'):
+            # if express: use ATLAS Ready filter
+            local_logger.debug('Setting up filters for tool %s', tool)
+            if rec.triggerStream()=='express':
+               local_logger.info('Stream is express and we will add ready tool for %s', tool)
+               tool.FilterTools += [GetAtlasReadyFilterTool()]
+            # if requested: configure a generic event cleaning tool
+            if not athenaCommonFlags.isOnline() and any(re.match(_, tool.name()) for _ in DQMonFlags.includeInCleaning()):
+               if tool.name() in DQMonFlags.specialCleaningConfiguration():
+                  config_ = DQMonFlags.specialCleaningConfiguration()[tool.name()].copy()
+                  for _ in config_:
+                     try:
+                        config_[_] = bool(config_[_])
+                     except:
+                        local_logger.error('Unable to enact special event cleaning configuration for tool %s; cannot cast %s=%s to bool', tool.name(), _, config_[_])
+                  config_['name'] = 'DQEventFlagFilterTool_%s' % tool.name()
+                  tool.FilterTools += [GetEventFlagFilterTool(**config_)]
+                  del config_
+                  local_logger.info('Configurating special event cleaning for tool %s', tool)
+               else:
+                  local_logger.info('Configuring generic event cleaning for tool %s', tool)
+                  tool.FilterTools += [GetEventFlagFilterTool('DQEventFlagFilterTool')]
+            else:
+               local_logger.info('NOT configuring event cleaning for tool %s', tool)
+
+            # give all the tools the trigger translator
+            if DQMonFlags.useTrigger():
+               tool.TrigDecisionTool = getattr(ToolSvc, DQMonFlags.nameTrigDecTool())
+               tool.TriggerTranslatorTool = getattr(ToolSvc, DQMonFlags.nameTrigTransTool())
+
+            if DQMonFlags.monToolPostExec():
+               postprocfunc = eval(DQMonFlags.monToolPostExec())
+               local_logger.debug('Applying postexec transform to  ===> %s', tool)
+               postprocfunc(tool)
+               del postprocfunc
+
    if not DQMonFlags.doNewMonitoring():
       if DQMonFlags.useTrigger():
          if not hasattr(ToolSvc, DQMonFlags.nameTrigDecTool()):
@@ -36,9 +125,6 @@ if DQMonFlags.doMonitoring():
 
          from LumiBlockComps.TrigLiveFractionCondAlgDefault import TrigLiveFractionCondAlgDefault 
          TrigLiveFractionCondAlgDefault()
-
-      from AthenaMonitoring.AtlasReadyFilterTool import GetAtlasReadyFilterTool
-      from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
 
       #---------------------------#
       # Inner detector monitoring #
@@ -236,97 +322,10 @@ if DQMonFlags.doMonitoring():
          except Exception:
             treatException("DataQualitySteering_jobOptions.py: exception when setting up HI monitoring")
 
-      #------------------------#
-      # Trigger chain steering #
-      #------------------------#
-      trigMap = DQMonFlags.triggerChainMap.get_Value()
-      for toolName, trigChain in six.iteritems(trigMap):
-         local_logger.debug("Applying trigger %s to %s", trigChain, toolName)
-         if hasattr(ToolSvc,toolName):
-            tool = getattr(ToolSvc,toolName)
-            tool.TriggerChain = trigChain
-         else:
-            local_logger.debug("%s is not found in ToolSvc. Cannot set trigger chain!", toolName)
-
       #--------------------------#
       # Post-setup configuration #
       #--------------------------#
-      # force conditions update because the converter can't do it
-      if DQMonFlags.monManEnvironment in ('tier0ESD', 'AOD'):
-         from AthenaCommon.AlgSequence import AthSequencer
-         from AthenaMonitoring.AthenaMonitoringConf import ForceIDConditionsAlg
-         asq = AthSequencer("AthBeginSeq") 
-         asq += [ForceIDConditionsAlg()]
-
-      if rec.triggerStream()=='express':
-         include("AthenaMonitoring/AtlasReadyFilterTool_jobOptions.py")
-      local_logger.debug('DQ Post-Setup Configuration')
-      import re
-      from AthenaMonitoring.EventFlagFilterTool import GetEventFlagFilterTool
-
-      # now the DQ tools are private, extract them from the set of monitoring algorithms
-      toolset = set()
-      from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
-      for _ in topSequence:
-         if isinstance(_, AthenaMonManager):
-            toolset.update(_.AthenaMonTools)
-
-            # in MT the initialization can be in random order ... force all managers to have common setup
-            _.FileKey             = DQMonFlags.monManFileKey()
-            _.ManualDataTypeSetup = DQMonFlags.monManManualDataTypeSetup()
-            _.DataType            = DQMonFlags.monManDataType()
-            _.Environment         = DQMonFlags.monManEnvironment()
-            _.LBsInLowStatInterval = DQMonFlags.monManLBsInLowStatInterval()
-            _.LBsInMediumStatInterval = DQMonFlags.monManLBsInMediumStatInterval()
-            _.LBsInHighStatInterval = DQMonFlags.monManLBsInHighStatInterval()
-            _.ManualRunLBSetup    = DQMonFlags.monManManualRunLBSetup()
-            _.Run                 = DQMonFlags.monManRun()
-            _.LumiBlock           = DQMonFlags.monManLumiBlock()
-
-      for tool in toolset:
-         # stop lumi access if we're in MC or enableLumiAccess == False
-         if 'EnableLumi' in dir(tool):
-            if globalflags.DataSource.get_Value() == 'geant4' or not DQMonFlags.enableLumiAccess():
-               tool.EnableLumi = False
-            else:
-               tool.EnableLumi = True
-         # if we have the FilterTools attribute, assume this is in fact a
-         # monitoring tool
-         if hasattr(tool, 'FilterTools'):
-            # if express: use ATLAS Ready filter
-            local_logger.debug('Setting up filters for tool %s', tool)
-            if rec.triggerStream()=='express':
-               local_logger.info('Stream is express and we will add ready tool for %s', tool)
-               tool.FilterTools += [GetAtlasReadyFilterTool()]
-            # if requested: configure a generic event cleaning tool
-            if not athenaCommonFlags.isOnline() and any(re.match(_, tool.name()) for _ in DQMonFlags.includeInCleaning()):
-               if tool.name() in DQMonFlags.specialCleaningConfiguration():
-                  config_ = DQMonFlags.specialCleaningConfiguration()[tool.name()].copy()
-                  for _ in config_:
-                     try:
-                        config_[_] = bool(config_[_])
-                     except:
-                        local_logger.error('Unable to enact special event cleaning configuration for tool %s; cannot cast %s=%s to bool', tool.name(), _, config_[_])
-                  config_['name'] = 'DQEventFlagFilterTool_%s' % tool.name()
-                  tool.FilterTools += [GetEventFlagFilterTool(**config_)]
-                  del config_
-                  local_logger.info('Configurating special event cleaning for tool %s', tool)
-               else:
-                  local_logger.info('Configuring generic event cleaning for tool %s', tool)
-                  tool.FilterTools += [GetEventFlagFilterTool('DQEventFlagFilterTool')]
-            else:
-               local_logger.info('NOT configuring event cleaning for tool %s', tool)
-
-            # give all the tools the trigger translator
-            if DQMonFlags.useTrigger():
-               tool.TrigDecisionTool = monTrigDecTool
-               tool.TriggerTranslatorTool = monTrigTransTool
-
-            if DQMonFlags.monToolPostExec():
-               postprocfunc = eval(DQMonFlags.monToolPostExec())
-               local_logger.debug('Applying postexec transform to  ===> %s', tool)
-               postprocfunc(tool)
-               del postprocfunc
+      doOldStylePostSetup()
 
    else:
       local_logger.info("DQ: setting up ConfigFlags")
@@ -385,9 +384,10 @@ if DQMonFlags.doMonitoring():
       # schedule legacy HLT monitoring if Run 2 EDM
       if DQMonFlags.doHLTMon() and ConfigFlags.Trigger.EDMVersion == 2:
          try:
+            include("AthenaMonitoring/TrigDecTool_jobOptions.py")
             include("TrigHLTMonitoring/HLTMonitoring_topOptions.py")
             HLTMonMan = topSequence.HLTMonManager
-            HLTMonMan.FileKey = DQMonFlags.monManFileKey()  
+            doOldStylePostSetup()
          except Exception:
             treatException("DataQualitySteering_jobOptions.py: exception when setting up HLT monitoring")
 
