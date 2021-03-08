@@ -82,6 +82,7 @@ if __name__ == '__main__':
     cfg.getService("AthenaPoolCnvSvc").PoolAttributes += PoolAttributes
 
     # Dump config
+    from AthenaConfiguration.ComponentFactory import CompFactory
     cfg.addEventAlgo(CompFactory.JobOptsDumperAlg(FileName="G4AtlasTestConfig.txt"))
     cfg.getService("StoreGateSvc").Dump = True
     cfg.getService("ConditionStore").Dump = True
