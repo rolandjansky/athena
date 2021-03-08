@@ -1,14 +1,14 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "Gaudi/Property.h"
 #include "TrigEgammaPrecisionCaloHypoAlgMT.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "AthViews/ViewHelper.h"
 
-using namespace TrigCompositeUtils;
+namespace TCU = TrigCompositeUtils;
 
 TrigEgammaPrecisionCaloHypoAlgMT::TrigEgammaPrecisionCaloHypoAlgMT( const std::string& name, 
 					  ISvcLocator* pSvcLocator ) :
@@ -34,7 +34,7 @@ StatusCode TrigEgammaPrecisionCaloHypoAlgMT::execute( const EventContext& contex
   // new decisions
 
   // new output decisions
-  SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context ); 
+  SG::WriteHandle<TCU::DecisionContainer> outputHandle = TCU::createAndStore(decisionOutput(), context );
   auto decisions = outputHandle.ptr();
 
   // input for decision
@@ -45,13 +45,13 @@ StatusCode TrigEgammaPrecisionCaloHypoAlgMT::execute( const EventContext& contex
   for ( auto previousDecision: *previousDecisionsHandle ) {
 
     //get updated RoI  
-    auto roiELInfo = findLink<TrigRoiDescriptorCollection>( previousDecision, roiString() );
+    auto roiELInfo = TCU::findLink<TrigRoiDescriptorCollection>( previousDecision, TCU::roiString() );
       
     ATH_CHECK( roiELInfo.isValid() );
     const TrigRoiDescriptor* roi = *(roiELInfo.link);
 
     // not using View so commenting out following lines
-    const auto viewEL = previousDecision->objectLink<ViewContainer>( viewString() );
+    const auto viewEL = previousDecision->objectLink<ViewContainer>( TCU::viewString() );
     ATH_CHECK( viewEL.isValid() );
     auto clusterHandle = ViewHelper::makeHandle( *(viewEL), m_clustersKey, context);
     ATH_CHECK( clusterHandle.isValid() );
@@ -68,9 +68,9 @@ StatusCode TrigEgammaPrecisionCaloHypoAlgMT::execute( const EventContext& contex
 	    ATH_CHECK(el.isValid());
 
 	    ATH_MSG_DEBUG ( "ClusterHandle in position " << cl << " processing...");
-	    auto d = newDecisionIn( decisions, hypoAlgNodeName() );
-	    d->setObjectLink( featureString(),  el );
-	    TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
+	    auto d = TCU::newDecisionIn( decisions, TCU::hypoAlgNodeName() );
+	    d->setObjectLink( TCU::featureString(),  el );
+	    TCU::linkToPrevious( d, decisionInput().key(), counter );
 	    toolInput.emplace_back( d, roi, clusterHandle.cptr()->at(cl), previousDecision );
 	    validclusters++;
 

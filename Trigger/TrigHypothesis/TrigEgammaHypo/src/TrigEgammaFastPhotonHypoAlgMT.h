@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGEGAMMAHYPO_TRIGEGAMMAFASTPHOTONHYPOALGMT_H
@@ -7,16 +7,11 @@
 
 #include <string>
 
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "xAODTrigEgamma/TrigPhotonContainer.h"
-#include "TrigCompositeUtils/TrigCompositeUtils.h"
-#include "AthViews/View.h"
-#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 #include "TrigEgammaFastPhotonHypoTool.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "DecisionHandling/HypoBase.h"
-#include "ITrigEgammaFastCaloHypoTool.h"
 
 
 /**

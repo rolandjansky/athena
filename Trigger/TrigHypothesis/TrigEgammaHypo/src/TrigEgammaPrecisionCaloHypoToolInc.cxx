@@ -1,16 +1,18 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/Combinators.h"
-#include "AthenaMonitoringKernel/Monitored.h"
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
+#include "xAODCaloEvent/CaloCluster.h"
 
 #include "TrigEgammaPrecisionCaloHypoToolInc.h"
 
 
-using namespace TrigCompositeUtils;
+namespace TCU = TrigCompositeUtils;
 
 TrigEgammaPrecisionCaloHypoToolInc::TrigEgammaPrecisionCaloHypoToolInc( const std::string& type, 
 		    const std::string& name, 
@@ -47,10 +49,6 @@ StatusCode TrigEgammaPrecisionCaloHypoToolInc::initialize()  {
 
   return StatusCode::SUCCESS;
 }
-
-
-
-TrigEgammaPrecisionCaloHypoToolInc::~TrigEgammaPrecisionCaloHypoToolInc(){}
 
 
 bool TrigEgammaPrecisionCaloHypoToolInc::decide( const ITrigEgammaPrecisionCaloHypoTool::ClusterInfo& input ) const {
@@ -165,9 +163,9 @@ int TrigEgammaPrecisionCaloHypoToolInc::findCutIndex( float eta ) const {
 
 StatusCode TrigEgammaPrecisionCaloHypoToolInc::decide( std::vector<ClusterInfo>& input )  const {
   for ( auto& i: input ) {
-    if ( passed ( m_decisionId.numeric(), i.previousDecisionIDs ) ) {
+    if ( TCU::passed ( m_decisionId.numeric(), i.previousDecisionIDs ) ) {
       if ( decide( i ) ) {
-	addDecisionID( m_decisionId, i.decision );
+        TCU::addDecisionID( m_decisionId, i.decision );
       }
     }
   }

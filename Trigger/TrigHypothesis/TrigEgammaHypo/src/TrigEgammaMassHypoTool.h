@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGEGAMMAHYPO_TRIGEGAMMAMASSHYPOTOOL_H
@@ -27,9 +27,6 @@
 #include "DecisionHandling/ComboHypoToolBase.h"
 
 #include "xAODTracking/TrackParticleContainer.h"
-#include "xAODTrigEgamma/TrigElectron.h"
-#include "xAODEgamma/ElectronContainer.h"
-#include "xAODBase/IParticleContainer.h"
 
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
@@ -54,8 +51,7 @@ class TrigEgammaMassHypoTool:  public ComboHypoToolBase {
   TrigEgammaMassHypoTool(const std::string& type,
                     const std::string& name,
                     const IInterface* parent);
-  
-  virtual ~TrigEgammaMassHypoTool() {};
+
   virtual StatusCode initialize() override;
 
 

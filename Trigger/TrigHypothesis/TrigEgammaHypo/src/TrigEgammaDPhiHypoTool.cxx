@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -15,10 +15,10 @@
 
 
 #include "TrigEgammaDPhiHypoTool.h"
+#include "xAODBase/IParticleContainer.h"
 
-#include <cmath>
 
-using namespace TrigCompositeUtils;
+namespace TCU = TrigCompositeUtils;
 
 TrigEgammaDPhiHypoTool::TrigEgammaDPhiHypoTool(const std::string& type, const std::string& name, const IInterface* parent)
     : ComboHypoToolBase(type, name, parent) {}
@@ -43,11 +43,11 @@ bool TrigEgammaDPhiHypoTool::executeAlg(std::vector<LegDecision> &combination) c
 
   auto dphiOfAccepted = Monitored::Scalar( "DphiOfAccepted"   , -99 );
   auto monitorIt    = Monitored::Group( m_monTool, dphiOfAccepted);
-//retrieve the elements 
+  //retrieve the elements
   std::vector<ElementLink<xAOD::IParticleContainer>> selected_photons;
   for (auto el: combination){
     auto EL= el.second;    
-    auto photonLink = TrigCompositeUtils::findLink<xAOD::IParticleContainer>( *EL, featureString() ).link;
+    auto photonLink = TCU::findLink<xAOD::IParticleContainer>( *EL, TCU::featureString() ).link;
     selected_photons.push_back(photonLink);
   }
   auto photonLink1=selected_photons[0];

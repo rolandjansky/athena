@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGEGAMMAHYPO_ITRIGEGAMMAFASTCALOHYPOTOOL_H
 #define TRIGEGAMMAHYPO_ITRIGEGAMMAFASTCALOHYPOTOOL_H 1
 
 #include "GaudiKernel/IAlgTool.h"
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "xAODTrigRinger/TrigRingerRings.h"

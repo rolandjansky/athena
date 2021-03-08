@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -20,10 +20,9 @@
 
 
 #include "TrigEgammaMassHypoTool.h"
+#include "xAODBase/IParticleContainer.h"
 
-#include <cmath>
-
-using namespace TrigCompositeUtils;
+namespace TCU = TrigCompositeUtils;
 
 TrigEgammaMassHypoTool::TrigEgammaMassHypoTool(const std::string& type, const std::string& name, const IInterface* parent)
     : ComboHypoToolBase(type, name, parent) {}
@@ -40,8 +39,6 @@ StatusCode TrigEgammaMassHypoTool::initialize()
         ATH_MSG_DEBUG("m_monTool name: " << m_monTool);
   }
 
- ATH_MSG_DEBUG("Initialization completed successfully");
-
   return StatusCode::SUCCESS;
 }
 
@@ -53,7 +50,7 @@ bool TrigEgammaMassHypoTool::executeAlg(std::vector<LegDecision> &combination) c
   std::vector<ElementLink<xAOD::IParticleContainer>> selected_electrons;
   for (auto el: combination){
     auto EL= el.second;    
-    auto electronLink = TrigCompositeUtils::findLink<xAOD::IParticleContainer>( *EL, featureString() ).link;
+    auto electronLink = TCU::findLink<xAOD::IParticleContainer>( *EL, TCU::featureString() ).link;
     selected_electrons.push_back(electronLink);
   }
   auto electronLink1=selected_electrons[0];
@@ -76,7 +73,3 @@ bool TrigEgammaMassHypoTool::executeAlg(std::vector<LegDecision> &combination) c
   return pass;
 
 }
-
-
-
-
