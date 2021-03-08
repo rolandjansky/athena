@@ -116,6 +116,9 @@ public:
 	MyMainFrame(const TGWindow *p,UInt_t w,UInt_t h);
 	virtual ~MyMainFrame();
 
+        MyMainFrame (const MyMainFrame&) = delete;
+        MyMainFrame& operator= (const MyMainFrame&) = delete;
+
 };
 
 /****************************** global functions ******************************/
