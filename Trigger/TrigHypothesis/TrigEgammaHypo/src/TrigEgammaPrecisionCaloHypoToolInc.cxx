@@ -57,13 +57,13 @@ bool TrigEgammaPrecisionCaloHypoToolInc::decide( const ITrigEgammaPrecisionCaloH
 
   auto dEta         = Monitored::Scalar( "dEta", -1. ); 
   auto dPhi         = Monitored::Scalar( "dPhi", -1. );
-  auto eT_T2Calo    = Monitored::Scalar( "Et_em"   , -1.0 );
+  auto eT_Cluster   = Monitored::Scalar( "Et_em"   , -1.0 );
   auto etaBin       = Monitored::Scalar( "EtaBin", -1. );
   auto monEta       = Monitored::Scalar( "Eta", -99. ); 
   auto monPhi       = Monitored::Scalar( "Phi", -99. );
   auto PassedCuts   = Monitored::Scalar<int>( "CutCounter", -1 );  
   auto monitorIt    = Monitored::Group( m_monTool, 
-					       dEta, dPhi, eT_T2Calo,
+					       dEta, dPhi, eT_Cluster,
                                                etaBin, monEta,
 					       monPhi,PassedCuts );
  // when leaving scope it will ship data to monTool
@@ -100,7 +100,7 @@ bool TrigEgammaPrecisionCaloHypoToolInc::decide( const ITrigEgammaPrecisionCaloH
   //  Deal with angle diferences greater than Pi
   dPhi =  fabs( pClus->phi() - phiRef );
   dPhi = ( dPhi < M_PI ? dPhi : 2*M_PI - dPhi ); // TB why only <
-  eT_T2Calo  = pClus->et();
+  eT_Cluster  = pClus->et();
   // apply cuts: DeltaEta( clus-ROI )
   ATH_MSG_DEBUG( "CaloCluster: eta="  << pClus->eta()
   		 << " roi eta=" << etaRef << " DeltaEta=" << dEta
@@ -133,8 +133,8 @@ bool TrigEgammaPrecisionCaloHypoToolInc::decide( const ITrigEgammaPrecisionCaloH
   PassedCuts = PassedCuts + 1; // passed eta cut
   
   // ET_em
-  ATH_MSG_DEBUG( "CaloCluster: ET_em=" << eT_T2Calo << " cut: >"  << m_eTthr[cutIndex] );
-  if ( eT_T2Calo < m_eTthr[cutIndex] ) {
+  ATH_MSG_DEBUG( "CaloCluster: ET_em=" << eT_Cluster << " cut: >"  << m_eTthr[cutIndex] );
+  if ( eT_Cluster < m_eTthr[cutIndex] ) {
     ATH_MSG_DEBUG("REJECT et cut failed");
     return pass;
   }
