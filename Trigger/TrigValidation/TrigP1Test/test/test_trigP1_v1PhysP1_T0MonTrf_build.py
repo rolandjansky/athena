@@ -12,8 +12,8 @@ from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 hlt = ExecStep.ExecStep('BSRDOtoRAW')
 hlt.type = 'Trig_reco_tf'
 hlt.forks = 1
-hlt.threads = 1
-hlt.concurrent_events = 1
+hlt.threads = 4
+hlt.concurrent_events = 4
 hlt.max_events = 50
 hlt.args = '--precommand=\\\"setMenu=\\\'PhysicsP1_pp_run3_v1\\\'\\\"'
 hlt.args += ' --prodSysBSRDO True'
@@ -36,7 +36,8 @@ tzrecoPreExec = ' '.join([
 
 tzreco = ExecStep.ExecStep('Tier0Reco')
 tzreco.type = 'Trig_reco_tf'
-tzreco.threads = 1
+tzreco.threads = 4
+tzreco.concurrent_events = 4
 tzreco.explicit_input = True
 tzreco.input = ''
 tzreco.max_events = 50
