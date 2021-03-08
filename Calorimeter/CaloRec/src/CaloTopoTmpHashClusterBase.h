@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -57,11 +57,13 @@ public:
 
     reference operator*()
     {
+      // cppcheck-suppress returnTempReference; false positive
       return reinterpret_cast<reference> (pointer_list::iterator::operator*());
     }
 
     reference operator->()
     {
+      // cppcheck-suppress returnTempReference; false positive
       return reinterpret_cast<reference> (pointer_list::iterator::operator*());
     }
   };

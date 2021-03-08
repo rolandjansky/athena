@@ -324,8 +324,7 @@ fclose(fich);
  
   hfile->Write();
 
-  if (hfile) 
-    hfile->Close();
+  hfile->Close();
 }
 
 void CaloRec_makeHist()
