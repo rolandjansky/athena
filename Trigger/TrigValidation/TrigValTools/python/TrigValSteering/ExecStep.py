@@ -247,8 +247,7 @@ class ExecStep(Step):
         if len(self.input) > 0:
             if self.input_object is not None:
                 if self.type == 'athenaHLT':
-                    # athenaHLT can only take one input file
-                    input_str = self.input_object.paths[0]
+                    input_str = ' --file='.join(self.input_object.paths)
                 else:
                     input_str = ','.join(self.input_object.paths)
             else:
