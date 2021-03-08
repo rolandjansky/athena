@@ -354,7 +354,17 @@ convertRun2L1MenuToRun3(const TrigConf::CTPConfig* ctpConfig, const TXC::L1TopoM
       }
       jAlg["variableParameters"] = json::array_t{};
       for(const TXC::RegisterParameter & regP : alg.getParameters()) {
-         jAlg["variableParameters"] += json::object_t{{"name", regP.name}, {"selection", regP.selection}, {"value", std::stoi(regP.value)}};
+         // Work around overflow in the database...
+         if (regP.name == "MaxMSqr") {
+           unsigned val = std::stoul(regP.value);
+           if (val >= 1u<<31) {
+             val = 999;
+           }
+           jAlg["variableParameters"] += json::object_t{{"name", regP.name}, {"selection", regP.selection}, {"value", val}};
+         }
+         else {
+           jAlg["variableParameters"] += json::object_t{{"name", regP.name}, {"selection", regP.selection}, {"value", std::stoi(regP.value)}};
+         }
       }
       if(alg.isSortAlg()) {
          jAlg["input"] = alg.getInputNames()[0];
