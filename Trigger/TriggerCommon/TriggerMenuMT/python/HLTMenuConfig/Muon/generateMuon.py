@@ -25,10 +25,11 @@ from LArGeoAlgsNV.LArGMConfig import LArGMCfg
 from TileGeoModel.TileGMConfig import TileGMCfg
 from MuonConfig.MuonSegmentFindingConfig import MooSegmentFinderAlgCfg
 from MuonConfig.MuonTrackBuildingConfig import MuonTrackBuildingCfg
-from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedMuonCandidateAlgCfg
+from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedMuonCandidateAlgCfg, MuonInsideOutRecoAlgCfg
 from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedInDetCandidateAlg, MuonCombinedAlgCfg, MuonCreatorAlgCfg
 
-from TrigMuonEF.TrigMuonEFConfig_newJO import TrigMuonEFTrackIsolationAlgCfg
+from TrigMuonEF.TrigMuonEFConfig_newJO import TrigMuonEFTrackIsolationAlgCfg, MuonFilterAlgCfg, MergeEFMuonsAlgCfg
+from AthenaCommon.CFElements import seqAND, parOR, seqOR
 
 import pprint
 from AthenaCommon.Logging import logging
@@ -43,6 +44,9 @@ def EFMuonCBViewDataVerifierCfg(name):
     EFMuonCBViewDataVerifier.DataObjects = [( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),  
                                             ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' ),
                                             ( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
+                                            ( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),
+                                            ( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' ),
+                                            ( 'Muon::HoughDataPerSectorVec' , 'StoreGateSvc+HoughDataPerSectorVec' ),
                                             ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
     if 'FS' in name:
         EFMuonCBViewDataVerifier.DataObjects += [( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates_FS' )]
@@ -70,6 +74,7 @@ def EFMuonViewDataVerifierCfg(name='RoI'):
     result = ComponentAccumulator()
     result.addEventAlgo(EFMuonViewDataVerifier)
     return result
+
 
 def MuFastViewDataVerifier():
     result = ComponentAccumulator()
@@ -406,12 +411,38 @@ def muEFCBStep(flags, chainDict, name='RoI'):
                                          InDetCandidateLocation="IndetCandidates_"+name, MuonContainerLocation = "MuonsCB_"+name, SegmentContainerName = "xaodCBSegments", TrackSegmentContainerName = "TrkCBSegments",
                                          ExtrapolatedLocation = "CBExtrapolatedMuons", MSOnlyExtrapolatedLocation = "CBMSonlyExtrapolatedMuons", CombinedLocation = "HLT_CBCombinedMuon_"+name)
     recoCB.mergeReco(muonCreatorCBCfg)
+
+    #Inside out recovery
+    finalMuons = "MuonsCB_"+name
+    if 'FS' not in name:
+        acc = ComponentAccumulator()
+        seqIO = seqOR("muonInsideOutSeq")
+        acc.addSequence(seqIO)
+        seqFilter = seqAND("muonFilterSeq")
+        acc.addSequence(seqFilter, seqIO.name)
+        muonFilterCfg = MuonFilterAlgCfg(flags, name="FilterZeroMuons", MuonContainerLocation="MuonsCB_"+name)
+        acc.merge(muonFilterCfg, sequenceName=seqFilter.name)
+        seqIOreco = parOR("muonInsideOutRecoSeq")
+        acc.addSequence(seqIOreco, parentName=seqFilter.name)
+        muonInsideOutCfg = MuonInsideOutRecoAlgCfg(flags, name="TrigMuonInsideOutRecoAlg", InDetCandidateLocation = "IndetCandidates_"+name)
+        acc.merge(muonInsideOutCfg, sequenceName=seqIOreco.name)
+        insideOutCreatorAlgCfg = MuonCreatorAlgCfg(flags, name="TrigMuonCreatorAlgInsideOut", TagMaps=["muGirlTagMap"], InDetCandidateLocation="IndetCandidates_"+name,
+                                                   MuonContainerLocation = "MuonsInsideOut_"+name, SegmentContainerName = "xaodInsideOutCBSegments", 
+                                                   TrackSegmentContainerName = "TrkInsideOutCBSegments", ExtrapolatedLocation = "InsideOutCBExtrapolatedMuons",
+                                                   MSOnlyExtrapolatedLocation = "InsideOutCBMSOnlyExtrapolatedMuons", CombinedLocation = "InsideOutCBCombinedMuon")
+        acc.merge(insideOutCreatorAlgCfg, sequenceName=seqIOreco.name)
+
+        finalMuons = "MuonsCBMerged"
+        muonMergeCfg = MergeEFMuonsAlgCfg(flags, name="MergeEFMuons", MuonCBContainerLocation = "MuonsCB_"+name,
+                                          MuonInsideOutContainerLocation = "MuonsInsideOut_"+name, MuonOutputLocation = finalMuons)
+        acc.merge(muonMergeCfg, sequenceName=seqIO.name)
+        recoCB.mergeReco(acc)
     
     selAccEFCB.mergeReco(recoCB)
 
     efmuCBHypo = efMuHypoCfg( flags,
                               name = 'TrigMuonEFCBHypo_'+name,
-                              inputMuons = "MuonsCB_"+name )
+                              inputMuons = finalMuons )
 
     selAccEFCB.addHypoAlgo(efmuCBHypo)
 
