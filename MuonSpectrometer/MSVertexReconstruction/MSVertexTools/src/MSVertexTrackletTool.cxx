@@ -711,7 +711,7 @@ namespace Muon {
         float alphaNew = alpha + bAlpha/AThTh;
         float dNew = sumRi/s;
         //the errors
-        dalpha = std::sqrt(1/AThTh);
+        dalpha = std::sqrt(1/std::abs(AThTh));
         dd = std::sqrt(1/s);
         deltaAlpha = std::abs(alphaNew-alpha);
         deltad = std::abs(d-dNew);
