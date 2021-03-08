@@ -19,6 +19,8 @@ addTool("PixelRadDamDigitization.PixelRadDamDigitizationConfig.PixelDiodeCrossTa
 addTool("PixelRadDamDigitization.PixelRadDamDigitizationConfig.PixelRandomDisabledCellGenerator", "PixelRadDamRandomDisabledCellGenerator")
 addTool("PixelRadDamDigitization.PixelRadDamDigitizationConfig.SensorSimPlanarTool","RadDamSensorSimPlanarTool")
 addTool("PixelRadDamDigitization.PixelRadDamDigitizationConfig.SensorSim3DTool","RadDamSensorSim3DTool")
+addTool("PixelRadDamDigitization.PixelRadDamDigitizationConfig.SensorSimITkPlanarTool","RadDamSensorSimITkPlanarTool")
+addTool("PixelRadDamDigitization.PixelRadDamDigitizationConfig.SensorSimITk3DTool","RadDamSensorSimITk3DTool")
 addTool("PixelRadDamDigitization.PixelRadDamDigitizationConfig.SensorSimTool","RadDamSensorSimTool")
 addTool("PixelRadDamDigitization.PixelRadDamDigitizationConfig.FrontEndSimTool","RadDamFrontEndSimTool")
 addTool("PixelRadDamDigitization.PixelRadDamDigitizationConfig.RD53SimTool","RadDamRD53SimTool")

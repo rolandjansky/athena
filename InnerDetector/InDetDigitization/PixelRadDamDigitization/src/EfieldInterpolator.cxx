@@ -281,6 +281,8 @@ TH1D* EfieldInterpolator::loadEfieldFromDat(std::string fname, bool fillEdges ){
 std::string EfieldInterpolator::loadTCADfiles(std::string targetList)
 {
         bool isIBL = true;
+	bool isITk100um = true;
+	bool isITk150um = true;
 	TString tl = targetList;
         TString fName   = targetList;
         fName.ReplaceAll(".txt", "_toTTree.root");
@@ -327,11 +329,24 @@ std::string EfieldInterpolator::loadTCADfiles(std::string targetList)
 			efield.push_back(e.Atof());
 			pixeldepth.push_back((int) z.Atof());
                         if(z.Atof() > 200 ) isIBL = false; // Pixel depth to huge to be IBL 
+                        if(z.Atof() > 100 ) isITk100um = false; // Pixel depth to huge to be 100um 
+                        if(z.Atof() > 150 ) isITk150um = false; // Pixel depth to huge to be 150um
+			
   		}
                 bufferTCADtree->cd();
 		tcadtree->Fill();
 		in.close();
 	}
+
+	//again not great but the fastest way to add ITk sizes
+	if(isITk100um){
+            ATH_MSG_INFO("Pixel depth read from file too small for Run2 geometry. Set to ITk, depth = 100um\n");
+	    m_sensorDepth = 100;
+	} else if (isITk150um){
+            ATH_MSG_INFO("Pixel depth read from file too small for Run2 geometry. Set to ITk, depth = 150um\n");
+            m_sensorDepth = 150;
+	}
+
         if(!isIBL){
             ATH_MSG_INFO("Pixel depth read from file too big for IBL. Set to B layer, depth = 250um\n");
             m_sensorDepth = 250;

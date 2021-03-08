@@ -348,6 +348,15 @@ const StatusCode RadDam::RadDamageUtil::generateDistanceTimeMap( TH2F* &distance
     if(eFieldMap->GetXaxis()->GetXmax() > 210 ){ //Efield in um
         sensorThickness = 0.250; 
     }
+
+    //not a great implementation, but for now the simplest way to accomodate ITk sensor thicknesses as well (150um and 100um)
+
+    if(eFieldMap->GetXaxis()->GetXmax() < 110) { //Efield in um
+        sensorThickness = 0.100;
+    } else if(eFieldMap->GetXaxis()->GetXmax() < 160) { //Efield in um
+        sensorThickness = 0.150;
+    }
+
     if(module){
         sensorThickness = module->thickness() * 1000.0;//default is 200;
     }
