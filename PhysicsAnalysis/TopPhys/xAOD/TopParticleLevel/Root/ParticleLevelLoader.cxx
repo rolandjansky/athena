@@ -443,6 +443,9 @@ namespace top {
     //   3. Photons & Jets:
     //      Remove Jets with dR < 0.4
 
+    // Use rapidity instead of pseudo-rapidity in deltaR calculation for overlap removal
+    bool useRapidityInDeltaRCalculation = m_config->useParticleLevelOverlapRemovalWithRapidity();
+
     // Jets and Muons: Remove Muon with dR < 0.4
     if (m_config->useTruthMuons() && m_config->useTruthJets() && m_config->doParticleLevelOverlapRemovalMuJet()) {
 #ifdef TOP_PARTICLE_LEVEL_DEBUG_OVERLAP_REMOVAL
@@ -451,9 +454,9 @@ namespace top {
       };
 #endif
 
-      idx_muons.remove_if([&idx_jets, &jets, this](std::size_t m) {
+      idx_muons.remove_if([&idx_jets, &jets, &useRapidityInDeltaRCalculation, this](std::size_t m) {
         for (auto j : idx_jets) {
-          if (jets->at(j)->p4().DeltaR(m_muonsDressed->at(m)->p4()) < 0.4) {
+          if (xAOD::P4Helpers::deltaR(jets->at(j), m_muonsDressed->at(m), useRapidityInDeltaRCalculation) < 0.4) {
             return true;
           }
         }
@@ -474,9 +477,9 @@ namespace top {
       };
 #endif
 
-      idx_electrons.remove_if([&idx_jets, &jets, this](std::size_t e) {
+      idx_electrons.remove_if([&idx_jets, &jets, &useRapidityInDeltaRCalculation, this](std::size_t e) {
         for (auto j : idx_jets) {
-          if (jets->at(j)->p4().DeltaR(m_electronsDressed->at(e)->p4()) < 0.4) {
+          if (xAOD::P4Helpers::deltaR(jets->at(j),m_electronsDressed->at(e), useRapidityInDeltaRCalculation) < 0.4) {
             return true;
           }
         }
@@ -497,9 +500,9 @@ namespace top {
       };
 #endif
 
-      idx_jets.remove_if([&idx_photons, &photons, &jets](std::size_t j) {
+      idx_jets.remove_if([&idx_photons, &photons, &useRapidityInDeltaRCalculation, &jets](std::size_t j) {
         for (auto ph : idx_photons) {
-          if (photons->at(ph)->p4().DeltaR(jets->at(j)->p4()) < 0.4) {
+          if (xAOD::P4Helpers::deltaR(photons->at(ph), jets->at(j), useRapidityInDeltaRCalculation) < 0.4) {
             return true;
           }
         }
@@ -828,6 +831,9 @@ namespace top {
       "originalTruthParticle"
     };
 
+    // Use rapidity instead of pseudo-rapidity in deltaR calculation for overlap removal
+    bool useRapidityInDeltaRCalculation = m_config->useParticleLevelOverlapRemovalWithRapidity();
+
     for (const auto *particle : dressedParticles) {
       bool tp_isValid = false;
       ElementLink<xAOD::TruthParticleContainer> truthProxy;
@@ -840,11 +846,11 @@ namespace top {
       }
 
       if (not tp_isValid) {
-        if (particle->p4().DeltaR(photon.p4()) <= dressingCone) {
+        if (xAOD::P4Helpers::deltaR(particle, &photon, useRapidityInDeltaRCalculation) <= dressingCone) {
           return true;
         }
       } else {
-        if ((*truthProxy)->p4().DeltaR(photon.p4()) <= dressingCone) {
+        if (xAOD::P4Helpers::deltaR((*truthProxy), &photon, useRapidityInDeltaRCalculation) <= dressingCone) {
           return true;
         }
       }
