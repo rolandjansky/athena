@@ -541,11 +541,9 @@ Trk::MaterialEffectsUpdator::updateImpl(
     AmgVector(5) updatedParameters(mpars->parameters());
     // initialize ErrorMatrix pointer
     AmgSymMatrix(5)* updatedCovariance = nullptr;
-    if (mpars || (m_validationMode && !m_validationIgnoreUnmeasured)) {
+    {
       // the new CovarianceMatrix - a copy first
-      if (mpars) {
-        updatedCovariance = mpars->covariance() ? new AmgSymMatrix(5)(*mpars->covariance()) : nullptr;
-      }
+      updatedCovariance = mpars->covariance() ? new AmgSymMatrix(5)(*mpars->covariance()) : nullptr;
       // only update if msUpdator exists
       double angularVariation =
         (m_doMs) ? m_msUpdator->sigmaSquare(matprop, updateMomentum, pathcorrection, particle) : 0.;
