@@ -42,9 +42,11 @@ namespace LVL1 {
     virtual StatusCode initialize() override;
     virtual StatusCode start() override;
 
-    std::vector<std::pair<std::shared_ptr<TrigConf::L1Threshold>, bool> > getThresholdDecisions(const unsigned& dataWord) const;
+    virtual
+    std::vector<std::pair<std::shared_ptr<TrigConf::L1Threshold>, bool> > getThresholdDecisions(const unsigned& dataWord) const override;
+    virtual
     std::pair<std::string, double> getMinThresholdNameAndValue(const std::vector<std::pair<std::shared_ptr<TrigConf::L1Threshold>, bool> >& decisions,
-							       const double& eta = 0) const;
+							       const double& eta = 0) const override;
 
 
   protected:
