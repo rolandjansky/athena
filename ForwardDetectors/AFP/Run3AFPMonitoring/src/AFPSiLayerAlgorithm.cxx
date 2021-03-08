@@ -15,16 +15,16 @@
 
 #include <vector>
 
-	std::vector<int> frontBCIDsVector;
-	std::vector<int> middleBCIDsVector;
-	std::vector<int> endBCIDsVector;
-	
-	
-	bool isInListVector(const int bcid, const std::vector<int>&arr)
-	{
-		return std::find_if(arr.begin(),arr.end(),[&bcid](const int& ele){return ele==bcid;})!= arr.end();
-	}
-	
+std::vector<int> frontBCIDsVector;
+std::vector<int> middleBCIDsVector;
+std::vector<int> endBCIDsVector;
+
+
+bool isInListVector(const int bcid, const std::vector<int>&arr)
+{
+	return std::find_if(arr.begin(),arr.end(),[&bcid](const int& ele){return ele==bcid;})!= arr.end();
+}
+
 
 AFPSiLayerAlgorithm::AFPSiLayerAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
 :AthMonitorAlgorithm(name,pSvcLocator)
@@ -155,10 +155,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	auto lbClustersPerPlanes = Monitored::Scalar<int>("lbClustersPerPlanes", 0);
 	auto weightClustersByMU = Monitored::Scalar<float>("weightClustersByMU", 1.0);
 	
-	auto lbClustersPerPlanesTProf = Monitored::Scalar<float>("lbClustersPerPlanesTProf", 0.0);
-	auto lbClustersPerPlanesTProfFront = Monitored::Scalar<float>("lbClustersPerPlanesTProfFront", 0.0);
-	auto lbClustersPerPlanesTProfMiddle = Monitored::Scalar<float>("lbClustersPerPlanesTProfMiddle", 0.0);
-	auto lbClustersPerPlanesTProfEnd = Monitored::Scalar<float>("lbClustersPerPlanesTProfEnd", 0.0);
+	auto lbClustersPerPlanes_full = Monitored::Scalar<int>("lbClustersPerPlanes_full", 0);
 	
 	auto clustersPerPlaneFrontPP = Monitored::Scalar<int>("clustersPerPlaneFrontPP", 0);
 	auto clustersPerPlaneMiddlePP = Monitored::Scalar<int>("clustersPerPlaneMiddlePP", 0);
@@ -166,9 +163,13 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	auto weightClustersPerPlaneFrontPP = Monitored::Scalar<float>("weightClustersPerPlaneFrontPP", 1.0);
 	auto weightClustersPerPlaneMiddlePP = Monitored::Scalar<float>("weightClustersPerPlaneMiddlePP", 1.0);
 	auto weightClustersPerPlaneEndPP = Monitored::Scalar<float>("weightClustersPerPlaneEndPP", 1.0);
-	//auto muPerBCIDTProf = Monitored::Scalar<float>("muPerBCID", 0.0);
+
+	auto clustersPerPlaneFrontPP_full = Monitored::Scalar<int>("clustersPerPlaneFrontPP_full", 0);
+	auto clustersPerPlaneMiddlePP_full = Monitored::Scalar<int>("clustersPerPlaneMiddlePP_full", 0);
+	auto clustersPerPlaneEndPP_full = Monitored::Scalar<int>("clustersPerPlaneEndPP_full", 0);
 	
 	auto lbHitsPerPlanes = Monitored::Scalar<int>("lbHitsPerPlanes", 0);
+	auto lbHitsPerPlanes_full = Monitored::Scalar<float>("lbHitsPerPlanes_full", 0.0);
 	auto weightHitsByMU = Monitored::Scalar<float>("weightHitsByMU", 1.0);
 	
 	auto hitsCounterPlanesTProfile = Monitored::Scalar<int>("hitsCounterPlanesTProfile", 0.0);
@@ -221,7 +222,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 			fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], pixelRowIDChip);
 			fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], pixelColIDChip);
 			fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], timeOverThreshold);
-			fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], lb, hitsCounterPlanesTProfile);			
+			fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], lb, hitsCounterPlanesTProfile);
 			
 			planeHits = hitsItr->pixelLayerID();
 			fill(m_tools[m_StationGroup.at(m_stationnames.at(hitsItr->stationID()))], planeHits);
@@ -242,8 +243,10 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 			fill("AFPSiLayerTool", lbHits);
 			
 			lbHitsPerPlanes = GetEventInfo(ctx)->lumiBlock();
+			lbHitsPerPlanes_full = GetEventInfo(ctx)->lumiBlock();
 			weightHitsByMU = 1 / muPerBX;
 			fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], lbHitsPerPlanes, weightHitsByMU);
+			fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], lbHitsPerPlanes_full);
 			weightHitsByMU = 1.0;
 		}
 		else ATH_MSG_WARNING("Unrecognised station index: " << hitsItr->stationID());
@@ -378,27 +381,50 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	auto lbTracksMiddle = Monitored::Scalar<int>("lbTracksMiddle", 0);
 	auto lbTracksEnd = Monitored::Scalar<int>("lbTracksEnd", 0);
 	
+	auto weightTracksAll_full = Monitored::Scalar<int>("weightTracksAll_full", 0);
+	auto weightTracksFront_full = Monitored::Scalar<int>("weightTracksFront_full", 0);
+	auto weightTracksMiddle_full = Monitored::Scalar<int>("weightTracksMiddle_full", 0);
+	auto weightTracksEnd_full = Monitored::Scalar<int>("weightTracksEnd_full", 0);
+	
+	auto lbTracksAll_full = Monitored::Scalar<int>("lbTracksAll_full", 0);
+	auto lbTracksFront_full = Monitored::Scalar<int>("lbTracksFront_full", 0);
+	auto lbTracksMiddle_full = Monitored::Scalar<int>("lbTracksMiddle_full", 0);
+	auto lbTracksEnd_full = Monitored::Scalar<int>("lbTracksEnd_full", 0);
+	
 	lbTracksAll = GetEventInfo(ctx)->lumiBlock();
 	lbTracksFront = GetEventInfo(ctx)->lumiBlock();
 	lbTracksMiddle = GetEventInfo(ctx)->lumiBlock();
 	lbTracksEnd = GetEventInfo(ctx)->lumiBlock();
 	
+	lbTracksAll_full = GetEventInfo(ctx)->lumiBlock();
+	lbTracksFront_full = GetEventInfo(ctx)->lumiBlock();
+	lbTracksMiddle_full = GetEventInfo(ctx)->lumiBlock();
+	lbTracksEnd_full = GetEventInfo(ctx)->lumiBlock();
+	
 	for(int i = 0; i < 4; i++)
 	{
 		weightTracksAll = totalTracksAll[i] / muPerBX;
+		weightTracksAll_full = totalTracksAll[i];
 		fill(m_tools[m_StationGroup.at(m_stationnames.at(i))], lbTracksAll, weightTracksAll);
+		fill(m_tools[m_StationGroup.at(m_stationnames.at(i))], lbTracksAll_full, weightTracksAll_full);
 		totalTracksAll[i] = 0;
 		
 		weightTracksFront = totalTracksFront[i] / muPerBX;
+		weightTracksFront_full = totalTracksFront[i];
 		fill(m_tools[m_StationGroup.at(m_stationnames.at(i))], lbTracksFront, weightTracksFront);
+		fill(m_tools[m_StationGroup.at(m_stationnames.at(i))], lbTracksFront_full, weightTracksFront_full);
 		totalTracksFront[i] = 0;
 		
 		weightTracksMiddle = totalTracksMiddle[i] / muPerBX;
+		weightTracksMiddle_full = totalTracksMiddle[i];
 		fill(m_tools[m_StationGroup.at(m_stationnames.at(i))], lbTracksMiddle, weightTracksMiddle);
+		fill(m_tools[m_StationGroup.at(m_stationnames.at(i))], lbTracksMiddle_full, weightTracksMiddle_full);
 		totalTracksMiddle[i] = 0;
 		
 		weightTracksEnd = totalTracksEnd[i] / muPerBX;
+		weightTracksEnd_full = totalTracksEnd[i];
 		fill(m_tools[m_StationGroup.at(m_stationnames.at(i))], lbTracksEnd, weightTracksEnd);
+		fill(m_tools[m_StationGroup.at(m_stationnames.at(i))], lbTracksEnd_full, weightTracksEnd_full);
 		totalTracksEnd[i] = 0;
 	}
 	
@@ -412,8 +438,10 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 		fill("AFPSiLayerTool", clustersInPlanes);
 		
 		lbClustersPerPlanes = GetEventInfo(ctx)->lumiBlock();
+		lbClustersPerPlanes_full = GetEventInfo(ctx)->lumiBlock();
 		weightClustersByMU = 1/muPerBX;
 		fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(cluster.station)).at(m_pixlayers.at(cluster.layer))], lbClustersPerPlanes, weightClustersByMU);
+		fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(cluster.station)).at(m_pixlayers.at(cluster.layer))], lbClustersPerPlanes_full);
 		weightClustersByMU = 1.0;
 	}
 	return StatusCode::SUCCESS;
