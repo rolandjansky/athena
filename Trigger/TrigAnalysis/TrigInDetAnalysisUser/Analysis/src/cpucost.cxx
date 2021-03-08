@@ -51,6 +51,7 @@ int usage(const std::string& name, int status) {
   s << "    -p,  --pattern   value   \t if auto is set, search for histograms containing this string, \n\n";
   s << "    -nr, --noref             \t do not use a reference file, \n\n";
   s << "    -x,  --xoffset   value   \t offset the key by value \n\n";
+  s << "         --logx               \t force logx \n\n";
   s << "    -as, --atlasstyle        \t use the ATLAS style \n\n";
   s << "    -w,  --binwidth          \t normalise by bin width\n\n";
   s << "    -v,  --verbose           \t verbose output\n";
@@ -129,6 +130,8 @@ int main(int argc, char** argv) {
 
   bool norm_width = true;
 
+  bool logx = false;
+
   // Parse the arguments
   std::vector<std::string> algorithms;
   for(int argnum = 1; argnum < argc; argnum++){
@@ -152,6 +155,9 @@ int main(int argc, char** argv) {
     else if (arg == "-k" || arg == "--key") {
       if (++argnum < argc) { key = argv[argnum] + std::string("-"); }
       else { return usage(argv[0], -1); }
+    }
+    else if ( arg == "--logx") {
+      logx = true;
     }
     else if (arg == "-np" || arg == "--nopng") {
       nopng = true;
@@ -325,8 +331,9 @@ int main(int argc, char** argv) {
       double y1 = 0.75;
       double y2 = 0.87;
 
-      /// adjust the legend if no reference times are to be plotted
-      if ( noref ) y1 = y2-0.5*(y2-y1);
+      /// no longer adjust the legend if no reference times are to be 
+      /// plotted as we now more properly set the legend size automatically 
+      /// depending on the number of entries
 
       Legend legend(x1, x2, y1, y2);
      
@@ -369,12 +376,18 @@ int main(int argc, char** argv) {
 
       if ( norm_width ) binwidth( refhist );
 
-      testhist->GetYaxis()->SetTitleOffset(1.5);
-      refhist->GetYaxis()->SetTitleOffset(1.5);
-      testhist->GetXaxis()->SetTitle(_xaxis.c_str());
       testhist->GetYaxis()->SetTitle(yaxis.c_str());
-      refhist->GetXaxis()->SetTitle(_xaxis.c_str());
+      testhist->GetYaxis()->SetTitleOffset(1.5);
+
       refhist->GetYaxis()->SetTitle(yaxis.c_str());
+      refhist->GetYaxis()->SetTitleOffset(1.5);
+      
+      testhist->GetXaxis()->SetTitle(_xaxis.c_str());
+      testhist->GetXaxis()->SetTitleOffset(1.5);
+
+      refhist->GetXaxis()->SetTitle(_xaxis.c_str());
+      refhist->GetXaxis()->SetTitleOffset(1.5);
+
 
       Plots plots;
 
@@ -455,7 +468,12 @@ int main(int argc, char** argv) {
 
       plots.Draw( legend, true );
 
-      if ( show_directory ) DrawLabel( x1+0.01, y2+0.03, dirname, kBlack, legend.TextSize(), legend.TextFont() );
+      if ( show_directory ) DrawLabel( x1+0.02, y2+0.02, dirname, kBlack, legend.TextSize(), legend.TextFont() );
+
+      /// could simply run gPad->SetLogyx( logx );
+      /// but that would interfere with the individual plot 
+      /// setting from the config file 
+      if ( logx ) gPad->SetLogx(true); 
 
       plots.back().Print( (plotname+".pdf").c_str() );
       if ( !nopng ) plots.back().Print( (plotname+".png").c_str() );
