@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 // @file CrestFunctions.cxx
 // Implementation for CrestFunctions utilities
@@ -39,25 +39,22 @@ namespace IOVDbNamespace{
 
   std::string 
   getIovsForTag(const std::string & tag, const bool testing){
-    //std::string url=urlBase()+"/iovs?tagname="+tag;
     std::string reply{R"delim([{"tagName":"Indet_Align-channelList","since":0,"insertionTime":"2019-07-08T15:33:46.124+0000","payloadHash":"551e8b2807dea49dd91933ba963d8eff78b3441ae5836cd17cddad26ec14ecc3"}])delim"};
     if (not testing){
       //...CrestApi returns Iovs as a json object
       auto myCrestClient = Crest::CrestClient(urlBase());
-      const auto & jsonIovsList = myCrestClient.findAllIovs(tag);
+      reply = myCrestClient.findAllIovs(tag);
     }
     return extractHashFromJson(reply);
   }
 
   std::string 
   getPayloadForHash(const std::string & hash, const bool testing){
-    //auto payloadForHash=[](const std::string &h){return "/payloads/"+h+"/data";};
-    //std::string url=urlBase()+payloadForHash(hash);
     std::string reply{R"delim({"channel_list": ["0", "100", "101", "200", "201", "202", "203", "204", "205", "206", "207", "208", "209", "210", "211", "212", "213", "214", "215", "216", "217", "218", "219", "220", "221", "222", "223", "224", "225", "226", "227", "228", "229", "230"]})delim"};
     if (not testing){
       //CrestApi method:
       auto   myCrestClient = Crest::CrestClient(urlBase());
-      return myCrestClient.getPayloadAsString(hash);
+      reply = myCrestClient.getPayloadAsString(hash);
     }
     return reply;
   }
