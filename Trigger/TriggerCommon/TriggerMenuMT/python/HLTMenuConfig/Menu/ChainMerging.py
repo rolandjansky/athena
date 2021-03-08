@@ -382,16 +382,20 @@ def makeCombinedStep(parallel_steps, stepNumber, chainDefList, allSteps = [], cu
         for chain_index, step in enumerate(parallel_steps): 
             # every step is empty but some might have empty sequences and some might not
             if len(step.sequences) == 0:
-                new_stepDict = deepcopy(chainDefList[chain_index].steps[-1].stepDicts[-1])
-                currentStepName = 'Empty' + chainDefList[chain_index].alignmentGroups[0]+'Align'+str(stepNumber)+'_'+new_stepDict['chainParts'][0]['multiplicity']+new_stepDict['signature']
+                new_stepDicts = deepcopy(chainDefList[chain_index].steps[-1].stepDicts)
+                currentStepName = 'Empty' + chainDefList[chain_index].alignmentGroups[0]+'Align'+str(stepNumber)+'_'+new_stepDicts[0]['chainParts'][0]['multiplicity']+new_stepDicts[0]['signature']
+                log.debug('[makeCombinedStep] step has no sequences, making empty step %s', currentStepName)
 
                 # we need a chain dict here, use the one corresponding to this leg of the chain
-                oldLegName = new_stepDict['chainName']
-                if re.search('^leg[0-9]{3}_',oldLegName):
-                    oldLegName = oldLegName[7:]
-                new_stepDict['chainName'] = legName(oldLegName,leg_counter)
-                stepDicts.append(new_stepDict)
-                leg_counter += 1
+                for new_stepDict in new_stepDicts:
+                    oldLegName = new_stepDict['chainName']
+                    if re.search('^leg[0-9]{3}_',oldLegName):
+                        oldLegName = oldLegName[7:]
+                    new_stepDict['chainName'] = legName(oldLegName,leg_counter)
+                    log.debug("[makeCombinedStep] stepDict naming old: %s, new: %s", oldLegName, new_stepDict['chainName'])
+                    stepDicts.append(new_stepDict)
+                    leg_counter += 1
+
             else:
                 # Standard step with empty sequence(s)
                 currentStepName = step.name
