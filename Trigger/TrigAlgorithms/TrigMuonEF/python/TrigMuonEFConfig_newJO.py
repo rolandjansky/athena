@@ -39,3 +39,24 @@ def TrigMuonEFTrackIsolationAlgCfg(flags, name = "TrigMuonEFTrackIsolation", **k
     acc.addEventAlgo(isoAlg)
 
     return acc
+
+def MuonFilterAlgCfg(flags, name="FilterZeroMuons", **kwargs):
+
+    filterZeroMuons = CompFactory.MuonFilterAlg
+    acc = ComponentAccumulator()
+    kwargs.setdefault("MuonContainerLocation", "MuonsCB")
+
+    acc.addEventAlgo(filterZeroMuons(name, **kwargs))
+
+    return acc
+
+def MergeEFMuonsAlgCfg(flags, name="MergeEFMuonsAlg", **kwargs):
+
+    mergeMuons = CompFactory.MergeEFMuonsAlg
+    acc = ComponentAccumulator()
+    kwargs.setdefault("MuonCBContainerLocation", "MuonsCB_outsideIn")
+    kwargs.setdefault("MuonInsideOutContainerLocation", "MuonsCB_insideOut")
+    kwargs.setdefault("MuonOutputLocation", "MuonsCB")
+
+    acc.addEventAlgo(mergeMuons(name, **kwargs))
+    return acc
