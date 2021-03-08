@@ -17,7 +17,6 @@
 #include <iostream>
 #include <algorithm>
 
-#include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "TrigInDetEvent/TrigL2Vertex.h"
 #include "TrigInDetEvent/TrigVertex.h"
 
