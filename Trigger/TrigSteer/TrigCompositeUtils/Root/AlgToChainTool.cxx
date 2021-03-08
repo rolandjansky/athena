@@ -30,6 +30,8 @@ StatusCode TrigCompositeUtils::AlgToChainTool::start() {
     // Fill the maps
     for ( const TrigConf::Chain& chain : *hltMenuHandle ) {
         for ( const std::string& sequencer : chain.sequencers() ) {
+            // Skip empty steps = empty sequencers in the list
+            if (sequencer.empty()) continue;
             m_sequencerToChainMap[sequencer].push_back(chain);
         }
     }
@@ -45,12 +47,12 @@ StatusCode TrigCompositeUtils::AlgToChainTool::start() {
     return StatusCode::SUCCESS;
 }
 
-StatusCode TrigCompositeUtils::AlgToChainTool::getAllChainNames(std::vector<std::string>& chainNames) const {
+StatusCode TrigCompositeUtils::AlgToChainTool::getAllChains(std::vector<TrigConf::Chain>& chainNames) const {
     SG::ReadHandle<TrigConf::HLTMenu>  hltMenuHandle = SG::makeHandle( m_HLTMenuKey );
     ATH_CHECK( hltMenuHandle.isValid() );
 
     for ( const TrigConf::Chain& chain : *hltMenuHandle ) {
-        chainNames.push_back(chain.name());
+        chainNames.push_back(chain);
     }
     return StatusCode::SUCCESS;
 }
@@ -108,6 +110,7 @@ std::set<std::string> TrigCompositeUtils::AlgToChainTool::getActiveChainsForAlg(
     return result;
 }
 
+
 std::set<TrigCompositeUtils::DecisionID> TrigCompositeUtils::AlgToChainTool::retrieveActiveChains(const EventContext& context, const std::string& collectionName) const {
     std::set<TrigCompositeUtils::DecisionID> activeChainsID;
 
@@ -129,17 +132,8 @@ std::set<TrigCompositeUtils::DecisionID> TrigCompositeUtils::AlgToChainTool::ret
         if( collectionName.empty() && (key.find("HLTNav") != 0 || key == "HLTNav_Summary") ) {
             continue;
         }
-
-        SG::DataProxy* dp = eventStore->proxy(
-            static_cast<CLID>(ClassID_traits<TrigCompositeUtils::DecisionContainer>::ID()), key, true);
-
-        SG::ReadHandle<TrigCompositeUtils::DecisionContainer> dc (dp);
-        if ( !dc.isValid() ) {            
-            ATH_MSG_WARNING("Failed to retrieve " << key << " from event store.");            
-            continue;        
-        }
-
-        for ( const TrigCompositeUtils::Decision* d : *dc ) {
+        
+        for ( const TrigCompositeUtils::Decision* d : *getDecisionFromStore(eventStore, key) ) {
             TrigCompositeUtils::DecisionIDContainer chainsID;
             TrigCompositeUtils::decisionIDs( d, chainsID );
 
@@ -151,14 +145,15 @@ std::set<TrigCompositeUtils::DecisionID> TrigCompositeUtils::AlgToChainTool::ret
     return activeChainsID;
 }
 
-std::map<std::string, std::vector<TrigConf::Chain>> TrigCompositeUtils::AlgToChainTool::getChainsForAllAlgs(const EventContext& context) const{
+
+std::map<std::string, std::vector<TrigConf::Chain>> TrigCompositeUtils::AlgToChainTool::getChainsForAllAlgs(const EventContext& context) const {
     std::map<std::string, std::vector<TrigConf::Chain>> algToChain;
 
     // Look for chains which were active for any of the algorithms of the sequence
     // Name of collection for given sequencer consist sequence's filter's name
     std::map<std::string, std::set<TrigCompositeUtils::DecisionID>> seqToActiveChains;
     for (const auto& sequence : m_sequencerToChainMap) {
-        seqToActiveChains[sequence.first] = retrieveActiveChains(context, "HLTNav_F" + sequence.first);
+        seqToActiveChains[sequence.first] = retrieveActiveChains(context, "HLTNav_F" + sequence.first + "_");
     }
 
     for (const auto& algSeqPair : m_algToSequencersMap){
@@ -181,11 +176,17 @@ std::map<std::string, std::vector<TrigConf::Chain>> TrigCompositeUtils::AlgToCha
     return algToChain;
 }
 
-StatusCode TrigCompositeUtils::AlgToChainTool::getChainInfo(const EventContext& context, TrigCompositeUtils::DecisionID id, ChainInfo& info) const {
-    info.id = id;
 
+StatusCode TrigCompositeUtils::AlgToChainTool::getChainInfo(const EventContext& context, TrigCompositeUtils::DecisionID decId, ChainInfo& info) const {
     SG::ReadHandle<TrigConf::HLTMenu>  hltMenuHandle = SG::makeHandle( m_HLTMenuKey, context );
     ATH_CHECK( hltMenuHandle.isValid() );
+
+    HLT::Identifier id = HLT::Identifier(decId);
+    if (TrigCompositeUtils::isLegId(id)){
+        id = getIDFromLeg(id);
+    }
+
+    info.id = id;
 
     // Find chain with given id
     TrigConf::HLTMenu::const_iterator chain = std::find_if(hltMenuHandle->begin(), hltMenuHandle->end(), 
@@ -194,7 +195,7 @@ StatusCode TrigCompositeUtils::AlgToChainTool::getChainInfo(const EventContext& 
 
     if(chain == hltMenuHandle->end()){
         ATH_MSG_WARNING("Chain " << id << " not found in the menu!");
-        info.name = "UNKNOWN CHAIN ID";
+        info.name = id.name();
         return StatusCode::SUCCESS;
     }
 
@@ -204,19 +205,28 @@ StatusCode TrigCompositeUtils::AlgToChainTool::getChainInfo(const EventContext& 
     // Check if chain passed - is in HLTPassRaw collection
     IProxyDict* storeProxy = Atlas::getExtendedEventContext(context).proxy();
     SmartIF<SGImplSvc> eventStore (storeProxy);
-    SG::DataProxy* dp = eventStore->proxy( static_cast<CLID>(ClassID_traits<TrigCompositeUtils::DecisionContainer>::ID()), "HLTNav_Summary", true);
+    SG::ReadHandle<TrigCompositeUtils::DecisionContainer> dc = getDecisionFromStore(eventStore, "HLTNav_Summary");
 
-    SG::ReadHandle<TrigCompositeUtils::DecisionContainer> dc (dp);
-    if ( !dc.isValid() ) {
-        ATH_MSG_WARNING("Missing HLTNav_Summary for this context!");
-        return StatusCode::SUCCESS;
-    }
     const TrigCompositeUtils::Decision* passRaw = TrigCompositeUtils::getTerminusNode(dc);
     TrigCompositeUtils::DecisionIDContainer chainsID;
     TrigCompositeUtils::decisionIDs( passRaw, chainsID );
     info.isPassRaw = std::find(chainsID.begin(), chainsID.end(), id) != chainsID.end();
 
     return StatusCode::SUCCESS;
+}
+
+
+SG::ReadHandle<TrigCompositeUtils::DecisionContainer> TrigCompositeUtils::AlgToChainTool::getDecisionFromStore(SmartIF<SGImplSvc>& eventStore, const std::string& key) const {
+    SG::DataProxy* dp = eventStore->proxy(
+        static_cast<CLID>(ClassID_traits<TrigCompositeUtils::DecisionContainer>::ID()), key, true);
+
+    SG::ReadHandle<TrigCompositeUtils::DecisionContainer> dc (dp);
+    if ( !dc.isValid() ) {            
+        ATH_MSG_WARNING("Failed to retrieve " << key << " from event store.");            
+        return SG::ReadHandle<TrigCompositeUtils::DecisionContainer>();        
+    }
+
+    return dc;
 }
 
 #endif // XAOD_STANDALONE

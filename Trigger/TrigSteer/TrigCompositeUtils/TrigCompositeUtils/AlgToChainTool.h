@@ -56,13 +56,15 @@ namespace TrigCompositeUtils {
       /// Request set of chains from given navigation collection
       std::set<TrigCompositeUtils::DecisionID> retrieveActiveChains(const EventContext& context, const std::string& collectionName = "") const;
 
-      /// Request names of all chains
-      StatusCode getAllChainNames(std::vector<std::string>&) const;
+      /// Request all chains
+      StatusCode getAllChains(std::vector<TrigConf::Chain>&) const;
 
       /// Retrieve chain information for gived chain id
       StatusCode getChainInfo(const EventContext& context, TrigCompositeUtils::DecisionID id, ChainInfo& info) const;
 
   private:
+      SG::ReadHandle<TrigCompositeUtils::DecisionContainer> getDecisionFromStore(SmartIF<SGImplSvc>& eventStore, const std::string& key) const;
+
       SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{ this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu", "HLT Menu" };
 
       std::map<std::string, std::vector<TrigConf::Chain>> m_sequencerToChainMap;
