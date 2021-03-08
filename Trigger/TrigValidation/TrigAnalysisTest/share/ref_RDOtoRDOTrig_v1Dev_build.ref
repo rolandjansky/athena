@@ -438,6 +438,26 @@ HLT_3j200_subresjesgscIS_ftf_L1J100:
     0: 3
   stepFeatures:
     0: 3
+HLT_3j65_ftf_bdl1r77_split_L1J20:
+  eventCount: 2
+  stepCounts:
+    0: 19
+    1: 4
+    2: 2
+  stepFeatures:
+    0: 19
+    1: 14
+    2: 10
+HLT_3j65_ftf_bmv2c1077_split_L1J20:
+  eventCount: 3
+  stepCounts:
+    0: 19
+    1: 4
+    2: 3
+  stepFeatures:
+    0: 19
+    1: 14
+    2: 13
 HLT_3mu4_bJpsi_L13MU4:
   eventCount: 0
 HLT_3mu4_bPhi_L13MU4:
@@ -468,6 +488,25 @@ HLT_4j120_subresjesgscIS_ftf_L13J50:
     0: 1
   stepFeatures:
     0: 1
+HLT_4j35_ftf_bdl1r77_split_L1J20:
+  eventCount: 0
+  stepCounts:
+    0: 19
+    1: 13
+  stepFeatures:
+    0: 19
+    1: 68
+    2: 22
+HLT_4j35_ftf_bmv2c1077_split_L1J20:
+  eventCount: 2
+  stepCounts:
+    0: 19
+    1: 13
+    2: 2
+  stepFeatures:
+    0: 19
+    1: 68
+    2: 33
 HLT_4mu4_L14MU4:
   eventCount: 0
 HLT_4mu4_bDimu6000_L14MU4:
