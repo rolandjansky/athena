@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 # JetInputConfig: A helper module providing function to setup algorithms
 # in charge of preparing input sources to jets (ex: EventDensity algo, track
@@ -25,10 +25,16 @@ def buildJetSelectedTracks( parentjetdef, inputspec ):
                                 tools = [ t ]
                                 )
 
+def buildJetTrackUsedInFitDeco( parentjetdef, inputspec ):
+    from JetRecTools import JetRecToolsConfig
+    # Jet track used-in-fit decoration
+    return _buildJetAlgForInput("JetUsedInFitDeco",
+                                tools = [ JetRecToolsConfig.getTrackUsedInFitTool() ]
+    )
 
 def buildJetTrackVertexAssoc( parentjetdef, inputspec ):
     from JetRecTools import JetRecToolsConfig
-    # Jet track selection
+    # Jet track TTVA
     return _buildJetAlgForInput("JetTVA",
                                 tools = [ JetRecToolsConfig.getTrackVertexAssocTool() ]
     )

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """
  StandardJetConstits: A module defining standard definitions for jet  constituents.
@@ -47,8 +47,9 @@ _stdInputList = [
     JetInputDef("JetETMissParticleFlowObjects", xAODType.ParticleFlow),
 
     # *****************************
-    JetInputDef("JetSelectedTracks",  xAODType.TrackParticle, algoBuilder = inputcfg.buildJetSelectedTracks),
-    JetInputDef("JetTrackVtxAssoc",   xAODType.TrackParticle, algoBuilder = inputcfg.buildJetTrackVertexAssoc),
+    JetInputDef("JetSelectedTracks",     xAODType.TrackParticle, algoBuilder = inputcfg.buildJetSelectedTracks),
+    JetInputDef("JetTrackUsedInFitDeco", xAODType.TrackParticle, algoBuilder = inputcfg.buildJetTrackUsedInFitDeco),
+    JetInputDef("JetTrackVtxAssoc",      xAODType.TrackParticle, algoBuilder = inputcfg.buildJetTrackVertexAssoc),
 
     # *****************************
     JetInputDef("EventDensity", "EventShape", algoBuilder = inputcfg.buildEventShapeAlg,
@@ -187,7 +188,7 @@ _stdSeqList = [
     
     # Track particles from the primary vertex
     JetConstitSeq("PV0Track", xAODType.TrackParticle,["PV0"],'JetSelectedTracks', 'PV0JetSelectedTracks',
-                prereqs= ["input:JetTrackVtxAssoc"], ),
+                prereqs= ["input:JetTrackUsedInFitDeco","input:JetTrackVtxAssoc"], ),
 
     # *****************************
     # Muon segments. Only used as ghosts
