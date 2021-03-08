@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -148,7 +148,7 @@ StatusCode ZdcRecChannelTool::finalize()
 //==================================================================================================
 int  ZdcRecChannelTool::makeRawFromDigits(
 										   const ZdcDigitsCollection& mydata,
-										   ZdcRawChannelCollection *&  ChannelCollection)
+										   ZdcRawChannelCollection &  ChannelCollection)
 
 {
 	//ZdcRawChannel *z;
@@ -440,10 +440,10 @@ int  ZdcRecChannelTool::makeRawFromDigits(
 
 	    }
 	    ncha++;
-	    ChannelCollection->push_back(z);
+	    ChannelCollection.push_back(z);
 	    msg(MSG::DEBUG) << " ------- 6 " << endmsg;
 	}
-	msg(MSG::DEBUG) << "--> ZDC : ZdcRecChannelTool ChannelCollection size " << ChannelCollection->size() << endmsg ;
+	msg(MSG::DEBUG) << "--> ZDC : ZdcRecChannelTool ChannelCollection size " << ChannelCollection.size() << endmsg ;
 	return ncha;
 }
 
@@ -454,14 +454,14 @@ int  ZdcRecChannelTool::makeRawFromDigits(
 //==================================================================================================
 int ZdcRecChannelTool::getCalibration(
 													const ZdcDigitsCollection& mydata,
-													ZdcRawChannelCollection *&  ChannelCollection)
+													ZdcRawChannelCollection &  ChannelCollection)
 {
 	int ncha = 0;
 	for (const ZdcDigits* digits_p : mydata) {
 		digits_p->identify();
 		ncha++;
 	}
-	int ncal = ChannelCollection->size();
+	int ncal = ChannelCollection.size();
 	msg(MSG::DEBUG) << " Zdc ---> Calibration for " << ncal << " channels " << endmsg;
 	return  ncha;
 }
