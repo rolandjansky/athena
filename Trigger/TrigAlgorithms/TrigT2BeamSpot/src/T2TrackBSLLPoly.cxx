@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2019, 2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cmath>
@@ -15,41 +15,47 @@ namespace {
 // array indices correspond to power of those variables
 const std::int8_t g_order[3][3][3][3] = {
 
-     0,  1,  2,     // Bx**0, By**0, tx**0, ty**0..ty**2
-     3,  4, -1,     // Bx**0, By**0, tx**1, ty**0..ty**2
-     5, -1, -1,     // Bx**0, By**0, tx**2, ty**0..ty**2
+{
+ {{  0,  1,  2 },     // Bx**0, By**0, tx**0, ty**0..ty**2
+  {  3,  4, -1 },     // Bx**0, By**0, tx**1, ty**0..ty**2
+  {  5, -1, -1 }},    // Bx**0, By**0, tx**2, ty**0..ty**2
 
-     6,  7, -1,     // Bx**0, By**1, tx**0, ty**0..ty**2
-     8, -1, -1,     // Bx**0, By**1, tx**1, ty**0..ty**2
-    -1, -1, -1,     // Bx**0, By**1, tx**2, ty**0..ty**2
+ {{  6,  7, -1 },     // Bx**0, By**1, tx**0, ty**0..ty**2
+  {  8, -1, -1 },     // Bx**0, By**1, tx**1, ty**0..ty**2
+  { -1, -1, -1 }},    // Bx**0, By**1, tx**2, ty**0..ty**2
 
-     9, -1, -1,     // Bx**0, By**2, tx**0, ty**0..ty**2
-    -1, -1, -1,     // Bx**0, By**2, tx**1, ty**0..ty**2
-    -1, -1, -1,     // Bx**0, By**2, tx**2, ty**0..ty**2
+ {{  9, -1, -1 },     // Bx**0, By**2, tx**0, ty**0..ty**2
+  { -1, -1, -1 },     // Bx**0, By**2, tx**1, ty**0..ty**2
+  { -1, -1, -1 }},    // Bx**0, By**2, tx**2, ty**0..ty**2
+},
 
-    10, 11, -1,     // Bx**1, By**0, tx**0, ty**0..ty**2
-    12, -1, -1,     // Bx**1, By**0, tx**1, ty**0..ty**2
-    -1, -1, -1,     // Bx**1, By**0, tx**2, ty**0..ty**2
+{
+ {{ 10, 11, -1 },     // Bx**1, By**0, tx**0, ty**0..ty**2
+  { 12, -1, -1 },     // Bx**1, By**0, tx**1, ty**0..ty**2
+  { -1, -1, -1 }},    // Bx**1, By**0, tx**2, ty**0..ty**2
 
-    13, -1, -1,     // Bx**1, By**1, tx**0, ty**0..ty**2
-    -1, -1, -1,     // Bx**1, By**1, tx**1, ty**0..ty**2
-    -1, -1, -1,     // Bx**1, By**1, tx**2, ty**0..ty**2
+ {{ 13, -1, -1 },     // Bx**1, By**1, tx**0, ty**0..ty**2
+  { -1, -1, -1 },     // Bx**1, By**1, tx**1, ty**0..ty**2
+  { -1, -1, -1 }},    // Bx**1, By**1, tx**2, ty**0..ty**2
 
-    -1, -1, -1,     // Bx**1, By**2, tx**0, ty**0..ty**2
-    -1, -1, -1,     // Bx**1, By**2, tx**1, ty**0..ty**2
-    -1, -1, -1,     // Bx**1, By**2, tx**2, ty**0..ty**2
+ {{ -1, -1, -1 },     // Bx**1, By**2, tx**0, ty**0..ty**2
+  { -1, -1, -1 },     // Bx**1, By**2, tx**1, ty**0..ty**2
+  { -1, -1, -1 }},    // Bx**1, By**2, tx**2, ty**0..ty**2
+},
 
-    14, -1, -1,     // Bx**2, By**0, tx**0, ty**0..ty**2
-    -1, -1, -1,     // Bx**2, By**0, tx**1, ty**0..ty**2
-    -1, -1, -1,     // Bx**2, By**0, tx**2, ty**0..ty**2
+{
+ {{ 14, -1, -1 },     // Bx**2, By**0, tx**0, ty**0..ty**2
+  { -1, -1, -1 },     // Bx**2, By**0, tx**1, ty**0..ty**2
+  { -1, -1, -1 }},    // Bx**2, By**0, tx**2, ty**0..ty**2
 
-    -1, -1, -1,     // Bx**2, By**1, tx**0, ty**0..ty**2
-    -1, -1, -1,     // Bx**2, By**1, tx**1, ty**0..ty**2
-    -1, -1, -1,     // Bx**2, By**1, tx**2, ty**0..ty**2
+ {{ -1, -1, -1 },     // Bx**2, By**1, tx**0, ty**0..ty**2
+  { -1, -1, -1 },     // Bx**2, By**1, tx**1, ty**0..ty**2
+  { -1, -1, -1 }},    // Bx**2, By**1, tx**2, ty**0..ty**2
 
-    -1, -1, -1,     // Bx**2, By**2, tx**0, ty**0..ty**2
-    -1, -1, -1,     // Bx**2, By**2, tx**1, ty**0..ty**2
-    -1, -1, -1,     // Bx**2, By**2, tx**2, ty**0..ty**2
+ {{ -1, -1, -1 },     // Bx**2, By**2, tx**0, ty**0..ty**2
+  { -1, -1, -1 },     // Bx**2, By**2, tx**1, ty**0..ty**2
+  { -1, -1, -1 }},    // Bx**2, By**2, tx**2, ty**0..ty**2
+}
 };
 
 // number of possible combinations of all powers,
@@ -59,9 +65,9 @@ const unsigned g_size = 15 + 1;
 // Ordering of the monomials in omegax, omegay powers,
 // array indices correspond to power of those variables
 const std::int8_t g_order2[3][3] = {
-     0,  1,  2,     // Bx**0, By**0, tx**0, ty**0..ty**2
-     3,  4, -1,     // Bx**0, By**0, tx**1, ty**0..ty**2
-     5, -1, -1,     // Bx**0, By**0, tx**2, ty**0..ty**2
+  {  0,  1,  2 },     // Bx**0, By**0, tx**0, ty**0..ty**2
+  {  3,  4, -1 },     // Bx**0, By**0, tx**1, ty**0..ty**2
+  {  5, -1, -1 },     // Bx**0, By**0, tx**2, ty**0..ty**2
 };
 
 // number of possible combinations of omega powers
