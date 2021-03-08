@@ -413,20 +413,8 @@ StatusCode MdtCalibDbCoolStrTool::loadTube(IOVSVC_CALLBACK_ARGS) {
     int ntubesLay = tubes->numTubes();
     int size      = nml*nlayers*ntubesLay;
     if(size!=ntubes) {
-      // currently there is no calibration DB for Run3 or Run4, i.e. nothing for the new
-      // sMDT chambers in the inner barrel layers (BI), so skip them for now until a DB is in place
-      if (m_idHelperTool->issMdt(chId) && name.find("BI")!=std::string::npos) {
-        static bool sMDTWarningPrinted = false;
-        if (!sMDTWarningPrinted) {
-          ATH_MSG_WARNING("Currently no entry for "<<name<<" sMDT chambers (eta="<<ieta<<") in database, skipping...");
-          sMDTWarningPrinted=true;
-        }
-        continue;
-      }
-      else {
         ATH_MSG_ERROR( "Pre-existing MdtTubeCalibContainer for chamber ID " <<chId.get_compact()<< " size ("<<size<<") does not match the one found in DB ("<<ntubes<<")");
         return StatusCode::FAILURE;
-      }
     }
 
     //Extract T0, ADCcal, valid flag for each tube from payload.
@@ -1058,8 +1046,8 @@ MuonCalib::MdtTubeCalibContainer* MdtCalibDbCoolStrTool::buildMdtTubeCalibContai
 
   ATH_MSG_VERBOSE( " new det el " << detEl );
   
-  if( !detEl ){ 
-    ATH_MSG_INFO( "Ignoring nonexistant station in calibration DB: " << m_idHelperTool->mdtIdHelper().print_to_string(id) );
+  if( !detEl ){
+    ATH_MSG_INFO("buildMdtTubeCalibContainer() - Ignoring nonexistant station in calibration DB: "<<m_idHelperTool->mdtIdHelper().print_to_string(id)<<", cf. ATLASRECTS-6035");
   } else {
     int nml = 2;
     if( !detEl2 ) nml = 1;

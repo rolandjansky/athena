@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCalibSvc/MdtCalibrationDbSvc.h"
@@ -31,8 +31,7 @@ MdtCalibrationDbSvc::MdtCalibrationDbSvc(const std::string &n,ISvcLocator *sl)
     m_detStore("StoreGateSvc/DetectorStore", name()),
     m_tubeDataLocation("TubeKey"),
     m_rtDataLocation("RtKey"),
-    m_corDataLocation("CorKey"),
-    m_hasBISsMDT(false)
+    m_corDataLocation("CorKey")
 {
   declareProperty("DBTool", m_dbTool,
 		  "the Tool to be used to retreive the constants");
@@ -82,14 +81,6 @@ StatusCode MdtCalibrationDbSvc::initialize() {
 
   ATH_CHECK(m_idHelperTool.retrieve());
 
-  int bisIndex=m_idHelperTool->mdtIdHelper().stationNameIndex("BIS");
-  Identifier bis7Id = m_idHelperTool->mdtIdHelper().elementID(bisIndex, 7, 1);
-  if (m_idHelperTool->issMdt(bis7Id)) m_hasBISsMDT=true;
-  if (m_hasBISsMDT) {
-    ATH_MSG_WARNING("Skipping retrieval of MdtTubeCalibContainerCollection until sMDT BIS calibration data is working");
-    return StatusCode::SUCCESS;
-  }
-
   // register call backs requiring to be called after the Tool 
   // will work for Ascii Tool only
   // for real DB access the callback is registered with 2 functions 
@@ -113,10 +104,6 @@ StatusCode MdtCalibrationDbSvc::initialize() {
 }  //end MdtCalibrationDbSvc::initialize
 
 StatusCode MdtCalibrationDbSvc::LoadCalibration(IOVSVC_CALLBACK_ARGS_P(I,keys)) {
-  if (m_hasBISsMDT) {
-    ATH_MSG_WARNING("Skipping retrieval of MdtTubeCalibContainerCollection until sMDT BIS calibration data is working");
-    return StatusCode::SUCCESS;
-  }
   std::list<std::string>::const_iterator itr;
   if( msgLvl(MSG::DEBUG) ) {
     ATH_MSG_DEBUG( "LoadCalibration has been triggered for the following keys " );
@@ -142,10 +129,6 @@ StatusCode MdtCalibrationDbSvc::LoadCalibration(IOVSVC_CALLBACK_ARGS_P(I,keys)) 
 }  //end MdtCalibrationDbSvc::LoadCalibration
 
 StatusCode MdtCalibrationDbSvc::loadTube(IOVSVC_CALLBACK_ARGS) { 
-  if (m_hasBISsMDT) {
-    ATH_MSG_WARNING("Skipping retrieval of MdtTubeCalibContainerCollection until sMDT BIS calibration data is working");
-    return StatusCode::SUCCESS;
-  }
   ATH_MSG_DEBUG( "In loadTube " );  
   return m_detStore->retrieve(m_tubeData, m_tubeDataLocation);
 }
@@ -225,19 +208,10 @@ MuonCalib::MdtFullCalibData MdtCalibrationDbSvc::getCalibration( const Identifie
 
   // find t0's
   if( m_getTubeConstants && tubeHash.is_valid() ) {
-    if (m_hasBISsMDT) {
-      // the following check/warning can be removed as soon as sMDT calibration data is available for BIS sMDTs
-      static bool bisWarningPrinted = false;
-      if (!bisWarningPrinted) {
-        ATH_MSG_WARNING("skipping retrieval of TubeCalibContainer since no BIS sMDT calibrations available in conditions database, cf. ATLASRECTS-5805");
-        bisWarningPrinted=true;
-      }
-    } else {
       tube = getTubeCalibContainer( tubeHash );
       if( !tube ){
         ATH_MSG_WARNING( "Not valid MdtTubeCalibContainer found " );
       }
-    }
   }
   
   return MuonCalib::MdtFullCalibData( cor, rt, tube );
