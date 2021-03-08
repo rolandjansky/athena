@@ -62,6 +62,7 @@ protected:
   std::string m_beam;
   std::string m_outtg;
   std::string m_sfaci;
+  std::string m_diff;
   std::string m_an;
   std::string m_az;
   std::string m_rz;
@@ -76,7 +77,7 @@ protected:
   unsigned int m_inccall;
   unsigned int m_itend;
   int m_iseed;
-  int m_s2int;
+  //int m_s2int;
 
   std::string m_genunw;
   int m_nev;
