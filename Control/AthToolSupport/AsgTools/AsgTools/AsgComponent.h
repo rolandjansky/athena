@@ -93,6 +93,13 @@ namespace asg
     /// \}
 
 
+    /// Get a pointer to the property manager
+    /// \{
+    PropertyMgr *getPropertyMgr () noexcept;
+    const PropertyMgr* getPropertyMgr() const noexcept;
+    /// \}
+
+
 
     //
     // inherited interface
