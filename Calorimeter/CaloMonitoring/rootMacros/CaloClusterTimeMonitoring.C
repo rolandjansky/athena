@@ -70,6 +70,9 @@ class CaloClusterTimeMon
  public:
   CaloClusterTimeMon(const TGWindow *p, UInt_t w, UInt_t h);
   virtual ~CaloClusterTimeMon();
+  CaloClusterTimeMon (const CaloClusterTimeMon&) = delete;
+  CaloClusterTimeMon& operator= (const CaloClusterTimeMon&) = delete;
+
   void CloseMainWindow();
   
   void ConfigureMainMenu();
@@ -87,16 +90,29 @@ class CaloClusterTimeMon
 //#####################################################################
 // Class constructor
 CaloClusterTimeMon::CaloClusterTimeMon(const TGWindow *p, UInt_t w, UInt_t h)
-{
-  // initialize variables
-  m_fileBaseName = gSystem->BaseName(g_rootFile->GetName());
-  m_dirCaloClusterTime = "/CaloClusterTimeMon/";
-  m_histoNameBase1 = "";
-  m_canvasW = 720;
-  m_canvasH = 540;
-  m_psFile = 0;
-  m_psFileName = "";
+  : fMain (nullptr),
+    fMenuDock (nullptr),
+    fGCanvas (nullptr),
+    fContainer (nullptr),
+    fECanvas (),
+    fMenuBar (nullptr),
+    fMenuCaloCluster (nullptr),
+    fMenuPS (nullptr),
+    fHFrame (nullptr),
+    fSave (nullptr),
+    fPrintThis (nullptr),
+    fStatusBar (nullptr),
+    fCanvas (nullptr),
+    m_h1d (nullptr),
+    m_href (nullptr),
+    m_h2d (nullptr),
+    m_psFile (nullptr),
 
+    m_fileBaseName (gSystem->BaseName(g_rootFile->GetName())),
+    m_dirCaloClusterTime ("/CaloClusterTimeMon/"),
+    m_canvasW (720),
+    m_canvasH (540)
+{
   // global style options
   gStyle->SetOptStat("emr");
   gStyle->SetPaperSize(TStyle::kA4);

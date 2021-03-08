@@ -70,6 +70,9 @@ class CaloCellTimeMon
  public:
   CaloCellTimeMon(const TGWindow *p, UInt_t w, UInt_t h);
   virtual ~CaloCellTimeMon();
+  CaloCellTimeMon(const CaloCellTimeMon&) = delete;
+  CaloCellTimeMon& operator=(const CaloCellTimeMon&) = delete;
+
   void CloseMainWindow();
 
   void ConfigureMainMenu();
@@ -92,19 +95,36 @@ class CaloCellTimeMon
 //#####################################################################
 // Class constructor
 CaloCellTimeMon::CaloCellTimeMon(const TGWindow *p, UInt_t w, UInt_t h)
-{
-  // initialize variables
-  m_fileBaseName = gSystem->BaseName(g_rootFile->GetName());
-  m_dirCaloCellTime = "/CaloCellTimeMon/";
-  m_dirSummary = "Summary";
-  m_dirTime = "Time";
-  m_dirTimevsEnergy = "TimevsEnergy";
-  m_histoNameBase1 = "";
-  m_canvasW = 720;
-  m_canvasH = 540;
-  m_psFile = 0;
-  m_psFileName = "";
+  : fMain (nullptr),
+    fMenuDock (nullptr),
+    fGCanvas (nullptr),
+    fContainer (nullptr),
+    fECanvas (),
+    fMenuBar (nullptr),
+    fMenuSummary (nullptr),
+    fMenuCaloCell (nullptr),
+    fMenuPS (nullptr),
+    fHFrame (nullptr),
+    fComboLayer (nullptr),
+    fDrawSingle (nullptr),
+    fDrawLayers (nullptr),
+    fSave (nullptr),
+    fPrintThis (nullptr),
+    fStatusBar (nullptr),
+    fCanvas (nullptr),
+    m_h1d (nullptr),
+    m_href (nullptr),
+    m_h2d (nullptr),
+    m_psFile (nullptr),
 
+    m_fileBaseName (gSystem->BaseName(g_rootFile->GetName())),
+    m_dirCaloCellTime ("/CaloCellTimeMon/"),
+    m_dirTime ("Time"),
+    m_dirTimevsEnergy ("TimevsEnergy"),
+    m_dirSummary ("Summary"),
+    m_canvasW (720),
+    m_canvasH (540)
+{
   // global style options
   gStyle->SetOptStat("emr");
   gStyle->SetPaperSize(TStyle::kA4);
