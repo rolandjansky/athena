@@ -1,11 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _VrtSecInclusive_VrtSecInclusive_Utilities_H
 #define _VrtSecInclusive_VrtSecInclusive_Utilities_H
 
 #include "VrtSecInclusive/IntersectionPos.h"
+
+#include <TString.h>
 
 namespace VKalVrtAthena {
   

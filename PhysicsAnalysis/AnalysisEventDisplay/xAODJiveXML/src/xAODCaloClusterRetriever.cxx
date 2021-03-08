@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAODJiveXML/xAODCaloClusterRetriever.h"
@@ -160,7 +160,7 @@ namespace JiveXML {
       if ( emfrac < 0.0 ) emfrac = 0.;
       emfracVec.push_back(  DataType(emfrac).toString() );
 
-      if ( DataType( eInSample ).toString() != 0. ){
+      if ( DataType( eInSample ).toString() != "0." ){
        label = "AllMeV_SumEMSampl=" + DataType( eInSample ).toString() +
   	 "_SumAllSampl=" + DataType( eInSampleFull ).toString() +
   	 "_calcEMFrac=" + DataType( rawemfrac ).toString()+
