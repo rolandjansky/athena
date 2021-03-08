@@ -10,6 +10,7 @@
 #include "L1TopoInterfaces/ParameterSpace.h"
 #include "L1TopoInterfaces/SortingAlg.h"
 #include "L1TopoInterfaces/DecisionAlg.h"
+#include "L1TopoInterfaces/CountingAlg.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoEvent/GenericTOB.h"
 
@@ -22,6 +23,7 @@
 #include "L1TopoCoreSim/InputConnector.h"
 #include "L1TopoCoreSim/SortingConnector.h"
 #include "L1TopoCoreSim/DecisionConnector.h"
+#include "L1TopoCoreSim/CountingConnector.h"
 
 // c++ libraries
 #include <iomanip>
@@ -58,11 +60,10 @@ TopoSteering::setupFromConfiguration(const TXC::L1TopoMenu&){
 TCS::StatusCode
 TopoSteering::setupFromConfiguration(const TrigConf::L1Menu& l1menu){
 
-
   TCS::StatusCode sc = m_structure.setupFromMenu( l1menu, m_isLegacyTopo );
   
   // configure layout of the simulation result
-  sc &= m_simulationResult.setupFromMenu( m_structure.outputConnectors() );
+  sc &= m_simulationResult.setupFromMenu( m_structure.outputConnectors(), m_structure.countConnectors() );
 
   return sc;
 
@@ -149,16 +150,21 @@ TopoSteering::executeEvent() {
 
    // execute all connectors
    TCS::StatusCode sc = TCS::StatusCode::SUCCESS;
-   TRG_MSG_INFO("Going to execute " << m_structure.outputConnectors().size() << " connectors");
+   TRG_MSG_INFO("Going to execute " << m_structure.outputConnectors().size() << " decision connectors and " << m_structure.countConnectors().size() << " multiplicity connectors.");
    for(auto outConn: m_structure.outputConnectors()) {
       TRG_MSG_INFO("executing trigger line " << outConn.first);
       sc |= executeConnector(outConn.second);
       TRG_MSG_INFO("result of trigger line " << outConn.first << " : " << outConn.second->decision().decision());
    }   
-               
-   sc |= m_simulationResult.collectResult();
 
-   m_simulationResult.globalDecision().print();
+   for(auto multConn: m_structure.countConnectors()) {
+      TRG_MSG_INFO("executing trigger line " << multConn.first);
+      sc |= executeConnector(multConn.second);
+   } 
+
+   sc |= m_simulationResult.collectResult(); 
+
+   m_simulationResult.globalOutput().print();
 
    TRG_MSG_INFO("finished executing event " << m_evtCounter++);
    return TCS::StatusCode::SUCCESS;
@@ -204,9 +210,11 @@ TopoSteering::executeConnector(TCS::Connector *conn) {
    } else if(conn->isSortingConnector()) {
       //TRG_MSG_DEBUG("  ... executing sorting connector '" << conn->name() << "'");
       sc = executeSortingConnector(dynamic_cast<SortingConnector*>(conn));
-   } else {
+   } else if(conn->isDecisionConnector()){
       //TRG_MSG_DEBUG("  ... executing decision connector '" << conn->name() << "'");
       sc = executeDecisionConnector(dynamic_cast<DecisionConnector*>(conn));
+   } else if(conn->isCountingConnector()){
+      sc = executeCountingConnector(dynamic_cast<CountingConnector*>(conn));
    }
 
    conn->setIsExecuted(true);
@@ -323,6 +331,37 @@ TopoSteering::executeDecisionConnector(TCS::DecisionConnector *conn) {
 }
 
 
+TCS::StatusCode
+TopoSteering::executeCountingConnector(TCS::CountingConnector *conn) {
+
+   if (conn == NULL) {
+      return TCS::StatusCode::FAILURE;
+   }
+
+   TCS::StatusCode sc = TCS::StatusCode::SUCCESS;
+
+   // execute all the prior connectors
+   for( TCS::Connector* inputConn: conn->inputConnectors() ){
+      sc &= executeConnector(inputConn);
+      conn->toggleInputOverflow(conn->hasInputOverflow() ||
+                                inputConn->hasInputOverflow());
+   }
+
+   // execute 
+   TCS::CountingAlg* alg = conn->countingAlgorithm();
+   
+   // Execute algorithm with no output data - not needed for now
+   sc &= executeCountingAlgorithm(alg, conn->inputConnector(), conn->m_count);
+
+   conn->setIsExecuted(true);
+   conn->setExecutionStatusCode(sc);
+
+   // TO-DO overflows in multiplicity algorithms
+
+   return sc;
+}
+
+
 
 TCS::StatusCode
 TopoSteering::executeSortingAlgorithm(TCS::SortingAlg *alg,
@@ -379,6 +418,20 @@ TopoSteering::executeDecisionAlgorithm(TCS::DecisionAlg *alg,
    return TCS::StatusCode::SUCCESS;
 }
 
+
+TCS::StatusCode
+TopoSteering::executeCountingAlgorithm(TCS::CountingAlg *alg,
+                                      TCS::InputConnector* inputConnector,
+                                      TCS::Count & count) {
+
+   TRG_MSG_DEBUG("  ... executing multiplicity alg '" <<alg->fullname() << "'");
+
+   const InputTOBArray * input = inputConnector->outputData();
+
+   alg->process( *input, count);
+
+   return TCS::StatusCode::SUCCESS;
+}
 
 
 void

@@ -185,7 +185,7 @@ L1TopoSimulation::execute() {
    // execute the toposteering
    m_topoSteering->executeEvent();
 
-   ATH_MSG_DEBUG("Global Decision:\n" << m_topoSteering->simulationResult().globalDecision());
+   ATH_MSG_DEBUG("Global Decision:\n" << m_topoSteering->simulationResult().globalOutput());
    
 
    /**
@@ -199,8 +199,8 @@ L1TopoSimulation::execute() {
 
    // Format for CTP still undecided
 
-   const TCS::GlobalDecision & dec = m_topoSteering->simulationResult().globalDecision();
-   auto topoDecision2CTP = std::make_unique< LVL1::FrontPanelCTP >();
+   const TCS::GlobalOutput & globalOutput = m_topoSteering->simulationResult().globalOutput();
+   auto topoOutput2CTP = std::make_unique< LVL1::FrontPanelCTP >();
    auto topoOverflow2CTP = std::make_unique< LVL1::FrontPanelCTP >();
 
    const TrigConf::L1Menu * l1menu = nullptr;
@@ -209,23 +209,31 @@ L1TopoSimulation::execute() {
    if( m_isLegacyTopo ) {
       // to be implemented
    } else {
-      // set electrical connectors
+      // set electrical connectors 
       std::string conn1 = l1menu->board("Topo2").connectorNames()[0];
       std::string conn2 = l1menu->board("Topo3").connectorNames()[0];
       for(unsigned int clock=0; clock<2; ++clock) {
-         topoDecision2CTP->setCableWord0( clock, 0 ); // ALFA
-         ATH_MSG_DEBUG("Word 1 " << conn1 << " clock " << clock << "  " << dec.decision_field( conn1, clock) );
-         topoDecision2CTP->setCableWord1( clock, dec.decision_field( conn1, clock) );  // TOPO 0
-         ATH_MSG_DEBUG("Word 2 " << conn2 << " clock " << clock << "  " << dec.decision_field( conn2, clock) );
-         topoDecision2CTP->setCableWord2( clock, dec.decision_field( conn2, clock) );  // TOPO 1
+         topoOutput2CTP->setCableWord0( clock, 0 ); // ALFA
+         ATH_MSG_DEBUG("Word 1 " << conn1 << " clock " << clock << "  " << globalOutput.decision_field( conn1, clock) );
+         topoOutput2CTP->setCableWord1( clock, globalOutput.decision_field( conn1, clock) );  // TOPO 0
+         ATH_MSG_DEBUG("Word 2 " << conn2 << " clock " << clock << "  " << globalOutput.decision_field( conn2, clock) );
+         topoOutput2CTP->setCableWord2( clock, globalOutput.decision_field( conn2, clock) );  // TOPO 1
          // topoOverflow2CTP->setCableWord0( clock, 0 ); // ALFA
          // topoOverflow2CTP->setCableWord1( clock, dec.overflow( 0, clock) );  // TOPO 0
          // topoOverflow2CTP->setCableWord2( clock, dec.overflow( 1, clock) );  // TOPO 1
       }    
+
+      // set optical connectors
+      
+      for(int optcable=0; optcable<4; ++optcable) {
+         std::string connOpt = l1menu->board("Topo1").connectorNames()[optcable];
+         topoOutput2CTP->setOptCableWord( optcable, globalOutput.count_field(connOpt) );
+      }
+      
    }
 
    
-   CHECK(SG::makeHandle(m_topoCTPLocation)        .record(std::move(topoDecision2CTP)));
+   CHECK(SG::makeHandle(m_topoCTPLocation)        .record(std::move(topoOutput2CTP)));
    CHECK(SG::makeHandle(m_topoOverflowCTPLocation).record(std::move(topoOverflow2CTP)));
 
    return StatusCode::SUCCESS;

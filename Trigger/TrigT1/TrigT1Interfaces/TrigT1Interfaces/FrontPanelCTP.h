@@ -12,6 +12,8 @@
 // STL includes
 #include <iosfwd>
 
+#include <bitset>
+
 // Gaudi includes
 #include "GaudiKernel/DataObject.h"
 
@@ -55,6 +57,9 @@ public:
    /** @brief set the data that is sent on cable 2 */
    void setCableWord2(unsigned int clock, uint32_t data);
 
+   /** @brief set the data that is sent on the optical cables */
+   void setOptCableWord(unsigned int cable, std::bitset<128> data) { m_optcableWord[cable] = data; }
+
 
 
    /** @brief return the data that is sent on cable 0 */
@@ -65,6 +70,9 @@ public:
   
    /** @brief return the data that is sent on cable 2 */
    uint32_t cableWord2(unsigned int clock) const;
+
+   /** @brief return the data that is sent on the optical cables by index */
+   std::bitset<128> optcableWord(unsigned int cable) const { return m_optcableWord[cable]; }
   
   
   
@@ -79,6 +87,8 @@ private:
    uint32_t m_cableWord0[2] { 0, 0 };
    uint32_t m_cableWord1[2] { 0, 0 };
    uint32_t m_cableWord2[2] { 0, 0 };
+
+   std::bitset<128> m_optcableWord[4] = { 0, 0, 0, 0 };   
 
 }; 
 
