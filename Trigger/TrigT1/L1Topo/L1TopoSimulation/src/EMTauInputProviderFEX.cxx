@@ -118,7 +118,7 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
 		   << eFexRoI->phi() // returns a floating point global phi
 		   << " is TOB? "
 		   << +eFexRoI->isTOB() // returns 1 if true, returns 0 if xTOB)
-		   );
+		  );
 
     if (!eFexRoI->isTOB()) continue;
 

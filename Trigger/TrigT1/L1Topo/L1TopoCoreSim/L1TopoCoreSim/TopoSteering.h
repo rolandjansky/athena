@@ -33,10 +33,13 @@ namespace TCS {
    class InputConnector;
    class SortingConnector;
    class DecisionConnector;
+   class CountingConnector;
    class ConfigurableAlg;
    class SortingAlg;
    class Decision;
    class DecisionAlg;
+   class Count;
+   class CountingAlg;
 
    class TopoSteering : public TrigConf::TrigConfMessaging {
    public:
@@ -134,6 +137,8 @@ namespace TCS {
       StatusCode executeSortingConnector(TCS::SortingConnector *conn);
 
       StatusCode executeDecisionConnector(TCS::DecisionConnector *conn);
+
+      StatusCode executeCountingConnector(TCS::CountingConnector *conn);
       
       StatusCode executeAlgorithm(ConfigurableAlg *alg, Connector* connector);
       
@@ -141,6 +146,8 @@ namespace TCS {
       
       StatusCode executeDecisionAlgorithm(TCS::DecisionAlg *alg, const std::vector<Connector*> & inputConnectors, const std::vector<TCS::TOBArray *> & output, Decision & decsion);
       
+      StatusCode executeCountingAlgorithm(TCS::CountingAlg *alg, TCS::InputConnector* inputConnector, Count & count);
+
 
 
    private:

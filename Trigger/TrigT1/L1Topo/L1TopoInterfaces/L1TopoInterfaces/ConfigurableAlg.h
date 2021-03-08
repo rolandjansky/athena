@@ -15,7 +15,6 @@
 #include "L1TopoInterfaces/AlgFactory.h"
 #include "L1TopoCommon/StatusCode.h"
 
-
 #include <vector>
 #include <string>
 #include <memory>
@@ -28,7 +27,7 @@ namespace TCS {
 
    class ConfigurableAlg : public TrigConf::TrigConfMessaging {
    protected:
-      enum AlgType { NONE, SORT, DECISION };
+      enum AlgType { NONE, SORT, DECISION, COUNT };
 
    public:
 
@@ -59,6 +58,8 @@ namespace TCS {
       bool isSortingAlg() const { return m_algType == SORT; }
 
       bool isDecisionAlg() const { return m_algType == DECISION; }
+
+      bool isCountingAlg() const { return m_algType == COUNT; }
 
       bool isLegacyTopo() const { return m_isLegacyTopo; }
 

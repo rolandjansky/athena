@@ -22,7 +22,7 @@ namespace TCS {
    class Connector {
    public:
 
-      enum ConnectorType { NONE=0, INPUT, SORT, DECISION };
+      enum ConnectorType { NONE=0, INPUT, SORT, DECISION, COUNT };
       
       // standard connector
       Connector( const std::string & name,
@@ -39,6 +39,7 @@ namespace TCS {
       bool isInputConnector() const    { return m_conntype == INPUT; }
       bool isSortingConnector() const  { return m_conntype == SORT; }
       bool isDecisionConnector() const { return m_conntype == DECISION; }
+      bool isCountingConnector() const { return m_conntype == COUNT; }
 
       const std::string &              name() const { return m_name; }
       const std::string &              algorithmName() const {  return m_algorithmName; }

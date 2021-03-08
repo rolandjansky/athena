@@ -12,11 +12,13 @@
 
 #include "L1TopoInterfaces/DecisionAlg.h"
 #include "L1TopoInterfaces/SortingAlg.h"
+#include "L1TopoInterfaces/CountingAlg.h"
 
 #include "L1TopoCoreSim/Connector.h"
 #include "L1TopoCoreSim/InputConnector.h"
 #include "L1TopoCoreSim/SortingConnector.h"
 #include "L1TopoCoreSim/DecisionConnector.h"
+#include "L1TopoCoreSim/CountingConnector.h"
 
 #include "L1TopoHardware/L1TopoHardware.h"
 
@@ -130,6 +132,7 @@ TCS::TopoSteeringStructure::setupFromMenu(const TrigConf::L1Menu& l1menu, bool l
    //   set<TCS::inputTOBType_t> neededInputs; // Stores inputs for DecisionConnectors
    vector<string> storedConn; // Stores decision connectors in order to avoid double counting
    vector<vector<string>> confAlgorithms; // Stores algorithm name/category that have been configured in L1Menu to be used for setting the parameters
+   vector<string> confMultAlgorithms; // Stores algorithm names that have been configured in L1Menu to be used for setting the multiplicity thresholds
    // Loop over boards in L1Menu and skip the ones that are not TOPO. Use Run-2 boards if legacy flag is on
    for (const string & boardName : l1menu.boardNames() ){
      
@@ -144,171 +147,114 @@ TCS::TopoSteeringStructure::setupFromMenu(const TrigConf::L1Menu& l1menu, bool l
 
        auto & l1conn = l1menu.connector(connName);
 
-       // All topo decision algorithms are configured in boards with electrical connection to CTP - Add optical connectors when adding multiplicity algorithms
-       // Look at all Topo algorithms in each connector, and get inputs from each algorithm to configure SortingConnectors
-       if ( ! (l1conn.connectorType() == TrigConf::L1Connector::ConnectorType::ELECTRICAL ) ) continue;
+        // First configure decision algorithms
+        // Look at all Topo algorithms in each connector, and get inputs from each algorithm to configure SortingConnectors
+         if ( l1conn.connectorType() == TrigConf::L1Connector::ConnectorType::ELECTRICAL ) {
 
-       for( size_t fpga : { 0, 1} ) {
-	 for( size_t clock : { 0, 1} ) {
-	   for( auto & tl : l1conn.triggerLines(fpga, clock) ) {
+          for( size_t fpga : { 0, 1} ) {
+	          for( size_t clock : { 0, 1} ) {
+	            for( auto & tl : l1conn.triggerLines(fpga, clock) ) {
 	     
-	     const string & tlName = tl.name();
-	     auto & algo = l1menu.algorithmFromTriggerline(tlName);
+	              const string & tlName = tl.name();
+	              auto & algo = l1menu.algorithmFromTriggerline(tlName);
 
-	     // One algorithm can have multiple trigger lines. Check the connector/algorithm has not been stored already
-	     auto it = find(storedConn.begin(), storedConn.end(), algo.name());
-	     if (it == storedConn.end()) { // Algorithm/Connector does not exist: create and store it
+	              // One algorithm can have multiple trigger lines. Check the connector/algorithm has not been stored already
+	              auto it = find(storedConn.begin(), storedConn.end(), algo.name());
+	              if (it == storedConn.end()) { // Algorithm/Connector does not exist: create and store it
 
-	       storedConn.push_back(algo.name());
-	       vector<string> inputNames;
-	       for( auto & input : algo.inputs() ) {
-		 if( sortingConnector(input) == 0 ) { // if connector does not exist, create it
-		   if(debug) 
-		     cout << "L1TopoSteering: Decision algo( " << algo.name() << " ) input is not defined: " << input << ". Creating sortingConnector" << endl;
+	                storedConn.push_back(algo.name());
+	                vector<string> inputNames;
+	                for( auto & input : algo.inputs() ) {
+		                if( sortingConnector(input) == 0 ) { // if connector does not exist, create it
+		                  if(debug) 
+		                    cout << "L1TopoSteering: Decision algo( " << algo.name() << " ) input is not defined: " << input << ". Creating sortingConnector" << endl;
 		   
-		   auto & sortAlgo = l1menu.algorithm(input, algo.category());
-		   if(!(sortAlgo.type() == TrigConf::L1TopoAlgorithm::AlgorithmType::SORTING ) )
-		     TCS_EXCEPTION("L1TopoSteering: Decision algo " << algo.name() << ") has as input " << input << " which is not associated to a sorting algorithm");
+		                  auto & sortAlgo = l1menu.algorithm(input, algo.category());
+		                  if(!(sortAlgo.type() == TrigConf::L1TopoAlgorithm::AlgorithmType::SORTING ) )
+		                    TCS_EXCEPTION("L1TopoSteering: Decision algo " << algo.name() << ") has as input " << input << " which is not associated to a sorting algorithm");
 
-		   //		   TCS::inputTOBType_t en = inputType(sortAlgo.inputs().at(0));
-		   //		   neededInputs.insert(en);
+		                  // Create connector
+		                  SortingConnector * sortConn = new SortingConnector(sortAlgo.inputs().at(0), sortAlgo.klass()+"/"+input, sortAlgo.outputs().at(0));
+		                  if(debug)
+		                    cout << "Adding sorting connector " << "[" << *sortConn << "]" << endl;
+		                  addSortingConnector( sortConn );
+		                  confAlgorithms.push_back({sortAlgo.name(), sortAlgo.category()});
 
-		   // Create connector
-		   SortingConnector * sortConn = new SortingConnector(sortAlgo.inputs().at(0), sortAlgo.klass()+"/"+input, sortAlgo.outputs().at(0));
-		   if(debug)
-		     cout << "Adding sorting connector " << "[" << *sortConn << "]" << endl;
-		   addSortingConnector( sortConn );
-		   confAlgorithms.push_back({sortAlgo.name(), sortAlgo.category()});
-
-		 } // if connector does not exist
+		                  } // if connector does not exist
 		 
-		 inputNames.push_back(input);
+		                inputNames.push_back(input);
 
-	       } // loop over inputs
+	                } // loop over inputs
 
-	       DecisionConnector * conn = new DecisionConnector(algo.name(), inputNames, algo.klass()+"/"+algo.name(), algo.outputs());
-	       conn->m_decision.setNBits( algo.outputs().size() );
+	                DecisionConnector * conn = new DecisionConnector(algo.name(), inputNames, algo.klass()+"/"+algo.name(), algo.outputs());
+	                conn->m_decision.setNBits( algo.outputs().size() );
 
-	       if(tl.name() != "UNDEF")
-		 conn->m_triggers.push_back(tl);
+	                if(tl.name() != "UNDEF")
+		                conn->m_triggers.push_back(tl);
 
-	       if(debug)
-		 cout << "Adding decision connector " << "[" << *conn << "]" << endl;
-	       addDecisionConnector( conn );
-	       confAlgorithms.push_back({algo.name(), algo.category()});
+	                if(debug)
+		                cout << "Adding decision connector " << "[" << *conn << "]" << endl;
+	                addDecisionConnector( conn );
+	                confAlgorithms.push_back({algo.name(), algo.category()});
 
-	     } else { // Connector already exists: look for it and add the trigger line
-	       for(auto out : algo.outputs()){
-		 auto c = m_outputLookup.find(out);
-		 if (c != m_outputLookup.end()){
-		   auto conn = c->second;
-		   if(tl.name() != "UNDEF")
-		     conn->m_triggers.push_back(tl);
-		   break;
-		 }
-	       }
-	     }
+	              } else { // Connector already exists: look for it and add the trigger line
+	                for(auto out : algo.outputs()){
+		                auto c = m_outputLookup.find(out);
+		                if (c != m_outputLookup.end()){
+		                  auto conn = c->second;
+		                  if(tl.name() != "UNDEF")
+		                  conn->m_triggers.push_back(tl);
+		                  break;
+		                }
+	                }
+	              }
 
-	   } // Trigger Line
+	            } // Trigger Line
 
-	 } // Clock
+	          } // Clock
 
-       } // FPGA
+          } // FPGA
+
+         } else { // Configure optical connectors - multiplicity algorithms
+
+          // In multiplicity boards all trigger lines are copied into the L1Menu::Connector 4 times (fpga 0,1 and clock 0,1)
+          // Take (fpga, clock) = (0, 0)
+
+            for( auto & tl : l1conn.triggerLines(0, 0) ) {
+
+               const string & tlName = tl.name();
+	            auto & algo = l1menu.algorithmFromTriggerline(tlName);
+
+               if (algo.klass() != "EMMultiplicity") continue; // Only multiplicity for EMs are defined in the menu
+            
+               auto it = find(storedConn.begin(), storedConn.end(), algo.name());
+               if (it == storedConn.end()) { // Algorithm/Connector does not exist: create and store it
+
+                  storedConn.push_back(algo.name());
+                  if(debug)
+                     cout << "L1TopoSteering: Multiplicity algo( " << algo.name() << " ) has as input " << algo.inputs().at(0) << endl;
+
+                  CountingConnector * conn = new CountingConnector(algo.name(), algo.inputs().at(0), algo.klass()+"/"+algo.name(), algo.outputs().at(0));
+	               conn->m_count.setNBits( tl.nbits() );
+
+                  if(tl.name() != "UNDEF")
+		               conn->m_triggers.push_back(tl);
+
+                  if(debug)
+                     cout << "Adding count connector " << "[" << *conn << "]" << endl;
+                  addCountingConnector( conn );
+                  confMultAlgorithms.push_back( algo.name() );
+               }
+
+            } // Trigger Line
+
+         } // Optical connectors - multiplicities
        
-     } // Connector in l1board
+      } // Connector in l1board
 
    } // Board in l1menu
 
-   /*
-   if(debug)
-     cout << "... building sorting connectors" << endl;
-
-   std::string categories[] = { "TOPO" };
-
-   for( auto & category : categories ){
-   
-     for( auto & name : l1menu.topoAlgorithmNames(category)) {
-       
-       auto & algo = l1menu.algorithm(name, category);
-       
-       if(!(algo.type() == TrigConf::L1TopoAlgorithm::AlgorithmType::SORTING ) ) continue;
-       
-       TCS::inputTOBType_t en = inputType(algo.inputs().at(0));
-       neededInputs.insert(en);
-       
-       // create connector
-       SortingConnector * conn = new SortingConnector(algo.inputs().at(0), algo.klass()+"/"+name, algo.outputs().at(0));
-       if(debug)
-	 cout << "Adding sorting connector " << "[" << *conn << "]" << endl;
-       addSortingConnector( conn );
-     }
-
-   }
-     
-
-   
-   if(debug)
-     cout << "... building output connectors" << endl;
-
-   // All topo decision algorithms are configured in boards with electrical connection to CTP
-   // Create all DecisionConnectors from L1Connectors of type ELECTRICAL
-   std::vector<std::string> storedConn;
-   for ( const string & connName : l1menu.connectorNames() ){
-
-     auto & l1conn = l1menu.connector(connName);
-
-     if ( ! (l1conn.type() == TrigConf::L1Connector::ConnectorType::ELECTRICAL ) ) continue;
-     if ( l1conn.isLegacy() ) continue;
-
-     for( size_t fpga : { 0 ,1 } ) {
-       for( size_t clock : { 0 ,1 } ) {
-	 for( auto & tl : l1conn.triggerLines(fpga, clock) ) {
-	   
-	   const string & tlName = tl.name();
-	   auto & algo = l1menu.algorithmFromTriggerline(tlName);
-	   
-	   // One algorithm can have multiple trigger lines. Check the connector/algorithm has not been stored already
-	   auto it = std::find(storedConn.begin(), storedConn.end(), algo.name());
-	   if (it == storedConn.end()) { // Algorithm/Connector do not exist: create and store it
-
-	     storedConn.push_back(algo.name());
-
-	     std::vector<std::string> inputNames;
-	     for( auto & input : algo.inputs() ) {
-	       if( sortingConnector(input) == 0 ) {
-		 TCS_EXCEPTION("L1TopoSteering: Decision algo ( " << algo.name() << " ) input is not defined: " << input);
-	       }
-	       inputNames.push_back(input);
-	     }
-
-	     DecisionConnector * conn = new DecisionConnector(algo.name(), inputNames, algo.klass()+"/"+algo.name(), algo.outputs());
-	     conn->m_decision.setNBits( algo.outputs().size() );
-	   
-	     if(tl.name() != "UNDEF")
-	       conn->m_triggers.push_back(tl);
-
-	     if(debug)
-	       cout << "Adding decision connector " << "[" << *conn << "]" << endl;
-	     addDecisionConnector( conn );
-
-	   } else { // Connector already exists: look for it and add the trigger line
-	     for(auto out : algo.outputs()){
-	       auto c = m_outputLookup.find(out);
-	       if (c != m_outputLookup.end()){
-		 auto conn = c->second;
-		 if(tl.name() != "UNDEF")
-		   conn->m_triggers.push_back(tl);
-		 break;
-	       }
-	     }
-	   }
-	 } // Trigger Line
-       } // Clock
-     } // FPGA
-   } // L1Connectors
-
-   */
-
+  
    if(debug)
      cout << "... building input connectors" << endl;
    for(auto sortConn : m_sortedLookup) {
@@ -322,7 +268,18 @@ TCS::TopoSteeringStructure::setupFromMenu(const TrigConf::L1Menu& l1menu, bool l
      if(debug)
        cout << "Adding input connector " << "[" << *conn << "]" << endl;
    }
+   for(auto countConn : m_countLookup) {
+     const string & in = countConn.second->inputNames()[0]; // name of input
 
+     if( m_inputLookup.count(in) > 0 ) continue; // InputConnector already exists
+
+     InputConnector * conn = new InputConnector(in);
+     m_connectors.push_back(conn);
+     m_inputLookup[in] = conn;
+     if(debug)
+       cout << "Adding input connector " << "[" << *conn << "]" << endl;
+   }
+   
    // link the connector objects together
    TCS::StatusCode sc = linkConnectors();
 
@@ -338,76 +295,94 @@ TCS::TopoSteeringStructure::setupFromMenu(const TrigConf::L1Menu& l1menu, bool l
 
    for ( auto & confAlgo : confAlgorithms ) {
      
-     auto & l1algo = l1menu.algorithm(confAlgo.at(0), confAlgo.at(1));
+      auto & l1algo = l1menu.algorithm(confAlgo.at(0), confAlgo.at(1));
        
-     ConfigurableAlg * alg = AlgFactory::instance().algorithm(l1algo.name());
-     alg->setAlgoId( l1algo.algId() );
+      ConfigurableAlg * alg = AlgFactory::instance().algorithm(l1algo.name());
+      alg->setAlgoId( l1algo.algId() );
      
-     if(debug)
-       cout << "Algorithm " << alg->name() << " has algoId " << alg->algoId() <<  endl << " (reading parameters)" << endl;
+      if(debug)
+         cout << "Algorithm " << alg->name() << " has algoId " << alg->algoId() <<  endl << " (reading parameters)" << endl;
      
-     if(alg->isDecisionAlg())
-       ((DecisionAlg *) alg)->setNumberOutputBits(l1algo.outputs().size());
+      if(alg->isDecisionAlg())
+         ( dynamic_cast<DecisionAlg *>(alg) )->setNumberOutputBits(l1algo.outputs().size());
 
-     // create ParameterSpace for this algorithm
-     ParameterSpace * ps = new ParameterSpace(alg->name());
+      // create ParameterSpace for this algorithm
+      ParameterSpace * ps = new ParameterSpace(alg->name());
 
-     for(auto & pe : l1algo.parameters()) {
+      for(auto & pe : l1algo.parameters()) {
 	 
-       auto & pname = pe.name();
-       uint32_t val = pe.value();
-       uint32_t sel = pe.selection();
+         auto & pname = pe.name();
+         uint32_t val = pe.value();
+         uint32_t sel = pe.selection();
 
-       if(debug)
-	 cout << " parameter " << ": " << setw(20) << left << pname << " value = " << setw(3) << left << val << " (selection " << sel << ")" << endl;
-       ps->addParameter( pname, val, sel);
+         if(debug)
+	         cout << " parameter " << ": " << setw(20) << left << pname << " value = " << setw(3) << left << val << " (selection " << sel << ")" << endl;
+         ps->addParameter( pname, val, sel);
 	 
-     }
+      }
        
-     for(auto & gen : l1algo.generics().getKeys()) {
+      for(auto & gen : l1algo.generics().getKeys()) {
 	 
-       auto pe = l1algo.generics().getObject(gen);
-       string pname = gen;
-       uint32_t val = interpretGenericParam(pe.getAttribute("value"));
-       if (pname == "NumResultBits"){
-	 if(val != l1algo.outputs().size()) {
-	   TCS_EXCEPTION("Algorithm " << pname << " parameter OutputBits (" << val << ") is different from output size (" << l1algo.outputs().size() << ")");
-	 }
-	 continue; // ignore this, because it is defined through the output list
-       }
-       if(debug)
-	 cout << " fixed parameter : " << setw(20) << left << pname << " value = " << setw(3) << left << val << endl;
-       ps->addParameter( pname, val );
+      auto pe = l1algo.generics().getObject(gen);
+         string pname = gen;
+         uint32_t val = interpretGenericParam(pe.getAttribute("value"));
+         if (pname == "NumResultBits"){
+	         if(val != l1algo.outputs().size()) {
+	            TCS_EXCEPTION("Algorithm " << pname << " parameter OutputBits (" << val << ") is different from output size (" << l1algo.outputs().size() << ")");
+	         }
+	      continue; // ignore this, because it is defined through the output list
+         }
+         if(debug)
+	         cout << " fixed parameter : " << setw(20) << left << pname << " value = " << setw(3) << left << val << endl;
+         ps->addParameter( pname, val );
 	 
-     }
+      }
        
        
-     if(debug)
-       cout << " (setting parameters)";
-     alg->setParameters( *ps );
+      if(debug)
+         cout << " (setting parameters)";
+      alg->setParameters( *ps );
        
-     if(debug)
-       cout << " --> (parameters set)";
+      if(debug)
+         cout << " --> (parameters set)";
        
-     if( alg->isDecisionAlg() ) {
-       if( m_parameters[alg->algoId()] != nullptr ) {
-	 //	   TCS_EXCEPTION("Decision algorithm " << alg->name() << " has algoId " << alg->algoId() << " which is already used");
-       }
-       m_parameters[alg->algoId()] = ps;
+      if( alg->isDecisionAlg() ) {
+         if( m_parameters[alg->algoId()] != nullptr ) {
+	      //	   TCS_EXCEPTION("Decision algorithm " << alg->name() << " has algoId " << alg->algoId() << " which is already used");
+         }
+         m_parameters[alg->algoId()] = ps;
      } else if (alg->isSortingAlg() ) {
        if( m_parameters[alg->algoId() + LayoutConstraints::maxComponents()] != nullptr ) {
 	 //	   TCS_EXCEPTION("Sorting algorithm " << alg->name() << " has algoId " << alg->algoId() << " which is already used");
        }
        m_parameters[alg->algoId() + LayoutConstraints::maxComponents()] = ps;
      } else {
-       // newed parameters usued so delete to avoid memory leak
+       // newed parameters used so delete to avoid memory leak
        delete ps;
        ps=0;
      }
 
      if(debug)
        cout << " --> (parameters stored)" << endl;
-   }
+   } // Set parameters for Sorting/Decision algorithms
+
+   // // set thresholds for multiplicity algorithms
+   for ( auto & multAlgo : confMultAlgorithms ) {
+
+      auto & l1algo = l1menu.algorithm(multAlgo, "MULTTOPO");
+
+      if (l1algo.klass() != "EMMultiplicity") continue; // Look at eEM multiplicities for now, missing inputs in the menu for the other types of thresholds
+
+      ConfigurableAlg * alg = AlgFactory::instance().algorithm(l1algo.name());
+      alg->setAlgoId( l1algo.algId() ); // This does not really do anything anymore
+
+      // Get L1Threshold object and pass it to CountingAlg, from where it will be propagated to and decoded in each algorithm
+      // The output of each algorithm and the threshold name is the same - use output name to retrieve L1Threshold object
+      auto & l1thr = l1menu.threshold( l1algo.outputs().at(0) );
+      ( dynamic_cast<CountingAlg *>(alg) )->setThreshold(l1thr);
+
+   } // Set thresholds for multiplicity algorithms
+   
    
    m_isConfigured = true;
    
@@ -431,6 +406,15 @@ TopoSteeringStructure::addDecisionConnector(DecisionConnector * conn) {
    m_connectors.push_back(conn); 
    for( const string & output : conn->outputNames() )
      m_outputLookup[output] = conn;     
+   return TCS::StatusCode::SUCCESS;
+}
+
+
+TCS::StatusCode
+TopoSteeringStructure::addCountingConnector(CountingConnector * conn) {
+   m_connectors.push_back(conn);
+   for( const string & output : conn->outputNames() )
+      m_countLookup[output] = conn;
    return TCS::StatusCode::SUCCESS;
 }
 
@@ -509,5 +493,14 @@ TCS::TopoSteeringStructure::outputConnector(const std::string & output) const {
    if( c != m_outputLookup.end() )
       return c->second;
    TCS_EXCEPTION("L1Topo Steering: can not find output connector of that produces " << output << ". Need to abort!");
+   return 0;
+}
+
+TCS::CountingConnector *
+TCS::TopoSteeringStructure::countingConnector(const std::string & output) const {
+   auto c = m_countLookup.find(output);
+   if( c != m_countLookup.end() )
+      return c->second;
+   TCS_EXCEPTION("L1Topo Steering: can not find counting connector of that produces " << output << ". Need to abort!");
    return 0;
 }
