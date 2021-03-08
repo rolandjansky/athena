@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -92,8 +92,8 @@ StatusCode DerivationFramework::TrackParticleThinning::initialize()
       ATH_CHECK( m_measurementsTrtSGKey.initialize (m_streamName, !m_measurementsTrtSGKey.empty()) );
     }
 
-    ATH_CHECK(m_SCTDetEleCollKey.initialize());
-        
+    ATH_CHECK(m_SCTDetEleCollKey.initialize( !m_SCTDetEleCollKey.key().empty() ));
+
     return StatusCode::SUCCESS;
 }
 
