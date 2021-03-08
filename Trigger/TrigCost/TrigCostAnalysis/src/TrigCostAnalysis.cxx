@@ -87,10 +87,16 @@ StatusCode TrigCostAnalysis::start() {
   }
 
   // Call TrigConf::HLTUtils::string2hash(chain.name()) for all the chains to cache the hash to name mapping
-  std::vector<std::string> chainNames;
-  ATH_CHECK( m_algToChainTool->getAllChainNames(chainNames));
-  for (const std::string& chainName : chainNames){
-    TrigConf::HLTUtils::string2hash(chainName);
+  std::vector<TrigConf::Chain> chains;
+  ATH_CHECK( m_algToChainTool->getAllChains(chains));
+  for (const TrigConf::Chain& chain : chains) {
+    HLT::Identifier(chain.name());
+
+    // Populate legs' names
+    const size_t legsSize {chain.legMultiplicities().size()};
+    for (size_t counter = 0; legsSize > 1 && counter < legsSize; ++counter){\
+      TrigCompositeUtils::createLegName(chain.namehash(), counter);
+    }
   }
 
   // As an initial guess, 25 should be a good uper maximum for the number of expected View instances.
