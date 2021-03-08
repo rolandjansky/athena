@@ -28,18 +28,17 @@ topSequence += theAlg
 jobproperties.HIGlobalFlags.HIGlobalItemList+=["xAOD::HIEventShapeContainer#"+shape_key]
 jobproperties.HIGlobalFlags.HIGlobalItemList+=["xAOD::HIEventShapeAuxContainer#"+shape_key+"Aux."]
 
-#L32-42, commented because forward convertor software has not been migrated to data handles
-#from xAODForwardCnv.xAODMBTSModuleCreator import xAODMaker__MBTSModuleCnvAlg
-#topSequence += xAODMaker__MBTSModuleCnvAlg()
+from xAODForwardCnv.xAODMBTSModuleCreator import xAODMaker__MBTSModuleCnvAlg
+topSequence += xAODMaker__MBTSModuleCnvAlg()
 
-#jobproperties.HIGlobalFlags.HIGlobalItemList+=["xAOD::MBTSModuleContainer#MBTSModules"]
-#jobproperties.HIGlobalFlags.HIGlobalItemList+=["xAOD::MBTSModuleAuxContainer#MBTSModulesAux."]
+jobproperties.HIGlobalFlags.HIGlobalItemList+=["xAOD::MBTSModuleContainer#MBTSModules"]
+jobproperties.HIGlobalFlags.HIGlobalItemList+=["xAOD::MBTSModuleAuxContainer#MBTSModulesAux."]
 
-#from xAODForwardCnv.xAODForwardEventInfoCreator import xAODMaker__ForwardEventInfoCnvAlg
-#topSequence += xAODMaker__ForwardEventInfoCnvAlg()
+from xAODForwardCnv.xAODForwardEventInfoCreator import xAODMaker__ForwardEventInfoCnvAlg
+topSequence += xAODMaker__ForwardEventInfoCnvAlg()
 
-#jobproperties.HIGlobalFlags.HIGlobalItemList+=["xAOD::ForwardEventInfoContainer#MBTSForwardEventInfo"]
-#jobproperties.HIGlobalFlags.HIGlobalItemList+=["xAOD::ForwardEventInfoAuxContainer#MBTSForwardEventInfoAux."]
+jobproperties.HIGlobalFlags.HIGlobalItemList+=["xAOD::ForwardEventInfoContainer#MBTSForwardEventInfo"]
+jobproperties.HIGlobalFlags.HIGlobalItemList+=["xAOD::ForwardEventInfoAuxContainer#MBTSForwardEventInfoAux."]
 
 if jobproperties.HIGlobalFlags.DoSummary() :
     summary_key=jobproperties.HIGlobalFlags.EventShapeSummaryKey()
