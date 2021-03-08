@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
-from AthenaConfiguration.AutoConfigFlags import DetDescrInfo
+from AthenaConfiguration.AutoConfigFlags import DetDescrInfo, getDefaultDetectors
 # This module is based upon Control/AthenaCommon/python/DetFlags.py
 # Only some flags have been migrated. A full list of what the old
 # DetFlags provided is given for reference below:
@@ -38,7 +38,7 @@ allDetectors = [
     'Bpipe', 'Cavern',
     'BCM', 'DBM', 'Pixel', 'SCT', 'TRT',
     'BCMPrime', 'ITkPixel', 'ITkStrip', 'HGTD',
-    'LAr', 'Tile', 'L1Calo',
+    'LAr', 'Tile',
     'CSC', 'MDT', 'RPC', 'TGC', 'sTGC', 'MM',
     'Lucid', 'ZDC', 'ALFA', 'AFP', 'FwdRegion',
 ]
@@ -46,7 +46,7 @@ allDetectors = [
 allGroups = {
     'ID': ['BCM', 'DBM', 'Pixel', 'SCT', 'TRT'],
     'ITk': ['BCMPrime', 'ITkPixel', 'ITkStrip'],
-    'Calo': ['LAr', 'Tile', 'L1Calo'],
+    'Calo': ['LAr', 'Tile'],
     'Muon': ['CSC', 'MDT', 'RPC', 'TGC', 'sTGC', 'MM'],
     'Forward': ['Lucid', 'ZDC', 'ALFA', 'AFP', 'FwdRegion'],
 }
@@ -111,38 +111,38 @@ def createDetectorConfigFlags():
     ## Detector.Enable* flags (currently) represent the default full geometry,
     ## autoconfigured from the geometry tag
     # Inner Detector
-    dcf.addFlag('Detector.EnableBCM',   lambda prevFlags : DetDescrInfo(prevFlags.GeoModel.AtlasVersion)['Pixel']['Layout'] != 'SLHC')
-    dcf.addFlag('Detector.EnableDBM',   lambda prevFlags : DetDescrInfo(prevFlags.GeoModel.AtlasVersion)['Pixel']['DBM'])
-    dcf.addFlag('Detector.EnablePixel', lambda prevFlags : DetDescrInfo(prevFlags.GeoModel.AtlasVersion)['Pixel']['Layout'] != 'SLHC')
-    dcf.addFlag('Detector.EnableSCT',   lambda prevFlags : DetDescrInfo(prevFlags.GeoModel.AtlasVersion)['Pixel']['Layout'] != 'SLHC')
-    dcf.addFlag('Detector.EnableTRT',   lambda prevFlags : DetDescrInfo(prevFlags.GeoModel.AtlasVersion)['Pixel']['Layout'] != 'SLHC')
+    dcf.addFlag('Detector.EnableBCM',   lambda prevFlags : 'BCM' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
+    dcf.addFlag('Detector.EnableDBM',   lambda prevFlags : 'DBM' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
+    dcf.addFlag('Detector.EnablePixel', lambda prevFlags : 'Pixel' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
+    dcf.addFlag('Detector.EnableSCT',   lambda prevFlags : 'SCT' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
+    dcf.addFlag('Detector.EnableTRT',   lambda prevFlags : 'TRT' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
     dcf.addFlag('Detector.EnableID',    lambda prevFlags : (prevFlags.Detector.EnableBCM or prevFlags.Detector.EnableDBM or
                                                             prevFlags.Detector.EnablePixel or prevFlags.Detector.EnableSCT or
                                                             prevFlags.Detector.EnableTRT))
 
     # Upgrade ITk Inner Tracker is a separate and parallel detector
-    dcf.addFlag('Detector.EnableBCMPrime', False)  # TODO: needs specific folders
-    dcf.addFlag('Detector.EnableITkPixel', lambda prevFlags : DetDescrInfo(prevFlags.GeoModel.AtlasVersion)['Pixel']['Layout'] == 'SLHC')
-    dcf.addFlag('Detector.EnableITkStrip', lambda prevFlags : DetDescrInfo(prevFlags.GeoModel.AtlasVersion)['Pixel']['Layout'] == 'SLHC')
+    dcf.addFlag('Detector.EnableBCMPrime', lambda prevFlags : 'BCMPrime' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
+    dcf.addFlag('Detector.EnableITkPixel', lambda prevFlags : 'ITkPixel' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
+    dcf.addFlag('Detector.EnableITkStrip', lambda prevFlags : 'ITkStrip' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
     dcf.addFlag('Detector.EnableITk',      lambda prevFlags : (prevFlags.Detector.EnableBCMPrime or
                                                                prevFlags.Detector.EnableITkPixel or
                                                                prevFlags.Detector.EnableITkStrip))
 
-    dcf.addFlag('Detector.EnableHGTD', False)  # TODO: needs specific folders
+    dcf.addFlag('Detector.EnableHGTD', lambda prevFlags : 'HGTD' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
 
     # Calorimeters
-    dcf.addFlag('Detector.EnableLAr',    True)  # Add separate em HEC and FCAL flags?
-    dcf.addFlag('Detector.EnableTile',   True)
+    dcf.addFlag('Detector.EnableLAr',    lambda prevFlags : 'LAr' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))  # Add separate em HEC and FCAL flags?
+    dcf.addFlag('Detector.EnableTile',   lambda prevFlags : 'Tile' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
     dcf.addFlag('Detector.EnableL1Calo', lambda prevFlags : (prevFlags.Detector.EnableLAr or prevFlags.Detector.EnableTile))
     dcf.addFlag('Detector.EnableCalo',   lambda prevFlags : (prevFlags.Detector.EnableLAr or prevFlags.Detector.EnableTile))
 
     # Muon Spectrometer
-    dcf.addFlag('Detector.EnableCSC',  lambda prevFlags : DetDescrInfo(prevFlags.GeoModel.AtlasVersion)['Muon']['HasCSC'])
-    dcf.addFlag('Detector.EnableMDT',  True)
-    dcf.addFlag('Detector.EnableRPC',  True)
-    dcf.addFlag('Detector.EnableTGC',  True)
-    dcf.addFlag('Detector.EnablesTGC', lambda prevFlags : DetDescrInfo(prevFlags.GeoModel.AtlasVersion)['Muon']['HasSTGC'])
-    dcf.addFlag('Detector.EnableMM',   lambda prevFlags : DetDescrInfo(prevFlags.GeoModel.AtlasVersion)['Muon']['HasMM'])
+    dcf.addFlag('Detector.EnableCSC',  lambda prevFlags : 'CSC' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
+    dcf.addFlag('Detector.EnableMDT',  lambda prevFlags : 'MDT' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
+    dcf.addFlag('Detector.EnableRPC',  lambda prevFlags : 'RPC' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
+    dcf.addFlag('Detector.EnableTGC',  lambda prevFlags : 'TGC' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
+    dcf.addFlag('Detector.EnablesTGC', lambda prevFlags : 'sTGC' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
+    dcf.addFlag('Detector.EnableMM',   lambda prevFlags : 'MM' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
     dcf.addFlag('Detector.EnableMuon', lambda prevFlags : (prevFlags.Detector.EnableCSC or prevFlags.Detector.EnableMDT or
                                                            prevFlags.Detector.EnableRPC or prevFlags.Detector.EnableTGC or
                                                            prevFlags.Detector.EnablesTGC or prevFlags.Detector.EnableMM))
@@ -221,9 +221,7 @@ def createDetectorConfigFlags():
     return dcf
 
 
-def setupDetectorsFromList(flags, detectors, toggle_geometry=False, validate_only=False):
-    """Enable detectors from a pre-defined list"""
-    changed = False
+def _parseDetectorsList(flags, detectors):
     # setup logging
     from AthenaCommon.Logging import logging
     log = logging.getLogger('DetectorConfigFlags')
@@ -234,23 +232,40 @@ def setupDetectorsFromList(flags, detectors, toggle_geometry=False, validate_onl
     detectors = [d for d in detectors if d not in allGroups.keys()]
     for g in groups:
         log.debug("Evaluating detector group '%s'", g)
-        for d in allGroups[g]:
-            # in case of groups only take the defaults from geometry
-            # TODO: for now from Enable
-            if flags.hasFlag(f'Detector.Enable{d}') and flags(f'Detector.Enable{d}'):
+        if g == 'Forward':
+            # forward detectors are special
+            for d in allGroups[g]:
                 log.debug("Appending detector '%s'", d)
                 detectors.append(d)
+        else:
+            # in case of groups only enable defaults
+            for d in allGroups[g]:
+                if d in getDefaultDetectors(flags.GeoModel.AtlasVersion):
+                    log.debug("Appending detector '%s'", d)
+                    detectors.append(d)
+
+    # check if valid detectors are required
+    for d in detectors:
+        if d not in allDetectors:
+            log.warning("Unknown detector '%s'", d)
+
+    return detectors
+
+
+def setupDetectorsFromList(flags, detectors, toggle_geometry=False, validate_only=False):
+    """Setup (toggle) detectors from a pre-defined list"""
+    changed = False
+    # setup logging
+    from AthenaCommon.Logging import logging
+    log = logging.getLogger('DetectorConfigFlags')
+    # parse the list
+    detectors = _parseDetectorsList(flags, detectors)
 
     # print summary
     if validate_only:
         log.info('Required detectors: %s', detectors)
     else:
         log.info('Setting detectors to: %s', detectors)
-
-    # check if valid detectors are required
-    for d in detectors:
-        if d not in allDetectors:
-            log.warning("Unknown detector '%s'", d)
 
     # go through all of the detectors and check what should happen
     for d in allDetectors:
@@ -274,5 +289,67 @@ def setupDetectorsFromList(flags, detectors, toggle_geometry=False, validate_onl
                     else:
                         log.info("Toggling '%s' from %s to %s", name, not status, status)
                         flags._set(name, status)
+
+    return changed
+
+
+def enableDetectors(flags, detectors, toggle_geometry=False):
+    """Enable detectors from a list"""
+    changed = False
+    # setup logging
+    from AthenaCommon.Logging import logging
+    log = logging.getLogger('DetectorConfigFlags')
+    # parse the list
+    detectors = _parseDetectorsList(flags, detectors)
+
+    # debugging
+    log.info('Enabling detectors: %s', detectors)
+
+    # go through all of the detectors and enable them if needed
+    for d in detectors:
+        name = f'Detector.Enable{d}'
+        if flags.hasFlag(name):
+            if flags(name) is not True:
+                changed = True
+                log.info("Enabling '%s'", name)
+                flags._set(name, True)
+        if toggle_geometry:
+            name = f'Detector.Geometry{d}'
+            if flags.hasFlag(name):
+                if flags(name) is not True:
+                    changed = True
+                    log.info("Enabling '%s'", name)
+                    flags._set(name, True)
+
+    return changed
+
+
+def disableDetectors(flags, detectors, toggle_geometry=False):
+    """Disable detectors from a list"""
+    changed = False
+    # setup logging
+    from AthenaCommon.Logging import logging
+    log = logging.getLogger('DetectorConfigFlags')
+    # parse the list
+    detectors = _parseDetectorsList(flags, detectors)
+
+    # debugging
+    log.info('Disabling detectors: %s', detectors)
+
+    # go through all of the detectors and disable them if needed
+    for d in detectors:
+        name = f'Detector.Enable{d}'
+        if flags.hasFlag(name):
+            if flags(name) is not False:
+                changed = True
+                log.info("Disabling '%s'", name)
+                flags._set(name, False)
+        if toggle_geometry:
+            name = f'Detector.Geometry{d}'
+            if flags.hasFlag(name):
+                if flags(name) is not False:
+                    changed = True
+                    log.info("Disabling '%s'", name)
+                    flags._set(name, False)
 
     return changed

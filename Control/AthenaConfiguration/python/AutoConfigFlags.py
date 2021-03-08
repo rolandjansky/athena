@@ -88,6 +88,50 @@ def DetDescrInfo(geoTag):
     return detDescrInfo
 
 
+@lru_cache(maxsize=4)  # maxsize=1 should be enough for most jobs
+def getDefaultDetectors(geoTag):
+    """Query geometry DB for detector description.
+    Returns a set of detectors used in a geometry tag.
+
+    geoTag: geometry tag (e.g. ATLAS-R2-2016-01-00-01)
+    """
+    detectors = set()
+    detectors.add('Bpipe')
+
+    if DetDescrInfo(geoTag)['Pixel']['Layout'] == 'SLHC':
+        detectors.add('ITkPixel')
+        detectors.add('ITkStrip')
+    else:
+        detectors.add('Pixel')
+        detectors.add('SCT')
+        detectors.add('TRT')
+    if DetDescrInfo(geoTag)['Pixel']['Layout'] != 'SLHC':
+        detectors.add('BCM')
+    # TODO: wait for special table in the geo DB
+    # if DetDescrInfo(geoTag)['Common']['Layout'] == 'SLHC':
+    #     detectors.add('BCMPrime')
+    if DetDescrInfo(geoTag)['Pixel']['DBM']:
+        detectors.add('DBM')
+
+    if DetDescrInfo(geoTag)['Common']['Run'] == 'RUN4':
+        detectors.add('HGTD')
+
+    detectors.add('LAr')
+    detectors.add('Tile')
+
+    detectors.add('MDT')
+    detectors.add('RPC')
+    detectors.add('TGC')
+    if DetDescrInfo(geoTag)['Muon']['HasCSC']:
+        detectors.add('CSC')
+    if DetDescrInfo(geoTag)['Muon']['HasSTGC']:
+        detectors.add('sTGC')
+    if DetDescrInfo(geoTag)['Muon']['HasMM']:
+        detectors.add('MM')
+
+    return detectors
+
+
 # Based on RunDMCFlags.py
 def getRunToTimestampDict():
     # this wrapper is intended to avoid an initial import
