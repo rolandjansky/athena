@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration */
+/* Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration */
 
 // Local include(s).
 #include "EventFormatStreamHelperTool.h"
@@ -61,6 +61,10 @@ StatusCode
 
       // Grab output stream data header
       SG::ReadHandle< DataHeader > dataHeader(m_dataHeaderKey);
+      if (!dataHeader.isValid()) {
+        // DataHeader won't exist if this event was rejected.
+        return StatusCode::SUCCESS;
+      }
 
       // Loop over objects in output stream
       for (const DataHeaderElement& elem : *dataHeader) {
