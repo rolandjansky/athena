@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOTRKMUIDTOOLS_CALOMUONLIKELIHOODTOOL_H
@@ -44,6 +44,8 @@ private:
   mutable std::atomic_int m_cnt_warn{0};
 
   ToolHandle <Trk::IParticleCaloExtensionTool> m_caloExtensionTool{this, "ParticleCaloExtensionTool", ""};
+  Gaudi::Property<std::string> m_calibRelease{this,"CalibRelease","CaloTrkMuIdTools/cutBased_release21"};
+
   std::vector<std::string> m_fileNames;
 };
 
