@@ -17,6 +17,7 @@
 
 // data includes
 #include "TrigConfData/HLTPrescalesSet.h"
+#include "TrigConfData/HLTMenu.h"
 #include "xAODEventInfo/EventInfo.h"
 
 // STL includes
@@ -44,7 +45,7 @@ class PrescalingTool : public extends<AthAlgTool, IPrescalingTool> {
    virtual ~PrescalingTool();
 
    virtual StatusCode initialize() override;
-
+   virtual StatusCode start() override;
    /** @brief method to prescale chains
     * If the prescale set input key is not defined or the chain does not exist in the prescale set, then the chains (or all chains) are
     * kept according to the property KeepUnknownChains
@@ -61,6 +62,9 @@ class PrescalingTool : public extends<AthAlgTool, IPrescalingTool> {
    SG::ReadCondHandleKey<TrigConf::HLTPrescalesSet> m_hltPrescaleSetInputKey{
     this, "HLTPrescales", "HLTPrescales", "HLT prescales set"};
 
+   SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{
+    this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu", "HLT Menu"};
+
    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{
     this, "EventInfo", "EventInfo", "Event Info Object Key"};
 
@@ -74,6 +78,13 @@ class PrescalingTool : public extends<AthAlgTool, IPrescalingTool> {
    // random engine for calculating prescales
    ATHRNG::RNGWrapper m_RNGEngines;
 
+   typedef std::set<HLT::Identifier> ChainSet;
+   std::map<std::string, HLT::IDVec> m_CPSGroups;
+   ChainSet m_nonCPSChains;
+
+  TrigConf::HLTPrescalesSet::HLTPrescale m_prescaleForUnknownChain;
+  HLT::Identifier m_costChainID{""};
+  CLHEP::HepRandomEngine* m_rngEngine;
 }; 
 
 
