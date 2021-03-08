@@ -2716,6 +2716,24 @@ HLT_larnoiseburst_L1XE60:
     0: 6
 HLT_mb_mbts_L1MBTS_1_EMPTY:
   eventCount: 0
+HLT_mb_sp1200_trk60_hmt_L1RD0_FILLED:
+  eventCount: 0
+HLT_mb_sp1400_trk80_hmt_L1RD0_FILLED:
+  eventCount: 0
+HLT_mb_sp2000_trk100_hmt_L1RD0_FILLED:
+  eventCount: 0
+HLT_mb_sp3000_trk100_hmt_L1RD0_FILLED:
+  eventCount: 0
+HLT_mb_sp400_trk40_hmt_L1RD0_FILLED:
+  eventCount: 0
+HLT_mb_sp5000_trk100_hmt_L1RD0_FILLED:
+  eventCount: 0
+HLT_mb_sp5000_trk200_hmt_L1RD0_FILLED:
+  eventCount: 0
+HLT_mb_sp5000_trk80_hmt_L1RD0_FILLED:
+  eventCount: 0
+HLT_mb_sp600_trk45_hmt_L1RD0_FILLED:
+  eventCount: 0
 HLT_mb_sp_L1RD0_FILLED:
   eventCount: 0
 HLT_mb_sptrk_L1RD0_FILLED:
