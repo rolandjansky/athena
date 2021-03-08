@@ -8,6 +8,8 @@
 #include "src/PixelRandomDisabledCellGenerator.h"
 #include "src/SensorSimPlanarTool.h"
 #include "src/SensorSim3DTool.h"
+#include "src/SensorSimITkPlanarTool.h"
+#include "src/SensorSimITk3DTool.h"
 #include "src/ChargeCollProbSvc.h"
 #include "src/EnergyDepositionTool.h"
 #include "src/RadDamageUtil.h"
@@ -28,6 +30,8 @@ DECLARE_TOOL_FACTORY(PixelDiodeCrossTalkGenerator)
 DECLARE_TOOL_FACTORY(PixelRandomDisabledCellGenerator)
 DECLARE_TOOL_FACTORY(SensorSimPlanarTool)
 DECLARE_TOOL_FACTORY(SensorSim3DTool)
+DECLARE_TOOL_FACTORY(SensorSimITkPlanarTool)
+DECLARE_TOOL_FACTORY(SensorSimITk3DTool)
 DECLARE_TOOL_FACTORY(RD53SimTool)
 DECLARE_TOOL_FACTORY(FEI4SimTool)
 DECLARE_TOOL_FACTORY(FEI3SimTool)
@@ -45,6 +49,8 @@ DECLARE_FACTORY_ENTRIES(PixelDigitization) {
   DECLARE_TOOL(PixelRandomDisabledCellGenerator)
   DECLARE_TOOL(SensorSimPlanarTool)
   DECLARE_TOOL(SensorSim3DTool)
+  DECLARE_TOOL(SensorSimITkPlanarTool)
+  DECLARE_TOOL(SensorSimITk3DTool)
   DECLARE_TOOL(RD53SimTool)
   DECLARE_TOOL(FEI4SimTool)
   DECLARE_TOOL(FEI3SimTool)

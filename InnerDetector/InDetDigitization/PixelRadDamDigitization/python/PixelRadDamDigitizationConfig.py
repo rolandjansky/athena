@@ -52,6 +52,16 @@ def SensorSim3DTool(name="SensorSim3DTool", **kwargs):
     kwargs.setdefault("RndmEngine", "PixelDigitization")
     return CfgMgr.RadDam__SensorSim3DTool(name, **kwargs)
 
+def SensorSimITkPlanarTool(name="SensorSimITkPlanarTool", **kwargs):
+    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
+    kwargs.setdefault("RndmEngine", "PixelDigitization")
+    return CfgMgr.RadDam__SensorSimITkPlanarTool(name, **kwargs)
+
+def SensorSimITk3DTool(name="SensorSimITk3DTool", **kwargs):
+    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
+    kwargs.setdefault("RndmEngine", "PixelDigitization")
+    return CfgMgr.RadDam__SensorSimITk3DTool(name, **kwargs)
+
 def SensorSimTool(name="SensorSimTool", **kwargs):
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
@@ -171,7 +181,8 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     feSimTools = []
     if InDetGeometryFlags.isSLHC():
       procTools += ['PixelRadDamDiodeCrossTalkGenerator']
-      chargeTools += ['RadDamSensorSimPlanarTool']
+      chargeTools += ['RadDamSensorSimITkPlanarTool']
+      chargeTools += ['RadDamSensorSimITk3DTool']
       feSimTools += ['RadDamRD53SimTool']
     else:
       procTools += ['PixelRadDamDiodeCrossTalkGenerator']
