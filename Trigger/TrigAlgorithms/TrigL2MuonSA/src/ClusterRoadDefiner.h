@@ -22,6 +22,7 @@
 #include "MdtRegion.h"
 #include "RpcFitResult.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
+#include "xAODTrigger/MuonRoI.h"
 
 #include "IRegionSelector/IRegSelTool.h"
 
@@ -40,6 +41,15 @@ class ClusterRoadDefiner: public AthAlgTool
   virtual StatusCode initialize() override;
  public:
   StatusCode defineRoad(const LVL1::RecMuonRoI*                   p_roi,
+			std::vector<TrigL2MuonSA::MuonRoad>&      clusterRoad,
+                        TrigL2MuonSA::RpcLayerClusters&           rpcLayerClusters,
+			ToolHandle<ClusterPatFinder>*             clusterPatFinder,
+			std::vector<TrigL2MuonSA::RpcFitResult>&  clusterFitResults,
+			double                                    roiEtaMinLow,
+			double                                    roiEtaMaxLow,
+			double                                    roiEtaMinHigh,
+			double                                    roiEtaMaxHigh) const;
+  StatusCode defineRoad(const xAOD::MuonRoI*                      p_roi,
 			std::vector<TrigL2MuonSA::MuonRoad>&      clusterRoad,
                         TrigL2MuonSA::RpcLayerClusters&           rpcLayerClusters,
 			ToolHandle<ClusterPatFinder>*             clusterPatFinder,

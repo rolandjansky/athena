@@ -14,9 +14,9 @@
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
 
 #include "TrigT1Interfaces/RecMuonRoI.h"
-#include "TrigT1Interfaces/RecMuonRoiSvc.h"
 #include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include "xAODTrigger/MuonRoI.h"
 
 #include "MuFastDataPreparatorOptions.h"
 #include "TrigL2MuonSA/RpcDataPreparator.h"
@@ -47,7 +47,7 @@ namespace TrigL2MuonSA {
 
 class MuFastDataPreparator: public AthAlgTool {
  public:
-  
+
   MuFastDataPreparator(const std::string& type,
 		       const std::string& name,
 		       const IInterface*  parent);
@@ -55,10 +55,9 @@ class MuFastDataPreparator: public AthAlgTool {
   virtual StatusCode initialize() override;
 
  public:
-  
+
   StatusCode prepareData(const LVL1::RecMuonRoI*     p_roi,
 			 const TrigRoiDescriptor*    p_roids,
-                         bool&                       isRpcFakeRoi,
 			 const bool                  insideOut,
 			 TrigL2MuonSA::RpcHits&      rpcHits,
 			 TrigL2MuonSA::MuonRoad&     muonRoad,
@@ -66,7 +65,17 @@ class MuFastDataPreparator: public AthAlgTool {
 			 TrigL2MuonSA::RpcFitResult& rpcFitResult,
 			 TrigL2MuonSA::MdtHits&      mdtHits_normal,
 			 TrigL2MuonSA::MdtHits&      mdtHits_overlap);
-  
+
+  StatusCode prepareData(const xAOD::MuonRoI*        p_roi,
+			 const TrigRoiDescriptor*    p_roids,
+			 const bool                  insideOut,
+			 TrigL2MuonSA::RpcHits&      rpcHits,
+			 TrigL2MuonSA::MuonRoad&     muonRoad,
+			 TrigL2MuonSA::MdtRegion&    mdtRegion,
+			 TrigL2MuonSA::RpcFitResult& rpcFitResult,
+			 TrigL2MuonSA::MdtHits&      mdtHits_normal,
+			 TrigL2MuonSA::MdtHits&      mdtHits_overlap);
+
   StatusCode prepareData(const LVL1::RecMuonRoI*     p_roi,
 			 const TrigRoiDescriptor*    p_roids,
 			 const bool                  insideOut,
@@ -79,17 +88,37 @@ class MuFastDataPreparator: public AthAlgTool {
 			 TrigL2MuonSA::CscHits&      cscHits,
 			 TrigL2MuonSA::StgcHits&     stgcHits,
 			 TrigL2MuonSA::MmHits&       mmHits);
-  
+
+  StatusCode prepareData(const xAOD::MuonRoI*        p_roi,
+			 const TrigRoiDescriptor*    p_roids,
+			 const bool                  insideOut,
+			 TrigL2MuonSA::TgcHits&      tgcHits,
+			 TrigL2MuonSA::MuonRoad&     muonRoad,
+			 TrigL2MuonSA::MdtRegion&    mdtRegion,
+			 TrigL2MuonSA::TgcFitResult& tgcFitResult,
+			 TrigL2MuonSA::MdtHits&      mdtHits_normal,
+			 TrigL2MuonSA::MdtHits&      mdtHits_overlap,
+			 TrigL2MuonSA::CscHits&      cscHits,
+			 TrigL2MuonSA::StgcHits&     stgcHits,
+			 TrigL2MuonSA::MmHits&       mmHits);
+
   //for multi-track mode
   StatusCode prepareData(const LVL1::RecMuonRoI*              p_roi,
 			 const TrigRoiDescriptor*             p_roids,
-                         bool&                                isRpcFakeRoi,
                          std::vector<TrigL2MuonSA::MuonRoad>& clusterRoad,
                          std::vector<TrigL2MuonSA::RpcFitResult>&  clusterFitResults,
                          TrigL2MuonSA::MdtHits&               mdtHits_normal,
                          TrigL2MuonSA::MdtHits&               mdtHits_overlap,
                          std::vector<TrigL2MuonSA::MdtHits>&  mdtHits_cluster_normal);
-  
+
+  StatusCode prepareData(const xAOD::MuonRoI*                 p_roi,
+			 const TrigRoiDescriptor*             p_roids,
+                         std::vector<TrigL2MuonSA::MuonRoad>& clusterRoad,
+                         std::vector<TrigL2MuonSA::RpcFitResult>&  clusterFitResults,
+                         TrigL2MuonSA::MdtHits&               mdtHits_normal,
+                         TrigL2MuonSA::MdtHits&               mdtHits_overlap,
+                         std::vector<TrigL2MuonSA::MdtHits>&  mdtHits_cluster_normal);
+
   void setOptions(const TrigL2MuonSA::MuFastDataPreparatorOptions& options);
 
   void setRoadWidthForFailure(double rWidth_RPC_Failed, double rWidth_TGC_Failed);
@@ -124,21 +153,20 @@ class MuFastDataPreparator: public AthAlgTool {
   ToolHandle<RpcRoadDefiner>      m_rpcRoadDefiner{this, "RpcRoadDefiner", "TrigL2MuonSA::RpcRoadDefiner"};
   ToolHandle<TgcRoadDefiner>      m_tgcRoadDefiner{this, "TgcRoadDefiner", "TrigL2MuonSA::TgcRoadDefiner"};
   ToolHandle<RpcPatFinder>        m_rpcPatFinder{"TrigL2MuonSA::RpcPatFinder"};
-  
+
   //for multimu-in-pad mode
   ToolHandle<ClusterRoadDefiner>  m_clusterRoadDefiner{"TrigL2MuonSA::ClusterRoadDefiner"};
   ToolHandle<ClusterPatFinder>    m_clusterPatFinder{"TrigL2MuonSA::ClusterPatFinder"};
   //
-  
+
   ToolHandle<ITrigMuonBackExtrapolator>* m_backExtrapolatorTool{nullptr};
 
   bool m_use_rpc{false};
-  bool m_isRpcFakeRoi{false};
   bool m_use_mcLUT{false};
   bool m_doMultiMuon{false};
 
 };
-  
+
 } // namespace TrigL2MuonSA
 
 #endif  // MUFASTDATAPREPARATOR_H

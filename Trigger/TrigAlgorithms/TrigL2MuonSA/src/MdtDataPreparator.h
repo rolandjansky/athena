@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MDTDATAPREPARATOR_H
@@ -12,7 +12,6 @@
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-#include "TrigT1Interfaces/RecMuonRoI.h"
 #include "IRegionSelector/IRegSelTool.h"
 #include "Identifier/IdentifierHash.h"
 #include "MuonRDO/MdtCsmContainer.h"
@@ -25,7 +24,6 @@
 
 #include "TgcData.h"
 #include "MdtData.h"
-#include "RecMuonRoIUtils.h"
 #include "MdtRegionDefiner.h"
 
 #include "RpcFitResult.h"
@@ -57,16 +55,14 @@ namespace TrigL2MuonSA {
 
   public:
 
-    StatusCode prepareData(const LVL1::RecMuonRoI*           p_roi,
-			   const TrigRoiDescriptor*          p_roids,
+    StatusCode prepareData(const TrigRoiDescriptor*          p_roids,
 			   const TrigL2MuonSA::RpcFitResult& rpcFitResult,
 			   TrigL2MuonSA::MuonRoad&           muonRoad,
 			   TrigL2MuonSA::MdtRegion&          mdtRegion,
 			   TrigL2MuonSA::MdtHits&            mdtHits_normal,
 			   TrigL2MuonSA::MdtHits&            mdtHits_overlap);
 
-    StatusCode prepareData(const LVL1::RecMuonRoI*           p_roi,
-			   const TrigRoiDescriptor*          p_roids,
+    StatusCode prepareData(const TrigRoiDescriptor*          p_roids,
 			   const TrigL2MuonSA::TgcFitResult& tgcFitResult,
 			   TrigL2MuonSA::MuonRoad&           muonRoad,
 			   TrigL2MuonSA::MdtRegion&          mdtRegion,
@@ -79,8 +75,7 @@ namespace TrigL2MuonSA {
 
   private:
 
-    StatusCode getMdtHits(const LVL1::RecMuonRoI* p_roi,
-			  const TrigRoiDescriptor* p_roids, 
+    StatusCode getMdtHits(const TrigRoiDescriptor* p_roids, 
 			  const TrigL2MuonSA::MdtRegion& mdtRegion,
 			  TrigL2MuonSA::MuonRoad& muonRoad,
 			  TrigL2MuonSA::MdtHits& mdtHits_normal,
@@ -126,9 +121,6 @@ namespace TrigL2MuonSA {
 
     // ROB DataProvider
     ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
-
-    // Utils
-    TrigL2MuonSA::RecMuonRoIUtils m_recMuonRoIUtils;
 
     // MdtRegionDefiner
     ToolHandle<MdtRegionDefiner> m_mdtRegionDefiner {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CscDataPreparator.h"
@@ -77,7 +77,7 @@ StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const TrigRoiDescriptor*
 {
   const IRoiDescriptor* iroi = (IRoiDescriptor*) p_roids;
 
-  const bool to_full_decode=( fabs(p_roids->etaMinus())>1.7 || fabs(p_roids->etaPlus())>1.7 ) && !m_use_RoIBasedDataAccess;
+  const bool to_full_decode=( std::abs(p_roids->etaMinus())>1.7 || std::abs(p_roids->etaPlus())>1.7 ) && !m_use_RoIBasedDataAccess;
 
   std::vector<IdentifierHash> cscHashIDs;
 
@@ -188,16 +188,16 @@ StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const TrigRoiDescriptor*
 	cscHit.z   = prepData->globalPosition().z();
 	cscHit.charge = prepData->charge();
 	cscHit.time   = prepData->time();
-	cscHit.resolution = sqrt( prepData->localCovariance()(0,0) );
+	cscHit.resolution = std::sqrt( prepData->localCovariance()(0,0) );
 	cscHit.Residual =  ( cscHit.MeasuresPhi==0 ) ? calc_residual( aw, bw, cscHit.z, cscHit.r ) : calc_residual_phi( aw,bw,phiw, cscHit.phi, cscHit.z);
 	cscHit.isOutlier = 0;
-	/*if( fabs(cscHit.Residual) > rWidth ) {
+	/*if( std::abs(cscHit.Residual) > rWidth ) {
 	  cscHit.isOutlier = 2;
 	  }*/
 	double width = (cscHit.MeasuresPhi) ? 250. : 100.;
-	if( fabs(cscHit.Residual)>width ){
+	if( std::abs(cscHit.Residual)>width ){
 	  cscHit.isOutlier=1;
-	  if( fabs(cscHit.Residual)>3.*width ){
+	  if( std::abs(cscHit.Residual)>3.*width ){
 	    cscHit.isOutlier=2;
 	  }
 	}
@@ -236,11 +236,11 @@ StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const TrigRoiDescriptor*
 double TrigL2MuonSA::CscDataPreparator::calc_residual(double aw,double bw,double x,double y) const
 {
   const double ZERO_LIMIT = 1e-4;
-  if( fabs(aw) < ZERO_LIMIT ) return y-bw;
+  if( std::abs(aw) < ZERO_LIMIT ) return y-bw;
   double ia  = 1/aw;
   double iaq = ia*ia;
   double dz  = x - (y-bw)*ia;
-  return dz/sqrt(1.+iaq);
+  return dz/std::sqrt(1.+iaq);
 
 }
 
@@ -250,7 +250,7 @@ double TrigL2MuonSA::CscDataPreparator::calc_residual_phi( double aw, double bw,
 
   double roadr = hitz*aw + bw;
 
-  return roadr*( cos(phiw)*sin(hitphi)-sin(phiw)*cos(hitphi) );
+  return roadr*( std::cos(phiw)*std::sin(hitphi)-std::sin(phiw)*std::cos(hitphi) );
 
 }
 

@@ -44,6 +44,8 @@ if not MuonGeometryFlags.hasCSC():
     theDataPreparator.CSCDataPreparator.DecodeBS=False
     theDataPreparator.CSCDataPreparator.CSCPrepDataContainer  = ""
 
+theDataPreparator.RPCDataPreparator.RpcClusterPreparator = MuonSA.TrigL2MuonSA__RpcClusterPreparator(TrigT1RPCRecRoiTool = trigRpcRoiTool)
+
 #Need different PRD collection names to run offline and Run 2 trigger in same job
 if ConfigFlags.Trigger.EDMVersion <= 2:
     from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataTool

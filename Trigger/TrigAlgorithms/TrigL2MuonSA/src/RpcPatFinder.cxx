@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RpcPatFinder.h"
@@ -45,8 +45,8 @@ void TrigL2MuonSA::RpcPatFinder::addHit(std::string stationName,
   // gasGap
   ilay+=gasGap-1;
 
-  double R=sqrt(gPosX*gPosX+gPosY*gPosY);
-  const double Phi=atan2(gPosY,gPosX);
+  double R=std::sqrt(gPosX*gPosX+gPosY*gPosY);
+  const double Phi=std::atan2(gPosY,gPosX);
 
   if (!measuresPhi){
     // if eta measurement then save Z/R
@@ -335,8 +335,8 @@ bool  TrigL2MuonSA::RpcPatFinder::deltaOK(int l1, int l2, double x1, double x2, 
   const double delta_feet_phi = 0.03;
 
   // calculate delta-eta or delta-phi 
-  if(isphi) delta=fabs(acos(cos(x2-x1)));
-  else delta=fabs(x2-x1); 
+  if(isphi) delta=std::abs(std::acos(std::cos(x2-x1)));
+  else delta=std::abs(x2-x1); 
 
   double delta_max=0;
   if (l1>l2) {
@@ -381,12 +381,12 @@ bool  TrigL2MuonSA::RpcPatFinder::deltaOK(int l1, int l2, double x1, double x2, 
 
 double TrigL2MuonSA::RpcPatFinder::calibR(std::string stationName, double R, double Phi) const{
   double DeltaPhi, temp_phi;
-  double calibPhi = acos(cos(Phi)); // 0 < Phi < 2PI
+  double calibPhi = std::acos(std::cos(Phi)); // 0 < Phi < 2PI
   
   if(std::string::npos != stationName.rfind("L")){//For Large , SP
     DeltaPhi= 999; temp_phi=9999;
     for(int inum=0;inum < 8;inum++){
-      temp_phi = fabs((inum * M_PI/4.0 )- calibPhi);
+      temp_phi = std::abs((inum * M_PI/4.0 )- calibPhi);
       if(temp_phi < DeltaPhi)      DeltaPhi = temp_phi;
     }
   }else if(std::string::npos != stationName.rfind("S") ||
@@ -395,12 +395,12 @@ double TrigL2MuonSA::RpcPatFinder::calibR(std::string stationName, double R, dou
     DeltaPhi= 999; temp_phi=9999;
 
     for(int inum=0;inum < 8;inum++){
-      temp_phi = fabs(inum *(M_PI/4.0 )+(M_PI/8.0) - calibPhi);
+      temp_phi = std::abs(inum *(M_PI/4.0 )+(M_PI/8.0) - calibPhi);
       if(temp_phi < DeltaPhi)      DeltaPhi = temp_phi;
     }//for end                                                                                                                      
   }else return R;
 
-  double calibR = R *cos(DeltaPhi);
+  double calibR = R *std::cos(DeltaPhi);
   
   return calibR;
 }//calbR()
@@ -495,11 +495,11 @@ void TrigL2MuonSA::RpcPatFinder::abcal(unsigned int result_pat,
   inn_bit=0xF;//00001111
   double theta_m,theta_t, theta_f;
   if((result_pat & inn_bit)==inn_bit){
-    theta_m = atan2(R[hot_min[0]],Z[hot_min[0]]);
-    theta_t = atan2(R[hot_max[0]]-R[hot_min[0]],Z[hot_max[0]]-Z[hot_min[0]]);
+    theta_m = std::atan2(R[hot_min[0]],Z[hot_min[0]]);
+    theta_t = std::atan2(R[hot_max[0]]-R[hot_min[0]],Z[hot_max[0]]-Z[hot_min[0]]);
     theta_f = (theta_m+theta_t)/2.0;
       
-    aw[0] = tan(theta_f);
+    aw[0] = std::tan(theta_f);
     bw[0] = R[hot_min[0]] - Z[hot_min[0]]*aw[0];
     aw[0] = 1.0/aw[0];
   }else{
@@ -514,7 +514,7 @@ void TrigL2MuonSA::RpcPatFinder::abcal(unsigned int result_pat,
 
   for(int i=1;i<3;i++){
     if(hot_max[i]!=-999 && hot_min[i]!=999){
-      if(fabs(Z[hot_max[i]] - Z[hot_min[i]]) > ZERO_LIMIT) {
+      if(std::abs(Z[hot_max[i]] - Z[hot_min[i]]) > ZERO_LIMIT) {
         aw[i] = (R[hot_max[i]]- R[hot_min[i]]) / (Z[hot_max[i]]-Z[hot_min[i]]);
         bw[i] = R[hot_max[i]] - Z[hot_max[i]]*aw[i];
         aw[i] = 1.0/aw[i];

@@ -435,8 +435,8 @@ bool  TrigL2MuonSA::ClusterPatFinder::deltaOK(int l1, int l2, double x1, double 
   const double delta_feet_phi = 0.03;
 
   // calculate delta-eta or delta-phi 
-  if(isphi) delta=fabs(acos(cos(x2-x1)));
-  else delta=fabs(x2-x1); 
+  if(isphi) delta=std::abs(std::acos(std::cos(x2-x1)));
+  else delta=std::abs(x2-x1); 
 
   double delta_max=0;
   if (l1>l2) {

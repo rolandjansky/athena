@@ -73,17 +73,21 @@ def EFMuonViewDataVerifierCfg(name='RoI'):
 
 def MuFastViewDataVerifier():
     result = ComponentAccumulator()
+    dataobjects = [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
+                   ( 'RpcPad_Cache' , 'StoreGateSvc+RpcRdoCache' ),
+                   ( 'RpcCoinDataCollection_Cache' , 'StoreGateSvc+RpcCoinCache' ),
+                   ( 'RpcPrepDataCollection_Cache' , 'StoreGateSvc+RpcPrdCache' ),
+                   ( 'TgcRdo_Cache' , 'StoreGateSvc+TgcRdoCache' ),
+                   ( 'MdtCsm_Cache' , 'StoreGateSvc+MdtCsmRdoCache' ),
+                   ( 'CscRawDataCollection_Cache' , 'StoreGateSvc+CscRdoCache' ),
+                   ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+L2MuFastRecoRoIs' )]
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    if ConfigFlags.Trigger.enableL1Phase1:
+        dataobjects += [( 'xAOD::MuonRoIContainer' , 'StoreGateSvc+LVL1MuonRoIs' )]
+    else:
+        dataobjects += [( 'DataVector< LVL1::RecMuonRoI >' , 'StoreGateSvc+HLT_RecMURoIs' )]
     alg = CompFactory.AthViews.ViewDataVerifier( name = "VDVMuFast",
-                                                 DataObjects = [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
-                                                                ( 'RpcPad_Cache' , 'StoreGateSvc+RpcRdoCache' ),
-                                                                ( 'RpcCoinDataCollection_Cache' , 'StoreGateSvc+RpcCoinCache' ),
-                                                                ( 'RpcPrepDataCollection_Cache' , 'StoreGateSvc+RpcPrdCache' ),
-                                                                ( 'TgcRdo_Cache' , 'StoreGateSvc+TgcRdoCache' ),
-                                                                ( 'MdtCsm_Cache' , 'StoreGateSvc+MdtCsmRdoCache' ),
-                                                                ( 'CscRawDataCollection_Cache' , 'StoreGateSvc+CscRdoCache' ),
-                                                                ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+L2MuFastRecoRoIs' ),
-                                                                ( 'DataVector< LVL1::RecMuonRoI >' , 'StoreGateSvc+HLT_RecMURoIs' )
-                                                               ]  )
+                                                 DataObjects = dataobjects )
     result.addEventAlgo(alg)
     return result
 

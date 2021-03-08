@@ -11,7 +11,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "TrigT1Interfaces/RecMuonRoI.h"
-#include "TrigT1RPCRecRoiSvc/RPCRecRoiSvc.h"
+#include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
@@ -31,33 +31,31 @@ class RpcClusterPreparator: public AthAlgTool
 {
   public:
 
-    RpcClusterPreparator(const std::string& type, 
+    RpcClusterPreparator(const std::string& type,
           		 const std::string& name,
 			 const IInterface*  parent);
-    
+
     virtual StatusCode initialize() override;
-    
-    StatusCode clusteringRPCs(const bool doMultiMuon, 
-                              unsigned int roiWord,
-                              std::vector<const Muon::RpcPrepDataCollection*> rpcCols, 
-                              const TrigRoiDescriptor*          p_roids, 
-                              const ToolHandle<ClusterPatFinder>*     clusterPatFinder, 
+
+    StatusCode clusteringRPCs(const bool doMultiMuon,
+                              std::vector<const Muon::RpcPrepDataCollection*> rpcCols,
+                              const TrigRoiDescriptor*          p_roids,
+                              const ToolHandle<ClusterPatFinder>*     clusterPatFinder,
                               TrigL2MuonSA::RpcLayerClusters&   rpcLayerClusters) const;
 
     typedef std::map<int, const Muon::RpcPrepData*, std::less<int> > pattern;
-    int buildPatterns(const bool doMultiMuon, 
-                      unsigned int roiWord,
-                      const TrigRoiDescriptor*        p_roids, 
-                      const Muon::RpcPrepDataCollection* rpcCollection, 
-                      std::map<Identifier, pattern>&     digits) const; 
+    int buildPatterns(const bool doMultiMuon,
+                      const TrigRoiDescriptor*        p_roids,
+                      const Muon::RpcPrepDataCollection* rpcCollection,
+                      std::map<Identifier, pattern>&     digits) const;
 
     void buildClusters(const ToolHandle<ClusterPatFinder>*   clusterPatFinder,
-                       std::map<Identifier, pattern>&  digits, 
-                       TrigL2MuonSA::RpcLayerClusters& rpcLayerClusters) const; 
+                       std::map<Identifier, pattern>&  digits,
+                       TrigL2MuonSA::RpcLayerClusters& rpcLayerClusters) const;
  private:
-		       
+
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-    ServiceHandle<LVL1RPC::RPCRecRoiSvc> m_recRPCRoiSvc{ this, "RPCRecRoiSvc", "LVL1RPC::RPCRecRoiSvc"};
+    ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_recRPCRoiTool{ this, "TrigT1RPCRecRoiTool", "LVL1::TrigT1RPCRecRoiTool/TrigT1RPCRecRoiTool"};
 
 };
 

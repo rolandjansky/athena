@@ -333,7 +333,8 @@ def l2MuFastAlgCfg( flags, roisKey="" ):
     # Get Reco alg of muFast step
     muFastAcc, muFastFex = muFastSteeringCfg( flags, roisKey )  
     muFastFex.MuRoIs = roisKey
-    muFastFex.RecMuonRoI = "HLT_RecMURoIs"
+    muFastFex.Run2RecMuonRoI = "HLT_RecMURoIs"
+    muFastFex.RecMuonRoI = "LVL1MuonRoIs"
     muFastFex.MuonL2SAInfo = muFastInfo
     muFastFex.forID = "forID"
     muFastFex.forMS = "forMS"
