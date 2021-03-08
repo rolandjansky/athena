@@ -136,21 +136,19 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
 
   using namespace Monitored;
 
-  auto Run_lb = Monitored::Scalar<int>("Run_lb",0);
-  auto Run_number = Monitored::Scalar<int>("Run_number",0);
   auto Run_event = Monitored::Scalar<int>("Run_event",0);
+  auto Run_lb = Monitored::Scalar<int>("Run_lb",0);
   auto Run_mu = Monitored::Scalar<float>("Run_mu",0);
 
-  Run_lb = GetEventInfo(ctx)->lumiBlock();
-  Run_number = GetEventInfo(ctx)->runNumber();
   Run_event = GetEventInfo(ctx)->eventNumber();
+  Run_lb = GetEventInfo(ctx)->lumiBlock();
   Run_mu = lbInteractionsPerCrossing(ctx);
 
   auto tool = getGroup("JetTagMonitor");
 
   auto Cutflow_Event = Monitored::Scalar<int>("Cutflow_Event",0);
   Cutflow_Event = 0;
-  fill(tool,Run_number,Run_lb,Run_event,Run_mu,Cutflow_Event);
+  fill(tool,Run_lb,Run_mu,Cutflow_Event);
 
   if ( GetEventInfo(ctx)->errorState(xAOD::EventInfo::EventFlagSubDet::Tile) == xAOD::EventInfo::Error || 
        GetEventInfo(ctx)->errorState(xAOD::EventInfo::EventFlagSubDet::LAr)  == xAOD::EventInfo::Error ||
@@ -413,7 +411,7 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
   if (IsolatedElectrons_n == 1 && IsolatedMuons_n == 1 && Electron_charge*Muon_charge == -1) isTTbarEvent = true;
 
   if(isTTbarEvent)
-    ATH_MSG_DEBUG("This is ttbar event "<< Run_event);
+    ATH_MSG_WARNING("This is a candidate ttbar event "<< Run_event);
 
   /////////////////////
   //* Jet container *//
@@ -458,8 +456,8 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
   auto jet_phi_smt = Monitored::Scalar<float>("jet_phi_smt",0.0);
 
   auto jet_MV_all = Monitored::Scalar<float>("jet_MV_all",0.0);
-  auto jet_MV_beforeJVTCut = Monitored::Scalar<float>("jet_MV_beforeJVTCut",0.0);
-  auto jet_MV_afterJVTCut = Monitored::Scalar<float>("jet_MV_afterJVTCut",0.0);
+  auto jet_MV_2_beforeJVTCut = Monitored::Scalar<float>("jet_MV_2_beforeJVTCut",0.0);
+  auto jet_MV_3_afterJVTCut = Monitored::Scalar<float>("jet_MV_3_afterJVTCut",0.0);
 
   //Variables for TTbar events
   const xAOD::Jet* firstTTbarJet = nullptr;
@@ -515,13 +513,13 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
     // fill histograms with properties of jet associated tracks
     fillJetTracksHistos(jetItr, PVZ);
 
-    jet_MV_beforeJVTCut = mv;
-    fill(tool,jet_MV_beforeJVTCut);
+    jet_MV_2_beforeJVTCut = mv;
+    fill(tool,jet_MV_2_beforeJVTCut);
 
     if ( !passJVTCut(jetItr) ) continue; 
 
-    jet_MV_afterJVTCut = mv;
-    fill(tool,jet_MV_afterJVTCut);
+    jet_MV_3_afterJVTCut = mv;
+    fill(tool,jet_MV_3_afterJVTCut);
 
     // Jets passing JVT cuts
     Cutflow_Jet = 3;
@@ -1258,8 +1256,8 @@ void JetTagMonitorAlgorithm::fillJetTracksHistos(const xAOD::Jet *jet, float PV_
     JetTracks_d0s =  sqrt( jetTrackItr->definingParametersCovMatrix()( Trk::d0, Trk::d0 ) ); //sigma
     JetTracks_d0si = JetTracks_d0/JetTracks_d0s; //significance
 
-    float pvzz = PV_Z;
-    JetTracks_z0 =   jetTrackItr->z0() + jetTrackItr->vz() - pvzz; 
+    float PVZ = PV_Z;
+    JetTracks_z0 =   jetTrackItr->z0() + jetTrackItr->vz() - PVZ; 
     JetTracks_z0s =  sqrt( jetTrackItr->definingParametersCovMatrix()( Trk::z0, Trk::z0 ) ); //sigma
     JetTracks_z0si = JetTracks_z0/JetTracks_z0s; //significance
 
@@ -1362,8 +1360,8 @@ JetTagMonitorAlgorithm::Jet_t JetTagMonitorAlgorithm::getQualityLabel(const xAOD
       fill(tool,SelTracks_eta_d0,SelTracks_phi_d0);
     }
 
-    float pvzz = PV_Z;
-    SelTracks_z0sin = (jetTrackItr->z0() + jetTrackItr->vz() - pvzz)*sin(jetTrackItr->theta());
+    float PVZ = PV_Z;
+    SelTracks_z0sin = (jetTrackItr->z0() + jetTrackItr->vz() - PVZ)*sin(jetTrackItr->theta());
 
     // Tracks failing z0sin cuts
     if(fabs(SelTracks_z0sin) > m_Trackz0sinCut){
