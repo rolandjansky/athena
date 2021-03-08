@@ -7,7 +7,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 
-#include "TrigLongLivedParticlesHypo/FastTrackFinderLRTHypoTool.h"
+#include "FastTrackFinderLRTHypoTool.h"
 
 using namespace TrigCompositeUtils;
 

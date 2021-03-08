@@ -2,8 +2,8 @@
 Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigLongLivedParticlesHypo/FastTrackFinderLRTHypoAlg.h"
-#include "TrigLongLivedParticlesHypo/FastTrackFinderLRTHypoTool.h"
+#include "FastTrackFinderLRTHypoAlg.h"
+#include "FastTrackFinderLRTHypoTool.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
 #include "AthViews/ViewHelper.h"
 

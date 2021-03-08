@@ -2,7 +2,6 @@
 
 from AthenaCommon.SystemOfUnits import GeV
 from AthenaCommon.Logging import logging
-# from AthenaCommon.Include import Include 
 log = logging.getLogger("TrigLongLivedParticlesHypo.TrigIsoHPtTrackTriggerHypoTool")
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
