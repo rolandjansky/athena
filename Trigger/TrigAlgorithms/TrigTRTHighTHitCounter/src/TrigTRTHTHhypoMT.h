@@ -6,16 +6,10 @@
 
 #include <string>
 
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "AthViews/View.h"
-#include "AthViews/ViewHelper.h"
-#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-#include "TrigCompositeUtils/HLTIdentifier.h"
-#include "TrigCompositeUtils/TrigCompositeUtils.h"
+#include "GaudiKernel/StatusCode.h"
 #include "DecisionHandling/HypoBase.h"
 #include "xAODTrigRinger/TrigRNNOutput.h"
 #include "xAODTrigRinger/TrigRNNOutputContainer.h"
-#include "Gaudi/Property.h"
 
 #include "ITrigTRTHTHhypoTool.h"
 

@@ -4,18 +4,10 @@
 #ifndef TRIGTRTHTHHYPOTOOL_H
 #define TRIGTRTHTHHYPOTOOL_H 1
 
-#include "GaudiKernel/SystemOfUnits.h"
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
-#include "TrigCompositeUtils/TrigCompositeUtils.h"
-#include "TrigCompositeUtils/Combinators.h"
-#include "AthenaMonitoringKernel/Monitored.h"
-#include <algorithm>
 
 #include "ITrigTRTHTHhypoTool.h"
-#include "xAODTrigRinger/TrigRNNOutput.h"
 
 /**
  * @class Implementation of the TRT High Threshold Hit selection
@@ -27,8 +19,6 @@ class TrigTRTHTHhypoTool : public extends<AthAlgTool, ITrigTRTHTHhypoTool> {
   TrigTRTHTHhypoTool( const std::string& type, 
 			 const std::string& name, 
 			 const IInterface* parent );
-
-  virtual ~TrigTRTHTHhypoTool();
 
   virtual StatusCode initialize() override;
 

@@ -4,7 +4,11 @@
 
 #include "TrigTRTHTHhypoMT.h"
 
-using namespace TrigCompositeUtils;
+#include "AthViews/ViewHelper.h"
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
+#include "xAODTrigger/TrigCompositeContainer.h"
+
+namespace TCU = TrigCompositeUtils;
 
 TrigTRTHTHhypoMT::TrigTRTHTHhypoMT( const std::string& name, 
 					  ISvcLocator* pSvcLocator ) :
@@ -32,7 +36,7 @@ StatusCode TrigTRTHTHhypoMT::execute( const EventContext& context ) const {
   // new decisions
 
   // new output decisions
-  SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context ); 
+  SG::WriteHandle<TCU::DecisionContainer> outputHandle = TCU::createAndStore(decisionOutput(), context );
   auto decisions = outputHandle.ptr();
 
   // input for decision
@@ -43,14 +47,14 @@ StatusCode TrigTRTHTHhypoMT::execute( const EventContext& context ) const {
   size_t counter=0;
   for ( const auto previousDecision: *previousDecisionsHandle ) {
    
-    auto d = newDecisionIn( decisions, name() );
+    auto d = TCU::newDecisionIn( decisions, name() );
     //get RoI  
-    auto roiELInfo = findLink<TrigRoiDescriptorCollection>( previousDecision, initialRoIString() );
+    auto roiELInfo = TCU::findLink<TrigRoiDescriptorCollection>( previousDecision, TCU::initialRoIString() );
     ATH_CHECK( roiELInfo.isValid() );
-    d->setObjectLink( roiString(), roiELInfo.link );
+    d->setObjectLink( TCU::roiString(), roiELInfo.link );
 
     // get View
-    const auto viewEL = previousDecision->objectLink<ViewContainer>( viewString() );
+    const auto viewEL = previousDecision->objectLink<ViewContainer>( TCU::viewString() );
     ATH_CHECK( viewEL.isValid() );
 
     // get rnnOutput
@@ -65,7 +69,7 @@ StatusCode TrigTRTHTHhypoMT::execute( const EventContext& context ) const {
     // create new decision
     toolInput.emplace_back( d, rnnOutputHandle.cptr()->at(0), previousDecision );
 
-    TrigCompositeUtils::linkToPrevious( d, previousDecision, context );
+    TCU::linkToPrevious( d, previousDecision, context );
     ATH_MSG_DEBUG( "Added view, roi, cluster, previous decision to new decision " << counter << " for view " << (*viewEL)->name()  );
     counter++;
   }

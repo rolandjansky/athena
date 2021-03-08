@@ -34,8 +34,6 @@ TrigTRTHTHCounterMT::TrigTRTHTHCounterMT(const std::string & name, ISvcLocator* 
       m_maxCaloEta(1.7)
 {}
 
-TrigTRTHTHCounterMT::~TrigTRTHTHCounterMT(){}
-
 StatusCode TrigTRTHTHCounterMT::initialize()
 {
   ATH_MSG_DEBUG ( "Initialising this TrigTRTHTHCounter: " << name());
@@ -285,10 +283,5 @@ StatusCode TrigTRTHTHCounterMT::execute() {
   ATH_MSG_DEBUG("REGTEST:  returning an xAOD::TrigRNNOutputContainer with size "<< trigRNNOutputColl->size() << ".");
 
   return StatusCode::SUCCESS;
-}
-
-StatusCode TrigTRTHTHCounterMT::finalize()
-{
-    return  StatusCode::SUCCESS;
 }
 
