@@ -1,4 +1,3 @@
-
 """
     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
@@ -73,6 +72,11 @@ class ForceDictionaryGeneration(JobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
     
+class UseStripDigitization(JobProperty):
+    """Option to use new ITk-Strip-specific digitization in place of SCT digi"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
 
 ##-----------------------------------------------------------------------------
 ## 2nd step
@@ -99,6 +103,7 @@ jobproperties.SLHC_JobProperties.add_JobProperty(doGMX)
 jobproperties.SLHC_JobProperties.add_JobProperty(LayoutOption)
 jobproperties.SLHC_JobProperties.add_JobProperty(UseLocalGeometry)
 jobproperties.SLHC_JobProperties.add_JobProperty(ForceDictionaryGeneration)
+jobproperties.SLHC_JobProperties.add_JobProperty(UseStripDigitization)
 ##-----------------------------------------------------------------------------
 ## 5th step
 ## short-cut for lazy people

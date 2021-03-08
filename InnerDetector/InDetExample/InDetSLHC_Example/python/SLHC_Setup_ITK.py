@@ -9,12 +9,13 @@ from os.path import exists, join
 from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags
 from AthenaCommon.DetFlags import DetFlags
 
-#If you wanted to try the Strip instead of SCT digi, uncomment below...
-#from Digitization.DigitizationFlags import digitizationFlags
-#digitizationFlags.experimentalDigi+=["doStripDigi"]
-
 from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 auto_isGMX = (SLHC_Flags.doGMX()) or (CommonGeometryFlags.StripGeoType() == "GMX") 
+
+#Needs to be done early, before digi config runs, so add this here...
+if SLHC_Flags.UseStripDigitization():
+        from Digitization.DigitizationFlags import digitizationFlags
+        digitizationFlags.experimentalDigi+=["doStripDigi"]
 
 dictVersion = "ITkHGTD"
 
