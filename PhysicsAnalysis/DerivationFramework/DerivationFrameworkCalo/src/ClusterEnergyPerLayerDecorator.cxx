@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -11,6 +11,8 @@
 #include "xAODEgamma/EgammaContainer.h"
 #include "CaloUtils/CaloClusterStoreHelper.h"
 #include "CaloClusterCorrection/CaloFillRectangularCluster.h"
+
+#include <TString.h>
 
 // Constructor
 DerivationFramework::ClusterEnergyPerLayerDecorator::ClusterEnergyPerLayerDecorator(const std::string& t,

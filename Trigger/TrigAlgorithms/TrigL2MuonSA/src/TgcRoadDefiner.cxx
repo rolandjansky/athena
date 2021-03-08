@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TgcRoadDefiner.h"
@@ -362,8 +362,8 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
 
     muonRoad.stationList.push_back(id);
     std::string name = m_idHelperSvc->mdtIdHelper().stationNameString(m_idHelperSvc->mdtIdHelper().stationName(id));
-    if ( name.substr(0, 1) == 'B' ) continue;
-    if ( name.substr(1, 1) != 'M' ) continue;
+    if ( name.substr(0, 1) == "B" ) continue;
+    if ( name.substr(1, 1) != "M" ) continue;
     int stationPhi = m_idHelperSvc->mdtIdHelper().stationPhi(id);
     float floatPhi = (stationPhi-1)*M_PI/4;
     if (name[2]=='S' || name[2]=='E') floatPhi = floatPhi + M_PI/8;

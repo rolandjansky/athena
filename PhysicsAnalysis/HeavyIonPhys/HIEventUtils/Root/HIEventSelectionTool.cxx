@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HIEventUtils/HIEventSelectionTool.h"
@@ -8,6 +8,8 @@
 #include "xAODTracking/VertexContainer.h"
 //#include "HIPileupTool/HIPileupTool.h"
 #include "HIEventUtils/HIPileupTool.h"
+
+#include <TString.h>
 
 #include <iomanip>
 #include <iostream>

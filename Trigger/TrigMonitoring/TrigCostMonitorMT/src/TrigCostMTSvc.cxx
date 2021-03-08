@@ -461,7 +461,7 @@ StatusCode TrigCostMTSvc::generateTimeoutReport(const EventContext& context, std
   int algCounter = 0;
   for(const std::pair<const uint64_t, std::string>& p : timeToAlgMap){
     // Save time in miliseconds instead of microseconds
-    report += p.second + " (" + std::round(p.first/3.) + " ms)";
+    report += p.second + " (" + std::to_string(std::round(p.first/3.)) + " ms)";
     ++algCounter;
     if (algCounter >= 5){
       break;
