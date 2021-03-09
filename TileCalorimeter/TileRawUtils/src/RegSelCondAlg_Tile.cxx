@@ -32,7 +32,6 @@
 #include "TileConditions/TileCablingService.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "TileByteStream/TileROD_Decoder.h"
-#include "TileRawUtils/TileRegionSelectorTable.h"
 
 #include <cmath>
 #include <iostream>
