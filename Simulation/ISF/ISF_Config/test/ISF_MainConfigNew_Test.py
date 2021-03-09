@@ -22,6 +22,8 @@ if __name__ == '__main__':
 
     #import and set config flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ConfigFlags.Exec.MaxEvents = 1
+    ConfigFlags.Exec.SkipEvents = 0
     from AthenaConfiguration.Enums import ProductionStep
     ConfigFlags.Common.ProductionStep = ProductionStep.Simulation
     ConfigFlags.Input.RunNumber = [284500] #Isn't updating - todo: investigate
@@ -166,7 +168,7 @@ if __name__ == '__main__':
     ConfigFlags.dump()
 
     # Execute and finish
-    sc = cfg.run(maxEvents=evtMax)
+    sc = cfg.run()
 
     b = time.time()
     log.info("Run ISF_MainConfigNew_Test in " + str(b-a) + " seconds")
