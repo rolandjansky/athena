@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -17,7 +17,7 @@
 #include <vector>
 #include <set>
 #include <string>
-#include <vector>
+#include <bitset>
 #include <stdint.h>
 
 namespace TCS {
