@@ -114,11 +114,17 @@ StatusCode QCDTruthJetFilter::filterEvent() {
 
   // If appropriate, check the phi of the lead jet as well
   if (m_MinPhi > -999.0 || m_MaxPhi < 999.0) {
+    setFilterPassed(false);
+
     if (phi_lead < m_MinPhi || phi_lead > m_MaxPhi) {
       ATH_MSG_DEBUG("Failed filter on jet phi: " << phi_lead << " not between " << m_MinPhi << " and " << m_MaxPhi);
       return StatusCode::SUCCESS;
     }
+    else {
+      setFilterPassed(true);
+    }
   }
+
 
 
   // Unweight the pT spectrum
