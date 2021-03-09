@@ -276,6 +276,17 @@ include.block("RecExCond/RecExCommon_flags.py")
 from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg
 CAtoGlobalWrapper(IOVDbSvcCfg, ConfigFlags)
 
+# ---------------------------------------------------------------
+# Create main sequences
+# ---------------------------------------------------------------
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
+from AthenaCommon.CFElements import seqOR,parOR
+hltTop = seqOR("HLTTop")
+hltBeginSeq = parOR("HLTBeginSeq")
+hltTop += hltBeginSeq
+topSequence += hltTop
+
 #-------------------------------------------------------------
 # Setting DetFlags
 #-------------------------------------------------------------
@@ -321,10 +332,6 @@ rec.doTruth = False
 #-------------------------------------------------------------
 for mod in modifierList:
     mod.preSetup()
-
-
-from AthenaCommon.AlgSequence import AlgSequence
-topSequence = AlgSequence()
 
 #--------------------------------------------------------------
 # Increase scheduler checks and verbosity
@@ -404,15 +411,6 @@ createL1PrescalesFileFromMenu(ConfigFlags)
 
 from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
 CAtoGlobalWrapper(L1ConfigSvcCfg,ConfigFlags)
-
-# ---------------------------------------------------------------
-# Create main sequences
-# ---------------------------------------------------------------
-from AthenaCommon.CFElements import seqOR,parOR
-hltTop = seqOR("HLTTop")
-hltBeginSeq = parOR("HLTBeginSeq")
-hltTop += hltBeginSeq
-topSequence += hltTop
 
 # ---------------------------------------------------------------
 # Event Info setup

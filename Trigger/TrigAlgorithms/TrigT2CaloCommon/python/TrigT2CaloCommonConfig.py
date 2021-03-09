@@ -56,7 +56,7 @@ class TrigCaloDataAccessSvc(_TrigCaloDataAccessSvc):
                 from AthenaCommon.AlgSequence import AlgSequence
                 topSequence = AlgSequence()
                 from AthenaCommon.CFElements import findSubSequence
-                hltBeginSeq = findSubSequence(topSequence, 'HltBeginSeq')
+                hltBeginSeq = findSubSequence(topSequence, 'HLTBeginSeq')
                 from CaloRec.CaloBCIDAvgAlgDefault import CaloBCIDAvgAlgDefault
                 bcidAvgAlg = CaloBCIDAvgAlgDefault(sequence=hltBeginSeq)
 
