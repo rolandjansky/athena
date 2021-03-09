@@ -306,6 +306,11 @@ namespace top {
     static const SG::AuxElement::ConstAccessor<float> PLV_PtRel("PromptLeptonInput_PtRel");
     static const SG::AuxElement::ConstAccessor<float> PLV_PtFrac("PromptLeptonInput_PtFrac");
     static const SG::AuxElement::ConstAccessor<float> PLV_PromptLeptonVeto("PromptLeptonVeto");
+    static const SG::AuxElement::ConstAccessor<float> PromptLeptonImprovedVeto("PromptLeptonImprovedVeto");
+    static const SG::AuxElement::ConstAccessor<short> PromptLeptonImprovedInput_MVAXBin("PromptLeptonImprovedInput_MVAXBin");
+    static const SG::AuxElement::ConstAccessor<float> PromptLeptonImprovedVetoECAP("PromptLeptonImprovedVetoECAP");
+    static const SG::AuxElement::ConstAccessor<float> PromptLeptonImprovedVetoBARR("PromptLeptonImprovedVetoBARR");
+    static const SG::AuxElement::ConstAccessor<float> ptvarcone30_TightTTVA_pt500("ptvarcone30_TightTTVA_pt500");
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_FCTight("AnalysisTop_Isol_FCTight");
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_FCLoose("AnalysisTop_Isol_FCLoose");
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_Tight("AnalysisTop_Isol_Tight");
@@ -425,29 +430,33 @@ namespace top {
           electron->auxdecor<char>("AnalysisTop_Isol_PromptLeptonVeto") =
             (electron->auxdata<float>("PromptLeptonVeto") < -0.5) ? 1 : 0;
 
-	// New PLV: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/PromptLeptonTaggerIFF
-	// For PLV isolation, we need to compute additional variables in the low-pT regime (<12 GeV)
-	if ( PLV_TrackJetNTrack.isAvailable(*electron) &&
-	     PLV_DRlj.isAvailable(*electron) &&
-	     PLV_PtRel.isAvailable(*electron) &&
-	     PLV_PtFrac.isAvailable(*electron) )
-	  top::check(m_isolationTool_LowPtPLV->augmentPLV(*electron), "Failed to augment electron with LowPtPLV decorations");
-	else
-	  byhand_LowPtPLV(*electron) = 1.1; // decorate the electron ourselves following IFF default
-	if ( PLV_PromptLeptonVeto.isAvailable(*electron) &&
-	     ptvarcone30_TightTTVALooseCone_pt1000.isAvailable(*electron) ) {
-	  AnalysisTop_Isol_PLVTight(*electron) = (m_isolationTool_PLVTight->accept(*electron) ? 1 : 0);
-	  AnalysisTop_Isol_PLVLoose(*electron) = (m_isolationTool_PLVLoose->accept(*electron) ? 1 : 0);
-	  AnalysisTop_Isol_PLImprovedTight(*electron) = (m_isolationTool_PLImprovedTight->accept(*electron) ? 1 : 0);
-	  AnalysisTop_Isol_PLImprovedVeryTight(*electron) = (m_isolationTool_PLImprovedVeryTight->accept(*electron) ? 1 : 0);
-	}
-	else {
-	  // decorate with special character to indicate failure to retrieve necessary variables
-	  AnalysisTop_Isol_PLVTight(*electron) = 'n';
-	  AnalysisTop_Isol_PLVLoose(*electron) = 'n';
-	  AnalysisTop_Isol_PLImprovedTight(*electron) = 'n';
-	  AnalysisTop_Isol_PLImprovedVeryTight(*electron) = 'n';
-	}
+        // New PLV: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/PromptLeptonTaggerIFF
+        // For PLV isolation, we need to compute additional variables in the low-pT regime (<12 GeV)
+        if ( PLV_TrackJetNTrack.isAvailable(*electron) &&
+             PLV_DRlj.isAvailable(*electron) &&
+             PLV_PtRel.isAvailable(*electron) &&
+             PLV_PtFrac.isAvailable(*electron) )
+          top::check(m_isolationTool_LowPtPLV->augmentPLV(*electron), "Failed to augment electron with LowPtPLV decorations");
+        else
+          byhand_LowPtPLV(*electron) = 1.1; // decorate the electron ourselves following IFF default
+        if ( PLV_PromptLeptonVeto.isAvailable(*electron) &&
+             ptvarcone30_TightTTVALooseCone_pt1000.isAvailable(*electron) ) {
+          AnalysisTop_Isol_PLVTight(*electron) = (m_isolationTool_PLVTight->accept(*electron) ? 1 : 0);
+          AnalysisTop_Isol_PLVLoose(*electron) = (m_isolationTool_PLVLoose->accept(*electron) ? 1 : 0);
+        } else {
+          AnalysisTop_Isol_PLVTight(*electron) = 'n';
+          AnalysisTop_Isol_PLVLoose(*electron) = 'n';
+        }
+        if (ptvarcone30_TightTTVA_pt500.isAvailable(*electron) && PromptLeptonImprovedVeto.isAvailable(*electron) &&
+            PromptLeptonImprovedInput_MVAXBin.isAvailable(*electron) && PromptLeptonImprovedVetoECAP.isAvailable(*electron) && 
+            PromptLeptonImprovedVetoBARR.isAvailable(*electron)) {
+          AnalysisTop_Isol_PLImprovedTight(*electron) = (m_isolationTool_PLImprovedTight->accept(*electron) ? 1 : 0);
+          AnalysisTop_Isol_PLImprovedVeryTight(*electron) = (m_isolationTool_PLImprovedVeryTight->accept(*electron) ? 1 : 0);
+        } else {
+          // decorate with special character to indicate failure to retrieve necessary variables
+          AnalysisTop_Isol_PLImprovedTight(*electron) = 'n';
+          AnalysisTop_Isol_PLImprovedVeryTight(*electron) = 'n';
+        }
       }
 
       ///-- set links to original objects- needed for MET calculation --///
