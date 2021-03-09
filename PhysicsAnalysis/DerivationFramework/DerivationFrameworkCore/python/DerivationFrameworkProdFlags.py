@@ -29,7 +29,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_PHYSVALStre
 listAODtoDPD.append(WriteDAOD_PHYSVALStream.StreamName)
 
 ####################################
-# Run-3 prototypes
+# Run-3 analysis model
 ####################################
 
 class WriteDAOD_PHYSStream(JobProperty):
@@ -44,19 +44,6 @@ class WriteDAOD_PHYSStream(JobProperty):
     pass
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_PHYSStream)
 listAODtoDPD.append(WriteDAOD_PHYSStream.StreamName)
-
-class WriteDAOD_PHYS2Stream(JobProperty):
-    """ DAOD_PHYS2 - prototype format for Run 3 """
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-    StreamName   = "StreamDAOD_PHYS2"
-    FileName     = ""
-    isVirtual      = False
-    DPDMakerScript = "DerivationFrameworkPhys/PHYS2.py"
-    pass
-jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_PHYS2Stream)
-listAODtoDPD.append(WriteDAOD_PHYS2Stream.StreamName)
 
 class WriteDAOD_PHYSLITEStream(JobProperty):
     """ DAOD_PHYSLITE - prototype format for Run 3 """
