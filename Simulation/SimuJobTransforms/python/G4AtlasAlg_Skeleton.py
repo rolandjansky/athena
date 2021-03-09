@@ -94,11 +94,6 @@ def fromRunArgs(runArgs):
     if hasattr(runArgs, 'truthStrategy'):
         ConfigFlags.Sim.TruthStrategy = runArgs.truthStrategy
 
-    if hasattr(runArgs, 'maxEvents'):
-        evtMax = runArgs.maxEvents
-    else:
-        evtMax = -1
-
     # Pre-include
     processPreInclude(runArgs, ConfigFlags)
 
@@ -206,7 +201,7 @@ def fromRunArgs(runArgs):
     import time
     tic = time.time()
     # Run the final accumulator
-    sc = cfg.run(maxEvents=evtMax)
+    sc = cfg.run()
     log.info("Run G4AtlasAlg in " + str(time.time()-tic) + " seconds")
 
     sys.exit(not sc.isSuccess())
