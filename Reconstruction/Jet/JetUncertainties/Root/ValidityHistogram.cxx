@@ -157,19 +157,20 @@ class InfoHelpereLOGmOeAbsEta : public InfoHelper
 
 double InfoHelper::getAbsMass(const xAOD::Jet& jet) const
 {
-    bool isSimpleCase = (m_massDef == CompMassDef::UNKNOWN || m_massDef == CompMassDef::FourVecMass);
-    JetFourMomAccessor scale(isSimpleCase ? "" : CompMassDef::getJetScaleString(m_massDef).Data());
-    SG::AuxElement::ConstAccessor<float> scaleTAMoment(isSimpleCase ? "" : "JetTrackAssistedMassCalibrated");
-    
-    if (isSimpleCase)
+    // Check for the simple case (where we want the default four-vector itself)
+    if (m_massDef == CompMassDef::UNKNOWN || m_massDef == CompMassDef::FourVecMass)
         return jet.m();
-
-    // Check if the specified scale is available and return it if so
+    
+    // Not the simple case, check for the specified four-vector instead and return it if it is available
+    JetFourMomAccessor scale(CompMassDef::getJetScaleString(m_massDef).Data());
     if (scale.isAvailable(jet))
         return scale(jet).M();
-    // Fall-back on the TA moment as a float if applicable
+
+    // Fall-back on the TA moment as a float if applicable (legacy support)
+    SG::AuxElement::ConstAccessor<float> scaleTAMoment("JetTrackAssistedMassCalibrated");
     if (m_massDef == CompMassDef::TAMass && scaleTAMoment.isAvailable(jet))
         return scaleTAMoment(jet);
+
     // Fall-back on the calo mass as the 4-vec if applicable (legacy support)
     if (m_massDef == CompMassDef::CaloMass)
         return jet.m();
@@ -180,19 +181,20 @@ double InfoHelper::getAbsMass(const xAOD::Jet& jet) const
 
 double InfoHelper::getMassOverPt(const xAOD::Jet& jet) const
 {
-    bool isSimpleCase = (m_massDef == CompMassDef::UNKNOWN || m_massDef == CompMassDef::FourVecMass);
-    JetFourMomAccessor scale(isSimpleCase ? "" : CompMassDef::getJetScaleString(m_massDef).Data());
-    SG::AuxElement::ConstAccessor<float> scaleTAMoment(isSimpleCase ? "" : "JetTrackAssistedMassCalibrated");
-    
-    if (isSimpleCase)
+    // Check for the simple case (where we want the default four-vector itself)
+    if (m_massDef == CompMassDef::UNKNOWN || m_massDef == CompMassDef::FourVecMass)
         return jet.m()/jet.pt();
-
-    // Check if the specified scale is available and return it if so
+    
+    // Not the simple case, check for the specified four-vector instead and return it if it is available
+    JetFourMomAccessor scale(CompMassDef::getJetScaleString(m_massDef).Data());
     if (scale.isAvailable(jet))
         return scale(jet).M()/scale(jet).Pt();
-    // Fall-back on the TA moment as a float if applicable
+    
+    // Fall-back on the TA moment as a float if applicable (legacy support)
+    SG::AuxElement::ConstAccessor<float> scaleTAMoment("JetTrackAssistedMassCalibrated");
     if (m_massDef == CompMassDef::TAMass && scaleTAMoment.isAvailable(jet))
         return scaleTAMoment(jet)/jet.pt();
+    
     // Fall-back on the calo mass as the 4-vec if applicable (legacy support)
     if (m_massDef == CompMassDef::CaloMass)
         return jet.m()/jet.pt();
@@ -204,19 +206,20 @@ double InfoHelper::getMassOverPt(const xAOD::Jet& jet) const
 
 double InfoHelper::getMassOverE(const xAOD::Jet& jet) const
 {
-    bool isSimpleCase = (m_massDef == CompMassDef::UNKNOWN || m_massDef == CompMassDef::FourVecMass);
-    JetFourMomAccessor scale(isSimpleCase ? "" : CompMassDef::getJetScaleString(m_massDef).Data());
-    SG::AuxElement::ConstAccessor<float> scaleTAMoment(isSimpleCase ? "" : "JetTrackAssistedMassCalibrated");
-    
-    if (isSimpleCase)
+    // Check for the simple case (where we want the default four-vector itself)
+    if (m_massDef == CompMassDef::UNKNOWN || m_massDef == CompMassDef::FourVecMass)
         return jet.m()/jet.e();
 
-    // Check if the specified scale is available and return it if so
+    // Not the simple case, check for the specified four-vector instead and return it if it is available
+    JetFourMomAccessor scale(CompMassDef::getJetScaleString(m_massDef).Data());
     if (scale.isAvailable(jet))
         return scale(jet).M()/scale(jet).E();
-    // Fall-back on the TA moment as a float if applicable
+    
+    // Fall-back on the TA moment as a float if applicable (legacy support)
+    SG::AuxElement::ConstAccessor<float> scaleTAMoment("JetTrackAssistedMassCalibrated");
     if (m_massDef == CompMassDef::TAMass && scaleTAMoment.isAvailable(jet))
         return scaleTAMoment(jet)/jet.e();
+    
     // Fall-back on the calo mass as the 4-vec if applicable (legacy support)
     if (m_massDef == CompMassDef::CaloMass)
         return jet.m()/jet.e();
