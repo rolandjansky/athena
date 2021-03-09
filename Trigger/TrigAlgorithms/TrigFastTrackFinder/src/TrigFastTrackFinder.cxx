@@ -1723,7 +1723,7 @@ float TrigFastTrackFinder::dEdx(const Trk::Track* track, int& pixelhits, int& n_
    
    if (n_usedhits > 0 or (n_usedhits==0 and(int)IBLOverflow>0 and (int)pixelhits==1)) {
       if(n_usedhits > 0) averagedEdx = averagedEdx / n_usedhits;
-      if(n_usedhits == 0 and (int)IBLOverflow > 0 and (int)pixelhits == 1) averagedEdx = averagedEdx; 
+      //if(n_usedhits == 0 and (int)IBLOverflow > 0 and (int)pixelhits == 1) averagedEdx = averagedEdx;  //no-op
       ATH_MSG_DEBUG("UTT: =====> averaged dEdx = " << averagedEdx << " =====>");;
       ATH_MSG_DEBUG("UTT:    +++ Used hits: " << n_usedhits << ", IBL overflows: " << IBLOverflow );;
       ATH_MSG_DEBUG("UTT:    +++ Original number of measurements = " << pixelhits << " (map size = " << dEdxMap.size() << ") ");
