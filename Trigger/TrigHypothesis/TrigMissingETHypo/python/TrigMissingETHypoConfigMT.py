@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from TrigMissingETHypo.TrigMissingETHypoConf import TrigMissingETHypoAlgMT, TrigMissingETHypoToolMT
 
@@ -11,21 +11,6 @@ class MissingETHypoAlgMT(TrigMissingETHypoAlgMT):
             self.HypoTools = hTools 
         if metKey!="": 
             self.METContainerKey = metKey 
-
-        # Monitoring code copied from old hypo config file.
-        # Kept here in case it may be useful during development
-        # Will be removed/re-implemented soon.
-        '''
-        from TrigMissingETHypo.TrigMissingETHypoMonitoring import TrigEFMissingETHypoValidationMonitoring, TrigEFMissingETHypoCosmicMonitoring
-        validation = TrigEFMissingETHypoValidationMonitoring()
-        cosmic = TrigEFMissingETHypoCosmicMonitoring()
-
-        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-        time = TrigTimeHistToolConfig("METHypo_Time")
-        time.TimerHistLimits = [0, 5]
-
-        self.AthenaMonTools = [ time, validation, cosmic ]
-        '''
 
     def onlineMonitoring(self):
         from TrigMissingETHypo.TrigMissingETHypoMonitoringTool import TrigMissingETHypoMonitoringTool
