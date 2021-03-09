@@ -1,7 +1,7 @@
 // Hi Emacs ! this is  -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -22,10 +22,7 @@
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 
-class ICaloCellMakerTool; 
 class CaloTowerBuilderToolBase;
-class CaloTowerContainer;
-
 
 class TrigCaloTowerMakerMT : public AthAlgorithm {
 
@@ -34,16 +31,10 @@ class TrigCaloTowerMakerMT : public AthAlgorithm {
   /**  constructor */
   TrigCaloTowerMakerMT(const std::string& name, ISvcLocator* pSvcLocator);
 
-  /** destructor */
-  ~TrigCaloTowerMakerMT();
-
   /** HLT method to initialize */
- StatusCode initialize();
+  virtual StatusCode initialize() override;
 
-  /** HLT method to finalize */
- StatusCode finalize();
-
-  StatusCode execute();
+  virtual StatusCode execute() override;
  private:
 
   /** Number of eta segments in which we divide the calorimeter */

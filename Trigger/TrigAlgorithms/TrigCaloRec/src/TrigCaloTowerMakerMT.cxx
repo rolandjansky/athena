@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -15,39 +15,25 @@
 // ********************************************************************
 //
 //
-#ifndef TRIGCALOREC_TRIGCALOTOWERMAKERMT
-#define TRIGCALOREC_TRIGCALOTOWERMAKERMT
 #include <sstream>
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ListItem.h"
-//
-#include "AthenaMonitoringKernel/Monitored.h"
-#include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-//
-#include "CaloEvent/CaloCellContainer.h"
 
-//
+#include "AthenaMonitoringKernel/Monitored.h"
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+
+#include "CaloEvent/CaloCellContainer.h"
 #include "EventKernel/INavigable4Momentum.h"
 #include "NavFourMom/INavigable4MomentumCollection.h"
-//
-#include "CaloUtils/CaloCollectionHelper.h"
-//
 
 #include "CaloUtils/CaloTowerBuilderToolBase.h"
 #include "CaloEvent/CaloTowerSeg.h"
 #include "CaloEvent/CaloTowerContainer.h"
 
-//#include "TrigTimeAlgs/TrigTimerSvc.h"
-
 #include "TrigCaloTowerMakerMT.h"
-//
+
 class ISvcLocator;
-
-
 
 /////////////////////////////////////////////////////////////////////
 // CONSTRUCTOR:
@@ -77,13 +63,6 @@ TrigCaloTowerMakerMT::TrigCaloTowerMakerMT(const std::string& name, ISvcLocator*
 
 
 }
-
-/////////////////////////////////////////////////////////////////////
-    // DESTRUCTOR:
-    /////////////////////////////////////////////////////////////////////
-    //
-    TrigCaloTowerMakerMT::~TrigCaloTowerMakerMT()
-{  }
 
 /////////////////////////////////////////////////////////////////////
     // INITIALIZE:
@@ -162,14 +141,6 @@ ATH_CHECK( m_caloTowerNav4LinkKey.initialize() );
   return StatusCode::SUCCESS;
 }
 
-
-StatusCode TrigCaloTowerMakerMT::finalize()
-{
-
-  ATH_MSG_DEBUG ( "in finalize()" );
-
-  return  StatusCode::SUCCESS;
-}
 
 
 StatusCode TrigCaloTowerMakerMT::execute()
@@ -288,4 +259,3 @@ StatusCode TrigCaloTowerMakerMT::execute()
 
   return StatusCode::SUCCESS;
 }
-#endif

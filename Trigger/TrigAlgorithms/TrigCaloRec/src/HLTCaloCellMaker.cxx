@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*
  *   */
@@ -15,7 +15,6 @@
  **/
 
 #include "HLTCaloCellMaker.h"
-#include "TrigT2CaloCommon/ITrigCaloDataAccessSvc.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 
 HLTCaloCellMaker::HLTCaloCellMaker(const std::string & name, ISvcLocator* pSvcLocator)
@@ -32,10 +31,6 @@ HLTCaloCellMaker::HLTCaloCellMaker(const std::string & name, ISvcLocator* pSvcLo
   declareProperty("roiMode",m_roiMode,"RoiMode roi->CaloCellCollection");
   declareProperty("monitorCells",m_monCells,"monitorCells");
   declareProperty("TileEMSCaleKey", m_tileEMScaleKey);
-}
-
-HLTCaloCellMaker::~HLTCaloCellMaker()
-{
 }
 
 StatusCode HLTCaloCellMaker::initialize() {
