@@ -1,7 +1,7 @@
 // This file is really -*- C++ -*-.
 
 /*                                                                                                                      
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration                                               
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration                                               
 */
 
 #ifndef TRIGT1MUCTPIPHASE1_MUCTPI_ATHTOOL_H
@@ -94,9 +94,6 @@ namespace LVL1MUCTPIPHASE1 {
     std::string m_overlapStrategyName;
     std::string m_lutXMLFile;
     std::string m_runPeriod;
-
-    bool m_flagMode;
-
 
     // Locations of the inputs and outputs of the simulation in StoreGate:
     static const std::string m_DEFAULT_locationMuCTPItoCTP;
