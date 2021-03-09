@@ -315,5 +315,3 @@ if hasattr(runArgs, "postExec"):
     for cmd in runArgs.postExec:
         atlasG4log.info(cmd)
         exec(cmd)
-
-ServiceMgr.StoreGateSvc.Dump=True # temp
