@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
-#ifndef PHICOMPS_H
-#define PHICOMPS_H
+#ifndef TRIGT2CALOEGAMMA_PHICOMPS_H
+#define TRIGT2CALOEGAMMA_PHICOMPS_H
 
 
 #include <cmath> // for M_PI

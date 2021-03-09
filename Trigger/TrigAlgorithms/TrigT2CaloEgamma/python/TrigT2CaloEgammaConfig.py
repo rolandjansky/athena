@@ -1,24 +1,13 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-#from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaReSamp1Fex
-#from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaReSamp2Fex
-#from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaReEmEnFex
-#from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaReHadEnFex
-#from TrigT2CaloEgamma.TrigT2CaloEgammaConf import RingerReFex
-#from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloEgamma
-#from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloEgammaReFastAlgo
-
-
-from TrigT2CaloCalibration.EgammaCalibrationConfig import EgammaHitsCalibrationBarrelConfig, EgammaHitsCalibrationEndcapConfig, EgammaGapCalibrationConfig
-from TrigT2CaloCalibration.EgammaCalibrationConfig import EgammaTransitionRegionsConfig
-
-from TrigT2CaloCalibration.EgammaCalibrationConfig import EgammaSshapeCalibrationBarrelConfig, EgammaSshapeCalibrationEndcapConfig
-from TrigT2CaloEgamma.TrigT2CaloEgammaMonitoring import TrigT2CaloEgammaValMonitoring, TrigT2CaloEgammaCosmicMonitoring, TrigT2CaloEgammaOnMonitoring
-from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-
-t2catime = TrigTimeHistToolConfig("Time")
+from TrigT2CaloCalibration.EgammaCalibrationConfig import (EgammaHitsCalibrationBarrelConfig,
+                                                           EgammaHitsCalibrationEndcapConfig,
+                                                           EgammaGapCalibrationConfig,
+                                                           EgammaTransitionRegionsConfig,
+                                                           EgammaSshapeCalibrationBarrelConfig,
+                                                           EgammaSshapeCalibrationEndcapConfig)
 
 class EgammaReSamp2FexConfig (CompFactory.EgammaReSamp2Fex):
    __slots__ = []
@@ -98,9 +87,6 @@ class T2CaloEgamma_All (CompFactory.T2CaloEgammaReFastAlgo):
        self.EtaWidthForID = 0.1
        self.PhiWidthForID = 0.1
        self.TrigEMClusterKey="TrigT2CaloAll"
-       self.AthenaMonTools += [ TrigT2CaloEgammaValMonitoring(),
-                                TrigT2CaloEgammaCosmicMonitoring(),
-                                TrigT2CaloEgammaOnMonitoring()]
        self.doTiming=True
 
 class T2CaloEgamma_AllEm (CompFactory.T2CaloEgammaReFastAlgo):
@@ -113,7 +99,6 @@ class T2CaloEgamma_AllEm (CompFactory.T2CaloEgammaReFastAlgo):
        self.EtaWidthForID = 0.1
        self.PhiWidthForID = 0.1
        self.TrigEMClusterKey="TrigT2CaloAll"
-       self.AthenaMonTools = [ ]
        self.doTiming=True
 
 class T2CaloEgamma_ReFastAlgo (CompFactory.T2CaloEgammaReFastAlgo):
