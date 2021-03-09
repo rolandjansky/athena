@@ -491,7 +491,44 @@ class GenerateMenuMT(object, metaclass=Singleton):
 
         log.debug('ChainConfigs  %s ', theChainConfig)
         return theChainConfig,lengthOfChainConfigs
+ 
+    
+    def resolveEmptySteps(self,chainConfigs):
+    
+        max_steps = max([len(cc.steps) for cc in chainConfigs])    
 
+        steps_are_empty = [True for i in range(0,max_steps)]
+
+        for cc in chainConfigs:
+            for istep, the_step in enumerate(cc.steps):
+                if not the_step.isEmpty:
+                    steps_are_empty[istep] = False
+        
+        log.info("[resolveEmptySteps] Are there any fully empty steps? %s", steps_are_empty)
+        
+        empty_step_indices = [i for i,is_empty in enumerate(steps_are_empty) if is_empty]
+        
+        if len(empty_step_indices) == 0:
+            return chainConfigs
+        
+        #ok if this happens in minimal tests or slice tests
+        #just not in the full menu!
+        if len(self.selectChainsForTesting) == 0 and len(self.signaturesToGenerate) != 1:
+            log.error("[resolveEmptySteps] The menu you are trying to generate contains a fully empty step. This is only allowed for partial menus.")
+            raise Exception("[resolveEmptySteps] Please find the source of this empty step and remove it from the menu.")
+
+        log.info("[resolveEmptySteps] I will now delete steps %s (indexed from zero)",empty_step_indices)
+        
+        for cc in chainConfigs:
+            new_steps = []
+            #only add non-empty steps to the new steps list!
+            for istep,step in enumerate(cc.steps):
+                if istep not in empty_step_indices:
+                    new_steps += [step]
+            cc.steps = new_steps
+
+        return chainConfigs 
+ 
     @memoize
     def generateMT(self):
         """
@@ -513,6 +550,10 @@ class GenerateMenuMT(object, metaclass=Singleton):
         # --------------------------------------------------------------------
         finalListOfChainConfigs = self.generateAllChainConfigs()
         log.info("[generateMT] Length of FinalListofChainConfigs %s", len(finalListOfChainConfigs))
+ 
+        # make sure that we didn't generate any steps that are fully empty in all chains
+        # if there are empty steps, remove them
+        finalListOfChainConfigs = self.resolveEmptySteps(finalListOfChainConfigs)
 
         log.debug("finalListOfChainConfig %s", finalListOfChainConfigs)
         for cc in finalListOfChainConfigs:
@@ -544,3 +585,4 @@ class GenerateMenuMT(object, metaclass=Singleton):
 
         log.info('[generateMT] Menu generation is complete.')
         return finalListOfChainConfigs
+
