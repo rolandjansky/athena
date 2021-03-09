@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -6,7 +6,6 @@ from MuonCablingServers.MuonCablingServersConf import RPCcablingServerSvc, TGCca
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.AppMgr import ServiceMgr,theApp
 from MuonByteStream.MuonByteStreamFlags import muonByteStreamFlags
-from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon.Configurable import Configurable
 
 class RpcCablingServerConfig (RPCcablingServerSvc):
@@ -36,9 +35,7 @@ class TgcCablingServerConfig (TGCcablingServerSvc):
     def __init__(self,name = Configurable.DefaultName ):
         super(TgcCablingServerConfig ,self).__init__(name)
 
-        # make default Atlas
-        # *TODO* How do we handle the case of old CSC data? Is new DetDescrVersion CSC too? EJWM
-        self.Atlas = True
+        # default in cxx is self.Atlas = True
         if ( globalflags.DetDescrVersion().startswith('DC1') or
              globalflags.DetDescrVersion().startswith('DC2') or
              globalflags.DetDescrVersion().startswith('DC3')) :
@@ -52,35 +49,6 @@ class TgcCablingServerConfig (TGCcablingServerSvc):
                 print ("TgcDataType is set to m3")
             else:
                 print ("TgcDataType is set to oldSim")
-
-
-        # setting the default to ATLAS cabling
-        print (self.Atlas)
-
-        # Setting of the default 12-fold (ATLAS) cabling
-        # New MuonTGC_CablingSvc (True) uses COOL DB and old TGCcabling12Svc (False) does not use COOL DB
-        self.useMuonTGC_CablingSvc = True
-
-        # do not use the call-back for digitization job
-        self.forcedUse = True
-
-        # if we run from RDO (overlay or other jobs) we must use the call-back, 
-        # even if we have hits to digitize
-        if DetFlags.haveRDO.TGC_on() and not DetFlags.digitize.TGC_on():
-            self.forcedUse = False
-
-        #use the call-back in the overlay job that has no bytestream data as input
-        if globalflags.isOverlay():
-            self.forcedUse = False
-
-        # superseed the previos configuration if we run from Atlas data 
-        if globalflags.DataSource.is_data():
-            self.forcedUse = True
-            self.Atlas = True
-
-        # avoid to use call-back if input is bytestream
-        if globalflags.InputFormat.is_bytestream():
-            self.forcedUse = True
 
 
     def setDefaults(cls,handle):

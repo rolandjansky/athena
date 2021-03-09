@@ -88,21 +88,11 @@ if DetFlags.readRDOBS.TGC_on() or DetFlags.readRDOPool.TGC_on() or DetFlags.read
     from MuonCablingServers.MuonCablingServersConf import TGCcablingServerSvc
     ServiceMgr += TGCcablingServerSvc()
     theApp.CreateSvc += [ "TGCcablingServerSvc" ]
-    if muonCnvFlags.TgcCablingMode =='auto':
-        ServiceMgr.TGCcablingServerSvc.Atlas=True
-        ServiceMgr.TGCcablingServerSvc.forcedUse=False
-    elif muonCnvFlags.TgcCablingMode =='12-fold':  
-        ServiceMgr.TGCcablingServerSvc.Atlas=True
-        ServiceMgr.TGCcablingServerSvc.useMuonTGC_CablingSvc=True 
-        ServiceMgr.TGCcablingServerSvc.forcedUse=True
-    elif muonCnvFlags.TgcCablingMode =='old 12-fold':  
-        ServiceMgr.TGCcablingServerSvc.Atlas=True
-        ServiceMgr.TGCcablingServerSvc.useMuonTGC_CablingSvc=False 
-        ServiceMgr.TGCcablingServerSvc.forcedUse=True
-    elif muonCnvFlags.TgcCablingMode =='8-fold':  
+
+    if muonCnvFlags.TgcCablingMode =='8-fold':  
         ServiceMgr.TGCcablingServerSvc.Atlas=False
-        ServiceMgr.TGCcablingServerSvc.forcedUse=True
-    else:
+    elif muonCnvFlags.TgcCablingMode not in ['auto', '12-fold']:
+        # No longer support 'old 12-fold' since it apparently relies on a service which is gone
         raise RuntimeError("TgcCablingMode=%r not supported" % muonCnvFlags.TgcCablingMode())
     
     # COOL setting for MuonTGC_Cabling 

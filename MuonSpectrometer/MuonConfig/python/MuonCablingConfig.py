@@ -63,9 +63,6 @@ def TGCCablingConfigCfg(flags):
     
     TGCcablingServerSvc=CompFactory.TGCcablingServerSvc
     TGCCablingSvc = TGCcablingServerSvc() 
-    TGCCablingSvc.Atlas=True
-    TGCCablingSvc.useMuonTGC_CablingSvc=True
-    TGCCablingSvc.forcedUse=True    
     acc.addService( TGCCablingSvc, primary=True )
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders
