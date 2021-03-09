@@ -640,11 +640,18 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
     std::vector < TgcTrig > tgcTrigs_LPT_Strip;
     std::vector < TgcTrig > tgcTrigs_LPT_Endcap_Strip;
     std::vector < TgcTrig > tgcTrigs_LPT_Forward_Strip;
-
+    int n_TgcCoin_detElementIsNull = 0;
+    int n_TgcCoin_postOutPtrIsNull = 0;
     for (auto thisCoin : tgcCoin) {
         int bunch = thisCoin.first;
         for (auto tgccnt : *(thisCoin.second)) {
             for (const auto &data : *tgccnt) {
+
+	      if ( data->detectorElementOut() == nullptr ) n_TgcCoin_detElementIsNull++;
+	      if ( data->posOutPtr() == nullptr ) n_TgcCoin_postOutPtrIsNull++;
+	      if ( data->detectorElementOut() == nullptr ||
+		   data->posOutPtr() == nullptr )continue; // to avoid FPE
+
                 TgcTrig tgcTrig;
                 tgcTrig.lb = GetEventInfo(ctx)->lumiBlock();
                 const int type = data->type();
@@ -738,6 +745,11 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
             }
         }
     }
+
+    auto mon_nTgcCoin_detElementIsNull = Monitored::Scalar<int>("nTgcCoinDetElementIsNull", n_TgcCoin_detElementIsNull);
+    auto mon_nTgcCoin_postOutPtrIsNull = Monitored::Scalar<int>("nTgcCoinPostOutPtrIsNull", n_TgcCoin_postOutPtrIsNull);
+    variables.push_back(mon_nTgcCoin_detElementIsNull);
+    variables.push_back(mon_nTgcCoin_postOutPtrIsNull);
 
     fillTgcCoin(tgcTrigs_SL,"SL");
     fillTgcCoin(tgcTrigs_SL_Endcap,"SL_Endcap");

@@ -154,6 +154,12 @@ def TgcRawDataMonitoringConfig(inputFlags):
 
 
     coinPath = 'Coin/'
+
+    myGroup.defineHistogram('nTgcCoinDetElementIsNull;h_nTgcCoinDetElementIsNull',title='nTgcCoinDetElementIsNull',
+                            path=coinPath,xbins=101,xmin=-0.5,xmax=100.5)
+    myGroup.defineHistogram('nTgcCoinPostOutPtrIsNull;h_nTgcCoinPostOutPtrIsNull',title='nTgcCoinPostOutPtrIsNull',
+                            path=coinPath,xbins=101,xmin=-0.5,xmax=100.5)
+
     for coinType in ['SL','HPT','LPT']:
         for region in ['','Endcap','Forward']:
             suffix0 = coinType if region == '' else coinType+'_'+region
