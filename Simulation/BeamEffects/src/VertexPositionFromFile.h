@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// VertexPositionFromFile.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef BEAMEFFECTS_VERTEXPOSITIONFROMFILE_H
 #define BEAMEFFECTS_VERTEXPOSITIONFROMFILE_H 1
@@ -41,7 +37,7 @@ namespace Simulation {
       VertexPositionFromFile( const std::string& t, const std::string& n, const IInterface* p );
 
       /** Destructor */
-      ~VertexPositionFromFile();
+      virtual ~VertexPositionFromFile() = default;
 
       /** Athena algtool's Hooks */
       StatusCode  initialize() override final;
@@ -63,16 +59,16 @@ namespace Simulation {
       StatusCode  readRunEventNumFile();
 
       /** set vertex position by file */
-      std::string                     m_vertexPositionFile;        //!< Name of file containing vertex position overrides
-      EventCoordinatesMap             m_vertexPositionMap;         //!< vertex position for (#run,#event) pairs
+      Gaudi::Property<std::string>                     m_vertexPositionFile{this, "VertexPositionsFile", ""};        //!< Name of file containing vertex position overrides
+      EventCoordinatesMap             m_vertexPositionMap{};         //!< vertex position for (#run,#event) pairs
 
       /** run and event number overrides according to file
           (to be used optionally in combination with 'set vertex by file') */
-      std::string                     m_runEventNumbersFile;       //!< Name of file containing event info overrides for pos overrides
-      mutable unsigned int            m_runEventNumbersIndex;      //!< current index in EventNum/RunNum vectors
-      std::vector<int>                m_vertexPositionRunNum;      //!< run number override vector
-      std::vector<int>                m_vertexPositionEventNum;    //!< event number override vector
-      SG::ReadHandleKey<EventInfo>    m_eventInfoKey;              //!< Name of the EventInfo object in StoreGate
+      Gaudi::Property<std::string>                     m_runEventNumbersFile{this, "RunAndEventNumbersFile", ""};       //!< Name of file containing event info overrides for pos overrides
+    mutable unsigned int            m_runEventNumbersIndex{0};      //!< current index in EventNum/RunNum vectors
+      std::vector<int>                m_vertexPositionRunNum{};      //!< run number override vector
+      std::vector<int>                m_vertexPositionEventNum{};    //!< event number override vector
+      SG::ReadHandleKey<EventInfo>    m_eventInfoKey{this, "EventInfoKey", "McEventInfo"};              //!< Name of the EventInfo object in StoreGate
   };
 
 }

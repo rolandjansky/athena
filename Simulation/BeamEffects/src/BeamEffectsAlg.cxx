@@ -21,22 +21,8 @@ namespace Simulation
 {
 
   BeamEffectsAlg::BeamEffectsAlg( const std::string& name, ISvcLocator* pSvcLocator )
-    : AthReentrantAlgorithm( name, pSvcLocator ),
-      m_inputMcEventCollection("GEN_EVENT"),
-      m_outputMcEventCollection("BeamTruthEvent"),
-      m_genEventManipulators(this), //private ToolHandleArray
-      m_ISFRun(false)
+    : AthReentrantAlgorithm( name, pSvcLocator )
   {
-    declareProperty("InputMcEventCollection", m_inputMcEventCollection,
-                    "The name of the input McEventCollection");
-    declareProperty("OutputMcEventCollection", m_outputMcEventCollection,
-                    "The name of the output McEventCollection");
-    declareProperty("GenEventManipulators", m_genEventManipulators,
-                    "BeamEffectsAlg will send the read-in GenEvent to each "
-                    "individual IGenEventManipulator.");
-    declareProperty("ISFRun", m_ISFRun,
-                    "Temporary property so that we don't change the output in "
-                    "the initial switch to this code");
   }
 
   /** Athena algorithm's interface method initialize() */

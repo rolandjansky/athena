@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// GenEventVertexPositioner.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 // class header include
 #include "GenEventVertexPositioner.h"
@@ -26,9 +22,7 @@ namespace Simulation
                                                       const std::string& n,
                                                       const IInterface* p )
     : base_class(t,n,p)
-    , m_vertexShifters(this)
   {
-    declareProperty("VertexShifters", m_vertexShifters);
   }
 
   /** Athena algtool's Hooks */
