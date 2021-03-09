@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MSVertexRecoTool.h"
@@ -10,8 +10,13 @@
 #include "xAODTracking/VertexAuxContainer.h"
 #include "xAODTracking/TrackParticle.h"
 #include "TMath.h" // for TMath::Prob()
+#include "AthenaKernel/RNGWrapper.h"
+namespace {
+    constexpr int MAXPLANES=100;
+    /// Shortcut to square a number
+    constexpr float sq(float x) { return (x)*(x); }
 
-#define MAXPLANES 100
+}
 
 /*
   MS vertex reconstruction routine
@@ -24,13 +29,9 @@ namespace Muon {
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
-  constexpr float sq(float x) { return (x)*(x); }
 
   MSVertexRecoTool::MSVertexRecoTool(const std::string& type, const std::string& name, const IInterface* parent) :
-    AthAlgTool(type, name, parent),
-    m_rndmEngine(nullptr),
-    m_rndmSvc(nullptr)
-  {
+    AthAlgTool(type, name, parent) {
     declareInterface<IMSVertexRecoTool>(this);
     // nominal phi angle for tracklets
     declareProperty("TrackPhiAngle",m_TrackPhiAngle = 0.0);
@@ -53,8 +54,7 @@ namespace Muon {
     declareProperty("DoSystematicUncertainty",m_doSystematics = false);
     declareProperty("BarrelTrackletUncertainty",m_BarrelTrackletUncert = 0.1);
     declareProperty("EndcapTrackletUncertainty",m_EndcapTrackletUncert = 0.1);
-    declareProperty("RndmEngine",m_rndmEngineName,"Random track killing parameter: engine used");
-
+   
     // cuts to prevent excessive processing timing 
     declareProperty("MaxGlobalTracklets", m_maxGlobalTracklets = 40);
     declareProperty("MaxClusterTracklets", m_maxClusterTracklets = 50);
@@ -67,14 +67,7 @@ namespace Muon {
   StatusCode MSVertexRecoTool::initialize() {
     
     ATH_CHECK(m_idHelperSvc.retrieve());
-
-    if(m_doSystematics) {
-      m_rndmEngine = m_rndmSvc->GetEngine("TrackletKiller");
-      if(m_rndmEngine==0) {
-	ATH_MSG_FATAL( "Could not get RndmEngine" );
-	return StatusCode::FAILURE;
-      }
-    }
+    ATH_CHECK(m_rndmSvc.retrieve());
 
     ATH_CHECK(m_extrapolator.retrieve() );
     ATH_CHECK(m_xAODContainerKey.initialize());
@@ -96,6 +89,12 @@ namespace Muon {
 
   StatusCode MSVertexRecoTool::findMSvertices(std::vector<Tracklet>& tracklets, std::vector<MSVertex*>& vertices, const EventContext &ctx) const {
  
+    
+     ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
+     rngWrapper->setSeed( name(), ctx );
+     CLHEP::HepRandomEngine* rndmEngine= rngWrapper->getEngine(ctx);
+
+    
     SG::WriteHandle<xAOD::VertexContainer> xAODVxContainer(m_xAODContainerKey, ctx);
     ATH_CHECK( xAODVxContainer.record (std::make_unique<xAOD::VertexContainer>(),
                            std::make_unique<xAOD::VertexAuxContainer>()) );
@@ -159,7 +158,7 @@ namespace Muon {
     if(m_doSystematics) {
       std::vector<Tracklet> BarrelSystTracklets,EndcapSystTracklets;
       for(unsigned int i=0; i<BarrelTracklets.size(); ++i) {
-        float prob = CLHEP::RandFlat::shoot( m_rndmEngine, 0, 1 );
+        float prob = CLHEP::RandFlat::shoot( rndmEngine, 0, 1 );
         if(prob > m_BarrelTrackletUncert) BarrelSystTracklets.push_back(BarrelTracklets.at(i));
       }
       if(BarrelSystTracklets.size() >= 3) {
@@ -170,7 +169,7 @@ namespace Muon {
         }
       }
       for(unsigned int i=0; i<EndcapTracklets.size(); ++i) {
-        float prob = CLHEP::RandFlat::shoot( m_rndmEngine, 0, 1 );
+        float prob = CLHEP::RandFlat::shoot( rndmEngine, 0, 1 );
         if(prob > m_EndcapTrackletUncert) EndcapSystTracklets.push_back(EndcapTracklets.at(i));
       }
       if(EndcapSystTracklets.size() >= 3) {
