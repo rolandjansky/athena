@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file RootConversions/TConvertingStreamerInfo.h
@@ -87,10 +87,10 @@ private:
    * to a conversion that we handle, we fix up the @c TStreamerElement
    * and swallow the message.
    */
-  static void errhand (int level,
-                       Bool_t abort,
-                       const char* location,
-                       const char* msg);
+  bool errhand (int level,
+                Bool_t abort,
+                const char* location,
+                const char* msg);
 
 
   /**
@@ -123,15 +123,8 @@ private:
 
 
 private:
-  /// Previous error handler.
-  ErrorHandlerFunc_t m_oldhand;
-
-  /// Hook to get this object back from the static @c errhand.
-  static thread_local TConvertingStreamerInfo* s_self;
-
-
-  TConvertingStreamerInfo& operator= (const TConvertingStreamerInfo&);
-  TConvertingStreamerInfo (const TConvertingStreamerInfo&);
+  TConvertingStreamerInfo& operator= (const TConvertingStreamerInfo&) = delete;
+  TConvertingStreamerInfo (const TConvertingStreamerInfo&) = delete;
 };
 
 
