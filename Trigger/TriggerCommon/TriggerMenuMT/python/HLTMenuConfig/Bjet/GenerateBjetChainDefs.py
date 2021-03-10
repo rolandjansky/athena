@@ -3,6 +3,7 @@
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDict
 from TriggerMenuMT.HLTMenuConfig.Bjet.BjetDef import BjetChainConfiguration as BjetChainConfiguration
 from TriggerMenuMT.HLTMenuConfig.Jet.JetChainConfiguration import JetChainConfiguration
+from TriggerMenuMT.HLTMenuConfig.Menu.ChainMerging import mergeChainDefs
 
 import pprint
 from AthenaCommon.Logging import logging
@@ -23,17 +24,18 @@ def generateChainConfigs( chainDict ):
     for subChainDict in listOfChainDicts:
 
         Bjet = BjetChainConfiguration(subChainDict).assembleChain() 
-        jet.steps = jet.steps + Bjet.steps
 
-        listOfChainDefs += [jet]
+        listOfChainDefs += [Bjet]
         log.debug('length of chaindefs %s', len(listOfChainDefs) )
         
 
     if len(listOfChainDefs)>1:
-        log.warning("Implement case for multi-bjet chain!!") 
-        theChainDef = listOfChainDefs[0] #needs to be implemented properly
+        theBjetChainDef = mergeChainDefs(listOfChainDefs, chainDict) 
+        jet.steps = jet.steps + theBjetChainDef.steps
     else:
-        theChainDef = listOfChainDefs[0]
+        jet.steps = jet.steps + Bjet.steps
+    
+    theChainDef = jet
 
     log.debug("theChainDef: %s" , theChainDef)
 

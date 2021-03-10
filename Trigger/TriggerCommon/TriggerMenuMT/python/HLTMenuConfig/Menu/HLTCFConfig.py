@@ -394,12 +394,23 @@ def createDataFlow(chains, allDicts):
             log.debug("\n************* Start connecting step %d %s for chain %s", nstep+1, chainStep.name, chain.name)           
 
             filterInput = chain.L1decisions if nstep == 0 else lastDecisions
-            log.debug("Seeds added; having in the filter now: %s", filterInput)
-
             if len(filterInput) == 0 :
                 log.error("[createDataFlow] Filter for step %s has %d inputs! At least one is expected", chainStep.name, len(filterInput))
                 raise Exception("[createDataFlow] Cannot proceed, exiting.")
 
+            #  adapt multiplicity  between two steps:
+            if  len(filterInput) < len(chainStep.multiplicity):
+                oldlen=len(filterInput)
+                if  len(filterInput)  == 1:
+                    filterInput = filterInput * len(chainStep.multiplicity)                   
+                    log.info("Adapted Multiplicity at step %d of chain %s: %d -> %d",nstep, chain.name, oldlen, len(filterInput))
+                else:
+                    log.error("Found  %d inputs to step %s having multiplicity %d", len(filterInput), chainStep.name, len(chainStep.multiplicity))
+                    raise Exception("[createDataFlow] Cannot proceed, exiting.")
+            
+            log.debug("Set Filter input: %s", filterInput)
+
+            
             # make one filter per step:
             sequenceFilter= None
             filterName = CFNaming.filterName(chainStep.name)

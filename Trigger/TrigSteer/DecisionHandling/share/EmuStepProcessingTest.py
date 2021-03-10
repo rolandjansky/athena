@@ -83,7 +83,7 @@ filters = collectFilters(findSubSequence(topSequence, "HLTAllSteps"))
 
 nfilters = sum(len(v) for v in filters.values())
 nhypos = sum(len(v) for v in hypos.values())
-log.info( "Algorithms counting: Number of Filter algorithms: %d  -  Number of Hypo algoirthms: %d", nfilters , nhypos) 
+log.info( "Algorithms counting: Number of Filter algorithms: %d  -  Number of Hypo algorithms: %d", nfilters , nhypos) 
 
 #dumpMasterSequence()
 
