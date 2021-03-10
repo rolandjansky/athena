@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef L1DECODER_PRESCALINGTOOL_H 
 #define L1DECODER_PRESCALINGTOOL_H
@@ -84,7 +84,6 @@ class PrescalingTool : public extends<AthAlgTool, IPrescalingTool> {
 
   TrigConf::HLTPrescalesSet::HLTPrescale m_prescaleForUnknownChain;
   HLT::Identifier m_costChainID{""};
-  CLHEP::HepRandomEngine* m_rngEngine;
 }; 
 
 

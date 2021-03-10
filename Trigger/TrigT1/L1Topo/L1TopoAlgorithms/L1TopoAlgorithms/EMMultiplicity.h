@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 //  EmMultiplicity.h
 //  TopoCore
@@ -24,7 +24,7 @@ namespace TCS {
       EMMultiplicity(const std::string & name);
       virtual ~EMMultiplicity();
 
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
 
       virtual StatusCode processBitCorrect( const TCS::InputTOBArray & input,
 					    Count & count ) override final ;
