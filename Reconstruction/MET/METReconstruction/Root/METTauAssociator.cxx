@@ -236,7 +236,7 @@ namespace met {
     for (FELink_t feLink : cFELinks) {
       if (feLink.isValid()){
 	const xAOD::FlowElement* fe_init = *feLink;
-	for (const auto& fe : *constits.feCont){
+	for (const auto fe : *constits.feCont){
 	  if (fe->index() == fe_init->index() && fe->isCharged()){ //index-based match between JetETmiss and CHSFlowElements collections
 	    const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");
 	    if(  fe->isCharged() && PVMatchedAcc(*fe)&& ( !m_cleanChargedPFO || isGoodEoverP(static_cast<const xAOD::TrackParticle*>(fe->chargedObject(0))) ) ) {
@@ -252,7 +252,7 @@ namespace met {
     for (FELink_t feLink : nFELinks) {
       if (feLink.isValid()){
         const xAOD::FlowElement* fe_init = *feLink;
-	for (const auto& fe : *constits.feCont){
+	for (const auto fe : *constits.feCont){
 	  if (fe->index() == fe_init->index() && !fe->isCharged()){ //index-based match between JetETmiss and CHSFlowElements collections
 	    if( ( !fe->isCharged()&& fe->e() > FLT_MIN ) ){ 
 	      ATH_MSG_DEBUG("Accept nFE with pt " << fe->pt() << ", e " << fe->e() << ", eta " << fe->eta() << ", phi " << fe->phi() << " in sum.");

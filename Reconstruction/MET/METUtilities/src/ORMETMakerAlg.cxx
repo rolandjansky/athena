@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ORMETMakerAlg.h"
@@ -170,7 +170,7 @@ namespace met {
     // Electrons
     if(!m_ElectronContainerKey.empty()) {
       ConstDataVector<ElectronContainer> metElectrons(SG::VIEW_ELEMENTS);
-      for(const auto& el : *Electrons) {
+      for(const auto el : *Electrons) {
     	if(accept(el)) {
     	  metElectrons.push_back(el);
 
@@ -188,7 +188,7 @@ namespace met {
     // Photons
     if(!m_PhotonContainerKey.empty()) {
       ConstDataVector<PhotonContainer> metPhotons(SG::VIEW_ELEMENTS);
-      for(const auto& ph : *Gamma) {
+      for(const auto ph : *Gamma) {
     	if(accept(ph)) {
     	  metPhotons.push_back(ph);
     	}
@@ -205,7 +205,7 @@ namespace met {
     // Taus
     if(!m_TauJetContainerKey.empty()) {
       ConstDataVector<TauJetContainer> metTaus(SG::VIEW_ELEMENTS);
-      for(const auto& tau : *TauJets) {
+      for(const auto tau : *TauJets) {
     	if(accept(tau)) {
     	  metTaus.push_back(tau);
     	}
@@ -222,7 +222,7 @@ namespace met {
     // Muons
     ConstDataVector<MuonContainer> metMuons(SG::VIEW_ELEMENTS);
     if(!m_MuonContainerKey.empty()) {
-      for(const auto& mu : *Muons) {
+      for(const auto mu : *Muons) {
     	if(accept(mu)) {
     	  metMuons.push_back(mu);
     	}
@@ -255,7 +255,7 @@ namespace met {
 
       ATH_MSG_DEBUG("Retrieve OR constituents");
       ConstDataVector<PFOContainer> met_PFO(SG::VIEW_ELEMENTS);
-      for(const auto& pfo : *PFOs) {met_PFO.push_back(pfo);}
+      for(const auto pfo : *PFOs) {met_PFO.push_back(pfo);}
 
       const xAOD::PFOContainer *OR_pfos; 
    
