@@ -109,10 +109,11 @@ thinningTools=[]
 # So the order in which tools a registered determines the effective logical expression being used for the combination.
 # This super fragile system is  the reason why the jet-associated tracks thinning tools require a particular order:
 #   1. association to akt2 (being the first, AND or OR make no difference)
-#   2. association to akt4 with OR
+#   2. association to akt4emtopo with OR
+#   3. association to akt4empflow with OR    
 #   3. good baseline track with AND
 # This should then result in the following effective logic: 
-#   (association to akt2 || association to akt4) && good baseline track
+#   (associated to akt2 || associated to akt4emtopo || associated to akt4empflow) && good baseline track
 from ThinningUtils.ThinningUtilsConf import DeltaRThinningTool
 # Applying only DeltaR thinning and not EleLink thinning is fine as long as ConeSize
 # is sufficiently large compared to the jet size.  If it is reduced to something close
@@ -135,7 +136,7 @@ EXOT8ak2TrackThinningTool = ThinAssociatedObjectsTool(name               = "EXOT
 ToolSvc += EXOT8ak2TrackThinningTool
 thinningTools.append(EXOT8ak2TrackThinningTool)
 
-# ... OR thin by association to AKT4) ...
+# ... OR thin by association to AKT4EMTopo ...
 EXOT8ak4emtopoDeltaRTrackThinningTool = DeltaRThinningTool(name            = "EXOT8ak4emtopoDeltaRTrackThinningTool",
                                                            ThinningService = EXOT8ThinningHelper.ThinningSvc(),
                                                            SGKey           = "InDetTrackParticles",
@@ -149,6 +150,21 @@ EXOT8ak4emtopoTrackThinningTool = ThinAssociatedObjectsTool(name               =
                                                             ChildThinningTools = [EXOT8ak4emtopoDeltaRTrackThinningTool])
 ToolSvc += EXOT8ak4emtopoTrackThinningTool
 thinningTools.append(EXOT8ak4emtopoTrackThinningTool)
+
+# ... OR thin by association to AKT4EMPFlow) ...
+EXOT8ak4empflowDeltaRTrackThinningTool = DeltaRThinningTool(name            = "EXOT8ak4empflowDeltaRTrackThinningTool",
+                                                           ThinningService = EXOT8ThinningHelper.ThinningSvc(),
+                                                           SGKey           = "InDetTrackParticles",
+                                                           ConeSize        = 0.53,
+                                                           ApplyAnd        = False)
+ToolSvc += EXOT8ak4empflowDeltaRTrackThinningTool
+
+EXOT8ak4empflowTrackThinningTool = ThinAssociatedObjectsTool(name               = "EXOT8ak4empflowTrackThinningTool",
+                                                            ThinningService    = EXOT8ThinningHelper.ThinningSvc(),
+                                                            SGKey              = "AntiKt4EMPFlowJets",
+                                                            ChildThinningTools = [EXOT8ak4empflowDeltaRTrackThinningTool])
+ToolSvc += EXOT8ak4empflowTrackThinningTool
+thinningTools.append(EXOT8ak4empflowTrackThinningTool)
 
 # ... AND thin by baseline track selections (and OR everything afterwards)
 EXOT8BaselineTrack = "(InDetTrackParticles.EXOT8DFLoose) && (InDetTrackParticles.pt > 0.5*GeV) && (abs(DFCommonInDetTrackZ0AtPV)*sin(InDetTrackParticles.theta) < 3.0*mm) && (InDetTrackParticles.d0 < 2.0*mm)"
