@@ -973,8 +973,8 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::buildFrameWork()
     const float binSizePhi_PPP = m_pixel ? azimuthalStep(m_ptmin,m_maxdImpact,radiusPixelStart,radiusPixelEnd)/3. : 0.;
     /// case 2: SSS seeds, if we use them
     const float binSizePhi_SSS = m_sct ? azimuthalStep(m_ptmin,m_maxdImpactSSS,m_rminSSS,m_rmaxSSS)/3. : 0.;
-    /// pick the larger of the two and invert
-    m_inverseBinSizePhi = 1./std::max(binSizePhi_PPP, binSizePhi_SSS); 
+    m_inverseBinSizePhiPPP = 1./binSizePhi_PPP;
+    m_inverseBinSizePhiSSS = 1./binSizePhi_SSS;
   }
   else {
     /// this is the default phi binning as operated in release 21 - optimised for 
@@ -982,29 +982,53 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::buildFrameWork()
     float ptm = 400.; 
     /// if we cut below 400 MeV, adapt the ptm 
     if (m_ptmin < ptm) ptm = m_ptmin;
-    m_inverseBinSizePhi = ptm /60.;
+    m_inverseBinSizePhiPPP = m_inverseBinSizePhiSSS = ptm /60.;
   }
 
   /// truncate the bin size to fall within our thresholds
-  if      (m_inverseBinSizePhi > inverseSizePhiMax) m_inverseBinSizePhi = inverseSizePhiMax;
-  else if (m_inverseBinSizePhi < inverseSizePhiMin) m_inverseBinSizePhi = inverseSizePhiMin;
+  if      (m_inverseBinSizePhiPPP > inverseSizePhiMax) m_inverseBinSizePhiPPP = inverseSizePhiMax;
+  else if (m_inverseBinSizePhiPPP < inverseSizePhiMin) m_inverseBinSizePhiPPP = inverseSizePhiMin;
+  if      (m_inverseBinSizePhiSSS > inverseSizePhiMax) m_inverseBinSizePhiSSS = inverseSizePhiMax;
+  else if (m_inverseBinSizePhiSSS < inverseSizePhiMin) m_inverseBinSizePhiSSS = inverseSizePhiMin;
 
   /// now we can determine the number of bins by dividing the interval by the bin size 
-  m_maxPhiBin = static_cast<int>(twoPi*m_inverseBinSizePhi);
+  m_maxPhiBinPPP = static_cast<int>(twoPi*m_inverseBinSizePhiPPP);
   /// additional protection against too many bins. Should not happen given constraints above 
-  if (m_maxPhiBin >=nPhiBinsMax) m_maxPhiBin = nPhiBinsMax-1;
+  if (m_maxPhiBinPPP >=nPhiBinsMax) m_maxPhiBinPPP = nPhiBinsMax-1;
+  m_maxPhiBinSSS = static_cast<int>(twoPi*m_inverseBinSizePhiSSS);
+  if (m_maxPhiBinSSS >=nPhiBinsMax) m_maxPhiBinSSS = nPhiBinsMax-1;
+  /// recompute inverse bin size, taking into account rounding + truncation
+  m_inverseBinSizePhiPPP = m_maxPhiBinPPP/twoPi;
+  m_inverseBinSizePhiSSS = m_maxPhiBinSSS/twoPi;
+
+  buildConnectionMaps(m_nNeighbourCellsBottomPPP,m_nNeighbourCellsTopPPP,
+		      m_neighbourCellsBottomPPP, m_neighbourCellsTopPPP,
+		      m_maxPhiBinPPP, false);
+
+  buildConnectionMaps(m_nNeighbourCellsBottomSSS,m_nNeighbourCellsTopSSS,
+		      m_neighbourCellsBottomSSS, m_neighbourCellsTopSSS,
+		      m_maxPhiBinSSS, true);
+
+}
+
+
+void InDet::SiSpacePointsSeedMaker_ITKNew::buildConnectionMaps(std::array<int,arraySizePhiZ>& nNeighbourCellsBottom,
+							       std::array<int,arraySizePhiZ>& nNeighbourCellsTop,
+							       std::array<std::array<int, arraySizeNeighbourBins>, arraySizePhiZ>& neighbourCellsBottom,
+							       std::array<std::array<int, arraySizeNeighbourBins>, arraySizePhiZ>& neighbourCellsTop,
+							       int maxPhiBin, bool isSSS){
 
   /// Build maps for radius-azimuthal-Z sorted collections. 
   /// Here, we associate which bins are 'connected' to a given phi-Z bin 
   /// for the seeding 
 
-  for (int phiBin=0; phiBin<=m_maxPhiBin; ++phiBin) {
+  for (int phiBin=0; phiBin<=maxPhiBin; ++phiBin) {
 
     int phiBelow = phiBin-1;
-    if (phiBelow<0) phiBelow=m_maxPhiBin; ///< loop around at edges of range
+    if (phiBelow<0) phiBelow=maxPhiBin; ///< loop around at edges of range
 
     int phiAbove = phiBin+1;
-    if (phiAbove>m_maxPhiBin) phiAbove=0; ///< loop around at edges of range
+    if (phiAbove>maxPhiBin) phiAbove=0; ///< loop around at edges of range
     
     /// For each azimuthal region loop through all Z regions
     for (int z=0; z<arraySizeZ; ++z) {
@@ -1016,17 +1040,17 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::buildFrameWork()
       int twoDbinLowerPhi         = phiBelow*arraySizeZ+z;
       int twoDbinHigherPhi        = phiAbove*  arraySizeZ+z;
 
-      m_nNeighbourCellsBottom [twoDbinSamePhi]    = 3; 
-      m_nNeighbourCellsTop [twoDbinSamePhi]    = 3;
+      nNeighbourCellsBottom [twoDbinSamePhi]    = 3;
+      nNeighbourCellsTop [twoDbinSamePhi]    = 3;
 
-      m_neighbourCellsBottom[twoDbinSamePhi][0] = twoDbinSamePhi; 
-      m_neighbourCellsTop[twoDbinSamePhi][0] = twoDbinSamePhi;
+      neighbourCellsBottom[twoDbinSamePhi][0] = twoDbinSamePhi;
+      neighbourCellsTop[twoDbinSamePhi][0] = twoDbinSamePhi;
 
-      m_neighbourCellsBottom[twoDbinSamePhi][1] = twoDbinLowerPhi; 
-      m_neighbourCellsTop[twoDbinSamePhi][1] = twoDbinLowerPhi;
+      neighbourCellsBottom[twoDbinSamePhi][1] = twoDbinLowerPhi;
+      neighbourCellsTop[twoDbinSamePhi][1] = twoDbinLowerPhi;
 
-      m_neighbourCellsBottom[twoDbinSamePhi][2] = twoDbinHigherPhi; 
-      m_neighbourCellsTop[twoDbinSamePhi][2] = twoDbinHigherPhi;
+      neighbourCellsBottom[twoDbinSamePhi][2] = twoDbinHigherPhi;
+      neighbourCellsTop[twoDbinSamePhi][2] = twoDbinHigherPhi;
 
       /** in addition, we usually add at least one neighbouring slice 
       * in Z. This depends on where we are in the detector. 
@@ -1037,26 +1061,26 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::buildFrameWork()
       *  Z=-2500       IP,Z=0            Z=+2500
       **/
       if (z==5) {
-        m_nNeighbourCellsTop [twoDbinSamePhi]    = 9;
+        nNeighbourCellsTop [twoDbinSamePhi]    = 9;
         // in the central z region, we include the two neighbouring 
         // z slices for the top neighbour search   
 
-        m_neighbourCellsTop[twoDbinSamePhi][3] = twoDbinSamePhi+1;
-        m_neighbourCellsTop[twoDbinSamePhi][4] = twoDbinLowerPhi+1;
-        m_neighbourCellsTop[twoDbinSamePhi][5] = twoDbinHigherPhi+1;
-        m_neighbourCellsTop[twoDbinSamePhi][6] = twoDbinSamePhi-1;
-        m_neighbourCellsTop[twoDbinSamePhi][7] = twoDbinLowerPhi-1;
-        m_neighbourCellsTop[twoDbinSamePhi][8] = twoDbinHigherPhi-1;
+        neighbourCellsTop[twoDbinSamePhi][3] = twoDbinSamePhi+1;
+        neighbourCellsTop[twoDbinSamePhi][4] = twoDbinLowerPhi+1;
+        neighbourCellsTop[twoDbinSamePhi][5] = twoDbinHigherPhi+1;
+        neighbourCellsTop[twoDbinSamePhi][6] = twoDbinSamePhi-1;
+        neighbourCellsTop[twoDbinSamePhi][7] = twoDbinLowerPhi-1;
+        neighbourCellsTop[twoDbinSamePhi][8] = twoDbinHigherPhi-1;
       } 
       // z > 5: positive z values, |z| > 250mm 
       else if (z> 5) {
         // for the bottom SP search in positive non-central z, we include the 
         // neighbouring Z region on the left (towards the IP) in the bottom 
         // neighbour search 
-        m_nNeighbourCellsBottom [twoDbinSamePhi]    = 6;
-        m_neighbourCellsBottom[twoDbinSamePhi][3] = twoDbinSamePhi-1;
-        m_neighbourCellsBottom[twoDbinSamePhi][4] = twoDbinLowerPhi-1;
-        m_neighbourCellsBottom[twoDbinSamePhi][5] = twoDbinHigherPhi-1;
+        nNeighbourCellsBottom [twoDbinSamePhi]    = 6;
+        neighbourCellsBottom[twoDbinSamePhi][3] = twoDbinSamePhi-1;
+        neighbourCellsBottom[twoDbinSamePhi][4] = twoDbinLowerPhi-1;
+        neighbourCellsBottom[twoDbinSamePhi][5] = twoDbinHigherPhi-1;
 
         if (z<10) {
         /** for the top SP search in positive z, 
@@ -1064,10 +1088,10 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::buildFrameWork()
         * we include the neighbouring Z region on the right (away from the IP). 
         * In z = 10, the most forward, we do not have such a 'right side' neighbour we can add
         **/
-          m_nNeighbourCellsTop [twoDbinSamePhi]    = 6;
-          m_neighbourCellsTop[twoDbinSamePhi][3] = twoDbinSamePhi+1;
-          m_neighbourCellsTop[twoDbinSamePhi][4] = twoDbinLowerPhi+1;
-          m_neighbourCellsTop[twoDbinSamePhi][5] = twoDbinHigherPhi+1;
+          nNeighbourCellsTop [twoDbinSamePhi]    = 6;
+          neighbourCellsTop[twoDbinSamePhi][3] = twoDbinSamePhi+1;
+          neighbourCellsTop[twoDbinSamePhi][4] = twoDbinLowerPhi+1;
+          neighbourCellsTop[twoDbinSamePhi][5] = twoDbinHigherPhi+1;
         }
       } 
       // z < 5: negative z values, |z| > 250mm 
@@ -1076,18 +1100,18 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::buildFrameWork()
         * the neighbouring z region on the right (towards the IP) in the 
         * bottom neighbour search 
         **/
-        m_nNeighbourCellsBottom [twoDbinSamePhi]    = 6;
-        m_neighbourCellsBottom[twoDbinSamePhi][3] = twoDbinSamePhi+1;
-        m_neighbourCellsBottom[twoDbinSamePhi][4] = twoDbinLowerPhi+1;
-        m_neighbourCellsBottom[twoDbinSamePhi][5] = twoDbinHigherPhi+1;
+        nNeighbourCellsBottom [twoDbinSamePhi]    = 6;
+        neighbourCellsBottom[twoDbinSamePhi][3] = twoDbinSamePhi+1;
+        neighbourCellsBottom[twoDbinSamePhi][4] = twoDbinLowerPhi+1;
+        neighbourCellsBottom[twoDbinSamePhi][5] = twoDbinHigherPhi+1;
 
         if (z>0) {
           // if there is a z region on the left (away from the IP), we include it in the top
           // neighbour search 
-          m_nNeighbourCellsTop [twoDbinSamePhi]    = 6;
-          m_neighbourCellsTop[twoDbinSamePhi][3] = twoDbinSamePhi-1;
-          m_neighbourCellsTop[twoDbinSamePhi][4] = twoDbinLowerPhi-1;
-          m_neighbourCellsTop[twoDbinSamePhi][5] = twoDbinHigherPhi-1;
+          nNeighbourCellsTop [twoDbinSamePhi]    = 6;
+          neighbourCellsTop[twoDbinSamePhi][3] = twoDbinSamePhi-1;
+          neighbourCellsTop[twoDbinSamePhi][4] = twoDbinLowerPhi-1;
+          neighbourCellsTop[twoDbinSamePhi][5] = twoDbinHigherPhi-1;
         }
       }
 
@@ -1096,20 +1120,24 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::buildFrameWork()
       * also include the central z region in the bottom SP search.  
       * likely for PPP seeds with hits in pixel barrel + endcaps
       **/
-      if (z==3) {
-        m_nNeighbourCellsBottom[twoDbinSamePhi]      = 9;
-        m_neighbourCellsBottom[twoDbinSamePhi][6] = twoDbinSamePhi+2;
-        m_neighbourCellsBottom[twoDbinSamePhi][7] = twoDbinLowerPhi+2;
-        m_neighbourCellsBottom[twoDbinSamePhi][8] = twoDbinHigherPhi+2;
-      } else if (z==7) {
-        m_nNeighbourCellsBottom[twoDbinSamePhi]      = 9;
-        m_neighbourCellsBottom[twoDbinSamePhi][6] = twoDbinSamePhi-2;
-        m_neighbourCellsBottom[twoDbinSamePhi][7] = twoDbinLowerPhi-2;
-        m_neighbourCellsBottom[twoDbinSamePhi][8] = twoDbinHigherPhi-2;
+      /// Only used for strip seeds
+      if(isSSS){
+	if (z==3) {
+	  nNeighbourCellsBottom[twoDbinSamePhi]      = 9;
+	  neighbourCellsBottom[twoDbinSamePhi][6] = twoDbinSamePhi+2;
+	  neighbourCellsBottom[twoDbinSamePhi][7] = twoDbinLowerPhi+2;
+	  neighbourCellsBottom[twoDbinSamePhi][8] = twoDbinHigherPhi+2;
+	} else if (z==7) {
+	  nNeighbourCellsBottom[twoDbinSamePhi]      = 9;
+	  neighbourCellsBottom[twoDbinSamePhi][6] = twoDbinSamePhi-2;
+	  neighbourCellsBottom[twoDbinSamePhi][7] = twoDbinLowerPhi-2;
+	  neighbourCellsBottom[twoDbinSamePhi][8] = twoDbinHigherPhi-2;
+	}
       }
+
     }
   }
-      
+
 }
 
 
@@ -1197,6 +1225,9 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::fillLists(EventData& data)
       { 100000   ,10},  ///< if we encounter Si hits at z > +100m, we are probably not in ATLAS anymore...
 	};
 
+  int nPhiBins            = data.iteration ? m_maxPhiBinPPP : m_maxPhiBinSSS;
+  float inverseBinSizePhi = data.iteration ? m_inverseBinSizePhiPPP : m_inverseBinSizePhiSSS;
+
   for (int radialBin=data.r_first; radialBin<m_nBinsR;  ++radialBin) {
 
     /// skip empty radial bins
@@ -1217,11 +1248,11 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::fillLists(EventData& data)
       /// find the bin by dividing phi in 0...2pi by the bin size 
       float Phi = SP->phi();
       if (Phi<0.) Phi+=twoPi; // phi is defined in [0..2pi] for the binning 
-      int phiBin = static_cast<int>(Phi*m_inverseBinSizePhi);
+      int phiBin = static_cast<int>(Phi*inverseBinSizePhi);
       /// handle overflows
       if (phiBin < 0) {
-        phiBin = m_maxPhiBin;
-      } else if (phiBin > m_maxPhiBin) {
+        phiBin = nPhiBins;
+      } else if (phiBin > nPhiBins) {
         phiBin = 0;
       }
 
@@ -1317,6 +1348,9 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::fillListsFast(EventData& data)
   SG::ReadHandle<SpacePointContainer> spacepoints;
   if(m_sct) spacepoints = m_spacepointsSCT;
   else if(m_pixel) spacepoints = m_spacepointsPixel;
+
+  int nPhiBins            = m_pixel ? m_maxPhiBinPPP : m_maxPhiBinSSS;
+  float inverseBinSizePhi = m_pixel ? m_inverseBinSizePhiPPP : m_inverseBinSizePhiSSS;
   
   if (spacepoints.isValid()) {
     /// loop over the space points 
@@ -1342,11 +1376,11 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::fillListsFast(EventData& data)
 	/// find the bin by dividing phi in 0...2pi by the bin size
 	float Phi = sps->phi();
 	if (Phi<0.) Phi+=twoPi; // phi is defined in [0..2pi] for the binning
-	int phiBin = static_cast<int>(Phi*m_inverseBinSizePhi);
+	int phiBin = static_cast<int>(Phi*inverseBinSizePhi);
 	/// handle overflows
 	if (phiBin < 0) {
-	  phiBin = m_maxPhiBin;
-	} else if (phiBin > m_maxPhiBin) {
+	  phiBin = nPhiBins;
+	} else if (phiBin > nPhiBins) {
 	  phiBin = 0;
 	}
 
@@ -1497,13 +1531,34 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::production3Sp(EventData& data)
   std::array<std::list<InDet::SiSpacePointForSeedITK*>::iterator,arraySizeNeighbourBins> iter_bottomCands;
   std::array<std::list<InDet::SiSpacePointForSeedITK*>::iterator,arraySizeNeighbourBins> iter_endBottomCands;
   
+  int nPhiBins;
+  std::array<int,arraySizePhiZ> nNeighbourCellsBottom;
+  std::array<int,arraySizePhiZ> nNeighbourCellsTop;
+  std::array<std::array<int, arraySizeNeighbourBins>, arraySizePhiZ> neighbourCellsBottom;
+  std::array<std::array<int, arraySizeNeighbourBins>, arraySizePhiZ> neighbourCellsTop;
+
+  if(isPixel){
+    nPhiBins = m_maxPhiBinPPP;
+    nNeighbourCellsBottom = m_nNeighbourCellsBottomPPP;
+    nNeighbourCellsTop = m_nNeighbourCellsTopPPP;
+    neighbourCellsBottom = m_neighbourCellsBottomPPP;
+    neighbourCellsTop = m_neighbourCellsTopPPP;
+  }
+  else{
+    nPhiBins = m_maxPhiBinSSS;
+    nNeighbourCellsBottom = m_nNeighbourCellsBottomSSS;
+    nNeighbourCellsTop = m_nNeighbourCellsTopSSS;
+    neighbourCellsBottom = m_neighbourCellsBottomSSS;
+    neighbourCellsTop = m_neighbourCellsTopSSS;
+  }
+
   /// counter for the found
   int    nseed =    0;
   /// prevent another pass from being run when we run out of Seeds
   data.endlist = true;
 
   /// Loop through all azimuthal regions
-  for (int phiBin=data.fNmin; phiBin<=m_maxPhiBin; ++phiBin) {
+  for (int phiBin=data.fNmin; phiBin<=nPhiBins; ++phiBin) {
     
     /// For each azimuthal region loop through all Z regions
     int z = (m_fastTracking && m_pixel) ? 2 : 0;
@@ -1533,9 +1588,9 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::production3Sp(EventData& data)
       /// Typically, this will be 3 adjacent phi bins (including the one of the central SP) 
       /// and possibly neighbours in z on side towards the IP or on both sides, 
       /// depdending on the z region we are in
-      for (int neighbourCellNumber=0; neighbourCellNumber<m_nNeighbourCellsBottom[phiZbin]; ++neighbourCellNumber) {
+      for (int neighbourCellNumber=0; neighbourCellNumber<nNeighbourCellsBottom[phiZbin]; ++neighbourCellNumber) {
   
-        int theNeighbourCell =  m_neighbourCellsBottom[phiZbin][neighbourCellNumber];
+        int theNeighbourCell =  neighbourCellsBottom[phiZbin][neighbourCellNumber];
         /// only do something if this cell is populated 
         if (!data.rfz_map[theNeighbourCell]) continue;
         /// plug the begin and end iterators to the SP in the cell into our array 
@@ -1547,9 +1602,9 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::production3Sp(EventData& data)
       /// Typically, this will be 3 adjacent phi bins (including the one of the central SP) 
       /// and possibly neighbours in z on the side opposed to the IP or on both sides, 
       /// depdending on the z region we are in
-      for (int neighbourCellNumber=0; neighbourCellNumber<m_nNeighbourCellsTop[phiZbin]; ++neighbourCellNumber) {
+      for (int neighbourCellNumber=0; neighbourCellNumber<nNeighbourCellsTop[phiZbin]; ++neighbourCellNumber) {
 
-        int theNeighbourCell =  m_neighbourCellsTop[phiZbin][neighbourCellNumber];
+        int theNeighbourCell =  neighbourCellsTop[phiZbin][neighbourCellNumber];
         /// only do something if this cell is populated 
         if (!data.rfz_map[theNeighbourCell]) continue;
         /// plug the begin and end iterators to the SP in the cell into our array 
@@ -2373,6 +2428,7 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::production3SpPPP
       if (data.CmSp_ITK.size() > Nc) {
         newOneSeedWithCurvaturesComparisonPPP(data, data.SP_ITK[b], (*iter_centralSP), Z-R*Tzb);
       }
+      data.CmSp_ITK.clear(); /// cleared in newOneSeedWithCurvaturesComparisonPPP but need to also be cleared in case previous conditional statement isn't fulfilled
     } ///< end loop over bottom space points
     ///record seeds found in this run  
     fillSeeds(data);

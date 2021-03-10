@@ -221,8 +221,10 @@ namespace InDet {
 
       /// @name Binning parameters 
       int m_nBinsR{0};              ///<  number of bins in the radial coordinate 
-      int m_maxPhiBin{0};           ///<  number of bins in phi 
-      float m_inverseBinSizePhi{0};   ///<  cache the inverse bin size in phi which we use - needed to evaluate phi bin locations
+      int m_maxPhiBinPPP{0};           ///<  number of bins in phi 
+      float m_inverseBinSizePhiPPP{0};   ///<  cache the inverse bin size in phi which we use - needed to evaluate phi bin locations
+      int m_maxPhiBinSSS{0};
+      float m_inverseBinSizePhiSSS{0};
 
       /// Rmin and Rmax parameters set in fillLists method;
       float m_RTmin;
@@ -240,10 +242,15 @@ namespace InDet {
       float m_seedScoreThresholdSSSConfirmationSeed{0.};    ///< max (score is assigned negative sign) score for SSS seeds with confirmation seed requirement. 
 
       /// arrays associating bins to each other for SP formation
-      std::array<int,arraySizePhiZ> m_nNeighbourCellsBottom;  ///< number of neighbouring phi-z bins to consider when looking for "bottom SP" candidates for each phi-z bin
-      std::array<int,arraySizePhiZ> m_nNeighbourCellsTop;  ///< number of neighbouring phi-z bins to consider when looking for "top SP" candidates for each phi-z bin
-      std::array<std::array<int, arraySizeNeighbourBins>, arraySizePhiZ> m_neighbourCellsBottom; ///< mapping of neighbour cells in the 2D phi-z binning to consider  for the "bottom SP" search for central SPs in each phi-z bin. Number of valid entries stored in m_nNeighboursPhiZbottom
-      std::array<std::array<int, arraySizeNeighbourBins>, arraySizePhiZ> m_neighbourCellsTop; ///< mapping of neighbour cells in the 2D phi-z binning to consider  for the "top SP" search for central SPs in each phi-z bin. Number of valid entries stored in m_nNeighboursPhiZtop
+      std::array<int,arraySizePhiZ> m_nNeighbourCellsBottomPPP;  ///< number of neighbouring phi-z bins to consider when looking for "bottom SP" candidates for each phi-z bin
+      std::array<int,arraySizePhiZ> m_nNeighbourCellsTopPPP;  ///< number of neighbouring phi-z bins to consider when looking for "top SP" candidates for each phi-z bin
+      std::array<std::array<int, arraySizeNeighbourBins>, arraySizePhiZ> m_neighbourCellsBottomPPP; ///< mapping of neighbour cells in the 2D phi-z binning to consider  for the "bottom SP" search for central SPs in each phi-z bin. Number of valid entries stored in m_nNeighboursPhiZbottom
+      std::array<std::array<int, arraySizeNeighbourBins>, arraySizePhiZ> m_neighbourCellsTopPPP; ///< mapping of neighbour cells in the 2D phi-z binning to consider  for the "top SP" search for central SPs in each phi-z bin. Number of valid entries stored in m_nNeighboursPhiZtop
+
+      std::array<int,arraySizePhiZ> m_nNeighbourCellsBottomSSS;
+      std::array<int,arraySizePhiZ> m_nNeighbourCellsTopSSS;
+      std::array<std::array<int, arraySizeNeighbourBins>, arraySizePhiZ> m_neighbourCellsBottomSSS;
+      std::array<std::array<int, arraySizeNeighbourBins>, arraySizePhiZ> m_neighbourCellsTopSSS;
 
       ///////////////////////////////////////////////////////////////////
       // Protected methods
@@ -255,6 +262,14 @@ namespace InDet {
       /// prepare several data members with cached cut values,
       /// conversion factors, binnings, etc 
       void buildFrameWork();
+
+      /// Interface function to build different connection maps for different phi binning
+      void buildConnectionMaps(std::array<int, arraySizePhiZ>& nNeighbourCellsBottom,
+			       std::array<int, arraySizePhiZ>& nNeighbourCellsTop,
+			       std::array<std::array<int, arraySizeNeighbourBins>, arraySizePhiZ>& neighbourCellsBottom,
+			       std::array<std::array<int, arraySizeNeighbourBins>, arraySizePhiZ>& neighbourCellsTop,
+			       int maxPhiBin, bool isSSS);
+
       /* updates the beam spot information stored in the event data
        * object. 
        * @param[out] data: Event data, receives update to the x/y/zbeam members 
