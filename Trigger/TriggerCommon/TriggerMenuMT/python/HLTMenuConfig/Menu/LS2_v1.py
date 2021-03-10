@@ -562,7 +562,7 @@ def setupMenu():
         ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1DR-TAU20ITAU12I-J25",  l1SeedThresholds=['TAU20IM','TAU12IM'], groups=MultiTauGroup),
 
         # ATR-20450
-        ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_03dRtt_L1TAU20IM_2TAU12IM_4J12p0ETA25",  l1SeedThresholds=['TAU20IM','TAU12IM'], groups=MultiTauGroup),
+        ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_03dRleg000leg00110_L1TAU20IM_2TAU12IM_4J12p0ETA25",  l1SeedThresholds=['TAU20IM','TAU12IM'], groups=MultiTauGroup),
     ]
 
     TriggerFlags.BphysicsSlice.signatures = TriggerFlags.BphysicsSlice.signatures() + [
@@ -631,7 +631,7 @@ def setupMenu():
         ChainProp(name='HLT_g35_tight_icalotight_mu15noL1_mu2noL1_L1EM24VHI', l1SeedThresholds=['EM24VHI','FSNOSEED','FSNOSEED'], stream=[PhysicsStream], groups=['Primary:Legacy']+EgammaMuonGroup),
 
         # tau+X chains (ATR-21609) TODO: need T&P-like merging
-        ChainProp(name='HLT_e24_lhmedium_ivarloose_tau20_mediumRNN_tracktwoMVA_03dRtt_L1EM22VHI', l1SeedThresholds=['EM22VHI','TAU8'], stream=[PhysicsStream], groups=EgammaTauGroup),
+        ChainProp(name='HLT_e24_lhmedium_ivarloose_tau20_mediumRNN_tracktwoMVA_03dRleg000leg00110_L1EM22VHI', l1SeedThresholds=['EM22VHI','TAU8'], stream=[PhysicsStream], groups=EgammaTauGroup),
         # This is the next one to implement
         #ChainProp(name="HLT_tau25_mediumRNN_tracktwoMVA_tau20_mediumRNN_tracktwoMVA_j70_j50_L1MJJ-500-NFF", l1SeedThresholds=['TAU8','TAU8','J20','J20'],   stream=[PhysicsStream], groups=['MultiTauGroup','MultiJetGroup']),
 
@@ -640,11 +640,11 @@ def setupMenu():
         ChainProp(name='HLT_tau60_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_xe50_cell_L1TAU40_2TAU12IM_XE40', l1SeedThresholds=['TAU40','TAU12IM','XE40'], stream=[PhysicsStream], groups=TauMETGroup),  # ATR-22966
         ChainProp(name='HLT_e17_lhmedium_tau25_mediumRNN_tracktwoMVA_xe50_cell_L1EM15VHI_2TAU12IM_XE35', l1SeedThresholds=['EM15VHI','TAU12IM','XE35'], stream=[PhysicsStream], groups=TauMETGroup),
         ChainProp(name='HLT_mu14_tau25_mediumRNN_tracktwoMVA_xe50_cell_L1MU10_TAU12IM_XE35', l1SeedThresholds=['MU10','TAU12IM','XE35'], stream=[PhysicsStream], groups=TauMETGroup),
-        ChainProp(name='HLT_e17_lhmedium_ivarloose_tau25_mediumRNN_tracktwoMVA_03dRtt_L1EM15VHI_2TAU12IM_4J12', l1SeedThresholds=['EM15VHI','TAU12IM'], stream=[PhysicsStream], groups=EgammaTauGroup),
+        ChainProp(name='HLT_e17_lhmedium_ivarloose_tau25_mediumRNN_tracktwoMVA_03dRleg000leg00110_L1EM15VHI_2TAU12IM_4J12', l1SeedThresholds=['EM15VHI','TAU12IM'], stream=[PhysicsStream], groups=EgammaTauGroup),
 
-        ChainProp(name='HLT_mu20_ivarloose_tau20_mediumRNN_tracktwoMVA_03dRtt_L1MU20', l1SeedThresholds=['MU20','TAU8'], stream=[PhysicsStream], groups=MuonTauGroup),
-        ChainProp(name='HLT_mu14_ivarloose_tau35_mediumRNN_tracktwoMVA_03dRtt_L1MU10_TAU20IM', l1SeedThresholds=['MU10','TAU20IM'], stream=[PhysicsStream], groups=MuonTauGroup),
-        ChainProp(name='HLT_mu14_ivarloose_tau25_mediumRNN_tracktwoMVA_03dRtt_L1MU10_TAU12IM_3J12', l1SeedThresholds=['MU10','TAU12IM'], stream=[PhysicsStream], groups=MuonTauGroup),
+        ChainProp(name='HLT_mu20_ivarloose_tau20_mediumRNN_tracktwoMVA_03dRleg000leg00110_L1MU20', l1SeedThresholds=['MU20','TAU8'], stream=[PhysicsStream], groups=MuonTauGroup),
+        ChainProp(name='HLT_mu14_ivarloose_tau35_mediumRNN_tracktwoMVA_03dRleg000leg00110_L1MU10_TAU20IM', l1SeedThresholds=['MU10','TAU20IM'], stream=[PhysicsStream], groups=MuonTauGroup),
+        ChainProp(name='HLT_mu14_ivarloose_tau25_mediumRNN_tracktwoMVA_03dRleg000leg00110_L1MU10_TAU12IM_3J12', l1SeedThresholds=['MU10','TAU12IM'], stream=[PhysicsStream], groups=MuonTauGroup),
 
         # photon + multijets (ATR-22594)
         ChainProp(name='HLT_g85_tight_3j50_L1EM22VHI',l1SeedThresholds=['EM22VHI','FSNOSEED'],stream=[PhysicsStream], groups=EgammaJetGroup),
