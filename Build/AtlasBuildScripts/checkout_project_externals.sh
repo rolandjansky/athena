@@ -23,6 +23,9 @@ usage() {
    echo " -b: 'Main build directory' to use for the code checkout and build"
    echo " -f: Force the re-download of the externals repository"
    echo " -c: Get the externals for the continuous integration (CI) system"
+   echo " -t: Build type (IGNORED)"
+   echo " -x: Extra CMake arguments (IGNORED)"
+   echo " -k: Extra 'make tool' arguments (IGNORED)"
    echo ""
    echo "If a build directory is not given, the default is '../build'"
    echo "relative to the athena source directory."
@@ -32,7 +35,7 @@ usage() {
 ATLAS_BUILD_DIR=""
 ATLAS_FORCE_DOWNLOAD=""
 ATLAS_CI_BUILD=""
-while getopts ":b:fch" opt; do
+while getopts ":t:b:x:k:fch" opt; do
    case $opt in
       b)
          ATLAS_BUILD_DIR=$OPTARG
@@ -42,6 +45,10 @@ while getopts ":b:fch" opt; do
          ;;
       c)
          ATLAS_CI_BUILD="1"
+         ;;
+      t|x|k)
+         echo "Argument \"-${opt}\" ignored for" \
+              "${ATLAS_PROJECT_NAME}/build_externals.sh"
          ;;
       h)
          usage
