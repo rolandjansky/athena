@@ -370,7 +370,7 @@ CombinedMuonTrackBuilder::combinedFit(const Trk::Track& indetTrack, const Trk::T
     if (m_trackQuery->isCaloAssociated(extrapolatedTrack)) {
 
 
-        for (const auto& it : *extrapolatedTrack.trackStateOnSurfaces()) {
+      for (const Trk::TrackStateOnSurface* it : *extrapolatedTrack.trackStateOnSurfaces()) {
 
             if (!it->materialEffectsOnTrack()) continue;
 
@@ -991,7 +991,7 @@ CombinedMuonTrackBuilder::standaloneFit(const Trk::Track& inputSpectrometerTrack
 
         // count measurements
         int  measurements = 0;
-        for (const auto& s : *tsos) {
+        for (const Trk::TrackStateOnSurface* s : *tsos) {
            measurements += (s->type(Trk::TrackStateOnSurface::Measurement) && !s->type(Trk::TrackStateOnSurface::Outlier));
         }
         // insufficient measurements
@@ -1132,7 +1132,7 @@ CombinedMuonTrackBuilder::standaloneFit(const Trk::Track& inputSpectrometerTrack
 
 
     if (m_redoRots) {
-        for (const auto& s : *spectrometerTrack.trackStateOnSurfaces() ) {
+        for (const Trk::TrackStateOnSurface* s : *spectrometerTrack.trackStateOnSurfaces() ) {
             if (s->measurementOnTrack() && !s->trackParameters()) {
                 performPrefit = true;
                 break;
@@ -1219,7 +1219,7 @@ CombinedMuonTrackBuilder::standaloneFit(const Trk::Track& inputSpectrometerTrack
                 prefitResult.reset(prefit->perigeeParameters()->clone());
             }
             const Trk::TrackStateOnSurface* ms_entrance = nullptr;
-            for (const auto& s :* prefit->trackStateOnSurfaces()) {
+            for (const Trk::TrackStateOnSurface* s :* prefit->trackStateOnSurfaces()) {
                 // look for first measured TSOS in muon volume
                 if (!s->trackParameters() || !s->trackParameters()->covariance()) {
                     continue;
@@ -1436,7 +1436,7 @@ CombinedMuonTrackBuilder::standaloneFit(const Trk::Track& inputSpectrometerTrack
         }
 
         spectrometerTSOS->clear();
-        for (const auto& s: *extrapolated->trackStateOnSurfaces()) {
+        for (const Trk::TrackStateOnSurface* s: *extrapolated->trackStateOnSurfaces()) {
             if (!s->type(Trk::TrackStateOnSurface::Perigee)) spectrometerTSOS->emplace_back(s->clone());
         }
 
@@ -3537,7 +3537,7 @@ std::unique_ptr<std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>>
     const Trk::Surface*             previousSurface = nullptr;
     std::unique_ptr<const Trk::TrackStateOnSurface> previousTSOS;
 
-    for (const auto& s : * spectrometerTrack.trackStateOnSurfaces()){
+    for (const Trk::TrackStateOnSurface* s : * spectrometerTrack.trackStateOnSurfaces()){
         // skip any leading material
         if (!haveMeasurement) {
             if (s->measurementOnTrack()) {
