@@ -97,6 +97,8 @@ namespace CP {
     
   StatusCode IsolationLowPtPLVTool::augmentPLV( const xAOD::IParticle& Particle) {
 
+    float pt = Particle.pt();
+
     //Check is PLV variable is set
     if( s_acc_PLV.isAvailable(Particle) ) {
       if( s_acc_PLV(Particle) <= -1.1 ){
@@ -106,48 +108,50 @@ namespace CP {
       }
     }
 
-    // Check if input variables exist
+    // Check if input variables exist (warning messages only for low-pt leptons)
+    bool varMissingMsg = pt < 12e3 && varMissingMsgCounter <= N_MSG_COUNTS;
+
     bool inputvar_missing = false;
     if (!s_acc_TrackJetNTrack.isAvailable(Particle)){
-      if(!m_varMissingMsg) ATH_MSG_WARNING( "TrackJetNTrack not available" );
+      if(varMissingMsg) ATH_MSG_WARNING( "Variable \"TrackJetNTrack\" not available" );
       inputvar_missing = true;
     }
 
     if (!s_acc_DRlj.isAvailable(Particle)){
-      if(!m_varMissingMsg) ATH_MSG_WARNING( "DRlj not available" );
+      if(varMissingMsg) ATH_MSG_WARNING( "Variable \"DRlj\" not available" );
       inputvar_missing = true;
     }
 
     if (!s_acc_PtRel.isAvailable(Particle)){
-      if(!m_varMissingMsg) ATH_MSG_WARNING( "PtRel not available" );
+      if(varMissingMsg) ATH_MSG_WARNING( "Variable \"PtRel\" not available" );
       inputvar_missing = true;
     }
 
     if (!s_acc_PtFrac.isAvailable(Particle)){
-      if(!m_varMissingMsg) ATH_MSG_WARNING( "PtFrac not available" );
+      if(varMissingMsg) ATH_MSG_WARNING( "Variable \"PtFrac\" not available" );
       inputvar_missing = true;
     }
 
     if (!s_acc_topoetcone20.isAvailable(Particle)){
-      if(!m_varMissingMsg) ATH_MSG_WARNING( "topoetcone20 not available" );
+      if(varMissingMsg) ATH_MSG_WARNING( "Variable \"topoetcone20\" not available" );
       inputvar_missing = true;
     }
 
     if (Particle.type() == xAOD::Type::ObjectType::Electron && !s_acc_ptvarcone20.isAvailable(Particle)){
-      if(!m_varMissingMsg) ATH_MSG_WARNING( "ptvarcone20 not available" );
+      if(varMissingMsg) ATH_MSG_WARNING( "Variable \"ptvarcone20\" not available" );
       inputvar_missing = true;
     }
 
     if (Particle.type() == xAOD::Type::ObjectType::Muon && !s_acc_ptvarcone30.isAvailable(Particle)){
-      if(!m_varMissingMsg) ATH_MSG_WARNING( "ptvarcone30 not available" );
+      if(varMissingMsg) ATH_MSG_WARNING( "Variable \"ptvarcone30\" not available" );
       inputvar_missing = true;
     }
 
     if (inputvar_missing){
-      if(!m_varMissingMsg){ 
-	ATH_MSG_WARNING( "input variable(s) missing, augmenting fixed value 1.1" );
-	//Print the warnings for missing variables only once 
-	m_varMissingMsg = true;
+      if(varMissingMsg){
+	ATH_MSG_WARNING( "INPUT VARIABLE(S) FOR LOW PT LEPTON (" << pt << ") MISSING. AUGMENTING FIXED VALUE 1.1");
+	if(varMissingMsgCounter==N_MSG_COUNTS) ATH_MSG_WARNING( "REACHED "<< varMissingMsgCounter << " WARNING MESSAGES FOR MISSING VARIABLES... SILENCING");
+	varMissingMsgCounter++;
       }
       s_dec_iso_PLT(Particle) = 1.1;
       return StatusCode::SUCCESS;
@@ -160,9 +164,7 @@ namespace CP {
     float topoetcone20 = s_acc_topoetcone20(Particle);
     float ptvarcone30  = 0;
     float ptvarcone20  = 0;
-
-    float pt = Particle.pt();
-    float score = 1.1;
+    float score        = 1.1;
 
     if (Particle.type() == xAOD::Type::ObjectType::Muon){
       ptvarcone30  = s_acc_ptvarcone30(Particle);
