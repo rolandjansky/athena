@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from PyUtils.Decorators import memoize
 
@@ -494,8 +494,8 @@ class GenerateMenuMT(object, metaclass=Singleton):
  
     
     def resolveEmptySteps(self,chainConfigs):
-    
-        max_steps = max([len(cc.steps) for cc in chainConfigs])    
+
+        max_steps = max([len(cc.steps) for cc in chainConfigs], default=0)    
 
         steps_are_empty = [True for i in range(0,max_steps)]
 
