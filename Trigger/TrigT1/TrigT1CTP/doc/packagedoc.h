@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -36,9 +36,6 @@ triggers are simulated: random trigger, prescaled clock trigger and bunch group 
   - LVL1CTP::RandomTrigger: simulation of the internal random trigger
 
 @section TrigT1CTP_TrigT1CTPJobOptions Job Options
-  The algorithms of the TrigT1CTP package can be configured using configurables.
-  For an example see TrigT1CTP_jobOptions.py:
-  @include TrigT1CTP_jobOptions.py
 
   Configuration classes for the LVL1CTP::CTPSimulation algorithm are:
   - python::TrigT1CTPConfig::DefaultCTPSimulation: common setup (do not use directly)
