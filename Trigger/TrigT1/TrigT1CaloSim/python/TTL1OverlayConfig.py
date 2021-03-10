@@ -1,6 +1,6 @@
 """Define functions for TTL1 Overlay with ComponentAccumulator
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -10,11 +10,10 @@ from LArDigitization.LArDigitizationConfigNew import LArOverlayTriggerDigitizati
 from TileSimAlgs.TileHitToTTL1Config import TileHitToTTL1Cfg
 
 
-def OverlayTTL1Cfg(flags, name="OverlayTTL1", **kwargs):
-    """OverlayTTL1 configuration using ComponentAccumulator"""
+def LArTTL1OverlayCfg(flags, name="LArTTL1Overlay", **kwargs):
+    """LArTTL1Overlay configuration using ComponentAccumulator"""
     acc = ComponentAccumulator()
     acc.merge(LArOverlayTriggerDigitizationBasicCfg(flags))
-    acc.merge(TileHitToTTL1Cfg(flags))
 
     kwargs.setdefault("BkgEmTTL1Key",
                       flags.Overlay.BkgPrefix + "LArTTL1EM")
@@ -28,6 +27,31 @@ def OverlayTTL1Cfg(flags, name="OverlayTTL1", **kwargs):
                       flags.Overlay.SigPrefix + "LArTTL1HAD")
     kwargs.setdefault("OutputHadTTL1Key", "LArTTL1HAD")
 
+    LArTTL1Overlay = CompFactory.LVL1.LArTTL1Overlay
+    acc.addEventAlgo(LArTTL1Overlay(name, **kwargs))
+
+    if flags.Output.doWriteRDO:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, streamName='RDO', ItemList=[
+            'LArTTL1Container#LArTTL1EM',
+            'LArTTL1Container#LArTTL1HAD',
+        ]))
+
+    if flags.Output.doWriteRDO_SGNL:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, streamName='RDO_SGNL', ItemList=[
+            'LArTTL1Container#' + flags.Overlay.SigPrefix + 'LArTTL1EM',
+            'LArTTL1Container#' + flags.Overlay.SigPrefix + 'LArTTL1HAD',
+        ]))
+
+    return acc
+
+
+def TileTTL1OverlayCfg(flags, name="TileTTL1Overlay", **kwargs):
+    """TileTTL1Overlay configuration using ComponentAccumulator"""
+    acc = ComponentAccumulator()
+    acc.merge(TileHitToTTL1Cfg(flags))
+
     kwargs.setdefault("BkgTileTTL1Key",
                       flags.Overlay.BkgPrefix + "TileTTL1Cnt")
     kwargs.setdefault("SignalTileTTL1Key",
@@ -40,14 +64,12 @@ def OverlayTTL1Cfg(flags, name="OverlayTTL1", **kwargs):
                       flags.Overlay.SigPrefix + "TileTTL1MBTS")
     kwargs.setdefault("OutputTileMBTSTTL1Key", "TileTTL1MBTS")
 
-    OverlayTTL1 = CompFactory.LVL1.OverlayTTL1
-    acc.addEventAlgo(OverlayTTL1(name, **kwargs))
+    TileTTL1Overlay = CompFactory.LVL1.TileTTL1Overlay
+    acc.addEventAlgo(TileTTL1Overlay(name, **kwargs))
 
     if flags.Output.doWriteRDO:
         from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
         acc.merge(OutputStreamCfg(flags, streamName='RDO', ItemList=[
-            'LArTTL1Container#LArTTL1EM',
-            'LArTTL1Container#LArTTL1HAD',
             'TileTTL1Container#TileTTL1Cnt',
             'TileTTL1Container#TileTTL1MBTS',
         ]))
@@ -55,8 +77,6 @@ def OverlayTTL1Cfg(flags, name="OverlayTTL1", **kwargs):
     if flags.Output.doWriteRDO_SGNL:
         from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
         acc.merge(OutputStreamCfg(flags, streamName='RDO_SGNL', ItemList=[
-            'LArTTL1Container#' + flags.Overlay.SigPrefix + 'LArTTL1EM',
-            'LArTTL1Container#' + flags.Overlay.SigPrefix + 'LArTTL1HAD',
             'TileTTL1Container#' + flags.Overlay.SigPrefix + 'TileTTL1Cnt',
             'TileTTL1Container#' + flags.Overlay.SigPrefix + 'TileTTL1MBTS',
         ]))

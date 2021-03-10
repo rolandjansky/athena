@@ -22,7 +22,7 @@ from OverlayCopyAlgs.OverlayCopyAlgsConfig import \
     CopyCaloCalibrationHitContainersCfg, CopyJetTruthInfoCfg, CopyMcEventCollectionCfg, \
     CopyTimingsCfg, CopyTrackRecordCollectionsCfg
 from TileSimAlgs.TileDigitizationConfig import TileDigitizationCfg, TileOverlayTriggerDigitizationCfg
-from TrigT1CaloSim.OverlayTTL1Config import OverlayTTL1Cfg
+from TrigT1CaloSim.TTL1OverlayConfig import LArTTL1OverlayCfg, TileTTL1OverlayCfg
 from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoOverlayCfg
 
 
@@ -74,11 +74,18 @@ def OverlayMainCfg(configFlags):
     if configFlags.Detector.EnableLAr:
         acc.merge(LArOverlayCfg(configFlags))
         if configFlags.Detector.EnableL1Calo:
-            acc.merge(OverlayTTL1Cfg(configFlags))
+            if configFlags.Overlay.DataOverlay:
+                pass  # TODO: not supported for now
+            else:
+                acc.merge(LArTTL1OverlayCfg(configFlags))
     if configFlags.Detector.EnableTile:
         acc.merge(TileDigitizationCfg(configFlags))
         if configFlags.Detector.EnableL1Calo:
-            acc.merge(TileOverlayTriggerDigitizationCfg(configFlags))
+            if configFlags.Overlay.DataOverlay:
+                pass  # TODO: not supported for now
+            else:
+                acc.merge(TileTTL1OverlayCfg(configFlags))
+                acc.merge(TileOverlayTriggerDigitizationCfg(configFlags))
 
     # Muon system
     if configFlags.Detector.EnableCSC:

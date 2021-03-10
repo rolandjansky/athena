@@ -94,6 +94,10 @@ def fromRunArgs(runArgs):
         from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
         setupDetectorsFromList(ConfigFlags, detectors)
 
+    # Disable LVL1 trigger if triggerConfig explicitly set to 'NONE'
+    if hasattr(runArgs, 'triggerConfig') and runArgs.triggerConfig == 'NONE':
+        ConfigFlags.Detector.EnableL1Calo = False
+
     # Pre-include
     processPreInclude(runArgs, ConfigFlags)
 
@@ -102,7 +106,6 @@ def fromRunArgs(runArgs):
 
     # TODO not parsed yet:
     # '--fSampltag'
-    # '--triggerConfig'
 
     # Lock flags
     ConfigFlags.lock()
