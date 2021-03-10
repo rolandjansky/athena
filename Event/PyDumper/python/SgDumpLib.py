@@ -39,6 +39,8 @@ def _gen_jobo(dct):
         _input_files = %(input-files)s
         acf.FilesInput = _input_files
         del _input_files
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        ConfigFlags.Input.Files = acf.FilesInput()
 
         from RecExConfig.InputFilePeeker import inputFileSummary
         file_geo = inputFileSummary.get('geometry')
@@ -108,6 +110,7 @@ def _gen_jobo(dct):
         include ('RecExCommon/RecExCommon_topOptions.py')
 
         svcMgr.GeoModelSvc.IgnoreTagDifference = True
+        %(conditions_tag_frag)s
 
         # adding the python dumper algorithm
         from AthenaCommon.AlgSequence import AlgSequence
@@ -128,6 +131,8 @@ def _gen_jobo(dct):
         _input_files = %(input-files)s
         acf.FilesInput = _input_files
         del _input_files
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        ConfigFlags.Input.Files = acf.FilesInput()
 
         from RecExConfig.InputFilePeeker import inputFileSummary
         file_geo = inputFileSummary.get('geometry')
@@ -206,6 +211,7 @@ def _gen_jobo(dct):
         include ('RecExCommon/RecExCommon_topOptions.py')
 
         svcMgr.GeoModelSvc.IgnoreTagDifference = True
+        %(conditions_tag_frag)s
 
         # adding the python dumper algorithm
         from AthenaCommon.AlgSequence import AlgSequence
@@ -367,6 +373,7 @@ def run_sg_dump(files, output,
                 file_type=None,
                 do_clean_up=False,
                 athena_opts=None,
+                conditions_tag=None,
                 msg=None):
     """API for the sg-dump script.
      `files` a list of input filenames to be dumped by SgDump
@@ -383,6 +390,7 @@ def run_sg_dump(files, output,
      `do_clean_up` flag to enable the attempt at removing all the files sg-dump
                    produces during the course of its execution
      `athena_opts` a space-separated list of athena command-line options (e.g '--perfmon --stdcmalloc --nprocs=-1')
+     `conditions_tag` force a specific global conditions tag
      `msg`    a logging.Logger instance
 
      returns the exit code of the sub-athena process
@@ -426,7 +434,10 @@ def run_sg_dump(files, output,
         msg.error(err)
         raise ValueError(err)
     file_type = file_type.lower()
-    
+
+    conditions_tag_frag = ''
+    if conditions_tag:
+        conditions_tag_frag = "conddb.setGlobalTag('%s')" % conditions_tag
     jobo = _gen_jobo({
         'ofile-name' : output,
         'input-files': files,
@@ -436,6 +447,7 @@ def run_sg_dump(files, output,
         'pyalg_pkg':   pyalg_pkg,
         'pyalg_cls':   pyalg_cls,
         'input-type':  file_type.upper(),
+        'conditions_tag_frag' : conditions_tag_frag,
         })
 
     msg.info(':'*40)
@@ -447,6 +459,7 @@ def run_sg_dump(files, output,
     msg.info('pyalg-class:     %s:%s', pyalg_pkg, pyalg_cls)
     msg.info('file_type:       %s', file_type)
     msg.info('exclude:         %s', exclude)
+    msg.info('condtions_tag:   %s', conditions_tag)
     
     if dump_jobo and isinstance(dump_jobo, str):
         try:
