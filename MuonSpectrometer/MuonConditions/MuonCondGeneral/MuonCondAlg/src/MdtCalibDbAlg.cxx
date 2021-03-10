@@ -1017,8 +1017,8 @@ StatusCode MdtCalibDbAlg::loadTube(const MuonGM::MuonDetectorManager* muDetMgr){
     int size      = nml*nlayers*ntubesLay;
 
     if(size!=ntubes) {
-        ATH_MSG_ERROR( "Pre-existing MdtTubeCalibContainer for chamber ID " <<chId<< " size ("<<size<<") does not match the one found in DB ("<<ntubes<<")");
-        return StatusCode::FAILURE;
+      ATH_MSG_ERROR( "Mismatch between number of tubes in MdtTubeCalibContainer for chamber "<<name<<","<<iphi<<","<<ieta<<" ("<<size<<") and COOL DB ("<<ntubes<<")");
+      return StatusCode::FAILURE;
     }
 
     //Extract T0, ADCcal, valid flag for each tube from payload.
