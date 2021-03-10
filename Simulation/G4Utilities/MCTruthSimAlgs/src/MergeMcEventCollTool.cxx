@@ -534,12 +534,13 @@ StatusCode MergeMcEventCollTool::processUnfilteredEvent(const McEventCollection 
     }
     //keep vertices with outgoing particles
     for (int type(INTIME); type<NOPUTYPE; ++type) {
+      if (!pCopyOfVertexForClassification[type]) continue;
 #ifdef HEPMC3
       int n_particles_out=pCopyOfVertexForClassification[type]->particles_out().size();
 #else
       int n_particles_out=pCopyOfVertexForClassification[type]->particles_out_size();
 #endif
-      if (m_saveType[type] && pCopyOfVertexForClassification[type] && (n_particles_out > 0) ) {
+      if (m_saveType[type] && (n_particles_out > 0) ) {
         m_pOvrlMcEvColl->at(m_startingIndexForBackground+m_nBkgEventsReadSoFar)->add_vertex( pCopyOfVertexForClassification[type]);
         updateClassificationMap(HepMC::signal_process_id(currentBackgroundEvent), currentBkgEventIndex, 0, type, false);
       }
