@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -19,14 +19,7 @@
 
 
 #include "TrigT2CaloCommon/IReAlgToolCalo.h"
-#include "GaudiKernel/AlgTool.h"
-#include "CaloGeoHelpers/CaloSampling.h"
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigT2CaloCommon/Calo_Def.h"
-#include "CxxUtils/phihelper.h"
-
-#include "CxxUtils/checker_macros.h"
-ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
 
 class IRoiDescriptor;
 
@@ -37,8 +30,6 @@ class EgammaAllFex: public IReAlgToolCalo {
     /** Constructor */
     EgammaAllFex(const std::string & type, const std::string & name, 
                  const IInterface* parent);
-    /** Destructor */
-    virtual ~EgammaAllFex();
 
    /** @brief execute feature extraction for the EM Calorimeter
     *	second layer 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -32,9 +32,6 @@ EgammaAllFex::EgammaAllFex(const std::string & type, const std::string & name,
   // 0 -> CaloType EM, 2 -> Second Layer
   // m_geometry[0] = new T2Geometry(0,2);
 #endif
-}
-
-EgammaAllFex::~EgammaAllFex(){
 }
 
 StatusCode EgammaAllFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
