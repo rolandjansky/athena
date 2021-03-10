@@ -1086,6 +1086,18 @@ HLT_j0_perf_L1J12_EMPTY:
     0: 8
   stepFeatures:
     0: 129
+HLT_j110_subjesgscIS_ftf_bdl1r60_split_j45_subjesgscIS_ftf_bdl1r70_split_L1J50:
+  eventCount: 0
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
+HLT_j110_subjesgscIS_ftf_j45_subjesgscIS_ftf_L1J50:
+  eventCount: 0
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
 HLT_j140_320eta490_LArPEBHLT_L1J75_31ETA49:
   eventCount: 0
 HLT_j150_subresjesgscIS_ftf_2j55_subresjesgscIS_ftf_L1J85_3J30:

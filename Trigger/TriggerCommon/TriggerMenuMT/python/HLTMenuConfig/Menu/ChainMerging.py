@@ -177,7 +177,7 @@ def getCurrentAG(chainStep):
             # get the alignment group of the leg that is running a non-empty sequence
             # if we double-serial merge enough this will have to be recursive. Throw an error here for now
             # if the length is greater than one. I don't think this will ever come up
-            if len(chainStep.stepDicts[iseq]['chainParts']) > 1:
+            if len(set(cp['alignmentGroup'] for cp in chainStep.stepDicts[iseq]['chainParts'])) > 1:
                 log.error("[getCurrentAG] The leg has more than one chainPart (%s). Either the alignmentGroup property is bad or this is an unimplemented situation.",chainStep.stepDicts[iseq]['chainParts'])
                 raise Exception("[getCurrentAG] Not sure what is happening here, but I don't know what to do.")
             filled_seq_ag += [chainStep.stepDicts[iseq]['chainParts'][0]['alignmentGroup']]

@@ -665,8 +665,11 @@ class Chain(object):
         if len(self.steps) == 0:
             return
 
-        # TODO: check if the number of seeds is sufficient for all the seuqences, no action of no steps are configured
         for step in self.steps:
+             # TODO: make  this as an error  when exceptions are handled
+            if len(self.L1decisions) != len(step.sequences) and not step.isEmpty:
+                log.error("setSeedsToSequences: found %d L1seeds and %d sequences in chain %s  step  %s: is this correct?", len(self.L1decisions), len(step.sequences),self.name, step.name)
+                raise RuntimeError("[setSeedsToSequences] L1 seeding issue")
             for seed, seq in zip(self.L1decisions, step.sequences):
                     seq.setSeed( seed )
                     log.debug( "setSeedsToSequences: Chain %s adding seed %s to sequence in step %s", self.name, seed, step.name )
