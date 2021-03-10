@@ -1161,7 +1161,7 @@ namespace met {
     if (retainMuon){
       bool originalInputs = !acc_originalObject.isAvailable(*muonCollection->front());
 
-      for(const auto& obj : *muonCollection) {
+      for(const auto obj : *muonCollection) {
 	const IParticle* orig = obj;
 	if(!originalInputs) { orig = *acc_originalObject(*obj); }
 	std::vector<const xAOD::MissingETAssociation*> assocs = xAOD::MissingETComposition::getAssociations(map,orig);
@@ -1197,7 +1197,7 @@ namespace met {
     // Flag back muons as selected
     if (retainMuon && muon_index.size()>0){
       bool originalInputs = !acc_originalObject.isAvailable(*muonCollection->front());
-      for(const auto& obj : *muonCollection) {
+      for(const auto obj : *muonCollection) {
 	const IParticle* orig = obj;
 	if(!originalInputs) { orig = *acc_originalObject(*obj); }
 	std::vector<const xAOD::MissingETAssociation*> assocs = xAOD::MissingETComposition::getAssociations(map,orig);

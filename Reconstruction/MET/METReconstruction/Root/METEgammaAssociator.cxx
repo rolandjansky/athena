@@ -202,7 +202,7 @@ namespace met {
     for (PFOLink_t pfoLink : cPFOLinks) {
       if (pfoLink.isValid()){
 	const xAOD::PFO* pfo_init = *pfoLink;
-	for (const auto& pfo : *constits.pfoCont){
+	for (const auto pfo : *constits.pfoCont){
 	  if (pfo->index() == pfo_init->index() && pfo->isCharged()){ //index-based match between JetETmiss and CHSParticleFlow collections
 	    const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");
 	    if(  pfo->isCharged() && PVMatchedAcc(*pfo)&& ( !m_cleanChargedPFO || isGoodEoverP(pfo->track(0)) ) ) {
@@ -225,7 +225,7 @@ namespace met {
     for (PFOLink_t pfoLink : nPFOLinks) {
       if (pfoLink.isValid()){
         const xAOD::PFO* pfo_init = *pfoLink;
-	for (const auto& pfo : *constits.pfoCont){
+	for (const auto pfo : *constits.pfoCont){
 	  if (pfo->index() == pfo_init->index() && !pfo->isCharged()){ //index-based match between JetETmiss and CHSParticleFlow collections
 	    double pfo_e = pfo->eEM();
 	    if( ( !pfo->isCharged()&& pfo->e() > FLT_MIN ) ){   
@@ -368,7 +368,7 @@ namespace met {
     for (FELink_t feLink : cFELinks) {
       if (feLink.isValid()){
 	const xAOD::FlowElement* fe_init = *feLink;
-	for (const auto& fe : *constits.feCont){
+	for (const auto fe : *constits.feCont){
 	  if (fe->index() == fe_init->index() && fe->isCharged()){ //index-based match between JetETmiss and CHSFlowElements collections
 	    const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");
 	    if(  fe->isCharged() && PVMatchedAcc(*fe)&& ( !m_cleanChargedPFO || isGoodEoverP(static_cast<const xAOD::TrackParticle*>(fe->chargedObject(0))) ) ) {
@@ -387,7 +387,7 @@ namespace met {
     for (FELink_t feLink : nFELinks) {
       if (feLink.isValid()){
         const xAOD::FlowElement* fe_init = *feLink;
-	for (const auto& fe : *constits.feCont){
+	for (const auto fe : *constits.feCont){
 	  if (fe->index() == fe_init->index() && !fe->isCharged()){ //index-based match between JetETmiss and CHSFlowElements collections
 	    double fe_e = fe->e();
 	    if( ( !fe->isCharged()&& fe->e() > FLT_MIN ) ){   
