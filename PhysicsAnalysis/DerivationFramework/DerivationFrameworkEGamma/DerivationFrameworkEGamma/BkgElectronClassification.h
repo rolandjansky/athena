@@ -40,14 +40,14 @@ private:
   SG::ReadHandleKey<xAOD::ElectronContainer> m_electronContainer{
     this,
     "ElectronContainerName",
-    "Electrons"
+    "Electrons",
     "Input Electrons"
   };
   /** @brief Input truth particle container **/
   SG::ReadHandleKey<xAOD::TruthParticleContainer> m_truthContainer{
     this,
     "TruthParticleContainerName",
-    "TruthParticles"
+    "TruthParticles",
     "Input Truth Particles"
   };
 

@@ -40,17 +40,30 @@ BkgElectronClassification::initialize()
 
   const std::string baseName = m_electronContainer.key();
   m_truthPdgId = baseName + ".truthPdgId";
+  //
   m_firstEgMotherTruthType = baseName + ".firstEgMotherTruthType";
   m_firstEgMotherTruthOrigin = baseName + ".firstEgMotherTruthOrigin";
   m_firstEgMotherTruthParticleLink =
     baseName + ".firstEgMotherTruthParticleLink";
   m_firstEgMotherPdgId = baseName + ".firstEgMotherPdgId";
-
+  //
   m_lastEgMotherTruthType = baseName + ".lastEgMotherTruthType";
   m_lastEgMotherTruthOrigin = baseName + ".lastEgMotherTruthOrigin";
   m_lastEgMotherTruthParticleLink = baseName + ".lastEgMotherTruthParticleLink";
   m_lastEgMotherPdgId = baseName + ".lastEgMotherPdgId";
 
+  ATH_CHECK(m_truthPdgId.initialize());
+  // 
+  ATH_CHECK(m_firstEgMotherTruthType.initialize());
+  ATH_CHECK(m_firstEgMotherTruthOrigin.initialize());
+  ATH_CHECK(m_firstEgMotherTruthParticleLink.initialize());
+  ATH_CHECK(m_firstEgMotherPdgId.initialize());
+  //
+  ATH_CHECK(m_lastEgMotherTruthType.initialize());
+  ATH_CHECK(m_lastEgMotherTruthOrigin.initialize());
+  ATH_CHECK(m_lastEgMotherTruthParticleLink.initialize());
+  ATH_CHECK(m_lastEgMotherPdgId.initialize());
+  
   ATH_MSG_DEBUG("Initialization successful");
 
   return StatusCode::SUCCESS;
