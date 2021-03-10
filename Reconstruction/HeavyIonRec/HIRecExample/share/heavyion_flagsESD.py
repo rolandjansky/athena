@@ -24,10 +24,6 @@ if not jobproperties.HIRecExampleFlags.ppMode :
       jetFlags.Enabled = False
       #jetFlags.noStandardConfig = True
 
-      #Enable HeavyIon configuration of particle flow
-      from eflowRec.eflowRecFlags import jobproperties as pflowProps
-      pflowProps.eflowRecFlags.useHeavyIonSetup=True
-
       # AO InDet 2015
       InDetFlags.cutLevel = 3
       InDetFlags.doSGDeletion = False

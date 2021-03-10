@@ -113,13 +113,6 @@ class fixMuonLogic(JobProperty):
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
-
-class useHeavyIonSetup(JobProperty):
-    """ Flag to toggle the particle flow setup for HeavyIon running
-    """
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
     
 # Defines the container for the eflowRec flags
 
@@ -131,7 +124,7 @@ class eflowRecFlags(JobPropertyContainer):
 # add the flags container to the top container 
 jobproperties.add_Container(eflowRecFlags)
 
-eflowJobProperties = [eflowAlgType,CalType,useLocalHadWeightsOOCC,useOverLapShowerCells,useSplitShowers,useEEtaFirstInt,recoverIsolatedTracks,UseElectronHadronID,runTauMode, useLeptons,storeLeptonCells, useLCInput, useUpdated2015ChargedShowerSubtraction,useAODReductionClusterMomentList,fixMuonLogic,useHeavyIonSetup]
+eflowJobProperties = [eflowAlgType,CalType,useLocalHadWeightsOOCC,useOverLapShowerCells,useSplitShowers,useEEtaFirstInt,recoverIsolatedTracks,UseElectronHadronID,runTauMode, useLeptons,storeLeptonCells, useLCInput, useUpdated2015ChargedShowerSubtraction,useAODReductionClusterMomentList,fixMuonLogic]
 
 for i in eflowJobProperties :
     jobproperties.eflowRecFlags.add_JobProperty(i)
