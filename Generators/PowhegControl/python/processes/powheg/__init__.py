@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from bb import bb
 from bbH import bbH
@@ -30,17 +30,18 @@ from tt_NLOdecays import tt_NLOdecays
 from ttbb import ttbb
 from ttH import ttH
 from ttj import ttj
+from ttWm_QCD import ttWm_QCD
 from VBF_H import VBF_H
-from VBF_ZZ import VBF_ZZ
 from VBF_osWW import VBF_osWW
 from VBF_ssWW import VBF_ssWW
 from VBF_W import VBF_W
 from VBF_Z import VBF_Z
+from VBF_ZZ import VBF_ZZ
 from W import W
-from Wbb import Wbb
-from Wbbj import Wbbj
 from W_EW import W_EW
 from W_SMEFT import W_SMEFT
+from Wbb import Wbb
+from Wbbj import Wbbj
 from Wj import Wj
 from Wj_MiNNLO import Wj_MiNNLO
 from Wjj import Wjj
