@@ -262,6 +262,10 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
     TLorentzVector CHFNum = TLorentzVector(0.0,0.0,0.0,0.0);
     const xAOD::BTagging *bjet(nullptr);
     bjet = xAOD::BTaggingUtilities::getBTagging( *jet );
+    if (!bjet){
+      ATH_MSG_WARNING("Btag info unavailable");
+      continue;
+    }
     TrackLinks assocTracks = bjet->auxdata<TrackLinks>("BTagTrackToJetAssociator");
     
     std::vector<const xAOD::TrackParticle*> goodTracks;

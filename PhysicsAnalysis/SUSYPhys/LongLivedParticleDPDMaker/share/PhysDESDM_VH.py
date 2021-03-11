@@ -47,3 +47,6 @@ topSequence += DerivationFramework__DerivationKernel( "RPVLL_VHLowTrackJetFilter
                        SkimmingTools = [VHLTrkJetFilterTool] )
 
 RPVLLfilterNames.extend(["RPVLL_VHLowTrackJetFilterKernel"])
+topSequence.RPVLL_VHLowTrackJetFilterKernel.ExtraInputs = [('xAOD::IParticleContainer' , 'StoreGateSvc+Electrons.topoetcone20'),
+                                                           ('xAOD::IParticleContainer' , 'StoreGateSvc+Muons.topoetcone20'),
+                                                           ('xAOD::JetContainer', 'StoreGateSvc+AntiKt4EMTopoJets.btaggingLink')]

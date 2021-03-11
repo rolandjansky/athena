@@ -187,6 +187,7 @@ ToolSvc+=DV_MuonFinalFilter
 topSequence += kernel("RPVLL_DVMuonFilterKernel",
                       SkimmingTools = [DV_MuonFinalFilter])
 RPVLLfilterNames.extend(["RPVLL_DVMuonFilterKernel"])
+topSequence.RPVLL_DVMuonFilterKernel.ExtraInputs = [('xAOD::MuonContainer', 'StoreGateSvc+'+muonContainer)]
 
 ########################################
 ## photon filter for DV+electron
@@ -236,6 +237,8 @@ topSequence += kernel( "RPVLL_DV_PhotonFilterKernel",
                        SkimmingTools = [DV_PrescaledPhotonFinalFilter]
                        )
 RPVLLfilterNames.extend(["RPVLL_DV_PhotonFilterKernel"])
+topSequence.RPVLL_DV_PhotonFilterKernel.ExtraInputs = [('xAOD::EgammaContainer', 'StoreGateSvc+'+photonContainer),
+                                                       ('std::vector<int>', 'StoreGateSvc+DV'+photonContainer+primRPVLLDESDM.DV_PhotonFilterFlags.cutIsEM)]
 
 ##########################################################################################################################################
 ### Backup - photon+trackless jet - same combination as for multijets or MET - one hard trackless jets OR 2 soft OR prescaled passthrough.
@@ -250,6 +253,8 @@ topSequence += kernel( "RPVLL_DV_PhotonPlusTLJetFilterKernel",
                        SkimmingTools = [DV_PhotonPlusTracklessJetFilter]
                        )
 RPVLLfilterNames.extend(["RPVLL_DV_PhotonPlusTLJetFilterKernel"])
+topSequence.RPVLL_DV_PhotonPlusTLJetFilterKernel.ExtraInputs = [('xAOD::EgammaContainer', 'StoreGateSvc+'+photonContainer),
+                                                                ('std::vector<int>', 'StoreGateSvc+DV'+photonContainer+primRPVLLDESDM.DV_PhotonFilterFlags.cutIsEM)]
 
 
 ###########################################################################################
@@ -377,6 +382,7 @@ topSequence += kernel( "RPVLL_DV_MultiJetFilterKernel",
                        SkimmingTools = [DV_MultiJetFinalFilter],
                        )
 RPVLLfilterNames.extend(["RPVLL_DV_MultiJetFilterKernel"])
+topSequence.RPVLL_DV_MultiJetFilterKernel.ExtraInputs = [('xAOD::JetContainer', 'StoreGateSvc+'+jetContainer)]
 
 
 ############################################################
@@ -407,6 +413,7 @@ topSequence += kernel( "RPVLL_DV_METFilterKernel",
                        SkimmingTools = [DV_METFinalFilter],
                        )
 RPVLLfilterNames.extend(["RPVLL_DV_METFilterKernel"])
+topSequence.RPVLL_DV_METFilterKernel.ExtraInputs = [('xAOD::MissingETContainer', 'StoreGateSvc+'+METContainer)]
 
 #########################################################################
 ### M_eff filter - use the MET trigger, but then cut on Meff, or MET/Meff

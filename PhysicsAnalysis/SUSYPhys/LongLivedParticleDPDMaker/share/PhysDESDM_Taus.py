@@ -67,9 +67,9 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 ## Single Tau RNN filter
 ###########################################################
 
-TauSingleTriggerFilter = skimtool( name = "TauSingleTriggerFilter",
-                                   expression = TausTriggerSelectionString(primRPVLLDESDM.Taus_SingleTauFilterFlags,RNN=True)
-)
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
+TauSingleTriggerFilter = DerivationFramework__TriggerSkimmingTool(name = "TauSingleTriggerFilter",
+                                                                       TriggerListOR = primRPVLLDESDM.Taus_SingleTauFilterFlags.triggers)
 
 ToolSvc+=TauSingleTriggerFilter
 
@@ -88,9 +88,8 @@ RPVLLfilterNames.extend(["RPVLL_LargeRTaus_SiFilterKernel"])
 ############################################################
 ## Di Tau filter
 ###########################################################
-TauDiTriggerFilter = skimtool( name = "TauDiTriggerFilter",
-                               expression = TausTriggerSelectionString(primRPVLLDESDM.Taus_DiTauFilterFlags,RNN=True)
-)
+TauDiTriggerFilter = DerivationFramework__TriggerSkimmingTool(name = "TauDiTriggerFilter",
+                                                                       TriggerListOR = primRPVLLDESDM.Taus_DiTauFilterFlags.triggers)
 
 ToolSvc+=TauDiTriggerFilter
 
@@ -106,14 +105,12 @@ topSequence += kernel( "RPVLL_LargeRTaus_DiFilterKernel",
 RPVLLfilterNames.extend(["RPVLL_LargeRTaus_DiFilterKernel"])
 
 
-
 ############################################################
 ## Met Tau filter
 ###########################################################
 
-TauMETTriggerFilter = skimtool( name = "TauMETTriggerFilter",
-                                   expression = TausTriggerSelectionString(primRPVLLDESDM.Taus_TauMETFilterFlags,RNN=True)
-)
+TauMETTriggerFilter = DerivationFramework__TriggerSkimmingTool(name = "TauMETTriggerFilter",
+                                                                       TriggerListOR = primRPVLLDESDM.Taus_TauMETFilterFlags.triggers)
 
 ToolSvc+=TauMETTriggerFilter
 
