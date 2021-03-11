@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //  ====================================================================
@@ -445,10 +445,14 @@ DbStatus DbStorageSvc::reconnect(FileDescriptor& refDb, int mode)  {
 /// Disconnect from a logical Database unit.
 DbStatus DbStorageSvc::disconnect(FileDescriptor& fDesc) {
   DbConnection* dbc = dynamic_cast<DbConnection*>(fDesc.dbc());
+  DbPrint log( name());
+  log << DbPrintLvl::Debug << "Disconnect request for database: FID=" << fDesc.FID()
+      << " PFN=" << fDesc.PFN() << DbPrint::endmsg;
   if ( dbc )   {
     DbDatabase  dbH(DbDatabaseH(dbc->handle()));
     dbc->release();
     fDesc.setDbc(0);
+    log << DbPrintLvl::Debug << "Closing database: FID=" << fDesc.FID() << DbPrint::endmsg;
     return dbH.close();
   }
   return Error;

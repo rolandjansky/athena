@@ -9,6 +9,7 @@ EventSelector       DEBUG Initializing EventSelector
 EventSelector       DEBUG reinitialization...
 EventSelector        INFO EventSelection with query 
 EventSelector       DEBUG Try item: "SimplePoolFile1.root" from the collection list.
+PoolSvc             DEBUG createCollection() type=RootCollection, connection=PFN:SimplePoolFile1.root, name=SimplePoolFile1.root, contextID=0
 MetaDataSvc         DEBUG handle() FirstInputFile for FID:????
 MetaDataSvc         DEBUG initInputMetaDataStore: file name FID:????
 SimplePoolFile1...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Shapes
@@ -125,6 +126,7 @@ AthenaPoolAddre...  DEBUG Cannot retrieve DataHeader from DetectorStore.
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
 EventSelector       DEBUG Try item: "SimplePoolFile1.root" from the collection list.
+PoolSvc             DEBUG createCollection() type=RootCollection, connection=PFN:SimplePoolFile1.root, name=SimplePoolFile1.root, contextID=0
 ApplicationMgr       INFO Application Manager Started successfully
 RootDatabase.se...  DEBUG Request tree cache 
 RootDatabase.se...  DEBUG File name SimplePoolFile1.root
@@ -202,7 +204,6 @@ EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 12
 EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000203][OID=00000005-00000001].
 EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000203][OID=00000005-00000001].
-ClassIDSvc           INFO  getRegistryEntries: read 21 CLIDRegistry entries for module ALL
 EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000203][OID=00000005-00000001]
 AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
@@ -1018,10 +1019,15 @@ WriteCond            INFO registered all data
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #1 20 events processed so far  <<<===
 MetaDataSvc         DEBUG handle() EndInputFile for FID:????
 MetaDataSvc         DEBUG retireMetadataSource: FID:????
+StorageSvc          DEBUG Disconnect request for database: FID=???? PFN=SimplePoolFile1.root
+StorageSvc          DEBUG Closing database: FID=????
 AthenaEventLoopMgr   INFO No more events in event selection 
 WriteCond            INFO in finalize()
 WriteCond            INFO Pedestal x = 193136 y = 14420 z = -175208 string = <..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o>
 MetaDataSvc         DEBUG MetaDataSvc::stop()
+PoolSvc             DEBUG Disconnect request for contextId=0
+PoolSvc             DEBUG Disconnected PersistencySvc session
+PoolSvc             DEBUG Disconnect request for contextId=1
 ApplicationMgr       INFO Application Manager Stopped successfully
 SimplePoolFile4...  DEBUG --> Access   DbContainer  CREATE    [ROOT_All] ##Shapes
 ##Shapes            DEBUG Opening
@@ -1081,6 +1087,8 @@ SimplePoolFile4...  DEBUG ---->[0]:DataHeaderForm_p6 Typ:DataHeaderForm_p6 [21] 
 Stream1              INFO Written 1 objects to output stream
 Stream1              INFO Objects NOT registered in IOV database
 ReadData             INFO in finalize()
+StorageSvc          DEBUG Disconnect request for database: FID=???? PFN=SimplePoolFile4.root
+StorageSvc          DEBUG Closing database: FID=????
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
 *****Chrono*****     INFO ****************************************************************************************************

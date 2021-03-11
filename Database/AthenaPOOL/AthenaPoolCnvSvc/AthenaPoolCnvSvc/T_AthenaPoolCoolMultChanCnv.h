@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAPOOLCNVSVC_T_ATHENAPOOLCOOLMULTCHANCNV_H
@@ -102,6 +102,9 @@ protected:
     //-------------------------------------------------------------------
     // Helper methods intended to by used when implementing createTransient()
 
+    /// specialized version that adds persistency contextID to tokens (for reading)
+    virtual void setToken(const std::string& token) override final;
+
     /** Read object of type P.  This is an exception-throwing version of poolToObject()
         plus reading of all extending objects.
         Version 1 - (see createTransient() above)
@@ -115,6 +118,11 @@ protected:
     /// Dummy methods not needed here
     virtual StatusCode transToPers(COLL_T* obj, ELEM_T*& persObj);
     virtual StatusCode persToTrans(COLL_T*& transObj, ELEM_T* obj);
+
+protected:
+
+    /// Persistency context in which to read all objects (extracted from the Collection Address)
+    int  m_persCtx { 0 };
 
 };
 

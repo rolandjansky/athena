@@ -10,6 +10,8 @@ IoComponentMgr       INFO IoComponent EventSelector has already had file EmptyPo
 EventSelector       DEBUG reinitialization...
 EventSelector        INFO EventSelection with query 
 EventSelector       DEBUG Try item: "EmptyPoolFile.root" from the collection list.
+PoolSvc             DEBUG createCollection() type=RootCollection, connection=PFN:EmptyPoolFile.root, name=EmptyPoolFile.root, contextID=0
+PoolSvc             DEBUG createCollection() type=ImplicitCollection, connection=PFN:EmptyPoolFile.root, name=POOLContainer(DataHeader), contextID=0
 EmptyPoolFile.root  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Shapes
 ##Shapes            DEBUG Opening
 ##Shapes            DEBUG    attributes# = 1
@@ -55,8 +57,12 @@ EmptyPoolFile.root  DEBUG --->Reading Param:PFN=[EmptyPoolFile.root]
 EmptyPoolFile.root  DEBUG --->Reading Param:POOL_VSN=[1.1]
 EmptyPoolFile.root  DEBUG --->Reading Param:FORMAT_VSN=[1.1]
 ##Params            DEBUG No objects passing selection criteria... Container has 4 Entries in total.
+PoolSvc             DEBUG createCollection() type=ImplicitCollection, connection=PFN:EmptyPoolFile.root, name=POOLContainer_DataHeader, contextID=0
 EventSelector       DEBUG No events found in: EmptyPoolFile.root skipped!!!
+StorageSvc          DEBUG Disconnect request for database: FID=???? PFN=EmptyPoolFile.root
+StorageSvc          DEBUG Closing database: FID=????
 EventSelector       DEBUG Try item: "SimplePoolFile1.root" from the collection list.
+PoolSvc             DEBUG createCollection() type=RootCollection, connection=PFN:SimplePoolFile1.root, name=SimplePoolFile1.root, contextID=0
 MetaDataSvc         DEBUG handle() FirstInputFile for FID:????
 MetaDataSvc         DEBUG initInputMetaDataStore: file name FID:????
 SimplePoolFile1...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Shapes
@@ -146,6 +152,8 @@ MetaDataSvc         DEBUG Adding public ToolHandle tool ToolSvc.IOVDbMetaDataToo
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
 EventSelector       DEBUG Try item: "EmptyPoolFile.root" from the collection list.
+PoolSvc             DEBUG createCollection() type=RootCollection, connection=PFN:EmptyPoolFile.root, name=EmptyPoolFile.root, contextID=0
+PoolSvc             DEBUG createCollection() type=ImplicitCollection, connection=PFN:EmptyPoolFile.root, name=POOLContainer(DataHeader), contextID=0
 EmptyPoolFile.root  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Shapes
 ##Shapes            DEBUG Opening
 ##Shapes            DEBUG    attributes# = 1
@@ -191,6 +199,7 @@ EmptyPoolFile.root  DEBUG --->Reading Param:PFN=[EmptyPoolFile.root]
 EmptyPoolFile.root  DEBUG --->Reading Param:POOL_VSN=[1.1]
 EmptyPoolFile.root  DEBUG --->Reading Param:FORMAT_VSN=[1.1]
 ##Params            DEBUG No objects passing selection criteria... Container has 4 Entries in total.
+PoolSvc             DEBUG createCollection() type=ImplicitCollection, connection=PFN:EmptyPoolFile.root, name=POOLContainer_DataHeader, contextID=0
 EventSelector       DEBUG No events found in: EmptyPoolFile.root skipped!!!
 MetaDataSvc         DEBUG handle() BeginInputFile for EmptyPoolFile.root
 MetaDataSvc         DEBUG initInputMetaDataStore: file name EmptyPoolFile.root
@@ -208,7 +217,10 @@ MetaDataSvc         DEBUG Loaded input meta data store proxies
 MetaDataSvc         DEBUG  calling beginInputFile for ToolSvc.IOVDbMetaDataTool
 MetaDataSvc         DEBUG handle() EndInputFile for eventless EmptyPoolFile.root
 MetaDataSvc         DEBUG retireMetadataSource: eventless EmptyPoolFile.root
+StorageSvc          DEBUG Disconnect request for database: FID=???? PFN=EmptyPoolFile.root
+StorageSvc          DEBUG Closing database: FID=????
 EventSelector       DEBUG Try item: "SimplePoolFile1.root" from the collection list.
+PoolSvc             DEBUG createCollection() type=RootCollection, connection=PFN:SimplePoolFile1.root, name=SimplePoolFile1.root, contextID=0
 ApplicationMgr       INFO Application Manager Started successfully
 RootDatabase.se...  DEBUG Request tree cache 
 RootDatabase.se...  DEBUG File name SimplePoolFile1.root
@@ -294,7 +306,6 @@ EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
 EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000203][OID=00000005-0000000B].
 EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000203][OID=00000005-0000000B].
-ClassIDSvc           INFO  getRegistryEntries: read 21 CLIDRegistry entries for module ALL
 EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000203][OID=00000005-0000000B]
 AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
@@ -572,7 +583,11 @@ ReadData             INFO Hit x = 1930.12 y = 46.5449 z = -1856.17 detector = Du
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #1 10 events processed so far  <<<===
 MetaDataSvc         DEBUG handle() EndInputFile for FID:????
 MetaDataSvc         DEBUG retireMetadataSource: FID:????
+StorageSvc          DEBUG Disconnect request for database: FID=???? PFN=SimplePoolFile1.root
+StorageSvc          DEBUG Closing database: FID=????
 EventSelector       DEBUG Try item: "EmptyPoolFile.root" from the collection list.
+PoolSvc             DEBUG createCollection() type=RootCollection, connection=PFN:EmptyPoolFile.root, name=EmptyPoolFile.root, contextID=0
+PoolSvc             DEBUG createCollection() type=ImplicitCollection, connection=PFN:EmptyPoolFile.root, name=POOLContainer(DataHeader), contextID=0
 EmptyPoolFile.root  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Shapes
 ##Shapes            DEBUG Opening
 ##Shapes            DEBUG    attributes# = 1
@@ -618,6 +633,7 @@ EmptyPoolFile.root  DEBUG --->Reading Param:PFN=[EmptyPoolFile.root]
 EmptyPoolFile.root  DEBUG --->Reading Param:POOL_VSN=[1.1]
 EmptyPoolFile.root  DEBUG --->Reading Param:FORMAT_VSN=[1.1]
 ##Params            DEBUG No objects passing selection criteria... Container has 4 Entries in total.
+PoolSvc             DEBUG createCollection() type=ImplicitCollection, connection=PFN:EmptyPoolFile.root, name=POOLContainer_DataHeader, contextID=0
 EventSelector       DEBUG No events found in: EmptyPoolFile.root skipped!!!
 MetaDataSvc         DEBUG handle() BeginInputFile for EmptyPoolFile.root
 MetaDataSvc         DEBUG initInputMetaDataStore: file name EmptyPoolFile.root
@@ -630,7 +646,10 @@ MetaDataSvc         DEBUG Loaded input meta data store proxies
 MetaDataSvc         DEBUG  calling beginInputFile for ToolSvc.IOVDbMetaDataTool
 MetaDataSvc         DEBUG handle() EndInputFile for eventless EmptyPoolFile.root
 MetaDataSvc         DEBUG retireMetadataSource: eventless EmptyPoolFile.root
+StorageSvc          DEBUG Disconnect request for database: FID=???? PFN=EmptyPoolFile.root
+StorageSvc          DEBUG Closing database: FID=????
 EventSelector       DEBUG Try item: "SimplePoolFile2.root" from the collection list.
+PoolSvc             DEBUG createCollection() type=RootCollection, connection=PFN:SimplePoolFile2.root, name=SimplePoolFile2.root, contextID=0
 SimplePoolFile2...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Shapes
 ##Shapes            DEBUG Opening
 ##Shapes            DEBUG    attributes# = 1
@@ -1141,7 +1160,10 @@ ReadData             INFO Could not find ExampleHitContainer/MyHits
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #1 30 events processed so far  <<<===
 MetaDataSvc         DEBUG handle() EndInputFile for FID:????
 MetaDataSvc         DEBUG retireMetadataSource: FID:????
+StorageSvc          DEBUG Disconnect request for database: FID=???? PFN=SimplePoolFile2.root
+StorageSvc          DEBUG Closing database: FID=????
 EventSelector       DEBUG Try item: "SimplePoolFile3.root" from the collection list.
+PoolSvc             DEBUG createCollection() type=RootCollection, connection=PFN:SimplePoolFile3.root, name=SimplePoolFile3.root, contextID=0
 SimplePoolFile3...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Shapes
 ##Shapes            DEBUG Opening
 ##Shapes            DEBUG    attributes# = 1
@@ -1741,8 +1763,13 @@ ReadData             INFO Could not find ExampleHitContainer/MyHits
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #1 50 events processed so far  <<<===
 MetaDataSvc         DEBUG handle() EndInputFile for FID:????
 MetaDataSvc         DEBUG retireMetadataSource: FID:????
+StorageSvc          DEBUG Disconnect request for database: FID=???? PFN=SimplePoolFile3.root
+StorageSvc          DEBUG Closing database: FID=????
 AthenaEventLoopMgr   INFO No more events in event selection 
 MetaDataSvc         DEBUG MetaDataSvc::stop()
+PoolSvc             DEBUG Disconnect request for contextId=0
+PoolSvc             DEBUG Disconnected PersistencySvc session
+PoolSvc             DEBUG Disconnect request for contextId=1
 ApplicationMgr       INFO Application Manager Stopped successfully
 ReadData             INFO in finalize()
 AthDictLoaderSvc     INFO in finalize...

@@ -1157,7 +1157,6 @@ SimplePoolFile1...  DEBUG --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm)
 SimplePoolFile1...  DEBUG ---->ClassID:????
 MetaData(xAOD::...  DEBUG  SG::IAuxStoreIO* detected in xAOD::FileMetaDataAuxInfo_v1_FileMetaDataAux.
 MetaData(xAOD::...  DEBUG        Attributes= 1
-MetaData(xAOD::...  DEBUG    Creating branch for new dynamic attribute, Id=79: type=float, mcProcID
 MetaData(xAOD::...  DEBUG createBasicAuxBranch: xAOD::FileMetaDataAuxInfo_v1_FileMetaDataAuxDyn.mcProcID, leaf:mcProcID/F
 Stream1              INFO Metadata records written: 21
 Stream1             DEBUG Leaving incident handler for MetaDataStop
@@ -1243,7 +1242,6 @@ SimplePoolFile2...  DEBUG --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm)
 SimplePoolFile2...  DEBUG ---->ClassID:????
 MetaData(xAOD::...  DEBUG  SG::IAuxStoreIO* detected in xAOD::FileMetaDataAuxInfo_v1_FileMetaDataAux.
 MetaData(xAOD::...  DEBUG        Attributes= 1
-MetaData(xAOD::...  DEBUG    Creating branch for new dynamic attribute, Id=79: type=float, mcProcID
 MetaData(xAOD::...  DEBUG createBasicAuxBranch: xAOD::FileMetaDataAuxInfo_v1_FileMetaDataAuxDyn.mcProcID, leaf:mcProcID/F
 Stream2              INFO Metadata records written: 21
 Stream2             DEBUG Leaving incident handler for MetaDataStop
@@ -1326,18 +1324,34 @@ EmptyPoolFile.root  DEBUG ---->Class:DataHeaderForm_p6
 EmptyPoolFile.root  DEBUG ---->[0]:DataHeaderForm_p6 Typ:DataHeaderForm_p6 [21] Size:0 Offset:0 #Elements:1
 MetaData(xAOD::...  DEBUG  SG::IAuxStoreIO* detected in xAOD::FileMetaDataAuxInfo_v1_FileMetaDataAux.
 MetaData(xAOD::...  DEBUG        Attributes= 1
-MetaData(xAOD::...  DEBUG    Creating branch for new dynamic attribute, Id=79: type=float, mcProcID
 MetaData(xAOD::...  DEBUG createBasicAuxBranch: xAOD::FileMetaDataAuxInfo_v1_FileMetaDataAuxDyn.mcProcID, leaf:mcProcID/F
 Stream3              INFO Metadata records written: 1
+PoolSvc             DEBUG Disconnect request for contextId=0
+PoolSvc             DEBUG Disconnected PersistencySvc session
+PoolSvc             DEBUG Disconnect request for contextId=1
+StorageSvc          DEBUG Disconnect request for database: FID=???? PFN=SimplePoolFile1.root
+StorageSvc          DEBUG Closing database: FID=????
+PoolSvc             DEBUG Disconnected PersistencySvc session
+PoolSvc             DEBUG Disconnect request for contextId=2
+StorageSvc          DEBUG Disconnect request for database: FID=???? PFN=SimplePoolFile2.root
+StorageSvc          DEBUG Closing database: FID=????
+PoolSvc             DEBUG Disconnected PersistencySvc session
+PoolSvc             DEBUG Disconnect request for contextId=3
+StorageSvc          DEBUG Disconnect request for database: FID=???? PFN=EmptyPoolFile.root
+StorageSvc          DEBUG Closing database: FID=????
+PoolSvc             DEBUG Disconnected PersistencySvc session
 ApplicationMgr       INFO Application Manager Stopped successfully
 AllExecutedEvents    INFO accepted 20 out of 20 events for filter AllExecutedEvents (Number of processed events before any cut)
 WriteData            INFO in finalize()
 WriteTag             INFO in finalize()
 MagicWriteTag        INFO in finalize()
 Stream1             DEBUG finalize: Optimize output
+PoolSvc             DEBUG Disconnect request for contextId=1
 Stream1             DEBUG finalize: end optimize output
 Stream2             DEBUG finalize: Optimize output
+PoolSvc             DEBUG Disconnect request for contextId=2
 Stream2             DEBUG finalize: end optimize output
+PoolSvc             DEBUG Disconnect request for contextId=3
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
 *****Chrono*****     INFO ****************************************************************************************************

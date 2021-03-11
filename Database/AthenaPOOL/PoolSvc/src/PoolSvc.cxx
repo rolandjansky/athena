@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file PoolSvc.cxx
@@ -320,6 +320,7 @@ void PoolSvc::setObjPtr(void*& obj, const Token* token) {
          contextId = IPoolSvc::kInputStream;
       }
    }
+   ATH_MSG_VERBOSE("setObjPtr: token=" << token->toString() << ", auxString=" << auxString << ", contextID="<< contextId);
    // Get Context ID/label from Token
    std::lock_guard<CallMutex> lock(*m_pers_mut[contextId]);
    obj = m_persistencySvcVec[contextId]->readObject(*token, obj);
@@ -440,6 +441,8 @@ pool::ICollection* PoolSvc::createCollection ATLAS_NOT_THREAD_SAFE
 		const std::string& collectionName,
 		const pool::ICollection::OpenMode& openMode,
 		unsigned int contextId) const {
+   ATH_MSG_DEBUG("createCollection() type="<< collectionType << ", connection=" << connection
+                 << ", name=" << collectionName << ", contextID=" << contextId);
    std::string collection(collectionName);
    if (collectionType == "RootCollection") {
       if (collectionName.find("PFN:") == std::string::npos
@@ -640,6 +643,7 @@ StatusCode PoolSvc::commitAndHold(unsigned int contextId) const {
 }
 //__________________________________________________________________________
 StatusCode PoolSvc::disconnect(unsigned int contextId) const {
+   ATH_MSG_DEBUG("Disconnect request for contextId=" << contextId);
    if (contextId >= m_persistencySvcVec.size()) {
       return(StatusCode::SUCCESS);
    }
@@ -651,6 +655,7 @@ StatusCode PoolSvc::disconnect(unsigned int contextId) const {
          return(StatusCode::FAILURE);
       }
       persSvc->session().disconnectAll();
+      ATH_MSG_DEBUG("Disconnected PersistencySvc session");
    }
    return(StatusCode::SUCCESS);
 }
