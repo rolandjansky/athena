@@ -200,8 +200,8 @@ StatusCode TrackRNN::classifyTracks(std::vector<xAOD::TauTrack*>& vTracks, xAOD:
     idScoreIso(*vTracks[i]) = vClassProb[2];
     idScoreFake(*vTracks[i]) = vClassProb[3];
 
-    int iMaxIndex = 3; // for safety reasons set this to FT to circumvent bias
-    for (unsigned int j = 0; j < vClassProb.size(); ++j){
+    int iMaxIndex = 0;
+    for (unsigned int j = 1; j < vClassProb.size(); ++j){
       if(vClassProb[j] > vClassProb[iMaxIndex]) iMaxIndex = j;
     }
 
