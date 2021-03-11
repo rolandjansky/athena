@@ -132,7 +132,7 @@ parser.add_argument("-S", "--verboseStoreGate", default=False,
                     help="Dump the StoreGate(s) each event iteration")
 parser.add_argument("--maxEvents",default=3, type=int,
                     help="The number of events to run. 0 skips execution")
-parser.add_argument("--geometrytag",default="ATLAS-P2-ITK-22-02-00", type=str,
+parser.add_argument("--geometrytag",default="ATLAS-P2-ITK-24-00-00", type=str,
                     help="The geometry tag to use")
 parser.add_argument("--inputevntfile",
                     default="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1",
