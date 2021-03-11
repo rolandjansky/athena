@@ -84,7 +84,7 @@ def PassBackGeant4ToolCfg(flags, name="ISF_PassBackGeant4Tool", **kwargs):
 def AFIIGeant4ToolCfg(flags, name="ISF_AFIIGeant4Tool", **kwargs):
     acc = ISF_AFIIUserActionSvcCfg(flags)
     kwargs.setdefault("UserActionSvc", acc.getService("G4UA::ISF_AFIIUserActionSvc"))
-    PassBackGeant4Tool = acc.popToolsAndMerge(PassBackGeant4ToolCfg(flags, name, **kwargs))
+    PassBackGeant4Tool = acc.popToolsAndMerge(Geant4ToolCfg(flags, name, **kwargs))
     acc.setPrivateTools(PassBackGeant4Tool)
     return acc
 

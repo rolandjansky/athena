@@ -51,8 +51,10 @@ def MCTruthUserActionToolCfg(flags, name="ISFMCTruthUserActionTool", **kwargs):
 
 
 def TrackProcessorUserActionToolCfg(flags, name="ISFG4TrackProcessorUserActionTool", **kwargs):
-    result = ParticleBrokerSvcCfg(flags)
-    kwargs.setdefault("ParticleBroker", result.getService("ISF_ParticleBrokerSvc"))
+    result = ComponentAccumulator()
+    if "ParticleBroker" not in kwargs:
+        result.merge(ParticleBrokerSvcCfg(flags))
+        kwargs.setdefault("ParticleBroker", result.getService("ISF_ParticleBrokerSvc"))
     result.merge(GeoIDSvcCfg(flags))
     kwargs.setdefault("GeoIDSvc", result.getService("ISF_GeoIDSvc"))
     result.setPrivateTools(CompFactory.G4UA.iGeant4.TrackProcessorUserActionPassBackTool(name, **kwargs))

@@ -42,7 +42,7 @@ def GenParticleFiltersToolCfg(ConfigFlags):
             if not (ConfigFlags.Detector.SimulateAFP or
                ConfigFlags.Detector.SimulateALFA or
                ConfigFlags.Detector.SimulateFwdRegion) and \
-               ((ConfigFlags.Sim.CavernBG in (False, "Signal")) and
+               ((ConfigFlags.Sim.CavernBG in ("Off", "Signal")) and
                (not ConfigFlags.Detector.SimulateCavern)):
                 acc = EtaPhiFilterCfg(ConfigFlags)
                 genParticleFilterList += [result.popToolsAndMerge(acc)]
@@ -56,8 +56,9 @@ def InputConverterCfg(ConfigFlags, name="ISF_InputConverter", **kwargs):
     result = BarcodeSvcCfg(ConfigFlags)
     kwargs.setdefault("BarcodeSvc", result.getPrimary())
     kwargs.setdefault("UseGeneratedParticleMass", False)
-    acc_GenParticleFiltersList = GenParticleFiltersToolCfg(ConfigFlags)
-    kwargs.setdefault("GenParticleFilters", result.popToolsAndMerge(acc_GenParticleFiltersList) )
+    if "GenParticleFilters" not in kwargs:
+        acc_GenParticleFiltersList = GenParticleFiltersToolCfg(ConfigFlags)
+        kwargs.setdefault("GenParticleFilters", result.popToolsAndMerge(acc_GenParticleFiltersList) )
     result.addService(CompFactory.ISF.InputConverter(name, **kwargs))
     return result
 
