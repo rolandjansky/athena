@@ -76,7 +76,7 @@ class UseStripDigitization(JobProperty):
     """Option to use new ITk-Strip-specific digitization in place of SCT digi"""
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = False
+    StoredValue  = True
 
 ##-----------------------------------------------------------------------------
 ## 2nd step

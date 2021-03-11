@@ -183,13 +183,13 @@ class MultiElementChargeInserter
 public:
   MultiElementChargeInserter (std::unordered_map<int, SiChargedDiodeCollection *> & chargedDiodesVec, const InDetDD::SCT_ModuleSideDesign * mum)
 
-        : m_chargedDiodesVec(chargedDiodesVec),
+        : m_chargedDiodesVecForInsert(chargedDiodesVec),
         m_mum(mum) {
     }
 
     void operator () (const SiSurfaceCharge &scharge) const;
 private:
-  std::unordered_map<int, SiChargedDiodeCollection *> m_chargedDiodesVec;
+  std::unordered_map<int, SiChargedDiodeCollection *> & m_chargedDiodesVecForInsert;
   const InDetDD::SCT_ModuleSideDesign * m_mum;
 };
 
@@ -209,15 +209,15 @@ void MultiElementChargeInserter::operator ()
 
   //now use this row
 
-  if(m_chargedDiodesVec.at(row)){
+  if(m_chargedDiodesVecForInsert.at(row)){
     
-    SiCellId diode = m_chargedDiodesVec.at(row)->element()->cellIdOfPosition(scharge.position());
+    SiCellId diode = m_chargedDiodesVecForInsert.at(row)->element()->cellIdOfPosition(scharge.position());
     
     
     if (diode.isValid()) {
       // add this charge to the collection (or merge in existing charged
       // diode)
-      m_chargedDiodesVec.at(row)->add(diode, scharge.charge());
+      m_chargedDiodesVecForInsert.at(row)->add(diode, scharge.charge());
     }
   }
   }
@@ -491,7 +491,9 @@ void StripDigitizationTool::digitizeAllHits() {
         // Generally assume it is:
 
 	for (std::pair<int,SiChargedDiodeCollection *> sicoll : m_chargedDiodesVector){
-
+	  
+	  //clean up previous memory pointed to before moving to the next
+	  if(m_chargedDiodes) delete m_chargedDiodes;
 	  m_chargedDiodes = sicoll.second;
 
 
