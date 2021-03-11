@@ -34,8 +34,7 @@ function( atlas_build_lvl1_trigger_menu menu )
       ${CMAKE_CURRENT_BINARY_DIR}/Menus/${menu}
       COMMAND ${CMAKE_COMMAND} -E make_directory
       ${CMAKE_XML_OUTPUT_DIRECTORY}/TriggerMenuMT
-      COMMAND strace -o ${CMAKE_CURRENT_BINARY_DIR}/Menus/${menu}.copydir.strace
-      ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_BINARY_DIR}/Menus/${menu}/
+      COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_BINARY_DIR}/Menus/${menu}/
       ${CMAKE_XML_OUTPUT_DIRECTORY}/TriggerMenuMT
       #COMMAND ${CMAKE_COMMAND} -E touch           # do not create stamp file to force rebuild every time
       #${CMAKE_CURRENT_BINARY_DIR}/${menu}.stamp
