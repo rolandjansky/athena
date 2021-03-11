@@ -13,7 +13,6 @@
 #include <string>
 
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
-using namespace TrigCompositeUtils;
 
 /**
  * @class TrigIsoHPtTrackTriggerHypoTool

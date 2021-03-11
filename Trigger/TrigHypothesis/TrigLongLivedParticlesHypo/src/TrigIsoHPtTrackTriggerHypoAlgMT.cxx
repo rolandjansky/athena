@@ -21,7 +21,8 @@ using TrigCompositeUtils::featureString;
 using TrigCompositeUtils::hypoAlgNodeName;
 using TrigCompositeUtils::findLink;
 using TrigCompositeUtils::LinkInfo;
-
+using TrigCompositeUtils::Decision;
+using TrigCompositeUtils::allFailed;
 
 TrigIsoHPtTrackTriggerHypoAlgMT::TrigIsoHPtTrackTriggerHypoAlgMT( const std::string& name, 
 			  ISvcLocator* pSvcLocator ) : 
