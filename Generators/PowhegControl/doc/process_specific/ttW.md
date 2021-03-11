@@ -43,7 +43,7 @@ The following scale choices are supported by setting the parameter `PowhegConfig
 
 `0`: $`\mu_{\mathrm{R}} = \mu_{\mathrm{F}} = m_{\mathrm{t}} + m_{\mathrm{W}}/2`$ (default)
 
-`1`: $`\mu_{\mathrm{R}} = \mu_{\mathrm{F}} = [ m_{\mathrm{T}}(\mathrm{W}) * m_{\mathrm{T}}(\mathrm{t}) * m_{\mathrm{T}}(\bar{\mathrm{t}}) ]^(1/3)`$
+`1`: $`\mu_{\mathrm{R}} = \mu_{\mathrm{F}} = [ m_{\mathrm{T}}(\mathrm{W}) * m_{\mathrm{T}}(\mathrm{t}) * m_{\mathrm{T}}(\bar{\mathrm{t}}) ]^{(1/3)}`$
 
 `2`: $`\mu_{\mathrm{R}} = \mu_{\mathrm{F}} = H_{\mathrm{T}} / 2`$, with $`H_{\mathrm{T}} = \sum_i m_{\mathrm{T}}(i)`$ , where $`m_{\mathrm{T}}(i)`$ is the transverse mass of outgoing particle $`i`$
 
@@ -52,7 +52,7 @@ The following scale choices are supported by setting the parameter `PowhegConfig
 
 Instead of a fixed $`h_{\mathrm{damp}}`$ scale, a dynamic scale may be used by setting `PowhegConfig.dynamic_hdamp = 1`. (The value of `PowhegConfig.hdamp` is ignored in that case.) A prefactor $`f`$ may be given via the argument `PowhegConfig.dampscfact = <float>`. The dynamic scale is given by
 
-$`h_{\mathrm{damp}} = f \times H_{\mathrm{T}} / 2,`$ 
+$`h_{\mathrm{damp}} = f \times H_{\mathrm{T}} / 2,`$
 
 with $`H_{\mathrm{T}} = \sum_i m_{\mathrm{T}}(i)`$ , where $`m_{\mathrm{T}}(i)`$ is the transverse mass of outgoing particle $`i`$.
 
