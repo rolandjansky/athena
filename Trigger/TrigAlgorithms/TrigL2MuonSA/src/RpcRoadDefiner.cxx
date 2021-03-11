@@ -40,7 +40,7 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
 						    TrigL2MuonSA::MuonRoad&             muonRoad,
 						    TrigL2MuonSA::RpcHits&              /*rpcHits*/,
                                                     const TrigL2MuonSA::RpcLayerHits&   rpcLayerHits,
-						    ToolHandle<RpcPatFinder>*           rpcPatFinder,
+						    const ToolHandle<RpcPatFinder>*     rpcPatFinder,
 						    TrigL2MuonSA::RpcFitResult&         rpcFitResult,
                                                     double                              roiEtaMinLow,
                                                     double                              roiEtaMaxLow,
@@ -269,7 +269,7 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const xAOD::MuonRoI*        
 						    TrigL2MuonSA::MuonRoad&             muonRoad,
 						    TrigL2MuonSA::RpcHits&              /*rpcHits*/,
                                                     const TrigL2MuonSA::RpcLayerHits&   rpcLayerHits,
-						    ToolHandle<RpcPatFinder>*           rpcPatFinder,
+						    const ToolHandle<RpcPatFinder>*     rpcPatFinder,
 						    TrigL2MuonSA::RpcFitResult&         rpcFitResult,
                                                     double                              roiEtaMinLow,
                                                     double                              roiEtaMaxLow,
@@ -329,10 +329,9 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const xAOD::MuonRoI*        
   }
   muonRoad.phiRoI     = p_roi->phi();
   muonRoad.side       = (p_roi->phi()<0.)? 0 : 1;
-  const int SectorID = ( ( p_roi->getSectorAddress() >> 1 ) & 0x1F );
-  muonRoad.LargeSmall = ((SectorID + 1)/2 )%2;
+  muonRoad.LargeSmall = ((p_roi->getSectorID() + 1)/2 )%2;
 
-  const int PhysicsSector = ((SectorID + 1)/4 )%8 + 1;
+  const int PhysicsSector = ((p_roi->getSectorID() + 1)/4 )%8 + 1;
 
   int special = 0;
   if (muonRoad.LargeSmall == 0 && (PhysicsSector == 6 || PhysicsSector == 8 ))

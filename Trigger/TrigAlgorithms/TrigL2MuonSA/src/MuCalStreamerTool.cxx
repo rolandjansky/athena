@@ -127,300 +127,300 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::closeStream()
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-void TrigL2MuonSA::MuCalStreamerTool::clearLocalBuffer()
-{
+// void TrigL2MuonSA::MuCalStreamerTool::clearLocalBuffer()
+// {
   
-  ATH_MSG_DEBUG("Local buffer size before clear: " << m_localBuffer.size());
+//   ATH_MSG_DEBUG("Local buffer size before clear: " << m_localBuffer.size());
 
-  m_localBuffer.clear();
-  m_localBufferSize = 0;
+//   m_localBuffer.clear();
+//   m_localBufferSize = 0;
 
-  ATH_MSG_DEBUG("Local buffer size after clear: " << m_localBuffer.size());
+//   ATH_MSG_DEBUG("Local buffer size after clear: " << m_localBuffer.size());
 
-  return;
-}
+//   return;
+// }
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigL2MuonSA::MuCalStreamerTool::createRoiFragment(const LVL1::RecMuonRoI* roi,
-							      TrigL2MuonSA::TrackPattern& track,
-							      TrigL2MuonSA::MdtHits& mdtHits,
-							      TrigL2MuonSA::RpcHits& rpcHits,
-							      TrigL2MuonSA::TgcHits& tgcHits,
-							      int calBufferSize,
-							      bool doDataScouting,
-							      bool& updateTriggerElement)
-{
+// StatusCode TrigL2MuonSA::MuCalStreamerTool::createRoiFragment(const LVL1::RecMuonRoI* roi,
+// 							      TrigL2MuonSA::TrackPattern& track,
+// 							      TrigL2MuonSA::MdtHits& mdtHits,
+// 							      TrigL2MuonSA::RpcHits& rpcHits,
+// 							      TrigL2MuonSA::TgcHits& tgcHits,
+// 							      int calBufferSize,
+// 							      bool doDataScouting,
+// 							      bool& updateTriggerElement)
+// {
 
-  // create the fragment
-  // ( dummy input for now )
+//   // create the fragment
+//   // ( dummy input for now )
 
-  // skip the event if it's a data scouting chain and it's a noise burst
-  unsigned int totalHits = mdtHits.size()+rpcHits.size()+tgcHits.size();
-  if ( doDataScouting && totalHits > 500 ) {
-    ATH_MSG_DEBUG("Too many hits: skip the RoI");
-    updateTriggerElement=false;
-    return StatusCode::SUCCESS;
-  }
+//   // skip the event if it's a data scouting chain and it's a noise burst
+//   unsigned int totalHits = mdtHits.size()+rpcHits.size()+tgcHits.size();
+//   if ( doDataScouting && totalHits > 500 ) {
+//     ATH_MSG_DEBUG("Too many hits: skip the RoI");
+//     updateTriggerElement=false;
+//     return StatusCode::SUCCESS;
+//   }
   
-  // init roi pointer
-  if ( !roi ) {
-    ATH_MSG_ERROR("Roi not initialized");
-    return StatusCode::FAILURE;
-  }
+//   // init roi pointer
+//   if ( !roi ) {
+//     ATH_MSG_ERROR("Roi not initialized");
+//     return StatusCode::FAILURE;
+//   }
 
-  m_roi = roi;
+//   m_roi = roi;
 
-  // retrieve the event and trigger info
-  const EventInfo* eventInfo(0);
-  ATH_CHECK( evtStore()->retrieve(eventInfo) );
+//   // retrieve the event and trigger info
+//   const EventInfo* eventInfo(0);
+//   ATH_CHECK( evtStore()->retrieve(eventInfo) );
   
-  const EventID* eventId = eventInfo->event_ID();
-  if(eventId==0) {
-    ATH_MSG_ERROR("Could not find EventID object");
-    return StatusCode::FAILURE;
-  }
+//   const EventID* eventId = eventInfo->event_ID();
+//   if(eventId==0) {
+//     ATH_MSG_ERROR("Could not find EventID object");
+//     return StatusCode::FAILURE;
+//   }
   
-  const TriggerInfo* triggerInfo = eventInfo->trigger_info();
-  if(triggerInfo==0) {
-    ATH_MSG_ERROR("Could not find TriggerInfo object");
-    return StatusCode::FAILURE;
-  }
+//   const TriggerInfo* triggerInfo = eventInfo->trigger_info();
+//   if(triggerInfo==0) {
+//     ATH_MSG_ERROR("Could not find TriggerInfo object");
+//     return StatusCode::FAILURE;
+//   }
   
-  uint32_t runId  = eventId->run_number();
-  uint32_t lvl1Id = triggerInfo->extendedLevel1ID();
+//   uint32_t runId  = eventId->run_number();
+//   uint32_t lvl1Id = triggerInfo->extendedLevel1ID();
 
-  // get track parameters
-  float eta = (float) track.etaVtx;
-  float phi = (float) track.phiVtx;
-  float pt  = (float) track.pt;
+//   // get track parameters
+//   float eta = (float) track.etaVtx;
+//   float phi = (float) track.phiVtx;
+//   float pt  = (float) track.pt;
 
-  uint32_t mrods[4] = {0, 0, 0, 0};
-  // prepare the header information
-  std::vector<uint32_t> robIdList_MDT;
-  double etaMin = m_roi->eta()-0.05;
-  double etaMax = m_roi->eta()+0.05;
-  double phi_roi = m_roi->phi();
-  double phiMin = m_roi->phi()-0.05;
-  double phiMax = m_roi->phi()+0.05;
-  if( phi_roi < 0 ) phi_roi += 2*M_PI;
-  if( phiMin < 0 ) phiMin += 2*M_PI;
-  if( phiMax < 0 ) phiMax += 2*M_PI;
+//   uint32_t mrods[4] = {0, 0, 0, 0};
+//   // prepare the header information
+//   std::vector<uint32_t> robIdList_MDT;
+//   double etaMin = m_roi->eta()-0.05;
+//   double etaMax = m_roi->eta()+0.05;
+//   double phi_roi = m_roi->phi();
+//   double phiMin = m_roi->phi()-0.05;
+//   double phiMax = m_roi->phi()+0.05;
+//   if( phi_roi < 0 ) phi_roi += 2*M_PI;
+//   if( phiMin < 0 ) phiMin += 2*M_PI;
+//   if( phiMax < 0 ) phiMax += 2*M_PI;
   
-  TrigRoiDescriptor roiDescr( m_roi->eta(), etaMin, etaMax, phi_roi, phiMin, phiMax );
+//   TrigRoiDescriptor roiDescr( m_roi->eta(), etaMin, etaMax, phi_roi, phiMin, phiMax );
     
-  const IRoiDescriptor* iroi = (IRoiDescriptor*) &roiDescr;
-  m_regSel_MDT->ROBIDList(*iroi,robIdList_MDT);
+//   const IRoiDescriptor* iroi = (IRoiDescriptor*) &roiDescr;
+//   m_regSel_MDT->ROBIDList(*iroi,robIdList_MDT);
 
-  // dump the list of robs for debugging 
-  int isize = robIdList_MDT.size()<5 ? robIdList_MDT.size() : 4;
-  for (int ii = 0 ; ii<isize ; ++ii ) {
-    ATH_MSG_DEBUG("robId: 0x" << std::hex << robIdList_MDT.at(ii) << std::dec);
-    mrods[ii] = robIdList_MDT.at(ii);
-  }
+//   // dump the list of robs for debugging 
+//   int isize = robIdList_MDT.size()<5 ? robIdList_MDT.size() : 4;
+//   for (int ii = 0 ; ii<isize ; ++ii ) {
+//     ATH_MSG_DEBUG("robId: 0x" << std::hex << robIdList_MDT.at(ii) << std::dec);
+//     mrods[ii] = robIdList_MDT.at(ii);
+//   }
   
-  // get the list of TGC robs
-  std::vector<uint32_t> robIdList_TGC;
-  m_regSel_TGC->ROBIDList(*iroi,robIdList_TGC);
-  ATH_MSG_DEBUG("Size of the TGC rob list: " << robIdList_TGC.size());
+//   // get the list of TGC robs
+//   std::vector<uint32_t> robIdList_TGC;
+//   m_regSel_TGC->ROBIDList(*iroi,robIdList_TGC);
+//   ATH_MSG_DEBUG("Size of the TGC rob list: " << robIdList_TGC.size());
 
-  // get the list of CSC robs
-  std::vector<uint32_t> robIdList_CSC;
-  m_regSel_CSC->ROBIDList(*iroi,robIdList_CSC);
-  ATH_MSG_DEBUG("Size of the CSC rob list: " << robIdList_CSC.size());
+//   // get the list of CSC robs
+//   std::vector<uint32_t> robIdList_CSC;
+//   m_regSel_CSC->ROBIDList(*iroi,robIdList_CSC);
+//   ATH_MSG_DEBUG("Size of the CSC rob list: " << robIdList_CSC.size());
 
-  LVL2_MUON_CALIBRATION::CalibEvent  event(1,runId,lvl1Id,1,1,mrods,name().c_str(),eta,phi,pt);
-  LVL2_MUON_CALIBRATION::MdtCalibFragment mdtFragment;
+//   LVL2_MUON_CALIBRATION::CalibEvent  event(1,runId,lvl1Id,1,1,mrods,name().c_str(),eta,phi,pt);
+//   LVL2_MUON_CALIBRATION::MdtCalibFragment mdtFragment;
 
-  // create the MDT fragment
-  if ( mdtHits.size()>0 ) {
-    ATH_CHECK( createMdtFragment(mdtHits,mdtFragment,phi) );
+//   // create the MDT fragment
+//   if ( mdtHits.size()>0 ) {
+//     ATH_CHECK( createMdtFragment(mdtHits,mdtFragment,phi) );
     
-    // add the mdt fragment to the event
-    event << mdtFragment;
-  }
+//     // add the mdt fragment to the event
+//     event << mdtFragment;
+//   }
 
-  // create the RPC fragment 
-  if ( rpcHits.size() > 0 ) {    
-    LVL2_MUON_CALIBRATION::RpcCalibFragment rpcFragment;
+//   // create the RPC fragment 
+//   if ( rpcHits.size() > 0 ) {    
+//     LVL2_MUON_CALIBRATION::RpcCalibFragment rpcFragment;
     
-    if ( createRpcFragment(roi, rpcFragment) != StatusCode::SUCCESS ) {
-      ATH_MSG_WARNING("Could not create the Rpc fragment of the calibration stream");
-    }
-    else {
-      ATH_MSG_DEBUG("Adding the RPC fragment to the calibration stream");
-      event << rpcFragment;
-    }
-  }
+//     if ( createRpcFragment(roi, rpcFragment) != StatusCode::SUCCESS ) {
+//       ATH_MSG_WARNING("Could not create the Rpc fragment of the calibration stream");
+//     }
+//     else {
+//       ATH_MSG_DEBUG("Adding the RPC fragment to the calibration stream");
+//       event << rpcFragment;
+//     }
+//   }
 
-  if ( tgcHits.size() > 0 ) {    
-    LVL2_MUON_CALIBRATION::TgcCalibFragment tgcFragment;
+//   if ( tgcHits.size() > 0 ) {    
+//     LVL2_MUON_CALIBRATION::TgcCalibFragment tgcFragment;
 
-    if ( createTgcFragment(robIdList_TGC,tgcFragment) != StatusCode::SUCCESS ) {
-      ATH_MSG_ERROR("Could not create the Tgc fragment of the calibration stream");
-    }
-    else {
-      ATH_MSG_DEBUG("Adding the TGC fragment to the calibration stream");
-      event << tgcFragment;
-    }
-  }
+//     if ( createTgcFragment(robIdList_TGC,tgcFragment) != StatusCode::SUCCESS ) {
+//       ATH_MSG_ERROR("Could not create the Tgc fragment of the calibration stream");
+//     }
+//     else {
+//       ATH_MSG_DEBUG("Adding the TGC fragment to the calibration stream");
+//       event << tgcFragment;
+//     }
+//   }
 
 
 
-  // if there is any CSC rob, add also the CSC fragment
-  if ( robIdList_CSC.size()>0 ) {
+//   // if there is any CSC rob, add also the CSC fragment
+//   if ( robIdList_CSC.size()>0 ) {
     
-    LVL2_MUON_CALIBRATION::CscCalibFragment cscFragment;
-    if ( createCscFragment(robIdList_CSC,cscFragment) != StatusCode::SUCCESS ) {
-      ATH_MSG_ERROR("Could not create the Csc fragment of the calibration stream");
-    }
-    else {
-      ATH_MSG_DEBUG("Adding the CSC fragment to the calibration stream");
-      event << cscFragment;
-    }
+//     LVL2_MUON_CALIBRATION::CscCalibFragment cscFragment;
+//     if ( createCscFragment(robIdList_CSC,cscFragment) != StatusCode::SUCCESS ) {
+//       ATH_MSG_ERROR("Could not create the Csc fragment of the calibration stream");
+//     }
+//     else {
+//       ATH_MSG_DEBUG("Adding the CSC fragment to the calibration stream");
+//       event << cscFragment;
+//     }
 
-  }
+//   }
 
 
 
-  if (m_writeToFile && m_outputFile.is_open()) {                  
-    uint16_t eventSize = event.size();
-    if (eventSize>1000) return StatusCode::SUCCESS;
-    uint8_t* buff = new uint8_t[eventSize];
-    event.dumpWords(buff,eventSize);
-    m_outputFile.write( (char*) buff, event.size() );
-    // CID 22892: DELETE_ARRAY 
-    // delete buff;
-    delete [] buff;
-  }
-  else if ( !doDataScouting && m_cid != -1) {  
-    uint16_t eventSize = event.size();
-    char* p = NULL;
-    if ((p = CircReserve (m_cid, m_calibEvent, event.size())) != (char *) -1) { 
-      uint8_t* buff = reinterpret_cast<uint8_t*>(p);
-      uint16_t eventSize8bits = eventSize;
-      // encode the event
-      event.dumpWords(buff,eventSize);
+//   if (m_writeToFile && m_outputFile.is_open()) {                  
+//     uint16_t eventSize = event.size();
+//     if (eventSize>1000) return StatusCode::SUCCESS;
+//     uint8_t* buff = new uint8_t[eventSize];
+//     event.dumpWords(buff,eventSize);
+//     m_outputFile.write( (char*) buff, event.size() );
+//     // CID 22892: DELETE_ARRAY 
+//     // delete buff;
+//     delete [] buff;
+//   }
+//   else if ( !doDataScouting && m_cid != -1) {  
+//     uint16_t eventSize = event.size();
+//     char* p = NULL;
+//     if ((p = CircReserve (m_cid, m_calibEvent, event.size())) != (char *) -1) { 
+//       uint8_t* buff = reinterpret_cast<uint8_t*>(p);
+//       uint16_t eventSize8bits = eventSize;
+//       // encode the event
+//       event.dumpWords(buff,eventSize);
       
-      // dump the encoded event to the screen
-      uint16_t eventSize32bits = eventSize8bits/4;
-      ATH_MSG_DEBUG("Size of the CIRCULAR buffer in 8 and 32 bits words: " << eventSize8bits << " " 
-		    << eventSize32bits);
-      for ( uint16_t words = 0 ; words != eventSize32bits ; words++)  {                 
-	uint32_t byte1 = *(buff+words*4);
-	uint32_t byte2 = *(buff+1+words*4);
-	uint32_t byte3 = *(buff+2+words*4);
-	uint32_t byte4 = *(buff+3+words*4);
-	ATH_MSG_DEBUG("byte1 = 0x" << std::hex << (byte1) << std::dec);
-	ATH_MSG_DEBUG("byte2 = 0x" << std::hex << (byte2) << std::dec);
-	ATH_MSG_DEBUG("byte3 = 0x" << std::hex << (byte3) << std::dec);
-	ATH_MSG_DEBUG("byte4 = 0x" << std::hex << (byte4) << std::dec);
+//       // dump the encoded event to the screen
+//       uint16_t eventSize32bits = eventSize8bits/4;
+//       ATH_MSG_DEBUG("Size of the CIRCULAR buffer in 8 and 32 bits words: " << eventSize8bits << " " 
+// 		    << eventSize32bits);
+//       for ( uint16_t words = 0 ; words != eventSize32bits ; words++)  {                 
+// 	uint32_t byte1 = *(buff+words*4);
+// 	uint32_t byte2 = *(buff+1+words*4);
+// 	uint32_t byte3 = *(buff+2+words*4);
+// 	uint32_t byte4 = *(buff+3+words*4);
+// 	ATH_MSG_DEBUG("byte1 = 0x" << std::hex << (byte1) << std::dec);
+// 	ATH_MSG_DEBUG("byte2 = 0x" << std::hex << (byte2) << std::dec);
+// 	ATH_MSG_DEBUG("byte3 = 0x" << std::hex << (byte3) << std::dec);
+// 	ATH_MSG_DEBUG("byte4 = 0x" << std::hex << (byte4) << std::dec);
 
-      	uint32_t dataWord = (byte4 << 24) + (byte3 << 16) + (byte2 << 8) + byte1 ;
+//       	uint32_t dataWord = (byte4 << 24) + (byte3 << 16) + (byte2 << 8) + byte1 ;
 	
-      	//	std::cout << "Number of data words: " << words << std::endl;
-      	ATH_MSG_DEBUG("Data word " << words << " = " << std::hex << "0x" << dataWord << std::dec);
+//       	//	std::cout << "Number of data words: " << words << std::endl;
+//       	ATH_MSG_DEBUG("Data word " << words << " = " << std::hex << "0x" << dataWord << std::dec);
       	
 	
-      }
+//       }
       
-      // dump the words to the circular buffer   
-      CircValidate (m_cid, m_calibEvent, p, event.size() );
+//       // dump the words to the circular buffer   
+//       CircValidate (m_cid, m_calibEvent, p, event.size() );
       
-    }
-    else {  
-      ATH_MSG_DEBUG("Could not dump the event in the calibration stream circular buffer");
-    }
-  }
-  else if ( doDataScouting ) { 
+//     }
+//     else {  
+//       ATH_MSG_DEBUG("Could not dump the event in the calibration stream circular buffer");
+//     }
+//   }
+//   else if ( doDataScouting ) { 
 
-    uint16_t eventSize_ds = event.size();
-    if (eventSize_ds>1000) return StatusCode::SUCCESS;
+//     uint16_t eventSize_ds = event.size();
+//     if (eventSize_ds>1000) return StatusCode::SUCCESS;
 
-    uint8_t* buff_ds = new uint8_t[eventSize_ds];
+//     uint8_t* buff_ds = new uint8_t[eventSize_ds];
 
-    // encode the event
-    uint16_t eventSize8bits = eventSize_ds;
-    uint16_t eventSize32bits = eventSize8bits/4;
-    event.dumpWords(buff_ds,eventSize_ds);
+//     // encode the event
+//     uint16_t eventSize8bits = eventSize_ds;
+//     uint16_t eventSize32bits = eventSize8bits/4;
+//     event.dumpWords(buff_ds,eventSize_ds);
 
-    // fill the local buffer 
-    // dump the words also in the local buffer     
-    // dump the encoded event to the screen
-    ATH_MSG_DEBUG("Size of the DATASCOUTING buffer in 32 bits words: " << eventSize32bits);
-    for ( uint16_t words = 0 ; words != eventSize32bits ; words++)  {                 
-      uint32_t byte1 = *(buff_ds+words*4);
-      uint32_t byte2 = *(buff_ds+1+words*4);
-      uint32_t byte3 = *(buff_ds+2+words*4);
-      uint32_t byte4 = *(buff_ds+3+words*4);
+//     // fill the local buffer 
+//     // dump the words also in the local buffer     
+//     // dump the encoded event to the screen
+//     ATH_MSG_DEBUG("Size of the DATASCOUTING buffer in 32 bits words: " << eventSize32bits);
+//     for ( uint16_t words = 0 ; words != eventSize32bits ; words++)  {                 
+//       uint32_t byte1 = *(buff_ds+words*4);
+//       uint32_t byte2 = *(buff_ds+1+words*4);
+//       uint32_t byte3 = *(buff_ds+2+words*4);
+//       uint32_t byte4 = *(buff_ds+3+words*4);
 
-      // encoding in big-endian for now ( revert order for little-endian )
-      uint32_t dataWord = (byte4 << 24) + (byte3 << 16) + (byte2 << 8) + byte1 ;
-      //	std::cout << "Number of data words: " << words << std::endl;
-      ATH_MSG_DEBUG("Data word " << words << " = " << std::hex << "0x" << dataWord << std::dec);
+//       // encoding in big-endian for now ( revert order for little-endian )
+//       uint32_t dataWord = (byte4 << 24) + (byte3 << 16) + (byte2 << 8) + byte1 ;
+//       //	std::cout << "Number of data words: " << words << std::endl;
+//       ATH_MSG_DEBUG("Data word " << words << " = " << std::hex << "0x" << dataWord << std::dec);
       
-      m_localBuffer.push_back(dataWord);
-    }
-    m_localBufferSize += eventSize32bits;
+//       m_localBuffer.push_back(dataWord);
+//     }
+//     m_localBufferSize += eventSize32bits;
 
-    if ( m_localBufferSize< calBufferSize ) { 
-      ATH_MSG_DEBUG("Local buffer size = " << m_localBufferSize);
-      ATH_MSG_DEBUG("Trigger element not to be updated yet ");
-      updateTriggerElement = false;
-    }
-    else {
-      ATH_MSG_DEBUG("Local buffer size = " << m_localBufferSize);
-      ATH_MSG_DEBUG("Attach the buffer to the trigger element ");
+//     if ( m_localBufferSize< calBufferSize ) { 
+//       ATH_MSG_DEBUG("Local buffer size = " << m_localBufferSize);
+//       ATH_MSG_DEBUG("Trigger element not to be updated yet ");
+//       updateTriggerElement = false;
+//     }
+//     else {
+//       ATH_MSG_DEBUG("Local buffer size = " << m_localBufferSize);
+//       ATH_MSG_DEBUG("Attach the buffer to the trigger element ");
 
-      updateTriggerElement = true;
-    }
+//       updateTriggerElement = true;
+//     }
 
-    delete [] buff_ds;
-  }
+//     delete [] buff_ds;
+//   }
 
-  m_calibEvent++;
+//   m_calibEvent++;
   
-  return StatusCode::SUCCESS;
-}
+//   return StatusCode::SUCCESS;
+// }
 
-//
-// prepare the Mdt fragment of the stream
-//
-StatusCode TrigL2MuonSA::MuCalStreamerTool::createMdtFragment(TrigL2MuonSA::MdtHits& mdtHits,   
-							      LVL2_MUON_CALIBRATION::MdtCalibFragment& mdtFragment, 
-							      float trackPhi)
-{
+// //
+// // prepare the Mdt fragment of the stream
+// //
+// StatusCode TrigL2MuonSA::MuCalStreamerTool::createMdtFragment(TrigL2MuonSA::MdtHits& mdtHits,   
+// 							      LVL2_MUON_CALIBRATION::MdtCalibFragment& mdtFragment, 
+// 							      float trackPhi)
+// {
   
-  TrigL2MuonSA::MdtHits::const_iterator it = mdtHits.begin();
-  for ( ; it != mdtHits.end() ; ++it ) {
+//   TrigL2MuonSA::MdtHits::const_iterator it = mdtHits.begin();
+//   for ( ; it != mdtHits.end() ; ++it ) {
 
-    int stationName = (*it).name;
-    int stationEta  = (*it).StationEta;
-    int stationPhi  = (*it).StationPhi;
-    int multilayer  = (*it).Multilayer;
-    int layer       = (*it).TubeLayer;
-    int tube        = (*it).Tube;
+//     int stationName = (*it).name;
+//     int stationEta  = (*it).StationEta;
+//     int stationPhi  = (*it).StationPhi;
+//     int multilayer  = (*it).Multilayer;
+//     int layer       = (*it).TubeLayer;
+//     int tube        = (*it).Tube;
 
-    uint32_t ID = LVL2_MUON_CALIBRATION::MdtIdIntoWord(stationName,
-						       stationEta,stationPhi,multilayer,layer,tube);
+//     uint32_t ID = LVL2_MUON_CALIBRATION::MdtIdIntoWord(stationName,
+// 						       stationEta,stationPhi,multilayer,layer,tube);
 
-    uint16_t  leadingCoarseTime  = (*it).LeadingCoarseTime;
-    uint16_t  leadingFineTime    = (*it).LeadingFineTime;
-    uint16_t  trailingCoarseTime = (*it).TrailingCoarseTime;
-    uint16_t  trailingFineTime   = (*it).TrailingFineTime;
-    uint16_t  adc                = (*it).Adc;
+//     uint16_t  leadingCoarseTime  = (*it).LeadingCoarseTime;
+//     uint16_t  leadingFineTime    = (*it).LeadingFineTime;
+//     uint16_t  trailingCoarseTime = (*it).TrailingCoarseTime;
+//     uint16_t  trailingFineTime   = (*it).TrailingFineTime;
+//     uint16_t  adc                = (*it).Adc;
 
-    LVL2_MUON_CALIBRATION::MdtCalibData mdt(ID,leadingCoarseTime,leadingFineTime,
-					    trailingCoarseTime,trailingFineTime,adc
-					    ,trackPhi);
+//     LVL2_MUON_CALIBRATION::MdtCalibData mdt(ID,leadingCoarseTime,leadingFineTime,
+// 					    trailingCoarseTime,trailingFineTime,adc
+// 					    ,trackPhi);
 
-    mdtFragment << mdt;
+//     mdtFragment << mdt;
 
-  }
+//   }
   
-  return StatusCode::SUCCESS;
-}
+//   return StatusCode::SUCCESS;
+// }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //

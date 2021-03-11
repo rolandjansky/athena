@@ -9,10 +9,8 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
 #include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
-#include "MuonRDO/RpcPadContainer.h"
 
 #include "../src/RpcData.h"
 #include "../src/RpcFitResult.h"
@@ -22,11 +20,7 @@
 #include "IRegionSelector/IRegSelTool.h"
 
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
-#include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
-#include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
-#include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonPrepRawData/RpcPrepDataContainer.h"
-#include "MuonPrepRawData/RpcPrepDataCollection.h"
 
 #include "MuonRecToolInterfaces/IMuonCombinePatternTool.h"
 
@@ -50,7 +44,7 @@ class RpcDataPreparator: public AthAlgTool
       StatusCode prepareData(const TrigRoiDescriptor*    p_roids,
 			     TrigL2MuonSA::RpcHits&      rpcHits,
                              TrigL2MuonSA::RpcLayerHits& rpcLayerHits,
-			     ToolHandle<RpcPatFinder>*   rpcPatFinder);
+			     const ToolHandle<RpcPatFinder>*   rpcPatFinder) const;
 
       //for multi-track SA mode
       StatusCode prepareData(const TrigRoiDescriptor*         p_roids,
@@ -68,12 +62,6 @@ class RpcDataPreparator: public AthAlgTool
       ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_recRPCRoiTool{ this, "TrigT1RPCRecRoiTool", "LVL1::TrigT1RPCRecRoiTool/TrigT1RPCRecRoiTool"};
 
       // handles to the RoI driven data access
-      ToolHandle<Muon::IMuonRawDataProviderTool> m_rawDataProviderTool{
-       this, "RpcRawDataProvider", "Muon::RPC_RawDataProviderTool/RPC_RawDataProviderTool"};
-
-      ToolHandle<Muon::IMuonRdoToPrepDataTool> m_rpcPrepDataProvider{
-       this, "RpcPrepDataProvider", "Muon::RpcRdoToPrepDataTool/RpcPrepDataProviderTool"};
-
       SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_rpcPrepContainerKey{
        this, "RpcPrepDataContainer", "RPC_Measurements", "Name of the RPCContainer to read in"};
 
@@ -84,11 +72,6 @@ class RpcDataPreparator: public AthAlgTool
       // for writing.
       bool m_use_RoIBasedDataAccess;
 
-      // Flag to decide if we need to run the actual decoding (in MT setup, we can use offline code for this)
-      Gaudi::Property<bool> m_doDecoding{ this, "DoDecoding", true, "Flag to decide if we need to do decoding of the MDTs" };
-
-      // Flag to decide whether or not to run BS decoding
-      Gaudi::Property< bool > m_decodeBS { this, "DecodeBS", true, "Flag to decide whether or not to run BS->RDO decoding" };
       Gaudi::Property< bool > m_emulateNoRpcHit { this, "EmulateNoRpcHit", false, "Flag for emulation of no RPC hit events" };
       bool m_doMultiMuon{false};
 };

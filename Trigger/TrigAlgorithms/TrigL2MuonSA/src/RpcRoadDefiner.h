@@ -13,7 +13,6 @@
 #include "RpcData.h"
 #include "RpcPatFinder.h"
 #include "MuonRoad.h"
-#include "MdtRegion.h"
 #include "RpcFitResult.h"
 #include "BarrelRoadData.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
@@ -44,7 +43,7 @@ class RpcRoadDefiner: public AthAlgTool
 			TrigL2MuonSA::MuonRoad&             muonRoad,
 			TrigL2MuonSA::RpcHits&              rpcHits,
                         const TrigL2MuonSA::RpcLayerHits&   rpcLayerHits,
-			ToolHandle<RpcPatFinder>*           rpcPatFinder,
+			const ToolHandle<RpcPatFinder>*     rpcPatFinder,
 			TrigL2MuonSA::RpcFitResult&         rpcFitResult,
 			double                              roiEtaMinLow,
 			double                              roiEtaMaxLow,
@@ -56,7 +55,7 @@ class RpcRoadDefiner: public AthAlgTool
 			TrigL2MuonSA::MuonRoad&             muonRoad,
 			TrigL2MuonSA::RpcHits&              rpcHits,
                         const TrigL2MuonSA::RpcLayerHits&   rpcLayerHits,
-			ToolHandle<RpcPatFinder>*           rpcPatFinder,
+			const ToolHandle<RpcPatFinder>*     rpcPatFinder,
 			TrigL2MuonSA::RpcFitResult&         rpcFitResult,
 			double                              roiEtaMinLow,
 			double                              roiEtaMaxLow,

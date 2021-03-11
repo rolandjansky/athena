@@ -6,8 +6,6 @@
 
 #include "StoreGate/ActiveStoreSvc.h"
 #include "xAODTrigMuon/TrigMuonDefs.h"
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -20,10 +18,8 @@ bool IsUnspoiled ( Muon::CscClusterStatus status );
 TrigL2MuonSA::CscDataPreparator::CscDataPreparator(const std::string& type, 
 						   const std::string& name,
 						   const IInterface*  parent): 
-   AthAlgTool(type,name,parent),
-   m_regionSelector("RegSelTool/RegSelTool_CSC",this)
+   AthAlgTool(type,name,parent)
 {
-  declareProperty("RegSel_CSC", m_regionSelector);
 }
 
 // --------------------------------------------------------------------------------
@@ -32,117 +28,25 @@ TrigL2MuonSA::CscDataPreparator::CscDataPreparator(const std::string& type,
 StatusCode TrigL2MuonSA::CscDataPreparator::initialize()
 {
 
-
-   ATH_MSG_DEBUG("Initializing CscDataPreparator - package version " << PACKAGE_VERSION);   
-   ATH_MSG_DEBUG(m_decodeBS);
-   ATH_MSG_DEBUG(m_doDecoding);
-
-   // consistency check for decoding flag settings
-   if(m_decodeBS && !m_doDecoding) {
-     ATH_MSG_FATAL("Inconsistent setup, you tried to enable BS decoding but disable all decoding. Please fix the configuration");
-     return StatusCode::FAILURE;
-   }
-
-   // Retreive raw data provider tool, but only if we need to decode the BS
-   ATH_CHECK( m_rawDataProviderTool.retrieve(DisableTool{ !m_decodeBS || !m_doDecoding}) );
-   
-   ATH_MSG_INFO("Retrieved Tool " << m_rawDataProviderTool);
-   
-   // Retrieve PRD and cluster tools if we are doing the decoding
-   ATH_CHECK( m_cscPrepDataProvider.retrieve(DisableTool{!m_doDecoding}) );
-   ATH_MSG_INFO("Retrieved " << m_cscPrepDataProvider);
-
-   ATH_CHECK( m_cscClusterProvider.retrieve(DisableTool{!m_doDecoding}) );
-   ATH_MSG_INFO("Retrieved " << m_cscClusterProvider);
-
    ATH_CHECK(m_idHelperSvc.retrieve());
 
-   // Locate RegionSelector
-   ATH_CHECK( m_regionSelector.retrieve() );
-   
+   ATH_CHECK(m_cscPrepContainerKey.initialize(!m_cscPrepContainerKey.empty()));
 
-   ATH_CHECK(m_cscPrepContainerKey.initialize(!m_cscPrepContainerKey.empty() && !m_doDecoding));
-   //Write Handle for CSC clusters (only if we run decoding)
-   ATH_CHECK(m_cscClustersKey.initialize(m_doDecoding));
-   //
    return StatusCode::SUCCESS; 
 }
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const TrigRoiDescriptor* p_roids,
-							TrigL2MuonSA::MuonRoad& muonRoad,
-							TrigL2MuonSA::CscHits&  cscHits)
+StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(TrigL2MuonSA::MuonRoad& muonRoad,
+							TrigL2MuonSA::CscHits&  cscHits) const
 {
-  const IRoiDescriptor* iroi = (IRoiDescriptor*) p_roids;
-
-  const bool to_full_decode=( std::abs(p_roids->etaMinus())>1.7 || std::abs(p_roids->etaPlus())>1.7 ) && !m_use_RoIBasedDataAccess;
-
-  std::vector<IdentifierHash> cscHashIDs;
-
-  // Decode
-  if(m_doDecoding) {
-    // Select RoI hits
-    if (m_use_RoIBasedDataAccess) {
-      ATH_MSG_DEBUG("Use Csc RoI based data access");
-      m_regionSelector->HashIDList( *iroi, cscHashIDs );
-    } else {
-      ATH_MSG_DEBUG("Use full data access");
-      //    m_regionSelector->DetHashIDList( CSC, cscHashIDs ); full decoding is executed with an empty vector
-    }
-    ATH_MSG_DEBUG("cscHashIDs.size()=" << cscHashIDs.size());
-
-    if(m_decodeBS) {
-      if ( m_rawDataProviderTool->convert(cscHashIDs).isFailure()) {
-        ATH_MSG_WARNING("Conversion of BS for decoding of CSCs failed");
-      }
-    }
-    std::vector<IdentifierHash> cscHashIDs_decode;
-    cscHashIDs_decode.clear();
-    if( !cscHashIDs.empty() || to_full_decode ){
-      if( m_cscPrepDataProvider->decode( cscHashIDs, cscHashIDs_decode ).isFailure() ){
-        ATH_MSG_WARNING("Problems when preparing CSC PrepData");
-      }
-      cscHashIDs.clear();
-    }
-    ATH_MSG_DEBUG("cscHashIDs_decode.size()=" << cscHashIDs_decode.size());
-
-    // Clustering
-    std::vector<IdentifierHash> cscHashIDs_cluster;
-    cscHashIDs_cluster.clear();
-    if(to_full_decode) cscHashIDs_decode.clear();
-    if( !cscHashIDs_decode.empty() || to_full_decode ){
-      SG::WriteHandle<Muon::CscPrepDataContainer> wh_clusters(m_cscClustersKey);
-      if (!wh_clusters.isPresent()) {
-	Muon::CscPrepDataContainer* object = new Muon::CscPrepDataContainer(m_idHelperSvc->cscIdHelper().module_hash_max());
-      /// record the container in storeGate
-	ATH_CHECK(wh_clusters.record(std::unique_ptr<Muon::CscPrepDataContainer>(object)));
-	if( m_cscClusterProvider->getClusters( cscHashIDs_decode, cscHashIDs_cluster, object ).isFailure() ){
-	  ATH_MSG_WARNING("Problems when preparing CSC Clusters");
-	}
-      } else {
-	//need to retrieve from evt store for Run 2 trigger (only used in non MT processing)
-	const Muon::CscPrepDataContainer* outputCollection_c = nullptr;
-	ATH_CHECK(evtStore()->retrieve(outputCollection_c, m_cscClustersKey.key()));
-	Muon::CscPrepDataContainer* object ATLAS_THREAD_SAFE = const_cast<Muon::CscPrepDataContainer*> (outputCollection_c);
-	if( m_cscClusterProvider->getClusters( cscHashIDs_decode, cscHashIDs_cluster, object ).isFailure() ){
-	  ATH_MSG_WARNING("Problems when preparing CSC Clusters");
-	}
-      }
-      cscHashIDs_decode.clear();
-    }
-
-    // Debug info
-    ATH_MSG_DEBUG("CSC cluster #hash = " << cscHashIDs_cluster.size());
-    cscHashIDs = cscHashIDs_cluster;// use the cscHashIDs vector later to know if there is any CSC data to process
-  }//doDecoding
 
   // Clear the output
   cscHits.clear();
 
   // Get CSC container
-  if(!m_cscPrepContainerKey.empty() &&(!m_doDecoding || to_full_decode || !cscHashIDs.empty() )){
+  if(!m_cscPrepContainerKey.empty()){
     auto cscPrepContainerHandle = SG::makeHandle(m_cscPrepContainerKey);
     const Muon::CscPrepDataContainer* cscPrepContainer = cscPrepContainerHandle.cptr();
     if (!cscPrepContainerHandle.isValid()) {

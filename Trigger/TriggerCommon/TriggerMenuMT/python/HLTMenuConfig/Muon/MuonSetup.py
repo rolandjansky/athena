@@ -404,23 +404,12 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False, extraLo
   if MuonGeometryFlags.hasCSC():
     # Configure the L2 CSC data preparator - we can turn off the data decoding here
     from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__CscDataPreparator
-    L2CscDataPreparator = TrigL2MuonSA__CscDataPreparator(name = "L2MuonSACscDataPreparator",
-                                                          DecodeBS = False,
-                                                          DoDecoding = False,
-                                                          CscRawDataProvider   = "",
-                                                          CscPrepDataProvider  = "",
-                                                          CscClusterProvider   = "")
-    from RegionSelector.RegSelToolConfig import makeRegSelTool_CSC
-    L2CscDataPreparator.RegSel_CSC = makeRegSelTool_CSC()
+    L2CscDataPreparator = TrigL2MuonSA__CscDataPreparator(name = "L2MuonSACscDataPreparator")
     ToolSvc += L2CscDataPreparator
  
   # Configure the L2 MDT data preparator - we can turn off the data decoding here
   from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MdtDataPreparator
-  L2MdtDataPreparator = TrigL2MuonSA__MdtDataPreparator(name = "L2MuonSAMdtDataPreparator",
-                                                        DecodeBS = False,
-                                                        DoDecoding = False,
-                                                        MDT_RawDataProvider = "",
-                                                        MdtPrepDataProvider = "")
+  L2MdtDataPreparator = TrigL2MuonSA__MdtDataPreparator(name = "L2MuonSAMdtDataPreparator")
   from RegionSelector.RegSelToolConfig import makeRegSelTool_MDT
   L2MdtDataPreparator.RegSel_MDT = makeRegSelTool_MDT()
 
@@ -430,11 +419,7 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False, extraLo
   ### RPC RDO data - turn off the data decoding here ###
   from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__RpcDataPreparator
   L2RpcDataPreparator = TrigL2MuonSA__RpcDataPreparator(name = "L2MuonSARpcDataPreparator",
-                                                        RpcPrepDataProvider  = "",
                                                         RpcPrepDataContainer = "RPC_Measurements",
-                                                        RpcRawDataProvider   = "",
-                                                        DoDecoding           = False,
-                                                        DecodeBS             = False,
                                                         TrigT1RPCRecRoiTool  = trigRpcRoiTool)
   ToolSvc += L2RpcDataPreparator
   from RegionSelector.RegSelToolConfig import makeRegSelTool_RPC
@@ -447,24 +432,14 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False, extraLo
 
   ### TGC data preparation - turn off the data decoding here ###
   from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__TgcDataPreparator
-  L2TgcDataPreparator = TrigL2MuonSA__TgcDataPreparator(name = "L2MuonSATgcDataPreparator",
-                                                        DecodeBS = False,
-                                                        DoDecoding = False,
-                                                        TgcPrepDataProvider  = "",
-                                                        TgcRawDataProvider = "")
-  from RegionSelector.RegSelToolConfig import makeRegSelTool_TGC
-  L2TgcDataPreparator.RegSel_TGC = makeRegSelTool_TGC()
+  L2TgcDataPreparator = TrigL2MuonSA__TgcDataPreparator(name = "L2MuonSATgcDataPreparator")
 
 
   ### sTGC RDO data - turn off the data decoding here ###
   if MuonGeometryFlags.hasSTGC():
     from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__StgcDataPreparator
     L2StgcDataPreparator = TrigL2MuonSA__StgcDataPreparator(name = "L2MuonSAStgcDataPreparator",
-                                                            StgcPrepDataProvider  = "",
-                                                            StgcPrepDataContainer = "STGC_Measurements",
-                                                            StgcRawDataProvider   = "",
-                                                            DoDecoding           = False,
-                                                            DecodeBS             = False)
+                                                            StgcPrepDataContainer = "STGC_Measurements")
     from RegionSelector.RegSelToolConfig import makeRegSelTool_sTGC
     L2StgcDataPreparator.RegSel_STGC = makeRegSelTool_sTGC()
     ToolSvc += L2StgcDataPreparator
@@ -474,11 +449,7 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False, extraLo
   if MuonGeometryFlags.hasMM():
     from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MmDataPreparator
     L2MmDataPreparator = TrigL2MuonSA__MmDataPreparator(name = "L2MuonSAMmDataPreparator",
-                                                        MmPrepDataProvider  = "",
-                                                        MmPrepDataContainer = "MM_Measurements",
-                                                        # MmRawDataProvider   = "",
-                                                        DoDecoding           = False,
-                                                        DecodeBS             = False)
+                                                        MmPrepDataContainer = "MM_Measurements")
     from RegionSelector.RegSelToolConfig import makeRegSelTool_MM
     L2MmDataPreparator.RegSel_MM = makeRegSelTool_MM()
     ToolSvc += L2MmDataPreparator
