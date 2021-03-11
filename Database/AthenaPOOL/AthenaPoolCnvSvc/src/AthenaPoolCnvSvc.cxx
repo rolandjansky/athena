@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file AthenaPoolCnvSvc.cxx
@@ -183,14 +183,6 @@ StatusCode AthenaPoolCnvSvc::createObj(IOpaqueAddress* pAddress, DataObject*& re
    }
    if (m_doChronoStat) {
       m_chronoStatSvc->chronoStart("cObj_" + objName);
-   }
-   TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(pAddress);
-   if (tokAddr != nullptr && tokAddr->getToken() != nullptr) {
-      char text[32];
-      // Use ipar field of GenericAddress to create custom input context/persSvc in PoolSvc::setObjPtr() (e.g. for conditions)
-      ::sprintf(text, "[CTXT=%08X]", static_cast<int>(*(pAddress->ipar())));
-      // Or use context label, e.g.: ::sprintf(text, "[CLABEL=%08X]", pAddress->clID()); to create persSvc
-      tokAddr->getToken()->setAuxString(text);
    }
    // Forward to base class createObj
    StatusCode status = ::AthCnvSvc::createObj(pAddress, refpObject);

@@ -353,8 +353,6 @@ CondInputLoader::execute()
     m_condSvc->dump(ost);
     ATH_MSG_DEBUG(ost.str());
   }
-
-  m_IOVDbSvc->postConditionsLoad();
   return sc;
 }
 

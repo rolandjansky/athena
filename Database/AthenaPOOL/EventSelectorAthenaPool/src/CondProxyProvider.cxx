@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file CondProxyProvider.cxx
@@ -53,11 +53,16 @@ StatusCode CondProxyProvider::initialize() {
       ATH_MSG_FATAL("Cannot get AthenaPoolCnvSvc.");
       return(StatusCode::FAILURE);
    }
-   // Get PersistencySvc
-   StatusCode status = m_athenaPoolCnvSvc->getPoolSvc()->connect(pool::ITransaction::READ, IPoolSvc::kInputStream);
+   // Get PoolSvc and connect as "Conditions"
+   IPoolSvc *poolSvc = m_athenaPoolCnvSvc->getPoolSvc();
+   StatusCode status = poolSvc->connect( pool::ITransaction::READ,
+                                         poolSvc->getInputContext("Conditions") );
    if (!status.isSuccess()) {
       ATH_MSG_FATAL("Cannot connect to Database.");
       return(StatusCode::FAILURE);
+   }
+   for( const auto &inp : m_inputCollectionsProp.value() ) {
+      ATH_MSG_INFO("Inputs: " << inp);
    }
    // Initialize
    m_inputCollectionsIterator = m_inputCollectionsProp.value().begin();

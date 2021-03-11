@@ -179,7 +179,8 @@ StatusCode IOVDbSvc::initialize() {
   }
   long int pri=100;
   incSvc->addListener( this, "BeginEvent", pri );
-  incSvc->addListener( this, "StoreCleared", pri );
+  incSvc->addListener( this, "StoreCleared", pri );   // for SP Athena
+  incSvc->addListener( this, IncidentType::EndProcessing, pri );  // for MT Athena
 
   // Register this service for 'I/O' events
   ServiceHandle<IIoComponentMgr> iomgr("IoComponentMgr", name());
@@ -787,7 +788,7 @@ void IOVDbSvc::postConditionsLoad() {
 void IOVDbSvc::handle( const Incident& inc) {
   // Handle incidents:
   // BeginEvent to set IOVDbSvc state to EVENT_LOOP
-  // StoreCleared to close any open POOL files
+  // StoreCleared/EndProcessing to close any open POOL files
   ATH_MSG_VERBOSE( "entering handle(), incident type " << inc.type() << " from " << inc.source() );
   if (inc.type()=="BeginEvent") {
     m_state=IOVDbSvc::EVENT_LOOP;
@@ -795,7 +796,9 @@ void IOVDbSvc::handle( const Incident& inc) {
     Athena::DBLock dblock;
 
     const StoreClearedIncident* sinc = dynamic_cast<const StoreClearedIncident*>(&inc);
-    if ((inc.type()=="StoreCleared" && sinc!=0 && sinc->store()==&*m_h_sgSvc)) {
+    if( (inc.type()=="StoreCleared" && sinc!=0 && sinc->store()==&*m_h_sgSvc)
+        or inc.type()==IncidentType::EndProcessing )
+    {
        m_state=IOVDbSvc::FINALIZE_ALG;
        postConditionsLoad();
     }
