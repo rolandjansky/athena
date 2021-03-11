@@ -104,8 +104,8 @@ simFlags.RunNumber = 284500  # MC16a run number used for all Run2 simulation
 
 include("GeneratorUtils/StdEvgenSetup.py")
 
-myMinEta =  -2.5
-myMaxEta =  2.5
+myMinEta =  -2.4
+myMaxEta =  2.4
 
 # myPDG = 11    # Electron
 myPDG = 13  # Muon
@@ -264,6 +264,7 @@ ServiceMgr += trkGeomSvc
 ActsExtrapolator = CfgMgr.ActsExtrapolationTool("ActsExtrapolationTool")
 ActsExtrapolator.OutputLevel = INFO
 ActsExtrapolator.FieldMode = "ATLAS"
+ActsExtrapolator.MaxSteps = 1000000
 
 ActsExtrapolator.InteractionMultiScatering = True
 ActsExtrapolator.InteractionEloss = True
@@ -287,7 +288,7 @@ ActsGeantFollowerHelper.Extrapolator             = TestExtrapolator
 ActsGeantFollowerHelper.ActsExtrapolator         = ActsExtrapolator
 ActsGeantFollowerHelper.ExtrapolateDirectly      = True
 ActsGeantFollowerHelper.ExtrapolateIncrementally = True
-ActsGeantFollowerHelper.OutputLevel = VERBOSE
+ActsGeantFollowerHelper.OutputLevel = INFO
 ToolSvc += ActsGeantFollowerHelper
 
 simFlags.OptionalUserActionList.addAction('ActsGeantFollowerTool')

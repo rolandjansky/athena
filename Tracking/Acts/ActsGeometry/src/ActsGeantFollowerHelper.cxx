@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -208,6 +208,7 @@ void ActsGeantFollowerHelper::trackParticle(const G4ThreeVector& pos,
     ATH_MSG_WARNING("Maximum number of " << MAXPROBES << " reached, step is ignored.");
     return;
   }
+
   // parameters of the G4 step point
   Trk::CurvilinearParameters* g4Parameters = new Trk::CurvilinearParameters(npos, nmom, m_treeData->m_t_charge);
   // destination surface
