@@ -172,16 +172,14 @@ class DBConnectionController:
 
     def GetTier0DBConnection(self):
         if 'tier0' not in self.openConn:
-            #auth = self.get_auth('oracle://ATLAS_T0/ATLAS_T0')
-            #self.openConn['tier0'] = cx_Oracle.connect("%s/%s@ATLAS_T0" % (auth['user'],auth['password']))
-            self.openConn['tier0'] = cx_Oracle.connect("ATLAS_T0_R1/titft0ra@ATLAS_T0")
+            auth = self.get_auth('oracle://ATLAS_T0/ATLAS_T0')
+            self.openConn['tier0'] = cx_Oracle.connect("%s/%s@ATLAS_T0" % (auth['user'],auth['password']))
         return self.openConn['tier0']
 
     def GetPVSSDBConnection(self):
         if 'pvss' not in self.openConn:
-            #auth = self.get_auth('oracle://ATLAS_PVSSPROD/ATLAS_PVSS_READER')
-            #self.openConn['pvss'] = cx_Oracle.connect("%s/%s@ATLAS_PVSSPROD" % (auth['user'],auth['password']))
-            self.openConn['pvss'] = cx_Oracle.connect("ATLAS_PVSS_READER/PVSSRED4PRO@ATLAS_PVSSPROD")
+            auth = self.get_auth('oracle://ATLAS_PVSSPROD/ATLAS_PVSS_READER')
+            self.openConn['pvss'] = cx_Oracle.connect("%s/%s@ATLAS_PVSSPROD" % (auth['user'],auth['password']))
         return self.openConn['pvss']
 
     def CloseAll(self):
