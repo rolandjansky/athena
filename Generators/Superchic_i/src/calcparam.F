@@ -1,12 +1,7 @@
 ccc   reads input parameters and calculated needed parameters 
       subroutine calcparam
       implicit double precision (a-z)
-      integer i,j,k,nt,ns
-      integer i1,i2,nb,ib
-      integer nhistmax
-      integer outl
-      integer iinc,ncallu
-      logical histol
+      integer i,j,k
       character*100 dum
       integer idum
       COMMON /ranno/ idum
@@ -70,17 +65,15 @@ ccc   reads input parameters and calculated needed parameters
       include 'mn.f'
       include 'rech.f'
       include 'ptXcuts.f'
-      include 'nchan.f'
-      include 'opac.f'
       include 'mcharg.f'
       include 'varsi.f'
       include 'spA.f'
       include 'sAA.f'
-      include 'mphi.f'
+      include 'diff.f'
+      include 'diss.f'
+      include 'enew.f'
+      include 'gamma.f'
 
-c      include 'init.f'      
-c      include 'initpars.f'
-c      include 'initsud.f'
 ccccccc
 
       open(unit=1,file='input.DAT',status='old', action='read')
@@ -101,6 +94,11 @@ ccccccc
       read(1,*)outtag
       read(1,*)sfaci
       read(1,*)dum
+      read(1,*)dum
+      read(1,*)dum
+      read(1,*)diff
+c      read(1,*)elcoll
+      read(1,*)dum
       read(1,*)an
       read(1,*)az
       read(1,*)rz
@@ -118,8 +116,6 @@ ccccccc
       read(1,*)inccall
       read(1,*)itend
       read(1,*)iseed
-      read(1,*)dum
-      read(1,*)s2int
       read(1,*)dum
       read(1,*)dum
       read(1,*)dum
@@ -230,14 +226,24 @@ ccccccc
       read(1,*)dum
       read(1,*)mcharg
       read(1,*)mneut
-cccccccccccccccccccccccccccccccccccccccccccccccccccc
-cccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+ccccccccccccc
+c main/superchic.f
       
+      diffsd=diff
+      if(diff.eq.'sda'.or.diff.eq.'sdb')then
+         diff='sd'
+      else
+         diffsd='n'
+      endif
+
+      offshell=.false.
+
       forward=.false.
 
-      call length(outtag,outl)
+C      call length(outtag,outl)
 
-      open(45,file='evrecs/evrec'//outtag(1:outl)//'.dat')
+C      open(45,file='evrecs/evrec'//outtag(1:outl)//'.dat')
       wmax=0d0
       evnum=0
 
@@ -272,8 +278,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccc
       mtau=1.77682d0
       mpip=0.13957018d0
       mkp=0.493677d0
-      mphi=1.019461d0
       alpha=7.2974d-3
+
       pi=dacos(-1d0)
       conv=389379d3
       zi=(0d0,1d0)
@@ -322,18 +328,61 @@ cccccccccccc
          jdahep(2,i)=0
       enddo
 
-cccccccccccccccccccccccccccccccccccccccccccccccccccc
-ccccccccc   Init LHAPDF
-cccccccccccccccccccccccccccccccccccccccccccccccccccc
-      
-      pi=dacos(-1d0)
+cccccccccccccccccccccccccc
+c main/superchic.f
+
       call inpdf
       print*,'Read PDF successfully...'
-cccccccccccccccccccccccccccccccccccccccccccccccccccc
-ccccccccccccccccccccccccccccccccccccccccccccccccccc
       call supinit
+
+      s2int=8
+      if(beam.eq.'ionp')s2int=16
+      if(diff.eq.'el'.and.gamma.eqv..true.)s2int=16
+
       call header
+      call gaminit
+      call gaminit_comb
+      call readcoh
+      call gaussinit
+
 cccccccccccccccccccccccccc
+c main/superchic.f
+
+      if(diff.eq.'sd'.or.diff.eq.'dd')then
+         if(offshell.eqv..false.)then
+            print*,'Dissociation not currently supported'//
+     &           ' for this process/beam - STOP'
+            stop
+         endif
+         if(erec.eq.'hepevt'.or.erec.eq.'hepmc')then
+            print*,'Dissociation currently only supported with LHE'
+         endif
+      endif
+
+      elcoll=.false.
+      difftot=.false.
+      if(diff.eq.'el')then
+         diss1=.false.
+         diss2=.false.
+      elseif(diff.eq.'sd')then
+         ndim=ndim+1
+         if(genunw)elcoll=.true.
+      elseif(diff.eq.'dd')then
+         diss1=.true.
+         diss2=.true.
+         ndim=ndim+2
+      elseif(diff.eq.'tot')then
+         ndim=ndim+3
+         difftot=.true.
+      endif
+
+      if(diff.eq.'tot'.or.diff.eq.'sd'.or.diff.eq.'dd')then
+         call apfelinit
+         call calcs2diss
+      endif
+
+cccccccccccccccccccccccccc
+c main/superchic.f
 
       if(mes)then
          call calcmes
@@ -341,6 +390,7 @@ cccccccccccccccccccccccccc
       endif
 
 ccccccccccccccccccccccccc
+c main/superchic.f
 
       if(beam.eq.'el')then
          if(sfaci)then
@@ -350,35 +400,32 @@ ccccccccccccccccccccccccc
          endif
       endif
 
-ccccccccccccccccccccccccccccccccccccccccccccccccccc
-      call initparsr(isurv)  ! Initialise soft survival parameters
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      call calcop            ! proton opacity 
+cccccccccccccccccccccccccccccccccccccccccccccccccccc
+cccccccccccccccccccccccccccccccccccccccccccccccccccc
+ccc   Initialises grids for skewed PDFs and survival factors
+c init/init.f
+
+      call initpars(isurv)   ! Initialise soft survival parameters
+      call calcop            ! proton opacity
       call calcscreen        ! screening amplitude
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      call initsud           ! init sudakov factor
-      call calcsud           ! sudakov factor
-      call inithg            ! init Skewd PDF
+
+      call readcoh
+      call dd
+      call readscreen
+      call sdcoh
+      call apfelinit
+      call sdincoh
+
+c      stop
+
+      call calcsud          ! sudakov factor
       call calchg            ! skewed PDF
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+cccccccccccccccccccccccccccccccccccccccccccccccccccc
       print*,'Calculated opacity,screening ampl.,sudakov, & skewed PDF'
 
-
-c      call inpdf
-c      call supinit      
-c      call header
-
-      surv=1d0
-      if(beam.eq.'prot'.or.ionqcd.eq.'coh'.or.ionqcd.eq.'incoh')then
-         call initparsr(isurv)
-         call readscreen
-         if(beam.eq.'prot'.or.ionqcd.eq.'incoh')surv=1d0/norm**2
-      endif
-
-      if(qcd)then
-         call calcsud
-         call calchg
-      endif
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c main/superchic.f
+C rts ... CMS collision energy (GeV)
 
       s=rts**2
 
@@ -431,17 +478,7 @@ c      call header
          pdgid(4)=pdgid(2)
       endif
 
-
-      if(beam.eq.'ion'.or.beam.eq.'ionp')call ioninit
-
-      if(beam.eq.'ionp')then
-         rts=rtspa
-         s=spa
-      elseif(beam.eq.'ion')then
-         rts=rtsaa
-         s=saa
-      endif
-
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       return
       end

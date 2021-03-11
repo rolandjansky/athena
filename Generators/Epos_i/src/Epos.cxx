@@ -19,7 +19,6 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
-#include "HepMC/HEPEVT_Wrapper.h"
 #include "HepMC/IO_HEPEVT.h"
 //#include "HepMC/IO_GenEvent.h"
 
@@ -241,7 +240,7 @@ StatusCode Epos::genInitialize()
     // setup HepMC
     HepMC::HEPEVT_Wrapper::set_sizeof_int(sizeof( int ));
     HepMC::HEPEVT_Wrapper::set_sizeof_real( 8 );
-    HepMC::HEPEVT_Wrapper::set_max_number_entries(10000);    // as used in crmc-aaa.f!!!
+    HepMC::HEPEVT_Wrapper::set_max_number_entries(kMaxParticles);
 
     ATH_MSG_INFO( " HEPMC SETUP DONE.\n" );
 

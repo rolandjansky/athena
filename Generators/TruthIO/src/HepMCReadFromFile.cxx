@@ -7,6 +7,7 @@
 #include "HepMC/GenEvent.h"
 #include "HepMC/IO_HEPEVT.h"
 #include "HepMC/HEPEVT_Wrapper.h"
+#include "HepMC/GenCrossSection.h"
 
 #include "GaudiKernel/DataSvc.h"
 
@@ -19,6 +20,7 @@ HepMCReadFromFile::HepMCReadFromFile(const std::string& name, ISvcLocator* pSvcL
 {
   declareProperty("InputFile", m_input_file="events.hepmc");
   m_event_number = 0;
+  m_sum_xs = 0;
 }
 
 
@@ -34,6 +36,8 @@ StatusCode HepMCReadFromFile::initialize() {
   // Initialize input file and event number
   m_hepmcio.reset( new HepMC::IO_GenEvent(m_input_file.c_str(), std::ios::in) );
   m_event_number = 0;
+  m_sum_xs = 0;
+  
   return StatusCode::SUCCESS;
 }
 
@@ -62,6 +66,21 @@ StatusCode HepMCReadFromFile::execute() {
     evt->set_event_number(m_event_number);
     GeVToMeV(evt);
     mcEvtColl->push_back(evt);
-  }
+
+    HepMC::GenCrossSection* cs=evt->cross_section();
+    double xs=cs->cross_section();
+    m_sum_xs = m_sum_xs+xs;  
+
+}
+
   return StatusCode::SUCCESS;
 }
+
+StatusCode HepMCReadFromFile::finalize() {
+
+ if (m_sum_xs >0)  std::cout << "MetaData: cross-section (nb)= " << m_sum_xs/(1000*m_event_number) <<std::endl;
+      
+  return StatusCode::SUCCESS;
+}  
+
+

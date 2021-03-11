@@ -28,6 +28,8 @@ QCDTruthJetFilter::QCDTruthJetFilter(const std::string& name, ISvcLocator* pSvcL
   declareProperty("MinEta",m_MinEta = m_StartMinEta);
   declareProperty("TruthJetContainer", m_TruthJetContainerName = "AntiKt6TruthJets");
   declareProperty("DoShape",m_doShape = false);
+  declareProperty("MinPhi",m_MinPhi = -999.0);
+  declareProperty("MaxPhi",m_MaxPhi = 999.0);
 }
 
 
@@ -52,6 +54,11 @@ StatusCode QCDTruthJetFilter::filterInitialize() {
     ATH_MSG_INFO("Requested shaping with bounds of " << m_MinPt << " , " << m_MaxPt << " which cannot be done.  Turning off shaping (sorry).");
     m_doShape=false;
   }
+
+  if (m_MinPhi > -998.0 || m_MaxPhi < 998.0) {
+    ATH_MSG_INFO("Configured phi as well with min = " << m_MinPhi << " and max = " << m_MaxPhi);
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -64,6 +71,7 @@ StatusCode QCDTruthJetFilter::filterFinalize() {
 
 StatusCode QCDTruthJetFilter::filterEvent() {
   m_total++; // Bookkeeping
+
 
   // Grab random number engine
   CLHEP::HepRandomEngine* rndm = m_rand->GetEngine("QCDTruthJetFilter");
@@ -82,14 +90,17 @@ StatusCode QCDTruthJetFilter::filterEvent() {
     return StatusCode::SUCCESS;
   }
 
-  // Get pT of leading jet
-  double pt_lead = -1;
+  // Get pT and phi of leading jet
+  double pt_lead = -1, phi_lead = 0;
   for (xAOD::JetContainer::const_iterator it_truth = (*truthjetTES).begin(); it_truth != (*truthjetTES).end() ; ++it_truth) {
     if (!(*it_truth)) continue;
 //    if (fabs( (*it_truth)->eta() ) > m_MaxEta) continue;
 //    if ((*it_truth)->eta()  > m_MaxEta || (*it_truth)->eta()  <= m_MinEta) continue;
     if ((*it_truth)->eta()>m_MaxEta || ( (*it_truth)->eta()<=m_MinEta && !m_SymEta) || ((*it_truth)->eta()<=m_MinEta && (*it_truth)->eta()>=-m_MinEta && m_SymEta)) continue;
-    if (pt_lead < (*it_truth)->pt()) pt_lead = (*it_truth)->pt();
+    if (pt_lead < (*it_truth)->pt()) {
+      pt_lead = (*it_truth)->pt();
+      phi_lead = (*it_truth)->phi();
+    }
   }
   pt_lead /= Gaudi::Units::GeV; // Make sure we're in GeV
 
@@ -101,6 +112,21 @@ StatusCode QCDTruthJetFilter::filterEvent() {
     return StatusCode::SUCCESS;
   }
 
+  // If appropriate, check the phi of the lead jet as well
+  if (m_MinPhi > -999.0 || m_MaxPhi < 999.0) {
+    setFilterPassed(false);
+
+    if (phi_lead < m_MinPhi || phi_lead > m_MaxPhi) {
+      ATH_MSG_DEBUG("Failed filter on jet phi: " << phi_lead << " not between " << m_MinPhi << " and " << m_MaxPhi);
+      return StatusCode::SUCCESS;
+    }
+    else {
+      setFilterPassed(true);
+    }
+  }
+
+
+
   // Unweight the pT spectrum
   double w = 1.;
   if (m_doShape) w = fitFn(pt_lead);
@@ -111,6 +137,7 @@ StatusCode QCDTruthJetFilter::filterEvent() {
     return StatusCode::SUCCESS;
   }
 
+  
   // Made it to the end - success!
   m_passed++;
   setFilterPassed(true);

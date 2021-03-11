@@ -6,6 +6,7 @@
 #define GENERATORMODULESEPOS_H
 
 #include "GeneratorModules/GenModule.h"
+#include "HepMC/HEPEVT_Wrapper.h"
 
 /**
 @class Epos
@@ -52,8 +53,8 @@ protected:
   int         m_nEvents;
 
     // max number of particles MUST BE EQUAL TO THE NUMBER SET IN crmc-aaa.f! (it is max. number allowed by HepMC2.6 now)
- static const size_t kMaxParticles = 10000; 
-//  static const size_t kMaxParticles = HEPEVT_SIZE_REPLACE;
+// static const size_t kMaxParticles = 10000; 
+ static const size_t kMaxParticles = HEPEVT_EntriesAllocation;;
   int   m_partID[ kMaxParticles ];
   double m_partPx[ kMaxParticles ];
   double m_partPy[ kMaxParticles ];

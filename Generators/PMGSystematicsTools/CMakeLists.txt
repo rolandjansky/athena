@@ -21,6 +21,7 @@ find_package( YODA )
 atlas_install_python_modules( local/bin/*.py )
 atlas_install_data( data/*.yaml )
 atlas_install_scripts( local/bin/*.py )
+atlas_install_scripts( share/*.sh )
 
 # Aliases:
 atlas_add_alias( PMG_systematicsTool "systematicsTool.py" )

@@ -17,11 +17,13 @@ public:
   HepMCReadFromFile(const std::string& name, ISvcLocator* pSvcLocator);
   StatusCode initialize();
   StatusCode execute();
+  StatusCode finalize();
 
 private:
 
   std::string m_input_file;
   int m_event_number;
+  double m_sum_xs;
   
   StoreGateSvc* m_sgSvc;
 

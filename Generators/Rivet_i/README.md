@@ -20,7 +20,7 @@ for using standalone Rivet. This tutorial will focus on the Athena wrapper aroun
 In general, the latest 21.6 release should have the latest Rivet release supported by ATLAS.
 
 ```
-asetup 21.6.33,AthGeneration # or later (please avoid 21.6.19-21.6.32)
+asetup 21.6.58,AthGeneration # or later (please avoid 21.6.19-21.6.32)
 source setupRivet.sh
 ```
 
@@ -251,14 +251,22 @@ Gen_tf.py --ecmEnergy=13000.0 --randomSeed=1234 --jobConfig=830011 --outputEVNTF
 _More details about the new generation setup is [here](https://twiki.cern.ch/twiki/bin/view/AtlasProtected/PmgMcSoftware#Production_transforms_and_job_op)._
 
 
-The other possibility is to use a `--postInclude=local_jO.py`.
-If Rivet is run using a `--postInclude` instead of with `--rivetAnas` , 
-then the user should use `runArgs.outputYODAFile` to specify the yoda output file name.
-This is useful to run custom analyses.
+The other possibility is to use a `--postInclude=local_jO.py`, where `local_jO.py` 
+are some after-burner-like JOs to configure Rivet, similar to the standalone JOs mentioned above,
+but without the following lines (or equivalent): 
 
-If the (large) EVNT output is not needed to be saved, then no `-outputEVNTFile` should be
-specified but an `--outputYODAFile` should be. Then the EVNT is not written in a pool file, but
-only the yoda file is saved.
+```
+import AthenaPoolCnvSvc.ReadAthenaPool
+svcMgr.EventSelector.InputCollections = [ 'EVNT.root' ]
+```
+
+Also note that when Rivet is run using a `--postInclude` instead of with `--rivetAnas`, 
+the YODA output file should be specified on the command line using the `--outputYODAFile` arument of `Gen_tf`.
+In this way it is also possible to run custom routines on the fly (i.e. as part of running `Gen_tf`). 
+
+If the (possibly large) EVNT output is not needed to be saved, then the `--outputEVNTFile` argument can simply
+be omitted, but the `--outputYODAFile` would still need to be kept of course, so that the YODA file 
+will be kept as an output.
 
 
 
