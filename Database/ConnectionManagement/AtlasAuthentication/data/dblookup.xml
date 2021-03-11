@@ -221,9 +221,15 @@
  <service name="frontier://ATLF/()/ATLAS_COOLOFL_FWD" accessMode="read" />
 </logicalservice>
 
+<!-- Trigger configuration databases -->
 <logicalservice name="TRIGGERDB_RUN1">
  <service name="oracle://ATLAS_CONFIG/ATLAS_CONF_TRIGGER_V2" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_CONF_TRIGGER_V2" accessMode="read" />
+</logicalservice>
+
+<logicalservice name="TRIGGERDB_RUN2">
+ <service name="oracle://ATLAS_CONFIG/ATLAS_CONF_TRIGGER_RUN2" accessMode="read" authentication="password" />
+ <service name="frontier://ATLF/()/ATLAS_CONF_TRIGGER_RUN2" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="TRIGGERDB">
@@ -273,6 +279,21 @@
 <logicalservice name="TRIGGERDBREPR">
  <service name="oracle://ATLAS_CONFIG/ATLAS_CONF_TRIGGER_REPR" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_CONF_TRIGGER_REPR" accessMode="read" />
+</logicalservice>
+
+<!-- SFO-CASTOR T0 database -->
+<logicalservice name="SFOT0DB_READER">
+ <service name="oracle://ATLAS_CONFIG/ATLAS_SFO_T0_R" accessMode="read" authentication="password" />
+</logicalservice>
+
+<!-- PVSS database -->
+<logicalservice name="PVSSDB_READER">
+ <service name="oracle://ATLAS_PVSSPROD/ATLAS_PVSS_READER" accessMode="read" authentication="password" />
+</logicalservice>
+
+<!-- Tier0 database -->
+<logicalservice name="TIER0DB_READER">
+ <service name="oracle://ATLAS_T0/ATLAS_T0" accessMode="read" authentication="password" />
 </logicalservice>
 
 <logicalservice name="PANDA_READER">
