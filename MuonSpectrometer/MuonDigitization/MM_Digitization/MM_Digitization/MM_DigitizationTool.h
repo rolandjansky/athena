@@ -40,6 +40,8 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#include "AthenaKernel/IAthRNGSvc.h"
+
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "HitManagement/TimedHitCollection.h"
 #include "MuonSimEvent/MMSimHitCollection.h"
@@ -112,12 +114,16 @@ class MM_DigitizationTool : public PileUpToolBase {
 		StatusCode finalize() override final;
 
 	private:
+		CLHEP::HepRandomEngine* getRandomEngine(const std::string& streamName, const EventContext& ctx) const;
 		/** Record MmDigitContainer and MuonSimDataCollection */
 		StatusCode getNextEvent(const EventContext& ctx);
 		StatusCode doDigitization(const EventContext& ctx);
 
 		bool  checkMMSimHit(const MMSimHit& /* hit */ ) const;
 		MM_ElectronicsToolInput combinedStripResponseAllHits(const std::vector< MM_ElectronicsToolInput > & v_stripDigitOutput);
+
+		ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", "Random Number Service used in Muon digitization"};
+		Gaudi::Property<std::string> m_rndmEngineName{this,"RndmEngine","MuonDigitization","Random engine name"};
 
 		ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 		ToolHandle<Muon::INSWCalibSmearingTool> m_smearingTool{this,"SmearingTool","Muon::NSWCalibSmearingTool/MMCalibSmearingTool"};
