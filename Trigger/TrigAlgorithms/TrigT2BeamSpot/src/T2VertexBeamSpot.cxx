@@ -98,8 +98,6 @@ StatusCode T2VertexBeamSpot::execute(const EventContext& ctx) const{
 
       //Select tracks
       auto selectedTracks = m_trackFilterTool->filter(*tracks);
-      mySelectedTrackCollection.insert(mySelectedTrackCollection.end(),
-                                       selectedTracks.begin(), selectedTracks.end());
 
       std::vector<TrackData> bsTracks;
       bool has_bs = m_trackFilterTool->updateBS(selectedTracks, eventID.lumi_block(),
