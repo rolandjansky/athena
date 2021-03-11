@@ -118,6 +118,9 @@ StatusCode MM_DigitizationTool::initialize() {
 
 	ATH_MSG_DEBUG ("MM_DigitizationTool:: in initialize()") ;
 
+	ATH_CHECK(m_rndmSvc.retrieve());
+  
+
 	// Initialize transient detector store and MuonGeoModel OR MuonDetDescrManager
 	if(detStore()->contains<MuonGM::MuonDetectorManager>( "Muon" )){
 		ATH_CHECK( detStore()->retrieve(m_MuonGeoMgr) );
@@ -214,7 +217,7 @@ StatusCode MM_DigitizationTool::initialize() {
 	m_StripsResponseSimulation->setInteractionDensityMean(interactionDensityMean);
 	m_StripsResponseSimulation->setInteractionDensitySigma(interactionDensitySigma);
 	m_StripsResponseSimulation->setLorentzAngleFunction(lorentzAngleFunction);
-	m_StripsResponseSimulation->initialize(m_randomSeed);
+	m_StripsResponseSimulation->initialize();
 
 	// ElectronicsResponseSimulation Creation
 	m_ElectronicsResponseSimulation = std::make_unique<MM_ElectronicsResponseSimulation>();
@@ -280,6 +283,8 @@ StatusCode MM_DigitizationTool::initialize() {
 
 	ATH_MSG_DEBUG ( "Configuration  MM_DigitizationTool " );
 	ATH_MSG_DEBUG ( "DigitizationTool       " << m_digitTool           );
+	ATH_MSG_INFO ( "RndmSvc                " << m_rndmSvc             );
+	ATH_MSG_INFO ( "RndmEngine             " << m_rndmEngineName      );
 	ATH_MSG_DEBUG ( "InputObjectName        " << m_inputObjectName     );
 	ATH_MSG_DEBUG ( "OutputObjectName       " << m_outputDigitCollectionKey.key());
 	ATH_MSG_DEBUG ( "OutputSDOName          " << m_outputSDO_CollectionKey.key());
@@ -469,6 +474,8 @@ StatusCode MM_DigitizationTool::finalize() {
 }
 /*******************************************************************************/
 StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
+
+  CLHEP::HepRandomEngine* rndmEngine = getRandomEngine(m_rndmEngineName, ctx);
 
   // create and record the Digit container in StoreGate
   SG::WriteHandle<MmDigitContainer> digitContainer(m_outputDigitCollectionKey, ctx);
@@ -947,7 +954,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       }
       double stripPitch = detectorReadoutElement->getDesign(layerID)->channelWidth(positionOnSurface); 
       
-      MM_StripToolOutput tmpStripOutput = m_StripsResponseSimulation->GetResponseFrom(stripDigitInput,gainFraction, stripPitch);
+      MM_StripToolOutput tmpStripOutput = m_StripsResponseSimulation->GetResponseFrom(stripDigitInput,gainFraction, stripPitch, rndmEngine);
       MM_ElectronicsToolInput stripDigitOutput( tmpStripOutput.NumberOfStripsPos(), tmpStripOutput.chipCharge(), tmpStripOutput.chipTime(), digitID , hit.kineticEnergy());
       
       // This block is purely validation
@@ -1244,4 +1251,12 @@ MM_ElectronicsToolInput MM_DigitizationTool::combinedStripResponseAllHits(const 
 bool MM_DigitizationTool::checkMMSimHit( const MMSimHit& /*hit*/ ) const {
 	return true;
 }
+
+CLHEP::HepRandomEngine* MM_DigitizationTool::getRandomEngine(const std::string& streamName, const EventContext& ctx) const
+{
+		ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this, streamName);
+		rngWrapper->setSeed( streamName, ctx );
+		return rngWrapper->getEngine(ctx);
+}
+
 
