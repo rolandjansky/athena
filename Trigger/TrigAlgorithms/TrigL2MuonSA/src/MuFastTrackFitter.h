@@ -39,16 +39,19 @@ namespace TrigL2MuonSA {
     
     StatusCode findTracks(const TrigRoiDescriptor* p_roids,
 			  TrigL2MuonSA::RpcFitResult& rpcFitResult,
-			  std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns);
+			  std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns) const;
     
     StatusCode findTracks(const TrigRoiDescriptor* p_roids,
 			  TrigL2MuonSA::TgcFitResult& tgcFitResult,
 			  std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns,
-                          const TrigL2MuonSA::MuonRoad& muonRoad);
+                          const TrigL2MuonSA::MuonRoad& muonRoad) const;
     
     StatusCode setMCFlag(BooleanProperty  use_mcLUT);
 
-    void setUseEIFromBarrel( BooleanProperty use_endcapInnerFromBarrel ) {m_use_endcapInnerFromBarrel = use_endcapInnerFromBarrel;};
+    void setUseEIFromBarrel( BooleanProperty use_endcapInnerFromBarrel ) {
+      m_use_endcapInnerFromBarrel = use_endcapInnerFromBarrel;
+      m_sagittaRadiusEstimate -> setUseEndcapInner( m_use_endcapInnerFromBarrel );
+    };
 
   private:
     BooleanProperty  m_use_mcLUT {true};

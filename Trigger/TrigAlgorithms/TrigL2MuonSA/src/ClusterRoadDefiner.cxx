@@ -2,7 +2,6 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <cmath>
 #include "ClusterRoadDefiner.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -36,7 +35,7 @@ StatusCode TrigL2MuonSA::ClusterRoadDefiner::initialize()
 StatusCode TrigL2MuonSA::ClusterRoadDefiner::defineRoad(const LVL1::RecMuonRoI*                   p_roi,
 						        std::vector<TrigL2MuonSA::MuonRoad>&      clusterRoad,
                                                         TrigL2MuonSA::RpcLayerClusters&           rpcLayerClusters,
-                                                        ToolHandle<ClusterPatFinder>*             clusterPatFinder,
+                                                        const ToolHandle<ClusterPatFinder>*       clusterPatFinder,
                                                         std::vector<TrigL2MuonSA::RpcFitResult>&  clusterFitResults,
                                                         double                                    roiEtaMinLow,
                                                         double                                    roiEtaMaxLow,
@@ -275,7 +274,7 @@ StatusCode TrigL2MuonSA::ClusterRoadDefiner::defineRoad(const LVL1::RecMuonRoI* 
 StatusCode TrigL2MuonSA::ClusterRoadDefiner::defineRoad(const xAOD::MuonRoI*                      p_roi,
 						        std::vector<TrigL2MuonSA::MuonRoad>&      clusterRoad,
                                                         TrigL2MuonSA::RpcLayerClusters&           rpcLayerClusters,
-                                                        ToolHandle<ClusterPatFinder>*             clusterPatFinder,
+                                                        const ToolHandle<ClusterPatFinder>*       clusterPatFinder,
                                                         std::vector<TrigL2MuonSA::RpcFitResult>&  clusterFitResults,
                                                         double                                    roiEtaMinLow,
                                                         double                                    roiEtaMaxLow,
@@ -376,10 +375,9 @@ StatusCode TrigL2MuonSA::ClusterRoadDefiner::defineRoad(const xAOD::MuonRoI*    
     muonRoad.phiMiddle  = clusterFitResults.at(iClus_fit).phi;
     muonRoad.phiRoI     = p_roi->phi();
     muonRoad.side       = (p_roi->phi()<0.)? 0 : 1;
-    const int SectorID = ( ( p_roi->getSectorAddress() >> 1 ) & 0x1F ); // temporal until sector ID is available in xAOD::MuonRoI
-    muonRoad.LargeSmall = ((SectorID + 1)/2 )%2;
+    muonRoad.LargeSmall = ((p_roi->getSectorID() + 1)/2 )%2;
 
-    int PhysicsSector = ((SectorID + 1)/4 )%8 + 1;
+    int PhysicsSector = ((p_roi->getSectorID() + 1)/4 )%8 + 1;
 
     int special = 0;
     if (muonRoad.LargeSmall == 0 && (PhysicsSector == 6 || PhysicsSector == 8 ))

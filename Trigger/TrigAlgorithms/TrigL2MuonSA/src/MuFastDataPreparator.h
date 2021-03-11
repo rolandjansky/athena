@@ -6,12 +6,7 @@
 #define  TRIGL2MUONSA_MUFASTDATAPREPARATOR_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-
-#include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
-
-#include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
 
 #include "TrigT1Interfaces/RecMuonRoI.h"
 #include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
@@ -34,9 +29,7 @@
 #include "MmData.h"
 
 #include "TrigMuonToolInterfaces/ITrigMuonBackExtrapolator.h"
-#include "PtEndcapLUTSvc.h"
 
-#include "RPC_CondCabling/RpcCablingCondData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 #include "ClusterRoadDefiner.h"
@@ -64,7 +57,7 @@ class MuFastDataPreparator: public AthAlgTool {
 			 TrigL2MuonSA::MdtRegion&    mdtRegion,
 			 TrigL2MuonSA::RpcFitResult& rpcFitResult,
 			 TrigL2MuonSA::MdtHits&      mdtHits_normal,
-			 TrigL2MuonSA::MdtHits&      mdtHits_overlap);
+			 TrigL2MuonSA::MdtHits&      mdtHits_overlap) const;
 
   StatusCode prepareData(const xAOD::MuonRoI*        p_roi,
 			 const TrigRoiDescriptor*    p_roids,
@@ -74,7 +67,7 @@ class MuFastDataPreparator: public AthAlgTool {
 			 TrigL2MuonSA::MdtRegion&    mdtRegion,
 			 TrigL2MuonSA::RpcFitResult& rpcFitResult,
 			 TrigL2MuonSA::MdtHits&      mdtHits_normal,
-			 TrigL2MuonSA::MdtHits&      mdtHits_overlap);
+			 TrigL2MuonSA::MdtHits&      mdtHits_overlap) const;
 
   StatusCode prepareData(const LVL1::RecMuonRoI*     p_roi,
 			 const TrigRoiDescriptor*    p_roids,
@@ -87,7 +80,7 @@ class MuFastDataPreparator: public AthAlgTool {
 			 TrigL2MuonSA::MdtHits&      mdtHits_overlap,
 			 TrigL2MuonSA::CscHits&      cscHits,
 			 TrigL2MuonSA::StgcHits&     stgcHits,
-			 TrigL2MuonSA::MmHits&       mmHits);
+			 TrigL2MuonSA::MmHits&       mmHits) const;
 
   StatusCode prepareData(const xAOD::MuonRoI*        p_roi,
 			 const TrigRoiDescriptor*    p_roids,
@@ -100,7 +93,7 @@ class MuFastDataPreparator: public AthAlgTool {
 			 TrigL2MuonSA::MdtHits&      mdtHits_overlap,
 			 TrigL2MuonSA::CscHits&      cscHits,
 			 TrigL2MuonSA::StgcHits&     stgcHits,
-			 TrigL2MuonSA::MmHits&       mmHits);
+			 TrigL2MuonSA::MmHits&       mmHits) const;
 
   //for multi-track mode
   StatusCode prepareData(const LVL1::RecMuonRoI*              p_roi,
@@ -109,7 +102,7 @@ class MuFastDataPreparator: public AthAlgTool {
                          std::vector<TrigL2MuonSA::RpcFitResult>&  clusterFitResults,
                          TrigL2MuonSA::MdtHits&               mdtHits_normal,
                          TrigL2MuonSA::MdtHits&               mdtHits_overlap,
-                         std::vector<TrigL2MuonSA::MdtHits>&  mdtHits_cluster_normal);
+                         std::vector<TrigL2MuonSA::MdtHits>&  mdtHits_cluster_normal) const;
 
   StatusCode prepareData(const xAOD::MuonRoI*                 p_roi,
 			 const TrigRoiDescriptor*             p_roids,
@@ -117,7 +110,7 @@ class MuFastDataPreparator: public AthAlgTool {
                          std::vector<TrigL2MuonSA::RpcFitResult>&  clusterFitResults,
                          TrigL2MuonSA::MdtHits&               mdtHits_normal,
                          TrigL2MuonSA::MdtHits&               mdtHits_overlap,
-                         std::vector<TrigL2MuonSA::MdtHits>&  mdtHits_cluster_normal);
+                         std::vector<TrigL2MuonSA::MdtHits>&  mdtHits_cluster_normal) const;
 
   void setOptions(const TrigL2MuonSA::MuFastDataPreparatorOptions& options);
 
@@ -125,7 +118,6 @@ class MuFastDataPreparator: public AthAlgTool {
 
   StatusCode setGeometry(bool use_new_geometry);
   void setRpcGeometry(bool use_rpc);
-  void setMdtDataCollection(bool use_mdtcsm);
 
   StatusCode setMCFlag(BooleanProperty  use_mcLUT);
   void setRoIBasedDataAccess(bool use_RoIBasedDataAccess_MDT,

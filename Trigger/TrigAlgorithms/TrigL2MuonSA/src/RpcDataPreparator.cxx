@@ -2,9 +2,6 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <iostream>
-#include <cmath>
-
 #include "TrigL2MuonSA/RpcDataPreparator.h"
 #include "RpcData.h"
 #include "RecMuonRoIUtils.h"
@@ -33,24 +30,8 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::initialize()
 
    ATH_CHECK( m_recRPCRoiTool.retrieve() );
 
-   // consistency check for decoding flag settings
-   if(m_decodeBS && !m_doDecoding) {
-     ATH_MSG_FATAL("Inconsistent setup, you tried to enable BS decoding but disable all decoding. Please fix the configuration");
-     return StatusCode::FAILURE;
-   }
- 
-   // disable the RDO->PRD decoding tool if we don't do the RPC data decoding
-   ATH_CHECK( m_rpcPrepDataProvider.retrieve(DisableTool{!m_doDecoding}) );
-   ATH_MSG_DEBUG("Retrieved " << m_rpcPrepDataProvider);
-
    ATH_CHECK(m_idHelperSvc.retrieve());
    ATH_MSG_DEBUG("Retrieved " << m_idHelperSvc);
-
-   // Retreive PRC raw data provider tool
-   ATH_MSG_DEBUG("Decode BS set to " << m_decodeBS);
-   // disable the BS->RDO decoding tool if we don't do the RPC data decoding
-   ATH_CHECK( m_rawDataProviderTool.retrieve(DisableTool{ !m_decodeBS || !m_doDecoding }) );
-   ATH_MSG_DEBUG("Retrieved Tool " << m_rawDataProviderTool);
 
    ATH_CHECK(m_rpcPrepContainerKey.initialize());
 
@@ -82,7 +63,7 @@ void TrigL2MuonSA::RpcDataPreparator::setMultiMuonTrigger( const bool multiMuonT
 StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*    p_roids,
                                                         TrigL2MuonSA::RpcHits&      rpcHits,
                                                         TrigL2MuonSA::RpcLayerHits& rpcLayerHits,
-                                                        ToolHandle<RpcPatFinder>*   rpcPatFinder)
+                                                        const ToolHandle<RpcPatFinder>*   rpcPatFinder) const
 {
   // RPC data extraction referring TrigMuonEFStandaloneTrackTool and MuonHoughPatternFinderTool
   rpcHits.clear();
@@ -110,16 +91,6 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
 
      std::vector<uint32_t> rpcRobList;
      m_regionSelector->ROBIDList(*iroi, rpcRobList);
-     if(m_doDecoding) {
-       if(m_decodeBS) {
-         if ( m_rawDataProviderTool->convert(rpcRobList).isFailure()) {
-             ATH_MSG_WARNING("Conversion of BS for decoding of RPCs failed");
-         }
-       }
-       if ( m_rpcPrepDataProvider->decode(rpcHashList, rpcHashListWithData).isFailure() ) {
-         ATH_MSG_WARNING("Problems when preparing RPC PrepData ");
-       }
-     }//do decoding
    } else {
      
      ATH_MSG_DEBUG("Use full data access");
@@ -130,16 +101,6 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
      
      std::vector<uint32_t> rpcRobList;
      m_regionSelector->ROBIDList(fullscan_roi, rpcRobList);
-     if(m_doDecoding) {
-       if(m_decodeBS) {
-         if ( m_rawDataProviderTool->convert(rpcRobList).isFailure()) {
-             ATH_MSG_WARNING("Conversion of BS for decoding of RPCs failed");
-         }
-       }
-       if ( m_rpcPrepDataProvider->decode(rpcRobList).isFailure() ) {
-         ATH_MSG_WARNING("Problems when preparing RPC PrepData ");
-       }
-     }//do decoding
      
    }
    

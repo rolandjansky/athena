@@ -3,14 +3,11 @@
 import TrigL2MuonSA.TrigL2MuonSAConf as MuonSA
 from TrigL2MuonSA.TrigL2MuonSAMonitoring import TrigL2MuonSAMonitoring
 from AthenaCommon.AppMgr import ServiceMgr,ToolSvc
-from AthenaCommon.DetFlags import DetFlags
 from TrigMuonBackExtrapolator.TrigMuonBackExtrapolatorConfig import MuonBackExtrapolatorForAlignedDet, MuonBackExtrapolatorForMisalignedDet,  MuonBackExtrapolatorForData
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from RegionSelector.RegSelToolConfig import makeRegSelTool_MDT
 from RegionSelector.RegSelToolConfig import makeRegSelTool_RPC
-from RegionSelector.RegSelToolConfig import makeRegSelTool_TGC
-from RegionSelector.RegSelToolConfig import makeRegSelTool_CSC
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TrigL2MuonSAConfig')
@@ -21,79 +18,24 @@ from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConf import LVL1__TrigT1RPCRecRoiT
 trigRpcRoiTool = LVL1__TrigT1RPCRecRoiTool("RPCRecRoiTool", UseRun3Config=ConfigFlags.Trigger.enableL1Phase1)
 
 theDataPreparator    = MuonSA.TrigL2MuonSA__MuFastDataPreparator()
-theDataPreparator.RPCDataPreparator  = MuonSA.TrigL2MuonSA__RpcDataPreparator( DecodeBS = DetFlags.readRDOBS.RPC_on(), TrigT1RPCRecRoiTool = trigRpcRoiTool)
-theDataPreparator.MDTDataPreparator  = MuonSA.TrigL2MuonSA__MdtDataPreparator( DecodeBS = DetFlags.readRDOBS.MDT_on())
-theDataPreparator.TGCDataPreparator  = MuonSA.TrigL2MuonSA__TgcDataPreparator( DecodeBS = DetFlags.readRDOBS.TGC_on())
-theDataPreparator.CSCDataPreparator  = MuonSA.TrigL2MuonSA__CscDataPreparator( DecodeBS = DetFlags.readRDOBS.CSC_on())
-theDataPreparator.STGCDataPreparator = MuonSA.TrigL2MuonSA__StgcDataPreparator(DecodeBS = DetFlags.readRDOBS.sTGC_on())
-theDataPreparator.MMDataPreparator   = MuonSA.TrigL2MuonSA__MmDataPreparator(  DecodeBS = DetFlags.readRDOBS.Micromegas_on())
+theDataPreparator.RPCDataPreparator  = MuonSA.TrigL2MuonSA__RpcDataPreparator( TrigT1RPCRecRoiTool = trigRpcRoiTool)
+theDataPreparator.MDTDataPreparator  = MuonSA.TrigL2MuonSA__MdtDataPreparator()
+theDataPreparator.TGCDataPreparator  = MuonSA.TrigL2MuonSA__TgcDataPreparator()
+theDataPreparator.CSCDataPreparator  = MuonSA.TrigL2MuonSA__CscDataPreparator()
+theDataPreparator.STGCDataPreparator = MuonSA.TrigL2MuonSA__StgcDataPreparator()
+theDataPreparator.MMDataPreparator   = MuonSA.TrigL2MuonSA__MmDataPreparator()
 theDataPreparator.RpcRoadDefiner     = MuonSA.TrigL2MuonSA__RpcRoadDefiner()
 theDataPreparator.TgcRoadDefiner     = MuonSA.TrigL2MuonSA__TgcRoadDefiner()
 
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 if not MuonGeometryFlags.hasSTGC():
-    theDataPreparator.STGCDataPreparator.DoDecoding=False
-    theDataPreparator.STGCDataPreparator.DecodeBS=False
     theDataPreparator.STGCDataPreparator.StgcPrepDataContainer=""
 if not MuonGeometryFlags.hasMM():
-    theDataPreparator.MMDataPreparator.DoDecoding=False
-    theDataPreparator.MMDataPreparator.DecodeBS=False
     theDataPreparator.MMDataPreparator.MmPrepDataContainer=""
 if not MuonGeometryFlags.hasCSC():
-    theDataPreparator.CSCDataPreparator.DoDecoding=False
-    theDataPreparator.CSCDataPreparator.DecodeBS=False
     theDataPreparator.CSCDataPreparator.CSCPrepDataContainer  = ""
 
 theDataPreparator.RPCDataPreparator.RpcClusterPreparator = MuonSA.TrigL2MuonSA__RpcClusterPreparator(TrigT1RPCRecRoiTool = trigRpcRoiTool)
-
-#Need different PRD collection names to run offline and Run 2 trigger in same job
-if ConfigFlags.Trigger.EDMVersion <= 2:
-    from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataTool
-    from MuonCnvExample import MuonCalibConfig
-
-    MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataTool(name = "TrigMdtRdoToPrepDataTool",
-                                                         OutputCollection="TrigMDT_DriftCircles",
-                                                         CalibrationTool=MuonCalibConfig.MdtCalibrationTool())
-    ToolSvc += MdtRdoToMdtPrepDataTool
-    theDataPreparator.MDTDataPreparator.MdtPrepDataProvider =  MdtRdoToMdtPrepDataTool
-    theDataPreparator.MDTDataPreparator.MDTPrepDataContainer = MdtRdoToMdtPrepDataTool.OutputCollection
-
-    if MuonGeometryFlags.hasCSC():
-        from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataTool
-        CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataTool(name = "TrigCscRdoToPrepDataTool", OutputCollection="TrigCSC_Measurements")
-        ToolSvc += CscRdoToCscPrepDataTool
-        theDataPreparator.CSCDataPreparator.CscPrepDataProvider =  CscRdoToCscPrepDataTool
-        theDataPreparator.CSCDataPreparator.CSCPrepDataContainer = CscRdoToCscPrepDataTool.OutputCollection
-
-    from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcRdoToPrepDataTool
-    TgcRdoToTgcPrepDataTool = Muon__TgcRdoToPrepDataTool(name = "TrigTgcRdoToPrepDataTool",OutputCollection="TrigTGC_Measurements",OutputCoinCollection="TrigerT1CoinDataCollection")
-    ToolSvc += TgcRdoToTgcPrepDataTool
-    theDataPreparator.TGCDataPreparator.TgcPrepDataProvider =  TgcRdoToTgcPrepDataTool
-    theDataPreparator.TGCDataPreparator.TGCPrepDataContainer = TgcRdoToTgcPrepDataTool.OutputCollection
-
-    from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
-    #InputCollection is really the output RPC coin collection...
-    RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name = "TrigRpcRdoToPrepDataTool", TriggerOutputCollection="TrigRPC_Measurements", InputCollection="TrigRPC_triggerHits")
-    ToolSvc += RpcRdoToRpcPrepDataTool
-    theDataPreparator.RPCDataPreparator.RpcPrepDataProvider =  RpcRdoToRpcPrepDataTool
-    theDataPreparator.RPCDataPreparator.RpcPrepDataContainer = RpcRdoToRpcPrepDataTool.TriggerOutputCollection
-
-    if MuonGeometryFlags.hasSTGC():
-        from MuonSTGC_CnvTools.MuonSTGC_CnvToolsConf import Muon__StgcRdoToPrepDataTool
-        #InputCollection is really the output sTGC coin collection...
-        StgcRdoToStgcPrepDataTool = Muon__StgcRdoToPrepDataTool(name = "TrigStgcRdoToPrepDataTool", TriggerOutputCollection="TrigSTGC_Measurements", InputCollection="TrigSTGC_triggerHits")
-        ToolSvc += StgcRdoToStgcPrepDataTool
-        theDataPreparator.STGCDataPreparator.StgcPrepDataProvider =  StgcRdoToStgcPrepDataTool
-        theDataPreparator.STGCDataPreparator.StgcPrepDataContainer = StgcRdoToStgcPrepDataTool.TriggerOutputCollection
-
-    if MuonGeometryFlags.hasMM():
-        from MuonMM_CnvTools.MuonMM_CnvToolsConf import Muon__MmRdoToPrepDataTool
-        #InputCollection is really the output MM coin collection...
-        MmRdoToMmPrepDataTool = Muon__MmRdoToPrepDataTool(name = "TrigMmRdoToPrepDataTool", TriggerOutputCollection="TrigMM_Measurements", InputCollection="TrigMM_triggerHits")
-        ToolSvc += MmRdoToMmPrepDataTool
-        # theDataPreparator.MMDataPreparator.MmPrepDataProvider =  MmRdoToMmPrepDataTool
-        theDataPreparator.MMDataPreparator.MmPrepDataContainer = MmRdoToMmPrepDataTool.TriggerOutputCollection
-
 
 
 ToolSvc += MuonBackExtrapolatorForAlignedDet()
@@ -253,8 +195,6 @@ class TrigL2MuonSAConfig(MuonSA.MuFastSteering):
         import MuonCnvExample.MuonCablingConfig # noqa: F401 configuration of Run 2 cabling by import
         self.DataPreparator.MDTDataPreparator.RegSel_MDT = makeRegSelTool_MDT()
         self.DataPreparator.RPCDataPreparator.RegSel_RPC = makeRegSelTool_RPC()
-        self.DataPreparator.TGCDataPreparator.RegSel_TGC = makeRegSelTool_TGC()
-        self.DataPreparator.CSCDataPreparator.RegSel_CSC = makeRegSelTool_CSC()
         self.DataPreparator.RpcRoadDefiner.RegionSelectionTool=makeRegSelTool_MDT()
         self.DataPreparator.TgcRoadDefiner.RegionSelectionTool=makeRegSelTool_MDT()
 

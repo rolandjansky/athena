@@ -15,12 +15,9 @@
 #include "TgcFit.h"
 #include "TgcData.h"
 #include "MuonRoad.h"
-#include "MdtRegion.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "IRegionSelector/IRegSelTool.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
-
-#include <string>
 
 namespace TrigL2MuonSA {
 

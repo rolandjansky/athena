@@ -131,12 +131,11 @@ StatusCode TrigL2MuonSA::MuFastTrackFitter::setMCFlag(BooleanProperty use_mcLUT)
 
 StatusCode TrigL2MuonSA::MuFastTrackFitter::findTracks(const TrigRoiDescriptor* p_roids,
 						       TrigL2MuonSA::RpcFitResult& rpcFitResult,
-						       std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns)
+						       std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns) const
 {
 
    for (TrigL2MuonSA::TrackPattern& itTrack : v_trackPatterns) {
 
-     m_sagittaRadiusEstimate -> setUseEndcapInner( m_use_endcapInnerFromBarrel );
      ATH_CHECK( m_sagittaRadiusEstimate->setSagittaRadius(p_roids, rpcFitResult, itTrack) );
 
      ATH_CHECK( m_ptFromRadius->setPt(itTrack) );
@@ -152,7 +151,7 @@ StatusCode TrigL2MuonSA::MuFastTrackFitter::findTracks(const TrigRoiDescriptor* 
 StatusCode TrigL2MuonSA::MuFastTrackFitter::findTracks(const TrigRoiDescriptor* p_roids,
 						       TrigL2MuonSA::TgcFitResult& tgcFitResult,
 						       std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns,
-                                                       const TrigL2MuonSA::MuonRoad& muonRoad)
+                                                       const TrigL2MuonSA::MuonRoad& muonRoad) const
 {
 
    for (TrigL2MuonSA::TrackPattern& itTrack : v_trackPatterns) {

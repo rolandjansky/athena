@@ -68,8 +68,8 @@ namespace TrigL2MuonSA {
     void setBufferName(std::string buffName) {m_calBufferName=buffName;}
 
     std::vector<int>* getLocalBuffer()   {return &m_localBuffer;}
-    int getLocalBufferSize() {return m_localBuffer.size();}
-    void clearLocalBuffer();
+    int getLocalBufferSize() const {return m_localBuffer.size();}
+    /* void clearLocalBuffer(); */
 
     //
     // initialize the stream
@@ -81,14 +81,14 @@ namespace TrigL2MuonSA {
     
     //
     // create the fragment corresponding to an roi
-    StatusCode createRoiFragment(const LVL1::RecMuonRoI* roi,
-				 TrigL2MuonSA::TrackPattern& trackPattern,
-				 TrigL2MuonSA::MdtHits& mdtHits,
-				 TrigL2MuonSA::RpcHits& rpcHits,
-				 TrigL2MuonSA::TgcHits& tgcHits,
-				 int calBufferSize,
-				 bool doDataScouting,
-                                 bool& updateTriggerElement);
+    /* StatusCode createRoiFragment(const LVL1::RecMuonRoI* roi, */
+    /* 				 TrigL2MuonSA::TrackPattern& trackPattern, */
+    /* 				 TrigL2MuonSA::MdtHits& mdtHits, */
+    /* 				 TrigL2MuonSA::RpcHits& rpcHits, */
+    /* 				 TrigL2MuonSA::TgcHits& tgcHits, */
+    /* 				 int calBufferSize, */
+    /* 				 bool doDataScouting, */
+    /*                              bool& updateTriggerElement); */
 
   private:
 

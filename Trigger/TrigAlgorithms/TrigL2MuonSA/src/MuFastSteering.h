@@ -5,7 +5,6 @@
 #ifndef  TRIGL2MUONSA_MUFASTSTEERING_H
 #define  TRIGL2MUONSA_MUFASTSTEERING_H
 
-#include "GaudiKernel/Bootstrap.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -23,7 +22,6 @@
 #include "MuCalStreamerTool.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "CscSegmentMaker.h"
-#include "CscRegUtils.h"
 #include "FtfRoadDefiner.h"
 
 //adding a part of DataHandle for AthenaMT
@@ -83,38 +81,38 @@ class MuFastSteering : public HLT::FexAlgo,
                                DataVector<xAOD::L2StandAloneMuon>& 		outputTracks,
 			       TrigRoiDescriptorCollection&	 		outputID,
 			       TrigRoiDescriptorCollection&	 		outputMS,
-			       DataVector<xAOD::TrigComposite>&			outputComposite );
+			       DataVector<xAOD::TrigComposite>&			outputComposite ) const;
 
   StatusCode findMuonSignature(const std::vector<const TrigRoiDescriptor*>&	roi,
 			       const std::vector<const xAOD::MuonRoI*>& 	muonRoIs,
                                DataVector<xAOD::L2StandAloneMuon>& 		outputTracks,
 			       TrigRoiDescriptorCollection&	 		outputID,
 			       TrigRoiDescriptorCollection&	 		outputMS,
-			       DataVector<xAOD::TrigComposite>&			outputComposite );
+			       DataVector<xAOD::TrigComposite>&			outputComposite ) const;
 
   /** findMuonSignatureIO(), includes reconstract algorithms for inside-out mode **/
   StatusCode findMuonSignatureIO(const xAOD::TrackParticleContainer&            idtracks,
 				 const std::vector<const TrigRoiDescriptor*>    roids,
 				 const std::vector<const LVL1::RecMuonRoI*>     muonRoIs,
 				 DataVector<xAOD::L2CombinedMuon>&              outputCBs,
-				 DataVector<xAOD::L2StandAloneMuon>&            outputSAs );
+				 DataVector<xAOD::L2StandAloneMuon>&            outputSAs ) const;
 
   StatusCode findMuonSignatureIO(const xAOD::TrackParticleContainer&            idtracks,
 				 const std::vector<const TrigRoiDescriptor*>    roids,
 				 const std::vector<const xAOD::MuonRoI*>        muonRoIs,
 				 DataVector<xAOD::L2CombinedMuon>&              outputCBs,
-				 DataVector<xAOD::L2StandAloneMuon>&            outputSAs );
+				 DataVector<xAOD::L2StandAloneMuon>&            outputSAs ) const;
 
   /** findMultiTrackSignature(), includes reconstract algorithms for multi-track mode **/
   StatusCode findMultiTrackSignature(const std::vector<const TrigRoiDescriptor*>&	roi,
 			             const std::vector<const LVL1::RecMuonRoI*>& 	muonRoIs,
-                                     DataVector<xAOD::L2StandAloneMuon>& 		outputTracks);
+                                     DataVector<xAOD::L2StandAloneMuon>& 		outputTracks) const;
 
   StatusCode findMultiTrackSignature(const std::vector<const TrigRoiDescriptor*>&	roi,
 			             const std::vector<const xAOD::MuonRoI*>& 	        muonRoIs,
-                                     DataVector<xAOD::L2StandAloneMuon>& 		outputTracks);
+                                     DataVector<xAOD::L2StandAloneMuon>& 		outputTracks) const;
 
-  int L2MuonAlgoMap(const std::string& name);
+  int L2MuonAlgoMap(const std::string& name) const;
 
   // handler for "UpdateAfterFork" actions
   void handle(const Incident& incident);
@@ -140,7 +138,7 @@ class MuFastSteering : public HLT::FexAlgo,
                            const std::vector<TrigL2MuonSA::TrackPattern>& trackPatterns,
 			   DataVector<xAOD::L2StandAloneMuon>&	          outputTracks,
 			   TrigRoiDescriptorCollection&  	          outputID,
-			   TrigRoiDescriptorCollection&   	          outputMS);
+			   TrigRoiDescriptorCollection&   	          outputMS) const;
 
   bool updateOutputObjects(const xAOD::MuonRoI*                           roi,
                            const TrigRoiDescriptor*                       roids,
@@ -157,7 +155,7 @@ class MuFastSteering : public HLT::FexAlgo,
                            const std::vector<TrigL2MuonSA::TrackPattern>& trackPatterns,
 			   DataVector<xAOD::L2StandAloneMuon>&	          outputTracks,
 			   TrigRoiDescriptorCollection&  	          outputID,
-			   TrigRoiDescriptorCollection&   	          outputMS);
+			   TrigRoiDescriptorCollection&   	          outputMS) const;
 
   bool storeMuonSA(const LVL1::RecMuonRoI*             roi,
                    const TrigRoiDescriptor*            roids,
@@ -172,7 +170,7 @@ class MuFastSteering : public HLT::FexAlgo,
 		   const TrigL2MuonSA::StgcHits&       stgcHits,
 		   const TrigL2MuonSA::MmHits&         mmHits,
                	   const TrigL2MuonSA::TrackPattern&   pattern,
-                   DataVector<xAOD::L2StandAloneMuon>& outputTracks);
+                   DataVector<xAOD::L2StandAloneMuon>& outputTracks) const;
 
   bool storeMuonSA(const xAOD::MuonRoI*                roi,
                    const TrigRoiDescriptor*            roids,
@@ -187,28 +185,28 @@ class MuFastSteering : public HLT::FexAlgo,
 		   const TrigL2MuonSA::StgcHits&       stgcHits,
 		   const TrigL2MuonSA::MmHits&         mmHits,
                	   const TrigL2MuonSA::TrackPattern&   pattern,
-                   DataVector<xAOD::L2StandAloneMuon>& outputTracks);
+                   DataVector<xAOD::L2StandAloneMuon>& outputTracks) const;
 
   bool storeMSRoiDescriptor(const TrigRoiDescriptor*                  roids,
 		            const TrigL2MuonSA::TrackPattern&         pattern,
                             const DataVector<xAOD::L2StandAloneMuon>& outputTracks,
-		            TrigRoiDescriptorCollection&	      outputMS);
+		            TrigRoiDescriptorCollection&	      outputMS) const;
 
 
   bool storeIDRoiDescriptor(const TrigRoiDescriptor*                  roids,
 		            const TrigL2MuonSA::TrackPattern&         pattern,
                             const DataVector<xAOD::L2StandAloneMuon>& outputTracks,
-		            TrigRoiDescriptorCollection&	      outputID);
+		            TrigRoiDescriptorCollection&	      outputID) const;
 
   /**
      Update monitoring variables
   */
   StatusCode updateMonitor(const LVL1::RecMuonRoI*                  roi,
 			   const TrigL2MuonSA::MdtHits&             mdtHits,
-                           std::vector<TrigL2MuonSA::TrackPattern>& trackPatterns );
+                           std::vector<TrigL2MuonSA::TrackPattern>& trackPatterns ) const;
   StatusCode updateMonitor(const xAOD::MuonRoI*                     roi,
 			   const TrigL2MuonSA::MdtHits&             mdtHits,
-                           std::vector<TrigL2MuonSA::TrackPattern>& trackPatterns );
+                           std::vector<TrigL2MuonSA::TrackPattern>& trackPatterns ) const;
  protected:
 
   // Services
@@ -248,17 +246,6 @@ class MuFastSteering : public HLT::FexAlgo,
 
 
  private:
-  TrigL2MuonSA::RpcHits      m_rpcHits;
-  TrigL2MuonSA::TgcHits      m_tgcHits;
-  TrigL2MuonSA::MdtRegion    m_mdtRegion;
-  TrigL2MuonSA::MuonRoad     m_muonRoad;
-  TrigL2MuonSA::RpcFitResult m_rpcFitResult;
-  TrigL2MuonSA::TgcFitResult m_tgcFitResult;
-  TrigL2MuonSA::MdtHits      m_mdtHits_normal;
-  TrigL2MuonSA::MdtHits      m_mdtHits_overlap;
-  TrigL2MuonSA::CscHits      m_cscHits;
-  TrigL2MuonSA::StgcHits     m_stgcHits;
-  TrigL2MuonSA::MmHits       m_mmHits;
 
   // Property
   Gaudi::Property< float > m_scaleRoadBarrelInner { this, "Scale_Road_BarrelInner", 1 };
@@ -269,7 +256,6 @@ class MuFastSteering : public HLT::FexAlgo,
   Gaudi::Property< bool > m_use_mcLUT { this, "UseLUTForMC", true};
   Gaudi::Property< bool > m_use_new_segmentfit { this, "USE_NEW_SEGMENTFIT", true};
   Gaudi::Property< bool > m_use_rpc { this, "USE_RPC", true};
-  Gaudi::Property< bool > m_use_mdtcsm { this, "USE_MDTCSM", false};
   Gaudi::Property< bool > m_use_RoIBasedDataAccess_MDT  { this, "USE_ROIBASEDACCESS_MDT",  true};
   Gaudi::Property< bool > m_use_RoIBasedDataAccess_RPC  { this, "USE_ROIBASEDACCESS_RPC",  true};
   Gaudi::Property< bool > m_use_RoIBasedDataAccess_TGC  { this, "USE_ROIBASEDACCESS_TGC",  true};
@@ -301,7 +287,7 @@ class MuFastSteering : public HLT::FexAlgo,
   Gaudi::Property< float > m_dPhisurrRoI { this, "dPhisurrRoI", 99, "phi range to find surrounding L1 RoIs" };
   Gaudi::Property< float > m_dEtasurrRoI { this, "dEtasurrRoI", 99, "eta range to find surrounding L1 RoIs" };
 
-  float getRoiSizeForID(bool isEta, const xAOD::L2StandAloneMuon* muonSA);
+  float getRoiSizeForID(bool isEta, const xAOD::L2StandAloneMuon* muonSA) const;
 
   Gaudi::Property< bool > m_allowOksConfig { this, "AllowOksConfig", true};
   Gaudi::Property< std::string > m_calBufferName { this, "MuonCalBufferName", "/tmp/testOutput"};
