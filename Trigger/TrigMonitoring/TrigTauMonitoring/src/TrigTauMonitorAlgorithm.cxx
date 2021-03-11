@@ -111,8 +111,6 @@ StatusCode TrigTauMonitorAlgorithm::executeNavigation( const EventContext& ctx,
   std::string tauContainerName = "HLT_TrigTauRecMerged_Precision";
   if(trigItem.find("EF_")!=std::string::npos || trigItem.find("MVA_")!=std::string::npos || trigItem.find("MVABDT_")!=std::string::npos) {
      tauContainerName="HLT_TrigTauRecMerged_MVA";
-  } else if(trigItem.find("ptonly") != std::string::npos) {
-     tauContainerName="HLT_TrigTauRecMerged_CaloOnly";
   }
 
   for(const auto Tau : *offTaus ){
@@ -188,8 +186,6 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, std::ve
   std::string tauContainerName = "HLT_TrigTauRecMerged_Precision";
   if(trigger.find("EF_")!=std::string::npos || trigger.find("MVA_")!=std::string::npos || trigger.find("MVABDT_")!=std::string::npos){ 
       tauContainerName="HLT_TrigTauRecMerged_MVA";
-  } else if(trigger.find("ptonly") != std::string::npos) {
-      tauContainerName="HLT_TrigTauRecMerged_CaloOnly";
   }
 
   ATH_MSG_DEBUG("Tau ContainerName is: " << tauContainerName);
