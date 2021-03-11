@@ -7,38 +7,36 @@
 #include "TrigCompositeUtils/Combinators.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "GaudiKernel/SystemOfUnits.h"
-
 #include "TrigEgammaFastCaloHypoToolInc.h"
 
 
 using namespace TrigCompositeUtils;
 
+
 TrigEgammaFastCaloHypoToolInc::TrigEgammaFastCaloHypoToolInc( const std::string& type, 
 		    const std::string& name, 
 		    const IInterface* parent ) 
   : base_class( type, name, parent ),
+    m_decisionId( HLT::Identifier::fromToolName( name ) ) ,
     m_selectorTool(),
-    m_decisionId( HLT::Identifier::fromToolName( name ) )
+    m_onnxSelectorTool(),
+    m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool")
 {
+  declareProperty("LumiBlockMuTool", m_lumiBlockMuTool, "Luminosity Tool" );
 }
+
+
+TrigEgammaFastCaloHypoToolInc::~TrigEgammaFastCaloHypoToolInc(){}
+
+
 
 StatusCode TrigEgammaFastCaloHypoToolInc::initialize()  {
 
-  ATH_MSG_DEBUG("Name: "<<name()<<" UseRinger: "<<m_useRinger);
 
-  if (m_useRinger){
-    m_selectorTool.setConstantsCalibPath( m_constantsCalibPath );
-    m_selectorTool.setThresholdsCalibPath( m_thresholdsCalibPath );
+  ATH_MSG_DEBUG( "Name: " << name() << " UseRinger: " << m_useRinger);
+  
 
-    if(m_selectorTool.initialize().isFailure())
-      return StatusCode::FAILURE;
-
-    if (m_lumiBlockMuTool.retrieve().isFailure())
-      return StatusCode::FAILURE;
-  }
-
-  ATH_MSG_DEBUG( "Initialization completed successfully"   );   
-  ATH_MSG_DEBUG( "AcceptAll           = " << ( m_acceptAll==true ? "True" : "False" ) ); 
+  ATH_MSG_DEBUG( "AcceptAll      = " << ( m_acceptAll==true ? "True" : "False" ) ); 
   ATH_MSG_DEBUG( "EtaBins        = " << m_etabin      );
   ATH_MSG_DEBUG( "ETthr          = " << m_eTthr    << "( lo )/" << m_eT2thr    << "( hi )" );  
   ATH_MSG_DEBUG( "HADETthr       = " << m_hadeTthr << "( lo )/" << m_hadeT2thr << "( hi )" );
@@ -46,9 +44,9 @@ StatusCode TrigEgammaFastCaloHypoToolInc::initialize()  {
   ATH_MSG_DEBUG( "CAERATIOthr    = " << m_caeratiothr );
   ATH_MSG_DEBUG( "dPHICLUSTERthr = " << m_dphicluster );
   ATH_MSG_DEBUG( "dETACLUSTERthr = " << m_detacluster );
-  ATH_MSG_DEBUG( "WETA2thr     = "   << m_WETA2thr  );
-  ATH_MSG_DEBUG( "WSTOTthr     = "   << m_WSTOTthr  );
-  ATH_MSG_DEBUG( "F3thr     = "      << m_F3thr  );
+  ATH_MSG_DEBUG( "WETA2thr       = " << m_WETA2thr    );
+  ATH_MSG_DEBUG( "WSTOTthr       = " << m_WSTOTthr    );
+  ATH_MSG_DEBUG( "F3thr          = " << m_F3thr       );
   
   if ( m_etabin.size() == 0 ) {
     ATH_MSG_ERROR(  " There are no cuts set (EtaBins property is an empty list)" );
@@ -56,61 +54,72 @@ StatusCode TrigEgammaFastCaloHypoToolInc::initialize()  {
   }
 
   unsigned int nEtaBin = m_etabin.size();
-#define CHECK_SIZE( __n) if ( m_##__n.size() !=  (nEtaBin - 1) )		\
-    { ATH_MSG_DEBUG(" __n size is " << m_##__n.size() << " but needs to be " << (nEtaBin - 1) ); return StatusCode::FAILURE; }
-
-  CHECK_SIZE( eTthr );
-  CHECK_SIZE( eT2thr );
-  CHECK_SIZE( hadeTthr );
-  CHECK_SIZE( hadeT2thr );
-  CHECK_SIZE( carcorethr );
-  CHECK_SIZE( caeratiothr );
-  CHECK_SIZE( WETA2thr );
-  CHECK_SIZE( WSTOTthr ); 
-  CHECK_SIZE( F3thr );
-#undef CHECK_SIZE
+  #define CHECK_SIZE( __n) if ( m_##__n.size() !=  (nEtaBin - 1) )		\
+      { ATH_MSG_DEBUG(" __n size is " << m_##__n.size() << " but needs to be " << (nEtaBin - 1) ); return StatusCode::FAILURE; }
+  
+    CHECK_SIZE( eTthr );
+    CHECK_SIZE( eT2thr );
+    CHECK_SIZE( hadeTthr );
+    CHECK_SIZE( hadeT2thr );
+    CHECK_SIZE( carcorethr );
+    CHECK_SIZE( caeratiothr );
+    CHECK_SIZE( WETA2thr );
+    CHECK_SIZE( WSTOTthr ); 
+    CHECK_SIZE( F3thr );
+  #undef CHECK_SIZE
 
   ATH_MSG_DEBUG( "Tool configured for chain/id: " << m_decisionId );
 
   if ( not m_monTool.name().empty() ) 
     CHECK( m_monTool.retrieve() );
+  
+
+  if (m_useRinger){
+
+    if( m_useRun3 ){
+      ATH_MSG_INFO( "Using the new Onnx ringer selector for Run3" );
+      if( m_onnxSelectorTool.read_from( m_configFile, &*m_onnxSvc ).isFailure() ){
+        ATH_MSG_ERROR( "It's not possible to read all tuning files from " << m_configFile );
+        return StatusCode::FAILURE;
+      } 
+
+    }else{// Run2
+      m_selectorTool.setConstantsCalibPath( m_constantsCalibPath ); 
+      m_selectorTool.setThresholdsCalibPath( m_thresholdsCalibPath ); 
+      if(m_selectorTool.initialize().isFailure())
+        return StatusCode::FAILURE;
+    }
+
+    if (m_lumiBlockMuTool.retrieve().isFailure())
+      return StatusCode::FAILURE;
+
+    ATH_MSG_INFO("Ringer selector  initialization completed successfully.");
+   
+  } // Use ringer
+  
+  ATH_MSG_DEBUG( "Initialization completed successfully"   );   
 
   return StatusCode::SUCCESS;
 }
 
 
-
-int TrigEgammaFastCaloHypoToolInc::findCutIndex( float eta ) const {
-  const float absEta = std::abs(eta);
-  
-  auto binIterator = std::adjacent_find( m_etabin.begin(), m_etabin.end(), [=](float left, float right){ return left < absEta and absEta < right; }  );
-  if ( binIterator == m_etabin.end() ) {
-    return -1;
-  }
-  return  binIterator - m_etabin.begin();
-}
-
 StatusCode TrigEgammaFastCaloHypoToolInc::decide( std::vector<FastClusterInfo>& input )  const {
   for ( auto& i: input ) {
     if ( passed ( m_decisionId.numeric(), i.previousDecisionIDs ) ) {
       if ( decide( i ) ) {
-	addDecisionID( m_decisionId, i.decision );
+	      addDecisionID( m_decisionId, i.decision );
       }
     }
   }
   return StatusCode::SUCCESS;
 }
 
+
 bool TrigEgammaFastCaloHypoToolInc::decide( const ITrigEgammaFastCaloHypoTool::FastClusterInfo& input ) const {
-  // ringer selection
-  if (m_useRinger){
-    return decide_ringer( input );
-  }
-  // cutbased selection
-  else{
-    return decide_cutbased( input );
-  }
+  return m_useRinger ? decide_ringer( input ) : decide_cutbased( input );
 }
+
+
 
 bool TrigEgammaFastCaloHypoToolInc::decide_cutbased( const ITrigEgammaFastCaloHypoTool::FastClusterInfo& input ) const {
   
@@ -324,20 +333,23 @@ bool TrigEgammaFastCaloHypoToolInc::decide_cutbased( const ITrigEgammaFastCaloHy
 
 }
 
-bool TrigEgammaFastCaloHypoToolInc::decide_ringer ( const ITrigEgammaFastCaloHypoTool::FastClusterInfo& input) const{
 
-  auto etMon          =  Monitored::Scalar("Et",-100);
-  auto monEta         =  Monitored::Scalar("Eta",-100);
-  auto monPhi         =  Monitored::Scalar("Phi",-100); 
-  auto rnnOutMon      =  Monitored::Scalar("RnnOut",-100);
+
+bool TrigEgammaFastCaloHypoToolInc::decide_ringer ( const ITrigEgammaFastCaloHypoTool::FastClusterInfo& input) const
+{
+
+  auto etMon          = Monitored::Scalar("Et",-100);
+  auto monEta         = Monitored::Scalar("Eta",-100);
+  auto monPhi         = Monitored::Scalar("Phi",-100); 
+  auto rnnOutMon      = Monitored::Scalar("RnnOut",-100);
   auto total_time     = Monitored::Timer("TIME_total");
   auto propagate_time = Monitored::Timer("TIME_propagate");
   auto preproc_time   = Monitored::Timer("TIME_preproc");
   auto decide_time    = Monitored::Timer("TIME_decide");
+  
   auto mon = Monitored::Group(m_monTool,etMon,monEta,monPhi,rnnOutMon,
                               total_time,propagate_time,preproc_time,decide_time);
 
-  
   if ( m_acceptAll ) {
     ATH_MSG_DEBUG( "AcceptAll property is set: taking all events" );
     return true;
@@ -377,22 +389,43 @@ bool TrigEgammaFastCaloHypoToolInc::decide_ringer ( const ITrigEgammaFastCaloHyp
   monEta = emCluster->eta();
   etMon  = emCluster->et();
   monPhi = emCluster->phi();
-  
-  const std::vector<float> rings = ringerShape->rings();
-  std::vector<float> refRings(rings.size());
-  refRings.assign(rings.begin(), rings.end());
-  
-  ATH_MSG_DEBUG("Et = "<< et << " Eta = "<<eta << " mu = " << avgmu << "rsize = "<< refRings.size()); 
+  float output;
 
-  // use the energy (in MeV) and eta from emCluster
-  auto output = m_selectorTool.calculate( refRings, emCluster->et(), emCluster->eta(), avgmu, propagate_time, preproc_time );
+  if (m_useRun3){
+    output = m_onnxSelectorTool.predict( ringerShape, propagate_time, preproc_time );
+  }else{
+    const std::vector<float> rings = ringerShape->rings();
+    std::vector<float> refRings(rings.size());
+    refRings.assign(rings.begin(), rings.end());
+    output = m_selectorTool.calculate( refRings, emCluster->et(), emCluster->eta(), avgmu, propagate_time, preproc_time );
+  }
+
   rnnOutMon = output;
   ATH_MSG_DEBUG(name()<< " generate as NN output " <<  output );
-  
+ 
+  bool accept=false;
+
   decide_time.start();
-  bool accept = m_selectorTool.accept(output, emCluster->et(),emCluster->eta(),avgmu);
+  if (m_useRun3){
+    accept = m_onnxSelectorTool.accept(ringerShape, output, avgmu);
+  }else{
+    accept = m_selectorTool.accept(output, emCluster->et(),emCluster->eta(),avgmu);
+  }
   decide_time.stop();
+
 
   total_time.stop();
   return accept;
 }
+
+
+int TrigEgammaFastCaloHypoToolInc::findCutIndex( float eta ) const {
+  const float absEta = std::abs(eta);
+  
+  auto binIterator = std::adjacent_find( m_etabin.begin(), m_etabin.end(), [=](float left, float right){ return left < absEta and absEta < right; }  );
+  if ( binIterator == m_etabin.end() ) {
+    return -1;
+  }
+  return  binIterator - m_etabin.begin();
+}
+
