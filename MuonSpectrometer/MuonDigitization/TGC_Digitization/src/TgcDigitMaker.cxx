@@ -165,6 +165,8 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
   static const float jitterInitial = 9999.;
   float jitter = jitterInitial; // calculated at wire group calculation and used also for strip calculation
 
+  int iStationName = getIStationName(stationName);
+
   /////////////   wire group number calculation   ///////////////
   TgcSensor sensor = kWIRE;
   m_timeWindowOffsetSensor[sensor] = getTimeWindowOffset(stationName, stationEta, sensor);
@@ -232,8 +234,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
 	float ySignPhi = (stationPhi%2==1) ? -1. : +1.; 
 	// stationPhi%2==0 : +1. : ASD attached at the smaller phi side of TGC 
 	// stationPhi%2==1 : -1. : ASD attached at the larger phi side of TGC
-	float wDigitTime = bunchTime + jit + wirePropagationTime*(ySignPhi*yLocal + tgcChamber->chamberWidth(zLocal)/2.);
-
+	float wDigitTime = bunchTime + jit + wirePropagationTime*(ySignPhi*yLocal + tgcChamber->chamberWidth(zLocal)/2.) + this->timeDiffByCableRadiusOfInner(iStationName, stationPhi, iwg);
 	TgcStation station = (m_idHelper->stationName(elemId) > 46) ? kINNER : kOUTER;
         uint16_t bctag = bcTagging(wDigitTime,m_gateTimeWindow[station][sensor],m_timeWindowOffsetSensor[sensor]);
 
@@ -373,7 +374,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
 	float zSignEta = (abs(stationEta)%2 == 1 && abs(stationEta) != 5) ? -1. : +1.;
 	// if(abs(stationEta)%2 == 1 && abs(stationEta) != 5) : -1. : ASD attached at the longer base of TGC
 	// else                                               : +1. : ASD attached at the shorter base of TGC   
-	float sDigitTime = bunchTime + jitter + stripPropagationTime*(height/2. + frameZwidth + zSignEta*zLocal);
+	float sDigitTime = bunchTime + jitter + stripPropagationTime*(height/2. + frameZwidth + zSignEta*zLocal) + this->timeDiffByCableRadiusOfInner(iStationName, stationPhi, istr);
 
 	TgcStation station = (m_idHelper->stationName(elemId) > 46) ? kINNER : kOUTER;
 	uint16_t bctag = bcTagging(sDigitTime,m_gateTimeWindow[station][sensor],m_timeWindowOffsetSensor[sensor]);
@@ -1143,4 +1144,16 @@ void TgcDigitMaker::adHocPositionShift(const std::string stationName, int statio
   }
   localPos.y() = localPos.y()+localDisplacementYByX+localDisplacementY; 
   localPos.z() = localPos.z()+localDisplacementZByX-localDisplacementZ; 
+}
+
+float TgcDigitMaker::timeDiffByCableRadiusOfInner(const int iStationName,
+						  const int stationPhi,
+						  const int channel) const {
+
+  if(iStationName != 47 && iStationName != 48) return 0.0; // only EIFI station
+  if(channel < 12 || (channel > 16 && channel <27)) {
+    int cablenum = (stationPhi >= 13) ? 25 - stationPhi : stationPhi;
+    return 2.3 - 0.06 * cablenum;
+  }
+  return 0.0;
 }
