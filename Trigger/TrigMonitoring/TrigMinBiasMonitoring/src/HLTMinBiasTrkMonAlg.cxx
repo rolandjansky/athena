@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HLTMinBiasTrkMonAlg.h"
@@ -108,7 +108,7 @@ StatusCode HLTMinBiasTrkMonAlg::monitorTrkCounts(const EventContext &context) co
   // TODO, instead counting all tracks need to count tracks passing offline min-bias selection
 
   int countPassing = 0;
-  for(const auto& trk : *offlineTrkHandle)
+  for(const auto trk : *offlineTrkHandle)
   {
     if(m_trackSelectionTool->accept(*trk)) ++countPassing;
   }

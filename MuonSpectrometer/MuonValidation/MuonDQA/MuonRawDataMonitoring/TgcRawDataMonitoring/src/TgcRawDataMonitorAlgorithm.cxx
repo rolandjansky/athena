@@ -236,7 +236,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
     }
 
     std::vector < MyMuon > mymuons;
-    for (const auto &muon : *muons) {
+    for (const auto muon : *muons) {
         if (muon->muonType() != xAOD::Muon::Combined) continue;
         if (muon->author() != xAOD::Muon::MuidCo && muon->author() != xAOD::Muon::STACO) continue;
         if (muon->quality() != xAOD::Muon::Tight && muon->quality() != xAOD::Muon::Medium) continue;
@@ -251,7 +251,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
         mymuon.isolated = true;
         mymuon.probeOK = false;
         if (!m_TagAndProbe.value()) mymuon.probeOK = true;
-        for (const auto &muon2 : *muons) {
+        for (const auto muon2 : *muons) {
             if (muon == muon2) continue;
             if (muon2->muonType() != xAOD::Muon::Combined) continue;
             if (muon2->author() != xAOD::Muon::MuidCo && muon2->author() != xAOD::Muon::STACO) continue;
@@ -289,7 +289,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
             mymuons.push_back(mymuon);
             continue;
         }
-        for (const auto &roi : *rois) {
+        for (const auto roi : *rois) {
             TLorentzVector roivec;
             roivec.SetPtEtaPhiM(1, roi->eta(), roi->phi(), 1);
             float dr = roivec.DeltaR(mymuon.fourvec);
@@ -645,7 +645,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
     for (auto thisCoin : tgcCoin) {
         int bunch = thisCoin.first;
         for (auto tgccnt : *(thisCoin.second)) {
-            for (const auto &data : *tgccnt) {
+            for (const auto data : *tgccnt) {
 
 	      if ( data->detectorElementOut() == nullptr ) n_TgcCoin_detElementIsNull++;
 	      if ( data->posOutPtr() == nullptr ) n_TgcCoin_postOutPtrIsNull++;
