@@ -1959,6 +1959,12 @@ HLT_noalg_AlfaPEB_L1ALFA_ANY:
     0: 20
   stepFeatures:
     0: 20
+HLT_noalg_CIS_TilePEB_L1CALREQ1:
+  eventCount: 20
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
 HLT_noalg_CSCPEB_L1All:
   eventCount: 20
   stepCounts:
@@ -2079,18 +2085,6 @@ HLT_noalg_SCTPEB_L1RD0_EMPTY:
     0: 20
   stepFeatures:
     0: 20
-HLT_noalg_TilePEB_L1CALREQ1:
-  eventCount: 20
-  stepCounts:
-    0: 20
-  stepFeatures:
-    0: 20
-HLT_noalg_TilePEB_L1CALREQ2:
-  eventCount: 20
-  stepCounts:
-    0: 20
-  stepFeatures:
-    0: 20
 HLT_noalg_bkg_L1Bkg:
   eventCount: 20
 HLT_noalg_cosmiccalo_L1EM3_EMPTY:
@@ -2137,6 +2131,12 @@ HLT_noalg_idmon_L1RD0_UNPAIRED_ISO:
   eventCount: 20
 HLT_noalg_l1calo_L1J400:
   eventCount: 20
+HLT_noalg_laser_TilePEB_L1CALREQ2:
+  eventCount: 20
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
 HLT_noalg_mb_L1RD2_EMPTY:
   eventCount: 20
 HLT_noalg_zb_L1ZB:
