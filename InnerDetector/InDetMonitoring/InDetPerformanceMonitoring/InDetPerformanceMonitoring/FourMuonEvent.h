@@ -190,6 +190,9 @@ class FourMuonEvent : public EventAnalysis
   // event count
   int m_eventCount;
   int m_acceptedEventCount;
+  // lepton count
+  int m_acceptedMuonCount{};
+  int m_acceptedElecCount{};
 
   // selected muon identifiers
   // to be removed
