@@ -19,7 +19,7 @@ def enableEfexAlgorithms( algSequence, SuperCellContainer='SCell',
         log.info("Enable eFEX EM algorithm")
         emAlg = LVL1__EFexEMAlgorithm( name="EFexEMAlgorithm",
                                         InputSuperCellContainer = SuperCellContainer,
-                                        OutputClusterName="SClusterCl",
+                                        OutputClusterName="eElesPerf",
                                         UseTileCells = perfFlags.Calo.UseAllCalo(),
                                         CleanCellContainerSkim=perfFlags.Calo.ApplySCQual(), 
                                         QualBitMask=perfFlags.Calo.QualBitMask(), 
@@ -28,6 +28,7 @@ def enableEfexAlgorithms( algSequence, SuperCellContainer='SCell',
         emAlg.DefaultClusterTool.UseTileCells = perfFlags.Calo.UseAllCalo()
         emAlg.DefaultClusterTool.CleanCellContainer = perfFlags.Calo.ApplySCQual()
         emAlg.DefaultClusterTool.QualBitMask = perfFlags.Calo.QualBitMask()
+        emAlg.DefaultClusterTool.ClusterEnergyThresholdLooseEFEX=3.0
         algSequence += emAlg
 
     # eFEX taus
@@ -36,7 +37,7 @@ def enableEfexAlgorithms( algSequence, SuperCellContainer='SCell',
         log.info("Enable eFEX Tau algorithm")
         algSequence += LVL1__EFexTauAlgorithm( name="EFexTauAlgorithm",
                                                 InputSuperCellContainer=SuperCellContainer,
-                                                OutputClusterName="SClusterTau",
+                                                OutputClusterName="eTausPerf",
                                                 CleanCellContainer=perfFlags.Calo.ApplySCQual(),
                                                 CleanCellContainerSkim=False,
                                                 QualBitMask=perfFlags.Calo.QualBitMask() )

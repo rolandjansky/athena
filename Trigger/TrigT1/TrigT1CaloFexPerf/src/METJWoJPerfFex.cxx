@@ -26,20 +26,13 @@ namespace LVL1
     declareProperty("UseNegativeTowers", m_useNegativeTowers = true);
     declareProperty("UseRho", m_useRho = false);
     declareProperty("InputRho", m_rhoKey);
-    declareProperty("SumEtThresholds", m_sumEtThresholds = {
-                                           500 * Gaudi::Units::GeV,
-                                           700 * Gaudi::Units::GeV,
-                                           900 * Gaudi::Units::GeV,
-                                           1100 * Gaudi::Units::GeV,
-                                           1300 * Gaudi::Units::GeV,
-                                           1500 * Gaudi::Units::GeV,
-                                           1700 * Gaudi::Units::GeV});
-    declareProperty("axValues", m_axValues = {1.45, 1.35, 1.35, 1.3, 1.3, 1.25, 1.3, 1.25});
-    declareProperty("ayValues", m_ayValues = {1.45, 1.35, 1.35, 1.3, 1.25, 1.25, 1.25, 1.25});
-    declareProperty("bxValues", m_bxValues = {1.15, 1.05, 1.0, 0.95, 0.9, 0.8, 0.75, 0.75});
-    declareProperty("byValues", m_byValues = {1.1, 0.95, 0.95, 0.95, 0.8, 0.8, 0.75, 0.75});
-    declareProperty("cxValues", m_cxValues = {1.0, -1.5, 0.5, -1.0, 0.75, 0.5, 1.5, 0.75});
-    declareProperty("cyValues", m_cyValues = {1.5, 0.0, -1.0, -1.0, 0.5, 0.5, 0.5, 2.0});
+    declareProperty("SumEtThresholds", m_sumEtThresholds = {}); 
+    declareProperty("axValues", m_axValues = {0.98});
+    declareProperty("ayValues", m_ayValues = {0.98}); 
+    declareProperty("bxValues", m_bxValues = {0.4}); 
+    declareProperty("byValues", m_byValues = {0.4}); 
+    declareProperty("cxValues", m_cxValues = {0.0});
+    declareProperty("cyValues", m_cyValues = {0.0}); 
   }
 
   METJWoJPerfFex::~METJWoJPerfFex() {}

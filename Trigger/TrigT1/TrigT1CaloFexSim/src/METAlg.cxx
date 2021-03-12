@@ -440,90 +440,13 @@ StatusCode METAlg::JwoJ_MET(const xAOD::JGTowerContainer* towers, const std::vec
   //set fit parameters for calculating MET
   //Look up table for parameters a,b,c depending on scalar sumEt
   //Optimized for resolution in external framework
-  float ax;
-  float bx;
-  float cx;
-
-  float ay;
-  float by;
-  float cy;
   
-  if(Et_values[0] <= 500*Gaudi::Units::GeV){
-    ax = 1.45;
-    bx = 1.15;
-    cx = 1.;
-
-    ay = 1.45;
-    by = 1.1;
-    cy = 1.5;
-  }
-  else if(Et_values[0] <= 700*Gaudi::Units::GeV){
-    ax = 1.35;
-    bx = 1.05;
-    cx = -1.5;
-
-    ay = 1.35;
-    by = 0.95;
-    cy = 0.;
-  }
-  else if(Et_values[0] <= 900*Gaudi::Units::GeV){
-    ax = 1.35;
-    bx = 1.0;
-    cx = 0.5;
-
-    ay = 1.35;
-    by = 0.95;
-    cy = -1.;
-  }
-  else if(Et_values[0] <= 1100*Gaudi::Units::GeV){
-    ax = 1.3;
-    bx = 0.95;
-    cx = -1.;
-
-    ay = 1.3;
-    by = 0.95;
-    cy = -1;
-  }
-  else if(Et_values[0] <= 1300*Gaudi::Units::GeV){
-    ax = 1.3;
-    bx = 0.9;
-    cx = 0.75;
-
-    ay = 1.25;
-    by = 0.8;
-    cy = 0.5;
-  }
-  else if(Et_values[0] <= 1500*Gaudi::Units::GeV){
-    ax = 1.25;
-    bx = 0.8;
-    cx = 0.5;
-
-    ay = 1.25;
-    by = 0.8;
-    cy = 0.5;
-  }
-  else if(Et_values[0] <= 1700*Gaudi::Units::GeV){
-    ax = 1.3;
-    bx = 0.75;
-    cx = 1.5;
-
-    ay = 1.25;
-    by = 0.75;
-    cy = 0.5;
-  }
-  else{
-    ax = 1.25;
-    bx = 0.75;
-    cx = 0.75;
-
-    ay = 1.25;
-    by = 0.75;
-    cy = 2.;
-  }
   //a is hard term from gBlocks with pT > 25 GEV
   //b is total MET term computed from all gTowers 
-  float Ex = ax*(Et_values[1])+ bx*Et_values[3] + cx;
-  float Ey = ay*(Et_values[2])+ by*Et_values[4] + cy;
+  float a = 0.98;
+  float b = 0.40;
+  float Ex = a*(Et_values[1])+ b*Et_values[3];
+  float Ey = a*(Et_values[2])+ b*Et_values[4];
 
  
 

@@ -42,6 +42,7 @@ def enableEfexAlgorithms( algSequence,
                                        OutputClusterName="SClusterCl",
                                        SuperCellContainer=SuperCellContainer,
                                        ClusterEnergyThreshold=4.0,
+                                       ClusterEnergyThresholdLooseEFEX=3.0,
                                        ApplyBaseLineSelection=False,
                                        EnergyWeightedCluster=False)
 

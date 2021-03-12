@@ -30,12 +30,13 @@ def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False, useAlgSequence =
     # * on data rerun we need to emulate SuperCells for now
     # * on MC we need to simulate them (in the previous, HITs->DIGI step)
     if globalflags.DataSource()=='data':
-        if simflags.Calo.SCellType() != "Emulated":
+        if simflags.Calo.SCellType() != "Emulated" or simflags.Calo.SCellType() != "PreEmulated":
             log.error("Running on data and SuperCell-type is set to %s. On data SuperCells currently need to be emulated." % simflags.Calo.SCellType())
     else:
         if simflags.Calo.SCellType() == "Emulated":
             log.warning("Running on simulation and SuperCell-type is set to Emulated. Simulation should run from simulated SuperCells")
     # if SuperCells are not emulated, they need to be present in the input data
+    '''
     from RecExConfig.InputFilePeeker import inputFileSummary
     if simflags.Calo.SCellType() != "Emulated" \
        and not ('CaloCellContainer','SCell') in inputFileSummary['eventdata_items']:
@@ -46,7 +47,7 @@ def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False, useAlgSequence =
         log.info("Running with emulated SuperCells")
     else:
         log.info("Running with simulated SuperCells")
-
+    '''
 
     ## Setup the histogramming, if it does not exist yet
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -125,6 +126,8 @@ def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False, useAlgSequence =
         #l1simAlgSeq += createSuperCellBCIDAlg(SCellContainerIn="SCell",SCellContainerOut="SCellBCID")
         #Pedestal corrections are now applied from HITS->RDO, which is what is needed to work correctly. 
         SCIn="SCell"
+    elif simflags.Calo.SCellType() == "PreEmulated":
+        SCIn="SimpleSCell"
     elif simflags.Calo.SCellType() == "Emulated" and simflags.Calo.DataNoPedestal() == True:
         # If the pedestal correction is broken, then disable the things 
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
