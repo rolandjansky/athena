@@ -102,7 +102,7 @@ This refers to the actual name of the AUX variable in the container file, relati
 Also, a **correction function** must be specified. Internally, the tool uses the `TF1` class to apply the correction, so the input can be any function as long as it is representable using the `TF1` class. It is also possible to include functions and definitions from the `TMath` class. The flag for the function is `Function`. For example, this could look like this:
 
 ```bash
-Function: ([0] * x + [1] * [2]) * 0.7 * [3] - TMath::Pi() * [4] * [4] + [1]/[5]
+Function: ([0] * x + [1] * [2]) * 0.7 * [3] - TMath::Pi() * [4] * [4] + + [5] + [1]/[6]
 ```
 
 The **number of function parameters** must also be given in the configuration file using the flag `nFunctionParameters`. This is necessary so the tool can retrieve the information for all the parameters used in the correction function, and check if any information is missing. For the above function, this looks like this:
@@ -118,6 +118,7 @@ Finally, for each function parameter, the **type of the parameter** needs to be 
 - `EtaBinned`,
 - `PtBinned`,
 - `EtaTimesPtBinned`,
+- `EtaTimesPhiTH2`,
 - `EventDensity`.
 
 According to the type of parameter, the necessary information which needs to be given to the tool differs:
@@ -129,7 +130,9 @@ Parameter0File: /path/to/file/where/you/saved/the/graph.root
 Parameter0GraphName: NameOfTheTGraphInTheRootFile
 ```
 
-If any of the **binned parameter types** is used, first the binning in eta and/or pt must be provided to the tool. This is done using the flags `EtaBins` and `PtBins`, respectively. The tool expects to be provided the lower bin edges of the binning. It also expects the binning to start at 0 and will fail if the lowest bin edge is not 0. The pt binning must be provided in MeV. For example, this looks like this:
+If any of the **binned parameter types** is used, first the binning in eta and/or pt must be provided to the tool. This is done using the flags `EtaBins` and `PtBins`, respectively. The tool expects to be provided the lower bin edges of the binning. For the `PtBins`, it expects the binning to start at 0 and will fail if the lowest bin edge is not 0. The pt binning must be provided in MeV. For the `EtaBins`, the tool expects the binning to either start at 0 - for corrections using `abs(eta)` - or at a negative value, being treated by the tool as negative infinity.
+In the latter case, this means that the first correction value of all eta binned variables is used to correct all the objects with an `eta` value between minues infinity and the second `eta` value provided in the binning. The tool will automatically choose the correct `eta` range to use for a given `eta` binning, depending on the range of the provided binning.
+For example, this looks like this:
 
 ```bash
 EtaBins: 0.0; 0.6; 1.37; 1.52; 1.81; 2.37
@@ -151,7 +154,20 @@ If wanted, a partwise linear interpolation between the given pT bin values can b
 Parameter2Interpolate: TRUE
 ```
 
-For the **event density**, no further information must be given to the tool. The tool will extract the event density from the event and use it as the respective parameter.
+The **TH2** type needs a filename and a histogram name, which are given to the tool using `Parameter*File` and `Parameter*TH2Name`, respectively. Again, `*` is the number of the respective parameter. The file flag should be handed the path to the root file where the TH2 used for the evaluation of the correction parameter is saved, and the TH2 name flag should be handed the name of this TH2 inside the root file. An example looks like this:
+
+```bash
+Parameter5File: /path/to/file/where/you/saved/the/th2.root
+Parameter5TH2Name: NameOfTheTH2InTheRootFile
+```
+
+The TH2 can contain either corrections for absolute `eta` values or using the full `eta` range. In the former case, the binning of the TH2 should be set up such that it starts at 0, while in the latter case, the binning should start at a negative value being treated as negative infinity in the tool. This means that the first correction value provided by the TH2 is used to correct all the objects with an `eta` value between minues infinity and the upper bin edge of the first bin of the TH2. The tool will automatically choose the correct `eta` range to use for each TH2 individually, depending on the respective range of the provided TH2.
+
+For the **event density**, no further information must be given to the tool. The tool will extract the event density from the event and use it as the respective parameter. It is only necessary to specify the parameter type in this case:
+
+```bash
+Parameter6Type: EventDensity
+```
 
 If you want to include parameters depending on other quantities, please read the [developer manual](#how-to-change-and-adapt-the-tool-developer-manual) or [contact the developers](mailto:nils.gillwald@desy.de).
 
@@ -211,6 +227,8 @@ ElectronConfigs: /path/to/first.conf;
 
 Note that there should be a semicolon after every line but the last one. Also note that you can use one instance of the tool to correct electrons, converted photons and unconverted photons at the same time - just pass all the respective configuration files using the according flags to it. If you want to use the same configuration file for correcting a variable on different object types (i.e. (un)converted photons and electrons), you must provide it twice or three times to the tool - once using each flag.
 
+An example configuration file can be found in `./data/EGammaVariableCorrectionTool_ExampleConf.conf`
+
 ## How to change and adapt the tool (developer manual)
 
 This section is meant for **developers**. If you want to use the tool for variable correction, you should read [this section](#how-to-use-the-tool-single-and-multiple-variable-correction-user-manual) instead.
@@ -240,12 +258,14 @@ You can use `addpkg` to add as many packages as you like, `rmpkg` to remove them
 
 **WARNING:** The following instructions assume a sparse checkout of Athena. If you made a full checkout, please refer [here](https://atlassoftwaredocs.web.cern.ch/gittutorial/branch-and-change/#setting-up-to-compile-and-test-code-for-the-tutorial) on how to properly compile without fully building Athena.
 
-The tool is developed using release 21.2.97. To set up the according environment, do
+The tool is developed on the athena master. To set up the according environment, do
 
 ```bash
 cd build
-asetup AnalysisBase,21.2.97,here
+asetup AnalysisBase master latest
 ```
+
+If you want to target a specific nightly (often worth it for development) then replace `latest` with `rXX` where `XX` is the day of the month.
 
 To compile, do in the `source` directory
 
