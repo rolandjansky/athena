@@ -4985,7 +4985,13 @@ namespace top {
     if(treeManager->name() == "truth") filteredBranches= m_config->filterPartonLevelBranches();
     else if(treeManager->name() == "particleLevel") filteredBranches= m_config->filterParticleLevelBranches();
     else if(treeManager->name() == "nominal_Loose") filteredBranches= m_config->filterNominalLooseBranches();
-    else  filteredBranches= m_config->filterBranches();
+    else if(treeManager->name() == "nominal") {
+      if (m_config->filterNominalBranches().empty()) {
+        filteredBranches= m_config->filterBranches();
+      } else {
+        filteredBranches= m_config->filterNominalBranches();
+      }
+    } else  filteredBranches= m_config->filterBranches();
 
     // lambda to test a wildcard on the variable
     auto matches_wildcard = [&variable] (const std::string& wildcard) {
