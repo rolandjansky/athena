@@ -311,7 +311,7 @@ def sequenceScanner( HLTNode ):
         if not isSequence(seq):
             return stepIndex
         name = compName(seq)                
-        match=re.search('^Step([0-9])_filter',name)
+        match=re.search('^Step([0-9]+)_filter',name)
         if match:
             stepIndex = match.group(1)
             log.debug("sequenceScanner: This is another step: %s %s", name, stepIndex)            
@@ -327,7 +327,7 @@ def sequenceScanner( HLTNode ):
     for alg, steps in _seqMapInStep.items():
         if len(steps)> 1:
             log.error("sequenceScanner: Sequence %s is expected in more than one step: %s", alg, steps)
-            match=re.search('Step([0-9])',alg)
+            match=re.search('Step([0-9]+)',alg)
             if match:
                 candidateStep=match.group(1)
                 log.error("sequenceScanner:         ---> candidate good step is %s", candidateStep)
