@@ -1,13 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LUCID_PileUpTool.h"
 
 #include "AthenaKernel/errorcheck.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/RNGWrapper.h"
+#include "CLHEP/Random/RandomEngine.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
-#include "PileUpTools/PileUpMergeSvc.h"
+
 
 #include "GaudiKernel/ITHistSvc.h"
 
@@ -19,8 +20,6 @@ LUCID_PileUpTool::LUCID_PileUpTool(const std::string& type,
                                    const std::string& name,
                                    const IInterface* parent) :
   PileUpToolBase     (type, name, parent),
-  m_atRndmGenSvc     ("AtDSFMTGenSvc", name),
-  m_mergeSvc         ("PileUpMergeSvc", name),
   m_numTubes         (40),
   m_qdcChannelsPerPE (15.0),
   m_qdcPedestal      (150.0),
@@ -46,8 +45,6 @@ LUCID_PileUpTool::LUCID_PileUpTool(const std::string& type,
 
   declareProperty("SimHitCollection"    , m_SimHitCollectionName, "Name of the input Collection of simulated hits");
   declareProperty("LucidDigitsContainer", m_digitsContainerName , "Name of the Container to hold the output from the digitization");
-  declareProperty("RndmSvc"             , m_atRndmGenSvc        , "Random Number Service used in LUCID digitization" );
-  declareProperty("mergeSvc"            , m_mergeSvc            , "Store to hold the pile-ups");
 
   declareProperty("numTubes"            , m_numTubes);
   declareProperty("qdcChannelsPerPE"    , m_qdcChannelsPerPE);
@@ -84,8 +81,11 @@ StatusCode LUCID_PileUpTool::initialize()
                   << " tdcFedNoiseFactor: " << m_tdcFedNoiseFactor << endmsg
                   << " fillRootTree     : " << m_fillRootTree      );
 
-  CHECK(m_atRndmGenSvc.retrieve());
+  ATH_CHECK(m_randomSvc.retrieve());
   ATH_MSG_DEBUG ( "Retrieved RandomNumber Service"           );
+
+  ATH_CHECK(m_mergeSvc.retrieve());
+  ATH_MSG_DEBUG ( "Retrieved PileUpMergeSvc" );
 
   m_digitToolBox = new LUCID_DigitizationToolBox(m_numTubes,
                                                  m_qdcChannelsPerPE,
@@ -168,35 +168,33 @@ StatusCode LUCID_PileUpTool::processBunchXing(int bunchXing,
 
       for (; i!=e; ++i) m_mergedhitList->push_back((*i));
 
-      m_rndEngine = m_atRndmGenSvc->GetEngine("LUCIDRndEng");
     }
 
   return StatusCode::SUCCESS;
 }
 
 /// ----------------------------------------------------------------------------------------------------
-StatusCode LUCID_PileUpTool::mergeEvent(const EventContext& /*ctx*/)
+StatusCode LUCID_PileUpTool::mergeEvent(const EventContext& ctx)
 {
-  CHECK(m_digitToolBox->fillDigitContainer(m_mergedhitList, m_rndEngine));
+  ATHRNG::RNGWrapper* rngWrapper = m_randomSvc->getEngine(this, m_randomStreamName);
+  rngWrapper->setSeed( m_randomStreamName, ctx );
+  CLHEP::HepRandomEngine* rngEngine = rngWrapper->getEngine(ctx);
+  ATH_CHECK(m_digitToolBox->fillDigitContainer(m_mergedhitList, rngEngine));
   ATH_MSG_DEBUG ( " LUCID_DigitContainer successfully registered in StoreGate " );
 
   return StatusCode::SUCCESS;
 }
 
 /// ----------------------------------------------------------------------------------------------------
-StatusCode LUCID_PileUpTool::processAllSubEvents(const EventContext& /*ctx*/)
+StatusCode LUCID_PileUpTool::processAllSubEvents(const EventContext& ctx)
 {
   ATH_MSG_VERBOSE ( "processAllSubEvents()" );
-  if(!m_mergeSvc)
-    {
-      CHECK(m_mergeSvc.retrieve());
-    }
 
   typedef PileUpMergeSvc::TimedList<LUCID_SimHitCollection>::type TimedHitCollList;
 
   TimedHitCollList hitCollList;
 
-  CHECK(m_mergeSvc->retrieveSubEvtsData(m_SimHitCollectionName, hitCollList));
+  ATH_CHECK(m_mergeSvc->retrieveSubEvtsData(m_SimHitCollectionName, hitCollList));
   ATH_MSG_DEBUG ( "Retrieved TimedHitCollList" );
 
   ATH_MSG_DEBUG ( " PileUp: Merge " << hitCollList.size() << " LUCID_SimHitCollection with key " << m_SimHitCollectionName );
@@ -217,12 +215,14 @@ StatusCode LUCID_PileUpTool::processAllSubEvents(const EventContext& /*ctx*/)
       ++iColl;
     }
 
-  m_rndEngine = m_atRndmGenSvc->GetEngine("LUCIDRndEng");
 
-  CHECK(m_digitToolBox->recordContainers(this->evtStore(), m_key_digitCnt));
+  ATH_CHECK(m_digitToolBox->recordContainers(this->evtStore(), m_key_digitCnt));
   ATH_MSG_DEBUG ( " Digit container is recorded in StoreGate " );
 
-  CHECK(m_digitToolBox->fillDigitContainer(thpclucid, m_rndEngine));
+  ATHRNG::RNGWrapper* rngWrapper = m_randomSvc->getEngine(this, m_randomStreamName);
+  rngWrapper->setSeed( m_randomStreamName, ctx );
+  CLHEP::HepRandomEngine* rngEngine = rngWrapper->getEngine(ctx);
+  ATH_CHECK(m_digitToolBox->fillDigitContainer(thpclucid, rngEngine));
   ATH_MSG_DEBUG ( " Digit container was filled successfully " );
 
   return StatusCode::SUCCESS;

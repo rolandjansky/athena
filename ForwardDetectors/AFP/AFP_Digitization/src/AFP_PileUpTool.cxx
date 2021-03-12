@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -12,6 +12,8 @@
 #include "Identifier/Identifier.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include <map>
+#include "AthenaKernel/RNGWrapper.h"
+#include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandPoissonQ.h"
@@ -20,9 +22,6 @@ AFP_PileUpTool::AFP_PileUpTool(const std::string& type,
 			       const std::string& name,
 			       const IInterface* parent) :
   PileUpToolBase(type, name, parent),
-  m_mergeSvc    ("PileUpMergeSvc", name), 
-  m_atRndmGenSvc("AtRndmGenSvc", name),
-  m_rndEngine(0),
   m_CollectionEff(0.6),       // Collection efficincy
   m_ConversionSpr(40.0),      // Photon-Electron conversion spread in ps
   m_Gain(50000.),             // Gain  
@@ -30,9 +29,6 @@ AFP_PileUpTool::AFP_PileUpTool(const std::string& type,
   m_FallTime(1200.),          // Pulse fall time in ps 
   m_CfdThr(0.5)              // Constant fraction threshold
 {
-  declareInterface<AFP_PileUpTool>(this); //Temporary for back-compatibility with 17.3.X.Y
-  //declareInterface<IPileUpTool>(this); //Temporary for back-compatibility with 17.3.X.Y
- 
   // NOTE: The following variables are actually re-initialized by AFP_DigiTop::initialize() or AFP_PileUpTool::initialize()
 
   // Quantum efficincy of PMT in 100 nm steps int(WeaveLength-100)/100
@@ -68,8 +64,6 @@ AFP_PileUpTool::AFP_PileUpTool(const std::string& type,
   declareProperty("SiDigiCollectionName", m_SiDigiCollectionName,    "Name of the Collection to hold the output from the AFP digitization, SiD part");
    
   
-  declareProperty("RndmSvc",                m_atRndmGenSvc,              "Random Number Service used in AFP digitization" );
-  declareProperty("mergeSvc",               m_mergeSvc,                  "Store to hold the pile-ups");
 
  
   declareProperty("CollectionEff", m_CollectionEff);
@@ -116,13 +110,11 @@ StatusCode AFP_PileUpTool::initialize() {
 //		 << " ScalePixel: " << m_ScalePixel << endmsg
 		    );
   
-  if (m_atRndmGenSvc.retrieve().isFailure()) { 
-    ATH_MSG_FATAL ( "Could not retrieve RandomNumber Service!" ); 
-    return StatusCode::FAILURE; 
-  }
-  else { 
-    ATH_MSG_DEBUG ( "Retrieved RandomNumber Service" ); 
-  }
+  ATH_CHECK (m_randomSvc.retrieve());
+  ATH_MSG_DEBUG ( "Retrieved RandomNumber Service" );
+
+  ATH_CHECK (m_mergeSvc.retrieve());
+  ATH_MSG_DEBUG("Retrieved PileUpMergeSvc");
 
   m_mergedTDSimHitList = new AFP_TDSimHitCollection("mergedTDSimHitList");
   m_mergedSIDSimHitList = new AFP_SIDSimHitCollection("mergedSIDSimHitList");
@@ -131,20 +123,10 @@ StatusCode AFP_PileUpTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode AFP_PileUpTool::processAllSubEvents(const EventContext& /*ctx*/) {
+StatusCode AFP_PileUpTool::processAllSubEvents(const EventContext& ctx) {
 
   ATH_MSG_DEBUG ( "AFP_PileUpTool::processAllSubEvents()" );
  
-  //retrieve the PileUpMergeSvc if necessary
-  if(!m_mergeSvc) {
-    if(!m_mergeSvc.retrieve().isSuccess() || !m_mergeSvc) {
-      ATH_MSG_FATAL("digitize: Could not find PileUpMergeSvc");
-      return StatusCode::FAILURE;
-    }
-    else ATH_MSG_DEBUG("digitize: retrieved PileUpMergeSvc");
-  }
-  else ATH_MSG_DEBUG("digitize: PileUpMergeSvc already available"); 
-
   typedef PileUpMergeSvc::TimedList<AFP_TDSimHitCollection>::type TimedTDSimHitCollList;
   typedef PileUpMergeSvc::TimedList<AFP_SIDSimHitCollection>::type TimedSIDSimHitCollList;  
   
@@ -206,8 +188,6 @@ StatusCode AFP_PileUpTool::processAllSubEvents(const EventContext& /*ctx*/) {
 
   
 
-  m_rndEngine = m_atRndmGenSvc->GetEngine("AFPRndEng");
-
   if (recordContainers(this->evtStore(), m_TDDigiCollectionName).isFailure()) { 
 
     ATH_MSG_FATAL ( " AFP DigiTop :: Could not record the empty TiD digit container in StoreGate " ); return StatusCode::FAILURE; 
@@ -222,8 +202,11 @@ StatusCode AFP_PileUpTool::processAllSubEvents(const EventContext& /*ctx*/) {
   else { ATH_MSG_DEBUG ( " AFP DigiTop :: SiD digit container is recorded in StoreGate " ); }
 
   
- 
-  fillTDDigiCollection(thpcAFP_TDPmt, m_rndEngine);
+
+  ATHRNG::RNGWrapper* rngWrapper = m_randomSvc->getEngine(this, m_randomStreamName);
+  rngWrapper->setSeed( m_randomStreamName, ctx );
+  CLHEP::HepRandomEngine* rngEngine = rngWrapper->getEngine(ctx);
+  fillTDDigiCollection(thpcAFP_TDPmt, rngEngine);
   fillSiDigiCollection(thpcAFP_SiPmt);  
   
   
@@ -303,16 +286,17 @@ StatusCode AFP_PileUpTool::processBunchXing(int bunchXing,
     for (; iSiPmt!=eSiPmt; ++iSiPmt) m_mergedSIDSimHitList->push_back((*iSiPmt));
     
     
-    m_rndEngine = m_atRndmGenSvc->GetEngine("AFPRndEng");
-  
   }
   
   return StatusCode::SUCCESS;
 }
 
-StatusCode AFP_PileUpTool::mergeEvent(const EventContext& /*ctx*/){
+StatusCode AFP_PileUpTool::mergeEvent(const EventContext& ctx){
  
-  fillTDDigiCollection(m_mergedTDSimHitList, m_rndEngine);
+  ATHRNG::RNGWrapper* rngWrapper = m_randomSvc->getEngine(this, m_randomStreamName);
+  rngWrapper->setSeed( m_randomStreamName, ctx );
+  CLHEP::HepRandomEngine* rngEngine = rngWrapper->getEngine(ctx);
+  fillTDDigiCollection(m_mergedTDSimHitList, rngEngine);
   fillSiDigiCollection(m_mergedSIDSimHitList);
   
   return StatusCode::SUCCESS;

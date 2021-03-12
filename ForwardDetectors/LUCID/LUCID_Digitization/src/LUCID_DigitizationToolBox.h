@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LUCID_DIGITIZATION_TOOLBOX_H
@@ -13,7 +13,6 @@
 #include "HitManagement/TimedHitCollection.h"
 #include "LUCID_SimEvent/LUCID_SimHitCollection.h"
 #include "LUCID_RawEvent/LUCID_DigitContainer.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
 
 class StoreGateSvc;
 
