@@ -175,13 +175,13 @@ namespace LVL1CTP {
       // see https://twiki.cern.ch/twiki/bin/view/Atlas/L1CaloUpgradeSimulation#Mapping_of_container_names_to_me
 
       // MET
-      StringProperty m_jFEX_MET_NCLoc  {"jNOISECUT_MET"};
-      StringProperty m_jFEX_MET_RhoLoc {"jXERHO_MET"};
+      StringProperty m_jFEX_MET_NCLoc  {"jXENOISECUTPerf"};
+      StringProperty m_jFEX_MET_RhoLoc {"jXERHOPerf"};
 
-      StringProperty m_gFEX_MET_PufitLoc {"gXEPUFIT_MET"};
-      StringProperty m_gFEX_MET_RhoLoc   {"gXERHO_MET"};
-      StringProperty m_gFEX_MET_JwoJLoc  {"gXEJWOJ_MET"};
-      StringProperty m_gFEX_MET_NCLoc    {"gXENOISECUT_MET"};
+      StringProperty m_gFEX_MET_PufitLoc {"gXENOISECUTPerf"};//Attention, fix me with PUFIT?
+      StringProperty m_gFEX_MET_RhoLoc   {"gXERHOPerf"};
+      StringProperty m_gFEX_MET_JwoJLoc  {"gXEJWOJPerf"};
+      StringProperty m_gFEX_MET_NCLoc    {"gXENOISECUTPerf"};
 
       // jets
       StringProperty m_gFEX_Jet_Loc    {"gL1Jets"};
@@ -189,11 +189,11 @@ namespace LVL1CTP {
       StringProperty m_jFEX_Jet_LR_Loc {"jRoundLargeRJetsPUsub"};
 
       // electrons
-      StringProperty m_eFEX_Cluster_Loc {"SClusterCl"};
+      StringProperty m_eFEX_Cluster_Loc {"eElesPerf"};
       StringProperty m_jFEX_Cluster_Loc {"jEles"};
 
       // taus
-      StringProperty m_eFEX_Tau_Loc {"SClusterTau"};
+      StringProperty m_eFEX_Tau_Loc {"eTausPerf"};
       StringProperty m_jFEX_Tau_Loc {"jTaus"};
 
       // name of the CTP input words

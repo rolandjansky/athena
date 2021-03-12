@@ -15,7 +15,7 @@ namespace LVL1
   JTowerMappingMaker::JTowerMappingMaker(const std::string &type, const std::string &name, const IInterface *parent)
       : JGTowerMappingMakerBase(type, name, parent)
   {
-    declareProperty("TowerAreasFile", m_towerAreasFile = "Run3L1CaloSimulation/Noise/jTowerCorrection.20210209.r11881.root");
+    declareProperty("TowerAreasFile", m_towerAreasFile = "Run3L1CaloSimulation/Noise/jTowerCorrection.20210308.r12406.root"); 
   }
 
   JTowerMappingMaker::~JTowerMappingMaker() {}
