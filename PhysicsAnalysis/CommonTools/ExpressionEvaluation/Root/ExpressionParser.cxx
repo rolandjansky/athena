@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -82,7 +82,18 @@ namespace ExpressionParsing {
 
     Compiler compiler(m_code, m_proxyLoader, m_unitInterpreter);
     compiler(expr);
+
     return true;
+  }
+
+  std::vector<std::string> ExpressionParser::getVariables() const {
+    std::vector<std::string> vars;
+    for (const StackElement &element : m_code) {
+       if (element.isProxy()) {
+          vars.push_back( element.proxyVarName() );
+       }
+    }
+    return vars;
   }
 
   StackElement ExpressionParser::evaluate() const

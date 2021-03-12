@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,14 +15,12 @@
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
-namespace ExpressionParsing {
-  class ExpressionParser;
-}
+#include "ExpressionEvaluation/ExpressionParserUser.h"
 class IMCTruthClassifier;
 
 namespace DerivationFramework {
 
-  class Truth3CollectionMaker : public AthAlgTool, public IAugmentationTool {
+  class Truth3CollectionMaker : public ExpressionParserUser<AthAlgTool>, public IAugmentationTool {
     public: 
       Truth3CollectionMaker(const std::string& t, const std::string& n, const IInterface* p);
       ~Truth3CollectionMaker();
@@ -31,7 +29,6 @@ namespace DerivationFramework {
       virtual StatusCode addBranches() const;
 
     private:
-      ExpressionParsing::ExpressionParser *m_partParser;
       mutable unsigned int m_ntotpart, m_npasspart;
       std::string m_particlesKey;
       //std::string m_verticesKey;

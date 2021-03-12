@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // CutTool.h
@@ -17,19 +17,11 @@
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/ISkimmingTool.h"
-#include "TrigDecisionTool/TrigDecisionTool.h"
-
-// Forward declarations
-namespace ExpressionParsing {
-  class ExpressionParser;
-}
-
-
-
+#include "ExpressionEvaluation/ExpressionParserUserWithTrigSupport.h"
 
 class CutTool
-  : virtual public ::DerivationFramework::ISkimmingTool,
-            public ::AthAlgTool
+  : public ExpressionParserUserWithTrigSupport<::AthAlgTool>,
+    virtual public ::DerivationFramework::ISkimmingTool
 {
 
   ///////////////////////////////////////////////////////////////////
@@ -57,18 +49,10 @@ class CutTool
   /// Implement the method from the ISkimmingTool interface
   virtual bool eventPassesFilter() const final override;
 
-
-
   ///////////////////////////////////////////////////////////////////
   // Private data:
   ///////////////////////////////////////////////////////////////////
  private:
-  /// The trigger decision tool
-  ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool;
-
-  /// The expression parser
-  ExpressionParsing::ExpressionParser *m_parser;
-
 
   /// The cut string
   StringProperty m_cut;

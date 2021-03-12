@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -10,10 +10,6 @@
 
 #include "DerivationFrameworkTools/DeltaRTool.h"
 #include "xAODBase/IParticleContainer.h"
-#include "ExpressionEvaluation/ExpressionParser.h"
-#include "ExpressionEvaluation/SGxAODProxyLoader.h"
-#include "ExpressionEvaluation/MultipleProxyLoader.h"
-#include "ExpressionEvaluation/SGNTUPProxyLoader.h"
 #include <vector>
 #include <string>
 
@@ -22,11 +18,9 @@ namespace DerivationFramework {
   DeltaRTool::DeltaRTool(const std::string& t,
       const std::string& n,
       const IInterface* p) : 
-    AthAlgTool(t,n,p),
+    ExpressionParserUser<AthAlgTool,kDeltaRToolParserNum>(t,n,p),
     m_expression(""),
     m_2ndExpression(""),
-    m_parser(0),
-    m_parser2(0),
     m_sgName(""),
     m_containerName(""),
     m_2ndContainerName("")
@@ -46,28 +40,14 @@ namespace DerivationFramework {
       return StatusCode::FAILURE;
     }
 
-    ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
-    proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
-    proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
-    m_parser = new ExpressionParsing::ExpressionParser(proxyLoaders);
-    m_parser->loadExpression(m_expression);
-    m_parser2 = new ExpressionParsing::ExpressionParser(proxyLoaders);
-    m_parser2->loadExpression(m_2ndExpression);
-    
+    ATH_CHECK(initializeParser( {m_expression, m_2ndExpression} ));
 
     return StatusCode::SUCCESS;
   }
 
   StatusCode DeltaRTool::finalize()
   {
-    if (m_parser) {
-      delete m_parser;
-      m_parser = 0;
-    }
-    if (m_parser2) {
-      delete m_parser2;
-      m_parser2 = 0;
-    }
+    ATH_CHECK(finalizeParser());
     return StatusCode::SUCCESS;
   }
 
@@ -113,7 +93,7 @@ namespace DerivationFramework {
 
     // get the positions of the elements which pass the requirement
     std::vector<int> entries, entries2;
-    if (m_expression!="") {entries = m_parser->evaluateAsVector();}
+    if (!m_expression.empty()) {entries = m_parser[kDeltaRToolParser1]->evaluateAsVector();}
     else {entries.assign(particles->size(),1);} // default: include all elements 
     unsigned int nEntries = entries.size();
     // check the sizes are compatible
@@ -123,7 +103,7 @@ namespace DerivationFramework {
     }
     unsigned int nEntries2(0);
     if (secondContainer) {
-	if (m_2ndExpression!="") {entries2 =  m_parser2->evaluateAsVector();}
+        if (!m_2ndExpression.empty()) {entries2 =  m_parser[kDeltaRToolParser2]->evaluateAsVector();}
 	else {entries2.assign(secondParticles->size(),1);} // default: include all elements
 	nEntries2 = entries2.size();
 	// check the sizes are compatible
@@ -192,6 +172,5 @@ namespace DerivationFramework {
     float deltaEtaSq = (eta1-eta2)*(eta1-eta2);
     float deltaR = sqrt(deltaPhiSq+deltaEtaSq);
     return deltaR;
-  }       
-
+  }
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -21,9 +21,7 @@
 #include "xAODTracking/TrackMeasurementValidationContainer.h"
 #include "DerivationFrameworkInterfaces/IThinningTool.h"
 
-namespace ExpressionParsing {
-  class ExpressionParser;
-}
+#include "ExpressionEvaluation/ExpressionParserUser.h"
 
 namespace DerivationFramework {
 
@@ -31,7 +29,7 @@ namespace DerivationFramework {
   
       @author David Salek -at- cern.ch
      */
-  class TrackMeasurementThinning : public extends<AthAlgTool, IThinningTool> {
+  class TrackMeasurementThinning : public extends<ExpressionParserUser<AthAlgTool>, IThinningTool> {
     
   public: 
     /** Constructor with parameters */
@@ -48,7 +46,6 @@ namespace DerivationFramework {
     virtual StatusCode doThinning() const override;
  
   private:
-    std::unique_ptr<ExpressionParsing::ExpressionParser> m_parser;
     Gaudi::Property<std::string> m_selectionString
       { this, "SelectionString", "", ""};
 

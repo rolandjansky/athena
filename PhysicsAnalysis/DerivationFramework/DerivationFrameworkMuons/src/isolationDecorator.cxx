@@ -11,8 +11,6 @@
 #include "xAODTracking/TrackingPrimitives.h"
 #include "xAODPrimitives/IsolationHelpers.h"
 #include "xAODTracking/TrackParticleContainer.h"
-#include "ExpressionEvaluation/MultipleProxyLoader.h"
-#include "ExpressionEvaluation/SGxAODProxyLoader.h"
 
 namespace{
     constexpr int NDIFF = xAOD::Iso::ptvarcone20 - xAOD::Iso::ptcone20;
@@ -21,10 +19,9 @@ namespace{
 DerivationFramework::isolationDecorator::isolationDecorator(const std::string& t,
 							    const std::string& n,
 							    const IInterface* p):
-  AthAlgTool(t, n, p),
+  ExpressionParserUser<AthAlgTool>(t, n, p),
   m_trackIsolationTool(),
   m_caloIsolationTool(),
-  m_parser(nullptr),
   m_decorators(){
   declareInterface<DerivationFramework::IAugmentationTool>(this);
   declareProperty("TrackIsolationTool", m_trackIsolationTool);
@@ -77,11 +74,8 @@ StatusCode DerivationFramework::isolationDecorator::initialize()
   }
 
   // Set up the text-parsing machinery for thinning the tracks directly according to user cuts
-  if (m_selectionString!="") {
-          ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader(); // not deleted
-          proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore())); // not deleted
-          m_parser = std::make_unique<ExpressionParsing::ExpressionParser>(proxyLoaders);
-          m_parser->loadExpression(m_selectionString);
+  if (!m_selectionString.empty()) {
+     ATH_CHECK( initializeParser( m_selectionString ) );
   }
 
 

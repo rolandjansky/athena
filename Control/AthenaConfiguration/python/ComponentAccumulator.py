@@ -80,8 +80,15 @@ class ComponentAccumulator(object):
     def __init__(self,sequence='AthAlgSeq'):
         self._msg=logging.getLogger('ComponentAccumulator')
         if isinstance(sequence, str):
+            kwargs={'IgnoreFilterPassed' : True,
+                    'StopOverride'       : True }
+            if sequence == 'AthAlgSeq' :
+                kwargs.setdefault('ProcessDynamicDataDependencies',True)
+                kwargs.setdefault('ExtraDataForDynamicConsumers',[])
+                import traceback
+                traceback.print_stack
             AthSequencer=CompFactory.AthSequencer
-            sequence=AthSequencer(sequence, IgnoreFilterPassed=True, StopOverride=True)    #(Nested) default sequence of event processing algorithms per sequence + their private tools
+            sequence=AthSequencer(sequence, **kwargs)    #(Nested) default sequence of event processing algorithms per sequence + their private tools
         self._sequence = sequence
         self._allSequences = [ self._sequence ]
         self._algorithms = {}            #Flat algorithms list, useful for merging

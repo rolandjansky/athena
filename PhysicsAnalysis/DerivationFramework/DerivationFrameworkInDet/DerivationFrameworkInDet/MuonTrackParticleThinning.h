@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -19,16 +19,12 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODMuon/MuonContainer.h"
 #include "StoreGate/ThinningHandleKey.h"
-#include "ExpressionEvaluation/ExpressionParser.h"
 
-namespace ExpressionParsing {
-  class ExpressionParser;
-}
-
+#include "ExpressionEvaluation/ExpressionParserUser.h"
 
 namespace DerivationFramework {
 
-  class MuonTrackParticleThinning : public extends<AthAlgTool, IThinningTool> {
+  class MuonTrackParticleThinning : public extends<ExpressionParserUser<AthAlgTool>, IThinningTool> {
     public: 
       MuonTrackParticleThinning(const std::string& t, const std::string& n, const IInterface* p);
       virtual ~MuonTrackParticleThinning();
@@ -49,7 +45,6 @@ namespace DerivationFramework {
         { this, "SelectionString","",""};
       Gaudi::Property<float> m_coneSize
         { this, "ConeSize", -1.0, ""};
-     std::unique_ptr<ExpressionParsing::ExpressionParser> m_parser;
   };
 }
 

@@ -14,10 +14,10 @@
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "RecoToolInterfaces/ITrackIsolationTool.h"
 #include "RecoToolInterfaces/ICaloTopoClusterIsolationTool.h"
-#include "ExpressionEvaluation/ExpressionParser.h"
+#include "ExpressionEvaluation/ExpressionParserUser.h"
 
 namespace DerivationFramework {
-  class isolationDecorator : public AthAlgTool, public IAugmentationTool {
+  class isolationDecorator : public ExpressionParserUser<AthAlgTool>, public IAugmentationTool {
     
   public: 
     /** Constructor with parameters */
@@ -51,7 +51,6 @@ namespace DerivationFramework {
     std::vector<int> m_topoetcones;
     xAOD::CaloCorrection m_caloCorrList;
 
-    std::unique_ptr<ExpressionParsing::ExpressionParser> m_parser;
     std::map<int, SG::AuxElement::Decorator< float > > m_decorators;
     
     

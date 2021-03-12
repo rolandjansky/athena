@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -10,10 +10,6 @@
 
 #include "DerivationFrameworkTools/InvariantMassTool.h"
 #include "xAODBase/IParticleContainer.h"
-#include "ExpressionEvaluation/ExpressionParser.h"
-#include "ExpressionEvaluation/SGxAODProxyLoader.h"
-#include "ExpressionEvaluation/MultipleProxyLoader.h"
-#include "ExpressionEvaluation/SGNTUPProxyLoader.h"
 #include <vector>
 #include <string>
 
@@ -22,11 +18,9 @@ namespace DerivationFramework {
   InvariantMassTool::InvariantMassTool(const std::string& t,
       const std::string& n,
       const IInterface* p) : 
-    AthAlgTool(t,n,p),
+    ExpressionParserUser<AthAlgTool,kInvariantMassToolParserNum>(t,n,p),
     m_expression("true"),
     m_expression2(""), 
-    m_parser(0),
-    m_parser2(0),
     m_sgName(""),
     m_massHypothesis(0.0),
     m_massHypothesis2(0.0),
@@ -50,28 +44,14 @@ namespace DerivationFramework {
       return StatusCode::FAILURE;
     }
 
-    if (m_expression2=="") m_expression2 = m_expression;
-    ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
-    proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
-    proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
-    m_parser = new ExpressionParsing::ExpressionParser(proxyLoaders);
-    m_parser->loadExpression(m_expression);
-    m_parser2 = new ExpressionParsing::ExpressionParser(proxyLoaders);
-    m_parser2->loadExpression(m_expression2);
-
+    if (m_expression2.empty()) m_expression2 = m_expression;
+    ATH_CHECK(initializeParser({m_expression,m_expression2} ) );
     return StatusCode::SUCCESS;
   }
 
   StatusCode InvariantMassTool::finalize()
   {
-    if (m_parser) {
-      delete m_parser;
-      m_parser = 0;
-    }
-    if (m_parser2) {
-      delete m_parser2;
-      m_parser2 = 0;
-    }
+    ATH_CHECK( finalizeParser());
     return StatusCode::SUCCESS;
   }
 
@@ -118,8 +98,8 @@ namespace DerivationFramework {
 
 
     // get the positions of the elements which pass the requirement
-    std::vector<int> entries =  m_parser->evaluateAsVector();
-    std::vector<int> entries2 =  m_parser2->evaluateAsVector();
+    std::vector<int> entries =  m_parser[kInvariantMassToolParser1]->evaluateAsVector();
+    std::vector<int> entries2 =  m_parser[kInvariantMassToolParser2]->evaluateAsVector();
     unsigned int nEntries = entries.size();
     unsigned int nEntries2 = entries2.size();
 
@@ -216,6 +196,5 @@ namespace DerivationFramework {
     float pzSum = pz1+pz2;
     float invariantMass = sqrt( (eSum*eSum)-(pxSum*pxSum)-(pySum*pySum)-(pzSum*pzSum) );
     return invariantMass;
-  } 
-
+  }
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -14,14 +14,13 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 
-namespace ExpressionParsing {
-  class ExpressionParser;
-}
+#include "ExpressionEvaluation/ExpressionParserUser.h"
 
 namespace DerivationFramework {
 
-  class DeltaRTool : public AthAlgTool, public IAugmentationTool {
-    public: 
+  enum EDeltaRToolParser {kDeltaRToolParser1,kDeltaRToolParser2,kDeltaRToolParserNum};
+  class DeltaRTool : public ExpressionParserUser<AthAlgTool,kDeltaRToolParserNum>, public IAugmentationTool {
+    public:
       DeltaRTool(const std::string& t, const std::string& n, const IInterface* p);
 
       StatusCode initialize();
@@ -31,8 +30,6 @@ namespace DerivationFramework {
     private:
       std::string m_expression;
       std::string m_2ndExpression;
-      ExpressionParsing::ExpressionParser *m_parser;
-      ExpressionParsing::ExpressionParser *m_parser2;
       std::string m_sgName;
       std::string m_containerName;
       std::string m_2ndContainerName;

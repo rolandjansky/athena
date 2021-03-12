@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -15,21 +15,14 @@
 #include <vector>
 #include <string>
 
-#include "ExpressionEvaluation/ExpressionParser.h"
-#include "ExpressionEvaluation/TriggerDecisionProxyLoader.h"
-#include "ExpressionEvaluation/SGxAODProxyLoader.h"
-#include "ExpressionEvaluation/SGNTUPProxyLoader.h"
-#include "ExpressionEvaluation/MultipleProxyLoader.h"
 
 namespace DerivationFramework {
 
   xAODStringSkimmingTool::xAODStringSkimmingTool(const std::string& t,
       const std::string& n,
       const IInterface* p) : 
-    AthAlgTool(t,n,p),
-    m_expression("true"),
-    m_parser(0),
-    m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool")
+    ExpressionParserUserWithTrigSupport<AthAlgTool>(t,n,p),
+    m_expression("true")
   {
     declareInterface<DerivationFramework::ISkimmingTool>(this);
     declareProperty("expression", m_expression);
@@ -37,29 +30,18 @@ namespace DerivationFramework {
 
   StatusCode xAODStringSkimmingTool::initialize()
   {
-    ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
-    proxyLoaders->push_back(new ExpressionParsing::TriggerDecisionProxyLoader(m_trigDecisionTool));
-    proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
-    proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
-
-    m_parser = new ExpressionParsing::ExpressionParser(proxyLoaders);
-    m_parser->loadExpression(m_expression);
+    ATH_CHECK( initializeParser(m_expression) );
     return StatusCode::SUCCESS;
   }
 
   StatusCode xAODStringSkimmingTool::finalize()
   {
-    if (m_parser) {
-      delete m_parser;
-      m_parser = 0;
-    }
+    ATH_CHECK( finalizeParser() );
     return StatusCode::SUCCESS;
   }
 
   bool xAODStringSkimmingTool::eventPassesFilter() const
   {
     return m_parser->evaluateAsBool();
-    return true;
-  }  
-
+  }
 }
