@@ -29,6 +29,8 @@ namespace PFO {
       m_CFE_muon_dR=nullptr;
       m_CFE_muon_NMatchedMuon=nullptr;
       m_CFE_muon_muonNMatchedFE=nullptr;
+      m_CFE_muon_largeDR_debug_author=nullptr;
+      m_CFE_muon_largeDR_debug_type=nullptr;
 
       m_NFE_muon_dR=nullptr;
       m_NFE_muon_NMatchedMuon=nullptr;
@@ -87,6 +89,8 @@ namespace PFO {
       m_CFE_muon_dR=Book1D("_CFE_muon_dR",m_sFEContainerName+"_CFE_muon_dR",40,0,5); 
       m_CFE_muon_NMatchedMuon=Book1D("_CFE_muon_NMatchedMuon",m_sFEContainerName+"_CFE_muon_NMatchedMuon",20,0,20);
       m_CFE_muon_muonNMatchedFE=Book1D("_CFE_muon_muonNMatchedFE",m_sFEContainerName+"_CFE_muon_muonNMatchedFE",20,0,20);
+      m_CFE_muon_largeDR_debug_author=Book1D("_CFE_muon_largeDR_debug_author",m_sFEContainerName+"_CFE_muon_largeDR_debug_author",20,0,20);
+      m_CFE_muon_largeDR_debug_type=Book1D("_CFE_muon_largeDR_debug_type",m_sFEContainerName+"_CFE_muon_largeDR_debug_type",20,0,20);
     }
     else{
       m_NFE_muon_dR=Book1D("_NFE_muon_dR",m_sFEContainerName+"_NFE_muon_dR",40,0,5); 
@@ -134,8 +138,15 @@ namespace PFO {
 	  continue;
 	if(m_doNeutralFE)
 	  m_NFE_muon_dR->Fill(deltaR);
-	else
-	  m_CFE_muon_dR->Fill(deltaR);	
+	else{
+	    m_CFE_muon_dR->Fill(deltaR);
+	    if(deltaR>1){// should never happen, but catch for extreme cases
+		int auth=muon->author();
+		int type=muon->muonType();
+		m_CFE_muon_largeDR_debug_author->Fill(auth);
+		m_CFE_muon_largeDR_debug_type->Fill(type);
+	    }
+	}// end of CFE fill block for muon_dR code	
       }
     }// end of muon acc block
     
