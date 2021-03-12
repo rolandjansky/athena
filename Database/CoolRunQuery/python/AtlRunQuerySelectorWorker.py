@@ -4,11 +4,11 @@
 #import the selectors
 from __future__ import print_function
 from CoolRunQuery.selector.AtlRunQuerySelectorDQ      import DQSelector
-from CoolRunQuery.selector.AtlRunQuerySelectorTrigger import TrigKeySelector, TriggerSelector
+from CoolRunQuery.selector.AtlRunQuerySelectorTrigger import TrigKeySelector, TriggerSelector, L1TrigKeySelector, HLTTrigKeySelector, BGSKeySelector # noqa: F401
 from CoolRunQuery.selector.AtlRunQuerySelectorMisc    import BPMSelector, LArcondSelector, DatasetsSelector, DetectorSelector, FilenameSelector, PartitionSelector, ReadyForPhysicsSelector, DurationSelector, BFieldSelector
 from CoolRunQuery.selector.AtlRunQuerySelectorEvents  import EventSelector
 from CoolRunQuery.selector.AtlRunQuerySelectorStreams import StreamSelector
-from CoolRunQuery.selector.AtlRunQuerySelectorLhcOlc  import LHCSelector, OLCLumiSelector, LuminositySelector, BeamspotSelector
+from CoolRunQuery.selector.AtlRunQuerySelectorLhcOlc  import LHCSelector, OLCLumiSelector, LuminositySelector, BeamspotSelector, OLCLBDataCondition, OLCFillParamsCondition # noqa: F401
 
 from CoolRunQuery.AtlRunQueryRun                      import Run
 
