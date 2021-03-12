@@ -29,7 +29,7 @@ def FullG4TrackProcessorUserActionToolCfg(flags, name="FullG4TrackProcessorUserA
     kwargs.setdefault("EntryLayerTool", result.getPublicTool(tool.name))
     result.merge(GeoIDSvcCfg(flags))
     kwargs.setdefault("GeoIDSvc", result.getService("ISF_GeoIDSvc"))
-    if flags.Detector.SimulateCavern:
+    if flags.Detector.GeometryCavern:
         kwargs.setdefault("TruthVolumeLevel", 2)
     result.setPrivateTools(CompFactory.G4UA.iGeant4.TrackProcessorUserActionFullG4Tool(name, **kwargs))
     return result

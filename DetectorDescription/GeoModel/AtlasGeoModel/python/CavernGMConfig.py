@@ -8,7 +8,7 @@ def CavernGeometryCfg( flags ):
     geoModelSvc=acc.getPrimary()
 
     from AthenaConfiguration.Enums import ProductionStep
-    if (flags.Common.ProductionStep == ProductionStep.Simulation and flags.Beam.Type == "cosmics") or flags.Detector.SimulateCavern:
+    if (flags.Common.ProductionStep == ProductionStep.Simulation and flags.Beam.Type == "cosmics") or flags.Detector.GeometryCavern:
         from CavernInfraGeoModel.CavernInfraGeoModelConf import CavernInfraDetectorTool
         geoModelSvc.DetectorTools += [ CavernInfraDetectorTool() ]
     return acc

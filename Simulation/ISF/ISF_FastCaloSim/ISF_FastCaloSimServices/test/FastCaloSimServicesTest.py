@@ -39,67 +39,9 @@ def FastCaloSimServicesMainCfg(ConfigFlags):
     from ISF_Config.ISF_MainConfigNew import Kernel_G4FastCaloMT
     acc.merge(Kernel_G4FastCaloMT(ConfigFlags))
 
-    ItemList = ["EventInfo#*",
-                "McEventCollection#TruthEvent",
-                "JetCollection#*"]
-
-    if ConfigFlags.Sim.IncludeParentsInG4Event:
-        ItemList += ["McEventCollection#GEN_EVENT"]
-
-    ItemList += ["xAOD::JetContainer#*",
-                 "xAOD::JetAuxContainer#*"]
-
-    if ConfigFlags.Detector.SimulateID:
-        ItemList += ["SiHitCollection#*",
-                     "TRTUncompressedHitCollection#*",
-                     "TrackRecordCollection#CaloEntryLayer"]
-
-    if ConfigFlags.Detector.SimulateITk:
-        ItemList += ["SiHitCollection#*",
-                     "TrackRecordCollection#CaloEntryLayer"]
-
-    if ConfigFlags.Detector.SimulateCalo:
-        ItemList += ["CaloCalibrationHitContainer#*",
-                     "LArHitContainer#*",
-                     "TileHitVector#*",
-                     "TrackRecordCollection#MuonEntryLayer"]
-
-    if ConfigFlags.Detector.SimulateMuon:
-        ItemList += ["RPCSimHitCollection#*",
-                     "TGCSimHitCollection#*",
-                     "MDTSimHitCollection#*",
-                     "TrackRecordCollection#MuonExitLayer"]
-        if ConfigFlags.Detector.GeometryCSC:
-            ItemList += ["CSCSimHitCollection#*"]
-        if ConfigFlags.Detector.GeometrysTGC:
-            ItemList += ["sTGCSimHitCollection#*"]
-        if ConfigFlags.Detector.GeometryMM:
-            ItemList += ["MMSimHitCollection#*"]
-
-    if ConfigFlags.Detector.SimulateLucid:
-        ItemList += ["LUCID_SimHitCollection#*"]
-
-    if ConfigFlags.Detector.SimulateFwdRegion:
-        ItemList += ["SimulationHitCollection#*"]
-
-    if ConfigFlags.Detector.SimulateZDC:
-        ItemList += ["ZDC_SimPixelHit_Collection#*",
-                     "ZDC_SimStripHit_Collection#*"]
-
-    if ConfigFlags.Detector.SimulateALFA:
-        ItemList += ["ALFA_HitCollection#*",
-                     "ALFA_ODHitCollection#*"]
-
-    if ConfigFlags.Detector.SimulateAFP:
-        ItemList += ["AFP_TDSimHitCollection#*",
-                     "AFP_SIDSimHitCollection#*"]
-
-    # TimingAlg
-    ItemList += ["RecoTimingObj#EVNTtoHITS_timings"]
-
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    acc.merge( OutputStreamCfg(ConfigFlags,"HITS", ItemList=ItemList, disableEventTag=True) )
-
+    from SimuJobTransforms.SimOutputConfig import getStreamHITS_ItemList
+    acc.merge( OutputStreamCfg(ConfigFlags,"HITS", ItemList=getStreamHITS_ItemList(ConfigFlags), disableEventTag=True) )
 
     # FIXME hack to match to buggy behaviour in old style configuration
     OutputStreamHITS = acc.getEventAlgo("OutputStreamHITS")
