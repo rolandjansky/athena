@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -148,6 +148,7 @@ inline
 Array<N-1> Array<N>::operator[] (unsigned int i) const
 {
   assert (i < m_rep->m_shape[m_rep->m_shape.size() - N]);
+  // cppcheck-suppress negativeContainerIndex; false positive
   return Array<N-1> (*m_rep, m_offs + i * m_rep->m_sizes[N-1]);
 }
 
@@ -186,6 +187,7 @@ template <unsigned int N>
 inline
 typename Array<N>::const_iterator Array<N>::end () const
 {
+  // cppcheck-suppress negativeContainerIndex; false positive
   unsigned int offs = m_rep ? m_offs + size() * m_rep->m_sizes[N-1] : 0;
   return ArrayIteratorChooser<N>::make_iterator (m_rep, offs);
 }
@@ -711,6 +713,7 @@ WritableArray<N-1> WritableArray<N>::operator[] (unsigned int i) const
 {
   assert (i < this->m_rep_nc->m_shape[this->m_rep_nc->m_shape.size() - N]);
   return WritableArray<N-1> (*this->m_rep_nc,
+   // cppcheck-suppress negativeContainerIndex; false positive
                              this->m_offs + i * this->m_rep_nc->m_sizes[N-1]);
 }
 
@@ -740,6 +743,7 @@ Arrayelt* WritableArray<N>::ptr ()
  */
 template <unsigned int N>
 inline
+// cppcheck-suppress uninitMemberVarPrivate; false positive
 WritableArray<N>::WritableArray (Arrayrep& rep, unsigned int offs)
   : Array<N> (rep, offs),
     m_rep_nc (&rep)
