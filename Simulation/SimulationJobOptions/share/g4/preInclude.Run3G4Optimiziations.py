@@ -44,7 +44,7 @@ else:
 #
 #########################################################
 
-nrr_threshold = 1. # MeV
+nrr_threshold = 2. # MeV
 nrr_weight = 10.
 
 from G4AtlasApps.SimFlags import simFlags
