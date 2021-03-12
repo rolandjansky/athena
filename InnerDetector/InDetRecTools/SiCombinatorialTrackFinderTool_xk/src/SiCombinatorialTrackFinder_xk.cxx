@@ -253,10 +253,6 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize()
   //
   magneticFieldInit();       
 
-  // Set tool to trajectory
-  //
-  m_trajectory.setTools(&m_tools);
-
   // Get output print level
   //
   m_outputlevel = msg().level()-MSG::DEBUG;
@@ -461,6 +457,15 @@ void InDet::SiCombinatorialTrackFinder_xk::newEvent()
 void InDet::SiCombinatorialTrackFinder_xk::newEvent
 (Trk::TrackInfo info,const TrackQualityCuts& Cuts)
 {
+
+  int useasso;
+  if(!Cuts.getIntCut   ("UseAssociationTool"  ,useasso      )) {useasso         =    0;}
+  m_tools.setAssociation  (useasso);
+
+  // Set tool to trajectory
+  //
+  m_trajectory.setTools(&m_tools);
+
   newEvent(); m_trackinfo = info;
   
   // Get track qulaity cuts information
