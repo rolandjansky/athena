@@ -3,7 +3,7 @@
 #--------------------------------------------------------------
 evgenConfig.description = 'POWHEG+Pythia8 ttbar production with Powheg hdamp equal 1.5*top mass, A14 tune, ME NNPDF30 NLO, A14 NNPDF23 LO, FCNC Top decays'
 evgenConfig.keywords    = [ 'top', 'ttbar', 'Higgs', 'FCNC' ]
-evgenConfig.contact     = [ 'andrea.helen.knue@cern.ch','onofrio@liverpool.ac.uk','ian.connelly@cern.ch']
+evgenConfig.contact     = [ 'james.robinson@cern.ch','andrea.helen.knue@cern.ch','onofrio@liverpool.ac.uk','ian.connelly@cern.ch']
 
 include('PowhegControl/PowhegControl_tt_Common.py')
 # Initial settings
