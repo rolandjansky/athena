@@ -106,16 +106,16 @@ void InDet::InDetUsedInFitTrackDecoratorTool::decorate(const xAOD::TrackParticle
       const auto& trkLinks=vtx->trackParticleLinks();
       const size_t nTrackLinks=trkLinks.size();
       for (unsigned i=0;i<nTrackLinks;++i) {
-	if (*(trkLinks[i]) == trk ) {//ptr comparison
-	  vxWithWeight.emplace_back(vtx,vtx->trackWeights()[i]);
-	  break; //Found pointer, quit loop
-	}
+        if (trkLinks[i].isValid() && *(trkLinks[i]) == trk) {//ptr comparison
+          vxWithWeight.emplace_back(vtx,vtx->trackWeights()[i]);
+          break; //Found pointer, quit loop
+        }
       }
     }//end loop over vertices
     
     //sort by weight
     std::sort(vxWithWeight.begin(),vxWithWeight.end(),
-	      [](std::pair<const xAOD::Vertex*,float>& a, std::pair<const xAOD::Vertex*,float>& b){ return a.second > b.second; } );
+        [](std::pair<const xAOD::Vertex*,float>& a, std::pair<const xAOD::Vertex*,float>& b){ return a.second > b.second; } );
   
     //split vector of pairs into two vectors in sync:
     
