@@ -298,11 +298,11 @@ void ISF::TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) const {
       // 2) A new GenVertex for the intermediate interaction should be
       // added.
 #ifdef HEPMC3
-      auto newVtx = HepMC::newGenVertexPtr( vtx->position(), vtx->id());
+      auto newVtx = HepMC::newGenVertexPtr( vtx->position(), vtx->status());
       HepMC::GenEvent *mcEvent = parentBeforeIncident->parent_event();
-      HepMC::suggest_barcode(newVtx, this->maxGeneratedVertexBarcode(mcEvent)-1 );
       auto tmpVtx = newVtx;
       mcEvent->add_vertex( newVtx);
+      HepMC::suggest_barcode(newVtx, this->maxGeneratedVertexBarcode(mcEvent)-1 );
       auto vtx_weights=vtx->attribute<HepMC3::VectorDoubleAttribute>("weights");
       if (vtx_weights) newVtx->add_attribute("weights",std::make_shared<HepMC3::VectorDoubleAttribute>(vtx_weights->value()));
 #else
@@ -446,7 +446,6 @@ HepMC::GenVertexPtr  ISF::TruthSvc::createGenVertexFromTruthIncident( ISF::ITrut
   int vtxID = 1000 + static_cast<int>(processCode);
 #ifdef HEPMC3
   auto vtx = HepMC::newGenVertexPtr( ti.position(),vtxID);
-  HepMC::suggest_barcode( vtx, vtxbcode );
 #else
   std::unique_ptr<HepMC::GenVertex> vtx = std::make_unique<HepMC::GenVertex>( ti.position(), vtxID, weights );
   HepMC::suggest_barcode( vtx.get(), vtxbcode );
@@ -470,6 +469,7 @@ HepMC::GenVertexPtr  ISF::TruthSvc::createGenVertexFromTruthIncident( ISF::ITrut
 #ifdef HEPMC3
       ATH_MSG_VERBOSE("createGVfromTI Replacement QS GenVertex: " << vtx );
       mcEvent->add_vertex(vtx);
+      HepMC::suggest_barcode( vtx, vtxbcode );
       vtx->add_attribute("weights",std::make_shared<HepMC3::VectorDoubleAttribute>(weights));
 #else
       ATH_MSG_VERBOSE("createGVfromTI Replacement QS GenVertex: " << vtx.get() );
@@ -518,6 +518,7 @@ HepMC::GenVertexPtr  ISF::TruthSvc::createGenVertexFromTruthIncident( ISF::ITrut
 #endif
 #ifdef HEPMC3
     mcEvent->add_vertex(vtx);
+    HepMC::suggest_barcode( vtx, vtxbcode );
     vtx->add_attribute("weights",std::make_shared<HepMC3::VectorDoubleAttribute>(weights));
 #else
     mcEvent->add_vertex( vtx.release() );

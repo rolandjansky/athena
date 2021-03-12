@@ -88,7 +88,7 @@ inline ConstGenParticlePtr  barcode_to_particle(const GenEvent* e, int id ) {
 inline GenVertexPtr  barcode_to_vertex(GenEvent* e, int id ) {
     auto vertices=e->vertices();
     for (auto v: vertices) {
-        auto barcode_attr=e->attribute<HepMC3::IntAttribute>("barcode");
+        auto barcode_attr=v->attribute<HepMC3::IntAttribute>("barcode");
         if (!barcode_attr) continue;
         if (barcode_attr->value()==id) return v;
     }
