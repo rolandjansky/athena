@@ -28,20 +28,20 @@ atlas_add_dictionary( ElectronPhotonVariableCorrectionDict
 
 # Add tests
 if( XAOD_STANDALONE )
-    atlas_add_executable( Test_ElectronPhotonVariableCorrectionBase
-    util/testElectronPhotonVariableCorrectionBase.cxx
-    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-    LINK_LIBRARIES ${ROOT_LIBRARIES} EGammaVariableCorrectionLib)
+   atlas_add_executable( Test_ElectronPhotonVariableCorrectionBase
+   util/testElectronPhotonVariableCorrectionBase.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} EGammaVariableCorrectionLib)
 
-    atlas_add_executable( Test_IsoCorrection
-    util/testIsoCorrection.cxx
-    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-    LINK_LIBRARIES ${ROOT_LIBRARIES} IsolationCorrectionsLib EGammaVariableCorrectionLib)
+   atlas_add_executable( Test_IsoCorrection
+   util/testIsoCorrection.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} IsolationCorrectionsLib EGammaVariableCorrectionLib)
 
-    atlas_add_executable( Test_ElectronPhotonVariableCorrectionTool
-    util/testElectronPhotonVariableCorrectionTool.cxx
-    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-     LINK_LIBRARIES ${ROOT_LIBRARIES} EGammaVariableCorrectionLib)
+   atlas_add_executable( Test_ElectronPhotonVariableCorrectionTool
+   util/testElectronPhotonVariableCorrectionTool.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} EGammaVariableCorrectionLib)
 endif()
 
 atlas_add_executable( Test_ElectronPhotonVariableCorrectionTool_DictionaryToolHandle
