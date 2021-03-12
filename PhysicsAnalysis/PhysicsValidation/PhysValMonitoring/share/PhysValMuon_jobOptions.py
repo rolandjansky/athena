@@ -1,6 +1,22 @@
 from AthenaCommon.CfgGetter import getPublicTool
 getPublicTool("MuonCombinedInDetDetailedTrackSelectorTool")
 
+algseq = CfgMgr.AthSequencer("AthAlgSeq")
+from InDetUsedInFitTrackDecoratorTool.InDetUsedInFitTrackDecoratorToolConf import InDet__InDetUsedInFitTrackDecoratorTool
+PhysValMuUsedInFitDecoratorTool = InDet__InDetUsedInFitTrackDecoratorTool(name                 = "PhysValMuUsedInFitDecoratorTool",
+                                                                          AMVFVerticesDecoName = "TTVA_AMVFVertices",
+                                                                          AMVFWeightsDecoName  = "TTVA_AMVFWeights",
+                                                                          TrackContainer       = "InDetTrackParticles",
+                                                                          VertexContainer      = "PrimaryVertices" )
+ToolSvc += PhysValMuUsedInFitDecoratorTool
+from InDetUsedInVertexFitTrackDecorator.InDetUsedInVertexFitTrackDecoratorConf import InDet__InDetUsedInVertexFitTrackDecorator
+PhysValMuInDetUsedInFitDecorator = InDet__InDetUsedInVertexFitTrackDecorator(name                   = "PhysValMuInDetUsedInFitDecorator",
+                                                                             UsedInFitDecoratorTool = ToolSvc.PhysValMuUsedInFitDecoratorTool)
+algseq += PhysValMuInDetUsedInFitDecorator
+from IsolationAlgs.IsoUpdatedTrackCones import GetUpdatedIsoTrackCones
+if not hasattr(algseq,"IsolationBuilderTight500"):
+    algseq += GetUpdatedIsoTrackCones()
+
 from MuonPhysValMonitoring.MuonPhysValMonitoringConf import MuonPhysValMonitoring__MuonPhysValMonitoringTool
 from RecExConfig.RecFlags import rec as recFlags
 
@@ -45,8 +61,7 @@ if not recFlags.doTruth():
 
 from IsolationSelection.IsolationSelectionConf import CP__IsolationSelectionTool
 IsolationTool = CP__IsolationSelectionTool( "IsolationSelectionTool",
-                                            CalibFileName = "IsolationSelection/v1/MC15_Z_Jpsi_cutMap.root",
-                                            MuonWP = "Gradient")
+                                            MuonWP = "PflowTight_FixedRad")
 ToolSvc += IsolationTool
 tool1.IsoTool = IsolationTool
 tool1.EnableLumi = False
