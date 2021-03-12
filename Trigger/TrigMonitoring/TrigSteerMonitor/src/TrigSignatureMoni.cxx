@@ -10,13 +10,13 @@
 #include "Gaudi/Property.h"
 #include "AthenaInterprocess/Incidents.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
-#include "TrigSignatureMoniMT.h"
+#include "TrigSignatureMoni.h"
 
-TrigSignatureMoniMT::TrigSignatureMoniMT(const std::string& name, ISvcLocator* pSvcLocator)
+TrigSignatureMoni::TrigSignatureMoni(const std::string& name, ISvcLocator* pSvcLocator)
   : base_class(name, pSvcLocator)
 {}
 
-StatusCode TrigSignatureMoniMT::initialize() {
+StatusCode TrigSignatureMoni::initialize() {
   ATH_CHECK(m_l1DecisionsKey.initialize());
   ATH_CHECK(m_finalDecisionKey.initialize());
   ATH_CHECK(m_HLTMenuKey.initialize());
@@ -31,7 +31,7 @@ StatusCode TrigSignatureMoniMT::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigSignatureMoniMT::start() {
+StatusCode TrigSignatureMoni::start() {
   SG::ReadHandle<TrigConf::L1Menu> l1MenuHandle = SG::makeHandle(m_L1MenuKey);
   SG::ReadHandle<TrigConf::HLTMenu> hltMenuHandle = SG::makeHandle(m_HLTMenuKey);
   ATH_CHECK(hltMenuHandle.isValid());
@@ -154,7 +154,7 @@ StatusCode TrigSignatureMoniMT::start() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigSignatureMoniMT::stop() {
+StatusCode TrigSignatureMoni::stop() {
   m_rateHistogram.stopTimer();
   m_bcidHistogram.stopTimer();
   m_sequenceHistogram.stopTimer();
@@ -188,7 +188,7 @@ StatusCode TrigSignatureMoniMT::stop() {
       if ("Step" + std::to_string(nstep) == stepName) {
         chainToStepsId[chain.name()].insert(nstep);
       } else {
-      	ATH_MSG_INFO("Missing step" << nstep << " in chain " << chain.name());
+      	ATH_MSG_DEBUG("Missing counts for step" << nstep << " in chain " << chain.name());
       }
       nstep++;
     }
@@ -247,7 +247,7 @@ StatusCode TrigSignatureMoniMT::stop() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigSignatureMoniMT::fillHistogram(const TrigCompositeUtils::DecisionIDContainer& dc, int row, LockedHandle<TH2>& histogram) const {
+StatusCode TrigSignatureMoni::fillHistogram(const TrigCompositeUtils::DecisionIDContainer& dc, int row, LockedHandle<TH2>& histogram) const {
   for (TrigCompositeUtils::DecisionID id : dc)  {
     auto id2bin = m_chainIDToBinMap.find( id );
      if ( id2bin == m_chainIDToBinMap.end() && HLT::Identifier(id).name().find("leg") != 0 ) {
@@ -259,15 +259,15 @@ StatusCode TrigSignatureMoniMT::fillHistogram(const TrigCompositeUtils::Decision
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigSignatureMoniMT::fillRate(const TrigCompositeUtils::DecisionIDContainer& dc, int row) const {
+StatusCode TrigSignatureMoni::fillRate(const TrigCompositeUtils::DecisionIDContainer& dc, int row) const {
   return fillHistogram(dc, row, m_rateHistogram.getBuffer());
 }
 
-StatusCode TrigSignatureMoniMT::fillPassEvents(const TrigCompositeUtils::DecisionIDContainer& dc, int row) const {
+StatusCode TrigSignatureMoni::fillPassEvents(const TrigCompositeUtils::DecisionIDContainer& dc, int row) const {
   return fillHistogram(dc, row, m_passHistogram);
 }
 
-StatusCode TrigSignatureMoniMT::fillDecisionCount(const std::vector<TrigCompositeUtils::DecisionID>& dc, int row) const {
+StatusCode TrigSignatureMoni::fillDecisionCount(const std::vector<TrigCompositeUtils::DecisionID>& dc, int row) const {
   for (TrigCompositeUtils::DecisionID id : dc)  {
     TrigCompositeUtils::DecisionID chain = id;
     if (TrigCompositeUtils::isLegId(HLT::Identifier(id)) ) chain = TrigCompositeUtils::getIDFromLeg(id);
@@ -283,7 +283,7 @@ StatusCode TrigSignatureMoniMT::fillDecisionCount(const std::vector<TrigComposit
   
 }
 
-StatusCode TrigSignatureMoniMT::fillBunchGroups(const TrigCompositeUtils::DecisionIDContainer& dc ) const {
+StatusCode TrigSignatureMoni::fillBunchGroups(const TrigCompositeUtils::DecisionIDContainer& dc ) const {
   for (TrigCompositeUtils::DecisionID id : dc)  {
     auto id2bin = m_chainIDToBinMap.find(id);
     auto bunchGroups = m_chainIDToBunchMap.find(id);
@@ -297,7 +297,7 @@ StatusCode TrigSignatureMoniMT::fillBunchGroups(const TrigCompositeUtils::Decisi
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigSignatureMoniMT::fillBCID(const TrigCompositeUtils::DecisionIDContainer& dc , int bcid) const {
+StatusCode TrigSignatureMoni::fillBCID(const TrigCompositeUtils::DecisionIDContainer& dc , int bcid) const {
   if (nBCIDchains() > 0){
     for (TrigCompositeUtils::DecisionID id : dc)  {
       auto id2bin = m_BCIDchainIDToBinMap.find(id);
@@ -309,7 +309,7 @@ StatusCode TrigSignatureMoniMT::fillBCID(const TrigCompositeUtils::DecisionIDCon
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigSignatureMoniMT::fillSequences(const std::set<std::string>& sequences) const {
+StatusCode TrigSignatureMoni::fillSequences(const std::set<std::string>& sequences) const {
   for (const std::string& seq : sequences) {
     m_sequenceHistogram.fill(m_sequenceToBinMap.at(seq), 1);
   }
@@ -317,7 +317,7 @@ StatusCode TrigSignatureMoniMT::fillSequences(const std::set<std::string>& seque
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigSignatureMoniMT::fillStreamsAndGroups(const std::map<std::string, TrigCompositeUtils::DecisionIDContainer>& nameToChainsMap, const TrigCompositeUtils::DecisionIDContainer& dc) const {
+StatusCode TrigSignatureMoni::fillStreamsAndGroups(const std::map<std::string, TrigCompositeUtils::DecisionIDContainer>& nameToChainsMap, const TrigCompositeUtils::DecisionIDContainer& dc) const {
   // Fill just the last row of the histograms
   const double row = nSteps();
   const double rateRow = nBaseSteps();
@@ -335,7 +335,7 @@ StatusCode TrigSignatureMoniMT::fillStreamsAndGroups(const std::map<std::string,
   return StatusCode::SUCCESS;
 }
 
-void TrigSignatureMoniMT::handle( const Incident& incident ) {
+void TrigSignatureMoni::handle( const Incident& incident ) {
   // Create and start timer after fork
   if (incident.type() == AthenaInterprocess::UpdateAfterFork::type()) {
     if (m_rateHistogram.getTimer() || m_sequenceHistogram.getTimer() || m_bcidHistogram.getTimer()) {
@@ -360,7 +360,7 @@ void TrigSignatureMoniMT::handle( const Incident& incident ) {
   }
 }
 
-StatusCode TrigSignatureMoniMT::execute( const EventContext& context ) const {
+StatusCode TrigSignatureMoni::execute( const EventContext& context ) const {
 
   SG::ReadHandle<TrigCompositeUtils::DecisionContainer> l1Decisions = SG::makeHandle(m_l1DecisionsKey, context);
 
@@ -449,43 +449,43 @@ StatusCode TrigSignatureMoniMT::execute( const EventContext& context ) const {
   return StatusCode::SUCCESS;
 }
 
-int TrigSignatureMoniMT::nBinsX(SG::ReadHandle<TrigConf::HLTMenu>& hltMenuHandle) const {
+int TrigSignatureMoni::nBinsX(SG::ReadHandle<TrigConf::HLTMenu>& hltMenuHandle) const {
   return nChains(hltMenuHandle) + m_groupToChainMap.size() + m_streamToChainMap.size();
 }
 
-int TrigSignatureMoniMT::nBinsX() const {
+int TrigSignatureMoni::nBinsX() const {
   return m_chainIDToBinMap.size() + m_groupToChainMap.size() + m_streamToChainMap.size() + 1;
 }
 
-int TrigSignatureMoniMT::nChains(SG::ReadHandle<TrigConf::HLTMenu>& hltMenuHandle) const {
+int TrigSignatureMoni::nChains(SG::ReadHandle<TrigConf::HLTMenu>& hltMenuHandle) const {
   return hltMenuHandle->size() + 1; // Chains + "All"
 }
 
-int TrigSignatureMoniMT::nBCIDs() const {
+int TrigSignatureMoni::nBCIDs() const {
   return m_bcidNumber + 1;
 }
 
-int TrigSignatureMoniMT::nSequenceBins() const {
+int TrigSignatureMoni::nSequenceBins() const {
   return m_sequenceToBinMap.size();
 }
 
-int TrigSignatureMoniMT::nSteps() const {
+int TrigSignatureMoni::nSteps() const {
   return m_decisionCollectorTools.size() + nBaseSteps();
 }
 
-int TrigSignatureMoniMT::nBaseSteps() const {
+int TrigSignatureMoni::nBaseSteps() const {
   return 3; // in, after ps, out
 }
 
-int TrigSignatureMoniMT::nBCIDchains() const {
+int TrigSignatureMoni::nBCIDchains() const {
   return m_BCIDchainIDToBinMap.size();
 }
 
-int TrigSignatureMoniMT::nBunchGroups(SG::ReadHandle<TrigConf::L1Menu>& l1MenuHandle) const {
+int TrigSignatureMoni::nBunchGroups(SG::ReadHandle<TrigConf::L1Menu>& l1MenuHandle) const {
   return l1MenuHandle.isValid() ? (l1MenuHandle->getObject("bunchGroups").getKeys().size() - 1) : 16;
 }
 
-StatusCode TrigSignatureMoniMT::initHist(LockedHandle<TH2>& hist, SG::ReadHandle<TrigConf::HLTMenu>& hltMenuHandle, bool steps) {
+StatusCode TrigSignatureMoni::initHist(LockedHandle<TH2>& hist, SG::ReadHandle<TrigConf::HLTMenu>& hltMenuHandle, bool steps) {
   TAxis* x = hist->GetXaxis();
   x->SetBinLabel(1, "All");
   int bin = 2; // 1 is for total count, (remember bins numbering in ROOT start from 1)
@@ -527,7 +527,7 @@ StatusCode TrigSignatureMoniMT::initHist(LockedHandle<TH2>& hist, SG::ReadHandle
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigSignatureMoniMT::initSeqHist(LockedHandle<TH2>& hist, std::set<std::string>& sequenceSet) {
+StatusCode TrigSignatureMoni::initSeqHist(LockedHandle<TH2>& hist, std::set<std::string>& sequenceSet) {
   TAxis* x = hist->GetXaxis();
   int bin = 1;
 
@@ -544,7 +544,7 @@ StatusCode TrigSignatureMoniMT::initSeqHist(LockedHandle<TH2>& hist, std::set<st
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigSignatureMoniMT::initBCIDhist(LockedHandle<TH2>& hist, const std::vector<std::string>& chainNames){
+StatusCode TrigSignatureMoni::initBCIDhist(LockedHandle<TH2>& hist, const std::vector<std::string>& chainNames){
   std::vector<std::string> sortedChainNames(chainNames);
   std::sort( sortedChainNames.begin(), sortedChainNames.end() );
 
@@ -560,7 +560,7 @@ StatusCode TrigSignatureMoniMT::initBCIDhist(LockedHandle<TH2>& hist, const std:
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigSignatureMoniMT::initBunchHist(LockedHandle<TH2>& hist, SG::ReadHandle<TrigConf::HLTMenu>& hltMenuHandle, SG::ReadHandle<TrigConf::L1Menu>& l1MenuHandle) {
+StatusCode TrigSignatureMoni::initBunchHist(LockedHandle<TH2>& hist, SG::ReadHandle<TrigConf::HLTMenu>& hltMenuHandle, SG::ReadHandle<TrigConf::L1Menu>& l1MenuHandle) {
 
   bool gotL1Menu = l1MenuHandle.isValid() && l1MenuHandle->isInitialized();
 
@@ -602,11 +602,11 @@ StatusCode TrigSignatureMoniMT::initBunchHist(LockedHandle<TH2>& hist, SG::ReadH
   return StatusCode::SUCCESS;
 }
 
-TrigSignatureMoniMT::RateHistogram::~RateHistogram(){
+TrigSignatureMoni::RateHistogram::~RateHistogram(){
   delete m_bufferHistogram.get();
 }
 
-StatusCode TrigSignatureMoniMT::RateHistogram::init( const std::string& histoName, const std::string& histoTitle,
+StatusCode TrigSignatureMoni::RateHistogram::init( const std::string& histoName, const std::string& histoTitle,
   const int x, const int y, const std::string& registerPath, ServiceHandle<ITHistSvc> histSvc ){
   std::unique_ptr<TH2> h = std::make_unique<TH2F>(histoName.c_str(), histoTitle.c_str(), x, 1, x + 1, y, 1, y + 1);
   ATH_CHECK( histSvc->regShared( registerPath.c_str(), std::move(h), m_histogram));
@@ -618,29 +618,29 @@ StatusCode TrigSignatureMoniMT::RateHistogram::init( const std::string& histoNam
   return StatusCode::SUCCESS;
 }
 
-LockedHandle<TH2> & TrigSignatureMoniMT::RateHistogram::getHistogram() const {
+LockedHandle<TH2> & TrigSignatureMoni::RateHistogram::getHistogram() const {
   return m_histogram;
 }
 
-LockedHandle<TH2> & TrigSignatureMoniMT::RateHistogram::getBuffer() const {
+LockedHandle<TH2> & TrigSignatureMoni::RateHistogram::getBuffer() const {
   return m_bufferHistogram;
 }
 
-std::unique_ptr<Athena::AlgorithmTimer> & TrigSignatureMoniMT::RateHistogram::getTimer() {
+std::unique_ptr<Athena::AlgorithmTimer> & TrigSignatureMoni::RateHistogram::getTimer() {
   return m_timer;
 }
 
-void TrigSignatureMoniMT::RateHistogram::fill(const double x, const double y) const {
+void TrigSignatureMoni::RateHistogram::fill(const double x, const double y) const {
   m_bufferHistogram->Fill(x, y);
 }
 
-void TrigSignatureMoniMT::RateHistogram::startTimer(unsigned int duration, unsigned int intervals) {
+void TrigSignatureMoni::RateHistogram::startTimer(unsigned int duration, unsigned int intervals) {
   m_duration = duration;
   m_timeDivider = std::make_unique<TimeDivider>(intervals, duration, TimeDivider::seconds);
   m_timer = std::make_unique<Athena::AlgorithmTimer>(duration*50, boost::bind(&RateHistogram::callback, this), Athena::AlgorithmTimer::DELIVERYBYTHREAD);
 }
 
-void TrigSignatureMoniMT::RateHistogram::stopTimer() {
+void TrigSignatureMoni::RateHistogram::stopTimer() {
   if (m_timer) {
     m_timer.reset();
     time_t t = time(0);
@@ -651,14 +651,14 @@ void TrigSignatureMoniMT::RateHistogram::stopTimer() {
 
 }
 
-void TrigSignatureMoniMT::RateHistogram::updatePublished(unsigned int duration) const {
+void TrigSignatureMoni::RateHistogram::updatePublished(unsigned int duration) const {
   m_histogram->Reset("ICES");
   m_histogram->Add(m_bufferHistogram.get(), 1./duration);
   m_bufferHistogram->Reset("ICES");
 }
 
 
-void TrigSignatureMoniMT::RateHistogram::callback() const {
+void TrigSignatureMoni::RateHistogram::callback() const {
   // Ask time divider if we need to switch to new interval
   time_t t = time(0);
   unsigned int newinterval;
