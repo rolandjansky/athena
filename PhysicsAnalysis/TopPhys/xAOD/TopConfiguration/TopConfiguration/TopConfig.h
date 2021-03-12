@@ -162,6 +162,22 @@ namespace top {
       }
     }
 
+    // List of Nominal branches to be removed
+    inline std::vector<std::string> filterNominalBranches() const {return m_filterNominalBranches;}
+    inline void setFilterNominalBranches(const std::vector<std::string>& value) {
+      if (!m_configFixed) {
+        m_filterNominalBranches = value;
+      }
+    }
+
+    // Generators name
+    inline std::string getGenerators() const {return m_generators;}
+    inline void setGenerators(const std::string value) {
+      if (!m_configFixed) {
+        m_generators = value;
+      }
+    }
+
     // AMITag
     inline std::string getAMITag() const {return m_AMITag;}
     inline void setAMITag(const std::string& value) {
@@ -2089,7 +2105,8 @@ namespace top {
     bool m_isMC;
     bool m_isAFII;
     bool m_isDataOverlay;
-    std::vector<std::string> m_filterBranches, m_filterPartonLevelBranches, m_filterParticleLevelBranches, m_filterNominalLooseBranches;
+    std::vector<std::string> m_filterBranches, m_filterPartonLevelBranches, m_filterParticleLevelBranches, m_filterNominalLooseBranches, m_filterNominalBranches;
+    std::string m_generators;
     std::string m_AMITag;
     bool m_isPrimaryxAOD;
     bool m_isTruthDxAOD = false;

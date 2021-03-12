@@ -497,6 +497,7 @@ int main(int argc, char** argv) {
   bool recalculateNominalWeightSum = false;
   int dsid = topConfig->getDSID();
   int isAFII = topConfig->isAFII();
+  std::string generators = topConfig->getGenerators();
   std::string AMITag = topConfig->getAMITag();
   ULong64_t totalEvents = 0;
   ULong64_t totalEventsInFiles = 0;
@@ -504,6 +505,7 @@ int main(int argc, char** argv) {
   
   sumWeights->Branch("dsid", &dsid);
   sumWeights->Branch("isAFII", &isAFII);
+  sumWeights->Branch("generators", &generators);
   sumWeights->Branch("AMITag", &AMITag);
   sumWeights->Branch("totalEventsWeighted", &totalEventsWeighted);
   if (topConfig->doMCGeneratorWeights()) {// the main problem is that we don't have the list of names a priori
