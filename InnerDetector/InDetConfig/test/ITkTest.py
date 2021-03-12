@@ -68,15 +68,15 @@ def setupITkDetectorFlags(configFlags, detectors, args):
     configFlags.Detector.GeometryMM  = False #Not sure why this is there by default... does no harm though
     configFlags.Detector.GeometrysTGC  = False #Not sure why this is there by default... does no harm though
     if args.simulate:
-        configFlags.Detector.SimulateBpipe = True
+        configFlags.Detector.GeometryBpipe = True
     if not detectors or 'ITkStrip' in detectors or 'ITk' in detectors:
         configFlags.Detector.GeometryITkStrip = True
         if args.simulate:
-            configFlags.Detector.SimulateITkStrip = True
+            configFlags.Detector.EnableITkStrip = True
     if not detectors or 'ITkPixel' in detectors or 'ITk' in detectors:
         configFlags.Detector.GeometryITkPixel = True
         if args.simulate:
-            configFlags.Detector.SimulateITkPixel = True
+            configFlags.Detector.EnableITkPixel = True
 
 def ITkTestCfg(configFlags):
     acc = MainServicesCfg(configFlags)

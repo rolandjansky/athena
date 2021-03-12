@@ -22,35 +22,35 @@ def getATLAS_RegionCreatorList(ConfigFlags):
     if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.CavernBG != 'Signal':
         regionCreatorList += [SX1PhysicsRegionToolCfg(ConfigFlags), BedrockPhysicsRegionToolCfg(ConfigFlags), CavernShaftsConcretePhysicsRegionToolCfg(ConfigFlags)]
         #regionCreatorList += ['CavernShaftsAirPhysicsRegionTool'] # Not used currently
-    if ConfigFlags.Detector.SimulateID:
-        if ConfigFlags.Detector.SimulatePixel:
+    if ConfigFlags.Detector.GeometryID:
+        if ConfigFlags.Detector.GeometryPixel:
             regionCreatorList += [PixelPhysicsRegionToolCfg(ConfigFlags)]
-        if ConfigFlags.Detector.SimulateSCT:
+        if ConfigFlags.Detector.GeometrySCT:
             regionCreatorList += [SCTPhysicsRegionToolCfg(ConfigFlags)]
-        if ConfigFlags.Detector.SimulateTRT:
+        if ConfigFlags.Detector.GeometryTRT:
             regionCreatorList += [TRTPhysicsRegionToolCfg(ConfigFlags)]
             if isRUN2:
                 regionCreatorList += [TRT_ArPhysicsRegionToolCfg(ConfigFlags)] #'TRT_KrPhysicsRegionTool'
         # FIXME dislike the ordering here, but try to maintain the same ordering as in the old configuration.
-        if ConfigFlags.Detector.SimulateBpipe:
+        if ConfigFlags.Detector.GeometryBpipe:
             if ConfigFlags.Sim.BeamPipeSimMode != "Normal":
                 regionCreatorList += [BeampipeFwdCutPhysicsRegionToolCfg(ConfigFlags)]
             #if simFlags.ForwardDetectors.statusOn and simFlags.ForwardDetectors() == 2:
             if False:
                 regionCreatorList += [FWDBeamLinePhysicsRegionToolCfg(ConfigFlags)]
-    if ConfigFlags.Detector.SimulateITk:
-        if ConfigFlags.Detector.SimulateITkPixel:
+    if ConfigFlags.Detector.GeometryITk:
+        if ConfigFlags.Detector.GeometryITkPixel:
             regionCreatorList += [ITkPixelPhysicsRegionToolCfg(ConfigFlags)] #TODO: add dedicated config
-        if ConfigFlags.Detector.SimulateITkStrip:
+        if ConfigFlags.Detector.GeometryITkStrip:
             regionCreatorList += [ITkStripPhysicsRegionToolCfg(ConfigFlags)] #TODO: And here...
         # FIXME dislike the ordering here, but try to maintain the same ordering as in the old configuration.
-        if ConfigFlags.Detector.SimulateBpipe:
+        if ConfigFlags.Detector.GeometryBpipe:
             if ConfigFlags.Sim.BeamPipeSimMode != "Normal":
                 regionCreatorList += [BeampipeFwdCutPhysicsRegionToolCfg(ConfigFlags)]
             #if simFlags.ForwardDetectors.statusOn and simFlags.ForwardDetectors() == 2:
             if False:
                 regionCreatorList += [FWDBeamLinePhysicsRegionToolCfg(ConfigFlags)]
-    if ConfigFlags.Detector.SimulateCalo:
+    if ConfigFlags.Detector.GeometryCalo:
         if ConfigFlags.Detector.GeometryLAr:
             # Shower parameterization overrides the calibration hit flag
             if ConfigFlags.Sim.LArParameterization > 0 \
@@ -92,13 +92,13 @@ def getTB_RegionCreatorList(ConfigFlags):
 
     #TODO - migrate below>>
     #if (ConfigFlags.GeoModel.AtlasVersion=="tb_LArH6_2003"):
-    #    if (ConfigFlags.Detector.SimulateLAr):
+    #    if (ConfigFlags.Detector.GeometryLAr):
     #        regionCreatorList += [FCALPhysicsRegionTool(ConfigFlags)]
     #elif (ConfigFlags.GeoModel.AtlasVersion=="tb_LArH6_2002"):
-    #    if (ConfigFlags.Detector.SimulateLAr):
+    #    if (ConfigFlags.Detector.GeometryLAr):
     #        regionCreatorList += [HECPhysicsRegionTool(ConfigFlags)]
     #elif (ConfigFlags.GeoModel.AtlasVersion=="tb_LArH6EC_2002"):
-    #    if (ConfigFlags.Detector.SimulateLAr):
+    #    if (ConfigFlags.Detector.GeometryLAr):
     #        regionCreatorList += [EMECPhysicsRegionTool(ConfigFlags)]
     #elif (ConfigFlags.GeoModel.AtlasVersion=="tb_LArH6_2004"):
     #    if (simFlags.LArTB_H6Hec.get_Value()):
@@ -125,26 +125,26 @@ def ATLAS_FieldMgrListCfg(ConfigFlags):
         tool  = result.popToolsAndMerge(acc)
         fieldMgrList += [tool]
 
-    if ConfigFlags.Detector.SimulateBpipe:
+    if ConfigFlags.Detector.GeometryBpipe:
         acc = BeamPipeFieldManagerToolCfg(ConfigFlags)
         tool  = result.popToolsAndMerge(acc)
         fieldMgrList += [tool]
-    if ConfigFlags.Detector.SimulateID:
+    if ConfigFlags.Detector.GeometryID:
         acc = InDetFieldManagerToolCfg(ConfigFlags)
         tool  = result.popToolsAndMerge(acc)
         fieldMgrList += [tool]
-    #if ConfigFlags.Detector.SimulateCalo and simFlags.MuonFieldOnlyInCalo.statusOn and simFlags.MuonFieldOnlyInCalo():
+    #if ConfigFlags.Detector.GeometryCalo and simFlags.MuonFieldOnlyInCalo.statusOn and simFlags.MuonFieldOnlyInCalo():
     if False:
         acc = MuonsOnlyInCaloFieldManagerToolCfg(ConfigFlags)
         tool  = result.popToolsAndMerge(acc)
         fieldMgrList += [tool]
-    if ConfigFlags.Detector.SimulateMuon:
+    if ConfigFlags.Detector.GeometryMuon:
         acc = MuonFieldManagerToolCfg(ConfigFlags)
         tool  = result.popToolsAndMerge(acc)
         fieldMgrList += [tool]
 
     #sort these forward ones later
-    if ConfigFlags.Detector.SimulateForward: #needed?
+    if ConfigFlags.Detector.GeometryForward: #needed?
         if ConfigFlags.Detector.GeometryFwdRegion: #or forward?
           accQ1FwdRegionFieldManager = Q1FwdFieldManagerToolCfg(ConfigFlags)
           accQ2FwdRegionFieldManager = Q2FwdFieldManagerToolCfg(ConfigFlags)
@@ -285,10 +285,10 @@ def PhysicsListSvcCfg(ConfigFlags, name="PhysicsListSvc", **kwargs):
     PhysOptionList = [G4StepLimitationTool("G4StepLimitationTool")]
     #PhysOptionList += ConfigFlags.Sim.PhysicsOptions # FIXME Missing functionality
     PhysDecaysList = []
-    if ConfigFlags.Detector.SimulateTRT:
+    if ConfigFlags.Detector.GeometryTRT:
         TRTPhysicsTool = CompFactory.TRTPhysicsTool
         PhysOptionList +=[TRTPhysicsTool("TRTPhysicsTool")]
-    if ConfigFlags.Detector.SimulateLucid or ConfigFlags.Detector.SimulateAFP:
+    if ConfigFlags.Detector.GeometryLucid or ConfigFlags.Detector.GeometryAFP:
         LucidPhysicsTool = CompFactory.LucidPhysicsTool
         PhysOptionList +=[LucidPhysicsTool("LucidPhysicsTool")]
     kwargs.setdefault("PhysOption", PhysOptionList)

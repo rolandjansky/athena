@@ -84,12 +84,12 @@ def ParticlePositionFilterWorldCfg(ConfigFlags, name="ISF_ParticlePositionFilter
 def ParticlePositionFilterDynamicCfg(ConfigFlags, name="ISF_ParticlePositionFilterDynamic", **kwargs):
     # automatically choose the best fitting filter region
 
-    #if ConfigFlags.Detector.SimulateMuon:
+    #if ConfigFlags.Detector.EnableMuon:
     if True:
       return ParticlePositionFilterWorldCfg(ConfigFlags, name, **kwargs)
-    elif ConfigFlags.Detector.SimulateCalo:
+    elif ConfigFlags.Detector.EnableCalo:
       return ParticlePositionFilterCaloCfg(ConfigFlags, name, **kwargs)
-    elif ConfigFlags.Detector.SimulateID:
+    elif ConfigFlags.Detector.EnableID:
       return ParticlePositionFilterIDCfg(ConfigFlags, name, **kwargs)
     else:
       return ParticlePositionFilterWorldCfg(ConfigFlags, name, **kwargs)
@@ -111,7 +111,7 @@ def GenParticleInteractingFilterCfg(ConfigFlags, name="ISF_GenParticleInteractin
 def EtaPhiFilterCfg(ConfigFlags, name="ISF_EtaPhiFilter", **kwargs):
     result = ComponentAccumulator()
     # EtaPhiFilter
-    EtaRange = 7.0 if ConfigFlags.Detector.SimulateLucid else 6.0
+    EtaRange = 7.0 if ConfigFlags.Detector.EnableLucid else 6.0
     kwargs.setdefault("MinEta" , -EtaRange)
     kwargs.setdefault("MaxEta" , EtaRange)
     kwargs.setdefault("MaxApplicableRadius", 30*mm)

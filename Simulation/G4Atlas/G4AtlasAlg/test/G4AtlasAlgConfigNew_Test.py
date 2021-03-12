@@ -70,8 +70,9 @@ if __name__ == '__main__':
     from G4AtlasAlg.G4AtlasAlgConfigNew import G4AtlasAlgCfg
     cfg.merge(G4AtlasAlgCfg(ConfigFlags))
 
-    from TileGeoG4SD.TileGeoG4SDToolConfig import TileGeoG4SDCalcCfg
-    cfg.merge(TileGeoG4SDCalcCfg(ConfigFlags))
+    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+    from SimuJobTransforms.SimOutputConfig import getStreamHITS_ItemList
+    cfg.merge( OutputStreamCfg(ConfigFlags,"HITS", ItemList=getStreamHITS_ItemList(ConfigFlags), disableEventTag=True) )
 
     # FIXME hack to match to buggy behaviour in old style configuration
     OutputStreamHITS = cfg.getEventAlgo("OutputStreamHITS")

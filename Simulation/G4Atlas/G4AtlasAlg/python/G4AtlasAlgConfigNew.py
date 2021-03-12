@@ -117,48 +117,48 @@ def G4AtlasAlgOutputCfg(ConfigFlags):
     ItemList += ["xAOD::JetContainer#*",
                  "xAOD::JetAuxContainer#*"]
 
-    if ConfigFlags.Detector.SimulateID:
+    if ConfigFlags.Detector.EnableID:
         ItemList += ["SiHitCollection#*",
                      "TRTUncompressedHitCollection#*",
                      "TrackRecordCollection#CaloEntryLayer"]
 
-    if ConfigFlags.Detector.SimulateITk:
+    if ConfigFlags.Detector.EnableITk:
         ItemList += ["SiHitCollection#*",
                      "TrackRecordCollection#CaloEntryLayer"]
 
-    if ConfigFlags.Detector.SimulateCalo:
+    if ConfigFlags.Detector.EnableCalo:
         ItemList += ["CaloCalibrationHitContainer#*",
                      "LArHitContainer#*",
                      "TileHitVector#*",
                      "TrackRecordCollection#MuonEntryLayer"]
 
-    if ConfigFlags.Detector.SimulateMuon:
+    if ConfigFlags.Detector.EnableMuon:
         ItemList += ["RPCSimHitCollection#*",
                      "TGCSimHitCollection#*",
                      "MDTSimHitCollection#*",
                      "TrackRecordCollection#MuonExitLayer"]
-        if ConfigFlags.Detector.GeometryCSC:
+        if ConfigFlags.Detector.EnableCSC:
             ItemList += ["CSCSimHitCollection#*"]
-        if ConfigFlags.Detector.GeometrysTGC:
+        if ConfigFlags.Detector.EnablesTGC:
             ItemList += ["sTGCSimHitCollection#*"]
-        if ConfigFlags.Detector.GeometryMM:
+        if ConfigFlags.Detector.EnableMM:
             ItemList += ["MMSimHitCollection#*"]
 
-    if ConfigFlags.Detector.SimulateLucid:
+    if ConfigFlags.Detector.EnableLucid:
         ItemList += ["LUCID_SimHitCollection#*"]
 
-    if ConfigFlags.Detector.SimulateFwdRegion:
+    if ConfigFlags.Detector.EnableFwdRegion:
         ItemList += ["SimulationHitCollection#*"]
 
-    if ConfigFlags.Detector.SimulateZDC:
+    if ConfigFlags.Detector.EnableZDC:
         ItemList += ["ZDC_SimPixelHit_Collection#*",
                      "ZDC_SimStripHit_Collection#*"]
 
-    if ConfigFlags.Detector.SimulateALFA:
+    if ConfigFlags.Detector.EnableALFA:
         ItemList += ["ALFA_HitCollection#*",
                      "ALFA_ODHitCollection#*"]
 
-    if ConfigFlags.Detector.SimulateAFP:
+    if ConfigFlags.Detector.EnableAFP:
         ItemList += ["AFP_TDSimHitCollection#*",
                      "AFP_SIDSimHitCollection#*"]
 

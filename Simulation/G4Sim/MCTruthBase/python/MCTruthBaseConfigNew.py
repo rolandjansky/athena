@@ -38,9 +38,9 @@ def getEnvelopeMap(ConfigFlags):
                         elif simFlags.CosmicFilterVolumeName2 == "Pixel":
                             envelopeMap['Pixel::Pixel'] = 'PixelEntryLayer'"""
     if not ConfigFlags.Sim.ISFRun:
-        if ConfigFlags.Detector.SimulateID:
+        if ConfigFlags.Detector.GeometryID:
             envelopeMap['IDET::IDET'] = 'CaloEntryLayer'
-        if ConfigFlags.Detector.SimulateCalo:
+        if ConfigFlags.Detector.GeometryCalo:
             envelopeMap['CALO::CALO'] = 'MuonEntryLayer'
         if ConfigFlags.Detector.GeometryMuon: #was geometry in old style, should it be?
             envelopeMap['MUONQ02::MUONQ02'] = 'MuonExitLayer'

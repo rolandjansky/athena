@@ -289,7 +289,7 @@ def ForwardRegionEnvelopeCfg(ConfigFlags, name='ForwardRegion', **kwargs):
     kwargs.setdefault("DetectorName", "ForDetEnvelope")
     SubDetectorList=[]
 
-    if ConfigFlags.Detector.SimulateFwdRegion:
+    if ConfigFlags.Detector.GeometryFwdRegion: # I.e. fully simulate the FwdRegion rather than using BeamTransport to get to Forward Detectors
         toolFwdRegion = result.popToolsAndMerge(FwdRegionGeoDetectorToolCfg(ConfigFlags))
         SubDetectorList += [ toolFwdRegion ]
 
@@ -327,7 +327,7 @@ def MUONEnvelopeCfg(ConfigFlags, name="MUONQ02", **kwargs): #FIXME rename to MUO
     kwargs.setdefault("OuterRadii", [1500.,1500.,2750.,2750.,12650.,12650.,13400.,13400.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,13000.,13000.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,13400.,13400.,12650.,12650.,2750.,2750.,1500.,1500.]) #FIXME Units?
     kwargs.setdefault("ZSurfaces", [-26046.,-23001.,-23001.,-22030.,-22030.,-18650.,-18650.,-12900.,-12900.,-6783.,-6783.,-calolim,-calolim,-6550.,-6550.,-4000.,-4000.,4000.,4000.,6550.,6550.,calolim,calolim,6783.,6783.,12900.,12900.,18650.,18650.,22030.,22030.,23001.,23001.,26046.]) #FIXME Units?
     SubDetectorList=[]
-    if ConfigFlags.Detector.SimulateMuon:
+    if ConfigFlags.Detector.GeometryMuon:
         toolMuon = result.popToolsAndMerge(MuonGeoDetectorToolCfg(ConfigFlags))
         SubDetectorList += [ toolMuon ]
 
@@ -355,28 +355,28 @@ def generateSubDetectorList(ConfigFlags):
         if ConfigFlags.Beam.Type == 'cosmics' and ConfigFlags.Sim.ReadTR:
             SubDetectorList += [ CosmicShortCutCfg(ConfigFlags) ]
 
-    if ConfigFlags.Detector.SimulateMuon:
+    if ConfigFlags.Detector.GeometryMuon:
         accMuon = MUONEnvelopeCfg(ConfigFlags)
         toolMuon = accMuon.popPrivateTools()
         SubDetectorList += [ toolMuon ] #FIXME rename to MUON when safe
-    if ConfigFlags.Detector.SimulateID:
+    if ConfigFlags.Detector.GeometryID:
         toolIDET = result.popToolsAndMerge(IDETEnvelopeCfg(ConfigFlags))
         SubDetectorList += [ toolIDET ]
-    if ConfigFlags.Detector.SimulateITk:
+    if ConfigFlags.Detector.GeometryITk:
         toolITK = result.popToolsAndMerge(ITKEnvelopeCfg(ConfigFlags))
         SubDetectorList += [ toolITK ]
-    if ConfigFlags.Detector.SimulateCalo:
+    if ConfigFlags.Detector.GeometryCalo:
         toolCALO = result.popToolsAndMerge(CALOEnvelopeCfg(ConfigFlags))
         SubDetectorList += [ toolCALO ]
-    if ConfigFlags.Detector.SimulateMuon:
+    if ConfigFlags.Detector.GeometryMuon:
         result.merge(accMuon) #add the acc later to match the old style config
-    if ConfigFlags.Detector.SimulateBpipe:
+    if ConfigFlags.Detector.GeometryBpipe:
         toolBpipe = result.popToolsAndMerge(BeamPipeGeoDetectorToolCfg(ConfigFlags))
         SubDetectorList += [ toolBpipe ]
     if ConfigFlags.Detector.GeometryLucid:
         toolLucid = result.popToolsAndMerge(LucidGeoDetectorToolCfg(ConfigFlags))
         SubDetectorList += [ toolLucid ]
-    if ConfigFlags.Detector.SimulateForward:
+    if ConfigFlags.Detector.GeometryForward:
         toolForward = result.popToolsAndMerge(ForwardRegionEnvelopeCfg(ConfigFlags))
         SubDetectorList += [ toolForward ]
 
@@ -403,11 +403,11 @@ def ATLASEnvelopeCfg(ConfigFlags, name="Atlas", **kwargs):
     AtlasForwardOuterR = 2751.
     AtlasOuterR1 = 14201.
     AtlasOuterR2 = 14201.
-    if ConfigFlags.Beam.Type != 'cosmics' and not ConfigFlags.Detector.SimulateMuon and not \
+    if ConfigFlags.Beam.Type != 'cosmics' and not ConfigFlags.Detector.GeometryMuon and not \
        (ConfigFlags.Sim.CavernBG != 'Signal'):
         AtlasOuterR1 = 4251.
         AtlasOuterR2 = 4251.
-        if not ConfigFlags.Detector.SimulateCalo:
+        if not ConfigFlags.Detector.GeometryCalo:
             AtlasOuterR1 = 1150.
             AtlasOuterR2 = 1150.
 
@@ -434,7 +434,7 @@ def ATLASEnvelopeCfg(ConfigFlags, name="Atlas", **kwargs):
     ## ZSurfaces
     zSurfaces = [-26046., -23001., -23001., -22031., -22031., -12899., -12899., -6741., -6741.,  6741.,  6741.,  12899., 12899., 22031., 22031., 23001., 23001., 26046.] # FIXME units mm??
 
-    if ConfigFlags.Detector.SimulateForward:
+    if ConfigFlags.Detector.GeometryForward:
         zSurfaces[0]  = -400000.
         zSurfaces[17] =  400000.
 
