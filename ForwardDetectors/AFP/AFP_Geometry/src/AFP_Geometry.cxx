@@ -101,7 +101,7 @@ HepGeom::Transform3D AFP_Geometry::getStationElementTransform(const char* pszSta
 		else if(eElement==ESE_TOF)
             ReqTransform=HepGeom::Translate3D(xComponent, yComponent, 0.0)*HepGeom::Translate3D(-tdcfg.fXFloorDistance,tdcfg.fYPosInRPot,-(tdcfg.fZPosInRPot-sidcfg.fZDistanceInRPot));
 		else if(eElement==ESE_SID)
-            ReqTransform=HepGeom::Translate3D(xComponent, yComponent, 0.0)*HepGeom::Translate3D( (nPlateID>-1) ? -sidcfg.vecXStaggering[nPlateID] : 0.0,0.0,sidcfg.fZDistanceInRPot/*-sidcfg.fZDistanceInRPot*/);
+            ReqTransform=HepGeom::Translate3D(xComponent, yComponent, 0.0)*HepGeom::Translate3D( (nPlateID>-1) ? -sidcfg.vecXStaggering[nPlateID] : 0.0,0.0,sidcfg.fZDistanceInRPot);
         break;
     default:
         break;
@@ -249,12 +249,14 @@ StatusCode AFP_Geometry::getPointInSIDSensorGlobalCS(const int nStationID, const
 void AFP_Geometry::getPixelLocalPosition(const eAFPStation eStation, const int nPixelID, double* pfX1Pos, double* pfX2Pos)
 {
 	int i,j;
+    AFP_TDCONFIGURATION TofCfg=m_CfgParams.tdcfg[eStation];
+    const double signFactor = ( eStation==EAS_AFP02 || eStation==EAS_AFP03 ) ? -1 : 1;
 
 	i=getPixelRow(nPixelID)-1;
 	j=getPixelColumn(nPixelID)-1;
 
-	if(pfX1Pos) *pfX1Pos=-(0.0+i)*m_CfgParams.tdcfg[eStation].fPixelX1Dim;
-	if(pfX2Pos) *pfX2Pos=(0.0+j)*m_CfgParams.tdcfg[eStation].fPixelX2Dim;
+	if(pfX1Pos) *pfX1Pos = -i * m_CfgParams.tdcfg[eStation].fPixelX1Dim;
+	if(pfX2Pos) *pfX2Pos = signFactor * j * m_CfgParams.tdcfg[eStation].fPixelX2Dim;
 }
 
 void AFP_Geometry::setupLBarsDims(const eAFPStation eStation)
@@ -272,22 +274,20 @@ void AFP_Geometry::setupLBarsDims(const eAFPStation eStation)
 	if(RefBarDims.fLBarThickness>(TofCfg.fPixelX2Dim-AfpConstants.ToF_MinBarGap)) RefBarDims.fLBarThickness=TofCfg.fPixelX2Dim-AfpConstants.ToF_MinBarGap;
 
 	//calculate dimensions for bar (1,1), move from (refx1,refx2)
-	nRefTrainID=nTrainCnt-(RefBarDims.nBarX1ID-1); //reference train
-	fRadLength11=(RefBarDims.fRadLength+TofCfg.mapTrainInfo[nRefTrainID].fTaperOffset)+(1-RefBarDims.nBarX1ID)*TofCfg.fPixelX1Dim; // move to (refx1,1)
-	fRadLength11+=(TofCfg.mapTrainInfo[nRefTrainID].fPerpShiftInPixel-TofCfg.mapTrainInfo[nTrainOfBar11].fPerpShiftInPixel)+0.5*(TofCfg.mapTrainInfo[nTrainOfBar11].fLGuideWidth-TofCfg.mapTrainInfo[nRefTrainID].fLGuideWidth);
-	fRadLength11=fRadLength11-((1-RefBarDims.nBarX2ID)*TofCfg.fPixelX2Dim)/tan(TofCfg.fAlpha); //move to (1,1)
-	for(fLGuideLength11=RefBarDims.fLGuideLength,i=RefBarDims.nBarX1ID-1;i>=1;i--)
-	{
-		nTrainID=nTrainCnt-(i-1);
-		fLGuideLength11-=AfpConstants.ToF_LGuideTrainOffset+(TofCfg.mapTrainInfo[nTrainID].fLGuideWidth-TofCfg.mapTrainInfo[nTrainID].fTaperOffset);
+	nRefTrainID = nTrainCnt-(RefBarDims.nBarX1ID-1); //reference train
+	fRadLength11 = (RefBarDims.fRadLength+TofCfg.mapTrainInfo[nRefTrainID].fTaperOffset)+(1-RefBarDims.nBarX1ID)*TofCfg.fPixelX1Dim; // move to (refx1,1)
+	fRadLength11 += (TofCfg.mapTrainInfo[nRefTrainID].fPerpShiftInPixel-TofCfg.mapTrainInfo[nTrainOfBar11].fPerpShiftInPixel)+0.5*(TofCfg.mapTrainInfo[nTrainOfBar11].fLGuideWidth-TofCfg.mapTrainInfo[nRefTrainID].fLGuideWidth);
+	fRadLength11 -= ((1-RefBarDims.nBarX2ID)*TofCfg.fPixelX2Dim)/tan(TofCfg.fAlpha); //move to (1,1)
+	for(fLGuideLength11=RefBarDims.fLGuideLength,i=RefBarDims.nBarX1ID-1;i>=1;i--){
+		nTrainID = nTrainCnt-(i-1);
+		fLGuideLength11 -= AfpConstants.ToF_LGuideTrainOffset+(TofCfg.mapTrainInfo[nTrainID].fLGuideWidth-TofCfg.mapTrainInfo[nTrainID].fTaperOffset);
 	}
 
 	//calculate length of light guides
 	std::vector<double> vecLGLengths;
 	vecLGLengths.resize(TofCfg.nX1PixCnt);
 	vecLGLengths[0]=fLGuideLength11;
-	for(i=2;i<=TofCfg.nX1PixCnt;i++)
-	{
+	for(i=2;i<=TofCfg.nX1PixCnt;i++){
 		nTrainID=nTrainCnt-(i-1);
 		vecLGLengths[i-1]=vecLGLengths[i-2]+AfpConstants.ToF_LGuideTrainOffset+TofCfg.mapTrainInfo[nTrainID+1].fLGuideWidth-TofCfg.mapTrainInfo[nTrainID+1].fTaperOffset;
 		//if(TofCfg.mapTrainInfo[nTrainID+1].bUseTaper) vecLGLengths[i]=vecLGLengths[i-1]+RefBarDims.fRadYDim+LGUIDETRAINOFFSET-TofCfg.mapTrainInfo[nTrainID+1].fTaperOffset;
@@ -295,13 +295,16 @@ void AFP_Geometry::setupLBarsDims(const eAFPStation eStation)
 	}
 
 	m_CfgParams.tdcfg[eStation].mapBarDims.clear();
-	for(i=0;i<TofCfg.nX1PixCnt;i++)
-	{
-		nTrainID=4-i;
+	for(i=0;i<TofCfg.nX1PixCnt;i++){
+		nTrainID=TofCfg.nX1PixCnt-i;
 
-		for(j=0;j<TofCfg.nX2PixCnt;j++)
-		{
-			fRadLength=fRadLength11+i*TofCfg.fPixelX1Dim-j*TofCfg.fPixelX2Dim/tan(TofCfg.fAlpha);
+		for(j=0;j<TofCfg.nX2PixCnt;j++){
+            int k = j;
+            if(eStation==EAS_AFP02 || eStation==EAS_AFP03){
+                k = TofCfg.nX2PixCnt-1 - j;
+            }
+            
+			fRadLength=fRadLength11+i*TofCfg.fPixelX1Dim-k*TofCfg.fPixelX2Dim/tan(TofCfg.fAlpha);
 			fRadLength+=(TofCfg.mapTrainInfo[nTrainOfBar11].fPerpShiftInPixel-TofCfg.mapTrainInfo[nTrainID].fPerpShiftInPixel);
 			fRadLength+=0.5*(TofCfg.mapTrainInfo[nTrainID].fLGuideWidth-TofCfg.mapTrainInfo[nTrainOfBar11].fLGuideWidth);
 			fLGuideLength=vecLGLengths[i];
@@ -316,8 +319,7 @@ void AFP_Geometry::setupLBarsDims(const eAFPStation eStation)
 			BarDims.fLGuideWidth=TofCfg.mapTrainInfo[nTrainID].fLGuideWidth;
 
 			if(j==0) TofCfg.mapTrainInfo[nTrainCnt-i].fLength=fLGuideLength+0.5*BarDims.fRadYDim;
-			m_CfgParams.tdcfg[EAS_AFP00].mapBarDims[10*(i+1)+(j+1)]=BarDims;
-            m_CfgParams.tdcfg[EAS_AFP03].mapBarDims[10*(i+1)+(j+1)]=BarDims;
+			m_CfgParams.tdcfg[eStation].mapBarDims[10*(i+1)+(k + 1)]=BarDims;
 		}
 	}
 }

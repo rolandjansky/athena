@@ -103,14 +103,18 @@ void AFP_GeoModelFactory::addSepRadLBar(const char* pszStationName, const int nQ
 	eAFPStation eStation=m_pGeometry->parseStationName(pszStationName);
 	AFP_TDCONFIGURATION TofCfg=m_CfgParams.tdcfg[eStation];
 	AFPTOF_LBARDIMENSIONS BarDims=TofCfg.mapBarDims[nBarID];
+    const double signFactor = ( eStation==EAS_AFP02 || eStation==EAS_AFP03 ) ? -1 : 1;
 
 	double fTaperOffset=TofCfg.mapTrainInfo[BarDims.nTrainID].fTaperOffset;
 	m_pGeometry->getPixelLocalPosition(eStation,nBarID,&fX1Pos,&fX2Pos);
 
 	fX1Pos+=TofCfg.mapTrainInfo[BarDims.nTrainID].fPerpShiftInPixel;
 
+    
 	//Light guide
-	HepGeom::Transform3D TotTransform=TransInMotherVolume*HepGeom::Translate3D(fX1Pos,0.5*BarDims.fLGuideLength,fX2Pos);
+	HepGeom::Transform3D TotTransform=TransInMotherVolume*HepGeom::Translate3D( fX1Pos,
+                                                                                0.5*BarDims.fLGuideLength,
+                                                                                fX2Pos);
 	GeoShape* pSolVolume=new GeoBox(0.5*BarDims.fLGuideWidth,0.5*BarDims.fLGuideLength,0.5*BarDims.fLBarThickness);
 
 	if(TofCfg.mapTrainInfo[BarDims.nTrainID].bUseTaper)
@@ -142,7 +146,9 @@ void AFP_GeoModelFactory::addSepRadLBar(const char* pszStationName, const int nQ
 	//Radiator elbow
 	double fRadYDim=BarDims.fRadYDim;
 	double fElbowXDim=BarDims.fRadYDim;
-	TotTransform=TransInMotherVolume*HepGeom::Translate3D(fX1Pos-0.5*BarDims.fLGuideWidth+0.5*fElbowXDim+fTaperOffset,BarDims.fLGuideLength+0.5*fRadYDim,fX2Pos);
+	TotTransform=TransInMotherVolume*HepGeom::Translate3D(  fX1Pos-0.5*BarDims.fLGuideWidth+0.5*fElbowXDim+fTaperOffset,
+                                                            BarDims.fLGuideLength+0.5*fRadYDim,
+                                                            fX2Pos);
 	pSolVolume=new GeoBox(0.5*fElbowXDim,0.5*fRadYDim,0.5*BarDims.fLBarThickness);
 
 	falpha=45.0*CLHEP::deg;
@@ -170,17 +176,19 @@ void AFP_GeoModelFactory::addSepRadLBar(const char* pszStationName, const int nQ
 
 	//Radiator
 	double fRadLength=BarDims.fRadLength-(BarDims.fLGuideWidth-fTaperOffset);
-	TotTransform=TransInMotherVolume*HepGeom::Translate3D(fX1Pos-0.5*BarDims.fLGuideWidth+fElbowXDim+fTaperOffset+0.5*fRadLength,BarDims.fLGuideLength+0.5*fRadYDim,fX2Pos);
+	TotTransform=TransInMotherVolume*HepGeom::Translate3D(  fX1Pos-0.5*BarDims.fLGuideWidth+fElbowXDim+fTaperOffset+0.5*fRadLength,
+                                                            BarDims.fLGuideLength+0.5*fRadYDim,
+                                                            fX2Pos);
 	pSolVolume=new GeoBox(0.5*fRadLength,0.5*fRadYDim,0.5*BarDims.fLBarThickness);
-
-	if(TofCfg.bApplyBottomCut)
-	{
-		falpha=48.0*CLHEP::deg;
-		fd=BarDims.fLBarThickness/sin(falpha);
-		vecA1=-fd*cos(falpha)*CLHEP::Hep3Vector(1.0,0.0,0.0);
-		vecA2=+0.5*fd*sqrt(2.0)*(CLHEP::HepRotationY(-(45*CLHEP::deg-falpha))*CLHEP::Hep3Vector(1.0,0.0,0.0)).unit();
-		vecX=vecA1+vecA2;
-		vecCutShift=CLHEP::Hep3Vector(0.5*fRadLength,0.0,0.5*BarDims.fLBarThickness)+CLHEP::Hep3Vector(vecX);
+    
+	if(TofCfg.bApplyBottomCut){
+		falpha = TofCfg.fAlpha;
+		fd = BarDims.fLBarThickness/sin(falpha);
+		vecA1 = -fd*cos(falpha)*CLHEP::Hep3Vector(1.0,0.0,0.0);
+		vecA2 = 0.5*fd*sqrt(2.0)*(CLHEP::HepRotationY(-(45*CLHEP::deg-falpha))*CLHEP::Hep3Vector(1.0,0.0,0.0)).unit();
+		vecX = vecA1 + vecA2;
+		vecCutShift = CLHEP::Hep3Vector(0.5*fRadLength,0.0,0.5*BarDims.fLBarThickness) + CLHEP::Hep3Vector(vecX);
+        vecCutShift[2] *= signFactor;
 		Rot3.rotateY(falpha);
 
 		pSolAux=new GeoBox(0.5*fd,0.5*fRadYDim+SLIMCUT,0.5*fd);
