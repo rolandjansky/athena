@@ -62,11 +62,10 @@ def LArRawChannelBuilderAlgCfg(configFlags, **kwargs):
        kwargs.setdefault('minADCforIterInSigma',4)
        kwargs.setdefault('minADCforIter',15)
        kwargs.setdefault('defaultPhase',12)
-       kwargs.setdefault('OutputLevel',DEBUG)
        nominalPeakSample=2
-       from LArConditionsCommon.LArCool import larcool
-       if (larcool is not None):
-          nominalPeakSample = larcool.firstSample()
+       from LArConditionsCommon.LArRunFormat import getLArFormatForRun
+       larformat=getLArFormatForRun(configFlags.Input.RunNumber[0],connstring="COOLONL_LAR/"+configFlags.IOVDb.DatabaseInstance)
+       nominalPeakSample = larformat.firstSample()
        if (nominalPeakSample > 1) :
           kwargs.setdefault('DefaultShiftTimeSample',nominalPeakSample-2)
        else :
