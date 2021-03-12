@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #--------------------------------------------------------------
 # Powheg ZZ setup starting from ATLAS defaults
@@ -17,4 +17,4 @@ include("Pythia8_i/Pythia8_Powheg.py")
 #--------------------------------------------------------------
 evgenConfig.description = "POWHEG+Pythia8 ZZ production with A14 NNPDF2.3 tune"
 evgenConfig.keywords    = [ "SM", "diboson", "ZZ" ]
-evgenConfig.contact     = [ "simone.amoroso@cern.ch" ]
+evgenConfig.contact     = [ "james.robinson@cern.ch" ]

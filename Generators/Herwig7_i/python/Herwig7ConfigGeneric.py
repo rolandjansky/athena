@@ -3,7 +3,7 @@
 ## \file Herwig7ConfigGeneric.py
 ## \brief Python class for reproducing standalone runs inside of athena
 
-import Herwig7Control as hw7Control
+from . import Herwig7Control as hw7Control
 
 ## Configuration base class for %Herwig7
 class Hw7ConfigGeneric(object):

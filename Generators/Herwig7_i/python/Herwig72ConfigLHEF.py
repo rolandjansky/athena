@@ -6,9 +6,9 @@
 
 import os
 
-import Herwig7Config as hw7Config
-import Herwig7Control as hw7Control
-import Herwig7Utils as hw7Utils
+from . import Herwig7Config as hw7Config
+from . import Herwig7Control as hw7Control
+from . import Herwig7Utils as hw7Utils
 
 
 ## Configuration class for showering LHE files from MG5_aMC@NLO or PowhegBox
