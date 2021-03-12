@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MSSurfaces.h"
@@ -8,7 +8,7 @@
 #include "TrkSurfaces/CylinderSurface.h"
 
 MSSurfaces::MSSurfaces(){ 
-  Trk::Surface* empty =0;
+  Trk::Surface* empty =nullptr;
   SurfaceVec tmp(12,empty);
   m_vec = tmp;
   SurfaceStations sta(12);

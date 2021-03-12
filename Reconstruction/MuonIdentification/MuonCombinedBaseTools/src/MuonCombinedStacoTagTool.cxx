@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -44,11 +44,11 @@ namespace MuonCombined {
 	!muonCandidate.extrapolatedTrack()->perigeeParameters()->covariance() ) return;
 
     std::unique_ptr<const Trk::Perigee> bestPerigee;
-    const InDetCandidate*     bestCandidate = 0;
+    const InDetCandidate*     bestCandidate = nullptr;
     double              bestChi2=2e20;
 
     // loop over ID candidates
-    for( const auto idTP : indetCandidates ){
+    for( const auto *const idTP : indetCandidates ){
 
       //skip tracklets
       if(idTP->isSiliconAssociated()) continue;
