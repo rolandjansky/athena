@@ -1023,6 +1023,17 @@ namespace top {
       this->setFilterNominalLooseBranches(branches);
     }
 
+    // Get list of nominal branches to be filtered
+    if (settings->value("FilterNominalBranches") != " ") {
+      std::vector<std::string> branches;
+      tokenize(settings->value("FilterNominalBranches"), branches, ",");
+
+      if (branches.size() == 0) {
+        ATH_MSG_WARNING("You provided \"FilterNominalBranches\" option but you did not provide any meaningful values. Ignoring");
+      }
+      this->setFilterNominalBranches(branches);
+    }
+
     // Force recomputation of CP variables?
     if (settings->value("RecomputeCPVariables") == "False") m_recomputeCPvars = false;
 

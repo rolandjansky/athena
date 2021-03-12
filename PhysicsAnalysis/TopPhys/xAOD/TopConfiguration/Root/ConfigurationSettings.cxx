@@ -422,6 +422,9 @@ namespace top {
     registerParameter("FilterNominalLooseBranches",
                       "Comma separated list of names of the nominal_Loose tree branches that will be removed from the output",
                       " ");
+    registerParameter("FilterNominalBranches",
+                      "Comma separated list of names of the nominal tree branches that will be removed from the output. If not provided, the branches from FilterBraches will be used",
+                      " ");
     registerParameter("FilterTrees",
                       "Comma separated list of names of the trees that will be removed from the output", " ");
 
