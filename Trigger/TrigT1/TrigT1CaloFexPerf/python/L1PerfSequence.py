@@ -128,8 +128,8 @@ def setupRun3L1CaloPerfSequence(skipCTPEmulation = False,  useAlgSequence=True, 
         l1simAlgSeq +=  CfgMgr.LVL1__SCEmulation(OutputSuperCells = "SimpleSCellNoBCID", CaloNoiseTool=theNoiseTool, LumiBCIDTool=theBCIDTool)
         SCIn="SimpleSCellNoBCID"
         if(simflags.Calo.ApplyEmulatedPedestal() == True):
-            from TrigT1CaloFexSim.TrigT1CaloFexSimConfig import createSuperCellBCIDEmAlg
-            l1simAlgSeq += createSuperCellBCIDEmAlg(SCellContainerIn="SimpleSCellNoBCID",SCellContainerOut="SimpleSCell")
+            from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import SuperCellBCIDEmAlg
+            l1simAlgSeq += CfgMgr.SuperCellBCIDEmAlg(SCellContainerIn="SimpleSCellNoBCID",SCellContainerOut="SimpleSCell")
         SCIn="SimpleSCell"
     else:
         SCIn="SCell" # default
@@ -142,6 +142,7 @@ def setupRun3L1CaloPerfSequence(skipCTPEmulation = False,  useAlgSequence=True, 
     global ToolSvc
     ToolSvc += LVL1__JTowerMappingMaker(
         "JTowerMappingMaker",
+        TowerAreasFile = "Run3L1CaloSimulation/Noise/jTowerCorrection.20210308.r12406.root",
         MapTileCells = simflags.Calo.UseAllCalo())
     ToolSvc += LVL1__GTowerMappingMaker(
         "GTowerMappingMaker",
@@ -157,11 +158,12 @@ def setupRun3L1CaloPerfSequence(skipCTPEmulation = False,  useAlgSequence=True, 
         MaxSCETm = simflags.Calo.maxSCETm(),
         MinTowerET = simflags.Calo.minTowerET(),
         MappingMaker = ToolSvc.JTowerMappingMaker,
-        OutputTowers = "JTowers",
+        OutputTowers = "JTowersPerf",
     )
 
     l1simAlgSeq += LVL1__JGTowerNoiseAlg(
         "JTowerNoiseAlg",
+        NoiseFile = "Run3L1CaloSimulation/Noise/jTowergTowerNoise.20210304.r12406.root", 
         InputTowers = l1simAlgSeq.JTowerBuilder.OutputTowers,
         DoJFEX = True,
     )
@@ -176,26 +178,27 @@ def setupRun3L1CaloPerfSequence(skipCTPEmulation = False,  useAlgSequence=True, 
         MaxSCETm = simflags.Calo.maxSCETm(),
         MinTowerET = simflags.Calo.minTowerET(),
         MappingMaker = ToolSvc.GTowerMappingMaker,
-        OutputTowers = "GCaloTowers",
+        OutputTowers = "GCaloTowersPerf",
     )
 
     l1simAlgSeq += LVL1__JTowerRhoSubtractionAlg(
         "JTowerRhoSubtractionAlg",
         InputTowers = l1simAlgSeq.JTowerBuilder.OutputTowers,
-        OutputTowers = "JTowerRhoSubtracted",
+        OutputTowers = "JTowersRhoSubtractedPerf",
         MappingMaker = ToolSvc.JTowerMappingMaker,
-        OutputRho = "JFEXRho",
+        OutputRho = "JFEXRhoPerf",
     )
 
     l1simAlgSeq += LVL1__GTowersFromGCaloTowers(
         "GTowersFromGCaloTowers",
         InputTowers = l1simAlgSeq.GTowerBuilder.OutputTowers,
-        OutputTowers = "GTowers",
+        OutputTowers = "GTowersPerf",
         MappingMaker = ToolSvc.GTowerMappingMaker,
     )
 
     l1simAlgSeq += LVL1__JGTowerNoiseAlg(
         "GTowerNoiseAlg",
+        NoiseFile = "Run3L1CaloSimulation/Noise/jTowergTowerNoise.20210304.r12406.root",
         InputTowers = l1simAlgSeq.GTowersFromGCaloTowers.OutputTowers,
         DoJFEX = False,
     )
@@ -204,19 +207,19 @@ def setupRun3L1CaloPerfSequence(skipCTPEmulation = False,  useAlgSequence=True, 
         "GTowerRhoSubtractionAlg",
         InputTowers = l1simAlgSeq.GTowersFromGCaloTowers.OutputTowers,
         OutputTowers = "GTowerRhoSubtracted",
-        OutputRho = "GFEXRho",
+        OutputRho = "GFEXRhoPerf",
     )
 
     l1simAlgSeq += LVL1__GBlockBuilder(
         "gBlockBuilder",
         InputTowers = l1simAlgSeq.GTowersFromGCaloTowers.OutputTowers,
-        OutputBlocks = "GBlocks"
+        OutputBlocks = "GBlocksPerf"
     )
 
     l1simAlgSeq += LVL1__GBlockBuilder(
         "RhoSubtractedGBlockBuilder",
         InputTowers = l1simAlgSeq.GTowerRhoSubtractionAlg.OutputTowers,
-        OutputBlocks = "GBlocksRhoSubtracted"
+        OutputBlocks = "GBlocksRhoSubtractedPerf"
     )
 
     l1simAlgSeq += LVL1__METNoiseCutPerfFex(
@@ -230,7 +233,7 @@ def setupRun3L1CaloPerfSequence(skipCTPEmulation = False,  useAlgSequence=True, 
     l1simAlgSeq += LVL1__METNoiseCutPerfFex(
         "jNOISECUTFex",
         InputTowers = l1simAlgSeq.JTowerBuilder.OutputTowers,
-        OutputMET = "jNOISECUTPerf",
+        OutputMET = "jXENOISECUTPerf",
         InputTowerNoise = "noise",
         UseNegativeTowers = False,
     )
@@ -303,9 +306,7 @@ def setupRun3L1CaloPerfSequence(skipCTPEmulation = False,  useAlgSequence=True, 
     for alg in l1simAlgSeq:
         sequence += alg
     l1simAlgSeq.removeAll()
-    
-    from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-    stream = MSMgr.GetStream( "StreamAOD" )
+
     itemList = []
 
     # New JTowers and GTowers
@@ -346,9 +347,12 @@ def setupRun3L1CaloPerfSequence(skipCTPEmulation = False,  useAlgSequence=True, 
 
     itemList += ["xAOD::GBlockContainer#GBlocks", "xAOD::GBlockAuxContainer#GBlocksAux."]
 
+    if rec.doRDOTrigger():
+        from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
+        stream = MSMgr.GetStream( "StreamRDO" )
+        from OutputStreamAthenaPool.MultipleStreamManager import AugmentedPoolStream
+        if isinstance(stream,AugmentedPoolStream):
+            stream.AddItem(itemList)
+        else:
+            stream.ItemList += itemList
 
-    from OutputStreamAthenaPool.MultipleStreamManager import AugmentedPoolStream
-    if isinstance(stream,AugmentedPoolStream):
-        stream.AddItem(itemList)
-    else:
-        stream.ItemList += itemList

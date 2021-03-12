@@ -81,8 +81,12 @@ class Lvl1SimulationGetter (Configured):
         ## Run 3 L1Calo
         if TriggerFlags.doLVL1PhaseI():
             log.info("setting up the Run 3 L1 calo simulation")
-            from TrigT1CaloFexSim.L1SimulationControlFlags import L1Phase1SimFlags as simflags
-            simflags.Calo.SCellType = "Emulated" # as we have no SuperCells yet
+            from TrigT1CaloFexPerf.L1PerfControlFlags import L1Phase1PerfFlags as simflags
+            from TrigT1CaloFexSim.L1SimulationControlFlags import L1Phase1SimFlags as simflags_old
+            simflags.Calo.SCellType = "Emulated"
+            simflags_old.Calo.SCellType = "PreEmulated" # as we have no SuperCells yet
+            from TrigT1CaloFexPerf.L1PerfSequence import setupRun3L1CaloPerfSequence
+            setupRun3L1CaloPerfSequence(skipCTPEmulation=True, useAlgSequence=False)
             from TrigT1CaloFexSim.L1SimulationSequence import setupRun3L1CaloSimulationSequence
             setupRun3L1CaloSimulationSequence(skipCTPEmulation=True)
 
