@@ -47,9 +47,7 @@ default_false_flags = [
     "fakeLVL1", # create fake RoI from KINE info  """
     "useL1CaloCalibration", # Should be false for early data, true for later """
     "useRun1CaloEnergyScale",
-    "doCosmicSim", # run the LVL1 simulation with special setup for cosmic simulation (set to FALSE by default, to do collisions simulation) """
     "doTruth",
-    "doFTK",  # if False, disable FTK result reader """
     "doTriggerConfigOnly",  # if True only the configuration services should be set, no algorithm """
     "doTransientByteStream",  # Write transient ByteStream before executing HLT algorithms.
                               # To be used for running on MC RDO with clients which require BS inputs.
@@ -847,17 +845,6 @@ _flags.append(HLTPrescaleSet)
 class Trigger(JobPropertyContainer):
     """ Trigger top flags """
       
-    def Slices_LVL2_setOn(self):
-        """ Runs setL2 flags in all slices. Effectivelly enable LVL2. """
-        for prop in self.__dict__.values():
-            if issubclass( prop.__class__, JobPropertyContainer ) and "signatures" in prop.__dict__.keys():
-                prop.setL2()
-
-    def Slices_EF_setOn(self):
-        """ Runs setEF flags in all slices. Effectivelly enable EF. """
-        for prop in self.__dict__.values():
-            if issubclass( prop.__class__, JobPropertyContainer ) and "signatures" in prop.__dict__.keys():
-                prop.setEF()
 
     def Slices_all_setOn(self):
         """ Runs setL2 and setEF in all slices. Effectivelly enable trigger. """
@@ -865,18 +852,6 @@ class Trigger(JobPropertyContainer):
             if issubclass( prop.__class__, JobPropertyContainer ) and "signatures" in prop.__dict__.keys():
                 prop.setAll()
 
-    def Slices_LVL2_setOff(self):
-        """ Runs unsetL2 flags in all slices.  Effectivelly disable LVL2. """
-        for prop in self.__dict__.values():
-            if issubclass( prop.__class__, JobPropertyContainer ) and "signatures" in prop.__dict__.keys():
-                prop.unsetL2()
-
-
-    def Slices_EF_setOff(self):
-        """ Runs unsetEF flags in all slices.  Effectivelly disable EF. """
-        for prop in self.__dict__.values():
-            if issubclass( prop.__class__, JobPropertyContainer ) and "signatures" in prop.__dict__.keys():
-                prop.unsetEF()
 
     def Slices_all_setOff(self):
         """ Runs unsetAll in all slices. Effectivelly disable trigger. """
@@ -898,15 +873,12 @@ del _flags
 TriggerFlags = rec.Trigger
 
 
-
-
 ## add online specific flags
-from TriggerJobOpts.TriggerOnlineFlags      import OnlineFlags   # noqa: F401
+import TriggerJobOpts.TriggerOnlineFlags    # noqa: F401
 
 ## add slices generation flags
-log.info("TriggerFlags importing SliceFlagsMT"  )
-from TriggerJobOpts.SliceFlagsMT import *                           # noqa: F401, F403
-from TriggerJobOpts.Tier0TriggerFlags import Tier0TriggerFlags      # noqa: F401
+log.info("TriggerFlags importing SliceFlags"  )
+from TriggerJobOpts.SliceFlags import *                             # noqa: F401, F403
 
 
 def sync_Trigger2Reco():

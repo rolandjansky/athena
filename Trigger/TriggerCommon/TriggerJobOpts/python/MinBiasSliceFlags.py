@@ -6,8 +6,6 @@ from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from TriggerJobOpts.CommonSignatureHelper import CommonSignatureHelper
 
 
-__doc__="Minimum Bias slice specific flags  "
-
 #
 # This file should not be modified without consulting 
 # the Minimum Bias trigger slice coordinator.
@@ -24,12 +22,8 @@ class signatures(JobProperty):
     """ signatures in MinBias slice """
     statusOn=True
     allowedTypes=['list']
+    StoredValue   = []
 
-    StoredValue   = [
-        ]
-
-
-    
     
 _flags.append(signatures)
 
@@ -40,12 +34,5 @@ class MinBiasSlice(JobPropertyContainer, CommonSignatureHelper):
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 TriggerFlags.add_Container(MinBiasSlice)
 
-# add add common slice flags
-#TriggerFlags.MinBiasSlice.import_JobProperties('TriggerJobOpts.CommonSignatureFlags')
-
 for flag in _flags:
     TriggerFlags.MinBiasSlice.add_JobProperty(flag)
-del _flags
-
-# make an alias
-MinBiasSliceFlags = TriggerFlags.MinBiasSlice
