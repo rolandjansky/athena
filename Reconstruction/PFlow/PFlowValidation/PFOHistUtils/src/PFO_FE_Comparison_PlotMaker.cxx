@@ -252,7 +252,7 @@ namespace PFO {
       float Ratio_PFO_FE_moment_AVG_LAR_Q = -1.0;
       if(FE_moment_AVG_LAR_Q){
 	Ratio_PFO_FE_moment_AVG_LAR_Q=pfo_moment_AVG_LAR_Q/FE_moment_AVG_LAR_Q;
-	ATH_MSG_INFO("AVG_LAR_Q: (PFO) "<<pfo_moment_AVG_LAR_Q<<" (FE) "<<FE_moment_AVG_LAR_Q);
+	ATH_MSG_DEBUG("AVG_LAR_Q: (PFO) "<<pfo_moment_AVG_LAR_Q<<" (FE) "<<FE_moment_AVG_LAR_Q);
       }
       float Ratio_PFO_FE_moment_AVG_TILE_Q = -1.0; 
       if(FE_moment_AVG_TILE_Q){
