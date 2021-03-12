@@ -409,7 +409,7 @@ if __name__ == '__main__':
 
     acc.merge(Lvl1SimulationMCCfg(flags))
     from AthenaCommon.Constants import DEBUG
-    acc.getEventAlgo("CTPSimulation").OutputLevel=DEBUG
+    acc.getEventAlgo("CTPSimulation").OutputLevel=DEBUG  # noqa: ATL900
 
     acc.printConfig(withDetails=True, summariseProps=True, printDefaults=True)
     with open("L1Sim.pkl", "wb") as p:
