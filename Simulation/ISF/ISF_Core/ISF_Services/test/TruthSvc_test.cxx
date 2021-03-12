@@ -281,13 +281,14 @@ namespace ISFTesting {
     HepMC::GenVertexPtr  generated = createGenVertexFromTruthIncident(ti);
 
     ASSERT_EQ( vtxPosition, generated->position() );
-    ASSERT_EQ( 1021, generated->id() );
     ASSERT_EQ( -200001, HepMC::barcode(generated) );
 #ifdef HEPMC3
+    ASSERT_EQ( 1021, generated->status() );
     ASSERT_EQ( 1, generated->particles_in().size());
     ASSERT_EQ( 0, generated->particles_out().size());
     ASSERT_EQ( inParticle3, *(generated->particles_in().cbegin()));
 #else
+    ASSERT_EQ( 1021, generated->id() );
     ASSERT_EQ( 1, generated->particles_in_size());
     ASSERT_EQ( 0, generated->particles_out_size());
     ASSERT_EQ( inParticle3, *(generated->particles_in_const_begin()));
@@ -344,13 +345,14 @@ namespace ISFTesting {
     recordIncidentToMCTruth(ti);
     HepMC::GenVertexPtr  generated = HepMC::barcode_to_vertex(anEvent.get(),-200001); //Find a nicer way to get this.
     ASSERT_EQ( vtxPosition, generated->position() );
-    ASSERT_EQ( 1021, generated->id() );
     ASSERT_EQ( -200001, HepMC::barcode(generated) ); // by construction at the moment
 #ifdef HEPMC3
+    ASSERT_EQ( 1021, generated->status() );
     ASSERT_EQ( 1, generated->particles_in().size());
     ASSERT_EQ( 0, generated->particles_out().size());
     ASSERT_EQ( inParticle3, *(generated->particles_in().cbegin()));
 #else
+    ASSERT_EQ( 1021, generated->id() );
     ASSERT_EQ( 1, generated->particles_in_size());
     ASSERT_EQ( 0, generated->particles_out_size());
     ASSERT_EQ( inParticle3, *(generated->particles_in_const_begin()));
@@ -450,13 +452,14 @@ namespace ISFTesting {
     registerTruthIncident(ti);
     HepMC::GenVertexPtr  generated = HepMC::barcode_to_vertex(anEvent.get(),-200001); //Find a nicer way to get this.
     ASSERT_EQ( vtxPosition, generated->position() );
-    ASSERT_EQ( 1021, generated->id() );
     ASSERT_EQ( -200001, HepMC::barcode(generated) ); // by construction at the moment
 #ifdef HEPMC3
+    ASSERT_EQ( 1021, generated->status() );
     ASSERT_EQ( 1, generated->particles_in().size());
     ASSERT_EQ( 0, generated->particles_out().size());
     ASSERT_EQ( inParticle3, *(generated->particles_in().cbegin()));
 #else
+    ASSERT_EQ( 1021, generated->id() );
     ASSERT_EQ( 1, generated->particles_in_size());
     ASSERT_EQ( 0, generated->particles_out_size());
     ASSERT_EQ( inParticle3, *(generated->particles_in_const_begin()));
@@ -528,13 +531,14 @@ namespace ISFTesting {
     registerTruthIncident(ti);
     HepMC::GenVertexPtr  generated = HepMC::barcode_to_vertex(anEvent.get(),-200001); //Find a nicer way to get this.
     ASSERT_EQ( vtxPosition, generated->position() );
-    ASSERT_EQ( 1021, generated->id() );
     ASSERT_EQ( -200001, HepMC::barcode(generated) ); // by construction at the moment
 #ifdef HEPMC3
+    ASSERT_EQ( 1021, generated->status() );
     ASSERT_EQ( 1, generated->particles_in().size());
     ASSERT_EQ( 0, generated->particles_out().size());
     ASSERT_EQ( inParticle3, *(generated->particles_in().cbegin()));
 #else
+    ASSERT_EQ( 1021, generated->id() );
     ASSERT_EQ( 1, generated->particles_in_size());
     ASSERT_EQ( 0, generated->particles_out_size());
     ASSERT_EQ( inParticle3, *(generated->particles_in_const_begin()));
@@ -609,14 +613,15 @@ namespace ISFTesting {
     registerTruthIncident(ti);
     HepMC::GenVertexPtr  generated = HepMC::barcode_to_vertex(anEvent.get(),-200001); //Find a nicer way to get this.
     ASSERT_EQ( vtxPosition, generated->position() );
-    ASSERT_EQ( 1021, generated->id() );
     ASSERT_EQ( -200001, HepMC::barcode(generated) ); // by construction at the moment
 #ifdef HEPMC3
+    ASSERT_EQ( 1021, generated->status() );
     ASSERT_EQ( 1, generated->particles_in().size());
     ASSERT_EQ( inParticle3, *(generated->particles_in().cbegin()));
     ASSERT_EQ( 1, generated->particles_out().size());
     ASSERT_EQ( inParticle5, *(generated->particles_out().cbegin()));
 #else
+    ASSERT_EQ( 1021, generated->id() );
     ASSERT_EQ( 1, generated->particles_in_size());
     ASSERT_EQ( inParticle3, *(generated->particles_in_const_begin()));
     ASSERT_EQ( 1, generated->particles_out_size());
@@ -638,6 +643,8 @@ namespace ISFTesting {
 } // <-- namespace ISFTesting
 
 int main(int argc, char *argv[]) {
+  setlinebuf(stdout);
+  setlinebuf(stderr);
   ::testing::InitGoogleTest( &argc, argv );
 
   // gets stuck forever while trying to finalize boost stuff inside SGTools:

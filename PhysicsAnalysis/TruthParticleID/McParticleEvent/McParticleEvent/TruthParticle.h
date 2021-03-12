@@ -101,13 +101,6 @@ class TruthParticle : public ParticleImpl<
   // Const methods: 
   ///////////////////////////////////////////////////////////////////
 
-//   /** @{ INavigable interface implementation
-//    */
-//   void fillToken( INavigationToken & thisToken ) const;
-//   void fillToken( INavigationToken & thisToken, const boost::any& ) const;
-//   /** @}
-//    */
-
   /// Retrieve the GenParticle mother of this TruthParticle
   HepMC::ConstGenParticlePtr genMother(const std::size_t i=0) const;
 
