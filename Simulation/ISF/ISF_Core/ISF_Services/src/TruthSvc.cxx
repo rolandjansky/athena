@@ -298,11 +298,11 @@ void ISF::TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) const {
       // 2) A new GenVertex for the intermediate interaction should be
       // added.
 #ifdef HEPMC3
-      auto newVtx = HepMC::newGenVertexPtr( vtx->position(), vtx->id());
+      auto newVtx = HepMC::newGenVertexPtr( vtx->position(), vtx->status());
       HepMC::GenEvent *mcEvent = parentBeforeIncident->parent_event();
-      HepMC::suggest_barcode(newVtx, this->maxGeneratedVertexBarcode(mcEvent)-1 );
       auto tmpVtx = newVtx;
       mcEvent->add_vertex( newVtx);
+      HepMC::suggest_barcode(newVtx, this->maxGeneratedVertexBarcode(mcEvent)-1 );
       auto vtx_weights=vtx->attribute<HepMC3::VectorDoubleAttribute>("weights");
       if (vtx_weights) newVtx->add_attribute("weights",std::make_shared<HepMC3::VectorDoubleAttribute>(vtx_weights->value()));
 #else
