@@ -92,7 +92,7 @@ from TrigConfigSvc.TrigConfigSvcCfg import createL1PrescalesFileFromMenu
 createL1PrescalesFileFromMenu(flags)
 
 
-acc.getEventAlgo("TrigSignatureMoniMT").OutputLevel = INFO
+acc.getEventAlgo("TrigSignatureMoni").OutputLevel = INFO
 acc.getEventAlgo("L1Decoder").ctpUnpacker.UseTBPBits = True # test setup
 
 

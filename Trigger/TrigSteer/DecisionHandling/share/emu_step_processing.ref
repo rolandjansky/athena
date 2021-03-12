@@ -108,66 +108,66 @@ TriggerSummaryStep3                                    3     0   DEBUG  +++ HLT_
 TriggerSummaryStep4                                    3     0   DEBUG In summary 2 chains passed:
 TriggerSummaryStep4                                    3     0   DEBUG  +++ HLT_TestChain20_muv1_L1MU10 ID#356594709
 TriggerSummaryStep4                                    3     0   DEBUG  +++ HLT_TestChain8_muv1_L1MU10 ID#2288364952
-TrigSignatureMoniMT                                               INFO HLT_2TestChain4_muv1dr_L12MU6 #3176095517
-TrigSignatureMoniMT                                               INFO -- #3176095517 Events         0          0          0          0          -          -          0          
-TrigSignatureMoniMT                                               INFO -- #3176095517 Features                             0          0          -          -          
-TrigSignatureMoniMT                                               INFO HLT_2TestChain6_muEmpty1_L12MU6 #2176116418
-TrigSignatureMoniMT                                               INFO -- #2176116418 Events         1          1          -          1          -          -          1          
-TrigSignatureMoniMT                                               INFO -- #2176116418 Features                             -          3          -          -          
-TrigSignatureMoniMT                                               INFO HLT_2TestChain6_muv1_L12MU6 #1408409992
-TrigSignatureMoniMT                                               INFO -- #1408409992 Events         2          2          1          1          -          -          1          
-TrigSignatureMoniMT                                               INFO -- #1408409992 Features                             3          3          -          -          
-TrigSignatureMoniMT                                               INFO HLT_3TestChain6_muv1_L12MU6 #2217088100
-TrigSignatureMoniMT                                               INFO -- #2217088100 Events         0          0          0          0          -          -          0          
-TrigSignatureMoniMT                                               INFO -- #2217088100 Features                             0          0          -          -          
-TrigSignatureMoniMT                                               INFO HLT_TestChain10_muEmpty1_TestChain6_muEmpty1_L12MU6 #2764921170
-TrigSignatureMoniMT                                               INFO -- #2764921170 Events         1          1          -          1          -          -          1          
-TrigSignatureMoniMT                                               INFO -- #2764921170 Features                             -          4          -          -          
-TrigSignatureMoniMT                                               INFO HLT_TestChain10_muv2_L1MU10 #3482819675
-TrigSignatureMoniMT                                               INFO -- #3482819675 Events         2          2          1          0          0          -          0          
-TrigSignatureMoniMT                                               INFO -- #3482819675 Features                             1          0          0          -          
-TrigSignatureMoniMT                                               INFO HLT_TestChain20_muv1_L1MU10 #356594709
-TrigSignatureMoniMT                                               INFO -- #356594709 Events          1          1          1          1          1          1          1          
-TrigSignatureMoniMT                                               INFO -- #356594709 Features                              1          1          1          1          
-TrigSignatureMoniMT                                               INFO HLT_TestChain5_ev1_L1EM3 #1756953305
-TrigSignatureMoniMT                                               INFO -- #1756953305 Events         3          3          2          2          2          -          2          
-TrigSignatureMoniMT                                               INFO -- #1756953305 Features                             4          4          4          -          
-TrigSignatureMoniMT                                               INFO HLT_TestChain5_ev1_TestChain8_ev1_2TestChain6_muv1_L1EM3_L1EM5_L12MU6 #1820214917
-TrigSignatureMoniMT                                               INFO -- #1820214917 Events         1          1          1          1          -          -          1          
-TrigSignatureMoniMT                                               INFO -- #1820214917 Features                             7          7          -          -          
-TrigSignatureMoniMT                                               INFO HLT_TestChain5_ev1_TestChain8_ev1_L12EM3 #2709794009
-TrigSignatureMoniMT                                               INFO -- #2709794009 Events         1          1          1          1          -          -          1          
-TrigSignatureMoniMT                                               INFO -- #2709794009 Features                             4          4          -          -          
-TrigSignatureMoniMT                                               INFO HLT_TestChain5_ev2_L1EM7 #1760405581
-TrigSignatureMoniMT                                               INFO -- #1760405581 Events         0          0          0          0          -          -          0          
-TrigSignatureMoniMT                                               INFO -- #1760405581 Features                             0          0          -          -          
-TrigSignatureMoniMT                                               INFO HLT_TestChain5_ev3_L1EM7 #2336588294
-TrigSignatureMoniMT                                               INFO -- #2336588294 Events         1          1          1          1          -          -          1          
-TrigSignatureMoniMT                                               INFO -- #2336588294 Features                             2          2          -          -          
-TrigSignatureMoniMT                                               INFO HLT_TestChain5_gv1_L1EM7 #3893303900
-TrigSignatureMoniMT                                               INFO -- #3893303900 Events         1          1          1          -          -          -          1          
-TrigSignatureMoniMT                                               INFO -- #3893303900 Features                             2          -          -          -          
-TrigSignatureMoniMT                                               INFO HLT_TestChain6_muEmpty2_L1MU6 #2511524900
-TrigSignatureMoniMT                                               INFO -- #2511524900 Events         1          1          1          -          1          1          1          
-TrigSignatureMoniMT                                               INFO -- #2511524900 Features                             3          -          3          3          
-TrigSignatureMoniMT                                               INFO HLT_TestChain6_muv1_TestChain10_ev1_L1MU6_EM5 #64374772
-TrigSignatureMoniMT                                               INFO -- #64374772 Events           2          2          2          1          -          1          1          
-TrigSignatureMoniMT                                               INFO -- #64374772 Features                               4          2          -          5          
-TrigSignatureMoniMT                                               INFO HLT_TestChain6_muv1_TestChain10_muv1_L12MU6 #3196402061
-TrigSignatureMoniMT                                               INFO -- #3196402061 Events         2          2          1          0          -          -          0          
-TrigSignatureMoniMT                                               INFO -- #3196402061 Features                             4          3          -          -          
-TrigSignatureMoniMT                                               INFO HLT_TestChain6_muv1_TestChain5_ev1dr_L12MU6 #3205587050
-TrigSignatureMoniMT                                               INFO -- #3205587050 Events         0          0          0          0          -          -          0          
-TrigSignatureMoniMT                                               INFO -- #3205587050 Features                             0          0          -          -          
-TrigSignatureMoniMT                                               INFO HLT_TestChain6_muv2_TestChain8_ev2_L1MU6_EM5 #3476793373
-TrigSignatureMoniMT                                               INFO -- #3476793373 Events         2          2          2          2          -          -          2          
-TrigSignatureMoniMT                                               INFO -- #3476793373 Features                             7          7          -          -          
-TrigSignatureMoniMT                                               INFO HLT_TestChain8_ev1_L1EM5 #1677577445
-TrigSignatureMoniMT                                               INFO -- #1677577445 Events         4          4          3          3          3          -          3          
-TrigSignatureMoniMT                                               INFO -- #1677577445 Features                             4          4          4          -          
-TrigSignatureMoniMT                                               INFO HLT_TestChain8_muv1_L1MU10 #2288364952
-TrigSignatureMoniMT                                               INFO -- #2288364952 Events         2          2          2          1          1          1          1          
-TrigSignatureMoniMT                                               INFO -- #2288364952 Features                             2          1          1          1          
-TrigSignatureMoniMT                                               INFO HLT_TestChain8_muv1step_L1MU6 #3588359947
-TrigSignatureMoniMT                                               INFO -- #3588359947 Events         2          2          2          -          -          -          2          
-TrigSignatureMoniMT                                               INFO -- #3588359947 Features                             3          -          -          -          
+TrigSignatureMoni                                                 INFO HLT_2TestChain4_muv1dr_L12MU6 #3176095517
+TrigSignatureMoni                                                 INFO -- #3176095517 Events         0          0          0          0          -          -          0          
+TrigSignatureMoni                                                 INFO -- #3176095517 Features                             0          0          -          -          
+TrigSignatureMoni                                                 INFO HLT_2TestChain6_muEmpty1_L12MU6 #2176116418
+TrigSignatureMoni                                                 INFO -- #2176116418 Events         1          1          -          1          -          -          1          
+TrigSignatureMoni                                                 INFO -- #2176116418 Features                             -          3          -          -          
+TrigSignatureMoni                                                 INFO HLT_2TestChain6_muv1_L12MU6 #1408409992
+TrigSignatureMoni                                                 INFO -- #1408409992 Events         2          2          1          1          -          -          1          
+TrigSignatureMoni                                                 INFO -- #1408409992 Features                             3          3          -          -          
+TrigSignatureMoni                                                 INFO HLT_3TestChain6_muv1_L12MU6 #2217088100
+TrigSignatureMoni                                                 INFO -- #2217088100 Events         0          0          0          0          -          -          0          
+TrigSignatureMoni                                                 INFO -- #2217088100 Features                             0          0          -          -          
+TrigSignatureMoni                                                 INFO HLT_TestChain10_muEmpty1_TestChain6_muEmpty1_L12MU6 #2764921170
+TrigSignatureMoni                                                 INFO -- #2764921170 Events         1          1          -          1          -          -          1          
+TrigSignatureMoni                                                 INFO -- #2764921170 Features                             -          4          -          -          
+TrigSignatureMoni                                                 INFO HLT_TestChain10_muv2_L1MU10 #3482819675
+TrigSignatureMoni                                                 INFO -- #3482819675 Events         2          2          1          0          0          -          0          
+TrigSignatureMoni                                                 INFO -- #3482819675 Features                             1          0          0          -          
+TrigSignatureMoni                                                 INFO HLT_TestChain20_muv1_L1MU10 #356594709
+TrigSignatureMoni                                                 INFO -- #356594709 Events          1          1          1          1          1          1          1          
+TrigSignatureMoni                                                 INFO -- #356594709 Features                              1          1          1          1          
+TrigSignatureMoni                                                 INFO HLT_TestChain5_ev1_L1EM3 #1756953305
+TrigSignatureMoni                                                 INFO -- #1756953305 Events         3          3          2          2          2          -          2          
+TrigSignatureMoni                                                 INFO -- #1756953305 Features                             4          4          4          -          
+TrigSignatureMoni                                                 INFO HLT_TestChain5_ev1_TestChain8_ev1_2TestChain6_muv1_L1EM3_L1EM5_L12MU6 #1820214917
+TrigSignatureMoni                                                 INFO -- #1820214917 Events         1          1          1          1          -          -          1          
+TrigSignatureMoni                                                 INFO -- #1820214917 Features                             7          7          -          -          
+TrigSignatureMoni                                                 INFO HLT_TestChain5_ev1_TestChain8_ev1_L12EM3 #2709794009
+TrigSignatureMoni                                                 INFO -- #2709794009 Events         1          1          1          1          -          -          1          
+TrigSignatureMoni                                                 INFO -- #2709794009 Features                             4          4          -          -          
+TrigSignatureMoni                                                 INFO HLT_TestChain5_ev2_L1EM7 #1760405581
+TrigSignatureMoni                                                 INFO -- #1760405581 Events         0          0          0          0          -          -          0          
+TrigSignatureMoni                                                 INFO -- #1760405581 Features                             0          0          -          -          
+TrigSignatureMoni                                                 INFO HLT_TestChain5_ev3_L1EM7 #2336588294
+TrigSignatureMoni                                                 INFO -- #2336588294 Events         1          1          1          1          -          -          1          
+TrigSignatureMoni                                                 INFO -- #2336588294 Features                             2          2          -          -          
+TrigSignatureMoni                                                 INFO HLT_TestChain5_gv1_L1EM7 #3893303900
+TrigSignatureMoni                                                 INFO -- #3893303900 Events         1          1          1          -          -          -          1          
+TrigSignatureMoni                                                 INFO -- #3893303900 Features                             2          -          -          -          
+TrigSignatureMoni                                                 INFO HLT_TestChain6_muEmpty2_L1MU6 #2511524900
+TrigSignatureMoni                                                 INFO -- #2511524900 Events         1          1          1          -          1          1          1          
+TrigSignatureMoni                                                 INFO -- #2511524900 Features                             3          -          3          3          
+TrigSignatureMoni                                                 INFO HLT_TestChain6_muv1_TestChain10_ev1_L1MU6_EM5 #64374772
+TrigSignatureMoni                                                 INFO -- #64374772 Events           2          2          2          1          -          1          1          
+TrigSignatureMoni                                                 INFO -- #64374772 Features                               4          2          -          5          
+TrigSignatureMoni                                                 INFO HLT_TestChain6_muv1_TestChain10_muv1_L12MU6 #3196402061
+TrigSignatureMoni                                                 INFO -- #3196402061 Events         2          2          1          0          -          -          0          
+TrigSignatureMoni                                                 INFO -- #3196402061 Features                             4          3          -          -          
+TrigSignatureMoni                                                 INFO HLT_TestChain6_muv1_TestChain5_ev1dr_L12MU6 #3205587050
+TrigSignatureMoni                                                 INFO -- #3205587050 Events         0          0          0          0          -          -          0          
+TrigSignatureMoni                                                 INFO -- #3205587050 Features                             0          0          -          -          
+TrigSignatureMoni                                                 INFO HLT_TestChain6_muv2_TestChain8_ev2_L1MU6_EM5 #3476793373
+TrigSignatureMoni                                                 INFO -- #3476793373 Events         2          2          2          2          -          -          2          
+TrigSignatureMoni                                                 INFO -- #3476793373 Features                             7          7          -          -          
+TrigSignatureMoni                                                 INFO HLT_TestChain8_ev1_L1EM5 #1677577445
+TrigSignatureMoni                                                 INFO -- #1677577445 Events         4          4          3          3          3          -          3          
+TrigSignatureMoni                                                 INFO -- #1677577445 Features                             4          4          4          -          
+TrigSignatureMoni                                                 INFO HLT_TestChain8_muv1_L1MU10 #2288364952
+TrigSignatureMoni                                                 INFO -- #2288364952 Events         2          2          2          1          1          1          1          
+TrigSignatureMoni                                                 INFO -- #2288364952 Features                             2          1          1          1          
+TrigSignatureMoni                                                 INFO HLT_TestChain8_muv1step_L1MU6 #3588359947
+TrigSignatureMoni                                                 INFO -- #3588359947 Events         2          2          2          -          -          -          2          
+TrigSignatureMoni                                                 INFO -- #3588359947 Features                             3          -          -          -          

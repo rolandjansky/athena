@@ -230,8 +230,8 @@ def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
     Configures components needed for monitoring chains
     """
     acc = ComponentAccumulator()
-    TrigSignatureMoniMT, DecisionCollectorTool=CompFactory.getComps("TrigSignatureMoniMT","DecisionCollectorTool",)
-    mon = TrigSignatureMoniMT()
+    TrigSignatureMoni, DecisionCollectorTool=CompFactory.getComps("TrigSignatureMoni","DecisionCollectorTool",)
+    mon = TrigSignatureMoni()
     mon.L1Decisions = "L1DecoderSummary"
     mon.FinalDecisionKey = "HLTNav_Summary" # Input
     if len(hypos) == 0:

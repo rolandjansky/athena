@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGSTEERMONITOR_TRIGSIGNATUREMONIMT_H
-#define TRIGSTEERMONITOR_TRIGSIGNATUREMONIMT_H 1
+#ifndef TRIGSTEERMONITOR_TRIGSIGNATUREMONI_H
+#define TRIGSTEERMONITOR_TRIGSIGNATUREMONI_H 1
 
 #include <string>
 #include <mutex>
@@ -32,11 +32,11 @@ class IIncidentSvc;
  * @class TrigSignatureMoniMT
  * @brief Algorithm implementing monitoring of the HLT decision in the MT framework
  **/
-class TrigSignatureMoniMT : public extends<AthReentrantAlgorithm, IIncidentListener>
+class TrigSignatureMoni : public extends<AthReentrantAlgorithm, IIncidentListener>
 { 
  public: 
 
-  TrigSignatureMoniMT( const std::string& name, ISvcLocator* pSvcLocator );
+  TrigSignatureMoni( const std::string& name, ISvcLocator* pSvcLocator );
 
   virtual StatusCode  initialize() override;
   virtual StatusCode  start() override;
@@ -165,4 +165,4 @@ class TrigSignatureMoniMT : public extends<AthReentrantAlgorithm, IIncidentListe
   StatusCode fillStreamsAndGroups(const std::map<std::string, TrigCompositeUtils::DecisionIDContainer>&, const TrigCompositeUtils::DecisionIDContainer&) const;
 };
 
-#endif //> !TRIGSTEERMONITOR_TRIGSIGNATUREMONIMT_H
+#endif //> !TRIGSTEERMONITOR_TRIGSIGNATUREMONI_H

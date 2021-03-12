@@ -43,7 +43,7 @@ foreach(test emu_step_processing emu_step_menu_processing)
     file( MAKE_DIRECTORY ${rundir} )
     atlas_add_test( ${test}
         SCRIPT test/test_${test}.sh
-        LOG_SELECT_PATTERN "TrigSignatureMoniMT.*INFO HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*|TriggerSummaryStep.*+++ leg.*"
+        LOG_SELECT_PATTERN "TrigSignatureMoni.*INFO HLT_.*|TrigSignatureMoni.*-- #[0-9]+ (Events|Features).*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*|TriggerSummaryStep.*+++ leg.*"
     PROPERTIES WORKING_DIRECTORY ${rundir}
         )
 endforeach()

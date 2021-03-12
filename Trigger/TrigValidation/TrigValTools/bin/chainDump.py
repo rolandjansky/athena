@@ -69,11 +69,11 @@ def get_parser():
                         metavar='HISTS',
                         nargs='+',
                         default=[
-                            'HLTFramework/TrigSignatureMoniMT/SignatureAcceptance',
-                            'HLTFramework/../HLTFramework/TrigSignatureMoniMT/SignatureAcceptance',
+                            'HLTFramework/TrigSignatureMoni/SignatureAcceptance',
+                            'HLTFramework/../HLTFramework/TrigSignatureMoni/SignatureAcceptance',
                             'TrigSteer_HLT/ChainAcceptance',
                             'TrigSteer_HLT/NumberOfActiveTEs',
-                            'HLTFramework/TrigSignatureMoniMT/DecisionCount',
+                            'HLTFramework/TrigSignatureMoni/DecisionCount',
                             'CTPSimulation/L1ItemsAV',
                             'L1/CTPSimulation/output/tavByName'],
                         help='Histograms to use for counts dump. All existing '
@@ -90,11 +90,11 @@ def get_parser():
                         metavar='DICT',
                         nargs='+',
                         default=[
-                            'HLTFramework/TrigSignatureMoniMT/SignatureAcceptance:HLTChain',
-                            'HLTFramework/../HLTFramework/TrigSignatureMoniMT/SignatureAcceptance:HLTStep',
+                            'HLTFramework/TrigSignatureMoni/SignatureAcceptance:HLTChain',
+                            'HLTFramework/../HLTFramework/TrigSignatureMoni/SignatureAcceptance:HLTStep',
                             'TrigSteer_HLT/ChainAcceptance:HLTChain',
                             'TrigSteer_HLT/NumberOfActiveTEs:HLTTE',
-                            'HLTFramework/TrigSignatureMoniMT/DecisionCount:HLTDecision',
+                            'HLTFramework/TrigSignatureMoni/DecisionCount:HLTDecision',
                             'CTPSimulation/L1ItemsAV:L1AV',
                             'L1/CTPSimulation/output/tavByName:L1AV'],
                         help='Dictionary defining names of output text files for each '
