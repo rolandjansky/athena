@@ -329,7 +329,7 @@ namespace top {
     }
 
     ///-- Calibration and smearing --///
-    static const std::string tauSmearName = "TauAnalysisTools::TauSmearingTool";
+    static const std::string tauSmearName = "TauSmearingTool";
     if (asg::ToolStore::contains<TauAnalysisTools::ITauSmearingTool>(tauSmearName)) {
       m_tauSmearingTool = asg::ToolStore::get<TauAnalysisTools::ITauSmearingTool>(tauSmearName);
     } else {

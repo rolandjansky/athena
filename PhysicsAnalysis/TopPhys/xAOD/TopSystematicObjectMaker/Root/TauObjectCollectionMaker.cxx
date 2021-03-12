@@ -22,7 +22,7 @@ namespace top {
     m_specifiedSystematics(),
     m_recommendedSystematics(),
 
-    m_calibrationTool("TauAnalysisTools::TauSmearingTool"),
+    m_calibrationTool("TauSmearingTool"),
     m_truthMatchingTool("TauAnalysisTools::TauTruthMatchingTool") {
     declareProperty("config", m_config);
 
