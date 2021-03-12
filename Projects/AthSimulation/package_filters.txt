@@ -281,6 +281,14 @@
 + Simulation/G4Atlas/G4AtlasServices
 + Simulation/G4Atlas/G4AtlasTools
 + Simulation/G4Sim/G4HiveEx
++ Simulation/G4Extensions/ExtraParticles
++ Simulation/G4Extensions/G4CosmicFilter
++ Simulation/G4Extensions/G4ExtraProcesses
++ Simulation/G4Extensions/G4ScoringProcess
++ Simulation/G4Extensions/Gauginos
++ Simulation/G4Extensions/Monopole
++ Simulation/G4Extensions/Quirks
++ Simulation/G4Extensions/Sleptons
 + Simulation/G4Sim/MCTruth
 + Simulation/G4Sim/MCTruthBase
 + Simulation/G4Sim/SimHelpers
@@ -318,6 +326,7 @@
 + Simulation/SimuJobTransforms
 + Simulation/SimulationJobOptions
 + Simulation/Tests/ISF_Validation
++ Simulation/Tests/SimExoticsTests
 + Simulation/Tools/AtlasCLHEP_RandomGenerators
 + Simulation/Tools/McEventCollectionFilter
 + TileCalorimeter/TileCalib/TileCalibBlobObjs

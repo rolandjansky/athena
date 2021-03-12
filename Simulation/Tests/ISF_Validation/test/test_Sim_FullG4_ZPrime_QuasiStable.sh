@@ -2,9 +2,11 @@
 #
 # art-description: Run simulation using ISF with the FullG4_LongLived simulator, reading events, writing HITS, using 2015 geometry and conditions
 # art-include: 21.0/Athena
+# art-include: 21.0/AthSimulation
 # art-include: 21.3/Athena
 # art-include: 21.9/Athena
 # art-include: master/Athena
+# art-include: master/AthSimulation
 # art-type: grid
 # art-output: test.HITS.pool.root
 # art-output: truth.root
