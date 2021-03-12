@@ -2344,7 +2344,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	  ATH_MSG_DEBUG("Fit IBL Shape for LumiBlock : "<< m_lumiblock<<" disabled because of too few entries! "<<projection_lumiblock->GetEntries() <<
 			"  This block has: " << m_nIBLHitsPerLB << " total entries");
 	}
-	TH1F* projection_lumiblock_planars = (TH1F*) m_pix_b0_resXvsetaLumiBlock_planars->ProjectionY(("planars_iblBowingProjection_lumiblock_"+intToString(lumibin-1)).c_str(),lumibin,lumibin);
+	TH1D* projection_lumiblock_planars = m_pix_b0_resXvsetaLumiBlock_planars->ProjectionY(("planars_iblBowingProjection_lumiblock_"+intToString(lumibin-1)).c_str(),lumibin,lumibin);
 	if (projection_lumiblock_planars->GetEntries() >= thisMinEntries) {
 	  MakeStaveShapeFit(mag,mag_er,base,base_er,projection_lumiblock_planars);
 	  m_mag_vs_LB_planars->SetBinContent(lumibin,mag);
@@ -3160,7 +3160,7 @@ void IDAlignMonResiduals::meanRMSProjections(TH2F* h2d, TH1F* h,int meanrms)
 
   for(int i = 1; i!=nbins_2d+1; ++i){
 
-    TH1F* hproj = (TH1F*)h2d->ProjectionY("proj",i,i,"e");
+    TH1D* hproj = h2d->ProjectionY("proj",i,i,"e");
 
     //do not fill if there are 5 or less entries in the bin
     if(hproj->GetEntries()<=5 || hproj->Integral()<=5) {
@@ -3203,7 +3203,7 @@ void IDAlignMonResiduals::meanRMSProjection2D(TH3F* h3d, TH2F* h2d, int meanrms,
 
     for(int j = 1; j!=nbins_y_2d+1; ++j){
 
-      TH1F* hproj = (TH1F*)h3d->ProjectionZ("proj",i,i,j,j,"e");
+      TH1D* hproj = h3d->ProjectionZ("proj",i,i,j,j,"e");
 
       bool doFit = true;
       //do not fit & fill if there are too few entries in the projection
@@ -3314,7 +3314,7 @@ void IDAlignMonResiduals::fillGaussianMeanOrWidth(TH2F* h2d, TH1F* h, float fitM
 
   for(int i = 1; i!=nbins_2d+1; ++i){
 
-    TH1F* hproj = (TH1F*)h2d->ProjectionY("proj",i,i,"e");
+    TH1D* hproj = h2d->ProjectionY("proj",i,i,"e");
 
     //do not fill if there are 5 or less entries in the bin
     if(hproj->GetEntries()<=5 || hproj->Integral()<=5) {
