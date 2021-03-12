@@ -1099,6 +1099,10 @@
   <x title="#eta" n="40" lo="-&ETA;" hi="&ETA;"/>
   <y title="Fake Rate" lo="0" hi="2.0"/>
 </h>
+<h id="fakePtTotal" type="TProfile" title="Fake Rate (primary and secondary)">
+  <x title="Pt (GeV)" n="400" lo="0" hi="200" />
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
 <h id="fakeetaPrimary" type="TProfile" title="Fraction of Linked Primary tracks with &lt;50% truth match probability vs #eta">
   <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
   <y title="Fake Rate" lo="0" hi="2.0"/>
@@ -1795,3 +1799,595 @@
    end of plots of 'duplicates' plots
    =======================================================
    -->
+
+<!--
+=======================================================
+start of Large Radius Tracking plots
+=======================================================
+  -->
+<h id="efficiency_vs_eta_STD" type="TEfficiency" title="Efficiency (Standard Tracking)">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="efficiency_vs_pt_STD" type="TEfficiency" title="Efficiency (Standard Tracking)">
+  <x title="p_{T} [GeV]" n="200" lo="0" hi="200"/>
+  <y title="Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="efficiency_vs_phi_STD" type="TEfficiency" title="Efficiency (Standard Tracking)">
+  <x title="#phi" n="32" lo="-3.2" hi="3.2"/>
+  <y title="Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="efficiency_vs_d0_STD" type="TEfficiency" title="Efficiency (Standard Tracking)">
+  <x title="d_{0} [mm]" n="500" lo="-500.0" hi="500.0"/>
+  <y title="Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="efficiency_vs_z0_STD" type="TEfficiency" title="Efficiency (Standard Tracking)">
+  <x title="z_{0} [mm]" n="150" lo="-500.0" hi="500.0"/>
+  <y title="Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="efficiency_vs_radius_STD" type="TEfficiency" title="Efficiency (Standard Tracking)">
+  <x title="r_{production} [mm]" n="220" lo="0." hi="1100.0"/>
+  <y title="Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="efficiency_vs_mu_STD" type="TEfficiency" title="Efficiency (Standard Tracking)">
+  <x title="#LT#mu#GT" n="250" lo="0.0" hi="250.0"/>
+  <y title="Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="efficiency_vs_nvertices_STD" type="TEfficiency" title="Efficiency (Standard Tracking)">
+  <x title="number of vertices" n="250" lo="0.0" hi="250.0"/>
+  <y title="Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_eta_STD" type="TEfficiency" title="Fake Rate (Standard Tracking)">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/> 
+</h>
+
+<h id="fake_vs_pt_STD" type="TEfficiency" title="Fake Rate (Standard Tracking)">
+  <x title="p_{T} [GeV]" n="75" lo="0" hi="150"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_phi_STD" type="TEfficiency" title="Fake Rate (Standard Tracking)">
+  <x title="#phi" n="32" lo="-3.2" hi="3.2"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_d0_STD" type="TEfficiency" title="Fake Rate (Standard Tracking)">
+  <x title="d_{0} [mm]" n="500" lo="-500.0" hi="500.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_z0_STD" type="TEfficiency" title="Fake Rate (Standard Tracking)">
+  <x title="z_{0} [mm]" n="150" lo="-500.0" hi="500.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_radius_STD" type="TEfficiency" title="Fake Rate (Standard Tracking)">
+  <x title="r_{production} [mm]" n="220" lo="0." hi="1100.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_mu_STD" type="TEfficiency" title="Fake Rate (Standard Tracking)">
+  <x title="#LT#mu#GT" n="250" lo="0.0" hi="250.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_nvertices_STD" type="TEfficiency" title="Fake Rate (Standard Tracking)">
+  <x title="number of vertices" n="250" lo="0.0" hi="250.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_eta_linked_STD" type="TEfficiency" title="Fake Rate - Linked (Standard Tracking)">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/> 
+</h>
+
+<h id="fake_vs_pt_linked_STD" type="TEfficiency" title="Fake Rate - Linked (Standard Tracking)">
+  <x title="p_{T} [GeV]" n="75" lo="0" hi="150"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_phi_linked_STD" type="TEfficiency" title="Fake Rate - Linked (Standard Tracking)">
+  <x title="#phi" n="32" lo="-3.2" hi="3.2"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_d0_linked_STD" type="TEfficiency" title="Fake Rate - Linked (Standard Tracking)">
+  <x title="d_{0} [mm]" n="500" lo="-500.0" hi="500.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_z0_linked_STD" type="TEfficiency" title="Fake Rate - Linked (Standard Tracking)">
+  <x title="z_{0} [mm]" n="150" lo="-500.0" hi="500.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_radius_linked_STD" type="TEfficiency" title="Fake Rate - Linked (Standard Tracking)">
+  <x title="r_{production} [mm]" n="220" lo="0." hi="1100.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_mu_linked_STD" type="TEfficiency" title="Fake Rate - Linked (Standard Tracking)">
+  <x title="#LT#mu#GT" n="250" lo="0.0" hi="250.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_nvertices_linked_STD" type="TEfficiency" title="Fake Rate - Linked (Standard Tracking)">
+  <x title="number of vertices" n="250" lo="0.0" hi="250.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_eta_unlinked_STD" type="TEfficiency" title="Fake Rate - UnLinked (Standard Tracking)">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/> 
+</h>
+
+<h id="fake_vs_pt_unlinked_STD" type="TEfficiency" title="Fake Rate - UnLinked (Standard Tracking)">
+  <x title="p_{T} [GeV]" n="75" lo="0" hi="150"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_phi_unlinked_STD" type="TEfficiency" title="Fake Rate - UnLinked (Standard Tracking)">
+  <x title="#phi" n="32" lo="-3.2" hi="3.2"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_d0_unlinked_STD" type="TEfficiency" title="Fake Rate - UnLinked (Standard Tracking)">
+  <x title="d_{0} [mm]" n="500" lo="-500.0" hi="500.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_z0_unlinked_STD" type="TEfficiency" title="Fake Rate - UnLinked (Standard Tracking)">
+  <x title="z_{0} [mm]" n="150" lo="-500.0" hi="500.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_radius_unlinked_STD" type="TEfficiency" title="Fake Rate - UnLinked (Standard Tracking)">
+  <x title="r_{production} [mm]" n="220" lo="0." hi="1100.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_mu_unlinked_STD" type="TEfficiency" title="Fake Rate - UnLinked (Standard Tracking)">
+  <x title="#LT#mu#GT" n="250" lo="0.0" hi="250.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_nvertices_unlinked_STD" type="TEfficiency" title="Fake Rate - UnLinked (Standard Tracking)">
+  <x title="number of vertices" n="250" lo="0.0" hi="250.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="trkprop_vs_d0_STD" type="TH1F" title="reco_{d_{0}} (Standard Tracking)">
+  <x title="reco_{d0} [mm]" n="250" lo="-500.0" hi="500.0"/>
+  <y title="Number of Entries"/>
+</h>
+<h id="trkprop_vs_z0_STD" type="TH1F" title="reco_{z_{0}} (Standard Tracking)">
+  <x title="reco_{z_{0}}" n="100" lo="-500.0" hi="500.0"/>
+  <y title="Number of Entries"/>
+</h>
+
+<h id="trkprop_vs_phi_STD" type="TH1F" title="reco_{#phi} (Standard Tracking)">
+  <x title="reco_{#phi} [rads]" n="100" lo="-3.2" hi="3.2"/>
+  <y title="Number of Entries"/>
+</h>
+<h id="trkprop_vs_eta_STD" type="TH1F" title="reco_{#eta} (Standard Tracking)">
+  <x title="reco_{#eta} [rads]" n="100" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Number of Entries"/>
+</h>
+
+<h id="trkprop_vs_pt_STD" type="TH1F" title="reco_{p_{T}} [GeV] (Standard Tracking)">
+  <x title="reco_{p_{T}} [GeV]" n="100" lo="0.0" hi="100.0"/>
+  <y title="Number of Entries"/>
+</h>
+
+<h id="ntrk_vs_mu_STD" type="TH2" title="Number of tracks versus mu (Standard Tracking)">
+  <x title="#LT#mu#GT" n="250" lo="0.0" hi="250.0"/>
+  <y title="Number of Tracks / Event" n="500" lo="0" hi="900"/>
+</h>
+
+<h id="ntrk_vs_nvertices_STD" type="TH2" title="Number of tracks versus nvertices (Standard Tracking)">
+  <x title="Number of vertices" n="100" lo="0.0" hi="100.0"/>
+  <y title="Number of Tracks / Event" n="500" lo="0" hi="900"/>
+</h>
+
+
+<h id="efficiency_vs_eta_LRT" type="TEfficiency" title="Efficiency (LRT)">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="efficiency_vs_pt_LRT" type="TEfficiency" title="Efficiency (LRT)">
+  <x title="p_{T} [GeV]" n="200" lo="0" hi="200"/>
+  <y title="Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="efficiency_vs_phi_LRT" type="TEfficiency" title="Efficiency (LRT)">
+  <x title="#phi" n="32" lo="-3.2" hi="3.2"/>
+  <y title="Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="efficiency_vs_d0_LRT" type="TEfficiency" title="Efficiency (LRT)">
+  <x title="d_{0} [mm]" n="500" lo="-500.0" hi="500.0"/>
+  <y title="Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="efficiency_vs_z0_LRT" type="TEfficiency" title="Efficiency (LRT)">
+  <x title="z_{0} [mm]" n="150" lo="-500.0" hi="500.0"/>
+  <y title="Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="efficiency_vs_radius_LRT" type="TEfficiency" title="Efficiency (LRT)">
+  <x title="r_{production} [mm]" n="220" lo="0." hi="1100.0"/>
+  <y title="Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="efficiency_vs_mu_LRT" type="TEfficiency" title="Efficiency (LRT)">
+  <x title="#LT#mu#GT" n="250" lo="0.0" hi="250.0"/>
+  <y title="Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="efficiency_vs_nvertices_LRT" type="TEfficiency" title="Efficiency (LRT)">
+  <x title="number of vertices" n="250" lo="0.0" hi="250.0"/>
+  <y title="Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_eta_LRT" type="TEfficiency" title="Fake Rate (LRT)">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/> 
+</h>
+
+<h id="fake_vs_pt_LRT" type="TEfficiency" title="Fake Rate (LRT)">
+  <x title="p_{T} [GeV]" n="75" lo="0" hi="150"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_phi_LRT" type="TEfficiency" title="Fake Rate (LRT)">
+  <x title="#phi" n="32" lo="-3.2" hi="3.2"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_d0_LRT" type="TEfficiency" title="Fake Rate (LRT)">
+  <x title="d_{0} [mm]" n="500" lo="-500.0" hi="500.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_z0_LRT" type="TEfficiency" title="Fake Rate (LRT)">
+  <x title="z_{0} [mm]" n="150" lo="-500.0" hi="500.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_radius_LRT" type="TEfficiency" title="Fake Rate (LRT)">
+  <x title="r_{production} [mm]" n="220" lo="0." hi="1100.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_mu_LRT" type="TEfficiency" title="Fake Rate (LRT)">
+  <x title="#LT#mu#GT" n="250" lo="0.0" hi="250.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_nvertices_LRT" type="TEfficiency" title="Fake Rate (LRT)">
+  <x title="number of vertices" n="250" lo="0.0" hi="250.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_eta_linked_LRT" type="TEfficiency" title="Fake Rate - Linked (LRT)">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/> 
+</h>
+
+<h id="fake_vs_pt_linked_LRT" type="TEfficiency" title="Fake Rate - Linked (LRT)">
+  <x title="p_{T} [GeV]" n="75" lo="0" hi="150"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_phi_linked_LRT" type="TEfficiency" title="Fake Rate - Linked (LRT)">
+  <x title="#phi" n="32" lo="-3.2" hi="3.2"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_d0_linked_LRT" type="TEfficiency" title="Fake Rate - Linked (LRT)">
+  <x title="d_{0} [mm]" n="500" lo="-500.0" hi="500.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_z0_linked_LRT" type="TEfficiency" title="Fake Rate - Linked (LRT)">
+  <x title="z_{0} [mm]" n="150" lo="-500.0" hi="500.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_radius_linked_LRT" type="TEfficiency" title="Fake Rate - Linked (LRT)">
+  <x title="r_{production} [mm]" n="220" lo="0." hi="1100.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_mu_linked_LRT" type="TEfficiency" title="Fake Rate - Linked (LRT)">
+  <x title="#LT#mu#GT" n="250" lo="0.0" hi="250.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_nvertices_linked_LRT" type="TEfficiency" title="Fake Rate - Linked (LRT)">
+  <x title="number of vertices" n="250" lo="0.0" hi="250.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_eta_unlinked_LRT" type="TEfficiency" title="Fake Rate - UnLinked (LRT)">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/> 
+</h>
+
+<h id="fake_vs_pt_unlinked_LRT" type="TEfficiency" title="Fake Rate - UnLinked (LRT)">
+  <x title="p_{T} [GeV]" n="75" lo="0" hi="150"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_phi_unlinked_LRT" type="TEfficiency" title="Fake Rate - UnLinked (LRT)">
+  <x title="#phi" n="32" lo="-3.2" hi="3.2"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_d0_unlinked_LRT" type="TEfficiency" title="Fake Rate - UnLinked (LRT)">
+  <x title="d_{0} [mm]" n="500" lo="-500.0" hi="500.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_z0_unlinked_LRT" type="TEfficiency" title="Fake Rate - UnLinked (LRT)">
+  <x title="z_{0} [mm]" n="150" lo="-500.0" hi="500.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_radius_unlinked_LRT" type="TEfficiency" title="Fake Rate - UnLinked (LRT)">
+  <x title="r_{production} [mm]" n="220" lo="0." hi="1100.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_mu_unlinked_LRT" type="TEfficiency" title="Fake Rate - UnLinked (LRT)">
+  <x title="#LT#mu#GT" n="250" lo="0.0" hi="250.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_nvertices_unlinked_LRT" type="TEfficiency" title="Fake Rate - UnLinked (LRT)">
+  <x title="number of vertices" n="250" lo="0.0" hi="250.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="trkprop_vs_d0_LRT" type="TH1F" title="reco_{d_{0}} (LRT)">
+  <x title="reco_{d0} [mm]" n="250" lo="-500.0" hi="500.0"/>
+  <y title="Number of Entries"/>
+</h>
+<h id="trkprop_vs_z0_LRT" type="TH1F" title="reco_{z_{0}} (LRT)">
+  <x title="reco_{z_{0}}" n="100" lo="-500.0" hi="500.0"/>
+  <y title="Number of Entries"/>
+</h>
+
+<h id="trkprop_vs_phi_LRT" type="TH1F" title="reco_{#phi} (LRT)">
+  <x title="reco_{#phi} [rads]" n="100" lo="-3.2" hi="3.2"/>
+  <y title="Number of Entries"/>
+</h>
+<h id="trkprop_vs_eta_LRT" type="TH1F" title="reco_{#eta} (LRT)">
+  <x title="reco_{#eta} [rads]" n="100" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Number of Entries"/>
+</h>
+
+<h id="trkprop_vs_pt_LRT" type="TH1F" title="reco_{p_{T}} [GeV] (LRT)">
+  <x title="reco_{p_{T}} [GeV]" n="100" lo="0.0" hi="100.0"/>
+  <y title="Number of Entries"/>
+</h>
+
+<h id="ntrk_vs_mu_LRT" type="TH2" title="Number of tracks versus mu (LRT)">
+  <x title="#LT#mu#GT" n="250" lo="0.0" hi="250.0"/>
+  <y title="Number of Tracks / Event" n="500" lo="0" hi="900"/>
+</h>
+
+<h id="ntrk_vs_nvertices_LRT" type="TH2" title="Number of tracks versus nvertices (LRT)">
+  <x title="Number of vertices" n="100" lo="0.0" hi="100.0"/>
+  <y title="Number of Tracks / Event" n="500" lo="0" hi="900"/>
+</h>
+
+
+<h id="efficiency_vs_eta_Conv" type="TEfficiency" title="Efficiency (RoIConv)">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="efficiency_vs_pt_Conv" type="TEfficiency" title="Efficiency (RoIConv)">
+  <x title="p_{T} [GeV]" n="200" lo="0" hi="200"/>
+  <y title="Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="efficiency_vs_phi_Conv" type="TEfficiency" title="Efficiency (RoIConv)">
+  <x title="#phi" n="32" lo="-3.2" hi="3.2"/>
+  <y title="Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="efficiency_vs_d0_Conv" type="TEfficiency" title="Efficiency (RoIConv)">
+  <x title="d_{0} [mm]" n="500" lo="-500.0" hi="500.0"/>
+  <y title="Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="efficiency_vs_z0_Conv" type="TEfficiency" title="Efficiency (RoIConv)">
+  <x title="z_{0} [mm]" n="150" lo="-500.0" hi="500.0"/>
+  <y title="Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="efficiency_vs_radius_Conv" type="TEfficiency" title="Efficiency (RoIConv)">
+  <x title="r_{production} [mm]" n="220" lo="0." hi="1100.0"/>
+  <y title="Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="efficiency_vs_mu_Conv" type="TEfficiency" title="Efficiency (RoIConv)">
+  <x title="#LT#mu#GT" n="250" lo="0.0" hi="250.0"/>
+  <y title="Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="efficiency_vs_nvertices_Conv" type="TEfficiency" title="Efficiency (RoIConv)">
+  <x title="number of vertices" n="250" lo="0.0" hi="250.0"/>
+  <y title="Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_eta_Conv" type="TEfficiency" title="Fake Rate (RoIConv)">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/> 
+</h>
+
+<h id="fake_vs_pt_Conv" type="TEfficiency" title="Fake Rate (RoIConv)">
+  <x title="p_{T} [GeV]" n="75" lo="0" hi="150"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_phi_Conv" type="TEfficiency" title="Fake Rate (RoIConv)">
+  <x title="#phi" n="32" lo="-3.2" hi="3.2"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_d0_Conv" type="TEfficiency" title="Fake Rate (RoIConv)">
+  <x title="d_{0} [mm]" n="500" lo="-500.0" hi="500.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_z0_Conv" type="TEfficiency" title="Fake Rate (RoIConv)">
+  <x title="z_{0} [mm]" n="150" lo="-500.0" hi="500.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_radius_Conv" type="TEfficiency" title="Fake Rate (RoIConv)">
+  <x title="r_{production} [mm]" n="220" lo="0." hi="1100.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_mu_Conv" type="TEfficiency" title="Fake Rate (RoIConv)">
+  <x title="#LT#mu#GT" n="250" lo="0.0" hi="250.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_nvertices_Conv" type="TEfficiency" title="Fake Rate (RoIConv)">
+  <x title="number of vertices" n="250" lo="0.0" hi="250.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_eta_linked_Conv" type="TEfficiency" title="Fake Rate - Linked (RoIConv)">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/> 
+</h>
+
+<h id="fake_vs_pt_linked_Conv" type="TEfficiency" title="Fake Rate - Linked (RoIConv)">
+  <x title="p_{T} [GeV]" n="75" lo="0" hi="150"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_phi_linked_Conv" type="TEfficiency" title="Fake Rate - Linked (RoIConv)">
+  <x title="#phi" n="32" lo="-3.2" hi="3.2"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_d0_linked_Conv" type="TEfficiency" title="Fake Rate - Linked (RoIConv)">
+  <x title="d_{0} [mm]" n="500" lo="-500.0" hi="500.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_z0_linked_Conv" type="TEfficiency" title="Fake Rate - Linked (RoIConv)">
+  <x title="z_{0} [mm]" n="150" lo="-500.0" hi="500.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_radius_linked_Conv" type="TEfficiency" title="Fake Rate - Linked (RoIConv)">
+  <x title="r_{production} [mm]" n="220" lo="0." hi="1100.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_mu_linked_Conv" type="TEfficiency" title="Fake Rate - Linked (RoIConv)">
+  <x title="#LT#mu#GT" n="250" lo="0.0" hi="250.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_nvertices_linked_Conv" type="TEfficiency" title="Fake Rate - Linked (RoIConv)">
+  <x title="number of vertices" n="250" lo="0.0" hi="250.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_eta_unlinked_Conv" type="TEfficiency" title="Fake Rate - UnLinked (RoIConv)">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/> 
+</h>
+
+<h id="fake_vs_pt_unlinked_Conv" type="TEfficiency" title="Fake Rate - UnLinked (RoIConv)">
+  <x title="p_{T} [GeV]" n="75" lo="0" hi="150"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_phi_unlinked_Conv" type="TEfficiency" title="Fake Rate - UnLinked (RoIConv)">
+  <x title="#phi" n="32" lo="-3.2" hi="3.2"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_d0_unlinked_Conv" type="TEfficiency" title="Fake Rate - UnLinked (RoIConv)">
+  <x title="d_{0} [mm]" n="500" lo="-500.0" hi="500.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_z0_unlinked_Conv" type="TEfficiency" title="Fake Rate - UnLinked (RoIConv)">
+  <x title="z_{0} [mm]" n="150" lo="-500.0" hi="500.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_radius_unlinked_Conv" type="TEfficiency" title="Fake Rate - UnLinked (RoIConv)">
+  <x title="r_{production} [mm]" n="220" lo="0." hi="1100.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_mu_unlinked_Conv" type="TEfficiency" title="Fake Rate - UnLinked (RoIConv)">
+  <x title="#LT#mu#GT" n="250" lo="0.0" hi="250.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fake_vs_nvertices_unlinked_Conv" type="TEfficiency" title="Fake Rate - UnLinked (RoIConv)">
+  <x title="number of vertices" n="250" lo="0.0" hi="250.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="trkprop_vs_d0_Conv" type="TH1F" title="reco_{d_{0}} (RoIConv)">
+  <x title="reco_{d0} [mm]" n="250" lo="-500.0" hi="500.0"/>
+  <y title="Number of Entries"/>
+</h>
+<h id="trkprop_vs_z0_Conv" type="TH1F" title="reco_{z_{0}} (RoIConv)">
+  <x title="reco_{z_{0}}" n="100" lo="-500.0" hi="500.0"/>
+  <y title="Number of Entries"/>
+</h>
+
+<h id="trkprop_vs_phi_Conv" type="TH1F" title="reco_{#phi} (RoIConv)">
+  <x title="reco_{#phi} [rads]" n="100" lo="-3.2" hi="3.2"/>
+  <y title="Number of Entries"/>
+</h>
+<h id="trkprop_vs_eta_Conv" type="TH1F" title="reco_{#eta} (RoIConv)">
+  <x title="reco_{#eta} [rads]" n="100" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Number of Entries"/>
+</h>
+
+<h id="trkprop_vs_pt_Conv" type="TH1F" title="reco_{p_{T}} [GeV] (RoIConv)">
+  <x title="reco_{p_{T}} [GeV]" n="100" lo="0.0" hi="100.0"/>
+  <y title="Number of Entries"/>
+</h>
+
+<h id="ntrk_vs_mu_Conv" type="TH2" title="Number of tracks versus mu (RoIConv)">
+  <x title="#LT#mu#GT" n="250" lo="0.0" hi="250.0"/>
+  <y title="Number of Tracks / Event" n="500" lo="0" hi="900"/>
+</h>
+
+<h id="ntrk_vs_nvertices_Conv" type="TH2" title="Number of tracks versus nvertices (RoIConv)">
+  <x title="Number of vertices" n="100" lo="0.0" hi="100.0"/>
+  <y title="Number of Tracks / Event" n="500" lo="0" hi="900"/>
+</h>
+
+<!--
+=======================================================
+start of Large Radius Tracking plots
+=======================================================
+  -->

@@ -39,6 +39,7 @@
 #include "InDetPerfPlot_VertexTruthMatching.h"
 
 #include "InDetPerfPlot_TrkInJet.h"
+#include "InDetPerfPlot_LargeRadiusTracking.h"
 
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/Vertex.h"
@@ -53,6 +54,8 @@ public:
   InDetRttPlots(InDetPlotBase* pParent, const std::string& dirName);
   
   void SetFillJetPlots(bool fillJets, bool fillBJets);
+  
+  void SetFillLargeRadiusTrackingPlots(bool fillLRT);
 
   void
   SetFillITkResolutionPlots(bool fillthem) {
@@ -68,12 +71,14 @@ public:
 
   ///fill for things needing truth and track only
   void fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle);
+  void fill(const unsigned int nTrkLRT, const unsigned int nTrkSTD, const unsigned int nTrkConv, const float mu, const unsigned int nVtx);
   ///fill for things needing track only
   void fill(const xAOD::TrackParticle& particle);
   ///fill for things needing truth only
   void fill(const xAOD::TruthParticle& particle);
   ///Fill for efficiency plots
-  void fillEfficiency(const xAOD::TruthParticle& truth, const bool isGood, unsigned int nMuEvents);
+  void fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::TrackParticle& track, const bool isGood, 
+                      const float mu, const unsigned int nVtx);
 
   void fillSpectrum(const xAOD::TrackParticle& trackParticle);
   void fillSpectrum(const xAOD::TruthParticle& particle);
@@ -81,7 +86,7 @@ public:
   void fillSpectrum(const xAOD::TrackParticle& trkprt, const xAOD::Vertex& vertex);
   void fillSpectrum(const xAOD::TrackParticle& trkprt, const xAOD::Vertex& vertex, bool fill);
   void fillSpectrumLinked(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle, float weight);
-  void fillLinkedandUnlinked(const xAOD::TrackParticle& particle, float Prim_w, float Sec_w, float Unlinked_w,unsigned int nMuEvents);
+  void fillLinkedandUnlinked(const xAOD::TrackParticle& particle, float Prim_w, float Sec_w, float Unlinked_w, const float mu, const unsigned int nVtx);
   void fillSpectrumUnlinked2(const xAOD::TrackParticle& particle);
   void fillSingleMatch(const xAOD::TrackParticle& trackParticle);
   void fillTwoMatchDuplicate(Float_t prob1, Float_t prob2, const xAOD::TrackParticle& trackParticle,
@@ -118,7 +123,8 @@ public:
   ///fill for Counters
   void fillCounter(const unsigned int freq, const InDetPerfPlot_nTracks::CounterCategory counter);
   ///fill for fakes
-  void fillFakeRate(const xAOD::TrackParticle& particle, const bool match,
+  void fillFakeRate(const xAOD::TrackParticle& particle, const bool match, 
+                    const float mu, const unsigned int nVtx,
                     const InDetPerfPlot_fakes::Category c = InDetPerfPlot_fakes::ALL);
   //void fillIncTrkRate(const unsigned int nMuEvents, std::vector<int> incTrkNum, std::vector<int> incTrkDenom);
   void fillFakeRateLinked(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle);
@@ -156,7 +162,7 @@ private:
 
   bool m_doTrackInJetPlots;
   bool m_doTrackInBJetPlots;
-
+  
   std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots;
   std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots_bjets;
   std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots_matched;
@@ -166,6 +172,9 @@ private:
   std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots_unlinked;
   std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots_unlinked_bjets;
 
+  bool m_doLargeRadiusTrackingPlots;
+  std::unique_ptr<InDetPerfPlot_LargeRadiusTracking> m_largeRadiusTrackingPlots;
+  
   std::string m_trackParticleTruthProbKey;
   float m_truthProbLowThreshold;
 };

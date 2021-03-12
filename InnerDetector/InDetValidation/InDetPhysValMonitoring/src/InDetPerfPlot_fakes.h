@@ -60,6 +60,7 @@ private:
   TProfile* m_track_fakerate_vs_d0;
   TProfile* m_track_fakerate_vs_z0;
   TEfficiency* m_fakeEtaTotal;
+  TEfficiency* m_fakePtTotal;
   TEfficiency* m_fakePtPrimary;
   TEfficiency* m_fakeetaPrimary;
   TEfficiency* m_fakePhiPrimary;
