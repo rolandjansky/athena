@@ -64,11 +64,18 @@ def toJson(fileName, metadata, L1Triggers, HLTTriggers):
   with open(fileName, 'w') as outFile:
     json.dump(obj=jsonDict, fp=outFile, indent=2, sort_keys=True)
 
+
+  metajsonData = [
+    {'PredictionLumi' : metadata['targetLumi']},
+    {'TargetMu' : metadata['targetMu']},
+    {'RunNumber' : metadata['runNumber']},
+    {'NEvents' : metadata['n_evts']},
+    {'Details' : metadata['details']}
+  ]
+
   metajsonDict = {}
-  metajsonDict['PredictionLumi'] = metadata['targetLumi']
-  metajsonDict['TargetMu'] = metadata['targetMu']
-  metajsonDict['RunNumber'] = metadata['runNumber']
-  metajsonDict['NEvents'] = metadata['n_evts']
+  metajsonDict['text'] = 'metadata'
+  metajsonDict['children'] = metajsonData
   
   with open('metadata.json', 'w') as outMetaFile:
     json.dump(obj=metajsonDict, fp=outMetaFile, indent=2, sort_keys=True)
