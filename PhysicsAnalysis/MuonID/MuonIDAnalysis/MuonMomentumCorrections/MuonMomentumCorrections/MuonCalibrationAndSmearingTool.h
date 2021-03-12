@@ -51,7 +51,7 @@ namespace MCAST {
 class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearingTool, public virtual ISystematicsTool, public asg::AsgTool {
 
   // Create a proper constructor for Athena
-  ASG_TOOL_CLASS2( MuonCalibrationAndSmearingTool, CP::IMuonCalibrationAndSmearingTool, CP::ISystematicsTool )
+  ASG_TOOL_CLASS3( MuonCalibrationAndSmearingTool, CP::IMuonCalibrationAndSmearingTool, CP::ISystematicsTool, CP::IReentrantSystematicsTool )
 
   public:
     // Interface methods that must be defined

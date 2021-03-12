@@ -27,7 +27,7 @@ namespace CP {
 
             virtual ~MuonEfficiencyScaleFactors() = default;
             //Proper constructor for Athena
-            ASG_TOOL_CLASS2( MuonEfficiencyScaleFactors, CP::IMuonEfficiencyScaleFactors, CP::ISystematicsTool )
+            ASG_TOOL_CLASS3( MuonEfficiencyScaleFactors, CP::IMuonEfficiencyScaleFactors, CP::ISystematicsTool, CP::IReentrantSystematicsTool )
 
             /// initialize the tool once all settings are in place!
             virtual StatusCode initialize();
