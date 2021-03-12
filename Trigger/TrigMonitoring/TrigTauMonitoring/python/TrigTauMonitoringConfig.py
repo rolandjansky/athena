@@ -163,7 +163,6 @@ def TrigTauMonitoringTool():
 				doL1JetPlots		= False,
 				doEFTProfiles		= False,
 				domuCut40		= False,
-				doEfficiencyRatioPlots = True, #False
 				doL1TopoLeptonsMonitoringWarnings = False,
 				topo_ditau_chains	= ditau_topo_chains,
 				topo_mutau_chains	= mutau_topo_chains,
