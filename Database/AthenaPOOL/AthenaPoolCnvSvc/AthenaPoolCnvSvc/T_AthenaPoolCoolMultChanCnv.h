@@ -42,17 +42,17 @@ protected:
     /// Create a transient object from a POOL persistent representation.
     /// @param pAddr [IN] IOpaqueAddress of POOL persistent representation.
     /// @param pObj [OUT] pointer to the transient object.
-    virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj);
+    virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj) override;
 
     /// Create a POOL persistent representation for a transient object.
     /// @param pObj [IN] pointer to the transient object.
     /// @param pAddr [OUT] IOpaqueAddress of POOL persistent representation.
-    virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr);
+    virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr) override;
 
     /// Create a POOL persistent representation for a transient object.
     /// @param pAddr [IN] IOpaqueAddress of POOL persistent representation.
     /// @param pObj [IN] pointer to the transient object.
-    virtual StatusCode fillRepRefs(IOpaqueAddress* pAddr, DataObject* pObj);
+    virtual StatusCode fillRepRefs(IOpaqueAddress* pAddr, DataObject* pObj) override;
 
     /// Write out objects stored in "obj" into POOL and save the tokens
     /// in a CondAttrListCollection, as well write out "obj" i.e. CondMultChanCollImpl
@@ -116,8 +116,8 @@ protected:
     ELEM_T*            poolReadObject();
 
     /// Dummy methods not needed here
-    virtual StatusCode transToPers(COLL_T* obj, ELEM_T*& persObj);
-    virtual StatusCode persToTrans(COLL_T*& transObj, ELEM_T* obj);
+    virtual StatusCode transToPers(COLL_T* obj, ELEM_T*& persObj) override;
+    virtual StatusCode persToTrans(COLL_T*& transObj, ELEM_T* obj) override;
 
 protected:
 
