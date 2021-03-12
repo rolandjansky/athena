@@ -336,6 +336,8 @@ namespace top {
       std::unique_ptr<TauAnalysisTools::TauSmearingTool> tauSmearingTool = std::make_unique<TauAnalysisTools::TauSmearingTool>(tauSmearName);
       top::check(asg::setProperty(tauSmearingTool, "isAFII", m_config->isAFII()),
                  "Failed to set TauSmearingTools isAFII property");
+      top::check(asg::setProperty(tauSmearingTool, "ApplyMVATES", false),
+                 "Failed to set TauSmearingTools ApplyMVATES property");
       top::check(tauSmearingTool->initialize(), "Failed to initialize");
       m_tauSmearingTool = tauSmearingTool.release();
     }
