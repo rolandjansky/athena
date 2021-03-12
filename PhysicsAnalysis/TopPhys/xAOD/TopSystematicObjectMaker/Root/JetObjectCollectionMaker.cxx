@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: JetObjectCollectionMaker.cxx 809674 2017-08-23 14:10:24Z iconnell $
@@ -558,6 +558,7 @@ namespace top {
       const SG::AuxElement::Accessor< char > accRange("passedRangeCheck_" + fullName);
       const std::string sfNameNominal =  sfNames.at(fullName);
       const SG::AuxElement::Accessor< float > accSF(sfNameNominal);
+      const SG::AuxElement::Decorator< float > decNominalSF(sfNameNominal);
       
       for(const CP::SystematicSet& sys : m_tagSFUncorrelatedSystematics[fullName]) {
 	  
@@ -570,6 +571,8 @@ namespace top {
 	  const xAOD::Jet* jet = ljets->at(i);
       
 	  if(accRange.isAvailable(*shallowJet) && accRange(*shallowJet)) {
+            // reset the previously syst-shifted SF back to nominal SF from the original jet container
+            decNominalSF(*shallowJet) = accSF(*jet);
 	    top::check(tool->applyCorrection(*shallowJet), "Failed to applyCorrection");
 	    float sf = accSF.isAvailable(*shallowJet) ? accSF(*shallowJet) : -999.;
 	    jet->auxdecor<float>(sfNameShifted.c_str()) = sf;
