@@ -25,8 +25,8 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
-#include "AtlasHepMC/GenParticle.h"
-#include "AtlasHepMC/GenVertex.h"
+#include "HepMC/GenParticle.h"
+#include "HepMC/GenVertex.h"
 
 #include "TrkTruthData/TrackTruthCollection.h"
 #include "TrkTruthData/TrackTruthKey.h"
@@ -224,6 +224,8 @@ StatusCode IDPerfMonZmumu::initialize()
   ATH_CHECK( m_extrapolator.retrieve());
   
   ATH_CHECK (m_vertexKey.initialize());
+  
+  ATH_MSG_INFO(" -- IDPerfMonZmumu::initialize() -- m_vertexKey: " << m_vertexKey);
 
   m_xZmm.setDebugMode(false);
   // START new place for initilization of params
@@ -537,6 +539,7 @@ StatusCode IDPerfMonZmumu::bookTrees()
     m_truthTree->Branch("Negative_d0",  &m_negative_d0,  "Negative_d0/D");
     m_truthTree->Branch("Negative_z0_err",  &m_negative_z0_err,  "Negative_z0_err/D");
     m_truthTree->Branch("Negative_d0_err",  &m_negative_d0_err,  "Negative_d0_err/D");
+    m_truthTree->Branch("Negative_parent",  &m_negative_parent,  "Negative_parent/I");
 
     m_truthTree->Branch("Positive_Px",  &m_positive_px,  "Positive_Px/D");
     m_truthTree->Branch("Positive_Py",  &m_positive_py,  "Positive_Py/D");
@@ -545,6 +548,7 @@ StatusCode IDPerfMonZmumu::bookTrees()
     m_truthTree->Branch("Positive_d0",  &m_positive_d0,  "Positive_d0/D");
     m_truthTree->Branch("Positive_z0_err",  &m_positive_z0_err,  "Positive_z0_err/D");
     m_truthTree->Branch("Positive_d0_err",  &m_positive_d0_err,  "Positive_d0_err/D");
+    m_truthTree->Branch("Positive_parent",  &m_positive_parent,  "Positive_parent/I");
   }
 
   if (m_doFourMuAnalysis && m_FourMuTree == 0) {
@@ -859,11 +863,11 @@ StatusCode IDPerfMonZmumu::execute()
   //
 
   if ( m_xZmm.EventPassed() ) {
-    ATH_MSG_INFO("** IDPerfMonZmumu::execute ** Going to fill ntuples for Run: " << m_runNumber 
-		 << "  event: " << m_evtNumber 
-		 << "  Lumiblock: " << m_lumi_block 
-		 << "  Invariant mass = " << m_xZmm.GetInvMass() << " GeV  ** some preliminaries are due though...");
-
+    ATH_MSG_DEBUG("** IDPerfMonZmumu::execute ** Going to fill ntuples for Run: " << m_runNumber 
+		  << "  event: " << m_evtNumber 
+		  << "  Lumiblock: " << m_lumi_block 
+		  << "  Invariant mass = " << m_xZmm.GetInvMass() << " GeV  ** some preliminaries are due though...");
+    
     if (m_useTrackSelectionTool) {
       // The track selection is applied to the InnerDetectorTrackParticle of the muons
       if ( !m_selTool->accept(muon_pos->trackParticle(xAOD::Muon::InnerDetectorTrackParticle)) ) {
@@ -892,27 +896,31 @@ StatusCode IDPerfMonZmumu::execute()
 					   p2_comb_v);
 	
 	if (success_pos && success_neg) {
-	  ATH_MSG_INFO("**** Filling InnerDetectorTrackParticle ntuple " << m_IDTree->GetName() << " entry " << m_IDTree->GetEntries()
-		       << " for run: " << m_runNumber 
-		       << "  event: " << m_evtNumber 
-		       << "  Lumiblock: " << m_lumi_block 
-		       << "  Invariant mass = " << m_xZmm.GetInvMass() << " GeV ");
-	  ATH_MSG_DEBUG("mu- --> pxyz: " << m_negative_px
-			<< ", " << m_negative_py
-			<< ", " << m_negative_pz 
-			<< "  d0: " << m_negative_d0
-			<< "  z0: " << m_negative_z0);
-	  ATH_MSG_DEBUG("mu+ --> pxyz " << m_positive_px 
+	  ATH_MSG_DEBUG("-- Filling m_IDTree ntuple " << m_IDTree->GetName() << " entry " << m_IDTree->GetEntries()
+			<< " for run: " << m_runNumber 
+			<< "  event: " << m_evtNumber 
+			<< "  Lumiblock: " << m_lumi_block 
+			<< "  Invariant mass = " << m_xZmm.GetInvMass() << " GeV ");
+	  ATH_MSG_DEBUG("mu+  --> pxyz " << m_positive_px 
 			<< ", " << m_positive_py
 			<< ", " << m_positive_pz
+			<< "  pt: " << muon_pos->trackParticle(xAOD::Muon::InnerDetectorTrackParticle)->pt()
 			<< "  d0: " << m_positive_d0 
-			<< "  z0: " << m_positive_z0);
+			<< "  z0: " << m_positive_z0
+			<< "  d0unc: " << m_positive_d0_err);
+	  ATH_MSG_DEBUG("mu-  --> pxyz: " << m_negative_px
+			<< ", " << m_negative_py
+			<< ", " << m_negative_pz
+			<< "  pt: " << muon_neg->trackParticle(xAOD::Muon::InnerDetectorTrackParticle)->pt()
+			<< "  d0: " << m_negative_d0
+			<< "  z0: " << m_negative_z0
+			<< " d0unc: " << m_negative_d0_err);
 	  // ntuple variables have been filled in FillRecParametersTP
 	  m_IDTree->Fill();
 	}
       }
       else {
-	ATH_MSG_DEBUG("** IDPerfMonZmumu::execute ** FAILED filling ntuple " << m_IDTree->GetName() 
+	ATH_MSG_INFO("** IDPerfMonZmumu::execute ** FAILED filling ntuple " << m_IDTree->GetName() 
 		      << "  for run: " << m_runNumber 
 		      << "  event: " << m_evtNumber 
 		      << "  Lumiblock: " << m_lumi_block
@@ -930,27 +938,39 @@ StatusCode IDPerfMonZmumu::execute()
 				      muon_neg->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), 
 				      p2_comb->charge(), 
 				      p2_comb_v);    
+      success_pos = FillRecParametersTP(muon_pos->trackParticle(xAOD::Muon::CombinedTrackParticle), 
+				      muon_pos->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), 
+				      p1_comb->charge(), 
+				      p1_comb_v);
+      success_neg = FillRecParametersTP(muon_neg->trackParticle(xAOD::Muon::CombinedTrackParticle), 
+				      muon_neg->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), 
+				      p2_comb->charge(), 
+				      p2_comb_v);    
       if (success_pos && success_neg) {
-	ATH_MSG_INFO("**** Filling ntuple " << m_combTree->GetName() << " entry " << m_combTree->GetEntries() 
-		     << "  run: " << m_runNumber 
-		     << "  event: " << m_evtNumber 
-		     << "  Lumiblock: " << m_lumi_block 
-		     << "  Invariant mass = " << m_xZmm.GetInvMass() << " GeV ");
-	ATH_MSG_DEBUG("mu- --> pxyz: " << m_negative_px
-		      << ", " << m_negative_py
-		      << ", " << m_negative_pz 
-		      << "  d0: " << m_negative_d0
-		      << "  z0: " << m_negative_z0);
+	ATH_MSG_DEBUG("-- Filling m_combTree ntuple " << m_combTree->GetName() << " entry " << m_combTree->GetEntries() 
+		      << "  run: " << m_runNumber 
+		      << "  event: " << m_evtNumber 
+		      << "  Lumiblock: " << m_lumi_block 
+		      << "  Invariant mass = " << m_xZmm.GetInvMass() << " GeV ");
 	ATH_MSG_DEBUG("mu+ --> pxyz " << m_positive_px 
 		      << ", " << m_positive_py
 		      << ", " << m_positive_pz
+		      << "  pt: " << muon_pos->trackParticle(xAOD::Muon::CombinedTrackParticle)->pt()
 		      << "  d0: " << m_positive_d0 
-		      << "  z0: " << m_positive_z0);
+		      << "  z0: " << m_positive_z0
+		      << "  d0unc: " << m_positive_d0_err);
+	ATH_MSG_DEBUG("mu- --> pxyz: " << m_negative_px
+		      << ", " << m_negative_py
+		      << ", " << m_negative_pz 
+		      << "  pt: " << muon_neg->trackParticle(xAOD::Muon::CombinedTrackParticle)->pt()
+		      << "  d0: " << m_negative_d0
+		      << "  z0: " << m_negative_z0
+		      << "  d0unc: " << m_negative_d0_err);
 	// ntuple variables have been filled in FillRecParameters
 	m_combTree->Fill();
       }
       else {
-	ATH_MSG_DEBUG("** IDPerfMonZmumu::execute ** FAILED filling " << m_combTree->GetName() 
+	ATH_MSG_INFO("** IDPerfMonZmumu::execute ** FAILED filling " << m_combTree->GetName() 
 		      << "  for run: " << m_runNumber 
 		      << "  event: " << m_evtNumber 
 		      << "  Lumiblock: " << m_lumi_block);
@@ -967,26 +987,30 @@ StatusCode IDPerfMonZmumu::execute()
 					p2_comb->charge(), 
 					p2_comb_v);    
       if (success_pos && success_neg) { 
-	ATH_MSG_INFO("**** Filling " << m_MSTree->GetName() << " entry " << m_MSTree->GetEntries() 
-		     << "  run: " << m_runNumber 
-		     << "  event: " << m_evtNumber 
-		     << "  Lumiblock: " << m_lumi_block 
-		     << "  Invariant mass = " << m_xZmm.GetInvMass() << " GeV ");
-	ATH_MSG_DEBUG("Negative p: (" << m_negative_px << ", "
-		      << m_negative_py << ", "
-		      << m_negative_pz << ") "
+	ATH_MSG_DEBUG("-- Filling m_MSTree " << m_MSTree->GetName() << " entry " << m_MSTree->GetEntries() 
+		      << "  run: " << m_runNumber 
+		      << "  event: " << m_evtNumber 
+		      << "  Lumiblock: " << m_lumi_block 
+		      << "  Invariant mass = " << m_xZmm.GetInvMass() << " GeV ");
+	ATH_MSG_DEBUG("mu+ --> pxyz " << m_positive_px 
+		      << ", " << m_positive_py
+		      << ", " << m_positive_pz
+		      << "  pt: " << m_xZmm.getMSTrack(m_xZmm.getPosMuon(ZmumuEvent::CB))->pt()
+		      << "  d0: " << m_positive_d0 
+		      << "  z0: " << m_positive_z0
+		      << "  d0unc: " << m_positive_d0_err);
+	ATH_MSG_DEBUG("mu- --> pxyz: " << m_negative_px
+		      << ", " << m_negative_py
+		      << ", " << m_negative_pz 
+		      << "  pt: " << m_xZmm.getMSTrack(m_xZmm.getNegMuon(ZmumuEvent::CB))->pt()
 		      << "  d0: " << m_negative_d0
-		      << "  z0: " << m_negative_z0);
-	ATH_MSG_DEBUG("Positive p: (" << m_positive_px << ","
-		      << m_positive_py << ","
-		      << m_positive_pz << ") "
-		      << "  d0: " << m_positive_d0
-		      << "  z0: " << m_positive_z0);	  
+		      << "  z0: " << m_negative_z0
+		      << "  d0unc: " << m_negative_d0_err);
 	// ntuple variables have been filled in FillRecParametersTP
 	m_MSTree->Fill();
       }
       else {
-	ATH_MSG_DEBUG("FAILED filling " << m_MSTree->GetName() 
+	ATH_MSG_INFO("FAILED filling " << m_MSTree->GetName() 
 		      << "  for run: " << m_runNumber 
 		      << "  event: " << m_evtNumber 
 		      << "  Lumiblock: " << m_lumi_block);
@@ -1120,11 +1144,11 @@ StatusCode IDPerfMonZmumu::execute()
 	
 	if (m_storeZmumuNtuple) {
 	  if (success_pos && success_neg) {
-	    ATH_MSG_INFO("**** Filling ntuple " << m_refit1Tree->GetName() << " entry " << m_refit1Tree->GetEntries() 
-			 << " for run: " << m_runNumber 
-			 << "  event: " << m_evtNumber 
-			 << "  Lumiblock: " << m_lumi_block 
-			 << "  Invariant mass = " << m_xZmm.GetInvMass() << " GeV ");
+	    ATH_MSG_DEBUG("-- Filling ntuple " << m_refit1Tree->GetName() << " entry " << m_refit1Tree->GetEntries() 
+			  << " for run: " << m_runNumber 
+			  << "  event: " << m_evtNumber 
+			  << "  Lumiblock: " << m_lumi_block 
+			  << "  Invariant mass = " << m_xZmm.GetInvMass() << " GeV ");
 	    ATH_MSG_DEBUG("Negative p: (" << m_negative_px << ", "
 			  << m_negative_py << ", "
 			  << m_negative_pz << ") "
@@ -1157,11 +1181,11 @@ StatusCode IDPerfMonZmumu::execute()
 	
 	if (m_storeZmumuNtuple) {
 	  if (success_pos && success_neg) {
-	    ATH_MSG_INFO("**** Filling " << m_refit2Tree->GetName() << " entry " << m_refit2Tree->GetEntries() 
-			 << "  run: " << m_runNumber 
-			 << "  event: " << m_evtNumber 
-			 << "  Lumiblock: " << m_lumi_block 
-			 << "  Invariant mass = " << m_xZmm.GetInvMass() << " GeV ");
+	    ATH_MSG_DEBUG("-- Filling " << m_refit2Tree->GetName() << " entry " << m_refit2Tree->GetEntries() 
+			  << "  run: " << m_runNumber 
+			  << "  event: " << m_evtNumber 
+			  << "  Lumiblock: " << m_lumi_block 
+			  << "  Invariant mass = " << m_xZmm.GetInvMass() << " GeV ");
 	    ATH_MSG_DEBUG("Negative p: (" << m_negative_px << ", "
 			  << m_negative_py << ", "
 			  << m_negative_pz << ") "
@@ -1183,7 +1207,7 @@ StatusCode IDPerfMonZmumu::execute()
 	}
       }
       
-      ATH_MSG_INFO("Execute() All NTUPLES filled  Run: " << m_runNumber << "  event: " << m_evtNumber << "  mass: " << m_xZmm.GetInvMass() << " GeV ");
+      ATH_MSG_DEBUG("Execute() All NTUPLES filled  Run: " << m_runNumber << "  event: " << m_evtNumber << "  mass: " << m_xZmm.GetInvMass() << " GeV ");
     }
   } // if ( m_xZmm.EventPassed() ) {
   // no good muon pair found
@@ -1198,29 +1222,42 @@ StatusCode IDPerfMonZmumu::execute()
   // fill truth event iformation even when the reco event has not passed
   //
   if (m_isMC) {
+    bool truthStatusIsGood = true;
     if (FillTruthParameters(p1_comb).isFailure()){
+      truthStatusIsGood = false;
       ATH_MSG_WARNING("Failed to fill truth parameters - skipping event");
-      return StatusCode::SUCCESS;
     }
     if (FillTruthParameters(p2_comb).isFailure()){
+      truthStatusIsGood = false;
       ATH_MSG_WARNING("Failed to fill truth parameters - skipping event");
-      return StatusCode::SUCCESS;
     }
-    ATH_MSG_DEBUG("** IDPerfMonZmumu::execute ** fill truthTree with parameters : ");
-    ATH_MSG_DEBUG("Negative p: (" << m_negative_px << ", "
-		  << m_negative_py << ", "
-		  << m_negative_pz << ") "
-		  << "  d0: " << m_negative_d0
-		  << "  z0: " << m_negative_z0);
-    
-    
-    ATH_MSG_DEBUG("Positive p: (" << m_positive_px << ","
-		  << m_positive_py << ","
-		  << m_positive_pz << ") "
-		  << "  d0: " << m_positive_d0
-		  << "  z0: " << m_positive_z0);
-    
-    if (m_storeZmumuNtuple) m_truthTree->Fill();
+    if (truthStatusIsGood) { 
+      ATH_MSG_DEBUG ("-- Filling " << m_truthTree->GetName() << " entry " << m_truthTree->GetEntries() 
+		     << "  run: " << m_runNumber 
+		     << "  event: " << m_evtNumber 
+		     <<  "  Lumiblock: " << m_lumi_block 
+		     << "  Invariant mass = " << m_xZmm.GetInvMass() << " GeV ");
+      ATH_MSG_DEBUG ("Negative p: (" << m_negative_px << ", "
+		     << m_negative_py << ", "
+		     << m_negative_pz << ") "
+		     << "  d0: " << m_negative_d0
+		     << "  z0: " << m_negative_z0
+		    << "  parent: " << m_negative_parent);
+      ATH_MSG_DEBUG ("Positive p: (" << m_positive_px << ","
+		     << m_positive_py << ","
+		     << m_positive_pz << ") "
+		     << "  d0: " << m_positive_d0
+		     << "  z0: " << m_positive_z0
+		     << "  parent: " << m_positive_parent);	  
+      
+      if (m_storeZmumuNtuple) m_truthTree->Fill();
+    } // truth info properly filled
+    else {
+      ATH_MSG_DEBUG("FAILED filling " << m_truthTree->GetName() 
+		    << "  for run: " << m_runNumber 
+		    << "  event: " << m_evtNumber 
+		    << "  Lumiblock: " << m_lumi_block);
+    }
   } // if (m_isMC)
 
   ATH_MSG_DEBUG(" --IDPerfMonZmumu::execute--  event completed -- Run: " << m_runNumber << "  event: " << m_evtNumber);
@@ -1261,8 +1298,8 @@ StatusCode IDPerfMonZmumu::FillRecParametersTP(const xAOD::TrackParticle* trackp
   d0 = trackp->d0();
   z0 = trackp->z0();
   
-  d0res = trackp->definingParametersCovMatrix()(0,0);
-  z0res = trackp->definingParametersCovMatrix()(1,1);
+  d0res = std::sqrt(trackp->definingParametersCovMatrix()(0,0));
+  z0res = std::sqrt(trackp->definingParametersCovMatrix()(1,1));
   
   if (vertex == nullptr) {
     ATH_MSG_WARNING("in FillRecParametersTP. WARNING: Vertex is NULL");
@@ -1470,26 +1507,36 @@ StatusCode IDPerfMonZmumu::FillRecParameters(const Trk::Track* track, const xAOD
 StatusCode IDPerfMonZmumu::FillTruthParameters(const xAOD::TrackParticle* trackParticle)
 {
   if (!trackParticle ){//|| !trackParticle->vertex()){
-    ATH_MSG_WARNING("Empty Trackparticle. Skipping.");
+    ATH_MSG_WARNING("-- FillTruthParameters -- Empty Trackparticle. Skipping.");
     return StatusCode::FAILURE;
   }
+
   float result(std::numeric_limits<float>::quiet_NaN());
   if (trackParticle->isAvailable<float>("truthMatchProbability")){
     result = trackParticle->auxdata<float>("truthMatchProbability" );
-    std::cout <<"DEBUG :: TruthMatchProbablity of trackpartile : > " << result<< std::endl;
+    ATH_MSG_DEBUG(" -- FillTruthParameters -- TruthMatchProbablity of trackpartile : > " << result); 
   }
+
 
   const xAOD::TruthParticle* particle = getTruthParticle( *trackParticle );
   double charge = 0;
   if (!particle) {
-    ATH_MSG_DEBUG(" Failure while retrieving the truth particle");
+    ATH_MSG_DEBUG(" -- FillTruthParameters -- Failure while retrieving the truth particle. Returning FAILURE.");
     return StatusCode::FAILURE;
   }
-  if(particle->pdgId() == 13) charge = -1.;
-  else if(particle->pdgId() == -13) charge = 1.;
-  if( particle->isNeutral() ) return StatusCode::FAILURE;
-  const Amg::Vector3D momentum(particle->px(), particle->py(), particle->pz());
-  
+
+  if ( particle->pdgId() ==  13) charge = -1.; // muon-
+  if ( particle->pdgId() == -13) charge = 1.; // muon+
+  if ( particle->isNeutral() ) {
+    ATH_MSG_DEBUG(" -- FillTruthParameters -- reco muon associated to a truth neutral!! Returning FAILURE.");
+    return StatusCode::FAILURE;
+  }
+  if ( charge == 0 ) {
+    ATH_MSG_DEBUG(" -- FillTruthParameters -- reco muon associated to a non true muon!! Returning FAILURE.");
+    return StatusCode::FAILURE;
+  } 
+
+  const Amg::Vector3D momentum(particle->px(), particle->py(), particle->pz());  
   const xAOD::TruthVertex * ptruthVertex(0);
   ptruthVertex=particle->prodVtx();
   if (!ptruthVertex){
@@ -1497,13 +1544,33 @@ StatusCode IDPerfMonZmumu::FillTruthParameters(const xAOD::TrackParticle* trackP
     return StatusCode::FAILURE;
   }
 
+
+  if (particle->parent(0) != nullptr) {
+    if (particle->isAvailable<int>("truthType")) {
+      ATH_MSG_DEBUG(" -- FillTruthParameters -- truth particle is good. pdg: " << particle->pdgId() 
+		    << "  type: " << particle->type()
+		    << "  nparents " << particle->nParents()
+		    << "  parent->pdg: " << particle->parent(0)->pdgId()
+		    << "  truthType: " << particle->auxdata<int>("truthType")
+		    << "  truthOrigin: " << const_cast<xAOD::TruthParticle*>(particle)->auxdata<int>("truthOrigin")
+		    );
+
+    }
+    else {
+      ATH_MSG_DEBUG(" -- FillTruthParameters -- truth particle is good. pdg: " << particle->pdgId() 
+		    << "  type: " << particle->type()
+		    << "  nparents " << particle->nParents()
+		    << "  parent->pdg: " << particle->parent(0)->pdgId()
+		    << "  truthType & truthOrigin: " << " NOT AVAILABLE " 
+		    );
+    }
+  }
+
   const auto xPos=ptruthVertex->x();
   const auto yPos=ptruthVertex->y();
   const auto z_truth=ptruthVertex->z();
 
   const Amg::Vector3D position(xPos, yPos, z_truth);
-  //  const float prodR_truth = std::sqrt(xPos*xPos+ yPos*yPos);
-  //delete ptruthVertex;ptruthVertex=0;
   const Trk::CurvilinearParameters cParameters(position, momentum, charge);
 
   Trk::PerigeeSurface persf( m_beamSpotSvc->beamPos() );
@@ -1520,7 +1587,6 @@ StatusCode IDPerfMonZmumu::FillTruthParameters(const xAOD::TrackParticle* trackP
   double z0 = 0;
   double z0res = 0;
   double PVz0res = 0;
-
 
   double d0recoPos =  m_positive_d0;
   double z0recoPos =  m_positive_z0;
@@ -1555,47 +1621,54 @@ StatusCode IDPerfMonZmumu::FillTruthParameters(const xAOD::TrackParticle* trackP
     m_positive_py = py;
     m_positive_pz = pz;
     m_positive_z0 = z0recoPos -z0;
-    //    m_positive_z0 = z0;
-
     m_positive_z0_err = z0res;
     m_positive_z0_PVerr = PVz0res;
     m_positive_d0 = d0recoPos -d0;
-    //    m_positive_d0 = d0;
-
     m_positive_d0_err = d0res;
     m_positive_d0_PVerr = PVd0res;
-    //    m_px = px;
-    //    m_py = py;
-    //    m_pz = pz;
-    //    m_z0 = z0;
-    //    m_d0 = d0;
-    //    m_d0_rec_truth = d0recoPos -d0;
-    //    m_z0_rec_truth = z0recoPos -z0;
-    ATH_MSG_DEBUG("(Filled charge == 1 ) (truth)-> px : "<< m_positive_px <<" py: "<<m_positive_py <<" pz: "<<m_positive_pz <<" d0: "<<m_positive_d0 << " z0: "<< m_positive_z0);
+
+    bool parentfound = false;
+    if (particle->nParents()>0) {
+      if (particle->parent(0) != nullptr) {
+	m_positive_parent = particle->parent(0)->pdgId();
+	parentfound = true;
+      } 
+    }
+    if (!parentfound) m_positive_parent = 0;
+
+    ATH_MSG_DEBUG(" -- FillTruthParameters -- charge = 1  (truth)-> px : "<< m_positive_px 
+		  <<"  py: "<<m_positive_py 
+		  <<"  pz: "<<m_positive_pz 
+		  <<"  d0: "<<m_positive_d0 
+		  <<"  z0: "<< m_positive_z0
+		 << "  parent: " << m_positive_parent);
 
   } else  if (charge == -1) {
     m_negative_px = px;
     m_negative_py = py;
     m_negative_pz = pz;
     m_negative_z0 = z0recoNeg-z0;
-    //    m_negative_z0 = z0;
-
     m_negative_z0_err = z0res;
     m_negative_z0_PVerr = PVz0res;
     m_negative_d0 = d0recoNeg-d0;
-    //    m_negative_d0 = d0;
-
     m_negative_d0_err = d0res;
     m_negative_d0_PVerr = PVd0res;
 
-    //    m_px = px;
-    //    m_py = py;
-    //    m_pz = pz;
-    //    m_z0 = z0;
-    //    m_d0 = d0;
-    //    m_d0_rec_truth = d0recoNeg -d0;
-    //    m_z0_rec_truth = z0recoNeg -z0;
-    ATH_MSG_DEBUG("(Filled charge == -1 ) (truth)-> px : "<< m_negative_px <<" py: "<<m_negative_py <<" pz: "<<m_negative_pz <<" d0: "<<m_negative_d0 << " z0: "<< m_negative_z0);
+    bool parentfound = false;
+    if (particle->nParents()>0) {
+      if (particle->parent(0) != nullptr) {
+	m_negative_parent = particle->parent(0)->pdgId();
+	parentfound = true;
+      }
+    }
+    if (!parentfound) m_negative_parent = 0;
+
+    ATH_MSG_DEBUG(" -- FillTruthParameters-- charge = -1 (truth)-> px : "<< m_negative_px 
+		  << "  py: "<<m_negative_py 
+		  << "  pz: "<<m_negative_pz 
+		  << "  d0: "<<m_negative_d0 
+		  << "  z0: "<< m_negative_z0
+		 << "  parent:" << m_negative_parent);
   }
   return StatusCode::SUCCESS;
 }
@@ -1714,7 +1787,8 @@ void IDPerfMonZmumu::Clear4MuNtupleVariables()
   m_positive_d0_err = 0.;
   m_positive_z0_err = 0.;
   m_positive_1_vtx = 0;
-	
+  m_positive_parent = 0;
+
   m_negative_px = 0.;
   m_negative_py = 0.;
   m_negative_pz = 0.;
@@ -1723,6 +1797,7 @@ void IDPerfMonZmumu::Clear4MuNtupleVariables()
   m_negative_d0_err = 0.;
   m_negative_z0_err = 0.;
   m_negative_1_vtx = 0;
+  m_negative_parent = 0;
 	
   m_positive_2_px = 0.;
   m_positive_2_py = 0.;
@@ -1874,7 +1949,8 @@ StatusCode IDPerfMonZmumu::RunFourLeptonAnalysis()
 	  m_positive_pz = muon1_pos->p4().Pz();
 	  m_positive_d0 = muon1_pos->d0();
 	  m_positive_z0 = muon1_pos->z0();
-	  m_positive_d0_err = muon1_pos->definingParametersCovMatrix()(0,0);
+	  // m_positive_d0_err = muon1_pos->definingParametersCovMatrix()(0,0);
+	  m_positive_d0_err = muon1_pos->definingParametersCovMatrixVec()[0];
 	  m_positive_z0_err = muon1_pos->definingParametersCovMatrix()(1,1);
 	}
 	if (muon1_neg) {
@@ -1961,26 +2037,6 @@ StatusCode IDPerfMonZmumu::RunFourLeptonAnalysis()
 
 	m_pv_x = 0; m_pv_y = 0; m_pv_z = 0;
 
-	// SALVA 
-	// SOF // Start Of Fix
-	// temporary fix: to be removed
-	/*
-	if (muon1_neg) {
-	  if (muon1_neg->vertex() != nullptr) { // check vertex exists
-	    m_pv_x = muon1_neg->vertex()->x();
-	    m_pv_y = muon1_neg->vertex()->y();
-	    m_pv_z = muon1_neg->vertex()->z();
-	  }
-	}
-	else if (elec1_neg) {
-	  if (elec1_neg->vertex() != nullptr) { // check vertex exists
-	    m_pv_x = elec1_neg->vertex()->x();
-	    m_pv_y = elec1_neg->vertex()->y();
-	    m_pv_z = elec1_neg->vertex()->z();
-	  }
-	}
-	*/
-
 	m_4mu_minv = m_4mu.GetInvMass();
 	
 	// Obtain MET 
@@ -2009,7 +2065,38 @@ StatusCode IDPerfMonZmumu::RunFourLeptonAnalysis()
 	  m_metphi = met->phi();
 	}
 	ATH_MSG_DEBUG (" Zmumu event with MET = " << m_met);
+	
 	ATH_MSG_INFO (" -- IDPerfMonZmumu::execute -- Accepted event " << m_4mu.getAcceptedEvents() << " with m_4mu.GetInvMass= " << m_4mu_minv);
+	ATH_MSG_DEBUG ("**** Filling m_FourMuTree ntuple " << m_FourMuTree->GetName() << " entry " << m_FourMuTree->GetEntries()
+		       << " for run: " << m_runNumber 
+		       << "  event: " << m_evtNumber 
+		       << "  Lumiblock: " << m_lumi_block 
+		       << "  Invariant mass = " << m_4mu_minv << " GeV ");
+	if (muon1_pos != nullptr) ATH_MSG_DEBUG("mu1+  --> pxyz " << muon1_pos->p4().Px() 
+						<< ", " << muon1_pos->p4().Py()
+						<< ", " << muon1_pos->p4().Pz()
+						<< "  pt: " << muon1_pos->pt()
+						<< "  d0: " << muon1_pos->d0() 
+						<< "  z0: " << muon1_pos->z0()
+						<< "  d0unc: " << muon1_pos->definingParametersCovMatrixVec()[0]
+						);
+	if (muon1_neg != nullptr) ATH_MSG_DEBUG("mu1-  --> pxyz " << muon1_neg->p4().Px() 
+						<< ", " << muon1_neg->p4().Py()
+						<< ", " << muon1_neg->p4().Pz()
+						<< "  pt: " << muon1_neg->pt()
+						<< "  d0: " << muon1_neg->d0() 
+						<< "  z0: " << muon1_neg->z0()
+						<< "  d0unc: " << muon1_neg->definingParametersCovMatrixVec()[0]
+						);
+	if (elec1_pos != nullptr) ATH_MSG_DEBUG("el1+  --> pxyz " << elec1_pos->p4().Px() 
+						<< ", " << elec1_pos->p4().Py()
+						<< ", " << elec1_pos->p4().Pz()
+						<< "  pt: " << elec1_pos->pt()
+						<< "  d0: " << elec1_pos->d0() 
+						<< "  z0: " << elec1_pos->z0()
+						<< "  d0unc: " << elec1_pos->definingParametersCovMatrixVec()[0]
+						);
+	  // ntuple variables have been filled in FillRecParametersTP
 	m_FourMuTree->Fill();
       }
     } // succesful 4mu reco
