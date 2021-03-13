@@ -189,7 +189,7 @@ void AFP_GeoModelFactory::addSepRadLBar(const char* pszStationName, const int nQ
 		vecX = vecA1 + vecA2;
 		vecCutShift = CLHEP::Hep3Vector(0.5*fRadLength,0.0,0.5*BarDims.fLBarThickness) + CLHEP::Hep3Vector(vecX);
         vecCutShift[2] *= signFactor;
-		Rot3.rotateY(falpha);
+		Rot3.rotateY(signFactor*falpha);
 
 		pSolAux=new GeoBox(0.5*fd,0.5*fRadYDim+SLIMCUT,0.5*fd);
 		TransCut=HepGeom::Transform3D(Rot3,vecCutShift);
