@@ -23,6 +23,9 @@ def CaloRecoCfg(configFlags):
         from TileRecUtils.TileRawChannelMakerConfig import TileRawChannelMakerCfg
         result.merge( TileRawChannelMakerCfg(configFlags) )
 
+        from LArCellRec.LArTimeVetoAlgConfig import LArTimeVetoAlgCfg
+        result.merge(LArTimeVetoAlgCfg(configFlags))
+
               
     #Configure cell-building
     from CaloRec.CaloCellMakerConfig import CaloCellMakerCfg

@@ -8,28 +8,10 @@
 #include "Gaudi/Property.h"
 #include "xAODEventInfo/EventInfo.h"
 
-//Constructor
-LArTimeVetoAlg:: LArTimeVetoAlg(const std::string& name, ISvcLocator* pSvcLocator):
-    AthReentrantAlgorithm(name,pSvcLocator)
-  {
-    //m_nevt=0;
-    //m_nevtMasked=0;
-  }
-  
-//__________________________________________________________________________
-//Destructor
-  LArTimeVetoAlg::~LArTimeVetoAlg()
-  {
-    ATH_MSG_DEBUG("LArTimeVetoAlg destructor called");
-  }
-
 //__________________________________________________________________________
 StatusCode LArTimeVetoAlg::initialize() 
   {
     ATH_MSG_INFO("LArTimeVetoAlg initialize()"  );
-    //m_nevt=0;
-    //m_nevtMasked=0;
-
     ATH_CHECK( m_eventInfoKey.initialize() );
     ATH_CHECK( m_eventVetoKey.initialize() );
     return StatusCode::SUCCESS; 
@@ -40,7 +22,7 @@ StatusCode LArTimeVetoAlg::initialize()
 StatusCode LArTimeVetoAlg::finalize()
   {
     ATH_MSG_DEBUG( "LArTimeVetoAlg finalize()"  );
-    //ATH_MSG_INFO( " Number of events processed " << m_nevt << "   Number of events in LAr bad time interval " << m_nevtMasked  );
+    ATH_MSG_INFO( "Number of events processed " << m_nevt << ". Number of events in LAr bad time interval " << m_nevtMasked  );
     return StatusCode::SUCCESS; 
   }
   
@@ -49,7 +31,7 @@ StatusCode LArTimeVetoAlg::execute( const EventContext& ctx ) const
 {
   ATH_MSG_DEBUG("LArTimeVetoAlg execute()");
 
-  //m_nevt++;
+  m_nevt++;
   SG::ReadCondHandle<AthenaAttributeList> ev_handle{m_eventVetoKey, ctx};
   const AthenaAttributeList* dd_atrList{*ev_handle}; 
   if (dd_atrList==nullptr) {
@@ -61,7 +43,7 @@ StatusCode LArTimeVetoAlg::execute( const EventContext& ctx ) const
 
   if (vetoWord != 0) {
 
-    //m_nevtMasked++;
+    m_nevtMasked++;
 
     // retrieve EventInfo
     SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey, ctx);
