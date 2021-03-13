@@ -154,7 +154,7 @@ class tauRecSeedMinPt(JobProperty):
     """
     statusOn=True
     allowedTypes=['float']
-    StoredValue=10.*Units.GeV
+    StoredValue=0.*Units.GeV
 
 class tauRecSeedMaxEta(JobProperty):
     """ max allowed abs_eta of seed jet
