@@ -36,9 +36,18 @@ Trk::Surface::Surface()
 #ifndef NDEBUG
   s_numberOfInstantiations++;     // EDM Monitor
   s_numberOfFreeInstantiations++; // EDM Monitor
+
 #endif
 }
 
+#if defined(FLATTEN) && defined(__GNUC__)
+// We compile this function with optimization, even in debug builds; otherwise,
+// the heavy use of Eigen makes it too slow.  However, from here we may call
+// to out-of-line Eigen code that is linked from other DSOs; in that case,
+// it would not be optimized.  Avoid this by forcing all Eigen code
+// to be inlined here if possible.
+__attribute__ ((flatten))
+#endif
 Trk::Surface::Surface(Amg::Transform3D* tform)
   : m_transform(nullptr)
   , m_center(nullptr)
@@ -96,6 +105,14 @@ Trk::Surface::Surface(const Trk::TrkDetElementBase& detelement, const Identifier
 #endif
 }
 
+#if defined(FLATTEN) && defined(__GNUC__)
+// We compile this function with optimization, even in debug builds; otherwise,
+// the heavy use of Eigen makes it too slow.  However, from here we may call
+// to out-of-line Eigen code that is linked from other DSOs; in that case,
+// it would not be optimized.  Avoid this by forcing all Eigen code
+// to be inlined here if possible.
+__attribute__ ((flatten))
+#endif
 // copy constructor - Attention! sets the associatedDetElement to 0 and the identifier to invalid
 Trk::Surface::Surface(const Surface& sf)
   : m_transform(nullptr)
@@ -118,7 +135,15 @@ Trk::Surface::Surface(const Surface& sf)
 #endif
 }
 
-// copy constructor with shift - Attention! sets the associatedDetElement to 0 and the identifieer to invalid
+#if defined(FLATTEN) && defined(__GNUC__)
+// We compile this function with optimization, even in debug builds; otherwise,
+// the heavy use of Eigen makes it too slow.  However, from here we may call
+// to out-of-line Eigen code that is linked from other DSOs; in that case,
+// it would not be optimized.  Avoid this by forcing all Eigen code
+// to be inlined here if possible.
+__attribute__ ((flatten))
+#endif
+// copy constructor with shift - Attention! sets the associatedDetElement to 0 and the identifier to invalid
 // also invalidates the material layer
 Trk::Surface::Surface(const Surface& sf, const Amg::Transform3D& shift)
   : m_transform(sf.m_transform ? std::make_unique<Amg::Transform3D>(shift * (*(sf.m_transform)))

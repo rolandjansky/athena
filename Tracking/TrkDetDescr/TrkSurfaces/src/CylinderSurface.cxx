@@ -313,6 +313,14 @@ Trk::CylinderSurface::straightLineIntersection(const Amg::Vector3D& pos,
 
 /** distance to surface */
 
+#if defined(FLATTEN) && defined(__GNUC__)
+// We compile this function with optimization, even in debug builds; otherwise,
+// the heavy use of Eigen makes it too slow.  However, from here we may call
+// to out-of-line Eigen code that is linked from other DSOs; in that case,
+// it would not be optimized.  Avoid this by forcing all Eigen code
+// to be inlined here if possible.
+__attribute__ ((flatten))
+#endif
 Trk::DistanceSolution
 Trk::CylinderSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, const Amg::Vector3D& dir) const
 {
