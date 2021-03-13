@@ -105,7 +105,7 @@ atlas_add_test( CaloThinCellsByClusterAlg_test
 
 atlas_add_test( ToolConstantsCondAlg_test
                 SCRIPT test/ToolConstantsCondAlg_test.py
-                LOG_IGNORE_PATTERN "Cache alignment|Current filenames|Unable to locate catalog|peeking into|IOVDbSvc +INFO|^Py:MetaReader" )
+                LOG_IGNORE_PATTERN "Cache alignment|Current filenames|Unable to locate catalog|peeking into|IOVDbSvc +INFO|^Py:MetaReader|CondProxyProvider +INFO" )
 
 
 atlas_add_test( CaloCellContainerAliasAlgConfig_test

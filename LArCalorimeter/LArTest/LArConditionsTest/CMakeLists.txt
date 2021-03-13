@@ -23,7 +23,7 @@ function (larconditions_run_test testName)
                   SCRIPT athena.py LArConditionsTest/${testName}_jobOptions.py
                   ENVIRONMENT ATLAS_REFERENCE_TAG=LArConditionsTest/LArConditionsTest-01-00-12
                   PROPERTIES TIMEOUT 1200
-                  LOG_IGNORE_PATTERN "Data source lookup|Resolved path|Failed to connect to service|Release number|Sorting algorithm|Failed to connect|Failure while attempting to connect|Reading file|^CORAL/|being retired|^Domain|INFO GeoModelSvc|locate catalog|Cache alignment|COOL_DISABLE|Failed to get ContainerHandle|^RalSessionMgr Info|^RelationalDatabase Info|Bootstrap.py|MetaDataSvc|xAODMaker|Opening COOL connection|Disconnecting from|IOVDbSvc +INFO"
+                  LOG_IGNORE_PATTERN "Data source lookup|Resolved path|Failed to connect to service|Release number|Sorting algorithm|Failed to connect|Failure while attempting to connect|Reading file|^CORAL/|being retired|^Domain|INFO GeoModelSvc|locate catalog|Cache alignment|COOL_DISABLE|Failed to get ContainerHandle|^RalSessionMgr Info|^RelationalDatabase Info|Bootstrap.py|MetaDataSvc|xAODMaker|Opening COOL connection|Disconnecting from|IOVDbSvc +INFO|CondProxyProvider +INFO"
                    )
 
   # Turn off POOL verbose printing:
