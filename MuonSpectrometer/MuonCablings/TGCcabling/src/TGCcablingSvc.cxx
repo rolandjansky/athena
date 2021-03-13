@@ -427,32 +427,9 @@ bool TGCcablingSvc::getOfflineIDfromReadoutID(Identifier & offlineID,
 					      const int channelID,
 					      bool orChannel) const
 {
-  static Identifier cache_offlineID;
-  static bool cache_status = false;  
-  static int cache_subDetectorID = -1;
-  static int cache_rodID = -1;
-  static int cache_sswID = -1;
-  static int cache_slbID = -1;
-  static int cache_channelID = -1;
-  static bool cache_orChannel = false;
+  // This function used to memoize its result, in a non-thread-safe manner.
+  // Removed for now, but we can reimplement it if it makes a difference.
 
-  if((channelID==cache_channelID) && 
-     (orChannel==cache_orChannel) &&
-     (subDetectorID==cache_subDetectorID) && 
-     (rodID==cache_rodID) && 
-     (sswID==cache_sswID) &&
-     (slbID==cache_slbID)) {
-    offlineID = cache_offlineID;
-    return cache_status;
-  } 
-
-  cache_subDetectorID = subDetectorID; 
-  cache_rodID = rodID;
-  cache_sswID = sswID;
-  cache_slbID = slbID;
-  cache_channelID = channelID;
-  cache_orChannel = orChannel;
-  
   int subsystemNumber;
   int octantNumber;
   int moduleNumber;
@@ -476,7 +453,6 @@ bool TGCcablingSvc::getOfflineIDfromReadoutID(Identifier & offlineID,
 					 channelNumber,
 					 orChannel);
   if(!status) {
-    cache_status = status;
     return status;
   }
   
@@ -490,8 +466,6 @@ bool TGCcablingSvc::getOfflineIDfromReadoutID(Identifier & offlineID,
 				    wireOrStrip,
 				    channelNumber);
   
-  cache_offlineID = offlineID;
-  cache_status = status;
   return status;
 }
 

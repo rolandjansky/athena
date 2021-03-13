@@ -9,7 +9,7 @@ atlas_subdir( TGCcabling )
 atlas_add_library( TGCcablingLib
                    src/*.cxx
                    PUBLIC_HEADERS TGCcabling
-                   LINK_LIBRARIES GaudiKernel TGCcablingInterfaceLib StoreGateLib SGtests MuonIdHelpersLib
+                   LINK_LIBRARIES GaudiKernel TGCcablingInterfaceLib StoreGateLib SGtests MuonIdHelpersLib CxxUtils
                    PRIVATE_LINK_LIBRARIES PathResolver )
 
 atlas_add_component( TGCcabling
