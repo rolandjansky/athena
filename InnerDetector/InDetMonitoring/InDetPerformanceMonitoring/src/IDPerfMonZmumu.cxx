@@ -25,8 +25,6 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
 
 #include "TrkTruthData/TrackTruthCollection.h"
 #include "TrkTruthData/TrackTruthKey.h"
