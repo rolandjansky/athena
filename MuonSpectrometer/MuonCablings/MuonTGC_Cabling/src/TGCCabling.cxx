@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTGC_Cabling/TGCCabling.h"
@@ -124,6 +124,8 @@ const TGCModuleId* TGCCabling::getSLBFromReadout(TGCIdBase::SideType side,
 						 int sswId,
 						 int sbLoc) const 
 {
+  std::scoped_lock lock (m_mutex);
+
   int indexFromReadoutWithoutChannel  
     = getIndexFromReadoutWithoutChannel(side, rodId, sswId, sbLoc); 
   std::map<int, TGCModuleId*>::iterator it 
