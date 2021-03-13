@@ -52,7 +52,7 @@
 
 namespace {
 
-  inline static const std::string horizLine = std::string(85,'-')+'\n';
+  const char* horizLine = "-------------------------------------------------------------------------------------\n";
 
    void ExitOnInt( int sig, siginfo_t*, void* ) {
       if ( sig == SIGINT ) {
@@ -130,23 +130,27 @@ namespace CoreDumpSvcHandler
       alarm(timeoutSeconds);
     }
 
+    // Do fast stack trace before anything that might touch the heap.
+    // For extra paranoia, avoid iostreams/stdio and use write() directly.
+    if (fastStackTrace) {
+      write (1, horizLine, strlen(horizLine));
+      const char* msg = "Producing (fast) stack trace...\n";
+      write (1, msg, strlen (msg));
+      write (1, horizLine, strlen(horizLine));
+      Athena::Signal::fatalDump (sig, info, extra,
+                                 Athena::DebugAids::stacktraceFd(),
+                                 Athena::Signal::FATAL_DUMP_SIG +
+                                 Athena::Signal::FATAL_DUMP_CONTEXT +
+                                 Athena::Signal::FATAL_DUMP_STACK);
+      write (1, "\n", 1);
+    }
+
     std::cout.flush();
     std::cerr.flush();
     
     if (coreDumpSvc) {
       coreDumpSvc->setSigInfo(info);
       coreDumpSvc->print();
-    }
-
-    if (fastStackTrace) {
-      log() << horizLine << "Producing (fast) stack trace...\n"
-            << horizLine << std::flush;
-      Athena::Signal::fatalDump (sig, info, extra,
-                                 Athena::DebugAids::stacktraceFd(),
-                                 Athena::Signal::FATAL_DUMP_SIG +
-                                 Athena::Signal::FATAL_DUMP_CONTEXT +
-                                 Athena::Signal::FATAL_DUMP_STACK);
-      log() << std::endl;
     }
 
     if (gSystem && stackTrace) {
