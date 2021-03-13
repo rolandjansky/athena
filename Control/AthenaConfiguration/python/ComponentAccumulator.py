@@ -908,7 +908,7 @@ def __setProperties( destConfigurableInstance, sourceConf2Instance, indent="" ):
             continue
         propType = sourceConf2Instance._descriptors[pname].cpp_type
         if "PrivateToolHandleArray" in propType:
-            setattr( destConfigurableInstance, pname, [conf2toConfigurable( tool, __indent( indent ) ) for tool in pvalue] )
+            setattr( destConfigurableInstance, pname, [conf2toConfigurable( tool, indent=__indent( indent ), parent = sourceConf2Instance.getName() ) for tool in pvalue] )
             _log.debug( "%sSet the private tools array %s of %s", indent, pname, destConfigurableInstance.name() )
         elif "PrivateToolHandle" in propType or "GaudiConfig2.Configurables" in propType or "ServiceHandle" in propType:
             _log.debug( "%sSet the property %s that is private tool %s", indent,  pname, destConfigurableInstance.name() )
@@ -917,7 +917,7 @@ def __setProperties( destConfigurableInstance, sourceConf2Instance, indent="" ):
             except Exception:
                 pass
             if pvalue is not None:
-                setattr( destConfigurableInstance, pname, conf2toConfigurable( pvalue, indent=__indent( indent ) ) )
+                setattr( destConfigurableInstance, pname, conf2toConfigurable( pvalue, indent=__indent( indent ), parent = sourceConf2Instance.getName() ) )
             else:
                 setattr( destConfigurableInstance, pname, pvalue )
 
@@ -930,7 +930,7 @@ def __setProperties( destConfigurableInstance, sourceConf2Instance, indent="" ):
                 pass
             setattr( destConfigurableInstance, pname, pvalue )
 
-def conf2toConfigurable( comp, indent="", suppressDupes=False ):
+def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
     """
     Method converts from Conf2 ( comp argument ) to old Configurable
     If the Configurable of the same name exists, the properties merging process is invoked
@@ -952,10 +952,17 @@ def conf2toConfigurable( comp, indent="", suppressDupes=False ):
 
     _log.debug( "%sConverting from GaudiConfig2 object %s type %s", indent, compName(comp), comp.__class__.__name__ )
 
-    def __alreadyConfigured( instanceName ):
+    def __alreadyConfigured( comp, parent ):
         from AthenaCommon.Configurable import Configurable
+        instanceName = comp.getName()
         if instanceName in Configurable.allConfigurables:
-            return  Configurable.allConfigurables[instanceName]
+            conf = Configurable.allConfigurables[instanceName]
+            if conf.getParent() == parent:
+                return conf
+            else:
+                if not parent:
+                    parent='[not set]'
+                _log.warning( "%sComponent: \"%s\" had parent %s whilst allConfigurables match had parent %s.", indent, instanceName, parent, conf.getParent() )
         return None
 
     def __createConf2Object( name ):
@@ -973,7 +980,7 @@ def conf2toConfigurable( comp, indent="", suppressDupes=False ):
             _log.debug( "%sDealing with class %s property %s value type %s",
                         indent, sourceConfigurableInstance.getFullJobOptName(), prop, type(value) )
             if "ServiceHandle" in str( type( value ) ):
-                instance = __alreadyConfigured(value)
+                instance = __alreadyConfigured(value, sourceConfigurableInstance.getName())
                 if instance:
                     setattr( destConf2Instance, prop, __configurableToConf2(instance, __indent(indent)) )
             else:
@@ -1126,7 +1133,7 @@ def conf2toConfigurable( comp, indent="", suppressDupes=False ):
                                 updatedPropValue, existingConfigurable.getFullName())
 
     _log.debug( "%s Conf2 Full name: %s ", indent, comp.getFullJobOptName() )
-    existingConfigurable = __alreadyConfigured( comp.name )
+    existingConfigurable = __alreadyConfigured( comp, parent )
 
     if existingConfigurable: # if configurable exists we try to merge with it
         _log.debug( "%sPre-existing configurable %s was found, checking if has the same properties", indent, comp.getName() )
