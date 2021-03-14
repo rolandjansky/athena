@@ -9,8 +9,6 @@
 // Author: S.Binet<binet@cern.ch>
 /////////////////////////////////////////////////////////////////// 
 
-// STL includes
-
 // Framework includes
 #include "GaudiKernel/MsgStream.h"
 

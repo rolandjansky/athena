@@ -115,6 +115,8 @@ void test1()
 
 int main()
 {
+  setlinebuf(stdout);
+  setlinebuf(stderr);
   test1();
   return 0;
 }
