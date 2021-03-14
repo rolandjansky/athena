@@ -138,7 +138,7 @@ AthSequencer::initialize()
     }
   }
   if (sc == StatusCode::SUCCESS && m_runPostInitialize) {
-     ATH_MSG_INFO("Allow dynamic data consumers to update their data dependencies.");
+     ATH_MSG_DEBUG("Allow dynamic data consumers to update their data dependencies.");
      if (!m_undeclaredOutputData.empty()) {
         IService* a_svc {};
         ATH_CHECK( Gaudi::svcLocator()->getService ("ClassIDSvc",a_svc) );
