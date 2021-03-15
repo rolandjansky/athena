@@ -2,8 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef RXReadOut_H
-#define RXReadOut_H
+#ifndef TrigT1RPChardware_RXReadOut_H
+#define TrigT1RPChardware_RXReadOut_H
 
 #include<iostream>
 #include "TrigT1RPChardware/PadReadOut.h"

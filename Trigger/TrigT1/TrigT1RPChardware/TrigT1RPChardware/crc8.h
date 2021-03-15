@@ -2,8 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef crc8_H
-#define crc8_H
+#ifndef TrigT1RPChardware_crc8_H
+#define TrigT1RPChardware_crc8_H
 
 class crc8 {
 public:

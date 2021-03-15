@@ -2,8 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef Lvl1RpcConf_H
-#define Lvl1RpcConf_H
+#ifndef TrigT1RPChardware_Lvl1RpcConf_H
+#define TrigT1RPChardware_Lvl1RpcConf_H
 
 #include "TrigT1RPChardware/Lvl1Def.h"
 #define MAX_NUMBER_OF_SECTYPES 3

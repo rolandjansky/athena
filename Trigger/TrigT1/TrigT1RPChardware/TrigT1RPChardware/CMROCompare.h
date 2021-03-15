@@ -2,8 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef CMROCompare_H
-#define CMROCompare_H
+#ifndef TrigT1RPChardware_CMROCompare_H
+#define TrigT1RPChardware_CMROCompare_H
 
 #include "TrigT1RPChardware/Lvl1Def.h"
 #include "TrigT1RPChardware/MatrixReadOut.h"

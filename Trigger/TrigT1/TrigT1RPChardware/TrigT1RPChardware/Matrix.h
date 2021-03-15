@@ -2,8 +2,8 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef Matrix_H
-#define Matrix_H
+#ifndef TrigT1RPChardware_Matrix_H
+#define TrigT1RPChardware_Matrix_H
 
 #include "TrigT1RPChardware/NOBXS.h"
 #include <cstdlib>
