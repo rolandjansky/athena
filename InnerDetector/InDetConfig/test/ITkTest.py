@@ -21,7 +21,6 @@ def defaultTestFlags(configFlags, args):
     """Fill default ITk flags for testing"""
     if args.localgeo:
         configFlags.ITk.useLocalGeometry = True
-    setupITkDetectorFlags(configFlags, args.detectors if 'detectors' in args else None, args)
 
     configFlags.Input.Files = [args.inputevntfile]
     
@@ -41,7 +40,13 @@ def defaultTestFlags(configFlags, args):
     configFlags.Input.RunNumber = [284500]
     configFlags.Input.OverrideRunNumber = True
     configFlags.Input.LumiBlockNumber = [1]
-    
+
+    from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
+    detectors = args.detectors if 'detectors' in args and args.detectors else ['ITkPixel', 'ITkStrip']
+    detectors.append('Bpipe')  # always run with beam pipe
+    setupDetectorsFromList(configFlags, detectors, toggle_geometry=True)
+
+
 def printAndRun(accessor, configFlags, args):
     """debugging and execution"""
     # Dump config
@@ -61,23 +66,6 @@ def printAndRun(accessor, configFlags, args):
     return not sc.isSuccess()
 
 
-
-def setupITkDetectorFlags(configFlags, detectors, args):
-    #configFlags.Detector.GeometryBpipe = True #You may want to turn on the beam pipe?
-    configFlags.Detector.GeometryMuon  = False #Not sure why this is there by default... and crashes if present :-(
-    configFlags.Detector.GeometryMM  = False #Not sure why this is there by default... does no harm though
-    configFlags.Detector.GeometrysTGC  = False #Not sure why this is there by default... does no harm though
-    if args.simulate:
-        configFlags.Detector.GeometryBpipe = True
-    if not detectors or 'ITkStrip' in detectors or 'ITk' in detectors:
-        configFlags.Detector.GeometryITkStrip = True
-        if args.simulate:
-            configFlags.Detector.EnableITkStrip = True
-    if not detectors or 'ITkPixel' in detectors or 'ITk' in detectors:
-        configFlags.Detector.GeometryITkPixel = True
-        if args.simulate:
-            configFlags.Detector.EnableITkPixel = True
-
 def ITkTestCfg(configFlags):
     acc = MainServicesCfg(configFlags)
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
@@ -90,6 +78,7 @@ def ITkTestCfg(configFlags):
     acc.merge(BeamEffectsAlgCfg(configFlags))
     
     return acc
+
 
 def LengthIntegratorUserActionSvcCfg(configFlags, name="G4UA::LengthIntegratorUserActionSvc", **kwargs):
     
@@ -115,6 +104,7 @@ def LengthIntegratorUserActionSvcCfg(configFlags, name="G4UA::LengthIntegratorUs
     result.addService(CompFactory.G4UA.UserActionSvc(name, **kwargs))
 
     return result
+
 
 # Argument parsing
 parser = ArgumentParser("ITkTest.py")
