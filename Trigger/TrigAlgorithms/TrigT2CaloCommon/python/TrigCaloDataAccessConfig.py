@@ -6,7 +6,6 @@ def LArRoIMapCfg( flags ):
     acc = ComponentAccumulator()
     LArRoI_Map=CompFactory.LArRoI_Map
 
-    from IOVDbSvc.IOVDbSvcConfig import addFolders
     from LArCabling.LArCablingConfig import LArFebRodMappingCfg, LArCalibIdMappingCfg
 
     LArCablingLegacyService=CompFactory.LArCablingLegacyService
@@ -17,13 +16,9 @@ def LArRoIMapCfg( flags ):
 
     CaloTriggerTowerService=CompFactory.CaloTriggerTowerService
     triggerTowerTool = CaloTriggerTowerService()                                              
-    acc.merge(addFolders(flags, ['/LAR/Identifier/LArTTCellMapAtlas'], 'LAR'))
-    acc.merge(addFolders(flags, ['/LAR/Identifier/OnOffIdMap'], 'LAR'))
-                                       
-    acc.merge(addFolders(flags, ['/CALO/Identifier/CaloTTOnOffIdMapAtlas', 
-                                 '/CALO/Identifier/CaloTTOnAttrIdMapAtlas',
-                                 '/CALO/Identifier/CaloTTPpmRxIdMapAtlas'], 'CALO'))
-    
+    from CaloConditions.CaloConditionsConfig import LArTTCellMapCfg, CaloTTIdMapCfg
+    acc.merge(LArTTCellMapCfg(flags))
+    acc.merge(CaloTTIdMapCfg(flags))
     LArRoI_Map = LArRoI_Map()
     LArRoI_Map.CablingSvc = cablingTool 
     LArRoI_Map.TriggerTowerSvc = triggerTowerTool

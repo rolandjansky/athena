@@ -275,36 +275,9 @@ def geoModelCfg(flags):
 
 
 def sctCondCfg(flags):
-  acc = ComponentAccumulator()
-  from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline, addFolders
-  acc.merge(addFoldersSplitOnline(flags, "INDET","/Indet/Onl/AlignL1/ID","/Indet/AlignL1/ID",className="CondAttrListCollection"))
-  acc.merge(addFoldersSplitOnline(flags, "INDET","/Indet/Onl/AlignL2/PIX","/Indet/AlignL2/PIX",className="CondAttrListCollection"))
-  acc.merge(addFoldersSplitOnline(flags, "INDET","/Indet/Onl/AlignL2/SCT","/Indet/AlignL2/SCT",className="CondAttrListCollection"))
-  acc.merge(addFoldersSplitOnline(flags, "INDET","/Indet/Onl/AlignL3","/Indet/AlignL3",className="AlignableTransformContainer"))
-  acc.merge(addFoldersSplitOnline(flags, "INDET","/Indet/Onl/IBLDist","/Indet/IBLDist",className="CondAttrListCollection"))
-
-  SCT_AlignCondAlg=CompFactory.SCT_AlignCondAlg
-  acc.addCondAlgo(SCT_AlignCondAlg(UseDynamicAlignFolders = True))
-
-  SCT_DetectorElementCondAlg=CompFactory.SCT_DetectorElementCondAlg
-  acc.addCondAlgo(SCT_DetectorElementCondAlg(name = "SCT_DetectorElementCondAlg"))
-
-  from SCT_Cabling.SCT_CablingConfig import SCT_CablingCondAlgCfg
-  acc.merge(SCT_CablingCondAlgCfg(flags))
-  SCT_ConfigurationConditionsTool=CompFactory.SCT_ConfigurationConditionsTool
-  acc.addPublicTool(SCT_ConfigurationConditionsTool())
-  channelFolder = "/SCT/DAQ/Config/ChipSlim"
-  moduleFolder = "/SCT/DAQ/Config/Module"
-  murFolder = "/SCT/DAQ/Config/MUR"
-  SCT_ConfigurationCondAlg=CompFactory.SCT_ConfigurationCondAlg
-  acc.addCondAlgo(SCT_ConfigurationCondAlg(ReadKeyChannel = channelFolder,
-                                           ReadKeyModule = moduleFolder,
-                                           ReadKeyMur = murFolder))
-  acc.merge(addFolders(flags, [channelFolder, moduleFolder, murFolder], "SCT", className="CondAttrListVec"))
-
-  return acc
-
-
+  # acc = ComponentAccumulator()
+  from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
+  return SCT_GeometryCfg(flags)
 def pixelCondCfg(flags):
   acc = ComponentAccumulator()
   ###############
@@ -334,7 +307,7 @@ def pixelCondCfg(flags):
   acc.merge(PixelDCSCondHVAlgCfg(flags))
   acc.merge(PixelDCSCondTempAlgCfg(flags))
   # alignment setup
-  acc.merge(PixelAlignCondAlgCfg(flags, UseDynamicAlignFolders=True))
+  acc.merge(PixelAlignCondAlgCfg(flags, UseDynamicAlignFolders=flags.GeoModel.Align.Dynamic))
   acc.merge(PixelDetectorElementCondAlgCfg(flags))
   # cabling setup
   acc.merge(PixelHitDiscCnfgAlgCfg(flags))
@@ -348,6 +321,7 @@ def pixelCondCfg(flags):
   acc.merge(PixelDistortionAlgCfg(flags))
   acc.merge(PixelOfflineCalibCondAlgCfg(flags))
 
+
   acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags))
   acc.popToolsAndMerge(PixelSiPropertiesCfg(flags))
   acc.popToolsAndMerge(PixelLorentzAngleCfg(flags))
@@ -358,7 +332,9 @@ def pixelCondCfg(flags):
 def trtCondCfg(flags):
   acc = ComponentAccumulator()
   from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline, addFolders
-  acc.merge(addFolders(flags, "/TRT/Onl/ROD/Compress","TRT_ONL", className='CondAttrListCollection'))
+  #TODO switch to use config from TRT_ConditionsConfig
+  if flags.Common.isOnline:
+    acc.merge(addFolders(flags, "/TRT/Onl/ROD/Compress","TRT_ONL", className='CondAttrListCollection'))
   acc.merge(addFoldersSplitOnline(flags, "TRT","/TRT/Onl/Calib/RT","/TRT/Calib/RT",className="TRTCond::RtRelationMultChanContainer"))
   acc.merge(addFoldersSplitOnline(flags, "TRT","/TRT/Onl/Calib/T0","/TRT/Calib/T0",className="TRTCond::StrawT0MultChanContainer"))
   acc.merge(addFoldersSplitOnline (flags, "TRT","/TRT/Onl/Calib/errors","/TRT/Calib/errors",className="TRTCond::RtRelationMultChanContainer"))
@@ -452,8 +428,10 @@ def trtDataPrep(flags, roisKey, signature):
   RegSelTool_TRT = acc.popToolsAndMerge(regSelTool_TRT_Cfg(flags))
 
   TRT_RodDecoder=CompFactory.TRT_RodDecoder
-  InDetTRTRodDecoder = TRT_RodDecoder(name = "InDetTRTRodDecoder",
-                                      LoadCompressTableDB = True)#(globalflags.DataSource() != 'geant4'))
+  InDetTRTRodDecoder = TRT_RodDecoder(name = "InDetTRTRodDecoder")
+  if flags.Input.isMC:
+    InDetTRTRodDecoder.LoadCompressTableDB = False
+    InDetTRTRodDecoder.keyName=""
   acc.addPublicTool(InDetTRTRodDecoder)
 
   TRTRawDataProviderTool=CompFactory.TRTRawDataProviderTool
@@ -724,11 +702,9 @@ def trigInDetFastTrackingCfg( inflags, roisKey="EMRoIs", signatureName='' ):
 
   acc.addEventAlgo(verifier)
   #Only add raw data decoders if we're running over raw data
-  isMC = flags.Input.isMC
-  if not isMC:
-    acc.merge(pixelDataPrepCfg(flags, roisKey, signature))
-    acc.merge(sctDataPrepCfg(flags, roisKey, signature))
-    acc.merge(trtDataPrep(flags, roisKey, signature))
+  acc.merge(pixelDataPrepCfg(flags, roisKey, signature))
+  acc.merge(sctDataPrepCfg(flags, roisKey, signature))
+  acc.merge(trtDataPrep(flags, roisKey, signature))
 
   acc.merge(pixelClusterizationCfg(flags, roisKey, signature))
   acc.merge(sctClusterizationCfg(flags, roisKey, signature))

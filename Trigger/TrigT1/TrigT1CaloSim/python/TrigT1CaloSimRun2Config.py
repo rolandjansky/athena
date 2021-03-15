@@ -115,8 +115,14 @@ def L1LegacyCaloSimMCCfg(flags):
     acc.merge(LArBadChannelCfg(flags))
     acc.merge(LArBadFebCfg(flags))
 
-    from TileConditions.TileConditionsConfig import tileCondCfg
-    acc.merge(tileCondCfg(flags))
+    from TileConditions.TileInfoLoaderConfig import TileInfoLoaderCfg
+    acc.merge(TileInfoLoaderCfg(flags))
+
+    from TileGeoModel.TileGMConfig import TileGMCfg
+    acc.merge(TileGMCfg(flags))
+
+    from TileConditions.TileEMScaleConfig import TileEMScaleCondAlgCfg
+    acc.merge( TileEMScaleCondAlgCfg(flags) )
 
     from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
     acc.merge(LumiBlockMuWriterCfg(flags))
