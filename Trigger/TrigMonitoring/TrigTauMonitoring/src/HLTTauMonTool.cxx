@@ -126,7 +126,6 @@ HLTTauMonTool::HLTTauMonTool(const std::string & type, const std::string & n, co
     //declareProperty("HltEmulationTool",   m_hltemulationTool,  "Handle to the HLT emulation tool");
     declareProperty("doTrackCurves",       m_doTrackCurves=false, "Efficiency plots of track distributions");
     //declareProperty("doTestTracking",     m_doTestTracking=false);
-    declareProperty("doEfficiencyRatioPlots",  m_doEfficiencyRatioPlots=false, "Efficiency ratio plots of FTK vs nonFTK LST chains");
     declareProperty("doTopoValidation",        m_doTopoValidation=false);
     declareProperty("doL1JetPlots",            m_doL1JetPlots=false);
     declareProperty("doEFTProfiles",           m_doEFTProfiles=false);
@@ -212,8 +211,6 @@ StatusCode HLTTauMonTool::init() {
     m_trigItemsZtt_BDT.push_back(*it);
     m_trigItemsZtt.push_back(*it);
   }
-
-  // List of chains of interest for Efficiency Ratio plots between FTK and Reference (i.e. non-FTK/"tracktwo") chains.
 
   // List of MVA triggers
 
@@ -464,16 +461,12 @@ StatusCode HLTTauMonTool::fill() {
    // muCut on Filling the Histograms
    if (m_muCut40Passed)
    {
-        sc = fillHistogramsForItem(m_trigItems[j], monRNN, monBDT);
-        if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed at fillHistogramsForItem"); } //return sc;}  
-        if(m_doTrackCurves){
-            sc = trackCurves (m_trigItems[j], goodTauRefType);
-            if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed trackCurves()"); } //return sc;}
-        }
-    // if(m_doEfficiencyRatioPlots){
-    //      sc = efficiencyRatioPlots (m_trigItems[j], goodTauRefType);
-    //      if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed efficiencyRatioPlots()"); } //return sc;}
-    //    }
+     sc = fillHistogramsForItem(m_trigItems[j], monRNN, monBDT);
+     if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed at fillHistogramsForItem"); } //return sc;}  
+     if(m_doTrackCurves){
+       sc = trackCurves(m_trigItems[j], goodTauRefType);
+       if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed trackCurves()"); } //return sc;}
+     }
    }
    else
    {
@@ -1000,6 +993,30 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
           ATH_CHECK(fillPreselTauVsOffline(*tauJetEL));
         } // end comb loop
 
+ 
+        const std::vector< TrigCompositeUtils::LinkInfo<xAOD::TauJetContainer> > featuresPrecision
+           = getTDT()->features<xAOD::TauJetContainer>( trig_item_EF, m_HLTTriggerCondition,"HLT_TrigTauRecMerged_Precision");
+
+        if(featuresPrecision.size() == 0) {
+          ATH_MSG_DEBUG("TrigTauRecMerged_Precision TauJet container EMPTY in " << trig_item_EF);
+        } else {
+          ATH_MSG_DEBUG("item "<< trigItem << ": TauJetContainer with " << featuresPrecision.size() << " TauJets");
+        }
+
+        for(const auto& tauJetLinkInfo : featuresPrecision){
+          if (!tauJetLinkInfo.isValid()) {
+            ATH_MSG_WARNING("Invalid tauJet Precision");
+            continue;
+          }
+          const ElementLink<xAOD::TauJetContainer> tauJetEL = tauJetLinkInfo.link;
+
+          if(!Selection(*tauJetEL)) continue;
+          setCurrentMonGroup("HLT/TauMon/Expert/"+trigItemShort+"/PrecisionTau");
+          ATH_CHECK(fillPreselTau(*tauJetEL));
+          setCurrentMonGroup("HLT/TauMon/Expert/"+trigItemShort+"/PrecisionVsOffline");
+          ATH_CHECK(fillPreselTauVsOffline(*tauJetEL));
+        } // end comb loop
+
         const std::vector< TrigCompositeUtils::LinkInfo<xAOD::TauJetContainer> > featuresMerged
            = getTDT()->features<xAOD::TauJetContainer>( trig_item_EF, m_HLTTriggerCondition, "HLT_TrigTauRecMerged_MVA");    
 
@@ -1208,7 +1225,7 @@ StatusCode HLTTauMonTool::fillL1Jet(const xAOD::JetRoI * aL1Jet){
 }
 
 
-
+// used to fill both Preselection/Precision taus
 StatusCode HLTTauMonTool::fillPreselTau(const xAOD::TauJet *aEFTau){
 
     ATH_MSG_DEBUG ("HLTTauMonTool::fillPreselTau");
@@ -3589,58 +3606,6 @@ StatusCode HLTTauMonTool::TruthTauEfficiency(const std::string & trigItem, const
     
   return StatusCode::SUCCESS;
 }
-
-bool HLTTauMonTool::PresTauMatching(const std::string & trigItem, const TLorentzVector & TLV, float DR){
-  std::string trig_item_EF= "HLT_"+trigItem;
-  if (getTDT()->isPassed(trig_item_EF,m_HLTTriggerCondition)) {
-
-    if (getTDT()->getNavigationFormat() == "TriggerElement") {
-
-      Trig::FeatureContainer f = ( getTDT()->features(trig_item_EF,m_HLTTriggerCondition) );
-      Trig::FeatureContainer::combination_const_iterator comb(f.getCombinations().begin()), combEnd(f.getCombinations().end());
-
-      if (f.getCombinations().size()>100) {
-        ATH_MSG_WARNING("Chain " << trig_item_EF << " has " << f.getCombinations().size() << " combinations. Looping over first 100");
-        combEnd = comb;
-        std::advance(combEnd,100);
-      }
-
-      for(;comb!=combEnd;++comb){
-        const std::vector< Trig::Feature<xAOD::TauJetContainer> >  vec_preseltau = comb -> get<xAOD::TauJetContainer>("HLT_xAOD__TauJetContainer_TrigTauRecPreselection", m_HLTTriggerCondition);
-        std::vector<Trig::Feature<xAOD::TauJetContainer> >::const_iterator preselCI = vec_preseltau.begin(), preselCI_e = vec_preseltau.end();
-        for(; preselCI != preselCI_e; ++preselCI){
-          if(preselCI->cptr()){
-            xAOD::TauJetContainer::const_iterator tauItr = preselCI->cptr()->begin();
-            xAOD::TauJetContainer::const_iterator tauEnd = preselCI->cptr()->end();
-            for(; tauItr != tauEnd; ++tauItr) {
-              float delR = (float)(*tauItr)->p4().DeltaR(TLV);
-              if(delR <= DR) return true;  
-            }
-          }
-        }
-      }
-
-    } else { // TrigComposite
-
-      const std::vector< TrigCompositeUtils::LinkInfo<xAOD::TauJetContainer> > features = 
-        getTDT()->features<xAOD::TauJetContainer>( trig_item_EF, m_HLTTriggerCondition, "HLT_xAOD__TauJetContainer_TrigTauRecPreselection" );
-
-      for(const auto& tauJetLinkInfo : features){
-        if (!tauJetLinkInfo.isValid()) {
-          ATH_MSG_WARNING("Invalid TauJet link");
-          continue;
-        }
-        ElementLink<xAOD::TauJetContainer> tauJetEL = tauJetLinkInfo.link;
-        float delR = (float)(*tauJetEL)->p4().DeltaR(TLV);
-        if(delR <= DR) return true;  
-      }
-
-    } // TriggerElement or TrigComposite
-
-  }
-  return true;
-}     
-            
 
 bool HLTTauMonTool::HLTTauMatching(const std::string & trigItem, const TLorentzVector & TLV, float DR)
 {
