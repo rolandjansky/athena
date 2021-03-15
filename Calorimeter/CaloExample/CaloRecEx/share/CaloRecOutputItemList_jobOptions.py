@@ -204,12 +204,12 @@ if jobproperties.CaloRecFlags.doCaloFwdTopoTower.get_Value():
     CaloClusterItemList+=["xAOD::CaloClusterContainer#"+theKey]
     AuxListItem="xAOD::CaloClusterAuxContainer#"+theKey+"Aux"
     for moment in ("CENTER_LAMBDA", 
-                   "CENTER_MAG",
+                   #"CENTER_MAG",
                    "LONGITUDINAL",
-                   "FIRST_ENG_DENS",
-                   "ENG_FRAC_MAX",
+                   #"FIRST_ENG_DENS",
+                   #"ENG_FRAC_MAX",
                    "ENG_FRAC_EM",
-                   "PTD",
+                   #"PTD",
                    "SIGNIFICANCE",
                    "ENG_POS"):
          AuxListItem+="."+moment
