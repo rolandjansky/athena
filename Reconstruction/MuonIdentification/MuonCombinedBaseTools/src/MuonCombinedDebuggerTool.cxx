@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -156,10 +156,10 @@ namespace MuonCombined {
     m_ms_id_iprob.resize(muonCandidates.size());
 
     unsigned int imu=0;
-    for(auto muonCandidate : muonCandidates) {
+    for(const auto *muonCandidate : muonCandidates) {
       bool hasExtr = muonCandidate->extrapolatedTrack();
 
-      for(auto inDetCandidate : inDetCandidates) {
+      for(const auto *inDetCandidate : inDetCandidates) {
 
 	// matching chi2s
 	double outerMatchChi2 = m_matchQuality->outerMatchChi2(*inDetCandidate->indetTrackParticle().track(), muonCandidate->muonSpectrometerTrack());
@@ -222,7 +222,7 @@ namespace MuonCombined {
     m_idtrack_cov_theta.clear();
     m_idtrack_cov_qOverP.clear();
 
-    for(auto inDetCandidate : inDetCandidates) {
+    for(const auto *inDetCandidate : inDetCandidates) {
     
       // id track
       m_idtrack_sur_x.push_back( inDetCandidate->indetTrackParticle().track()->perigeeParameters()->associatedSurface().center().x() );
@@ -355,7 +355,7 @@ namespace MuonCombined {
     m_mstrack_truth_theta.clear();
     m_mstrack_truth_qOverP.clear();
 
-    for(auto muonCandidate : muonCandidates) {
+    for(const auto *muonCandidate : muonCandidates) {
 
       bool hasExtr = muonCandidate->extrapolatedTrack();
       const Trk::TrackParameters* muonPars = hasExtr ? 

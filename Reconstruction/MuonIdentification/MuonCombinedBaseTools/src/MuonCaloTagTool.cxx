@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -96,8 +96,8 @@ namespace MuonCombined {
 				Trk::SegmentCollection* segments, const EventContext& ctx) const {
 
     if(combTracks || meTracks || segments) ATH_MSG_DEBUG("track collections passed to MuonCaloTagTool?");
-    const xAOD::CaloClusterContainer* caloClusterCont=0;
-    const CaloCellContainer* caloCellCont=0;
+    const xAOD::CaloClusterContainer* caloClusterCont=nullptr;
+    const CaloCellContainer* caloCellCont=nullptr;
     if(m_doCaloLR){ //retrieve the xAOD::CaloClusterContainer
       SG::ReadHandle<xAOD::CaloClusterContainer> clusters(m_caloClusterCont, ctx);
       if(!clusters.isValid()) ATH_MSG_WARNING("CaloClusterContainer "<<m_caloClusterCont.key()<<" not valid");
@@ -119,7 +119,7 @@ namespace MuonCombined {
 
 
     // --- Retrieve primary vertex (not retrieving for now) ---
-    const Trk::Vertex* vertex = 0;
+    const Trk::Vertex* vertex = nullptr;
     
     // --- Big loop over all the particles in the container ---                                                                                                              
     //-- make sure CaloCellContainer is there
@@ -127,7 +127,7 @@ namespace MuonCombined {
       ATH_MSG_VERBOSE("Called with no CaloCellContainer in argument");
     }
 
-    for( auto idTP : inDetCandidates ){
+    for( const auto *idTP : inDetCandidates ){
       
       // skip track particles which are no complete ID track
       if ( m_ignoreSiAssocated && idTP->isSiliconAssociated() ){
@@ -241,7 +241,7 @@ namespace MuonCombined {
     
     // --- Retrieve the last measured hit which is closest to the solenoid/calorimeter entrance ---
     const DataVector<const Trk::TrackParameters>* paramvec = trk->trackParameters();
-    const Trk::TrackParameters* param = 0;
+    const Trk::TrackParameters* param = nullptr;
     if (paramvec) {
       DataVector <const Trk::TrackParameters>::const_iterator itEnd = paramvec->end();
       param = *(--itEnd);
@@ -350,7 +350,7 @@ namespace MuonCombined {
     std::vector<DepositInCalo>::const_iterator deposit  = deposits.begin();
     std::vector<DepositInCalo>::const_iterator depositE = deposits.end();
     double eLoss = 0; //Energy Loss as measured in the cell closest to the track in each sample
-    CaloTag* caloTag = 0;
+    CaloTag* caloTag = nullptr;
     for(; deposit != depositE; deposit++)
       eLoss+=deposit->energyDeposited();
 
