@@ -142,7 +142,7 @@ def extractMetaData(path):
 def mergeMetaData(md1, md2):
    assert len(md1) == len(md2)
    md = {}
-   for folderName, folderData1 in md1.iteritems():
+   for folderName, folderData1 in md1.items():
       folderData2 = md2[folderName]
       if folderData1 is None or folderData2 is None:
          folderData = None
@@ -166,7 +166,7 @@ def augmentMetaData(metaData):
       value = metaData['/Generation/Parameters']['HepMCWeightNames']
       mcWeightIndexByName = ast.literal_eval(value)
       mcWeightNames = []
-      for name, index in mcWeightIndexByName.iteritems():
+      for name, index in mcWeightIndexByName.items():
          if index >= len(mcWeightNames):
             mcWeightNames += ( None for _ in xrange(len(mcWeightNames), index + 1) )
          elif not mcWeightNames[index] is None:
