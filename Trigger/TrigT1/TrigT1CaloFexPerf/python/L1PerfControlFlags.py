@@ -67,14 +67,14 @@ class maxSCETm(JobProperty):
     StoredValue = 1
 _caloflags.append(maxSCETm)
 
-class DataNoPedestal(JobProperty):
+class ApplyEmulatedPedestal(JobProperty):
     """
-    Disable pedestal related features for data, since it crashes in some cases 
+    Apply pedestal correction for the emulation tools, on data and MC
     """
     statusOn = True
     allowType = ['bool'] 
-    StoredValue = False 
-_caloflags.append(DataNoPedestal) 
+    StoredValue = True 
+_caloflags.append(ApplyEmulatedPedestal) 
 
 class ComputeEFexClusters(JobProperty):
     """ ComputeClusters """
@@ -151,6 +151,13 @@ class EnableDebugOutput(JobProperty):
     allowedType = ['bool']
     StoredValue = False
 _glflags.append(EnableDebugOutput)
+
+class EnableExtraXAODOutput(JobProperty):
+    """ Enabe outputting additional xAOD objects (J/GTowers, GBlocks) """
+    statusOn = True
+    allowedType = ['bool']
+    StoredValue = False
+_glflags.append(EnableExtraXAODOutput)
 
 
 # end of flag definitions

@@ -190,6 +190,22 @@
   <class name="xAOD::TriggerTowerAuxContainer_v2"
          id="07FF691A-A920-43B2-A4E7-637D335E6929" />
 
+
+
+  <!-- JGTower -->
+  <class name="xAOD::JGTower_v1" />
+  <class name="xAOD::JGTowerContainer_v1"
+         id="d8759707-7ad9-4567-af03-753b7eed4521" />
+  <class name="xAOD::JGTowerAuxContainer_v1" id="b12228ce-de5c-49dd-82ba-d2d5436f42c1" />
+
+  <!-- GBlock -->
+  <class name="xAOD::GBlock_v1" />
+  <class name="xAOD::GBlockContainer_v1"
+         id="C199624A-2DFE-4FD5-A3C7-26C381BE811B"/>
+  <class name="xAOD::GBlockAuxContainer_v1"
+         id="52F340EE-B2CB-4F65-A865-670E20D43383"/>
+
+
   <!-- CMXCPHits_v1 -->
   <class name="xAOD::CMXCPHits_v1" />
   <class name="xAOD::CMXCPHitsContainer_v1"

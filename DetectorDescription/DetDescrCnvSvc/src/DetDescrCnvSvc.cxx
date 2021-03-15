@@ -228,6 +228,12 @@ DetDescrCnvSvc::initialize()     {
     status =  addToDetStore(190591643, "ZdcID");
     if (status != StatusCode::SUCCESS) return status;
 
+    //for J/GTower
+    status =  addToDetStore(218674799, "JTower_ID");
+    if (status != StatusCode::SUCCESS) return status;
+    status =  addToDetStore(49678914, "GTower_ID");
+    if (status != StatusCode::SUCCESS) return status;
+
     return status;
 }
 
