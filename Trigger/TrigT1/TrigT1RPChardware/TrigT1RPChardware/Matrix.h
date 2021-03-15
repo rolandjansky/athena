@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef Matrix_H
@@ -78,27 +78,27 @@ void setTrigDeadTime(ubit16 deadt);
 void setTrigDeadTime(ubit16 igroup, ubit16 deadt);
 void setDiagonal(ubit16 add, sbit32 content);
 ////////////////////////////////////////////////////////////////////////////////
-int     getMajority(ubit16 add);
-CMAword getRoad(ubit16 addThres, ubit16 addChn, ubit16 add64);
-CMAword getMatOverlap(ubit16 add);
+int     getMajority(ubit16 add) const;
+CMAword getRoad(ubit16 addThres, ubit16 addChn, ubit16 add64) const;
+CMAword getMatOverlap(ubit16 add) const;
 void execute();
-int getSubsystem();
-int getProjection();
-int getSector();
-int getPad();
-int getLowHigh();
-int getAddress0();
-int getAddress1();
-int getLocalAdd();
-ubit16 getParams();
-ubit16 getOutputThres(ubit16 bunch);
-ubit16 getOutputOverl(ubit16 bunch);
-sbit16 getBunchPhase();
-sbit16 getBunchOffset();
-void display();
-void dispWind();
-void dispWind(ubit16 thres);
-void dispDefaultConfiguration();
+int getSubsystem() const;
+int getProjection() const;
+int getSector() const;
+int getPad() const;
+int getLowHigh() const;
+int getAddress0() const;
+int getAddress1() const;
+int getLocalAdd() const;
+ubit16 getParams() const;
+ubit16 getOutputThres(ubit16 bunch) const;
+ubit16 getOutputOverl(ubit16 bunch) const;
+sbit16 getBunchPhase() const;
+sbit16 getBunchOffset() const;
+void display() const;
+void dispWind() const;
+void dispWind(ubit16 thres) const;
+void dispDefaultConfiguration() const;
 ubit16 char2int(const char *str, CMAword the32[2]);
 void histo(rpcbook *p);  // rpcbook
 //
@@ -377,22 +377,22 @@ void declus();
 void majori();
 void reduce(ubit16 ia, ubit16 ja, ubit16 ka, ubit16 la, 
             ubit16 nup, ubit16 first);
-void shift(CMAword *buffi, CMAword *buffo, ubit16 i);
+void shift(CMAword *buffi, CMAword *buffo, ubit16 i) const;
 void makeOut();
 void makeTestPattern(ubit16 mode, ubit16 ktimes);
 void makeOutPattern();
-ubit16 config(ubit16 i, ubit16 *arr);
-void   set_to_0 (CMAword *p, sbit16 channel);
-void   set_to_1 (CMAword *p, sbit16 channel);
-ubit16 bitstatus(const CMAword *p, ubit16 channel);
-void inds(ubit16 *i, ubit16 channel);
-CMAword intPow (const ubit16 base, const ubit16 expo);
-void wind();
-void show_attributes();
-void disp_CMAreg(ubit16 id);
-void dispRegister(const CMAword *p, ubit16 side);
-void dispTrigger(const CMAword *p);
-void dispBinary(const CMAword *p, __osstream *strdisp);
+ubit16 config(ubit16 i, ubit16 *arr) const;
+void   set_to_0 (CMAword *p, sbit16 channel) const;
+void   set_to_1 (CMAword *p, sbit16 channel) const;
+ubit16 bitstatus(const CMAword *p, ubit16 channel) const;
+void inds(ubit16 *i, ubit16 channel) const;
+CMAword intPow (const ubit16 base, const ubit16 expo) const;
+void wind() const;
+void show_attributes() const;
+void disp_CMAreg(ubit16 id) const;
+void dispRegister(const CMAword *p, ubit16 side) const;
+void dispTrigger(const CMAword *p) const;
+void dispBinary(const CMAword *p, __osstream *strdisp) const;
 //
 };//end-of-class matrix
 #endif
