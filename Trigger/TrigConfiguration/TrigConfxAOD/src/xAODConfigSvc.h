@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODConfigSvc.h 631651 2014-11-27 18:33:16Z lheinric $
 #ifndef TRIGCONFXAOD_XAODCONFIGSVC_H
 #define TRIGCONFXAOD_XAODCONFIGSVC_H
 
@@ -143,21 +142,6 @@ namespace TrigConf {
       /// Get the MuCTPI's online configuration
       virtual const Muctpi* muctpiConfig() const override {
          return 0;
-      }
-
-      /// @}
-
-      /// @name Dummy implementation of the IHLTConfigSvc interface
-      /// @{
-
-      /// Loads prescale sets in online running
-      virtual StatusCode updatePrescaleSets( uint /*requestcount*/ ) override {
-         return StatusCode::FAILURE;
-      }
-
-      /// Updates the prescales on the chain in online running
-      virtual StatusCode assignPrescalesToChains( uint /*lumiblock*/ ) override {
-         return StatusCode::FAILURE;
       }
 
       /// @}

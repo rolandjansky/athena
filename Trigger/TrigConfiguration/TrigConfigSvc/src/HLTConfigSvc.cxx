@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // class declaration
@@ -384,65 +384,3 @@ TrigConf::HLTConfigSvc::setL2LowerChainCounter(const CTPConfig* ctpcfg) {
    m_HLTFrame.theHLTChainList().setL2LowerChainCounter(ctpcfg);
 }
 
-
-
-// query the TriggerDB for the list of lumiblocks and corresponding prescalekeys
-// will then load the and prescaleSets that have not yet been loaded
-StatusCode
-TrigConf::HLTConfigSvc::updatePrescaleSets(uint requestcount) {
-
-   if( ! fromDB() ) { // xml 
-      ATH_MSG_WARNING("Configured to not run from the database!");
-      return StatusCode::SUCCESS;
-   }
-
-   if( !m_dbconfig->m_hltkeys.empty() ) {
-      ATH_MSG_WARNING("Has list of [(lb1,psk1), (lb2,psk2),...] defined!");
-      return StatusCode::SUCCESS;
-   }
-
-   // Load prescale set
-   CHECK(initStorageMgr());
-
-   bool loadSuccess = dynamic_cast<TrigConf::StorageMgr*>
-     (m_storageMgr)->hltPrescaleSetCollectionLoader().load( m_HLTFrame.thePrescaleSetCollection(), requestcount, "" );
-
-   CHECK(freeStorageMgr());
-
-   if(!loadSuccess) {
-      ATH_MSG_WARNING("HLTConfigSvc::updatePrescaleSets(): loading failed");
-      return StatusCode::FAILURE;
-   } else {
-      ATH_MSG_INFO ( m_HLTFrame.thePrescaleSetCollection() );
-   }
-   return StatusCode::SUCCESS;
-}
-
-
-// Assigns the prescales that are valid for a given lumiblock to the chains
-// This method is called by TrigSteer on *every* event (keep it fast)
-StatusCode
-TrigConf::HLTConfigSvc::assignPrescalesToChains(uint lumiblock) {
-
-   if(! fromDB() ) // xml
-      return StatusCode::SUCCESS;
-
-   // get the HLTPrescaleSet
-   const HLTPrescaleSet* pss = m_HLTFrame.getPrescaleSetCollection().prescaleSet(lumiblock);
-   if (pss == 0) {
-      ATH_MSG_ERROR("Could not retrieve HLT prescale set for lumiblock = " << lumiblock);
-      return StatusCode::FAILURE;
-   }
-
-   // still the same HLTPSS -> nothing to do
-   if(pss->id() ==  m_currentPSS) {
-      return StatusCode::SUCCESS;
-   }
-
-   ATH_MSG_INFO("Changing PSK from " << m_currentPSS << " to " << pss->id()
-                << " for lumiblock " << lumiblock);
-
-   applyPrescaleSet(*pss);
-
-   return StatusCode::FAILURE;
-}

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////
@@ -73,10 +73,6 @@ namespace TrigConf {
       virtual std::string configurationSource() const override {
          return "";
       }
-
-      virtual StatusCode updatePrescaleSets(uint requestcount) override;
-
-      virtual StatusCode assignPrescalesToChains(uint lumiblock ) override;
 
       /// @name Dummy implementations of the Run 3 L1 JSON trigger configuration interface in IILVL1ConfigSvc.
       /// @brief Use the xAODConfigSvc or xAODConfigTool to access these data.

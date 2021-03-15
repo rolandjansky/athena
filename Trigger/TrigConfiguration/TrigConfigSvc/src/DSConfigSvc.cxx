@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -875,17 +875,6 @@ TrigConf::DSConfigSvc::set_HltPrescaleSetFromChainlist() {
 //    m_prescaleSet->setId( m_hltPsKey );
 }
 
-StatusCode
-TrigConf::DSConfigSvc::updatePrescaleSets(uint /*requestcount*/) {
-   return StatusCode::SUCCESS;
-}
-
-// This method is called by TrigSteer on *every* event (keep it fast)
-// This is never used in connection with COOL configuration data
-StatusCode
-TrigConf::DSConfigSvc::assignPrescalesToChains(uint /*lumiblock*/) {
-   return StatusCode::SUCCESS;
-}
 
 bool 
 TrigConf::DSConfigSvc::hasFolder( const std::string& folder_name ){
