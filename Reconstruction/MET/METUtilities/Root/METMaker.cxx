@@ -120,7 +120,7 @@ namespace met {
     declareProperty("ORCaloTaggedMuons",  m_orCaloTaggedMuon   = true                );
     declareProperty("GreedyPhotons",      m_greedyPhotons      = false               );
     declareProperty("VeryGreedyPhotons",  m_veryGreedyPhotons  = false           );
-    declareProperty("DoMuonPFlowBugfix",  m_muonPflowBugfix    = false           );
+    declareProperty("DoMuonPFlowBugfix",  m_muonPflowBugfix    = true            );
     
     declareProperty("UseGhostMuons",      m_useGhostMuons      = false               );
     declareProperty("DoRemoveMuonJets",   m_doRemoveMuonJets   = true                );
