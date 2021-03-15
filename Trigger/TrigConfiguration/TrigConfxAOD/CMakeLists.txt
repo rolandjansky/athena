@@ -11,7 +11,7 @@ atlas_add_library( TrigConfxAODLib
    TrigConfxAOD/*.h Root/*.cxx
    PUBLIC_HEADERS TrigConfxAOD
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES AsgMessagingLib AsgTools AthenaBaseComps GaudiKernel StoreGateLib TrigConfData TrigConfHLTData TrigConfInterfaces TrigConfL1Data xAODTrigger
+   LINK_LIBRARIES AsgMessagingLib AsgTools TrigConfData TrigConfHLTData TrigConfInterfaces TrigConfL1Data xAODTrigger
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} )
 
 if( NOT XAOD_STANDALONE )

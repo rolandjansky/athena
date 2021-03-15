@@ -3,7 +3,7 @@
 #include "../xAODMenuWriterMT.h"
 #include "../xAODMenuReader.h"
 #include "TrigConfxAOD/xAODConfigTool.h"
-#include "TrigConfxAOD/KeyWriterTool.h"
+#include "../KeyWriterTool.h"
 
 DECLARE_COMPONENT( TrigConf::xAODConfigSvc )
 DECLARE_COMPONENT( TrigConf::xAODMenuWriter )
