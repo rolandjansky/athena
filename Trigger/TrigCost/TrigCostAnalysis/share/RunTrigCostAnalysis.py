@@ -5,6 +5,7 @@
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.AutoConfigFlags import GetFileMD
 from AthenaCommon.Logging import logging
 log = logging.getLogger('RunTrigCostAnalysis.py')
 
@@ -17,7 +18,6 @@ def trigCostAnalysisCfg(flags, baseWeight=1.0, useEBWeights=False, isMC=False, M
   acc = ComponentAccumulator()
 
   # Retrieve run number
-  from AthenaConfiguration.AutoConfigFlags import GetFileMD
   runNumbers = GetFileMD(ConfigFlags.Input.Files)['runNumbers']
 
   if len(runNumbers) > 1:
@@ -80,14 +80,48 @@ def decodingCfg(flags):
 
 
 # Configure HLTConfigSvc with JSON Menu file
-def hltConfigSvcCfg(flags):
+def hltConfigSvcCfg(flags, smk, dbAlias):
   acc = ComponentAccumulator()
 
   hltConfigSvc = CompFactory.getComp("TrigConf::HLTConfigSvc")("HLTConfigSvc")
   hltConfigSvc.ConfigSource = "None"
-  hltConfigSvc.XMLMenuFile = "None"
-  hltConfigSvc.InputType = "file"
-  hltConfigSvc.JsonFileName = getHltMenu()
+
+  menuFile = getHltMenu()
+  # If local file not found - read HLTMenu from database
+  if menuFile:
+    log.debug("Reading menu from file")
+
+    hltConfigSvc.InputType = "file"
+    hltConfigSvc.XMLMenuFile = "None"
+    hltConfigSvc.JsonFileName = menuFile
+  else:
+    log.debug("Reading menu from database")
+
+    if not smk or not dbAlias:
+      # Try to read keys from COOL (for P1 data)
+      from TrigConfStorage.TriggerCoolUtil import TriggerCoolUtil
+      dbconn = TriggerCoolUtil.GetConnection("CONDBR2")
+      runNumber = GetFileMD(ConfigFlags.Input.Files)['runNumbers'][0]
+      configKeys = TriggerCoolUtil.getHLTConfigKeys(dbconn, [[runNumber, runNumber]])
+
+      if configKeys and runNumber in configKeys.keys():
+        if not smk:
+          smk = configKeys[runNumber]['SMK']
+
+        if not dbAlias:
+          # For example TRIGGERDBDEV1;22.0.20;Athena -> TRIGGERDBDEV1
+          dbAlias = configKeys[runNumber]['DB'].split(";")[0]
+
+      else:
+        log.error("Menu not found!")
+
+    log.debug("Config keys are SMK: {0} DB alias: {1}".format(smk, dbAlias))
+
+    hltConfigSvc.InputType = "DB"
+    hltConfigSvc.JsonFileName = ""
+    hltConfigSvc.TriggerDB = dbAlias
+    hltConfigSvc.SMK = smk
+
   acc.addService(hltConfigSvc, False, True)
 
   return acc
@@ -105,13 +139,7 @@ def getHltMenu():
   if len(menuFiles) > 1:
     log.info("Found more than one menu file! Saving first match %s", menuFiles[0])
 
-  # If local file not found - read HLTMenu from database
-  if len(menuFiles) == 0:
-    log.error("Menu file not found!")
-    # TODO retrieve menu from db
-
-  else:
-    return menuFiles[0]
+  return menuFiles[0] if len(menuFiles) > 0 else ""
 
 
 if __name__=='__main__':
@@ -122,13 +150,16 @@ if __name__=='__main__':
   parser.add_argument('--baseWeight', type=float, default=1.0, help='Base events weight')
   parser.add_argument('--useEBWeights', type=bool, default=False, help='Apply Enhanced Bias weights')
 
+  parser.add_argument('--smk', type=int, help='SuperMasterKey to retrieve menu file')
+  parser.add_argument('--dbAlias', type=str, help='Database alias to retrieve menu file')
+
   parser.add_argument('--MCCrossSection', default=0.0, type=float, help='For MC input: Cross section of process in nb')
   parser.add_argument('--MCFilterEfficiency', default=1.0, type=float, help='For MC input: Filter efficiency of any MC filter (0.0 - 1.0)')
   parser.add_argument('--MCKFactor', default=1.0, type=float, help='For MC input: Additional multiplicitive fudge-factor to the supplied cross section.')
   parser.add_argument('--MCIgnoreGeneratorWeights', action='store_true', help='For MC input: Flag to disregard any generator weights.')
 
   parser.add_argument('--maxEvents', type=int, help='Maximum number of events to process')
-  parser.add_argument('--skipEvents",type=int, help="Number of events to skip')
+  parser.add_argument('--skipEvents',type=int, help='Number of events to skip')
   parser.add_argument('--loglevel', type=int, default=3, help='Verbosity level')
   parser.add_argument('flags', nargs='*', help='Config flag overrides')  
   args = parser.parse_args()
@@ -158,7 +189,7 @@ if __name__=='__main__':
   histSvc.Output += ["COSTSTREAM DATAFILE='" + args.outputHist + "' OPT='RECREATE'"]
   cfg.addService(histSvc)
 
-  cfg.merge(hltConfigSvcCfg(ConfigFlags))
+  cfg.merge(hltConfigSvcCfg(ConfigFlags, args.smk, args.dbAlias))
   cfg.merge(trigCostAnalysisCfg(ConfigFlags, args.baseWeight, args.useEBWeights, ConfigFlags.Input.isMC, readMCpayload(args)))
 
   # If you want to turn on more detailed messages ...
