@@ -6,10 +6,7 @@
 @brief Run 3 configuration builder. Histograms definitions taken from TrigEgammaPlotTool
 '''
 
-
 from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefPhoton
-from TrigEgammaHypo.TrigEgammaPidTools import ElectronPidTools
-from TrigEgammaHypo.TrigEgammaPidTools import PhotonPidTools
 import cppyy
 import functools
  
@@ -19,8 +16,6 @@ from AthenaConfiguration.ComponentFactory import CompFactory as CfgMgr
 
 if 'DQMonFlags' not in dir():
     from AthenaMonitoring.DQMonFlags import DQMonFlags as dqflags
-
-
 
 
 class TrigEgammaMonAlgBuilder:
@@ -263,10 +258,6 @@ class TrigEgammaMonAlgBuilder:
     acc.addPublicTool(EgammaMatchTool)
     cppyy.load_library('libElectronPhotonSelectorToolsDict')
     # Following loads the online selectors
-  
-    # setup all pid tools
-    ElectronPidTools()
-    PhotonPidTools()
   
     # Offline selectors -- taken from latest conf
     LooseElectronSelector             = CfgMgr.AsgElectronIsEMSelector("T0HLTLooseElectronSelector")

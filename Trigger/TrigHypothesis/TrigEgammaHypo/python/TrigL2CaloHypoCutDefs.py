@@ -1,13 +1,10 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-# flake8: noqa  (legacy trigger)
-
 # L2 Calo cut definitions for Electrons
 # Ryan Mackenzie White <ryan.white@cern.ch>
 # Akshay Katre
 # Cuts migrated from L2CaloHypoConfig
 
-from AthenaCommon.SystemOfUnits import GeV
 
 from AthenaCommon.Logging import logging
 log_trigegL2 = logging.getLogger( 'L2CaloCutMaps' )
@@ -283,3 +280,4 @@ class L2CaloPhotonCutMaps():
                 }
         else:
              raise RuntimeError('INCORRECT threshold: No cuts configured')           
+
