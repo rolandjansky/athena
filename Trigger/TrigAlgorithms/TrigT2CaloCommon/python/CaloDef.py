@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon.Constants import ERROR
 from AthenaCommon.CFElements import seqAND, parOR
 from AthenaConfiguration.ComponentFactory import CompFactory
 from TriggerMenuMT.HLTMenuConfig.CommonSequences.FullScanDefs import caloFSRoI
@@ -10,14 +9,13 @@ def setMinimalCaloSetup() :
   if not hasattr(svcMgr,'TrigCaloDataAccessSvc'):
     from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigCaloDataAccessSvc
     svcMgr+=TrigCaloDataAccessSvc()
-    svcMgr.TrigCaloDataAccessSvc.OutputLevel=ERROR
 
 ########################
 ## ALGORITHMS
 # defined as private within this module, so that they can be configured only in functions in this module
 ########################
 
-def _algoHLTCaloCell(name="HLTCaloCellMaker", inputEDM='', outputEDM='CellsClusters', RoIMode=True, OutputLevel=ERROR) :
+def _algoHLTCaloCell(name="HLTCaloCellMaker", inputEDM='', outputEDM='CellsClusters', RoIMode=True) :
    if not inputEDM:
       from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
       inputEDM = mapThresholdToL1RoICollection("FSNOSEED")
@@ -28,27 +26,24 @@ def _algoHLTCaloCell(name="HLTCaloCellMaker", inputEDM='', outputEDM='CellsClust
    #"HLTCaloCellMaker"
    algo.RoIs=inputEDM
    algo.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
-   algo.OutputLevel=OutputLevel
    algo.CellsName=outputEDM
    return algo
 
-def _algoHLTTopoCluster(inputEDM="CellsClusters", OutputLevel=ERROR, algSuffix="") :
+def _algoHLTTopoCluster(inputEDM="CellsClusters", algSuffix="") :
    from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMakerMT_topo
    algo = TrigCaloClusterMakerMT_topo(name="TrigCaloClusterMakerMT_topo"+algSuffix, doMoments=True, doLC=False, cells=inputEDM)
    from TrigEDMConfig.TriggerEDMRun3 import recordable
    algo.CaloClusters=recordable("HLT_TopoCaloClusters"+algSuffix)
-   algo.OutputLevel=OutputLevel
    return algo
 
-def _algoHLTTopoClusterLC(inputEDM="CellsClusters", OutputLevel=ERROR, algSuffix="") :
+def _algoHLTTopoClusterLC(inputEDM="CellsClusters", algSuffix="") :
    from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMakerMT_topo
    algo = TrigCaloClusterMakerMT_topo(name="TrigCaloClusterMakerMT_topo"+algSuffix, doMoments=True, doLC=True, cells=inputEDM)
    from TrigEDMConfig.TriggerEDMRun3 import recordable
    algo.CaloClusters=recordable("HLT_TopoCaloClusters"+algSuffix)
-   algo.OutputLevel=OutputLevel
    return algo
 
-def _algoL2Egamma(inputEDM="",OutputLevel=ERROR,doRinger=False, ClustersName="HLT_FastCaloEMClusters", RingerKey="HLT_FastCaloRinger"):
+def _algoL2Egamma(inputEDM="", doRinger=False, ClustersName="HLT_FastCaloEMClusters", RingerKey="HLT_FastCaloRinger"):
     if not inputEDM:
         from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
         inputEDM = mapThresholdToL1RoICollection("EM")
@@ -58,7 +53,6 @@ def _algoL2Egamma(inputEDM="",OutputLevel=ERROR,doRinger=False, ClustersName="HL
     algo.RoIs=inputEDM
     from TrigEDMConfig.TriggerEDMRun3 import recordable
     algo.ClustersName=recordable("HLT_FastCaloEMClusters")
-    algo.OutputLevel=OutputLevel
     return algo
 
 
