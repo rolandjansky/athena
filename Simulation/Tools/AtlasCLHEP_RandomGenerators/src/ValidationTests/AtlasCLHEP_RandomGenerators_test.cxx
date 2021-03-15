@@ -14,12 +14,16 @@
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandExpZiggurat.h"
 
+#include "AtlasCLHEP_RandomGenerators/RandBinomialFixedP.h"
+
 // Gaudi includes
 #include "GaudiKernel/DataSvc.h"
 #include "GaudiKernel/Chrono.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ListItem.h"
+
+#include <string>
 
 //#include "rnorrexp_org.icc"
 
@@ -37,14 +41,9 @@ namespace AtlasCLHEP_RandomGenerators {
             m_randomEngineName1("rnd_AtRanluxGenSvc"),
             m_rndmSvc2("AtDSFMTGenSvc", name),
             m_randomEngine2(0),
-            m_randomEngineName2("rnd_AtDSFMTGenSvc"),
-            m_hflat(nullptr),
-            m_hgauss1(nullptr),
-            m_hgauss2(nullptr),
-            m_hgauss3(nullptr),
-            m_hexp1(nullptr),
-            m_hexp2(nullptr)
+            m_randomEngineName2("rnd_AtDSFMTGenSvc")
   {
+    declareProperty("ntest", m_ntest);  
   }
   
   //__________________________________________________________________________
@@ -120,6 +119,17 @@ namespace AtlasCLHEP_RandomGenerators {
       msg(MSG::WARNING) << "Could not register histogram "<< m_hexp2->GetName() << endmsg;
     }
 
+    m_hbin1=new TH1D("RandBinomial","RandBinomial",4,-0.5,3.5);
+    if(!m_histSvc->regHist(std::string("/PLOTS/") + m_hbin1->GetName(), m_hbin1).isSuccess()) {
+      msg(MSG::WARNING) << "Could not register histogram "<< m_hbin1->GetName() << endmsg;
+    }
+
+    m_hbin2=new TH1D("RandBinomialFixedP","RandBinomialFixedP",4,-0.5,3.5);
+    if(!m_histSvc->regHist(std::string("/PLOTS/") + m_hbin2->GetName(), m_hbin2).isSuccess()) {
+      msg(MSG::WARNING) << "Could not register histogram "<< m_hbin2->GetName() << endmsg;
+    }
+    
+
     return StatusCode::SUCCESS; 
   }
   
@@ -133,18 +143,8 @@ namespace AtlasCLHEP_RandomGenerators {
   StatusCode AtlasCLHEP_RandomGenerators_test::execute()
   {
     static int ievent=0;
-    int ntest=10000000;
-    //long seed=1234+ievent;
+    int ntest=m_ntest;
     
-    /*
-    CLHEP::RandGauss gauss(*m_randomEngine2);
-    CLHEP::RandGaussQ gaussQ(*m_randomEngine2);
-    CLHEP::RandGaussZiggurat gaussZ(*m_randomEngine2);
-
-    CLHEP::RandExponential rexp(*m_randomEngine2);
-    CLHEP::RandExpZiggurat rexpZ(*m_randomEngine2);
-    */
-
     msg(MSG::DEBUG)<<"event="<<ievent<<" ntest="<<ntest<<endmsg;
     
     m_chrono -> chronoStart("flat");
@@ -212,6 +212,33 @@ namespace AtlasCLHEP_RandomGenerators {
     sum_expZ/=ntest;
     m_chrono -> chronoStop("RandExpZiggurat");
     msg(MSG::DEBUG)<<" avg "<<"RandExpZiggurat"<<"="<<sum_expZ<<endmsg;
+
+    CLHEP::RandBinomialFixedP lu(*m_randomEngine2,1,0.4,12); // Needs to be called with the random engine as reference, as a pointer gets deleted by CLHEP::RandBinomial!
+
+    for(int n=1;n<6;n+=1) {
+      double sum_bin=0;
+      m_chrono -> chronoStart("RandBinomial_"+std::to_string(n));
+      for(int i=0;i<ntest;++i) {
+        double g=CLHEP::RandBinomial::shoot(m_randomEngine2,n,0.4);
+        if(n==3) m_hbin1->Fill(g);
+        sum_bin+=g;
+      }  
+      m_chrono -> chronoStop("RandBinomial_"+std::to_string(n));
+      sum_bin/=ntest;
+      msg(MSG::DEBUG) << " avg RandBinomial("<<n<<")="<<sum_bin<< endmsg;
+
+      double sum_stdbin=0;
+      m_chrono -> chronoStart("RBinomialFP_"+std::to_string(n));
+      for(int i=0;i<ntest;++i) {
+        double g=lu.fire(m_randomEngine2, n );
+        if(n==3) m_hbin2->Fill(g);
+        sum_stdbin+=g;
+      }  
+      m_chrono -> chronoStop("RBinomialFP_"+std::to_string(n));
+      sum_stdbin/=ntest;
+      msg(MSG::DEBUG) << " avg RandBinomialFixedP("<<n<<")="<<sum_stdbin<< endmsg;
+    }  
+
 
     /*
 

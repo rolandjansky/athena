@@ -20,7 +20,7 @@ from AthenaServices.AthenaServicesConf import AtDSFMTGenSvc
 ServiceMgr += AtDSFMTGenSvc("AtDSFMTGenSvc")
 
 # Add top algorithms to be run
-from  AtlasCLHEP_RandomGenerators.AtlasCLHEP_RandomGeneratorsConf import  AtlasCLHEP_RandomGenerators__AtlasCLHEP_RandomGenerators_test
+from  AtlasCLHEP_RandomGenerators.AtlasCLHEP_RandomGenerators_testConf import AtlasCLHEP_RandomGenerators__AtlasCLHEP_RandomGenerators_test
 job += AtlasCLHEP_RandomGenerators__AtlasCLHEP_RandomGenerators_test("AtlasCLHEP_RandomGenerators_test")   
 
 #--------------------------------------------------------------
