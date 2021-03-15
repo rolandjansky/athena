@@ -30,15 +30,27 @@ def RPCCablingConfigCfg(flags):
     rpcCablingSvc.ConfFileName = 'LVL1confAtlas.data' # this should come from config flag maybe ???
     rpcCablingSvc.CorrFileName = 'LVL1confAtlas.corr' 
     rpcCablingSvc.ConfFilePath = 'MuonRPC_Cabling/'
-    rpcCablingSvc.RPCTriggerRoadsfromCool = True
+    if flags.Trigger.enableL1Phase1:
+        rpcCablingSvc.RPCTriggerRoadsfromCool = False
+        from PathResolver import PathResolver
+        rpcCablingSvc.DatabaseRepository=PathResolver.FindCalibDirectory("MuonRPC_Cabling/RUN3_roads_4_6_8_10_12")
+    else:
+        rpcCablingSvc.RPCTriggerRoadsfromCool = True
+
     rpcCablingSvc.CosmicConfiguration     = 'HLT' in flags.IOVDb.GlobalTag  # this was set to true by the modifier openThresholdRPCCabling in runHLT_standalone.py
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders
     dbName = 'RPC_OFL' if flags.Input.isMC else 'RPC'
-    acc.merge(addFolders(flags, 
-                         [ '/RPC/TRIGGER/CM_THR_ETA', '/RPC/TRIGGER/CM_THR_PHI',
-                           '/RPC/CABLING/MAP_SCHEMA', '/RPC/CABLING/MAP_SCHEMA_CORR' ],
+    acc.merge(addFolders(flags,
+                         [ '/RPC/CABLING/MAP_SCHEMA', '/RPC/CABLING/MAP_SCHEMA_CORR' ],
                          dbName, className='CondAttrListCollection' ))
+    if not flags.Trigger.doLVL1 or flags.Input.isMC:
+        acc.merge(addFolders(flags,
+                             [ '/RPC/TRIGGER/CM_THR_ETA', '/RPC/TRIGGER/CM_THR_PHI'],
+                             dbName, className='CondAttrListCollection' ))
+    else:
+        # to be configured in TriggerJobOpts.Lvl1MuonSimulationConfigOldStyle
+        pass
 
     RPCCablingDbTool=CompFactory.RPCCablingDbTool
     RPCCablingDbTool = RPCCablingDbTool()

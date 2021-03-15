@@ -61,14 +61,11 @@ def Lvl1SimulationSequence_Data( ConfigFlags ):
     ##################################################
     # Muons rerun on data
     ##################################################
-    l1MuonSimDataSeq = seqAND("L1MuonSimDataSeq", [])
-    if ConfigFlags.Trigger.enableL1Phase1:
-        # Placeholder for phase-I MUCTPI simulation on data
-        log.info("Configuring Phase-I MUCTPI simulation on data - not yet implemented")
-        isMUCTPIOutputProvided = False
-    else:
-        log.info("Configuring legacy (Run 2) MUCTPI simulation on data - no yet implemented")
-        isMUCTPIOutputProvided = False
+
+    log.info("Configuring L1Muon simulation on data")
+    from TriggerJobOpts.Lvl1MuonSimulationConfigOldStyle import Lvl1MuonSimulationSequence
+    l1MuonSimDataSeq = Lvl1MuonSimulationSequence(ConfigFlags)
+    isMUCTPIOutputProvided = True
 
     ##################################################
     # L1 Topo rerun on data
@@ -194,87 +191,11 @@ def Lvl1SimulationSequence_MC( ConfigFlags ):
     ##################################################
     # Muons MC
     ##################################################
-    
-    from MuonByteStreamCnvTest.MuonByteStreamCnvTestConf import MuonRdoToMuonDigitTool
-    MuonRdoToMuonDigitTool = MuonRdoToMuonDigitTool (DecodeMdtRDO = False,
-                                                     DecodeRpcRDO = True,
-                                                     DecodeTgcRDO = True,
-                                                     DecodeCscRDO = False,
-                                                     DecodeSTGC_RDO = False,
-                                                     DecodeMM_RDO = False,
-                                                     # for those subdetectors where the decoding is turned off, no need to create a RDO_Decoder ToolHandle
-                                                     mdtRdoDecoderTool="",
-                                                     cscRdoDecoderTool="",
-                                                     stgcRdoDecoderTool="",
-                                                     mmRdoDecoderTool="",
-                                                     RpcDigitContainer = "RPC_DIGITS_L1",
-                                                     TgcDigitContainer = "TGC_DIGITS_L1")
-    
-    MuonRdoToMuonDigitTool.cscCalibTool = "CscCalibTool"
-    ToolSvc += MuonRdoToMuonDigitTool
 
-    from MuonByteStreamCnvTest.MuonByteStreamCnvTestConf import MuonRdoToMuonDigit
-    from TrigT1RPCsteering.TrigT1RPCsteeringConf import TrigT1RPC    
-    from TrigT1TGC.TrigT1TGCConf import LVL1TGCTrigger__LVL1TGCTrigger
+    log.info("Configuring L1Muon simulation on MC")
+    from TriggerJobOpts.Lvl1MuonSimulationConfigOldStyle import Lvl1MuonSimulationSequence
+    l1MuonSim = Lvl1MuonSimulationSequence(ConfigFlags)
 
-    TrigT1RPC.useRun3Config = ConfigFlags.Trigger.enableL1Phase1
-    LVL1TGCTrigger__LVL1TGCTrigger.useRun3Config = ConfigFlags.Trigger.enableL1Phase1
-
-    if ConfigFlags.Trigger.enableL1Phase1:
-        log.info("Configuring Phase-I MUCTPI simulation")
-        from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1
-        muctpi = L1MuctpiPhase1("MUCTPI_AthAlg")
-
-    else:
-        log.info("Configuring legacy (Run 2) MUCTPI simulation")
-        from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi
-        from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
-
-        ToolSvc += L1MuctpiTool("L1MuctpiTool")
-        ToolSvc.L1MuctpiTool.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
-
-        muctpi = L1Muctpi()
-        muctpi.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
-
-    # Sets up and configures the muon alignment and detector manager
-    from MuonRecExample import MuonAlignConfig # noqa: F401
-
-    l1MuonSim = seqAND("l1MuonSim", [
-
-        MuonRdoToMuonDigit( "MuonRdoToMuonDigit",
-                            MuonRdoToMuonDigitTool = ToolSvc.MuonRdoToMuonDigitTool),
-
-        TrigT1RPC("TrigT1RPC",
-                  Hardware          = True, # not sure if needed, not there in old config, present in JO
-                  DataDetail        = False,
-                  RPCbytestream     = False,
-                  RPCbytestreamFile = "",
-                  RPCDigitContainer = "RPC_DIGITS_L1"),
-
-        # based on Trigger/TrigT1/TrigT1TGC/python/TrigT1TGCConfig.py
-        # interesting is that this JO sets inexisting properties, commented out below
-        LVL1TGCTrigger__LVL1TGCTrigger("LVL1TGCTrigger",
-                                       InputData_perEvent  = "TGC_DIGITS_L1", 
-                                       MuCTPIInput_TGC     = "L1MuctpiStoreTGC",
-                                       MaskFileName12      = "TrigT1TGCMaskedChannel._12.db"),
-        muctpi
-    ])
-    
-    # only needed for MC
-    conddb.addFolder("TGC_OFL", "/TGC/TRIGGER/CW_EIFI", className="CondAttrListCollection")
-    conddb.addFolder("TGC_OFL", "/TGC/TRIGGER/CW_BW", className="CondAttrListCollection")
-    conddb.addFolder("TGC_OFL", "/TGC/TRIGGER/CW_TILE", className="CondAttrListCollection")
-    #COOL DB will be used.
-    from PathResolver import PathResolver
-    bwCW_Run3_filePath=PathResolver.FindCalibFile("TrigT1TGC_CW/BW/CW_BW_Run3.v01.db")
-    conddb.addFolder(bwCW_Run3_filePath,"/TGC/TRIGGER/CW_BW_RUN3 <tag>TgcTriggerCwBwRun3-01</tag>", className='CondAttrListCollection')
-
-    from AthenaCommon.AlgSequence import AthSequencer
-    condSeq = AthSequencer("AthCondSeq")
-    from MuonCondSvc.MuonCondSvcConf import TGCTriggerDbAlg
-    condSeq += TGCTriggerDbAlg()
-    from TGCTriggerCondSvc.TGCTriggerCondSvcConf import TGCTriggerCondAlg
-    condSeq += TGCTriggerCondAlg()
     ##################################################
     # Topo MC
     ##################################################
@@ -289,6 +210,9 @@ def Lvl1SimulationSequence_MC( ConfigFlags ):
         l1TopoSim.MuonInputProvider.MuctpiSimTool = ToolSvc.MUCTPI_AthTool
         l1TopoSim.EMTAUInputProvider = 'LVL1::EMTauInputProviderFEX/EMTauInputProviderFEX'
     else:
+        from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
+        ToolSvc += L1MuctpiTool("L1MuctpiTool")
+        ToolSvc.L1MuctpiTool.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
         l1TopoSim.MuonInputProvider.MuctpiSimTool = ToolSvc.L1MuctpiTool
     # enable the reduced (coarse) granularity topo simulation
     # currently only for MC

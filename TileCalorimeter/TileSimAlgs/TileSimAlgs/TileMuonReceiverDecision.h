@@ -70,6 +70,8 @@ class TileMuonReceiverDecision: public AthAlgorithm {
 
  private:
 
+  IntegerProperty m_manualRunPeriod{this,"ManualRunPeriod",-1};
+
   SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this,"TileRawChannelContainer",
                                                                       "MuRcvRawChCnt",
                                                                       "Input Tile raw channel container key"};

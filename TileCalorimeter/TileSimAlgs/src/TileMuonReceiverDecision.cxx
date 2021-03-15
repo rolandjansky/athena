@@ -67,6 +67,11 @@ StatusCode TileMuonReceiverDecision::initialize() {
   m_cablingService = m_cablingSvc->cablingService();
   m_runPeriod = m_cablingService->runPeriod();
 
+  if( m_manualRunPeriod.value() > 0 ){
+    ATH_MSG_INFO("Overwriting run period from " << m_runPeriod << " to " << m_manualRunPeriod.value());
+    m_runPeriod = m_manualRunPeriod.value();
+  }
+
   if (m_runPeriod == 0) {
      ATH_MSG_INFO("Stopping ... TileMuonReceiverDecision should not be used for RUN1 simulations");
      return StatusCode::SUCCESS;
