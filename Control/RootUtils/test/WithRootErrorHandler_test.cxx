@@ -11,6 +11,7 @@
 
 #undef NDEBUG
 #include "RootUtils/WithRootErrorHandler.h"
+#include "TInterpreter.h"
 #include "TError.h"
 #include <string>
 #include <iostream>
@@ -40,6 +41,10 @@ bool TestHand::operator() (int /*level*/, Bool_t /*abort*/,
 
 void test1()
 {
+  // If we call ::Error without having first initialized the interpreter,
+  // it can deadlock.
+  TInterpreter::Instance();
+
   std::cout << "test1\n";
   std::cout.flush();
 
