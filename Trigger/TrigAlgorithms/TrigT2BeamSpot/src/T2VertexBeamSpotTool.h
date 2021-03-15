@@ -26,10 +26,11 @@
 #include <vector>
 #include <memory>
 // Local tools
-#include "../src/T2Track.h"
-#include "../src/T2BeamSpot.h"
-#include "../src/T2SplitVertex.h"
-#include "../src/T2TrackClusterer.h"
+#include "T2BSTrackFilterTool.h"
+#include "T2BeamSpot.h"
+#include "T2SplitVertex.h"
+#include "T2Track.h"
+#include "T2TrackClusterer.h"
 //Athena tools
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -38,14 +39,18 @@
 //Tracking
 #include "TrkTrack/TrackCollection.h"
 #include "TrigInDetToolInterfaces/ITrigPrimaryVertexFitter.h"
+#include "TrigInDetEvent/TrigVertexCollection.h"
 //Data handles
 #include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 //Beam data
 #include "BeamSpotConditionsData/BeamSpotData.h"
 //Monitoring tool
-#include "AthenaMonitoringKernel/Monitored.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
-class TrigVertexCollection;
+namespace InDet {
+   class BeamSpotData;
+}
 
 namespace PESA {
    class T2SplitVertex;
@@ -64,44 +69,50 @@ namespace PESA {
    class T2VertexBeamSpotTool :  public AthAlgTool {
       public:
 
+         using TrackVector = std::vector<const Trk::Track*>;
+
          T2VertexBeamSpotTool( const std::string& type, const std::string& name, const IInterface* parent );
 
          virtual StatusCode initialize() override final;
 
+         /**
+          * Update beam spot data with new track information.
+          *
+          * Parameter provides a lists of tracks.
+          */
+         void updateBS(const TrackCollection& tracks, const EventContext& ctx) const;
 
-         bool isGoodTrack     ( const T2Track & track  ) const;
-         bool isGoodVertex    ( const T2Vertex& vertex ) const;
-         bool isGoodVertexBCID( const T2Vertex& vertex ) const;
-
-         //Data dependencies
-         SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey{ this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
-
-         /** Primary Vertex Fitter Tool */
-         ToolHandle<ITrigPrimaryVertexFitter> m_primaryVertexFitterTool;
-
-
+      private:
 
          /**  Return count of high pT track in the track list,
           * the total number of these high pT tracks is checked in the selectTracks function and the threshold can be set via TrackSeedPt (by default 1 GeV) */
-         unsigned numHighPTTrack( ConstDataVector<TrackCollection>& tracks ) const;
+         unsigned numHighPTTrack(const TrackVector& tracks) const;
 
-
-         /**  Return true if the number of tracks which passed the selection in goodTrack function is lower than a given threshold
-          * The threshold can be set via TotalNTrackMin parameter  */
-         inline bool notEnoughTracks(unsigned &nTracks) const{  return ( nTracks < m_totalNTrkMin ) ;}
-
-
-         void selectTracks( const TrackCollection* trackCollection,
-               ConstDataVector<TrackCollection>& mySelectedTrackCollection, std::vector<unsigned> &trackCounter ) const;
-
-         unsigned int reconstructVertices( ConstDataVector<TrackCollection>& mySelectedTrackCollection,
+         unsigned int reconstructVertices(TrackVector& tracks,
                       TrigVertexCollection& myVertexCollection,
                       DataVector< TrigVertexCollection >& mySplitVertexCollections, const EventContext& ) const;
 
-         void reconstructSplitVertices( ConstDataVector<TrackCollection>& mySelectedTrackCollection,
-               DataVector< TrigVertexCollection >& mySplitVertexCollections, T2TrackClusterer& trackClusterer, const EventContext& ) const;
+         bool isGoodVertex    ( const T2Vertex& vertex ) const;
+         bool isGoodVertexBCID( const T2Vertex& vertex ) const;
 
-         bool m_passNpvTrigCuts;
+         void reconstructSplitVertices(TrackVector& tracks,
+               DataVector< TrigVertexCollection >& mySplitVertexCollections,
+               T2TrackClusterer& trackClusterer,
+               const InDet::BeamSpotData* indetBeamSpot,
+               const EventContext& ) const;
+
+         /* Monitor cluster parameters */
+         void monitor_cluster( const T2TrackClusterer& clusterer  ) const;
+
+         /* Monitor  parameters of tracks inside the cluster */
+         void monitor_cluster_tracks(T2TrackClusterer& clusterer, const Trk::Track & track  ) const;
+
+         /* Monitor  vertex parameters  */
+         void monitor_vertex(const std::string& prefix, const std::string& suffix, const T2Vertex &vertex, int bcid=-1 ) const;
+
+         /* Monitor split vertex parameters */
+         void monitor_split_vertex(const std::string& prefix, const std::string& suffix, const T2SplitVertex& vertex) const;
+
 
          /* Number of Z blocks */
          double       m_trackClusDZ;
@@ -114,21 +125,6 @@ namespace PESA {
 
          /* Track selection criteria */
          unsigned  m_totalNTrkMin;
-         int          m_TrackAlgoId;
-         double       m_minTrackPt;
-         double       m_maxTrackEta;
-         double       m_maxTrackZ0;
-         double       m_maxTrackD0;
-         double       m_maxTrackZ0err;
-         double       m_maxTrackD0err;
-         double       m_minTrackNDF;
-         double       m_minTrackQual;
-         double       m_maxTrackQual;
-         double       m_minTrackChi2Prob;
-         int          m_minSiHits;
-         int          m_minPIXHits;                                           
-         int          m_minSCTHits;
-         int          m_minTRTHits;
 
          /* Vertex selection criteria */
          unsigned int m_vtxNTrkMin;
@@ -150,29 +146,19 @@ namespace PESA {
 
          unsigned m_nSplitVertices;
 
-         /* single interaction trigger requirements */
-         unsigned int m_minNpvTrigger;
-         unsigned int m_maxNpvTrigger;
+         bool m_filterBS;         // if true then filter tracks against local beamspot estimate
 
-         /* Monitor track parameters */
-         void monitor_tracks(const std::string& prefix, const std::string& suffix, const std::vector<T2Track>& tracks ) const;
+         //Data dependencies
+         SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey{this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot"};
 
-         /* Monitor cluster parameters */
-         void monitor_cluster( const T2TrackClusterer& clusterer  ) const;
+         //The same as in Run2 (m_vertexCollName)
+         SG::WriteHandleKey<TrigVertexCollection> m_outputVertexCollectionKey{this, "OutputVertexCollection", "myVertices", "SG key for output vertex collection"};
+         //TODO: to be added SG::WriteHandleKeyArray<TrigVertexCollection> m_outputSplitVertexCollectionKey;   /*Input list of track collection names which should be used for the algorithms*/
 
-         /* Monitor  parameters of tracks inside the cluster */
-         void monitor_cluster_tracks(T2TrackClusterer& clusterer, const Trk::Track & track  ) const;
+         /** Primary Vertex Fitter Tool */
+         ToolHandle<ITrigPrimaryVertexFitter> m_primaryVertexFitterTool;
 
-         /* Monitor  vertex parameters  */
-         void monitor_vertex(const std::string& prefix, const std::string& suffix, const T2Vertex &vertex, int bcid=-1 ) const;
-
-         /* Monitor split vertex parameters */
-         void monitor_split_vertex(const std::string& prefix, const std::string& suffix, const T2SplitVertex& vertex) const;
-
-         std::string m_vertexCollName;
-
-      private:
-
+         ToolHandle<T2BSTrackFilterTool> m_trackFilterTool{this, "TrackFilter", "PESA::T2BSTrackFilterTool/T2BSTrackFilterTool" };
          ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
 
    };

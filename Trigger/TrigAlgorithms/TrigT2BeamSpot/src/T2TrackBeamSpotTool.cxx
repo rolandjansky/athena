@@ -120,13 +120,33 @@ StatusCode T2TrackBeamSpotTool::initialize()
 {
     ATH_MSG_INFO("Initialising T2TrackBeamSpotTool tool");
 
-    //Retrieve monitoring tool
+    // Retrieve tools
+    ATH_CHECK(m_trackFilterTool.retrieve());
     ATH_CHECK( m_monTool.retrieve());
 
     return StatusCode::SUCCESS;
 }
 
-void T2TrackBeamSpotTool::updateBS(const std::vector<const Trk::Track*>& tracks, unsigned bcid) const
+void T2TrackBeamSpotTool::updateBS(const TrackCollection& tracks, EventIDBase const& eventID) const
+{
+    //Select tracks
+    auto selectedTracks = m_trackFilterTool->filter(tracks);
+
+    std::vector<TrackData> bsTracks;
+    bool has_bs = m_trackFilterTool->updateBS(selectedTracks, eventID.lumi_block(),
+                                              eventID.bunch_crossing_id(), &bsTracks);
+
+    // when beamspot is known we can call actual update methods
+    if (has_bs) {
+        if (not bsTracks.empty()) {
+            updateBS(std::move(bsTracks));
+        } else {
+            updateBS(m_trackFilterTool->filterBS(selectedTracks), eventID.bunch_crossing_id());
+        }
+    }
+}
+
+void T2TrackBeamSpotTool::updateBS(std::vector<const Trk::Track*>&& tracks, unsigned bcid) const
 {
     auto timer = Monitored::Timer("TIME_updateBS");
     if (m_doLeastSquares) {
@@ -153,7 +173,7 @@ void T2TrackBeamSpotTool::updateBS(const std::vector<const Trk::Track*>& tracks,
     auto mon = Monitored::Group(m_monTool, timer);
 }
 
-void T2TrackBeamSpotTool::updateBS(const std::vector<TrackData>& tracks) const
+void T2TrackBeamSpotTool::updateBS(std::vector<TrackData>&& tracks) const
 {
     auto timer = Monitored::Timer("TIME_updateBS");
     if (m_doLeastSquares) {

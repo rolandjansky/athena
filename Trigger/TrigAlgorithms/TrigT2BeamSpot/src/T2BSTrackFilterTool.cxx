@@ -130,7 +130,7 @@ T2BSTrackFilterTool::T2BSTrackFilterTool( const std::string& type, const std::st
     declareProperty("TrackMinNDF",     m_minTrackNDF      =   2      );
     declareProperty("TrackMinQual",    m_minTrackQual     =   0.2    );
     declareProperty("TrackMaxQual",    m_maxTrackQual     =   5.0    );
-    declareProperty("TrackMinChi2Prob",m_minTrackChi2Prob = -10.0    );
+    declareProperty("TrackMinChi2Prob",m_minTrackChi2Prob =   0.0    );
     declareProperty("TrackMinSiHits",  m_minSiHits        =   4      );
     declareProperty("TrackMinPIXHits", m_minPIXHits       =   1      );
     declareProperty("TrackMinSCTHits", m_minSCTHits       =   3      );
@@ -161,9 +161,9 @@ T2BSTrackFilterTool::filter(const TrackCollection& tracks) const
     ATH_MSG_DEBUG( "Selecting tracks for the beamSpot algorithm" );
 
     //Monitoring counters and timers
-    auto timerTrackSelection = Monitored::Timer("TIME_TrackSelection");
-    auto nTracksPerCollection           = Monitored::Scalar<unsigned>("TracksPerCollection", 0);
-    auto nTracksPassedPerCollection     = Monitored::Scalar<unsigned>("SelectedTracksPerCollection", 0);
+    auto timerTrackSelection = Monitored::Timer("TIME_TrackFilter");
+    auto nTracksInput = Monitored::Scalar<unsigned>("TracksInput", 0);
+    auto nTracksFilter = Monitored::Scalar<unsigned>("TracksFilter", 0);
     std::vector<unsigned> trackRejectReasonsCounts(numRejectReasons);
 
     //T2Track with easily accesable parameters
@@ -178,7 +178,7 @@ T2BSTrackFilterTool::filter(const TrackCollection& tracks) const
         const Trk::Track& track = **trackIter;
 
         //Counter for all input tracks
-        nTracksPerCollection++;
+        nTracksInput++;
 
         const T2Track myTrack(track);
         // Check for passed track
@@ -191,7 +191,7 @@ T2BSTrackFilterTool::filter(const TrackCollection& tracks) const
             myTracks.push_back(myTrack);
 
             //Counter for selected tracks
-            nTracksPassedPerCollection++;
+            nTracksFilter++;
 
         } else {
             for (unsigned bit = 0; bit < numRejectReasons; ++ bit) {
@@ -219,15 +219,15 @@ T2BSTrackFilterTool::filter(const TrackCollection& tracks) const
     } //end for loop over tracks in a collection
 
     //How many tracks per collection
-    ATH_MSG_DEBUG("Total Tracks: " << nTracksPerCollection << " selectedTracks: " << nTracksPassedPerCollection);
+    ATH_MSG_DEBUG("Total Tracks: " << nTracksInput << " selectedTracks: " << nTracksFilter);
 
     //Monitor all passed tracks variables/parameters
-    monitor_tracks("Track", "Pass", myTracks);
+    monitor_tracks("Track", "Filter", myTracks);
 
     auto rejectReason = Monitored::Collection("TrackRejectReason", trackRejectReasonsCounts);
 
     //Monitor counters per track collection and time to select tracks
-    auto mon = Monitored::Group(m_monTool, nTracksPerCollection, nTracksPassedPerCollection,
+    auto mon = Monitored::Group(m_monTool, nTracksInput, nTracksFilter,
                 timerTrackSelection, rejectReason);
 
     return selectedTracks;
@@ -309,6 +309,9 @@ bool T2BSTrackFilterTool::updateBS(const std::vector<const Trk::Track*>& tracks,
 std::vector<const Trk::Track*>
 T2BSTrackFilterTool::filterBS(const std::vector<const Trk::Track*>& tracks) const
 {
+    auto timerTrackFilterBS = Monitored::Timer("TIME_TrackFilterBS");
+    auto nTracksFilterBS = Monitored::Scalar<unsigned>("TracksFilterBS", 0);
+
     std::lock_guard<std::mutex> lock(m_mutex);
 
     std::vector<const Trk::Track*> selected;
@@ -339,6 +342,7 @@ T2BSTrackFilterTool::filterBS(const std::vector<const Trk::Track*>& tracks) cons
                 }
                 selected.push_back(track);
                 t2Tracks.emplace_back(*track);
+                ++ nTracksFilterBS;
             } else {
                 if (msgLvl(MSG::DEBUG)) {
                     dumpTrackParams(trackPars, chi2, "filterBS: track failed chi2_d0 restriction");
@@ -352,7 +356,7 @@ T2BSTrackFilterTool::filterBS(const std::vector<const Trk::Track*>& tracks) cons
     auto rejectReason = Monitored::Collection("TrackRejectReason", trackRejectReasonsCounts);
 
     //Monitor counters per track collection and time to select tracks
-    auto mon = Monitored::Group(m_monTool, rejectReason);
+    auto mon = Monitored::Group(m_monTool, rejectReason, nTracksFilterBS, timerTrackFilterBS);
 
     monitor_tracks("Track", "FilterBS", t2Tracks);
 

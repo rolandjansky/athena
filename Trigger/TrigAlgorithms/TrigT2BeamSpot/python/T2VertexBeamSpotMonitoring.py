@@ -56,62 +56,14 @@ class T2VertexBeamSpotMonitoring(BaseMonitoringTool):
     def __init__ (self, name="T2VertexBeamSpotMonitoring"):
         super(T2VertexBeamSpotMonitoring, self).__init__(name)
 
-        # monitored variables for hltExecute():
-        #  - nTotalTracks
-        #  - nTotalPassedTracks
-        #  - nTotalHighPTTracks
-        #  - nPerVecTETracks
-        #  - nPerVecTEPassedTracks
-        #  - nPerVecTEHighPTTracks
-        #  - nPerTETracks
-        #  - nPerTEPassedTracks
-        #  - nPerTEHighPTTracks
+        # monitored variables for updateBS():
         #  - TIME_TotalTime
-        #  - TIME_EachTE
-        #  - TIME_LoopAllTEs
-        #  - TIME_toCreateOutput
-        #
-        # monitored variables for execute():
-        #  - nTotalTracks
-        #  - nTotalPassedTracks
-        #  - nTotalHighPTTracks
-        #  - TIME_TotalTime
-        #  - TIME_SelectingTracks
-        #  - TIME_ReconstructVertices
-
-        self.makeHisto1D('nTotalTracks', 'TH1F', 100, 0., 2000.,
-                         title="nTotalTracks; N all tracks per event; Number of events")
-
-        self.makeHisto1D('nTotalPassedTracks', 'TH1F', 100, 0., 1000.,
-                         title="nTotalPassedTracks; N selected tracks per event; Number of events")
-
-        self.makeHisto1D('nTotalHighPTTracks', 'TH1F', 100, 0., 1000.,
-                         title="nTotalHighPTTracks; N all tracks per event; Number of events")
-
-        # These are not useful in online
-        # self.makeHisto1D('nPerVecTETracks', 'TH1F', 100, 0., 1000.,
-        #                  title="nPerVecTETracks; N all tracks per event; Number of events")
-
-        # self.makeHisto1D('nPerVecTEPassedTracks', 'TH1F', 100, 0., 1000.,
-        #                  title="nPerVecTEPassedTracks; N selected tracks per event; Number of events")
-
-        # self.makeHisto1D('nPerVecTEHighPTTracks', 'TH1F', 100, 0., 1000.,
-        #                  title="nPerVecTEHighPTTracks; N all tracks per event; Number of events")
-
-        # self.makeHisto1D('nPerTETracks', 'TH1F', 100, 0., 1000.,
-        #                  title="nPerTETracks; N all tracks per event; Number of events")
-
-        # self.makeHisto1D('nPerTEPassedTracks', 'TH1F', 100, 0., 1000.,
-        #                  title="nPerTEPassedTracks; N selected tracks per event; Number of events")
-
-        # self.makeHisto1D('nPerTEHighPTTracks', 'TH1F', 100, 0., 1000.,
-        #                  title="nPerTEHighPTTracks; N all tracks per event; Number of events")
 
         # --------------- Timing histograms -----------------
-        timers = ["TotalTime", "LoopAllTEs", "EachTE", "toCreateOutput", "SelectingTracks", "ReconstructVertices"]
+        timers = ["TotalTime"]
         for timer in timers:
-            self.makeHisto1D('TIME_' + timer, 'TH1I', 50, 0, 25000,
-                             title="Timing " + timer + "; time [#mus];")
+            self.makeHisto1D(f'TIME_{timer}', 'TH1I', 50, 0, 25000,
+                             title=f"Timing {timer}; time [#mus];")
 
 
 class T2VertexBeamSpotToolMonitoring(BaseMonitoringTool):
@@ -127,94 +79,48 @@ class T2VertexBeamSpotToolMonitoring(BaseMonitoringTool):
         """
         super(T2VertexBeamSpotToolMonitoring, self).__init__(name)
 
+        # monitored variables for execute():
+        #  - nTotalTracks
+        #  - nTotalPassedTracks
+        #  - nTotalHighPTTracks
+        self.makeHisto1D('nTotalTracks', 'TH1F', 100, 0., 2000.,
+                         title="nTotalTracks; N all tracks per event; Number of events")
+
+        self.makeHisto1D('nTotalPassedTracks', 'TH1F', 100, 0., 1000.,
+                         title="nTotalPassedTracks; N selected tracks per event; Number of events")
+
+        self.makeHisto1D('nTotalHighPTTracks', 'TH1F', 100, 0., 1000.,
+                         title="nTotalHighPTTracks; N high-P_{t} tracks per event; Number of events")
+
         self.defineTimingHistos(detail)
-        self.defineTrackHistos(detail)
         self.defineClusterHistos(detail)
         self.defineVertexHistos(detail)
         self.defineSplitVertexHistos(detail)
 
     def defineTimingHistos(self, detail):
         # monitored timers:
+        #  - TIME_SelectingTracks
         #  - TIME_SplitVertexReconstruction
         #  - TIME_toSortSplitTracks
         #  - TIME_toSortTracks
         #  - TIME_toVertexFitSplit
         #  - TIME_toZCluster
         #  - TIME_toZClusterSplit
-        #  - TIME_TrackSelection
         #  - TIME_VertexReconstruction
 
         timers = [
+            ("SelectingTracks", 10000.),
             ("SplitVertexReconstruction", 10000.),
             ("toSortSplitTracks", 10000.),
             ("toSortTracks", 1000.),
             ("toVertexFitSplit", 10000.),
             ("toZCluster", 100.),
             ("toZClusterSplit", 100.),
-            ("TrackSelection", 5000.),
             ("VertexReconstruction", 20000.),
         ]
         for timer, xmax in timers:
             self.makeHisto1D('TIME_' + timer, 'TH1I', 50, 0., xmax,
                              title="Timing " + timer + "; time [#mus];")
-
-    def defineTrackHistos(self, detail):
-        # track-related variables
-        #  - TracksPerROI
-        #  - SelectedTracksPerROI
-        #  - SelectedHiPTTracksPerROI
-        #  - Track<param>Pass, where <param> is one of the:
-        #    - Pt Eta Phi Z0 D0 Z0err D0err NDF Qual Chi2Prob SiHits PIXHits SCTHits TRTHits
-
-        #Track counts  (Per ROI)
-        self.makeHisto1D('TracksPerROI', 'TH1F', 100, 0., 2000.,
-                         title="TracksPerROI; N tracks per ROI; Number of ROIs")
-
-        self.makeHisto1D('SelectedTracksPerROI', 'TH1F', 100, 0., 1000.,
-                         title="TracksPerROIPass; N accepted tracks per ROI; Number of ROIs")
-
-        self.makeHisto1D('SelectedHiPTTracksPerROI', 'TH1F', 100, 0., 1000.,
-                         title="HiPtTracksPerROIPass; N accepted High pT tracks per ROI; Number of ROIs")
-
-        # Track d0 vs phi: another method for extracting the beam position on average
-        if detail > 0:
-            # Profile
-            # Total number of bins: 70
-            self.makeLBNProfile('TrackPhiPass', 'TrackD0Pass', 70, -3.5, 3.5,
-                                title="Selected Track d_{0} vs #phi; Track  #phi; Track d_{0}")
-
-        # ACCEPTED Tracks parameters
-        #-------------------------------------------------------------------------------------------------
-        if detail > 2:
-            self.makeHisto1D('TrackPhiPass', 'TH1F', 70, -3.5, 3.5,
-                             title="Acc. Track Phi; #phi; Number of tracks")
-            self.makeHisto1D('TrackZ0Pass', 'TH1F', 100, -150.0, 150.0,
-                             title="Acc. Track Z0; Track z0 [mm]; Number of tracks")
-            self.makeHisto1D('TrackD0Pass', 'TH1F', 100, -10.0, 10.0,
-                             title="Acc. Track D0; Track d0 [mm]; Number of tracks")
-            self.makeHisto1D('TrackPtPass', 'TH1F', 50, 0.0, 50.0,
-                             title="Acc. Track Pt; p_{t} [GeV]; Number of tracks")
-            self.makeHisto1D('TrackEtaPass', 'TH1F', 60, -3.0, 3.0,
-                             title="Acc. Track Eta; #eta; Number of tracks")
-            self.makeHisto1D('TrackZ0errPass', 'TH1F', 100, 0., 5.,
-                             title="Acc. Track Z0err; Track z0 error [mm]; Number of tracks")
-            self.makeHisto1D('TrackD0errPass', 'TH1F', 100, 0., 2.,
-                             title="Acc. Track D0err; Track d0 error [mm]; Number of tracks")
-            self.makeHisto1D('TrackNDFPass', 'TH1F', 30, 0., 30.,
-                             title="Acc. Track NDF; Track NDF; Number of tracks")
-            self.makeHisto1D('TrackQualPass', 'TH1F', 50, 0., 10.,
-                             title="Acc. Track Qual; Track #chi^{2}/ndf; Number of tracks")
-            self.makeHisto1D('TrackChi2ProbPass', 'TH1F', 60, -0.1, 1.1,
-                             title="Acc. Track #chi^{2} probability; Track #chi^{2} probability; Number of tracks")
-            #Accepted Track hits in ID
-            self.makeHisto1D('TrackSiHitsPass', 'TH1I', 15, -0.5, 14.5,
-                             title="Acc. Track Silicon hits; N Si hits; Number of tracks")
-            self.makeHisto1D('TrackTRTHitsPass', 'TH1I', 50, -0.5, 49.5,
-                             title="Acc. Track TRT hits; N TRT hits; Number of tracks")
-            self.makeHisto1D('TrackPIXHitsPass', 'TH1I', 15, -0.5, 14.5,
-                             title="Acc. Track PIX hits; N PIX hits; Number of tracks")
-            self.makeHisto1D('TrackSCTHitsPass', 'TH1I', 10, -0.5, 9.5,
-                             title="Acc. Track SCT hits; N SCT hits; Number of tracks")
 
     def defineClusterHistos(self, detail):
         # cluster-related variables:
@@ -542,36 +448,38 @@ class T2BSTrackFilterToolMonitoring(BaseMonitoringTool):
     """Monitoring for T2BSTrackFilter tool
 
     Variables defined by tool:
-    - TIME_TrackSelection
-    - TracksPerCollection
-    - SelectedTracksPerCollection
+    - TIME_TrackFilter
+    - TIME_TrackFilterBS
+    - TracksInput
     - TrackRejectReason
-    - TrackPtPass
-    - TrackEtaPass
-    - TrackPhiPass
-    - TrackZ0Pass
-    - TrackD0Pass
-    - TrackZ0ErrPass
-    - TrackD0ErrPass
-    - TrackNDFPass
-    - TrackQualPass
-    - TrackChi2ProbPass
-    - TrackSiHitsPass
-    - TrackPIXHitsPass
-    - TrackSCTHitsPass
-    - TrackTRTHitsPass
+    - Tracks{filter}
+    - TrackPt{filter}
+    - TrackEta{filter}
+    - TrackPhi{filter}
+    - TrackZ0{filter}
+    - TrackD0{filter}
+    - TrackZ0Err{filter}
+    - TrackD0Err{filter}
+    - TrackNDF{filter}
+    - TrackQual{filter}
+    - TrackChi2Prob{filter}
+    - TrackSiHits{filter}
+    - TrackPIXHits{filter}
+    - TrackSCTHits{filter}
+    - TrackTRTHits{filter}
+
+    where {filter} is one of "Filter" or "FilterBS"
     """
     def __init__ (self, name="T2BSTrackFilterToolMonitoring", detail=1):
         super(T2BSTrackFilterToolMonitoring, self).__init__(name)
 
-        self.makeHisto1D('TIME_TrackSelection', 'TH1I', 100, 0, 100000,
-                         title="Timing track selection; time [#mus];")
+        self.makeHisto1D('TIME_TrackFilter', 'TH1I', 100, 0, 10000,
+                         title="Timing of filter method; time [#mus];")
+        self.makeHisto1D('TIME_TrackFilterBS', 'TH1I', 100, 0, 10000,
+                         title="Timing of filterBS method; time [#mus];")
 
-        self.makeHisto1D('TracksPerCollection', 'TH1F', 100, 0., 2000.,
-                         title="TracksPerCollection; N tracks per collection; Number of collections")
-        self.makeHisto1D('SelectedTracksPerCollection', 'TH1F', 100, 0., 400.,
-                         title="TracksPerCollectionPass; N accepted tracks per collection; Number of collections")
-
+        self.makeHisto1D('TracksInput', 'TH1F', 100, 0., 2000.,
+                         title="Number of input tracks;  Number of tracks; N events")
         # labels correspond to T2TrackBeamSpotImpl::TrackRejectReason (number of reasons is numRejectResons)
         self.makeLBNHisto1D('TrackRejectReason', 'TH1I', 15, xmin=0, xmax=15,
                             opt='kVec', title="TrackRejectReason ; Reason ; # of tracks",
@@ -579,46 +487,48 @@ class T2BSTrackFilterToolMonitoring(BaseMonitoringTool):
                                      'NDF', 'D0', 'Z0', 'D0err', 'Z0err',
                                      'Eta', 'MinQual', 'MaxQual', 'Chi2Prob', 'D0Chi2'])
 
-        # Track d0 vs phi: another method for extracting the beam position on average
-        # Total number of bins: 70
-        self.makeLBNHisto2D('TrackPhiPass', 'TrackD0Pass', 'TH2I',
-                50, -3.5, 3.5, 50, -2, 2,
-                title="Selected Track d_{0} vs #phi; Track  #phi; Track d_{0}")
-        self.makeLBNHisto2D('TrackPhiFilterBS', 'TrackD0FilterBS', 'TH2I',
-                50, -3.5, 3.5, 50, -2, 2,
-                title="Filtered Track d_{0} vs #phi; Track  #phi; Track d_{0}")
+        for filter in ("Filter", "FilterBS"):
 
-        # ACCEPTED Tracks parameters
-        #-------------------------------------------------------------------------------------------------
-        self.makeHisto1D('TrackPtPass', 'TH1F', 50, 0.0, 50.0,
-                         title="Acc. Track Pt; p_{t} [GeV]; Number of tracks")
-        self.makeHisto1D('TrackEtaPass', 'TH1F', 60, -3.0, 3.0,
-                         title="Acc. Track Eta; #eta; Number of tracks")
-        self.makeHisto1D('TrackPhiPass', 'TH1F', 70, -3.5, 3.5,
-                         title="Acc. Track Phi; #phi; Number of tracks")
-        self.makeHisto1D('TrackZ0Pass', 'TH1F', 100, -200.0, 200.0,
-                         title="Acc. Track Z0; Track z0 [mm]; Number of tracks")
-        self.makeHisto1D('TrackD0Pass', 'TH1F', 100, -10.0, 10.0,
-                         title="Acc. Track D0; Track d0 [mm]; Number of tracks")
-        self.makeHisto1D('TrackZ0errPass', 'TH1F', 100, 0., 5.,
-                         title="Acc. Track Z0err; Track z0 error [mm]; Number of tracks")
-        self.makeHisto1D('TrackD0errPass', 'TH1F', 100, 0., 5.,
-                         title="Acc. Track D0err; Track d0 error [mm]; Number of tracks")
-        self.makeHisto1D('TrackNDFPass', 'TH1F', 10, -0.5, 19.5,
-                         title="Acc. Track NDF; Track NDF; Number of tracks")
-        self.makeHisto1D('TrackQualPass', 'TH1F', 50, 0., 10.,
-                         title="Acc. Track Qual; Track #chi^{2}/ndf; Number of tracks")
-        self.makeHisto1D('TrackChi2ProbPass', 'TH1F', 70, -0.2, 1.2,
-                         title="Acc. Track #chi^{2} probability; Track #chi^{2} probability; Number of tracks")
-        #Accepted Track hits in ID
-        self.makeHisto1D('TrackSiHitsPass', 'TH1I', 12, 0, 12,
-                         title="Acc. Track Silicon hits; N Si hits; Number of tracks")
-        self.makeHisto1D('TrackTRTHitsPass', 'TH1I', 50, 0, 50,
-                         title="Acc. Track TRT hits; N TRT hits; Number of tracks")
-        self.makeHisto1D('TrackPIXHitsPass', 'TH1I', 7, 0, 7,
-                         title="Acc. Track PIX hits; N PIX hits; Number of tracks")
-        self.makeHisto1D('TrackSCTHitsPass', 'TH1I', 9, 0, 9,
-                         title="Acc. Track SCT hits; N SCT hits; Number of tracks")
+            self.makeHisto1D(f'Tracks{filter}', 'TH1F', 100, 0., 400.,
+                            title="Number of tracks filtered tracks; N accepted tracks; N events")
+
+            # Track d0 vs phi: another method for extracting the beam position on average
+            # Total number of bins: 70
+            self.makeLBNHisto2D(f'TrackPhi{filter}', f'TrackD0{filter}', 'TH2I',
+                    50, -3.5, 3.5, 50, -2, 2,
+                    title="Selected Track d_{0} vs #phi; Track  #phi; Track d_{0}")
+
+            # ACCEPTED Tracks parameters
+            #-------------------------------------------------------------------------------------------------
+            self.makeHisto1D(f'TrackPt{filter}', 'TH1F', 50, 0.0, 50.0,
+                             title="Acc. Track Pt; p_{t} [GeV]; Number of tracks")
+            self.makeHisto1D(f'TrackEta{filter}', 'TH1F', 60, -3.0, 3.0,
+                             title="Acc. Track Eta; #eta; Number of tracks")
+            self.makeHisto1D(f'TrackPhi{filter}', 'TH1F', 70, -3.5, 3.5,
+                             title="Acc. Track Phi; #phi; Number of tracks")
+            self.makeHisto1D(f'TrackZ0{filter}', 'TH1F', 100, -200.0, 200.0,
+                             title="Acc. Track Z0; Track z0 [mm]; Number of tracks")
+            self.makeHisto1D(f'TrackD0{filter}', 'TH1F', 100, -10.0, 10.0,
+                             title="Acc. Track D0; Track d0 [mm]; Number of tracks")
+            self.makeHisto1D(f'TrackZ0err{filter}', 'TH1F', 100, 0., 5.,
+                             title="Acc. Track Z0err; Track z0 error [mm]; Number of tracks")
+            self.makeHisto1D(f'TrackD0err{filter}', 'TH1F', 100, 0., 5.,
+                             title="Acc. Track D0err; Track d0 error [mm]; Number of tracks")
+            self.makeHisto1D(f'TrackNDF{filter}', 'TH1F', 10, -0.5, 19.5,
+                             title="Acc. Track NDF; Track NDF; Number of tracks")
+            self.makeHisto1D(f'TrackQual{filter}', 'TH1F', 50, 0., 10.,
+                             title="Acc. Track Qual; Track #chi^{2}/ndf; Number of tracks")
+            self.makeHisto1D(f'TrackChi2Prob{filter}', 'TH1F', 70, -0.2, 1.2,
+                             title="Acc. Track #chi^{2} probability; Track #chi^{2} probability; Number of tracks")
+            #Accepted Track hits in ID
+            self.makeHisto1D(f'TrackSiHits{filter}', 'TH1I', 12, 0, 12,
+                             title="Acc. Track Silicon hits; N Si hits; Number of tracks")
+            self.makeHisto1D(f'TrackTRTHits{filter}', 'TH1I', 50, 0, 50,
+                             title="Acc. Track TRT hits; N TRT hits; Number of tracks")
+            self.makeHisto1D(f'TrackPIXHits{filter}', 'TH1I', 7, 0, 7,
+                             title="Acc. Track PIX hits; N PIX hits; Number of tracks")
+            self.makeHisto1D(f'TrackSCTHits{filter}', 'TH1I', 9, 0, 9,
+                             title="Acc. Track SCT hits; N SCT hits; Number of tracks")
 
 
 class T2TrackBeamSpotToolMonitoring(BaseMonitoringTool):
