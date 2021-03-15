@@ -385,13 +385,11 @@ StatusCode SCTCalib::stop ATLAS_NOT_THREAD_SAFE () { // Thread unsafe getNoisySt
 
    //--- Find noisy strips from hitmaps
    const bool doNoisyStripAnalysis{((!m_doHitMaps and m_readHitMaps) or !m_readHitMaps) and m_doNoisyStrip};
-   ATH_MSG_INFO("tried to get noisy strips");
    if (doNoisyStripAnalysis) {
       if (getNoisyStrip().isFailure()) {
          ATH_MSG_ERROR("Failed to run getNoisyStrip()");
          return StatusCode::FAILURE;
       }
-      ATH_MSG_INFO("get noisy strips: successful");
    }
 
    //--- Upload hv
@@ -707,7 +705,7 @@ StatusCode SCTCalib::getDeadStrip ATLAS_NOT_THREAD_SAFE () { // Thread unsafe SC
 
    for (int i{0}; i<n_barrels; i++) {
       meanOccupancy_Barrel[i]/=static_cast<double>(m_numberOfEvents*nbins*2*numEnabledModules_B[i]);
-      ATH_MSG_INFO("Barrel : layer=" << i << ", meanOccupancy=" << meanOccupancy_Barrel[i] << ", #enabledModule=" << numEnabledModules_B[i]);
+      ATH_MSG_INFO("Barrel : layer=" << i << ", meanOccupancy=" << meanOccupancy_Barrel[i] << ", nbins:" << nbins << ", #enabledModule=" << numEnabledModules_B[i]);
    }
 
    for (int i{0}; i<n_disks; i++) {
@@ -832,14 +830,16 @@ StatusCode SCTCalib::getDeadStrip ATLAS_NOT_THREAD_SAFE () { // Thread unsafe SC
             }
 
             if (!(defectStrip.empty())) {
+               //// different threshold meaning for dead and quiet strips
+               double threshold = m_deadStripSignificance;
+               if (!m_deadNotQuiet) threshold = m_quietThresholdStrip;
                if (m_writeToCool) {
-                  if (m_pCalibWriteTool->createListStrip(moduleId, m_pSCTHelper, 10000, "DEAD", m_deadStripSignificance, defectStrip).isFailure()) {
+                  if (m_pCalibWriteTool->createListStrip(moduleId, m_pSCTHelper, 10000, "DEAD", threshold, defectStrip).isFailure()) {
                      ATH_MSG_ERROR("Could not create list");
                      return StatusCode::FAILURE;
                   }
                }
-
-               if (addToXML4DB(m_outDeadStrips, waferId, "DEAD", m_deadStripSignificance, defectStrip.c_str()).isFailure()) {
+               if (addToXML4DB(m_outDeadStrips, waferId, "DEAD", threshold, defectStrip.c_str()).isFailure()) {
                   ATH_MSG_ERROR("Could not add dead strips to the summary");
                   return StatusCode::FAILURE;
                }
@@ -848,14 +848,17 @@ StatusCode SCTCalib::getDeadStrip ATLAS_NOT_THREAD_SAFE () { // Thread unsafe SC
             }
 
             if (!(defectChip.empty())) {
+               //// different threshold meaning for dead and quiet chips
+               double threshold = m_deadChipSignificance;
+               if (!m_deadNotQuiet) threshold = m_quietThresholdChip;
                if (m_writeToCool) {
-                  if (m_pCalibWriteTool->createListChip(moduleId, m_pSCTHelper, 10000, "DEAD", m_deadChipSignificance, defectChip).isFailure()) {
+                  if (m_pCalibWriteTool->createListChip(moduleId, m_pSCTHelper, 10000, "DEAD", threshold, defectChip).isFailure()) {
                      ATH_MSG_ERROR("Could not create list");
                      return StatusCode::FAILURE;
                   }
                }
 
-               if (addToXML4DB(m_outDeadChips, waferId, "DEAD", m_deadChipSignificance, defectChip.c_str()).isFailure()) {
+               if (addToXML4DB(m_outDeadChips, waferId, "DEAD", threshold, defectChip.c_str()).isFailure()) {
                   ATH_MSG_ERROR("Could not add dead chips to the summary");
                   return StatusCode::FAILURE;
                }
@@ -1051,7 +1054,7 @@ StatusCode SCTCalib::getDeadStrip ATLAS_NOT_THREAD_SAFE () { // Thread unsafe SC
          }
       } //end DeadLink
 
-      if (n_noHitsStrip>0) {
+      if (n_noHitsStrip>0 || !m_deadNotQuiet) {
          int n_deadStripInWafer{0};
          int n_deadChipInWafer{0};
 
@@ -1068,12 +1071,13 @@ StatusCode SCTCalib::getDeadStrip ATLAS_NOT_THREAD_SAFE () { // Thread unsafe SC
          for (int j{0}; j<n_chipPerSide; j++) {
             isDead=false;
             int chipNum{side==0 ? j : j+6};
-            if (numHitsInChip[j]==0 and !disabledChip[chipNum]) {
+            if ( !disabledChip[chipNum] && (numHitsInChip[j]==0 || !m_deadNotQuiet) ) {
                if (!isNoHitLink) n_checkedChip++;
                double sum_binomial{ROOT::Math::binomial_cdf(0, meanOccupancy, m_numberOfEvents*(n_stripPerChip-n_disabledInChip[j]))};
-               if (sum_binomial<deadChipDefinition) {
-                  ATH_MSG_INFO("DEADCHIP : " << moduleId << ", side=" << side
-                               << ", chip(online)=" << (side==0 ? j : j+n_chipPerSide));
+               //// with criterion to identify quiet chips
+               if ((m_deadNotQuiet && sum_binomial<deadChipDefinition) ||
+                     (!m_deadNotQuiet && numHitsInChip[j]/(m_numberOfEvents*(n_stripPerChip-n_disabledInChip[j])) < meanOccupancy*m_quietThresholdChip)) {
+                  ATH_MSG_INFO("DEADCHIP : " << moduleId << ", side=" << side << ", chip(online)=" << (side==0 ? j : j+n_chipPerSide));
                   isDead=true;
                   n_deadChip++;
                   n_deadChipInWafer++;
@@ -1095,9 +1099,11 @@ StatusCode SCTCalib::getDeadStrip ATLAS_NOT_THREAD_SAFE () { // Thread unsafe SC
             for (int j{0}; j<n_stripPerChip*n_chipPerSide; j++) {
                numHitsInStripOnlineOrder[j] = side==0 ? numHitsInStrip[j] : numHitsInStrip[n_stripPerChip*n_chipPerSide-j];
                isDead=false;
-               if (numHitsInStripOnlineOrder[j]==0) {
+               if (numHitsInStripOnlineOrder[j]==0 || !m_deadNotQuiet) {
                   double sum_binomial{ROOT::Math::binomial_cdf(0, meanOccExceptDeadChip, m_numberOfEvents)};
-                  if (sum_binomial<deadStripDefinition) {
+                  //// with criterion to identify quiet strips
+                  if ((m_deadNotQuiet && sum_binomial<deadStripDefinition) ||
+                        (!m_deadNotQuiet && numHitsInStripOnlineOrder[j]/m_numberOfEvents < meanOccExceptDeadChip*m_quietThresholdStrip)) {
                      ATH_MSG_INFO("DEADSTRIP : " << moduleId << ", side=" << side << ", strip(offline)=" << j);
                      isDead=true;
                      n_deadStrip++;
@@ -1113,7 +1119,7 @@ StatusCode SCTCalib::getDeadStrip ATLAS_NOT_THREAD_SAFE () { // Thread unsafe SC
                beforeIsDead = isDead;
             }
          }
-      } //go to next wafer itr
+      } //if (n_noHitsStrip>0)
    } //Wafer Loop end
 
 
@@ -1436,7 +1442,7 @@ StatusCode SCTCalib::getRawOccupancy ATLAS_NOT_THREAD_SAFE () // Thread unsafe S
                   std::ostringstream streamHist;
                   streamHist << detector_part << "_" << iDisk << "_" << iSide;
                   std::string hitsmapname{stemItr->first + streamHist.str()};
-                  TH2D* hist_tmp{dynamic_cast<TH2D*>(m_inputHist->Get(hitsmapname.c_str()))};
+                  TH2F* hist_tmp{dynamic_cast<TH2F*>(m_inputHist->Get(hitsmapname.c_str()))};
                   unsigned long long n_hits{static_cast<unsigned long long>(hist_tmp->GetBinContent(iEta+1, iPhi+1))};
                   float raw_occu{0};
                   if (m_numberOfEvents!=0) {
@@ -1467,7 +1473,7 @@ StatusCode SCTCalib::getRawOccupancy ATLAS_NOT_THREAD_SAFE () // Thread unsafe S
                std::ostringstream streamHist;
                streamHist << iLayer << "_" << iSide;
                std::string hitsmapname{"/run_" + std::to_string(m_runNumber.value()) + "/SCT/SCTB/hits/hitsmap_" + streamHist.str()};
-               TH2D* hist_tmp{dynamic_cast<TH2D*>(m_inputHist->Get(hitsmapname.c_str()))};
+               TH2F* hist_tmp{dynamic_cast<TH2F*>(m_inputHist->Get(hitsmapname.c_str()))};
                unsigned long long n_hits{static_cast<unsigned long long>(hist_tmp->GetBinContent(iEta+1, iPhi+1))};
                float raw_occu{0};
                if (m_numberOfEvents!=0) {
