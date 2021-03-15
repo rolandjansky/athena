@@ -30,7 +30,7 @@ StatusCode MMSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* M
   MicromegasHitIdHelper* hitHelper = MicromegasHitIdHelper::GetHelper();
   MM_SimIdToOfflineId simToOffline(m_MmIdHelper);
 
-  if(nswContainer->size()==0) ATH_MSG_WARNING(" MMSimHit empty ");
+  if(!nswContainer->size()) ATH_MSG_DEBUG(m_ContainerName<<" container empty");
   for( auto it : *nswContainer ) {
     const MMSimHit hit = it;
 

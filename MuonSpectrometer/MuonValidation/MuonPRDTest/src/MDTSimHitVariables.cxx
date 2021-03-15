@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MDTSimHitVariables.h"
@@ -29,7 +29,7 @@ StatusCode MDTSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
   // Get the MDT Id hit helper
   MdtHitIdHelper* mdthhelper = MdtHitIdHelper::GetHelper(m_MdtIdHelper->tubeMax());
 
-  if(mdtContainer->size()==0) ATH_MSG_WARNING(" MdtSimHit empty ");
+  if(!mdtContainer->size()) ATH_MSG_DEBUG(m_ContainerName<<" container empty");
   for( auto it : *mdtContainer ) {
     const MDTSimHit hit = it;
 
@@ -48,12 +48,15 @@ StatusCode MDTSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
     // &bool isValid -> reference to boolean, which will be false in case of invalid identifier
     Identifier offid = m_MdtIdHelper->channelID(stname, steta, stphi,ml,tl,tube,true,&isValid);
     if (!isValid) {
-       ATH_MSG_WARNING(" Cannot build a valid Identifier; skip ");
+       ATH_MSG_WARNING("Cannot build a valid Identifier for MDT stationName="<<stname<<", eta="<<steta<<", phi="<<stphi<<", multiLayer="<<ml<<", tubeLayer="<<tl<<", tube="<<tube<<"; skipping...");
        continue;
     }
 
     const MuonGM::MdtReadoutElement* mdtdet = MuonDetMgr->getMdtReadoutElement(offid);
-    if (!mdtdet) throw std::runtime_error(Form("File: %s, Line: %d\nMDTSimHitVariables::fillVariables() - Failed to retrieve MdtReadoutElement for %s", __FILE__, __LINE__, m_MdtIdHelper->print_to_string(offid).c_str()));
+    if (!mdtdet) {
+      ATH_MSG_ERROR("MDTSimHitVariables::fillVariables() - Failed to retrieve MdtReadoutElement for "<<m_MdtIdHelper->print_to_string(offid).c_str());
+      return StatusCode::FAILURE;
+    }
 
     m_MDT_Sim_stationName   .push_back(stname);
     m_MDT_stationName   .push_back(m_MdtIdHelper->stationName(offid));
