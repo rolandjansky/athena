@@ -9,11 +9,8 @@
 // Author: S.Binet<binet@cern.ch>
 /////////////////////////////////////////////////////////////////// 
 
-// STL includes
-
 // Framework includes
 #include "GaudiKernel/MsgStream.h"
-//#include "GaudiKernel/VectorMap.h"
 
 // GeneratorObjectsTPCnv includes
 #include "GeneratorObjectsTPCnv/GenEventCnv_p1.h"
