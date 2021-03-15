@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TGCSectorLogic.cxx,v 1.14 2009-03-15 18:07:55 isaya Exp $
@@ -18,7 +18,6 @@ namespace LVL1TGCTrigger {
   
   extern bool g_USE_INNER;
   extern bool g_INNER_VETO;
-  extern bool g_TILE_MU;
   extern bool g_USE_CONDDB;
 
 TGCSectorLogic::TGCSectorLogic(TGCRegionType regionIn, int idIn):
@@ -41,7 +40,7 @@ TGCSectorLogic::TGCSectorLogic(TGCRegionType regionIn, int idIn):
     stripHighPtBoard(0),
     stripHighPtChipOut(0),
     useInner(false),
-    useTileMu(false),
+    m_useTileMu(regionIn == ENDCAP),
     m_condDbTool("TGCTriggerDbTool")
 {
   sideId = (idIn/NumberOfModule)/NumberOfOctant;
@@ -67,7 +66,6 @@ TGCSectorLogic::TGCSectorLogic(TGCRegionType regionIn, int idIn):
   SSCController.setRegion(regionIn);
 
   useInner  = g_USE_INNER && (region==ENDCAP); 
-  useTileMu = g_TILE_MU && (region==ENDCAP); 
 }
 
 TGCSectorLogic::~TGCSectorLogic()
@@ -94,7 +92,11 @@ void TGCSectorLogic::setTileMuMap(const TGCTMDB* tmdb,
 {
   pTMDB = tmdb;
   mapTileMu = mapTM;
-  if (mapTileMu ==0 || pTMDB==0) useTileMu = false;
+  if (mapTileMu ==0 || pTMDB==0) m_useTileMu = false;
+
+  if (m_useTileMu && g_USE_CONDDB) {
+    m_useTileMu = m_condDbTool->isActive(ITGCTriggerDbTool::CW_TILE);
+  }
 }
 
 void TGCSectorLogic::setWireHighPtBoard(int port, TGCHighPtBoard* highPtBoard)
@@ -298,7 +300,7 @@ TGCSectorLogic::TGCSectorLogic(const TGCSectorLogic& right):
      wordTileMuon(0), wordInnerStation(0),
      stripHighPtBoard(right.stripHighPtBoard), 
      stripHighPtChipOut(0),
-     useInner(right.useInner), useTileMu(right.useTileMu) 
+     useInner(right.useInner), m_useTileMu(right.m_useTileMu)
 {
   for(int i=0; i<MaxNumberOfWireHighPtBoard; i++){
       wireHighPtBoard[i] = 0;
@@ -337,7 +339,7 @@ TGCSectorLogic::operator=(const TGCSectorLogic& right)
     stripHighPtBoard=right.stripHighPtBoard;  
     stripHighPtChipOut=0;
     useInner=right.useInner;
-    useTileMu=right.useTileMu;
+    m_useTileMu=right.m_useTileMu;
     for( int i = 0; i < SSCController.getNumberOfWireHighPtBoard(); i += 1) {
       wireHighPtBoard[i]   = right.wireHighPtBoard[i];
       wireHighPtChipOut[i] = right.wireHighPtChipOut[i];
@@ -377,16 +379,11 @@ void TGCSectorLogic::doInnerCoincidence(int ssc,
   int pt = coincidenceOut->getPtLevel();
   if (pt==0) return;
 
-  if (g_USE_CONDDB) {
-    bool isActiveTile = m_condDbTool->isActive(ITGCTriggerDbTool::CW_TILE);
-    useTileMu = isActiveTile && (region==ENDCAP);
-  }
-
   // check if inner is used for the ptLevel
   bool validInner = (mapInner->getFlagPT(pt, ssc, sectorId) == 1);
    // check if TileMu is used for the ptLevel
   bool validTileMu = false;
-  if (useTileMu)  validTileMu = (mapTileMu->getFlagPT(pt, ssc, sectorId, sideId) == 1) ;
+  if (m_useTileMu) validTileMu = (mapTileMu->getFlagPT(pt, ssc, sectorId, sideId) == 1) ;
   
   int pos = 4*coincidenceOut->getR() +  coincidenceOut->getPhi();
   // check if inner is used for the roi 
@@ -477,7 +474,7 @@ void TGCSectorLogic::doInnerCoincidence(int ssc,
       if (tm->GetHit56()>0) wordTileMuon |= 0x01 << mod*2;
     }
   } 
-  
+
   if ( !validInner && !validTileMu ) return;  //OK
  
   if ( validInner   &&  isHitInner)  return; //OK
@@ -501,7 +498,7 @@ void TGCSectorLogic::doInnerCoincidence(int ssc,
     pt = pt-1;
     validInner = (mapInner->getFlagPT(pt, ssc, sectorId) == 1);
   }
-  while (useTileMu && validTileMu && (pt>1) ){
+  while (m_useTileMu && validTileMu && (pt>1) ){
     pt = pt-1;
     validTileMu = (mapTileMu->getFlagPT(pt, ssc, sectorId, sideId) == 1) ;
   }
