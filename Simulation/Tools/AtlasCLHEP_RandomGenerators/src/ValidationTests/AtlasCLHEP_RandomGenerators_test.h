@@ -44,14 +44,19 @@ namespace AtlasCLHEP_RandomGenerators {
     CLHEP::HepRandomEngine*             m_randomEngine2;
     std::string                         m_randomEngineName2; 
     
-    TH1* m_hflat;
+    TH1* m_hflat=nullptr;
       
-    TH1* m_hgauss1;  
-    TH1* m_hgauss2;  
-    TH1* m_hgauss3;  
+    TH1* m_hgauss1=nullptr;  
+    TH1* m_hgauss2=nullptr;  
+    TH1* m_hgauss3=nullptr;  
 
-    TH1* m_hexp1;  
-    TH1* m_hexp2;  
+    TH1* m_hexp1=nullptr;  
+    TH1* m_hexp2=nullptr;  
+
+    TH1* m_hbin1=nullptr;  
+    TH1* m_hbin2=nullptr;  
+
+    int m_ntest=10000000;
   };
 
 } // end of namespace bracket
