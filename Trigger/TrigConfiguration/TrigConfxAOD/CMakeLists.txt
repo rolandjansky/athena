@@ -1,23 +1,24 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigConfxAOD )
 
+# External dependencies:
 find_package( Boost )
 
 # Libraries in the package:
 atlas_add_library( TrigConfxAODLib
    TrigConfxAOD/*.h Root/*.cxx
    PUBLIC_HEADERS TrigConfxAOD
-   INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES AsgTools xAODTrigger TrigConfL1Data TrigConfHLTData TrigConfData ${Boost_LIBRARIES}
-   TrigConfInterfaces )
+   PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+   LINK_LIBRARIES AsgMessagingLib AsgTools AthenaBaseComps GaudiKernel StoreGateLib TrigConfData TrigConfHLTData TrigConfInterfaces TrigConfL1Data xAODTrigger
+   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( TrigConfxAOD
       src/*.h src/*.cxx src/components/*.cxx
-      LINK_LIBRARIES AthenaBaseComps AthenaKernel StoreGateLib GaudiKernel 
-      TrigConfxAODLib )
+      INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+      LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel CxxUtils GaudiKernel StoreGateLib TrigConfData TrigConfHLTData TrigConfInterfaces TrigConfL1Data TrigConfxAODLib xAODTrigger )
 endif()
 
 atlas_add_dictionary( TrigConfxAODDict

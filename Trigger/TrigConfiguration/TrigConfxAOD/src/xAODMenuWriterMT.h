@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCONFXAOD_XAODMENUWRITERMT_H
@@ -21,6 +21,7 @@ extern "C" {
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "CxxUtils/checker_macros.h"
 
 // Trigger include(s):
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
@@ -139,23 +140,23 @@ namespace TrigConf {
       typedef std::pair< uint32_t, std::pair< uint32_t, uint32_t > > TrigKey_t;
 
       /// The configuration object that we are writing when WritexAODTriggerMenu
-      mutable xAOD::TriggerMenuContainer* m_tmc;
+      mutable xAOD::TriggerMenuContainer* m_tmc ATLAS_THREAD_SAFE;
 
       //  The configuration objects that we are writing when WritexAODTriggerMenuJson
-      mutable xAOD::TriggerMenuJsonContainer* m_menuJSON_hlt;
-      mutable xAOD::TriggerMenuJsonContainer* m_menuJSON_l1;
-      mutable xAOD::TriggerMenuJsonContainer* m_menuJSON_hltps;
-      mutable xAOD::TriggerMenuJsonContainer* m_menuJSON_l1ps;
-      // mutable xAOD::TriggerMenuJsonContainer* m_menuJSON_bg;
+      mutable xAOD::TriggerMenuJsonContainer* m_menuJSON_hlt ATLAS_THREAD_SAFE;
+      mutable xAOD::TriggerMenuJsonContainer* m_menuJSON_l1 ATLAS_THREAD_SAFE;
+      mutable xAOD::TriggerMenuJsonContainer* m_menuJSON_hltps ATLAS_THREAD_SAFE;
+      mutable xAOD::TriggerMenuJsonContainer* m_menuJSON_l1ps ATLAS_THREAD_SAFE;
+      // mutable xAOD::TriggerMenuJsonContainer* m_menuJSON_bg ATLAS_THREAD_SAFE;
 
       /// Trigger configuration keys that are already converted when WritexAODTriggerMenu is true
-      mutable std::set< TrigKey_t > m_convertedKeys;
+      mutable std::set< TrigKey_t > m_convertedKeys ATLAS_THREAD_SAFE;
 
       /// Trigger configuration keys that are already converted when WritexAODTriggerMenuJson is true
-      mutable std::set< uint32_t > m_converted_smk;
-      mutable std::set< uint32_t > m_converted_hltpsk;
-      mutable std::set< uint32_t > m_converted_l1psk;
-      // mutable std::set< uint32_t > m_converted_bg;
+      mutable std::set< uint32_t > m_converted_smk ATLAS_THREAD_SAFE;
+      mutable std::set< uint32_t > m_converted_hltpsk ATLAS_THREAD_SAFE;
+      mutable std::set< uint32_t > m_converted_l1psk ATLAS_THREAD_SAFE;
+      // mutable std::set< uint32_t > m_converted_bg ATLAS_THREAD_SAFE;
 
       /// The mutex to prevent us from writing more than one configuration at a time
       mutable std::mutex m_mutex;
