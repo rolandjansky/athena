@@ -83,7 +83,7 @@ namespace LVL1
     declareProperty("LumiBCIDTool", m_caloLumiBCIDTool);
     declareProperty("CompensateForNoise", m_useNoise = true);
     declareProperty("CompensateForBCID", m_useBCID = true);
-    declareProperty("CellTimingFile", m_cellTimingFile = "Run3L1CaloSimulation/SuperCells/CellTimingDistributions.MiddleTrain.r11881.20210211.root");
+    declareProperty("CellTimingFile", m_cellTimingFile = "Run3L1CaloSimulation/SuperCells/TimingDistributions.20210307.MiddleTrain.r12406.root");
   }
 
   SCEmulation::~SCEmulation() {}
@@ -271,8 +271,8 @@ namespace LVL1
         sigmaNoisePerSuperCell[scIDHash] += (sigma > 0 ? std::sqrt(sigma) : 0.0f);
       }
       // This is a bad definition, but it's needed to be consistent with the other code (for now...)
-      CaloSampling::CaloSample s = cell->caloDDE()->getSampling();
-      bool isTile_BAD = s >= 9 && s <21;
+
+      bool isTile = cdde->is_tile();
       if (cell->provenance() & 0x2000)
       {
         if (cell->energy() > 256)
@@ -282,7 +282,7 @@ namespace LVL1
           enForTime[scIDHash] += cell->energy();
           enTime[scIDHash] += cell->energy() * cell->time();
         }
-        else if (!isTile_BAD)
+        else if (!isTile)
         {
           // Use the random sampling from timing histograms (only midtrain)
           
@@ -380,7 +380,7 @@ namespace LVL1
         superCell->setTime(time);
         float et = superCell->et();
         prov = 0x2000;
-        if ((et > 10e3 && time > -8 && time < 18) || (et <= 10e3 && std::abs(time) < 8))
+        if ((et > 10e3 && time > -8 && time < 16) || (et <= 10e3 && std::abs(time) < 8))
           prov |= 0x200;
       }
       else

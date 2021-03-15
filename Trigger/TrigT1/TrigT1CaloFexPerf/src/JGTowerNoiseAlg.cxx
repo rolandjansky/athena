@@ -23,7 +23,7 @@ namespace LVL1
       : AthAlgorithm(name, pSvcLocator)
   {
     declareProperty("InputTowers", m_inputKey);
-    declareProperty("NoiseFile", m_noiseFile = "Run3L1CaloSimulation/Noise/jTowergTowerNoise.20210209.r11881.root");
+    declareProperty("NoiseFile", m_noiseFile = "Run3L1CaloSimulation/Noise/jTowergTowerNoise.20210304.r12406.root");
     declareProperty("DoJFEX", m_doJFex = false, "If true, use jFEX noise values, otherwise use gFEX");
     declareProperty("DefaultNoise", m_defaultNoise = 1 * Gaudi::Units::GeV, "Default noise value to use if no file provided");
   }
