@@ -16,7 +16,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
-#include "TrigT1Interfaces/RecMuonRoiSvc.h"
 #include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
 
 #include "RoIsUnpackingToolBase.h"
