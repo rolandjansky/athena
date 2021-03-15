@@ -74,6 +74,8 @@ InDetPerfPlot_fakes::initializePlots() {
   book(m_track_fakerate_vs_z0, "track_fakerate_vs_z0");
 
   book(m_fakeEtaTotal, "fakeEtaTotal");
+  book(m_fakePtTotal , "fakePtTotal");
+  
   book(m_fakePtPrimary, "fakePtPrimary");
   book(m_fakeetaPrimary, "fakeetaPrimary");
   book(m_fakePhiPrimary, "fakePhiPrimary");
@@ -128,8 +130,8 @@ InDetPerfPlot_fakes::fill(const xAOD::TrackParticle& trkprt, const bool isFake, 
   double d0(trkprt.d0());
   double z0(trkprt.z0());
 
-  fillHisto(m_fakepT, pt);
   if (isFake) {
+    fillHisto(m_fakepT, pt);
     fillHisto(m_fakePtLow, pt);
     fillHisto(m_fakeeta, eta);
     fillHisto(m_fakephi, phi);
@@ -188,19 +190,20 @@ InDetPerfPlot_fakes::fillLinkedandUnlinked(const xAOD::TrackParticle& trkprt, fl
 
   if (Unlinked_w == 0) {
     fillHisto(m_fakeEtaTotal, eta, Prim_w + Sec_w);
+    fillHisto(m_fakePtTotal, pt, Prim_w + Sec_w);
+    
+    fillHisto(m_fakePtPrimary, pt, Prim_w);
+    fillHisto(m_fakeetaPrimary, eta, Prim_w);
+    fillHisto(m_fakePhiPrimary, phi, Prim_w);
+    fillHisto(m_faked0Primary, d0, Prim_w);
+    fillHisto(m_fakez0Primary, z0, Prim_w);
+    
+    fillHisto(m_fakePtSecondary, pt, Sec_w);
+    fillHisto(m_fakeetaSecondary, eta, Sec_w);
+    fillHisto(m_fakePhiSecondary, phi, Sec_w);
+    fillHisto(m_faked0Secondary, d0, Sec_w);
+    fillHisto(m_fakez0Secondary, z0, Sec_w);
   }
-
-  fillHisto(m_fakePtPrimary, pt, Prim_w);
-  fillHisto(m_fakeetaPrimary, eta, Prim_w);
-  fillHisto(m_fakePhiPrimary, phi, Prim_w);
-  fillHisto(m_faked0Primary, d0, Prim_w);
-  fillHisto(m_fakez0Primary, z0, Prim_w);
-
-  fillHisto(m_fakePtSecondary, pt, Sec_w);
-  fillHisto(m_fakeetaSecondary, eta, Sec_w);
-  fillHisto(m_fakePhiSecondary, phi, Sec_w);
-  fillHisto(m_faked0Secondary, d0, Sec_w);
-  fillHisto(m_fakez0Secondary, z0, Sec_w);
 
   fillHisto(m_fakePtUnlinkedFrac, pt, Unlinked_w);
   fillHisto(m_fakeetaUnlinkedFrac, eta, Unlinked_w);

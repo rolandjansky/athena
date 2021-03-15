@@ -139,6 +139,7 @@ private:
   
         bool m_fillITkResolutionPlots;
         bool m_fillAdditionalITkPlots;
+        bool m_fillLargeRadiusTrackingPlots;
 
 	std::string m_folder;
     // accessor to check if a truth particle origin matches the HS switch (if we request PU or HS)

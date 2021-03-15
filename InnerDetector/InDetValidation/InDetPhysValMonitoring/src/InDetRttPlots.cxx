@@ -56,8 +56,8 @@ InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string& sDir) : 
   m_duplicatePlots(this, "Tracks/SelectedGoodTracks"),
   m_specPlots(this, "Tracks/PreSelectionSpectrumPlots"),
   m_doTrackInJetPlots(true),
-  m_doTrackInBJetPlots(true)
-
+  m_doTrackInBJetPlots(true),
+  m_doLargeRadiusTrackingPlots(true)
  {
   // These settings are probably all redundant & can be removed from this script
   m_trackParticleTruthProbKey = "truthMatchProbability";
@@ -90,6 +90,19 @@ void InDetRttPlots::SetFillJetPlots(bool fillJets, bool fillBJets){
 
 }
 
+void InDetRttPlots::SetFillLargeRadiusTrackingPlots(bool fillLRT) {
+  m_doLargeRadiusTrackingPlots = fillLRT;
+  if (m_doLargeRadiusTrackingPlots) {
+    m_largeRadiusTrackingPlots = std::make_unique<InDetPerfPlot_LargeRadiusTracking>(this, "LargeRadiusTracks/Tracks");  
+  }  
+}
+
+void InDetRttPlots::fill(const unsigned int nTrkLRT, const unsigned int nTrkSTD, const unsigned int nTrkConv, 
+                         const float mu, const unsigned int nVtx) { 
+  if (m_doLargeRadiusTrackingPlots) {
+    m_largeRadiusTrackingPlots->fill(nTrkLRT, nTrkSTD, nTrkConv, mu, nVtx);
+  } 
+}
 
 void
 InDetRttPlots::fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle) {
@@ -109,6 +122,7 @@ InDetRttPlots::fill(const xAOD::TrackParticle& particle, const xAOD::TruthPartic
       }
     }
   }
+  
   // Not sure that the following hitsMatchedTracksPlots does anything...
   float barcode = truthParticle.barcode();
   if (barcode < 100000 && barcode != 0) { // Not sure why the barcode limit is 100k instead of 200k...
@@ -145,8 +159,10 @@ InDetRttPlots::fillSpectrumLinked(const xAOD::TrackParticle& particle, const xAO
 }
 
 void
-InDetRttPlots::fillLinkedandUnlinked(const xAOD::TrackParticle& particle, float Prim_w, float Sec_w, float Unlinked_w, unsigned int nMuEvents) {
-  m_fakePlots.fillLinkedandUnlinked(particle, Prim_w, Sec_w, Unlinked_w,nMuEvents);
+InDetRttPlots::fillLinkedandUnlinked(const xAOD::TrackParticle& particle, float Prim_w, float Sec_w, float Unlinked_w, const float mu, const unsigned int nVtx) {
+  m_fakePlots.fillLinkedandUnlinked(particle, Prim_w, Sec_w, Unlinked_w, (unsigned int)mu);
+  if (m_doLargeRadiusTrackingPlots)
+    m_largeRadiusTrackingPlots->fillLinkedandUnlinked(particle, Unlinked_w, mu, nVtx);
 }
 
 void
@@ -175,13 +191,21 @@ InDetRttPlots::fill(const xAOD::TrackParticle& particle) {
   m_basicPlot.fill(particle);
   m_TrackRecoInfoPlots.fill(particle);
   m_hitsDetailedPlots.fill(particle);
+  
+  if (m_doLargeRadiusTrackingPlots)
+    m_largeRadiusTrackingPlots->fill(particle);
 }
 
 void
-InDetRttPlots::fillEfficiency(const xAOD::TruthParticle& truth, const bool isGood, const unsigned int nMuEvents) {
+InDetRttPlots::fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::TrackParticle& trackParticle, 
+                              const bool isGood, const float nMuEvents, const unsigned int nVtx) {
   m_effPlots.fill(truth, isGood);
-  m_effPlots.mu_fill(truth,isGood,nMuEvents);
-  m_fakePlots.fillIncFakeDenom(truth,nMuEvents);
+  m_effPlots.mu_fill(truth,isGood, (unsigned int)nMuEvents);
+  m_fakePlots.fillIncFakeDenom(truth, (unsigned int)nMuEvents);
+  
+  if (m_doLargeRadiusTrackingPlots) {
+    m_largeRadiusTrackingPlots->fillEfficiency(truth, trackParticle, isGood, nMuEvents, nVtx);
+  }
 }
 
 void
@@ -278,8 +302,11 @@ InDetRttPlots::fillCounter(const unsigned int freq, const InDetPerfPlot_nTracks:
 
 void
 InDetRttPlots::fillFakeRate(const xAOD::TrackParticle& particle, const bool match,
+                            const float mu, const unsigned int nVtx,
                             const InDetPerfPlot_fakes::Category c) {
   m_fakePlots.fill(particle, match, c);
+  if (m_doLargeRadiusTrackingPlots)
+    m_largeRadiusTrackingPlots->fillFakeRate(particle, match, mu, nVtx);
 }
 
 //Track in Jet Plots

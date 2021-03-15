@@ -161,6 +161,7 @@ InDetPhysValMonitoringTool::InDetPhysValMonitoringTool(const std::string& type, 
   m_doBjetPlots(false),
   m_fillITkResolutionPlots(false),
   m_fillAdditionalITkPlots(false),
+  m_fillLargeRadiusTrackingPlots(false),
   m_acc_selectedByPileupSwitch("selectedByIDPVMPileupSwitch"),
   m_dec_selectedByPileupSwitch("selectedByIDPVMPileupSwitch"),
   m_usingSpecialPileupSwitch(false)
@@ -189,6 +190,7 @@ InDetPhysValMonitoringTool::InDetPhysValMonitoringTool(const std::string& type, 
   declareProperty("PileupSwitch", m_pileupSwitch = "All");
   declareProperty("FillITkResolutionPlots", m_fillITkResolutionPlots = false);
   declareProperty("FillAdditionalITkPlots", m_fillAdditionalITkPlots=false);
+  declareProperty("FillLargeRadiusTrackingPlots", m_fillLargeRadiusTrackingPlots=false);
 }
 
 InDetPhysValMonitoringTool::~InDetPhysValMonitoringTool() {
@@ -216,6 +218,7 @@ InDetPhysValMonitoringTool::initialize() {
   m_truthCutCounters = m_truthSelectionTool->counters();
   m_monPlots = std::move(std::unique_ptr<InDetRttPlots> (new InDetRttPlots(0, m_dirName + m_folder)));
   m_monPlots->SetFillJetPlots(m_doTrackInJetPlots,m_doBjetPlots);
+  m_monPlots->SetFillLargeRadiusTrackingPlots(m_fillLargeRadiusTrackingPlots);
   m_monPlots->SetFillITkResolutionPlots(m_fillITkResolutionPlots);
   m_monPlots->SetFillAdditionalITkPlots(m_fillAdditionalITkPlots);
 
@@ -244,7 +247,6 @@ InDetPhysValMonitoringTool::fillHistograms() {
   IDPVM::CachedGetAssocTruth getAsTruth; // only cache one way, track->truth, not truth->tracks
   //
 
-  unsigned int nMuEvents = 0;
   const xAOD::TruthPileupEventContainer* truthPileupEventContainer = 0;
   std::string truthPUEventCollName = "TruthPileupEvents";
   if (evtStore()->contains<xAOD::TruthPileupEventContainer>(truthPUEventCollName)) {
@@ -256,13 +258,11 @@ InDetPhysValMonitoringTool::fillHistograms() {
       evtStore()->retrieve(truthPileupEventContainer, truthPUEventCollName);
     }
   }
-  if (NULL!=truthPileupEventContainer) {
-    nMuEvents = (int) truthPileupEventContainer->size();
-  }
 
   ATH_MSG_DEBUG("Filling vertex plots");
   const xAOD::VertexContainer* pvertex = getContainer<xAOD::VertexContainer>(m_vertexContainerName);
-  const xAOD::Vertex* pvtx = nullptr;
+  const float nVertices = not pvertex->empty() ? pvertex->size() : 0;
+  const xAOD::Vertex* pvtx = nullptr;  
   
   if (pvertex and not pvertex->empty()) {
     ATH_MSG_DEBUG("Number of vertices retrieved for this event " << pvertex->size());
@@ -290,9 +290,11 @@ InDetPhysValMonitoringTool::fillHistograms() {
     ATH_MSG_WARNING("Skipping vertexing plots.");
   }
   ATH_MSG_DEBUG("Filling vertex/event info monitoring plots");
+  
   const xAOD::EventInfo* pei = getContainer<xAOD::EventInfo>(m_eventInfoContainerName);
+  const float puEvents = truthPileupEventContainer ? static_cast<int>( truthPileupEventContainer->size() ) : pei ? pei->actualInteractionsPerCrossing() : 0 ;
+  
   if (pei and pvertex) {
-    const float puEvents = truthPileupEventContainer ? static_cast<int>( truthPileupEventContainer->size() ) : pei->actualInteractionsPerCrossing() ;
     m_monPlots->fill(*pvertex, puEvents);
   } else {
     ATH_MSG_WARNING("Skipping vertexing plots using EventInfo.");
@@ -337,7 +339,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
 
   // dummy variables
   int hasTruth(0), hashighprob(0), passtruthsel(0);
-
+  unsigned int nTrackConv = 0, nTrackSTD = 0, nTrackLRT = 0, nTrackTOT = 0;
   for (const auto& thisTrack: *ptracks) {
     m_monPlots->fillSpectrum(*thisTrack); // This one needs prob anyway, why not rearrange & eliminate
                                           // getMatchingProbability from RttPlots? 5-17-16
@@ -360,6 +362,17 @@ InDetPhysValMonitoringTool::fillHistograms() {
       continue; // not an inside-out track
     }
     ++nSelectedTracks;                                                    // increment number of selected tracks
+    
+    //Fill plots for selected reco tracks, hits / perigee / ???
+    std::bitset<xAOD::TrackPatternRecoInfo::NumberOfTrackRecoInfo>  patternInfo = thisTrack->patternRecoInfo();
+    bool isConv = patternInfo.test(xAOD::TrackPatternRecoInfo::SiSpacePointsSeedMaker_ROIConvTracks);
+    bool isLRT = patternInfo.test(xAOD::TrackPatternRecoInfo::SiSpacePointsSeedMaker_LargeD0);
+    bool isSTD = not isConv and not isLRT;
+    if(isConv) nTrackConv++;
+    if(isSTD) nTrackSTD++;
+    if(isLRT) nTrackLRT++;
+    nTrackTOT++;      
+    
     m_monPlots->fill(*thisTrack);                                         // Make all the plots requiring only
                                                                           // trackParticle
     // const float absTrackEta = (thisTrack->pt() >1e-7) ? std::abs(thisTrack->eta()) : std::nan("");
@@ -395,7 +408,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
       if (not std::isnan(prob)) {
         // Fixing double counting of fake rates --> fill fake rates only once within track loop
         const bool isFake = (prob < minProbEffLow);
-        m_monPlots->fillFakeRate(*thisTrack, isFake);
+        m_monPlots->fillFakeRate(*thisTrack, isFake, puEvents, nVertices);
       }
 
       if (prob < minProbEffLow) { // nan will also fail this test
@@ -418,8 +431,11 @@ InDetPhysValMonitoringTool::fillHistograms() {
       }
     }
 
-    m_monPlots->fillLinkedandUnlinked(*thisTrack, Prim_w, Sec_w, Unlinked_w, nMuEvents);
+    m_monPlots->fillLinkedandUnlinked(*thisTrack, Prim_w, Sec_w, Unlinked_w, puEvents, nVertices);
   }
+  
+  m_monPlots->fill(nTrackLRT, nTrackSTD, nTrackConv, puEvents, nVertices);
+  
   ATH_MSG_DEBUG(m_truthSelectionTool->str());
   const auto& tmp = m_truthSelectionTool->counters(); // get array of counters for the cuts
 
@@ -525,12 +541,17 @@ InDetPhysValMonitoringTool::fillHistograms() {
                                                                            // <truth_matching_probability, track> if
                                                                            // prob > minProbEffLow (0.5)
       float bestMatch = 0;
+      const xAOD::TrackParticle* bestMatchedTrack = nullptr;
+      
       for (const auto& thisTrack: selectedTracks) { // Inner loop over selected track particles
         const xAOD::TruthParticle* associatedTruth = getAsTruth.getTruth(thisTrack);
         if (associatedTruth && associatedTruth == thisTruth) {
           float prob = getMatchingProbability(*thisTrack);
           if (not std::isnan(prob)) {
-            bestMatch = std::max(prob, bestMatch);
+            if (prob>bestMatch) {
+              bestMatch = std::max(prob, bestMatch);
+              bestMatchedTrack = thisTrack;
+            }
             if (prob > minProbEffLow) {
               matches.push_back(std::make_pair(prob, thisTrack));
             }
@@ -599,7 +620,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
         addsToEfficiency = false;
       }
 
-      m_monPlots->fillEfficiency(*thisTruth, addsToEfficiency,nMuEvents);
+      m_monPlots->fillEfficiency(*thisTruth, *bestMatchedTrack, addsToEfficiency,  puEvents, nVertices);
     } // end of the "if(accept)" loop
   }// End of Big truthParticle loop
   ATH_MSG_DEBUG("End of efficiency calculation");
