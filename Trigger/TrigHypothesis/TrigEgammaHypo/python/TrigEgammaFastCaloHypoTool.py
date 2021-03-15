@@ -27,7 +27,7 @@ class TrigEgammaFastCaloHypoToolConfig:
 
 
 
-  def __init__(self, name, cand, threshold, sel):
+  def __init__(self, name, cand, threshold, sel, trackinfo, noringerinfo):
 
     from AthenaCommon.Logging import logging
     self.__log = logging.getLogger('TrigEgammaFastCaloHypoTool')
@@ -37,14 +37,15 @@ class TrigEgammaFastCaloHypoToolConfig:
     self.__cand = cand
     self.__threshold = float(threshold)
     self.__sel = sel
+    self.__trackinfo = trackinfo
+    self.__noringerinfo = noringerinfo
 
     from AthenaConfiguration.ComponentFactory import CompFactory
     tool = CompFactory.TrigEgammaFastCaloHypoToolInc( name )
     tool.AcceptAll      = False
     tool.UseRinger      = False
     tool.EtaBins        = [0.0, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47]
-    #tool.ETthr          = same( self.__threshold*GeV, tool )
-    tool.ETthr          = same( self.__threshold, tool )
+    tool.ETthr          = same( self.__threshold*GeV, tool )
     tool.dETACLUSTERthr = 0.1
     tool.dPHICLUSTERthr = 0.1
     tool.F1thr          = same( 0.005 , tool)
@@ -57,12 +58,6 @@ class TrigEgammaFastCaloHypoToolConfig:
     tool.CARCOREthr     = same( -9999. , tool)
     tool.CAERATIOthr    = same( -9999. , tool)
     self.__tool = tool
-
-    self.__log.info( 'Chain     :%s', name )
-    self.__log.info( 'Signature :%s', cand )
-    self.__log.info( 'Threshold :%s', threshold )
-    self.__log.info( 'Pidname   :%s', sel )
-
 
 
   def chain(self):
@@ -85,13 +80,19 @@ class TrigEgammaFastCaloHypoToolConfig:
     return 'g' in self.__cand
 
 
+  def noringerinfo(self):
+    return self.__noringerinfo
+
+  def trackinfo(self):
+    return self.__trackinfo
+
   def tool(self):
     return self.__tool
-
   
-  def nocut(self):
+
+  def idperf(self):
     
-    self.__log.info( 'Configure nocut' )
+    self.__log.info( 'Configure idperf' )
     self.tool().AcceptAll      = True
     self.tool().UseRinger      = False
     self.tool().ETthr          = same( self.etthr()*GeV , self.tool())
@@ -148,17 +149,16 @@ class TrigEgammaFastCaloHypoToolConfig:
 
   def compile(self):
 
-
-    if 'nocut' == self.pidname() or 'idperf' in self.chain():
-      self.nocut()
+    if self.trackinfo()=='idperf':
+      self.idperf()
 
     elif 'etcut' == self.pidname():
       self.etcut()
 
-    elif self.pidname() in self.__operation_points and 'noringer' in self.chain() and self.isElectron():
+    elif self.pidname() in self.__operation_points and 'noringer' in self.noringerinfo() and self.isElectron():
       self.noringer()
 
-    elif self.pidname() in self.__operation_points and self.isElectron():
+    elif self.pidname() in self.__operation_points and "noringer" not in self.noringerinfo() and self.isElectron():
       self.ringer()
 
     elif self.pidname() in self.__operation_points and self.isPhoton():
@@ -259,26 +259,15 @@ class TrigEgammaFastCaloHypoToolConfig:
       return constant, threshold
 
 
-
-
-def _IncTool(name,cand,threshold,sel):
-  config = TrigEgammaFastCaloHypoToolConfig( name, cand, threshold, sel )
+def _IncTool(name, cand, threshold, sel, trackinfo, noringerinfo):
+  config = TrigEgammaFastCaloHypoToolConfig(name, cand, threshold, sel, trackinfo, noringerinfo )
   config.compile()
   return config.tool()
-
-
-
 
 
 def TrigEgammaFastCaloHypoToolFromDict( d ):
     """ Use menu decoded chain dictionary to configure the tool """
     cparts = [i for i in d['chainParts'] if ((i['signature']=='Electron') or (i['signature']=='Photon'))]
-
-    from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgDefault
-    LuminosityCondAlgDefault()    
-    
-    def __mult(cpart):
-        return int( cpart['multiplicity'] )
 
     def __th(cpart):
         return cpart['threshold']
@@ -289,11 +278,15 @@ def TrigEgammaFastCaloHypoToolFromDict( d ):
     def __cand(cpart):
         return cpart['trigType']
 
+    def __trackinfo(cpart):
+        return cpart['trkInfo'] if cpart['trkInfo'] else ''
+
+    def __noringer(cpart):    
+        return cpart['L2IDAlg'] if cpart['trigType']=='e' else ''
+
     name = d['chainName']
 
-
-    return _IncTool( name, __cand( cparts[0]), __th( cparts[0]),  __sel( cparts[0]))
-
+    return _IncTool( name, __cand( cparts[0]), __th( cparts[0]),  __sel( cparts[0]), __trackinfo(cparts[0]), __noringer(cparts[0]))
 
 
 def TrigEgammaFastCaloHypoToolFromName( name, conf ):
@@ -303,9 +296,6 @@ def TrigEgammaFastCaloHypoToolFromName( name, conf ):
     from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
     decodedDict = dictFromChainName(conf)
     return TrigEgammaFastCaloHypoToolFromDict( decodedDict )
-
-
-
 
 
 
@@ -322,21 +312,6 @@ if __name__ == "__main__":
     assert t, "cant configure EtCut"
 
 
-
     tool = TrigEgammaFastCaloHypoToolFromName('HLT_e3_etcut1step_g5_etcut_L12EM3', 'HLT_e3_etcut1step_g5_etcut_L12EM3')
     assert tool, 'cant configure HLT_e3_etcut1step_g5_etcut_L12EM3'
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

@@ -49,6 +49,7 @@ bool TrigEgammaMassHypoTool::executeAlg(std::vector<LegDecision> &combination) c
 //retrieve the elements
   std::vector<ElementLink<xAOD::IParticleContainer>> selected_electrons;
   for (auto el: combination){
+    ATH_MSG_DEBUG("found Combination: "<<combination);
     auto EL= el.second;    
     auto electronLink = TCU::findLink<xAOD::IParticleContainer>( *EL, TCU::featureString() ).link;
     selected_electrons.push_back(electronLink);

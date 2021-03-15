@@ -5,6 +5,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool, M
 from AthenaCommon.CFElements import seqAND, parOR
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from .FullScanDefs import caloFSRoI
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 class CaloMenuDefs(object):
       """Static Class to collect all string manipulations in Calo sequences """
@@ -12,9 +13,7 @@ class CaloMenuDefs(object):
       L2CaloClusters= recordable("HLT_FastCaloEMClusters")
 
 
-
-
-def fastCaloSequence(doRinger):
+def fastCaloSequence(ConfigFlags):
     """ Creates Fast Calo sequence"""
     # EV creator
     from TrigT2CaloCommon.CaloDef import fastCaloEVCreator
@@ -22,19 +21,19 @@ def fastCaloSequence(doRinger):
 
     # reco sequence always build the rings
     from TrigT2CaloCommon.CaloDef import fastCaloRecoSequence
-    (fastCaloInViewSequence, sequenceOut) = fastCaloRecoSequence(InViewRoIs, doRinger=doRinger)
+    (fastCaloInViewSequence, sequenceOut) = fastCaloRecoSequence(InViewRoIs, doRinger=True)
 
      # connect EVC and reco
     fastCaloSequence = seqAND("fastCaloSequence", [fastCaloViewsMaker, fastCaloInViewSequence ])
     return (fastCaloSequence, fastCaloViewsMaker, sequenceOut)
 
 
-def fastCaloMenuSequence(name, doRinger):
+def fastCaloMenuSequence(name):
     """ Creates Egamma Fast Calo  MENU sequence
     The Hypo name changes depending on name, so for different implementations (Electron, Gamma,....)
     The doRinger flag is to use or not the Ringer hypo
     """
-    (sequence, fastCaloViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(fastCaloSequence, {'doRinger' : doRinger})
+    (sequence, fastCaloViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(fastCaloSequence, ConfigFlags)
     # check if use Ringer and are electron because there aren't ringer for photons yet:
     # hypo
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastCaloHypoAlgMT

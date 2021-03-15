@@ -12,7 +12,6 @@ log = logging.getLogger('TrigIsoHPtTrackTriggerHypoTool')
 def TrigIsoHPtTrackTriggerHypoToolFromDict( chainDict ):
     """ Use menu decoded chain dictionary to configure the tool """
     cparts = [i for i in chainDict['chainParts'] if i['signature']=='UnconventionalTracking']
-    
     thresholds = sum([ [cpart['threshold']]*int(cpart['multiplicity']) for cpart in cparts], [])
 
     name = chainDict['chainName']
