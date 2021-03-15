@@ -71,7 +71,7 @@ svcMgr += CondSvc()
 include( "PerfMonGPerfTools/DisablePerfMon_jobOFragment.py" )
 
 # Input file
-dataFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root"
+dataFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV/mc16_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.ESD.e3601_s3170_r12399_r12253_r12399/ESD.24234157._000069.pool.root.1"
 
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 athenaCommonFlags.FilesInput=[dataFile,dataFile]
