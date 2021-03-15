@@ -8,150 +8,163 @@
 // Author: Giovanni Marchiori (giovanni.marchiori@cern.ch)
 
 #include "DerivationFrameworkEGamma/EGElectronLikelihoodToolWrapper.h"
-#include "xAODBase/IParticleContainer.h"
-#include "xAODEgamma/EgammaContainer.h"
-#include "xAODEgamma/Photon.h"
-#include "xAODEgamma/Electron.h"
+//
 #include "PATCore/AcceptData.h"
 #include "PATCore/AcceptInfo.h"
-
+//
+#include "xAODBase/IParticleContainer.h"
+#include "xAODEgamma/EgammaContainer.h"
+#include "xAODEgamma/Electron.h"
+#include "xAODEgamma/Photon.h"
 
 namespace DerivationFramework {
 
-  EGElectronLikelihoodToolWrapper::EGElectronLikelihoodToolWrapper(const std::string& t,
-								   const std::string& n,
-								   const IInterface* p) : 
-    AthAlgTool(t,n,p),
-    m_cut(""),
-    m_sgName(""),
-    m_containerName(""),
-    m_storeTResult(false)
-  {
-    declareInterface<DerivationFramework::IAugmentationTool>(this);
-    declareProperty("EGammaElectronLikelihoodTool", m_tool);
-    declareProperty("EGammaFudgeMCTool", m_fudgeMCTool);
-    declareProperty("CutType", m_cut);
-    declareProperty("StoreGateEntryName", m_sgName);
-    declareProperty("ContainerName", m_containerName);
-    declareProperty("StoreTResult", m_storeTResult);
+EGElectronLikelihoodToolWrapper::EGElectronLikelihoodToolWrapper(
+  const std::string& t,
+  const std::string& n,
+  const IInterface* p)
+  : AthAlgTool(t, n, p)
+  , m_cut("")
+  , m_sgName("")
+  , m_storeTResult(false)
+{
+  declareInterface<DerivationFramework::IAugmentationTool>(this);
+  declareProperty("EGammaElectronLikelihoodTool", m_tool);
+  declareProperty("EGammaFudgeMCTool", m_fudgeMCTool);
+  declareProperty("CutType", m_cut);
+  declareProperty("StoreGateEntryName", m_sgName);
+  declareProperty("StoreTResult", m_storeTResult);
+}
+
+StatusCode
+EGElectronLikelihoodToolWrapper::initialize()
+{
+  if (m_sgName.empty()) {
+    ATH_MSG_ERROR(
+      "No SG name provided for the output of EGElectronLikelihoodToolWrapper!");
+    return StatusCode::FAILURE;
+  }
+  ATH_CHECK(m_tool.retrieve());
+
+  if (!(m_fudgeMCTool.name().empty())) {
+    ATH_CHECK(m_fudgeMCTool.retrieve());
+  } else {
+    m_fudgeMCTool.disable();
   }
 
-  StatusCode EGElectronLikelihoodToolWrapper::initialize()
-  {
-    if (m_sgName.empty()) {
-      ATH_MSG_ERROR("No SG name provided for the output of EGElectronLikelihoodToolWrapper!");
-      return StatusCode::FAILURE;
-    }
-    if (m_containerName!="Photons" && m_containerName!="Electrons" && m_containerName!="ForwardElectrons") {
-      ATH_MSG_ERROR("Wrong container provided!");
-      return StatusCode::FAILURE;
-    }
-    CHECK(m_tool.retrieve());
-    if (!(m_fudgeMCTool.name().empty())) CHECK(m_fudgeMCTool.retrieve());
-    return StatusCode::SUCCESS;
+  ATH_CHECK(m_ContainerName.initialize());
+  //
+  m_decoratorPass = m_ContainerName.key() + "." + m_sgName;
+  m_decoratorIsEM = m_ContainerName.key() + "." + m_sgName + "IsEMValue";
+  ATH_CHECK(m_decoratorPass.initialize());
+  ATH_CHECK(m_decoratorIsEM.initialize());
+  //
+  if (m_storeTResult) {
+    m_decoratorResult = m_ContainerName.key() + "." + m_sgName + "Result";
+    ATH_CHECK(m_decoratorResult.initialize(m_storeTResult));
+  }
+  return StatusCode::SUCCESS;
+}
+
+StatusCode
+EGElectronLikelihoodToolWrapper::addBranches() const
+{
+  // retrieve container
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  SG::ReadHandle<xAOD::EgammaContainer> particles{ m_ContainerName, ctx };
+
+  // Decorators
+  SG::WriteDecorHandle<xAOD::EgammaContainer, char> decoratorPass{
+    m_decoratorPass, ctx
+  };
+  SG::WriteDecorHandle<xAOD::EgammaContainer, unsigned int> decoratorIsEM{
+    m_decoratorIsEM, ctx
+  };
+
+  if (m_storeTResult) {
+    SG::WriteDecorHandle<xAOD::EgammaContainer, double> decoratorResult{
+      m_decoratorResult, ctx
+    };
   }
 
-  StatusCode EGElectronLikelihoodToolWrapper::finalize()
-  {
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode EGElectronLikelihoodToolWrapper::addBranches() const
-  {
-    // retrieve container
-    const xAOD::IParticleContainer* particles = evtStore()->retrieve< const xAOD::IParticleContainer >( m_containerName );
-    if( ! particles ) {
-        ATH_MSG_ERROR ("Couldn't retrieve IParticles with key: " << m_containerName );
-        return StatusCode::FAILURE;
+  bool applyFF = (!m_fudgeMCTool.empty());
+  // Write mask for each element and record to SG for subsequent selection
+  for (const xAOD::Egamma* par : *particles) {
+    // point to the input which we do not own ,
+    // in case we fundge this will become
+    // a corrected one which needs to be deleted
+    // corrected copy can be a bit awkward
+    const xAOD::Egamma* pCopy = par;
+    if (applyFF) {
+      xAOD::Type::ObjectType type = par->type();
+      // apply the shower shape corrections
+      CP::CorrectionCode correctionCode = CP::CorrectionCode::Ok;
+      if (type == xAOD::Type::Electron) {
+        const xAOD::Electron* eg = static_cast<const xAOD::Electron*>(par);
+        xAOD::Electron* el = nullptr;
+        correctionCode = m_fudgeMCTool->correctedCopy(*eg, el);
+        pCopy = el;
+      } else {
+        const xAOD::Photon* eg = static_cast<const xAOD::Photon*>(par);
+        xAOD::Photon* ph = nullptr;
+        correctionCode = m_fudgeMCTool->correctedCopy(*eg, ph);
+        pCopy = ph;
+      }
+      if (correctionCode == CP::CorrectionCode::Ok) { // All OK
+      } else if (correctionCode == CP::CorrectionCode::Error) {
+        Error("addBranches()",
+              "Error applying fudge factors to current photon");
+      } else if (correctionCode == CP::CorrectionCode::OutOfValidityRange) {
+        Warning(
+          "addBranches()",
+          "Current object has no valid fudge factors due to out-of-range");
+      } else {
+        Warning(
+          "addBranches()",
+          "Unknown correction code %d from ElectronPhotonShowerShapeFudgeTool",
+          (int)correctionCode);
+      }
     }
+    // compute the output of the selector
+    asg::AcceptData theAccept(m_tool->accept(pCopy));
+    const unsigned int isEM =
+      (unsigned int)theAccept.getCutResultInvertedBitSet()
+        .to_ulong(); // this should work for both the
+                     // cut-based and the LH selectors
 
-    // Decorator
-    SG::AuxElement::Decorator< char > decoratorPass(m_sgName);
-    SG::AuxElement::Decorator< unsigned int > decoratorIsEM(m_sgName + "IsEMValue");
-
-    // Write mask for each element and record to SG for subsequent selection
-    for (xAOD::IParticleContainer::const_iterator pItr = particles->begin(); pItr!=particles->end(); ++pItr) {
-
-      xAOD::Type::ObjectType type = (*pItr)->type();
-      if (type!=xAOD::Type::Electron && type!=xAOD::Type::Photon) {
-	  ATH_MSG_ERROR ("addBranches(): Wrong particle type (not electron nor photon) being passed to EGElectronLikelihoodToolWrapper");
-	  return StatusCode::FAILURE;
+    // decorate the original object
+    if (m_cut.empty()) {
+      const bool pass_selection = (bool)theAccept;
+      if (pass_selection) {
+        decoratorPass(*par) = 1;
+      } else {
+        decoratorPass(*par) = 0;
       }
-      if (type==xAOD::Type::Electron && (m_containerName!="Electrons" && m_containerName!="ForwardElectrons")) {
-	  ATH_MSG_ERROR ("addBranches(): Wrong particle type being passed to EGElectronLikelihoodToolWrapper");
-	  return StatusCode::FAILURE;
-      }
-      if (type==xAOD::Type::Photon && m_containerName!="Photons") {
-	  ATH_MSG_ERROR ("addBranches(): Wrong particle type being passed to EGElectronLikelihoodToolWrapper");
-	  return StatusCode::FAILURE;
-      }
-      
-      const xAOD::IParticle* pCopy = *pItr;
-
-      // this should be computed based on some property of the tool or the existence of the ElectronPhotonShowerShapeFudgeTool
-      bool applyFF = (!m_fudgeMCTool.empty());
-      if (applyFF) {
-	// apply the shower shape corrections
-	CP::CorrectionCode correctionCode = CP::CorrectionCode::Ok;
-	if (type==xAOD::Type::Electron) {
-	    const xAOD::Electron* eg = static_cast<const xAOD::Electron*>(*pItr);
-	    xAOD::Electron* el = nullptr;
-	    correctionCode = m_fudgeMCTool->correctedCopy(*eg, el);
-	    pCopy = el;
-	}
-	else {
-	    const xAOD::Photon* eg = static_cast<const xAOD::Photon*>(*pItr);
-	    xAOD::Photon* ph = nullptr;
-	    correctionCode = m_fudgeMCTool->correctedCopy(*eg, ph);
-	    pCopy = ph;
-	}
-	if (correctionCode==CP::CorrectionCode::Ok)
-	    ;
-	else if (correctionCode==CP::CorrectionCode::Error)
-	    Error("addBranches()","Error applying fudge factors to current photon");
-	else if (correctionCode==CP::CorrectionCode::OutOfValidityRange)
-	    Warning("addBranches()","Current object has no valid fudge factors due to out-of-range");
-	else
-	    Warning("addBranches()","Unknown correction code %d from ElectronPhotonShowerShapeFudgeTool",(int) correctionCode);
-      }
-
-      // compute the output of the selector
-      asg::AcceptData theAccept(m_tool->accept(pCopy));
-      unsigned int isEM = (unsigned int) theAccept.getCutResultInvertedBitSet().to_ulong(); // this should work for both the cut-based and the LH selectors
-      double result(0.); // initialise explicitly to avoid compilation warning. It will be overridden in the following block (result is used only if m_storeTResult is true)
-
+      decoratorIsEM(*par) = isEM;
       if (m_storeTResult) {
-      	result = double(m_tool->calculate(Gaudi::Hive::currentContext(),pCopy));
+        static const SG::AuxElement::Decorator<double> decResult(m_sgName +
+                                                                 "Result");
+        decResult(*par) = static_cast<double>(m_tool->calculate(ctx, pCopy));
       }
-      
-      // decorate the original object
-      if(m_cut.empty()){
-	bool pass_selection = (bool) theAccept;
-	if(pass_selection) decoratorPass(**pItr) = 1;
-	else decoratorPass(**pItr) = 0;
-	decoratorIsEM(**pItr) = isEM;
-	if (m_storeTResult) {
-	  SG::AuxElement::Decorator< double > decoratorResult(m_sgName + "Result");
-	  decoratorResult(**pItr) = result;
-	}
+    } else {
+      if (theAccept.getCutResult(m_cut)) {
+        decoratorPass(*par) = 1;
+      } else {
+        decoratorPass(*par) = 0;
       }
-      else{
-	if (theAccept.getCutResult(m_cut)) {
-	  decoratorPass(**pItr) = 1;
-	} else {
-	  decoratorPass(**pItr) = 0;
-	}
-	decoratorIsEM(**pItr) = isEM;
-	if (m_storeTResult) {
-	  SG::AuxElement::Decorator< double > decoratorResult(m_sgName + "Result");
-	  decoratorResult(**pItr) = result;
-	}
+      decoratorIsEM(*par) = isEM;
+      if (m_storeTResult) {
+        static const SG::AuxElement::Decorator<double> decResult(m_sgName +
+                                                                 "Result");
+        decResult(*par) = static_cast<double>(m_tool->calculate(ctx, pCopy));
       }
-
-      // delete the particle copy
-      if (applyFF) delete pCopy;
     }
-    
-    return StatusCode::SUCCESS;
+    // delete the particle copy
+    if (applyFF) {
+      delete pCopy;
+    }
   }
+
+  return StatusCode::SUCCESS;
+}
 }
