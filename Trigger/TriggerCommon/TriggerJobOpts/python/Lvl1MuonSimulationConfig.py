@@ -114,7 +114,7 @@ if __name__ == "__main__":
     acc.addSequence(seqAND("L1MuonSim"))
     acc.merge(Lvl1MCMuonSimulationCfg(flags), sequenceName="L1MuonSim")
     from AthenaCommon.Constants import DEBUG
-    acc.foreach_component("*/L1MuonSim/*").OutputLevel = DEBUG
+    acc.foreach_component("*/L1MuonSim/*").OutputLevel = DEBUG   # noqa: ATL900
     acc.printConfig(withDetails=True, summariseProps=True)
 
     acc.run()

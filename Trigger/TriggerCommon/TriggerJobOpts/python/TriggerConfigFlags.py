@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from AthenaCommon.Logging import logging
@@ -348,7 +348,6 @@ def createTriggerFlags():
     return flags
     # for reference, this flags are skipped as never used or never set in fact, or set identical to de default or used in a very old JO:
     # fakeLVL1, useCaloTTL
-    # doCosmicSim - old JO
     # doMergedHLTResult - not needed now
     # doAlwaysUnpackDSResult - never set
     # doTrt - fast TRT or trigger - never used

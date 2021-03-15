@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 # @file   TriggerOnlineFlags.py
@@ -56,6 +56,3 @@ TriggerFlags.add_Container(Online)
 # Add all flags
 for f in _flags:
    TriggerFlags.Online.add_JobProperty(f)
-del _flags
-
-OnlineFlags = TriggerFlags.Online
