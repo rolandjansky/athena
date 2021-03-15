@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -9,28 +9,58 @@
 #ifndef DERIVATIONFRAMEWORK_PHOTONSDIRECTIONTOOL_H
 #define DERIVATIONFRAMEWORK_PHOTONSDIRECTIONTOOL_H
 
-#include <string>
-
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
-
+//
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "xAODEgamma/PhotonContainer.h"
+//
+#include <string>
+#include <vector>
 namespace DerivationFramework {
 
-  class PhotonsDirectionTool : public AthAlgTool, public IAugmentationTool {
-    public: 
-      PhotonsDirectionTool(const std::string& t, const std::string& n, const IInterface* p);
+class PhotonsDirectionTool
+  : public AthAlgTool
+  , public IAugmentationTool
+{
+public:
+  PhotonsDirectionTool(const std::string& t,
+                       const std::string& n,
+                       const IInterface* p);
 
-      StatusCode initialize();
-      StatusCode finalize();
-      virtual StatusCode addBranches() const;
+  virtual StatusCode initialize() override final;
+  virtual StatusCode addBranches() const override final;
 
-    private:
-      std::string m_sgEta;
-      std::string m_sgPhi;
-      std::string m_sgEt;
-      std::string m_sgE;
-      std::string m_collName;
-  }; 
+private:
+  SG::ReadHandleKey<xAOD::PhotonContainer> m_collName{ this,
+                                                       "PhotonContainer",
+                                                       "Photons",
+                                                       "Input Photons" };
+
+  SG::WriteHandleKey<std::vector<float>> m_sgEta{ this,
+                                                  "EtaSGEntry",
+                                                  "",
+                                                  "output Eta vector" };
+
+  SG::WriteHandleKey<std::vector<float>> m_sgPhi{ this,
+                                                  "PhiSGEntry",
+                                                  "",
+                                                  "output Phi vector" };
+
+  SG::WriteHandleKey<std::vector<float>> m_sgEt{ this,
+                                                 "EtSGEntry",
+                                                 "",
+                                                 "output E vector" };
+
+  SG::WriteHandleKey<std::vector<float>> m_sgE{ this,
+                                                "ESGEntry",
+                                                "",
+                                                "output E vector" };
+
+  bool m_doEta = false;
+  bool m_doPhi = false;
+  bool m_doEt = false;
+  bool m_doE = false;
+};
 }
 
 #endif // DERIVATIONFRAMEWORK_PHOTONSDIRECTIONTOOL_H
