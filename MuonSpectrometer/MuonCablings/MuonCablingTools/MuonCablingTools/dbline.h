@@ -256,8 +256,8 @@
 
 
 
-#ifndef DBLINE_H
-#define DBLINE_H
+#ifndef MUONCABLINGTOOLS_DBLINE_H
+#define MUONCABLINGTOOLS_DBLINE_H
 
 
 #include <ctype.h>

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef LVL1OBJECT_H
-#define LVL1OBJECT_H
+#ifndef MUONCABLINGTOOLS_LVL1OBJECT_H
+#define MUONCABLINGTOOLS_LVL1OBJECT_H
 
 
 #define DISP this->lock(); \
