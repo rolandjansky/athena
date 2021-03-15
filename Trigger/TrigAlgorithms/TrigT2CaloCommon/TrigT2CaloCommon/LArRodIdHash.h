@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -12,8 +12,8 @@
  PURPOSE:  LArReadoutModuleID to integer (hash ID) mapping.
  *******************************************************************/
 
-#ifndef LARRECEVENT_LARRODIDHASH_H
-#define LARRECEVENT_LARRODIDHASH_H
+#ifndef TRIGT2CALOCOMMON_LARRODIDHASH_H
+#define TRIGT2CALOCOMMON_LARRODIDHASH_H
 
 
 #include <vector> 
@@ -27,10 +27,6 @@ class LArRodIdHash  {
 
   /** definition of ID type */
   typedef unsigned int ID; 
-  /** Contructor, just sets possible offset. */
-  LArRodIdHash ();
-  /** Destructor */
-  virtual ~LArRodIdHash() { };
 
   /** Initialize. Here real map is built */
   void initialize(int offset ); 
@@ -49,7 +45,7 @@ class LArRodIdHash  {
 
  private:
   /** total number of IDs */
-  int m_size;  // total number of IDs
+  int m_size{0};  // total number of IDs
 
   /** test beam flag */
   std::map<unsigned int, int> m_lookup ;
@@ -57,7 +53,7 @@ class LArRodIdHash  {
   /** reverse look up */ 
   std::vector<ID> m_int2id;
 
-  int  m_offset; 
+  int m_offset{0};
 
 };
 

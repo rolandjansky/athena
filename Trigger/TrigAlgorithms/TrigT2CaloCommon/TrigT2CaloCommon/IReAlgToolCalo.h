@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -27,10 +27,9 @@
 
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "CaloIdentifier/CaloIdManager.h"
-#include "TileEvent/TileCell.h"
 #include "TrigT2CaloCommon/ITrigCaloDataAccessSvc.h"
 #include "TrigT2CaloCommon/T2Calibration.h"
-#include "TrigT2CaloCommon/T2GeometryTool.h"
+#include "TrigT2CaloCommon/IT2GeometryTool.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
 
 #include <memory>

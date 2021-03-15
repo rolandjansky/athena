@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -27,13 +27,9 @@ public :
 	/** Constructor. Loads cluster size definition tables. */
 	T2GeometryTool (const std::string & type, const std::string &name,
                     const IInterface* parent);
-	/** Destructor */
-	~T2GeometryTool();
 
 	/** Initialize method */
-        StatusCode initialize();
-	/** Finalize method */
-        StatusCode finalize();
+    virtual StatusCode initialize() override;
 
   /** @brief This prepares internal tables based on the cluster position.
   *   Such tables should be used to determine whether a cells is

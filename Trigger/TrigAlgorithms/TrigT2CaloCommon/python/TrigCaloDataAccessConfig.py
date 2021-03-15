@@ -154,9 +154,9 @@ if __name__ == "__main__":
     
     acc.printConfig(True)
 
-    print(acc.getPublicTool("LArRoI_Map"))
+    print(acc.getPublicTool("LArRoI_Map"))  # noqa: ATL901
 
-    print("running this configuration")
+    print("running this configuration")  # noqa: ATL901
     of = open("test.pkl", "wb")
     acc.store(of)
     of.close()
