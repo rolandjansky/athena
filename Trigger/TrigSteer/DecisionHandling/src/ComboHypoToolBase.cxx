@@ -16,7 +16,6 @@ StatusCode ComboHypoToolBase::decide(LegDecisionsMap & passingLegs, const EventC
 {
   // if no combinations passed, then exit 
   if (passingLegs.size()==0)  return StatusCode::SUCCESS;
-  
    ATH_MSG_DEBUG( "Looking for "<< decisionId() <<" in the map. Map contains "<<passingLegs.size()<<" legs");
    //ATH_CHECK( printDebugInformation(passingLegs));
 
@@ -25,7 +24,7 @@ StatusCode ComboHypoToolBase::decide(LegDecisionsMap & passingLegs, const EventC
    ATH_CHECK( selectLegs(passingLegs, leg_decisions) );
 
    if (leg_decisions.size() == 0) {
-     ATH_MSG_INFO("Found 0 legs with this DecisionID: something failed?");
+     ATH_MSG_DEBUG("Found 0 legs with this DecisionID: something failed?");
      return StatusCode::SUCCESS;
    }
 
@@ -110,7 +109,7 @@ StatusCode ComboHypoToolBase::selectLegs(const LegDecisionsMap & IDCombMap, std:
 
   size_t nLegs= leg_decisions.size(); // the legs for this chain only
   if (nLegs==0) {
-    ATH_MSG_INFO("There are no decisions in the legs to combine for ID "<< decisionId());
+    ATH_MSG_DEBUG("There are no decisions in the legs to combine for ID "<< decisionId());
     return StatusCode::SUCCESS;
   }
   

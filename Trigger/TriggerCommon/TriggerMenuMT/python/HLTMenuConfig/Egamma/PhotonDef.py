@@ -19,7 +19,7 @@ from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, 
 # so let's make them functions already now
 #----------------------------------------------------------------
 def fastPhotonCaloSequenceCfg( flags ):
-    return fastCaloMenuSequence('Photon', doRinger=False)
+    return fastCaloMenuSequence('Photon')
     
 def fastPhotonSequenceCfg( flags ):    
     return fastPhotonMenuSequence()
@@ -77,6 +77,8 @@ class PhotonChainConfiguration(ChainConfigurationBase):
         
         ## This needs to be configured by the Egamma Developer!!
         log.debug('photon chain part = %s', self.chainPart)
+        addInfo = 'etcut'
+
         key = self.chainPart['extra'] + self.chainPart['IDinfo'] + self.chainPart['isoInfo']
         for addInfo in self.chainPart['addInfo']:
             key+=addInfo
