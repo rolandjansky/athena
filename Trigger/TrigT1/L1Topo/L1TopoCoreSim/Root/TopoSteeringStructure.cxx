@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include "L1TopoCoreSim/TopoSteeringStructure.h"
 
@@ -488,7 +488,7 @@ TopoSteeringStructure::sortingConnector(const std::string & connectorName) const
 
 
 TCS::DecisionConnector *
-TCS::TopoSteeringStructure::outputConnector(const std::string & output) const {
+TCS::TopoSteeringStructure::outputConnector(const std::string & output) {
    auto c = m_outputLookup.find(output);
    if( c != m_outputLookup.end() )
       return c->second;
@@ -496,8 +496,9 @@ TCS::TopoSteeringStructure::outputConnector(const std::string & output) const {
    return 0;
 }
 
+
 TCS::CountingConnector *
-TCS::TopoSteeringStructure::countingConnector(const std::string & output) const {
+TCS::TopoSteeringStructure::countingConnector(const std::string & output) {
    auto c = m_countLookup.find(output);
    if( c != m_countLookup.end() )
       return c->second;

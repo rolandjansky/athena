@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include "L1TopoCommon/StatusCode.h"
 
@@ -45,9 +45,9 @@ namespace TCS {
 
       Connector* connector(const std::string & connectorName) const;
 
-      DecisionConnector* outputConnector(const std::string & output) const;
+      DecisionConnector* outputConnector(const std::string & output);
 
-      CountingConnector* countingConnector(const std::string & output) const;
+      CountingConnector* countingConnector(const std::string & output);
 
       // resets the connectors (status, intermediate TOBs, and decision of algs)
       StatusCode reset();

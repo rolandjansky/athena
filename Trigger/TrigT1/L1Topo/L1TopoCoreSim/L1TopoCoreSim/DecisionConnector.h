@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1TopoCoreSim_DecisionConnector
@@ -32,7 +32,8 @@ namespace TCS {
 
       virtual bool isDecisionConnector() const { return true; }
 
-      TCS::DecisionAlg* decisionAlgorithm() const {  return m_decisionAlgorithm; }
+      TCS::DecisionAlg* decisionAlgorithm() {  return m_decisionAlgorithm; }
+      const TCS::DecisionAlg* decisionAlgorithm() const {  return m_decisionAlgorithm; }
 
       virtual StatusCode clearOutput();
 
