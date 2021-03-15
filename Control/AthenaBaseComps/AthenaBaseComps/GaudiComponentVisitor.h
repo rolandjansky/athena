@@ -68,7 +68,7 @@ namespace xGaudi {
             void visit( T_Component* a_component ) const override { std::invoke( *m_func, a_component ); }
          };
          recursiveVisit( components, Visitor{&callable}, reject_filter, ignore );
-         return ignore;
+         return std::move (ignore);
       }
 
    private:

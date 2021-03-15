@@ -62,10 +62,10 @@ namespace Ath {
       return StatusCode::SUCCESS;
    }
 
-   void DynamicDataHelper::gatherDataHandlesAndDynamicConsumers(const std::string &parent_name, Gaudi::Algorithm *theAlgorithm) {
+   void DynamicDataHelper::gatherDataHandlesAndDynamicConsumers(const std::string &/*parent_name*/, Gaudi::Algorithm *theAlgorithm) {
          //      |> debugging
          auto algorithm_visitor =
-            [this,&parent_name](Gaudi::Algorithm *an_alg) {
+            [this](Gaudi::Algorithm *an_alg) {
                IDynamicDataConsumer *a_dyn_data_consumer=dynamic_cast<IDynamicDataConsumer *>(an_alg);
                if (a_dyn_data_consumer) {
                   m_dynDataConsumer.push_back(std::make_pair(a_dyn_data_consumer, an_alg));
@@ -76,7 +76,7 @@ namespace Ath {
                std::vector<IAlgTool *> &tools ATLAS_THREAD_SAFE
                   = const_cast< std::vector<IAlgTool *> &>(const_cast<const Gaudi::Algorithm *>(an_alg)->tools());
                //                               |> debugging
-               auto tool_visitor = [this, an_alg, &parent_name](IAlgTool *alg_tool) {
+               auto tool_visitor = [this, an_alg](IAlgTool *alg_tool) {
                   IDynamicDataConsumer *a_dyn_data_consumer=dynamic_cast<IDynamicDataConsumer *>(alg_tool);
                   if (a_dyn_data_consumer) {
                      m_dynDataConsumer.push_back(std::make_pair(a_dyn_data_consumer, an_alg));
