@@ -158,50 +158,7 @@ def createDetectorConfigFlags():
                                                                 prevFlags.Detector.EnableFwdRegion))
 
 
-    #Detector.Simulate
-    dcf.addFlag('Detector.SimulateBpipe', False)
-    dcf.addFlag('Detector.SimulateBCM',   False)
-    dcf.addFlag('Detector.SimulateDBM',   False)
-    dcf.addFlag('Detector.SimulatePixel', False)
-    dcf.addFlag('Detector.SimulateSCT',   False)
-    dcf.addFlag('Detector.SimulateTRT',   False) # Set default according to prevFlags.GeoModel.Run?
-    dcf.addFlag('Detector.SimulateHGTD',  False)
-    dcf.addFlag('Detector.SimulateID',    lambda prevFlags : (prevFlags.Detector.SimulateBCM or prevFlags.Detector.SimulateDBM or
-                                                              prevFlags.Detector.SimulatePixel or prevFlags.Detector.SimulateSCT or
-                                                              prevFlags.Detector.SimulateTRT))
-    
-    #Upgrade ITk Inner Tracker is a separate and parallel detector
-    dcf.addFlag('Detector.SimulateBCMPrime',   False)
-    dcf.addFlag('Detector.SimulateITkPixel',   False)
-    dcf.addFlag('Detector.SimulateITkStrip',   False)
-    dcf.addFlag('Detector.SimulateITk',    lambda prevFlags : (prevFlags.Detector.SimulateBCMPrime or prevFlags.Detector.SimulateITkPixel or prevFlags.Detector.SimulateITkStrip or prevFlags.Detector.SimulateHGTD))
-
-    dcf.addFlag('Detector.SimulateLAr',   False) # Add separate em HEC and FCAL flags?
-    dcf.addFlag('Detector.SimulateTile',  False)
-    dcf.addFlag('Detector.SimulateCalo',  lambda prevFlags : (prevFlags.Detector.SimulateLAr or prevFlags.Detector.SimulateTile))
-    dcf.addFlag('Detector.SimulateCSC',   False)
-    dcf.addFlag('Detector.SimulateMDT',   False)
-    dcf.addFlag('Detector.SimulateRPC',   False)
-    dcf.addFlag('Detector.SimulateTGC',   False)
-    dcf.addFlag('Detector.SimulatesTGC',  False) # Set default according to prevFlags.GeoModel.Run?
-    dcf.addFlag('Detector.SimulateMM',    False) # Set default according to prevFlags.GeoModel.Run?
-    dcf.addFlag('Detector.SimulateMuon',  lambda prevFlags : (prevFlags.Detector.SimulateCSC or prevFlags.Detector.SimulateMDT or
-                                                              prevFlags.Detector.SimulateRPC or prevFlags.Detector.SimulateTGC or
-                                                              prevFlags.Detector.SimulatesTGC or prevFlags.Detector.SimulateMM))
-    dcf.addFlag('Detector.SimulateLucid', False)
-    dcf.addFlag('Detector.SimulateZDC',   False)
-    dcf.addFlag('Detector.SimulateALFA',  False)
-    dcf.addFlag('Detector.SimulateAFP',   False)
-    dcf.addFlag('Detector.SimulateFwdRegion',False)
-    dcf.addFlag('Detector.SimulateForward',lambda prevFlags : (prevFlags.Detector.SimulateLucid or prevFlags.Detector.SimulateZDC or
-                                                               prevFlags.Detector.SimulateALFA or prevFlags.Detector.SimulateAFP or
-                                                               prevFlags.Detector.SimulateFwdRegion))
-    dcf.addFlag('Detector.SimulateCavern',False)
-
-    dcf.addFlag('Detector.Simulate',      lambda prevFlags : (prevFlags.Detector.SimulateBpipe or prevFlags.Detector.SimulateID or
-                                                              prevFlags.Detector.SimulateCalo or prevFlags.Detector.SimulateMuon or
-                                                              prevFlags.Detector.SimulateForward or prevFlags.Detector.SimulateCavern))
-
+    # Reconstruction flags (ID and ITk only. Disabled by default)
     dcf.addFlag('Detector.RecoBCM',   False)
     dcf.addFlag('Detector.RecoIBL', lambda prevFlags : (prevFlags.Detector.RecoPixel and prevFlags.GeoModel.Run in ["RUN2", "RUN3"])) # TODO Review if a separate RecoIBL flag is really required here
     dcf.addFlag('Detector.RecoPixel', False)

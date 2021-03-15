@@ -31,8 +31,8 @@ if __name__ == '__main__':
     detectors =['Bpipe', 'BCM', 'DBM',  'Pixel', 'SCT', 'TRT', 'LAr', 'Tile', 'CSC', 'MDT', 'RPC', 'TGC', 'FwdRegion']
 
   # Setup detector flags
-  from SimuJobTransforms.SimulationTestHelpers import setupDetectorSimulateFlagsFromList
-  setupDetectorSimulateFlagsFromList(ConfigFlags, detectors)
+  from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
+  setupDetectorsFromList(ConfigFlags, detectors, toggle_geometry=True)
 
   #turn the forward region off
   ConfigFlags.Sim.WorldRRange = 15000
