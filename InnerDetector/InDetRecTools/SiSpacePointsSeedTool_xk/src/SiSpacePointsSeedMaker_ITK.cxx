@@ -117,6 +117,8 @@ InDet::SiSpacePointsSeedMaker_ITK::SiSpacePointsSeedMaker_ITK
   declareProperty("maxSizeSP"             ,m_maxsizeSP             );
   declareProperty("minZ"                  ,m_zmin                  );
   declareProperty("maxZ"                  ,m_zmax                  );
+  declareProperty("maxZPPP"               ,m_zmaxPPP               );
+  declareProperty("maxZSSS"               ,m_zmaxSSS               );
   declareProperty("mindRadiusPPP"         ,m_drminPPP              );
   declareProperty("maxdRadiusPPP"         ,m_drmaxPPP              );
   declareProperty("mindRadiusSSS"         ,m_drminSSS              );
@@ -1192,7 +1194,6 @@ void InDet::SiSpacePointsSeedMaker_ITK::fillLists()
   int  fNmax = m_fNmax[0];
   int  ir0   = 0         ;
   int  irm   = 0         ;
-  bool endcap = false    ;
   for(int i=r_first; i!=r_size;  ++i) {
     
     if(!r_map[i]) continue; 
@@ -1211,7 +1212,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::fillLists()
 
       // Azimuthal angle and Z-coordinate sort
       //
-      float Z = (*r)->z(); if (fabs(Z)>1490) endcap = true; int z;
+      float Z = (*r)->z(); int z;
       if(Z>0.) {
         Z< 250.?z=5:Z< 450.?z=6:Z< 925.?z=7:Z< 1400.?z=8:Z< 2500.?z=9:z=10;
       }
@@ -1223,7 +1224,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::fillLists()
     }
   }
 
-  if ( endcap and m_isLRT) {
+  if ( m_isLRT ) {
     m_RTmin = r_rstep*ir0+10;
     m_RTmax = r_rstep*irm-10;
   }
@@ -1470,8 +1471,8 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3Sp()
     if(m_pixel) production3SpPPP();
     else if(m_sct) production3SpSSS();
   }
-
-  else{
+  
+  else {
 
     if(m_nsaz<3) return;
 

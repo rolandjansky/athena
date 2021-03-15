@@ -106,7 +106,6 @@ class  ConfiguredNewTrackingSiPattern:
                                                                maxZ                   =  NewTrackingCuts.maxZImpactSeed(),
                                                                minZ                   = -NewTrackingCuts.maxZImpactSeed(),
                                                                etaMax                 = NewTrackingCuts.maxEta())
-
           
          if NewTrackingCuts.mode() == "Offline" or InDetFlags.doHeavyIon() or  NewTrackingCuts.mode() == "ForwardTracks":
             InDetSiSpacePointsSeedMaker.maxdImpactPPS = NewTrackingCuts.maxdImpactPPSSeeds()
@@ -114,7 +113,7 @@ class  ConfiguredNewTrackingSiPattern:
          if NewTrackingCuts.mode() == "R3LargeD0":
             InDetSiSpacePointsSeedMaker.usePixel = False
             InDetSiSpacePointsSeedMaker.etaMax = NewTrackingCuts.maxEta() 
-         if usePrdAssociationTool:
+         if usePrdAssociationTool: 
             # not all classes have that property !!!
             InDetSiSpacePointsSeedMaker.UseAssociationTool = True
             InDetSiSpacePointsSeedMaker.AssociationTool    = InDetPrdAssociationTool
@@ -150,6 +149,8 @@ class  ConfiguredNewTrackingSiPattern:
          if NewTrackingCuts.mode() == "SLHCLargeD0":
             InDetSiSpacePointsSeedMaker.maxSeedsForSpacePoint=5
             InDetSiSpacePointsSeedMaker.isLRT=True
+            InDetSiSpacePointsSeedMaker.maxZPPP = NewTrackingCuts.maxZImpactSeed()
+            InDetSiSpacePointsSeedMaker.maxZSSS = NewTrackingCuts.maxZImpactSeed()
          if InDetFlags.doFastTracking() :
             InDetSiSpacePointsSeedMaker.useFastTracking       = True
             InDetSiSpacePointsSeedMaker.maxSeedsForSpacePoint = 3
@@ -290,6 +291,7 @@ class  ConfiguredNewTrackingSiPattern:
                                           InputClusterContainerName = InDetKeys.CaloClusterROIContainer(), # "InDetCaloClusterROIs" 
                                           InputHadClusterContainerName = InDetKeys.HadCaloClusterROIContainer(), # "InDetCaloClusterROIs" 
                                           UseAssociationTool        = usePrdAssociationTool)
+
          if not NewTrackingCuts.useEtaDependentCuts():
             InDetSiTrackMaker.pTmin                     = NewTrackingCuts.minPT()
             InDetSiTrackMaker.pTminBrem                 = NewTrackingCuts.minPTBrem()
@@ -638,6 +640,7 @@ class  ConfiguredNewTrackingSiPattern:
                                                  tryBremFit         = InDetFlags.doBremRecovery() and useBremMode and NewTrackingCuts.mode() != "DBM",
                                                  caloSeededBrem     = InDetFlags.doCaloSeededBrem() and NewTrackingCuts.mode() != "DBM",
                                                  RefitPrds          = True)
+
          if not NewTrackingCuts.useEtaDependentCuts():
            InDetAmbiguityProcessor.pTminBrem          = NewTrackingCuts.minPTBrem()
          else:
