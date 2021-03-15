@@ -90,8 +90,6 @@ if DetFlags.AFP_on():
     #svcMgr.AddressRemappingSvc.TypeKeyOverwriteMaps+=[]
     StreamHITS.ItemList += ["AFP_TDSimHitCollection#*","AFP_SIDSimHitCollection#*"]
 
-ServiceMgr.StoreGateSvc.Dump=True
-
 StreamHITS.TakeItemsFromInput=False;
 
 
