@@ -1,14 +1,12 @@
 
 /*
- *   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
-#include <iostream>
-#include <random>
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "CaloEvent/CaloConstCellContainer.h"
-#include "CompareCells.h"
-#include <sys/time.h>
 
+#include "CompareCells.h"
+#include "CaloEvent/CaloConstCellContainer.h"
+
+#include <iostream>
 CompareCells::CompareCells( const std::string& name,
                                         ISvcLocator* pSvcLocator ) :
   ::AthReentrantAlgorithm( name, pSvcLocator ),
@@ -17,8 +15,6 @@ CompareCells::CompareCells( const std::string& name,
   declareProperty("TrigDataAccessMT",m_dataAccessSvc,"Data Access for LVL2 Calo Algorithms in MT");
   m_calocellcollectionKey = "AllCalo";
 }
-
-CompareCells::~CompareCells() {}
 
 StatusCode CompareCells::initialize() {
   CHECK( m_dataAccessSvc.retrieve() );

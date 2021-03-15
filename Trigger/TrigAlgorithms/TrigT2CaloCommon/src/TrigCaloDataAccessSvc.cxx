@@ -14,8 +14,6 @@ TrigCaloDataAccessSvc::TrigCaloDataAccessSvc( const std::string& name, ISvcLocat
   m_bcidAvgKey="CaloBCIDAverage";
 }
 
-TrigCaloDataAccessSvc::~TrigCaloDataAccessSvc() {}
-
 StatusCode TrigCaloDataAccessSvc::initialize() {
 
   /// Temporary fix

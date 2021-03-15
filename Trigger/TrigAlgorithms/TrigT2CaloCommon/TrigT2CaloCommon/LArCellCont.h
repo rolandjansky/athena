@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -14,8 +14,8 @@
 	   to algorithm finalize.
  *******************************************************************/
 
-#ifndef LARCELLCONT_H
-#define LARCELLCONT_H
+#ifndef TRIGT2CALOCOMMON_LARCELLCONT_H
+#define TRIGT2CALOCOMMON_LARCELLCONT_H
 
 #include "LArRecEvent/LArCellCollection.h"
 #include "TrigT2CaloCommon/LArRodIdHash.h"
@@ -26,7 +26,6 @@
 
 #include <vector>
 
-class EventInfo;
 class ILArBadChannelMasker;
 class ILArBadFebMasker;
 class CaloBCIDAverage;
