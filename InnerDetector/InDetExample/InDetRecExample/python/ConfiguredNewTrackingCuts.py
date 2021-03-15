@@ -401,36 +401,35 @@ class ConfiguredNewTrackingCuts :
       if self.__indetflags.useEtaDependentCuts():
         self.__useEtaDepCuts      = True
         self.__maxPT              = [1.0 * Units.TeV]
-        self.__minPT              = [0.9 * Units.GeV]
+        self.__minPT              = [1000 * Units.MeV]
         self.__maxEta             = 5.0
         self.__etaBins            = [0.0, 5.0]
-        self.__maxPrimaryImpact   = [398.0 * Units.mm]
-        self.__maxZImpact         = [1500.0 * Units.mm]
-        self.__minPTSeed          = 0.9 * Units.GeV
-        self.__maxPrimaryImpactSeed = 398.0 * Units.mm
-        self.__maxZImpactSeed     = 1500.0 * Units.mm
-
+        self.__maxPrimaryImpact   = [300 * Units.mm]
+        self.__maxZImpact         = [500 * Units.mm]
         self.__maxSecondaryImpact = [300.0 * Units.mm]
-        self.__minSecondaryPt     = [500.0 * Units.MeV]
+        self.__minSecondaryPt     = [1000 * Units.MeV]
         self.__minClusters        = [8]
-        self.__minSiNotShared     = [5]
-        self.__maxShared          = [2]  # cut is now on number of shared modules 
+        self.__minSiNotShared     = [6]
+        self.__maxShared          = [2]
         self.__minPixel           = [0]
-        self.__maxHoles           = [10]
-        self.__maxPixelHoles      = [10]
-        self.__maxSctHoles        = [10]
-        self.__maxDoubleHoles     = [1]
+        self.__maxHoles           = [1]
+        self.__maxPixelHoles      = [1]
+        self.__maxSctHoles        = [1]
+        self.__maxDoubleHoles     = [0]
+        self.__maxZImpactSeed     = 500.0 * Units.mm
+        self.__maxPrimaryImpactSeed = 300.0 * Units.mm
+        self.__minPTSeed          = 1000 * Units.MeV
         self.__radMax             = 1100. * Units.mm
         self.__nHolesMax          = self.__maxHoles
         self.__nHolesGapMax       = self.__maxHoles # not as tight as 2*maxDoubleHoles
         self.__seedFilterLevel    = 1
         self.__maxTracksPerSharedPRD = 2
 
-        self.__roadWidth          = 20 
+        self.__roadWidth          = 5
         self.__doZBoundary        = True
 
         # --- seeding                                                                                                                                               
-        self.__maxdImpactSSSSeeds       = [398.0 * Units.mm]
+        self.__maxdImpactSSSSeeds       = [300.0 * Units.mm]
 
         self.__useSCTSeeding = self.__indetflags.useSCTSLHCLargeD0()
         self.__usePixel = self.__indetflags.usePixelSLHCLargeD0()
