@@ -37,6 +37,15 @@ def createTriggerFlags():
     # Enable Run-2 L1Calo simulation and/or decoding (possible even if enablePhase1 is True)
     flags.addFlag('Trigger.enableL1CaloLegacy', True)
 
+    # Enable emulation tool for NSW-TGC coincidence in A-side
+    flags.addFlag('Trigger.L1MuonSim.EmulateNSWA', False)
+
+    # Enable emulation tool for NSW-TGC coincidence in C-side
+    flags.addFlag('Trigger.L1MuonSim.EmulateNSWC', False)
+
+    # Offline CondDB tag for RPC/TGC coincidence window in rerunLVL1 on data
+    flags.addFlag('Trigger.L1MuonSim.CondDBOffline', 'OFLCOND-MC16-SDR-RUN2-03')
+
     # Enable Inner Detector
     flags.addFlag('Trigger.doID', True)
 
