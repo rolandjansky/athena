@@ -21,8 +21,8 @@ def defaultSimulationFlags(ConfigFlags, detectors):
     # ConfigFlags.Sim.LArParameterization = 2
 
     # Setup detector flags
-    from SimuJobTransforms.SimulationTestHelpers import setupDetectorSimulateFlagsFromList
-    setupDetectorSimulateFlagsFromList(ConfigFlags, detectors)
+    from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
+    setupDetectorsFromList(ConfigFlags, detectors, toggle_geometry=True)
 
 
 def fromRunArgs(runArgs):
@@ -43,8 +43,8 @@ def fromRunArgs(runArgs):
     if hasattr(runArgs, 'detectors'):
         detectors = runArgs.detectors
     else:
-        from SimuJobTransforms.SimulationTestHelpers import getDefaultDetectorsForRun
-        detectors = getDefaultDetectorsForRun(ConfigFlags.GeoModel.Run)
+        from AthenaConfiguration.AutoConfigFlags import getDefaultDetectors
+        detectors = getDefaultDetectors(ConfigFlags.GeoModel.AtlasVersion)
 
     # Support switching on simulation of Forward Detectors
     if hasattr(runArgs, 'LucidOn'):

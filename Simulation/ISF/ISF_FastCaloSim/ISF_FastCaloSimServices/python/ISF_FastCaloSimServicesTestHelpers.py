@@ -74,8 +74,8 @@ def defaultTestFlags(configFlags, args):
 
     detectors =['Bpipe', 'BCM', 'DBM',  'Pixel', 'SCT', 'TRT', 'LAr', 'Tile', 'CSC', 'MDT', 'RPC', 'TGC']
     # Setup detector flags
-    from SimuJobTransforms.SimulationTestHelpers import setupDetectorSimulateFlagsFromList
-    setupDetectorSimulateFlagsFromList(configFlags, detectors)
+    from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
+    setupDetectorsFromList(configFlags, detectors, toggle_geometry=True)
 
     # Frozen showers OFF = 0
     configFlags.Sim.LArParameterization = 0
