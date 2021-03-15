@@ -1833,6 +1833,10 @@ class InDetJobProperties(JobPropertyContainer):
       # control to run LowBetaFinder
       self.doLowBetaFinder          = self.doLowBetaFinder() and DetFlags.haveRIO.TRT_on()
 
+      #track to vertex decorations in AOD creation only
+      from RecExConfig.RecFlags import rec
+      self.doTTVADecos              =  self.doTTVADecos() and not rec.doAODMerging()
+
       #
       # --------------------------------------------------------------------
       # ---- Statistics
