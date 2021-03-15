@@ -978,7 +978,7 @@ LVL1::EFexEMClusterTool::dR(double eta1, double phi1, double eta2, double phi2) 
    double etaDif = eta1 - eta2;
    double phiDif = std::abs(phi1 - phi2);
    if (phiDif > M_PI) phiDif = phiDif - (2*M_PI);
-   double result = sqrt(pow(etaDif,2)+pow(phiDif,2));
+   double result = std::sqrt(pow(etaDif,2)+pow(phiDif,2));
    return result;
 }
 

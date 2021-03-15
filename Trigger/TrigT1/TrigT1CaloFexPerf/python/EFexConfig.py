@@ -28,6 +28,7 @@ def enableEfexAlgorithms( algSequence, SuperCellContainer='SCell',
         emAlg.DefaultClusterTool.UseTileCells = perfFlags.Calo.UseAllCalo()
         emAlg.DefaultClusterTool.CleanCellContainer = perfFlags.Calo.ApplySCQual()
         emAlg.DefaultClusterTool.QualBitMask = perfFlags.Calo.QualBitMask()
+        emAlg.DefaultClusterTool.ClusterEnergyThresholdLooseEFEX=3.0
         algSequence += emAlg
 
     # eFEX taus

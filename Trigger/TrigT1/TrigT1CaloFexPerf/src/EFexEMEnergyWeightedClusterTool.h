@@ -66,20 +66,6 @@ namespace LVL1
     */
    const float m_detaTT{0.125};  ///< deta for the cluster to TT definition
    const float m_dphiTT{0.15};  ///< dphi for the cluster to TT definition
-
-
-
-   // unused code
-
-   /** finds cells around a seed cell whose layer matches the seed. These cells will be part of the cluster */
-   //void findCellsAroundLayerMatched(const CaloConstCellContainer*, const CaloCell* cell, std::vector<const CaloCell*>& out, const float deta, const float dphi) const;
-
-   /** finds TTs around a seed cell. These TTs will be part of the cluster. This helps to cover the part related to TileCall */
-   // void findTTsAround(const xAOD::TriggerTowerContainer*, const CaloCell* cell, std::vector<const xAOD::TriggerTower*>& out) const ;
-
-   // void findClusterFor(const std::vector<const CaloCell*>& scells, float &etaCluster, float &phiCluster, float &radiusCluster) const;
-
-
    };
 }
 

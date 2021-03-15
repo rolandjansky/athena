@@ -54,6 +54,11 @@ def Lvl1SimulationSequence_Data( ConfigFlags ):
     if ConfigFlags.Trigger.enableL1Phase1:
         # Placeholder for phase-I L1Calo simulation
         log.info("Configuring Phase-I L1Calo simulation on data - not yet implemented")
+
+        #Adding the floating point simulation for now. 
+        from TrigT1CaloFexPerf.Rel22L1PerfSequence import setupRun3L1CaloPerfSequence
+        setupRun3L1CaloPerfSequence(skipCTPEmulation=True, sequence = l1CaloSimDataSeq)
+
         # Here we have to add the SuperCell Emulation when running on Run 2 data
         # add bitwise correct eFEX simulation (enable once the SC emulation is available)
         # l1CaloSimDataSeq += CfgMgr.LVL1__eFEXDriver('eFEXDriver')
@@ -187,6 +192,10 @@ def Lvl1SimulationSequence_MC( ConfigFlags ):
     if ConfigFlags.Trigger.enableL1Phase1:
         #from AthenaCommon import CfgMgr
         l1CaloSim += CfgMgr.LVL1__eFEXDriver('MyeFEXDriver')
+        
+        #Adding the floating point simulation for now. 
+        from TrigT1CaloFexPerf.Rel22L1PerfSequence import setupRun3L1CaloPerfSequence
+        setupRun3L1CaloPerfSequence(skipCTPEmulation=True, sequence = l1CaloSim)
 
     ##################################################
     # Muons MC

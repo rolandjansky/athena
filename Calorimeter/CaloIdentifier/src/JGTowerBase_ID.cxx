@@ -159,7 +159,7 @@ IdentifierHash JGTowerBase_ID::calo_region_hash(const Identifier regId) const
 }
 
 
-int  JGTowerBase_ID::initialize_base_from_dictionary (const IdDictMgr& dict_mgr, const std::string& group_name, const std::string& t_pre)
+int  JGTowerBase_ID::initialize_base_from_dictionary (const IdDictMgr& dict_mgr, const std::string& t_pre)
 {
   MsgStream log(m_msgSvc, "JGTowerBase_ID" );
   std::string strg = "initialize_from_dictionary";
@@ -229,11 +229,11 @@ int  JGTowerBase_ID::initialize_base_from_dictionary (const IdDictMgr& dict_mgr,
   // negative half
   //    if (m_dict->get_label_value("DetZside", "negative_jgtower_side", jgtowerCaloValue)) 
   // positive half  FLG 12 Jul 07: negative side -> problem for test beam
-  if (m_dict->get_label_value("DetZside", group_name, jgtowerCaloValue)) 
+  if (m_dict->get_label_value("DetZside", "positive_lvl1_side", jgtowerCaloValue)) 
     {
       strm << m_dict->m_name;
       //	strg = " Could not get value for label 'negative_jgtower_side' of field 'DetZside in dictionary"+strm.str();
-      strg = " Could not get value for label "+group_name+" of field 'DetZside in dictionary"+strm.str();
+      strg = " Could not get value for label positive_lvl1_side of field 'DetZside in dictionary"+strm.str();
       if(m_msgSvc)
 	{
 	  log << MSG::ERROR << strg << endmsg;
@@ -254,8 +254,8 @@ int  JGTowerBase_ID::initialize_base_from_dictionary (const IdDictMgr& dict_mgr,
   reg_id.add(caloValue);
   reg_id.add(jgtowerCaloValue); 
   Range prefix;
-  m_full_reg_range = m_dict->build_multirange(reg_id, prefix, t_pre+"region");
-  m_full_tower_range = m_dict->build_multirange(reg_id, prefix, t_pre+"phi");
+  m_full_reg_range = m_dict->build_multirange(reg_id, "Reg_"+t_pre+"ower", prefix, t_pre+"region");
+  m_full_tower_range = m_dict->build_multirange(reg_id, "Reg_"+t_pre+"ower", prefix, t_pre+"phi");
   
   // Setup the hash tables
   if(init_hashes()) return (1);
