@@ -58,6 +58,7 @@ namespace ExpressionParsing {
    class PlainValueHelper {
    public:
       std::size_t size(const T_src &cont) const {
+         (void) cont;
          return 1; //@TODO correct ? or 1 ?
       }
 
