@@ -450,8 +450,9 @@ def triggerPOOLOutputCfg(flags, edmSet):
         outputType = 'ESD'
     if flags.Output.doWriteAOD:
         outputType = 'AOD'
+    acc = ComponentAccumulator()
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    acc = OutputStreamCfg(flags, outputType, ItemList=itemsToRecord, disableEventTag=True)
+    acc.merge(OutputStreamCfg(flags, outputType, ItemList=itemsToRecord, disableEventTag=True))
     streamAlg = acc.getEventAlgo("OutputStream"+outputType)
 
     # Keep input RDO objects in the output RDO_TRIG file
@@ -588,7 +589,7 @@ def triggerMergeViewsAndAddMissingEDMCfg( flags, edmSet, hypos, viewMakers, decO
 
 
 
-def triggerRunCfg( flags, seqName = None, menu=None ):
+def triggerRunCfg( flags, menu=None ):
     """
     top of the trigger config (for real triggering online or on MC)
     Returns: ca only
@@ -706,7 +707,7 @@ if __name__ == "__main__":
         return menuCA
 
 
-    acc = triggerRunCfg( ConfigFlags, seqName = None, menu = testMenu )
+    acc = triggerRunCfg( ConfigFlags, menu = testMenu )
     Configurable.configurableRun3Behavior=0
     from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
     appendCAtoAthena( acc )

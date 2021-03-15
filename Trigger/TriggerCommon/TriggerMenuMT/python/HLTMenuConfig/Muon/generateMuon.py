@@ -350,6 +350,9 @@ def muEFSAStep(flags, chainDict, name='RoI'):
 
     #Reco
     recoMS.mergeReco( MooSegmentFinderAlgCfg(flags,name="TrigMooSegmentFinder_"+name,UseTGCNextBC=False, UseTGCPriorBC=False))
+    # TODO - allow configurability in MooSegmentFinderCfg where it is wired to flags.Input.isMC
+    recoMS.getPublicTool("MooSegmentFinder").HoughPatternFinder.DoTruth=False
+
     recoMS.mergeReco(MuonTrackBuildingCfg(flags, name="TrigMuPatTrackBuilder_"+name))
     recoMS.mergeReco(MuonTrackParticleCnvCfg(flags, name = "TrigMuonTrackParticleCnvAlg_"+name))
     recoMS.mergeReco(MuonCombinedMuonCandidateAlgCfg(flags, name = "TrigMuonCandidateAlg_"+name))
