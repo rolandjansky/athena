@@ -125,7 +125,6 @@ public:
 private:
     //! @brief Use enum and not string for type of function parameter in order to do faster comparisons
     enum class parameterType{
-        // ToDo: Remove Failure type (will give compile time warnings on planned switch's)
         Failure = 0,
         EtaDependentTGraph = 1,
         PtDependentTGraph,
@@ -206,6 +205,16 @@ private:
      * file, and saved in the according member variables of the class, i.e. m_graphCopies, m_binValues, m_etaBins, m_ptBins
      */
     const StatusCode getParameterInformationFromConf(TEnv& env, const int parameter_number, const ElectronPhotonVariableCorrectionBase::parameterType type);
+
+    /** @brief Get the eta and pt binning as well as the respective correction values from the given conf file
+     * @param getEtaBins if to get the eta binning and bin values
+     * @param getPtBins if to get the pt binning and bin values
+     * @param binValues the conf file key to retrieve the bin values
+     * @param interpolate the conf file key on wheather to interpolate the pt values
+     * @param env The given TEnv,, which is used to read out the current conf file
+     * @param parameter_number The parameter number with respect to the m_correctionFunctionTF1
+     */
+    const StatusCode getEtaPtBinningsFromConf(const bool getEtaBins, const bool getPtBins, const TString& binValues, const TString& interpolate, TEnv& env, const int parameter_number);
 
     /** @brief Get a TObject storing corrections (i.e. TGraph or TH2) from a root file
      * @param env The configuration file to search for the relevant information (file path, object name)
