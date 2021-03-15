@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "sTGCSimHitVariables.h"
@@ -28,7 +28,7 @@ StatusCode sTGCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager*
   sTgcHitIdHelper* hitHelper = sTgcHitIdHelper::GetHelper();
   sTgcSimIdToOfflineId simToOffline(m_sTgcIdHelper);
   
-  if(nswContainer->size()==0) ATH_MSG_WARNING(" sTGCSimHit empty ");
+  if(!nswContainer->size()) ATH_MSG_DEBUG(m_ContainerName<<" container empty");
   for(auto it : *nswContainer) {
     const sTGCSimHit hit = it;
     if(hit.depositEnergy()==0.) continue; // SimHits without energy loss are not recorded. 
