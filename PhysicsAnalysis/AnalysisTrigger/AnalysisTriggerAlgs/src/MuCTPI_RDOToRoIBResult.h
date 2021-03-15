@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MuCTPI_RDOToRoIBResult.h 275499 2010-01-27 18:25:00Z krasznaa $
 #ifndef ANALYSISTRIGGERALGS_MUCTPI_RDOTOROIBRESULT_H
 #define ANALYSISTRIGGERALGS_MUCTPI_RDOTOROIBRESULT_H
 
@@ -32,7 +31,7 @@ public:
    MuCTPI_RDOToRoIBResult( const std::string& name, ISvcLocator* pSvcLocator );
 
    /// Regular algorithm execure function
-   virtual StatusCode execute();
+   virtual StatusCode execute() override;
 
 private:
    /// Extract the BCID stored in the multiplicity word

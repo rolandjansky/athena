@@ -1,16 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RoIBResultToAOD.cxx 784984 2016-11-18 05:53:57Z ssnyder $
 
 // STL include(s):
 #include <algorithm>
 #include <cmath>
 
 // Gaudi/Athena include(s):
+#include "GaudiKernel/SystemOfUnits.h"
 #include "AthenaKernel/errorcheck.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventType.h"
@@ -19,7 +18,6 @@
 // LVL1 trigger include(s):
 #include "TrigT1Interfaces/TriggerTypeWord.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
-#include "TrigT1Interfaces/RecMuonRoiSvc.h"
 #include "TrigT1Interfaces/RecEmTauRoI.h"
 #include "TrigT1Interfaces/RecJetRoI.h"
 #include "TrigT1Interfaces/RecEnergyRoI.h"
@@ -27,8 +25,6 @@
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigT1Result/CTPResult.h"
-#include "TrigT1CaloToolInterfaces/IL1EmTauTools.h"
-#include "TrigT1CaloToolInterfaces/IL1JetTools.h"
 #include "TrigT1CaloEvent/TriggerTowerCollection.h"
 #include "TrigT1CaloEvent/JetElementCollection.h"
 #include "TrigT1CaloEvent/CPMTower.h"
@@ -56,17 +52,18 @@ using namespace TrigConf;
 RoIBResultToAOD::RoIBResultToAOD( const std::string& name, ISvcLocator* pSvcLocator )
   : AthAlgorithm( name, pSvcLocator ),
     m_configSvc( "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name ),
-    m_recRPCRoiSvc( LVL1::ID_RecRpcRoiSvc, name ),
-    m_recTGCRoiSvc( LVL1::ID_RecTgcRoiSvc, name ),
+    m_recRPCRoiTool( "LVL1::TrigT1RPCRecRoiTool/TrigT1RPCRecRoiTool", name ),
+    m_recTGCRoiTool( "LVL1::TrigT1TGCRecRoiTool/TrigT1TGCRecRoiTool", name ),
     m_EmTauTool( "LVL1::L1EmTauTools/L1EmTauTools" ),
     m_JetTool( "LVL1::L1JetTools/L1JetTools" ) {
 
    // services
    declareProperty( "LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
-   declareProperty( "RecRpcRoiSvc", m_recRPCRoiSvc, "RPC Rec Roi Service");
-   declareProperty( "RecTgcRoiSvc", m_recTGCRoiSvc, "TGC Rec Roi Service");
 
    // tools
+   declareProperty( "RecRpcRoiTool", m_recRPCRoiTool, "RPC Rec Roi Tool");
+   declareProperty( "RecTgcRoiTool", m_recTGCRoiTool, "TGC Rec Roi Tool");
+
    declareProperty( "L1EmTauTools", m_EmTauTool,
                     "Tool for calculation of EmTau trigger sums per RoI");
    declareProperty( "L1JetTools", m_JetTool,
@@ -106,8 +103,7 @@ RoIBResultToAOD::RoIBResultToAOD( const std::string& name, ISvcLocator* pSvcLoca
 // Initialize
 StatusCode RoIBResultToAOD::initialize() {
 
-   ATH_MSG_INFO( "initializing " << name()
-                 << " - package version " << PACKAGE_VERSION );
+   ATH_MSG_INFO( "initializing " << name() );
 
    // Print system info
    if( m_doCalo == false ) {
@@ -123,13 +119,13 @@ StatusCode RoIBResultToAOD::initialize() {
 
    if( m_doMuon ) {
 
-      // Get the RPC RecRoI service
-      CHECK( m_recRPCRoiSvc.retrieve() );
-      ATH_MSG_DEBUG( "Connected to " << m_recRPCRoiSvc.typeAndName() );
+      // Get the RPC RecRoI tool
+      CHECK( m_recRPCRoiTool.retrieve() );
+      ATH_MSG_DEBUG( "Connected to " << m_recRPCRoiTool.typeAndName() );
 
-      // Get the TGC RecRoI service
-      CHECK( m_recTGCRoiSvc.retrieve() );
-      ATH_MSG_DEBUG( "Connected to " << m_recTGCRoiSvc.typeAndName() );
+      // Get the TGC RecRoI tool
+      CHECK( m_recTGCRoiTool.retrieve() );
+      ATH_MSG_DEBUG( "Connected to " << m_recTGCRoiTool.typeAndName() );
 
    } // if (m_doMuon)
 
@@ -145,15 +141,6 @@ StatusCode RoIBResultToAOD::initialize() {
       m_retrievedJetTool = true;
 
    } // if (m_doCalo)
-
-   return StatusCode::SUCCESS;
-}
-
-// finalize
-StatusCode RoIBResultToAOD::finalize() {
-
-   ATH_MSG_INFO( "Finalizing " << name()
-                 << " - package version " << PACKAGE_VERSION );
 
    return StatusCode::SUCCESS;
 }
@@ -360,7 +347,7 @@ void RoIBResultToAOD::addEmTauRoI( const ROIB::RoIBResult* result, LVL1_ROI* lvl
    if( result == 0 ) return;
 
    // Digit scale for calorimeter trigger
-   float caloTrigScale = m_configSvc->thresholdConfig()->caloInfo().globalScale() * CLHEP::GeV;
+   float caloTrigScale = m_configSvc->thresholdConfig()->caloInfo().globalScale() * Gaudi::Units::GeV;
    ATH_MSG_DEBUG( "caloTrigScale = " << caloTrigScale );
 
    /** Get EmTau Thresholds from configSvc. Also fill a map of threshold names while
@@ -423,7 +410,7 @@ void RoIBResultToAOD::addEmTauRoI( const ROIB::RoIBResult* result, LVL1_ROI* lvl
          std::vector< unsigned int >::const_iterator itTh  = thrV->begin();
          std::vector< unsigned int >::const_iterator itThE = thrV->end();
          for( ; itTh != itThE; ++itTh ) {
-            double thrValue = recRoI.triggerThreshold(*itTh)* CLHEP::GeV;
+            double thrValue = recRoI.triggerThreshold(*itTh)* Gaudi::Units::GeV;
             std::string thrName = "NameNotFound";
             if ( thresholdNames.find( *itTh - 1 ) != thresholdNames.end() ) {
                thrName = thresholdNames[ *itTh - 1 ];
@@ -466,7 +453,7 @@ void RoIBResultToAOD::addJetEnergyRoI( const ROIB::RoIBResult* result, LVL1_ROI*
    if( result == 0 ) return;
 
    // Digit scale for calorimeter trigger
-   float caloTrigScale = m_configSvc->thresholdConfig()->caloInfo().globalScale() * CLHEP::GeV;
+   float caloTrigScale = m_configSvc->thresholdConfig()->caloInfo().globalScale() * Gaudi::Units::GeV;
    ATH_MSG_DEBUG( "caloTrigScale = " << caloTrigScale );
 
    /** Get Jet/Energy Thresholds from configSvc. Also fill maps of threshold names while
@@ -567,7 +554,7 @@ void RoIBResultToAOD::addJetEnergyRoI( const ROIB::RoIBResult* result, LVL1_ROI*
 
             // fired Jet thresholds
             for( const unsigned int thrMapping : recRoI.thresholdsPassed()) {
-               double thrValue = recRoI.triggerThreshold(thrMapping) * CLHEP::GeV;
+               double thrValue = recRoI.triggerThreshold(thrMapping) * Gaudi::Units::GeV;
                std::string thrName = "NameNotFound";
                if (!recRoI.isForwardJet()) {
                   if (jetNames.find(thrMapping-1) != jetNames.end()) thrName = jetNames[thrMapping-1];
@@ -725,15 +712,15 @@ void RoIBResultToAOD::addMuonRoI( const ROIB::RoIBResult* result, LVL1_ROI* lvl1
 
       ATH_MSG_DEBUG( MSG::hex << std::setw( 8 ) << roIWord );
 
-      if( ( m_recRPCRoiSvc == false ) || ( m_recTGCRoiSvc == false ) ) {
+      if( ( m_recRPCRoiTool == false ) || ( m_recTGCRoiTool == false ) ) {
          continue;
       }
 
       // RecRoI
-      LVL1::RecMuonRoI recRoI( roIWord, m_recRPCRoiSvc.operator->(),
-                               m_recTGCRoiSvc.operator->(), &muonThresholds );
+      LVL1::RecMuonRoI recRoI( roIWord, m_recRPCRoiTool.get(),
+                               m_recTGCRoiTool.get(), &muonThresholds );
 
-      double thrValue = recRoI.getThresholdValue() * CLHEP::GeV;
+      double thrValue = recRoI.getThresholdValue() * Gaudi::Units::GeV;
       int index = recRoI.getThresholdNumber() - 1;
       std::string thrName = "NameNotFound";
       if( thresholdNames.find(index) != thresholdNames.end() ) {
