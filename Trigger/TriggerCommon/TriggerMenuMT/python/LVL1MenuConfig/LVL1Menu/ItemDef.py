@@ -893,7 +893,6 @@ class ItemDef(object):
 
         # RANDOM
         LVL1MenuItem('L1_RD0_FILLED'         ).setLogic( d.RNDM0 & physcond           ).setTriggerType(TT.rand)
-        LVL1MenuItem('L1_RD0_FILLED_OVERLAY' ).setLogic( d.RNDM0 & physcond           ).setTriggerType(TT.zerobs)
         LVL1MenuItem('L1_RD0_EMPTY'          ).setLogic( d.RNDM0 & cosmiccond         ).setTriggerType(TT.rand)
         LVL1MenuItem('L1_RD0_UNPAIRED_ISO'   ).setLogic( d.RNDM0 & unpaired_isocond   ).setTriggerType(TT.rand)
         LVL1MenuItem('L1_RD0_FIRSTEMPTY'     ).setLogic( d.RNDM0 & firstempty         ).setTriggerType(TT.rand)
