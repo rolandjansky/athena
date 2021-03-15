@@ -20,7 +20,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaKernel/IOVTime.h"
 #include "AthenaKernel/IIOVDbSvc.h"
-#include "AthenaKernel/IAthenaOutputStreamTool.h" 
+#include "AthenaKernel/IAthenaOutputStreamTool.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "EventInfo/EventInfo.h"
 #include "Identifier/Identifier.h"
@@ -80,70 +80,70 @@ class SCTCalibWriteTool : public AthAlgTool {
       createDefectString(const int defectBeginChannel,const int defectEndChannel) const;
 
       StatusCode createCondObjects ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrListCollection::add is used.
-                                 (const Identifier& wafer_id,
-                                  const SCT_ID* m_sctId,
-                                  const int samplesize,
-                                  const std::string& defectType,
-                                  const float threshold,
-                                  const std::string& defectList) const;
+      (const Identifier& wafer_id,
+       const SCT_ID* m_sctId,
+       const int samplesize,
+       const std::string& defectType,
+       const float threshold,
+       const std::string& defectList) const;
 
       StatusCode createListStrip ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrListCollection::add is used.
-                                (const Identifier& wafer_id,
-                                 const SCT_ID* m_sctId,
-                                 const int samplesize,
-                                 const std::string& defectType,
-                                 const float threshold,
-                                 const std::string& defectList) const;
+      (const Identifier& wafer_id,
+       const SCT_ID* m_sctId,
+       const int samplesize,
+       const std::string& defectType,
+       const float threshold,
+       const std::string& defectList) const;
 
       StatusCode createListChip ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrListCollection::add is used.
-                               (const Identifier& wafer_id,
-                                const SCT_ID* m_sctId,
-                                const int samplesize,
-                                const std::string& defectType,
-                                const float threshold,
-                                const std::string& defectList) const;
+      (const Identifier& wafer_id,
+       const SCT_ID* m_sctId,
+       const int samplesize,
+       const std::string& defectType,
+       const float threshold,
+       const std::string& defectList) const;
 
       StatusCode createListEff ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrListCollection::add is used.
-                              (const Identifier& wafer_id,
-                               const SCT_ID* m_sctId,
-                               const int samplesize,
-                               const float eff) const;
+      (const Identifier& wafer_id,
+       const SCT_ID* m_sctId,
+       const int samplesize,
+       const float eff) const;
 
       StatusCode createListNO ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrListCollection::add is used.
-                             (const Identifier& wafer_id,
-                              const SCT_ID* m_sctId,
-                              const int samplesize,
-                              const float noise_occ) const;
+      (const Identifier& wafer_id,
+       const SCT_ID* m_sctId,
+       const int samplesize,
+       const float noise_occ) const;
 
       StatusCode createListRawOccu ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrListCollection::add is used.
-                                  (const Identifier& wafer_id,
-                                   const SCT_ID* m_sctId,
-                                   const int samplesize,
-                                   const float raw_occu) const;
+      (const Identifier& wafer_id,
+       const SCT_ID* m_sctId,
+       const int samplesize,
+       const float raw_occu) const;
 
       StatusCode createListBSErr ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrListCollection::add is used.
-                                (const Identifier& wafer_id,
-                                 const SCT_ID* m_sctId,
-                                 const int samplesize,
-                                 const std::string& errorList,
-                                 const std::string& probList) const ;
+      (const Identifier& wafer_id,
+       const SCT_ID* m_sctId,
+       const int samplesize,
+       const std::string& errorList,
+       const std::string& probList) const ;
 
       StatusCode createListLA ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrListCollection::add is used.
-                             (const Identifier& wafer_id,
-                              const SCT_ID* m_sctId,
-                              const int samplesize,
-                              const int module,
-                              const float lorentz,
-                              const float err_lorentz,
-                              const float chisq,
-                              const float fitParam_a,
-                              const float err_a,
-                              const float fitParam_b,
-                              const float err_b,
-                              const float fitParam_sigma,
-                              const float err_sigma,
-                              const float MCW,
-                              const float err_MCW) const;
+      (const Identifier& wafer_id,
+       const SCT_ID* m_sctId,
+       const int samplesize,
+       const int module,
+       const float lorentz,
+       const float err_lorentz,
+       const float chisq,
+       const float fitParam_a,
+       const float err_a,
+       const float fitParam_b,
+       const float err_b,
+       const float fitParam_sigma,
+       const float err_sigma,
+       const float MCW,
+       const float err_MCW) const;
 
       StatusCode wrapUpNoisyChannel();
       StatusCode wrapUpDeadStrips();
