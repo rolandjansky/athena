@@ -86,29 +86,11 @@ class Lvl1SimulationGetter (Configured):
 
             # schedule simulation
             if TriggerFlags.doMuon() and (not DetFlags.readRIOPool.LVL1_on() ):
-
-
-                # for Tile (to be used for TGC-Tile coincidence)
-                include('TileRec/TileDefaults_jobOptions.py')
-                # TileRawChannelCnt -> TileHitVec
-                from TileRecAlgs.TileRecAlgsConf import TileRawChannelToHit
-                topSequence += TileRawChannelToHit()
-                # TileHitVec -> TileHitCnt
-                from TileSimAlgs.TileSimAlgsConf import TileHitVecToCnt
-                topSequence += TileHitVecToCnt()
-                # TileHitCnt -> MuRcvDigitsCnt,MuRcvRawChCnt -> TileMuRcvCnt
-                include("TileSimAlgs/TileMuonReceiver_jobOptions.py")
-                topSequence.TilePulseForTileMuonReceiver.MuonReceiverDigitsContainer = "rerunMuRcvDigitsCnt"
-                topSequence.TilePulseForTileMuonReceiver.MuonReceiverRawChannelContainer = "rerunMuRcvRawChCnt"
-                topSequence.TileMuonReceiverDecision.MuonReceiverRawChannelContainer = "rerunMuRcvRawChCnt"
-                topSequence.TileMuonReceiverDecision.TileMuonReceiverContainer = "rerunTileMuRcvCnt"
-
                 include( "MuonByteStreamCnvTest/jobOptions_MuonRDOToDigit.py" )
                 import TrigT1RPCRecRoiSvc.TrigT1RPCRecRoiConfig
                 import TrigT1TGCRecRoiSvc.TrigT1TGCRecRoiConfig
                 import TrigT1RPCsteering.TrigT1RPCsteeringConfig
                 import TrigT1TGC.TrigT1TGCConfig
-                topSequence.LVL1TGCTrigger.TileMuRcv_Input = "rerunTileMuRcvCnt"
                 from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi                
                 topSequence += L1Muctpi()
 
