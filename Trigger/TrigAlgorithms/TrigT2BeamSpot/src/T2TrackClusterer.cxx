@@ -46,60 +46,51 @@ T2TrackClusterer::trackWeight( const Trk::Track& track ) const
   return weight;
 }
 
-const TrackCollection&
-T2TrackClusterer::cluster( const TrackCollection& tracks, const InDet::BeamSpotData* beamspot )
+const T2TrackClusterer::TrackVector&
+T2TrackClusterer::cluster( const TrackVector& tracks, const InDet::BeamSpotData* beamspot )
 {
   m_seedZ0      = 0.;
   m_totalZ0Err  = 0.;
-  m_cluster     .clear( SG::VIEW_ELEMENTS );
-  m_unusedTracks.clear( SG::VIEW_ELEMENTS );
+  m_cluster.clear();
+  m_unusedTracks.clear();
 
-  if ( tracks.empty() )
-    {
-      // FIXME: unusedTracks = tracks;
-      return *m_cluster.asDataVector();
-    }
+  if ( tracks.empty() ) {
+    return m_cluster;
+  }
 
   const Trk::Track* seedTrack = *tracks.begin();
 
   auto& params = seedTrack->perigeeParameters()->parameters();
   const double seedPT = std::abs(sin(params[Trk::theta])/params[Trk::qOverP]);
 
-  if ( seedPT < m_minPT )
-    {
-      m_unusedTracks.assign (tracks.begin(), tracks.end());
-      return *m_cluster.asDataVector();
-    }
+  if ( seedPT < m_minPT ) {
+    m_unusedTracks.assign(tracks.begin(), tracks.end());
+    return m_cluster;
+  }
 
-
-  double sumWeight = trackWeight( *seedTrack );
+  double sumWeight = trackWeight(*seedTrack);
   m_seedZ0 = trackPerigeeZ0(*seedTrack, beamspot);
 
-  m_cluster.push_back( seedTrack );
+  m_cluster.push_back(seedTrack);
 
-  for ( TrackCollection::const_iterator track = tracks.begin() + 1;
-        track != tracks.end(); ++track )
-    {
-      const double trackZ0 = trackPerigeeZ0(**track, beamspot);
-      const double deltaZ  = trackZ0 - m_seedZ0;
-      const double weight  = trackWeight( **track );
+  for (auto track_itr = tracks.begin() + 1; track_itr != tracks.end(); ++track_itr) {
+    const double trackZ0 = trackPerigeeZ0(**track_itr, beamspot);
+    const double deltaZ  = trackZ0 - m_seedZ0;
+    const double weight  = trackWeight( **track_itr );
 
-      if ( abs(deltaZ) <= m_deltaZ && m_cluster.size() < m_maxSize )
-        {
-          m_cluster.push_back( *track );
+    if (abs(deltaZ) <= m_deltaZ && m_cluster.size() < m_maxSize) {
+      m_cluster.push_back(*track_itr);
 
-          m_seedZ0 = ( m_seedZ0 * sumWeight + trackZ0 * weight ) / ( sumWeight + weight );
-          sumWeight += weight;
-        }
-      else
-        {
-          m_unusedTracks.push_back( *track );
-        }
+      m_seedZ0 = ( m_seedZ0 * sumWeight + trackZ0 * weight ) / ( sumWeight + weight );
+      sumWeight += weight;
+    } else {
+      m_unusedTracks.push_back(*track_itr);
     }
+  }
 
   m_totalZ0Err = sqrt( 1. / sumWeight );
 
-  return *m_cluster.asDataVector();
+  return m_cluster;
 }
 
 double

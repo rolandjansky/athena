@@ -11,6 +11,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 //Athena tools
+#include "GaudiKernel/EventIDBase.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkTrack/Track.h"
 #include "T2BSTrackFilterTool.h"
@@ -38,7 +39,16 @@ public:
      *
      * Parameter provides a lists of tracks.
      */
-    void updateBS(const std::vector<const Trk::Track*>& tracks, unsigned bcid) const;
+    void updateBS(const TrackCollection& tracks, EventIDBase const& eventID) const;
+
+private:
+
+    /**
+     * Update beam spot data with new track information.
+     *
+     * Parameter provides a lists of tracks.
+     */
+    void updateBS(std::vector<const Trk::Track*>&& tracks, unsigned bcid) const;
 
     /**
      * Update beam spot data with new track information.
@@ -47,14 +57,14 @@ public:
      * representation. Two methods defined mostly for performance reasons
      * to avoid conversion.
      */
-    void updateBS(const std::vector<TrackData>& tracks) const;
+    void updateBS(std::vector<TrackData>&& tracks) const;
 
-private:
 
     bool m_doLeastSquares;
     bool m_doLogLikelihood;
     double m_beamSizeLS;
 
+    ToolHandle<T2BSTrackFilterTool> m_trackFilterTool{this, "TrackFilter", "PESA::T2BSTrackFilterTool/T2BSTrackFilterTool" };
     ToolHandle<GenericMonitoringTool> m_monTool{this, "MonTool", "", "Monitoring tool"};
 };
 

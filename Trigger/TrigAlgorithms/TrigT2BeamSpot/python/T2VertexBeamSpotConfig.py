@@ -16,45 +16,9 @@ bsToolMonitoring = T2VertexBeamSpotToolMonitoring()
 trackBSmon = T2TrackBeamSpotToolMonitoring()
 bsAlgMonitoring = T2VertexBeamSpotMonitoring()
 
-#TODO: create an instance which can be called and adjusted
-InDetTrigMTBeamSpotTool = PESA__T2VertexBeamSpotTool(
-    name = "T2VertexBeamSpotTool",
-    MonTool = bsToolMonitoring,
-    WeightClusterZ      = True,     # Use the track Z0 weighted cluster Z position as seed
-    ReclusterSplit      = False,    # Recluster split track collections before vertex fitting
-    ClusterPerigee      = "beamspot",
-    nSplitVertices      = 2,        # Turn on (>1) or off vertex splitting
-    TotalNTrackMin      = 4,        # Minimum number of tracks required in an event
-    TrackMinPt          = 0.5,      # Minimum track pT to be considered for vertexing
-    TrackSeedPt         = 0.7,      # Minimum track pT to be considered for seeding a vertex fit
-    TrackClusterDZ      = 0.35,      # Maximum distance between tracks considered as a cluster
-    TrackMaxZ0          = 200.0,    # Maximum track Z0 to be considered for vertexing
-    TrackMaxD0          = 10.0,     # Maximum track d0 to be considered for vertexing
-    TrackMaxZ0err       = 5.0,      # Maximum track Z0 error to be considered for vertexing
-    TrackMaxD0err       = 5.0,      # Maximum track d0 error to be considered for vertexing
-    TrackMinNDF         = 2.0,      # Minimum track NDF to be considered for vertexing
-    TrackMinQual        = 0.0,      # Minimum track chi^2/NDF to be considered for vertexing
-    TrackMaxQual        = 10.0,     # Maximum track chi^2/NDF to be considered for vertexing
-    TrackMinChi2Prob    = -10.0,    # Minimum track cumulative chi2 probability, from CLHEP/GenericFunctions/CumulativeChiSquare.hh
-    TrackMinSiHits      = 7,        # Minimum # track silicon (PIX + SCT) hits to be considered for vertexing
-    TrackMinPIXHits     = 0,        # Minimum # track silicon (PIX + SCT) hits to be considered for vertexing
-    TrackMinSCTHits     = 0,        # Minimum # track silicon (PIX + SCT) hits to be considered for vertexing
-    TrackMinTRTHits     = -10,      # Minimum # track TRT hits to be considered for vertexing
-
-    VertexMinNTrk       = 2,        # Minimum # tracks in a cluster to be considered for vertexing
-    VertexMaxNTrk       = 100,      # Maximum # tracks in a cluster to be considered for vertexing (saves on time!)
-    VertexMaxXerr       = 1.,       # Maximum resulting X error on vertex fit for "good" vertices
-    VertexMaxYerr       = 1.,       # Maximum resulting Y error on vertex fit for "good" vertices
-    VertexMaxZerr       = 10.,      # Maximum resulting Z error on vertex fit for "good" vertices
-    VertexMinQual       = 0.0,      # Minimum resulting chi^2/NDF on vertex fit for "good" vertices
-    VertexMaxQual       = 100.0,    # Maximum resulting chi^2/NDF on vertex fit for "good" vertices
-    VertexMinChi2Prob   = -10.0,    # Minimum cumulative chi2 probability, from CLHEP/GenericFunctions/CumulativeChiSquare.hh
-    VertexBCIDMinNTrk   = 10,       # Minimum # tracks in a vertex to be used for per-BCID monitoring
-    PrimaryVertexFitter = primaryVertexFitter
-)
-
-InDetTrigMTTrackFilterTool = PESA__T2BSTrackFilterTool(
-    name = "T2TrackFilterTool",
+# track filter tool used by vertex tool
+trackFilterForVertex = PESA__T2BSTrackFilterTool(
+    name = "TrackFilterVtx",
     MonTool = filtermon,
     TrackMinPt          = 0.5,      # Minimum track pT to be considered for vertexing
     TrackMaxEta         = 2.5,      # Maximum absolute value of eta
@@ -65,32 +29,81 @@ InDetTrigMTTrackFilterTool = PESA__T2BSTrackFilterTool(
     TrackMinNDF         = 2.0,      # Minimum track NDF to be considered for vertexing
     TrackMinQual        = 0.0,      # Minimum track chi^2/NDF to be considered for vertexing
     TrackMaxQual        = 10.0,     # Maximum track chi^2/NDF to be considered for vertexing
-    TrackMinChi2Prob    = -10.0,    # Minimum track cumulative chi2 probability
+    TrackMinChi2Prob    = 0.05,     # Minimum track cumulative chi2 probability
     TrackMinSiHits      = 7,        # Minimum # track silicon (PIX + SCT) hits to be considered for vertexing
     TrackMinPIXHits     = 0,        # Minimum # track silicon (PIX + SCT) hits to be considered for vertexing
     TrackMinSCTHits     = 0,        # Minimum # track silicon (PIX + SCT) hits to be considered for vertexing
     TrackMinTRTHits     = -10,      # Minimum # track TRT hits to be considered for vertexing
     GoalSeedTracks      = 500,      # Number of tracks for local beamspot estimate
-    D0Chi2Cutoff        = 30.,      # Cutoff on D0 Chi^2 for BS-based filtering
+    D0Chi2Cutoff        = 25.,      # Cutoff on D0 Chi^2 for BS-based filtering
     BeamSizeLS          = 0.01,     # Approximate beam size, mm
 )
 
+# track filter tool used by track tool
+trackFilterForTrack = PESA__T2BSTrackFilterTool(
+    name = "TrackFilterTrk",
+    MonTool = filtermon,
+    TrackMinPt          = 0.5,      # Minimum track pT to be considered for vertexing
+    TrackMaxEta         = 2.5,      # Maximum absolute value of eta
+    TrackMaxZ0          = 200.0,    # Maximum track Z0 to be considered for vertexing
+    TrackMaxD0          = 10.0,     # Maximum track d0 to be considered for vertexing
+    TrackMaxZ0err       = 5.0,      # Maximum track Z0 error to be considered for vertexing
+    TrackMaxD0err       = 5.0,      # Maximum track d0 error to be considered for vertexing
+    TrackMinNDF         = 2.0,      # Minimum track NDF to be considered for vertexing
+    TrackMinQual        = 0.0,      # Minimum track chi^2/NDF to be considered for vertexing
+    TrackMaxQual        = 10.0,     # Maximum track chi^2/NDF to be considered for vertexing
+    TrackMinChi2Prob    = 0.05,     # Minimum track cumulative chi2 probability
+    TrackMinSiHits      = 7,        # Minimum # track silicon (PIX + SCT) hits to be considered for vertexing
+    TrackMinPIXHits     = 0,        # Minimum # track silicon (PIX + SCT) hits to be considered for vertexing
+    TrackMinSCTHits     = 0,        # Minimum # track silicon (PIX + SCT) hits to be considered for vertexing
+    TrackMinTRTHits     = -10,      # Minimum # track TRT hits to be considered for vertexing
+    GoalSeedTracks      = 500,      # Number of tracks for local beamspot estimate
+    D0Chi2Cutoff        = 10.,      # Cutoff on D0 Chi^2 for BS-based filtering
+    BeamSizeLS          = 0.01,     # Approximate beam size, mm
+)
+
+#TODO: create an instance which can be called and adjusted
+InDetTrigMTBeamSpotTool = PESA__T2VertexBeamSpotTool(
+    name = "T2VertexBeamSpotTool",
+    MonTool = bsToolMonitoring,
+    TrackFilter         = trackFilterForVertex,
+    PrimaryVertexFitter = primaryVertexFitter,
+
+    WeightClusterZ      = True,     # Use the track Z0 weighted cluster Z position as seed
+    ReclusterSplit      = False,    # Recluster split track collections before vertex fitting
+    ClusterPerigee      = "beamspot",
+    nSplitVertices      = 2,        # Turn on (>1) or off vertex splitting
+    TotalNTrackMin      = 4,        # Minimum number of tracks required in an event
+    TrackSeedPt         = 0.7,      # Minimum track pT to be considered for seeding a vertex fit
+    TrackClusterDZ      = 0.35,      # Maximum distance between tracks considered as a cluster
+
+    VertexMinNTrk       = 2,        # Minimum # tracks in a cluster to be considered for vertexing
+    VertexMaxNTrk       = 100,      # Maximum # tracks in a cluster to be considered for vertexing (saves on time!)
+    VertexMaxXerr       = 1.,       # Maximum resulting X error on vertex fit for "good" vertices
+    VertexMaxYerr       = 1.,       # Maximum resulting Y error on vertex fit for "good" vertices
+    VertexMaxZerr       = 10.,      # Maximum resulting Z error on vertex fit for "good" vertices
+    VertexMinQual       = 0.0,      # Minimum resulting chi^2/NDF on vertex fit for "good" vertices
+    VertexMaxQual       = 100.0,    # Maximum resulting chi^2/NDF on vertex fit for "good" vertices
+    VertexMinChi2Prob   = -10.0,    # Minimum cumulative chi2 probability, from CLHEP/GenericFunctions/CumulativeChiSquare.hh
+    VertexBCIDMinNTrk   = 10,       # Minimum # tracks in a vertex to be used for per-BCID monitoring
+
+    filterBS            = True,     # filter tracks w.r.t. beamspot
+)
+
 InDetTrigMTTrackBeamSpotTool = PESA__T2TrackBeamSpotTool(
-    name = "T2TrackBeamSpotTool",
-    MonTool = trackBSmon,
+    name                = "T2TrackBeamSpotTool",
+    TrackFilter         = trackFilterForTrack,
+    MonTool             = trackBSmon,
     doLeastSquares      = True,
     doLogLikelihood     = True,
     beamSizeLS          = 0.01,      # Approximate beam size, mm
 )
 
-
 class T2VertexBeamSpot_Fex ( PESA__T2VertexBeamSpot ) :
     __slots__ = []
     def __init__ (self, name="T2VertexBeamSpot_Fex", detail=1):
         super(T2VertexBeamSpot_Fex, self).__init__(name)
-        self.filterBS = True                # filter tracks w.r.t. beamspot
         self.doTrackBeamSpot = True         # run track-based calibration tool
-        self.TrackFilterTool = InDetTrigMTTrackFilterTool
         self.TrackBeamSpotTool = InDetTrigMTTrackBeamSpotTool
         self.BeamSpotTool = InDetTrigMTBeamSpotTool
         self.MonTool = bsAlgMonitoring
@@ -101,10 +114,8 @@ class T2VertexBeamSpot_loose ( T2VertexBeamSpot_Fex ) :
     def __init__ (self, name="T2VertexBeamSpot_loose"):
         super(T2VertexBeamSpot_loose, self).__init__(name)
         self.TotalNTrackMin  = 2        # Minimum number of tracks required in an event
-        self.TrackMinPt      = 0.5      # Minimum track pT to be considered for vertexing
         self.TrackSeedPt     = 0.7      # Minimum track pT to be considered for seeding a vertex fit
         self.TrackClusterDZ  = 10.0     # Maximum distance between tracks considered as a cluster
-        self.TrackMinTRTHits = -10      # Minimum # track TRT hits to be considered for vertexing
         self.nSplitVertices  = 1        # Turn OFF vertex splitting
         self.vertexCollName  = "T2VertexBeamSpot_loose"
 

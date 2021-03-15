@@ -16,7 +16,6 @@
 
 //Athena tools
 #include "GaudiKernel/ToolHandle.h"
-#include "AthContainers/ConstDataVector.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
 
@@ -30,6 +29,8 @@ class T2Track;
 
 class T2BSTrackFilterTool :  public AthAlgTool {
 public:
+
+    using TrackVector = std::vector<const Trk::Track*>;
 
     /**
      * Class which holds track parameters.
@@ -89,7 +90,7 @@ public:
     * This method only looks at parameters of individual tracks and does
     * not check track distance to an estimated beam spot.
     */
-    std::vector<const Trk::Track*> filter(const TrackCollection& tracks) const;
+    TrackVector filter(const TrackCollection& tracks) const;
 
     /**
     * Update beam spot estimate with new tracks.
@@ -106,7 +107,7 @@ public:
     * multiple lumi blocks, and it will include all tracks from a current
     * call (after filtering).
     */
-    bool updateBS(const std::vector<const Trk::Track*>& tracks,
+    bool updateBS(const TrackVector& tracks,
                   unsigned lbn,  unsigned bcid,
                   std::vector<TrackData>* bsTracks = nullptr) const;
 
@@ -115,7 +116,7 @@ public:
     *
     * This method should only be called when `updateBS()` returns true.
     */
-    std::vector<const Trk::Track*> filterBS(const std::vector<const Trk::Track*>& tracks) const;
+    TrackVector filterBS(const TrackVector& tracks) const;
 
 private:
 
