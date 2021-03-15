@@ -194,11 +194,11 @@ def TrigTauMonitoringTool():
                                 monitoring_tau          = hltmonList.monitoring_tau,
                                 primary_tau             = full_tau, #[]
                                 prescaled_tau           = [], #tau_track_test, #[],
-                                LowestSingleTauRNN              = "tau25_mediumRNN_tracktwoMVA", #hltmonList.monitoring_singleTau, #"tau25_medium1_tracktwo",
+                                LowestSingleTauRNN      = "tau25_mediumRNN_tracktwoMVA", #hltmonList.monitoring_singleTau, #"tau25_medium1_tracktwo",
                                 LowestSingleTauBDT      = "tau25_medium1_tracktwoEF",
                                 Highpt_tau              = highpt_tau,
-                                Ztt_RNN_tau                     = ztt_RNN_tau,
-                                Ztt_BDT_tau                     = ztt_BDT_tau,
+                                Ztt_RNN_tau             = ztt_RNN_tau,
+                                Ztt_BDT_tau             = ztt_BDT_tau,
                                 EffOffTauPtCut          = 25000.,  #MeV
                                 TurnOnCurves            = True,
                                 TurnOnCurvesDenom       = "Reco", # combined string with combination of "Truth", "Reco" and "Presel". For Truth doTruth=True!
@@ -217,25 +217,24 @@ def TrigTauMonitoringTool():
                                 doL1JetPlots            = False,
                                 doEFTProfiles           = True,
                                 domuCut40               = False,
-                                doEfficiencyRatioPlots = True, #False
                                 doL1TopoLeptonsMonitoringWarnings = False,
-                                trigMVA_chains  = MVA_chains,
-                                trigRNN_chains  = RNN_chains,
+                                trigMVA_chains          = MVA_chains,
+                                trigRNN_chains          = RNN_chains,
                                 trigBDTRNN_chains       = BDTRNN_chains,
                                 topo_support_chains     = tau_topo_support_chains,
                                 doTopoValidation        = False,
                                 L1TriggerCondition      = "Physics", #allowResurrectedDecision, alsoDeactivateTEs, Physics [default]
                                 HLTTriggerCondition     = "Physics",
-                                nTrkMax                         = -1,
-                                nTrkMin                         = -1,
-                                PtMax                           = -1., #MeV
-                                PtMin                           = -1., #MeV
-                                AbsEtaMax                       = -1.,
-                                AbsEtaMin                       = -1.,
-                                AbsPhiMax                       = -1.,
-                                AbsPhiMin                       = -1.,
-                                BDTMedium                       = True,
-                                isData                          = (globalflags.DataSource == 'data'))
+                                nTrkMax                 = -1,
+                                nTrkMin                 = -1,
+                                PtMax                   = -1., #MeV
+                                PtMin                   = -1., #MeV
+                                AbsEtaMax               = -1.,
+                                AbsEtaMin               = -1.,
+                                AbsPhiMax               = -1.,
+                                AbsPhiMin               = -1.,
+                                BDTMedium               = True,
+                                isData                  = (globalflags.DataSource == 'data'))
 
         print (ToolSvc)
         list = [ HLTTauMon ]

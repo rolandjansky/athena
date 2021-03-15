@@ -1,24 +1,9 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-monitoring_tau_FTK = [
-        'tau12_idperf_FTK',
-        'tau12_perf_FTK',
-        'tau12_perf0_FTK',
-        'tau12_perf_FTKNoPrec',
-        'tau12_perf0_FTKNoPrec',
-        'tau12_medium0_FTK',
-        'tau12_medium1_FTK',
-        'tau12_medium0_FTKNoPrec',
-        'tau12_medium1_FTKNoPrec',
-        'tau25_idperf_tracktwo_L1TAU12IM_FTK',
-        'tau25_perf_tracktwo_L1TAU12IM_FTK',
-        'tau25_medium1_tracktwo_L1TAU12IM_FTK'
-] 
-
 monitoring_singleTau = [
     'tau25_medium1_tracktwo'
-
 ]
+
 monitoring_tau = [
     'tau0_perf_ptonly_L1TAU12',
     'tau0_perf_ptonly_L1TAU60',
