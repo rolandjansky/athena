@@ -154,12 +154,12 @@ def MakeTowersFromClusters(towerMakerName      = 'CaloTowerBuilderAlg',        #
     clusterMoments.MinBadLArQuality = 4000
     clusterMoments.MomentsNames     = [
         "CENTER_LAMBDA", 
-        "CENTER_MAG",
+        #"CENTER_MAG",
         "LONGITUDINAL",
-        "FIRST_ENG_DENS",
-        "ENG_FRAC_MAX",
+        #"FIRST_ENG_DENS",
+        #"ENG_FRAC_MAX",
         "ENG_FRAC_EM",
-        "PTD",
+        #"PTD",
         "SIGNIFICANCE",
         "ENG_POS"
     ]
