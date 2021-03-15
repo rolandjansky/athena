@@ -60,17 +60,19 @@ def _make_simple_label(chain_parts, leg_label):
 
         raise NotImplementedError(msg)
 
-    # Enforce explicit etaRange in chainPartName for each chain part if:
-    # - More than one chain part AND
-    # - At least one chain part does not use default etaRange AND
-    # - At least one chain part use default etaRange
+    # Enforce explicit etaRange in chainPartName for each Jet chain part if:
+    # - More than one Jet chain part AND
+    # - At least one Jet chain part does not use default etaRange AND
+    # - At least one Jet chain part use default etaRange
     # Abort in such a case if chain part using default etaRange does not have etaRange in chainPartName
-    if len(chain_parts) > 1: # mora than one chain part
+    jetchain_parts = [ cp['signature'] == 'Jet' for cp in chain_parts ]
+    if sum(jetchain_parts) > 1: # more than one Jet chain part
         from TriggerMenuMT.HLTMenuConfig.Menu.SignatureDicts import JetChainParts_Default
         useNonDefault         = 0
         useNonExplicitDefault = 0
-        chainPartNames2print = [] # collect chain part names which do not follow the naming convention
+        chainPartNames2print  = [] # collect chain part names which do not follow the naming convention
         for cp in chain_parts: # loop over chain parts
+            if cp['signature'] != 'Jet': continue # only enforce explicit etaRange by looking at only Jet chain parts
             if cp['etaRange'] != JetChainParts_Default['etaRange']: # using non-default etaRange
                 useNonDefault += 1
             else: # using default etaRange
