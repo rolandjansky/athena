@@ -12,11 +12,11 @@
 #include "TrigT1Interfaces/RecMuonRoI.h"
 #include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
 
-#include "../src/RpcData.h"
-#include "../src/RpcFitResult.h"
-#include "../src/RpcPatFinder.h"
-#include "../src/RecMuonRoIUtils.h"
-#include "../src/RpcClusterPreparator.h"
+#include "RpcData.h"
+#include "RpcFitResult.h"
+#include "RpcPatFinder.h"
+#include "RecMuonRoIUtils.h"
+#include "RpcClusterPreparator.h"
 #include "IRegionSelector/IRegSelTool.h"
 
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"

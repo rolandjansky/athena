@@ -2,7 +2,7 @@
 #include "../MuFastSteering.h"
 #include "../MuFastDataPreparator.h"
 #include "../TgcDataPreparator.h"
-#include "TrigL2MuonSA/RpcDataPreparator.h"
+#include "../RpcDataPreparator.h"
 #include "../MdtDataPreparator.h"
 #include "../CscDataPreparator.h"
 #include "../TgcRoadDefiner.h"
