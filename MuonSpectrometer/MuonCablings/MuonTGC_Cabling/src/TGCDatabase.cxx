@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTGC_Cabling/TGCDatabase.h"
@@ -13,8 +13,8 @@ TGCDatabase::TGCDatabase(DatabaseType vtype)
 }
  
 TGCDatabase::TGCDatabase(DatabaseType vtype,
-			 std::string vfilename, 
-			 std::string vblockname)
+			 const std::string& vfilename, 
+			 const std::string& vblockname)
   : m_filename(vfilename),
     m_blockname(vblockname),
     m_type(vtype)
@@ -22,12 +22,10 @@ TGCDatabase::TGCDatabase(DatabaseType vtype,
 }
 
 TGCDatabase::TGCDatabase(const TGCDatabase& right)
+  : m_filename (right.m_filename),
+    m_blockname (right.m_blockname),
+    m_type (right.m_type)
 {
-  // copy member
-  m_type      = right.m_type;
-  m_filename  = right.m_filename;
-  m_blockname = right.m_blockname;
-  
   // copy database
   const size_t database_size = right.m_database.size();
   for(size_t ip=0; ip < database_size; ip+=1){

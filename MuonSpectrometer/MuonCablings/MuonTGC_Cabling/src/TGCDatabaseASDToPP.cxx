@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTGC_Cabling/TGCDatabaseASDToPP.h"
@@ -15,8 +15,8 @@ const int TGCDatabaseASDToPP::ReverseIndexIn[DATABASESIZE] = {0, 1, -1, -1, -1, 
 const int TGCDatabaseASDToPP::IndexOut[NIndexOut] = {3, 4, 5}; 
 const int TGCDatabaseASDToPP::ReverseIndexOut[DATABASESIZE] = {-1, -1, -1, 0, 1, 2, -1, -1};  
 
-TGCDatabaseASDToPP::TGCDatabaseASDToPP(std::string filename, 
-				       std::string blockname,
+TGCDatabaseASDToPP::TGCDatabaseASDToPP(const std::string& filename, 
+				       const std::string& blockname,
 				       bool v_isCommon)
   : TGCDatabase(TGCDatabase::ASDToPP, filename, blockname), 
     m_NIndexDBIn(0), m_NIndexDBOut(0), m_isCommon(v_isCommon) 
