@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Run tests on SCT_G4_SD configuration
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 
 from __future__ import print_function
@@ -35,18 +35,13 @@ if __name__ == '__main__':
   ## Initialize a new component accumulator
   cfg = ComponentAccumulator()
 
-  from SCT_G4_SD.SCT_G4_SDToolConfig import SLHC_SctSensorSD_GmxCfg
-  from SCT_G4_SD.SCT_G4_SDToolConfig import SLHC_SctSensorSDCfg
+  from SCT_G4_SD.SCT_G4_SDToolConfig import ITkStripSensorSDCfg
   from SCT_G4_SD.SCT_G4_SDToolConfig import SctSensorSDCfg
   from SCT_G4_SD.SCT_G4_SDToolConfig import SctSensor_CTBCfg
 
-  acc1, tool1 = SLHC_SctSensorSD_GmxCfg(ConfigFlags)
+  acc1, tool1 = ITkStripSensorSDCfg(ConfigFlags)
   acc1.addPublicTool(tool1)
   cfg.merge(acc1)
-
-  acc2, tool2 = SLHC_SctSensorSDCfg(ConfigFlags)
-  acc2.addPublicTool(tool2)
-  cfg.merge(acc2)
 
   acc, tool = SctSensorSDCfg(ConfigFlags)
   acc.addPublicTool(tool)

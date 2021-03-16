@@ -16,7 +16,7 @@ from PixelG4_SD.PixelG4_SDToolConfig import ITkPixelSensorSDCfg
 
 
 from SCT_G4_SD.SCT_G4_SDToolConfig import SctSensorSDCfg
-from SCT_G4_SD.SCT_G4_SDToolConfig import SLHC_SctSensorSD_GmxCfg #Change name?
+from SCT_G4_SD.SCT_G4_SDToolConfig import ITkStripSensorSDCfg
 from SCT_G4_SD.SCT_G4_SDToolConfig import SctSensor_CTBCfg
 
 from TRT_G4_SD.TRT_G4_SDToolConfig import TRTSensitiveDetectorCfg
@@ -113,7 +113,7 @@ def generateITkSensitiveDetectorList(ConfigFlags):
         #SensitiveDetectorList += [ toolITkPixel ]
         #result.merge(accITkPixel)
     if ConfigFlags.Detector.EnableITkStrip:
-        accITkStrip,toolITkStrip = SLHC_SctSensorSD_GmxCfg(ConfigFlags) #This tool should be renamed, and maybe moved to separate package?
+        accITkStrip,toolITkStrip = ITkStripSensorSDCfg(ConfigFlags)
         SensitiveDetectorList += [ toolITkStrip ]
         result.merge(accITkStrip)
     return result, SensitiveDetectorList #List of tools here now! (CALL IT TOOL LIST?)
