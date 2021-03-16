@@ -1,6 +1,6 @@
 // Dear emacs, this is -*- c++ -*-
 //
-// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 //
 #ifndef XAODCORE_XAODCORESTLDICT_H
 #define XAODCORE_XAODCORESTLDICT_H
@@ -69,5 +69,10 @@ namespace {
       std::set< uint32_t > stl_o3;
    };
 }
+
+// specializations to be picked up by class patterns in the selection.xml
+template struct std::pair<std::string, std::vector<float> >;
+template struct std::pair<std::string, std::vector< std::vector<int> > >;
+template struct std::pair<std::string, std::vector< std::vector<float> > >;
 
 #endif // XAODCORE_XAODCORESTLDICT_H
