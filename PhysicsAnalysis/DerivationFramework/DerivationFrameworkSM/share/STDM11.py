@@ -177,7 +177,9 @@ STDM11SlimmingHelper.ExtraVariables += ["InDetTrackParticles.truthMatchProbabili
 
 #STDM11SlimmingHelper.ExtraVariables += ["TruthParticles.px.py.pz.e.m.phi.pdgId.status.barcode"]
 
-STDM11SlimmingHelper.AllVariables = ["TruthEvents", "TruthParticles"]
+STDM11SlimmingHelper.AllVariables = [ "AFPSiHitContainer", "AFPToFHitContainer"]
+
+STDM11SlimmingHelper.AllVariables += ["TruthEvents", "TruthParticles"]
 
 
 addJetOutputs(STDM11SlimmingHelper,["STDM11","STDM11Jets"])
