@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -28,17 +28,13 @@ def SctSensorSDCfg(ConfigFlags, name="SctSensorSD", **kwargs):
     return result, SctSensorSDTool(name, **kwargs)
 
 
-def SLHC_SctSensorSDCfg(ConfigFlags, name="SLHC_SctSensorSD", **kwargs):
+def ITkStripSensorSDCfg(ConfigFlags, name="ITkStripSensorSD", **kwargs):
 
-    kwargs.setdefault("LogicalVolumeNames", ["ITkStrip::BRLSensor","ITkStrip::BRLSensorSS","ITkStrip::BRLSensorMS",
+    kwargs.setdefault("LogicalVolumeNames", ["ITkStrip::BRLSensorSS","ITkStrip::BRLSensorMS",
                                              "ITkStrip::ECSensor0","ITkStrip::ECSensor1","ITkStrip::ECSensor2",
                                              "ITkStrip::ECSensor3","ITkStrip::ECSensor4","ITkStrip::ECSensor5"])
-    return SctSensorSDCfg(ConfigFlags, name, **kwargs)
-
-
-def SLHC_SctSensorSD_GmxCfg(ConfigFlags, name="SLHC_SctSensorSD_Gmx", **kwargs):
     kwargs.setdefault("GmxSensor", True )
-    return SLHC_SctSensorSDCfg(ConfigFlags, name, **kwargs)
+    return SctSensorSDCfg(ConfigFlags, name, **kwargs)
 
 
 def SctSensor_CTBCfg(name="SctSensor_CTB", **kwargs):
