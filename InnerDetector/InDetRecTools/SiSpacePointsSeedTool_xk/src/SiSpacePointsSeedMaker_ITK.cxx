@@ -1819,6 +1819,14 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpSSS
 
     float               R    = (*r0)->radius(); if(R       > m_RTmax) break;
     float               Z    = (*r0)->z()     ; if(std::abs(Z) > m_zmaxSSS) continue;
+    float X     = (*r0)->x()    ;
+    float Y     = (*r0)->y()    ;
+    float covr0 = (*r0)->covr ();
+    float covz0 = (*r0)->covz ();
+    float Ri    = 1./R          ;
+    float ax    = X*Ri          ;
+    float ay    = Y*Ri          ;
+    float VR    = m_diver*Ri*Ri ;
     
     // Top links selection
     //
@@ -1832,18 +1840,39 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpSSS
       
       for(; r!=re; ++r) {
         
-        float dR((*r)->radius()-R); if(dR > m_drmaxSSS) break;
+        InDet::SiSpacePointForSeedITK* sp = (*r);
+        float dR(sp->radius()-R); if(dR > m_drmaxSSS) break;
         
         // Comparison with vertices Z coordinates
         //
-        float dz((*r)->z()-Z); 
-        if(std::abs(dz) <= m_dzmaxSSS && std::abs(Z*dR-R*dz) <= m_zmaxU*dR) {
-          m_SP[Nt]=(*r); 
-          if (m_writeNtuple)
-            m_SP[Nt ]->setDZDR(dz/dR);
-          if(Nt!=m_maxsizeSP) 
-            ++Nt;
+        float dz(sp->z()-Z);
+        if(std::abs(dz) > m_dzmaxSSS) continue;
+        if(std::abs(Z*dR-R*dz) > m_zmaxU*dR) continue;
+
+        if(m_fastTracking){
+
+          float dx  = sp->x()-X   ;
+          float dy  = sp->y()-Y   ;
+          float x   = dx*ax+dy*ay ;
+          float y   = dy*ax-dx*ay ;
+          float dxy = x*x+y*y     ;
+          float r2  = 1./dxy      ;
+          float u   = x*r2        ;
+          float v   = y*r2        ;
+
+          if(std::abs(R*y) > m_diversss*x) {
+            float V0; y < 0. ? V0 = VR : V0=-VR;
+            float A   = (v-V0)/(u+Ri)          ;
+            float B   = V0+A*Ri                ;
+            if((B*B) > (m_ipt2K*(1.+A*A))) continue;
+          }
+
         }
+
+        m_SP[Nt]=(*r);
+        if (m_writeNtuple) m_SP[Nt ]->setDZDR(dz/dR);
+        if(Nt!=m_maxsizeSP) ++Nt;
+
      }
     }
     if(!Nt || Nt==m_maxsizeSP) continue;
@@ -1858,29 +1887,42 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpSSS
       for(; r!=re; ++r) {if((R-(*r)->radius()) <= m_drmaxSSS) break;}  rb[i]=r;
 
       for(; r!=re; ++r) {
-        
-        float dR(R-(*r)->radius()); if(dR < m_drminSSS) break;
+
+        InDet::SiSpacePointForSeedITK* sp = (*r);
+        float dR(R-sp->radius()); if(dR < m_drminSSS) break;
         
         // Comparison with vertices Z coordinates
         //
-        float dz(Z-(*r)->z()); 
-        if(std::abs(dz) <= m_dzmaxSSS && std::abs(Z*dR-R*dz) <= m_zmaxU*dR) {
-          m_SP[Nb]=(*r);
-          if (m_writeNtuple)
-            m_SP[Nb ]->setDZDR(dz/dR);
-          if(Nb!=m_maxsizeSP) 
-            ++Nb;
+        float dz(Z-sp->z());
+        if(std::abs(dz) > m_dzmaxSSS) continue;
+        if(std::abs(Z*dR-R*dz) > m_zmaxU*dR) continue;
+
+        if(m_fastTracking){
+
+          float dx  = sp->x()-X   ;
+          float dy  = sp->y()-Y   ;
+          float x   = dx*ax+dy*ay ;
+          float y   = dy*ax-dx*ay ;
+          float r2  = 1./(x*x+y*y);
+          float u   = x*r2        ;
+          float v   = y*r2        ;
+
+          if(std::abs(R*y) > -m_diversss*x) {
+            float V0; y > 0. ? V0 = VR : V0=-VR;
+            float A   = (v-V0)/(u+Ri)          ;
+            float B   = V0+A*Ri                ;
+            if((B*B) > (m_ipt2K*(1.+A*A))) continue;
+          }
+
         }
+
+        m_SP[Nb]=(*r);
+        if (m_writeNtuple) m_SP[Nb ]->setDZDR(dz/dR);
+        if(Nb!=m_maxsizeSP) ++Nb;
+
      }
     }
     if(!(Nb-Nt)) continue; 
-
-    float X     = (*r0)->x()    ;
-    float Y     = (*r0)->y()    ;
-    float covr0 = (*r0)->covr ();
-    float covz0 = (*r0)->covz ();
-    float ax    = X/R           ;
-    float ay    = Y/R           ;
 
     // Top and bottom links production
     //

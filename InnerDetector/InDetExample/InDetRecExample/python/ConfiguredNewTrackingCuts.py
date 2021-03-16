@@ -448,22 +448,12 @@ class ConfiguredNewTrackingCuts :
 
           self.__maxEta             = 3
           self.__etaBins            = [-1.0, 3.0]
-          self.__maxPrimaryImpact   = [300.0 * Units.mm]
-          self.__maxZImpact         = [500.0 * Units.mm]
-          self.__maxPrimaryImpactSeed = 300.0 * Units.mm
-          self.__maxZImpactSeed     = 500.0 * Units.mm
-          self.__minSecondaryPt     = [1000.0 * Units.MeV]
-          self.__minSiNotShared     = [6]
-          self.__maxHoles           = [2]
-          self.__maxPixelHoles      = [1]
-          self.__maxSctHoles        = [1]
-          self.__maxDoubleHoles     = [0]
+          self.__minSecondaryPt     = [5.0 * Units.GeV]
+          self.__minPT              = [5.0 * Units.GeV]
+          self.__minPTSeed          = 5.0 * Units.GeV
           self.__radMax             = 600. * Units.mm
-          self.__nHolesMax          = self.__maxHoles
-          self.__nHolesGapMax       = [1]
           self.__roadWidth          = 5.
           self.__nWeightedClustersMin = [8]
-          self.__maxdImpactSSSSeeds   = [300.0 * Units.mm]
 
       else:
 
