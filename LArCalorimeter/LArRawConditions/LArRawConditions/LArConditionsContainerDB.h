@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -427,7 +427,7 @@ inline
 POINTER
 LArConditionsContainerDB<T>::ITERATORT::operator->() const 
 {
-  REFERENCE ref = *m_channelIt;
+  auto& ref = *m_channelIt;
   return &ref;
 }
 
