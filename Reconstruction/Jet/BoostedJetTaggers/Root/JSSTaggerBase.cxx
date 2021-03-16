@@ -110,6 +110,7 @@ StatusCode JSSTaggerBase::initialize() {
     ATH_MSG_INFO( "  " << m_decorationName << "_" << m_weightdecorationName << " : tagging SF" );
     m_dec_weight     = std::make_unique< SG::AuxElement::Decorator<float> >( m_decorationName + "_" + m_weightdecorationName );
     m_dec_effSF      = std::make_unique< SG::AuxElement::Decorator<float> >( m_decorationName + "_effSF" );
+    m_dec_sigeffSF      = std::make_unique< SG::AuxElement::Decorator<float> >( m_decorationName + "_sigeffSF" );
     m_dec_efficiency = std::make_unique< SG::AuxElement::Decorator<float> >( m_decorationName + "_efficiency" );
     m_dec_accept     = std::make_unique< SG::AuxElement::Decorator<int> >( m_decorationName + "_accept" );
     m_acc_truthLabel = std::make_unique< SG::AuxElement::ConstAccessor<int> >( m_truthLabelName );
@@ -345,11 +346,24 @@ void JSSTaggerBase::getWeight( const xAOD::Jet& jet, bool passSel ) const {
 
   float weight = 1.0;
   float effSF = 1.0;
+  float sigeffSF = 1.0;
   float efficiency = 1.0;
 
   if ( m_isMC ) {
 
-    std::tie(effSF, efficiency) = getSF(jet);
+    std::string truthLabelStr = getTruthLabelStr(jet);
+    std::tie(effSF, efficiency) = getSF(jet, truthLabelStr);
+
+    // calculate signal efficiency SF
+    if ( m_weightHistograms.count("t_qqb") ) {
+      sigeffSF = getSF(jet, "t_qqb").first;
+    } else if ( m_weightHistograms.count("V_qq") ) {
+      sigeffSF = getSF(jet, "V_qq").first;
+    } else if ( m_weightHistograms.count("t") ){
+      sigeffSF = getSF(jet, "t").first;
+    } else {
+      sigeffSF = 1.0;
+    }
 
     /// Inefficiency SF is directly used
     if ( m_weightFlavors.find("fail") != std::string::npos ) {
@@ -388,6 +402,7 @@ void JSSTaggerBase::getWeight( const xAOD::Jet& jet, bool passSel ) const {
     (*m_dec_weight)(jet)     = weight;
     (*m_dec_efficiency)(jet) = efficiency;
     (*m_dec_effSF)(jet)      = effSF;
+    (*m_dec_sigeffSF)(jet)   = sigeffSF;
   }
 
   ATH_MSG_VERBOSE( "Jet SF = " << weight );
@@ -396,11 +411,7 @@ void JSSTaggerBase::getWeight( const xAOD::Jet& jet, bool passSel ) const {
 
 }
 
-/// Get scale factor and efficiency
-std::pair<double, double> JSSTaggerBase::getSF( const xAOD::Jet& jet ) const {
-
-  if ( !passKinRange(jet) ) return std::make_pair( 1.0, 1.0 );
-
+std::string JSSTaggerBase::getTruthLabelStr( const xAOD::Jet& jet ) const {
   /// Truth label string
   std::string truthLabelStr;
 
@@ -485,6 +496,15 @@ std::pair<double, double> JSSTaggerBase::getSF( const xAOD::Jet& jet ) const {
     }
 
   }
+
+  return truthLabelStr;
+}
+
+/// Get scale factor and efficiency
+std::pair<double, double> JSSTaggerBase::getSF( const xAOD::Jet& jet, const std::string truthLabelStr ) const {
+
+  if ( !passKinRange(jet) ) return std::make_pair( 1.0, 1.0 );
+
 
   double logmOverPt = std::log(jet.m()/jet.pt());
   if ( m_decorationName.find("SmoothZ") != std::string::npos ||
