@@ -1,6 +1,5 @@
-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/AllJetsGrouper.h"
@@ -16,20 +15,11 @@ AllJetsGrouper:: AllJetsGrouper(const HypoJetVector& jets): m_jets{jets}{
 
 
 
-std::vector<HypoJetGroupVector> AllJetsGrouper::group(HypoJetIter& begin,
-						      HypoJetIter& end
-						      ) const {
-  HypoJetGroupVector hjgv{HypoJetVector(begin, end)};
-  return std::vector<HypoJetGroupVector>{hjgv};
-}
-
-std::optional<HypoJetVector> AllJetsGrouper::next(){
-  if (m_done){
-    return std::optional<HypoJetVector>();
-  }
+HypoJetVector AllJetsGrouper::next(){
+  if (m_done) {return HypoJetVector{};}
   
   m_done = true;
-  return std::make_optional<HypoJetVector>(m_jets);
+  return HypoJetVector{m_jets};
 }
 
 std::string AllJetsGrouper::getName() const {

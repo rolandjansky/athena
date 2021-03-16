@@ -1,14 +1,15 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGHLTJETHYPO_CONDITIONFILTER_H
 #define TRIGHLTJETHYPO_CONDITIONFILTER_H
 
+#include "./IHypoJetVectorFilter.h"
 #include "./ConditionsDefsMT.h"
 #include <ostream>
 
-class ConditionFilter {
+class ConditionFilter: public IHypoJetVectorFilter  {
  public:
 
   ConditionFilter(){};
@@ -16,13 +17,13 @@ class ConditionFilter {
   ConditionFilter(ConditionsMT&);
 
   // find the subset of jets which satisfy a sequence of conditions
-  std::pair<HypoJetCIter, HypoJetCIter>
+  virtual std::pair<HypoJetCIter, HypoJetCIter>
   filter (const HypoJetCIter& b,
 	  const HypoJetCIter& e,
 	  const std::unique_ptr<ITrigJetHypoInfoCollector>&
-	  );
+	  ) override;
 
-  std::string toString() const;  
+  virtual std::string toString() const override;  
  private:
 
   ConditionsMT m_conditions;
