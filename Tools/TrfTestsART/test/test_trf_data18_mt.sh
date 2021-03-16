@@ -5,7 +5,6 @@
 # art-include: master/Athena
 # art-athena-mt: 8
 
-export ATHENA_CORE_NUMBER=8
 timeout 43200 Reco_tf.py \
   --inputBSFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/data18_13TeV.00357750.physics_Main.daq.RAW/data18_13TeV.00357750.physics_Main.daq.RAW._lb0114._SFO-5._0003.data \
   --outputAODFile=aod.pool.root --outputHISTFile=hist.root \
