@@ -11,7 +11,6 @@
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
 
 #include "TTree.h"
-#include <TString.h> // for Form
 
 StatusCode sTGCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* MuonDetMgr) 
 {
@@ -89,7 +88,10 @@ StatusCode sTGCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager*
       }
 
       const MuonGM::sTgcReadoutElement* detEl = MuonDetMgr->getsTgcReadoutElement(offId);
-      if (!detEl) throw std::runtime_error(Form("File: %s, Line: %d\nsTGCSimHitVariables::fillVariables() - Failed to retrieve sTgcReadoutElement for %s", __FILE__, __LINE__, m_sTgcIdHelper->print_to_string(offId).c_str()));
+      if (!detEl) {
+        ATH_MSG_ERROR("sTGCSimHitVariables::fillVariables() - Failed to retrieve sTgcReadoutElement for "<<m_sTgcIdHelper->print_to_string(offId).c_str());
+        return StatusCode::FAILURE;
+      }
 
       if( !m_sTgcIdHelper->is_stgc(offId) ){
           ATH_MSG_WARNING("sTgc id is not a stgc id! " << m_sTgcIdHelper->print_to_string(offId));

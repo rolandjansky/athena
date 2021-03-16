@@ -337,7 +337,7 @@
     <range field="technology" value="MDT" />
     <range field="multiLayer" minvalue="1" maxvalue="2" />
     <range field="tubeLayer" minvalue="1" maxvalue="4" />
-    <range field="tube" minvalue="1" maxvalue="72" />
+    <range field="tube" minvalue="1" maxvalue="70" />
   </region>
   
   <region group="mdt">
@@ -347,7 +347,7 @@
     <range field="technology" value="MDT" />
     <range field="multiLayer" minvalue="1" maxvalue="2" />
     <range field="tubeLayer" minvalue="1" maxvalue="4" />
-    <range field="tube" minvalue="1" maxvalue="59" />
+    <range field="tube" minvalue="1" maxvalue="58" />
   </region>
   
   <region group="mdt">
@@ -357,7 +357,7 @@
     <range field="technology" value="MDT" />
     <range field="multiLayer" minvalue="1" maxvalue="2" />
     <range field="tubeLayer" minvalue="1" maxvalue="4" />
-    <range field="tube" minvalue="1" maxvalue="59" />
+    <range field="tube" minvalue="1" maxvalue="58" />
   </region>
   
   <region group="mdt">
@@ -367,7 +367,7 @@
     <range field="technology" value="MDT" />
     <range field="multiLayer" minvalue="1" maxvalue="2" />
     <range field="tubeLayer" minvalue="1" maxvalue="4" />
-    <range field="tube" minvalue="1" maxvalue="59" />
+    <range field="tube" minvalue="1" maxvalue="58" />
   </region>
   
   <region group="mdt">
@@ -377,7 +377,7 @@
     <range field="technology" value="MDT" />
     <range field="multiLayer" minvalue="1" maxvalue="2" />
     <range field="tubeLayer" minvalue="1" maxvalue="4" />
-    <range field="tube" minvalue="1" maxvalue="59" />
+    <range field="tube" minvalue="1" maxvalue="58" />
   </region>
   
   <region group="mdt">
@@ -387,7 +387,7 @@
     <range field="technology" value="MDT" />
     <range field="multiLayer" minvalue="1" maxvalue="2" />
     <range field="tubeLayer" minvalue="1" maxvalue="4" />
-    <range field="tube" minvalue="1" maxvalue="59" />
+    <range field="tube" minvalue="1" maxvalue="58" />
   </region>
 
   <region group="mdt">
