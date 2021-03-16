@@ -40,10 +40,10 @@ namespace ExpressionParsing {
    class EmptyVectorAccessor : public IAccessor {
    public :
       virtual IProxyLoader::VariableType variableType() const override { return IProxyLoader::VT_VECEMPTY; }
-      virtual int loadInt(const EventContext& ctx) const { (void) ctx; throwEmptyVector(); return 0; }
-      virtual double loadDouble(const EventContext& ctx) const { (void) ctx; throwEmptyVector(); return 0.;}
-      virtual std::vector<int> loadVecInt(const EventContext& ctx) const { (void) ctx; return std::vector<int>(); }
-      virtual std::vector<double> loadVec(const EventContext& ctx) const { (void) ctx; return std::vector<double>(); }
+      virtual int loadInt(const EventContext& ctx) const override { (void) ctx; throwEmptyVector(); return 0; }
+      virtual double loadDouble(const EventContext& ctx) const override { (void) ctx; throwEmptyVector(); return 0.;}
+      virtual std::vector<int> loadVecInt(const EventContext& ctx) const override { (void) ctx; return std::vector<int>(); }
+      virtual std::vector<double> loadVec(const EventContext& ctx) const override { (void) ctx; return std::vector<double>(); }
    private:
       void throwEmptyVector() const {
          throw std::runtime_error("Attempt to convert empty vector into scalar.");
