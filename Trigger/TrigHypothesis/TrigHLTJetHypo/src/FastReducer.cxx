@@ -193,10 +193,9 @@ bool FastReducer::findInitialJetGroups(const HypoJetCIter& jets_b,
 					    iters.second);
 
     while(true){
-      auto ojg = grouper->next();  // obtain a vector of jet ptrs
-      if (!ojg.has_value()) {break;}
+      auto jg = grouper->next();  // obtain a vector of jet ptrs
+      if (jg.empty()) {break;}
       
-      auto jg = *ojg;
       auto jg_ind = m_jgRegister.record(jg);  // obtain an int index for the jg
       m_testedBy[leaf].insert(jg_ind);
 

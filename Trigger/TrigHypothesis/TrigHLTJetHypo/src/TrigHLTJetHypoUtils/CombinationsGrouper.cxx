@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CombinationsGrouper.h"
@@ -26,28 +26,7 @@ CombinationsGrouper::CombinationsGrouper(unsigned int groupSize,
 }
 
 
-std::vector<HypoJetGroupVector>
-CombinationsGrouper::group(HypoJetIter& begin, HypoJetIter& end) const {
-  HypoJetGroupVector hjgv;
-  
-  // create a combinations generator. Used to select the jets
-  // to be tested by the condition objects
-  CombinationsGen combgen(end-begin, m_groupSize);
-  
-  while(true){
-    auto combs = combgen.next();
-    if (combs.second == false) {break;}
-    
-    HypoJetVector v;
-    for(auto i : combs.first){ v.push_back(*(begin + i));}
-    hjgv.push_back(v);
-  }
-
-  return std::vector<HypoJetGroupVector>{hjgv};
-}
-
-std::optional<HypoJetVector>
-CombinationsGrouper::next() {
+HypoJetVector CombinationsGrouper::next() {
   HypoJetGroupVector hjgv;
   
   // create a combinations generator. Used to select the jets
@@ -56,13 +35,13 @@ CombinationsGrouper::next() {
   
   auto combs = combgen.next();
   if (combs.second == false){
-    std::optional<HypoJetVector>();
+    return HypoJetVector{};
   }
   
   HypoJetVector v;
   for(auto i : combs.first){ v.push_back(*(m_jets.begin() + i));}
   
-  return std::make_optional<HypoJetVector>(v);
+  return HypoJetVector(v);
 }
 
 std::string CombinationsGrouper::getName() const {
