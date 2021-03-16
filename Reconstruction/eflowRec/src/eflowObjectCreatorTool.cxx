@@ -47,11 +47,14 @@ eflowObjectCreatorTool::eflowObjectCreatorTool(const std::string& type, const st
     m_chargedPFOContainer(0),
     m_neutralPFOContainer(0),
     m_neutralPFOContainer_nonModified(0),
+    m_caloClusterName("CaloCalTopoClusters"),
+    m_caloClusterContainer(nullptr),
     m_eOverPMode(false),
     m_goldenModeString(""),
     m_debug(0),
-    m_doDigiTruth(false),
     m_LCMode(false),
+    m_doDigiTruth(false),
+    m_heavyIonMode(false),
     m_trackVertexAssociationTool(""),
     m_vertexContainerName("PrimaryVertices"),
     m_useAODReductionMomentList(false)
@@ -61,6 +64,7 @@ eflowObjectCreatorTool::eflowObjectCreatorTool(const std::string& type, const st
   declareProperty("PFOOutputName",m_PFOOutputName);
   declareProperty("EOverPMode", m_eOverPMode);
   declareProperty("goldenModeString",m_goldenModeString,"run in golden match mode only?");
+  declareProperty("HeavyIonMode",m_heavyIonMode);
   declareProperty("LCMode", m_LCMode, "Whether we are in LC or EM mode");
   declareProperty("TrackVertexAssociationTool", m_trackVertexAssociationTool);
   declareProperty("UseAODReductionMomentList",m_useAODReductionMomentList);
@@ -93,7 +97,10 @@ StatusCode eflowObjectCreatorTool::execute(eflowCaloObject *energyFlowCaloObject
     createChargedEflowObjects(energyFlowCaloObject, true);
     createNeutralEflowObjects(energyFlowCaloObject);
   } else {
-    createChargedEflowObjects(energyFlowCaloObject);
+    //To preserve frozen tier0 behaviour I make useClusters only true when in HeavyIon running.
+    bool useClusters = false;
+    if(m_heavyIonMode) useClusters = true;
+    createChargedEflowObjects(energyFlowCaloObject, useClusters);
     createNeutralEflowObjects(energyFlowCaloObject);
   }
 
@@ -137,6 +144,14 @@ void eflowObjectCreatorTool::execute(eflowCaloObjectContainer* theEflowCaloObjec
 StatusCode eflowObjectCreatorTool::finalize(){ return StatusCode::SUCCESS; }
 
 StatusCode eflowObjectCreatorTool::setupPFOContainers() {
+
+  StatusCode gotClusters = evtStore()->retrieve(m_caloClusterContainer, m_caloClusterName);
+  if (gotClusters.isFailure() || !m_caloClusterContainer)
+  {
+    ATH_MSG_WARNING("Cannot retrieve CaloClusterContainer with name " << m_caloClusterName);
+    return StatusCode::SUCCESS;
+  }
+
   m_chargedPFOContainer = new xAOD::PFOContainer();
   
   xAOD::PFOAuxContainer* chargedPFOAuxContainer = new xAOD::PFOAuxContainer();
@@ -245,12 +260,19 @@ void eflowObjectCreatorTool::createChargedEflowObjects(eflowCaloObject* energyFl
     /* Optionally we add the links to clusters to the xAOD::PFO */
     if (true == addClusters){
        unsigned int nClusters = energyFlowCaloObject->nClusters();
-       std::cout << " nClusters is " << nClusters << std::endl;
-       for (unsigned int iCluster = 0; iCluster < nClusters; ++iCluster){
-	 eflowRecCluster* thisEfRecCluster = energyFlowCaloObject->efRecCluster(iCluster);
-	 ElementLink<xAOD::CaloClusterContainer> theClusLink = thisEfRecCluster->getClusElementLink();
-	 bool isSet = myEflowObject->addClusterLink(theClusLink);
-	 if (!isSet) msg(MSG::WARNING) << "Could not set Cluster in PFO " << endmsg;
+      for (unsigned int iCluster = 0; iCluster < nClusters; ++iCluster){
+	        eflowRecCluster* thisEfRecCluster = energyFlowCaloObject->efRecCluster(iCluster);
+	        ElementLink<xAOD::CaloClusterContainer> theClusLink = thisEfRecCluster->getClusElementLink();
+          bool isSet = false;
+          if(!m_heavyIonMode) isSet = myEflowObject->addClusterLink(theClusLink);
+          else{
+            //If in HeavyIons we add a link to the CaloCalTopoCluster
+            //This is not done in the p-p case so as to preserve frozen Tier0 for release 21 in p-p.
+            const xAOD::CaloCluster *theSisterCluster = (*theClusLink)->getSisterCluster();
+            ElementLink<xAOD::CaloClusterContainer> theSisterClusterLink(theSisterCluster, *m_caloClusterContainer);
+            isSet = myEflowObject->addClusterLink(theSisterClusterLink);
+          }
+	        if (!isSet) msg(MSG::WARNING) << "Could not set Cluster in PFO " << endmsg;
        }//cluster loop
     }//addClusters is set to true - so we added the clusters to the xAOD::PFO   
 
