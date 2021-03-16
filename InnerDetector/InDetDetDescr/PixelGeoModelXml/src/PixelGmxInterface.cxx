@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelGeoModelXml/PixelGmxInterface.h"
@@ -34,14 +34,16 @@ PixelGmxInterface::PixelGmxInterface(InDetDD::PixelDetectorManager *detectorMana
   ServiceHandle<IMessageSvc> msgh("MessageSvc", "PixelGmxInterface");
   
   m_log = std::make_unique<MsgStream>(&(*msgh), "PixelGmxInterface");
+
 }
 
 PixelGmxInterface::~PixelGmxInterface() {
 }
 
-int PixelGmxInterface::moduleId(map<string, int> &index){
+int PixelGmxInterface::sensorId(map<string, int> &index){
   //
   //    Return the Simulation HitID (nothing to do with "ATLAS Identifiers" aka "Offline Identifiers")
+
   
   int hitIdOfModule = SiHitIdHelper::GetHelper()->buildHitId(PixelHitIndex, index["barrel_endcap"], index["layer_wheel"], 
 							   index["eta_module"], index["phi_module"], index["side"]);
@@ -58,11 +60,12 @@ int PixelGmxInterface::moduleId(map<string, int> &index){
 }
 
 
-void PixelGmxInterface::addModuleType(string clas, string typeName, map<string, string> parameters){
+void PixelGmxInterface::addSensorType(string clas, string typeName, map<string, string> parameters){
 
   *m_log << MSG::DEBUG << "PixelGmxInterface::addModuleType called for class " << clas << " typeName " << typeName <<
                                     endmsg;
-  if (clas == "PixelModule") {
+  if (clas == "PixelModule_Sensitive") {
+
     makePixelModule(typeName, parameters);
   }
   else {
@@ -72,6 +75,7 @@ void PixelGmxInterface::addModuleType(string clas, string typeName, map<string, 
 }
 
 void PixelGmxInterface::makePixelModule(string typeName, map<string, string> &par){
+
   //
   // Get all parameters.
   // This comes from PixelModuleDesign
@@ -153,7 +157,7 @@ string PixelGmxInterface::getstr(const string typeName, const string name, const
   
 }
 
-void PixelGmxInterface::addModule(string typeName, map<string, int> &index, int /*sensitiveId*/, GeoVFullPhysVol *fpv) {
+void PixelGmxInterface::addSensor(string typeName, map<string, int> &index, int /*sensitiveId*/, GeoVFullPhysVol *fpv) {
   //
   //    Get the ATLAS "Offline" wafer identifier 
   //

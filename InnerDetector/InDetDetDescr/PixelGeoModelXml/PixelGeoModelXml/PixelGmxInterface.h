@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELGEOMODELXML_PIXELGMXINTERFACE_H
@@ -26,10 +26,10 @@ class PixelGmxInterface: public GmxInterface {
  public:
   PixelGmxInterface(InDetDD::PixelDetectorManager *detectorManager, InDetDD::SiCommonItems *commonItems, ModuleTree *moduleTree);
   ~PixelGmxInterface();
-  int moduleId(std::map<std::string, int> &index);
-  void addModuleType(std::string clas, std::string typeName, std::map<std::string, std::string> parameters);
-  void addModule(std::string typeName, std::map<std::string, int> &index, int sequentialId, 
-		 GeoVFullPhysVol *fpv);
+  int sensorId(std::map<std::string, int> &index) override final;
+  void addSensorType(std::string clas, std::string typeName, std::map<std::string, std::string> parameters) override final;
+  void addSensor(std::string typeName, std::map<std::string, int> &index, int sequentialId, 
+		 GeoVFullPhysVol *fpv) override final;
   //  void addAlignable(int level, std::map<std::string, int> &index, GeoVFullPhysVol *fpv, GeoAlignableTransform *transform);
   void makePixelModule(std::string typeName, std::map<std::string, std::string> &par);
 
