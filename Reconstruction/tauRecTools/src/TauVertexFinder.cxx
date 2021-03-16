@@ -28,6 +28,7 @@ StatusCode TauVertexFinder::initialize() {
   ATH_CHECK( m_trackPartInputContainer.initialize(SG::AllowEmpty) );
   
   if (m_useTJVA) ATH_MSG_INFO("using TJVA to determine tau vertex");
+  if (m_useTJVA_Tiebreak) ATH_MSG_INFO("using tiebreak criteria in TJVA");
   ATH_CHECK( m_TrackSelectionToolForTJVA.retrieve() );
 
   ATH_CHECK( m_trkVertexAssocTool.retrieve() );
@@ -234,42 +235,70 @@ TauVertexFinder::getPV_TJVA(const xAOD::TauJet& pTau,
   // Get the highest JVF vertex and store maxJVF for later use
   // Note: the official JetMomentTools/JetVertexFractionTool doesn't provide any possibility to access the JVF value, but just the vertex.
   maxJVF=-100.;
-  const xAOD::Vertex* max_vert = nullptr;
+  // Store sum(deltaz(track-vertex)) and jet vertex fraction scores
+  std::vector<float> sumDz;
+  std::vector<float> v_jvf;
   size_t iVertex = 0;
   size_t maxIndex = 0;
   for (const xAOD::Vertex* vert : vertices) {
     float jvf = 0.0;
-    float sumTrackPV = 0.0;
     if (!inTrigger()){
       std::vector<const xAOD::TrackParticle*> tracks = trktovxmap[vert];
-      sumTrackPV = getJetVertexFraction(tracks);
-      jvf = (sumTrackAll!=0 ? sumTrackPV/sumTrackAll : 0);
+      // get jet vertex fraction and sumdeltaZ scores
+      std::pair<float, float> spair = getVertexScores(tracks, vert->z());
+      jvf = (sumTrackAll!=0 ? spair.first/sumTrackAll : 0);
+      v_jvf.push_back(jvf);
+      sumDz.push_back(spair.second);
     }
     else{
       jvf = getJetVertexFraction(vert,tracksForTJVA,matchedVertexOnline);
     }
     if (jvf > maxJVF) {
       maxJVF = jvf;
-      max_vert = vert;
       maxIndex = iVertex;
     }
     ++iVertex;
   }
 
-  ATH_MSG_DEBUG("TJVA vtx found at z: " << max_vert->z());
-  ATH_MSG_DEBUG("vtx at maxIndex has z: " << vertices.at(maxIndex)->z() );
+  if (m_useTJVA_Tiebreak and !inTrigger() ){
+    ATH_MSG_DEBUG("First TJVA");
+    ATH_MSG_DEBUG("TJVA vtx found at z: " << vertices.at(maxIndex)->z() );
+    ATH_MSG_DEBUG("highest pt vtx found at z: " << vertices.at(0)->z());
+
+    float min_sumDz = 99999999;
+    iVertex = 0;
+    for (const xAOD::Vertex* vert : vertices) {
+      ATH_MSG_DEBUG("i=" << iVertex << ", z=" << vert->z() << ", JVF=" << v_jvf[iVertex] << ", sumDz=" << sumDz[iVertex]);
+      if ( v_jvf[iVertex] == maxJVF ){
+	// in case of 0 tracks, first vertex will have sumDz=0, and be selected
+	if (sumDz[iVertex] < min_sumDz){
+	  min_sumDz = sumDz[iVertex];
+	  maxIndex = iVertex;
+	}
+      }
+      ++iVertex;
+    }
+  }
+
+  ATH_MSG_DEBUG("Final TJVA");
+  ATH_MSG_DEBUG("TJVA vtx found at z: " << vertices.at(maxIndex)->z() );
   ATH_MSG_DEBUG("highest pt vtx found at z: " << vertices.at(0)->z());
-    
+
   return ElementLink<xAOD::VertexContainer> (vertices, maxIndex);
 }
 
-// get sum of pT from tracks associated to vertex (tracks from track to vertex map)
-float TauVertexFinder::getJetVertexFraction(const std::vector<const xAOD::TrackParticle*>& tracks) const {
+// get sum of pT from tracks associated to vertex (tracks from track to vertex map) (pair first)
+// sum over tracks associated to vertex of deltaZ(track-vertex) (pair second)
+std::pair<float,float> TauVertexFinder::getVertexScores(const std::vector<const xAOD::TrackParticle*>& tracks, float vx_z) const{
+
   float sumTrackPV = 0;
+  float sumDeltaZ = 0;
   for (auto trk : tracks){
     sumTrackPV += trk->pt();
+    sumDeltaZ += std::abs(trk->z0() - vx_z + trk->vz());
   }
-  return sumTrackPV;
+
+  return std::make_pair(sumTrackPV, sumDeltaZ);
 }
 
 // for online ATR-15665: reimplementation needed for online because the tva doesn't work. The size of the track collection from TE is not the same as the max track index
