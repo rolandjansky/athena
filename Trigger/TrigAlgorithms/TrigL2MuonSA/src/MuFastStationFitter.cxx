@@ -5,8 +5,6 @@
 #include "MuFastStationFitter.h"
 #include "xAODTrigMuon/L2StandAloneMuonAuxContainer.h"
 
-#include "CLHEP/Units/PhysicalConstants.h"
-
 #include <math.h>
 #include <iomanip>
 

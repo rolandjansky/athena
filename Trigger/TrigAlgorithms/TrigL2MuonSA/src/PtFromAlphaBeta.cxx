@@ -4,7 +4,6 @@
 
 #include "PtFromAlphaBeta.h"
 
-#include "CLHEP/Units/PhysicalConstants.h"
 #include "xAODTrigMuon/TrigMuonDefs.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
