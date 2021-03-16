@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -23,6 +23,7 @@
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoPVConstLink.h"
 #include "GeoModelUtilities/StoredPhysVol.h"
+#include "GeoModelUtilities/GeoVisitVolumes.h"
 // Trk
 #include "TrkDetDescrInterfaces/ITrackingVolumeHelper.h"
 #include "TrkDetDescrInterfaces/ITrackingVolumeCreator.h"
@@ -2056,10 +2057,10 @@ void LAr::LArVolumeBuilder::printChildren(const PVConstLink pv,int gen, int igen
 GeoPVConstLink LAr::LArVolumeBuilder::getChild(GeoPVConstLink mother, std::string name, Amg::Transform3D& trIn) const
 {
   // subcomponents
-  unsigned int nc = mother->getNChildVols();
-  for (unsigned int ic=0; ic<nc; ic++) {
-    Amg::Transform3D transf = trIn*mother->getXToChildVol(ic);
-    GeoPVConstLink cv = mother->getChildVol(ic);
+  for (const GeoVolumeVec_t::value_type& p : geoGetVolumes (&*mother))
+  {
+    Amg::Transform3D transf = trIn*p.second;
+    GeoPVConstLink cv = p.first;
     const GeoLogVol* clv = cv->getLogVol();
     if (clv->getName().substr(0,name.size())==name) { trIn = transf; return cv; } 
     GeoPVConstLink next=getChild(cv,name,transf);
