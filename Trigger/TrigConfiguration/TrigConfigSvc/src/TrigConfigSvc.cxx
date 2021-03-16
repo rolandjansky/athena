@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ServiceHandle.h"
@@ -230,16 +230,6 @@ TrigConfigSvc::chains() const {
 }
 
 
-const HLTChainList*
-TrigConfigSvc::chainList() const {
-   if(m_hltservice)
-      return m_hltservice->chainList();
-
-   REPORT_MESSAGE(MSG::WARNING) << "No HLT trigger configuration available" << endmsg;
-   return 0;
-}
-
-
 const HLTSequenceList&
 TrigConfigSvc::sequences() const {
    if(m_hltservice)
@@ -247,16 +237,6 @@ TrigConfigSvc::sequences() const {
 
    REPORT_MESSAGE(MSG::WARNING) << "No HLT trigger configuration available" << endmsg;
    return m_NullFrame.sequences();
-}
-
-
-const HLTSequenceList*
-TrigConfigSvc::sequenceList() const {
-   if(m_hltservice)
-      return m_hltservice->sequenceList();
-
-   REPORT_MESSAGE(MSG::WARNING) << "No HLT trigger configuration available" << endmsg;
-   return 0;
 }
 
 
@@ -277,25 +257,5 @@ TrigConfigSvc::hltPrescaleKey() const {
 
    REPORT_MESSAGE(MSG::WARNING) << "No HLT trigger configuration available" << endmsg;
    return 0;
-}
-
-
-StatusCode
-TrigConfigSvc::assignPrescalesToChains(uint lumiblock ) {
-   if(m_hltservice)
-      return m_hltservice->assignPrescalesToChains(lumiblock);
-
-   REPORT_MESSAGE(MSG::WARNING) << "No HLT trigger configuration available" << endmsg;
-   return StatusCode::RECOVERABLE;
-}
-
-
-StatusCode
-TrigConfigSvc::updatePrescaleSets(uint requestcount) {
-   if(m_hltservice)
-      return m_hltservice->updatePrescaleSets(requestcount);
-
-   REPORT_MESSAGE(MSG::WARNING) << "No HLT trigger configuration available" << endmsg;
-   return StatusCode::RECOVERABLE;
 }
 

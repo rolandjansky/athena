@@ -132,8 +132,8 @@ Trig::TrigDecisionTool::initialize() {
      ATH_CHECK(m_configSvc.retrieve());
 
      // call update if there is anything in config svc
-     if ( m_configSvc->chainList() || m_configSvc->ctpConfig() ) {
-       configurationUpdate( m_configSvc->chainList(), m_configSvc->ctpConfig() );
+     if ( m_configSvc->ctpConfig() ) {
+       configurationUpdate( &m_configSvc->chains(), m_configSvc->ctpConfig() );
      }
    }
 
@@ -256,14 +256,14 @@ StatusCode Trig::TrigDecisionTool::beginEvent() {
         << " and L1PSK: " << m_configTool->lvl1PrescaleKey() 
         << " and HLTPSK: " << m_configTool->hltPrescaleKey()
         << " getForceConfigUpdate()=" << getForceConfigUpdate()
-        << " HLT Chains: " << m_configTool->chainList()->size());
+        << " HLT Chains: " << m_configTool->chains().size());
 
       std::vector<uint32_t>* keys = getKeys();
       keys->resize(3);
       keys->at(0) = m_configTool->masterKey();
       keys->at(1) = m_configTool->lvl1PrescaleKey();
       keys->at(2) = m_configTool->hltPrescaleKey();
-      configurationUpdate( m_configTool->chainList(), m_configTool->ctpConfig() );
+      configurationUpdate( &m_configTool->chains(), m_configTool->ctpConfig() );
       setForceConfigUpdate(false);
     } else{
       ATH_MSG_DEBUG("Tool: Cached Trigger configuration keys match for this event in slot " << slot);
@@ -289,14 +289,14 @@ StatusCode Trig::TrigDecisionTool::beginEvent() {
         << " and L1PSK: " << l1psk
         << " and HLTPSK: " << hltpsk
         << " getForceConfigUpdate()=" << getForceConfigUpdate()
-        << " HLT Chains: " << m_configSvc->chainList()->size());
+        << " HLT Chains: " << m_configSvc->chains().size());
 
       std::vector<uint32_t>* keys = getKeys();
       keys->resize(3);
       keys->at(0) = smk;
       keys->at(1) = l1psk;
       keys->at(2) = hltpsk;
-      configurationUpdate( m_configSvc->chainList(), m_configSvc->ctpConfig() );
+      configurationUpdate( &m_configSvc->chains(), m_configSvc->ctpConfig() );
       setForceConfigUpdate(false);
     }else{
       ATH_MSG_DEBUG("Svc: Cached Trigger configuration keys match for this event in slot " << slot);
@@ -352,7 +352,7 @@ Trig::TrigDecisionTool::handle(const Incident& inc) {
    if ( inc.type()=="TrigConf") {
       if(m_configSvc.isSet()) {
          ATH_MSG_INFO("updating config via config svc");
-         configurationUpdate( m_configSvc->chainList(), m_configSvc->ctpConfig());
+         configurationUpdate( &m_configSvc->chains(), m_configSvc->ctpConfig());
          setForceConfigUpdate(true, /*forceForAllSlots=*/ true);
       } else {
          ATH_MSG_DEBUG("No TrigConfigSvc, ignoring TrigConf incident.");

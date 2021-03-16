@@ -42,10 +42,7 @@ namespace TrigConf {
    public:
 
       // implementing IIHLTConfigSvc
-      virtual const HLTChainList*    chainList() const override __attribute__ ((deprecated));
       virtual const HLTChainList&    chains() const override;
-      
-      virtual const HLTSequenceList* sequenceList() const override  __attribute__ ((deprecated));
       virtual const HLTSequenceList& sequences() const override;
       
       /// @name Dummy implementations of the Run 3 HLT JSON trigger configuration interface in IIHLTConfigSvc.
@@ -72,8 +69,6 @@ namespace TrigConf {
 
       virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvIF ) override;
 
-      virtual StatusCode updatePrescaleSets(uint requestcount) override;
-
       // Access functions described by IHLTConfigSvc:
       const HLTFrame*        hltFrame() const { return &m_HLTFrame; }
       virtual uint32_t               masterKey() const override;
@@ -90,8 +85,6 @@ namespace TrigConf {
       Gaudi::Property< std::string > m_hltFileName { this, "JsonFileName", "HLTMenu.json", "file name of HLT json file, needed if InputType is file" };
       Gaudi::Property< std::string > m_dbConnection { this, "TriggerDB", "TRIGGERDB", "DB connection alias, needed if InputType is db" };
       Gaudi::Property< unsigned int > m_smk { this, "SMK", 0, "DB smk, needed if InputType is db (optional for file InputType)" };
-
-      virtual StatusCode assignPrescalesToChains(uint lumiblock ) override;
 
       StatusCode bookHistograms();
       void applyPrescaleSet(const HLTPrescaleSet& pss);

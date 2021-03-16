@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "../src/TrigALFAROBMonitor.h"
@@ -207,27 +207,20 @@ StatusCode TrigALFAROBMonitor::execute (const EventContext& ctx) const {
      if (LB > previousEventLB){ // new LB
         uint32_t newPrescKey = m_configSvc->hltPrescaleKey();
         if (newPrescKey != prescKey) {
-             ATH_MSG_INFO ("HLT prescale key changed to "<<newPrescKey );
+             ATH_MSG_DEBUG ("HLT prescale key changed to "<<newPrescKey );
              
              // check with cont monitor if the SB fla has been set
-             const TrigConf::HLTChainList *chainlist = m_configSvc->chainList();
-             if (chainlist) {
-                 for (auto *chain: *chainlist) {
-                    if (chain->chain_name() == "HLT_costmonitor") {
-                        ATH_MSG_INFO ("found HLT_costmonitor chain with prescale " << chain->prescale()
-                                << " and the SB flag set to: "<<SBflag);
-                        if (chain->prescale() >=1 ) {
-                            SBflag = true;
-                        } else {
-                            SBflag = false;
-                        }
-                   } else {
-                      //ATH_MSG_INFO ("HLT prescale key evaluation - " << chain->chain_name());
-                   }  
-                }
-            } else {
-                 ATH_MSG_WARNING ("HLT prescale key evaluation  - failed");
-            }
+             for (const TrigConf::HLTChain* chain: m_configSvc->chains()) {
+               if (chain->chain_name() == "HLT_costmonitor") {
+                 ATH_MSG_INFO ("found HLT_costmonitor chain with prescale " << chain->prescale()
+                               << " and the SB flag set to: "<<SBflag);
+                 if (chain->prescale() >=1 ) {
+                   SBflag = true;
+                 } else {
+                   SBflag = false;
+                 }
+               }
+             }
 
              prescKey = newPrescKey;
         }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConfig_DSConfigSvc
@@ -97,18 +97,8 @@ namespace TrigConf {
       }
 
       // access to HLT chains
-      virtual const HLTChainList* chainList() const override {
-         return & m_hltFrame.getHLTChainList();
-      }
-
-      // access to HLT chains
       virtual const HLTChainList& chains() const override {
          return m_hltFrame.chains();
-      }
-
-      // access to HLT sequences
-      virtual const HLTSequenceList* sequenceList() const override {
-         return & m_hltFrame.getHLTSequenceList();
       }
 
       // access to HLT sequences
@@ -131,12 +121,6 @@ namespace TrigConf {
       virtual std::string configurationSource() const override {
          return m_configSrc;
       }
-
-      virtual StatusCode updatePrescaleSets(uint requestcount) override;
-
-      // This method is called by TrigSteer on *every* event (keep it fast)
-      // This is never used in connection with COOL configuration data
-      virtual StatusCode assignPrescalesToChains(uint lumiblock ) override;
 
       /// @name Dummy implementations of the Run 3 L1 JSON trigger configuration interface in IILVL1ConfigSvc.
       /// @brief Use the xAODConfigSvc or xAODConfigTool to access these data.

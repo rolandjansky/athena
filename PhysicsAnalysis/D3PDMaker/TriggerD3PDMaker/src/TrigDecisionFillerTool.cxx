@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigDecisionFillerTool.cxx 734655 2016-04-07 17:09:12Z ssnyder $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -194,10 +193,6 @@ namespace D3PD {
          return StatusCode::SUCCESS;
       }
 
-      // The configuration chain list will be needed in a few places, so let's
-      // "cache" it...
-      const TrigConf::HLTChainList* chains = m_trigConf->chainList();
-
       //
       // Clear the variables:
       //
@@ -233,123 +228,119 @@ namespace D3PD {
       //
       // Loop over the configuration chains:
       //
-      if( chains ) {
-         TrigConf::HLTChainList::const_iterator itr = chains->begin();
-         TrigConf::HLTChainList::const_iterator end = chains->end();
-         for( ; itr != end; ++itr ) {
+      for( const TrigConf::HLTChain* chain : m_trigConf->chains() ) {
 
-            // Is this a LVL2, or an EF chain?
-            const bool isLVL2 = ( ( *itr )->level() == "L2" );
+        // Is this a LVL2, or an EF chain?
+        const bool isLVL2 = ( chain->level() == "L2" );
 
-            // Save the LVL2 raw decision:
-            if( isLVL2 && m_saveHLTRaw &&
-                m_trigDec->isPassed( ( *itr )->chain_name(),
-                                     TrigDefs::requireDecision ) ) {
-               m_L2_passedRAW->push_back( static_cast< chainId_t >( ( *itr )->chain_counter() ) );
-            }
-            // Save the LVL2 physics decision:
-            if( isLVL2 && m_saveHLTPhysics &&
-                m_trigDec->isPassed( ( *itr )->chain_name(),
-                                     TrigDefs::Physics ) ) {
-               m_L2_passedPhysics->push_back( static_cast< chainId_t >( ( *itr )->chain_counter() ) );
-            }
-            // Save the LVL2 resurrected decision:
-            if( isLVL2 && m_saveHLTResurrected &&
-                m_trigDec->isPassed( ( *itr )->chain_name(),
-                                     TrigDefs::allowResurrectedDecision |
-                                     TrigDefs::requireDecision |
-                                     TrigDefs::enforceLogicalFlow ) ) {
-               m_L2_resurrected->push_back( static_cast< chainId_t >( ( *itr )->chain_counter() ) );
-            }
-            // Save the LVL2 passThrough state:
-            if( isLVL2 && m_saveHLTPassThrough &&
-                m_trigDec->isPassed( ( *itr )->chain_name(),
-                                     TrigDefs::passedThrough ) ) {
-               m_L2_passedThrough->push_back( static_cast< chainId_t >( ( *itr )->chain_counter() ) );
-            }
+        // Save the LVL2 raw decision:
+        if( isLVL2 && m_saveHLTRaw &&
+            m_trigDec->isPassed( chain->chain_name(),
+                                 TrigDefs::requireDecision ) ) {
+          m_L2_passedRAW->push_back( static_cast< chainId_t >( chain->chain_counter() ) );
+        }
+        // Save the LVL2 physics decision:
+        if( isLVL2 && m_saveHLTPhysics &&
+            m_trigDec->isPassed( chain->chain_name(),
+                                 TrigDefs::Physics ) ) {
+          m_L2_passedPhysics->push_back( static_cast< chainId_t >( chain->chain_counter() ) );
+        }
+        // Save the LVL2 resurrected decision:
+        if( isLVL2 && m_saveHLTResurrected &&
+            m_trigDec->isPassed( chain->chain_name(),
+                                 TrigDefs::allowResurrectedDecision |
+                                 TrigDefs::requireDecision |
+                                 TrigDefs::enforceLogicalFlow ) ) {
+          m_L2_resurrected->push_back( static_cast< chainId_t >( chain->chain_counter() ) );
+        }
+        // Save the LVL2 passThrough state:
+        if( isLVL2 && m_saveHLTPassThrough &&
+            m_trigDec->isPassed( chain->chain_name(),
+                                 TrigDefs::passedThrough ) ) {
+          m_L2_passedThrough->push_back( static_cast< chainId_t >( chain->chain_counter() ) );
+        }
 
-	    const bool isEF = ( ( *itr )->level() == "EF" );
-            // Save the EF raw decision:
-            if( ( isEF ) && m_saveHLTRaw &&
-                m_trigDec->isPassed( ( *itr )->chain_name(), TrigDefs::requireDecision ) ) {
-               m_EF_passedRAW->push_back( static_cast< chainId_t >( ( *itr )->chain_counter() ) );
-            }
-            // Save the EF physics decision:
-            if( ( isEF) && m_saveHLTPhysics &&
-                m_trigDec->isPassed( ( *itr )->chain_name(), TrigDefs::Physics ) ) {
-               m_EF_passedPhysics->push_back( static_cast< chainId_t >( ( *itr )->chain_counter() ) );
-            }
-            // Save the EF resurrected decision:
-            if( ( isEF ) && m_saveHLTResurrected &&
-                m_trigDec->isPassed( ( *itr )->chain_name(),
-                                     TrigDefs::allowResurrectedDecision |
-                                     TrigDefs::requireDecision |
-                                     TrigDefs::enforceLogicalFlow ) ) {
-               m_EF_resurrected->push_back( static_cast< chainId_t >( ( *itr )->chain_counter() ) );
-            }
-            // Save the EF passThrough state:
-            if( ( isEF ) && m_saveHLTPassThrough &&
-                m_trigDec->isPassed( ( *itr )->chain_name(),
-                                     TrigDefs::passedThrough ) ) {
-               m_EF_passedThrough->push_back( static_cast< chainId_t >( ( *itr )->chain_counter() ) );
-            }
+        const bool isEF = ( chain->level() == "EF" );
+        // Save the EF raw decision:
+        if( ( isEF ) && m_saveHLTRaw &&
+            m_trigDec->isPassed( chain->chain_name(), TrigDefs::requireDecision ) ) {
+          m_EF_passedRAW->push_back( static_cast< chainId_t >( chain->chain_counter() ) );
+        }
+        // Save the EF physics decision:
+        if( ( isEF) && m_saveHLTPhysics &&
+            m_trigDec->isPassed( chain->chain_name(), TrigDefs::Physics ) ) {
+          m_EF_passedPhysics->push_back( static_cast< chainId_t >( chain->chain_counter() ) );
+        }
+        // Save the EF resurrected decision:
+        if( ( isEF ) && m_saveHLTResurrected &&
+            m_trigDec->isPassed( chain->chain_name(),
+                                 TrigDefs::allowResurrectedDecision |
+                                 TrigDefs::requireDecision |
+                                 TrigDefs::enforceLogicalFlow ) ) {
+          m_EF_resurrected->push_back( static_cast< chainId_t >( chain->chain_counter() ) );
+        }
+        // Save the EF passThrough state:
+        if( ( isEF ) && m_saveHLTPassThrough &&
+            m_trigDec->isPassed( chain->chain_name(),
+                                 TrigDefs::passedThrough ) ) {
+          m_EF_passedThrough->push_back( static_cast< chainId_t >( chain->chain_counter() ) );
+        }
 
-	    const bool isHLT = ( ( *itr )->level() == "HLT" );
-            // Save the merged HLT raw decision:
-            if( ( isHLT ) && m_saveHLTRaw &&
-                m_trigDec->isPassed( ( *itr )->chain_name(), TrigDefs::requireDecision ) ) {
-               m_HLT_passedRAW->push_back( static_cast< chainId_t >( ( *itr )->chain_counter() ) );
-            }
-            // Save the HLT physics decision:
-            if( ( isHLT) && m_saveHLTPhysics &&
-                m_trigDec->isPassed( ( *itr )->chain_name(), TrigDefs::Physics ) ) {
-               m_HLT_passedPhysics->push_back( static_cast< chainId_t >( ( *itr )->chain_counter() ) );
-            }
-            // Save the HLT resurrected decision:
-            if( ( isHLT ) && m_saveHLTResurrected &&
-                m_trigDec->isPassed( ( *itr )->chain_name(),
-                                     TrigDefs::allowResurrectedDecision |
-                                     TrigDefs::requireDecision |
-                                     TrigDefs::enforceLogicalFlow ) ) {
-               m_HLT_resurrected->push_back( static_cast< chainId_t >( ( *itr )->chain_counter() ) );
-            }
-            // Save the HLT passThrough state:
-            if( ( isHLT ) && m_saveHLTPassThrough &&
-                m_trigDec->isPassed( ( *itr )->chain_name(),
-                                     TrigDefs::passedThrough ) ) {
-               m_HLT_passedThrough->push_back( static_cast< chainId_t >( ( *itr )->chain_counter() ) );
-            }
+        const bool isHLT = ( chain->level() == "HLT" );
+        // Save the merged HLT raw decision:
+        if( ( isHLT ) && m_saveHLTRaw &&
+            m_trigDec->isPassed( chain->chain_name(), TrigDefs::requireDecision ) ) {
+          m_HLT_passedRAW->push_back( static_cast< chainId_t >( chain->chain_counter() ) );
+        }
+        // Save the HLT physics decision:
+        if( ( isHLT) && m_saveHLTPhysics &&
+            m_trigDec->isPassed( chain->chain_name(), TrigDefs::Physics ) ) {
+          m_HLT_passedPhysics->push_back( static_cast< chainId_t >( chain->chain_counter() ) );
+        }
+        // Save the HLT resurrected decision:
+        if( ( isHLT ) && m_saveHLTResurrected &&
+            m_trigDec->isPassed( chain->chain_name(),
+                                 TrigDefs::allowResurrectedDecision |
+                                 TrigDefs::requireDecision |
+                                 TrigDefs::enforceLogicalFlow ) ) {
+          m_HLT_resurrected->push_back( static_cast< chainId_t >( chain->chain_counter() ) );
+        }
+        // Save the HLT passThrough state:
+        if( ( isHLT ) && m_saveHLTPassThrough &&
+            m_trigDec->isPassed( chain->chain_name(),
+                                 TrigDefs::passedThrough ) ) {
+          m_HLT_passedThrough->push_back( static_cast< chainId_t >( chain->chain_counter() ) );
+        }
 
-            // Save the chain state:
-            if( m_saveHLTChainState ) {
-               const unsigned int bits = m_trigDec->isPassedBits( ( *itr )->chain_name() );
-               // Save the LVL2 prescale state:
-               if( isLVL2 && ( bits & TrigDefs::L2_prescaled ) ) {
-                  m_L2_wasPrescaled->push_back( ( *itr )->chain_counter() );
-               }
-               // Save the LVL2 resurrected state:
-               if( isLVL2 && ( bits & TrigDefs::L2_resurrected ) ) {
-                  m_L2_wasResurrected->push_back( ( *itr )->chain_counter() );
-               }
-               // Save the EF prescale state:
-               if( ( isEF ) && ( bits & TrigDefs::EF_prescaled ) ) {
-                  m_EF_wasPrescaled->push_back( ( *itr )->chain_counter() );
-               }
-               // Save the EF resurrected state:
-               if( ( isEF ) && ( bits & TrigDefs::EF_resurrected ) ) {
-                  m_EF_wasResurrected->push_back( ( *itr )->chain_counter() );
-               }
-               // Save the HLT prescale state:
-               if( ( isHLT ) && ( bits & TrigDefs::EF_prescaled ) ) {//merged L2EF use same EF bits (see ChainGroup)
-                  m_HLT_wasPrescaled->push_back( ( *itr )->chain_counter() );
-               }
-               // Save the EF resurrected state:
-               if( ( isHLT ) && ( bits & TrigDefs::EF_resurrected ) ) {//merged L2EF use same EF bits(see ChainGroup)
-                  m_HLT_wasResurrected->push_back( ( *itr )->chain_counter() );
-               }
+        // Save the chain state:
+        if( m_saveHLTChainState ) {
+          const unsigned int bits = m_trigDec->isPassedBits( chain->chain_name() );
+          // Save the LVL2 prescale state:
+          if( isLVL2 && ( bits & TrigDefs::L2_prescaled ) ) {
+            m_L2_wasPrescaled->push_back( chain->chain_counter() );
+          }
+          // Save the LVL2 resurrected state:
+          if( isLVL2 && ( bits & TrigDefs::L2_resurrected ) ) {
+            m_L2_wasResurrected->push_back( chain->chain_counter() );
+          }
+          // Save the EF prescale state:
+          if( ( isEF ) && ( bits & TrigDefs::EF_prescaled ) ) {
+            m_EF_wasPrescaled->push_back( chain->chain_counter() );
+          }
+          // Save the EF resurrected state:
+          if( ( isEF ) && ( bits & TrigDefs::EF_resurrected ) ) {
+            m_EF_wasResurrected->push_back( chain->chain_counter() );
+          }
+          // Save the HLT prescale state:
+          if( ( isHLT ) && ( bits & TrigDefs::EF_prescaled ) ) {//merged L2EF use same EF bits (see ChainGroup)
+            m_HLT_wasPrescaled->push_back( chain->chain_counter() );
+          }
+          // Save the EF resurrected state:
+          if( ( isHLT ) && ( bits & TrigDefs::EF_resurrected ) ) {//merged L2EF use same EF bits(see ChainGroup)
+            m_HLT_wasResurrected->push_back( chain->chain_counter() );
+          }
 
-            }
-         }
+        }
       }
 
       return StatusCode::SUCCESS;

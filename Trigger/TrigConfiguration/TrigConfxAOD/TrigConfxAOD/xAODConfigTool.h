@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODConfigTool.h 631651 2014-11-27 18:33:16Z lheinric $
 #ifndef TRIGCONFXAOD_XAODCONFIGTOOL_H
 #define TRIGCONFXAOD_XAODCONFIGTOOL_H
 
@@ -94,12 +93,8 @@ namespace TrigConf {
       /// @{
 
       /// Get the HLT chains
-      virtual const HLTChainList* chainList() const override ;
-      /// Get the HLT chains
       virtual const HLTChainList& chains() const override ;
 
-      /// Get the HLT sequences
-      virtual const HLTSequenceList* sequenceList() const override ;
       /// Get the HLT sequences
       virtual const HLTSequenceList& sequences() const override ;
 
