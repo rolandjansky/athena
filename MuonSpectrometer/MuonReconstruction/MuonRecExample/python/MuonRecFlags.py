@@ -388,6 +388,7 @@ class MuonRec(JobPropertyContainer):
         global globalflags
 
         from MuonRecExample.MuonRecUtils import setJobPropertyDefault as setDefault
+        from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
         # as long as rec.Commissioning is alive, sync the default to it
         # in case of BS->RDO, RDO->RDO, RDO->BS, BS->BS: don't run RIO (i.e RDO->PRD)
@@ -400,9 +401,9 @@ class MuonRec(JobPropertyContainer):
         setDefault(self.doMDTs,True)
         setDefault(self.doRPCs,True)
         setDefault(self.doTGCs,True)
-        setDefault(self.doCSCs,True)
-        setDefault(self.dosTGCs,True)
-        setDefault(self.doMicromegas,True)
+        setDefault(self.doCSCs, MuonGeometryFlags.hasCSC())
+        setDefault(self.dosTGCs, MuonGeometryFlags.hasSTGC())
+        setDefault(self.doMicromegas, MuonGeometryFlags.hasMM())
         setDefault(self.doMSVertex,True)
         setDefault(self.useWireSagCorrections,False)
         setDefault(self.enableErrorTuning,True)

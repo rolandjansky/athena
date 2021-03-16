@@ -17,19 +17,16 @@ beamFlags = jobproperties.Beam
 muonCombinedRecFlags.setDefaults()
 
 if muonCombinedRecFlags.useNewConfig():
-    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
     from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedReconstructionCfg
 
-    ConfigFlags.Input.Files = athenaCommonFlags.FilesInput()
-    ConfigFlags.Detector.GeometryMDT   = True 
-    ConfigFlags.Detector.GeometryTGC   = True
-    ConfigFlags.Detector.GeometryCSC   = True     
-    ConfigFlags.Detector.GeometryRPC   = True     
+    from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
+    # Translate all needed flags from old jobProperties to a new AthConfigFlag Container
+    ConfigFlags = getNewConfigFlags()
+     
     # TODO Keep here for the moment, since we still have debugging to do.
     from AthenaCommon.Logging import logging
-    log = logging.getLogger( "conf2toConfigurable".ljust(30) )
+    log = logging.getLogger( "Py:conf2toConfigurable" )
     log.setLevel(DEBUG)
     CAtoGlobalWrapper(MuonCombinedReconstructionCfg,ConfigFlags)
 
