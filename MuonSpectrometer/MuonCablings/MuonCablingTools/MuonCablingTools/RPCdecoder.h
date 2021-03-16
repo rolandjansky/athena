@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef RPCDECODER_H
-#define RPCDECODER_H
+#ifndef MUONCABLINGTOOLS_RPCDECODER_H
+#define MUONCABLINGTOOLS_RPCDECODER_H
 
 #include "MuonCablingTools/RPCdef.h"
 #include <iostream>
