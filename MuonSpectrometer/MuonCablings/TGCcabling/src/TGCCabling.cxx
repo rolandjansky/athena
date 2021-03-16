@@ -38,9 +38,9 @@ TGCCabling::~TGCCabling (void)
   delete m_cableSLBToSSW;
   delete m_cableSSWToROD;
 
-  std::map<int, TGCModuleId*>::iterator it   = m_slbModuleIdMap.begin(); 
-  std::map<int, TGCModuleId*>::iterator it_e = m_slbModuleIdMap.end(); 
-  for(; it!=it_e; it++) delete ((*it).second); 
+  for (auto& p : m_slbModuleIdMap) {
+    delete p.second;
+  }
 }
 
 // virtual method  of TGCCabligBase   
