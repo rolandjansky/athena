@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1TopoCoreSim_CountingConnector
@@ -37,7 +37,8 @@ namespace TCS {
 
       virtual bool isCountingConnector() const {  return true; }
 
-      TCS::CountingAlg* countingAlgorithm() const { return m_countingAlgorithm; }
+      TCS::CountingAlg* countingAlgorithm() { return m_countingAlgorithm; }
+      const TCS::CountingAlg* countingAlgorithm() const { return m_countingAlgorithm; }
       
       virtual StatusCode clearOutput();
 
