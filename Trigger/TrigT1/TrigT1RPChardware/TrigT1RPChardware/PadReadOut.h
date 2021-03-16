@@ -2,8 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef PadReadOut_H
-#define PadReadOut_H
+#ifndef TrigT1RPChardware_PadReadOut_H
+#define TrigT1RPChardware_PadReadOut_H
 
 #include "TrigT1RPChardware/MatrixReadOut.h"
 #include "TrigT1RPChardware/PadReadOutStructure.h"
