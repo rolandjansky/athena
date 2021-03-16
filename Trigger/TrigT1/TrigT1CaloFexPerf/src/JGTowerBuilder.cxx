@@ -118,7 +118,7 @@ namespace LVL1
           if (m_emulateSCTiming)
           {
             if (
-                (et < 10e3 && std::abs(time > 8)) ||
+                (et < 10e3 && std::abs(time) > 8) ||
                 (et >= 10e3 && (time > 16 || time < -8)))
               continue;
           }
