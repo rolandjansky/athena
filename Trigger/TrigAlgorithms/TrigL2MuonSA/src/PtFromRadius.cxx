@@ -4,7 +4,6 @@
 
 #include "PtFromRadius.h"
 
-#include "CLHEP/Units/PhysicalConstants.h"
 #include "TMath.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
