@@ -22,7 +22,6 @@ precommand = ''.join([
   "doMuonSlice=True;",
   "doWriteBS=False;",
   "doWriteRDOTrigger=True;",
-  "forceEnableAllChains=True;",
 ])
 ex.args = '-c "{:s}"'.format(precommand)
 
