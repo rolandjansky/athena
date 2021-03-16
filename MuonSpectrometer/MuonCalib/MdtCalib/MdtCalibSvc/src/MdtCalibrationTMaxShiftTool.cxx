@@ -44,17 +44,17 @@ StatusCode MdtCalibrationTMaxShiftTool::initializeMap() {
   /* Get ROBs */
   std::vector<uint32_t> robVector = mdtCabling->getAllROBId();
 
-  std::map<uint8_t, MdtSubdetectorMap *> *listOfSubdet;
-  std::map<uint8_t, MdtSubdetectorMap *>::const_iterator it_sub;
+  MuonMDT_CablingMap::MapOfItems *listOfSubdet;
+  MuonMDT_CablingMap::MapOfItems::const_iterator it_sub;
 
-  std::map<uint8_t, MdtRODMap *> *listOfROD;
-  std::map<uint8_t, MdtRODMap *>::const_iterator it_rod;
+  MdtSubdetectorMap::MapOfItems *listOfROD;
+  MdtSubdetectorMap::MapOfItems::const_iterator it_rod;
 
-  std::map<uint8_t, MdtCsmMap *> *listOfCsm;
-  std::map<uint8_t, MdtCsmMap *>::const_iterator it_csm;
+  MdtRODMap::MapOfItems *listOfCsm;
+  MdtRODMap::MapOfItems::const_iterator it_csm;
 
-  std::map<uint8_t, MdtAmtMap *> *listOfAmt;
-  std::map<uint8_t, MdtAmtMap *>::const_iterator it_amt;
+  MdtCsmMap::MapOfItems *listOfAmt;
+  MdtCsmMap::MapOfItems::const_iterator it_amt;
 
   listOfSubdet = mdtCabling->getListOfElements();
 

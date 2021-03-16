@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONMDT_CABLING_MDTAMTMAP_H
@@ -43,10 +43,10 @@ class MdtAmtMap {
   MdtAmtMap(const MdtMezzanineType* mezType, uint8_t tdcId, uint8_t channel, 
 	    int station, int eta, int phi, 
 	    int multiLayer, int layerZero, int tubeZero, 
-	    const MdtIdHelper* helper, MsgStream* ext_log);
+	    const MdtIdHelper* helper, std::shared_ptr<MsgStream> ext_log);
 
   /** destructor */
-  ~MdtAmtMap();
+  ~MdtAmtMap()=default;
 
   /** set multilayer */
   //bool setMultiLayer(uint8_t multiLayer) {m_multiLayer = multiLayer;}
@@ -96,7 +96,7 @@ class MdtAmtMap {
 
   /** Output level and message service */
   bool m_debug;
-  MsgStream* m_log;
+  std::shared_ptr<MsgStream> m_log;
 
   const MdtIdHelper* m_mdtIdHelper;
 
