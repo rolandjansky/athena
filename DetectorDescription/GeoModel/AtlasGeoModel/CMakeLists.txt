@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AtlasGeoModel )
@@ -20,5 +20,5 @@ if( NOT SIMULATIONBASE AND NOT GENERATIONBASE )
                   PROPERTIES TIMEOUT 600 )
   atlas_add_test( AOD_InputGeo_test
                   SCRIPT test/AtlasGeometryConfig_AOD_test.py
-                  PROPERTIES TIMEOUT 600 )
+                  PROPERTIES TIMEOUT 900 )
 endif()
