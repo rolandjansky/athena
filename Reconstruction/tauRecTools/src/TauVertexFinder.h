@@ -50,7 +50,7 @@ private:
              const xAOD::TrackParticleContainer* trackContainer,
              float& maxJVF) const;
 
-  float getJetVertexFraction(const std::vector<const xAOD::TrackParticle*>& tracks) const;
+  std::pair<float, float> getVertexScores(const std::vector<const xAOD::TrackParticle*>& tracks, float vx_z) const;
   // for online ATR-15665
   float getJetVertexFraction(const xAOD::Vertex* vertex,
                              const std::vector<const xAOD::TrackParticle*>& tracks,
@@ -59,6 +59,7 @@ private:
 private:
   
   Gaudi::Property<bool> m_useTJVA {this, "UseTJVA", true};
+  Gaudi::Property<bool> m_useTJVA_Tiebreak {this, "UseTJVA_Tiebreak", false};
   Gaudi::Property<std::string> m_assocTracksName {this, "AssociatedTracks", ""};
   Gaudi::Property<float> m_transDistMax {this, "OnlineMaxTransverseDistance", 10e6};
   Gaudi::Property<float> m_longDistMax {this, "OnlineMaxLongitudinalDistance", 10e6};
