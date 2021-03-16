@@ -186,6 +186,15 @@ namespace TrigCompositeUtils {
     }
   }
 
+  int32_t getIndexFromLeg(const HLT::Identifier& legIdentifier) {
+    if (isChainId(legIdentifier)){
+      return 0;
+    } else if (!isLegId(legIdentifier)) {
+      return -1;
+    }
+    return std::stoi( legIdentifier.name().substr(3,3) ); 
+  }
+
   
   bool isLegId(const HLT::Identifier& legIdentifier) {
     return (legIdentifier.name().substr(0,3) == "leg");
