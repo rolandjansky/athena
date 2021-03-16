@@ -154,6 +154,7 @@ else:   # athenaHLT
     globalflags.InputFormat = 'bytestream'
     globalflags.DataSource = 'data' if not opt.setupForMC else 'data'
     ConfigFlags.Input.isMC = False
+    ConfigFlags.Input.Collections = []
     if '_run_number' not in dir():
         import PyUtils.AthFile as athFile
         from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
