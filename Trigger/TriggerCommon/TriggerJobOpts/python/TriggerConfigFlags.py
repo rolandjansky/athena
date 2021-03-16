@@ -13,9 +13,6 @@ def createTriggerFlags():
     # enables L1 topological trigger simulation
     flags.addFlag('Trigger.doL1Topo', True )
 
-    # writes additional info from Topo simulation
-    flags.addFlag('Trigger.writeL1TopoValData', True )
-    
     # need proper documentation
     flags.addFlag('Trigger.useL1CaloCalibration', False)
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import sys
 from AthenaCommon.Logging import logging
@@ -52,10 +52,6 @@ rec.doDPD.set_Value_and_Lock(False)
 rec.doTile.set_Value_and_Lock(False)
 
 rec.doTrigger.set_Value_and_Lock(True)
-
-# switch off failint L1Topo stuff
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-TriggerFlags.writeL1TopoValData.set_Value_and_Lock(False)
 
 ConfigureTriggerStream()
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -164,18 +164,6 @@ class ByteStreamUnpackGetterRun2(Configured):
         from TrigSerializeCnvSvc.TrigSerializeCnvSvcConf import TrigSerializeConvHelper
         TrigSerializeConvHelper = TrigSerializeConvHelper(doTP = True)
         ToolSvc += TrigSerializeConvHelper
-
-        #
-        # Configure L1Topo validation data algorithm
-        #
-        if hasHLT and TriggerFlags.doMergedHLTResult() and TriggerFlags.writeL1TopoValData() :
-            # make sure that CTP_RDO is known (see also ATR-14683)
-            ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [
-                "CTP_RDO/CTP_RDO"
-                ]
-            from L1TopoValDataCnv.L1TopoValDataCnvConf import xAODMaker__L1TopoValDataCnvAlg
-            L1TopoValDataCvnAlg = xAODMaker__L1TopoValDataCnvAlg()
-            topSequence += L1TopoValDataCvnAlg
 
         return True
 
@@ -344,13 +332,6 @@ class HLTTriggerResultGetter(Configured):
             from TrigEDMConfig.TriggerEDM import getTrigIDTruthList
             objKeyStore.addManyTypesStreamESD(getTrigIDTruthList(TriggerFlags.ESDEDMSet()))
             objKeyStore.addManyTypesStreamAOD(getTrigIDTruthList(TriggerFlags.AODEDMSet()))
-
-        if (rec.doESD() or rec.doAOD()) and TriggerFlags.writeL1TopoValData():
-            objKeyStore.addManyTypesStreamESD(['xAOD::TrigCompositeContainer#HLT_xAOD__TrigCompositeContainer_L1TopoValData',
-                                               'xAOD::TrigCompositeAuxContainer#HLT_xAOD__TrigCompositeContainer_L1TopoValDataAux.'])
-            objKeyStore.addManyTypesStreamAOD(['xAOD::TrigCompositeContainer#HLT_xAOD__TrigCompositeContainer_L1TopoValData',
-                                               'xAOD::TrigCompositeAuxContainer#HLT_xAOD__TrigCompositeContainer_L1TopoValDataAux.'])
-            log.debug("HLT_xAOD__TrigCompositeContainer_L1TopoValData(Aux.) for L1Topo validation added to the data.")
 
         if rec.doAOD() or rec.doWriteAOD():
             # schedule the RoiDescriptorStore conversion
