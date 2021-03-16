@@ -11,7 +11,7 @@ test_tags = [
     'ATLAS-R1-2012-03-01-00',   # example Run 1
     'ATLAS-R2-2016-01-00-01',   # example Run 2
     'ATLAS-R3S-2021-01-00-01',  # example Run 3
-    'ATLAS-P2-ITK-23-00-03'     # example Run 4
+    'ATLAS-P2-ITK-24-00-00'     # example Run 4
 ]
 
 flags_runs = {t: ConfigFlags.clone() for t in test_tags}
@@ -25,17 +25,18 @@ for tag in test_tags:
     print()
 
     # test flags that change with time
-    assert flags.Detector.EnableBCM == (tag != 'ATLAS-P2-ITK-23-00-03')
+    assert flags.Detector.EnableBCM == (tag != 'ATLAS-P2-ITK-24-00-00')
     assert flags.Detector.EnableDBM == (tag in ['ATLAS-R2-2016-01-00-01', 'ATLAS-R3S-2021-01-00-01'])
-    assert flags.Detector.EnablePixel == (tag != 'ATLAS-P2-ITK-23-00-03')
-    assert flags.Detector.EnableSCT == (tag != 'ATLAS-P2-ITK-23-00-03')
-    assert flags.Detector.EnableTRT == (tag != 'ATLAS-P2-ITK-23-00-03')
-    assert flags.Detector.EnableITkPixel == (tag == 'ATLAS-P2-ITK-23-00-03')
-    assert flags.Detector.EnableITkStrip == (tag == 'ATLAS-P2-ITK-23-00-03')
-    assert flags.Detector.EnableHGTD == (tag == 'ATLAS-P2-ITK-23-00-03')
+    assert flags.Detector.EnablePixel == (tag != 'ATLAS-P2-ITK-24-00-00')
+    assert flags.Detector.EnableSCT == (tag != 'ATLAS-P2-ITK-24-00-00')
+    assert flags.Detector.EnableTRT == (tag != 'ATLAS-P2-ITK-24-00-00')
+    assert flags.Detector.EnableITkPixel == (tag == 'ATLAS-P2-ITK-24-00-00')
+    assert flags.Detector.EnableITkStrip == (tag == 'ATLAS-P2-ITK-24-00-00')
+    assert flags.Detector.EnableHGTD == (tag == 'ATLAS-P2-ITK-24-00-00')
     assert flags.Detector.EnableCSC == (tag in ['ATLAS-R1-2012-03-01-00', 'ATLAS-R2-2016-01-00-01'])
-    assert flags.Detector.EnablesTGC == (tag in ['ATLAS-R3S-2021-01-00-01', 'ATLAS-P2-ITK-23-00-03'])
-    assert flags.Detector.EnableMM == (tag in ['ATLAS-R3S-2021-01-00-01', 'ATLAS-P2-ITK-23-00-03'])
+    assert flags.Detector.EnablesTGC == (tag in ['ATLAS-R3S-2021-01-00-01', 'ATLAS-P2-ITK-24-00-00'])
+    assert flags.Detector.EnableMM == (tag in ['ATLAS-R3S-2021-01-00-01', 'ATLAS-P2-ITK-24-00-00'])
+
 
 # test setup for Run 2
 flags = flags_runs['ATLAS-R2-2016-01-00-01']
@@ -105,4 +106,16 @@ assert flags.Detector.EnableZDC
 assert flags.Detector.EnableALFA
 assert flags.Detector.EnableAFP
 assert flags.Detector.EnableFwdRegion
+print()
+
+
+# test setup for Run 4
+flags = flags_runs['ATLAS-P2-ITK-24-00-00']
+
+print("Test: validate ['ITk', 'HGTD', 'Calo', 'Muon']")
+assert not setupDetectorsFromList(flags, ['ITk', 'HGTD', 'Calo', 'Muon'], validate_only=True)
+print()
+
+print("Test: enable ['ITkStrip']")
+assert setupDetectorsFromList(flags, ['ITkStrip'], toggle_geometry=True)
 print()
