@@ -69,13 +69,8 @@ namespace TrigConf {
     *         configuration for the current event.
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
-    *
-    * $Revision: 631651 $
-    * $Date: 2014-11-27 19:33:16 +0100 (Thu, 27 Nov 2014) $
     */
-   class xAODConfigSvc : public AthService,
-                         public virtual ITrigConfigSvc,
-                         public virtual IIncidentListener {
+   class xAODConfigSvc : public extends<AthService, ITrigConfigSvc, IIncidentListener> {
 
    public:
       /// Standard service constructor
@@ -161,10 +156,6 @@ namespace TrigConf {
       virtual const L1BunchGroupSet& l1BunchGroupSet(const EventContext& ctx = Gaudi::Hive::currentContext()) const override;
 
       /// @}
-
-      /// Function describing to Gaudi the interface(s) implemented
-      virtual StatusCode queryInterface( const InterfaceID& riid,
-                                         void** ppvIf ) override;
 
       /// Function handling the incoming incidents
       virtual void handle( const Incident& inc ) override;

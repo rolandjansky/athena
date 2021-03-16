@@ -6,12 +6,11 @@
 
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h" // for AAH::setProperty. Header only, not linked
 
-#include "./TrigConfigSvc.h"
-#include "./HLTConfigSvc.h"
+#include "TrigConfigSvc.h"
+#include "HLTConfigSvc.h"
 #include "TrigConfHLTData/HLTChainList.h"
 #include "TrigConfL1Data/BunchGroupSet.h"
 
-#include "boost/foreach.hpp"
 #include "boost/algorithm/string.hpp"
 
 #include <algorithm>
@@ -20,7 +19,7 @@ using namespace std;
 using namespace TrigConf;
 
 TrigConfigSvc::TrigConfigSvc(const std::string &name,
-                             ISvcLocator *pSvcLocator) : AthService(name, pSvcLocator),
+                             ISvcLocator *pSvcLocator) : base_class(name, pSvcLocator),
                                                          m_l1topoSvc("TrigConf::L1TopoConfigSvc/L1TopoConfigSvc", name),
                                                          m_lvl1Svc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
                                                          m_hltSvc("TrigConf::HLTConfigSvc/HLTConfigSvc", name),
@@ -38,7 +37,6 @@ TrigConfigSvc::TrigConfigSvc(const std::string &name,
 StatusCode
 TrigConfigSvc::initialize() {
 
-   CHECK(AthService::initialize());
    if (m_useNewConfig)
    {
       ATH_MSG_INFO("Called with UseNewConfig=True. Will only initialize LVL1ConfigSvc and HLTConfigSvc which write L1 bunchgroups, L1 menu and HLT menu to DetStore.");
@@ -132,31 +130,6 @@ TrigConfigSvc::initialize() {
    }
 
    ATH_MSG_INFO("Done with initialization of the trigger configuration provider");
-   return StatusCode::SUCCESS;
-}
-
-
-
-StatusCode
-TrigConfigSvc::queryInterface( const InterfaceID& riid,
-                               void** ppvIF )
-{
-
-   if ( riid == ITrigConfigSvc::interfaceID() )  {
-      *ppvIF = static_cast< ITrigConfigSvc* >(this);
-   } else if ( riid == IProperty::interfaceID() ) {
-      *ppvIF = static_cast< IProperty* >(this);
-   } else if ( riid == IL1TopoConfigSvc::interfaceID() )  {
-      *ppvIF = static_cast< IL1TopoConfigSvc* >(this);
-   } else if ( riid == ILVL1ConfigSvc::interfaceID() )  {
-      *ppvIF = static_cast< ILVL1ConfigSvc* >(this);
-   } else if ( riid == IHLTConfigSvc::interfaceID() )  {
-      *ppvIF = static_cast< IHLTConfigSvc* >(this);
-   } else   {
-      return AthService::queryInterface( riid, ppvIF );
-   }
-
-   addRef();
    return StatusCode::SUCCESS;
 }
 

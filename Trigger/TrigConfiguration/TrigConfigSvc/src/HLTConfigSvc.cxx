@@ -3,25 +3,18 @@
 */
 
 // class declaration
-#include "./HLTConfigSvc.h"
+#include "HLTConfigSvc.h"
 
 #include <exception>
 #include <vector>
 
 // Athena/Gaudi includes:
-#include "PathResolver/PathResolver.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Incident.h"
-#include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/Timing.h"
-
-// Root incluces:
-#include "TH1F.h"
-#include "TH2I.h"
 
 // Local includes:
 #include "TrigConfIO/JsonFileLoader.h"
@@ -30,9 +23,6 @@
 #include "TrigConfBase/TrigDBConnectionConfig.h"
 #include "TrigConfStorage/StorageMgr.h"
 #include "TrigConfStorage/IStorageMgr.h"
-#include "TrigConfStorage/XMLStorageMgr.h"
-#include "TrigConfStorage/IHLTPrescaleSetLoader.h"
-#include "TrigConfStorage/IHLTPrescaleSetCollectionLoader.h"
 #include "TrigConfL1Data/HelperFunctions.h"
 #include "TrigConfL1Data/CTPConfig.h" 
 #include "TrigConfHLTData/HLTFrame.h"
@@ -40,12 +30,10 @@
 #include "TrigConfHLTData/HLTSequenceList.h"
 #include "TrigConfHLTData/HLTPrescaleSet.h"
 #include "TrigConfHLTData/HLTPrescaleSetCollection.h"
-#include "AthenaMonitoringKernel/OHLockedHist.h"
 
 #include "TrigConfInterfaces/IJobOptionsSvc.h"
 
 #include "boost/algorithm/string/case_conv.hpp"
-#include "boost/lexical_cast.hpp"
 
 using namespace std;
 using namespace TrigConf;
@@ -64,9 +52,6 @@ HLTConfigSvc::HLTConfigSvc( const string& name, ISvcLocator* pSvcLocator ) :
    declareProperty( "doMonitoring",     m_doMon,
                     "Enable monitoring (mostly for online)");
 }
-
-HLTConfigSvc::~HLTConfigSvc()
-{}
 
 
 StatusCode
@@ -307,42 +292,6 @@ TrigConf::HLTConfigSvc::applyPrescaleSet(const TrigConf::HLTPrescaleSet& pss) {
   m_HLTFrame.theHLTChainList().applyPrescaleSet(&pss);
 
   m_currentPSS = pss.id();
-
-}
-
-
-StatusCode
-TrigConf::HLTConfigSvc::finalize() {
-   ATH_MSG_DEBUG("Finalizing");
-   CHECK(AthService::finalize());
-   return StatusCode::SUCCESS;
-}
-
-
-StatusCode
-TrigConf::HLTConfigSvc::queryInterface( const InterfaceID& riid, void** ppvIF ) {
-   StatusCode sc = StatusCode::FAILURE;
-
-   if (ppvIF) {
-      *ppvIF = 0;
-
-      if (riid == IHLTConfigSvc::interfaceID()) {
-         try {
-            *ppvIF = dynamic_cast<IHLTConfigSvc*>( this );
-         }
-         catch( const std::bad_cast& ) {
-            return StatusCode::FAILURE;
-         }
-         sc = StatusCode::SUCCESS;
-      }
-      else {
-         sc = Service::queryInterface( riid, ppvIF );
-      }
-
-   }
-
-   if ( sc.isSuccess() ) addRef();
-   return sc;
 
 }
 

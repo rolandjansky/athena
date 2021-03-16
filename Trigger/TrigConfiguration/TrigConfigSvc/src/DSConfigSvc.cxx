@@ -31,7 +31,6 @@
 #include "TrigConfHLTData/HLTChainList.h"
 #include "TrigConfHLTData/HLTSequenceList.h"
 #include "TrigConfHLTData/HLTPrescaleSet.h"
-#include "TrigConfHLTData/HLTStreamTag.h"
 
 #include "TrigConfStorage/StorageMgr.h"
 #include "TrigConfStorage/TrigConfCoolFolderSpec.h"
@@ -40,7 +39,7 @@
 #include "TrigConfStorage/DBLoader.h"
 
 // Local include(s):
-#include "./DSConfigSvc.h"
+#include "DSConfigSvc.h"
 
 #include "boost/lexical_cast.hpp"
 
@@ -91,10 +90,6 @@ TrigConf::DSConfigSvc::DSConfigSvc( const std::string& name,
 }
 
 
-TrigConf::DSConfigSvc::~DSConfigSvc()
-{}
-
-
 StatusCode
 TrigConf::DSConfigSvc::initialize() {
 
@@ -133,29 +128,6 @@ TrigConf::DSConfigSvc::initialize() {
 
    ATH_MSG_INFO( "Successfully initalized DSConfigSvc" );
 
-   return StatusCode::SUCCESS;
-}
-
-
-StatusCode
-TrigConf::DSConfigSvc::queryInterface( const InterfaceID& riid,
-                                       void** ppvIF ) {
-
-   if( riid == ITrigConfigSvc::interfaceID() ) {
-      *ppvIF = static_cast< ITrigConfigSvc* >( this );
-   } else if( riid == IProperty::interfaceID() ) {
-      *ppvIF = static_cast< IProperty* >( this );
-   } else if ( riid == IL1TopoConfigSvc::interfaceID() )  {
-      *ppvIF = static_cast< IL1TopoConfigSvc* >(this);
-   } else if( riid == ILVL1ConfigSvc::interfaceID() )  {
-      *ppvIF = static_cast< ILVL1ConfigSvc* >( this );
-   } else if( riid == IHLTConfigSvc::interfaceID() )  {
-      *ppvIF = static_cast< IHLTConfigSvc* >( this );
-   } else {
-      return AthService::queryInterface( riid, ppvIF );
-   }
-
-   addRef();
    return StatusCode::SUCCESS;
 }
 

@@ -25,7 +25,7 @@
 namespace TrigConf {
 
    xAODConfigSvc::xAODConfigSvc( const std::string& name, ISvcLocator* svcLoc )
-      : AthService( name, svcLoc ),
+      : base_class( name, svcLoc ),
         m_stopOnFailure( true ), m_isInFailure( false ),
         m_tmcAux( nullptr ), m_tmc( nullptr ), m_menu(),
         m_ctpConfig(), m_chainList(), m_sequenceList(), m_bgSet(),
@@ -286,44 +286,6 @@ namespace TrigConf {
       }
       // Run3: From in-file JSON metadata or JSON from conditions store
       return *(m_currentBg.get(ctx));
-   }
-
-   StatusCode xAODConfigSvc::queryInterface( const InterfaceID& riid,
-                                             void** ppvIf ) {
-
-      // Check if the user asked for the ITrigConfigSvc interface:
-      if( riid == ITrigConfigSvc::interfaceID() ) {
-         *ppvIf = static_cast< ITrigConfigSvc* >( this );
-         addRef();
-         return StatusCode::SUCCESS;
-      }
-      // Check if it's the ILVL1ConfigSvc interface we need:
-      else if( riid == ILVL1ConfigSvc::interfaceID() ) {
-         *ppvIf = static_cast< ILVL1ConfigSvc* >( this );
-         addRef();
-         return StatusCode::SUCCESS;
-      }
-      // Check if it's the IHLTConfigSvc interface we need:
-      else if( riid == IHLTConfigSvc::interfaceID() ) {
-         *ppvIf = static_cast< IHLTConfigSvc* >( this );
-         addRef();
-         return StatusCode::SUCCESS;
-      }
-      // Check if it's the IL1TopoConfigSvc interface we need:
-      else if( riid == IL1TopoConfigSvc::interfaceID() ) {
-         *ppvIf = static_cast< IL1TopoConfigSvc* >( this );
-         addRef();
-         return StatusCode::SUCCESS;
-      }
-      // Finally check if the user asked for the IIncidentListener interface:
-      else if( riid == IIncidentListener::interfaceID() ) {
-         *ppvIf = static_cast< IIncidentListener* >( this );
-         addRef();
-         return StatusCode::SUCCESS;
-      }
-
-      // Leave it to the base class to deal with the rest:
-      return AthService::queryInterface( riid, ppvIf );
    }
 
    void xAODConfigSvc::handle( const Incident& inc ) {

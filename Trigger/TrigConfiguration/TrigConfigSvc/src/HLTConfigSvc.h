@@ -10,7 +10,6 @@
 #include <string>
 #include <vector>
 
-#include "GaudiKernel/HistoProperty.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "TrigConfInterfaces/IHLTConfigSvc.h"
@@ -37,7 +36,7 @@ namespace TrigConf {
     *
     * This service should be accessed, to read the configuration lists
     */
-   class HLTConfigSvc : public extends1<ConfigSvcBase, IHLTConfigSvc>
+   class HLTConfigSvc : public extends<ConfigSvcBase, IHLTConfigSvc>
    {
    public:
 
@@ -61,13 +60,9 @@ namespace TrigConf {
 
       /*@brief constructor*/
       HLTConfigSvc( const std::string& name, ISvcLocator* pSvcLocator );
-      virtual ~HLTConfigSvc();
 
       virtual StatusCode initialize() override;
-      virtual StatusCode finalize() override;
       virtual StatusCode start() override;
-
-      virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvIF ) override;
 
       // Access functions described by IHLTConfigSvc:
       const HLTFrame*        hltFrame() const { return &m_HLTFrame; }
