@@ -207,6 +207,7 @@ class JSSTaggerBase :   public asg::AsgTool ,
     std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_weight;
     std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_efficiency;
     std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_effSF;
+    std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_sigeffSF;
     std::unique_ptr< SG::AuxElement::Decorator<int> > m_dec_accept;
 
     /// Get configReader StatusCode
@@ -228,7 +229,8 @@ class JSSTaggerBase :   public asg::AsgTool ,
     void getWeight( const xAOD::Jet& jet, bool passSel ) const;
 
     /// Get scale factor and efficiency
-    std::pair<double,double> getSF( const xAOD::Jet& jet ) const;
+    std::string getTruthLabelStr( const xAOD::Jet& jet ) const;
+    std::pair<double,double> getSF( const xAOD::Jet& jet, const std::string truthLabelStr ) const;
 
     /// Print configured cuts
     void printCuts() const;
