@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATE_CONDHANDLEKEYARRAY_H
@@ -21,7 +21,7 @@ namespace SG {
     public:
       Key()  : Base("") {}
 
-      Key(std::string val)  : Base(val) {}
+      Key(const std::string& val)  : Base(val) {}
 
     };
   }
