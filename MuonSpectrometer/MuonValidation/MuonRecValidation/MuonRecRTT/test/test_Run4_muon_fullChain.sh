@@ -16,7 +16,7 @@ Sim_tf.py --inputEVNTFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Over
           --AMI=s3512 \
           --maxEvents 50 \
           --imf False \
-          --postExec 'database_layout="MuonSpectrometer-R.10.00";include("MuonGeoModel/InitGeoFromLocal_postIncl.py");' \
+          --postExec 'database_layout="MuonSpectrometer-R.10.01";include("MuonGeoModel/InitGeoFromLocal_postIncl.py");' \
           --outputHITSFile OUT_HITS.root
 exit_code=$?
 echo  "art-result: ${exit_code} Sim_tf.py"
@@ -36,7 +36,7 @@ echo "Found ${NWARNING} WARNING, ${NERROR} ERROR and ${NFATAL} FATAL messages in
 # the postExec overrides the muon geometry to use the Run4 muon layout
 Digi_tf.py --inputHITSFile OUT_HITS.root \
            --imf False \
-           --postExec 'database_layout="MuonSpectrometer-R.10.00";include("MuonGeoModel/InitGeoFromLocal_postIncl.py");' \
+           --postExec 'database_layout="MuonSpectrometer-R.10.01";include("MuonGeoModel/InitGeoFromLocal_postIncl.py");' \
            --outputRDOFile OUT_RDO.root
 exit_code=$?
 echo  "art-result: ${exit_code} Digi_tf.py"
@@ -58,7 +58,7 @@ echo "Found ${NWARNING} WARNING, ${NERROR} ERROR and ${NFATAL} FATAL messages in
 Reco_tf.py --inputRDOFile OUT_RDO.root \
            --autoConfiguration everything \
            --imf False \
-           --postExec 'database_layout="MuonSpectrometer-R.10.00";include("MuonGeoModel/InitGeoFromLocal_postIncl.py");conddb.addOverride("/MDT/RTBLOB","MDTRT_Sim-R4-01");conddb.addOverride("/MDT/T0BLOB","MDTT0_Sim-R4-01")' \
+           --postExec 'database_layout="MuonSpectrometer-R.10.01";include("MuonGeoModel/InitGeoFromLocal_postIncl.py");conddb.addOverride("/MDT/RTBLOB","MDTRT_Sim-Run4-01");conddb.addOverride("/MDT/T0BLOB","MDTT0_Sim-Run4-01")' \
            --outputESDFile OUT_ESD.root
 exit_code=$?
 echo  "art-result: ${exit_code} Reco_tf.py"

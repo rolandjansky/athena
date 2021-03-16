@@ -12,7 +12,6 @@
 #include "AtlasHepMC/GenParticle.h"
 
 #include "TTree.h"
-#include <TString.h> // for Form
 
 /** ---------- filling of variables */
 /** ---------- to be called on each evt i.e. execute level of main alg */

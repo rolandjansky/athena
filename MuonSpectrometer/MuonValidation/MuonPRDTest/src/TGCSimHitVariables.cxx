@@ -12,7 +12,6 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #include "AtlasHepMC/GenParticle.h"
 
 #include "TTree.h"
-#include <TString.h> // for Form
 
 /** ---------- filling of variables */
 /** ---------- to be called on each evt i.e. execute level of main alg */
