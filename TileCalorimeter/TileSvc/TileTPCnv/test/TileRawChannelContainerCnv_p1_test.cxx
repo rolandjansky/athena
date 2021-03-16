@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file TileTPCnv/test/TileRawChannelContainerCnv_p1_test.cxx
@@ -122,7 +122,7 @@ makecont()
                                                        TileFragHash::Default,
                                                        TileRawChannelUnit::ADCcounts);
 
-  std::vector<std::unique_ptr<TileRawChannelCollection> > colls;
+  std::vector<std::unique_ptr<TileRawChannelCollection> > colls (100);
   for (int hi=2; hi <= 3; hi++) {
     auto coll = std::make_unique<TileRawChannelCollection>(IdentifierHash(hi));
     coll->setLvl1Id (hi + 10);

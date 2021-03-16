@@ -176,6 +176,7 @@ HBASE* HistogramFactory::create(const HistogramDef& def, Types&&... hargs) {
   { 
     std::scoped_lock<std::mutex> dirLock(globalROOTMutex());
     h = new H(def.alias.c_str(), def.title.c_str(), std::forward<Types>(hargs)...);
+    // cppcheck-suppress nullPointer; false positive
     h->SetDirectory(0);
   }
   if ( !m_histSvc->regHist( fullName, static_cast<TH1*>(h) ) ) {
