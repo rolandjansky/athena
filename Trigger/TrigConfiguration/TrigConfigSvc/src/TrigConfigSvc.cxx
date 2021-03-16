@@ -230,16 +230,6 @@ TrigConfigSvc::chains() const {
 }
 
 
-const HLTChainList*
-TrigConfigSvc::chainList() const {
-   if(m_hltservice)
-      return m_hltservice->chainList();
-
-   REPORT_MESSAGE(MSG::WARNING) << "No HLT trigger configuration available" << endmsg;
-   return 0;
-}
-
-
 const HLTSequenceList&
 TrigConfigSvc::sequences() const {
    if(m_hltservice)
@@ -247,16 +237,6 @@ TrigConfigSvc::sequences() const {
 
    REPORT_MESSAGE(MSG::WARNING) << "No HLT trigger configuration available" << endmsg;
    return m_NullFrame.sequences();
-}
-
-
-const HLTSequenceList*
-TrigConfigSvc::sequenceList() const {
-   if(m_hltservice)
-      return m_hltservice->sequenceList();
-
-   REPORT_MESSAGE(MSG::WARNING) << "No HLT trigger configuration available" << endmsg;
-   return 0;
 }
 
 

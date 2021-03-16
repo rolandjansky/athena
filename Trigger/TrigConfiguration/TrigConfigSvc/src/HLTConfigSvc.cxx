@@ -120,29 +120,7 @@ HLTConfigSvc::writeConfigToDetectorStore() {
    }
 
    return StatusCode::SUCCESS;
-} 
-
-
-// Suppress warnings for two functions of this class marked as deprecated.
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-const HLTChainList*
-HLTConfigSvc::chainList() const {
-   return &m_HLTFrame.getHLTChainList();
 }
-
-
-const HLTSequenceList*
-HLTConfigSvc::sequenceList() const {
-   return &m_HLTFrame.getHLTSequenceList();
-}
-
-
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
 
 
 const HLTChainList&

@@ -61,9 +61,7 @@ namespace TrigConf {
       virtual const BunchGroupSet*   bunchGroupSet() const override;
 
       // HLT accessors
-      virtual const HLTChainList*    chainList() const override;
       virtual const HLTChainList&    chains() const override;
-      virtual const HLTSequenceList* sequenceList() const override;
       virtual const HLTSequenceList& sequences() const override;
 
       // Super Master Key - 0 if from XML, other cases TBI.

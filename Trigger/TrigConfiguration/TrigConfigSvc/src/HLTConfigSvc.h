@@ -42,10 +42,7 @@ namespace TrigConf {
    public:
 
       // implementing IIHLTConfigSvc
-      virtual const HLTChainList*    chainList() const override __attribute__ ((deprecated));
       virtual const HLTChainList&    chains() const override;
-      
-      virtual const HLTSequenceList* sequenceList() const override  __attribute__ ((deprecated));
       virtual const HLTSequenceList& sequences() const override;
       
       /// @name Dummy implementations of the Run 3 HLT JSON trigger configuration interface in IIHLTConfigSvc.

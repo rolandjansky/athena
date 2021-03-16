@@ -132,21 +132,6 @@ namespace TrigConf {
    }
 
 
-   const HLTChainList* xAODConfigSvc::chainList() const {
-
-      // Long-term-support interface (including Run 2 AODs)
-      if( m_isInFailure ) {
-         REPORT_MESSAGE( MSG::FATAL )
-            << "Trigger menu not loaded";
-         throw GaudiException( "Service not initialised correctly",
-                               "TrigConf::xAODConfigSvc::chainList",
-                               StatusCode::FAILURE );
-      }
-
-      // Return the slot-specific pointer:
-      return m_chainList.get();
-   }
-
    const HLTChainList& xAODConfigSvc::chains() const {
 
       // Long-term-support interface (including Run 2 AODs)
@@ -160,21 +145,6 @@ namespace TrigConf {
 
       // Return the slot-specifc object:
       return *(m_chainList.get());
-   }
-
-   const HLTSequenceList* xAODConfigSvc::sequenceList() const {
-
-      // Long-term-support interface (including Run 2 AODs)
-      if( m_isInFailure ) {
-         REPORT_MESSAGE( MSG::FATAL )
-            << "Trigger menu not loaded";
-         throw GaudiException( "Service not initialised correctly",
-                               "TrigConf::xAODConfigSvc::chainList",
-                               StatusCode::FAILURE );
-      }
-
-      // Return the slot-specific pointer:
-      return m_sequenceList.get();
    }
 
    const HLTSequenceList& xAODConfigSvc::sequences() const {

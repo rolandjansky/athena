@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigConfMetadataTool.cxx 739035 2016-04-08 20:32:01Z ssnyder $
 
 // Athena/Gaudi include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -597,30 +596,27 @@ namespace D3PD {
       m_hltConfigRPSKMap->clear();
       m_hltConfigPTMap->clear();
       m_hltConfigLowerChainNameMap->clear();
-      TrigConf::HLTChainList::const_iterator chain_itr =
-         m_trigConfSvc->chainList()->begin();
-      TrigConf::HLTChainList::const_iterator chain_end =
-         m_trigConfSvc->chainList()->end();
-      for( ; chain_itr != chain_end; ++chain_itr ) {
 
-         ( *m_hltConfigNameMap )[ ( *chain_itr )->chain_name() ] =
-            ( *chain_itr )->chain_counter();
-         ( *m_hltConfigPSKMap )[ ( *chain_itr )->chain_name() ] =
-            ( *chain_itr )->prescale();
-         ( *m_hltConfigRPSKMap )[ ( *chain_itr )->chain_name() ] =
-           ( *chain_itr )->prescales().getRerunPrescale("").second;
-         ( *m_hltConfigPTMap )[ ( *chain_itr )->chain_name() ] =
-            ( *chain_itr )->pass_through();
-         ( *m_hltConfigLowerChainNameMap )[ ( *chain_itr )->chain_name() ] =
-            ( *chain_itr )->lower_chain_name();
+      for( const TrigConf::HLTChain* chain : m_trigConfSvc->chains() ) {
+
+         ( *m_hltConfigNameMap )[ chain->chain_name() ] =
+            chain->chain_counter();
+         ( *m_hltConfigPSKMap )[ chain->chain_name() ] =
+            chain->prescale();
+         ( *m_hltConfigRPSKMap )[ chain->chain_name() ] =
+           chain->prescales().getRerunPrescale("").second;
+         ( *m_hltConfigPTMap )[ chain->chain_name() ] =
+            chain->pass_through();
+         ( *m_hltConfigLowerChainNameMap )[ chain->chain_name() ] =
+            chain->lower_chain_name();
 
          if( msgLvl( MSG::VERBOSE ) ) {
             REPORT_MESSAGE( MSG::VERBOSE )
-               << "   \"" << ( *chain_itr )->chain_name()
+               << "   \"" << chain->chain_name()
                << "\" Chain counter = "
-               << ( *chain_itr )->chain_counter()
+               << chain->chain_counter()
                << ", prescale = "
-               << ( *chain_itr )->prescale();
+               << chain->prescale();
          }
       }
 

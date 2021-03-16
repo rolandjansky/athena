@@ -146,17 +146,6 @@ namespace TrigConf {
       }
    }
 
-   const HLTChainList* xAODConfigTool::chainList() const {
-      // Check if the object is well prepared:
-      if( m_impl->m_chainList.size() == 0 ) {
-         ATH_MSG_FATAL( "Trigger menu not loaded" );
-         throw std::runtime_error( "Tool not initialised correctly" );
-      }
-
-      // Return the object:
-      return &m_impl->m_chainList;
-   }
-
    const HLTChainList& xAODConfigTool::chains() const {
       // Check if the object is well prepared:
       if( m_impl->m_chainList.size() == 0 ) {
@@ -166,17 +155,6 @@ namespace TrigConf {
 
       // Return the object:
       return m_impl->m_chainList;
-   }
-
-   const HLTSequenceList* xAODConfigTool::sequenceList() const {
-      // Check if the object is well prepared:
-      if( m_impl->m_sequenceList.size() == 0 ) {
-         ATH_MSG_FATAL( "Trigger menu not loaded" );
-         throw std::runtime_error( "Tool not initialised correctly" );
-      }
-
-      // Return the object:
-      return &m_impl->m_sequenceList;
    }
 
    const HLTSequenceList& xAODConfigTool::sequences() const {

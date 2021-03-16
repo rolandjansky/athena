@@ -109,12 +109,8 @@ namespace TrigConf {
       /// @{
 
       /// Get the HLT chains
-      virtual const HLTChainList* chainList() const override;
-      /// Get the HLT chains
       virtual const HLTChainList& chains() const override;
 
-      /// Get the HLT sequences
-      virtual const HLTSequenceList* sequenceList() const override;
       /// Get the HLT sequences
       virtual const HLTSequenceList& sequences() const override;
 

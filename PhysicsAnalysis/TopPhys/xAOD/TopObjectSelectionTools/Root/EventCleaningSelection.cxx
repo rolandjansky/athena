@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopObjectSelectionTools/EventCleaningSelection.h"
@@ -733,7 +733,7 @@ namespace top {
   void EventCleaningSelection::printTriggers() const {
     // printout all HLT chains
     // Debug only - this is very verbose
-    m_trigConfTool->chainList()->print("", 10);
+    m_trigConfTool->chains().print("", 10);
   }
 
   std::vector<std::string> EventCleaningSelection::getIndividualFromGlobalTriggers(
