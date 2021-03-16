@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -145,7 +145,7 @@ namespace xAOD{
 
     double JGTower_v1::pt() const
   {
-    return static_cast< double >(pt() );
+    return static_cast< double >(et() );
   }
   
   double JGTower_v1::m() const
