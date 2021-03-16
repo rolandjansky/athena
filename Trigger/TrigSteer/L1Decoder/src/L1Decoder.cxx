@@ -1,13 +1,13 @@
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include "StoreGate/WriteHandle.h"
 #include "GaudiKernel/EventContext.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
 #include "TrigConfHLTData/HLTUtils.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
-#include "TrigConfxAOD/KeyWriterTool.h"
+#include "TrigConfxAOD/IKeyWriterTool.h"
 #include "L1Decoder.h"
 
 L1Decoder::L1Decoder(const std::string& name, ISvcLocator* pSvcLocator)

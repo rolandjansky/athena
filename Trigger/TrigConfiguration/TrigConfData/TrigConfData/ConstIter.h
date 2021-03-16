@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCONFDATA_CONSTITER_H
@@ -9,7 +9,7 @@
  * @brief Forward iterator to traverse the main components of the trigger configuration
  */
 
-#include "TrigConfData/TSCheckMacros.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <iostream>
 #include <functional>

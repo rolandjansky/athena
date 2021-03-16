@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -40,8 +40,7 @@ namespace TrigConf {
       virtual ~TrigDBLoader();
 
       /**@brief access to TriggerDB schema version
-         goes to the trigger db for the first call, every following call it returns the cached value
-         @return version of the DB schema (0 - not yet checked, >0 - schema version) 
+         @return version of the DB schema (0 - no version, >0 - schema version)
        */
       size_t schemaVersion(coral::ISessionProxy* session) const;
 
@@ -59,7 +58,9 @@ namespace TrigConf {
       /** @brief create (if needed) DB session and return the session proxy */
       std::unique_ptr<coral::ISessionProxy> createDBSession() const;
 
-      QueryDefinition getQueryDefinition(coral::ISessionProxy* session, const std::map<size_t, QueryDefinition> & queries) const;
+      /** @brief return query for given schemaVersion from possible queries */
+      QueryDefinition getQueryDefinition(size_t schemaVersion,
+                                         const std::map<size_t, QueryDefinition> & queries) const;
 
    private:
 
@@ -68,7 +69,6 @@ namespace TrigConf {
       int            m_retrialPeriod {0};
       int            m_retrialTimeout {0};
       int            m_connectionTimeout {0};
-      mutable size_t m_schemaVersion {0}; // version of the DB schema (0 - not yet checked, >0 - schema version) 
    };
 
 }

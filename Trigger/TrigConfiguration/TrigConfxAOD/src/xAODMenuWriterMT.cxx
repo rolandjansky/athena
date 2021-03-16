@@ -30,7 +30,7 @@
 // Local include(s):
 #include "xAODMenuWriterMT.h"
 #include "PrintVectorHelper.h"
-#include "TrigConfxAOD/KeyWriterTool.h"
+#include "KeyWriterTool.h"
 
 namespace TrigConf
 {
