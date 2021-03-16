@@ -5,6 +5,7 @@ atlas_subdir( APRTests )
 
 # External dependencies:
 find_package( CppUnit )
+find_package( ROOT )
 
 # Extend the include directories for all components:
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/TestDictionary )
@@ -39,6 +40,9 @@ function( _add_test name )
       LINK_LIBRARIES ${CPPUNIT_LIBRARIES} PersistencySvc TestTools
       StorageSvc AthContainers  FileCatalog
       PersistentDataModel TestTools
+      # Need to explicitly link against ROOT libraries to suppress
+      # spurious ubsan warnings.
+      ${ROOT_LIBRARIES}
       ENVIRONMENT "ROOT_INCLUDE_PATH=$ENV{ROOT_INCLUDE_PATH}:${CMAKE_CURRENT_SOURCE_DIR}/TestDictionary"
       PROPERTIES TIMEOUT 300
       PRE_EXEC_SCRIPT "rm -f pool*.root *xml"
