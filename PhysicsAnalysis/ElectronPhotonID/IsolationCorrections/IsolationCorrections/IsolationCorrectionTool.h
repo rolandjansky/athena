@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISOLATIONCORRECTION_ISOLATIONCORRECTIONTOOL_H
@@ -10,11 +10,11 @@
 #include "AsgMessaging/AsgMessaging.h"
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
 #include "IsolationCorrections/IsolationCorrection.h"
+#include "TGraph.h"
 
 namespace CP {
 
 class IsolationCorrectionTool  : virtual public IIsolationCorrectionTool,
-                                 virtual public CP::ISystematicsTool,
                                  public asg::AsgMetadataTool {
     // Create a proper constructor for Athena
     ASG_TOOL_CLASS3( IsolationCorrectionTool, IIsolationCorrectionTool, CP::ISystematicsTool, CP::IReentrantSystematicsTool)
@@ -52,24 +52,34 @@ class IsolationCorrectionTool  : virtual public IIsolationCorrectionTool,
         virtual float GetPtCorrectedIsolation(const xAOD::Egamma&, xAOD::Iso::IsolationType) override;
 	virtual float GetPtCorrection(const xAOD::Egamma&, xAOD::Iso::IsolationType) const override;
         virtual float GetDDCorrection(const xAOD::Egamma&, xAOD::Iso::IsolationType) override;
+        //void setDDVer(std::string a) { m_ddVersion = a; }; //temporary for test
+        void Print() { m_isol_corr->Print(); };
 
     private:
-	StatusCode get_simflavour_from_metadata(PATCore::ParticleDataType::DataType& result) ;
         float GetEtaPointing(const xAOD::Egamma* input) {return m_isol_corr->GetEtaPointing(input);};
 
         std::string m_corr_file;
-        std::string m_corr_ddshift_2015_file;
         std::string m_corr_ddshift_file;
         std::string m_corr_ddsmearing_file;
         IsolationCorrection* m_isol_corr;
         std::string m_tool_ver_str;
+
+        bool m_apply_SC_leak_corr;
+        bool m_apply_etaEDParPU_corr;
+        bool m_apply_etaEDParPU_mc_corr;
+        std::string m_corr_etaEDParPU_file;
+        std::string m_corr_etaEDPar_mc_corr_file;
+        std::map<xAOD::Iso::IsolationType,std::unique_ptr<TGraph>> m_map_isotype_zetaPU;
+        std::map<xAOD::Iso::IsolationType,std::unique_ptr<TGraph>> m_map_isotype_zeta_mc_corr;
+
 	bool m_is_mc;
         bool m_AFII_corr;
 	std::string m_ddVersion;
-        bool m_apply_dd;
-        bool m_apply_ddDefault;
+        bool m_apply_dd, m_apply_ddDefault;
         bool m_correct_etcone;
         bool m_trouble_categories;
+        bool m_useLogLogFit;
+        bool m_forcePartType;
 
 	// For systematcis
 	CP::SystematicVariation m_systDDonoff;
