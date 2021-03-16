@@ -27,7 +27,7 @@ template<class T> class MdtMapBase
 
  public:
 
-  typedef std::map< uint8_t, T*, std::less<uint8_t> > MapOfItems;
+  typedef std::map< uint8_t, std::unique_ptr<T>, std::less<uint8_t> > MapOfItems;
 
 
   /** constructor */
@@ -43,7 +43,7 @@ template<class T> class MdtMapBase
   void clear();
 
   /** get full map (used for testing) */
-  MapOfItems* getListOfElements() const {return m_mapOfItems;}
+  MapOfItems* getListOfElements() const {return m_mapOfItems.get();}
 
  protected:
   
@@ -51,7 +51,7 @@ template<class T> class MdtMapBase
   uint8_t m_moduleId;  
   /** Output level and message service */
   bool m_debug;
-  MsgStream* m_log;
+  std::shared_ptr<MsgStream> m_log;
 
   /** set function */
   bool addItem(uint8_t itemId, T* item);
@@ -68,7 +68,7 @@ template<class T> class MdtMapBase
   //T* m_currentItem;
 
   /** map containing the items */
-  MapOfItems* m_mapOfItems;
+  std::unique_ptr<MapOfItems> m_mapOfItems;
 
   /** private access function */
   T* findItem(uint8_t itemId) const;  
@@ -82,7 +82,7 @@ m_moduleId(moduleId), m_itemName(itemName)//, m_currentItem(NULL)
   
 { 
   //  m_mapOfItems = new std::map< uint8_t, T*, std::less<uint8_t> >();
-  m_mapOfItems = new MapOfItems();
+  m_mapOfItems = std::make_unique<MapOfItems>();
 
   // initialize the message service
   IMessageSvc* msgSvc = 0;
@@ -91,40 +91,17 @@ m_moduleId(moduleId), m_itemName(itemName)//, m_currentItem(NULL)
   if (sc.isFailure())   {
     std::cout << "Can't locate the MessageSvc" << std::endl;
   }
-  m_log = new MsgStream(msgSvc, m_itemName);
+  m_log = std::make_shared<MsgStream>(msgSvc, m_itemName);
   m_debug = (m_log->level() <= MSG::VERBOSE);
 
 }
 
 /** destructor */
-template<class T> MdtMapBase<T>::~MdtMapBase() 
-{ 
-  // deleting all the objects in the map
-  typename MapOfItems::const_iterator it = m_mapOfItems->begin(); 
-  
-  for ( ; it != m_mapOfItems->end() ; ++it ) {
-    
-    delete (*it).second;
-    
-  }
+template<class T> MdtMapBase<T>::~MdtMapBase() = default;
 
-  m_mapOfItems->clear();
-  delete m_mapOfItems;
-  delete m_log;
-}
-
-template<class T> void MdtMapBase<T>::clear()
-{
+template<class T> void MdtMapBase<T>::clear() {
   // deleting all the objects in the map
-  typename MapOfItems::const_iterator it = m_mapOfItems->begin(); 
-  
-  for ( ; it != m_mapOfItems->end() ; ++it ) {
-    
-    delete (*it).second;
-    
-  }
   m_mapOfItems->clear();
-  //m_currentItem=NULL;
 }
 
 /** Add an item to the map */
@@ -151,7 +128,7 @@ template<class T> bool MdtMapBase<T>::addItem(uint8_t itemId, T* item) {
 	     << MSG::hex << (int) itemId << MSG::dec << " to module 0x" 
 	     << MSG::hex << (int) m_moduleId << MSG::dec << endmsg;
     }
-    m_mapOfItems->insert(std::pair<uint8_t,T*>(itemId,item));
+    m_mapOfItems->insert(std::pair<uint8_t,std::unique_ptr<T>>(itemId,item));
     itemAdded=true;
   }
 
@@ -161,19 +138,6 @@ template<class T> bool MdtMapBase<T>::addItem(uint8_t itemId, T* item) {
 
 /** return the item for a given access key (onlineId) */
 template<class T> T* MdtMapBase<T>::getItem(uint8_t itemId) const{
-  /*
-  if ( m_currentItem ) {
-    if ( itemId == m_currentItem->moduleId() ) {
-      return m_currentItem;
-    }
-    else {
-      return findItem(itemId);
-    }
-  }
-  else {
-    return findItem(itemId);
-  }
-  */
   return findItem(itemId);
 }
 
@@ -182,19 +146,8 @@ template<class T> T* MdtMapBase<T>::getItem(uint8_t itemId) const{
 template<class T> T* MdtMapBase<T>::findItem(uint8_t itemId) const{
 
   typename MapOfItems::const_iterator it = m_mapOfItems->find(itemId);
-  /*
   if (it!=m_mapOfItems->end()) {
-    m_currentItem = (*it).second;
-  }
-  else {
-    //    *m_log << MSG::ERROR << m_itemName << " with Id: " << MSG::hex << itemId 
-    //   << MSG::dec << " not found " << endmsg;
-    m_currentItem=NULL;
-  }  
-  return m_currentItem;
-  */
-  if (it!=m_mapOfItems->end()) {
-    return (*it).second;
+    return (*it).second.get();
   } else {    
     return nullptr;
   }
