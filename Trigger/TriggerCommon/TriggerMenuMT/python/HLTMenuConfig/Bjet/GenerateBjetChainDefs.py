@@ -23,11 +23,14 @@ def generateChainConfigs( chainDict ):
 
     for subChainDict in listOfChainDicts:
 
+        # don't setup btagging for legs that are jet-only
+        # happens for bjet + normal jet chains
+        if subChainDict['chainParts'][0]['signature'] != 'Bjet':
+            continue
+
         Bjet = BjetChainConfiguration(subChainDict).assembleChain() 
 
         listOfChainDefs += [Bjet]
-        log.debug('length of chaindefs %s', len(listOfChainDefs) )
-        
 
     if len(listOfChainDefs)>1:
         theBjetChainDef = mergeChainDefs(listOfChainDefs, chainDict) 
@@ -36,8 +39,6 @@ def generateChainConfigs( chainDict ):
         jet.steps = jet.steps + Bjet.steps
     
     theChainDef = jet
-
-    log.debug("theChainDef: %s" , theChainDef)
 
     return theChainDef
 

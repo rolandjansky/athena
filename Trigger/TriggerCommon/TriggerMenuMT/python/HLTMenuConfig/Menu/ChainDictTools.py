@@ -8,11 +8,20 @@ log = logging.getLogger( __name__ )
 
 def splitInterSignatureChainDict(chainDict):
     listOfSplitChainDicts = []
+
+    move_jets = 'Bjet' in chainDict['signatures']
+
+    #Bjet and jet always go together, and the overall dict needs to have signature 'Bjet'
+
     for chainPart in chainDict['chainParts']:
         thisSignature = chainPart['signature']
-        chainPartAdded = False        
+        chainPartAdded = False
+
         for splitChainDict in listOfSplitChainDicts:
-            if thisSignature == splitChainDict['chainParts'][0]['signature']:            
+            splitSignature = splitChainDict['chainParts'][0]['signature']
+            if thisSignature == splitSignature or \
+               (move_jets and thisSignature == 'Jet' and splitSignature == 'Bjet') or \
+               (move_jets and thisSignature == 'Bjet' and splitSignature == 'Jet'):
                 splitChainDict['chainParts'] += [chainPart]
                 chainPartAdded = True
                 break
@@ -22,6 +31,11 @@ def splitInterSignatureChainDict(chainDict):
             newSplitChainDict['signature'] = chainPart['signature']
             listOfSplitChainDicts += [newSplitChainDict]
             
+    if move_jets:
+        for newDict in listOfSplitChainDicts:
+            if newDict['signature'] == 'Jet':
+                newDict['signature'] = 'Bjet'
+
     #special code to handle chains with "AND" in the name
     #jet,ht and bjet jet chains belong to the same signature
     #so an extra key is needed to make sure the part are treated separately
