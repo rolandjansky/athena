@@ -455,8 +455,8 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False, extraLo
     ToolSvc += L2MmDataPreparator
 
   ### set up MuFastSteering ###
-  from TrigL2MuonSA.TrigL2MuonSAConfig import TrigL2MuonSAMTConfig
-  muFastAlg = TrigL2MuonSAMTConfig("Muon"+postFix)
+  from TrigL2MuonSA.TrigL2MuonSAConfig import TrigL2MuonSAConfig
+  muFastAlg = TrigL2MuonSAConfig("Muon"+postFix)
 
   from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MuFastDataPreparator
   MuFastDataPreparator = TrigL2MuonSA__MuFastDataPreparator(TrigT1RPCRecRoiTool = trigRpcRoiTool)

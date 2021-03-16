@@ -2,32 +2,24 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <numeric>
-#include <string>
-
 #include "MuFastSteering.h"
 #include "xAODTrigMuon/L2StandAloneMuonAuxContainer.h"
+#include "xAODTrigMuon/L2CombinedMuonAuxContainer.h"
 #include "xAODTrigMuon/TrigMuonDefs.h"
 #include "xAODTrigger/MuonRoI.h"
 
 #include "CxxUtils/phihelper.h"
-#include "GaudiKernel/ITHistSvc.h"
 #include "TrigTimeAlgs/TrigTimer.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
-#include "GaudiKernel/Incident.h"
-#include "GaudiKernel/IIncidentSvc.h"
-#include "GaudiKernel/ServiceHandle.h"
 
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "AthenaInterprocess/Incidents.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
 MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
-  : HLT::FexAlgo(name, svc),
+  : AthAlgorithm(name, svc),
     m_timerSvc("TrigTimerSvc", name),
     m_recMuonRoIUtils()
 {
@@ -35,11 +27,9 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-HLT::ErrorCode MuFastSteering::hltInitialize()
+StatusCode MuFastSteering::initialize()
 {
   ATH_MSG_DEBUG("Initializing MuFastSteering - package version " << PACKAGE_VERSION);
-
-  StatusCode sc;
 
   if (m_use_timer) {
     if (m_timerSvc.retrieve().isFailure()) {
@@ -57,52 +47,28 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
   }
 
   // Locate DataPreparator
-  if (m_dataPreparator.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Cannot retrieve Tool DataPreparator");
-    return HLT::BAD_JOB_SETUP;
-  }
+  ATH_CHECK(m_dataPreparator.retrieve());
 
   // Locate PatternFinder
-  if (m_patternFinder.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Cannot retrieve Tool DataPreparator");
-    return HLT::BAD_JOB_SETUP;
-  }
+  ATH_CHECK(m_patternFinder.retrieve());
 
   // Locate StationFitter
-  if (m_stationFitter.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Cannot retrieve Tool StationFitter");
-    return HLT::BAD_JOB_SETUP;
-  }
+  ATH_CHECK(m_stationFitter.retrieve());
 
   // Locate TrackFitter
-  if (m_trackFitter.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Cannot retrieve Tool TrackFitter");
-    return HLT::BAD_JOB_SETUP;
-  }
+  ATH_CHECK(m_trackFitter.retrieve());
 
   // Locate TrackExtrapolator
-  if (m_trackExtrapolator.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Cannot retrieve Tool TrackExtrapolator");
-    return HLT::BAD_JOB_SETUP;
-  }
+  ATH_CHECK(m_trackExtrapolator.retrieve());
 
   // BackExtrapolator services
-  if ( m_backExtrapolatorTool.retrieve().isFailure() ) {
-    ATH_MSG_ERROR("Could not retrieve " << m_backExtrapolatorTool);
-    return HLT::BAD_JOB_SETUP;
-  }
+  ATH_CHECK(m_backExtrapolatorTool.retrieve());
 
   // CscSegmentMaker
-  if ( m_cscsegmaker.retrieve().isFailure() ) {
-    ATH_MSG_ERROR("Could not retrieve " << m_cscsegmaker);
-    return HLT::BAD_JOB_SETUP;
-  }
+  ATH_CHECK(m_cscsegmaker.retrieve());
 
   // FtfRoadDefiner
-  if ( m_ftfRoadDefiner.retrieve().isFailure() ) {
-    ATH_MSG_ERROR("Could not retrieve " << m_ftfRoadDefiner);
-    return HLT::BAD_JOB_SETUP;
-  }
+  ATH_CHECK(m_ftfRoadDefiner.retrieve());
 
   // Set service tools
   m_trackExtrapolator->setExtrapolatorTool(&m_backExtrapolatorTool);
@@ -110,8 +76,6 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
 
   // set road width in case TGC/RPC readout failure
   m_dataPreparator->setRoadWidthForFailure(m_rWidth_RPC_Failed, m_rWidth_TGC_Failed);
-
-  //StatusCode sc;
 
   m_dataPreparator->setRpcGeometry(m_use_rpc);
   m_dataPreparator->setRoIBasedDataAccess(m_use_RoIBasedDataAccess_MDT,
@@ -122,100 +86,29 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
 					  m_use_RoIBasedDataAccess_MM);
 
   // set data or MC flag
-  sc = m_dataPreparator->setMCFlag(m_use_mcLUT);
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR("Failed to set MC flag to DataPreparator");
-    return HLT::ERROR;
-        }
+  ATH_CHECK(m_dataPreparator->setMCFlag(m_use_mcLUT));
 
   ////stationfit mc flag
-  sc = m_stationFitter->setMCFlag(m_use_mcLUT);
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR("Failed to set MC flag to StationFitter");
-    return HLT::ERROR;
-  }
-  sc = m_trackFitter->setMCFlag(m_use_mcLUT);
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR("Failed to set MC flag to TrackFitter");
-    return HLT::ERROR;
-  }
+  ATH_CHECK(m_stationFitter->setMCFlag(m_use_mcLUT));
+  ATH_CHECK(m_trackFitter->setMCFlag(m_use_mcLUT));
   m_trackFitter -> setUseEIFromBarrel( m_use_endcapInnerFromBarrel );
 
-  //
-  // Initialize the calibration streamer and the incident
-  // service for its initialization
-  //
-  if (m_doCalStream) {
-    // retrieve the calibration streamer
-    if (m_calStreamer.retrieve().isFailure()) {
-      ATH_MSG_ERROR("Cannot retrieve Tool CalStreamer");
-      return HLT::BAD_JOB_SETUP;
-    }
-    // set properties
-    m_calStreamer->setBufferName(m_calBufferName);
-    ATH_MSG_DEBUG("Initialized the Muon Calibration Streamer. Buffer name: " << m_calBufferName
-		  << ", buffer size: " << m_calBufferSize
-		  << " doDataScouting: "  << m_calDataScouting);
-
-    ServiceHandle<IIncidentSvc> p_incidentSvc("IncidentSvc",name());
-    sc =  p_incidentSvc.retrieve();
-    if (!sc.isSuccess()) {
-      ATH_MSG_ERROR("Could not find IncidentSvc");
-      return HLT::ERROR;
-    } else {
-      long int pri=100;
-      p_incidentSvc->addListener(this,AthenaInterprocess::UpdateAfterFork::type(),pri);
-      p_incidentSvc.release().ignore();
-    }
-  }
-
   // DataHandles for AthenaMT
-  if (m_eventInfoKey.initialize().isFailure() ) {
-    ATH_MSG_ERROR("ReadHandleKey for xAOD::EventInfo key:" << m_eventInfoKey.key()  << " initialize Failure!");
-    return HLT::BAD_JOB_SETUP;
-  }
-  if (m_roiCollectionKey.initialize().isFailure() ) {
-    ATH_MSG_ERROR("ReadHandleKey for TrigRoiDescriptorCollection key:" << m_roiCollectionKey.key()  << " initialize Failure!");
-    return HLT::BAD_JOB_SETUP;
-  }
-  if (m_run2recRoiCollectionKey.initialize(!m_useRun3Config).isFailure() ) {
-    ATH_MSG_ERROR("ReadHandleKey for DataVector<LVL1::RecMuonRoI> key:" << m_run2recRoiCollectionKey.key() << " initialize Failure!");
-  }
-  if (m_recRoiCollectionKey.initialize(m_useRun3Config).isFailure() ) {
-    ATH_MSG_ERROR("ReadHandleKey for xAOD::MuonRoIContainer key:" << m_recRoiCollectionKey.key() << " initialize Failure!");
-  }
+  ATH_CHECK(m_eventInfoKey.initialize());
+  ATH_CHECK(m_roiCollectionKey.initialize());
+  ATH_CHECK(m_run2recRoiCollectionKey.initialize(!m_useRun3Config));
+  ATH_CHECK(m_recRoiCollectionKey.initialize(m_useRun3Config));
   // for Inside-Out mode ---
-  if (m_FTFtrackKey.initialize(m_insideOut).isFailure() ) {
-    ATH_MSG_ERROR("ReadHandleKey for xAOD::TrackParticleContainer key:" << m_FTFtrackKey.key() << " initialize Failure!");
-    return HLT::BAD_JOB_SETUP;
-  }
-  if (m_outputCBmuonCollKey.initialize(m_insideOut).isFailure() ) {
-    ATH_MSG_ERROR("ReadHandleKey for xAOD::L2CombinedMuonContainer key:" << m_outputCBmuonCollKey.key() << " initialize Failure!");
-    return HLT::BAD_JOB_SETUP;
-  }
+  ATH_CHECK(m_FTFtrackKey.initialize(m_insideOut));
+  ATH_CHECK(m_outputCBmuonCollKey.initialize(m_insideOut));
   // ----
-  if (m_muFastContainerKey.initialize().isFailure() ) {
-    ATH_MSG_ERROR("WriteHandleKey for xAOD::L2StandAloneMuonContainer key:" << m_muFastContainerKey.key() << " initialize Failure!");
-    return HLT::BAD_JOB_SETUP;
-  }
-  if (m_muCompositeContainerKey.initialize().isFailure() ) {
-    ATH_MSG_ERROR("WriteHandleKey for xAOD::TrigCompositeContainer key:" << m_muCompositeContainerKey.key() << " initialize Failure!");
-    return HLT::BAD_JOB_SETUP;
-  }
-  if (m_muIdContainerKey.initialize().isFailure() ) {
-    ATH_MSG_ERROR("WriteHandleKey for TrigRoiDescriptorCollection key:" << m_muIdContainerKey.key() << " initialize Failure!");
-    return HLT::BAD_JOB_SETUP;
-  }
+  ATH_CHECK(m_muFastContainerKey.initialize());
+  ATH_CHECK(m_muCompositeContainerKey.initialize());
+  ATH_CHECK(m_muIdContainerKey.initialize());
 
-  if (m_muMsContainerKey.initialize().isFailure() ) {
-    ATH_MSG_ERROR("WriteHandleKey for TrigRoiDescriptorCollection key:" << m_muMsContainerKey.key() << " initialize Failure!");
-    return HLT::BAD_JOB_SETUP;
-  }
+  ATH_CHECK(m_muMsContainerKey.initialize());
   if (not m_monTool.name().empty()) {
-    if ( !m_monTool.retrieve() ) {
-      ATH_MSG_ERROR("Cannot retrieve MonitoredTool");
-      return HLT::BAD_JOB_SETUP;
-    }
+    ATH_CHECK(m_monTool.retrieve());
   }
   ATH_MSG_DEBUG( "topoRoad = " << m_topoRoad);
 
@@ -223,28 +116,7 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
     ATH_MSG_INFO("will fill " << m_muIdContainerKey.key() << " in Full Scan mode. Please check if it's correct.");
   }
 
-  return HLT::OK;
-}
-
-// --------------------------------------------------------------------------------
-
-HLT::ErrorCode MuFastSteering::hltStop() {
-   // close the calibration stream
-   if (m_doCalStream) {
-     if ( !m_calDataScouting ) {
-       StatusCode sc = m_calStreamer->closeStream();
-       if ( sc != StatusCode::SUCCESS ) {
-	 ATH_MSG_ERROR("Failed to close the calibration stream");
-       }
-     }
-   }
-
-   return HLT::OK;
-}
-
-HLT::ErrorCode MuFastSteering::hltFinalize() {
-  ATH_MSG_DEBUG("hltFinalize()");
-  return HLT::OK;
+  return StatusCode::SUCCESS;
 }
 
 // --------------------------------------------------------------------------------
@@ -406,7 +278,8 @@ StatusCode MuFastSteering::execute()
   else {
     // to StatusCode findMuonSignature()
     ATH_CHECK(findMuonSignature(internalRoI, recRoIVector,
-				*muFastContainer, *muIdContainer, *muMsContainer, *muCompositeContainer ));
+				*muFastContainer, *muIdContainer, *muMsContainer// , *muCompositeContainer
+				));
   }
 
   // DEBUG TEST: Recorded data objects
@@ -536,7 +409,8 @@ StatusCode MuFastSteering::execute()
   else {
     // to StatusCode findMuonSignature()
     ATH_CHECK(findMuonSignature(internalRoI, recRoIVector,
-				*muFastContainer, *muIdContainer, *muMsContainer, *muCompositeContainer ));
+				*muFastContainer, *muIdContainer, *muMsContainer// , *muCompositeContainer
+				));
   }
 
   // DEBUG TEST: Recorded data objects
@@ -569,194 +443,13 @@ StatusCode MuFastSteering::execute()
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* /*inputTE*/,
-                                          HLT::TriggerElement* outputTE)
-{
-  ATH_MSG_DEBUG("hltExecute called");
-
-  auto totalTimer = Monitored::Timer( "TIME_Total" );
-  auto monitorIt	= Monitored::Group(m_monTool, totalTimer );
-  totalTimer.start();
-
-  std::vector< const TrigRoiDescriptor*> roids;
-  std::vector< const TrigRoiDescriptor*>::const_iterator p_roids;
-  HLT::ErrorCode hec2 = getFeatures(outputTE, roids);
-
-  std::vector<const LVL1::RecMuonRoI*> muonRoIs;
-  std::vector<const LVL1::RecMuonRoI*>::const_iterator p_roi;
-  HLT::ErrorCode hec = getFeatures(outputTE, muonRoIs);
-
-  if (hec != HLT::OK && hec2 != HLT::OK) {
-    ATH_MSG_ERROR("Could not find input TE");
-    return hec2;
-  }
-
-  bool ActiveState = outputTE->getActiveState();
-
-  std::vector<const TrigRoiDescriptor*> internalRoI;
-  ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " size: " << roids.size());
-
-  std::vector<const LVL1::RecMuonRoI*> internalRecRoI;
-  ATH_MSG_DEBUG("REGTEST: " << m_recRoiCollectionKey.key() << " size = " << muonRoIs.size());
-
-  p_roi = muonRoIs.begin();
-  for ( p_roids=roids.begin(); p_roids!=roids.end(); ++p_roids) {
-    internalRoI.push_back(*p_roids);
-    ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " eta = " << "(" << (*p_roids)->etaMinus() << ")" << (*p_roids)->eta() << "(" << (*p_roids)->etaPlus() << ")");
-    ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " phi = " << "(" << (*p_roids)->phiMinus() << ")" << (*p_roids)->phi() << "(" << (*p_roids)->phiPlus() << ")");
-    ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " zed = " << "(" << (*p_roids)->zedMinus() << ")" << (*p_roids)->zed() << "(" << (*p_roids)->zedPlus() << ")");
-    internalRecRoI.push_back(*p_roi);
-    ATH_MSG_DEBUG("REGTEST: " << m_recRoiCollectionKey.key() << " eta/phi = " << (*p_roi)->eta() << "/" << (*p_roi)->phi());
-
-    p_roi++;
-  }
-
-  // define objects to record output data
-  // for xAOD::L2StandAloneMuonContainer
-  DataVector<xAOD::L2StandAloneMuon> *outputTracks = new DataVector<xAOD::L2StandAloneMuon>();
-  outputTracks->clear();
-  xAOD::L2StandAloneMuonAuxContainer aux;
-  outputTracks->setStore( &aux );
-
-  // for xAOD::TrigCompositeContainer
-  DataVector<xAOD::TrigComposite> *outputComposite = new DataVector<xAOD::TrigComposite>();
-  outputComposite->clear();
-  xAOD::TrigCompositeAuxContainer auxComp;
-  outputComposite->setStore( &auxComp );
-
-  // for TrigRoiDescriptor for ID
-  TrigRoiDescriptorCollection *outputID = new TrigRoiDescriptorCollection();
-  outputID->clear();
-
-  // for TrigRoiDescriptor for MS
-  TrigRoiDescriptorCollection *outputMS = new TrigRoiDescriptorCollection();
-  outputMS->clear();
-
-  // set DynamiDeltaRPCMode
-  m_dataPreparator->setMultiMuonTrigger(m_topoRoad);
-
-  // to StatusCode findMuonSignature()
-  StatusCode sc = findMuonSignature(internalRoI, internalRecRoI,
-				    *outputTracks, *outputID, *outputMS, *outputComposite );
-
-  HLT::ErrorCode code = HLT::OK;
-  // in case of findMuonSignature failed
-  if (sc != StatusCode::SUCCESS) {
-    delete outputTracks;
-    outputTE -> setActiveState(ActiveState);
-    code = attachFeature(outputTE, new xAOD::L2StandAloneMuonContainer(SG::VIEW_ELEMENTS), "MuonL2SAInfo");
-    if (code != HLT::OK) {
-      return code;
-    }
-    delete outputID;
-    code = attachFeature(outputTE, new TrigRoiDescriptor(SG::VIEW_ELEMENTS), "forID");
-    if (code != HLT::OK) {
-      return code;
-    }
-    delete outputMS;
-    code = attachFeature(outputTE, new TrigRoiDescriptor(SG::VIEW_ELEMENTS), "forMS");
-    if (code != HLT::OK) {
-      return code;
-    }
-    return HLT::ERROR;
-  }
-
-  // in case of findMuonSignature success
-  if (outputTracks->empty()) {
-    delete outputTracks;
-    ActiveState = false;
-    outputTE -> setActiveState(ActiveState);
-    code = attachFeature(outputTE, new xAOD::L2StandAloneMuonContainer(SG::VIEW_ELEMENTS), "MuonL2SAInfo");
-  } else {
-    ActiveState = true;
-    outputTE -> setActiveState(ActiveState);
-    for (size_t size=0; size<outputTracks->size(); size++){
-     outputTracks->at(size)->setTeId( outputTE->getId() );
-     ATH_MSG_DEBUG("outputTE(" << size << ") = " << outputTracks->at(size)->teId());
-    }
-    code = attachFeature(outputTE, outputTracks, "MuonL2SAInfo");
-    if ( code != HLT::OK ) {
-      ATH_MSG_ERROR("Record of MuonL2SAInfo failed");
-      ActiveState = false;
-      return false;
-    }
-    ATH_MSG_DEBUG("Recorded xAOD::L2StandAloneMuonContainer key:" << m_muFastContainerKey.key());
-    ATH_MSG_DEBUG("REGTEST: xAOD::L2StandAloneMuoonContainer key:" << m_muFastContainerKey.key() << " size = " << outputTracks->size());
-    xAOD::L2StandAloneMuonContainer::const_iterator p_muon = (*outputTracks).begin();
-    xAOD::L2StandAloneMuonContainer::const_iterator p_muonEn = (*outputTracks).end();
-    for (;p_muon != p_muonEn; ++p_muon) {
-      ATH_MSG_DEBUG("REGTEST: xAOD::L2StandAloneMuonContainer key:" << m_muFastContainerKey.key() << " pt = " << (*p_muon)->pt() << " GeV");
-      ATH_MSG_DEBUG("REGTEST: xAOD::L2StandAloneMuonContainer key:" << m_muFastContainerKey.key() << " eta/phi = " << (*p_muon)->eta() << "/" << (*p_muon)->phi());
-    }
-  }
-
-  if (outputID->empty()) {
-    delete outputID;
-  } else {
-    ActiveState = true;
-    outputTE -> setActiveState(ActiveState);
-    code = attachFeature(outputTE, (TrigRoiDescriptor*)(outputID->at(0)), "forID");
-    if ( code != HLT::OK ) {
-      ATH_MSG_ERROR("Record of TrigRoiInfo for ID failed");
-      ActiveState = false;
-      return false;
-    }
-    ATH_MSG_DEBUG("Recorded TrigRoiDescriptorCollection key:" << m_muIdContainerKey.key());
-    ATH_MSG_DEBUG("REGTEST: TrigRoiDescriptorCollection key:" << m_muIdContainerKey.key() << " size = " << outputID->size());
-    TrigRoiDescriptorCollection::const_iterator p_muonID = outputID->begin();
-    TrigRoiDescriptorCollection::const_iterator p_muonIDEn = outputID->end();
-    for(; p_muonID != p_muonIDEn; ++p_muonID ) {
-      ATH_MSG_DEBUG("REGTEST: TrigRoiDescriptorCollection key:" << m_muIdContainerKey.key() << " eta/phi = " << (*p_muonID)->eta() << "/" << (*p_muonID)->phi());
-    }
-  }
-
-  if (outputMS->empty()) {
-    delete outputMS;
-  } else {
-    ActiveState = true;
-    outputTE -> setActiveState(ActiveState);
-    code = attachFeature(outputTE, (TrigRoiDescriptor*)(outputMS->at(0)), "forMS");
-    if ( code != HLT::OK ) {
-      ATH_MSG_ERROR("Record of TrigRoiInfo for MS failed");
-      ActiveState = false;
-      return false;
-    }
-    ATH_MSG_DEBUG("Recorded TrigRoiDescriptorCollection key:" << m_muMsContainerKey.key());
-    ATH_MSG_DEBUG("REGTEST: TrigRoiDescriptorCollection key:" << m_muMsContainerKey.key() << " size = " << outputMS->size());
-    TrigRoiDescriptorCollection::const_iterator p_muonMS = outputMS->begin();
-    TrigRoiDescriptorCollection::const_iterator p_muonMSEn = outputMS->end();
-    for(; p_muonMS != p_muonMSEn; ++p_muonMS ) {
-      ATH_MSG_DEBUG("REGTEST: TrigRoiDescriptorCollection key:" << m_muMsContainerKey.key() << " eta/phi = " << (*p_muonMS)->eta() << "/" << (*p_muonMS)->phi());
-    }
-  }
-
-  if (outputComposite->empty()) {
-    delete outputComposite;
-  } else {
-    ActiveState = true;
-    outputTE -> setActiveState(ActiveState);
-    code = attachFeature(outputTE, outputComposite, "MuonCalibrationStream");
-    ATH_MSG_DEBUG("Recorded a xAOD::TrigCompositeContainer");
-    if ( code != HLT::OK ) {
-      ATH_MSG_ERROR("Record of MuonCalibrationStream in TriggerElement failed");
-      ActiveState = false;
-      return false;
-    }
-  }
-
-  totalTimer.stop();
-  return HLT::OK;
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
 StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDescriptor*>& roids,
                                              const std::vector<const LVL1::RecMuonRoI*>&  muonRoIs,
 				             DataVector<xAOD::L2StandAloneMuon>& 	outputTracks,
 					     TrigRoiDescriptorCollection& 		outputID,
-					     TrigRoiDescriptorCollection&		outputMS,
-					     DataVector<xAOD::TrigComposite>&          	outputComposite ) const
+					     TrigRoiDescriptorCollection&		outputMS// ,
+					     // DataVector<xAOD::TrigComposite>&          	outputComposite
+					     ) const
 {
   ATH_MSG_DEBUG("StatusCode MuFastSteering::findMuonSignature start");
   StatusCode sc = StatusCode::SUCCESS;
@@ -1053,56 +746,6 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
     	                rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
 			stgcHits, mmHits,
                         trackPatterns, outputTracks, outputID, outputMS);
-    // call the calibration streamer
-    if (m_doCalStream && trackPatterns.size()>0 ) {
-      TrigL2MuonSA::TrackPattern tp = trackPatterns[0];
-      if (m_use_timer) m_timingTimers[ITIMER_CALIBRATION_STREAMER]->resume();
-      calibrationTimer.start();
-
-      //      m_calStreamer->setInstanceName(this->name());
-
-      bool updateTriggerElement = false;
-      // sc = m_calStreamer->createRoiFragment(*p_roi,tp,mdtHits_normal,
-      // 					    rpcHits,
-      // 					    tgcHits,
-      // 					    m_calBufferSize,
-      // 					    m_calDataScouting,
-      // 					    updateTriggerElement);
-
-      if (sc != StatusCode::SUCCESS ) {
-        ATH_MSG_WARNING("Calibration streamer: create Roi Fragment failed");
-      }
-      if (m_use_timer) m_timingTimers[ITIMER_CALIBRATION_STREAMER]->pause();
-      calibrationTimer.stop();
-
-      // if it's a data scouting chain check the buffer length
-      if ( m_calDataScouting ) {
-
-        if ( updateTriggerElement ) {
-
-          ATH_MSG_DEBUG("Updating the trigger element");
-          ATH_MSG_DEBUG(">> Retrieved the buffer, with size: " << m_calStreamer->getLocalBufferSize());
-	  // create the TrigCompositeContainer to store the calibration buffer
-	  // at StatusCode execute() and hltExecute().
-
-	  // add the trigcomposite object to the container
-	  xAOD::TrigComposite* tc = new xAOD::TrigComposite();
-	  outputComposite.push_back(tc);
-
-	  ATH_MSG_DEBUG("The size of the TrigCompositeContainer is: " << outputComposite.size() );
-
-	  // set the detail of the trigcomposite object
-	  //	  xAOD::TrigComposite* tc = m_trigCompositeContainer->at(0);
-	  // tc->setDetail("MuonCalibrationStream", *(m_calStreamer->getLocalBuffer()) );
-
-	  // m_calStreamer->clearLocalBuffer();
-
-        }
-	// test: set to false the active state if no buffer size limit reached
-	else {
-	}
-      }
-    }
 
     p_roids++;
     if (p_roids==roids.end()) break;
@@ -1130,8 +773,9 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
                                              const std::vector<const xAOD::MuonRoI*>&   muonRoIs,
 				             DataVector<xAOD::L2StandAloneMuon>& 	outputTracks,
 					     TrigRoiDescriptorCollection& 		outputID,
-					     TrigRoiDescriptorCollection&		outputMS,
-					     DataVector<xAOD::TrigComposite>&          	outputComposite ) const
+					     TrigRoiDescriptorCollection&		outputMS// ,
+					     // DataVector<xAOD::TrigComposite>&          	outputComposite
+					     ) const
 {
   ATH_MSG_DEBUG("StatusCode MuFastSteering::findMuonSignature start");
   StatusCode sc = StatusCode::SUCCESS;
@@ -1428,57 +1072,6 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
     	                rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
 			stgcHits, mmHits,
                         trackPatterns, outputTracks, outputID, outputMS);
-    // call the calibration streamer
-    if (m_doCalStream && trackPatterns.size()>0 ) {
-      TrigL2MuonSA::TrackPattern tp = trackPatterns[0];
-      if (m_use_timer) m_timingTimers[ITIMER_CALIBRATION_STREAMER]->resume();
-      calibrationTimer.start();
-
-      //      m_calStreamer->setInstanceName(this->name());
-
-      bool updateTriggerElement = false;
-      // disable calibration stream until it's migrated to rel22
-      // sc = m_calStreamer->createRoiFragment(*p_roi,tp,mdtHits_normal,
-      // 					    rpcHits,
-      // 					    tgcHits,
-      // 					    m_calBufferSize,
-      // 					    m_calDataScouting,
-      // 					    updateTriggerElement);
-
-      if (sc != StatusCode::SUCCESS ) {
-        ATH_MSG_WARNING("Calibration streamer: create Roi Fragment failed");
-      }
-      if (m_use_timer) m_timingTimers[ITIMER_CALIBRATION_STREAMER]->pause();
-      calibrationTimer.stop();
-
-      // if it's a data scouting chain check the buffer length
-      if ( m_calDataScouting ) {
-
-        if ( updateTriggerElement ) {
-
-          ATH_MSG_DEBUG("Updating the trigger element");
-          ATH_MSG_DEBUG(">> Retrieved the buffer, with size: " << m_calStreamer->getLocalBufferSize());
-	  // create the TrigCompositeContainer to store the calibration buffer
-	  // at StatusCode execute() and hltExecute().
-
-	  // add the trigcomposite object to the container
-	  xAOD::TrigComposite* tc = new xAOD::TrigComposite();
-	  outputComposite.push_back(tc);
-
-	  ATH_MSG_DEBUG("The size of the TrigCompositeContainer is: " << outputComposite.size() );
-
-	  // set the detail of the trigcomposite object
-	  //	  xAOD::TrigComposite* tc = m_trigCompositeContainer->at(0);
-	  // tc->setDetail("MuonCalibrationStream", *(m_calStreamer->getLocalBuffer()) );
-
-	  // m_calStreamer->clearLocalBuffer();
-
-        }
-	// test: set to false the active state if no buffer size limit reached
-	else {
-	}
-      }
-    }
 
     p_roids++;
     if (p_roids==roids.end()) break;
@@ -3084,7 +2677,7 @@ bool MuFastSteering::storeMuonSA(const LVL1::RecMuonRoI*             roi,
   auto eventInfo = SG::makeHandle(m_eventInfoKey, ctx);
   if (!eventInfo.isValid()) {
     ATH_MSG_ERROR("Failed to retrieve xAOD::EventInfo object");
-    return HLT::SG_ERROR;
+    return false;
   }
 
   int inner  = 0;
@@ -3507,7 +3100,7 @@ bool MuFastSteering::storeMuonSA(const xAOD::MuonRoI*                roi,
   auto eventInfo = SG::makeHandle(m_eventInfoKey, ctx);
   if (!eventInfo.isValid()) {
     ATH_MSG_ERROR("Failed to retrieve xAOD::EventInfo object");
-    return HLT::SG_ERROR;
+    return false;
   }
 
   int inner  = 0;
@@ -4429,44 +4022,3 @@ StatusCode MuFastSteering::updateMonitor(const xAOD::MuonRoI*                   
 
   return StatusCode::SUCCESS;
 }
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-// handler for "UpdateAfterFork")
-void MuFastSteering::handle(const Incident& incident) {
-
-  if (incident.type()!=AthenaInterprocess::UpdateAfterFork::type()) return;
-  ATH_MSG_DEBUG("+-----------------------------------+");
-  ATH_MSG_DEBUG("| handle for UpdateAfterFork called |");
-  ATH_MSG_DEBUG("+-----------------------------------+");
-
-  // Find the Worker ID and create an individual muon buffer name for each worker
-  const AthenaInterprocess::UpdateAfterFork& updinc = dynamic_cast<const AthenaInterprocess::UpdateAfterFork&>(incident);
-  std::string worker_name = std::to_string(updinc.workerID());
-  ATH_MSG_DEBUG("Worker ID = " << worker_name);
-
-  //
-  // Create the calibration stream
-  if (m_doCalStream) {
-    // set a fixed name for the buffer
-    m_calBufferName = "/tmp/muonCalStreamOutput";
-    m_calStreamer->setBufferName(m_calBufferName);
-    m_calStreamer->setInstanceName(worker_name);
-    ATH_MSG_DEBUG("MuonCalBufferSize     = " << m_calBufferSize);
-    ATH_MSG_DEBUG("MuonCalBufferName     = " << m_calBufferName);
-
-    // if it's not a data scouting chain, open the circular buffer
-    if (!m_calDataScouting) {
-      StatusCode sc = m_calStreamer->openStream(m_calBufferSize);
-      if ( sc != StatusCode::SUCCESS ) {
-	ATH_MSG_ERROR("Failed to open the connection to the circular buffer");
-      }
-      else {
-	ATH_MSG_INFO("Opened the connection to the circular buffer");
-      }
-    }
-  }
-
-}
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------

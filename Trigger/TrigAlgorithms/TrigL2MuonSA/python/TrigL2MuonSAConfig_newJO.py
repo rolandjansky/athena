@@ -114,7 +114,7 @@ def TgcRoadDefinerCfg( flags, roisKey ):
 
     return acc, TgcRoadDefiner
 
-# Based on TrigL2MuonSAMTConfig at TrigL2MuonSA/TrigL2MuonSAConfig.py
+# Based on TrigL2MuonSAConfig at TrigL2MuonSA/TrigL2MuonSAConfig.py
 def muFastSteeringCfg( flags, roisKey, setup="" ):
     from MuonConfig.MuonCalibrationConfig import MdtCalibrationToolCfg
 

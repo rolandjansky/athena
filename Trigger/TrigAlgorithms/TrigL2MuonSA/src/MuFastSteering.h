@@ -8,7 +8,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "TrigInterfaces/FexAlgo.h"
 #include "TrigTimeAlgs/ITrigTimerSvc.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -20,7 +19,6 @@
 #include "MuFastTrackExtrapolator.h"
 #include "RecMuonRoIUtils.h"
 #include "MuCalStreamerTool.h"
-#include "GaudiKernel/IIncidentListener.h"
 #include "CscSegmentMaker.h"
 #include "FtfRoadDefiner.h"
 
@@ -31,18 +29,19 @@
 
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
+#include "xAODTrigMuon/L2CombinedMuonContainer.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTrigger/MuonRoIContainer.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
-class Incident;
-class MsgStream;
+/* class Incident; */
 
 enum ECRegions{ Bulk, WeakBFieldA, WeakBFieldB };
 
-class MuFastSteering : public HLT::FexAlgo,
-  virtual public IIncidentListener
+class MuFastSteering : public AthAlgorithm/* , */
+  /* virtual public IIncidentListener */
 {
  public:
   enum {
@@ -60,35 +59,26 @@ class MuFastSteering : public HLT::FexAlgo,
   /** Constructor */
   MuFastSteering(const std::string& name, ISvcLocator* svc);
 
-  /** hltStop() */
-  HLT::ErrorCode hltStop();
-
-  /** hltInitialize() */
-  HLT::ErrorCode hltInitialize();
-  /** hltFinalize() */
-  HLT::ErrorCode hltFinalize();
-  /** hltExecute(), main code of the algorithm */
-  HLT::ErrorCode hltExecute(const HLT::TriggerElement* /*inputTE*/,
-			    HLT::TriggerElement* outputTE);
+  virtual StatusCode initialize() override;
 
   /** execute(), main code of the algorithm for AthenaMT*/
-  StatusCode execute();
+  virtual StatusCode execute() override;
 
   /** findMuonSignature(), includes reconstract algorithms **/
-  /** this function can be called from both execute() and hltExecute() **/
+  /** this function can be called from both execute() **/
   StatusCode findMuonSignature(const std::vector<const TrigRoiDescriptor*>&	roi,
 			       const std::vector<const LVL1::RecMuonRoI*>& 	muonRoIs,
                                DataVector<xAOD::L2StandAloneMuon>& 		outputTracks,
 			       TrigRoiDescriptorCollection&	 		outputID,
-			       TrigRoiDescriptorCollection&	 		outputMS,
-			       DataVector<xAOD::TrigComposite>&			outputComposite ) const;
+			       TrigRoiDescriptorCollection&	 		outputMS/* , */
+			       /* DataVector<xAOD::TrigComposite>&			outputComposite */ ) const;
 
   StatusCode findMuonSignature(const std::vector<const TrigRoiDescriptor*>&	roi,
 			       const std::vector<const xAOD::MuonRoI*>& 	muonRoIs,
                                DataVector<xAOD::L2StandAloneMuon>& 		outputTracks,
 			       TrigRoiDescriptorCollection&	 		outputID,
-			       TrigRoiDescriptorCollection&	 		outputMS,
-			       DataVector<xAOD::TrigComposite>&			outputComposite ) const;
+			       TrigRoiDescriptorCollection&	 		outputMS/* , */
+			       /* DataVector<xAOD::TrigComposite>&			outputComposite */ ) const;
 
   /** findMuonSignatureIO(), includes reconstract algorithms for inside-out mode **/
   StatusCode findMuonSignatureIO(const xAOD::TrackParticleContainer&            idtracks,
@@ -113,9 +103,6 @@ class MuFastSteering : public HLT::FexAlgo,
                                      DataVector<xAOD::L2StandAloneMuon>& 		outputTracks) const;
 
   int L2MuonAlgoMap(const std::string& name) const;
-
-  // handler for "UpdateAfterFork" actions
-  void handle(const Incident& incident);
 
  protected:
 
@@ -235,7 +222,7 @@ class MuFastSteering : public HLT::FexAlgo,
 
   // calibration streamer tool
   ToolHandle<TrigL2MuonSA::MuCalStreamerTool> m_calStreamer {
-	this, "CalibrationStreamer", "TrigL2MuonSA::MuCalStreamerTool", "" };
+  	this, "CalibrationStreamer", "TrigL2MuonSA::MuCalStreamerTool", "" };
 
   // Utils
   TrigL2MuonSA::RecMuonRoIUtils  m_recMuonRoIUtils;

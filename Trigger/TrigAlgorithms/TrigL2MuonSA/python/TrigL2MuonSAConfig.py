@@ -6,8 +6,6 @@ from AthenaCommon.AppMgr import ServiceMgr,ToolSvc
 from TrigMuonBackExtrapolator.TrigMuonBackExtrapolatorConfig import MuonBackExtrapolatorForAlignedDet, MuonBackExtrapolatorForMisalignedDet,  MuonBackExtrapolatorForData
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-from RegionSelector.RegSelToolConfig import makeRegSelTool_MDT
-from RegionSelector.RegSelToolConfig import makeRegSelTool_RPC
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TrigL2MuonSAConfig')
@@ -85,16 +83,16 @@ ServiceMgr += PtBarrelLUTSvc_MC()
 ServiceMgr += AlignmentBarrelLUTSvc()
 
 ### for athenaMT ###
-class TrigL2MuonSAMTConfig(MuonSA.MuFastSteering):
+class TrigL2MuonSAConfig(MuonSA.MuFastSteering):
 
     __slot__ = []
 
     def __new__( cls, *args, **kwargs ):
         newargs = ['%s_%s' % (cls.getType(),args[0]) ] + list(args)
-        return super( TrigL2MuonSAMTConfig, cls ).__new__( cls, *newargs, **kwargs )
+        return super( TrigL2MuonSAConfig, cls ).__new__( cls, *newargs, **kwargs )
 
     def __init__( self, name, *args, **kwargs ):
-        super( TrigL2MuonSAMTConfig, self ).__init__( name )
+        super( TrigL2MuonSAConfig, self ).__init__( name )
 
         self.DataPreparator    = theDataPreparator
         from MuonCnvExample.MuonCalibConfig import MdtCalibrationTool
@@ -172,101 +170,3 @@ class TrigL2MuonSAMTConfig(MuonSA.MuFastSteering):
         else:
             self.StationFitter.PtFromAlphaBeta.useCscPt = True
             self.StationFitter.PtFromAlphaBeta.AvoidMisalignedCSCs = False
-
-
-class TrigL2MuonSAConfig(MuonSA.MuFastSteering):
-
-    __slot__ = []
-
-    def __new__( cls, *args, **kwargs ):
-        newargs = ['%s_%s' % (cls.getType(),args[0]) ] + list(args)
-        return super( TrigL2MuonSAConfig, cls ).__new__( cls, *newargs, **kwargs )
-
-    def __init__( self, name, *args, **kwargs ):
-        super( TrigL2MuonSAConfig, self ).__init__( name )
-
-        self.DataPreparator    = theDataPreparator
-        from MuonCnvExample.MuonCalibConfig import MdtCalibrationTool
-        self.PatternFinder     = MuonSA.TrigL2MuonSA__MuFastPatternFinder(CalibrationTool=MdtCalibrationTool())
-        self.StationFitter     = theStationFitter
-        self.TrackFitter       = MuonSA.TrigL2MuonSA__MuFastTrackFitter()
-        self.TrackExtrapolator = MuonSA.TrigL2MuonSA__MuFastTrackExtrapolator()
-
-        import MuonCnvExample.MuonCablingConfig # noqa: F401 configuration of Run 2 cabling by import
-        self.DataPreparator.MDTDataPreparator.RegSel_MDT = makeRegSelTool_MDT()
-        self.DataPreparator.RPCDataPreparator.RegSel_RPC = makeRegSelTool_RPC()
-        self.DataPreparator.RpcRoadDefiner.RegionSelectionTool=makeRegSelTool_MDT()
-        self.DataPreparator.TgcRoadDefiner.RegionSelectionTool=makeRegSelTool_MDT()
-
-        self.R_WIDTH_TGC_FAILED = 200
-        self.R_WIDTH_RPC_FAILED = 400
-
-        self.DoCalibrationStream = False
-
-        self.USE_ROIBASEDACCESS_CSC = True
-
-        self.RpcErrToDebugStream = True
-
-        MuonSA.MuFastSteering.topoRoad = True
-        MuonSA.MuFastSteering.dEtasurrRoI = 0.14
-        MuonSA.MuFastSteering.dPhisurrRoI = 0.14
-
-        if TriggerFlags.run2Config=='2016':
-          self.UseEndcapInnerFromBarrel = False
-        else:
-          self.UseEndcapInnerFromBarrel = True
-
-        if ( args[0]== '900GeV' ):
-            self.WinPt = 4.0
-            self.Scale_Road_BarrelInner  = 3
-            self.Scale_Road_BarrelMiddle = 3
-            self.Scale_Road_BarrelOuter  = 3
-        else:
-            self.WinPt = 6.0
-            self.Scale_Road_BarrelInner  = 1
-            self.Scale_Road_BarrelMiddle = 1
-            self.Scale_Road_BarrelOuter  = 1
-
-        if ( args[0]== 'MuonCalib' ):
-            self.DoCalibrationStream = True
-            self.MuonCalDataScouting = False
-            self.MuonCalBufferSize   = 1024*1024
-
-        if ( args[0]== 'MuonCalibDataScouting' ):
-            self.DoCalibrationStream = True
-            self.MuonCalDataScouting = True
-            self.MuonCalBufferSize   = 1024*1024
-
-        self.Timing = False
-
-        # Default backextrapolator is for MC Misaligned Detector
-        self.BackExtrapolator = MuonBackExtrapolatorForMisalignedDet()
-
-        # Monitoring system used by Run-2
-        # Histograms for monitored variables
-        #from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-        #validation = TrigL2MuonSAValidationMonitoring()
-        #online     = TrigL2MuonSAOnlineMonitoring()
-        #cosmic     = TrigL2MuonSACosmicMonitoring()
-        #time       = TrigTimeHistToolConfig('TimeHisto')
-
-        #self.AthenaMonTools = [ validation, online, cosmic, time ]
-        self.AthenaMonTools = [ ]
-
-
-        def setDefaults(cls,handle):
-            if hasattr(handle,'BackExtrapolator'):
-                if handle.BackExtrapolator.name().find("AlignedBackExtrapolator")!=-1:
-                    log.info("using BackExtrapolatorLUT for Aligned Detector")
-                if handle.BackExtrapolator.name().find("MisalignedBackExtrapolator")!=-1:
-                    log.info("using BackExtrapolatorLUT for Misligned Detector")
-                if handle.BackExtrapolator.name().find("DataBackExtrapolator")!=-1:
-                    log.info("using BackExtrapolatorLUT for Data")
-                    
-        if TriggerFlags.run2Config=='2016':
-            self.StationFitter.PtFromAlphaBeta.useCscPt = False
-            self.StationFitter.PtFromAlphaBeta.AvoidMisalignedCSCs = True
-        else:
-            self.StationFitter.PtFromAlphaBeta.useCscPt = True
-            self.StationFitter.PtFromAlphaBeta.AvoidMisalignedCSCs = True
-

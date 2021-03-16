@@ -14,7 +14,7 @@
 #include "xAODTrigger/MuonRoI.h"
 
 #include "MuFastDataPreparatorOptions.h"
-#include "TrigL2MuonSA/RpcDataPreparator.h"
+#include "RpcDataPreparator.h"
 #include "RpcRoadDefiner.h"
 #include "RpcPatFinder.h"
 #include "TgcDataPreparator.h"
