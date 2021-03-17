@@ -31,7 +31,7 @@ Parameters: { isFtSlotPlot : False }
 Description: LAr_Coverage_FillWithMax
 
 ---
-Input: [ 'LAr/Coverage/perPartition/RAW_CoverageHW(?P<sampling>[0123])(?P<part>\S+)_StatusCode_(?P<sc>\d+)' ]
+Input: [ 'LAr/Coverage/perPartition/CoverageHW(?P<sampling>[0123])(?P<part>\S+)_StatusCode_(?P<sc>\d+)' ]
 Output: [ 'LAr/Coverage/perPartition/CoverSampling{sampling}{part}' ]
 Function: LArMonTransforms.fillWithMaxCoverage
 Parameters: { isFtSlotPlot : True }

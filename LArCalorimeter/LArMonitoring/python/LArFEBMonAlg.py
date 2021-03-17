@@ -95,7 +95,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
     summary_hist_path='Summary/'
     
     #-- TTree for corrupted events timestamp
-    Group.defineTree('timestamp,time_ns,febHwId,febError;LArCorrupted', 
+    Group.defineTree('timestamp,time_ns,febHwId,febErrorType;LArCorrupted', 
                      path=summary_hist_path,
                      title='Timestamps of corrupted LAr events',
                      treedef='timestamp/i:time_ns/i:febHwId/vector<int>:febErrorType/vector<int>')
@@ -152,7 +152,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.EvtRej_Bins, xmin=lArDQGlobals.EvtRej_Min, xmax=lArDQGlobals.EvtRej_Max,
                                   xlabels=lArDQGlobals.EvtRej_labels)
-    Group.defineHistogram('EvtRej,EvtRejYield1D;RAW_EventsRejectedYield', 
+    Group.defineHistogram('EvtRej,EvtRejYield1D;EventsRejectedYield', 
                                   title='Data corruption yield:Corruption type:Yield(%)',
                                   type='TProfile',
                                   path=summary_hist_path,
