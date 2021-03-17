@@ -623,6 +623,7 @@ namespace MuonCombined {
           }
           continue;
         }
+        if (i >= segment.dcs().size()) continue;
         TrkDriftCircleMath::TransformToLine toLine(segment.line());
         const TrkDriftCircleMath::DCOnTrack& dc = segment.dcs()[i];
         double res = dc.residual();
