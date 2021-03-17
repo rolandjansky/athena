@@ -25,11 +25,9 @@ using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 Muon::TGC_RodDecoderRawdata::TGC_RodDecoderRawdata(const std::string& t,
 						   const std::string& n,
 						   const IInterface*  p) :
-  AthAlgTool(t, n, p),
+  base_class(t, n, p),
   m_tgcRODReadOut(0)
 {
-  declareInterface<ITGC_RodDecoder>(this);
-
   declareProperty("ReadSlbHeaderId", m_readSlbHeaderId=false);
   declareProperty("CheckRawData", m_checkRawData=false);
   declareProperty("ShowStatusWords", m_showStatusWords=false);
