@@ -13,7 +13,7 @@ atlas_add_library( TrigEgammaEmulationToolLib
    PUBLIC_HEADERS TrigEgammaEmulationTool 
    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools AthContainers EgammaAnalysisInterfacesLib InDetTrackSelectionToolLib LumiBlockCompsLib PATCoreLib RecoToolInterfaces TrigConfHLTData TrigDecisionToolLib TrigEgammaMatchingToolLib TrigMultiVarHypoLib xAODBase xAODCaloEvent xAODCaloRings xAODEgamma xAODPrimitives xAODTracking xAODTrigCalo xAODTrigEgamma xAODTrigRinger xAODTrigger
+   LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools AthContainers EgammaAnalysisInterfacesLib InDetTrackSelectionToolLib LumiBlockCompsLib PATCoreLib RecoToolInterfaces TrigNavStructure TrigDecisionToolLib TrigEgammaMatchingToolLib TrigMultiVarHypoLib xAODBase xAODCaloEvent xAODEgamma xAODTracking xAODTrigCalo xAODTrigRinger xAODTrigger
    PRIVATE_LINK_LIBRARIES StoreGateLib TrigSteeringEvent )
 
 atlas_add_component( TrigEgammaEmulationTool

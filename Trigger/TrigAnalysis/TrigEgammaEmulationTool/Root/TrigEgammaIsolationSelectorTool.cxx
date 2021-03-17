@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  *   */
 
 
@@ -13,6 +13,10 @@
  *
  **********************************************************************/
 #include "TrigEgammaEmulationTool/TrigEgammaIsolationSelectorTool.h"
+#include "xAODEgamma/Electron.h"
+#include "xAODEgamma/Photon.h"
+#include "xAODEgamma/EgammaxAODHelpers.h"
+
 #include <boost/foreach.hpp>
 #include <boost/tokenizer.hpp>
 #include "boost/algorithm/string.hpp"
