@@ -31,6 +31,7 @@
 #include "PathResolver/PathResolver.h"
 
 #include "DataModelRoot/RootType.h"
+#include "RootUtils/WithRootErrorHandler.h"
 #include "CxxUtils/no_sanitize_undefined.h"
 
 #define  TRIGTSERHEADER  0xf00dbeef
@@ -288,7 +289,7 @@ void TrigTSerializer::add_previous_streamerinfos(){
 }
 
 
-void TrigTSerializer::streamerErrorHandler(int level, bool abort_bool,
+bool TrigTSerializer::streamerErrorHandler(int level, bool abort_bool,
 					   const char* location, const char *msg){
    if( level > kInfo ) {
       //MN: ignore stuff below kWarning
@@ -300,6 +301,8 @@ void TrigTSerializer::streamerErrorHandler(int level, bool abort_bool,
    }
    ::DefaultErrorHandler(level,abort_bool, location, msg);
    gErrorIgnoreLevel = oldLvl;
+
+   return false;
 }
 
 void TrigTSerializer::prepareForTBuffer(const std::string &nameOfClass){
@@ -311,8 +314,6 @@ void TrigTSerializer::prepareForTBuffer(const std::string &nameOfClass){
     gErrorIgnoreLevel = kError+1;   
   } 
   s_decodingError = false;
-
-  m_defaultHandler = ::SetErrorHandler(streamerErrorHandler);
 }
 
 void TrigTSerializer::restoreAfterTBuffer(const std::string &nameOfClass){
@@ -329,7 +330,6 @@ void TrigTSerializer::restoreAfterTBuffer(const std::string &nameOfClass){
     }
   }
 
-  ::SetErrorHandler(m_defaultHandler);
   gErrorIgnoreLevel = m_IgnoreErrLvl;
 }
 
@@ -370,7 +370,10 @@ void TrigTSerializer::serialize(const std::string &nameOfClass, void* instance, 
     ATH_MSG_DEBUG( "writing instance " << instance << " to buffer for noc " << noc   );
     
     prepareForTBuffer(noc);
-    buff->WriteObjectAny(instance, pclass);
+    {
+      RootUtils::WithRootErrorHandler hand (streamerErrorHandler);
+      buff->WriteObjectAny(instance, pclass);
+    }
     restoreAfterTBuffer(noc);
     
     ATH_MSG_DEBUG( "wrote buffer of length " << buff->Length()  );
@@ -539,8 +542,11 @@ void* TrigTSerializer::deserialize(const std::string &nameOfClass, const std::ve
   TObject *pobj = NULL;
   if (pclass){
     prepareForTBuffer(noc);
-    //pobj = (TObject *)(buff->ReadObjectAny(pclass));
-    pobj = (TObject *)(ROOT8367Workaround::TBufferFileWorkaround::doReadObjectAny (buff, pclass));
+    {
+      RootUtils::WithRootErrorHandler hand (streamerErrorHandler);
+      //pobj = (TObject *)(buff->ReadObjectAny(pclass));
+      pobj = (TObject *)(ROOT8367Workaround::TBufferFileWorkaround::doReadObjectAny (buff, pclass));
+    }
     restoreAfterTBuffer(noc);
     //ErrorHandlerFunc_t oldhandler= ::SetErrorHandler(streamerErrorHandler);
     //SetErrorHandler(oldhandler);

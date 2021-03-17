@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -69,7 +69,7 @@ private:
   void do_follow_ptr(const std::string nameOfClass, void* instance);
   void add_previous_streamerinfos();
   
-  static void streamerErrorHandler(Int_t level, Bool_t abort_bool,
+  static bool streamerErrorHandler(Int_t level, Bool_t abort_bool,
 				   const char* location, const char *msg);
   void prepareForTBuffer(const std::string &nameOfClass);
   void restoreAfterTBuffer(const std::string &nameOfClass);
@@ -79,7 +79,6 @@ private:
   uint32_t  m_guid[4];  
 
   // for error handling
-  ErrorHandlerFunc_t  m_defaultHandler;
   static   bool       s_decodingError;
   //static   bool       m_reportError;
   uint32_t  m_IgnoreErrLvl;
