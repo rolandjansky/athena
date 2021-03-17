@@ -16,6 +16,10 @@
 
 #include "ExpressionEvaluation/ExpressionParserUser.h"
 
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODBase/IParticleContainer.h"
+
+
 namespace DerivationFramework {
 
   enum EDeltaRToolParser {kDeltaRToolParser1,kDeltaRToolParser2,kDeltaRToolParserNum};
@@ -30,9 +34,10 @@ namespace DerivationFramework {
     private:
       std::string m_expression;
       std::string m_2ndExpression;
-      std::string m_sgName;
-      std::string m_containerName;
-      std::string m_2ndContainerName;
+      SG::WriteHandleKey<std::vector<float> > m_sgName {this,"StoreGateEntryName","","SG key of output object"};
+      SG::ReadHandleKey<xAOD::IParticleContainer> m_containerName  {this,"ContainerName","","SG key of first container"};
+      SG::ReadHandleKey<xAOD::IParticleContainer> m_containerName2 {this,"SecondContainerName","","SG key of first container"};
+      
       StatusCode getDeltaRs(std::vector<float>*) const;
       float calculateDeltaR(float,float,float,float) const;
   }; 
