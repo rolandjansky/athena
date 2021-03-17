@@ -204,9 +204,6 @@ namespace top {
         } else if (trackJets_collection == "AntiKt2PV0TrackJets") {
           track_WPs = m_trackAntiKt2_WPs;
           track_WPs_calib = m_trackAntiKt2_WPs_calib;
-        } else if (trackJets_collection == "AntiKt4PV0TrackJets") {
-          track_WPs = m_trackAntiKt4_WPs;
-          track_WPs_calib = m_trackAntiKt4_WPs_calib;
         }
 
         if (std::find(track_WPs.begin(), track_WPs.end(), bTagWPName) == track_WPs.end()) {
@@ -401,15 +398,6 @@ namespace top {
     } else if (jetcollection == "AntiKt2PV0TrackJets" && !isCalibrated) {
       // use m_trackAntiKt2_WPs
       for (auto s : list_of_WP) m_trackAntiKt2_WPs.push_back(tagger + "_" + s);
-    } else if (jetcollection == "AntiKt4PV0TrackJets" && isCalibrated) {
-      // use m_trackAntiKt4_WPs_calib
-      for (auto s : list_of_WP) {
-        m_trackAntiKt4_WPs_calib.push_back(tagger + "_" + s);
-        m_trackAntiKt4_WPs.push_back(tagger + "_" + s);
-      }
-    } else if (jetcollection == "AntiKt4PV0TrackJets" && !isCalibrated) {
-      // use m_trackAntiKt2_WPs_calib
-      for (auto s : list_of_WP) m_trackAntiKt4_WPs.push_back(tagger + "_" + s);
     } else {
       ATH_MSG_ERROR("Unknown jet collection and calibration options");
       return StatusCode::FAILURE;
