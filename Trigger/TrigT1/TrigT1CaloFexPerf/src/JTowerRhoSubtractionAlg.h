@@ -6,6 +6,7 @@
 #define TRIGT1CALOFEXPERF_JTOWERRHOSUBTRACTIONALG_H
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "CxxUtils/checker_macros.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -39,8 +40,9 @@ namespace LVL1
     StatusCode buildFexBins(const xAOD::JGTowerContainer *towers) const;
     mutable std::mutex m_mutex;
     mutable std::atomic_bool m_builtFexBins{false};
-    mutable std::vector<std::vector<std::size_t>> m_jFEXBins;
-    mutable std::vector<std::vector<std::size_t>> m_jFEXBinsCore;
+    // The following are protected by above mutex and filled on the first event:
+    mutable std::vector<std::vector<std::size_t>> m_jFEXBins ATLAS_THREAD_SAFE;
+    mutable std::vector<std::vector<std::size_t>> m_jFEXBinsCore ATLAS_THREAD_SAFE;
   }; //> end class JTowerRhoSubtractionAlg
 } // namespace LVL1
 
