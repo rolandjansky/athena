@@ -12,9 +12,17 @@ set( LCG_VERSION_NUMBER @LCG_VERSION_NUMBER@ CACHE STRING
 set( LCG_COMPONENTS @LCG_COMPONENTS@ CACHE STRING
    "LCG components to set up" )
 
-# Find LCG.
+# Set up a helper flag.
+set( _quietFlag )
 if( DetCommon_FIND_QUIETLY )
-   find_package( LCG ${LCG_VERSION_NUMBER} REQUIRED EXACT QUIET )
-else()
-   find_package( LCG ${LCG_VERSION_NUMBER} REQUIRED EXACT )
+   set( _quietFlag QUIET )
 endif()
+
+# Find LCG.
+find_package( LCG ${LCG_VERSION_NUMBER} REQUIRED EXACT ${_quietFlag} )
+
+# Set up the Threads::Threads imported target.
+find_package( Threads ${_quietFlag} )
+
+# Clean up.
+unset( _quietFlag )
