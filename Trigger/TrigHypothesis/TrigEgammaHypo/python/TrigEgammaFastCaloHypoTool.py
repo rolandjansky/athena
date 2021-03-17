@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
+
 from AthenaCommon.SystemOfUnits import GeV
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
@@ -59,26 +60,27 @@ class TrigEgammaFastCaloHypoToolConfig:
     tool.CAERATIOthr    = same( -9999. , tool)
     self.__tool = tool
 
+    self.__log.debug( 'Chain     :%s', name )
+    self.__log.debug( 'Signature :%s', cand )
+    self.__log.debug( 'Threshold :%s', threshold )
+    self.__log.debug( 'Pidname   :%s', sel )
+    self.__log.debug( 'trackinfo  :%s', trackinfo )
+    self.__log.debug( 'noringerinfo :%s', noringerinfo )
 
   def chain(self):
     return self.__name
-
   
   def pidname( self ):
     return self.__sel
 
-
   def etthr(self):
     return self.__threshold
-
 
   def isElectron(self):
     return 'e' in self.__cand
 
-
   def isPhoton(self):
     return 'g' in self.__cand
-
 
   def noringerinfo(self):
     return self.__noringerinfo
@@ -90,9 +92,9 @@ class TrigEgammaFastCaloHypoToolConfig:
     return self.__tool
   
 
-  def idperf(self):
+  def nocut(self):
     
-    self.__log.info( 'Configure idperf' )
+    self.__log.debug( 'Configure nocut' )
     self.tool().AcceptAll      = True
     self.tool().UseRinger      = False
     self.tool().ETthr          = same( self.etthr()*GeV , self.tool())
@@ -106,7 +108,7 @@ class TrigEgammaFastCaloHypoToolConfig:
 
   def etcut(self):
 
-    self.__log.info( 'Configure etcut' )
+    self.__log.debug( 'Configure etcut' )
     self.tool().UseRinger      = False
     self.tool().ETthr          = same( ( self.etthr()  -  3 )*GeV, self.tool() )
     self.tool().dETACLUSTERthr = 9999.
@@ -119,7 +121,7 @@ class TrigEgammaFastCaloHypoToolConfig:
 
   def noringer(self):
 
-    self.__log.info( 'Configure noringer' )
+    self.__log.debug( 'Configure noringer' )
     from TrigEgammaHypo.TrigL2CaloHypoCutDefs import L2CaloCutMaps
     self.tool().UseRinger   = False
     self.tool().ETthr       = same( ( self.etthr()  - 3 )*GeV , self.tool())
@@ -130,7 +132,7 @@ class TrigEgammaFastCaloHypoToolConfig:
 
   def ringer(self):
 
-    self.__log.info( 'Configure ringer' )
+    self.__log.debug( 'Configure ringer' )
     self.tool().UseRinger = True
     self.tool().EtCut     = (self.etthr()-3.)*GeV  
     
@@ -149,16 +151,13 @@ class TrigEgammaFastCaloHypoToolConfig:
 
   def compile(self):
 
-    if self.trackinfo()=='idperf':
-      self.idperf()
-
-    elif 'etcut' == self.pidname():
+    if 'etcut' == self.pidname():
       self.etcut()
 
     elif self.pidname() in self.__operation_points and 'noringer' in self.noringerinfo() and self.isElectron():
       self.noringer()
 
-    elif self.pidname() in self.__operation_points and "noringer" not in self.noringerinfo() and self.isElectron():
+    elif self.pidname() in self.__operation_points and 'noringer' not in self.noringerinfo() and self.isElectron():
       self.ringer()
 
     elif self.pidname() in self.__operation_points and self.isPhoton():
@@ -234,7 +233,6 @@ class TrigEgammaFastCaloHypoToolConfig:
 
     possibleSel  = { 'tight':'Tight', 'medium':'Medium', 'loose':'Loose', 'vloose':'VeryLoose',
                          'lhtight':'Tight', 'lhmedium':'Medium', 'lhloose':'Loose', 'lhvloose':'VeryLoose'}
-    
 
     
     if not self.pidname() in possibleSel.keys():
