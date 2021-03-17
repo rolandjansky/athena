@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // McEventCollectionCnv_p2.cxx
@@ -70,7 +70,6 @@ void McEventCollectionCnv_p2::persToTrans( const McEventCollection_p2* persObj,
   if ( datapools.evt.capacity() - datapools.evt.allocated() < nEvts ) {
     datapools.evt.reserve( datapools.evt.allocated() + nEvts );
   }
-  DataPool<HepMC::GenEvent>& poolOfEvents = datapools.evt;
 
   transObj->reserve( nEvts );
   const std::vector<GenEvent_p2>::const_iterator itrEnd = persObj->m_genEvents.end();
@@ -78,7 +77,7 @@ void McEventCollectionCnv_p2::persToTrans( const McEventCollection_p2* persObj,
         itr != itrEnd;
         ++itr ) {
     const GenEvent_p2& persEvt = *itr;
-    HepMC::GenEvent * genEvt        = poolOfEvents.nextElementPtr();
+    HepMC::GenEvent * genEvt        = datapools.getGenEvent();
 #ifdef HEPMC3
     genEvt->add_attribute("signal_process_id",std::make_shared<HepMC3::IntAttribute>(persEvt.m_signalProcessId));
     genEvt->set_event_number(persEvt.m_eventNbr);
@@ -102,7 +101,7 @@ void McEventCollectionCnv_p2::persToTrans( const McEventCollection_p2* persObj,
       genEvt->add_vertex( createGenVertex( *persObj,
                                            persObj->m_genVertices[iVtx],
                                            partToEndVtx,
-                                           &datapools ) );
+                                           datapools ) );
     } //> end loop over vertices
 
     // set the signal process vertex
@@ -146,7 +145,7 @@ void McEventCollectionCnv_p2::persToTrans( const McEventCollection_p2* persObj,
       genEvt->add_vertex( createGenVertex( *persObj,
                                            persObj->m_genVertices[iVtx],
                                            partToEndVtx,
-                                           &datapools ) );
+                                           datapools ) );
     } //> end loop over vertices
 
     // set the signal process vertex
@@ -199,11 +198,10 @@ void McEventCollectionCnv_p2::transToPers( const McEventCollection*,
 HepMC::GenVertexPtr
 McEventCollectionCnv_p2::createGenVertex( const McEventCollection_p2& persEvt,
                                           const GenVertex_p2& persVtx,
-                                          ParticlesMap_t& partToEndVtx, HepMC::DataPool* datapools ) const
+                                          ParticlesMap_t& partToEndVtx, HepMC::DataPool& datapools ) const
 {
+  HepMC::GenVertexPtr vtx = datapools.getGenVertex();
 #ifdef HEPMC3
-  DataPool<HepMC::GenVertexPtr>& poolOfVertices = datapools->vtx;
-  HepMC::GenVertexPtr vtx = *(poolOfVertices.nextElementPtr());
   vtx->set_position( HepMC::FourVector(persVtx.m_x,persVtx.m_y, persVtx.m_z, persVtx.m_t) );
   //AV ID cannot be assigned in HepMC3. And its meaning in HepMC2 is not clear.
   // vtx->m_id      = persVtx.m_id;
@@ -226,8 +224,6 @@ McEventCollectionCnv_p2::createGenVertex( const McEventCollection_p2& persEvt,
                                               datapools ) );
   }
 #else
-  DataPool<HepMC::GenVertex>& poolOfVertices = datapools->vtx;
-  HepMC::GenVertexPtr vtx = poolOfVertices.nextElementPtr();
   vtx->m_position.setX( persVtx.m_x );
   vtx->m_position.setY( persVtx.m_y );
   vtx->m_position.setZ( persVtx.m_z );
@@ -263,11 +259,11 @@ McEventCollectionCnv_p2::createGenVertex( const McEventCollection_p2& persEvt,
 
 HepMC::GenParticlePtr
 McEventCollectionCnv_p2::createGenParticle( const GenParticle_p2& persPart,
-                                            ParticlesMap_t& partToEndVtx, HepMC::DataPool* datapools ) const
+                                            ParticlesMap_t& partToEndVtx, HepMC::DataPool& datapools ) const
 {
+  HepMC::GenParticlePtr p    = datapools.getGenParticle();
+
 #ifdef HEPMC3
-  DataPool<HepMC::GenParticlePtr>& poolOfParticles = datapools->part;
-  HepMC::GenParticlePtr p    = *(poolOfParticles.nextElementPtr());
   p->set_momentum( HepMC::FourVector(persPart.m_px,persPart.m_py,persPart.m_pz, persPart.m_ene ));
   p->set_pdg_id(               persPart.m_pdgId);
   p->set_status(               persPart.m_status);
@@ -285,8 +281,6 @@ McEventCollectionCnv_p2::createGenParticle( const GenParticle_p2& persPart,
   p->add_attribute("flows", std::make_shared<HepMC3::VectorIntAttribute>(flows));
   
 #else
-  DataPool<HepMC::GenParticle>& poolOfParticles = datapools->part;
-  HepMC::GenParticlePtr p    = poolOfParticles.nextElementPtr();
   p->m_momentum.setPx( persPart.m_px  );
   p->m_momentum.setPy( persPart.m_py  );
   p->m_momentum.setPz( persPart.m_pz  );

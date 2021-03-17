@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // GenEventCnv_p1.cxx 
@@ -95,7 +95,7 @@ void GenEventCnv_p1::persToTrans( const GenEvent_p1* persObj,
   // create the vertices
   for ( unsigned int iVtx = 0; iVtx != nVertices; ++iVtx ) {
     const GenVertex_p1& persVtx = persObj->m_vertices[iVtx];
-    transObj->add_vertex( createGenVertex( *persObj, persVtx, partToEndVtx ) );
+    transObj->add_vertex( createGenVertex( *persObj, persVtx, partToEndVtx, *m_pool ) );
   } //> end loop over vertices
 
   // set the signal process vertex
@@ -148,15 +148,15 @@ void GenEventCnv_p1::transToPers( const HepMC::GenEvent*,
 HepMC::GenVertexPtr 
 GenEventCnv_p1::createGenVertex( const GenEvent_p1& persEvt,
 				 const GenVertex_p1& persVtx,
-				 ParticlesMap_t& partToEndVtx ) const
+				 ParticlesMap_t& partToEndVtx,
+                                 HepMC::DataPool& datapools) const
 {
+  HepMC::GenVertexPtr vtx = datapools.getGenVertex();
 #ifdef HEPMC3
-  HepMC::GenVertexPtr vtx = *(m_pool->vtx.nextElementPtr());
   vtx->set_position( HepMC::FourVector(persVtx.m_x,persVtx.m_y,persVtx.m_z,persVtx.m_t) );
   vtx->add_attribute("weights",std::make_shared<HepMC3::VectorDoubleAttribute>(persVtx.m_weights));
   vtx->add_attribute("barcode",std::make_shared<HepMC3::IntAttribute>(persVtx.m_barcode));
 #else
-  HepMC::GenVertexPtr vtx = m_pool->vtx.nextElementPtr();
   vtx->m_position.setX( persVtx.m_x );
   vtx->m_position.setY( persVtx.m_y );
   vtx->m_position.setZ( persVtx.m_z );
@@ -173,14 +173,16 @@ GenEventCnv_p1::createGenVertex( const GenEvent_p1& persEvt,
   const unsigned int nPartsIn = persVtx.m_particlesIn.size();
   for ( unsigned int i = 0; i != nPartsIn; ++i ) {
      createGenParticle( persEvt.m_particles[persVtx.m_particlesIn[i]], 
-			partToEndVtx );
+			partToEndVtx,
+                        datapools);
   }
   
   // now handle the out-going particles
   const unsigned int nPartsOut = persVtx.m_particlesOut.size();
   for ( unsigned int i = 0; i != nPartsOut; ++i ) {
      vtx->add_particle_out( createGenParticle( persEvt.m_particles[persVtx.m_particlesOut[i]],
-					       partToEndVtx ) );
+					       partToEndVtx,
+                                               datapools) );
   }
 
   return vtx;
@@ -188,10 +190,12 @@ GenEventCnv_p1::createGenVertex( const GenEvent_p1& persEvt,
 
 HepMC::GenParticlePtr 
 GenEventCnv_p1::createGenParticle( const GenParticle_p1& persPart,
-				   ParticlesMap_t& partToEndVtx ) const
+				   ParticlesMap_t& partToEndVtx,
+                                   HepMC::DataPool& datapools) const
 {
+  HepMC::GenParticlePtr p = datapools.getGenParticle();
+
 #ifdef HEPMC3
-  HepMC::GenParticlePtr p = *(m_pool->part.nextElementPtr());
   p->set_momentum( HepMC::FourVector(persPart.m_px,persPart.m_py,persPart.m_pz,persPart.m_ene));
   p->set_pdg_id(persPart.m_pdgId);
   p->set_status(persPart.m_status);
@@ -209,7 +213,6 @@ GenEventCnv_p1::createGenParticle( const GenParticle_p1& persPart,
 #else
 
 
-  HepMC::GenParticlePtr p = m_pool->part.nextElementPtr();
   p->m_momentum.setPx( persPart.m_px  );
   p->m_momentum.setPy( persPart.m_py  );
   p->m_momentum.setPz( persPart.m_pz  );

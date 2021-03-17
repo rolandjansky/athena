@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // McEventCollectionCnv_p3.h
@@ -108,7 +108,7 @@ class McEventCollectionCnv_p3 : public T_AthenaPoolTPCnvBase<
   createGenVertex( const McEventCollection_p3& persEvts,
                    const GenVertex_p3& vtx,
                    ParticlesMap_t& bcToPart,
-                   HepMC::DataPool* datapools ) const;
+                   HepMC::DataPool& datapools ) const;
 
   /** @brief Create a transient @c GenParticle from a persistent one (vers.1)
    *  It returns the new @c GenParticle. Note that the map being passed as an
@@ -118,7 +118,7 @@ class McEventCollectionCnv_p3 : public T_AthenaPoolTPCnvBase<
   HepMC::GenParticlePtr
   createGenParticle( const GenParticle_p3& p,
                      ParticlesMap_t& partToEndVtx,
-                     HepMC::DataPool* datapools ) const;
+                     HepMC::DataPool& datapools ) const;
 
 };
 #endif //> GENERATOROBJECTSTPCNV_MCEVENTCOLLECTIONCNV_P3_H

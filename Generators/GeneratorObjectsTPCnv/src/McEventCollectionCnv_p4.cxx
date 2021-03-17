@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // McEventCollectionCnv_p4.cxx
@@ -88,7 +88,6 @@ void McEventCollectionCnv_p4::persToTrans( const McEventCollection_p4* persObj,
     {
       datapools.evt.reserve( datapools.evt.allocated() + nEvts );
     }
-  DataPool<HepMC::GenEvent>& poolOfEvents = datapools.evt;
 
   transObj->reserve( nEvts );
   for ( std::vector<GenEvent_p4>::const_iterator
@@ -105,7 +104,7 @@ void McEventCollectionCnv_p4::persToTrans( const McEventCollection_p4* persObj,
         }
       else
         {
-          genEvt        =  poolOfEvents.nextElementPtr();
+          genEvt        =  datapools.getGenEvent();
         }
 #ifdef HEPMC3
       genEvt->add_attribute("signal_process_id",std::make_shared<HepMC3::IntAttribute>(persEvt.m_signalProcessId));
@@ -183,7 +182,7 @@ void McEventCollectionCnv_p4::persToTrans( const McEventCollection_p4* persObj,
           genEvt->add_vertex( createGenVertex( *persObj,
                                                persObj->m_genVertices[iVtx],
                                                partToEndVtx,
-                                               &datapools ) );
+                                               datapools ) );
         } //> end loop over vertices
 
       // set the signal process vertex
@@ -242,7 +241,9 @@ void McEventCollectionCnv_p4::transToPers( const McEventCollection* transObj,
       const unsigned int nPersParts = persObj->m_genParticles.size();
       const HepMC::GenEvent* genEvt = *itr;
       //save the weight names to metadata via the HepMCWeightSvc
-      m_hepMCWeightSvc->setWeightNames(  names_to_name_index_map(genEvt->weight_names()) ).ignore(); 
+      if (genEvt->run_info()) {
+        m_hepMCWeightSvc->setWeightNames(  names_to_name_index_map(genEvt->weight_names()) ).ignore();
+      }
       auto A_signal_process_id=genEvt->attribute<HepMC3::IntAttribute>("signal_process_id");    
       auto A_event_scale=genEvt->attribute<HepMC3::DoubleAttribute>("event_scale");    
       auto A_alphaQCD=genEvt->attribute<HepMC3::DoubleAttribute>("alphaQCD");    
@@ -346,10 +347,8 @@ HepMC::GenVertexPtr
 McEventCollectionCnv_p4::createGenVertex( const McEventCollection_p4& persEvt,
                                           const GenVertex_p4& persVtx,
                                           ParticlesMap_t& partToEndVtx,
-                                          HepMC::DataPool* datapools ) const
+                                          HepMC::DataPool& datapools ) const
 {
-#ifdef HEPMC3
-  DataPool<HepMC::GenVertexPtr>& poolOfVertices = datapools->vtx;
   HepMC::GenVertexPtr vtx(0);
   if(m_isPileup)
     {
@@ -357,8 +356,9 @@ McEventCollectionCnv_p4::createGenVertex( const McEventCollection_p4& persEvt,
     }
   else
     {
-      vtx = *(poolOfVertices.nextElementPtr());
+      vtx = datapools.getGenVertex();
     }
+#ifdef HEPMC3
   vtx->set_position(HepMC::FourVector( persVtx.m_x , persVtx.m_y , persVtx.m_z ,persVtx.m_t ));
   //AV ID cannot be assigned in HepMC3. And its meaning in HepMC2 is not clear.
   // vtx->m_id      = persVtx.m_id;
@@ -366,16 +366,6 @@ McEventCollectionCnv_p4::createGenVertex( const McEventCollection_p4& persEvt,
   vtx->add_attribute("barcode",std::make_shared<HepMC3::IntAttribute>(persVtx.m_barcode));
 
 #else
-  DataPool<HepMC::GenVertex>& poolOfVertices = datapools->vtx;
-  HepMC::GenVertexPtr vtx(0);
-  if(m_isPileup)
-    {
-      vtx=HepMC::newGenVertexPtr();
-    }
-  else
-    {
-      vtx = poolOfVertices.nextElementPtr();
-    }
   vtx->m_position.setX( persVtx.m_x );
   vtx->m_position.setY( persVtx.m_y );
   vtx->m_position.setZ( persVtx.m_z );
@@ -414,10 +404,8 @@ McEventCollectionCnv_p4::createGenVertex( const McEventCollection_p4& persEvt,
 HepMC::GenParticlePtr
 McEventCollectionCnv_p4::createGenParticle( const GenParticle_p4& persPart,
                                             ParticlesMap_t& partToEndVtx,
-                                            HepMC::DataPool* datapools ) const
+                                            HepMC::DataPool& datapools ) const
 {
-#ifdef HEPMC3
-  DataPool<HepMC::GenParticlePtr>& poolOfParticles = datapools->part;
   HepMC::GenParticlePtr p(0);
   if (m_isPileup)
     {
@@ -425,8 +413,9 @@ McEventCollectionCnv_p4::createGenParticle( const GenParticle_p4& persPart,
     }
   else
     {
-      p    = *(poolOfParticles.nextElementPtr());
+      p    = datapools.getGenParticle();
     }
+#ifdef HEPMC3
   p->set_pdg_id(              persPart.m_pdgId);
   p->set_status(              persPart.m_status);
   p->add_attribute("phi",std::make_shared<HepMC3::DoubleAttribute>(persPart.m_phiPolarization));
@@ -470,16 +459,6 @@ McEventCollectionCnv_p4::createGenParticle( const GenParticle_p4& persPart,
   //We construct it here as vector w/o gaps.
   p->add_attribute("flows", std::make_shared<HepMC3::VectorIntAttribute>(flows));
 #else
-  DataPool<HepMC::GenParticle>& poolOfParticles = datapools->part;
-  HepMC::GenParticlePtr p(0);
-  if (m_isPileup)
-    {
-      p = HepMC::newGenParticlePtr();
-    }
-  else
-    {
-      p    = poolOfParticles.nextElementPtr();
-    }
   p->m_pdg_id              = persPart.m_pdgId;
   p->m_status              = persPart.m_status;
   p->m_polarization.m_theta= static_cast<double>(persPart.m_thetaPolarization);

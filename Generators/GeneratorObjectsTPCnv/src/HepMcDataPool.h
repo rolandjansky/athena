@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // HepMcDataPool.h
@@ -12,55 +12,34 @@
 #define GENERATOROBJECTSATHENAPOOL_HEPMCDATAPOOL_H
 
 // HepMC / CLHEP includes
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wkeyword-macro"
+#ifndef HEPMC3
+# ifdef __clang__
+# pragma clang diagnostic push
+# pragma clang diagnostic ignored "-Wkeyword-macro"
+# endif
+# define private public
+# define protected public
 #endif
-#define private public
-#define protected public
 #include "AtlasHepMC/GenEvent.h"
 #include "AtlasHepMC/GenVertex.h"
 #include "AtlasHepMC/GenParticle.h"
-#ifdef __clang__
-#pragma clang diagnostic pop
+#ifndef HEPMC3
+# undef private
+# undef protected
+# ifdef __clang__
+# pragma clang diagnostic pop
+# endif
 #endif
-#undef private
-#undef protected
 
 #include "AthAllocators/DataPool.h"
+
+#ifndef HEPMC3
 
 // specialization of the destruction functions for our various DataPools
 // these specializations are needed because we have to work-around the
 // 'shared' ownership of particles and vertices by both GenEvent and the
 // various DataPool<Xyz>.
 namespace SG {
-
-#ifdef HEPMC3
-
-
-  template<>
-  inline void
-  ArenaAllocatorBase::destroy_fcn<HepMC::GenParticlePtr>(ArenaAllocatorBase::pointer )
-  {
-  //GenParticlePtr is smart pointer
-  }
-
-  template<>
-  inline void
-  ArenaAllocatorBase::destroy_fcn<HepMC::GenVertexPtr>(ArenaAllocatorBase::pointer )
-  {
-  //GenVertexPtr is smart pointer
-  }
-
-  template<>
-  inline void
-  ArenaAllocatorBase::destroy_fcn<HepMC::GenEvent>(ArenaAllocatorBase::pointer p)
-  {
-    HepMC::GenEvent* evt = reinterpret_cast<HepMC::GenEvent*>(p);
-    evt->~GenEvent();
-  }
-
-#else
 
   template<>
   inline void
@@ -93,26 +72,12 @@ namespace SG {
     delete evt->m_pdf_info; evt->m_pdf_info = 0;
     evt->~GenEvent();
   }
-#endif  
 } // end namespace SG
 
+#endif  
+
 namespace HepMC {
- #ifdef HEPMC3
-  struct DataPool {
 
-    typedef ::DataPool<HepMC::GenEvent> GenEvtPool_t;
-    /// an arena of @c HepMC::GenEvent for efficient object instantiation
-    GenEvtPool_t evt;
-
-    typedef ::DataPool<HepMC::GenVertexPtr> GenVtxPool_t;
-    /// an arena of @c HepMC::GenVertex for efficient object instantiation
-    GenVtxPool_t vtx;
-
-    typedef ::DataPool<HepMC::GenParticlePtr> GenPartPool_t;
-    /// an arena of @c HepMC::GenParticle for efficient object instantiation
-    GenPartPool_t part;
-  };
-#else
   struct DataPool {
 
     typedef ::DataPool<HepMC::GenEvent> GenEvtPool_t;
@@ -126,9 +91,46 @@ namespace HepMC {
     typedef ::DataPool<HepMC::GenParticle> GenPartPool_t;
     /// an arena of @c HepMC::GenParticle for efficient object instantiation
     GenPartPool_t part;
+
+#ifdef HEPMC3
+    HepMC::GenEvent* getGenEvent()
+    {
+      HepMC::GenEvent* p = evt.nextElementPtr();
+      *p = HepMC::GenEvent();
+      return p;
+    }
+    HepMC::GenVertexPtr getGenVertex()
+    {
+      HepMC::GenVertexPtr p (vtx.nextElementPtr(), [](HepMC::GenVertex*){});
+      *p = HepMC::GenVertex();
+      return p;
+    }
+
+    HepMC::GenParticlePtr getGenParticle()
+    {
+      HepMC::GenParticlePtr p (part.nextElementPtr(), [](HepMC::GenParticle*){});
+      *p = HepMC::GenParticle();
+      return p;
+    }
+#else
+    HepMC::GenEvent* getGenEvent()
+    {
+      return evt.nextElementPtr();
+    }
+
+    HepMC::GenVertexPtr getGenVertex()
+    {
+      return vtx.nextElementPtr();
+    }
+
+    HepMC::GenParticlePtr getGenParticle()
+    {
+      return part.nextElementPtr();
+    }
+#endif
+
   };
 
-#endif
 } // end namespace HepMC
 
 #endif // GENERATOROBJECTSATHENAPOOL_HEPMCDATAPOOL_H

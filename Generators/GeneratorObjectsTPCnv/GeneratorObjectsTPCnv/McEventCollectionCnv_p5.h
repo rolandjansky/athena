@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // McEventCollectionCnv_p5.h
@@ -114,7 +114,7 @@ class McEventCollectionCnv_p5 : public T_AthenaPoolTPCnvBase<
   createGenVertex( const McEventCollection_p5& persEvts,
                    const GenVertex_p5& vtx,
                    ParticlesMap_t& bcToPart,
-                   HepMC::DataPool* datapools ) const;
+                   HepMC::DataPool& datapools ) const;
 
   /** @brief Create a transient @c GenParticle from a persistent one (vers.1)
    *  It returns the new @c GenParticle. Note that the map being passed as an
@@ -124,7 +124,7 @@ class McEventCollectionCnv_p5 : public T_AthenaPoolTPCnvBase<
   HepMC::GenParticlePtr
   createGenParticle( const GenParticle_p5& p,
                      ParticlesMap_t& partToEndVtx,
-                     HepMC::DataPool* datapools ) const;
+                     HepMC::DataPool& datapools ) const;
 
   /** @brief Method to write a persistent @c GenVertex object. The persistent
    *  vertex is added to the persistent is added to the persistent
