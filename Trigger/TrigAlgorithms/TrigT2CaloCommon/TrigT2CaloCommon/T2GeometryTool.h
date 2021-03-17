@@ -39,8 +39,9 @@ public :
   * @param[in] energyEta : eta of hottest cell.
   * @param[in] energyPhi : phi of hottest cell.
   */
+        virtual
 	int EtaPhiRange(const int nCaloType, const int nCaloSamp,
-                  const double& energyEta, const double& energyPhi);
+                  const double& energyEta, const double& energyPhi) override;
 
   /** @brief Finds whether a cell is in a Normal Sized Cluster 
   * @param[in] nCaloType, nCaloSamp : See T2GeometryTool::EtaPhiRange.
@@ -48,24 +49,27 @@ public :
   * @param[in] phiCell : Cell phi position.
   * @return cell is or not in this cluster.
   */
+        virtual
 	bool CellInNorCluster( const int nCaloType,const int nCaloSamp, 
-                           const double& etaCell, const double& phiCell);
+                           const double& etaCell, const double& phiCell) override;
   /** @brief Finds whether a cell is in a Narrow Sized Cluster 
   * @param[in] nCaloType, nCaloSamp : See T2GeometryTool::EtaPhiRange.
   * @param[in] etaCell : Cell eta position.
   * @param[in] phiCell : Cell phi position.
   * @return cell is or not in this cluster.
   */
+        virtual
 	bool CellInNarCluster( const int nCaloType,const int nCaloSamp,
-                           const double& etaCell, const double& phiCell);
+                           const double& etaCell, const double& phiCell) override;
   /** @brief Finds whether a cell is in a Wide Sized Cluster 
   * @param[in] nCaloType, nCaloSamp : See T2GeometryTool::EtaPhiRange.
   * @param[in] etaCell : Cell eta position.
   * @param[in] phiCell : Cell phi position.
   * @return cell is or not in this cluster.
   */
+        virtual
 	bool CellInWidCluster( const int nCaloType,const int nCaloSamp,
-                           const double& etaCell, const double& phiCell);
+                           const double& etaCell, const double& phiCell) override;
 
   // Not sure these methods will ever be used
 
@@ -73,70 +77,83 @@ public :
   * @param[in] layer: integer to identify the EM sampling
   */
 
-	int nStripetaEMnar(const int layer) const;
+        virtual
+	int nStripetaEMnar(const int layer) const override;
 
   /** @brief Get number of cells in phi for Narrow Sized Cluster in EM calorimeter
   * @param[in] layer: integer to identify the EM sampling
   */
-	int nStripphiEMnar(const int layer) const;
+        virtual
+	int nStripphiEMnar(const int layer) const override;
 
   /** @brief Get number of cells in eta for Wide Sized Cluster in EM calorimeter
   * @param[in] layer: integer to identify the EM sampling
   */
-	int nStripetaEMwid(const int layer) const;
+        virtual
+	int nStripetaEMwid(const int layer) const override;
 
   /** @brief Get number of cells in phi for Wide Sized Cluster in EM calorimeter
   * @param[in] layer: integer to identify the EM sampling
   */
-	int nStripphiEMwid(const int layer) const;
+        virtual
+	int nStripphiEMwid(const int layer) const override;
 
   /** @brief Get number of cells in eta for Normal Sized Cluster in EM calorimeter
   * @param[in] layer: integer to identify the EM sampling
   */
-	int nStripetaEMnor(const int layer)  const;
+        virtual
+	int nStripetaEMnor(const int layer)  const override;
 
   /** @brief Get number of cells in phi for Normal Sized Cluster in EM calorimeter
   * @param[in] layer: integer to identify the EM sampling
   */
-	int nStripphiEMnor(const int layer)  const;
+        virtual
+	int nStripphiEMnor(const int layer)  const override;
 
   /** @brief Get number of cells in eta for Narrow Sized Cluster in HAD calorimeter
   * @param[in] layer: integer to identify the HAD sampling
   */
-	int  nStripetaHADnar(const int layer) const;
+        virtual
+	int  nStripetaHADnar(const int layer) const override;
 
   /** @brief Get number of cells in phi for Narrow Sized Cluster in HAD calorimeter
   * @param[in] layer: integer to identify the HAD sampling
   */
-	int  nStripphiHADnar(const int layer) const;
+        virtual
+	int  nStripphiHADnar(const int layer) const override;
 
   /** @brief Get number of cells in eta for Wide Sized Cluster in HADcalorimeter
   * @param[in] layer: integer to identify the HAD sampling
   */
-	int  nStripetaHADwid(const int layer) const;
+        virtual
+	int  nStripetaHADwid(const int layer) const override;
 
   /** @brief Get number of cells in phi for Wide Sized Cluster in HAD calorimeter
   * @param[in] layer: integer to identify the HAD sampling
   */
-	int  nStripphiHADwid(const int layer) const;
+        virtual
+	int  nStripphiHADwid(const int layer) const override;
 
   /** @brief Get number of cells in eta for Normal Sized Cluster in HAD calorimeter
   * @param[in] layer: integer to identify the HAD sampling
   */
-	int  nStripetaHADnor(const int layer)  const;
+        virtual
+	int  nStripetaHADnor(const int layer)  const override;
 
   /** @brief Get number of cells in phi for Normal Sized Cluster in HAD calorimeter
   * @param[in] layer: integer to identify the HAD sampling
   */
-	int  nStripphiHADnor(const int layer)  const;
+        virtual
+	int  nStripphiHADnor(const int layer)  const override;
 
 private :
 
 	// This is the internal version that is repeated three
 	// times to prepare the cluster cuts
+        virtual
 	int EtaPhiRangeInt(const int layer, const int& nStripEta, 
                 const int& nStripPhi,const double& energyEta, 
-                const double& energyPhi,const int index_size);
+                const double& energyPhi,const int index_size) override;
 	/** Normal cluster variables */
 	double m_CellEtaNorMin[7], m_CellEtaNorMax[7];
 	double m_CellPhiNorMin[7], m_CellPhiNorMax[7];
