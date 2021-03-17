@@ -414,7 +414,7 @@ string StripGmxInterface::getstr(const string typeName, const string name, const
 
 }
 
-void StripGmxInterface::addSplitSensor(string typeName, map<string, int> &index, pair<string, int> &extraIndex, int hitIdOfWafer, GeoVFullPhysVol *fpv) {
+void StripGmxInterface::addSplitSensor(string typeName, map<string, int> &index, pair<string, int> &extraIndex, int /*hitIdOfWafer*/, GeoVFullPhysVol *fpv) {
   
 
   map<string, int> updatedIndex;
