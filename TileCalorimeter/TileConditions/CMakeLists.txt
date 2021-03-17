@@ -71,11 +71,6 @@ atlas_install_runtime( share/*.txt share/Tile2003.* share/Tile2004.* share/TileD
 
 if( NOT SIMULATIONBASE )
     # Configuration tests
-    atlas_add_test( TileCondConfigTest
-    		    SCRIPT python -m TileConditions.TileConditionsConfig
-                    POST_EXEC_SCRIPT nopost.sh )
-
-
     atlas_add_test( TileFolders_test
                    SCRIPT python -m unittest -v TileConditions.TileFolders
                    POST_EXEC_SCRIPT nopost.sh )
