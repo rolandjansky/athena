@@ -21,31 +21,34 @@ namespace DerivationFramework {
     ExpressionParserUser<AthAlgTool,kInvariantMassToolParserNum>(t,n,p),
     m_expression("true"),
     m_expression2(""), 
-    m_sgName(""),
     m_massHypothesis(0.0),
-    m_massHypothesis2(0.0),
-    m_containerName(""),
-    m_containerName2("")
+    m_massHypothesis2(0.0)
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     declareProperty("ObjectRequirements", m_expression);
     declareProperty("SecondObjectRequirements", m_expression2);
-    declareProperty("StoreGateEntryName", m_sgName);
     declareProperty("MassHypothesis", m_massHypothesis);
     declareProperty("SecondMassHypothesis", m_massHypothesis2);
-    declareProperty("ContainerName", m_containerName);
-    declareProperty("SecondContainerName", m_containerName2);
   }
 
   StatusCode InvariantMassTool::initialize()
   {
-    if (m_sgName=="") {
+    if (m_sgName.key()=="") {
       ATH_MSG_ERROR("No SG name provided for the output of invariant mass tool!");
       return StatusCode::FAILURE;
     }
+    ATH_CHECK(m_sgName.initialize());
 
     if (m_expression2.empty()) m_expression2 = m_expression;
     ATH_CHECK(initializeParser({m_expression,m_expression2} ) );
+
+    ATH_CHECK(m_containerName.initialize());
+    if (!m_containerName2.key().empty()) {
+      ATH_CHECK(m_containerName2.initialize());
+    }
+
+
+
     return StatusCode::SUCCESS;
   }
 
@@ -58,13 +61,15 @@ namespace DerivationFramework {
   StatusCode InvariantMassTool::addBranches() const
   {
     // Write masses to SG for access by downstream algs     
-    if (evtStore()->contains<std::vector<float> >(m_sgName)) {
+    if (evtStore()->contains<std::vector<float> >(m_sgName.key())) {
       ATH_MSG_ERROR("Tool is attempting to write a StoreGate key " << m_sgName << " which already exists. Please use a different key");
       return StatusCode::FAILURE;
     }
     std::unique_ptr<std::vector<float> > masses(new std::vector<float>());
-    CHECK(getInvariantMasses(masses.get()));
-    CHECK(evtStore()->record(std::move(masses), m_sgName));      
+    ATH_CHECK(getInvariantMasses(masses.get()));
+    //CHECK(evtStore()->record(std::move(masses), m_sgName));      
+    SG::WriteHandle<std::vector<float> > writeHandle(m_sgName);
+    ATH_CHECK(writeHandle.record(std::move(masses)));
     return StatusCode::SUCCESS;
   }  
 
@@ -72,27 +77,19 @@ namespace DerivationFramework {
   {
 
     // check the relevant information is available
-    if (m_containerName=="") {
+    if (m_containerName.key()=="") {
       ATH_MSG_WARNING("Input container missing - returning zero");  
       masses->push_back(0.0);
       return StatusCode::FAILURE;
     }
 
-    // get the relevant branches
-    const xAOD::IParticleContainer* particles = evtStore()->retrieve< const xAOD::IParticleContainer >( m_containerName );
-    if( ! particles ) {
-        ATH_MSG_ERROR ("Couldn't retrieve IParticles with key: " << m_containerName );
-        return StatusCode::FAILURE;
-    }
+    SG::ReadHandle<xAOD::IParticleContainer> particles{m_containerName};
     
     bool from2Collections(false);
     const xAOD::IParticleContainer* particles2(0); 
-    if (m_containerName2!="" && m_containerName2!=m_containerName) {
-      particles2 = evtStore()->retrieve< const xAOD::IParticleContainer >( m_containerName2 );
-      if( ! particles2 ) {
-        ATH_MSG_ERROR ("Couldn't retrieve IParticles with key: " << m_containerName2 );
-        return StatusCode::FAILURE;
-      }
+    if (m_containerName2.key()!="" && m_containerName2.key()!=m_containerName.key()) {
+      SG::ReadHandle<xAOD::IParticleContainer> particleHdl2{m_containerName2};
+      particles2=particleHdl2.cptr();
       from2Collections = true;
     }
 
