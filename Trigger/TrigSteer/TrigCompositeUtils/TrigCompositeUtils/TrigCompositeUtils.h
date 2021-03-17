@@ -205,27 +205,34 @@ namespace TrigCompositeUtils {
 
  /**
    * @brief Generate the HLT::Identifier which corresponds to the chain name from the leg name. This can be queried for its DecisionID.
-   * @param chainIdentifier The HLT::Identifier corresponding to the specifci leg.
+   * @param legIdentifier The HLT::Identifier corresponding to the specific leg.
    * @return HLT::Identifier corresponding to the chain. Call .numeric() on this to get the DecisionID.
    **/
   HLT::Identifier getIDFromLeg(const HLT::Identifier& legIdentifier);
+
+ /**
+   * @brief Extract the numeric index of a leg identifier.
+   * @param legIdentifier The HLT::Identifier corresponding to the specific leg.
+   * @return Index of the leg, e.g. leg002_HLT_mu50_L1MU20 would return 2. Returns -1 if not a leg identifier or 0 if a chain identifier.
+   **/
+  int32_t getIndexFromLeg(const HLT::Identifier& legIdentifier); 
  
 /**
    * @brief Recognise whether the chain ID is a leg ID
-   * @param legIdentifier The HLT::Identifier corresponding to the specifci ID.
+   * @param legIdentifier The HLT::Identifier corresponding to the specific ID.
    * @return True if leg-ID, else false
    **/
   bool isLegId(const HLT::Identifier& legIdentifier);
 
 /**
    * @brief Recognise whether the HLT identifier corresponds to a whole chain
-   * @param chainIdentifier The HLT::Identifier corresponding to the specifci ID.
+   * @param chainIdentifier The HLT::Identifier corresponding to the specific ID.
    * @return True if chain-ID, else false
    **/
   bool isChainId(const HLT::Identifier& chainIdentifier);
     
   /**
-   * @brief traverses Decision object links for another Decision object fufilling the prerequisite specified by the filter
+   * @brief traverses Decision object links for another Decision object fulfilling the prerequisite specified by the filter
    * @return matching Decision object or nullptr
    **/
   const Decision* find(const Decision*, const std::function<bool(const Decision*)>& filter);
