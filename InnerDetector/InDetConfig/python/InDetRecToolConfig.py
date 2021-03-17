@@ -167,7 +167,8 @@ def PixelConditionsSummaryToolCfg(flags, name = "InDetPixelConditionsSummaryTool
     #FIXME - fix the duplication in TrigInDetConfig.py and PixelConditionsSummaryConfig.py
     from PixelConditionsAlgorithms.PixelConditionsConfig import PixelConfigCondAlgCfg, PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg, PixelDeadMapCondAlgCfg
 
-    kwargs.setdefault( "UseByteStream", not flags.Input.isMC)
+    kwargs.setdefault( "UseByteStreamFEI4", not flags.Input.isMC)
+    kwargs.setdefault( "UseByteStreamFEI3", not flags.Input.isMC)
 
     if flags.InDet.usePixelDCS:
         kwargs.setdefault( "IsActiveStates", [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ] )

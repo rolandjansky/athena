@@ -156,7 +156,9 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
   ToolSvc += InDetClusterMakerTool
 
   from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
-  idPixelSummary = PixelConditionsSummaryTool("PixelConditionsSummaryTool", UseByteStream=globalflags.InputFormat.is_bytestream())
+  idPixelSummary = PixelConditionsSummaryTool("PixelConditionsSummaryTool",
+                                              UseByteStreamFEI4=globalflags.InputFormat.is_bytestream(),
+                                              UseByteStreamFEI3=globalflags.InputFormat.is_bytestream())
 
   from SiClusterizationTool.SiClusterizationToolConf import InDet__MergedPixelsTool
   InDetMergedPixelsTool = InDet__MergedPixelsTool(name                       = "InDetMergedPixelsTool_" + signature,
