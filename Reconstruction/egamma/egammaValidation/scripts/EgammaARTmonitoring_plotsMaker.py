@@ -153,6 +153,34 @@ photon_fraction_list = [
         'color': kPink + 2, 'title': 'True Conv #rightarrow Unconv'}
 ]
 
+photonfake_fraction_list = [
+    {'name': 'truthPhotonUnconvRecoConvEfficiency',
+        'color': kBlack, 'title': 'True Unconv #rightarrow Conv'},
+    {'name': 'truthPhotonUnconvRecoConv1SiEfficiency', 'color': kBlue +
+        2, 'title': 'True Unconv #rightarrow 1 Si Conv'},
+    {'name': 'truthPhotonUnconvRecoConv1TRTEfficiency', 'color': kRed +
+        2, 'title': 'True Unconv #rightarrow 1 TRT Conv'},
+    {'name': 'truthPhotonUnconvRecoConv2SiEfficiency', 'color': kGreen +
+        2, 'title': 'True Unconv #rightarrow Si-Si Conv'},
+    {'name': 'truthPhotonUnconvRecoConv2TRTEfficiency', 'color': kOrange + 2,
+     'title': 'True Unconv #rightarrow TRT-TRT Conv'},
+    {'name': 'truthPhotonUnconvRecoConv2SiTRTEfficiency', 'color': kCyan + 2,
+     'title': 'True Unconv #rightarrow Si-TRT Conv'},
+    {'name': 'truthPhotonUnconvRecoUnconvEfficiency',
+        'color': kPink + 2, 'title': 'True Unconv #rightarrow Unconv'}
+]
+
+photon_efficiency_list = [
+    {'name': 'truthPhotonRecoPhotonEfficiency',
+        'color': kBlack, 'title': 'All photons'},
+    {'name': 'truthPhotonRecoPhotonOrElectronEfficiency', 'color': kGreen +2, 
+       'title': 'All photons + electrons'},
+    {'name': 'truthPhotonConvRecoEfficiency', 'color': kRed,
+       'title': 'True converted'},
+    {'name': 'truthPhotonUnconvRecoEfficiency', 'color': kBlue,
+        'title': 'True unconverted'}
+]
+
 photon_conversion_list = [
     {'name': 'truthConvRecoConv2Si', 'color': kGreen +
         2, 'title': 'True Conv #rightarrow Si-Si Conv'},
@@ -164,6 +192,58 @@ photon_conversion_list = [
         2, 'title': 'True Conv #rightarrow TRT-TRT Conv'},
     {'name': 'truthConvRecoConv2SiTRT', 'color': kCyan +
         2, 'title': 'True Conv #rightarrow Si-TRT Conv'},
+]
+
+photon_track_list = [
+    {'name': 'InDetTracks', 'color': kBlack,
+        'title': 'All tracks'},
+    {'name': 'InDetTracksMatchElectron', 'color': kOrange,
+        'title': 'Matched to true electrons'},
+    {'name': 'InDetTracksNotElectron', 'color': kBlue,
+        'title': 'Not matched to true electrons'},
+    {'name': 'InDetTracksMatchPion', 'color': kGreen +
+        2, 'title': 'Matched to true Pion'},
+    {'name': 'InDetTracksNotMatched', 'color': kCyan +
+        2, 'title': 'Not matched to truth'},
+]
+
+photon_trackTRT_list = [
+    {'name': 'InDetTracksTRT', 'color': kBlack,
+        'title': 'All tracks'},
+    {'name': 'InDetTracksTRTMatchElectron', 'color': kOrange,
+        'title': 'Matched to true electrons'},
+    {'name': 'InDetTracksTRTNotElectron', 'color': kBlue,
+        'title': 'Not matched to true electrons'},
+    {'name': 'InDetTracksTRTMatchPion', 'color': kGreen +
+        2, 'title': 'Matched to true Pion'},
+    {'name': 'InDetTracksTRTNotMatched', 'color': kCyan +
+        2, 'title': 'Not matched to truth'},
+]
+
+photon_trackhighpT_list = [
+    {'name': 'InDetTrackshighpT', 'color': kBlack,
+        'title': 'All tracks'},
+    {'name': 'InDetTracksMatchElectronhighpT', 'color': kOrange,
+        'title': 'Matched to true electrons'},
+    {'name': 'InDetTracksNotElectronhighpT', 'color': kBlue,
+        'title': 'Not matched to true electrons'},
+    {'name': 'InDetTracksMatchPionhighpT', 'color': kGreen +
+        2, 'title': 'Matched to true Pion'},
+    {'name': 'InDetTracksNotMatchedhighpT', 'color': kCyan +
+        2, 'title': 'Not matched to truth'},
+]
+
+photon_trackTRThighpT_list = [
+    {'name': 'InDetTracksTRThighpT', 'color': kBlack,
+        'title': 'All tracks'},
+    {'name': 'InDetTracksTRTMatchElectronhighpT', 'color': kOrange,
+        'title': 'Matched to true electrons'},
+    {'name': 'InDetTracksTRTNotElectronhighpT', 'color': kBlue,
+        'title': 'Not matched to true electrons'},
+    {'name': 'InDetTracksTRTMatchPionhighpT', 'color': kGreen +
+        2, 'title': 'Matched to true Pion'},
+    {'name': 'InDetTracksTRTNotMatchedhighpT', 'color': kCyan +
+        2, 'title': 'Not matched to truth'},
 ]
 
 
@@ -323,7 +403,7 @@ def make_conversion_plot(f_base, f_nightly, result_file):
         c1.Write("ConversionRadiusTrueVsReco")
 
 
-def make_photon_fraction_plot(f_base, f_nightly, result_file):
+def make_photon_fraction_plot(f_base, f_nightly, result_file, example_folder, folder_list, plot_name, axis_title, normalize = False):
     """
     This functions created a photon validation plot with efficiencies
     and fractions
@@ -331,7 +411,7 @@ def make_photon_fraction_plot(f_base, f_nightly, result_file):
     :param f_base TFile with the baseline histograms:
     :param f_nightly TFile with the nightly histograms:
     """
-    for histo in get_key_names(f_nightly, 'truthPhotonConvRecoConvEfficiency'):
+    for histo in get_key_names(f_nightly, example_folder):
 
         variable_name = histo.split("_", 1)[1]
 
@@ -343,7 +423,7 @@ def make_photon_fraction_plot(f_base, f_nightly, result_file):
         leg2 = TLegend(0.5, 0.7, 0.9, 0.75)
         leg2.SetNColumns(2)
 
-        for i, folder in enumerate(photon_fraction_list):
+        for i, folder in enumerate(folder_list):
 
             baseline = f_base.Get(
                 folder['name'] + '/' + folder['name'] + "_" + variable_name)
@@ -352,12 +432,22 @@ def make_photon_fraction_plot(f_base, f_nightly, result_file):
                 folder['name'] + '/' + folder['name'] + "_" + variable_name)
             nightly.SetDirectory(0)
 
+            if normalize and 'vs' not in variable_name:
+                if baseline.Integral() != 0:
+                    baseline.Scale(1/baseline.Integral())
+                if nightly.Integral() != 0:
+                    nightly.Scale(1/nightly.Integral())
+
             baseline.SetMinimum(
                 min(baseline.GetMinimum(), baseline.GetMinimum()) * 0.7)
             baseline.SetMaximum(
                 max(baseline.GetMaximum(), baseline.GetMaximum()) * 1.3)
 
-            baseline.GetYaxis().SetTitle("Efficiency and fraction")
+            if variable_name != -1:
+                baseline.SetMinimum(0.);
+                baseline.SetMaximum(1.3);
+
+            baseline.GetYaxis().SetTitle(axis_title)
 
             baseline.SetLineColor(folder['color'])
             nightly.SetLineColor(folder['color'])
@@ -393,9 +483,9 @@ def make_photon_fraction_plot(f_base, f_nightly, result_file):
 
         result_file.cd()
 
-        c1.SaveAs("ConvertionEff_" + variable_name + ".png")
+        c1.SaveAs(plot_name + "_" + variable_name + ".png")
 
-        c1.Write("ConvertionEff_" + variable_name)
+        c1.Write(plot_name + "_" + variable_name)
 
 
 def make_ratio_plot(h_base, h_nightly, name, result_file, y_axis_label=None):
@@ -513,8 +603,15 @@ if __name__ == '__main__':
 
     if particle_type == 'gamma':
 
-        make_photon_fraction_plot(baseline_file, nightly_file, output_file)
+        make_photon_fraction_plot(baseline_file, nightly_file, output_file, 'truthPhotonConvRecoConvEfficiency', photon_fraction_list, 'ConvertionEff_TrueConv', "Efficiency and fraction")
+        make_photon_fraction_plot(baseline_file, nightly_file, output_file, 'truthPhotonUnconvRecoConvEfficiency', photonfake_fraction_list, 'ConvertionEff_TrueUnconv', "Efficiency and fraction")
+        make_photon_fraction_plot(baseline_file, nightly_file, output_file, 'truthPhotonRecoPhotonEfficiency', photon_efficiency_list, 'PhotonEff', "Efficiency")
+        make_photon_fraction_plot(baseline_file, nightly_file, output_file, 'InDetTracks', photon_track_list, 'Track', "Tracks", True)
+        make_photon_fraction_plot(baseline_file, nightly_file, output_file, 'InDetTracksTRT', photon_trackTRT_list, 'TrackTRT', "Tracks", True)
+        make_photon_fraction_plot(baseline_file, nightly_file, output_file, 'InDetTrackshighpT', photon_trackhighpT_list, 'TrackhighpT', "Tracks", True)
+        make_photon_fraction_plot(baseline_file, nightly_file, output_file, 'InDetTracksTRThighpT', photon_trackTRThighpT_list, 'TrackTRThighpT', "Tracks", True)
         make_conversion_plot(baseline_file, nightly_file, output_file)
+
 
     make_comparison_plots(particle_type, baseline_file,
                           nightly_file, output_file)
