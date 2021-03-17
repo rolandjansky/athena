@@ -31,7 +31,7 @@ def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False, useAlgSequence =
     # * on MC we need to simulate them (in the previous, HITs->DIGI step)
     if globalflags.DataSource()=='data':
         if simflags.Calo.SCellType() != "Emulated" or simflags.Calo.SCellType() != "PreEmulated":
-            log.error("Running on data and SuperCell-type is set to %s. On data SuperCells currently need to be emulated." % simflags.Calo.SCellType())
+            log.info("Running on data and SuperCell-type is set to %s. On data SuperCells currently need to be emulated." % simflags.Calo.SCellType())
     else:
         if simflags.Calo.SCellType() == "Emulated":
             log.warning("Running on simulation and SuperCell-type is set to Emulated. Simulation should run from simulated SuperCells")
