@@ -15,6 +15,8 @@
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 
 #include "ExpressionEvaluation/ExpressionParserUser.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODBase/IParticleContainer.h"
 
 namespace DerivationFramework {
 
@@ -30,10 +32,10 @@ namespace DerivationFramework {
     private:
       std::string m_expression;
       std::string m_expression2;
-      std::string m_sgName;
+      SG::WriteHandleKey<std::vector<float> > m_sgName {this,"StoreGateEntryName","","SG key of output object"};
       float m_massHypothesis,m_massHypothesis2;
-      std::string m_containerName;
-      std::string m_containerName2;
+      SG::ReadHandleKey<xAOD::IParticleContainer> m_containerName  {this,"ContainerName","","SG key of first container"};
+      SG::ReadHandleKey<xAOD::IParticleContainer> m_containerName2 {this,"SecondContainerName","","SG key of first container"};
       StatusCode getInvariantMasses(std::vector<float>*) const;
       float calculateInvariantMass(float,float,float,float,float,float,float) const;		
       float calculateInvariantMass(float,float,float,float,float,float,float,float) const;
