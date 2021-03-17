@@ -216,7 +216,7 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::executeTandP( const EventContext& ct
             fillLabel(monGroup, "ProbeCutCounter", "Electrons");
 
             if(elProbe==elTag) continue;
-            fillLabel(monGroup, "ProbeCutCounter", "NotTags");
+            fillLabel(monGroup, "ProbeCutCounter", "NotTag");
             // Check opposite charge
             if(m_oppositeCharge && (elProbe->charge() == elTag->charge()) ) continue;
             fillLabel(monGroup, "ProbeCutCounter", "OS");
