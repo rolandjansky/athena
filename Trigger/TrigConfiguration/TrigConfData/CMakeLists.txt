@@ -20,6 +20,18 @@ atlas_add_library ( TrigConfData
                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                     LINK_LIBRARIES ${Boost_LIBRARIES} ${extra_libs} CxxUtils )
 
+# Put the TRIGCONF_STANDALONE and XAOD_STANDALONE compiler flags explicitly on
+# the library. This is necessary for Point-1 projects to build against these
+# libraries correctly. Since they don't call "find_package(DetCommon)"" for
+# setting up these targets. :-( (Which would take care of globally setting up
+# these compiler flags for all targets.)
+if( TRIGCONF_STANDALONE )
+   target_compile_definitions( TrigConfData PUBLIC TRIGCONF_STANDALONE )
+endif()
+if( XAOD_STANDALONE )
+   target_compile_definitions( TrigConfData PUBLIC XAOD_STANDALONE )
+endif()
+
 # Tests in the package:
 atlas_add_test( ConstIter SOURCES test/itertest.cxx
                 LINK_LIBRARIES TrigConfData
