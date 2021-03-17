@@ -410,7 +410,7 @@ void TileRawChannelBuilder::fill_drawer_errors(const EventContext& ctx,
 
           msg(MSG::VERBOSE) << "ChErr ";
           int ch = 0;
-          while (ch < MAX_CHANNELS) {
+          while (ch < MAX_CHANNELS-2) {
             msg(MSG::VERBOSE) << " " << m_error[ch++];
             msg(MSG::VERBOSE) << " " << m_error[ch++];
             msg(MSG::VERBOSE) << " " << m_error[ch++];
