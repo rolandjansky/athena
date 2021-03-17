@@ -6,7 +6,7 @@
 atlas_subdir(TrigT1CaloFexPerf)
 
 # External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist Matrix RIO pthread)
+find_package( ROOT COMPONENTS Core MathCore Hist RIO )
 
 atlas_add_library(
   TrigT1CaloFexPerfLib
@@ -21,8 +21,7 @@ atlas_add_component(
   TrigT1CaloFexPerf
   src/components/*.cxx src/*.cxx
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-  LINK_LIBRARIES GaudiKernel ${ROOT_LIBRARIES} TrigT1CaloFexPerfLib TrigAnalysisInterfaces JetInterface JetCalibToolsLib xAODEventInfo CaloEvent CaloInterfaceLib TileEvent xAODTrigL1Calo xAODTrigCalo xAODMissingET xAODJet xAODBase xAODCore CaloDetDescrLib CaloIdentifier AthenaBaseComps AthAnalysisBaseCompsLib GaudiKernel LArToolsLib CaloTriggerToolLib PathResolver xAODTrigger 
-)	      
+  LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks AthenaBaseComps AthenaKernel CaloDetDescrLib CaloEvent CaloIdentifier CxxUtils GaudiKernel PathResolver StoreGateLib TileEvent TrigT1CaloFexPerfLib xAODBase xAODCore xAODTrigCalo xAODTrigL1Calo xAODTrigger )
 
 # Install files from the package
 atlas_install_python_modules( python/*.py )
