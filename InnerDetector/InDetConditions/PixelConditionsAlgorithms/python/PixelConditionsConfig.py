@@ -384,7 +384,7 @@ def PixelDCSCondHVAlgCfg(flags, name="PixelDCSCondHVAlg", **kwargs):
 def PixelDCSCondStateAlgCfg(flags, name="PixelDCSCondStateAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelDCSCondStateAlg"""
     acc = ComponentAccumulator()
-    if not flags.Input.isMC and not flags.Overlay.DataOverlay:
+    if not flags.Input.isMC and not flags.Overlay.DataOverlay and flags.InDet.usePixelDCS:
         acc.merge(addFolders(flags, "/PIXEL/DCS/FSMSTATE", "DCS_OFL", className="CondAttrListCollection"))
         kwargs.setdefault("ReadKeyState", "/PIXEL/DCS/FSMSTATE")
     else:
@@ -396,7 +396,7 @@ def PixelDCSCondStateAlgCfg(flags, name="PixelDCSCondStateAlg", **kwargs):
 def PixelDCSCondStatusAlgCfg(flags, name="PixelDCSCondStatusAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelDCSCondStatusAlg"""
     acc = ComponentAccumulator()
-    if not flags.Input.isMC and not flags.Overlay.DataOverlay:
+    if not flags.Input.isMC and not flags.Overlay.DataOverlay and flags.InDet.usePixelDCS:
         acc.merge(addFolders(flags, "/PIXEL/DCS/FSMSTATUS", "DCS_OFL", className="CondAttrListCollection"))
         kwargs.setdefault("ReadKeyStatus", "/PIXEL/DCS/FSMSTATUS")
     else:
