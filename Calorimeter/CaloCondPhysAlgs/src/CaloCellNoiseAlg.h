@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // TheCaloCellNoiseAlg.h
@@ -20,8 +20,8 @@
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "LArElecCalib/ILArPedestal.h"
 #include "LArElecCalib/ILArNoise.h"
-#include "LArElecCalib/ILArADC2MeVTool.h"
-#include "CaloInterface/ICaloNoiseTool.h"
+#include "LArRawConditions/LArADC2MeV.h"
+#include "CaloConditions/CaloNoise.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
 #include "GaudiKernel/ITHistSvc.h"
@@ -30,31 +30,28 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 
-#include "CxxUtils/checker_macros.h"
 
   class CaloCellNoiseAlg : public AthAlgorithm {
   public:
     //Gaudi style constructor and execution methods
     /** Standard Athena-Algorithm Constructor */
-    CaloCellNoiseAlg(const std::string& name, ISvcLocator* pSvcLocator) 
-      ATLAS_CTORDTOR_NOT_THREAD_SAFE;//Due to Data Handle not thread safe
+    CaloCellNoiseAlg(const std::string& name, ISvcLocator* pSvcLocator);
     /** Default Destructor */
-    ~CaloCellNoiseAlg() 
-      ATLAS_CTORDTOR_NOT_THREAD_SAFE; //Due to DataHandle not thread safe
+    virtual ~CaloCellNoiseAlg();
     
     /** standard Athena-Algorithm method */
-    StatusCode          initialize ATLAS_NOT_THREAD_SAFE(); //StoreGateSvc::regHandle(const DataHandle<H>& ... not safe
+    virtual StatusCode          initialize() override;
     /** standard Athena-Algorithm method */
-    StatusCode          execute();
+    virtual StatusCode          execute() override;
     /** standard Athena-Algorithm method */
-    StatusCode          finalize();
+    virtual StatusCode          finalize() override;
     /** standard Athena-Algorithm method */
-    StatusCode          stop ATLAS_NOT_THREAD_SAFE(); //Due tof fitNoise, so also due to DataHandle not thread safe
+    virtual StatusCode          stop() override;
     
   private:
 
     StatusCode         fillNtuple();
-    StatusCode         fitNoise ATLAS_NOT_THREAD_SAFE(); //Due to DataHandle not thread safe
+    StatusCode         fitNoise();
     StatusCode         readNtuple();
     float              getLuminosity();
 
@@ -65,9 +62,14 @@
 
   const CaloDetDescrManager* m_calodetdescrmgr;
   const CaloCell_ID*       m_calo_id;
-  const DataHandle<ILArNoise> m_dd_noise; /* Data Handle is marked as not thread safe*/
-  const DataHandle<ILArPedestal> m_dd_pedestal; /* Data Handle is marked as not thread safe*/ 
-  ToolHandle<ILArADC2MeVTool> m_adc2mevTool;
+  SG::ReadCondHandleKey<ILArNoise>    m_noiseKey{this,"NoiseKey","LArNoiseSym","SG Key of ILArNoise object"};
+  SG::ReadCondHandleKey<ILArPedestal> m_pedestalKey{this,"PedestalKey","LArPedestal","SG Key of LArPedestal object"};
+  SG::ReadCondHandleKey<LArADC2MeV> m_adc2mevKey
+    { this, "ADC2MeVKey", "LArADC2MeV", "SG Key of the LArADC2MeV CDO" };
+  SG::ReadCondHandleKey<CaloNoise> m_totalNoiseKey
+    { this, "TotalNoiseKey", "totalNoise", "SG conditions key for total noise" };
+  SG::ReadCondHandleKey<CaloNoise> m_elecNoiseKey
+    { this, "ElecNoiseKey", "electronicNoise", "SG conditions key for electronic noise" };
 
   // list of cell energies
   struct CellInfo {
@@ -115,7 +117,6 @@
    ToolHandle<Trig::TrigDecisionTool> m_trigDecTool; //!< TDT handle
    std::string  m_triggerChainProp;
    FloatArrayProperty m_cuts;
-   ToolHandle<ICaloNoiseTool> m_noiseToolDB;
    SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
    std::string m_lumiFolderName;
    int m_addlumiblock;

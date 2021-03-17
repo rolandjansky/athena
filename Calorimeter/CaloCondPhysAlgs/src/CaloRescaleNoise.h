@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // CaloRescaleNoise.h
@@ -17,7 +17,6 @@
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "CaloInterface/ICaloNoiseTool.h"
 #include "CaloInterface/ICaloMBAverageTool.h"
 #include "LArElecCalib/ILArHVScaleCorr.h"
 #include "StoreGate/ReadCondHandleKey.h"  
@@ -27,6 +26,8 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "TTree.h"
 
+class CaloNoise;
+
 class CaloRescaleNoise : public AthAlgorithm {
 
   public:
@@ -34,16 +35,16 @@ class CaloRescaleNoise : public AthAlgorithm {
     /** Standard Athena-Algorithm Constructor */
     CaloRescaleNoise(const std::string& name, ISvcLocator* pSvcLocator);
     /** Default Destructor */
-    ~CaloRescaleNoise();
+    virtual ~CaloRescaleNoise();
     
     /** standard Athena-Algorithm method */
-    StatusCode          initialize();
+    virtual StatusCode          initialize() override;
     /** standard Athena-Algorithm method */
-    StatusCode          execute();
+    virtual StatusCode          execute() override;
     /** standard Athena-Algorithm method */
-    StatusCode          finalize();
+    virtual StatusCode          finalize() override;
     /** standard Athena-Algorithm method */
-    StatusCode          stop();
+    virtual StatusCode          stop() override;
     
   private:
 
@@ -54,7 +55,13 @@ class CaloRescaleNoise : public AthAlgorithm {
 
   const CaloCell_ID*       m_calo_id;
 
-  ToolHandle<ICaloNoiseTool> m_noiseTool;
+  SG::ReadCondHandleKey<CaloNoise> m_totalNoiseKey
+    { this, "TotalNoiseKey", "totalNoise", "SG key for total noise" };
+  SG::ReadCondHandleKey<CaloNoise> m_elecNoiseKey
+    { this, "ElecNoiseKey", "electronicNoise", "SG key for electronic noise" };
+  SG::ReadCondHandleKey<CaloNoise> m_pileupNoiseKey
+    { this, "PileupNoiseKey", "pileupNoise", "SG key for pileup noise" };
+
   SG::ReadCondHandleKey<ILArHVScaleCorr> m_scaleCorrKey
   { this, "LArHVScaleCorr", "LArHVScaleCorrRecomputed", "" };
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};

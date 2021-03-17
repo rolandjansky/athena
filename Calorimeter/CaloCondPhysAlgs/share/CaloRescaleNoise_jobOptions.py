@@ -1,11 +1,11 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 ###############################################################
 #
 # Job options file for CaloRescaleNoise
 #
 #==============================================================
 
-# configuration for data, read noise from database through CaloNoiseToolDB
+# configuration for data
 
 GlobalTag =  'COMCOND-ES1C-000-00'
 RunNumber = 154757
@@ -74,9 +74,10 @@ include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 
 svcMgr.IOVDbSvc.GlobalTag = GlobalTag
 
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-theCaloNoiseTool = CaloNoiseToolDefault()
-ToolSvc += theCaloNoiseTool
+from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+CaloNoiseCondAlg ('totalNoise')
+CaloNoiseCondAlg ('electronicNoise')
+CaloNoiseCondAlg ('pileupNoise')
 
 from LArConditionsCommon import LArHVDB
 
@@ -85,7 +86,6 @@ from LArConditionsCommon import LArHVDB
 #--------------------------------------------------------------
 from CaloCondPhysAlgs.CaloCondPhysAlgsConf import CaloRescaleNoise
 theCaloRescaleNoise = CaloRescaleNoise("CaloRescaleNoise")
-theCaloRescaleNoise.noiseTool = theCaloNoiseTool
 
 topSequence += theCaloRescaleNoise
 

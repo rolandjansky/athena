@@ -1,11 +1,11 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 ###############################################################
 #
 # Job options file for CaloNoise2Ntuple
 #
 #==============================================================
 
-# configuration for MC, get noise from CaloNoiseTool
+# configuration for MC
 
 if 'RunNumber' not in dir():
    RunNumber = 999999
@@ -68,16 +68,16 @@ include("LArConditionsCommon/LArConditionsCommon_MC_jobOptions.py")
 
 svcMgr.IOVDbSvc.GlobalTag = GlobalTag
 
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-theCaloNoiseTool = CaloNoiseToolDefault()
-ToolSvc += theCaloNoiseTool
+from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+CaloNoiseCondAlg ('totalNoise')
+CaloNoiseCondAlg ('electronicNoise')
+CaloNoiseCondAlg ('pileupNoise')
 
 #--------------------------------------------------------------
 # Private Application Configuration options
 #--------------------------------------------------------------
 from CaloCondPhysAlgs.CaloCondPhysAlgsConf import CaloNoise2Ntuple
 theCaloNoise2Ntuple = CaloNoise2Ntuple("CaloNoise2Ntuple")
-theCaloNoise2Ntuple.noiseTool = theCaloNoiseTool
 topSequence += theCaloNoise2Ntuple
 
 if "dbNoise" in dir():
