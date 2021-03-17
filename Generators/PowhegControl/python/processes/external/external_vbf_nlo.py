@@ -52,19 +52,19 @@ class ExternalVBFNLO(ExternalBase):
         # Add runcard entries
         VBF_runcard_entries = [("PROC_ID", {"z": 120, "w+": 130, "w-": 140}[__vector_boson_type], "{} boson".format(__vector_boson_type)),
                                ("DECAYMODE", {"e": 11, "mu": 13}[__vector_boson_decay], self.decay_mode),
-                               ("HMASS", self.mass_H, self.parameters_by_name("mass_H")[0].description),
-                               ("HWIDTH", self.width_H, self.parameters_by_name("width_H")[0].description),
+                               ("HMASS", self.mass_H, list(self.parameters_by_name("mass_H"))[0].description),
+                               ("HWIDTH", self.width_H, list(self.parameters_by_name("width_H"))[0].description),
                                ("EWSCHEME", 4, "Explicitly specify all EW parameters"),
                                ("ANOM_CPL", 0, "Disable anomalous couplings as these are not supported by the authors"),
-                               ("TOPMASS", self.mass_t, self.parameters_by_name("mass_t")[0].description),
-                               ("TAU_MASS", self.mass_tau, self.parameters_by_name("mass_tau")[0].description),
-                               ("BOTTOMMASS", self.mass_b, self.parameters_by_name("mass_b")[0].description),
-                               ("CHARMMASS", self.mass_c, self.parameters_by_name("mass_c")[0].description),
-                               ("FERMI_CONST", self.G_F, self.parameters_by_name("G_F")[0].description),
-                               ("INVALFA", self.alphaem_inv, self.parameters_by_name("alphaem_inv")[0].description),
-                               ("SIN2W", self.sthw2, self.parameters_by_name("sthw2")[0].description),
-                               ("WMASS", self.mass_W, self.parameters_by_name("mass_W")[0].description),
-                               ("ZMASS", self.mass_Z, self.parameters_by_name("mass_Z")[0].description)]
+                               ("TOPMASS", self.mass_t, list(self.parameters_by_name("mass_t"))[0].description),
+                               ("TAU_MASS", self.mass_tau, list(self.parameters_by_name("mass_tau"))[0].description),
+                               ("BOTTOMMASS", self.mass_b, list(self.parameters_by_name("mass_b"))[0].description),
+                               ("CHARMMASS", self.mass_c, list(self.parameters_by_name("mass_c"))[0].description),
+                               ("FERMI_CONST", self.G_F, list(self.parameters_by_name("G_F"))[0].description),
+                               ("INVALFA", self.alphaem_inv, list(self.parameters_by_name("alphaem_inv"))[0].description),
+                               ("SIN2W", self.sthw2, list(self.parameters_by_name("sthw2"))[0].description),
+                               ("WMASS", self.mass_W, list(self.parameters_by_name("mass_W"))[0].description),
+                               ("ZMASS", self.mass_Z, list(self.parameters_by_name("mass_Z"))[0].description)]
         # Write special VBF runcard
         with open("vbfnlo.input", "w") as f:
             for runcard_entry in VBF_runcard_entries:

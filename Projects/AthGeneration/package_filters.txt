@@ -87,7 +87,7 @@
 + Database/IOVDbAthenaPool
 + Database/IOVDbDataModel
 + Database/IOVDbMetaDataTools
-#+ Database/IOVDbPTCnv
++ Database/IOVDbPTCnv
 + Database/IOVDbSvc
 + Database/IOVDbTPCnv
 + Database/PersistentDataModel

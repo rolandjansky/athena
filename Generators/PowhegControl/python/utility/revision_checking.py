@@ -19,7 +19,7 @@ def check_svn_revision(path):
     try:
         # Try getting the revision hash from the SVN repository
         command = "svn info {path}".format(path=os.path.realpath(path)) # expand symbolic links
-        p = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         (svninfo, _) = p.communicate()
         for line in svninfo.split('\n'):
             if "Revision:" in line:
