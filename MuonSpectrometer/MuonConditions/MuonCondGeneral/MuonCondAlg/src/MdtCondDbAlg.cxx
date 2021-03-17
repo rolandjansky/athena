@@ -71,7 +71,7 @@ MdtCondDbAlg::execute(const EventContext& ctx) const {
         	  << " if multiple concurrent events are being processed out of order.");
         return StatusCode::SUCCESS; 
     }
-    std::unique_ptr<MdtCondDbData> writeCdo{std::make_unique<MdtCondDbData>()};
+    std::unique_ptr<MdtCondDbData> writeCdo{std::make_unique<MdtCondDbData>(m_idHelperSvc->mdtIdHelper())};
 
     // retrieving data
     if(m_isData && m_isRun1) {
