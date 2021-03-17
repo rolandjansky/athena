@@ -82,7 +82,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
     #-- caloNoise groups --
     caloNoiseToolArrayEM = helper.addArray([nLayers],larCoverageAlg,caloNoiseToolGroupName+"EM")
     caloNoiseToolArrayHEC = helper.addArray([nLayers],larCoverageAlg,caloNoiseToolGroupName+"HEC")
-    caloNoiseToolArrayFCAL = helper.addArray([nLayers],larCoverageAlg,caloNoiseToolGroupName+"FCAL")
+    caloNoiseToolArrayFCal = helper.addArray([nLayers],larCoverageAlg,caloNoiseToolGroupName+"FCal")
     caloNoiseToolGroup = helper.addGroup( #for the LB histogram
         larCoverageAlg,
         caloNoiseToolGroupName,
@@ -134,10 +134,10 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                          path='LAr/'+caloNoiseTool_path,
                                          title='DBNoise in HEC',
                                          xbins=lArDQGlobals.etaCaloNoise_Bins,xmax=lArDQGlobals.etaCaloNoise_Max,xmin=lArDQGlobals.etaCaloNoise_Min)
-    caloNoiseToolArrayFCAL.defineHistogram('etaChan,noise;CaloNoiseFCAL_Sampling',
+    caloNoiseToolArrayFCal.defineHistogram('etaChan,noise;CaloNoiseFCal_Sampling',
                                          type='TProfile',
                                          path='LAr/'+caloNoiseTool_path,
-                                         title='DBNoise in FCAL',
+                                         title='DBNoise in FCal',
                                          xbins=lArDQGlobals.etaCaloNoise_FcalBins,xmax=lArDQGlobals.etaCaloNoise_FcalMax,xmin=lArDQGlobals.etaCaloNoise_FcalMin)
 
 
@@ -173,7 +173,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
 
     #--coverageHW histograms
     coverage_path=coveragePath+'perPartition/'
-    coverageToolArrayEMBA.defineHistogram('mon_ChanFtSlot,mon_Channels;RAW_CoverageHW_EMBA_statusCode',
+    coverageToolArrayEMBA.defineHistogram('mon_ChanFtSlot,mon_Channels;CoverageHW_EMBA_statusCode',
                                             type='TH2I',
                                             path=coverage_path,
                                             title='Coverage - EMBA - statusCode={0};Feedthrough(+Slot increasing);Channel',
@@ -185,7 +185,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                             ymax=lArDQGlobals.FEB_N_channels-0.5,
                                             xlabels=lArDQGlobals.Feedthrough_Slot_labels_Barrel)
 
-    coverageToolArrayEMBC.defineHistogram('mon_ChanFtSlot,mon_Channels;RAW_CoverageHW_EMBC_statusCode',
+    coverageToolArrayEMBC.defineHistogram('mon_ChanFtSlot,mon_Channels;CoverageHW_EMBC_statusCode',
                                             type='TH2I',
                                             path=coverage_path,
                                             title='Coverage - EMBC - statusCode={0};Feedthrough(+Slot increasing);Channel',
@@ -197,7 +197,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                             ymax=lArDQGlobals.FEB_N_channels-0.5,
                                             xlabels=lArDQGlobals.Feedthrough_Slot_labels_Barrel)
     
-    coverageToolArrayEMECA.defineHistogram('mon_ChanFtSlot,mon_Channels;RAW_CoverageHW_EMECA_statusCode',
+    coverageToolArrayEMECA.defineHistogram('mon_ChanFtSlot,mon_Channels;CoverageHW_EMECA_statusCode',
                                            type='TH2I',
                                            path=coverage_path,
                                            title='Coverage - EMECA - statusCode={0};Feedthrough(+Slot increasing);Channel',
@@ -209,7 +209,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                            ymax=lArDQGlobals.FEB_N_channels-0.5,
                                            xlabels=lArDQGlobals.Feedthrough_Slot_labels_Endcap)
 
-    coverageToolArrayEMECC.defineHistogram('mon_ChanFtSlot,mon_Channels;RAW_CoverageHW_EMECA_statusCode',
+    coverageToolArrayEMECC.defineHistogram('mon_ChanFtSlot,mon_Channels;CoverageHW_EMECA_statusCode',
                                            type='TH2I',
                                            path=coverage_path,
                                            title='Coverage - EMECC - statusCode={0};Feedthrough(+Slot increasing);Channel',
@@ -221,7 +221,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                            ymax=lArDQGlobals.FEB_N_channels-0.5,
                                            xlabels=lArDQGlobals.Feedthrough_Slot_labels_Endcap)
 
-    coverageToolArrayHECA.defineHistogram('mon_ChanFtSlot,mon_Channels;RAW_CoverageHW_HECA_statusCode',
+    coverageToolArrayHECA.defineHistogram('mon_ChanFtSlot,mon_Channels;CoverageHW_HECA_statusCode',
                                            type='TH2I',
                                            path=coverage_path,
                                            title='Coverage - HECA - statusCode={0};Feedthrough(+Slot increasing);Channel',
@@ -233,7 +233,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                            ymax=lArDQGlobals.FEB_N_channels-0.5,
                                            xlabels=lArDQGlobals.Feedthrough_Slot_labels_Endcap)
 
-    coverageToolArrayHECC.defineHistogram('mon_ChanFtSlot,mon_Channels;RAW_CoverageHW_HECA_statusCode',
+    coverageToolArrayHECC.defineHistogram('mon_ChanFtSlot,mon_Channels;CoverageHW_HECA_statusCode',
                                            type='TH2I',
                                            path=coverage_path,
                                            title='Coverage - HECC - statusCode={0};Feedthrough(+Slot increasing);Channel',
@@ -245,7 +245,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                            ymax=lArDQGlobals.FEB_N_channels-0.5,
                                            xlabels=lArDQGlobals.Feedthrough_Slot_labels_Endcap)
 
-    coverageToolArrayFCalA.defineHistogram('mon_ChanFtSlot,mon_Channels;RAW_CoverageHW_FCalA_statusCode',
+    coverageToolArrayFCalA.defineHistogram('mon_ChanFtSlot,mon_Channels;CoverageHW_FCalA_statusCode',
                                            type='TH2I',
                                            path=coverage_path,
                                            title='Coverage - FCalA - statusCode={0};Feedthrough(+Slot increasing);Channel',
@@ -257,7 +257,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                            ymax=lArDQGlobals.FEB_N_channels-0.5,
                                            xlabels=lArDQGlobals.Feedthrough_Slot_labels_Endcap)
 
-    coverageToolArrayFCalC.defineHistogram('mon_ChanFtSlot,mon_Channels;RAW_CoverageHW_FCalC_statusCode',
+    coverageToolArrayFCalC.defineHistogram('mon_ChanFtSlot,mon_Channels;CoverageHW_FCalC_statusCode',
                                            type='TH2I',
                                            path=coverage_path,
                                            title='Coverage - FCalC - statusCode={0};Feedthrough(+Slot increasing);Channel',
