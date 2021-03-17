@@ -29,7 +29,6 @@ default_true_flags = [
     "useCaloTTL", # False for DC1. Can use True for Rome files with Digits or post-Rome data """
     "doMergedHLTResult", # if False disable decoding of the merged HLT Result (so decoding L2/EF Result) """
     "doAlwaysUnpackDSResult",  # if False disable decoding of DS results for all files but for real DS files
-    "writeL1TopoValData",  # if False disable writing out of the xAOD L1Topo validation object """
     "doFEX",  # if False disable Feature extraction algorithms """
     "doHypo",  # if False disable all Hypothesis algorithms (HYPO)"""
     "doID",  # if False, disable ID algos at LVL2 and EF """
