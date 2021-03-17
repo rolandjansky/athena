@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include "MuonCondTest/AlignCondAthTest.h"
-#include "MuonCondTest/MuonDetectorStatusTest.h"
 #include "MuonCondTest/MuonConditionsTestAlg.h" 
 #include "MuonCondTest/MDT_DCSStatusTest.h"
 #include "MuonCondTest/MDTConditionsTestAlg.h"
@@ -12,7 +11,6 @@
 #include "MuonCondTest/MuonConditionsHistoSummary.h"
 
 DECLARE_COMPONENT( AlignCondAthTest )
-DECLARE_COMPONENT( MuonDetectorStatusTest )
 DECLARE_COMPONENT( MuonConditionsTestAlg )
 DECLARE_COMPONENT( MDT_DCSStatusTest )
 DECLARE_COMPONENT( MDTConditionsTestAlg )

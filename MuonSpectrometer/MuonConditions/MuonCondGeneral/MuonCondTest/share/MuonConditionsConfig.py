@@ -63,16 +63,6 @@ MDT_DCSConditionsTool.SetPointsV1Folder = "/MDT/DCS/PSV1SETPOINTS"
 ToolSvc += MDT_DCSConditionsTool
 
 
-from MuonCondSvc.MuonCondSvcConf import MDT_DeadTubeConditionsSvc
-ServiceMgr +=MDT_DeadTubeConditionsSvc()
-
-from MuonCondTool.MuonCondToolConf import MDT_DeadTubeConditionsTool
-MDT_DeadTubeConditionsTool = MDT_DeadTubeConditionsTool("MDT_DeadTubeConditionsTool")
-MDT_DeadTubeConditionsTool.OutputLevel = VERBOSE 
-
-MDT_DeadTubeConditionsTool.DeadTubeFolder = "/MDT/TUBE_STATUS/DEAD_TUBE"
-ToolSvc += MDT_DeadTubeConditionsTool
-
 from MuonCondSvc.MuonCondSvcConf import MDTCondSummarySvc
 ServiceMgr +=MDTCondSummarySvc()
 
