@@ -37,18 +37,14 @@ namespace TrigConf {
 
    enum TrigConfSrc {DS = 0, XML, XMLL1, XMLHLT };
 
-   class TrigConfigSvc : public AthService, 
-                         virtual public ITrigConfigSvc
+   class TrigConfigSvc : public extends<AthService, ITrigConfigSvc>
    {
    public:
 
       TrigConfigSvc( const std::string& name, ISvcLocator* pSvcLocator );
 
-      virtual ~TrigConfigSvc(){}
-
       virtual StatusCode initialize() override;
 
-      virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvIF ) override;
       static const InterfaceID& interfaceID() { return ITrigConfigSvc::interfaceID(); }
 
       // L1Topo menu
