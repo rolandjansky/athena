@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CAMenuSequence, ChainStep, Chain, createStepView, EmptyMenuSequence
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CAMenuSequence, ChainStep, Chain, EmptyMenuSequence, SelectionCA
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 from TrigL2MuonSA.TrigL2MuonSAConfig_newJO import l2MuFastAlgCfg, l2MuFastHypoCfg
@@ -219,12 +219,7 @@ def generateChains( flags, chainDict ):
     muonflags = flags.cloneAndReplace('Muon', 'Trigger.Offline.Muon')
 
     # Step 1 (L2MuonSA)
-    stepName = 'L2MuonSA'
-    stepReco, stepView = createStepView(stepName)
-
-    acc = ComponentAccumulator()
-    acc.addSequence(stepView)
-
+    selAcc = SelectionCA("L2MuFastReco")
     # Set EventViews for L2MuonSA step
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
     reco = InViewReco("L2MuFastReco")
@@ -233,155 +228,127 @@ def generateChains( flags, chainDict ):
     reco.mergeReco( MuFastViewDataVerifier() )
 
     # decoding
-    decodeAcc = decodeCfg(muonflags, reco.name+"RoIs")
+    decodeAcc = decodeCfg(muonflags, selAcc.name+"RoIs")
     reco.mergeReco(decodeAcc)
 
+    #L2 SA alg
+    reco.mergeReco(l2MuFastAlgCfg( muonflags, roisKey=selAcc.name+"RoIs"))
 
-    # Get Reco alg of muFast Step in order to set into the view
-    algAcc, alg = l2MuFastAlgCfg( muonflags, roisKey=reco.name+"RoIs")
-
-    l2MuFastAlgAcc = ComponentAccumulator()
-    l2MuFastAlgAcc.addEventAlgo(alg)
-
-    reco.mergeReco( l2MuFastAlgAcc )
-    reco.merge( algAcc )
-    acc.merge( reco, sequenceName=stepReco.getName() )
+    selAcc.mergeReco(reco)
 
     ### Set muon step1 ###
     l2muFastHypo = l2MuFastHypoCfg( muonflags,
                                     name = 'TrigL2MuFastHypo',
                                     muFastInfo = 'MuonL2SAInfo' )
 
-    acc.addEventAlgo(l2muFastHypo, sequenceName=stepView.getName())
+    selAcc.addHypoAlgo(l2muFastHypo)
 
-    l2muFastSequence = CAMenuSequence(acc, 
+    l2muFastSequence = CAMenuSequence(selAcc, 
                                       HypoToolGen = TrigMufastHypoToolFromDict )
 
-    l2muFastStep = ChainStep( name=stepName, Sequences=[l2muFastSequence], chainDicts=[chainDict] )
+    l2muFastStep = ChainStep( name=selAcc.name, Sequences=[l2muFastSequence], chainDicts=[chainDict] )
 
     if 'msonly' not in chainDict['chainName']:
         #only run in combined muon chains
         ### Set muon step2 - L2muComb ###
-        stepL2CBName = 'L2MuonCB'
-        stepL2CBReco, stepL2CBView = createStepView(stepL2CBName)
+        selAccL2CB = SelectionCA("L2MuonCB")
 
-        accL2CB = ComponentAccumulator()
-        accL2CB.addSequence(stepL2CBView)
-
-        # Set EventViews for L2MuonCB step
+        # L2MuonCB reco
         recoL2CB = l2MuCombRecoCfg(muonflags)
+
         #external data loading to view
-        recoL2CB.inputMaker().RequireParentView = True
         recoL2CB.mergeReco( MuCombViewDataVerifier() )
 
         #ID tracking
-        accID = trigInDetFastTrackingCfg( muonflags, roisKey=recoL2CB.inputMaker().InViewRoIs, signatureName="Muon" )
-        recoL2CB.mergeReco(accID)
+        recoL2CB.mergeReco(trigInDetFastTrackingCfg( muonflags, roisKey=recoL2CB.inputMaker().InViewRoIs, signatureName="Muon" ))
 
-        accL2CB.merge(recoL2CB, sequenceName = stepL2CBReco.getName())
+        selAccL2CB.mergeReco(recoL2CB)
 
         l2muCombHypo = l2MuCombHypoCfg(muonflags,
                                        name = 'TrigL2MuCombHypo',
                                        muCombInfo = 'HLT_MuonL2CBInfo' )
 
-        accL2CB.addEventAlgo(l2muCombHypo, sequenceName=stepL2CBView.getName())
-
-        l2muCombSequence = CAMenuSequence(accL2CB,
+        selAccL2CB.addHypoAlgo(l2muCombHypo)
+        l2muCombSequence = CAMenuSequence(selAccL2CB,
                                           HypoToolGen = TrigmuCombHypoToolFromDict)
 
-        l2muCombStep = ChainStep( name=stepL2CBName, Sequences=[l2muCombSequence], chainDicts=[chainDict] )
+        l2muCombStep = ChainStep( name=selAccL2CB.name, Sequences=[l2muCombSequence], chainDicts=[chainDict] )
 
 
     #EF MS only
-    stepEFMSName = 'EFMSMuon'
-    stepEFMSReco, stepEFMSView = createStepView(stepEFMSName)
-
-    accMS = ComponentAccumulator()
-    accMS.addSequence(stepEFMSView)
+    selAccMS = SelectionCA('EFMuMSReco')
     
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
     ViewCreatorFetchFromViewROITool=CompFactory.ViewCreatorFetchFromViewROITool
     viewName="EFMuMSReco"
     viewMakerAlg = CompFactory.EventViewCreatorAlgorithm("IM"+viewName,
                                                          ViewFallThrough = True,
+                                                         RequireParentView = True,
                                                          RoIsLink        = 'initialRoI',
                                                          RoITool         = ViewCreatorFetchFromViewROITool(RoisWriteHandleKey="Roi_L2SAMuonForEF", InViewRoIs = "forMS", ViewToFetchFrom = "L2MuFastRecoViews"),
                                                          InViewRoIs      = viewName+'RoIs',
                                                          Views           = viewName+'Views',
                                                          ViewNodeName    = viewName+"InView")
     recoMS = InViewReco(name=viewName, viewMaker=viewMakerAlg)
-    recoMS.inputMaker().RequireParentView = True
     
     #Probably this block will eventually need to move somewhere more central
     from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
-    accMS.merge( BeamPipeGeometryCfg(muonflags) )
+    recoMS.merge( BeamPipeGeometryCfg(muonflags) )
 
     from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-    accMS.merge(PixelGeometryCfg(muonflags))
+    recoMS.merge(PixelGeometryCfg(muonflags))
     
     from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-    accMS.merge(SCT_GeometryCfg(muonflags))
+    recoMS.merge(SCT_GeometryCfg(muonflags))
     
     from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-    accMS.merge(TRT_GeometryCfg(muonflags))
+    recoMS.merge(TRT_GeometryCfg(muonflags))
 
     from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-    accMS.merge(TrackingGeometrySvcCfg(muonflags))
+    recoMS.merge(TrackingGeometrySvcCfg(muonflags))
 
     from LArGeoAlgsNV.LArGMConfig import LArGMCfg
-    accMS.merge(LArGMCfg(muonflags))
+    recoMS.merge(LArGMCfg(muonflags))
 
     from TileGeoModel.TileGMConfig import TileGMCfg
-    accMS.merge(TileGMCfg(muonflags))
+    recoMS.merge(TileGMCfg(muonflags))
     ###################
 
-    EFMuonViewDataVerifier = EFMuonViewDataVerifierCfg()
-    recoMS.mergeReco(EFMuonViewDataVerifier)
+    recoMS.mergeReco(EFMuonViewDataVerifierCfg())
 
     # decoding
-    decodeAcc = decodeCfg(muonflags, recoMS.name+"RoIs")
-    recoMS.mergeReco(decodeAcc)
+    recoMS.mergeReco(decodeCfg(muonflags, selAccMS.name+"RoIs"))
     
     from MuonConfig.MuonSegmentFindingConfig import MooSegmentFinderAlgCfg
-    segCfg = MooSegmentFinderAlgCfg(muonflags,name="TrigMooSegmentFinder",UseTGCNextBC=False, UseTGCPriorBC=False)
-    recoMS.mergeReco(segCfg)
+    recoMS.mergeReco( MooSegmentFinderAlgCfg(muonflags,name="TrigMooSegmentFinder",UseTGCNextBC=False, UseTGCPriorBC=False))
 
     from MuonConfig.MuonTrackBuildingConfig import MuonTrackBuildingCfg
-    trkCfg = MuonTrackBuildingCfg(muonflags, name="TrigMuPatTrackBuilder")
-    recoMS.mergeReco(trkCfg)
-
-    cnvCfg = MuonTrackParticleCnvCfg(muonflags, name = "TrigMuonTrackParticleCnvAlg")
-    recoMS.mergeReco(cnvCfg)
+    recoMS.mergeReco(MuonTrackBuildingCfg(muonflags, name="TrigMuPatTrackBuilder"))
+    recoMS.mergeReco(MuonTrackParticleCnvCfg(muonflags, name = "TrigMuonTrackParticleCnvAlg"))
     
     from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedMuonCandidateAlgCfg
-    candCfg = MuonCombinedMuonCandidateAlgCfg(muonflags, name = "TrigMuonCandidateAlg")
-    recoMS.mergeReco(candCfg)
+    recoMS.mergeReco(MuonCombinedMuonCandidateAlgCfg(muonflags, name = "TrigMuonCandidateAlg"))
 
     from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCreatorAlgCfg
-    creatorCfg = MuonCreatorAlgCfg(muonflags, name = "TrigMuonCreatorAlg")
-    recoMS.mergeReco(creatorCfg)
+    recoMS.mergeReco(MuonCreatorAlgCfg(muonflags, name = "TrigMuonCreatorAlg"))
 
-    accMS.merge(recoMS, sequenceName=stepEFMSReco.getName())
+    selAccMS.mergeReco(recoMS)
 
     efmuMSHypo = efMuHypoCfg( muonflags,
                               name = 'TrigMuonEFMSonlyHypo',
                               inputMuons = "Muons" )
 
-    accMS.addEventAlgo(efmuMSHypo, sequenceName=stepEFMSView.getName())
+    selAccMS.addHypoAlgo(efmuMSHypo)
 
-    efmuMSSequence = CAMenuSequence(accMS,
+    efmuMSSequence = CAMenuSequence(selAccMS,
                                     HypoToolGen = TrigMuonEFMSonlyHypoToolFromDict)
 
-    efmuMSStep = ChainStep( name=stepEFMSName, Sequences=[efmuMSSequence], chainDicts=[chainDict] )
+    efmuMSStep = ChainStep( name=selAccMS.name, Sequences=[efmuMSSequence], chainDicts=[chainDict] )
 
 
     #EF combined muons
     if 'msonly' not in chainDict['chainName']:
-        stepEFCBName = 'EFCBMuon'
-        stepEFCBReco, stepEFCBView = createStepView(stepEFCBName)
-
-        accCB = ComponentAccumulator()
-        accCB.addSequence(stepEFCBView)
+        selAccEFCB = SelectionCA("EFCBMuon")
     
         from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
         recoCB = InViewReco("EFMuCBReco")
@@ -404,18 +371,18 @@ def generateChains( flags, chainDict ):
                                             ExtrapolatedLocation = "CBExtrapolatedMuons", MSOnlyExtrapolatedLocation = "CBMSonlyExtrapolatedMuons", CombinedLocation = "HLT_CBCombinedMuon_RoI")
         recoCB.mergeReco(muonCreatorCBCfg)
 
-        accCB.merge(recoCB, sequenceName=stepEFCBReco.getName())
+        selAccEFCB.mergeReco(recoCB)
 
         efmuCBHypo = efMuHypoCfg( muonflags,
                                   name = 'TrigMuonEFCBHypo',
                                   inputMuons = "MuonsCB" )
 
-        accCB.addEventAlgo(efmuCBHypo, sequenceName=stepEFCBView.getName())
+        selAccEFCB.addHypoAlgo(efmuCBHypo)
 
-        efmuCBSequence = CAMenuSequence(accCB,
+        efmuCBSequence = CAMenuSequence(selAccEFCB,
                                         HypoToolGen = TrigMuonEFCombinerHypoToolFromDict)
 
-        efmuCBStep = ChainStep( name=stepEFCBName, Sequences=[efmuCBSequence], chainDicts=[chainDict] )
+        efmuCBStep = ChainStep( name=selAccEFCB.name, Sequences=[efmuCBSequence], chainDicts=[chainDict] )
 
 
     l1Thresholds=[]

@@ -73,12 +73,16 @@ namespace Athena_test {
 
     pSvcLoc = svcLoc.pRef();
 
-    (propMgr->setProperty( "EvtSel",         "NONE" )).ignore();
+    propMgr->setProperty( "EvtSel", "NONE" ).
+      orThrow("Cannnot set EvtSel property", "initGaudi");
     if (jobOptsFile.empty()) {
-      (propMgr->setProperty( "JobOptionsType", "NONE" )).ignore();
+      propMgr->setProperty( "JobOptionsType", "NONE" ).
+        orThrow("Cannnot set JobOptionsType property", "initGaudi");
     } else {
-      (propMgr->setProperty( "JobOptionsType", "FILE" )).ignore();
-      (propMgr->setProperty( "JobOptionsPath", jobOptsPath )).ignore();
+      propMgr->setProperty( "JobOptionsType", "FILE" ).
+        orThrow("Cannnot set JobOptionsType property", "initGaudi");
+      propMgr->setProperty( "JobOptionsPath", jobOptsPath ).
+        orThrow("Cannnot set JobOptionsPath property", "initGaudi");
     }
 
     if ((appMgr->configure()).isSuccess() &&

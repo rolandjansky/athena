@@ -1246,8 +1246,9 @@ namespace MuonCombined {
         const Trk::MeasurementBase& meas = **mit;  
         std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern(0);
         typePattern.set(Trk::TrackStateOnSurface::Measurement);
-        const Trk::TrackParameters* exPars = m_propagator->propagateParameters(*pars,meas.associatedSurface(),
-        Trk::anyDirection, false, Trk::MagneticFieldProperties(Trk::NoField));
+        //TSoS takes ownership
+        auto exPars = m_propagator->propagateParameters(*pars,meas.associatedSurface(),
+          Trk::anyDirection, false, Trk::MagneticFieldProperties(Trk::NoField)).release();
         if(!exPars){
           ATH_MSG_VERBOSE("Could not propagate Track to segment surface");
         }

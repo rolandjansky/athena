@@ -1,9 +1,9 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 from __future__ import absolute_import
 
 from TrigHLTJetHypo.node import Node
-from TrigHLTJetHypo.constants import lchars, digits
+from TrigHLTJetHypo.constants import lchars, param_alphabet
 
 def get_char(s):
     """character generator"""
@@ -158,7 +158,7 @@ class ChainLabelParser(object):
         
         c = next(self.gc)
     
-        if c in lchars or c in digits or c ==',':
+        if c in param_alphabet:
             self.paramAppend(c)
             return
 

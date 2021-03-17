@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // METMuonAssociator.cxx 
@@ -176,7 +176,7 @@ namespace met {
                     << " FSR E: " << mu->floatParameter(xAOD::Muon::FSR_CandidateEnergy) );
 
     // One loop over PFOs
-    for(const auto& pfo : *constits.pfoCont) {
+    for(const auto pfo : *constits.pfoCont) {
       if(pfo->isCharged()) {
         // get charged PFOs by matching the muon ID track
         // We set a small -ve pt for cPFOs that were rejected

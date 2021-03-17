@@ -36,8 +36,8 @@ ToolSvc += SCT_ClusterOnTrackTool
 #
 from TrkRIO_OnTrackCreator.TrkRIO_OnTrackCreatorConf import Trk__RIO_OnTrackCreator
 ElectronRotCreator = Trk__RIO_OnTrackCreator(name            = 'ElectronRotCreator',
-                                       ToolSCT_Cluster = SCT_ClusterOnTrackTool,
-                                       Mode            = 'indet')
+                                             ToolSCT_Cluster = SCT_ClusterOnTrackTool,
+                                             Mode            = 'indet')
 ToolSvc += ElectronRotCreator
 #
 # load error scaling
@@ -45,13 +45,13 @@ ToolSvc += ElectronRotCreator
 from IOVDbSvc.CondDB import conddb
 if not conddb.folderRequested('Indet/TrkErrorScaling'):
     conddb.addFolder("INDET","/Indet/TrkErrorScaling")
-
+    
 ###############################################################################
 ###############################################################################
 #######          Trk     Extraplotor Related Packaages                 ########
 ###############################################################################
 ###############################################################################
- #
+#
 # declare the extrapolator
 #
 
@@ -136,16 +136,17 @@ from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtur
 GsfMaterialUpdator = Trk__GsfMaterialMixtureConvolution (name = 'GsfMaterialUpdator',
                                                          MaximumNumberOfComponents = 12)
 ToolSvc += GsfMaterialUpdator
-print      GsfMaterialUpdator
+print     (GsfMaterialUpdator)
 
 from TrkMeasurementUpdator.TrkMeasurementUpdatorConf import Trk__KalmanUpdator as ConfiguredKalmanUpdator
 ElectronUpdator = ConfiguredKalmanUpdator('ElectronUpdator')
 ToolSvc += ElectronUpdator
 
-from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMeasurementUpdator
-GsfMeasurementUpdator = Trk__GsfMeasurementUpdator( name    = 'GsfMeasurementUpdator',
-                                                  Updator = ElectronUpdator )
-ToolSvc += GsfMeasurementUpdator
+# Problems in Rel 22
+#from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMeasurementUpdator
+#GsfMeasurementUpdator = Trk__GsfMeasurementUpdator( name    = 'GsfMeasurementUpdator',
+#                                                  Updator = ElectronUpdator )
+#ToolSvc += GsfMeasurementUpdator
 
 
 
@@ -160,17 +161,21 @@ GsfExtrapolator = Trk__GsfExtrapolator(name                          = 'GsfExtra
 ToolSvc += GsfExtrapolator
 
 
-from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GaussianSumFitter
-GSFTrackFitter = Trk__GaussianSumFitter(name                    = 'GSFTrackFitter',
-                                          ToolForExtrapolation    = GsfExtrapolator,
-                                          MeasurementUpdatorType  = GsfMeasurementUpdator,
-                                          ToolForROTCreation      = ElectronRotCreator,
-                                          ReintegrateOutliers     = True,
-                                          MakePerigee             = True,
-                                          RefitOnMeasurementBase  = True,
-                                          DoHitSorting            = True,
-                                          ValidationMode          = False,
-                                          OutputLevel = 3)
+#problems in Rel22
+#from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GaussianSumFitter
+#GSFTrackFitter = Trk__GaussianSumFitter(name                    = 'GSFTrackFitter',
+#                                          ToolForExtrapolation    = GsfExtrapolator,
+#                                          MeasurementUpdatorType  = GsfMeasurementUpdator,
+#                                          ToolForROTCreation      = ElectronRotCreator,
+#                                          ReintegrateOutliers     = True,
+#                                          MakePerigee             = True,
+#                                          RefitOnMeasurementBase  = True,
+#                                          DoHitSorting            = True,
+#                                          ValidationMode          = False,
+#                                          OutputLevel = 3)
+import egammaRec.EMCommonRefitter 
+GSFTrackFitter = egammaRec.EMCommonRefitter.getGSFTrackFitter()
+
 # --- end of fitter loading
 ToolSvc += GSFTrackFitter
 
@@ -260,28 +265,32 @@ ToolSvc += DNATrackFitter
 ###############################################################################
 ###############################################################################
 
+from InDetRecExample import TrackingCommon as TrackingCommon
 from TrkGlobalChi2Fitter.TrkGlobalChi2FitterConf import Trk__GlobalChi2Fitter
 GX2TrackFitter = Trk__GlobalChi2Fitter(name                  = 'GX2TrackFitter',
-                                         OutputLevel = 4,
-					 ExtrapolationTool     = ElectronTrkExtrapolator,
-                                         NavigatorTool         = ElectronTrkNavigator,
-                                         PropagatorTool        = ElectronTrkPropagator,
-                                         RotCreatorTool        = ElectronRotCreator,
-                                         BroadRotCreatorTool   = None,
-                                         MeasurementUpdateTool = ElectronUpdator,
-                                         StraightLine          = not InDetFlags.solenoidOn(),
-                                         OutlierCut            = 4,
-                                         SignedDriftRadius     = True,
-                                         ReintegrateOutliers   = False,
-                                         RecalibrateSilicon    = False,
-                                         RecalibrateTRT        = False,
-                                         TRTTubeHitCut         = 2.5,
-                                         MaxIterations         = 40,
-                                         Acceleration          = True,
-                                         RecalculateDerivatives= InDetFlags.doCosmics() or InDetFlags.doBeamHalo(),
-                                         TRTExtensionCuts      = True,
-                                         TrackChi2PerNDFCut    = 10)
+                                       OutputLevel = 4,
+                                       ExtrapolationTool     = ElectronTrkExtrapolator,
+                                       NavigatorTool         = ElectronTrkNavigator,
+                                       PropagatorTool        = ElectronTrkPropagator,
+                                       RotCreatorTool        = ElectronRotCreator,
+                                       BroadRotCreatorTool   = None,
+                                       MeasurementUpdateTool = ElectronUpdator,
+                                       MaterialUpdateTool    = TrackingCommon.getInDetMaterialEffectsUpdator(), # R22 SALVA
+                                       StraightLine          = not InDetFlags.solenoidOn(),
+                                       OutlierCut            = 4,
+                                       SignedDriftRadius     = True,
+                                       ReintegrateOutliers   = False,
+                                       RecalibrateSilicon    = False,
+                                       RecalibrateTRT        = False,
+                                       TRTTubeHitCut         = 2.5,
+                                       MaxIterations         = 40,
+                                       Acceleration          = True,
+                                       RecalculateDerivatives= InDetFlags.doCosmics() or InDetFlags.doBeamHalo(),
+                                       TRTExtensionCuts      = True,
+                                       TrackChi2PerNDFCut    = 10)
 
+print (' == ElectronEoverPTracking.py == printing GX2TrackFitter configuration')
+print (GX2TrackFitter)
 ToolSvc += GX2TrackFitter
 
 ###############################################################################
@@ -318,22 +327,22 @@ ElectronRefitterTool2 = egammaTrkRefitterTool(name = 'ElectronRefitterTool2',
 ToolSvc += ElectronRefitterTool2
 
 MuonRefitterTool = egammaTrkRefitterTool(name = 'MuonRefitterTool',
-                                            FitterTool = GX2TrackFitter,
-                                            matEffects = 2,
-                                            minNoSiHits = -1,
-         				    useBeamSpot = False,
-                                            OutputLevel =4)
+                                         FitterTool = GX2TrackFitter,
+                                         matEffects = 2,
+                                         minNoSiHits = -1,
+                                         useBeamSpot = False,
+                                         OutputLevel =4)
 ToolSvc += MuonRefitterTool
 
 
-MuonRefitterTool2 = egammaTrkRefitterTool(name = 'MuonRefitterTool2',
+MuonRefitterToolIDSiOnly = egammaTrkRefitterTool(name = 'MuonRefitterToolIDSiOnly',
                                             FitterTool = GX2TrackFitter,
                                             matEffects = 2,
                                             minNoSiHits = -1,
 					    RemoveTRTHits = True,
 					    useBeamSpot = False,
                                             OutputLevel =4)
-ToolSvc += MuonRefitterTool2
+ToolSvc += MuonRefitterToolIDSiOnly
 
 
 GSFTrackCollection = "RefittedElectronTracks"

@@ -55,9 +55,15 @@ for opt,arg in opts:
 
 
 if 'postinclude_file' in dir() :
-    rdo2aod = TrigInDetReco( postinclude_file = postinclude_file )
+    if 'preinclude_file' in dir() :
+        rdo2aod = TrigInDetReco( postinclude_file=postinclude_file, preinclude_file=preinclude_file )
+    else :
+        rdo2aod = TrigInDetReco( postinclude_file=postinclude_file )
 else :
-    rdo2aod = TrigInDetReco()
+    if 'preinclude_file' in dir() :
+        rdo2aod = TrigInDetReco( preinclude_file=preinclude_file )
+    else :
+        rdo2aod = TrigInDetReco()
 
 # test specific variables ...
 

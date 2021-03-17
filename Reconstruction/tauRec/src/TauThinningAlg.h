@@ -2,8 +2,8 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
 */
 
-#ifndef TAUREC_TAUTHINNING_H
-#define TAUREC_TAUTHINNING_H
+#ifndef TAUREC_TAUTHINNINGALG_H
+#define TAUREC_TAUTHINNINGALG_H
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "xAODTau/TauJetContainer.h"
@@ -95,4 +95,4 @@ class TauThinningAlg : public AthReentrantAlgorithm
 
 };
 
-#endif // not TAUREC_TAUTHINNING_H
+#endif // TAUREC_TAUTHINNINGALG_H

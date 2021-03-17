@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArOFC2Ntuple.h"
@@ -12,8 +12,7 @@ LArOFC2Ntuple::LArOFC2Ntuple(const std::string& name, ISvcLocator* pSvcLocator):
   LArCond2NtupleBase(name, pSvcLocator)
 {
   declareProperty("ContainerKey", m_contKey  = "LArOFC");
-  //declareProperty("Nsamples",     m_nSamples = 5);
-  //declareProperty("Nphases",      m_nPhases  = 50);
+  declareProperty("Nsamples",     m_nSamples = 5);
   declareProperty("NtupleName",   m_ntName   = "OFC");
   declareProperty("NtupleFile",   m_ntFile   = "FILE1");
   declareProperty("IsMC",         m_isMC=false);
@@ -72,12 +71,12 @@ StatusCode LArOFC2Ntuple::stop() {
     ATH_MSG_ERROR( "addItem 'nSamples' failed" );
     return StatusCode::FAILURE;
   }
-  sc=m_nt->addItem("OFCa",nSamples,OFCa);
+  sc=m_nt->addItem("OFCa",m_nSamples,OFCa);
   if (sc!=StatusCode::SUCCESS) {
     ATH_MSG_ERROR( "addItem 'OFCa' failed" );
     return StatusCode::FAILURE;
   }
-  sc=m_nt->addItem("OFCb",nSamples,OFCb);
+  sc=m_nt->addItem("OFCb",m_nSamples,OFCb);
   if (sc!=StatusCode::SUCCESS) {
     ATH_MSG_ERROR( "addItem 'OFCb' failed" );
     return StatusCode::FAILURE;
@@ -85,7 +84,6 @@ StatusCode LArOFC2Ntuple::stop() {
   
   // retrieve OFC object 
   const ILArOFC* larOFC = NULL ;
-  //const LArOFCComplete* larOFC = NULL ;
   if ( !m_isMC ) {
      ATH_MSG_DEBUG( "Retrieving ILArOFC object with key " << m_contKey );
      sc = m_detStore->retrieve(larOFC,m_contKey);
@@ -130,9 +128,9 @@ StatusCode LArOFC2Ntuple::stop() {
 	nSamples=ofc_a.size();
 	for (int k=0;k<nSamples;k++ ) {
 	  OFCa[k] = ofc_a[k] ;
-	  OFCb[k] = ofc_b[k] ;
+	  OFCb[k] = ofc_b[k] ;	  
 	}
-
+	
 	timeOffset = 0;	
 	phasetime  = 0;
 	

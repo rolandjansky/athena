@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -31,14 +31,14 @@ StatusCode SCT_SiliconConditionsTestAlg::initialize() {
 }
 
 //Execute
-StatusCode SCT_SiliconConditionsTestAlg::execute(const EventContext& /*ctx*/) const {
+StatusCode SCT_SiliconConditionsTestAlg::execute(const EventContext& ctx) const {
   //This method is only used to test the summary service, and only used within this package,
   // so the INFO level messages have no impact on performance of these services when used by clients
   
   ATH_MSG_INFO("Calling execute");
-  ATH_MSG_INFO("Temperature  = " << m_siliconTool->temperature(IdentifierHash{804}));
-  ATH_MSG_INFO("Depletion V  = " << m_siliconTool->depletionVoltage(IdentifierHash{804}));
-  ATH_MSG_INFO("Bias Voltage = " << m_siliconTool->biasVoltage(IdentifierHash{804})); // was 216808130
+  ATH_MSG_INFO("Temperature  = " << m_siliconTool->temperature(IdentifierHash{804}, ctx));
+  ATH_MSG_INFO("Depletion V  = " << m_siliconTool->depletionVoltage(IdentifierHash{804}, ctx));
+  ATH_MSG_INFO("Bias Voltage = " << m_siliconTool->biasVoltage(IdentifierHash{804}, ctx)); // was 216808130
   return StatusCode::SUCCESS;
 }
 

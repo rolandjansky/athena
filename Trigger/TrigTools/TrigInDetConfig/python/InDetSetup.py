@@ -1,8 +1,6 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
-
-from __future__ import print_function, absolute_import
 
 from AthenaCommon.Include import include
 include.block("InDetTrigRecExample/EFInDetConfig.py")
@@ -48,6 +46,10 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
                                     ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTFlaggedCondCacheKey ),
                                     ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
                                     ( 'TagInfo' , 'DetectorStore+ProcessingTags' )]
+    if doFTF and config.FT.signatureType == 'fullScanUTT' :
+      ViewDataVerifier.DataObjects += [ ( 'DataVector< LVL1::RecJetRoI >' , 'StoreGateSvc+HLT_RecJETRoIs' ) ]
+
+
 
     viewAlgs.append( ViewDataVerifier )
 
@@ -221,7 +223,7 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
   InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools.append(sct_ByteStreamErrorsToolSetup.getTool().getFullName())
 
   if (InDetTrigFlags.doPrintConfigurables()):
-     print (InDetSCT_ConditionsSummaryToolWithoutFlagged)
+     print (InDetSCT_ConditionsSummaryToolWithoutFlagged)  # noqa: ATL901
 
   #
   # --- SCT_ClusteringTool
@@ -308,6 +310,12 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
       theFTF.RoIs           = rois
       theFTF.TracksName     = config.FT.trkTracksFTF()
       theFTF.doCloneRemoval = config.FT.setting.doCloneRemoval
+      if config.FT.signatureType == 'fullScanUTT' :
+        theFTF.RecJetRoI      = "HLT_RecJETRoIs"
+        theFTF.HitDVSeed      = "HLT_HitDVSeed"
+        theFTF.HitDVTrk       = "HLT_HitDVTrk"
+        theFTF.HitDVSP        = "HLT_HitDVSP"
+
 
       viewAlgs.append(theFTF)
 

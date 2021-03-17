@@ -76,8 +76,8 @@ TileRawChannelBuilder::TileRawChannelBuilder(const std::string& type
   declareProperty("calibrateEnergy", m_calibrateEnergy = false);
   declareProperty("correctTime", m_correctTime = false);
   declareProperty("AmpMinForAmpCorrection", m_ampMinThresh = 15.0);
-  declareProperty("TimeMinForAmpCorrection", m_timeMinThresh = -25.0);
-  declareProperty("TimeMaxForAmpCorrection", m_timeMaxThresh =  25.0);
+  declareProperty("TimeMinForAmpCorrection", m_timeMinThresh = -12.5);
+  declareProperty("TimeMaxForAmpCorrection", m_timeMaxThresh =  12.5);
   declareProperty("RunType", m_runType = 0);
   declareProperty("DataPoolSize", m_dataPoollSize = -1);
   declareProperty("UseDSPCorrection", m_useDSP = true);

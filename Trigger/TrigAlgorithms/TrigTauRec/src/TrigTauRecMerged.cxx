@@ -162,6 +162,7 @@ TrigTauRecMerged::TrigTauRecMerged(const std::string& name,ISvcLocator* pSvcLoca
   /** inner track average distance **/
   declareMonitoredVariable("EF_innerTrkAvgDist",m_innerTrkAvgDist);
 
+
   /** Number tau candidates */
   declareMonitoredVariable("EF_nCand",m_Ncand);
  

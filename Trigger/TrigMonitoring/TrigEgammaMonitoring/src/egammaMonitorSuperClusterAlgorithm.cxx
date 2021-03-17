@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+    Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
   */
 
 #include "egammaMonitorSuperClusterAlgorithm.h"
@@ -62,7 +62,7 @@ void egammaMonitorSuperClusterAlgorithm::fillSuperClusterQuantities( const Event
     auto clusterSize_col = Monitored::Collection("clusterSize" ,clusterSize_vec);
     auto signalState_col = Monitored::Collection("signalState" ,signalState_vec);
     
-    for (const auto& eg : *egammaRec) {
+    for (const auto eg : *egammaRec) {
 
         et_vec.push_back(eg->caloCluster()->et()/Gaudi::Units::GeV);
         eta_vec.push_back(eg->caloCluster()->eta());

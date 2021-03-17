@@ -1,13 +1,13 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import subprocess,sys,os,re
-
-from batchJobBase import *
+import subprocess,sys,os
 
 joblist = []
 dependencelist = {} #"id":["childid"]
 
-class batchJob(batchJobBase):
+from . import batchJobBase
+
+class batchJob(batchJobBase.batchJobBase):
 
     def submit(self, dryRun=False):
         if self.memMB == 1:

@@ -33,6 +33,7 @@
 #include "CxxUtils/CachedUniquePtr.h"
 #include "CxxUtils/checker_macros.h"
 #include <atomic>
+#include <memory> //for unique_ptr
 
 class MsgStream;
 class SurfaceCnv_p1;
@@ -96,6 +97,10 @@ public:
     Other = 7
   };
 
+  /** Unique ptr types**/
+  using ChargedTrackParametersUniquePtr = std::unique_ptr<ParametersBase<5, Trk::Charged>>;
+  using NeutralTrackParametersUniquePtr = std::unique_ptr<ParametersBase<5, Trk::Neutral>>;
+
   /**Default Constructor
    - needed for inherited classes */
   Surface();
@@ -145,10 +150,10 @@ public:
   const Amg::Transform3D* cachedTransform() const;
 
   /** Returns HepGeom::Transform3D by reference */
-  virtual const Amg::Transform3D& transform() const;
+  const Amg::Transform3D& transform() const;
 
   /** Returns the center position of the Surface */
-  virtual const Amg::Vector3D& center() const;
+  const Amg::Vector3D& center() const;
 
   /** Returns the normal vector of the Surface (i.e. in generall z-axis of
    * rotation) */
@@ -190,10 +195,32 @@ public:
     double,
     AmgSymMatrix(5) * cov = nullptr) const = 0;
 
+
+  /** Use the Surface as a ParametersBase constructor, from local parameters -
+   * charged. The caller assumes ownership of the returned ptr.
+   */
+  virtual ChargedTrackParametersUniquePtr createUniqueTrackParameters(
+    double,
+    double,
+    double,
+    double,
+    double,
+    AmgSymMatrix(5) * cov = nullptr) const = 0;
+
+
   /** Use the Surface as a ParametersBase constructor, from global parameters -
    * charged  The caller assumes ownership of the returned ptr
    */
   virtual ParametersBase<5, Trk::Charged>* createTrackParameters(
+    const Amg::Vector3D&,
+    const Amg::Vector3D&,
+    double,
+    AmgSymMatrix(5) * cov = nullptr) const = 0;
+
+  /** Use the Surface as a ParametersBase constructor, from global parameters -
+   * charged  The caller assumes ownership of the returned ptr
+   */
+  virtual ChargedTrackParametersUniquePtr createUniqueTrackParameters(
     const Amg::Vector3D&,
     const Amg::Vector3D&,
     double,
@@ -400,6 +427,9 @@ public:
 
   /** Return 'true' if this surface is own by the detector element */
   bool isActive() const;
+
+  /** Set the transform updates center and normal*/
+  void setTransform(const Amg::Transform3D& trans);
 
   /** Set ownership for const*/
   void setOwner ATLAS_NOT_CONST_THREAD_SAFE(SurfaceOwner x) const;

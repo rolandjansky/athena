@@ -1,9 +1,10 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "tauRecTools/lwtnn/parse_json.h"
 
+#define BOOST_BIND_GLOBAL_PLACEHOLDERS // Needed to silence Boost pragma message
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <cassert>
@@ -302,11 +303,11 @@ namespace {
       layer.components[component_map.at(comp.first)] = cfg;
     }
     layer.activation = get_activation(v.second.get_child("activation"));
-    layer.go_backwards = false; 
+    layer.go_backwards = false;
     if (v.second.count("return_sequence") != 0)
-      layer.return_sequence = v.second.get<bool>("return_sequence"); 
+      layer.return_sequence = v.second.get<bool>("return_sequence");
     if (v.second.count("go_backwards") != 0)
-      layer.go_backwards = v.second.get<bool>("go_backwards"); 
+      layer.go_backwards = v.second.get<bool>("go_backwards");
     if (v.second.count("inner_activation") != 0) {
       layer.inner_activation = get_activation(
         v.second.get_child("inner_activation"));
@@ -330,7 +331,7 @@ namespace {
     }
     layer.sublayers.push_back(forward_layer);
     layer.sublayers.push_back(backward_layer);
-    layer.return_sequence = v.second.get<bool>("return_sequence"); 
+    layer.return_sequence = v.second.get<bool>("return_sequence");
     layer.merge_mode = v.second.get<std::string>("merge_mode");
     layer.architecture = Architecture::BIDIRECTIONAL;
   }

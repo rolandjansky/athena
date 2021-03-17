@@ -368,4 +368,3 @@ if jobproperties.CaloRecFlags.doCaloTopoTower():
 #mixed topo-cluster/topo-tower 
 if jobproperties.CaloRecFlags.doCaloTopoSignal():
     include ("CaloRec/CaloTopoSignalFragment.py" )
-

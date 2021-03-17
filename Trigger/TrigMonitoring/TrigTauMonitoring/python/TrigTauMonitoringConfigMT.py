@@ -98,6 +98,12 @@ class TrigTauMonAlgBuilder:
 
       def isRNN(self):
         return True if "RNN" in self.chain() else False
+  
+      def isBDT(self):
+        if 'loose1' in self.chain() or 'medium1' in self.chain() or 'tight1' in self.chain():
+            return True
+        else:
+            return False
 
     return TrigTauInfo(trigger)
 
@@ -144,29 +150,106 @@ class TrigTauMonAlgBuilder:
     
     # This will be removed for future.
     monitoring_tau = [
-    'HLT_tau25_idperf_tracktwoMVABDT_L1TAU12IM',
-    'HLT_tau25_perf_tracktwoMVABDT_L1TAU12IM',
-    'HLT_tau25_medium1_tracktwoMVABDT_L1TAU12IM',
-    'HLT_tau25_verylooseRNN_tracktwoMVABDT_L1TAU12IM',
-    'HLT_tau25_looseRNN_tracktwoMVABDT_L1TAU12IM',
-    'HLT_tau25_mediumRNN_tracktwoMVABDT_L1TAU12IM',
-    'HLT_tau25_tightRNN_tracktwoMVABDT_L1TAU12IM',
-    'HLT_tau25_mediumRNN_tracktwoMVA_L1TAU12IM',
-    'HLT_tau80_medium1_tracktwo_L1TAU60',
+    # tau0
+    'HLT_tau0_perf_ptonly_L1TAU12',
+    'HLT_tau0_perf_ptonly_L1TAU60',
     'HLT_tau0_perf_ptonly_L1TAU100',
+    # tau25
+    'HLT_tau25_idperf_ptonly_L1TAU12IM',
+    'HLT_tau25_idperf_track_L1TAU12IM',
+    'HLT_tau25_idperf_tracktwo_L1TAU12IM',
+    'HLT_tau25_idperf_tracktwoEF_L1TAU12IM',
+    'HLT_tau25_idperf_tracktwoMVA_L1TAU12IM',
+    'HLT_tau25_idperf_tracktwoMVABDT_L1TAU12IM',
+    'HLT_tau25_perf_track_L1TAU12IM',
+    'HLT_tau25_perf_tracktwo_L1TAU12IM',
+    'HLT_tau25_perf_tracktwoEF_L1TAU12IM',
+    'HLT_tau25_perf_tracktwoMVA_L1TAU12IM',
+    'HLT_tau25_perf_tracktwoMVABDT_L1TAU12IM',
+    'HLT_tau25_looseRNN_track_L1TAU12IM',
+    'HLT_tau25_looseRNN_tracktwo_L1TAU12IM',
+    'HLT_tau25_looseRNN_tracktwoEF_L1TAU12IM',
+    'HLT_tau25_looseRNN_tracktwoMVA_L1TAU12IM',
+    'HLT_tau25_looseRNN_tracktwoMVABDT_L1TAU12IM',
+    'HLT_tau25_mediumRNN_track_L1TAU12IM',
+    'HLT_tau25_mediumRNN_tracktwo_L1TAU12IM',
+    'HLT_tau25_mediumRNN_tracktwoEF_L1TAU12IM',
+    'HLT_tau25_mediumRNN_tracktwoMVA_L1TAU12IM',
+    'HLT_tau25_mediumRNN_tracktwoMVABDT_L1TAU12IM',
+    'HLT_tau25_tightRNN_track_L1TAU12IM',
+    'HLT_tau25_tightRNN_tracktwo_L1TAU12IM',
+    'HLT_tau25_tightRNN_tracktwoEF_L1TAU12IM',
+    'HLT_tau25_tightRNN_tracktwoMVA_L1TAU12IM',
+    'HLT_tau25_tightRNN_tracktwoMVABDT_L1TAU12IM',
+    'HLT_tau25_medium1_track_L1TAU12IM',
+    'HLT_tau25_medium1_tracktwo_L1TAU12IM',
+    'HLT_tau25_medium1_tracktwoEF_L1TAU12IM',
+    'HLT_tau25_medium1_tracktwoMVA_L1TAU12IM',
+    'HLT_tau25_medium1_tracktwoMVABDT_L1TAU12IM', 
+    # tau35
+    'HLT_tau35_idperf_ptonly_L1TAU12IM',
+    'HLT_tau35_idperf_track_L1TAU12IM',
+    'HLT_tau35_idperf_tracktwo_L1TAU12IM',
+    'HLT_tau35_idperf_tracktwoEF_L1TAU12IM',
+    'HLT_tau35_idperf_tracktwoMVA_L1TAU12IM',
+    'HLT_tau35_idperf_tracktwoMVABDT_L1TAU12IM',
+    'HLT_tau35_perf_track_L1TAU12IM',
+    'HLT_tau35_perf_tracktwo_L1TAU12IM',
+    'HLT_tau35_perf_tracktwoEF_L1TAU12IM',
+    'HLT_tau35_perf_tracktwoMVA_L1TAU12IM',
+    'HLT_tau35_perf_tracktwoMVABDT_L1TAU12IM',
+    'HLT_tau35_looseRNN_track_L1TAU12IM',
+    'HLT_tau35_looseRNN_tracktwo_L1TAU12IM',
+    'HLT_tau35_looseRNN_tracktwoEF_L1TAU12IM',
+    'HLT_tau35_looseRNN_tracktwoMVA_L1TAU12IM',
+    'HLT_tau35_looseRNN_tracktwoMVABDT_L1TAU12IM',
+    'HLT_tau35_mediumRNN_track_L1TAU12IM',
+    'HLT_tau35_mediumRNN_tracktwo_L1TAU12IM',
+    'HLT_tau35_mediumRNN_tracktwoEF_L1TAU12IM',
+    'HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM',
+    'HLT_tau35_mediumRNN_tracktwoMVABDT_L1TAU12IM',
+    'HLT_tau35_tightRNN_track_L1TAU12IM',
+    'HLT_tau35_tightRNN_tracktwo_L1TAU12IM',
+    'HLT_tau35_tightRNN_tracktwoEF_L1TAU12IM',
+    'HLT_tau35_tightRNN_tracktwoMVA_L1TAU12IM',
+    'HLT_tau35_tightRNN_tracktwoMVABDT_L1TAU12IM',
+    # tau80
+    'HLT_tau80_medium1_tracktwo_L1TAU60',
+    # tau160
+    'HLT_tau160_idperf_ptonly_L1TAU100',
     'HLT_tau160_idperf_track_L1TAU100',
     'HLT_tau160_idperf_tracktwo_L1TAU100',
-    'HLT_tau160_perf_tracktwo_L1TAU100',
+    'HLT_tau160_idperf_tracktwoEF_L1TAU100',
     'HLT_tau160_idperf_tracktwoMVA_L1TAU100',
+    'HLT_tau160_idperf_tracktwoMVABDT_L1TAU100',
+    'HLT_tau160_perf_track_L1TAU100',
+    'HLT_tau160_perf_tracktwo_L1TAU100',
+    'HLT_tau160_perf_tracktwoEF_L1TAU100',
     'HLT_tau160_perf_tracktwoMVA_L1TAU100',
+    'HLT_tau160_perf_tracktwoMVABDT_L1TAU100',
+    'HLT_tau160_mediumRNN_track_L1TAU100',
+    'HLT_tau160_mediumRNN_tracktwo_L1TAU100',
+    'HLT_tau160_mediumRNN_tracktwoEF_L1TAU100',
     'HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100',
+    'HLT_tau160_mediumRNN_tracktwoMVABDT_L1TAU100',
+    'HLT_tau160_medium1_track_L1TAU100',
     'HLT_tau160_medium1_tracktwo_L1TAU100',
     'HLT_tau160_medium1_tracktwoEF_L1TAU100',
-    'HLT_tau160_perf_tracktwoMVABDT_L1TAU100',
-    'HLT_tau160_idperf_tracktwoMVABDT_L1TAU100',
-    'HLT_tau160_mediumRNN_tracktwoMVABDT_L1TAU100',
-    'HLT_tau200_medium1_tracktwoEF_L1TAU100',
+    'HLT_tau160_medium1_tracktwoMVA_L1TAU100',
+    'HLT_tau160_medium1_tracktwoMVABDT_L1TAU100',
+    # tau200
+    'HLT_tau200_mediumRNN_ptonly_L1TAU100',
+    'HLT_tau200_mediumRNN_track_L1TAU100',
+    'HLT_tau200_mediumRNN_tracktwo_L1TAU100',
+    'HLT_tau200_mediumRNN_tracktwoEF_L1TAU100',
     'HLT_tau200_mediumRNN_tracktwoMVA_L1TAU100',
+    'HLT_tau200_mediumRNN_tracktwoMVABDT_L1TAU100',
+    'HLT_tau200_medium1_track_L1TAU100',
+    'HLT_tau200_medium1_tracktwo_L1TAU100',
+    'HLT_tau200_medium1_tracktwoEF_L1TAU100',
+    'HLT_tau200_medium1_tracktwoMVA_L1TAU100',
+    'HLT_tau200_medium1_tracktwoMVABDT_L1TAU100',   
+    # ditau
     'HLT_tau80_mediumRNN_tracktwoMVA_tau60_mediumRNN_tracktwoMVA_L1TAU60_2TAU40',
     'HLT_tau80_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA_L1TAU60_DR-TAU20ITAU12I',
     'HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1DR-TAU20ITAU12I-J25'
@@ -206,20 +289,21 @@ class TrigTauMonAlgBuilder:
   
       l1seeds.append(info.L1seed())
 
+      self.bookRNNInputVars( monAlg, trigger,nProng='1P', online=False )
+      self.bookRNNInputVars( monAlg, trigger,nProng='MP', online=False )
+      self.bookRNNTrack( monAlg, trigger, online=False )
+      self.bookRNNCluster( monAlg, trigger, online=False )
+      self.bookbasicVars( monAlg, trigger, online=False )
+      self.bookbasicVars( monAlg, trigger, online=True )
+      self.bookHLTEffHistograms( monAlg, trigger,nProng='1P')
+      self.bookHLTEffHistograms( monAlg, trigger,nProng='MP')
+
       if info.isRNN() is True:
         self.bookRNNInputVars( monAlg, trigger,nProng='1P', online=True )
         self.bookRNNInputVars( monAlg, trigger,nProng='MP', online=True )
-        self.bookRNNInputVars( monAlg, trigger,nProng='1P', online=False )
-        self.bookRNNInputVars( monAlg, trigger,nProng='MP', online=False )
         self.bookRNNTrack( monAlg, trigger, online=True )
-        self.bookRNNTrack( monAlg, trigger, online=False )
         self.bookRNNCluster( monAlg, trigger, online=True )
-        self.bookRNNCluster( monAlg, trigger, online=False )
-        self.bookbasicVars( monAlg, trigger, online=True )
-        self.bookbasicVars( monAlg, trigger, online=False )
-        self.bookHLTEffHistograms( monAlg, trigger,nProng='1P')
-        self.bookHLTEffHistograms( monAlg, trigger,nProng='MP')
-      else:
+      elif info.isBDT() is True:
         self.bookBDTOut( monAlg, trigger, nProng='1P')
         self.bookBDTOut( monAlg, trigger, nProng='MP')
         self.bookBDTNoCorr( monAlg, trigger, nProng='1P')
@@ -293,29 +377,25 @@ class TrigTauMonAlgBuilder:
     monGroup = self.helper.addGroup( monAlg, monGroupName,
                               self.basePath+'/'+monGroupPath )
 
-    monGroup.defineHistogram('L1RoIEt;L1RoIEta', type='TH2F', title='L1 RoI Et vs Eta; E_{T}[GeV]; #eta',
-                            path=monGroupPath,
+    monGroup.defineHistogram('L1RoIEt,L1RoIEta', type='TH2F', title='L1 RoI Et vs Eta; E_{T}[GeV]; #eta',
                             xbins=100,xmin=0,xmax=100,
                             ybins=100,ymin=-2.6,ymax=2.6)
-    monGroup.defineHistogram('L1RoIEt;L1RoIPhi', type='TH2F', title='L1 RoI Et vs Phi; E_{T}[GeV]; #phi',
-                            path=monGroupPath,
+    monGroup.defineHistogram('L1RoIEt,L1RoIPhi', type='TH2F', title='L1 RoI Et vs Phi; E_{T}[GeV]; #phi',
                             xbins=100,xmin=0,xmax=100,
                             ybins=100,ymin=-3.2,ymax=3.2)
-    monGroup.defineHistogram('L1RoIEta;L1RoIPhi', type='TH2F', title='L1 RoI Eta vs Phi; #eta; #phi',
-                            path=monGroupPath,
+    monGroup.defineHistogram('L1RoIEta,L1RoIPhi', type='TH2F', title='L1 RoI Eta vs Phi; #eta; #phi',
                             xbins=100,xmin=-2.6,xmax=2.6,
                             ybins=100,ymin=-3.2,ymax=3.2)
-    monGroup.defineHistogram('L1RoIEMIso', title='L1 RoI EM Isol ; E_{T}^{EM Isol}[GeV]; N RoI',xbins=16,xmin=-2,xmax=30)
+    monGroup.defineHistogram('L1RoIEMIsol', title='L1 RoI EM Isol ; E_{T}^{EM Isol}[GeV]; N RoI',xbins=16,xmin=-2,xmax=30)
     monGroup.defineHistogram('L1RoIEta', title='L1 RoI Eta ; #eta; N RoI',xbins=100,xmin=-2.6,xmax=2.6)
     monGroup.defineHistogram('L1RoIHadCore', title='L1 RoI HAD Core ; E_{T}^{HAD}[GeV]; N RoI',xbins=16,xmin=-2,xmax=30)
     monGroup.defineHistogram('L1RoIHadIsol', title='L1 RoI HAD Isol ; E_{T}^{HAD Isol}[GeV]; N RoI',xbins=16,xmin=-2,xmax=30)
     monGroup.defineHistogram('L1RoIPhi', title='L1 RoI Phi ; #phi; N RoI',xbins=100,xmin=-3.2,xmax=3.2)
     monGroup.defineHistogram('L1RoITauClus', title='L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI',xbins=260,xmin=0,xmax=130)
-    monGroup.defineHistogram('L1RoITauClus;L1RoIEMIso', type='TH2F', title='L1 RoI TauClus vs EMiso ; E_{T}[GeV]; E_{T}^{EM Isol}[GeV]',
-                            path=monGroupPath,
+    monGroup.defineHistogram('L1RoITauClus,L1RoIEMIsol', type='TH2F', title='L1 RoI TauClus vs EMiso ; E_{T}[GeV]; E_{T}^{EM Isol}[GeV]',
                             xbins=140,xmin=10,xmax=80,
                             ybins=42,ymin=-1,ymax=20)
-    monGroup.defineHistogram('L1RoIeT', title='L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI',xbins=260,xmin=0,xmax=130)
+    monGroup.defineHistogram('L1RoIEt', title='L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI',xbins=30,xmin=0,xmax=150)
 
                              
   #

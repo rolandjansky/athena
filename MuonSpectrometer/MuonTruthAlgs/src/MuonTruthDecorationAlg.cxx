@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTruthDecorationAlg.h"
@@ -69,7 +69,7 @@ namespace Muon {
     }
 
     // loop over truth coll
-    for( const auto& truth : *truthContainer ){
+    for( const auto truth : *truthContainer ){
       if( truth->status() != 1 ) continue;
       if( abs(truth->pdgId()) != 13 || truth->pt() < 1000. ) continue;
       xAOD::TruthParticle* truthParticle = new xAOD::TruthParticle();

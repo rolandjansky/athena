@@ -70,7 +70,7 @@ StatusCode TrigEFTauMVHypoAlgMT::execute( const EventContext& context ) const {
     }
 
     // create new decision
-    auto d = newDecisionIn( decisions, name() );
+    auto d = newDecisionIn( decisions, hypoAlgNodeName() );
     TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
     d->setObjectLink( roiString(), roiELInfo.link );
 

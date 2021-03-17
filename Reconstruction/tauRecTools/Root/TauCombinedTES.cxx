@@ -136,7 +136,8 @@ StatusCode TauCombinedTES::execute(xAOD::TauJet& tau) const {
     static const SG::AuxElement::Decorator<float> decPtTauRecCalibrated("pt_tauRecCalibrated");
     static const SG::AuxElement::Decorator<float> decPtWeighted("pt_weighted");
     static const SG::AuxElement::Decorator<float> decWeightWeighted("weight_weighted");
-    static const SG::AuxElement::Decorator<float> decSigmaCombined("sigma_combined");
+    //static const SG::AuxElement::Decorator<float> decSigmaCombined("sigma_combined");
+    static const SG::AuxElement::Decorator<float> decSigmaCompatibility("sigma_compatibility");
     static const SG::AuxElement::Decorator<float> decSigmaTaurec("sigma_tauRec");
     static const SG::AuxElement::Decorator<float> decSigmaConstituent("sigma_constituent");    
     static const SG::AuxElement::Decorator<float> decCorrelationCoefficient("correlation_coefficient");    
@@ -145,7 +146,8 @@ StatusCode TauCombinedTES::execute(xAOD::TauJet& tau) const {
     decPtTauRecCalibrated(tau) = variables.pt_tauRecCalibrated;
     decPtWeighted(tau) = variables.pt_weighted;
     decWeightWeighted(tau) = variables.weight; 
-    decSigmaCombined(tau) = variables.sigma_combined;
+    //decSigmaCombined(tau) = variables.sigma_combined;
+    decSigmaCompatibility(tau) = variables.sigma_compatibility;
     decSigmaTaurec(tau) = variables.sigma_tauRec;
     decSigmaConstituent(tau) = variables.sigma_constituent;
     decCorrelationCoefficient(tau) = variables.corrcoeff;
@@ -230,8 +232,7 @@ bool TauCombinedTES::isValid(const xAOD::TauJet& tau) const {
     return false;
   }
 
-  // FIXME: At which calibration state ???
-  int etaIndex = getEtaIndex(tau.eta()); 
+  int etaIndex = getEtaIndex(tau.etaTauEnergyScale()); 
   if (etaIndex > 4) {
     ATH_MSG_DEBUG("Eta is out of the supported range !");
     return false;
@@ -292,11 +293,9 @@ double TauCombinedTES::getCaloResolution(const xAOD::TauJet& tau) const {
   xAOD::TauJetParameters::DecayMode decayMode = getDecayMode(tau);  
   int decayModeIndex = getDecayModeIndex(decayMode);
 
-  // FIXME: At which calibration state ???
-  int etaIndex = getEtaIndex(tau.eta());
+  int etaIndex = getEtaIndex(tau.etaTauEnergyScale());
   
-  // FIXME: At which calibration state ???
-  return getCaloResolution(tau.pt(), etaIndex, decayModeIndex);
+  return getCaloResolution(tau.ptTauEnergyScale(), etaIndex, decayModeIndex);
 }
 
 
@@ -339,6 +338,16 @@ double TauCombinedTES::getCombinedSigma(const double& caloSigma,
                        - 2 * correlation * caloSigma * panTauSigma;
   
   return std::sqrt(numerator/denominator);
+}
+
+
+
+double TauCombinedTES::getCompatibilitySigma(const double& caloSigma,
+					     const double& panTauSigma,
+					     const double& correlation) const {
+  double compatibilitySigma2 = std::pow(caloSigma, 2) + std::pow(panTauSigma, 2) - 2 * correlation * caloSigma * panTauSigma;
+  
+  return std::sqrt(compatibilitySigma2);
 }
 
 
@@ -392,7 +401,8 @@ double TauCombinedTES::getCombinedEt(const double& caloEt,
   // FIXME: A more consistent way would be calculating the weight use bias corrected Et as input
   double weight = getWeight(caloSigma, panTauSigma, correlation);
   double weightedEt = weight * caloCalEt + (1 - weight) * panTauCalEt;
-  double combinedSigma = getCombinedSigma(caloSigma, panTauSigma, correlation);
+  double compatibilitySigma = getCompatibilitySigma(caloSigma, panTauSigma, correlation);
+  //double combinedSigma = getCombinedSigma(caloSigma, panTauSigma, correlation);
   
   // FIXME: weighteEt will be updated in case the difference of calo TES and PanTau is too large
   variables.pt_weighted = weightedEt;
@@ -401,7 +411,7 @@ double TauCombinedTES::getCombinedEt(const double& caloEt,
   // may not be reliable 
   // FIXME: A more consistent way would be calculating the NsigmaCompatibility use caloCalEt
   double deltaEt = caloCalEt - panTauCalEt;
-  if (std::abs(deltaEt) > getNsigmaCompatibility(caloEt) * combinedSigma) {
+  if (std::abs(deltaEt) > getNsigmaCompatibility(caloEt) * compatibilitySigma) {
     // FIXME: Why not use caloCalEt here ?
     weightedEt = caloEt;
   }
@@ -413,12 +423,13 @@ double TauCombinedTES::getCombinedEt(const double& caloEt,
   variables.pt_tauRecCalibrated = caloCalEt;
   variables.pt_constituent = panTauCalEt;
   variables.weight = weight;
-  variables.sigma_combined = combinedSigma;
+  variables.sigma_compatibility = compatibilitySigma;
+  //variables.sigma_combined = combinedSigma;
 
   ATH_MSG_DEBUG("Intermediate results\n" << 
                 "coff: " << correlation << " sigma(calo): " << caloSigma << " sigma(constituent): " << panTauSigma << 
                 "\ncalibrated et(calo): " << caloCalEt << " calibrated et(constituent): " << panTauCalEt << 
-                "\nweight:" << weight << " combined et: " << weightedEt << " combined sigma: " << combinedSigma);
+                "\nweight:" << weight << " combined et: " << weightedEt << " compatibility sigma: " << compatibilitySigma);
   
   return weightedEt;
 }

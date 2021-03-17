@@ -28,16 +28,17 @@ namespace LVL1 {
     void clear();
     void addValue_smallRJet(std::string, float);
     void fill_smallRJet();
-//    void addValue_largeRJet(std::string, float);
-//    void fill_largeRJet();
+    void addValue_largeRJet(std::string, float);
+    void fill_largeRJet();
     int size();
     std::map<std::string, float>* get_smallRJet(int);
-//    std::map<std::string, float>* get_largeRJet(int);
+    std::map<std::string, float>* get_largeRJet(int);
+
   private:
     std::map<std::string, float> m_values_tem_smallRJet;
     std::vector<std::map<std::string, float>*> m_allvalues_smallRJet;
-//    std::map<std::string, float> m_values_tem_largeRJet;
-//    std::vector<std::map<std::string, float>*> m_allvalues_largeRJet;
+    std::map<std::string, float> m_values_tem_largeRJet;
+    std::vector<std::map<std::string, float>*> m_allvalues_largeRJet;
   };
 }
 

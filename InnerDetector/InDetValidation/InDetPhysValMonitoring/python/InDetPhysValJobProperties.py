@@ -94,6 +94,11 @@ class doValidateTruthToRecoNtuple(InDetPhysValFlagsJobProperty):
     StoredValue = False
 
 
+class doTruthOriginPlots(InDetPhysValFlagsJobProperty):
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
 class validateExtraTrackCollections(InDetPhysValFlagsJobProperty):
     """List of extra track collection names to be validated in addition to Tracks."""
     statusOn = True
@@ -185,7 +190,8 @@ _list_InDetPhysValJobProperties = [
     doPhysValOutput,
     doExpertOutput,
     setTruthStrategy,
-    doValidateLargeD0Tracks
+    doValidateLargeD0Tracks,
+    doTruthOriginPlots
 ]
 
 for j in _list_InDetPhysValJobProperties:

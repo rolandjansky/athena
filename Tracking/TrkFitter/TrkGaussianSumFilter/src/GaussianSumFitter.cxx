@@ -794,12 +794,12 @@ Trk::GaussianSumFitter::fitPRD(
 
   Trk::ComponentParameters componentParametersNearOrigin(
     estimatedTrackParametersNearOrigin.associatedSurface()
-      .createTrackParameters(par[Trk::loc1],
-                             par[Trk::loc2],
-                             par[Trk::phi],
-                             par[Trk::theta],
-                             par[Trk::qOverP],
-                             nullptr /*no errors*/),
+      .createUniqueTrackParameters(par[Trk::loc1],
+                                   par[Trk::loc2],
+                                   par[Trk::phi],
+                                   par[Trk::theta],
+                                   par[Trk::qOverP],
+                                   nullptr /*no errors*/),
     1.);
 
   Trk::MultiComponentState multiComponentStateNearOrigin{};
@@ -865,12 +865,12 @@ Trk::GaussianSumFitter::fitMeasurements(
 
   Trk::ComponentParameters componentParametersNearOrigin(
     estimatedTrackParametersNearOrigin.associatedSurface()
-      .createTrackParameters(par[Trk::loc1],
-                             par[Trk::loc2],
-                             par[Trk::phi],
-                             par[Trk::theta],
-                             par[Trk::qOverP],
-                             covariance /*no errors*/),
+      .createUniqueTrackParameters(par[Trk::loc1],
+                                   par[Trk::loc2],
+                                   par[Trk::phi],
+                                   par[Trk::theta],
+                                   par[Trk::qOverP],
+                                   covariance /*no errors*/),
     1.);
 
   Trk::MultiComponentState multiComponentStateNearOrigin{};
@@ -1379,15 +1379,15 @@ Trk::GaussianSumFitter::combine(
       AmgSymMatrix(5)* covarianceOfNewParameters =
         new AmgSymMatrix(5)(K * *smootherMeasuredCov);
 
-      Trk::TrackParameters* combinedTrackParameters =
+      std::unique_ptr<Trk::TrackParameters> combinedTrackParameters =
         (forwardsComponent.first)
           ->associatedSurface()
-          .createTrackParameters(newParameters[Trk::loc1],
-                                 newParameters[Trk::loc2],
-                                 newParameters[Trk::phi],
-                                 newParameters[Trk::theta],
-                                 newParameters[Trk::qOverP],
-                                 covarianceOfNewParameters);
+          .createUniqueTrackParameters(newParameters[Trk::loc1],
+                                       newParameters[Trk::loc2],
+                                       newParameters[Trk::phi],
+                                       newParameters[Trk::theta],
+                                       newParameters[Trk::qOverP],
+                                       covarianceOfNewParameters);
       // Covariance matrix object now owned by TrackParameters object. Reset
       // pointer to prevent delete
       covarianceOfNewParameters = nullptr;
@@ -1400,8 +1400,8 @@ Trk::GaussianSumFitter::combine(
       double weightScalingFactor = exp(-0.5 * exponent);
       double combinedWeight = smootherComponent.second *
                               forwardsComponent.second * weightScalingFactor;
-      Trk::ComponentParameters combinedComponent(combinedTrackParameters,
-                                                 combinedWeight);
+      Trk::ComponentParameters combinedComponent(
+        std::move(combinedTrackParameters), combinedWeight);
       combinedMultiState->push_back(std::move(combinedComponent));
     }
   }

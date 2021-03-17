@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  *   */
 
 
@@ -86,7 +86,7 @@ bool TrigEgammaEFElectronSelectorTool::emulation(const xAOD::IParticleContainer 
   float etthr  = info.thrHLT;
   auto avgmu = getOnlAverageMu();
 
-  for(const auto& el : *elContainer){
+  for(const auto el : *elContainer){
     bit++;
     ATH_MSG_INFO("Size = " << el->trackParticle()->numberOfParameters());
     //auto maxParameters = el->trackParticle()->numberOfParameters();

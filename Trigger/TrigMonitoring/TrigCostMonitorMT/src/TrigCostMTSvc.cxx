@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ConcurrencyFlags.h"
@@ -364,7 +364,7 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
       std::vector<uint32_t> robs_id;
       std::vector<uint32_t> robs_size;
       std::vector<unsigned> robs_history;
-      std::vector<uint8_t> robs_status;
+      std::vector<unsigned short> robs_status;
 
       robs_id.reserve(robData.requested_ROBs.size());
       robs_size.reserve(robData.requested_ROBs.size());
@@ -384,7 +384,7 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
       result &= tc->setDetail<std::vector<uint32_t>>("robs_id", robs_id);
       result &= tc->setDetail<std::vector<uint32_t>>("robs_size", robs_size);
       result &= tc->setDetail<std::vector<unsigned>>("robs_history", robs_history);
-      result &= tc->setDetail<std::vector<uint8_t>>("robs_status", robs_status);
+      result &= tc->setDetail<std::vector<unsigned short>>("robs_status", robs_status);
       result &= tc->setDetail("start", robData.start_time);
       result &= tc->setDetail("stop", robData.end_time);
 
@@ -408,6 +408,67 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
   }
 
   
+  return StatusCode::SUCCESS;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+StatusCode TrigCostMTSvc::generateTimeoutReport(const EventContext& context, std::string& report) {
+
+  ATH_CHECK(checkSlot(context));
+  if (!m_eventMonitored[context.slot()]) {
+    ATH_MSG_DEBUG("Not a monitored event.");
+    report = "";
+    return StatusCode::SUCCESS;
+  }
+
+  std::unique_lock lockUnique(m_slotMutex[context.slot()]);
+
+  tbb::concurrent_hash_map< AlgorithmIdentifier, AlgorithmPayload, AlgorithmIdentifierHashCompare>::const_iterator beginIt;
+  tbb::concurrent_hash_map< AlgorithmIdentifier, AlgorithmPayload, AlgorithmIdentifierHashCompare>::const_iterator endIt;
+  tbb::concurrent_hash_map< AlgorithmIdentifier, AlgorithmPayload, AlgorithmIdentifierHashCompare>::const_iterator it;
+  ATH_CHECK(m_algStartInfo.getIterators(context, msg(), beginIt, endIt));
+
+  // Create map that sorts in descending order
+  std::map<uint64_t, std::string, std::greater<uint64_t>> timeToAlgMap;
+
+  for (it = beginIt; it != endIt; ++it) {
+    const AlgorithmIdentifier& ai = it->first;
+    const AlgorithmPayload& ap = it->second;
+
+    // Don't look at any records from other slots
+    if (ai.m_realSlot != context.slot()) continue;
+
+    uint64_t startTime = ap.m_algStartTime.microsecondsSinceEpoch();
+    uint64_t stopTime = 0;
+    {
+      tbb::concurrent_hash_map<AlgorithmIdentifier, TrigTimeStamp, AlgorithmIdentifierHashCompare>::const_accessor stopTimeAcessor;
+      if (m_algStopTime.retrieve(ai, stopTimeAcessor).isFailure()) {
+        ATH_MSG_DEBUG("No end time for '" << ai.m_caller << "', '" << ai.m_store << "'");
+      } else { // retrieve was a success
+        stopTime = stopTimeAcessor->second.microsecondsSinceEpoch();
+      }
+      // stopTimeAcessor goes out of scope - lock released
+    }
+
+    if (stopTime == 0) continue; 
+ 
+    timeToAlgMap[stopTime-startTime] = ai.m_caller;
+  }
+
+  // Save top 5 times to the report
+  report = "Timeout detected with the following algorithms consuming the most time: ";
+  int algCounter = 0;
+  for(const std::pair<uint64_t, std::string>& p : timeToAlgMap){
+    // Save time in miliseconds instead of microseconds
+    report += p.second + " (" + std::round(p.first/3.) + " ms)";
+    ++algCounter;
+    if (algCounter >= 5){
+      break;
+    }
+    report += ", ";
+  }
+
   return StatusCode::SUCCESS;
 }
 

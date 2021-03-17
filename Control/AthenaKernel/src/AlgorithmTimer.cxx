@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
  * @file   TrigTimeAlgs/AlgorithmTimer.cxx
  * @brief  Efficient realtime timers
  * @author Frank Winklmeier (based on AthenaKernel/Algorithmtimer by W. Lavrijsen, S. Binet)
- *
- * $Id: AlgorithmTimer.cxx,v 1.3 2009-05-14 16:58:21 dquarrie Exp $
  */
 
 #include "AthenaKernel/AlgorithmTimer.h"
@@ -31,11 +29,8 @@
 #include <algorithm>
 #include <string>
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <boost/lexical_cast.hpp>
-
-#ifdef __APPLE__
-#endif
 
 using namespace Athena;
 
@@ -43,7 +38,7 @@ using namespace Athena;
 namespace Athena {
   namespace AlgorithmTimerHandler
   {
-  
+
     /**
      * @brief  Function called by signals delivered via threads
      */
@@ -67,7 +62,7 @@ AlgorithmTimer::AlgorithmTimer(unsigned int milliseconds,
   m_timerid(),
   m_onAlarm(callback),
   m_gdb_details (0)
-{  
+{
   // prevent valgrind warning
   // new warning popped up, needs new glibc for this, see http://bugs.kde.org/show_bug.cgi?id=124478
   // possibly valgrind will be fixed, eventually.
@@ -77,12 +72,12 @@ AlgorithmTimer::AlgorithmTimer(unsigned int milliseconds,
 
   if (m_onAlarm == NULL)
     m_onAlarm = boost::bind(&AlgorithmTimer::abortJob,this);
-  
+
   m_sigevent.sigev_notify = SIGEV_THREAD;
   m_sigevent.sigev_signo  = 0;
   m_sigevent.sigev_notify_function = AlgorithmTimerHandler::onAlarmThread;
   m_sigevent.sigev_notify_attributes = NULL;
-  
+
   // Create the timer
   if ( conf & USEREALTIME )
     {
@@ -129,7 +124,7 @@ void AlgorithmTimer::start(unsigned int milliseconds)
   spec.it_value.tv_nsec    = 1000000*(m_timeout%1000);
   spec.it_interval.tv_sec  = 0;
   spec.it_interval.tv_nsec = 0;
-  
+
   m_active = true;
   timer_settime(m_timerid, 0, &spec, NULL);
 #endif
@@ -150,7 +145,7 @@ unsigned int AlgorithmTimer::stop()
   spec.it_value.tv_nsec    = 0;
   spec.it_interval.tv_sec  = 0;
   spec.it_interval.tv_nsec = 0;
-  
+
   itimerspec ovalue;
   m_active = false;
   timer_settime(m_timerid, 0, &spec, &ovalue);
@@ -168,18 +163,18 @@ unsigned int AlgorithmTimer::timeLeft() const
   return 1000*spec.it_value.tv_sec + int(spec.it_value.tv_nsec/1000000);
 #else
 	return 0;
-#endif 
+#endif
 }
 
 AlgorithmTimer::callbackFct_t AlgorithmTimer::abortJob()
 {
   /*
    * Print stack trace and abort the job.
-   */  
+   */
   std::ostringstream os;
   os << "Timeout ";
   os << " (" << this->timeout() << " msec) reached";
-  
+
   ServiceHandle<ICoreDumpSvc> coreDumpSvc("CoreDumpSvc", "AlgorithmTimer");
   if ( coreDumpSvc.retrieve().isSuccess() )
     {

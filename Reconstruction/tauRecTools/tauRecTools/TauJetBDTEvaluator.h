@@ -40,4 +40,5 @@ class TauJetBDTEvaluator
   float m_maxAbsTrackEta;
   float m_dummyValue;
 };
-#endif
+
+#endif // TAURECTOOLS_TAUJETBDTEVALUATOR_H

@@ -13,7 +13,7 @@ find_package( Boost )
 atlas_add_component( DerivationFrameworkMCTruth
                      src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${FASTJET_LIBRARIES} ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel AtlasHepMCLib DerivationFrameworkInterfaces ExpressionEvaluationLib GaudiKernel GenInterfacesLib GeneratorObjects MCTruthClassifierLib StoreGateLib TauAnalysisToolsLib TruthUtils xAODBase xAODEgamma xAODEventInfo xAODEventShape xAODJet xAODMuon xAODTruth )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${FASTJET_LIBRARIES} ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel AtlasHepMCLib AtlasHepMCsearchLib DerivationFrameworkInterfaces ExpressionEvaluationLib GaudiKernel GenInterfacesLib GeneratorObjects MCTruthClassifierLib StoreGateLib TauAnalysisToolsLib TruthUtils xAODBase xAODEgamma xAODEventInfo xAODEventShape xAODJet xAODMuon xAODTruth )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

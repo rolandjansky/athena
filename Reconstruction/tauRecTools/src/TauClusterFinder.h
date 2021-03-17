@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUCLUSTERFINDER_H
-#define TAUCLUSTERFINDER_H
+#ifndef TAURECTOOLS_TAUCLUSTERFINDER_H
+#define TAURECTOOLS_TAUCLUSTERFINDER_H
 
 #include "tauRecTools/TauRecToolBase.h"
 
@@ -42,4 +42,4 @@ class TauClusterFinder : public TauRecToolBase {
     Gaudi::Property<bool> m_doJetVertexCorrection {this, "JetVertexCorrection", true, "switch of jet vertex correction"};
 };
 
-#endif
+#endif // TAURECTOOLS_TAUCLUSTERFINDER_H

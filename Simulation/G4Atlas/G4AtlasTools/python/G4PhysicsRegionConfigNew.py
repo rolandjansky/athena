@@ -9,29 +9,27 @@ def BeampipeFwdCutPhysicsRegionToolCfg(ConfigFlags, name='BeampipeFwdCutPhysicsR
     kwargs.setdefault("RegionName", 'BeampipeFwdCut')
     volumeList = ['BeamPipe::SectionF47', 'BeamPipe::SectionF48', 'BeamPipe::SectionF61']
     kwargs.setdefault("VolumeList",  volumeList)
-    from G4AtlasApps.SimFlags import simFlags
 
-    #if simFlags.BeamPipeSimMode() == "FastSim":
-    if True:
+    if ConfigFlags.Sim.BeamPipeSimMode == "FastSim":
         kwargs.setdefault("ElectronCut", 10.)
         kwargs.setdefault("PositronCut", 10.)
         kwargs.setdefault("GammaCut", 10.)
         print('Adding fast sim model to the beampipe!')
     else:
-        assert simFlags.BeamPipeCut.statusOn
-        if simFlags.BeamPipeCut() < 1:
-            msg = "Setting the forward beam pipe range cuts to %e mm " % simFlags.BeamPipeCut()
+        assert ConfigFlags.Sim.BeamPipeCut
+        if ConfigFlags.Sim.BeamPipeCut < 1:
+            msg = "Setting the forward beam pipe range cuts to %e mm " % ConfigFlags.Sim.BeamPipeCut
             msg += "-- cut is < 1 mm, I hope you know what you're doing!"
             print(msg)
-        if simFlags.BeamPipeSimMode() == "EGammaRangeCuts":
-            kwargs.setdefault("ElectronCut", simFlags.BeamPipeCut())
-            kwargs.setdefault("PositronCut", simFlags.BeamPipeCut())
-            kwargs.setdefault("GammaCut", simFlags.BeamPipeCut())
-        elif simFlags.BeamPipeSimMode() == "EGammaPRangeCuts":
-            kwargs.setdefault("ElectronCut", simFlags.BeamPipeCut())
-            kwargs.setdefault("PositronCut", simFlags.BeamPipeCut())
-            kwargs.setdefault("GammaCut", simFlags.BeamPipeCut())
-            kwargs.setdefault("ProtonCut", simFlags.BeamPipeCut())
+        if ConfigFlags.Sim.BeamPipeSimMode == "EGammaRangeCuts":
+            kwargs.setdefault("ElectronCut", ConfigFlags.Sim.BeamPipeCut)
+            kwargs.setdefault("PositronCut", ConfigFlags.Sim.BeamPipeCut)
+            kwargs.setdefault("GammaCut", ConfigFlags.Sim.BeamPipeCut)
+        elif ConfigFlags.Sim.BeamPipeSimMode == "EGammaPRangeCuts":
+            kwargs.setdefault("ElectronCut", ConfigFlags.Sim.BeamPipeCut)
+            kwargs.setdefault("PositronCut", ConfigFlags.Sim.BeamPipeCut)
+            kwargs.setdefault("GammaCut", ConfigFlags.Sim.BeamPipeCut)
+            kwargs.setdefault("ProtonCut", ConfigFlags.Sim.BeamPipeCut)
     return RegionCreator(name, **kwargs)
 
 def FWDBeamLinePhysicsRegionToolCfg(ConfigFlags, name='FWDBeamLinePhysicsRegionTool', **kwargs):
@@ -131,8 +129,7 @@ def EMBPhysicsRegionToolCfg(ConfigFlags, name='EMBPhysicsRegionTool', **kwargs):
     volumeList = ['LArMgr::LAr::EMB::STAC']
     kwargs.setdefault("VolumeList",  volumeList)
     rangeEMB = 0.03
-    from G4AtlasApps.SimFlags import simFlags
-    if '_EMV' not in simFlags.PhysicsList() and '_EMX' not in simFlags.PhysicsList():
+    if '_EMV' not in ConfigFlags.Sim.PhysicsList and '_EMX' not in ConfigFlags.Sim.PhysicsList:
         rangeEMB = 0.1
     kwargs.setdefault("ElectronCut", rangeEMB)
     kwargs.setdefault("PositronCut", rangeEMB)
@@ -144,8 +141,7 @@ def EMECPhysicsRegionToolCfg(ConfigFlags, name='EMECPhysicsRegionTool', **kwargs
     volumeList = ['LArMgr::LAr::EMEC::Mother']
     kwargs.setdefault("VolumeList",  volumeList)
     rangeEMEC = 0.03
-    from G4AtlasApps.SimFlags import simFlags
-    if '_EMV' not in simFlags.PhysicsList() and '_EMX' not in simFlags.PhysicsList():
+    if '_EMV' not in ConfigFlags.Sim.PhysicsList and '_EMX' not in ConfigFlags.Sim.PhysicsList:
         rangeEMEC = 0.1
     kwargs.setdefault("ElectronCut", rangeEMEC)
     kwargs.setdefault("PositronCut", rangeEMEC)
@@ -157,8 +153,7 @@ def HECPhysicsRegionToolCfg(ConfigFlags, name='HECPhysicsRegionTool', **kwargs):
     volumeList = ['LArMgr::LAr::HEC::LiquidArgon']
     kwargs.setdefault("VolumeList",  volumeList)
     rangeHEC = 0.03
-    from G4AtlasApps.SimFlags import simFlags
-    if '_EMV' not in simFlags.PhysicsList() and '_EMX' not in simFlags.PhysicsList():
+    if '_EMV' not in ConfigFlags.Sim.PhysicsList and '_EMX' not in ConfigFlags.Sim.PhysicsList:
         rangeHEC = 1.0
     kwargs.setdefault("ElectronCut", rangeHEC)
     kwargs.setdefault("PositronCut", rangeHEC)
@@ -180,8 +175,7 @@ def EMECParaPhysicsRegionToolCfg(ConfigFlags, name='EMECParaPhysicsRegionTool', 
                   'LArMgr::LAr::EMEC::Neg::InnerWheel', 'LArMgr::LAr::EMEC::Neg::OuterWheel']
     kwargs.setdefault("VolumeList",  volumeList)
     rangeEMEC = 0.03
-    from G4AtlasApps.SimFlags import simFlags
-    if '_EMV' not in simFlags.PhysicsList() and '_EMX' not in simFlags.PhysicsList():
+    if '_EMV' not in ConfigFlags.Sim.PhysicsList and '_EMX' not in ConfigFlags.Sim.PhysicsList:
         rangeEMEC = 0.1
     kwargs.setdefault("ElectronCut", rangeEMEC)
     kwargs.setdefault("PositronCut", rangeEMEC)

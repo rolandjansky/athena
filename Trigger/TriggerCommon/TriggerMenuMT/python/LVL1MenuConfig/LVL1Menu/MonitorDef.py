@@ -86,7 +86,7 @@ class MonitorDef(object):
         TAP=2
         TAV=4
 
-        monItems = { 1 :[], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] }
+        monItems   = { 1 :[], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] }
         monItemsHF = { 1 :[], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] }
 
         # definitions hardcoded at the moment
@@ -100,7 +100,6 @@ class MonitorDef(object):
 #            "L1_ALFA_B7L1_OD","L1_ALFA_A7L1_OD","L1_ALFA_A7R1_OD","L1_ALFA_B7R1_OD",
 #            "L1_BPTX0_BGRP0", "L1_BPTX1_BGRP0",
 #            ]
-#
 #        
 #        monItems[TAP|TAV] = [
 #            "L1_EM7", "L1_EM12", "L1_EM8VH", "L1_EM10VH", "L1_EM15", "L1_EM15HI", "L1_EM15VH", 
@@ -124,8 +123,6 @@ class MonitorDef(object):
 #            "L1_ALFA_A7R1L","L1_ALFA_B7R1U","L1_ALFA_B7R1L", "L1_ALFA_B7L1U", "L1_ALFA_B7L1L","L1_ALFA_A7L1U","L1_ALFA_A7L1L",
 #            ]
 #
-#
-#
 #        monItemsHF[TBP|TAP|TAV] = [
 #            "L1_BCM_Wide_BGRP0",
 #            "L1_BCM_AC_CA_BGRP0",
@@ -136,17 +133,15 @@ class MonitorDef(object):
 #            ]
 
 
-
         monItems[TBP] = [
             "L1_ALFA_B7L1U", "L1_ALFA_B7L1L", "L1_ALFA_A7L1U", "L1_ALFA_A7L1L", "L1_ALFA_A7R1U", "L1_ALFA_A7R1L", "L1_ALFA_B7R1U", "L1_ALFA_B7R1L"
             ]
-
 
         monItems[TBP|TAP|TAV] = [
             "L1_EM3","L1_EM20VH","L1_EM22VHI",
             "L1_MU4","L1_MU10","L1_MU20",
             "L1_TAU12", "L1_TAU12IT", "L1_TAU20", "L1_TAU60",
-            "L1_J12", "L1_J20", "L1_J100", "L1_J400", "L1_J20.31ETA49", "L1_J30.31ETA49",
+            "L1_J12", "L1_J20", "L1_J100", "L1_J400", "L1_J20p31ETA49", "L1_J30p31ETA49",
             "L1_XE35", "L1_XE80", "L1_XS20", 
             "L1_MBTS_4_A", "L1_MBTS_4_C", "L1_MBTS_1", "L1_MBTS_2", "L1_MBTS_1_1",
             "L1_LUCID", "L1_LUCID_A_C_EMPTY", "L1_ALFA_ANY",
@@ -160,7 +155,7 @@ class MonitorDef(object):
             "L1_TGC_BURST",
             "L1_LLP-NOMATCH",
             "L1_DR-TAU20ITAU12I",
-            "L1_HT190-J15s5.ETA21",
+            "L1_HT190-J15s5pETA21",
             "L1_3J15_BTAG-MU4J15",
             "L1_MJJ-900",
             "L1_J40_DPHI-J20s2XE50",
@@ -175,7 +170,6 @@ class MonitorDef(object):
             "L1_J12",
             "L1_MBTS_1", "L1_MBTS_2", "L1_MBTS_1_1",
             ]
-
 
 
         check = False
@@ -221,22 +215,14 @@ class MonitorDef(object):
 
         # for each item set the monitor flags
         for item in items:
-
             itemName = item.name
             for k,l in monItems.items():
-
                 if itemName in l:
                     item.addMonitor(k, MonitorDef.LOW_FREQ)
 
-
             for k,l in monItemsHF.items():
-
                 if itemName in l:
                     item.addMonitor(k, MonitorDef.HIGH_FREQ)
-
-
-
-
 
 
     @staticmethod

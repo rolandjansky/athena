@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -88,15 +88,15 @@ private:
   virtual void setFixedTime(float fixedTime) override { m_tfix.setValue(fixedTime); }
 
   /** create a list of surface charges from a hit */
-  virtual void process(const InDetDD::SiDetectorElement* element, const TimedHitPtr<SiHit>& phit, const ISiSurfaceChargesInserter& inserter, CLHEP::HepRandomEngine * rndmEngine) const override;
-  void processSiHit(const InDetDD::SiDetectorElement* element, const SiHit& phit, const ISiSurfaceChargesInserter& inserter, const float eventTime, const unsigned short eventID, CLHEP::HepRandomEngine * rndmEngine) const;
+  virtual void process(const InDetDD::SiDetectorElement* element, const TimedHitPtr<SiHit>& phit, const ISiSurfaceChargesInserter& inserter, CLHEP::HepRandomEngine * rndmEngine, const EventContext& ctx) const override;
+  void processSiHit(const InDetDD::SiDetectorElement* element, const SiHit& phit, const ISiSurfaceChargesInserter& inserter, const float eventTime, const unsigned short eventID, CLHEP::HepRandomEngine * rndmEngine, const EventContext& ctx) const;
 
   // some diagnostics methods are needed here too
-  float DriftTime(float zhit, const InDetDD::SiDetectorElement* element) const; //!< calculate drift time perpandicular to the surface for a charge at distance zhit from mid gap
-  float DiffusionSigma(float zhit, const InDetDD::SiDetectorElement* element) const; //!< calculate diffusion sigma from a gaussian dist scattered charge
+  float DriftTime(float zhit, const InDetDD::SiDetectorElement* element, const EventContext& ctx) const; //!< calculate drift time perpandicular to the surface for a charge at distance zhit from mid gap
+  float DiffusionSigma(float zhit, const InDetDD::SiDetectorElement* element, const EventContext& ctx) const; //!< calculate diffusion sigma from a gaussian dist scattered charge
   float SurfaceDriftTime(float ysurf) const; //!< Calculate of the surface drift time
-  float MaxDriftTime(const InDetDD::SiDetectorElement* element) const; //!< max drift charge equivalent to the detector thickness
-  float MaxDiffusionSigma(const InDetDD::SiDetectorElement* element) const; //!< max sigma diffusion
+  float MaxDriftTime(const InDetDD::SiDetectorElement* element, const EventContext& ctx) const; //!< max drift charge equivalent to the detector thickness
+  float MaxDiffusionSigma(const InDetDD::SiDetectorElement* element, const EventContext& ctx) const; //!< max sigma diffusion
 
   // methods for Taka Kondos's new charge drift model
   // Non-const methods are used in initialization

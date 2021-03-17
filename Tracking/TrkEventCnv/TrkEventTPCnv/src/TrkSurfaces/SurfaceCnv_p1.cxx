@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -16,29 +16,23 @@
 // Persistent to Transient
 //-----------------------------------------------------------------------------
 void SurfaceCnv_p1::persToTrans( const Trk::Surface_p1 *persObj, Trk::Surface *transObj, MsgStream &) {
-   transObj->m_associatedDetElementId = Identifier(Identifier32(persObj->m_associatedDetElementId)); 
+   transObj->m_associatedDetElementId = Identifier(Identifier32(persObj->m_associatedDetElementId));
    if( persObj->m_transform.size() ) {
-      transObj->m_transform = std::make_unique<Amg::Transform3D>();
-      // const std::vector<float>& vec = persObj->m_transform;
-      // Amg::Transform3D& transform = *(transObj->m_transform);
-      // std::cout<<"SurfaceCnv_p1::persToTrans - making Amg::Transform3D from vector:"<<std::endl;
-      // for (auto v : persObj->m_transform)
-      //     std::cout<< v<<" ";
-      // std::cout<<std::endl;
-          
-      // EigenHelpers::vectorToEigenTransform3D( persObj->m_transform, *transObj->m_transform );
-      (*transObj->m_transform)(0,0)=persObj->m_transform[0];
-      (*transObj->m_transform)(0,1)=persObj->m_transform[1];
-      (*transObj->m_transform)(0,2)=persObj->m_transform[2];
-      (*transObj->m_transform)(0,3)=persObj->m_transform[3];
-      (*transObj->m_transform)(1,0)=persObj->m_transform[4];
-      (*transObj->m_transform)(1,1)=persObj->m_transform[5];
-      (*transObj->m_transform)(1,2)=persObj->m_transform[6];
-      (*transObj->m_transform)(1,3)=persObj->m_transform[7];
-      (*transObj->m_transform)(2,0)=persObj->m_transform[8];
-      (*transObj->m_transform)(2,1)=persObj->m_transform[9];
-      (*transObj->m_transform)(2,2)=persObj->m_transform[10];
-      (*transObj->m_transform)(2,3)=persObj->m_transform[11];
+
+      Amg::Transform3D trans{};
+      trans(0,0)=persObj->m_transform[0];
+      trans(0,1)=persObj->m_transform[1];
+      trans(0,2)=persObj->m_transform[2];
+      trans(0,3)=persObj->m_transform[3];
+      trans(1,0)=persObj->m_transform[4];
+      trans(1,1)=persObj->m_transform[5];
+      trans(1,2)=persObj->m_transform[6];
+      trans(1,3)=persObj->m_transform[7];
+      trans(2,0)=persObj->m_transform[8];
+      trans(2,1)=persObj->m_transform[9];
+      trans(2,2)=persObj->m_transform[10];
+      trans(2,3)=persObj->m_transform[11];
+      transObj->setTransform(trans);
    }
 }
 

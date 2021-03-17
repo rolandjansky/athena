@@ -16,6 +16,7 @@ using TrigCompositeUtils::LinkInfo;
 using TrigCompositeUtils::linkToPrevious;
 using TrigCompositeUtils::newDecisionIn;
 using TrigCompositeUtils::viewString;
+using TrigCompositeUtils::hypoAlgNodeName;
 
 SPCountHypoAlgMT::SPCountHypoAlgMT(const std::string &name, ISvcLocator *pSvcLocator) : ::HypoBase(name, pSvcLocator)
 {
@@ -54,7 +55,7 @@ StatusCode SPCountHypoAlgMT::execute(const EventContext &context) const
   // new output decisions
   SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context);
   auto decisions = outputHandle.ptr();
-  auto d = newDecisionIn(decisions);
+  auto d = newDecisionIn(decisions, hypoAlgNodeName());
   d->setObjectLink(featureString(), ViewHelper::makeLink<xAOD::TrigCompositeContainer>(*viewSP, spacepointsHandle, 0));
   linkToPrevious(d, decisionInput().key(), 0);
 

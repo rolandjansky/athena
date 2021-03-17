@@ -93,8 +93,8 @@ class TruthIsolationTool : virtual public ITruthIsolationTool,
   /** @brief Computes and stores the list of transverse isolation energies
    *  for various cone sizes into the @c TruthEtIsolations container
    */
-  void computeIso( const std::list<const HepMC::GenParticle*>& parts, 
-		   const HepMC::GenParticle* p,
+  void computeIso( const std::list<HepMC::ConstGenParticlePtr>& parts, 
+		   HepMC::ConstGenParticlePtr p,
 		   TruthEtIsolations& etIsolations, 
 		   ITruthIsolationTool::ParticleSelect sel );
 

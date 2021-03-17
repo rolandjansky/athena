@@ -22,7 +22,7 @@ from AthenaCommon.Utils.unixtools import FindFile
 
 class TrigInDetReco(ExecStep):
 
-    def __init__(self, name='TrigInDetReco', postinclude_file='' ):
+    def __init__(self, name='TrigInDetReco', postinclude_file='', preinclude_file='' ):
         ExecStep.__init__(self, name)
 ##        super(TrigInDetReco, self).__init__(name)
         self.type = 'Reco_tf'
@@ -35,6 +35,7 @@ class TrigInDetReco(ExecStep):
         self.slices = []
         self.preexec_trig = ' '
         self.postinclude_trig = postinclude_file
+        self.preinclude_trig  = preinclude_file
         self.release = 'latest'
         self.preexec_reco =  ';'.join([
             'from RecExConfig.RecFlags import rec',
@@ -63,14 +64,24 @@ class TrigInDetReco(ExecStep):
 
         self.postexec_reco = "from AthenaCommon.AppMgr import ServiceMgr; ServiceMgr.AthenaPoolCnvSvc.MaxFileSizes=['tmp.ESD=100000000000']"
         self.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG"'
+       
+        if ( self.postinclude_trig != '' ) : 
+            print( "postinclude_trig: ", self.postinclude_trig )
+
+        if ( self.preinclude_trig != '' ) : 
+            print( "preinclude_trig:  ", self.preinclude_trig  )
 
 
     def configure(self, test):
         chains = '['
         flags = ''
+        lrt = False
         for i in self.slices:
+            if ('LRT' in i):
+                lrt = True
             if (i=='L2muonLRT') :
                 chains += "'HLT_mu6_LRT_idperf_l2lrt_L1MU6',"
+                chains += "'HLT_mu6_idperf_L1MU6',"
                 flags += 'doMuonSlice=True;'
             if (i=='muon') :
                 chains += "'HLT_mu6_idperf_L1MU6',"
@@ -105,6 +116,9 @@ class TrigInDetReco(ExecStep):
         chains += ']'
         self.preexec_trig = 'doEmptyMenu=True;'+flags+'selectChains='+chains
 
+        if (lrt):
+            self.preexec_all += ';from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doR3LargeD0.set_Value_and_Lock(True);InDetFlags.storeSeparateLargeD0Container.set_Value_and_Lock(False)'
+
         if (self.release == 'current'):
             print( "Using current release for offline Reco steps  " )
         else:
@@ -131,6 +145,8 @@ class TrigInDetReco(ExecStep):
             self.args += ' --postExec "RDOtoRDOTrigger:{:s};" "RAWtoESD:{:s};" '.format(self.postexec_trig, self.postexec_reco)
         if (self.postinclude_trig != ''):
             self.args += ' --postInclude "RDOtoRDOTrigger:{:s}" '.format(self.postinclude_trig)
+        if (self.preinclude_trig != ''):
+            self.args += ' --preInclude "RDOtoRDOTrigger:{:s}" '.format(self.preinclude_trig)
         super(TrigInDetReco, self).configure(test)
 
 
@@ -160,6 +176,7 @@ class TrigInDetRdictStep(Step):
         self.auto_report_result = True
         self.required = True
         self.executable = 'TIDArdict'
+        self.timeout = 10*60
 
     def configure(self, test):
         os.system( 'get_files -data TIDAbeam.dat &> /dev/null' )
@@ -172,13 +189,14 @@ class TrigInDetRdictStep(Step):
         os.system( 'get_files -data TIDAdata-run3.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata-run3-larged0.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata-run3-larged0-el.dat &> /dev/null' )
+        os.system( 'get_files -data TIDAdata-run3-lrt.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata_cuts.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata-run3-offline.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata-run3-offline-larged0.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata-run3-offline-larged0-el.dat &> /dev/null' )
+        os.system( 'get_files -data TIDAdata-run3-offline-lrt.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata-run3-offline-vtx.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata_cuts-offline.dat &> /dev/null' )
-        os.system( 'get_files -jo   TIDAml_extensions.py &> /dev/null' )
         super(TrigInDetRdictStep, self).configure(test)
 
 

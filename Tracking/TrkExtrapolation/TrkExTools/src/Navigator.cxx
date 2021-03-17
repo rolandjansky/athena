@@ -105,9 +105,6 @@ Trk::Navigator::initialize() {
                         ? Trk::MagneticFieldProperties(Trk::FastField)
                         : Trk::MagneticFieldProperties(Trk::FullField);
 
-  //This is no-op for the Navigator only relevant for
-  //derivated Validation for now
-  validationInitialize();
   return StatusCode::SUCCESS;
 }
 
@@ -175,10 +172,10 @@ Trk::Navigator::nextBoundarySurface(const EventContext& ctx,
     const Trk::Surface& currentSurface =
       currentBoundary->surfaceRepresentation();
 
-    const Trk::TrackParameters* trackPar = nullptr;
+    //const Trk::TrackParameters* trackPar = nullptr;
     // do either RungeKutta (always after first unsuccessful try) or straight
     // line
-    trackPar =
+    auto trackPar =
       (!m_useStraightLineApproximation || tryBoundary > 1)
         ? prop.propagateParameters(
             ctx, parms, currentSurface, searchDir, true, m_fieldProperties)
@@ -188,8 +185,7 @@ Trk::Navigator::nextBoundarySurface(const EventContext& ctx,
     if (trackPar) {
       ATH_MSG_VERBOSE(
         "  [N] --> next BoundarySurface found with Parameters: " << *trackPar);
-      validationFill(trackPar);
-      delete trackPar;
+      //delete trackPar;
       return currentBoundary;
     }
   }
@@ -284,11 +280,11 @@ Trk::Navigator::nextTrackingVolume(const EventContext& ctx,
       trackPar =
         (!m_useStraightLineApproximation || tryBoundary > 1)
           ? prop.propagateParameters(
-              ctx, parms, currentSurface, searchDir, true, m_fieldProperties)
+              ctx, parms, currentSurface, searchDir, true, m_fieldProperties).release()
           : prop.propagateParameters(
-              ctx, parms, currentSurface, searchDir, true, s_zeroMagneticField);
+              ctx, parms, currentSurface, searchDir, true, s_zeroMagneticField).release();
     } else {
-      trackPar = parms.clone();
+      trackPar = parms.clone(); //to be revisited
     }
     if (trackPar) {
       // the next volume pointer
@@ -310,7 +306,6 @@ Trk::Navigator::nextTrackingVolume(const EventContext& ctx,
           '\t' << '\t' << (nextVolume ? nextVolume->volumeName() : "None"));
       }
 
-      validationFill(trackPar);
       return Trk::NavigationCell(
         nextVolume, trackPar, Trk::BoundarySurfaceFace(surface_id));
     }
@@ -399,7 +394,7 @@ Trk::Navigator::nextDenseTrackingVolume(
                                                        path,
                                                        false,
                                                        false,
-                                                       &vol);
+                                                       &vol).release();
   // if (nextPar) throwIntoGarbageBin(nextPar);
   if (nextPar) {
     Amg::Vector3D gp = nextPar->position();

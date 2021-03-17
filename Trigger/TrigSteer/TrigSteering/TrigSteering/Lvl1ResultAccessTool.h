@@ -25,6 +25,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "TrigSteering/Lvl1ItemsAndRoIs.h"
+#include "TrigConfData/L1PrescalesSet.h"
 
 #include <vector>
 #include <bitset>
@@ -34,6 +35,7 @@
 namespace TrigConf {
    class ILVL1ConfigSvc;
    class TriggerThreshold;
+   class L1PrescalesSet;
 }
 
 namespace LVL1CTP {
@@ -96,6 +98,7 @@ namespace HLT {
                                       bool useL1JetEnergy = true) = 0;
 
       virtual std::vector< std::unique_ptr<LVL1CTP::Lvl1Item> > makeLvl1ItemConfig() const = 0;
+      virtual std::vector< std::unique_ptr<LVL1CTP::Lvl1Item> > makeLvl1ItemConfig(const EventContext& context) const = 0;
       virtual StatusCode updateItemsConfigOnly() = 0;
 
       virtual StatusCode updateResult(const ROIB::RoIBResult& result,
@@ -145,7 +148,7 @@ namespace HLT {
 
       /** @brief Get LVL1 items  ... for TrigDecision
        */
-       virtual
+      virtual
       const std::vector<LVL1CTP::Lvl1Item*>& getDecisionItems() override  { return m_decisionItems; }
 
 
@@ -174,14 +177,14 @@ namespace HLT {
        *  @param useL1Muon consider LVL1 Muon RoIs ?
        *  @param useL1JetEnergy consider LVL1 JetEnergy RoIs ?
        */
-       virtual
+      virtual
       StatusCode updateConfig(bool useL1Calo = true,
                               bool useL1Muon = true,
                               bool useL1JetEnergy = true) override;
 
-      virtual
-      std::vector< std::unique_ptr<LVL1CTP::Lvl1Item> > makeLvl1ItemConfig() const override;
- 
+      virtual std::vector< std::unique_ptr<LVL1CTP::Lvl1Item>> makeLvl1ItemConfig() const override;
+      virtual std::vector< std::unique_ptr<LVL1CTP::Lvl1Item>> makeLvl1ItemConfig(const EventContext& context) const override;
+
       /** @brief update the LVL1 items settings from the (LVL1) trigger configuration.
        *         This method is called from within updateConfig(..), the reason to have it
        *         separate is that TrigDecisionTool only needs the LVL1 items and not the RoIs.
@@ -247,7 +250,7 @@ namespace HLT {
        */
       virtual
       std::bitset<3> lvl1EMTauJetOverflow(const ROIB::RoIBResult& result) override;
-       
+
       /** @brief Extract all LVL1 items and all LVL1 items from given RoIBResult
        *  @param result reference to RoIBResult object, holding all LVL1 RoIs and items
        *  @param updateCaloRoIs if true, assume old Calo RoI words which need to be corrected
@@ -283,6 +286,10 @@ namespace HLT {
       bool m_useL1Muon { false }, m_useL1Calo { false }, m_useL1JetEnergy { false }; //!< consider RoI types ?
       unsigned int m_muonCommissioningStep;            //!< change thresholds creation inclusivness depending on the comissioning stage 
       bool m_ignorePrescales; //!< Set to true to ignore prescales
+      Gaudi::Property<bool> m_useNewConfig { this, "UseNewConfig", true, "When true, read the menu from detector store, when false use the LVL1ConfigSvc" };
+
+      /// access to L1Prescales
+      SG::ReadCondHandleKey<TrigConf::L1PrescalesSet> m_l1PrescaleSetInputKey{ this, "L1Prescales", "L1Prescales", "L1 prescales set"};
 
       std::vector< std::unique_ptr<LVL1CTP::Lvl1Item> > m_lvl1ItemConfig; //!< vector holding all configured LVL1 items
       std::vector< ConfigThreshold > m_muonCfg;           //!< vector holding all configured LVL1 muon thresholds
@@ -295,8 +302,8 @@ namespace HLT {
 
       bool addJetThreshold( HLT::JetEnergyRoI & roi, const ConfigJetEThreshold* threshold );
       bool addMetThreshold( HLT::JetEnergyRoI & roi, const ConfigJetEThreshold* threshold, bool isRestrictedRange );
-    
-      ServiceHandle<TrigConf::ILVL1ConfigSvc> m_lvl1ConfigSvc; //!< handle for the LVL1 configuration service
+
+      ServiceHandle<TrigConf::ILVL1ConfigSvc> m_lvl1ConfigSvc{ this, "LVL1ConfigSvc", "LVL1ConfigSvc", "LVL1 Config Service"}; //!< handle for the LVL1 configuration service
    };
 } // end namespace
 

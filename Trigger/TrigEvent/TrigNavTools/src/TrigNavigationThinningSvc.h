@@ -13,6 +13,7 @@
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaKernel/ITrigNavigationThinningSvc.h"
 
+#include <mutex>
 
 namespace HLT {
   class NavigationCore;
@@ -247,6 +248,8 @@ private:
    * @brief Propagates the features on given TE to its children
    */
   StatusCode propagateFeaturesToChildren(const HLT::TriggerElement *te) const;
+
+  mutable std::mutex m_mutex;
 
   // store the CLID and subtype ids of all the of the deleted features so we can
   // remove their holders from the navigation structure.

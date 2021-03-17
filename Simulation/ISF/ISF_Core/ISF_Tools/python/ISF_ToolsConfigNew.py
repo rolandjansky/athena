@@ -162,5 +162,5 @@ def EnergyParticleOrderingToolCfg(flags, name="ISF_EnergyParticleOrderingTool", 
 
 def ParticleKillerToolCfg(flags, name="ISF_ParticleKillerTool", **kwargs):
     acc = ComponentAccumulator()
-    acc.addPublicTool(CompFactory.ISF.ParticleKillerSimTool(name, **kwargs))
+    acc.setPrivateTools(CompFactory.ISF.ParticleKillerSimTool(name, **kwargs))
     return acc

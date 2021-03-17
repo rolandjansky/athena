@@ -1,16 +1,12 @@
 #!/usr/bin/env python
 """Run tests on G4Geometry Tool configuration
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-from __future__ import print_function
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 
 if __name__ == '__main__':
-  from AthenaConfiguration.MainServicesConfig import MainServicesCfg
-  import os
-
   # Set up logging and config behaviour
   from AthenaCommon.Logging import log
   from AthenaCommon.Constants import DEBUG
@@ -21,6 +17,8 @@ if __name__ == '__main__':
 
   #import config flags
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
+  from AthenaConfiguration.Enums import ProductionStep
+  ConfigFlags.Common.ProductionStep = ProductionStep.Simulation
   
   from AthenaConfiguration.TestDefaults import defaultTestFiles
   inputDir = defaultTestFiles.d
@@ -53,7 +51,6 @@ if __name__ == '__main__':
   from G4AtlasTools.G4GeometryToolConfig import BeamPipeGeoDetectorToolCfg
   from G4AtlasTools.G4GeometryToolConfig import PixelGeoDetectorToolCfg
   from G4AtlasTools.G4GeometryToolConfig import SCTGeoDetectorToolCfg
-  from G4AtlasTools.G4GeometryToolConfig import TRTGeoDetectorToolCfg
   from G4AtlasTools.G4GeometryToolConfig import IDETEnvelopeCfg
   from G4AtlasTools.G4GeometryToolConfig import ATLASEnvelopeCfg
   from G4AtlasTools.G4GeometryToolConfig import CALOEnvelopeCfg

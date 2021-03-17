@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
      
@@ -1419,7 +1419,8 @@ float InDet::SiSpacePointsSeedMaker_ATLxk::azimuthalStep(const float pTmin,const
   if (maxd0 > Rmin) worstCaseD0 = Rmin; 
 
   float sI = std::abs(std::asin(worstCaseD0/Rmin) - std::asin(worstCaseD0/Rmax)); 
-  float sF = std::abs(std::asin(Rmax/(2.*Rm))-std::asin(Rmin/(2.*Rm)));
+  float sF = std::abs(std::asin(std::min(1.,Rmax/(2.*Rm))) -
+                      std::asin(std::min(1.,Rmin/(2.*Rm))));
   return sI+sF; 
 }
 

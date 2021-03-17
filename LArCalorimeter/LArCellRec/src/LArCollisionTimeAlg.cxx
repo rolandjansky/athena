@@ -7,21 +7,6 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 
 
-//Constructor
-LArCollisionTimeAlg:: LArCollisionTimeAlg(const std::string& name, ISvcLocator* pSvcLocator):
-    AthAlgorithm(name,pSvcLocator),
-    m_calo_id(nullptr)
-  {
-  }
-  
-//__________________________________________________________________________
-//Destructor
-  LArCollisionTimeAlg::~LArCollisionTimeAlg()
-  {
-    ATH_MSG_DEBUG ("LArCollisionTimeAlg destructor called");
-  }
-
-//__________________________________________________________________________
 StatusCode LArCollisionTimeAlg::initialize()
   {
     ATH_MSG_DEBUG ("LArCollisionTimeAlg initialize()");
@@ -46,26 +31,28 @@ StatusCode LArCollisionTimeAlg::finalize()
   }
   
 //__________________________________________________________________________
-StatusCode LArCollisionTimeAlg::execute()
+StatusCode LArCollisionTimeAlg::execute(const EventContext& ctx) const
   {
     //.............................................
     
   ATH_MSG_DEBUG ("LArCollisionTimeAlg execute()");
 
-  // Get the CaloCellContainer
-  SG::ReadHandle<CaloCellContainer> cell_container (m_cellsContName);
+  //Input read handle:
+  SG::ReadHandle<CaloCellContainer> cell_container (m_cellsContName,ctx);
+
+  //Output write handle:
+  SG::WriteHandle<LArCollisionTime> larTimeWH (m_collTimeName,ctx);
 
   if(!cell_container.isValid()) {
       ATH_MSG_INFO (" Could not get pointer to Cell Container ");
       // Construct a dummy output object
-      SG::WriteHandle<LArCollisionTime> larTime (m_collTimeName);
-      ATH_CHECK( larTime.record (std::make_unique<LArCollisionTime>()) );
+      ATH_CHECK( larTimeWH.record (std::make_unique<LArCollisionTime>()) );
 
       return StatusCode::SUCCESS;
   }
 
 
-  SG::ReadCondHandle<CaloNoise> noiseHdl{m_noiseCDOKey};
+  SG::ReadCondHandle<CaloNoise> noiseHdl{m_noiseCDOKey,ctx};
   const CaloNoise* noiseCDO=*noiseHdl;
 
 
@@ -134,14 +121,15 @@ StatusCode LArCollisionTimeAlg::execute()
   if (ncellA>0) timeA = timeA/((float)(ncellA));
   if (ncellC>0) timeC = timeC/((float)(ncellC));
 
-  if (ncellA>m_minCells && ncellC > m_minCells && std::fabs(timeA-timeC)<m_timeCut) setFilterPassed(true);
-  else                        setFilterPassed(false);
+  if (ncellA>m_minCells && ncellC > m_minCells && std::fabs(timeA-timeC)<m_timeCut) 
+    setFilterPassed(true,ctx);
+  else                        
+    setFilterPassed(false,ctx);
 
   ATH_MSG_DEBUG( " ncellA, ncellA, energyA, energyC, timeA, timeC  " << ncellA << " " << ncellC << " " << energyA << " " << energyC << " " << timeA << " " << timeC);
-  auto tmplarTime = std::make_unique<LArCollisionTime>(ncellA,ncellC,energyA,energyC,timeA,timeC);
+  auto larTime = std::make_unique<LArCollisionTime>(ncellA,ncellC,energyA,energyC,timeA,timeC);
   // Construct the output object
-  SG::WriteHandle<LArCollisionTime> larTime (m_collTimeName);
-  if (! larTime.put (std::move (tmplarTime))  )  {
+  if (! larTimeWH.put (std::move (larTime))  )  {
      ATH_MSG_WARNING( "Could not record the LArCollisionTime object with key "<<m_collTimeName );
 
   }

@@ -68,7 +68,7 @@ StatusCode TrigEgammaPrecisionCaloHypoAlgMT::execute( const EventContext& contex
 	    ATH_CHECK(el.isValid());
 
 	    ATH_MSG_DEBUG ( "ClusterHandle in position " << cl << " processing...");
-	    auto d = newDecisionIn( decisions, name() );
+	    auto d = newDecisionIn( decisions, hypoAlgNodeName() );
 	    d->setObjectLink( featureString(),  el );
 	    TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
 	    toolInput.emplace_back( d, roi, clusterHandle.cptr()->at(cl), previousDecision );

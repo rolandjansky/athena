@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -81,7 +81,7 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::newEvent(CacheEntry* ent) const
     ent->m_hadZ.clear();
 
     SG::ReadHandle<CaloClusterROI_Collection> calo(m_inputHadClusterContainerName);
-    for ( const auto& ccROI : *calo) {
+    for ( const auto ccROI : *calo) {
       ent->m_hadF.push_back( ccROI->globalPosition().phi() );
       ent->m_hadE.push_back( ccROI->globalPosition().eta() );
       ent->m_hadR.push_back( ccROI->globalPosition().perp() );

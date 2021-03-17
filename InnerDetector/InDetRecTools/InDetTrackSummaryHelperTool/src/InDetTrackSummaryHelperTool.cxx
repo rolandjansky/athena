@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackSummaryHelperTool/InDetTrackSummaryHelperTool.h"
@@ -372,7 +372,7 @@ void InDet::InDetTrackSummaryHelperTool::updateSharedHitCount(const Trk::Track &
   const EventContext& ctx = Gaudi::Hive::currentContext();
   const DataVector<const Trk::MeasurementBase>* measurements = track.measurementsOnTrack();
   if (measurements){
-    for (const auto& ms : *measurements){
+    for (const auto ms : *measurements){
       // check if it's a rot
       const Trk::RIO_OnTrack* rot = nullptr;
       if (ms->type(Trk::MeasurementBaseType::RIO_OnTrack)) {

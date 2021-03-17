@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonInsideOutRecoTool.h"
@@ -211,7 +211,7 @@ namespace MuonCombined {
 	}
       else
 	{
-	  for ( const auto& vx : *vertices )
+	  for ( const auto vx : *vertices )
 	    {
 	      for ( const auto& tpLink : vx->trackParticleLinks() )
 		{

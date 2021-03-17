@@ -68,7 +68,7 @@ StatusCode TrigJetHypoAlgMT::execute( const EventContext& context ) const {
     
   const JetContainer* jets = h_jets.get();
 
-  CHECK(decide(jets, previousDecision, outputDecisions)); 
+  CHECK(decide(jets, previousDecision, outputDecisions, context)); 
 
   // Common debug printing and output checking
   ATH_CHECK(hypoBaseOutputProcessing(outputHandle));
@@ -79,7 +79,8 @@ StatusCode TrigJetHypoAlgMT::execute( const EventContext& context ) const {
 StatusCode
 TrigJetHypoAlgMT::decide(const xAOD::JetContainer* jets,
                          const Decision* previousDecision,
-                         DecisionContainer* outputDecisions) const{
+                         DecisionContainer* outputDecisions,
+                         const EventContext& context) const{
 
   // Pair to associate each jet with its corresponding Decision object -
   // this will record the chains which the jet passes.
@@ -92,9 +93,9 @@ TrigJetHypoAlgMT::decide(const xAOD::JetContainer* jets,
     // chains where the objects in one step have no unambiguous relationship
     // with those in the preceding step.
     Decision* newDecision = nullptr;
-    newDecision = TrigCompositeUtils::newDecisionIn(outputDecisions, previousDecision);
+    newDecision = TrigCompositeUtils::newDecisionIn(outputDecisions, previousDecision, TrigCompositeUtils::hypoAlgNodeName(), context);
     // Needs a dummy feature link -- we will specify the input RoI
-    if(!newDecision->hasObjectLink(featureString())) {
+    if(!newDecision->hasObjectLink(TrigCompositeUtils::featureString())) {
       newDecision->setObjectLink<TrigRoiDescriptorCollection>(TrigCompositeUtils::featureString(), 
 							      TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(newDecision, TrigCompositeUtils::initialRoIString()).link);
       }
@@ -113,12 +114,13 @@ TrigJetHypoAlgMT::decide(const xAOD::JetContainer* jets,
       Decision* newDecision = nullptr;
       // Create a new Decision object to mirror this Jet.
       // Link it to its parent Decision object and attach the jet as a "feature"
-      newDecision = TrigCompositeUtils::newDecisionIn(outputDecisions, previousDecision);
-    
-      ElementLink<xAOD::JetContainer> jetLink =
-	ElementLink<xAOD::JetContainer>(*jets, jet->index());
+      newDecision = TrigCompositeUtils::newDecisionIn(outputDecisions, previousDecision, TrigCompositeUtils::hypoAlgNodeName(), context);
 
-      newDecision->setObjectLink<xAOD::JetContainer>(featureString(), jetLink);
+      const xAOD::JetContainer* jetCont = static_cast<const xAOD::JetContainer*>(jet->container());
+      ElementLink<xAOD::JetContainer> jetLink =
+	ElementLink<xAOD::JetContainer>(*jetCont, jet->index());
+
+      newDecision->setObjectLink<xAOD::JetContainer>(TrigCompositeUtils::featureString(), jetLink);
       jetHypoInputs.push_back( std::make_pair(jet, newDecision) );
     }
   }

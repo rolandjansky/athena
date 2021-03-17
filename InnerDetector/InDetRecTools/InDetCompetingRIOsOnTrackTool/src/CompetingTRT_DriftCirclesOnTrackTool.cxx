@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,8 +15,6 @@
 // Header
 #include "InDetCompetingRIOsOnTrackTool/CompetingTRT_DriftCirclesOnTrackTool.h"
 
-//#include "GaudiKernel/MsgStream.h"
-
 // data model
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkSurfaces/DiscSurface.h"
@@ -29,6 +27,9 @@
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 #include "TrkToolInterfaces/IWeightCalculator.h"
+
+//
+#include <cmath>
 
 ///////////////////////////////////////////////////////////////////
 // Constructor
@@ -65,8 +66,6 @@ InDet::CompetingTRT_DriftCirclesOnTrackTool::~CompetingTRT_DriftCirclesOnTrackTo
 StatusCode InDet::CompetingTRT_DriftCirclesOnTrackTool::initialize() {
     StatusCode sc = AlgTool::initialize();
 
-    //ATH_MSG_DEBUG("ToolForTRT_DriftCircleOnTrackCreation: " << m_jo_ToolForROTCreation);
-    //ATH_MSG_DEBUG("ToolForWeightCalculation: " << m_jo_ToolForWeightCalc);
     ATH_MSG_DEBUG("WeightCutValueBarrel: " << m_jo_BarrelCutValue);
     ATH_MSG_DEBUG("WeightCutValueEndCap: " << m_jo_EndCapCutValue);
 
@@ -114,7 +113,7 @@ const InDet::CompetingTRT_DriftCirclesOnTrack* InDet::CompetingTRT_DriftCirclesO
     // get trkPar error in localZ for locZ cut
     double trkParErrorLocZ = 2.;
     if (trkPar.covariance()) {
-      trkParErrorLocZ = sqrt((*trkPar.covariance())(Trk::locZ,Trk::locZ));
+      trkParErrorLocZ = std::sqrt((*trkPar.covariance())(Trk::locZ,Trk::locZ));
     }
     // vector of ROTs
     std::vector< const InDet::TRT_DriftCircleOnTrack* >* ROTvector = new std::vector<const InDet::TRT_DriftCircleOnTrack*>;
@@ -195,7 +194,6 @@ const InDet::CompetingTRT_DriftCirclesOnTrack* InDet::CompetingTRT_DriftCirclesO
                     ATH_MSG_VERBOSE("Try to propagate TrackParameters to RIO surface");
                     newTrackParameters = m_extrapolator->extrapolateDirectly((trkParWithoutError ? *trkParWithoutError : trkPar), *RIOsurfacePointer,
                                                                            Trk::anyDirection, // propagate in any direction
-                                                                           //Trk::alongMomentum, // propagate in any direction
                                                                            false, //do noBoundaryCheck!
                                                                            Trk::noHypothesis); // without material interaction
                     if (!newTrackParameters){
@@ -204,7 +202,6 @@ const InDet::CompetingTRT_DriftCirclesOnTrack* InDet::CompetingTRT_DriftCirclesO
                         delete assgnProbVector;
                         return 0;
                     } // end if (extrapolation failed)
-                    // const Trk::AtaStraightLine* trkParAtRIOsurface1 = new Trk::AtaStraightLine(trkPar.position(), trkPar.momentum(), trkPar.charge(), *RIOsurfacePointer);
                     trkParAtRIOsurface = newTrackParameters;
                     ATH_MSG_VERBOSE("propagated TrackParameters on RIO surface: GP ("
                                             << trkParAtRIOsurface->position().x() << ", "
@@ -220,9 +217,9 @@ const InDet::CompetingTRT_DriftCirclesOnTrack* InDet::CompetingTRT_DriftCirclesO
                 bool outOfZbounds = false;
                 const Trk::CylinderBounds& cylBounds = dynamic_cast<const Trk::CylinderBounds&>(RIOsurfacePointer->bounds());
                 ATH_MSG_VERBOSE( "TRT surface bounds (r, Z): (" << cylBounds.r() << ", " << cylBounds.halflengthZ() << ")" );
-                if ( fabs(trkParAtRIOsurface->localPosition()[Trk::locZ]) > cylBounds.halflengthZ() ) {
+                if ( std::abs(trkParAtRIOsurface->localPosition()[Trk::locZ]) > cylBounds.halflengthZ() ) {
                     ATH_MSG_VERBOSE( "out of locZ bounds, trkParErrorLocZ="<<trkParErrorLocZ );
-                    if ( fabs(trkParAtRIOsurface->localPosition()[Trk::locZ]) > cylBounds.halflengthZ() + 4.*trkParErrorLocZ ) {
+                    if ( std::abs(trkParAtRIOsurface->localPosition()[Trk::locZ]) > cylBounds.halflengthZ() + 4.*trkParErrorLocZ ) {
                         ATH_MSG_VERBOSE( "set assign prob to 0." );
                         outOfZbounds = true;
                     }
@@ -251,10 +248,10 @@ const InDet::CompetingTRT_DriftCirclesOnTrack* InDet::CompetingTRT_DriftCirclesO
                 // ------------------
                 // create second ROT:
                 // first create mirrored trkParameter on the Surface of the RIO
-		Amg::VectorX par = trkParAtRIOsurface->parameters();
+		            Amg::VectorX par = trkParAtRIOsurface->parameters();
                 par[Trk::locR] = (-1.0) * par[Trk::locR];
-		AmgSymMatrix(5)* covN = trkParAtRIOsurface->covariance() ? new AmgSymMatrix(5)(*trkParAtRIOsurface->covariance()) : 0;
-		const Trk::TrackParameters* mirrorTrkPar = trkParAtRIOsurface->associatedSurface().createTrackParameters(par[Trk::loc1],par[Trk::loc2],
+		            AmgSymMatrix(5)* covN = trkParAtRIOsurface->covariance() ? new AmgSymMatrix(5)(*trkParAtRIOsurface->covariance()) : 0;
+		            auto mirrorTrkPar = trkParAtRIOsurface->associatedSurface().createUniqueTrackParameters(par[Trk::loc1],par[Trk::loc2],
 																    par[Trk::phi],par[Trk::theta],
 																    par[Trk::qOverP],covN);
                 // now create ROT
@@ -277,9 +274,7 @@ const InDet::CompetingTRT_DriftCirclesOnTrack* InDet::CompetingTRT_DriftCirclesO
                         ROTwithMaximumAssgnProb = rot2;
                     }
                 }// end else (!rot2)
-
                 delete newTrackParameters;
-                delete mirrorTrkPar;
             }// end else (!RIOsurfacePointer)
         } // end else (!riopointer)
     } // end for loop
@@ -387,24 +382,6 @@ const InDet::CompetingTRT_DriftCirclesOnTrack* InDet::CompetingTRT_DriftCirclesO
             assocSurface = &(ROTwithMaximumAssgnProb->associatedSurface());
             calcEffectiveMeasurement(effectiveLocalPar, effectiveErrMat, ROTvector, assgnProbVector, &trkPar, assocSurface, nonVanishingROTsHaveCommonSurface);
         } else {
-            //            const Trk::DiscSurface* surf = dynamic_cast<Trk::DiscSurface*>(&(ROTwithMaximumAssgnProb->detectorElement()->surface()));
-            //            if (!surf) {
-            //                ATH_MSG_ERROR("Could not get right surface for endcap TRT:");
-            //                ATH_MSG_ERROR("CompetingTRT_DriftCirclesOnTrack creation aborted!");
-            //                // FIXME: delete everything
-            //                return 0;
-            //            }
-            //            assocSurface = surf;
-            //            const Trk::AtaDisc discpar* = new AtaDisc(trkPar.position(), trkPar.momentum(), trkPar.charge(), *surf);
-            //            if (!discpar) {
-            //                ATH_MSG_ERROR("Could not get TrackParameters on DiscSurface:");
-            //                ATH_MSG_ERROR("CompetingTRT_DriftCirclesOnTrack creation aborted!");
-            //                // FIXME: delete everything
-            //                return 0;
-            //            }
-            //trkPar must be on common surface (localR needed in calculation)
-            //            double localR_Track = discpar->parameters()[Trk::locR];
-
             // use DiscSurface as the common one
             assocSurface = &(ROTwithMaximumAssgnProb->detectorElement()->surface());
             // get LocR of trkPar on this surface
@@ -474,7 +451,7 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::updateCompetingROT(
     // get trkPar error in localZ for locZ cut
     double trkParErrorLocZ = 2.;
     if (trkPar.covariance()) {
-      trkParErrorLocZ = sqrt( (*trkPar.covariance())(Trk::locZ,Trk::locZ));
+      trkParErrorLocZ = std::sqrt( (*trkPar.covariance())(Trk::locZ,Trk::locZ));
     }
 
     // cast baseCompROT to CompTRT_DConTrack:
@@ -569,9 +546,9 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::updateCompetingROT(
         // test if track prediction is out of local z range of the drift tube
         const Trk::CylinderBounds& cylBounds = dynamic_cast<const Trk::CylinderBounds&>(ROTsurfacePointer->bounds());
         ATH_MSG_VERBOSE( "TRT surface bounds (r, Z): (" << cylBounds.r() << ", " << cylBounds.halflengthZ() << ")" );
-        if ( fabs(trkParAtROTsurface->localPosition()[Trk::locZ]) > cylBounds.halflengthZ() ) {
+        if ( std::abs(trkParAtROTsurface->localPosition()[Trk::locZ]) > cylBounds.halflengthZ() ) {
             ATH_MSG_VERBOSE( "out of locZ bounds, trkParErrorLocZ="<<trkParErrorLocZ );
-            if ( fabs(trkParAtROTsurface->localPosition()[Trk::locZ]) > cylBounds.halflengthZ() + 4.*trkParErrorLocZ ) {
+            if ( std::abs(trkParAtROTsurface->localPosition()[Trk::locZ]) > cylBounds.halflengthZ() + 4.*trkParErrorLocZ ) {
                 ATH_MSG_VERBOSE( "set assign prob to 0." );
                 assgnProb = 0.;
             }
@@ -771,13 +748,13 @@ InDet::CompetingTRT_DriftCirclesOnTrackTool::createSimpleCompetingROT(
                           << assgnProb1);
 
   // --- create mirrored ROT, but protect against case where DC creators return a wire/tube hit.
-  if (fabs(rot1->localParameters()[Trk::locX]) > 0.001) {
+  if (std::abs(rot1->localParameters()[Trk::locX]) > 0.001) {
 
     Amg::VectorX par = trkPars.parameters();
     ATH_MSG_VERBOSE("track prediction at " << par[Trk::locR]);
     par[Trk::locR] = (-1.0) * par[Trk::locR];
     AmgSymMatrix(5)* covN = trkPars.covariance() ? new AmgSymMatrix(5)(*trkPars.covariance()) : 0;
-    const Trk::TrackParameters* mirrorTrkPar = trkPars.associatedSurface().createTrackParameters(par[Trk::loc1],par[Trk::loc2],
+    auto mirrorTrkPar = trkPars.associatedSurface().createUniqueTrackParameters(par[Trk::loc1],par[Trk::loc2],
 													    par[Trk::phi],par[Trk::theta],
 													    par[Trk::qOverP],covN);
     const Trk::RIO_OnTrack* rot2 = m_TRT_ROTCreator->correct(rio,*mirrorTrkPar);
@@ -796,18 +773,17 @@ InDet::CompetingTRT_DriftCirclesOnTrackTool::createSimpleCompetingROT(
         ATH_MSG_VERBOSE("Current ROT has maximum assignment probabilty for now");
       }
     } // end else (!rot2)
-    delete mirrorTrkPar;
   }
 
   // --- call normalize()
-  double thisWeightCut = (fabs(trkPars.position().z())>800.0 ?
+  double thisWeightCut = (std::abs(trkPars.position().z())>800.0 ?
                           m_jo_EndCapCutValue : m_jo_BarrelCutValue );
   m_weightCalculator->normalize(*assgnProbVector, ROTvector, beta, thisWeightCut);
 
-  double meanWeight = assgnProbVector->at(0) /sqrt( ROTvector->at(0)->localCovariance()(Trk::locX,Trk::locX));
+  double meanWeight = assgnProbVector->at(0) /std::sqrt( ROTvector->at(0)->localCovariance()(Trk::locX,Trk::locX));
   double meanDriftR = meanWeight * ROTvector->at(0)->localParameters()[Trk::locX];
   if (ROTvector->size()==2) {
-    double addWeight = assgnProbVector->at(1) / sqrt( ROTvector->at(1)->localCovariance()(Trk::locX,Trk::locX));
+    double addWeight = assgnProbVector->at(1) / std::sqrt( ROTvector->at(1)->localCovariance()(Trk::locX,Trk::locX));
     meanDriftR      += addWeight * ROTvector->at(1)->localParameters()[Trk::locX];
     meanWeight      += addWeight;
   }
@@ -924,7 +900,7 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::calcEffectiveMeasurement(
         // loop over ROTs
         ATH_MSG_VERBOSE(" loop over ROTs " );
         for (unsigned int i=0; i<rotsnum; i++) {
-	  currentWeight = assgnProbs->operator[](i) /sqrt( ROTs->operator[](i)->localCovariance()(Trk::locX,Trk::locX));
+	  currentWeight = assgnProbs->operator[](i) /std::sqrt( ROTs->operator[](i)->localCovariance()(Trk::locX,Trk::locX));
             meanWeight += currentWeight;
             meanDriftRadius += currentWeight * (ROTs->operator[](i)->localParameters()[Trk::locX] + driftCenterShift[i]);
         }
@@ -1000,33 +976,28 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::calcEffectiveEndCapMeasurement
     double sumAssgnProb = 0.;
     ATH_MSG_VERBOSE(" loop over ROTs " );
     for (unsigned int i=0; i<rotsnum; i++) {
-        //double alpha = atan2(ROTs->operator[](i)->localParameters()[Trk::locX], localR_Track);
-        //ATH_MSG_DEBUG("weightValue="<<ROTs->operator[](i)->localErrorMatrix().weightValue(Trk::locX)<<" covValue="<<ROTs->operator[](i)->localErrorMatrix().covValue(Trk::locX)<<" sqrt(covValue)="<<sqrt(ROTs->operator[](i)->localErrorMatrix().covValue(Trk::locX))<<" locR="<<ROTs->operator[](i)->localParameters()[Trk::locX]<<" locRtrack="<<localTrack[Trk::locR]);
-        double alpha = ((localTrack[Trk::locR]!=0.)?atan(ROTs->operator[](i)->localParameters()[Trk::locX]/localTrack[Trk::locR]):0.);
-        //ATH_MSG_DEBUG("alpha["<<i<<"]="<< alpha <<"="<<(alpha/twopi*360.)<<"deg");
-        double alphaWeight = localTrack[Trk::locR]*localTrack[Trk::locR] / sqrt( ROTs->operator[](i)->localCovariance()(Trk::locX,Trk::locX));
-        //ATH_MSG_DEBUG("alphaWeight["<<i<<"]="<< alphaWeight<<" 1/alphaWeight["<<i<<"]="<< 1./alphaWeight<<" sqrt(1/alphaWeight["<<i<<"])="<< sqrt(1./alphaWeight) );
+        double alpha = ((localTrack[Trk::locR]!=0.)?std::atan(ROTs->operator[](i)->localParameters()[Trk::locX]/localTrack[Trk::locR]):0.);
+        double alphaWeight = localTrack[Trk::locR]*localTrack[Trk::locR] / std::sqrt( ROTs->operator[](i)->localCovariance()(Trk::locX,Trk::locX));
         // there must be an easier way...
         // perhaps use product of transforms?
         // TODO: check if this REALLY gives the correct angle in all possible cases
-	const InDet::TRT_DriftCircleOnTrack& rot = *ROTs->operator[](i);
-	const Identifier& id = rot.identify();
-	int sdir = rot.detectorElement()->strawDirection();
-	Amg::Vector3D dirt = surf->transform().rotation().col(1);
-	Amg::Vector3D dirt2 = rot.detectorElement()->transform(id).linear()*Amg::Vector3D(0,0,1) * sdir;
+	      const InDet::TRT_DriftCircleOnTrack& rot = *ROTs->operator[](i);
+	      const Identifier& id = rot.identify();
+	      int sdir = rot.detectorElement()->strawDirection();
+	      Amg::Vector3D dirt = surf->transform().rotation().col(1);
+	      Amg::Vector3D dirt2 = rot.detectorElement()->transform(id).linear()*Amg::Vector3D(0,0,1) * sdir;
 
         double beta = 1.;
-	double ptot = dirt.mag()*dirt2.mag();
-	if(ptot > 0) {
-	  beta = dirt.dot(dirt2)/ptot;
-	  if(beta >  1) beta =  1;
-	  if(beta < -1) beta = -1;
-	  beta = acos(beta);
-	}
+	      double ptot = dirt.mag()*dirt2.mag();
+        if(ptot > 0) {
+          beta = dirt.dot(dirt2)/ptot;
+          if(beta >  1) beta =  1;
+          if(beta < -1) beta = -1;
+          beta = std::acos(beta);
+        }
         beta = (CLHEP::twopi/4.)-beta;
         double phi = -alpha + beta;
         ATH_MSG_DEBUG("beta["<<i<<"]="<< beta <<"="<<(beta/CLHEP::twopi*360.)<<"deg; -alpha+beta="<< phi );
-        //meanPhi += assgnProbs->operator[](i) * alphaWeight * (alpha + beta);
         // HACK: correct the sign:
         if ((localTrack[Trk::locPhi]*phi)<.0) phi *= -1.;
         meanPhi += assgnProbs->operator[](i) * phi;

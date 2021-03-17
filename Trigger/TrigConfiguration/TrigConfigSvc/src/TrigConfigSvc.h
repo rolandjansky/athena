@@ -119,10 +119,11 @@ namespace TrigConf {
       ServiceHandle<TrigConf::IHLTConfigSvc>    m_hltSvc;  //!< read from xml/db
       ServiceHandle<TrigConf::ITrigConfigSvc >  m_dsSvc;  //!< read from detectorStore (header)
       std::vector<std::string> m_priorityList;
-      
-      TrigConf::IL1TopoConfigSvc* m_l1toposervice = nullptr;    //!< the available l1 service that will be used
-      TrigConf::ILVL1ConfigSvc*   m_l1service = nullptr;    //!< the available l1 service that will be used
-      TrigConf::IHLTConfigSvc*    m_hltservice = nullptr;   //!< the available hlt service that will be used
+      Gaudi::Property<bool> m_useNewConfig { this, "UseNewConfig", false, "When true, only initialize LVL1ConfigSvc and HLTConfigSvc" };
+
+      TrigConf::IL1TopoConfigSvc* m_l1toposervice {nullptr};    //!< the available l1 service that will be used
+      TrigConf::ILVL1ConfigSvc*   m_l1service  {nullptr};    //!< the available l1 service that will be used
+      TrigConf::IHLTConfigSvc*    m_hltservice {nullptr};   //!< the available hlt service that will be used
 
       HLTFrame m_NullFrame;
    };

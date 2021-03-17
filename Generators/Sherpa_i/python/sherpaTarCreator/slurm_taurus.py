@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import subprocess,sys,os,re
+import subprocess,sys,os
 
 def getJobIDfromlastJob():
     for line in open("qsub.log"):
@@ -8,9 +8,9 @@ def getJobIDfromlastJob():
     parts = line.split(" ")
     return parts[3].split("\n")[0]
 
-from batchJobBase import *
+from . import batchJobBase
 
-class batchJob(batchJobBase):
+class batchJob(batchJobBase.batchJobBase):
 
     def submit(self, dryRun=False):
         cpt = 1

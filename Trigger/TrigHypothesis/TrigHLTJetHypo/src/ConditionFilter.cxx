@@ -6,12 +6,14 @@
 
 #include "./ConditionFilter.h"
 
-ConditionFilter::ConditionFilter(ConditionPtrs& conditions):
+//ConditionFilter::ConditionFilter(ConditionPtrs& conditions):
+ConditionFilter::ConditionFilter(ConditionsMT& conditions):
   m_conditions(std::move(conditions)) {
 }
 
 struct FilterPred{
-  FilterPred(const ConditionPtr& cptr,
+
+  FilterPred(const ConditionMT& cptr,
 	     const std::unique_ptr<ITrigJetHypoInfoCollector>& collector):
     m_cptr(cptr), m_collector(collector) {
   }
@@ -21,7 +23,7 @@ struct FilterPred{
     return m_cptr->isSatisfied(hjv, m_collector);
   }
 
-  const ConditionPtr& m_cptr;
+  const ConditionMT& m_cptr;
   const std::unique_ptr<ITrigJetHypoInfoCollector>& m_collector;
 };
 
@@ -54,4 +56,13 @@ std::string ConditionFilter::toString() const {
   return ss.str();
 }
 
-	   
+HypoJetVector
+ConditionFilter::filter (const HypoJetVector& jv,
+			 const std::unique_ptr<ITrigJetHypoInfoCollector>& col) const {
+  return filter(jv.cbegin(), jv.cend(), col);
+}
+
+std::ostream& operator<<(std::ostream& os, const ConditionFilter& cf){
+  os << cf.toString();
+  return os;
+}

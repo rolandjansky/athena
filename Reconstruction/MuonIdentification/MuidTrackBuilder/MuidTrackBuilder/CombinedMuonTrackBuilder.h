@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -44,7 +44,8 @@
 #include "TrkToolInterfaces/ITrkMaterialProviderTool.h"
 #include "TrkTrack/TrackInfo.h"
 #include "TrkiPatFitterUtils/IMaterialAllocator.h"
-
+#include "StoreGate/ReadCondHandleKey.h"
+#include "TrkGeometry/TrackingGeometry.h"
 #include <atomic>
 
 class CaloEnergy;
@@ -127,7 +128,7 @@ class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuon
 
     Trk::Track* createExtrapolatedTrack(const Trk::Track& spectrometerTrack, const Trk::TrackParameters& parameters,
                                         Trk::ParticleHypothesis particleHypothesis, Trk::RunOutlierRemoval runOutlier,
-                                        const std::vector<const Trk::TrackStateOnSurface*>& trackStateOnSurfaces,
+                                        const std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>& trackStateOnSurfaces,
                                         const Trk::RecVertex* vertex, const Trk::RecVertex* mbeamAxis,
                                         const Trk::PerigeeSurface* mperigeeSurface,
                                         const Trk::Perigee*        seedParameter = nullptr) const;
@@ -143,7 +144,9 @@ class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuon
 
     const Trk::TrackStateOnSurface* createPhiPseudoMeasurement(const Trk::Track& track) const;
 
-    std::vector<const Trk::TrackStateOnSurface*>* createSpectrometerTSOS(const Trk::Track& spectrometerTrack) const;
+    
+    std::unique_ptr<std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>> 
+                                    createSpectrometerTSOS(const Trk::Track& spectrometerTrack) const;
 
     const Trk::TrackStateOnSurface* entrancePerigee(const Trk::TrackParameters* parameters) const;
 
@@ -152,7 +155,7 @@ class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuon
                                                        const Trk::RecVertex*      mvertex,
                                                        const Trk::PerigeeSurface* mperigeeSurface) const;
 
-    void        finalTrackBuild(Trk::Track*& track) const;
+    void        finalTrackBuild(std::unique_ptr<Trk::Track>& track) const;
     Trk::Track* interfaceNotImplemented() const;
 
     void momentumUpdate(const Trk::TrackParameters*& parameters, double updatedP, bool directionUpdate = false,
@@ -161,7 +164,7 @@ class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuon
     double            normalizedChi2(const Trk::Track& track) const;
     const Trk::Track* reallocateMaterial(const Trk::Track& spectrometerTrack) const;
     void              replaceCaloEnergy(const CaloEnergy* caloEnergy, Trk::Track* track) const;
-    void              removeSpectrometerMaterial(Trk::Track*& track) const;
+    void              removeSpectrometerMaterial(std::unique_ptr<Trk::Track>& track) const;
 
     Trk::Track* trackCleaner(Trk::Track* combinedTrack, const Trk::Track* indetTrack,
                              const Trk::Track& muonTrack) const;
@@ -278,6 +281,10 @@ class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuon
     SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey{
         this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
     ServiceHandle<Trk::ITrackingGeometrySvc> m_trackingGeometrySvc{this,"TrackingGeometrySvc","TrackingGeometrySvc/AtlasTrackingGeometrySvc"};  // init with callback
+    
+    SG::ReadCondHandleKey<Trk::TrackingGeometry>   m_trackingGeometryReadKey {this, "TrackingGeometryReadKey", "", "Key of the TrackingGeometry conditions data."};
+
+
     ServiceHandle<Trk::ITrackingVolumesSvc>  m_trackingVolumesSvc{this,"TrackingVolumesSvc","TrackingVolumesSvc/TrackingVolumesSvc"};
 
     Trk::MagneticFieldProperties m_magFieldProperties;
@@ -315,7 +322,7 @@ class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuon
     // constants
     std::unique_ptr<const Trk::Volume>         m_calorimeterVolume;
     std::unique_ptr<const Trk::Volume>         m_indetVolume;
-    const Trk::TrackingVolume* m_spectrometerEntrance;
+   
 
     // vertex region and phi modularity for pseudo-measurement constraints
     std::unique_ptr<Trk::RecVertex>      m_beamAxis;
@@ -343,6 +350,20 @@ class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuon
     bool m_addElossID;
     bool m_addIDMSerrors;
     bool m_useRefitTrackError;
+    
+    inline const Trk::TrackingVolume* getVolume(const std::string&& vol_name) const{
+        /// Tracking geometry is provided by the TrackingGeometryAlg
+        if (!m_trackingGeometryReadKey.empty()){
+           SG::ReadCondHandle<Trk::TrackingGeometry>  handle(m_trackingGeometryReadKey, Gaudi::Hive::currentContext());
+           if (!handle.isValid()){
+               ATH_MSG_WARNING("Could not retrieve a valid tracking geometry");
+               return nullptr;
+           }
+           return handle.cptr()->trackingVolume(vol_name);
+ 
+        }
+        return m_trackingGeometrySvc->trackingGeometry()->trackingVolume(vol_name);    
+    }
 
 };  // end of class CombinedMuonTrackBuilder
 

@@ -19,7 +19,7 @@
 #include "L1CaloFEXSim/jTower.h"
 #include "L1CaloFEXSim/jTowerContainer.h"
 #include "L1CaloFEXToolInterfaces/IjFEXSmallRJetAlgo.h"
-//#include "L1CaloFEXToolInterfaces/IjFEXegAlgo.h"
+#include "L1CaloFEXToolInterfaces/IjFEXLargeRJetAlgo.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
@@ -59,8 +59,9 @@ namespace LVL1 {
 
     /**Form a tob word out of the potential candidate SmallRJet tob */
     virtual uint32_t formSmallRJetTOB(int &, int &) override;
-    virtual std::vector <uint32_t> getjTOBs() override ;
-
+    virtual uint32_t formLargeRJetTOB(int &, int &) override;
+    virtual std::vector <uint32_t> getSmallRJetTOBs() override;
+    virtual std::vector <uint32_t> getLargeRJetTOBs() override;
  
    /** Internal data */
   private:
@@ -78,9 +79,10 @@ namespace LVL1 {
 
     SG::ReadHandleKey<LVL1::jTowerContainer> m_jFEXFPGA_jTowerContainerKey {this, "MyETowers", "jTowerContainer", "Input container for jTowers"};
 
-    //SG::ReadHandleKey<jFEXOutputCollection> m_jFEXFPGA_jFEXOutputCollectionKey {this, "MyOutputs", "jFEXOutputCollection", "Input container for jFEXOutputCollection"};
+    SG::ReadHandleKey<jFEXOutputCollection> m_jFEXFPGA_jFEXOutputCollectionKey {this, "MyOutputs", "jFEXOutputCollection", "Input container for jFEXOutputCollection"};
 
     ToolHandle<IjFEXSmallRJetAlgo> m_jFEXSmallRJetAlgoTool {this, "jFEXSmallRJetAlgoTool", "LVL1::jFEXSmallRJetAlgo", "Tool that runs the jFEX Small R Jet algorithm"};
+    ToolHandle<IjFEXLargeRJetAlgo> m_jFEXLargeRJetAlgoTool {this, "jFEXLargeRJetAlgoTool", "LVL1::jFEXLargeRJetAlgo", "Tool that runs the jFEX Large R Jet algorithm"};
     //ToolHandle<IjFEXtauAlgo> m_jFEXtauAlgoTool {this, "jFEXtauAlgoTool", "LVL1::jFEXtauAlgo", "Tool that runs the jFEX tau algorithm"};
     //ToolHandle<IjFEXegAlgo> m_jFEXegAlgoTool {this, "jFEXegAlgoTool", "LVL1::jFEXegAlgo", "Tool that runs the jFEX e/gamma algorithm"};
     

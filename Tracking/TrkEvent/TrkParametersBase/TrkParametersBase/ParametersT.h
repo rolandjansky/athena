@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -129,6 +129,10 @@ public:
 
   /** Virtual clone */
   virtual ParametersT<DIM, T, S>* clone() const override final;
+  
+  /** Virtual clone returning unique_ptr*/
+  std::unique_ptr<ParametersT<DIM, T, S>> uniqueClone() const;
+  
 
   /** Return the ParametersType enum */
   virtual ParametersType type() const override final;

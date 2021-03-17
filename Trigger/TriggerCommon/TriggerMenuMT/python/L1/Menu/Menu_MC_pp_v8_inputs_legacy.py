@@ -72,8 +72,8 @@ def defineLegacyInputsMenu():
             "type" : "ctpin",
             "legacy" : True,
             "thresholds" : [
-                'J12', 'J12.0ETA23', 'J15', 'J15.0ETA25','J20', 'J25','J25.0ETA23','J30', # 8 x JETs and central jets
-                'J12.0ETA28', 'J20.0ETA49', # 2 x VBF
+                'J12', 'J12p0ETA23', 'J15', 'J15p0ETA25','J20', 'J25','J25p0ETA23','J30', # 8 x JETs and central jets
+                'J12p0ETA28', 'J20p0ETA49', # 2 x VBF
             ]
         },
         {
@@ -84,9 +84,9 @@ def defineLegacyInputsMenu():
             "type" : "ctpin",
             "legacy" : True,
             "thresholds" : [
-                'J30.0ETA49', 'J35.0ETA23', 'J40.0ETA25', # 3 x central Jet
-                'J40', 'J50', 'J75', 'J85', 'J100', 'J45.0ETA23', 'J400', # 6 jets + 1 central jet
-                'J15.31ETA49', 'J20.31ETA49', 'J30.31ETA49', 'J50.31ETA49', 'J75.31ETA49', # 6 x FJ
+                'J30p0ETA49', 'J35p0ETA23', 'J40p0ETA25', # 3 x central Jet
+                'J40', 'J50', 'J75', 'J85', 'J100', 'J45p0ETA23', 'J400', # 6 jets + 1 central jet
+                'J15p31ETA49', 'J20p31ETA49', 'J30p31ETA49', 'J50p31ETA49', 'J75p31ETA49', # 6 x FJ
             ]
         },
         {
@@ -110,7 +110,7 @@ def defineLegacyInputsMenu():
             "type" : "ctpin",
             "legacy" : True,
             "thresholds" : [
-                'TE5.0ETA24', 'TE10.0ETA24', 'TE15.0ETA24', 'TE20.0ETA24', 'TE25.0ETA24', 'TE30.0ETA24', 'TE40.0ETA24', 'TE70.0ETA24', # 8 x TE
+                'TE5p0ETA24', 'TE10p0ETA24', 'TE15p0ETA24', 'TE20p0ETA24', 'TE25p0ETA24', 'TE30p0ETA24', 'TE40p0ETA24', 'TE70p0ETA24', # 8 x TE
                 'XE55', 'XE60', 'XE65', 'XE70', 'XE75', 'XE80', 'XE150', 'XE300', # 8 x XE
             ]
         }

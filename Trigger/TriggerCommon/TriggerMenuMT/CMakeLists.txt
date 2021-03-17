@@ -179,5 +179,5 @@ atlas_build_lvl1_trigger_menu( Dev_HI_run3_v1 )
 # Build of different prescales for same menu need to be serialized (ATR-22387):
 atlas_build_lvl1_trigger_menu( LS2_v1 )
 atlas_build_lvl1_trigger_menu( LS2_v1_TriggerValidation_prescale DEPENDS LS2_v1 )
-atlas_build_lvl1_trigger_menu( LS2_v1_BulkMCProd_prescale DEPENDS LS2_v1 )
-atlas_build_lvl1_trigger_menu( LS2_v1_CPSampleProd_prescale DEPENDS LS2_v1 )
+atlas_build_lvl1_trigger_menu( LS2_v1_BulkMCProd_prescale DEPENDS LS2_v1_TriggerValidation_prescale )
+atlas_build_lvl1_trigger_menu( LS2_v1_CPSampleProd_prescale DEPENDS LS2_v1_BulkMCProd_prescale )

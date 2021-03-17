@@ -77,7 +77,7 @@ StatusCode TrigTrackPreSelHypoAlgMT::execute( const EventContext& context ) cons
        roi = roiHandle->at(0);
     }
     // create new decision
-    auto d = newDecisionIn( decisions, name() );
+    auto d = newDecisionIn( decisions, hypoAlgNodeName() );
     TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
 
     auto el = ViewHelper::makeLink( *viewEL, tracksHandle, 0 );

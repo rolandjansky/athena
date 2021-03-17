@@ -18,14 +18,9 @@
 #include <mutex>
 #include <string>
 
-namespace Trk {
-  class TrackingVolume;
-}
-
-// LEGACY_TRKGEOM
 #include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 #include "TrkGeometry/TrackingGeometry.h"
-// end LEGACY_TRKGEOM
+
 
 namespace MuonCombined {
 
@@ -35,26 +30,36 @@ class MuonTrackTagTestTool : public AthAlgTool, virtual public IMuonTrackTagTool
     MuonTrackTagTestTool(const std::string& type, const std::string& name, const IInterface* parent);
     ~MuonTrackTagTestTool()=default;
 
-    StatusCode initialize();
+    StatusCode initialize() override;
 
-    double chi2(const Trk::TrackParameters& idParsAtEntry, const Trk::TrackParameters& msParsAtEntry) const;
-    double chi2(const Trk::Track& id, const Trk::Track& ms) const;
+    double chi2(const Trk::TrackParameters& idParsAtEntry, const Trk::TrackParameters& msParsAtEntry) const override;
+    double chi2(const Trk::Track& id, const Trk::Track& ms) const override;
 
   private:
     ToolHandle<Trk::IExtrapolator> m_extrapolator{this,"ExtrapolatorTool","Trk::Extrapolator/AtlasExtrapolator",};
-    SG::ReadCondHandleKey<Trk::TrackingGeometry> m_trackingGeometryReadKey{this, "TrackingGeometryReadKey", "", "Key of input TrackingGeometry"};
-
-    // LEGACY_TRKGEOM
-    mutable ServiceHandle<Trk::ITrackingGeometrySvc> m_trackingGeometrySvc ATLAS_THREAD_SAFE {this,"TrackingGeometrySvc","AtlasTrackingGeometrySvc"};  // Services are assumed to be thread-safe
-    mutable std::once_flag m_trackingOnceFlag ATLAS_THREAD_SAFE;
-    mutable const Trk::TrackingGeometry* m_trackingGeometry ATLAS_THREAD_SAFE;  // Initialized with call_once, then used read-only
-    mutable const Trk::TrackingVolume* m_msEntrance ATLAS_THREAD_SAFE;  // Initialized with call_once, then used read-
+    SG::ReadCondHandleKey<Trk::TrackingGeometry> m_trackingGeometryReadKey{this, "TrackingGeometryReadKey", "", "Key of input TrackingGeometry"};    
+    ServiceHandle<Trk::ITrackingGeometrySvc> m_trackingGeometrySvc{this,"TrackingGeometrySvc","AtlasTrackingGeometrySvc"};  // Services are assumed to be thread-safe
+   
     // end LEGACY_TRKGEOM
 
     double m_chi2cut;
 #ifdef MUONCOMBDEBUG
     bool m_truth;
 #endif
+    inline const Trk::TrackingVolume* getVolume(const std::string&& vol_name) const{
+        /// Tracking geometry is provided by the TrackingGeometryAlg
+        if (!m_trackingGeometryReadKey.empty()){
+           SG::ReadCondHandle<Trk::TrackingGeometry>  handle(m_trackingGeometryReadKey, Gaudi::Hive::currentContext());
+           if (!handle.isValid()){
+               ATH_MSG_WARNING("Could not retrieve a valid tracking geometry");
+               return nullptr;
+           }
+           return handle.cptr()->trackingVolume(vol_name);
+ 
+        }
+        return m_trackingGeometrySvc->trackingGeometry()->trackingVolume(vol_name);    
+    }
+
 };
 
 }  // namespace MuonCombined

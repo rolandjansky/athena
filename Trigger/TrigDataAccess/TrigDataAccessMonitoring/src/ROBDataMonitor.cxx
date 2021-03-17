@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <functional>
@@ -45,12 +45,8 @@ bool ROBDataStruct::isIgnored() const {
   return ((rob_history == robmonitor::IGNORED) ? true : false);
 }
 
-bool ROBDataStruct::isDisabled() const {
-  return ((rob_history == robmonitor::DISABLED) ? true : false);
-}
-
-bool ROBDataStruct::isScheduled() const {
-  return ((rob_history == robmonitor::SCHEDULED) ? true : false);
+bool ROBDataStruct::isUndefined() const {
+  return ((rob_history == robmonitor::UNDEFINED) ? true : false);
 }
 
 bool ROBDataStruct::isStatusOk() const {
@@ -139,20 +135,11 @@ unsigned ROBDataMonitorStruct::ignoredROBs() const {
   return ret;
 }
 
-unsigned ROBDataMonitorStruct::disabledROBs() const {
+unsigned ROBDataMonitorStruct::undefinedROBs() const {
   ptrdiff_t ret=0;
   for ( std::map<const uint32_t,robmonitor::ROBDataStruct>::const_iterator it = requested_ROBs.begin();
         it != requested_ROBs.end(); it++ ) {
-    if ((*it).second.isDisabled()) ++ret;
-  }     
-  return ret;
-}
-
-unsigned ROBDataMonitorStruct::scheduledROBs() const {
-  ptrdiff_t ret=0;
-  for ( std::map<const uint32_t,robmonitor::ROBDataStruct>::const_iterator it = requested_ROBs.begin();
-        it != requested_ROBs.end(); it++ ) {
-    if ((*it).second.isScheduled()) ++ret;
+    if ((*it).second.isUndefined()) ++ret;
   }     
   return ret;
 }

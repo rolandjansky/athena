@@ -88,7 +88,7 @@ if DetFlags.pixel_on():
 
             condSeq += alg
 
-    if not athenaCommonFlags.isOnline():
+    if not (athenaCommonFlags.isOnline() or conddb.dbdata=='COMP200'):
         if not conddb.folderRequested("/PIXEL/PixelModuleFeMask"):
             conddb.addFolder("PIXEL_OFL", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
             # TODO: once global tag is updated, this line should be removed. (Current q221 uses too old MC global-tag!!!! (before RUN-2!!))
@@ -100,7 +100,7 @@ if DetFlags.pixel_on():
     if not hasattr(condSeq, "PixelDeadMapCondAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
         alg = PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
-        if athenaCommonFlags.isOnline():
+        if athenaCommonFlags.isOnline() or conddb.dbdata=='COMP200':
             alg.ReadKey = ''
         condSeq += alg
 

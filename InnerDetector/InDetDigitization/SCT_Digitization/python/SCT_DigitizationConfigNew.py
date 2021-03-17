@@ -4,6 +4,7 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 from AthenaCommon.Logging import logging
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
@@ -159,7 +160,7 @@ def SCT_SurfaceChargesGeneratorCfg(flags, name="SCT_SurfaceChargesGenerator", **
     kwargs.setdefault("SmallStepLength", 5*Units.micrometer)
     kwargs.setdefault("DepletionVoltage", 70)
     kwargs.setdefault("BiasVoltage", 150)
-    kwargs.setdefault("isOverlay", flags.Detector.Overlay)
+    kwargs.setdefault("isOverlay", flags.Common.ProductionStep == ProductionStep.Overlay)
     # kwargs.setdefault("doTrapping", True) # ATL-INDET-INT-2016-019
     # experimental SCT_DetailedSurfaceChargesGenerator config dropped here
     SCT_SurfaceChargesGenerator, SCT_RadDamageSummaryTool = CompFactory.getComps("SCT_SurfaceChargesGenerator", "SCT_RadDamageSummaryTool",)
@@ -198,7 +199,7 @@ def SCT_FrontEndCfg(flags, name="SCT_FrontEnd", **kwargs):
         kwargs.setdefault("NoiseOn", True)
         kwargs.setdefault("AnalogueNoiseOn", True)
     # In overlay MC, only analogue noise is on (off for data). Noise hits are not added.
-    if flags.Detector.Overlay:
+    if flags.Common.ProductionStep == ProductionStep.Overlay:
         kwargs["NoiseOn"] = False
         kwargs["AnalogueNoiseOn"] = flags.Input.isMC
     # Use Calibration data from Conditions DB, still for testing purposes only
@@ -209,14 +210,14 @@ def SCT_FrontEndCfg(flags, name="SCT_FrontEnd", **kwargs):
     # DataCompressionMode: 1 is level mode X1X (default), 2 is edge mode 01X, 3 is any hit mode (1XX|X1X|XX1)
     if flags.Digitization.PileUpPremixing:
         kwargs.setdefault("DataCompressionMode", 3)
-    elif flags.Detector.Overlay and flags.Input.isMC:
+    elif flags.Common.ProductionStep == ProductionStep.Overlay and flags.Input.isMC:
         kwargs.setdefault("DataCompressionMode", 2)
     elif flags.Beam.BunchSpacing <= 50:
         kwargs.setdefault("DataCompressionMode", 1)
     else:
         kwargs.setdefault("DataCompressionMode", 3)
     # DataReadOutMode: 0 is condensed mode and 1 is expanded mode
-    if flags.Detector.Overlay and flags.Input.isMC:
+    if flags.Common.ProductionStep == ProductionStep.Overlay and flags.Input.isMC:
         kwargs.setdefault("DataReadOutMode", 0)
     else:
         kwargs.setdefault("DataReadOutMode", 1)

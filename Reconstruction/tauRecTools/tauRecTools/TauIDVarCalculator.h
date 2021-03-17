@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //! This class implements a tool to calculate ID input variables and add them to the tau aux store
@@ -9,8 +9,8 @@
  * Author: Lorenz Hauswald
  */
 
-#ifndef TAUIDVARCALCULATOR_H
-#define TAUIDVARCALCULATOR_H
+#ifndef TAURECTOOLS_TAUIDVARCALCULATOR_H
+#define TAURECTOOLS_TAUIDVARCALCULATOR_H
 
 #include "tauRecTools/TauRecToolBase.h"
 
@@ -34,4 +34,4 @@ private:
   bool m_doVertexCorrection;
 };
 
-#endif
+#endif // TAURECTOOLS_TAUIDVARCALCULATOR_H

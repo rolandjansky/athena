@@ -31,7 +31,7 @@ def createTriggerFlags():
     # Enable Run-3 LVL1 simulation and/or decoding
     flags.addFlag('Trigger.enableL1Phase1', False)
 
-    # Enable usage of new L1 menu 
+    # Enable usage of new L1 menu   
     flags.addFlag('Trigger.readLVL1FromJSON', True)
 
     # Enable Run-2 L1Calo simulation and/or decoding (possible even if enablePhase1 is True)
@@ -45,6 +45,10 @@ def createTriggerFlags():
 
     # Enable calorimeters
     flags.addFlag('Trigger.doCalo', True)
+
+    # Checks the validity of each Decision Object produced by a HypoAlg, including all of its
+    # parents all the way back to the L1 decoder. Potentially CPU expensive.
+    flags.addFlag('Trigger.doRuntimeNaviVal', False)
 
     # if 1, Run1 decoding version is set; if 2, Run2; if 3, Run 3
     def EDMVersion(flags):
