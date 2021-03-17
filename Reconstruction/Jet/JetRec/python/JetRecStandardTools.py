@@ -387,6 +387,15 @@ jtm += PseudoJetAlgorithm(
   SkipNegativeEnergy = True,
 )
 
+# EM-scale pflow with custom selection for the primary vertex 
+jtm += PseudoJetAlgorithm(
+  "pflowcustomvtxget",
+  Label = "PFlowCustomVtx",
+  InputContainer = "CustomVtxParticleFlowObjects",
+  OutputContainer = "PseudoJetPFlowCustomVtx",
+  SkipNegativeEnergy = True,
+)
+
 # AntiKt2 track jets.
 jtm += PseudoJetAlgorithm(
   "gakt2trackget", # give a unique name

@@ -66,7 +66,8 @@ def defineEDAlg(R=0.4, inputtype="LCTopo"):
                     "LCTopoOrigin" : jtm.lcoriginget,
                     "EMTopoOrigin" : jtm.emoriginget,
                     "EMPFlow": jtm.empflowget,
-                    "EMPFlowFE": jtm.empflowget_fe
+                    "EMPFlowFE": jtm.empflowget_fe,
+                    "PFlowCustomVtx": jtm.pflowcustomvtxget
                     }[inputtype]
 
     t=configEventDensityTool("EDTool"+str(int(R*10))+inputtype,

@@ -27,6 +27,7 @@ namespace DerivationFramework {
     m_dobtag(false),
     m_jetTrackSumMomentsTool(""),
     m_decoratetracksum(false),
+    m_decorateorigincorrection(false),
     m_jetPtAssociationTool(""),
     m_decorateptassociation(false),
     m_trkSelectionTool(""),
@@ -222,6 +223,24 @@ namespace DerivationFramework {
       ATH_CHECK(m_truthLabel_truthJetMass_key.initialize());
     }
 
+    if(!m_jetOriginCorrectionTool.empty()) {
+      CHECK(m_jetOriginCorrectionTool.retrieve());
+      ATH_MSG_DEBUG("Augmenting jets with origin corrections \"" << m_momentPrefix << "Origin\"");
+      m_decorateorigincorrection = true;
+      m_origincorrection_key = m_containerName + "." + m_momentPrefix + "OriginVertex";
+      m_originpt_key         = m_containerName + "." + m_momentPrefix + "pt";
+      m_origineta_key        = m_containerName + "." + m_momentPrefix + "eta";
+      m_originphi_key        = m_containerName + "." + m_momentPrefix + "phi";
+      m_originm_key          = m_containerName + "." + m_momentPrefix + "m";
+
+      ATH_CHECK(m_origincorrection_key.initialize());
+      ATH_CHECK(m_originpt_key.initialize());
+      ATH_CHECK(m_origineta_key.initialize());
+      ATH_CHECK(m_originphi_key.initialize());
+      ATH_CHECK(m_originm_key.initialize());
+    }
+
+
     return StatusCode::SUCCESS;
   }
     
@@ -285,6 +304,13 @@ namespace DerivationFramework {
 	  ATH_MSG_WARNING("Problems calculating TrackSumMass and TrackSumPt");
 	  return StatusCode::FAILURE;
 	}
+    }
+
+    if(m_decorateorigincorrection){
+      if(m_jetOriginCorrectionTool->modify(*jets_copy).isFailure()){
+        ATH_MSG_WARNING("Problem applying the origin correction tool");
+        return StatusCode::FAILURE;
+      }
     }
 
     // Check if GhostTruthAssociation decorations already exist for first jet, and if so skip them
@@ -384,6 +410,20 @@ namespace DerivationFramework {
 	ATH_MSG_VERBOSE("TrackSumMass: " << (*m_acc_tracksummass)(jet_orig) );
 	ATH_MSG_VERBOSE("TrackSumPt: "   << (*m_acc_tracksummass)(jet_orig) );
       }
+
+      if(m_decorateorigincorrection) {
+        SG::WriteDecorHandle<xAOD::JetContainer, float> originPtDec(m_originpt_key);
+        SG::WriteDecorHandle<xAOD::JetContainer, float> originEtaDec(m_origineta_key);
+        SG::WriteDecorHandle<xAOD::JetContainer, float> originPhiDec(m_originphi_key);
+        SG::WriteDecorHandle<xAOD::JetContainer, float> originMDec(m_originm_key);
+        SG::WriteDecorHandle<xAOD::JetContainer, ElementLink<xAOD::VertexContainer> > originVxDec(m_origincorrection_key);
+        originPtDec(jet_orig)  = jet->pt();
+        originEtaDec(jet_orig) = jet->eta();
+        originPhiDec(jet_orig) = jet->phi();
+        originMDec(jet_orig)   = jet->m();
+        originVxDec(jet_orig)  = jet->getAttribute<ElementLink<xAOD::VertexContainer> >("OriginVertex");
+      }
+
 
       if(m_decorateptassociation && isMissingPtAssociation){
 
