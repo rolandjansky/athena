@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -1418,40 +1418,13 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         RpcComponent* rp = (RpcComponent*)c;
         int ndivy = rp->ndivy;
         int ndivz = rp->ndivz;
-//         if (geometry_version == "M28") 
-//  {
-//           GeoSerialDenominator* nm =
-//               new GeoSerialDenominator(stName + "_stName "+techname+" rpccomponent ");
-//           for (int j = 0; j < ndivz; j++) {
-//             for (int i = 0; i < ndivy; i++) {
-//               xfcomponent = xfrpccomponent[i+j*ndivy];
-//               ptrd->add(nm);
-//               ptrd->add(xfcomponent);
-//               ptrd->add(lvr);
-//             }
-//           }
 
-//  } 
-//  else 
-//  {
           if (ndivz!=1 || ndivy!=1 ) log << MSG::ERROR << " RPC segmentation z,y "
                              << ndivz << " " << ndivy <<std::endl;
           double zpos = -length/2. + c->posy+c->dy/2.;
           double xpos = c->posx;
           // implement really the mirror symmetry
           if (is_mirrored) xpos = -xpos;
-
-          // ... putting back to here!
-          //log<<MSG::DEBUG<<" In station "<<stName<<" with "
-          //   <<nDoubletR<<" doubletR," 
-          //   <<" RPC "<<(c->name).substr(3,2)
-           //  <<" has swap flag = "<<rp->iswap
-           //  <<"ypos, zpos, ndivz, ndivy "
-           //  <<ypos<<" "<<zpos<<" "
-           //  <<ndivz << " " << ndivy <<endmsg;
-          //htcomponent = HepGeom::TranslateX3D(ypos)*HepGeom::TranslateY3D(xpos)
-          //          *HepGeom::TranslateZ3D(zpos);
-          //        xfcomponent = new GeoTransform(htcomponent);
 
           const RpcIdHelper* rpc_id = manager->rpcIdHelper();
           int stationEta = zi;
@@ -1465,9 +1438,17 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
 
           // the BI RPCs are 3-gap RPCs mounted inside of the BI (s)MDTs
           if (stname.find("BI")!=std::string::npos) {
-            // for BIS78, there is a second RPC doubletZ at amdb-y (MuonGeoModel-z)=144mm inside the station
-            if (stname.find("BIS")!=std::string::npos && std::abs(stationEta)>=7 && rp->posz>100) doubletZ=2;
-            else doubletZ=ndbz[doubletR-1];
+            if (stname.find("BIS")!=std::string::npos) {
+              // for BIS78, there is a second RPC doubletZ at amdb-y (MuonGeoModel-z)=144mm inside the station
+              if (std::abs(stationEta)>=7 && rp->posz>100) doubletZ=2;
+              else doubletZ=1;
+            } else {
+              // for BIL/BIM/BIR, we have 10 RPCs put on 6 MDT stations, thus, need to exploit doubletZ as additional variable on top of stationEta
+              // only for BIL, there are sometimes 2 RPCs per 1 MDT station, namely for stationEta 1,3,4,6
+              if (stname.find("BIL")!=std::string::npos && std::abs(stationEta)<7 && !(std::abs(stationEta)==2||std::abs(stationEta)==5)) {
+                if (rp->posy>1) doubletZ=2; // put the chamber with positive amdb-z to doubletZ=2
+              } else doubletZ=1;
+            }
           } else {
             if (zi <= 0 && !is_mirrored) {
               if (zpos < -100*Gaudi::Units::mm) doubletZ=2;
