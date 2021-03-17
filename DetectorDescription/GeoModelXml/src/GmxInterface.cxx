@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -15,12 +15,12 @@
 #include "GeoModelKernel/GeoVFullPhysVol.h"
 using namespace std;
 
-int GmxInterface::sensorId(map<string, int> &/*index*/) {
+int GmxInterface::sensorId(map<string, int> &/*index*/) const {
     static int sequentialId;
     return sequentialId++;
 }
 
-int GmxInterface::splitSensorId(map<string, int> &/*index*/, std::pair<std::string, int> &/*extraIndex*/, map<string, int> &/*updatedIndex*/) {
+int GmxInterface::splitSensorId(map<string, int> &/*index*/, std::pair<std::string, int> &/*extraIndex*/, map<string, int> &/*updatedIndex*/) const {
     static int sequentialId;
     return sequentialId++;
 }

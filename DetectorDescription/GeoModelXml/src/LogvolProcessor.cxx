@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -166,7 +166,7 @@ GeoNameTag *physVolName;
 	  for(int i=0;i<splitLevel;i++){
 	    std::string field = "eta_module";//eventually specify in Xml the field to split in?
 	    std::pair<std::string,int> extraIndex(field,i);
-	    gmxUtil.gmxInterface()->addSplitSensor(sensitiveName, index,extraIndex, sensId, dynamic_cast<GeoVFullPhysVol *> (pv)); //TODO implement is derived class
+	    gmxUtil.gmxInterface()->addSplitSensor(sensitiveName, index,extraIndex, sensId, dynamic_cast<GeoVFullPhysVol *> (pv));
 	  }
 	}
 	else gmxUtil.gmxInterface()->addSensor(sensitiveName, index, sensId, dynamic_cast<GeoVFullPhysVol *> (pv));

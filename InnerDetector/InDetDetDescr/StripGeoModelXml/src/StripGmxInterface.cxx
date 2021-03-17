@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StripGeoModelXml/StripGmxInterface.h"
@@ -40,7 +40,7 @@ StripGmxInterface::~StripGmxInterface() {
     delete m_log;
 }
 
-int StripGmxInterface::sensorId(map<string, int> &index) {
+int StripGmxInterface::sensorId(map<string, int> &index) const{
 //
 //    Return the Simulation HitID (nothing to do with "ATLAS Identifiers" aka "Offline Identifiers"
     
@@ -59,7 +59,7 @@ int StripGmxInterface::sensorId(map<string, int> &index) {
     
 }
 
-int StripGmxInterface::splitSensorId(map<string, int> &index, pair<string,int> &extraIndex, map<string, int> &updatedIndex ) {
+int StripGmxInterface::splitSensorId(map<string, int> &index, pair<string,int> &extraIndex, map<string, int> &updatedIndex ) const{
 //
 //    Return the Simulation HitID (nothing to do with "ATLAS Identifiers" aka "Offline Identifiers"
  
