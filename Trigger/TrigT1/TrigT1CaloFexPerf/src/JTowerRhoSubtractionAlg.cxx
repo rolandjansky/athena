@@ -86,8 +86,11 @@ namespace LVL1
     return StatusCode::SUCCESS;
   }
 
-  StatusCode JTowerRhoSubtractionAlg::buildFexBins(const xAOD::JGTowerContainer *towers) const
+  JTowerRhoSubtractionAlg::JFEXBins
+  JTowerRhoSubtractionAlg::buildFexBins(const xAOD::JGTowerContainer *towers) const
   {
+    JFEXBins bins;
+
     // Create the bin lists as a list of tower indices
     // eta bins
     std::vector<std::pair<float, float>> etaBins{
@@ -141,10 +144,8 @@ namespace LVL1
     regions.push_back(std::move(EMTowers));
     regions.push_back(std::move(FCALTowers));
 
-    m_jFEXBins.clear();
-    m_jFEXBinsCore.clear();
-    m_jFEXBins.resize(regions.size() * nBins);
-    m_jFEXBinsCore.resize(regions.size() * nBins);
+    bins.m_bins.resize(regions.size() * nBins);
+    bins.m_binsCore.resize(regions.size() * nBins);
 
     for (std::size_t regionIdx = 0; regionIdx < regions.size(); ++regionIdx)
     {
@@ -152,19 +153,18 @@ namespace LVL1
       {
         const xAOD::JGTower &tower = *towers->at(towerIdx);
         for (std::size_t binIdx : findBinNumbers(tower.eta(), tower.phi(), etaBins, phiBins, phiOffset))
-          m_jFEXBins.at(binIdx + regionIdx * nBins).push_back(towerIdx);
+          bins.m_bins.at(binIdx + regionIdx * nBins).push_back(towerIdx);
         for (std::size_t binIdx : findBinNumbers(tower.eta(), tower.phi(), etaBinsCore, phiBins, phiOffset))
-          m_jFEXBinsCore.at(binIdx + regionIdx * nBins).push_back(towerIdx);
+          bins.m_binsCore.at(binIdx + regionIdx * nBins).push_back(towerIdx);
       }
     }
 
     // If any core bin is empty, also empty the corresponding larger bin
-    for (std::size_t binIdx = 0; binIdx < m_jFEXBins.size(); ++binIdx)
-      if (m_jFEXBinsCore.at(binIdx).size() == 0)
-        m_jFEXBins.at(binIdx).clear();
+    for (std::size_t binIdx = 0; binIdx < bins.m_bins.size(); ++binIdx)
+      if (bins.m_binsCore.at(binIdx).size() == 0)
+        bins.m_bins.at(binIdx).clear();
 
-    m_builtFexBins = true;
-    return StatusCode::SUCCESS;
+    return bins;
   }
 
   StatusCode JTowerRhoSubtractionAlg::execute(const EventContext &ctx) const
@@ -180,17 +180,12 @@ namespace LVL1
     std::unique_ptr<xAOD::ShallowAuxContainer> outputTowersAux(shallowCopy.second);
     xAOD::setOriginalObjectLink(*inputTowers, *outputTowers);
 
-    if (!m_builtFexBins)
-    {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_builtFexBins)
-        ATH_CHECK(buildFexBins(inputTowers.cptr()));
-    }
+    static const JFEXBins jFEXBins = buildFexBins (inputTowers.cptr());
 
     // Iterate over the bins and calculate the average energy in the towers
     std::vector<float> rhos;
-    rhos.reserve(m_jFEXBins.size());
-    for (const std::vector<std::size_t> &binTowerIndices : m_jFEXBins)
+    rhos.reserve(jFEXBins.m_bins.size());
+    for (const std::vector<std::size_t> &binTowerIndices : jFEXBins.m_bins)
     {
       std::size_t count = 0;
       float rhoSum = 0;
@@ -212,9 +207,9 @@ namespace LVL1
     }
 
     std::vector<float> subtractedTowerEnergies(inputTowers->size(), 0.0);
-    for (std::size_t binIdx = 0; binIdx < m_jFEXBinsCore.size(); ++binIdx)
+    for (std::size_t binIdx = 0; binIdx < jFEXBins.m_binsCore.size(); ++binIdx)
     {
-      for (std::size_t towerIdx : m_jFEXBinsCore.at(binIdx))
+      for (std::size_t towerIdx : jFEXBins.m_binsCore.at(binIdx))
       {
         const xAOD::JGTower *tower = inputTowers->at(towerIdx);
         float area = accArea(*tower);
