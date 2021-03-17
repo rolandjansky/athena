@@ -999,7 +999,8 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
             name = name.replace( "::", "__" )
 
         if "<" in name:
-            raise ConfigurationError( "Can not yet handle the templated components" )
+            name=name.replace("<","_")
+            name=name.replace(">","_")
 
         from AthenaCommon import CfgMgr
         classObj = getattr( CfgMgr, name )
