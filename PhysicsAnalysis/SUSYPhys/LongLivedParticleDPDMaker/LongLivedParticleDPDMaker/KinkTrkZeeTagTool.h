@@ -17,6 +17,7 @@
 // DerivationFramework includes
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 
+#include "StoreGate/ReadHandleKey.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
@@ -59,12 +60,12 @@ namespace DerivationFramework {
     float m_trigMatchDeltaR;
     bool m_doTrigMatch;
 
-    std::string m_electronSGKey;
+    SG::ReadHandleKey<xAOD::ElectronContainer> m_electronSGKey{this,"ElectronContainerKey","ElectronCollection"};
     std::vector<std::string> m_electronIDKeys;
     float m_electronPtCut;
     float m_electronEtaMax;
 
-    std::string m_clusterSGKey;
+    SG::ReadHandleKey<xAOD::CaloClusterContainer> m_clusterSGKey{this,"ClusterContainerKey","egammaClusters"};
     float m_clusterEtCut;
     float m_clusterEtaMax;
 
@@ -73,6 +74,9 @@ namespace DerivationFramework {
     float m_dPhiMax;
 
     std::string m_sgKeyPrefix;
+
+    SG::WriteHandleKey<std::vector<float> > m_diEleMassKey;
+    SG::WriteHandleKey<std::vector<float> > m_probeEleEtKey;
 
   }; 
  

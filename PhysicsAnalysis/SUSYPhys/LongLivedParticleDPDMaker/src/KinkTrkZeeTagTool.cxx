@@ -23,11 +23,9 @@ DerivationFramework::KinkTrkZeeTagTool::KinkTrkZeeTagTool(const std::string& t,
   m_trigNames(std::vector<std::string>()),
   m_trigMatchDeltaR(0.1),
   m_doTrigMatch(false),
-  m_electronSGKey("ElectronCollection"),
   m_electronIDKeys(std::vector<std::string>()),
   m_electronPtCut(0),
   m_electronEtaMax(9999),
-  m_clusterSGKey("egammaClusters"),
   m_clusterEtCut(0),
   m_clusterEtaMax(2.8),
   m_diEleMassLow(50.),
@@ -41,11 +39,9 @@ DerivationFramework::KinkTrkZeeTagTool::KinkTrkZeeTagTool(const std::string& t,
   declareProperty("Triggers", m_trigNames);
   declareProperty("TriggerMatchDeltaR", m_trigMatchDeltaR);
   declareProperty("RequireTriggerMatch", m_doTrigMatch);
-  declareProperty("ElectronContainerKey", m_electronSGKey);
   declareProperty("ElectronIDKeys", m_electronIDKeys),
   declareProperty("ElectronPtMin", m_electronPtCut);
   declareProperty("ElectronEtaMax", m_electronEtaMax);
-  declareProperty("ClusterContainerKey", m_clusterSGKey);
   declareProperty("ClusterEtMin", m_clusterEtCut);
   declareProperty("ClusterEtaMax", m_clusterEtaMax);
   declareProperty("DiEleMassLow", m_diEleMassLow);
@@ -81,6 +77,15 @@ StatusCode DerivationFramework::KinkTrkZeeTagTool::initialize()
     ATH_MSG_INFO("TrgMatchTool retrived successfully");
   }
 
+  ATH_CHECK(m_electronSGKey.initialize());
+  ATH_CHECK(m_clusterSGKey.initialize());
+
+
+  //Build WriteHandleKeys:
+  m_diEleMassKey=m_sgKeyPrefix+"DiEleMass";
+  ATH_CHECK(m_diEleMassKey.initialize());
+  m_probeEleEtKey=m_sgKeyPrefix+"ProbeEleEt";
+  ATH_CHECK(m_probeEleEtKey.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -96,14 +101,11 @@ StatusCode DerivationFramework::KinkTrkZeeTagTool::finalize()
 // Augmentation
 StatusCode DerivationFramework::KinkTrkZeeTagTool::addBranches() const
 {
-  std::vector<float> *diEleMass = new std::vector<float>();
-  std::vector<float> *probeEleEt = new std::vector<float>();
+  auto diEleMass = std::make_unique<std::vector<float> >(); 
+  auto probeEleEt = std::make_unique< std::vector<float> >();
 
-  const xAOD::ElectronContainer* electrons(0);
-  ATH_CHECK(evtStore()->retrieve(electrons, m_electronSGKey));	
-
-  const xAOD::CaloClusterContainer* clusters(0);
-  ATH_CHECK(evtStore()->retrieve(clusters, m_clusterSGKey));
+  SG::ReadHandle<xAOD::ElectronContainer> electrons(m_electronSGKey);
+  SG::ReadHandle< xAOD::CaloClusterContainer> clusters(m_clusterSGKey);
 
   for (const auto ele: *electrons) {
     if (!checkTagElectron(ele)) continue;
@@ -116,23 +118,11 @@ StatusCode DerivationFramework::KinkTrkZeeTagTool::addBranches() const
   }
 
   // Writing to SG
-  std::string sgKey1(m_sgKeyPrefix+"DiEleMass");
-  if (evtStore()->contains< float >(sgKey1)) {
-    ATH_MSG_ERROR("StoreGate key " << sgKey1 << "already exists.");
-    // avoid mem leak
-    delete probeEleEt;
-    delete diEleMass;
-    return StatusCode::FAILURE;
-  }
-  CHECK(evtStore()->record(diEleMass, sgKey1));
+  SG::WriteHandle<std::vector<float > > diEleMassHdl(m_diEleMassKey);
+  ATH_CHECK(diEleMassHdl.record(std::move(diEleMass)));
 
-  std::string sgKey2(m_sgKeyPrefix+"ProbeEleEt");
-  if (evtStore()->contains< float >(sgKey2)) {
-    ATH_MSG_ERROR("StoreGate key " << sgKey2 << "already exists.");
-    delete probeEleEt; // avoid mem leak
-    return StatusCode::FAILURE;
-  }
-  CHECK(evtStore()->record(probeEleEt, sgKey2));
+  SG::WriteHandle<std::vector<float> > probeEleEtHdl(m_probeEleEtKey);
+  ATH_CHECK(probeEleEtHdl.record(std::move(probeEleEt)));
 
   return StatusCode::SUCCESS;
 }
