@@ -41,7 +41,7 @@ if __name__=='__main__':
     from AthenaCommon.Constants import DEBUG
     alg = CompFactory.Run2ToRun3TrigNavConverter("TrigNavCnv", OutputLevel=DEBUG, HLTConfigSvc=confSvc)
     alg.doPrint = False
-    alg.setConfig = ["xAOD::ElectronContainer","xAOD::TrigEMClusterContainer","xAOD::TrigEMCluster","xAOD::TrigElectron","xAOD::TrigElectronContainer","TrigRoiDescriptor","TrigRoiDescriptorCollection"]
+    alg.setConfig = ["xAOD::ElectronContainer","xAOD::TrigEMClusterContainer","xAOD::TrigEMCluster","xAOD::TrigElectron","xAOD::TrigElectronContainer"]
     cfg.addEventAlgo(alg, sequenceName="AthAlgSeq")
 
 

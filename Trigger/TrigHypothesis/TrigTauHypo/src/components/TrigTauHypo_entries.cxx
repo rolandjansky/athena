@@ -34,6 +34,7 @@
 #include "../TrigEFTauMVHypoAlgMT.h"
 #include "../TrigTrkPrecHypoAlgMT.h"
 #include "../TrigTrkPrecHypoTool.h"
+#include "../TrigTauXComboHypoTool.h"
 
 DECLARE_COMPONENT( T2CaloTauHypo )
 DECLARE_COMPONENT( T2IDTauHypo )
@@ -71,3 +72,4 @@ DECLARE_COMPONENT( TrigTrkPrecHypoTool )
 DECLARE_COMPONENT( TrigTrkPrecHypoAlgMT )
 DECLARE_COMPONENT( TrigEFTauMVHypoAlgMT )
 DECLARE_COMPONENT( TrigEFTauMVHypoTool )
+DECLARE_COMPONENT( TrigTauXComboHypoTool )

@@ -27,7 +27,8 @@ public:
    virtual ~IHIEventShapeFiller() {};
 
    virtual StatusCode initializeCollection            (xAOD::HIEventShapeContainer *evtShape_        )=0;
-   virtual StatusCode fillCollectionFromTowers        (const SG::ReadHandleKey<xAOD::CaloClusterContainer> &m_tower_container_key      )=0;
+   virtual StatusCode fillCollectionFromTowers        (const SG::ReadHandleKey<xAOD::CaloClusterContainer> &m_tower_container_key,
+                                                       const SG::ReadHandleKey<INavigable4MomentumCollection>  &m_navi_container_key)=0;
    virtual StatusCode fillCollectionFromCells         (const SG::ReadHandleKey<CaloCellContainer> &m_cell_container_key                )=0;
 
    virtual const xAOD::HIEventShapeContainer* getHIEventShapeContainer() const =0;

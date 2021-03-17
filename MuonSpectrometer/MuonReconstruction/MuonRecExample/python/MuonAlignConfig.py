@@ -28,11 +28,13 @@ muonAlignFlags.setDefaults()
 
 
 logMuon.info("Reading alignment constants from DB")
-conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/BARREL','/MUONALIGN/MDT/BARREL',className='CondAttrListCollection')
-conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/ENDCAP/SIDEA','/MUONALIGN/MDT/ENDCAP/SIDEA',className='CondAttrListCollection')
-conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/ENDCAP/SIDEC','/MUONALIGN/MDT/ENDCAP/SIDEC',className='CondAttrListCollection')
-conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/TGC/SIDEA','/MUONALIGN/TGC/SIDEA',className='CondAttrListCollection')
-conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/TGC/SIDEC','/MUONALIGN/TGC/SIDEC',className='CondAttrListCollection')
+if not conddb.folderRequested('/MUONALIGN/Onl/MDT/BARREL') and not conddb.folderRequested('/MUONALIGN/MDT/BARREL'):
+    conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/BARREL','/MUONALIGN/MDT/BARREL',className='CondAttrListCollection')
+    conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/ENDCAP/SIDEA','/MUONALIGN/MDT/ENDCAP/SIDEA',className='CondAttrListCollection')
+    conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/ENDCAP/SIDEC','/MUONALIGN/MDT/ENDCAP/SIDEC',className='CondAttrListCollection')
+if not conddb.folderRequested('/MUONALIGN/Onl/TGC/SIDEA') and not conddb.folderRequested('/MUONALIGN/TGC/SIDEA'):
+    conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/TGC/SIDEA','/MUONALIGN/TGC/SIDEA',className='CondAttrListCollection')
+    conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/TGC/SIDEC','/MUONALIGN/TGC/SIDEC',className='CondAttrListCollection')
 
 from AtlasGeoModel.MuonGM import GeoModelSvc
 MuonDetectorTool = GeoModelSvc.DetectorTools[ "MuonDetectorTool" ]
@@ -47,6 +49,9 @@ MuonAlignAlg.ParlineFolders = ["/MUONALIGN/MDT/BARREL",
                                "/MUONALIGN/MDT/ENDCAP/SIDEC",
                                "/MUONALIGN/TGC/SIDEA",
                                "/MUONALIGN/TGC/SIDEC"]
+if conddb.dbdata != 'COMP200' and conddb.dbmc != 'COMP200' and \
+   'HLT' not in globalflags.ConditionsTag() and not conddb.isOnline :
+    MuonAlignAlg.IsData = False
 condSequence+=MuonAlignAlg
 
 # Disable caching. This will have some memory impact (TBC) but is necessary for the moment to make this thread safe.
@@ -101,4 +106,7 @@ if conddb.dbdata != 'COMP200' and conddb.dbmc != 'COMP200' and \
 from MuonGeoModel.MuonGeoModelConf import MuonDetectorCondAlg
 MuonDetectorManagerCond = MuonDetectorCondAlg()
 MuonDetectorManagerCond.MuonDetectorTool = MuonDetectorTool
+if conddb.dbdata != 'COMP200' and conddb.dbmc != 'COMP200' and \
+   'HLT' not in globalflags.ConditionsTag() and not conddb.isOnline :
+    MuonDetectorManagerCond.IsData = False
 condSequence+=MuonDetectorManagerCond

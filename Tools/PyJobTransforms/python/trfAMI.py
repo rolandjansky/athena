@@ -1,10 +1,4 @@
-from future.utils import iteritems
-from future.utils import listitems
-from builtins import zip
-
-from builtins import object
-from builtins import range
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfAMI
 #  @brief Utilities for configuration of transforms via AMI tags
@@ -47,7 +41,7 @@ class TrfConfig(object):
         theDict=self.inFiles.copy()
         theDict.update(self.outFiles)
         theDict.update(self.physics)
-        for (k,v) in iteritems(theDict):
+        for (k,v) in theDict.items():
             yield k,v
 
     def __str__(self):
@@ -74,7 +68,7 @@ class TrfConfig(object):
 
     def _argsToString(self, adict):
         string=''
-        for (k,v) in iteritems(adict):
+        for (k,v) in adict.items():
             if self.newTransform:
                 if not k.startswith('--'):
                     k = "--"+k
@@ -85,11 +79,11 @@ class TrfConfig(object):
                     # Should be a substep argument
                     if 'Exec' in k: # preExec, postExec
                         string += " " + k
-                        for vk, vv in iteritems(v):
+                        for vk, vv in v.items():
                             string += " " + _parseExecDict(vk, vv)
                     elif 'Include' in k: # preInclude, postInclude
                         string += " " + k
-                        for vk, vv in iteritems(v):
+                        for vk, vv in v.items():
                             string += " " + _parseIncludeDict(vk, vv)
                     else:
                         # Misc substep string/number argument...?
@@ -99,7 +93,7 @@ class TrfConfig(object):
                         else:
                             separator=':'
                         string += " " + k
-                        for vk, vv in iteritems(v):
+                        for vk, vv in v.items():
                             string += " " + vk + separator + vv
                 elif isinstance(v, (list, tuple)):
                     # athenaopts are special - space separated
@@ -337,7 +331,7 @@ def getTrfConfigFromPANDA(tag):
 
         physics = dict( (k, ReadablePANDA(v) ) for (k,v) in zip(keys, values))
         # Hack to correct trigger keys being stored with spaces in panda  
-        for k, v in iteritems(physics):
+        for k, v in physics.items():
             if 'triggerConfig' in k or 'triggerConfigByRun' in k:
                 if ' ' in v:
                     physics[k] = v.replace(' ', ',')
@@ -363,7 +357,7 @@ def getTrfConfigFromPANDA(tag):
                 trf.outFiles[arg]=value
 
         msg.debug("Checking for not set arguments...")
-        for arg,value in listitems(physics):
+        for arg,value in physics.items():
             if value=="NONE" or value=="none" or value==["NONE"]:
                 val=physics.pop(arg)
                 msg.debug("Removed %s=%s from arguments.", arg, val )
@@ -453,7 +447,7 @@ def getTrfConfigFromAMI(tag, suppressNonJobOptions = True):
             trf.physics=deserialiseFromAMIString(result[0]['phconfig'])
         else:
             physics = {}
-            for k, v in iteritems(result[0]):
+            for k, v in result[0].items():
                 if 'Exec' in k:
                     execStrList = [execStr for execStr in convertToStr(v).replace('" "', '"" ""').split('" "')]
                     physics[convertToStr(k)] = [remove_enclosing_quotes(execStr).replace('\\"', '"') for execStr in execStrList]
@@ -472,7 +466,7 @@ def getTrfConfigFromAMI(tag, suppressNonJobOptions = True):
                     if k in ['inputs', 'outputs', 'productionStep', 'transformation', 'SWReleaseCache']:
                         physics.pop(k)
 
-            for k, v in iteritems(physics):
+            for k, v in physics.items():
                 if 'triggerConfig' in k or 'triggerConfigByRun' in k:
                     if ' ' in v:
                         physics[k] = v.replace(' ', ',')
@@ -495,7 +489,7 @@ def getTrfConfigFromAMI(tag, suppressNonJobOptions = True):
                     trf.outFiles[arg] = value
 
             msg.debug("Checking for not set arguments...")
-            for arg, value in listitems(physics):
+            for arg, value in physics.items():
                 if value == "NONE" or value == "none" or value == ["NONE"]:
                     val = physics.pop(arg)
                     msg.debug("Removed %s=%s from arguments.", arg, val)
@@ -508,7 +502,7 @@ def getTrfConfigFromAMI(tag, suppressNonJobOptions = True):
         if trf.inFiles == {}:
             if 'inputs' in result[0]:
                 trf.inFiles=deserialiseFromAMIString(result[0]['inputs'])
-                for inFileType, inFileName in iteritems(trf.inFiles):
+                for inFileType, inFileName in trf.inFiles.items():
                     # Not all AMI tags actually have a working filename, so fallback to trfDefaultFiles
                     # if necessary
                     if inFileName == '' or inFileName =={} or inFileName == [] or inFileName == '{}':

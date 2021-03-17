@@ -1,15 +1,11 @@
-from __future__ import print_function
-from future.utils import iteritems
-from builtins import object
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfJobOptions
 #
 # @brief Contains functions related Athena Job Options files 
 # @details Generates runArgs JobOptions and interfaces with skeleton
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfJobOptions.py 731249 2016-03-19 22:05:45Z graemes $
-# 
+#
 
 import os
 import time
@@ -89,7 +85,7 @@ class JobOptionsTemplate(object):
     
                 # Now loop over the core argdict and see what needs to be given as a runArg
                 declaredRunargs = []
-                for k, v in iteritems(self._exe.conf.argdict):
+                for k, v in self._exe.conf.argdict.items():
                     # Check if this arg is supposed to be in runArgs
                     if isinstance(v, trfArgClasses.argument) and v.isRunarg:
                         # Files handled later
@@ -122,7 +118,7 @@ class JobOptionsTemplate(object):
             
                 # Now deal with our input and output files
                 print(os.linesep, "# Input data", file=runargsFile)
-                for dataType, dataArg in iteritems(input):
+                for dataType, dataArg in input.items():
                     print('{0}.input{1}File = {2!r}'.format(self._runArgsName, dataType, dataArg.value), file=runargsFile)
                     print('{0}.input{1}FileType = {2!r}'.format(self._runArgsName, dataType, dataArg.type), file=runargsFile)
                     # Add the input event count, if we know it
@@ -131,7 +127,7 @@ class JobOptionsTemplate(object):
                     print("{0}.{1}FileIO = {2!r}".format(self._runArgsName, dataType, self._exe.conf.dataDictionary[dataType].io), file=runargsFile) 
                 
                 print(os.linesep, "# Output data", file=runargsFile)
-                for dataType, dataArg in iteritems(output):
+                for dataType, dataArg in output.items():
                     # Need to be careful to convert _output_ filename as a strings, not a list
                     print('{0}.output{1}File = {2!r}'.format(self._runArgsName, dataType, dataArg.value[0]), file=runargsFile)
                     print('{0}.output{1}FileType = {2!r}'.format(self._runArgsName, dataType, dataArg.type), file=runargsFile)
@@ -140,7 +136,7 @@ class JobOptionsTemplate(object):
                 # Process all of the tweaky special runtime arguments
                 print(os.linesep, "# Extra runargs", file=runargsFile)
                 ## @note extraRunargs are passed using repr, i.e., they should be constants
-                for k, v in iteritems(self._exe._extraRunargs):
+                for k, v in self._exe._extraRunargs.items():
                     ## @note: What to do if this is a CLI argument as well, in particular
                     #  for arguments like preExec we want to add to the list, not replace it 
                     if k in declaredRunargs:
@@ -153,7 +149,7 @@ class JobOptionsTemplate(object):
     
                 ## @note runtime runargs are passed as strings, i.e., they can be evaluated
                 print(os.linesep, '# Extra runtime runargs', file=runargsFile)
-                for k, v in iteritems(self._exe._runtimeRunargs):
+                for k, v in self._exe._runtimeRunargs.items():
                     # These options are string converted, not repred, so they can write an option
                     # which is evaluated at runtime
                     # Protect this with try: except: for the Embedding use case

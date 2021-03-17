@@ -609,10 +609,6 @@ StatusCode AthenaOutputStream::write() {
       }
    }
    bool doCommit = false;
-   if (m_autoSend.value() > 0 && m_events % m_autoSend.value() == 0) {
-      doCommit = true;
-      ATH_MSG_DEBUG("commitOutput sending data.");
-   }
    if (!streamer->commitOutput(doCommit).isSuccess()) {
       ATH_MSG_FATAL("commitOutput failed.");
       failed = true;

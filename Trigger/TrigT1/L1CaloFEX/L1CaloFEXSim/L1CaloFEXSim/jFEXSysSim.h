@@ -66,7 +66,7 @@ namespace LVL1 {
     SG::ReadHandleKey<CaloCellContainer> m_scellsCollectionSGKey {this, "SCell", "SCell", "SCell"};
 
     std::map<int,jTower> m_jTowersColl;
-    
+    std::map<int, std::vector<uint32_t> > m_alljTobs; 
   };
   
 } // end of namespace

@@ -2,7 +2,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-def createLArRoI_Map( flags ):
+def LArRoIMapCfg( flags ):
     acc = ComponentAccumulator()
     LArRoI_Map=CompFactory.LArRoI_Map
 
@@ -31,6 +31,13 @@ def createLArRoI_Map( flags ):
     
     return acc
 
+CaloDataAccessSvcDependencies = [('IRegSelLUTCondData', 'ConditionStore+RegSelLUTCondData_TTEM'), 
+                                 ('IRegSelLUTCondData', 'ConditionStore+RegSelLUTCondData_TTHEC'), 
+                                 ('IRegSelLUTCondData', 'ConditionStore+RegSelLUTCondData_TILE'), 
+                                 ('IRegSelLUTCondData', 'ConditionStore+RegSelLUTCondData_FCALEM'), 
+                                 ('IRegSelLUTCondData', 'ConditionStore+RegSelLUTCondData_FCALHAD')]
+
+
 def trigCaloDataAccessSvcCfg( flags ):    
 
     acc = ComponentAccumulator()
@@ -42,11 +49,19 @@ def trigCaloDataAccessSvcCfg( flags ):
 
     from TileGeoModel.TileGMConfig import TileGMCfg    
     acc.merge( TileGMCfg( flags ) )
-
-    from RegionSelector.RegSelConfig import regSelCfg
-    acc.merge( regSelCfg( flags ) )
     
-    acc.merge( createLArRoI_Map( flags ) )
+    acc.merge( LArRoIMapCfg( flags ) )
+
+    #setup region selector
+    from RegionSelector.RegSelToolConfig import (regSelTool_TTEM_Cfg,regSelTool_TTHEC_Cfg,
+                                                 regSelTool_FCALEM_Cfg,regSelTool_FCALHAD_Cfg,regSelTool_TILE_Cfg)
+
+    svc.RegSelToolEM = acc.popToolsAndMerge(regSelTool_TTEM_Cfg(flags))
+    svc.RegSelToolHEC = acc.popToolsAndMerge(regSelTool_TTHEC_Cfg(flags))
+    svc.RegSelToolFCALEM = acc.popToolsAndMerge(regSelTool_FCALEM_Cfg(flags))
+    svc.RegSelToolFCALHAD = acc.popToolsAndMerge(regSelTool_FCALHAD_Cfg(flags))
+    svc.RegSelToolTILE = acc.popToolsAndMerge(regSelTool_TILE_Cfg(flags))
+
 
     # Needed by bad channel maskers, refrerenced from LArCellCont.
     from LArBadChannelTool.LArBadChannelConfig import LArBadChannelCfg, LArBadFebCfg
@@ -103,19 +118,6 @@ if __name__ == "__main__":
     testAlg = TestCaloDataAccess()
     acc.addEventAlgo(testAlg)    
     
-    # disable RegSel fro ID and muons, will change this to use flags once MR for it is integrated
-    regSel = acc.getService("RegSelSvc")
-
-    regSel.enableID    = False
-    regSel.enablePixel = False
-    regSel.enableSCT   = False
-    regSel.enableTRT   = False
-    regSel.enableMuon  = False
-    regSel.enableRPC   = False
-    regSel.enableMDT   = False
-    regSel.enableTGC   = False
-    regSel.enableCSC   = False
-
     acc.printConfig(True)
 
     print(acc.getPublicTool("LArRoI_Map"))

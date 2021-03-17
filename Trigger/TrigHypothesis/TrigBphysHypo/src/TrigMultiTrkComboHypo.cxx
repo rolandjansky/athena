@@ -139,8 +139,8 @@ StatusCode TrigMultiTrkComboHypo::initialize() {
     tool->setLegDecisionIds(legDecisionIds);
     if (msgLvl(MSG::DEBUG)) {
       ATH_MSG_DEBUG( "Leg decisions for tool " << tool->name() );
-      for (const auto& id : legDecisionIds) {
-        ATH_MSG_DEBUG( " +++ " << id );
+      for (const auto& legDecisionId : legDecisionIds) {
+        ATH_MSG_DEBUG( " +++ " << legDecisionId );
       }
     }
   }

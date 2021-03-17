@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGJETHYPOTOOLCONFIG_FASTREDUCTION_H
@@ -54,6 +54,11 @@ public extends<AthAlgTool, ITrigJetHypoToolNoGrouperConfig> {
   ToolHandleArray<ITrigJetCapacityCheckedConditionConfig> m_conditionMakers{
     this, "conditionMakers", {}, "hypo tree Condition builder AlgTools"};
 
+  ToolHandleArray<ITrigJetCapacityCheckedConditionConfig>
+  m_antiConditionMakers{this, "antiConditionMakers", {},
+    "hypo tree AntiCondition builder AlgTools"};
+
+
   ToolHandleArray<ITrigJetCapacityCheckedConditionConfig> m_filtConditionMakers{
     this, "filtConditionsMakers", {},
     "hypo tree Condition builder AlgTools for Condition filters"};
@@ -65,6 +70,7 @@ public extends<AthAlgTool, ITrigJetHypoToolNoGrouperConfig> {
     this, "leafVector", {}, "node ids for leaf nodes"};
 
   std::optional<ConditionPtrs> getCapacityCheckedConditions() const;
+
 
 };
 #endif

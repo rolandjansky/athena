@@ -352,16 +352,6 @@ if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
                                   )
         pass
 
-    # Schedule the AODSelect setup
-    #if rec.doAODSelect():
-    #    try:
-    #        include("AODSelect/AODSelect_setupOptions.py")
-    #    except Exception:
-    #        treatException("Could not load AODSelect/AODSelect_setupOptions.py !")
-    #        rec.doAODSelect = False
-    #        pass
-    #    pass
-
     #This block may not be needed... something to check if somebody has time!
     if rec.DPDMakerScripts()!=[]:
         if globalflags.InputFormat()=='pool':
@@ -384,16 +374,6 @@ if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
         logAnaCommon_topOptions.info( "Including %s...",DPDMakerName )
         include(DPDMaker)
         pass
-
-    # Schedule the AODSelect algorithms
-    #if rec.doAODSelect():
-    #    try:
-    #        include("AODSelect/AODSelect_mainOptions.py")
-    #    except Exception:
-    #        treatException("Could not load AODSelect/AODSelect_mainOptions.py !")
-    #        rec.doAODSelect = False
-    #        pass
-    #    pass
 
     #SkimDecision objects may once migrate to CutFlowSvc or DecisionSvc, but not yet
     #logAnaCommon_topOptions.info( "primDPD.WriteSkimDecisions =  %s", primDPD.WriteSkimDecisions() )

@@ -113,7 +113,7 @@ StatusCode JetConstitFourMomTool::modify(xAOD::JetContainer& jets) const {
   }
 
   // Limit ourselves to one loop over the constituents
-  for(const auto& jet : jets) {
+  for(xAOD::Jet *jet : jets) {
     std::vector<xAOD::JetFourMom_t> constitFourVecs(nScales);
     // Get the constituents of the jet
     const xAOD::JetConstituentVector constituents = jet->getConstituents();

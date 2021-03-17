@@ -14,6 +14,7 @@ public:
   virtual ~ITrigJetCapacityCheckedConditionConfig(){};
 
   virtual ConditionPtr getCapacityCheckedCondition() const = 0;
+  virtual ConditionPtr getCapacityCheckedAntiCondition() const = 0;
 
   virtual bool addToCapacity(std::size_t) = 0;
   virtual std::size_t capacity() const = 0;

@@ -54,5 +54,10 @@ class FastReductionMatcher: public IJetsMatcherMT {
   
   Tree m_tree;
 
+  // minimum number of jets required - determined by summing
+  // leaf Condition capacities
+  long int m_minNjets{0};
+
+
 };
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DerivationFrameworkMuons/mcpDecorator.h"
@@ -13,15 +13,12 @@
 namespace DerivationFramework {
   mcpDecorator::mcpDecorator(const std::string& t, const std::string& n, const IInterface* p):
     AthAlgTool(t, n, p),
-    m_parser(nullptr)
-  {
+    m_parser(nullptr) {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     declareProperty("TargetContainer",    m_containerName = "InDetTrackParticles");
     declareProperty("SelectionString",    m_selectionString = "");
     declareProperty("Prefix",             m_prefix="MuonEntry_");
   }
-
-  mcpDecorator::~mcpDecorator() {}
 
   StatusCode mcpDecorator::initialize() {
     ATH_MSG_INFO ("Initializing " << name() << "...");
@@ -30,34 +27,17 @@ namespace DerivationFramework {
     if (m_selectionString!="") {
             ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader(); // not deleted
             proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore())); // not deleted
-            m_parser = new ExpressionParsing::ExpressionParser(proxyLoaders);
+            m_parser = std::make_unique< ExpressionParsing::ExpressionParser>(proxyLoaders);
             m_parser->loadExpression(m_selectionString);
     }
 
     return StatusCode::SUCCESS;
   }
 
-  StatusCode mcpDecorator::finalize() {
-    ATH_MSG_INFO ("Finalizing " << name() << "...");
-
-    /// clear parser
-    if (m_parser) {
-        delete m_parser;
-        m_parser = 0;
-    }
-
-
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode DerivationFramework::mcpDecorator::addBranches() const
-  {
+  StatusCode DerivationFramework::mcpDecorator::addBranches() const {
     // retrieve tag (muon) container
-    const xAOD::MuonContainer* toDecorate = 0;
-    if(evtStore()->retrieve(toDecorate, m_containerName).isFailure()) {
-      ATH_MSG_FATAL( "Unable to retrieve " << m_containerName );
-      return StatusCode::FAILURE;
-    }
+    const xAOD::MuonContainer* toDecorate = nullptr;   
+     ATH_CHECK(evtStore()->retrieve(toDecorate, m_containerName));
 
     // Execute the text parser and update the mask
     std::vector<int> entries(toDecorate->size(), 1);

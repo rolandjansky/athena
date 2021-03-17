@@ -391,11 +391,12 @@ private:
   int processSpacepointRangeZv(const INDEXED_SP*, bool, const SP_RANGE&, bool, const float&, const float&);
   void createTriplets(const TrigSiSpacePointBase*, int, int, std::vector<TrigInDetTriplet>&, const IRoiDescriptor*);
   void createTripletsNew(const TrigSiSpacePointBase*, int, int, std::vector<TrigInDetTriplet>&, const IRoiDescriptor*);
+  void createConfirmedTriplets(const TrigSiSpacePointBase*, int, int, std::vector<TrigInDetTriplet>&, const IRoiDescriptor*);
   void storeTriplets(std::vector<TrigInDetTriplet>&);
 
   const TrigCombinatorialSettings& m_settings;
   double m_phiSliceWidth;
-  double m_minDeltaRadius, m_maxDeltaRadius, m_zTol;
+  double m_minDeltaRadius, m_maxDeltaRadius, m_maxDeltaRadiusConf, m_zTol;
 
   L_PHI_STORAGE* m_pStore;
 

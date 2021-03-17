@@ -235,17 +235,17 @@ int main( int argc, char* argv[] ) {
        Info( "applyEfficiencyScaleFactor()","===>>> new decoration: (xAOD::Photon*)ph->auxdata<float>(\"SF\")=%f",ph->auxdata<float>("SF"));
 	   
 	   // get SF for all recommended systematic variations (nominal is also included):
-	   for (const auto sSystematicSet: syst_PhotonID){
+	   for (const auto& sSystematicSet: syst_PhotonID){
 		CHECK(photonSF_ID.applySystematicVariation(sSystematicSet));
 	    CHECK(photonSF_ID.getEfficiencyScaleFactor(*ph,efficiencyScaleFactor));
 		Info( APP_NAME,"===>>> apply %s: ScaleFactor = %f",photonSF_ID.appliedSystematics().name().c_str(),efficiencyScaleFactor);
        }
-	   for (const auto sSystematicSet: syst_PhotonIso){
+	   for (const auto& sSystematicSet: syst_PhotonIso){
 		CHECK(photonSF_Iso.applySystematicVariation(sSystematicSet));
 	    CHECK(photonSF_Iso.getEfficiencyScaleFactor(*ph,efficiencyScaleFactor));
 		Info( APP_NAME,"===>>> apply %s: ScaleFactor = %f",photonSF_Iso.appliedSystematics().name().c_str(),efficiencyScaleFactor);
        }
-	   for (const auto sSystematicSet: syst_PhotonTrig){
+	   for (const auto& sSystematicSet: syst_PhotonTrig){
                 CHECK(photonSF_Trig.applySystematicVariation(sSystematicSet));
             CHECK(photonSF_Trig.getEfficiencyScaleFactor(*ph,efficiencyScaleFactor));
                 Info( APP_NAME,"===>>> apply %s: ScaleFactor = %f",photonSF_Trig.appliedSystematics().name().c_str(),efficiencyScaleFactor);

@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-Trk__TrackingGeometryCondAlg=CompFactory.Trk__TrackingGeometryCondAlg
+Trk__TrackingGeometryCondAlg=CompFactory.Trk.TrackingGeometryCondAlg
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 from SubDetectorEnvelopes.SubDetectorEnvelopesConfig import getEnvelopeDefSvc
 
@@ -189,7 +189,7 @@ def TrackingGeometryCondAlgCfg( flags , name = 'AtlasTrackingGeometryCondAlg', d
     """
     result = ComponentAccumulator()
     atlas_tracking_geometry_name = 'AtlasTrackingGeometry'
-    Trk__GeometryBuilder=CompFactory.Trk__GeometryBuilderCond
+    Trk__GeometryBuilder=CompFactory.Trk.GeometryBuilderCond
     atlas_geometry_builder = Trk__GeometryBuilder(name = 'AtlasGeometryBuilder')
 
     atlas_env_def_service = getEnvelopeDefSvc()

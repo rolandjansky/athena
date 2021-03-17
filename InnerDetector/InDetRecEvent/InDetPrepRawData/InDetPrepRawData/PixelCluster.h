@@ -44,7 +44,7 @@ namespace InDet{
 
   class SiWidth;
   
-  class PixelCluster : public SiCluster {
+  class PixelCluster final : public SiCluster {
   public:
 
     /** Public, Copy, operator=, constructor*/
@@ -145,10 +145,10 @@ namespace InDet{
     
     int   LVL1A() const;
     /** dump information about the PRD object. */
-    virtual MsgStream&    dump( MsgStream&    stream) const;
+    virtual MsgStream&    dump( MsgStream&    stream) const override final;
 
     /** dump information about the PRD object. */
-    virtual std::ostream& dump( std::ostream& stream) const;
+    virtual std::ostream& dump( std::ostream& stream) const override final;
 
     void packSplitInformation(bool split, float prob1, float prob2) ;
  

@@ -12,6 +12,7 @@
 
 #include <AsgTools/AsgComponentConfig.h>
 
+#include <AsgTools/AsgToolConfig.h>
 #include <regex>
 
 #ifdef XAOD_STANDALONE
@@ -39,6 +40,16 @@ namespace asg
   AsgComponentConfig (const std::string& val_typeAndName)
   {
     setTypeAndName (val_typeAndName);
+  }
+
+
+
+  bool AsgComponentConfig ::
+  empty () const noexcept
+  {
+    return
+      m_type.empty() && m_name.empty() &&
+      m_privateTools.empty() && m_propertyValues.empty();
   }
 
 
@@ -71,6 +82,16 @@ namespace asg
   setName (const std::string& val_name)
   {
     m_name = val_name;
+  }
+
+
+
+  std::string AsgComponentConfig ::
+  typeAndName () const
+  {
+    if (m_name == m_type)
+      return m_name;
+    return m_type + "/" + m_name;
   }
 
 
@@ -132,6 +153,22 @@ namespace asg
       ANA_MSG_ERROR ("name \"" << m_name << "\" does not match format expression");
       return StatusCode::FAILURE;
     }
+    return StatusCode::SUCCESS;
+  }
+
+
+
+  StatusCode AsgComponentConfig ::
+  addPrivateTool (const std::string& name,
+                  const AsgToolConfig& toolConfig)
+  {
+    using namespace msgComponentConfig;
+
+    ANA_CHECK (createPrivateTool (name, toolConfig.type()));
+    for (const auto& subtool : toolConfig.m_privateTools)
+      ANA_CHECK (createPrivateTool (name + "." + subtool.first, subtool.second));
+    for (const auto& property : toolConfig.m_propertyValues)
+      setPropertyFromString (name + "." + property.first, property.second);
     return StatusCode::SUCCESS;
   }
 

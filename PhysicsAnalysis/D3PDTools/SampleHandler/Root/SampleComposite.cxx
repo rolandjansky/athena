@@ -32,7 +32,6 @@ namespace SH
   void SampleComposite ::
   testInvariant () const
   {
-    RCU_INVARIANT (this != 0);
     for (SamplesIter sample = m_samples.begin(),
 	   end = m_samples.end(); sample != end; ++ sample)
     {

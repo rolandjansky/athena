@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MooTrackFitter.h"
@@ -205,7 +205,6 @@ namespace Muon {
 
     GarbageCan localGarbage;
     MuPatHitTool::HitGarbage hitsToBeDeleted;
-    MuPatHitTool::ParGarbage parsToBeDeleted;
 
     ++m_nfits;
 
@@ -213,7 +212,7 @@ namespace Muon {
     FitterData fitterData;
 
     // extract hits and geometrical information
-    if( !extractData(entry1,entry2,fitterData, localGarbage, parsToBeDeleted ) ) {
+    if( !extractData(entry1,entry2,fitterData, localGarbage ) ) {
       ATH_MSG_DEBUG(" Failed to extract data for initial fit" );
       localGarbage.cleanUp();
       return std::unique_ptr<Trk::Track>();
@@ -241,7 +240,7 @@ namespace Muon {
 
     // clean phi hits and reevaluate hits. Do not run for cosmics
     bool hasCleaned = m_cleanPhiHits ? cleanPhiHits( startPars->momentum().mag(), fitterData, externalPhiHits,
-                                                     localGarbage, hitsToBeDeleted, parsToBeDeleted ) : true;
+                                                     localGarbage, hitsToBeDeleted ) : true;
     if( hasCleaned ){
       ATH_MSG_DEBUG(" Cleaned phi hits, re-extracting hits" );
       bool usePrecise = m_usePreciseHits ? true : (fitterData.firstHasMomentum || fitterData.secondHasMomentum);
@@ -368,8 +367,8 @@ namespace Muon {
     return track;
   }
 
-  bool MooTrackFitter::extractData( const MuPatCandidateBase& entry1, const MuPatCandidateBase& entry2 , MooTrackFitter::FitterData& fitterData, GarbageCan& garbage,
-                                    MuPatHitTool::ParGarbage& parsToBeDeleted) const {
+bool MooTrackFitter::extractData( const MuPatCandidateBase& entry1, const MuPatCandidateBase& entry2 , MooTrackFitter::FitterData& fitterData, GarbageCan& garbage) const
+{
     // sanity checks on the entries
     if( corruptEntry( entry1 ) ) {
       ATH_MSG_DEBUG(" corrupt first entry,  cannot perform fit: eta hits " << entry1.etaHits().size() );
@@ -413,7 +412,7 @@ namespace Muon {
     copyHitList(entry1.hitList(),fitterData.copyHitList1,garbage);
     copyHitList(entry2.hitList(),fitterData.copyHitList2,garbage);
 
-    if( !m_hitHandler->merge(fitterData.copyHitList1,fitterData.copyHitList2,hitList, parsToBeDeleted) ) return false;
+    if( !m_hitHandler->merge(fitterData.copyHitList1,fitterData.copyHitList2,hitList) ) return false;
 
     bool usePrecise = m_usePreciseHits ? true : (fitterData.firstHasMomentum || fitterData.secondHasMomentum);
     if( msgLvl(MSG::DEBUG) ){
@@ -1933,9 +1932,8 @@ namespace Muon {
 
   bool MooTrackFitter::cleanPhiHits( double momentum, MooTrackFitter::FitterData& fitterData, 
 				     const std::vector<const Trk::PrepRawData*>* patternPhiHits, GarbageCan& garbage,
-                                     MuPatHitTool::HitGarbage& hitsToBeDeleted,
-                                     MuPatHitTool::ParGarbage& parsToBeDeleted) const {
-
+                                     MuPatHitTool::HitGarbage& hitsToBeDeleted) const
+  {
     ATH_MSG_VERBOSE(" cleaning phi hits " );
 
     MeasVec& phiHits = fitterData.phiHits;
@@ -2101,8 +2099,8 @@ namespace Muon {
     if( !measurementsToBeAdded.empty() ){
       if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " adding measurements " << std::endl;
       MuPatHitList newHitList;
-      m_hitHandler->create(fitterData.firstEntry->entryPars(),measurementsToBeAdded,newHitList, hitsToBeDeleted, parsToBeDeleted);
-      m_hitHandler->merge(newHitList,fitterData.hitList, parsToBeDeleted);
+      m_hitHandler->create(fitterData.firstEntry->entryPars(),measurementsToBeAdded,newHitList, hitsToBeDeleted);
+      m_hitHandler->merge(newHitList,fitterData.hitList);
     }
 
     ATH_MSG_VERBOSE(" done cleaning " );
@@ -2640,10 +2638,13 @@ namespace Muon {
     MuPatHitCit it = hitList.begin();
     MuPatHitCit it_end = hitList.end();
     for( ;it!=it_end;++it ){
-      const Trk::TrackParameters* pars = (*it)->parameters().clone();
-      MuPatHit* hit = new MuPatHit( pars, &(*it)->preciseMeasurement(), (*it)->broadMeasurement().clone(), (*it)->info());
+      std::unique_ptr<const Trk::TrackParameters> pars ((*it)->parameters().clone());
+      std::unique_ptr<const Trk::MeasurementBase> broadMeas ( (*it)->broadMeasurement().clone() );
+      MuPatHit* hit = new MuPatHit( std::move(pars),
+                                    &(*it)->preciseMeasurement(),
+                                    std::move (broadMeas),
+                                    (*it)->info());
       copy.insert(copy.end(),hit);
-      garbage.parametersToBeDeleted.push_back(pars);
       garbage.mctbHitsToBeDeleted.push_back(hit);
     }
   }

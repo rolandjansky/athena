@@ -37,17 +37,18 @@ namespace Muon {
 
   //================================================================
   void MuonDecayTruthTrajectoryBuilder::
-  buildTruthTrajectory(TruthTrajectory *result, const HepMC::GenParticle *input) const
+  buildTruthTrajectory(TruthTrajectory *result, HepMC::ConstGenParticlePtr input) const
   {
     result->clear();
     if(input) {
-      const HepMC::GenParticle *next(0), *current = input;
+      HepMC::ConstGenParticlePtr next{nullptr};
+      auto current = input;
       ATH_MSG_DEBUG( " New TruthTrajectory: input: barcode " << HepMC::barcode(input) << " PDG id " << input->pdg_id());
 
       // Extend trajectory outwards.  The last particle should go at [0]
       // in the TruthTrajectory, so we need to use a tmp storage while
       // traversing the structure.
-      std::stack<const HepMC::GenParticle*> tmp;
+      std::stack<HepMC::ConstGenParticlePtr> tmp;
       while((next = getDaughter(current))) {
 	tmp.push(current = next);
       }
@@ -86,32 +87,38 @@ namespace Muon {
 
   //================================================================
   MuonDecayTruthTrajectoryBuilder::MotherDaughter
-  MuonDecayTruthTrajectoryBuilder::truthTrajectoryCuts(const HepMC::GenVertex *vtx) const
+  MuonDecayTruthTrajectoryBuilder::truthTrajectoryCuts(HepMC::ConstGenVertexPtr vtx) const
   {
-    const HepMC::GenParticle *mother(0), *daughter(0);
-
-    if( vtx && msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << " new vertex: nparticles in " << vtx->particles_in_size() << endmsg;
+    HepMC::ConstGenParticlePtr mother{nullptr};
+    HepMC::ConstGenParticlePtr daughter{nullptr};
+#ifdef HEPMC3
+   int particles_in_size = vtx?vtx->particles_in().size():0;
+   int particles_out_size = vtx?vtx->particles_out().size():0;
+#else
+   int particles_in_size = vtx?vtx->particles_in_size():0;
+   int particles_out_size = vtx?vtx->particles_out_size():0;
+#endif
+    if( vtx && msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << " new vertex: nparticles in " << particles_in_size << endmsg;
     // only truth vertices with 1 incoming particle
-    if(vtx && (vtx->particles_in_size() == 1)) {
+    if(vtx && (particles_in_size == 1)) {
 
+#ifdef HEPMC3
+      mother = vtx->particles_in().front();
+#else
       mother = *vtx->particles_in_const_begin();
+#endif
     
-      if( mother && msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << " new mother: " << mother->pdg_id() << " status " << mother->status() << " particles out " << vtx->particles_out_size() << endmsg;
+      if( mother && msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << " new mother: " << mother->pdg_id() << " status " << mother->status() << " particles out " << particles_out_size << endmsg;
       // Allow status code 1 and 2.  E.g. a pion that produced a long track can decay  outside of InDet and have status==2.
       if( mother && (mother->status() < 3) ) {
 	unsigned int nDecayMuons = 0;
-	const HepMC::GenParticle *passed_cuts(0);
-	for(HepMC::GenVertex::particles_in_const_iterator it = vtx->particles_out_const_begin();
-	    it != vtx->particles_out_const_end(); ++it) {
-      
-	  const HepMC::GenParticle *candidate = *it;
-	  const HepMC::GenParticle& par = *candidate;
-        
+	 HepMC::ConstGenParticlePtr passed_cuts{nullptr};
+	for(auto candidate: *vtx) {
 	  if( msgLvl(MSG::DEBUG) ){
-	    msg(MSG::DEBUG) << " PDG ID " << par.pdg_id() << " barcode: " << HepMC::barcode(par) <<  " pt: " << par.momentum().perp(); 
-	    if( par.production_vertex() ) msg(MSG::DEBUG) << " vertices prod: r " << par.production_vertex()->position().perp() 
-							  << " z " << par.production_vertex()->position().z();
-	    if( par.end_vertex() ) msg(MSG::DEBUG) << " end: r " << par.end_vertex()->position().perp() << " z " << par.end_vertex()->position().z();
+	    msg(MSG::DEBUG) << " PDG ID " << candidate->pdg_id() << " barcode: " << HepMC::barcode(candidate) <<  " pt: " << candidate->momentum().perp(); 
+	    if( candidate->production_vertex() ) msg(MSG::DEBUG) << " vertices prod: r " << candidate->production_vertex()->position().perp() 
+							  << " z " << candidate->production_vertex()->position().z();
+	    if( candidate->end_vertex() ) msg(MSG::DEBUG) << " end: r " << candidate->end_vertex()->position().perp() << " z " << candidate->end_vertex()->position().z();
 	    msg(MSG::DEBUG) << endmsg;
 	  }
 
@@ -125,7 +132,7 @@ namespace Muon {
 	    else {
 	      passed_cuts = candidate;
 	    }
-	  }else if( abs(candidate->pdg_id()) == 13 ){
+	  }else if( std::abs(candidate->pdg_id()) == 13 ){
 	    ATH_MSG_DEBUG( " selecting Decay into muon ");
 	    ++nDecayMuons;
 	    passed_cuts = candidate;
@@ -149,9 +156,9 @@ namespace Muon {
   }
 
   //================================================================
-  const HepMC::GenParticle* MuonDecayTruthTrajectoryBuilder::getDaughter(const HepMC::GenParticle* mother) const {
+  HepMC::ConstGenParticlePtr MuonDecayTruthTrajectoryBuilder::getDaughter(HepMC::ConstGenParticlePtr mother) const {
 
-    const HepMC::GenParticle *daughter = 0;
+    HepMC::ConstGenParticlePtr daughter{nullptr};
   
     if(mother) {
 
@@ -166,9 +173,9 @@ namespace Muon {
   }
 
   //================================================================
-  const HepMC::GenParticle* MuonDecayTruthTrajectoryBuilder::getMother(const HepMC::GenParticle* daughter) const {
+  HepMC::ConstGenParticlePtr MuonDecayTruthTrajectoryBuilder::getMother(HepMC::ConstGenParticlePtr daughter) const {
 
-    const HepMC::GenParticle *mother = 0;
+    HepMC::ConstGenParticlePtr mother{nullptr};
 
     if(daughter) {
       MotherDaughter res = truthTrajectoryCuts(daughter->production_vertex());

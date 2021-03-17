@@ -34,6 +34,7 @@
 
 #include <string>
 #include <map>
+#include <memory>
 
 class LArEM_ID;
 class LArOnlineID;
@@ -79,7 +80,7 @@ private:
   const LArHEC_ID*   m_LArHEC_IDHelper;
   const CaloIdManager*       m_caloIdMgr;
 
-  LArOnlineIDStrHelper* m_strHelper;
+  std::unique_ptr<LArOnlineIDStrHelper> m_strHelper;
   ITHistSvc* m_rootStore;
   /** Handle to LArCablingService */
   ToolHandle<LArCablingLegacyService> m_larCablingService;  

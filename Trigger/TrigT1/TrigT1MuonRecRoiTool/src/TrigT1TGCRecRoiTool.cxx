@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1TGCRecRoiTool.h"
@@ -23,7 +23,6 @@ namespace LVL1 {
   
   StatusCode TrigT1TGCRecRoiTool::initialize() {
     ATH_CHECK(m_DetectorManagerKey.initialize());
-    ATH_CHECK( detStore()->retrieve(m_muonMgr) );
     ATH_CHECK( m_idHelperSvc.retrieve() );
     ServiceHandle<ITGCcablingServerSvc> tgcCabGet ("TGCcablingServerSvc", name());
     ATH_CHECK( tgcCabGet.retrieve() );
@@ -286,15 +285,13 @@ namespace LVL1 {
 						       w_asdout->getChannel());
     if (status==false) return;
     
-    const MuonGM::MuonDetectorManager* muonMgr = m_muonMgr;
-    if(m_useConditionData){
-      SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
-      muonMgr = DetectorManagerHandle.cptr(); 
-      if(muonMgr==nullptr){
-	ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object. Use the one from DetectorStore");
-	muonMgr = m_muonMgr;
-      }
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const MuonGM::MuonDetectorManager* muonMgr = DetectorManagerHandle.cptr(); 
+    if(muonMgr==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object.");
+      return;
     }
+  
   
     const MuonGM::TgcReadoutElement* tgcwire
       = muonMgr->getTgcReadoutElement(m_idHelperSvc->tgcIdHelper().parentID(wireId));
@@ -338,15 +335,13 @@ namespace LVL1 {
 						       s_asdout->getChannel());
     if (status==false) return;
 
-    const MuonGM::MuonDetectorManager* muonMgr = m_muonMgr;
-    if(m_useConditionData){
-      SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
-      muonMgr = DetectorManagerHandle.cptr(); 
-      if(muonMgr==nullptr){
-	ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object. Use the one from DetectorStore");
-	muonMgr = m_muonMgr;
-      }
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const MuonGM::MuonDetectorManager* muonMgr = DetectorManagerHandle.cptr(); 
+    if(muonMgr==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object.");
+      return;
     }
+    
   
     const MuonGM::TgcReadoutElement* tgcstrip
       = muonMgr->getTgcReadoutElement(m_idHelperSvc->tgcIdHelper().parentID(stripId));

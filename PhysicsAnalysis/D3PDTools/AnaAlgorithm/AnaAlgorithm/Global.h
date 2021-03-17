@@ -14,7 +14,10 @@ namespace EL
   class AnaAlgorithm;
 
 #ifdef ROOTCORE
+  struct AlgorithmWorkerData;
   class AnaAlgorithmConfig;
+  class AnaAlgorithmWrapper;
+  class IAlgorithmWrapper;
   class IFilterWorker;
   class IHistogramWorker;
   class ITreeWorker;

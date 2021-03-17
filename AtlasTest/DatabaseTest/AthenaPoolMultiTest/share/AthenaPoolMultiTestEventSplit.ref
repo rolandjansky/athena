@@ -43,11 +43,6 @@ Bad.Bad_MakeEve...   INFO Initializing Bad.Bad_MakeEventStreamInfo - package ver
 Bad                  INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Bad_MakeEventStreamInfo','xAODMaker::EventFormatStreamHelperTool/Bad_MakeEventFormat','xAODMaker::FileMetaDataCreatorTool/FileMetaDataCreatorTool','Athena::ThinningCacheTool/ThinningCacheTool_Bad'])
 Bad                  INFO Data output: AthenaPoolMultiTest_Bad.root
 Bad                  INFO I/O reinitialization...
-Stream2.FileMet...   INFO Invalid "/TagInfo" handle
-Stream1.FileMet...   INFO Invalid "/TagInfo" handle
-Stream3.FileMet...   INFO Invalid "/TagInfo" handle
-Others.FileMeta...   INFO Invalid "/TagInfo" handle
-Bad.FileMetaDat...   INFO Invalid "/TagInfo" handle
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 0 run: 0
 Splitter1           DEBUG Trigmask = 1
@@ -60,10 +55,6 @@ Splitter3           DEBUG Trigmask = 1
 Splitter3            INFO L1 failed
 Triggered            INFO EventInfo event: 0 run: 0
 Triggered            INFO L1 passed
-Stream2.FileMet...WARNING No  'StreamName':'Stream2'
-Stream3.FileMet...WARNING No  'StreamName':'Stream3'
-Others.FileMeta...WARNING No  'StreamName':'Others'
-Bad.FileMetaDat...WARNING No  'StreamName':'Bad'
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 1 run: 0
 Splitter1           DEBUG Trigmask = 2

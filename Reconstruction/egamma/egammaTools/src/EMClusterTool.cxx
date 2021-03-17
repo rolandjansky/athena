@@ -144,15 +144,13 @@ EMClusterTool::contExecute(const EventContext& ctx,
   }
   // Now finalize the cluster: based on code in
   // CaloClusterStoreHelper::finalizeClusters
-  auto *sg = outputClusterContainer.storeHandle().get();
   for (xAOD::CaloCluster* cl : *outputClusterContainer) {
-    cl->setLink(outputClusterContainerCellLink.ptr(), sg);
+    cl->setLink(outputClusterContainerCellLink.ptr(), ctx);
   }
 
   if (m_doTopoSeededContainer) {
-    auto *tssg = outputTopoSeededClusterContainer.storeHandle().get();
     for (xAOD::CaloCluster* cl : *outputTopoSeededClusterContainer) {
-      cl->setLink(outputTopoSeededClusterContainerCellLink.ptr(), tssg);
+      cl->setLink(outputTopoSeededClusterContainerCellLink.ptr(), ctx);
     }
   }
 

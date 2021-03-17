@@ -41,6 +41,11 @@ class SensorSimPlanarTool : public SensorSimTool {
     std::vector<TH2F*> m_lorentzMap_e;
     std::vector<TH2F*> m_lorentzMap_h;
 
+    // maps to directly get factor to calculate bin instead of calling FindBin
+    double m_ramo_x_binMap;
+    double m_ramo_y_binMap;
+    double m_ramo_z_binMap;
+
     Gaudi::Property<int> m_numberOfSteps
     {this, "numberOfSteps", 50, "Geant4:number of steps for PixelPlanar"};
 

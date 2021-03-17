@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigParticleTPCnv/TrigL2Bphys_p3.h"
@@ -37,7 +37,7 @@ void TrigL2BphysCnv_p3::persToTrans( const TrigL2Bphys_p3 *persObj,
 
   ElementLinkVector<TrigInDetTrackCollection> trackVector;
   trackELVCnv.persToTrans(&persObj->m_trackVector, &trackVector, log);
-  for (const ElementLink<TrigInDetTrackCollection>& el : trackVector)
+  for (const ElementLink<TrigInDetTrackCollection> el : trackVector)
     transObj->addTrack (el);
 }
  

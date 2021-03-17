@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // L1 objects
@@ -60,7 +60,7 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
   std::vector<MonitorTT> vecMonTT;     // All towers
 
   // Loop over trigger tower container
-  for (const auto& tt : *triggerTowerTES) {
+  for (const xAOD::TriggerTower* tt : *triggerTowerTES) {
    
     // Create the trigger tower objects and calculate scaled phi
     // Fill the required number of phi bins based on tower granularity

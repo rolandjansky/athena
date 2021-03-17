@@ -19,6 +19,7 @@ class ConfiguredxAODTrackParticleCreation:
          #
          from AthenaCommon.AppMgr                import ToolSvc
          from AthenaCommon.AlgSequence           import AlgSequence
+         from InDetRecExample                    import TrackingCommon
          topSequence = AlgSequence()
 
          _perigee_expression=InDetFlags.perigeeExpression()
@@ -30,9 +31,11 @@ class ConfiguredxAODTrackParticleCreation:
               _perigee_expression = 'BeamLine'
 
          #Always the same (so far) so can in principle go in InDetRecLoadTools
+         # @TODO shoueld use InDetxAODParticleCreator.getInDetxAODParticleCreatorTool
          from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
          InDetxAODParticleCreatorTool = Trk__TrackParticleCreatorTool(name = "InDetxAODParticleCreatorTool"+InputTrackCollection,
-                                                                      TrackSummaryTool        = InDetTrackSummaryToolSharedHits,
+                                                                      TrackToVertex           = TrackingCommon.getInDetTrackToVertexTool(),
+                                                                      TrackSummaryTool        = TrackingCommon.getInDetTrackSummaryToolSharedHits(),
                                                                       BadClusterID            = InDetFlags.pixelClusterBadClusterID(),
                                                                       KeepParameters          = True,
                                                                       KeepFirstParameters     = InDetFlags.KeepFirstParameters(),
@@ -42,6 +45,11 @@ class ConfiguredxAODTrackParticleCreation:
          if (InDetFlags.doPrintConfigurables()):
             printfunc (InDetxAODParticleCreatorTool)
 
+         from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackCollectionCnvTool
+         InDetTrackCollectionCnvTool = xAODMaker__TrackCollectionCnvTool("InDetTrackCollectionCnvTool"+InputTrackCollection,
+                                                                         TrackParticleCreator = InDetxAODParticleCreatorTool)
+
+
          from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg
          xAODTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg(name = "InDetxAODParticleCreatorAlg"+InputTrackCollection,
                                                                   ConvertTracks = True,
@@ -49,7 +57,8 @@ class ConfiguredxAODTrackParticleCreation:
                                                                   TrackContainerName = InputTrackCollection,
                                                                   xAODContainerName = OutputTrackParticleContainer,
                                                                   xAODTrackParticlesFromTracksContainerName = OutputTrackParticleContainer,
-                                                                  TrackParticleCreator = InDetxAODParticleCreatorTool)
+                                                                  TrackParticleCreator = InDetxAODParticleCreatorTool,
+                                                                  TrackCollectionCnvTool = InDetTrackCollectionCnvTool)
 
          if (InDetFlags.doTruth() and not InputTrackTruthCollection == ''):
              xAODTrackParticleCnvAlg.AddTruthLink = True

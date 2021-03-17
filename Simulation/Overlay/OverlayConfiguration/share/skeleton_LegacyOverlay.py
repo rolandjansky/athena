@@ -237,6 +237,10 @@ if (MuonGeometryFlags.hasCSC() and DetFlags.overlay.CSC_on()) or DetFlags.overla
 if DetFlags.overlay.LVL1_on():
     include('EventOverlayJobTransforms/Level1Overlay_jobOptions.py')  # noqa F821
 
+# Run calculation of weight for the beam spot size reweighting
+if (digitizationFlags.doBeamSpotSizeReweighting()):
+    include('Digitization/BeamSpotReweight.py')  # noqa F821
+
 # save the overlay output
 include('EventOverlayJobTransforms/OverlayOutput_jobOptions.py')  # noqa F821
 

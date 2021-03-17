@@ -698,7 +698,12 @@ int main(int argc, char** argv) {
   if ( noref==false ) { 
     if ( frefname=="" )  { 
       std::cerr << "main(): ref file not specified " << std::endl;
-      return -1;
+      Plotter::setplotref(false);
+      noref = true;
+      /// leave this commented here - now instead of bombing out if we don't specify the reference file, 
+      /// just carry on as if it was not specified at all, so as this changes the external behaviour 
+      /// of the code we want this retained
+      //       return -1;
     }
     
     if ( frefname==ftestname )    fref_ = ftest_;
@@ -1264,7 +1269,7 @@ int main(int argc, char** argv) {
     std::string plotname = ""; 
 
     for ( size_t i=0 ; i<panel.size() ; i++ ) {
-      
+
       HistDetails histo = panel[i];
 
       std::string xaxis = histo.xtitle();
@@ -1295,8 +1300,8 @@ int main(int argc, char** argv) {
       Plots plots( "", yinfo.trim() );
       plots.clear();
       
-      
-            
+      std::string noreflabel="";
+	              
       double xpos  = 0.18;
       double ypos  = 0.93;
       
@@ -1508,8 +1513,11 @@ int main(int argc, char** argv) {
 	  if ( !noreftmp && hreft==0 ) { 
 	    std::cerr << "missing ref histogram: " << (refchain[j]+" / "+histo.name()) << " " << htest << "(ref)" << std::endl; 
 	    noreftmp = true;
-	    std::exit(-1);
 	    Plotter::setplotref(!noreftmp);
+	    noreflabel="reference not found";
+	    /// leave this code commented here since we want to know where to change this in the future
+	    /// it was added for a reason, so is useful to keep for now  
+	    //	    std::exit(-1);
 	  }
 	      
 	  if ( !noreftmp ) { 
@@ -1571,8 +1579,12 @@ int main(int argc, char** argv) {
 	    if ( hreft==0 ) std::cerr << "missing ref histogram: " << (refchain[j]+" / "+reghist)  
 				      << " " << hreft << std::endl; 
 	    noreftmp = true;
-	    std::exit(-1);
 	    Plotter::setplotref(false);
+	    noreflabel="reference not found";
+	    /// leave this code commented here since we want to know where to change this in the future
+	    /// it was added for a reason, so useful to keep for now  
+	    //	    std::exit(-1);
+
 	  }
 	
 	  if ( hreft!=0 ) { 
@@ -1761,7 +1773,12 @@ int main(int argc, char** argv) {
 
 	if ( !noreftmp && href==0 ) { 
 	  std::cout << "       no ref histogram :    " << (chains[j]+"/"+histo.name()) << std::endl;
-	  continue;
+	  noreftmp = true;
+	  Plotter::setplotref(!noreftmp);
+	  noreflabel="reference not found";
+	  /// again, this changes the external behaviour so we want to leave this "continue" 
+	  /// in place, but commented
+	  //	  continue;
 	}
 
 
@@ -2190,7 +2207,10 @@ int main(int argc, char** argv) {
 
 	    if ( yminset!=yminset ) { 
 	      std::cerr << " range error " << delta << " " << yminset << " " << ymaxset << "\t(" << rmin << " " << rmax << ")" << std::endl;
-	      std::exit(-1);
+	      /// leave this code commented here since we want to know where to change this in the future
+	      /// it was added for a reason, so it is useful to keep for now  
+	      /// std::exit(-1);
+	      continue;
 	    }
 
 	  }
@@ -2346,7 +2366,9 @@ int main(int argc, char** argv) {
 	
 	  plots_eff.Draw( legend_eff );
 	}
-      
+
+	if ( noreflabel!="" ) DrawLabel(0.1, 0.06, noreflabel, kRed, 0.03 );
+
       } // no plots
     
     } /// loop over histograms in panel 

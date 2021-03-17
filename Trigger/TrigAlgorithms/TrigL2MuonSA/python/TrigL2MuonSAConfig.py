@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import TrigL2MuonSA.TrigL2MuonSAConf as MuonSA
 from TrigL2MuonSA.TrigL2MuonSAMonitoring import TrigL2MuonSAMonitoring
@@ -17,8 +17,11 @@ log = logging.getLogger('TrigL2MuonSAConfig')
 
 theStationFitter     = MuonSA.TrigL2MuonSA__MuFastStationFitter(PtFromAlphaBeta = MuonSA.TrigL2MuonSA__PtFromAlphaBeta())
 
+from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConf import LVL1__TrigT1RPCRecRoiTool
+trigRpcRoiTool = LVL1__TrigT1RPCRecRoiTool("RPCRecRoiTool", UseRun3Config=ConfigFlags.Trigger.enableL1Phase1)
+
 theDataPreparator    = MuonSA.TrigL2MuonSA__MuFastDataPreparator()
-theDataPreparator.RPCDataPreparator  = MuonSA.TrigL2MuonSA__RpcDataPreparator( DecodeBS = DetFlags.readRDOBS.RPC_on())
+theDataPreparator.RPCDataPreparator  = MuonSA.TrigL2MuonSA__RpcDataPreparator( DecodeBS = DetFlags.readRDOBS.RPC_on(), TrigT1RPCRecRoiTool = trigRpcRoiTool)
 theDataPreparator.MDTDataPreparator  = MuonSA.TrigL2MuonSA__MdtDataPreparator( DecodeBS = DetFlags.readRDOBS.MDT_on())
 theDataPreparator.TGCDataPreparator  = MuonSA.TrigL2MuonSA__TgcDataPreparator( DecodeBS = DetFlags.readRDOBS.TGC_on())
 theDataPreparator.CSCDataPreparator  = MuonSA.TrigL2MuonSA__CscDataPreparator( DecodeBS = DetFlags.readRDOBS.CSC_on())

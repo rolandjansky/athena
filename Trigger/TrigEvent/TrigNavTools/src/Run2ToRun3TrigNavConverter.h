@@ -41,7 +41,7 @@ private:
 
     SG::ReadHandleKey<xAOD::TrigNavigation> m_trigNavKey { this, "TrigNavReadKey", "TrigNavigation"};
     Gaudi::Property<bool> m_doPrint{ this, "doPrint", true };
-    Gaudi::Property<std::vector<std::string>> m_setConfig{ this, "setConfig", {} };
+    Gaudi::Property<std::vector<std::string>> m_collectionsToSave{ this, "setConfig", {} };
     ServiceHandle< TrigConf::IHLTConfigSvc > m_configSvc { this, "HLTConfigSvc", "HLTConfigSvc", "HLTConfig Service" };
     ServiceHandle<IClassIDSvc> m_clidSvc{ this, "ClassIDSvc", "ClassIDSvc", "Service to translate CLID to class name" };
     SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_trigNavWriteKey { this, "TrigNavWriteKey", "HLTNav_all" };
@@ -51,6 +51,10 @@ private:
     StatusCode addTEfeatures(const HLT::StandaloneNavigation &navigationDecoder, HLT::TriggerElement::FeatureAccessHelper helper, TrigCompositeUtils::Decision *decisionPtr, bool kRoI=false) const;
     const std::vector<HLT::TriggerElement::FeatureAccessHelper> vectorTEfeatures(const HLT::TriggerElement *te_ptr) const;
 
+    CLID m_roIDescriptorCLID;
+    CLID m_roIDescriptorCollectionCLID;
+    const std::vector<HLT::TriggerElement::FeatureAccessHelper> vectorROIfeatures(const HLT::TriggerElement *te_ptr) const;
+    
     using TE_Decision_map = std::map<HLT::TriggerElement*, std::vector<TrigCompositeUtils::Decision*>>;
 };
 

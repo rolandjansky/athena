@@ -41,6 +41,7 @@ class CapacityCheckedCondition: public ICapacityCheckedCondition {
 		const std::unique_ptr<ITrigJetHypoInfoCollector>& c) const override;
   
   virtual unsigned int capacity() const override;
+  virtual std::size_t multiplicity() const override;
   
   virtual std::string toString() const override;
 

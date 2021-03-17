@@ -62,7 +62,7 @@ def TileHitVecToCntToolCfg(flags, **kwargs):
     if kwargs['RndmEvtOverlay']:
         kwargs.setdefault('PileUp', False)
     else:
-        kwargs.setdefault('PileUp', flags.Digitization.Pileup)
+        kwargs.setdefault('PileUp', flags.Digitization.PileUp)
 
     if kwargs['PileUp']:
         PileUpMergeSvc=CompFactory.PileUpMergeSvc
@@ -77,7 +77,7 @@ def TileHitVecToCntToolCfg(flags, **kwargs):
     if flags.Digitization.DoXingByXingPileUp: # PileUpTool approach
         kwargs.setdefault("FirstXing", getTileFirstXing() )
         kwargs.setdefault("LastXing",  getTileLastXing() )
-    elif flags.Digitization.Pileup:
+    elif flags.Digitization.PileUp:
         rangetool = acc.popToolsAndMerge(TileRangeCfg(flags))
         acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
 
@@ -156,7 +156,7 @@ if __name__ == "__main__":
     ConfigFlags.Input.Files = defaultTestFiles.HITS
     ConfigFlags.Output.RDOFileName = 'myRDO.pool.root'
     ConfigFlags.IOVDb.GlobalTag = 'OFLCOND-MC16-SDR-16'
-    ConfigFlags.Digitization.Pileup = False
+    ConfigFlags.Digitization.PileUp = False
 
     ConfigFlags.fillFromArgs()
     ConfigFlags.lock()

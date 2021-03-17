@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( PerfMonAna )
@@ -17,6 +17,5 @@ atlas_install_scripts( bin/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 # Aliases:
 atlas_add_alias( perfgrind "perfgrind.py" )
 atlas_add_alias( pmontree "pmontree.py" )
-atlas_add_alias( perfrtt "perfrtt.py" )
 atlas_add_alias( perfmon "perfmon.py" )
 atlas_add_alias( perf-dpmon "perf-dpmon.py" )

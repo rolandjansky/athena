@@ -8,6 +8,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace TrigConf {
 
@@ -21,7 +22,7 @@ namespace TrigConf {
     *       "1&2&abc", "1|bad|Ab_3", "!a"
     */
    class LogicExpression;
-   typedef std::vector<LogicExpression*> LogicV_t;
+   typedef std::vector<std::shared_ptr<LogicExpression>> LogicV_t;
 
    class LogicExpression {
    public:
@@ -49,17 +50,17 @@ namespace TrigConf {
 
       virtual int parse(const std::string& expr, bool enclosed=false);
       virtual std::string logicRep() const;
-    
+
       void setState(char s) { m_State = s; }
       void setElement(const std::string& e) { m_Element = e; }
       void addSubLogic(const LogicExpression& sub) {
-         m_SubLogics.push_back(new LogicExpression(sub));
+         m_SubLogics.emplace_back(std::make_shared<LogicExpression>(sub));
       }
 
       char                    state()         const { return m_State; }
       std::string             element()       const { return m_Element; }
       const LogicV_t &        subLogics()     const { return m_SubLogics; }
-      const LogicExpression * subLogic(int i) const { return subLogics()[i]; }
+      const std::shared_ptr<LogicExpression> subLogic(int i) const { return subLogics()[i]; }
       bool                    isPlaceHolder() const { return (m_State==kOPEN && m_SubLogics.size()==1); }
 
 

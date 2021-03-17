@@ -69,6 +69,9 @@ class TrigInDetReco(ExecStep):
         chains = '['
         flags = ''
         for i in self.slices:
+            if (i=='L2muonLRT') :
+                chains += "'HLT_mu6_LRT_idperf_l2lrt_L1MU6',"
+                flags += 'doMuonSlice=True;'
             if (i=='muon') :
                 chains += "'HLT_mu6_idperf_L1MU6',"
                 chains += "'HLT_mu24_idperf_L1MU20',"
@@ -200,27 +203,27 @@ class TrigInDetCompStep(RefComparisonStep):
     '''
     Execute TIDAcomparitor for data.root files.
     '''
-    def __init__( self, name='TrigInDetComp', slice=None, args=None, file=None, reference=None ):
+    def __init__( self, name='TrigInDetComp', slice=None, args=None, file=None ):
         super(TrigInDetCompStep, self).__init__(name)
-        if reference is None :
-            self.reference  = file # do we need this any more ??? 
-            self.args  = args + " " + file + "  " + file + " --noref --oldrms "
-        else:
-            self.reference = reference
-            self.args  = args + " " + file + "  " + reference + " --oldrms "
+
+        self.input_file = file    
         self.slice = slice 
         self.auto_report_result = True
         self.required   = True
-
+        self.args = args
         self.executable = 'TIDAcomparitor'
     
 
     def configure(self, test):
+        RefComparisonStep.configure(self, test)
+        if self.reference is None :
+            self.args  = self.args + " " + self.input_file + "  " + self.input_file + " --noref --oldrms "
+        else:
+            self.args  = self.args + " " + self.input_file + "  " + self.reference + " --oldrms "
         self.chains = json_chains( self.slice )
         self.args += " " + self.chains
         print( "\033[0;32mTIDAcomparitor "+self.args+" \033[0m" )
-        super(TrigInDetCompStep, self).configure(test)
-
+        Step.configure(self, test)
 
 
 class TrigInDetCpuCostStep(RefComparisonStep):

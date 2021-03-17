@@ -12,8 +12,6 @@
 // STL includes
 #include <cmath>
 
-// FrameWork includes
-
 // CLHEP includes
 #include "TruthHelper/IsGenerator.h"
 #include "TruthHelper/IsGenStable.h"
@@ -114,7 +112,7 @@ EtaPtFilterTool::~EtaPtFilterTool()
 
 StatusCode EtaPtFilterTool::buildMcAod( const McEventCollection* in,McEventCollection* out )
 {
-  if ( 0 == in || 0 == out ) {
+  if ( !in || !out ) {
     ATH_MSG_ERROR("Invalid pointer to McEventCollection !" << endmsg
 		  << "  in: " << in << endmsg
 		  << " out: " << out);
@@ -168,7 +166,7 @@ StatusCode EtaPtFilterTool::buildMcAod( const McEventCollection* in,McEventColle
 
 StatusCode EtaPtFilterTool::buildGenEvent( const HepMC::GenEvent* in, HepMC::GenEvent* out )
 {
-  if ( 0 == in || 0 == out ) {
+  if (  nullptr == in || nullptr == out ) {
     ATH_MSG_ERROR("Invalid pointer to GenEvent !!" << endmsg
 		  << "  in: " << in << endmsg
 		  << " out: " << out);
@@ -198,7 +196,7 @@ StatusCode EtaPtFilterTool::buildGenEvent( const HepMC::GenEvent* in, HepMC::Gen
 
 bool EtaPtFilterTool::isAccepted( HepMC::ConstGenParticlePtr mc ) const
 {
-  if ( 0 == mc ) {
+  if ( ! mc ) {
     return false;
   }
   
@@ -246,7 +244,7 @@ bool EtaPtFilterTool::isAccepted( HepMC::ConstGenParticlePtr mc ) const
 
 bool EtaPtFilterTool::isAccepted( const HepMC::GenVertex* vtx ) const
 {
-  if ( 0 == vtx ) {
+  if ( !vtx ) {
     return false;
   }
 

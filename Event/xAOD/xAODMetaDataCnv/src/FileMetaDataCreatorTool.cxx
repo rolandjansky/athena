@@ -38,9 +38,7 @@ StatusCode
 
       ATH_CHECK(m_eventStore.retrieve());
       ATH_CHECK(m_metaDataSvc.retrieve());
-
-      ATH_CHECK(m_tagInfoKey.initialize());
-      ATH_CHECK(m_simInfoKey.initialize());
+      ATH_CHECK(m_inputMetaDataStore.retrieve());
 
       // If DataHeader key not specified, try determining it
       if (m_dataHeaderKey.empty()) {
@@ -56,7 +54,7 @@ StatusCode
       incidentSvc->addListener(this, "BeginInputFile", 70);
 
       // Create a fresh object to fill
-      ATH_MSG_DEBUG("Creating new xAOD::FileMetaData object to output");
+      ATH_MSG_DEBUG("Creating new xAOD::FileMetaData object to fill");
       m_info = std::make_unique< xAOD::FileMetaData >();
       m_aux  = std::make_unique< xAOD::FileMetaDataAuxInfo >();
       m_info->setStore(m_aux.get());
@@ -65,7 +63,6 @@ StatusCode
       m_filledNonEvent = false;
       m_filledEvent = false;
 
-
       // Return gracefully:
       return StatusCode::SUCCESS;
     }
@@ -73,17 +70,9 @@ StatusCode
 void
     FileMetaDataCreatorTool::handle(const Incident& inc) {
       // gracefully ignore unexpected incident types
-      if (inc.type() == "BeginInputFile") {
-        if (!updateFromNonEvent().isSuccess()) {
-          ATH_MSG_INFO("Failed to fill FileMetaData with non-event info");
-        }
-      }
-    }
-
-StatusCode
-    FileMetaDataCreatorTool::finalize() {
-      // Nothing to do here
-      return StatusCode::SUCCESS;
+      if (inc.type() == "BeginInputFile")
+        if (!updateFromNonEvent().isSuccess())
+          ATH_MSG_DEBUG("Failed to fill FileMetaData with non-event info");
     }
 
 StatusCode
@@ -102,6 +91,32 @@ StatusCode
     }
 
 StatusCode
+    FileMetaDataCreatorTool::preFinalize() {
+      std::lock_guard lock(m_toolMutex);
+
+      // Remove any existing objects with this key
+      if (!m_metaDataSvc->contains< xAOD::FileMetaData >(m_key)) {
+        auto info = std::make_unique< xAOD::FileMetaData >();
+        auto aux = std::make_unique< xAOD::FileMetaDataAuxInfo >();
+        info->setStore(aux.get());
+        ATH_CHECK(m_metaDataSvc->record(std::move(info), m_key));
+        ATH_CHECK(m_metaDataSvc->record(std::move(aux), m_key + "Aux."));
+      }
+
+      // Replace content in store with content created for this stream
+      auto output = m_metaDataSvc->tryRetrieve< xAOD::FileMetaData >(m_key);
+      if (output) *output = *m_info;
+      else ATH_MSG_DEBUG("cannot copy FileMetaData payload to output");
+
+      return StatusCode::SUCCESS;
+    }
+
+StatusCode
+    FileMetaDataCreatorTool::finalize() {
+      return StatusCode::SUCCESS;
+    }
+
+StatusCode
     FileMetaDataCreatorTool::postExecute() {
       // Lock the tool while working with FileMetaData
       std::lock_guard lock(m_toolMutex);
@@ -116,11 +131,15 @@ StatusCode
       }
 
       // Read xAOD event info
-      auto eventInfo =
-          m_eventStore->tryConstRetrieve< xAOD::EventInfo >(m_eventInfoKey);
-      if (eventInfo) {
+      const xAOD::EventInfo * eventInfo = nullptr;
+      StatusCode sc = StatusCode::FAILURE;
+      if (m_eventStore->contains< xAOD::EventInfo >(m_eventInfoKey))
+        sc = m_eventStore->retrieve(eventInfo, m_eventInfoKey);
+      else if (m_eventStore->contains< xAOD::EventInfo >("Mc" + m_eventInfoKey))
+        sc = m_eventStore->retrieve(eventInfo, "Mc" + m_eventInfoKey);
+      if (eventInfo && sc.isSuccess()) {
         try {
-          ATH_MSG_DEBUG("Valid " << m_eventInfoKey << " handle");
+          ATH_MSG_DEBUG("Retrieved " << m_eventInfoKey);
 
           xAOD::FileMetaData::MetaDataType type = xAOD::FileMetaData::mcProcID;
           const float id = static_cast< float >(eventInfo->mcChannelNumber());
@@ -128,22 +147,23 @@ StatusCode
           if (m_info->setValue(type, id))
             ATH_MSG_DEBUG("setting " << type << " to "<< id);
           else
-            ATH_MSG_WARNING("error setting " << type << " to "<< id);
+            ATH_MSG_INFO("error setting " << type << " to "<< id);
         } catch (std::exception&) {
-          // Probably processing data
-          ATH_MSG_INFO("No xAOD::FileMetaData:mcProcID update from "
-                       << m_eventInfoKey);
+          // Processing data not generated events
+          ATH_MSG_DEBUG("Failed to set " << xAOD::FileMetaData::mcProcID);
         }
       } else {
-        ATH_MSG_WARNING("No " << m_eventInfoKey);
+        ATH_MSG_DEBUG("Failed to retrieve " << m_eventInfoKey
+                     << " => cannot set " << xAOD::FileMetaData::mcProcID);
       }
 
       // Read data header
-      auto dataHeader =
-          m_eventStore->tryConstRetrieve< DataHeader >(m_dataHeaderKey);
-      if (dataHeader) {
+      const DataHeader * dataHeader = nullptr;
+      if (m_eventStore->contains< DataHeader >(m_dataHeaderKey))
+        sc = m_eventStore->retrieve(dataHeader, m_dataHeaderKey);
+      if (dataHeader && sc.isSuccess()) {
         try {
-          ATH_MSG_DEBUG("valid " << m_dataHeaderKey << " handle");
+          ATH_MSG_DEBUG("Retrieved " << m_dataHeaderKey);
 
           xAOD::FileMetaData::MetaDataType type = xAOD::FileMetaData::dataType;
           const std::string tag = dataHeader->getProcessTag();
@@ -151,41 +171,17 @@ StatusCode
           if (m_info->setValue(type, tag))
             ATH_MSG_DEBUG("set " << type << " to "<< tag);
           else
-            ATH_MSG_WARNING("error setting " << type << " to "<< tag);
+            ATH_MSG_INFO("error setting " << type << " to "<< tag);
         } catch (std::exception&) {
-          ATH_MSG_INFO("No xAOD::FileMetaData::dataType update from "
-                       << m_dataHeaderKey);
+          // This is unexpected
+          ATH_MSG_WARNING("Failed to set " << xAOD::FileMetaData::dataType);
         }
       } else {
-        ATH_MSG_WARNING("No " << m_dataHeaderKey);
+        ATH_MSG_DEBUG("Failed to retrieve " << m_dataHeaderKey
+                     << " => cannot set " << xAOD::FileMetaData::dataType);
       }
 
       m_filledEvent = true;
-
-      return StatusCode::SUCCESS;
-    }
-
-StatusCode
-    FileMetaDataCreatorTool::preFinalize() {
-      std::lock_guard lock(m_toolMutex);
-
-      // Create and object if there isn't one already present
-      if (!m_metaDataSvc->contains< xAOD::FileMetaData >(m_key)) {
-        ATH_MSG_DEBUG("Creating new xAOD::FileMetaData object to output");
-        auto info = std::make_unique< xAOD::FileMetaData >();
-        auto aux  = std::make_unique< xAOD::FileMetaDataAuxInfo >();
-        info->setStore(aux.get());
-        ATH_CHECK(m_metaDataSvc->record(std::move(info), m_key));
-        ATH_CHECK(m_metaDataSvc->record(std::move(aux), m_key + "Aux."));
-      }
-
-      // Replace content in store with content created for this stream
-      auto output = m_metaDataSvc->tryRetrieve< xAOD::FileMetaData >(m_key);
-      if (!output) {
-        ATH_MSG_DEBUG("Cannot fill xAOD::FileMetaData output object");
-        return StatusCode::FAILURE;
-      }
-      *output = *m_info;
 
       return StatusCode::SUCCESS;
     }
@@ -205,87 +201,96 @@ StatusCode
       }
 
       // Read TagInfo
-      auto tagInfo = SG::makeHandle(m_tagInfoKey);
-      if (!tagInfo.isValid()) {
-        ATH_MSG_INFO("Invalid \"" << m_tagInfoKey.key() << "\" handle");
-        return StatusCode::SUCCESS;
-      }
+      const IOVMetaDataContainer * tagInfo = nullptr;
+      StatusCode sc = StatusCode::FAILURE;
+      if (m_inputMetaDataStore->contains< IOVMetaDataContainer >(m_tagInfoKey))
+        sc = m_inputMetaDataStore->retrieve(tagInfo, m_tagInfoKey);
+      if (tagInfo && sc.isSuccess()) {
+        for (const auto* payload : *tagInfo->payloadContainer()) {
+          for (const auto& itr : *payload) {
+            const coral::AttributeList& attributeList = itr.second;
+            ATH_CHECK(
+                setString(
+                    attributeList,
+                    "AtlasRelease",
+                    xAOD::FileMetaData::productionRelease));
 
-      for (const auto* payload : *tagInfo->payloadContainer()) {
-        for (const auto& itr : *payload) {
-          const coral::AttributeList& attributeList = itr.second;
-          ATH_CHECK(
-              setString(
-                  attributeList,
-                  "AtlasRelease",
-                  xAOD::FileMetaData::productionRelease));
+            ATH_CHECK(
+                setString(
+                    attributeList,
+                    "AMITag",
+                    xAOD::FileMetaData::amiTag));
 
-          ATH_CHECK(
-              setString(
-                  attributeList,
-                  "AMITag",
-                  xAOD::FileMetaData::amiTag));
+            ATH_CHECK(
+                setString(
+                    attributeList,
+                    "GeoAtlas",
+                    xAOD::FileMetaData::geometryVersion));
 
-          ATH_CHECK(
-              setString(
-                  attributeList,
-                  "GeoAtlas",
-                  xAOD::FileMetaData::geometryVersion));
+            ATH_CHECK(
+                setString(
+                    attributeList,
+                    "IOVDbGlobalTag",
+                    xAOD::FileMetaData::conditionsTag));
 
-          ATH_CHECK(
-              setString(
-                  attributeList,
-                  "IOVDbGlobalTag",
-                  xAOD::FileMetaData::conditionsTag));
+            ATH_CHECK(
+                setFloat(
+                    attributeList,
+                    "beam_energy",
+                    xAOD::FileMetaData::beamEnergy));
 
-          ATH_CHECK(
-              setFloat(
-                  attributeList,
-                  "beam_energy",
-                  xAOD::FileMetaData::beamEnergy));
+            ATH_CHECK(
+                setString(
+                    attributeList,
+                    "beam_type",
+                    xAOD::FileMetaData::beamType));
 
-          ATH_CHECK(
-              setString(
-                  attributeList,
-                  "beam_type",
-                  xAOD::FileMetaData::beamType));
-
-          // only investigate the first IOV
+            // only investigate the first IOV
+            break;
+          }
+          // only investigate the first payload in the container
           break;
         }
-        // only investigate the first payload in the container
-        break;
+      } else {
+        ATH_MSG_DEBUG(
+            "Failed to retrieve " << m_tagInfoKey << " => cannot set:\n\t"
+            << xAOD::FileMetaData::productionRelease << ",\n\t"
+            << xAOD::FileMetaData::amiTag << ",\n\t"
+            << xAOD::FileMetaData::geometryVersion << ",\n\t"
+            << xAOD::FileMetaData::conditionsTag << ",\n\t"
+            << xAOD::FileMetaData::beamEnergy << ", and\n\t"
+            << xAOD::FileMetaData::beamType);
       }
 
       // Read simulation parameters
-      SG::ReadHandle< IOVMetaDataContainer > simInfo(m_simInfoKey);
-      // Bail if the requested folder is not amongst the keys:
-      if (!simInfo.isValid()) {
-        ATH_MSG_INFO("Invalid \"" << m_simInfoKey.key() << "\" handle");
-        return StatusCode::SUCCESS;
-      }
+      const IOVMetaDataContainer * simInfo = nullptr;
+      if (m_inputMetaDataStore->contains< IOVMetaDataContainer >(m_simInfoKey))
+        sc = m_inputMetaDataStore->retrieve(simInfo, m_simInfoKey);
+      if (simInfo && sc.isSuccess()) {
+        for (const CondAttrListCollection* payload : *simInfo->payloadContainer()) {
+          for (const auto& itr : *payload) {
+            const coral::AttributeList& attributeList = itr.second;
 
-      for (const CondAttrListCollection* payload : *simInfo->payloadContainer()) {
-        for (const auto& itr : *payload) {
-          const coral::AttributeList& attributeList = itr.second;
+            ATH_CHECK(
+                setString(
+                    attributeList,
+                    "SimulationFlavour",
+                    xAOD::FileMetaData::simFlavour));
 
-          ATH_CHECK(
-              setString(
-                  attributeList,
-                  "SimulationFlavour",
-                  xAOD::FileMetaData::simFlavour));
+            ATH_CHECK(
+                setBool(
+                    attributeList,
+                    "IsEventOverlayInputSim",
+                    xAOD::FileMetaData::isDataOverlay));
 
-          ATH_CHECK(
-              setBool(
-                  attributeList,
-                  "IsEventOverlayInputSim",
-                  xAOD::FileMetaData::isDataOverlay));
-
-          // only investigate first IOV
-          break;
+            break;  // only investigate first IOV
+          }
+          break;  // only investigate first payload
         }
-        // only investigate first payload
-        break;
+      } else {
+        ATH_MSG_DEBUG("Failed to retrieve " << m_simInfoKey << " => cannot set: "
+                     << xAOD::FileMetaData::simFlavour << ", and "
+                     << xAOD::FileMetaData::isDataOverlay);
       }
 
       // FileMetaData object has been filled with non event info

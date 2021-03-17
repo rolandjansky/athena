@@ -273,8 +273,7 @@ TruthJetFilterTool::addParticle (const HepMC::GenParticle* p,
  * @brief Add a @c GenVertex to a @c GenEvent.
  */
 StatusCode
-TruthJetFilterTool::addVertex (const HepMC::GenVertex* v,
-			       HepMC::GenEvent* ev)
+TruthJetFilterTool::addVertex (const HepMC::GenVertex* v,HepMC::GenEvent* ev)
 {
   // See if this vertex has already been copied.
   HepMC::GenVertex* vnew = ev->barcode_to_vertex (v->barcode());
@@ -318,12 +317,12 @@ bool TruthJetFilterTool::isLeptonFromTau(const HepMC::GenParticle* part) const{
 
   int pdg = part->pdg_id();
 
-  if(abs(pdg) != 11 &&
-     abs(pdg) != 12 &&
-     abs(pdg) != 13 &&
-     abs(pdg) != 14 &&
-     abs(pdg) != 15 &&
-     abs(pdg) != 16) return false; // all leptons including tau.
+  if(std::abs(pdg) != 11 &&
+     std::abs(pdg) != 12 &&
+     std::abs(pdg) != 13 &&
+     std::abs(pdg) != 14 &&
+     std::abs(pdg) != 15 &&
+     std::abs(pdg) != 16) return false; // all leptons including tau.
 
   HepMC::GenVertex* prod = part->production_vertex();
   if(!prod) return false; // no parent.
@@ -333,7 +332,7 @@ bool TruthJetFilterTool::isLeptonFromTau(const HepMC::GenParticle* part) const{
   HepMC::GenVertex::particle_iterator endParent = prod->particles_end(HepMC::parents);
   for(;itrParent!=endParent; ++itrParent){
     int parentId = (*itrParent)->pdg_id();
-    if(abs(parentId) == 15) {
+    if(std::abs(parentId) == 15) {
       ATH_MSG_DEBUG("Particle with pdgId = " << pdg << ", matched to tau");
       return true; // Has tau parent
     }
@@ -358,13 +357,12 @@ bool TruthJetFilterTool::isLeptonFromTau(const HepMC::GenParticle* part) const{
 bool
 TruthJetFilterTool::acceptParticle (const HepMC::GenParticle* p)
 {
-	bool ok = false;
-
+  bool ok = false;
   int pdg_id = std::abs (p->pdg_id());
   int status = p->status();
-  int barcode = p->barcode();
+  int barcode = HepMC::barcode(p);
 
-	if (p->barcode() > GEANTMIN && !m_writeGeant)
+	if (barcode > GEANTMIN && !m_writeGeant)
 		return false;
 
 	if (m_excludeWZdecays) {

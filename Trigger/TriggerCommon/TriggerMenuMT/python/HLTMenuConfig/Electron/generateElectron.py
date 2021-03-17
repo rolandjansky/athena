@@ -44,7 +44,7 @@ def generateChains(flags, chainDict):
                                                               RoITool         = CompFactory.ViewCreatorInitialROITool(),
                                                               InViewRoIs      = name+'RoIs',
                                                               Views           = name+'Views',
-                                                              ViewNodeName    = name+"InView",
+                                                              ViewNodeName    = 'FastElectronInView',
                                                               RequireParentView = True)
         del name
 

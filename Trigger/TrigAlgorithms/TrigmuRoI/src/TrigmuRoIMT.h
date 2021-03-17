@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMUROI_TRIGMUROIMT_H
 #define TRIGMUROI_TRIGMUROIMT_H
 
-#include "TrigT1Interfaces/RecMuonRoiSvc.h"
+#include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
 #include "TrigMuonToolInterfaces/ITrigMuonRoITool.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
@@ -23,8 +23,8 @@ class TrigmuRoIMT : public AthReentrantAlgorithm
    private:
    
       ToolHandle<ITrigMuonRoITool> m_trigMuonRoITool{this, "RoITool", "TrigMuonRoITool"};
-      ServiceHandle<LVL1::RecMuonRoiSvc> m_recRPCRoiSvc;
-      ServiceHandle<LVL1::RecMuonRoiSvc> m_recTGCRoiSvc;
+      ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_recRPCRoiTool{this, "RPCRecMuonRoiTool", "LVL1::TrigT1RPCRecRoiTool"};
+      ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_recTGCRoiTool{this, "TGCRecMuonRoiTool", "LVL1::TrigT1TGCRecRoiTool"};
 
       SG::WriteHandleKey<TrigRoiDescriptorCollection> m_roisWriteHandleKey {this,"RoisWriteHandleKey","Unspecified", "Output collection of RoIs"};
 

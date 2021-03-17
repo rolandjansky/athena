@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondAlg/MdtCalibDbAlg.h"
@@ -894,7 +894,7 @@ StatusCode MdtCalibDbAlg::loadTube(const MuonGM::MuonDetectorManager* muDetMgr){
       // sMDT chambers in the inner barrel layers (BI), so skip them for now until a DB is in place
       if (m_idHelperSvc->issMdt(chId) && name.find("BI")!=std::string::npos) {
         ATH_MSG_WARNING("Currently no entry for "<<name<<" sMDT chambers (eta="<<ieta<<") in database, skipping...");
-        return StatusCode::SUCCESS;
+        continue;
       }
       else {
         ATH_MSG_ERROR( "Pre-existing MdtTubeCalibContainer for chamber ID " <<chId<< " size ("<<size<<") does not match the one found in DB ("<<ntubes<<")");

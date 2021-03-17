@@ -18,7 +18,7 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
@@ -204,9 +204,6 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
     timeJitterDetector = timeJitter(inAngle_time);
   }
 
-  //float timeJitterElectronicsStrip = CLHEP::RandGauss::shoot(m_engine, 0, m_timeJitterElectronicsStrip);
-  //float timeJitterElectronicsPad = CLHEP::RandGauss::shoot(m_engine, 0, m_timeJitterElectronicsPad);
-
   //const float stripPropagationTime = 3.3*CLHEP::ns/CLHEP::m * detEl->distanceToReadout(posOnSurf_strip, elemId); // 8.5*ns/m was used until MC10. 
   const float stripPropagationTime = 0.; // 8.5*ns/m was used until MC10. 
 
@@ -280,7 +277,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
 
   //************************************ spread charge among readout element ************************************** 
   //spread charge to a gaussian distribution
-  float charge_width = CLHEP::RandGauss::shoot(m_engine, m_GausMean, m_GausSigma);
+  float charge_width = CLHEP::RandGaussZiggurat::shoot(m_engine, m_GausMean, m_GausSigma);
   float norm = 0.5*total_charge/(charge_width*std::sqrt(2.*M_PI)); // each readout plane reads about half the total charge produced on the wire
   TF1 *charge_spread = new TF1("fgaus", "gaus(0)", -1000., 1000.); 
   charge_spread->SetParameters(norm, posOnSurf_strip.x(), charge_width);
@@ -305,7 +302,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
         float xmax = locpos.x() + stripHalfWidth;
         float xmin = locpos.x() - stripHalfWidth;
         float charge = charge_spread->Integral(xmin, xmax);
-        charge = CLHEP::RandGauss::shoot(m_engine, charge, m_ChargeSpreadFactor*charge);
+        charge = CLHEP::RandGaussZiggurat::shoot(m_engine, charge, m_ChargeSpreadFactor*charge);
 
           addDigit(digits.get(),newId, bctag, sDigitTimeStrip, charge, channelType);
           //************************************** introduce cross talk ************************************************
@@ -334,7 +331,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
         float xmax = locpos.x() + stripHalfWidth;
         float xmin = locpos.x() - stripHalfWidth;
         float charge = charge_spread->Integral(xmin, xmax);
-        charge = CLHEP::RandGauss::shoot(m_engine, charge, m_ChargeSpreadFactor*charge);
+        charge = CLHEP::RandGaussZiggurat::shoot(m_engine, charge, m_ChargeSpreadFactor*charge);
 
           addDigit(digits.get(),newId, bctag, sDigitTimeStrip, charge, channelType);
 

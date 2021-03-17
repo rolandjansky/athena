@@ -1,18 +1,12 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( Sherpa_i )
 
-# Set the version of Sherpa to use:
-#set( SHERPA_VERSION 2.2.2 )
-#set( SHERPA_ROOT
-#   ${LCG_RELEASE_DIR}/MCGenerators/sherpa/${SHERPA_VERSION}/${ATLAS_PLATFORM} )
-
 # External dependencies:
 find_package( CLHEP )
-find_package( Sherpa COMPONENTS SherpaTools )
-
-# Sherpa is linked against HepMC3, so set that up for the runtime environment.
+find_package( OpenLoops )
+find_package( Sherpa COMPONENTS SherpaTools SherpaInitialization )
 find_package( hepmc3 )
 
 # Remove the --as-needed linker flags:
@@ -25,9 +19,13 @@ atlas_add_component( Sherpa_i
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}  ${SHERPA_INCLUDE_DIRS}
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib ${SHERPA_LIBRARIES} GaudiKernel GeneratorModulesLib TruthUtils AthenaBaseComps AthenaKernel )
 
-# Install files from the package:
+# Install file(s) from the package.
 atlas_install_headers( Sherpa_i )
-
-# Install JOs common fragments from the package share directory
 atlas_install_joboptions( share/common/*.py )
+atlas_install_python_modules( python/sherpaTarCreator)
+atlas_install_scripts( python/*.py )
 
+# Set (a) Sherpa specific environment variable(s).
+set( SherpaEnvironment_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+   CACHE PATH "Location of SherpaEnvironment.cmake" )
+find_package( SherpaEnvironment )

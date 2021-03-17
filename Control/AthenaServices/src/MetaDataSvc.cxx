@@ -649,40 +649,23 @@ void MetaDataSvc::recordHook(const std::type_info& typeInfo) {
 
   CLID itemID = 0;
   if (m_classIDSvc->getIDOfTypeInfoName(typeName, itemID).isSuccess()) {
-
-    ATH_MSG_DEBUG("MetaDataSvc will handle ClassID " << itemID);
-    auto it =  m_handledClasses.find(itemID);
-
-    if (it == m_handledClasses.end())
-      m_handledClasses[itemID] = 1;
-    else
-      (it->second)++;
-
+    auto result =  m_handledClasses.insert(itemID);
+    if (result.second)
+      ATH_MSG_DEBUG("MetaDataSvc will handle " << typeName
+                    << " ClassID: " << itemID);
   }
-
 }
 
 void MetaDataSvc::removeHook(const std::type_info& typeInfo) {
   const std::string& typeName = System::typeinfoName(typeInfo);
-  ATH_MSG_VERBOSE("Handling removal of event of type " << typeName);
+  ATH_MSG_VERBOSE("Handling removal event of type " << typeName);
 
   CLID itemID = 0;
-  // use Gaudi::System to get type name
   if (m_classIDSvc->getIDOfTypeInfoName(typeName, itemID).isSuccess()) {
-
-    ATH_MSG_DEBUG("MetaDataSvc will handle ClassID " << itemID);
-    auto it =  m_handledClasses.find(itemID);
-
-    if (it == m_handledClasses.end())
-      return;
-
-    (it->second)--;
-
-    if (it->second == 0)
-      m_handledClasses.erase(it);
-
+    if (0 < m_handledClasses.erase(itemID))
+      ATH_MSG_DEBUG("MetaDataSvc will no longer handle " << typeName
+                    << " ClassID: " << itemID);
   }
-
 }
 
 

@@ -16,8 +16,7 @@
 #include "./IConditionMT.h"
 
 #include <string>
-#include <limits>
-// #include <memory>
+
 
 namespace HypoJet{
   class IJet;
@@ -44,8 +43,9 @@ class HTConditionFastReduction: public IConditionMT{
  private:
   
   double m_htMin;
-  
-  const static  unsigned int s_capacity{std::numeric_limits<int>::max()};
+
+  // number of jets unspecified - signalled by 0.
+  const static  unsigned int s_capacity{0};
   
   
 };

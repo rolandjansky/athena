@@ -1,14 +1,16 @@
 --- data
-Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
-Py:ConfigurableDb    INFO Read module info for 4747 configurables from 2 genConfDb files
+Py:Athena            INFO using release [WorkDir-22.0.26] [x86_64-centos7-gcc8-opt] [upgrade/3ed427b] -- built on [2021-01-22T0907]
+Py:ConfigurableDb    INFO Read module info for 5475 configurables from 14 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
-EventInfoMgtInit: Got release version  sss-rel_0
+EventInfoMgtInit: Got release version  Athena-22.0.26
 Py:IOVDbSvc.CondDB    INFO Setting up conditions DB access to instance OFLP200
-Py:Athena            INFO Obtaining metadata of auto-configuration by peeking into /home/sss/nobackup/referencefiles/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
+Py:AutoConfigFlags    INFO Obtaining metadata of auto-configuration by peeking into /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
+Py:MetaReader        INFO Current mode used: peeker
+Py:MetaReader        INFO Current filenames: ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1']
 Py:ComponentAccumulator    INFO Condition Algorithms
 Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
-Py:ComponentAccumulator    INFO      * Load: [('AthenaAttributeList', '/TRIGGER/LUMI/LBLB')]
+Py:ComponentAccumulator    INFO      * Load: [['AthenaAttributeList', '/TRIGGER/LUMI/LBLB']] set
 Py:ComponentAccumulator    INFO  \__ LBDurationCondAlg (cond alg)
-Py:ComponentAccumulator    INFO      * LBDurationOutputKey: LBDurationCondData
-Py:ComponentAccumulator    INFO      * LBLBFolderInputKey: /TRIGGER/LUMI/LBLB
-IOVDbSvc: ['/TRIGGER/LUMI/LBLB<db>COOLONL_TRIGGER/CONDBR2</db>']
+Py:ComponentAccumulator    INFO      * LBDurationOutputKey: LBDurationCondData set
+Py:ComponentAccumulator    INFO      * LBLBFolderInputKey: /TRIGGER/LUMI/LBLB set
+IOVDbSvc: ['<db>COOLONL_TRIGGER/CONDBR2</db> /TRIGGER/LUMI/LBLB']

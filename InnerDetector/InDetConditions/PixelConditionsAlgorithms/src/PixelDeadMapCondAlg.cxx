@@ -88,8 +88,8 @@ StatusCode PixelDeadMapCondAlg::execute(const EventContext& ctx) const {
           int moduleHash   = std::atoi(moduleStringHash[1].c_str());
           int moduleStatus = std::atoi(moduleString[1].c_str());
 
-          if (moduleStatus<0) { writeCdo->setModuleStatus(moduleHash, 1); }
-          else                { writeCdo->setChipStatus(moduleHash, moduleStatus); }
+          if (moduleStatus==0) { writeCdo->setModuleStatus(moduleHash, 1); }
+          else                 { writeCdo->setChipStatus(moduleHash, moduleStatus); }
         }
       }
     }

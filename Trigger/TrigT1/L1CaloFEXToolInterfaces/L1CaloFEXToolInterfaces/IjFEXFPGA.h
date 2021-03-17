@@ -38,6 +38,9 @@ Interface definition for jFEXFPGA
     virtual void reset() = 0;
 
     virtual int ID() = 0;
+    
+    virtual uint32_t formSmallRJetTOB(int &, int &) =0;
+    virtual std::vector<uint32_t> getjTOBs() = 0;
 
     virtual void SetTowersAndCells_SG(int [][17]) = 0;
     virtual void SetTowersAndCells_SG(int [][24]) = 0;

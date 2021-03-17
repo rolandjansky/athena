@@ -11,12 +11,16 @@ from AthenaCommon.Logging import logging
 from egammaAlgs import egammaAlgsConf
 from egammaRec import egammaKeys
 from egammaRec.Factories import AlgFactory
-from egammaTools.egammaExtrapolators import egammaExtrapolator
+from egammaTools.egammaExtrapolators import egammaExtrapolator,AtlasPublicExtrapolator
 # default configuration of the EMBremCollectionBuilder
 from InDetRecExample.InDetJobProperties import InDetFlags
 from InDetRecExample.InDetKeys import InDetKeys
 from RecExConfig.RecFlags import rec
 
+def AtlasTrackToVertexTool(name="AtlasTrackToVertexTool",**kwargs) :
+    # @TODO switch to egammaExtrapolator ?
+    kwargs.setdefault("Extrapolator",AtlasPublicExtrapolator())
+    return TrackingCommon.getInDetTrackToVertexTool(name, **kwargs)
 
 class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
     __slots__ = ()
@@ -115,6 +119,7 @@ class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
         GSFBuildInDetParticleCreatorTool = Trk__TrackParticleCreatorTool(
             name="GSFBuildInDetParticleCreatorTool",
             KeepParameters=True,
+            TrackToVertex=AtlasTrackToVertexTool(),
             UseTrackSummaryTool=False)
         #
         #  Track slimming (private not in ToolSvc)

@@ -326,6 +326,7 @@ unsigned int TrigCaloDataAccessSvc::lateInit() { // non-const this thing
   vrodid32lar.insert(vrodid32lar.end(),vrodid32fcalhad.begin(),vrodid32fcalhad.end());
   vrodid32lar.insert(vrodid32lar.end(),vrodid32fcalem.begin(),vrodid32fcalem.end());
   m_vrodid32fullDet.insert(m_vrodid32fullDet.end(), vrodid32lar.begin(), vrodid32lar.end() );
+  
 
   unsigned int nFebs=70;
   unsigned int high_granu = (unsigned int)ceilf(m_vrodid32fullDet.size()/((float)nFebs) );
@@ -383,6 +384,7 @@ unsigned int TrigCaloDataAccessSvc::lateInit() { // non-const this thing
   m_mbts_add_rods.insert(m_mbts_add_rods.end(),(*m_mbts_rods).begin(),(*m_mbts_rods).end());
   sort(m_mbts_add_rods.begin(),m_mbts_add_rods.end());
   m_mbts_add_rods.erase(std::unique(m_mbts_add_rods.begin(),m_mbts_add_rods.end()),m_mbts_add_rods.end());
+  TileROD_Decoder::D0CellsHLT* d0cellsp = new TileROD_Decoder::D0CellsHLT();
   for(unsigned int lcidx=0; lcidx < tilecell->size(); lcidx++){
           TileCellCollection* lcc = tilecell->at(lcidx);
           unsigned int lccsize = lcc->size();
@@ -390,10 +392,17 @@ unsigned int TrigCaloDataAccessSvc::lateInit() { // non-const this thing
                   CaloCell* cell = ((*lcc).at(lccidx));
                   if ( cell ) local_cell_copy.push_back( cell );
           } // end of loop over cells
+	  TileRawChannelCollection::ID frag_id = ((*lcc).identify() & 0x0FFF);
+	  int ros = (frag_id >> 8);
+	  if ( ros == 1 ) { //treatment for d0Cells in barrel
+	    int drawer = (frag_id & 0xFF);
+	    TileCellCollection::iterator pCell = lcc->begin();
+	    pCell+=2;
+	    d0cellsp->cells[drawer] = *pCell;
+	  }
   } // end of loop over collection
 
   // d0merge cells
-  TileROD_Decoder::D0CellsHLT* d0cellsp = new TileROD_Decoder::D0CellsHLT();
   cache->d0cells = d0cellsp;
 
   // For the moment the container has to be completed by hand (again, because of tile)

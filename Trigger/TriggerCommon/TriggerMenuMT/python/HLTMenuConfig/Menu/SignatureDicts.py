@@ -261,7 +261,7 @@ MuonChainParts_Default = {
 # Bphysics
 #==========================================================
 AllowedTopos_Bphysics = [
-    'bJpsimumu','bUpsimumu','bBmumu','bDimu','bDimu2700','bPhi','bTau','bJpsimumul2io',
+    'bJpsimumu','bJpsi','bUpsimumu','bUpsi','bBmumu','bDimu','bDimu2700','bDimu6000','bPhi','bTau','bJpsimumul2io',
     'bBmumux','BpmumuKp','BcmumuPi','BsmumuPhi','BdmumuKst','LbPqKm'
 ]
 
@@ -664,7 +664,7 @@ StreamingChainParts = {
     'threshold'      : '',
     'multiplicity'   : '',
     'streamingInfo'  : ['bkg', 'idmon', 'mb', 'eb', 'zb','to','standby',
-                        'hltpassthrough', 'jettauetmiss', 'larcells', 
+                        'jettauetmiss', 'larcells', 
                         'cosmiccalo', 'cosmicmuons','idcosmic', 'dcmmon',
                         'zb', 'l1calo', 'l1topo','ftk'],
     'trigType'       : 'streamer', 
@@ -683,7 +683,7 @@ StreamingChainParts_Default = {
     'L1threshold'    : '',
     'threshold'      : '',
     'multiplicity'   : '',
-    'streamingInfo'  : 'hltpassthrough',
+    'streamingInfo'  : '',
     'trigType'       : '', 
     'extra'          : '',
     'streamType'     : '',
@@ -719,7 +719,7 @@ CalibChainParts = {
     'threshold'      : '',
     'multiplicity'   : '',
     'trigType'       : ['trk'], 
-    'extra'          : ['rerun','bs',''],
+    'extra'          : ['bs',''],
     'sigFolder'     : 'CalibCosmicMon',
     'subSigs'       : ['Calib']
     }

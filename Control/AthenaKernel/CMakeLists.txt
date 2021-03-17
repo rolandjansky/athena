@@ -1,15 +1,14 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthenaKernel )
 
 # External dependencies:
-find_package( Boost COMPONENTS program_options regex filesystem thread )
+find_package( Boost COMPONENTS regex filesystem thread )
 find_package( UUID )
 find_package( CLHEP )
 find_package( TBB )
-find_package( nlohmann_json )
-# Only link agains the RT library if it's available.
+# Only link against the RT library if it's available.
 find_library( RT_LIBRARY rt )
 if( NOT RT_LIBRARY )
    unset( RT_LIBRARY )
@@ -21,7 +20,7 @@ atlas_add_library( AthenaKernel
    PUBLIC_HEADERS AthenaKernel
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${UUID_INCLUDE_DIRS} 
    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} ${UUID_LIBRARIES} ${RT_LIBRARY} CxxUtils DataModelRoot GaudiKernel nlohmann_json::nlohmann_json
+   LINK_LIBRARIES ${Boost_LIBRARIES} ${UUID_LIBRARIES} ${RT_LIBRARY} CxxUtils DataModelRoot GaudiKernel
    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} ${CMAKE_DL_LIBS} RootUtils )
 
 atlas_add_dictionary( AthenaKernelDict

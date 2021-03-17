@@ -149,16 +149,10 @@ def PixelConfigCondAlg_MC():
     ############################################################################################
     # Set up Pixel Module data (2018 condition)
     ############################################################################################
-    from IOVDbSvc.CondDB import conddb
 
     #################
     # Module status #
     #################
-    useNewDeadmapFormat = False
-    if not useNewDeadmapFormat:
-        if not (conddb.folderRequested("/PIXEL/PixMapOverlay") or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):
-            conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapOverlay","/PIXEL/PixMapOverlay", className='CondAttrListCollection')
-
     from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
     alg = PixelConfigCondAlg(name="PixelConfigCondAlg")
 
@@ -384,9 +378,6 @@ def PixelConfigCondAlg_MC():
 
     alg.CablingMapFileName=IdMapping()
 
-    if useNewDeadmapFormat:
-        alg.ReadDeadMapKey = ''
-
     return alg
 
 def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
@@ -401,18 +392,22 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     if not hasattr(condSeq, 'PixelConfigCondAlg'):
         condSeq += PixelConfigCondAlg_MC()
 
-    useNewDeadmapFormat = False
     useNewChargeFormat  = False
 
     ############################################################################################
     # Set up Conditions DB
     ############################################################################################
-    if useNewDeadmapFormat:
-        if not conddb.folderRequested("/PIXEL/PixelModuleFeMask"):
-            conddb.addFolder("PIXEL_OFL", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
-        if not hasattr(condSeq, "PixelDeadMapCondAlg"):
-            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
-            condSeq += PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
+    if not conddb.folderRequested("/PIXEL/PixelModuleFeMask"):
+        conddb.addFolder("PIXEL_OFL", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
+        # TODO: Once new global tag is updated, this line should be removed. (Current MC global tag is too old!!! (before RUN-2!!!))
+        if (globalflags.DataSource=='data' and conddb.dbdata == 'CONDBR2'):  # for data overlay
+            conddb.addOverride("/PIXEL/PixelModuleFeMask","PixelModuleFeMask-RUN2-DATA-UPD4-05")
+        else:
+            conddb.addOverride("/PIXEL/PixelModuleFeMask","PixelModuleFeMask-SIM-MC16-000-03")
+
+    if not hasattr(condSeq, "PixelDeadMapCondAlg"):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
+        condSeq += PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
 
     if not hasattr(condSeq, "PixelDCSCondStateAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStateAlg

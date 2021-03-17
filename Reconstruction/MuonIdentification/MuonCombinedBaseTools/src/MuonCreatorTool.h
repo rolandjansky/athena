@@ -122,7 +122,7 @@ namespace MuonCombined {
     Trk::Track* createDummyTrack( std::vector<const Muon::MuonSegment*> segments, const Trk::Track& indetTrack ) const;
     void setMuonHitCounts( xAOD::Muon& muon ) const;
 
-    bool dressMuon(  xAOD::Muon& muon ) const;
+    bool dressMuon(  xAOD::Muon& muon, const xAOD::MuonSegmentContainer* segments ) const;
 
     void addEnergyLossToMuon( xAOD::Muon& muon ) const;
 
@@ -142,7 +142,7 @@ namespace MuonCombined {
     void addRpcTiming( xAOD::Muon& muon ) const;
     void addMSIDScatteringAngles(xAOD::Muon& muon) const;
     void addMSIDScatteringAngles(const xAOD::TrackParticle& track) const;
-    void addSegmentsOnTrack( xAOD::Muon& muon ) const;
+    void addSegmentsOnTrack( xAOD::Muon& muon, const xAOD::MuonSegmentContainer* segments ) const;
     void addAlignmentEffectsOnTrack( xAOD::TrackParticleContainer* trkCont ) const;
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};

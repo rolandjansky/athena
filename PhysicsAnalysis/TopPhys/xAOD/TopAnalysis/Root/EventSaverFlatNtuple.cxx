@@ -385,10 +385,9 @@ namespace top {
     }
 
     if (m_config->useLargeRJets()) {
-      for (const std::pair<std::string, std::string>& taggerName : m_config->boostedJetTaggers())
+      for (const std::pair<std::string, std::string>& taggerName : m_config->boostedJetTaggers()) {
         m_boostedJetTaggersNames.push_back(taggerName.first + "_" + taggerName.second);
-      for (const std::pair<std::string, std::string>& taggerSF : m_config->boostedTaggerSFnames())
-        m_boostedJetTaggersNamesCalibrated.push_back(taggerSF.first);
+      }
     }
 
     if (m_config->useJets()) {
@@ -1075,7 +1074,7 @@ namespace top {
         systematicTree->makeOutputVariable(m_ljet_e, "ljet_e");
         systematicTree->makeOutputVariable(m_ljet_m, "ljet_m");
 
-	for (const std::pair<std::string,std::string>& it : m_config->largeRJetSubstructureVariables()) {
+	for (const auto& it : m_config->largeRJetSubstructureVariables()) {
 	  systematicTree->makeOutputVariable(m_ljet_substructure[it.first],"ljet_"+it.first);
 	} 
 
@@ -1085,7 +1084,7 @@ namespace top {
 
         if (m_config->isMC()) {
           systematicTree->makeOutputVariable(m_ljet_truthLabel, "ljet_truthLabel");
-          for (const std::string& taggerName : m_boostedJetTaggersNamesCalibrated) {
+          for (const std::string& taggerName : m_boostedJetTaggersNames) {
             systematicTree->makeOutputVariable(m_ljet_tagSF[taggerName], "ljet_tagSF_" + taggerName);
           }
         }
@@ -3189,16 +3188,18 @@ namespace top {
       m_ljet_e.resize(nLargeRJets);
       m_ljet_m.resize(nLargeRJets);
 
-      for (const std::pair<std::string,std::string>& it : m_config->largeRJetSubstructureVariables()) {
-	m_ljet_substructure[it.first].resize(nLargeRJets);
+      for (const auto& it : m_config->largeRJetSubstructureVariables()) {
+        m_ljet_substructure[it.first].resize(nLargeRJets);
       }
 
-      for (const std::string& taggerName : m_boostedJetTaggersNames)
+      for (const std::string& taggerName : m_boostedJetTaggersNames) {
         m_ljet_isTagged[taggerName].resize(nLargeRJets);
+      }
       if (m_config->isMC()) {
         m_ljet_truthLabel.resize(nLargeRJets);
-        for (const std::string& taggerName : m_boostedJetTaggersNamesCalibrated)
+        for (const std::string& taggerName : m_boostedJetTaggersNames) {
           m_ljet_tagSF[taggerName].resize(nLargeRJets);
+        }
       }
 
       for (const auto* const jetPtr : event.m_largeJets) {
@@ -3208,21 +3209,24 @@ namespace top {
         m_ljet_e[i] = jetPtr->e();
         m_ljet_m[i] = jetPtr->m();
 
-	    for (const std::pair<std::string,std::string>& it : m_config->largeRJetSubstructureVariables()) {
-	      m_ljet_substructure[it.first][i] = jetPtr->isAvailable<float>(it.second) ? jetPtr->auxdata<float>(it.second) : -999;
-	    }
-
-        for (const std::string& taggerName : m_boostedJetTaggersNames) {
-          m_ljet_isTagged[taggerName][i] = jetPtr->getAttribute<char>("isTagged_" + taggerName);
+        for (const auto& it : m_config->largeRJetSubstructureVariables()) {
+          m_ljet_substructure[it.first][i] = jetPtr->isAvailable<float>(it.second) ? jetPtr->auxdata<float>(it.second) : -999;
         }
 
-        if (m_config->isMC()) {
-          m_ljet_truthLabel[i] = jetPtr->auxdata<int>("R10TruthLabel_R21Consolidated");
-          for (const std::pair<std::string, std::string>& tagSF : m_config->boostedTaggerSFnames()) {
-            m_ljet_tagSF[tagSF.first][i] = jetPtr->auxdata<float>(tagSF.second);
+        for (const std::pair<std::string, std::string>& taggerName : m_config->boostedJetTaggers()) {
+          const std::string decorationNameTag = taggerName.second+"_Tagged";
+          const std::string decorationNameSF = taggerName.second+"_SF";
+          const std::string tagger = taggerName.first+"_"+taggerName.second;
+          m_ljet_isTagged[tagger][i] = jetPtr->getAttribute<bool>(decorationNameTag);
+          if (m_config->isMC()) {
+            m_ljet_truthLabel[i] = jetPtr->auxdata<int>("R10TruthLabel_R21Consolidated");
+            if (jetPtr->isAvailable<float>(decorationNameSF)) {
+              m_ljet_tagSF[tagger][i] = jetPtr->auxdata<float>(decorationNameSF);
+            } else {
+              m_ljet_tagSF[tagger][i] = -9999;
+            }
           }
         }
-
         ++i;
       }
     }
@@ -4295,7 +4299,7 @@ namespace top {
       m_el_true_type.resize(plEvent.m_electrons->size());
       m_el_true_origin.resize(plEvent.m_electrons->size());
 
-      for (const auto& elPtr : *plEvent.m_electrons) {
+      for (const auto *elPtr : *plEvent.m_electrons) {
         m_el_pt[i] = elPtr->pt();
         m_el_eta[i] = elPtr->eta();
         m_el_phi[i] = elPtr->phi();
@@ -4337,7 +4341,7 @@ namespace top {
       m_mu_true_type.resize(plEvent.m_muons->size());
       m_mu_true_origin.resize(plEvent.m_muons->size());
 
-      for (const auto& muPtr : *plEvent.m_muons) {
+      for (const auto *muPtr : *plEvent.m_muons) {
         m_mu_pt[i] = muPtr->pt();
         m_mu_eta[i] = muPtr->eta();
         m_mu_phi[i] = muPtr->phi();
@@ -4381,7 +4385,7 @@ namespace top {
           m_softmu_c_hadron_parent_pdgid.resize(plEvent.m_softmuons->size());
         }
         
-        for (const auto& muPtr : *plEvent.m_softmuons) {
+        for (const auto *muPtr : *plEvent.m_softmuons) {
           m_softmu_pt[i] = muPtr->pt();
           m_softmu_eta[i] = muPtr->eta();
           m_softmu_phi[i] = muPtr->phi();
@@ -4465,7 +4469,7 @@ namespace top {
       m_jet_e.resize(plEvent.m_jets->size());
       m_jet_Ghosts_BHadron_Final_Count.resize(plEvent.m_jets->size());
       m_jet_Ghosts_CHadron_Final_Count.resize(plEvent.m_jets->size());
-      for (const auto& jetPtr : *plEvent.m_jets) {
+      for (const auto *jetPtr : *plEvent.m_jets) {
         m_jet_pt[i] = jetPtr->pt();
         m_jet_eta[i] = jetPtr->eta();
         m_jet_phi[i] = jetPtr->phi();
@@ -4501,7 +4505,7 @@ namespace top {
       m_ljet_e.resize(plEvent.m_largeRJets->size());
       m_ljet_Ghosts_BHadron_Final_Count.resize(plEvent.m_largeRJets->size());
       m_ljet_Ghosts_CHadron_Final_Count.resize(plEvent.m_largeRJets->size());
-      for (const auto& jetPtr : *plEvent.m_largeRJets) {
+      for (const auto *jetPtr : *plEvent.m_largeRJets) {
         m_ljet_pt[i] = jetPtr->pt();
         m_ljet_eta[i] = jetPtr->eta();
         m_ljet_phi[i] = jetPtr->phi();
@@ -4538,7 +4542,7 @@ namespace top {
       m_tau_charge.resize(plEvent.m_taus->size());
       m_tau_isHadronic.resize(plEvent.m_taus->size());
 
-      for (const auto& tauPtr : *plEvent.m_taus) {
+      for (const auto *tauPtr : *plEvent.m_taus) {
         m_tau_pt[i] = tauPtr->pt();
         m_tau_eta[i] = tauPtr->eta();
         m_tau_phi[i] = tauPtr->phi();
@@ -5215,7 +5219,7 @@ namespace top {
     m_jet_isPileup.resize(upgradeEvent.m_jets->size());
     m_jet_Ghosts_BHadron_Final_Count.resize(upgradeEvent.m_jets->size());
     m_jet_Ghosts_CHadron_Final_Count.resize(upgradeEvent.m_jets->size());
-    for (const auto& jetPtr : *upgradeEvent.m_jets) {
+    for (const auto *jetPtr : *upgradeEvent.m_jets) {
       m_jet_pt[i] = jetPtr->pt();
       m_jet_eta[i] = jetPtr->eta();
       m_jet_phi[i] = jetPtr->phi();
@@ -5261,7 +5265,7 @@ namespace top {
       m_ljet_e.resize(upgradeEvent.m_largeRJets->size());
       m_ljet_Ghosts_BHadron_Final_Count.resize(upgradeEvent.m_largeRJets->size());
       m_ljet_Ghosts_CHadron_Final_Count.resize(upgradeEvent.m_largeRJets->size());
-      for (const auto& jetPtr : *upgradeEvent.m_largeRJets) {
+      for (const auto *jetPtr : *upgradeEvent.m_largeRJets) {
         m_ljet_pt[i] = jetPtr->pt();
         m_ljet_eta[i] = jetPtr->eta();
         m_ljet_phi[i] = jetPtr->phi();

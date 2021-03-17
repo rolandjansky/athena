@@ -329,6 +329,8 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
 
    std::unique_lock<std::mutex> lock(m_mutex);
    if (std::find(m_contextAttr.begin(), m_contextAttr.end(), contextId) == m_contextAttr.end()) {
+      std::size_t merge = outputConnection.find(m_streamPortString.value()); // Used to remove trailing TMemFile
+      int flush = m_numberEventsPerWrite.value();
       m_contextAttr.push_back(contextId);
       // Setting default 'TREE_MAX_SIZE' for ROOT to 1024 GB to avoid file chains.
       std::vector<std::string> maxFileSize;
@@ -340,25 +342,30 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
       for (std::vector<std::vector<std::string> >::iterator iter = m_databaseAttr.begin(), last = m_databaseAttr.end();
                       iter != last; ++iter) {
          const std::string& opt = (*iter)[0];
-         std::string data = (*iter)[1];
+         std::string& data = (*iter)[1];
          const std::string& file = (*iter)[2];
          const std::string& cont = (*iter)[3];
-         std::size_t colon = m_containerPrefixProp.value().find(":");
-         if (colon == std::string::npos) colon = 0; // Used to remove leading technology
-         else colon++;
          std::size_t equal = cont.find("="); // Used to remove leading "TTree="
          if (equal == std::string::npos) equal = 0;
          else equal++;
-         if (opt == "TREE_AUTO_FLUSH" && cont.substr(equal) == m_containerPrefixProp.value().substr(colon) && data != "int" && data != "DbLonglong" && data != "double" && data != "string") {
-            int flush = atoi(data.c_str());
-            if (flush < m_numberEventsPerWrite.value()) {
-               flush = flush * (int((m_numberEventsPerWrite.value() - 1) / flush) + 1);
-            }
-            if (flush > 0) {
-               ATH_MSG_DEBUG("connectOutput setting auto write for: " << file << " to " << flush << " events");
-               m_fileFlushSetting[file] = flush;
+         std::size_t colon = m_containerPrefixProp.value().find(":");
+         if (colon == std::string::npos) colon = 0; // Used to remove leading technology
+         else colon++;
+         if (merge != std::string::npos && opt == "TREE_AUTO_FLUSH" && file == outputConnection.substr(0, merge) && cont.substr(equal) == m_containerPrefixProp.value().substr(colon) && data != "int" && data != "DbLonglong" && data != "double" && data != "string") {
+            flush = atoi(data.c_str());
+            if (flush < 0 && m_numberEventsPerWrite.value() > 0) {
+               flush = m_numberEventsPerWrite.value();
+               std::ostringstream eventAutoFlush;
+               eventAutoFlush << flush;
+               data = eventAutoFlush.str();
+            } else if (flush > 0 && flush < m_numberEventsPerWrite.value()) {
+               flush = flush * (int((m_numberEventsPerWrite.value()) / flush - 0.5) + 1);
             }
          }
+      }
+      if (merge != std::string::npos) {
+         ATH_MSG_INFO("connectOutput setting auto write for: " << outputConnection << " to " << flush << " events");
+         m_fileFlushSetting[outputConnection.substr(0, merge)] = flush;
       }
    }
    if (!processPoolAttributes(m_domainAttr, outputConnection, contextId).isSuccess()) {

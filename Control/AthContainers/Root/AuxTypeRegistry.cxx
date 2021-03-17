@@ -419,7 +419,8 @@ AuxTypeRegistry::AuxTypeRegistry()
  */
 AuxTypeRegistry::~AuxTypeRegistry()
 {
-  for (auto& p : m_factories)
+  // not using reference, because our iterator doesn't return a reference
+  for (auto p : m_factories)
     delete p.second;
   for (const IAuxTypeVectorFactory* p : m_oldFactories)
     delete p;

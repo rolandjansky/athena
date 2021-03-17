@@ -10,7 +10,7 @@ find_package( ROOT COMPONENTS Core RIO Hist Tree TreePlayer )
 # Component(s) in the package:
 atlas_add_root_dictionary( EventLoop
    EventLoopDictSource
-   ROOT_HEADERS EventLoop/Algorithm.h EventLoop/AnaAlgorithmWrapper.h 
+   ROOT_HEADERS EventLoop/Algorithm.h EventLoop/AlgorithmWrapper.h
    EventLoop/BatchDriver.h
    EventLoop/BatchJob.h EventLoop/BatchSegment.h EventLoop/BatchSample.h
    EventLoop/CondorDriver.h EventLoop/DirectDriver.h

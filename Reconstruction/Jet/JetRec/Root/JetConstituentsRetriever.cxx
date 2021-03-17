@@ -94,7 +94,7 @@ constituents(const xAOD::Jet& jet, PseudoJetVector& constits,
     ATH_MSG_DEBUG("Jet input type is " << lab);
     ATH_MSG_VERBOSE("Looping over " << jet.getConstituents().size()
                     << " real constituents.");
-    for ( const auto& pjetcon : jet.getConstituents() ) {
+    for ( const auto *pjetcon : jet.getConstituents() ) {
       if ( pjetcon == nullptr ) {
         ATH_MSG_WARNING("Jet has null constituent");
       } else {

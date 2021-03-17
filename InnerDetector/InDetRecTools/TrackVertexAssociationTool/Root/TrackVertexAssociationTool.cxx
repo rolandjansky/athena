@@ -383,7 +383,7 @@ bool TrackVertexAssociationTool::trackParticleUsedInVertexFit(const xAOD::TrackP
     return false;
   }
 
-  for (const auto& vx : *vertices)
+  for (const auto *vx : *vertices)
     if (trackParticleUsedInVertexFit(trk, *vx)) return true;
 
   return false;

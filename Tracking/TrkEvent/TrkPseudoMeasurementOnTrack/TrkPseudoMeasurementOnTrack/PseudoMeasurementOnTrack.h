@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -37,7 +37,7 @@ namespace Trk{
 
  */
 
-  class PseudoMeasurementOnTrack : public MeasurementBase {
+  class PseudoMeasurementOnTrack final: public MeasurementBase {
 
     friend class ::TrackCollectionCnv;
 
@@ -59,7 +59,7 @@ namespace Trk{
                                 ConstSurfaceUniquePtr   assocSurf);
 
       //! Destructor 
-      virtual ~PseudoMeasurementOnTrack() override;
+      virtual ~PseudoMeasurementOnTrack() override final;
 
       //! virtual constructor, not absolutely needed but given for EDM symmetry 
       virtual PseudoMeasurementOnTrack* clone() const override final;
@@ -90,12 +90,12 @@ namespace Trk{
       virtual std::ostream& dump( std::ostream& out ) const override final;
 
     protected:
-
-      //! holds the surface to which the PMoT is associated. The surface is responsible for the correct local-to-global transformation.
+      //! holds the surface to which the PMoT is associated. The surface is
+      //! responsible for the correct local-to-global transformation.
       const Surface* m_associatedSurface;
 
       //! Global position of the PMoT
-      const Amg::Vector3D*  m_globalPosition;
+      const Amg::Vector3D* m_globalPosition;
   };
 
   inline PseudoMeasurementOnTrack* PseudoMeasurementOnTrack::clone() const 

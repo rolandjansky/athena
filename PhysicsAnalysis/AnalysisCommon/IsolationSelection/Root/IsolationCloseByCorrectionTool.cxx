@@ -325,7 +325,7 @@ namespace CP {
 //                clusters.push_back(cluster);
 //            }
 //        }
-        for (const auto& cluster : *topoClusters) {
+        for (const auto *cluster : *topoClusters) {
             if (!cluster || fabs(cluster->eta()) > 7.0 || cluster->pt() <= 1.e-3) continue;
             //Consider also the cluster of Egamma if they are in the container
             if (isSame(Ref, cluster) || overlap(cluster, Ref, m_coreCone)) clusters.push_back(cluster);
@@ -582,7 +582,7 @@ namespace CP {
                 ATH_MSG_ERROR("IsoCorrection::RetriveBestVtx(): Unable to retrieve VertexContainer " << m_VertexContainerName);
                 return nullptr;
             } else if (Verticies->size() > 0) {
-                for (const auto& V : *Verticies) {
+                for (const auto *V : *Verticies) {
                     if (V->vertexType() == xAOD::VxType::VertexType::PriVtx) return V;
                 }
             }

@@ -650,7 +650,8 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
     m_tgcFitResult.Clear();
 
     m_muonRoad.Clear();
-
+    bool isRpcFakeRoi = false;
+    
     if ( m_recMuonRoIUtils.isBarrel(*p_roi) ) { // Barrel
       ATH_MSG_DEBUG("Barrel");
 
@@ -663,6 +664,7 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
       m_tgcHits.clear();
       sc = m_dataPreparator->prepareData(*p_roi,
                                          *p_roids,
+                                         isRpcFakeRoi,
                                          m_insideOut,
                                          m_rpcHits,
                                          m_muonRoad,
@@ -684,7 +686,7 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
       if (m_use_timer) m_timingTimers[ITIMER_DATA_PREPARATOR]->pause();
       prepTimer.stop();
 
-      if ( m_rpcErrToDebugStream && m_dataPreparator->isRpcFakeRoi() ) {
+      if ( m_rpcErrToDebugStream && isRpcFakeRoi ) {
         ATH_MSG_ERROR("Invalid RoI in RPC data found: event to debug stream");
 	TrigL2MuonSA::TrackPattern trackPattern;
 	trackPatterns.push_back(trackPattern);
@@ -890,7 +892,7 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
     trackExtraTimer.stop();
     
     // Update monitoring variables
-    sc = updateMonitor(*p_roi, m_mdtHits_normal, trackPatterns );
+    sc = updateMonitor(*p_roi, isRpcFakeRoi, m_mdtHits_normal, trackPatterns );
     if (sc != StatusCode::SUCCESS) {
       ATH_MSG_WARNING("Failed to update monitoring variables");
       // Update output trigger element
@@ -1012,7 +1014,7 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
 
   p_roids = roids.begin();
   for (const auto p_roi : muonRoIs) {
-
+    bool isRpcFakeRoi = false;
     ATH_MSG_DEBUG("roi eta/phi: " << (*p_roi).eta() << "/" << (*p_roi).phi());
 
     // idtracks loop
@@ -1072,6 +1074,7 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
 	// Data preparation
 	sc = m_dataPreparator->prepareData(p_roi,
 					   *p_roids,
+                                           isRpcFakeRoi, 
 					   m_insideOut,
 					   m_rpcHits,
 					   m_muonRoad,
@@ -1267,7 +1270,7 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
       }
 
       // Update monitoring variables
-      sc = updateMonitor(p_roi, m_mdtHits_normal, trackPatterns );
+      sc = updateMonitor(p_roi, isRpcFakeRoi, m_mdtHits_normal, trackPatterns );
       if (sc != StatusCode::SUCCESS) {
 	ATH_MSG_WARNING("Failed to update monitoring variables");
       }
@@ -2119,6 +2122,7 @@ float MuFastSteering::getRoiSizeForID(bool isEta, const xAOD::L2StandAloneMuon* 
 // --------------------------------------------------------------------------------
 
 StatusCode MuFastSteering::updateMonitor(const LVL1::RecMuonRoI*                    roi,
+                                         const bool                                 isRpcFakeRoi,
                                          const TrigL2MuonSA::MdtHits&               mdtHits,
                                          std::vector<TrigL2MuonSA::TrackPattern>&   trackPatterns )
 {
@@ -2206,7 +2210,7 @@ StatusCode MuFastSteering::updateMonitor(const LVL1::RecMuonRoI*                
     middle_mdt_hits = count_middle;
     outer_mdt_hits  = count_outer;
 
-    if ( m_dataPreparator->isRpcFakeRoi() ) 
+    if ( isRpcFakeRoi ) 
       invalid_rpc_roi_number = roi->getRoINumber();
     
     track_pt    = (fabs(pattern.pt ) > ZERO_LIMIT)? pattern.charge*pattern.pt: 9999.;

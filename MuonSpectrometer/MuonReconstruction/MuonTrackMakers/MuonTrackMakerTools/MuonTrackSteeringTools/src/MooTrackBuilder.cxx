@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MooTrackBuilder.h"
@@ -98,7 +98,9 @@ namespace Muon {
     return optTrack;
   }
 
-  void MooTrackBuilder::refine( MuPatTrack& track ) const {
+  void MooTrackBuilder::refine( MuPatTrack& track,
+                                HitGarbage& hitsToBeDeleted,
+                                MeasGarbage& measurementsToBeDeleted) const {
 
     std::unique_ptr<Trk::Track> finalTrack(m_hitRecoverTool->recover(track.track()));
     if( !finalTrack ) {
@@ -145,7 +147,7 @@ namespace Muon {
           << m_printer->print(*finalTrack) );
     }
 
-    m_candidateHandler->updateTrack( track, finalTrack );
+    m_candidateHandler->updateTrack( track, finalTrack, hitsToBeDeleted, measurementsToBeDeleted );
   }
 
   MuonSegment* MooTrackBuilder::combineToSegment( const MuonSegment& seg1, const MuonSegment& seg2,
@@ -166,11 +168,19 @@ namespace Muon {
   }
 
   std::unique_ptr<Trk::Track> MooTrackBuilder::combine( const MuonSegment& seg1, const MuonSegment& seg2, const PrepVec* externalPhiHits ) const {
+
+    MeasGarbage measurementsToBeDeleted;
+    HitGarbage hitsToBeDeleted;
+
     // convert segments
-    MuPatSegment* segInfo1 = m_candidateHandler->createSegInfo(seg1);
+    MuPatSegment* segInfo1 = m_candidateHandler->createSegInfo(seg1,
+                                                               hitsToBeDeleted,
+                                                               measurementsToBeDeleted);
     if( !segInfo1 ) return nullptr;
 
-    MuPatSegment* segInfo2 = m_candidateHandler->createSegInfo(seg2);
+    MuPatSegment* segInfo2 = m_candidateHandler->createSegInfo(seg2,
+                                                               hitsToBeDeleted,
+                                                               measurementsToBeDeleted);
     if( !segInfo2 ) {
       delete segInfo1;
       return std::unique_ptr<Trk::Track>();
@@ -362,12 +372,17 @@ namespace Muon {
 
   std::unique_ptr<Trk::Track> MooTrackBuilder::combine( const Trk::Track& track, const MuonSegment& seg,
                                         const PrepVec* externalPhiHits ) const {
+    MeasGarbage measurementsToBeDeleted;
+    HitGarbage hitsToBeDeleted;
     // convert segments
     std::unique_ptr<Trk::Track> inTrack=std::make_unique<Trk::Track>(track);
-    std::unique_ptr<MuPatTrack> candidate(m_candidateHandler->createCandidate(inTrack));
+    std::unique_ptr<MuPatTrack> candidate(m_candidateHandler->createCandidate(inTrack,
+                                                                              hitsToBeDeleted,
+                                                                              measurementsToBeDeleted));
     if( !candidate ) return std::unique_ptr<Trk::Track>();
 
-    std::unique_ptr<MuPatSegment> segInfo(m_candidateHandler->createSegInfo(seg));
+    std::unique_ptr<MuPatSegment> segInfo(m_candidateHandler->createSegInfo(seg, hitsToBeDeleted,
+                                                                            measurementsToBeDeleted));
     if( !segInfo ) {
       return std::unique_ptr<Trk::Track>();
     }
@@ -382,17 +397,21 @@ namespace Muon {
 
   std::vector<std::unique_ptr<Trk::Track> > MooTrackBuilder::combineWithSegmentFinding( const Trk::Track& track, const MuonSegment& seg,
 													  const PrepVec* externalPhiHits ) const {
+    MeasGarbage measurementsToBeDeleted;
+    HitGarbage hitsToBeDeleted;
     // convert segments
     std::vector<std::unique_ptr<Trk::Track> > emptyVec;
     std::unique_ptr<Trk::Track> inTrack=std::make_unique<Trk::Track>(track);
-    std::unique_ptr<MuPatTrack> candidate = m_candidateHandler->createCandidate(inTrack);
+    std::unique_ptr<MuPatTrack> candidate = m_candidateHandler->createCandidate(inTrack,
+                                                                                hitsToBeDeleted,
+                                                                                measurementsToBeDeleted);
     if( !candidate ) return emptyVec;
 
-    std::unique_ptr<MuPatSegment> segInfo(m_candidateHandler->createSegInfo(seg));
+    std::unique_ptr<MuPatSegment> segInfo(m_candidateHandler->createSegInfo(seg, hitsToBeDeleted, measurementsToBeDeleted));
     if( !segInfo ) return emptyVec;
 
     // call fit()
-    return combineWithSegmentFinding(*candidate,*segInfo,externalPhiHits);
+    return combineWithSegmentFinding(*candidate,*segInfo,hitsToBeDeleted,measurementsToBeDeleted,externalPhiHits);
   }
 
 
@@ -481,19 +500,26 @@ namespace Muon {
 											const Trk::TrackParameters& pars,
 											const std::set<Identifier>& chIds,
 											const PrepVec* patternPhiHits ) const {
+
+    MeasGarbage measurementsToBeDeleted;
+    HitGarbage hitsToBeDeleted;
     // convert track
     std::unique_ptr<Trk::Track> inTrack=std::make_unique<Trk::Track>(track);
-    std::unique_ptr<MuPatTrack> can = m_candidateHandler->createCandidate(inTrack);
+    std::unique_ptr<MuPatTrack> can = m_candidateHandler->createCandidate(inTrack,
+                                                                          hitsToBeDeleted,
+                                                                          measurementsToBeDeleted);
     if( !can ){
       return std::vector<std::unique_ptr<Trk::Track> >();
     }
 
-    return combineWithSegmentFinding(*can,pars,chIds,patternPhiHits);
+    return combineWithSegmentFinding(*can,pars,chIds,hitsToBeDeleted,measurementsToBeDeleted,patternPhiHits);
   }
 
 
   std::vector<std::unique_ptr<Trk::Track> > MooTrackBuilder::combineWithSegmentFinding( const MuPatTrack& candidate,
 											const MuPatSegment& segInfo,
+                                                                                        HitGarbage& hitsToBeDeleted,
+                                                                                        MeasGarbage& measurementsToBeDeleted,
 											const PrepVec* externalPhiHits ) const {
 
     /** second stage segment matching:
@@ -547,7 +573,7 @@ namespace Muon {
 
     ATH_MSG_VERBOSE(" extrapolated parameter " << m_printer->print(*exPars) );
 
-    return combineWithSegmentFinding(candidate,*exPars,chIds,externalPhiHits);
+    return combineWithSegmentFinding(candidate,*exPars,chIds,hitsToBeDeleted,measurementsToBeDeleted,externalPhiHits);
   }
 
 
@@ -617,7 +643,10 @@ namespace Muon {
   std::vector<std::unique_ptr<Trk::Track> > MooTrackBuilder::combineWithSegmentFinding( const MuPatTrack& candidate,
 											const Trk::TrackParameters& pars,
 											const std::set<Identifier>& chIds,
-											const PrepVec* externalPhiHits ) const {
+                                                                                        HitGarbage& hitsToBeDeleted,
+                                                                                        MeasGarbage& measurementsToBeDeleted,
+											const PrepVec* externalPhiHits
+                                                                                        ) const {
     std::vector<std::unique_ptr<Trk::Track> > newTracks;
 
     if( chIds.empty() ) return newTracks;
@@ -677,7 +706,9 @@ namespace Muon {
             msg(MSG::DEBUG)  << endmsg;
           }
         }
-        MuPatSegment* segInfo = m_candidateHandler->createSegInfo(*mseg);
+        MuPatSegment* segInfo = m_candidateHandler->createSegInfo(*mseg,
+                                                                  hitsToBeDeleted,
+                                                                  measurementsToBeDeleted);
 
         if( !m_candidateMatchingTool->match(candidate,*segInfo,true) ){
           delete segInfo;
@@ -1019,7 +1050,9 @@ namespace Muon {
 
   }
 
-  std::vector<std::unique_ptr<MuPatTrack> > MooTrackBuilder::find( MuPatCandidateBase& candidate, const std::vector<MuPatSegment*>& segVec ) const {
+  std::vector<std::unique_ptr<MuPatTrack> > MooTrackBuilder::find( MuPatCandidateBase& candidate, const std::vector<MuPatSegment*>& segVec,
+                                                                   HitGarbage& hitsToBeDeleted,
+                                                                   MeasGarbage& measurementsToBeDeleted ) const {
 
     std::vector<std::unique_ptr<MuPatTrack> > candidates;
     // check whether we have segments
@@ -1139,9 +1172,13 @@ namespace Muon {
             if( trkCan ){
               // copy candidate and add segment
               newCandidate = std::make_unique<MuPatTrack>(*trkCan);
-              m_candidateHandler->extendWithSegment(*newCandidate,**sit,trkTrkCan);
+              m_candidateHandler->extendWithSegment(*newCandidate,**sit,trkTrkCan,
+                                                    hitsToBeDeleted,
+                                                    measurementsToBeDeleted);
             }else if( segCan ){
-              newCandidate = m_candidateHandler->createCandidate( *segCan,**sit,trkTrkCan);
+              newCandidate = m_candidateHandler->createCandidate( *segCan,**sit,trkTrkCan,
+                                                                  hitsToBeDeleted,
+                                                                  measurementsToBeDeleted);
             }
             if( !newCandidate ) break;
           }
@@ -1197,9 +1234,13 @@ namespace Muon {
         if( trkCan ){
           // copy candidate and add segment
           newCandidate = std::make_unique<MuPatTrack>(*trkCan);
-          m_candidateHandler->extendWithSegment(*newCandidate,*eit->first,eit->second);
+          m_candidateHandler->extendWithSegment(*newCandidate,*eit->first,eit->second,
+                                                hitsToBeDeleted,
+                                                measurementsToBeDeleted);
         }else if( segCan ){
-          newCandidate = m_candidateHandler->createCandidate( *segCan,*eit->first,eit->second);
+          newCandidate = m_candidateHandler->createCandidate( *segCan,*eit->first,eit->second,
+                                                              hitsToBeDeleted,
+                                                              measurementsToBeDeleted);
         }
         ATH_MSG_DEBUG(" " << m_printer->print(*eit->first->segment) );
         MuPatSegment* slOverlap = slSegments[eit->first];
@@ -1443,7 +1484,9 @@ namespace Muon {
     return false;
   }
 
-  TrackCollection* MooTrackBuilder::mergeSplitTracks( const TrackCollection& tracks ) const {
+TrackCollection* MooTrackBuilder::mergeSplitTracks( const TrackCollection& tracks,
+                                                    HitGarbage& hitsToBeDeleted,
+                                                    MeasGarbage& measurementsToBeDeleted ) const {
 
     // vector to store good track, boolean is used to identify whether the track was created in this routine or is from the collection
     std::vector< std::pair<bool,std::unique_ptr<Trk::Track> > > goodTracks;
@@ -1471,8 +1514,12 @@ namespace Muon {
           // if we found a potential split track, try to combine them
 	  std::unique_ptr<Trk::Track> track1=std::make_unique<Trk::Track>(*git->second);
 	  std::unique_ptr<Trk::Track> track2=std::make_unique<Trk::Track>(**tit);
-	  std::unique_ptr<MuPatTrack> can1 = m_candidateHandler->createCandidate(track1);
-	  std::unique_ptr<MuPatTrack> can2 = m_candidateHandler->createCandidate(track2);
+	  std::unique_ptr<MuPatTrack> can1 = m_candidateHandler->createCandidate(track1,
+                                                                                 hitsToBeDeleted,
+                                                                                 measurementsToBeDeleted);
+	  std::unique_ptr<MuPatTrack> can2 = m_candidateHandler->createCandidate(track2,
+                                                                                 hitsToBeDeleted,
+                                                                                 measurementsToBeDeleted);
 
           mergedTrack = combine(*can1,*can2);
 
@@ -1519,8 +1566,6 @@ namespace Muon {
   }
 
   void MooTrackBuilder::cleanUp() const {
-    m_candidateHandler->cleanUp();
-
   }
 
 }

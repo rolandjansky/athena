@@ -55,6 +55,6 @@ svcMgr.THistSvc.Output += ["ANALYSIS DATAFILE='myfile_jfex.root' OPT='RECREATE'"
 log.info("==========================================================")
 log.info("Scheduling jFEXDriver")
 athAlgSeq += CfgMgr.LVL1__jFEXDriver('MyjFEXDriver')
-#athAlgSeq += CfgMgr.LVL1__jFEXNtupleWriter('MyjFEXNtupleWriter')
+athAlgSeq += CfgMgr.LVL1__jFEXNtupleWriter('MyjFEXNtupleWriter')
 log.info("==========================================================")
 #######################################################

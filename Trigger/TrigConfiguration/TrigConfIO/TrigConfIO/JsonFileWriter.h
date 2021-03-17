@@ -12,6 +12,7 @@
 
 #include "TrigConfBase/TrigConfMessaging.h"
 #include "TrigConfData/L1Menu.h"
+#include "TrigConfData/L1BunchGroupSet.h"
 
 namespace TrigConf {
 
@@ -25,6 +26,8 @@ namespace TrigConf {
       JsonFileWriter();
 
       bool writeJsonFile(const std::string & filename, const L1Menu & l1menu) const;
+      bool writeJsonFile(const std::string & filename, const L1BunchGroupSet & l1bgs) const;
+
    };
 
 }

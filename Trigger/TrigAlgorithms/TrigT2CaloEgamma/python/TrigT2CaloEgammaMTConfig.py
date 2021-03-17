@@ -9,7 +9,7 @@ def fastL2EgammaClusteringAlg( flags, roisKey="EMCaloRoIs", doRinger=False):
 
     acc = ComponentAccumulator()
     # configure calo data access
-    from TrigT2CaloCommon.TrigCaloDataAccessConfig import trigCaloDataAccessSvcCfg
+    from TrigT2CaloCommon.TrigCaloDataAccessConfig import trigCaloDataAccessSvcCfg, CaloDataAccessSvcDependencies
     cdaSvcAcc = trigCaloDataAccessSvcCfg( flags )
     cdaSvc = cdaSvcAcc.getService("TrigCaloDataAccessSvc")
     acc.merge( cdaSvcAcc )
@@ -37,12 +37,14 @@ def fastL2EgammaClusteringAlg( flags, roisKey="EMCaloRoIs", doRinger=False):
     samph.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale'),('TileBadChannels','ConditionStore+TileBadChannels')]
     acc.addPublicTool( samph )
 
-    alg = CompFactory.T2CaloEgammaReFastAlgo("FastEMCaloAlgo")
+    alg = CompFactory.T2CaloEgammaReFastAlgo("FastCaloL2EgammaAlg")
     from TrigEDMConfig.TriggerEDMRun3 import recordable
     alg.ClustersName   = recordable('HLT_FastCaloEMClusters')
     alg.RoIs           = roisKey
     alg.EtaWidth       = 0.2
     alg.PhiWidth       = 0.2
+    alg.ExtraInputs = CaloDataAccessSvcDependencies
+    alg.BCIDAvgKey     = "StoreGateSvc+CaloBCIDAverage"
 
 
     __fex_tools = [ samp2, samp1, sampe, samph] #, ring ]

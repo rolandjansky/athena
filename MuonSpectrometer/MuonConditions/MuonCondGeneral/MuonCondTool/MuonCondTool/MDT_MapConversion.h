@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDTOOL_MDT_MAPCONVERSION_H
@@ -31,7 +31,8 @@ public:
   virtual StatusCode initialize();
 
 
-  virtual const Identifier& ConvertToOffline(const std::string &OnlineId) const;
+  virtual const Identifier& ConvertToOffline(const std::string &OnlineId,
+                                             bool quiet = false) const;
 
   //  const std::string OnlineName(Identifier OfflineId);
   //const Identifier OfflineName(std::string OnlineId);

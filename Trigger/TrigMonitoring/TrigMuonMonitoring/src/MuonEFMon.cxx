@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @Afile HLTMuonMonTool.cxx
@@ -317,7 +317,7 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
   // First try from xAOD::Muon
   const xAOD::MuonContainer* muonEFcontainer(0);
   // container names for MT setup
-  std::vector< std::string > efcontnames = {"HLT_MuonsCB_FS", "HLT_Muons_RoI", "HLT_MuonsCBOutsideIn"}; //last one should be replaced with HLT_MuonsCB_RoI once it works
+  std::vector< std::string > efcontnames = {"HLT_MuonsCB_FS", "HLT_Muons_RoI", "HLT_MuonsCB_RoI"}; 
   // container names for legacy run-2 setup
   if (getTDT()->getNavigationFormat() == "TriggerElement") efcontnames = {"HLT_xAOD__MuonContainer_MuonEFInfo"};
   bool gotxAODMuon = false;

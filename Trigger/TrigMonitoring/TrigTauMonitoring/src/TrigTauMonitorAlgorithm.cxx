@@ -716,8 +716,6 @@ void TrigTauMonitorAlgorithm::fillbasicVars(const std::string trigger, std::vect
 
   auto monGroup = getGroup(trigger+( online ? "HLT_basicVars" : "Offline_basicVars"));  
 
-
-
   auto hEFEt           = Monitored::Collection("hEFEt", tau_vec,  [] (const xAOD::TauJet* tau){return tau->pt()/1000; });
   auto hEFEta          = Monitored::Collection("hEFEta", tau_vec,  [] (const xAOD::TauJet* tau){return tau->eta(); });                                                     
 
@@ -731,7 +729,14 @@ void TrigTauMonitorAlgorithm::fillbasicVars(const std::string trigger, std::vect
       EFWidenTrack = tau->nTracksIsolation();
       return EFWidenTrack; }); 
 
-  fill(monGroup, hEFEt,hEFEta,hEFPhi,hEFnTrack,hEFnWideTrack);
+  if(!online){
+    auto hRNNScore = Monitored::Collection("hRNNScore", tau_vec, [] (const xAOD::TauJet* tau){ return tau->discriminant(xAOD::TauJetParameters::RNNJetScore);});
+    auto hRNNScoreSigTrans = Monitored::Collection("hRNNScoreSigTrans", tau_vec, [] (const xAOD::TauJet* tau){ return tau->discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans);});
+
+    fill(monGroup, hEFEt,hEFEta,hEFPhi,hEFnTrack,hEFnWideTrack, hRNNScore, hRNNScoreSigTrans);
+  } else{
+    fill(monGroup, hEFEt,hEFEta,hEFPhi,hEFnTrack,hEFnWideTrack);
+  }
 
   ATH_MSG_DEBUG("After fill Basic variables: " << trigger);
 

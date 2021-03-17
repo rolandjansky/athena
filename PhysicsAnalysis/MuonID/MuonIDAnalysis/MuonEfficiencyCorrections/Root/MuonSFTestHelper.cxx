@@ -338,7 +338,7 @@ namespace TestMuonSF {
         return CP::CorrectionCode::Ok;
     }
     CP::CorrectionCode MuonSFTestHelper::fill(const xAOD::MuonContainer* muons) {
-        for (const auto& mu : *muons) {
+        for (const auto *mu : *muons) {
             if (fill(mu) == CP::CorrectionCode::Error) return CP::CorrectionCode::Error;
             fillTree();
         }

@@ -126,6 +126,7 @@ class TileROD_Decoder: public AthAlgTool {
       bool m_D0Maskpos[64];
       TileFastRawChannel m_D0chanpos[64];
       TileFastRawChannel m_D0channeg[64];
+      TileCell* cells[64];
     };
 
     /** constructor

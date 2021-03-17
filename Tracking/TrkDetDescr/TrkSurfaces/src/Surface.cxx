@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -49,7 +49,11 @@ Trk::Surface::Surface(Amg::Transform3D* tform)
   , m_materialLayer(nullptr)
   , m_owner(Trk::noOwn)
 {
-  m_transform=std::unique_ptr<Amg::Transform3D>(tform);
+  m_transform = std::unique_ptr<Amg::Transform3D>(tform);
+  if (tform) {
+    m_center = std::make_unique<Amg::Vector3D>(tform->translation());
+    m_normal = std::make_unique<Amg::Vector3D>(tform->rotation().col(2));
+  }
 #ifndef NDEBUG
   s_numberOfInstantiations++; // EDM Monitor - increment one instance
   s_numberOfFreeInstantiations++;
@@ -105,7 +109,8 @@ Trk::Surface::Surface(const Surface& sf)
 {
 
   m_transform = std::make_unique<Amg::Transform3D>(sf.transform());
-
+  m_center = std::make_unique<Amg::Vector3D>(m_transform->translation());
+  m_normal = std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2));
 #ifndef NDEBUG
   s_numberOfInstantiations++; // EDM Monitor - increment one instance
   // this is by definition a free surface since a copy is not allowed to point to the det element
@@ -118,7 +123,7 @@ Trk::Surface::Surface(const Surface& sf)
 Trk::Surface::Surface(const Surface& sf, const Amg::Transform3D& shift)
   : m_transform(sf.m_transform ? std::make_unique<Amg::Transform3D>(shift * (*(sf.m_transform)))
                                : std::make_unique<Amg::Transform3D>(shift))
-  , m_center((sf.m_center) ? std::make_unique<const Amg::Vector3D>(shift * (*(sf.m_center))) : nullptr)
+  , m_center((sf.m_center) ? std::make_unique<Amg::Vector3D>(shift * (*(sf.m_center))) : nullptr)
   , m_normal(nullptr)
   , m_associatedDetElement(nullptr)
   , m_associatedDetElementId()
@@ -126,6 +131,10 @@ Trk::Surface::Surface(const Surface& sf, const Amg::Transform3D& shift)
   , m_materialLayer(nullptr)
   , m_owner(Trk::noOwn)
 {
+  if (!m_center) {
+    m_center = std::make_unique<Amg::Vector3D>(m_transform->translation());
+  }
+  m_normal = std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2));
 #ifndef NDEBUG
   s_numberOfInstantiations++; // EDM Monitor - increment one instance
   // this is by definition a free surface since a copy is not allowed to point to the det element
@@ -138,8 +147,9 @@ Trk::Surface::~Surface()
 {
 #ifndef NDEBUG
   s_numberOfInstantiations--; // EDM Monitor - decrement one instance
-  if (isFree())
+  if (isFree()){
     s_numberOfFreeInstantiations--;
+  }
 #endif
 }
 
@@ -149,10 +159,9 @@ Trk::Surface&
 Trk::Surface::operator=(const Trk::Surface& sf)
 {
   if (this != &sf) {
-    m_transform.release();
-    m_center.release();
-    m_normal.release();
     m_transform = std::make_unique<Amg::Transform3D>(sf.transform());
+    m_center = std::make_unique<Amg::Vector3D>(m_transform->translation());
+    m_normal = std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2));
     m_associatedDetElement = nullptr;
     m_associatedDetElementId = Identifier();
     m_associatedLayer = sf.m_associatedLayer;

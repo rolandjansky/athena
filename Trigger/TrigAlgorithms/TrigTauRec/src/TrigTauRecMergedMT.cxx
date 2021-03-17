@@ -111,6 +111,21 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
   // variables to initialize and keep values for monitoring variables
   std::vector<unsigned char> calo_errors(0);
   std::vector<unsigned char> track_errors(0);
+  //std::vector<const xAOD::CaloCluster *> clusters;
+  std::vector<float> cluster_et_log(0);
+  std::vector<float> cluster_dEta(0); 
+  std::vector<float> cluster_dPhi(0);
+  std::vector<float> cluster_log_SECOND_R(0);
+  std::vector<float> cluster_SECOND_LAMBDA(0);
+  std::vector<float> cluster_CENTER_LAMBDA(0);
+  std::vector<float> track_pt_log(0);
+  std::vector<float> track_dEta(0);
+  std::vector<float> track_dPhi(0);
+  std::vector<float> track_z0sinThetaTJVA_abs_log(0);
+  std::vector<float> track_d0_abs_log(0);
+  std::vector<float> track_nIBLHitsAndExp(0);
+  std::vector<float> track_nPixelHitsPlusDeadSensors(0);
+  std::vector<float> track_nSCTHitsPlusDeadSensors(0);
 
   auto nCells             = Monitored::Scalar<int>("nRoI_EFTauCells",    0);
   auto nTracks            = Monitored::Scalar<int>("nRoI_EFTauTracks", -10);
@@ -143,14 +158,34 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
   auto PhiL1              = Monitored::Scalar<float>("PhiL1",-99.9);
   auto EtaEF              = Monitored::Scalar<float>("EtaEF",-99.9);
   auto PhiEF              = Monitored::Scalar<float>("PhiEF",-99.9);
-
+  auto mEflowApprox       = Monitored::Scalar<float>("mEflowApprox", -99.9);
+  auto ptRatioEflowApprox = Monitored::Scalar<float>("ptRatioEflowApprox", -99.9);
+   
   auto EF_calo_errors     = Monitored::Collection("calo_errors",calo_errors);
   auto EF_track_errors    = Monitored::Collection("track_errors",track_errors);
 
+  auto Cluster_et_log     = Monitored::Collection("cluster_et_log", cluster_et_log);
+  auto Cluster_dEta       = Monitored::Collection("cluster_dEta", cluster_dEta);
+  auto Cluster_dPhi       = Monitored::Collection("cluster_dPhi", cluster_dPhi);
+  auto Cluster_log_SECOND_R = Monitored::Collection("cluster_log_SECOND_R", cluster_log_SECOND_R);
+  auto Cluster_SECOND_LAMBDA = Monitored::Collection("cluster_SECOND_LAMBDA", cluster_SECOND_LAMBDA);
+  auto Cluster_CENTER_LAMBDA = Monitored::Collection("cluster_CENTER_LAMBDA", cluster_CENTER_LAMBDA);
+
+  auto Track_pt_log = Monitored::Collection("track_pt_log", track_pt_log);
+  auto Track_dEta = Monitored::Collection("track_dEta", track_dEta);
+  auto Track_dPhi = Monitored::Collection("track_dPhi", track_dPhi);
+  auto Track_z0sinThetaTJVA_abs_log = Monitored::Collection("track_z0sinThetaTJVA_abs_log", track_z0sinThetaTJVA_abs_log); 
+  auto Track_d0_abs_log = Monitored::Collection("track_d0_abs_log", track_d0_abs_log);
+  auto Track_nIBLHitsAndExp = Monitored::Collection("track_nIBLHitsAndExp", track_nIBLHitsAndExp);
+  auto Track_nPixelHitsPlusDeadSensors = Monitored::Collection("track_nPixelHitsPlusDeadSensors", track_nPixelHitsPlusDeadSensors);
+  auto Track_nSCTHitsPlusDeadSensors = Monitored::Collection("track_nSCTHitsPlusDeadSensors", track_nSCTHitsPlusDeadSensors);
+
   auto monitorIt = Monitored::Group( m_monTool, nCells, nTracks, dEta, dPhi, emRadius, hadRadius,
-                                     EtFinal, Et, EtHad, EtEm, EMFrac, IsoFrac, centFrac, nWideTrk, ipSigLeadTrk, trFlightPathSig, massTrkSys,
-                                     dRmax, numTrack, trkAvgDist, etovPtLead, PSSFraction, EMPOverTrkSysP, ChPiEMEOverCaloEME, SumPtTrkFrac,
-                                     innerTrkAvgDist, Ncand, EtaL1, PhiL1, EtaEF, PhiEF );
+                   EtFinal, Et, EtHad, EtEm, EMFrac, IsoFrac, centFrac, nWideTrk, ipSigLeadTrk, trFlightPathSig, massTrkSys,
+                   dRmax, numTrack, trkAvgDist, etovPtLead, PSSFraction, EMPOverTrkSysP, ChPiEMEOverCaloEME, SumPtTrkFrac,
+                   innerTrkAvgDist, Ncand, EtaL1, PhiL1, EtaEF, PhiEF, mEflowApprox, ptRatioEflowApprox, Cluster_et_log, Cluster_dEta, Cluster_dPhi, Cluster_log_SECOND_R,
+                   Cluster_SECOND_LAMBDA, Cluster_CENTER_LAMBDA, Track_pt_log, Track_dEta, Track_dPhi, Track_z0sinThetaTJVA_abs_log, Track_d0_abs_log, Track_nIBLHitsAndExp,
+                   Track_nPixelHitsPlusDeadSensors, Track_nSCTHitsPlusDeadSensors); 
 
   // Retrieve store.
   ATH_MSG_DEBUG("Executing TrigTauRecMergedMT");
@@ -227,6 +262,34 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
         ElementLink<xAOD::TauTrackContainer> linkToTauTrack;
         linkToTauTrack.toContainedElement(*tauTrackHandle, track);
         p_tau->addTauTrackLink(linkToTauTrack);
+
+        track_pt_log.push_back(TMath::Log10( track->pt()));
+        track_dEta.push_back(track->eta()- p_tau->eta()); 
+        track_dPhi.push_back(track->p4().DeltaPhi(p_tau->p4()));
+        track_z0sinThetaTJVA_abs_log.push_back(track->z0sinThetaTJVA(*p_tau));
+        track_d0_abs_log.push_back(TMath::Log10( TMath::Abs(track->track()->d0()) + 1e-6));
+
+        uint8_t inner_pixel_hits, inner_pixel_exp;                    
+        const auto success1_innerPixel_hits = track->track()->summaryValue(inner_pixel_hits, xAOD::numberOfInnermostPixelLayerHits);                        
+        const auto success2_innerPixel_exp = track->track()->summaryValue(inner_pixel_exp, xAOD::expectInnermostPixelLayerHit);                                       
+        float nIBLHitsAndExp = -999;                                              
+        if (success1_innerPixel_hits && success2_innerPixel_exp) {nIBLHitsAndExp=inner_pixel_exp ? inner_pixel_hits : 1.;};        
+        track_nIBLHitsAndExp.push_back(nIBLHitsAndExp);
+
+        uint8_t pixel_hits, pixel_dead;                                    
+        const auto success1_pixel_hits = track->track()->summaryValue(pixel_hits, xAOD::numberOfPixelHits);          
+        const auto success2_pixel_dead = track->track()->summaryValue(pixel_dead, xAOD::numberOfPixelDeadSensors);                           
+        float nPixelHitsPlusDeadSensor = -999;                                         
+        if (success1_pixel_hits && success2_pixel_dead) {nPixelHitsPlusDeadSensor=pixel_hits + pixel_dead;};                      
+        track_nPixelHitsPlusDeadSensors.push_back(nPixelHitsPlusDeadSensor);
+
+        uint8_t sct_hits, sct_dead;                                       
+        const auto success1_sct_hits = track->track()->summaryValue(sct_hits, xAOD::numberOfSCTHits);                   
+        const auto success2_sct_dead = track->track()->summaryValue(sct_dead, xAOD::numberOfSCTDeadSensors);                           
+        float nSCTHitsPlusDeadSensors = -999;     
+        if (success1_sct_hits && success2_sct_dead) {nSCTHitsPlusDeadSensors=sct_hits + sct_dead;};                               
+        track_nSCTHitsPlusDeadSensors.push_back(nSCTHitsPlusDeadSensors);
+
       }
     }
   }
@@ -287,6 +350,26 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
       aJet->addConstituent(*clusterIt);
 
       TauBarycenter += myCluster;
+
+      cluster_et_log.push_back(TMath::Log10( (*clusterIt)->et()));
+      cluster_dEta.push_back((*clusterIt)->eta()- p_tau->eta());
+      cluster_dPhi.push_back((*clusterIt)->p4().DeltaPhi(p_tau->p4()));
+     
+      double log_second_R = -999.;
+      const auto success_SECOND_R = (*clusterIt)->retrieveMoment(xAOD::CaloCluster::MomentType::SECOND_R,log_second_R);
+      if (success_SECOND_R) log_second_R = TMath::Log10(log_second_R + 0.1);
+      cluster_log_SECOND_R.push_back(log_second_R);
+ 
+      double second_lambda = -999.;
+      const auto success_SECOND_LAMBDA = (*clusterIt)->retrieveMoment(xAOD::CaloCluster::MomentType::SECOND_LAMBDA, second_lambda);
+      if (success_SECOND_LAMBDA) second_lambda = TMath::Log10(second_lambda + 0.1);
+      cluster_SECOND_LAMBDA.push_back(second_lambda);
+
+      double center_lambda = -999.;
+      const auto success_CENTER_LAMBDA = (*clusterIt)->retrieveMoment(xAOD::CaloCluster::MomentType::CENTER_LAMBDA, center_lambda);
+      if (success_CENTER_LAMBDA) center_lambda = TMath::Log10(center_lambda + 1e-6);
+      cluster_CENTER_LAMBDA.push_back(center_lambda);      
+
     }
 	 
     aJet->setJetP4(xAOD::JetFourMom_t(TauBarycenter.Pt(), TauBarycenter.Eta(), TauBarycenter.Phi(), TauBarycenter.M() ) ); 
@@ -363,6 +446,7 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
   xAOD::VertexContainer dummyVxCont;
   
   ATH_MSG_DEBUG("Starting tool loop with seed jet");
+
   for (const auto& tool : m_tools) {
     // loop stops only when Failure indicated by one of the tools
     ATH_MSG_DEBUG("Starting Tool: " <<  tool->name() );
@@ -407,6 +491,7 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
     outputTauHandle->pop_back();
 
     ATH_MSG_DEBUG("Clean up done after jet seed");
+  
   }
   else {
 
@@ -438,6 +523,7 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
     }
 
     // get tau detail variables for Monitoring
+
     numTrack = p_tau->nTracks();
     nWideTrk = p_tau->nTracksIsolation();
     p_tau->detail(xAOD::TauJetParameters::numCells, nCells);
@@ -477,7 +563,14 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
     if(dPhi<-M_PI) dPhi += 2.0*M_PI;
     if(dPhi>M_PI)  dPhi -= 2.0*M_PI;
 
-    //std::vector<const xAOD::TauJetContainer*> tempCaloOnlyContVec;
+   
+    float pre_mEflowApprox;
+    p_tau->detail(xAOD::TauJetParameters::mEflowApprox, pre_mEflowApprox);  
+    mEflowApprox = TMath::Log10(std::max(pre_mEflowApprox, 140.0f));
+
+    float pre_ptRatioEflowApprox;
+    p_tau->detail(xAOD::TauJetParameters::ptRatioEflowApprox, pre_ptRatioEflowApprox);
+    ptRatioEflowApprox = std::min(pre_ptRatioEflowApprox, 4.0f);
 
     ATH_MSG_DEBUG(" Roi: " << roiDescriptor->roiId()
 		  << " Tau being saved eta: " << EtaEF << " Tau phi: " << PhiEF

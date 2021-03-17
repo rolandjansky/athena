@@ -35,6 +35,8 @@
 
 #include "xAODTrigger/TrigConfKeys.h"
 
+#include "AsgTools/CurrentContext.h"
+
 namespace TrigConf {
 
    /// Trigger configuration metadata tool for xAOD analysis
@@ -65,7 +67,7 @@ namespace TrigConf {
       /// @{
 
       /// Function initialising the tool
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
 
       /// @}
 
@@ -73,18 +75,18 @@ namespace TrigConf {
       /// @{
 
       /// Get the LVL1 trigger menu
-      virtual const CTPConfig* ctpConfig() const;
+      virtual const CTPConfig* ctpConfig() const override ;
 
       /// Get the LVL1 threshold configuruation (not available from xAOD)
-      virtual const ThresholdConfig* thresholdConfig() const {
+      virtual const ThresholdConfig* thresholdConfig() const override {
          return 0;
       }
 
       /// Get the LVL1 bunch group set
-      virtual const BunchGroupSet* bunchGroupSet() const;
+      virtual const BunchGroupSet* bunchGroupSet() const override ;
 
       /// Get the LVL1 prescale key
-      virtual uint32_t lvl1PrescaleKey() const;
+      virtual uint32_t lvl1PrescaleKey() const override ;
 
       /// @}
 
@@ -92,40 +94,40 @@ namespace TrigConf {
       /// @{
 
       /// Get the HLT chains
-      virtual const HLTChainList* chainList() const;
+      virtual const HLTChainList* chainList() const override ;
       /// Get the HLT chains
-      virtual const HLTChainList& chains() const;
+      virtual const HLTChainList& chains() const override ;
 
       /// Get the HLT sequences
-      virtual const HLTSequenceList* sequenceList() const;
+      virtual const HLTSequenceList* sequenceList() const override ;
       /// Get the HLT sequences
-      virtual const HLTSequenceList& sequences() const;
+      virtual const HLTSequenceList& sequences() const override ;
 
       /// Get the Super Master Key
-      virtual uint32_t masterKey() const;
+      virtual uint32_t masterKey() const override ;
 
       /// Get the HLT prescale key
-      virtual uint32_t hltPrescaleKey() const;
+      virtual uint32_t hltPrescaleKey() const override ;
 
       /// @}
 
-      /// @name Impliment the JSON config interface. TODO - add this to an abstract interface
+      /// @name Impliment the JSON config interface.
       /// @{
 
       /// Returns the JSON configured HLTMenu ptree
-      const HLTMenu& hltMenu() const;
+      virtual const HLTMenu& hltMenu(const EventContext& ctx = Gaudi::Hive::currentContext()) const override;
 
       /// Returns the JSON configured L1 ptree
-      const L1Menu& l1Menu() const;
+      virtual const L1Menu& l1Menu(const EventContext& ctx = Gaudi::Hive::currentContext()) const override;
 
       /// Returns the JSON configured HLT prescales ptree
-      const HLTPrescalesSet& hltPrescalesSet() const;
+      virtual const HLTPrescalesSet& hltPrescalesSet(const EventContext& ctx = Gaudi::Hive::currentContext()) const override;
 
       /// Returns the JSON configured L1 prescales ptree
-      const L1PrescalesSet& l1PrescalesSet() const;
+      virtual const L1PrescalesSet& l1PrescalesSet(const EventContext& ctx = Gaudi::Hive::currentContext()) const override;
 
       /// Returns the JSON configured bunchgroup ptree
-      const L1BunchGroupSet& l1BunchGroupSet() const;
+      virtual const L1BunchGroupSet& l1BunchGroupSet(const EventContext& ctx = Gaudi::Hive::currentContext()) const override;
 
       /// @}
 
@@ -134,10 +136,10 @@ namespace TrigConf {
       /// @{
 
       /// Function called when a new input file is opened
-      virtual StatusCode beginInputFile();
+      virtual StatusCode beginInputFile() override;
 
       /// Function called when a new event is loaded
-      virtual StatusCode beginEvent();
+      virtual StatusCode beginEvent() override;
 
       /// Internal call to check / load from a file with Run2 metadata
       StatusCode beginEvent_Run2(const xAOD::TrigConfKeys* keys);

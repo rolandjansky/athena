@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
    */
 
 /** @file ByteStreamMetadataTool.cxx
@@ -110,7 +110,7 @@ ByteStreamMetadataTool::beginInputFile()
         ATH_MSG_DEBUG("Pre-existing ByteStreamMetadataContainer found");
         ATH_CHECK(m_metadataStore->retrieve(bsmdc, key));
 
-        for (const auto& bsmd : *bsmdc)
+        for (const auto bsmd : *bsmdc)
           transGuids.insert(bsmd->getGuid());
 
       } else {

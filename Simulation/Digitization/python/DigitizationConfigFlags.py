@@ -1,11 +1,12 @@
 """Construct ConfigFlags for Digitization
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from AthenaConfiguration.AutoConfigFlags import GetFileMD
 from AthenaCommon.Logging import log
 from PyUtils import AthFile
+
 
 def getSpecialConfiguration(flags):
     """Return a dict of Special configuration as parsed from flags.Input.Files"""
@@ -40,7 +41,7 @@ def getSpecialConfiguration(flags):
 
 
 def constBunchSpacingPattern(constBunchSpacing):
-    """Return a valid value for Digitization.BeamIntensity, which 
+    """Return a valid value for Digitization.BeamIntensity, which
     matches the specified constBunchSpacing
     """
     if type(constBunchSpacing) is not int:
@@ -48,12 +49,12 @@ def constBunchSpacingPattern(constBunchSpacing):
                         "not %s" % type(constBunchSpacing).__name__)
     if constBunchSpacing % 25 != 0:
         raise ValueError("constBunchSpacing must be a multiple of 25, "
-                            "not %s" % constBunchSpacing)
-    
+                         "not %s" % constBunchSpacing)
+
     # special case
-    if constBunchSpacing == 25 :
+    if constBunchSpacing == 25:
         return [1.0]
-    
+
     # general case
     pattern = [0.0, 1.0]
     nBunches = (constBunchSpacing//25) - 2
@@ -84,9 +85,10 @@ def createDigitizationCfgFlags():
     # Use high-gain ElectroMagnetic EndCap Inner Wheel
     flags.addFlag("Digitization.HighGainEMECIW", True)
     # Do global pileup digitization
-    flags.addFlag("Digitization.Pileup", False)
+    flags.addFlag("Digitization.PileUp", False)
     # TRT Range cut used in simulation in mm. Should be 0.05 or 30.
-    flags.addFlag("Digitization.TRTRangeCut", lambda prevFlags : float(GetFileMD(prevFlags.Input.Files).get('TRTRangeCut', 0.05)))
+    flags.addFlag("Digitization.TRTRangeCut",
+                  lambda prevFlags: float(GetFileMD(prevFlags.Input.Files).get('TRTRangeCut', 0.05)))
     # Write out truth information?
     flags.addFlag("Digitization.TruthOutput", False)
     # Write out calorimeter digits
@@ -97,20 +99,24 @@ def createDigitizationCfgFlags():
     flags.addFlag("Digitization.ExtraInputs", [("xAOD::EventInfo", "EventInfo")])
     # Override the HIT file Run Number with one from a data run
     flags.addFlag("Digitization.DataRunNumber", -1)
-    
+    # Job number
+    flags.addFlag("Digitization.JobNumber", 1)
+
     # Run radiation damage simulation
     flags.addFlag("Digitization.DoRadiationDamage", False)
-    
+
     # for PileUp digitization
     # Beam Halo input collections
     flags.addFlag("Digitization.PU.BeamHaloInputCols", [])
     # LHC Bunch Structure (list of non-negative floats)
-    flags.addFlag("Digitization.PU.BeamIntensityPattern", lambda prevFlags: constBunchSpacingPattern(prevFlags.Beam.BunchSpacing))
+    flags.addFlag("Digitization.PU.BeamIntensityPattern",
+                  lambda prevFlags: constBunchSpacingPattern(prevFlags.Beam.BunchSpacing))
     # Beam Gas input collections
     flags.addFlag("Digitization.PU.BeamGasInputCols", [])
     # LHC bunch spacing, in ns, to use in pileup digitization. Only multiples of 25 allowed.
     # Not necessarily equal to Beam.BunchSpacing
-    flags.addFlag("Digitization.PU.BunchSpacing", 0)
+    flags.addFlag("Digitization.PU.BunchSpacing",
+                  lambda prevFlags: prevFlags.Beam.BunchSpacing)
     # PileUp branch crossing parameters
     flags.addFlag("Digitization.PU.InitialBunchCrossing", -32)
     flags.addFlag("Digitization.PU.FinalBunchCrossing", 6)
@@ -140,7 +146,7 @@ def createDigitizationCfgFlags():
     flags.addFlag("Digitization.PU.NumberOfCavern", 0.0)
     # Repeating pattern to determine which events to simulate when using Stepping Cache
     flags.addFlag("Digitization.PU.SignalPatternForSteppingCache", [])
-    
+
     return flags
 
 

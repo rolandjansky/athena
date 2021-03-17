@@ -17,10 +17,10 @@ namespace top {
   }
 
   bool GlobalTrigDecisionSelector::apply(top::Event const& event) const {
-    //auto&& tool = (event.m_isLoose ? m_globalTriggerSFLoose : m_globalTriggerSF);
+    auto&& tool = (event.m_isLoose ? m_globalTriggerSFLoose : m_globalTriggerSF);
 
     std::vector<std::string> triggers;
-//    top::check(tool->getRelevantTriggers(triggers), "TrigGlobalEfficiencyCorrectionTool::getRelevantTriggers failed");
+    top::check(tool->getRelevantTriggers(triggers), "TrigGlobalEfficiencyCorrectionTool::getRelevantTriggers failed");
     for (std::string const& trigger : triggers) {
       if (event.m_info->auxdataConst<char>("TRIGDEC_HLT_" + trigger) > 0) return true;
     }

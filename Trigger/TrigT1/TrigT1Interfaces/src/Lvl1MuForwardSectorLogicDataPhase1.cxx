@@ -19,6 +19,7 @@ namespace LVL1MUONIF {
     if ( ( right.getSystemId() == m_id_system ) &&
          ( this != &right ) ) {
       m_bcid = right.bcid();
+      m_nsw = right.nsw();
       m_2candidatesInSector = right.is2candidatesInSector();
       for ( size_t i = 0; i < NCAND[m_id_system]; ++i ) {
         m_roi[ i ] = right.roi( i );
@@ -29,6 +30,7 @@ namespace LVL1MUONIF {
         m_goodmf[ i ] = right.goodmf(i);
         m_innercoin[ i ] = right.innercoin(i);
         m_bw2or3[ i ] = right.bw2or3(i);
+        m_veto[ i ] = right.veto(i);
       }
     }
     return *this;
@@ -89,9 +91,16 @@ namespace LVL1MUONIF {
     pos += len;
 
     //12-15: global flags
+    //12: >1cand/sector
     len=NBITS_IS2CANDIDATESINSECTOR[m_id_system];
     if (is2candidatesInSector()) val.second |= (1 >> pos) & len;
     pos += len;
+
+    //13: nsw monitoring
+    len=NBITS_NSWMON[m_id_system];
+    if (nsw()) val.second |= (1 >> pos) & len;
+    pos += len;
+
 
     return val;
   }
@@ -165,7 +174,12 @@ namespace LVL1MUONIF {
     if (val) set2candidatesInSector();
     else clear2candidatesInSector();
 
-    //13-15: other global flags
+    //13: nsw monitoring
+    len=NBITS_NSWMON[m_id_system];
+    val = (value.second >> pos) & len;
+    nsw(val);
+
+    //14-15: other global flags
 
     return *this;
   }
@@ -197,6 +211,9 @@ namespace LVL1MUONIF {
 
     out << "Bit 12 " << " >2candidates in a sector ";
     out << std::setw( 8 ) << m_2candidatesInSector << std::endl;
+
+    out << "Bit 13 " << " NSW monitoring ";
+    out << std::setw( 8 ) << m_nsw << std::endl;
   }
 
 } // namespace LVL1MUONIF

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -43,17 +43,18 @@ TrigJetTLAHypoToolMT::~TrigJetTLAHypoToolMT(){
 }
 
 StatusCode TrigJetTLAHypoToolMT::initialize(){
-  DebugInfoCollector collector(name());
-  CHECK(m_helper->getDescription(collector));
-  auto s = collector.toString();
-  
-  for(const auto& l : lineSplitter(s)){
-    ATH_MSG_INFO(l);
-  }
-  
+
   if (m_visitDebug){
-    collector.write();
+
+    DebugInfoCollector collector(name());
+    CHECK(m_helper->getDescription(collector));
+    auto s = collector.toString();
+  
+    for(const auto& l : lineSplitter(s)){
+      ATH_MSG_INFO(l);
+    }
   }
+
   return StatusCode::SUCCESS;
 }
 

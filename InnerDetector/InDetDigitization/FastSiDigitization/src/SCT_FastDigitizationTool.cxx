@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FastSiDigitization/SCT_FastDigitizationTool.h"
@@ -769,7 +769,7 @@ StatusCode SCT_FastDigitizationTool::digitize(const EventContext& ctx)
                   // create the smdar parameter
                   const double sPar = m_sctSmearLandau ?
                     m_sctSmearPathLength*CLHEP::RandLandau::shoot(m_randomEngine) :
-                    m_sctSmearPathLength*CLHEP::RandGauss::shoot(m_randomEngine);
+                    m_sctSmearPathLength*CLHEP::RandGaussZiggurat::shoot(m_randomEngine);
                   chargeWeight *=  (1.+sPar);
                 }
 

@@ -27,8 +27,6 @@ namespace InDetDD
     SiDetectorManager::SiDetectorManager(StoreGateSvc * detStore, const std::string & name)
         : InDetDetectorManager(detStore, name)
     {
-  // Add default folder
-        addFolder("/Indet/Align");
     }
 
     SiDetectorManager::~SiDetectorManager()

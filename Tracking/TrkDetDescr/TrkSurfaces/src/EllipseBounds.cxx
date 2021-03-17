@@ -13,7 +13,10 @@
 // STD
 #include <iomanip>
 #include <iostream>
-
+namespace {
+//closeToZero = 1.17549e-38
+constexpr double closeToZero = std::numeric_limits<float>::min();
+}
 Trk::EllipseBounds::EllipseBounds()
   : m_boundValues(EllipseBounds::bv_length, 0.)
 {}
@@ -27,10 +30,21 @@ Trk::EllipseBounds::EllipseBounds(double minradX, double minradY, double maxradX
   m_boundValues[EllipseBounds::bv_rMaxY] = maxradY;
   m_boundValues[EllipseBounds::bv_averagePhi] = 0.;
   m_boundValues[EllipseBounds::bv_halfPhiSector] = hphisec;
-  if (m_boundValues[EllipseBounds::bv_rMinX] > m_boundValues[EllipseBounds::bv_rMaxX])
+  if (m_boundValues[EllipseBounds::bv_rMinX] > m_boundValues[EllipseBounds::bv_rMaxX]){
     swap(m_boundValues[EllipseBounds::bv_rMinX], m_boundValues[EllipseBounds::bv_rMaxX]);
-  if (m_boundValues[EllipseBounds::bv_rMinY] > m_boundValues[EllipseBounds::bv_rMaxY])
+  }
+  if (m_boundValues[EllipseBounds::bv_rMinY] > m_boundValues[EllipseBounds::bv_rMaxY]){
     swap(m_boundValues[EllipseBounds::bv_rMinY], m_boundValues[EllipseBounds::bv_rMaxY]);
+  }
+  //Make sure we do not get exactly 0 but something else small
+  if(std::abs(m_boundValues[EllipseBounds::bv_rMinX])<closeToZero){
+    m_boundValues[EllipseBounds::bv_rMinX]= closeToZero;
+  }
+  if(std::abs(m_boundValues[EllipseBounds::bv_rMinY])<closeToZero){
+    m_boundValues[EllipseBounds::bv_rMinY]= closeToZero;
+  }
+
+
 }
 
 Trk::EllipseBounds::EllipseBounds(double minradX,
@@ -48,10 +62,22 @@ Trk::EllipseBounds::EllipseBounds(double minradX,
   m_boundValues[EllipseBounds::bv_rMaxY] = maxradY;
   m_boundValues[EllipseBounds::bv_averagePhi] = avephi;
   m_boundValues[EllipseBounds::bv_halfPhiSector] = hphisec;
-  if (m_boundValues[EllipseBounds::bv_rMinX] > m_boundValues[EllipseBounds::bv_rMaxX])
+  if (m_boundValues[EllipseBounds::bv_rMinX] > m_boundValues[EllipseBounds::bv_rMaxX]){
     swap(m_boundValues[EllipseBounds::bv_rMinX], m_boundValues[EllipseBounds::bv_rMaxX]);
-  if (m_boundValues[EllipseBounds::bv_rMinY] > m_boundValues[EllipseBounds::bv_rMaxY])
+  }
+  if (m_boundValues[EllipseBounds::bv_rMinY] > m_boundValues[EllipseBounds::bv_rMaxY]){
     swap(m_boundValues[EllipseBounds::bv_rMinY], m_boundValues[EllipseBounds::bv_rMaxY]);
+  }
+
+  //Make sure we do not get exactly 0 but something else small
+  if(std::abs(m_boundValues[EllipseBounds::bv_rMinX])<closeToZero){
+    m_boundValues[EllipseBounds::bv_rMinX]= closeToZero;
+  }
+  if(std::abs(m_boundValues[EllipseBounds::bv_rMinY])<closeToZero){
+    m_boundValues[EllipseBounds::bv_rMinY]= closeToZero;
+  }
+
+
 }
 
 bool
@@ -87,13 +113,13 @@ Trk::EllipseBounds::minDistance(const Amg::Vector2D& pos) const
   double dF = 0.;
 
   if (m_boundValues[EllipseBounds::bv_halfPhiSector] < M_PI) {
-
     dF = atan2(cs, sn) - m_boundValues[EllipseBounds::bv_averagePhi];
     dF += (dF > M_PI) ? -pi2 : (dF < -M_PI) ? pi2 : 0;
-    double df = fabs(dF) - m_boundValues[EllipseBounds::bv_halfPhiSector];
+    double df = std::abs(dF) - m_boundValues[EllipseBounds::bv_halfPhiSector];
     sf = r * sin(df);
-    if (df > 0.)
+    if (df > 0.){
       r *= cos(df);
+    }
   } else {
     sf = -1.e+10;
   }
@@ -102,18 +128,21 @@ Trk::EllipseBounds::minDistance(const Amg::Vector2D& pos) const
 
     double a = cs / m_boundValues[EllipseBounds::bv_rMaxX];
     double b = sn / m_boundValues[EllipseBounds::bv_rMaxY];
-    double sr0 = r - 1. / sqrt(a * a + b * b);
+    double sr0 = r - 1. / std::sqrt(a * a + b * b);
     if (sr0 >= 0.)
       return sr0;
     a = cs / m_boundValues[EllipseBounds::bv_rMinX];
     b = sn / m_boundValues[EllipseBounds::bv_rMinY];
-    double sr1 = 1. / sqrt(a * a + b * b) - r;
-    if (sr1 >= 0.)
+    double sr1 = 1. / std::sqrt(a * a + b * b) - r;
+    if (sr1 >= 0.){
       return sr1;
-    if (sf < sr0)
+    }
+    if (sf < sr0){
       sf = sr0;
-    if (sf < sr1)
+    }
+    if (sf < sr1){
       sf = sr1;
+    }
     return sf;
   }
 
@@ -124,14 +153,16 @@ Trk::EllipseBounds::minDistance(const Amg::Vector2D& pos) const
   cs = cos(fb);
   double a = cs / m_boundValues[EllipseBounds::bv_rMaxX];
   double b = sn / m_boundValues[EllipseBounds::bv_rMaxY];
-  double sr0 = r - 1. / sqrt(a * a + b * b);
-  if (sr0 >= 0.)
-    return sqrt(sr0 * sr0 + sf * sf);
+  double sr0 = r - 1. / std::sqrt(a * a + b * b);
+  if (sr0 >= 0.){
+    return std::sqrt(sr0 * sr0 + sf * sf);
+  }
   a = cs / m_boundValues[EllipseBounds::bv_rMinX];
   b = sn / m_boundValues[EllipseBounds::bv_rMinY];
   double sr1 = 1. / sqrt(a * a + b * b) - r;
-  if (sr1 >= 0.)
-    return sqrt(sr1 * sr1 + sf * sf);
+  if (sr1 >= 0.){
+    return std::sqrt(sr1 * sr1 + sf * sf);
+  }
   return sf;
 }
 

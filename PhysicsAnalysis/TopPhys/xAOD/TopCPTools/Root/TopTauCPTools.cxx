@@ -26,7 +26,7 @@
 namespace top {
   TauCPTools::TauCPTools(const std::string& name) :
     asg::AsgTool(name),
-    m_pileupReweightingTool("CP::PileupReweightingTool") {
+    m_pileupReweightingTool("PileupReweightingTool") {
     declareProperty("config", m_config);
 
     declareProperty("TauSmearingTool", m_tauSmearingTool);
