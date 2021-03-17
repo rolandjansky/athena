@@ -81,6 +81,8 @@ InDetPerfPlot_VertexTruthMatching::InDetPerfPlot_VertexTruthMatching(InDetPlotBa
 void InDetPerfPlot_VertexTruthMatching::initializePlots() {
 
     book(m_vx_type_truth,"vx_type_truth");
+    book(m_vx_z_diff,"vx_z_diff");
+    book(m_vx_z_diff_pull,"vx_z_diff_pull");
     if (m_iDetailLevel >= 200) {
         book(m_vx_hs_classification,"vx_hs_classification");
         book(m_vx_nReco_vs_nTruth_inclusive,"vx_nReco_vs_nTruth_inclusive");
@@ -314,7 +316,15 @@ const xAOD::TruthVertex* InDetPerfPlot_VertexTruthMatching::getTruthVertex(const
     return truthVtx;
 }
 
-void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex& vertex) {
+void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex& vertex, const xAOD::TruthVertex * tvrt) {
+
+    if(tvrt){
+      float diff_z=vertex.z()-tvrt->z();
+      const AmgSymMatrix(3)& covariance = vertex.covariancePosition();
+      float err_z = fabs(Amg::error(covariance, 2)) > 1e-7 ? Amg::error(covariance, 2) : 1000.;
+      fillHisto(m_vx_z_diff,diff_z);
+      fillHisto(m_vx_z_diff_pull,diff_z/err_z);
+    }
 
     // Get the match type info for each vertex:
     const static xAOD::Vertex::Decorator<InDetVertexTruthMatchUtils::VertexMatchType> recoVtxMatchTypeInfo("VertexMatchType");

@@ -756,6 +756,14 @@
   <x title="Vertex Truth-Matched type" n="5" lo="-0.5" hi="4.5"/>
   <y title="Entries"/>
 </h>
+<h id="vx_z_diff" type="TH1F" title="PV selected-truth Z difference">
+  <x title="Vertex Truth-Matched type" n="100" lo="-0.5" hi="0.5"/>
+  <y title="Entries"/>
+</h>
+<h id="vx_z_diff_pull" type="TH1F" title="PV selected-truth Z difference pull">
+  <x title="Vertex Truth-Matched type" n="100" lo="-5.0" hi="5.0"/>
+  <y title="Entries"/>
+</h>
 <h id="vx_hs_classification" type="TH1F" title="Event hardscatter vertex classification">
   <x title="Hardscatter classification" n="5" lo="-0.5" hi="4.5"/>
   <y title="Entries"/>

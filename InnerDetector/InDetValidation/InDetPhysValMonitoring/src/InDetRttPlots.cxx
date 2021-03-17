@@ -316,7 +316,8 @@ InDetRttPlots::fill(const xAOD::VertexContainer& vertexContainer, const std::vec
     ATH_MSG_DEBUG("IN InDetRttPlots::fill, filling for all vertices");
     if (vtx->vertexType() == xAOD::VxType::PriVtx) {
       m_hardScatterVertexPlots.fill(*vtx);
-      m_hardScatterVertexTruthMatchingPlots.fill(*vtx);
+      if(truthHSVertices.size()>0)m_hardScatterVertexTruthMatchingPlots.fill(*vtx,truthHSVertices[0]);
+      else m_hardScatterVertexTruthMatchingPlots.fill(*vtx);
       ATH_MSG_DEBUG("IN InDetRttPlots::fill, filling for all HS vertex");
     }
   }
