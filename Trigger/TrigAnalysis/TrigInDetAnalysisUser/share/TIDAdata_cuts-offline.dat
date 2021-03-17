@@ -5,7 +5,7 @@ eta    = 2.5;
 #elif defined(LARGED0_EL)
 	a0=4.;
 #elif defined(LRT)
-        a0=50.;
+        a0=100.;
 #else	
 	a0=3.;
 #endif
