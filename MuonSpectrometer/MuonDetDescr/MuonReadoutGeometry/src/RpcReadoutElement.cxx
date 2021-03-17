@@ -18,6 +18,7 @@
 #include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
+#include "GeoModelUtilities/GeoVisitVolumes.h"
 #include "MuonReadoutGeometry/GenericRPCCache.h"
 #include "MuonReadoutGeometry/RpcReadoutSet.h"
 #include "TrkSurfaces/PlaneSurface.h"
@@ -61,24 +62,21 @@ namespace MuonGM {
 
     if (mgr->MinimalGeoFlag() == 0) {
       if (GeoFullPhysVol* pvc = dynamic_cast<GeoFullPhysVol*> (pv)) {
-	unsigned int nchildvol = pvc->getNChildVols();
 	int lgg = 0;
 	int llay = 0;
 	std::string::size_type npos;
-	for (unsigned ich=0; ich<nchildvol; ++ich) {
-	  PVConstLink pc = pvc->getChildVol(ich);
+        for (const GeoVolumeVec_t::value_type& p1 : geoGetVolumes (pvc)) {
+          const GeoVPhysVol* pc = p1.first;
 	  std::string childname = (pc->getLogVol())->getName();
 	  if ((npos = childname.find("layer")) != std::string::npos ) {
 	    llay ++;
-	    unsigned int nch1 = pc->getNChildVols();
 	    lgg = 0;
-	    for (unsigned ngv=0; ngv<nch1; ++ngv) {
-	      PVConstLink pcgv = pc->getChildVol(ngv);
+            for (const GeoVolumeVec_t::value_type& p2 : geoGetVolumes (pc)) {
+              const GeoVPhysVol* pcgv = p2.first;
 	      std::string childname1 = (pcgv->getLogVol())->getName();
 	      if ((npos = childname1.find("gas volume")) != std::string::npos ) {
 		lgg ++;
-		PVConstLink pcgg = pcgv->getChildVol(0);
-		GeoTrf::Transform3D trans = pvc->getXToChildVol(ich)*pc->getXToChildVol(ngv)*pcgv->getXToChildVol(0);
+		GeoTrf::Transform3D trans = p1.second*p2.second*pcgv->getXToChildVol(0);
 		m_Xlg[llay-1][lgg-1] = trans;
 	      }
 	    }
