@@ -199,7 +199,8 @@ class PixelConditionsServicesSetup:
 
     from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
     TrigPixelConditionsSummaryTool = PixelConditionsSummaryTool(name=self.instanceName('PixelConditionsSummaryTool'), 
-                                                                UseByteStream=self.useBS)
+                                                                UseByteStreamFEI4=self.useBS,
+                                                                UseByteStreamFEI3=self.useBS)
 
     if self.useDCS and not self.onlineMode:
       TrigPixelConditionsSummaryTool.IsActiveStates = [ 'READY', 'ON' ]

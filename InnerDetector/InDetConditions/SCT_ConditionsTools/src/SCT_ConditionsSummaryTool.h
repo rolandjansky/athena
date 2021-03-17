@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -65,6 +65,7 @@ public:
   virtual bool hasBSError(const IdentifierHash& elementHash, const EventContext& ctx) const override;
   virtual bool hasBSError(const IdentifierHash& elementHash, Identifier elementId, const EventContext& ctx) const override;
   virtual uint64_t getBSErrorWord(const IdentifierHash& moduleHash, const EventContext& ctx) const  override;
+  virtual uint64_t getBSErrorWord(const IdentifierHash& moduleHash, const int index, const EventContext& ctx) const  override;
   //@}
 private:
   StringArrayProperty m_reportingTools; //!< list of tools to be used

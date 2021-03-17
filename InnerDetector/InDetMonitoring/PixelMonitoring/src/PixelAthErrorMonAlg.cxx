@@ -172,7 +172,7 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
     for (int iFE=0; iFE<nFE; iFE++) {
 
       int offsetFE = (1+iFE)*maxHash + modHash;    // (FE index+1)*2048 + moduleHash
-      uint64_t fe_errorword = m_pixelCondSummaryTool->getBSErrorWord(offsetFE, ctx);
+      uint64_t fe_errorword = m_pixelCondSummaryTool->getBSErrorWord(modHash, offsetFE, ctx);
 
       fillErrorCatRODmod(fe_errorword, is_fei4, nerrors_cat_rodmod, iFE);
 
@@ -218,7 +218,7 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
 	  Identifier pixelIDperFEI4 = m_pixelCablingSvc->getPixelIdfromHash(modHash, iFE, 1, 1);
 	  // index = offset + (serviceCode)*(#IBL*nFE) + (moduleHash-156)*nFE + FE
           int serviceCodeCounterIndex = serviceRecordFieldOffset + serviceCodeOffset + moduleOffset + iFE;
-          uint64_t serviceCodeCounter = m_pixelCondSummaryTool->getBSErrorWord(serviceCodeCounterIndex, ctx);
+          uint64_t serviceCodeCounter = m_pixelCondSummaryTool->getBSErrorWord(modHash, serviceCodeCounterIndex, ctx);
 	  if (serviceCodeCounter>0) {
 
 	    float payload = serviceCodeCounter; // NB: + 1, as in rel 21, is now added upstream

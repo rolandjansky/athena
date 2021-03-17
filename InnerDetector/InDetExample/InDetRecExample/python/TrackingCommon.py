@@ -829,7 +829,8 @@ def getInDetPixelConditionsSummaryTool() :
     from InDetRecExample.InDetJobProperties import InDetFlags
     from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
     pixelConditionsSummaryToolSetup = PixelConditionsSummaryTool("PixelConditionsSummaryTool",
-                                                                 UseByteStream=(globalflags.DataSource=='data'))
+                                                                 UseByteStreamFEI4=(globalflags.DataSource=='data'),
+                                                                 UseByteStreamFEI3=(globalflags.DataSource=='data'))
     if InDetFlags.usePixelDCS():
         pixelConditionsSummaryToolSetup.IsActiveStates = [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ]
         pixelConditionsSummaryToolSetup.IsActiveStatus = [ 'OK', 'WARNING', 'ERROR', 'FATAL' ]

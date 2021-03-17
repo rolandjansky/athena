@@ -75,6 +75,7 @@ if DetFlags.pixel_on():
 
             alg = PixelConfigCondAlg(name="PixelConfigCondAlg", 
                                      CablingMapFileName=IdMappingDat)
+
             if jobproperties.Beam.beamType() == 'cosmics':
                 alg.BarrelTimeJitter=[25.0,25.0,25.0,25.0]
                 alg.EndcapTimeJitter=[25.0,25.0,25.0]

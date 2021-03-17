@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -53,6 +53,7 @@ public:
   virtual bool hasBSError(const IdentifierHash& elementHash, const EventContext& ctx) const =0;
   virtual bool hasBSError(const IdentifierHash& elementHash, Identifier elementId, const EventContext& ctx) const =0;
   virtual uint64_t getBSErrorWord(const IdentifierHash& elementHash, const EventContext& ctx) const =0;
+  virtual uint64_t getBSErrorWord(const IdentifierHash& elementHash, const int index, const EventContext& ctx) const =0;
 
 };
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file PixelConditionsTools/PixelConditionsSummaryTool.h
@@ -15,6 +15,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "Gaudi/Property.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "AthenaKernel/SlotSpecificObj.h"
 
@@ -23,7 +24,6 @@
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/PixelID.h"
 
-#include "PixelConditionsData/PixelModuleData.h"
 #include "PixelConditionsData/PixelDeadMapCondData.h"
 #include "PixelConditionsData/PixelDCSStateData.h"
 #include "PixelConditionsData/PixelDCSStatusData.h"
@@ -31,6 +31,7 @@
 #include "PixelConditionsData/PixelByteStreamErrors.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "PixelCabling/IPixelCablingSvc.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 
 class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool{
   public:
@@ -65,6 +66,7 @@ class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool
     virtual bool hasBSError(const IdentifierHash& moduleHash, const EventContext& ctx) const override final;
     virtual bool hasBSError(const IdentifierHash& moduleHash, Identifier pixid, const EventContext& ctx) const override final;
     virtual uint64_t getBSErrorWord(const IdentifierHash& moduleHash, const EventContext& ctx) const override final;
+    virtual uint64_t getBSErrorWord(const IdentifierHash& moduleHash, const int index, const EventContext& ctx) const override final;
 
     bool checkChipStatus(IdentifierHash moduleHash, Identifier pixid) const;
     bool checkChipStatus(IdentifierHash moduleHash, Identifier pixid, const EventContext& ctx) const;
@@ -77,7 +79,11 @@ class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool
     std::vector<int> m_activeState;
     std::vector<int> m_activeStatus;
 
-    bool m_useByteStream;
+    Gaudi::Property<bool> m_useByteStreamFEI4
+    {this, "UseByteStreamFEI4", false, "Switch of the ByteStream error for FEI4"};
+
+    Gaudi::Property<bool> m_useByteStreamFEI3
+    {this, "UseByteStreamFEI3", false, "Switch of the ByteStream error for FEI3"};
 
     SG::ReadCondHandleKey<PixelDCSStateData> m_condDCSStateKey
     {this, "PixelDCSStateCondData", "PixelDCSStateCondData", "Pixel FSM state key"};
@@ -96,6 +102,9 @@ class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool
 
     SG::ReadHandleKey<IDCInDetBSErrContainer>  m_BSErrContReadKey
     {this, "PixelByteStreamErrs", "PixelByteStreamErrs", "PixelByteStreamErrs container key"};
+
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey
+    {this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
 
     const uint64_t m_missingErrorInfo{std::numeric_limits<uint64_t>::max()-3000000000};
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -184,6 +184,12 @@ SCT_ConditionsSummaryTool::hasBSError(const IdentifierHash& /*elementHash*/, Ide
 
 uint64_t
 SCT_ConditionsSummaryTool::getBSErrorWord(const IdentifierHash& /*moduleHash*/, const EventContext& /*ctx*/) const {
+  ATH_MSG_WARNING("getBSErrorWord() is not implemented for SCT_ConditionsSummaryTool");
+  return 0;
+}
+
+uint64_t
+SCT_ConditionsSummaryTool::getBSErrorWord(const IdentifierHash& /*moduleHash*/, const int /*index*/, const EventContext& /*ctx*/) const {
   ATH_MSG_WARNING("getBSErrorWord() is not implemented for SCT_ConditionsSummaryTool");
   return 0;
 }
