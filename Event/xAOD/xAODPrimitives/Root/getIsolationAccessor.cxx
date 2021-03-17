@@ -56,6 +56,32 @@ namespace xAOD {
          DEFINE_ISO_ACCESSOR(ptvarcone20);
          DEFINE_ISO_ACCESSOR(ptvarcone30);
          DEFINE_ISO_ACCESSOR(ptvarcone40);
+         // Ptcone variables for high mu:
+         DEFINE_ISO_ACCESSOR(ptcone20_TightTTVA_pt500);
+         DEFINE_ISO_ACCESSOR(ptcone30_TightTTVA_pt500);
+         DEFINE_ISO_ACCESSOR(ptcone40_TightTTVA_pt500);
+         DEFINE_ISO_ACCESSOR(ptcone20_TightTTVA_pt1000);
+         DEFINE_ISO_ACCESSOR(ptcone30_TightTTVA_pt1000);
+         DEFINE_ISO_ACCESSOR(ptcone40_TightTTVA_pt1000);
+         DEFINE_ISO_ACCESSOR(ptcone20_TightTTVALooseCone_pt500);
+         DEFINE_ISO_ACCESSOR(ptcone30_TightTTVALooseCone_pt500);
+         DEFINE_ISO_ACCESSOR(ptcone40_TightTTVALooseCone_pt500);
+         DEFINE_ISO_ACCESSOR(ptcone20_TightTTVALooseCone_pt1000);
+         DEFINE_ISO_ACCESSOR(ptcone30_TightTTVALooseCone_pt1000);
+         DEFINE_ISO_ACCESSOR(ptcone40_TightTTVALooseCone_pt1000);
+         // Mini-Isolation (http://arxiv.org/abs/1007.2221) variables for high mu:
+         DEFINE_ISO_ACCESSOR(ptvarcone20_TightTTVA_pt500);
+         DEFINE_ISO_ACCESSOR(ptvarcone30_TightTTVA_pt500);
+         DEFINE_ISO_ACCESSOR(ptvarcone40_TightTTVA_pt500);
+         DEFINE_ISO_ACCESSOR(ptvarcone20_TightTTVA_pt1000);
+         DEFINE_ISO_ACCESSOR(ptvarcone30_TightTTVA_pt1000);
+         DEFINE_ISO_ACCESSOR(ptvarcone40_TightTTVA_pt1000);
+         DEFINE_ISO_ACCESSOR(ptvarcone20_TightTTVALooseCone_pt500);
+         DEFINE_ISO_ACCESSOR(ptvarcone30_TightTTVALooseCone_pt500);
+         DEFINE_ISO_ACCESSOR(ptvarcone40_TightTTVALooseCone_pt500);
+         DEFINE_ISO_ACCESSOR(ptvarcone20_TightTTVALooseCone_pt1000);
+         DEFINE_ISO_ACCESSOR(ptvarcone30_TightTTVALooseCone_pt1000);
+         DEFINE_ISO_ACCESSOR(ptvarcone40_TightTTVALooseCone_pt1000);
          // neutral eflow
          DEFINE_ISO_ACCESSOR(neflowisol20);
          DEFINE_ISO_ACCESSOR(neflowisol30);
