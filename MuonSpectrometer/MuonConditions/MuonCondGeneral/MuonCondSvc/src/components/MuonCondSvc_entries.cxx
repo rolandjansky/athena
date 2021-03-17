@@ -9,7 +9,6 @@
 #include "MuonCondSvc/TGCCondSummarySvc.h"
 #include "MuonCondSvc/CSCCondSummarySvc.h"
 #include "MuonCondSvc/MDT_DCSConditionsSvc.h"
-#include "MuonCondSvc/MDT_DeadTubeConditionsSvc.h"
 #include "MuonCondSvc/MDT_DQConditionsSvc.h"
 #include "MuonCondSvc/CSC_DCSConditionsSvc.h"
 #include "MuonCondSvc/RPC_STATUSConditionsSvc.h"
@@ -31,7 +30,6 @@ DECLARE_COMPONENT( MDTCondSummarySvc )
 DECLARE_COMPONENT( RPCCondSummarySvc )
 DECLARE_COMPONENT( TGCCondSummarySvc )
 DECLARE_COMPONENT( CSCCondSummarySvc )
-DECLARE_COMPONENT( MDT_DeadTubeConditionsSvc )
 DECLARE_COMPONENT( MDT_DQConditionsSvc )
 DECLARE_COMPONENT( RPC_STATUSConditionsSvc )
 DECLARE_COMPONENT( RPC_DCSConditionsSvc )

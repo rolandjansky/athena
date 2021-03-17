@@ -120,21 +120,7 @@ if do_MDTChamber:
 
     
 if doMDT_Tube:    
-    # Dead Tube
-    
-    
-    from MuonCondSvc.MuonCondSvcConf import MDT_DeadTubeConditionsSvc
-    ServiceMgr +=MDT_DeadTubeConditionsSvc()
-    
-    from MuonCondTool.MuonCondToolConf import MDT_DeadTubeConditionsTool
-    MDT_DeadTubeConditionsTool = MDT_DeadTubeConditionsTool("MDT_DeadTubeConditionsTool")
-    MDT_DeadTubeConditionsTool.OutputLevel = VERBOSE 
-    #MessageSvc.OutputLevel = DEBUG
-    MDT_DeadTubeConditionsTool.DeadTubeFolder = "/CONFIG/DEAD_TUBE"
-    ToolSvc += MDT_DeadTubeConditionsTool
-
-
-
+  
     IOVDbSvc.DBInstance="ATLAS_COOL_MDTDQ"
     dbConn_Mdt="oracle://intr;schema=ATLAS_COOL_MDTDQ;dbname=MDT_DQA"
 
