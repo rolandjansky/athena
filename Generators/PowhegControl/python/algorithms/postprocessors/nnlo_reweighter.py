@@ -61,6 +61,7 @@ def run_NNLO_executable(process, powheg_LHE_output, output_LHE_name):
     """! Run the NNLO executable."""
     # Run NNLOPS
     NNLO_executable = process.executable
+    print("eA minnlo? ",NNLO_executable)
     if "nnlopsreweighter" in NNLO_executable:
         process.NNLO_weight_list = construct_NNLOPS_weight_list(process.NNLO_output_weights, powheg_LHE_output)
         run_NNLOPS_executable(NNLO_executable, process.NNLO_reweighting_inputs, process.NNLO_weight_list, powheg_LHE_output, output_LHE_name)
@@ -110,7 +111,7 @@ def run_NNLOPS_executable(NNLO_executable, NNLO_reweighting_inputs, NNLO_weight_
 def run_DYNNLO_executable(NNLO_executable, NNLO_reweighting_inputs, powheg_LHE_output, output_LHE_name):
     """! Run DYNNLOPS reweighter with appropriate arguments."""
     # Stage 1 - produce MINLO-W*-denom.top files
-    stage_1_command = [NNLO_executable, powheg_LHE_output, len(NNLO_reweighting_inputs)] + NNLO_reweighting_inputs.values()
+    stage_1_command = [NNLO_executable, powheg_LHE_output, len(NNLO_reweighting_inputs)] + list(NNLO_reweighting_inputs.values())
     logger.info("Running reweighting stage 1: denominator calculation")
     manager = ProcessManager([SingleProcessThread(stage_1_command)])
     while manager.monitor():

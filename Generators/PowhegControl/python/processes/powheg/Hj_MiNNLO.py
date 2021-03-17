@@ -23,7 +23,7 @@ class Hj_MiNNLO(PowhegV2):
         @param kwargs          dictionary of arguments from Generate_tf.
         """
 
-        super(Hj_MiNNLO, self).__init__(base_directory, os.path.join("Hj", "HjMiNNLO"), powheg_executable="pwhg_main", **kwargs)
+        super(Hj_MiNNLO, self).__init__(base_directory, os.path.join("HJ", "HJMiNNLO"), powheg_executable="pwhg_main", **kwargs)
 
         # Add all keywords for this process, overriding defaults if required
         self.add_keyword("alphas_from_lhapdf",0.0)

@@ -125,7 +125,7 @@ class PowhegControl(object):
                     logger.warning("Running in multicore mode but no 'nprocs' option was provided!")
             self.scheduler.add("multicore", self.process)
             self.scheduler.add("merge output", self.process.cores, self.nEvents)
-            self.process.parameters_by_name("manyseeds")[0].value = 1
+            list(self.process.parameters_by_name("manyseeds"))[0].value = 1
 
         # Freeze the interface so that no new attributes can be added
         self.interface_frozen = True

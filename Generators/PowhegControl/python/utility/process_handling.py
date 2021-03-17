@@ -65,7 +65,7 @@ class SingleProcessThread(object):
             self.__ignore_output = ignore_output
         # Usual case, where no open file handle is provided
         if stdin is None:
-            self.__process = subprocess.Popen(command_list, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+            self.__process = subprocess.Popen(command_list, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             # Write seed to stdin
             if seed_index is not None:
                 self.__output_prefix += "Process #{}: ".format(seed_index)
@@ -76,7 +76,7 @@ class SingleProcessThread(object):
                 self.log("Providing random seed: {}".format(random_seed_list[seed_index - 1]))
         # Using an open file handle to provide input to stdin: remember to close this later
         else:
-            self.__process = subprocess.Popen(command_list, stdout=subprocess.PIPE, stdin=stdin, stderr=subprocess.PIPE)
+            self.__process = subprocess.Popen(command_list, stdout=subprocess.PIPE, stdin=stdin, stderr=subprocess.PIPE, text=True)
         # Setup non-blocking stream readers for stdout and stderr
         self.__stdout = NonBlockingStreamReader(self.__process.stdout)
         self.__stderr = NonBlockingStreamReader(self.__process.stderr)
