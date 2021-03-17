@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_HLTTriggerElement
@@ -69,9 +69,9 @@ namespace TrigConf {
       virtual void print(const std::string& indent="", unsigned int detail=1) const;
       virtual void writeXML(std::ofstream & xmlfile);
 
-      void setL2(bool on=true) const { set(); if(on) m_level |= 0x1; else m_level &= 0x2; }
-      void setEF(bool on=true) const { set(); if(on) m_level |= 0x2; else m_level &= 0x1; }
-      void reset() const { m_level = 0x4; }
+      void setL2(bool on=true) { set(); if(on) m_level |= 0x1; else m_level &= 0x2; }
+      void setEF(bool on=true) { set(); if(on) m_level |= 0x2; else m_level &= 0x1; }
+      void reset() { m_level = 0x4; }
       bool inL2() const { return (m_level&0x1) != 0; }
       bool inEF() const { return (m_level&0x2) != 0; }
       bool isSet() const { return (m_level&0x4) == 0; }
@@ -80,9 +80,9 @@ namespace TrigConf {
 
       unsigned int m_hashId;   ///< trigger element id  
 
-      mutable unsigned int m_level;      //!< level where TE is produced for a given configuration (to be determined in light of the menu, this
+      unsigned int m_level;      //!< level where TE is produced for a given configuration (to be determined in light of the menu, this
       //!< is not a property of the TE per se.) In rare cases a sequence could be running explicitely in both levels
-      void set() const { m_level &= 0x3; }
+      void set() { m_level &= 0x3; }
 
       friend std::ostream & operator<<(std::ostream &, const TrigConf::HLTTriggerElement &);
 
