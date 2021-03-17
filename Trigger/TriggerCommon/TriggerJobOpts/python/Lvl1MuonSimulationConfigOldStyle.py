@@ -3,38 +3,31 @@
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 def TMDBSimulationSequence(flags):
-
     if not flags.Input.isMC:
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        if flags.Trigger.enableL1Phase1:
-            svcMgr.ByteStreamAddressProviderSvc.TypeNames += [
-                "TileRawChannelContainer/MuRcvRawChCnt"
-            ]
-        else:
-            svcMgr.ByteStreamAddressProviderSvc.TypeNames += [
-                "TileMuonReceiverContainer/TileMuRcvCnt"
-            ]
+        if not hasattr( svcMgr, "ByteStreamAddressProviderSvc" ):
+            from ByteStreamCnvSvcBase. ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc
+            svcMgr += ByteStreamAddressProviderSvc()
+        svcMgr.ByteStreamAddressProviderSvc.TypeNames += [
+            "TileRawChannelContainer/MuRcvRawChCnt"
+        ]
     else:
         pass
-
+    TileMuonReceiverDecision = CompFactory.TileMuonReceiverDecision('TileMuonReceiverDecision'
+                                                                    , TileRawChannelContainer = "MuRcvRawChCnt" # input
+                                                                    , TileMuonReceiverContainer = "rerunTileMuRcvCnt" # output
+                                                                    , ManualRunPeriod = 2 # forcing Run 2 format (=2) for now, until TGC implements Run 3 format (=3)
+                                                                    # run 2 thresholds
+                                                                    , MuonReceiverEneThreshCellD6Low = 500
+                                                                    , MuonReceiverEneThreshCellD6andD5Low = 500
+                                                                    , MuonReceiverEneThreshCellD6High = 600
+                                                                    , MuonReceiverEneThreshCellD6andD5High = 600
+                                                                    # run 3 thresholds
+                                                                    , MuonReceiverEneThreshCellD5 = 500
+                                                                    , MuonReceiverEneThreshCellD6 = 500
+                                                                    , MuonReceiverEneThreshCellD5andD6 = 500)
     from AthenaCommon.CFElements import seqAND
-    if flags.Trigger.enableL1Phase1:
-        TileMuonReceiverDecision = CompFactory.TileMuonReceiverDecision('TileMuonReceiverDecision'
-                                                                        , TileRawChannelContainer = "MuRcvRawChCnt" # input
-                                                                        , TileMuonReceiverContainer = "rerunTileMuRcvCnt" # output
-                                                                        , ManualRunPeriod = 2 # forcing Run 2 format (=2) for now, until TGC implements Run 3 format (=3)
-                                                                        # run 2 thresholds
-                                                                        , MuonReceiverEneThreshCellD6Low = 500
-                                                                        , MuonReceiverEneThreshCellD6andD5Low = 500
-                                                                        , MuonReceiverEneThreshCellD6High = 600
-                                                                        , MuonReceiverEneThreshCellD6andD5High = 600
-                                                                        # run 3 thresholds
-                                                                        , MuonReceiverEneThreshCellD5 = 500
-                                                                        , MuonReceiverEneThreshCellD6 = 500
-                                                                        , MuonReceiverEneThreshCellD5andD6 = 500)
-        return seqAND("TMDBSimSeq", [ TileMuonReceiverDecision ] )
-    else:
-        return seqAND("TMDBSimSeq", [] )
+    return seqAND("TMDBSimSeq", [ TileMuonReceiverDecision ] )
 
 def NSWTriggerSequence(flags):
     # to be implemented
@@ -50,18 +43,25 @@ def RecoMuonSegmentSequence(flags):
                                                       ,sTgcPrepDataContainer = "" # "STGC_Measurements"
                                                       ,MMPrepDataContainer = "" # "MM_Measurements"
                                                   )
+    mdtCondDb = CompFactory.MdtCondDbAlg("MdtCondDbAlg" + postFix
+                                         , isOnline = False
+                                         , isData = not flags.Input.isMC
+                                         , isRun1 = False
+                                     )
+    from IOVDbSvc.CondDB import conddb
+    if flags.Input.isMC:
+        conddb.addFolder("DCS_OFL", "/MDT/DCS/DROPPEDCH",className='CondAttrListCollection')
+        conddb.addFolder("DCS_OFL", "/MDT/DCS/PSLVCHSTATE",className='CondAttrListCollection')
+    else:
+        conddb._SetAcc('DCS_OFL','COOLOFL_DCS')
+        conddb.addFolder("DCS_OFL", "/MDT/DCS/HV",className='CondAttrListCollection')
+        conddb.addFolder("DCS_OFL", "/MDT/DCS/LV",className='CondAttrListCollection')
     theSegmentFinderAlg = CompFactory.MuonSegmentFinderAlg("MuonSegmentFinderAlg" + postFix,
                                                            MuonTruthSummaryTool = '')
     xAODMuonSegmentCnv = CompFactory.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg" + postFix)
     from AthenaCommon.CFElements import seqAND
-    if flags.Input.isMC:
-        from MuonCondAlg.MuonTopCondAlgConfigRUN2 import MdtCondDbAlg
-        mdtdb = MdtCondDbAlg("MdtCondDbAlg"+postFix)
-        recoMuonSegment = seqAND( "MuSegRecSeqForL1Muon", [muonLayerHoughAlg,mdtdb,theSegmentFinderAlg, xAODMuonSegmentCnv] )
-        return recoMuonSegment
-    else:
-        recoMuonSegment = seqAND( "MuSegRecSeqForL1Muon", [muonLayerHoughAlg,theSegmentFinderAlg, xAODMuonSegmentCnv] )
-        return recoMuonSegment
+    recoMuonSegment = seqAND( "MuSegRecSeqForL1Muon", [muonLayerHoughAlg,mdtCondDb,theSegmentFinderAlg, xAODMuonSegmentCnv] )
+    return recoMuonSegment
 
 def MuonBytestream2RdoSequence(flags):
     from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheNames
@@ -163,7 +163,7 @@ def Lvl1MuRdo2Digit(flags):
     return rdo2digit
     
 def TGCTriggerConfig(flags):
-    tmdbInput = "rerunTileMuRcvCnt" if flags.Trigger.enableL1Phase1 else "TileMuRcvCnt"
+    tmdbInput = "rerunTileMuRcvCnt"
     tgc = CompFactory.LVL1TGCTrigger__LVL1TGCTrigger("LVL1TGCTrigger",
                                                      InputData_perEvent  = "TGC_DIGITS_L1",
                                                      MaskFileName12      = "TrigT1TGCMaskedChannel._12.db",
@@ -267,7 +267,7 @@ def Lvl1MuctpiConfig(flags):
         from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi
         muctpi = L1Muctpi()
         muctpi.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
-        if 'MUCTPI_RDO' in flags.Input.Collections or not flags.Input.isMC:
+        if not flags.Input.isMC:
             muctpi.RDOOutputLocID = 'rerunMUCTPI_RDO'
         return muctpi
 
