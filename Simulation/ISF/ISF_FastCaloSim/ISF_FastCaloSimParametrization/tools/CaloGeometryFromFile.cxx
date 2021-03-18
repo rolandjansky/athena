@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloGeometryFromFile.h"
@@ -155,11 +155,15 @@ bool CaloGeometryFromFile::LoadGeometryFromFile(TString filename,TString treenam
 	
 	std::cout << "\n \n";
 	std::cout << "Testing whether CaloGeoGeometry is loaded properly" << std::endl;
-	if(!mcell)std::cout << "Cell is not found" << std::endl;
-	std::cout << "Identifier " << mcell->identify() <<" sampling " << mcell->getSampling() << " eta: " << mcell->eta() << " phi: " << mcell->phi() << " CaloDetDescrElement="<<mcell << std::endl<< std::endl;
+	if(!mcell) {
+          std::cout << "Cell is not found" << std::endl;
+        }
+        else {
+          std::cout << "Identifier " << mcell->identify() <<" sampling " << mcell->getSampling() << " eta: " << mcell->eta() << " phi: " << mcell->phi() << " CaloDetDescrElement="<<mcell << std::endl<< std::endl;
 	
-	const CaloDetDescrElement* mcell2 = this->getDDE(mcell->getSampling(),mcell->eta(),mcell->phi());
-	std::cout << "Identifier " << mcell2->identify() <<" sampling " << mcell2->getSampling() << " eta: " << mcell2->eta() << " phi: " << mcell2->phi() << " CaloDetDescrElement="<<mcell2<< std::endl<< std::endl;
+          const CaloDetDescrElement* mcell2 = this->getDDE(mcell->getSampling(),mcell->eta(),mcell->phi());
+          std::cout << "Identifier " << mcell2->identify() <<" sampling " << mcell2->getSampling() << " eta: " << mcell2->eta() << " phi: " << mcell2->phi() << " CaloDetDescrElement="<<mcell2<< std::endl<< std::endl;
+        }
 	
   return ok;
 }
