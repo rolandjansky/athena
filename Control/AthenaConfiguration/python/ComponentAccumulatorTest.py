@@ -17,8 +17,8 @@ import unittest
 TestAlgo = CompFactory.HelloAlg
 
 
-Configurable.configurableRun3Behavior=1
-ComponentAccumulator.debugMode=True
+Configurable.configurableRun3Behavior=True
+ComponentAccumulator.debugMode="trackCA trackCondAlgo trackPublicTool trackEventAlgo"
 class TestComponentAccumulator( unittest.TestCase ):
     def setUp(self):
 

@@ -2,7 +2,7 @@
 #  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
-from AthenaConfiguration.ComponentAccumulator import CompFactory, ComponentAccumulator
+from AthenaConfiguration.ComponentAccumulator import CompFactory
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
 
@@ -62,7 +62,7 @@ args = flags.fillFromArgs(parser=parser)
 
 flags.lock()
 # Enable when debugging deduplication issues
-ComponentAccumulator.debugMode = False
+# ComponentAccumulator.debugMode = "trackCA trackEventAlog ... and so on"
 
 
 from AthenaCommon.Constants import DEBUG, INFO, WARNING

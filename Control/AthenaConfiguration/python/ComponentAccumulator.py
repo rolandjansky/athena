@@ -75,8 +75,10 @@ def filterComponents (comps, onlyComponents = []):
 
 
 class ComponentAccumulator(object):
-    debugMode=False
-
+    # the debug mode is combination of the following strings:
+    # trackCA - to track CA creation,
+    # track[EventAlgo|CondAlgo|PublicTool|PrivateTool|Service|Sequence] - to track categories components addition
+    debugMode=""
     def __init__(self,sequence='AthAlgSeq'):
         self._msg=logging.getLogger('ComponentAccumulator')
         if isinstance(sequence, str):
@@ -107,8 +109,8 @@ class ComponentAccumulator(object):
         self._wasMerged=False
         self._isMergable=True
         self._lastAddedComponent="Unknown"
-        self._creationCallStack = Context.hint if not ComponentAccumulator.debugMode else shortCallStack()
-        self._componentsContext = collections.defaultdict(str)
+        self._creationCallStack = Context.hint if "trackCA" not in ComponentAccumulator.debugMode else shortCallStack()
+        self._componentsContext = dict()
         self._debugStage=DbgStage()
 
     def setAsTopLevel(self):
@@ -164,7 +166,7 @@ class ComponentAccumulator(object):
     def printCondAlgs(self, summariseProps=False, onlyComponents=[], printDefaults=False, printComponentsOnly=False):
         self._msg.info( "Condition Algorithms" )
         for (c, flag) in filterComponents (self._conditionsAlgs, onlyComponents):
-            self._msg.info( " \\__ %s (cond alg) %s", c.name, self._componentsContext[c.name])
+            self._msg.info( " \\__ %s (cond alg) %s", c.name, self._componentsContext.get(c.name,""))
             if summariseProps and flag:
                 printProperties(self._msg, c, 1, printDefaults, printComponentsOnly)
         return
@@ -188,7 +190,7 @@ class ComponentAccumulator(object):
             if withDetails:
                 self._msg.info( "%s\\__ %s (seq: %s %s)", " "*nestLevel, seq.name,
                                 "SEQ" if __prop("Sequential") else "PAR",
-                                "OR" if __prop("ModeOR") else "AND" + self._componentsContext[seq.name])
+                                "OR" if __prop("ModeOR") else "AND" + self._componentsContext.get(seq.name, "") )
             else:
                 self._msg.info( "%s\\__ %s", " "*nestLevel, seq.name)
 
@@ -198,7 +200,7 @@ class ComponentAccumulator(object):
                     printSeqAndAlgs(c, nestLevel, onlyComponents = onlyComponents )
                 else:
                     if withDetails:
-                        self._msg.info( "%s\\__ %s (alg) %s", " "*nestLevel, c.getFullJobOptName(), self._componentsContext[c.name])
+                        self._msg.info( "%s\\__ %s (alg) %s", " "*nestLevel, c.getFullJobOptName(), self._componentsContext.get(c.name, ""))
                     else:
                         self._msg.info( "%s\\__ %s", " "*nestLevel, c.name )
                     if summariseProps and flag:
@@ -217,7 +219,7 @@ class ComponentAccumulator(object):
         self._msg.info( "Public Tools" )
         self._msg.info( "[" )
         for (t, flag) in filterComponents (self._publicTools, onlyComponents):
-            self._msg.info( "  %s,", t.getFullJobOptName() + self._componentsContext[t.name])
+            self._msg.info( "  %s,", t.getFullJobOptName() + self._componentsContext.get(t.name,""))
             # Not nested, for now
             if summariseProps and flag:
                 printProperties(self._msg, t, printDefaults, printComponentsOnly)
@@ -226,7 +228,7 @@ class ComponentAccumulator(object):
         self._msg.info( "[" )
         if self._privateTools:
             for tool in self._privateTools if isinstance(self._privateTools, collections.abc.Sequence) else [self._privateTools]:
-                self._msg.info( "  %s,", self._privateTools.getFullJobOptName() + self._componentsContext[tool.name])
+                self._msg.info( "  %s,", self._privateTools.getFullJobOptName() + self._componentsContext.get(tool.name,""))
                 if summariseProps:
                     printProperties(self._msg, self._privateTools, printDefaults, printComponentsOnly)
         self._msg.info( "]" )
@@ -303,8 +305,8 @@ class ComponentAccumulator(object):
 
         parent.Members.append(newseq)
         checkSequenceConsistency(self._sequence)
-        if ComponentAccumulator.debugMode:
-            self._componentsContext[newseq] += shortCallStack()
+        if "trackSequence" in ComponentAccumulator.debugMode:
+            self._componentsContext[newseq] = shortCallStack()
         return newseq
 
 
@@ -330,9 +332,9 @@ class ComponentAccumulator(object):
                 raise  ConfigurationError("ComponentAccumulator.setPrivateTools accepts only ConfigurableAlgTools or lists of ConfigurableAlgTools. Encountered {} ".format(type(privTool)))
 
         self._privateTools=privTool
-        if ComponentAccumulator.debugMode:
+        if "trackPrivateTool" in ComponentAccumulator.debugMode:
             for tool in self._privateTools if isinstance(privTool,collections.abc.Sequence) else [self._privateTools]:
-                self._componentsContext[tool.name] += shortCallStack()
+                self._componentsContext[tool.name] = shortCallStack()
 
         return
 
@@ -374,7 +376,7 @@ class ComponentAccumulator(object):
                 raise TypeError("Attempt to add an {} as event algorithm".format(algo.__component_type__))
 
             if algo.name in self._algorithms:
-                context = createContextForDeduplication("Adding Event Algorithm", algo.name, self._componentsContext, ComponentAccumulator.debugMode) # noqa : F841
+                context = createContextForDeduplication("Merging with existing Event Algorithm", algo.name, self._componentsContext) # noqa : F841
                 deduplicateOne(algo, self._algorithms[algo.name])
                 deduplicateOne(self._algorithms[algo.name], algo)
             else:
@@ -394,9 +396,9 @@ class ComponentAccumulator(object):
             #keep a ref of the algorithm as primary component
             self._primaryComp=algorithms[0]
         self._lastAddedComponent=algorithms[-1].name
-        if ComponentAccumulator.debugMode:
+        if "trackEventAlgo" in ComponentAccumulator.debugMode:
             for algo in algorithms:
-                self._componentsContext[algo.name] += shortCallStack()
+                self._componentsContext[algo.name] = shortCallStack()
         return None
 
     def getEventAlgo(self,name=None):
@@ -419,7 +421,7 @@ class ComponentAccumulator(object):
             raise TypeError("Attempt to add wrong type: {} as conditions algorithm".format(algo.__component_type__))
             pass
 
-        context = createContextForDeduplication("Adding Conditions Algorithm", algo.name, self._componentsContext, ComponentAccumulator.debugMode) # noqa : F841
+        context = createContextForDeduplication("Merging with existing Conditions Algorithm", algo.name, self._componentsContext) # noqa : F841
 
         deduplicate(algo,self._conditionsAlgs) #will raise on conflict
         if primary:
@@ -429,8 +431,8 @@ class ComponentAccumulator(object):
             #keep a ref of the de-duplicated conditions algorithm as primary component
             self._primaryComp=self.__getOne( self._conditionsAlgs, algo.name, "ConditionsAlgos")
         self._lastAddedComponent=algo.name
-        if ComponentAccumulator.debugMode:
-            self._componentsContext[algo.name] += shortCallStack()
+        if "trackCondAlgo" in ComponentAccumulator.debugMode:
+            self._componentsContext[algo.name] = shortCallStack()
         return algo
 
 
@@ -449,7 +451,7 @@ class ComponentAccumulator(object):
             raise TypeError("Attempt to add wrong type: {} as service".fomrat(newSvc.__component_type__))
             pass
 
-        context = createContextForDeduplication("Adding Service", newSvc.name, self._componentsContext, ComponentAccumulator.debugMode) # noqa : F841
+        context = createContextForDeduplication("Merging with existing Service", newSvc.name, self._componentsContext) # noqa : F841
 
         deduplicate(newSvc,self._services)  #may raise on conflict
         if primary:
@@ -464,8 +466,8 @@ class ComponentAccumulator(object):
             sname = newSvc.getFullJobOptName()
             if sname not in self._servicesToCreate:
                 self._servicesToCreate.append(sname)
-        if ComponentAccumulator.debugMode:
-            self._componentsContext[newSvc.name] += shortCallStack()
+        if "trackService" in  ComponentAccumulator.debugMode:
+            self._componentsContext[newSvc.name] = shortCallStack()
         return
 
     def addPublicTool(self,newTool,primary=False):
@@ -475,7 +477,7 @@ class ComponentAccumulator(object):
         if newTool.__component_type__ != "AlgTool":
             raise TypeError("Attempt to add wrong type: {} as public AlgTool".format(newTool.__component_type__))
 
-        context = createContextForDeduplication("Adding Public Tool", newTool.name, self._componentsContext, ComponentAccumulator.debugMode) # noqa : F841
+        context = createContextForDeduplication("Merging with existing Public Tool", newTool.name, self._componentsContext) # noqa : F841
 
         deduplicate(newTool,self._publicTools)
         if primary:
@@ -485,8 +487,8 @@ class ComponentAccumulator(object):
             #keep a ref of the de-duplicated tool as primary component
             self._primaryComp=self.__getOne( self._publicTools, newTool.name, "Public Tool")
         self._lastAddedComponent=newTool.name
-        if ComponentAccumulator.debugMode:
-            self._componentsContext[newTool.name] += shortCallStack()
+        if "trackPublicTool" in ComponentAccumulator.debugMode:
+            self._componentsContext[newTool.name] = shortCallStack()
         return
 
 
@@ -592,14 +594,18 @@ class ComponentAccumulator(object):
                             if name not in self._algorithms:
                                 self._algorithms[name] = algInstance
                             else:
+                                dedupContext1 = createContextForDeduplication("While merging sequences adding incoming algorithm", c.name, other._componentsContext) # noqa : F841
+                                dedupContext2 = createContextForDeduplication("While merging sequences adding to existing algorithm", c.name, self._componentsContext) # noqa : F841
                                 deduplicateOne(self._algorithms[name], algInstance)
                                 deduplicateOne(algInstance, self._algorithms[name])
                             for _, parent, idx in existingAlgs: # put the deduplicated algo back into original sequences
                                 parent.Members[idx] = self._algorithms[name]
                         dest.Members.append(c)
                 else: # an algorithm
-                    dedupContext = Context.hint if not ComponentAccumulator.debugMode else Context("\nAdding Algorithm from:\n"+other._componentsContext[c.name]+"\nto existing one from:\n"+self._componentsContext[c.name]) # noqa : F841
                     if c.name in self._algorithms:
+                        dedupContext1 = createContextForDeduplication("While merging sequences adding incoming algorithm", c.name, other._componentsContext) # noqa : F841
+                        dedupContext2 = createContextForDeduplication("While merging sequences adding to existing algorithm", c.name, self._componentsContext) # noqa : F841
+
                         deduplicateOne(self._algorithms[c.name], c)
                         deduplicateOne(c, self._algorithms[c.name])
                         src.Members[childIdx] = self._algorithms[c.name]
@@ -611,7 +617,6 @@ class ComponentAccumulator(object):
                         self._msg.debug("   Adding algorithm %s to a sequence %s", c.name, dest.name )
                         dest.Members.append(c)
 
-            checkSequenceConsistency(self._sequence)
 
         # Merge sequences:
         # mergeSequences(destSeq, other._sequence)
@@ -639,6 +644,8 @@ class ComponentAccumulator(object):
                 self._allSequences.append( otherSeq )
                 mergeSequences( self._allSequences[-1], otherSeq )
 
+        checkSequenceConsistency(self._sequence)
+
 
 
 
@@ -650,12 +657,15 @@ class ComponentAccumulator(object):
 
             #self._conditionsAlgs+=other._conditionsAlgs
         for condAlg in other._conditionsAlgs:
+            addContext = createContextForDeduplication("Merging incoming Conditions Algorithm", condAlg.name, other._componentsContext) # noqa : F841
             self.addCondAlgo(condAlg) #Profit from deduplicaton here
 
         for svc in other._services:
+            addContext = createContextForDeduplication("Merging incoming Service", svc.name, other._componentsContext) # noqa : F841
             self.addService(svc, create = svc.getFullJobOptName() in other._servicesToCreate) #Profit from deduplicaton here
 
         for pt in other._publicTools:
+            addContext = createContextForDeduplication("Merging incoming Public Tool", pt.name, other._componentsContext) # noqa : F841
             self.addPublicTool(pt) #Profit from deduplicaton here
 
         #Merge AppMgr properties:
@@ -665,7 +675,7 @@ class ComponentAccumulator(object):
         other._wasMerged=True
 
         self._lastAddedComponent = other._lastAddedComponent #+ ' (Merged)'
-
+        self._componentsContext.update(other._componentsContext) # update the context so it contains an information about the new components (and refreshed old components)
 
     def __verifyFinalSequencesStructure(self):
         if len(self._allSequences) != 1:
