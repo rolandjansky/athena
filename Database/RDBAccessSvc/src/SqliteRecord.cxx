@@ -109,27 +109,47 @@ void SqliteRecord::addValue(const std::string& field
 
 void SqliteRecord::dump() const
 {
-  for(const auto& element : m_record) {
-    auto defIt = m_def->find(element.first);
-    std::cout << "[\"" << element.first << "\" :" << std::setprecision(10);
-    switch(defIt->second) {
+  bool first{true};
+  for(const auto& [colName,colType] : *m_def) {
+    if(first) {
+      first = false;
+    }
+    else {
+      std::cout << ", ";
+    }
+    auto recIt = m_record.find(colName);
+    bool fieldNull = (recIt==m_record.end());
+    std::cout << "[" << colName << " (";
+    switch(colType) {
     case SQLITEINP_INT:
-      std::cout << "INT " << std::get<int>(element.second) << "], ";
+      std::cout << "int) : " << (fieldNull? "NULL" : std::to_string(std::get<int>(recIt->second))) << "]";
       break;
     case SQLITEINP_LONG:
-      std::cout << "LONG " << std::get<long>(element.second) << "], ";
+      std::cout << "long) : " << (fieldNull? "NULL" : std::to_string(std::get<long>(recIt->second))) << "]";
       break;
     case SQLITEINP_FLOAT:
-      std::cout << "FLOAT " << std::get<float>(element.second) << "], ";
-      break; 
+      std::cout << "float) : ";
+      if (fieldNull) {
+	std::cout << "NULL";
+      }
+      else {
+	std::cout << std::setprecision(10) << std::get<float>(recIt->second) << "]";
+      }
+      break;
     case SQLITEINP_DOUBLE:
-      std::cout << "DOUBLE " << std::get<double>(element.second) << "], ";
+      std::cout << "double) : ";
+      if (fieldNull) {
+	std::cout << "NULL";
+      }
+      else {
+	std::cout << std::setprecision(10) << std::get<double>(recIt->second) << "]";
+      }
       break;
     case SQLITEINP_STRING:
-      std::cout << "STRING " << std::get<std::string>(element.second) << "], ";
+      std::cout << "string) : " << (fieldNull? "NULL" : ("\"" + std::get<std::string>(recIt->second)) + "\"") << "]";
       break;
     default:
-      std::cout << "ERROR], ";
+      std::cout << "ERROR) : ]";
     }
   }
   std::cout << std::endl;
