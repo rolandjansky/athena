@@ -22,7 +22,6 @@
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescriptor.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
-#include "CaloInterface/ICaloNoiseTool.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "LArRecConditions/LArBadChannel.h"
 #include "LArCafJobs/DataContainer.h"
