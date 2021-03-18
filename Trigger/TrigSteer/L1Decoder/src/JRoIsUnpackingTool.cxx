@@ -1,12 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JRoIsUnpackingTool.h"
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "AthenaMonitoringKernel/Monitored.h"
-#include "TrigConfL1Data/CTPConfig.h"
+#include "TrigConfL1Data/L1DataDef.h"
+#include "TrigConfL1Data/ThresholdConfig.h"
+#include "TrigConfL1Data/TriggerThreshold.h"
 
 JRoIsUnpackingTool::JRoIsUnpackingTool( const std::string& type, 
                                         const std::string& name, 

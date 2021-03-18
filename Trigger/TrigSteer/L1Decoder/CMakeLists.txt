@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( L1Decoder )
@@ -11,12 +11,12 @@ find_package( CLHEP )
 atlas_add_library( L1DecoderLib
                    PUBLIC_HEADERS L1Decoder
                    INTERFACE 
-                   LINK_LIBRARIES TrigConfInterfaces)
+                   LINK_LIBRARIES GaudiKernel TrigCompositeUtilsLib )
                    
 atlas_add_component( L1Decoder
                      src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthViews AthenaBaseComps AthenaKernel AthenaMonitoringKernelLib GaudiKernel L1DecoderLib StoreGateLib TrigCompositeUtilsLib TrigConfData TrigConfHLTData TrigConfL1Data TrigCostMonitorMTLib TrigSteeringEvent TrigT1Interfaces TrigT1Result TrigTimeAlgsLib xAODEventInfo xAODTrigger TrigConfxAODLib  )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel AthenaMonitoringKernelLib GaudiKernel L1DecoderLib StoreGateLib TrigCompositeUtilsLib TrigConfData TrigConfHLTUtilsLib TrigConfInterfaces TrigConfL1Data TrigConfxAODLib TrigCostMonitorMTLib TrigSteeringEvent TrigT1Interfaces TrigT1Result TrigTimeAlgsLib xAODEventInfo xAODTrigger )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

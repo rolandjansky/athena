@@ -1,20 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 // L1Decoder includes
 #include "EMRoIsUnpackingTool.h"
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "AthenaMonitoringKernel/Monitored.h"
-#include "TrigConfL1Data/CTPConfig.h"
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-EMRoIsUnpackingTool::EMRoIsUnpackingTool( const std::string& type, 
+EMRoIsUnpackingTool::EMRoIsUnpackingTool( const std::string& type,
                                           const std::string& name, 
                                           const IInterface* parent ) 
   : RoIsUnpackingToolBase(type, name, parent),

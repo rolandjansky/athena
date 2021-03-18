@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1DECODER_CTPUNPACKINGTOOLBASE_H
 #define L1DECODER_CTPUNPACKINGTOOLBASE_H 1
 
-#include "ICTPUnpackingTool.h"
+#include "L1Decoder/ICTPUnpackingTool.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"

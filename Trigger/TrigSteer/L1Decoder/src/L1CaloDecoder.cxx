@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <vector>
@@ -11,7 +11,7 @@
 #include "TrigSteeringEvent/Lvl1Result.h"
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigConfL1Data/L1DataDef.h"
-#include "TrigConfHLTData/HLTUtils.h"
+#include "TrigConfHLTUtils/HLTUtils.h"
 
 #include "./L1CaloDecoder.h"
 
