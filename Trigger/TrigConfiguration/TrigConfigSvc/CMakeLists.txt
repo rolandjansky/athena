@@ -12,7 +12,7 @@ find_package( nlohmann_json )
 atlas_add_component( TrigConfigSvc
                      src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${TBB_LIBRARIES} AthAnalysisBaseCompsLib AthenaBaseComps AthenaKernel AthenaPoolUtilities EventInfo GaudiKernel L1TopoConfig PathResolver StoreGateLib TrigConfBase TrigConfData TrigConfHLTData TrigConfIO TrigConfInterfaces TrigConfL1Data TrigConfStorage nlohmann_json::nlohmann_json )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${TBB_LIBRARIES} AthAnalysisBaseCompsLib AthenaBaseComps AthenaKernel AthenaPoolUtilities CxxUtils GaudiKernel L1TopoConfig PathResolver StoreGateLib TrigConfBase TrigConfData TrigConfHLTData TrigConfIO TrigConfInterfaces TrigConfL1Data TrigConfStorage nlohmann_json::nlohmann_json )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

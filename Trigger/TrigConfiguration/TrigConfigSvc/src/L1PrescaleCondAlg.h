@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */ 
 
 #ifndef TRIGCONFIGSVC__L1PRESCALECONDALG
 #define TRIGCONFIGSVC__L1PRESCALECONDALG
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
@@ -46,7 +47,7 @@ namespace TrigConf {
       std::shared_ptr<L1PrescalesSet> createFromDB( unsigned int psk, bool isRun3 ) const;
 
       // map the prescale key to a L1PrescalesSet
-      mutable tbb::concurrent_unordered_map<unsigned int, std::shared_ptr<L1PrescalesSet>> m_pssMap;
+      mutable tbb::concurrent_unordered_map<unsigned int, std::shared_ptr<const L1PrescalesSet>> m_pssMap ATLAS_THREAD_SAFE;
 
       // input key to the L1 Prescale Key folder
       SG::ReadCondHandleKey<AthenaAttributeList> m_pskFolderInputKey{ this, "PSKFolder", "/TRIGGER/LVL1/Lvl1ConfigKey", "SG Key of AthenaAttributeList containing l1 psk"};

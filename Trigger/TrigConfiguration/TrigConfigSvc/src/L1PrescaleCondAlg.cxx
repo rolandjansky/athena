@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */ 
 
 #include "./L1PrescaleCondAlg.h"
@@ -146,7 +146,7 @@ TrigConf::L1PrescaleCondAlg::execute(const EventContext& ctx) const {
 
    }
 
-   std::shared_ptr<L1PrescalesSet> pss;
+   std::shared_ptr<const L1PrescalesSet> pss;
 
    if( m_configSource == "FILE" ) {
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */ 
 
 #include "./HLTPrescaleCondAlg.h"
@@ -156,7 +156,7 @@ TrigConf::HLTPrescaleCondAlg::execute(const EventContext& ctx) const {
 
    }
 
-   std::shared_ptr<HLTPrescalesSet> pss;
+   std::shared_ptr<const HLTPrescalesSet> pss;
 
    if( m_configSource == "FILE" ) {
 

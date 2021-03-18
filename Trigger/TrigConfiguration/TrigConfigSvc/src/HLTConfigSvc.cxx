@@ -5,13 +5,9 @@
 // class declaration
 #include "HLTConfigSvc.h"
 
-#include <exception>
 #include <vector>
 
 // Athena/Gaudi includes:
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Incident.h"
@@ -26,21 +22,15 @@
 #include "TrigConfL1Data/HelperFunctions.h"
 #include "TrigConfL1Data/CTPConfig.h" 
 #include "TrigConfHLTData/HLTFrame.h"
-#include "TrigConfHLTData/HLTChainList.h"
-#include "TrigConfHLTData/HLTSequenceList.h"
-#include "TrigConfHLTData/HLTPrescaleSet.h"
 #include "TrigConfHLTData/HLTPrescaleSetCollection.h"
-
 #include "TrigConfInterfaces/IJobOptionsSvc.h"
 
 #include "boost/algorithm/string/case_conv.hpp"
 
-using namespace std;
 using namespace TrigConf;
 
-HLTConfigSvc::HLTConfigSvc( const string& name, ISvcLocator* pSvcLocator ) :
-   base_class(name, pSvcLocator),
-   m_eventStore( "StoreGateSvc/StoreGateSvc",  name )
+HLTConfigSvc::HLTConfigSvc( const std::string& name, ISvcLocator* pSvcLocator ) :
+   base_class(name, pSvcLocator)
 {
    base_class::declareCommonProperties();
 
@@ -49,8 +39,6 @@ HLTConfigSvc::HLTConfigSvc( const string& name, ISvcLocator* pSvcLocator ) :
                     "List of HLT Prescale keys associated with start Lumiblocks LB1uPSK1cLB2uPSK2" );
    declareProperty( "doMergedHLT",      m_setMergedHLT,
                     "Set true to run the merged HLT processing");
-   declareProperty( "doMonitoring",     m_doMon,
-                    "Enable monitoring (mostly for online)");
 }
 
 
@@ -108,25 +96,13 @@ HLTConfigSvc::writeConfigToDetectorStore() {
 }
 
 
-const HLTChainList&
-HLTConfigSvc::chains() const {
-   return m_HLTFrame.getHLTChainList();
-}
-
-
-const HLTSequenceList&
-HLTConfigSvc::sequences() const {
-   return m_HLTFrame.getHLTSequenceList();
-}
-
-
 StatusCode
-HLTConfigSvc::initialize() {
+HLTConfigSvc::initialize ATLAS_NOT_THREAD_SAFE() {
 
    // ATH_CHECK( m_hltMenuKey.initialize() );
 
    {
-      /// Handle to JobOptionsSvc used to retrieve the DataFlowConfig property
+      /// Handle to JobOptionsSvc to retrieve configuration keys
       if( auto joSvc = serviceLocator()->service<TrigConf::IJobOptionsSvc>( "JobOptionsSvc" ) ) {
          if( joSvc->superMasterKey()>0 ) {
             m_inputType = "db";
@@ -185,7 +161,7 @@ HLTConfigSvc::initialize() {
       }
       ATH_MSG_VERBOSE("HLTFrame configuration object loaded");
    }
-   catch (exception & e) {
+   catch (std::exception & e) {
       ATH_MSG_ERROR("Standard exception caught: " << e.what());
       return StatusCode::FAILURE;
    }
@@ -220,12 +196,10 @@ HLTConfigSvc::initialize() {
    if (incSvc.retrieve().isFailure()) {
       ATH_MSG_WARNING("Cannot retrieve IncidentSvc");
    } else {
-      string incname("HLTMenu HLTPS");
+     std::string incname("HLTMenu HLTPS");
       incSvc->fireIncident( Incident(incname, "TrigConf") );
       ATH_MSG_INFO("Fired Incident 'TrigConf' - " << incname);
    }
-
-   CHECK( m_eventStore.retrieve() );
 
    ATH_MSG_INFO("finish initialize");
 
@@ -244,8 +218,6 @@ StatusCode
 TrigConf::HLTConfigSvc::start() {
 
    ATH_MSG_INFO("HLTConfigSvc::start");
-
-   m_currentLumiblock = 0;
 
    if( ! fromDB() ) // xml config
       return StatusCode::SUCCESS;
@@ -271,43 +243,16 @@ TrigConf::HLTConfigSvc::start() {
 
       m_HLTFrame.thePrescaleSetCollection().setPrescaleSet(pss); // assumes LB=0
 
-      applyPrescaleSet(*pss);
-    
+      ATH_MSG_INFO("Applying PSK " << pss->id() << " to menu ");
+      m_HLTFrame.theHLTChainList().applyPrescaleSet(pss);
+
       ATH_MSG_INFO( m_HLTFrame.getPrescaleSetCollection() );
    }
   
    return StatusCode::SUCCESS;
 }
 
-
-void
-TrigConf::HLTConfigSvc::applyPrescaleSet(const TrigConf::HLTPrescaleSet& pss) {
-
-  ATH_MSG_INFO("Applying PSK " << pss.id() << " to menu ");
-  const EventInfo* pEvent(0);
-  if ( m_eventStore->retrieve(pEvent).isSuccess() ) {
-     ATH_MSG_INFO("on event " << *pEvent->event_ID());
-  }
-
-  m_HLTFrame.theHLTChainList().applyPrescaleSet(&pss);
-
-  m_currentPSS = pss.id();
-
-}
-
-uint32_t
-TrigConf::HLTConfigSvc::masterKey() const {
-   return m_HLTFrame.smk();
-}
-
-uint32_t
-TrigConf::HLTConfigSvc::hltPrescaleKey() const {
-   uint32_t key = m_HLTFrame.getPrescaleSet() ? m_HLTFrame.getPrescaleSet()->id() : 0;
-   return key;
-}
-
 void
 TrigConf::HLTConfigSvc::setL2LowerChainCounter(const CTPConfig* ctpcfg) {
    m_HLTFrame.theHLTChainList().setL2LowerChainCounter(ctpcfg);
 }
-

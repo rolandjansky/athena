@@ -21,8 +21,7 @@
 #include "TrigConfL1Data/Menu.h"
 #include "TrigConfL1Data/ThresholdConfig.h"
 #include "TrigConfL1Data/Muctpi.h"
-#include "TrigConfStorage/StorageMgr.h"
-#include "TrigConfStorage/XMLStorageMgr.h"
+#include "TrigConfStorage/IStorageMgr.h"
 #include "TrigConfL1Data/L1DataDef.h"
 #include "TrigConfBase/TrigDBConnectionConfig.h"
 #include "TrigConfInterfaces/IJobOptionsSvc.h"
@@ -30,7 +29,6 @@
 #include "boost/algorithm/string.hpp"
 
 // STL includes:
-#include <exception>
 #include <vector>
 
 using namespace std;
@@ -254,7 +252,7 @@ TrigConf::LVL1ConfigSvc::loadRun2StyleMenu() {
 
 
 StatusCode
-TrigConf::LVL1ConfigSvc::initialize() {
+TrigConf::LVL1ConfigSvc::initialize ATLAS_NOT_THREAD_SAFE() {
 
    ATH_MSG_INFO("=================================");
    ATH_MSG_INFO("Initializing " << name() << " service");

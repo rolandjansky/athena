@@ -9,7 +9,9 @@
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
 
 #include "GaudiKernel/ServiceHandle.h"
-#include "AthenaKernel/IIOVSvc.h"
+#include "GaudiKernel/extends.h"
+#include "AthenaKernel/IOVSvcDefs.h"
+#include "CxxUtils/checker_macros.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "TrigConfL1Data/CTPConfig.h"
@@ -24,6 +26,8 @@
 #include <stdint.h>
 #include <memory>
 #include <set>
+#include <string>
+#include <vector>
 
 class EventContext;
 
@@ -36,8 +40,8 @@ namespace TrigConf {
    class ThresholdConfig;
    class HLTChainList;
    class HLTSequenceList;
-   class HLTPrescaleSet;
-   class BunchGroup;
+   class BunchGroupSet;
+   class Muctpi;
 
    /**
     * @brief Service providing the full trigger configuration information, based
@@ -53,7 +57,7 @@ namespace TrigConf {
       DSConfigSvc( const std::string& name, ISvcLocator* pSvcLocator );
 
       // @brief initialize the service
-      virtual StatusCode initialize() override;
+      virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE () override;
 
       // @brief L1 topo configuration menu
       virtual const TXC::L1TopoMenu* menu() const override {
@@ -140,9 +144,9 @@ namespace TrigConf {
       /// @}
 
    private:
-      StatusCode registerCallbackForFolder( const std::string& foldername,
-                                            bool multichannel );
-      StatusCode update( IOVSVC_CALLBACK_ARGS_P( I, keys ) );
+      StatusCode registerCallbackForFolder ATLAS_NOT_THREAD_SAFE ( const std::string& foldername,
+                                                                   bool multichannel );
+      StatusCode update ATLAS_NOT_THREAD_SAFE ( IOVSVC_CALLBACK_ARGS_P( I, keys ) );
       StatusCode reset();
       void setEFLowerChainCounter();
       void set_ChainlistFromHltPrescaleSet();
