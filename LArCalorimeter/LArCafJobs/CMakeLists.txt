@@ -34,7 +34,7 @@ atlas_add_library( LArCafJobsLib
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                    LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} AthAnalysisToolsLib AthenaBaseComps AthenaKernel CaloConditions CaloDetDescrLib CaloIdentifier CaloInterfaceLib GaudiKernel Identifier LArCablingLib LArElecCalib LArIdentifier LArRawConditions LArRawEvent LArRecConditions StoreGateLib TrigAnalysisInterfaces TrigConfInterfaces TrigDecisionToolLib egammaEvent
-                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} AthenaPoolUtilities CaloEvent CaloGeoHelpers LArRecEvent NavFourMom TrigConfHLTData TrigSteeringEvent TrigT1Result xAODEventInfo )
+                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} AthenaPoolUtilities CaloEvent CaloGeoHelpers LArRecEvent NavFourMom TrigSteeringEvent TrigT1Result xAODEventInfo )
 
 atlas_add_component( LArCafJobs
                      src/components/*.cxx

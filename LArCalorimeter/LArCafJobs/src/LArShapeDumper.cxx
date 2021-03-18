@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCafJobs/LArShapeDumper.h"
@@ -36,14 +36,6 @@
 #include "TMath.h"
 
 #include "boost/regex.hpp"
-
-#include "TrigConfHLTData/HLTChain.h"
-#include "TrigConfHLTData/HLTChainList.h"
-#include "TrigConfHLTData/HLTSequence.h"
-#include "TrigConfHLTData/HLTSequenceList.h"
-
-// #include "LArCafJobs/HistoryContainer.h"
-// #include "LArCafJobs/TreeAccessor.h"
 
 
 #include <vector>
@@ -154,22 +146,8 @@ StatusCode LArShapeDumper::initialize()
 StatusCode LArShapeDumper::start()
 {
   m_runData = new RunData(0);
-  static unsigned int i = 0;
 
   if (m_doTrigger) {
-    std::ofstream xmlfile(Form("frame_%d.xml", i++));
-    xmlfile << "      <SEQUENCE_LIST>" << std::endl; 
-    for(TrigConf::HLTSequence *seq : m_configSvc->sequences())
-       seq->writeXML(xmlfile);
-    xmlfile << "      </SEQUENCE_LIST>" << std::endl; 
-
-    //chains
-    xmlfile << "      <CHAIN_LIST>" << std::endl; 
-    for(TrigConf::HLTChain *ch: m_configSvc->chains() )
-       ch->writeXML(xmlfile);
-
-    xmlfile << "      </CHAIN_LIST>" << std::endl; 
-
     std::vector<boost::regex> regexs;
     for (std::vector<std::string>::const_iterator name = m_triggerNames.begin(); 
          name != m_triggerNames.end(); name++)
