@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  *   */
 
 
@@ -8,6 +8,8 @@
 
 #include "AsgTools/IAsgTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
+#include "TrigNavStructure/TriggerElement.h"
+#include "TrigEgammaEmulationTool/TrigEgammaInfo.h"
 
 //xAOD include(s)
 #include "xAODBase/IParticleContainer.h"
@@ -15,24 +17,6 @@
 #include "xAODTrigger/EmTauRoIContainer.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
-#include "xAODTrigRinger/TrigRingerRings.h"
-#include "xAODTrigRinger/TrigRNNOutput.h"
-#include "xAODTrigRinger/TrigRingerRingsContainer.h"
-#include "xAODEgamma/Egamma.h"
-#include "xAODEgamma/EgammaContainer.h"
-#include "xAODEgamma/ElectronContainer.h"
-#include "xAODEgamma/PhotonContainer.h"
-#include "xAODEgamma/EgammaxAODHelpers.h"
-#include "xAODEgamma/ElectronAuxContainer.h"
-#include "xAODTracking/TrackParticleContainer.h"
-//#include "xAODCaloRings/RingSetContainer.h"
-//#include "xAODCaloRings/CaloRingsContainer.h"
-//#include "xAODCaloRings/tools/getCaloRingsDecorator.h"
-
-#include "TrigEgammaEmulationTool/TrigEgammaInfo.h"
-#include <string>
-#include <map>
-#include "boost/any.hpp"
 
 
 namespace Trig{

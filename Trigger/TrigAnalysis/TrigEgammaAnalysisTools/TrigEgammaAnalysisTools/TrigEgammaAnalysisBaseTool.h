@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigEgammaAnalysisBaseTool_H
@@ -22,23 +22,14 @@
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/ElectronContainer.h"
-#include "xAODEgamma/PhotonContainer.h"
-#include "xAODEgamma/EgammaxAODHelpers.h"
 #include "xAODEgamma/ElectronAuxContainer.h"
-#include "xAODTrigRinger/TrigRingerRings.h"
-#include "xAODTrigRinger/TrigRingerRingsContainer.h"
-#include "xAODTrigRinger/TrigRNNOutput.h"
-#include "xAODTrigRinger/TrigRNNOutputContainer.h"
-#include "xAODTracking/TrackParticleContainer.h"
-#include "xAODTrigger/TrigPassBits.h"
+#include "xAODEgamma/PhotonContainer.h"
 #include "xAODEgamma/PhotonAuxContainer.h"
-#include "xAODCaloRings/RingSet.h"                     
-#include "xAODCaloRings/RingSetContainer.h"            
-#include "xAODCaloRings/CaloRings.h"                   
+#include "xAODTrigger/TrigPassBits.h"
+#include "xAODCaloRings/CaloRings.h"
 #include "xAODCaloRings/CaloRingsContainer.h"          
 #include "xAODCaloRings/tools/getCaloRingsDecorator.h" 
 #include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
-#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 #include "StoreGate/ReadCondHandleKey.h"
 

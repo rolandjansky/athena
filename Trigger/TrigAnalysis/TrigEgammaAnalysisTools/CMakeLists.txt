@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigEgammaAnalysisTools )
@@ -13,7 +13,7 @@ atlas_add_library( TrigEgammaAnalysisToolsLib
    PUBLIC_HEADERS TrigEgammaAnalysisTools
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools EgammaAnalysisInterfacesLib GaudiKernel LumiBlockCompsLib LumiBlockData PATCoreLib StoreGateLib TrigConfHLTData TrigDecisionToolLib TrigEgammaEmulationToolLib TrigEgammaMatchingToolLib TrigHLTMonitoringLib xAODCaloEvent xAODCaloRings xAODEgamma xAODEventInfo xAODJet xAODMissingET xAODTracking xAODTrigCalo xAODTrigEgamma xAODTrigRinger xAODTrigger xAODTruth
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools EgammaAnalysisInterfacesLib GaudiKernel LumiBlockCompsLib LumiBlockData PATCoreLib StoreGateLib TrigDecisionToolLib TrigEgammaEmulationToolLib TrigEgammaMatchingToolLib TrigHLTMonitoringLib TrigNavStructure xAODCaloRings xAODEgamma xAODEventInfo xAODJet xAODMissingET xAODTracking xAODTrigCalo xAODTrigger xAODTruth
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} AthenaMonitoringLib TrigConfxAODLib TrigSteeringEvent )
 
 atlas_add_component( TrigEgammaAnalysisTools

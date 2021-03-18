@@ -1,29 +1,15 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ITrigEgammaMatchingTool_H
 #define ITrigEgammaMatchingTool_H
 
 #include "AsgTools/IAsgTool.h"
-#include "TrigConfHLTData/HLTFrame.h"
-#include "TrigConfHLTData/HLTTriggerElement.h"
 #include "xAODEgamma/Egamma.h"
-#include "xAODEgamma/ElectronContainer.h"
-#include "xAODEgamma/PhotonContainer.h"
-#include "xAODEgamma/ElectronAuxContainer.h"
-#include "xAODEgamma/PhotonAuxContainer.h"
-#include "xAODTrigEgamma/TrigElectronContainer.h"
-#include "xAODTrigEgamma/TrigElectronAuxContainer.h"
-#include "xAODTrigEgamma/TrigPhotonContainer.h"
-#include "xAODTrigEgamma/TrigPhotonAuxContainer.h"
-#include "xAODTracking/TrackParticleContainer.h"
-#include "xAODTracking/TrackParticleAuxContainer.h"
-#include "xAODTrigCalo/TrigEMCluster.h"
-#include "xAODCaloEvent/CaloClusterContainer.h"
-#include "xAODCaloEvent/CaloClusterAuxContainer.h"
-#include "xAODTrigger/EmTauRoIContainer.h"
-#include "TrigDecisionTool/TrigDecisionTool.h"
+#include "TrigNavStructure/TriggerElement.h"
+
+#include <string>
 
 namespace Trig{
     class ITrigEgammaMatchingTool : public virtual asg::IAsgTool {

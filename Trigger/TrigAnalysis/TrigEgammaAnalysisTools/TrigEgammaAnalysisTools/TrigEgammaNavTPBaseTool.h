@@ -1,12 +1,10 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TrigEgammaNavTPBaseTool_H
 #define TrigEgammaNavTPBaseTool_H
 
-#include "TrigConfHLTData/HLTFrame.h"
-#include "TrigConfHLTData/HLTTriggerElement.h"
-//#include "TrigNavigation/Navigation.h"
+#include "TrigNavStructure/TriggerElement.h"
 
 #include "TrigEgammaAnalysisTools/TrigEgammaAnalysisBaseTool.h"
 #include "xAODEventInfo/EventInfo.h"
@@ -17,20 +15,8 @@
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODEgamma/ElectronAuxContainer.h"
 #include "xAODEgamma/PhotonAuxContainer.h"
-#include "xAODTrigEgamma/TrigElectronContainer.h"
-#include "xAODTrigEgamma/TrigElectronAuxContainer.h"
-#include "xAODTrigEgamma/TrigPhotonContainer.h"
-#include "xAODTrigEgamma/TrigPhotonAuxContainer.h"
-#include "xAODTracking/TrackParticleContainer.h"
-#include "xAODTracking/TrackParticleAuxContainer.h"
-#include "xAODTrigCalo/TrigEMCluster.h"
-#include "xAODTrigRinger/TrigRNNOutput.h"
-#include "xAODTrigRinger/TrigRNNOutputContainer.h"
-#include "xAODCaloEvent/CaloClusterContainer.h"
-#include "xAODCaloEvent/CaloClusterAuxContainer.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODMissingET/MissingETContainer.h"
-#include "xAODTrigger/EmTauRoIContainer.h"
 
 namespace Trig{
             class FeatureContainer;
