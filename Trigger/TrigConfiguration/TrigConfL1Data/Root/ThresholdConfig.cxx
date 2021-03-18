@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfL1Data/ThresholdConfig.h"
@@ -45,9 +45,9 @@ TrigConf::ThresholdConfig::getThresholdVector(L1DataDef::TriggerType type) const
    return res->second;
 }
 
-std::vector<TrigConf::TriggerThreshold*>& 
-TrigConf::ThresholdConfig::thresholdVector(L1DataDef::TriggerType type) {
-   return const_cast<thrVec_t&>( getThresholdVector(type) );
+const std::vector<TrigConf::TriggerThreshold*>&
+TrigConf::ThresholdConfig::thresholdVector(L1DataDef::TriggerType type) const {
+   return getThresholdVector(type);
 }
 
 
@@ -82,7 +82,12 @@ TrigConf::ThresholdConfig::addTriggerThreshold(TriggerThreshold* thr) {
    // put the threshold to the correct vector
    L1DataDef::TriggerType ttype = thr->ttype();
 
-   vector<TriggerThreshold*>& thrVec = thresholdVector(ttype);
+   const auto& res = m_thresholdVectors.find(ttype);
+   if(res == m_thresholdVectors.end()) {
+     cerr << "Unknown triggertype '" << L1DataDef::typeAsString(ttype) << "' in ThresholdConfig::getThresholdVector encountered" << endl;
+     throw runtime_error("Unknown triggertype in ThresholdConfig::getThresholdVector encountered" );
+   }
+   vector<TriggerThreshold*>& thrVec = res->second;
 
    // check if maximum is exceeded
    unsigned int max_thr = L1DataDef::typeConfig(ttype).max;
