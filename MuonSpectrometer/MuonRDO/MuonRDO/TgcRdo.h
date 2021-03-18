@@ -215,6 +215,10 @@ public:
         m_version = version;
     }
 
+    // ??? This overrides DataVector::clear() with something that
+    //     does something different.  Should probably be called
+    //     something else.
+    // cppcheck-suppress duplInheritedMember  ; false positive
     void clear();
 
     // online ID calculator
