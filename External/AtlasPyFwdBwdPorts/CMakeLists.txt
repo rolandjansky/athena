@@ -146,6 +146,7 @@ if( NOT XAOD_STANDALONE )
    _setup_python_package( flake8
       ${CMAKE_CURRENT_SOURCE_DIR}/src/flake8-3.3.0.tar.gz
       3df622aac9bad27c04f34164609bbed8
+      PATCH ${CMAKE_CURRENT_SOURCE_DIR}/src/flake8-pytest.patch
       DEPENDS pyflakes
       SINGLE_VERSION )
 endif()
@@ -167,6 +168,7 @@ if( NOT XAOD_STANDALONE )
    _setup_python_package( mccabe
       ${CMAKE_CURRENT_SOURCE_DIR}/src/mccabe-0.6.1.tar.gz
       723df2f7b1737b8887475bac4c763e1e
+      PATCH ${CMAKE_CURRENT_SOURCE_DIR}/src/mccabe-pytest.patch
       SINGLE_VERSION )
 endif()
 
