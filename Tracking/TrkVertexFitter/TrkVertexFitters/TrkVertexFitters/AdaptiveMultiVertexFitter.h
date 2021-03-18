@@ -196,7 +196,7 @@ namespace Trk
      */
 
     std::vector<double> 
-    collectWeights(const TrackToVtxLink & tracklink) const;
+    collectWeights(TrackToVtxLink & tracklink) const;
 
     /**
      * Internal function to prepare the compatibility information of all the tracks of the 

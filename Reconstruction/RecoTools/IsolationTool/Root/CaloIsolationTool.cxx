@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -312,13 +312,13 @@ namespace xAOD {
     // core energy subtraction
     if (!m_saveOnlyRequestedCorrections || result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::core57cells))) {
       if (!correctIsolationEnergy_Eeg57(result,isoTypes,&eg))
-	ATH_MSG_WARNING("Could not compute core cell energy for egamma in etcone");
+        ATH_MSG_WARNING("Could not compute core cell energy for egamma in etcone");
     }
 
     // leakage correction
     if (!m_saveOnlyRequestedCorrections || result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::ptCorrection))) {
       if (!PtCorrection(result, eg, isoTypes))
-	ATH_MSG_WARNING("Could not apply pt correction to etcone isolation");
+        ATH_MSG_WARNING("Could not apply pt correction to etcone isolation");
     }
 
     return true;
@@ -342,6 +342,8 @@ namespace xAOD {
     initresult(result, corrlist, typesize);
 
     std::vector<float> coneSizes;
+    coneSizes.reserve(isoTypes.size());
+
     for( auto isoType : isoTypes ){
       coneSizes.push_back(Iso::coneSize(isoType));
     }
@@ -361,7 +363,7 @@ namespace xAOD {
     if (fwdClus == nullptr && (!m_saveOnlyRequestedCorrections || result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::core57cells)))) {
       // Apply core energy subtraction
       if (!correctIsolationEnergy_Eeg57(result,isoTypes,&eg))
-	ATH_MSG_WARNING("Could not compute core cell energy for egamma in topoetcone");
+        ATH_MSG_WARNING("Could not compute core cell energy for egamma in topoetcone");
     }
 
     // leakage : at least for the time being, no meaning for fwd electron
@@ -373,7 +375,7 @@ namespace xAOD {
     if (!m_saveOnlyRequestedCorrections || result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::pileupCorrection))) {
       // do pile-up correction
       if (!EDCorrection(result,isoTypes,eta,"topo",fwdClus))
-	ATH_MSG_WARNING("Could not apply ED correction to topo isolation");
+        ATH_MSG_WARNING("Could not apply ED correction to topo isolation");
     }
 
     return true;
@@ -397,6 +399,8 @@ namespace xAOD {
     initresult(result, corrlist, typesize);
 
     std::vector<float> coneSizes;
+    coneSizes.reserve(isoTypes.size());
+
     for( auto isoType : isoTypes ){
       coneSizes.push_back(Iso::coneSize(isoType));
     }
@@ -412,20 +416,20 @@ namespace xAOD {
     if (!m_saveOnlyRequestedCorrections || result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::core57cells))) {
       // Apply core energy subtraction
       if (!correctIsolationEnergy_Eeg57(result,isoTypes,&eg))
-	ATH_MSG_WARNING("Could not compute core cell energy for egamma in neflowisol");
+        ATH_MSG_WARNING("Could not compute core cell energy for egamma in neflowisol");
     }
 
     if (!m_saveOnlyRequestedCorrections || result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::ptCorrection))) {
       // do pt correction
       if (!PtCorrection(result, eg, isoTypes))
-	ATH_MSG_WARNING("Could not apply pt correction to isolation");
+        ATH_MSG_WARNING("Could not apply pt correction to isolation");
     }
 
     if (!m_saveOnlyRequestedCorrections || result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::pileupCorrection))) {
       // do pile-up correction
       std::string type = "PFlow";
       if (!EDCorrection(result,isoTypes,eta,type,nullptr))
-	ATH_MSG_WARNING("Could not apply ED correction to topo isolation");
+        ATH_MSG_WARNING("Could not apply ED correction to topo isolation");
     }
 
     return true;
@@ -451,13 +455,17 @@ namespace xAOD {
     initresult(result, corrlist, typesize);
 
     std::vector<float> coneSizes;
+    coneSizes.reserve(isoTypes.size());
+
     for( auto isoType : isoTypes ){
       coneSizes.push_back(Iso::coneSize(isoType));
     }
 
     float phi = tp.phi();
     float eta = tp.eta();
-    if(!GetExtrapEtaPhi(&tp,eta,phi,derefMap)) ATH_MSG_WARNING("TrackParticle eta = " << tp.eta() << ", phi = " << tp.phi() << " not updated from extraplation!");
+    if(!GetExtrapEtaPhi(&tp,eta,phi,derefMap)) {
+      ATH_MSG_WARNING("TrackParticle eta = " << tp.eta() << ", phi = " << tp.phi() << " not updated from extraplation!");
+    }
     ATH_MSG_DEBUG("TrackParticle eta = " << tp.eta() << ", phi = " << tp.phi() << ", extrap eta = " << eta << ", phi = " << phi);
 
     // The core subtraction with pflow removal is done in the method below
@@ -496,7 +504,7 @@ namespace xAOD {
     /// get it from calo-cluster if it's muon
     const Muon* mu = dynamic_cast<const Muon*>(derefMap[tp]);
     if(mu){
-      auto cluster = mu->cluster();
+      const auto *cluster = mu->cluster();
       if(cluster){
         float etaT = 0, phiT = 0, dphiT = 0.;
         int nSample = 0;
@@ -506,17 +514,17 @@ namespace xAOD {
           if(!cluster->hasSampling(s)) continue;
           ATH_MSG_DEBUG("Sampling: " << i << "eta-phi (" << cluster->etaSample(s) << ", " << cluster->phiSample(s) << ")");
           etaT += cluster->etaSample(s);
-          if( nSample == 0 )
+          if( nSample == 0 ){
             phiT = cluster->phiSample(s);
-          else
+          }
+          else{
             dphiT += xAOD::P4Helpers::deltaPhi( cluster->phiSample(s), phiT ) ;
+          }
           nSample++;
         }
         if(nSample>0){
           eta = etaT/nSample;
           phi = phiT + dphiT/nSample;
-
-          if(m_addCaloDeco && !Decorated.isAvailable(*tp)) decorateTrackCaloPosition(*tp, eta, phi);
           return true;
         }else{
           ATH_MSG_WARNING("Muon calo cluster is empty????");
@@ -547,15 +555,11 @@ namespace xAOD {
       avePoint = (1./intersections.size())*avePoint;
       eta = avePoint.eta();
       phi = avePoint.phi();
-
-      //JBdVtestif(m_addCaloDeco) decorateTrackCaloPosition(*tp, eta, phi);
-      if(m_addCaloDeco && !Decorated.isAvailable(*tp)) decorateTrackCaloPosition(*tp, eta, phi);
       return true;
     }else{
         ATH_MSG_WARNING("Muon Calo extension got no intersection!!!");
     }
 #endif // xAOD
-
     /// if still not got the updated eta & phi
     ATH_MSG_WARNING("Calo extension can not be obtained!!!");
     return false;
@@ -579,7 +583,9 @@ namespace xAOD {
     unsigned int typesize = isoTypes.size();
     initresult(result, corrlist, typesize);
     std::vector<float> coneSizes;
-    for( auto isoType : isoTypes ){
+    coneSizes.reserve(isoTypes.size());
+
+for( auto isoType : isoTypes ){
       coneSizes.push_back(Iso::coneSize(isoType));
     }
 
@@ -654,7 +660,7 @@ namespace xAOD {
     for(unsigned int i=0; i<conesf.size(); i++){
       double totE = 0.;
       selector.setConeSize(conesf[i]);
-      for (auto aCell : association->data()){
+      for (const auto *aCell : association->data()){
         if( !selector.select(*aCell) ) continue;
         if (m_ExcludeTG3 && CaloCell_ID::TileGap3 == aCell->caloDDE()->getSampling()) continue;
         totE += aCell->et();
@@ -669,7 +675,7 @@ namespace xAOD {
       ATH_MSG_DEBUG("starting etcone, coreCone");
       double totE = 0.;
       selector.setConeSize(coreConeDR);
-      for (auto aCell : association->data()){
+      for (const auto *aCell : association->data()){
         if( !selector.select(*aCell) ) continue;
         if (m_ExcludeTG3 && CaloCell_ID::TileGap3 == aCell->caloDDE()->getSampling()) continue;
         totE += aCell->et();
@@ -851,7 +857,7 @@ namespace xAOD {
     // get the cells for the first one; by convention, it must be bigger than all the other cones.
     EMccl.select(eta,phi,Rmax);
 
-    for (auto it: EMccl) {
+    for (const auto *it: EMccl) {
       double etacel=it->eta();
       double phicel=it->phi();
 
@@ -869,7 +875,7 @@ namespace xAOD {
     // get the cells for the first one; by convention, it must be bigger than all the other cones.
     HADccl.select(eta, phi, Rmax);
 
-    for (auto it: HADccl) {
+    for (const auto *it: HADccl) {
       // Optionally remove TileGap cells
       if (m_ExcludeTG3 && CaloCell_ID::TileGap3 == it->caloDDE()->getSampling()) {
 	ATH_MSG_DEBUG("Excluding cell with Et = " << it->et());
@@ -1514,20 +1520,5 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
     return true;
   }
 #endif // XAOD_ANALYSIS
-  // FIXME! This should be updated to use the standard caching of extrapolation to calo
-  void CaloIsolationTool::decorateTrackCaloPosition(const IParticle& p, float eta, float phi) const{
-    static const SG::AuxElement::Decorator< char > dec_Decorated("caloExt_Decorated");
-    static const SG::AuxElement::Decorator< float > dec_Eta("caloExt_eta");
-    static const SG::AuxElement::Decorator< float > dec_Phi("caloExt_phi");
-
-    if(!dec_Decorated.isAvailable(p) || dec_Decorated.isAvailableWritable(p)){
-      dec_Decorated(p) = 1;
-      dec_Eta(p) = eta;
-      dec_Phi(p) = phi;
-    }else{
-      ATH_MSG_WARNING("The writing of caloExt decoration was requested, but couldn't be accomplished");
-    }
-  }
-
 }	// end of namespace
 

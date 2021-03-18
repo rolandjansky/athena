@@ -363,16 +363,11 @@ namespace xAOD {
 
       /** map to the orignal particle */
       std::map<const IParticle*, const IParticle*> m_derefMap;
-
-      /** Property: Turn on/off the calo extension decoration. */
-      // JM: set to false since I am not sure it's thread-safe
-      Gaudi::Property<bool> m_addCaloDeco {this,
-	  "addCaloExtensionDecoration", false, "Add the calo decorations"}; 
       
       /** Property: Initialize read Handles. Default True. For HLT these need to be off. */
       Gaudi::Property<bool> m_InitializeReadHandles {this,
-	  "InitializeReadHandles", true,
-	  "Initialize all ReadHandles."};
+        "InitializeReadHandles", true,
+        "Initialize all ReadHandles."};
 
 
 #ifdef XAOD_ANALYSIS // particlesInCone tool will not be avaible. Write our own...

@@ -221,7 +221,6 @@ class METAssocConfig:
         CaloCellAssocTool =  Rec__ParticleCaloCellAssociationTool(ParticleCaloExtensionTool = CaloExtensionTool)
         self.caloisotool = CfgMgr.xAOD__CaloIsolationTool("CaloIsolationTool_MET",
                                                           saveOnlyRequestedCorrections=True,
-                                                          addCaloExtensionDecoration=False,
                                                           ParticleCaloExtensionTool = CaloExtensionTool,
                                                           ParticleCaloCellAssociationTool = CaloCellAssocTool)
         #if not hasattr(ToolSvc,self.caloisotool.name()):

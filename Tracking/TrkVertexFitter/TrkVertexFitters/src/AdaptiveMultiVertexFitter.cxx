@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -91,11 +91,11 @@ void
 AdaptiveMultiVertexFitter::fit(std::vector<xAOD::Vertex*>& allVertices) const
 {
   // TODO: put this in a better place
-  // Prepare objects holding the decoration of xAOD::Vertex with MVF auxdata
+  // Prepare objects needed to add MVF auxdata  to the xAOD::Vertex 
   // For optimization of access speed
-  static const xAOD::Vertex::Decorator<MvfFitInfo*> MvfFitInfo("MvfFitInfo");
-  static const xAOD::Vertex::Decorator<bool> isInitialized("isInitialized");
-  static const xAOD::Vertex::Decorator<std::vector<Trk::VxTrackAtVertex*>> VTAV(
+  static const xAOD::Vertex::Accessor<MvfFitInfo*> MvfFitInfo("MvfFitInfo");
+  static const xAOD::Vertex::Accessor<bool> isInitialized("isInitialized");
+  static const xAOD::Vertex::Accessor<std::vector<Trk::VxTrackAtVertex*>> VTAV(
     "VTAV");
   ATH_MSG_DEBUG(" Now fitting all vertices ");
   // create a vector of vertices, to store the old position...
@@ -110,7 +110,7 @@ AdaptiveMultiVertexFitter::fit(std::vector<xAOD::Vertex*>& allVertices) const
   bool shiftIsSmall(true);
   // now start to iterate
   do {
-    for (const auto& pThisVertex : allVertices) {
+    for (auto* pThisVertex : allVertices) {
       // now store all the "old positions"; if vertex is added for the first
       // time this corresponds to the seed (at the same time fitted vertex will
       // be updated with the constraint information) check if you need to
@@ -183,7 +183,7 @@ AdaptiveMultiVertexFitter::fit(std::vector<xAOD::Vertex*>& allVertices) const
     ATH_MSG_DEBUG("Finished first candidates cycle");
     // after having estimated the compatibility of all the vertices, you have to
     // run again on all vertices, to compute the weights
-    for (const auto& pThisVertex : allVertices) {
+    for (auto* pThisVertex : allVertices) {
       // TODO: crude and quite possibly time consuming, but best solution I
       // could think of...
       //      updated VxTrackAtVertices are stored in VTAV decoration:
@@ -288,7 +288,7 @@ AdaptiveMultiVertexFitter::fit(std::vector<xAOD::Vertex*>& allVertices) const
       }
     }
   } else { // TODO: I added this during xAOD migration
-    for (const auto& pThisVertex : allVertices) {
+    for (auto* pThisVertex : allVertices) {
       const auto& theseTrackPointersAtVtx = VTAV(*pThisVertex);
       for (const auto& pTrack : theseTrackPointersAtVtx) {
         if (pTrack->initialPerigee())
@@ -300,13 +300,13 @@ AdaptiveMultiVertexFitter::fit(std::vector<xAOD::Vertex*>& allVertices) const
 
 std::vector<double>
 AdaptiveMultiVertexFitter::collectWeights(
-  const Trk::TrackToVtxLink& tracklink) const
+  Trk::TrackToVtxLink& tracklink) const
 {
   ATH_MSG_DEBUG("Collecting weights for tracklink " << &tracklink);
   // TODO: put this in a better place
   // Prepare objects holding the decoration of xAOD::Vertex with MVF auxdata
   // For optimization of access speed
-  static const xAOD::Vertex::Decorator<std::vector<Trk::VxTrackAtVertex*>> VTAV(
+  static const xAOD::Vertex::Accessor<std::vector<Trk::VxTrackAtVertex*>> VTAV(
     "VTAV");
   const auto& theseVertices = *(tracklink.vertices());
   std::vector<double> myvector;
@@ -338,7 +338,7 @@ AdaptiveMultiVertexFitter::addVtxToFit(xAOD::Vertex* newvertex) const
   // TODO: put this in a better place
   // Prepare objects holding the decoration of xAOD::Vertex with MVF auxdata
   // For optimization of access speed
-  static const xAOD::Vertex::Decorator<std::vector<Trk::VxTrackAtVertex*>> VTAV(
+  static const xAOD::Vertex::Accessor<std::vector<Trk::VxTrackAtVertex*>> VTAV(
     "VTAV");
 
   if (VTAV(*newvertex).empty()) {
@@ -391,8 +391,8 @@ AdaptiveMultiVertexFitter::prepareCompatibility(xAOD::Vertex* newvertex) const
   // TODO: put this in a better place
   // Prepare objects holding the decoration of xAOD::Vertex with MVF auxdata
   // For optimization of access speed
-  static const xAOD::Vertex::Decorator<MvfFitInfo*> MvfFitInfo("MvfFitInfo");
-  static const xAOD::Vertex::Decorator<std::vector<Trk::VxTrackAtVertex*>> VTAV(
+  static const xAOD::Vertex::Accessor<MvfFitInfo*> MvfFitInfo("MvfFitInfo");
+  static const xAOD::Vertex::Accessor<std::vector<Trk::VxTrackAtVertex*>> VTAV(
     "VTAV");
   const Amg::Vector3D* seedPoint = MvfFitInfo(*newvertex)->seedVertex();
   ATH_MSG_VERBOSE("Now adding compatibility info to the track");
