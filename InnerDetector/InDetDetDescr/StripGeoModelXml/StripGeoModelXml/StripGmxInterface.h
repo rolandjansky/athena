@@ -25,12 +25,12 @@ class StripGmxInterface: public GmxInterface {
 public:
     StripGmxInterface(InDetDD::SCT_DetectorManager *detectorManager, InDetDD::SiCommonItems *commonItems, WaferTree *waferTree);
     ~StripGmxInterface();
-    int sensorId(std::map<std::string, int> &index) const;
-    int splitSensorId(std::map<std::string, int> &index, std::pair<std::string, int> &extraIndex, std::map<std::string, int> &updatedIndex) const; //For "artificially" adding to Identifiers; specify the field (e.g. "eta_module") and the value to add
+    int sensorId(std::map<std::string, int> &index) const override final;
+    int splitSensorId(std::map<std::string, int> &index, std::pair<std::string, int> &extraIndex, std::map<std::string, int> &updatedIndex) const override final; //For "artificially" adding to Identifiers; specify the field (e.g. "eta_module") and the value to add
     void addSensorType(std::string clas, std::string typeName, std::map<std::string, std::string> parameters);
     void addSensor(std::string typeName, std::map<std::string, int> &index, int sequentialId, 
-                   GeoVFullPhysVol *fpv);
-    void addSplitSensor(std::string typeName, std::map<std::string, int> &index, std::pair<std::string, int> &extraIndex, int sequentialId, GeoVFullPhysVol *fpv);
+                   GeoVFullPhysVol *fpv) override final;
+    void addSplitSensor(std::string typeName, std::map<std::string, int> &index, std::pair<std::string, int> &extraIndex, int sequentialId, GeoVFullPhysVol *fpv) override final;
     void addAlignable(int level, std::map<std::string, int> &index, GeoVFullPhysVol *fpv, 
                       GeoAlignableTransform *transform);
     void makeSiStripBox(std::string typeName, std::map<std::string, std::string> &par);
