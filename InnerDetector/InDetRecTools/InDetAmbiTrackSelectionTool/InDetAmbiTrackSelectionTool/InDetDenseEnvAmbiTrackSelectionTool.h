@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -238,8 +238,8 @@ namespace InDet
         if (ATH_UNLIKELY(!x)) return true;
         if (ATH_UNLIKELY(!y)) return false;
         if (ATH_UNLIKELY(!x->trackParameters()  and !y->trackParameters())) return false;
-        if (ATH_UNLIKELY(!x->trackParameters() && x->trackParameters()->size() <= 0) ) return true;
-        if (ATH_UNLIKELY(!y->trackParameters() && y->trackParameters()->size() <= 0) ) return false;
+        if (ATH_UNLIKELY(!x->trackParameters() || x->trackParameters()->size() <= 0) ) return true;
+        if (ATH_UNLIKELY(!y->trackParameters() || y->trackParameters()->size() <= 0) ) return false;
         return std::fabs( (*x->trackParameters())[0]->parameters()[Trk::qOverP]) < std::fabs( (*y->trackParameters())[0]->parameters()[Trk::qOverP]) ;
       }
     };
