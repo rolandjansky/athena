@@ -48,6 +48,10 @@ public:
   // run the ONNX inference on the input tensor
   float runOnnxInference(std::vector<float> &tensor) const;
 
+  // unwrap phi values by mapping phi vectors that span the boundary 
+  // between pi and -pi to their 2*pi complement
+  std::vector<float> unwrapPhiAngles(const std::vector<float> &v) const;
+
   // fill vectors from the particle cell association
   void fillInputVectors(std::unique_ptr<const Rec::ParticleCellAssociation>& association, std::vector<float> &eta, std::vector<float> &phi, std::vector<float> &energy, std::vector<int> &samplingId) const;
 

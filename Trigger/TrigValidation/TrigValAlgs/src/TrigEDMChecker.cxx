@@ -24,7 +24,6 @@
 #include "xAODTrigMissingET/TrigMissingETContainer.h"
 #include "TrigMissingEtEvent/TrigMissingETContainer.h"
 #include "TrigMuonEvent/MuonFeature.h"
-#include "TrigMuonEvent/TrigMuonEFInfoContainer.h"
 #include "TrigMuonEvent/TrigMuonEFInfoTrackContainer.h"
 #include "TrigMuonEvent/TrigMuonEFInfoTrack.h"
 #include "TrigMuonEvent/TrigMuonEFIsolationContainer.h"
@@ -243,7 +242,7 @@ StatusCode TrigEDMChecker::initialize() {
     ATH_CHECK( m_clidSvc.retrieve() );
   }
 
-  if (m_doTDTCheck) {
+  if (m_doTDTCheck || m_doDumpTrigCompsiteNavigation) {
     ATH_CHECK( m_trigDec.retrieve() );
     m_trigDec->ExperimentalAndExpertMethods()->enable();
     ATH_MSG_INFO("TDT Executing with navigation format: " << m_trigDec->getNavigationFormat());
@@ -560,10 +559,12 @@ StatusCode TrigEDMChecker::execute() {
 
   if (m_doDumpAll || m_doDumpTrigCompsiteNavigation) {
     std::string trigCompositeSteering;
-    ATH_CHECK(TrigCompositeNavigationToDot(trigCompositeSteering));
+    bool pass;
+    ATH_CHECK(TrigCompositeNavigationToDot(trigCompositeSteering, pass));
     const EventContext& context = Gaudi::Hive::currentContext();
     const std::string evtNumber = std::to_string(context.eventID().event_number());
-    std::ofstream ofile(std::string("NavigationGraph_" + evtNumber + ".dot").c_str());
+    const std::string passStr = (pass ? "Pass" : "Fail"); 
+    std::ofstream ofile(std::string("NavGraph_" + m_dumpNavForChain + "_Ev" + evtNumber + "_" + passStr + ".dot").c_str());
     ofile << trigCompositeSteering;
   }
 
@@ -4193,7 +4194,7 @@ StatusCode TrigEDMChecker::checkTrigCompositeElementLink(const xAOD::TrigComposi
 }
 
 
-StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue) {
+StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue, bool& pass) {
 
   using namespace TrigCompositeUtils;
 
@@ -4211,6 +4212,30 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
   ATH_MSG_DEBUG("Got " <<  keys.size() << " keys for " << typeNameTC);
 
   HLT::Identifier chainID(m_dumpNavForChain);
+  DecisionIDContainer chainIDs;
+  chainIDs.insert( chainID.numeric() );
+
+  std::set<int> converted;
+
+  const Trig::ChainGroup* cg = m_trigDec->getChainGroup(m_dumpNavForChain);
+  pass = cg->isPassed(TrigDefs::requireDecision);
+  std::vector<std::string> chains = cg->getListOfTriggers();
+  for (const std::string& chain : chains) {
+    const TrigConf::HLTChain* hltChain = m_trigDec->ExperimentalAndExpertMethods()->getChainConfigurationDetails(chain);
+    const HLT::Identifier chainID_tmp( hltChain->chain_name() );
+    chainIDs.insert( chainID_tmp.numeric() );
+    const std::vector<size_t> legMultiplicites = hltChain->leg_multiplicities();
+    if (legMultiplicites.size() == 0) {
+      ATH_MSG_ERROR("chain " << chainID_tmp << " has invalid configuration, no multiplicity data.");
+    } else if (legMultiplicites.size() > 1) {
+      // For multi-leg chains, the DecisionIDs are handled per leg.
+      // We don't care here exactly how many objects are required per leg, just that there are two-or-more legs
+      for (size_t legNumeral = 0; legNumeral < legMultiplicites.size(); ++legNumeral) {
+        const HLT::Identifier legID = TrigCompositeUtils::createLegName(chainID_tmp, legNumeral);
+        chainIDs.insert( legID.numeric() );
+      }
+    }
+  }
 
   // First retrieve them all (this should not be needed in future)
   const DecisionContainer* container = nullptr;
@@ -4244,24 +4269,28 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
       const DecisionContainer* container = dynamic_cast<const DecisionContainer*>( tc->container() );
       const ElementLink<DecisionContainer> selfEL = ElementLink<DecisionContainer>(*container, tc->index());
       ElementLinkVector<DecisionContainer> seedELs = tc->objectCollectionLinks<DecisionContainer>("seed");
+      const bool isHypoAlgNode = tc->name() == "H";
       const std::vector<DecisionID>& decisions = tc->decisions();
       const uint32_t selfKey = selfEL.key();
       const uint32_t selfIndex = selfEL.index();
       if (m_dumpNavForChain != "") {
         bool doDump = false;
-        const auto it = std::find(decisions.begin(), decisions.end(), chainID.numeric());
         // Check me
-        if (it != decisions.end()) {
-          doDump = true;
+        for (DecisionID id : decisions) {
+          if (chainIDs.count(id) == 1) {
+            doDump = true;
+            break;
+          }
         }
         // Check my seeds
-        if (!doDump) {
+        if (!doDump and isHypoAlgNode) {
           for (const ElementLink<DecisionContainer> s : seedELs) {
             const std::vector<DecisionID>& seedDecisions = (*s)->decisions();
-            const auto it2 = std::find(seedDecisions.begin(), seedDecisions.end(), chainID.numeric());
-            if (it2 != seedDecisions.end()) {
-              doDump = true;
-              break;
+            for (DecisionID id : seedDecisions) {
+              if (chainIDs.count(id) == 1) {
+                doDump = true;
+                break;
+              }
             }
           }
         }
@@ -4274,22 +4303,37 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
         ss << "  subgraph " << key << " {" << std::endl;
         ss << "    label=\"" << key << "\"" << std::endl;
       }
-      ss << "    \"" << selfKey << "_" << selfIndex << "\" [label=\"Container=" << typeNameTC; 
-      if (tc->name() != "") ss << "\\nName=" << tc->name();
-      ss << "\\nKey=" << key << "\\nIndex=" << selfIndex << " linksRemapped=" << (tc->isRemapped() ? "Y" : "N");
+      const std::string scheme = "rdpu9";
+      std::string color = "1";
+      if      (tc->name() == "L1") { color = "1"; }
+      else if (tc->name() == "F")  { color = "2"; }
+      else if (tc->name() == "IM") { color = "3"; }
+      else if (tc->name() == "H")  { color = "4"; }
+      else if (tc->name() == "CH") { color = "5"; }
+      else if (tc->name() == "SF") { color = "6"; }
+      else if (tc->name() == "HLTPassRaw") { color = "7"; }
+      ss << "    \"" << selfKey << "_" << selfIndex << "\" [colorscheme="<<scheme<<",style=filled,fillcolor="<<color<<",label=<<B>Container</B>=" << typeNameTC; 
+      if (tc->name() != "") ss << " <B>Name</B>=" << tc->name();
+      ss << "<BR/><B>Key</B>=" << key << "<BR/><B>Index</B>=" << selfIndex;
+      const bool isRemapped = tc->isRemapped();
+      if (isHypoAlgNode) ss << " <B>linksRemapped</B>=" << (isRemapped ? "Y" : "N");
       if (decisions.size() > 0) {
-        ss << "\\nPass=";
+        ss << "<BR/><B>Pass</B>=";
         size_t c = 0;
         for (unsigned decisionID : decisions) {
-          std::string highlight = (decisionID == chainID.numeric() ? "*****" : "");
-          ss << std::hex << highlight << decisionID << highlight << std::dec << ",";
+          HLT::Identifier dID(decisionID);
+          std::string highlight = (dID.numeric() == chainID.numeric() ? "<B>[CHAIN:" : "");
+          if (highlight == "" and chainIDs.count(dID.numeric()) == 1 and TrigCompositeUtils::isLegId(dID)) {
+            highlight = "<B>[LEG" + std::to_string(TrigCompositeUtils::getIndexFromLeg(dID)) + ":";
+          }
+          ss << std::hex << highlight << decisionID << (!highlight.empty() ? "]</B>" : "") << std::dec << ",";
           if (c++ == 5) {
-            ss << std::endl;
+            ss << "<BR/>";
             c = 0;
           }
         }
       }
-      ss << "\"]" << std::endl;
+      ss << ">]" << std::endl;
       // Output all the things I link to
       size_t seedCount = 0;
       for (size_t i = 0; i < tc->linkColNames().size(); ++i) {
@@ -4302,21 +4346,35 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
           ATH_CHECK( seedIndex == seedEL.index() );
           if (m_dumpNavForChain != "") { // Only print "seed" link to nodes we include in our search
             const std::vector<DecisionID> seedDecisions = (*seedEL)->decisions();
-            const auto it = std::find(seedDecisions.begin(), seedDecisions.end(), chainID.numeric());
-            if (it == seedDecisions.end()) {
+            bool doSeedLink = false;
+            for (DecisionID id : seedDecisions) {
+              if (chainIDs.count(id) == 1) {
+                doSeedLink = true;
+                break;
+              }
+            }            
+            if (!doSeedLink) {
               continue;
             }
           }
-          ss << "    \"" << selfKey << "_" << selfIndex << "\" -> \"" << seedKey << "_" << seedIndex << "\" [label=\"seed\"]" << std::endl;
+          ss << "    \"" << selfKey << "_" << selfIndex << "\" -> \"" << seedKey << "_" << seedIndex << "\" [colorscheme="<<scheme<<",color=9,fontcolor=8,label=\"seed\"]" << std::endl;
         } else {
           // Start with my class ID
+          std::string linkColour = "12";
+          std::string linkBackground = "11";
+          const std::string extScheme =  "paired12";
+          if      (link == "roi") { linkColour="2"; linkBackground="1"; }
+          else if (link == "initialRoI") { linkColour="2"; linkBackground="1"; }
+          else if (link == "initialRecRoI") { linkColour="8"; linkBackground="7"; }
+          else if (link == "feature") { linkColour="4"; linkBackground="3"; }
+          else if (link == "view") { linkColour="10"; linkBackground="9"; }
           const CLID linkCLID = static_cast<CLID>( tc->linkColClids().at(i) );
           // Use it to get my class name
           std::string tname;
           ATH_CHECK(m_clidSvc->getTypeNameOfID(linkCLID, tname));
           // Now get the sgkey I'm linking to & the index
-          const SG::sgkey_t key = static_cast<SG::sgkey_t>( tc->linkColKeys().at(i) );
-          const unsigned index = tc->linkColIndices().at(i);
+          const SG::sgkey_t key = (isRemapped ? static_cast<SG::sgkey_t>( tc->linkColKeysRemap().at(i) ) : static_cast<SG::sgkey_t>( tc->linkColKeys().at(i) ));
+          const unsigned index = (isRemapped ? tc->linkColIndicesRemap().at(i) : tc->linkColIndices().at(i));
           // Look it up
           CLID checkCLID;
           const std::string* keyStr = evtStore()->keyToString(key, checkCLID); // I don't own this str
@@ -4326,12 +4384,31 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
             ATH_MSG_ERROR("Inconsistent CLID " << checkCLID << " [" << tnameOfCheck << "] stored in storegate for key " << key
               << ". We were expecting " << linkCLID << " [" << tname << "]");
           }
+
+          std::string tnameEscape;
+          for (std::string::const_iterator i = tname.begin(); i != tname.end(); ++i) {
+            unsigned char c = *i;
+            if (c == '<') {
+              tnameEscape += "&lt;";
+            } else if (c == '>') {
+              tnameEscape += "&gt;";
+            } else {
+              tnameEscape += c;
+            }
+          }
+
           // Print
-          ss << "    \"" << selfKey << "_" << selfIndex << "\" -> \"";
-          ss << "Container=" << tname << "\\nKey=";
-          if (keyStr != nullptr) ss << *keyStr;
-          else ss << "[KEY "<< key <<" NOT IN STORE]"; 
-          ss << "\\nIndex=" << index << "\" [label=\"" << link << "\"]" << std::endl; 
+          ss << "    \"" << selfKey << "_" << selfIndex << "\" -> \"" << key << "_" << index << "\" ";
+          ss << "[colorscheme="<<extScheme<<",color="<<linkColour<<",fontcolor="<<linkColour<<",arrowhead=empty,label=\"" << link << "\"]" << std::endl; 
+
+          if (converted.count(key + index) == 0) {
+            ss << "    \"" << key << "_" << index << "\" [colorscheme="<<extScheme<<",style=filled,fillcolor="<<linkBackground<<",label=<<B>Container</B>=" << tnameEscape << "<BR/><B>Key</B>=";
+            if (keyStr != nullptr) ss << *keyStr;
+            else ss << "[<I>KEY "<< key <<" NOT IN STORE</I>] "; 
+            ss << "<BR/><B>Index</B>=" << index << ">]";
+          }
+
+          converted.insert(key + index);
         }
       }
     }

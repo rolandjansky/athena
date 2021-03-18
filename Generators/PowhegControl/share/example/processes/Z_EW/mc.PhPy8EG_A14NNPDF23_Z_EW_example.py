@@ -1,11 +1,11 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #--------------------------------------------------------------
 # EVGEN configuration
 #--------------------------------------------------------------
 evgenConfig.description = "POWHEG+Pythia8 Z production (plus EW corrections) with A14 NNPDF2.3 tune."
 evgenConfig.keywords = ["SM", "Z"]
-evgenConfig.contact = ["simone.amoroso@cern.ch"]
+evgenConfig.contact = ["james.robinson@cern.ch"]
 
 # --------------------------------------------------------------
 # Load ATLAS defaults for the Powheg Z_EW process

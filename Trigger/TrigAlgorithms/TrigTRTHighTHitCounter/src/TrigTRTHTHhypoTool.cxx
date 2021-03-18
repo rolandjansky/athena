@@ -4,7 +4,9 @@
 
 #include "TrigTRTHTHhypoTool.h"
 
-using namespace TrigCompositeUtils;
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
+
+namespace TCU = TrigCompositeUtils;
 
 TrigTRTHTHhypoTool::TrigTRTHTHhypoTool( const std::string& type, 
 		    const std::string& name, 
@@ -19,8 +21,6 @@ StatusCode TrigTRTHTHhypoTool::initialize()  {
 
   return StatusCode::SUCCESS;
 }
-
-TrigTRTHTHhypoTool::~TrigTRTHTHhypoTool(){}
 
 bool TrigTRTHTHhypoTool::decide( const ITrigTRTHTHhypoTool::RNNOutputInfo& input ) const {
 
@@ -67,9 +67,9 @@ bool TrigTRTHTHhypoTool::decide( const ITrigTRTHTHhypoTool::RNNOutputInfo& input
 
 StatusCode TrigTRTHTHhypoTool::decide( std::vector<RNNOutputInfo>& input )  const {
   for ( auto& i: input ) {
-    if ( passed ( m_decisionId.numeric(), i.previousDecisionIDs ) ) {
+    if ( TCU::passed ( m_decisionId.numeric(), i.previousDecisionIDs ) ) {
       if ( decide( i ) ) {
-	addDecisionID( m_decisionId, i.decision );
+        TCU::addDecisionID( m_decisionId, i.decision );
       }
     }
   }

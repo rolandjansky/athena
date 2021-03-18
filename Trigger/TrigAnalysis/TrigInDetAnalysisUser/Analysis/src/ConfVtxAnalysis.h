@@ -20,10 +20,6 @@
 
 #include "Resplot.h"
 
-#include "Resplot.h"
-// #include "Contour.h"
-
-
 class ConfVtxAnalysis : public VertexAnalysis {
 
 public:

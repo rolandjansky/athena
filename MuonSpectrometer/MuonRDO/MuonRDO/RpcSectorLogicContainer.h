@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRDO_RPCSECTORLOGICCONTAINER_H
@@ -20,7 +20,8 @@
 class RpcSectorLogicContainer : public DataVector<RpcSectorLogic> {
 
  public:
-  typedef uint32_t SectorList_t[2];
+  typedef uint32_t SectorListElement_t;
+  typedef SectorListElement_t SectorList_t[2];
 
   /** Default constructor */
   RpcSectorLogicContainer();
@@ -34,7 +35,7 @@ class RpcSectorLogicContainer : public DataVector<RpcSectorLogic> {
   /** Flag the sector as already decoded */
   bool setSector(uint16_t sectorId, const uint16_t side=0);
 
-  const SectorList_t& sectorList() const;
+  const SectorListElement_t* sectorList() const;
   void setSectorList (const SectorList_t& sectorList);
 
  private:

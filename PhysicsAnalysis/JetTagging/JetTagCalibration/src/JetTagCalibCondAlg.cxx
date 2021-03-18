@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*
  *   */
@@ -99,17 +99,15 @@ namespace Analysis {
 
     // Decode channel aliases
     if (m_channelAliases.size() > 0) {
-      for(std::vector<std::string>::const_iterator aliasI = m_channelAliases.value().begin(),
-          aliasE = m_channelAliases.value().end();
-          aliasI != aliasE; aliasI++) {
-        const std::string::size_type delim = aliasI->find("->");
+      for (const std::string& alias : m_channelAliases) {
+        const std::string::size_type delim = alias.find("->");
         if(delim == std::string::npos) {
-          ATH_MSG_ERROR( "#BTAG# Unexpected format in channelAliases: " << (*aliasI));
+          ATH_MSG_ERROR( "#BTAG# Unexpected format in channelAliases: " << alias);
         } else {
-          ATH_MSG_DEBUG( "#BTAG# Calibration channel alias: " << aliasI->substr(0, delim) << " -> "
-                      << aliasI->substr(delim+2) );
-          std::string jetc= aliasI->substr(0, delim);
-          std::vector<std::string> jeta = tokenize(aliasI->substr(delim+2), ",");
+          ATH_MSG_DEBUG( "#BTAG# Calibration channel alias: " << alias.substr(0, delim) << " -> "
+                      << alias.substr(delim+2) );
+          std::string jetc= alias.substr(0, delim);
+          std::vector<std::string> jeta = tokenize(alias.substr(delim+2), ",");
           m_channelAliasesMultiMap.insert(std::make_pair(jetc, jeta) );
           // Add to list of channels to which aliases will be attached
           // (necessary because getJetAuthor used in taggers does not use
@@ -261,7 +259,7 @@ namespace Analysis {
     }
   }
 
-  void JetTagCalibCondAlg::initializeSVEff(std::string SVmode) {
+  void JetTagCalibCondAlg::initializeSVEff(const std::string& SVmode) {
     // for SV efficiencies, add a few histograms:
     std::string hName;
     for(unsigned int ih=0;ih<m_IPTag_hypotheses.size();ih++) {
@@ -368,7 +366,7 @@ namespace Analysis {
   } 
 
 
-  void JetTagCalibCondAlg::initializeMV2(std::string taggerNameBase)
+  void JetTagCalibCondAlg::initializeMV2(const std::string& taggerNameBase)
   {
     std::string treeName("BDT");
     std::string varStrName("variables");
@@ -421,7 +419,7 @@ namespace Analysis {
     this->registerHistogram(taggerNameBase, "jvc_JC_all_bbar");
   }
 
-  void JetTagCalibCondAlg::initializeMultiSV(std::string taggerNameBase)
+  void JetTagCalibCondAlg::initializeMultiSV(const std::string& taggerNameBase)
   {
     ATH_MSG_DEBUG("#BTAG# taggerNameBase " << taggerNameBase);
     std::string treeName = "BDT";
@@ -431,7 +429,7 @@ namespace Analysis {
     this->registerHistogram(taggerNameBase, taggerNameBase+"Calib/"+varStrName);
   }
 
-  void JetTagCalibCondAlg::initializeDL1(std::string taggerNameBase)
+  void JetTagCalibCondAlg::initializeDL1(const std::string& taggerNameBase)
   {
     m_DL1_file_name = "net_configuration"; // directory of NN calibration (starting from specific jet collection directory) in COOL db
     this->registerHistogram(taggerNameBase, m_DL1_file_name);  //register the calibration file for later access
@@ -563,9 +561,12 @@ namespace Analysis {
                   toa->SetOwner (true);
                   std::vector<std::string> inputVars; inputVars.clear();
                   std::string commaSepVars="";
-                  TObjString *tos= nullptr;
-                  if (toa->GetEntries()>0) tos= (TObjString*) toa->At(0);
-                  commaSepVars=tos->GetString().Data();
+                  if (toa->GetEntries()>0) {
+                    auto tos = dynamic_cast<TObjString*> (toa->At(0));
+                    if (tos) {
+                      commaSepVars=tos->GetString().Data();
+                    }
+                  }
                   while (commaSepVars.find(",")!=std::string::npos) {
                     inputVars.push_back(commaSepVars.substr(0,commaSepVars.find(",")));
                     commaSepVars.erase(0,commaSepVars.find(",")+1);
@@ -730,7 +731,7 @@ namespace Analysis {
 
 
 
-  std::vector<std::string> JetTagCalibCondAlg::tokenize(std::string str, std::string delim){
+  std::vector<std::string> JetTagCalibCondAlg::tokenize(const std::string& str, const std::string& delim){
     std::vector<std::string> tokens;
     std::string::size_type sPos, sEnd, sLen;
     // if str starts with a character in delim, do you want an empty string in tokens?

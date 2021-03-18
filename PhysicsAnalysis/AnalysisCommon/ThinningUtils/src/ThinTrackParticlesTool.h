@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -48,17 +48,18 @@
 #include "xAODJet/Jet.h"
 #include "xAODParticleEvent/CompositeParticle.h"
 
-// Forward declarations
-namespace ExpressionParsing {
-  class ExpressionParser;
-}
-
-
+#ifndef XAOD_ANALYSIS
+#include "ExpressionEvaluation/ExpressionParserUserWithTrigSupport.h"
+using ThinTrackParticlesToolBase = ExpressionParserUserWithTrigSupport<::AthAlgTool>;
+#else
+#include "ExpressionEvaluation/ExpressionParserUser.h"
+using ThinTrackParticlesToolBase = ExpressionParserUser<::AthAlgTool>;
+#endif
 
 
 class ThinTrackParticlesTool
-  : virtual public ::DerivationFramework::IThinningTool,
-            public ::AthAlgTool
+  : public ThinTrackParticlesToolBase,
+    virtual public ::DerivationFramework::IThinningTool
 {
 public:
   /// Standard constructor
@@ -138,16 +139,6 @@ private:
   /// Select relevant TrackParticles based on the selection string
   StatusCode selectFromString( std::vector<bool>& mask,
                                const xAOD::TrackParticleContainer* trackParticleContainer ) const;
-
-
-  /// The trigger decision tool
-// AthAnalysisBase doesn't currently include the Trigger Service
-#ifndef XAOD_ANALYSIS
-  ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool;
-#endif
-
-  /// The expression parser
-  ExpressionParsing::ExpressionParser *m_parser;
 
   StringProperty m_streamName
   { this, "StreamName", "", "Name of the stream for which thinning is being done." };

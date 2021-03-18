@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIG_TrigBphysStreamerHypo_H
@@ -25,7 +25,10 @@ class TrigBphysStreamerHypo : public ::HypoBase {
 
  private:
   ToolHandleArray<TrigBphysStreamerHypoTool> m_hypoTools {this, "HypoTools", {}, "Tools to perform selection"};
+  Gaudi::Property<std::string> m_triggerLevel {this, "triggerLevel", "EF", "use xAOD::L2StandAloneMuon at L2 level and xAOD::Muon at EF level as a trigger feature object"};
 
+  Gaudi::Property<std::vector<std::string>> m_triggerList {this, "triggerList", {}, "The streamer will copy ID from the previous Decision if it matches with some trigger from the list; all IDs will be copied if no trigger is specified"};
+  TrigCompositeUtils::DecisionIDContainer m_triggerIDs;
 };
 
 #endif  // TRIG_TrigBphysStreamerHypo_H

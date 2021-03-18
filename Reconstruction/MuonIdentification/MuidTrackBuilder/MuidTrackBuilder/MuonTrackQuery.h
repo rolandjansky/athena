@@ -83,7 +83,7 @@ class MuonTrackQuery : public AthAlgTool, virtual public IMuonTrackQuery {
 
     /** IMuonTrackQuery interface:
         trackParameters at innermost measurement TSOS in MS */
-    const Trk::TrackParameters* spectrometerParameters(const Trk::Track& track) const;
+    std::unique_ptr<Trk::TrackParameters> spectrometerParameters(const Trk::Track& track) const;
 
     /** IMuonTrackQuery interface:
         assess the number of additional phi measurements needed for MS (or SA) track fit */
@@ -94,7 +94,7 @@ class MuonTrackQuery : public AthAlgTool, virtual public IMuonTrackQuery {
     const Trk::TrackParameters* triggerStationParameters(const Trk::Track& track) const;
 
   private:
-    const Trk::TrackParameters* flippedParameters(const Trk::TrackParameters& params) const;
+    std::unique_ptr<Trk::TrackParameters> flippedParameters(const Trk::TrackParameters& params) const;
 
     // tools and services
     ToolHandle<Trk::ITrackFitter> m_fitter{this, "Fitter", "", "Track fitter tool"};

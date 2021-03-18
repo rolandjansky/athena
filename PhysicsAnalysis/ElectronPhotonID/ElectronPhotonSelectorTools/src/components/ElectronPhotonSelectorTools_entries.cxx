@@ -6,6 +6,7 @@
 #include "ElectronPhotonSelectorTools/AsgElectronChargeIDSelectorTool.h"
 #include "ElectronPhotonSelectorTools/AsgDeadHVCellRemovalTool.h"
 #include "ElectronPhotonSelectorTools/AsgForwardElectronLikelihoodTool.h"
+#include "ElectronPhotonSelectorTools/AsgElectronSelectorTool.h"
 
 DECLARE_COMPONENT( AsgElectronIsEMSelector )
 DECLARE_COMPONENT( AsgElectronLikelihoodTool )
@@ -15,4 +16,4 @@ DECLARE_COMPONENT( EGammaAmbiguityTool )
 DECLARE_COMPONENT( AsgElectronChargeIDSelectorTool )
 DECLARE_COMPONENT( AsgDeadHVCellRemovalTool )
 DECLARE_COMPONENT( AsgForwardElectronLikelihoodTool )
-
+DECLARE_COMPONENT( AsgElectronSelectorTool )

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( IsolationSelection )
@@ -18,7 +18,8 @@ atlas_add_library( IsolationSelectionLib
   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
   LINK_LIBRARIES AthContainers AsgTools xAODBase xAODEgamma xAODMuon xAODEventInfo ${extra_libs}
   xAODPrimitives PATCoreLib PATInterfaces InDetTrackSelectionToolLib xAODTracking
-  PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} PathResolver FourMomUtils TrackVertexAssociationToolLib InDetTrackSelectionToolLib )
+  ${ROOT_LIBRARIES} 
+  PRIVATE_LINK_LIBRARIES PathResolver FourMomUtils TrackVertexAssociationToolLib InDetTrackSelectionToolLib )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( IsolationSelection

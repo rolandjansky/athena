@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGHLTJETHYPO_TRIGJETHYPOHELPERNOGROUPER_H
@@ -71,17 +71,12 @@ public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
     "hypo tree Condition builder AlgTools for hypo pre-filtering"};
 
   // object that copies selected incomming jets into a new vector.
-  ConditionFilter m_prefilter{}; 
+  std::unique_ptr<ConditionFilter> m_prefilter{nullptr}; 
 
   
   Gaudi::Property<bool>
   m_debug {this, "debug", false, "instantantiate helpers with this debug flag"};
   
-
- void collectData(const std::string& exetime,
-                  const std::unique_ptr<ITrigJetHypoInfoCollector>&,
-                  const std::optional<bool>& pass) const;
-
   StatusCode makePrefilter();
   
   virtual std::string toString() const override;

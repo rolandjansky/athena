@@ -29,7 +29,7 @@ def _IncTool(name, threshold, sel):
     def same( val ):
         return [val]*( len( tool.EtaBins ) - 1 )
 
-    tool.ETthr          = same( float(threshold) )
+    tool.ETthr          = same( float(threshold)*GeV )
     tool.dETACLUSTERthr = 0.1
     tool.dPHICLUSTERthr = 0.1
     tool.ET2thr         = same( 90.0*GeV )

@@ -29,6 +29,17 @@ class TrigDecisionMakerMT( TrigDec__TrigDecisionMakerMT ):
         log.info("Setting UseNewConfig to %s", ConfigFlags.Trigger.readLVL1FromJSON)
         self.UseNewConfigL1 = ConfigFlags.Trigger.readLVL1FromJSON
         self.Lvl1ResultAccessTool.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
+        # Schedule also the prescale conditions algs
+        from AthenaCommon.Configurable import Configurable
+        Configurable.configurableRun3Behavior += 1
+        from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, appendCAtoAthena
+        from TrigConfigSvc.TrigConfigSvcCfg import  L1PrescaleCondAlgCfg, HLTPrescaleCondAlgCfg
+        acc = ComponentAccumulator()
+        acc.merge( L1PrescaleCondAlgCfg( ConfigFlags ) )
+        acc.merge( HLTPrescaleCondAlgCfg( ConfigFlags ) )
+        appendCAtoAthena( acc )
+        Configurable.configurableRun3Behavior -= 1
+        ###
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         if hasattr(svcMgr,'DSConfigSvc'):
             # this case is still needed for reading Run 2 configuration from the TriggerDB
@@ -147,6 +158,7 @@ class WritexAODTrigDecision ( object ) :
         # In order for the conversion to work we need to setup the TrigDecisionTool such that it uses the old decision
         ToolSvc.TrigDecisionTool.UseAODDecision = True
         ToolSvc.TrigDecisionTool.TrigDecisionKey = "TrigDecision"
+
 
         from AthenaCommon.Logging import logging  # loads logger
         log = logging.getLogger( 'WritexAODTrigDecision' )

@@ -30,15 +30,27 @@ def RPCCablingConfigCfg(flags):
     rpcCablingSvc.ConfFileName = 'LVL1confAtlas.data' # this should come from config flag maybe ???
     rpcCablingSvc.CorrFileName = 'LVL1confAtlas.corr' 
     rpcCablingSvc.ConfFilePath = 'MuonRPC_Cabling/'
-    rpcCablingSvc.RPCTriggerRoadsfromCool = True
+    if flags.Trigger.enableL1Phase1:
+        rpcCablingSvc.RPCTriggerRoadsfromCool = False
+        from PathResolver import PathResolver
+        rpcCablingSvc.DatabaseRepository=PathResolver.FindCalibDirectory("MuonRPC_Cabling/RUN3_roads_4_6_8_10_12")
+    else:
+        rpcCablingSvc.RPCTriggerRoadsfromCool = True
+
     rpcCablingSvc.CosmicConfiguration     = 'HLT' in flags.IOVDb.GlobalTag  # this was set to true by the modifier openThresholdRPCCabling in runHLT_standalone.py
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders
     dbName = 'RPC_OFL' if flags.Input.isMC else 'RPC'
-    acc.merge(addFolders(flags, 
-                         [ '/RPC/TRIGGER/CM_THR_ETA', '/RPC/TRIGGER/CM_THR_PHI',
-                           '/RPC/CABLING/MAP_SCHEMA', '/RPC/CABLING/MAP_SCHEMA_CORR' ],
+    acc.merge(addFolders(flags,
+                         [ '/RPC/CABLING/MAP_SCHEMA', '/RPC/CABLING/MAP_SCHEMA_CORR' ],
                          dbName, className='CondAttrListCollection' ))
+    if not flags.Trigger.doLVL1 or flags.Input.isMC:
+        acc.merge(addFolders(flags,
+                             [ '/RPC/TRIGGER/CM_THR_ETA', '/RPC/TRIGGER/CM_THR_PHI'],
+                             dbName, className='CondAttrListCollection' ))
+    else:
+        # to be configured in TriggerJobOpts.Lvl1MuonSimulationConfigOldStyle
+        pass
 
     RPCCablingDbTool=CompFactory.RPCCablingDbTool
     RPCCablingDbTool = RPCCablingDbTool()
@@ -63,9 +75,6 @@ def TGCCablingConfigCfg(flags):
     
     TGCcablingServerSvc=CompFactory.TGCcablingServerSvc
     TGCCablingSvc = TGCcablingServerSvc() 
-    TGCCablingSvc.Atlas=True
-    TGCCablingSvc.useMuonTGC_CablingSvc=True
-    TGCCablingSvc.forcedUse=True    
     acc.addService( TGCCablingSvc, primary=True )
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders
@@ -83,29 +92,21 @@ def MDTCablingConfigCfg(flags):
 
     MuonMDT_CablingAlg=CompFactory.MuonMDT_CablingAlg
     MDTCablingAlg = MuonMDT_CablingAlg("MuonMDT_CablingAlg")
-
-    MDTCablingDbTool=CompFactory.MDTCablingDbTool
-    MDTCablingDbTool = MDTCablingDbTool()
-
+   
     from IOVDbSvc.IOVDbSvcConfig import addFolders
     if flags.Input.isMC is True:
-        MDTCablingDbTool.MapFolders = "/MDT/Ofl/CABLING/MAP_SCHEMA"
-        MDTCablingDbTool.MezzanineFolders  = "/MDT/Ofl/CABLING/MEZZANINE_SCHEMA"
         MDTCablingAlg.MapFolders = "/MDT/Ofl/CABLING/MAP_SCHEMA" 
         MDTCablingAlg.MezzanineFolders    = "/MDT/Ofl/CABLING/MEZZANINE_SCHEMA" 
         acc.merge( addFolders( flags, ["/MDT/Ofl/CABLING/MAP_SCHEMA",
                                        "/MDT/Ofl/CABLING/MEZZANINE_SCHEMA"], 'MDT_OFL', className="CondAttrListCollection") )
     else:
-        MDTCablingDbTool.MapFolders = "/MDT/CABLING/MAP_SCHEMA"
-        MDTCablingDbTool.MezzanineFolders  = "/MDT/CABLING/MEZZANINE_SCHEMA"
         MDTCablingAlg.MapFolders = "/MDT/CABLING/MAP_SCHEMA" 
         MDTCablingAlg.MezzanineFolders    = "/MDT/CABLING/MEZZANINE_SCHEMA" 
         acc.merge( addFolders( flags, ["/MDT/CABLING/MAP_SCHEMA",
                                        "/MDT/CABLING/MEZZANINE_SCHEMA"], 'MDT', className="CondAttrListCollection") )
 
     acc.addCondAlgo( MDTCablingAlg )
-    acc.addPublicTool( MDTCablingDbTool )
-
+   
     return acc
 
 

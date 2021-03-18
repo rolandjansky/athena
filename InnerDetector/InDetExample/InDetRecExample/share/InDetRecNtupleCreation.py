@@ -215,7 +215,9 @@ if InDetFlags.doNtupleCreation():
 
   if InDetFlags.doV0VtxNtuple():
     from TrkVertexAnalysisUtils.TrkVertexAnalysisUtilsConf import Trk__V0Tools
-    InDetV0Tools = Trk__V0Tools(name = "InDetV0Tools")
+    from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+    InDetV0Tools = Trk__V0Tools(name = "InDetV0Tools",
+                                Extrapolator = AtlasExtrapolator())
     ToolSvc += InDetV0Tools
     if (InDetFlags.doPrintConfigurables()):
       print( InDetV0Tools )

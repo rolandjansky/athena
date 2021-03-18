@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file SCTErrMonAlg_jobOptions.py
@@ -7,6 +7,7 @@
 @date 2020-10-08
 @brief New style configuration of SCTErrMonAlg
 '''
+from InDetConfig                              import InDetRecToolConfig
 
 def SCTErrMonAlgConfig(inputFlags):
 
@@ -20,26 +21,7 @@ def SCTErrMonAlgConfig(inputFlags):
     myMonAlg = helper.addAlgorithm(CompFactory.SCTErrMonAlg, 'SCTErrMonAlg')
     myMonAlg.TriggerChain = ""
 
-    # SCT conditions tools (update is necessary when the ID configuration in the new job framework is ready.)
-    ConditionsTools = []
-    myMonAlg.conditionsTool = CompFactory.SCT_ConfigurationConditionsTool(name="InDetSCT_ConfigurationConditionsTool")
-    ConditionsTools += [myMonAlg.conditionsTool]
-    myMonAlg.SCT_ByteStreamErrorsTool = CompFactory.SCT_ByteStreamErrorsTool(name="SCT_ByteStreamErrorsTool")
-    myMonAlg.SCT_ByteStreamErrorsTool.ConfigTool = myMonAlg.conditionsTool
-    ConditionsTools += [myMonAlg.SCT_ByteStreamErrorsTool]
-    if inputFlags.InDet.useDCS:
-        myMonAlg.SCT_DCSConditionsTool = CompFactory.SCT_DCSConditionsTool(name="InDetSCT_DCSConditionsTool")
-        ConditionsTools += [myMonAlg.SCT_DCSConditionsTool]
-    else:
-        myMonAlg.UseDCS = False
-    ConditionsTools += [CompFactory.SCT_ReadCalibDataTool(name="InDetSCT_ReadCalibDataTool")]
-    if not inputFlags.Common.isOnline:
-        ConditionsTools += [CompFactory.SCT_MonitorConditionsTool(name="InDetSCT_MonitorConditionsTool")]
-    if not inputFlags.Input.isMC:
-        ConditionsTools += [CompFactory.SCT_TdaqEnabledTool(name="InDetSCT_TdaqEnabledTool")]
-    kwargs = {}
-    kwargs.setdefault("ConditionsTools", ConditionsTools)
-    myMonAlg.SCT_ConditionsSummaryTool = CompFactory.SCT_ConditionsSummaryTool(name="InDetSCT_ConditionsSummaryTool", **kwargs)
+    myMonAlg.SCT_ConditionsSummaryTool = result.popToolsAndMerge( InDetRecToolConfig.InDetSCT_ConditionsSummaryToolCfg(inputFlags) )
 
     ## The following does not work when running Reco_tf.py
     ## because it configures condition algorithms

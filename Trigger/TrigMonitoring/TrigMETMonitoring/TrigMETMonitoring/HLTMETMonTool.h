@@ -148,7 +148,7 @@ private:
   std::string m_hlt_topocl_PUC_met_key; 
   std::string m_hlt_FEB_met_key; 
   std::string m_hlt_Fex_met_key; 
-  std::string m_off_met_key;
+  SG::ReadHandleKey<xAOD::MissingETContainer> m_off_met_key{this, "off_key", "MET_Reference_AntiKt4LCTopo"};
   std::string m_muon_key;
   std::string m_muon_run3_key;
   std::string m_muon_base_trigger;

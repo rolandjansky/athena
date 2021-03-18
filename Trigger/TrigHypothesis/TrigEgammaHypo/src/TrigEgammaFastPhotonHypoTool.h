@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGEGAMMAHYPO_TRIGEGAMMAFASTPHOTONHYPOTOOL_H
 #define TRIGEGAMMAHYPO_TRIGEGAMMAFASTPHOTONHYPOTOOL_H 1
 
 #include "Gaudi/Property.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "xAODTrigEgamma/TrigPhotonContainer.h"
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -26,7 +26,6 @@ class TrigEgammaFastPhotonHypoTool : virtual public ::AthAlgTool
 			  const std::string& name, 
 			  const IInterface* parent );
 
-  virtual ~TrigEgammaFastPhotonHypoTool();
   virtual StatusCode initialize() override;
 
   struct PhotonInfo {
@@ -58,8 +57,8 @@ class TrigEgammaFastPhotonHypoTool : virtual public ::AthAlgTool
   Gaudi::Property< std::vector<double> >  m_detacluster{ this,  "dETACLUSTERthr", {0.1}, "Delta Eta to Cluster" };
   Gaudi::Property< std::vector<double> >  m_dphicluster{ this,  "dPHICLUSTERthr", {0.1}, "Delta Phi to Cluster" };
   Gaudi::Property< std::vector<double> >  m_F1thr{ this,  "F1thr", {0.005}, "F1 Threshold" };
-  Gaudi::Property< std::vector<std::vector<double>> > m_eTthr{this, "ETthr", {{0.*CLHEP::GeV}}, "et threshold"};
-  Gaudi::Property< std::vector<std::vector<double>> >  m_eT2thr{this, "ET2thr", {{90.0*CLHEP::GeV}}, "eT2 threshold"};
+  Gaudi::Property< std::vector<std::vector<double>> > m_eTthr{this, "ETthr", {{0.*Gaudi::Units::GeV}}, "et threshold"};
+  Gaudi::Property< std::vector<std::vector<double>> >  m_eT2thr{this, "ET2thr", {{90.0*Gaudi::Units::GeV}}, "eT2 threshold"};
   Gaudi::Property< std::vector<std::vector<double>> >  m_hadeTthr{this, "HADETthr", {{0.}}, "hadet threshold"};
   Gaudi::Property< std::vector<std::vector<double>> >  m_hadeT2thr{this, "HADET2thr", {{0.}}, "hadet2 threshold"};
   Gaudi::Property< std::vector<std::vector<double>> >  m_carcorethr{this, "CARCOREthr", {{0.}}, "car core threshold"};

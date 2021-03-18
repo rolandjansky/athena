@@ -8,7 +8,6 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthParticleContainer.h"
-#include "xAODEventInfo/EventInfo.h"
 #include "xAODEgamma/EgammaEnums.h"
 #include "xAODTracking/TrackingPrimitives.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"

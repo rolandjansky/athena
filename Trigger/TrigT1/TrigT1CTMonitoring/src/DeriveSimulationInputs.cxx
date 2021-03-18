@@ -51,7 +51,6 @@
 #include "TrigT1CaloEvent/CMMEtSumsCollection.h"
 
 // Inputs to the CTP:
-#include "TrigT1Interfaces/MuCTPICTP.h"
 #include "TrigT1Interfaces/EmTauCTP.h"
 #include "TrigT1Interfaces/JetCTP.h"
 #include "TrigT1Interfaces/EnergyCTP.h"

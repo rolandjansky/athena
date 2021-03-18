@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrackSegmentAssociationTool.h"
@@ -47,7 +47,7 @@ namespace Muon {
       ElementLink<xAOD::MuonSegmentContainer> link;
       MuonSegmentKey key;
       unsigned int numberOfMatchedMeasurements;
-      MatchResult( ElementLink<xAOD::MuonSegmentContainer> link_, MuonSegmentKey key_, unsigned int numberOfMatchedMeasurements_ ):
+      MatchResult( const ElementLink<xAOD::MuonSegmentContainer>& link_, const MuonSegmentKey& key_, unsigned int numberOfMatchedMeasurements_ ):
         link(link_),key(key_),numberOfMatchedMeasurements(numberOfMatchedMeasurements_) {}
 
     };

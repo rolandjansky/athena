@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration                             
 */
 
-#include "TrigAFPHypo/AFPProtonTransportParam.h"
+#include "AFPProtonTransportParam.h"
 
 AFPProtonTransportParam::AFPProtonTransportParam(double beam_energy, AFPProtonTransportPolynomial* poly_array[8]) {
   m_energy = beam_energy;

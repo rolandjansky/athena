@@ -3,7 +3,6 @@
 */
 
 #include "MmDataPreparator.h"
-#include "RecMuonRoIUtils.h"
 
 TrigL2MuonSA::MmDataPreparator::MmDataPreparator(const std::string& type,
 						 const std::string& name,
@@ -17,39 +16,20 @@ TrigL2MuonSA::MmDataPreparator::MmDataPreparator(const std::string& type,
 StatusCode TrigL2MuonSA::MmDataPreparator::initialize()
 {
 
-  ATH_MSG_DEBUG("MmDataPreparator::initialize() doDecoding/decodeBS " << m_doDecoding << "/" << m_decodeBS);
-
   // Locate RegionSelector
   ATH_CHECK( m_regionSelector.retrieve() );
   ATH_MSG_DEBUG("Retrieved service RegionSelector");
 
-  // consistency check for decoding flag settings
-  if(m_decodeBS && !m_doDecoding) {
-    ATH_MSG_FATAL("Inconsistent setup, you tried to enable BS decoding but disable all decoding. Please fix the configuration");
-    return StatusCode::FAILURE;
-  }
-
-  // disable the RDO->PRD decoding tool if we don't do the MM data decoding
-  ATH_CHECK( m_mmPrepDataProvider.retrieve(DisableTool{!m_doDecoding}) );
-  ATH_MSG_DEBUG("Retrieved " << m_mmPrepDataProvider);
-
   ATH_CHECK(m_idHelperSvc.retrieve());
   ATH_MSG_DEBUG("Retrieved " << m_idHelperSvc);
 
-  // Retreive PRC raw data provider tool
-  ATH_MSG_DEBUG("Decode BS set to " << m_decodeBS);
-  // disable the BS->RDO decoding tool if we don't do the MM data decoding
-  // ATH_CHECK( m_rawDataProviderTool.retrieve(DisableTool{ !m_decodeBS || !m_doDecoding }) );
-  // ATH_MSG_DEBUG("Retrieved Tool " << m_rawDataProviderTool);
-
-  // ATH_CHECK(m_readKey.initialize());
   ATH_CHECK(m_mmPrepContainerKey.initialize(!m_mmPrepContainerKey.empty()));
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode TrigL2MuonSA::MmDataPreparator::prepareData(const TrigRoiDescriptor* p_roids,
-						       TrigL2MuonSA::MmHits&  mmHits)
+						       TrigL2MuonSA::MmHits&  mmHits) const
 {
 
   ATH_MSG_DEBUG("MmDataPreparator::prepareData() was called.");
@@ -113,11 +93,6 @@ StatusCode TrigL2MuonSA::MmDataPreparator::prepareData(const TrigRoiDescriptor* 
   }
   else {
     ATH_MSG_DEBUG("Use full data access");
-
-    if(m_doDecoding || m_decodeBS) {
-      ATH_MSG_ERROR("decoding of MMs is not available yet");
-      return StatusCode::FAILURE;
-    }
 
     // Get MM collections
     for(const auto mmcoll : *mmPrds) {

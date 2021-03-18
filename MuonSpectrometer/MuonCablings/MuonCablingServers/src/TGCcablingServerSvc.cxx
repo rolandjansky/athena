@@ -1,6 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
+
+#include "CxxUtils/checker_macros.h"
+ATLAS_CHECK_FILE_THREAD_SAFETY;
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -11,9 +14,6 @@
 TGCcablingServerSvc::TGCcablingServerSvc(const std::string& name, ISvcLocator* sl) : 
 AthService( name, sl )
 {
-    declareProperty( "Atlas", m_atlas=true );
-    declareProperty( "forcedUse", m_forcedUse=false );
-    declareProperty( "useMuonTGC_CablingSvc", m_useMuonTGC_CablingSvc=true );
 }
 
 // queryInterface 
@@ -39,7 +39,7 @@ TGCcablingServerSvc::giveCabling(const ITGCcablingSvc*& cabling) const {
     cabling = 0;
     
     if(m_atlas) {
-        ATH_CHECK( service((m_useMuonTGC_CablingSvc ? "MuonTGC_CablingSvc" : "TGCcabling12Svc"),cabling,true) );
+        ATH_CHECK( service( "MuonTGC_CablingSvc",cabling,true) );
     } else {
         ATH_CHECK(  service("TGCcablingSvc",cabling,true) );
     }

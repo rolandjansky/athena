@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CABLING_TGCCABLING_HH
@@ -9,8 +9,10 @@
 
 #include "MuonTGC_Cabling/TGCId.h"
 #include "MuonTGC_Cabling/TGCModuleId.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <map>
+#include <mutex>
 
 class StatusCode;
 
@@ -34,17 +36,17 @@ class TGCModuleSLB;
 class TGCCabling : public TGCCablingBase
 {
  private: //hide default constructor, copy constructor and assignment
-  TGCCabling (void);
-  TGCCabling (const TGCCabling&);
-  TGCCabling& operator= (const TGCCabling&);
+  TGCCabling () = delete;
+  TGCCabling (const TGCCabling&) = delete;
+  TGCCabling& operator= (const TGCCabling&) = delete;
 
 
  public:
   // Constructor & Destructor
-  TGCCabling(std::string filenameASDToPP,
-	     std::string filenameInPP,
-	     std::string filenamePPToSL,
-	     std::string filenameSLBToROD);
+  TGCCabling(const std::string& filenameASDToPP,
+	     const std::string& filenameInPP,
+	     const std::string& filenamePPToSL,
+	     const std::string& filenameSLBToROD);
 
   virtual ~TGCCabling(void);
 
@@ -186,7 +188,10 @@ private:
   TGCCableSLBToSSW* m_cableSLBToSSW;
   TGCCableSSWToROD* m_cableSSWToROD;
 
-  mutable std::map<int, TGCModuleId*> m_slbModuleIdMap; 
+  // Protected by mutex.
+  mutable std::map<int, TGCModuleId*> m_slbModuleIdMap ATLAS_THREAD_SAFE;
+  mutable std::mutex m_mutex;
+  
   int getIndexFromReadoutWithoutChannel(const TGCIdBase::SideType side,  
 					const int rodId, 
 					const int sswId, 

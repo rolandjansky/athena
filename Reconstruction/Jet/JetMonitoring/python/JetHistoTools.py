@@ -157,7 +157,7 @@ compactSpecification = {
     #
     
     #New PFlow Variables
-    "DFCommonJets_QGTagger_NTracks": (("DFCommonJets_QGTagger_NTracks; DFCommonJets_QGTagger_NTracks;",30,0.,30.), ("DFCommonJets_QGTagger_NTracks", "float") ),
+    "DFCommonJets_QGTagger_NTracks": (("DFCommonJets_QGTagger_NTracks; DFCommonJets_QGTagger_NTracks;",30,0.,30.), ("DFCommonJets_QGTagger_NTracks", "int") ),
     "DFCommonJets_QGTagger_TracksWidth": (("DFCommonJets_QGTagger_TracksWidth; DFCommonJets_QGTagger_TracksWidth;",16,-1.1,0.5), ("DFCommonJets_QGTagger_TracksWidth", "float") ),
     "DFCommonJets_QGTagger_TracksC1": (("DFCommonJets_QGTagger_TracksC1; DFCommonJets_QGTagger_TracksC1;",16,-1.1,0.5), ("DFCommonJets_QGTagger_TracksC1", "float") ),
     "DFCommonJets_fJvt": (("DFCommonJets_fJvt; DFCommonJets_fJvt;",23,0.,2.3), ("DFCommonJets_fJvt", "float") ),

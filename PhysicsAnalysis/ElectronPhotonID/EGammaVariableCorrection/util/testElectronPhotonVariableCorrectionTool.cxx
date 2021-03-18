@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
 
     // initialize the tool
     asg::AnaToolHandle<IElectronPhotonShowerShapeFudgeTool> myTool("ElectronPhotonVariableCorrectionTool/myTestTool");
-    std::string configFile = "EGammaVariableCorrection/ElectronPhotonVariableCorrectionTool_ExampleConf.conf";
+    std::string configFile = "EGammaVariableCorrection/EGammaVariableCorrectionTool_ExampleConf.conf";
     ANA_CHECK(myTool.setProperty("ConfigFile", configFile));
     ANA_CHECK(myTool.initialize());
 

@@ -106,13 +106,7 @@ StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill, const Event
     return StatusCode::FAILURE;
   }
 
-  const Decision* passRawChains = nullptr;
-  for (const Decision* d : *chainsHandle) {
-    if (d->name() == "HLTPassRaw") {
-      passRawChains = d;
-      break;
-    }
-  }
+  const Decision* passRawChains = TrigCompositeUtils::getTerminusNode(chainsHandle);
 
   if (passRawChains == nullptr) {
     ATH_MSG_ERROR("Unable to read in the HLTPassRaw node from the HLTNav_Summary collection from the DecisionSummaryMakerAlg");

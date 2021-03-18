@@ -1,7 +1,5 @@
-// -*- C++ -*-
-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @file SCTTracksMonTool.cxx
@@ -119,7 +117,7 @@ SCTTracksMonTool::bookHistograms() {
   }
   // Booking  Track related Histograms
   ATH_CHECK(bookGeneralHistos());
-  
+
 
   return StatusCode::SUCCESS;
 }
@@ -196,7 +194,7 @@ SCTTracksMonTool::fillHistograms() {
       for (int trig{0}; trig < N_TRIGGER_TYPES; ++trig) {
         if (hasTriggerFired(trig, firedTriggers)) {
           m_trackTrigger->Fill(trig);
-        } 
+        }
       }
     }
     bool hasHits[N_REGIONS] = {
@@ -231,7 +229,9 @@ SCTTracksMonTool::fillHistograms() {
 #endif
               if (m_doUnbiasedCalc) {
                 if (trkParam) {
-                  trkParameters.reset(m_updator->removeFromState(*trkParam, rio->localParameters(), rio->localCovariance())); //need to take ownership of the returned pointer
+                  trkParameters = m_updator->removeFromState(
+                    *trkParam, rio->localParameters(), rio->localCovariance());
+                  // need to take ownership of the returned pointer
                   if (trkParameters) {
                     trkParam = trkParameters.get();
                   }
@@ -340,7 +340,7 @@ SCTTracksMonTool::procHistograms() {
 
 StatusCode
 SCTTracksMonTool::checkHists(bool /*fromFinalize*/) {
-  
+
   return StatusCode::SUCCESS;
 }
 
@@ -381,7 +381,7 @@ SCTTracksMonTool::bookGeneralHistos() {
                                        ("Overall Residual Distribution for the "+regionNames[iReg]).c_str(),
                                        100, -0.5, 0.5);
       m_totalResidual[iReg]->GetXaxis()->SetTitle("Residual [mm]");
-      ATH_CHECK(Tracks.regHist(m_totalResidual[iReg])); 
+      ATH_CHECK(Tracks.regHist(m_totalResidual[iReg]));
 
       m_totalPull[iReg] = new TH1F(("total"+regionNames[iReg]+"Pull").c_str(),
                                    ("Overall Pull Distribution for the "+regionNames[iReg]).c_str(),

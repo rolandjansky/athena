@@ -1521,8 +1521,8 @@ namespace Muon {
     MuonHough::MuonLayerHoughSelector selector;
 
     if ( m_idHelperSvc->issTgc(id_hit) || m_idHelperSvc->isMM(id_hit) ) {
-      selectorLoose = MuonHough::MuonLayerHoughSelector({std::make_pair(0,9.9)}); 
-      selector      = MuonHough::MuonLayerHoughSelector({std::make_pair(0,13.9)}); 
+      selectorLoose = MuonHough::MuonLayerHoughSelector({std::make_pair(0,3.9)}); 
+      selector      = MuonHough::MuonLayerHoughSelector({std::make_pair(0,7.9)}); 
     }
     else {
       selectorLoose = m_selectorsLoose[hough.m_descriptor.chIndex];

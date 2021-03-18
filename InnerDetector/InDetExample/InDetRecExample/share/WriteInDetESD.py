@@ -135,19 +135,19 @@ if globalflags.InputFormat()=='bytestream':
    InDetESDList+=['IDCInDetBSErrContainer#'+InDetKeys.SCT_ByteStreamErrs()]
 
 if InDetFlags.doxAOD():
-  excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation."
-  if not InDetFlags.KeepFirstParameters() :
-      excludedAuxData += '-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition'
+
+  excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-TTVA_AMVFVertices.-TTVA_AMVFWeights"
+
+  if not (InDetFlags.KeepFirstParameters() or InDetFlags.keepAdditionalHitsOnTrackParticle()):
+    excludedAuxData += '.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition'
 
   excludedVertexAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
 
-  if InDetFlags.keepAdditionalHitsOnTrackParticle():
-   excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation"
   InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODTrackParticleContainer()]
   InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODTrackParticleContainer()+'Aux.' + excludedAuxData]
 
-  from  InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags
-  from  InDetPhysValMonitoring.ConfigUtils import extractCollectionPrefix
+  from InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags
+  from InDetPhysValMonitoring.ConfigUtils import extractCollectionPrefix
   for col in InDetPhysValFlags.validateExtraTrackCollections() :
     prefix=extractCollectionPrefix(col)
     InDetESDList+=['xAOD::TrackParticleContainer#'+prefix+'TrackParticles']
@@ -177,9 +177,9 @@ if InDetFlags.doxAOD():
     InDetESDList+=['xAOD::VertexContainer#'+InDetKeys.Conversions()]
     InDetESDList+=['xAOD::VertexAuxContainer#'+InDetKeys.Conversions() +'Aux.' + excludedVertexAuxData]
 
-  if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
-    InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODLargeD0TrackParticleContainer()]
-    InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODLargeD0TrackParticleContainer()+'Aux.' + excludedAuxData]
+  #Save separate LRT container all the time as it does not crash even LRT was not turned on 
+  InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODLargeD0TrackParticleContainer()]
+  InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODLargeD0TrackParticleContainer()+'Aux.' + excludedAuxData]
   if InDetFlags.doTrackSegmentsPixel():
     InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODPixelTrackParticleContainer()]
     InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODPixelTrackParticleContainer()+'Aux.' + excludedAuxData]

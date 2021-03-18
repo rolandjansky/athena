@@ -93,7 +93,13 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     array.defineHistogram('clustersPerPlaneMiddlePP', title='(Middle) Number of clusters in station {0}, plane {1} per lumiblock divided by <mu>; lumiblock;clusters/<mu> per event', type='TH1F', path='ClustersPerPlanesPP/Middle/', xbins=2000, xmin=0.5, xmax=2000.5, weight = 'weightClustersPerPlaneMiddlePP')
     array.defineHistogram('clustersPerPlaneEndPP', title='(End) Number of clusters in station {0}, plane {1} per lumiblock divided by <mu>; lumiblock;clusters/<mu> per event', type='TH1F', path='ClustersPerPlanesPP/End/', xbins=2000, xmin=0.5, xmax=2000.5, weight = 'weightClustersPerPlaneEndPP')
     
+    array.defineHistogram('lbClustersPerPlanes_full', title='(All) Number of clusters in station {0}, plane {1} per lumiblock;lumiblock;clusters', type='TH1I', path='ClustersPerPlanesPP_full/', xbins=2000, xmin=0.5, xmax=2000.5)
+    #array.defineHistogram('clustersPerPlaneFrontPP_full', title='(Front) Number of clusters in station {0}, plane {1} per lumiblock;lumiblock; clusters', type='TH1I', path='ClustersPerPlanesPP_full/Front/', xbins=2000, xmin=0.5, xmax=2000.5)
+    #array.defineHistogram('clustersPerPlaneMiddlePP_full', title='(Middle) Number of clusters in station {0}, plane {1} per lumiblock; lumiblock;clusters', type='TH1I', path='ClustersPerPlanesPP_full/Middle/', xbins=2000, xmin=0.5, xmax=2000.5)
+    #array.defineHistogram('clustersPerPlaneEndPP_full', title='(End) Number of clusters in station {0}, plane {1} per lumiblock; lumiblock;clusters', type='TH1I', path='ClustersPerPlanesPP_full/End/', xbins=2000, xmin=0.5, xmax=2000.5)
+    
     array.defineHistogram('lbHitsPerPlanes', title='Number of hits in station {0}, plane {1} per lumiblock divided by <mu>;lumiblock; hits/<mu> per event', type='TH1F', path='HitsPerPlanesVsLb/', xbins=2000, xmin=0.5, xmax=2000.5, weight = 'weightHitsByMU')
+    array.defineHistogram('lbHitsPerPlanes_full', title='Number of hits in station {0}, plane {1} per lumiblock;lumiblock; hits per event', type='TH1F', path='HitsPerPlanesVsLb_full/', xbins=2000, xmin=0.5, xmax=2000.5)
 
 
     array = helper.addArray([stationList], afpSiLayerAlgorithm, 'AFPSiLayerTool', topPath='AFP/SiT/')
@@ -112,6 +118,11 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     array.defineHistogram('lbTracksFront', title = '(Front) Tracks vs lumiblock divided by <mu>, station {0}; lumiblock;tracks/<mu> per event', type='TH1F', path='TracksVsLb/Front', xbins=2000, xmin=0.5, xmax=2000.5, weight = 'weightTracksFront')
     array.defineHistogram('lbTracksMiddle', title = '(Middle) Tracks vs lumiblock divided by <mu>, station {0}; lumiblock;tracks/<mu> per event', type='TH1F', path='TracksVsLb/Middle', xbins=2000, xmin=0.5, xmax=2000.5, weight = 'weightTracksMiddle')
     array.defineHistogram('lbTracksEnd', title = '(End) Tracks vs lumiblock divided by <mu>, station {0}; lumiblock;tracks/<mu> per event', type='TH1F', path='TracksVsLb/End', xbins=2000, xmin=0.5, xmax=2000.5, weight = 'weightTracksEnd')
+    
+    array.defineHistogram('lbTracksAll_full', title = '(All) Tracks vs lumiblock, station {0};lumiblock;tracks', type='TH1I', path='TracksVsLb_full', xbins=2000, xmin=0.5, xmax=2000.5, weight = 'weightTracksAll_full')
+    array.defineHistogram('lbTracksFront_full', title = '(Front) Tracks vs lumiblock, station {0}; lumiblock;tracks', type='TH1I', path='TracksVsLb_full/Front', xbins=2000, xmin=0.5, xmax=2000.5, weight = 'weightTracksFront_full')
+    array.defineHistogram('lbTracksMiddle_full', title = '(Middle) Tracks vs lumiblock, station {0}; lumiblock;tracks', type='TH1I', path='TracksVsLb_full/Middle', xbins=2000, xmin=0.5, xmax=2000.5, weight = 'weightTracksMiddle_full')
+    array.defineHistogram('lbTracksEnd_full', title = '(End) Tracks vs lumiblock, station {0}; lumiblock;tracks', type='TH1I', path='TracksVsLb_full/End', xbins=2000, xmin=0.5, xmax=2000.5, weight = 'weightTracksEnd_full')
 
 
     arrayToF = helper.addArray([stationList], afpToFAlgorithm, 'AFPToFTool', topPath='AFP/ToF/')
@@ -140,8 +151,9 @@ if __name__=='__main__':
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     #ConfigFlags.Input.Files = ['/dsk1/AFPFiles/datasets/355754/user.ladamczy.23432842.EXT0._000001.xAOD.root']
     ConfigFlags.Input.Files = ['/afs/cern.ch/work/n/ndikic/backup_raw_337176/user.ladamczy.21473705.EXT0._000002.xAOD.root','/afs/cern.ch/work/n/ndikic/backup_raw_337176/user.ladamczy.21473705.EXT0._000003.xAOD.root','/afs/cern.ch/work/n/ndikic/backup_raw_337176/user.ladamczy.21473705.EXT0._000004.xAOD.root']
+    #ConfigFlags.Input.Files = ['/afs/cern.ch/user/p/pbalek/public/AFP/testxAOD.root']
     ConfigFlags.Input.isMC = False
-    ConfigFlags.Output.HISTFileName = 'Test1.root'
+    ConfigFlags.Output.HISTFileName = 'AFPHits5.root'
     
     ConfigFlags.Concurrency.NumThreads=10
     ConfigFlags.Concurrency.NumConcurrentEvents=10
@@ -158,7 +170,7 @@ if __name__=='__main__':
     exampleMonitorAcc = Run3AFPExampleMonitoringConfig(ConfigFlags)
     cfg.merge(exampleMonitorAcc)
 
-    cfg.run(20000)
+    cfg.run(100000)
 
 
 

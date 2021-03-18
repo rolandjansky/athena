@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -50,7 +50,6 @@ class TrigMultiTrkComboHypo: public ::ComboHypo {
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute(const EventContext& context) const override;
-  virtual StatusCode finalize() override;
 
  protected:
 

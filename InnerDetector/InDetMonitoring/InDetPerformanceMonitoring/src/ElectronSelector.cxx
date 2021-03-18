@@ -33,8 +33,6 @@ ElectronSelector::ElectronSelector():
   m_doDebug ( false ),
   m_ptCut ( 10. ),
   m_etaCut ( 2.47 ) // 2.47 is the official acceptance for central electrons. Forward electrons is another story...
-  //m_deltaXYcut ( 0.1 ),
-  //m_deltaZcut ( 4. )
 {
   ++s_uNumInstances;
   
@@ -128,11 +126,15 @@ void ElectronSelector::PrepareElectronList(const xAOD::ElectronContainer* pxElec
   }
   bool progressingwell = true;
   
+  (*m_msgStream) << MSG::DEBUG  << " -- ElectronSelector::PrepareElectronList -- finished recording electrons. "
+		 << "  recorded electrons: " << m_pxElTrackList.size()
+		 << "  out of tested electron candidates:" << electroncount  << endmsg;
+  if (m_pxElTrackList.size() < 2) progressingwell = false;
   if (progressingwell) progressingwell = OrderElectronList ();
   if (progressingwell) progressingwell = RetrieveVertices ();
 
   if (!progressingwell) {
-    if (m_doDebug) std::cout << "   -- ElectronSelector::PrepareElectronList -- FAILED -- this event has not even a good e+e- pair "  << std::endl;
+    (*m_msgStream) << MSG::DEBUG  << " -- ElectronSelector::PrepareElectronList -- FAILED -- this event has not even a good e+e- pair "  << endmsg;
     this->Clear(); // reset the content as it is not going to be used
   }
 
@@ -193,21 +195,12 @@ bool ElectronSelector::RecordElectron (const xAOD::Electron * thisElec)
   }
 
   if (electronisgood) {
-    CLHEP::HepLorentzVector calocluster4mom;
-    calocluster4mom.setPx ( cluster->e() * cos(theTrackParticle->phi()) * sin(theTrackParticle->theta()) );
-    calocluster4mom.setPy ( cluster->e() * sin(theTrackParticle->phi()) * sin(theTrackParticle->theta()) );
-    calocluster4mom.setPz ( cluster->e() * cos(theTrackParticle->theta()) );
-    calocluster4mom.setE  ( cluster->e() );
-  
-    xAOD::TrackParticle* newtp = new xAOD::TrackParticle(*theTrackParticle);
-    float qsign = (theTrackParticle->qOverP() > 0) ? 1. : -1.;
-    newtp->setDefiningParameters(theTrackParticle->d0(), theTrackParticle->z0(), theTrackParticle->phi(), theTrackParticle->theta(), qsign/cluster->e());
+    // store this electron
+    m_pxElTrackList.push_back(theTrackParticle);
 
-    // store this electron?
-    m_pxElTrackList.push_back(newtp);
-    //m_pxElTrackList.push_back(theTrackParticle);
-    //(*m_msgStream) << MSG::DEBUG << "     - good electron found -> store this electron with pt " << newtp->pt() << std::endl;
-    (*m_msgStream) << MSG::DEBUG << "     - good electron found -> store this electron with pt " << theTrackParticle->pt() << std::endl;
+    (*m_msgStream) << MSG::DEBUG << " * RecordElectron * good electron found -> store this electron with pt " << theTrackParticle->pt() 
+		   << "  --> current m_pxElTrackList.size(): " << m_pxElTrackList.size()
+		   << std::endl;
   }
 
   return electronisgood;
@@ -246,6 +239,10 @@ bool ElectronSelector::OrderElectronList()
     int elecposcount = 0;
 
     for (int ielec=0; ielec < (int) m_pxElTrackList.size(); ielec++) {
+      std::cout <<" -- ElectronSelector::OrderElectronList -- elec--> pt "<< m_pxElTrackList.at(ielec)->pt() << std::endl;
+      std::cout <<"                                                   d0 "<< m_pxElTrackList.at(ielec)->d0() << std::endl;
+      std::cout <<"                                             sigma_d0 "<< m_pxElTrackList.at(ielec)->definingParametersCovMatrixVec()[0] << std::endl;
+
       // negative electrons
       if (m_pxElTrackList.at(ielec)->charge()== -1) { // positive electron
 	elecnegcount++;
@@ -318,8 +315,9 @@ bool ElectronSelector::RetrieveVertices ()
   if (m_doDebug) std::cout << " -- ElectronSelector::RetrieveVertices -- START  -- list size: " 
 			   << m_goodElecNegTrackParticleList.size() + m_goodElecPosTrackParticleList.size() 
 			   << std::endl;
-  bool goodvertices = false;
-  int nverticesfound = 0;
+  bool goodvertices = false; 
+  int nverticesfound = 1; // WARNING default must be 0 --> set to 1 for R22 --> needs to be fixed
+
   if (m_goodElecNegTrackParticleList.size() >= 1 && m_goodElecPosTrackParticleList.size() >= 1) { // we need at least 1 e- and 1 e+
     // then, check the distances between the e- and e+ vertices, and make sure at least 1 pair comes from same vertex
     for (size_t ielec = 0; ielec < m_goodElecNegTrackParticleList.size(); ielec++) {

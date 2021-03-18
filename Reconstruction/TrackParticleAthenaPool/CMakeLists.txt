@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrackParticleAthenaPool )
@@ -25,6 +25,9 @@ if( ATHENAPOOLUTILITIESTEST_FOUND )
                    REFERENCE_TAG ${TRACKPARTICLEATHENAPOOL_REFERENCE_TAG} )
    run_tpcnv_legacy_test( TrackParticleTPCnv_18.0.0   AOD-18.0.0-full
                    REFERENCE_TAG ${TRACKPARTICLEATHENAPOOL_REFERENCE_TAG} )
+
+   set_tests_properties( TrackParticleAthenaPool_TrackParticleTPCnv_16.6.3_ctest
+                         PROPERTIES TIMEOUT 900 )
 else()
    message( WARNING
       "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )

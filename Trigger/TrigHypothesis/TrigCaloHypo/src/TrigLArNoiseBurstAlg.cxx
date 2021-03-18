@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "Gaudi/Property.h"
 #include "TrigLArNoiseBurstAlg.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
-#include "AthViews/ViewHelper.h"
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 using namespace TrigCompositeUtils;
 

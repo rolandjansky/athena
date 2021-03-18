@@ -6,13 +6,14 @@
 
 #include "./ConditionFilter.h"
 
-//ConditionFilter::ConditionFilter(ConditionPtrs& conditions):
+
 ConditionFilter::ConditionFilter(ConditionsMT& conditions):
   m_conditions(std::move(conditions)) {
 }
 
-struct FilterPred{
 
+struct FilterPred{
+  
   FilterPred(const ConditionMT& cptr,
 	     const std::unique_ptr<ITrigJetHypoInfoCollector>& collector):
     m_cptr(cptr), m_collector(collector) {
@@ -22,26 +23,31 @@ struct FilterPred{
     auto hjv = HypoJetVector{pjet};
     return m_cptr->isSatisfied(hjv, m_collector);
   }
-
+  
   const ConditionMT& m_cptr;
   const std::unique_ptr<ITrigJetHypoInfoCollector>& m_collector;
 };
 
-HypoJetVector
+std::pair<HypoJetCIter, HypoJetCIter>
 ConditionFilter::filter (const HypoJetCIter& begin,
 			 const HypoJetCIter& end,
-			 const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const {
-
-  HypoJetVector in (begin, end);
-  auto new_end = in.end();
+			 const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) {
   
-  for (const auto& cptr : m_conditions) {
-    new_end = std::partition(in.begin(),
-			 new_end,
-			 FilterPred(cptr, collector));
+  if (m_conditions.empty()) {
+    return std::make_pair(begin, end);
   }
   
-  return HypoJetVector(in.begin(), new_end);
+  m_filtered = HypoJetVector(begin, end);
+  auto filtered_begin = m_filtered.begin();
+  auto filtered_end = m_filtered.end();
+  
+  for (const auto& cptr : m_conditions) {
+    filtered_end = std::partition(filtered_begin,
+				  filtered_end,
+				  FilterPred(cptr, collector));
+  }
+  
+  return std::make_pair(filtered_begin, filtered_end);
 }
 
 std::string ConditionFilter::toString() const {
@@ -56,11 +62,6 @@ std::string ConditionFilter::toString() const {
   return ss.str();
 }
 
-HypoJetVector
-ConditionFilter::filter (const HypoJetVector& jv,
-			 const std::unique_ptr<ITrigJetHypoInfoCollector>& col) const {
-  return filter(jv.cbegin(), jv.cend(), col);
-}
 
 std::ostream& operator<<(std::ostream& os, const ConditionFilter& cf){
   os << cf.toString();

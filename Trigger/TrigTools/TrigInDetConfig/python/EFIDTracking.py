@@ -5,7 +5,6 @@
 #https://gitlab.cern.ch/atlas/athena/blob/master/InnerDetector/InDetExample/InDetRecExample/share/ConfiguredNewTrackingSiPattern.py
 
 from AthenaCommon.Include import include
-include.block("InDetTrigRecExample/EFInDetConfig.py")
 include("InDetTrigRecExample/InDetTrigRec_jobOptions.py") # this is needed to get InDetTrigFlags
 
 from AthenaCommon.Logging import logging 
@@ -20,21 +19,26 @@ def get_idtrig_view_verifier(name):
    from InDetRecExample.InDetKeys import InDetKeys
    from TrigInDetConfig.TrigInDetConfig import InDetCacheNames
    viewDataVerifier = CfgMgr.AthViews__ViewDataVerifier( name )
-   viewDataVerifier.DataObjects = [
-                                    ( 'SpacePointContainer',           TrigSCTKeys.SpacePoints ),
-                                    ( 'SpacePointContainer',           TrigPixelKeys.SpacePoints ),
-                                    ( 'SpacePointOverlapCollection',   'StoreGateSvc+OverlapSpacePoints' ),
-                                    ( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+TrigPixelClusterAmbiguitiesMap' )
-                                  ]
+   viewDataVerifier.DataObjects = []
 
    #Having these (clusters) uncommented breaks cosmic when data preparation is right before offline pattern rec
    #Probably it tries to fetch the data before the actual alg producing them runs?
    #Not case in other signatures where data preparation and offline patern recognition are in different views
    if 'cosmics' not in name:
       viewDataVerifier.DataObjects += [
+                                       ( 'SpacePointContainer',           TrigSCTKeys.SpacePoints ),
+                                       ( 'SpacePointContainer',           TrigPixelKeys.SpacePoints ),
+                                       ( 'SpacePointOverlapCollection',   'StoreGateSvc+OverlapSpacePoints' ),
+                                       ( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+TrigPixelClusterAmbiguitiesMap' ),
                                        ( 'InDet::SCT_ClusterContainer',   TrigSCTKeys.Clusters ),
                                        ( 'InDet::PixelClusterContainer',  TrigPixelKeys.Clusters ),
+                                       ( 'IDCInDetBSErrContainer',        'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
                                       ]
+      if globalflags.InputFormat.is_bytestream():
+         viewDataVerifier.DataObjects += [
+                                          ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ),
+                                          ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
+                                         ]
    
    #FIXME:
    #Align with the data preparation, are all of them  really needed in the EFID ?
@@ -47,10 +51,6 @@ def get_idtrig_view_verifier(name):
                                      ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.PixBSErrCacheKey ),
                                      ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTBSErrCacheKey ),
                                      ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTFlaggedCondCacheKey ),
-                                     ( 'IDCInDetBSErrContainer',        'StoreGateSvc+SCT_FlaggedCondData' ),
-                                     ( 'IDCInDetBSErrContainer',        'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
-                                     ( 'IDCInDetBSErrContainer',        'StoreGateSvc+SCT_ByteStreamErrs' ),
-                                     ( 'IDCInDetBSErrContainer',        'StoreGateSvc+PixelByteStreamErrs' ),
                                      ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
                                      ( 'TagInfo' , 'DetectorStore+ProcessingTags' )]
 
@@ -64,14 +64,10 @@ def get_idtrig_view_verifier(name):
    if not globalflags.InputFormat.is_bytestream():
      viewDataVerifier.DataObjects +=   [( 'PixelRDO_Container' , InDetKeys.PixelRDOs() ),
                                         ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() ),
-                                        ( 'IDCInDetBSErrContainer' , InDetKeys.PixelByteStreamErrs() ),
-                                        ( 'IDCInDetBSErrContainer' , InDetKeys.SCT_ByteStreamErrs() ), 
-                                        ( 'IDCInDetBSErrContainer',  'StoreGateSvc+SCT_FlaggedCondData' ),
                                         ]
      topSequence.SGInputLoader.Load += [( 'PixelRDO_Container' , InDetKeys.PixelRDOs() ),
-                                         ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() ),
-                                         ( 'IDCInDetBSErrContainer' , InDetKeys.PixelByteStreamErrs() ),
-                                         ( 'IDCInDetBSErrContainer' , InDetKeys.SCT_ByteStreamErrs() )]
+                                        ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() ),
+                                        ]
    
    return viewDataVerifier
 

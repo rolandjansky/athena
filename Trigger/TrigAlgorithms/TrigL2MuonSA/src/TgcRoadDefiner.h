@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_TGCROADDEFINER_H
@@ -15,12 +15,9 @@
 #include "TgcFit.h"
 #include "TgcData.h"
 #include "MuonRoad.h"
-#include "MdtRegion.h"
-#include "TrigT1Interfaces/RecMuonRoI.h"
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "IRegionSelector/IRegSelTool.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
-
-#include <string>
 
 namespace TrigL2MuonSA {
 
@@ -36,7 +33,7 @@ class TgcRoadDefiner: public AthAlgTool
   
   virtual StatusCode initialize() override;
 
-  StatusCode defineRoad(const LVL1::RecMuonRoI*      p_roi,
+  StatusCode defineRoad(const TrigRoiDescriptor*     p_roids,
                         const bool                   insideOut,
                         const TrigL2MuonSA::TgcHits& tgcHits,
                         TrigL2MuonSA::MuonRoad&      muonRoad,

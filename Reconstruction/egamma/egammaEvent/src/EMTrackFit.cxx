@@ -7,12 +7,12 @@
 NAME:     EMTrackFit.cxx
 PACKAGE:  offline/Reconstruction/egammaEvent
 
-AUTHORS:  Anthony Morley 
+AUTHORS:  Anthony Morley
 CREATED:  July 2008
 
 PURPOSE:  An awful looking object that contains the Electron Track refit information
 MODIFIED:
-         Jun 10, 2009 (FD/AM) Small changes to include brem fit status, 
+         Jun 10, 2009 (FD/AM) Small changes to include brem fit status,
                               brem radius uncertainty and fit Chi2
          Jun 28, 1010 (JM) Change float to double in accessor functions
 ********************************************************************/
@@ -26,7 +26,7 @@ MODIFIED:
 #include "TrkMaterialOnTrack/EstimatedBremOnTrack.h"
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkSurfaces/Surface.h"
-#include "TrkTrack/Track.h" 
+#include "TrkTrack/Track.h"
 #include <cmath>
 
 
@@ -40,11 +40,11 @@ MODIFIED:
 // give default values
 EMTrackFit::EMTrackFit()
   : egDetail()
-{ } 
+{ }
 
 // destructor
 EMTrackFit::~EMTrackFit()
-{ 
+{
 }
 
 // interfaces
@@ -55,18 +55,18 @@ const std::string& EMTrackFit::className() const
 }
 
 // ==============================================================
-double EMTrackFit::parameter(egammaParameters::ParamDef key) const 
+double EMTrackFit::parameter(egammaParameters::ParamDef key) const
 {
-  
+
   if ( hasIntParameter(key) ) {
     return (double) intParameter(key);
   }
-  
+
   typedef std::pair<egammaParameters::ParamDef,double> elParams;
-  
+
   double result = egammaParameters::EgParamUndefined;
   std::vector<elParams>::const_iterator p = m_parameters.begin();
-  
+
   for (;p !=m_parameters.end(); p++) {
     if ( (*p).first == key ) {
       result = (*p).second;
@@ -87,7 +87,7 @@ void EMTrackFit::set_parameter(egammaParameters::ParamDef key, double value, boo
   typedef std::pair<egammaParameters::ParamDef,double> elParams;
 
   std::vector<elParams>::iterator p = m_parameters.begin();
- 
+
   for (;p !=m_parameters.end(); p++) {
     if ( (*p).first == key ) break;
   }
@@ -99,7 +99,7 @@ void EMTrackFit::set_parameter(egammaParameters::ParamDef key, double value, boo
     if ( overwrite ) {
       (*p).second = value;
     }
-    else {      
+    else {
       throw GaudiException("parameter not saved", "EMTrackFit::set_parameter(...)", StatusCode::FAILURE);
     }
   }
@@ -107,13 +107,13 @@ void EMTrackFit::set_parameter(egammaParameters::ParamDef key, double value, boo
 }
 
 // ==================================================================
-int EMTrackFit::intParameter(egammaParameters::ParamDef key) const 
+int EMTrackFit::intParameter(egammaParameters::ParamDef key) const
 {
   typedef std::pair<egammaParameters::ParamDef,int> elParams;
 
   int result = (int)egammaParameters::EgParamUndefined;
   std::vector<elParams>::const_iterator p = m_parametersInt.begin();
- 
+
   for (;p !=m_parametersInt.end(); p++) {
     if ( (*p).first == key ){
       result = (*p).second;
@@ -130,7 +130,7 @@ void EMTrackFit::set_parameterInt(egammaParameters::ParamDef key, int value, boo
   typedef std::pair<egammaParameters::ParamDef,int> elParams;
 
   std::vector<elParams>::iterator p = m_parametersInt.begin();
- 
+
   for (;p !=m_parametersInt.end(); p++) {
     if ( (*p).first == key ) break;
   }
@@ -142,7 +142,7 @@ void EMTrackFit::set_parameterInt(egammaParameters::ParamDef key, int value, boo
     if ( overwrite ) {
       (*p).second = value;
     }
-    else {      
+    else {
       throw GaudiException("parameter not saved", "EMTrackFit::set_parameter(...)", StatusCode::FAILURE);
     }
   }
@@ -159,16 +159,16 @@ void EMTrackFit::fillDetails(Trk::Track *track){
   } else {
     throw GaudiException("Parameters not saved, no track", "EMTrackFit::fillDetails(...)", StatusCode::FAILURE);
   }
-  
+
   }
 
 // =======================================================================
 void EMTrackFit::fillBrems(Trk::Track *track){
-  
+
   std::vector<const Trk::EstimatedBremOnTrack*> estimatedBremOnTrack;
   std::vector<const Trk::TrackStateOnSurface* >  trkStateOnSurfaceWithBrem;
-  
-  DataVector<const Trk::TrackStateOnSurface>::const_iterator trackStateOnSurface = track->trackStateOnSurfaces()->begin();    
+
+  DataVector<const Trk::TrackStateOnSurface>::const_iterator trackStateOnSurface = track->trackStateOnSurfaces()->begin();
   //For look for all of the EstimatedBremsOnTrack and add the pointers to a vector
   for (;trackStateOnSurface < track->trackStateOnSurfaces()->end(); ++trackStateOnSurface){
     const Trk::EstimatedBremOnTrack* brem = dynamic_cast<const Trk::EstimatedBremOnTrack*>((*trackStateOnSurface)->materialEffectsOnTrack());
@@ -177,27 +177,27 @@ void EMTrackFit::fillBrems(Trk::Track *track){
   	  trkStateOnSurfaceWithBrem.push_back( (*trackStateOnSurface) );
   	}
   }
-  
+
   if (estimatedBremOnTrack.empty()){
     hasBrem(0);
     bremRadius(0);
     bremDeltaZ(0);
     return;
-  } 
+  }
     // The energy loss weighted average position  of the brem.
     std::vector<const Trk::EstimatedBremOnTrack*>::iterator brems = estimatedBremOnTrack.begin();
     std::vector<const Trk::TrackStateOnSurface*>::iterator tsos = trkStateOnSurfaceWithBrem.begin();
-    
+
     double Z(1.);
     double R(0.);
     double fractionELost(0.);
     double sigmaRetainedEnFraction(0);
     for (; brems!=estimatedBremOnTrack.end(); ++brems, ++tsos) {
-      
+
       fractionELost += 1-(*brems)->retainedEnFraction();
-      
+
       Z *= (*brems)->retainedEnFraction();
-      
+
       R += (1-(*brems)->retainedEnFraction()) * (*tsos)->trackParameters()->position().perp();
       sigmaRetainedEnFraction += (1-(*brems)->retainedEnFraction()) * (*brems)->sigmaRetainedEnFraction();
     }
@@ -210,46 +210,46 @@ void EMTrackFit::fillBrems(Trk::Track *track){
     bremDeltaZ(Z);
     //Clearly this is poorly defined for multiple brems a better way of doing this need to be found
 		bremDeltaZerr(sigmaRetainedEnFraction);
-  
+
   }
 
 // ======================================================================
 void EMTrackFit::fillLastMeasurement(Trk::Track *track){
-  
+
   if (track == nullptr ){
     return;
   }
 
-  /**  
+  /**
   DataVector< const Trk::TrackParameters >::const_reverse_iterator lastTrkParameters = track->trackParameters()->rbegin();
   DataVector< const Trk::TrackParameters >::const_iterator firstTrkParameters = track->trackParameters()->begin();
-    
+
   if (!(*lastTrkParameters))  return;
   if (!(*firstTrkParameters)) return;
-  
+
   //Check the position of the last surface
   const Trk::GlobalPosition& posOnSurf = (*lastTrkParameters)->position();
   double finalRadius = posOnSurf.perp();
 
   const Trk::GlobalPosition& firstposOnSurf = (*firstTrkParameters)->position();
   double firstRadius = firstposOnSurf.perp();
-  
-  //Assuming if that the trejectry has been filled in some kind of order flip 
+
+  //Assuming if that the trejectry has been filled in some kind of order flip
   if (firstRadius > finalRadius){
-    trkPara =  (*firstTrkParameters);   
+    trkPara =  (*firstTrkParameters);
   } else {
     trkPara =  (*lastTrkParameters);
   }
   **/
-  
+
   const DataVector<const Trk::TrackStateOnSurface>* oldTrackStates = track->trackStateOnSurfaces();
   if (oldTrackStates == nullptr)
   {
     return;
   }
-    
+
   for ( DataVector<const Trk::TrackStateOnSurface>::const_reverse_iterator rItTSoS = oldTrackStates->rbegin(); rItTSoS != oldTrackStates->rend(); ++rItTSoS)
-  { 
+  {
 
     if ( (*rItTSoS)->type(Trk::TrackStateOnSurface::Measurement) && (*rItTSoS)->trackParameters()!=nullptr && (*rItTSoS)->measurementOnTrack()!=nullptr)
     {
@@ -272,15 +272,15 @@ bool EMTrackFit::fillPerigeeParamters(const Trk::Perigee *trackParameters){
    track_perigee_phi0(trackParameters->parameters()[Trk::phi]);
    track_perigee_theta(trackParameters->parameters()[Trk::theta]);
    track_perigee_qOverP(trackParameters->parameters()[Trk::qOverP]);
-   
+
    if ( !(fillPerigeeErrors(trackParameters->covariance())) ){
      // This Failed Jolly good
    }
-   
+
    return true;
-  } 
+  }
     return false;
-  
+
   return true;
 }
 
@@ -288,8 +288,8 @@ bool EMTrackFit::fillPerigeeErrors(const AmgSymMatrix(5)* errorMatrix)
 {
   if(!errorMatrix)
     return false;
-  
-  
+
+
   track_perigee_Covd0d0         ((*errorMatrix)(Trk::d0,    Trk::d0))     ;
   track_perigee_Covd0z0         ((*errorMatrix)(Trk::d0,    Trk::z0))     ;
   track_perigee_Covd0phi        ((*errorMatrix)(Trk::d0,    Trk::phi))    ;
@@ -331,27 +331,29 @@ AmgSymMatrix(5)* EMTrackFit::getErrorMatrix() const
   hepSymMatrix->fillSymmetric(3,3, track_perigee_Covthetatheta());
   hepSymMatrix->fillSymmetric(3,4, track_perigee_CovthetaqOverP());
   hepSymMatrix->fillSymmetric(4,4, track_perigee_CovqOverPqOverP());
-  
- 
+
+
   return hepSymMatrix;
-  
+
 }
 
 // ================================================================
 const Trk::Perigee* EMTrackFit::getMeasuredPerigee () const
 {
   // Create a MeasuredPerigee from the individual doubles stored in the class.
-  
+
   const Trk::PerigeeSurface   surface;
-  
-  const Trk::Perigee* measuredPerigee = surface.createParameters<5,Trk::Charged>( 
-                                                            track_perigee_d0(),
-                                                            track_perigee_z0(),
-                                                            track_perigee_phi0(),
-                                                            track_perigee_theta(),
-                                                            track_perigee_qOverP(),
-                                                            getErrorMatrix() );
-                                        
+
+  const Trk::Perigee* measuredPerigee =
+    surface
+      .createUniqueParameters<5, Trk::Charged>(track_perigee_d0(),
+                                               track_perigee_z0(),
+                                               track_perigee_phi0(),
+                                               track_perigee_theta(),
+                                               track_perigee_qOverP(),
+                                               getErrorMatrix())
+      .release();
+
   return measuredPerigee;
 
 }
@@ -390,8 +392,8 @@ bool EMTrackFit::hasParameter(egammaParameters::ParamDef key) const {
   else if ( key == egammaParameters::bremRadius )               return true;
   else if ( key == egammaParameters::bremClusterRadius )        return true;
   else if ( key == egammaParameters::bremFitChi2 )              return true;
-  return false;           
-}    
+  return false;
+}
 
 // =====================================================================
 bool EMTrackFit::hasIntParameter(egammaParameters::ParamDef key) const {
@@ -399,7 +401,7 @@ bool EMTrackFit::hasIntParameter(egammaParameters::ParamDef key) const {
   if (key == egammaParameters::bremTrackAuthor )         return true;
   else if (key == egammaParameters::bremFitStatus )         return true;
   else if (key == egammaParameters::linkIndex )               return true;
-  
+
   return false;
 }
 
@@ -482,7 +484,7 @@ double EMTrackFit::bremFitChi2     () const { return parameter(egammaParameters:
 
 int   EMTrackFit::bremFitStatus() const { return intParameter(egammaParameters::bremFitStatus); }
 void  EMTrackFit::bremFitStatus(int x)  { set_parameterInt(egammaParameters::bremFitStatus, x, true)  ;}
-  
+
 int   EMTrackFit::linkIndex() const   { return intParameter(egammaParameters::linkIndex); }
 void  EMTrackFit::set_linkIndex(int x){ set_parameterInt(egammaParameters::linkIndex,x, true); }
 

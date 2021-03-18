@@ -12,7 +12,7 @@ atlas_add_library( AthenaPoolUtilities
    INTERFACE
    PUBLIC_HEADERS AthenaPoolUtilities
    INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-   LINK_LIBRARIES ${CORAL_LIBRARIES} AthContainers AthenaKernel CollectionBase CxxUtils DBDataModel GaudiKernel PersistentDataModel )
+   LINK_LIBRARIES ${CORAL_LIBRARIES} AthContainers AthenaKernel CollectionBase CxxUtils GaudiKernel PersistentDataModel )
 
 atlas_add_dictionary( AthenaPoolUtilitiesCoralDict
    AthenaPoolUtilities/AthenaPoolUtilitiesCoralDict.h

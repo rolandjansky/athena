@@ -40,7 +40,6 @@
 
 // McParticleEvent includes
 #include "McParticleEvent/TruthParticleContainer.h"
-#include "McParticleEvent/TruthParticleContainer.h"
 
 #include "GeneratorObjects/McEventCollection.h"
 #include "AtlasHepMC/GenEvent.h"

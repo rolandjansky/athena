@@ -1,7 +1,7 @@
 // Hi Emacs ! this is -* C++ -*-
 
 /*
- * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 /********************************************************************
@@ -31,7 +31,6 @@
 class TrigCaloClusterCalibratorMT : public AthReentrantAlgorithm {
   public:
     TrigCaloClusterCalibratorMT(const std::string& name, ISvcLocator* pSvcLocator);
-    virtual ~TrigCaloClusterCalibratorMT() override;
 
     virtual StatusCode initialize() override;
     virtual StatusCode execute(const EventContext& ctx) const override;

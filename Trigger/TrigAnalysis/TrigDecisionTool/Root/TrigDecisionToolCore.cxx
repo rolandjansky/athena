@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -30,8 +30,10 @@ Trig::TrigDecisionToolCore::TrigDecisionToolCore()
 
 Trig::CacheGlobalMemory* Trig::TrigDecisionToolCore::cgm() const { 
   const Trig::CacheGlobalMemory* ptr = m_cacheGlobalMemory.get();
-  // A consiquence of placing the cache in a slot-specific wrapper 
-  return const_cast<Trig::CacheGlobalMemory*>(ptr);
+  // A consequence of placing the cache in a slot-specific wrapper
+  Trig::CacheGlobalMemory* p = const_cast<Trig::CacheGlobalMemory*>(ptr);
+  p->navigation (m_navigation);
+  return p;
 }
 
 #else // Analysis or Standalone

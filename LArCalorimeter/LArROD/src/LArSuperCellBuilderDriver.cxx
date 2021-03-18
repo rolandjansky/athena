@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -27,7 +27,6 @@
 LArSuperCellBuilderDriver::LArSuperCellBuilderDriver (const std::string& name,
                                           ISvcLocator* pSvcLocator):
   AthAlgorithm(name, pSvcLocator),
-  m_params (0),
   m_toolSvc(NULL),
   m_onlineHelper(0),
   m_DataLocation("FREE"),
@@ -55,8 +54,7 @@ LArSuperCellBuilderDriver::~LArSuperCellBuilderDriver()
 StatusCode LArSuperCellBuilderDriver::initialize()
 {
   // initialize parameters
-  m_params = new LArRawChannelBuilderParams;
-  m_params->m_larRawChannelContainer = NULL;
+  m_params.m_larRawChannelContainer = NULL;
   
   //StatusCode sc;
   
@@ -71,38 +69,23 @@ StatusCode LArSuperCellBuilderDriver::initialize()
   // ***
   //m_larRawOrdering.setMap(&(*m_roiMap)); 
   
-  if ( m_buildTools.retrieve().isFailure() )
-    {
-      ATH_MSG_ERROR( "Unable to find Builder Tools " << m_buildTools  );
-      return StatusCode::FAILURE; 
-    }else{
-    ATH_MSG_INFO( "Successfully retrieved Builder Tools " << m_buildTools  );
-    }
-  for( builderToolVector::iterator it = m_buildTools.begin(); it != m_buildTools.end(); it++ )
-    if( ( (*it)->initToolHidden(m_params) ).isFailure() )
-      ATH_MSG_ERROR( "Unable to initialize Builder Tool " << (*it)->name()  );
+  ATH_CHECK( m_buildTools.retrieve() );
+  ATH_MSG_INFO( "Successfully retrieved Builder Tools " << m_buildTools  );
+  for (ToolHandle<ILArRawChannelBuilderToolBase>& tool : m_buildTools)
+    if( ( tool->initToolHidden(&m_params) ).isFailure() )
+      ATH_MSG_ERROR( "Unable to initialize Builder Tool " << tool->name()  );
   
-  if ( m_adc2eTools.retrieve().isFailure() )
-    {
-      ATH_MSG_ERROR( "Unable to find ADC2E Tools " << m_buildTools  );
-      return StatusCode::FAILURE; 
-    }else{
-    ATH_MSG_INFO( "Successfully retrieved ADC2E Tools " << m_buildTools  );
-    }
-  for( adc2eToolVector::iterator it = m_adc2eTools.begin(); it != m_adc2eTools.end(); it++ )
-    if( ( (*it)->initToolHidden(m_params) ).isFailure() )
-      ATH_MSG_ERROR( "Unable to initialize ADC2E Tool " << (*it)->name()  );
+  ATH_CHECK( m_adc2eTools.retrieve() );
+  ATH_MSG_INFO( "Successfully retrieved ADC2E Tools " << m_adc2eTools  );
+  for (ToolHandle<ILArRawChannelBuilderADC2EToolBase>& tool : m_adc2eTools)
+    if( ( tool->initToolHidden(&m_params) ).isFailure() )
+      ATH_MSG_ERROR( "Unable to initialize ADC2E Tool " << tool->name()  );
   
-  if ( m_pedestalTools.retrieve().isFailure() )
-    {
-      ATH_MSG_ERROR( "Unable to find Pedestal Tools " << m_buildTools  );
-      return StatusCode::FAILURE; 
-    }else{
-    ATH_MSG_INFO( "Successfully retrieved Pedestal Tools " << m_buildTools  );
-    }
-  for( pedestalToolVector::iterator it = m_pedestalTools.begin(); it != m_pedestalTools.end(); it++ )
-    if( ( (*it)->initToolHidden(m_params) ).isFailure() )
-      ATH_MSG_ERROR( "Unable to initialize Pedestal Tool " << (*it)->name()  );
+  ATH_CHECK( m_pedestalTools.retrieve() );
+  ATH_MSG_INFO( "Successfully retrieved Pedestal Tools " << m_pedestalTools  );
+  for (ToolHandle<ILArRawChannelBuilderPedestalToolBase>& tool : m_pedestalTools)
+    if( ( tool->initToolHidden(&m_params) ).isFailure() )
+      ATH_MSG_ERROR( "Unable to initialize Pedestal Tool " << tool->name()  );
   
   // check that we have tools to run the reconstruction !
   if( m_buildTools.size() == 0 )
@@ -125,11 +108,8 @@ StatusCode LArSuperCellBuilderDriver::initialize()
 
 void LArSuperCellBuilderDriver::initEventTools(){
   // declare all variables first ...
-  builderToolVector::iterator itStart = m_buildTools.begin();
-  builderToolVector::iterator itEnd   = m_buildTools.end();
-  
-  for( builderToolVector::iterator it = itStart;
-       it != itEnd; it++ ) (*it)->initEventHidden();
+  for (ToolHandle<ILArRawChannelBuilderToolBase>& tool : m_buildTools)
+    tool->initEventHidden();
   
   // reset to zero
   m_oldIdentifier=HWIdentifier(0);
@@ -169,15 +149,14 @@ StatusCode LArSuperCellBuilderDriver::execute() {
 
   int ii=0;
   m_counter = 0;
-  for (LArDigitContainer::const_iterator cont_it=digitContainer->begin();
-       cont_it!=digitContainer->end(); cont_it++){
+  for (const LArDigit* digit : *digitContainer) {
        int energy=0;
        int time=0;
        int prov=0;
        CaloGain::CaloGain gain;
-       if ( cabling->isOnlineConnected((*cont_it)->channelID()) && buildLArCell( (*cont_it), energy, time, gain, prov, &msg() ) ){
+       if ( cabling->isOnlineConnected(digit->channelID()) && buildLArCell( digit, energy, time, gain, prov, &msg() ) ){
 	   ii++;
-	   Identifier id = cabling->cnvToIdentifier((*cont_it)->channelID());
+	   Identifier id = cabling->cnvToIdentifier(digit->channelID());
 	   IdentifierHash idhash = sem_mgr->getCaloCell_ID()->calo_cell_hash(id);
 	   const CaloDetDescrElement* dde = sem_mgr->get_element (idhash);
            CaloCell* cell = new CaloCell( dde, (float)energy, (float)time, (uint16_t)0, (uint16_t)prov, gain );
@@ -212,31 +191,31 @@ bool LArSuperCellBuilderDriver::buildLArCell(const LArDigit* digit,
   builderToolVector::iterator itStart = m_buildTools.begin();
   builderToolVector::iterator itEnd   = m_buildTools.end();
   
-      m_params->curr_chid=digit->channelID();
-      m_params->curr_gain=digit->gain();
+      m_params.curr_chid=digit->channelID();
+      m_params.curr_gain=digit->gain();
       
       if(!m_buildDiscChannel ){
 	  m_counter++;
   	  return false;
       }
 
-      m_params->curr_sample0   = digit->samples()[0];
-      m_params->curr_maximum   = m_params->curr_sample0;
-      m_params->curr_maxsample = 0;
-      m_params->curr_nsamples  = m_checkSamples < digit->nsamples() ?
+      m_params.curr_sample0   = digit->samples()[0];
+      m_params.curr_maximum   = m_params.curr_sample0;
+      m_params.curr_maxsample = 0;
+      m_params.curr_nsamples  = m_checkSamples < digit->nsamples() ?
 	m_checkSamples : digit->nsamples();
-      m_params->curr_shiftTimeSamples = m_defaultShiftTimeSamples;
+      m_params.curr_shiftTimeSamples = m_defaultShiftTimeSamples;
       
-      m_params->qualityBitPattern = 0;
+      m_params.qualityBitPattern = 0;
       
-      if(m_params->curr_nsamples>0)
+      if(m_params.curr_nsamples>0)
 	{
-	  for( unsigned int i=0; i<m_params->curr_nsamples; i++ )
+	  for( unsigned int i=0; i<m_params.curr_nsamples; i++ )
 	    {
-	      if( m_params->curr_maximum<digit->samples()[i] )
+	      if( m_params.curr_maximum<digit->samples()[i] )
 		{
-		  m_params->curr_maxsample=i;
-		  m_params->curr_maximum= digit->samples()[i];
+		  m_params.curr_maxsample=i;
+		  m_params.curr_maximum= digit->samples()[i];
 		}
 	    }
 	}
@@ -299,7 +278,7 @@ bool LArSuperCellBuilderDriver::buildLArCell(const LArDigit* digit,
       prov |= 0x2000;
 	 
       // (*pLog) << MSG::VERBOSE << "done building LArRawChannel" << endmsg;
-      m_params->curr_id=0;
+      m_params.curr_id=0;
 
       /*
 	#ifndef NDEBUG
@@ -314,30 +293,21 @@ bool LArSuperCellBuilderDriver::buildLArCell(const LArDigit* digit,
 
 void LArSuperCellBuilderDriver::finishEventTools(){
   
-  builderToolVector::iterator itStart = m_buildTools.begin();
-  builderToolVector::iterator itEnd   = m_buildTools.end();
   // reset error counter per event
-  for( builderToolVector::iterator it = itStart;
-       it != itEnd; it++ ) (*it)->finalEventHidden();
+  for (ToolHandle<ILArRawChannelBuilderToolBase>& tool : m_buildTools)
+    tool->finalEventHidden();
   
-  pedestalToolVector::iterator pitStart = m_pedestalTools.begin();
-  pedestalToolVector::iterator pitEnd   = m_pedestalTools.end();
+  for (ToolHandle<ILArRawChannelBuilderADC2EToolBase>& tool : m_adc2eTools)
+    tool->finalEventHidden();
   
-  for( pedestalToolVector::iterator it = pitStart;
-       it != pitEnd; it++ ) (*it)->finalEventHidden();
-  
-  adc2eToolVector::iterator citStart = m_adc2eTools.begin();
-  adc2eToolVector::iterator citEnd   = m_adc2eTools.end();
-  
-  for( adc2eToolVector::iterator it = citStart;
-       it != citEnd; it++ ) (*it)->finalEventHidden();
-  
+  for (ToolHandle<ILArRawChannelBuilderADC2EToolBase>& tool : m_adc2eTools)
+    tool->finalEventHidden();
 }
 
 float LArSuperCellBuilderDriver::pedestal(MsgStream* pLog)
 {
   // did we retrieved pedestals for this channel before ?
-  if(m_oldIdentifier==m_params->curr_chid)
+  if(m_oldIdentifier==m_params.curr_chid)
     return m_oldPedestal;
   
   pedestalToolVector::iterator it    = m_pedestalTools.begin();
@@ -348,7 +318,7 @@ float LArSuperCellBuilderDriver::pedestal(MsgStream* pLog)
       (*pLog) << MSG::DEBUG << "One PedestalTool failed" << endmsg;
   
   // remember for which channel we retrieved the pedestal
-  m_oldIdentifier=m_params->curr_chid;
+  m_oldIdentifier=m_params.curr_chid;
   
   return m_oldPedestal;
 }
@@ -373,18 +343,16 @@ StatusCode LArSuperCellBuilderDriver::finalize()
 {
   ATH_MSG_INFO( "LArSuperCellBuilderdriver finalize."  );
   ATH_MSG_INFO( "  Build Tools:"  );
-  for( builderToolVector::iterator it = m_buildTools.begin();
-       it != m_buildTools.end(); it++ ) (*it)->printSummary();
+  for (ToolHandle<ILArRawChannelBuilderToolBase>& tool : m_buildTools)
+    tool->printSummary();
   
   ATH_MSG_INFO( "  ADC2Energy Tools:"  );
-  for( adc2eToolVector::iterator it = m_adc2eTools.begin();
-       it != m_adc2eTools.end(); it++ ) (*it)->printSummary();
+  for (ToolHandle<ILArRawChannelBuilderADC2EToolBase>& tool : m_adc2eTools)
+    tool->printSummary();
   
   ATH_MSG_INFO( "  Pedestal Tools:"  );
-  for( pedestalToolVector::iterator it = m_pedestalTools.begin();
-       it != m_pedestalTools.end(); it++ ) (*it)->printSummary();
+  for (ToolHandle<ILArRawChannelBuilderPedestalToolBase>& tool : m_pedestalTools)
+    tool->printSummary();
 
-  delete m_params;
-  
   return StatusCode::SUCCESS;
 }

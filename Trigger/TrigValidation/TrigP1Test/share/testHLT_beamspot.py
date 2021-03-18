@@ -35,4 +35,5 @@ condSeq = AthSequencer('AthCondSeq')
 condSeq += BeamSpotCondAlg('BeamSpotCondAlg')
 condSeq.BeamSpotCondAlg.OutputLevel = DEBUG
 
-svcMgr.HltEventLoopMgr.CoolUpdateTool.enable()
+from TrigServices.TrigServicesConfig import enableCOOLFolderUpdates
+enableCOOLFolderUpdates(svcMgr.HltEventLoopMgr.CoolUpdateTool)

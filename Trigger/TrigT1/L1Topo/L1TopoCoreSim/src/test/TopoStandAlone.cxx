@@ -166,7 +166,7 @@ fileLoader.loadFile(argv[1], l1menu);
       steering.executeEvent();
 
       // const TCS::GlobalDecision & globalDec = 
-      steering.simulationResult().globalDecision();
+      steering.simulationResult().globalOutput();
       /*
       for(unsigned int module=0; module<3; ++module)
          for(unsigned int trigger=0; trigger<64; ++trigger)

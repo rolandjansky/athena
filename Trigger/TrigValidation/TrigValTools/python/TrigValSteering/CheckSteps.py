@@ -476,7 +476,7 @@ class ChainDumpStep(InputDependentStep):
         super(ChainDumpStep, self).configure(test)
 
 
-class ChainCompStep(Step):
+class ChainCompStep(RefComparisonStep):
     '''
     Execute chainComp.py to compare counts from chainDump.py to a reference
     '''
@@ -484,17 +484,20 @@ class ChainCompStep(Step):
     def __init__(self, name='ChainComp'):
         super(ChainCompStep, self).__init__(name)
         self.input_file = 'chainDump.yml'
-        self.reference = None
+        self.reference_from_release = False
         self.executable = 'chainComp.py'
         self.args = ''
         self.auto_report_result = True
         self.output_stream = Step.OutputStream.FILE_AND_STDOUT
 
     def configure(self, test):
-        if self.reference:
-            self.args += ' -r ' + self.reference
+        if not self.reference_from_release:
+            RefComparisonStep.configure(self, test)
+            if self.reference:
+                self.args += ' -r ' + self.reference
+        # else chainComp.py finds the reference in DATAPATH on its own
         self.args += ' ' + self.input_file
-        super(ChainCompStep, self).configure(test)
+        Step.configure(self, test)
 
 
 class TrigTestJsonStep(Step):
@@ -739,7 +742,8 @@ def default_check_steps(test):
         reco_tf_logmerge = LogMergeStep('LogMerge_Reco_tf')
         reco_tf_logmerge.warn_if_missing = False
         tf_names = ['HITtoRDO', 'RDOtoRDOTrigger', 'RAWtoESD', 'ESDtoAOD',
-                    'PhysicsValidation', 'RAWtoALL', 'BSRDOtoRAW']
+                    'PhysicsValidation', 'RAWtoALL',
+                    'BSRDOtoRAW', 'DRAWCOSTtoNTUPCOST', 'AODtoNTUPRATE']
         reco_tf_logmerge.log_files = ['log.'+tf_name for tf_name in tf_names]
         if not get_step_from_list('LogMerge', check_steps):
             for step in reco_tf_steps:

@@ -1,34 +1,29 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConfig_DSConfigSvc
 #define TrigConfig_DSConfigSvc
 
-#include <stdint.h>
+#include "ConfigSvcBase.h"
+#include "TrigConfInterfaces/ITrigConfigSvc.h"
+
+#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaKernel/IIOVSvc.h"
+#include "StoreGate/StoreGateSvc.h"
 
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfHLTData/HLTFrame.h"
-
+#include "L1TopoConfig/L1TopoMenu.h"
 #include "TrigConfData/L1Menu.h"
 #include "TrigConfData/L1PrescalesSet.h"
 #include "TrigConfData/L1BunchGroupSet.h"
 #include "TrigConfData/HLTMenu.h"
 #include "TrigConfData/HLTPrescalesSet.h"
 
-#include "GaudiKernel/ServiceHandle.h"
-#include "./ConfigSvcBase.h"
-#include "AthenaKernel/IIOVSvc.h"
-#include "StoreGate/StoreGateSvc.h"
-
-#include "TrigConfInterfaces/ITrigConfigSvc.h"
-
+#include <stdint.h>
 #include <memory>
 #include <set>
-
-namespace TXC {
-   class L1TopoMenu;
-}
 
 class EventContext;
 
@@ -49,7 +44,7 @@ namespace TrigConf {
     *        on what is provided by HLTConfigSvc and LVL1ConfigSvc
     *
     */
-   class DSConfigSvc : public extends1<ConfigSvcBase, ITrigConfigSvc>
+   class DSConfigSvc : public extends<ConfigSvcBase, ITrigConfigSvc>
    {
 
    public:
@@ -57,19 +52,8 @@ namespace TrigConf {
       // Standard Gaudi Service constructor
       DSConfigSvc( const std::string& name, ISvcLocator* pSvcLocator );
 
-      // Destructor
-      virtual ~DSConfigSvc();
-
       // @brief initialize the service
       virtual StatusCode initialize() override;
-
-      // @brief finalize the service
-      virtual StatusCode finalize() override {
-         return StatusCode::SUCCESS;
-      }
-
-      // @brief set the master key of the configuration to be requested
-      virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvIF ) override;
 
       // @brief L1 topo configuration menu
       virtual const TXC::L1TopoMenu* menu() const override {
@@ -97,18 +81,8 @@ namespace TrigConf {
       }
 
       // access to HLT chains
-      virtual const HLTChainList* chainList() const override {
-         return & m_hltFrame.getHLTChainList();
-      }
-
-      // access to HLT chains
       virtual const HLTChainList& chains() const override {
          return m_hltFrame.chains();
-      }
-
-      // access to HLT sequences
-      virtual const HLTSequenceList* sequenceList() const override {
-         return & m_hltFrame.getHLTSequenceList();
       }
 
       // access to HLT sequences
@@ -131,12 +105,6 @@ namespace TrigConf {
       virtual std::string configurationSource() const override {
          return m_configSrc;
       }
-
-      virtual StatusCode updatePrescaleSets(uint requestcount) override;
-
-      // This method is called by TrigSteer on *every* event (keep it fast)
-      // This is never used in connection with COOL configuration data
-      virtual StatusCode assignPrescalesToChains(uint lumiblock ) override;
 
       /// @name Dummy implementations of the Run 3 L1 JSON trigger configuration interface in IILVL1ConfigSvc.
       /// @brief Use the xAODConfigSvc or xAODConfigTool to access these data.

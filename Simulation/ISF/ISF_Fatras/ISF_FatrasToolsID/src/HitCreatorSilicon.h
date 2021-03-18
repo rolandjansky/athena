@@ -26,6 +26,7 @@
 // Identifier
 #include "Identifier/Identifier.h"
 //InDet
+#include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetSimEvent/SiHitCollection.h"
 
 class PixelID;
@@ -71,8 +72,7 @@ namespace iFatras {
       void createSimHit(const ISF::ISFParticle& isp, const Trk::TrackParameters&, double  ) const;
       
       /** templated function Return nothing - store the HIT in hit collection */
-      template<typename ELEMENT>
-      void createSimHit(const ISF::ISFParticle& isp, const Trk::TrackParameters& pars, double time, ELEMENT hitSiDetElement, bool isSiDetElement) const;
+      void createSimHit(const ISF::ISFParticle& isp, const Trk::TrackParameters& pars, double time, const InDetDD::SiDetectorElement& hitSiDetElement, bool isSiDetElement) const;
       
       /** Return the cluster on Track -- the PrepRawData is contained in this one */       
       const ParametersROT* createHit(const ISF::ISFParticle&, const Trk::TrackParameters&  ) const { return 0; }

@@ -573,6 +573,9 @@ SCTCalib.BusyThr4DeadFinding   = BusyThr4DeadFinding
 SCTCalib.NoisyThr4DeadFinding  = NoisyThr4DeadFinding
 SCTCalib.DeadChipUploadTest    = DeadChipUploadTest
 SCTCalib.DeadStripUploadTest   = DeadStripUploadTest
+SCTCalib.DeadNotQuiet          = DeadNotQuiet
+SCTCalib.QuietThresholdChip    = QuietThresholdChip
+SCTCalib.QuietThresholdStrip   = QuietThresholdStrip
 
 #--- Properties for HIST
 SCTCalib.NoiseOccupancyTriggerAware = NoiseOccupancyTriggerAware
@@ -594,9 +597,14 @@ SCTCalib.BadStripsAllFile          = prefix + 'BadStripsAllFile.xml'          # 
 SCTCalib.BadStripsNewFile          = prefix + 'BadStripsNewFile.xml'          # Newly found NoisyStrips
 SCTCalib.BadStripsSummaryFile      = prefix + 'BadStripsSummaryFile.xml'      # Summary of NoisyStrips
 SCTCalib.BadModulesFile            = prefix + 'BadModulesFile.xml'            # HVTrip
-SCTCalib.DeadStripsFile            = prefix + 'DeadStripsFile.xml'            # DeadStrip
-SCTCalib.DeadChipsFile             = prefix + 'DeadChipsFile.xml'             # DeadChip
-SCTCalib.DeadSummaryFile           = prefix + 'DeadSummaryFile.xml'           # Summary of Dead Search
+if DeadNotQuiet:
+    SCTCalib.DeadStripsFile            = prefix + 'DeadStripsFile.xml'            # DeadStrip
+    SCTCalib.DeadChipsFile             = prefix + 'DeadChipsFile.xml'             # DeadChip
+    SCTCalib.DeadSummaryFile           = prefix + 'DeadSummaryFile.xml'           # Summary of Dead Search
+else:
+    SCTCalib.DeadStripsFile            = prefix + 'QuietStripsFile.xml'            # QuietStrip
+    SCTCalib.DeadChipsFile             = prefix + 'QuietChipsFile.xml'             # QuietChip
+    SCTCalib.DeadSummaryFile           = prefix + 'QuietSummaryFile.xml'           # Summary of Quiet Search
 SCTCalib.NoiseOccupancyFile        = prefix + 'NoiseOccupancyFile.xml'        # NoiseOccupancy
 SCTCalib.NoiseOccupancySummaryFile = prefix + 'NoiseOccupancySummaryFile.xml' # Summary of NoiseOccupancy
 SCTCalib.LorentzAngleFile          = prefix + 'LorentzAngleFile.xml'          # LorentzAngle
@@ -608,7 +616,7 @@ SCTCalib.EfficiencySummaryFile     = prefix + 'EfficiencySummaryFile.xml'     # 
 SCTCalib.BSErrorSummaryFile        = prefix + 'BSErrorSummaryFile.xml'        # Summary of BS Errors
 SCTCalib.BSErrorModuleFile         = prefix + 'BSErrorModuleSummary.xml'      # BS Errors for each module
 
-SCTCalib.OutputLevel     = WARNING # DEBUG / INFO
+SCTCalib.OutputLevel     = WARNING # DEBUG / INFO / WARNING / ERROR / FATAL
 SCTCalib.AuditAlgorithms = True  # False
 
 print(SCTCalib)

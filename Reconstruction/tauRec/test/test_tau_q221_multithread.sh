@@ -1,7 +1,8 @@
 #!/bin/bash
 #
-# art-description: q221 reconstruction ART on MC in serial mode
+# art-description: q221 reconstruction ART on MC in multithread mode
 # art-type: grid
+# art-athena-mt: 4
 # art-include: master/Athena
 # art-output: myAOD.pool.root
 # art-output: NTUP_PHYSVAL.root
@@ -11,7 +12,7 @@
 # art-output: dcube
 # art-html: dcube
 
-NEVENTS=500
+NEVENTS=200
 REF_DIR="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/tauRec/reference/q221"
 
 export ATHENA_CORE_NUMBER=4

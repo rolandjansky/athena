@@ -106,12 +106,12 @@ int main (int argc, char* argv[])
     {
         //initialise the tool
         //converted photons
-        std::string configFilePathConverted = "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionBase_ExampleConvertedPhotonConf_Eratio.conf";
+        std::string configFilePathConverted = "EGammaVariableCorrection/ElectronPhotonVariableCorrectionBase_ExampleConvertedPhotonConf_Eratio.conf";
         ElectronPhotonVariableCorrectionBase CorrectConvertedPhotonTool("CorrectConvertedPhotonTool");
         ANA_CHECK(CorrectConvertedPhotonTool.setProperty("ConfigFile",configFilePathConverted));
         ANA_CHECK(CorrectConvertedPhotonTool.initialize());
         //unconverted photons
-        std::string configFilePathUnconverted = "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionBase_ExampleUnconvertedPhotonConf_Eratio.conf";
+        std::string configFilePathUnconverted = "EGammaVariableCorrection/ElectronPhotonVariableCorrectionBase_ExampleUnconvertedPhotonConf_Eratio.conf";
         ElectronPhotonVariableCorrectionBase CorrectUnconvertedPhotonTool("CorrectUnconvertedPhotonTool");
         ANA_CHECK(CorrectUnconvertedPhotonTool.setProperty("ConfigFile",configFilePathUnconverted));
         ANA_CHECK(CorrectUnconvertedPhotonTool.initialize());
@@ -182,7 +182,7 @@ int main (int argc, char* argv[])
     // ===============================================
     if (isElectron)
     {
-        std::string configFilePath = "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionBase_ExampleElectronConf_Eratio.conf";
+        std::string configFilePath = "EGammaVariableCorrection/ElectronPhotonVariableCorrectionBase_ExampleElectronConf_Eratio.conf";
         ElectronPhotonVariableCorrectionBase CorrectElectronTool("CorrectElectronTool");
         ANA_CHECK(CorrectElectronTool.setProperty("ConfigFile",configFilePath));
         ANA_CHECK(CorrectElectronTool.initialize());

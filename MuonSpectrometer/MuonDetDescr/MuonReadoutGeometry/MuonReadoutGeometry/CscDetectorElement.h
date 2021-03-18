@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -10,18 +10,22 @@
 #ifndef MUONREADOUTGEOMETRY_CSCDETECTORELEMENT_H
 #define MUONREADOUTGEOMETRY_CSCDETECTORELEMENT_H
 
-#include "Identifier/IdentifierHash.h"
-#include "Identifier/Identifier.h"
-#include "MuonReadoutGeometry/CscReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorElement.h"
 
-class CscIdHelper;
+#include "Identifier/Identifier.h"
+#include "Identifier/IdentifierHash.h"
+#include "TrkSurfaces/Surface.h"
+#include "TrkSurfaces/SurfaceBounds.h"
+
+#include <vector>
+
+class GeoVFullPhysVol;
 
 namespace MuonGM {
     
+class CscReadoutElement;
+class MuonDetectorManager;
 class MuonStation;
-
-
     
 class CscDetectorElement : public MuonDetectorElement
 {

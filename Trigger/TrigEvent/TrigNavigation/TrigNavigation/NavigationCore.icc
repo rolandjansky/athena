@@ -415,11 +415,14 @@ bool HLT::NavigationCore::getFeaturesInRoI( const TriggerElement* te,
 template<class C, class T> 
 __attribute__((__used__))
 bool HLT::NavigationCore::getAllFeatures( ElementLinkVector<C>&  features, const std::string& label ) {
+  std::lock_guard<std::recursive_mutex> lock(getMutex());
+  TrigHolderStructure& holderstorage = getHolderStorage();
+
   CLID clid = ClassID_traits<T>::ID();
   MLOG(DEBUG) << "getAllFeatures: of clid: " << clid << "(" << ClassID_traits<T>::typeName() << ")"
               << " label: \"" << label << "\"" <<  endmsg;
   
-  for ( auto& iholder : m_holderstorage.getHoldersOfClid(clid) ) {
+  for ( auto& iholder : holderstorage.getHoldersOfClid(clid) ) {
     if ( label == iholder->label() || label == "" ) {
       HLTNavDetails::Holder<T>* holder = getHolder<T>(iholder->label(), nextSubTypeIndex(clid, label));
       MLOG(VERBOSE)  << "getAllFeatures: getting from: " << *holder << endmsg;

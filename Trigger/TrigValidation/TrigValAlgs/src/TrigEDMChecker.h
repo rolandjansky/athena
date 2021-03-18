@@ -21,7 +21,6 @@
 #include "xAODTrigger/TrigNavigation.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigNavigation/Navigation.h"
-#include "GaudiKernel/ToolHandle.h"
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
@@ -209,10 +208,11 @@ class TrigEDMChecker : public AthAnalysisAlgorithm  {
    /**
     * @brief Construct graph of HLT navigation in Run-3
     * @param returnValue String to populate with dot graph.
+    * @param pass When using a chain filter, if the chain group passed raw.
     *
     * Navigates all TrigComposite objects in store gate and forms a relational graph in the dot format
     */
-   StatusCode TrigCompositeNavigationToDot(std::string& returnValue);
+   StatusCode TrigCompositeNavigationToDot(std::string& returnValue, bool& pass);
 
    ToolHandle<Rec::IMuonPrintingTool>            m_muonPrinter;
 

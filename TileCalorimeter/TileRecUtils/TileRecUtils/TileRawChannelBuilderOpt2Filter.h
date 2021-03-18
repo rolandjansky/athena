@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILERECUTILS_TILERAWCHANNELBUILDEROPT2FILTER_H
@@ -73,14 +73,14 @@ class TileRawChannelBuilderOpt2Filter: public TileRawChannelBuilder {
         "TileCondToolNoiseSample", "TileCondToolNoiseSample", "Tile noise sample tool"};
 
     //!< Applies OF algorithm
-    double filter(int ros, int drawer, int channel, int &gain, double &pedestal, double &amplitude, double &time);
+    double filter(int ros, int drawer, int channel, int &gain, double &pedestal, double &amplitude, double &time, const EventContext &ctx);
     int findMaxDigitPosition();  //!< Finds maximum digit position in the pulse
     //!< Gets pedestal estimation for OF1
-    float getPedestal(int ros, int drawer, int channel, int gain);
+    float getPedestal(int ros, int drawer, int channel, int gain, const EventContext &ctx);
     //!< Apply the number of iterations needed for reconstruction by calling the Filter method
-    int iterate(int ros, int drawer, int channel, int gain, double &pedestal, double &amplitude, double &time, double &chi2);
+    int iterate(int ros, int drawer, int channel, int gain, double &pedestal, double &amplitude, double &time, double &chi2, const EventContext &ctx);
     //!< Computes A,time,ped using OF. If iterations are required, the Iterator method is used
-    double compute(int ros, int drawer, int channel, int gain, double &pedestal, double &amplitude, double &time, double& phase);
+    double compute(int ros, int drawer, int channel, int gain, double &pedestal, double &amplitude, double &time, double& phase, const EventContext &ctx);
 
     void ofc2int(int nDigits, double* w_off, short* w_int, short& scale); // convert weights to dsp short int format
 

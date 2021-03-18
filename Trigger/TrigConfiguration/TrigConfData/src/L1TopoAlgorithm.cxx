@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfData/L1TopoAlgorithm.h"
@@ -64,7 +64,17 @@ TrigConf::L1TopoAlgorithm::load()
 
    if( m_type == AlgorithmType::DECISION || m_type == AlgorithmType::SORTING ) {
       for( auto & p : getList("variableParameters") ) {
-         m_parameters.emplace_back(p["name"], p.getAttribute<int>("value"), p.getAttribute_optional<unsigned int>("selection"));
+         if (p["name"] == "MaxMSqr") {
+           unsigned int val = p.getAttribute<unsigned int>("value");
+           // Work around overflow in the database...
+           if (val >= 1u<<31) {
+             val = 999;
+           }
+           m_parameters.emplace_back(p["name"], val, p.getAttribute_optional<unsigned int>("selection"));
+         }
+         else {
+           m_parameters.emplace_back(p["name"], p.getAttribute<int>("value"), p.getAttribute_optional<unsigned int>("selection"));
+         }
       }
    }
 

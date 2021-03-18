@@ -31,7 +31,13 @@ def dbgPreRun(inputFileList, outputFileList, argdict = None):
     outFile = outputFileList[0]
     hfile = TFile(outFile, 'RECREATE')
 
-    # Inicialize dbgEventInfo, this is the main event analysis class
+    maxEvents = argdict.get('maxEvents')
+    maxEvents = maxEvents.value.get('first') if maxEvents else -1
+
+    skipEvents = argdict.get('skipEvents')
+    skipEvents = skipEvents.value.get('first') if skipEvents else 0
+
+    # Initialize dbgEventInfo, this is the main event analysis class
     eventInfo = dbgEventInfo('_Pre', inputFileList.value[0])
     data = []
     l1Info = []
@@ -42,7 +48,10 @@ def dbgPreRun(inputFileList, outputFileList, argdict = None):
         n = 0
         isFirstEvent = True
 
+        bsfile = bsfile[skipEvents:skipEvents+maxEvents] if maxEvents > -1 else bsfile[skipEvents:]
+
         for event in bsfile:
+
             if isFirstEvent:
                 runNumber = event.run_no() if event.run_no() else int(inputFile.split(".")[1])
                 configKeys = getHLTConfigKeys(runNumber, argdict)
@@ -143,7 +152,7 @@ def dbgPostRun(inputFileList, outputFileList, argdict = None):
             # Run debug event analysis and fill output TTree
             eventInfo.eventCount(event)
             eventInfo.eventInfo(event, l1Info, hltInfo)
-            eventInfo.eventConfig(configKeys)
+            eventInfo.eventConfig(configKeys, event)
             eventInfo.fillTree()
 
     # Close output TFile
@@ -232,7 +241,7 @@ def getHLTConfigKeys(runNumber = None, args = None):
         DB - database alias
         REL - release
         SMK - Super Master Key
-        HLTPSC - HLT Prescale key
+        HLTPSK - HLT Prescale key
         PROJ - Atlas project
     '''
 
@@ -248,6 +257,7 @@ def getHLTConfigKeys(runNumber = None, args = None):
 
         configKeys['DB'] = dbInfo[0]
         configKeys['PROJ'] = dbInfo[2]
+        configKeys['HLTPSK'] = TriggerCoolUtil.getHLTPrescaleKeys(dbconn, [[runNumber, runNumber]])[runNumber]['HLTPSK2']
 
         msg.info("Found config keys %s", configKeys)
     else:

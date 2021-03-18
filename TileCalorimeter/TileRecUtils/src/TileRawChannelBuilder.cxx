@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
@@ -410,7 +410,7 @@ void TileRawChannelBuilder::fill_drawer_errors(const EventContext& ctx,
 
           msg(MSG::VERBOSE) << "ChErr ";
           int ch = 0;
-          while (ch < MAX_CHANNELS) {
+          while (ch < MAX_CHANNELS-2) {
             msg(MSG::VERBOSE) << " " << m_error[ch++];
             msg(MSG::VERBOSE) << " " << m_error[ch++];
             msg(MSG::VERBOSE) << " " << m_error[ch++];
@@ -590,7 +590,7 @@ StatusCode TileRawChannelBuilder::commitContainer()
   } else {
 
     for (ToolHandle<ITileRawChannelTool>& noiseFilterTool : m_noiseFilterTools) {
-      if (noiseFilterTool->process(*m_rawChannelCnt.get()).isFailure()) {
+      if (noiseFilterTool->process(*m_rawChannelCnt.get(), ctx).isFailure()) {
         ATH_MSG_ERROR( " Error status returned from noise filter " );
       } else {
         ATH_MSG_DEBUG( "Noise filter applied to the container" );

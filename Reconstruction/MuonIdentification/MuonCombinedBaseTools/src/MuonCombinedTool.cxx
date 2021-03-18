@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -58,7 +58,7 @@ namespace MuonCombined {
     }
 
     // loop over muon track particles
-    for( auto muonCandidate : muonCandidates ){
+    for( const auto *muonCandidate : muonCandidates ){
       const Trk::Track& muonTrack = muonCandidate->extrapolatedTrack() ? *muonCandidate->extrapolatedTrack() : muonCandidate->muonSpectrometerTrack();
       ATH_MSG_DEBUG("MuonCandidate " << m_printer->print(muonTrack) << std::endl << m_printer->printStations(muonTrack) ); 
       // preselect ID candidates close to the muon
@@ -68,7 +68,7 @@ namespace MuonCombined {
       ATH_MSG_DEBUG("Associated ID candidates " << associatedIdCandidates.size() );
       // build combined muons
       int count=0;
-      for(auto& tool : m_muonCombinedTagTools){
+      for(const auto & tool : m_muonCombinedTagTools){
 	tool->combine(*muonCandidate,associatedIdCandidates,*(tagMaps.at(count)),combinedTracks,METracks);
 	count++;
       }
@@ -94,7 +94,7 @@ namespace MuonCombined {
     muonPt  = muonPars->momentum().perp();
 
     associatedIdCandidates.clear();
-    for( auto x : inDetCandidates ){
+    for( const auto *x : inDetCandidates ){
       double indetEta                         = x->indetTrackParticle().eta();
       double indetPt                          = x->indetTrackParticle().pt();
       double deltaEta                         = fabs(muonEta - indetEta);
@@ -111,7 +111,7 @@ namespace MuonCombined {
   }
 
   void MuonCombinedTool::cleanUp() const {
-    for(auto& tool : m_muonCombinedTagTools){
+    for(const auto & tool : m_muonCombinedTagTools){
       tool->cleanUp();
     }
   }

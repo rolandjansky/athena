@@ -83,9 +83,6 @@ TruthParticle& TruthParticle::operator=( const TruthParticle& rhs )
   return *this;
 }
 
-// Destructor
-///////////////
-
 /////////////////////////////////////////////////////////////////// 
 // Const methods: 
 ///////////////////////////////////////////////////////////////////
@@ -94,7 +91,7 @@ const TruthParticle * TruthParticle::mother(const std::size_t i) const
 {
   if ( m_mothers.empty()     || 
        i >= m_mothers.size() || 
-       0 == m_container      ) return 0;
+       nullptr == m_container      ) return nullptr;
   return m_container->truthParticle(m_mothers[i], m_nGenEventIdx);
 }
 
@@ -102,7 +99,7 @@ const TruthParticle * TruthParticle::child(const std::size_t i) const
 {
   if ( m_children.empty()     || 
        i >= m_children.size() ||
-       0 == m_container       ) return 0;
+       nullptr == m_container       ) return nullptr;
   return m_container->truthParticle(m_children[i], m_nGenEventIdx);
 }
 
@@ -236,14 +233,6 @@ PDG::pidType TruthParticle::pdgDecay( const std::size_t i ) const
     throw std::out_of_range(error);
   }
 }
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
 
 /////////////////////////////////////////////////////////////////// 
 // Non-const methods: 

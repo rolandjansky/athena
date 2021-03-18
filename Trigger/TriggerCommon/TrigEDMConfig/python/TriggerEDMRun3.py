@@ -106,6 +106,7 @@ TriggerHLTListRun3 = [
     ('xAOD::TrigConfKeys#TrigConfKeysOnline' ,               'BS ESD AODFULL AODSLIM', 'Steer'),
 
     ('TrigRoiDescriptorCollection#HLT_EMRoIs',                   'BS ESD AODFULL AODSLIM',  'Steer'),
+    ('TrigRoiDescriptorCollection#HLT_eEMRoIs',                  'BS ESD AODFULL AODSLIM',  'Steer'),
     ('TrigRoiDescriptorCollection#HLT_MURoIs',                   'BS ESD AODFULL AODSLIM',  'Steer'),
     ('TrigRoiDescriptorCollection#HLT_METRoI',                   'BS ESD AODFULL AODSLIM',  'Steer'),
     ('TrigRoiDescriptorCollection#HLT_JETRoI',                   'BS ESD AODFULL AODSLIM',  'Steer'),
@@ -129,6 +130,30 @@ TriggerHLTListRun3 = [
     ('xAOD::EnergySumRoI#LVL1EnergySumRoI' ,                 'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
     ('xAOD::EnergySumRoIAuxInfo#LVL1EnergySumRoIAux.',       'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
 
+    #Run-3 L1
+
+    ("CaloCellContainer#SCell",                                'BS ESD', 'L1'),
+    
+    ('xAOD::EnergySumRoI#jXENOISECUTPerf' ,                 'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
+    ('xAOD::EnergySumRoIAuxInfo#jXENOISECUTPerfAux.',       'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
+
+    ('xAOD::EnergySumRoI#jXERHOPerf' ,                      'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
+    ('xAOD::EnergySumRoIAuxInfo#jXERHOPerfAux.' ,           'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
+
+    ('xAOD::EnergySumRoI#gXENOISECUTPerf' ,                  'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
+    ('xAOD::EnergySumRoIAuxInfo#gXENOISECUTPerfAux.' ,       'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
+
+    ('xAOD::EnergySumRoI#gXERHOPerf' ,                 'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
+    ('xAOD::EnergySumRoIAuxInfo#gXERHOPerfAux.',       'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
+    
+    ('xAOD::EnergySumRoI#gXEJWOJPerf' ,                     'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
+    ('xAOD::EnergySumRoIAuxInfo#gXEJWOJPerfAux.',           'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
+
+    ("xAOD::TrigEMClusterContainer#eElesPerf" ,             'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
+    ("xAOD::TrigEMClusterAuxContainer#eElesPerfAux." ,      'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
+     
+    ('xAOD::EmTauRoIContainer#eTausPerf',                   'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
+    ('xAOD::EmTauRoIAuxContainer#eTausPerfAux.',            'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
 
     # Egamma
     ('xAOD::TrigEMClusterContainer#HLT_FastCaloEMClusters',           'BS ESD AODFULL', 'Egamma', 'inViews:EMCaloViews'), # last arg specifies in which view container the fragments are, look into the proprty of View maker alg for it
@@ -268,6 +293,9 @@ TriggerHLTListRun3 = [
 
     ('xAOD::L2StandAloneMuonContainer#HLT_MuonL2SAInfoIOmode',        'BS ESD AODFULL', 'Muon', 'inViews:MUCombViewRoIs'),
     ('xAOD::L2StandAloneMuonAuxContainer#HLT_MuonL2SAInfoIOmodeAux.', 'BS ESD AODFULL', 'Muon'),
+    
+    ('xAOD::L2StandAloneMuonContainer#HLT_MuonL2SAInfol2mtmode',        'BS ESD AODFULL', 'Muon', 'inViews:MUViewRoIs'),
+    ('xAOD::L2StandAloneMuonAuxContainer#HLT_MuonL2SAInfol2mtmodeAux.', 'BS ESD AODFULL', 'Muon'),
 
     ('xAOD::L2CombinedMuonContainer#HLT_MuonL2CBInfo',          'BS ESD AODFULL', 'Muon', 'inViews:MUCombViewRoIs'),
     ('xAOD::L2CombinedMuonAuxContainer#HLT_MuonL2CBInfoAux.',   'BS ESD AODFULL', 'Muon'),
@@ -275,6 +303,9 @@ TriggerHLTListRun3 = [
     ('xAOD::L2CombinedMuonContainer#HLT_MuonL2CBInfoIOmode',          'BS ESD AODFULL', 'Muon', 'inViews:MUCombViewRoIs'),
     ('xAOD::L2CombinedMuonAuxContainer#HLT_MuonL2CBInfoIOmodeAux.',   'BS ESD AODFULL', 'Muon'),
 
+    ('xAOD::L2CombinedMuonContainer#HLT_MuonL2CBInfol2mtmode',          'BS ESD AODFULL', 'Muon', 'inViews:MUCombViewRoIs'),
+    ('xAOD::L2CombinedMuonAuxContainer#HLT_MuonL2CBInfol2mtmodeAux.',   'BS ESD AODFULL', 'Muon'),
+    
     ('xAOD::L2IsoMuonContainer#HLT_MuonL2ISInfo',               'BS ESD AODFULL', 'Muon', 'inViews:MUIsoViewRoIs'),
     ('xAOD::L2IsoMuonAuxContainer#HLT_MuonL2ISInfoAux.',        'BS ESD AODFULL', 'Muon'),
 
@@ -318,8 +349,14 @@ TriggerHLTListRun3 = [
     ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_subjesgscIS_ftf',                        'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet', 'alias:JetContainerShallowCopy'),
     ('xAOD::ShallowAuxContainer#HLT_AntiKt4EMTopoJets_subjesgscIS_ftfAux.'+JetCopyVars, 'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
 
+    ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_subjesgsc_ftf',                        'BS ESD AODFULL', 'Jet', 'alias:JetContainerShallowCopy'),
+    ('xAOD::ShallowAuxContainer#HLT_AntiKt4EMTopoJets_subjesgsc_ftfAux.'+JetCopyVars, 'BS ESD AODFULL', 'Jet'),
+
     ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_subresjesgscIS_ftf',                        'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet', 'alias:JetContainerShallowCopy'),
     ('xAOD::ShallowAuxContainer#HLT_AntiKt4EMTopoJets_subresjesgscIS_ftfAux.'+JetCopyVars, 'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+
+    ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_subresjesgsc_ftf',                        'BS ESD AODFULL', 'Jet', 'alias:JetContainerShallowCopy'),
+    ('xAOD::ShallowAuxContainer#HLT_AntiKt4EMTopoJets_subresjesgsc_ftfAux.'+JetCopyVars, 'BS ESD AODFULL', 'Jet'),
 
     ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_subjes',                        'BS ESD AODFULL', 'Jet', 'alias:JetContainerShallowCopy'),
     ('xAOD::ShallowAuxContainer#HLT_AntiKt4EMTopoJets_subjesAux.'+JetCopyVars, 'BS ESD AODFULL', 'Jet'),
@@ -372,8 +409,14 @@ TriggerHLTListRun3 = [
     ('xAOD::JetContainer#HLT_AntiKt4EMPFlowJets_subjesgscIS_ftf',                        'BS ESD AODFULL', 'Jet', 'alias:JetContainerShallowCopy'),
     ('xAOD::ShallowAuxContainer#HLT_AntiKt4EMPFlowJets_subjesgscIS_ftfAux.'+JetCopyVars, 'BS ESD AODFULL', 'Jet'),
 
+    ('xAOD::JetContainer#HLT_AntiKt4EMPFlowJets_subjesgsc_ftf',                        'BS ESD AODFULL', 'Jet', 'alias:JetContainerShallowCopy'),
+    ('xAOD::ShallowAuxContainer#HLT_AntiKt4EMPFlowJets_subjesgsc_ftfAux.'+JetCopyVars, 'BS ESD AODFULL', 'Jet'),
+
     ('xAOD::JetContainer#HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',                        'BS ESD AODFULL', 'Jet', 'alias:JetContainerShallowCopy'),
     ('xAOD::ShallowAuxContainer#HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftfAux.'+JetCopyVars, 'BS ESD AODFULL', 'Jet'),
+
+    ('xAOD::JetContainer#HLT_AntiKt4EMPFlowJets_subresjesgsc_ftf',                        'BS ESD AODFULL', 'Jet', 'alias:JetContainerShallowCopy'),
+    ('xAOD::ShallowAuxContainer#HLT_AntiKt4EMPFlowJets_subresjesgsc_ftfAux.'+JetCopyVars, 'BS ESD AODFULL', 'Jet'),
 
     ('xAOD::JetContainer#HLT_AntiKt4EMPFlowJets_nojcalib_ftf',                'BS ESD AODFULL', 'Jet'),
     ('xAOD::JetAuxContainer#HLT_AntiKt4EMPFlowJets_nojcalib_ftfAux.'+JetVars, 'BS ESD AODFULL', 'Jet'),
@@ -555,6 +598,10 @@ TriggerHLTListRun3 = [
     ('xAOD::TrigCompositeAuxContainer#HLT_HitDVTrkAux.trk_id.trk_pt.trk_eta.trk_phi.trk_n_hits_innermost.trk_n_hits_inner.trk_n_hits_pix.trk_n_hits_sct.trk_a0beam',     'BS ESD AODFULL', 'ID'),
     ('xAOD::TrigCompositeContainer#HLT_HitDVSP',             'BS ESD AODFULL', 'ID'),
     ('xAOD::TrigCompositeAuxContainer#HLT_HitDVSPAux.sp_eta.sp_r.sp_phi.sp_z.sp_layer.sp_isPix.sp_isSct.sp_usedTrkId',      'BS ESD AODFULL', 'ID'),
+    ('xAOD::TrigCompositeContainer#HLT_dEdxTrk',             'BS ESD AODFULL', 'ID'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_dEdxTrkAux.trk_id.trk_pt.trk_dedx.trk_dedx_n_usedhits.trk_n_hits_innermost.trk_n_hits_inner.trk_n_hits_pix.trk_n_hits_sct.trk_a0beam',      'BS ESD AODFULL', 'ID'),
+    ('xAOD::TrigCompositeContainer#HLT_dEdxHit',             'BS ESD AODFULL', 'ID'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_dEdxHitAux.hit_trkid.hit_dedx.hit_tot.hit_trkchi2.hit_trkndof.hit_iblovf.hit_loc.hit_layer',      'BS ESD AODFULL', 'ID'),
 ]
 
 # HLTNav_* object list is built dynamically during job configuration, here we only define its output targets

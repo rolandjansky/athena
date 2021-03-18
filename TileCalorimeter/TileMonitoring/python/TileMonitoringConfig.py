@@ -30,7 +30,6 @@ def TileMonitoringCfg(flags):
         from TileMonitoring.TileDigiNoiseMonitorAlgorithm import TileDigiNoiseMonitoringConfig
         acc.merge( TileDigiNoiseMonitoringConfig(flags) )
 
-
     if environment in ('online', 'tier0', 'tier0ESD'):
         msg.info('Setup Tile Monitoring for ESD data due to environment: %s', environment)
 
@@ -49,6 +48,11 @@ def TileMonitoringCfg(flags):
         from TileMonitoring.TileJetMonitorAlgorithm import TileJetMonitoringConfig
         acc.merge( TileJetMonitoringConfig(flags) )
 
+        if flags.IOVDb.DatabaseInstance == 'CONDBR2':
+            from TileMonitoring.TileTMDBRawChannelMonitorAlgorithm import TileTMDBRawChannelMonitorConfig
+            acc.merge( TileTMDBRawChannelMonitorConfig(flags, Efficiency = True) )
+
+
     return acc
 
 
@@ -62,9 +66,7 @@ if __name__=='__main__':
    Configurable.configurableRun3Behavior = True
    log.setLevel(INFO)
 
-   from AthenaConfiguration.TestDefaults import defaultTestFiles
-   ConfigFlags.Input.Files = defaultTestFiles.ESD
-
+   ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q431/22.0/v1/myESD.pool.root']
    ConfigFlags.Output.HISTFileName = 'TileMonitoringOutput.root'
    ConfigFlags.DQ.enableLumiAccess = False
    ConfigFlags.DQ.useTrigger = False

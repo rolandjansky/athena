@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCcablingServerSvc_H
@@ -14,10 +14,7 @@ class TGCcablingServerSvc : public AthService,
                             virtual public ITGCcablingServerSvc
 {
    private:
-    BooleanProperty m_atlas;
-
-    bool m_forcedUse;
-    bool m_useMuonTGC_CablingSvc;
+    BooleanProperty m_atlas{this, "Atlas", true, "Controls whether using ATLAS cabling, or from testbeams etc"};
 
     public:
     // Constructor and other Service methods

@@ -132,6 +132,27 @@ SCTCalibWriteTool::finalize() {
    if (!m_attrListColl.release()) {
       return StatusCode::FAILURE;
    }
+   if (!m_attrListColl_deadStrip.release()) {
+      return StatusCode::FAILURE;
+   }
+   if (!m_attrListColl_deadChip.release()) {
+      return StatusCode::FAILURE;
+   }
+   if (!m_attrListColl_eff.release()) {
+      return StatusCode::FAILURE;
+   }
+   if (!m_attrListColl_no.release()) {
+      return StatusCode::FAILURE;
+   }
+   if (!m_attrListColl_RawOccu.release()) {
+      return StatusCode::FAILURE;
+   }
+   if (!m_attrListColl_BSErr.release()) {
+      return StatusCode::FAILURE;
+   }
+   if (!m_attrListColl_LA.release()) {
+      return StatusCode::FAILURE;
+   }
    if (!m_streamer.release().isSuccess()) {
       return StatusCode::FAILURE;
    }
@@ -508,11 +529,8 @@ SCTCalibWriteTool::stringToInt(const std::string& s) const {
 
 StatusCode
 SCTCalibWriteTool::wrapUpNoisyChannel() {
-   ATH_MSG_DEBUG("wrapUpNoisyChannel: start");
    if (recordAndStream(m_attrListColl.get(), s_defectFolderName, m_defectRecorded).isFailure()) return StatusCode::FAILURE;
-   ATH_MSG_DEBUG("wrapUpNoisyChannel: middle");
    if (registerCondObjectsWithErrMsg(s_defectFolderName, m_tagID4NoisyStrips).isFailure()) return StatusCode::FAILURE;
-   ATH_MSG_DEBUG("wrapUpNoisyChannel: end");
    return StatusCode::SUCCESS;
 }
 
@@ -583,31 +601,27 @@ SCTCalibWriteTool::wrapUpLorentzAngle() {
 
 StatusCode
 SCTCalibWriteTool::streamOutCondObjects(const std::string& foldername) {
-   ATH_MSG_DEBUG("streamOutCondObjects: before connectOutput" << m_streamName);
+   ATH_MSG_DEBUG("streamOutCondObjects start");
    if (m_streamer->connectOutput(m_streamName).isFailure()) {
       ATH_MSG_ERROR("Could not connect stream to output");
       return( StatusCode::FAILURE);
    }
    IAthenaOutputStreamTool::TypeKeyPairs typeKeys{1};
-   ATH_MSG_DEBUG("streamOutCondObjects: before m_readWriteCool");
    if (m_readWriteCool) {
       //ATH_MSG_DEBUG("before CondAttrListCollection " << foldername);
       IAthenaOutputStreamTool::TypeKeyPair attrCollPair{"CondAttrListCollection", foldername};
       typeKeys[0] = attrCollPair;
    }
 
-   ATH_MSG_DEBUG("streamOutCondObjects: before streamObjects");
    if (m_streamer->streamObjects(typeKeys).isFailure()) {
       ATH_MSG_ERROR("Could not stream out AttributeLists");
       return StatusCode::FAILURE;
    }
 
-   ATH_MSG_DEBUG("streamOutCondObjects: before commitOutput");
    if (m_streamer->commitOutput().isFailure()) {
       ATH_MSG_ERROR("Could not commit output stream");
       return StatusCode::FAILURE;
    }
-   ATH_MSG_DEBUG("streamOutCondObjects: before return");
    return StatusCode::SUCCESS;
 }
 
@@ -640,9 +654,7 @@ SCTCalibWriteTool::registerCondObjects(const std::string& foldername,const std::
          if (!m_manualiov) {
 
             SG::ReadHandle<EventInfo> evt{m_eventInfoKey};
-            ATH_MSG_DEBUG("registerCondObjects: before get EventInfo");
             if (not evt.isValid()) {
-               ATH_MSG_ERROR("registerCondObjects: Unable to get the EventInfo");
                return StatusCode::FAILURE;
             }
 
@@ -702,16 +714,13 @@ StatusCode
 SCTCalibWriteTool::recordAndStream(const CondAttrListCollection* pCollection,const std::string& foldername, bool& flag) {
    ATH_MSG_DEBUG("recordAndStream start " << foldername);
    if (m_writeCondObjs) {
-      ATH_MSG_DEBUG("recordAndStream middle ");
       if (detStore()->record(pCollection, foldername).isFailure()) {
          ATH_MSG_ERROR("Could not record "<<foldername);
          return StatusCode::FAILURE;
       }
       flag=true;
-      ATH_MSG_DEBUG("recordAndStream middle 2");
       if (streamOutCondObjectsWithErrMsg(s_defectFolderName).isFailure()) return StatusCode::FAILURE;
    }
-   ATH_MSG_DEBUG("recordAndStream end ");
    return StatusCode::SUCCESS;
 }
 

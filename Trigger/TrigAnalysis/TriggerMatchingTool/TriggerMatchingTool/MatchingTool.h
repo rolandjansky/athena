@@ -13,7 +13,6 @@
 
 #include "TriggerMatchingTool/IMatchingTool.h"
 #include "TriggerMatchingTool/TypeMap.h"
-#include "TriggerMatchingTool/IMatchingTool.h"
 #include "TrigDecisionTool/Combination.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 

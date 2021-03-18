@@ -19,32 +19,28 @@ if __name__ == '__main__':
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
   from AthenaConfiguration.Enums import ProductionStep
   ConfigFlags.Common.ProductionStep = ProductionStep.Simulation
-  
+
   from AthenaConfiguration.TestDefaults import defaultTestFiles
   inputDir = defaultTestFiles.d
   ConfigFlags.Input.Files = defaultTestFiles.EVNT
 
-  ConfigFlags.Detector.GeometryPixel = True
-  ConfigFlags.Detector.GeometrySCT = True
-  ConfigFlags.Detector.GeometryTRT = True
-  ConfigFlags.Detector.SimulateMuon = True
-  ConfigFlags.Detector.SimulateID = True
-  ConfigFlags.Detector.SimulateCalo = True
-  ConfigFlags.Detector.SimulateBpipe = True
-  ConfigFlags.Detector.SimulateFwdRegion = True
-  ConfigFlags.Detector.GeometryLAr = True
-  ConfigFlags.Detector.GeometryTile = True
+  import os
+  if "AthSimulation_DIR" in os.environ:
+    detectors =['Bpipe', 'BCM', 'DBM',  'Pixel', 'SCT', 'TRT', 'LAr', 'Tile', 'CSC', 'MDT', 'RPC', 'TGC'] # FwdRegion geometry not currently included in AthSimulation
+  else:
+    detectors =['Bpipe', 'BCM', 'DBM',  'Pixel', 'SCT', 'TRT', 'LAr', 'Tile', 'CSC', 'MDT', 'RPC', 'TGC', 'FwdRegion']
+
+  # Setup detector flags
+  from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
+  setupDetectorsFromList(ConfigFlags, detectors, toggle_geometry=True)
+
   #turn the forward region off
-  ConfigFlags.Detector.GeometryLucid = False
-  ConfigFlags.Detector.GeometryZDC = False
-  ConfigFlags.Detector.GeometryALFA = False
-  ConfigFlags.Detector.GeometryAFP = False
   ConfigFlags.Sim.WorldRRange = 15000
   ConfigFlags.Sim.WorldZRange = 27000
 
   ConfigFlags.Sim.TwissFileNomReal = "nominal" #so it doesn't crash
 
-  # Finalize 
+  # Finalize
   ConfigFlags.lock()
 
 

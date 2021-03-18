@@ -11,6 +11,7 @@
 #include "xAODPFlow/PFOContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "CaloEvent/CaloClusterCellLinkContainer.h"
+#include "CaloEvent/CaloCellContainer.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODParticleEvent/ParticleContainer.h"
 #include "StoreGate/ThinningHandleKey.h"
@@ -44,6 +45,10 @@ class TauThinningAlg : public AthReentrantAlgorithm
   // tau pt threshold (pt = ptFinalCalib as TauThinning is run after tau reconstruction)
   Gaudi::Property<double> m_minTauPt 
     { this, "MinTauPt", 0.* Gaudi::Units::GeV, "Minimum tau pt" };
+
+  // whether tau vertex correction is applied in tau reconstruction
+  Gaudi::Property<bool> m_doVertexCorrection
+    { this, "VertexCorrection", true, "Tau vertex correction" };
 
   // Name of the stream being thinned
   StringProperty m_streamName
@@ -92,6 +97,14 @@ class TauThinningAlg : public AthReentrantAlgorithm
   // Tau secondary vertex container to thin
   SG::ThinningHandleKey<xAOD::VertexContainer> m_secondaryVertices
     { this, "TauSecondaryVertices", "TauSecondaryVertices", "Tau secondary vertex container to thin" };
+
+  // Cell container to thin
+  SG::ThinningHandleKey<CaloCellContainer> m_cells
+    { this, "Cells", "AllCalo", "Cell container to thin" };
+
+  // Tau cluster cell link container to thin
+  SG::ThinningHandleKey<CaloClusterCellLinkContainer> m_tauCellLinks
+    { this, "TauCellLinks", "CaloCalTopoClusters_links", "Tau cluster cell link container to thin" };
 
 };
 

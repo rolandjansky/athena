@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -194,19 +194,17 @@ StatusCode LArPhysWaveShifter::stop() {
 
   // Get the physics waveforms from the detector store 
   const LArPhysWaveContainer* larPhysWaveContainerOld;  
-  std::vector<std::string>::const_iterator key_it = m_keylist.begin();
-  std::vector<std::string>::const_iterator key_it_e = m_keylist.end();
   
   int nchannel = 0 ;
-  
-  for (;key_it!=key_it_e;key_it++) { // Loop over all containers that are to be processed
 
-    sc= detStore()->retrieve(larPhysWaveContainerOld,*key_it);
+  for (const std::string& key : m_keylist) { // Loop over all containers that are to be processed
+
+    sc= detStore()->retrieve(larPhysWaveContainerOld,key);
     if (sc.isFailure()) {
-      ATH_MSG_INFO( "LArPhysWaveContainer (key=" << *key_it << ") not found in StoreGate" );
+      ATH_MSG_INFO( "LArPhysWaveContainer (key=" << key << ") not found in StoreGate" );
       continue ;
     }
-    ATH_MSG_INFO( "Processing LArPhysWaveContainer from StoreGate, key = " << *key_it );
+    ATH_MSG_INFO( "Processing LArPhysWaveContainer from StoreGate, key = " << key );
 
     // loop over physwave in 'old' container
     for ( unsigned gain = CaloGain::LARHIGHGAIN ; gain < CaloGain::LARNGAIN; gain++ ) { // Loop over all gains
@@ -216,7 +214,7 @@ StatusCode LArPhysWaveShifter::stop() {
         PhysWaveIt wave_it_e = larPhysWaveContainerOld->end(gain);
 
         if ( wave_it ==  wave_it_e ) {
-	  ATH_MSG_INFO( "LArPhysWaveContainer (key = " << *key_it << ") has no wave with gain = " << gain );
+	  ATH_MSG_INFO( "LArPhysWaveContainer (key = " << key << ") has no wave with gain = " << gain );
 	  continue; // skip to next gain
 	}
 
@@ -331,8 +329,8 @@ StatusCode LArPhysWaveShifter::ComputeTimeShiftByFEB(unsigned mode=2)
   m_larFEBTstart->setDefaultReturnValue(999);
   if (mode==3) {
     std::vector<HWIdentifier>::const_iterator it   = m_onlineHelper->feb_begin();
-    std::vector<HWIdentifier>::const_iterator it_e = m_onlineHelper->feb_end();    
-    for (;it!=it_e;it++)       
+    std::vector<HWIdentifier>::const_iterator it_e = m_onlineHelper->feb_end();
+    for (;it!=it_e;++it)       
       m_larFEBTstart->setTimeOffset(*it,0); 
   }
 
@@ -342,22 +340,20 @@ StatusCode LArPhysWaveShifter::ComputeTimeShiftByFEB(unsigned mode=2)
 
   // Get the physics waveforms from the detector store 
   const LArPhysWaveContainer* larPhysWaveContainerOld;  
-  std::vector<std::string>::const_iterator key_it = m_keylist.begin();
-  std::vector<std::string>::const_iterator key_it_e = m_keylist.end();
-  
-  for (;key_it!=key_it_e;key_it++) { // Loop over all containers that are to be processed
 
-    sc=detStore()->retrieve(larPhysWaveContainerOld,*key_it);
+  for (const std::string& key : m_keylist) { // Loop over all containers that are to be processed
+
+    sc=detStore()->retrieve(larPhysWaveContainerOld,key);
     if (sc.isFailure()) {
-      ATH_MSG_INFO( "LArPhysWaveContainer (key=" << *key_it << ") not found in StoreGate" );
+      ATH_MSG_INFO( "LArPhysWaveContainer (key=" << key << ") not found in StoreGate" );
       continue ;
     }
     if ( larPhysWaveContainerOld == NULL ) {
-      ATH_MSG_INFO( "LArPhysWaveContainer (key=" << *key_it << ") is empty" );
+      ATH_MSG_INFO( "LArPhysWaveContainer (key=" << key << ") is empty" );
       continue ;
     }
     
-    ATH_MSG_INFO( "ComputeTimeShiftByFEB(): processing LArPhysWaveContainer from StoreGate, key = " << *key_it );
+    ATH_MSG_INFO( "ComputeTimeShiftByFEB(): processing LArPhysWaveContainer from StoreGate, key = " << key );
 
     for ( unsigned gain = CaloGain::LARHIGHGAIN ; gain < CaloGain::LARNGAIN; gain++ ) { // Loop over all gains
         
@@ -365,7 +361,7 @@ StatusCode LArPhysWaveShifter::ComputeTimeShiftByFEB(unsigned mode=2)
         PhysWaveIt wave_it_e = larPhysWaveContainerOld->end(gain);
 
         if ( wave_it ==  wave_it_e ) {
-	  ATH_MSG_INFO( "ComputeTimeShiftByFEB(): LArPhysWaveContainer (key = " << *key_it << ") has no wave with gain = " << gain );
+	  ATH_MSG_INFO( "ComputeTimeShiftByFEB(): LArPhysWaveContainer (key = " << key << ") has no wave with gain = " << gain );
 	  continue; // skip to next gain
 	}
 	
@@ -418,7 +414,7 @@ StatusCode LArPhysWaveShifter::ComputeTimeShiftByFEB(unsigned mode=2)
     std::vector<HWIdentifier>::const_iterator it   = m_onlineHelper->feb_begin();
     std::vector<HWIdentifier>::const_iterator it_e = m_onlineHelper->feb_end();
     unsigned int nFeb=0;
-    for (;it!=it_e;it++) {
+    for (;it!=it_e;++it) {
       if ( (int)m_larFEBTstart->TimeOffset(*it) != 999 ) {
         nFeb++;
 	if ( mode==3 && nChanInFEB.TimeOffset(*it) ) { // average time offset
@@ -440,7 +436,7 @@ StatusCode LArPhysWaveShifter::ComputeTimeShiftByFEB(unsigned mode=2)
       outfile << "FakeLArTimeOffset.FEBids          = [ " ;
       it = m_onlineHelper->feb_begin();
       unsigned i=0; 
-      for (;it!=it_e;it++) {
+      for (;it!=it_e;++it) {
         outfile << "0x" << std::hex << (*it).get_compact() << std::dec ;
         i++ ;
         if ( i<nFeb ) outfile << ", " ; 
@@ -449,7 +445,7 @@ StatusCode LArPhysWaveShifter::ComputeTimeShiftByFEB(unsigned mode=2)
       outfile << "FakeLArTimeOffset.FEbTimeOffsets  = [ " ;
       it = m_onlineHelper->feb_begin();
       i = 0 ;
-      for (;it!=it_e;it++) {
+      for (;it!=it_e;++it) {
         outfile << (int)m_larFEBTstart->TimeOffset(*it) ; 
         i++ ;
         if ( i<nFeb ) outfile << ", " ; 

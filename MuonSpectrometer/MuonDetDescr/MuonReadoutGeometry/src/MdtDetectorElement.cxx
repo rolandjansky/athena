@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -8,9 +8,19 @@
  ***************************************************************************/
 
 #include "MuonReadoutGeometry/MdtDetectorElement.h"
+
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/getMessageSvc.h"
+#include <GaudiKernel/IMessageSvc.h>
+#include "MuonIdHelpers/MdtIdHelper.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "TrkDistortedSurfaces/SaggedLineSurface.h"
+#include "TrkSurfaces/CylinderBounds.h"
+
+#include <string>
+
+class GeoVFullPhysVol;
 
 namespace MuonGM {
 

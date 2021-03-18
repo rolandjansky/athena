@@ -25,8 +25,9 @@ from ISF_FatrasServices.ISF_FatrasConfig import (
 
 
 def DefaultParticleKillerSelectorCfg(flags, name="ISF_DefaultParticleKillerSelector", **kwargs):
-    acc = ParticleKillerSvcCfg(flags)
+    acc = ComponentAccumulator()
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(ParticleKillerSvcCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_ParticleKillerSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.ParticleKiller)
     acc.setPrivateTools(CompFactory.ISF.DefaultSimSelector(name, **kwargs))
@@ -34,9 +35,10 @@ def DefaultParticleKillerSelectorCfg(flags, name="ISF_DefaultParticleKillerSelec
 
 
 def PileupParticleKillerSelectorCfg(flags, name="ISF_PileupParticleKillerSelector", **kwargs):
-    acc = ParticleKillerSvcCfg(flags)
+    acc = ComponentAccumulator()
     kwargs.setdefault("PileupBCID", [1])
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(ParticleKillerSvcCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_ParticleKillerSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.ParticleKiller)
     acc.setPrivateTools(CompFactory.ISF.KinematicPileupSimSelector(name, **kwargs))
@@ -44,8 +46,9 @@ def PileupParticleKillerSelectorCfg(flags, name="ISF_PileupParticleKillerSelecto
 
 
 def DefaultGeant4SelectorCfg(flags, name="ISF_DefaultGeant4Selector", **kwargs):
-    acc = Geant4SimCfg(flags)
+    acc = ComponentAccumulator()
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(Geant4SimCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISFG4SimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Geant4)
     acc.setPrivateTools(CompFactory.ISF.DefaultSimSelector(name, **kwargs))
@@ -53,8 +56,9 @@ def DefaultGeant4SelectorCfg(flags, name="ISF_DefaultGeant4Selector", **kwargs):
 
 
 def DefaultAFIIGeant4SelectorCfg(flags, name="ISF_DefaultAFIIGeant4Selector", **kwargs):
-    acc = AFIIGeant4SimCfg(flags)
+    acc = ComponentAccumulator()
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(AFIIGeant4SimCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_AFIIGeant4SimSvc"))
     tool = acc.popToolsAndMerge(DefaultGeant4SelectorCfg(flags, name, **kwargs))
     acc.setPrivateTools(tool)
@@ -62,8 +66,9 @@ def DefaultAFIIGeant4SelectorCfg(flags, name="ISF_DefaultAFIIGeant4Selector", **
 
 
 def DefaultLongLivedGeant4SelectorCfg(flags, name="ISF_DefaultLongLivedGeant4Selector", **kwargs):
-    acc = LongLivedGeant4SimCfg(flags)
+    acc = ComponentAccumulator()
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(LongLivedGeant4SimCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_LongLivedGeant4SimSvc"))
     tool = acc.popToolsAndMerge(DefaultGeant4SelectorCfg(flags, name, **kwargs))
     acc.setPrivateTools(tool)
@@ -71,8 +76,9 @@ def DefaultLongLivedGeant4SelectorCfg(flags, name="ISF_DefaultLongLivedGeant4Sel
 
 
 def DefaultAFII_QS_Geant4SelectorCfg(flags, name="ISF_DefaultAFII_QS_Geant4Selector", **kwargs):
-    acc = AFII_QS_Geant4SimCfg(flags)
+    acc = ComponentAccumulator()
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(AFII_QS_Geant4SimCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_AFII_QS_Geant4SimSvc"))
     tool = acc.popToolsAndMerge(DefaultGeant4SelectorCfg(flags, name, **kwargs))
     acc.setPrivateTools(tool)
@@ -90,8 +96,9 @@ def FullGeant4SelectorCfg(flags, name="ISF_FullGeant4Selector", **kwargs):
 
 
 def PassBackGeant4SelectorCfg(flags, name="ISF_PassBackGeant4Selector", **kwargs):
-    acc = PassBackGeant4SimCfg(flags)
+    acc = ComponentAccumulator()
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(PassBackGeant4SimCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_PassBackGeant4SimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Geant4)
     acc.setPrivateTools(CompFactory.ISF.DefaultSimSelector(name, **kwargs))
@@ -99,8 +106,9 @@ def PassBackGeant4SelectorCfg(flags, name="ISF_PassBackGeant4Selector", **kwargs
 
 
 def DefaultFastCaloSimSelectorCfg(flags, name="ISF_DefaultFastCaloSimSelector", **kwargs):
-    acc = FastCaloSimSvcCfg(flags)
+    acc = ComponentAccumulator()
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(FastCaloSimSvcCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_FastCaloSimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.FastCaloSim)
     acc.setPrivateTools(CompFactory.ISF.DefaultSimSelector(name, **kwargs))
@@ -108,8 +116,9 @@ def DefaultFastCaloSimSelectorCfg(flags, name="ISF_DefaultFastCaloSimSelector", 
 
 
 def DefaultLegacyAFIIFastCaloSimSelectorCfg(flags, name="ISF_DefaultLegacyAFIIFastCaloSimSelector", **kwargs):
-    acc = LegacyAFIIFastCaloSimSvcCfg(flags)
+    acc = ComponentAccumulator()
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(LegacyAFIIFastCaloSimSvcCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_LegacyAFIIFastCaloSimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.FastCaloSim)
     acc.setPrivateTools(CompFactory.ISF.DefaultSimSelector(name, **kwargs))
@@ -117,8 +126,9 @@ def DefaultLegacyAFIIFastCaloSimSelectorCfg(flags, name="ISF_DefaultLegacyAFIIFa
 
 
 def DefaultFastCaloSimV2SelectorCfg(flags, name="ISF_DefaultFastCaloSimV2Selector", **kwargs):
-    acc = FastCaloSimV2SvcCfg(flags)
+    acc = ComponentAccumulator()
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(FastCaloSimV2SvcCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_FastCaloSimSvcV2"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.FastCaloSimV2)
     acc.setPrivateTools(CompFactory.ISF.DefaultSimSelector(name, **kwargs))
@@ -126,8 +136,9 @@ def DefaultFastCaloSimV2SelectorCfg(flags, name="ISF_DefaultFastCaloSimV2Selecto
 
 
 def DefaultDNNCaloSimSelectorCfg(flags, name="ISF_DefaultDNNCaloSimSelector", **kwargs):
-    acc = DNNCaloSimSvcCfg(flags)
+    acc = ComponentAccumulator()
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(DNNCaloSimSvcCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_DNNCaloSimSvc"))
     acc.setPrivateTools(CompFactory.ISF.DefaultSimSelector(name, **kwargs))
     return acc
@@ -135,8 +146,8 @@ def DefaultDNNCaloSimSelectorCfg(flags, name="ISF_DefaultDNNCaloSimSelector", **
 
 def FastHitConvAlgFastCaloSimSelectorCfg(flags, name="ISF_FastHitConvAlgFastCaloSimSelector", **kwargs):
     acc = ComponentAccumulator()
-    acc.merge(FastHitConvAlgFastCaloSimSvcCfg(flags))
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(FastHitConvAlgFastCaloSimSvcCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_FastHitConvAlgFastCaloSimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.FastCaloSim)
     acc.setPrivateTools(CompFactory.ISF.DefaultSimSelector(name, **kwargs))
@@ -144,8 +155,9 @@ def FastHitConvAlgFastCaloSimSelectorCfg(flags, name="ISF_FastHitConvAlgFastCalo
 
 
 def DefaultFatrasSelectorCfg(flags, name="ISF_DefaultFatrasSelector", **kwargs):
-    acc = fatrasSimServiceIDCfg(flags)
+    acc = ComponentAccumulator()
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(fatrasSimServiceIDCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_FatrasSimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Fatras)
     acc.setPrivateTools(CompFactory.ISF.DefaultSimSelector(name, **kwargs))
@@ -154,8 +166,8 @@ def DefaultFatrasSelectorCfg(flags, name="ISF_DefaultFatrasSelector", **kwargs):
 
 def DefaultFatrasNewExtrapolationSelectorCfg(flags, name="ISF_DefaultFatrasNewExtrapolationSelector", **kwargs):
     acc = ComponentAccumulator()
-    acc.merge(fatrasNewExtrapolationSimServiceIDCfg(flags))
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(fatrasNewExtrapolationSimServiceIDCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_FatrasNewExtrapolationSimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Fatras)
     acc.setPrivateTools(CompFactory.ISF.DefaultSimSelector(name, **kwargs))
@@ -180,9 +192,9 @@ def PileupSimSelectorCfg(flags, name="ISF_PileupSimSelector", **kwargs):
 
 def FatrasPileupSelectorCfg(flags, name="ISF_FatrasPileupSelector", **kwargs):
     acc = ComponentAccumulator()
-    acc.merge(fatrasPileupSimServiceIDCfg(flags))
     kwargs.setdefault("PileupBCID", [1])
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(fatrasPileupSimServiceIDCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_FatrasPileupSimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.FatrasPileup)
     tool = acc.popToolsAndMerge(PileupSimSelectorCfg(flags, name, **kwargs))
@@ -195,9 +207,10 @@ def FatrasPileupSelectorCfg(flags, name="ISF_FatrasPileupSelector", **kwargs):
 
 
 def FastCaloSimPileupSelectorCfg(flags, name="ISF_FastCaloSimPileupSelector", **kwargs):
-    acc = FastCaloSimPileupSvcCfg(flags)
+    acc = ComponentAccumulator()
     kwargs.setdefault("PileupBCID"  , flags.Sim.FastChain.BCID)
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(FastCaloSimPileupSvcCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_FastCaloSimPileupSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.FastCaloSimPileup)
     tool = acc.popToolsAndMerge(PileupSimSelectorCfg(flags, name, **kwargs))
@@ -206,9 +219,10 @@ def FastCaloSimPileupSelectorCfg(flags, name="ISF_FastCaloSimPileupSelector", **
 
 
 def FastCaloSimPileupOTSelectorCfg(flags, name="ISF_FastCaloSimPileupOTSelector", **kwargs):
-    acc = FastCaloSimPileupOTSvcCfg(flags)
+    acc = ComponentAccumulator()
     kwargs.setdefault("PileupBCID", flags.Sim.FastChain.BCID)
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(FastCaloSimPileupOTSvcCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_FastCaloSimPileupOTSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.FastCaloSimPileup)
     tool = acc.popToolsAndMerge(PileupSimSelectorCfg(flags, name, **kwargs))
@@ -218,9 +232,10 @@ def FastCaloSimPileupOTSelectorCfg(flags, name="ISF_FastCaloSimPileupOTSelector"
 
 # KinematicSimSelector Configurations
 def ElectronGeant4SelectorCfg(flags, name="ISF_ElectronGeant4Selector", **kwargs):
-    acc = Geant4SimCfg(flags)
+    acc = ComponentAccumulator()
     kwargs.setdefault("ParticlePDG", 11)
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(Geant4SimCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISFG4SimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Geant4)
     acc.setPrivateTools(CompFactory.ISF.KinematicSimSelector(name, **kwargs))
@@ -228,9 +243,10 @@ def ElectronGeant4SelectorCfg(flags, name="ISF_ElectronGeant4Selector", **kwargs
 
 
 def NeutralGeant4SelectorCfg(flags, name="ISF_NeutralGeant4Selector", **kwargs):
-    acc = Geant4SimCfg(flags)
+    acc = ComponentAccumulator()
     kwargs.setdefault("Charge", 0)
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(Geant4SimCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISFG4SimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Geant4)
     acc.setPrivateTools(CompFactory.ISF.KinematicSimSelector(name, **kwargs))
@@ -238,10 +254,11 @@ def NeutralGeant4SelectorCfg(flags, name="ISF_NeutralGeant4Selector", **kwargs):
 
 
 def ProtonAFIIGeant4SelectorCfg(flags, name="ISF_ProtonAFIIGeant4Selector", **kwargs):
-    acc = AFIIGeant4SimCfg(flags)
+    acc = ComponentAccumulator()
     kwargs.setdefault("MaxMom", 750)
     kwargs.setdefault("ParticlePDG", 2212)
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(AFIIGeant4SimCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_AFIIGeant4SimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Geant4)
     acc.setPrivateTools(CompFactory.ISF.KinematicSimSelector(name, **kwargs))
@@ -249,8 +266,9 @@ def ProtonAFIIGeant4SelectorCfg(flags, name="ISF_ProtonAFIIGeant4Selector", **kw
 
 
 def ProtonAFII_QS_Geant4SelectorCfg(flags, name="ISF_ProtonAFII_QS_Geant4Selector", **kwargs):
-    acc = AFII_QS_Geant4SimCfg(flags)
+    acc = ComponentAccumulator()
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(AFII_QS_Geant4SimCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_AFII_QS_Geant4SimSvc"))
     tool = acc.popToolsAndMerge(ProtonAFIIGeant4SelectorCfg(flags, name, **kwargs))
     acc.setPrivateTools(tool)
@@ -258,10 +276,11 @@ def ProtonAFII_QS_Geant4SelectorCfg(flags, name="ISF_ProtonAFII_QS_Geant4Selecto
 
 
 def PionAFIIGeant4SelectorCfg(flags, name="ISF_PionAFIIGeant4Selector", **kwargs):
-    acc = AFIIGeant4SimCfg(flags)
+    acc = ComponentAccumulator()
     kwargs.setdefault("MaxMom", 200)
     kwargs.setdefault("ParticlePDG", 211)
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(AFIIGeant4SimCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_AFIIGeant4SimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Geant4)
     acc.setPrivateTools(CompFactory.ISF.KinematicSimSelector(name, **kwargs))
@@ -269,10 +288,11 @@ def PionAFIIGeant4SelectorCfg(flags, name="ISF_PionAFIIGeant4Selector", **kwargs
 
 
 def PionG4FastCaloGeant4Selector(flags, name="ISF_PionG4FastCaloGeant4Selector", **kwargs):
-    acc = AFIIGeant4SimCfg(flags)
+    acc = ComponentAccumulator()
     kwargs.setdefault("MaxEkin", 200)
     kwargs.setdefault("ParticlePDG", 211)
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(AFIIGeant4SimCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_AFIIGeant4SimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Geant4)
     acc.setPrivateTools(CompFactory.ISF.KinematicSimSelector(name, **kwargs))
@@ -280,10 +300,11 @@ def PionG4FastCaloGeant4Selector(flags, name="ISF_PionG4FastCaloGeant4Selector",
 
 
 def ProtonG4FastCaloGeant4Selector(flags, name="ISF_ProtonG4FastCaloGeant4Selector", **kwargs):
-    acc = AFIIGeant4SimCfg(flags)
+    acc = ComponentAccumulator()
     kwargs.setdefault("MaxEkin", 400)
     kwargs.setdefault("ParticlePDG", 2212)
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(AFIIGeant4SimCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_AFIIGeant4SimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Geant4)
     acc.setPrivateTools(CompFactory.ISF.KinematicSimSelector(name, **kwargs))
@@ -291,10 +312,11 @@ def ProtonG4FastCaloGeant4Selector(flags, name="ISF_ProtonG4FastCaloGeant4Select
 
 
 def NeutronG4FastCaloGeant4Selector(flags, name="ISF_NeutronG4FastCaloGeant4Selector", **kwargs):
-    acc = AFIIGeant4SimCfg(flags)
+    acc = ComponentAccumulator()
     kwargs.setdefault("MaxEkin", 400)
     kwargs.setdefault("ParticlePDG", 2112)
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(AFIIGeant4SimCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_AFIIGeant4SimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Geant4)
     acc.setPrivateTools(CompFactory.ISF.KinematicSimSelector(name, **kwargs))
@@ -302,10 +324,11 @@ def NeutronG4FastCaloGeant4Selector(flags, name="ISF_NeutronG4FastCaloGeant4Sele
 
 
 def ChargedKaonG4FastCaloGeant4Selector(flags, name="ISF_ChargedKaonG4FastCaloGeant4Selector", **kwargs):
-    acc = AFIIGeant4SimCfg(flags)
+    acc = ComponentAccumulator()
     kwargs.setdefault("MaxEkin", 400)
     kwargs.setdefault("ParticlePDG", 321)
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(AFIIGeant4SimCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_AFIIGeant4SimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Geant4)
     acc.setPrivateTools(CompFactory.ISF.KinematicSimSelector(name, **kwargs))
@@ -313,10 +336,11 @@ def ChargedKaonG4FastCaloGeant4Selector(flags, name="ISF_ChargedKaonG4FastCaloGe
 
 
 def KLongG4FastCaloGeant4Selector(flags, name="ISF_KLongG4FastCaloGeant4Selector", **kwargs):
-    acc = AFIIGeant4SimCfg(flags)
+    acc = ComponentAccumulator()
     kwargs.setdefault("MaxEkin", 400)
     kwargs.setdefault("ParticlePDG", 130)
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(AFIIGeant4SimCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_AFIIGeant4SimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Geant4)
     acc.setPrivateTools(CompFactory.ISF.KinematicSimSelector(name, **kwargs))
@@ -324,8 +348,9 @@ def KLongG4FastCaloGeant4Selector(flags, name="ISF_KLongG4FastCaloGeant4Selector
 
 
 def PionAFII_QS_Geant4SelectorCfg(flags, name="ISF_PionAFII_QS_Geant4Selector", **kwargs):
-    acc = AFII_QS_Geant4SimCfg(flags)
+    acc = ComponentAccumulator()
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(AFII_QS_Geant4SimCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_AFII_QS_Geant4SimSvc"))
     tool = acc.popToolsAndMerge(PionAFIIGeant4SelectorCfg(flags, name, **kwargs))
     acc.setPrivateTools(tool)
@@ -333,10 +358,11 @@ def PionAFII_QS_Geant4SelectorCfg(flags, name="ISF_PionAFII_QS_Geant4Selector", 
 
 
 def ChargedKaonAFIIGeant4SelectorCfg(flags, name="ISF_ChargedKaonAFIIGeant4Selector", **kwargs):
-    acc = AFIIGeant4SimCfg(flags)
+    acc = ComponentAccumulator()
     kwargs.setdefault("MaxMom", 750)
     kwargs.setdefault("ParticlePDG", 321)
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(AFIIGeant4SimCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_AFIIGeant4SimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Geant4)
     acc.setPrivateTools(CompFactory.ISF.KinematicSimSelector(name, **kwargs))
@@ -344,8 +370,9 @@ def ChargedKaonAFIIGeant4SelectorCfg(flags, name="ISF_ChargedKaonAFIIGeant4Selec
 
 
 def ChargedKaonAFII_QS_Geant4SelectorCfg(flags, name="ISF_ChargedKaonAFII_QS_Geant4Selector", **kwargs):
-    acc = AFII_QS_Geant4SimCfg(flags)
+    acc = ComponentAccumulator()
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(AFII_QS_Geant4SimCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_AFII_QS_Geant4SimSvc"))
     tool = acc.popToolsAndMerge(ChargedKaonAFIIGeant4SelectorCfg(flags, name, **kwargs))
     acc.setPrivateTools(tool)
@@ -353,10 +380,11 @@ def ChargedKaonAFII_QS_Geant4SelectorCfg(flags, name="ISF_ChargedKaonAFII_QS_Gea
 
 
 def KLongAFIIGeant4SelectorCfg(flags, name="ISF_KLongAFIIGeant4Selector", **kwargs):
-    acc = AFIIGeant4SimCfg(flags)
+    acc = ComponentAccumulator()
     kwargs.setdefault("MaxMom", 750)
     kwargs.setdefault("ParticlePDG", 130)
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(AFIIGeant4SimCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_AFIIGeant4SimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Geant4)
     acc.setPrivateTools(CompFactory.ISF.KinematicSimSelector(name, **kwargs))
@@ -364,8 +392,9 @@ def KLongAFIIGeant4SelectorCfg(flags, name="ISF_KLongAFIIGeant4Selector", **kwar
 
 
 def KLongAFII_QS_Geant4SelectorCfg(flags, name="ISF_KLongAFII_QS_Geant4Selector", **kwargs):
-    acc = AFII_QS_Geant4SimCfg(flags)
+    acc = ComponentAccumulator()
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(AFII_QS_Geant4SimCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_AFII_QS_Geant4SimSvc"))
     tool = acc.popToolsAndMerge(KLongAFIIGeant4SelectorCfg(flags, name, **kwargs))
     acc.setPrivateTools(tool)
@@ -380,8 +409,9 @@ def MuonSelectorCfg(flags, name="ISF_MuonSelector", **kwargs):
 
 
 def MuonGeant4SelectorCfg(flags, name="ISF_MuonGeant4Selector", **kwargs):
-    acc = Geant4SimCfg(flags)
+    acc = ComponentAccumulator()
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(Geant4SimCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISFG4SimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Geant4)
     tool = acc.popToolsAndMerge(MuonSelectorCfg(flags, name, **kwargs))
@@ -390,8 +420,9 @@ def MuonGeant4SelectorCfg(flags, name="ISF_MuonGeant4Selector", **kwargs):
 
 
 def MuonAFIIGeant4SelectorCfg(flags, name="ISF_MuonAFIIGeant4Selector", **kwargs):
-    acc = AFIIGeant4SimCfg(flags)
+    acc = ComponentAccumulator()
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(AFIIGeant4SimCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_AFIIGeant4SimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Geant4)
     tool = acc.popToolsAndMerge(MuonGeant4SelectorCfg(flags, name, **kwargs))
@@ -400,8 +431,9 @@ def MuonAFIIGeant4SelectorCfg(flags, name="ISF_MuonAFIIGeant4Selector", **kwargs
 
 
 def MuonAFII_QS_Geant4SelectorCfg(flags, name="ISF_MuonAFII_QS_Geant4Selector", **kwargs):
-    acc = AFII_QS_Geant4SimCfg(flags)
+    acc = ComponentAccumulator()
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(AFII_QS_Geant4SimCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_AFII_QS_Geant4SimSvc"))
     tool = acc.popToolsAndMerge(MuonGeant4SelectorCfg(flags, name, **kwargs))
     acc.setPrivateTools(tool)
@@ -409,8 +441,9 @@ def MuonAFII_QS_Geant4SelectorCfg(flags, name="ISF_MuonAFII_QS_Geant4Selector", 
 
 
 def MuonFatrasSelectorCfg(flags, name="ISF_MuonFatrasSelector", **kwargs):
-    acc = fatrasSimServiceIDCfg(flags)
+    acc = ComponentAccumulator()
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(fatrasSimServiceIDCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_FatrasSimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Fatras)
     tool = acc.popToolsAndMerge(MuonSelectorCfg(flags, name, **kwargs)) 
@@ -420,8 +453,8 @@ def MuonFatrasSelectorCfg(flags, name="ISF_MuonFatrasSelector", **kwargs):
 
 def MuonFatrasPileupSelectorCfg(flags, name="ISF_MuonFatrasPileupSelector", **kwargs):
     acc = ComponentAccumulator()
-    acc.merge(fatrasPileupSimServiceIDCfg(flags))
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(fatrasPileupSimServiceIDCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_FatrasPileupSimSvc"))
     kwargs.setdefault("PileupBCID", [1])
     kwargs.setdefault("ParticlePDG", 13)
@@ -432,8 +465,9 @@ def MuonFatrasPileupSelectorCfg(flags, name="ISF_MuonFatrasPileupSelector", **kw
 
 
 def WithinEta5FastCaloSimSelectorCfg(flags, name="ISF_WithinEta5FastCaloSimSelector", **kwargs):
-    acc = FastCaloSimSvcCfg(flags)
+    acc = ComponentAccumulator()
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(FastCaloSimSvcCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_FastCaloSimSvc"))
     kwargs.setdefault("MinPosEta", -5.0)
     kwargs.setdefault("MaxPosEta",  5.0)
@@ -443,8 +477,9 @@ def WithinEta5FastCaloSimSelectorCfg(flags, name="ISF_WithinEta5FastCaloSimSelec
 
 
 def EtaGreater5ParticleKillerSimSelectorCfg(flags, name="ISF_EtaGreater5ParticleKillerSimSelector", **kwargs):
-    acc = ParticleKillerSvcCfg(flags)
+    acc = ComponentAccumulator()
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(ParticleKillerSvcCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_ParticleKillerSvc"))
     kwargs.setdefault("MinPosEta", -5.0)
     kwargs.setdefault("MaxPosEta",  5.0)
@@ -455,8 +490,9 @@ def EtaGreater5ParticleKillerSimSelectorCfg(flags, name="ISF_EtaGreater5Particle
 
 
 def EtaGreater5PileupParticleKillerSimSelectorCfg(flags, name="ISF_EtaGreater5PileupParticleKillerSimSelector", **kwargs):
-    acc = ParticleKillerSvcCfg(flags)
+    acc = ComponentAccumulator()
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(ParticleKillerSvcCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_ParticleKillerSvc"))
     kwargs.setdefault("MinPosEta", -5.0)
     kwargs.setdefault("MaxPosEta",  5.0)
@@ -478,8 +514,9 @@ def PhotonConeSelectorCfg(flags, name="ISF_PhotonConeSelector", **kwargs):
 
 
 def PhotonConeFatrasSelectorCfg(flags, name="ISF_PhotonConeFatrasSelector", **kwargs):
-    acc = fatrasSimServiceIDCfg(flags)
+    acc = ComponentAccumulator()
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(fatrasSimServiceIDCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_FatrasSimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Fatras)
     tool = acc.popToolsAndMerge(PhotonConeSelectorCfg(flags, name, **kwargs))
@@ -488,8 +525,9 @@ def PhotonConeFatrasSelectorCfg(flags, name="ISF_PhotonConeFatrasSelector", **kw
 
 
 def PhotonConeGeant4SelectorCfg(flags, name="ISF_PhotonConeGeant4Selector", **kwargs):
-    acc = Geant4SimCfg(flags)
+    acc = ComponentAccumulator()
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(Geant4SimCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISFG4SimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Geant4)
     tool = acc.popToolsAndMerge(PhotonConeSelectorCfg(flags, name, **kwargs))
@@ -512,8 +550,9 @@ def HiggsLeptonsConeSimSelectorCfg(flags, name="ISF_HiggsLeptonsConeSimSelector"
 
 
 def HiggsLeptonsConeGeant4SelectorCfg(flags, name="ISF_HiggsLeptonsConeGeant4Selector", **kwargs):
-    acc = Geant4SimCfg(flags)
+    acc = ComponentAccumulator()
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(Geant4SimCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISFG4SimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Geant4)
     tool = acc.popToolsAndMerge(HiggsLeptonsConeSimSelectorCfg(flags, name, **kwargs))
@@ -535,8 +574,9 @@ def HiggsLeptonsConeGeant4CaloSelectorCfg(flags, name="ISF_HiggsLeptonsConeGeant
 
 
 def WLeptonsConeGeant4SelectorCfg(flags, name="ISF_WLeptonsConeGeant4Selector", **kwargs):
-    acc = Geant4SimCfg(flags)
+    acc = ComponentAccumulator()
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(Geant4SimCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISFG4SimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Geant4)
     kwargs.setdefault("ConeCreatorMinPt", 0.)
@@ -554,8 +594,9 @@ def WLeptonsConeGeant4SelectorCfg(flags, name="ISF_WLeptonsConeGeant4Selector", 
 def ZLeptonsDirectionConeGeant4SelectorCfg(flags, name="ISF_ZLeptonsDirectionConeGeant4Selector", **kwargs):
     # this selector picks all particles with a mometum direction
     # within DeltaR<ConeSize relative to the Z decay lepton directions
-    acc = Geant4SimCfg(flags)
+    acc = ComponentAccumulator()
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(Geant4SimCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISFG4SimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Geant4)
     kwargs.setdefault("ConeCreatorMinPt", 0.)
@@ -578,8 +619,9 @@ def ZLeptonsPositionConeGeant4SelectorCfg(flags, name="ISF_ZLeptonsPositionConeG
 
 
 def JPsiLeptonsConeGeant4SelectorCfg(flags, name="ISF_JPsiLeptonsConeGeant4Selector", **kwargs):
-    acc = Geant4SimCfg(flags)
+    acc = ComponentAccumulator()
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(Geant4SimCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISFG4SimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Geant4)
     kwargs.setdefault("ConeCreatorMinPt", 0.)
@@ -611,8 +653,9 @@ def BHadronProductsSimSelectorCfg(flags, name="ISF_BHadronProductsSimSelector", 
 
 
 def BHadronProductsGeant4SelectorCfg(flags, name="ISF_BHadronProductsGeant4Selector", **kwargs):
-    acc = Geant4SimCfg(flags)
+    acc = ComponentAccumulator()
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(Geant4SimCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISFG4SimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Geant4)
     tool = acc.popToolsAndMerge(BHadronProductsSimSelectorCfg(flags, name, **kwargs))
@@ -621,8 +664,9 @@ def BHadronProductsGeant4SelectorCfg(flags, name="ISF_BHadronProductsGeant4Selec
 
 
 def BHadronProductsFatrasSelectorCfg(flags, name="ISF_BHadronProductsFatrasSelector", **kwargs):
-    acc = fatrasSimServiceIDCfg(flags)
+    acc = ComponentAccumulator()
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(fatrasSimServiceIDCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISF_FatrasSimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Fatras)
     tool = acc.popToolsAndMerge(BHadronProductsSimSelectorCfg(flags, name, **kwargs))
@@ -641,8 +685,9 @@ def TauProductsSimSelectorCfg(flags, name="ISF_TauProductsSimSelector", **kwargs
 
 
 def TauProductsGeant4SelectorCfg(flags, name="ISF_TauProductsGeant4Selector", **kwargs):
-    acc = Geant4SimCfg(flags)
+    acc = ComponentAccumulator()
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(Geant4SimCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISFG4SimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Geant4)
     tool = acc.popToolsAndMerge(TauProductsSimSelectorCfg(flags, name, **kwargs))
@@ -661,8 +706,9 @@ def ZProductsSimSelectorCfg(flags, name="ISF_ZProductsSimSelector", **kwargs):
 
 
 def ZProductsGeant4SelectorCfg(flags, name="ISF_ZProductsGeant4Selector", **kwargs):
-    acc = Geant4SimCfg(flags)
+    acc = ComponentAccumulator()
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(Geant4SimCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISFG4SimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Geant4)
     tool = acc.popToolsAndMerge(ZProductsSimSelectorCfg(flags, name, **kwargs))
@@ -672,9 +718,10 @@ def ZProductsGeant4SelectorCfg(flags, name="ISF_ZProductsGeant4Selector", **kwar
 
 # HistorySimSelector Configurations
 def SubDetStickyGeant4SimSelectorCfg(flags, name="ISF_SubDetStickyGeant4SimSelector", **kwargs):
-    acc = Geant4SimCfg(flags)
+    acc = ComponentAccumulator()
     kwargs.setdefault("RequiresUnchangedGeoID", True)
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(Geant4SimCfg(flags))
         kwargs.setdefault("PrevSimSvc", acc.getService("ISFG4SimSvc"))
         kwargs.setdefault("Simulator", acc.getService("ISFG4SimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Geant4)
@@ -683,10 +730,11 @@ def SubDetStickyGeant4SimSelectorCfg(flags, name="ISF_SubDetStickyGeant4SimSelec
 
 
 def GlobalStickyGeant4SimSelectorCfg(flags, name="ISF_GlobalStickyGeant4SimSelector", **kwargs):
-    acc = Geant4SimCfg(flags)
+    acc = ComponentAccumulator()
     kwargs.setdefault("PrevSimSvc", acc.getService("ISFG4SimSvc"))
     kwargs.setdefault("RequiresUnchangedGeoID", False)
     if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+        acc.merge(Geant4SimCfg(flags))
         kwargs.setdefault("Simulator", acc.getService("ISFG4SimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Geant4)
     acc.setPrivateTools(CompFactory.ISF.HistorySimSelector(name, **kwargs))

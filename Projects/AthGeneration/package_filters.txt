@@ -3,7 +3,6 @@
 #
 
 # Temporarily disable Rivet_i until we have LCG_97_ATLAS_2
-- Generators/Rivet_i
 
 + AsgExternal/Asg_Test
 + AtlasTest/TestTools
@@ -68,7 +67,6 @@
 + Database/AthenaPOOL/AthenaPoolCnvSvc
 + Database/AthenaPOOL/AthenaPoolServices
 + Database/AthenaPOOL/AthenaPoolUtilities
-+ Database/AthenaPOOL/DBDataModel
 + Database/AthenaPOOL/EventSelectorAthenaPool
 + Database/AthenaPOOL/OutputStreamAthenaPool
 + Database/AthenaPOOL/PoolSvc
@@ -84,10 +82,12 @@
 + Database/ConnectionManagement/AtlasAuthentication
 + Database/ConnectionManagement/DBReplicaSvc
 + Database/CoraCool
++ Database/DBLock
++ Database/CrestApi
 + Database/IOVDbAthenaPool
 + Database/IOVDbDataModel
 + Database/IOVDbMetaDataTools
-#+ Database/IOVDbPTCnv
++ Database/IOVDbPTCnv
 + Database/IOVDbSvc
 + Database/IOVDbTPCnv
 + Database/PersistentDataModel

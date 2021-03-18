@@ -150,7 +150,7 @@ namespace InDetDDSLHC {
 
     IRDBAccessSvc *accessSvc = m_athenaComps->rdbAccessSvc();
     //   ADA  accessSvc->connect();
-    IRDBRecordset_ptr recordSetPixel = accessSvc->getRecordsetPtr("ITKXDD", versionTag, versionNode);
+    IRDBRecordset_ptr recordSetPixel = accessSvc->getRecordsetPtr("PIXXDD", versionTag, versionNode);
     if (!recordSetPixel || recordSetPixel->size() == 0) {
       ATH_MSG_FATAL( "getBlob: Unable to obtain Pixel recordSet" );
       throw runtime_error("getBlob: Unable to obtain Pixel recordSet");

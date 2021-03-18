@@ -1,18 +1,15 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "./LVL1ConfigSvc.h"
-#include "./Verifyer.h"
-
+#include "LVL1ConfigSvc.h"
+#include "Verifyer.h"
 
 // Athena/Gaudi includes:
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Incident.h"
-
 #include "StoreGate/StoreGateSvc.h"
-
 
 // Trigger database interface includes:
 #include "TrigConfIO/JsonFileLoader.h"
@@ -20,25 +17,14 @@
 #include "TrigConfIO/TrigDBL1BunchGroupSetLoader.h"
 #include "TrigConfData/L1Menu.h"
 #include "TrigConfData/L1BunchGroupSet.h"
-
-#include "TrigConfL1Data/DeadTime.h"
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/Menu.h"
 #include "TrigConfL1Data/ThresholdConfig.h"
 #include "TrigConfL1Data/Muctpi.h"
-#include "TrigConfL1Data/PrescaledClock.h"
-#include "TrigConfL1Data/Random.h"
 #include "TrigConfStorage/StorageMgr.h"
 #include "TrigConfStorage/XMLStorageMgr.h"
-#include "TrigConfL1Data/TriggerThreshold.h"
-#include "TrigConfL1Data/TriggerThresholdValue.h"
-#include "TrigConfL1Data/ClusterThresholdValue.h"
-#include "TrigConfL1Data/EtThresholdValue.h"
-#include "TrigConfL1Data/JetThresholdValue.h"
 #include "TrigConfL1Data/L1DataDef.h"
-
 #include "TrigConfBase/TrigDBConnectionConfig.h"
-
 #include "TrigConfInterfaces/IJobOptionsSvc.h"
 
 #include "boost/algorithm/string.hpp"
@@ -55,8 +41,6 @@ TrigConf::LVL1ConfigSvc::LVL1ConfigSvc( const std::string& name, ISvcLocator* pS
    base_class::declareCommonProperties();
 }
 
-TrigConf::LVL1ConfigSvc::~LVL1ConfigSvc()
-{}
 
 const TrigConf::ThresholdConfig*
 TrigConf::LVL1ConfigSvc::thresholdConfig() const { return m_ctpConfig ? &m_ctpConfig->menu().thresholdConfig() : nullptr; }
@@ -107,6 +91,7 @@ TrigConf::LVL1ConfigSvc::loadRun3StyleMenu() {
       TrigConf::TrigDBMenuLoader dbmenuloader(m_dbConnection);
       dbmenuloader.setLevel(TrigConf::MSGTC::WARNING);
       if( dbmenuloader.loadL1Menu( m_smk, *l1menu ) ) {
+         l1menu->setSMK(m_smk);
          ATH_MSG_INFO( "Loaded L1 menu from DB " << m_dbConnection << " for SMK " << m_smk.value() );
       } else {
          ATH_MSG_WARNING( "Failed loading L1 menu from DB for SMK " << m_smk.value());
@@ -120,6 +105,7 @@ TrigConf::LVL1ConfigSvc::loadRun3StyleMenu() {
          dbbgsloader.setLevel(TrigConf::MSGTC::WARNING);
          if (dbbgsloader.loadBunchGroupSet(m_bgsk, *l1bgset))
          {
+            l1bgset->setBGSK(m_bgsk);
             ATH_MSG_INFO("Loaded L1 bunchgroups set from DB " << m_dbConnection << " for BGSK " << m_bgsk.value());
          }
          else
@@ -270,9 +256,6 @@ TrigConf::LVL1ConfigSvc::loadRun2StyleMenu() {
 StatusCode
 TrigConf::LVL1ConfigSvc::initialize() {
 
-   CHECK(AthService::initialize());
-
-   /// Handle to JobOptionsSvc used to retrieve the DataFlowConfig property
    ATH_MSG_INFO("=================================");
    ATH_MSG_INFO("Initializing " << name() << " service");
    ATH_MSG_INFO("=================================");
@@ -310,34 +293,7 @@ TrigConf::LVL1ConfigSvc::finalize() {
    delete m_ctpConfig;
    delete m_muctpi;
 
-   CHECK(AthService::finalize());
-
    return StatusCode::SUCCESS;
-
-}
-
-StatusCode
-TrigConf::LVL1ConfigSvc::queryInterface( const InterfaceID& riid, void** ppvIF ) {
-
-   StatusCode sc = StatusCode::FAILURE;
-
-   if( ppvIF ) {
-      *ppvIF = 0;
-
-      if( riid == ILVL1ConfigSvc::interfaceID() ) {
-         try {
-            *ppvIF = dynamic_cast<ILVL1ConfigSvc*>( this );
-         } catch( const bad_cast& ) {
-            return StatusCode::FAILURE;
-         }
-         sc = StatusCode::SUCCESS;
-      } else {
-         sc = Service::queryInterface( riid, ppvIF );
-      }
-
-   }
-
-   return sc;
 
 }
 

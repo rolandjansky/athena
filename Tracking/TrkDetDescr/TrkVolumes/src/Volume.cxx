@@ -46,7 +46,7 @@ Trk::Volume::Volume(const Trk::Volume& vol, const Amg::Transform3D& shift) :
 
 // destructor
 Trk::Volume::~Volume()
-{ 
+{
 }
 
 // assignment operator
@@ -55,15 +55,15 @@ Trk::Volume& Trk::Volume::operator=(const Trk::Volume& vol)
   if (this!=&vol)
   {
     m_transform    =   vol.m_transform ? std::make_unique<Amg::Transform3D>(*vol.m_transform) : nullptr;
-    m_center       =   vol.m_center ? std::make_unique<Amg::Vector3D>(*(vol.m_center)) : nullptr;
+    m_center       =   vol.m_center ? std::make_unique<const Amg::Vector3D>(*(vol.m_center)) : nullptr;
     m_volumeBounds =   vol.m_volumeBounds;
   }
   return *this;
 }
- 
-Trk::Volume* Trk::Volume::clone() const 
-{ return new Trk::Volume(*this); }    
-    
+
+Trk::Volume* Trk::Volume::clone() const
+{ return new Trk::Volume(*this); }
+
 bool Trk::Volume::inside(const Amg::Vector3D& gp, double tol) const
 {
     if (!m_transform) {
@@ -84,16 +84,16 @@ Trk::ObjectAccessor Trk::Volume::boundarySurfaceAccessor(const Amg::Vector3D& gp
  return Trk::ObjectAccessor(volumeBounds().boundarySurfaceAccessor(transform().inverse()*gp, dir, forceInside));
 }
 
-/**Overload of << operator for both, MsgStream and std::ostream for debug output*/ 
+/**Overload of << operator for both, MsgStream and std::ostream for debug output*/
 MsgStream& Trk::operator << ( MsgStream& sl, const Trk::Volume& vol)
-{ 
-  sl << "Trk::Volume with VolumeBounds :" << vol.volumeBounds() << endmsg; 
+{
+  sl << "Trk::Volume with VolumeBounds :" << vol.volumeBounds() << endmsg;
   return sl;
 }
 
 std::ostream& Trk::operator << ( std::ostream& sl, const Trk::Volume& vol)
-{ 
-  sl << "Trk::Volume with VolumeBounds :" << vol.volumeBounds() << std::endl; 
+{
+  sl << "Trk::Volume with VolumeBounds :" << vol.volumeBounds() << std::endl;
   return sl;
-}   
+}
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "sTGCSimHitVariables.h"
@@ -11,7 +11,6 @@
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
 
 #include "TTree.h"
-#include <TString.h> // for Form
 
 StatusCode sTGCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* MuonDetMgr) 
 {
@@ -28,7 +27,7 @@ StatusCode sTGCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager*
   sTgcHitIdHelper* hitHelper = sTgcHitIdHelper::GetHelper();
   sTgcSimIdToOfflineId simToOffline(m_sTgcIdHelper);
   
-  if(nswContainer->size()==0) ATH_MSG_WARNING(" sTGCSimHit empty ");
+  if(!nswContainer->size()) ATH_MSG_DEBUG(m_ContainerName<<" container empty");
   for(auto it : *nswContainer) {
     const sTGCSimHit hit = it;
     if(hit.depositEnergy()==0.) continue; // SimHits without energy loss are not recorded. 
@@ -89,7 +88,10 @@ StatusCode sTGCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager*
       }
 
       const MuonGM::sTgcReadoutElement* detEl = MuonDetMgr->getsTgcReadoutElement(offId);
-      if (!detEl) throw std::runtime_error(Form("File: %s, Line: %d\nsTGCSimHitVariables::fillVariables() - Failed to retrieve sTgcReadoutElement for %s", __FILE__, __LINE__, m_sTgcIdHelper->print_to_string(offId).c_str()));
+      if (!detEl) {
+        ATH_MSG_ERROR("sTGCSimHitVariables::fillVariables() - Failed to retrieve sTgcReadoutElement for "<<m_sTgcIdHelper->print_to_string(offId).c_str());
+        return StatusCode::FAILURE;
+      }
 
       if( !m_sTgcIdHelper->is_stgc(offId) ){
           ATH_MSG_WARNING("sTgc id is not a stgc id! " << m_sTgcIdHelper->print_to_string(offId));

@@ -79,10 +79,10 @@ class IMETSystematicsTool : virtual public asg::IAsgTool,
 
   //we don't inherit from CorrectionTool directly, but we are something close to that
   virtual CP::CorrectionCode applyCorrection(xAOD::MissingET& met,
-					     const xAOD::MissingETAssociationHelper * helper=nullptr
+					     const xAOD::MissingETAssociationHelper& helper
 					     ) const = 0;
   virtual CP::CorrectionCode correctedCopy(const xAOD::MissingET& met, xAOD::MissingET*& outputmet,
-					   const xAOD::MissingETAssociationHelper * helper=nullptr
+					   const xAOD::MissingETAssociationHelper& helper
 					   ) const = 0;
 
   // virtual StatusCode applySystematicVariation(const CP::SystematicSet & set) = 0;

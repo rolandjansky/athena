@@ -9,10 +9,8 @@
 namespace LVL1MUCTPIPHASE1 {
   MUCTPI_AthAlg::MUCTPI_AthAlg( const std::string& name, ISvcLocator* pSvcLocator )
     :
-    AthAlgorithm(name, pSvcLocator),
-    m_muctpiTool("LVL1MUCTPIPHASE1__MUCTPI_AthTool/MUCTPI_AthTool")
+    AthReentrantAlgorithm(name, pSvcLocator)
   {
-    declareProperty( "MUCTPI_AthTool", m_muctpiTool, "Tool to steer the MUCTPI simulation");
   }
   
   MUCTPI_AthAlg::~MUCTPI_AthAlg()
@@ -48,7 +46,7 @@ namespace LVL1MUCTPIPHASE1 {
   }
 
   /// Regular Gaudi algorithm execute function
-  StatusCode MUCTPI_AthAlg::execute()
+  StatusCode MUCTPI_AthAlg::execute(const EventContext& /*eventContext*/) const
   {
     ATH_MSG_DEBUG( "===============================" );
     ATH_MSG_DEBUG( "Executing MUCTPI_AthAlg" );

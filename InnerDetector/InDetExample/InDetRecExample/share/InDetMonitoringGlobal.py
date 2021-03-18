@@ -1,3 +1,4 @@
+from InDetRecExample import TrackingCommon
 if (not 'doIdGlobalErrorMon' in dir()):
   doIdGlobalErrorMon = False
 
@@ -68,7 +69,8 @@ if InDetFlags.doMonitoringGlobal():
   InDetGlobalTrackMonTool=InDetGlobalTrackMonTool( name          = "InDetGlobalTrackMonTool",
                                                    histoPathBase = "/GLOBAL",
                                                    DoIBL         = InDetFlags.doIBL(),
-                                                   trackMax      = 75)
+                                                   trackMax      = 75,
+                                                   TrackToVertexIPEstimator = TrackingCommon.getTrackToVertexIPEstimator() )
 
   TrackCollection = InDetKeys.UnslimmedTracks()
 
@@ -78,15 +80,15 @@ if InDetFlags.doMonitoringGlobal():
                                                                                  CutLevel = "TightPrimary",
                                                                                  maxNPixelHoles = 1,
                                                                                  minPt = 5000,
-                                                                                 TrackSummaryTool    = InDetTrackSummaryTool,
-                                                                                 Extrapolator        = InDetExtrapolator)
+                                                                                 TrackSummaryTool    = TrackingCommon.getInDetTrackSummaryTool(),
+                                                                                 Extrapolator        = TrackingCommon.getInDetExtrapolator())
 
   InDetTrackSelectionToolGlobalMon_TightPrimary = InDet__InDetTrackSelectionTool(name = "InDetTrackSelectionToolGlobalMon_TightPrimary",
                                                                                  UseTrkTrackTools = True,
                                                                                  CutLevel = "TightPrimary",
                                                                                  minPt = 5000,
-                                                                                 TrackSummaryTool    = InDetTrackSummaryTool,
-                                                                                 Extrapolator        = InDetExtrapolator)
+                                                                                 TrackSummaryTool    = TrackingCommon.getInDetTrackSummaryTool(),
+                                                                                 Extrapolator        = TrackingCommon.getInDetExtrapolator())
 
   #ToolSvc += InDetTrackSelectionToolGlobalMon_Baseline
   #ToolSvc += InDetTrackSelectionToolGlobalMon_TightPrimary

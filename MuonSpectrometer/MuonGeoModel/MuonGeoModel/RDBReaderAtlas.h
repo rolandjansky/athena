@@ -1,22 +1,18 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RDBReaderAtlas_H
 #define RDBReaderAtlas_H
 
-#include <string>
-#include <iostream>
-#include <fstream>
-#include <vector>
-
 #include "MuonGeoModel/DBReader.h"
 #include "MuonGMdbObjects/DblQ00IAcsc.h"
 #include "MuonGMdbObjects/DblQ00Xtomo.h"
 
+#include <fstream>
+#include <vector>
 
 class IMessageSvc;
-
 class IRDBAccessSvc;
 
 namespace MuonGM {

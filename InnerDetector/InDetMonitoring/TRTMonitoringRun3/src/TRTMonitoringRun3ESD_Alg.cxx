@@ -798,18 +798,24 @@ for (; p_trk != trackCollection.end(); ++p_trk) {
 
                 // Calculate Residuals for hit
                 if (m_doShift && m_doStraws) {
-                    const double pull_b =
-                        ((loc - locR) /
-                         sqrt((loc_err * loc_err * loc_err * loc_err) -
-                              (locR_err * locR_err * locR_err * locR_err)));
+                    bool pull_b_fill;
+                    double pull_b = -999.;
+                    const double diff_loc_err = (loc_err * loc_err * loc_err * loc_err) - (locR_err * locR_err * locR_err * locR_err);
+                    if ( diff_loc_err > 0 ) {
+                        pull_b   = (loc - locR) / sqrt(diff_loc_err);
+                        pull_b_fill = true;
+                    }
+                    else pull_b_fill = false;
                     const double thist0 = m_TRTCalDbTool->getT0(surfaceID);
                     const double trkdrifttime = (!rtr) ? 0 : rtr->drifttime(fabs(locR));
                     const double timeresidual = RawDriftCircle->rawDriftTime() - thist0 - trkdrifttime;
 
                     if (ibe == 0) {
                         if (!isTubeHit) {
-                            Pull_Biased_Barrel = pull_b;
-                            fill("ShiftTRTTrackHistograms"+std::to_string(ibe), Pull_Biased_Barrel);
+                            if (pull_b_fill) {
+                                Pull_Biased_Barrel = pull_b;
+                                fill("ShiftTRTTrackHistograms"+std::to_string(ibe), Pull_Biased_Barrel);
+                            }
                         }
 
                         if (isArgonStraw) {
@@ -835,8 +841,10 @@ for (; p_trk != trackCollection.end(); ++p_trk) {
                         }
                     } else if (ibe == 1) {
                         if (!isTubeHit) {
-                            Pull_Biased_EndCap = pull_b;
-                            fill("ShiftTRTTrackHistograms"+std::to_string(ibe), Pull_Biased_EndCap);
+                            if (pull_b_fill) {
+                                Pull_Biased_EndCap = pull_b;
+                                fill("ShiftTRTTrackHistograms"+std::to_string(ibe), Pull_Biased_EndCap);
+                            }
                         }
 
                         if (isArgonStraw) {

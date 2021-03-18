@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCablingData/MdtAmtMap.h"
@@ -15,7 +15,7 @@ MdtAmtMap::MdtAmtMap(uint8_t tdcId) :
   m_multiLayer(0),
   m_mezType(0),
   m_debug(false),
-  m_log(0),
+  m_log(nullptr),
   m_mdtIdHelper(0)
 { }
 
@@ -25,7 +25,7 @@ MdtAmtMap::MdtAmtMap(uint8_t tdcId) :
 MdtAmtMap::MdtAmtMap(const MdtMezzanineType* mezType, uint8_t tdcId, uint8_t channel, 
 		     int station, 
 		     int eta, int phi, int multiLayer, int layer, int tube, 
-		     const MdtIdHelper* helper, MsgStream* ext_log) :
+		     const MdtIdHelper* helper, std::shared_ptr<MsgStream> ext_log) :
   m_moduleId(tdcId),
   m_station(station),
   m_eta(eta),
@@ -67,13 +67,6 @@ MdtAmtMap::MdtAmtMap(const MdtMezzanineType* mezType, uint8_t tdcId, uint8_t cha
   }
 
 }
-
-
-// destructor
-MdtAmtMap::~MdtAmtMap() 
-{ 
-}
-
 
 /** initialize the channel-to-tube map */
 /** channel, layer, tube, contain the channel and position of the first tube */

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -92,9 +92,8 @@ StatusCode TileTimeBCOffsetFilter::finalize() {
 }
 
 StatusCode
-TileTimeBCOffsetFilter::process (TileMutableRawChannelContainer& rchCont) const
+TileTimeBCOffsetFilter::process (TileMutableRawChannelContainer& rchCont, const EventContext& ctx) const
 {
-  const EventContext& ctx = Gaudi::Hive::currentContext();
   ATH_MSG_DEBUG("in TileTimeBCOffsetFilter::process()");
 
   // Now retrieve the TileDQstatus

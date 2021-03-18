@@ -54,9 +54,32 @@ def muFastAlgSequence(ConfigFlags):
     ### get muFast reco sequence ###    
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muFastRecoSequence, makeMuonPrepDataAlgs
     viewAlgs_MuonPRD = makeMuonPrepDataAlgs(RoIs=l2MuViewsMaker.InViewRoIs)
+    
+    ##### L2 mutli-track mode #####
+    from TrigMuonEF.TrigMuonEFConf import MuonChainFilterAlg
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
+    MultiTrackChainFilter = MuonChainFilterAlg("SAFilterMultiTrackChains")
+    MultiTrackChains = getMultiTrackChainNames()
+    MultiTrackChainFilter.ChainsToFilter = MultiTrackChains
+    MultiTrackChainFilter.InputDecisions = [ CFNaming.inputMakerOutName(l2MuViewsMaker.name()) ]
+    MultiTrackChainFilter.L2MuFastContainer = muNames.L2SAName+"l2mtmode" 
+    MultiTrackChainFilter.L2MuCombContainer = muNames.L2CBName+"l2mtmode" 
+    MultiTrackChainFilter.WriteMuFast = True
+    MultiTrackChainFilter.NotGate = True
+    
+    extraLoads = []
+
+    for decision in MultiTrackChainFilter.InputDecisions:
+      extraLoads += [( 'xAOD::TrigCompositeContainer', 'StoreGateSvc+%s' % decision )]
+
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import  isCosmic
-    muFastRecoSequence, sequenceOut = muFastRecoSequence( l2MuViewsMaker.InViewRoIs, doFullScanID= isCosmic() )
-    muFastSequence = parOR("muFastRecoSequence", [viewAlgs_MuonPRD, muFastRecoSequence])
+    muFastRecoSeq, sequenceOut = muFastRecoSequence( l2MuViewsMaker.InViewRoIs, doFullScanID= isCosmic(), extraLoads=extraLoads )
+    
+    muFastl2mtRecoSeq, sequenceOutL2mtSA = muFastRecoSequence( l2MuViewsMaker.InViewRoIs, doFullScanID= isCosmic(), l2mtmode=True )
+    muFastl2mtFilterSequence = seqAND("muFastl2mtFilterSequence", [MultiTrackChainFilter, muFastl2mtRecoSeq])
+    
+    #muFastSequence = parOR("muFastRecoSequence", [viewAlgs_MuonPRD, muFastRecoSequence])
+    muFastSequence = parOR("muFastRecoSequence", [viewAlgs_MuonPRD, muFastRecoSeq, muFastl2mtFilterSequence])
     l2MuViewsMaker.ViewNodeName = muFastSequence.name() 
     
     l2muFastSequence = seqAND("l2muFastSequence", [ l2MuViewsMaker, muFastSequence ])
@@ -96,6 +119,23 @@ def muFastOvlpRmSequence():
                          HypoToolGen = TrigMufastHypoToolwORFromDict )
 
 
+def mul2mtSAOvlpRmSequence():
+
+    (l2muFastSequence, l2MuViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muFastAlgSequence, ConfigFlags)
+
+    ### set up muCombHypo algorithm ###
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoAlg
+    trigMufastHypo = TrigMufastHypoAlg("TrigL2mtMufastHypoAlg")
+    trigMufastHypo.MuonL2SAInfoFromMuFastAlg = muNames.L2SAName+"l2mtmode"
+
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import Trigl2mtSAHypoToolwORFromDict
+
+    return MenuSequence( Sequence    = l2muFastSequence,
+                         Maker       = l2MuViewsMaker,
+                         Hypo        = trigMufastHypo,
+                         HypoToolGen = Trigl2mtSAHypoToolwORFromDict )
+
+
 #-----------------------------------------------------#
 ### ************* Step2  ************* ###
 #-----------------------------------------------------#
@@ -118,11 +158,29 @@ def muCombAlgSequence(ConfigFlags):
     l2muCombViewsMaker.RequireParentView = True
     l2muCombViewsMaker.ViewFallThrough = True #if this needs to access anything from the previous step, from within the view
 
-    muCombRecoSequence, sequenceOut = muCombRecoSequence( l2muCombViewsMaker.InViewRoIs, "FTF" )
+    muCombRecoSeq, sequenceOut = muCombRecoSequence( l2muCombViewsMaker.InViewRoIs, "FTF", l2mtmode=False )
  
-    #Filter algorithm to run muComb only if non-Bphysics muon chains are active
+    # for L2 multi-track SA
     from TrigMuonEF.TrigMuonEFConf import MuonChainFilterAlg
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
+    MultiTrackChainFilter = MuonChainFilterAlg("CBFilterMultiTrackChains")
+    MultiTrackChains = getMultiTrackChainNames()
+    MultiTrackChainFilter.ChainsToFilter = MultiTrackChains
+    MultiTrackChainFilter.InputDecisions = [ CFNaming.inputMakerOutName(l2muCombViewsMaker.name()) ]
+    MultiTrackChainFilter.L2MuFastContainer = muNames.L2SAName+"l2mtmode"
+    MultiTrackChainFilter.L2MuCombContainer = muNames.L2CBName+"l2mtmode"
+    MultiTrackChainFilter.WriteMuComb = True
+    MultiTrackChainFilter.NotGate = True
+
+    extraLoadsForl2mtmode = []
+
+    for decision in MultiTrackChainFilter.InputDecisions:
+      extraLoadsForl2mtmode += [( 'xAOD::TrigCompositeContainer', 'StoreGateSvc+%s' % decision )]
+
+    muCombl2mtRecoSeq, sequenceOutL2mtCB = muCombRecoSequence( l2muCombViewsMaker.InViewRoIs, "FTF", l2mtmode=True )
+    muCombl2mtFilterSequence = seqAND("l2mtmuCombFilterSequence", [MultiTrackChainFilter, muCombl2mtRecoSeq])
+    
+    #Filter algorithm to run muComb only if non-Bphysics muon chains are active
     muonChainFilter = MuonChainFilterAlg("FilterBphysChains")
     bphysChains =getBphysChainNames()
     muonChainFilter.ChainsToFilter=bphysChains
@@ -132,7 +190,7 @@ def muCombAlgSequence(ConfigFlags):
     muonChainFilter.WriteMuComb = True
 
     # for nominal muComb
-    muCombFilterSequence = seqAND("l2muCombFilterSequence", [muonChainFilter, muCombRecoSequence])
+    muCombFilterSequence = seqAND("l2muCombFilterSequence", [muonChainFilter, muCombRecoSeq])
 
     extraLoads = []
 
@@ -142,7 +200,7 @@ def muCombAlgSequence(ConfigFlags):
     if isCosmic():
         muTrigIDRecoSequence = muonIDCosmicTrackingSequence( l2muCombViewsMaker.InViewRoIs , "", extraLoads )
     else:
-        muTrigIDRecoSequence = muonIDFastTrackingSequence( l2muCombViewsMaker.InViewRoIs , "", extraLoads )
+        muTrigIDRecoSequence = muonIDFastTrackingSequence( l2muCombViewsMaker.InViewRoIs , "", extraLoads, extraLoadsForl2mtmode )
 
 
     # for Inside-out L2SA
@@ -160,7 +218,7 @@ def muCombAlgSequence(ConfigFlags):
 
     muFastIOFilterSequence = seqAND("l2muFastIOFilterSequence", [insideoutMuonChainFilter, muFastIORecoSequence])
 
-    muCombIDSequence = parOR("l2muCombIDSequence", [muTrigIDRecoSequence, muCombFilterSequence, muFastIOFilterSequence])
+    muCombIDSequence = parOR("l2muCombIDSequence", [muTrigIDRecoSequence, muCombFilterSequence, muFastIOFilterSequence, muCombl2mtFilterSequence])
 
     l2muCombViewsMaker.ViewNodeName = muCombIDSequence.name()
 
@@ -276,6 +334,23 @@ def mul2IOOvlpRmSequence():
                          Maker       = l2muCombViewsMaker,
                          Hypo        = trigmuCombHypo,
                          HypoToolGen = Trigl2IOHypoToolwORFromDict )
+
+
+def mul2mtCBOvlpRmSequence():
+   
+    (l2muCombSequence, l2muCombViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muCombAlgSequence, ConfigFlags)
+
+    ### set up muCombHypo algorithm ###
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigmuCombHypoAlg
+    trigmuCombHypo = TrigmuCombHypoAlg("TrigL2mtMuCBHypoAlg")
+    trigmuCombHypo.MuonL2CBInfoFromMuCombAlg = muNames.L2CBName+"l2mtmode"
+
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import Trigl2mtCBHypoToolwORFromDict
+
+    return MenuSequence( Sequence    = l2muCombSequence,
+                         Maker       = l2muCombViewsMaker,
+                         Hypo        = trigmuCombHypo,
+                         HypoToolGen = Trigl2mtCBHypoToolwORFromDict )
 
 
 
@@ -586,8 +661,8 @@ def efLateMuSequence():
 def muEFIsoAlgSequence(ConfigFlags):
     efmuIsoViewsMaker = EventViewCreatorAlgorithm("IMefmuIso")
     newRoITool = ViewCreatorCentredOnIParticleROITool()
-    newRoITool.RoIEtaWidth=0.15
-    newRoITool.RoIPhiWidth=0.15
+    newRoITool.RoIEtaWidth=0.35
+    newRoITool.RoIPhiWidth=0.35
     newRoITool.RoisWriteHandleKey = recordable("HLT_Roi_MuonIso")
     #
     efmuIsoViewsMaker.mergeUsingFeature = True
@@ -677,4 +752,22 @@ def getInsideOutMuonChainNames():
     except Exception as e:
         log.debug(e)
 
+    return chains
+
+############################################################
+### Get muon triggers except L2 multi-track trigger
+### to filter chains where we don't want to run L2SA multi-track mode
+############################################################
+
+def getMultiTrackChainNames():
+
+    from TriggerJobOpts.TriggerFlags import TriggerFlags
+    muonSlice = TriggerFlags.MuonSlice.signatures()
+    chains =[]
+
+    try:
+        chains += [chain.name for chain in muonSlice if "l2mt" in chain.name]
+    except Exception as e:
+        log.debug(e)
+    
     return chains

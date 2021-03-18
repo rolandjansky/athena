@@ -146,17 +146,6 @@ namespace TrigConf {
       }
    }
 
-   const HLTChainList* xAODConfigTool::chainList() const {
-      // Check if the object is well prepared:
-      if( m_impl->m_chainList.size() == 0 ) {
-         ATH_MSG_FATAL( "Trigger menu not loaded" );
-         throw std::runtime_error( "Tool not initialised correctly" );
-      }
-
-      // Return the object:
-      return &m_impl->m_chainList;
-   }
-
    const HLTChainList& xAODConfigTool::chains() const {
       // Check if the object is well prepared:
       if( m_impl->m_chainList.size() == 0 ) {
@@ -166,17 +155,6 @@ namespace TrigConf {
 
       // Return the object:
       return m_impl->m_chainList;
-   }
-
-   const HLTSequenceList* xAODConfigTool::sequenceList() const {
-      // Check if the object is well prepared:
-      if( m_impl->m_sequenceList.size() == 0 ) {
-         ATH_MSG_FATAL( "Trigger menu not loaded" );
-         throw std::runtime_error( "Tool not initialised correctly" );
-      }
-
-      // Return the object:
-      return &m_impl->m_sequenceList;
    }
 
    const HLTSequenceList& xAODConfigTool::sequences() const {
@@ -348,6 +326,13 @@ namespace TrigConf {
 
          ATH_CHECK( loadPtrees() );
 
+         // Loading the payload doesn't additionally let the object know about its own key. We can load this in now too.
+         m_impl->m_currentHlt.setSMK( m_currentHltJson->key() );
+         m_impl->m_currentL1.setSMK( m_currentL1Json->key() );
+         m_impl->m_currentHltps.setPSK( m_currentHltpsJson->key() );
+         m_impl->m_currentL1ps.setPSK( m_currentL1psJson->key() );
+         //m_impl->m_currentBg 
+
          ATH_CHECK( prepareTriggerMenu( m_impl->m_currentHlt,
                                         m_impl->m_currentL1,
                                         m_impl->m_currentHltps,
@@ -473,7 +458,16 @@ namespace TrigConf {
       // ATH_CHECK( loadJsonByKey("Bunchgroups", m_bgJson, TODO, m_currentBgJson) );
 
       // ... and from these serialised JSON strings, populate the ptree data structures...
-      ATH_CHECK( loadPtrees() ); // R3 interfaces now active
+      ATH_CHECK( loadPtrees() ); 
+
+      // ... and set the keys of the objects in the objects (not part of the JSON pyaload) ...
+      m_impl->m_currentHlt.setSMK( m_currentHltJson->key() );
+      m_impl->m_currentL1.setSMK( m_currentL1Json->key() );
+      m_impl->m_currentHltps.setPSK( m_currentHltpsJson->key() );
+      m_impl->m_currentL1ps.setPSK( m_currentL1psJson->key() );
+
+      // R3 interfaces now active
+
       // ... and finally populate the legacy interface from the ptree data
       ATH_CHECK( prepareTriggerMenu( m_impl->m_currentHlt,
                                      m_impl->m_currentL1,

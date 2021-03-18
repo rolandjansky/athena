@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@ namespace Muon
    *  MuonTGC_CnvTools package in July 2008. The previous class name was TgcROD_Decoder. 
    */
   
-  class TGC_RodDecoderRawdata : virtual public ITGC_RodDecoder, public AthAlgTool
+class TGC_RodDecoderRawdata : public extends<AthAlgTool, ITGC_RodDecoder>
     {
     public:
       /** Default constructor */
@@ -39,11 +39,11 @@ namespace Muon
       virtual ~TGC_RodDecoderRawdata();
   
       /** Standard AlgTool method */
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
       /** Standard AlgTool method */
-      virtual StatusCode finalize();
+      virtual StatusCode finalize() override;
       /** Convert ROBFragment to RDO */
-      virtual StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag, TgcRdoContainer& rdoIdc) const;
+      virtual StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag, TgcRdoContainer& rdoIdc) const override;
 
     private:
       /** Retrieve header of ROBFragment */

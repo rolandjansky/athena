@@ -146,6 +146,8 @@ protected:
   SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_hitDVSeedKey{this, "HitDVSeed", "", ""};
   SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_hitDVTrkKey{this, "HitDVTrk", "", ""};
   SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_hitDVSPKey{this, "HitDVSP", "", ""};
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_dEdxTrkKey{this, "dEdxTrk", "", ""};
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_dEdxHitKey{this, "dEdxHit", "", ""};
 
   // Control flags
 
@@ -221,6 +223,12 @@ protected:
   StatusCode findJseedHitDV(const EventContext&, const std::vector<TrigSiSpacePointBase>&, const TrackCollection&) const;
   StatusCode calcdEdx(const EventContext&, const TrackCollection&) const;
   float deltaR(float, float, float, float) const;
+
+  // dEdx calculation
+  bool m_dodEdxTrk;
+  StatusCode finddEdxTrk(const EventContext&, const TrackCollection&) const;
+  float dEdx(const Trk::Track*, int&, int&, std::vector<float>&, std::vector<float>&,
+	     std::vector<float>&, std::vector<float>&, std::vector<int>&, std::vector<int>&, std::vector<int>&) const;
 };
 
 

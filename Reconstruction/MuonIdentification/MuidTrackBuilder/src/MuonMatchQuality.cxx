@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@ MuonMatchQuality::initialize()
     ATH_MSG_INFO("MuonMatchQuality::initialize() - package version " << PACKAGE_VERSION);
 
     // get the tools
-    if (m_tagTool.name() != "") {
+    if (!m_tagTool.name().empty()) {
         if (m_tagTool.retrieve().isFailure()) {
             ATH_MSG_FATAL("Failed to retrieve tool " << m_tagTool);
             return StatusCode::FAILURE;
@@ -175,11 +175,7 @@ MuonMatchQuality::shareOrigin(const Trk::Track& track1, const Trk::Track& track2
     const Trk::Perigee* perigee1 = track1.perigeeParameters();
     const Trk::Perigee* perigee2 = track2.perigeeParameters();
 
-    if (perigee1 && perigee2 && (*perigee1).associatedSurface().center() == (*perigee2).associatedSurface().center()) {
-        return true;
-    }
-
-    return false;
+    return perigee1 && perigee2 && (*perigee1).associatedSurface().center() == (*perigee2).associatedSurface().center();
 }
 
 /** IMuonMatchQuality interface:

@@ -9,18 +9,14 @@
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include <string>
 
-
-namespace ExpressionParsing{
-    class ExpressionParser;
-}
-
+#include "ExpressionEvaluation/ExpressionParserUser.h"
 
 namespace DerivationFramework {
   /** @class isolationDecorator
       @author Dongliang.Zhang@cern.ch
      */
 
-  class mcpDecorator: public ::AthAlgTool, public IAugmentationTool {
+  class mcpDecorator: public ExpressionParserUser<::AthAlgTool>, public IAugmentationTool {
    public: 
     /** Constructor with parameters */
     mcpDecorator( const std::string& t, const std::string& n, const IInterface* p);
@@ -36,9 +32,7 @@ namespace DerivationFramework {
     std::string m_containerName;
     std::string m_selectionString;
     std::string m_prefix;
-    
-    std::unique_ptr<ExpressionParsing::ExpressionParser> m_parser;
-  }; 
+  };
 }
 
 #endif //> !DERIVATIONFRAMEWORKMUONS_MCPDECORATOR_H

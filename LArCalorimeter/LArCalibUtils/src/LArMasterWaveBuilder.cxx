@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArMasterWaveBuilder.h"
@@ -467,13 +467,10 @@ StatusCode LArMasterWaveBuilder::stop()
   for ( unsigned gain_it=0 ; gain_it<CaloGain::LARNGAIN ; gain_it++ ) {  
     
     std::map<HWIdentifier, std::vector<int> > & badDACsGain = badDACs[gain_it] ;
-    std::map<HWIdentifier, std::vector<int> >::const_iterator ch_it = badDACsGain.begin() ;
-    std::map<HWIdentifier, std::vector<int> >::const_iterator ch_it_e = badDACsGain.end() ;
-    
-    for ( ; ch_it != ch_it_e ; ch_it++ ) {
 
-      const HWIdentifier chId = ch_it->first ;    
-      const std::vector<int> & DACs = ch_it->second ;
+    for (const auto& p : badDACsGain) {
+      const HWIdentifier chId = p.first ;    
+      const std::vector<int> & DACs = p.second ;
 
       if ( m_listAllAnalysedChannels || DACs.size()>0 ) {
         try {

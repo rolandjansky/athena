@@ -26,8 +26,8 @@ from AthenaCommon.AppMgr import theApp
 import os
 rdo_fname = os.path.join(os.environ['ATLASTESTDATA'],
                          'mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_10evt.pool.root')
-os.system ('pool_insertFileToCatalog.py ' +  rdo_fname)
-os.system ('FCregisterLFN -l top_default.pool.root -p ' + rdo_fname)
+os.system ('pool_insertFileToCatalog.py --catalog=file:EventInfoTests_catalog.xml ' +  rdo_fname)
+os.system ('FCregisterLFN -u file:EventInfoTests_catalog.xml -l top_default.pool.root -p ' + rdo_fname)
 
 
 #--------------------------------------------------------------
@@ -136,6 +136,10 @@ from IOVDbMetaDataTools.IOVDbMetaDataToolsConf import IOVDbMetaDataTool
 ToolSvc += IOVDbMetaDataTool( "IOVDbMetaDataTool" )
 IOVDbMetaDataTool.OutputLevel      = INFO
 
+# Change output file catalog to avoid races.
+from PoolSvc import PoolSvcConf
+PoolSvc = PoolSvcConf.PoolSvc()
+PoolSvc.WriteCatalog = 'file:EventInfoTests_catalog.xml'
 
 # No stats printout
 include( "AthenaPoolTest/NoStats_jobOptions.py" )

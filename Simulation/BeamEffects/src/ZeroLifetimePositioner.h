@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// ZeroLifetimePositioner.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef BEAMEFFECTS_ZEROLIFETIMEPOSITIONER_H
 #define BEAMEFFECTS_ZEROLIFETIMEPOSITIONER_H 1
@@ -40,9 +36,9 @@ namespace Simulation {
 
     private:
       StatusCode manipulate(HepMC::GenEvent& ge, bool applyPatch, bool removePatch) const;
-      bool m_applyPatch{false};
-      bool m_removePatch{false};
-      std::vector<int> m_pdgCodesToCheck{511};
+      Gaudi::Property<bool> m_applyPatch{this, "ApplyPatch", false};
+      Gaudi::Property<bool> m_removePatch{this, "RemovePatch", false};
+      Gaudi::Property<std::vector<int>> m_pdgCodesToCheck{ this, "PDGCodesToCheck", {511} };
   };
 
 }

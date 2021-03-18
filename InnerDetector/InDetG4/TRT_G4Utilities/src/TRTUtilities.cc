@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -7,6 +7,7 @@
 #include "TRT_G4Utilities/TRTParameters.hh"
 #include "TRT_G4Utilities/TRTOutputFile.hh"
 #include <fstream>
+#include <string>
 
 
 
@@ -14,18 +15,7 @@
 
 std::string TRTUtilities::NumberToString(int number)
 {
-  std::string digitAsString[] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
-  std::string numberAsString = "";
-
-  for ( ; ; )
-  {
-    numberAsString = digitAsString[number % 10] + numberAsString;
-    number /= 10;
-    if (number == 0)
-      break;
-  }
-
-  return numberAsString;
+  return std::to_string (number);
 }
 
 

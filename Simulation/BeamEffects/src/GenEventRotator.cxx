@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// GenEventRotator.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 // class header include
 #include "GenEventRotator.h"
@@ -27,13 +23,7 @@ namespace Simulation
                                     const std::string& n,
                                     const IInterface* p )
     : base_class(t,n,p)
-    , m_xangle (0.0)
-    , m_yangle (0.0)
-    , m_zangle (0.0)
   {
-    declareProperty( "xAngle", m_xangle, "rotation about x-axis");
-    declareProperty( "yAngle", m_yangle, "rotation about y-axis");
-    declareProperty( "zAngle", m_zangle, "rotation about z-axis");
   }
 
   /** Athena algtool's Hooks */

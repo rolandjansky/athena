@@ -12,7 +12,7 @@ void
 ObjHelper::writeVTN(std::ofstream&        stream,
                              VtnCounter&           vtnCounter,
                              double                scalor,
-                             const Acts::Vector3D& vertex,
+                             const Acts::Vector3& vertex,
                              const std::string&    vtntype,
                              bool                  point)
 {
@@ -69,7 +69,7 @@ void
 ObjHelper::writePlanarFace(std::ofstream& stream,
                                     VtnCounter&    vtnCounter,
                                     double         scalor,
-                                    const std::vector<Acts::Vector3D>& vertices,
+                                    const std::vector<Acts::Vector3>& vertices,
                                     double                           thickness,
                                     const std::vector<unsigned int>& vsides)
 {
@@ -78,9 +78,9 @@ ObjHelper::writePlanarFace(std::ofstream& stream,
   // the first vertex
   unsigned int fvertex = vtnCounter.vcounter + 1;
   // lets create the normal vector first
-  Acts::Vector3D sideOne = vertices[1] - vertices[0];
-  Acts::Vector3D sideTwo = vertices[2] - vertices[1];
-  Acts::Vector3D nvector(sideTwo.cross(sideOne).normalized());
+  Acts::Vector3 sideOne = vertices[1] - vertices[0];
+  Acts::Vector3 sideTwo = vertices[2] - vertices[1];
+  Acts::Vector3 nvector(sideTwo.cross(sideOne).normalized());
   // write the normal vector
   writeVTN(stream, vtnCounter, scalor, nvector, "n");
   // thickness or not thickness
@@ -115,7 +115,7 @@ ObjHelper::writeTube(std::ofstream&           stream,
                               VtnCounter&              vtnCounter,
                               double                   scalor,
                               unsigned int             nSegments,
-                              const Acts::Transform3D& transform,
+                              const Acts::Transform3& transform,
                               double                   r,
                               double                   hZ,
                               double                   thickness)
@@ -139,7 +139,7 @@ ObjHelper::writeTube(std::ofstream&           stream,
       double phi = -M_PI + iphi * phistep;
       for (auto iflip : flip) {
         // create the vertex
-        Acts::Vector3D point(transform * Acts::Vector3D((r + t) * cos(phi),
+        Acts::Vector3 point(transform * Acts::Vector3((r + t) * cos(phi),
                                                         (r + t) * sin(phi),
                                                         iflip * hZ));
         // write the normal vector
@@ -166,7 +166,7 @@ ObjHelper::writeTube(std::ofstream&           stream,
   }
 
   // construct the sides at the end when all vertices are done
-  Acts::Vector3D nvectorSide = transform.rotation().col(2);
+  Acts::Vector3 nvectorSide = transform.rotation().col(2);
   // write the normal vector @todo flip sides
   writeVTN(stream, vtnCounter, scalor, nvectorSide, "n");
   std::string ntphr = "//" + std::to_string(vtnCounter.ncounter);

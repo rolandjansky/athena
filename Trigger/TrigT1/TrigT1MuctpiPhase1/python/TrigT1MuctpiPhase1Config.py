@@ -1,9 +1,59 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaCommon.Logging import logging
 
+#Muon RecRoiTools
+from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3RPCRecRoiTool
+from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3TGCRecRoiTool
 
 # Local (generated) configurable(s):
 from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Conf import LVL1MUCTPIPHASE1__MUCTPI_AthAlg
 from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Conf import LVL1MUCTPIPHASE1__MUCTPI_AthTool
+
+#####
+##New style config
+#####
+
+def getTrigThresholdDecisionTool(name="TrigThresholdDecisionTool"):
+  tool = CompFactory.getComp("LVL1::TrigThresholdDecisionTool")(name)
+  tool.RPCRecRoiTool = getRun3RPCRecRoiTool("RPCRecRoiTool", useRun3Config=True)
+  tool.TGCRecRoiTool = getRun3TGCRecRoiTool("TGCRecRoiTool", useRun3Config=True)
+  return tool
+
+
+def MUCTPI_AthToolCfg(name):
+  tool = CompFactory.getComp("LVL1MUCTPIPHASE1::MUCTPI_AthTool")(name)
+  tool.RPCRecRoiTool = getRun3RPCRecRoiTool("RPCRecRoiTool", useRun3Config=True)
+  tool.TGCRecRoiTool = getRun3TGCRecRoiTool("TGCRecRoiTool", useRun3Config=True)
+  tool.TrigThresholdDecisionTool = getTrigThresholdDecisionTool("TrigThresholdDecisionTool")
+
+  # Create a logger:
+  logger = logging.getLogger( "MUCTPI_AthTool" )
+
+  # Set properties of the LUT overlap handling:
+  tool.OverlapStrategyName = "LUT"
+  
+  # Decide which LUT to use, based on which run we are simulating:
+  tool.LUTXMLFile = "TrigConfMuctpi/overlapRun3_20201214.xml"
+  logger.info( "Configuring MuCTPI simulation with configuration file:" )
+  logger.info( "  "+tool.LUTXMLFile )
+
+  return tool
+
+
+def MUCTPI_AthAlgCfg(name):
+  acc = ComponentAccumulator()
+  alg = CompFactory.getComp("LVL1MUCTPIPHASE1::MUCTPI_AthAlg")(name="MUCTPI_AthAlg")
+  alg.MUCTPI_AthTool = MUCTPI_AthToolCfg(name="MUCTPI_AthTool")
+  acc.addEventAlgo(alg)
+  return acc
+
+
+#####
+##Old style config
+#####
+
 
 class DefaultL1MuctpiPhase1( LVL1MUCTPIPHASE1__MUCTPI_AthAlg ):
 
@@ -27,6 +77,7 @@ class L1MuctpiPhase1( DefaultL1MuctpiPhase1 ):
 
     DefaultL1MuctpiPhase1.__init__( self, name )
 
+    self.MUCTPI_AthTool = MUCTPI_AthToolCfg("MUCTPI_AthTool")
 
 class L1MuctpiPhase1_on_RDO( DefaultL1MuctpiPhase1 ):
 

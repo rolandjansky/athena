@@ -18,7 +18,7 @@ def mergeChainDefs(listOfChainDefs, chainDict):
 
     strategy = chainDict["mergingStrategy"]
     offset = chainDict["mergingOffset"]
-    log.info("[mergeChainDefs] %s: Combine by using %s merging", chainDict['chainName'], strategy)
+    log.debug("[mergeChainDefs] %s: Combine by using %s merging", chainDict['chainName'], strategy)
 
     if strategy=="parallel":
         return mergeParallel(listOfChainDefs,  offset)
@@ -177,7 +177,7 @@ def getCurrentAG(chainStep):
             # get the alignment group of the leg that is running a non-empty sequence
             # if we double-serial merge enough this will have to be recursive. Throw an error here for now
             # if the length is greater than one. I don't think this will ever come up
-            if len(chainStep.stepDicts[iseq]['chainParts']) > 1:
+            if len(set(cp['alignmentGroup'] for cp in chainStep.stepDicts[iseq]['chainParts'])) > 1:
                 log.error("[getCurrentAG] The leg has more than one chainPart (%s). Either the alignmentGroup property is bad or this is an unimplemented situation.",chainStep.stepDicts[iseq]['chainParts'])
                 raise Exception("[getCurrentAG] Not sure what is happening here, but I don't know what to do.")
             filled_seq_ag += [chainStep.stepDicts[iseq]['chainParts'][0]['alignmentGroup']]
@@ -282,17 +282,17 @@ def serial_zip(allSteps, chainName, chainDefList):
                         log.debug("[serial_zip] emptyChainDicts %s",emptyChainDicts)
 
                     if len(emptySequences) != len(emptyChainDicts):
-                        log.error("[serial_zip] different number of empty sequences/legs %d to stepDicts %d", len(emptySequences), len(emptyChainDicts))
+                        log.error("[serial_zip] %s has a different number of empty sequences/legs %d than stepDicts %d", chainName, len(emptySequences), len(emptyChainDicts))
                         raise Exception("[serial_zip] Cannot create this chain step, exiting.")
 
                     for sd in emptyChainDicts:
                         if len(sd['chainParts']) != 1:
-                            log.error("[serial_zip] stepDict chainParts has length != 1 within a leg! %s",sd)
+                            log.error("[serial_zip] %s has chainParts has length != 1 within a leg! chain dictionary for this step: \n %s", chainName, sd)
                             raise Exception("[serial_zip] Cannot create this chain step, exiting.")
                         step_mult += [int(sd['chainParts'][0]['multiplicity'])] 
 
                     if len(emptySequences) != len(step_mult):
-                        log.error("[serial_zip] different number of empty sequences/legs %d to multiplicities %d", len(emptySequences), len(step_mult))
+                        log.error("[serial_zip] %s has a different number of empty sequences/legs %d than multiplicities %d",  chainName, len(emptySequences), len(step_mult))
                         raise Exception("[serial_zip] Cannot create this chain step, exiting.")
 
                     if doBonusDebug:
@@ -339,14 +339,7 @@ def mergeSerial(chainDefList):
         mySteps = list(steps)
         combStep = makeCombinedStep(mySteps, step_index+1, chainDefList)
         combChainSteps.append(combStep)
-
-    # check if all chain parts have the same number of steps
-    sameNSteps = all(x==nSteps[0] for x in nSteps) 
-    if sameNSteps is True:
-        log.info("[mergeSerial] All chain parts have the same number of steps")
-    else:
-        log.info("[mergeSerial] Have to deal with uneven number of chain steps, there might be none's appearing in sequence list => to be fixed")
-                                  
+                        
     combinedChainDef = Chain(chainName, ChainSteps=combChainSteps, L1Thresholds=l1Thresholds,
                                nSteps = nSteps, alignmentGroups = alignmentGroups)
 
@@ -389,16 +382,20 @@ def makeCombinedStep(parallel_steps, stepNumber, chainDefList, allSteps = [], cu
         for chain_index, step in enumerate(parallel_steps): 
             # every step is empty but some might have empty sequences and some might not
             if len(step.sequences) == 0:
-                new_stepDict = deepcopy(chainDefList[chain_index].steps[-1].stepDicts[-1])
-                currentStepName = 'Empty' + chainDefList[chain_index].alignmentGroups[0]+'Align'+str(stepNumber)+'_'+new_stepDict['chainParts'][0]['multiplicity']+new_stepDict['signature']
+                new_stepDicts = deepcopy(chainDefList[chain_index].steps[-1].stepDicts)
+                currentStepName = 'Empty' + chainDefList[chain_index].alignmentGroups[0]+'Align'+str(stepNumber)+'_'+new_stepDicts[0]['chainParts'][0]['multiplicity']+new_stepDicts[0]['signature']
+                log.debug('[makeCombinedStep] step has no sequences, making empty step %s', currentStepName)
 
                 # we need a chain dict here, use the one corresponding to this leg of the chain
-                oldLegName = new_stepDict['chainName']
-                if re.search('^leg[0-9]{3}_',oldLegName):
-                    oldLegName = oldLegName[7:]
-                new_stepDict['chainName'] = legName(oldLegName,leg_counter)
-                stepDicts.append(new_stepDict)
-                leg_counter += 1
+                for new_stepDict in new_stepDicts:
+                    oldLegName = new_stepDict['chainName']
+                    if re.search('^leg[0-9]{3}_',oldLegName):
+                        oldLegName = oldLegName[7:]
+                    new_stepDict['chainName'] = legName(oldLegName,leg_counter)
+                    log.debug("[makeCombinedStep] stepDict naming old: %s, new: %s", oldLegName, new_stepDict['chainName'])
+                    stepDicts.append(new_stepDict)
+                    leg_counter += 1
+
             else:
                 # Standard step with empty sequence(s)
                 currentStepName = step.name
@@ -423,7 +420,7 @@ def makeCombinedStep(parallel_steps, stepNumber, chainDefList, allSteps = [], cu
             stepName += '_' + currentStepName
 
         theChainStep = ChainStep(stepName, Sequences=[], multiplicity=[], chainDicts=stepDicts, comboHypoCfg=ComboHypoCfg) 
-        log.info("[makeCombinedStep] Merged empty step: \n %s", theChainStep)
+        log.debug("[makeCombinedStep] Merged empty step: \n %s", theChainStep)
         return theChainStep
 
     for chain_index, step in enumerate(parallel_steps): #this is a horizontal merge!
@@ -445,10 +442,15 @@ def makeCombinedStep(parallel_steps, stepNumber, chainDefList, allSteps = [], cu
                 stepSeq.append(RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=None, name=seqName))
                 currentStepName = 'Empty' + chainDefList[chain_index].alignmentGroups[0]+'Align'+str(stepNumber)+'_'+new_stepDict['chainParts'][0]['multiplicity']+new_stepDict['signature']
 
-            log.debug("[makeCombinedStep]  step %s,  empty sequence %s", currentStepName, seqName)
+            log.debug("[makeCombinedStep]  chain_index: %s, step name: %s,  empty sequence name: %s", chain_index, currentStepName, seqName)
 
             #stepNumber is indexed from 1, need the previous step indexed from 0, so do - 2
-            prev_step_mult = int(currentChainSteps[stepNumber-2].multiplicity[chain_index])
+            prev_step_mult = -1
+            if stepNumber > 1:
+                prev_step_mult = int(currentChainSteps[stepNumber-2].multiplicity[chain_index])
+            else:
+                #get the step multiplicity from the step dict. This should be 
+                prev_step_mult = int(new_stepDict['chainParts'][0]['multiplicity'])
             stepMult.append(prev_step_mult)
             # we need a chain dict here, use the one corresponding to this leg of the chain
             oldLegName = new_stepDict['chainName']
@@ -501,7 +503,7 @@ def makeCombinedStep(parallel_steps, stepNumber, chainDefList, allSteps = [], cu
     
     comboHypoTools = list(set(comboHypoTools))
     theChainStep = ChainStep(stepName, Sequences=stepSeq, multiplicity=stepMult, chainDicts=stepDicts, comboHypoCfg=comboHypo, comboToolConfs=comboHypoTools) 
-    log.info("[makeCombinedStep] Merged step: \n %s", theChainStep)
+    log.debug("[makeCombinedStep] Merged step: \n %s", theChainStep)
   
     
     return theChainStep

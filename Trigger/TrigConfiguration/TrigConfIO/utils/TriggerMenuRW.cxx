@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "TrigConfIO/JsonFileLoader.h"
-#include "TrigConfIO/JsonFileWriter.h"
+#include "TrigConfIO/JsonFileWriterL1.h"
 #include "TrigConfIO/JsonFileWriterHLT.h"
 #include "TrigConfIO/TrigDBMenuLoader.h"
 #include "TrigConfIO/TrigDBJobOptionsLoader.h"
@@ -178,7 +178,7 @@ namespace {
          }
          filename += ".fromDS.json";
          if ( kind=="L1Menu" ) {
-            TrigConf::JsonFileWriter fileWriter;
+            TrigConf::JsonFileWriterL1 fileWriter;
             const auto & l1menu = dynamic_cast<const TrigConf::L1Menu &>(ds);
             return fileWriter.writeJsonFile(filename, l1menu); 
          } else if ( kind == "HLTMenu") {

@@ -9,9 +9,13 @@ athArgsParser = AthArgumentParser()
 athArgsParser.add_argument("--data-type", action = "store", dest = "data_type",
                            default = "data",
                            help = "Type of input to run over. Valid options are 'data', 'mc', 'afii'")
+athArgsParser.add_argument( "--dnn", dest = "dnn",
+                            action = "store_true", default = False,
+                            help = "Use the DNN electron ID instead of the likelihood. ")
 athArgs = athArgsParser.parse_args()
 
 dataType = athArgs.data_type
+useDNNeID = athArgs.dnn
 if not dataType in ["data", "mc", "afii"] :
     raise Exception ("invalid data type: " + dataType)
 
@@ -28,16 +32,17 @@ testFile = os.getenv ( inputfile[dataType] )
 svcMgr.EventSelector.InputCollections = [testFile]
 
 from EgammaAnalysisAlgorithms.EgammaAnalysisAlgorithmsTest import makeSequence
-algSeq = makeSequence (dataType)
+algSeq = makeSequence (dataType, not useDNNeID)
 print (algSeq) # For debugging
 
 # Add all algorithms from the sequence to the job.
 athAlgSeq += algSeq
 
+eSelection = '.DNN' if useDNNeID else '.LH'
 # Set up a histogram output file for the job:
 ServiceMgr += CfgMgr.THistSvc()
 ServiceMgr.THistSvc.Output += [
-    "ANALYSIS DATAFILE='EgammaAnalysisAlgorithmsTest." + dataType + ".hist.root' OPT='RECREATE'"
+    "ANALYSIS DATAFILE='EgammaAnalysisAlgorithmsTest." + dataType + eSelection + ".hist.root' OPT='RECREATE'"
     ]
 
 # Reduce the printout from Athena:

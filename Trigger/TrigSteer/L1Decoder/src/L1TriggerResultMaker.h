@@ -6,6 +6,7 @@
 #define TRIGT1RESULTBYTESTREAM_L1TRIGGERRESULTMAKER_H
 
 // Trigger includes
+#include "xAODTrigger/eFexEMRoIContainer.h"
 #include "xAODTrigger/MuonRoIContainer.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 
@@ -37,10 +38,15 @@ private:
     this, "MuRoIKey", "LVL1MuonRoIs",
     "Key of the muon RoI container to be linked to L1 Trigger Result"};
 
+  // eFex EM RoIs
+  SG::ReadHandleKey<xAOD::eFexEMRoIContainer> m_eFexEMRoIKey {
+    this, "eFexEMRoIKey", "L1_eEMRoI",
+    "Key of the eFex EM RoI container to be linked to L1 Trigger Result"};
+
   // Placeholder for other L1 xAOD outputs:
   // - CTP result
   // - L1Topo result
-  // - L1Calo (Run3) RoIs
+  // - the remaining Run-3 L1Calo RoIs
 };
 
 #endif // TRIGT1RESULTBYTESTREAM_L1TRIGGERRESULTMAKER_H

@@ -223,9 +223,12 @@ def test(model_file, tree_file,
 
     objective = booster.dump_model()['objective'].strip()
     # binary and xentropy are not the exact same thing when training but the output value is the same
+    # same for l1/l2/huber/... regression
     # (https://lightgbm.readthedocs.io/en/latest/Parameters.html)
     binary_aliases = ('binary', 'cross_entropy', 'xentropy')
-    regression_aliases = ('regression_l2', 'l2', 'mean_squared_error', 'mse', 'l2_root', 'root_mean_squared_error', 'rmse')
+    regression_aliases = ('regression_l2', 'l2', 'mean_squared_error', 'mse', 'l2_root', 'root_mean_squared_error', 'rmse') + \
+                         ('regression_l1', 'l1', 'mean_absolute_error', 'mae') + \
+                         ('huber',)
     multiclass_aliases = ('multiclass', 'softmax')
     if objective in multiclass_aliases:
         logging.info("assuming multiclass, testing")
@@ -246,9 +249,26 @@ def test_regression(booster, mva_utils, ntests=10000, test_file=None):
     logging.info("using %d input features with regression", nvars)
 
     if test_file is not None:
-        data_input = np.load(test_file)
-        logging.info("using as input %s inputs from file %s",
-                     len(data_input), test_file)
+        if ".root" in test_file:
+            if ':' not in test_file:
+                raise ValueError("when using ROOT file as test use the syntax filename:treename")
+            fn, tn = test_file.split(":")
+            f = ROOT.TFile.Open(fn)
+            if not f:
+                raise IOError("cannot find ROOT file %s" % fn)
+            tree = f.Get(tn)
+            if not tree:
+                raise IOError("cannot fint TTree %s in %s" % (fn, tn))
+            branch_names = [br.GetName() for br in tree.GetListOfBranches()]
+            for feature in booster.feature_name():
+                if feature not in branch_names:
+                    raise IOError("required feature %s not in TTree")
+            data_input = tree.AsMatrix(booster.feature_name())
+            logging.info("using as input %s inputs from TTree %s from ROOT file %s" , len(data_input), tn, fn)
+        else:
+            data_input = np.load(test_file)
+            logging.info("using as input %s inputs from pickle file %s",
+                         len(data_input), test_file)
     else:
         logging.info(
             "using as input %s random uniform inputs (-100,100)", ntests)
@@ -489,7 +509,7 @@ if __name__ == "__main__":
                         help="don't run test (not suggested)")
     parser.add_argument('--ntests', type=int, default=1000,
                         help="number of random test, default=1000")
-    parser.add_argument('--test-file', help='numpy table')
+    parser.add_argument('--test-file', help='numpy pickle or ROOT file (use filename.root:treename)')
 
     args = parser.parse_args()
 

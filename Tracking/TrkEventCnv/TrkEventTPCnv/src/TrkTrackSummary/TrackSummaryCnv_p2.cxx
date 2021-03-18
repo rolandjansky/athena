@@ -98,11 +98,11 @@ void TrackSummaryCnv_p2::persToTrans( const Trk::TrackSummary_p2 *persObj, Trk::
         ts->m_npseudoMeasurements = *i; ++i;
         
         size_t size=(s-2)/12;
-        ts->m_chamberHitSummary.resize(size);
+        ts->m_chamberHitSummary.reserve(size);
 
         for (size_t sc=0;  sc<size ; ++sc ){
-            ts->m_chamberHitSummary[sc].m_chId = Identifier(*i); ++i;
-            ts->m_chamberHitSummary[sc].m_isMdt          =(*i);++i;
+            ts->m_chamberHitSummary.emplace_back(Identifier(*i), bool(*(++i)));
+            ++i;
             ts->m_chamberHitSummary[sc].m_first.nhits      =(*i);++i;
             ts->m_chamberHitSummary[sc].m_first.nholes     =(*i);++i;
             ts->m_chamberHitSummary[sc].m_first.noutliers  =(*i);++i;

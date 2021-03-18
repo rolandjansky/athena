@@ -98,6 +98,7 @@ TrigConf::HLTPrescaleCondAlg::initialize() {
          ATH_MSG_ERROR( "Failed loading HLT prescales set from the file " << m_filename );
          return StatusCode::FAILURE;
       }
+      pss->setPSK(m_psk);
       m_pssMap[0] = pss;
 
    } else if( m_psk != 0u ) {

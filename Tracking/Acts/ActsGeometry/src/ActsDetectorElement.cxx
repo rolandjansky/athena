@@ -25,7 +25,7 @@
 #include "Acts/Surfaces/RectangleBounds.hpp"
 #include "Acts/Surfaces/TrapezoidBounds.hpp"
 #include "Acts/Geometry/GeometryContext.hpp"
-#include "Acts/Utilities/Units.hpp"
+#include "Acts/Definitions/Units.hpp"
 
 // STL
 #include <mutex>
@@ -35,7 +35,7 @@
 #include <boost/variant/get.hpp>
 
 
-using Acts::Transform3D;
+using Acts::Transform3;
 using Acts::Surface;
 
 using namespace Acts::UnitLiterals;
@@ -90,12 +90,12 @@ ActsDetectorElement::ActsDetectorElement(
 }
 
 ActsDetectorElement::ActsDetectorElement(
-    const Acts::Transform3D& trf,
+    const Acts::Transform3& trf,
     const InDetDD::TRT_BaseElement* detElem,
     const Identifier& id)
 {
   m_detElement = detElem;
-  m_defTransform = std::make_shared<const Acts::Transform3D>(trf);
+  m_defTransform = std::make_shared<const Acts::Transform3>(trf);
   m_explicitIdentifier = id;
 
   // we know this is a straw
@@ -133,11 +133,11 @@ ActsDetectorElement::identityHelper() const
   }
 }
 
-const Acts::Transform3D&
+const Acts::Transform3&
 ActsDetectorElement::transform(const Acts::GeometryContext& anygctx) const
 {
   // any cast to known context type
-  const ActsGeometryContext* gctx = std::any_cast<const ActsGeometryContext*>(anygctx);
+  const ActsGeometryContext* gctx = anygctx.get<const ActsGeometryContext*>();
 
   // This is needed for initial geometry construction. At that point, we don't have a
   // consistent view of the geometry yet, and thus we can't populate an alignment store
@@ -149,13 +149,12 @@ ActsDetectorElement::transform(const Acts::GeometryContext& anygctx) const
 
   // unpack the alignment store from the context
   const ActsAlignmentStore* alignmentStore = gctx->alignmentStore;
-
   // no GAS, is this initialization?
   assert(alignmentStore != nullptr);
 
   // get the correct cached transform
   // units should be fine here since we converted at construction
-  const Transform3D* cachedTrf = alignmentStore->getTransform(this);
+  const Transform3* cachedTrf = alignmentStore->getTransform(this);
 
   assert(cachedTrf != nullptr);
 
@@ -165,12 +164,12 @@ ActsDetectorElement::transform(const Acts::GeometryContext& anygctx) const
 void
 ActsDetectorElement::storeTransform(ActsAlignmentStore* gas) const
 {
-  struct get_transform : public boost::static_visitor<Transform3D>
+  struct get_transform : public boost::static_visitor<Transform3>
   {
-    get_transform(ActsAlignmentStore* gas2, const Transform3D* trtTrf)
+    get_transform(ActsAlignmentStore* gas2, const Transform3* trtTrf)
       : m_store(gas2), m_trtTrf(trtTrf) {}
 
-    Transform3D operator()(const InDetDD::SiDetectorElement* detElem) const
+    Transform3 operator()(const InDetDD::SiDetectorElement* detElem) const
     {
       Amg::Transform3D g2l
         = detElem->getMaterialGeom()->getAbsoluteTransform(m_store)
@@ -182,16 +181,16 @@ ActsDetectorElement::storeTransform(ActsAlignmentStore* gas) const
       return g2l;
     }
 
-    Transform3D operator()(const InDetDD::TRT_BaseElement*) const
+    Transform3 operator()(const InDetDD::TRT_BaseElement*) const
     {
       return *m_trtTrf;
     }
 
     ActsAlignmentStore* m_store;
-    const Transform3D* m_trtTrf;
+    const Transform3* m_trtTrf;
   };
 
-  Transform3D trf
+  Transform3 trf
     = boost::apply_visitor(get_transform(gas, m_defTransform.get()), m_detElement);
 
   gas->setTransform(this, trf);
@@ -201,14 +200,14 @@ ActsDetectorElement::storeTransform(ActsAlignmentStore* gas) const
 
 }
 
-const Acts::Transform3D&
+const Acts::Transform3&
 ActsDetectorElement::getDefaultTransformMutexed() const
 {
-  struct get_default_transform : public boost::static_visitor<Transform3D>
+  struct get_default_transform : public boost::static_visitor<Transform3>
   {
-    get_default_transform(const Transform3D* trtTrf) : m_trtTrf(trtTrf) {}
+    get_default_transform(const Transform3* trtTrf) : m_trtTrf(trtTrf) {}
 
-    Transform3D operator()(const InDetDD::SiDetectorElement* detElem) const
+    Transform3 operator()(const InDetDD::SiDetectorElement* detElem) const
     {
       Amg::Transform3D g2l
         = detElem->getMaterialGeom()->getDefAbsoluteTransform()
@@ -220,12 +219,12 @@ ActsDetectorElement::getDefaultTransformMutexed() const
       return g2l;
     }
 
-    Transform3D operator()(const InDetDD::TRT_BaseElement*) const
+    Transform3 operator()(const InDetDD::TRT_BaseElement*) const
     {
       return *m_trtTrf;
     }
 
-    const Transform3D* m_trtTrf;
+    const Transform3* m_trtTrf;
   };
 
   std::lock_guard<std::mutex> guard(m_cacheMutex);
@@ -234,7 +233,7 @@ ActsDetectorElement::getDefaultTransformMutexed() const
   }
   // transform not yet set
   m_defTransform
-    = std::make_shared<const Transform3D>(
+    = std::make_shared<const Transform3>(
         boost::apply_visitor(get_default_transform(m_defTransform.get()), m_detElement));
 
   return *m_defTransform;

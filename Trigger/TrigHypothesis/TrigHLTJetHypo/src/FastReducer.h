@@ -12,6 +12,7 @@
 #include "./ITrigJetHypoInfoCollector.h"
 #include "./JetGroupRegister.h"
 #include "./ConditionFilter.h"
+#include "./PointerPreds.h"
 #include <string>
 #include <map>
 
@@ -25,7 +26,6 @@ typedef std::unique_ptr<ITrigJetHypoInfoCollector> Collector;
 
 using JetGroupInd2ElemInds = std::map<int, std::vector<std::size_t>>;
 using  ConditionFilters = std::vector<std::unique_ptr<ConditionFilter>>;
-
 
 class FastReducer {
  public:
@@ -120,6 +120,5 @@ class FastReducer {
 
   bool capacitySatisfied(std::size_t ind,
 			 const Collector& collector) const;
-
 };
 #endif

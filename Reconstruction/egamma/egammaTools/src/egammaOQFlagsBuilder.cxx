@@ -11,11 +11,11 @@
 #include <cmath>
 #include <vector>
 
-#include "GaudiKernel/SystemOfUnits.h"
 #include "CaloConditions/CaloAffectedRegionInfoVec.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "FourMomUtils/P4Helpers.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "Identifier/HWIdentifier.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -44,6 +44,40 @@ isbadtilecell(CaloCellList& ccl,
   }
   return isbadtilecell;
 }
+bool
+findCentralCell(const xAOD::CaloCluster* cluster, Identifier& cellCentrId)
+{
+
+  bool thereIsACentrCell = false;
+
+  // LOOP OVER CLUSTER TO FIND THE CENTRAL CELL IN S2
+  xAOD::CaloCluster::const_cell_iterator cellIter = cluster->cell_begin();
+  xAOD::CaloCluster::const_cell_iterator cellIterEnd = cluster->cell_end();
+  float clusEta = cluster->eta();
+  float clusPhi = cluster->phi();
+  float energymax = -999999.;
+
+  for (; cellIter != cellIterEnd; cellIter++) {
+    const CaloCell* cell = (*cellIter);
+    if (!cell) {
+      continue;
+    }
+    float eta = cell->eta();
+    float phi = cell->phi();
+    float energy = cell->energy();
+    CaloSampling::CaloSample layer = cell->caloDDE()->getSampling();
+    if (fabs(eta - clusEta) < 0.025 &&
+        fabs(P4Helpers::deltaPhi(phi, clusPhi)) < 0.025 &&
+        (layer == CaloSampling::EMB2 || layer == CaloSampling::EME2) &&
+        (energy > energymax)) {
+      energymax = energy;
+      cellCentrId = cellIter->ID();
+      thereIsACentrCell = true;
+    }
+  }
+  return thereIsACentrCell;
+}
+
 }
 
 egammaOQFlagsBuilder::egammaOQFlagsBuilder(const std::string& type,
@@ -91,41 +125,6 @@ StatusCode
 egammaOQFlagsBuilder::finalize()
 {
   return StatusCode::SUCCESS;
-}
-
-bool
-egammaOQFlagsBuilder::findCentralCell(const xAOD::CaloCluster* cluster,
-                                      Identifier& cellCentrId) const
-{
-
-  bool thereIsACentrCell = false;
-
-  // LOOP OVER CLUSTER TO FIND THE CENTRAL CELL IN S2
-  xAOD::CaloCluster::const_cell_iterator cellIter = cluster->cell_begin();
-  xAOD::CaloCluster::const_cell_iterator cellIterEnd = cluster->cell_end();
-  float clusEta = cluster->eta();
-  float clusPhi = cluster->phi();
-  float energymax = -999999.;
-
-  for (; cellIter != cellIterEnd; cellIter++) {
-    const CaloCell* cell = (*cellIter);
-    if (!cell){
-      continue;
-    }
-    float eta = cell->eta();
-    float phi = cell->phi();
-    float energy = cell->energy();
-    CaloSampling::CaloSample layer = cell->caloDDE()->getSampling();
-    if (fabs(eta - clusEta) < 0.025 &&
-        fabs(P4Helpers::deltaPhi(phi, clusPhi)) < 0.025 &&
-        (layer == CaloSampling::EMB2 || layer == CaloSampling::EME2) &&
-        (energy > energymax)) {
-      energymax = energy;
-      cellCentrId = cellIter->ID();
-      thereIsACentrCell = true;
-    }
-  }
-  return thereIsACentrCell;
 }
 
 bool
@@ -188,8 +187,7 @@ egammaOQFlagsBuilder::execute(const EventContext& ctx,
 
   // Find the central cell in the middle layer
   Identifier cellCentrId;
-  bool foundCentralCell =
-    egammaOQFlagsBuilder::findCentralCell(cluster, cellCentrId);
+  bool foundCentralCell = findCentralCell(cluster, cellCentrId);
 
   // Set timing bit
   const double absEnergyGeV = fabs(cluster->e() * (1. / Gaudi::Units::GeV));

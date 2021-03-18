@@ -1,13 +1,16 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModel/FPVMAP.h"
-#include <iostream>
 
 #include "MuonGeoModel/Technology.h"
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/getMessageSvc.h"
+#include <GaudiKernel/IMessageSvc.h>
+
+#include <utility>
+#include <iostream>
 
 namespace MuonGM {
 
@@ -15,10 +18,6 @@ namespace MuonGM {
 FPVMAP::FPVMAP()
 {
   m_nreused=0;
-}
-
-FPVMAP::~FPVMAP()
-{
 }
 
 GeoVPhysVol* FPVMAP::GetDetector(std::string name)

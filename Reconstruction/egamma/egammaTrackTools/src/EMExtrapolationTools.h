@@ -109,16 +109,6 @@ public:
                                     bool reuse = true) const override final;
 
 private:
-  /** @Helper to get the per Layer Intersections **/
-  CaloExtensionHelpers::EtaPhiPerLayerVector getIntersections(
-    const Trk::CaloExtension& extension,
-    const xAOD::CaloCluster& cluster) const;
-
-  /** @Perform the Rescaling of the perigee parameters with the cluster energy
-   * **/
-  Trk::Perigee getRescaledPerigee(const xAOD::TrackParticle& trkPB,
-                                  const xAOD::CaloCluster& cluster) const;
-
   /** @brief Return +/- 1 (2) if track is in positive/negative TRT barrel
    * (endcap) **/
   int getTRTsection(const xAOD::TrackParticle* trkPB) const;

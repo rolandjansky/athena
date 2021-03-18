@@ -78,6 +78,13 @@ namespace TCS {
      std::vector<std::string> m_histRejectX;
      std::vector<std::string> m_histAcceptEta1Eta2;
      std::vector<std::string> m_histRejectEta1Eta2;
+     std::vector<std::string> m_histAcceptEta2Eta3;
+     std::vector<std::string> m_histRejectEta2Eta3;
+     std::vector<std::string> m_histAcceptEta3Eta1;
+     std::vector<std::string> m_histRejectEta3Eta1;
+     std::vector<std::string> m_histAcceptChargeEta1Eta2;
+     std::vector<std::string> m_histRejectChargeEta1Eta2;
+     std::vector<std::string> m_histUndefChargeEta1Eta2;
 
 
    private:

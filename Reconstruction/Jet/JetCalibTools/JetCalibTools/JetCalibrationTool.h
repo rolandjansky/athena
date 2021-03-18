@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetCalibrationTool.h 
@@ -110,11 +110,15 @@ private:
   bool m_timeDependentCalib;
   bool m_originCorrectedClusters;
   std::string m_rhoKey;
+  bool m_useNjetInResidual;
+  float m_nJetThreshold;
+  std::string m_nJetContainerName;
   std::string m_dir;
   std::string m_eInfoName;
   std::vector<TString> m_timeDependentInsituConfigs;
   std::vector<double>  m_runBins;
   bool m_doSetDetectorEta;
+  std::string m_vertexContainerName;
 
   //TEnv to hold the global text config
   TEnv * m_globalConfig;

@@ -13,7 +13,7 @@ atlas_add_library( AthExOnnxRuntimeLib
 atlas_add_component( AthExOnnxRuntime
    src/*.h src/*.cxx src/components/*.cxx
    INCLUDE_DIRS ${ONNXRUNTIME_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ONNXRUNTIME_LIBRARIES} AthExOnnxRuntimeLib AthenaBaseComps GaudiKernel PathResolver AthOnnxruntimeServiceLib)
+   LINK_LIBRARIES ${ONNXRUNTIME_LIBRARIES} AthExOnnxRuntimeLib AthenaBaseComps GaudiKernel PathResolver AthOnnxruntimeServiceLib AthOnnxruntimeUtilsLib)
 
 # Install files from the package.
 atlas_install_joboptions( share/*.py )

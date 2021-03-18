@@ -69,7 +69,7 @@ private:
     "Enables start-of-event cost monitoring behavior."};
 
   Gaudi::Property<std::string> m_costMonitoringChain{
-    this, "CostMonitoringChain", "HLT_costmonitor_CostMonDS_L1All",
+    this, "CostMonitoringChain", "HLT_noalg_CostMonDS_L1All",
     "Name of the chain which should enable HLT cost montoring."};
 
   ServiceHandle<ITrigCostMTSvc> m_trigCostSvcHandle {

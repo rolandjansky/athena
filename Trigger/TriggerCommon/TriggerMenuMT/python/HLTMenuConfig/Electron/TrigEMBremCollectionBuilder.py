@@ -71,10 +71,15 @@ class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
         ) and not InDetFlags.doHighPileup():
 
             from TrigInDetConfig.InDetTrigCollectionKeys import TrigTRTKeys
+            from AthenaCommon.GlobalFlags import globalflags
+            TrigTRTRDOs = "TRT_RDOs"
+            if globalflags.DataSource() == "data":
+                TrigTRTRDOs = TrigTRTKeys.RDOs
+
             TRT_LocalOccupancyTool = TrackingCommon.getInDetTRT_LocalOccupancy(
-                    TRT_RDOContainerName=TrigTRTKeys.RDOs,
-                    TRT_DriftCircleCollection=TrigTRTKeys.DriftCircles,
-                    isTrigger=True)
+                TRT_RDOContainerName=TrigTRTRDOs,
+                TRT_DriftCircleCollection="",
+                isTrigger=True)
 
             TRT_ToT_dEdx_Tool = TrackingCommon.getInDetTRT_dEdxTool(
                     TRT_LocalOccupancyTool=TRT_LocalOccupancyTool,

@@ -618,7 +618,7 @@ class ItemDef:
         MenuItem('L1_J40p0ETA25_2J15p31ETA49'     ).setLogic( d.J400ETA25 & d.J1531ETA49.x(2)    & physcond).setTriggerType(TT.calo)
         MenuItem('L1_J40p0ETA25_2J25_J20p31ETA49' ).setLogic( d.J400ETA25 & d.J25.x(2) & d.J2031ETA49   & physcond).setTriggerType(TT.calo)
         MenuItem('L1_J40p0ETA25_2J30_J20p31ETA49' ).setLogic( d.J400ETA25 & d.J30.x(2) & d.J2031ETA49   & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_J45p0ETA23_3J15p0ETA25'      ).setLogic( d.J450ETA23 & d.J150ETA25.x(3) & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_J45p0ETA21_3J15p0ETA25'      ).setLogic( d.J450ETA21 & d.J150ETA25.x(3) & physcond).setTriggerType(TT.calo)
         MenuItem('L1_J50_2J40p0ETA25_3J15p0ETA25' ).setLogic( d.J50 & d.J400ETA25.x(2) & d.J150ETA25.x(3) & physcond).setTriggerType(TT.calo)
 
         MenuItem('L1_4J17p0ETA22' ).setLogic( d.J170ETA22.x(4) & physcond).setTriggerType(TT.calo)
@@ -1141,7 +1141,6 @@ class ItemDef:
 
         # RANDOM
         MenuItem('L1_RD0_FILLED'         ).setLogic( d.RNDM0 & physcond           ).setTriggerType(TT.rand)
-        MenuItem('L1_RD0_FILLED_OVERLAY' ).setLogic( d.RNDM0 & physcond           ).setTriggerType(TT.zerobs)
         MenuItem('L1_RD0_EMPTY'          ).setLogic( d.RNDM0 & cosmiccond         ).setTriggerType(TT.rand)
         MenuItem('L1_RD0_UNPAIRED_ISO'   ).setLogic( d.RNDM0 & unpaired_isocond   ).setTriggerType(TT.rand)
         MenuItem('L1_RD0_UNPAIRED_NONISO').setLogic( d.RNDM0 & unpaired_nonisocond).setTriggerType(TT.rand)
@@ -1151,7 +1150,7 @@ class ItemDef:
         MenuItem('L1_RD0_BGRP11'         ).setLogic( d.RNDM0 & bgrp11cond         ).setTriggerType(TT.rand)
         MenuItem('L1_RD0_ABORTGAPNOTCALIB').setLogic( d.RNDM0 & abortgap          ).setTriggerType(TT.rand)
 
-        MenuItem('L1_RD1_FILLED'         ).setLogic( d.RNDM1 & physcond           ).setTriggerType(TT.rand)
+        MenuItem('L1_RD1_FILLED'         ).setLogic( d.RNDM1 & physcond           ).setTriggerType(TT.zerobs) # used to be TT.rand
         MenuItem('L1_RD1_EMPTY'          ).setLogic( d.RNDM1 & cosmiccond         ).setTriggerType(TT.zerobs)
         MenuItem('L1_RD1_BGRP10'         ).setLogic( d.RNDM1 & alfacalib          ).setTriggerType(TT.zerobs)
 

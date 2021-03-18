@@ -72,6 +72,8 @@ atlas_add_executable( TIDAcomparitor
 
 atlas_add_executable( TIDAcpucost
    Analysis/src/cpucost.cxx
+   Analysis/src/AtlasStyle.h Analysis/src/AtlasStyle.cxx
+   Analysis/src/AtlasLabels.h Analysis/src/AtlasLabels.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} Readcards TIDAcomputils )
 

@@ -1,43 +1,45 @@
-Sat Jun 27 04:03:44 CEST 2020
+Mon Mar 15 09:19:53 CET 2021
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [WorkDir-22.0.16] [x86_64-centos7-gcc8-opt] [atlas-work3/0446faaa9579] -- built on [2020-06-26T2302]
+Py:Athena            INFO using release [WorkDir-22.0.30] [x86_64-centos7-gcc8-opt] [AthExJobOptions_master_update_references/0f3be21f3aa] -- built on [2021-03-15T0914]
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "AthExJobOptions/AthExJobOptions_CustomTopAlgorithmJobOptions.py"
 /***** Algorithm AthSequencer/TopAlg ***************************************************************
-|-Atomic                     = False
-|-AuditAlgorithms            = False
-|-AuditExecute               = False
-|-AuditFinalize              = False
-|-AuditInitialize            = False
-|-AuditReinitialize          = False
-|-AuditRestart               = False
-|-AuditStart                 = False
-|-AuditStop                  = False
-|-Blocking                   = False
-|-Cardinality                = 0
-|-ContinueEventloopOnFPE     = False
-|-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
-|-Enable                     = True
-|-ErrorCounter               = 0
-|-ErrorMax                   = 1
-|-EvtStore                   = ServiceHandle('StoreGateSvc')
-|-ExtraInputs                = []  (default: [])
-|-ExtraOutputs               = []  (default: [])
-|-FilterCircularDependencies = True
-|-IgnoreFilterPassed         = False
-|-Members                    = ['TopAlgorithm/MyCustomAlg']  (default: [])
-|-ModeOR                     = False
-|-MonitorService             = 'MonitorSvc'
-|-NeededResources            = []  (default: [])
-|-OutputLevel                = 0
-|-RegisterForContextService  = False
-|-Sequential                 = False
-|-StopOverride               = False
-|-TimeOut                    = 0.0
-|-Timeline                   = True
+|-Atomic                         = False
+|-AuditAlgorithms                = False
+|-AuditExecute                   = False
+|-AuditFinalize                  = False
+|-AuditInitialize                = False
+|-AuditReinitialize              = False
+|-AuditRestart                   = False
+|-AuditStart                     = False
+|-AuditStop                      = False
+|-Blocking                       = False
+|-Cardinality                    = 0
+|-ContinueEventloopOnFPE         = False
+|-DetStore                       = ServiceHandle('StoreGateSvc/DetectorStore')
+|-Enable                         = True
+|-ErrorCounter                   = 0
+|-ErrorMax                       = 1
+|-EvtStore                       = ServiceHandle('StoreGateSvc')
+|-ExtraDataForDynamicConsumers   = []  (default: [])
+|-ExtraInputs                    = []  (default: [])
+|-ExtraOutputs                   = []  (default: [])
+|-FilterCircularDependencies     = True
+|-IgnoreFilterPassed             = False
+|-Members                        = ['TopAlgorithm/MyCustomAlg']  (default: [])
+|-ModeOR                         = False
+|-MonitorService                 = 'MonitorSvc'
+|-NeededResources                = []  (default: [])
+|-OutputLevel                    = 0
+|-ProcessDynamicDataDependencies = False
+|-RegisterForContextService      = False
+|-Sequential                     = False
+|-StopOverride                   = False
+|-TimeOut                        = 0.0
+|-Timeline                       = True
 |=/***** Algorithm TopAlgorithm/MyCustomAlg **********************************************************
 | |-AuditAlgorithms            = False
 | |-AuditExecute               = False
@@ -91,20 +93,17 @@ Py:Athena            INFO including file "AthExJobOptions/AthExJobOptions_Custom
 | \----- (End of Algorithm TopAlgorithm/MyCustomAlg) -------------------------------------------------
 \----- (End of Algorithm AthSequencer/TopAlg) ------------------------------------------------------
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
-Py:ConfigurableDb    INFO Read module info for 5552 configurables from 78 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5132 configurables from 5 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
-ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
-ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v33r1)
-                                          running on lxplus755.cern.ch on Sat Jun 27 04:03:57 2020
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v35r1)
+                                          running on atdesy14 on Mon Mar 15 09:19:58 2021
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
-ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 7027 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 3200 CLIDRegistry entries for module ALL
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
 MyCustomAlg          INFO Retrieved TheTool = PrivateToolHandle('ConcreteTool/ConcreteTool')
@@ -190,8 +189,6 @@ ToolSvc.Tool6        INFO ... templated task is done
 MyCustomAlg          INFO ... my work is done! 
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #1 2 events processed so far  <<<===
 ApplicationMgr       INFO Application Manager Stopped successfully
-IncidentProcAlg1     INFO Finalize
-IncidentProcAlg2     INFO Finalize
 ConcreteSvc          INFO Finalizing ConcreteSvc...
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc

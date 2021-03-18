@@ -10,19 +10,6 @@ DiscSurface::type() const
   return DiscSurface::staticType;
 }
 
-/* Use the Surface as a ParametersBase constructor, from local parameters -
- * charged */
-inline ParametersT<5, Charged, DiscSurface>*
-DiscSurface::createTrackParameters(double l1,
-                                   double l2,
-                                   double phi,
-                                   double theta,
-                                   double qop,
-                                   AmgSymMatrix(5) * cov) const
-{
-  return new ParametersT<5, Charged, DiscSurface>(
-    l1, l2, phi, theta, qop, *this, cov);
-}
 
 /* Use the Surface as a ParametersBase constructor, from local parameters -
  * charged */
@@ -37,7 +24,8 @@ DiscSurface::createUniqueTrackParameters(double l1,
   return std::make_unique<ParametersT<5, Charged, DiscSurface>>(
     l1, l2, phi, theta, qop, *this, cov);
 }
-
+/** Use the Surface as a ParametersBase constructor, from global parameters -
+ * charged*/
 inline Surface::ChargedTrackParametersUniquePtr
 DiscSurface::createUniqueTrackParameters(const Amg::Vector3D& position,
                                    const Amg::Vector3D& momentum,
@@ -48,70 +36,81 @@ DiscSurface::createUniqueTrackParameters(const Amg::Vector3D& position,
     position, momentum, charge, *this, cov);
 }
 
-
-/** Use the Surface as a ParametersBase constructor, from global parameters -
- * charged*/
-inline ParametersT<5, Charged, DiscSurface>*
-DiscSurface::createTrackParameters(const Amg::Vector3D& position,
-                                   const Amg::Vector3D& momentum,
-                                   double charge,
-                                   AmgSymMatrix(5) * cov) const
-{
-  return new ParametersT<5, Charged, DiscSurface>(
-    position, momentum, charge, *this, cov);
-}
-
 /** Use the Surface as a ParametersBase constructor, from local parameters -
  * neutral */
-inline ParametersT<5, Neutral, DiscSurface>*
-DiscSurface::createNeutralParameters(double l1,
-                                     double l2,
-                                     double phi,
-                                     double theta,
-                                     double qop,
-                                     AmgSymMatrix(5) * cov) const
+inline Surface::NeutralTrackParametersUniquePtr
+DiscSurface::createUniqueNeutralParameters(double l1,
+                                           double l2,
+                                           double phi,
+                                           double theta,
+                                           double qop,
+                                           AmgSymMatrix(5) * cov) const
 {
-  return new ParametersT<5, Neutral, DiscSurface>(
+  return std::make_unique<ParametersT<5, Neutral, DiscSurface>>(
     l1, l2, phi, theta, qop, *this, cov);
 }
 
 /** Use the Surface as a ParametersBase constructor, from global parameters -
  * neutral */
-inline ParametersT<5, Neutral, DiscSurface>*
-DiscSurface::createNeutralParameters(const Amg::Vector3D& position,
-                                     const Amg::Vector3D& momentum,
-                                     double charge,
-                                     AmgSymMatrix(5) * cov) const
+inline Surface::NeutralTrackParametersUniquePtr
+DiscSurface::createUniqueNeutralParameters(const Amg::Vector3D& position,
+                                           const Amg::Vector3D& momentum,
+                                           double charge,
+                                           AmgSymMatrix(5) * cov) const
 {
-  return new ParametersT<5, Neutral, DiscSurface>(
+  return std::make_unique<ParametersT<5, Neutral, DiscSurface>>(
     position, momentum, charge, *this, cov);
 }
-
-/** Use the Surface as a ParametersBase constructor, from local parameters */
 template<int DIM, class T>
-ParametersT<DIM, T, DiscSurface>*
-DiscSurface::createParameters(double l1,
-                              double l2,
-                              double phi,
-                              double theta,
-                              double qop,
-                              AmgSymMatrix(DIM) * cov) const
+std::unique_ptr<ParametersT<DIM, T, DiscSurface>>
+DiscSurface::createUniqueParameters(double l1,
+                                     double l2,
+                                     double phi,
+                                     double theta,
+                                     double qop,
+                                     AmgSymMatrix(DIM) * cov) const
 {
-  return new ParametersT<DIM, T, DiscSurface>(
+  return std::make_unique<ParametersT<DIM, T, DiscSurface>>(
     l1, l2, phi, theta, qop, *this, cov);
 }
 
 /** Use the Surface as a ParametersBase constructor, from global parameters */
 template<int DIM, class T>
-ParametersT<DIM, T, DiscSurface>*
-DiscSurface::createParameters(const Amg::Vector3D& position,
-                              const Amg::Vector3D& momentum,
-                              double charge,
-                              AmgSymMatrix(DIM) * cov) const
+std::unique_ptr<ParametersT<DIM, T, DiscSurface>>
+DiscSurface::createUniqueParameters(const Amg::Vector3D& position,
+                                     const Amg::Vector3D& momentum,
+                                     double charge,
+                                     AmgSymMatrix(DIM) * cov) const
 {
-  return new ParametersT<DIM, T, DiscSurface>(
+  return std::make_unique<ParametersT<DIM, T, DiscSurface>>(
     position, momentum, charge, *this, cov);
 }
+
+/** Use the Surface as a ParametersBase constructor, from local parameters */
+template<int DIM, class T>
+ParametersT<DIM, T, DiscSurface>
+DiscSurface::createParameters(double l1,
+                               double l2,
+                               double phi,
+                               double theta,
+                               double qop,
+                               AmgSymMatrix(DIM) * cov) const
+{
+  return ParametersT<DIM, T, DiscSurface>(l1, l2, phi, theta, qop, *this, cov);
+}
+
+/** Use the Surface as a ParametersBase constructor, from global parameters */
+template<int DIM, class T>
+ParametersT<DIM, T, DiscSurface>
+DiscSurface::createParameters(const Amg::Vector3D& position,
+                               const Amg::Vector3D& momentum,
+                               double charge,
+                               AmgSymMatrix(DIM) * cov) const
+{
+  return ParametersT<DIM, T, DiscSurface>(
+    position, momentum, charge, *this, cov);
+}
+
 
 inline DiscSurface*
 DiscSurface::clone() const

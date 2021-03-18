@@ -72,6 +72,22 @@ class TestValgrindCommand(unittest.TestCase):
     def test_valgrindarguments(self):
         vgc=ValgrindCommand()
         self.assertTrue(vgc.startswith('valgrind'))
-        
+
+class TestVersionDetection(unittest.TestCase):
+    def test_asetup_version_detection(self):
+        self.assertFalse(asetupReleaseIsOlderThan('Athena,master,latest', 22))
+        self.assertFalse(asetupReleaseIsOlderThan('Athena,22.0,latest', 22))
+        self.assertFalse(asetupReleaseIsOlderThan('Athena,22.0.12', 22))
+        self.assertFalse(asetupReleaseIsOlderThan('Athena,21.3,latest', 21, 0))
+
+        self.assertTrue(asetupReleaseIsOlderThan('Athena,21.0,latest', 22))
+        self.assertTrue(asetupReleaseIsOlderThan('Athena,21.3,latest', 22))
+        self.assertTrue(asetupReleaseIsOlderThan('Athena,21.3,latest', 21, 9))
+        self.assertTrue(asetupReleaseIsOlderThan('Athena,21.0.123', 22))
+        self.assertTrue(asetupReleaseIsOlderThan('Athena,21.0.123.1', 22))
+        self.assertTrue(asetupReleaseIsOlderThan('Athena, 21.0.123.1', 22))
+        self.assertTrue(asetupReleaseIsOlderThan('21.0.123,Athena', 22))
+
+
 if __name__ == '__main__':
     unittest.main()

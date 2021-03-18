@@ -16,10 +16,17 @@ Reco_tf.py \
 --outputRDOFile=myRDO.pool.root --outputTAGFile=myTAG.pool.root --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root --outputHISTFile=myHIST.root --imf False
 
 
-echo "art-result: $? Reco"
 
-ArtPackage=$1
-ArtJobName=$2
-art.py compare grid --entries 20 ${ArtPackage} ${ArtJobName}
-echo "art-result: $? Diff"
+rc1=$?
+echo "art-result: $rc1 Reco"
+
+rc2=-9999
+if [ ${rc1} -eq 0 ]
+then
+  ArtPackage=$1
+  ArtJobName=$2
+  art.py compare grid --entries 20 ${ArtPackage} ${ArtJobName} --mode=semi-detailed --file *AOD*
+  rc2=$?
+fi
+echo  "art-result: ${rc2} Diff"
 

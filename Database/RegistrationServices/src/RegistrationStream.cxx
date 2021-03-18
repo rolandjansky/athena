@@ -33,8 +33,6 @@
 #include "GaudiKernel/IProperty.h"
 #include "GaudiKernel/GaudiException.h"
 
-#include "DBDataModel/CollectionMetadata.h"
-
 #include <cassert>
 #include <string>
 #include <vector>
@@ -108,9 +106,6 @@ RegistrationStream::initialize()
       ATH_MSG_FATAL("Could not register [" << m_outputCollection << "] for output !");
       return StatusCode::FAILURE;
     }
-
-    // Tell the tool which metadata to pick up
-    m_regTool->setCollMetadataKeys(getCollMetadataKeys());
 
     return StatusCode::SUCCESS;
 }
@@ -415,39 +410,4 @@ std::string RegistrationStream::getAttListKey()
 
     }
     return tagKey;
-}
-
-//------------------------------------------------------------
-// getCollMetadataKeys()
-//
-// This method is placed in the Stream rather than the Tool 
-//   simply because it requires parsing the itemlist
-//
-//------------------------------------------------------------
-std::vector<std::string> RegistrationStream::getCollMetadataKeys()
-{
-    std::vector<std::string> cmdKeys;
-
-    // Collect all objects that need to be persistified:
-    SG::IFolder::const_iterator i(m_2BRegistered->begin());
-    SG::IFolder::const_iterator iEnd(m_2BRegistered->end());
-    for (; i != iEnd; ++i) {
-
-        // Select from item list only the List requested by Tool
-        if (ClassID_traits<CollectionMetadataContainer>::ID() != i->id()) {
-	  ATH_MSG_DEBUG (" Not class requested by Tool, skipping ("<< i->id()
-			 << ",\"" << i->key() << "\") ");
-	  continue;
-        }
-
-        if (i->isFolder()) {
-	  ATH_MSG_ERROR ("Cannot currently treat folders in item list.");
-	  //return(StatusCode::FAILURE);
-        }
-
-        cmdKeys.push_back(i->key());
-        ATH_MSG_DEBUG ("Adding cmd key " << i->key());
-
-    }
-    return cmdKeys;
 }

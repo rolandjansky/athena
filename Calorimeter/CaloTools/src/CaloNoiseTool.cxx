@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTools/CaloNoiseTool.h"
@@ -886,6 +886,9 @@ E=SUMi { OFCi * (short[ ( (PulseShapei*Ehit+Noisei)*gain + CNoisei )
 std::vector<float> 
 CaloNoiseTool::calculateElecNoiseForTILE(const IdentifierHash & idCaloHash)
 {
+  // TODO: we might want to migrate once the rest of the tool is
+  const EventContext &ctx = Gaudi::Hive::currentContext();
+
   std::vector<float> sigmaVector (CaloGain::LARNGAIN,BADVALUE);
 
   Identifier id = m_calocell_id->cell_id(idCaloHash);
@@ -893,7 +896,7 @@ CaloNoiseTool::calculateElecNoiseForTILE(const IdentifierHash & idCaloHash)
   for(int igain=0;igain<CaloGain::LARNGAIN;++igain)
   {
     CaloGain::CaloGain gain = static_cast<CaloGain::CaloGain>(igain);
-    float sigma = m_tileCellNoise->getCellNoise(id, gain);
+    float sigma = m_tileCellNoise->getCellNoise(id, gain, ctx);
     // Conversion from ADC sigma noise to OF sigma noise
     sigma *= m_tileInfo->getNoiseScaleFactor();
 
@@ -1948,6 +1951,9 @@ CaloNoiseTool::estimatedTileGain(const CaloCell* caloCell,
 				 const CaloDetDescrElement* caloDDE,
 				 const int &/*step*/)
 {
+  // TODO: we might want to migrate once the rest of the tool is
+  const EventContext &ctx = Gaudi::Hive::currentContext();
+
   const TileCell * tileCell = (TileCell *)caloCell;
   //double eneTot = tileCell->energy();
 
@@ -1970,7 +1976,7 @@ CaloNoiseTool::estimatedTileGain(const CaloCell* caloCell,
                                           TileRawChannelUnit::ADCcounts,
                                           TileRawChannelUnit::MegaElectronVolts);
 
-  double pedestal1 = m_tileToolNoiseSample->getPed(drawerIdx1, channel1, adc1);
+  double pedestal1 = m_tileToolNoiseSample->getPed(drawerIdx1, channel1, adc1, TileRawChannelUnit::ADCcounts, ctx);
 
   int igain1;
 
@@ -1996,7 +2002,7 @@ CaloNoiseTool::estimatedTileGain(const CaloCell* caloCell,
                                             TileRawChannelUnit::ADCcounts,
                                             TileRawChannelUnit::MegaElectronVolts);
 
-    double pedestal2 = m_tileToolNoiseSample->getPed(drawerIdx2, channel2, adc2);
+    double pedestal2 = m_tileToolNoiseSample->getPed(drawerIdx2, channel2, adc2, TileRawChannelUnit::ADCcounts, ctx);
 
     if (amplitude2 + pedestal2 < threshold) {
       // igain2 high

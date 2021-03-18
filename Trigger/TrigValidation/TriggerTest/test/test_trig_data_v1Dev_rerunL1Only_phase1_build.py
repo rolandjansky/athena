@@ -36,9 +36,8 @@ checkFile = test.get_step("CheckFile")
 checkFile.input_file = 'RDO_TRIG.pool.root'
 
 chaindump = test.get_step("ChainDump")
-chaindump.args = "--json --yaml ref_data_v1Dev_rerunL1Only_phase1_build.new --yamlL1"
+chaindump.args = "--json --yaml --yamlL1"
 refcomp = CheckSteps.ChainCompStep("CountRefComp")
-refcomp.input_file = 'ref_data_v1Dev_rerunL1Only_phase1_build.new'
 refcomp.required = True # Final exit code depends on this step
 CheckSteps.add_step_after_type(test.check_steps, CheckSteps.ChainDumpStep, refcomp)
 

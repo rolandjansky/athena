@@ -11,6 +11,7 @@ EventSelector       DEBUG Initializing EventSelector
 EventSelector       DEBUG reinitialization...
 EventSelector        INFO EventSelection with query 
 EventSelector       DEBUG Try item: "SimplePoolFile1.root" from the collection list.
+PoolSvc             DEBUG createCollection() type=RootCollection, connection=PFN:SimplePoolFile1.root, name=SimplePoolFile1.root, contextID=0
 MetaDataSvc         DEBUG handle() FirstInputFile for FID:????
 MetaDataSvc         DEBUG initInputMetaDataStore: file name FID:????
 SimplePoolFile1...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Shapes
@@ -119,7 +120,10 @@ MetaDataHdrForm...  DEBUG Opened container MetaDataHdrForm(DataHeaderForm) of ty
 MetaDataSvc         DEBUG Loaded input meta data store proxies
 MetaDataSvc         DEBUG Registering all Tools in ToolHandleArray MetaDataTools
 MetaDataSvc         DEBUG Adding public ToolHandle tool ToolSvc.IOVDbMetaDataTool (IOVDbMetaDataTool)
+CondProxyProvider    INFO Inputs: SimplePoolFile4.root
 CondProxyProvider   DEBUG Try item: "SimplePoolFile4.root" from the collection list.
+PoolSvc             DEBUG createCollection() type=RootCollection, connection=PFN:SimplePoolFile4.root, name=SimplePoolFile4.root, contextID=0
+PoolSvc             DEBUG createCollection() type=ImplicitCollection, connection=PFN:SimplePoolFile4.root, name=POOLContainer(DataHeader), contextID=0
 SimplePoolFile4...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Shapes
 ##Shapes            DEBUG Opening
 ##Shapes            DEBUG    attributes# = 1
@@ -158,6 +162,7 @@ SimplePoolFile4...  DEBUG --->Reading Param:FORMAT_VSN=[1.1]
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
 EventSelector       DEBUG Try item: "SimplePoolFile1.root" from the collection list.
+PoolSvc             DEBUG createCollection() type=RootCollection, connection=PFN:SimplePoolFile1.root, name=SimplePoolFile1.root, contextID=0
 ApplicationMgr       INFO Application Manager Started successfully
 RootDatabase.se...  DEBUG Request tree cache 
 RootDatabase.se...  DEBUG File name SimplePoolFile1.root
@@ -194,6 +199,8 @@ POOLContainer(D...  DEBUG Opening
 POOLContainer(D...  DEBUG    attributes# = 1
 POOLContainer(D...  DEBUG Branch container 'DataHeader'
 POOLContainer(D...  DEBUG Opened container POOLContainer(DataHeader) of type ROOT_Tree
+StorageSvc          DEBUG Disconnect request for database: FID=???? PFN=SimplePoolFile4.root
+StorageSvc          DEBUG Closing database: FID=????
 SimplePoolFile4...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Shapes
 ##Shapes            DEBUG Opening
 ##Shapes            DEBUG    attributes# = 1
@@ -281,7 +288,6 @@ EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 12
 EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000203][OID=00000005-00000001].
 EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000203][OID=00000005-00000001].
-ClassIDSvc           INFO  getRegistryEntries: read 21 CLIDRegistry entries for module ALL
 EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000203][OID=00000005-00000001]
 AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
@@ -907,8 +913,17 @@ ReadData             INFO Hit x = 1930.12 y = 46.5449 z = -1856.17 detector = Du
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #1 20 events processed so far  <<<===
 MetaDataSvc         DEBUG handle() EndInputFile for FID:????
 MetaDataSvc         DEBUG retireMetadataSource: FID:????
+StorageSvc          DEBUG Disconnect request for database: FID=???? PFN=SimplePoolFile1.root
+StorageSvc          DEBUG Closing database: FID=????
 AthenaEventLoopMgr   INFO No more events in event selection 
 MetaDataSvc         DEBUG MetaDataSvc::stop()
+PoolSvc             DEBUG Disconnect request for contextId=0
+StorageSvc          DEBUG Disconnect request for database: FID=???? PFN=SimplePoolFile4.root
+StorageSvc          DEBUG Closing database: FID=????
+PoolSvc             DEBUG Disconnected PersistencySvc session
+PoolSvc             DEBUG Disconnect request for contextId=1
+PoolSvc             DEBUG Disconnect request for contextId=2
+PoolSvc             DEBUG Disconnected PersistencySvc session
 ApplicationMgr       INFO Application Manager Stopped successfully
 ReadCond             INFO in finalize()
 ReadData             INFO in finalize()

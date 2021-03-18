@@ -8,6 +8,7 @@ EventSelector       DEBUG Initializing EventSelector
 EventSelector       DEBUG reinitialization...
 EventSelector        INFO EventSelection with query 
 EventSelector       DEBUG Try item: "SimplePoolFile1.root" from the collection list.
+PoolSvc             DEBUG createCollection() type=RootCollection, connection=PFN:SimplePoolFile1.root, name=SimplePoolFile1.root, contextID=0
 SimplePoolFile1...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Shapes
 ##Shapes            DEBUG Opening
 ##Shapes            DEBUG    attributes# = 1
@@ -113,6 +114,7 @@ Stream1             DEBUG Adding private ToolHandle tool Stream1.Stream1Tool (At
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
 EventSelector       DEBUG Try item: "SimplePoolFile1.root" from the collection list.
+PoolSvc             DEBUG createCollection() type=RootCollection, connection=PFN:SimplePoolFile1.root, name=SimplePoolFile1.root, contextID=0
 ApplicationMgr       INFO Application Manager Started successfully
 RootDatabase.se...  DEBUG Request tree cache 
 RootDatabase.se...  DEBUG File name SimplePoolFile1.root
@@ -806,6 +808,8 @@ Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 20
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 20
 Stream1             DEBUG connectOutput done for SimplePoolReplica1.root
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #1 20 events processed so far  <<<===
+StorageSvc          DEBUG Disconnect request for database: FID=???? PFN=SimplePoolFile1.root
+StorageSvc          DEBUG Closing database: FID=????
 AthenaEventLoopMgr   INFO No more events in event selection 
 Stream1             DEBUG AthenaOutputStream Stream1 ::stop()
 Stream1             DEBUG slot 0  handle() incident type: MetaDataStop
@@ -902,8 +906,15 @@ MetaData(xAOD::...  DEBUG    Creating branch for new dynamic attribute, Id=52: t
 MetaData(xAOD::...  DEBUG createBasicAuxBranch: xAOD::FileMetaDataAuxInfo_v1_FileMetaDataAuxDyn.mcProcID, leaf:mcProcID/F
 Stream1              INFO Metadata records written: 21
 Stream1             DEBUG Leaving incident handler for MetaDataStop
+PoolSvc             DEBUG Disconnect request for contextId=0
+PoolSvc             DEBUG Disconnected PersistencySvc session
+PoolSvc             DEBUG Disconnect request for contextId=1
+StorageSvc          DEBUG Disconnect request for database: FID=???? PFN=SimplePoolReplica1.root
+StorageSvc          DEBUG Closing database: FID=????
+PoolSvc             DEBUG Disconnected PersistencySvc session
 ApplicationMgr       INFO Application Manager Stopped successfully
 Stream1             DEBUG finalize: Optimize output
+PoolSvc             DEBUG Disconnect request for contextId=1
 Stream1             DEBUG finalize: end optimize output
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc

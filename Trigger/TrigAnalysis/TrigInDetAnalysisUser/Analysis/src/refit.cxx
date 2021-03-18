@@ -31,9 +31,6 @@
 #include "TrigInDetAnalysis/Efficiency.h"
 #include "Resplot.h"
 
-// #include "Resplot.h"
-// #include "TrigInDetAnalysis/Efficiency.h"
-
 /// file names and file pointers
 std::vector<TFile*>      fptr;
 

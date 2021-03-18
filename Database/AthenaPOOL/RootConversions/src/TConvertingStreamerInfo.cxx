@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file RootConversions/src/TConvertingStreamerInfo.cxx
@@ -11,6 +11,7 @@
 
 #include "RootConversions/TConvertingStreamerInfo.h"
 #include "RootConversions/TConverterRegistry.h"
+#include "RootUtils/WithRootErrorHandler.h"
 #include "CxxUtils/checker_macros.h"
 #include "TStreamerElement.h"
 #include "TMemberStreamer.h"
@@ -24,15 +25,10 @@
 #include <mutex>
 
 
-/// Hook to get this object back from the static @c errhand.
-thread_local TConvertingStreamerInfo* TConvertingStreamerInfo::s_self;
-
-
 /**
  * @brief Constructor.
  */
 TConvertingStreamerInfo::TConvertingStreamerInfo()
-  : m_oldhand (0)
 {
 }
 
@@ -96,34 +92,11 @@ void* TConvertingStreamerInfo::new_TConvertingStreamerInfo (void *p)
  */
 void TConvertingStreamerInfo::BuildOld()
 {
-  // Call the base class BuildOld.
-  // But first, we need to interpose our error handler,
-  // and also set @c s_self so we can get back to this object
-  // from the static error handler function.
-
-  // Be careful to handle the cases of recursion and exiting via an exception.
-
-  TConvertingStreamerInfo* oldself = s_self;
-  s_self = this;
-
-  ErrorHandlerFunc_t oldhand = ::SetErrorHandler (errhand);
-  if (oldhand != errhand)
-    m_oldhand = oldhand;
-  else
-    m_oldhand = oldself->m_oldhand;
-
-  try {
-    TStreamerInfo::BuildOld();
-  }
-  catch (...) {
-    // Restore things.
-    ::SetErrorHandler (oldhand);
-    s_self = oldself;
-    throw;
-  }
-
-  ::SetErrorHandler (oldhand);
-  s_self = oldself;
+  using namespace std::placeholders;
+  RootUtils::WithRootErrorHandler errHand (std::bind (&TConvertingStreamerInfo::errhand,
+                                                      this,
+                                                      _1, _2, _3, _4));
+  TStreamerInfo::BuildOld();
 }
 
 
@@ -143,6 +116,9 @@ bool TConvertingStreamerInfo::patch (const std::string& field,
                                      const std::string& from,
                                      const std::string& to)
 {
+  static std::mutex mutex;
+  std::lock_guard<std::mutex> lock (mutex);
+
   if (TMemberStreamer* conv =
       TConverterRegistry::Instance()->GetStreamerConverter (from, to))
   {
@@ -199,7 +175,7 @@ bool TConvertingStreamerInfo::parse (const std::string& smsg)
     ++ito;
   std::string to (smsg, ito, iskip - ito);
 
-  return s_self->patch (field, from, to);
+  return patch (field, from, to);
 }
 
 
@@ -215,13 +191,12 @@ bool TConvertingStreamerInfo::parse (const std::string& smsg)
  * to a conversion that we handle, we fix up the @c TStreamerElement
  * and swallow the message.
  */
-void TConvertingStreamerInfo::errhand (int level,
-                                       Bool_t abort,
-                                       const char* location,
+bool TConvertingStreamerInfo::errhand (int /*level*/,
+                                       Bool_t /*abort*/,
+                                       const char* /*location*/,
                                        const char* msg)
 {
-  if (!s_self->parse (msg))
-    s_self->m_oldhand (level, abort, location, msg);
+  return !parse (msg);
 }
 
 

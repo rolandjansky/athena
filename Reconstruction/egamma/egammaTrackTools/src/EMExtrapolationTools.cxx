@@ -41,7 +41,48 @@ const CaloExtensionHelpers::LayersToSelect endCapLayers = {
   CaloSampling::EME2,
   CaloSampling::EME3
 };
+/*
+ * Create Rescaled Perigee Parametrs
+ */
+Trk::Perigee
+getRescaledPerigee(const xAOD::TrackParticle& trkPB,
+                   const xAOD::CaloCluster& cluster)
+{
+
+  /*
+   * Take the 'defining parameters' that use the Trk::Perigee coordinate system:
+   * \f$( d_0, z_0, \phi, \theta, q/p )\f$.
+   * Expressed with respect to an origin (returned by vx(), vy() and vy() )
+   * Then replace the q/p with q/cluster->e()
+   * e.g create a new Perigee with q/cluster->e() rather than track->p()
+   */
+  return Trk::Perigee(
+    trkPB.d0(),
+    trkPB.z0(),
+    trkPB.phi0(),
+    trkPB.theta(),
+    trkPB.charge() / cluster.e(),
+    Trk::PerigeeSurface(Amg::Vector3D(trkPB.vx(), trkPB.vy(), trkPB.vz())));
 }
+/*
+ * Helper to get the Eta/Phi intersections per Layer
+ */
+CaloExtensionHelpers::EtaPhiPerLayerVector
+getIntersections(const Trk::CaloExtension& extension,
+                 const xAOD::CaloCluster& cluster)
+{
+  // Layers to calculate intersections
+  CaloExtensionHelpers::EtaPhiPerLayerVector intersections;
+  if (xAOD::EgammaHelpers::isBarrel(&cluster)) {
+    CaloExtensionHelpers::midPointEtaPhiPerLayerVector(
+      extension, intersections, &barrelLayers);
+  } else {
+    CaloExtensionHelpers::midPointEtaPhiPerLayerVector(
+      extension, intersections, &endCapLayers);
+  }
+  return intersections;
+}
+} // end of anonymous namespace
 
 EMExtrapolationTools::EMExtrapolationTools(const std::string& type,
                                            const std::string& name,
@@ -446,53 +487,12 @@ EMExtrapolationTools::getMomentumAtVertex(const EventContext& ctx,
     // Already decorated with parameters at vertex
     ATH_MSG_DEBUG("getMomentumAtVertex : getting from auxdata");
     return Amg::Vector3D(accPx(vertex), accPy(vertex), accPz(vertex));
-  } 
+  }
     for (unsigned int i = 0; i < vertex.nTrackParticles(); ++i) {
       momentum += getMomentumAtVertex(ctx, vertex, i);
     }
-  
-  return momentum;
-}
-/*
- * Create Rescaled Perigee Parametrs
- */
-Trk::Perigee
-EMExtrapolationTools::getRescaledPerigee(const xAOD::TrackParticle& trkPB,
-                                         const xAOD::CaloCluster& cluster) const
-{
 
-  /*
-   * Take the 'defining parameters' that use the Trk::Perigee coordinate system:
-   * \f$( d_0, z_0, \phi, \theta, q/p )\f$.
-   * Expressed with respect to an origin (returned by vx(), vy() and vy() )
-   * Then replace the q/p with q/cluster->e()
-   * e.g create a new Perigee with q/cluster->e() rather than track->p()
-   */
-  return Trk::Perigee(
-    trkPB.d0(),
-    trkPB.z0(),
-    trkPB.phi0(),
-    trkPB.theta(),
-    trkPB.charge() / cluster.e(),
-    Trk::PerigeeSurface(Amg::Vector3D(trkPB.vx(), trkPB.vy(), trkPB.vz())));
-}
-/*
- * Helper to get the Eta/Phi intersections per Layer
- */
-CaloExtensionHelpers::EtaPhiPerLayerVector
-EMExtrapolationTools::getIntersections(const Trk::CaloExtension& extension,
-                                       const xAOD::CaloCluster& cluster) const
-{
-  // Layers to calculate intersections
-  CaloExtensionHelpers::EtaPhiPerLayerVector intersections;
-  if (xAOD::EgammaHelpers::isBarrel(&cluster)) {
-    CaloExtensionHelpers::midPointEtaPhiPerLayerVector(
-      extension, intersections, &barrelLayers);
-  } else {
-    CaloExtensionHelpers::midPointEtaPhiPerLayerVector(
-      extension, intersections, &endCapLayers);
-  }
-  return intersections;
+  return momentum;
 }
 /*
  * Helper to identify the TRT section

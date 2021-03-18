@@ -32,6 +32,7 @@ from JetRecTools.JetRecToolsConf import ChargedHadronSubtractionTool
 from JetRecTools.JetRecToolsConf import JetTrackSelectionTool
 from JetRecTools.JetRecToolsConf import JetTrackSelectionTool2
 from JetRecTools.JetRecToolsConf import SimpleJetTrackSelectionTool
+from JetRecTools.JetRecToolsConf import JetUsedInFitTrackDecoratorTool
 from JetRecTools.JetRecToolsConf import TrackVertexAssociationTool
 
 try:
@@ -97,6 +98,7 @@ if jtm.haveParticleJetTools:
   from ParticleJetTools.ParticleJetToolsConf import Analysis__JetPartonTruthLabel
   from ParticleJetTools.ParticleJetToolsConf import CopyTruthJetParticles
   from ParticleJetTools.ParticleJetToolsConf import ParticleJetDeltaRLabelTool
+  from ParticleJetTools.ParticleJetToolsConf import ParticleJetGhostLabelTool
 
 
 #--------------------------------------------------------------
@@ -156,8 +158,14 @@ else:
 # Track-vertex association.
 #--------------------------------------------------------------
 
+# Need to add used-in-fit decorator beforehand:
+from InDetUsedInFitTrackDecoratorTool.InDetUsedInFitTrackDecoratorToolConf import InDet__InDetUsedInFitTrackDecoratorTool
+jtm += InDet__InDetUsedInFitTrackDecoratorTool("jetUsedInFitTrkDecoTool", TrackContainer = jtm.trackContainer, VertexContainer = jtm.vertexContainer)
+
+jtm += JetUsedInFitTrackDecoratorTool("tvassocdeco", Decorator = jtm.jetUsedInFitTrkDecoTool)
+
 from TrackVertexAssociationTool.TrackVertexAssociationToolConf import CP__TrackVertexAssociationTool
-jtm += CP__TrackVertexAssociationTool("jetLooseTVAtool", WorkingPoint='Loose')
+jtm += CP__TrackVertexAssociationTool("jetLooseTVAtool", WorkingPoint="Custom", d0_cut=2.0, dzSinTheta_cut=2.0)
 
 jtm += TrackVertexAssociationTool(
   "tvassoc",
@@ -397,6 +405,15 @@ jtm += PseudoJetAlgorithm(
   SkipNegativeEnergy = True,
 )
 
+# Standard VR track jets.
+jtm += PseudoJetAlgorithm(
+  "gvrtrackget", # give a unique name
+  InputContainer = jetFlags.containerNamePrefix() + "AntiKtVR30Rmax4Rmin02PV0TrackJets", # SG key
+  Label = "GhostVR30Rmax4Rmin02PV0TrackJet",   # this is the name you'll use to retrieve associated ghosts
+  OutputContainer = "PseudoJetGhostVR30Rmax4Rmin02PV0TrackJet",
+  SkipNegativeEnergy = True,
+)
+
 # Truth.
 if jetFlags.useTruth and jtm.haveParticleJetTools:
   jtm += PseudoJetAlgorithm(
@@ -482,6 +499,16 @@ if jetFlags.useTruth and jtm.haveParticleJetTools:
     MatchMode = "MinDR"
   )
 
+  jtm += ParticleJetGhostLabelTool(
+    "ghostlabeler",
+    LabelName = "HadronGhostTruthLabelID",
+    DoubleLabelName = "HadronGhostExtendedTruthLabelID",
+    GhostBName = "GhostBHadronsFinal",
+    GhostCName = "GhostCHadronsFinal",
+    GhostTauName = "GhostTausFinal",
+    PartPtMin = 5000.0
+  )
+
 #--------------------------------------------------------------
 # Jet builder.
 # The tool manager must have one jet builder.
@@ -539,10 +566,12 @@ jtm += JetVertexFractionTool(
 )
 
 # Jet vertex tagger.
+# This is never used without jtm.jvf when configured from here, so suppress input dependence.
 jtm += JetVertexTaggerTool(
   "jvt",
   VertexContainer = jtm.vertexContainer,
   JVTName = "Jvt",
+  SuppressInputDependence = True,
 )
 
 # Jet track info.

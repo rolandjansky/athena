@@ -131,8 +131,9 @@ namespace top {
     m_doParticleLevelOverlapRemovalMuJet(true),
     m_doParticleLevelOverlapRemovalElJet(true),
     m_doParticleLevelOverlapRemovalJetPhoton(false),
+    m_useParticleLevelOverlapRemovalWithRapidity(true),
 
-    // KLFitter
+          // KLFitter
     m_doKLFitter(false),
     m_KLFitterTransferFunctionsPath("SetMe"),
     m_KLFitterOutput("SetMe"),
@@ -255,6 +256,7 @@ namespace top {
     m_doMultipleJES(false),
     m_jetJERSmearingModel("Simple"),
     m_jetCalibSequence("GSC"),
+    m_allowSmallRJMSforAFII(false),
     m_jetStoreTruthLabels("True"),
     m_doJVTInMETCalculation(true),
     m_saveFailJVTJets(false),
@@ -823,7 +825,7 @@ namespace top {
       try {
         m_nominalWeightIndex = std::stoi(settings->value("NominalWeightFallbackIndex"));
       } catch (std::invalid_argument &e) {
-        std::cout << "Failed to parse NominalWeightFallbackIndex value: " << settings->value("NominalWeightFallbackIndex") << std::endl;
+        ATH_MSG_ERROR("Failed to parse NominalWeightFallbackIndex value: " << settings->value("NominalWeightFallbackIndex"));
         throw;
       }
 
@@ -875,6 +877,14 @@ namespace top {
           // Remove the last token in the container.
           tokens.pop_back();
         }
+      }
+
+      // Particle level overlap removal use rapidity in deltaR calculation
+      if(settings->value("OverlapRemovalParticleLevelUseRapidity") == "True"){
+        this->setParticleLevelOverlapRemovalWithRapidity(true);
+      }
+      else{
+        this->setParticleLevelOverlapRemovalWithRapidity(false);
       }
 
       // check if you are running over AFII samples
@@ -1267,6 +1277,7 @@ namespace top {
     this->jetUncertainties_QGHistPatterns(settings->value("JetUncertainties_QGHistPatterns"));
     this->jetJERSmearingModel(settings->value("JetJERSmearingModel"));
     this->jetCalibSequence(settings->value("JetCalibSequence"));
+    this->allowSmallRJMSforAFII(settings->value("AllowJMSforAFII") == "True");
     this->doJVTinMET(settings->retrieve("JVTinMETCalculation"));
     this->saveFailJVTJets(settings->retrieve("SaveFailJVTJets"));
     this->setJVTWP(settings->value("JVTWP"));

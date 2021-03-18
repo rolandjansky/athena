@@ -7,7 +7,6 @@ atlas_subdir( MuonRegionSelector )
 
 # External dependencies:
 find_package( CLHEP )
-find_package( Eigen )
 
 atlas_add_library( MuonRegionSelectorLib
                    MuonRegionSelector/*.h
@@ -19,8 +18,8 @@ atlas_add_library( MuonRegionSelectorLib
 atlas_add_component( MuonRegionSelector
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives 
+                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps GeoPrimitives 
                      RegSelLUT GaudiKernel Identifier CSCcablingLib StoreGateLib MuonCablingData
                      MuonMDT_CablingLib MuonTGC_CablingLib RPC_CondCablingLib RPCcablingInterfaceLib
                      MuonReadoutGeometry MuonAGDDDescription MuonRegionSelectorLib )

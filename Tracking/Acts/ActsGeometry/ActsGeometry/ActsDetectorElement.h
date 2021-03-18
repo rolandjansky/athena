@@ -48,7 +48,7 @@ public:
 
   /// Constructor for a straw surface.
   /// @param transform Transform to the straw system
-  ActsDetectorElement(const Acts::Transform3D& trf,
+  ActsDetectorElement(const Acts::Transform3& trf,
                       const InDetDD::TRT_BaseElement* detElem,
                       const Identifier& id // we need explicit ID here b/c of straws
                       );
@@ -64,7 +64,7 @@ public:
   
   void
   storeTransform(ActsAlignmentStore* gas) const;
-  virtual const Acts::Transform3D &
+  virtual const Acts::Transform3 &
   transform(const Acts::GeometryContext &gctx) const final override;
 
 
@@ -100,7 +100,7 @@ private:
   /// Returns default transform. For TRT this is static and set in constructor.
   /// For silicon detectors it is calulated from GM, and stored. Thus the method 
   /// is not const. The store is mutexed.
-  const Acts::Transform3D&
+  const Acts::Transform3&
   getDefaultTransformMutexed() const;
 
   struct IdVisitor : public boost::static_visitor<Identifier>
@@ -135,12 +135,12 @@ private:
   // this is pretty much only used single threaded, so
   // the mutex does not hurt
   mutable std::mutex m_cacheMutex;
-  mutable std::shared_ptr<const Acts::Transform3D> m_defTransform;
+  mutable std::shared_ptr<const Acts::Transform3> m_defTransform;
 
   Identifier m_explicitIdentifier;
 
   // this is threadsafe!
-  //mutable Gaudi::Hive::ContextSpecificData<Acts::Transform3D> m_ctxSpecificTransform;
+  //mutable Gaudi::Hive::ContextSpecificData<Acts::Transform3> m_ctxSpecificTransform;
 
 
 };

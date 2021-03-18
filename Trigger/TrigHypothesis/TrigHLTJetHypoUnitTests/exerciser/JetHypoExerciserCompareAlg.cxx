@@ -152,11 +152,12 @@ StatusCode JetHypoExerciserCompareAlg::execute() {
   
   timer.start();
   ATH_CHECK (execute_(m_helper0, jv, collectorName, jetCollector0, logname, pass0));
-  timer.stop();
+  timer.update();
   
   if(!m_visitDebug){
     std::stringstream ss;
-    ss << timer.elapsed() <<  " tool0 " << std::boolalpha << pass0 << '\n';
+    ss << timer.elapsed_to_update()
+       <<  " tool0 " << std::boolalpha << pass0 << '\n';
     timer.reset();
     std::ofstream outfile;
     outfile.open(logname);
@@ -173,11 +174,12 @@ StatusCode JetHypoExerciserCompareAlg::execute() {
   timer.start();
 
   ATH_CHECK (execute_(m_helper1, jv, collectorName, jetCollector1, logname, pass1));
-  timer.stop();
+  timer.update();
 
   if(!m_visitDebug){
     std::stringstream ss;
-    ss << timer.elapsed() <<  " tool1 "<< std::boolalpha << pass1 << '\n';
+    ss << timer.elapsed_to_update()
+       <<  " tool1 "<< std::boolalpha << pass1 << '\n';
     timer.reset();
     std::ofstream outfile;
     outfile.open(logname);

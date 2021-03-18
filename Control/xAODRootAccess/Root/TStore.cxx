@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 // ROOT include(s):
 #include <TError.h>
@@ -77,8 +77,8 @@ namespace xAOD {
 
          // Yes, it is...
          delete itr->second;
-         m_objects.erase( itr );
          m_keys.erase( Utils::hash( itr->first ) );
+         m_objects.erase( itr );
          return StatusCode::SUCCESS;
       }
 

@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.CFElements import parOR
@@ -45,6 +45,18 @@ def JetTrackingSequence(dummyFlags,trkopt,RoIs):
     from JetRecTools.JetRecToolsConfig import trackcollectionmap
     if trkopt not in trackcollectionmap.keys():
         trackcollectionmap[trkopt] = trkcolls
+
+    # Track decoration.
+    trkdecortool = CompFactory.getComp('InDet::InDetUsedInFitTrackDecoratorTool') \
+                   ("jetTrkDecorTool",
+                    TrackContainer  = trackcollectionmap[trkopt]["Tracks"],
+                    VertexContainer = trackcollectionmap[trkopt]["Vertices"]
+                    )
+    trkdecoralg = CompFactory.getComp('InDet::InDetUsedInVertexFitTrackDecorator') \
+                  ("jetTrkDecorAlg",
+                   UsedInFitDecoratorTool = trkdecortool
+                   )
+    jetTrkSeq += conf2toConfigurable( trkdecoralg )
 
     # Jet track selection
     jettrackselloose = getTrackSelTool(trkopt,doWriteTracks=True)

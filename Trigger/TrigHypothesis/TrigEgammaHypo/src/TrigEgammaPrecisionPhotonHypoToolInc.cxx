@@ -1,15 +1,19 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/Combinators.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include "xAODEgamma/Photon.h"
+#include "xAODEgamma/PhotonContainer.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 
 #include "TrigEgammaPrecisionPhotonHypoToolInc.h"
 
-using namespace TrigCompositeUtils;
+namespace TCU = TrigCompositeUtils;
 
 TrigEgammaPrecisionPhotonHypoToolInc::TrigEgammaPrecisionPhotonHypoToolInc( const std::string& type, 
 		    const std::string& name, 
@@ -289,9 +293,9 @@ int TrigEgammaPrecisionPhotonHypoToolInc::findCutIndex( float eta ) const {
 
 StatusCode TrigEgammaPrecisionPhotonHypoToolInc::decide( std::vector<PhotonInfo>& input )  const {
   for ( auto& i: input ) {
-    if ( passed ( m_decisionId.numeric(), i.previousDecisionIDs ) ) {
+    if ( TCU::passed ( m_decisionId.numeric(), i.previousDecisionIDs ) ) {
       if ( decide( i ) ) {
-	addDecisionID( m_decisionId, i.decision );
+        TCU::addDecisionID( m_decisionId, i.decision );
       }
     }
   }

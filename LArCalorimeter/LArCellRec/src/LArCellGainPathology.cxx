@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -78,7 +78,7 @@ StatusCode LArCellGainPathology::process (CaloCellContainer* theCont,
   std::vector<HWIdentifier>::const_iterator feb_end = m_onlineID->feb_end();
 
 
-  for ( ; feb != feb_end; feb++) {
+  for ( ; feb != feb_end; ++feb) {
 // for debug
       ATH_MSG_DEBUG (" process Feb: " << 
 		     feb->get_identifier32().get_compact());

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -66,7 +66,7 @@ unsigned long LArRawChannelBuilderStatistics::returnEvents()
   return m_events;
 }
 
-void LArRawChannelBuilderStatistics::setErrorString(unsigned int nerr, std::string s)
+void LArRawChannelBuilderStatistics::setErrorString(unsigned int nerr, const std::string& s)
 {
   if(nerr<m_N_errors)
     m_error_string[nerr]=s;

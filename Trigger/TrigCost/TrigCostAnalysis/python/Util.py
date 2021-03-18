@@ -34,9 +34,9 @@ def exploreTree(inputFile):
     @param[in] inputFile ROOT.TFile object with histograms
     '''
 
-    walltime = getWalltime(inputFile)
 
     for key in inputFile.GetListOfKeys():
+        walltime = getWalltime(inputFile, key.GetName())
         obj = key.ReadObj()
         if not obj.IsA().InheritsFrom(ROOT.TDirectory.Class()): continue
 
@@ -51,6 +51,9 @@ def exploreTree(inputFile):
                 exec("from TrigCostAnalysis.TableSpecifications import " + className)
                 t = eval(className + "(tableObj)")
 
+                if table.GetName() == "Chain_HLT":
+                    t.totalTime = getAlgorithmTotalTime(inputFile, obj.GetName())
+
                 fileName = getFileName(table.GetName(), key.GetName())
                 histPrefix = getHistogramPrefix(table.GetName(), key.GetName())
 
@@ -63,24 +66,42 @@ def exploreTree(inputFile):
                             .format(table.GetName()+"_TableConstructor", table.GetName()))
 
 
-def getWalltime(inputFile):
+def getWalltime(inputFile, rootName):
     ''' @brief Extract walltime value from histogram
     
     @param[in] inputFile ROOT TFile to look for histogram
+    @param[in] rootName Name of the root directory to search for tables
 
     @return walltime value if found else 0 and an error
     '''
-    for key in inputFile.GetListOfKeys():
-        dirObj = key.ReadObj()
-        if not dirObj.IsA().InheritsFrom(ROOT.TDirectory.Class()): continue
-        for hist in dirObj.GetListOfKeys():
-            if '_walltime' in hist.GetName():
-                obj = hist.ReadObj()
-                return obj.GetBinContent(1)
+
+    dirObj = inputFile.Get(rootName)
+    if not dirObj.IsA().InheritsFrom(ROOT.TDirectory.Class()): return 0
+    for hist in dirObj.GetListOfKeys():
+        if '_walltime' in hist.GetName():
+            obj = hist.ReadObj()
+            return obj.GetBinContent(1)
 
     log.error("Walltime not found")
     return 0
 
+
+def getAlgorithmTotalTime(inputFile, rootName):
+    ''' @brief Extract total time [s] of algorithms from histogram
+    
+    @param[in] inputFile ROOT TFile to look for histogram
+    @param[in] rootName Name of the root directory to search for tables
+
+    @return total execution time [s] value if found else 0
+    '''
+
+    totalTime = 0
+    alg = inputFile.Get(rootName).Get("Global_HLT").Get("All")
+    hist = alg.Get(rootName + "_Global_HLT_All_AlgTime_perEvent")
+    for i in range(1, hist.GetXaxis().GetNbins()):
+        totalTime += hist.GetBinContent(i) * hist.GetXaxis().GetBinCenterLog(i)
+
+    return totalTime * 1e-3
 
 def convert(entry):
     ''' @brief Save entry number in scientific notation'''

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArWheelSolid.h"
@@ -22,20 +22,20 @@ LArFanSections::LArFanSections(
 	G4double ri1, G4double ri2, G4double ro1, G4double ro2,
 	G4double Xmax, G4double z1, G4double z2
 )
+  : Amin ((ri2 - ri1) / (z2 - z1)),
+    Amax ((ro2 - ro1) / (z2 - z1)),
+    Bmin (ri1 - Amin * z1),
+    Bmax (ro1 - Amax * z1),
+    Amin2 (Amin*Amin),
+    Amax2 (Amax*Amax),
+    Bmin2 (Bmin*Bmin),
+    Bmax2 (Bmax*Bmax),
+    xmin (-Xmax),
+    xmax (Xmax),
+    Cflat2 (ro2*ro2),
+    ABmax (Amax*Bmax),
+    ABmin (Amin*Bmin)
 {
-	const G4double dz = z2 - z1;
-	Amin = (ri2 - ri1) / dz;
-	Amax = (ro2 - ro1) / dz;
-	Bmin = ri1 - Amin * z1;
-	Bmax = ro1 - Amax * z1;
-	Cflat2 = ro2*ro2;
-
-	Amin2 = Amin*Amin; Amax2 = Amax*Amax;
-	Bmin2 = Bmin*Bmin; Bmax2 = Bmax*Bmax;
-	ABmin = Amin*Bmin; ABmax = Amax*Bmax;
-
-	xmax = Xmax;
-	xmin = -xmax;
 }
 
 G4bool LArWheelSolid::check_D(

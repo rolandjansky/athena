@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -9,10 +9,6 @@
 // Removes all ID tracks which do not pass a user-defined cut
 
 #include "DerivationFrameworkInDet/TrackParticleThinning.h"
-#include "ExpressionEvaluation/ExpressionParser.h"
-#include "ExpressionEvaluation/SGxAODProxyLoader.h"
-#include "ExpressionEvaluation/SGNTUPProxyLoader.h"
-#include "ExpressionEvaluation/MultipleProxyLoader.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackStateValidationContainer.h"
 #include "xAODTracking/TrackMeasurementValidationContainer.h"
@@ -20,13 +16,13 @@
 #include "GaudiKernel/ThreadLocalContext.h"
 #include <vector>
 #include <string>
+#include "ExpressionEvaluation/ExpressionParserUser.icc"
 
 // Constructor
 DerivationFramework::TrackParticleThinning::TrackParticleThinning(const std::string& t,
                                                                   const std::string& n,
                                                                   const IInterface* p ) :
 base_class(t,n,p),
-m_parser(0),
 m_selectionString(""),
 m_ntot(0),
 m_npass(0),
@@ -51,6 +47,7 @@ m_thinHitsOnTrack(false)
 
 // Destructor
 DerivationFramework::TrackParticleThinning::~TrackParticleThinning() {
+   
 }
 
 // Athena initialize and finalize
@@ -63,12 +60,8 @@ StatusCode DerivationFramework::TrackParticleThinning::initialize()
     } else {ATH_MSG_INFO("Track thinning selection string: " << m_selectionString);}
     
     // Set up the text-parsing machinery for thinning the tracks directly according to user cuts
-    if (m_selectionString!="") {
-	    ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
-	    proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
-	    proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
-	    m_parser = new ExpressionParsing::ExpressionParser(proxyLoaders);
-	    m_parser->loadExpression(m_selectionString);
+    if (!m_selectionString.empty()) {
+       ATH_CHECK(initializeParser(m_selectionString));
     }
 
     //check xAOD::InDetTrackParticle collection
@@ -92,8 +85,8 @@ StatusCode DerivationFramework::TrackParticleThinning::initialize()
       ATH_CHECK( m_measurementsTrtSGKey.initialize (m_streamName, !m_measurementsTrtSGKey.empty()) );
     }
 
-    ATH_CHECK(m_SCTDetEleCollKey.initialize());
-        
+    ATH_CHECK(m_SCTDetEleCollKey.initialize( !m_SCTDetEleCollKey.key().empty() ));
+
     return StatusCode::SUCCESS;
 }
 
@@ -121,10 +114,7 @@ StatusCode DerivationFramework::TrackParticleThinning::finalize()
 		   << m_ntot_trt_measurements << " / " << m_npass_trt_measurements 
 		   << " (" << (m_ntot_trt_measurements == 0 ? 0 : static_cast<float>(m_npass_trt_measurements) / m_ntot_trt_measurements) << ")");
     }
-    if (m_parser) {
-        delete m_parser;
-        m_parser = 0;
-    }
+    ATH_CHECK( finalizeParser() );
     return StatusCode::SUCCESS;
 }
 

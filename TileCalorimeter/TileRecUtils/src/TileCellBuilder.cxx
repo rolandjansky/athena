@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
@@ -371,7 +371,7 @@ StatusCode TileCellBuilder::process (CaloCellContainer* theCellContainer,
           dspContainer = copiedDspContainer.get();
 
           for (const ToolHandle<ITileRawChannelTool>& noiseFilterTool : m_noiseFilterTools) {
-            ATH_CHECK( noiseFilterTool->process(*copiedDspContainer) );
+            ATH_CHECK( noiseFilterTool->process(*copiedDspContainer, ctx) );
           }
         }
         
@@ -493,7 +493,7 @@ StatusCode TileCellBuilder::process (CaloCellContainer* theCellContainer,
 
         for (const ToolHandle<ITileRawChannelTool>& noiseFilterTool : m_noiseFilterTools)
         {
-          ATH_CHECK( noiseFilterTool->process(*copiedContainer) );
+          ATH_CHECK( noiseFilterTool->process(*copiedContainer, ctx) );
         }
 
         selCopied = std::make_unique<SelectAllObject<TileRawChannelContainer> > (copiedContainer.get());

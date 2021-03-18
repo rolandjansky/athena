@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -20,7 +20,8 @@ from PixelMonitoring.PixelAthClusterMonAlgCfg import PixelAthClusterMonAlgCfg
 from PixelMonitoring.PixelMonitoringConf import PixelAthErrorMonAlg
 from PixelMonitoring.PixelAthErrorMonAlgCfg import PixelAthErrorMonAlgCfg
 
-from InDetRecExample.InDetKeys import InDetKeys                                                                                     
+from InDetRecExample.InDetKeys import InDetKeys
+from InDetRecExample import TrackingCommon
 
 kwargsHitMonAlg = { 'doOnline'        : True if athenaCommonFlags.isOnline() else False,      #Histograms for online (athenaPT) running
                      'doLumiBlock'     : False if athenaCommonFlags.isOnline() else True,       #Turn on/off histograms stored for each lumi block
@@ -64,13 +65,14 @@ if doClusterMonAlg:
   pixelAthClusterMonAlg = helper.addAlgorithm(PixelAthClusterMonAlg, 'PixelAthClusterMonAlg')
   for k, v in kwargsClusMonAlg.items():
     setattr(pixelAthClusterMonAlg, k, v)
+  pixelAthClusterMonAlg.HoleSearchTool   = TrackingCommon.getInDetHoleSearchTool()
   pixelAthClusterMonAlg.TrackSelectionTool.UseTrkTrackTools = True
   pixelAthClusterMonAlg.TrackSelectionTool.CutLevel         = "TightPrimary"
   pixelAthClusterMonAlg.TrackSelectionTool.maxNPixelHoles   = 1
   pixelAthClusterMonAlg.TrackSelectionTool.maxD0            = 2
   pixelAthClusterMonAlg.TrackSelectionTool.maxZ0            = 150
-  pixelAthClusterMonAlg.TrackSelectionTool.TrackSummaryTool = InDetTrackSummaryTool
-  pixelAthClusterMonAlg.TrackSelectionTool.Extrapolator     = InDetExtrapolator
+  pixelAthClusterMonAlg.TrackSelectionTool.TrackSummaryTool = TrackingCommon.getInDetTrackSummaryTool()
+  pixelAthClusterMonAlg.TrackSelectionTool.Extrapolator     = TrackingCommon.getInDetExtrapolator()
   
   #print getattr(pixelAthClusterMonAlg, 'onTrack') 
   PixelAthClusterMonAlgCfg(helper, pixelAthClusterMonAlg, **kwargsClusMonAlg)

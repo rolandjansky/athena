@@ -2,8 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef Lvl1Def_H
-#define Lvl1Def_H
+#ifndef TrigT1RPChardware_Lvl1Def_H
+#define TrigT1RPChardware_Lvl1Def_H
 #include <inttypes.h>
 //
 //typedef unsigned long  int CMAword; // 32 bits for the elementary CMA integer
@@ -14,7 +14,6 @@
 //
 // definitions compatible with 64-bit machines
 //
-#include <inttypes.h>
 typedef uint32_t CMAword; // 32 bits for the elementary CMA integer
 typedef uint32_t RODword; // 32 bits for the elementary ROD integer
 typedef  int32_t sbit32;  //

@@ -1,6 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-
-from __future__ import print_function
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 class FatrasTrackingGeometryCondAlg:
   def __init__(self):
@@ -132,7 +130,7 @@ class FatrasTrackingGeometryCondAlg:
        FatrasGeometryBuilder.MuonTrackingGeometryBuilder = FatrasMuonTrackingGeometryBuilder      
   
     from FatrasExample.FatrasTuning import FatrasTuningFlags
-    from InDetCondFolders import InDetAlignFolders_FATRAS
+    from InDetCondFolders import InDetAlignFolders_FATRAS     # noqa: F401
     from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg as GeometryCondAlg
     FatrasTrackingGeometryCondAlg = GeometryCondAlg(name = 'FatrasTrackingGeometryCondAlg')
 

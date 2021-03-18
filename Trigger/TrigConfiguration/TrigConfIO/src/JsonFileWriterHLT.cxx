@@ -14,7 +14,7 @@ using json = nlohmann::json;
 using namespace std;
 
 TrigConf::JsonFileWriterHLT::JsonFileWriterHLT() :
-   TrigConfMessaging( "JsonFileWriter")
+   TrigConfMessaging( "JsonFileWriterHLT")
 {}
 
 

@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CAMenuSequence, ChainStep, Chain, InEventReco, createStepView
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequenceCA, ChainStep, Chain, InEventRecoCA, createStepView
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 import pprint
@@ -43,17 +43,17 @@ def generateChains( flags, chainDict ):
     acc.printConfig()
 
     from TrigT2CaloCommon.CaloDef import clusterFSInputMaker
-    inEventReco = InEventReco("JetReco",inputMaker=clusterFSInputMaker())
+    InEventReco = InEventRecoCA("JetReco",inputMaker=clusterFSInputMaker())
 
     cellsname = "CaloCellsFS"
     clustersname = "HLT_CaloTopoClustersFS"
     
     cellmakerCfg = HLTCaloCellMakerCfg(flags, cellsname, cdaSvc)
 
-    inEventReco.mergeReco( cellmakerCfg )
+    InEventReco.mergeReco( cellmakerCfg )
 
     from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
-    inEventReco.mergeReco( CaloTopoClusterCfg( flags,
+    InEventReco.mergeReco( CaloTopoClusterCfg( flags,
                                     cellsname = cellsname,
                                     clustersname = clustersname,
                                     doLCCalib = False) )
@@ -78,9 +78,9 @@ def generateChains( flags, chainDict ):
 
     # May need a switch to disable automatic modifier prerequisite generation
     jetRecoComps = JetRecConfig.JetRecCfg(HLT_AntiKt4EMTopo_subjesIS, flags) 
-    inEventReco.mergeReco(jetRecoComps)    
+    InEventReco.mergeReco(jetRecoComps)    
 
-    acc.merge(inEventReco,stepReco.getName())
+    acc.merge(InEventReco,stepReco.getName())
 
     #hypo
     from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetHypoToolFromDict
@@ -89,7 +89,7 @@ def generateChains( flags, chainDict ):
     hypo.Jets = jetsfullname
     acc.addEventAlgo(hypo, sequenceName=stepView.getName() )
 
-    jetSequence = CAMenuSequence(acc,
+    jetSequence = MenuSequenceCA(acc,
                                  HypoToolGen = trigJetHypoToolFromDict)
 
     jetStep = ChainStep(name=stepName, Sequences=[jetSequence], chainDicts=[chainDict])

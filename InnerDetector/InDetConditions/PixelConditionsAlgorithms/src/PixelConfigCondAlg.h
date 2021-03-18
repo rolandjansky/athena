@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */ 
 /**
  * @file PixelConditionsAlgorithms/PixelConfigCondAlg.h
@@ -655,7 +655,7 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     {this, "ChargeScaleFEI4", 1.0, "Scaling of the FEI4 charge"};
 
     Gaudi::Property<bool> m_UseFEI4SpecialScalingFunction
-    {this, "UseFEI4SpecialScalingFunction", false, "Use FEI4 special scaling function"};
+    {this, "UseFEI4SpecialScalingFunction", true, "Use FEI4 special scaling function"};
 
     // Charge calibration parameters
     Gaudi::Property<float> m_CalibrationParameterA

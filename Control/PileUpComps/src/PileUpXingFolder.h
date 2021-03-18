@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PILEUPTOOLS_PILEUPXINGFOLDER_H
@@ -23,8 +23,8 @@ class PileUpXingFolder : public extends<AthAlgTool, IPileUpXingFolder> {
 public:
   /// \name structors and AlgTool implementation
   //@{
-  PileUpXingFolder(const std::string& name, 
-		   const std::string& type,
+  PileUpXingFolder(const std::string& type, 
+		   const std::string& name,
 		   const IInterface* parent);
   virtual StatusCode initialize();
   //@}

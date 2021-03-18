@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISOLATIONCORRECTION_IISOLATIONCORRECTIONTOOL_H
@@ -19,7 +19,7 @@
 
 namespace CP {
 
-  class IIsolationCorrectionTool : virtual public asg::IAsgTool, virtual public CP::ISystematicsTool {
+  class IIsolationCorrectionTool : virtual public CP::ISystematicsTool {
     // Declare the interface that the class provides
     ASG_TOOL_INTERFACE(IIsolationCorrectionTool)
       
@@ -35,10 +35,10 @@ namespace CP {
         //Create a corrected copy from a constant egamma object
         virtual CP::CorrectionCode correctedCopy(const xAOD::Egamma&, xAOD::Egamma*&) = 0;
 
-	// This helps to correct for the (wrong) leakage at the analysis level
-	virtual CP::CorrectionCode CorrectLeakage(xAOD::Egamma &) = 0;
+	      // This helps to correct for the (wrong) leakage at the analysis level
+	      virtual CP::CorrectionCode CorrectLeakage(xAOD::Egamma &) = 0;
 
-	//systematics
+	      //systematics
         // Which systematics have an effect on the tool's behaviour?
         virtual CP::SystematicSet affectingSystematics() const  = 0;
         // Is the tool affected by a specific systematic?
@@ -50,7 +50,7 @@ namespace CP {
 
         virtual float GetPtCorrectedIsolation(const xAOD::Egamma&, xAOD::Iso::IsolationType) = 0;
         virtual float GetPtCorrection(const xAOD::Egamma&, xAOD::Iso::IsolationType) const = 0;
-	virtual float GetDDCorrection(const xAOD::Egamma&, xAOD::Iso::IsolationType) = 0;
+	      virtual float GetDDCorrection(const xAOD::Egamma&, xAOD::Iso::IsolationType) = 0;
 
   };
 

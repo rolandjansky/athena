@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ALFA_PILEUP_TOOL_H
@@ -10,7 +10,7 @@
 #include "Gaudi/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/IAthRNGSvc.h"
 
 #include "HitManagement/TimedHitCollection.h"
 
@@ -29,7 +29,9 @@
 #include <vector>
 #include <utility> /* pair */
 
-class IAtRndmGenSvc;
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 class ALFA_PileUpTool: public PileUpToolBase {
 
@@ -106,9 +108,9 @@ class ALFA_PileUpTool: public PileUpToolBase {
   void SetDumps(bool, bool);
   */
   
-  ServiceHandle<PileUpMergeSvc> m_mergeSvc;
-  ServiceHandle<IAtRndmGenSvc>  m_atRndmGenSvc;
-  CLHEP::HepRandomEngine       *m_rndEngine;
+  ServiceHandle<PileUpMergeSvc> m_mergeSvc{this, "mergeSvc", "PileUpMergeSvc", ""};
+  ServiceHandle<IAthRNGSvc> m_randomSvc{this, "RndmSvc", "AthRNGSvc", ""};
+  Gaudi::Property<std::string> m_randomStreamName{this, "RandomStreamName", "ALFARndEng", ""};
 
   double m_E_fib[8][20][64];
   double m_E_ODfib[8][2][3][30];

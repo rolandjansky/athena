@@ -75,6 +75,30 @@ void Norm( TH1* h, double scale ) {
 
 
 
+true_mean::true_mean( TH1F* h ) : 
+  m_mean(0), m_error(0) { 
+  
+  double f   = 0;
+  double fx  = 0;
+  double fx2 = 0;
+
+  for ( int i=0 ; i<h->GetNbinsX() ; i++ ) {
+    double w = h->GetBinLowEdge(i+2)-h->GetBinLowEdge(i+1);
+    f   += h->GetBinContent(i+1)*w;
+    fx  += h->GetBinContent(i+1)*w*h->GetBinCenter(i+1);
+    fx2 += h->GetBinContent(i+1)*w*h->GetBinCenter(i+1)*h->GetBinCenter(i+1);
+  }
+
+  if ( f!=0 ) {   
+    m_mean  = fx/f;
+    m_error = std::sqrt( (fx2/f - m_mean*m_mean )/f );
+  }    
+
+}
+
+
+
+
 
 
  
@@ -461,8 +485,6 @@ std::vector<int>  findxrange(TH1* h, bool symmetric ) {
     limits[0] = ilo;
     limits[1] = ihi;
   }
-
-  //  std::cout << "::xrange " << h->GetName() << "\t" << limits[0] << " " << limits[1] << std::endl;
 
   return limits; 
 

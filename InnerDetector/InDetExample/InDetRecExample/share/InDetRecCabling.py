@@ -25,7 +25,6 @@ if DetFlags.detdescr.pixel_on() and not 'PixelCabling' in dir():
       from PixelDigitization.PixelDigitizationConfig import PixelConfigCondAlg_MC, IdMapping
       condSeq += PixelConfigCondAlg_MC()
       IdMappingDat=IdMapping()
-
     elif (globalflags.DataSource=='data'):
       from RecExConfig.AutoConfiguration import GetRunNumber
       runNum = GetRunNumber()

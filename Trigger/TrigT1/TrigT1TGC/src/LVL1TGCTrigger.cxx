@@ -20,7 +20,6 @@
 #include "TrigT1TGC/TGCSector.h"
 #include "TrigT1TGC/TGCNumbering.h"
 #include "TrigT1TGC/TrigT1TGC_ClassDEF.h"
-#include "TrigT1TGC/TGCNumbering.h"
 #include "TrigT1TGC/TGCTMDBOut.h"
 #include "TrigT1TGC/TGCNSW.h"
 
@@ -122,7 +121,7 @@ namespace LVL1TGCTrigger {
     // read and write handle key
     ATH_CHECK(m_keyTgcDigit.initialize());
     ATH_CHECK(m_keyTileMu.initialize());
-    ATH_CHECK(m_keyNSWTrigOut.initialize());
+    ATH_CHECK(m_keyNSWTrigOut.initialize(tgcArgs()->USE_NSW())); // to be updated once the Run 3 CondDb becomes available (should be automatically configured by db info)
     ATH_CHECK(m_muctpiPhase1Key.initialize(tgcArgs()->useRun3Config()));
     ATH_CHECK(m_muctpiKey.initialize(!tgcArgs()->useRun3Config()));
 

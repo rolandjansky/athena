@@ -4,9 +4,6 @@
 
 #include "MuidTrackBuilder/MuonTrackQuery.h"
 
-#include <cmath>
-#include <iomanip>
-
 #include "AthenaKernel/Units.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
@@ -30,6 +27,10 @@
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "muonEvent/CaloEnergy.h"
 
+#include "MuidEvent/FieldIntegral.h"
+#include "MuidEvent/ScatteringAngleSignificance.h"
+#include <cmath>
+#include <iomanip>
 
 namespace Units = Athena::Units;
 
@@ -391,8 +392,7 @@ MuonTrackQuery::isCombined(const Trk::Track& track) const
         }
     }
 
-    if (indet && spectrometer) return true;
-    return false;
+    return indet && spectrometer;
 }
 
 
@@ -462,8 +462,7 @@ MuonTrackQuery::isExtrapolated(const Trk::Track& track) const
         }
     }
 
-    if (!indet && spectrometer) return true;
-    return false;
+    return !indet && spectrometer;
 }
 
 
@@ -888,7 +887,7 @@ MuonTrackQuery::scatteringAngleSignificance(const Trk::Track& track) const
 }
 
 
-const Trk::TrackParameters*
+std::unique_ptr<Trk::TrackParameters>
 MuonTrackQuery::spectrometerParameters(const Trk::Track& track) const
 {
     const Trk::TrackingVolume* calorimeterVolume = getVolume("Calo::Container");
@@ -900,37 +899,35 @@ MuonTrackQuery::spectrometerParameters(const Trk::Track& track) const
 
     // find parameters at innermost spectrometer measurement
     // clone perigee if track has been slimmed
-    const Trk::TrackParameters* parameters = nullptr;
+    const Trk::TrackParameters* parametersView{};
 
     DataVector<const Trk::TrackStateOnSurface>::const_iterator s = track.trackStateOnSurfaces()->begin();
     for (; s != track.trackStateOnSurfaces()->end(); ++s) {
-        if (!(**s).measurementOnTrack() || (**s).type(Trk::TrackStateOnSurface::Outlier) || !(**s).trackParameters()
-            || dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((**s).measurementOnTrack())
-            || calorimeterVolume->inside((**s).trackParameters()->position()))
+        const auto *const pThisTrackState = *s;
+        if (!pThisTrackState->measurementOnTrack() || pThisTrackState->type(Trk::TrackStateOnSurface::Outlier) || !pThisTrackState->trackParameters()
+            || dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(pThisTrackState->measurementOnTrack())
+            || calorimeterVolume->inside(pThisTrackState->trackParameters()->position()))
         {
             continue;
         }
 
-        if (parameters && (**s).trackParameters()->position().mag() > parameters->position().mag()) {
+        if (parametersView && pThisTrackState->trackParameters()->position().mag() > parametersView->position().mag()) {
             break;
         }
-
-        parameters = (**s).trackParameters();
+        parametersView = pThisTrackState->trackParameters();
     }
 
-    if (!parameters) {
-        parameters = track.perigeeParameters();
+    if (!parametersView) {
+        parametersView = track.perigeeParameters();
     }
 
     // if necessary, flip to outgoing parameters
-    if (parameters->momentum().dot(parameters->position()) > 0.) {
-        parameters = parameters->clone();
+    if (parametersView->momentum().dot(parametersView->position()) > 0.) {
+        return parametersView->uniqueClone(); //creates new parameters as clone
     } else {
         ATH_MSG_VERBOSE(" flip spectrometer parameters ");
-        parameters = flippedParameters(*parameters);
+        return flippedParameters(*parametersView); //creates new parameters as flipped clone
     }
-
-    return parameters;
 }
 
 
@@ -1060,18 +1057,16 @@ MuonTrackQuery::triggerStationParameters(const Trk::Track& track) const
         parameters = parameters->clone();
     } else {
         ATH_MSG_VERBOSE(" flip spectrometer parameters ");
-        parameters = flippedParameters(*parameters);
+        parameters = flippedParameters(*parameters).release(); 
     }
 
     return parameters;
 }
 
 
-const Trk::TrackParameters*
+std::unique_ptr<Trk::TrackParameters>
 MuonTrackQuery::flippedParameters(const Trk::TrackParameters& parameters) const
 {
-    // flip parameters
-    const Trk::TrackParameters* flippedParams = nullptr;
 
     double phi = parameters.parameters()[Trk::phi0];
     if (phi > 0.) {
@@ -1084,11 +1079,10 @@ MuonTrackQuery::flippedParameters(const Trk::TrackParameters& parameters) const
     double              qOverP  = -parameters.parameters()[Trk::qOverP];
     const Trk::Surface* surface = &(parameters.associatedSurface());
 
-    flippedParams = surface->createTrackParameters(
+    return surface->createUniqueTrackParameters(
         parameters.parameters()[Trk::d0], parameters.parameters()[Trk::z0], phi, theta, qOverP,
         parameters.covariance() ? new AmgSymMatrix(5)(*parameters.covariance()) : nullptr);
 
-    return flippedParams;
 }
 
 

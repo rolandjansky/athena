@@ -42,35 +42,22 @@ excludeTracePattern.append("*/RecExConfig/Resilience.py")
 excludeTracePattern.append("*/AthenaCommmon/Resilience.py")
 excludeTracePattern.append("*/OutputStreamAthenaPool/MultipleStreamManager.py")
 excludeTracePattern.append("*/GaudiKernel/GaudiHandles.py")
-excludeTracePattern.append ("*/TriggerMenu/menu/HLTObjects.py")
 excludeTracePattern.append ( "*/MuonRecExample/MuonRecUtils.py")
 excludeTracePattern.append ("athfile-cache.ascii")
 excludeTracePattern.append ("*/IOVDbSvc/CondDB.py")
 excludeTracePattern.append("*/TrigConfigSvcConfig.py")
 excludeTracePattern.append("*/LArCalib.py")
 excludeTracePattern.append("*/_xmlplus/*")
-excludeTracePattern.append("*/InDetTrigRecExample/EFInDetConfig.py")
 excludeTracePattern.append("*/CaloClusterCorrection/CaloSwEtaoff*")
 excludeTracePattern.append("*/PyUtils/Helpers.py")
 excludeTracePattern.append("*/RecExConfig/RecoFunctions.py")
-excludeTracePattern.append("*/TrigEgammaHypo/TrigEFElectronHypoMonitoring.py")
 excludeTracePattern.append("*/PerfMonComps/DomainsRegistry.py")
 excludeTracePattern.append("*/CaloClusterCorrection/common.py")
-excludeTracePattern.append("*/TrigIDSCAN/TrigIDSCAN_Config.py")
-excludeTracePattern.append("*/TrigSiTrack/TrigSiTrack_Config.py")
-excludeTracePattern.append("*/TrigEgammaHypo/TrigEFElectronHypoConfig.py")
-excludeTracePattern.append("*/TrigEgammaHypo/TrigL2CaloHypoMonitoring.py")
-excludeTracePattern.append("*/TrigBphysHypo/TrigL2BMuMuFexMonitoring.py")
-excludeTracePattern.append("*/TrigBphysHypo/TrigL2TrkMassFexMonitoring.py")
-excludeTracePattern.append("*/TrigL2TrkMassFexMonitoring.py")
-excludeTracePattern.append("*/TrigBphysHypo/TrigL2TrkMassFexMonitoring.py")
-excludeTracePattern.append("*/TrigmuComb/TrigmuCombConfig.py")
 excludeTracePattern.append("*/D3PDMakerCoreComps/MakerAlg.py")
 excludeTracePattern.append("*/D3PDMakerCoreComps/D3PDObject.py")
 excludeTracePattern.append("*/RecExConfig/RecoFunctions.py")
 excludeTracePattern.append("*/DQDefects/virtual*")
 excludeTracePattern.append("*/TrigEDMConfig/TriggerEDM.py")
-excludeTracePattern.append("*/TrigL2MissingET/TrigL2MissingETMonitoring.py")
 excludeTracePattern.append("*AthFile/impl.py")
 excludeTracePattern.append("*/AthenaConfiguration/*")
 excludeTracePattern.append("*ROOT/_facade.py")
@@ -581,10 +568,10 @@ if rec.doTrigger:
             rec.doTrigger = recAlgs.doTrigger = False
     else:
         try:
-            from TriggerJobOpts.TriggerGetter import TriggerGetter
-            triggerGetter = TriggerGetter()
+            from TriggerJobOpts.T0TriggerGetter import T0TriggerGetter
+            triggerGetter = T0TriggerGetter()
         except Exception:
-            treatException("Could not import TriggerJobOpts.TriggerGetter . Switched off !" )
+            treatException("Could not import TriggerJobOpts.T0TriggerGetter . Switched off !" )
             rec.doTrigger = recAlgs.doTrigger = False
 
     # ESDtoAOD Run-3 Trigger Outputs: Don't run any trigger - only pass the HLT contents from ESD to AOD
@@ -1288,34 +1275,12 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
                 addClusterToCaloCellAOD("InDetTrackParticlesAssociatedClusters")
 
             from tauRec.tauRecFlags import tauFlags
-            if ( rec.readESD() or tauFlags.Enabled() ) and rec.doTau:                
-                from CaloRec.CaloRecConf import CaloThinCellsByClusterAlg
-                tauCellAlg1 = CaloThinCellsByClusterAlg('CaloThinCellsByClusterAlg_TauPi0Clusters',
-                                                        StreamName = 'StreamAOD',
-                                                        Clusters = 'TauPi0Clusters',
-                                                        Cells = 'AllCalo')
-                topSequence += tauCellAlg1
-
-                tauCellAlg2 = CaloThinCellsByClusterAlg('CaloThinCellsByClusterAlg_TauShotClusters',
-                                                        StreamName = 'StreamAOD',
-                                                        Clusters = 'TauShotClusters',
-                                                        Cells = 'AllCalo')
-                topSequence += tauCellAlg2
-
-                from tauRec.tauRecConf import TauCellThinningAlg
-                tauCellAlg3 = TauCellThinningAlg('TauCellThinningAlg',
-                                                 StreamName = 'StreamAOD',
-                                                 Cells = 'AllCalo',
-                                                 CellLinks = 'CaloCalTopoClusters_links',
-                                                 Taus = "TauJets",
-                                                 MinTauPt = tauFlags.tauRecMinPt())
-                topSequence += tauCellAlg3
-
-                if tauFlags.tauRecMinPt() > 0:
-                    from tauRec.tauRecConf import TauThinningAlg
-                    tauThinningAlg = TauThinningAlg('TauThinningAlg',
-                                                    MinTauPt = tauFlags.tauRecMinPt())
-                    topSequence += tauThinningAlg
+            if ( rec.readESD() or tauFlags.Enabled() ) and rec.doTau:
+                # TauThinningAlg takes care of all tau-related thinning operations (taus, clusters, cells, cell links, PFOs, tracks, vertices)
+                from tauRec.tauRecConf import TauThinningAlg
+                tauThinningAlg = TauThinningAlg('TauThinningAlg',
+                                                MinTauPt = tauFlags.tauRecMinPt())
+                topSequence += tauThinningAlg
 
         except Exception:
             treatException("Could not make AOD cells" )
@@ -1367,10 +1332,10 @@ if rec.doWriteAOD():
             from ThinningUtils.ThinGeantTruth import ThinGeantTruth
             ThinGeantTruth()
 
-        if AODFlags.ThinNegativeEnergyCaloClusters:
+        if rec.doCalo and AODFlags.ThinNegativeEnergyCaloClusters:
             from ThinningUtils.ThinNegativeEnergyCaloClusters import ThinNegativeEnergyCaloClusters
             ThinNegativeEnergyCaloClusters()            
-        if AODFlags.ThinNegativeEnergyNeutralPFOs:
+        if rec.doCalo and AODFlags.ThinNegativeEnergyNeutralPFOs:
             from ThinningUtils.ThinNegativeEnergyNeutralPFOs import ThinNegativeEnergyNeutralPFOs
             ThinNegativeEnergyNeutralPFOs()
         if (AODFlags.ThinInDetForwardTrackParticles() and

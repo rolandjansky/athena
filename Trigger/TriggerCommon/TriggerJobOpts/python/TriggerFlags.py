@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import re
 
@@ -29,7 +29,6 @@ default_true_flags = [
     "useCaloTTL", # False for DC1. Can use True for Rome files with Digits or post-Rome data """
     "doMergedHLTResult", # if False disable decoding of the merged HLT Result (so decoding L2/EF Result) """
     "doAlwaysUnpackDSResult",  # if False disable decoding of DS results for all files but for real DS files
-    "writeL1TopoValData",  # if False disable writing out of the xAOD L1Topo validation object """
     "doFEX",  # if False disable Feature extraction algorithms """
     "doHypo",  # if False disable all Hypothesis algorithms (HYPO)"""
     "doID",  # if False, disable ID algos at LVL2 and EF """
@@ -47,9 +46,7 @@ default_false_flags = [
     "fakeLVL1", # create fake RoI from KINE info  """
     "useL1CaloCalibration", # Should be false for early data, true for later """
     "useRun1CaloEnergyScale",
-    "doCosmicSim", # run the LVL1 simulation with special setup for cosmic simulation (set to FALSE by default, to do collisions simulation) """
     "doTruth",
-    "doFTK",  # if False, disable FTK result reader """
     "doTriggerConfigOnly",  # if True only the configuration services should be set, no algorithm """
     "doTransientByteStream",  # Write transient ByteStream before executing HLT algorithms.
                               # To be used for running on MC RDO with clients which require BS inputs.
@@ -178,8 +175,8 @@ class run2Config(JobProperty):
         '2017',
         ]
     def _do_action(self):
-        from TriggerMenu.egamma.EgammaSliceFlags import run2ConfigAction as egammaRun2ConfigAction
-        egammaRun2ConfigAction(self.get_Value())
+        log = logging.getLogger('TriggerJobOpts.TriggerFlags')
+        log.warning('The run2Config flag is deprecated. Please remove references to it.')
 
 _flags.append(run2Config)
 
@@ -479,24 +476,13 @@ class readLVL1configFromXML(JobProperty):
         import os
         log = logging.getLogger( 'TriggerFlags.readLVL1configFromXML' )
 
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        try:
-            legacy_run2_trigger = (ConfigFlags.Trigger.EDMVersion <= 2) and not os.getenv('TDAQ_PARTITION')
-        except Exception:
-            log.warning("Could not determine if legacy or Run-3 configuration is needed. Assuming Run-3.")
-            legacy_run2_trigger = False
-
-        if legacy_run2_trigger:
-            import TriggerMenu.l1.Lvl1Flags  # noqa: F401
-        else:
-            import TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1Flags  # noqa: F401
+        import TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1Flags  # noqa: F401
         
         if self.get_Value() is False:
             TriggerFlags.inputLVL1configFile = TriggerFlags.outputLVL1configFile()
             TriggerFlags.Lvl1.items.set_On()
         else:
-            menuXMLPackage = "TriggerMenuXML" if legacy_run2_trigger else "TriggerMenuMT"
-            TriggerFlags.inputLVL1configFile = menuXMLPackage + "/LVL1config_"+_getMenuBaseName(TriggerFlags.triggerMenuSetup())+"_" + TriggerFlags.menuVersion() + ".xml"
+            TriggerFlags.inputLVL1configFile = "TriggerMenuMT/LVL1config_"+_getMenuBaseName(TriggerFlags.triggerMenuSetup())+"_" + TriggerFlags.menuVersion() + ".xml"
             xmlFile=TriggerFlags.inputLVL1configFile()
             from TrigConfigSvc.TrigConfigSvcConfig import findFileInXMLPATH
             if xmlFile!='NONE' and not os.path.exists(findFileInXMLPATH(xmlFile)):
@@ -858,17 +844,6 @@ _flags.append(HLTPrescaleSet)
 class Trigger(JobPropertyContainer):
     """ Trigger top flags """
       
-    def Slices_LVL2_setOn(self):
-        """ Runs setL2 flags in all slices. Effectivelly enable LVL2. """
-        for prop in self.__dict__.values():
-            if issubclass( prop.__class__, JobPropertyContainer ) and "signatures" in prop.__dict__.keys():
-                prop.setL2()
-
-    def Slices_EF_setOn(self):
-        """ Runs setEF flags in all slices. Effectivelly enable EF. """
-        for prop in self.__dict__.values():
-            if issubclass( prop.__class__, JobPropertyContainer ) and "signatures" in prop.__dict__.keys():
-                prop.setEF()
 
     def Slices_all_setOn(self):
         """ Runs setL2 and setEF in all slices. Effectivelly enable trigger. """
@@ -876,18 +851,6 @@ class Trigger(JobPropertyContainer):
             if issubclass( prop.__class__, JobPropertyContainer ) and "signatures" in prop.__dict__.keys():
                 prop.setAll()
 
-    def Slices_LVL2_setOff(self):
-        """ Runs unsetL2 flags in all slices.  Effectivelly disable LVL2. """
-        for prop in self.__dict__.values():
-            if issubclass( prop.__class__, JobPropertyContainer ) and "signatures" in prop.__dict__.keys():
-                prop.unsetL2()
-
-
-    def Slices_EF_setOff(self):
-        """ Runs unsetEF flags in all slices.  Effectivelly disable EF. """
-        for prop in self.__dict__.values():
-            if issubclass( prop.__class__, JobPropertyContainer ) and "signatures" in prop.__dict__.keys():
-                prop.unsetEF()
 
     def Slices_all_setOff(self):
         """ Runs unsetAll in all slices. Effectivelly disable trigger. """
@@ -909,45 +872,12 @@ del _flags
 TriggerFlags = rec.Trigger
 
 
-
-
 ## add online specific flags
-from TriggerJobOpts.TriggerOnlineFlags      import OnlineFlags   # noqa: F401
-
-def _legacy_run2_trigger():
-    if TriggerFlags.Online.partitionName():
-        return False
-    try:
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        return (ConfigFlags.Trigger.EDMVersion <= 2)
-    except Exception:
-        # This is needed when TriggerFlags are imported before we can determine if we need legacy
-        # or Run-3 trigger configuration. This whole function wouldn't be needed if we didn't change
-        # which SliceFlags we import during the import of TriggerFlags depending on legacy vs Run-3
-        # below. Running MT or serial has no relation to legacy vs Run-3 trigger in any case other
-        # than when executing trigger algorithms (like at P1 or in RDOtoRDOTrigger), but it's the best
-        # we can do here until we remove the legacy TriggerMenu. This is likely to be incorrect in
-        # digitisation / offline reconstruction / offline monitoring / derivations, but hopefully these
-        # jobs won't depend on SliceFlags.
-        from AthenaCommon.ConcurrencyFlags import jobproperties as cfjp
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        log = logging.getLogger('TriggerJobOpts.TriggerFlags')
-        log.debug('WARNING TriggerFlags imported before legacy vs Run-3 trigger config can be determined. '
-                  'Cannot determine whether to import SliceFlags for legacy TriggerMenu or TriggerMenuMT. '
-                  'Assuming legacy if numThreads=0 or Run-3 otherwise. If this job depends on SliceFlags, '
-                  'ensure ConfigFlags.Trigger.EDMVersion is either set manually or can be auto-configured '
-                  'from ConfigFlags.Input.Files before importing TriggerFlags.')
-        return cfjp.ConcurrencyFlags.NumThreads() == 0 and ConfigFlags.Concurrency.NumThreads == 0
+import TriggerJobOpts.TriggerOnlineFlags    # noqa: F401
 
 ## add slices generation flags
-if _legacy_run2_trigger():
-    log.info("TriggerFlags importing SliceFlags (non-MT)"  )
-    from TriggerJobOpts.SliceFlags import *                                   # noqa: F401, F403
-else:
-    log.info("TriggerFlags importing SliceFlagsMT"  )
-    from TriggerJobOpts.SliceFlagsMT import *                                   # noqa: F401, F403
-
-from TriggerJobOpts.Tier0TriggerFlags       import Tier0TriggerFlags      # noqa: F401
+log.info("TriggerFlags importing SliceFlags"  )
+from TriggerJobOpts.SliceFlags import *                             # noqa: F401, F403
 
 
 def sync_Trigger2Reco():

@@ -103,17 +103,3 @@ if (InDetTrigFlags.doPrintConfigurables()):
   print (InDetTrigSiSpacePointMakerToolCosmics)
 ToolSvc += InDetTrigSiSpacePointMakerToolCosmics
 
-from SiTrigSpacePointFormation.SiTrigSpacePointFormationConf import InDet__SCT_TrigSpacePointTool
-SCT_TrigSpacePointToolCosmics = InDet__SCT_TrigSpacePointTool(name='InDetTrigSCTSpacePointToolCosmics',
-                                                              ProcessOverlaps = InDetTrigFlags.doOverlapSP(),
-                                                              SiSpacePointMakerToolName="InDet::SiSpacePointMakerTool/InDetTrigSiSpacePointMakerToolCosmics",
-                                                              OverlapLimitOpposite=5.,
-                                                              OverrideBeamSpot=True,
-                                                              VertexY=99999999,
-                                                              VertexX=0,
-                                                              VertexZ=0,
-                                                              )
-
-if (InDetTrigFlags.doPrintConfigurables()):
-  print (SCT_TrigSpacePointToolCosmics)
-ToolSvc +=  SCT_TrigSpacePointToolCosmics

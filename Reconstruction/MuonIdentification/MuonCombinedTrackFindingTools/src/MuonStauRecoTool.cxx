@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonStauRecoTool.h"
@@ -623,6 +623,7 @@ namespace MuonCombined {
           }
           continue;
         }
+        if (i >= segment.dcs().size()) continue;
         TrkDriftCircleMath::TransformToLine toLine(segment.line());
         const TrkDriftCircleMath::DCOnTrack& dc = segment.dcs()[i];
         double res = dc.residual();
@@ -775,7 +776,7 @@ namespace MuonCombined {
 
     // push tracks into a collection and run ambi-solver
     TrackCollection tracks(SG::VIEW_ELEMENTS);
-    std::map<Trk::Track*, std::shared_ptr<Candidate> > trackCandidateLookup;
+    std::map<const Trk::Track*, std::shared_ptr<Candidate> > trackCandidateLookup;
     for( const auto& candidate : candidates ){
       Trk::Track* track = candidate->combinedTrack.get();
       if( track ){
@@ -789,9 +790,9 @@ namespace MuonCombined {
     if( tracks.size() == 1 ) return true;
 
     // more than 1 track call ambiguity solver and select first track
-    std::unique_ptr<TrackCollection> resolvedTracks
+    std::unique_ptr<const TrackCollection> resolvedTracks
       (m_trackAmbibuityResolver->process(&tracks));
-    Trk::Track* selectedTrack = resolvedTracks->front();
+    const Trk::Track* selectedTrack = resolvedTracks->front();
 
     // get candidate
     auto pos = trackCandidateLookup.find(selectedTrack);

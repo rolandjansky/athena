@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGHLTJETHYPO_SINGLEJETGROUPER_H
@@ -13,12 +13,9 @@ class SingleJetGrouper: public IJetGrouper{
   SingleJetGrouper(const HypoJetVector&);
   SingleJetGrouper(const HypoJetCIter& b, const HypoJetCIter& e);
 
-  std::vector<HypoJetGroupVector> group(HypoJetIter&,
-					HypoJetIter&) const override;
-
-  std::optional<HypoJetVector> next() override;
-  std::string getName() const override; 
-  std::string toString() const override;
+  virtual HypoJetVector next() override;
+  virtual std::string getName() const override; 
+  virtual std::string toString() const override;
 
 private:
   HypoJetVector m_jets{};

@@ -19,6 +19,8 @@
 static const SG::AuxElement::Accessor< std::vector<TrigCompositeUtils::DecisionID> > readWriteAccessor("decisions");
 static const SG::AuxElement::ConstAccessor< std::vector<TrigCompositeUtils::DecisionID> > readOnlyAccessor("decisions");
 
+
+
 namespace TrigCompositeUtils {  
 
   ANA_MSG_SOURCE (msgFindLink, "TrigCompositeUtils.findLink")
@@ -184,6 +186,15 @@ namespace TrigCompositeUtils {
     }
   }
 
+  int32_t getIndexFromLeg(const HLT::Identifier& legIdentifier) {
+    if (isChainId(legIdentifier)){
+      return 0;
+    } else if (!isLegId(legIdentifier)) {
+      return -1;
+    }
+    return std::stoi( legIdentifier.name().substr(3,3) ); 
+  }
+
   
   bool isLegId(const HLT::Identifier& legIdentifier) {
     return (legIdentifier.name().substr(0,3) == "leg");
@@ -216,6 +227,15 @@ namespace TrigCompositeUtils {
     return composite->hasObjectCollectionLinks( m_name );
   }
 
+  const Decision* getTerminusNode(SG::ReadHandle<DecisionContainer>& container) {
+    for (const Decision* decision : *container) {
+      if (decision->name() == summaryPassNodeName()) {
+        return decision;
+      }
+    }
+    return nullptr;
+  }
+
  std::vector<const Decision*> getRejectedDecisionNodes(asg::EventStoreType* eventStore, const DecisionIDContainer ids) {
     std::vector<const Decision*> output;
     // The list of containers we need to read can change on a file-by-file basis (it depends on the SMK)
@@ -243,9 +263,6 @@ namespace TrigCompositeUtils {
       // Get and check this container
       if ( key.find("HLTNav_") != 0 ) {
         continue; // Only concerned about the decision containers which make up the navigation, they have name prefix of HLTNav
-      }
-      if ( key == "HLTNav_Summary" ) {
-        continue; //  This is where accepted paths start. We are looking for rejected ones
       }
       SG::ReadHandle<DecisionContainer> containerRH(key);
       if (!containerRH.isValid()) {
@@ -310,6 +327,7 @@ namespace TrigCompositeUtils {
   void recursiveGetDecisionsInternal(const Decision* node, 
     const Decision* comingFrom, 
     NavGraph& navGraph, 
+    std::set<const Decision*>& fullyExploredFrom,
     const DecisionIDContainer ids,
     const bool enforceDecisionOnNode) {
 
@@ -320,6 +338,14 @@ namespace TrigCompositeUtils {
 
     // This Decision object is part of this path through the Navigation
     navGraph.addNode(node, comingFrom);
+
+#if TRIGCOMPUTILS_ENABLE_EARLY_EXIT == 1
+    // Note we have to do this check here (after calling addNode) rather than just before calling recursiveGetDecisionsInternal
+    if (fullyExploredFrom.count(node) == 1) {
+      // We have fully explored this branch
+      return;
+    }
+#endif
     
     // Continue to the path(s) by looking at this Decision object's seed(s)
     if ( hasLinkToPrevious(node) ) {
@@ -327,9 +353,13 @@ namespace TrigCompositeUtils {
       for ( ElementLink<DecisionContainer> seed : getLinkToPrevious(node)) {
         const Decision* seedDecision = *(seed); // Dereference ElementLink
         // Sending true as final parameter for enforceDecisionOnStartNode as we are recursing away from the supplied start node
-        recursiveGetDecisionsInternal(seedDecision, node, navGraph, ids, /*enforceDecisionOnNode*/ true);
+        recursiveGetDecisionsInternal(seedDecision, node, navGraph, fullyExploredFrom, ids, /*enforceDecisionOnNode*/ true);
       }
     }
+
+    // Have fully explored down from this point
+    fullyExploredFrom.insert(node);
+
     return;
   }
 
@@ -338,25 +368,95 @@ namespace TrigCompositeUtils {
     const DecisionIDContainer ids,
     const bool enforceDecisionOnStartNode) {
 
+    std::set<const Decision*> fullyExploredFrom;
     // Note: we do not require navGraph to be an empty graph. We can extend it.
-    recursiveGetDecisionsInternal(start, /*comingFrom*/nullptr, navGraph, ids, enforceDecisionOnStartNode);
+    recursiveGetDecisionsInternal(start, /*comingFrom*/nullptr, navGraph, fullyExploredFrom, ids, enforceDecisionOnStartNode);
     
     return;
   }
 
 
-  bool typelessFindLinks(const Decision* start, const std::string& linkName,
-    std::vector<uint32_t>& keyVec, std::vector<uint32_t>& clidVec, std::vector<uint16_t>& indexVec,
-    const unsigned int behaviour, std::set<const Decision*>* visitedCache)
+  void recursiveFlagForThinning(NavGraph& graph, 
+    const bool keepOnlyFinalFeatures,
+    const std::vector<std::string>& nodesToDrop)
   {
-    using namespace msgFindLink;
-    if (visitedCache != nullptr) {
-      // We only need to recursively explore back from each node in the graph once.
-      // We can keep a record of nodes which we have already explored, these we can safely skip over.
-      if (visitedCache->count(start) == 1) {
-        return false; // Early exit
+    std::set<NavGraphNode*> fullyExploredFrom;
+    for (NavGraphNode* finalNode : graph.finalNodes()) {
+      recursiveFlagForThinningInternal(finalNode, /*modeKeep*/true, fullyExploredFrom, keepOnlyFinalFeatures, nodesToDrop);
+    }
+  }
+
+
+  void recursiveFlagForThinningInternal(NavGraphNode* node,
+    bool modeKeep,
+    std::set<NavGraphNode*>& fullyExploredFrom,
+    const bool keepOnlyFinalFeatures,
+    const std::vector<std::string>& nodesToDrop)
+  {
+
+    // If modeKeep == true, then by default we are KEEPING the nodes as we walk the navigation,
+    // otherwise by default we are THINNING the nodes
+    bool keep = modeKeep;
+
+    // The calls to node->node() here are going from the transient NavGraphNode 
+    // to the underlying const Decision* from the input collection
+
+    if (keepOnlyFinalFeatures) {
+      // Check if we have reached the first feature
+      if ( modeKeep == true && node->node()->hasObjectLink(featureString()) ) {
+        // We keep this node, and its immidiate parents (InputMaker nodes) as these have the ROI link which we also want
+        keep = true;
+        // TODO - these calls mean we bypass the nodesToDrop check here, any other way?
+        // TODO One solution here is to impliment a link-move option, move the ROI
+        // TODO from the InputMaker node down to the HypoAlg node
+        for (NavGraphNode* seed : node->seeds()) {
+          seed->keep();
+        }
+        // We change the default behaviour to be modeKeep = false
+        // such that by default we start to NOT flag all the parent nodes to be kept
+        modeKeep = false;
+      }
+      if (node->node()->name() == l1DecoderNodeName()) {
+        // We also keep the initial node from the L1 decoder
+        keep = true;
       }
     }
+
+    // Check also against NodesToDrop
+    for (const std::string& toDrop : nodesToDrop) {
+      if (node->node()->name() == toDrop) {
+        keep = false;
+        break;
+      }
+    }
+
+    // Inform the node that it should NOT be thinned away.
+    if (keep) {
+      node->keep();
+    }
+
+    for (NavGraphNode* seed : node->seeds()) {
+#if TRIGCOMPUTILS_ENABLE_EARLY_EXIT == 1
+      if (fullyExploredFrom.count(seed) == 1) {
+        // We have fully explored this branch
+        continue;
+      }
+#endif
+      // Recursivly call all the way up the graph to the initial nodes from the L1 decoder
+      recursiveFlagForThinningInternal(seed, modeKeep, fullyExploredFrom, keepOnlyFinalFeatures, nodesToDrop);
+    }
+
+    // Have fully explored down from this point
+    fullyExploredFrom.insert(node);
+  }
+
+
+  bool typelessFindLinks(const Decision* start, const std::string& linkName,
+    std::vector<uint32_t>& keyVec, std::vector<uint32_t>& clidVec, std::vector<uint16_t>& indexVec,
+    const unsigned int behaviour, std::set<const Decision*>* fullyExploredFrom)
+  {
+    using namespace msgFindLink;
+
     // As the append vectors are user-supplied, perform some input validation. 
     if (keyVec.size() != clidVec.size() or clidVec.size() != indexVec.size()) {
       ANA_MSG_WARNING("In typelessFindLinks, keyVec, clidVec, indexVec must all be the same size. Instead have:"
@@ -406,11 +506,20 @@ namespace TrigCompositeUtils {
     }
     // If not Early Exit, then recurse
     for (const auto seed : getLinkToPrevious(start)) {
-      found |= typelessFindLinks(*seed, linkName, keyVec, clidVec, indexVec, behaviour, visitedCache);
+#if TRIGCOMPUTILS_ENABLE_EARLY_EXIT == 1
+      if (fullyExploredFrom != nullptr) {
+        // We only need to recursively explore back from each node in the graph once.
+        // We can keep a record of nodes which we have already explored, these we can safely skip over.
+        if (fullyExploredFrom->count(start) == 1) {
+          continue; 
+        }
+      }
+#endif
+      found |= typelessFindLinks(*seed, linkName, keyVec, clidVec, indexVec, behaviour, fullyExploredFrom);
     }
     // Fully explored this node
-    if (visitedCache != nullptr) {
-      visitedCache->insert(start);
+    if (fullyExploredFrom != nullptr) {
+      fullyExploredFrom->insert(start);
     }
     return found;
   }
@@ -430,9 +539,9 @@ namespace TrigCompositeUtils {
     std::vector<uint32_t> keyVec;
     std::vector<uint32_t> clidVec;
     std::vector<uint16_t> indexVec;
-    std::set<const xAOD::TrigComposite*> visitedCache;
+    std::set<const xAOD::TrigComposite*> fullyExploredFrom;
 
-    const bool result = typelessFindLinks(start, linkName, keyVec, clidVec, indexVec, TrigDefs::lastFeatureOfType, &visitedCache);
+    const bool result = typelessFindLinks(start, linkName, keyVec, clidVec, indexVec, TrigDefs::lastFeatureOfType, &fullyExploredFrom);
     if (!result) {
       return false; // Nothing found
     }
@@ -554,6 +663,18 @@ namespace TrigCompositeUtils {
 
   const std::string& comboHypoAlgNodeName(){
     return Decision::s_comboHypoAlgNodeNameString;
+  }
+
+  const std::string& summaryFilterNodeName(){
+    return Decision::s_summaryFilterNodeNameString;
+  }
+
+  const std::string& summaryPassNodeName(){
+    return Decision::s_summaryPassNodeNameString;
+  }
+
+  const std::string& summaryPrescaledNodeName(){
+    return Decision::s_summaryPrescaledNodeNameString;
   }
 
 }

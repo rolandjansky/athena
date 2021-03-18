@@ -17,6 +17,8 @@
 #include "CaloIdCnv/Tile_SuperCell_IDDetDescrCnv.h"
 #include "CaloIdCnv/TileTBIDDetDescrCnv.h"
 #include "CaloIdCnv/TTOnlineIDDetDescrCnv.h"
+#include "CaloIdCnv/​JTower_IDDetDescrCnv.h"
+#include "CaloIdCnv/​GTower_IDDetDescrCnv.h"
 
 DECLARE_CONVERTER( CaloCell_IDDetDescrCnv )
 DECLARE_CONVERTER( CaloCell_SuperCell_IDDetDescrCnv )
@@ -34,4 +36,5 @@ DECLARE_CONVERTER( TileIDDetDescrCnv )
 DECLARE_CONVERTER( Tile_SuperCell_IDDetDescrCnv )
 DECLARE_CONVERTER( TileTBIDDetDescrCnv )
 DECLARE_CONVERTER( TTOnlineIDDetDescrCnv )
-
+DECLARE_CONVERTER( JTower_IDDetDescrCnv )
+DECLARE_CONVERTER( GTower_IDDetDescrCnv )

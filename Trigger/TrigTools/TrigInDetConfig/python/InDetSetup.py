@@ -3,7 +3,6 @@
 #
 
 from AthenaCommon.Include import include
-include.block("InDetTrigRecExample/EFInDetConfig.py")
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger("InDetSetup")
@@ -63,13 +62,9 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
 
     if not globalflags.InputFormat.is_bytestream():
       ViewDataVerifier.DataObjects +=   [( 'PixelRDO_Container' , InDetKeys.PixelRDOs() ),
-                                         ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() ),
-                                         ( 'IDCInDetBSErrContainer' , InDetKeys.PixelByteStreamErrs() ),
-                                         ( 'IDCInDetBSErrContainer' , InDetKeys.SCT_ByteStreamErrs() )]
+                                         ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() )]
       topSequence.SGInputLoader.Load += [( 'PixelRDO_Container' , InDetKeys.PixelRDOs() ),
-                                         ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() ),
-                                         ( 'IDCInDetBSErrContainer' , InDetKeys.PixelByteStreamErrs() ),
-                                         ( 'IDCInDetBSErrContainer' , InDetKeys.SCT_ByteStreamErrs() )]
+                                         ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() )]
 
   from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
   from AthenaCommon.AppMgr import ToolSvc
@@ -160,9 +155,16 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
 
   ToolSvc += InDetClusterMakerTool
 
+  from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
+  idPixelSummary = PixelConditionsSummaryTool("PixelConditionsSummaryTool",
+                                              UseByteStreamFEI4=globalflags.InputFormat.is_bytestream(),
+                                              UseByteStreamFEI3=globalflags.InputFormat.is_bytestream())
+
   from SiClusterizationTool.SiClusterizationToolConf import InDet__MergedPixelsTool
-  InDetMergedPixelsTool = InDet__MergedPixelsTool(name                    = "InDetMergedPixelsTool_" + signature,
-                                                  globalPosAlg            = InDetClusterMakerTool)
+  InDetMergedPixelsTool = InDet__MergedPixelsTool(name                       = "InDetMergedPixelsTool_" + signature,
+                                                  PixelConditionsSummaryTool = idPixelSummary,
+                                                  globalPosAlg               = InDetClusterMakerTool)
+
   # Enable duplcated RDO check for data15 because duplication mechanism was used.
   from RecExConfig.RecFlags import rec
   if len(rec.projectName())>=6 and rec.projectName()[:6]=="data15":
@@ -215,12 +217,13 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
   sct_ReadCalibDataToolSetup.setup()
   InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools.append(sct_ReadCalibDataToolSetup.getTool().getFullName())
 
-  from SCT_ConditionsTools.SCT_ByteStreamErrorsToolSetup import SCT_ByteStreamErrorsToolSetup
-  sct_ByteStreamErrorsToolSetup = SCT_ByteStreamErrorsToolSetup()
-  sct_ByteStreamErrorsToolSetup.setToolName("InDetSCT_BSErrorTool_" + signature)
-  sct_ByteStreamErrorsToolSetup.setConfigTool(sct_ConfigurationConditionsToolSetup.getTool())
-  sct_ByteStreamErrorsToolSetup.setup()
-  InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools.append(sct_ByteStreamErrorsToolSetup.getTool().getFullName())
+  if (globalflags.InputFormat.is_bytestream()):
+     from SCT_ConditionsTools.SCT_ByteStreamErrorsToolSetup import SCT_ByteStreamErrorsToolSetup
+     sct_ByteStreamErrorsToolSetup = SCT_ByteStreamErrorsToolSetup()
+     sct_ByteStreamErrorsToolSetup.setToolName("InDetSCT_BSErrorTool_" + signature)
+     sct_ByteStreamErrorsToolSetup.setConfigTool(sct_ConfigurationConditionsToolSetup.getTool())
+     sct_ByteStreamErrorsToolSetup.setup()
+     InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools.append(sct_ByteStreamErrorsToolSetup.getTool().getFullName())
 
   if (InDetTrigFlags.doPrintConfigurables()):
      print (InDetSCT_ConditionsSummaryToolWithoutFlagged)  # noqa: ATL901
@@ -306,7 +309,8 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
 
       from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinderBase
       #TODO: eventually adapt IDTrigConfig also in FTF configuration (pass as additional param)
-      theFTF = TrigFastTrackFinderBase("TrigFastTrackFinder_" + signature, config.FT.signatureType )
+      theFTF = TrigFastTrackFinderBase("TrigFastTrackFinder_" + signature, config.FT.signatureType,
+                                       conditionsTool = InDetSCT_ConditionsSummaryToolWithoutFlagged )
       theFTF.RoIs           = rois
       theFTF.TracksName     = config.FT.trkTracksFTF()
       theFTF.doCloneRemoval = config.FT.setting.doCloneRemoval
@@ -315,6 +319,8 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
         theFTF.HitDVSeed      = "HLT_HitDVSeed"
         theFTF.HitDVTrk       = "HLT_HitDVTrk"
         theFTF.HitDVSP        = "HLT_HitDVSP"
+        theFTF.dEdxTrk        = "HLT_dEdxTrk"
+        theFTF.dEdxHit        = "HLT_dEdxHit"
 
 
       viewAlgs.append(theFTF)
@@ -337,7 +343,8 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
 
       if secondStageConfig is not None:
         #have been supplied with a second stage config, create another instance of FTF
-        theFTF2 = TrigFastTrackFinderBase("TrigFastTrackFinder_" + secondStageConfig.name, secondStageConfig.FT.signatureType )
+        theFTF2 = TrigFastTrackFinderBase("TrigFastTrackFinder_" + secondStageConfig.name, secondStageConfig.FT.signatureType,
+                                          conditionsTool = InDetSCT_ConditionsSummaryToolWithoutFlagged )
         theFTF2.RoIs           = rois
         theFTF2.TracksName     = secondStageConfig.FT.trkTracksFTF()
         theFTF2.inputTracksName = config.FT.trkTracksFTF()

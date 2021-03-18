@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetTagCalibration/CalibrationBroker.h"
@@ -71,17 +71,15 @@ namespace Analysis {
       ATH_MSG_DEBUG("#BTAG# Channel " << m_originalChannels[i] );
     }
     // Decode channel aliases:
-    for(std::vector<std::string>::const_iterator aliasI = m_channelAliases.value().begin(),
-	  aliasE = m_channelAliases.value().end(); 
-        aliasI != aliasE; aliasI++) {
-      const std::string::size_type delim = aliasI->find("->");
+    for (const std::string& alias : m_channelAliases) {
+      const std::string::size_type delim = alias.find("->");
       if(delim == std::string::npos) {
-        ATH_MSG_ERROR( "#BTAG# Unexpected format in channelAliases: " << (*aliasI));
+        ATH_MSG_ERROR( "#BTAG# Unexpected format in channelAliases: " << alias );
       } else {
-        ATH_MSG_INFO( "#BTAG# Calibration channel alias: " << aliasI->substr(0, delim) << " -> " 
-		      << aliasI->substr(delim+2) );
-	std::string jetc= aliasI->substr(0, delim);
-	std::vector<std::string> jeta = tokenize(aliasI->substr(delim+2), ",");
+        ATH_MSG_INFO( "#BTAG# Calibration channel alias: " << alias.substr(0, delim) << " -> " 
+		      << alias.substr(delim+2) );
+	std::string jetc= alias.substr(0, delim);
+	std::vector<std::string> jeta = tokenize(alias.substr(delim+2), ",");
 	m_channelAliasesMultiMap.insert(std::make_pair(jetc, jeta) );
 	// Add to list of channels to which aliases will be attached
 	// (necessary because getJetAuthor used in taggers does not use

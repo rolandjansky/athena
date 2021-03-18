@@ -120,7 +120,8 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
     Tool tree structure."""
 
     
-    logger.debug('trigJetHypoToolFromDict chainDict ', str(chain_dict))
+    msg = 'trigJetHypoToolFromDict chainDict %s' %  str(chain_dict)
+    logger.debug(msg)
     algToolFactory = FastReductionAlgToolFactory()
 
     # Build the helper tool
@@ -164,9 +165,10 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
 def  trigJetHypoToolFromDict_(chain_dict, hypo_tool, debug=False):
     """Produce  a jet trigger hypo tool from a chainDict"""
 
-    logger.debug('trigJetHypoToolFromDict_ tool type %s chainDict ', 
-                 hypo_tool.__class__.__name__,
-                 str(chain_dict))
+    
+    msg = 'trigJetHypoToolFromDict_ tool type %s  chainDict %s' % (
+        hypo_tool.__class__.__name__, str(chain_dict))
+    logger.debug(msg)
 
     # obtain  a Helper Tool (possibly a tree of tools) to
     # make the hypo decision.

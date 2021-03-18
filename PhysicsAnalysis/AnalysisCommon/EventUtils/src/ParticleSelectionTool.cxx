@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ParticleSelectionTool.cxx
@@ -16,16 +16,6 @@
 // STL includes
 #include <vector>
 #include <string>
-
-// FrameWork includes
-#include "ExpressionEvaluation/ExpressionParser.h"
-#include "ExpressionEvaluation/SGxAODProxyLoader.h"
-#include "ExpressionEvaluation/SGNTUPProxyLoader.h"
-#include "ExpressionEvaluation/MultipleProxyLoader.h"
-#include "ExpressionEvaluation/StackElement.h"
-#include "TrigDecisionTool/TrigDecisionTool.h"
-#include "ExpressionEvaluation/TriggerDecisionProxyLoader.h"
-
 
 // EDM includes
 #include "AthLinks/ElementLink.h"
@@ -82,9 +72,7 @@
 ParticleSelectionTool::ParticleSelectionTool( const std::string& type,
                                               const std::string& name,
                                               const IInterface* parent ) :
-  ::AthAlgTool  ( type, name, parent ),
-  m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"),
-  m_parser(0),
+  ExpressionParserUserWithTrigSupport<::AthAlgTool>  ( type, name, parent ),
   m_inCollKey(""),
   m_outCollKey(""),
   m_outCollType(""),
@@ -141,15 +129,8 @@ StatusCode ParticleSelectionTool::initialize()
   ATH_MSG_DEBUG ( " using = " << m_selection );
 
 
-  // initialize proxy loaders for expression parsing
-  ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
-  proxyLoaders->push_back(new ExpressionParsing::TriggerDecisionProxyLoader(m_trigDecisionTool));
-  proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
-  proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
-
   // load the expressions
-  m_parser = new ExpressionParsing::ExpressionParser(proxyLoaders);
-  m_parser->loadExpression( m_selection.value() );
+  ATH_CHECK(initializeParser(m_selection.value()));
 
   // initialize the counters
   m_contID = 0;
@@ -210,11 +191,7 @@ StatusCode ParticleSelectionTool::finalize()
 {
   ATH_MSG_DEBUG ("Finalizing " << name() << "...");
 
-  if (m_parser) {
-    delete m_parser;
-    m_parser = 0;
-  }
-
+  ATH_CHECK( finalizeParser() );
   return StatusCode::SUCCESS;
 }
 

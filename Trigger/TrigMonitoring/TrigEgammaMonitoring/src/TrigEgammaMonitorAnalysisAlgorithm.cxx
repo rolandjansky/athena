@@ -299,7 +299,20 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillDistributions( std::vector< std::pa
         
         if( info.trigType == "electron" ){
             // HLT Electron
-            {
+            if(info.isGSF){
+                std::vector<const xAOD::Electron*> el_vec;
+                std::vector<const xAOD::Egamma*> eg_vec;
+                auto vec =  tdt()->features<xAOD::ElectronContainer>(trigger,condition ,match()->key("ElectronGSF") );      
+                for( auto &featLinkInfo : vec ){
+                    const auto *feat = *(featLinkInfo.link);
+                    if(!feat) continue;
+                    // If not pass, continue
+                    el_vec.push_back(feat);
+                    eg_vec.push_back(feat);
+                }
+                fillShowerShapes( trigger, eg_vec, true );
+                fillTracking( trigger, el_vec, true );
+                }else{
                 std::vector<const xAOD::Electron*> el_vec;
                 std::vector<const xAOD::Egamma*> eg_vec;
                 auto vec =  tdt()->features<xAOD::ElectronContainer>(trigger,condition ,match()->key("Electron") );      
@@ -317,8 +330,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillDistributions( std::vector< std::pa
         }else{
           ATH_MSG_WARNING( "Chain type not Electron for TP trigger" );
         }
-
-
+    
     }else{
 
         // L1Calo
@@ -383,7 +395,21 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillDistributions( std::vector< std::pa
  
 
             // HLT Electron
-            {
+            if (info.isGSF){
+                std::vector<const xAOD::Electron*> el_vec;
+                std::vector<const xAOD::Egamma*> eg_vec;
+                auto vec =  tdt()->features<xAOD::ElectronContainer>(trigger, TrigDefs::Physics ,match()->key("ElectronGSF") );      
+                for( auto &featLinkInfo : vec ){
+                    if(! featLinkInfo.isValid() ) continue;
+                    const auto *feat = *(featLinkInfo.link);
+                    if(!feat) continue;
+                    el_vec.push_back(feat);
+                    eg_vec.push_back(feat);
+                }
+                fillShowerShapes( trigger, eg_vec, true );
+                fillTracking( trigger, el_vec, true );
+
+            }else{
                 std::vector<const xAOD::Electron*> el_vec;
                 std::vector<const xAOD::Egamma*> eg_vec;
                 auto vec =  tdt()->features<xAOD::ElectronContainer>(trigger, TrigDefs::Physics ,match()->key("Electron") );      

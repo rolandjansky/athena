@@ -680,14 +680,14 @@ def make_lite(meta_dict):
     for filename, file_content in meta_dict.items():
         for key in file_content:
             if key in meta_dict[filename]['metadata_items'] and regexEventStreamInfo.match(meta_dict[filename]['metadata_items'][key]):
-                keys_to_keep = ['lumiBlockNumbers', 'runNumbers', 'mc_event_number', 'mc_channel_number', 'eventTypes', 'processingTags']
+                keys_to_keep = ['lumiBlockNumbers', 'runNumbers', 'mc_event_number', 'mc_channel_number', 'eventTypes', 'processingTags', 'itemList']
 
                 for item in list(meta_dict[filename][key]):
                     if item not in keys_to_keep:
                         meta_dict[filename][key].pop(item)
 
         if '/TagInfo' in file_content:
-            keys_to_keep = ['beam_energy', 'beam_type', 'GeoAtlas', 'IOVDbGlobalTag', 'AODFixVersion']
+            keys_to_keep = ['beam_energy', 'beam_type', 'GeoAtlas', 'IOVDbGlobalTag', 'AODFixVersion', 'project_name']
 
             for item in list(meta_dict[filename]['/TagInfo']):
                 if item not in keys_to_keep:
@@ -814,7 +814,7 @@ def convert_itemList(metadata, layout):
         current_key = None
 
         for key in metadata:
-            if key in metadata['metadata_items'] and metadata['metadata_items'][key] == 'EventStreamInfo_p3':
+            if 'metadata_items' in metadata and key in metadata['metadata_items'] and metadata['metadata_items'][key] == 'EventStreamInfo_p3':
                 current_key = key
                 break
         if current_key is not None:

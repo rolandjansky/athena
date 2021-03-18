@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ************************************************
@@ -34,11 +34,8 @@ class TrigT2HistoPrmVtxBaseMT : public AthAlgorithm {
 
  public:
   TrigT2HistoPrmVtxBaseMT( const std::string&, ISvcLocator* );
-  virtual ~TrigT2HistoPrmVtxBaseMT() override;
 
   virtual StatusCode initialize() override;
-  virtual StatusCode execute() override = 0;
-  virtual StatusCode finalize() override = 0;
 
  protected:
   /**

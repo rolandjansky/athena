@@ -28,9 +28,6 @@ topSequence += theAlg
 jobproperties.HIGlobalFlags.HIGlobalItemList+=["xAOD::HIEventShapeContainer#"+shape_key]
 jobproperties.HIGlobalFlags.HIGlobalItemList+=["xAOD::HIEventShapeAuxContainer#"+shape_key+"Aux."]
 
-#jobproperties.HIGlobalFlags.HIGlobalItemList+=["xAOD::MBTSModuleContainer#MBTSModules"]
-#jobproperties.HIGlobalFlags.HIGlobalItemList+=["xAOD::MBTSModuleAuxContainer#MBTSModulesAux."]
-
 from xAODForwardCnv.xAODMBTSModuleCreator import xAODMaker__MBTSModuleCnvAlg
 topSequence += xAODMaker__MBTSModuleCnvAlg()
 

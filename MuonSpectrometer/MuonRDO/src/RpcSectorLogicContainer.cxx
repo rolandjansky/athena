@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonRDO/RpcSectorLogicContainer.h"
@@ -27,7 +27,7 @@ bool RpcSectorLogicContainer::setSector(uint16_t sectorId, uint16_t side) {
 }
 
 
-const RpcSectorLogicContainer::SectorList_t&
+const RpcSectorLogicContainer::SectorListElement_t*
 RpcSectorLogicContainer::sectorList() const
 {
   return m_sectorList;

@@ -66,17 +66,17 @@ bool MdtTestCabling::testMap()
   ATH_MSG_DEBUG( "in testMap()" );
   ATH_MSG_DEBUG( "retrieved the map from the service" );
 
-  std::map<uint8_t, MdtSubdetectorMap*, std::less<uint8_t> >* listOfSubdet;
-  std::map<uint8_t, MdtSubdetectorMap*, std::less<uint8_t> >::const_iterator it_sub;
+  MuonMDT_CablingMap::MapOfItems *listOfSubdet;
+  MuonMDT_CablingMap::MapOfItems::const_iterator it_sub;
 
-  std::map<uint8_t, MdtRODMap*, std::less<uint8_t> >* listOfROD;
-  std::map<uint8_t, MdtRODMap*, std::less<uint8_t> >::const_iterator it_rod;
+  MdtSubdetectorMap::MapOfItems *listOfROD;
+  MdtSubdetectorMap::MapOfItems::const_iterator it_rod;
 
-  std::map<uint8_t, MdtCsmMap*, std::less<uint8_t> >* listOfCsm;
-  std::map<uint8_t, MdtCsmMap*, std::less<uint8_t> >::const_iterator it_csm;
+  MdtRODMap::MapOfItems *listOfCsm;
+  MdtRODMap::MapOfItems::const_iterator it_csm;
 
-  std::map<uint8_t, MdtAmtMap*, std::less<uint8_t> >* listOfAmt;
-  std::map<uint8_t, MdtAmtMap*, std::less<uint8_t> >::const_iterator it_amt;
+  MdtCsmMap::MapOfItems *listOfAmt;
+  MdtCsmMap::MapOfItems::const_iterator it_amt;
 
   listOfSubdet = readCdo->getListOfElements();
 

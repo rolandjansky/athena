@@ -52,7 +52,9 @@ private:
   SG::WriteCondHandleKey<MuonGM::MuonDetectorManager> m_writeDetectorManagerKey {this, "WriteDetectorManagerKey",
       "MuonDetectorManager",
       "Key of output MuonDetectorManager condition data"};
-  
+
+// temporary way to pass MM correction for passivation
+  double m_MM_passivationCorr = 0.;
 };
 
 #endif

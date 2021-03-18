@@ -1,26 +1,34 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-
-#include "GeoModelKernel/GeoTrd.h"
+#include <GaudiKernel/IMessageSvc.h>
+#include <GaudiKernel/MsgStream.h>
+#include <GeoModelKernel/GeoLogVol.h>
+#include <GeoModelKernel/GeoShape.h>
+#include "AthenaKernel/getMessageSvc.h"
+#include "GeoModelInterfaces/StoredMaterialManager.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/GeoIdentifierTag.h"
+#include "GeoModelKernel/GeoNameTag.h"
+#include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
-#include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
-#include "GeoModelKernel/GeoNameTag.h"
 #include "GeoModelKernel/GeoTransform.h"
-#include "GeoModelKernel/GeoIdentifierTag.h"
-#include "GeoModelKernel/GeoDefinitions.h"
-#include "MuonGeoModel/MYSQL.h"
-#include "MuonGeoModel/Csc.h"
+#include "GeoModelKernel/GeoTrd.h"
 #include "MuonGeoModel/CSC_Technology.h"
 #include "MuonGeoModel/CscMultiLayer.h"
-#include "MuonGeoModel/Cutout.h"
+#include "MuonGeoModel/DetectorElement.h"
+#include "MuonGeoModel/MYSQL.h"
 
+#include <math.h>
+#include <stddef.h>
+#include <string>
 #include <vector>
-// for cutouts:
-#include "GeoModelKernel/GeoShapeSubtraction.h"
+
+class GeoMaterial;
+class GeoVPhysVol;
+namespace MuonGM { class Cutout; }
 
 namespace MuonGM {
 

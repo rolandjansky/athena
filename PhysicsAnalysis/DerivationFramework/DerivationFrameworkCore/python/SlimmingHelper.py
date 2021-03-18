@@ -34,7 +34,7 @@
 # may be unreadable.
 ####################################################################
 
-from DerivationFrameworkCore.CompulsoryContent import CompulsoryContent, CompulsoryTriggerNavigation
+from DerivationFrameworkCore.CompulsoryContent import CompulsoryContent, CompulsoryTriggerNavigation, CompulsoryDynamicContent
 from DerivationFrameworkCore.ContentHandler import ContentHandler
 from DerivationFrameworkCore.ContainersForExpansion import ContainersForExpansion
 from DerivationFrameworkCore.ContainersOnTheFly import ContainersOnTheFly
@@ -118,11 +118,11 @@ class SlimmingHelper:
                         if item.endswith("#*"):
                                 compare_str=item[:-2].replace("xAOD::","")
                                 for m_item in masterList:
-                                        if m_item.startswith(compare_str):
+                                        if m_item.startswith(compare_str) and m_item.replace("Aux.","") not in CompulsoryDynamicContent:
                                                 conflicted_items.append(m_item)
                 if len(conflicted_items)!=0:
-                        msg.error("Smart Slimming lists attempting to add " +str(conflicted_items)+" which are already included in Compulsory content please remove these items from Smart Slimming List")
-                        raise RuntimeError("Conflict in Smart Slimming List and Compulsory Content")
+                        msg.error("Slimming list contains " +str(conflicted_items)+" which are already included in compulsory content: please remove these items from slimming list")
+                        raise RuntimeError("Conflict in Slimming List and Compulsory Content")
 
 
         # The main routine: called by all job options once.
@@ -133,6 +133,7 @@ class SlimmingHelper:
                 # All variables list: where all variables are requested, no variable lists are needed
                 # This list ensures that variables are not added individually in such cases
                 allVariablesList = []
+                self.AllVariables += CompulsoryDynamicContent
                 # Add all-variable collections
                 if len(self.AllVariables)>0:
                         formatName = Stream.Name.strip("Stream_DAOD")
@@ -224,7 +225,6 @@ class SlimmingHelper:
                 # Add processed items to the stream
                 excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation" #  From https://svnweb.cern.ch/trac/atlasoff/browser/InnerDetector/InDetExample/InDetRecExample/trunk/share/WriteInDetAOD.py#L41
                 excludedAuxEntries= [entry.strip("-") for entry in excludedAuxData.split(".")]
-
                 for item in mainEntries:
                         Stream.AddItem(item)
                 for item in auxEntries.keys():
@@ -551,18 +551,9 @@ class SlimmingHelper:
                 elif collectionName=="AntiKt8EMPFlowExKt3GASubJets":
                         from DerivationFrameworkJetEtMiss.AntiKt8EMPFlowExKt3GASubJetsCPContent import AntiKt8EMPFlowExKt3GASubJetsCPContent
                         items.extend(AntiKt8EMPFlowExKt3GASubJetsCPContent)
-                elif collectionName=="AntiKtVR30Rmax4Rmin02TrackGhostTagJets":
-                        from DerivationFrameworkFlavourTag.AntiKtVR30Rmax4Rmin02TrackGhostTagJetsCPContent import AntiKtVR30Rmax4Rmin02TrackGhostTagJetsCPContent
-                        items.extend(AntiKtVR30Rmax4Rmin02TrackGhostTagJetsCPContent)
-                elif collectionName=="AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810":
-                        from DerivationFrameworkFlavourTag.AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810CPContent import AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810CPContent
-                        items.extend(AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810CPContent)
-                elif collectionName=="AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810GhostTag":
-                        from DerivationFrameworkFlavourTag.AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810GhostTagCPContent import AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810GhostTagCPContent
-                        items.extend(AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810GhostTagCPContent)
-                elif collectionName=="AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903":
-                        from DerivationFrameworkFlavourTag.AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903CPContent import AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903CPContent
-                        items.extend(AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903CPContent)
+                elif collectionName=="AntiKtVR30Rmax4Rmin02PV0TrackJets":
+                        from DerivationFrameworkJetEtMiss.AntiKtVR30Rmax4Rmin02PV0TrackJetsCPContent import AntiKtVR30Rmax4Rmin02PV0TrackJetsCPContent
+                        items.extend(AntiKtVR30Rmax4Rmin02PV0TrackJetsCPContent)
                 elif collectionName=="BTagging_AntiKt4EMTopo_201810":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
                         items.extend(BTaggingStandardContent("AntiKt4EMTopoJets_BTagging201810"))

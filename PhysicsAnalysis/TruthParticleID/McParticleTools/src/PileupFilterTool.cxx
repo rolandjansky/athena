@@ -47,10 +47,6 @@ PileupFilterTool::PileupFilterTool( const std::string& type,
   m_barcodes (   ),
   m_tesIO    ( 0 )
 {
-  //
-  // Property declaration
-  // 
-  //declareProperty( "Property", m_nProperty );
 
   declareProperty( "rIsolation",
 		   m_rIsol = 0.45,
@@ -198,7 +194,6 @@ StatusCode PileupFilterTool::selectSpclMcBarcodes()
      const float yp = (*vxp)->position().y();
      const float zp = (*vxp)->position().z();
 
-
      // Loop over all particles, selecting special ones
      // keep track of them using their barcodes
      for (auto  part: *genEvent) {
@@ -273,9 +268,8 @@ StatusCode PileupFilterTool::shapeGenEvent( McEventCollection* genAod )
     for ( std::list<int>::const_iterator itrBc = evtBarcodes.begin();
 	  itrBc != evtBarcodes.end();
 	  ++itrBc ) {
-
-      HepMC::GenParticlePtr p = HepMC::barcode_to_particle(*evt,*itrBc);
-
+//AV:  We modify the event!
+      HepMC::GenParticlePtr p = HepMC::barcode_to_particle((HepMC::GenEvent*)(*evt),*itrBc);
       ATH_MSG_DEBUG("[pdg,bc]= " << p->pdg_id() << ", " << HepMC::barcode( p));
       if ( m_barcodes.find(HepMC::barcode(p)) == m_barcodes.end() ) { 
 	going_out.push_back(p); // list of useless particles
@@ -399,6 +393,9 @@ StatusCode PileupFilterTool::shapeGenEvent( McEventCollection* genAod )
 	} 
       }  //> loop over vertices 
 //AV: We don't set nullptr as signal vertex in HepMC3
+     if ( !isInColl ) { 
+         (*evt)->remove_attribute("signal_process_vertex");
+      }
 #else 
       for ( HepMC::GenEvent::vertex_const_iterator itrVtx = (*evt)->vertices_begin(); 
 	    itrVtx != (*evt)->vertices_end(); 
@@ -504,8 +501,14 @@ StatusCode PileupFilterTool::rebuildLinks( const HepMC::GenEvent * mcEvt,
   // Cache some useful infos
   const int pdgId = mcPart->pdg_id();
   const int bc    = HepMC::barcode(mcPart);
-  /*const*/ HepMC::GenParticlePtr  inPart = HepMC::barcode_to_particle(mcEvt,bc);
-  /*const*/ HepMC::GenVertexPtr    dcyVtx = inPart->end_vertex();
+#ifdef HEPMC3
+  HepMC::ConstGenParticlePtr  inPart = HepMC::barcode_to_particle(mcEvt,bc);
+  HepMC::ConstGenVertexPtr    dcyVtx = inPart->end_vertex();
+#else
+//AV: Const correctness is broken in HepMC2
+  HepMC::GenParticlePtr  inPart = HepMC::barcode_to_particle(mcEvt,bc);
+  HepMC::GenVertexPtr    dcyVtx = inPart->end_vertex();
+#endif
 
   if ( !dcyVtx ) {
     ATH_MSG_VERBOSE("No decay vertex for the particle #" << bc << " : "

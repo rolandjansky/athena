@@ -1,14 +1,9 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloUtils/CaloClusterStoreHelper.h"
 #include "CaloEvent/CaloCellLinkContainer.h"
-
-#include "ExpressionEvaluation/ExpressionParser.h"
-#include "ExpressionEvaluation/SGxAODProxyLoader.h"
-#include "ExpressionEvaluation/SGNTUPProxyLoader.h"
-#include "ExpressionEvaluation/MultipleProxyLoader.h"
 
 #include "DerivationFrameworkCalo/CellsInConeThinning.h"
 #include "CellsInCone.h"
@@ -16,10 +11,9 @@
 DerivationFramework::CellsInConeThinning::CellsInConeThinning(const std::string& type, 
 							      const std::string& name, 
 							      const IInterface* parent) :
-  AthAlgTool(type, name, parent),
+  ExpressionParserUser<AthAlgTool>(type, name, parent),
   m_selectionString(""),
-  m_dr(0.5),
-  m_parser(0)
+  m_dr(0.5)
 {
   declareInterface<DerivationFramework::IAugmentationTool>(this);
   declareProperty("deltaR",m_dr=0.5);		
@@ -32,23 +26,14 @@ StatusCode DerivationFramework::CellsInConeThinning::initialize(){
   ATH_CHECK(m_OutputClusterSGKey.initialize());
   ATH_CHECK(m_OutputCellLinkSGKey.initialize());
 
-  if (m_selectionString!="") {
-    ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
-    proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
-    proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
-    if (m_selectionString!="") {
-      m_parser = new ExpressionParsing::ExpressionParser(proxyLoaders);
-      m_parser->loadExpression(m_selectionString);
-    }
+  if (!m_selectionString.empty()) {
+    ATH_CHECK( initializeParser(m_selectionString) );
   }
   return StatusCode::SUCCESS;
 }
 
 StatusCode DerivationFramework::CellsInConeThinning::finalize(){
-  if (m_selectionString!="") {
-    delete m_parser;
-    m_parser = 0;
-  }
+  ATH_CHECK(finalizeParser());
   return StatusCode::SUCCESS;
 }
 
@@ -77,7 +62,7 @@ StatusCode DerivationFramework::CellsInConeThinning::addBranches() const{
       return StatusCode::FAILURE;
   }
   //We have a selection string 
-  if (m_selectionString!="") {
+  if (!m_selectionString.empty()) {
     std::vector<int> entries =  m_parser->evaluateAsVector();
     unsigned int nEntries = entries.size();
     // check the sizes are compatible

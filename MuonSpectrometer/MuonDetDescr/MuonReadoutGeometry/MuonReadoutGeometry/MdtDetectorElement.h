@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -19,8 +19,16 @@
 #ifndef MUONREADOUTGEOMETRY_MDTDETECTORELEMENT_H
 #define MUONREADOUTGEOMETRY_MDTDETECTORELEMENT_H
 
-#include <string>
 #include "MuonReadoutGeometry/MuonDetectorElement.h"
+
+#include "Identifier/Identifier.h"
+#include "Identifier/IdentifierHash.h"
+#include "TrkSurfaces/Surface.h"
+#include "TrkSurfaces/SurfaceBounds.h"
+
+#include <vector>
+
+class GeoVFullPhysVol;
 
 #define maxMdtREinDE 2
 
@@ -29,7 +37,6 @@ namespace MuonGM {
 
 class MuonDetectorManager;
 class MdtReadoutElement;    
-class MuonStation;
 
 /**
    Base class for the XxxDetectorelement, with Xxx = Mdt, Rpc, Tgc, Csc. 

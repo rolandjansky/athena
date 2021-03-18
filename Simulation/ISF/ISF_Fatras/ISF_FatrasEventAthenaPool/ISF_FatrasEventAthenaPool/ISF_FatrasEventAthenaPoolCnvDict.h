@@ -1,8 +1,0 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
-#ifndef ISF_FATRASEVENTATHENAPOOLDICT_H
-#define ISF_FATRASEVENTATHENAPOOLDICT_H
-
-#endif // ISF_FATRASEVENTATHENAPOOLDICT_H

@@ -237,6 +237,8 @@ void test1()
 
 int main()
 {
+  setlinebuf(stdout);
+  setlinebuf(stderr);
   ISvcLocator* pSvcLoc = nullptr;
   if (!Athena_test::initGaudi(pSvcLoc)) {
     std::cerr << "This test can not be run" << std::endl;

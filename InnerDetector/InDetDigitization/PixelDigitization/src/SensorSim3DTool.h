@@ -41,7 +41,6 @@ public:
   // 3D sensor simulation using probability density map (used in RUN-2 (no radiation damage)
   StatusCode readProbMap(const std::string&);
   StatusCode printProbMap(const std::string&) const;
-  double getProbMapEntry(const std::string&, int, int) const;
 
   double getElectricField(double x, double y);
   double getMobility(double electricField, bool isHoleBit);
@@ -50,7 +49,15 @@ public:
   double getTrappingPositionX(double initX, double initY, double driftTime, bool isHoleBit);
   double getTrappingPositionY(double initX, double initY, double driftTime, bool isHoleBit);
 private:
+
+  enum class SensorType {
+    FEI4,
+    FEI3
+  };
+
   SensorSim3DTool();
+  
+  double getProbMapEntry(const SensorType&, int, int) const;
 
   // 3D sensor simulation using probability density map (used in RUN-2 (no radiation damage)
   std::multimap<std::pair<int, int>, double> m_probMapFEI4;

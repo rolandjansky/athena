@@ -95,7 +95,7 @@ StatusCode TrigTauCaloRoiUpdaterMT::execute() {
 
   //Only update the roi if TauDetectorAxis.Pt() is larger than zero, in other words, if the calo clusters sum makes sense
   if(TauDetectorAxis.Eta()!=roiDescriptor->eta() && TauDetectorAxis.Pt()>0.) eta = TauDetectorAxis.Eta();
-  if(TauDetectorAxis.Eta()!=roiDescriptor->eta() && TauDetectorAxis.Pt()>0.) phi = TauDetectorAxis.Phi();
+  if(TauDetectorAxis.Phi()!=roiDescriptor->phi() && TauDetectorAxis.Pt()>0.) phi = TauDetectorAxis.Phi();
 
   // Prepare the new RoI
   TrigRoiDescriptor *outRoi = new TrigRoiDescriptor(roiDescriptor->roiWord(), roiDescriptor->l1Id(), roiDescriptor->roiId(),

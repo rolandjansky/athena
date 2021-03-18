@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file CxxUtils/ConcurrentHashmapImpl.h
@@ -289,6 +289,7 @@ CHMIMPL::ConcurrentHashmapImpl (Updater_t&& updater,
   // Round up capacity to a power of 2.
   size_t capacity = round_up (capacity_in);
 
+  // cppcheck-suppress noDestructor // false positive
   m_table = new (capacity) Table (capacity, hasher, matcher);
   m_updater.update (std::unique_ptr<Table> (m_table), ctx);
 }

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 /**
@@ -51,15 +51,6 @@ layerRZoutput(const Trk::Layer* lay)
   return result;
 }
 
-std::string
-positionOutput(const Amg::Vector3D& pos)
-{
-  std::stringstream outStream;
-  outStream << "[r,phi,z] = [ " << pos.perp() << ", " << pos.phi() << ", "
-            << pos.z() << " ]";
-  return outStream.str();
-}
-
 int
 radialDirection(const Trk::MultiComponentState& pars, Trk::PropDirection dir)
 {
@@ -73,7 +64,59 @@ radialDirection(const Trk::MultiComponentState& pars, Trk::PropDirection dir)
            : 1;
 }
 
+inline void
+setRecallInformation(Trk::IMultiStateExtrapolator::Cache& cache,
+                     const Trk::Surface& recallSurface,
+                     const Trk::Layer& recallLayer,
+                     const Trk::TrackingVolume& recallTrackingVolume)
+{
+  cache.m_recall = true;
+  cache.m_recallSurface = &recallSurface;
+  cache.m_recallLayer = &recallLayer;
+  cache.m_recallTrackingVolume = &recallTrackingVolume;
 }
+
+inline void
+resetRecallInformation(Trk::IMultiStateExtrapolator::Cache& cache)
+{
+  cache.m_recall = false;
+  cache.m_recallSurface = nullptr;
+  cache.m_recallLayer = nullptr;
+  cache.m_recallTrackingVolume = nullptr;
+}
+
+inline void
+throwIntoGarbageBin(Trk::IMultiStateExtrapolator::Cache& cache,
+                    const Trk::MultiComponentState* garbage)
+{
+  if (garbage) {
+    std::unique_ptr<const Trk::MultiComponentState> sink(garbage);
+    cache.m_mcsGarbageBin.push_back(std::move(sink));
+  }
+}
+
+inline void
+throwIntoGarbageBin(Trk::IMultiStateExtrapolator::Cache& cache,
+                    const Trk::TrackParameters* garbage)
+{
+  if (garbage) {
+    std::unique_ptr<const Trk::TrackParameters> sink(garbage);
+    cache.m_tpGarbageBin.push_back(std::move(sink));
+  }
+}
+
+inline void
+emptyGarbageBins(Trk::IMultiStateExtrapolator::Cache& cache)
+{
+  // Reset the boundary information
+  Trk::StateAtBoundarySurface freshState;
+  cache.m_stateAtBoundarySurface = freshState;
+  cache.m_mcsGarbageBin.clear();
+  cache.m_tpGarbageBin.clear();
+  cache.m_matstates.reset(nullptr);
+}
+
+} // end of anonymous namespace
 
 Trk::GsfExtrapolator::GsfExtrapolator(const std::string& type,
                                       const std::string& name,
@@ -182,7 +225,6 @@ Trk::GsfExtrapolator::extrapolateImpl(
   const Trk::BoundaryCheck& boundaryCheck,
   Trk::ParticleHypothesis particleHypothesis) const
 {
-  ATH_MSG_DEBUG("Calling extrpolate: " << multiComponentState.size());
   auto buff_extrapolateCalls = m_extrapolateCalls.buffer();
 
   // If the extrapolation is to be without material effects simply revert to the
@@ -749,7 +791,7 @@ Trk::GsfExtrapolator::extrapolateToVolumeBoundary(
     if (navigationPropagatorIndex >= 1) {
       delete navigationParameters;
     }
-    navigationParameters = nextNavigationCell.parametersOnBoundary;
+    navigationParameters = nextNavigationCell.parametersOnBoundary.release();
 
     ++navigationPropagatorIndex;
 
@@ -780,11 +822,10 @@ Trk::GsfExtrapolator::extrapolateToVolumeBoundary(
     // If so, apply material effects update.
 
     // Get layer associated with boundary surface.
-    const Trk::TrackParameters* paramsAtBoundary =
-      nextNavigationCell.parametersOnBoundary;
     const Trk::Layer* layerAtBoundary =
-      (paramsAtBoundary)
-        ? (paramsAtBoundary->associatedSurface()).materialLayer()
+      (nextNavigationCell.parametersOnBoundary)
+        ? (nextNavigationCell.parametersOnBoundary->associatedSurface())
+            .materialLayer()
         : nullptr;
     const Trk::TrackParameters* matUpdatedParameters = nullptr;
     Trk::MultiComponentState matUpdatedState{};
@@ -1531,8 +1572,6 @@ Trk::GsfExtrapolator::addMaterialtoVector(Cache& cache,
                                           ParticleHypothesis particle) const
 
 {
-  ATH_MSG_DEBUG("GSF inside addMaterialVector ");
-
   if (!cache.m_matstates || !nextLayer || !nextPar) {
     return;
   }
@@ -1641,20 +1680,6 @@ Trk::GsfExtrapolator::radialDirectionCheck(
       parsOnInsideSurface
         ? (startPosition - (parsOnInsideSurface->position())).mag()
         : 10e10;
-
-    ATH_MSG_DEBUG("  Radial direction check start - at "
-                  << positionOutput(startPosition));
-    ATH_MSG_DEBUG("  Radial direction check layer - at "
-                  << positionOutput(onLayerPosition));
-    if (parsOnInsideSurface) {
-      ATH_MSG_DEBUG("  Radial direction check inner - at "
-                    << positionOutput(parsOnInsideSurface->position()));
-    }
-
-    // memory cleanup (no garbage bin, this is faster)
-    //delete parsOnInsideSurface;
-    ATH_MSG_DEBUG("  Check radial direction: distance layer / boundary = "
-                  << distToLayer << " / " << distToInsideSurface);
     // the intersection with the original layer is valid if it is before the
     // inside surface
     return distToLayer < distToInsideSurface;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -17,15 +17,12 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "StoreGate/ThinningHandleKey.h"
-
-namespace ExpressionParsing {
-  class ExpressionParser;
-}
+#include "ExpressionEvaluation/ExpressionParserUser.h"
 
 
 namespace DerivationFramework {
 
-  class SV1TrackThinning : public extends<AthAlgTool, IThinningTool> {
+  class SV1TrackThinning : public extends<ExpressionParserUser<AthAlgTool>, IThinningTool> {
     public: 
       SV1TrackThinning(const std::string& t, const std::string& n, const IInterface* p);
       ~SV1TrackThinning();
@@ -40,7 +37,6 @@ namespace DerivationFramework {
       SG::ThinningHandleKey<xAOD::TrackParticleContainer> m_inDetSGKey
         { this, "InDetTrackParticlesKey", "InDetTrackParticles", "" };
       std::string m_jetSGKey, m_selectionString;
-      ExpressionParsing::ExpressionParser *m_parser;
   }; 
 }
 

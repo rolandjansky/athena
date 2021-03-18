@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__Run2TriggerTowerMaker
 
@@ -115,8 +115,14 @@ def L1LegacyCaloSimMCCfg(flags):
     acc.merge(LArBadChannelCfg(flags))
     acc.merge(LArBadFebCfg(flags))
 
-    from TileConditions.TileConditionsConfig import tileCondCfg
-    acc.merge(tileCondCfg(flags))
+    from TileConditions.TileInfoLoaderConfig import TileInfoLoaderCfg
+    acc.merge(TileInfoLoaderCfg(flags))
+
+    from TileGeoModel.TileGMConfig import TileGMCfg
+    acc.merge(TileGMCfg(flags))
+
+    from TileConditions.TileEMScaleConfig import TileEMScaleCondAlgCfg
+    acc.merge( TileEMScaleCondAlgCfg(flags) )
 
     from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
     acc.merge(LumiBlockMuWriterCfg(flags))
@@ -134,7 +140,7 @@ def L1LegacyCaloSimMCCfg(flags):
     from IOVDbSvc.IOVDbSvcConfig import addFolders
     acc.merge(addFolders(flags, L1CaloFolderList, 'TRIGGER_OFL'))
 
-    from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg, getL1TopoConfigSvc
+    from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
     acc.merge(L1ConfigSvcCfg(flags))
 
     from TrigT1CaloSim.TrigT1CaloSimRun2Config import Run2TriggerTowerMakerCfg

@@ -25,7 +25,6 @@
 
 #include "xAODTrigL1Calo/TriggerTower.h"
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
-#include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
 class TH1F_LW;
 

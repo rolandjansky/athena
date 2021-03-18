@@ -25,6 +25,7 @@ ex.type = 'athena'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data'
 ex.threads = 1
+ex.max_events = 2000
 # LS2_v1 soon to be renamed to Dev_pp_run3_v1
 ex.args = '-c "setMenu=\'LS2_v1\';doWriteBS=False;doWriteRDOTrigger=True;doRuntimeNaviVal=True;"'
 

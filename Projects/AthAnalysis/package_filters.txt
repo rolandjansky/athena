@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # Package filtering rules for the AthAnalysis project build.
 #
@@ -38,7 +38,6 @@
 
 # Packages temporarily turned off:
 - Reconstruction/Jet/JetAnalysisTools/.*
-- Reconstruction/Jet/JetMomentTools
 
 # Analysis Tools:
 + DataQuality/GoodRunsLists
@@ -95,7 +94,7 @@
 - Reconstruction/Jet/JetSimTools
 - Reconstruction/Jet/JetValidation
 + Reconstruction/Jet/Jet.*
-#+ Reconstruction/Jet/BoostedJetTaggers
++ Reconstruction/Jet/BoostedJetTaggers
 + Reconstruction/MET/METInterface
 + Reconstruction/MET/METUtilities
 + Reconstruction/MVAUtils
@@ -175,8 +174,9 @@
 + Database/ConnectionManagement/.*
 - Database/AthenaPOOL/AthenaPoolExample.*
 - Database/AthenaPOOL/.*Tools
-+ Database/AthenaPOOL/DBDataModel
 + Database/AthenaPOOL/.*
++ Database/CrestApi
++ Database/DBLock
 + Database/IOVDb.*
 + Database/PersistentDataModel.*
 + Database/TPTools

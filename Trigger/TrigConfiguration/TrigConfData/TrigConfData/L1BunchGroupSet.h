@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCONFDATA_L1BUNCHGROUPSET_H
@@ -35,7 +35,7 @@ namespace TrigConf {
       /** Destructor */
       virtual ~L1BunchGroup();
 
-      virtual std::string className() const;
+      virtual std::string className() const override;
 
       size_t id() const;
 
@@ -60,8 +60,9 @@ namespace TrigConf {
 
    private:
 
-      /** Update the internal members */
-      virtual void update();
+      /** Update the internal data after modification of the data object */
+      virtual void update() override { load(); };
+      void load();
 
       size_t m_id { 0 };
       
@@ -89,7 +90,7 @@ namespace TrigConf {
       /** Destructor */
       virtual ~L1BunchGroupSet();
 
-      virtual std::string className() const;
+      virtual std::string className() const override;
 
       /** setter and getter for the bunch group key */
       unsigned int bgsk() const;
@@ -115,10 +116,14 @@ namespace TrigConf {
       /** print a more or less detailed summary */
       void printSummary(bool detailed = false) const;
 
+      /** Clearing the configuration data */
+      virtual void clear() override;
+
    private:
 
       /** Update the internal members */
-      virtual void update();
+      virtual void update() override { load(); };
+      void load();
 
       /** the bunch group key */
       unsigned int m_bgsk {0};

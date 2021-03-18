@@ -1,24 +1,30 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BASETRACKVERTEXASSOCIATIONTOOL_H
 #define BASETRACKVERTEXASSOCIATIONTOOL_H
 
-#include "AsgTools/AsgTool.h"
+// Includes from this package
 #include "TrackVertexAssociationTool/ITrackVertexAssociationTool.h"
-#include "AthContainers/AuxElement.h"
+#include "TrackVertexAssociationTool/TrackVertexAssociationMap.h"
+
+// FrameWork includes
+#include "AsgTools/AsgTool.h"
 #include "AthLinks/ElementLink.h"
 #include "AsgDataHandles/ReadHandleKey.h"
+#include "AsgDataHandles/ReadDecorHandleKey.h"
 
+// EDM includes
 #include "xAODTracking/TrackParticleFwd.h"
 #include "xAODTracking/TrackParticleContainerFwd.h"
 #include "xAODTracking/VertexFwd.h"
 #include "xAODTracking/VertexContainerFwd.h"
-#include "TrackVertexAssociationTool/TrackVertexAssociationMap.h"
 #include "xAODEventInfo/EventInfo.h"
 
+// STL includes
 #include <string>
+#include <vector>
 
 namespace CP {
 
@@ -50,6 +56,7 @@ public:
   /// If the vertex is not a good vertex (`vx->vertexType() != xAOD::VxType::NoVtx`), returns false.
   bool isCompatible(const xAOD::TrackParticle &trk,
                     const xAOD::Vertex &vx) const;
+  bool isCompatible(const xAOD::TrackParticle &trk) const;
 
   xAOD::TrackVertexAssociationMap
   getMatchMap(std::vector<const xAOD::TrackParticle *> &trk_list,
@@ -85,11 +92,12 @@ public:
 
 private:
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo { this, "EventInfo", "EventInfo", "EventInfo key" };
+  SG::ReadDecorHandleKey<xAOD::EventInfo> m_hardScatterDecoKey;
 
   /// Checks if a track-vertex pair passes the cuts.  Returns
   /// Δz * sin θ of the pair in `dzSinTheta` if successful.
   bool isMatch(const xAOD::TrackParticle &trk, const xAOD::Vertex &vx,
-               float &dzSinTheta) const;
+               float &dzSinTheta, const xAOD::EventInfo* evtInfo = nullptr) const;
 
   template <typename T, typename U>
   xAOD::TrackVertexAssociationMap getMatchMapImpl(T &trk_list,
@@ -103,10 +111,13 @@ private:
   const xAOD::Vertex *getUniqueMatchVertexImpl(const xAOD::TrackParticle &trk,
                                                T &vx_list) const;
 
-  /// Cut on dz*sin theta
-  float m_dzSinTheta_cut;
   /// Cut on d0 significance
   float m_d0sig_cut;
+  /// Cut on dz*sin theta
+  float m_dzSinTheta_cut;
+  /// The decoration name of the ElementLink to the hardscatter vertex (applied to xAOD::EventInfo)
+  std::string m_hardScatterDeco;
+
 };
 
 } // namespace CP

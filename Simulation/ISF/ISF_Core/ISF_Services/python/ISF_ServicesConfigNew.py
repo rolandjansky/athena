@@ -39,11 +39,11 @@ def GenParticleFiltersToolCfg(ConfigFlags):
         if ConfigFlags.Beam.Type != "cosmics":
             acc = ParticlePositionFilterDynamicCfg(ConfigFlags)
             genParticleFilterList += [result.popToolsAndMerge(acc)]
-            if not (ConfigFlags.Detector.SimulateAFP or
-               ConfigFlags.Detector.SimulateALFA or
-               ConfigFlags.Detector.SimulateFwdRegion) and \
-               ((ConfigFlags.Sim.CavernBG in (False, "Signal")) and
-               (not ConfigFlags.Detector.SimulateCavern)):
+            if not (ConfigFlags.Detector.GeometryAFP or
+               ConfigFlags.Detector.GeometryALFA or
+               ConfigFlags.Detector.GeometryFwdRegion) and \
+               ((ConfigFlags.Sim.CavernBG in ("Off", "Signal")) and
+               (not ConfigFlags.Detector.GeometryCavern)):
                 acc = EtaPhiFilterCfg(ConfigFlags)
                 genParticleFilterList += [result.popToolsAndMerge(acc)]
     acc = GenParticleInteractingFilterCfg(ConfigFlags)
@@ -56,8 +56,9 @@ def InputConverterCfg(ConfigFlags, name="ISF_InputConverter", **kwargs):
     result = BarcodeSvcCfg(ConfigFlags)
     kwargs.setdefault("BarcodeSvc", result.getPrimary())
     kwargs.setdefault("UseGeneratedParticleMass", False)
-    acc_GenParticleFiltersList = GenParticleFiltersToolCfg(ConfigFlags)
-    kwargs.setdefault("GenParticleFilters", result.popToolsAndMerge(acc_GenParticleFiltersList) )
+    if "GenParticleFilters" not in kwargs:
+        acc_GenParticleFiltersList = GenParticleFiltersToolCfg(ConfigFlags)
+        kwargs.setdefault("GenParticleFilters", result.popToolsAndMerge(acc_GenParticleFiltersList) )
     result.addService(CompFactory.ISF.InputConverter(name, **kwargs))
     return result
 
@@ -139,8 +140,10 @@ def TruthServiceCfg(ConfigFlags, **kwargs):
 
 
 def GenericTruthServiceCfg(ConfigFlags, name="ISF_TruthService", **kwargs):
-    result = BarcodeSvcCfg(ConfigFlags)
-    kwargs.setdefault("BarcodeSvc", result.getPrimary())
+    result = ComponentAccumulator()
+    tmpAcc = BarcodeSvcCfg(ConfigFlags)
+    kwargs.setdefault("BarcodeSvc", tmpAcc.getPrimary())
+    result.merge(tmpAcc)
 
     kwargs.setdefault("SkipIfNoChildren", True)
     kwargs.setdefault("SkipIfNoParentBarcode", True)

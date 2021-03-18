@@ -59,6 +59,7 @@ addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultDNNCalo
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getFastHitConvAlgLegacyAFIIFastCaloSimSelector" , "ISF_FastHitConvAlgLegacyAFIIFastCaloSimSelector")
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultFatrasSelector"                , "ISF_DefaultFatrasSelector"               )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultFatrasNewExtrapolationSelector", "ISF_DefaultFatrasNewExtrapolationSelector")
+addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultActsSelector"                  , "ISF_DefaultActsSelector"                 )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultParticleKillerSelector"        , "ISF_DefaultParticleKillerSelector"       )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getPileupParticleKillerSelector"        , "ISF_PileupParticleKillerSelector"       )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultGeant4Selector"                , "ISF_DefaultGeant4Selector"               )

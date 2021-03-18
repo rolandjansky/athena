@@ -19,22 +19,11 @@ import AthenaPoolCnvSvc.ReadAthenaPool
 
 ServiceMgr.EventSelector.InputCollections = ["testfile.pool.root"]
 
-from MuonMDT_Cabling.MuonMDT_CablingConf import MdtTestCabling
+from MuonMDT_Cabling.MuonMDT_CablingConf import MdtTestCabling, MuonMDT_CablingAlg
+topSequence += MuonMDT_CablingAlg()
 
 topSequence += MdtTestCabling()
-
-from MDT_CondCabling.MDT_CondCablingConf import MDTCablingDbTool
-#from MuonCondTool.MuonCondToolConf import MDTCablingDbTool
-
-MDTCablingDbTool = MDTCablingDbTool("MDTCablingDbTool")
-
-#MDTCablingDbTool.OutputLevel = DEBUG
 MessageSvc.OutputLevel = INFO
-
-#MDTCablingDbTool.MezzanineFolders = ["/MDT/CABLING/MEZZANINE_SCHEMA"]
-#MDTCablingDbTool.MapFolders = ["/MDT/CABLING/MAP_SCHEMA"]
-
-ToolSvc += MDTCablingDbTool
 
 #dbConn="oracle://intr;schema=ATLAS_COOL_MDTDQ;dbname=MDT_DQA;user=ATLAS_COOL_MDTDQ"
 dbConn="oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_MDT;dbname=COMP200;user=ATLAS_COOLONL_MDT"

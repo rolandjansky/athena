@@ -63,6 +63,9 @@ namespace LVL1 {
     unsigned int ForwardPhiMask() const {return m_ForwardPhiMask;}
     unsigned int OverflowPerRoIMask() const {return m_OverflowPerRoIMask;}
     unsigned int OverflowPerSectorMask() const {return m_OverflowPerSectorMask;}
+    unsigned int BW2Or3Mask() const {return m_BW2Or3Mask;}
+    unsigned int InnerCoinMask() const {return m_InnerCoinMask;}
+    unsigned int GoodMFMask() const {return m_GoodMFMask;}
 
     // etaDimLow and etaDimHigh only exist for RPCs, but without this, one cannot use the interface in MuFastDataPreparator
     virtual bool etaDimLow (const TrigT1MuonRecRoiData& data, double& etaMin, double& etaMax) const = 0;
@@ -90,6 +93,9 @@ namespace LVL1 {
     unsigned int m_ForwardPhiMask{0};
     unsigned int m_OverflowPerRoIMask{0};
     unsigned int m_OverflowPerSectorMask{0};
+    unsigned int m_BW2Or3Mask{0};
+    unsigned int m_InnerCoinMask{0};
+    unsigned int m_GoodMFMask{0};
 
   }; // end of ITrigT1MuonRecRoiTool
 

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MatrixReadOut_H
-#define MatrixReadOut_H
+#ifndef TrigT1RPChardware_MatrixReadOut_H
+#define TrigT1RPChardware_MatrixReadOut_H
 
 #include <iostream>
 #include "TrigT1RPChardware/Matrix.h"

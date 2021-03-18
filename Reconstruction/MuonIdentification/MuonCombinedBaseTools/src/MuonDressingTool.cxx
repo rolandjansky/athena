@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonDressingTool.h"
@@ -156,11 +156,13 @@ void MuonDressingTool::addMuonHitSummary( xAOD::Muon& muon, const Trk::TrackSumm
   uint8_t cscEtaHits = 0;
   uint8_t cscUnspoiledEtaHits = 0;
 
-  const Trk::TrackSummary* mstpTrackSummary = 0;
+  const Trk::TrackSummary* mstpTrackSummary = nullptr;
 
   if ( !trackSummary ) {
     // get link to track particle
     ElementLink< xAOD::TrackParticleContainer > tpLink = muon.combinedTrackParticleLink();
+    if ( !tpLink.isValid() ) tpLink = muon.extrapolatedMuonSpectrometerTrackParticleLink();
+    if ( !tpLink.isValid() ) tpLink = muon.msOnlyExtrapolatedMuonSpectrometerTrackParticleLink();
     if ( !tpLink.isValid() ) tpLink = muon.muonSpectrometerTrackParticleLink();
     if ( tpLink.isValid() ) {
 
@@ -206,7 +208,7 @@ void MuonDressingTool::addMuonHitSummary( xAOD::Muon& muon, const Trk::TrackSumm
     }
 
     //get out-of-bounds from ME track, shouldn't be any on combined track anyway
-    ElementLink< xAOD::TrackParticleContainer > mstpLink = muon.muonSpectrometerTrackParticleLink();
+    const ElementLink< xAOD::TrackParticleContainer >& mstpLink = muon.muonSpectrometerTrackParticleLink();
     if (mstpLink.isValid()) {
       if ( (*mstpLink)->trackLink().isValid() ) mstpTrackSummary = (*mstpLink)->track()->trackSummary();
 
@@ -242,8 +244,8 @@ void MuonDressingTool::addMuonHitSummary( xAOD::Muon& muon, const Trk::TrackSumm
         bool issTgc = m_idHelperSvc->issTgc(chId);
         if ( isMdt || isMM || isCsc || issTgc ) {
           Muon::MuonStationIndex::ChIndex index = m_idHelperSvc->chamberIndex(chId);
-          uint8_t* hits = 0;
-          uint8_t* holes = 0;
+          uint8_t* hits = nullptr;
+          uint8_t* holes = nullptr;
           if ( index == Muon::MuonStationIndex::BIS || index == Muon::MuonStationIndex::EIS || index == Muon::MuonStationIndex::CSS ) {
             hits = &innerSmallHits;
             holes = &innerSmallHoles;
@@ -294,10 +296,10 @@ void MuonDressingTool::addMuonHitSummary( xAOD::Muon& muon, const Trk::TrackSumm
 
         if ( !isMdt && !isMM ) {
 
-          uint8_t* phiHits = 0;
-          uint8_t* phiHoles = 0;
-          uint8_t* etaHits = 0;
-          uint8_t* etaHoles = 0;
+          uint8_t* phiHits = nullptr;
+          uint8_t* phiHoles = nullptr;
+          uint8_t* etaHits = nullptr;
+          uint8_t* etaHoles = nullptr;
           Muon::MuonStationIndex::PhiIndex index = m_idHelperSvc->phiIndex(chId);
           if ( index == Muon::MuonStationIndex::BM1 || index == Muon::MuonStationIndex::T4 ||
                index == Muon::MuonStationIndex::CSC || index == Muon::MuonStationIndex::STGC1 ) {

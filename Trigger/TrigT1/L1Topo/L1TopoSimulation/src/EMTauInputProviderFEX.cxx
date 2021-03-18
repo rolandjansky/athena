@@ -16,6 +16,8 @@
 #include "L1TopoEvent/ClusterTOB.h"
 #include "L1TopoEvent/TopoInputEvent.h"
 
+#include "GaudiKernel/PhysicalConstants.h"
+
 using namespace std;
 using namespace LVL1;
 
@@ -106,7 +108,7 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
     return StatusCode::FAILURE;
   }
 
-  for(const auto& it : * myRoIContainer){
+  for(const auto it : * myRoIContainer){
     const xAOD::eFexEMRoI* eFexRoI = it;
     ATH_MSG_DEBUG( "EDM eFex Number: " 
 		   << +eFexRoI->eFexNumber() // returns an 8 bit unsigned integer referring to the eFEX number 
@@ -118,7 +120,7 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
 		   << eFexRoI->phi() // returns a floating point global phi
 		   << " is TOB? "
 		   << +eFexRoI->isTOB() // returns 1 if true, returns 0 if xTOB)
-		   );
+		  );
 
     if (!eFexRoI->isTOB()) continue;
 
@@ -126,7 +128,7 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
     int iphi = eFexRoI->iPhi();
 
     //EM TOB
-    TCS::ClusterTOB cluster( (unsigned int)eFexRoI->tobEt(), (unsigned int)0, ieta, iphi, TCS::CLUSTER , (long int)eFexRoI->Word0() );
+    TCS::ClusterTOB cluster( static_cast<unsigned int>(eFexRoI->tobEt()/Gaudi::Units::GeV), static_cast<unsigned int>(0), ieta, iphi, TCS::CLUSTER , static_cast<long int>(eFexRoI->Word0()) );
     cluster.setEtaDouble( eFexRoI->eta() );
     cluster.setPhiDouble( eFexRoI->phi() );
     

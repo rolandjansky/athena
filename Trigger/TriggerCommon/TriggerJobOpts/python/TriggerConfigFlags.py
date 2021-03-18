@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from AthenaCommon.Logging import logging
@@ -13,9 +13,6 @@ def createTriggerFlags():
     # enables L1 topological trigger simulation
     flags.addFlag('Trigger.doL1Topo', True )
 
-    # writes additional info from Topo simulation
-    flags.addFlag('Trigger.writeL1TopoValData', True )
-    
     # need proper documentation
     flags.addFlag('Trigger.useL1CaloCalibration', False)
 
@@ -37,6 +34,15 @@ def createTriggerFlags():
     # Enable Run-2 L1Calo simulation and/or decoding (possible even if enablePhase1 is True)
     flags.addFlag('Trigger.enableL1CaloLegacy', True)
 
+    # Enable emulation tool for NSW-TGC coincidence in A-side
+    flags.addFlag('Trigger.L1MuonSim.EmulateNSWA', False)
+
+    # Enable emulation tool for NSW-TGC coincidence in C-side
+    flags.addFlag('Trigger.L1MuonSim.EmulateNSWC', False)
+
+    # Offline CondDB tag for RPC/TGC coincidence window in rerunLVL1 on data
+    flags.addFlag('Trigger.L1MuonSim.CondDBOffline', 'OFLCOND-MC16-SDR-RUN2-03')
+
     # Enable Inner Detector
     flags.addFlag('Trigger.doID', True)
 
@@ -48,6 +54,7 @@ def createTriggerFlags():
 
     # Checks the validity of each Decision Object produced by a HypoAlg, including all of its
     # parents all the way back to the L1 decoder. Potentially CPU expensive.
+    # also enables per step decison printouts
     flags.addFlag('Trigger.doRuntimeNaviVal', False)
 
     # if 1, Run1 decoding version is set; if 2, Run2; if 3, Run 3
@@ -126,8 +133,8 @@ def createTriggerFlags():
             elif "TrigNavigation" in flags.Input.Collections:
                 _log.info("Determined EDMVersion to be 2, because TrigNavigation found in POOL file")
                 return 2
-            elif "HLTNav_Summary" in flags.Input.Collections:
-                _log.info("Determined EDMVersion to be 3, because HLTNav_Summary found in POOL file")
+            elif any("HLTNav_Summary" in s for s in flags.Input.Collections):
+                _log.info("Determined EDMVersion to be 3, because HLTNav_Summary.* found in POOL file")
                 return 3
 
         _log.warning("Could not determine EDM version from the input file. Return default EDMVersion=%d",
@@ -135,7 +142,7 @@ def createTriggerFlags():
         return default_version
 
     flags.addFlag('Trigger.EDMVersion', lambda prevFlags: EDMVersion(prevFlags))
-                     
+    flags.addFlag('Trigger.doEDMVersionConversion', True)
     # enables additional algorithms colecting MC truth infrmation  (this is only used by IDso maybe we need Trigger.ID.doTruth only?)
     flags.addFlag('Trigger.doTruth', False)
 
@@ -144,7 +151,7 @@ def createTriggerFlags():
 
     # Enables collection and export of detailed monitoring data of the HLT execution
     flags.addFlag('Trigger.CostMonitoring.doCostMonitoring', False)
-    flags.addFlag('Trigger.CostMonitoring.chain', 'HLT_costmonitor_CostMonDS_L1All')
+    flags.addFlag('Trigger.CostMonitoring.chain', 'HLT_noalg_CostMonDS_L1All')
     flags.addFlag('Trigger.CostMonitoring.outputCollection', 'HLT_TrigCostContainer')
     flags.addFlag('Trigger.CostMonitoring.monitorAllEvents', False)
     flags.addFlag('Trigger.CostMonitoring.monitorROBs', False)
@@ -303,7 +310,7 @@ def createTriggerFlags():
     flags.addFlag('Trigger.muon.doEFRoIDrivenAccess', False)
 
     # muon offline reco flags varaint for trigger
-    def __muon():
+    def __muonSA():
         from MuonConfig.MuonConfigFlags import createMuonConfigFlags
         muonflags = createMuonConfigFlags()
         muonflags.Muon.useTGCPriorNextBC=True
@@ -311,7 +318,26 @@ def createTriggerFlags():
         muonflags.Muon.SAMuonTrigger=True
         return muonflags 
 
+    def __muon():
+        from MuonConfig.MuonConfigFlags import createMuonConfigFlags
+        muonflags = createMuonConfigFlags()
+        muonflags.Muon.useTGCPriorNextBC=True
+        muonflags.Muon.MuonTrigger=True
+
+        return muonflags 
+
+    def __muonCombined():
+        from MuonCombinedConfig.MuonCombinedConfigFlags import createMuonCombinedConfigFlags
+        muonflags = createMuonCombinedConfigFlags()
+        muonflags.MuonCombined.doCaloTrkMuId = False
+        muonflags.MuonCombined.doSiAssocForwardMuons = False
+        muonflags.MuonCombined.doStatisticalCombination = False
+        muonflags.MuonCombined.doMuGirl = False
+        return muonflags
+
+    flags.addFlagsCategory('Trigger.Offline.SA', __muonSA, prefix=True)
     flags.addFlagsCategory('Trigger.Offline', __muon, prefix=True)
+    flags.addFlagsCategory('Trigger.Offline.Combined', __muonCombined, prefix=True)
 
     from TrigInDetConfig.TrigTrackingCutFlags import createTrigTrackingFlags
     flags.addFlagsCategory( 'Trigger.InDetTracking', createTrigTrackingFlags )
@@ -319,7 +345,6 @@ def createTriggerFlags():
     return flags
     # for reference, this flags are skipped as never used or never set in fact, or set identical to de default or used in a very old JO:
     # fakeLVL1, useCaloTTL
-    # doCosmicSim - old JO
     # doMergedHLTResult - not needed now
     # doAlwaysUnpackDSResult - never set
     # doTrt - fast TRT or trigger - never used

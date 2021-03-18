@@ -63,10 +63,32 @@ inline GenEvent* copyemptyGenEvent(const GenEvent* inEvt) {
   return e;
 }
 
-inline GenVertexPtr  barcode_to_vertex(const GenEvent* e, int id ) {
-    auto vertices=((GenEvent*)e)->vertices();
+inline ConstGenVertexPtr  barcode_to_vertex(const GenEvent* e, int id ) {
+    auto vertices=e->vertices();
     for (auto v: vertices) {
         auto barcode_attr=e->attribute<HepMC3::IntAttribute>("barcode");
+        if (!barcode_attr) continue;
+        if (barcode_attr->value()==id) return v;
+    }
+    if (-id>0&&-id<=(int)vertices.size()) return vertices[-id-1];
+    return  HepMC3::ConstGenVertexPtr();
+}
+
+inline ConstGenParticlePtr  barcode_to_particle(const GenEvent* e, int id ) {
+    auto particles=e->particles();
+    for (auto p: particles) {
+        auto barcode_attr=p->attribute<HepMC3::IntAttribute>("barcode");
+        if (!barcode_attr) continue;
+        if (barcode_attr->value()==id) return p;
+    }
+    if (id>0&&id<=(int)particles.size()) return particles[id-1];
+    return  HepMC3::ConstGenParticlePtr();
+}
+
+inline GenVertexPtr  barcode_to_vertex(GenEvent* e, int id ) {
+    auto vertices=e->vertices();
+    for (auto v: vertices) {
+        auto barcode_attr=v->attribute<HepMC3::IntAttribute>("barcode");
         if (!barcode_attr) continue;
         if (barcode_attr->value()==id) return v;
     }
@@ -74,8 +96,8 @@ inline GenVertexPtr  barcode_to_vertex(const GenEvent* e, int id ) {
     return  HepMC3::GenVertexPtr();
 }
 
-inline GenParticlePtr  barcode_to_particle(const GenEvent* e, int id ) {
-    auto particles=((GenEvent*)e)->particles();
+inline GenParticlePtr  barcode_to_particle(GenEvent* e, int id ) {
+    auto particles=e->particles();
     for (auto p: particles) {
         auto barcode_attr=p->attribute<HepMC3::IntAttribute>("barcode");
         if (!barcode_attr) continue;
@@ -114,8 +136,9 @@ inline void set_random_states(GenEvent* e, std::vector<long int>& a) {
     e->add_attribute("random_states",std::make_shared<HepMC3::VectorLongIntAttribute>(a));
 }
 template <class T> void set_signal_process_vertex(GenEvent* e, T v) {
-    if (!v) return;
-    if (v->parent_event()!=e) return;
+    if (!v || !e) return;
+/* AV: HepMC2 adds the vertex to event */
+    e->add_vertex(v);
     v->add_attribute("signal_process_vertex",std::make_shared<HepMC3::IntAttribute>(1));
 }
 inline ConstGenVertexPtr signal_process_vertex(const GenEvent* e) { for (auto v: e->vertices()) if (v->attribute<HepMC3::IntAttribute>("signal_process_vertex")) return v; return nullptr; }

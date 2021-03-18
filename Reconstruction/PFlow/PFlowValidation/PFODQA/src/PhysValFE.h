@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PHYSVALFE_H
@@ -19,7 +19,7 @@
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODTau/TauJetContainer.h"
-
+#include "PFO_FE_ComparisonPlots.h"
 class PhysValFE : public ManagedMonitorToolBase {
 
 public:
@@ -73,6 +73,10 @@ public:
   
   /** Select whether to use neutral or charged FE */
   bool m_useNeutralFE;
+
+  /** Pointer to class that deals with PFO/FE comparison plots  */
+  std::unique_ptr<PFO_FE_ComparisonPlots> m_charged_PFO_FE_comparison;
+  std::unique_ptr<PFO_FE_ComparisonPlots> m_neutral_PFO_FE_comparison;
 
 };
 #endif

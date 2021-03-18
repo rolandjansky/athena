@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -91,16 +91,6 @@ public:
 
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * charged */
-  virtual ParametersT<5, Charged, ConeSurface>* createTrackParameters(
-    double l1,
-    double l2,
-    double phi,
-    double theta,
-    double qop,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
-
-  /** Use the Surface as a ParametersBase constructor, from local parameters -
-   * charged */
   virtual Surface::ChargedTrackParametersUniquePtr createUniqueTrackParameters(
     double l1,
     double l2,
@@ -108,25 +98,19 @@ public:
     double theta,
     double qop,
     AmgSymMatrix(5) * cov = nullptr) const override final;
-
-  virtual Surface::ChargedTrackParametersUniquePtr createUniqueTrackParameters(
-    const Amg::Vector3D& position,
-    const Amg::Vector3D& momentum,
-    double charge,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
-
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -
    * charged*/
-  virtual ParametersT<5, Charged, ConeSurface>* createTrackParameters(
+  virtual Surface::ChargedTrackParametersUniquePtr createUniqueTrackParameters(
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
     AmgSymMatrix(5) * cov = nullptr) const override final;
 
+
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * neutral */
-  virtual ParametersT<5, Neutral, ConeSurface>* createNeutralParameters(
+  virtual NeutralTrackParametersUniquePtr createUniqueNeutralParameters(
     double l1,
     double l2,
     double phi,
@@ -136,7 +120,8 @@ public:
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -
    * neutral */
-  virtual ParametersT<5, Neutral, ConeSurface>* createNeutralParameters(
+
+  virtual NeutralTrackParametersUniquePtr createUniqueNeutralParameters(
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
@@ -144,16 +129,35 @@ public:
 
   /** Use the Surface as a ParametersBase constructor, from local parameters */
   template<int DIM, class T>
-  ParametersT<DIM, T, ConeSurface>* createParameters(double l1,
+  std::unique_ptr<ParametersT<DIM, T, ConeSurface>> createUniqueParameters(
+    double l1,
+    double l2,
+    double phi,
+    double theta,
+    double qop,
+    AmgSymMatrix(DIM) * cov = 0) const;
+
+  /** Use the Surface as a ParametersBase constructor, from global parameters */
+  template<int DIM, class T>
+  std::unique_ptr<ParametersT<DIM, T, ConeSurface>> createUniqueParameters(
+    const Amg::Vector3D& position,
+    const Amg::Vector3D& momentum,
+    double charge,
+    AmgSymMatrix(DIM) * cov = 0) const;
+
+  /** Use the Surface as a ParametersBase constructor, from local parameters */
+  template<int DIM, class T>
+  ParametersT<DIM, T, ConeSurface> createParameters(double l1,
                                                      double l2,
                                                      double phi,
                                                      double theta,
                                                      double qop,
-                                                     AmgSymMatrix(DIM) * cov = 0) const;
+                                                     AmgSymMatrix(DIM) *
+                                                       cov = 0) const;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters */
   template<int DIM, class T>
-  ParametersT<DIM, T, ConeSurface>* createParameters(
+  ParametersT<DIM, T, ConeSurface> createParameters(
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
@@ -274,9 +278,9 @@ protected:
   //!< bounds (shared)
   SharedObject<const ConeBounds> m_bounds;
   //!< The global reference point (== a point on thesurface)
-  CxxUtils::CachedUniquePtrT<Amg::Vector3D> m_referencePoint;
+  CxxUtils::CachedUniquePtr<Amg::Vector3D> m_referencePoint;
   //!< The rotational symmetry axis
-  CxxUtils::CachedUniquePtrT<Amg::Vector3D> m_rotSymmetryAxis;
+  CxxUtils::CachedUniquePtr<Amg::Vector3D> m_rotSymmetryAxis;
 };
 
 } // end of namespace

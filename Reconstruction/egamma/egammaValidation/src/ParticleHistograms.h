@@ -31,6 +31,7 @@ namespace egammaMonitoring{
     StatusCode initializePlots();
 
     void fill(const xAOD::IParticle& egamma);
+    void fill(const xAOD::IParticle& egamma, float mu);
 
 
   private:

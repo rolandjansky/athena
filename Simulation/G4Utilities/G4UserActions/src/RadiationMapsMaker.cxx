@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RadiationMapsMaker.h"
@@ -44,9 +44,13 @@
 #include "G4He3.hh"
 #include "G4Geantino.hh"
 #include "TGraph.h"
+#include "G4ParticleTable.hh"
+#include "G4IonTable.hh"
+#include "G4VProcess.hh"
 #include "G4Step.hh"
 #include "G4StepPoint.hh"
 #include "G4VSensitiveDetector.hh"
+#include "Randomize.hh"
 #include "PathResolver/PathResolver.h"
 
 namespace G4UA{
@@ -58,6 +62,17 @@ namespace G4UA{
   RadiationMapsMaker::RadiationMapsMaker(const Config& config)
     : m_config(config)
   {
+  }
+
+  //----------------------------------------------------------------------------
+  // Destructor
+  //----------------------------------------------------------------------------
+  RadiationMapsMaker::~RadiationMapsMaker()
+  {
+    // close activation file if open
+    if ( m_activationFile.is_open() ) {
+      m_activationFile.close();
+    }
   }
 
   //---------------------------------------------------------------------------
@@ -86,7 +101,7 @@ namespace G4UA{
     }
 
     for(unsigned int i=0;i<maps.m_rz_vol.size();i++) {
-      // need volume fraction only if particular material is selected
+      // need volume fraction only if particular materials are selected
       m_rz_vol [i] += maps.m_rz_vol [i];
       m_rz_norm[i] += maps.m_rz_norm[i];
       m_full_rz_vol [i] += maps.m_full_rz_vol [i];
@@ -120,7 +135,7 @@ namespace G4UA{
     }
 
     for(unsigned int i=0;i<maps.m_3d_vol.size();i++) {
-      // need volume fraction only if particular material is selected
+      // need volume fraction only if particular materials are selected
       m_3d_vol [i] += maps.m_3d_vol [i];
       m_3d_norm[i] += maps.m_3d_norm[i];
     }
@@ -163,6 +178,10 @@ namespace G4UA{
 
   void RadiationMapsMaker::BeginOfRunAction(const G4Run*){
 
+    // open activation file if wanted
+    if ( !m_config.activationFileName.empty() ) {
+      m_activationFile.open(m_config.activationFileName,std::ios_base::app); 
+    }
     // first make sure the vectors are empty
 
     m_maps.m_rz_tid .resize(0);
@@ -216,8 +235,8 @@ namespace G4UA{
     m_maps.m_theta_full_rz_rchgd_spec.resize(0);
     m_maps.m_theta_full_rz_rneut_spec.resize(0);
     
-    if (!m_config.material.empty()) {
-      // need volume fraction only if particular material is selected
+    if (!m_config.materials.empty()) {
+      // need volume fraction only if particular materials is selected
       m_maps.m_rz_vol .resize(0);
       m_maps.m_rz_norm.resize(0);
       m_maps.m_full_rz_vol .resize(0);
@@ -279,8 +298,8 @@ namespace G4UA{
     m_maps.m_theta_full_rz_rchgd_spec.resize(m_config.nBinsdphi*m_config.nBinstheta*m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEo,0.0);
     m_maps.m_theta_full_rz_rneut_spec.resize(m_config.nBinsdphi*m_config.nBinstheta*m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEo,0.0);
 
-    if (!m_config.material.empty()) {
-      // need volume fraction only if particular material is selected
+    if (!m_config.materials.empty()) {
+      // need volume fraction only if particular materials are selected
       // 2d zoom
       m_maps.m_rz_vol .resize(m_config.nBinsz*m_config.nBinsr,0.0);
       m_maps.m_rz_norm.resize(m_config.nBinsz*m_config.nBinsr,0.0);
@@ -320,6 +339,71 @@ namespace G4UA{
   }
   
   void RadiationMapsMaker::UserSteppingAction(const G4Step* aStep){
+
+    bool goodMaterial(false);
+
+    if (m_config.materials.empty()) {
+      // if no material is specified maps are made for all materials
+      goodMaterial = true;
+    } 
+    else {
+      // if a list of materials is specified, maps are made just for those.
+      // Note that still all steps need to be treated to calculate the
+      // volume fraction of the target materials in each bin!
+      for (unsigned int i=0;i<m_config.materials.size();i++) {
+	if ( m_config.materials[i].compare(aStep->GetTrack()->GetMaterial()->GetName()) == 0) {
+	  goodMaterial = true;
+	  break;
+	}
+      }
+    } 
+
+    if  ( goodMaterial && m_activationFile.is_open() ) {
+      // print list of unstable secondaries independent of status and energy (to see full chain)
+      const std::vector<const G4Track*>* tv = aStep->GetSecondaryInCurrentStep();  
+      //const G4TrackVector * tv = aStep->GetSecondary();
+      //std::cout << "GetSecondary" << std::endl;
+      if ( tv ) {
+	//std::cout << "tv" << std::endl;
+	for (unsigned int is=0;is<tv->size();is++) {
+	  //std::cout << "is " << is << std::endl;
+	  const G4ParticleDefinition * pd = (*tv)[is]->GetParticleDefinition ();
+	  if ( pd == G4Triton::Definition() || ( pd->GetParticleTable()->GetIonTable()->IsIon(pd) && !pd->GetPDGStable() ) ) {
+	    G4String svname("unknown");
+	    G4String svmaterial("unknown");
+	    if ( (*tv)[is]->GetVolume() ) {
+	      svname = (*tv)[is]->GetVolume()->GetName();
+	      if ( (*tv)[is]->GetVolume()->GetLogicalVolume() ) {
+		if ( (*tv)[is]->GetVolume()->GetLogicalVolume()->GetMaterial() ) {
+		  svmaterial = (*tv)[is]->GetVolume()->GetLogicalVolume()->GetMaterial()->GetName();
+		}
+	      }
+	    }
+	    m_activationFile.width(18);
+	    m_activationFile << (*tv)[is]->GetDefinition()->GetParticleName()
+			     << " Proc.: " << (*tv)[is]->GetCreatorProcess()->GetProcessType() << " Mother: ";
+	    m_activationFile.width(18);
+	    m_activationFile << aStep->GetTrack()->GetDefinition()->GetParticleName() << " (x,y,z,t): (";
+	    m_activationFile.setf ( std::ios::scientific );   
+	    m_activationFile.precision(4);
+	    m_activationFile.width(12);
+	    m_activationFile << aStep->GetPostStepPoint()->GetPosition().x() << ",";
+	    m_activationFile.width(12);
+	    m_activationFile << aStep->GetPostStepPoint()->GetPosition().y() << ",";
+	    m_activationFile.width(12);
+	    m_activationFile << aStep->GetPostStepPoint()->GetPosition().z() << ",";
+	    m_activationFile.width(12);
+	    m_activationFile << aStep->GetPostStepPoint()->GetGlobalTime()<< ")" ;
+	    m_activationFile.unsetf ( std::ios::scientific );   
+	    m_activationFile << " Mat.: ";
+	    m_activationFile.width(40);
+	    m_activationFile << svmaterial << " Vol.: ";
+	    m_activationFile << svname << std::endl;
+	  }
+	}
+      }
+    }
+  
     int pdgid = 10;
     if (aStep->GetTrack()->GetDefinition()==G4Gamma::Definition()){
       pdgid=0;
@@ -418,19 +502,6 @@ namespace G4UA{
       // note that the upper bin boundary is the relevant cut. The first bin contains thus all times even shorter than the first lower bin boundary
       double logt = (deltatime<0?m_config.logTMin-1:log10(deltatime));
       
-      bool goodMaterial(false);
-
-      if (m_config.material.empty()) {
-	// if no material is specified maps are made for all materials
-	goodMaterial = true;
-      } 
-      else {
-	// if a material is specified maps are made just for that one.
-	// Note that still all steps need to be treated to calculate the
-	// volume fraction of the target material in each bin!
-	goodMaterial = (m_config.material.compare(aStep->GetTrack()->GetMaterial()->GetName()) == 0);
-      } 
-
       // fluence dN/da = dl/dV 
       double x0 = aStep->GetPreStepPoint()->GetPosition().x()*0.1;
       double x1 = aStep->GetPostStepPoint()->GetPosition().x()*0.1;
@@ -440,8 +511,8 @@ namespace G4UA{
       double z1 = aStep->GetPostStepPoint()->GetPosition().z()*0.1;
 
       double l = sqrt(pow(x1-x0,2)+pow(y1-y0,2)+pow(z1-z0,2));
-      // make 1 mm steps but at least 1 step
-      double dl0 = 0.1;
+      // make 5 mm steps but at least 1 step
+      double dl0 = 0.5;
       unsigned int nStep = l/dl0+1;
       double dx = (x1-x0)/nStep;
       double dy = (y1-y0)/nStep;
@@ -494,13 +565,15 @@ namespace G4UA{
       double dE_ION = dE_TOT-dE_NIEL;
 
       for(unsigned int i=0;i<nStep;i++) {
-	double abszorz = z0+dz*(i+0.5);
+      // randomize position along current sub-step (flat fraction from 0-1) 
+	double subpos = G4UniformRand();
+	double abszorz = z0+dz*(i+subpos);
 	// if |z| instead of z take abs value
 	if ( m_config.zMinFull >= 0 ) abszorz = fabs(abszorz);
 
-	double rr = sqrt(pow(x0+dx*(i+0.5),2)+
-			 pow(y0+dy*(i+0.5),2));
-	double pphi = atan2(y0+dy*(i+0.5),x0+dx*(i+0.5))*180/M_PI;
+	double rr = sqrt(pow(x0+dx*(i+subpos),2)+
+			 pow(y0+dy*(i+subpos),2));
+	double pphi = atan2(y0+dy*(i+subpos),x0+dx*(i+subpos))*180/M_PI;
 
 	int vBinZoom      = -1;
 	int vBinFull      = -1;
@@ -612,15 +685,15 @@ namespace G4UA{
 	// TID & EION
 	if ( goodMaterial && vBinZoom >=0 ) {
 	  if ( pdgid == 999 ) {
-	    m_maps.m_rz_tid [vBinZoom] += dl;
-	    m_maps.m_rz_eion[vBinZoom] += rho*dl;
+	    m_maps.m_rz_tid [vBinZoom] += rr*dl;
+	    m_maps.m_rz_eion[vBinZoom] += rho*rr*dl;
 	    for (size_t ie=0;ie<theMaterial->GetNumberOfElements();ie++ ) {
 	      const G4Element * theElement = theMaterial->GetElement (ie);
 	      const double mFrac = theMaterial->GetFractionVector()[ie];
 	      const int zElem = theElement->GetZ();
 	      if ( zElem >= m_config.elemZMin && 
 		   zElem <= m_config.elemZMax) {
-		m_maps.m_rz_element[vBinZoom*(m_config.elemZMax-m_config.elemZMin+1)+zElem-m_config.elemZMin] += rho*dl*mFrac;
+		m_maps.m_rz_element[vBinZoom*(m_config.elemZMax-m_config.elemZMin+1)+zElem-m_config.elemZMin] += rho*rr*dl*mFrac;
 	      }
 	    }
 	  }
@@ -643,15 +716,15 @@ namespace G4UA{
 	}
 	if ( goodMaterial && vBinFull >=0 ) {
 	  if ( pdgid == 999 ) {
-	    m_maps.m_full_rz_tid [vBinFull] += dl;
-	    m_maps.m_full_rz_eion[vBinFull] += rho*dl;
+	    m_maps.m_full_rz_tid [vBinFull] += rr*dl;
+	    m_maps.m_full_rz_eion[vBinFull] += rho*rr*dl;
 	    for (size_t ie=0;ie<theMaterial->GetNumberOfElements();ie++ ) {
 	      const G4Element * theElement = theMaterial->GetElement (ie);
 	      const double mFrac = theMaterial->GetFractionVector()[ie];
 	      const int zElem = theElement->GetZ();
 	      if ( zElem >= m_config.elemZMin && 
 		   zElem <= m_config.elemZMax) {
-		m_maps.m_full_rz_element[vBinFull*(m_config.elemZMax-m_config.elemZMin+1)+zElem-m_config.elemZMin] += rho*dl*mFrac;
+		m_maps.m_full_rz_element[vBinFull*(m_config.elemZMax-m_config.elemZMin+1)+zElem-m_config.elemZMin] += rho*rr*dl*mFrac;
 	      }
 	    }
 	  }
@@ -674,8 +747,8 @@ namespace G4UA{
 	}
 	if ( goodMaterial && vBin3d >=0 ) {
 	  if ( pdgid == 999 ) {
-	    m_maps.m_3d_tid [vBin3d] += dl;
-	    m_maps.m_3d_eion[vBin3d] += rho*dl;
+	    m_maps.m_3d_tid [vBin3d] += rr*dl;
+	    m_maps.m_3d_eion[vBin3d] += rho*rr*dl;
 	  }
 	  else {
 	    m_maps.m_3d_tid [vBin3d] += dE_ION/rho;
@@ -815,8 +888,8 @@ namespace G4UA{
 	  }
 	}
 	
-	if (!m_config.material.empty()) {
-	  // need volume fraction only if particular material is selected
+	if (!m_config.materials.empty()) {
+	  // need volume fraction only if particular materials are selected
 	  if ( (eKin > 1 && (pdgid == 6 || pdgid == 7)) || pdgid == 999) {
 	    // count all neutron > 1 MeV track lengths weighted by r
 	    // to get norm for volume per bin. High energetic
@@ -841,9 +914,9 @@ namespace G4UA{
 	      m_maps.m_3d_norm[vBin3d] += rr*dl;
 	    }
 	    if ( goodMaterial ) {
-	      // same but only inside the material of interest. 
+	      // same but only inside the materials of interest. 
 	      // The ratio vol/norm gives the volume fraction of the desired
-	      // material inside the current bin
+	      // materials inside the current bin
 	      if ( vBinZoom >=0 ) {
 		m_maps.m_rz_vol [vBinZoom] += rr*dl;
 	      }

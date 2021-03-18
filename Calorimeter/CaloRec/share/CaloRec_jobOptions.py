@@ -378,5 +378,5 @@ if globalflags.DataSource()=='data' and rec.doESD() and rec.doCalo() and rec.doT
 if jobproperties.CaloRecFlags.doCaloTopoTower():
     include ( "CaloRec/CaloTopoTowerFragment.py" )
 #mixed topo-cluster/topo-tower 
-if jobproperties.CaloRecFlags.doCaloTopoSignal():
+if jobproperties.CaloRecFlags.doCaloTopoSignal() or jobproperties.CaloRecFlags.doCaloFwdTopoTower():
     include ("CaloRec/CaloTopoSignalFragment.py" )

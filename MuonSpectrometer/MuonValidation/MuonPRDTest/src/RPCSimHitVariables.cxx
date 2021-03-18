@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPCSimHitVariables.h"
@@ -12,7 +12,6 @@
 #include "AtlasHepMC/GenParticle.h"
 
 #include "TTree.h"
-#include <TString.h> // for Form
 
 /** ---------- filling of variables */
 /** ---------- to be called on each evt i.e. execute level of main alg */
@@ -29,7 +28,7 @@ StatusCode RPCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
   // Get the RPC Id hit helper
   RpcHitIdHelper* rpchhelper = RpcHitIdHelper::GetHelper();
 
-  if(rpcContainer->size()==0) ATH_MSG_WARNING(" RpcSimHit empty ");
+  if(!rpcContainer->size()) ATH_MSG_DEBUG(m_ContainerName<<" container empty");
   for( auto it : *rpcContainer ) {
     const RPCSimHit hit = it;
 
@@ -43,9 +42,6 @@ StatusCode RPCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
     int         dbp    = rpchhelper->GetDoubletPhi(hitid);
     int         gg     = rpchhelper->GetGasGapLayer(hitid);
     int         mfi    = rpchhelper->GetMeasuresPhi(hitid);
-//    std::cerr<<" Building Offline Id with "<<stname<<" eta/phi "<<steta<<"/"<<stphi
-//             <<" dbRZP "<<dbr<<" "<<dbz<<" "<<dbp<<" "<<gg<<" "<<mfi<<" "<<strip<<std::endl;
-
 
     bool isValid=false;
     // the last 2 arguments are:
@@ -55,12 +51,15 @@ StatusCode RPCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
     // does not seem to return this, so we just give stripNumber=1 for now
     Identifier offid = m_RpcIdHelper->channelID(stname, steta, stphi,dbr,dbz,dbp,gg,mfi,1,true,&isValid);
     if (!isValid) {
-       ATH_MSG_WARNING(" Cannot build a valid Identifier; skip ");
+       ATH_MSG_WARNING("Cannot build a valid Identifier for RPC stationName="<<stname<<", eta="<<steta<<", phi="<<stphi<<", doubletR="<<dbr<<", doubletZ="<<dbz<<", doubletPhi="<<dbp<<", gasGap="<<gg<<", measuresPhi="<<mfi<<"; skipping...");
        continue;
     }
 
     const MuonGM::RpcReadoutElement* rpcdet = MuonDetMgr->getRpcReadoutElement(offid);
-    if (!rpcdet) throw std::runtime_error(Form("File: %s, Line: %d\nRPCSimHitVariables::fillVariables() - Failed to retrieve RpcReadoutElement for %s", __FILE__, __LINE__, m_RpcIdHelper->print_to_string(offid).c_str()));
+    if (!rpcdet) {
+      ATH_MSG_ERROR("RPCSimHitVariables::fillVariables() - Failed to retrieve RpcReadoutElement for "<<m_RpcIdHelper->print_to_string(offid).c_str());
+      return StatusCode::FAILURE;
+    }
 
     m_RPC_Sim_stationName   .push_back(stname);
     m_RPC_stationName   .push_back(m_RpcIdHelper->stationName(offid));

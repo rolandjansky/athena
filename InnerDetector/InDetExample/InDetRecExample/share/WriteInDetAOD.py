@@ -7,14 +7,13 @@ InDetAODList = []
 # -----------------------------
 
 if InDetFlags.doxAOD():
-  excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation."
-  if not InDetFlags.KeepFirstParameters() :
-          excludedAuxData += '-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition'
+
+  excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-TTVA_AMVFVertices.-TTVA_AMVFWeights"
+
+  if not (InDetFlags.KeepFirstParameters() or InDetFlags.keepAdditionalHitsOnTrackParticle()):
+    excludedAuxData += '.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition'
 
   excludedVertexAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
-
-  if InDetFlags.keepAdditionalHitsOnTrackParticle():
-   excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation"
 
   # remove track decorations used internally by FTAG software
   excludedAuxData += ".-TrackCompatibility.-VxTrackAtVertex.-btagIp_d0Uncertainty.-btagIp_z0SinThetaUncertainty.-btagIp_z0SinTheta.-btagIp_d0.-btagIp_trackMomentum.-btagIp_trackDisplacement"
@@ -42,9 +41,9 @@ if InDetFlags.doxAOD():
   InDetAODList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODLambdabarVertexContainer()+'Aux.' + excludedVertexAuxData]
   InDetAODList+=['xAOD::VertexContainer#'+InDetKeys.Conversions()]
   InDetAODList+=['xAOD::VertexAuxContainer#'+InDetKeys.Conversions() +'Aux.' + excludedVertexAuxData]
-  if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
-    InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODLargeD0TrackParticleContainer()]
-    InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODLargeD0TrackParticleContainer()+'Aux.' + excludedAuxData]
+  # save a separate LRT container anyway. Currently it does not create problems if the container does not exist.
+  InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODLargeD0TrackParticleContainer()]
+  InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODLargeD0TrackParticleContainer()+'Aux.' + excludedAuxData]
   if InDetFlags.doTrackSegmentsPixel():
     InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODPixelTrackParticleContainer()]
     InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODPixelTrackParticleContainer()+'Aux.' + excludedAuxData]

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ class TileRawChannelOF1Corrector: public extends<AthAlgTool, ITileRawChannelTool
     virtual StatusCode finalize() override;
 
     /** Correct TileRawChannel amplitudes if pedestal changed */
-    virtual StatusCode process (TileMutableRawChannelContainer& rchCont) const override;
+    virtual StatusCode process (TileMutableRawChannelContainer& rchCont, const EventContext &ctx) const override;
 
 
   private:

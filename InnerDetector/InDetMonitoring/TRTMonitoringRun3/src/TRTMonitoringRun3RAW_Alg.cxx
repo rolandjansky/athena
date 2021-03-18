@@ -52,7 +52,7 @@ TRTMonitoringRun3RAW_Alg::TRTMonitoringRun3RAW_Alg( const std::string& name, ISv
 {
     declareProperty("InDetTRTStrawStatusSummaryTool", m_sumTool);
     declareProperty("doStraws",                       m_doStraws         = true);
-    declareProperty("doExpert",                       m_doExpert         = true);
+    declareProperty("doExpert",                       m_doExpert         = false);
     declareProperty("doChips",                        m_doChips          = true);
     declareProperty("doRDOsMon",                      m_doRDOsMon        = true);
     declareProperty("doShift",                        m_doShift          = true);
@@ -2023,10 +2023,11 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTHits(const TrackCollection& trackCol
                 }
 
                 // Experimental
-                double histLow = 0;
-                double histBinWidth = 1;
-                FILLEVENTNORMALIZATION(m_strawMax[ibe], histLow, histBinWidth, thisStrawNumber[ibe], HitAWonTMapS_passed, HitAWonTMapS, "TRTTrackHistograms"+std::to_string(ibe)+std::to_string(iphi_module))
-
+                if (m_doExpert && m_doStraws) {
+                    double histLow = 0;
+                    double histBinWidth = 1;
+                    FILLEVENTNORMALIZATION(m_strawMax[ibe], histLow, histBinWidth, thisStrawNumber[ibe], HitAWonTMapS_passed, HitAWonTMapS, "TRTTrackHistograms"+std::to_string(ibe)+std::to_string(iphi_module))
+                }
 
                 if (is_anybininVgate_high) {
                     if (m_doExpert && m_doStraws) {

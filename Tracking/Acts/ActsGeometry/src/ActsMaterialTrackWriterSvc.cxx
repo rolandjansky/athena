@@ -261,9 +261,9 @@ ActsMaterialTrackWriterSvc::doWrite(const Acts::RecordedMaterialTrack& mTrack)
     m_step_dy.push_back(mint.direction.y());
     m_step_dz.push_back(mint.direction.z());
 
-    Acts::Vector3D prePos
+    Acts::Vector3 prePos
         = mint.position - 0.5 * mint.pathCorrection * mint.direction;
-    Acts::Vector3D posPos
+    Acts::Vector3 posPos
         = mint.position + 0.5 * mint.pathCorrection * mint.direction;
     m_step_sx.push_back(prePos.x());
     m_step_sy.push_back(prePos.y());

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelRodDecoder.h"
@@ -240,7 +240,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
 
     int indexModule = -1;
     int indexFE     = -1;
-    if (word_type!=PRB_LINKHEADER) {
+//    if (word_type!=PRB_LINKHEADER) {
       if (offlineIdHash!=0xffffffff) { // now write the error word to the service
         isIBLModule = false;
         isDBMModule = false;
@@ -260,7 +260,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
         indexModule = static_cast<int>(offlineIdHash); // [0,2047]
         indexFE     = (1+chFE)*m_pixel_id->wafer_hash_max()+static_cast<int>(offlineIdHash);  // index for IDCInDetBSErrContainer
       }
-    }
+//    }
 
     bool headerErr_decoding = false;
     bool headerErr_flagged  = false;
@@ -398,13 +398,26 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
           else                            { mLVL1A=mLVL1A+mBCID_max_pix; }
         }
 
-        // Fill header error word per module
-        if (headerErr_decoding) { PixelByteStreamErrors::addError(bsErrWord[static_cast<int>(offlineIdHash)],PixelByteStreamErrors::Decoding); }
-        if (headerErr_flagged)  { PixelByteStreamErrors::addError(bsErrWord[static_cast<int>(offlineIdHash)],PixelByteStreamErrors::Flagged);  }
-        if (headerErr_preamble) { PixelByteStreamErrors::addError(bsErrWord[static_cast<int>(offlineIdHash)],PixelByteStreamErrors::Preamble); }
-        if (headerErr_timeout)  { PixelByteStreamErrors::addError(bsErrWord[static_cast<int>(offlineIdHash)],PixelByteStreamErrors::TimeOut);  }
-        if (headerErr_lvl1id)   { PixelByteStreamErrors::addError(bsErrWord[static_cast<int>(offlineIdHash)],PixelByteStreamErrors::LVL1ID);   }
-        if (headerErr_bcid)     { PixelByteStreamErrors::addError(bsErrWord[static_cast<int>(offlineIdHash)],PixelByteStreamErrors::BCID);     }
+        // Fill header error word per IBL FE
+        if (isIBLModule || isDBMModule) {
+          if (indexFE>-1) {
+            if (headerErr_decoding) { PixelByteStreamErrors::addError(bsErrWord[indexFE],PixelByteStreamErrors::Decoding); }
+            if (headerErr_flagged)  { PixelByteStreamErrors::addError(bsErrWord[indexFE],PixelByteStreamErrors::Flagged);  }
+            if (headerErr_preamble) { PixelByteStreamErrors::addError(bsErrWord[indexFE],PixelByteStreamErrors::Preamble); }
+            if (headerErr_timeout)  { PixelByteStreamErrors::addError(bsErrWord[indexFE],PixelByteStreamErrors::TimeOut);  }
+            if (headerErr_lvl1id)   { PixelByteStreamErrors::addError(bsErrWord[indexFE],PixelByteStreamErrors::LVL1ID);   }
+            if (headerErr_bcid)     { PixelByteStreamErrors::addError(bsErrWord[indexFE],PixelByteStreamErrors::BCID);     }
+          }
+        }
+        else {
+          // Fill header error word per module
+          if (headerErr_decoding) { PixelByteStreamErrors::addError(bsErrWord[static_cast<int>(offlineIdHash)],PixelByteStreamErrors::Decoding); }
+          if (headerErr_flagged)  { PixelByteStreamErrors::addError(bsErrWord[static_cast<int>(offlineIdHash)],PixelByteStreamErrors::Flagged);  }
+          if (headerErr_preamble) { PixelByteStreamErrors::addError(bsErrWord[static_cast<int>(offlineIdHash)],PixelByteStreamErrors::Preamble); }
+          if (headerErr_timeout)  { PixelByteStreamErrors::addError(bsErrWord[static_cast<int>(offlineIdHash)],PixelByteStreamErrors::TimeOut);  }
+          if (headerErr_lvl1id)   { PixelByteStreamErrors::addError(bsErrWord[static_cast<int>(offlineIdHash)],PixelByteStreamErrors::LVL1ID);   }
+          if (headerErr_bcid)     { PixelByteStreamErrors::addError(bsErrWord[static_cast<int>(offlineIdHash)],PixelByteStreamErrors::BCID);     }
+        }
 
 
 #ifdef PIXEL_DEBUG
@@ -513,7 +526,6 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
             else { // it is an IBL/DBM hit word, but it hasn't been recognised
               generalwarning("In ROB 0x" << std::hex << robId << ", FE: 0x" << mLink << ": IBL/DBM hit word 0x" << rawDataWord << " not recognised" << std::dec);
               m_numDecodingErrors++;
-              if (indexModule>-1) { PixelByteStreamErrors::addError(bsErrWord[indexModule],PixelByteStreamErrors::Decoding); }
               if (indexFE>-1)     { PixelByteStreamErrors::addError(bsErrWord[indexFE],PixelByteStreamErrors::Decoding); }
               continue;
             }
@@ -554,12 +566,11 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
           // Decode only modules in provided list of hashes (i.e. not doing full scan)
           // Disabled for now.
           if (offlineIdHash == skipHash) continue;
-          if(offlineIdHash != lastHash){
+          if (offlineIdHash != lastHash) {
             lastHash = offlineIdHash;
-            if(vecHash!=nullptr ){
+            if (vecHash!=nullptr) {
               std::vector<IdentifierHash>::iterator p = std::find(vecHash->begin(),vecHash->end(),offlineIdHash);
-
-              if (p == vecHash->end()){ // is the Hash to be skipped (not in the request list)?
+              if (p == vecHash->end()) { // is the Hash to be skipped (not in the request list)?
                 skipHash = offlineIdHash;
                 continue;
               }
@@ -619,7 +630,6 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
                   if (pixelId == invalidPixelId) {
                     generalwarning("In ROB 0x" << std::hex << robId << ", FE 0x" << mLink << ": Illegal pixelId - hit word 0x" << rawDataWord << " decodes to ToT1 = 0" << (tot[i] >> 4) << ", ToT2 = 0x" << (tot[i] & 0xF) << ", row = " << std::dec << row[i] << " col = " << col[i] << std::dec);
                     m_numInvalidIdentifiers++;
-                    if (indexModule>-1) { PixelByteStreamErrors::addError(bsErrWord[indexModule],PixelByteStreamErrors::Invalid); }
                     if (indexFE>-1)     { PixelByteStreamErrors::addError(bsErrWord[indexFE],PixelByteStreamErrors::Invalid); }
                     continue;
                   }
@@ -661,7 +671,6 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
                     if ((row[i] + 1) > 336) { // FIXME: hardcoded number - but it should still be ok, because it's a feature of the FE-I4!
                       // this should never happen. If row[i] == 336, (row[i]+1) == 337. This row does not exist, so the TOT(337) should always be 0 (== no hit)
                       generalwarning("In ROB = 0x" << std::hex << robId << ", link 0x" << mLink << ": Illegal IBL row number for second ToT field, hit word 0x" << rawDataWord << " decodes to row = " << std::dec << row[i]+1 << " col = " << col[i] << " (ToT1 = 0x" << std::hex << IBLtot[0] << " ToT2 = 0x" << IBLtot[1] << ")");
-                      if (indexModule>-1) { PixelByteStreamErrors::addError(bsErrWord[indexModule],PixelByteStreamErrors::Invalid); }
                       if (indexFE>-1)     { PixelByteStreamErrors::addError(bsErrWord[indexFE],PixelByteStreamErrors::Invalid); }
                       m_numInvalidIdentifiers++;
                       continue;
@@ -683,7 +692,6 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
                       if (pixelId == invalidPixelId) {
                         generalwarning("In ROB 0x" << std::hex << robId << ", FE 0x" << mLink << ": Illegal pixelId - hit word 0x" << rawDataWord << " decodes to ToT1 = 0" << (tot[i] >> 4) << ", ToT2 = 0x" << (tot[i] & 0xF) << ", row = " << std::dec << row[i] << " col = " << col[i] << std::dec);
                         m_numInvalidIdentifiers++;
-                        if (indexModule>-1) { PixelByteStreamErrors::addError(bsErrWord[indexModule],PixelByteStreamErrors::Invalid); }
                         if (indexFE>-1)     { PixelByteStreamErrors::addError(bsErrWord[indexFE],PixelByteStreamErrors::Invalid); }
                         continue;
                       }
@@ -704,7 +712,6 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
                 else {
                   generalwarning("In ROB = 0x" << std::hex << robId << ", link 0x" << mLink << ": Illegal IBL row/col number, hit word 0x" << rawDataWord << " decodes to row = " << std::dec << row[i] << " col = " << col[i] << " (ToT1 = 0x" << std::hex << (tot[i] >> 4) << " ToT2 = 0x" << (tot[i] & 0xF) << ")");
                   m_numInvalidIdentifiers++;
-                  if (indexModule>-1) { PixelByteStreamErrors::addError(bsErrWord[indexModule],PixelByteStreamErrors::Invalid); }
                   if (indexFE>-1)     { PixelByteStreamErrors::addError(bsErrWord[indexFE],PixelByteStreamErrors::Invalid); }
                   continue;
                 }
@@ -765,43 +772,35 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
 
           if (trailerError & (1 << 8)) { // time out error bit => E
             m_numTimeOutErrors++;
-            if (indexModule>-1) { PixelByteStreamErrors::addError(bsErrWord[indexModule],PixelByteStreamErrors::TimeOut); }
             if (indexFE>-1)     { PixelByteStreamErrors::addError(bsErrWord[indexFE],PixelByteStreamErrors::TimeOut); }
           }
 
           if (trailerError & (1 << 6)) {// link masked by PPC => P
             m_numLinkMaskedByPPC++;
-            if (indexModule>-1) { PixelByteStreamErrors::addError(bsErrWord[indexModule],PixelByteStreamErrors::LinkMaskedByPPC); }
             if (indexFE>-1)     { PixelByteStreamErrors::addError(bsErrWord[indexFE],PixelByteStreamErrors::LinkMaskedByPPC); }
           }
           if (trailerError & (1 << 5)) { // preamble error bit => p
             m_numPreambleErrors++;
-            if (indexModule>-1) { PixelByteStreamErrors::addError(bsErrWord[indexModule],PixelByteStreamErrors::Preamble); }
             if (indexFE>-1)     { PixelByteStreamErrors::addError(bsErrWord[indexFE],PixelByteStreamErrors::Preamble); }
           }
           if (trailerError & (1 << 4)) { // LVL1 error bit => l
             m_numLVL1IDErrors++;
-            if (indexModule>-1) { PixelByteStreamErrors::addError(bsErrWord[indexModule],PixelByteStreamErrors::LVL1ID); }
             if (indexFE>-1)     { PixelByteStreamErrors::addError(bsErrWord[indexFE],PixelByteStreamErrors::LVL1ID); }
           }
           if (trailerError & (1 << 3)) {// BCID error bit => b
             m_numBCIDErrors++;
-            if (indexModule>-1) { PixelByteStreamErrors::addError(bsErrWord[indexModule],PixelByteStreamErrors::BCID); }
             if (indexFE>-1)     { PixelByteStreamErrors::addError(bsErrWord[indexFE],PixelByteStreamErrors::BCID); }
           }
           if (trailerError & (1 << 2)) { // trailer error bit => z
             m_numTrailerErrors++;
-            if (indexModule>-1) { PixelByteStreamErrors::addError(bsErrWord[indexModule],PixelByteStreamErrors::Trailer); }
             if (indexFE>-1)     { PixelByteStreamErrors::addError(bsErrWord[indexFE],PixelByteStreamErrors::Trailer); }
           }
           if (trailerError & (1 << 1)) { // header/trailer limit error=> h
             m_numLimitError++;
-            if (indexModule>-1) { PixelByteStreamErrors::addError(bsErrWord[indexModule],PixelByteStreamErrors::Limit); }
             if (indexFE>-1)     { PixelByteStreamErrors::addError(bsErrWord[indexFE],PixelByteStreamErrors::Limit); }
           }
           if (trailerError & (1 << 0)) { // data overflow error=> v
             m_numInvalidIdentifiers++;
-            if (indexModule>-1) { PixelByteStreamErrors::addError(bsErrWord[indexModule],PixelByteStreamErrors::Invalid); }
             if (indexFE>-1)     { PixelByteStreamErrors::addError(bsErrWord[indexFE],PixelByteStreamErrors::Invalid); }
           }
 

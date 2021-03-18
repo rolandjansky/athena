@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT2CaloCommon/LArRodIdHash.h" 
 #include "LArCabling/LArCablingLegacyService.h" 
-#include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IToolSvc.h"
 #include <iostream>
@@ -17,13 +16,6 @@ using eformat::helper::SourceIdentifier;
 
 // This class converts a LArReadoutModuleID into an integer, 
 // 
-
-// default contructor 
-LArRodIdHash::LArRodIdHash( ) 
-  : m_size(0), m_offset(0)
-{
-
-}
 
 
 void LArRodIdHash::initialize( int offset )  {

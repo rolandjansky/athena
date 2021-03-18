@@ -195,6 +195,9 @@ class SCTCalib : public AthAlgorithm {
       FloatProperty           m_noisyThr4DeadFinding{this, "NoisyThr4DeadFinding", 1.500E-3};
       BooleanProperty         m_deadChipUploadTest{this, "DeadChipUploadTest", true};
       BooleanProperty         m_deadStripUploadTest{this, "DeadStripUploadTest", true};
+      BooleanProperty         m_deadNotQuiet{this, "DeadNotQuiet", true};
+      FloatProperty           m_quietThresholdStrip{this, "QuietThresholdStrip", 0.5};
+      FloatProperty           m_quietThresholdChip{this, "QuietThresholdChip", 0.5};
 
       BooleanProperty         m_noiseOccupancyTriggerAware{this, "NoiseOccupancyTriggerAware", true};
       UnsignedIntegerProperty m_noiseOccupancyMinStat{this, "NoiseOccupancyMinStat", 50000};

@@ -46,9 +46,9 @@ namespace Trk {
   The tracks will be refitted if no fitQuality is given at input.
   @return new collections of tracks, with ambiguities resolved. Ownership is passed on 
   (i.e. client handles deletion)*/
-  virtual TrackCollection*  process(const TracksScores *trackScoreTrackMap) const override;
+  virtual const TrackCollection*  process(const TracksScores *trackScoreTrackMap) const override;
 
-  virtual TrackCollection*  process(const TrackCollection*,Trk::PRDtoTrackMap *) const override {return nullptr;};
+  virtual const TrackCollection*  process(const TrackCollection*,Trk::PRDtoTrackMap *) const override {return nullptr;};
 
   /** statistics output to be called by algorithm during finalize. */
   virtual void statistics() override;

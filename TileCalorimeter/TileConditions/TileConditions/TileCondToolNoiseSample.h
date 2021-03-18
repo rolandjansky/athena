@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_TILECONDTOOLNOISESAMPLE_H
@@ -27,31 +27,34 @@ class TileCondToolNoiseSample: public AthAlgTool
         const IInterface* parent);
     virtual ~TileCondToolNoiseSample();
 
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
     float getPed(unsigned int drawerIdx, unsigned int channel, unsigned int adc,
-                 TileRawChannelUnit::UNIT unit = TileRawChannelUnit::ADCcounts) const;
+                 TileRawChannelUnit::UNIT unit, const EventContext &ctx) const;
 
     float getHfn(unsigned int drawerIdx, unsigned int channel, unsigned int adc,
-                 TileRawChannelUnit::UNIT unit = TileRawChannelUnit::ADCcounts) const;
+                 TileRawChannelUnit::UNIT unit, const EventContext &ctx) const;
 
     float getLfn(unsigned int drawerIdx, unsigned int channel, unsigned int adc,
-                 TileRawChannelUnit::UNIT unit = TileRawChannelUnit::ADCcounts) const;
+                 TileRawChannelUnit::UNIT unit, const EventContext &ctx) const;
 
-    float getHfn1(unsigned int drawerIdx, unsigned int channel, unsigned int adc) const;
+    float getHfn1(unsigned int drawerIdx, unsigned int channel, unsigned int adc, const EventContext &ctx) const;
 
-    float getHfn2(unsigned int drawerIdx, unsigned int channel, unsigned int adc) const;
+    float getHfn2(unsigned int drawerIdx, unsigned int channel, unsigned int adc, const EventContext &ctx) const;
 
-    float getHfnNorm(unsigned int drawerIdx, unsigned int channel, unsigned int adc) const;
+    float getHfnNorm(unsigned int drawerIdx, unsigned int channel, unsigned int adc, const EventContext &ctx) const;
 
     float getOnlinePedestalDifference(unsigned int drawerIdx, unsigned int channel, unsigned int adc,
-                                      TileRawChannelUnit::UNIT onlineUnit = TileRawChannelUnit::OnlineADCcounts) const;
+                                      TileRawChannelUnit::UNIT onlineUnit,
+                                      const EventContext &ctx) const;
 
 
-    float getNoise(unsigned int drawerIdx, unsigned int channel, unsigned int adc,
-        TileRawChannelUnit::UNIT unit = TileRawChannelUnit::ADCcounts) const {
-      return getHfn(drawerIdx, channel, adc, unit);
+    virtual float getNoise(unsigned int drawerIdx, unsigned int channel, unsigned int adc,
+                           TileRawChannelUnit::UNIT unit,
+                           const EventContext &ctx) const override
+    {
+      return getHfn(drawerIdx, channel, adc, unit, ctx);
     }
 
   private:

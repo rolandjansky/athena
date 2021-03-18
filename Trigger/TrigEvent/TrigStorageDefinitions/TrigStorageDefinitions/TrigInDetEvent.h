@@ -34,7 +34,6 @@ typedef DataVector<class TrackParticleTruthCollection> TrackParticleTruthCollect
 typedef DataVector<class TrackExtensionMap> TrackExtensionMapContainer;
 
 
-#include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
 
 #include "xAODTracking/VertexContainer.h"

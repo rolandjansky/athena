@@ -465,27 +465,51 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
   std::vector<PixelHistoConverter> distanceMap_h;
   for (unsigned int i=0; i<mapsPath_list.size(); i++) {
     ATH_MSG_INFO("Using maps located in: "<<mapsPath_list.at(i) << " for layer No." << i);
-    TFile* mapsFile = new TFile((mapsPath_list.at(i)).c_str()); //this is the ramo potential.
+    std::unique_ptr<TFile> mapsFile(TFile::Open((mapsPath_list.at(i)).c_str(), "READ")); //this is the ramo potential
+
+    if (!mapsFile) {
+      ATH_MSG_FATAL("Cannot open file: " << mapsPath_list.at(i));
+      return StatusCode::FAILURE;
+    }
 
     //Setup ramo weighting field map
-    TH3F* ramoPotentialMap_hold = 0;
-    ramoPotentialMap_hold = (TH3F*)mapsFile->Get("hramomap1");
-    if (ramoPotentialMap_hold==0) { ramoPotentialMap_hold=(TH3F*)mapsFile->Get("ramo3d"); }
-    if (ramoPotentialMap_hold==0) {
+    std::unique_ptr<TH3F> ramoPotentialMap_hold(mapsFile->Get<TH3F>("hramomap1"));
+    if (!ramoPotentialMap_hold) {
+      ramoPotentialMap_hold.reset(mapsFile->Get<TH3F>("ramo3d"));
+    }
+    if (!ramoPotentialMap_hold) {
       ATH_MSG_FATAL("Did not find a Ramo potential map and an approximate form is available yet. Exit...");
       return StatusCode::FAILURE;
     }
 
+    ramoPotentialMap_hold->SetDirectory(nullptr);
+    std::unique_ptr<TH2F> lorentzMap_e_hold(mapsFile->Get<TH2F>("lorentz_map_e"));
+    std::unique_ptr<TH2F> lorentzMap_h_hold(mapsFile->Get<TH2F>("lorentz_map_h"));
+    std::unique_ptr<TH2F> distanceMap_e_hold(mapsFile->Get<TH2F>("edistance"));
+    std::unique_ptr<TH2F> distanceMap_h_hold(mapsFile->Get<TH2F>("hdistance"));
+
+    if (!lorentzMap_e_hold || !lorentzMap_h_hold || !distanceMap_e_hold || !distanceMap_h_hold) {
+      ATH_MSG_FATAL("Cannot read one of the histograms needed");
+      return StatusCode::FAILURE;
+    }
+
+    lorentzMap_e_hold->SetDirectory(nullptr);
+    lorentzMap_h_hold->SetDirectory(nullptr);
+    distanceMap_e_hold->SetDirectory(nullptr);
+    distanceMap_h_hold->SetDirectory(nullptr);
+
     ramoPotentialMap.emplace_back();
-    ATH_CHECK(ramoPotentialMap.back().setHisto3D(ramoPotentialMap_hold));
+    ATH_CHECK(ramoPotentialMap.back().setHisto3D(ramoPotentialMap_hold.get()));
     lorentzMap_e.emplace_back();
     lorentzMap_h.emplace_back();
     distanceMap_e.emplace_back();
     distanceMap_h.emplace_back();
-    ATH_CHECK(lorentzMap_e.back().setHisto2D((TH2F*)mapsFile->Get("lorentz_map_e")));
-    ATH_CHECK(lorentzMap_h.back().setHisto2D((TH2F*)mapsFile->Get("lorentz_map_h")));
-    ATH_CHECK(distanceMap_e.back().setHisto2D((TH2F*)mapsFile->Get("edistance")));
-    ATH_CHECK(distanceMap_h.back().setHisto2D((TH2F*)mapsFile->Get("hdistance")));
+    ATH_CHECK(lorentzMap_e.back().setHisto2D(lorentzMap_e_hold.get()));
+    ATH_CHECK(lorentzMap_h.back().setHisto2D(lorentzMap_h_hold.get()));
+    ATH_CHECK(distanceMap_e.back().setHisto2D(distanceMap_e_hold.get()));
+    ATH_CHECK(distanceMap_h.back().setHisto2D(distanceMap_h_hold.get()));
+
+    mapsFile->Close();
   }
   writeCdo -> setLorentzMap_e(lorentzMap_e);
   writeCdo -> setLorentzMap_h(lorentzMap_h);
@@ -499,7 +523,7 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
   EventIDRange rangeW{start, stop};
   rangeW = rangeDeadMap;
 
-  if (rangeW.stop().isValid() and rangeW.start()>rangeW.stop()) {
+  if (rangeW.stop().isValid() && rangeW.start()>rangeW.stop()) {
     ATH_MSG_FATAL("Invalid intersection rangeW: " << rangeW);
     return StatusCode::FAILURE;
   }

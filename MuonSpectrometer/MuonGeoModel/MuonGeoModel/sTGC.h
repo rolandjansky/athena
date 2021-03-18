@@ -1,18 +1,21 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef sTGC_H
 #define sTGC_H
 
 #include "MuonGeoModel/DetectorElement.h"
-#include "MuonGeoModel/sTGCComponent.h"
+
+#include <vector>
 
 class GeoFullPhysVol;
 
 namespace MuonGM {
 
 class Cutout;
+class Component;
+class sTGCComponent;
 
 class sTGC: public DetectorElement {
 
@@ -22,6 +25,7 @@ public:
   double thickness;
   double longWidth;   // for trapezoidal layers
   double yCutout;     // for Hexagonal layer
+  double yCutoutCathode;     // for Hexagonal layer
   int index;
 	
   sTGC(Component* s);

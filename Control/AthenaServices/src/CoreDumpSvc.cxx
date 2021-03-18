@@ -52,7 +52,7 @@
 
 namespace {
 
-  inline static const std::string horizLine = std::string(85,'-')+'\n';
+  const char* horizLine = "-------------------------------------------------------------------------------------\n";
 
    void ExitOnInt( int sig, siginfo_t*, void* ) {
       if ( sig == SIGINT ) {
@@ -130,19 +130,27 @@ namespace CoreDumpSvcHandler
       alarm(timeoutSeconds);
     }
 
+    // Do fast stack trace before anything that might touch the heap.
+    // For extra paranoia, avoid iostreams/stdio and use write() directly.
+    if (fastStackTrace) {
+      write (1, horizLine, strlen(horizLine));
+      const char* msg = "Producing (fast) stack trace...\n";
+      write (1, msg, strlen (msg));
+      write (1, horizLine, strlen(horizLine));
+      Athena::Signal::fatalDump (sig, info, extra,
+                                 Athena::DebugAids::stacktraceFd(),
+                                 Athena::Signal::FATAL_DUMP_SIG +
+                                 Athena::Signal::FATAL_DUMP_CONTEXT +
+                                 Athena::Signal::FATAL_DUMP_STACK);
+      write (1, "\n", 1);
+    }
+
     std::cout.flush();
     std::cerr.flush();
     
     if (coreDumpSvc) {
       coreDumpSvc->setSigInfo(info);
       coreDumpSvc->print();
-    }
-
-    if (fastStackTrace) {
-      log() << horizLine << "Producing (fast) stack trace...\n"
-            << horizLine << std::flush;
-      Athena::DebugAids::stacktrace();
-      log() << std::endl;
     }
 
     if (gSystem && stackTrace) {
@@ -543,13 +551,23 @@ StatusCode CoreDumpSvc::installSignalHandler()
     }
 #endif
     oss << sig << "(" << strsignal(sig) << ") ";
+
+    // Set an alternate stack to use for doing stack traces, so that we
+    // can continue even if our primary stack is corrupt / exhausted.
+    // Reserve 2MB on top of the minimum required for a signal handler.
+    m_stack.resize (std::max (SIGSTKSZ, MINSIGSTKSZ) + 2*1024*1024);
+    stack_t ss;
+    ss.ss_sp = m_stack.data();
+    ss.ss_flags = 0;
+    ss.ss_size = m_stack.size();
+    sigaltstack (&ss, nullptr);
     
     // Install new signal handler and backup old one
     struct sigaction sigact;
     memset (&sigact, 0, sizeof(sigact));
     sigact.sa_sigaction = CoreDumpSvcHandler::action;
     sigemptyset(&sigact.sa_mask);
-    sigact.sa_flags = SA_SIGINFO;
+    sigact.sa_flags = SA_SIGINFO + SA_ONSTACK;
     int ret = sigaction(sig, &sigact, &(CoreDumpSvcHandler::oldSigHandler[sig]));
     if ( ret!=0 ) {
       ATH_MSG_ERROR ("Error on installing handler for signal " << sig

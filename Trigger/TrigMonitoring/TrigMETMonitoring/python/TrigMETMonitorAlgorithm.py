@@ -217,12 +217,20 @@ def TrigMETMonConfig(inputFlags):
     for alg in algsL1:
       metGroup.defineHistogram('L1_{}_Ex'.format(alg),title='L1_{} Missing E_{{x}};E_{{x}} [GeV];Events'.format(alg),
                              path='Shifter/L1_{}'.format(alg),xbins=ec_bins,xmin=ec_min,xmax=ec_max)
+      metGroup.defineHistogram('L1_{}_Ex_log'.format(alg),title='L1_{} Missing E_{{x}} log;sgn(E_{{x}}) log(E_{{x}}/GeV);Events'.format(alg),
+                             path='Shifter/L1_{}'.format(alg),xbins=ec_bins_log,xmin=ec_min_log,xmax=ec_max_log)
       metGroup.defineHistogram('L1_{}_Ey'.format(alg),title='L1_{} Missing E_{{y}};E_{{y}} [GeV];Events'.format(alg),
                              path='Shifter/L1_{}'.format(alg),xbins=ec_bins,xmin=ec_min,xmax=ec_max)
+      metGroup.defineHistogram('L1_{}_Ey_log'.format(alg),title='L1_{} Missing E_{{y}} log;sgn(E_{{y}}) log(E_{{y}}/GeV);Events'.format(alg),
+                             path='Shifter/L1_{}'.format(alg),xbins=ec_bins_log,xmin=ec_min_log,xmax=ec_max_log)
       metGroup.defineHistogram('L1_{}_Et'.format(alg),title='L1_{} Missing E_{{T}};E_{{T}} [GeV];Events'.format(alg),
                              path='Shifter/L1_{}'.format(alg),xbins=et_bins,xmin=et_min,xmax=et_max)
+      metGroup.defineHistogram('L1_{}_Et_log'.format(alg),title='L1_{} Missing E_{{T}} log;log(E_{{T}}/GeV);Events'.format(alg),
+                             path='Shifter/L1_{}'.format(alg),xbins=et_bins_log,xmin=et_min_log,xmax=et_max_log)
       metGroup.defineHistogram('L1_{}_sumEt'.format(alg),title='L1_{} sumE_{{T}};sumE_{{T}} [GeV];Events'.format(alg),
                              path='Shifter/L1_{}'.format(alg),xbins=et_bins,xmin=et_min,xmax=et_max)
+      metGroup.defineHistogram('L1_{}_sumEt_log'.format(alg),title='L1_{} sumE_{{T}} log;log(sumE_{{T}}/GeV);Events'.format(alg),
+                             path='Shifter/L1_{}'.format(alg),xbins=sumet_bins_log,xmin=sumet_min_log,xmax=sumet_max_log)
     ## HLT
     algsHLT = ["cell", "tcpufit", "trkmht", "mht", "tc_em", "pfsum", "pfsum_cssk", "pfsum_vssk", "pfopufit", "cvfpufit", "mhtpufit_pf", "mhtpufit_em"]
     for alg in algsHLT:
@@ -244,30 +252,41 @@ def TrigMETMonConfig(inputFlags):
                              path='Shifter/{}'.format(alg),xbins=sumet_bins_log,xmin=sumet_min_log,xmax=sumet_max_log)
       metGroup.defineHistogram('{}_phi'.format(alg),title='{} #phi;#phi;Events'.format(alg),
                              path='Shifter/{}'.format(alg),xbins=phi_bins,xmin=phi_min,xmax=phi_max)
-      metGroup.defineHistogram('{}_phi;{}_phi_etweight'.format(alg,alg), title='{} #phi (etweighted);#phi;Et weighted events'.format(alg),
+      metGroup.defineHistogram('{0}_phi;{0}_phi_etweight'.format(alg), title='{} #phi (etweighted);#phi;Et weighted events'.format(alg),
                              weight='{}_Et'.format(alg),
                              path='Shifter/{}'.format(alg),xbins=phi_bins,xmin=phi_min,xmax=phi_max)
 
     ## HLT 2d eta-phi histos
     algsHLT2d = ["cell", "tcpufit"]
     for alg in algsHLT2d:
-      metGroup.defineHistogram('{}_eta,{}_phi;{}_eta_phi'.format(alg,alg,alg), type='TH2F', title='{} #eta - #phi;#eta;#phi'.format(alg),
+      metGroup.defineHistogram('{0}_eta,{0}_phi;{0}_eta_phi'.format(alg), type='TH2F', title='{} #eta - #phi;#eta;#phi'.format(alg),
                              path='Shifter/{}'.format(alg),
                              xbins=eta_bins_2d,xmin=eta_min,xmax=eta_max,ybins=phi_bins_2d,ymin=phi_min,ymax=phi_max)
-      metGroup.defineHistogram('{}_eta,{}_phi;{}_eta_phi_etweight'.format(alg,alg,alg), type='TH2F', title='{} #eta - #phi (etweighted);#eta;#phi'.format(alg),
+      metGroup.defineHistogram('{a}_eta,{a}_phi;{a}_eta_phi_etweight'.format(a=alg), type='TH2F', title='{} #eta - #phi (etweighted);#eta;#phi'.format(alg),
                              weight='{}_Et'.format(alg),
                              path='Shifter/{}'.format(alg),
                              xbins=eta_bins_2d,xmin=eta_min,xmax=eta_max,ybins=phi_bins_2d,ymin=phi_min,ymax=phi_max)
     ## L1 efficiency
     effL1 = ["01", "02", "03", "04", "05", "06", "07"]
     for eff in effL1:
-      metGroup.defineHistogram('offline_Et,pass_L1{};L1{}_eff'.format(eff,eff), type='TProfile',title='L1{} efficiency;offline E_{{T}} [GeV];Efficiency'.format(eff),
+      metGroup.defineHistogram('offline_Et,pass_L1{0};L1{0}_eff'.format(eff), type='TProfile',title='L1{} efficiency;offline E_{{T}} [GeV];Efficiency'.format(eff),
                              path='Shifter/eff',xbins=eff_bins,xmin=eff_min,xmax=eff_max)
     ## HLT efficiency
     effHLT = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14"]
     for eff in effHLT:
-      metGroup.defineHistogram('offline_Et,pass_HLT{};HLT{}_eff'.format(eff,eff), type='TProfile',title='HLT{} efficiency;offline E_{{T}} [GeV];Efficiency'.format(eff),
+      metGroup.defineHistogram('offline_Et,pass_HLT{0};HLT{0}_eff'.format(eff), type='TProfile',title='HLT{} efficiency;offline E_{{T}} [GeV];Efficiency'.format(eff),
                              path='Shifter/eff',xbins=eff_bins,xmin=eff_min,xmax=eff_max)
+    ## HLT cell component
+    metGroup.defineHistogram('HLT_MET_status',title='HLT MET Status;;',
+                             weight='MET_status',
+                             path='Shifter/Component',xbins=32,xmin=-0.5,xmax=31.5)
+    metGroup.defineHistogram('HLT_MET_component,component_Et;compN_compEt', type='TH2F', title='HLT Missing E_{T} VS component;;Missing E_{T} [GeV]',
+                             path='Shifter/Component',
+                             xbins=25,xmin=-0.5,xmax=24.5,ybins=et_bins,ymin=et_min,ymax=et_max)
+    metGroup.defineHistogram('component,component_status;compN_HLT_MET_status', type='TH2F', title='HLT MET Status VS component;;',
+                             weight='component_status_weight',
+                             path='Shifter/Component',
+                             xbins=25,xmin=-0.5,xmax=24.5,ybins=32,ymin=-0.5,ymax=31.5)
     ## HLT tc (Expert)
     metGroup.defineHistogram('tc_Ex',title='tc Missing E_{x};E_{x} [GeV];Events',
                              path='Expert/tc',xbins=ec_bins,xmin=ec_min,xmax=ec_max)

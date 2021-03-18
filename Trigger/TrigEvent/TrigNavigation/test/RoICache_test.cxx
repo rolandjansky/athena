@@ -16,8 +16,6 @@
 #include "TrigNavigation/Navigation.h"
 #include "TrigNavigation/RoICacheHelper.h"
 
-#include "TestUtils.h"
-
 #include "TestTypes.h"
 #include "TestUtils.h"
 

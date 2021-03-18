@@ -15,8 +15,9 @@ def TrigEgammaFastElectronHypoToolFromDict( chainDict ):
     name = chainDict['chainName']
     from AthenaConfiguration.ComponentFactory import CompFactory
     tool = CompFactory.TrigEgammaFastElectronHypoTool(name)
+    tool.AcceptAll = False
 
-    if 'idperf' in name:
+    if cparts[0]['trkInfo']!='' and 'idperf' in cparts[0]['trkInfo']:
         tool.AcceptAll = True
    
     else:
@@ -40,7 +41,6 @@ def TrigEgammaFastElectronHypoToolFromDict( chainDict ):
         tool.CaloTrackdEoverPLow = [ 0.0 ] * nt
         tool.CaloTrackdEoverPHigh = [ 999.0 ] * nt
         tool.TRTRatio = [ -999. ] * nt
-
 
         for th, thvalue in enumerate(thresholds):        
             if float(thvalue) < 15:

@@ -18,8 +18,18 @@ atlas_add_component( ISF_FatrasTools
                      src/*.cxx src/components/*.cxx
                      LINK_LIBRARIES ISF_FatrasToolsLib )
 
-# Test(s) in the package:
-atlas_add_test( PhotonConversionTool_test
-                SOURCES test/PhotonConversionTool_test.cxx
-                LINK_LIBRARIES ISF_FatrasToolsLib TestTools
-                ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+foreach( name
+         EnergyLossSamplerBetheHeitler_test
+         McEnergyLossUpdator_test
+         MultipleScatteringSamplerGaussianMixture_test
+         MultipleScatteringSamplerGeneralMixture_test
+         MultipleScatteringSamplerHighland_test
+         PhotonConversionTool_test
+       )
+ 
+    atlas_add_test( ${name}
+                    SOURCES test/${name}.cxx
+                    LINK_LIBRARIES ISF_FatrasToolsLib TestTools
+                    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
+                    PROPERTIES TIMEOUT 300 )
+endforeach()

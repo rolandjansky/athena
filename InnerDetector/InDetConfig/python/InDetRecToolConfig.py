@@ -1,10 +1,13 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline, addFolders
+
+# @TODO retire once migration to TrackingGeometry conditions data is complete
+from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
 
 def InDetPrdAssociationToolCfg(name='InDetPrdAssociationTool',**kwargs) :
   acc = ComponentAccumulator()
@@ -164,7 +167,8 @@ def PixelConditionsSummaryToolCfg(flags, name = "InDetPixelConditionsSummaryTool
     #FIXME - fix the duplication in TrigInDetConfig.py and PixelConditionsSummaryConfig.py
     from PixelConditionsAlgorithms.PixelConditionsConfig import PixelConfigCondAlgCfg, PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg, PixelDeadMapCondAlgCfg
 
-    kwargs.setdefault( "UseByteStream", not flags.Input.isMC)
+    kwargs.setdefault( "UseByteStreamFEI4", not flags.Input.isMC)
+    kwargs.setdefault( "UseByteStreamFEI3", not flags.Input.isMC)
 
     if flags.InDet.usePixelDCS:
         kwargs.setdefault( "IsActiveStates", [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ] )
@@ -182,87 +186,78 @@ def PixelConditionsSummaryToolCfg(flags, name = "InDetPixelConditionsSummaryTool
 
 def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryTool", **kwargs) :
   result = ComponentAccumulator()
-  
-  cfgCondToolAcc = SCT_ConfigurationConditionsToolCfg(flags, name)
-  SCT_ConfigurationConditionsTool = cfgCondToolAcc.popPrivateTools()
-  result.merge(cfgCondToolAcc)
-  if (flags.InDet.doPrintConfigurables):
-      print (SCT_ConfigurationConditionsTool)
 
-  # Load calibration conditions tool
-  calDataAcc = SCT_ReadCalibDataToolCfg(flags)
-  SCT_ReadCalibDataTool = calDataAcc.popPrivateTools()
-  result.merge(calDataAcc)
-  if (flags.InDet.doPrintConfigurables):
-      print (SCT_ReadCalibDataTool)
-  
+
   # Load flagged condition tool
   withFlaggedCondTool=kwargs.pop("withFlaggedCondTool",True)
+  withTdaqTool=kwargs.pop("withTdaqTool", True)
 
-  if withFlaggedCondTool:
-    flCondToolAcc = SCT_FlaggedConditionToolCfg(flags)
-    SCT_FlaggedConditionTool = flCondToolAcc.popPrivateTools()
-    result.merge(flCondToolAcc)
-    if (flags.InDet.doPrintConfigurables):
-      print (SCT_FlaggedConditionTool)
-  
+  ConditionsTools = []
+  if not flags.InDet.doSLHC:
+      cfgCondToolAcc = SCT_ConfigurationConditionsToolCfg(flags)
+      SCT_ConfigurationConditionsTool = cfgCondToolAcc.popPrivateTools()
+      result.merge(cfgCondToolAcc)
+      ConditionsTools += [ SCT_ConfigurationConditionsTool]
+      if (flags.InDet.doPrintConfigurables):
+        print (SCT_ConfigurationConditionsTool)
+
+      if withFlaggedCondTool:
+        flCondToolAcc = SCT_FlaggedConditionToolCfg(flags)
+        SCT_FlaggedConditionTool = flCondToolAcc.popPrivateTools()
+        result.merge(flCondToolAcc)
+        ConditionsTools += [ SCT_FlaggedConditionTool ]
+        if (flags.InDet.doPrintConfigurables):
+          print (SCT_FlaggedConditionTool)
+
+      # Load bytestream errors tool (use default instance without "InDet")
+      if not flags.Input.isMC :
+        SCT_BSToolAcc = SCT_ByteStreamErrorsToolCfg(flags, **{"ConfigTool" : SCT_ConfigurationConditionsTool})
+        SCT_ByteStreamErrorsTool = SCT_BSToolAcc.popPrivateTools()
+        result.merge(SCT_BSToolAcc)
+        ConditionsTools+= [ SCT_ByteStreamErrorsTool ]
+        if (flags.InDet.doPrintConfigurables):
+          print (SCT_ByteStreamErrorsTool)
+
+      if flags.InDet.useSctDCS:
+          from SCT_ConditionsTools.SCT_DCSConditionsConfig import SCT_DCSConditionsCfg # FIXME this doesn't seem to have the UseDefaultHV hack from the old config?
+          SCT_DCSCondAcc = SCT_DCSConditionsCfg(flags)
+          SCT_DCSConditionsTool = SCT_DCSCondAcc.popPrivateTools()
+          ConditionsTools += [ SCT_DCSConditionsTool ]
+          result.merge(SCT_DCSCondAcc)
+          if (flags.InDet.doPrintConfigurables):
+              print (SCT_DCSConditionsTool)
+
+      if withTdaqTool and not flags.Input.isMC :
+        SCT_TdaqEnabledTool = result.popToolsAndMerge(SCT_TdaqEnabledToolCfg(flags))
+        ConditionsTools += [ SCT_TdaqEnabledTool ]
+        if (flags.InDet.doPrintConfigurables):
+          print (SCT_TdaqEnabledTool)
+
+      # Load calibration conditions tool
+      # @TODO or just for data?
+      calDataAcc = SCT_ReadCalibDataToolCfg(flags)
+      SCT_ReadCalibDataTool = calDataAcc.popPrivateTools()
+      result.merge(calDataAcc)
+      ConditionsTools += [ SCT_ReadCalibDataTool ]
+      if (flags.InDet.doPrintConfigurables):
+        print (SCT_ReadCalibDataTool)
+
   # Load conditions Monitoring tool
-  if not flags.Common.isOnline:
+  if not flags.Common.isOnline :
+      # @TODO really also for MC ?
       monCondAcc = SCT_MonitorConditionsToolCfg(flags)
       SCT_MonitorConditionsTool = monCondAcc.popPrivateTools()
       result.merge(monCondAcc)
       if (flags.InDet.doPrintConfigurables):
           print (SCT_MonitorConditionsTool)
 
-  # Load bytestream errors tool (use default instance without "InDet")
-  SCT_BSToolAcc = SCT_ByteStreamErrorsToolCfg(flags, **{"ConfigTool" : SCT_ConfigurationConditionsTool})
-  SCT_ByteStreamErrorsTool = SCT_BSToolAcc.popPrivateTools()
-  result.merge(SCT_BSToolAcc)
-  if (flags.InDet.doPrintConfigurables):
-      print (SCT_ByteStreamErrorsTool)
-  
-  ConditionsTools = []
-  if flags.InDet.useSctDCS:
-      from SCT_ConditionsTools.SCT_DCSConditionsConfig import SCT_DCSConditionsCfg # FIXME this doesn't seem to have the UseDefaultHV hack from the old config?
-      SCT_DCSCondAcc = SCT_DCSConditionsCfg(flags)
-      SCT_DCSConditionsTool = SCT_DCSCondAcc.popPrivateTools()
-      ConditionsTools += [ SCT_DCSConditionsTool ]
-      result.merge(SCT_DCSCondAcc)
+  if flags.InDet.doSCTModuleVeto :
+      from SCT_ConditionsTools import SCT_ModuleVetoConfig
+      SCT_ModuleVetoTool = result.popToolsAndMerge( SCT_ModuleVetoConfig.SCT_ModuleVetoCfg(flags) )
+      ConditionsTools += [ SCT_ModuleVetoTool ]
       if (flags.InDet.doPrintConfigurables):
-          print (SCT_DCSConditionsTool)
-  if withFlaggedCondTool:
-    ConditionsTools.append(SCT_FlaggedConditionTool)
-  if not flags.Input.isMC :
-      print ("Conditions db instance is ", flags.IOVDb.DatabaseInstance)
-      
-      # Configure summary tool
-      ConditionsTools +=  [SCT_ConfigurationConditionsTool,]
+          print ( SCT_ModuleVetoTool )
 
-      ConditionsTools+= [SCT_ByteStreamErrorsTool,
-                         SCT_ReadCalibDataTool]
-
-      if kwargs.pop("withTdaqTool", True):
-        SCT_TdaqEnabledTool = result.popToolsAndMerge(SCT_TdaqEnabledToolCfg(flags))
-        ConditionsTools += [ SCT_TdaqEnabledTool ]
-        if (flags.InDet.doPrintConfigurables):
-          print (SCT_TdaqEnabledTool)
-
-      if not flags.Common.isOnline:
-          ConditionsTools += [ SCT_MonitorConditionsTool ]
-
-  # switch conditions off for SLHC usage
-  elif flags.InDet.doSLHC:
-      ConditionsTools= []
-    
-  else :
-      # Not SLHC and is MC
-      ConditionsTools= [ SCT_ConfigurationConditionsTool,
-                         SCT_MonitorConditionsTool,
-                         SCT_ReadCalibDataTool]
-
-  if flags.InDet.doSCTModuleVeto:
-      ConditionsTools += [ SCT_MonitorConditionsTool ]
-  
   kwargs.setdefault("ConditionsTools", ConditionsTools)
   InDetSCT_ConditionsSummaryTool = CompFactory.SCT_ConditionsSummaryTool(name, **kwargs)
   if (flags.InDet.doPrintConfigurables):
@@ -520,6 +515,11 @@ def InDetTestPixelLayerToolCfg(flags, name = "InDetTestPixelLayerTool", **kwargs
       kwargs.setdefault( "PixelSummaryTool", tmpAcc.getPrimary())
       result.merge(tmpAcc)
 
+  if 'Extrapolator' not in kwargs :
+    tmpAcc =  InDetExtrapolatorCfg(flags)
+    kwargs.setdefault("Extrapolator", tmpAcc.getPrimary())
+    result.merge(tmpAcc)
+
   kwargs.setdefault("CheckActiveAreas", flags.InDet.checkDeadElementsOnTrack)
   kwargs.setdefault("CheckDeadRegions", flags.InDet.checkDeadElementsOnTrack)
   kwargs.setdefault("CheckDisabledFEs", flags.InDet.checkDeadElementsOnTrack)
@@ -532,6 +532,9 @@ def InDetTestPixelLayerToolCfg(flags, name = "InDetTestPixelLayerTool", **kwargs
 def InDetPropagatorCfg(flags, name='InDetPropagator',**kwargs):
   the_name = makeName( name, kwargs)
   result = ComponentAccumulator()
+  from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+  result.merge(MagneticFieldSvcCfg(flags))
+
   tool = None
   if flags.InDet.propagatorType == "STEP":
     tool = CompFactory.Trk.STEP_Propagator( name = the_name, **kwargs)
@@ -563,10 +566,17 @@ def InDetNavigatorCfg(flags, name='InDetNavigator', **kwargs):
   the_name = makeName( name, kwargs)
   result = ComponentAccumulator()
   if 'TrackingGeometrySvc' not in kwargs :
-      from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-      tmpAcc = TrackingGeometrySvcCfg(flags)
-      kwargs.setdefault("TrackingGeometrySvc", tmpAcc.getPrimary())
-      result.merge(tmpAcc)
+       if not use_tracking_geometry_cond_alg :
+              from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+              tmpAcc = TrackingGeometrySvcCfg(flags)
+              kwargs.setdefault("TrackingGeometrySvc", tmpAcc.getPrimary())
+              result.merge(tmpAcc)
+  if 'TrackingGeometryKey' not in kwargs :
+       if use_tracking_geometry_cond_alg :
+              from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
+              result.merge( TrackingGeometryCondAlgCfg(flags) )
+              # @TODO howto get the TrackingGeometryKey from the TrackingGeometryCondAlgCfg ?
+              kwargs.setdefault("TrackingGeometryKey", 'AtlasTrackingGeometry')
 
   tool = CompFactory.Trk.Navigator( name = the_name, **kwargs)
   result.addPublicTool( tool )

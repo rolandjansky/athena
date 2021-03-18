@@ -218,7 +218,7 @@ namespace LVL1 {
     w_slbin.setId(wireSLBId);
     w_slbin.setChannel(41+offset+8*block);
     
-    TGCCablingBase* tgcCabling = m_cabling->getTGCCabling();
+    const TGCCablingBase* tgcCabling = m_cabling->getTGCCabling();
     std::unique_ptr<TGCIdBase> w_asdout( tgcCabling->getASDOutChannel (&w_slbin) );
     return w_asdout;
   }
@@ -245,7 +245,7 @@ namespace LVL1 {
     w_slbin.setId(wireSLBId);
     w_slbin.setChannel(41+wireOffset+8*block);
     
-    TGCCablingBase* tgcCabling = m_cabling->getTGCCabling();
+    const TGCCablingBase* tgcCabling = m_cabling->getTGCCabling();
     std::unique_ptr<TGCIdBase> w_asdout( tgcCabling->getASDOutChannel(&w_slbin) );
 
     // strip

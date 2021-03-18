@@ -96,6 +96,8 @@ private:
   std::vector<sysDumpRec> m_sysCoreDumps;                ///< Core dump info collected by this service  
   siginfo_t* m_siginfo{nullptr};                         ///< Pointer to siginfo_t struct (set by signal handler)
   std::atomic<EventID::number_type> m_eventCounter{0};   ///< Event counter
+
+  std::vector<uint8_t> m_stack;                          /// Alternate stack for signal handler
   
   ///@{ Properties
 

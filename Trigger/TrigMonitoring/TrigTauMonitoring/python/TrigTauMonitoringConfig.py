@@ -41,40 +41,94 @@ def TrigTauMonitoringTool():
 #      ]
         
 
-
-
-
-
         MVA_chains = [
-                        'tau25_idperf_tracktwoMVA_L1TAU12IM',
-                        'tau25_perf_tracktwoMVA_L1TAU12IM',
-                        'tau25_verylooseRNN_tracktwoMVA_L1TAU12IM',
-                        'tau25_looseRNN_tracktwoMVA_L1TAU12IM',
-                        'tau25_mediumRNN_tracktwoMVA_L1TAU12IM',
-                        'tau25_tightRNN_tracktwoMVA_L1TAU12IM'
+              'tau25_idperf_tracktwoMVA_L1TAU12IM',
+              'tau25_idperf_tracktwoMVABDT_L1TAU12IM',
+              'tau25_perf_tracktwoMVA_L1TAU12IM',
+              'tau25_perf_tracktwoMVABDT_L1TAU12IM',
+              'tau25_looseRNN_tracktwoMVA_L1TAU12IM',
+              'tau25_looseRNN_tracktwoMVABDT_L1TAU12IM',
+              'tau25_mediumRNN_tracktwoMVA_L1TAU12IM',
+              'tau25_mediumRNN_tracktwoMVABDT_L1TAU12IM',
+              'tau25_tightRNN_tracktwoMVA_L1TAU12IM',
+              'tau25_tightRNN_tracktwoMVABDT_L1TAU12IM',
+              'tau25_medium1_tracktwoMVA_L1TAU12IM',
+              'tau25_medium1_tracktwoMVABDT_L1TAU12IM',
+              'tau35_idperf_tracktwoMVA_L1TAU12IM',
+              'tau35_idperf_tracktwoMVABDT_L1TAU12IM',
+              'tau35_perf_tracktwoMVA_L1TAU12IM',
+              'tau35_perf_tracktwoMVABDT_L1TAU12IM',
+              'tau35_looseRNN_tracktwoMVA_L1TAU12IM',
+              'tau35_looseRNN_tracktwoMVABDT_L1TAU12IM',
+              'tau35_mediumRNN_tracktwoMVA_L1TAU12IM',
+              'tau35_mediumRNN_tracktwoMVABDT_L1TAU12IM',
+              'tau35_tightRNN_tracktwoMVA_L1TAU12IM',
+              'tau35_tightRNN_tracktwoMVABDT_L1TAU12IM',     
+              'tau160_idperf_tracktwoMVA_L1TAU100',
+              'tau160_idperf_tracktwoMVABDT_L1TAU100',
+              'tau160_perf_tracktwoMVA_L1TAU100',
+              'tau160_perf_tracktwoMVABDT_L1TAU100',
+              'tau160_mediumRNN_tracktwoMVA_L1TAU100',
+              'tau160_mediumRNN_tracktwoMVABDT_L1TAU100',
+              'tau160_medium1_tracktwoMVA_L1TAU100',
+              'tau160_medium1_tracktwoMVABDT_L1TAU100',
         ]
 
         RNN_chains = [
-                        'tau25_looseRNN_tracktwo_L1TAU12IM',
-                        'tau25_mediumRNN_tracktwo_L1TAU12IM',
-                        'tau25_tightRNN_tracktwo_L1TAU12IM',
-                        'tau25_looseRNN_tracktwoMVA_L1TAU12IM',
-                        'tau25_mediumRNN_tracktwoMVA_L1TAU12IM',
-                        'tau25_tightRNN_tracktwoMVA_L1TAU12IM',
-                        'tau35_mediumRNN_tracktwoMVA_L1TAU12IM',
-                        'tau160_mediumRNN_tracktwoMVA_L1TAU100'
+             'tau25_looseRNN_tracktwoMVA_L1TAU12IM',
+             'tau25_looseRNN_tracktwoMVABDT_L1TAU12IM',
+             'tau25_mediumRNN_tracktwoMVA_L1TAU12IM',
+             'tau25_mediumRNN_tracktwoMVABDT_L1TAU12IM',
+             'tau25_tightRNN_tracktwoMVA_L1TAU12IM',
+             'tau25_tightRNN_tracktwoMVABDT_L1TAU12IM',
+             'tau35_looseRNN_tracktwoMVA_L1TAU12IM',
+             'tau35_looseRNN_tracktwoMVABDT_L1TAU12IM',
+             'tau35_mediumRNN_tracktwoMVA_L1TAU12IM',
+             'tau35_mediumRNN_tracktwoMVABDT_L1TAU12IM',
+             'tau35_tightRNN_tracktwoMVA_L1TAU12IM',
+             'tau35_tightRNN_tracktwoMVABDT_L1TAU12IM',
+             'tau160_mediumRNN_tracktwoMVA_L1TAU100',
+             'tau160_mediumRNN_tracktwoMVABDT_L1TAU100', 
         ]
 
         BDTRNN_chains = [
-                'tau25_idperf_tracktwoMVA',
-                'tau25_perf_tracktwoMVA',
-                'tau0_idperf_tracktwoMVA_L1eTAU12',
-                'tau0_idperf_tracktwoMVA_L1eTAU5',
-                'tau25_verylooseRNN_tracktwo_L1TAU12IM',
-                'tau25_looseRNN_tracktwo_L1TAU12IM',
-                'tau25_mediumRNN_tracktwo_L1TAU12IM',
-                'tau25_tightRNN_tracktwo_L1TAU12IM'
-
+             'tau0_idperf_tracktwoMVA_L1eTAU12',
+             'tau0_idperf_tracktwoMVA_L1eTAU5',
+             'tau0_perf_ptonly_L1TAU12',
+             'tau0_perf_ptonly_L1TAU60',
+             'tau25_idperf_ptonly_L1TAU12IM',
+             'tau25_idperf_track_L1TAU12IM',
+             'tau25_idperf_tracktwo_L1TAU12IM',
+             'tau25_idperf_tracktwoEF_L1TAU12IM',
+             'tau25_idperf_tracktwoMVA_L1TAU12IM',
+             'tau25_idperf_tracktwoMVABDT_L1TAU12IM',
+             'tau25_perf_track_L1TAU12IM',
+             'tau25_perf_tracktwo_L1TAU12IM',
+             'tau25_perf_tracktwoEF_L1TAU12IM',
+             'tau25_perf_tracktwoMVA_L1TAU12IM',
+             'tau25_perf_tracktwoMVABDT_L1TAU12IM',
+             'tau35_idperf_ptonly_L1TAU12IM',
+             'tau35_idperf_track_L1TAU12IM',
+             'tau35_idperf_tracktwo_L1TAU12IM',
+             'tau35_idperf_tracktwoEF_L1TAU12IM',
+             'tau35_idperf_tracktwoMVA_L1TAU12IM',
+             'tau35_idperf_tracktwoMVABDT_L1TAU12IM',
+             'tau35_perf_track_L1TAU12IM',
+             'tau35_perf_tracktwo_L1TAU12IM',
+             'tau35_perf_tracktwoEF_L1TAU12IM',
+             'tau35_perf_tracktwoMVA_L1TAU12IM',
+             'tau35_perf_tracktwoMVABDT_L1TAU12IM',            
+             'tau160_idperf_ptonly_L1TAU100',
+             'tau160_idperf_track_L1TAU100',
+             'tau160_idperf_tracktwo_L1TAU100',
+             'tau160_idperf_tracktwoEF_L1TAU100',
+             'tau160_idperf_tracktwoMVA_L1TAU100',
+             'tau160_idperf_tracktwoMVABDT_L1TAU100',
+             'tau160_perf_track_L1TAU100',
+             'tau160_perf_tracktwo_L1TAU100',
+             'tau160_perf_tracktwoEF_L1TAU100',
+             'tau160_perf_tracktwoMVA_L1TAU100',
+             'tau160_perf_tracktwoMVABDT_L1TAU100', 
         ]
 
         tau_topo_support_chains = [
@@ -140,11 +194,11 @@ def TrigTauMonitoringTool():
                                 monitoring_tau          = hltmonList.monitoring_tau,
                                 primary_tau             = full_tau, #[]
                                 prescaled_tau           = [], #tau_track_test, #[],
-                                LowestSingleTauRNN              = "tau25_mediumRNN_tracktwoMVA", #hltmonList.monitoring_singleTau, #"tau25_medium1_tracktwo",
+                                LowestSingleTauRNN      = "tau25_mediumRNN_tracktwoMVA", #hltmonList.monitoring_singleTau, #"tau25_medium1_tracktwo",
                                 LowestSingleTauBDT      = "tau25_medium1_tracktwoEF",
                                 Highpt_tau              = highpt_tau,
-                                Ztt_RNN_tau                     = ztt_RNN_tau,
-                                Ztt_BDT_tau                     = ztt_BDT_tau,
+                                Ztt_RNN_tau             = ztt_RNN_tau,
+                                Ztt_BDT_tau             = ztt_BDT_tau,
                                 EffOffTauPtCut          = 25000.,  #MeV
                                 TurnOnCurves            = True,
                                 TurnOnCurvesDenom       = "Reco", # combined string with combination of "Truth", "Reco" and "Presel". For Truth doTruth=True!
@@ -163,25 +217,24 @@ def TrigTauMonitoringTool():
                                 doL1JetPlots            = False,
                                 doEFTProfiles           = True,
                                 domuCut40               = False,
-                                doEfficiencyRatioPlots = True, #False
                                 doL1TopoLeptonsMonitoringWarnings = False,
-                                trigMVA_chains  = MVA_chains,
-                                trigRNN_chains  = RNN_chains,
+                                trigMVA_chains          = MVA_chains,
+                                trigRNN_chains          = RNN_chains,
                                 trigBDTRNN_chains       = BDTRNN_chains,
                                 topo_support_chains     = tau_topo_support_chains,
                                 doTopoValidation        = False,
                                 L1TriggerCondition      = "Physics", #allowResurrectedDecision, alsoDeactivateTEs, Physics [default]
                                 HLTTriggerCondition     = "Physics",
-                                nTrkMax                         = -1,
-                                nTrkMin                         = -1,
-                                PtMax                           = -1., #MeV
-                                PtMin                           = -1., #MeV
-                                AbsEtaMax                       = -1.,
-                                AbsEtaMin                       = -1.,
-                                AbsPhiMax                       = -1.,
-                                AbsPhiMin                       = -1.,
-                                BDTMedium                       = True,
-                                isData                          = (globalflags.DataSource == 'data'))
+                                nTrkMax                 = -1,
+                                nTrkMin                 = -1,
+                                PtMax                   = -1., #MeV
+                                PtMin                   = -1., #MeV
+                                AbsEtaMax               = -1.,
+                                AbsEtaMin               = -1.,
+                                AbsPhiMax               = -1.,
+                                AbsPhiMin               = -1.,
+                                BDTMedium               = True,
+                                isData                  = (globalflags.DataSource == 'data'))
 
         print (ToolSvc)
         list = [ HLTTauMon ]

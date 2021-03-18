@@ -11,13 +11,21 @@ Reco_tf.py \
 --maxEvents=50 \
 --ignoreErrors=False \
 --inputBSFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/expressstream_input_data18/data18_13TeV.00357750.express_express.merge.RAW._lb0091._SFO-ALL._0001.1 \
---conditionsTag='CONDBR2-BLKPA-RUN2-02' \
+--conditionsTag='CONDBR2-BLKPA-RUN2-03' \
 --geometryVersion='ATLAS-R2-2016-01-00-01' \
 --outputESDFile=myESD_express_0.pool.root --outputAODFile=myAOD_express_0.AOD.pool.root --outputHISTFile=myMergedMonitoring_express_0.root --imf False
 
-echo "art-result: $?"
 
-ArtPackage=$1
-ArtJobName=$2
-art.py compare grid --entries 30 ${ArtPackage} ${ArtJobName}
-echo "art-result: $?"
+rc1=$?
+echo "art-result: $rc1 Reco"
+
+rc2=-9999
+if [ ${rc1} -eq 0 ]
+then
+  ArtPackage=$1
+  ArtJobName=$2
+  art.py compare grid --entries 30 ${ArtPackage} ${ArtJobName} --mode=semi-detailed
+  rc2=$?
+fi
+echo  "art-result: ${rc2} Diff"
+

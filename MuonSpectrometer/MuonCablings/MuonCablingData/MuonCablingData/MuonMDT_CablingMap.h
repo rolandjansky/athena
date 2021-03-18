@@ -36,7 +36,7 @@ typedef std::map< uint32_t, std::vector<IdentifierHash> > RODToChamberMap;
 typedef std::vector<uint32_t> ListOfROD;
 
 /** typedef to implement the list of mezzanine types */
-typedef std::map< uint8_t, MdtMezzanineType*, std::less<uint8_t> > MezzanineTypes;
+typedef std::map< uint8_t, std::unique_ptr<MdtMezzanineType>, std::less<uint8_t> > MezzanineTypes;
 
 
 class MuonMDT_CablingMap : public MdtMapBase<MdtSubdetectorMap> {
@@ -102,18 +102,18 @@ class MuonMDT_CablingMap : public MdtMapBase<MdtSubdetectorMap> {
 			  uint8_t rodId);
 
   /** List of mezzanine types, to be initialized from the conditions db */
-  MezzanineTypes* m_listOfMezzanineTypes;
+  std::unique_ptr<MezzanineTypes> m_listOfMezzanineTypes;
 
   /** map returning the RODid for a given chamber ID */
-  ChamberToRODMap* m_chamberToROD;
+  std::unique_ptr<ChamberToRODMap> m_chamberToROD;
 
  /** map returning a vecotr of Hashid's associated with a given ROD */
   //new sbarnes
-   RODToChamberMap* m_RODToChamber;
+   std::unique_ptr<RODToChamberMap> m_RODToChamber;
    std::vector<IdentifierHash> m_emptyIdHashVec;
 
   /** full list of RODs */
-  ListOfROD* m_listOfROD;
+  std::unique_ptr<ListOfROD> m_listOfROD;
 
   /** private function to compute a station code for the chamber to ROD map */
   bool getStationCode(int station, int eta, int phi, IdentifierHash& mdtIdHash) const;

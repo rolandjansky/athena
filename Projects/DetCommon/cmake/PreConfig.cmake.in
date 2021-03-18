@@ -1,0 +1,28 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#
+# File taking care of pointing the downstream projects at the right
+# version of LCG.
+#
+
+# Set the version of LCG to use.
+set( LCG_VERSION_POSTFIX "@LCG_VERSION_POSTFIX@" CACHE STRING
+   "Version postfix for the LCG release to use" )
+set( LCG_VERSION_NUMBER @LCG_VERSION_NUMBER@ CACHE STRING
+   "Version number for the LCG release to use" )
+set( LCG_COMPONENTS @LCG_COMPONENTS@ CACHE STRING
+   "LCG components to set up" )
+
+# Set up a helper flag.
+set( _quietFlag )
+if( DetCommon_FIND_QUIETLY )
+   set( _quietFlag QUIET )
+endif()
+
+# Find LCG.
+find_package( LCG ${LCG_VERSION_NUMBER} REQUIRED EXACT ${_quietFlag} )
+
+# Set up the Threads::Threads imported target.
+find_package( Threads ${_quietFlag} )
+
+# Clean up.
+unset( _quietFlag )

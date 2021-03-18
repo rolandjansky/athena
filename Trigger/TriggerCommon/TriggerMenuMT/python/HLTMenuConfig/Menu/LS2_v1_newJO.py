@@ -48,6 +48,7 @@ def setupMenu():
         ChainProp(name='HLT_mu10_msonly_L1MU10', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu8_msonly_L1MU6',   groups=SingleMuonGroup),
 
+        ChainProp(name='HLT_mu8_ivarmedium_L1MU6',   groups=SingleMuonGroup),
         ChainProp(name='HLT_mu6noL1_L1MU6', l1SeedThresholds=['FSNOSEED'], groups=SingleMuonGroup),
     ]
     chains["bphysics"] = [

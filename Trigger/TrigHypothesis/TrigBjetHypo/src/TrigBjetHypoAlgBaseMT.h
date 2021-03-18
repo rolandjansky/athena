@@ -1,22 +1,14 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGBJETHYPO_TRIGBJETHYPOALGBASEMT_H
 #define TRIGBJETHYPO_TRIGBJETHYPOALGBASEMT_H 1
 
 #include "DecisionHandling/HypoBase.h"
-
-#include <string>
-
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "AthLinks/ElementLinkVector.h"
 
-#include "TrigBjetEtHypoTool.h"
-#include "TrigInDetEvent/TrigInDetTrackCollection.h"
-
-#include "AthViews/ViewHelper.h"
+#include <string>
 
 /**
  * @class Implements b-jet selection for the new HLT framework

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
@@ -77,9 +77,8 @@ StatusCode TileRawChannelNoiseFilter::initialize() {
 // ============================================================================
 // process container
 StatusCode
-TileRawChannelNoiseFilter::process (TileMutableRawChannelContainer& rchCont) const
+TileRawChannelNoiseFilter::process (TileMutableRawChannelContainer& rchCont, const EventContext& ctx) const
 {
-  const EventContext& ctx = Gaudi::Hive::currentContext();
   ATH_MSG_DEBUG("in TileRawChannelNoiseFilter::process()");
 
   TileRawChannelUnit::UNIT rChUnit = rchCont.get_unit();
@@ -174,14 +173,14 @@ TileRawChannelNoiseFilter::process (TileMutableRawChannelContainer& rchCont) con
 
         float noise_sigma = 1.5; // default value of HFN in high gain channel
         if (m_useTwoGaussNoise) {
-          //float sigma1 = m_tileToolNoiseSample->getHfn1(drawerIdx, chan, gain);
-          //float sigma2 = m_tileToolNoiseSample->getHfn2(drawerIdx, chan, gain);
-          //float norm   = m_tileToolNoiseSample->getHfnNorm(drawerIdx, chan, gain);
+          //float sigma1 = m_tileToolNoiseSample->getHfn1(drawerIdx, chan, gain, ctx);
+          //float sigma2 = m_tileToolNoiseSample->getHfn2(drawerIdx, chan, gain, ctx);
+          //float norm   = m_tileToolNoiseSample->getHfnNorm(drawerIdx, chan, gain, ctx);
           // still need to define noise_sigma in this case 
           // noise_sigma = ...
         } else {
           // take single gauss noise sigma from DB (high frequency noise)
-          noise_sigma = m_tileToolNoiseSample->getHfn(drawerIdx, chan, gain);
+          noise_sigma = m_tileToolNoiseSample->getHfn(drawerIdx, chan, gain, TileRawChannelUnit::ADCcounts, ctx);
         }
         
         float significance = 999.999;

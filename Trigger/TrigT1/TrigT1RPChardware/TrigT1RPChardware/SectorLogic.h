@@ -2,16 +2,14 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef SectorLogic_H
-#define SectorLogic_H
+#ifndef TrigT1RPChardware_SectorLogic_H
+#define TrigT1RPChardware_SectorLogic_H
 
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
 #include <cstring>
 #include <cctype>
-#include <cstdlib>
-#include <fstream>
 #include <cerrno>
 #include <ctime>
 #include <clocale>

@@ -18,6 +18,27 @@ from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCuts
 InDetTrigCutValues = EFIDTrackingCuts
 
 
+from InDetRecExample.TrackingCommon import makePublicTool,makeName
+@makePublicTool
+def getInDetTrigFullLinearizedTrackFactory(name='InDetTrigFullLinearizedTrackFactory', **kwargs) :
+    the_name                    = makeName( name, kwargs)
+    if 'Extrapolator' not in kwargs :
+      from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator
+      kwargs.setdefault('Extrapolator', InDetTrigExtrapolator) # @TODO AtlasExtrapolator ?
+
+    from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__FullLinearizedTrackFactory
+    return Trk__FullLinearizedTrackFactory(the_name, **kwargs)
+
+@makePublicTool
+def getInDetTrigTrackToVertexIPEstimator(name='InDetTrigTrackToVertexIPEstimator', **kwargs) :
+    the_name                    = makeName( name, kwargs)
+    if 'Extrapolator' not in kwargs :
+      from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator
+      kwargs.setdefault('Extrapolator', InDetTrigExtrapolator) # @TODO AtlasExtrapolator ?
+    if 'LinearizedTrackFactory' not in kwargs :
+        kwargs.setdefault('LinearizedTrackFactory', getInDetTrigFullLinearizedTrackFactory() )
+    from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__TrackToVertexIPEstimator
+    return Trk__TrackToVertexIPEstimator( the_name, **kwargs)
 
 #move from the TrigVxPrimary
 if InDetTrigFlags.doNewTracking():
@@ -40,7 +61,8 @@ if InDetTrigFlags.doNewTracking():
                                                              trackdistexppower = 2)
     else:
       from TrkVertexSeedFinderTools.TrkVertexSeedFinderToolsConf import Trk__ZScanSeedFinder
-      InDetTrigVtxSeedFinder = Trk__ZScanSeedFinder(name = "InDetTrigZScanSeedFinder"
+      InDetTrigVtxSeedFinder = Trk__ZScanSeedFinder(name = "InDetTrigZScanSeedFinder",
+                                                    IPEstimator = getInDetTrigTrackToVertexIPEstimator()
                                                     #Mode1dFinder = # default, no setting needed
                                                     )
     ToolSvc += InDetTrigVtxSeedFinder

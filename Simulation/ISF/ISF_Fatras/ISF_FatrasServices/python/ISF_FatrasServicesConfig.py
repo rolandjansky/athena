@@ -6,8 +6,6 @@ KG Tan, 04/12/2012
 Updated by J. Chapman
 """
 
-from __future__ import print_function
-
 from AthenaCommon import CfgMgr
 from AthenaCommon.CfgGetter import getPublicTool
 
@@ -91,14 +89,11 @@ def getInDetTrackingGeometryBuilder(name="ISF_InDetTrackingGeometryBuilder", **k
     kwargs.setdefault("namePrefix"              , 'Fatras')
     kwargs.setdefault("setLayerAssociation"     , False)
     #kwargs.setdefault("VolumeEnclosureOuterR"   , 1148.) ### HACK: Cannot set via imput arguments. Is this right?? -kg
-    if TrkDetFlags.ISF_FatrasCustomGeometry() :
-        from ISF_FatrasDetDescrTools.CustomInDetTrackingGeometryBuilder import CustomInDetTrackingGeometryBuilder as IDGeometryBuilder
+    if not TrkDetFlags.SLHC_Geometry() :
+        kwargs.setdefault("buildTrtStrawLayers" , True)
+        from InDetTrackingGeometry.ConfiguredInDetTrackingGeometryBuilder import ConfiguredInDetTrackingGeometryBuilder as IDGeometryBuilder
     else :
-        if not TrkDetFlags.SLHC_Geometry() :
-            kwargs.setdefault("buildTrtStrawLayers" , True)
-            from InDetTrackingGeometry.ConfiguredInDetTrackingGeometryBuilder import ConfiguredInDetTrackingGeometryBuilder as IDGeometryBuilder
-        else :
-            from InDetTrackingGeometry.ConfiguredSLHC_InDetTrackingGeometryBuilder import ConfiguredSLHC_InDetTrackingGeometryBuilder as IDGeometryBuilder
+        from InDetTrackingGeometry.ConfiguredSLHC_InDetTrackingGeometryBuilder import ConfiguredSLHC_InDetTrackingGeometryBuilder as IDGeometryBuilder
     t = IDGeometryBuilder(name, **kwargs )
     t.VolumeEnclosureOuterR = 1148.
     #t.EnvelopeDefinitionSvc = 'ISF_EnvelopeDefSvc'
@@ -178,7 +173,7 @@ def getFatrasNavigator(name="ISF_FatrasNavigator", **kwargs):
     condSeq = AthSequencer("AthCondSeq")
 
     if not hasattr (condSeq, 'AtlasTrackingGeometryCondAlg'):
-      from InDetCondFolders import InDetAlignFolders_FATRAS
+      from InDetCondFolders import InDetAlignFolders_FATRAS  # noqa: F401
       from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg
       TrkGeoCondAlg = ConfiguredTrackingGeometryCondAlg('AtlasTrackingGeometryCondAlg')
       condSeq+= TrkGeoCondAlg
@@ -409,7 +404,7 @@ def getFatrasMaterialUpdator(name="ISF_FatrasMaterialUpdator", **kwargs):
     condSeq = AthSequencer("AthCondSeq")
 
     if not hasattr (condSeq, 'AtlasTrackingGeometryCondAlg'):
-      from InDetCondFolders import InDetAlignFolders_FATRAS
+      from InDetCondFolders import InDetAlignFolders_FATRAS  # noqa: F401
       from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg
       TrkGeoCondAlg = ConfiguredTrackingGeometryCondAlg('AtlasTrackingGeometryCondAlg')
       condSeq+= TrkGeoCondAlg

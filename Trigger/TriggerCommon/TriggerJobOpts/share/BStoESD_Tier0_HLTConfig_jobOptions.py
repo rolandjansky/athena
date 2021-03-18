@@ -36,8 +36,7 @@ if rec.doTrigger():
         from ByteStreamCnvSvcBase. ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc
         ServiceMgr += ByteStreamAddressProviderSvc()
 
-    tf.readBS=True # needed in HLTTriggerGetter - do not understand why it is not
-    # true by default when globalflags.InputFormat = 'bytestream'
+    tf.readBS=True
     tf.doLVL1= False # needed to not rerun the trigger
     tf.doHLT= False # needed to not rerun the trigger
     if ConfigFlags.Trigger.EDMVersion >= 3:
@@ -158,7 +157,7 @@ if rec.doTrigger():
         triggerGetter = T0TriggerGetter()
     except Exception:
         from AthenaCommon.Resilience import treatException
-        treatException("Could not import TriggerJobOpts.TriggerGetter . Switched off !" )
+        treatException("Could not import TriggerJobOpts.T0TriggerGetter . Switched off !" )
         recAlgs.doTrigger=False
     if rec.doWriteBS():
         include( "ByteStreamCnvSvc/RDP_ByteStream_jobOptions.py" )

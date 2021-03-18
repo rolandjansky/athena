@@ -284,22 +284,27 @@ namespace TrigConf {
       ctpConfig.clearPrescaleSets();
       ctpConfig.prescaleSet().resize( 512 );
 
-      // Fill the LVL1 configuration:
-      for (const L1Item& loadedItem : loadedL1) {
-         TriggerItem* item = new TriggerItem();
-         item->setName( loadedItem.name() );
-         item->setCtpId( loadedItem.ctpId() );
-         ctpConfig.menu().addTriggerItem( item );
-
-         const L1PrescalesSet::L1Prescale& loadedPrescale = loadedL1ps.prescale( loadedItem.name() );
-         ctpConfig.prescaleSet().setPrescale( loadedItem.ctpId(), static_cast< float >( loadedPrescale.prescale ) );
-         ctpConfig.prescaleSet().setPrescale( loadedItem.ctpId(), static_cast< float >( 1.0 ) );
-
-         if( msg.level() <= MSG::VERBOSE ) {
-            msg << MSG::VERBOSE << "L1 item " << loadedItem.name()
-                << " has ctpid " << loadedItem.ctpId()
-                << " and prescale " << static_cast< float >( loadedPrescale.prescale ) 
-                << endmsg;
+      if (loadedL1.isInitialized()) {
+         // Fill the LVL1 configuration:
+         for (const L1Item& loadedItem : loadedL1) {
+            TriggerItem* item = new TriggerItem();
+            item->setName( loadedItem.name() );
+            item->setCtpId( loadedItem.ctpId() );
+            ctpConfig.menu().addTriggerItem( item );
+ 
+            float ps = 0;
+            if (loadedL1ps.isInitialized()) {
+               const L1PrescalesSet::L1Prescale& loadedPrescale = loadedL1ps.prescale( loadedItem.name() );
+               ps = static_cast< float >( loadedPrescale.prescale );
+            }
+            ctpConfig.prescaleSet().setPrescale( loadedItem.ctpId(), ps );
+            
+            if( msg.level() <= MSG::VERBOSE ) {
+               msg << MSG::VERBOSE << "L1 item " << loadedItem.name()
+                  << " has ctpid " << loadedItem.ctpId()
+                  << " and prescale " << ps 
+                  << endmsg;
+            }
          }
       }
 
@@ -308,46 +313,53 @@ namespace TrigConf {
       sequenceList.clear();
 
       // Fill the HLT configuration:
-      for (const Chain& loadedChain : loadedHlt) {
-         // Figure out which level this chain is from:
-         std::string level = "";
-         if( loadedChain.name().find( "L2_" ) == 0 ) {
-            level = "L2";
-         } else if( loadedChain.name().find( "EF_" ) == 0 ) {
-            level = "EF";
-         } else if( loadedChain.name().find( "HLT_" ) == 0 ) {
-            level = "HLT";
-         } else {
-            msg << MSG::WARNING << "prepareTriggerMenu(...): "
-                << "Couldn't figure out 'level' for chain: "
-                << loadedChain.name() << endmsg;
-         }
-         // An empty signature list for the chain:
-         // This is not populated from JSON data
-         std::vector< HLTSignature* > signatures;
-
-         // Create the chain object:
-         HLTChain* chain = new HLTChain( loadedChain.name(),
-                                         loadedChain.counter(),
-                                         1, // Chain version not important
-                                         level,
-                                         loadedChain.l1item(), // L1 seeds (string)
-                                         -1, // Lower chain ID not important
-                                         signatures ); // Note: Empty
-
-         const HLTPrescalesSet::HLTPrescale& loadedPrescale = loadedHltps.prescale( loadedChain.name() );
-         chain->set_rerun_prescale( -1.0 ); // Not used in R3
-         chain->set_pass_through( -1.0 );  // Not used in R3
-         chain->set_prescale( loadedPrescale.prescale );
-         chain->set_leg_multiplicities( loadedChain.legMultiplicities() );
-
-         // Add it to the list of chains:
-         if( ! chainList.addHLTChain( chain ) ) {
-            msg << MSG::FATAL << "prepareTriggerMenu(...): "
-                << "Couldn't add chain \"" << chain->name()
-                << "\"" << endmsg;
-            delete chain;
-            return StatusCode::FAILURE;
+      if (loadedHlt.isInitialized()) {
+         for (const Chain& loadedChain : loadedHlt) {
+             // Figure out which level this chain is from:
+             std::string level = "";
+             if( loadedChain.name().find( "L2_" ) == 0 ) {
+                level = "L2";
+             } else if( loadedChain.name().find( "EF_" ) == 0 ) {
+                level = "EF";
+             } else if( loadedChain.name().find( "HLT_" ) == 0 ) {
+                level = "HLT";
+             } else {
+                msg << MSG::WARNING << "prepareTriggerMenu(...): "
+                    << "Couldn't figure out 'level' for chain: "
+                    << loadedChain.name() << endmsg;
+             }
+             // An empty signature list for the chain:
+             // This is not populated from JSON data
+             std::vector< HLTSignature* > signatures;
+ 
+             // Create the chain object:
+             HLTChain* chain = new HLTChain( loadedChain.name(),
+                                             loadedChain.counter(),
+                                             1, // Chain version not important
+                                             level,
+                                             loadedChain.l1item(), // L1 seeds (string)
+                                             -1, // Lower chain ID not important
+                                             signatures ); // Note: Empty
+ 
+             chain->set_rerun_prescale( -1.0 ); // Not used in R3
+             chain->set_pass_through( -1.0 );  // Not used in R3
+             chain->set_leg_multiplicities( loadedChain.legMultiplicities() );
+ 
+             if (loadedHltps.isInitialized()) {
+                const HLTPrescalesSet::HLTPrescale& loadedPrescale = loadedHltps.prescale( loadedChain.name() );
+                chain->set_prescale( loadedPrescale.prescale );
+             } else {
+                chain->set_prescale( 0 );
+             }
+ 
+            // Add it to the list of chains:
+            if( ! chainList.addHLTChain( chain ) ) {
+               msg << MSG::FATAL << "prepareTriggerMenu(...): "
+                   << "Couldn't add chain \"" << chain->name()
+                   << "\"" << endmsg;
+               delete chain;
+               return StatusCode::FAILURE;
+            }
          }
       }
 

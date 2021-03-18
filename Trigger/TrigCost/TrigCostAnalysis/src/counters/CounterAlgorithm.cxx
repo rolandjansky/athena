@@ -78,7 +78,7 @@ StatusCode CounterAlgorithm::newEvent(const CostData& data, size_t index, const 
       }
 
       const float rosTime = timeToMilliSec(request->getDetail<uint64_t>("start"), request->getDetail<uint64_t>("stop"));
-      ATH_CHECK( fill("Time_perEvent", rosTime, weight) );
+      ATH_CHECK( fill("RequestTime_perEvent", rosTime, weight) );
     }
   }
 

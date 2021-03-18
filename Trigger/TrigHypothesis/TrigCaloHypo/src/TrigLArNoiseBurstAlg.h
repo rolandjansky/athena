@@ -1,21 +1,18 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGCALOHYPO_TRIGLARNOISEBURSTALG
 #define TRIGCALOHYPO_TRIGLARNOISEBURSTALG
 
 #include <string>
 
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "AthViews/View.h"
-#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "DecisionHandling/HypoBase.h"
-#include "LArRecConditions/LArBadChannelCont.h"
 #include "StoreGate/ReadHandleKey.h"
-
-
-
+#include "StoreGate/ReadCondHandleKey.h"
 #include "TrigCaloHypo/ITrigLArNoiseBurstHypoTool.h"
+#include "CaloEvent/CaloCellContainer.h"
+#include "LArRecConditions/LArBadChannelCont.h"
 
 /**
  * @class TrigLArNoiseBurstAlg

@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IHLTConfigSvc.h 660352 2015-04-13 23:03:15Z stelzer $
 #ifndef TRIGCONFINTERFACES_IHLTCONFIGSVC_H
 #define TRIGCONFINTERFACES_IHLTCONFIGSVC_H
 
@@ -41,11 +40,7 @@ namespace TrigConf {
       /// Specify the interface declared by this class
       DeclareInterfaceID( IHLTConfigSvc, 0, 1 );
 
-      /**@brief loads LB/PSS table and unloaded prescale sets for online running*/
-      virtual StatusCode updatePrescaleSets( unsigned int requestcount ) = 0;
-
-      /**@brief update the chains with the prescale for the given lumiblock*/
-      virtual StatusCode assignPrescalesToChains( unsigned int lumiblock ) = 0;
+      // This interface is now empty (was used in Run-1&2)
 
    }; // class IHLTConfigSvc
 

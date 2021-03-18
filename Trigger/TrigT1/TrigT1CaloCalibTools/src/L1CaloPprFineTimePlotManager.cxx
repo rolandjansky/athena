@@ -9,7 +9,6 @@
 
 #include "GaudiKernel/StatusCode.h"
 #include "AthenaKernel/MsgStreamMember.h"
-#include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloOfflineTriggerTowerTools.h"

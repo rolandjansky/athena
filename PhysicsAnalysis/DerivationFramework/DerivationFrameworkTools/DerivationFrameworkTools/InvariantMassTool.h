@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -14,13 +14,14 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 
-namespace ExpressionParsing {
-  class ExpressionParser;
-}
+#include "ExpressionEvaluation/ExpressionParserUser.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODBase/IParticleContainer.h"
 
 namespace DerivationFramework {
 
-  class InvariantMassTool : public AthAlgTool, public IAugmentationTool {
+ enum  EInvariantMassToolParser { kInvariantMassToolParser1, kInvariantMassToolParser2, kInvariantMassToolParserNum };
+ class InvariantMassTool : public ExpressionParserUser<AthAlgTool,kInvariantMassToolParserNum>, public IAugmentationTool {
     public: 
       InvariantMassTool(const std::string& t, const std::string& n, const IInterface* p);
 
@@ -31,12 +32,10 @@ namespace DerivationFramework {
     private:
       std::string m_expression;
       std::string m_expression2;
-      ExpressionParsing::ExpressionParser *m_parser;
-      ExpressionParsing::ExpressionParser *m_parser2;
-      std::string m_sgName;
+      SG::WriteHandleKey<std::vector<float> > m_sgName {this,"StoreGateEntryName","","SG key of output object"};
       float m_massHypothesis,m_massHypothesis2;
-      std::string m_containerName;
-      std::string m_containerName2;
+      SG::ReadHandleKey<xAOD::IParticleContainer> m_containerName  {this,"ContainerName","","SG key of first container"};
+      SG::ReadHandleKey<xAOD::IParticleContainer> m_containerName2 {this,"SecondContainerName","","SG key of first container"};
       StatusCode getInvariantMasses(std::vector<float>*) const;
       float calculateInvariantMass(float,float,float,float,float,float,float) const;		
       float calculateInvariantMass(float,float,float,float,float,float,float,float) const;

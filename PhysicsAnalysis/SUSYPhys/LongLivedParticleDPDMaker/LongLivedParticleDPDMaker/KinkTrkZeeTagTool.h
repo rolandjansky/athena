@@ -17,6 +17,7 @@
 // DerivationFramework includes
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 
+#include "StoreGate/ReadHandleKey.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODMissingET/MissingETContainer.h"
@@ -77,6 +78,9 @@ namespace DerivationFramework {
 
     SG::WriteHandleKey<std::vector<float>> m_KinkTrkDiEleMassKey { this, "KinkTrkDiEleMassKey", "KinkTrkDiEleMass", ""};
     SG::WriteHandleKey<std::vector<float>> m_KinkTrkProbeEleEtKey { this, "KinkTrkProbeEleEtKey", "KinkTrkProbeEleEt", ""};
+
+    SG::WriteHandleKey<std::vector<float> > m_diEleMassKey;
+    SG::WriteHandleKey<std::vector<float> > m_probeEleEtKey;
 
   }; 
  

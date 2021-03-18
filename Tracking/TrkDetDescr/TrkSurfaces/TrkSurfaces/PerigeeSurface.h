@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -74,17 +74,7 @@ public:
   /**Equality operator*/
   virtual bool operator==(const Surface& sf) const override;
 
-  /** Use the Surface as a ParametersBase constructor, from local parameters -
-   * charged */
-  virtual ParametersT<5, Charged, PerigeeSurface>* createTrackParameters(
-    double l1,
-    double l2,
-    double phi,
-    double theta,
-    double qop,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
-
-  /** Use the Surface as a ParametersBase constructor, from local parameters -
+ /** Use the Surface as a ParametersBase constructor, from local parameters -
    * charged */
   virtual Surface::ChargedTrackParametersUniquePtr createUniqueTrackParameters(
     double l1,
@@ -92,17 +82,11 @@ public:
     double phi,
     double theta,
     double qop,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
-
-  virtual Surface::ChargedTrackParametersUniquePtr createUniqueTrackParameters(
-    const Amg::Vector3D& position,
-    const Amg::Vector3D& momentum,
-    double charge,
     AmgSymMatrix(5) * cov = nullptr) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -
    * charged*/
-  virtual ParametersT<5, Charged, PerigeeSurface>* createTrackParameters(
+  virtual Surface::ChargedTrackParametersUniquePtr createUniqueTrackParameters(
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
@@ -110,7 +94,7 @@ public:
 
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * neutral */
-  virtual ParametersT<5, Neutral, PerigeeSurface>* createNeutralParameters(
+  virtual NeutralTrackParametersUniquePtr createUniqueNeutralParameters(
     double l1,
     double l2,
     double phi,
@@ -120,26 +104,44 @@ public:
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -
    * neutral */
-  virtual ParametersT<5, Neutral, PerigeeSurface>* createNeutralParameters(
+  virtual NeutralTrackParametersUniquePtr createUniqueNeutralParameters(
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
     AmgSymMatrix(5) * cov = nullptr) const override final;
+
 
   /** Use the Surface as a ParametersBase constructor, from local parameters */
   template<int DIM, class T>
-  ParametersT<DIM, T, PerigeeSurface>* createParameters(double l1,
-                                                        double l2,
-                                                        double phi,
-                                                        double theta,
-                                                        double qop,
-                                                        AmgSymMatrix(DIM) *
-                                                          cov = 0) const;
+  std::unique_ptr<ParametersT<DIM, T, PerigeeSurface>> createUniqueParameters(
+    double l1,
+    double l2,
+    double phi,
+    double theta,
+    double qop,
+    AmgSymMatrix(DIM) * cov = 0) const;
 
-  /** Use the Surface as a ParametersBase constructor, from global parameters
-   */
+  /** Use the Surface as a ParametersBase constructor, from global parameters */
   template<int DIM, class T>
-  ParametersT<DIM, T, PerigeeSurface>* createParameters(
+  std::unique_ptr<ParametersT<DIM, T, PerigeeSurface>> createUniqueParameters(
+    const Amg::Vector3D& position,
+    const Amg::Vector3D& momentum,
+    double charge,
+    AmgSymMatrix(DIM) * cov = 0) const;
+
+  /** Use the Surface as a ParametersBase constructor, from local parameters */
+  template<int DIM, class T>
+  ParametersT<DIM, T, PerigeeSurface> createParameters(double l1,
+                                                     double l2,
+                                                     double phi,
+                                                     double theta,
+                                                     double qop,
+                                                     AmgSymMatrix(DIM) *
+                                                       cov = 0) const;
+
+  /** Use the Surface as a ParametersBase constructor, from global parameters */
+  template<int DIM, class T>
+  ParametersT<DIM, T, PerigeeSurface> createParameters(
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,

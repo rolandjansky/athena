@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include <xAODPrimitives/IsolationType.h>
@@ -290,8 +290,14 @@ namespace CP {
             addCutToWP(wp, m_elWPKey, xAOD::Iso::ptvarcone20, "0.057*x+95.57");
             addCutToWP(wp, m_elWPKey, xAOD::Iso::topoetcone20, "0.057*x+95.57");
             // Using fixed cuts
+        } else if (elWPname == "FixedCutTight") {
+            wp->addCut(new IsolationConditionFormula("ptvarcone20R0p06", xAOD::Iso::ptvarcone20, "0.06*x"));
+            wp->addCut(new IsolationConditionFormula("topoetcone20R0p06", xAOD::Iso::topoetcone20, "0.06*x"));
         } else if (elWPname == "FixedCutTightTrackOnly") {
             wp->addCut(new IsolationConditionFormula("ptvarcone20R0p06", xAOD::Iso::ptvarcone20, "0.06*x"));
+        } else if (elWPname == "FixedCutLoose") {
+            wp->addCut(new IsolationConditionFormula("FixedCutLoose_track", xAOD::Iso::ptvarcone20, "0.15*x"));
+            wp->addCut(new IsolationConditionFormula("FixedCutLoose_calo", xAOD::Iso::topoetcone20, "0.20*x"));
         }else if(elWPname == "FCHighPtCaloOnly" || elWPname == "HighPtCaloOnly"){
             wp->addCut(new IsolationConditionFormula("FCHighPtCaloOnly_calo",    xAOD::Iso::topoetcone20, "std::max(0.015*x,3.5E3)")); //units are MeV!
         }else if(elWPname == "TightTrackCone40"){

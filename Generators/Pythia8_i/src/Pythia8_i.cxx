@@ -17,6 +17,8 @@
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
 #include <sstream>
+// For limits
+#include <limits>
 
 // Name of AtRndmGenSvc stream
 std::string     Pythia8_i::pythia_stream   = "PYTHIA8_INIT";
@@ -401,11 +403,15 @@ StatusCode Pythia8_i::callGenerator(){
 
 
   if(returnCode != StatusCode::FAILURE &&
-     (std::abs(eventWeight) < 1.e-18 ||
+     // Here this is a double, but it may be converted into float at some point downstream
+     (std::abs(eventWeight) < std::numeric_limits<float>::min() ||
       m_pythia->event.size() < 2)){
 
        returnCode = this->callGenerator();
-     }else{
+     } else if ( std::abs(eventWeight) < std::numeric_limits<float>::min() &&
+                 std::abs(eventWeight) > std::numeric_limits<double>::min() ){
+       ATH_MSG_WARNING("Found event weight " << eventWeight << " between the float and double precision limits. Rejecting event.");
+     } else {
        m_nMerged += eventWeight;
        ++m_internal_event_number;
 

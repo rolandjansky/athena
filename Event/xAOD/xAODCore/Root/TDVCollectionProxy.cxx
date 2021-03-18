@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: TDVCollectionProxy.cxx 660500 2015-04-14 14:04:12Z krasznaa $
 
 // System include(s):
 #include <cassert>
@@ -453,6 +451,8 @@ namespace xAOD {
       // Do the base class initialization.
       CheckFunctions();
       TGenCollectionProxy::InitializeEx( silent );
+      // xAODRootAccess/THolder relies on the setting below
+      // to be able to skip some inheritance tests.
       fSTL_type = TClassEdit::kList;
 
       // Need to override what that set up for fValue and fVal.

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # The name of the package:
 atlas_subdir( AnaAlgorithm )
@@ -16,7 +16,7 @@ if( XAOD_STANDALONE )
       PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} RootCoreUtils )
 else()
    atlas_add_library( AnaAlgorithmLib
-      AnaAlgorithm/Global.h Root/Global.cxx
+      AnaAlgorithm/Global.h
       AnaAlgorithm/AnaAlgorithm.h AnaAlgorithm/AnaAlgorithm.icc
       Root/AnaAlgorithm.cxx
       AnaAlgorithm/MessageCheck.h Root/MessageCheck.cxx

@@ -35,6 +35,7 @@ namespace egammaMonitoring {
     virtual StatusCode initializePlots() = 0;
 
     virtual void fill(const xAOD::IParticle&) = 0;
+    virtual void fill(const xAOD::IParticle&, float mu) = 0;
     virtual ~IHistograms(){};
 
     std::map<std::string, TH1D* > histoMap;

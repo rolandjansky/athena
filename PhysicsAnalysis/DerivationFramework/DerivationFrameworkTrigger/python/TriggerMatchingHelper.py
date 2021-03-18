@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from DerivationFrameworkTrigger.DerivationFrameworkTriggerConf import (
     DerivationFramework__TriggerMatchingTool,
@@ -6,9 +6,9 @@ from DerivationFrameworkTrigger.DerivationFrameworkTriggerConf import (
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import (
     DerivationFramework__CommonAugmentation,
 )
-from DerivationFrameworkCore.DerivationFrameworkMaster import (
+from DerivationFrameworkCore.DerivationFrameworkMaster import (  # noqa: F401
     DerivationFrameworkJob,
-)  # noqa: F401
+)
 from TriggerMatchingTool.TriggerMatchingToolConf import Trig__R3IParticleRetrievalTool
 from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
 from AthenaConfiguration.AllConfigFlags import ConfigFlags

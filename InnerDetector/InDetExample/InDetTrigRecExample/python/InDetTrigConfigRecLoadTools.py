@@ -46,17 +46,6 @@ if (InDetTrigFlags.doPrintConfigurables()):
   print (InDetTrigSiSpacePointMakerTool)
 ToolSvc += InDetTrigSiSpacePointMakerTool      
   
-from SiTrigSpacePointFormation.SiTrigSpacePointFormationConf import InDet__SCT_TrigSpacePointTool
-SCT_TrigSpacePointTool = InDet__SCT_TrigSpacePointTool(name="InDetTrigSCTSpacePointTool",
-                                                       ProcessOverlaps = InDetTrigFlags.doOverlapSP(),
-                                                       SiSpacePointMakerToolName="InDet::SiSpacePointMakerTool/InDetTrigSiSpacePointMakerTool",
-                                                       SpacePointsOverlapName = 'SPTrigOverlap'
-                                                       )
-
-if (InDetTrigFlags.doPrintConfigurables()):
-  print (SCT_TrigSpacePointTool )
-ToolSvc +=  SCT_TrigSpacePointTool
-
 
 #
 # ----------- control loading of ROT_creator
@@ -628,6 +617,18 @@ InDetTrigPixelConditionsSummaryTool = PixelConditionsSetup.summaryTool
 if DetFlags.haveRIO.SCT_on():
   from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConditionsSummaryTool
   InDetTrigSCTConditionsSummaryTool = SCT_ConditionsSummaryTool(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryTool'))
+
+  # Fix the conditions tools - please tell me there's a better way
+  from AthenaCommon.GlobalFlags import globalflags
+  fixedTools = []
+  for tool in InDetTrigSCTConditionsSummaryTool.ConditionsTools:
+    if hasattr( tool, "SCT_FlaggedCondData" ):
+      tool.SCT_FlaggedCondData = "SCT_FlaggedCondData_TRIG"
+    if not globalflags.InputFormat.is_bytestream() and "ByteStream" in tool.getName():
+      continue
+    fixedTools.append( tool )
+  InDetTrigSCTConditionsSummaryTool.ConditionsTools = fixedTools
+
 else:
   InDetTrigSCTConditionsSummaryTool = None
 
@@ -720,7 +721,7 @@ if InDetTrigFlags.loadSummaryTool():
                                                                        usePixel      = DetFlags.haveRIO.pixel_on(),
                                                                        useSCT        = DetFlags.haveRIO.SCT_on(),
                                                                        useTRT        = DetFlags.haveRIO.TRT_on())
-    
+
   ToolSvc += InDetTrigTrackSummaryHelperTool
   if (InDetTrigFlags.doPrintConfigurables()):
     print (     InDetTrigTrackSummaryHelperTool)

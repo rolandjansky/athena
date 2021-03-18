@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ThinNegativeEnergyNeutralPFOsAlg.cxx
@@ -67,6 +67,7 @@ StatusCode ThinNegativeEnergyNeutralPFOsAlg::initialize()
     }
     ATH_CHECK( m_neutralPFOsKey.initialize (m_streamName, m_doThinning && !m_neutralPFOsKey.key().empty()) );
     ATH_CHECK( m_neutralPFOsFEKey.initialize (m_streamName, m_doThinning && !m_neutralPFOsFEKey.key().empty()) );
+    ATH_CHECK( m_LCNeutralPFOsFEKey.initialize (m_streamName, m_doThinning && !m_LCNeutralPFOsFEKey.key().empty()) );
     
     // Initialize the counters to zero
     m_nEventsProcessed = 0;
@@ -138,8 +139,12 @@ StatusCode ThinNegativeEnergyNeutralPFOsAlg::execute()
             if(neutralFE->pt() > 0.0) mask[i] = true;
         }
         neutralFEs.keep(mask);
+
+        if(!m_LCNeutralPFOsFEKey.key().empty()){
+          SG::ThinningHandle<xAOD::FlowElementContainer> LCNeutralFEs (m_LCNeutralPFOsFEKey, ctx);
+          LCNeutralFEs.keep(mask);
+        }
     }
-    
     return StatusCode::SUCCESS;
 }
 

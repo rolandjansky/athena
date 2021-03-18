@@ -528,7 +528,7 @@ class MenuSequence(object):
           %(self.name, hyponame, self._maker.Alg.getName(), self.sequence.Alg.getName(), hypotool)
 
 
-class CAMenuSequence(MenuSequence):
+class MenuSequenceCA(MenuSequence):
     ''' MenuSequence with Compoment Accumulator '''
 
     def __init__(self, ca, HypoToolGen ):
@@ -665,8 +665,11 @@ class Chain(object):
         if len(self.steps) == 0:
             return
 
-        # TODO: check if the number of seeds is sufficient for all the seuqences, no action of no steps are configured
         for step in self.steps:
+             # TODO: make  this as an error  when exceptions are handled
+            if len(self.L1decisions) != len(step.sequences) and not step.isEmpty:
+                log.error("setSeedsToSequences: found %d L1seeds and %d sequences in chain %s  step  %s: is this correct?", len(self.L1decisions), len(step.sequences),self.name, step.name)
+                raise RuntimeError("[setSeedsToSequences] L1 seeding issue")
             for seed, seq in zip(self.L1decisions, step.sequences):
                     seq.setSeed( seed )
                     log.debug( "setSeedsToSequences: Chain %s adding seed %s to sequence in step %s", self.name, seed, step.name )
@@ -858,10 +861,10 @@ def createComboAlg(dummyFlags, name, multiplicity, comboHypoCfg):
 
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-class InEventReco( ComponentAccumulator ):
+class InEventRecoCA( ComponentAccumulator ):
     """ Class to handle in-event reco """
     def __init__(self, name, inputMaker=None):
-        super( InEventReco, self ).__init__()
+        super( InEventRecoCA, self ).__init__()
         self.name = name
         self.mainSeq = seqAND( name )
         self.addSequence( self.mainSeq )
@@ -885,10 +888,10 @@ class InEventReco( ComponentAccumulator ):
 
 
 
-class InViewReco(ComponentAccumulator):
+class InViewRecoCA(ComponentAccumulator):
     """ Class to handle in-view reco, sets up the View maker if not provided and exposes InputMaker so that more inputs to it can be added in the process of assembling the menu """
     def __init__(self, name, viewMaker=None, roisKey=None):
-        super( InViewReco, self ).__init__()
+        super( InViewRecoCA, self ).__init__()
         self.name = name
         self.mainSeq = seqAND( name )
         self.addSequence( self.mainSeq )

@@ -13,7 +13,11 @@ std::ostream& operator << (std::ostream& out, const HypoJetVector& hjv) {
 	<< " e " << j->e()
 	<< " et " << j->et()
 	<< " eta " << j->eta()
-	<< " phi " << j->phi() << '\n';
+	<< " phi " << j->phi()
+	<< " px " << (j->p4()).Px()
+	<< " py " << (j->p4()).Py()
+	<< " pz " << (j->p4()).Pz()
+	<< '\n';
   }
   return out;
 }

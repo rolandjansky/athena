@@ -23,6 +23,8 @@
 
 #include "TFile.h"
 
+#include <memory>
+
 using namespace InDetDD;
 
 //===============================================
@@ -87,8 +89,11 @@ StatusCode SensorSim3DTool::initialize() {
 
   for (unsigned int i = 0; i < mapsPath_list.size(); i++) {
     ATH_MSG_INFO("Using maps located in: " << mapsPath_list.at(i));
-    //std::unique_ptr<TFile>  mapsFile=std::make_unique<TFile>( (mapsPath_list.at(i)).c_str() ); //this is the ramo potential.
-    TFile* mapsFile = new TFile((mapsPath_list.at(i)).c_str()); //this is the ramo potential.
+    std::unique_ptr<TFile> mapsFile(TFile::Open((mapsPath_list.at(i)).c_str(), "READ")); //this is the ramo potential.
+    if (!mapsFile) {
+        ATH_MSG_ERROR("Cannot open file: " << mapsPath_list.at(i));
+        return StatusCode::FAILURE;
+    }
 
     std::pair < int, int > Layer; // index for layer/end cap position
     Layer.first = 0; //Barrel (0) or End Cap (1)   -    Now only for Barrel. If we want to add End Caps, put them at iayer.first=1
@@ -97,66 +102,77 @@ StatusCode SensorSim3DTool::initialize() {
     //May want to be changed in the future, since there's no point having an index with only one possible value
 
     //Setup ramo weighting field map
-    TH3F* ramoPotentialMap_hold;
-    ramoPotentialMap_hold = 0;
-    ramoPotentialMap_hold = (TH3F* ) mapsFile->Get("ramo");
-    if (ramoPotentialMap_hold == 0) {
-      ATH_MSG_INFO("Did not find a Ramo potential map.  Will use an approximate form.");
+    std::unique_ptr<TH2F> ramoPotentialMap_hold(mapsFile->Get<TH2F>("ramo"));
+    if (!ramoPotentialMap_hold) {
+      ATH_MSG_ERROR("Did not find a Ramo potential map.  Will use an approximate form.");
       return StatusCode::FAILURE; //Obviously, remove this when gen. code is set up
     }
-    //ramoPotentialMap.push_back(ramoPotentialMap_hold);
+    ramoPotentialMap_hold->SetDirectory(nullptr);
     m_ramoPotentialMap.emplace_back();
-    ATH_CHECK(m_ramoPotentialMap.back().setHisto3D(ramoPotentialMap_hold));
+    ATH_CHECK(m_ramoPotentialMap.back().setHisto2D(ramoPotentialMap_hold.get()));
 
     ATH_MSG_INFO("Using fluence " << m_fluence_layers.at(i));
 
     //Now setup the E-field.
-    TH2F* eFieldMap_hold;
-    eFieldMap_hold = 0;
-    eFieldMap_hold = (TH2F* ) mapsFile->Get("efield");
-    if (eFieldMap_hold == 0) {
-      ATH_MSG_INFO("Unable to load sensor e-field map, so generating one using approximations.");
+    std::unique_ptr<TH2F> eFieldMap_hold(mapsFile->Get<TH2F>("efield"));
+    if (!eFieldMap_hold) {
+      ATH_MSG_ERROR("Unable to load sensor e-field map, so generating one using approximations.");
       return StatusCode::FAILURE; //Obviously, remove this when gen. code is set up
     }
+    eFieldMap_hold->SetDirectory(nullptr);
     m_eFieldMap.emplace_back();
-    ATH_CHECK(m_eFieldMap.back().setHisto2D(eFieldMap_hold));
+    ATH_CHECK(m_eFieldMap.back().setHisto2D(eFieldMap_hold.get()));
 
-    TH3F* xPositionMap_e_hold;
-    TH3F* xPositionMap_h_hold;
-    TH3F* yPositionMap_e_hold;
-    TH3F* yPositionMap_h_hold;
-    TH2F* timeMap_e_hold;
-    TH2F* timeMap_h_hold;
+    std::unique_ptr<TH3F> xPositionMap_e_hold(mapsFile->Get<TH3F>("xPosition_e"));
+    std::unique_ptr<TH3F> xPositionMap_h_hold(mapsFile->Get<TH3F>("xPosition_h"));
+    std::unique_ptr<TH3F> yPositionMap_e_hold(mapsFile->Get<TH3F>("yPosition_e"));
+    std::unique_ptr<TH3F> yPositionMap_h_hold(mapsFile->Get<TH3F>("yPosition_h"));
+    std::unique_ptr<TH2F> timeMap_e_hold(mapsFile->Get<TH2F>("etimes"));
+    std::unique_ptr<TH2F> timeMap_h_hold(mapsFile->Get<TH2F>("htimes"));
 
-    xPositionMap_e_hold = 0;
-    xPositionMap_h_hold = 0;
-    yPositionMap_e_hold = 0;
-    yPositionMap_h_hold = 0;
-    timeMap_e_hold = 0;
-    timeMap_h_hold = 0;
-    xPositionMap_e_hold = (TH3F* ) mapsFile->Get("xPosition_e");
-    xPositionMap_h_hold = (TH3F* ) mapsFile->Get("xPosition_h");
-    yPositionMap_e_hold = (TH3F* ) mapsFile->Get("yPosition_e");
-    yPositionMap_h_hold = (TH3F* ) mapsFile->Get("yPosition_h");
-    timeMap_e_hold = (TH2F* ) mapsFile->Get("etimes");
-    timeMap_h_hold = (TH2F* ) mapsFile->Get("htimes");
+    if (!xPositionMap_e_hold || !xPositionMap_h_hold || !yPositionMap_e_hold || !yPositionMap_h_hold ||
+        !timeMap_e_hold || !timeMap_h_hold) {
+      ATH_MSG_ERROR("Cannot find one of the maps.");
+      return StatusCode::FAILURE; //Obviously, remove this when gen. code is set up
+    }
+
+    xPositionMap_e_hold->SetDirectory(nullptr);
+    xPositionMap_h_hold->SetDirectory(nullptr);
+    yPositionMap_e_hold->SetDirectory(nullptr);
+    yPositionMap_h_hold->SetDirectory(nullptr);
+    timeMap_e_hold->SetDirectory(nullptr);
+    timeMap_h_hold->SetDirectory(nullptr);
+
     //Now, determine the time to reach the electrode and the trapping position.
     m_xPositionMap_e.emplace_back();
     m_xPositionMap_h.emplace_back();
     m_yPositionMap_e.emplace_back();
     m_yPositionMap_h.emplace_back();
-    ATH_CHECK(m_xPositionMap_e.back().setHisto3D(xPositionMap_e_hold));
-    ATH_CHECK(m_xPositionMap_h.back().setHisto3D(xPositionMap_h_hold));
-    ATH_CHECK(m_yPositionMap_e.back().setHisto3D(yPositionMap_e_hold));
-    ATH_CHECK(m_yPositionMap_h.back().setHisto3D(yPositionMap_h_hold));
+    ATH_CHECK(m_xPositionMap_e.back().setHisto3D(xPositionMap_e_hold.get()));
+    ATH_CHECK(m_xPositionMap_h.back().setHisto3D(xPositionMap_h_hold.get()));
+    ATH_CHECK(m_yPositionMap_e.back().setHisto3D(yPositionMap_e_hold.get()));
+    ATH_CHECK(m_yPositionMap_h.back().setHisto3D(yPositionMap_h_hold.get()));
     m_timeMap_e.emplace_back();
     m_timeMap_h.emplace_back();
-    ATH_CHECK(m_timeMap_e.back().setHisto2D(timeMap_e_hold));
-    ATH_CHECK(m_timeMap_h.back().setHisto2D(timeMap_h_hold));
+    ATH_CHECK(m_timeMap_e.back().setHisto2D(timeMap_e_hold.get()));
+    ATH_CHECK(m_timeMap_h.back().setHisto2D(timeMap_h_hold.get()));
+
+    std::unique_ptr<TH2F> avgCharge_e(mapsFile->Get<TH2F>("avgCharge_e"));
+    std::unique_ptr<TH2F> avgCharge_h(mapsFile->Get<TH2F>("avgCharge_h"));
+
+    if (!avgCharge_e || !avgCharge_h) {
+      ATH_MSG_ERROR("Cannot find one of the charge maps.");
+      return StatusCode::FAILURE; //Obviously, remove this when gen. code is set up
+    }
+
+    avgCharge_e->SetDirectory(nullptr);
+    avgCharge_h->SetDirectory(nullptr);
 
     // Get average charge data (for charge chunk effect correction)
-    ATH_CHECK(m_avgChargeMap_e.setHisto2D((TH2F*) mapsFile->Get("avgCharge_e")));
-    ATH_CHECK(m_avgChargeMap_h.setHisto2D((TH2F*) mapsFile->Get("avgCharge_h")));
+    ATH_CHECK(m_avgChargeMap_e.setHisto2D(avgCharge_e.get()));
+    ATH_CHECK(m_avgChargeMap_h.setHisto2D(avgCharge_h.get()));
+
+    mapsFile->Close();
   }
 
   return StatusCode::SUCCESS;
@@ -217,14 +233,12 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
 
   ATH_MSG_VERBOSE("Applying 3D sensor simulation.");
   double sensorThickness = Module.design().thickness();
-  const InDet::SiliconProperties& siProperties = m_siPropertiesTool->getSiProperties(Module.identifyHash());
+  const InDet::SiliconProperties& siProperties = m_siPropertiesTool->getSiProperties(Module.identifyHash(), ctx);
   double eleholePairEnergy = siProperties.electronHolePairsPerEnergy();
 
   // Charge Collection Probability Map bin size
   const double x_bin_size = 0.001;
   const double y_bin_size = 0.001;
-
-  std::string readout;
 
   // determine which readout is used
   // FEI4 : 50 X 250 microns
@@ -271,8 +285,8 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
           chargepos.z());
 
       // -- change origin of coordinates to the left bottom of module
-      double x_new = chargepos.x() + module_size_x / 2.;
-      double y_new = chargepos.y() + module_size_y / 2.;
+      double x_new = chargepos.x() + 0.5*module_size_x;
+      double y_new = chargepos.y() + 0.5*module_size_y;
 
 
       // -- change from module frame to pixel frame
@@ -300,124 +314,102 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
         continue;
       }
 
+      const double mobilityElectron = getMobility(efield, false);
+      const double mobilityHole     = getMobility(efield, true);
+
       //Loop over charge-carrier pairs
       for (int j = 0; j < ncharges; j++) {
-        if (m_doRadDamage && m_fluence > 0) {
-          double eHit = energy_per_step;
-          //Need to determine how many elementary charges this charge chunk represents.
-          double chunk_size = energy_per_step * eleholePairEnergy; //number of electrons/holes
-          ATH_MSG_DEBUG("Chunk size: " << energy_per_step << "*" << eleholePairEnergy << " = " << chunk_size);
+        double eHit = energy_per_step;
+        //Need to determine how many elementary charges this charge chunk represents.
+        double chunk_size = energy_per_step * eleholePairEnergy; //number of electrons/holes
 
-          //set minimum limit to prevent dividing into smaller subcharges than one fundamental charge
-          if (chunk_size < 1) chunk_size = 1;
-          double kappa = 1. / sqrt(chunk_size);
+        //set minimum limit to prevent dividing into smaller subcharges than one fundamental charge
+        if (chunk_size < 1) chunk_size = 1;
+        double kappa = 1. / std::sqrt(chunk_size);
 
-          // Loop over everything twice: once for electrons and once for holes
-          for (int eholes = 0; eholes < 2; eholes++) {
-            bool isHole = false; // Set a condition to keep track of electron/hole-specific functions
-            if (eholes == 1) isHole = true;
+        // Loop over everything twice: once for electrons and once for holes
+        for (int eholes = 0; eholes < 2; eholes++) {
+          const bool isHole = (eholes == 1); // Set a condition to keep track of electron/hole-specific functions
 
-            // Reset extraPixel coordinates each time through loop
-            extraNPixX = nPixX;
-            extraNPixY = nPixY;
+          // Reset extraPixel coordinates each time through loop
+          extraNPixX = nPixX;
+          extraNPixY = nPixY;
 
-            double timeToElectrode = getTimeToElectrode(y_pix, x_pix, isHole);
-            double driftTime = getDriftTime(isHole);
+          const double timeToElectrode = getTimeToElectrode(y_pix, x_pix, isHole);
+          const double driftTime = getDriftTime(isHole);
 
-            //Apply drift due to diffusion
-            double phiRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
+          //Apply drift due to diffusion
+          const double phiRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
 
-            //Apply diffusion. rdif is teh max. diffusion
-            double Dt =
-              getMobility(efield, isHole) * (0.024) * std::min(driftTime, timeToElectrode) * m_temperature / 273.;
-            double rdif = sqrt(Dt) / 1000; //in mm
-            double xposDiff = x_pix + rdif * phiRand;
-            double etaRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
-            double yposDiff = y_pix + rdif * etaRand;
+          //Apply diffusion. rdif is teh max. diffusion
+          const double Dt = (isHole ? mobilityHole : mobilityElectron) * (0.024) * std::min(driftTime, timeToElectrode) * m_temperature / 273.;
+          const double rdif = 1e-3*std::sqrt(Dt); //in mm
+          double xposDiff = x_pix + rdif * phiRand;
+          const double etaRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
+          double yposDiff = y_pix + rdif * etaRand;
 
-            // Account for drifting into another pixel
-            while (xposDiff > pixel_size_x) {
-              extraNPixX = extraNPixX + 1;               // increments or decrements pixel count in x
-              xposDiff = xposDiff - pixel_size_x;        // moves xpos coordinate 1 pixel over in x
-            }
-            while (xposDiff < 0) {
-              extraNPixX = extraNPixX - 1;
-              xposDiff = xposDiff + pixel_size_x;
-            }
-            while (yposDiff > pixel_size_y) {
-              extraNPixY = extraNPixY + 1;               // increments or decrements pixel count in y
-              yposDiff = yposDiff - pixel_size_y;        // moves xpos coordinate 1 pixel over in y
-            }
-            while (yposDiff < 0) {
-              extraNPixY = extraNPixY - 1;
-              yposDiff = yposDiff + pixel_size_y;
-            }
+          // Account for drifting into another pixel
+          while (xposDiff > pixel_size_x) {
+            extraNPixX = extraNPixX + 1;               // increments or decrements pixel count in x
+            xposDiff = xposDiff - pixel_size_x;        // moves xpos coordinate 1 pixel over in x
+          }
+          while (xposDiff < 0) {
+            extraNPixX = extraNPixX - 1;
+            xposDiff = xposDiff + pixel_size_x;
+          }
+          while (yposDiff > pixel_size_y) {
+            extraNPixY = extraNPixY + 1;               // increments or decrements pixel count in y
+            yposDiff = yposDiff - pixel_size_y;        // moves xpos coordinate 1 pixel over in y
+          }
+          while (yposDiff < 0) {
+            extraNPixY = extraNPixY - 1;
+            yposDiff = yposDiff + pixel_size_y;
+          }
 
 
-            ATH_MSG_DEBUG(" -- diffused position w.r.t. pixel edge = " << xposDiff << "  " << yposDiff);
+          float average_charge = isHole ? m_avgChargeMap_h.getContent(m_avgChargeMap_h.getBinY(1e3*y_pix), m_avgChargeMap_h.getBinX(1e3*x_pix)) :
+                                          m_avgChargeMap_e.getContent(m_avgChargeMap_e.getBinY(1e3*y_pix), m_avgChargeMap_e.getBinX(1e3*x_pix));
 
-            float average_charge = isHole ? m_avgChargeMap_h.getContent(m_avgChargeMap_h.getBinY(1e3*y_pix), m_avgChargeMap_h.getBinX(1e3*x_pix)) :
-                                            m_avgChargeMap_e.getContent(m_avgChargeMap_e.getBinY(1e3*y_pix), m_avgChargeMap_e.getBinX(1e3*x_pix));
+          double xposFinal = getTrappingPositionY(yposDiff, xposDiff, std::min(driftTime, timeToElectrode), isHole);
+          double yposFinal = getTrappingPositionX(yposDiff, xposDiff, std::min(driftTime, timeToElectrode), isHole);
 
-            ATH_MSG_DEBUG(" -- driftTime, timeToElectrode = " << driftTime << "  " << timeToElectrode);
+          // -- Calculate signal in current pixel and in the neighboring ones
+          // -- loop in the x-coordinate
+          for (int i = -1; i <= 1; i++) {
+            double xNeighbor = i * pixel_size_x;
+            // -- loop in the y-coordinate
+            const std::size_t index = 0;
+            const std::size_t ramo_init_bin_y  = m_ramoPotentialMap[index].getBinY(1000*(x_pix + pixel_size_x * 3 - xNeighbor));
+            const std::size_t ramo_final_bin_y = m_ramoPotentialMap[index].getBinY(1000*(xposFinal + pixel_size_x * 3 - xNeighbor));
+            for (int j = -1; j <= 1; j++) {
+              double yNeighbor = j * pixel_size_y;
 
-            double xposFinal = getTrappingPositionY(yposDiff, xposDiff, std::min(driftTime, timeToElectrode), isHole);
-            double yposFinal = getTrappingPositionX(yposDiff, xposDiff, std::min(driftTime, timeToElectrode), isHole);
+              //Ramo map over 500umx350um pixel area
+              //Ramo init different if charge diffused into neighboring pixel -> change primary pixel!!
+              float ramoInit  = m_ramoPotentialMap[index].getContent(m_ramoPotentialMap[index].getBinX(1000*(y_pix + 0.5*pixel_size_y - yNeighbor)), ramo_init_bin_y);
+              float ramoFinal = m_ramoPotentialMap[index].getContent(m_ramoPotentialMap[index].getBinX(1000*(yposFinal + 0.5*pixel_size_y - yNeighbor)), ramo_final_bin_y);
 
-            ATH_MSG_DEBUG(" -- trapped position w.r.t. pixel edge = " << xposFinal << "  " << yposFinal);
+              // Record deposit
+              double eHitRamo = (isHole ? -1. : 1.) * eHit * (ramoFinal - ramoInit);
 
-            // -- Calculate signal in current pixel and in the neighboring ones
-            // -- loop in the x-coordinate
-            for (int i = -1; i <= 1; i++) {
-              double xNeighbor = i * pixel_size_x;
-              // -- loop in the y-coordinate
-              const std::size_t index = 0;
-              const std::size_t ramo_init_bin_y  = m_ramoPotentialMap[index].getBinY(1000*(x_pix + pixel_size_x * 3 - xNeighbor));
-              const std::size_t ramo_final_bin_y = m_ramoPotentialMap[index].getBinY(1000*(xposFinal + pixel_size_x * 3 - xNeighbor));
-              for (int j = -1; j <= 1; j++) {
-                double yNeighbor = j * pixel_size_y;
+              if (m_doChunkCorrection) {
+                eHitRamo = eHit * average_charge + kappa * (eHitRamo - eHit * average_charge);
+              }
 
-                ATH_MSG_DEBUG(
-                  " -- Ramo init position w.r.t. Ramo map edge = " << x_pix + pixel_size_x * 3 - xNeighbor << "  " << y_pix + pixel_size_y * 1 / 2 -
-                    yNeighbor);
-                ATH_MSG_DEBUG(
-                  " -- Ramo final position w.r.t. Ramo map edge = " << xposFinal + pixel_size_x * 3 - xNeighbor << "  " << yposFinal + pixel_size_y * 1 / 2 -
-                    yNeighbor);
+              double induced_charge = eHitRamo * eleholePairEnergy;
 
-                //Ramo map over 500umx350um pixel area
-                //Ramo init different if charge diffused into neighboring pixel -> change primary pixel!!
-                float ramoInit  = m_ramoPotentialMap[index].getContent(m_ramoPotentialMap[index].getBinX(1000*(y_pix + 0.5*pixel_size_y - yNeighbor)), ramo_init_bin_y);
-                float ramoFinal = m_ramoPotentialMap[index].getContent(m_ramoPotentialMap[index].getBinX(1000*(yposFinal + 0.5*pixel_size_y - yNeighbor)), ramo_final_bin_y);
+              // -- pixel coordinates --> module coordinates
+              double x_mod = x_pix + xNeighbor + pixel_size_x * extraNPixX - 0.5*module_size_x;
+              double y_mod = y_pix + yNeighbor + pixel_size_y * extraNPixY - 0.5*module_size_y;
+              const SiLocalPosition& chargePos = Module.hitLocalToLocal(y_mod, x_mod);
 
-                // Record deposit
-                double eHitRamo = (1 - 2 * isHole) * eHit * (ramoFinal - ramoInit);
-
-                ATH_MSG_DEBUG(
-                  "At neighbor pixel " << i << " " << j << " Hit of " << eHitRamo << " including Ramo factor: " << ramoFinal -
-                    ramoInit);
-
-                if (m_doChunkCorrection) {
-                  ATH_MSG_DEBUG("Energy before chunk correction: " << eHitRamo);
-                  eHitRamo = eHit * average_charge + kappa * (eHitRamo - eHit * average_charge);
-                  ATH_MSG_DEBUG("Energy after chunk correction: " << eHitRamo);
-                }
-
-                double induced_charge = eHitRamo * eleholePairEnergy;
-
-                // -- pixel coordinates --> module coordinates
-                double x_mod = x_pix + xNeighbor + pixel_size_x * extraNPixX - module_size_x / 2.;
-                double y_mod = y_pix + yNeighbor + pixel_size_y * extraNPixY - module_size_y / 2.;
-                SiLocalPosition chargePos = Module.hitLocalToLocal(y_mod, x_mod);
-
-                SiSurfaceCharge scharge(chargePos, SiCharge(induced_charge, hitTime(
-                                                              phit), SiCharge::track, HepMcParticleLink(
-                                                              phit->trackNumber(), phit.eventId(), evColl, idxFlag, ctx)));
-                SiCellId diode = Module.cellIdOfPosition(scharge.position());
-                SiCharge charge = scharge.charge();
-                if (diode.isValid()) {
-                  chargedDiodes.add(diode, charge);
-                  ATH_MSG_DEBUG("induced charge: " << induced_charge << " x_mod: " << x_mod << " y_mod: " << y_mod);
-                }
+              const SiSurfaceCharge scharge(chargePos, SiCharge(induced_charge, hitTime(
+                                                            phit), SiCharge::track, HepMcParticleLink(
+                                                            phit->trackNumber(), phit.eventId(), evColl, idxFlag, ctx)));
+              const SiCellId& diode = Module.cellIdOfPosition(scharge.position());
+              if (diode.isValid()) {
+                const SiCharge& charge = scharge.charge();
+                chargedDiodes.add(diode, charge);
               }
             }
           }
@@ -458,8 +450,8 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
           chargepos.z());
 
       // -- change origin of coordinates to the left bottom of module
-      double x_new = chargepos.x() + module_size_x / 2.;
-      double y_new = chargepos.y() + module_size_y / 2.;
+      double x_new = chargepos.x() + 0.5*module_size_x;
+      double y_new = chargepos.y() + 0.5*module_size_y;
 
       // -- change from module frame to pixel frame
       int nPixX = int(x_new / pixel_size_x);
@@ -484,32 +476,32 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
           y_neighbor = y_pix_center - j * pixel_size_y;
 
           // -- check if the neighbor falls inside the charge collection prob map window
-          if ((fabs(x_neighbor) < pixel_size_x) && (fabs(y_neighbor) < pixel_size_y)) {
+          if ((std::abs(x_neighbor) < pixel_size_x) && (std::abs(y_neighbor) < pixel_size_y)) {
             // -- change origin of coordinates to the bottom left of the charge
             //    collection prob map "window", i.e. shift of 1-pixel twd bottom left
             double x_neighbor_map = x_neighbor + pixel_size_x;
             double y_neighbor_map = y_neighbor + pixel_size_y;
 
-            int x_bin_cc_map = static_cast<int>(x_neighbor_map / x_bin_size);
-            int y_bin_cc_map = static_cast<int>(y_neighbor_map / y_bin_size);
+            int x_bin_cc_map = x_neighbor_map / x_bin_size;
+            int y_bin_cc_map = y_neighbor_map / y_bin_size;
 
             // -- retrieve the charge collection probability from Svc
             // -- swap x and y bins to match Map coord convention
-            double ccprob_neighbor = getProbMapEntry("FEI4", y_bin_cc_map, x_bin_cc_map);
+            double ccprob_neighbor = getProbMapEntry(SensorType::FEI4, y_bin_cc_map, x_bin_cc_map);
             if (ccprob_neighbor == -1.) return StatusCode::FAILURE;
 
             double ed = es_current * eleholePairEnergy * ccprob_neighbor;
 
             // -- pixel coordinates --> module coordinates
-            double x_mod = x_neighbor + pixel_size_x / 2 + pixel_size_x * nPixX - module_size_x / 2.;
-            double y_mod = y_neighbor + pixel_size_y / 2 + pixel_size_y * nPixY - module_size_y / 2.;
-            SiLocalPosition chargePos = Module.hitLocalToLocal(y_mod, x_mod);
+            double x_mod = x_neighbor + 0.5*pixel_size_x + pixel_size_x * nPixX - 0.5*module_size_x;
+            double y_mod = y_neighbor + 0.5*pixel_size_y + pixel_size_y * nPixY - 0.5*module_size_y;
+            const SiLocalPosition& chargePos = Module.hitLocalToLocal(y_mod, x_mod);
 
-            SiSurfaceCharge scharge(chargePos, SiCharge(ed, hitTime(phit), SiCharge::track, HepMcParticleLink(
+            const SiSurfaceCharge scharge(chargePos, SiCharge(ed, hitTime(phit), SiCharge::track, HepMcParticleLink(
                                                           phit->trackNumber(), phit.eventId(), evColl, idxFlag, ctx)));
-            SiCellId diode = Module.cellIdOfPosition(scharge.position());
-            SiCharge charge = scharge.charge();
+            const SiCellId& diode = Module.cellIdOfPosition(scharge.position());
             if (diode.isValid()) {
+              const SiCharge& charge = scharge.charge();
               chargedDiodes.add(diode, charge);
             }
           }
@@ -579,13 +571,13 @@ StatusCode SensorSim3DTool::printProbMap(const std::string& readout) const {
 }
 
 // -- Returns the Charge Collection Probability at a given point (bin_x,bin_y)
-double SensorSim3DTool::getProbMapEntry(const std::string& readout, int binx, int biny) const {
+double SensorSim3DTool::getProbMapEntry(const SensorType& readout, int binx, int biny) const {
   std::pair<int, int> doublekey(binx, biny);
   double echarge;
-  if (readout == "FEI4") {
+  if (readout == SensorType::FEI4) {
     std::multimap<std::pair<int, int>, double>::const_iterator iter = m_probMapFEI4.find(doublekey);
     echarge = iter->second;
-  } else if (readout == "FEI3") {
+  } else if (readout == SensorType::FEI3) {
     std::multimap<std::pair<int, int>, double>::const_iterator iter = m_probMapFEI3.find(doublekey);
     echarge = iter->second;
   } else {
@@ -613,18 +605,17 @@ double SensorSim3DTool::getMobility(double electricField, bool isHoleBit) {
   //These parameterizations come from C. Jacoboni et al., Solid-State Electronics 20 (1977) 77-89. (see also
   // https://cds.cern.ch/record/684187/files/indet-2001-004.pdf).
 
-  if (!isHoleBit) {
-    vsat = 15.3 * pow(m_temperature, -0.87); // mm/ns
-    ecrit = 1.01E-7 * pow(m_temperature, 1.55); // MV/mm
-    beta = 2.57E-2 * pow(m_temperature, 0.66);
-  }
   if (isHoleBit) {
-    vsat = 1.62 * pow(m_temperature, -0.52); // mm/ns
-    ecrit = 1.24E-7 * pow(m_temperature, 1.68); // MV/mm
-    beta = 0.46 * pow(m_temperature, 0.17);
+    vsat = 1.62 * std::pow(m_temperature, -0.52); // mm/ns
+    ecrit = 1.24E-7 * std::pow(m_temperature, 1.68); // MV/mm
+    beta = 0.46 * std::pow(m_temperature, 0.17);
+  } else {
+    vsat = 15.3 * std::pow(m_temperature, -0.87); // mm/ns
+    ecrit = 1.01E-7 * std::pow(m_temperature, 1.55); // MV/mm
+    beta = 2.57E-2 * std::pow(m_temperature, 0.66);
   }
 
-  double mobility = (vsat / ecrit) / pow(1 + pow((electricField / ecrit), beta), (1 / beta));
+  double mobility = (vsat / ecrit) / std::pow(1 + std::pow((electricField / ecrit), beta), (1 / beta));
   return mobility; // mm^2/(MV*ns)
 }
 
@@ -632,8 +623,11 @@ double SensorSim3DTool::getDriftTime(bool isHoleBit) {
   double u = CLHEP::RandFlat::shoot(0., 1.); //
   double driftTime = 0;
 
-  if (!isHoleBit) driftTime = (-1.) * m_trappingTimeElectrons * TMath::Log(u); // ns
-  if (isHoleBit) driftTime = (-1.) * m_trappingTimeHoles * TMath::Log(u); // ns
+  if (isHoleBit) {
+    driftTime = (-1.) * m_trappingTimeHoles * std::log(u); // ns
+  } else {
+    driftTime = (-1.) * m_trappingTimeElectrons * std::log(u); // ns
+  }
   return driftTime;
 }
 
@@ -650,7 +644,7 @@ double SensorSim3DTool::getTimeToElectrode(double x, double y, bool isHoleBit) {
 
 double SensorSim3DTool::getTrappingPositionX(double initX, double initY, double driftTime, bool isHoleBit) {
   std::size_t index = 0;
-  double finalX = initX;
+  double finalX(0);
   if (!isHoleBit) {
     finalX = m_xPositionMap_e[index].getContent(m_xPositionMap_e[index].getBinX(1e3*initX), m_xPositionMap_e[index].getBinY(1e3*initY), m_xPositionMap_e[index].getBinZ(driftTime));
   } else {
@@ -662,7 +656,7 @@ double SensorSim3DTool::getTrappingPositionX(double initX, double initY, double 
 
 double SensorSim3DTool::getTrappingPositionY(double initX, double initY, double driftTime, bool isHoleBit) {
   std::size_t index = 0;
-  double finalY = initY;
+  double finalY(0);
   if (!isHoleBit) {
     finalY = m_yPositionMap_e[index].getContent(m_yPositionMap_e[index].getBinX(1e3*initX), m_yPositionMap_e[index].getBinY(1e3*initY), m_yPositionMap_e[index].getBinZ(driftTime));
   } else {

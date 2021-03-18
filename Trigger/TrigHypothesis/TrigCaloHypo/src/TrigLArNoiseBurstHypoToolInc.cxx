@@ -1,13 +1,11 @@
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <algorithm>
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/Combinators.h"
 #include "AthenaMonitoringKernel/Monitored.h"
-#include "GaudiKernel/SystemOfUnits.h"
 #include "LArRecEvent/LArNoisyROSummary.h"
 
 #include "TrigLArNoiseBurstHypoToolInc.h"
@@ -46,10 +44,6 @@ StatusCode TrigLArNoiseBurstHypoToolInc::initialize()  {
 
   return StatusCode::SUCCESS;
 }
-
-
-
-TrigLArNoiseBurstHypoToolInc::~TrigLArNoiseBurstHypoToolInc(){}
 
 
 StatusCode TrigLArNoiseBurstHypoToolInc::decide( std::vector<CaloCellNoiseInfo>& input )  const {

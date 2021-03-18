@@ -12,7 +12,6 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #include "AtlasHepMC/GenParticle.h"
 
 #include "TTree.h"
-#include <TString.h> // for Form
 
 /** ---------- filling of variables */
 /** ---------- to be called on each evt i.e. execute level of main alg */
@@ -29,7 +28,7 @@ StatusCode TGCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
 	// Get the TGC Id hit helper
 	TgcHitIdHelper* tgchhelper = TgcHitIdHelper::GetHelper();
 
-	if (tgcContainer->size() == 0) ATH_MSG_WARNING(" TgcSimHit empty ");
+	if (!tgcContainer->size()) ATH_MSG_DEBUG(m_ContainerName<<" container empty");
 	for (auto it : *tgcContainer) {
 		const TGCSimHit hit = it;
 
@@ -48,13 +47,13 @@ StatusCode TGCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
 		// does not seem to return this, so we just give channelNumber=1 and stripNumber=1 for now
 		Identifier offid = m_TgcIdHelper->channelID(stname, steta, stphi, gasgap, 1, 1, true, &isValid);
 		if (!isValid) {
-			ATH_MSG_WARNING(" Cannot build a valid Identifier; skip ");
+            ATH_MSG_WARNING("Cannot build a valid Identifier for TGC stationName="<<stname<<", eta="<<steta<<", phi="<<stphi<<", gasGap="<<gasgap<<"; skipping...");
 			continue;
 		}
 
 		const MuonGM::TgcReadoutElement* tgcdet = MuonDetMgr->getTgcReadoutElement(offid);
 		if (!tgcdet) {
-			ATH_MSG_ERROR("TGCSimHitVariables::fillVariables() - Failed to retrieve TgcReadoutElement for" << __FILE__ << __LINE__ << m_TgcIdHelper->print_to_string(offid).c_str());
+			ATH_MSG_ERROR("TGCSimHitVariables::fillVariables() - Failed to retrieve TgcReadoutElement for "<<m_TgcIdHelper->print_to_string(offid).c_str());
 			return StatusCode::FAILURE;
 		}
 

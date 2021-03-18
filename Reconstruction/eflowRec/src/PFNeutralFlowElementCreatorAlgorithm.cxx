@@ -65,9 +65,13 @@ StatusCode PFNeutralFlowElementCreatorAlgorithm::createNeutralFlowElement(const 
 
     ATH_MSG_VERBOSE("Get original cluster link");
     ElementLink<xAOD::CaloClusterContainer> theOriginalClusterLink = thisEfRecCluster->getOriginalClusElementLink();
+    
+    ATH_MSG_VERBOSE("Cluster link valid? "<<theOriginalClusterLink.isValid()<<"");
     ATH_MSG_VERBOSE("Get sister cluster link");
     ElementLink<xAOD::CaloClusterContainer> theSisterClusterLink = (*theOriginalClusterLink)->getSisterClusterLink();
-
+    ATH_MSG_VERBOSE("Sister cluster link valid? "<<theSisterClusterLink.isValid()<<"");
+    
+    
     std::vector<ElementLink<xAOD::IParticleContainer> > theClusters;
     ElementLink< xAOD::IParticleContainer > theIParticleTrackLink; 
     if (theSisterClusterLink.isValid()) theIParticleTrackLink.resetWithKeyAndIndex(theSisterClusterLink.persKey(),theSisterClusterLink.persIndex()); 

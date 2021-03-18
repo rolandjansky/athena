@@ -13,7 +13,6 @@
 #include "MuonAGDDDescription/MMDetectorDescription.h"
 #include "MuonAGDDDescription/MMDetectorHelper.h"
 
-#include <TString.h> // for Form
 #include "TTree.h"
 
 StatusCode MMSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* MuonDetMgr) 
@@ -30,7 +29,7 @@ StatusCode MMSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* M
   MicromegasHitIdHelper* hitHelper = MicromegasHitIdHelper::GetHelper();
   MM_SimIdToOfflineId simToOffline(m_MmIdHelper);
 
-  if(nswContainer->size()==0) ATH_MSG_WARNING(" MMSimHit empty ");
+  if(!nswContainer->size()) ATH_MSG_DEBUG(m_ContainerName<<" container empty");
   for( auto it : *nswContainer ) {
     const MMSimHit hit = it;
 
@@ -134,7 +133,10 @@ StatusCode MMSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* M
                   << " phi " << m_MmIdHelper->stationPhi(offId) << " ml " << m_MmIdHelper->multilayer(offId) );
 
     const MuonGM::MMReadoutElement* detEl = MuonDetMgr->getMMReadoutElement(offId);
-    if (!detEl) throw std::runtime_error(Form("File: %s, Line: %d\nMMSimHitVariables::fillVariables() - Failed to retrieve MMReadoutElement for %s", __FILE__, __LINE__, m_MmIdHelper->print_to_string(offId).c_str()));
+    if (!detEl) {
+      ATH_MSG_ERROR("MMSimHitVariables::fillVariables() - Failed to retrieve MMReadoutElement for "<<m_MmIdHelper->print_to_string(offId).c_str());
+      return StatusCode::FAILURE;
+    }
 
     // surface
     const Trk::PlaneSurface& surf = detEl->surface(offId);

@@ -11,7 +11,6 @@
 
 // ISF
 #include "ISF_Event/ISFParticle.h"
-#include "ISF_FatrasDetDescrModel/PlanarDetElement.h"
 
 // Tracking
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
@@ -27,7 +26,6 @@
 // InDet
 // (0) InDet(DD)
 #include "SiClusterizationTool/ClusterMakerTool.h"
-#include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
 #include "ReadoutGeometryBase/SiDiodesParameters.h"
 #include "InDetPrepRawData/SiWidth.h"
@@ -385,33 +383,24 @@ void iFatras::HitCreatorSilicon::createSimHit(const ISF::ISFParticle& isp, const
    // the detector element cast -> needed 
    const InDetDD::SiDetectorElement* SiDetElement = dynamic_cast<const InDetDD::SiDetectorElement*>((detElementBase));
 
-   //Adding new lines for custom detector simulation
-   const iFatras::PlanarDetElement* PlanardetElement = dynamic_cast<const iFatras::PlanarDetElement*>((detElementBase));
-
    // return triggered if no siDetElement or no current particle link to the stack
-   if ( !SiDetElement && !PlanardetElement){
-     ATH_MSG_WARNING("[ sihit ] No Silicon & Planar Detector element available. Ignore this one.");
+   if ( !SiDetElement ){
+     ATH_MSG_WARNING("[ sihit ] No Silicon Detector element available. Ignore this one.");
      return;
    }
    
-   if( SiDetElement )
-     return createSimHit( isp, pars, time, SiDetElement, 1);
-   else return createSimHit( isp, pars, time, PlanardetElement, 0);
+   return createSimHit( isp, pars, time, *SiDetElement, 1);
    
 }
 
-template<typename ELEMENT>
-void iFatras::HitCreatorSilicon::createSimHit(const ISF::ISFParticle& isp, const Trk::TrackParameters& pars, double time, ELEMENT hitSiDetElement, bool isSiDetElement) const {
+void iFatras::HitCreatorSilicon::createSimHit(const ISF::ISFParticle& isp, const Trk::TrackParameters& pars, double time, const InDetDD::SiDetectorElement& hitSiDetElement, bool isSiDetElement) const {
   	
-  if (!isSiDetElement)
-    ATH_MSG_VERBOSE("[ sihit ] --> Running with PlanarDetElement");
-   
   // get surface and DetElement base
   const Trk::Surface &hitSurface = pars.associatedSurface();
      
   // get the identifier and hash identifier
   Identifier hitId         = hitSurface.associatedDetectorElementIdentifier();   
-  IdentifierHash hitIdHash = hitSiDetElement->identifyHash();
+  IdentifierHash hitIdHash = hitSiDetElement.identifyHash();
   // check conditions of the intersection
   if ( m_useConditionsTool ) {
     bool isActive = m_condSummaryTool->isActive(hitIdHash, hitId);                   // active = "element returns data"
@@ -430,7 +419,7 @@ void iFatras::HitCreatorSilicon::createSimHit(const ISF::ISFParticle& isp, const
    double interX = intersection.x();
    double interY = intersection.y();
    // thickness of the module
-   double thickness = hitSiDetElement->thickness();
+   double thickness = hitSiDetElement.thickness();
    // get the momentum direction into the local frame
    Amg::Vector3D particleDir = pars.momentum().unit();
    const Amg::Transform3D& sTransform = hitSurface.transform();
@@ -448,13 +437,13 @@ void iFatras::HitCreatorSilicon::createSimHit(const ISF::ISFParticle& isp, const
    double localExitY  = interY+0.5*distY;
    double   energyDeposit=0;   
    //!< @todo : fix edge effects 
-   const Amg::Transform3D &hitTransform = hitSiDetElement->transformHit().inverse();
+   const Amg::Transform3D &hitTransform = hitSiDetElement.transformHit().inverse();
    // transform into the hit frame
    Amg::Vector3D localEntry(hitTransform*(sTransform*Amg::Vector3D(localEntryX,localEntryY,-0.5*movingDirection*thickness)));
    Amg::Vector3D localExit(hitTransform*(sTransform*Amg::Vector3D(localExitX,localExitY,0.5*movingDirection*thickness))); 
 
-   bool isPix = hitSiDetElement->isPixel();
-   bool isSCT = hitSiDetElement->isSCT(); 
+   bool isPix = hitSiDetElement.isPixel();
+   bool isSCT = hitSiDetElement.isSCT(); 
 
    // Landau approximation
    double dEdX = m_fastEnergyDepositionModel ?
@@ -486,7 +475,7 @@ void iFatras::HitCreatorSilicon::createSimHit(const ISF::ISFParticle& isp, const
    if ( isSiDetElement )
      ATH_MSG_VERBOSE("[ sihit ] Adding an SiHit SiDetElement to the SiHitCollection.");
    else
-     ATH_MSG_VERBOSE("[ sihit ] Adding an SiHit PlanarDetElement to the SiHitCollection.");
+     ATH_MSG_VERBOSE("[ sihit ] SiHit SiDetElement not found to add to the SiHitCollection.");
    
    m_hitColl->Insert(siHit);
   

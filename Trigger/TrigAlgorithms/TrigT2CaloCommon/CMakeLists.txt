@@ -1,26 +1,26 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigT2CaloCommon )
 
 # External dependencies:
-find_package( tdaq-common )
+find_package( tdaq-common COMPONENTS eformat )
 find_package( TBB )
 
 # Component(s) in the package:
 atlas_add_library( TrigT2CaloCommonLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigT2CaloCommon
-                   INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthenaBaseComps AthenaKernel CaloEvent CaloGeoHelpers CaloIdentifier CxxUtils GaudiKernel IRegionSelector Identifier LArByteStreamLib LArCablingLib LArRawUtilsLib LArRecEvent TileByteStreamLib TileEvent TrigInterfacesLib TrigSteeringEvent TrigTimeAlgsLib ZdcByteStreamLib ZdcEvent ZdcRecLib xAODEventInfo xAODTrigCalo
-                   PRIVATE_LINK_LIBRARIES ${TBB_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthenaMonitoringKernelLib AthenaPoolUtilities ByteStreamCnvSvcBaseLib ByteStreamData CaloDetDescrLib CaloUtilsLib EventInfo LArBadChannelToolLib LArElecCalib LArIdentifier LArRecConditions LArRecUtilsLib LumiBlockCompsLib StoreGateLib TestTools TrigCaloEvent TrigT1Interfaces )
+                   PRIVATE_INCLUDE_DIRS ${TBB_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
+                   LINK_LIBRARIES AthenaBaseComps AthenaKernel AthenaMonitoringKernelLib CaloEvent CaloGeoHelpers CaloIdentifier GaudiKernel IRegionSelector Identifier LArByteStreamLib LArCablingLib LArRawUtilsLib LArRecEvent TileByteStreamLib TileEvent xAODEventInfo xAODTrigCalo
+                   PRIVATE_LINK_LIBRARIES ${TBB_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ByteStreamCnvSvcBaseLib CaloDetDescrLib CaloUtilsLib LArBadChannelToolLib LArElecCalib LArIdentifier LArRecConditions LArRecUtilsLib StoreGateLib TestTools TrigSteeringEvent )
 
 atlas_add_component( TrigT2CaloCommon
                      src/components/*.cxx
                      LINK_LIBRARIES TrigT2CaloCommonLib )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-extensions=ATL900,ATL901 )
 atlas_install_joboptions( share/*.py )
 
 # Tests:

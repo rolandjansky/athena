@@ -35,7 +35,7 @@ TrigConf::DataStructure::~DataStructure()
 void
 TrigConf::DataStructure::setData(const ptree & data)
 {
-   // need to add check that the data is not shared
+   clear();
    m_initialized = true;
    m_dataSPtr.reset();
    m_dataPtr = &data;
@@ -46,6 +46,7 @@ TrigConf::DataStructure::setData(const ptree & data)
 void
 TrigConf::DataStructure::setData(ptree&& data)
 {
+   clear();
    m_initialized = true;
    m_dataSPtr = std::make_shared<ptree>(move(data));
    m_dataPtr = &data;

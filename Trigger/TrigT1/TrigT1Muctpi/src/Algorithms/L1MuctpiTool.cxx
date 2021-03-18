@@ -440,7 +440,7 @@ namespace LVL1MUCTPI {
   //----------------------------------------------
   // execute() method called once per event
   //----------------------------------------------
-  StatusCode L1MuctpiTool::execute( ) {
+  StatusCode L1MuctpiTool::execute( ) const {
 
     // Now this is a tricky part. We have to force the message logging of the
     // MuCTPI simulation to display messages of the same level as this MsgStream.
@@ -460,7 +460,7 @@ namespace LVL1MUCTPI {
    * This is the default execute() function. It reads inputs from the RPC and TGC sector logics,
    * and runs the MuCTPI simulation with their inputs.
    */
-  StatusCode L1MuctpiTool::executeFromDigi() {
+  StatusCode L1MuctpiTool::executeFromDigi() const {
 
     ATH_MSG_DEBUG( "in executeFromDigi()" );
 
@@ -519,7 +519,7 @@ namespace LVL1MUCTPI {
 	mergedInput.hasOutOfTimeCandidates(LVL1MUONIF::Lvl1MuCTPIInput::idEndcapSystem()) || 
 	mergedInput.hasOutOfTimeCandidates(LVL1MUONIF::Lvl1MuCTPIInput::idForwardSystem()) ){
       
-      for (std::vector<int>::iterator it = m_bcidOffsetList.begin(); it != m_bcidOffsetList.end(); ++it){
+      for (std::vector<int>::const_iterator it = m_bcidOffsetList.begin(); it != m_bcidOffsetList.end(); ++it){
 	if (! mergedInput.isEmptyAll( (*it) ) ){
 	  // process the input in the MUCTPI simulation
 	  m_theMuctpi->processData( &mergedInput, (*it));      
@@ -537,7 +537,7 @@ namespace LVL1MUCTPI {
    * the muon RoIs back into the input format of the MuCTPI, then runs the MuCTPI information
    * with this transformed input.
    */
-  StatusCode L1MuctpiTool::executeFromAOD() {
+  StatusCode L1MuctpiTool::executeFromAOD() const {
 
     ATH_MSG_DEBUG( "in executeFromAOD()" );
 
@@ -578,7 +578,7 @@ namespace LVL1MUCTPI {
    * converts the muon data words back into the input format of the MuCTPI, then runs the
    * MuCTPI information with this transformed input.
    */
-  StatusCode L1MuctpiTool::executeFromRDO() {
+  StatusCode L1MuctpiTool::executeFromRDO() const {
 
     ATH_MSG_DEBUG( "in executeFromRDO()" );
 
@@ -675,7 +675,7 @@ namespace LVL1MUCTPI {
    * This function is used by all the different execute functions to save the output
    * of the MuCTPI simulation into various objects in StoreGate.
    */
-  StatusCode L1MuctpiTool::saveOutput(int bcidOffset) {
+  StatusCode L1MuctpiTool::saveOutput(int bcidOffset) const {
      
     /// the standart processing is done for the central slice, with no Bcid offset
     if (bcidOffset == 0 ) {

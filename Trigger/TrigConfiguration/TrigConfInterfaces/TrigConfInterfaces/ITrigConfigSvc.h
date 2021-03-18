@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ITrigConfigSvc.h 706340 2015-11-06 10:35:33Z krasznaa $
 #ifndef TRIGCONFINTERFACES_ITRIGCONFIGSVC_H
 #define TRIGCONFINTERFACES_ITRIGCONFIGSVC_H
 
@@ -25,13 +24,10 @@ namespace TrigConf {
     *
     * Note that this is used in particular to retrieve config info in an
     * offline analysis.
-    *
-    * $Revision: 706340 $
-    * $Date: 2015-11-06 11:35:33 +0100 (Fri, 06 Nov 2015) $
     */
-   class ITrigConfigSvc : public extend_interfaces3< IL1TopoConfigSvc,
-                                                     ILVL1ConfigSvc,
-                                                     IHLTConfigSvc > {
+   class ITrigConfigSvc : public extend_interfaces< IL1TopoConfigSvc,
+                                                    ILVL1ConfigSvc,
+                                                    IHLTConfigSvc > {
 
    public:
       /**@brief destructor*/

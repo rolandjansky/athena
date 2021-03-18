@@ -7,7 +7,7 @@
 
 #include <string>
 
-#include "./ConfigSvcBase.h"
+#include "ConfigSvcBase.h"
 
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
@@ -24,23 +24,18 @@ namespace TrigConf {
    class L1Menu;
 
    /**
-    *  $Date: 2009-02-04 09:12:03 $
-    *   @short Service providing the LVL1 trigger configuration
+    *  @brief Service providing the LVL1 trigger configuration
     *
     *  @author $Author: stelzer $
-    *  @version $Revision: 1.8 $
     *
     */
-   class LVL1ConfigSvc : public extends1<ConfigSvcBase, ILVL1ConfigSvc> {
+   class LVL1ConfigSvc : public extends<ConfigSvcBase, ILVL1ConfigSvc> {
    public:
 
       LVL1ConfigSvc( const std::string& name, ISvcLocator* pSvcLocator );
-      virtual ~LVL1ConfigSvc();
-      
+
       virtual StatusCode initialize() override;
       virtual StatusCode finalize() override;
-
-      virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvIF ) override;
 
       // Access functions described by ILVL1ConfigSvc:
       virtual const Muctpi* muctpiConfig() const override { return m_muctpi; }
@@ -104,7 +99,7 @@ namespace TrigConf {
       Gaudi::Property< std::string > m_bgsFileName { this, "JsonFileNameBGS", "", "file name of Bunchgroupset json file, needed if InputType is file" };
       Gaudi::Property< std::string > m_dbConnection { this, "TriggerDB", "TRIGGERDB", "DB connection alias, needed if InputType is db" };
       Gaudi::Property< unsigned int > m_smk { this, "SMK", 0, "DB smk, needed if InputType is db" };
-      Gaudi::Property< unsigned int > m_bgsk { this, "BGSK", 0, "DB bgsk, needed if InputType is db" };
+      Gaudi::Property< unsigned int > m_bgsk { this, "BGSK", 0, "DB bgsk, needed if InputType is db (optional for file InputType)" };
 
       // Run 2 style configuration
       CTPConfig*       m_ctpConfig { nullptr };

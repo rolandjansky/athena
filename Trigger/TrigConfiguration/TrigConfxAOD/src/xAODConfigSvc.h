@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODConfigSvc.h 631651 2014-11-27 18:33:16Z lheinric $
 #ifndef TRIGCONFXAOD_XAODCONFIGSVC_H
 #define TRIGCONFXAOD_XAODCONFIGSVC_H
 
@@ -70,13 +69,8 @@ namespace TrigConf {
     *         configuration for the current event.
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
-    *
-    * $Revision: 631651 $
-    * $Date: 2014-11-27 19:33:16 +0100 (Thu, 27 Nov 2014) $
     */
-   class xAODConfigSvc : public AthService,
-                         public virtual ITrigConfigSvc,
-                         public virtual IIncidentListener {
+   class xAODConfigSvc : public extends<AthService, ITrigConfigSvc, IIncidentListener> {
 
    public:
       /// Standard service constructor
@@ -110,12 +104,8 @@ namespace TrigConf {
       /// @{
 
       /// Get the HLT chains
-      virtual const HLTChainList* chainList() const override;
-      /// Get the HLT chains
       virtual const HLTChainList& chains() const override;
 
-      /// Get the HLT sequences
-      virtual const HLTSequenceList* sequenceList() const override;
       /// Get the HLT sequences
       virtual const HLTSequenceList& sequences() const override;
 
@@ -147,21 +137,6 @@ namespace TrigConf {
 
       /// @}
 
-      /// @name Dummy implementation of the IHLTConfigSvc interface
-      /// @{
-
-      /// Loads prescale sets in online running
-      virtual StatusCode updatePrescaleSets( uint /*requestcount*/ ) override {
-         return StatusCode::FAILURE;
-      }
-
-      /// Updates the prescales on the chain in online running
-      virtual StatusCode assignPrescalesToChains( uint /*lumiblock*/ ) override {
-         return StatusCode::FAILURE;
-      }
-
-      /// @}
-
       /// @name Impliment the JSON config interface.
       /// @{
 
@@ -182,10 +157,6 @@ namespace TrigConf {
 
       /// @}
 
-      /// Function describing to Gaudi the interface(s) implemented
-      virtual StatusCode queryInterface( const InterfaceID& riid,
-                                         void** ppvIf ) override;
-
       /// Function handling the incoming incidents
       virtual void handle( const Incident& inc ) override;
 
@@ -202,10 +173,13 @@ namespace TrigConf {
       /// Helper function for copying into the service's private data store
       void copyMetadataToPersonalStore(const xAOD::TriggerMenuJsonContainer* input, xAOD::TriggerMenuJsonContainer* existing);
 
-      /// Do per-event decoding for R3 serialised xAOD::TriggerMenuJson metadata
+      /// Do per-event updating of R3 JSON-based metadata, reading the data direct from the Conditions and Detector stores (UseInFileMetadata=False case).
+      StatusCode prepareEventRun3Athena(const EventContext& context);
+
+      /// Do per-event decoding for R3 in-file serialised xAOD::TriggerMenuJson metadata
       StatusCode prepareEventxAODTriggerMenuJson(const xAOD::TrigConfKeys* keys, const EventContext& context);
 
-      /// Do per-event decoding for R2 serliased xAOD::TriggerMenu metadata 
+      /// Do per-event decoding for R2 in-file serialised xAOD::TriggerMenu metadata 
       StatusCode prepareEventxAODTriggerMenu(const xAOD::TrigConfKeys* keys, const EventContext& context);
 
       /// Helper function to find a JSON in a given TriggerMenuJsonContainer using a given key, extract its ptree data
@@ -246,6 +220,26 @@ namespace TrigConf {
       Gaudi::Property< std::string > m_metaNameJSON_bg {this, "JSONMetaObjectNameBunchgroup", "TriggerMenuJson_BG",
         "StoreGate key for the xAOD::TriggerMenuJson BunchGroup configuration object"};
       /// @}
+
+      /// @name Names for reading the R3 payload directly (RAWtoESD, RAWtoALL)
+      /// @{
+
+      Gaudi::Property< std::string > m_hltMenuName{this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu",
+        "HLT Menu Key, for when UseInFileMetadata=False. Not a ReadHandleKey, as from the DetectorStore."};
+
+      Gaudi::Property< std::string > m_l1MenuName{this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu",
+        "L1 Menu Key, for when UseInFileMetadata=False. Not a ReadHandleKey, as from the DetectorStore"};
+
+      SG::ReadCondHandleKey<TrigConf::HLTPrescalesSet> m_HLTPrescaleSetKey{this, "HLTPrescales", "HLTPrescales", 
+         "HLT prescales set condition handle, for when UseInFileMetadata=False"};
+ 
+       SG::ReadCondHandleKey<TrigConf::L1PrescalesSet> m_L1PrescaleSetKey{this, "L1Prescales", "L1Prescales", 
+         "L1 prescales set condition handle, for when UseInFileMetadata=False"};
+      /// @}
+
+      Gaudi::Property<bool> m_useInFileMetadata{this, "UseInFileMetadata", true, "Flag for reading all configuration from the input POOL file(s). "
+        "This mode should be used everywhere except for: RAWtoALL from bytestream, RAWtoESD from bytestream. "
+        "If set to false, only the R3 configuration is supported."};
 
       Gaudi::Property<bool> m_stopOnFailure{this, "StopOnFailure", true, "Flag for stopping the job in case of a failure"};
       /// Internal state of the service

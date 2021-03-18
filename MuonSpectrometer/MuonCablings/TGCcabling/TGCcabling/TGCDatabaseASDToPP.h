@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCDATABASEASDTOPP_HH
@@ -14,7 +14,7 @@ class TGCDatabaseASDToPP : public TGCDatabase
 {
 public:
   // Constructor & Destructor
-  TGCDatabaseASDToPP (std::string filename, std::string blockname)
+  TGCDatabaseASDToPP (const std::string& filename, const std::string& blockname)
     : TGCDatabase(TGCDatabase::ASDToPP, filename, blockname), 
     m_NIndexDBIn(0), m_NIndexDBOut(0) 
     {

@@ -119,19 +119,6 @@ class reducedLArCalibFolders(_modifier):
         larCondFlags.OFCShapeFolder=""
 
 
-class shiftMBTSTiming(_modifier):
-    """
-    Shift MBTS timing by 45 ns in T2MBTS hypos
-    """
-    def postSetup(self):
-        if TriggerFlags.doHLT():
-            from AthenaCommon.AlgSequence import AlgSequence
-            topSequence = AlgSequence()
-            for child in topSequence.TrigSteer_HLT.getChildren():
-                if child.getType()=='T2MbtsHypo':
-                    child.GlobalTimeOffset=45
-
-
 class useHLTMuonAlign(_modifier):
     """
     Apply muon alignment
@@ -270,7 +257,8 @@ class allowCOOLUpdates(_modifier):
     """
     def postSetup(self):
         if hasattr(svcMgr,'HltEventLoopMgr'):
-            svcMgr.HltEventLoopMgr.CoolUpdateTool.enable()
+            from TrigServices.TrigServicesConfig import enableCOOLFolderUpdates
+            enableCOOLFolderUpdates(svcMgr.HltEventLoopMgr.CoolUpdateTool)
 
 class useOracle(_modifier):
     """
@@ -404,26 +392,6 @@ class forceConditions(_modifier):
 # Algorithm modifiers
 ###############################################################
 
-class enableCoherentPS(_modifier):
-    """
-    Enables coherent prescales
-    """
-    def postSetup(self):
-        if TriggerFlags.doHLT():
-            from AthenaCommon.AlgSequence import AlgSequence
-            topSequence = AlgSequence()
-            topSequence.TrigSteer_HLT.enableCoherentPrescaling=True
-
-
-class disableCachingMode(_modifier):
-    """
-    Disables caching in Steering/Naivigation
-    """
-    def postSetup(self):
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        topSequence.TrigSteer_HLT.cachingMode=0
-
 class physicsZeroStreaming(_modifier):
     """
     set all physics chains to stream prescale 0 except streamer chains
@@ -438,64 +406,6 @@ class physicsPTmode(_modifier):
     def preSetup(self):
         TriggerFlags.physics_pass_through=True
 
-
-class enableHotIDMasking(_modifier):
-    """
-    Masking of hot pixel and SCT modules enabled in L2 spacepoint provider
-    """
-    def postSetup(self):
-        from AthenaCommon.AppMgr import ToolSvc
-        if hasattr(ToolSvc,"OnlineSpacePointProviderTool"):
-            ToolSvc.OnlineSpacePointProviderTool.UsePixelClusterThreshold=True
-            ToolSvc.OnlineSpacePointProviderTool.UseSctClusterThreshold=True
-
-class disableCaloAllSamples(_modifier):
-    """
-    Request calorimeter data in 4 requests. Inefficient more needed for large sample (>5) running
-    """
-    def postSetup(self):
-        from AthenaCommon.AppMgr import ToolSvc
-        if hasattr(ToolSvc,"TrigDataAccess"):
-            ToolSvc.TrigDataAccess.loadAllSamplings=False
-
-class emulateMETROBs(_modifier):
-    """
-    Emulate the MET information as it would have been extracted from the MET ROBs online
-    """
-    def postSetup(self):
-        # See also Savannah bug 87398
-        from AthenaCommon.AppMgr import ToolSvc
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        if hasattr(ToolSvc,"TrigDataAccess") and TriggerFlags.doHLT():
-            ToolSvc.TrigDataAccess.loadFullCollections = True
-            for alg in topSequence.TrigSteer_HLT.getChildren():
-                if alg.getType()=='T2CaloMissingET':
-                    alg.OneByOne = True
-
-class ignoreL1Vetos(_modifier):
-    """
-    Also run algorithms for L1 items that trigger, but were vetoed (disabled or prescaled)
-    """
-    def postSetup(self):
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        if hasattr(topSequence,"TrigSteer_HLT"):
-            topSequence.TrigSteer_HLT.LvlConverterTool.ignorePrescales=True
-
-class optimizeChainOrder(_modifier):
-    """
-    Execute chains in order of decreasing RoI size
-    """
-    def postSetup(self):
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        if TriggerFlags.doHLT():
-            topSequence.TrigSteer_HLT.ExecutionOrderStrategy.order=[ 'name:.+beamspot.+',
-                                                                    'name:.+j.+',
-                                                                    'name:.+2tau.+',
-
-                                                                    'name:.+tau.+'  ]
 class disableIBLInTracking(_modifier):
     """
     Turn off IBL in tracking algorithms (data still available for PEB etc)
@@ -505,88 +415,6 @@ class disableIBLInTracking(_modifier):
         svcMgr.SpecialPixelMapSvc.MaskLayers = True
         svcMgr.SpecialPixelMapSvc.LayersToMask = [0]
 
-
-class detailedErrorStreams(_modifier):
-    """
-    Split hlterror streams into four separate streams
-    """
-    def postSetup(self):
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        if TriggerFlags.doHLT():
-            topSequence.TrigSteer_HLT.ResultBuilder.DefaultStreamTagForErrors='HltError'
-            topSequence.TrigSteer_HLT.ResultBuilder.ErrorStreamTags = ["ABORT_EVENT ALGO_ERROR TIMEOUT: HltTimeout debug",
-                                                                      "ABORT_EVENT NO_HLT_RESULT UNKNOWN: MissingData debug",
-                                                                      "ABORT_EVENT NO_HLT_RESULT USERDEF_1: MissingData debug",
-                                                                      "ABORT_EVENT WRONG_HLT_RESULT USERDEF_2: MissingData debug",
-                                                                      "ABORT_EVENT WRONG_HLT_RESULT USERDEF_4: MissingData debug",
-                                                                      ]
-
-class ignoreErrorStream(_modifier):
-    """
-    No events are sent to error stream
-    """
-    def postSetup(self):
-        errReasons = [ "MISSING_FEATURE", "GAUDI_EXCEPTION", "EFORMAT_EXCEPTION", "STD_EXCEPTION",
-                       "UNKNOWN_EXCEPTION", "NAV_ERROR", "MISSING_ROD", "CORRUPTED_ROD", "TIMEOUT", "BAD_JOB_SETUP",
-                       "USERDEF_1", "USERDEF_2", "USERDEF_3", "USERDEF_4" ]
-        errList = [ "ABORT_CHAIN " + x +" ALGO_ERROR: "  for  x in errReasons ]
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        if TriggerFlags.doHLT():
-            topSequence.TrigSteer_HLT.ResultBuilder.ErrorStreamTags = errList
-
-class inclusiveErrorStream(_modifier):
-    """
-    Events with errors are sent to both error and debug stream
-    """
-    def postSetup(self):
-        errReasons = [ "MISSING_FEATURE", "GAUDI_EXCEPTION", "EFORMAT_EXCEPTION", "STD_EXCEPTION",
-                       "UNKNOWN_EXCEPTION", "NAV_ERROR", "MISSING_ROD", "CORRUPTED_ROD", "TIMEOUT", "BAD_JOB_SETUP",
-                       "USERDEF_1", "USERDEF_2", "USERDEF_3", "USERDEF_4" ]
-        errList = [ "ABORT_CHAIN " + x +" ALGO_ERROR: hlterror physics"  for  x in errReasons ]
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        if TriggerFlags.doHLT():
-            topSequence.TrigSteer_HLT.ResultBuilder.ErrorStreamTags = errList
-
-class mufastDetMask(_modifier):
-    """
-    set mufast to use detector mask
-    """
-    def postSetup(self):
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        if hasattr(topSequence,'TrigSteer_HLT'):
-            for instance in ['muFast_Muon','muFast_900GeV','muFast_HALO']:
-                muFast = topSequence.TrigSteer_HLT.allConfigurables.get(instance)
-                if muFast:
-                    muFast.DetMaskCheck=True
-
-
-class muonCommissioningStep1(_modifier):
-    """
-    Set muon exclusive/inclusive thresholds according to commissioning step 1
-        (4 inclusive, 2 exclusive)
-    """
-    def postSetup(self):
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        if hasattr(topSequence,"TrigSteer_HLT"):
-            topSequence.TrigSteer_HLT.LvlConverterTool.Lvl1ResultAccessTool.muonCommissioningStep=1
-
-class muonEFTimeouts(_modifier):
-    """
-    set MuonEF to throw speculative timeout based on number of MDT hits
-    """
-    def postSetup(self):
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        if hasattr(topSequence,'TrigSteer_HLT'):
-            for inst in topSequence.TrigSteer_HLT.getAllChildren():
-                if inst.getType()=='TrigMuonEFSegmentFinder':
-                    inst.doTimeOutGuard=True
-                    inst.maxMdtHits=1000
 
 class doMuonRoIDataAccess(_modifier):
     """
@@ -779,6 +607,10 @@ class rewriteLVL1(_modifier):
             # online
             from AthenaCommon.AppMgr import ServiceMgr as svcMgr
             svcMgr.HltEventLoopMgr.RewriteLVL1 = True
+            if ConfigFlags.Trigger.enableL1Phase1:
+                svcMgr.HltEventLoopMgr.L1TriggerResultRHKey = 'L1TriggerResult'
+            if ConfigFlags.Trigger.enableL1CaloLegacy or not ConfigFlags.Trigger.enableL1Phase1:
+                svcMgr.HltEventLoopMgr.RoIBResultRHKey = 'RoIBResult'
         else:
             # offline
             from AthenaCommon.AlgSequence import AthSequencer
@@ -786,13 +618,11 @@ class rewriteLVL1(_modifier):
             seq = AthSequencer('AthOutSeq')
             streamBS = findAlgorithm(seq, 'BSOutputStreamAlg')
             if ConfigFlags.Trigger.enableL1Phase1:
-                out_type = 'xAOD::TrigCompositeContainer'
-                out_name = 'L1TriggerResult'
-            else:
-                out_type = 'ROIB::RoIBResult'
-                out_name = 'RoIBResult'
-            streamBS.ExtraInputs += [ (out_type, 'StoreGateSvc+'+out_name) ]
-            streamBS.ItemList += [ out_type+'#'+out_name ]
+                streamBS.ExtraInputs += [ ('xAOD::TrigCompositeContainer', 'StoreGateSvc+L1TriggerResult') ]
+                streamBS.ItemList += [ 'xAOD::TrigCompositeContainer#L1TriggerResult' ]
+            if ConfigFlags.Trigger.enableL1CaloLegacy or not ConfigFlags.Trigger.enableL1Phase1:
+                streamBS.ExtraInputs += [ ('ROIB::RoIBResult', 'StoreGateSvc+RoIBResult') ]
+                streamBS.ItemList += [ 'ROIB::RoIBResult#RoIBResult' ]
 
 
 class writeBS(_modifier):
@@ -803,69 +633,6 @@ class writeBS(_modifier):
         from AthenaCommon.Include import include
         include("TriggerJobOpts/BStoBS_post.py")
 
-
-class UseParamFromDataForBjet(_modifier):
-    """
-    Enables the usage of the JetProb calibration derived from data
-    """
-    def postSetup(self):
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        if hasattr(topSequence,"TrigSteer_HLT"):
-            for inst in topSequence.TrigSteer_HLT.getAllChildren():
-                if inst.getType()=='TrigBjetFex':
-                    inst.UseParamFromData=True
-
-
-class UseBeamSpotFlagForBjet(_modifier):
-    """
-    Enables the beam spot status flag check for b-jet
-    """
-    def postSetup(self):
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        if hasattr(topSequence,"TrigSteer_HLT"):
-            for inst in topSequence.TrigSteer_HLT.getAllChildren():
-                if inst.getType() in ['TrigBjetFex','TrigBtagFex','TrigSecVtxFinder','InDet::TrigVxSecondary','InDet::TrigVxSecondaryCombo','TrigBjetHypo']:
-                    log.debug('Setting %s.UseBeamSpotFlag = True', inst.getName())
-                    inst.UseBeamSpotFlag=True
-
-class UseRPCTimeDelayFromDataForMufast(_modifier):
-    """
-    Enables the RPC timing shift correction in data
-    """
-    def postSetup(self):
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        if hasattr(topSequence,"TrigSteer_HLT"):
-            for inst in topSequence.TrigSteer_HLT.getAllChildren():
-                if inst.getType()=='muFast':
-                    delay=-40
-                    if inst.name() == 'muFast_MuonEcut4Empty':
-                        delay=-15
-                    log.info('UseRPCTimeDelayFromDataForMufast: modifying RpcTimeDelay to %s for %s', delay,inst.name())
-                    inst.RpcTimeDelay=delay
-
-class UseLUTFromDataForMufast(_modifier):
-    """
-    Enables the usage of the LUTs derived from data
-    """
-    def postSetup(self):
-        from AthenaCommon.AlgSequence import AlgSequence
-        from AthenaCommon.AppMgr import ToolSvc
-        from TrigMuonBackExtrapolator.TrigMuonBackExtrapolatorConfig import MuonBackExtrapolatorForData
-        ToolSvc += MuonBackExtrapolatorForData()
-        topSequence = AlgSequence()
-
-        if hasattr(topSequence,"TrigSteer_HLT"):
-            for inst in topSequence.TrigSteer_HLT.getAllChildren():
-                if inst.getType()=='muFast':
-                    inst.UseLUTForMC=False
-                elif inst.getType()=='MuFastSteering':
-                    inst.UseLUTForMC=False
-                    log.info('UseLUTFromDataForMufast: set backExtrapolator to MuonBackExtrapolatorForData()')
-                    inst.BackExtrapolator = MuonBackExtrapolatorForData()
-
 class DisableMdtT0Fit(_modifier):
     """
     Disable MDT T0 re-fit and use constants from COOL instead
@@ -874,22 +641,6 @@ class DisableMdtT0Fit(_modifier):
         if TriggerFlags.doMuon():
             from MuonRecExample.MuonRecFlags import muonRecFlags
             muonRecFlags.doSegmentT0Fit.set_Value_and_Lock(False)
-
-class UseBackExtrapolatorDataForMuIso(_modifier):
-   """
-   Enables the usage of the BackExtrapolator derived from data
-   """
-   def postSetup(self):
-       from AthenaCommon.AlgSequence import AlgSequence
-       from AthenaCommon.AppMgr import ToolSvc
-       from TrigMuonBackExtrapolator.TrigMuonBackExtrapolatorConfig import MuonBackExtrapolatorForData
-       ToolSvc += MuonBackExtrapolatorForData()
-       topSequence = AlgSequence()
-       if hasattr(topSequence,"TrigSteer_HLT"):
-           for inst in topSequence.TrigSteer_HLT.getAllChildren():
-               if inst.getType()=='muIso':
-                   log.info('UseBackExtrapolatorDataForMuComb: set backExtrapolatorLUT to MuonBackExtrapolatorForData()')
-                   inst.BackExtrapolatorLUT = MuonBackExtrapolatorForData()
 
 ###############################################################
 # Monitoring and misc.
@@ -981,68 +732,6 @@ class enableALFAMon(_modifier):
             log.error('No ALFA ROB monitoring available.')
 
 
-class mufastDebug(_modifier):
-    """
-    enable additional log output from muFast
-    """
-    def postSetup(self):
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        if hasattr(topSequence,"TrigSteer_HLT"):
-            TrigSteer=topSequence.TrigSteer_HLT
-
-        muFast = TrigSteer.allConfigurables.get('muFast_Muon')
-        muFast.MUlvl1INFO  = True
-        muFast.MUtrackINFO = True
-        muFast.MUroadsINFO = True
-        muFast.MUdecoINFO  = True
-        muFast.MUcontINFO  = True
-        muFast.MUfitINFO   = True
-        muFast.MUsagINFO   = True
-        muFast.MUptINFO    = True
-        muFast.TestString = "muFast_Muon  REGTEST "
-        muFast = TrigSteer.allConfigurables.get('muFast_900GeV')
-        muFast.MUlvl1INFO  = True
-        muFast.MUtrackINFO = True
-        muFast.MUroadsINFO = True
-        muFast.MUdecoINFO  = True
-        muFast.MUcontINFO  = True
-        muFast.MUfitINFO   = True
-        muFast.MUsagINFO   = True
-        muFast.MUptINFO    = True
-        muFast.TestString = "muFast_900GeV  REGTEST "
-
-class disableLBHistos(_modifier):
-    """
-    Disable per lumiblock histograms in steering
-    """
-    def postSetup(self):
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        if hasattr(topSequence,"TrigSteer_HLT"):
-            topSequence.TrigSteer_HLT.MonTools["TrigChainMoniOnline"].useLBHistos=False
-            topSequence.TrigSteer_HLT.MonTools["TrigSignatureMoniOnline"].useLBHistos=False
-
-
-class caf(_modifier):
-    """
-    Detailed monitoring setup for CAF
-    """
-    def __init__(self):
-        _modifier.__init__(self)
-        self.modifiers = [detailedTiming()]
-        self.modifiers += [memMon()]   # temporary, see https://savannah.cern.ch/task/?21514
-
-    def preSetup(self):
-        TriggerFlags.enableMonitoring = ['Validation','Time']
-        for m in self.modifiers:
-            m.preSetup()
-
-    def postSetup(self):
-        for m in self.modifiers:
-            m.postSetup()
-
-
 class nameAuditors(_modifier):
     """
     Turn on name auditor
@@ -1092,20 +781,6 @@ class athMemAuditor(_modifier):
         svcMgr.AuditorSvc += CfgMgr.AthMemoryAuditor(MaxStacktracesPerAlg=20,
                                                      DefaultStacktraceDepth=50,
                                                      StacktraceDepthPerAlg=["Stream1 100"])
-class detailedTiming(_modifier):
-    """
-    Add detailed timing information
-    """
-    def postSetup(self):
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        svcMgr.TrigTimerSvc.IncludeName=".+"
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        if hasattr(topSequence,'TrigSteer_HLT'):
-            for instance in ['muFast_Muon','muFast_900GeV']:
-                muFast = topSequence.TrigSteer_HLT.allConfigurables.get(instance)
-                if muFast:
-                    muFast.Timing=True
 
 class perfmon(_modifier):
     """
@@ -1136,51 +811,6 @@ class enableSchedulerMon(_modifier):
             from AthenaCommon.AppMgr import ServiceMgr as svcMgr
             svcMgr.HltEventLoopMgr.MonitorScheduler = True
 
-class memMon(_modifier):
-    """
-    Enable TrigMemMonitor printout
-    """
-    def postSetup(self):
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        if TriggerFlags.doHLT():
-            try:
-                from AthenaCommon.Constants import VERBOSE
-                topSequence.TrigSteer_HLT.MonTools['TrigMemMonitor'].OutputLevel = VERBOSE  # noqa: ATL900
-            except KeyError:
-                log.warning("memMon=True but TrigMemMonitor not present in the HLTMonTools")
-
-class chainOrderedUp(_modifier):
-    """
-    run chains sorted by ascending chain counter
-    """
-    def postSetup(self):
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        if TriggerFlags.doHLT():
-            topSequence.TrigSteer_HLT.sortChains=1
-
-class chainOrderedDown(_modifier):
-    """
-    run chains sorted by descending chain counter
-    """
-    def postSetup(self):
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        if TriggerFlags.doHLT():
-            topSequence.TrigSteer_HLT.sortChains=-1
-
-class noCaching(_modifier):
-    """
-    Disable caching in steering
-    """
-    def postSetup(self):
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        if TriggerFlags.doHLT():
-            topSequence.TrigSteer_HLT.cachingMode = 0
-
-
 class enableFPE(_modifier):
     """
     Turn on floating point exceptions
@@ -1189,28 +819,10 @@ class enableFPE(_modifier):
         theApp.CreateSvc += ["FPEControlSvc"]
 
 
-class PeriodicScaler(_modifier):
-    """
-    Use periodic scaler to get fully reproducible results
-    """
-    def postSetup(self):
-        svcMgr.ScalerSvc.DefaultType = "HLT::PeriodicScaler"
-
-class PeriodicScalerTake1st(_modifier):
-    """
-    Use periodic scaler to get fully reproducible results but run all chains on 1st event
-    """
-    def postSetup(self):
-        svcMgr.ScalerSvc.DefaultType = "HLT::PeriodicScalerTake1st"
-
-
 class doValidation(_modifier):
     """
     Force validation mode (i.e. no message timestamps)
     """
-    def __init__(self):
-        _modifier.__init__(self)
-        self.modifiers = [PeriodicScalerTake1st(),chainOrderedUp()]
 
     def preSetup(self):
         TriggerFlags.Online.doValidation = True
@@ -1218,52 +830,6 @@ class doValidation(_modifier):
         TriggerFlags.enableMonitoring = filter(lambda x:x!='Online', TriggerFlags.enableMonitoring())+['Validation']
         for m in self.modifiers:
             m.preSetup()
-
-    def postSetup(self):
-        for m in self.modifiers:
-            m.postSetup()
-
-class TriggerRateTool(_modifier):
-    """
-    Make trigger rate tuple - only for running in athena
-    """
-    def postSetup(self):
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        from TriggerRateTools.TriggerRateToolsConf import TriggerRateTools
-        triggerRateTools = TriggerRateTools()
-        triggerRateTools.doTextOutput         = False
-        triggerRateTools.doVeto               = False
-        triggerRateTools.doRawTD              = True
-        triggerRateTools.IgnoreList           = ["L2_always","EF_always"]
-        triggerRateTools.CplxAndList          = []
-        triggerRateTools.CplxOrList           = []
-        triggerRateTools.PrescaleOverrideList = []
-        triggerRateTools.MenusList            = []
-        triggerRateTools.StreamsList          = []
-        topSequence += triggerRateTools
-        svcMgr.THistSvc.Output += ["TriggerRateTools DATAFILE='TriggerRates.root' OPT='RECREATE'"]
-        triggerRateTools.xSection = 0.070
-        triggerRateTools.Luminosity = 10000000.0
-        if hasattr(topSequence,"TrigSteer_HLT"):
-            topSequence.TrigSteer_HLT.ignorePrescales=True
-            topSequence.TrigSteer_HLT.LvlConverterTool.Lvl1ResultAccessTool.ignorePrescales=True
-
-
-class doMufastNtuple(_modifier):
-    """
-    fill mufast ntuple - does not work in online mode
-    """
-    def postSetup(self):
-        from AthenaCommon.AlgSequence import AlgSequence
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        topSequence = AlgSequence()
-        for algo in ['muFast_900GeV','muFast_HALO','muFast_Muon']:
-            if hasattr(topSequence.TrigSteer_HLT,algo):
-                getattr(topSequence.TrigSteer_HLT,algo).MONntuple=True
-        theApp.HistogramPersistency = "ROOT"
-        # output the ntuple file
-        svcMgr.NTupleSvc.Output = [ "FILE1 DATAFILE='mufast-ntuple.root' OPT='NEW'" ]
 
 class autoConditionsTag(_modifier):
     """
@@ -1283,16 +849,16 @@ class enableCostMonitoring(_modifier):
         from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
         flags.Trigger.CostMonitoring.doCostMonitoring = True
 
-class enableCostForCAF(_modifier):
+class forceCostMonitoring(_modifier):
     """
-    Enable Cost Monitoring for CAF processing - use together with enableCostMonitoring
-    Forces cost data to be collected in every event, not just in events for which the HLT
-    cost monitoring chain is active and passes its prescale check.
-    Not of as much use in Run 3, one can just unprescale the cost monitoring chain instead.
+    Enable Cost Monitoring and produce the monitoring collections in each event
+    without requiring the HLT cost monitoring chain to be present and active.
     """
     def preSetup(self):
         from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+        flags.Trigger.CostMonitoring.doCostMonitoring = True
         flags.Trigger.CostMonitoring.monitorAllEvents = True
+
 
 class BeamspotFromSqlite(_modifier):
     """
@@ -1330,39 +896,6 @@ class useDynamicAlignFolders(_modifier):
         InDetGeometryFlags.useDynamicAlignFolders.set_Value_and_Lock(True)
 
 
-class PixelOnlyZFinder(_modifier):
-    """
-    use only Pixel information in the ZFinder
-    it affects the operation of the beamspot
-    it should not be used in special runs:
-    evaluation of the beamspot w/o stable beams for example
-    """
-    def postSetup(self):
-        try:
-            from AthenaCommon.AppMgr import ToolSvc
-            zf = ToolSvc.TrigZFinder
-            zf.NumberOfPeaks = 4
-            zf.TripletMode = 1
-            zf.TripletDZ = 1
-            zf.PhiBinSize = 0.1
-            zf.MaxLayer = 3
-            zf.MinVtxSignificance = 10
-            zf.Percentile = 0.95
-        except AttributeError:
-            log.error("PixelOnlyZFinder set but no public instance of TrigZFinder")
-
-class tightenElectronTrackingCuts(_modifier):
-    """
-    run the electron tracking with clone removal to reduce amount of fakes in high occupancy
-    """
-    def postSetup(self):
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        try:
-            topSequence.TrigSteer_HLT.TrigFastTrackFinder_Electron_IDTrig.doCloneRemoval=True
-        except AttributeError:
-            log.error("Cannot modify doCloneRemoval setting")
-
 class doRuntimeNaviVal(_modifier):
     """
     Checks the validity of each Decision Object produced by a HypoAlg, including all of its
@@ -1372,9 +905,4 @@ class doRuntimeNaviVal(_modifier):
         log.info("Enabling Runtime Trigger Navigation Validation")
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         ConfigFlags.Trigger.doRuntimeNaviVal = True
-
-
-###############################################################
-# Modifiers believed to be obsolete.
-###############################################################
 

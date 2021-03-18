@@ -359,7 +359,7 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
   return muDecodeRecoSequence
 
 
-def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False ):
+def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False, extraLoads=None, l2mtmode=False ):
 
   from AthenaCommon.AppMgr import ToolSvc
   from AthenaCommon.CFElements import parOR
@@ -368,6 +368,8 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False ):
   postFix = ""
   if InsideOutMode:
     postFix = "IOmode"
+  elif l2mtmode:
+    postFix = "l2mtmode"
   muFastRecoSequence = parOR("l2Mu"+postFix+"ViewNode")
 
   # In insideout mode, need to inherit muon decoding objects for TGC, RPC, MDT, CSC
@@ -387,31 +389,27 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False ):
     #muFastRecoSequence+=ViewVerify
   else:
     ViewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs )]
-  ViewVerify.DataObjects += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
-                             ( 'DataVector< LVL1::RecMuonRoI >' , 'StoreGateSvc+HLT_RecMURoIs' )]
+  ViewVerify.DataObjects += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
+  if ConfigFlags.Trigger.enableL1Phase1:
+    ViewVerify.DataObjects += [( 'xAOD::MuonRoIContainer' , 'StoreGateSvc+LVL1MuonRoIs' )]
+  else:
+    ViewVerify.DataObjects += [( 'DataVector< LVL1::RecMuonRoI >' , 'StoreGateSvc+HLT_RecMURoIs' )]
 
+  #For L2 multi-track SA mode
+  if extraLoads:
+    ViewVerify.DataObjects += extraLoads
+  
   muFastRecoSequence += ViewVerify
 
   if MuonGeometryFlags.hasCSC():
     # Configure the L2 CSC data preparator - we can turn off the data decoding here
     from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__CscDataPreparator
-    L2CscDataPreparator = TrigL2MuonSA__CscDataPreparator(name = "L2MuonSACscDataPreparator",
-                                                          DecodeBS = False,
-                                                          DoDecoding = False,
-                                                          CscRawDataProvider   = "",
-                                                          CscPrepDataProvider  = "",
-                                                          CscClusterProvider   = "")
-    from RegionSelector.RegSelToolConfig import makeRegSelTool_CSC
-    L2CscDataPreparator.RegSel_CSC = makeRegSelTool_CSC()
+    L2CscDataPreparator = TrigL2MuonSA__CscDataPreparator(name = "L2MuonSACscDataPreparator")
     ToolSvc += L2CscDataPreparator
  
   # Configure the L2 MDT data preparator - we can turn off the data decoding here
   from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MdtDataPreparator
-  L2MdtDataPreparator = TrigL2MuonSA__MdtDataPreparator(name = "L2MuonSAMdtDataPreparator",
-                                                        DecodeBS = False,
-                                                        DoDecoding = False,
-                                                        MDT_RawDataProvider = "",
-                                                        MdtPrepDataProvider = "")
+  L2MdtDataPreparator = TrigL2MuonSA__MdtDataPreparator(name = "L2MuonSAMdtDataPreparator")
   from RegionSelector.RegSelToolConfig import makeRegSelTool_MDT
   L2MdtDataPreparator.RegSel_MDT = makeRegSelTool_MDT()
 
@@ -421,37 +419,27 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False ):
   ### RPC RDO data - turn off the data decoding here ###
   from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__RpcDataPreparator
   L2RpcDataPreparator = TrigL2MuonSA__RpcDataPreparator(name = "L2MuonSARpcDataPreparator",
-                                                        RpcPrepDataProvider  = "",
                                                         RpcPrepDataContainer = "RPC_Measurements",
-                                                        RpcRawDataProvider   = "",
-                                                        DoDecoding           = False,
-                                                        DecodeBS             = False,
                                                         TrigT1RPCRecRoiTool  = trigRpcRoiTool)
   ToolSvc += L2RpcDataPreparator
   from RegionSelector.RegSelToolConfig import makeRegSelTool_RPC
   L2RpcDataPreparator.RegSel_RPC = makeRegSelTool_RPC()
 
+  from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__RpcClusterPreparator
+  L2RpcClusterPreparator = TrigL2MuonSA__RpcClusterPreparator(name = "L2RpcClusterPreparator",
+                                                              TrigT1RPCRecRoiTool = trigRpcRoiTool)
+  ToolSvc += L2RpcClusterPreparator
 
   ### TGC data preparation - turn off the data decoding here ###
   from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__TgcDataPreparator
-  L2TgcDataPreparator = TrigL2MuonSA__TgcDataPreparator(name = "L2MuonSATgcDataPreparator",
-                                                        DecodeBS = False,
-                                                        DoDecoding = False,
-                                                        TgcPrepDataProvider  = "",
-                                                        TgcRawDataProvider = "")
-  from RegionSelector.RegSelToolConfig import makeRegSelTool_TGC
-  L2TgcDataPreparator.RegSel_TGC = makeRegSelTool_TGC()
+  L2TgcDataPreparator = TrigL2MuonSA__TgcDataPreparator(name = "L2MuonSATgcDataPreparator")
 
 
   ### sTGC RDO data - turn off the data decoding here ###
   if MuonGeometryFlags.hasSTGC():
     from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__StgcDataPreparator
     L2StgcDataPreparator = TrigL2MuonSA__StgcDataPreparator(name = "L2MuonSAStgcDataPreparator",
-                                                            StgcPrepDataProvider  = "",
-                                                            StgcPrepDataContainer = "STGC_Measurements",
-                                                            StgcRawDataProvider   = "",
-                                                            DoDecoding           = False,
-                                                            DecodeBS             = False)
+                                                            StgcPrepDataContainer = "STGC_Measurements")
     from RegionSelector.RegSelToolConfig import makeRegSelTool_sTGC
     L2StgcDataPreparator.RegSel_STGC = makeRegSelTool_sTGC()
     ToolSvc += L2StgcDataPreparator
@@ -461,18 +449,14 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False ):
   if MuonGeometryFlags.hasMM():
     from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MmDataPreparator
     L2MmDataPreparator = TrigL2MuonSA__MmDataPreparator(name = "L2MuonSAMmDataPreparator",
-                                                        MmPrepDataProvider  = "",
-                                                        MmPrepDataContainer = "MM_Measurements",
-                                                        # MmRawDataProvider   = "",
-                                                        DoDecoding           = False,
-                                                        DecodeBS             = False)
+                                                        MmPrepDataContainer = "MM_Measurements")
     from RegionSelector.RegSelToolConfig import makeRegSelTool_MM
     L2MmDataPreparator.RegSel_MM = makeRegSelTool_MM()
     ToolSvc += L2MmDataPreparator
 
   ### set up MuFastSteering ###
-  from TrigL2MuonSA.TrigL2MuonSAConfig import TrigL2MuonSAMTConfig
-  muFastAlg = TrigL2MuonSAMTConfig("Muon"+postFix)
+  from TrigL2MuonSA.TrigL2MuonSAConfig import TrigL2MuonSAConfig
+  muFastAlg = TrigL2MuonSAConfig("Muon"+postFix)
 
   from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MuFastDataPreparator
   MuFastDataPreparator = TrigL2MuonSA__MuFastDataPreparator(TrigT1RPCRecRoiTool = trigRpcRoiTool)
@@ -494,7 +478,8 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False ):
   
   muFastAlg.DataPreparator = MuFastDataPreparator
 
-  muFastAlg.RecMuonRoI = "HLT_RecMURoIs"
+  muFastAlg.Run2RecMuonRoI = "HLT_RecMURoIs"
+  muFastAlg.RecMuonRoI = "LVL1MuonRoIs"
   muFastAlg.MuRoIs = RoIs
   muFastAlg.MuonL2SAInfo = muNames.L2SAName+postFix
   muFastAlg.L2IOCB = muNames.L2CBName+postFix
@@ -507,12 +492,23 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False ):
   #Do not run topo road and inside-out mode at the same time
   if InsideOutMode:
     muFastAlg.topoRoad = False
+  
+  if l2mtmode:
+    muFastAlg.multitrackMode = True
+    muFastAlg.doEndcapForl2mt = False
+
+  if ConfigFlags.Trigger.enableL1Phase1:
+    muFastAlg.UseRun3Config = True
+  else:
+    muFastAlg.UseRun3Config = False
+
   muFastRecoSequence += muFastAlg
   sequenceOut = muFastAlg.MuonL2SAInfo
 
   return muFastRecoSequence, sequenceOut
 
-def muonIDFastTrackingSequence( RoIs, name, extraLoads=None, doLRT=False ):
+
+def muonIDFastTrackingSequence( RoIs, name, extraLoads=None, extraLoadsForl2mtmode=None, doLRT=False ):
 
   from AthenaCommon.CFElements import parOR
 
@@ -530,6 +526,9 @@ def muonIDFastTrackingSequence( RoIs, name, extraLoads=None, doLRT=False ):
   viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs )]
   if extraLoads:
     viewVerify.DataObjects += extraLoads
+
+  if extraLoadsForl2mtmode:
+    viewVerify.DataObjects += extraLoadsForl2mtmode
 
   for viewAlg in viewAlgs:
       muonIDFastTrackingSequence += viewAlg
@@ -568,57 +567,37 @@ def muonIDCosmicTrackingSequence( RoIs, name, extraLoads=None ):
 
 
 
-def muCombRecoSequence( RoIs, name ):
+def muCombRecoSequence( RoIs, name, l2mtmode=False ):
 
   from AthenaCommon.CFElements import parOR
-  muCombRecoSequence = parOR("l2muCombViewNode_"+name)
+  postFix = ""
+  if l2mtmode:
+    postFix = "l2mtmode"
+
+  muCombRecoSequence = parOR("l2muCombViewNode_"+name+postFix)
   ### A simple algorithm to confirm that data has been inherited from parent view ###
   ### Required to satisfy data dependencies                                       ###
   import AthenaCommon.CfgMgr as CfgMgr
-  ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muFastViewDataVerifier_"+name)
-  ViewVerify.DataObjects = [('xAOD::L2StandAloneMuonContainer','StoreGateSvc+%s' % muNames.L2SAName)]
+  ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muFast"+postFix+"ViewDataVerifier_"+name)
+  ViewVerify.DataObjects = [('xAOD::L2StandAloneMuonContainer','StoreGateSvc+%s' % muNames.L2SAName+postFix)]
 
   muCombRecoSequence+=ViewVerify
 
   ### please read out TrigmuCombMTConfig file ###
   ### and set up to run muCombMT algorithm    ###
   from TrigmuComb.TrigmuCombMTConfig import TrigmuCombMTConfig
-  muCombAlg = TrigmuCombMTConfig("Muon",name)
-  muCombAlg.L2StandAloneMuonContainerName = muNames.L2SAName
-  muCombAlg.L2CombinedMuonContainerName   = muNames.L2CBName
-  muCombAlg.TrackParticlesContainerName   = getIDTracks(name)
+  muCombAlg = TrigmuCombMTConfig("Muon"+postFix,name)
+  muCombAlg.L2StandAloneMuonContainerName = muNames.L2SAName+postFix
+  muCombAlg.L2CombinedMuonContainerName   = muNames.L2CBName+postFix
+  if l2mtmode:
+    muCombAlg.TrackParticlesContainerName   = getIDTracks()
+  else:
+    muCombAlg.TrackParticlesContainerName   = getIDTracks(name)
 
   muCombRecoSequence += muCombAlg
   sequenceOut = muCombAlg.L2CombinedMuonContainerName
 
   return muCombRecoSequence, sequenceOut
-
-
-def l2muisoRecoSequence( RoIs ):
-
-  import AthenaCommon.CfgMgr as CfgMgr
-  from AthenaCommon.CFElements import parOR
-
-  l2muisoRecoSequence = parOR("l2muIsoViewNode")
-
-  ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muCombViewDataVerifier")
-  ViewVerify.DataObjects = [('xAOD::TrackParticleContainer' , 'StoreGateSvc+'+ getIDTracks()),
-                            ('xAOD::L2CombinedMuonContainer','StoreGateSvc+'+muNames.L2CBName)]
-
-  l2muisoRecoSequence += ViewVerify
-
-  # set up algs
-  from TrigmuIso.TrigmuIsoConfig import TrigmuIsoMTConfig
-  trigL2muIso = TrigmuIsoMTConfig("TrigL2muIso")
-  trigL2muIso.MuonL2CBInfoName = muNames.L2CBName
-  trigL2muIso.TrackParticlesName = getIDTracks()
-  trigL2muIso.MuonL2ISInfoName = muNames.L2IsoMuonName
-
-  l2muisoRecoSequence += trigL2muIso
-
-  sequenceOut = trigL2muIso.MuonL2ISInfoName
-
-  return l2muisoRecoSequence, sequenceOut
 
 
 def muEFSARecoSequence( RoIs, name ):
@@ -720,8 +699,7 @@ def muEFCBRecoSequence( RoIs, name ):
   if "FS" in name:
     ViewVerifyMS.DataObjects +=[( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates_FS' )]
   else:
-    ViewVerifyMS.DataObjects +=[( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates'),
-                                ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData' )]
+    ViewVerifyMS.DataObjects +=[( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates')]
 
   if MuonGeometryFlags.hasCSC():
     ViewVerifyMS.DataObjects += [( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' )]
@@ -755,9 +733,7 @@ def muEFCBRecoSequence( RoIs, name ):
     ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("muonCBIDViewDataVerifier")
     ViewVerifyTrk.DataObjects = [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+'+getIDTracks() ),
                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
-                                 ( 'xAOD::IParticleContainer' , 'StoreGateSvc+'+ getIDTracks() ),
-                                 ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
-                                 ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )] #seems to be necessary, despite the load below
+                                 ( 'xAOD::IParticleContainer' , 'StoreGateSvc+'+ getIDTracks() )]
 
     if globalflags.InputFormat.is_bytestream():
       ViewVerifyTrk.DataObjects += [( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
@@ -795,11 +771,17 @@ def muEFCBRecoSequence( RoIs, name ):
   #No easy way to access AtlasHoleSearchTool in theIndetCandidateAlg
   from AthenaCommon.AppMgr import ToolSvc
   from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
-  from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConditionsSummaryTool
-  ToolSvc.AtlasHoleSearchTool.BoundaryCheckTool.SctSummaryTool = SCT_ConditionsSummaryTool(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryToolWithoutFlagged'))
-
-  from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSCTConditionsSummaryTool
-  ToolSvc.CombinedMuonIDHoleSearch.BoundaryCheckTool.SctSummaryTool = InDetTrigSCTConditionsSummaryTool
+  from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
+  sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryToolWithoutFlagged'))
+  sct_ConditionsSummaryToolSetupWithoutFlagged.setup()
+  ToolSvc.AtlasHoleSearchTool.BoundaryCheckTool.SctSummaryTool = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()
+  ToolSvc.CombinedMuonIDHoleSearch.BoundaryCheckTool.SctSummaryTool = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()
+  if globalflags.InputFormat.is_bytestream():
+    ToolSvc.AtlasHoleSearchTool.BoundaryCheckTool.SctSummaryTool.ConditionsTools=['SCT_ConfigurationConditionsTool/InDetTrigInDetSCT_ConfigurationConditionsTool','SCT_ByteStreamErrorsTool/InDetTrigInDetSCT_ByteStreamErrorsTool']
+    ToolSvc.CombinedMuonIDHoleSearch.BoundaryCheckTool.SctSummaryTool.ConditionsTools=['SCT_ConfigurationConditionsTool/InDetTrigInDetSCT_ConfigurationConditionsTool','SCT_ByteStreamErrorsTool/InDetTrigInDetSCT_ByteStreamErrorsTool']
+  else:
+    ToolSvc.AtlasHoleSearchTool.BoundaryCheckTool.SctSummaryTool.ConditionsTools=['SCT_ConfigurationConditionsTool/InDetTrigInDetSCT_ConfigurationConditionsTool']
+    ToolSvc.CombinedMuonIDHoleSearch.BoundaryCheckTool.SctSummaryTool.ConditionsTools=['SCT_ConfigurationConditionsTool/InDetTrigInDetSCT_ConfigurationConditionsTool']
 
   #MS ID combination
   candidatesName = "MuonCandidates"
@@ -894,8 +876,17 @@ def muEFInsideOutRecoSequence(RoIs, name):
                                                          InDetCandidateLocation="InDetCandidates_"+name)
     from AthenaCommon.AppMgr import ToolSvc
     from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
-    from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConditionsSummaryTool
-    ToolSvc.CombinedMuonIDHoleSearch.BoundaryCheckTool.SctSummaryTool = SCT_ConditionsSummaryTool(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryToolWithoutFlagged'))
+    from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
+    sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryToolWithoutFlagged'))
+    sct_ConditionsSummaryToolSetupWithoutFlagged.setup()
+    ToolSvc.AtlasHoleSearchTool.BoundaryCheckTool.SctSummaryTool = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()
+    ToolSvc.CombinedMuonIDHoleSearch.BoundaryCheckTool.SctSummaryTool = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()
+    if globalflags.InputFormat.is_bytestream():
+      ToolSvc.AtlasHoleSearchTool.BoundaryCheckTool.SctSummaryTool.ConditionsTools=['SCT_ConfigurationConditionsTool/InDetTrigInDetSCT_ConfigurationConditionsTool','SCT_ByteStreamErrorsTool/InDetTrigInDetSCT_ByteStreamErrorsTool']
+      ToolSvc.CombinedMuonIDHoleSearch.BoundaryCheckTool.SctSummaryTool.ConditionsTools=['SCT_ConfigurationConditionsTool/InDetTrigInDetSCT_ConfigurationConditionsTool','SCT_ByteStreamErrorsTool/InDetTrigInDetSCT_ByteStreamErrorsTool']
+    else:
+      ToolSvc.AtlasHoleSearchTool.BoundaryCheckTool.SctSummaryTool.ConditionsTools=['SCT_ConfigurationConditionsTool/InDetTrigInDetSCT_ConfigurationConditionsTool']
+      ToolSvc.CombinedMuonIDHoleSearch.BoundaryCheckTool.SctSummaryTool.ConditionsTools=['SCT_ConfigurationConditionsTool/InDetTrigInDetSCT_ConfigurationConditionsTool']
 
     efAlgs.append(theIndetCandidateAlg)
 

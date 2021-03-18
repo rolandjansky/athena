@@ -7,17 +7,27 @@
 # art-include: master/Athena
 # art-include: 21.3/Athena
 # art-include: 21.9/Athena
-# art-athena-mt: 8                                                                                                                                     
+# art-athena-mt: 8         
 
 Reco_tf.py \
 --AMI=q220 \
+--conditionsTag 'all:CONDBR2-BLKPA-RUN2-03' \
 --athenaopts='--threads=8' \
---maxEvents=100 \
+--maxEvents=500 \
 --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root --outputHISTFile=myHIST.root --imf False
 
-echo "art-result: $?"
 
-ArtPackage=$1
-ArtJobName=$2
-art.py compare grid --entries 30 ${ArtPackage} ${ArtJobName}
-echo "art-result: $?"
+rc1=$?
+echo "art-result: $rc1 Reco"
+
+rc2=-9999
+if [ ${rc1} -eq 0 ]
+then
+  ArtPackage=$1
+  ArtJobName=$2
+  art.py compare grid --entries 20 ${ArtPackage} ${ArtJobName} --mode=semi-detailed
+  rc2=$?
+fi
+echo  "art-result: ${rc2} Diff"
+
+

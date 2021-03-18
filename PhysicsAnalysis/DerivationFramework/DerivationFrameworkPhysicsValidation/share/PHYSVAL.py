@@ -14,12 +14,12 @@ from DerivationFrameworkEGamma import EGammaCommon
 from DerivationFrameworkEGamma import ElectronsCPDetailedContent
 from DerivationFrameworkMuons import MuonsCommon
 from DerivationFrameworkJetEtMiss.JetCommon import OutputJets
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets, addDefaultTrimmedJets, addJetTruthLabel, addQGTaggerTool
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets, addDefaultTrimmedJets, addJetTruthLabel, addQGTaggerTool, getPFlowfJVT
 from DerivationFrameworkJetEtMiss import METCommon
-from TriggerMenu.api.TriggerAPI import TriggerAPI
-from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
+from TriggerMenuMT.TriggerAPI.TriggerAPI import TriggerAPI
+from TriggerMenuMT.TriggerAPI.TriggerEnums import TriggerPeriod, TriggerType
 from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelper
-
+from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 #====================================================================
 # SET UP STREAM   
 #====================================================================
@@ -113,14 +113,14 @@ trigmatching_helper_tau = TriggerMatchingHelper(name='PHYSVALTriggerMatchingTool
 #====================================================================
 
 OutputJets["PHYSVAL"] = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
-reducedJetList = ["AntiKt2PV0TrackJets","AntiKt4PV0TrackJets","AntiKt10PV0TrackJets","AntiKt10LCTopoJets"]
+reducedJetList = ["AntiKt2PV0TrackJets","AntiKt4PV0TrackJets","AntiKt10PV0TrackJets","AntiKtVR30Rmax4Rmin02PV0TrackJets","AntiKt10LCTopoJets"]
 
 if (DerivationFrameworkIsMonteCarlo):
    OutputJets["PHYSVAL"].append("AntiKt10TruthTrimmedPtFrac5SmallR20Jets")
 
 replaceAODReducedJets(reducedJetList,SeqPHYSVAL,"PHYSVAL")
 add_largeR_truth_jets = DerivationFrameworkIsMonteCarlo and not hasattr(SeqPHYSVAL,'jetalgAntiKt10TruthTrimmedPtFrac5SmallR20')
-addDefaultTrimmedJets(SeqPHYSVAL,"PHYSVAL",dotruth=add_largeR_truth_jets)
+addDefaultTrimmedJets(SeqPHYSVAL,"PHYSVAL",dotruth=add_largeR_truth_jets,linkVRGhosts=True)
 
 # Add large-R jet truth labeling
 if (DerivationFrameworkIsMonteCarlo):
@@ -130,7 +130,7 @@ addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=SeqPHYSVAL,algname="QGTaggerTool
 addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqPHYSVAL,algname="QGTaggerToolPFAlg")
 
 # fJVT
-# getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqPHYSVAL, algname='PHYSVALJetForwardPFlowJvtToolAlg')
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqPHYSVAL, algname='PHYSVALJetForwardPFlowJvtToolAlg')
 
 #====================================================================
 # EGAMMA
@@ -195,6 +195,7 @@ PHYSVALSlimmingHelper.SmartCollections = ["Electrons",
                                        "DiTauJets",
                                        "DiTauJetsLowPt",
                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                                       "AntiKtVR30Rmax4Rmin02PV0TrackJets",
                                       ]
 
 PHYSVALSlimmingHelper.AllVariables =  ["Electrons", "ForwardElectrons",

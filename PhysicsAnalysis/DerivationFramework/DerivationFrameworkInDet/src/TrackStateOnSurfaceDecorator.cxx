@@ -196,6 +196,8 @@ namespace DerivationFramework {
        names[kTrkL2ZDecor]="TrkL2Z";
        createDecoratorKeys(*this,m_containerName, m_sgName, names, m_trackPixFloatDecorKeys);
     }
+    m_trackTSOSMOSLinkDecorKey = m_containerName.key() + "." + m_sgName + "msosLink";
+    ATH_CHECK( m_trackTSOSMOSLinkDecorKey.initialize() );
 
     ATH_MSG_DEBUG("Initialization finished.");
 
@@ -213,7 +215,7 @@ namespace DerivationFramework {
     const EventContext& ctx = Gaudi::Hive::currentContext();
     ATH_MSG_DEBUG("Adding TSOS decorations the track particles");
 
-    static SG::AuxElement::Decorator< std::vector< ElementLink< xAOD::TrackStateValidationContainer > > >  dectsos_msosLink(m_sgName+"msosLink");
+    SG::WriteDecorHandle<xAOD::TrackParticleContainer,std::vector< ElementLink< xAOD::TrackStateValidationContainer >  > > dectsos_msosLink(m_trackTSOSMOSLinkDecorKey);
 
     // --- Retrieve track container (absolutely needed for decoration)
     SG::ReadHandle<xAOD::TrackParticleContainer> tracks(m_containerName,ctx);

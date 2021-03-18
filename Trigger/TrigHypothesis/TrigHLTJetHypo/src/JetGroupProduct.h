@@ -10,7 +10,6 @@
 #include "./DebugInfoCollector.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 #include <vector>
-#include <optional>
 
 using CondInd2JetGroupsInds = std::map<int, std::vector<std::size_t>>;
 
@@ -37,11 +36,15 @@ class JetGroupProduct: public IJetGroupProduct{
 		  );
 
   virtual
-  std::optional<std::vector<std::size_t>> next(const Collector&) override;
+  std::vector<std::size_t> next(const Collector&) override;
   
  private:
   std::vector<std::vector<std::size_t>>  m_condIndices;
+  std::vector<bool>  m_jetMask;
+  std::size_t  m_jetEnd{0};
   ProductGen m_productGen;
+  std::vector<std::vector<std::size_t>> m_seenIndices;
+
 };
 
 #endif

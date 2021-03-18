@@ -1,18 +1,14 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "TrigTauRecMergedMT.h"
+
 #include "GaudiKernel/SystemOfUnits.h"
+#include "AthenaMonitoringKernel/Monitored.h"
+#include "AthAnalysisBaseComps/AthAnalysisHelper.h"
 
-#include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-
-#include "EventKernel/INavigable4Momentum.h"
-#include "NavFourMom/INavigable4MomentumCollection.h"
-
-#include "CaloEvent/CaloCellContainer.h"
-#include "Particle/TrackParticleContainer.h"
-#include "VxVertex/VxContainer.h"
 
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/VertexContainer.h"
@@ -30,11 +26,6 @@
 #include "xAODTau/TauTrackContainer.h"
 #include "xAODTau/TauTrackAuxContainer.h"
 
-#include "TrigTauRecMergedMT.h"
-#include "AthenaMonitoringKernel/Monitored.h"
-
-#include "AthAnalysisBaseComps/AthAnalysisHelper.h"
-
 #include <iterator>
 #include <algorithm>
 
@@ -43,10 +34,6 @@
 TrigTauRecMergedMT::TrigTauRecMergedMT(const std::string& name,ISvcLocator* pSvcLocator)
   :AthReentrantAlgorithm(name, pSvcLocator)
 {
-}
-
-TrigTauRecMergedMT::~TrigTauRecMergedMT()
-{ 
 }
 
 StatusCode TrigTauRecMergedMT::initialize()
@@ -85,14 +72,21 @@ StatusCode TrigTauRecMergedMT::initialize()
     ATH_CHECK( m_monTool.retrieve() );
   }
 
+  // Retrieve beam conditions
+  if(m_beamSpotKey.initialize().isFailure()) {
+    ATH_MSG_WARNING( "Unable to retrieve Beamspot key" );
+  } else {
+    ATH_MSG_DEBUG( "Successfully retrieved Beamspot key" );
+  }
+  
   ATH_MSG_DEBUG("Initialising HandleKeys");
   ATH_CHECK(m_roIInputKey.initialize());
   ATH_CHECK(m_L1RoIKey.initialize());
-  ATH_CHECK(m_clustersKey.initialize(!m_clustersKey.key().empty()));
-  ATH_CHECK(m_tracksKey.initialize(!m_tracksKey.key().empty()));
-  ATH_CHECK(m_vertexKey.initialize(!m_vertexKey.key().empty()));
-  ATH_CHECK(m_trigTauJetKey.initialize(!m_trigTauJetKey.key().empty()));
-  ATH_CHECK(m_trigTauTrackInKey.initialize(!m_trigTauTrackInKey.key().empty()));
+  ATH_CHECK(m_clustersKey.initialize(SG::AllowEmpty));
+  ATH_CHECK(m_tracksKey.initialize(SG::AllowEmpty));
+  ATH_CHECK(m_vertexKey.initialize(SG::AllowEmpty));
+  ATH_CHECK(m_trigTauJetKey.initialize(SG::AllowEmpty));
+  ATH_CHECK(m_trigTauTrackInKey.initialize(SG::AllowEmpty));
   ATH_CHECK(m_trigtauSeedOutKey.initialize());
   ATH_CHECK(m_trigtauRecOutKey.initialize());
   ATH_CHECK(m_trigtauTrkOutKey.initialize());
@@ -100,10 +94,6 @@ StatusCode TrigTauRecMergedMT::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigTauRecMergedMT::finalize()
-{
-  return StatusCode::SUCCESS;
-}
 StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG("Execution");
@@ -164,7 +154,11 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
   auto ptDetectorAxis     = Monitored::Scalar<float>("ptDetectorAxis",-99.9);
   auto RNN_tracknumber    = Monitored::Scalar<int>("RNN_tracknumber",0);
   auto RNN_clusternumber  = Monitored::Scalar<int>("RNN_clusternumber",0); 
-   
+ 
+  auto EF_beamspot_x    = Monitored::Scalar<float>("beamspot_x",-999.9);
+  auto EF_beamspot_y    = Monitored::Scalar<float>("beamspot_y",-999.9);
+  auto EF_beamspot_z    = Monitored::Scalar<float>("beamspot_z",-999.9);
+
   auto EF_calo_errors     = Monitored::Collection("calo_errors",calo_errors);
   auto EF_track_errors    = Monitored::Collection("track_errors",track_errors);
 
@@ -188,7 +182,7 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
                    EtFinal, Et, EtHad, EtEm, EMFrac, IsoFrac, centFrac, nWideTrk, ipSigLeadTrk, trFlightPathSig, massTrkSys,
                    dRmax, numTrack, trkAvgDist, etovPtLead, PSSFraction, EMPOverTrkSysP, ChPiEMEOverCaloEME, SumPtTrkFrac,
                    innerTrkAvgDist, Ncand, EtaL1, PhiL1, EtaEF, PhiEF, mEflowApprox, ptRatioEflowApprox, pt_jetseed_log, ptDetectorAxis, RNN_clusternumber, Cluster_et_log, Cluster_dEta, Cluster_dPhi, Cluster_log_SECOND_R,
-                   Cluster_SECOND_LAMBDA, Cluster_CENTER_LAMBDA, RNN_tracknumber, Track_pt_log, Track_dEta, Track_dPhi, Track_z0sinThetaTJVA_abs_log, Track_d0_abs_log, Track_nIBLHitsAndExp,
+                   Cluster_SECOND_LAMBDA, Cluster_CENTER_LAMBDA, RNN_tracknumber, EF_beamspot_x, EF_beamspot_y, EF_beamspot_z, EF_calo_errors, EF_track_errors, Track_pt_log, Track_dEta, Track_dPhi, Track_z0sinThetaTJVA_abs_log, Track_d0_abs_log, Track_nIBLHitsAndExp,
                    Track_nPixelHitsPlusDeadSensors, Track_nSCTHitsPlusDeadSensors); 
 
 
@@ -213,6 +207,7 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
   }
   else {
     ATH_MSG_ERROR("Failed to find RoiDescriptor ");
+    calo_errors.push_back(NoROIDescr);
     return StatusCode::FAILURE;
   }
 
@@ -275,9 +270,13 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
     if(RoICaloClusterContainer != nullptr) {
       ATH_MSG_DEBUG( "CaloCluster container found of size: " << RoICaloClusterContainer->size());
       //If size is zero, don't stop just continue to produce empty TauJetCollection
+      if( RoICaloClusterContainer->size() < 1) {
+          calo_errors.push_back(NoClustCont);
+      }
     }
     else {
       ATH_MSG_ERROR( "no CaloCluster container found " );
+      calo_errors.push_back(NoClustCont);
       return StatusCode::FAILURE;
     }
 
@@ -459,18 +458,6 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
 		    << " Tau phi: " << p_tau->phi()
 		    << " Tau pT : "<< p_tau->pt());
     }
-	  
-    // Get L1 RoiDescriptor
-    SG::ReadHandle< TrigRoiDescriptorCollection > L1roisHandle = SG::makeHandle( m_L1RoIKey, ctx );
-
-    if ( L1roisHandle.isValid() && (L1roisHandle->size() != 0) ) {
-      const TrigRoiDescriptor *roiL1Descriptor = L1roisHandle->at(0);      
-      EtaL1 = roiL1Descriptor->eta();
-      PhiL1 = roiL1Descriptor->phi();
-    }
-    else {
-      ATH_MSG_WARNING("Failed to retrieve L1 RoI descriptor!");
-    }
 
     // get tau detail variables for Monitoring
 
@@ -507,7 +494,9 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
     PhiEF = p_tau->phi();
 	  
     if( Et !=0) EMFrac =  EtEm/ Et ;
-	  
+
+    EtaL1 = roiDescriptor->eta();
+    PhiL1 = roiDescriptor->phi();	  
     dEta =  EtaEF - roiDescriptor->eta();
     dPhi =  PhiEF - roiDescriptor->phi();
     if(dPhi<-M_PI) dPhi += 2.0*M_PI;
@@ -585,7 +574,25 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
         cluster_CENTER_LAMBDA.push_back(center_lambda);
      
     }
-   
+  
+    // Get beamspot
+    // Copy the first vertex from a const object
+    xAOD::Vertex theBeamspot;
+    theBeamspot.makePrivateStore();
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
+    if(beamSpotHandle.isValid()){
+
+        // Alter the position of the vertex
+        theBeamspot.setPosition(beamSpotHandle->beamPos()); 
+
+        EF_beamspot_x=theBeamspot.x();
+        EF_beamspot_y=theBeamspot.y();
+        EF_beamspot_z=theBeamspot.z();
+
+        // Create a AmgSymMatrix to alter the vertex covariance mat.
+        const AmgSymMatrix(3) &cov = beamSpotHandle->beamVtx().covariancePosition();
+        theBeamspot.setCovariancePosition(cov);
+    }
 
     ATH_MSG_DEBUG(" Roi: " << roiDescriptor->roiId()
 		  << " Tau being saved eta: " << EtaEF << " Tau phi: " << PhiEF

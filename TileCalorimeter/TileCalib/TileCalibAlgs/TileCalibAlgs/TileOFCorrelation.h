@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //*************************************************************************************
@@ -34,6 +34,9 @@ class TileOFCorrelation
 
   TileOFCorrelation();
   ~TileOFCorrelation(); 
+
+  TileOFCorrelation(const TileOFCorrelation&) = delete;
+  TileOFCorrelation& operator=(const TileOFCorrelation&) = delete;
 
   void SetCorrelationZero(MsgStream & log, int dignum);
   void SetCorrelationDelta(MsgStream & log, int dignum);

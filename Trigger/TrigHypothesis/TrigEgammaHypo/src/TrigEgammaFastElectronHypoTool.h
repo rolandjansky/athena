@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGEGAMMAHYPO_TRIGEGAMMAFASTELECTRONHYPOTOOL_H
 #define TRIGEGAMMAHYPO_TRIGEGAMMAFASTELECTRONHYPOTOOL_H 1
 
 #include "Gaudi/Property.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "xAODTrigEgamma/TrigElectronContainer.h"
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -26,9 +26,7 @@ class TrigEgammaFastElectronHypoTool : virtual public ::AthAlgTool
 			  const std::string& name, 
 			  const IInterface* parent );
 
-  virtual ~TrigEgammaFastElectronHypoTool();
   virtual StatusCode initialize() override;
-
 
 
   struct ElectronInfo {
@@ -72,7 +70,7 @@ class TrigEgammaFastElectronHypoTool : virtual public ::AthAlgTool
   HLT::Identifier m_decisionId;
   Gaudi::Property<bool>  m_decisionPerCluster{ this, "DecisionPerCluster", true, "Is multiplicity requirement refering to electrons ( false ) or RoIs/clusters with electrons ( false ), relevant only in when multiplicity > 1" };
   Gaudi::Property<bool>  m_acceptAll{ this, "AcceptAll", false, "Ignore selection" };
-  Gaudi::Property< std::vector<float> > m_trackPt{ this, "TrackPt",  { float( 5.0*CLHEP::GeV ) }, "Track pT requirement ( separate threshold for each electron )" };
+  Gaudi::Property< std::vector<float> > m_trackPt{ this, "TrackPt",  { float( 5.0*Gaudi::Units::GeV ) }, "Track pT requirement ( separate threshold for each electron )" };
   Gaudi::Property< std::vector<float> > m_caloTrackDEta{ this,  "CaloTrackdETA", {0}, "Delta Eta between the track and cluster"      }; //loose cut
   Gaudi::Property< std::vector<float> > m_caloTrackDPhi{ this,  "CaloTrackdPHI", {0}, "Delta Phi between track and cluster"     }; //loose cut
   Gaudi::Property< std::vector<float> > m_caloTrackdEoverPLow{ this,  "CaloTrackdEoverPLow", {0}, "Min E over Pt cut "};

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ----------------------------------------------
@@ -81,7 +81,7 @@ class BSignalFilter : public GenFilter
   bool LVL2_eMu_Trigger(HepMC::ConstGenParticlePtr child) const;
   
   // Print child (for debug)
-  void PrintChild(HepMC::ConstGenParticlePtr child, const std::string treeIDStr, const bool fromFinalB) const; 
+  void PrintChild(HepMC::ConstGenParticlePtr child, const std::string& treeIDStr, const bool fromFinalB) const; 
   
 };
 

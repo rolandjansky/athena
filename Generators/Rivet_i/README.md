@@ -18,10 +18,10 @@ for using standalone Rivet. This tutorial will focus on the Athena wrapper aroun
 
 # Setup
 
-In general, the latest master release should have the latest Rivet release supported by ATLAS.
+In general, the latest 22.0/22.6 releases should have the latest Rivet release supported by ATLAS.
 
 ```
-asetup master,AthGeneration # or later 
+asetup 22.6.1,AthGeneration # or later 
 source setupRivet
 ```
 
@@ -45,7 +45,7 @@ The Rivet3 series comes with automatic handling of multiweights as well as coupl
 For a quick tutorial on how to make a Rivet2-style routine compatible with Rivet3, 
 [check this out](https://gitlab.com/hepcedar/rivet/blob/release-3-1-x/doc/tutorials/mig2to3.md).
 
-<!--
+
 ## Older Rivet versions
 
 We recommend you always upgrade to the latest version in order to pick up bugfixes and new routines as they are added to the Rivet
@@ -55,13 +55,9 @@ If for some reason, you do need to revert back to an older Rivet version, feel f
 
 | Rivet version | Athena release | Comments |
 | :----:  | :-------:| :----- |
-| v3.1.2 | `21.6.33,AthGeneration` | |
-| v3.1.1 | `21.6.30,AthGeneration` | affected by HepMC bug |
-| v3.1.0 | `21.6.20,AthGeneration` | affected by HepMC bug |
-| v3.0.1 | `21.6.19,AthGeneration` | affected by HepMC bug |
-| v2.7.2 | `21.6.10,AthGeneration` | last stable release of Rivet2 series |
-| v2.6.3 | `21.6.3,AthGeneration` | very old, please avoid |
--->
+| v3.1.2 | `22.6.1,AthGeneration` | |
+| v3.1.2 | `22.6.0,AthGeneration` | `Rivet_i` disabled by accident |
+
 
 
 # Running Rivet over a local EVNT file
@@ -247,14 +243,22 @@ Gen_tf.py --ecmEnergy=13000.0 --randomSeed=1234 --jobConfig=830011 --outputEVNTF
 _More details about the new generation setup is [here](https://twiki.cern.ch/twiki/bin/view/AtlasProtected/PmgMcSoftware#Production_transforms_and_job_op)._
 
 
-The other possibility is to use a `--postInclude=local_jO.py`.
-If Rivet is run using a `--postInclude` instead of with `--rivetAnas` , 
-then the user should use `runArgs.outputYODAFile` to specify the yoda output file name.
-This is useful to run custom analyses.
+The other possibility is to use a `--postInclude=local_jO.py`, where `local_jO.py` 
+are some after-burner-like JOs to configure Rivet, similar to the standalone JOs mentioned above,
+but without the following lines (or equivalent): 
 
-If the (large) EVNT output is not needed to be saved, then no `-outputEVNTFile` should be
-specified but an `--outputYODAFile` should be. Then the EVNT is not written in a pool file, but
-only the yoda file is saved.
+```
+import AthenaPoolCnvSvc.ReadAthenaPool
+svcMgr.EventSelector.InputCollections = [ 'EVNT.root' ]
+```
+
+Also note that when Rivet is run using a `--postInclude` instead of with `--rivetAnas`, 
+the YODA output file should be specified on the command line using the `--outputYODAFile` arument of `Gen_tf`.
+In this way it is also possible to run custom routines on the fly (i.e. as part of running `Gen_tf`). 
+
+If the (possibly large) EVNT output is not needed to be saved, then the `--outputEVNTFile` argument can simply
+be omitted, but the `--outputYODAFile` would still need to be kept of course, so that the YODA file 
+will be kept as an output.
 
 
 

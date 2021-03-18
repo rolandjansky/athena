@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file T_AthenaPoolCoolMultChanCnv.icc
@@ -62,6 +62,8 @@ StatusCode T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T, ELEM_P>::createObj(IOpaqu
     //
 
     ATH_MSG_DEBUG("Read in objects for collection");
+
+    m_persCtx = pAddr->ipar()[0];
 
     CondAttrListCollAddress* addr = dynamic_cast<CondAttrListCollAddress*>(pAddr);
 
@@ -423,4 +425,16 @@ ELEM_T* T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T, ELEM_P>::createTransient()
     //ELEM_T* elem = 0;
     ELEM_T* elem = this->poolReadObject();
     return(elem);
+}
+
+//__________________________________________________________________________
+/// specialized version that adds persistency contextID to tokens (for reading)
+template <class COLL_T, class ELEM_T, class ELEM_P>
+void
+T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T, ELEM_P>::
+setToken (const std::string& token)
+{
+   char context[32];
+   ::sprintf(context, "[CTXT=%08X]", m_persCtx);
+   T_AthenaPoolCustCnv<COLL_T, ELEM_T>::setToken( token + context );
 }

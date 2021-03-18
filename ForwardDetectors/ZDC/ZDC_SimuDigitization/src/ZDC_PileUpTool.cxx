@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -10,10 +10,11 @@
 #include "ZDC_SimEvent/ZDC_SimStripHit.h"
 #include "ZDC_SimEvent/ZDC_SimPixelHit.h"
 #include "ZdcEvent/ZdcDigitsCollection.h"
-#include "PileUpTools/PileUpMergeSvc.h"
 #include "Identifier/Identifier.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include <map>
+#include "AthenaKernel/RNGWrapper.h"
+#include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandPoissonQ.h"
@@ -46,7 +47,7 @@ StatusCode ZDC_PileUpTool::initialize() {
 		 << " MaxTimeBin: " << m_MaxTimeBin << endmsg
 		 << " Pedestal  : " << m_Pedestal   );
   
-  ATH_CHECK(m_atRndmGenSvc.retrieve());
+  ATH_CHECK(m_randomSvc.retrieve());
   ATH_MSG_DEBUG ( "Retrieved RandomNumber Service" );
 
   ATH_CHECK(m_mergeSvc.retrieve());
@@ -57,7 +58,7 @@ StatusCode ZDC_PileUpTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode ZDC_PileUpTool::processAllSubEvents(const EventContext& /*ctx*/) {
+StatusCode ZDC_PileUpTool::processAllSubEvents(const EventContext& ctx) {
 
   ATH_MSG_DEBUG ( "ZDC_PileUpTool::processAllSubEvents()" );
 
@@ -115,16 +116,17 @@ StatusCode ZDC_PileUpTool::processAllSubEvents(const EventContext& /*ctx*/) {
     ++iPixelColl;
   }
 
-  m_rndEngine = m_atRndmGenSvc->GetEngine("ZDCRndEng");
-
   if (recordContainers(this->evtStore(), m_ZdcDigitsContainerName).isFailure()) { 
     
     ATH_MSG_FATAL ( " ZDC DigiTop :: Could not record the empty digit container in StoreGate " ); return StatusCode::FAILURE; 
   }
   else { ATH_MSG_DEBUG ( " ZDC DigiTop :: Digit container is recorded in StoreGate " ); }
   
-  fillStripDigitContainer(thpczdcstrip, m_rndEngine);
-  fillPixelDigitContainer(thpczdcpixel, m_rndEngine);
+  ATHRNG::RNGWrapper* rngWrapper = m_randomSvc->getEngine(this, m_randomStreamName);
+  rngWrapper->setSeed( m_randomStreamName, ctx );
+  CLHEP::HepRandomEngine* rngEngine = rngWrapper->getEngine(ctx);
+  fillStripDigitContainer(thpczdcstrip, rngEngine);
+  fillPixelDigitContainer(thpczdcpixel, rngEngine);
   
   return StatusCode::SUCCESS;
 }
@@ -189,17 +191,18 @@ StatusCode ZDC_PileUpTool::processBunchXing(int bunchXing,
     ZDC_SimPixelHit_Collection::const_iterator ePixel = tmpCollPixel->end();
    
     for (; iPixel!=ePixel; ++iPixel) m_mergedPixelHitList->push_back((*iPixel));
-    
-    m_rndEngine = m_atRndmGenSvc->GetEngine("ZDCRndEng");
   }
   
   return StatusCode::SUCCESS;
 }
 
-StatusCode ZDC_PileUpTool::mergeEvent(const EventContext& /*ctx*/){
+StatusCode ZDC_PileUpTool::mergeEvent(const EventContext& ctx){
  
-  fillStripDigitContainer(m_mergedStripHitList, m_rndEngine);
-  fillPixelDigitContainer(m_mergedPixelHitList, m_rndEngine);
+  ATHRNG::RNGWrapper* rngWrapper = m_randomSvc->getEngine(this, m_randomStreamName);
+  rngWrapper->setSeed( m_randomStreamName, ctx );
+  CLHEP::HepRandomEngine* rngEngine = rngWrapper->getEngine(ctx);
+  fillStripDigitContainer(m_mergedStripHitList, rngEngine);
+  fillPixelDigitContainer(m_mergedPixelHitList, rngEngine);
   
   return StatusCode::SUCCESS;
 }

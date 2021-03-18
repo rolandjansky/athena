@@ -82,8 +82,8 @@ done
 # Only stop on errors if we are executing a CI build. Otherwise just count them.
 if [ "${ATLAS_CI_BUILD}" = "1" ]; then
    set -e
-   set -o pipefail
 fi
+set -o pipefail
 ERROR_COUNT=0
 
 # If we are *not* executing a CI build, and have not specified any particular

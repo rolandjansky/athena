@@ -1,18 +1,17 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModel/MultiLayer.h"
+
 #include "MuonGeoModel/DriftTube.h"
 #include "MuonGeoModel/MYSQL.h"
-#include "MuonGeoModel/Mdt.h"
 #include "MuonGeoModel/MDT_Technology.h"
 #include "GeoModelKernel/GeoXF.h"
 #include "GeoModelKernel/GeoTrd.h"
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoNameTag.h"
 #include "GeoModelKernel/GeoSerialDenominator.h"
 #include "GeoModelKernel/GeoSerialTransformer.h"
@@ -21,16 +20,28 @@
 #include "GeoModelKernel/GeoSerialIdentifier.h"
 #include "GeoModelKernel/GeoDefinitions.h"
 #include "GeoGenericFunctions/Variable.h"
-// for cutouts
 #include "GeoModelKernel/GeoShape.h"
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 #include "GeoModelKernel/GeoTube.h"
 #include "GaudiKernel/SystemOfUnits.h"
+#include <GaudiKernel/IMessageSvc.h>
+#include <GaudiKernel/MsgStream.h>
+#include <GeoGenericFunctions/AbsFunction.h>
+#include "AthenaKernel/getMessageSvc.h"
+#include "GeoGenericFunctions/AbsFunction.h"
+#include "GeoModelInterfaces/StoredMaterialManager.h"
 
+#include <stdlib.h>
+#include <array>
+#include <memory>
+#include <stdexcept>
 #include <vector>
 #include <cassert>
+
+class GeoMaterial;
+class GeoVPhysVol;
 
 using namespace GeoXF;
 
@@ -104,13 +115,13 @@ GeoFullPhysVol* MultiLayer::build()
 
   if (foamthicknessup > foamthicknesslow) {
     foamthicknesslow = 0.;
-    if (fabs(foamthicknessup - 15*Gaudi::Units::mm) < 0.1) {
+    if (std::abs(foamthicknessup - 15*Gaudi::Units::mm) < 0.1) {
       foamthicknessup = 15*Gaudi::Units::mm;
-    } else if (fabs(foamthicknessup - 30.75*Gaudi::Units::mm) < 0.1) {
+    } else if (std::abs(foamthicknessup - 30.75*Gaudi::Units::mm) < 0.1) {
       foamthicknessup = 30.75*Gaudi::Units::mm;
-    } else if (fabs(foamthicknessup - 30.00*Gaudi::Units::mm) < 0.1) {
+    } else if (std::abs(foamthicknessup - 30.00*Gaudi::Units::mm) < 0.1) {
       foamthicknessup = 30.00*Gaudi::Units::mm;
-    } else if (fabs(foamthicknessup - 10.00*Gaudi::Units::mm) < 0.1
+    } else if (std::abs(foamthicknessup - 10.00*Gaudi::Units::mm) < 0.1
                && logVolName.find("BMG") != std::string::npos ) {
       foamthicknessup = 10.00*Gaudi::Units::mm;
     } else if ( logVolName.find("MDT09") != std::string::npos || logVolName.find("MDT14") != std::string::npos ) {
@@ -127,13 +138,13 @@ GeoFullPhysVol* MultiLayer::build()
 
   } else {
     foamthicknessup = 0.;
-    if (fabs(foamthicknesslow - 15*Gaudi::Units::mm) < 0.1) {
+    if (std::abs(foamthicknesslow - 15*Gaudi::Units::mm) < 0.1) {
       foamthicknesslow = 15*Gaudi::Units::mm;
-    } else if (fabs(foamthicknesslow - 30.75*Gaudi::Units::mm) < 0.1) {
+    } else if (std::abs(foamthicknesslow - 30.75*Gaudi::Units::mm) < 0.1) {
       foamthicknesslow = 30.75*Gaudi::Units::mm;
-    } else if (fabs(foamthicknesslow - 30.00*Gaudi::Units::mm) < 0.1) {
+    } else if (std::abs(foamthicknesslow - 30.00*Gaudi::Units::mm) < 0.1) {
       foamthicknesslow = 30.00*Gaudi::Units::mm;
-    } else if (fabs(foamthicknesslow - 10.00*Gaudi::Units::mm) < 0.1
+    } else if (std::abs(foamthicknesslow - 10.00*Gaudi::Units::mm) < 0.1
              && logVolName.find("BMG") != std::string::npos ) {
       foamthicknesslow = 10.00*Gaudi::Units::mm;
     } else if ( logVolName.find("MDT09") != std::string::npos || logVolName.find("MDT14") != std::string::npos ) {

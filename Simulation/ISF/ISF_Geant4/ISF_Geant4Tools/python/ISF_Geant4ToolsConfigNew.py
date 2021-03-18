@@ -27,10 +27,11 @@ def Geant4ToolCfg(flags, name="ISF_Geant4Tool", **kwargs):
     acc.merge(DetectorGeometrySvcCfg(flags))
     kwargs.setdefault("DetGeoSvc", acc.getService("DetectorGeometrySvc"))
 
-    acc.merge(InputConverterCfg(flags))
-    kwargs.setdefault("InputConverter", acc.getService("ISF_InputConverter"))
+    # Only add it if it's not added already
+    if "InputConverter" not in kwargs.keys():
+        acc.merge(InputConverterCfg(flags))
+        kwargs.setdefault("InputConverter", acc.getService("ISF_InputConverter"))
 
-    #Only add it if it's not added already
     if "UserActionSvc" not in kwargs.keys():
         acc.merge(ISFUserActionSvcCfg(flags))
         kwargs.setdefault("UserActionSvc", acc.getService("G4UA::ISFUserActionSvc"))
@@ -41,12 +42,14 @@ def Geant4ToolCfg(flags, name="ISF_Geant4Tool", **kwargs):
     # Set commands for the G4AtlasAlg
     kwargs.setdefault("G4Commands", flags.Sim.G4Commands)
     kwargs.setdefault("PrintTimingInfo", flags.Sim.ISF.DoTimeMonitoring)
-    acc.merge(SensitiveDetectorMasterToolCfg(flags))
-    tool = acc.getPublicTool("SensitiveDetectorMasterTool")
-    kwargs.setdefault("SenDetMasterTool", tool)
-    acc.merge(FastSimulationMasterToolCfg(flags))
-    tool = acc.getPublicTool("FastSimulationMasterTool")
-    kwargs.setdefault("FastSimMasterTool", tool)
+    if "SenDetMasterTool" not in kwargs:
+        tool = acc.popToolsAndMerge(SensitiveDetectorMasterToolCfg(flags))
+        acc.addPublicTool(tool)
+        kwargs.setdefault("SenDetMasterTool", acc.getPublicTool(tool.name))
+    if "FastSimMasterTool" not in kwargs:
+        tool = acc.popToolsAndMerge(FastSimulationMasterToolCfg(flags))
+        acc.addPublicTool(tool)
+        kwargs.setdefault("FastSimMasterTool", acc.getPublicTool(tool.name))
 
     #PhysicsListSvc
     acc.merge( PhysicsListSvcCfg(flags) )
@@ -81,7 +84,7 @@ def PassBackGeant4ToolCfg(flags, name="ISF_PassBackGeant4Tool", **kwargs):
 def AFIIGeant4ToolCfg(flags, name="ISF_AFIIGeant4Tool", **kwargs):
     acc = ISF_AFIIUserActionSvcCfg(flags)
     kwargs.setdefault("UserActionSvc", acc.getService("G4UA::ISF_AFIIUserActionSvc"))
-    PassBackGeant4Tool = acc.popToolsAndMerge(PassBackGeant4ToolCfg(flags, name, **kwargs))
+    PassBackGeant4Tool = acc.popToolsAndMerge(Geant4ToolCfg(flags, name, **kwargs))
     acc.setPrivateTools(PassBackGeant4Tool)
     return acc
 

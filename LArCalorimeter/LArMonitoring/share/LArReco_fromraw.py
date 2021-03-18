@@ -49,10 +49,6 @@ rec.doTile.set_Value_and_Lock(True)
 
 rec.doTrigger.set_Value_and_Lock(True)
 
-# switch off failint L1Topo stuff
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-TriggerFlags.writeL1TopoValData.set_Value_and_Lock(False)
-
 ConfigureTriggerStream()
 
 

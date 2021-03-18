@@ -132,34 +132,6 @@ ServiceMgr.IOVDbSvc.Folders+=["/MDT/DCS/PSLVCHSTATE"+" <tag>HEAD</tag> <dbConnec
 ServiceMgr.IOVDbSvc.Folders+=["/MDT/DCS/JTAGCHSTATE"+" <tag>HEAD</tag> <dbConnection>"+dbConn+"</dbConnection>"]
 
 
-## #-----------------------------------------------------------------
-## # Dead Tube
-
-## from MuonCondSvc.MuonCondSvcConf import MDT_DeadTubeConditionsSvc
-## ServiceMgr +=MDT_DeadTubeConditionsSvc()
-
-## from MuonCondTool.MuonCondToolConf import MDT_DeadTubeConditionsTool
-## MDT_DeadTubeConditionsTool = MDT_DeadTubeConditionsTool("MDT_DeadTubeConditionsTool")
-## MDT_DeadTubeConditionsTool.OutputLevel =  FATAL
-## #MessageSvc.OutputLevel = DEBUG
-## MDT_DeadTubeConditionsTool.DeadTubeFolder = "/CONFIG/DEAD_TUBE"
-## ToolSvc += MDT_DeadTubeConditionsTool
-
-
-
-## IOVDbSvc.DBInstance="ATLAS_COOL_MDTDQ"
-## dbConn_Mdt="oracle://intr;schema=ATLAS_COOL_MDTDQ;dbname=MDT_DQA"
-## folder_Mdt="/CONFIG/DEAD_TUBE"
-
-## from IOVDbSvc.IOVDbSvcConf import IOVDbSvc
-## from IOVDbSvc.CondDB import conddb
-## include("RegistrationServices/IOVRegistrationSvc_jobOptions.py")
-
-## ServiceMgr.IOVDbSvc.dbConnection=dbConn_Mdt
-## ServiceMgr.IOVDbSvc.Folders+=[folder_Mdt+" <tag>HEAD</tag> <dbConnection>"+dbConn_Mdt+"</dbConnection>"]
-
-
-
 
 from MuonCondSvc.MuonCondSvcConf import MDTCondSummarySvc
 ServiceMgr +=MDTCondSummarySvc()

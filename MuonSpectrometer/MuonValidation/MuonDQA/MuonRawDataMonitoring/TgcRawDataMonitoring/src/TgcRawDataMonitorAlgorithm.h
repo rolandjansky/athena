@@ -30,18 +30,17 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
   };
   struct MyMuon{
     const xAOD::Muon* muon;
-    TLorentzVector fourvec;
+    std::vector<double> extPosZ;
     std::vector<TVector3> extPos;
     std::vector<TVector3> extVec;
-    bool tagged;
-    bool isolated;
-    bool probeOK_any;
-    bool probeOK_Z;
-    bool probeOK;
     std::set<int> matchedL1ThrExclusive;
     std::set<int> matchedL1ThrInclusive;
+    bool matchedL1Charge;
+    bool passBW3Coin;
+    bool passInnerCoin;
+    bool passGoodMF;
+    bool passIsMoreCandInRoI;
   };
-
   struct TgcHit{
     float x;
     float y;
@@ -70,12 +69,17 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
     TString side;
   };
   struct TgcTrig{
+    int lb;
     float x_In;
     float y_In;
     float z_In;
     float x_Out;
     float y_Out;
     float z_Out;
+    float eta;
+    float phi;
+    float etain;
+    float etaout;
     float width_In;
     float width_Out;
     float width_R;
@@ -88,7 +92,7 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
     int type;
     int trackletId;
     int trackletIdStrip;
-    int phi;
+    int sector;
     int roi;
     int pt;
     int delta;
@@ -124,6 +128,7 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
   DoubleProperty m_l1trigMatchWindow4{this,"L1TrigMatchingWindow4",0.36,"Window size in R for L1 trigger matching: param 4"};
   DoubleProperty m_l1trigMatchWindow5{this,"L1TrigMatchingWindow5",-0.0016,"Window size in R for L1 trigger matching: param 5"};
   DoubleProperty m_isolationWindow{this,"IsolationWindow",0.1,"Window size in R for isolation with other muons"};
+  BooleanProperty m_requireIsolated{this,"RequireIsolated",true,"Probe muon should be isolated from other muons"};
   DoubleProperty m_M1_Z{this,"M1_Z",13605.0,"z-position of TGC M1-station in mm for track extrapolate"};
   DoubleProperty m_M2_Z{this,"M2_Z",14860.0,"z-position of TGC M2-station in mm for track extrapolate"};
   DoubleProperty m_M3_Z{this,"M3_Z",15280.0,"z-position of TGC M3-station in mm for track extrapolate"};
@@ -138,6 +143,9 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
   
   std::vector<TagDef> m_trigTagDefs;
   std::vector<double> m_extZposition;
+
+  using MonVariables=std::vector < std::reference_wrapper < Monitored::IMonitoredVariable >>;
+  void fillTgcCoin(const std::vector<TgcTrig>&, const std::string ) const;
   
   bool triggerMatching(const xAOD::Muon* , const std::vector<TagDef>& ) const;
 

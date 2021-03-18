@@ -1,30 +1,25 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-#include <memory>
 
 #include "egammaMVASvc.h"
 #include "xAODEgamma/Egamma.h"
+#include "xAODCaloEvent/CaloCluster.h"
 #include "xAODEgamma/EgammaDefs.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/Photon.h"
-#include "xAODCaloEvent/CaloCluster.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
-#include "xAODTracking/Vertex.h"
-#include "xAODTracking/TrackParticle.h"
-#include "xAODTracking/TrackingPrimitives.h"
-#include "PathResolver/PathResolver.h"
+
 
 egammaMVASvc::egammaMVASvc(const std::string& name, ISvcLocator* svc) :
   base_class( name, svc )
 {
 }
 
-StatusCode egammaMVASvc::initialize() 
+StatusCode egammaMVASvc::initialize()
 {
   ATH_MSG_DEBUG("In initialize of " << name() << "..." );
-  
+
   if (m_mvaElectron.isEnabled()) {
     ATH_MSG_DEBUG("Retrieving mvaElectron");
     ATH_CHECK(m_mvaElectron.retrieve());
@@ -59,7 +54,7 @@ StatusCode egammaMVASvc::finalize(){
 }
 
 StatusCode egammaMVASvc::execute(xAOD::CaloCluster& cluster,
-				 const xAOD::Egamma& eg) const
+                                 const xAOD::Egamma& eg) const
 {
 
   ATH_MSG_DEBUG("calling execute with cluster and eg");
@@ -68,22 +63,22 @@ StatusCode egammaMVASvc::execute(xAOD::CaloCluster& cluster,
 
   if (xAOD::EgammaHelpers::isElectron(&eg)) {
     if (m_mvaElectron.isEnabled()) {
-      mvaE = m_mvaElectron->getEnergy(cluster,&eg);
+      mvaE = m_mvaElectron->getEnergy(cluster, &eg);
     } else {
       ATH_MSG_FATAL("Trying to calibrate an electron, but disabled");
       return StatusCode::FAILURE;
     }
-  } else if (xAOD::EgammaHelpers::isConvertedPhoton(&eg) && 
-	     xAOD::EgammaHelpers::conversionRadius(static_cast<const xAOD::Photon*>(&eg)) < m_maxConvR) {
+  } else if (xAOD::EgammaHelpers::isConvertedPhoton(&eg) &&
+             xAOD::EgammaHelpers::conversionRadius(static_cast<const xAOD::Photon*>(&eg)) < m_maxConvR) {
     if (m_mvaConvertedPhoton.isEnabled()) {
-      mvaE = m_mvaConvertedPhoton->getEnergy(cluster,&eg);
+      mvaE = m_mvaConvertedPhoton->getEnergy(cluster, &eg);
     } else {
       ATH_MSG_FATAL("Trying to calibrate a converted photon, but disabled");
       return StatusCode::FAILURE;
     }
   } else if (xAOD::EgammaHelpers::isPhoton(&eg)) {
     if (m_mvaUnconvertedPhoton.isEnabled()) {
-      mvaE = m_mvaUnconvertedPhoton->getEnergy(cluster,&eg);
+      mvaE = m_mvaUnconvertedPhoton->getEnergy(cluster, &eg);
     } else {
       ATH_MSG_FATAL("Trying to calibrate an unconverted photon, but disabled");
       return StatusCode::FAILURE;
@@ -92,7 +87,7 @@ StatusCode egammaMVASvc::execute(xAOD::CaloCluster& cluster,
     ATH_MSG_FATAL("Egamma object is of unsupported type");
     return StatusCode::FAILURE;
   }
-      
+
   ATH_MSG_DEBUG( "Calculated MVA calibrated energy = " << mvaE );
   if (mvaE > eg.m()) {
     cluster.setCalE(mvaE);
@@ -106,7 +101,7 @@ StatusCode egammaMVASvc::execute(xAOD::CaloCluster& cluster,
 }
 
 StatusCode egammaMVASvc::execute(xAOD::CaloCluster& cluster,
-				 const xAOD::EgammaParameters::EgammaType egType) const
+                                 const xAOD::EgammaParameters::EgammaType egType) const
 {
 
   ATH_MSG_DEBUG("calling execute with cluster and egType (" << egType <<")");
@@ -141,7 +136,7 @@ StatusCode egammaMVASvc::execute(xAOD::CaloCluster& cluster,
     cluster.setCalE(mvaE);
   }
   else {
-    ATH_MSG_DEBUG("MVA energy (" << mvaE << ") < 0, setting e = cluster energy (" 
+    ATH_MSG_DEBUG("MVA energy (" << mvaE << ") < 0, setting e = cluster energy ("
 		  << cluster.e() << ")");
     cluster.setCalE(cluster.e());
   }

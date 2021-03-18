@@ -2,8 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef RPCReadOut_H
-#define RPCReadOut_H
+#ifndef TrigT1RPChardware_RPCReadOut_H
+#define TrigT1RPChardware_RPCReadOut_H
 
 #include<iostream>
 #include "TrigT1RPChardware/Lvl1Def.h"

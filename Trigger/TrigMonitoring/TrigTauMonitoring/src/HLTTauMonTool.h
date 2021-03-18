@@ -105,7 +105,6 @@ class HLTTauMonTool : public IHLTMonTool {
 
   StatusCode RealZTauTauEfficiency(const std::string & goodTauRefType);
   StatusCode dijetFakeTausEfficiency();
-  StatusCode FTKtest(const std::string & trigItem);
   StatusCode trackCurves(const std::string & trigItem, const std::string & goodTauRefType);
   StatusCode efficiencyRatioPlots (const std::string & trigItem, const std::string & goodTauRefType);
   StatusCode L1TopoLeptons(const std::string & trigItem, const std::string & typeOfChain);
@@ -114,7 +113,6 @@ class HLTTauMonTool : public IHLTMonTool {
 
   //Methods for HLT and L1 Matching
   bool HLTTauMatching(const std::string & trigItem, const TLorentzVector & TLV, float DR);
-  bool PresTauMatching(const std::string & trigItem, const TLorentzVector & TLV, float DR);
   bool L1TauMatching(const std::string & trigItem, const TLorentzVector & TLV, float DR);
   bool TrigBiasCheck();
   //  bool  emulate2StepTracking(float RoI_eta, float RoI_phi, bool do2step, bool doReject0trk, float track_pt_min);
@@ -167,7 +165,6 @@ class HLTTauMonTool : public IHLTMonTool {
   bool m_doL1JetPlots;
   bool m_doEFTProfiles;
   bool m_domuCut40; 
-  bool m_doEfficiencyRatioPlots;
   bool m_doL1TopoLeptonsMonitoringWarnings;
   bool m_bootstrap;
   bool m_isData;
@@ -219,10 +216,6 @@ class HLTTauMonTool : public IHLTMonTool {
   std::vector<std::string> m_topo_chains_mutau;
   std::vector<std::string> m_topo_chains_eltau;
   std::vector<std::string> m_topo_support_chains;
-  std::vector<std::string> m_LST_HLTsel_FTK_chains;
-  std::vector<std::string> m_LST_HLTsel0Prong_FTK_chains;
-  std::vector<std::string> m_LST_HLTsel_FTKNoPrec_chains;
-  std::vector<std::string> m_LST_HLTsel0Prong_FTKNoPrec_chains;
   std::vector<std::string> m_LST_HLTsel_tracktwo_chains;
   std::vector<std::string> m_Ratio;
   std::vector<std::string> m_trigMVA_chains;

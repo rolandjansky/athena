@@ -77,42 +77,6 @@ if hltmonList.cosmic_mode :
     pass
   
 
-    
-## Attempt some simple matchin of trigger group to monitoring group;
-## Not complete, as non matched items fall into a 'misc' group
-#monGroups = []
-#import re
-#re_dimuon  = re.compile("HLT_(2mu\d+|mu\d+_?mu\d+)_(b.*)")
-#re_trimuon = re.compile("HLT_(3mu\d+)_(b.*)")
-
-
-##Code to determine the form of the trigger
-#def getForm(trigger_name):
-    #"""Get the class of trigger type from the name. Output warning if not found."""
-    #allowed_values = {"BMuMu"  :[re.compile("HLT_(2mu\d+|mu\d+_?mu\d+)_(b.*)")],
-                #"BMuMuX" :[re.compile("HLT_(2mu\d+|mu\d+_?mu\d+)_(b.*)")],
-                #"MultiMu":[re.compile("HLT_(3mu\d+)_(b.*)")],
-                #"TrkMass":[re.compile("HLT_(\d?mu\d+)_(b")],
-                #}
-    #pass
-
-#from AthenaCommon.AppMgr import ToolSvc
-#from AthenaCommon import CfgMgr
-#ToolSvc += CfgMgr.TrigConf__xAODConfigTool( "xAODConfigTool" )
-#ToolSvc += CfgMgr.Trig__TrigDecisionTool( "TrigDecisionTool", ConfigTool = ToolSvc.xAODConfigTool, TrigDecisionKey = "xTrigDecision" )
-
-
-#for trig in bphysTriggers:
-    #res_dimuon  = re_dimuon.search(trig)
-    #res_trimuon = re_trimuon.search(trig)
-    #if res_dimuon:
-        #monGroups.append("HLT_%s_Dimuon" % res_dimuon.group(1))
-    #elif res_trimuon:
-        #monGroups.append("HLT_%s_Trimuon"% res_trimuon.group(1))
-    #else:
-        #monGroups.append("HLT_bphys_misc")
-    #pass
-
 def TrigBphysMonitoringTool():
     from TrigBphysMonitoring.TrigBphysMonitoringConf import HLTXAODBphysMonTool
     from TrigHLTMonitoring.HLTMonTriggerList import hltmonList

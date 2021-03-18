@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "EnergyDepositionTool.h"
@@ -144,7 +144,8 @@ StatusCode EnergyDepositionTool::finalize() {
 StatusCode EnergyDepositionTool::depositEnergy(const TimedHitPtr<SiHit>& phit, const InDetDD::SiDetectorElement& Module,
                                                std::vector<std::pair<double, double> >& trfHitRecord,
                                                std::vector<double>& initialConditions,
-                                               CLHEP::HepRandomEngine* rndmEngine) {
+                                               CLHEP::HepRandomEngine* rndmEngine,
+                                               const EventContext &ctx) {
   ATH_MSG_DEBUG("Deposit energy in sensor volume.");
 
   //Check if simulated particle or delta ray
@@ -152,7 +153,7 @@ StatusCode EnergyDepositionTool::depositEnergy(const TimedHitPtr<SiHit>& phit, c
   const HepMcParticleLink::PositionFlag idxFlag =
     (phit.eventId() == 0) ? HepMcParticleLink::IS_POSITION : HepMcParticleLink::IS_INDEX;
   const HepMcParticleLink McLink {
-    HepMcParticleLink(phit->trackNumber(), phit.eventId(), evColl, idxFlag)
+    HepMcParticleLink(phit->trackNumber(), phit.eventId(), evColl, idxFlag, ctx)
   };
   const HepMC::GenParticle* genPart = McLink.cptr();
   bool delta_hit = true;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -52,7 +52,7 @@ public:
   //
   // methods not provided to rootcint
 #else
-  AtlasHitsVector(std::string collectionName="DefaultCollectionName", const unsigned int mySize=100)
+  AtlasHitsVector(const std::string& collectionName="DefaultCollectionName", const unsigned int mySize=100)
   {
     IMessageSvc* msgSvc(Athena::getMessageSvc());
     MsgStream log(msgSvc, "AtlasHitsVector");

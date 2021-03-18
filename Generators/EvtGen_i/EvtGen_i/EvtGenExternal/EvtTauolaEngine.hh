@@ -48,8 +48,8 @@ protected:
 
 private:
 
-  bool _initialised;
-  int _tauPDG, _nTauolaModes;
+  bool m_initialised;
+  int m_tauPDG, m_nTauolaModes;
 
   HepMC::GenParticle* createGenParticle(EvtParticle* theParticle);
 

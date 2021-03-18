@@ -1,7 +1,7 @@
 #include "../HLTMinBiasMonTool.h"
-#include "../HLTMinBiasMonAlgMT.h"
+#include "../HLTMinBiasTrkMonAlg.h"
 
 
 DECLARE_COMPONENT( HLTMinBiasMonTool )
-DECLARE_COMPONENT( HLTMinBiasMonAlgMT )
+DECLARE_COMPONENT( HLTMinBiasTrkMonAlg )
 

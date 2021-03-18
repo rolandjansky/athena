@@ -47,7 +47,6 @@
 #include "TrkTrackSummary/InDetTrackSummary.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "GaudiKernel/ToolHandle.h" 
-#include "TrkParameters/Perigee.h"
 #include "TMath.h"
 
 

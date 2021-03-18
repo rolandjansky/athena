@@ -1,6 +1,6 @@
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGBJETHYPO_TRIGBJETBTAGHYPOALGMT_H
@@ -11,8 +11,6 @@
 
 #include <string>
 
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 
 #include "xAODJet/JetContainer.h"

@@ -270,3 +270,85 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMergedMT) :
             ## add beam type flag
             from AthenaCommon.BeamFlags import jobproperties
             self.BeamType = jobproperties.Beam.beamType()
+
+
+
+# this is the newJO fragment
+class TrigTauDefaultsKeys:
+    VertexContainer = 'PrimaryVertices'
+    TrackContainer ='InDetTrackParticles'
+    LargeD0TrackContainer ='InDetLargeD0TrackParticles'
+
+
+def TrigTauRecMergedMTOnlyMVACfg(flags):
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    acc = ComponentAccumulator()
+    # prepare tools 
+    # TODO this needs to be refactored to separate methods that configure tools + needed dependencies - alike TrigTauAlgorithmsHolder
+    # tools are private and do not need to specially named
+    # Only include tools needed for calo pre-selection
+    tools = []
+    # Set seedcalo energy scale (Full RoI)
+    tools.append(CompFactory.JetSeedBuilder())
+
+    # Set LC energy scale (0.2 cone) and intermediate axis (corrected for vertex: useless at trigger)
+    tools.append(CompFactory.TauAxisSetter(ClusterCone = 0.2,
+                                           VertexCorrection = False ))
+    # Decorate the clusters
+    tools.append(CompFactory.TauClusterFinder(JetVertexCorrection = False)) # TODO use JetRec.doVertexCorrection once available
+
+    tools.append(CompFactory.TauVertexedClusterDecorator(SeedJet = 'AntiKt4LCTopoJets', #TODO use tauFlags.tauRecSeedJetCollection once available
+                                            VertexCorrection = False))
+
+    # Calibrate to TES
+    tools.append(CompFactory.TauCalibrateLC(calibrationFile = 'TES2016_LC_online_inc.root', # TODO use tauFlags.tauRecCalibrateLCConfig() once avaialble
+                                            Key_vertexInputContainer = ""))
+    # Calculate cell-based quantities: strip variables, EM and Had energies/radii, centFrac, isolFrac and ring energies
+    from AthenaCommon.SystemOfUnits import GeV
+    tools.append(CompFactory.TauCellVariables(StripEthreshold = 0.2*GeV,
+                                                CellCone = 0.2,
+                                                VertexCorrection = False))
+    # Compute MVA TES (ATR-17649), stores MVA TES as default tau pt()
+    tools.append(CompFactory.MvaTESVariableDecorator(Key_vertexInputContainer='',
+                                                    VertexCorrection = False))
+    tools.append(CompFactory.MvaTESEvaluator(WeightFileName = 'OnlineMvaTES_BRT_v1.weights.root')) #TODO use tauFlags.tauRecMvaTESConfig() once available
+
+    for tool in tools:
+        tool.inTrigger = True
+        tool.calibFolder = 'TrigTauRec/00-11-02/'
+
+
+            ## add beam type flag
+    alg = CompFactory.TrigTauRecMergedMT("TrigTauRecMergedMTOnlyMVA",
+                                        BeamType=flags.Beam.Type, 
+                                        Tools=tools)
+
+    alg.Key_trackPartInputContainer = ''
+    alg.Key_trigJetSeedOutputKey = 'HLT_jet_seed' 
+    alg.Key_trigTauJetInputContainer = ''
+    alg.Key_trigTauJetOutputContainer = 'HLT_TrigTauRecMerged_CaloOnly'
+    alg.Key_trigTauTrackInputContainer = ''
+    alg.Key_trigTauTrackOutputContainer = 'HLT_tautrack_dummy' 
+    alg.Key_vertexInputContainer = ''
+    alg.clustersKey = 'HLT_TopoCaloClustersLC'
+    alg.L1RoIKey = 'HLT_TAURoI'
+    alg.RoIInputKey = 'UpdatedCaloRoI'
+    acc.addEventAlgo(alg)
+
+    from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
+    acc.merge(LumiBlockMuWriterCfg(flags))
+    return acc
+
+
+if __name__ == "__main__":
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior = 1
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+    flags.Input.Files = defaultTestFiles.RAW
+    flags.lock()
+
+    acc = TrigTauRecMergedMTOnlyMVACfg(flags)
+    acc.printConfig(withDetails=True, summariseProps=True)
+    acc.wasMerged() # do not run, do not save, we just want to see the config

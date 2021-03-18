@@ -27,7 +27,7 @@ def EnvelopeDefSvcCfg(ConfigFlags, name="AtlasGeometry_EnvelopeDefSvc", **kwargs
     BeamPipe = Volume()
     BeamPipe.addRZ(   34.3,   3475.0 )
 
-    if ConfigFlags.Detector.SimulateHGTD:
+    if ConfigFlags.Detector.GeometryHGTD:
         BeamPipe.addRZ(   47.0,   3475.0 )
         BeamPipe.addRZ(   47.0,   3535.0 )
         BeamPipe.addRZ(  120.0,   3535.0 )
@@ -62,7 +62,7 @@ def EnvelopeDefSvcCfg(ConfigFlags, name="AtlasGeometry_EnvelopeDefSvc", **kwargs
     Calo = Volume()
     Calo.addRZ( 1148.0,  3475.0 )
 
-    if ConfigFlags.Detector.SimulateHGTD:
+    if ConfigFlags.Detector.GeometryHGTD:
         Calo.addRZ(   47.0,  3475.0 )
         Calo.addRZ(   47.0,  3535.0 )
         Calo.addRZ(  120.0,  3535.0 )

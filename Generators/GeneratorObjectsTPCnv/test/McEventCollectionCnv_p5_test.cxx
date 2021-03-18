@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file GeneratorObjectsTPCnv/test/McEventCollectionCnv_p5_test.cxx
  * @brief Tests for McEventCollectionCnv_p5.
@@ -14,6 +12,7 @@
 #include <iostream>
 // HepMC includes
 #include "AtlasHepMC/GenEvent.h"
+#include "TestTools/initGaudi.h"
 
 // CLHEP includes
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -95,17 +94,28 @@ void test1()
 {
   std::cout << "test1\n";
 
+#ifdef HEPMC3
+  auto runInfo = std::make_shared<HepMC3::GenRunInfo>();
+  runInfo->set_weight_names ({"weight1"});
+#endif
+
   McEventCollection trans1;
   // Add a dummy GenEvent
   const int process_id1(20);
   const int event_number1(17);
   trans1.push_back(HepMC::newGenEvent(process_id1, event_number1));
+#ifdef HEPMC3
+  trans1.back()->set_run_info (runInfo);
+#endif
   HepMC::GenEvent& ge1 = *(trans1.at(0));
   populateGenEvent(ge1);
   // Add a second dummy GenEvent
   const int process_id2(20);
   const int event_number2(25);
   trans1.push_back(HepMC::newGenEvent(process_id2, event_number2));
+#ifdef HEPMC3
+  trans1.back()->set_run_info (runInfo);
+#endif
   HepMC::GenEvent& ge2 = *(trans1.at(1));
   populateGenEvent2(ge2);
 
@@ -115,6 +125,16 @@ void test1()
 
 int main()
 {
+  setlinebuf(stdout);
+  setlinebuf(stderr);
+
+  std::cout << "GeneratorObjectsTPCnv/McEventCollectionCnv_p5_test\n";
+  ISvcLocator* pSvcLoc;
+  if (!Athena_test::initGaudi("GeneratorObjectsTPCnv/GeneratorObjectsTPCnv_test.txt", pSvcLoc)) {
+    std::cerr << "This test can not be run" << std::endl;
+    return 0;
+  }
+
   test1();
   return 0;
 }

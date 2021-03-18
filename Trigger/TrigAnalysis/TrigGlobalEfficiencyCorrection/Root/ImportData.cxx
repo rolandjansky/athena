@@ -363,7 +363,7 @@ bool ImportData::importHierarchies()
 					m_hierarchyData.push_back(h);
 				}
 				else m_hierarchyData.insert(m_hierarchyData.end(),itr->second.begin(),itr->second.end());
-				if(ss >> token && token!='>') success = false;
+				if(ss >> token && token!=">") success = false;
 			}
 			meta.nLegs = m_hierarchyData.size() - meta.offset;
 			success = success && meta.nLegs;
@@ -385,7 +385,7 @@ bool ImportData::importHierarchies()
 						ATH_MSG_ERROR("Unknown trigger leg '" << token << "' found in Hierarchies.cfg");
 						success = false;
 					}
-					if(ss >> token && token!='>') success = false;
+					if(ss >> token && token!=">") success = false;
 				}
 				success = success && legs.size();
 			}

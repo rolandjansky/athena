@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -56,8 +56,8 @@ namespace MuonCombined {
     
     unsigned int index = 0;
     // Loop over MS tracks
-    for( auto track : tracks ){
-      if( !track->trackLink().isValid() || track->track() == 0 ) {
+    for( const auto *track : tracks ){
+      if( !track->trackLink().isValid() || track->track() == nullptr ) {
         ATH_MSG_WARNING("MuonStandalone track particle without Trk::Track");
         continue;
       }
@@ -66,8 +66,8 @@ namespace MuonCombined {
       const Trk::Track& msTrack = *track->track();
 
       ATH_MSG_VERBOSE("Re-Fitting track " << std::endl << m_printer->print(msTrack) << std::endl << m_printer->printStations(msTrack));
-      Trk::Track* standaloneTrack = 0;
-      const Trk::Vertex* vertex = 0;
+      Trk::Track* standaloneTrack = nullptr;
+      const Trk::Vertex* vertex = nullptr;
       if( m_extrapolationStrategy == 0u ) {
         standaloneTrack = m_trackBuilder->standaloneFit(msTrack, vertex, beamSpotX, beamSpotY, beamSpotZ);
       } else {
@@ -77,7 +77,7 @@ namespace MuonCombined {
 	//Reject the track if its fit quality is much (much much) worse than that of the non-extrapolated track
 	if(standaloneTrack->fitQuality()->doubleNumberDoF()==0){
 	  delete standaloneTrack;
-	  standaloneTrack=0;
+	  standaloneTrack=nullptr;
 	  ATH_MSG_DEBUG("extrapolated track has no DOF, don't use it");
 	}
 	else{
@@ -86,7 +86,7 @@ namespace MuonCombined {
 	  //choice of 1000 is slightly arbitrary, the point is that the fit should be really be terrible
 	  if(standaloneTrack->fitQuality()->chiSquared()/standaloneTrack->fitQuality()->doubleNumberDoF()>1000*mschi2){
 	    delete standaloneTrack;
-	    standaloneTrack=0;
+	    standaloneTrack=nullptr;
 	    ATH_MSG_DEBUG("extrapolated track has a degraded fit, don't use it");
 	  }
 	}
@@ -111,7 +111,7 @@ namespace MuonCombined {
 	  msMuonTrackSummary=msTrackSummary->muonTrackSummary();
 	}
 	else msMuonTrackSummary=msTrack.trackSummary()->muonTrackSummary();
-	for(auto& chs : msMuonTrackSummary->chamberHitSummary()){
+	for(const auto & chs : msMuonTrackSummary->chamberHitSummary()){
 	  if(chs.isMdt() && m_idHelperSvc->stationIndex(chs.chamberId())!=Muon::MuonStationIndex::EM){
 	    skipTrack=false;
 	    break;
@@ -131,14 +131,14 @@ namespace MuonCombined {
     ATH_MSG_DEBUG("Finished back-tracking, total number of successfull fits " << ntracks);
 
     // Resolve ambiguity between extrapolated tracks (where available)
-    std::unique_ptr<TrackCollection> resolvedTracks(m_ambiguityProcessor->process(extrapTracks.get()));
+    std::unique_ptr<const TrackCollection> resolvedTracks(m_ambiguityProcessor->process(extrapTracks.get()));
     
     ATH_MSG_DEBUG("Finished ambiguity solving: "<<extrapTracks->size()<<" track(s) in -> "<<resolvedTracks->size()<<" track(s) out");
     
 
     // Loop over resolved tracks and build MuonCondidate collection
     int nfailed=0;
-    for( auto track : *resolvedTracks ) {
+    for( const Trk::Track* track : *resolvedTracks ) {
       auto tLink = trackLinks.find(track);
       if(tLink == trackLinks.end()) {
 	ATH_MSG_WARNING("Unable to find internal link between MS and SA tracks!");

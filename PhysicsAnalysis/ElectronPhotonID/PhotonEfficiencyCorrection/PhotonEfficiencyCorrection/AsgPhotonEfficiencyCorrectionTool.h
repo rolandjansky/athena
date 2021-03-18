@@ -40,7 +40,7 @@ class AsgPhotonEfficiencyCorrectionTool
     virtual public CP::ISystematicsTool,
             public asg::AsgTool
 {
-  ASG_TOOL_CLASS2(AsgPhotonEfficiencyCorrectionTool, IAsgPhotonEfficiencyCorrectionTool, CP::ISystematicsTool )
+  ASG_TOOL_CLASS3(AsgPhotonEfficiencyCorrectionTool, IAsgPhotonEfficiencyCorrectionTool, CP::ISystematicsTool, CP::IReentrantSystematicsTool )
 
 public:
   /// Standard constructor

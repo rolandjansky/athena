@@ -18,7 +18,6 @@
 #include "RingerReFex.h"
 #include "TrigTimeAlgs/TrigTimer.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
-#include "xAODTrigRinger/TrigRingerRings.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODTrigCalo/TrigEMClusterAuxContainer.h"
 #include "xAODTrigRinger/TrigRingerRings.h"

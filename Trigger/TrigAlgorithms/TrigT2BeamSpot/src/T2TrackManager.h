@@ -34,6 +34,8 @@ namespace PESA
   {
   public:
 
+    using TrackVector = std::vector<const Trk::Track*>;
+
     // List of the splitter algorithms
     // TODO: Only Alternating split works, Pt does things that look strange
     //   and it should be validated before it can be used.
@@ -42,7 +44,7 @@ namespace PESA
     explicit T2TrackManager(int nSplit=2, Algorithm alg=Alternating) : m_nSplit(nSplit), m_alg(alg) {}
 
     // Return a vector of sub-clusters
-    std::vector< ConstDataVector<TrackCollection> > split(const TrackCollection& cluster, const EventContext& ctx) const;
+    std::vector<TrackVector> split(const TrackVector& cluster, const EventContext& ctx) const;
 
   private:
     

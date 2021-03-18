@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ************************************************
@@ -16,7 +16,7 @@
 #include "xAODBase/IParticle.h"
 
 #include "TrigT2HistoPrmVtxBaseMT.h"
-#include "TrigT2HistoPrmVtx/HistoVertexHelper.h"
+#include "HistoVertexHelper.h"
 
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "Particle/TrackParticleContainer.h"
@@ -36,12 +36,6 @@ TrigT2HistoPrmVtxBaseMT::TrigT2HistoPrmVtxBaseMT( const std::string& name, ISvcL
   m_totTracks_All(0),
   m_totSelTracks(0),
   m_totSelTracks_All(0) {}
-
-
-//** ----------------------------------------------------------------------------------------------------------------- **//
-
-
-TrigT2HistoPrmVtxBaseMT::~TrigT2HistoPrmVtxBaseMT() {}
 
 
 //** ----------------------------------------------------------------------------------------------------------------- **//

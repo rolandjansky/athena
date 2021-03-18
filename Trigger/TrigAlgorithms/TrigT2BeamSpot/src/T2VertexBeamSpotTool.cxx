@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 //============================================================
 // T2VertexBeamSpot.cxx, (c) ATLAS Detector software
@@ -12,26 +12,27 @@
 //           Su Dong
 //
 //============================================================
+
+#include <algorithm>
+#include <string>
+#include <cmath>
+
 // This algorithm
-#include "TrigT2BeamSpot/T2VertexBeamSpotTool.h"
+#include "T2VertexBeamSpotTool.h"
 #include "T2TrackManager.h"
-#include "T2Timer.h"
 // Specific to this algorithm
+#include "AthContainers/ConstDataVector.h"
 #include "TrigInDetEvent/TrigVertex.h"
 #include "TrigInDetEvent/TrigVertexCollection.h"
 #include "TrigInDetToolInterfaces/ITrigPrimaryVertexFitter.h"
 #include "TrkParameters/TrackParameters.h"
 //Conversion units
 #include "GaudiKernel/SystemOfUnits.h"
+
 using Gaudi::Units::GeV;
 using Gaudi::Units::mm;
 
-#include <string>
-#include <sstream>
-#include <cmath>
-
 using std::string;
-using std::ostringstream;
 using std::vector;
 using std::abs;
 
@@ -67,9 +68,9 @@ PESA::T2VertexBeamSpotTool::T2VertexBeamSpotTool( const std::string& type, const
    : AthAlgTool( type, name, parent),
    m_primaryVertexFitterTool("TrigInDetToolInterfaces/ITrigPrimaryVertexFitter", this){
 
+
    //Declare properties in here
-   declareProperty( "BeamSpotData",  m_beamSpotKey   );
-   declareProperty( "PrimaryVertexFitter",  m_primaryVertexFitterTool);
+   declareProperty( "PrimaryVertexFitter",    m_primaryVertexFitterTool);
 
    //Declare variables:
    declareProperty("TotalNTrackMin",  m_totalNTrkMin = 2 ); 
@@ -81,22 +82,6 @@ PESA::T2VertexBeamSpotTool::T2VertexBeamSpotTool( const std::string& type, const
    declareProperty("ReclusterSplit",    m_reclusterSplit    = true     ); 
    declareProperty("SplitWholeCluster", m_splitWholeCluster = false    ); 
    declareProperty("ClusterPerigee",    m_clusterPerigee    = "beamspot" );
-
-   // Track Selection criteria 
-   declareProperty("TrackMinPt",      m_minTrackPt       =  0.7*GeV ); 
-   declareProperty("TrackMaxEta",     m_maxTrackEta      =   2.5    ); 
-   declareProperty("TrackMaxZ0",      m_maxTrackZ0       = 200.*mm  ); 
-   declareProperty("TrackMaxD0",      m_maxTrackD0       =  10.*mm  ); 
-   declareProperty("TrackMaxZ0err",   m_maxTrackZ0err    =   2.*mm  ); 
-   declareProperty("TrackMaxD0err",   m_maxTrackD0err    =   2.*mm  ); 
-   declareProperty("TrackMinNDF",     m_minTrackNDF      =   2      ); 
-   declareProperty("TrackMinQual",    m_minTrackQual     =   0.2    ); 
-   declareProperty("TrackMaxQual",    m_maxTrackQual     =   5.0    ); 
-   declareProperty("TrackMinChi2Prob",m_minTrackChi2Prob = -10.0    ); 
-   declareProperty("TrackMinSiHits",  m_minSiHits        =   4      ); 
-   declareProperty("TrackMinPIXHits", m_minPIXHits       =   1      ); 
-   declareProperty("TrackMinSCTHits", m_minSCTHits       =   3      ); 
-   declareProperty("TrackMinTRTHits", m_minTRTHits       =   0      ); 
 
    // Vertex Selection criteria 
    declareProperty("VertexMinNTrk",     m_vtxNTrkMin     =   2      ); 
@@ -118,24 +103,19 @@ PESA::T2VertexBeamSpotTool::T2VertexBeamSpotTool( const std::string& type, const
 
    declareProperty("nSplitVertices",    m_nSplitVertices      = 1);
 
-   // Single interaction trigger
-   declareProperty("minNpvTrigger",  m_minNpvTrigger  = 0);
-   declareProperty("maxNpvTrigger",  m_maxNpvTrigger  = 2);
+   declareProperty("filterBS",          m_filterBS         = true);
 }
-
-
-
 
 StatusCode T2VertexBeamSpotTool::initialize(){
    ATH_MSG_INFO( "Initialising BeamSpot tool" );
 
    //Initialize data Handles
    ATH_CHECK( m_beamSpotKey.initialize() ) ;
+   ATH_CHECK( m_outputVertexCollectionKey.initialize() );
 
-   //Retrieve monitoring tool
-   ATH_CHECK( m_monTool.retrieve());
-
-   //Retrieve primary vertex fitter tool
+   // Retrieve tools
+   ATH_CHECK(m_trackFilterTool.retrieve());
+   ATH_CHECK(m_monTool.retrieve());
    ATH_CHECK( m_primaryVertexFitterTool.retrieve() );
 
    m_clusterTrackPerigee = T2TrackClusterer::trackPerigeeFromString(m_clusterPerigee);
@@ -144,88 +124,78 @@ StatusCode T2VertexBeamSpotTool::initialize(){
 }
 
 
-/********************************************//**
-* \fn Select tracks
-* \brief Loop over provided tracks and selects them based on their parameters
-*  Detailed description of the select track function
- ***********************************************/
-void T2VertexBeamSpotTool::selectTracks( const TrackCollection* trackCollection,
-      ConstDataVector<TrackCollection>& mySelectedTrackCollection, std::vector<unsigned> &trackCounter ) const {
+void T2VertexBeamSpotTool::updateBS(const TrackCollection& tracks, const EventContext& ctx) const
+{
+   // Monitor how long does it take to loop over all collections
+   auto tSelectingTracks = Monitored::Timer("TIME_SelectingTracks");
 
-   ATH_MSG_DEBUG( "Selecting tracks for the beamSpot algorithm" );
-
-   //Monitoring counters and timers
-   auto timerTrackSelection = Monitored::Timer("TIME_TrackSelection");
-   //Switch probably naming from PerROI to PerCollection 
-   auto nTracksPerROI           = Monitored::Scalar<unsigned>("TracksPerROI", 0);
-   auto nTracksPassedPerROI     = Monitored::Scalar<unsigned>("SelectedTracksPerROI", 0);
-   auto nHiPTTracksPassedPerROI = Monitored::Scalar<unsigned>("SelectedHiPTTracksPerROI", 0);
-
-   //T2Track with easily accesable parameters
-   std::vector<T2Track> myTracks; myTracks.reserve(trackCollection->size() );
-
-   // Loop over all tracks in the given track collections
-   for ( TrackCollection::const_iterator trackIter = trackCollection->begin();
-         trackIter != trackCollection->end(); ++trackIter ) { 
-
-      const Trk::Track& track = **trackIter;
-
-      // Make sure that the event has tracks
-      //Counter for all input tracks
-      nTracksPerROI++;
-
-      T2Track myTrack( track );
-      // Check for passed track
-      if ( isGoodTrack( myTrack ) ) {
-         // Add this track to the set used to find a vertex
-         mySelectedTrackCollection.push_back( *trackIter );
-
-         //Stored only for monitoring
-         myTracks.push_back( myTrack );
-
-         //Counter for selected tracks
-         nTracksPassedPerROI++;
-
-         // Check for high-pT track
-         if ( myTrack.Pt() > m_trackSeedPt ){
-            //Counter for high pT tracks
-            nHiPTTracksPassedPerROI++;
-         }
-         else ATH_MSG_DEBUG( "Track.pt: " << myTrack.Pt()*GeV );
+   // Select tracks
+   auto selectedTracks = m_trackFilterTool->filter(tracks);
+   if (m_filterBS) {
+      auto& eventID = ctx.eventID();
+      bool has_bs = m_trackFilterTool->updateBS(selectedTracks, eventID.lumi_block(),
+                                                eventID.bunch_crossing_id());
+      if (has_bs) {
+         selectedTracks = m_trackFilterTool->filterBS(selectedTracks);
       }
-      else {
-         ATH_MSG_DEBUG( "Track.failed selection: d0: " << myTrack.D0() <<
-               " z0: " << myTrack.Z0() <<
-               " phi0: " << myTrack.Phi() <<
-               " eta: " << myTrack.Eta() <<
-               " pT: " << myTrack.Pt()*GeV <<
-               " chi2: " << myTrack.Qual() <<
-               " NpixSPs: " << myTrack.PIXHits() <<
-               " NsctSPs: " << myTrack.SCTHits() <<
-               " NstrawHits: " << myTrack.TRTHits() );
-      }
-   } //end for loop over tracks in a collection
+   }
 
-      //Save track counts
-      trackCounter[0] = nTracksPerROI;
-      trackCounter[1] = nTracksPassedPerROI;
-      trackCounter[2] = nHiPTTracksPassedPerROI;
-   
-      //How many tracks per collection
-      ATH_MSG_DEBUG( "Total Tracks: " << nTracksPerROI << " selectedTracks: " << nTracksPassedPerROI << " High PT tracks: " << nHiPTTracksPassedPerROI );
+   //Monitor total all/passed/highPt track numbers
+   tSelectingTracks.stop();
+   auto nTotalTracks = Monitored::Scalar<unsigned>("nTotalTracks", tracks.size());
+   auto nTotalPassedTracks = Monitored::Scalar<unsigned>("nTotalPassedTracks", selectedTracks.size());
+   auto nTotalHighPTTracks = Monitored::Scalar<unsigned>("nTotalHighPTTracks", numHighPTTrack(selectedTracks));
 
-      //Monitor all passed tracks variables/parameters
-      monitor_tracks( "Track", "Pass", myTracks);
+   //Monitor total number of tracks
+   auto monitor = Monitored::Group(m_monTool, tSelectingTracks, nTotalTracks,
+                                   nTotalPassedTracks, nTotalHighPTTracks);
+   ATH_MSG_DEBUG("Number of all Tracks: " << nTotalTracks << " Selected Tracks: " << nTotalPassedTracks <<
+                 " highPt Tracks: " << nTotalHighPTTracks );
 
-      //Monitor counters per track collection and time to select tracks
-      auto mon = Monitored::Group(m_monTool, nTracksPerROI, nTracksPassedPerROI, nHiPTTracksPassedPerROI,
-                 timerTrackSelection ); //timers
+   // Check for seed tracks (= high-pT tracks)
+   if (nTotalHighPTTracks == 0) {
+      ATH_MSG_DEBUG("No seed tracks for vertexing");
+      return;
+   }
+
+   // Check for the total number of available tracks
+   if (nTotalPassedTracks < m_totalNTrkMin) {
+      ATH_MSG_DEBUG( "Not enough total passed tracks to vertex");
+      return;
+   }
+
+   SG::WriteHandle<TrigVertexCollection> myVertexCollection(m_outputVertexCollectionKey, ctx);
+   myVertexCollection = std::make_unique<TrigVertexCollection>();
+   DataVector<TrigVertexCollection> mySplitVertexCollections;
+
+   ATH_MSG_DEBUG( "Reconstruct vertices" );
+   reconstructVertices(selectedTracks, *myVertexCollection, mySplitVertexCollections, ctx);
 }
 
 
-unsigned int T2VertexBeamSpotTool::reconstructVertices( ConstDataVector<TrackCollection>& mySelectedTrackCollection,
-                                           TrigVertexCollection& myVertexCollection,
-                                           DataVector< TrigVertexCollection >&  mySplitVertexCollections, const EventContext& ctx) const {
+unsigned T2VertexBeamSpotTool::numHighPTTrack( const TrackVector& tracks ) const
+{
+   unsigned count = 0;
+   for (auto&& track: tracks) {
+      const Trk::TrackParameters* trackPars = track->perigeeParameters();
+      if (trackPars) {
+         float qOverP = trackPars->parameters()[Trk::qOverP];
+         float theta = trackPars->parameters()[Trk::theta];
+         double pt = std::abs(std::sin(theta)/qOverP)/Gaudi::Units::GeV;
+         if (pt > m_trackSeedPt) {
+            ++count;
+         }
+      }
+   }
+   return count;
+}
+
+unsigned int T2VertexBeamSpotTool::reconstructVertices(
+      TrackVector& tracks,
+      TrigVertexCollection& myVertexCollection,
+      DataVector< TrigVertexCollection >&  mySplitVertexCollections,
+      const EventContext& ctx) const
+{
     ATH_MSG_DEBUG( "Reconstructing vertices" );
 
    unsigned bcid = ctx.eventID().bunch_crossing_id();
@@ -238,35 +208,32 @@ unsigned int T2VertexBeamSpotTool::reconstructVertices( ConstDataVector<TrackCol
    auto nPassBCIDVtx   = Monitored::Scalar<unsigned>("NvtxPassBCID", 0);
    auto BCID           = Monitored::Scalar<unsigned>("BCID", bcid);
 
-  // Make collections for vertex splitting (unsorted)
-  ConstDataVector<TrackCollection> mySplitTrackCollection( mySelectedTrackCollection );
+   // Sort tracks by track pT
+   {
+      auto timeToSortTracks = Monitored::Timer("TIME_toSortTracks");
+      std::sort(tracks.begin(), tracks.end(), Beamspot::TrackPTSort());
+      auto mon = Monitored::Group(m_monTool,  timeToSortTracks );
+   }
 
-  // Sort tracks by track pT
-  {
-     auto timeToSortTracks = Monitored::Timer("TIME_toSortTracks");
-     mySelectedTrackCollection.sort( Beamspot::TrackPTSort() );
-     auto mon = Monitored::Group(m_monTool,  timeToSortTracks ); 
-  }
-
-  // Extract beam spot parameters
-  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
-  const InDet::BeamSpotData* indetBeamSpot(*beamSpotHandle);
-  const T2BeamSpot beamSpot(indetBeamSpot);
+   // Extract beam spot parameters
+   SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
+   const InDet::BeamSpotData* indetBeamSpot(*beamSpotHandle);
+   const T2BeamSpot beamSpot(indetBeamSpot);
    ATH_MSG_DEBUG( "Beamspot from BeamCondSvc: " << beamSpot);
 
-  // Prepare a track clustering algorithm with the given parameters
-  // Should we leave this as a standalone class or merge with the tool?
+   // Prepare a track clustering algorithm with the given parameters
+   // Should we leave this as a standalone class or merge with the tool?
    T2TrackClusterer trackClusterer( m_trackClusDZ, m_trackSeedPt, m_weightSeed, m_vtxNTrkMax,
                                     m_clusterTrackPerigee );
 
    std::vector<double> clusterZ0; // Z0 for each cluster, for monitoring only
 
-  // Create clusters from the track collection until all its tracks are used
-   while ( ! mySelectedTrackCollection.empty() ) {
+   // Create clusters from the track collection until all its tracks are used
+   while ( ! tracks.empty() ) {
 
-      const Trk::TrackParameters* params = (*mySelectedTrackCollection.begin())->perigeeParameters();
+      const Trk::TrackParameters* params = (*tracks.begin())->perigeeParameters();
       float pT = std::abs(sin(params->parameters()[Trk::theta])/params->parameters()[Trk::qOverP]);
-      ATH_MSG_DEBUG( "Number of tracks remaining = " << mySelectedTrackCollection.size() );
+      ATH_MSG_DEBUG( "Number of tracks remaining = " << tracks.size() );
       ATH_MSG_DEBUG( "pT of first (seed) track (GeV) = " << pT/GeV );
 
 
@@ -274,30 +241,28 @@ unsigned int T2VertexBeamSpotTool::reconstructVertices( ConstDataVector<TrackCol
       // as the seed.
       {
          auto timeToZCluster = Monitored::Timer("TIME_toZCluster");
-         trackClusterer.cluster( *mySelectedTrackCollection.asDataVector(), indetBeamSpot );
-         auto mon = Monitored::Group(m_monTool,  timeToZCluster ); 
+         trackClusterer.cluster(tracks, indetBeamSpot);
+         auto mon = Monitored::Group(m_monTool,  timeToZCluster);
       }
 
       // Sanity check:
-      if ( trackClusterer.cluster().size() + trackClusterer.unusedTracks().size()
-            != mySelectedTrackCollection.size() ) {
+      if ( trackClusterer.clusterTracks().size() + trackClusterer.unusedTracks().size()
+            != tracks.size() ) {
          ATH_MSG_DEBUG( "Track clustering check sum failed: "
-               << "cluster().size()=" << trackClusterer.cluster().size()
+               << "cluster().size()=" << trackClusterer.clusterTracks().size()
                << " + unusedTracks().size()=" << trackClusterer.unusedTracks().size()
-               << " != mySelectedTrackCollection.size()=" << mySelectedTrackCollection.size()
+               << " != tracks.size()=" << tracks.size()
                );
       }
 
       // Continue with the remaining tracks - still pT-sorted
-      mySelectedTrackCollection.clear( SG::VIEW_ELEMENTS );
-      mySelectedTrackCollection.assign (trackClusterer.unusedTracks().begin(),
-            trackClusterer.unusedTracks().end());
+      tracks = trackClusterer.unusedTracks();
 
       // This always uses at least one track (the seed), so we are sure to reduce the track
       // selection and terminate the loop
 
       // Make sure we have enough tracks in the cluster
-      if ( trackClusterer.cluster().size() < m_totalNTrkMin ) {
+      if ( trackClusterer.clusterTracks().size() < m_totalNTrkMin ) {
          ATH_MSG_DEBUG( "Not enough tracks in cluster!" );
          continue;
       }
@@ -309,21 +274,19 @@ unsigned int T2VertexBeamSpotTool::reconstructVertices( ConstDataVector<TrackCol
       monitor_cluster( trackClusterer );
 
       // Monitor properties of tracks inside the cluster
-      for ( TrackCollection::const_iterator track = trackClusterer.cluster().begin();
-            track !=  trackClusterer.cluster().end(); ++track ) {
-         monitor_cluster_tracks( trackClusterer,  **track);
+      for (auto&& track: trackClusterer.clusterTracks()) {
+         monitor_cluster_tracks( trackClusterer,  *track);
       }
 
-      ATH_MSG_DEBUG( "Number of tracks remaining after cluster #(" << nClusters << ") = " << mySelectedTrackCollection.size());
-      ATH_MSG_DEBUG( "Total number of tracks to fit    = " << trackClusterer.cluster().size() );
+      ATH_MSG_DEBUG( "Number of tracks remaining after cluster #(" << nClusters << ") = " << tracks.size());
+      ATH_MSG_DEBUG( "Total number of tracks to fit    = " << trackClusterer.clusterTracks().size() );
       ATH_MSG_DEBUG( "Average Z position (from trk Z0) = " << trackClusterer.seedZ0()         );
       ATH_MSG_DEBUG( "Fitting tracks");
 
       // Fit a primary vertex to this cluster around its seed track
       TrackCollection vertexTracks;
-      TrigVertex* primaryVertex = 0;
-      primaryVertex = (m_primaryVertexFitterTool->fit( &trackClusterer.cluster(), vertexTracks, trackClusterer.seedZ0() ) );
-      
+      ConstDataVector<TrackCollection> cluster(trackClusterer.clusterTracks().begin(), trackClusterer.clusterTracks().end());
+      TrigVertex* primaryVertex = m_primaryVertexFitterTool->fit(cluster.asDataVector(), vertexTracks, trackClusterer.seedZ0());
 
       // Check to see if the fit succeeded / converged
       if ( ! primaryVertex ) { 
@@ -334,7 +297,7 @@ unsigned int T2VertexBeamSpotTool::reconstructVertices( ConstDataVector<TrackCol
       // Update vertex counter
       nVtx++;
 
-      const T2Vertex myVertex( *primaryVertex, vertexTracks, beamSpot, trackClusterer.seedZ0() );
+      const T2Vertex myVertex(*primaryVertex, vertexTracks, beamSpot, trackClusterer.seedZ0());
 
       // Monitor all vertices parameters
       monitor_vertex( "Vertex", "", myVertex ); 
@@ -349,7 +312,7 @@ unsigned int T2VertexBeamSpotTool::reconstructVertices( ConstDataVector<TrackCol
       }
 
       // Add primary vertex to collection
-      myVertexCollection.push_back( primaryVertex ); // passes ownership to vertex collection
+      myVertexCollection.push_back(primaryVertex); // passes ownership to vertex collection
 
       //Monitor parameters of the  passed vertex 
       monitor_vertex( "Vertex", "Pass", myVertex ); 
@@ -358,12 +321,12 @@ unsigned int T2VertexBeamSpotTool::reconstructVertices( ConstDataVector<TrackCol
       nPassVtx++;    
 
       // Learn something more about the cluster that ended up in this vertex
-      auto deltaVtxZ  = Monitored::Scalar<double>   ( "ClusterDeltaVertexZ",  trackClusterer.seedZ0() - myVertex.Z() );
-      auto mon = Monitored::Group(m_monTool,  deltaVtxZ ); 
+      auto deltaVtxZ = Monitored::Scalar<double>("ClusterDeltaVertexZ",  trackClusterer.seedZ0() - myVertex.Z());
+      auto mon = Monitored::Group(m_monTool, deltaVtxZ);
 
       // monitor cluster-cluster delta Z0
       for (double prevClusterZ0: clusterZ0) {
-         auto clusterClusterDeltaZ  = Monitored::Scalar<double>("ClusterClusterDeltaZ0",  trackClusterer.seedZ0() - prevClusterZ0);
+         auto clusterClusterDeltaZ = Monitored::Scalar<double>("ClusterClusterDeltaZ0",  trackClusterer.seedZ0() - prevClusterZ0);
          auto mon = Monitored::Group(m_monTool,  clusterClusterDeltaZ);
       }
       clusterZ0.push_back(trackClusterer.seedZ0());
@@ -371,33 +334,28 @@ unsigned int T2VertexBeamSpotTool::reconstructVertices( ConstDataVector<TrackCol
       // If the vertex is good, splits are requested, and we have enough tracks to split, split them!
       if ( passVertex && m_nSplitVertices > 1 ) {
 
-         if ( m_splitWholeCluster )
-         {
+         TrackVector mySplitTrackCollection;
+
+         if ( m_splitWholeCluster ) {
             ATH_MSG_DEBUG( "Splitting the entire cluster of tracks into two");
             // Alternative 1: Split the entire cluster of track into two
-            mySplitTrackCollection.clear( SG::VIEW_ELEMENTS );
-            mySplitTrackCollection.assign (trackClusterer.cluster().begin(),
-                  trackClusterer.cluster().end());
-         }
-         else
-         {
+            mySplitTrackCollection = trackClusterer.clusterTracks();
+         } else {
             ATH_MSG_DEBUG( "Splitting only tracks succesfully fitted to a vertex");
             // Alternative 2: Split only the tracks that were successfully fit to a vertex
-            mySplitTrackCollection.clear( SG::VIEW_ELEMENTS );
-            mySplitTrackCollection.assign (vertexTracks.begin(), vertexTracks.end());
+            mySplitTrackCollection.assign(vertexTracks.begin(), vertexTracks.end());
          }
 
-         if ( mySplitTrackCollection.size() >= m_nSplitVertices * m_totalNTrkMin )
-         {
+         if (mySplitTrackCollection.size() >= m_nSplitVertices * m_totalNTrkMin) {
             // Split, optinally re-cluster, and fit separate vertices
             ATH_MSG_DEBUG( "Reconstruct split vertices");
-            reconstructSplitVertices( mySplitTrackCollection, mySplitVertexCollections, trackClusterer, ctx );
+            reconstructSplitVertices( mySplitTrackCollection, mySplitVertexCollections, trackClusterer, indetBeamSpot, ctx );
          }
          // Alternative 3: Split all the tracks and iterate with the remaining tracks
-         //          mySplitTrackCollection = mySelectedTrackCollection;
+         //          mySplitTrackCollection = tracks;
       }
 
-      ATH_MSG_DEBUG( "Number of tracks remaining = " << mySelectedTrackCollection.size() );
+      ATH_MSG_DEBUG( "Number of tracks remaining = " << tracks.size() );
 
       // Now check if this vertex passed the higher multiplicity cut to be used for per-BCID measurements
       const bool passVertexBCID = isGoodVertexBCID( myVertex );
@@ -413,28 +371,30 @@ unsigned int T2VertexBeamSpotTool::reconstructVertices( ConstDataVector<TrackCol
     }//End looping over tracks
 
   //monitor number of (passed) vertices, clusters, etc
-  auto mon = Monitored::Group(m_monTool,  nVtx, nPassVtx, nPassBCIDVtx, nClusters, timerVertexRec, BCID );
+  auto mon = Monitored::Group(m_monTool, nVtx, nPassVtx, nPassBCIDVtx, nClusters, timerVertexRec, BCID);
   return static_cast<unsigned int>(nPassVtx);
 }
 
 
-void T2VertexBeamSpotTool::reconstructSplitVertices( ConstDataVector<TrackCollection>& myFullTrackCollection,
-                                                DataVector< TrigVertexCollection >& mySplitVertexCollections,
-                                                T2TrackClusterer& trackClusterer, const EventContext& ctx ) const {
+void T2VertexBeamSpotTool::reconstructSplitVertices(
+      TrackVector& myFullTrackCollection,
+      DataVector<TrigVertexCollection>& mySplitVertexCollections,
+      T2TrackClusterer& trackClusterer,
+      const InDet::BeamSpotData* indetBeamSpot,
+      const EventContext& ctx ) const
+{
   auto timerVertexRec = Monitored::Timer("TIME_SplitVertexReconstruction");
-
 
   // Sort the tracks in phi for splitting in the most independent, uniform variable
   {
     auto timeToSortTracks = Monitored::Timer("TIME_toSortSplitTracks");
-    myFullTrackCollection.sort( Beamspot::TrackPhiSort() );
-     auto mon = Monitored::Group(m_monTool,  timeToSortTracks ); 
+    std::sort(myFullTrackCollection.begin(), myFullTrackCollection.end(), Beamspot::TrackPhiSort());
+    auto mon = Monitored::Group(m_monTool,  timeToSortTracks );
   }
-
 
   // This returns m_nSplitVertices (ideally) or fewer (if clustering fails) track collections
   T2TrackManager trackManager(m_nSplitVertices);
-  vector< ConstDataVector<TrackCollection> > splitTrackCollections = trackManager.split( *myFullTrackCollection.asDataVector(), ctx );
+  vector<TrackVector> splitTrackCollections = trackManager.split(myFullTrackCollection, ctx);
 
   // Add a new track collection for the split vertices corresponding to this primary vertex
   // There can be anywhere between zero and m_nSplitVertices entries in the collection
@@ -442,34 +402,32 @@ void T2VertexBeamSpotTool::reconstructSplitVertices( ConstDataVector<TrackCollec
   mySplitVertexCollections.push_back(splitVertices); // passes ownership
 
   // Loop over the split track collections to perform clustering and vertex fitting
-
-  for ( vector< ConstDataVector<TrackCollection> >::iterator tracks = splitTrackCollections.begin(); 
-        tracks != splitTrackCollections.end(); ++tracks ){
-     TrigVertex* splitVertex = 0;
-     ATH_MSG_DEBUG( "split vertex # of tracks " << tracks->size());
+  for (auto&& tracks: splitTrackCollections) {
+     TrigVertex* splitVertex = nullptr;
+     ATH_MSG_DEBUG( "split vertex # of tracks " << tracks.size());
 
      if ( m_reclusterSplit ) {
         // Sort the tracks in pT for clustering around the highest-pT seed
         {
-           tracks->sort( Beamspot::TrackPTSort() );
+           std::sort(tracks.begin(), tracks.end(), Beamspot::TrackPTSort());
         }
 
         // Cluster in z
         {
            auto timeToZClusterSplit = Monitored::Timer("TIME_toZClusterSplit");
-           trackClusterer.cluster( *tracks->asDataVector() );
+           trackClusterer.cluster(tracks, indetBeamSpot);
            auto mon = Monitored::Group(m_monTool,  timeToZClusterSplit ); 
         }
 
         // Check for a good cluster
-        if ( trackClusterer.cluster().size() < m_totalNTrkMin ) continue;
-
+        if ( trackClusterer.clusterTracks().size() < m_totalNTrkMin ) continue;
 
         // Fit a vertex to this split track cluster
         {
            auto timeToVertexFitSplit = Monitored::Timer("TIME_toVertexFitSplit");
            TrackCollection vertexTracks;
-           splitVertex = m_primaryVertexFitterTool->fit( &trackClusterer.cluster(), vertexTracks, trackClusterer.seedZ0() );
+           ConstDataVector<TrackCollection> cluster(trackClusterer.clusterTracks().begin(), trackClusterer.clusterTracks().end());
+           splitVertex = m_primaryVertexFitterTool->fit(cluster.asDataVector(), vertexTracks, trackClusterer.seedZ0());
            auto mon = Monitored::Group(m_monTool,  timeToVertexFitSplit ); 
         }
 
@@ -481,7 +439,8 @@ void T2VertexBeamSpotTool::reconstructSplitVertices( ConstDataVector<TrackCollec
         {
            auto timeToVertexFitSplit = Monitored::Timer("TIME_toVertexFitSplit");
            TrackCollection vertexTracks;
-           splitVertex = m_primaryVertexFitterTool->fit( tracks->asDataVector(), vertexTracks, trackClusterer.seedZ0() );
+           ConstDataVector<TrackCollection> cluster(tracks.begin(), tracks.end());
+           splitVertex = m_primaryVertexFitterTool->fit(cluster.asDataVector(), vertexTracks, trackClusterer.seedZ0() );
            auto mon = Monitored::Group(m_monTool,  timeToVertexFitSplit ); 
         }
      }
@@ -508,32 +467,6 @@ void T2VertexBeamSpotTool::reconstructSplitVertices( ConstDataVector<TrackCollec
 
       //Monitor timing
       auto mon = Monitored::Group(m_monTool, timerVertexRec ); 
-}
-
-
-
-
-bool PESA::T2VertexBeamSpotTool::isGoodTrack( const T2Track& track ) const {
-  // Vertex quality cuts
-  return
-    (
-     abs( track.Pt() )  >= m_minTrackPt       &&
-     track.SiHits()     >= m_minSiHits        &&
-     track.PIXHits()    >= m_minPIXHits       &&
-     track.SCTHits()    >= m_minSCTHits       &&
-     track.TRTHits()    >= m_minTRTHits       &&
-     track.NDF()        >= m_minTrackNDF      &&
-     abs( track.D0() )  <= m_maxTrackD0       &&
-     abs( track.Z0() )  <= m_maxTrackZ0       &&
-     track.D0err()      <= m_maxTrackD0err    &&
-     track.Z0err()      <= m_maxTrackZ0err    &&
-     abs( track.Eta() ) <= m_maxTrackEta      &&
-     track.Qual()       >= m_minTrackQual     && 
-     track.Qual()       <= m_maxTrackQual     &&
-     track.Chi2Prob()   >= m_minTrackChi2Prob &&
-     true
-     );
-
 }
 
 
@@ -568,30 +501,9 @@ bool T2VertexBeamSpotTool::isGoodVertexBCID( const T2Vertex& vertex ) const {
 }
 
 
-//Monitoring track variables
-void T2VertexBeamSpotTool::monitor_tracks(const std::string& prefix, const std::string& suffix, const std::vector<T2Track>& tracks ) const {
-   auto  trackPt      = Monitored::Collection(  prefix + "Pt"       + suffix, tracks, [](const T2Track t){ return t.Pt()      ;});
-   auto  trackEta     = Monitored::Collection(  prefix + "Eta"      + suffix, tracks, [](const T2Track t){ return t.Eta()     ;});
-   auto  trackPhi     = Monitored::Collection(  prefix + "Phi"      + suffix, tracks, [](const T2Track t){ return t.Phi()     ;});
-   auto  trackZ0      = Monitored::Collection(  prefix + "Z0"       + suffix, tracks, [](const T2Track t){ return t.Z0()      ;});
-   auto  trackD0      = Monitored::Collection(  prefix + "D0"       + suffix, tracks, [](const T2Track t){ return t.D0()      ;});
-   auto  trackZ0err   = Monitored::Collection(  prefix + "Z0err"    + suffix, tracks, [](const T2Track t){ return t.Z0err()   ;});
-   auto  trackD0err   = Monitored::Collection(  prefix + "D0err"    + suffix, tracks, [](const T2Track t){ return t.D0err()   ;});
-   auto  trackNDF     = Monitored::Collection(  prefix + "NDF"      + suffix, tracks, [](const T2Track t){ return t.NDF()     ;});
-   auto  trackQual    = Monitored::Collection(  prefix + "Qual"     + suffix, tracks, [](const T2Track t){ return t.Qual()    ;});
-   auto  trackChi2Prob= Monitored::Collection(  prefix + "Chi2Prob" + suffix, tracks, [](const T2Track t){ return t.Chi2Prob();});
-   auto  trackSiHits  = Monitored::Collection(  prefix + "SiHits"   + suffix, tracks, [](const T2Track t){ return t.SiHits()  ;});
-   auto  trackPiHits  = Monitored::Collection(  prefix + "PIXHits"  + suffix, tracks, [](const T2Track t){ return t.PIXHits() ;});
-   auto  trackSCTHits = Monitored::Collection(  prefix + "SCTHits"  + suffix, tracks, [](const T2Track t){ return t.SCTHits() ;});
-   auto  trackTRTHits = Monitored::Collection(  prefix + "TRTHits"  + suffix, tracks, [](const T2Track t){ return t.TRTHits() ;});
-   auto mon = Monitored::Group(m_monTool, trackPt, trackEta, trackPhi, trackZ0, trackD0, trackZ0err, trackD0err,
-                               trackNDF, trackQual, trackChi2Prob, trackSiHits, trackPiHits, trackSCTHits, trackTRTHits );
-}
-
-
 void T2VertexBeamSpotTool::monitor_cluster( const T2TrackClusterer& clusterer  ) const {
    auto  clusterZ                = Monitored::Scalar<double>("ClusterZ", clusterer.seedZ0()            );
-   auto  clusterNtracks          = Monitored::Scalar<int>("ClusterNTracks", clusterer.cluster().size()       );
+   auto  clusterNtracks          = Monitored::Scalar<int>("ClusterNTracks", clusterer.clusterTracks().size()       );
    auto  clusterNUnusedTracks    = Monitored::Scalar<int>("ClusterNTracksUnused", clusterer.unusedTracks().size()  );
 
    auto mon = Monitored::Group(m_monTool, clusterZ, clusterNtracks, clusterNUnusedTracks ); 

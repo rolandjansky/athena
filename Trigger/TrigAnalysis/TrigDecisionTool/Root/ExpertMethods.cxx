@@ -143,13 +143,12 @@ bool Trig::ExpertMethods::isHLTTruncated() const {
   }
 
 #if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
-  const HLT::HLTResult* res(nullptr);
-  auto navigation = getNavigation();
-  if(!navigation || navigation->getAccessProxy()->retrieve(res, "HLTResult_HLT").isFailure()) {
+  SG::ReadHandle<HLT::HLTResult> hltResult("HLTResult_HLT");
+  if(!hltResult.isValid()) {
     ATH_MSG_WARNING("TDT has not ben able to get HLTResult_HLT");
     return false;
   }
-  return res->isHLTResultTruncated();   
+  return hltResult->isHLTResultTruncated();   
 #else
   ATH_MSG_ERROR("isHLTTruncated only supported with a xAOD::TrigDecision ReadHandle (Runs 2,3) or in full Athena (Run 2)");
   return false;

@@ -32,23 +32,22 @@ namespace Trk {
       friend class Muon::MuonTrackSummaryHelperTool;
       
       /** structure to hold the information for the eta/phi projection of RPC, TGC and CSC
-	  chambers and per multilayer for MDT chambers */
+      chambers and per multilayer for MDT chambers */
       struct Projection {
-      Projection() : nhits(0),nholes(0),noutliers(0),ndeltas(0), ncloseHits(0), ngoodHits(0), noutBounds(0) {}
-        int nhits;      //<! number of hits on track in the projection
-        int nholes;     //<! number of holes in the projection
-        int noutliers;  //<! number of outliers in the projection
-        int ndeltas;    //<! number of delta electrons in the projection (only filled for MDT chambers)
-        int ncloseHits; //<! number of hits within a road around the track in the projection
-	int ngoodHits;  //<! number of hits that matter for the track
-	int noutBounds; //<! number of out-of-bounds hits
+      Projection() {}
+        int nhits{0};      //<! number of hits on track in the projection
+        int nholes{0};     //<! number of holes in the projection
+        int noutliers{0};  //<! number of outliers in the projection
+        int ndeltas{0};    //<! number of delta electrons in the projection (only filled for MDT chambers)
+        int ncloseHits{0}; //<! number of hits within a road around the track in the projection
+        int ngoodHits{0};  //<! number of hits that matter for the track
+        int noutBounds{0}; //<! number of out-of-bounds hits
       };
 
-      ChamberHitSummary(  ):m_chId{},m_isMdt{} {}
-
+  
       /** constructor taking the Identifier of the chamber and a boolean whether we are dealing with a MDT chamber or not
-	  (the boolean is passed as the ChamberHitSummary cannot unpack the identifier and it needs to know whether it is dealing 
-	  with a MDT chamber) */
+      (the boolean is passed as the ChamberHitSummary cannot unpack the identifier and it needs to know whether it is dealing 
+      with a MDT chamber) */
       ChamberHitSummary( Identifier chID, bool isMdtTube ) : m_chId(chID),m_isMdt(isMdtTube) {}
 
       /** returns the chamber identifier */
@@ -108,8 +107,8 @@ namespace Trk {
       friend class ::MuonTrackSummaryCnv_p2;
       friend class ::TrackSummaryCnv_p2;
 
-      Identifier m_chId; //<! chamber identifier
-      bool m_isMdt;      //<! is this a MDT chamber
+      Identifier m_chId{0}; //<! chamber identifier
+      bool m_isMdt{false};      //<! is this a MDT chamber
       
       Projection m_first;  //<! eta projections for cluster chambers, first multi layer for mdt chambers
       Projection m_second; //<! phi projections for cluster chambers, first multi layer for mdt chambers

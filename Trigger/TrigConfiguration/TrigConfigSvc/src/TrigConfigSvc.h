@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////
@@ -37,18 +37,14 @@ namespace TrigConf {
 
    enum TrigConfSrc {DS = 0, XML, XMLL1, XMLHLT };
 
-   class TrigConfigSvc : public AthService, 
-                         virtual public ITrigConfigSvc
+   class TrigConfigSvc : public extends<AthService, ITrigConfigSvc>
    {
    public:
 
       TrigConfigSvc( const std::string& name, ISvcLocator* pSvcLocator );
 
-      virtual ~TrigConfigSvc(){}
-
       virtual StatusCode initialize() override;
 
-      virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvIF ) override;
       static const InterfaceID& interfaceID() { return ITrigConfigSvc::interfaceID(); }
 
       // L1Topo menu
@@ -61,9 +57,7 @@ namespace TrigConf {
       virtual const BunchGroupSet*   bunchGroupSet() const override;
 
       // HLT accessors
-      virtual const HLTChainList*    chainList() const override;
       virtual const HLTChainList&    chains() const override;
-      virtual const HLTSequenceList* sequenceList() const override;
       virtual const HLTSequenceList& sequences() const override;
 
       // Super Master Key - 0 if from XML, other cases TBI.
@@ -73,10 +67,6 @@ namespace TrigConf {
       virtual std::string configurationSource() const override {
          return "";
       }
-
-      virtual StatusCode updatePrescaleSets(uint requestcount) override;
-
-      virtual StatusCode assignPrescalesToChains(uint lumiblock ) override;
 
       /// @name Dummy implementations of the Run 3 L1 JSON trigger configuration interface in IILVL1ConfigSvc.
       /// @brief Use the xAODConfigSvc or xAODConfigTool to access these data.

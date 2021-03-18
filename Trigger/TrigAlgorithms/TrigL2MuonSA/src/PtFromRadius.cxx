@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PtFromRadius.h"
 
-#include "CLHEP/Units/PhysicalConstants.h"
 #include "TMath.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
@@ -109,8 +108,8 @@ StatusCode TrigL2MuonSA::PtFromRadius::setPt(TrigL2MuonSA::TrackPattern& trackPa
           A1[2] = lut.table[add][ch][neweta][newphi][1];
           A0[3] = A0[0] + ((A0[1] - A0[0])/etastep)*disteta;
           A1[3] = A1[0] + ((A1[1] - A1[0])/etastep)*disteta;
-          dist  = sqrt(phistep*phistep + etastep*etastep);
-          distp = sqrt(disteta*disteta + distphi*distphi);
+          dist  = std::sqrt(phistep*phistep + etastep*etastep);
+          distp = std::sqrt(disteta*disteta + distphi*distphi);
           A0[4] = A0[0] + ((A0[2] - A0[0])/dist)*distp;
           A1[4] = A1[0] + ((A1[2] - A1[0])/dist)*distp;
           pstep = (phistep/dist)*distp;
@@ -124,8 +123,8 @@ StatusCode TrigL2MuonSA::PtFromRadius::setPt(TrigL2MuonSA::TrackPattern& trackPa
           A1[2] = lut.table[add][ch][neweta][newphi][1];
           A0[3] = A0[0] + ((A0[1] - A0[0])/phistep)*distphi;
           A1[3] = A1[0] + ((A1[1] - A1[0])/phistep)*distphi;
-          dist  = sqrt(phistep*phistep + etastep*etastep);
-          distp = sqrt(disteta*disteta + distphi*distphi);
+          dist  = std::sqrt(phistep*phistep + etastep*etastep);
+          distp = std::sqrt(disteta*disteta + distphi*distphi);
           A0[4] = A0[0] + ((A0[2] - A0[0])/dist)*distp;
           A1[4] = A1[0] + ((A1[2] - A1[0])/dist)*distp;
           pstep = (etastep/dist)*distp;

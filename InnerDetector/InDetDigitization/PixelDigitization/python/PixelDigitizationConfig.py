@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 from Digitization.DigitizationFlags import digitizationFlags
@@ -69,7 +69,9 @@ def SensorSimTool(name="SensorSimTool", **kwargs):
 
 def FrontEndSimTool(name="FrontEndSimTool", **kwargs):
     from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
-    pixelConditionsSummaryToolSetup = PixelConditionsSummaryTool("PixelConditionsSummaryTool", UseByteStream=False)
+    pixelConditionsSummaryToolSetup = PixelConditionsSummaryTool("PixelConditionsSummaryTool",
+                                                                 UseByteStreamFEI4=False,
+                                                                 UseByteStreamFEI3=False)
     kwargs.setdefault("PixelConditionsSummaryTool", pixelConditionsSummaryToolSetup)
     return CfgMgr.FrontEndSimTool(name, **kwargs)
 
@@ -87,7 +89,9 @@ def BarrelFEI4SimTool(name="BarrelFEI4SimTool", **kwargs):
     kwargs.setdefault("BarrelEC", 0)
     kwargs.setdefault("DoNoise", digitizationFlags.doInDetNoise.get_Value())
     from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
-    pixelConditionsSummaryToolSetup = PixelConditionsSummaryTool("PixelConditionsSummaryTool", UseByteStream=False)
+    pixelConditionsSummaryToolSetup = PixelConditionsSummaryTool("PixelConditionsSummaryTool",
+                                                                 UseByteStreamFEI4=False,
+                                                                 UseByteStreamFEI3=False)
     kwargs.setdefault("PixelConditionsSummaryTool", pixelConditionsSummaryToolSetup)
     return CfgMgr.FEI4SimTool(name, **kwargs)
 
@@ -95,21 +99,27 @@ def DBMFEI4SimTool(name="DBMFEI4SimTool", **kwargs):
     kwargs.setdefault("BarrelEC", 4)
     kwargs.setdefault("DoNoise", digitizationFlags.doInDetNoise.get_Value())
     from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
-    pixelConditionsSummaryToolSetup = PixelConditionsSummaryTool("PixelConditionsSummaryTool", UseByteStream=False)
+    pixelConditionsSummaryToolSetup = PixelConditionsSummaryTool("PixelConditionsSummaryTool",
+                                                                 UseByteStreamFEI4=False,
+                                                                 UseByteStreamFEI3=False)
     kwargs.setdefault("PixelConditionsSummaryTool", pixelConditionsSummaryToolSetup)
     return CfgMgr.FEI4SimTool(name, **kwargs)
 
 def BarrelFEI3SimTool(name="BarrelFEI3SimTool", **kwargs):
     kwargs.setdefault("BarrelEC", 0)
     from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
-    pixelConditionsSummaryToolSetup = PixelConditionsSummaryTool("PixelConditionsSummaryTool", UseByteStream=False)
+    pixelConditionsSummaryToolSetup = PixelConditionsSummaryTool("PixelConditionsSummaryTool",
+                                                                 UseByteStreamFEI4=False,
+                                                                 UseByteStreamFEI3=False)
     kwargs.setdefault("PixelConditionsSummaryTool", pixelConditionsSummaryToolSetup)
     return CfgMgr.FEI3SimTool(name, **kwargs)
 
 def EndcapFEI3SimTool(name="EndcapFEI3SimTool", **kwargs):
     kwargs.setdefault("BarrelEC", 2)
     from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
-    pixelConditionsSummaryToolSetup = PixelConditionsSummaryTool("PixelConditionsSummaryTool", UseByteStream=False)
+    pixelConditionsSummaryToolSetup = PixelConditionsSummaryTool("PixelConditionsSummaryTool",
+                                                                 UseByteStreamFEI4=False,
+                                                                 UseByteStreamFEI3=False)
     kwargs.setdefault("PixelConditionsSummaryTool", pixelConditionsSummaryToolSetup)
     return CfgMgr.FEI3SimTool(name, **kwargs)
 
@@ -184,7 +194,7 @@ def PixelConfigCondAlg_MC():
     alg.FEI4BarrelHitDiscConfig=[2]
 
     alg.ChargeScaleFEI4=1.0
-    alg.UseFEI4SpecialScalingFunction=False
+    alg.UseFEI4SpecialScalingFunction=True
 
     #====================================================================================
     # Run-dependent SIMULATION(digitization) parameters:

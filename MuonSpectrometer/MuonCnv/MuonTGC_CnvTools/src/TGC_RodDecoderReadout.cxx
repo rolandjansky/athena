@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -27,11 +27,9 @@ Muon::TGC_RodDecoderReadout::TGC_RodDecoderReadout(
 						   const std::string& t,
 						   const std::string& n,
 						   const IInterface*  p) :
-  AthAlgTool(t, n, p),
+  base_class(t, n, p),
   m_tgcIdHelper(0)
 {
-  declareInterface<ITGC_RodDecoder>(this);
-
   declareProperty("ShowStatusWords", m_showStatusWords=false);
   declareProperty("SkipCoincidence", m_skipCoincidence=false);
 }

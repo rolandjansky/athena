@@ -64,7 +64,7 @@ Trk::ForwardRefTrackKalmanFitter::ForwardRefTrackKalmanFitter(const std::string&
 {
   // AlgTool stuff
   declareInterface<IForwardKalmanFitter>( this );
-  
+
   // declare all properties needed to configure fitter, defaults
   declareProperty("StateChi2PerNDFPreCut", m_StateChiSquaredPerNumberDoFPreCut=50.f,
                   "coarse pre-cut on the predicted state's chi2/ndf against outliers destabilising the filter - only in effect if called with runOutlier true");
@@ -91,7 +91,7 @@ StatusCode Trk::ForwardRefTrackKalmanFitter::finalize()
   ATH_MSG_INFO ("finalize() successful in " << name());
   return StatusCode::SUCCESS;
 }
-		
+
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
 // configure the Forward Filter
@@ -114,7 +114,7 @@ StatusCode Trk::ForwardRefTrackKalmanFitter::configureWithTools(const Trk::IExtr
   m_ROTcreator   = rot_crea;
   m_dynamicNoiseAdjustor = dna;
   m_recalibrator = mr;
-  
+
   // protection, if not confiured
   if (!m_updator) {
     ATH_MSG_ERROR ("Updator missing, need to configure with it !");
@@ -126,9 +126,9 @@ StatusCode Trk::ForwardRefTrackKalmanFitter::configureWithTools(const Trk::IExtr
   }
   msg(MSG::INFO) << "Configuring " << name() << " with tools from KalmanFitter:" << endmsg;
   msg(MSG::INFO) << "Updator and Extrapolator    - present" << endmsg;
-  msg(MSG::INFO) << "Dyn.NoiseAdjustment Pix/SCT - " 
+  msg(MSG::INFO) << "Dyn.NoiseAdjustment Pix/SCT - "
         << (m_dynamicNoiseAdjustor? "present" : "none") << endmsg;
-  msg(MSG::INFO) << "General RIO_OnTrackCreator  - " 
+  msg(MSG::INFO) << "General RIO_OnTrackCreator  - "
         << (m_ROTcreator? "present" : "none") << endmsg;
   msg(MSG::INFO) << "RIO_OnTrack Recalibrator    - " << (m_recalibrator?"present":"none")<<endmsg;
   return StatusCode::SUCCESS;
@@ -141,7 +141,7 @@ StatusCode Trk::ForwardRefTrackKalmanFitter::configureWithTools(const Trk::IExtr
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-Trk::FitterStatusCode 
+Trk::FitterStatusCode
 Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory&,
                                       const Trk::PrepRawDataSet& ,
                                       const Trk::TrackParameters& ,
@@ -187,8 +187,8 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
 //       testIt = m_utility->nextFittableState(trajectory,it);
 //     }
   }
-  ATH_MSG_VERBOSE ("-F- start FwFilter with parameters from "<< 
-                   (filterStartState>2 ? "before this new Outlier state":"the seed") 
+  ATH_MSG_VERBOSE ("-F- start FwFilter with parameters from "<<
+                   (filterStartState>2 ? "before this new Outlier state":"the seed")
                    << " at pos. " << it->positionOnTrajectory() << " filter start state " << filterStartState);
 
   if (!it->parametersDifference() || !it->referenceParameters()) {
@@ -233,11 +233,11 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
       predDiffCov = C; // to solve constness problem
       // back into trajectory
       it->checkinParametersDifference(predDiffPar);
-      it->checkinParametersCovariance(predDiffCov); 
+      it->checkinParametersCovariance(predDiffCov);
       updatedDifference.reset();
       // delete updatedDiffCov; updatedDiffCov=0;
     }
-    if (msgLvl(MSG::DEBUG)) 
+    if (msgLvl(MSG::DEBUG))
       printGlobalParams( it->positionOnTrajectory(), " extrp",
                          *it->referenceParameters(),*predDiffPar );
 
@@ -261,7 +261,6 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
             m_recalibrator->calibrationStatus(*it->measurement(),TrackState::TRT) );
         fittableMeasurement = it->measurement();
 	ATH_MSG_VERBOSE ("TRT ROT calibration changed, from "<<oldType<<" to "<<it->calibrationType());
-        delete param;
       }
 
       Trk::FitQualityOnSurface* fitQS=nullptr;
@@ -289,7 +288,7 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
       // analyse the fit quality, possibly flag as outlier
       if ( runOutlier && fitQS->chiSquared() >  m_StateChiSquaredPerNumberDoFPreCut
            * fitQS->numberDoF() ) {
-          
+
         // allow making of wire-hits for TRT fits with L/R-solving on the fly
         if ( m_recalibrator && it->measurementType() == TrackState::TRT) {
           const AmgVector(5) x = it->referenceParameters()->parameters()+(*predDiffPar);
@@ -304,9 +303,9 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
             fittableMeasurement = it->measurement();
 	    ATH_MSG_VERBOSE ("TRT ROT calibration changed, from "<<oldType<<" to broad hit "<<
                            it->calibrationType()<< " instead of outlier");
-            delete fitQS; 
+            delete fitQS;
             fitQS=nullptr;
-            updatedDifference.reset( 
+            updatedDifference.reset(
               m_updator->updateParameterDifference(*predDiffPar, *predDiffCov,
                                                    *(it->measurementDifference()),
                                                    fittableMeasurement->localCovariance(),
@@ -320,8 +319,7 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
               it->isOutlier(Trk::TrackState::StateOutlier);
             }
           }
-          //delete param;
-        } else {     
+        } else {
           ATH_MSG_DEBUG ( "failed Chi2 test, remove measurement from track fit." );
           it->isOutlier ( Trk::TrackState::StateOutlier );
         }
@@ -329,7 +327,7 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
                  && (*predDiffCov)(Trk::phi,Trk::phi)   < 0.01*0.01
                  && (*predDiffCov)(Trk::theta,Trk::theta) < 0.01*0.01
 	         && ! ( Trk::SensorBoundsCheck::areParamsInside
-                          ( *fittableMeasurement, 
+                          ( *fittableMeasurement,
                             (it->referenceParameters()->parameters()+updatedDifference->first),
                             updatedDifference->second, 5.0, 4.0 ) ) ) {
         ATH_MSG_DEBUG ( "failed track-within-sensor test, remove measurement from fit." );
@@ -357,7 +355,7 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
         delete fitQS;
       }
     }
-    // bremStateIfBremFound = NULL; 
+    // bremStateIfBremFound = NULL;
 
     // extract jacobian which is the one to transport from this to next state
     jacobian = it->jacobian();
@@ -390,7 +388,7 @@ Trk::FitterStatusCode Trk::ForwardRefTrackKalmanFitter::enterSeedIntoTrajectory
 
 
   Trk::Trajectory::iterator ffs = m_utility->firstFittableState(trajectory);
-  
+
   if (createReferenceTrajectory && ffs->jacobian()) {
     ATH_MSG_WARNING ("internal mistake: reference parameters should be recreated only on"<<
                      " EMPTY trajectory.");
@@ -408,7 +406,7 @@ Trk::FitterStatusCode Trk::ForwardRefTrackKalmanFitter::enterSeedIntoTrajectory
   }
   const Trk::Surface& startSurface = ffs->measurement()->associatedSurface();
   const Trk::TrackParameters* inputParAtStartSurface = nullptr;
- 
+
   // chk if TPar are already in correct local frame: first pointer check (quick) then geometric
   if ( &startSurface ==  &inputPar.associatedSurface() ||
        startSurface == inputPar.associatedSurface() ) {
@@ -455,9 +453,9 @@ Trk::FitterStatusCode Trk::ForwardRefTrackKalmanFitter::enterSeedIntoTrajectory
 
     // lazy initialization because the tracking geometry is built after conditions are there
     Trk::MagneticFieldProperties useFullField(Trk::FullField);
-    if (m_idEnclosingVolume == nullptr ) m_idEnclosingVolume = 
+    if (m_idEnclosingVolume == nullptr ) m_idEnclosingVolume =
       m_extrapolator->trackingGeometry()->trackingVolume("InDet::Containers::InnerDetector");
-    if (m_msCompleteVolume == nullptr )  m_msCompleteVolume = 
+    if (m_msCompleteVolume == nullptr )  m_msCompleteVolume =
       m_extrapolator->trackingGeometry()->trackingVolume("All::Container::CompleteDetector");
     if (m_idEnclosingVolume==nullptr && m_msCompleteVolume == nullptr) {
       ATH_MSG_WARNING ("Could not get any detector enclosing volume from tracking geometry.");
@@ -466,32 +464,32 @@ Trk::FitterStatusCode Trk::ForwardRefTrackKalmanFitter::enterSeedIntoTrajectory
     const IPropagator* propagator = nullptr;
     bool  isInsideID = true;
     if (m_idEnclosingVolume && m_idEnclosingVolume->inside(inputParAtStartSurface->position())) {
-      ATH_MSG_VERBOSE ("subPropagator detection: found id volume of signature ID " << 
+      ATH_MSG_VERBOSE ("subPropagator detection: found id volume of signature ID " <<
       (unsigned int)m_idEnclosingVolume->geometrySignature());
       propagator = m_extrapolator->subPropagator(*m_idEnclosingVolume);
     } else if (m_msCompleteVolume) {
       propagator = m_extrapolator->subPropagator(*m_msCompleteVolume);
       isInsideID = false;
-      ATH_MSG_VERBOSE ("subPropagator detector: found MS enclosing volume with signature ID " << 
+      ATH_MSG_VERBOSE ("subPropagator detector: found MS enclosing volume with signature ID " <<
                        (unsigned int)m_msCompleteVolume->geometrySignature());
     } else {
       ATH_MSG_WARNING ("No way to get the correct propagator!");
       return FitterStatusCode::BadInput;
     }
 
-    auto lastPropagatedPar = 
+    auto lastPropagatedPar =
       CREATE_PARAMETERS((*inputParAtStartSurface),
                         inputParAtStartSurface->parameters(), nullptr); // remove covariance
     for (auto it=m_utility->firstFittableState ( trajectory ); it!=trajectory.end(); ++it) {
       if (!it->referenceParameters()) {
         //gives up ownership by default, ProtoTrackStateOnSurface takes care of deletion
-        it->checkinReferenceParameters (lastPropagatedPar);
+        it->checkinReferenceParameters (lastPropagatedPar.release());
       } else {
         //delete lastPropagatedPar; lastPropagatedPar=nullptr;
         // FIXME study this further, whether cov really not needed and how close in param
         // space the old and new references are.
         ATH_MSG_VERBOSE("At state T"<<it->positionOnTrajectory()<<" have already reference.");
-        if (it->referenceParameters()->covariance()) 
+        if (it->referenceParameters()->covariance())
           ATH_MSG_DEBUG("Warning - reference parameters have a covariance, which is unnecessary.");
       }
       if ((it+1) == trajectory.end()) break; // no jacobian beyond last trajectory state
@@ -501,7 +499,7 @@ Trk::FitterStatusCode Trk::ForwardRefTrackKalmanFitter::enterSeedIntoTrajectory
 	isInsideID = false;
         propagator = m_extrapolator->subPropagator(*m_msCompleteVolume);
         ATH_MSG_DEBUG ("changed from ID to MS propagator.");
-      } else if (!isInsideID && m_idEnclosingVolume 
+      } else if (!isInsideID && m_idEnclosingVolume
                  && m_idEnclosingVolume->inside(nextSurface.center())) {
         isInsideID = true;
         propagator = m_extrapolator->subPropagator(*m_idEnclosingVolume);
@@ -515,14 +513,13 @@ Trk::FitterStatusCode Trk::ForwardRefTrackKalmanFitter::enterSeedIntoTrajectory
       }
       lastPropagatedPar = propagator->propagate(*it->referenceParameters(),
                                                 nextSurface,
-                                                Trk::anyDirection, 
+                                                Trk::anyDirection,
                                                 /*bcheck=*/ false,
                                                 useFullField,jac, pathLimit,
-                                                controlledMatEffects.particleType() ).release();
+                                                controlledMatEffects.particleType() );
       if (!jac || !lastPropagatedPar) {
         ATH_MSG_WARNING ("lost reference track while propagating.");
         delete jac;
-        //delete lastPropagatedPar;
         return FitterStatusCode::BadInput;
       }
       it->checkinTransportJacobian(jac,true);
@@ -544,7 +541,7 @@ void Trk::ForwardRefTrackKalmanFitter::printGlobalParams(int istate, const std::
   const AmgVector(5) x = ref.parameters()+diff;
   auto param = CREATE_PARAMETERS(ref,x,nullptr);
   char tt[80]; snprintf(tt,79,"T%.2d",istate);
-  msg(MSG::VERBOSE) << tt << ptype << " GP:" 
+  msg(MSG::VERBOSE) << tt << ptype << " GP:"
         << std::setiosflags(std::ios::fixed | std::ios::showpoint | std::ios::right )
         << std::setw(9) << std::setprecision(2) << param->position()[0]
         << std::setw(9) << std::setprecision(2) << param->position()[1]
@@ -554,5 +551,4 @@ void Trk::ForwardRefTrackKalmanFitter::printGlobalParams(int istate, const std::
         << std::setw(8) << std::setprecision(0) << param->momentum()[1]
         << std::setw(8) << std::setprecision(0) << param->momentum()[2]
         << std::setprecision(6) << endmsg;
-  delete param;
 }

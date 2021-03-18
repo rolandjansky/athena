@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _TRIGMUONEF_TRIGMUONEFTRACKISOLATIONTOOL_H__
-#define _TRIGMUONEF_TRIGMUONEFTRACKISOLATIONTOOL_H__
+#ifndef TRIGMUONEF_TRIGMUONEFTRACKISOLATIONTOOL_H
+#define TRIGMUONEF_TRIGMUONEFTRACKISOLATIONTOOL_H
 
 #include "TrigMuonToolInterfaces/IMuonEFTrackIsolationTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -27,13 +27,11 @@ class TrigMuonEFTrackIsolationTool : public AthAlgTool, virtual public IMuonEFTr
   TrigMuonEFTrackIsolationTool(const std::string& type, const std::string& name, const IInterface* parent);
 
   /// initialize the tool
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
-  /// finalize the tool
-  virtual StatusCode finalize();
-
-  // Do the isolation calculation for an EF muon  
-  StatusCode calcTrackIsolation(const xAOD::Muon* efmuon,           const xAOD::TrackParticleContainer* idtrks, std::vector<double> conesizes, std::vector<double>& results, std::vector<double>* dzvals, std::vector<double>* drvals, std::vector<double>* selfremoval) const;
+  // Do the isolation calculation for an EF muon
+  virtual
+  StatusCode calcTrackIsolation(const xAOD::Muon* efmuon,           const xAOD::TrackParticleContainer* idtrks, std::vector<double> conesizes, std::vector<double>& results, std::vector<double>* dzvals, std::vector<double>* drvals, std::vector<double>* selfremoval) const override;
 
  private:
 
@@ -63,4 +61,4 @@ class TrigMuonEFTrackIsolationTool : public AthAlgTool, virtual public IMuonEFTr
 };//class TrigMuonEFTrackIsolationTool
 
 
-#endif //_TRIGMUONEF_TRIGMUONEFTRACKISOLATIONTOOL_H__
+#endif //TRIGMUONEF_TRIGMUONEFTRACKISOLATIONTOOL_H

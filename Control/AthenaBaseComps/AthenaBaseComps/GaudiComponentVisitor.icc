@@ -1,0 +1,71 @@
+/*
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+*/
+#include "CxxUtils/checker_macros.h"
+#include "GaudiKernel/AlgTool.h"
+#include "Gaudi/Sequence.h"
+
+namespace xGaudi {
+
+   namespace {
+      template <class T_Component>
+      void reverseAppend( const std::vector<T_Component*>& src,
+                          std::vector<T_Component*>& dest,
+                          const std::regex& reject_filter,
+                          bool use_filter ) {
+         dest.reserve( dest.size() + src.size() );
+         std::copy_if( src.rbegin(), src.rend(), std::back_inserter( dest ), [&]( const auto& i ) {
+            return !use_filter || !std::regex_match( i->name(), reject_filter );
+         } ); // @TODO include type ?
+      }
+   } // namespace
+
+   template <class T_Component, class T_TestVisited>
+   void ComponentVisitor<T_Component,T_TestVisited>::recursiveVisit( const std::vector<T_Component*>& components,
+                                                                     ComponentVisitor<T_Component, T_TestVisited>::IVisitor const& visitor,
+                                                                     const std::regex& reject_filter,
+                                                                     T_TestVisited &visited) {
+      bool use_filter = ( &reject_filter != &ComponentVisitorBase::s_noFilter ) &&
+         ( !std::regex_match( "", reject_filter ) ); // @TODO remove empty string match-test ?
+      std::vector<T_Component*> stack;
+      // reverse tool lost to process tools in given order
+      reverseAppend( components, stack, reject_filter, use_filter );
+
+      while ( !stack.empty() ) {
+         auto* a_tool = stack.back();
+         stack.pop_back();
+         if ( a_tool ) {
+            // keep track of tools which have been visited to prevent infinite loops in case of circular tool dependencies.
+            if ( visited.insert( a_tool ).second ) {
+               visitor.visit( a_tool );
+               // also visit all child tools
+               if (const std::vector<T_Component *> *childs( getChilds(a_tool)); childs ) {
+                  reverseAppend( *childs, stack, reject_filter, use_filter );
+               }
+            }
+            // @TODO warn about cicular tool dependencies ?
+         }
+      }
+   }
+
+   template <>
+   inline std::vector<IAlgTool *> *ComponentVisitor<IAlgTool>::getChilds(IAlgTool *a_tool) {
+      if ( auto* tool_impl = dynamic_cast<AlgTool*>( a_tool ); tool_impl ) {
+         std::vector<IAlgTool *> &tools ATLAS_THREAD_SAFE = const_cast< std::vector<IAlgTool *> &>(const_cast<const AlgTool *>(tool_impl)->tools());
+         return &tools;
+      }
+      else {
+         return nullptr;
+      }
+   }
+
+   template <>
+   inline std::vector<Gaudi::Algorithm *> *ComponentVisitor<Gaudi::Algorithm, NoVisitTester>::getChilds(Gaudi::Algorithm *an_alg) {
+      if (Gaudi::Sequence *seq=dynamic_cast<Gaudi::Sequence *>(an_alg); seq) {
+         return seq->subAlgorithms( );
+      }
+      else {
+         return nullptr;
+      }
+   }
+}

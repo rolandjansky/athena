@@ -14,7 +14,12 @@ import TriggerMenuMT.HLTMenuConfig.Menu.MC_pp_run3_v1 as mc_menu
 import TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_pp_run3_v1 as p1_menu
 
 # this is not the best option, due to flake violation, this list has to be changed when some groups are removed
-from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import PhysicsStream,SingleMuonGroup,MultiMuonGroup,SingleElectronGroup,MultiElectronGroup,SinglePhotonGroup,MultiPhotonGroup,SingleMETGroup,MultiMETGroup,SingleJetGroup,MultiJetGroup,SingleBjetGroup,SingleTauGroup,MultiTauGroup,BphysicsGroup,EgammaMuonGroup,MuonJetGroup,MuonMETGroup,EgammaJetGroup,EgammaMETGroup,EgammaTauGroup,TauMETGroup,MinBiasGroup
+from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import (PhysicsStream, SingleMuonGroup, MultiMuonGroup, SingleElectronGroup,
+                                                                MultiElectronGroup, SinglePhotonGroup, MultiPhotonGroup, SingleMETGroup, 
+                                                                MultiMETGroup, SingleJetGroup, MultiJetGroup, SingleBjetGroup, MultiBjetGroup,
+                                                                SingleTauGroup, MultiTauGroup, BphysicsGroup, EgammaMuonGroup, EgammaMETGroup,
+                                                                MuonJetGroup, MuonTauGroup, TauMETGroup, MuonMETGroup, EgammaJetGroup,
+                                                                EgammaTauGroup, MinBiasGroup)
 
 def setupMenu():
 
@@ -24,8 +29,7 @@ def setupMenu():
     from TriggerJobOpts.TriggerFlags          import TriggerFlags
     from AthenaCommon.Logging                 import logging
     log = logging.getLogger( __name__ )
-    log.info('setupMenu ...')
-
+    log.info('[setupMenu] going to add the Dev menu chains now')
 
     TriggerFlags.TestSlice.signatures = TriggerFlags.TestSlice.signatures() + []
 
@@ -33,10 +37,6 @@ def setupMenu():
     TriggerFlags.MuonSlice.signatures = TriggerFlags.MuonSlice.signatures() + [
         #ATR-19985
         ChainProp(name='HLT_mu6_mu6noL1_L1MU6', l1SeedThresholds=['MU6','FSNOSEED'], groups=MultiMuonGroup),
-        ChainProp(name='HLT_mu20_ivarmedium_mu8noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], groups=MultiMuonGroup),
-
-        #ATR-22107
-        ChainProp(name='HLT_mu20_ivarmedium_mu4noL1_10invm70_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], groups=MultiMuonGroup),
 
         #test chains
         ChainProp(name='HLT_mu6_L1MU6',     groups=SingleMuonGroup),
@@ -58,9 +58,6 @@ def setupMenu():
         #  ChainProp(name='HLT_mu6_Dr_mu4_Dr_L12MU4', l1SeedThresholds=['MU4']*2, groups=MultiMuonGroup),
         # ATR-20049
         ChainProp(name='HLT_mu6_mu4_L12MU4',  l1SeedThresholds=['MU4']*2, groups=MultiMuonGroup),
-
-        # in planned primary as an option
-        ChainProp(name='HLT_mu24_ivarmedium_L1MU20', groups=SingleMuonGroup, monGroups=['muonMon:shifter','idMon:t0']),
 
         # Additional intermediate thresholds for validation comparisons to match with Physics_pp_v7_primaries menu
         ChainProp(name='HLT_mu24_mu10noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], groups=MultiMuonGroup),
@@ -85,6 +82,9 @@ def setupMenu():
         ChainProp(name='HLT_2mu14_l2io_L12MU10', groups=MultiMuonGroup),
         ChainProp(name='HLT_2mu6_l2io_L12MU6',     l1SeedThresholds=['MU6'],   groups=MultiMuonGroup),
 
+        #ATR-22537
+        ChainProp(name='HLT_2mu10_l2mt_L1MU10', groups=MultiMuonGroup),
+
         #performance chain for isolation (ATR-21905)
         ChainProp(name='HLT_mu26_ivarperf_L1MU20', groups=SingleMuonGroup),
     ]
@@ -102,7 +102,9 @@ def setupMenu():
         ChainProp(name='HLT_e5_lhmedium_noringer_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_lhtight_noringer_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_lhtight_noringer_nod0_L1EM3', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e5_idperf_L1EM3', groups=SingleElectronGroup),        #idperf chains
+        ChainProp(name='HLT_e5_idperf_loose_L1EM3', groups=SingleElectronGroup),        #idperf chains
+        ChainProp(name='HLT_e5_idperf_medium_L1EM3', groups=SingleElectronGroup),        #idperf chains
+        ChainProp(name='HLT_e5_idperf_tight_L1EM3', groups=SingleElectronGroup),        #idperf chains
 
         # low et threshold chains using Ringer
         ChainProp(name='HLT_e5_lhloose_L1EM3', groups=SingleElectronGroup),
@@ -132,8 +134,8 @@ def setupMenu():
         ChainProp(name='HLT_e26_lhtight_ivartight_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_nod0_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_nod0_L1EM24VHI', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e26_idperf_L1EM24VHI', groups=SingleElectronGroup),      #idperf chains
-        ChainProp(name='HLT_e28_idperf_L1EM24VHI', groups=SingleElectronGroup),      #idperf chains
+        ChainProp(name='HLT_e26_idperf_loose_L1EM24VHI', groups=SingleElectronGroup),      #idperf chains
+        ChainProp(name='HLT_e28_idperf_loose_L1EM24VHI', groups=SingleElectronGroup),      #idperf chains
         ChainProp(name='HLT_e60_lhmedium_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e60_lhmedium_nod0_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e140_lhloose_L1EM22VHI', groups=SingleElectronGroup),
@@ -146,14 +148,16 @@ def setupMenu():
         ChainProp(name='HLT_2e24_lhvloose_L12EM20VH', stream=[PhysicsStream], groups=MultiElectronGroup),
         ChainProp(name='HLT_e24_lhvloose_2e12_lhvloose_L1EM20VH_3EM10VH', stream=[PhysicsStream], groups=MultiElectronGroup),
         ## ATR-22109
+        # Note: l1SeedThresholds needs to be given explicitly, as it cannot
+        # be auto-filled by DictFromChainName for L1Topo items
         ChainProp(name='HLT_e20_lhtight_ivarloose_L1ZAFB-25DPHI-EM18I', l1SeedThresholds=['EM12'], stream=[PhysicsStream], groups=MultiElectronGroup),
 
         # TnP triggers
         ## Zee triggers
         ChainProp(name='HLT_e20_lhmedium_e15_lhmedium_Zee_L12EM3', groups=MultiElectronGroup),
-        ChainProp(name='HLT_e26_lhtight_e15_etcut_Zee_L1EM22VHI', l1SeedThresholds=['EM22VHI','FSNOSEED'],groups=MultiElectronGroup),
-        ChainProp(name='HLT_e20_lhmedium_e15_idperf_Zee_L12EM3', groups=MultiElectronGroup), #idperf leg
-        ChainProp(name='HLT_e26_lhtight_e15_idperf_Zee_L1EM22VHI', l1SeedThresholds=['EM22VHI','FSNOSEED'], groups=MultiElectronGroup), #idperf leg
+        ChainProp(name='HLT_e26_lhtight_e15_etcut_Zee_L1EM22VHI', l1SeedThresholds=['EM22VHI','EM12'],groups=MultiElectronGroup),
+        ChainProp(name='HLT_e20_lhmedium_e15_idperf_medium_Zee_L12EM3', groups=MultiElectronGroup), #idperf leg
+        ChainProp(name='HLT_e26_lhtight_e15_idperf_tight_Zee_L1EM22VHI', l1SeedThresholds=['EM22VHI','EM12'], groups=MultiElectronGroup), #idperf leg
 
         ## Jpsiee triggers
         ChainProp(name='HLT_e9_lhtight_e4_etcut_Jpsiee_L1JPSI-1M5-EM7',l1SeedThresholds=['EM7','EM3'], groups=MultiElectronGroup),
@@ -191,6 +195,12 @@ def setupMenu():
         ChainProp(name='HLT_g20_tight_icaloloose_L1EM15VH', groups=SinglePhotonGroup),
         ChainProp(name='HLT_g20_tight_icalomedium_L1EM15VH', groups=SinglePhotonGroup),
         ChainProp(name='HLT_g20_tight_icalotight_L1EM15VH', groups=SinglePhotonGroup),
+        # Low eT photon chains for TLA
+        ChainProp(name='HLT_g35_loose_L1EM15VHI', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g35_medium_L1EM15VHI', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g35_tight_L1EM15VHI', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g35_tight_icaloloose_L1EM15VHI', groups=SinglePhotonGroup),
+
         # Primary photon chains
         ChainProp(name='HLT_g120_loose_L1EM22VHI', groups=SinglePhotonGroup),
         ChainProp(name='HLT_g140_loose_L1EM22VHI', groups=SinglePhotonGroup),
@@ -207,13 +217,15 @@ def setupMenu():
         # 3photon chains
         ChainProp(name='HLT_2g25_loose_g15_loose_L12EM20VH', groups=MultiPhotonGroup),
 
+
+
         # ATR-21355 - cannot be moved to the calibSlice because they need to configure the photon/ sequence
-        ChainProp(name='HLT_g3_loose_LArPEBHLT_L1EM3',stream=['LArCells'], groups=['PS:Online',SinglePhotonGroup]),
-        ChainProp(name='HLT_g12_loose_LArPEBHLT_L1EM10VH',stream=['LArCells'], groups=['PS:Online',SinglePhotonGroup]),
-        ChainProp(name='HLT_g20_loose_LArPEBHLT_L1EM15',stream=['LArCells'], groups=['PS:Online',SinglePhotonGroup]),
-        ChainProp(name='HLT_g40_loose_LArPEBHLT_L1EM20VHI',stream=['LArCells'], groups=['PS:Online',SinglePhotonGroup]),
-        ChainProp(name='HLT_g60_loose_LArPEBHLT_L1EM20VHI',stream=['LArCells'], groups=['PS:Online',SinglePhotonGroup]),
-        ChainProp(name='HLT_g80_loose_LArPEBHLT_L1EM20VHI',stream=['LArCells'], groups=['PS:Online',SinglePhotonGroup]),
+        ChainProp(name='HLT_g3_loose_LArPEBHLT_L1EM3',	   stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
+        ChainProp(name='HLT_g12_loose_LArPEBHLT_L1EM10VH', stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
+        ChainProp(name='HLT_g20_loose_LArPEBHLT_L1EM15',   stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
+        ChainProp(name='HLT_g40_loose_LArPEBHLT_L1EM20VHI',stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
+        ChainProp(name='HLT_g60_loose_LArPEBHLT_L1EM20VHI',stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
+        ChainProp(name='HLT_g80_loose_LArPEBHLT_L1EM20VHI',stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
 
         # for moving to PhysicsP1, ATR-21242
         ChainProp(name='HLT_g140_etcut_L1EM22VHI', groups=SinglePhotonGroup),
@@ -257,7 +269,7 @@ def setupMenu():
     TriggerFlags.JetSlice.signatures = TriggerFlags.JetSlice.signatures() + [
         ChainProp(name='HLT_j85_L1J20', groups=[SingleJetGroup]),
         ChainProp(name='HLT_j85_cleanLB_L1J20', groups=[SingleJetGroup]),
-        ChainProp(name='HLT_j45_L1J15', groups=['PS:Online',SingleJetGroup]),
+        ChainProp(name='HLT_j45_L1J15', groups=['PS:Online']+SingleJetGroup),
         ChainProp(name='HLT_j45_subjesgsc_ftf_L1J15', groups=SingleJetGroup),
         ChainProp(name='HLT_j45_subjesgscIS_ftf_L1J15', groups=SingleJetGroup),
         ChainProp(name='HLT_j45_subresjesgsc_ftf_L1J15', groups=SingleJetGroup),
@@ -286,10 +298,10 @@ def setupMenu():
         ChainProp(name='HLT_j45_pf_nojcalib_ftf_L1J15', groups=SingleJetGroup),
         ChainProp(name='HLT_j45_cssk_pf_nojcalib_ftf_L1J15', groups=SingleJetGroup),
 
-        ChainProp(name='HLT_j260_320eta490_L1J20', groups=['PS:Online',SingleJetGroup]),
+        ChainProp(name='HLT_j260_320eta490_L1J20', groups=['PS:Online']+SingleJetGroup),
 
-        ChainProp(name='HLT_j460_a10_lcw_subjes_L1J20', groups=['PS:Online',SingleJetGroup]),
-        ChainProp(name='HLT_j460_a10r_L1J20', groups=['PS:Online',SingleJetGroup]),
+        ChainProp(name='HLT_j460_a10_lcw_subjes_L1J20', groups=['PS:Online']+SingleJetGroup),
+        ChainProp(name='HLT_j460_a10r_L1J20', groups=['PS:Online']+SingleJetGroup),
         ChainProp(name='HLT_j460_a10t_lcw_nojcalib_L1J100', groups=SingleJetGroup),
         ChainProp(name='HLT_j460_a10t_lcw_nojcalib_35smcINF_L1J100', groups=SingleJetGroup),
         ChainProp(name='HLT_2j330_a10t_lcw_nojcalib_35smcINF_L1J100', groups=SingleJetGroup),
@@ -310,9 +322,9 @@ def setupMenu():
         ChainProp(name='HLT_j0_aggSEP1000ht_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j0_aggSEP500ht_L1J20', groups=SingleJetGroup),
 
-        ChainProp(name='HLT_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j0_dijetSEP80j1etSEP80j2etSEP700djmassSEP26djdphi_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j0_dijetSEP70j1etSEP70j2etSEP1000djmassSEP20djdphiSEP40djdeta_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j0_dijetSEP80j12etSEP0j12eta240SEP700djmass_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j0_dijetSEP80j12etSEP700djmassSEP26djdphi_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j0_dijetSEP70j12etSEP1000djmassSEP20djdphiSEP40djdeta_L1J20', groups=SingleJetGroup),
 
         ChainProp(name='HLT_j85_ftf_prefilterSEP300ceta210SEP300nphi10_L1J20',
                   groups=SingleJetGroup),
@@ -321,13 +333,13 @@ def setupMenu():
                   l1SeedThresholds=['FSNOSEED']*2, groups=MultiJetGroup),
 
         # ATR-20624
-        ChainProp(name='HLT_j0_perf_L1J12_EMPTY', stream=['Main'], groups=['PS:Online',SingleJetGroup]),
+        ChainProp(name='HLT_j0_perf_L1J12_EMPTY', stream=['Main'], groups=['PS:Online']+SingleJetGroup),
 
         # ATR-21368 - cannot be moved to the calibSlice because they need to configure the jet sequence
-        ChainProp(name='HLT_j40_LArPEBHLT_L1J20',stream=['LArCells'], groups=['PS:Online',SingleJetGroup]),
-        ChainProp(name='HLT_j75_320eta490_LArPEBHLT_L1J30_31ETA49',stream=['LArCells'], groups=['PS:Online',SingleJetGroup]),
-        ChainProp(name='HLT_j140_320eta490_LArPEBHLT_L1J75_31ETA49',stream=['LArCells'], groups=['PS:Online',SingleJetGroup]),
-        ChainProp(name='HLT_j165_LArPEBHLT_L1J100',stream=['LArCells'], groups=['PS:Online',SingleJetGroup]),
+        ChainProp(name='HLT_j40_LArPEBHLT_L1J20',			stream=['LArCells'], groups=['PS:Online']+SingleJetGroup),
+        ChainProp(name='HLT_j75_320eta490_LArPEBHLT_L1J30_31ETA49',	stream=['LArCells'], groups=['PS:Online']+SingleJetGroup),
+        ChainProp(name='HLT_j140_320eta490_LArPEBHLT_L1J75_31ETA49',	stream=['LArCells'], groups=['PS:Online']+SingleJetGroup),
+        ChainProp(name='HLT_j165_LArPEBHLT_L1J100',			stream=['LArCells'], groups=['PS:Online']+SingleJetGroup),
 
 
 
@@ -404,20 +416,36 @@ def setupMenu():
 
         # HH4b
         # EMTopo variants
-        ChainProp(name='HLT_j80_j55_j28_j20_L1J45p0ETA23_3J15p0ETA25', l1SeedThresholds=['FSNOSEED']*4, groups=MultiJetGroup),
-        ChainProp(name='HLT_j80_ftf_j55_ftf_j28_ftf_j20_ftf_L1J45p0ETA23_3J15p0ETA25', l1SeedThresholds=['FSNOSEED']*4, groups=MultiJetGroup),
-        ChainProp(name='HLT_j80_ftf_020jvt_j55_ftf_020jvt_j28_ftf_020jvt_j20_ftf_020jvt_L1J45p0ETA23_3J15p0ETA25', l1SeedThresholds=['FSNOSEED']*4, groups=MultiJetGroup),
-        ChainProp(name='HLT_j80_ftf_0eta240_020jvt_j55_ftf_0eta240_020jvt_j28_ftf_0eta240_020jvt_j20_ftf_0eta240_020jvt_L1J45p0ETA23_3J15p0ETA25', l1SeedThresholds=['FSNOSEED']*4, groups=MultiJetGroup),
+        ChainProp(name='HLT_j80_j55_j28_j20_L1J45p0ETA21_3J15p0ETA25', l1SeedThresholds=['FSNOSEED']*4, groups=MultiJetGroup),
+        ChainProp(name='HLT_j80_ftf_j55_ftf_j28_ftf_j20_ftf_L1J45p0ETA21_3J15p0ETA25', l1SeedThresholds=['FSNOSEED']*4, groups=MultiJetGroup),
+        ChainProp(name='HLT_j80_ftf_020jvt_j55_ftf_020jvt_j28_ftf_020jvt_j20_ftf_020jvt_L1J45p0ETA21_3J15p0ETA25', l1SeedThresholds=['FSNOSEED']*4, groups=MultiJetGroup),
+        ChainProp(name='HLT_j80_ftf_0eta240_020jvt_j55_ftf_0eta240_020jvt_j28_ftf_0eta240_020jvt_j20_ftf_0eta240_020jvt_L1J45p0ETA21_3J15p0ETA25', l1SeedThresholds=['FSNOSEED']*4, groups=MultiJetGroup),
         # PFlow variants
-        ChainProp(name='HLT_j80_pf_ftf_j55_pf_ftf_j28_pf_ftf_j20_pf_ftf_L1J45p0ETA23_3J15p0ETA25', l1SeedThresholds=['FSNOSEED']*4, groups=MultiJetGroup),
-        ChainProp(name='HLT_j80_pf_ftf_020jvt_j55_pf_ftf_020jvt_j28_pf_ftf_020jvt_j20_pf_ftf_020jvt_L1J45p0ETA23_3J15p0ETA25', l1SeedThresholds=['FSNOSEED']*4, groups=MultiJetGroup),
-        ChainProp(name='HLT_j80_pf_ftf_0eta240_020jvt_j55_pf_ftf_0eta240_020jvt_j28_pf_ftf_0eta240_020jvt_j20_pf_ftf_0eta240_020jvt_L1J45p0ETA23_3J15p0ETA25', l1SeedThresholds=['FSNOSEED']*4, groups=MultiJetGroup),
+        ChainProp(name='HLT_j80_pf_ftf_j55_pf_ftf_j28_pf_ftf_j20_pf_ftf_L1J45p0ETA21_3J15p0ETA25', l1SeedThresholds=['FSNOSEED']*4, groups=MultiJetGroup),
+        ChainProp(name='HLT_j80_pf_ftf_020jvt_j55_pf_ftf_020jvt_j28_pf_ftf_020jvt_j20_pf_ftf_020jvt_L1J45p0ETA21_3J15p0ETA25', l1SeedThresholds=['FSNOSEED']*4, groups=MultiJetGroup),
+        ChainProp(name='HLT_j80_pf_ftf_0eta240_020jvt_j55_pf_ftf_0eta240_020jvt_j28_pf_ftf_0eta240_020jvt_j20_pf_ftf_0eta240_020jvt_L1J45p0ETA21_3J15p0ETA25', l1SeedThresholds=['FSNOSEED']*4, groups=MultiJetGroup),
         # Mu-seeded
         ChainProp(name='HLT_j80_j55_j28_j20_L1MU20', l1SeedThresholds=['FSNOSEED']*4, groups=MultiJetGroup),
         ChainProp(name='HLT_j80_pf_ftf_j55_pf_ftf_j28_pf_ftf_j20_pf_ftf_L1MU20', l1SeedThresholds=['FSNOSEED']*4, groups=MultiJetGroup),
         ChainProp(name='HLT_j80_j55_j28_j20_L1MU10_2J15_J20', l1SeedThresholds=['FSNOSEED']*4, groups=MultiJetGroup),
         ChainProp(name='HLT_j80_pf_ftf_j55_pf_ftf_j28_pf_ftf_j20_pf_ftf_L1MU10_2J15_J20', l1SeedThresholds=['FSNOSEED']*4, groups=MultiJetGroup),
 
+        # ATR-22594
+        ChainProp(name='HLT_2j250_subresjesgscIS_ftf_0eta240_L1J100', groups=MultiJetGroup),
+        ChainProp(name='HLT_j150_subresjesgscIS_ftf_2j55_subresjesgscIS_ftf_L1J85_3J30', l1SeedThresholds=['FSNOSEED']*2, groups=MultiJetGroup),
+        # SC L1 seed
+        # Note: l1SeedThresholds needs to be given explicitly, as it cannot
+        # be auto-filled by DictFromChainName for L1Topo items
+        ChainProp(name='HLT_j460_a10r_L1SC111-CJ15',                   l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup),
+        ChainProp(name='HLT_j460_a10_lcw_subjes_L1SC111-CJ15',         l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup),
+        ChainProp(name='HLT_j460_a10t_lcw_jes_L1SC111-CJ15',           l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup),
+        ChainProp(name='HLT_j420_a10t_lcw_jes_35smcINF_L1SC111-CJ15',  l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup),
+        ChainProp(name='HLT_2j330_a10t_lcw_jes_35smcINF_L1SC111-CJ15', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup),
+        ChainProp(name='HLT_j360_a10t_lcw_jes_60smcINF_j360_a10t_lcw_jes_L1SC111-CJ15', l1SeedThresholds=['FSNOSEED']*2, groups=MultiJetGroup),
+        ChainProp(name='HLT_j370_a10t_lcw_jes_35smcINF_j370_a10t_lcw_jes_L1SC111-CJ15', l1SeedThresholds=['FSNOSEED']*2, groups=MultiJetGroup),
+        # Jet-only VBF chain
+        ChainProp(name="HLT_j110_subjesgscIS_ftf_j45_subjesgscIS_ftf_L1J50", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiJetGroup),
+        ChainProp(name='HLT_j70_0eta320_j50_0eta490_j0_dijetSEP70j12etSEP1000djmassSEP20djdphiSEP40djdeta__L1MJJ-500-NFF', l1SeedThresholds=['FSNOSEED']*3,groups=MultiJetGroup) # previously HLT_j70_j50_0eta490_invm1000j70_dphi20_deta40_L1MJJ-500-NFF
     ]
 
     TriggerFlags.BjetSlice.signatures = TriggerFlags.BjetSlice.signatures() + [
@@ -431,7 +459,46 @@ def setupMenu():
         ChainProp(name='HLT_j300_pf_subjesgscIS_ftf_bdl1r70_split_L1J100',  groups=SingleBjetGroup),
         ChainProp(name='HLT_j360_pf_subjesgscIS_ftf_bdl1r77_split_L1J100',  groups=SingleBjetGroup),
         ChainProp(name='HLT_j45_pf_subjesgscIS_ftf_bdl1r70_split_L1J20',    groups=SingleBjetGroup),
-        ChainProp(name="HLT_j45_subjesgscIS_ftf_bmv2c1070_split_L1J20",  groups=SingleBjetGroup),
+        ChainProp(name="HLT_j45_subjesgscIS_ftf_bmv2c1070_split_L1J20",     groups=SingleBjetGroup),
+        ChainProp(name="HLT_j110_subjesgscIS_ftf_bdl1r60_split_j45_subjesgscIS_ftf_bdl1r70_split_L1J50", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
+        # ATR-22937
+        ChainProp(name="HLT_3j65_ftf_bmv2c1077_split_L1J20",                groups=MultiBjetGroup),
+        ChainProp(name="HLT_3j65_pf_ftf_bdl1r77_split_L1J20",               groups=MultiBjetGroup),
+        #
+        ChainProp(name="HLT_4j35_ftf_bmv2c1077_split_L1J20",                groups=MultiBjetGroup),
+        ChainProp(name="HLT_4j35_pf_ftf_bdl1r77_split_L1J20",               groups=MultiBjetGroup),
+
+
+        ChainProp(name="HLT_j150_ftf_0eta320_2j55_ftf_bmv2c1070_split_L1J85_3J30", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
+
+        ChainProp(name="HLT_j75_ftf_bmv2c1040_split_3j75_ftf_0eta320_L14J20", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
+        ChainProp(name="HLT_3j35_ftf_bmv2c1070_split_j35_ftf_0eta320_L14J15p0ETA25", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
+
+        ChainProp(name="HLT_j175_ftf_bmv2c1060_split_j60_ftf_bmv2c1060_L1J100", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
+        ChainProp(name="HLT_2j35_ftf_bmv2c1070_split_2j35_ftf_bmv2c1085_split_L14J15p0ETA25", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
+
+        ChainProp(name="HLT_j85_ftf_bmv2c1050_split_3j85_ftf_0eta320_L14J20", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
+        ChainProp(name="HLT_2j45_ftf_bmv2c1050_split_2j45_ftf_0eta320_L14J15p0ETA25", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
+        ChainProp(name="HLT_2j55_ftf_bmv2c1060_split_2j55_ftf_0eta320_L14J15p0ETA25", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
+        ChainProp(name="HLT_2j35_ftf_bmv2c1060_split_3j35_ftf_0eta320_L15J15p0ETA25", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
+        ChainProp(name="HLT_2j45_ftf_bmv2c1060_split_3j45_ftf_boffperf_split_L15J15p0ETA25", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
+
+        ChainProp(name="HLT_j150_pf_ftf_0eta320_2j55_pf_ftf_bdl1r70_split_L1J85_3J30", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
+
+        ChainProp(name="HLT_3j35_pf_ftf_bdl1r70_split_j35_pf_ftf_0eta320_L14J15p0ETA25", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
+
+        ChainProp(name="HLT_j175_pf_ftf_bdl1r60_split_j60_pf_ftf_bdl1r60_L1J100", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
+        ChainProp(name="HLT_2j35_pf_ftf_bdl1r70_split_2j35_pf_ftf_bdl1r85_split_L14J15p0ETA25", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
+
+        ChainProp(name="HLT_2j55_pf_ftf_bdl1r60_split_2j55_pf_ftf_0eta320_L14J15p0ETA25", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
+        ChainProp(name="HLT_2j35_pf_ftf_bdl1r60_split_3j35_pf_ftf_0eta320_L15J15p0ETA25", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
+        ChainProp(name="HLT_2j45_pf_ftf_bdl1r60_split_3j45_pf_ftf_boffperf_split_L15J15p0ETA25", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
+
+        #dl1r WP does not exist
+        #ChainProp(name="HLT_j75_pf_ftf_bdl1r40_split_3j75_pf_ftf_L14J20", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
+        #ChainProp(name="HLT_j85_pf_ftf_bdl1r50_split_3j85_pf_ftf_L14J20", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
+        #ChainProp(name="HLT_2j45_pf_ftf_bdl1r50_split_2j45_pf_ftf_L14J15p0ETA25", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
+
     ]
 
     TriggerFlags.TauSlice.signatures = TriggerFlags.TauSlice.signatures() + [
@@ -535,7 +602,7 @@ def setupMenu():
         ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1DR-TAU20ITAU12I-J25",  l1SeedThresholds=['TAU20IM','TAU12IM'], groups=MultiTauGroup),
 
         # ATR-20450
-        ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_03dRtt_L1TAU20IM_2TAU12IM_4J12p0ETA25",  l1SeedThresholds=['TAU20IM','TAU12IM'], groups=MultiTauGroup),
+        ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_03dRleg000leg00110_L1TAU20IM_2TAU12IM_4J12p0ETA25",  l1SeedThresholds=['TAU20IM','TAU12IM'], groups=MultiTauGroup),
     ]
 
     TriggerFlags.BphysicsSlice.signatures = TriggerFlags.BphysicsSlice.signatures() + [
@@ -567,53 +634,61 @@ def setupMenu():
     TriggerFlags.CombinedSlice.signatures = TriggerFlags.CombinedSlice.signatures() + [
         # groups need to be properly assigned here later
         # Primary e-mu chains
-        ChainProp(name='HLT_e17_lhloose_mu14_L1EM15VH_MU10', l1SeedThresholds=['EM15VH','MU10'], stream=[PhysicsStream], groups=EgammaMuonGroup),
-        ChainProp(name='HLT_e7_lhmedium_mu24_L1MU20',l1SeedThresholds=['EM3','MU20'],  stream=[PhysicsStream], groups=EgammaMuonGroup),
-        ChainProp(name='HLT_e12_lhloose_2mu10_L12MU10', l1SeedThresholds=['EM8VH','MU10'], stream=[PhysicsStream], groups=EgammaMuonGroup),
-        ChainProp(name='HLT_2e12_lhloose_mu10_L12EM8VH_MU10', l1SeedThresholds=['EM8VH','MU10'], stream=[PhysicsStream], groups=EgammaMuonGroup),
+        ChainProp(name='HLT_e17_lhloose_mu14_L1EM15VH_MU10', l1SeedThresholds=['EM15VH','MU10'], stream=[PhysicsStream], groups=['Primary:Legacy']+EgammaMuonGroup),
+        ChainProp(name='HLT_e7_lhmedium_mu24_L1MU20',l1SeedThresholds=['EM3','MU20'],  stream=[PhysicsStream], groups=['Primary:Legacy']+EgammaMuonGroup),
+        ChainProp(name='HLT_e12_lhloose_2mu10_L12MU10', l1SeedThresholds=['EM8VH','MU10'], stream=[PhysicsStream], groups=['Primary:Legacy']+EgammaMuonGroup),
+        ChainProp(name='HLT_2e12_lhloose_mu10_L12EM8VH_MU10', l1SeedThresholds=['EM8VH','MU10'], stream=[PhysicsStream], groups=['Primary:Legacy']+EgammaMuonGroup),
 
         # Primary g-mu chains
-        ChainProp(name='HLT_g25_medium_mu24_L1MU20',l1SeedThresholds=['EM15VH','MU20'], stream=[PhysicsStream], groups=EgammaMuonGroup), #ATR-22594
-        ChainProp(name='HLT_g35_loose_mu18_L1EM24VHI', l1SeedThresholds=['EM24VHI','MU10'], stream=[PhysicsStream], groups=EgammaMuonGroup),
-        ChainProp(name='HLT_2g10_loose_mu20_L1MU20', l1SeedThresholds=['EM7','MU20'], stream=[PhysicsStream], groups=EgammaMuonGroup), # unsure what EM seed should be
+        ChainProp(name='HLT_g25_medium_mu24_L1MU20',l1SeedThresholds=['EM15VH','MU20'], stream=[PhysicsStream], groups=['Primary:Legacy']+EgammaMuonGroup), #ATR-22594
+        ChainProp(name='HLT_g35_loose_mu18_L1EM22VHI', l1SeedThresholds=['EM22VHI','MU10'], stream=[PhysicsStream], groups=['Primary:Legacy']+EgammaMuonGroup),
+        ChainProp(name='HLT_g35_loose_mu18_L1EM24VHI', l1SeedThresholds=['EM24VHI','MU10'], stream=[PhysicsStream], groups=['Primary:Legacy']+EgammaMuonGroup),
+        ChainProp(name='HLT_2g10_loose_mu20_L1MU20', l1SeedThresholds=['EM7','MU20'], stream=[PhysicsStream], groups=['Primary:Legacy']+EgammaMuonGroup), # unsure what EM seed should be
+        #LLP
+        ChainProp(name='HLT_g15_loose_2mu10_msonly_L12MU10', l1SeedThresholds=['EM8VH','MU10'], stream=[PhysicsStream], groups=['Primary:Legacy']+EgammaMuonGroup),
 
         # Primary e-g chains: electron + photon stay in the same step - these need to be parallel merged!
         # test
         ChainProp(name='HLT_e3_etcut1step_g5_etcut_L12EM3',l1SeedThresholds=['EM3','EM3'], stream=[PhysicsStream], groups=MultiElectronGroup),
         # primaries
-        ChainProp(name='HLT_e24_lhmedium_g25_medium_L12EM20VH', l1SeedThresholds=['EM20VH','EM20VH'], stream=[PhysicsStream], groups=MultiElectronGroup),
-        ChainProp(name='HLT_e24_lhmedium_2g12_loose_L1EM20VH_3EM10VH', l1SeedThresholds=['EM20VH','EM10VH'], stream=[PhysicsStream], groups=MultiElectronGroup), # unsure about l1SeedThresholds
+        ChainProp(name='HLT_e24_lhmedium_g25_medium_L12EM20VH', l1SeedThresholds=['EM20VH','EM20VH'], stream=[PhysicsStream], groups=['Primary:Legacy']+MultiElectronGroup),
+        ChainProp(name='HLT_e24_lhmedium_2g12_loose_L1EM20VH_3EM10VH', l1SeedThresholds=['EM20VH','EM10VH'], stream=[PhysicsStream], groups=['Primary:Legacy']+MultiElectronGroup), # unsure about l1SeedThresholds
 
         # Test chains for muon + jet/MET merging/aligning
         ChainProp(name='HLT_mu6_xe30_mht_L1XE10', l1SeedThresholds=['MU6','XE10'], stream=[PhysicsStream], groups=MuonMETGroup),
         ChainProp(name='HLT_mu6_j45_nojcalib_L1J20', l1SeedThresholds=['MU6','J20'], stream=[PhysicsStream], groups=MuonJetGroup),
 
         #ATR-22107
-        ChainProp(name='HLT_e26_lhmedium_mu8noL1_L1EM22VHI', l1SeedThresholds=['EM22VHI','FSNOSEED'], stream=[PhysicsStream], groups=EgammaMuonGroup),
-        ChainProp(name='HLT_e9_lhvloose_mu20_mu8noL1_L1MU20', l1SeedThresholds=['EM3','MU20','FSNOSEED'], stream=[PhysicsStream], groups=EgammaMuonGroup),
-        ChainProp(name='HLT_g35_loose_mu15_mu2noL1_L1EM22VHI', l1SeedThresholds=['EM22VHI','MU6','FSNOSEED'], stream=[PhysicsStream], groups=EgammaMuonGroup),
-        ChainProp(name='HLT_g35_tight_icalotight_mu18noL1_L1EM22VHI', l1SeedThresholds=['EM22VHI','FSNOSEED'], stream=[PhysicsStream], groups=EgammaMuonGroup),
-        ChainProp(name='HLT_g35_tight_icalotight_mu15noL1_mu2noL1_L1EM22VHI', l1SeedThresholds=['EM22VHI','FSNOSEED','FSNOSEED'], stream=[PhysicsStream], groups=EgammaMuonGroup),
+        ChainProp(name='HLT_e24_lhmedium_mu8noL1_L1EM22VHI', l1SeedThresholds=['EM22VHI','FSNOSEED'], stream=[PhysicsStream], groups=EgammaMuonGroup),
+        ChainProp(name='HLT_e26_lhmedium_mu8noL1_L1EM22VHI', l1SeedThresholds=['EM22VHI','FSNOSEED'], stream=[PhysicsStream], groups=['Primary:Legacy']+EgammaMuonGroup),
+        ChainProp(name='HLT_e28_lhmedium_mu8noL1_L1EM24VHI', l1SeedThresholds=['EM24VHI','FSNOSEED'], stream=[PhysicsStream], groups=['Primary:Legacy']+EgammaMuonGroup),
+        ChainProp(name='HLT_e9_lhvloose_mu20_mu8noL1_L1MU20', l1SeedThresholds=['EM3','MU20','FSNOSEED'], stream=[PhysicsStream], groups=['Primary:Legacy']+EgammaMuonGroup),
+        ChainProp(name='HLT_g35_loose_mu15_mu2noL1_L1EM22VHI', l1SeedThresholds=['EM22VHI','MU6','FSNOSEED'], stream=[PhysicsStream], groups=['Primary:Legacy']+EgammaMuonGroup),
+        ChainProp(name='HLT_g35_loose_mu15_mu2noL1_L1EM24VHI', l1SeedThresholds=['EM24VHI','MU6','FSNOSEED'], stream=[PhysicsStream], groups=['Primary:Legacy']+EgammaMuonGroup),
+        ChainProp(name='HLT_g35_tight_icalotight_mu18noL1_L1EM22VHI', l1SeedThresholds=['EM22VHI','FSNOSEED'], stream=[PhysicsStream], groups=['Primary:Legacy']+EgammaMuonGroup),
+        ChainProp(name='HLT_g35_tight_icalotight_mu18noL1_L1EM24VHI', l1SeedThresholds=['EM24VHI','FSNOSEED'], stream=[PhysicsStream], groups=['Primary:Legacy']+EgammaMuonGroup),
+        ChainProp(name='HLT_g35_tight_icalotight_mu15noL1_mu2noL1_L1EM22VHI', l1SeedThresholds=['EM22VHI','FSNOSEED','FSNOSEED'], stream=[PhysicsStream], groups=['Primary:Legacy']+EgammaMuonGroup),
+        ChainProp(name='HLT_g35_tight_icalotight_mu15noL1_mu2noL1_L1EM24VHI', l1SeedThresholds=['EM24VHI','FSNOSEED','FSNOSEED'], stream=[PhysicsStream], groups=['Primary:Legacy']+EgammaMuonGroup),
 
         # tau+X chains (ATR-21609) TODO: need T&P-like merging
-        ChainProp(name='HLT_e24_lhmedium_ivarloose_tau20_mediumRNN_tracktwoMVA_03dRtt_L1EM22VHI', l1SeedThresholds=['EM22VHI','TAU8'], stream=[PhysicsStream], groups=EgammaTauGroup),
+        ChainProp(name='HLT_e24_lhmedium_ivarloose_tau20_mediumRNN_tracktwoMVA_03dRleg000leg00110_L1EM22VHI', l1SeedThresholds=['EM22VHI','TAU8'], stream=[PhysicsStream], groups=EgammaTauGroup),
         # This is the next one to implement
         #ChainProp(name="HLT_tau25_mediumRNN_tracktwoMVA_tau20_mediumRNN_tracktwoMVA_j70_j50_L1MJJ-500-NFF", l1SeedThresholds=['TAU8','TAU8','J20','J20'],   stream=[PhysicsStream], groups=['MultiTauGroup','MultiJetGroup']),
 
 
         #ATR-22108: combined tau+X chains: TODO: add dRtt, need T&P-like merging
-        #ChainProp(name='HLT_tau60_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_xe50_cell_L1TAU40_2TAU12IM_XE40', l1SeedThresholds=['TAU40','TAU12IM','XE40'], stream=[PhysicsStream], groups=TauMETGroup),
+        ChainProp(name='HLT_tau60_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_xe50_cell_L1TAU40_2TAU12IM_XE40', l1SeedThresholds=['TAU40','TAU12IM','XE40'], stream=[PhysicsStream], groups=TauMETGroup),  # ATR-22966
         ChainProp(name='HLT_e17_lhmedium_tau25_mediumRNN_tracktwoMVA_xe50_cell_L1EM15VHI_2TAU12IM_XE35', l1SeedThresholds=['EM15VHI','TAU12IM','XE35'], stream=[PhysicsStream], groups=TauMETGroup),
         ChainProp(name='HLT_mu14_tau25_mediumRNN_tracktwoMVA_xe50_cell_L1MU10_TAU12IM_XE35', l1SeedThresholds=['MU10','TAU12IM','XE35'], stream=[PhysicsStream], groups=TauMETGroup),
-        ChainProp(name='HLT_e17_lhmedium_ivarloose_tau25_mediumRNN_tracktwoMVA_03dRtt_L1EM15VHI_2TAU12IM_4J12', l1SeedThresholds=['EM15VHI','TAU12IM'], stream=[PhysicsStream], groups=EgammaTauGroup),
+        ChainProp(name='HLT_e17_lhmedium_ivarloose_tau25_mediumRNN_tracktwoMVA_03dRleg000leg00110_L1EM15VHI_2TAU12IM_4J12', l1SeedThresholds=['EM15VHI','TAU12IM'], stream=[PhysicsStream], groups=EgammaTauGroup),
 
-        #these can be uncommented once ivarloose exists as a muon iso WP
-        #ChainProp(name='HLT_mu20_ivarloose_tau20_mediumRNN_tracktwoMVA_03dRtt_L1MU20', l1SeedThresholds=['MU20','TAU8'], stream=[PhysicsStream], groups=MuonTauGroup),
-        #ChainProp(name='HLT_mu14_ivarloose_tau35_mediumRNN_tracktwoMVA_03dRtt_L1MU10_TAU20IM', l1SeedThresholds=['MU10','TAU20IM'], stream=[PhysicsStream], groups=MuonTauGroup),
-        #ChainProp(name='HLT_mu14_ivarloose_tau25_mediumRNN_tracktwoMVA_03dRtt_L1MU10_TAU12IM_3J12', l1SeedThresholds=['MU10','TAU12IM'], stream=[PhysicsStream], groups=MuonTauGroup),
+        ChainProp(name='HLT_mu20_ivarloose_tau20_mediumRNN_tracktwoMVA_03dRleg000leg00110_L1MU20', l1SeedThresholds=['MU20','TAU8'], stream=[PhysicsStream], groups=MuonTauGroup),
+        ChainProp(name='HLT_mu14_ivarloose_tau35_mediumRNN_tracktwoMVA_03dRleg000leg00110_L1MU10_TAU20IM', l1SeedThresholds=['MU10','TAU20IM'], stream=[PhysicsStream], groups=MuonTauGroup),
+        ChainProp(name='HLT_mu14_ivarloose_tau25_mediumRNN_tracktwoMVA_03dRleg000leg00110_L1MU10_TAU12IM_3J12', l1SeedThresholds=['MU10','TAU12IM'], stream=[PhysicsStream], groups=MuonTauGroup),
 
         # photon + multijets (ATR-22594)
         ChainProp(name='HLT_g85_tight_3j50_L1EM22VHI',l1SeedThresholds=['EM22VHI','FSNOSEED'],stream=[PhysicsStream], groups=EgammaJetGroup),
+        ChainProp(name='HLT_g45_loose_tight_6j45_L14J15p0ETA25',l1SeedThresholds=['FSNOSEED']*2,stream=[PhysicsStream], groups=EgammaJetGroup),
 
         # photon + MET (ATR-22594)
         ChainProp(name='HLT_g90_loose_xe90_cell_L1EM22VHI',l1SeedThresholds=['EM22VHI','FSNOSEED'],stream=[PhysicsStream], groups=EgammaMETGroup),
@@ -622,10 +697,8 @@ def setupMenu():
         ChainProp(name='HLT_e70_lhloose_xe70_cell_L1EM22VHI',l1SeedThresholds=['EM22VHI','FSNOSEED'],stream=[PhysicsStream], groups=EgammaMETGroup),
 
         # VBF triggers (ATR-22594)
-        #these chains do not have properly formatted dijet selection strings
-        #ChainProp(name='HLT_2mu6_2j50_0eta490_dijetSEP50j1etSEP50j2etSEP900djmass_L1MJJ-500-NFF',l1SeedThresholds=['MU6','FSNOSEED'],stream=[PhysicsStream], groups=MuonJetGroup),
-        #ChainProp(name='HLT_g25_medium_4j35_0eta490_dijetSEP35j1etSEP35j2etSEP1000djmass_L1EM22VHI',l1SeedThresholds=['EM22VHI','FSNOSEED'],stream=[PhysicsStream], groups=EgammaJetGroup),
-
+        ChainProp(name='HLT_2mu6_j0_dijetSEP50j12etSEP900djmass_L1MJJ-500-NFF',l1SeedThresholds=['MU6','FSNOSEED'],stream=[PhysicsStream], groups=MuonJetGroup), # Formerly HLT_2mu6_2j50_0eta490_invm900j50
+        #ChainProp(name='HLT_g25_medium_4j35_0eta490_j0_dijetSEP35j12etSEP1000djmass_L1EM22VHI',l1SeedThresholds=['EM22VHI','FSNOSEED'],stream=[PhysicsStream], groups=EgammaJetGroup),
 
     ]
     TriggerFlags.HeavyIonSlice.signatures  = TriggerFlags.HeavyIonSlice.signatures() + []
@@ -633,12 +706,19 @@ def setupMenu():
         ChainProp(name='HLT_beamspot_allTE_trkfast_BeamSpotPEB_L1J15',  l1SeedThresholds=['FSNOSEED'], stream=['BeamSpot'], groups=['PS:Online', 'RATE:BeamSpot',  'BW:BeamSpot']),
     ]
     TriggerFlags.MinBiasSlice.signatures   = TriggerFlags.MinBiasSlice.signatures() + [
-        ChainProp(name="HLT_mb_mbts_L1MBTS_1_EMPTY", l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']) #TODO - need item in FILLED BC item
-        # ChainProp(name='HLT_mb_sp400_trk40_hmt_L1RD0_FILLED',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup),
-        # ChainProp(name='HLT_mb_sp600_trk45_hmt_L1RD0_FILLED',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup),
+        ChainProp(name="HLT_mb_mbts_L1MBTS_1_EMPTY",               l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']), #TODO - need item in FILLED BC item
+        ChainProp(name='HLT_mb_sp400_trk40_hmt_L1RD0_FILLED',      l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']),
+        ChainProp(name='HLT_mb_sp600_trk45_hmt_L1RD0_FILLED',      l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']),
+        ChainProp(name='HLT_mb_sp1200_trk60_hmt_L1RD0_FILLED',     l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']),
+        ChainProp(name='HLT_mb_sp1400_trk80_hmt_L1RD0_FILLED',     l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']),
+        ChainProp(name='HLT_mb_sp2000_trk100_hmt_L1RD0_FILLED',    l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']),
+        ChainProp(name='HLT_mb_sp3000_trk100_hmt_L1RD0_FILLED',    l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']),
+        ChainProp(name='HLT_mb_sp5000_trk80_hmt_L1RD0_FILLED',     l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']),
+        ChainProp(name='HLT_mb_sp5000_trk100_hmt_L1RD0_FILLED',    l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']),
+        ChainProp(name='HLT_mb_sp5000_trk200_hmt_L1RD0_FILLED',    l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']),
     ]
     TriggerFlags.CalibSlice.signatures     =    TriggerFlags.CalibSlice.signatures() + [
-        ChainProp(name='HLT_alfacalib_AlfaPEB_L1ALFA_ANY', l1SeedThresholds=['FSNOSEED'], stream=['ALFACalib'], groups=['RATE:ALFACalibration','BW:Detector']),
+        ChainProp(name='HLT_noalg_AlfaPEB_L1ALFA_ANY', l1SeedThresholds=['FSNOSEED'], stream=['ALFACalib'], groups=['RATE:ALFACalibration','BW:Detector']),
     ]
     TriggerFlags.CosmicSlice.signatures    = TriggerFlags.CosmicSlice.signatures() + [
     ]
@@ -650,7 +730,7 @@ def setupMenu():
     ]
 
     TriggerFlags.MonitorSlice.signatures   = TriggerFlags.MonitorSlice.signatures() + [
-       ChainProp(name='HLT_cscmon_CSCPEB_L1All', l1SeedThresholds=['FSNOSEED'], stream=['CSC'], groups=['RATE:Monitoring','BW:Other']),
+       ChainProp(name='HLT_noalg_CSCPEB_L1All', l1SeedThresholds=['FSNOSEED'], stream=['CSC'], groups=['RATE:Monitoring','BW:Other']),
     ]
 
     # Random Seeded EB chains which select at the HLT based on L1 TBP bits
@@ -673,29 +753,23 @@ def setupMenu():
 
 
     TriggerFlags.UnconventionalTrackingSlice.signatures = TriggerFlags.UnconventionalTrackingSlice.signatures() + [
+
+        #These chains are temproray to get final rates, they will be reduced to a few chains in the future
         ChainProp(name='HLT_unconvtrk50_isohpttrack_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50']),
-        # ChainProp(name='HLT_xe80_tcpufit_unconvtrk50_isohpttrack_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED'],mergingStrategy='serial'),
-        # ChainProp(name='HLT_xe80_tcpufit_unconvtrk50_isohpttrack_loose_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED'],mergingStrategy='serial'),
-        #
-        #
-        # ChainProp(name='HLT_xe80_tcpufit_unconvtrk80_isohpttrack_tight_imedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED'],mergingStrategy='serial'),
-        #
-        # ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_tight_imedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED'],mergingStrategy='serial'),
-        # ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_medium_imedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED'],mergingStrategy='serial'),
-        # ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_loose_imedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED'],mergingStrategy='serial'),
-        # ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_tight_iaggrmedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED'],mergingStrategy='serial'),
-        # ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_medium_iaggrmedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED'],mergingStrategy='serial'),
-        # ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_loose_iaggrmedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED'],mergingStrategy='serial'),
-        #
-        #
-        # ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_tight_iloose_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED'],mergingStrategy='serial'),
-        # ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_medium_iloose_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED'],mergingStrategy='serial'),
-        # ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_loose_iloose_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED'],mergingStrategy='serial'),
-        # ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_tight_iaggrloose_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED'],mergingStrategy='serial'),
-        # ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_medium_iaggrloose_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED'],mergingStrategy='serial'),
-        # ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_loose_iaggrloose_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED'],mergingStrategy='serial'),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_tight_imedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_medium_imedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_loose_imedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_tight_iaggrmedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_medium_iaggrmedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_loose_iaggrmedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_tight_iloose_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_medium_iloose_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_loose_iloose_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_tight_iaggrloose_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_medium_iaggrloose_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_loose_iaggrloose_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
 
 
-        ChainProp(name='HLT_unconvtrk120_fslrt_L1All', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED']),
-        ChainProp(name='HLT_unconvtrk120_fslrt_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50']),
+        ChainProp(name='HLT_unconvtrk0_fslrt_L1All', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED']),
+        ChainProp(name='HLT_unconvtrk0_fslrt_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50']),
     ]

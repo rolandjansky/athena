@@ -609,9 +609,10 @@ def getRandom(smk):
 
     cursor,schema = getTriggerDBCursor(smk=smk)
     res = executeQuery(cursor, output, condition, schema, tables, bindvars)
-
-    return res[0]
-
+    if len(res) > 0:
+        return res[0]
+    else:
+        return [0,0,0,0]
 
 
 if __name__=="__main__":

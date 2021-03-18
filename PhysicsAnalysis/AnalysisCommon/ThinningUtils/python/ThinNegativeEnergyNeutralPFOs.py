@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -20,6 +20,8 @@ class ThinNegativeEnergyNeutralPFOs(Configured):
             from RecExConfig.ObjKeyStore import cfgKeyStore
             if cfgKeyStore.isInInput('xAOD::FlowElementContainer', 'JetETMissNeutralFlowElements',):
                 theNegativeEnergyNeutralPFOsThinner.NeutralPFOsFEKey = "JetETMissNeutralFlowElements"
+            if cfgKeyStore.isInInput('xAOD::FlowElementContainer', 'JetETMissLCNeutralFlowElements',):
+                theNegativeEnergyNeutralPFOsThinner.LCNeutralPFOsFEKey = "JetETMissLCNeutralFlowElements"
             print (theNegativeEnergyNeutralPFOsThinner)
 
             CHSnPFOsThinAlg = None

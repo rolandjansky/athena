@@ -1,9 +1,9 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
-from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, conf2toConfigurable
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.Logging import logging
 log = logging.getLogger('MTCalibPebConfig.py')
 
@@ -104,65 +104,36 @@ class MTCalibPebHypoOptions:
 default_options = MTCalibPebHypoOptions()
 
 
-def make_l1_seq(options=default_options):
-    from AthenaCommon.CFElements import seqOR
-    l1_seq = seqOR('l1Seq')
+def set_flags(flags, options=default_options):
+    flags.Common.isOnline = True
+    flags.Input.Format = 'BS'
+    flags.Input.isMC = False
+    flags.IOVDb.DatabaseInstance = 'CONDBR2'
+    flags.IOVDb.GlobalTag = flags.Trigger.OnlineCondTag
+    flags.Trigger.triggerMenuSetup = 'LS2_v1'
+    flags.Trigger.enableL1Phase1 = options.EnableL1Phase1
+    flags.Trigger.enableL1CaloLegacy = options.EnableL1CaloLegacy
+    flags.Trigger.L1Decoder.forceEnableAllChains = True
 
-    # Configure L1 decoding flags
-    ConfigFlags.Trigger.enableL1Phase1 = options.EnableL1Phase1
-    ConfigFlags.Trigger.enableL1CaloLegacy = options.EnableL1CaloLegacy
 
-    # Create inputs for L1Decoder from ByteStream
-    from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1TriggerByteStreamDecoderCfg
-    acc = L1TriggerByteStreamDecoderCfg(ConfigFlags)
-    l1_seq += conf2toConfigurable(acc.getPrimary())
-    acc.wasMerged()
+def l1_seq_cfg(flags, options=default_options):
+    from L1Decoder.L1DecoderConfig import L1DecoderCfg
+    acc = L1DecoderCfg(flags, seqName='l1Seq')
+    l1_decoder_alg = acc.getEventAlgo('L1Decoder')
+    l1_decoder_alg.prescaler = CompFactory.PrescalingEmulationTool()
 
-    if ConfigFlags.Trigger.enableL1Phase1:
-        from L1Decoder.L1DecoderConfig import getL1TriggerResultMaker
-        l1_seq += conf2toConfigurable(getL1TriggerResultMaker())
-
-    # Set menu for L1ConfigSvc
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-    TriggerFlags.triggerMenuSetup = "LS2_v1"
-
-    # Ensure LVL1ConfigSvc is initialised before L1Decoder handles BeginRun incident
-    # This should be done by the L1Decoder configuration in new-style job options (with component accumulator)
-    from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc
-    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    svcMgr += getL1ConfigSvc(ConfigFlags)
-
-    # Initialise L1 decoding tools
-    from L1Decoder.L1DecoderConf import CTPUnpackingTool
-    ctpUnpacker = CTPUnpackingTool(ForceEnableAllChains=True)
-    # Can add other tools here if needed
-
-    from L1Decoder.L1DecoderConf import PrescalingEmulationTool
-    psEmulation = PrescalingEmulationTool()
-
-    # Schedule the L1Decoder algo with the above tools
-    from L1Decoder.L1DecoderConf import L1Decoder
-    l1decoder = L1Decoder()
-    l1decoder.ctpUnpacker = ctpUnpacker
-    l1decoder.prescaler = psEmulation
-    l1decoder.RoIBResult = "RoIBResult" if ConfigFlags.Trigger.enableL1CaloLegacy or not ConfigFlags.Trigger.enableL1Phase1 else ""
-    l1decoder.L1TriggerResult = "L1TriggerResult" if ConfigFlags.Trigger.enableL1Phase1 else ""
-    l1_seq += l1decoder
-
-    return l1_seq
+    return acc
 
 
 def make_hypo_alg(name):
-    from TrigExPartialEB.TrigExPartialEBConf import MTCalibPebHypoAlg
-    hypo = MTCalibPebHypoAlg(name)
+    hypo = CompFactory.MTCalibPebHypoAlg(name)
     hypo.HypoInputDecisions = 'L1DecoderSummary'
     hypo.HypoOutputDecisions = 'MTCalibPebDecisions_'+name
     return hypo
 
 
 def make_hypo_tool(name, options=default_options):
-    from TrigExPartialEB.TrigExPartialEBConf import MTCalibPebHypoTool
-    hypo_tool = MTCalibPebHypoTool(name)
+    hypo_tool = CompFactory.MTCalibPebHypoTool(name)
     hypo_tool.UseRandomSeed             = options.UseRandomSeed
     hypo_tool.RandomAcceptRate          = options.RandomAcceptRate
     hypo_tool.BurnTimePerCycleMillisec  = options.BurnTimePerCycleMillisec
@@ -215,7 +186,7 @@ def make_all_hypo_algs(num_chains, concurrent=False):
     return hypo_algs
 
 
-def configure_hlt_result(hypo_algs):
+def hlt_result_cfg(flags, hypo_algs):
     from TrigEDMConfig.DataScoutingInfo import getFullHLTResultID
     from TrigOutputHandling.TrigOutputHandlingConfig import TriggerEDMSerialiserToolCfg, StreamTagMakerToolCfg, TriggerBitsMakerToolCfg
 
@@ -233,7 +204,7 @@ def configure_hlt_result(hypo_algs):
     chain_names = []
     for hypo in hypo_algs:
         for hypo_tool in hypo.HypoTools:
-            chain_names.append(hypo_tool.name())
+            chain_names.append(hypo_tool.name)
             if hasattr(hypo_tool,'CreateRandomData'):
                 for coll_name in hypo_tool.CreateRandomData.keys():
                     collections.add(coll_name)
@@ -271,14 +242,15 @@ def configure_hlt_result(hypo_algs):
         elif counter % 3 == 0:
             chain_to_streams[ch] = [streamExampleDataScoutingPEB]
 
-    menu_json = write_dummy_menu_json(chain_to_streams.keys(), chain_to_streams)
+    menu_json = write_dummy_menu_json(flags, chain_to_streams.keys(), chain_to_streams)
+
+    acc = ComponentAccumulator()
 
     # Give the menu json name to HLTConfigSvc
-    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc
-    hltConfigSvc = getHLTConfigSvc(ConfigFlags)
+    hltConfigSvc = getHLTConfigSvc(flags)
     hltConfigSvc.JsonFileName = menu_json
-    svcMgr += hltConfigSvc
+    acc.addService(hltConfigSvc)
 
     # Tool adding stream tags to HLT result
     stmaker = StreamTagMakerToolCfg()
@@ -290,20 +262,22 @@ def configure_hlt_result(hypo_algs):
     bitsmaker.ChainDecisions = 'HLTNav_Summary'
 
     # Configure the HLT result maker to use the above tools
-    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    hltResultMaker = svcMgr.HltEventLoopMgr.ResultMaker
-    hltResultMaker.StreamTagMaker = conf2toConfigurable(stmaker)
-    hltResultMaker.MakerTools = [conf2toConfigurable(tool) for tool in [bitsmaker, serialiser]]
+    from TrigServices.TrigServicesConfig import TrigServicesCfg
+    trigServicesCfg = TrigServicesCfg(flags)
+    hltEventLoopMgr = trigServicesCfg.getPrimary()
+    hltEventLoopMgr.ResultMaker.StreamTagMaker = stmaker
+    hltEventLoopMgr.ResultMaker.MakerTools = [bitsmaker, serialiser]
+    acc.merge(trigServicesCfg)
+
+    return acc
 
 
 def make_summary_algs(hypo_algs):
-    from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
-    summary = TriggerSummaryAlg('TriggerSummaryAlg')
+    summary = CompFactory.TriggerSummaryAlg('TriggerSummaryAlg')
     summary.InputDecision = 'L1DecoderSummary'
     summary.FinalDecisions = [str(hypo.HypoOutputDecisions) for hypo in hypo_algs]
 
-    from TrigOutputHandling.TrigOutputHandlingConf import DecisionSummaryMakerAlg
-    summMaker = DecisionSummaryMakerAlg()
+    summMaker = CompFactory.DecisionSummaryMakerAlg()
     summMaker.FinalDecisionKeys = [str(hypo.HypoOutputDecisions) for hypo in hypo_algs]
     summMaker.FinalStepDecisions = {}
     for hypo in hypo_algs:
@@ -313,29 +287,52 @@ def make_summary_algs(hypo_algs):
     return [summary, summMaker]
 
 
-def make_hlt_seq(num_chains, concurrent=False):
-    hypo_algs = make_all_hypo_algs(num_chains, concurrent)
-    configure_hlt_result(hypo_algs)
+def hlt_seq_cfg(flags, num_chains, concurrent=False, hackCA2Global=False, hypo_algs=None):
+    acc = ComponentAccumulator(sequence='hltTop')
+
+    if not hypo_algs:
+        hypo_algs = make_all_hypo_algs(num_chains, concurrent)
     summary_algs = make_summary_algs(hypo_algs)
+    hlt_result_ca = hlt_result_cfg(flags, hypo_algs)
 
-    from AthenaCommon.CFElements import seqOR, parOR
-    all_algs = []
-    if concurrent:
-        hypo_seq = parOR('hypoSeq', hypo_algs)
-        all_algs.append(hypo_seq)
-    else:
-        all_algs.extend(hypo_algs)
+    acc.addEventAlgo(hypo_algs)
+    acc.addEventAlgo(summary_algs)
+    acc.merge(hlt_result_ca)
 
-    all_algs.extend(summary_algs)
-    return seqOR('hltTop', all_algs)
+    # Hack to work around a shortcoming of CA2GlobalWrapper when a component
+    # has an empty ToolHandle and CA adds a tool to the handle
+    if hackCA2Global:
+        from AthenaCommon.Configurable import Configurable
+        prevConfBehav = Configurable.configurableRun3Behavior
+        Configurable.configurableRun3Behavior=0
+        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+        from TrigOutputHandling.TrigOutputHandlingConfig import TriggerEDMSerialiserToolCfg, StreamTagMakerToolCfg, TriggerBitsMakerToolCfg
+        svcMgr.HltEventLoopMgr.ResultMaker.StreamTagMaker = conf2toConfigurable(StreamTagMakerToolCfg())
+        svcMgr.HltEventLoopMgr.ResultMaker.MakerTools = [
+            conf2toConfigurable(TriggerBitsMakerToolCfg()),
+            conf2toConfigurable(TriggerEDMSerialiserToolCfg('Serialiser'))]
+        Configurable.configurableRun3Behavior=prevConfBehav
+
+    return acc
 
 
-def write_dummy_menu_json(chains, chain_to_streams):
+def write_dummy_menu_json(flags, chains, chain_to_streams):
     import json
-    from collections import OrderedDict as odict
     from TrigConfHLTData.HLTUtils import string2hash
+    from TrigConfigSvc.TrigConfigSvcCfg import getHLTPrescalesSetFileName
     menu_name = 'MTCalibPeb'
-    menu_dict = odict([ ("filetype", "hltmenu"), ("name", menu_name), ("chains", odict()), ("streams", odict()), ("sequencers", odict()) ])
+    menu_dict = dict([
+        ("filetype", "hltmenu"),
+        ("name", menu_name),
+        ("chains", dict()),
+        ("streams", dict()),
+        ("sequencers", dict())
+    ])
+    hlt_ps_dict = dict([
+        ("filetype", "hltprescale"),
+        ("name", menu_name),
+        ("prescales", dict())
+    ])
     counter = 0
     for chain in chains:
         # Prepare information for stream list and fill separate dictionary
@@ -345,7 +342,7 @@ def write_dummy_menu_json(chains, chain_to_streams):
             chain_streams.append(stream_name)
             # If not already listed, add stream details to stream dictionary
             if stream_name not in menu_dict["streams"]:
-                menu_dict["streams"][stream_name] = odict([
+                menu_dict["streams"][stream_name] = dict([
                     ("name", stream_name),
                     ("type", stream['type']),
                     ("obeyLB", stream['obeyLB']),
@@ -353,9 +350,8 @@ def write_dummy_menu_json(chains, chain_to_streams):
                 ])
 
         # Attributes not filled are not used in MTCalibPeb
-        menu_dict["chains"][chain] = odict([
+        menu_dict["chains"][chain] = dict([
             ("counter", counter),
-            ("name", chain),
             ("nameHash", string2hash(chain)),
             ("l1item", ''),
             ("l1thresholds", []),
@@ -363,13 +359,23 @@ def write_dummy_menu_json(chains, chain_to_streams):
             ("streams", chain_streams),
             ("sequencers", [] )
         ])
+        hlt_ps_dict["prescales"][chain] = dict([
+            ("counter", counter),
+            ("hash", string2hash(chain)),
+            ("prescale", 1),
+            ("enabled", True),
+        ])
 
         counter += 1
 
-    file_name = 'HLTMenu_{:s}.json'.format(menu_name)
-
-    log.info('Writing trigger menu to %s', file_name)
-    with open(file_name, 'w') as json_file:
+    menu_file_name = 'HLTMenu_{:s}.json'.format(menu_name)
+    log.info('Writing trigger menu to %s', menu_file_name)
+    with open(menu_file_name, 'w') as json_file:
         json.dump(menu_dict, json_file, indent=4, sort_keys=False)
 
-    return file_name
+    hlt_ps_file_name = getHLTPrescalesSetFileName(flags)
+    log.info('Writing HLT prescales to %s', hlt_ps_file_name)
+    with open(hlt_ps_file_name, 'w') as json_file:
+        json.dump(hlt_ps_dict, json_file, indent=4, sort_keys=False)
+
+    return menu_file_name

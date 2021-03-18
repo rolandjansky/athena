@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -24,15 +24,15 @@ typedef struct {
   HWIdentifier curr_chid;
   CaloGain::CaloGain curr_gain;
   
-           int curr_sample0;
-           int curr_maximum;
-  unsigned int curr_maxsample;
-  unsigned int curr_nsamples;
-           int curr_shiftTimeSamples;
-	   int curr_Phase;
+           int curr_sample0 = 0;
+           int curr_maximum = 0;
+  unsigned int curr_maxsample = 0;
+  unsigned int curr_nsamples = 0;
+           int curr_shiftTimeSamples = 0;
+	   int curr_Phase = 0;
   
-  unsigned int qualityBitPattern;
-  LArRawChannelContainer* m_larRawChannelContainer;
+  unsigned int qualityBitPattern = 0;
+  LArRawChannelContainer* m_larRawChannelContainer = nullptr;
 
 } LArRawChannelBuilderParams;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCOSTANALYSIS_TRIGCOSTALYSIS_H
@@ -9,6 +9,7 @@
 #include "StoreGate/ReadHandleKeyArray.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "TrigConfData/HLTMenu.h"
+#include "TrigCompositeUtils/AlgToChainTool.h"
 
 #include "EnhancedBiasWeighter/EnhancedBiasWeighter.h"
 
@@ -77,7 +78,7 @@ class TrigCostAnalysis: public ::AthHistogramAlgorithm {
     Gaudi::Property<std::string> m_singleTimeRangeName { this, "SingleTimeRangeName", "All",
       "Name for single time range" };
 
-    Gaudi::Property<std::string> m_additionalHashMap { this, "AdditionalHashMap", "TrigCostRootAnalysis/hashes2string_08072020.txt",
+    Gaudi::Property<std::string> m_additionalHashMap { this, "AdditionalHashMap", "TrigCostRootAnalysis/hashes2string_18022021.txt",
       "Used to load strings corresponding to algorithms which are not explicitly scheduled by chains. To be updated periodically." };
 
     Gaudi::Property<size_t> m_TimeRangeLengthLB { this, "TimeRangeLengthLB", 50,
@@ -100,6 +101,9 @@ class TrigCostAnalysis: public ::AthHistogramAlgorithm {
 
     Gaudi::Property<bool> m_doMonitorROS { this, "DoMonitorROS", true,
       "Monitor Read-Out System" };
+
+    Gaudi::Property<bool> m_doMonitorChain { this, "DoMonitorChain", true,
+      "Monitor individual chains by instance name" };
 
     Gaudi::Property<bool> m_useEBWeights { this, "UseEBWeights", true,
       "Apply Enhanced Bias weights" };
@@ -127,6 +131,9 @@ class TrigCostAnalysis: public ::AthHistogramAlgorithm {
 
     ToolHandle<IEnhancedBiasWeighter> m_enhancedBiasTool{this, "EnhancedBiasTool", "",
       "Enhanced bias weighting tool."};
+
+    ToolHandle<TrigCompositeUtils::AlgToChainTool> m_algToChainTool{this, "AlgToChainTool", "",
+      "Tool to retrieve chains for algorithm."};
    
   private:
 

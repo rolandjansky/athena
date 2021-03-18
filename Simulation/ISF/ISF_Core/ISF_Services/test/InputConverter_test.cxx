@@ -190,7 +190,6 @@ TEST_F(InputConverter_test, convertParticle_using_generated_mass) {
                                                        1 // status
                                                       );
   genPart->set_generated_mass(1234.56);
-  HepMC::suggest_barcode(genPart,particleBarcode);
 
   HepMC::FourVector pos(9.8, 7.65, 4.3, 0.321); // NB: 4th component is time*c
   int vtx_id = -123;
@@ -203,6 +202,8 @@ TEST_F(InputConverter_test, convertParticle_using_generated_mass) {
   inputTestDataHandle->push_back(new HepMC::GenEvent());
   HepMC::GenEvent& ge = *(inputTestDataHandle->at(0));
   ge.add_vertex( prodVtx );
+  //AV: we set barcode here because only here the particle in HepMC3 enters event and can have a meaningful barcode.
+  HepMC::suggest_barcode(genPart,particleBarcode);
   HepMcParticleLink* trackLink = new HepMcParticleLink(particleBarcode, 0, EBC_SECONDPUEVCOLL);
 
   Amg::Vector3D expectedPos(9.8, 7.65, 4.3);
@@ -245,7 +246,6 @@ TEST_F(InputConverter_test, convertParticle_using_particleDataTable_photon) {
                                                        1 // status
                                                       );
   genPart->set_generated_mass(1234.56); // should be ignored later on
-  HepMC::suggest_barcode(genPart,particleBarcode);
 
   HepMC::FourVector pos(9.8, 7.65, 4.3, 0.321); // NB: 4th component is time*c
   int vtx_id = -123;
@@ -258,6 +258,8 @@ TEST_F(InputConverter_test, convertParticle_using_particleDataTable_photon) {
   inputTestDataHandle->push_back(new HepMC::GenEvent());
   HepMC::GenEvent& ge = *(inputTestDataHandle->at(0));
   ge.add_vertex( prodVtx );
+  //AV: we set barcode here because only here the particle in HepMC3 enters event and can have a meaningful barcode.
+  HepMC::suggest_barcode(genPart,particleBarcode);
   HepMcParticleLink* trackLink = new HepMcParticleLink(particleBarcode);
 
   Amg::Vector3D expectedPos(9.8, 7.65, 4.3);
@@ -299,7 +301,6 @@ TEST_F(InputConverter_test, convertParticle_using_particleDataTable_electron) {
                                                        1 // status
                                                       );
   genPart->set_generated_mass(1234.56); // should be ignored later on
-  HepMC::suggest_barcode(genPart,particleBarcode);
 
   HepMC::FourVector pos(9.8, 7.65, 4.3, 0.321); // NB: 4th component is time*c
   int vtx_id = -123;
@@ -312,6 +313,7 @@ TEST_F(InputConverter_test, convertParticle_using_particleDataTable_electron) {
   inputTestDataHandle->push_back(new HepMC::GenEvent());
   HepMC::GenEvent& ge = *(inputTestDataHandle->at(0));
   ge.add_vertex( prodVtx );
+  HepMC::suggest_barcode(genPart,particleBarcode);
   HepMcParticleLink* trackLink = new HepMcParticleLink(particleBarcode, 0, EBC_FIRSTPUEVCOLL);
 
   Amg::Vector3D expectedPos(9.8, 7.65, 4.3);

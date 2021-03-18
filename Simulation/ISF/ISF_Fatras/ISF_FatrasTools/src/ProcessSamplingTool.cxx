@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -37,7 +37,7 @@ iFatras::ProcessSamplingTool::ProcessSamplingTool( const std::string& t,
                                       const IInterface*  p )
   : base_class(t,n,p),
     m_rndGenSvc("AtDSFMTGenSvc", n),
-    m_randomEngine(0),
+    m_randomEngine(nullptr),
     m_randomEngineName("FatrasRnd"),
     m_truthRecordSvc("ISF_ValidationTruthService", n),
     m_hadInt(true),
@@ -305,7 +305,7 @@ ISF::ISFParticleVector  iFatras::ProcessSamplingTool::interact(const ISF::ISFPar
     }
     // save interaction info 
     if ( m_validationTool ) {
-      Amg::Vector3D* nMom = 0;
+      Amg::Vector3D* nMom = nullptr;
       m_validationTool->saveISFVertexInfo(process, position,*parent,momentum,nMom,childVector);
       delete nMom;
     }
@@ -376,7 +376,7 @@ ISF::ISFParticleVector  iFatras::ProcessSamplingTool::interact(const ISF::ISFPar
     }
     // save interaction info 
     if ( m_validationTool ) {
-      Amg::Vector3D* nMom = 0;
+      Amg::Vector3D* nMom = nullptr;
       m_validationTool->saveISFVertexInfo(process, position,*parent,momentum,nMom,childVector);
       delete nMom;
     }

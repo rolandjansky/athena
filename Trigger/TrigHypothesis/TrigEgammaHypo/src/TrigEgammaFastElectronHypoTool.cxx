@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -9,7 +9,7 @@
 
 #include "TrigEgammaFastElectronHypoTool.h"
 
-using namespace TrigCompositeUtils;
+namespace TCU = TrigCompositeUtils;
 
 TrigEgammaFastElectronHypoTool::TrigEgammaFastElectronHypoTool( const std::string& type, 
 						const std::string& name, 
@@ -46,7 +46,6 @@ StatusCode TrigEgammaFastElectronHypoTool::initialize()  {
 }
 
 
-TrigEgammaFastElectronHypoTool::~TrigEgammaFastElectronHypoTool() {}
 
 bool TrigEgammaFastElectronHypoTool::decideOnSingleObject( const xAOD::TrigElectron* electron, 
 						   size_t cutIndex ) const {
@@ -153,7 +152,7 @@ StatusCode TrigEgammaFastElectronHypoTool::inclusiveSelection( std::vector<Elect
 
       auto objDecision = decideOnSingleObject( i.electron, 0 );
       if ( objDecision == true ) {
-	addDecisionID( m_decisionId.numeric(), i.decision );
+        TCU::addDecisionID( m_decisionId.numeric(), i.decision );
       }
     }
     return StatusCode::SUCCESS;
@@ -163,7 +162,7 @@ StatusCode TrigEgammaFastElectronHypoTool::inclusiveSelection( std::vector<Elect
 StatusCode TrigEgammaFastElectronHypoTool::markPassing( std::vector<ElectronInfo>& input, const std::set<size_t>& passing ) const {
 
   for ( auto idx: passing ) 
-    addDecisionID( m_decisionId.numeric(), input[idx].decision );
+    TCU::addDecisionID( m_decisionId.numeric(), input[idx].decision );
   return StatusCode::SUCCESS;
 }
 
@@ -174,7 +173,7 @@ StatusCode TrigEgammaFastElectronHypoTool::multiplicitySelection( std::vector<El
   for ( size_t cutIndex = 0; cutIndex < m_multiplicity; ++ cutIndex ) {
     size_t elIndex{ 0 };
     for ( auto elIter =  input.begin(); elIter != input.end(); ++elIter, ++elIndex ) {
-      if ( passed( m_decisionId.numeric(), elIter->previousDecisionIDs ) ) {	
+      if ( TCU::passed( m_decisionId.numeric(), elIter->previousDecisionIDs ) ) {
 	if ( decideOnSingleObject( elIter->electron, cutIndex ) ) {
 	  passingSelection[cutIndex].push_back( elIndex );
 	}

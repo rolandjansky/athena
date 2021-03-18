@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TGC_PrepDataToxAOD.h"
@@ -11,11 +11,11 @@
 #include <bitset>
 
 TGC_PrepDataToxAOD::TGC_PrepDataToxAOD(const std::string &name, ISvcLocator *pSvcLocator) :
-  MuonPrepDataToxAOD(name,pSvcLocator,"TGC_MeasurementsAllBCs","TGC_SDO") {  
+  MuonPrepDataToxAOD(name,pSvcLocator,"TGC_MeasurementsAllBCs","TGC_SDO") {
 }
 
 // Execute method:
-StatusCode TGC_PrepDataToxAOD::execute() 
+StatusCode TGC_PrepDataToxAOD::execute()
 {
   SG::ReadHandle<Muon::TgcPrepDataContainer> tgcPrds(m_inputContainerName);
   SG::ReadHandle<MuonSimDataCollection> tgcSdos(m_sdoContainerName);
@@ -33,7 +33,7 @@ StatusCode TGC_PrepDataToxAOD::execute()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TGC_PrepDataToxAOD::initialize() 
+StatusCode TGC_PrepDataToxAOD::initialize()
 {
   ATH_CHECK(MuonPrepDataToxAOD::initialize());
   ATH_CHECK(m_clusterCreator.retrieve());
@@ -45,9 +45,9 @@ void TGC_PrepDataToxAOD::addPRD_TechnologyInformation( xAOD::TrackMeasurementVal
   xprd.auxdata<uint16_t>("bctag") = prd.getBcBitMap();
   xprd.auxdata<uint16_t>("measPhi") = m_idHelperSvc->measuresPhi(prd.identify());
   xprd.auxdata<uint16_t>("muonClusterSize") = (uint16_t)prd.rdoList().size();
-  ATH_MSG_DEBUG(m_idHelperSvc->toString(prd.identify()) << "bctag " 
-                << ((prd.getBcBitMap()&Muon::TgcPrepData::BCBIT_PREVIOUS)==Muon::TgcPrepData::BCBIT_PREVIOUS) << " "  
-                << ((prd.getBcBitMap()&Muon::TgcPrepData::BCBIT_CURRENT)==Muon::TgcPrepData::BCBIT_CURRENT) << " " 
+  ATH_MSG_DEBUG(m_idHelperSvc->toString(prd.identify()) << "bctag "
+                << ((prd.getBcBitMap()&Muon::TgcPrepData::BCBIT_PREVIOUS)==Muon::TgcPrepData::BCBIT_PREVIOUS) << " "
+                << ((prd.getBcBitMap()&Muon::TgcPrepData::BCBIT_CURRENT)==Muon::TgcPrepData::BCBIT_CURRENT) << " "
                 << ((prd.getBcBitMap()&Muon::TgcPrepData::BCBIT_NEXT)==Muon::TgcPrepData::BCBIT_NEXT)
                 << " xaod " << xprd.auxdata<uint16_t>("bctag"));
 }
@@ -70,15 +70,19 @@ void TGC_PrepDataToxAOD::addSDO_TechnologyInformation( xAOD::TrackMeasurementVal
     Amg::Vector3D gposCor = gToL.inverse()*lposCor;
     const Muon::MuonClusterOnTrack* clus = m_clusterCreator->createRIO_OnTrack(prd,gposCor);
     if( clus ) {
-      const Trk::TrackParameters* pars = clus->associatedSurface().createTrackParameters(gposCor,gposCor.unit(),1.,NULL);
-      if( pars ){
+      const Trk::TrackParameters* pars =
+        clus->associatedSurface()
+          .createUniqueTrackParameters(gposCor, gposCor.unit(), 1., nullptr)
+          .release();
+      if (pars) {
         const Trk::ResidualPull* resPull = m_pullCalculator->residualPull( clus, pars, Trk::ResidualPull::HitOnly );
         if( resPull && !resPull->residual().empty() ) {
           residual = resPull->residual().front();
           pull     = resPull->pull().front();
         }else ATH_MSG_DEBUG("Failed to calculate residual");
         delete resPull;
-      }else ATH_MSG_DEBUG("Failed to create track parameters");
+      } else
+        ATH_MSG_DEBUG("Failed to create track parameters");
       delete pars;
     }else ATH_MSG_DEBUG("Failed to create cluster on track");
     delete clus;

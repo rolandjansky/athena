@@ -1,6 +1,6 @@
 // -*- C++ -*-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -24,7 +24,7 @@
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODTrigCalo/TrigEMClusterAuxContainer.h"
 #include "AthenaMonitoringKernel/Monitored.h"
-class ISvcLocator;
+
 
 template <class SRC>
 inline const DataVector<xAOD::TrigElectron>** dvec_cast(SRC** ptr) { 
@@ -38,10 +38,6 @@ TrigEgammaFastElectronFexMT::TrigEgammaFastElectronFexMT(const std::string & nam
 
     m_extrapolator_failed = 0;
 }
-
-
-TrigEgammaFastElectronFexMT::~TrigEgammaFastElectronFexMT()
-{}
 
 
 StatusCode TrigEgammaFastElectronFexMT::initialize()

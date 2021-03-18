@@ -1,4 +1,4 @@
-<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
+<!-- Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration -->
 
 <IdDictionary name="MuonSpectrometer" version="R.10.00">
 
@@ -337,7 +337,7 @@
     <range field="technology" value="MDT" />
     <range field="multiLayer" minvalue="1" maxvalue="2" />
     <range field="tubeLayer" minvalue="1" maxvalue="4" />
-    <range field="tube" minvalue="1" maxvalue="72" />
+    <range field="tube" minvalue="1" maxvalue="70" />
   </region>
   
   <region group="mdt">
@@ -347,7 +347,7 @@
     <range field="technology" value="MDT" />
     <range field="multiLayer" minvalue="1" maxvalue="2" />
     <range field="tubeLayer" minvalue="1" maxvalue="4" />
-    <range field="tube" minvalue="1" maxvalue="59" />
+    <range field="tube" minvalue="1" maxvalue="58" />
   </region>
   
   <region group="mdt">
@@ -357,7 +357,7 @@
     <range field="technology" value="MDT" />
     <range field="multiLayer" minvalue="1" maxvalue="2" />
     <range field="tubeLayer" minvalue="1" maxvalue="4" />
-    <range field="tube" minvalue="1" maxvalue="59" />
+    <range field="tube" minvalue="1" maxvalue="58" />
   </region>
   
   <region group="mdt">
@@ -367,7 +367,7 @@
     <range field="technology" value="MDT" />
     <range field="multiLayer" minvalue="1" maxvalue="2" />
     <range field="tubeLayer" minvalue="1" maxvalue="4" />
-    <range field="tube" minvalue="1" maxvalue="59" />
+    <range field="tube" minvalue="1" maxvalue="58" />
   </region>
   
   <region group="mdt">
@@ -377,7 +377,7 @@
     <range field="technology" value="MDT" />
     <range field="multiLayer" minvalue="1" maxvalue="2" />
     <range field="tubeLayer" minvalue="1" maxvalue="4" />
-    <range field="tube" minvalue="1" maxvalue="59" />
+    <range field="tube" minvalue="1" maxvalue="58" />
   </region>
   
   <region group="mdt">
@@ -387,7 +387,7 @@
     <range field="technology" value="MDT" />
     <range field="multiLayer" minvalue="1" maxvalue="2" />
     <range field="tubeLayer" minvalue="1" maxvalue="4" />
-    <range field="tube" minvalue="1" maxvalue="59" />
+    <range field="tube" minvalue="1" maxvalue="58" />
   </region>
 
   <region group="mdt">
@@ -2132,7 +2132,7 @@
     <range field="stationPhi"  minvalue="6" maxvalue="6" />
     <range field="technology" value="RPC" />
     <range field="doubletR" value="1" />
-    <range field="doubletZ" values="1 2" />
+    <range field="doubletZ" values="1" />
     <range field="doubletPhi" minvalue="1" maxvalue="2" />
     <range field="rpcGasGap" minvalue="1" maxvalue="3" />
     <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
@@ -2145,7 +2145,7 @@
     <range field="stationPhi"  minvalue="6" maxvalue="6" />
     <range field="technology" value="RPC" />
     <range field="doubletR" value="1" />
-    <range field="doubletZ" values="1 2" />
+    <range field="doubletZ" values="1" />
     <range field="doubletPhi" minvalue="1" maxvalue="2" />
     <range field="rpcGasGap" minvalue="1" maxvalue="3" />
     <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
@@ -2158,7 +2158,7 @@
     <range field="stationPhi"  minvalue="6" maxvalue="6" />
     <range field="technology" value="RPC" />
     <range field="doubletR" value="1" />
-    <range field="doubletZ" values="1 2" />
+    <range field="doubletZ" values="1" />
     <range field="doubletPhi" minvalue="1" maxvalue="2" />
     <range field="rpcGasGap" minvalue="1" maxvalue="3" />
     <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
@@ -2171,7 +2171,7 @@
     <range field="stationPhi"  minvalue="6" maxvalue="6" />
     <range field="technology" value="RPC" />
     <range field="doubletR" value="1" />
-    <range field="doubletZ" values="1 2" />
+    <range field="doubletZ" values="1" />
     <range field="doubletPhi" minvalue="1" maxvalue="2" />
     <range field="rpcGasGap" minvalue="1" maxvalue="3" />
     <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
@@ -2184,7 +2184,7 @@
     <range field="stationPhi"  minvalue="6" maxvalue="6" />
     <range field="technology" value="RPC" />
     <range field="doubletR" value="1" />
-    <range field="doubletZ" values="1 2" />
+    <range field="doubletZ" values="1" />
     <range field="doubletPhi" minvalue="1" maxvalue="2" />
     <range field="rpcGasGap" minvalue="1" maxvalue="3" />
     <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
@@ -2197,7 +2197,7 @@
     <range field="stationPhi"  minvalue="6" maxvalue="6" />
     <range field="technology" value="RPC" />
     <range field="doubletR" value="1" />
-    <range field="doubletZ" values="1 2" />
+    <range field="doubletZ" values="1" />
     <range field="doubletPhi" minvalue="1" maxvalue="2" />
     <range field="rpcGasGap" minvalue="1" maxvalue="3" />
     <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
@@ -2210,7 +2210,7 @@
     <range field="stationPhi"  minvalue="8" maxvalue="8" />
     <range field="technology" value="RPC" />
     <range field="doubletR" value="1" />
-    <range field="doubletZ" values="1 2" />
+    <range field="doubletZ" values="1" />
     <range field="doubletPhi" minvalue="1" maxvalue="2" />
     <range field="rpcGasGap" minvalue="1" maxvalue="3" />
     <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
@@ -2223,7 +2223,7 @@
     <range field="stationPhi"  minvalue="8" maxvalue="8" />
     <range field="technology" value="RPC" />
     <range field="doubletR" value="1" />
-    <range field="doubletZ" values="1 2" />
+    <range field="doubletZ" values="1" />
     <range field="doubletPhi" minvalue="1" maxvalue="2" />
     <range field="rpcGasGap" minvalue="1" maxvalue="3" />
     <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
@@ -2236,7 +2236,7 @@
     <range field="stationPhi"  minvalue="8" maxvalue="8" />
     <range field="technology" value="RPC" />
     <range field="doubletR" value="1" />
-    <range field="doubletZ" values="1 2" />
+    <range field="doubletZ" values="1" />
     <range field="doubletPhi" minvalue="1" maxvalue="2" />
     <range field="rpcGasGap" minvalue="1" maxvalue="3" />
     <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
@@ -2249,7 +2249,7 @@
     <range field="stationPhi"  minvalue="8" maxvalue="8" />
     <range field="technology" value="RPC" />
     <range field="doubletR" value="1" />
-    <range field="doubletZ" values="1 2" />
+    <range field="doubletZ" values="1" />
     <range field="doubletPhi" minvalue="1" maxvalue="2" />
     <range field="rpcGasGap" minvalue="1" maxvalue="3" />
     <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
@@ -2262,7 +2262,7 @@
     <range field="stationPhi"  minvalue="8" maxvalue="8" />
     <range field="technology" value="RPC" />
     <range field="doubletR" value="1" />
-    <range field="doubletZ" values="1 2" />
+    <range field="doubletZ" values="1" />
     <range field="doubletPhi" minvalue="1" maxvalue="2" />
     <range field="rpcGasGap" minvalue="1" maxvalue="3" />
     <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
@@ -2275,7 +2275,7 @@
     <range field="stationPhi"  minvalue="8" maxvalue="8" />
     <range field="technology" value="RPC" />
     <range field="doubletR" value="1" />
-    <range field="doubletZ" values="1 2" />
+    <range field="doubletZ" values="1" />
     <range field="doubletPhi" minvalue="1" maxvalue="2" />
     <range field="rpcGasGap" minvalue="1" maxvalue="3" />
     <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
@@ -2289,7 +2289,7 @@
     <range field="stationPhi"  minvalue="6" maxvalue="6" />
     <range field="technology" value="RPC" />
     <range field="doubletR" value="1" />
-    <range field="doubletZ" values="1 2" />
+    <range field="doubletZ" values="1" />
     <range field="doubletPhi" minvalue="1" maxvalue="2" />
     <range field="rpcGasGap" minvalue="1" maxvalue="3" />
     <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
@@ -2302,7 +2302,7 @@
     <range field="stationPhi"  minvalue="6" maxvalue="6" />
     <range field="technology" value="RPC" />
     <range field="doubletR" value="1" />
-    <range field="doubletZ" values="1 2" />
+    <range field="doubletZ" values="1" />
     <range field="doubletPhi" minvalue="1" maxvalue="2" />
     <range field="rpcGasGap" minvalue="1" maxvalue="3" />
     <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
@@ -2315,7 +2315,7 @@
     <range field="stationPhi"  minvalue="6" maxvalue="6" />
     <range field="technology" value="RPC" />
     <range field="doubletR" value="1" />
-    <range field="doubletZ" values="1 2" />
+    <range field="doubletZ" values="1" />
     <range field="doubletPhi" minvalue="1" maxvalue="2" />
     <range field="rpcGasGap" minvalue="1" maxvalue="3" />
     <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
@@ -2328,7 +2328,7 @@
     <range field="stationPhi"  minvalue="6" maxvalue="6" />
     <range field="technology" value="RPC" />
     <range field="doubletR" value="1" />
-    <range field="doubletZ" values="1 2" />
+    <range field="doubletZ" values="1" />
     <range field="doubletPhi" minvalue="1" maxvalue="2" />
     <range field="rpcGasGap" minvalue="1" maxvalue="3" />
     <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
@@ -2341,7 +2341,7 @@
     <range field="stationPhi"  minvalue="6" maxvalue="6" />
     <range field="technology" value="RPC" />
     <range field="doubletR" value="1" />
-    <range field="doubletZ" values="1 2" />
+    <range field="doubletZ" values="1" />
     <range field="doubletPhi" minvalue="1" maxvalue="2" />
     <range field="rpcGasGap" minvalue="1" maxvalue="3" />
     <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
@@ -2354,7 +2354,7 @@
     <range field="stationPhi"  minvalue="8" maxvalue="8" />
     <range field="technology" value="RPC" />
     <range field="doubletR" value="1" />
-    <range field="doubletZ" values="1 2" />
+    <range field="doubletZ" values="1" />
     <range field="doubletPhi" minvalue="1" maxvalue="2" />
     <range field="rpcGasGap" minvalue="1" maxvalue="3" />
     <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
@@ -2367,7 +2367,7 @@
     <range field="stationPhi"  minvalue="8" maxvalue="8" />
     <range field="technology" value="RPC" />
     <range field="doubletR" value="1" />
-    <range field="doubletZ" values="1 2" />
+    <range field="doubletZ" values="1" />
     <range field="doubletPhi" minvalue="1" maxvalue="2" />
     <range field="rpcGasGap" minvalue="1" maxvalue="3" />
     <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
@@ -2380,7 +2380,7 @@
     <range field="stationPhi"  minvalue="8" maxvalue="8" />
     <range field="technology" value="RPC" />
     <range field="doubletR" value="1" />
-    <range field="doubletZ" values="1 2" />
+    <range field="doubletZ" values="1" />
     <range field="doubletPhi" minvalue="1" maxvalue="2" />
     <range field="rpcGasGap" minvalue="1" maxvalue="3" />
     <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
@@ -2393,7 +2393,7 @@
     <range field="stationPhi"  minvalue="8" maxvalue="8" />
     <range field="technology" value="RPC" />
     <range field="doubletR" value="1" />
-    <range field="doubletZ" values="1 2" />
+    <range field="doubletZ" values="1" />
     <range field="doubletPhi" minvalue="1" maxvalue="2" />
     <range field="rpcGasGap" minvalue="1" maxvalue="3" />
     <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
@@ -2406,7 +2406,7 @@
     <range field="stationPhi"  minvalue="8" maxvalue="8" />
     <range field="technology" value="RPC" />
     <range field="doubletR" value="1" />
-    <range field="doubletZ" values="1 2" />
+    <range field="doubletZ" values="1" />
     <range field="doubletPhi" minvalue="1" maxvalue="2" />
     <range field="rpcGasGap" minvalue="1" maxvalue="3" />
     <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
@@ -2433,7 +2433,7 @@
     <range field="stationPhi"  minvalue="1" maxvalue="8" />
     <range field="technology" value="RPC" />
     <range field="doubletR" value="1" />
-    <range field="doubletZ" values="1 2" />
+    <range field="doubletZ" values="1" />
     <range field="doubletPhi" minvalue="1" maxvalue="2" />
     <range field="rpcGasGap" minvalue="1" maxvalue="3" />
     <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
@@ -2472,7 +2472,7 @@
     <range field="stationPhi"  minvalue="1" maxvalue="8" />
     <range field="technology" value="RPC" />
     <range field="doubletR" value="1" />
-    <range field="doubletZ" values="1 2" />
+    <range field="doubletZ" values="1" />
     <range field="doubletPhi" minvalue="1" maxvalue="2" />
     <range field="rpcGasGap" minvalue="1" maxvalue="3" />
     <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
@@ -2499,7 +2499,7 @@
     <range field="stationPhi"  minvalue="1" maxvalue="8" />
     <range field="technology" value="RPC" />
     <range field="doubletR" value="1" />
-    <range field="doubletZ" values="1 2" />
+    <range field="doubletZ" values="1" />
     <range field="doubletPhi" minvalue="1" maxvalue="2" />
     <range field="rpcGasGap" minvalue="1" maxvalue="3" />
     <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
@@ -2512,7 +2512,7 @@
     <range field="stationPhi"  minvalue="1" maxvalue="8" />
     <range field="technology" value="RPC" />
     <range field="doubletR" value="1" />
-    <range field="doubletZ" values="1 2" />
+    <range field="doubletZ" values="1" />
     <range field="doubletPhi" minvalue="1" maxvalue="2" />
     <range field="rpcGasGap" minvalue="1" maxvalue="3" />
     <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
@@ -2525,7 +2525,7 @@
     <range field="stationPhi"  minvalue="1" maxvalue="8" />
     <range field="technology" value="RPC" />
     <range field="doubletR" value="1" />
-    <range field="doubletZ" values="1 2" />
+    <range field="doubletZ" values="1" />
     <range field="doubletPhi" minvalue="1" maxvalue="2" />
     <range field="rpcGasGap" minvalue="1" maxvalue="3" />
     <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
@@ -2538,7 +2538,7 @@
     <range field="stationPhi"  minvalue="1" maxvalue="8" />
     <range field="technology" value="RPC" />
     <range field="doubletR" value="1" />
-    <range field="doubletZ" values="1 2" />
+    <range field="doubletZ" values="1" />
     <range field="doubletPhi" minvalue="1" maxvalue="2" />
     <range field="rpcGasGap" minvalue="1" maxvalue="3" />
     <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
@@ -2551,7 +2551,7 @@
     <range field="stationPhi"  minvalue="1" maxvalue="8" />
     <range field="technology" value="RPC" />
     <range field="doubletR" value="1" />
-    <range field="doubletZ" values="1 2" />
+    <range field="doubletZ" values="1" />
     <range field="doubletPhi" minvalue="1" maxvalue="2" />
     <range field="rpcGasGap" minvalue="1" maxvalue="3" />
     <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
@@ -2564,7 +2564,7 @@
     <range field="stationPhi"  minvalue="1" maxvalue="8" />
     <range field="technology" value="RPC" />
     <range field="doubletR" value="1" />
-    <range field="doubletZ" values="1 2" />
+    <range field="doubletZ" values="1" />
     <range field="doubletPhi" minvalue="1" maxvalue="2" />
     <range field="rpcGasGap" minvalue="1" maxvalue="3" />
     <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />

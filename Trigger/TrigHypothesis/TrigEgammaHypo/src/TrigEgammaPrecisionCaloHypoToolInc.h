@@ -1,15 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGEGAMMAHYPO_PRECISIONCALOHYPOTOOLINC_H
 #define TRIGEGAMMAHYPO_PRECISIONCALOHYPOTOOLINC_H 1
 
-//#include "GaudiKernel/IAlgTool.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "xAODTrigCalo/TrigEMCluster.h"
-#include "xAODBase/IParticleContainer.h"
-#include "xAODCaloEvent/CaloClusterContainer.h"
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
@@ -27,7 +21,6 @@ class TrigEgammaPrecisionCaloHypoToolInc : public extends<AthAlgTool, ITrigEgamm
 			 const std::string& name, 
 			 const IInterface* parent );
 
-  virtual ~TrigEgammaPrecisionCaloHypoToolInc();
   virtual StatusCode initialize() override;
 
   virtual StatusCode decide( std::vector<ITrigEgammaPrecisionCaloHypoTool::ClusterInfo>& input )  const override;

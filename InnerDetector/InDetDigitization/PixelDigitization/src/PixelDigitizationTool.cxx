@@ -185,7 +185,7 @@ StatusCode PixelDigitizationTool::digitizeEvent(const EventContext& ctx) {
 
         //Deposit energy in sensor
         ATH_CHECK(m_energyDepositionTool->depositEnergy(*phit, *sielement, trfHitRecord, initialConditions,
-                                                        rndmEngine));
+                                                        rndmEngine, ctx));
 
         //Create signal in sensor, loop over collection of loaded sensorTools
         for (unsigned int itool = 0; itool < m_chargeTool.size(); itool++) {

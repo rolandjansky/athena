@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 
@@ -261,7 +261,8 @@ class CVFClusterInputConfig(AlgInputConfig):
             OutputCVFKey="CVF",
             TrackSelectionTool=InDet__InDetTrackSelectionTool(CutLevel="TightPrimary"),
             TVATool=CP__TrackVertexAssociationTool(
-                WorkingPoint="Loose", VertexContainer=inputs["Vertices"]
+                WorkingPoint="Custom", d0_cut=2.0, dzSinTheta_cut=2.0,
+                TrackContName = inputs["Tracks"],
             ),
             ExtensionTool=ApproximateTrackToLayerTool(),
         )

@@ -104,7 +104,7 @@ etaphi_range(const CaloDetDescrManager& dd_man,
    restricted.
 */
 egammaSuperClusterBuilder::CentralPosition
-findCentralPosition(const std::vector<const xAOD::CaloCluster*>& clusters)
+findCentralPositionEM2(const std::vector<const xAOD::CaloCluster*>& clusters)
 {
   egammaSuperClusterBuilder::CentralPosition cp;
   for (const auto* cluster : clusters) {
@@ -128,7 +128,7 @@ findCentralPosition(const std::vector<const xAOD::CaloCluster*>& clusters)
   return cp;
 }
 
-}
+}// end of anonymous namespace
 
 //////////////////////////////////////////////////////////////////////////////
 // Athena interfaces.
@@ -274,7 +274,7 @@ egammaSuperClusterBuilder::createNewCluster(
   // Let's try to find the eta and phi of the hottest cell in L2.
   // This will be used as the center for restricting the cluster size.
   // In the future can refine (or add sanity checks) to the selection
-  CentralPosition cpRef = findCentralPosition(clusters);
+  CentralPosition cpRef = findCentralPositionEM2(clusters);
   // these are the same as the reference but in calo frame (after the processing
   // below)
   CentralPosition cp0 = cpRef;
@@ -290,6 +290,7 @@ egammaSuperClusterBuilder::createNewCluster(
                       << cpRef.etaB << ", phi = " << cpRef.phiB);
     }
   }
+
   if (cp0.emaxEC > 0) {
     const CaloDetDescrElement* dde =
       mgr.get_element(CaloCell_ID::EME2, cpRef.etaEC, cpRef.phiEC);
@@ -301,6 +302,7 @@ egammaSuperClusterBuilder::createNewCluster(
                       << cpRef.etaEC << ", phi = " << cpRef.phiEC);
     }
   }
+
   // Set the eta0/phi0 based on the references, but in raw coordinates
   if (cp0.emaxB >= cp0.emaxEC) {
     newCluster->setEta0(cp0.etaB);
@@ -736,7 +738,7 @@ egammaSuperClusterBuilder::findPhiSize(
       continue;
     }
 
-    if (CaloCell_ID::EMB2 == dde->getSampling()) {
+    if (cp0.emaxB > 0 && CaloCell_ID::EMB2 == dde->getSampling()) {
       const float phi0 = cp0.phiB;
       double cell_phi = proxim(dde->phi_raw(), phi0);
       if (cell_phi > phi0) {
@@ -750,7 +752,7 @@ egammaSuperClusterBuilder::findPhiSize(
           phiSize.minusB = diff;
         }
       }
-    } else if (CaloCell_ID::EME2 == dde->getSampling()) {
+    } else if (cp0.emaxEC > 0 && CaloCell_ID::EME2 == dde->getSampling()) {
       const float phi0 = cp0.phiEC;
       double cell_phi = proxim(dde->phi_raw(), phi0);
       if (cell_phi > phi0) {

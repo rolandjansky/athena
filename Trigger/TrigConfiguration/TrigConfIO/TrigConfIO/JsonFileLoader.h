@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -37,7 +37,6 @@ namespace TrigConf {
        * @param data [out] 
        * @param pathToChild [in] Path to a sub structure for partial loading of data
        *
-       * The file is searched for in the path list defined by the environment variable @c DATAPATH.
        * If the optional parameter @c pathToChild is specified, one can load parts if the configuration
        * from the file.
        *@code

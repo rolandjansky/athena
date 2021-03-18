@@ -11,7 +11,8 @@
 #include "xAODTruth/TruthParticleContainer.h"
 
 // ROOT include(s)
-#include "TH2F.h"
+#include "TH2.h"
+#include "TH3.h"
 
 using namespace TauAnalysisTools;
 
@@ -66,10 +67,10 @@ using namespace TauAnalysisTools;
 //______________________________________________________________________________
 CommonEfficiencyTool::CommonEfficiencyTool(const std::string& sName)
   : asg::AsgTool( sName )
-  , m_mSF(0)
+  , m_mSF(nullptr)
   , m_sSystematicSet(0)
-  , m_fX(&caloTauPt)
-  , m_fY(&caloTauEta)
+  , m_fX(&finalTauPt)
+  , m_fY(&finalTauEta)
   , m_sSFHistName("sf")
   , m_bNoMultiprong(false)
   , m_eCheckTruth(TauAnalysisTools::Unknown)
@@ -88,6 +89,10 @@ CommonEfficiencyTool::CommonEfficiencyTool(const std::string& sName)
   declareProperty( "EVLevel",             m_iEVLevel             = (int)ELEIDBDTLOOSE );
   declareProperty( "OLRLevel",            m_iOLRLevel            = (int)TAUELEOLR );
   declareProperty( "ContSysType",         m_iContSysType         = (int)TOTAL );
+  declareProperty( "SplitMu",             m_bSplitMu             = false );
+  declareProperty( "SplitMCCampaign",     m_bSplitMCCampaign     = false );
+  declareProperty( "MCCampaign",          m_sMCCampaign          = "");
+  declareProperty( "UseTauSubstructure",  m_bUseTauSubstructure  = false);
 }
 
 /*
@@ -98,7 +103,6 @@ CommonEfficiencyTool::~CommonEfficiencyTool()
   if (m_mSF)
     for (auto mEntry : *m_mSF)
       delete std::get<0>(mEntry.second);
-  delete m_mSF;
 }
 
 /*
@@ -116,16 +120,15 @@ StatusCode CommonEfficiencyTool::initialize()
   {
     std::string sInputFilePath = PathResolverFindCalibFile(m_sInputFilePath);
 
-    m_mSF = new tSFMAP();
-    TFile* fSF = TFile::Open(sInputFilePath.c_str(), "READ");
+    m_mSF = std::make_unique< tSFMAP >();
+    std::unique_ptr< TFile > fSF( TFile::Open( sInputFilePath.c_str(), "READ" ) );
     if(!fSF)
     {
       ATH_MSG_FATAL("Could not open file " << sInputFilePath.c_str());
       return StatusCode::FAILURE;
     }
-    ReadInputs(fSF);
+    ReadInputs(*fSF);
     fSF->Close();
-    delete fSF;
   }
 
   // needed later on in generateSystematicSets(), maybe move it there
@@ -152,7 +155,7 @@ StatusCode CommonEfficiencyTool::initialize()
 
 //______________________________________________________________________________
 CP::CorrectionCode CommonEfficiencyTool::getEfficiencyScaleFactor(const xAOD::TauJet& xTau,
-    double& dEfficiencyScaleFactor)
+    double& dEfficiencyScaleFactor, unsigned int iRunNumber, unsigned int iMu)
 {
   // save calo based TES if not available
   if (not m_bPtTauEtaCalibIsAvailableIsChecked)
@@ -169,7 +172,7 @@ CP::CorrectionCode CommonEfficiencyTool::getEfficiencyScaleFactor(const xAOD::Ta
   }
 
   // check which true state is requestet
-  if (!m_bSkipTruthMatchCheck and checkTruthMatch(xTau) != m_eCheckTruth)
+  if (!m_bSkipTruthMatchCheck and getTruthParticleType(xTau) != m_eCheckTruth)
   {
     dEfficiencyScaleFactor = 1.;
     return CP::CorrectionCode::Ok;
@@ -182,11 +185,33 @@ CP::CorrectionCode CommonEfficiencyTool::getEfficiencyScaleFactor(const xAOD::Ta
     return CP::CorrectionCode::Ok;
   }
 
-  // get prong extension for histogram name
-  std::string sProng = ConvertProngToString(xTau.nTracks());
+  // get decay mode or prong extension for histogram name
+  std::string sMode;
+  if (m_bUseTauSubstructure)
+  {
+    int iDecayMode = -1;
+    xTau.panTauDetail(xAOD::TauJetParameters::PanTau_DecayMode, iDecayMode);
+    sMode = ConvertDecayModeToString(iDecayMode);
+    if (sMode == "")
+    {
+      ATH_MSG_WARNING("Found tau with unknown decay mode. Skip efficiency correction.");
+      return CP::CorrectionCode::OutOfValidityRange;
+    }
+  }
+  else
+  {
+    sMode = ConvertProngToString(xTau.nTracks());
+  }
+
+  std::string sMu = "";
+  std::string sMCCampaign = "";
+
+  if (m_bSplitMu) sMu = ConvertMuToString(iMu);
+  if (m_bSplitMCCampaign) sMCCampaign = GetMcCampaignString(iRunNumber);
+  std::string sHistName = m_sSFHistName + sMode + sMu + sMCCampaign;
 
   // get standard scale factor
-  CP::CorrectionCode tmpCorrectionCode = getValue(m_sSFHistName+sProng,
+  CP::CorrectionCode tmpCorrectionCode = getValue(sHistName,
                                                   xTau,
                                                   dEfficiencyScaleFactor);
   // return correction code if histogram is not available
@@ -212,11 +237,11 @@ CP::CorrectionCode CommonEfficiencyTool::getEfficiencyScaleFactor(const xAOD::Ta
     dDirection = syst.parameter();
 
     // build up histogram name
-    std::string sHistName = it->second;
+    sHistName = it->second;
     if (dDirection>0)   sHistName+="_up";
     else                sHistName+="_down";
     if (!m_sWP.empty()) sHistName+="_"+m_sWP;
-    sHistName += sProng;
+    sHistName += sMode + sMu + sMCCampaign;
 
     // get the uncertainty from the histogram
     tmpCorrectionCode = getValue(sHistName,
@@ -253,7 +278,8 @@ CP::CorrectionCode CommonEfficiencyTool::getEfficiencyScaleFactor(const xAOD::Ta
   multiple instances of this tool with different decoration names.
 */
 //______________________________________________________________________________
-CP::CorrectionCode CommonEfficiencyTool::applyEfficiencyScaleFactor(const xAOD::TauJet& xTau)
+CP::CorrectionCode CommonEfficiencyTool::applyEfficiencyScaleFactor(const xAOD::TauJet& xTau,
+  unsigned int iRunNumber, unsigned int iMu)
 {
   double dSf = 0.;
 
@@ -285,7 +311,7 @@ CP::CorrectionCode CommonEfficiencyTool::applyEfficiencyScaleFactor(const xAOD::
     return CP::CorrectionCode::Ok;
 
   // retreive scale factor
-  CP::CorrectionCode tmpCorrectionCode = getEfficiencyScaleFactor(xTau, dSf);
+  CP::CorrectionCode tmpCorrectionCode = getEfficiencyScaleFactor(xTau, dSf, iRunNumber, iMu);
   // adding scale factor to tau as decoration
   xTau.auxdecor<double>(m_sVarName) = dSf;
 
@@ -398,6 +424,62 @@ std::string CommonEfficiencyTool::ConvertProngToString(const int& fProngness)
 }
 
 /*
+  mu converter, returns "_highMu" for average number of vertices higher than 35 and
+  "_lowMu" for everything below
+*/
+//______________________________________________________________________________
+std::string CommonEfficiencyTool::ConvertMuToString(const int& iMu)
+{
+  if (iMu > 35 )
+    return "_highMu";
+
+  return "_lowMu";
+}
+
+/*
+  run number converter, first checks if m_sMCCampaign is set. If yes, use it. 
+  If not, use random run number to determine MC campaign 
+*/
+//______________________________________________________________________________
+std::string CommonEfficiencyTool::GetMcCampaignString(const int& iRunNumber)
+{
+  if (m_sMCCampaign == "MC16a" || m_sMCCampaign == "MC16d")
+    return std::string("_")+m_sMCCampaign;
+  else if (m_sMCCampaign == "MC16e")
+    return "_MC16d"; // MC16e recommendations not available yet, use MC16d instead
+  else if (m_sMCCampaign != "")
+    ATH_MSG_WARNING("unsupported mc campaign: " << m_sMCCampaign);
+
+  if (iRunNumber > 324320 )
+    return "_MC16d";
+
+  return "_MC16a";
+}
+
+/*
+  decay mode converter
+*/
+//______________________________________________________________________________
+std::string CommonEfficiencyTool::ConvertDecayModeToString(const int& iDecayMode)
+{
+  switch(iDecayMode)
+  {
+    case xAOD::TauJetParameters::DecayMode::Mode_1p0n:
+      return "_r1p0n";
+    case xAOD::TauJetParameters::DecayMode::Mode_1p1n:
+      return "_r1p1n";
+    case xAOD::TauJetParameters::DecayMode::Mode_1pXn:
+      return "_r1pXn";
+    case xAOD::TauJetParameters::DecayMode::Mode_3p0n:
+      return "_r3p0n";
+    case xAOD::TauJetParameters::DecayMode::Mode_3pXn:
+      return "_r3pXn";
+    default:
+      return "";
+  }
+}
+
+/*
   Read in a root file and store all objects to a map of this type:
   std::map<std::string, tTupleObjectFunc > (see header) It's basically a map of
   the histogram name and a function pointer based on the TObject type (TH1F,
@@ -407,16 +489,16 @@ std::string CommonEfficiencyTool::ConvertProngToString(const int& fProngness)
   top)
 */
 //______________________________________________________________________________
-void CommonEfficiencyTool::ReadInputs(TFile* fFile)
+void CommonEfficiencyTool::ReadInputs(TFile& fFile)
 {
   m_mSF->clear();
 
   // initialize function pointer
-  m_fX = &caloTauPt;
-  m_fY = &caloTauEta;
+  m_fX = &finalTauPt;
+  m_fY = &finalTauEta;
 
   TKey *kKey;
-  TIter itNext(fFile->GetListOfKeys());
+  TIter itNext(fFile.GetListOfKeys());
   while ((kKey = (TKey*)itNext()))
   {
     // parse file content for objects of type TNamed, check their title for
@@ -427,11 +509,22 @@ void CommonEfficiencyTool::ReadInputs(TFile* fFile)
       TNamed* tObj = (TNamed*)kKey->ReadObj();
       std::string sTitle = tObj->GetTitle();
       delete tObj;
-      if (sTitle == "P")
+      if (sTitle == "P" || sTitle == "PFinalCalib")
       {
-        m_fX = &caloTauP;
+        m_fX = &finalTauP;
         ATH_MSG_DEBUG("using full momentum for x-axis");
       }
+      if (sTitle == "TruthDecayMode")
+      {
+        m_fX = &truthDecayMode;
+        ATH_MSG_DEBUG("using truth decay mode for x-axis");
+      }
+      if (sTitle == "truth pt")
+      {
+        m_fX = &truthTauPt;
+        ATH_MSG_DEBUG("using truth pT for x-axis");
+      }
+
       continue;
     }
     else if (sKeyName == "Yaxis")
@@ -446,8 +539,18 @@ void CommonEfficiencyTool::ReadInputs(TFile* fFile)
       }
       else if (sTitle == "|eta|")
       {
-        m_fY = &caloTauAbsEta;
+        m_fY = &finalTauAbsEta;
         ATH_MSG_DEBUG("using absolute tau eta for y-axis");
+      }
+      else if (sTitle == "mu")
+      {
+	m_fY = &average_mu;
+	ATH_MSG_DEBUG("using average mu for y-axis");
+      }
+      else if (sTitle == "truth |eta|")
+      {
+        m_fY = &truthTauAbsEta;
+        ATH_MSG_DEBUG("using absolute truth tau eta for y-axis");
       }
       continue;
     }
@@ -471,7 +574,7 @@ void CommonEfficiencyTool::ReadInputs(TFile* fFile)
       }
     }
   }
-  ATH_MSG_INFO("data loaded from " << fFile->GetName());
+  ATH_MSG_INFO("data loaded from " << fFile.GetName());
 }
 
 /*
@@ -487,10 +590,14 @@ void CommonEfficiencyTool::addHistogramToSFMap(TKey* kKey, const std::string& sK
   {
     TH1* oObject = (TH1*)kKey->ReadObj();
     oObject->SetDirectory(0);
-    if (cClass->InheritsFrom("TH2D"))
-      (*m_mSF)[sKeyName] = tTupleObjectFunc(oObject,&getValueTH2D);
-    else
-      (*m_mSF)[sKeyName] = tTupleObjectFunc(oObject,&getValueTH2F);
+    (*m_mSF)[sKeyName] = tTupleObjectFunc(oObject,&getValueTH2);
+    ATH_MSG_DEBUG("added histogram with name "<<sKeyName);
+  }
+  else if (cClass->InheritsFrom("TH3"))
+  {
+    TH1* oObject = (TH1*)kKey->ReadObj();
+    oObject->SetDirectory(0);
+    (*m_mSF)[sKeyName] = tTupleObjectFunc(oObject,&getValueTH3);
     ATH_MSG_DEBUG("added histogram with name "<<sKeyName);
   }
   else if (cClass->InheritsFrom("TF1"))
@@ -533,11 +640,12 @@ void CommonEfficiencyTool::generateSystematicSets()
 
   // set truth type to check for in truth matching
   if (sTruthType=="TRUEHADTAU") m_eCheckTruth = TauAnalysisTools::TruthHadronicTau;
-  if (sTruthType=="TRUEELECTRON") m_eCheckTruth = TauAnalysisTools::TruthElectron;
-  if (sTruthType=="TRUEMUON") m_eCheckTruth = TauAnalysisTools::TruthMuon;
-  if (sTruthType=="TRUEJET") m_eCheckTruth = TauAnalysisTools::TruthJet;
-  if (sTruthType=="TRUEHADDITAU") m_eCheckTruth = TauAnalysisTools::TruthHadronicDiTau;
+  else if (sTruthType=="TRUEELECTRON") m_eCheckTruth = TauAnalysisTools::TruthElectron;
+  else if (sTruthType=="TRUEMUON") m_eCheckTruth = TauAnalysisTools::TruthMuon;
+  else if (sTruthType=="TRUEJET") m_eCheckTruth = TauAnalysisTools::TruthJet;
+  else if (sTruthType=="TRUEHADDITAU") m_eCheckTruth = TauAnalysisTools::TruthHadronicDiTau;
   if (sEfficiencyType=="ELEOLR") m_bNoMultiprong = true;
+  else if (sEfficiencyType=="ELEBDT") m_bNoMultiprong = true;
 
   for (auto mSF : *m_mSF)
   {
@@ -554,7 +662,7 @@ void CommonEfficiencyTool::generateSystematicSets()
 
     // test if NP starts with a capital letter indicating that this should be recommended
     bool bIsRecommended = false;
-    if (isupper(sNP.at(0)))
+    if (isupper(sNP.at(0)) || isupper(sNP.at(1)))
       bIsRecommended = true;
 
     // make sNP uppercase and build final NP entry name
@@ -601,23 +709,26 @@ CP::CorrectionCode CommonEfficiencyTool::getValue(const std::string& sHistName,
   double dPt = m_fX(xTau);
   double dEta = m_fY(xTau);
 
+  double dVars[2] = {dPt, dEta};
+
   // finally obtain efficiency scale factor from TH1F/TH1D/TF1, by calling the
   // function pointer stored in the tuple from the scale factor map
-  return  (std::get<1>(tTuple))(std::get<0>(tTuple), dEfficiencyScaleFactor, dPt, dEta);
+  return  (std::get<1>(tTuple))(std::get<0>(tTuple), dEfficiencyScaleFactor, dVars);
 }
 
 /*
-  find the particular value in TH2F depending on pt and eta (or the
+  find the particular value in TH2 depending on pt and eta (or the
   corresponding value in case of configuration)
   Note: In case values are outside of bin ranges, the closest bin value is used
 */
 //______________________________________________________________________________
-CP::CorrectionCode CommonEfficiencyTool::getValueTH2F(const TObject* oObject,
-    double& dEfficiencyScaleFactor,
-    double dPt,
-    double dEta)
+CP::CorrectionCode CommonEfficiencyTool::getValueTH2(const TObject* oObject,
+    double& dEfficiencyScaleFactor, double dVars[])
 {
-  const TH2F* hHist = dynamic_cast<const TH2F*>(oObject);
+  double dPt = dVars[0];
+  double dEta = dVars[1];
+
+  const TH2* hHist = dynamic_cast<const TH2*>(oObject);
 
   if (!hHist)
   {
@@ -639,17 +750,18 @@ CP::CorrectionCode CommonEfficiencyTool::getValueTH2F(const TObject* oObject,
 }
 
 /*
-  find the particular value in TH2D depending on pt and eta (or the
-  corresponding value in case of configuration)
+  find the particular value in TH3 depending on x, y, z
   Note: In case values are outside of bin ranges, the closest bin value is used
 */
 //______________________________________________________________________________
-CP::CorrectionCode CommonEfficiencyTool::getValueTH2D(const TObject* oObject,
-    double& dEfficiencyScaleFactor,
-    double dPt,
-    double dEta)
+CP::CorrectionCode CommonEfficiencyTool::getValueTH3(const TObject* oObject,
+    double& dEfficiencyScaleFactor, double dVars[])
 {
-  const TH2D* hHist = dynamic_cast<const TH2D*>(oObject);
+  double dX = dVars[0];
+  double dY = dVars[1];
+  double dZ = dVars[2];
+
+  const TH3* hHist = dynamic_cast<const TH3*>(oObject);
 
   if (!hHist)
   {
@@ -658,14 +770,16 @@ CP::CorrectionCode CommonEfficiencyTool::getValueTH2D(const TObject* oObject,
   }
 
   // protect values from underflow bins
-  dPt = std::max(dPt,hHist->GetXaxis()->GetXmin());
-  dEta = std::max(dEta,hHist->GetYaxis()->GetXmin());
+  dX = std::max(dX,hHist->GetXaxis()->GetXmin());
+  dY = std::max(dY,hHist->GetYaxis()->GetXmin());
+  dZ = std::max(dZ,hHist->GetZaxis()->GetXmin());
   // protect values from overflow bins (times .999 to keep it inside last bin)
-  dPt = std::min(dPt,hHist->GetXaxis()->GetXmax() * .999);
-  dEta = std::min(dEta,hHist->GetYaxis()->GetXmax() * .999);
+  dX = std::min(dX,hHist->GetXaxis()->GetXmax() * .999);
+  dY = std::min(dY,hHist->GetYaxis()->GetXmax() * .999);
+  dZ = std::min(dZ,hHist->GetZaxis()->GetXmax() * .999);
 
   // get bin from TH2 depending on x and y values; finally set the scale factor
-  int iBin = hHist->FindFixBin(dPt,dEta);
+  int iBin = hHist->FindFixBin(dX,dY,dZ);
   dEfficiencyScaleFactor = hHist->GetBinContent(iBin);
   return CP::CorrectionCode::Ok;
 }
@@ -676,10 +790,11 @@ CP::CorrectionCode CommonEfficiencyTool::getValueTH2D(const TObject* oObject,
 */
 //______________________________________________________________________________
 CP::CorrectionCode CommonEfficiencyTool::getValueTF1(const TObject* oObject,
-    double& dEfficiencyScaleFactor,
-    double dPt,
-    double dEta)
+    double& dEfficiencyScaleFactor, double dVars[])
 {
+  double dPt = dVars[0];
+  double dEta = dVars[1];
+
   const TF1* fFunc = static_cast<const TF1*>(oObject);
 
   if (!fFunc)
@@ -691,46 +806,4 @@ CP::CorrectionCode CommonEfficiencyTool::getValueTF1(const TObject* oObject,
   // evaluate TFunction and set scale factor
   dEfficiencyScaleFactor = fFunc->Eval(dPt, dEta);
   return CP::CorrectionCode::Ok;
-}
-
-/*
-  Check the type of truth particle, previously matched with the
-  TauTruthMatchingTool. The type to match was parsed from the input file in
-  CommonEfficiencyTool::generateSystematicSets()
-*/
-//______________________________________________________________________________
-e_TruthMatchedParticleType CommonEfficiencyTool::checkTruthMatch(const xAOD::TauJet& xTau) const
-{
-
-  // check if reco tau is a truth hadronic tau
-  typedef ElementLink< xAOD::TruthParticleContainer > Link_t;
-  if (!xTau.isAvailable< Link_t >("truthParticleLink"))
-    ATH_MSG_ERROR("No truth match information available. Please run TauTruthMatchingTool first");
-
-  static SG::AuxElement::Accessor<Link_t> accTruthParticleLink("truthParticleLink");
-  const Link_t xTruthParticleLink = accTruthParticleLink(xTau);
-
-  // if there is no link, then it is a truth jet
-  e_TruthMatchedParticleType eTruthMatchedParticleType = TauAnalysisTools::TruthJet;
-
-  if (xTruthParticleLink.isValid())
-  {
-    const xAOD::TruthParticle* xTruthParticle = *xTruthParticleLink;
-    if (xTruthParticle->isTau())
-    {
-      static SG::AuxElement::ConstAccessor<char> accIsHadronicTau("IsHadronicTau");
-      if ((bool)accIsHadronicTau(*xTruthParticle))
-      {
-        eTruthMatchedParticleType = TruthHadronicTau;
-      }
-    }
-    else if (xTruthParticle->isElectron())
-      eTruthMatchedParticleType = TruthElectron;
-    else if (xTruthParticle->isMuon())
-      eTruthMatchedParticleType = TruthMuon;
-  }
-  else
-    ATH_MSG_VERBOSE("Truth particle link is not valid");
-
-  return eTruthMatchedParticleType;
 }

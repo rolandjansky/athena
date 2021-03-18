@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUANALYSISTOOLS_TAUEFFICIENCYTRIGGERTOOL_H
@@ -55,7 +55,7 @@ public:
 
   StatusCode initialize();
 
-  virtual CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::TauJet& tau, double& dEfficiencyScaleFactor);
+  virtual CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::TauJet& tau, double& dEfficiencyScaleFactor, unsigned int iRunNumber = 0, unsigned int iMu = 0);
 
   virtual StatusCode applySystematicVariation ( const CP::SystematicSet& sSystematicSet);
 
@@ -64,7 +64,6 @@ public:
   bool isSupportedRunNumber(int iRunNumber);
 
 protected:
-
   std::string convertPeriodToStr();
 
   e_DataPeriod m_ePeriod;

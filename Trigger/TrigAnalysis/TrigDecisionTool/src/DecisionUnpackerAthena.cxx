@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //only in full Athena
@@ -144,6 +144,7 @@ namespace Trig {
       // cppcheck-suppress oppositeInnerCondition
       if(!fullNav){
         ATH_MSG_WARNING("downcast failed");
+        return StatusCode::FAILURE;
       }
       
       fullNav->reset();

@@ -25,14 +25,11 @@
 #include <atomic>
 #include <vector>
 
-namespace ExpressionParsing {
-  class ExpressionParser;
-}
-
+#include "ExpressionEvaluation/ExpressionParserUser.h"
 
 namespace DerivationFramework {
 
-  class TrackParticleThinning : public extends<AthAlgTool, IThinningTool> {
+  class TrackParticleThinning : public extends<ExpressionParserUser<AthAlgTool>, IThinningTool> {
     public: 
       TrackParticleThinning(const std::string& t, const std::string& n, const IInterface* p);
       virtual ~TrackParticleThinning();
@@ -42,7 +39,6 @@ namespace DerivationFramework {
 
     private:
       //Expression for object thinning selection
-      ExpressionParsing::ExpressionParser *m_parser;
       std::string m_selectionString;
 
       //Counters and keys for xAOD::TrackParticle container

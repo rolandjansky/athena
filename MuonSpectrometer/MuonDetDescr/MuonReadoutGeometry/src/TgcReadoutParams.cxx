@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ******************************************************************************
@@ -10,9 +10,7 @@
 #include "MuonReadoutGeometry/TgcReadoutParams.h"
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/getMessageSvc.h"
-
-#include <string>
-#include <stdexcept>
+#include <GaudiKernel/IMessageSvc.h>
 
 namespace MuonGM {
 

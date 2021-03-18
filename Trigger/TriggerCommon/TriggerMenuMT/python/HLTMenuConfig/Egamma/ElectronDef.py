@@ -21,7 +21,7 @@ from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, 
 #----------------------------------------------------------------
 
 def electronFastCaloCfg( flags ):
-    return fastCaloMenuSequence("Electron", doRinger=True)
+    return fastCaloMenuSequence("Electron")
 
 def fastElectronSequenceCfg( flags ):
     return fastElectronMenuSequence(do_idperf=False)
@@ -87,7 +87,10 @@ class ElectronChainConfiguration(ChainConfigurationBase):
 
         stepDictionary = {
                 'etcut1step': ['getFastCalo'],
-                'idperf'    : ['getFastCalo', 'getFastElectron_idperf', 'getPrecisionCaloElectron', 'getPrecisionTracking'],
+                'vlooseidperf'    : ['getFastCalo', 'getFastElectron_idperf', 'getPrecisionCaloElectron', 'getPrecisionTracking'],
+                'looseidperf'    : ['getFastCalo', 'getFastElectron_idperf', 'getPrecisionCaloElectron', 'getPrecisionTracking'],
+                'mediumidperf'    : ['getFastCalo', 'getFastElectron_idperf', 'getPrecisionCaloElectron', 'getPrecisionTracking'],
+                'tightidperf'    : ['getFastCalo', 'getFastElectron_idperf', 'getPrecisionCaloElectron', 'getPrecisionTracking'],
                 'etcut'     : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking'],
                 'lhloose'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
                 'lhvloose'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
@@ -125,11 +128,15 @@ class ElectronChainConfiguration(ChainConfigurationBase):
                 }
 
         log.debug('electron chain part = %s', self.chainPart)
-        key = self.chainPart['extra'] + self.chainPart['IDinfo'] + self.chainPart['L2IDAlg'] + self.chainPart['isoInfo'] + self.chainPart['trkInfo']
-
+        key = self.chainPart['extra'] + self.chainPart['IDinfo'] + self.chainPart['isoInfo'] + self.chainPart['trkInfo']
+        addInfo = 'etcut'
+        L2IDAlg = 'noringer'
 
         for addInfo in self.chainPart['addInfo']:
             key+=addInfo
+        
+        for L2IDAlg in self.chainPart['L2IDAlg']:
+            key+=L2IDAlg
 
         log.debug('electron key = %s', key)
         if key in stepDictionary:
@@ -170,6 +177,7 @@ class ElectronChainConfiguration(ChainConfigurationBase):
     def getPrecisionTracking(self):
         stepName = "precisionTracking_electron"
         return self.getStep(4,stepName,[ precisionTrackingSequenceCfg])
+
 
     def getPrecisionElectron(self):
 

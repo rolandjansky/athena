@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-# $Id: T2VertexBeamSpotConfig.py 775662 2016-09-28 15:46:38Z masik $
-from TrigT2BeamSpot.TrigT2BeamSpotConf import PESA__T2VertexBeamSpot
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+from TrigT2BeamSpot.TrigT2BeamSpotConf import (PESA__T2VertexBeamSpot, PESA__T2BSTrackFilterTool,
+        PESA__T2TrackBeamSpotTool, PESA__T2VertexBeamSpotTool)
 from TrigVertexFitter.TrigVertexFitterConf import TrigPrimaryVertexFitter
 from AthenaCommon.AppMgr import ToolSvc
 
@@ -9,24 +9,19 @@ primaryVertexFitter = TrigPrimaryVertexFitter(zVariance=3.0, CreateTrackLists=Tr
 ToolSvc += primaryVertexFitter
 
 #Adding new monitoring tool
-from TrigT2BeamSpot.T2VertexBeamSpotMonitoring import  T2VertexBeamSpotMonitoring, T2VertexBeamSpotToolMonitoring
+from TrigT2BeamSpot.T2VertexBeamSpotMonitoring import (T2VertexBeamSpotMonitoring, T2VertexBeamSpotToolMonitoring,
+        T2BSTrackFilterToolMonitoring, T2TrackBeamSpotToolMonitoring)
+filtermon = T2BSTrackFilterToolMonitoring()
 bsToolMonitoring = T2VertexBeamSpotToolMonitoring()
+trackBSmon = T2TrackBeamSpotToolMonitoring()
 bsAlgMonitoring = T2VertexBeamSpotMonitoring()
 
-
-#TODO: create an instance which can be called and adjusted
-from TrigT2BeamSpot.TrigT2BeamSpotConf import PESA__T2VertexBeamSpotTool
-InDetTrigMTBeamSpotTool = PESA__T2VertexBeamSpotTool(
-    name = "T2VertexBeamSpotTool",
-    MonTool = bsToolMonitoring,
-    WeightClusterZ      = True,     # Use the track Z0 weighted cluster Z position as seed
-    ReclusterSplit      = False,    # Recluster split track collections before vertex fitting
-    ClusterPerigee      = "beamspot",
-    nSplitVertices      = 2,        # Turn on (>1) or off vertex splitting
-    TotalNTrackMin      = 4,        # Minimum number of tracks required in an event
+# track filter tool used by vertex tool
+trackFilterForVertex = PESA__T2BSTrackFilterTool(
+    name = "TrackFilterVtx",
+    MonTool = filtermon,
     TrackMinPt          = 0.5,      # Minimum track pT to be considered for vertexing
-    TrackSeedPt         = 0.7,      # Minimum track pT to be considered for seeding a vertex fit
-    TrackClusterDZ      = 0.35,      # Maximum distance between tracks considered as a cluster
+    TrackMaxEta         = 2.5,      # Maximum absolute value of eta
     TrackMaxZ0          = 200.0,    # Maximum track Z0 to be considered for vertexing
     TrackMaxD0          = 10.0,     # Maximum track d0 to be considered for vertexing
     TrackMaxZ0err       = 5.0,      # Maximum track Z0 error to be considered for vertexing
@@ -34,11 +29,53 @@ InDetTrigMTBeamSpotTool = PESA__T2VertexBeamSpotTool(
     TrackMinNDF         = 2.0,      # Minimum track NDF to be considered for vertexing
     TrackMinQual        = 0.0,      # Minimum track chi^2/NDF to be considered for vertexing
     TrackMaxQual        = 10.0,     # Maximum track chi^2/NDF to be considered for vertexing
-    TrackMinChi2Prob    = -10.0,    # Minimum track cumulative chi2 probability, from CLHEP/GenericFunctions/CumulativeChiSquare.hh
+    TrackMinChi2Prob    = 0.05,     # Minimum track cumulative chi2 probability
     TrackMinSiHits      = 7,        # Minimum # track silicon (PIX + SCT) hits to be considered for vertexing
     TrackMinPIXHits     = 0,        # Minimum # track silicon (PIX + SCT) hits to be considered for vertexing
     TrackMinSCTHits     = 0,        # Minimum # track silicon (PIX + SCT) hits to be considered for vertexing
     TrackMinTRTHits     = -10,      # Minimum # track TRT hits to be considered for vertexing
+    GoalSeedTracks      = 500,      # Number of tracks for local beamspot estimate
+    D0Chi2Cutoff        = 25.,      # Cutoff on D0 Chi^2 for BS-based filtering
+    BeamSizeLS          = 0.01,     # Approximate beam size, mm
+)
+
+# track filter tool used by track tool
+trackFilterForTrack = PESA__T2BSTrackFilterTool(
+    name = "TrackFilterTrk",
+    MonTool = filtermon,
+    TrackMinPt          = 0.5,      # Minimum track pT to be considered for vertexing
+    TrackMaxEta         = 2.5,      # Maximum absolute value of eta
+    TrackMaxZ0          = 200.0,    # Maximum track Z0 to be considered for vertexing
+    TrackMaxD0          = 10.0,     # Maximum track d0 to be considered for vertexing
+    TrackMaxZ0err       = 5.0,      # Maximum track Z0 error to be considered for vertexing
+    TrackMaxD0err       = 5.0,      # Maximum track d0 error to be considered for vertexing
+    TrackMinNDF         = 2.0,      # Minimum track NDF to be considered for vertexing
+    TrackMinQual        = 0.0,      # Minimum track chi^2/NDF to be considered for vertexing
+    TrackMaxQual        = 10.0,     # Maximum track chi^2/NDF to be considered for vertexing
+    TrackMinChi2Prob    = 0.05,     # Minimum track cumulative chi2 probability
+    TrackMinSiHits      = 7,        # Minimum # track silicon (PIX + SCT) hits to be considered for vertexing
+    TrackMinPIXHits     = 0,        # Minimum # track silicon (PIX + SCT) hits to be considered for vertexing
+    TrackMinSCTHits     = 0,        # Minimum # track silicon (PIX + SCT) hits to be considered for vertexing
+    TrackMinTRTHits     = -10,      # Minimum # track TRT hits to be considered for vertexing
+    GoalSeedTracks      = 500,      # Number of tracks for local beamspot estimate
+    D0Chi2Cutoff        = 10.,      # Cutoff on D0 Chi^2 for BS-based filtering
+    BeamSizeLS          = 0.01,     # Approximate beam size, mm
+)
+
+#TODO: create an instance which can be called and adjusted
+InDetTrigMTBeamSpotTool = PESA__T2VertexBeamSpotTool(
+    name = "T2VertexBeamSpotTool",
+    MonTool = bsToolMonitoring,
+    TrackFilter         = trackFilterForVertex,
+    PrimaryVertexFitter = primaryVertexFitter,
+
+    WeightClusterZ      = True,     # Use the track Z0 weighted cluster Z position as seed
+    ReclusterSplit      = False,    # Recluster split track collections before vertex fitting
+    ClusterPerigee      = "beamspot",
+    nSplitVertices      = 2,        # Turn on (>1) or off vertex splitting
+    TotalNTrackMin      = 4,        # Minimum number of tracks required in an event
+    TrackSeedPt         = 0.7,      # Minimum track pT to be considered for seeding a vertex fit
+    TrackClusterDZ      = 0.35,      # Maximum distance between tracks considered as a cluster
 
     VertexMinNTrk       = 2,        # Minimum # tracks in a cluster to be considered for vertexing
     VertexMaxNTrk       = 100,      # Maximum # tracks in a cluster to be considered for vertexing (saves on time!)
@@ -49,15 +86,26 @@ InDetTrigMTBeamSpotTool = PESA__T2VertexBeamSpotTool(
     VertexMaxQual       = 100.0,    # Maximum resulting chi^2/NDF on vertex fit for "good" vertices
     VertexMinChi2Prob   = -10.0,    # Minimum cumulative chi2 probability, from CLHEP/GenericFunctions/CumulativeChiSquare.hh
     VertexBCIDMinNTrk   = 10,       # Minimum # tracks in a vertex to be used for per-BCID monitoring
-    PrimaryVertexFitter = primaryVertexFitter
+
+    filterBS            = True,     # filter tracks w.r.t. beamspot
 )
 
+InDetTrigMTTrackBeamSpotTool = PESA__T2TrackBeamSpotTool(
+    name                = "T2TrackBeamSpotTool",
+    TrackFilter         = trackFilterForTrack,
+    MonTool             = trackBSmon,
+    doLeastSquares      = True,
+    doLogLikelihood     = True,
+    beamSizeLS          = 0.01,      # Approximate beam size, mm
+)
 
 class T2VertexBeamSpot_Fex ( PESA__T2VertexBeamSpot ) :
     __slots__ = []
     def __init__ (self, name="T2VertexBeamSpot_Fex", detail=1):
         super(T2VertexBeamSpot_Fex, self).__init__(name)
-        self.BeamSpotTool = InDetTrigMTBeamSpotTool    
+        self.doTrackBeamSpot = True         # run track-based calibration tool
+        self.TrackBeamSpotTool = InDetTrigMTTrackBeamSpotTool
+        self.BeamSpotTool = InDetTrigMTBeamSpotTool
         self.MonTool = bsAlgMonitoring
         
 # Setup for relaxed cuts at 900 GeV LHC center-of-mass
@@ -66,10 +114,8 @@ class T2VertexBeamSpot_loose ( T2VertexBeamSpot_Fex ) :
     def __init__ (self, name="T2VertexBeamSpot_loose"):
         super(T2VertexBeamSpot_loose, self).__init__(name)
         self.TotalNTrackMin  = 2        # Minimum number of tracks required in an event
-        self.TrackMinPt      = 0.5      # Minimum track pT to be considered for vertexing
         self.TrackSeedPt     = 0.7      # Minimum track pT to be considered for seeding a vertex fit
         self.TrackClusterDZ  = 10.0     # Maximum distance between tracks considered as a cluster
-        self.TrackMinTRTHits = -10      # Minimum # track TRT hits to be considered for vertexing
         self.nSplitVertices  = 1        # Turn OFF vertex splitting
         self.vertexCollName  = "T2VertexBeamSpot_loose"
 
@@ -118,40 +164,3 @@ class T2VertexBeamSpot_activeTE_FTF ( T2VertexBeamSpot_activeTE ) :
     __slots__ = []
     def __init__ (self, name="T2VertexBeamSpot_activeTE_FTF"):
         super(T2VertexBeamSpot_activeTE_FTF, self).__init__(name, detail=0)
-
- # Setup for using FTK tracks
-class T2VertexBeamSpot_FTK ( T2VertexBeamSpot ) :
-    __slots__ = []
-    def __init__ (self, name="T2VertexBeamSpot_FTK"):
-        super(T2VertexBeamSpot_FTK, self).__init__(name, detail=2)
- 
-# Setup for writing out all events seen by the BeamSpot algorithm with FTK tracks
-class T2VertexBeamSpot_activeAllTE_FTK ( T2VertexBeamSpot_activeAllTE ) :
-    __slots__ = []
-    def __init__ (self, name="T2VertexBeamSpot_activeAllTE_FTK"):
-        super(T2VertexBeamSpot_activeAllTE_FTK, self).__init__(name, detail=0)
- 
-# Setup for writing out events with a "good" vertex seen by the BeamSpot algorithm with FTK tracks
-class T2VertexBeamSpot_activeTE_FTK ( T2VertexBeamSpot_activeTE ) :
-    __slots__ = []
-    def __init__ (self, name="T2VertexBeamSpot_activeTE_FTK"):
-        super(T2VertexBeamSpot_activeTE_FTK, self).__init__(name, detail=0)
-
- # Setup for using FTKRefit tracks
-class T2VertexBeamSpot_FTKRefit ( T2VertexBeamSpot ) :
-    __slots__ = []
-    def __init__ (self, name="T2VertexBeamSpot_FTKRefit"):
-        super(T2VertexBeamSpot_FTKRefit, self).__init__(name, detail=2)
- 
-# Setup for writing out all events seen by the BeamSpot algorithm with FTK tracks
-class T2VertexBeamSpot_activeAllTE_FTKRefit ( T2VertexBeamSpot_activeAllTE ) :
-    __slots__ = []
-    def __init__ (self, name="T2VertexBeamSpot_activeAllTE_FTKRefit"):
-        super(T2VertexBeamSpot_activeAllTE_FTKRefit, self).__init__(name, detail=0)
- 
-# Setup for writing out events with a "good" vertex seen by the BeamSpot algorithm with FTK tracks
-class T2VertexBeamSpot_activeTE_FTKRefit ( T2VertexBeamSpot_activeTE ) :
-    __slots__ = []
-    def __init__ (self, name="T2VertexBeamSpot_activeTE_FTKRefit"):
-        super(T2VertexBeamSpot_activeTE_FTKRefit, self).__init__(name, detail=0)
-

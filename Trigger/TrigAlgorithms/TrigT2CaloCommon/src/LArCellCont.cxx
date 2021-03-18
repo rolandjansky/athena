@@ -1,11 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #include "TrigT2CaloCommon/LArCellCont.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "LArRawUtils/LArRoI_Map.h"
@@ -13,14 +11,10 @@
 #include "LArRecConditions/ILArBadChannelMasker.h"
 #include "LArBadChannelTool/LArBadFebMasker.h"
 #include "CaloUtils/CaloCellCorrection.h"
-#include "GaudiKernel/ListItem.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "LArElecCalib/ILArMCSymTool.h"
 #include "GaudiKernel/EventContext.h"
 #include "CaloEvent/CaloBCIDAverage.h"
 #include <iostream>
-//#include <time.h>
 
 LArCellCont::LArCellCont() : m_event(0), m_lumi_block(0), m_bcid(5000), m_bcidEvt(5000), m_larCablingSvc(nullptr), m_BCIDcache(false)
 {}

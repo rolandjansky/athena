@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -50,6 +50,8 @@ private:
 
 public:
    InputDialog(const char *prompt, const char *defval, char *retstr);
+   InputDialog (const InputDialog&) = delete;
+   InputDialog& operator= (const InputDialog&) = delete;
    ~InputDialog();
    void ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2);
    void Cancel(void);

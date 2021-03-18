@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RoIBResultToAOD.h 452138 2011-08-04 11:10:41Z krasznaa $
 #ifndef ANALYSISTRIGGERALGS_ROIBRESULTTOAOD_H
 #define ANALYSISTRIGGERALGS_ROIBRESULTTOAOD_H
 
@@ -13,7 +12,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/DataHandle.h"
-#include "TrigT1Interfaces/RecMuonRoiSvc.h"
+#include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
 #include "TrigT1CaloToolInterfaces/IL1JetTools.h"
 #include "TrigT1CaloToolInterfaces/IL1EmTauTools.h"
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
@@ -49,9 +48,8 @@ class RoIBResultToAOD : public AthAlgorithm {
 public:
    RoIBResultToAOD( const std::string& name, ISvcLocator* pSvcLocator );
 
-   StatusCode initialize();
-   StatusCode finalize();
-   StatusCode execute();
+   virtual StatusCode initialize() override;
+   virtual StatusCode execute() override;
 
 private:
    /// build CTP_Decision from CTPResult stored in ROIB::RoIBResult
@@ -66,10 +64,10 @@ private:
    // services
    ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;               //!< property, see @link RoIBResultToAOD::RoIBResultToAOD @endlink
 
-   ServiceHandle<LVL1::RecMuonRoiSvc> m_recRPCRoiSvc;                 //!< property, see @link RoIBResultToAOD::RoIBResultToAOD @endlink
-   ServiceHandle<LVL1::RecMuonRoiSvc> m_recTGCRoiSvc;                 //!< property, see @link RoIBResultToAOD::RoIBResultToAOD @endlink
-
    // tools
+   ServiceHandle<LVL1::ITrigT1MuonRecRoiTool> m_recRPCRoiTool;        //!< property, see @link RoIBResultToAOD::RoIBResultToAOD @endlink
+   ServiceHandle<LVL1::ITrigT1MuonRecRoiTool> m_recTGCRoiTool;        //!< property, see @link RoIBResultToAOD::RoIBResultToAOD @endlink
+
    ToolHandle<LVL1::IL1EmTauTools> m_EmTauTool;                       //!< property, see @link RoIBResultToAOD::RoIBResultToAOD @endlink
    ToolHandle<LVL1::IL1JetTools> m_JetTool;                           //!< property, see @link RoIBResultToAOD::RoIBResultToAOD @endlink
    bool m_retrievedEmTauTool;

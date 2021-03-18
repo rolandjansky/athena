@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -45,7 +45,7 @@ namespace InDet{
   class SiTrackMakerEventData_xk;
 
   /**
-  @class SiTrackMaker_xk 
+  @class SiTrackMaker_xk
 
   InDet::SiTrackMaker_xk is algorithm which produce Trk::Track started
   from 3 space points information of SCT and Pixels
@@ -56,19 +56,19 @@ namespace InDet{
   event dependent data for SiTrackMaker_xk.
   Its object is instantiated in SiSPSeededTrackFinder::execute.
 
-  @author Igor.Gavrilenko@cern.ch     
+  @author Igor.Gavrilenko@cern.ch
   */
 
-  class SiTrackMaker_xk : 
+  class SiTrackMaker_xk :
     public extends<AthAlgTool, ISiTrackMaker>
     {
 
       ///////////////////////////////////////////////////////////////////
       // Public methods:
       ///////////////////////////////////////////////////////////////////
-      
+
     public:
-      
+
       ///////////////////////////////////////////////////////////////////
       /// @name Standard tool methods
       ///////////////////////////////////////////////////////////////////
@@ -111,7 +111,7 @@ namespace InDet{
       SiTrackMaker_xk(const SiTrackMaker_xk&) =delete;
       SiTrackMaker_xk &operator=(const SiTrackMaker_xk&) = delete;
       //@}
-      
+
       ///////////////////////////////////////////////////////////////////
       // Protected Data
       ///////////////////////////////////////////////////////////////////
@@ -171,14 +171,14 @@ namespace InDet{
       Trk::MagneticFieldMode m_fieldModeEnum{Trk::FullField};
       //@}
 
-      ///////////////////////////////////////////////////////////////////             
-      // Counters                                                                     
-      /////////////////////////////////////////////////////////////////////       
+      ///////////////////////////////////////////////////////////////////
+      // Counters
+      /////////////////////////////////////////////////////////////////////
 
       mutable std::mutex            m_counterMutex;
       mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_totalInputSeeds        ATLAS_THREAD_SAFE {};
       mutable std::array<std::atomic<double>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_totalUsedSeeds        ATLAS_THREAD_SAFE {};
-      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_totalNoTrackPar        ATLAS_THREAD_SAFE {}; 
+      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_totalNoTrackPar        ATLAS_THREAD_SAFE {};
       mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_totalBremSeeds        ATLAS_THREAD_SAFE {};
       mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_twoClusters           ATLAS_THREAD_SAFE {};
       mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_wrongRoad        ATLAS_THREAD_SAFE {};
@@ -211,26 +211,29 @@ namespace InDet{
         kBremTracks,
         kDESize,
         kSeedsWithTracks
-      }; 
+      };
 
       enum kNStatEtaTypes  {
         kUsedSeedsEta,
         kSeedsWithTracksEta
       };
- 
+
       std::vector<statAllTypes> m_indexToEnum {kTwoClusters,kWrongInit,kWrongRoad,kNoTrack,kNotNewTrack,kBremAttempt};
- 
-      //mutable std::vector<
- 
+
+
       ///////////////////////////////////////////////////////////////////
-      // Methods 
+      // Methods
       ///////////////////////////////////////////////////////////////////
 
-      const Trk::TrackParameters* getAtaPlane(MagField::AtlasFieldCache& fieldCache, SiTrackMakerEventData_xk& data,
-                                              bool sss,
-                                              const std::vector<const Trk::SpacePoint*>& SP) const;
-      const Trk::TrackParameters* getAtaPlaneDBM(MagField::AtlasFieldCache& fieldCache, SiTrackMakerEventData_xk& data,
-                                                 const std::vector<const Trk::SpacePoint*>& SP) const;
+      std::unique_ptr<Trk::TrackParameters> getAtaPlane(
+        MagField::AtlasFieldCache& fieldCache,
+        SiTrackMakerEventData_xk& data,
+        bool sss,
+        const std::vector<const Trk::SpacePoint*>& SP) const;
+      std::unique_ptr<Trk::TrackParameters> getAtaPlaneDBM(
+        MagField::AtlasFieldCache& fieldCache,
+        SiTrackMakerEventData_xk& data,
+        const std::vector<const Trk::SpacePoint*>& SP) const;
 
       bool globalPositions(const Trk::SpacePoint& s0,
                            const Trk::SpacePoint& s1,
@@ -238,8 +241,8 @@ namespace InDet{
                            double* p0,
                            double* p1,
                            double* p2) const;
-      bool globalPosition(const Trk::SpacePoint& sp, double* dir, double* p) const;
-      void globalDirections(double* p0, double* p1, double* p2, double* d0, double* d1, double* d2) const;
+      bool globalPosition(const Trk::SpacePoint& sp, const double* dir, double* p) const;
+      void globalDirections(const double* p0, const double* p1, const double* p2, double* d0, double* d1, double* d2) const;
       InDet::TrackQualityCuts setTrackQualityCuts(bool simpleTrack) const;
       void detectorElementsSelection(SiTrackMakerEventData_xk& data,
                                      std::list<const InDetDD::SiDetectorElement*>& DE) const;
@@ -252,16 +255,16 @@ namespace InDet{
       bool isDBMSeeds(const Trk::SpacePoint* s) const;
       void clusterTrackMap(SiTrackMakerEventData_xk& data, Trk::Track* Tr) const;
 
-      MsgStream& dumpStatistics(MsgStream &out) const; 
+      MsgStream& dumpStatistics(MsgStream &out) const;
       MsgStream& dumpconditions(MsgStream& out) const;
       MsgStream& dumpevent(SiTrackMakerEventData_xk& data, MsgStream& out) const;
 
-      /// helper for working with the stat arrays 
+      /// helper for working with the stat arrays
       template <typename T, size_t N,size_t M> void resetCounter(std::array<std::array<T,M>,N> & a) const{
-        for (auto & subarr : a) resetCounter(subarr); 
+        for (auto & subarr : a) resetCounter(subarr);
       }
       template <typename T, size_t N> void resetCounter(std::array<T,N> & a) const{
-        std::fill(a.begin(),a.end(),0); 
+        std::fill(a.begin(),a.end(),0);
       }
     };
 

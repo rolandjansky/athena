@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETCALIBTOOLS_RESIDUALOFFSETCORRECTION_H
@@ -33,12 +33,12 @@ class ResidualOffsetCorrection
   //virtual bool initializeTool(TEnv * config, TString jetAlgo, bool isData);
   virtual StatusCode initializeTool(const std::string& name);
 
-  double GetResidualOffset ( double abseta, double mu, double NPV ) const;
+  double GetResidualOffset ( double abseta, double mu, double NPV, int nJet, bool MuOnly, bool NOnly ) const;
 
  private:
-  double GetResidualOffsetET(double abseta, double mu, double NPV, 
+  double GetResidualOffsetET(double abseta, double mu, double NPV, int nJet, bool MuOnly, bool NOnly,
                              std::vector<double> OffsetMu, std::vector<double> OffsetNPV,
-                             TAxis *OffsetBins) const;
+                             std::vector<double> OffsetNjet, TAxis *OffsetBins) const;
 
   double GetNPVBeamspotCorrection(double NPV) const;
  
@@ -55,9 +55,10 @@ class ResidualOffsetCorrection
   TAxis * m_resOffsetBins;
   bool m_applyNPVBeamspotCorrection;
   double m_muSF;
-  double m_mu_ref, m_NPV_ref;
+  double m_mu_ref, m_NPV_ref, m_nJet_ref;
+  bool m_useNjet;
 
-  std::vector<double> m_resOffsetMu, m_resOffsetNPV;
+  std::vector<double> m_resOffsetMu, m_resOffsetNPV, m_resOffsetNjet;
 
 };
 

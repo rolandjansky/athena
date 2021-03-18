@@ -14,6 +14,8 @@
 #include "AsgDataHandles/ReadDecorHandle.h"
 #include "AsgDataHandles/WriteDecorHandle.h"
 
+#include <TString.h>
+
 // Jet EDM
 
   ///////////////////////////////////////////////////////////////////

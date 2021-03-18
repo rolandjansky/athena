@@ -29,7 +29,7 @@ class IntersectorWrapper final: public AthAlgTool,
     using IPropagator::propagate;
     using IPropagator::propagateT;
 
-    IntersectorWrapper	(const std::string& type, 
+    IntersectorWrapper	(const std::string& type,
                          const std::string& name,
                          const IInterface* parent);
     ~IntersectorWrapper	(void); 	// destructor
@@ -43,13 +43,15 @@ class IntersectorWrapper final: public AthAlgTool,
       - returns a ParametersBase object as well, 0 if the extrapolation did not succeed
       */
     /// implemented
-    virtual  NeutralParameters* propagate(const NeutralParameters&,
-                                       const Surface&,
-                                       PropDirection,
-                                       const BoundaryCheck& ,
-                                       bool) const override;
+    virtual std::unique_ptr<NeutralParameters> propagate(
+      const NeutralParameters&,
+      const Surface&,
+      PropDirection,
+      const BoundaryCheck&,
+      bool) const override;
 
-    /** [TrackParameters] --------------------------------------------------------- */
+    /** [TrackParameters]
+     * --------------------------------------------------------- */
 
     /** Propagation interface:
 
@@ -112,7 +114,7 @@ class IntersectorWrapper final: public AthAlgTool,
 
 */
     /// implemented
-    virtual std::unique_ptr<TrackParameters>      
+    virtual std::unique_ptr<TrackParameters>
     propagate( const EventContext&          ctx,
               const TrackParameters&,
               const Surface&,
@@ -130,7 +132,7 @@ class IntersectorWrapper final: public AthAlgTool,
       */
     /// implemented
     using Trk::IPropagator::propagateParameters;
-    virtual std::unique_ptr<TrackParameters>      
+    virtual std::unique_ptr<TrackParameters>
     propagateParameters( const EventContext&            ctx,
                         const TrackParameters&         parm,
                         const Surface&                 sf,
@@ -142,7 +144,7 @@ class IntersectorWrapper final: public AthAlgTool,
                         const TrackingVolume*          tVol       = nullptr) const override;
 
     /// implemented
-    virtual std::unique_ptr<TrackParameters>      
+    virtual std::unique_ptr<TrackParameters>
     propagateParameters( const EventContext&            ctx,
                                                         const TrackParameters&         parm,
                                                         const Surface&                 sf,
@@ -178,7 +180,7 @@ class IntersectorWrapper final: public AthAlgTool,
       */
     using Trk::IPropagator::globalPositions;
     virtual void globalPositions(const EventContext&            ctx,
-                                 std::list<Amg::Vector3D>&      positionslist, 
+                                 std::list<Amg::Vector3D>&      positionslist,
                                  const TrackParameters&         parm,
                                  const MagneticFieldProperties& mprop,
                                  const CylinderBounds&          cylbo,
@@ -186,7 +188,7 @@ class IntersectorWrapper final: public AthAlgTool,
                                  ParticleHypothesis             particle = pion,
                                  const TrackingVolume*          tVol     = nullptr) const override;
 
-    //placeholder for compatibility with new interface                                                                                                                        
+    //placeholder for compatibility with new interface
     using Trk::IPropagator::intersectSurface;
     virtual const TrackSurfaceIntersection* intersectSurface(const EventContext&,
                                                              const Surface&,
@@ -210,7 +212,7 @@ class IntersectorWrapper final: public AthAlgTool,
       Amg::Vector3D		                                m_position;
       Amg::Vector3D		                                m_momentum;
 
-      Cache():	
+      Cache():
         m_charge{},
         m_qOverP{},
         m_intersection{nullptr},
@@ -220,13 +222,13 @@ class IntersectorWrapper final: public AthAlgTool,
         }
     };
     // private methods
-    void			
-      createParameters (Cache& cache, 
+    void
+      createParameters (Cache& cache,
                         const Surface&	surface,
                         const BoundaryCheck& 		boundsCheck,
                         bool			curvilinear) const;
-    void			
-      findIntersection (Cache& cache, 
+    void
+      findIntersection (Cache& cache,
                         const TrackParameters& parameters,
                         const Surface&	surface,
                         PropDirection		dir = Trk::anyDirection) const;

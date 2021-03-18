@@ -335,8 +335,10 @@ int usage(const std::string& name, int status) {
   s << "     -r, --refChain  value\treference chain, \n";
   s << "     -t, --testChain value\ttest chain, \n";
   s << "     -p, --pdgId     value\tpdg ID of truth particle if requiring truth particle processing,\n";
-  s << "     -n, --nofit           \ttest do not fit resplots, \n";
-  s << "         --rms             \ttest force new rms95 errors, \n";
+  s << "         --vt        value\tuse value as the test vertex selector - overrides value in the config file,\n";
+  s << "         --vr        value\tuse value as the reference vertex selector - overrides value in the config file,\n";
+  s << "     -n, --nofit          \ttest do not fit resplots, \n";
+  s << "         --rms            \ttest force new rms95 errors, \n";
   //  s << "    -a, --all     \tadd all grids (default)\n";
   s << "     -h, --help           \tthis help\n";
   //  s << "\nSee " << PACKAGE_URL << " for more details\n"; 
@@ -426,6 +428,10 @@ int main(int argc, char** argv)
   bool nofit     = false;
   bool doTnP     = false;  // added for tagNprobe
 
+  std::string vertexSelection     = "";
+  std::string vertexSelection_rec = "";
+
+
   for ( int i=1 ; i<argc ; i++ ) { 
     if ( std::string(argv[i])=="-h" || std::string(argv[i])=="--help" ) {
       return usage(argv[0], 0);
@@ -449,6 +455,14 @@ int main(int argc, char** argv)
     else if ( std::string(argv[i])=="-p" || std::string(argv[i])=="--pdgId" ) { 
       if ( ++i>=argc ) return usage(argv[0], -1);
       pdgId = atoi(argv[i]);
+    }
+    else if ( std::string(argv[i])=="--vr" ) { 
+      if ( ++i>=argc ) return usage(argv[0], -1);
+      vertexSelection = argv[i];
+    }
+    else if ( std::string(argv[i])=="--vt" ) { 
+      if ( ++i>=argc ) return usage(argv[0], -1);
+      vertexSelection_rec = argv[i];
     }
     else if ( std::string(argv[i])=="-b" || std::string(argv[i])=="--binConfig" ) { 
       if ( ++i>=argc ) return usage(argv[0], -1);
@@ -748,9 +762,10 @@ int main(int argc, char** argv)
 
   /// reference vertex selection 
   
-  std::string vertexSelection = "";
-  if ( inputdata.isTagDefined("VertexSelection") ) vertexSelection = inputdata.GetString("VertexSelection");
-  
+
+  if ( vertexSelection == "" ) { 
+    if ( inputdata.isTagDefined("VertexSelection") ) vertexSelection = inputdata.GetString("VertexSelection");
+  }
   
   bool bestPTVtx  = false;
   bool bestPT2Vtx = false;
@@ -767,9 +782,10 @@ int main(int argc, char** argv)
   
   /// test vertex selection 
   
-  std::string vertexSelection_rec = "";
-  if ( inputdata.isTagDefined("VertexSelectionRec") ) vertexSelection_rec = inputdata.GetString("VertexSelectionRec");
-  
+  if ( vertexSelection_rec == "" ) { 
+    if ( inputdata.isTagDefined("VertexSelectionRec") ) vertexSelection_rec = inputdata.GetString("VertexSelectionRec");
+  }  
+
   bool bestPTVtx_rec  = false;
   bool bestPT2Vtx_rec = false;
   int  vtxind_rec     = -1;

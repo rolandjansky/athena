@@ -342,6 +342,10 @@ namespace MuonGM {
 
     int rpcStationName(const int stationIndex) const; // map the RPC station indices (0-NRpcStatType) back to the RpcIdHelper stationNames
 
+    // temporary way to pass MM correction for passivation
+    void   setMMPassivationCorrection(double corr)  { m_MM_passivationCorr = corr; }
+    double getMMPassivationCorrection() const       { return m_MM_passivationCorr; }
+    
   private:
     unsigned int rpcStationTypeIdx(const int stationName) const; // map the RPC stationNames from the RpcIdHelper to 0-NRpcStatType
     enum RpcStatType {
@@ -445,7 +449,8 @@ namespace MuonGM {
     std::map<int,int> m_rpcStatToIdx;
     std::map<int,int> m_rpcIdxToStat;
 
-
+    // temporary way to pass MM correction for passivation
+    double m_MM_passivationCorr = 0.;
   };
 
   const MdtIdHelper*  MuonDetectorManager::mdtIdHelper() const {return m_mdtIdHelper;}

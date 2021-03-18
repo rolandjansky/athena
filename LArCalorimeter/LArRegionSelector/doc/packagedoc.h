@@ -1,13 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
 
-@page LArRegionSelector_page 
+@page RegSelCondAlg_LAr
 
-This package contains one Service, LArRegionSelectorTable, which generates the tables of element extents
- and ROBids used by the region selector.<br>
+This package contains one algorithm, RegSelCondAlg_LAr, which generates the tables of element extents
+ and ROBids used by the region selector tools.<br>
 
  The code loops over each LAr TT
  and fills the class RegionSelectorLUT which includes for each element: <br>
@@ -19,10 +19,7 @@ This package contains one Service, LArRegionSelectorTable, which generates the t
  phi max, <br>
  rob Ids  <br>
 
- Once filled, the tables are stored in StoreGate. <br>
-
-There is an algorithm as well, LArRegionSelectorCheckOL,
-meant to be run in standalone, for test purposes.<br>
+ Once filled, the tables are stored in DetectoGate. <br>
 
 
 

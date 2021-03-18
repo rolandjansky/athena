@@ -84,8 +84,6 @@ private:
 
     std::string getAttListKey();
 
-    std::vector<std::string> getCollMetadataKeys();
-
     /// PRIVATE DATA
 
     /// name of store:

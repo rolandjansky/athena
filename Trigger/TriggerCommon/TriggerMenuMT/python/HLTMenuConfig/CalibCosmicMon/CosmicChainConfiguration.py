@@ -23,9 +23,6 @@ class CosmicChainConfiguration(ChainConfigurationBase):
         # define here the names of the steps and obtain the chainStep configuration 
         # --------------------
         stepDictionary = {
-            "sct_noise":[],
-            "tilecalib_laser" : [],
-            "tilecalib_CIS" : [],
         }
 
         key = self.chainPart['chainPartName']

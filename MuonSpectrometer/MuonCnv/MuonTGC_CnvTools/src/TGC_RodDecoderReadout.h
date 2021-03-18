@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -25,7 +25,7 @@ namespace Muon
    *  The previous class name was TGC_RodDecoder. 
    */
 
-  class TGC_RodDecoderReadout : virtual public ITGC_RodDecoder, public AthAlgTool
+    class TGC_RodDecoderReadout : public extends<AthAlgTool, ITGC_RodDecoder>
     {
     public:
       /** Default constructor */
@@ -34,11 +34,11 @@ namespace Muon
       virtual ~TGC_RodDecoderReadout();
 
       /** Standard AlgTool method */
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
       /** Standard AlgTool method */
-      virtual StatusCode finalize();
+      virtual StatusCode finalize() override;
       /** Convert ROBFragment to RDO */
-      virtual StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag, TgcRdoContainer& rdoIdc) const;
+      virtual StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag, TgcRdoContainer& rdoIdc) const override;
 
     private:
       /** TGC ID helper */
@@ -57,8 +57,8 @@ namespace Muon
       bool m_skipCoincidence;
 
       // counters to see how often we use the cache for the raw data collections
-      mutable unsigned int m_nCache ATLAS_THREAD_SAFE = 0 ;
-      mutable unsigned int m_nNotCache ATLAS_THREAD_SAFE = 0 ;
+      mutable std::atomic<unsigned int> m_nCache = 0;
+      mutable std::atomic<unsigned int> m_nNotCache = 0;
     };
 } // end of namespace
 

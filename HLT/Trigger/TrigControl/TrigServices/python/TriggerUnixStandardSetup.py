@@ -83,17 +83,17 @@ def setupCommonServices():
         from GaudiSvc.GaudiSvcConf import THistSvc
         svcMgr += THistSvc()
 
+    # Online event loop manager
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+    from TrigServices.TrigServicesConfig import TrigServicesCfg
+    CAtoGlobalWrapper(TrigServicesCfg, ConfigFlags)
+    svcMgr.HltEventLoopMgr.WhiteboardSvc = "EventDataSvc"
+    svcMgr.HltEventLoopMgr.SchedulerSvc = AlgScheduler.getScheduler().getName()
+
     # StoreGateSvc
     svcMgr.StoreGateSvc.ActivateHistory = False
     
-    # ProxyProviderSvc services configuration
-    svcMgr += CfgMgr.ProxyProviderSvc()
-
-    # --- ByteStreamAddressProviderSvc configuration
-    svcMgr += CfgMgr.ByteStreamAddressProviderSvc()
-    svcMgr.ProxyProviderSvc.ProviderNames += [ "ByteStreamAddressProviderSvc" ]
-    theApp.CreateSvc += [ svcMgr.ByteStreamAddressProviderSvc.getFullName() ]
-
     # Initialization of DetDescrCnvSvc
     svcMgr += CfgMgr.DetDescrCnvSvc(
         # specify primary Identifier dictionary to be used
@@ -102,39 +102,9 @@ def setupCommonServices():
     theApp.CreateSvc += [ svcMgr.DetDescrCnvSvc.getFullName() ]
     svcMgr.EventPersistencySvc.CnvServices += [ "DetDescrCnvSvc" ]
 
-    # Online services for ByteStream input/output
-    from TrigByteStreamCnvSvc.TrigByteStreamCnvSvcConf import TrigEventSelectorByteStream
-    from TrigByteStreamCnvSvc.TrigByteStreamCnvSvcConfig import TrigByteStreamInputSvc, TrigByteStreamCnvSvc
-    svcMgr += TrigByteStreamCnvSvc("ByteStreamCnvSvc") # this name is hard-coded in some converters
-    svcMgr.EventPersistencySvc.CnvServices += [ "ByteStreamCnvSvc" ]
-    svcMgr += TrigByteStreamInputSvc("ByteStreamInputSvc")
-    svcMgr += TrigEventSelectorByteStream("EventSelector", ByteStreamInputSvc = svcMgr.ByteStreamInputSvc)
-    theApp.EvtSel = "EventSelector"
-
-    # Online event loop manager
-    from TrigServices.TrigServicesConfig import HltEventLoopMgr
-    loopMgr = HltEventLoopMgr("HltEventLoopMgr")
-    loopMgr.WhiteboardSvc = "EventDataSvc"
-    loopMgr.SchedulerSvc = AlgScheduler.getScheduler().getName()
-    loopMgr.EvtSel = svcMgr.EventSelector
-    loopMgr.OutputCnvSvc = svcMgr.ByteStreamCnvSvc
-    svcMgr += loopMgr
-    theApp.EventLoop = loopMgr.name()
-
-    from TrigOutputHandling.TrigOutputHandlingConfig import HLTResultMTMakerCfg
-    svcMgr.HltEventLoopMgr.ResultMaker = HLTResultMTMakerCfg()
-
     # Configuration of Interval of Validity Service
     svcMgr += CfgMgr.IOVSvc()
     
-    # Configure COOL update helper tool
-    from TrigServices.TrigServicesConfig import TrigCOOLUpdateHelper
-    svcMgr.HltEventLoopMgr.CoolUpdateTool = TrigCOOLUpdateHelper()
-            
-    # Configure the online ROB data provider service
-    from TrigServices.TrigServicesConfig import HltROBDataProviderSvc
-    svcMgr += HltROBDataProviderSvc()  
-
     # Explicitly set a few OutputLevels (needed because some services are created in
     # different order when running with the PSC)
     svcMgr.IncidentSvc.OutputLevel = theApp.OutputLevel

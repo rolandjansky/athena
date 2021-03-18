@@ -35,6 +35,7 @@
 #include "../CaloThinCellsBySamplingAlg.h"
 #include "../CaloCellContainerAliasAlg.h"
 #include "../ToolConstantsCondAlg.h"
+#include "../CaloNoiseSigmaDiffCondAlg.h"
 
 //Includes for CaloTopoTowers
 #include "../CaloTowerGeometrySvc.h"
@@ -87,6 +88,7 @@ DECLARE_COMPONENT (CaloThinCellsByClusterAlg)
 DECLARE_COMPONENT (CaloThinCellsBySamplingAlg)
 DECLARE_COMPONENT (CaloCellContainerAliasAlg)
 DECLARE_COMPONENT (ToolConstantsCondAlg)
+DECLARE_COMPONENT (CaloNoiseSigmaDiffCondAlg)
 
 DECLARE_COMPONENT( CaloTopoClusterFromTowerMonitor )
 DECLARE_COMPONENT( CaloTowerGeometrySvc )

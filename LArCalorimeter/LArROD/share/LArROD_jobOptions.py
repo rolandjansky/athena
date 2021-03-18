@@ -36,6 +36,7 @@ LArRawChannelBuilder.OFCTool = theOFCTool
 
 from Digitization.DigitizationFlags import digitizationFlags
 if digitizationFlags.doDigiTruth():
+  print "Running LAr Raw Channel DigiTruth"
   LArRawChannelBuilder_DigiHSTruth = LArRawChannelBuilder( "LArRawChannelBuilder_DigiHSTruth" )
   topSequence += LArRawChannelBuilder_DigiHSTruth
   LArRawChannelBuilder_DigiHSTruth.DataLocation = "LArDigitContainer_DigiHSTruth"

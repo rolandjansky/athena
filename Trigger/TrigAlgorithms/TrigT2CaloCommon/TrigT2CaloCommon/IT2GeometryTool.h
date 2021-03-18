@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -20,13 +20,10 @@
 
 #include "GaudiKernel/IAlgTool.h"
 
-/** Must declare this, with name of interface*/
-static const InterfaceID IID_IT2GeometryTool("IT2GeometryTool", 1, 0);
 
 class IT2GeometryTool : virtual public IAlgTool {
-        public:
-        /**Declared here, and defined below*/
-        static const InterfaceID& interfaceID();
+public:
+  DeclareInterfaceID(IT2GeometryTool, 1, 0);
 
   /** @brief This prepares internal tables based on the cluster position.
   *   Such tables should be used to determine whether a cells is
@@ -89,10 +86,5 @@ class IT2GeometryTool : virtual public IAlgTool {
                 const double& energyPhi,const int index_size) = 0;
         
 };
-
-inline const InterfaceID& IT2GeometryTool::interfaceID()
-{ 
-        return IID_IT2GeometryTool; 
-}
 
 #endif

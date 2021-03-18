@@ -71,7 +71,7 @@ TestChainParts = {
     'alignmentGroup' : ['Test'],
     'chainPartName'  : '',
     'multiplicity'   : '',
-    'extra'          : ['muv1', 'muv1step', 'muv2', 'ev1', 'ev2', 'ev3', 'gv1', 'muEmpty1', 'muEmpty2', 'ev1dr', 'muv1dr'],
+    'extra'          : ['muv1', 'muv1step', 'muv2', 'ev1', 'ev2', 'ev3', 'gv1', 'muEmpty1', 'muEmpty2', 'ev1dr', 'muv1dr','merge'],
     'trigType'       : ['TestChain'],
     'threshold'      : '',
     'addInfo'        : [''],
@@ -135,13 +135,27 @@ JetChainParts = {
     #   other dict contents. If it is not 'simple', then the configuration is 100%
     #   from the hypoScenario specification, and all other hypo entries are ignored.
     'hypoScenario' : ['simple', # Independent selections on individual jets, multiplicity+threshold cuts
+                      # 'agg' (forward-backward + dijet) scenario:
+                      #   default eta selection for dijet mass cut is 0eta490
                       'fbdjshared',  # Forward backward jets + dijet, default parameters, fb and dj can share
                       'fbdjnosharedSEP10etSEP20etSEP34massSEP50fbet', # f/b jets + dijet, expl. parameters, fb and dj do not share
                       # 'dijet' scenario applies always a mass cut (deta and dphi cuts are optional)
-                      # 0eta320 is the default eta selections for j1/j2
-                      'dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass', # Test dijet mass sel
-                      'dijetSEP80j1etSEP80j2etSEP700djmassSEP26djdphi', # Test dijet mass sel including dphi cut
-                      'dijetSEP70j1etSEP70j2etSEP1000djmassSEP20djdphiSEP40djdeta', # dijet mass sel including dphi and deta cuts
+                      #   0eta490 is the default eta selections for j1/j2
+                      #   j12et sets the same et cuts for j1et and j2et
+                      #   j12eta sets the same eta cuts for j1eta and j2eta
+                      #   order:
+                      #     et cuts    (mandatory)
+                      #     eta cuts   (optional, if missing will use default)
+                      #     djmass sel (mandatory)
+                      #     djdphi sel (optional)
+                      #     djdeta sel (optional)
+                      'dijetSEP80j12etSEP0j12eta240SEP700djmass', # Test dijet mass sel
+                      'dijetSEP80j12etSEP700djmassSEP26djdphi', # Test dijet mass sel including dphi cut
+                      'dijetSEP70j12etSEP1000djmassSEP20djdphiSEP40djdeta', # dijet mass sel including dphi and deta cuts
+                      'dijetSEP50j12etSEP1000djmass',
+                      'dijetSEP50j12etSEP1000djmassSEP24djdphi',
+                      'dijetSEP50j12etSEP900djmass',
+                      'dijetSEP35j12etSEP1000djmass',
                       # 'agg' category is for single variable computed by aggregation over single jets (default filtering: 30et and 0eta320)
                       'aggSEP1000ht',
                       'aggSEP500ht',
@@ -233,7 +247,7 @@ MuonChainParts = {
     'trigType'       : ['mu'],
     'etaRange'       : ['0eta2550','0eta105'],
     'threshold'      : '',
-    'extra'          : ['noL1', 'msonly','lateMu', "Dr", "muoncalib" ,'l2io','l2lrt'],
+    'extra'          : ['noL1', 'msonly','lateMu', "Dr", "muoncalib" ,'l2io','l2lrt','l2mt'],
     'IDinfo'         : [],
     'isoInfo'        : ['ivarloose', 'ivarmedium', 'ivarperf',],
     'invMassInfo'    : ['10invm70'],
@@ -420,7 +434,7 @@ ElectronChainParts = {
     'trigType'       : ['e'],
     'threshold'      : '',
     'etaRange'       : [],
-    'IDinfo'         : ['lhvloose','lhloose','lhmedium','lhtight'],
+    'IDinfo'         : ['lhvloose','lhloose','lhmedium','lhtight','vloose','loose','medium','tight'],
     'isoInfo'        : ['ivarloose','ivarmedium','ivartight'],
     'trkInfo'        : ['idperf', 'gsf'],
     'caloInfo'       : [],
@@ -619,7 +633,6 @@ HeavyIonChainParts_Default = {
 # ---- CosmicDef chains -----
 #==========================================================
 AllowedCosmicChainIdentifiers = ['larps','larhec',
-                                 'tilecalib',
                                  'sct',  'id',]
 
 # ---- Cosmic Chain Dictionary of all allowed Values ----
@@ -672,7 +685,7 @@ StreamingChainParts = {
     'threshold'      : '',
     'multiplicity'   : '',
     'streamingInfo'  : ['bkg', 'idmon', 'mb', 'eb', 'zb','to','standby',
-                        'jettauetmiss', 'larcells',
+                        'jettauetmiss', 'larcells','laser', 'CIS',
                         'cosmiccalo', 'cosmicmuons','idcosmic', 'dcmmon',
                         'zb', 'l1calo', 'l1topo','ftk'],
     'trigType'       : 'streamer',
@@ -705,10 +718,10 @@ StreamingChainParts_Default = {
 #==========================================================
 AllowedCalibChainIdentifiers = ['csccalib',     'larcalib',
                                 'idcalib',      'l1calocalib',
-                                'tilelarcalib', 'alfacalib',
+                                'tilelarcalib',
                                 'larnoiseburst','ibllumi',
                                 'l1satmon',     'zdcpeb',
-                                'calibAFP', 'larpebcalib',
+                                'calibAFP',
                                 ]
 
 # ---- Calib Chain Dictionary of all allowed Values ----
@@ -756,8 +769,8 @@ CalibChainParts_Default = {
 #==========================================================
 # ---- MonitorDef chains -----
 #==========================================================
-AllowedMonitorChainIdentifiers = ['robrequest', 'timeburner',  'costmonitor',
-                                  'cscmon', 'idmon',
+AllowedMonitorChainIdentifiers = ['robrequest', 'timeburner',
+                                  'idmon',
                                   'l1calooverflow', 'l1topodebug',
                                   'mistimemonl1bccorr','mistimemonl1bccorrnomu',
                                   'mistimemoncaltimenomu','mistimemoncaltime',
@@ -883,6 +896,7 @@ UnconventionalTrackingChainParts = {
     'multiplicity'   : '',
     'trigType'       : ['unconvtrk'],
     'threshold'      : '',
+    'IDinfo'         : ['loose','medium','tight'],
     'isoInfo'        : ['iaggrmedium','iaggrloose','imedium','iloose'],
     'extra'          : ["isohpttrack", "fslrt"],
     'addInfo'        : [],
@@ -896,6 +910,7 @@ UnconventionalTrackingChainParts_Default = {
     'L1threshold'    : '',
     'chainPartName'  : [],
     'multiplicity'   : '',
+    'IDinfo'         : '',
     'trigType'       : ['unconvtrk'],
     'isoInfo'        : '',
     'threshold'      : '',
@@ -908,7 +923,7 @@ UnconventionalTrackingChainParts_Default = {
 #==========================================================
 # Combined Chains
 #==========================================================
-AllowedTopos_comb = ['03dRtt']
+AllowedTopos_comb = ['03dRleg000leg00110']
 
 # ---- Combined Dictionary of all allowed Values ----
 CombinedChainParts = deepcopy(PhotonChainParts)
@@ -932,18 +947,22 @@ AllowedTopos = AllowedTopos_e + AllowedTopos_g + AllowedTopos_mu + AllowedTopos_
 # Obtain signature type
 #==========================================================
 def getSignatureNameFromToken(chainpart):
+    import re
     theMatchingTokens = []
     reverseSliceIDDict = { value: key for key, value in SliceIDDict.items() } #reversed SliceIDDict
     for sig,token in SliceIDDict.items():
-        if (token in chainpart):
+        if re.match(r'^\d*'+token+r'\d*\w*$', chainpart):
             theMatchingTokens += [token]
-    theToken = max(theMatchingTokens, key=len) # gets the longest string in t
-    if len(theMatchingTokens)>0:
-        if len(theMatchingTokens)>1:
-            log.info('There are several signatures tokens, %s, matching this chain part %s. Picked %s.',
-                                  theMatchingTokens,chainpart,theToken)
-        return reverseSliceIDDict[theToken]
-    log.error('No signature matching chain part %s was found.', chainpart)
+    if len(theMatchingTokens) == 1:
+        return reverseSliceIDDict[theMatchingTokens[0]]
+    elif len(theMatchingTokens)>1:
+        log.error('[getSignatureNameFromToken] There are several signatures tokens, %s, matching the chain part %s. I don\'t know which one to use!',
+                                  theMatchingTokens,chainpart)
+    else:
+        log.error('No signature matching chain part %s was found.', chainpart)
+    
+    raise Exception('[getSignatureNameFromToken] Cannot find signature from chain name, exiting.')
+    
     return False
 
 
@@ -1003,5 +1022,5 @@ def getBasePattern():
     import re
     allTrigTypes = SliceIDDict.values()
     possibleTT = '|'.join(allTrigTypes)
-    pattern = re.compile("(?P<multiplicity>\d*)(?P<trigType>(%s))(?P<threshold>\d+)(?P<extra>\w*)" % (possibleTT)) # noqa: W605
+    pattern = re.compile(r"(?P<multiplicity>\d*)(?P<trigType>(%s))(?P<threshold>\d+)(?P<extra>\w*)" % (possibleTT))
     return pattern
