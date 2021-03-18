@@ -1,12 +1,13 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCONFIGSVC_L1TOPOCONFIGSVC
 #define TRIGCONFIGSVC_L1TOPOCONFIGSVC
 
+#include "ConfigSvcBase.h"
 #include "TrigConfInterfaces/IL1TopoConfigSvc.h"
-#include "./ConfigSvcBase.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <memory>
 
@@ -20,13 +21,10 @@ namespace TrigConf {
    {
    public:
       L1TopoConfigSvc(const std::string& name, ISvcLocator* pSvcLocator);
-      virtual ~L1TopoConfigSvc();
 
-      virtual StatusCode initialize();
-      virtual StatusCode start();
-      virtual StatusCode finalize();
-   
-      virtual const TXC::L1TopoMenu* menu() const { return m_menu.get(); }
+      virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE () override;
+
+      virtual const TXC::L1TopoMenu* menu() const override { return m_menu.get(); }
 
    private:
    

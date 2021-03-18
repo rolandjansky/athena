@@ -9,14 +9,13 @@
 
 #include "ConfigSvcBase.h"
 
+#include "CxxUtils/checker_macros.h"
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
-
 #include "TrigConfData/L1Menu.h"
 #include "TrigConfData/L1PrescalesSet.h"
 #include "TrigConfData/L1BunchGroupSet.h"
 
 
-class StoreGateSvc;
 class EventContext;
 
 namespace TrigConf {
@@ -34,7 +33,7 @@ namespace TrigConf {
 
       LVL1ConfigSvc( const std::string& name, ISvcLocator* pSvcLocator );
 
-      virtual StatusCode initialize() override;
+      virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE () override;
       virtual StatusCode finalize() override;
 
       // Access functions described by ILVL1ConfigSvc:

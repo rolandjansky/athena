@@ -7,13 +7,9 @@
 #include "GaudiKernel/Incident.h"
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/IIOVDbSvc.h"
-
-#include "CoolKernel/Record.h"
-
 #include "StoreGate/DataHandle.h"
-
-#include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "CoolKernel/Record.h"
 
 // Trigger configuration include(s):
 #include "TrigConfBase/TrigDBConnectionConfig.h"
@@ -32,8 +28,7 @@
 #include "TrigConfHLTData/HLTSequenceList.h"
 #include "TrigConfHLTData/HLTPrescaleSet.h"
 
-#include "TrigConfStorage/StorageMgr.h"
-#include "TrigConfStorage/TrigConfCoolFolderSpec.h"
+#include "TrigConfStorage/IStorageMgr.h"
 #include "TrigConfStorage/TrigConfCoolL1PayloadConverters.h"
 #include "TrigConfStorage/TrigConfCoolHLTPayloadConverters.h"
 #include "TrigConfStorage/DBLoader.h"
@@ -91,7 +86,7 @@ TrigConf::DSConfigSvc::DSConfigSvc( const std::string& name,
 
 
 StatusCode
-TrigConf::DSConfigSvc::initialize() {
+TrigConf::DSConfigSvc::initialize ATLAS_NOT_THREAD_SAFE () {
 
    CHECK(ConfigSvcBase::initialize());
 
@@ -133,8 +128,10 @@ TrigConf::DSConfigSvc::initialize() {
 
 
 StatusCode
-TrigConf::DSConfigSvc::registerCallbackForFolder( const std::string& foldername,
-                                                  bool multichannel ) {
+TrigConf::DSConfigSvc::registerCallbackForFolder ATLAS_NOT_THREAD_SAFE ( const std::string& foldername,
+                                                                         bool multichannel )
+   // Thread unsafe detStore()->regFcn (callback) is used.
+{
 
    if( ! hasFolder( foldername ) ) return StatusCode::SUCCESS;
 
@@ -156,7 +153,7 @@ TrigConf::DSConfigSvc::registerCallbackForFolder( const std::string& foldername,
 
 
 StatusCode
-TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
+TrigConf::DSConfigSvc::update ATLAS_NOT_THREAD_SAFE ( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
 
    // callback function to update beamspot cache when condDB data changes
    //I = 0; // not used, suppress compiler warnings

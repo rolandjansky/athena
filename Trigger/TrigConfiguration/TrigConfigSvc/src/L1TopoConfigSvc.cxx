@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./L1TopoConfigSvc.h"
@@ -15,11 +15,6 @@ TrigConf::L1TopoConfigSvc::L1TopoConfigSvc(const string& name, ISvcLocator* pSvc
 {
    base_class::declareCommonProperties();
 }
-
-
-TrigConf::L1TopoConfigSvc::~L1TopoConfigSvc()
-{}
-
 
 StatusCode
 TrigConf::L1TopoConfigSvc::initialize() {
@@ -45,14 +40,3 @@ TrigConf::L1TopoConfigSvc::initialize() {
    return loadSuccess ? StatusCode::SUCCESS : StatusCode::FAILURE;
 }
 
-
-StatusCode
-TrigConf::L1TopoConfigSvc::start() {
-   return StatusCode::SUCCESS;
-}
-
-
-StatusCode
-TrigConf::L1TopoConfigSvc::finalize() {
-   return StatusCode::SUCCESS;
-}
