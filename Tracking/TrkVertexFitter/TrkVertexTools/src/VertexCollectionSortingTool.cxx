@@ -85,7 +85,7 @@ namespace Trk{
     xAOD::VertexAuxContainer* auxNewContainer = new xAOD::VertexAuxContainer();
     NewContainer->setStore( auxNewContainer );
     std::string decorationName = (m_iVertexWeightCalculator->name().find("InDetSumPtVertexWeightCalculator") != std::string::npos) ? "sumPt2" : "signalCompatibility";
-    SG::AuxElement::Decorator< float > sigWeightDec(decorationName);
+    SG::AuxElement::Accessor< float > sigWeightDec(decorationName);
     unsigned int vtxCount(1);
     for (std::vector<Vertex_pair>::const_iterator iter = MyVertex_pairs.begin() ; iter != MyVertex_pairs.end(); ++iter )
       {
