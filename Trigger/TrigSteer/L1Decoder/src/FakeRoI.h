@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -13,16 +13,11 @@
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
-#include "TrigConfL1Data/ThresholdConfig.h"
-#include "TrigConfL1Data/TriggerThreshold.h"
-
-#include "xAODTrigger/TrigCompositeContainer.h"
-#include "xAODTrigger/TrigCompositeAuxContainer.h"
 #include "TrigT1Interfaces/RecEmTauRoI.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-#include "TrigT1Result/RoIBResult.h"
+#include "xAODTrigger/TrigCompositeContainer.h"
+#include "xAODTrigger/TrigCompositeAuxContainer.h"
 
-//#include "AthViews/View.h"
 
 class FakeRoI : public AthAlgorithm {
 private:

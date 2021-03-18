@@ -1,23 +1,24 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1Decoder_L1Decoder_h
 #define L1Decoder_L1Decoder_h
 
+#include "IRoIsUnpackingTool.h"
+#include "IPrescalingTool.h"
+
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
-#include "xAODTrigger/TrigCompositeContainer.h"
 #include "TrigT1Result/RoIBResult.h"
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-#include "TrigTimeAlgs/TrigTimeStamp.h"
 #include "L1Decoder/ICTPUnpackingTool.h"
-#include "IRoIsUnpackingTool.h"
-#include "IPrescalingTool.h"
 #include "TrigCostMonitorMT/ITrigCostMTSvc.h"
 #include "TrigConfxAOD/IKeyWriterTool.h"
+#include "TrigTimeAlgs/TrigTimeStamp.h"
+#include "xAODTrigger/TrigCompositeContainer.h"
 
 /*
   @brief an algorithm used to unpack the RoIB result and provide CTP bits, active chains and RoIs

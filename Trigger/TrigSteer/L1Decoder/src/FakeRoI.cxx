@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -14,10 +14,10 @@
 #include "L1Decoder/TrigIdentifiers.h"
 #include "TrigT1Interfaces/RecEmTauRoI.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-#include "TrigSteeringEvent/Lvl1Result.h"
-#include "TrigT1Result/RoIBResult.h"
 #include "TrigConfL1Data/L1DataDef.h"
-#include "TrigConfHLTData/HLTUtils.h"
+#include "TrigConfL1Data/ThresholdConfig.h"
+#include "TrigConfL1Data/TriggerThreshold.h"
+#include "TrigConfHLTUtils/HLTUtils.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 
 #include "./FakeRoI.h"

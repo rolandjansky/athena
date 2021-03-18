@@ -1,11 +1,14 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-#include "TrigConfL1Data/ThresholdConfig.h"
-#include "TrigT1Result/JetEnergyResult.h"
-#include "TrigT1Result/RoIBResult.h"
-#include "TrigConfL1Data/CTPConfig.h"
+
+
 #include "FSRoIsUnpackingTool.h"
+
+#include "TrigT1Result/RoIBResult.h"
+#include "TrigConfL1Data/TrigConfData.h"
+#include "xAODTrigger/TrigCompositeContainer.h"
+
 
 FSRoIsUnpackingTool::FSRoIsUnpackingTool( const std::string& type,
 					    const std::string& name,

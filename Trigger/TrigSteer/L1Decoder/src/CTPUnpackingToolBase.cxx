@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-#include "L1Decoder/CTPUnpackingToolBase.h"
+#include "CTPUnpackingToolBase.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 
 

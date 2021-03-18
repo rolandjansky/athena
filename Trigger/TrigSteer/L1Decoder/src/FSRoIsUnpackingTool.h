@@ -1,15 +1,16 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef L1DECODER_FSROISUNPACKINGTOOL_H
 #define L1DECODER_FSROISUNPACKINGTOOL_H 1
 
+#include "RoIsUnpackingToolBase.h"
+
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
-#include "TrigConfL1Data/TriggerThreshold.h"
-#include "TrigT1Interfaces/JEPRoIDecoder.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
-#include "RoIsUnpackingToolBase.h"
+#include "TrigT1Result/RoIBResult.h"
+
 #include <string>
 
 
@@ -40,4 +41,4 @@ private:
 };
 
 
-#endif //> !L1DECODER_JROISUNPACKINGTOOL_H
+#endif

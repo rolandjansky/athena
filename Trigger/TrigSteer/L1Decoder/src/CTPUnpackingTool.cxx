@@ -1,13 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include <boost/algorithm/string.hpp>
 #include "TrigCompositeUtils/HLTIdentifier.h"
+#include "TrigT1Result/CTPResult.h"
 #include "TrigT1Result/RoIBResult.h"
 #include "AthenaMonitoringKernel/Monitored.h"
-#include "TrigConfL1Data/CTPConfig.h"
-#include "TrigConfL1Data/TriggerItem.h"
-#include "L1Decoder/CTPUnpackingTool.h"
+#include "CTPUnpackingTool.h"
 
 using namespace HLT;
 

@@ -1,22 +1,21 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef L1DECODER_EMROISUNPACKINGTOOL_H
 #define L1DECODER_EMROISUNPACKINGTOOL_H 1
 
 // STL includes
 #include <string>
+#include <functional>
+#include <vector>
 
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
-#include "TrigConfL1Data/ThresholdConfig.h"
-#include "TrigConfL1Data/TriggerThreshold.h"
 #include "TrigT1Interfaces/RecEmTauRoI.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 // FrameWork includes
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "StoreGate/WriteHandleKey.h"
 
 // L1Decoder includes
 #include "RoIsUnpackingToolBase.h"
