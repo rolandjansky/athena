@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawChannelMonTool.h"
@@ -21,6 +21,9 @@
 #include "LArRawEvent/LArRawChannel.h"
 #include "LArRecEvent/LArEventBitInfo.h"
 #include "AthenaKernel/Units.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "CaloConditions/CaloNoise.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TH1I_LW.h"
@@ -113,7 +116,6 @@ LArRawChannelMonTool::LArRawChannelMonTool( const std::string & type,
 {
 
   declareProperty( "dataNameBase", m_data_name_base = "LArRawChannel" );
-  declareProperty( "calo_noise_tool", m_calo_noise_tool );
   declareProperty( "masking_tool",    m_masking_tool );
   declareProperty( "ATLASReadyFilterTool",    m_filterAtlasReady_tools );
 
@@ -128,8 +130,6 @@ LArRawChannelMonTool::LArRawChannelMonTool( const std::string & type,
   declareProperty( "noise_threshold",          m_noise_threshold       = 3 );
   declareProperty( "noise_burst_percent_threshold", m_noise_burst_percent_thresholds );
   declareProperty( "noise_burst_nChannel_threshold", m_noise_burst_nChannel_thresholds );
-
-  declareProperty( "UseElecNoiseOnly",        m_useElecNoiseOnly      = false );
 
   declareProperty( "monitor_occupancy",        m_monitor_occupancy      = false );
   declareProperty( "monitor_signal",           m_monitor_signal         = true );
@@ -178,9 +178,10 @@ StatusCode LArRawChannelMonTool::initialize()
   ATH_CHECK( detStore()->retrieve( m_lar_online_id_ptr, "LArOnlineID" ) );
   ATH_CHECK( detStore()->retrieve( m_calo_id_mgr_ptr ) );
   ATH_CHECK( m_cable_service_tool.retrieve() );
-  ATH_CHECK( m_calo_noise_tool.retrieve() );
   ATH_CHECK( m_masking_tool.retrieve() );
   ATH_CHECK( m_filterAtlasReady_tools.retrieve() );
+
+  ATH_CHECK( m_noiseKey.initialize() );
 
   // ---
   // Get Michel's LArOnlineIDStrHelper: All names are Expert view
@@ -1188,6 +1189,7 @@ StatusCode LArRawChannelMonTool::fillHistograms()
 
   ATH_MSG_DEBUG( "===> start " << name() << "::fillHistograms boulou <=== " );
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
 
   // -- Set ATLAS Ready Filter
   setIsATLASReady();
@@ -1200,7 +1202,7 @@ StatusCode LArRawChannelMonTool::fillHistograms()
   ATH_CHECK( detStore()->retrieve (ddman, "CaloMgr") );
 
   // --- retrieve raw channels ---
-  SG::ReadHandle<LArRawChannelContainer> raw_channels{m_LArRawChannel_container_key};
+  SG::ReadHandle<LArRawChannelContainer> raw_channels (m_LArRawChannel_container_key, ctx);
   if ( !raw_channels.isValid() ) {
 
     ATH_MSG_WARNING( "Cannot retrieve LArRawChannelContainer with key: "
@@ -1210,7 +1212,7 @@ StatusCode LArRawChannelMonTool::fillHistograms()
   }
 
   // --- retrieve event information ---
-  SG::ReadHandle<xAOD::EventInfo> event_info{m_EventInfoKey};
+  SG::ReadHandle<xAOD::EventInfo> event_info (m_EventInfoKey, ctx);
   uint32_t bunch_crossing_id = 0;
   uint32_t lumi_block        = 0;
   bool isEventFlaggedByLArNoisyROAlg = false; // keep default as false
@@ -1362,6 +1364,8 @@ StatusCode LArRawChannelMonTool::fillHistograms()
   //bool firstsampling=true;
   //Sampling lastsampling(presampler);
 
+  SG::ReadCondHandle<CaloNoise> noiseH (m_noiseKey, ctx);
+
   // --- Loop over RawChannels ---
   for( const LArRawChannel &chan : *raw_channels ){
 
@@ -1444,24 +1448,9 @@ StatusCode LArRawChannelMonTool::fillHistograms()
       //eta    = calo_element_ptr->eta();
       //phi    = calo_element_ptr->phi();
       // This noise get the value at HIGH gain
-      //      noise  = m_calo_noise_tool->getNoise( calo_element_ptr, ICalorimeterNoiseTool::TOTALNOISE );
       // Get hold of noise (electronic + Pileup) at the gain the channel is configured to.
-      noise  = m_calo_noise_tool->totalNoiseRMS( calo_element_ptr, chan.gain());
-      if (m_useElecNoiseOnly)  noise  = m_calo_noise_tool->elecNoiseRMS( calo_element_ptr, chan.gain(), -1); // Setting NminBias to -1 as it is not set in ICaloNoiseTool by default
+      noise  = noiseH->getNoise (offline_id, chan.gain());
 
-      /*
-      if (noise1 != noise) {
-	std::cout << "Vikas says: Detector and channel HWID are " << det << "   " << chan.hardwareID() << std::endl;
-	std::cout << "Vikas says PROBLEM: noise1 - noise is " << noise1-noise << std::endl;
-	std::cout << "Vikas says : noise and channel gain are " << noise << "  " << chan.gain()<< std::endl;
-	std::cout << "Vikas says : Elec noise and pileup noise are " << m_calo_noise_tool->getNoise( calo_element_ptr, ICalorimeterNoiseTool::ELECTRONICNOISE ) 
-		  << "  " <<  m_calo_noise_tool->getNoise( calo_element_ptr, ICalorimeterNoiseTool::PILEUPNOISE )<< std::endl;
-	std::cout << "Vikas says : noise1 (gain 2-LOW), noise1 (gain 1-MED),  noise1 (gain 0-High ) are " << m_calo_noise_tool->totalNoiseRMS( calo_element_ptr, CaloGain::LARLOWGAIN)
-		  << "  " << m_calo_noise_tool->totalNoiseRMS( calo_element_ptr, CaloGain::LARMEDIUMGAIN)
-		  << "  " << m_calo_noise_tool->totalNoiseRMS( calo_element_ptr, CaloGain::LARHIGHGAIN ) << std::endl;
-	
-      }
-      */
       significance = energy / noise ;
       //quality      = short( chan.quality() );
 

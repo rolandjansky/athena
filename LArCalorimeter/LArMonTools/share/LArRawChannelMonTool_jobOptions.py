@@ -2,10 +2,8 @@
 # For Atlas Ready Filter. Not needed.
 from AthenaMonitoring.AtlasReadyFilterTool import GetAtlasReadyFilterTool
 
-# --- CaloNoiseTool configuration ---
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-lar_raw_channel_noise_tool = CaloNoiseToolDefault()
-ToolSvc += lar_raw_channel_noise_tool
+from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+CaloNoiseCondAlg ('totalNoise')
 
 
 # ---- Local Variables ----
@@ -94,9 +92,6 @@ LArRawChannelMon = LArRawChannelMonTool(
                                        10 ],# FCALC
 
 
-    # --- Noise type ---- Decide if TotalNoise(Electronic + Pileup) or electronic Noise only
-    UseElecNoiseOnly          = False,
-    
     # --- Histogram Types ---
     monitor_occupancy         = False,
     monitor_signal            = LArMonFlags.doLArRawMonitorSignal(),
@@ -117,8 +112,6 @@ LArRawChannelMon = LArRawChannelMonTool(
     # --- histogram registration ---
     interval                  = "run",
 
-    # --- noise tool to use ---
-    calo_noise_tool           = lar_raw_channel_noise_tool,
     masking_tool              = theLArBadChannelsMasker,
 
     # Number of luminosity blocks to display in histograms
@@ -130,7 +123,8 @@ LArRawChannelMon = LArRawChannelMonTool(
 ## Monitor signal and noise if cosmic run is being taken. Feb 2012 - VB
 from AthenaCommon.BeamFlags import jobproperties
 if jobproperties.Beam.beamType.get_Value() == 'cosmics':
-   LArRawChannelMon.UseElecNoiseOnly=True
+   CaloNoiseCondAlg ('electronicNoise')
+   LArRawChannelMon.NoiseKey = 'electronicNoise'
    LArRawChannelMon.monitor_signal=True
    LArRawChannelMon.monitor_positive_noise=True
    LArRawChannelMon.monitor_negative_noise=True
