@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /// ********************************************************************
@@ -1170,8 +1170,8 @@ StatusCode TileCellMonTool::fillHistograms() {
           bool fillEneAndTimeDiff(m_fillTimeAndEnergyDiffHistograms);
 
           // avoid double peak structure in energy and time balance histograms
-          if ((gn1 == 0 && gn2 == 1 && (ene1 < 2000 || std::abs(ene1 / ene2) > 5))
-              || (gn1 == 1 && gn2 == 0 && (ene2 < 2000 || std::abs(ene2 / ene1) > 5))) {
+          if ((gn1 == 0 && gn2 == 1 && (ene1 < 2000 || ene2 < 10 || std::abs(ene1 / ene2) > 5))
+              || (gn1 == 1 && gn2 == 0 && (ene2 < 2000 || ene1 < 10 || std::abs(ene2 / ene1) > 5))) {
 
             fillEneAndTimeDiff = false;
           }
