@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGGSectorLogic_hh
@@ -9,9 +9,6 @@
 #include "TrigT1TGC/TGCNumbering.h"
 #include "TrigT1TGC/TGCEvent.h"
 #include "TrigT1TGC/TGCReadoutIndex.h"
-#include "TrigT1TGC/TGCEIFICoincidenceMap.h"
-#include "TrigT1TGC/TGCTileMuCoincidenceMap.h"
-#include "TrigT1TGC/TGCRPhiCoincidenceMap.h"
 #include "TrigT1TGC/TGCRPhiCoincidenceMatrix.h"
 #include "TrigT1TGC/TGCRPhiCoincidenceOut.h"
 #include "TrigT1TGC/TGCSSCController.h"
@@ -25,27 +22,38 @@
 //for Run3
 #include "TrigT1TGC/TGCTrackSelector.h"
 
-
 #include "StoreGate/ReadCondHandle.h"
 #include "MuonCondSvc/TGCTriggerData.h"
+
+namespace LVL1TGC {
+class TGCTileMuCoincidenceLUT;
+class Run2TileMuCoincidenceMap;
+}
 
 namespace LVL1TGCTrigger {
 
 const int MaxNumberOfWireHighPtBoard = 2;
 
-class  TGCHighPtBoard;
-class  TGCHighPtChipOut;
-class  TGCTMDB;
-class  TGCNSW;
-class  TGCNSWCoincidenceMap;
-class  TGCGoodMF;
+class TGCDatabaseManager;
+class TGCHighPtBoard;
+class TGCHighPtChipOut;
+class TGCTMDB;
+class TGCNSW;
+class TGCNSWCoincidenceMap;
+class TGCGoodMF;
+class TGCEIFICoincidenceMap;
 
 //for Run3
 class TGCTrackSelectorOut;
 
 
-class TGCSectorLogic {
-public:
+class TGCSectorLogic
+{
+ public:
+  TGCSectorLogic(TGCArguments*, const TGCDatabaseManager* db,
+                 TGCRegionType regionIn, int id);
+  virtual ~TGCSectorLogic();
+
   TGCSectorLogic(const TGCSectorLogic& right);
 
   const TGCSLSelectorOut* getSelectorOutput() const { return m_selectorOut; }
@@ -72,19 +80,10 @@ public:
 
   TGCSSCController* getSSCController(){return &m_SSCController;};
 
-  void setRPhiMap(const TGCRPhiCoincidenceMap* map, 
-		  const TGCEIFICoincidenceMap* mapI=0);
-  void setEIFIMap(const TGCEIFICoincidenceMap* mapI);
-  void setTileMuMap(const TGCTMDB* tmdb,
-		    const TGCTileMuCoincidenceMap* mapTM);
-  void setNSWMap(std::shared_ptr<const TGCNSW> nsw,
-		 std::shared_ptr<const TGCNSWCoincidenceMap> mapNSW);
-  void setGoodMFMap(std::shared_ptr<const TGCGoodMF> mapGoodMF);
+  void setTMDB(const TGCTMDB* tmdb);
+  void setNSW(std::shared_ptr<const TGCNSW> nsw);
   void showResult(TGCSLSelectorOut* out);
  
-  TGCSectorLogic(TGCArguments*, TGCRegionType regionIn, int id);
-  ~TGCSectorLogic();
-
   int getNumberOfSubSectorCluster() const; 
   int getNumberOfSubSector() const; 
 
@@ -115,6 +114,7 @@ private:
   TGCSectorLogic& operator=(const TGCSectorLogic& right);
 
 private:
+  bool hitTileMu(const uint8_t& mask, const uint8_t& hit6, const uint8_t& hit56) const;
 
   int m_bid;
 
@@ -123,17 +123,25 @@ private:
   int m_sideId, m_octantId;
   TGCRegionType m_region;
   int  m_NumberOfWireHighPtBoard;
+
+  bool m_useEIFI{false};
+  bool m_useTileMu{false};
   bool m_useGoodMF{false};
   bool m_nswSide{false};
 
   TGCSSCController m_SSCController;
+
+  // Run-3 and Run-2 Coincidence LUTs and Window maps
   TGCRPhiCoincidenceMatrix m_matrix;
   const TGCEIFICoincidenceMap*  m_mapEIFI;
-  const TGCTileMuCoincidenceMap*  m_mapTileMu;
+  std::shared_ptr<const LVL1TGC::TGCTileMuCoincidenceLUT> m_tileMuLUT;
   const TGCTMDB*            m_pTMDB;
-  std::shared_ptr<const TGCNSW>             m_nsw;
+  std::shared_ptr<const TGCNSW>               m_nsw;
   std::shared_ptr<const TGCNSWCoincidenceMap> m_mapNSW;
-  std::shared_ptr<const TGCGoodMF>          m_mapGoodMF;
+  std::shared_ptr<const TGCGoodMF>            m_mapGoodMF;
+
+  // Run-2 Coincidence Maps
+  std::shared_ptr<const LVL1TGC::Run2TileMuCoincidenceMap> m_mapRun2TileMu;
 
   // for Run2
   TGCSLPreSelector m_preSelector; 
@@ -143,7 +151,6 @@ private:
   // for Run3
   TGCTrackSelector m_trackSelector;
   std::shared_ptr<TGCTrackSelectorOut> m_trackSelectorOut;
-
  
   int m_wordTileMuon;
   int m_wordInnerStation;
@@ -155,8 +162,6 @@ private:
 
   // for inner trigger
   const TGCInnerTrackletSlot* m_innerTrackletSlots[TGCInnerTrackletSlotHolder::NUMBER_OF_SLOTS_PER_TRIGGER_SECTOR];
-  bool m_useEIFI;
-  bool m_useTileMu{false};
   TGCArguments* m_tgcArgs;
 };
 

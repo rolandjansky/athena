@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1TGC/TGCSector.h"
-#include "TrigT1TGC/TGCElectronicsSystem.h"
+#include "TrigT1TGC/TGCDatabaseManager.h"
 #include "TrigT1TGC/TGCReadoutIndex.h"
 #include <iostream>
 
@@ -75,12 +75,12 @@ int TGCSector::getPatchPanelType(TGCSignalType signal, int layer) const
   }
 }
 
-TGCSector::TGCSector(TGCArguments* tgcargs)
-    : m_id(0), m_regionType(FORWARD), m_numberOfHit(0), 
-      m_sideId(0), m_octantId(0), m_moduleId(0), 
-      m_forwardBackward(ForwardSector), 
-      m_SL(0), m_TMDB(0), m_NSW(0),
-      m_tgcArgs(tgcargs)
+TGCSector::TGCSector()
+ : m_id(0), m_regionType(FORWARD), m_numberOfHit(0), 
+   m_sideId(0), m_octantId(0), m_moduleId(0), 
+   m_forwardBackward(ForwardSector), 
+   m_SL(0), m_TMDB(0), m_NSW(0),
+   m_tgcArgs(nullptr), m_dbMgr(nullptr)
 {
   for(unsigned int iPatchPanelType=0; iPatchPanelType<NumberOfPatchPanelType; iPatchPanelType++) {
     m_ASDToPP[iPatchPanelType] = 0;
@@ -97,16 +97,15 @@ TGCSector::TGCSector(TGCArguments* tgcargs)
   }
 }
 
-  TGCSector::TGCSector(TGCArguments* tgcargs,
-		       int idIn, TGCRegionType type, 
-		       TGCForwardBackwardType forwardBackward, 
-		       const TGCDatabaseManager* db,
-		       const TGCTMDB*            tm,
-		       std::shared_ptr<const TGCNSW>  nsw
-		       )
-  : m_id(idIn),m_regionType(type),m_numberOfHit(0),
-    m_TMDB(tm),m_NSW(nsw),
-    m_tgcArgs(tgcargs)
+TGCSector::TGCSector(TGCArguments* tgcargs,
+                     int idIn, TGCRegionType type, 
+		     TGCForwardBackwardType forwardBackward, 
+		     const TGCDatabaseManager* db,
+		     const TGCTMDB*            tm,
+		     std::shared_ptr<const TGCNSW>  nsw)
+ : m_id(idIn), m_regionType(type), m_numberOfHit(0),
+   m_TMDB(tm), m_NSW(nsw),
+   m_tgcArgs(tgcargs), m_dbMgr(db)
 {
   m_sideId = (idIn/NumberOfModule)/NumberOfOctant;
   m_octantId = (idIn/NumberOfModule)%NumberOfOctant;
@@ -133,23 +132,11 @@ TGCSector::TGCSector(TGCArguments* tgcargs)
   // dumpModule();
 
   if (m_moduleId < 9) {
-    const TGCRPhiCoincidenceMap* map = db->getRPhiCoincidenceMap(m_sideId, m_octantId);
-
-    const TGCEIFICoincidenceMap* mapI = db->getEIFICoincidenceMap(m_sideId);
-    // set RPhi and EIFI CoincidenceMap in SectorLogic.
-    setRPhiMap(map, mapI);
-    
-    // set Tile CoincidenceMap & give Tile buffer to SL
-    const TGCTileMuCoincidenceMap* mapTM = db->getTileMuCoincidenceMap();
-    setTileMuMap(mapTM);
-
-    // set NSW CoincidenceMap & give NSW buffer to SL
-    std::shared_ptr<const TGCNSWCoincidenceMap> mapNSW = db->getNSWCoincidenceMap(m_sideId, m_octantId,m_moduleId);
-    setNSWMap(mapNSW);
-
-    std::shared_ptr<const TGCGoodMF> mapGoodMF = db->getGoodMFMap();
-    setGoodMFMap(mapGoodMF);
-
+    // set TMDB
+    m_SL->setTMDB(m_TMDB);
+ 
+    // set NSW
+    m_SL->setNSW(m_NSW);
   }
 
   // set connection between boards;
@@ -162,12 +149,13 @@ TGCSector::TGCSector(TGCArguments* tgcargs)
   }
 }
 
-//  copy constructor is hided 
-TGCSector::TGCSector( const TGCSector& )
-     : m_id(0), m_regionType(FORWARD), m_numberOfHit(0), 
-       m_sideId(0), m_octantId(0), m_moduleId(0), 
-       m_forwardBackward(ForwardSector), 
-       m_SL(0), m_TMDB(0), m_NSW(0)  
+//  copy constructor is hidden
+TGCSector::TGCSector(const TGCSector&)
+ : m_id(0), m_regionType(FORWARD), m_numberOfHit(0), 
+   m_sideId(0), m_octantId(0), m_moduleId(0), 
+   m_forwardBackward(ForwardSector), 
+   m_SL(0), m_TMDB(0), m_NSW(0),
+   m_tgcArgs(nullptr)
 {
   for(unsigned int iPatchPanelType=0; iPatchPanelType<NumberOfPatchPanelType; iPatchPanelType++) {
     m_ASDToPP[iPatchPanelType] = 0;
@@ -184,11 +172,12 @@ TGCSector::TGCSector( const TGCSector& )
   }
 }
 
-// assignment operator is hided 
+// assignment operator is hidden
 TGCSector& TGCSector::operator=( const TGCSector& )
 {
    return *this;
 }
+
 void TGCSector::setModule(const TGCConnectionPPToSL* connection)
 {
   int jpp, jsb, jhp;
@@ -245,8 +234,8 @@ void TGCSector::setModule(const TGCConnectionPPToSL* connection)
       }
     }
      
-    //m_SL
-    m_SL = new TGCSectorLogic(tgcArgs(),m_regionType, m_id);
+    // Sector Logic
+    m_SL = new TGCSectorLogic(tgcArgs(), m_dbMgr, m_regionType, m_id);
     m_SL->getSSCController()->setNumberOfWireHighPtBoard(connection->getHPBToSL()->getNumber(WHPB));
   } else {
     //Inner
@@ -292,29 +281,6 @@ void TGCSector::setModule(const TGCConnectionPPToSL* connection)
   }
 }
    
-void TGCSector::setRPhiMap(const TGCRPhiCoincidenceMap* map,
-			   const TGCEIFICoincidenceMap* mapI)
-{
-  if (m_SL) m_SL->setRPhiMap(map, mapI);
-}
-
-void TGCSector::setTileMuMap(const TGCTileMuCoincidenceMap* mapTM)
-{
-  if (m_SL) m_SL->setTileMuMap(m_TMDB, mapTM);
-}
-
-
-void TGCSector::setNSWMap(std::shared_ptr<const TGCNSWCoincidenceMap>  mapNSW)
-{
-  if (m_SL) m_SL->setNSWMap(m_NSW, mapNSW);
-}
-
-void TGCSector::setGoodMFMap(std::shared_ptr<const TGCGoodMF> mapGoodMF)
-{
-  if (m_SL) m_SL->setGoodMFMap(mapGoodMF);
-}
-
-
 void TGCSector::connectPPToSB(const TGCConnectionPPToSB* connection)
 {
   int iPP,iSB,iPort,i;

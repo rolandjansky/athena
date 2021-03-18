@@ -1,12 +1,6 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration 
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration 
 */
-
-// ====================================================================
-/*
-        TGCGoodMF.cc            
-*/
-// ====================================================================
 
 #include "TrigT1TGC/TGCGoodMF.h"
 #include "PathResolver/PathResolver.h"
@@ -27,12 +21,6 @@
 #include <iomanip>
 
 namespace LVL1TGCTrigger {
-
-// ====================================================================
-//
-// class description
-//
-// ====================================================================
 
 TGCGoodMF::TGCGoodMF(TGCArguments* tgcargs,const std::string& version)
   :m_tgcArgs(tgcargs),

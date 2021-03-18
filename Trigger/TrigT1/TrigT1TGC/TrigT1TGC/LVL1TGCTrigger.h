@@ -141,9 +141,6 @@ namespace LVL1TGCTrigger {
     // Location of LVL1MUONIF::Lvl1MuSectorLogicData (output from SL)
     StringProperty m_keyMuCTPIInput_TGC{this,"MuCTPIInput_TGC","L1MuctpiStoreTGC"};
 
-    // Version of Coincidence Window
-    StringProperty m_VerCW{this,"VersionCW","00_07_0022"};// TILE_EIFI_BW
-    
     StringProperty    m_MaskFileName12{this,"MaskFileName12",""};   //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
     ShortProperty     m_CurrentBunchTag{this,"CurrentBunchTag",TgcDigit::BC_CURRENT};  //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
     BooleanProperty   m_ProcessAllBunches{this,"ProcessAllBunhes",true};
@@ -155,7 +152,7 @@ namespace LVL1TGCTrigger {
     BooleanProperty m_USEINNER  {this, "USEINNER",   true};  //< flag for using Inner Station for SL
     BooleanProperty   m_INNERVETO{this,"INNERVETO",true}; // flag for using VETO by Inner Station for SL
     BooleanProperty   m_FULLCW{this,"FULLCW",false};   // flag for using differne CW for each octant
-    BooleanProperty   m_TILEMU{this,"TILEMU",false};   // flag for using TileMu
+    BooleanProperty   m_TILEMU{this,"TILEMU",true};    // flag for using TileMu
     BooleanProperty   m_USENSW{this,"USENSW",false};     // flag for using NSW
     BooleanProperty   m_useRun3Config{this,"useRun3Config",false}; // flag for using switch between Run3 and Run2 algorithms
 

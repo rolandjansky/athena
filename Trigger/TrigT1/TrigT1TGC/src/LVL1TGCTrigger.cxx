@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // STL
@@ -93,9 +93,9 @@ namespace LVL1TGCTrigger {
     m_tgcArgs.set_MSGLEVEL(msgLevel());
     m_tgcArgs.set_SHPT_ORED( m_SHPTORED.value() );
     m_tgcArgs.set_USE_INNER( m_USEINNER.value() );
-    m_tgcArgs.set_INNER_VETO( m_INNERVETO.value() && m_tgcArgs.USE_INNER() );
-    m_tgcArgs.set_TILE_MU( m_TILEMU.value() && m_tgcArgs.USE_INNER() );
-    m_tgcArgs.set_USE_NSW( m_USENSW.value() && m_tgcArgs.USE_INNER() );
+    m_tgcArgs.set_INNER_VETO( m_INNERVETO.value() );
+    m_tgcArgs.set_TILE_MU( m_TILEMU.value() );
+    m_tgcArgs.set_USE_NSW( m_USENSW.value() );
 
     m_tgcArgs.set_USE_CONDDB( m_USE_CONDDB.value() );
     m_tgcArgs.set_useRun3Config( m_useRun3Config.value() );
@@ -109,11 +109,10 @@ namespace LVL1TGCTrigger {
     // will be removed the below part.
     if(m_useRun3Config.value()){
       m_tgcArgs.set_USE_CONDDB(false);
-      m_VerCW="1_01_01_06_02";
     }
 
     // initialize TGCDataBase
-    m_db = new TGCDatabaseManager(&m_tgcArgs, m_readCondKey, m_readLUTs_CondKey, m_VerCW);
+    m_db = new TGCDatabaseManager(&m_tgcArgs, m_readCondKey, m_readLUTs_CondKey);
 
     // initialize the TGCcabling
     ATH_CHECK(getCabling());
@@ -165,16 +164,14 @@ namespace LVL1TGCTrigger {
       m_firstTime = false;
     }
     
-    StatusCode sc = StatusCode::SUCCESS;
-    // Tile Mu Data
+    // Tile-Muon data
     bool doTileMu = m_tgcArgs.TILE_MU();
-    
-    if (m_tgcArgs.USE_CONDDB()) {
+
+    if (doTileMu && !m_tgcArgs.useRun3Config()) {   // for Run-2
       SG::ReadCondHandle<TGCTriggerData> readHandle{m_readCondKey};
       const TGCTriggerData* readCdo{*readHandle};
       doTileMu = readCdo->isActive(TGCTriggerData::CW_TILE);
     }
-
 
     // NSW data
     bool doNSW = m_tgcArgs.USE_NSW();
@@ -183,7 +180,7 @@ namespace LVL1TGCTrigger {
     // TgcRdo
     m_tgcrdo.clear();
     const TgcRdoContainer * rdoCont;
-    sc = evtStore()->retrieve( rdoCont, "TGCRDO" );
+    StatusCode sc = evtStore()->retrieve( rdoCont, "TGCRDO" );
     if (sc.isFailure()) {
       ATH_MSG_WARNING("Cannot retrieve TgcRdoContainer with key=TGCRDO");
       return StatusCode::SUCCESS;
@@ -1249,46 +1246,8 @@ namespace LVL1TGCTrigger {
       ATH_MSG_FATAL("Old TGCcablingSvc(octant segmentation) can not be used !");
       return StatusCode::FAILURE;
     }
-    
-    // determine version of CW
-    // !! NOTE : CW version is determined by jobOption of VersionCW
-    // !!        independent from TrigConfigSvc
-    // default set is 0x0007019
-    //   00_00_0000 -> TILE_EIFI_BW
-    //   see https://twiki.cern.ch/twiki/bin/view/Atlas/TgcSectorLogicLUT
-    
-    // Since m_VerCW is set as default value above,
-    // Here don't overwrite by any version if proper version number is provided.
-    std::string ver=m_VerCW.value();
 
-    if(!tgcArgs()->useRun3Config()){
-      if((ver.size() != 10)) {
-	// default CW is v00070022
-	ver= "00_07_0022";
-	m_VerCW = ver;
-      }
-
-      if (!m_tgcArgs.USE_CONDDB()) ATH_MSG_INFO("TGC CW version of " << ver << " is selected");
-    
-      // check Inner /TileMu
-      std::vector<std::string> vers = TGCDatabaseManager::splitCW(ver, '_');
-      if (m_tgcArgs.USE_INNER()) {
-	if (vers.size() == 3) m_tgcArgs.set_USE_INNER( (vers[1] != "00") );
-      }
-      if (m_tgcArgs.TILE_MU()) {
-	if (vers.size() == 3) m_tgcArgs.set_TILE_MU( (vers[0] != "00") );
-      }
-    
-    }
-    else{
-      std::vector<std::string> vers = TGCDatabaseManager::splitCW(ver, '_');
-      m_tgcArgs.set_USE_INNER((vers[vers.size()-1] != "00") && m_tgcArgs.USE_INNER());
-      m_tgcArgs.set_TILE_MU((vers[vers.size()-2] != "00") && m_tgcArgs.TILE_MU());
-    }
-
-
-    // create DataBase and TGCElectronicsSystem
-    //m_db = new TGCDatabaseManager(m_VerCW);
+    // create TGCElectronicsSystem
     m_system = new TGCElectronicsSystem(&m_tgcArgs,m_db);
     
     m_TimingManager = new TGCTimingManager (m_readCondKey);
@@ -1365,28 +1324,29 @@ namespace LVL1TGCTrigger {
         } else if (sideID == 4) {
           side = 1;
         }
-        // setOutput(side, mod, hit56, hit6) -> hit56, 6 -> 0: No Hit, 1: Low, 2: High, 3: NA
-        int hit56 = 3, hit6 = 3;
+        // setOutput(side, mod, hit56, hit6) -> hit56, 6
+        TGCTMDBOut::TileModuleHit hit56 = TGCTMDBOut::TM_NA;
+        TGCTMDBOut::TileModuleHit hit6 = TGCTMDBOut::TM_NA;
         if (tile2SL[0] == true && tile2SL[1] == false) {
-          hit56 = 2;
+          hit56 = TGCTMDBOut::TM_HIGH;
         } else if (tile2SL[0] == false && tile2SL[1] == true) {
-          hit56 = 1;
+          hit56 = TGCTMDBOut::TM_LOW;
         } else if (tile2SL[0] == false && tile2SL[1] == false) {
-          hit56 = 0;
+          hit56 = TGCTMDBOut::TM_NOHIT;
         }
 
         if (tile2SL[2] == true && tile2SL[3] == false) {
-          hit6 = 2;
+          hit6 = TGCTMDBOut::TM_HIGH;
         } else if (tile2SL[2] == false && tile2SL[3] == true) {
-          hit6 = 1;
+          hit6 = TGCTMDBOut::TM_LOW;
         } else if (tile2SL[2] == false && tile2SL[3] == false) {
-          hit6 = 0;
+          hit6 = TGCTMDBOut::TM_NOHIT;
         }
 
-        int prehit56=(tmdb->getOutput(side, mod))->GetHit56();
-        int prehit6=(tmdb->getOutput(side, mod))->GetHit6();
-        if(prehit56 != 3 && prehit56 > hit56) { hit56=prehit56; }
-        if(prehit6 != 3 && prehit6 > hit6) { hit6=prehit6; }
+        TGCTMDBOut::TileModuleHit prehit56 = tmdb->getOutput(side, mod)->getHit56();
+        TGCTMDBOut::TileModuleHit prehit6 = tmdb->getOutput(side, mod)->getHit6();
+        if(prehit56 != TGCTMDBOut::TM_NA && prehit56 > hit56) { hit56=prehit56; }
+        if(prehit6 != TGCTMDBOut::TM_NA && prehit6 > hit6) { hit6=prehit6; }
 
         tmdb->setOutput(side, mod, hit56, hit6);
       }
