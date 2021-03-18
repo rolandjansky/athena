@@ -4,7 +4,7 @@
 
 #include "GaudiKernel/ConcurrencyFlags.h"
 
-#include "TrigConfHLTData/HLTUtils.h"
+#include "TrigConfHLTUtils/HLTUtils.h"
 
 #include "TrigCostMTSvc.h"
 

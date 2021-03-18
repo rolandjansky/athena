@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCOSTMONITORMT_TRIGCOSTALGORITHMIDENTIFIER_H
@@ -7,7 +7,7 @@
 
 #include "GaudiKernel/EventContext.h"
 
-#include "TrigConfHLTData/HLTUtils.h"
+#include "TrigConfHLTUtils/HLTUtils.h"
 
 #include <functional>
 #include <string>
