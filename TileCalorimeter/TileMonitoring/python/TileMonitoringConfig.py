@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -48,7 +48,7 @@ def TileMonitoringCfg(flags):
         from TileMonitoring.TileJetMonitorAlgorithm import TileJetMonitoringConfig
         acc.merge( TileJetMonitoringConfig(flags) )
 
-        if flags.IOVDb.DatabaseInstance == 'CONDBR2':
+        if flags.IOVDb.DatabaseInstance == 'CONDBR2' and flags.DQ.triggerDataAvailable:
             from TileMonitoring.TileTMDBRawChannelMonitorAlgorithm import TileTMDBRawChannelMonitorConfig
             acc.merge( TileTMDBRawChannelMonitorConfig(flags, Efficiency = True) )
 
