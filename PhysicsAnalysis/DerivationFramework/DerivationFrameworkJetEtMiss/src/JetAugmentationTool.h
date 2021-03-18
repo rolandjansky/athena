@@ -90,6 +90,15 @@ namespace DerivationFramework {
     SG::WriteDecorHandleKey<xAOD::JetContainer> m_tracksummass_key {this,"TrackSumMassKey", "", "Decoration for mass calculated from associated tracks"};
     SG::WriteDecorHandleKey<xAOD::JetContainer> m_tracksumpt_key {this,"TrackSumPtKey", "","Decoration for pt calculated from associated tracks"};
 
+    // Origin correction
+    ToolHandle<IJetModifier> m_jetOriginCorrectionTool{this, "JetOriginCorrectionTool", "", "Origin correction tool"};
+    bool m_decorateorigincorrection;
+    SG::WriteDecorHandleKey<xAOD::JetContainer> m_origincorrection_key{this, "OriginVertex", "", "Origin vertex (Autoconfigured)"};
+    SG::WriteDecorHandleKey<xAOD::JetContainer> m_originpt_key{this, "OriginPt", "", "Origin corrected pt (Autoconfigured)"};
+    SG::WriteDecorHandleKey<xAOD::JetContainer> m_origineta_key{this, "OriginEta", "", "Origin corrected eta (Autoconfigured)"};
+    SG::WriteDecorHandleKey<xAOD::JetContainer> m_originphi_key{this, "OriginPhi", "", "Origin corrected phi (Autoconfigured)"};
+    SG::WriteDecorHandleKey<xAOD::JetContainer> m_originm_key{this, "OriginM", "", "Origin corrected mass (Autoconfigured)"};
+
     // GhostTruthAssociation for derivations, @author jeff.dandoy@cern.ch
     ToolHandle<IJetModifier> m_jetPtAssociationTool;
     bool m_decorateptassociation;

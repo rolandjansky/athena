@@ -51,6 +51,7 @@ public:
   Gaudi::Property<std::string> m_correctionName{this, "OriginCorrectedName", "JetOriginConstitScaleMomentum", "Origin corrected name"};
   Gaudi::Property<std::string> m_jetContainerName{this, "JetContainer", "", "SG key for the input jet container"};
   Gaudi::Property<bool> m_onlyAssignPV{this, "OnlyAssignPV", false, "Only write out PV information"};
+  Gaudi::Property<bool> m_forceEMScale{this, "ForceEMScale", false, "Force apply origin correction at EM scale"};
 
 private:
 

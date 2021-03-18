@@ -122,7 +122,9 @@ StatusCode JetOriginCorrectionTool::decorate(const xAOD::JetContainer& jetCont) 
     ATH_MSG_DEBUG("                     jet pT: "<< jet->pt());
 
     if(!m_onlyAssignPV) {
-      xAOD::JetFourMom_t fv = jet::clusterOriginCorrection(*jet,*vx);
+      xAOD::CaloCluster::State state = xAOD::CaloCluster::UNKNOWN;
+      if(m_forceEMScale) state = xAOD::CaloCluster::UNCALIBRATED;
+      xAOD::JetFourMom_t fv = jet::clusterOriginCorrection(*jet,*vx,state);
       ATH_MSG_DEBUG("  " <<  m_correctionName << " pT: " << fv.pt());
       scaleMomentumPtHandle(*jet) = fv.pt();
       scaleMomentumPhiHandle(*jet) = fv.phi();
