@@ -54,6 +54,7 @@
 #include "G4IsotopeVector.hh"
 #include "G4Neutron.hh"
 #include "G4ProductionCutsTable.hh"
+#include "G4ios.hh"
 
 // CLHEP
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -369,6 +370,10 @@ bool iFatras::G4HadIntProcessor::initG4RunManager() const {
   ATH_MSG_INFO("material vector size for had interaction:"<< m_g4Material.size());
 
   //G4cout << *(G4Material::GetMaterialTable()) << std::endl;
+
+  // Flush the G4 cout/cerr: ATLASSIM-5137
+  G4cout << std::flush;
+  G4cerr << std::flush;
 
   return true;
 }
