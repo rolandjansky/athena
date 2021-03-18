@@ -1,17 +1,19 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1TGC/TGCDatabaseManager.h"
+#include "TrigT1TGC/TGCArguments.h"
 #include "TrigT1TGC/TGCConnectionPPToSL.h"
 #include "TrigT1TGC/TGCRPhiCoincidenceMap.h"
 #include "TrigT1TGC/TGCEIFICoincidenceMap.h"
-#include "TrigT1TGC/TGCTileMuCoincidenceMap.h"
+#include "TrigT1TGC/TGCTileMuCoincidenceLUT.h"
 #include "TrigT1TGC/TGCNSWCoincidenceMap.h"
 #include "TrigT1TGC/TGCGoodMF.h"
 #include "TrigT1TGC/TGCConnectionASDToPP.h"
 #include "TrigT1TGC/TGCConnectionInPP.h"
 #include "TrigT1TGC/TGCPatchPanel.h"
+#include "TrigT1TGC/Run2TileMuCoincidenceMap.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
@@ -70,22 +72,18 @@ void TGCDatabaseManager::addConnectionInPP(const TGCPatchPanel* patchPanel,
 				      (patchPanelIDs, cInPP_PPPs));
 }
 
-TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs)
+TGCDatabaseManager::TGCDatabaseManager()
  : AthMessaging(Athena::getMessageSvc(), "LVL1TGC::TGCDatabaseManager"),
-   m_mapTileMu(0),
-   m_tgcArgs(tgcargs)
+   m_tgcArgs(nullptr)
 {
-  setLevel(tgcArgs()->MSGLEVEL());
-
-  int i,j,k;
-  for( j=0; j<NumberOfRegionType; j+=1){
-    for( i=0; i<NumberOfPatchPanelType; i+=1){
-       for( k=0; k<TotalNumForwardBackwardType; k+=1){
+  for(int j=0; j<NumberOfRegionType; j+=1){
+    for(int i=0; i<NumberOfPatchPanelType; i+=1){
+       for(int k=0; k<TotalNumForwardBackwardType; k+=1){
          m_ASDToPP[j][i][k] = 0;
        }
     }
   }
-  for( i=0; i<NumberOfRegionType; i+=1){
+  for(int i=0; i<NumberOfRegionType; i+=1){
     m_PPToSL[i] = 0;
   }
   for (int side=0; side<NumberOfSide; side +=1) {
@@ -99,8 +97,7 @@ TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs)
 
 TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs,
 				       const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
-				       const SG::ReadCondHandleKey<TGCTriggerLUTs>& readLUTsCondKey,
-				       const std::string& ver, bool )
+				       const SG::ReadCondHandleKey<TGCTriggerLUTs>& readLUTsCondKey)
  : AthMessaging(Athena::getMessageSvc(), "LVL1TGC::TGCDatabaseManager"),
    m_tgcArgs(tgcargs)
 {
@@ -124,20 +121,21 @@ TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs,
     status = status && m_PPToSL[i]->readData((TGCRegionType)(i+1));
   }
 
-  // CW for SL
-  std::string ver_BW   = ver;
-  std::string ver_EIFI = ver;
-  std::string ver_TILE = ver;
-  std::string ver_NSW   = ver;
-  std::string ver_HotRoI   = ver;
-
-  std::vector<std::string> vers = TGCDatabaseManager::splitCW(ver, '_');
-  if (vers.size() == 3) { // for Run2
-    ver_BW   = "v" + vers[2];
-    ver_EIFI = "v" + vers[1];
-    ver_TILE = "v" + vers[0];
+  std::string version;
+  if(tgcArgs()->useRun3Config()) {
+    tgcArgs()->set_USE_CONDDB(false);
+    version = "1_01_01_06_02";
   }
-  else if(vers.size() == 5 && tgcArgs()->useRun3Config()) { // for Run3
+
+  // CW for SL (ONLY available for Run-3 development phase)
+  std::string ver_BW   = "02";
+  std::string ver_EIFI = "06";
+  std::string ver_TILE = "01";
+  std::string ver_NSW  = "01";
+  std::string ver_HotRoI = "1";
+
+  std::vector<std::string> vers = TGCDatabaseManager::splitCW(version, '_');
+  if(vers.size() == 5 && tgcArgs()->useRun3Config()) { // for Run3
     ver_BW   = "v" + vers[4];
     ver_EIFI = "v" + vers[3];
     ver_TILE = "v" + vers[2];
@@ -158,11 +156,9 @@ TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs,
     m_mapEIFI[side] = new TGCEIFICoincidenceMap(tgcArgs(), readCondKey, ver_EIFI, side);
   }
 
-  // Tile-Mu coincidence Map
-  m_mapTileMu = new TGCTileMuCoincidenceMap(tgcArgs(), readCondKey, ver_TILE);
-
-
   if(tgcArgs()->useRun3Config()){
+    // Tile-Muon LUT
+    m_tileMuLUT.reset(new LVL1TGC::TGCTileMuCoincidenceLUT(tgcArgs(), readCondKey, ver_TILE));
 
     // NSW coincidence Map
     if(tgcArgs()->USE_NSW()){
@@ -178,6 +174,10 @@ TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs,
 
     //Hot RoI LUT
     m_mapGoodMF.reset(new TGCGoodMF(tgcArgs(),ver_HotRoI));
+
+  } else {   // for Run-2
+    // Tile-Muon Coincidence Map (available on DB)
+    m_mapRun2TileMu.reset(new LVL1TGC::Run2TileMuCoincidenceMap(readCondKey));
   }
 }
 
@@ -212,13 +212,10 @@ TGCDatabaseManager::~TGCDatabaseManager()
   for(int side=0; side<NumberOfSide; side +=1) {
     delete m_mapEIFI[side];
   }
-
-  delete m_mapTileMu;
-  m_mapTileMu = 0;
 }
 
 TGCDatabaseManager::TGCDatabaseManager(const TGCDatabaseManager& right)
-  : AthMessaging(Athena::getMessageSvc(), "LVL1TGC::TGCDatabaseManager")
+ : AthMessaging(Athena::getMessageSvc(), "LVL1TGC::TGCDatabaseManager")
 {
   for(int j=0; j<NumberOfRegionType; j+=1){
     for(int i=0; i<NumberOfPatchPanelType; i+=1){
@@ -235,7 +232,6 @@ TGCDatabaseManager::TGCDatabaseManager(const TGCDatabaseManager& right)
       m_mapRphi[side][oct] = 0;
     }
   }
-  m_mapTileMu = 0;
 
   *this = right;
 }
@@ -267,8 +263,6 @@ TGCDatabaseManager::operator=(const TGCDatabaseManager& right)
 	m_mapRphi[side][oct] = new TGCRPhiCoincidenceMap(*(right.m_mapRphi[side][oct]));
       }
     }
-
-  m_mapTileMu = new TGCTileMuCoincidenceMap(*(right.m_mapTileMu));
 
     m_patchPanelToConnectionInPP = right.m_patchPanelToConnectionInPP;
   }
