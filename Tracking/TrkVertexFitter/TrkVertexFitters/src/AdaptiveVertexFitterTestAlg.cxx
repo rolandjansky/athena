@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file TrkVertexFitters/src/AdaptiveVertexFitterTestAlg.cxx
@@ -35,6 +35,8 @@ template <class T>
 std::vector<const T*> asVec (const std::vector<std::unique_ptr<T> >& v)
 {
   std::vector<const T*> ret;
+  ret.reserve(v.size());
+
   for (const std::unique_ptr<T>& p : v) {
     ret.push_back (p.get());
   }
@@ -46,6 +48,8 @@ std::vector<const Trk::TrackParameters*>
 asVec (const std::vector<std::unique_ptr<Trk::Perigee> >& v)
 {
   std::vector<const Trk::TrackParameters*> ret;
+  ret.reserve(v.size());
+
   for (const std::unique_ptr<Trk::Perigee>& p : v) {
     ret.push_back (p.get());
   }
@@ -57,7 +61,9 @@ std::vector<const Trk::NeutralParameters*>
 asVec (const std::vector<std::unique_ptr<Trk::NeutralPerigee> >& v)
 {
   std::vector<const Trk::NeutralParameters*> ret;
-  for (const std::unique_ptr<Trk::NeutralPerigee>& p : v) {
+  ret.reserve(v.size());
+
+for (const std::unique_ptr<Trk::NeutralPerigee>& p : v) {
     ret.push_back (p.get());
   }
   return ret;

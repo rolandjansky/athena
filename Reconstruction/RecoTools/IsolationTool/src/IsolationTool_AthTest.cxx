@@ -67,7 +67,7 @@ StatusCode IsolationTool_AthTest::initialize() {
 StatusCode IsolationTool_AthTest::finalize() {
   ATH_MSG_INFO ("Finalizing " << name() << "...");
 
-  for(auto d: m_decorators) {if(d) delete d;}
+  for(auto *d: m_decorators) {if(d) delete d;}
 
   return StatusCode::SUCCESS;
 }
@@ -83,7 +83,7 @@ StatusCode IsolationTool_AthTest::execute() {
    }
 
   /// Loop over tracks
-  for(auto particle : *toDecorate) {
+  for(const auto *particle : *toDecorate) {
 
     /// track isolation
     xAOD::TrackIsolation resultTrack;

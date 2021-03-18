@@ -35,7 +35,7 @@ namespace CP {
 
 
 	bool IsolationHelper::isolation(float& value, const xAOD::IParticle& par, xAOD::Iso::IsolationType type) const {
-		auto acc = xAOD::getIsolationAccessor( type );
+		const auto *acc = xAOD::getIsolationAccessor( type );
 		if(acc) {
 			value = (*acc)(par);
 		} else {
@@ -125,7 +125,7 @@ namespace CP {
 			for(auto type: types){
 				float value = 0;
 					if(!isolation(value, *par, type, corrMask)) return false;
-					auto acc = xAOD::getIsolationAccessor( type );
+					const auto *acc = xAOD::getIsolationAccessor( type );
                     if(acc){
                       (*acc)(*par) = value;
                     } else {
