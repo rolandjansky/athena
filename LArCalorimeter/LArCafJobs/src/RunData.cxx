@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -45,10 +45,9 @@ int RunData::triggerBitPosition(const TString& triggerBitName) const
 TString RunData::triggerBits() const
 {
   TString bits;
-  for (std::map<TString, unsigned int>::const_iterator bit = m_triggerConfig.begin();
-       bit != m_triggerConfig.end(); bit++) {
+  for (const std::pair<const TString, unsigned int>& bit : m_triggerConfig) {
     if (bits != "") bits += "\n";
-    bits += bit->first;
+    bits += bit.first;
   }
   return bits;
 }

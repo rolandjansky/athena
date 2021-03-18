@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCafJobs/PersistentAccessor.h"
@@ -191,18 +191,17 @@ PersistentAccessor* PersistentAccessor::merge(const std::vector<const Persistent
   std::map< std::pair<const PersistentAccessor*, int>, int > evtAccMap;
   
   cout << "Merging runs" << endl;
-  for (std::vector<const PersistentAccessor*>::const_iterator accessor = accessors.begin();
-       accessor != accessors.end(); accessor++) {
-    if (!*accessor) {
+  for (const PersistentAccessor* accessor : accessors) {
+    if (!accessor) {
       cout << "Cannot merge: one of the inputs is null!" << endl;
       delete newAcc;
       return 0;
     }
-    for (unsigned int i = 0; i < (*accessor)->nRuns(); i++) {
-      int run = (*accessor)->runData(i)->run();
+    for (unsigned int i = 0; i < accessor->nRuns(); i++) {
+      int run = accessor->runData(i)->run();
       if (runMap.find(run) != runMap.end()) continue;
       runMap[run] = runIndex;
-      RunData* newRun = new RunData(*(*accessor)->runData(i));
+      RunData* newRun = new RunData(*accessor->runData(i));
       newAcc->addRun(newRun);
       delete newRun;
       runIndex++;
@@ -211,25 +210,25 @@ PersistentAccessor* PersistentAccessor::merge(const std::vector<const Persistent
   
   cout << "Merging events" << endl;
   unsigned int nEventsTotal = 0, iEvt = 0;
-    for (std::vector<const PersistentAccessor*>::const_iterator accessor = accessors.begin();
-       accessor != accessors.end(); accessor++) nEventsTotal += (*accessor)->nEvents();  
-  for (std::vector<const PersistentAccessor*>::const_iterator accessor = accessors.begin();
-       accessor != accessors.end(); accessor++) {
-    for (unsigned int i = 0; i < (*accessor)->nEvents(); i++) {
+  for (const PersistentAccessor* accessor : accessors) {
+    nEventsTotal += accessor->nEvents();
+  }
+  for (const PersistentAccessor* accessor : accessors) {
+    for (unsigned int i = 0; i < accessor->nEvents(); i++) {
       iEvt++;
       if (iEvt % 100000 == 0) cout << "Merging event " << iEvt << "/" << nEventsTotal << endl;
-      std::pair<int, int> evtId((*accessor)->eventData(i)->run(), (*accessor)->eventData(i)->event());
-      std::pair<const PersistentAccessor*, int> evtAccId(*accessor, i);
+      std::pair<int, int> evtId(accessor->eventData(i)->run(), accessor->eventData(i)->event());
+      std::pair<const PersistentAccessor*, int> evtAccId(accessor, i);
       if (evtMap.find(evtId) != evtMap.end()) {
-        cout << "ERROR: Skipping duplicate entry for run " << (*accessor)->eventData(i)->run() << ", event " << (*accessor)->eventData(i)->event() << endl;
+        cout << "ERROR: Skipping duplicate entry for run " << accessor->eventData(i)->run() << ", event " << accessor->eventData(i)->event() << endl;
         continue;
       }
       evtAccMap[evtAccId] = evtIndex;
       evtMap[evtId] = evtIndex;
-      std::map<int, int>::const_iterator idx = runMap.find((*accessor)->eventData(i)->run());
+      std::map<int, int>::const_iterator idx = runMap.find(accessor->eventData(i)->run());
       int newRunIndex = (idx == runMap.end() ? -999 : idx->second);
-      //cout << "Storing eventData for run " << (*accessor)->eventData(i)->run() << " at index " << newRunIndex << " instead of " << (*accessor)->eventData(i)->runIndex() << endl;
-      EventData* newEvent = new EventData(*(*accessor)->eventData(i), newRunIndex);
+      //cout << "Storing eventData for run " << accessor->eventData(i)->run() << " at index " << newRunIndex << " instead of " << accessor->eventData(i)->runIndex() << endl;
+      EventData* newEvent = new EventData(*accessor->eventData(i), newRunIndex);
       newAcc->addEvent(newEvent);
       delete newEvent;
       evtIndex++;
@@ -242,9 +241,8 @@ PersistentAccessor* PersistentAccessor::merge(const std::vector<const Persistent
       //ClassCounts::printCountsTable();
     }
     HistoryContainer* newHistory = 0;
-    for (std::vector<const PersistentAccessor*>::const_iterator accessor = accessors.begin();
-         accessor != accessors.end(); accessor++) {
-      const HistoryContainer* history = (*accessor)->historyContainer(i);
+    for (const PersistentAccessor* accessor : accessors) {
+      const HistoryContainer* history = accessor->historyContainer(i);
       if (!history || !history->isValid()) continue;
       if (!newHistory) {
         info = new CellInfo(*history->cellInfo());
@@ -253,7 +251,7 @@ PersistentAccessor* PersistentAccessor::merge(const std::vector<const Persistent
       for (unsigned int j = 0; j < history->nDataContainers(); j++) {
         DataContainer* newDC = new DataContainer(*history->dataContainer(j));
         std::map<std::pair<const PersistentAccessor*, int>, int>::const_iterator newIndex 
-          = evtAccMap.find(std::make_pair(*accessor, history->dataContainer(j)->eventIndex()));
+          = evtAccMap.find(std::make_pair(accessor, history->dataContainer(j)->eventIndex()));
         if (newIndex == evtAccMap.end()) cout << "Event not found for cell " << i << ", data " << j << "." << endl;
         newDC->setEventIndex(newIndex != evtAccMap.end() ? newIndex->second : -1);
         newHistory->add(newDC);
@@ -279,16 +277,17 @@ PersistentAccessor* PersistentAccessor::merge(const std::vector<const Persistent
 PersistentAccessor* PersistentAccessor::merge(const std::vector<TString>& inputFiles, const TString& fileName)
 {
   std::vector<const PersistentAccessor*> accessors;
-  for (std::vector<TString>::const_iterator inputFile = inputFiles.begin(); inputFile != inputFiles.end(); inputFile++) {
-    PersistentAccessor* accessor = open(*inputFile);
+  for (const TString& inputFile : inputFiles) {
+    PersistentAccessor* accessor = open(inputFile);
     if (!accessor) {
-      cout << "ERROR : could not open file " << *inputFile << endl;
+      cout << "ERROR : could not open file " << inputFile << endl;
       return 0;
     }
     accessors.push_back(accessor);
   }
   PersistentAccessor* result = merge(accessors, fileName);
-  for (std::vector<const PersistentAccessor*>::iterator accessor = accessors.begin(); accessor != accessors.end(); accessor++) 
-    delete *accessor;
+  for (const PersistentAccessor* accessor : accessors) {
+    delete accessor;
+  }
   return result;
 }

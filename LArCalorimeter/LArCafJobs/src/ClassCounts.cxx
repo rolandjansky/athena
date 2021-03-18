@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCafJobs/ClassCounts.h"
@@ -41,7 +41,6 @@ void ClassCounts::printCountsTable()
 {
   cout << "Class instance counts : " << endl;
   if (!m_counts) return;
-  for (std::map<TString, int>::const_iterator count = counts().begin();
-       count != counts().end(); count++)
-    cout << Form("%20s : %-d", count->first.Data(), count->second) << endl;
+  for (const std::pair<const TString, int>& p : counts())
+    cout << Form("%20s : %-d", p.first.Data(), p.second) << endl;
 }
