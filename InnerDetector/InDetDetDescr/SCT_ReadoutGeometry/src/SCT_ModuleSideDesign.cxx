@@ -63,6 +63,7 @@ SCT_ModuleSideDesign::SCT_ModuleSideDesign(const double thickness,
     m_swapStripReadout(swapStripReadout) {
 }
 
+
 void SCT_ModuleSideDesign::neighboursOfCell(const SiCellId &cellId,
                                             std::vector<SiCellId> &neighbours) const {
     neighbours.clear();
@@ -101,4 +102,14 @@ SiCellId SCT_ModuleSideDesign::cellIdInRange(const SiCellId &cellId) const {
     }
     return cellId;
 }
+
+  void SCT_ModuleSideDesign::setMother(SCT_ModuleSideDesign * mother){
+    if(m_motherDesign){
+      const std::string errMsg=std::string("SCT_ModuleSideDesign already has a mother set!");
+	throw std::runtime_error(errMsg);
+    } 
+    m_motherDesign = mother;
+
+  }
+
 } // namespace InDetDD

@@ -68,7 +68,7 @@ namespace InDetDD {
     //@}
     /// Add tree top
     void addTreeTop(PVLink);
-    
+
     
     /**
      * @name Access Readout Elements
@@ -139,6 +139,11 @@ namespace InDetDD {
                                  GeoVAlignmentStore* alignStore=nullptr) const override;
 
 
+    //Mother designs are containers for multiple designs which
+    //overall describe a simulated detector which has been split into multiple
+    //DetectorElements (each with its own design)
+    void addMotherDesign(std::unique_ptr<const SCT_ModuleSideDesign>&&);
+
   private:
     /**
      * implements the main alignment update for delta transforms in different frames,
@@ -168,7 +173,8 @@ namespace InDetDD {
     std::vector<std::unique_ptr<ExtendedAlignableTransform>>    m_alignableTransforms;
     std::vector<std::unique_ptr<ExtendedAlignableTransform>>    m_moduleAlignableTransforms;
     const SCT_ID*                                               m_idHelper;
-      
+    std::vector<std::unique_ptr<const SCT_ModuleSideDesign>>          m_motherDesigns;
+
     /**
      * This variable switches the how the local alignment corrections are applied
      * If true they will be calcualted on top  of all of other corrections but in the default reference frame

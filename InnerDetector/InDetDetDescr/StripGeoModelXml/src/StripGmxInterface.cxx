@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StripGeoModelXml/StripGmxInterface.h"
@@ -40,7 +40,7 @@ StripGmxInterface::~StripGmxInterface() {
     delete m_log;
 }
 
-int StripGmxInterface::sensorId(map<string, int> &index) {
+int StripGmxInterface::sensorId(map<string, int> &index) const{
 //
 //    Return the Simulation HitID (nothing to do with "ATLAS Identifiers" aka "Offline Identifiers"
     
@@ -59,7 +59,36 @@ int StripGmxInterface::sensorId(map<string, int> &index) {
     
 }
 
+int StripGmxInterface::splitSensorId(map<string, int> &index, pair<string,int> &extraIndex, map<string, int> &updatedIndex ) const{
+//
+//    Return the Simulation HitID (nothing to do with "ATLAS Identifiers" aka "Offline Identifiers"
+ 
+  if(extraIndex.first != "eta_module"){
+    *m_log << MSG::FATAL  << "Base Identifier: " << index["barrel_endcap"] << " " << index["layer_wheel"] << " " << 
+                                       index["eta_module"] << " " << index["phi_module"] << " " << index["side"] << endmsg;
+    *m_log << MSG::FATAL  <<  "Attempting to split "<< extraIndex.second << endmsg;
+    *m_log << MSG::FATAL << "Only splitting of eta_module supported for ITk strips!!!" << endmsg;
+    return -1;
+  }
+  
+  //add the required amount to the requested field
+  updatedIndex = index;
+  updatedIndex[extraIndex.first] += extraIndex.second;  
 
+  int hitIdOfWafer = SiHitIdHelper::GetHelper()->buildHitId(SCT_HitIndex, index["barrel_endcap"], index["layer_wheel"], 
+							    index["eta_module"]+extraIndex.second, index["phi_module"], index["side"]);
+  
+  *m_log << MSG::DEBUG  << "Index list: " << index["barrel_endcap"] << " " << index["layer_wheel"] << " " << 
+    index["eta_module"]+extraIndex.second << " " << index["phi_module"] << " " << index["side"] << endmsg;
+  *m_log << MSG::DEBUG << "hitIdOfWafer = " << std::hex << hitIdOfWafer << std::dec << endmsg;
+  *m_log << MSG::DEBUG << " bec = " << SiHitIdHelper::GetHelper()->getBarrelEndcap(hitIdOfWafer) << 
+                                      " lay = " << SiHitIdHelper::GetHelper()->getLayerDisk(hitIdOfWafer) << 
+    " eta = " << SiHitIdHelper::GetHelper()->getEtaModule(hitIdOfWafer) << 
+    " phi = " << SiHitIdHelper::GetHelper()->getPhiModule(hitIdOfWafer) << 
+    " side = " << SiHitIdHelper::GetHelper()->getSide(hitIdOfWafer) << endmsg; 
+  return hitIdOfWafer;
+  
+}
 void StripGmxInterface::addSensorType(string clas, string typeName, map<string, string> parameters) {
 
     *m_log << MSG::DEBUG << "StripGmxInterface::addSensorType called for class " << clas << " typeName " << typeName << 
@@ -74,6 +103,7 @@ void StripGmxInterface::addSensorType(string clas, string typeName, map<string, 
         *m_log << MSG::ERROR << "StripGmxInterface::addSensorType: unrecognised sensor class, " << clas << endmsg;
         *m_log << MSG::ERROR << "No sensor design created" << endmsg;
     }
+
 }
 
 void StripGmxInterface::makeSiStripBox(string typeName, map<string, string> &par) { 
@@ -157,18 +187,51 @@ double length(25.0);
 //
 //    Make Sensor Design and add to DetectorManager
 //
-//   ADA    const InDetDD::StripBoxDesign *design = new InDetDD::StripBoxDesign(stripDirection, fieldDirection, thickness, readoutSide,
-//   ADA                                                                        carrier, nRows, nStrips, pitch, length);
-    std::unique_ptr<InDetDD::StripBoxDesign> design=std::make_unique<InDetDD::StripBoxDesign>(stripDirection, fieldDirection,
-                                                                        thickness, readoutSide,carrier, nRows, nStrips, pitch,
-                                                                        length);
 
-//   ADA    m_detectorManager->addDesign(dynamic_cast<const InDetDD::SiDetectorDesign*> (design));
-    m_detectorManager->addDesign(std::move(design));
-//
-//    Add to map for addSensor routine
+    int split = 0;
+    if(checkparm(typeName, "splitLevel", par, split)){
+      
+      //start from middle of first strip row
+      double initZShift = length * ( -(double)split*0.5 + 0.5 ) ; 
 
-    m_geometryMap[typeName] = m_detectorManager->numDesigns() -1;
+      //now, the "Mother"...
+      //This is a container for all the other designs, to allow navigation
+      //between the different rows on a simulated sensor in the HITS
+      std::unique_ptr<InDetDD::StripBoxDesign> motherDesign=std::make_unique<InDetDD::StripBoxDesign>(stripDirection, fieldDirection, thickness, readoutSide,carrier, nRows, nStrips, pitch,length);
+      
+
+      for(int i = 0;i<split;i++){
+	for(int side:{0,1}){//need different additional shift transform per side...
+	  int sign = (side==0) ? 1:-1;//...because shift in different direction per side
+	  double zShift = sign*(initZShift + (i*length));
+	  
+	  std::unique_ptr<InDetDD::StripBoxDesign> design=std::make_unique<InDetDD::StripBoxDesign>(stripDirection, fieldDirection,thickness, readoutSide,carrier, 1, nStrips, pitch,length,zShift);//single row
+	  
+	  design->setMother(motherDesign.get());
+	  motherDesign->addChildDesign(i,design.get());
+
+	  std::string splitName = typeName+"_"+std::to_string(i)+"_"+std::to_string(side);
+	  m_geometryMap[splitName] = design.get();
+	  m_detectorManager->addDesign(std::move(design));
+
+	}
+      }
+
+      m_motherMap[typeName] = motherDesign.get();
+      m_detectorManager->addMotherDesign(std::move(motherDesign));
+
+    }
+                                                                      
+    else{
+      std::unique_ptr<InDetDD::StripBoxDesign> design=std::make_unique<InDetDD::StripBoxDesign>(stripDirection, fieldDirection,
+												thickness, readoutSide,carrier, nRows, nStrips, pitch,length);
+      
+      //    Add to map for addSensor routine
+      
+      m_geometryMap[typeName] = design.get();
+      m_detectorManager->addDesign(std::move(design));
+  
+    }
 }
 
 void StripGmxInterface::makeStereoAnnulus(string typeName, map<std::string, string> &par) { 
@@ -274,19 +337,68 @@ vector<double> endR;
         *m_log << MSG::FATAL << "StripGmxInterface::makeStereoAnnulus: Error: Wrong number of endR's " << typeName << endmsg;
         exit(999);
     }
+
+    std::vector<int> singleRowStrips;
+    std::vector<double> singleRowPitch;
+    std::vector<double> singleRowMinR;
+    std::vector<double> singleRowMaxR;
+
 //
 //    Make Sensor Design and add it to the DetectorManager
 //
 //   ADA    const InDetDD::StripStereoAnnulusDesign *design = new InDetDD::StripStereoAnnulusDesign(stripDirection, fieldDirection,
 //   ADA     thickness, readoutSide, carrier, nRows, nStrips, phiPitch, startR, endR, stereoAngle, centreR); 
-    std::unique_ptr<InDetDD::StripStereoAnnulusDesign> design=std::make_unique<InDetDD::StripStereoAnnulusDesign>(stripDirection,
-        fieldDirection,thickness, readoutSide, carrier, nRows, nStrips, phiPitch, startR, endR, stereoAngle, centreR);
-//   ADA    m_detectorManager->addDesign(dynamic_cast <const InDetDD::SiDetectorDesign*> (design));
-    m_detectorManager->addDesign(std::move(design));
-//
-//    Add to map for addSensor routine
 
-    m_geometryMap[typeName] = m_detectorManager->numDesigns() -1;
+     int split = 0;
+     if(checkparm(typeName, "splitLevel", par, split)){
+       
+       	 //now the mother...
+
+       std::unique_ptr<InDetDD::StripStereoAnnulusDesign> motherDesign=std::make_unique<InDetDD::StripStereoAnnulusDesign>(stripDirection,fieldDirection,thickness, readoutSide, carrier, nRows,nStrips,phiPitch,startR,endR,stereoAngle,centreR);
+       
+       for(int i = 0;i<split;i++){
+	 
+	 
+	 singleRowStrips.clear();
+	 singleRowPitch.clear();
+	 singleRowMinR.clear();
+	 singleRowMaxR.clear();
+	 
+	 
+	 singleRowStrips.push_back(nStrips[i]);
+	 singleRowPitch.push_back(phiPitch[i]);
+	 singleRowMinR.push_back(startR[i]);
+	 singleRowMaxR.push_back(endR[i]);
+	 
+	 double thisCentreR = (singleRowMinR[0]+singleRowMaxR[0])*0.5;
+	 
+	 std::unique_ptr<InDetDD::StripStereoAnnulusDesign> design=std::make_unique<InDetDD::StripStereoAnnulusDesign>(stripDirection,fieldDirection,thickness, readoutSide, carrier, 1, singleRowStrips, singleRowPitch, singleRowMinR, singleRowMaxR, stereoAngle, thisCentreR);
+
+	  //
+	 //    Add to map for addSensor routine
+
+	 std::string splitName = typeName+"_"+std::to_string(i);
+	 
+	 design->setMother(motherDesign.get());
+	 motherDesign->addChildDesign(i,design.get());
+	 
+	 m_geometryMap[splitName] = design.get();
+	 m_detectorManager->addDesign(std::move(design));
+	
+       }
+       //finally, declare to the manager (now becomes const)
+       m_motherMap[typeName] = motherDesign.get();
+       m_detectorManager->addMotherDesign(std::move(motherDesign));
+       
+     } 
+     
+     else{
+       std::unique_ptr<InDetDD::StripStereoAnnulusDesign> design=std::make_unique<InDetDD::StripStereoAnnulusDesign>(stripDirection,fieldDirection,thickness, readoutSide, carrier, nRows,nStrips,phiPitch,startR,endR,stereoAngle,centreR);
+       
+       m_geometryMap[typeName] = design.get();
+       m_detectorManager->addDesign(std::move(design));
+     }
+     
 }
 
 string StripGmxInterface::getstr(const string typeName, const string name, const map<string, string> &par) {
@@ -301,6 +413,72 @@ string StripGmxInterface::getstr(const string typeName, const string name, const
     }
 
 }
+
+void StripGmxInterface::addSplitSensor(string typeName, map<string, int> &index, pair<string, int> &extraIndex, int /*hitIdOfWafer*/, GeoVFullPhysVol *fpv) {
+  
+
+  map<string, int> updatedIndex;
+  splitSensorId(index,extraIndex,updatedIndex);
+  int splitIndex = extraIndex.second;
+  //
+//    Get the ATLAS "Offline" wafer identifier 
+//
+    const SCT_ID *sctIdHelper = dynamic_cast<const SCT_ID *> (m_commonItems->getIdHelper());
+    Identifier id = sctIdHelper->wafer_id(updatedIndex["barrel_endcap"], updatedIndex["layer_wheel"], updatedIndex["phi_module"], 
+                                          updatedIndex["eta_module"], updatedIndex["side"]);
+    IdentifierHash hashId = sctIdHelper->wafer_hash(id);
+    //
+    //    Now do our best to check if this is a valid id. If either the gmx file is wrong, or the xml file
+    //    defining the allowed id's is wrong, you can get disallowed id's. These cause a crash later 
+    //    if allowed through. To do the check, we ask for the hash-id of this id. Invalid ids give a 
+    //    special invalid hash-id (0xFFFFFFFF). But we don't exit the run, to help debug things quicker.
+    //
+    if (!hashId.is_valid()) {
+      *m_log << MSG::ERROR <<"Invalid id for sensitive wafer " << typeName << " volume with indices \n";
+      for (map<string, int>::iterator i = updatedIndex.begin(); i != index.end(); ++i) {
+	*m_log << MSG::ERROR << i->first << " = " << i->second << "; ";
+      }
+      *m_log << MSG::ERROR << 
+	"\nRefusing to make it into a sensitive element. Incompatible gmx and identifier-xml files." << endmsg;
+      return;
+    }
+    //
+    //    Create the detector element and add to the DetectorManager
+    //
+    
+
+    
+    string splitTypeName = typeName + "_" + std::to_string(splitIndex);
+    if(updatedIndex["barrel_endcap"]==0){//only barrel-type have side dependence
+      splitTypeName += "_" + std::to_string(updatedIndex["side"]);
+    }
+
+    const InDetDD::SiDetectorDesign *design = m_geometryMap[splitTypeName];
+
+    if (!design) {
+      *m_log << MSG::FATAL << "StripGmxInterface::addSensor: Error: Readout sensor type " << typeName << 
+	" not found.\n" << endmsg;
+      exit(999);
+    }
+    
+    
+    InDetDD::SiDetectorElement *detector = new InDetDD::SiDetectorElement(id, design, fpv, m_commonItems);
+    m_detectorManager->addDetectorElement(detector);
+
+    //
+    //    Build up a map-structure for numerology
+    //
+    Wafer wafer((unsigned int) hashId);
+    string errorMessage("");
+    if (!m_waferTree->add(updatedIndex["barrel_endcap"], updatedIndex["layer_wheel"], updatedIndex["eta_module"], 
+                          updatedIndex["phi_module"], updatedIndex["side"], wafer, errorMessage)) {
+      *m_log << MSG::ERROR << errorMessage << endmsg;
+    }
+    
+    return;
+    
+}
+
 
 void StripGmxInterface::addSensor(string typeName, map<string, int> &index, int /*sensitiveId*/, GeoVFullPhysVol *fpv) {
 //
@@ -328,7 +506,8 @@ void StripGmxInterface::addSensor(string typeName, map<string, int> &index, int 
 //
 //    Create the detector element and add to the DetectorManager
 //
-    const InDetDD::SiDetectorDesign *design = m_detectorManager->getDesign(m_geometryMap[typeName]);
+
+    const InDetDD::SiDetectorDesign *design = m_geometryMap[typeName];
 
     if (!design) {
         *m_log << MSG::FATAL << "StripGmxInterface::addSensor: Error: Readout sensor type " << typeName << 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STRIPGEOMODELXML_STRIPGMXINTERFACE_H
@@ -19,20 +19,36 @@
 #include "StripGeoModelXml/WaferTree.h"
 
 class MsgStream;
-namespace InDetDD {class SiDetectorDesign; class SCT_DetectorManager; class SiCommonItems;}
+namespace InDetDD {class SiDetectorDesign; class SCT_DetectorManager; class SiCommonItems; class SCT_ModuleSideDesign;}
 
 class StripGmxInterface: public GmxInterface {
 public:
     StripGmxInterface(InDetDD::SCT_DetectorManager *detectorManager, InDetDD::SiCommonItems *commonItems, WaferTree *waferTree);
     ~StripGmxInterface();
-    int sensorId(std::map<std::string, int> &index);
+    int sensorId(std::map<std::string, int> &index) const override final;
+    int splitSensorId(std::map<std::string, int> &index, std::pair<std::string, int> &extraIndex, std::map<std::string, int> &updatedIndex) const override final; //For "artificially" adding to Identifiers; specify the field (e.g. "eta_module") and the value to add
     void addSensorType(std::string clas, std::string typeName, std::map<std::string, std::string> parameters);
     void addSensor(std::string typeName, std::map<std::string, int> &index, int sequentialId, 
-                   GeoVFullPhysVol *fpv);
+                   GeoVFullPhysVol *fpv) override final;
+    void addSplitSensor(std::string typeName, std::map<std::string, int> &index, std::pair<std::string, int> &extraIndex, int sequentialId, GeoVFullPhysVol *fpv) override final;
     void addAlignable(int level, std::map<std::string, int> &index, GeoVFullPhysVol *fpv, 
                       GeoAlignableTransform *transform);
     void makeSiStripBox(std::string typeName, std::map<std::string, std::string> &par);
     void makeStereoAnnulus(std::string typeName, std::map<std::string, std::string> &par);
+
+    template <typename T> bool checkparm(const std::string /*typeName*/, const std::string name, 
+					 const std::map<std::string, std::string> &par, T &value){
+      //Needs some kind of versioning to stop this being abused...
+      std::map<std::string, std::string>::const_iterator found;
+      if ((found = par.find(name)) != par.end()) {
+	std::istringstream(found->second) >> value;
+	return true;
+      }
+      else {
+	return false;
+      }
+
+    }
 
     template <typename T> void getparm(const std::string typeName, const std::string name, 
                                        const std::map<std::string, std::string> &par, T &value) {
@@ -69,7 +85,8 @@ public:
     std::string getstr(const std::string typeName, const std::string name, const std::map<std::string, std::string> &par);
 
 private:
-    std::map<std::string, int> m_geometryMap;
+    std::map<std::string, const InDetDD::SiDetectorDesign *> m_geometryMap;
+    std::map<std::string, const InDetDD::SCT_ModuleSideDesign *> m_motherMap;
     InDetDD::SCT_DetectorManager *m_detectorManager;
     InDetDD::SiCommonItems *m_commonItems;
     WaferTree *m_waferTree;

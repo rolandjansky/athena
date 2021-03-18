@@ -76,7 +76,8 @@ public:
                          const SiDetectorDesign::Axis stripDirection,
                          const SiDetectorDesign::Axis thicknessDirection);
 
-    /** Destructor: */
+
+/** Destructor: */
     virtual ~SCT_ModuleSideDesign() = default;
 
     /** readout id -> id of connected diodes
@@ -166,6 +167,12 @@ public:
     virtual int row(int stripId1Dim) const;    // For SCT, is 0; otherwise takes a 1-dim strip ID and returns its row
     virtual int strip(int stripId1Dim) const;  // For SCT, returns stripId1Dim; otherwise returns strip within row.
     virtual int strip1Dim(int strip, int row) const;   // For SCT, returns strip. Else inverse of above two.
+
+    void setMother(SCT_ModuleSideDesign* mother);
+    const SCT_ModuleSideDesign * getMother() const;
+    std::map<int, const SCT_ModuleSideDesign *> getChildren() const;
+    void addChildDesign(int index, const SCT_ModuleSideDesign * element);
+
 private:
     SCT_ModuleSideDesign();
 
@@ -184,6 +191,12 @@ protected:
 private:
     bool m_swapStripReadout;    // !< Flag to indicate if readout direction is opposite
                                 // !< to hit local phi direction
+    
+    //container design for split sensors - owned by DetectorManager
+    const SCT_ModuleSideDesign * m_motherDesign{nullptr};
+    //if this design *is* a mother design, these are its children
+    std::map<int, const SCT_ModuleSideDesign *>  m_childDesigns;
+
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -255,5 +268,19 @@ inline int SCT_ModuleSideDesign::strip(int stripId1Dim) const {
 inline int SCT_ModuleSideDesign::strip1Dim(int strip, int /*row not used */) const {
     return strip;
 }
+
+ inline const SCT_ModuleSideDesign * SCT_ModuleSideDesign::getMother() const {
+   return m_motherDesign;
+ }
+ 
+ inline std::map<int, const SCT_ModuleSideDesign *> SCT_ModuleSideDesign::getChildren() const {
+   return m_childDesigns;
+ }
+
+
+ inline void SCT_ModuleSideDesign::addChildDesign(int index, const SCT_ModuleSideDesign * child) {
+   m_childDesigns.emplace(index,child);
+ }
+
 } // namespace InDetDD
 #endif // INDETREADOUTGEOMETRY_SCT_MODULESIDEDESIGN_H

@@ -392,4 +392,8 @@ bool SCT_DetectorManager::processSpecialAlignment(const std::string& /*key*/,
 
 }
 
+  void SCT_DetectorManager::addMotherDesign(std::unique_ptr<const SCT_ModuleSideDesign>&& motherDesign){
+    m_motherDesigns.push_back(std::move(motherDesign));
+  }
+
 } // namespace InDetDD

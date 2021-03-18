@@ -40,7 +40,7 @@ PixelGmxInterface::PixelGmxInterface(InDetDD::PixelDetectorManager *detectorMana
 PixelGmxInterface::~PixelGmxInterface() {
 }
 
-int PixelGmxInterface::sensorId(map<string, int> &index){
+int PixelGmxInterface::sensorId(map<string, int> &index) const {
   //
   //    Return the Simulation HitID (nothing to do with "ATLAS Identifiers" aka "Offline Identifiers")
 

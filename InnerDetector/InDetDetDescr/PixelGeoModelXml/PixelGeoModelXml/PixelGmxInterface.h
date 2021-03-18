@@ -26,7 +26,7 @@ class PixelGmxInterface: public GmxInterface {
  public:
   PixelGmxInterface(InDetDD::PixelDetectorManager *detectorManager, InDetDD::SiCommonItems *commonItems, ModuleTree *moduleTree);
   ~PixelGmxInterface();
-  int sensorId(std::map<std::string, int> &index) override final;
+  int sensorId(std::map<std::string, int> &index) const override final;
   void addSensorType(std::string clas, std::string typeName, std::map<std::string, std::string> parameters) override final;
   void addSensor(std::string typeName, std::map<std::string, int> &index, int sequentialId, 
 		 GeoVFullPhysVol *fpv) override final;

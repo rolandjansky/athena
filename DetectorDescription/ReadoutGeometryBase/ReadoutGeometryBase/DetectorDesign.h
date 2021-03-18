@@ -171,6 +171,9 @@ public:
     //virtual const HepGeom::Transform3D SiHitToGeoModel() const;
     virtual const Amg::Transform3D SiHitToGeoModel() const;
 
+    //Transform for "split" modules
+    virtual const Amg::Transform3D moduleShift() const;
+
     ///////////////////////////////////////////////////////////
     //
     // The following will replace existing methods but are not all implemented yet
