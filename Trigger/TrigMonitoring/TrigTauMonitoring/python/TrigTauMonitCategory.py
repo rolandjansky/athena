@@ -1,24 +1,9 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-monitoring_tau_FTK = [
-        'tau12_idperf_FTK',
-        'tau12_perf_FTK',
-        'tau12_perf0_FTK',
-        'tau12_perf_FTKNoPrec',
-        'tau12_perf0_FTKNoPrec',
-        'tau12_medium0_FTK',
-        'tau12_medium1_FTK',
-        'tau12_medium0_FTKNoPrec',
-        'tau12_medium1_FTKNoPrec',
-        'tau25_idperf_tracktwo_L1TAU12IM_FTK',
-        'tau25_perf_tracktwo_L1TAU12IM_FTK',
-        'tau25_medium1_tracktwo_L1TAU12IM_FTK'
-] 
-
 monitoring_singleTau = [
     'tau25_medium1_tracktwo'
-
 ]
+
 monitoring_tau = [
     'tau0_perf_ptonly_L1TAU12',
     'tau0_perf_ptonly_L1TAU60',
@@ -96,19 +81,10 @@ monitoring_tau_validation = [
         'tau25_perf_tracktwoEF_L1TAU12IM',
         'tau25_perf_tracktwoMVA_L1TAU12IM',
         'tau25_perf_tracktwoMVABDT_L1TAU12IM',
-        'tau25_looseRNN_track_L1TAU12IM',
-        'tau25_looseRNN_tracktwo_L1TAU12IM',
-        'tau25_looseRNN_tracktwoEF_L1TAU12IM',
         'tau25_looseRNN_tracktwoMVA_L1TAU12IM',
         'tau25_looseRNN_tracktwoMVABDT_L1TAU12IM',       
-        'tau25_mediumRNN_track_L1TAU12IM',
-        'tau25_mediumRNN_tracktwo_L1TAU12IM',
-        'tau25_mediumRNN_tracktwoEF_L1TAU12IM',
         'tau25_mediumRNN_tracktwoMVA_L1TAU12IM',
         'tau25_mediumRNN_tracktwoMVABDT_L1TAU12IM',
-        'tau25_tightRNN_track_L1TAU12IM',
-        'tau25_tightRNN_tracktwo_L1TAU12IM',
-        'tau25_tightRNN_tracktwoEF_L1TAU12IM',
         'tau25_tightRNN_tracktwoMVA_L1TAU12IM',
         'tau25_tightRNN_tracktwoMVABDT_L1TAU12IM',
         'tau25_medium1_track_L1TAU12IM',
@@ -128,19 +104,10 @@ monitoring_tau_validation = [
         'tau35_perf_tracktwoEF_L1TAU12IM',
         'tau35_perf_tracktwoMVA_L1TAU12IM',
         'tau35_perf_tracktwoMVABDT_L1TAU12IM',
-        'tau35_looseRNN_track_L1TAU12IM',
-        'tau35_looseRNN_tracktwo_L1TAU12IM',
-        'tau35_looseRNN_tracktwoEF_L1TAU12IM',
         'tau35_looseRNN_tracktwoMVA_L1TAU12IM',
         'tau35_looseRNN_tracktwoMVABDT_L1TAU12IM',
-        'tau35_mediumRNN_track_L1TAU12IM',
-        'tau35_mediumRNN_tracktwo_L1TAU12IM',
-        'tau35_mediumRNN_tracktwoEF_L1TAU12IM',
         'tau35_mediumRNN_tracktwoMVA_L1TAU12IM',
         'tau35_mediumRNN_tracktwoMVABDT_L1TAU12IM',
-        'tau35_tightRNN_track_L1TAU12IM',
-        'tau35_tightRNN_tracktwo_L1TAU12IM',
-        'tau35_tightRNN_tracktwoEF_L1TAU12IM',
         'tau35_tightRNN_tracktwoMVA_L1TAU12IM',
         'tau35_tightRNN_tracktwoMVABDT_L1TAU12IM',
         # tau160
@@ -155,9 +122,6 @@ monitoring_tau_validation = [
         'tau160_perf_tracktwoEF_L1TAU100',
         'tau160_perf_tracktwoMVA_L1TAU100',
         'tau160_perf_tracktwoMVABDT_L1TAU100',
-        'tau160_mediumRNN_track_L1TAU100',
-        'tau160_mediumRNN_tracktwo_L1TAU100',
-        'tau160_mediumRNN_tracktwoEF_L1TAU100',
         'tau160_mediumRNN_tracktwoMVA_L1TAU100',
         'tau160_mediumRNN_tracktwoMVABDT_L1TAU100',
         'tau160_medium1_track_L1TAU100',
@@ -165,18 +129,6 @@ monitoring_tau_validation = [
         'tau160_medium1_tracktwoEF_L1TAU100',
         'tau160_medium1_tracktwoMVA_L1TAU100',
         'tau160_medium1_tracktwoMVABDT_L1TAU100',
-        # tau200
-        'tau200_mediumRNN_ptonly_L1TAU100',
-        'tau200_mediumRNN_track_L1TAU100',
-        'tau200_mediumRNN_tracktwo_L1TAU100',
-        'tau200_mediumRNN_tracktwoEF_L1TAU100',
-        'tau200_mediumRNN_tracktwoMVA_L1TAU100',
-        'tau200_mediumRNN_tracktwoMVABDT_L1TAU100',
-        'tau200_medium1_track_L1TAU100',
-        'tau200_medium1_tracktwo_L1TAU100',
-        'tau200_medium1_tracktwoEF_L1TAU100',
-        'tau200_medium1_tracktwoMVA_L1TAU100',
-        'tau200_medium1_tracktwoMVABDT_L1TAU100',
 ]
 
 monitoring_tau_cosmic = [

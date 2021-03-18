@@ -143,7 +143,7 @@ void FastReducer::collectLeafJets(xAODJetCollector& jetCollector,
       collector->collect("FastReducer", ss.str());
     }
 
-    // ... use the elemental jet group induces to recover the jets
+    // ... use the elemental jet group indices to recover the jets
 
     // if the leaf not jet is one of the jets that contributes to
     // passing root, store it in the collector, labelled by the leaf node
@@ -175,7 +175,6 @@ bool FastReducer::findInitialJetGroups(const HypoJetCIter& jets_b,
     Will now test the incoming jets against the leaf conditions.
   */
 
-  std::size_t ijg{0};
   auto leaves = m_tree.leaves();
 
   // if a jet group satisfies a condition, note the fact,
@@ -184,33 +183,72 @@ bool FastReducer::findInitialJetGroups(const HypoJetCIter& jets_b,
   for(const auto& leaf: leaves){
 
     auto& filter = m_conditionFilters[leaf];
-    auto filtered_jets = filter->filter(jets_b, jets_e, collector);
+    std::pair<HypoJetCIter, HypoJetCIter> iters =
+      filter->filter(jets_b, jets_e, collector);
 
-    recordFiltering(leaf, jets_e-jets_b, filtered_jets.size(), collector);
+    recordFiltering(leaf, jets_e-jets_b, iters.second-iters.first, collector);
 
-    
     auto grouper = grouperByCapacityFactory(m_conditions[leaf]->capacity(),
-					    filtered_jets.begin(),
-					    filtered_jets.end());
+					    iters.first,
+					    iters.second);
 
     while(true){
-      auto ojg = grouper->next();
+      auto ojg = grouper->next();  // obtain a vector of jet ptrs
       if (!ojg.has_value()) {break;}
-
+      
       auto jg = *ojg;
-      auto jg_ind = m_jgRegister.record(jg);
+      auto jg_ind = m_jgRegister.record(jg);  // obtain an int index for the jg
       m_testedBy[leaf].insert(jg_ind);
+
       if (m_conditions[leaf]->isSatisfied(jg, collector)){
+
 	if(collector){recordJetGroup(jg_ind, jg, collector);}
-	// do the following for each satisfied condition ...
+
+	// note the index if the jet group if it passes a Condition
 	m_satisfiedBy[leaf].push_back(jg_ind);
-	m_jg2elemjgs[jg_ind] =  std::vector<std::size_t>{jg_ind};
+
+	// keep track of the indices for the individual jets that
+	// make up the passing jet group.
+	//
+	// m_jg2elemjgs[idx] = {idx1, idx2, idx3}
+	// where idx is the index of the jet group, and {} is a
+	// vector containing the individual jet group indices of
+	// the jet group with index idx.
+	//
+	// if the jet group contains a single jet, this reduces to 
+	// m_jg2elemjgs[idx] = {idx}
+	
+	std::vector<std::size_t>& elem_indices =  m_jg2elemjgs[jg_ind];
+	if (elem_indices.empty()) {  // first time jg_ind is seen
+	  if (jg.size() > 1) {
+	    elem_indices.reserve(jg.size());
+	    for (const auto& hj : jg){
+
+	      // deal with a jet member of the jet group
+	      auto single_jet_group = std::vector{hj};
+	      auto single_jet_index = m_jgRegister.record(single_jet_group);
+	      auto& single_jet_elems = m_jg2elemjgs[single_jet_index];
+	      if (single_jet_elems.empty()) {
+		single_jet_elems.push_back(single_jet_index);
+		m_indJetGroup.emplace(single_jet_index, single_jet_group);
+	      }
+
+	      // add the index of the individual jet to m_jg2elemjgs[jg_ind]
+	      elem_indices.push_back(single_jet_index);
+	    }
+	  } else {
+	    // one jet in the jet group: its index maps onto a vector containing
+	    // only its index.
+	    elem_indices.push_back(jg_ind);
+	  }
+	}
+
+	// update jet gtoup index to jet group map.
 	m_indJetGroup.emplace(jg_ind, jg);
-	++ijg;
       }
     }
   }
-    
+  
   if(collector){
     for(const auto& p : m_indJetGroup){
       recordJetGroup(p.first, p.second, collector);
@@ -223,9 +261,10 @@ bool FastReducer::findInitialJetGroups(const HypoJetCIter& jets_b,
       return false;
     }
   }
-  
+
   return true;
-}  
+  
+}
   
 
 bool FastReducer::propagateJetGroups(const Collector& collector){
@@ -331,66 +370,67 @@ bool FastReducer::propagate_(std::size_t child,
 					collector);
    
   // obtain the next product of jet groups passing siblings
-  auto next = jg_product->next(collector);
+  auto jg_indices = jg_product->next(collector);
 
   // step through the jet groups found by combining ghe child groups
   // check ecach combination to see if it satisfies the parent. If so
   // add an edge from the contributing children, and from the new jet group to the parent.
 
-  while (next.has_value()){  // optional fails if there are no more products
+  while (!jg_indices.empty()){  // empty jg_inidices: end of iteration
     
-    auto jg_indices = *next;
-
-    std::vector<std::size_t> elem_jgs;
+    std::vector<std::size_t> elem_indices;
 
     // flatten the jet groups participating in the product to a list of
     // elemental jet groups (ie the incoming jets). The entities being
     // manipulated are integer indexes.
     
     for(auto i : jg_indices){
-      elem_jgs.insert(elem_jgs.end(),
+      elem_indices.insert(elem_indices.end(),
 		      m_jg2elemjgs[i].begin(),
 		      m_jg2elemjgs[i].end());
     }
 
     // if any of the elemental jet group indices are repeated,
-    // stop processing of the new jet group. (do not allow sharing for
-    // among leaf nodes. Sharing is handled by processing > 1 leaf groups
-    // each of which does not share.
+    // stop processing the new jet group. (do not allow sharing for
+    // among Conditions. Sharing is handled by having the matcher use
+    // multiple FastReducer instances).
 
-    std::set<std::size_t> unique_indices(elem_jgs.begin(),
-					 elem_jgs.end());
-    if(unique_indices.size() != elem_jgs.size()){
-      next = jg_product->next(collector);
+    std::sort(elem_indices.begin(), elem_indices.end());
+    if (std::unique(elem_indices.begin(),
+		    elem_indices.end()) != elem_indices.end()){
+      jg_indices = jg_product->next(collector);
       continue;
     }
 
+    // use the elemental jet group indices to form a vector of jet pointers
     HypoJetVector jg;
-    for(const auto& i : elem_jgs){
-      jg.push_back(m_indJetGroup.at(i)[0]);  // why [0]? assume elemental jg has size 1
+    for(const auto& i : elem_indices){
+      const auto& jetGroup = m_indJetGroup.at(i);
+      jg.insert(jg.end(), jetGroup.begin(), jetGroup.end());
+    }
+
+    // obtain an index for the new jet group.
+    auto cur_jg = m_jgRegister.record(jg);
+
+    // keep track of which jet groups a Condition sees.
+    if(m_testedBy[par].find(cur_jg) != m_testedBy[par].end()){
+      jg_indices = jg_product->next(collector);
+      continue;
     }
     
-    // obtain an index for the new jet group.
-    // auto cur_jg = m_jgIndAllocator(elem_jgs);
-    auto cur_jg = m_jgRegister.record(jg);
-    if(m_testedBy[par].find(cur_jg) != m_testedBy[par].end()){
-      next = jg_product->next(collector);
-      continue;
-    }
     m_testedBy[par].insert(cur_jg);
-	
 
-
+    // check if parent is satisfied by a jet group (vector of jet ptrs)
     if (m_conditions[par]->isSatisfied(jg, collector)){// par is a tree ind.
 
-      // get an index for this set of elementary jet group indices
+      // get an index for this vector of elementary jet group indices
       m_satisfiedBy[par].push_back(cur_jg);
 
-      m_jg2elemjgs[cur_jg] = elem_jgs;
+      m_jg2elemjgs[cur_jg] = elem_indices;
       if(collector){recordJetGroup(cur_jg, jg, collector);}
     }
     
-    next = jg_product->next(collector);
+    jg_indices = jg_product->next(collector);
   }
 
   // check if enough jet groups pass the parent condition
@@ -429,7 +469,7 @@ std::string FastReducer::toString() const {
 std::string FastReducer::dataStructuresToStr() const {
 
    std::stringstream ss;
-  ss << "FastReducer data structure dumps\nindJetGroup:\n";
+  ss << "FastReducer data structure dumps\nindToJetGroup:\n";
   for(const auto& pair : m_indJetGroup){
     ss << pair.first << " [";
     for(const auto& j : pair.second){

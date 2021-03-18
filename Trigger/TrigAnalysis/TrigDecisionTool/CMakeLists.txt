@@ -6,7 +6,7 @@ atlas_subdir( TrigDecisionTool )
 # External dependencies:
 find_package( Boost )
 find_package( ROOT COMPONENTS Core )
-set( ROOT_LIRBARIES_NOPYTHON ${ROOT_LIBRARIES} )
+set( ROOT_LIBRARIES_NOPYTHON ${ROOT_LIBRARIES} )
 unset( ROOT_FOUND )
 find_package( ROOT COMPONENTS Core PyROOT ROOTTPython )
 

@@ -1,6 +1,13 @@
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root"]
 
+# Work around cling bugs, triggered by the use of TauAnalysisTools
+# in METMakerConfig.
+import ROOT
+ROOT.gROOT.ProcessLine ('#include "xAODTracking/TrackParticleContainer.h"')
+ROOT.gROOT.ProcessLine ('#include "xAODJet/JetContainer.h"')
+ROOT.gROOT.ProcessLine ('#include "xAODCaloEvent/CaloClusterContainer.h"')
+
 from RecExConfig.RecFlags import rec
 rec.doEgamma.set_Value_and_Lock(False)
 rec.doMuon.set_Value_and_Lock(True)

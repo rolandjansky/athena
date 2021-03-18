@@ -57,7 +57,7 @@ double TElectronMCShifterTool::shiftVar(double eT,double eta,ElePIDNames::Var va
   if (var == ElePIDNames::fside                 && val == 0.) {return val;}
 
   int ibin_combined = getShifterEtBin(eT)*9+getShifterEtaBin(eta); //Convert the 2d
-  if(Shifts.size() == 0) return val;
+  if(Shifts.empty()) return val;
   return val + Shifts[var].at(ibin_combined);
 }
 
@@ -72,7 +72,7 @@ double TElectronMCShifterTool::shiftVarByBin(int eTBin,int etaBin,ElePIDNames::V
   if (var == ElePIDNames::fside                 && val == 0.) {return val;}
 
   int ibin_combined = eTBin*9+etaBin; //Convert the 2d
-  if(Shifts.size() == 0) return val;
+  if(Shifts.empty()) return val;
   return val + Shifts[var].at(ibin_combined);
 }
 
@@ -99,58 +99,58 @@ void TElectronMCShifterTool::shiftAll( float eT,
                                      ) {
   int ibin_combined = getShifterEtBin(eT)*9+getShifterEtaBin(eta); //Convert the 2d
 
-  if(Widths[ElePIDNames::Var::deltaeta1].size() != 0){
+  if(!Widths[ElePIDNames::Var::deltaeta1].empty()){
     deltaeta1 = deltaeta1 * Widths[ElePIDNames::Var::deltaeta1].at(ibin_combined);
   }
-  if(Widths[ElePIDNames::Var::deltaphiRescaled].size() != 0){
+  if(!Widths[ElePIDNames::Var::deltaphiRescaled].empty()){
     deltaphiRescaled = deltaphiRescaled * Widths[ElePIDNames::Var::deltaphiRescaled].at(ibin_combined);
   }
-  if(Widths[ElePIDNames::Var::rhad].size() != 0){
+  if(!Widths[ElePIDNames::Var::rhad].empty()){
     rhad = rhad * Widths[ElePIDNames::Var::rhad].at(ibin_combined);
     rhad1 = rhad1 * Widths[ElePIDNames::Var::rhad].at(ibin_combined);
   }
-  if(Widths[ElePIDNames::Var::f1].size() != 0){
+  if(!Widths[ElePIDNames::Var::f1].empty()){
     f1 = f1 * Widths[ElePIDNames::Var::f1].at(ibin_combined);
   }
-  if(Widths[ElePIDNames::Var::f3].size() != 0){
+  if(!Widths[ElePIDNames::Var::f3].empty()){
     f3 = f3 * Widths[ElePIDNames::Var::f3].at(ibin_combined);
   }
-  if(Widths[ElePIDNames::Var::weta2].size() != 0){
+  if(!Widths[ElePIDNames::Var::weta2].empty()){
     weta2 = weta2 * Widths[ElePIDNames::Var::weta2].at(ibin_combined);
   }
 
-  if(Shifts[ElePIDNames::Var::f1].size() != 0){
+  if(!Shifts[ElePIDNames::Var::f1].empty()){
     if ( f1 != 0){ f1 = f1 + Shifts[ElePIDNames::Var::f1].at(ibin_combined); }
   }
-  if(Shifts[ElePIDNames::Var::f3].size() != 0){
+  if(!Shifts[ElePIDNames::Var::f3].empty()){
     if ( f3 != 0){ f3 = f3 + Shifts[ElePIDNames::Var::f3].at(ibin_combined); }
   }
-  if(Shifts[ElePIDNames::Var::reta].size() != 0){
+  if(!Shifts[ElePIDNames::Var::reta].empty()){
     reta = reta + Shifts[ElePIDNames::Var::reta].at(ibin_combined);
   }
-  if(Shifts[ElePIDNames::Var::weta2].size() != 0){
+  if(!Shifts[ElePIDNames::Var::weta2].empty()){
     weta2 = weta2 + Shifts[ElePIDNames::Var::weta2].at(ibin_combined);
   }
-  if(Shifts[ElePIDNames::Var::eratio].size() != 0){
+  if(!Shifts[ElePIDNames::Var::eratio].empty()){
     if ( eratio != 1){ eratio = eratio + Shifts[ElePIDNames::Var::eratio].at(ibin_combined); }
   }
-  if(Shifts[ElePIDNames::Var::rhad].size() != 0){
+  if(!Shifts[ElePIDNames::Var::rhad].empty()){
     rhad = rhad + Shifts[ElePIDNames::Var::rhad].at(ibin_combined);
     rhad1 = rhad1 + Shifts[ElePIDNames::Var::rhad].at(ibin_combined);
   }
-  if(Shifts[ElePIDNames::Var::rphi].size() != 0){
+  if(!Shifts[ElePIDNames::Var::rphi].empty()){
     rphi = rphi + Shifts[ElePIDNames::Var::rphi].at(ibin_combined);
   }
-  if(Shifts[ElePIDNames::Var::fside].size() != 0){
+  if(!Shifts[ElePIDNames::Var::fside].empty()){
     if( fside!=0){ fside = fside + Shifts[ElePIDNames::Var::fside].at(ibin_combined); };
   }
-  if(Shifts[ElePIDNames::Var::ws3].size() != 0){
+  if(!Shifts[ElePIDNames::Var::ws3].empty()){
     ws3 = ws3 + Shifts[ElePIDNames::Var::ws3].at(ibin_combined);
   }
-  if(Shifts[ElePIDNames::Var::e277].size() != 0){
+  if(!Shifts[ElePIDNames::Var::e277].empty()){
     e277 = e277 + Shifts[ElePIDNames::Var::e277].at(ibin_combined);
   }
-  if(Shifts[ElePIDNames::Var::DeltaE].size() != 0){
+  if(!Shifts[ElePIDNames::Var::DeltaE].empty()){
     DeltaE = DeltaE + Shifts[ElePIDNames::Var::DeltaE].at(ibin_combined);
   }
 

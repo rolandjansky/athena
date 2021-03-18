@@ -62,8 +62,16 @@ ToolSvc += ElectronTrkMagField
 #
 # set up geometry
 #
-include('TrkDetDescrSvc/AtlasTrackingGeometrySvc.py')
-from __main__ import AtlasTrackingGeometrySvc
+from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
+geom_svc=None
+geom_cond_key=''
+if not use_tracking_geometry_cond_alg :
+	from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+	acc = TrackingGeometrySvcCfg(flags)
+	geom_svc = acc.getPrimary()
+else :
+	from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
+	geom_cond_key = 'AtlasTrackingGeometry'
 #
 # get propagator
 #
@@ -81,8 +89,8 @@ ToolSvc += ElectronTrkStepPropagator
 #
 from TrkExTools.TrkExToolsConf import Trk__Navigator
 ElectronTrkNavigator = Trk__Navigator(name = 'ElectronTrkNavigator',
-                                #TrackingGeometrySvc = AtlasTrackingGeometrySvc
-                                )
+			TrackingGeometrySvc = geom_svc,
+			TrackingGeometryKey = geom_cond_key)
 ToolSvc += ElectronTrkNavigator
 #
 # Setup the MaterialEffectsUpdator

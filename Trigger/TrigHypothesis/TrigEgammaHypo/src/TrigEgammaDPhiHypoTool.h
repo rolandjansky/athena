@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGEGAMMAHYPO_TRIGEGAMMADPHIHYPOTOOL_H
@@ -20,13 +20,6 @@
 #include <vector>
 
 #include "DecisionHandling/ComboHypoToolBase.h"
-
-#include "xAODTracking/TrackParticleContainer.h"
-#include "xAODTrigEgamma/TrigPhoton.h"
-#include "xAODEgamma/PhotonContainer.h"
-#include "xAODEgamma/EgammaContainer.h"
-#include "xAODBase/IParticleContainer.h"
-
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 
@@ -51,7 +44,6 @@ class TrigEgammaDPhiHypoTool:  public ComboHypoToolBase {
                     const std::string& name,
                     const IInterface* parent);
   
-  virtual ~TrigEgammaDPhiHypoTool() {};
   virtual StatusCode initialize() override;
 
 

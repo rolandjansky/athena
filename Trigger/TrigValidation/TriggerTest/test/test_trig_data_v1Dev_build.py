@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # art-description: Trigger BS->RDO_TRIG athena test of the Dev_pp_run3_v1 menu
 # art-type: build
@@ -36,7 +36,7 @@ test.check_steps = CheckSteps.default_check_steps(test)
 msgcount = test.get_step("MessageCount")
 msgcount.thresholds = {
   'WARNING': 600,
-  'INFO': 1200,
+  'INFO': 1220,
   'other': 80
 }
 msgcount.required = True # make the test exit code depend on this step
@@ -46,6 +46,7 @@ chaindump = test.get_step("ChainDump")
 chaindump.args = '--json --yaml ref_data_v1Dev_build.new'
 refcomp = CheckSteps.ChainCompStep("CountRefComp")
 refcomp.input_file = 'ref_data_v1Dev_build.new'
+refcomp.reference_from_release = True # installed from TriggerTest/share
 refcomp.required = True # Final exit code depends on this step
 CheckSteps.add_step_after_type(test.check_steps, CheckSteps.ChainDumpStep, refcomp)
 

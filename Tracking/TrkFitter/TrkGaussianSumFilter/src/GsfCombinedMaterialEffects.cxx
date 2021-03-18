@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file GsfCombinedMaterialEffects.cxx
@@ -9,17 +9,121 @@
  */
 
 #include "TrkGaussianSumFilter/GsfCombinedMaterialEffects.h"
+#include "PathResolver/PathResolver.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "TrkExUtils/MaterialInteraction.h"
+#include "TrkGeometry/Layer.h"
 #include "TrkGeometry/MaterialProperties.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/Surface.h"
+#include <cmath>
+#include <fstream>
 
 namespace {
 const Trk::ParticleMasses s_particleMasses{};
+constexpr double s_singleGaussianRange = 0.0001;
+constexpr double s_lowerRange = 0.002;
+constexpr double s_xOverRange = 0.10;
+constexpr double s_upperRange = 0.20;
+constexpr double s_componentMeanCut = 0.0;
+inline bool
+inRange(int var, int lo, int hi)
+{
+  return ((var <= hi) and (var >= lo));
 }
 
+// Logistic function - needed for transformation of weight and mean
+inline double
+logisticFunction(const double x)
+{
+  return 1. / (1. + std::exp(-x));
+}
+
+using BH = Trk::GsfCombinedMaterialEffects;
+void
+correctWeights(BH::MixtureParameters& mixture, const int numberOfComponents)
+{
+
+  if (numberOfComponents < 1) {
+    return;
+  }
+  // Obtain the sum of weights
+  double weightSum(0.);
+  for (int i = 0; i < numberOfComponents; ++i) {
+    weightSum += mixture[i].weight;
+  }
+  // Rescale so that total weighting is 1
+  for (int i = 0; i < numberOfComponents; ++i) {
+    mixture[i].weight /= weightSum;
+  }
+}
+
+BH::MixtureParameters
+getTranformedMixtureParameters(
+  const std::array<BH::Polynomial, GSFConstants::maxNumberofBHComponents>&
+    polynomialWeights,
+  const std::array<BH::Polynomial, GSFConstants::maxNumberofBHComponents>&
+    polynomialMeans,
+  const std::array<BH::Polynomial, GSFConstants::maxNumberofBHComponents>&
+    polynomialVariances,
+  const double pathlengthInX0,
+  const int numberOfComponents)
+{
+
+  BH::MixtureParameters mixture{};
+  for (int i = 0; i < numberOfComponents; ++i) {
+    const double updatedWeight = polynomialWeights[i](pathlengthInX0);
+    const double updatedMean = polynomialMeans[i](pathlengthInX0);
+    const double updatedVariance = polynomialVariances[i](pathlengthInX0);
+    mixture[i] = { logisticFunction(updatedWeight),
+                   logisticFunction(updatedMean),
+                   std::exp(updatedVariance) };
+  }
+  return mixture;
+}
+
+BH::MixtureParameters
+getMixtureParameters(
+  const std::array<BH::Polynomial, GSFConstants::maxNumberofBHComponents>&
+    polynomialWeights,
+  const std::array<BH::Polynomial, GSFConstants::maxNumberofBHComponents>&
+    polynomialMeans,
+  const std::array<BH::Polynomial, GSFConstants::maxNumberofBHComponents>&
+    polynomialVariances,
+  const double pathlengthInX0,
+  const int numberOfComponents)
+{
+
+  BH::MixtureParameters mixture{};
+  for (int i = 0; i < numberOfComponents; ++i) {
+    const double updatedWeight = polynomialWeights[i](pathlengthInX0);
+    const double updatedMean = polynomialMeans[i](pathlengthInX0);
+    const double updatedVariance = polynomialVariances[i](pathlengthInX0);
+    mixture[i] = { updatedWeight,
+                   updatedMean,
+                   updatedVariance * updatedVariance };
+  }
+  return mixture;
+}
+
+Trk::GsfCombinedMaterialEffects::Polynomial
+readPolynomial(std::ifstream& fin)
+{
+  Trk::GsfCombinedMaterialEffects::Polynomial poly{};
+  for (size_t i = 0; i < GSFConstants::polynomialCoefficients; ++i) {
+    if (!fin) {
+      throw std::runtime_error(
+        "Reached end of stream but still expecting data.");
+    }
+    fin >> poly.coefficients[i];
+  }
+  return poly;
+}
+
+} // end of Anonymous namespace for Helper methods
+
+// GsfCombinedMaterialEffects methods
 Trk::GsfCombinedMaterialEffects::GsfCombinedMaterialEffects(
   const std::string& type,
   const std::string& name,
@@ -35,8 +139,130 @@ StatusCode
 Trk::GsfCombinedMaterialEffects::initialize()
 {
   ATH_CHECK(m_EnergyLossUpdator.retrieve());
-  ATH_CHECK(m_betheHeitlerEffects.retrieve());
+  if (!readBHParameters()) {
+    ATH_MSG_ERROR(
+      "Bethe Heitler Parameters could NOT be successfully imported from file");
+    return StatusCode::FAILURE;
+  }
   return StatusCode::SUCCESS;
+}
+
+bool
+Trk::GsfCombinedMaterialEffects::readBHParameters()
+{
+
+  // Read std polynomial
+  std::string resolvedFileName =
+    PathResolver::find_file(m_parameterisationFileName, "DATAPATH");
+  if (!resolvedFileName.empty()) {
+    ATH_MSG_INFO("Parameterisation file found: " << resolvedFileName);
+  } else {
+    ATH_MSG_ERROR("Parameterisation file not found");
+    return false;
+  }
+
+  const char* filename = resolvedFileName.c_str();
+  std::ifstream fin(filename);
+  if (fin.bad()) {
+    ATH_MSG_ERROR("Error opening file: " << resolvedFileName);
+    return false;
+  }
+
+  int orderPolynomial;
+  fin >> m_BHnumberOfComponents;
+  fin >> orderPolynomial;
+  fin >> m_BHtransformationCode;
+  //
+  if (not inRange(
+        m_BHnumberOfComponents, 0, GSFConstants::maxNumberofBHComponents)) {
+    ATH_MSG_ERROR("numberOfComponents Parameter out of range 0- "
+                  << GSFConstants::maxNumberofBHComponents << " : "
+                  << m_BHnumberOfComponents);
+    return false;
+  }
+  if (orderPolynomial != (GSFConstants::polynomialCoefficients - 1)) {
+    ATH_MSG_ERROR("orderPolynomial  order !=  "
+                  << (GSFConstants::polynomialCoefficients - 1));
+    return false;
+  }
+  if (not inRange(m_BHtransformationCode, 0, 1)) {
+    ATH_MSG_ERROR("transformationCode Parameter out of range 0-1: "
+                  << m_BHtransformationCode);
+    return false;
+  }
+  if (!fin) {
+    ATH_MSG_ERROR("Error while reading file : " << resolvedFileName);
+    return false;
+  }
+
+  // Fill the polynomials
+  int componentIndex = 0;
+  for (; componentIndex < m_BHnumberOfComponents; ++componentIndex) {
+    m_BHpolynomialWeights[componentIndex] = readPolynomial(fin);
+    m_BHpolynomialMeans[componentIndex] = readPolynomial(fin);
+    m_BHpolynomialVariances[componentIndex] = readPolynomial(fin);
+  }
+
+  // Read the high X0 polynomial
+  if (m_useHighX0) {
+    resolvedFileName =
+      PathResolver::find_file(m_parameterisationFileNameHighX0, "DATAPATH");
+    if (!resolvedFileName.empty()) {
+      ATH_MSG_INFO("Parameterisation file found: " << resolvedFileName);
+    } else {
+      ATH_MSG_ERROR("Parameterisation file not found");
+      return false;
+    }
+
+    const char* filename = resolvedFileName.c_str();
+    std::ifstream fin(filename);
+
+    if (fin.bad()) {
+      ATH_MSG_ERROR("Error opening file: " << resolvedFileName);
+      return false;
+    }
+
+    fin >> m_BHnumberOfComponentsHighX0;
+    fin >> orderPolynomial;
+    fin >> m_BHtransformationCodeHighX0;
+    //
+    if (not inRange(m_BHnumberOfComponentsHighX0,
+                    0,
+                    GSFConstants::maxNumberofBHComponents)) {
+      ATH_MSG_ERROR("numberOfComponentsHighX0 Parameter out of range 0- "
+                    << GSFConstants::maxNumberofBHComponents << " : "
+                    << m_BHnumberOfComponentsHighX0);
+      return false;
+    }
+    if (m_BHnumberOfComponentsHighX0 != m_BHnumberOfComponents) {
+      ATH_MSG_ERROR(" numberOfComponentsHighX0 != numberOfComponents");
+      return false;
+    }
+    if (orderPolynomial != (GSFConstants::polynomialCoefficients - 1)) {
+      ATH_MSG_ERROR("orderPolynomial  order !=  "
+                    << (GSFConstants::polynomialCoefficients - 1));
+      return false;
+    }
+    if (not inRange(m_BHtransformationCodeHighX0, 0, 1)) {
+      ATH_MSG_ERROR("transformationCode Parameter out of range "
+                    "0-1: "
+                    << m_BHtransformationCodeHighX0);
+      return false;
+    }
+    if (fin.bad()) {
+      ATH_MSG_ERROR("Error reading file: " << resolvedFileName);
+      return false;
+    }
+
+    // Fill the polynomials
+    int componentIndex = 0;
+    for (; componentIndex < m_BHnumberOfComponentsHighX0; ++componentIndex) {
+      m_BHpolynomialWeightsHighX0[componentIndex] = readPolynomial(fin);
+      m_BHpolynomialMeansHighX0[componentIndex] = readPolynomial(fin);
+      m_BHpolynomialVariancesHighX0[componentIndex] = readPolynomial(fin);
+    }
+  }
+  return true;
 }
 
 void
@@ -52,7 +278,7 @@ Trk::GsfCombinedMaterialEffects::compute(
   /*
    * 1.  Retrieve multiple scattering corrections
    */
-  GSFScatteringCache cache_multipleScatter;
+  Trk::GSFScatteringCache cache_multipleScatter;
   this->scattering(
     cache_multipleScatter, componentParameters, materialProperties, pathLength);
 
@@ -61,11 +287,11 @@ Trk::GsfCombinedMaterialEffects::compute(
    */
   Trk::GSFEnergyLossCache cache_energyLoss;
   if (particleHypothesis == electron) {
-    m_betheHeitlerEffects->compute(cache_energyLoss,
-                                   componentParameters,
-                                   materialProperties,
-                                   pathLength,
-                                   direction);
+    this->BetheHeitler(cache_energyLoss,
+                       componentParameters,
+                       materialProperties,
+                       pathLength,
+                       direction);
   } else if (particleHypothesis != nonInteracting) {
     this->energyLoss(cache_energyLoss,
                      componentParameters,
@@ -114,7 +340,7 @@ Trk::GsfCombinedMaterialEffects::compute(
 
 void
 Trk::GsfCombinedMaterialEffects::scattering(
-  GSFScatteringCache& cache,
+  Trk::GSFScatteringCache& cache,
   const ComponentParameters& componentParameters,
   const MaterialProperties& materialProperties,
   double pathLength) const
@@ -199,3 +425,136 @@ Trk::GsfCombinedMaterialEffects::energyLoss(
   cache.elements[0] = { 1., deltaE, sigmaQoverP * sigmaQoverP };
   cache.numElements = 1;
 }
+
+void
+Trk::GsfCombinedMaterialEffects::BetheHeitler(
+  Trk::GSFEnergyLossCache& cache,
+  const Trk::ComponentParameters& componentParameters,
+  const Trk::MaterialProperties& materialProperties,
+  double pathLength,
+  Trk::PropDirection direction,
+  Trk::ParticleHypothesis) const
+{
+  cache.numElements = 0;
+
+  const Trk::TrackParameters* trackParameters = componentParameters.first.get();
+  const Amg::Vector3D& globalMomentum = trackParameters->momentum();
+
+  const double radiationLength = materialProperties.x0();
+  const double momentum = globalMomentum.mag();
+  double pathlengthInX0 = pathLength / radiationLength;
+
+  if (pathlengthInX0 < s_singleGaussianRange) {
+    cache.elements[0] = { 1., 0., 0. };
+    cache.numElements = 1;
+    return;
+  }
+
+  // If the amount of material is between 0.0001 and 0.01 return the gaussian
+  // approximation to the Bethe-Heitler distribution
+  if (pathlengthInX0 < s_lowerRange) {
+    const double meanZ = std::exp(-1. * pathlengthInX0);
+    const double sign = (direction == Trk::oppositeMomentum) ? 1. : -1.;
+    const double varZ =
+      std::exp(-1. * pathlengthInX0 * std::log(3.) / std::log(2.)) -
+      std::exp(-2. * pathlengthInX0);
+    double deltaP(0.);
+    double varQoverP(0.);
+    if (direction == Trk::alongMomentum) {
+      deltaP = sign * momentum * (1. - meanZ);
+      varQoverP = 1. / (meanZ * meanZ * momentum * momentum) * varZ;
+    } else {
+      deltaP = sign * momentum * (1. / meanZ - 1.);
+      varQoverP = varZ / (momentum * momentum);
+    }
+    cache.elements[0] = { 1., deltaP, varQoverP };
+    cache.numElements = 1;
+    return;
+  }
+
+  // Now we do the full calculation
+  if (pathlengthInX0 > s_upperRange) {
+    pathlengthInX0 = s_upperRange;
+  }
+
+  // Get proper mixture parameters
+  MixtureParameters mixture;
+  if (m_useHighX0 && pathlengthInX0 > s_xOverRange) {
+    if (m_BHtransformationCodeHighX0) {
+      mixture = getTranformedMixtureParameters(m_BHpolynomialWeightsHighX0,
+                                               m_BHpolynomialMeansHighX0,
+                                               m_BHpolynomialVariancesHighX0,
+                                               pathlengthInX0,
+                                               m_BHnumberOfComponents);
+    } else {
+      mixture = getMixtureParameters(m_BHpolynomialWeightsHighX0,
+                                     m_BHpolynomialMeansHighX0,
+                                     m_BHpolynomialVariancesHighX0,
+                                     pathlengthInX0,
+                                     m_BHnumberOfComponents);
+    }
+  } else {
+    if (m_BHtransformationCode) {
+      mixture = getTranformedMixtureParameters(m_BHpolynomialWeights,
+                                               m_BHpolynomialMeans,
+                                               m_BHpolynomialVariances,
+                                               pathlengthInX0,
+                                               m_BHnumberOfComponents);
+    } else {
+      mixture = getMixtureParameters(m_BHpolynomialWeights,
+                                     m_BHpolynomialMeans,
+                                     m_BHpolynomialVariances,
+                                     pathlengthInX0,
+                                     m_BHnumberOfComponents);
+    }
+  }
+
+  // Correct the mixture
+  correctWeights(mixture, m_BHnumberOfComponents);
+
+  int componentIndex = 0;
+  double weightToBeRemoved(0.);
+  int componentWithHighestMean(0);
+  for (; componentIndex < m_BHnumberOfComponents; ++componentIndex) {
+    if (mixture[componentIndex].mean > mixture[componentWithHighestMean].mean) {
+      componentWithHighestMean = componentIndex;
+    }
+    if (mixture[componentIndex].mean >= s_componentMeanCut) {
+      continue;
+    }
+    weightToBeRemoved += mixture[componentIndex].weight;
+  }
+  // Fill the cache to be returned
+  componentIndex = 0;
+  for (; componentIndex < m_BHnumberOfComponents; ++componentIndex) {
+    double varianceInverseMomentum;
+    // This is not mathematically correct but it does stabilize the GSF
+    if (mixture[componentIndex].mean < s_componentMeanCut) {
+      continue;
+    }
+    double weight = mixture[componentIndex].weight;
+    if (componentIndex == componentWithHighestMean) {
+      weight += weightToBeRemoved;
+    }
+    double deltaP(0.);
+    if (direction == alongMomentum) {
+      // For forward propagation
+      deltaP = momentum * (mixture[componentIndex].mean - 1.);
+      const double f = 1. / (momentum * mixture[componentIndex].mean);
+      varianceInverseMomentum = f * f * mixture[componentIndex].variance;
+    } // end forward propagation if clause
+    else {
+      // For backwards propagation
+      deltaP = momentum * (1. / mixture[componentIndex].mean - 1.);
+      varianceInverseMomentum =
+        mixture[componentIndex].variance / (momentum * momentum);
+    } // end backwards propagation if clause
+
+    // set in the cache and increase the elements
+    cache.elements[cache.numElements] = { weight,
+                                          deltaP,
+                                          varianceInverseMomentum };
+    ++cache.numElements;
+  } // end for loop over all components
+}
+

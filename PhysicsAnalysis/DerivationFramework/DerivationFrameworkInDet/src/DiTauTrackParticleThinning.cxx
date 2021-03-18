@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -10,10 +10,6 @@
 // which removes all ID tracks which do not pass a user-defined cut
 
 #include "DerivationFrameworkInDet/DiTauTrackParticleThinning.h"
-#include "ExpressionEvaluation/ExpressionParser.h"
-#include "ExpressionEvaluation/SGxAODProxyLoader.h"
-#include "ExpressionEvaluation/MultipleProxyLoader.h"
-#include "ExpressionEvaluation/SGNTUPProxyLoader.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "StoreGate/ThinningHandle.h"
 #include "GaudiKernel/ThreadLocalContext.h"
@@ -42,12 +38,8 @@ StatusCode DerivationFramework::DiTauTrackParticleThinning::initialize()
     ATH_MSG_INFO("Inner detector track particles associated with objects in " << m_ditauKey.key() << " will be retained in this format with the rest being thinned away");
 
     // Set up the text-parsing machinery for selectiong the ditau directly according to user cuts
-    if (m_selectionString!="") {
-      ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
-      proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
-      proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
-      m_parser = std::make_unique<ExpressionParsing::ExpressionParser>(proxyLoaders);
-      m_parser->loadExpression(m_selectionString);
+    if (!m_selectionString.empty()) {
+       ATH_CHECK(initializeParser(m_selectionString));
     }
     return StatusCode::SUCCESS;
 }
@@ -56,7 +48,7 @@ StatusCode DerivationFramework::DiTauTrackParticleThinning::finalize()
 {
     ATH_MSG_VERBOSE("finalize() ...");
     ATH_MSG_INFO("Processed "<< m_ntot <<" tracks, "<< m_npass<< " were retained ");
-    m_parser.reset();
+    ATH_CHECK( finalizeParser() );
     return StatusCode::SUCCESS;
 }
 
@@ -90,7 +82,7 @@ StatusCode DerivationFramework::DiTauTrackParticleThinning::doThinning() const
     std::vector<const xAOD::DiTauJet*> ditauToCheck; ditauToCheck.clear();
     
     // Execute the text parser if requested
-    if (m_selectionString!="") {
+    if (!m_selectionString.empty()) {
         std::vector<int> entries =  m_parser->evaluateAsVector();
         unsigned int nEntries = entries.size();
         // check the sizes are compatible

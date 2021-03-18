@@ -11,7 +11,7 @@ import json
 @memoize
 def getTrigConfFromCool(runNumber, lumiBlock):
     from TrigConfStorage.TriggerCoolUtil import TriggerCoolUtil 
-    db = TriggerCoolUtil.GetConnection('CONDBR2')
+    db = TriggerCoolUtil.GetConnection('CONDBR2' if runNumber > 230000 else 'COMP')
     runRange = [[runNumber,runNumber]]
     d = {key: value for key, value in TriggerCoolUtil.getHLTConfigKeys(db, runRange)[runNumber].items() if  key in ["SMK", "DB"]}
     d["DB"] = d["DB"].split(';')[0]

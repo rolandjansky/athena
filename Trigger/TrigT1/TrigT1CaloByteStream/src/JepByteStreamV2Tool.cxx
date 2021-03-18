@@ -109,7 +109,10 @@ StatusCode JepByteStreamV2Tool::initialize()
 
   ATH_CHECK( m_jemMaps.retrieve() );
   ATH_CHECK( m_errorTool.retrieve() );
-  ATH_CHECK( m_byteStreamCnvSvc.retrieve() );
+  if (m_enableEncoding.value()) {
+      m_byteStreamCnvSvc = serviceLocator()->service("ByteStreamCnvSvc");
+      ATH_CHECK(m_byteStreamCnvSvc.isValid());
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -237,6 +240,11 @@ StatusCode JepByteStreamV2Tool::convert(
 
 StatusCode JepByteStreamV2Tool::convert(const LVL1::JEPBSCollectionV2* const jep) const
 {
+  if (not m_enableEncoding.value()) {
+      ATH_MSG_ERROR("Encoding method called while " << m_enableEncoding.name() << "=False");
+      return StatusCode::FAILURE;
+  }
+
   const bool debug = msgLvl(MSG::DEBUG);
   if (debug) msg(MSG::DEBUG);
 

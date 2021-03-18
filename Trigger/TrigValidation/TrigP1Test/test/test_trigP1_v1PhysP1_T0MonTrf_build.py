@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # art-description: transform test of BSRDOtoRAW + T0Reco + T0Mon, using v1PhysP1 menu
 # art-type: build
@@ -12,13 +12,15 @@ from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 hlt = ExecStep.ExecStep('BSRDOtoRAW')
 hlt.type = 'Trig_reco_tf'
 hlt.forks = 1
-hlt.threads = 1
-hlt.concurrent_events = 1
+hlt.threads = 4
+hlt.concurrent_events = 4
 hlt.max_events = 50
 hlt.args = '--precommand=\\\"setMenu=\\\'PhysicsP1_pp_run3_v1\\\'\\\"'
 hlt.args += ' --prodSysBSRDO True'
 hlt.args += ' --outputBSFile=RAW.pool.root'
 hlt.args += ' --outputHIST_HLTMONFile=hltmon.root'
+hlt.args += ' --outputDRAW_TRIGCOSTFile=TRIGCOST.pool.root'
+hlt.args += ' --outputNTUP_TRIGCOSTFile=cost.ntup.root'
 hlt.input = 'data'
 
 #====================================================================================================
@@ -34,12 +36,14 @@ tzrecoPreExec = ' '.join([
 
 tzreco = ExecStep.ExecStep('Tier0Reco')
 tzreco.type = 'Trig_reco_tf'
-tzreco.threads = 1
+tzreco.threads = 4
+tzreco.concurrent_events = 4
 tzreco.explicit_input = True
 tzreco.input = ''
 tzreco.max_events = 50
 tzreco.args = '--inputBSFile=RAW.pool.root'  # output of the previous step
 tzreco.args += ' --outputESDFile=ESD.pool.root --outputAODFile=AOD.pool.root'
+tzreco.args += ' --outputNTUP_TRIGRATEFile=rate.ntup.root'
 tzreco.args += ' --conditionsTag=\'CONDBR2-BLKPA-2018-11\' --geometryVersion=\'ATLAS-R2-2016-01-00-01\''
 tzreco.args += ' --preExec="{:s}"'.format(tzrecoPreExec)
 tzreco.args += ' --postInclude="TriggerTest/disableChronoStatSvcPrintout.py"'

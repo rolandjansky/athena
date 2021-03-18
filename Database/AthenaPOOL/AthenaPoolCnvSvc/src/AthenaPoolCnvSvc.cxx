@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file AthenaPoolCnvSvc.cxx
@@ -184,14 +184,6 @@ StatusCode AthenaPoolCnvSvc::createObj(IOpaqueAddress* pAddress, DataObject*& re
    if (m_doChronoStat) {
       m_chronoStatSvc->chronoStart("cObj_" + objName);
    }
-   TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(pAddress);
-   if (tokAddr != nullptr && tokAddr->getToken() != nullptr) {
-      char text[32];
-      // Use ipar field of GenericAddress to create custom input context/persSvc in PoolSvc::setObjPtr() (e.g. for conditions)
-      ::sprintf(text, "[CTXT=%08X]", static_cast<int>(*(pAddress->ipar())));
-      // Or use context label, e.g.: ::sprintf(text, "[CLABEL=%08X]", pAddress->clID()); to create persSvc
-      tokAddr->getToken()->setAuxString(text);
-   }
    // Forward to base class createObj
    StatusCode status = ::AthCnvSvc::createObj(pAddress, refpObject);
    if (m_doChronoStat) {
@@ -313,6 +305,9 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
       if (streamClient == m_streamClientFiles.size()) {
          m_streamClientFiles.push_back(outputConnection);
       }
+      if (m_streamClientFiles.size() >= m_outputStreamingTool.size()) {
+         streamClient = 0;
+      }
    }
 
    if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient() && m_streamMetaDataOnly) {
@@ -390,11 +385,10 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
          streamClient++;
       }
       if (streamClient == m_streamClientFiles.size()) {
-         if (m_streamClientFiles.size() < m_outputStreamingTool.size()) {
-            m_streamClientFiles.push_back(outputConnection);
-         } else {
-            streamClient = 0;
-         }
+         m_streamClientFiles.push_back(outputConnection);
+      }
+      if (m_streamClientFiles.size() >= m_outputStreamingTool.size()) {
+         streamClient = 0;
       }
       StatusCode sc = m_outputStreamingTool[streamClient]->lockObject("release");
       while (sc.isRecoverable()) {
@@ -730,11 +724,10 @@ Token* AthenaPoolCnvSvc::registerForWrite(Placement* placement, const void* obj,
          streamClient++;
       }
       if (streamClient == m_streamClientFiles.size()) {
-         if (m_streamClientFiles.size() < m_outputStreamingTool.size()) {
-            m_streamClientFiles.push_back(fileName);
-         } else {
-            streamClient = 0;
-         }
+         m_streamClientFiles.push_back(fileName);
+      }
+      if (m_streamClientFiles.size() >= m_outputStreamingTool.size()) {
+         streamClient = 0;
       }
       // Lock object
       std::string placementStr = placement->toString() + "[PNAME=" + classDesc.Name() + "]";

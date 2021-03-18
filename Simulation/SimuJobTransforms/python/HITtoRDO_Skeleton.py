@@ -43,9 +43,14 @@ def fromRunArgs(runArgs):
     pileupRunArgsToFlags(runArgs, ConfigFlags)
 
     # Setup common digitization flags
-    from Digitization.DigitizationSteering import setupDigitizationFlags, setupDigitizationDetectorFlags
+    from Digitization.DigitizationSteering import setupDigitizationFlags
     setupDigitizationFlags(ConfigFlags)
-    setupDigitizationDetectorFlags(ConfigFlags, detectors)
+
+    # Setup detector flags
+    ConfigFlags.Digitization.TruthOutput = True  # temporary
+    if detectors:
+        from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
+        setupDetectorsFromList(ConfigFlags, detectors)
 
     # Pre-include
     processPreInclude(runArgs, ConfigFlags)

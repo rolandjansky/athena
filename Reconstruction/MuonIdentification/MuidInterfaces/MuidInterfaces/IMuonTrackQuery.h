@@ -1,14 +1,13 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUIDINTERFACES_IMUONTRACKQUERY_H
 #define MUIDINTERFACES_IMUONTRACKQUERY_H
 
 #include "GaudiKernel/IAlgTool.h"
-#include "MuidEvent/FieldIntegral.h"
-#include "MuidEvent/ScatteringAngleSignificance.h"
-#include "TrkParameters/TrackParameters.h"
+#include "TrkParameters/TrackParameters.h" //typedef, cannot fwd declare
+#include <memory> //for unique_ptr
 
 class CaloEnergy;
 namespace Trk
@@ -19,6 +18,8 @@ namespace Trk
 namespace Rec
 {
   
+class FieldIntegral;
+class ScatteringAngleSignificance;
 /** Interface ID for IMuonTrackQuery*/  
 static const InterfaceID IID_IMuonTrackQuery("IMuonTrackQuery", 1, 0);
   
@@ -96,7 +97,8 @@ public:
 
     /**IMuonTrackQuery interface:
        trackParameters at innermost measurement TSOS in MS */
-    virtual const Trk::TrackParameters*	spectrometerParameters (const Trk::Track& track) const = 0;
+    //virtual const Trk::TrackParameters*	spectrometerParameters (const Trk::Track& track) const = 0;
+    virtual std::unique_ptr<Trk::TrackParameters> spectrometerParameters (const Trk::Track& track) const = 0;
     
     /**IMuonTrackQuery interface:
        assess the number of additional phi measurements needed for MS (or SA) track fit */

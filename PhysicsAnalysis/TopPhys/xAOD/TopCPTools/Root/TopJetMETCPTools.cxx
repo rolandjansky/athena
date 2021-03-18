@@ -40,24 +40,35 @@ namespace top {
     m_jetAntiKt4_MCFS_ConfigFile("JES_MC16Recommendation_Consolidated_EMTopo_Apr2019_Rel21.config"),
     m_jetAntiKt4_MCFS_CalibSequence("JetArea_Residual_EtaJES_GSC_Smear"),
 
+    m_jetAntiKt4_Data_JMS_ConfigFile("JES_JMS_MC16Recommendation_Consolidated_data_only_EMTopo_Sep2019_Rel21.config"),
+    m_jetAntiKt4_Data_JMS_CalibSequence("JetArea_Residual_EtaJES_GSC_JMS_Insitu"),
+
+    m_jetAntiKt4_MCFS_JMS_ConfigFile("JES_JMS_MC16Recommendation_Consolidated_MC_only_EMTopo_July2019_Rel21.config"),
+    m_jetAntiKt4_MCFS_JMS_CalibSequence("JetArea_Residual_EtaJES_GSC_Smear_JMS"),
+
     m_jetAntiKt4_MCAFII_ConfigFile("JES_MC16Recommendation_AFII_EMTopo_Apr2019_Rel21.config"),
     m_jetAntiKt4_MCAFII_CalibSequence("JetArea_Residual_EtaJES_GSC_Smear"),
 
     m_jetAntiKt4_MCAFII_PFlow_ConfigFile("JES_MC16Recommendation_AFII_PFlow_Apr2019_Rel21.config"),
     m_jetAntiKt4_MCAFII_PFlow_CalibSequence("JetArea_Residual_EtaJES_GSC_Smear"),
 
+    m_jetAntiKt4_Data_PFlow_ConfigFile("JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config"),
+    m_jetAntiKt4_Data_PFlow_CalibSequence("JetArea_Residual_EtaJES_GSC_Insitu"),
+
     m_jetAntiKt4_PFlow_MCFS_ConfigFile("JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config"),
     m_jetAntiKt4_PFlow_MCFS_CalibSequence("JetArea_Residual_EtaJES_GSC_Smear"),
 
-    m_jetAntiKt4_Data_PFlow_ConfigFile("JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config"),
-    m_jetAntiKt4_Data_PFlow_CalibSequence("JetArea_Residual_EtaJES_GSC_Insitu") {
+    m_jetAntiKt4_Data_PFlow_JMS_ConfigFile("JES_JMS_MC16Recommendation_Consolidated_data_only_PFlow_July2019_Rel21.config"),
+    m_jetAntiKt4_Data_PFlow_JMS_CalibSequence("JetArea_Residual_EtaJES_GSC_JMS_Insitu"),
+
+    m_jetAntiKt4_PFlow_MCFS_JMS_ConfigFile("JES_JMS_MC16Recommendation_Consolidated_MC_only_PFlow_July2019_Rel21.config"),
+    m_jetAntiKt4_PFlow_MCFS_JMS_CalibSequence("JetArea_Residual_EtaJES_GSC_Smear_JMS") {
     declareProperty("config", m_config);
 
     declareProperty("JetCalibrationTool", m_jetCalibrationTool);
     declareProperty("JetCalibrationToolLargeR", m_jetCalibrationToolLargeR);
 
     declareProperty("JetUncertaintiesTool", m_jetUncertaintiesTool);
-    declareProperty("JetUncertaintiesToolFrozenJMS", m_jetUncertaintiesToolFrozenJMS);
     declareProperty("JetUncertaintiesToolReducedNPScenario1", m_jetUncertaintiesToolReducedNPScenario1);
     declareProperty("JetUncertaintiesToolReducedNPScenario2", m_jetUncertaintiesToolReducedNPScenario2);
     declareProperty("JetUncertaintiesToolReducedNPScenario3", m_jetUncertaintiesToolReducedNPScenario3);
@@ -126,25 +137,21 @@ namespace top {
     }
     jetCalibrationName.erase(jetCalibrationName.length() - 4);
 
-    // In case of using JMS calibration
-    if (m_config->jetCalibSequence() == "JMS") {
-      ATH_MSG_ERROR("Unable to calibrate jets with JMS calib sequence in release 21: No recommendations! ");
-      return StatusCode::FAILURE;
-
-      // If this is functional, remove the error above and reconfigure the calibration sequence
-      m_jetAntiKt4_MCFS_ConfigFile.erase(m_jetAntiKt4_MCFS_ConfigFile.length() - 7);//erase ".config" at the end
-      m_jetAntiKt4_MCFS_ConfigFile += "_JMS.config";
-      m_jetAntiKt4_MCFS_CalibSequence += "_JMS";
-    }
-
     ///-- Calibration --///
     if (asg::ToolStore::contains<IJetCalibrationTool>("JetCalibrationTool")) {
       m_jetCalibrationTool = asg::ToolStore::get<IJetCalibrationTool>("JetCalibrationTool");
     } else {
       std::string calibConfig, calibSequence;
-      if (m_config->isMC()) {
-        // AFII
-        if (m_config->isAFII()) {
+      if (m_config->isMC()) { // MC calibration and sequence
+        if (m_config->isAFII()) { // AFII calibrations, if supported
+          if (m_config->jetCalibSequence() == "JMS") {
+            if (m_config->allowSmallRJMSforAFII()) {
+              ATH_MSG_WARNING("You enabled support for JMS calibration on AFII samples for small-R jets! NOTE that if you want to use this in an analysis, you must get back to JetEtMiss to demonstrate that AFII use is justifiable in your analysis.");
+            } else {
+              ATH_MSG_ERROR("The JMS calibration for small-R jets is  not supported for AFII samples! If you want to use this in an analysis, you must get back to JetEtMiss to demonstrate that AFII use is justifiable in your analysis. Set config option AllowJMSforAFII to True if you insist on running JMS on AFII.");
+              return StatusCode::FAILURE;
+            }
+          }
           if (m_config->useParticleFlowJets()) {
             calibConfig = m_jetAntiKt4_MCAFII_PFlow_ConfigFile;
             calibSequence = m_jetAntiKt4_MCAFII_PFlow_CalibSequence;
@@ -152,24 +159,42 @@ namespace top {
             calibConfig = m_jetAntiKt4_MCAFII_ConfigFile;
             calibSequence = m_jetAntiKt4_MCAFII_CalibSequence;
           }
+        } else { // FullSim calibrations
+          if (m_config->jetCalibSequence() == "JMS") {
+            if (m_config->useParticleFlowJets()) { // PFlow
+              calibConfig = m_jetAntiKt4_PFlow_MCFS_JMS_ConfigFile;
+              calibSequence = m_jetAntiKt4_PFlow_MCFS_JMS_CalibSequence;
+            } else { // EMTopo
+              calibConfig = m_jetAntiKt4_MCFS_JMS_ConfigFile;
+              calibSequence = m_jetAntiKt4_MCFS_JMS_CalibSequence;
+            }
+          } else { // GSC, no JMS calibration, fullsim
+            if (m_config->useParticleFlowJets()) { // PFlow
+              calibConfig = m_jetAntiKt4_PFlow_MCFS_ConfigFile;
+              calibSequence = m_jetAntiKt4_PFlow_MCFS_CalibSequence;
+            } else { // EMTopo
+              calibConfig = m_jetAntiKt4_MCFS_ConfigFile;
+              calibSequence = m_jetAntiKt4_MCFS_CalibSequence;
+            }
+          }
         }
-        // FS - PFlow
-        else if (m_config->useParticleFlowJets()) {
-          calibConfig = m_jetAntiKt4_PFlow_MCFS_ConfigFile;
-          calibSequence = m_jetAntiKt4_PFlow_MCFS_CalibSequence;
-        }
-        // FS
-        else {
-          calibConfig = m_jetAntiKt4_MCFS_ConfigFile;
-          calibSequence = m_jetAntiKt4_MCFS_CalibSequence;
-        }
-      } else {
-        if (m_config->useParticleFlowJets()) {
-          calibConfig = m_jetAntiKt4_Data_PFlow_ConfigFile;
-          calibSequence = m_jetAntiKt4_Data_PFlow_CalibSequence;
-        } else {
-          calibConfig = m_jetAntiKt4_Data_ConfigFile;
-          calibSequence = m_jetAntiKt4_Data_CalibSequence;
+      } else { // data calibration config & sequence
+        if (m_config->jetCalibSequence() == "JMS") {
+          if (m_config->useParticleFlowJets()) {
+            calibConfig = m_jetAntiKt4_Data_PFlow_JMS_ConfigFile;
+            calibSequence = m_jetAntiKt4_Data_PFlow_JMS_CalibSequence;
+          } else {
+            calibConfig = m_jetAntiKt4_Data_JMS_ConfigFile;
+            calibSequence = m_jetAntiKt4_Data_JMS_CalibSequence;
+          }
+        } else { // GSC, no JMS calibration, data
+          if (m_config->useParticleFlowJets()) {
+            calibConfig = m_jetAntiKt4_Data_PFlow_ConfigFile;
+            calibSequence = m_jetAntiKt4_Data_PFlow_CalibSequence;
+          } else {
+            calibConfig = m_jetAntiKt4_Data_ConfigFile;
+            calibSequence = m_jetAntiKt4_Data_CalibSequence;
+          }
         }
       }
 
@@ -248,10 +273,6 @@ namespace top {
     // Summer2019 - JES/JER update
     std::string conference = "Summer2019";
 
-    // If JMS is allowed then there should also be extrapolation and frozen uncertainties configured
-    std::string JMS_Uncertainty = "";
-    if (m_config->jetCalibSequence() == "JMS") JMS_Uncertainty = "_JMSExtrap";
-
     // By setting calib_area to "None" we pick up the default from the JES group
     std::string calib_area = "None";
 
@@ -287,30 +308,12 @@ namespace top {
                                                          JERisMC,
                                                          "rel21/" + conference
                                                          + "/R4_" + m_config->jetUncertainties_NPModel()
-                                                         + JMS_Uncertainty
                                                          + JERSmearModel
                                                          + ".config",
                                                          nullptr,
                                                          m_config->jetUncertainties_QGFracFile(),
                                                          calib_area
                                                          );
-
-      // Implement additional tool for frozen config when using JMS
-      if (JMS_Uncertainty == "_JMSExtrap") {
-        JMS_Uncertainty = "_JMSFrozen";
-        m_jetUncertaintiesToolFrozenJMS = setupJetUncertaintiesTool("JetUncertaintiesToolFrozenJMS",
-                                                                    jetCalibrationName,
-                                                                    MC_type,
-                                                                    JERisMC,
-                                                                    "rel21/" + conference
-                                                                    + "/R4_" + m_config->jetUncertainties_NPModel()
-                                                                    + JMS_Uncertainty
-                                                                    + ".config",
-                                                                    nullptr,
-                                                                    m_config->jetUncertainties_QGFracFile(),
-                                                                    calib_area
-                                                                    );
-      }
     } else {
       // Strong reductions now enabled. If you want to run a single scenario please note the new config file names
       // R4_SR_Scenario*_SimpleJER

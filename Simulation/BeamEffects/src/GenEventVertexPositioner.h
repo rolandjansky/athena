@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// GenEventVertexPositioner.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef BEAMEFFECTS_GENEVENTVERTEXPOSITIONER_H
 #define BEAMEFFECTS_GENEVENTVERTEXPOSITIONER_H 1
@@ -45,7 +41,7 @@ namespace Simulation {
 
     private:
       /** Vertex Shifters applied in the given order */
-      ToolHandleArray<ILorentzVectorGenerator> m_vertexShifters;
+      ToolHandleArray<ILorentzVectorGenerator> m_vertexShifters{this, "VertexShifters", {}};
   };
 
 }

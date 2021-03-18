@@ -61,8 +61,8 @@ def _createCfgFlags():
     acf.addFlag('Input.TypedCollections', lambda prevFlags : _typedInputCollections(prevFlags.Input.Files) )
 
     acf.addFlag('Concurrency.NumProcs', 0)
-    acf.addFlag('Concurrency.NumThreads', 0)
-    acf.addFlag('Concurrency.NumConcurrentEvents', 0)
+    acf.addFlag('Concurrency.NumThreads', 0 )
+    acf.addFlag('Concurrency.NumConcurrentEvents', lambda prevFlags : prevFlags.Concurrency.NumThreads)
 
     acf.addFlag('Scheduler.CheckDependencies', True)
     acf.addFlag('Scheduler.ShowDataDeps', True)
@@ -70,7 +70,7 @@ def _createCfgFlags():
     acf.addFlag('Scheduler.ShowControlFlow', True)
     acf.addFlag('Scheduler.EnableVerboseViews', True)
 
-    acf.addFlag('Common.MsgSourceLength',50) #Lenght of the source-field in the format str of MessageSvc
+    acf.addFlag('Common.MsgSourceLength',50) #Length of the source-field in the format str of MessageSvc
     acf.addFlag('Common.isOnline', False ) #  Job runs in an online environment (access only to resources available at P1) # former global.isOnline
     acf.addFlag('Common.useOnlineLumi', lambda prevFlags : prevFlags.Common.isOnline ) #  Use online version of luminosity. ??? Should just use isOnline?
     acf.addFlag('Common.doExpressProcessing', False)

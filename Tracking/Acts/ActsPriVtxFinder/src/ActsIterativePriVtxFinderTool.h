@@ -33,7 +33,7 @@
 #include "Acts/Propagator/Propagator.hpp"
 #include "Acts/Propagator/Navigator.hpp"
 #include "Acts/Surfaces/PerigeeSurface.hpp"
-#include "Acts/Utilities/Units.hpp"
+#include "Acts/Definitions/Units.hpp"
 #include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Vertexing/IterativeVertexFinder.hpp"
 #include "Acts/Vertexing/FullBilloirVertexFitter.hpp"
@@ -99,7 +99,7 @@ private:
   findVertex(const EventContext& ctx, std::vector<std::unique_ptr<Trk::ITrackLink>> trackVector) const;
 
   Trk::Perigee* actsBoundToTrkPerigee(
-  const Acts::BoundTrackParameters& bound, const Acts::Vector3D& surfCenter) const;
+  const Acts::BoundTrackParameters& bound, const Acts::Vector3& surfCenter) const;
 
   virtual
   const IActsTrackingGeometryTool*

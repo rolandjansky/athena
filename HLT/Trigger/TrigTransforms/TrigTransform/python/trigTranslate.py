@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # @brief: Trigger translator to setup arguments for athenaHLT
 # @details: to be used with Trig_tf_reco.py and trigRecoExe.py
@@ -93,9 +93,13 @@ def getTranslated(runArgs, name, substep, first, output):
     optionList = list()
     for k, v in option.items():
         item = "--{0}={1}"
-        if(type(v) == list):
-            v = ''.join(v)
-        optionList.append(item.format(k, v))
+        if k == 'file':
+            for f in v:
+                optionList.append(item.format(k, f))
+        else:
+            if type(v) == list:
+                v = ''.join(v)
+            optionList.append(item.format(k, v))
 
     # Replace --use-database=True with no argument version
     if '--use-database=True' in optionList:

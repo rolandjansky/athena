@@ -6,7 +6,7 @@
 //
 // filename: TrigFastTrackFinder.h
 // 
-// Description: a part of L2+EF HLT ID tracking
+// Description: a part of HLT ID tracking
 // 
 // date: 16/04/2013
 // 
@@ -20,64 +20,87 @@
 #include<string>
 #include<vector>
 #include<map>
-//#include<algorithm>
 
-#include "GaudiKernel/ToolHandle.h"
-#include "TrigInterfaces/FexAlgo.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "BeamSpotConditionsData/BeamSpotData.h"
 
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkEventUtils/PRDtoTrackMap.h"
 
+#include "TrkToolInterfaces/ITrackSummaryTool.h"
+
+#include "TrigInDetToolInterfaces/ITrigInDetTrackFitter.h"
+#include "TrigInDetToolInterfaces/ITrigZFinder.h"
+
+
+#include "InDetRecToolInterfaces/ISiTrackMaker.h" 
+#include "SiSPSeededTrackFinderData/SiTrackMakerEventData_xk.h"
 #include "TrigInDetPattRecoTools/TrigCombinatorialSettings.h"
+#include "TrigInDetPattRecoTools/TrigTrackSeedGenerator.h"
 
 #include "AthenaMonitoringKernel/Monitored.h"
+
+#include "TrkTrack/TrackCollection.h"
+#include "TrkTrack/Track.h"
+
+#include "TrigInDetEvent/TrigVertexCollection.h"
+#include "TrigInDetEvent/TrigSiSpacePointBase.h"
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
+#include "xAODTrigger/TrigCompositeContainer.h"
+
+
+#include "InDetIdentifier/SCT_ID.h"
+#include "InDetIdentifier/PixelID.h" 
+
+#include "TrigInDetToolInterfaces/ITrigL2LayerNumberTool.h"
+#include "TrigInDetToolInterfaces/ITrigSpacePointConversionTool.h"
+#include "TrigInDetToolInterfaces/ITrigL2SpacePointTruthTool.h"
+#include "TrigInDetToolInterfaces/TrigL2HitResidual.h"
+
+#include "TrigInDetPattRecoEvent/TrigInDetTriplet.h"
+
 
 //for UTT
 #include "TrigT1Interfaces/RecJetRoI.h"
 
-class ITrigL2LayerNumberTool;
-class ITrigSpacePointConversionTool;
-class ITrigInDetTrackFitter;
-class ITrigZFinder;
-class TrigRoiDescriptor;
-class TrigSiSpacePointBase;
-class TrigInDetTriplet;
-class Identifier;
+//for GPU acceleration
 
-namespace InDet { 
-  class ISiTrackMaker;
-  class SiTrackMakerEventData_xk;
+#include "TrigInDetAccelerationTool/ITrigInDetAccelerationTool.h"
+#include "TrigInDetAccelerationService/ITrigInDetAccelerationSvc.h"
+#include "TrigAccelEvent/TrigInDetAccelEDM.h"
+#include "TrigAccelEvent/TrigInDetAccelCodes.h"
+
+namespace InDet {
+  class ExtendedSiTrackMakerEventData_xk : public InDet::SiTrackMakerEventData_xk
+  {
+  public:
+    ExtendedSiTrackMakerEventData_xk(const SG::ReadHandleKey<Trk::PRDtoTrackMap> &key, const EventContext& ctx) { 
+      if (!key.key().empty()) {
+        m_prdToTrackMap = SG::ReadHandle<Trk::PRDtoTrackMap>(key, ctx);
+        if (!m_prdToTrackMap.isValid()) {
+          throw std::runtime_error(std::string("Failed to get PRD to track map:") + key.key());
+        }
+        setPRDtoTrackMap(m_prdToTrackMap.cptr());
+      }
+    }
+  private:
+    void dummy() {}
+    SG::ReadHandle<Trk::PRDtoTrackMap> m_prdToTrackMap;
+  };
 }
 
-namespace Trk {
-  class ITrackSummaryTool;
-  class SpacePoint;
-}
-
-class PixelID;
-class SCT_ID;
-class AtlasDetectorID;
-
-// for GPU acceleration
-
-class ITrigInDetAccelerationTool;
-class ITrigInDetAccelerationSvc;
-
-class TrigFastTrackFinder : public HLT::FexAlgo {
+class TrigFastTrackFinder : public AthReentrantAlgorithm {
 
  public:
   
   TrigFastTrackFinder(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~TrigFastTrackFinder();
-  virtual HLT::ErrorCode hltInitialize() override;
-  virtual HLT::ErrorCode hltFinalize() override;
-  virtual HLT::ErrorCode hltStart() override;
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
+  virtual StatusCode start() override;
 
-  virtual StatusCode execute() override;
-  virtual
-  HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE,
-			    HLT::TriggerElement* outputTE) override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
 
   StatusCode findTracks(InDet::SiTrackMakerEventData_xk &event_data,
                         const TrigRoiDescriptor& roi,
@@ -87,9 +110,6 @@ class TrigFastTrackFinder : public HLT::FexAlgo {
 
   double trackQuality(const Trk::Track* Tr) const;
   void filterSharedTracks(std::vector<std::tuple<bool, double, Trk::Track*>>& QT) const;
-
-  virtual bool isClonable() const override { return true; }
-  virtual unsigned int cardinality() const override { return 0; }//Mark as re-entrant
 
 protected: 
 
@@ -126,6 +146,8 @@ protected:
   SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_hitDVSeedKey{this, "HitDVSeed", "", ""};
   SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_hitDVTrkKey{this, "HitDVTrk", "", ""};
   SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_hitDVSPKey{this, "HitDVSP", "", ""};
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_dEdxTrkKey{this, "dEdxTrk", "", ""};
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_dEdxHitKey{this, "dEdxHit", "", ""};
 
   // Control flags
 
@@ -166,11 +188,9 @@ protected:
 
   //Setup functions
   void getBeamSpot(float&, float&, const EventContext&) const;
-  HLT::ErrorCode getRoI(const HLT::TriggerElement* inputTE, const IRoiDescriptor*& roi);
 
   // Internal bookkeeping
 
-  std::string m_instanceName, m_attachedFeatureName, m_outputCollectionSuffix;
 
   ATLAS_THREAD_SAFE mutable unsigned int m_countTotalRoI;
   ATLAS_THREAD_SAFE mutable unsigned int m_countRoIwithEnoughHits;
@@ -203,6 +223,13 @@ protected:
   StatusCode findJseedHitDV(const EventContext&, const std::vector<TrigSiSpacePointBase>&, const TrackCollection&) const;
   StatusCode calcdEdx(const EventContext&, const TrackCollection&) const;
   float deltaR(float, float, float, float) const;
+
+  // dEdx calculation
+  bool m_dodEdxTrk;
+  StatusCode finddEdxTrk(const EventContext&, const TrackCollection&) const;
+  float dEdx(const Trk::Track*, int&, int&, std::vector<float>&, std::vector<float>&,
+	     std::vector<float>&, std::vector<float>&, std::vector<int>&, std::vector<int>&, std::vector<int>&) const;
 };
+
 
 #endif // not TRIGFASTTRACKFINDER_TRIGFASTTRACKFINDER_H

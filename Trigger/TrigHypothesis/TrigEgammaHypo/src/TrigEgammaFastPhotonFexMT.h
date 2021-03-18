@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -8,30 +8,18 @@
 #define TRIG_TrigEgammaFastPhotonFexMT_H
 
 // athena stuff
-#include "GaudiKernel/IToolSvc.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "AthLinks/ElementLink.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
+
 // Base class
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
-
-// core trigger stuff
-#include "TrigT1Interfaces/RecEmTauRoI.h"
-#include "TrigInterfaces/FexAlgo.h"
-
 // trigger EDM
-//#include "TrigCaloEvent/TrigEMClusterContainer.h"
-//#include "TrigParticle/TrigPhoton.h"
-//#include "TrigParticle/TrigPhotonContainer.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODTrigEgamma/TrigPhoton.h"
 #include "xAODTrigEgamma/TrigPhotonContainer.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-
 
 
 /**
@@ -48,8 +36,7 @@ class TrigEgammaFastPhotonFexMT : public AthAlgorithm {
  public:
   
   TrigEgammaFastPhotonFexMT(const std::string & name, ISvcLocator* pSvcLocator);
-  ~TrigEgammaFastPhotonFexMT();
-  
+
   virtual StatusCode initialize() override;
   virtual StatusCode execute() override;
   

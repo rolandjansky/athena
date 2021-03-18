@@ -221,7 +221,7 @@ ActsIterativePriVtxFinderTool::findVertex(const EventContext& ctx, std::vector<s
     return std::make_pair(theVertexContainer, theVertexAuxContainer);
   }
 
-  const Acts::Vector3D& beamSpotPos = beamSpotHandle->beamVtx().position();
+  const Acts::Vector3& beamSpotPos = beamSpotHandle->beamVtx().position();
   Acts::Vertex<TrackWrapper> beamSpotConstraintVtx(beamSpotPos);
   beamSpotConstraintVtx.setCovariance(beamSpotHandle->beamVtx().covariancePosition());
 
@@ -232,7 +232,7 @@ ActsIterativePriVtxFinderTool::findVertex(const EventContext& ctx, std::vector<s
   Acts::MagneticFieldContext magFieldContext = m_extrapolationTool->getMagneticFieldContext(ctx);
 
   const auto& geoContext
-    = m_trackingGeometryTool->getGeometryContext(ctx).any();
+    = m_trackingGeometryTool->getGeometryContext(ctx).context();
   
   // Convert tracks to Acts::BoundParameters
   std::vector<TrackWrapper> allTracks;
@@ -273,13 +273,13 @@ ActsIterativePriVtxFinderTool::findVertex(const EventContext& ctx, std::vector<s
 							magFieldContext);
 
   if(!m_useBeamConstraint){
-    beamSpotConstraintVtx.setPosition(Acts::Vector3D::Zero());
-    beamSpotConstraintVtx.setCovariance(Acts::ActsSymMatrixD<3>::Zero());
+    beamSpotConstraintVtx.setPosition(Acts::Vector3::Zero());
+    beamSpotConstraintVtx.setCovariance(Acts::ActsSymMatrix<3>::Zero());
   }
 
   //Adding 4th dimensional timing info to vertex constraint as needed by ACTS
-  Acts::Vector4D vtxConstraintPos;
-  Acts::SymMatrix4D vtxConstraintCov;
+  Acts::Vector4 vtxConstraintPos;
+  Acts::SymMatrix4 vtxConstraintCov;
 
   auto beamSpotCov = beamSpotHandle->beamVtx().covariancePosition();
 
@@ -385,12 +385,12 @@ ActsIterativePriVtxFinderTool::findVertex(const EventContext& ctx, std::vector<s
 }
 
 Trk::Perigee* ActsIterativePriVtxFinderTool::actsBoundToTrkPerigee(
-  const Acts::BoundTrackParameters& bound, const Acts::Vector3D& surfCenter) const {
+  const Acts::BoundTrackParameters& bound, const Acts::Vector3& surfCenter) const {
   using namespace Acts::UnitLiterals;
   AmgSymMatrix(5)* cov =  new AmgSymMatrix(5)(bound.covariance()->block<5,5>(0,0));
   cov->col(Trk::qOverP) *= 1_MeV;
   cov->row(Trk::qOverP) *= 1_MeV;
-  Acts::ActsVectorD<5> params = bound.parameters().head<5>();
+  Acts::ActsVector<5> params = bound.parameters().head<5>();
   params[Trk::qOverP] *= 1_MeV;
 
   return new Trk::Perigee(params, Trk::PerigeeSurface(surfCenter), cov);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -223,6 +223,8 @@ StatusCode TileTBDump::execute() {
   
   ATH_MSG_DEBUG( "execute()" );
 
+  const EventContext &ctx = Gaudi::Hive::currentContext();
+
   int verbosity = 0;
   if ( msgLvl(MSG::NIL) ) {
     verbosity = 7;
@@ -398,11 +400,11 @@ StatusCode TileTBDump::execute() {
         if ((subdet_id >= 0x50 && subdet_id < 0x60) || // TileCal IDs
             subdet_id == 0x63 || // wrong id in first testbeam test runs 
             subdet_id == 0x70) { // COMMON BEAM ROD in CTB2004
-          dump_digi(subdet_id,data, size, version, verbosity, source_id);
+          dump_digi(subdet_id,data, size, version, verbosity, source_id, ctx);
         } else if ( m_dumpUnknown ) {
           dump_data(data, size, version, verbosity);
           if (subdet_id == 0) { // try also to find normal fragments  
-            dump_digi(subdet_id,data, size, version, verbosity, source_id);
+            dump_digi(subdet_id,data, size, version, verbosity, source_id, ctx);
           }
         }
       } else {
@@ -472,7 +474,8 @@ void TileTBDump::dump_data(const uint32_t * data, unsigned int size, unsigned in
 }
 
 void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsigned int rodsize
-                           , unsigned int version, int verbosity, unsigned int robsourceid) {
+                           , unsigned int version, int verbosity, unsigned int robsourceid
+                           , const EventContext& ctx) {
 
   int s, c, f, nfrag, ngain, nchan, nsamp, size, ch, extra = 0, pmt, fragType, nhits = 0;
   int id, type, rflag, unit, pulse, nsmpl, algor, niter;
@@ -1607,7 +1610,7 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
                 for (int gain = 0; gain < 2; ++gain) {
                   float phase = -m_tileToolTiming->getSignalPhase(drawerIdx, ch, gain);
                   TileOfcWeightsStruct weights;
-                  if (m_tileCondToolOfcCool->getOfcWeights(drawerIdx, ch, gain, phase, of2, weights).isFailure())
+                  if (m_tileCondToolOfcCool->getOfcWeights(drawerIdx, ch, gain, phase, of2, weights, ctx).isFailure())
                   {
                     ATH_MSG_ERROR( "getOfcWeights failed.");
                     continue;

@@ -37,6 +37,8 @@ namespace PFO{
     TH1* m_CFE_muon_dR;
     TH1* m_CFE_muon_NMatchedMuon;
     TH1* m_CFE_muon_muonNMatchedFE;
+    TH1* m_CFE_muon_largeDR_debug_author;
+    TH1* m_CFE_muon_largeDR_debug_type;
     
     TH1* m_NFE_muon_dR;
     TH1* m_NFE_muon_NMatchedMuon;

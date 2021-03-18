@@ -36,6 +36,7 @@ public:
     // Getter for the underlying RNN implementation
     const TauJetRNN* get_rnn_0p() const;
     const TauJetRNN* get_rnn_1p() const;
+    const TauJetRNN* get_rnn_2p() const;
     const TauJetRNN* get_rnn_3p() const;
 
     // Selects tracks to be used as input to the network
@@ -50,11 +51,13 @@ private:
     std::string m_output_varname;
     std::string m_weightfile_0p;
     std::string m_weightfile_1p;
+    std::string m_weightfile_2p;
     std::string m_weightfile_3p;
     std::size_t m_max_tracks;
     std::size_t m_max_clusters;
     float m_max_cluster_dr;
     bool m_doVertexCorrection;
+    bool m_doTrackClassification;
 
     // Configuration of the weight file
     std::string m_input_layer_scalar;
@@ -66,6 +69,7 @@ private:
     // Wrappers for lwtnn
     std::unique_ptr<TauJetRNN> m_net_0p; //!
     std::unique_ptr<TauJetRNN> m_net_1p; //!
+    std::unique_ptr<TauJetRNN> m_net_2p; //!
     std::unique_ptr<TauJetRNN> m_net_3p; //!
 };
 

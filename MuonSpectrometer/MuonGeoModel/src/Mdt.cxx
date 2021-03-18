@@ -1,18 +1,23 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModel/Mdt.h"
+
+#include <GaudiKernel/IMessageSvc.h>
+#include <GaudiKernel/MsgStream.h>
+#include "AthenaKernel/getMessageSvc.h"
+#include "MuonGeoModel/Component.h"
+#include "MuonGeoModel/Cutout.h"
 #include "MuonGeoModel/MDT_Technology.h"
 #include "MuonGeoModel/MYSQL.h"
-#include "MuonGeoModel/MultiLayer.h"
 #include "MuonGeoModel/MdtComponent.h"
-#include "MuonGeoModel/Cutout.h"
-#include "GeoModelKernel/GeoFullPhysVol.h"
-#include "GeoModelKernel/GeoShape.h"
+#include "MuonGeoModel/MultiLayer.h"
 
-#include <TString.h> // for Form
-
+#include <TString.h>
+#include <stdlib.h>
+#include <stdexcept>
+#include <utility>
 #include "float.h"
 
 #define verbose_mdt false

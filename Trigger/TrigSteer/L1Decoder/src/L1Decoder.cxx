@@ -29,7 +29,8 @@ StatusCode L1Decoder::initialize() {
   ATH_CHECK( m_startStampKey.initialize() );
 
   ATH_CHECK( m_ctpUnpacker.retrieve() );
-  ATH_CHECK( m_roiUnpackers.retrieve() );
+  ATH_CHECK( m_roiUnpackers_roib.retrieve() );
+  ATH_CHECK( m_roiUnpackers_xaod.retrieve() );
   ATH_CHECK( m_prescaler.retrieve() );
 
   if ( !m_keyWriterTool.empty() ) {
@@ -53,10 +54,17 @@ void L1Decoder::handle(const Incident& incident) {
   if (incident.type()!="BeginRun") return;
   ATH_MSG_DEBUG( "In L1Decoder BeginRun incident" );
     
-  for ( auto t: m_roiUnpackers )
+  for ( auto t: m_roiUnpackers_roib ) {
+    if ( t->updateConfiguration().isFailure() ) {
+      ATH_MSG_ERROR( "Problem in configuring " << t->name() );
+    }
+  }
+
+  for ( auto t: m_roiUnpackers_xaod ) {
     if ( t->updateConfiguration( ).isFailure() ) {
       ATH_MSG_ERROR( "Problem in configuring " << t->name() );
     }
+  }
 }
 
 
@@ -71,18 +79,18 @@ StatusCode L1Decoder::execute (const EventContext& ctx) const {
     ATH_CHECK( timeStampHandle.record( std::make_unique<TrigTimeStamp>() ) );
   }
   using namespace TrigCompositeUtils;
-  const ROIB::RoIBResult dummyResult;
-  const ROIB::RoIBResult* roib = &dummyResult;
-  if ( !m_RoIBResultKey.empty() ) {
+  const bool decodeRoIB = !m_RoIBResultKey.empty();
+  const bool decodexAOD = !m_l1TriggerResultKey.empty();
+
+  const ROIB::RoIBResult* roib = nullptr;
+  if (decodeRoIB) {
     SG::ReadHandle<ROIB::RoIBResult> roibH( m_RoIBResultKey, ctx );
     roib = roibH.cptr();
     ATH_MSG_DEBUG( "Obtained ROIB result" );
   }
-  // this should really be: const ROIB::RoIBResult* roib = SG::INPUT_PTR (m_RoIBResultKey, ctx);
-  // or const ROIB::RoIBResult& roib = SG::INPUT_REF (m_RoIBResultKey, ctx);
 
   const xAOD::TrigComposite* l1TriggerResult = nullptr;
-  if ( !m_l1TriggerResultKey.empty() ) {
+  if (decodexAOD) {
     auto l1TriggerResultCont = SG::makeHandle(m_l1TriggerResultKey, ctx);
     if (!l1TriggerResultCont.isValid()) {
       ATH_MSG_ERROR("Failed to retrieve L1TriggerResult with key " << m_l1TriggerResultKey.key());
@@ -94,10 +102,12 @@ StatusCode L1Decoder::execute (const EventContext& ctx) const {
     }
     l1TriggerResult = l1TriggerResultCont->at(0);
     if (msgLvl(MSG::DEBUG)) {
-      const std::vector<std::string>& links = l1TriggerResult->linkColNames();
-      ATH_MSG_DEBUG("L1TriggerResult has " << links.size() << " links:");
-      for (std::string_view linkName : links)
-        ATH_MSG_DEBUG("--> " << linkName);
+      const std::vector<std::string>& linkNames = l1TriggerResult->linkColNames();
+      const std::vector<uint32_t>& linkClids = l1TriggerResult->linkColClids();
+      ATH_MSG_DEBUG("L1TriggerResult has " << linkNames.size() << " links:");
+      for (size_t i=0; i<linkNames.size(); ++i) {
+        ATH_MSG_DEBUG("--> " << linkNames.at(i) << " CLID: " << linkClids.at(i));
+      }
     }
   }
 
@@ -114,7 +124,11 @@ StatusCode L1Decoder::execute (const EventContext& ctx) const {
   */
 
   HLT::IDVec l1SeededChains;
-  ATH_CHECK( m_ctpUnpacker->decode( *roib, l1SeededChains ) );
+  if (decodeRoIB) {
+    ATH_CHECK( m_ctpUnpacker->decode( *roib, l1SeededChains ) );
+  } else if (m_ctpUnpacker->isEmulated()) {
+    ATH_CHECK( m_ctpUnpacker->decode( ROIB::RoIBResult{}, l1SeededChains ) );
+  }
   sort( l1SeededChains.begin(), l1SeededChains.end() ); // do so that following scaling is reproducible
 
   HLT::IDVec activeChains; // Chains which are activated to run in the first pass (seeded and pass prescale)
@@ -140,8 +154,20 @@ StatusCode L1Decoder::execute (const EventContext& ctx) const {
 
   ATH_MSG_DEBUG( "Unpacking RoIs" );
   HLT::IDSet activeChainSet( activeChains.begin(), activeChains.end() );
-  for ( auto unpacker: m_roiUnpackers ) {
-    ATH_CHECK( unpacker->unpack( ctx, *roib, activeChainSet ) );
+  if (decodeRoIB) {
+    for ( auto unpacker: m_roiUnpackers_roib ) {
+      ATH_CHECK( unpacker->unpack( ctx, *roib, activeChainSet ) );
+    }
+  } else if (m_ctpUnpacker->isEmulated()) {
+    ROIB::RoIBResult roib{};
+    for ( auto unpacker: m_roiUnpackers_roib ) {
+      ATH_CHECK( unpacker->unpack( ctx, roib, activeChainSet ) );
+    }
+  }
+  if (decodexAOD) {
+    for ( auto unpacker: m_roiUnpackers_xaod ) {
+      ATH_CHECK( unpacker->unpack( ctx, *l1TriggerResult, activeChainSet ) );
+    }
   }
 
   if ( !m_keyWriterTool.empty() ) {

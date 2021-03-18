@@ -3,7 +3,6 @@
 */
 
 #include "StgcDataPreparator.h"
-#include "RecMuonRoIUtils.h"
 
 TrigL2MuonSA::StgcDataPreparator::StgcDataPreparator(const std::string& type,
 						     const std::string& name,
@@ -17,39 +16,20 @@ TrigL2MuonSA::StgcDataPreparator::StgcDataPreparator(const std::string& type,
 StatusCode TrigL2MuonSA::StgcDataPreparator::initialize()
 {
 
-  ATH_MSG_DEBUG("StgcDataPreparator::initialize() doDecoding/decodeBS " << m_doDecoding << "/" << m_decodeBS);
-
   // Locate RegionSelector
   ATH_CHECK( m_regionSelector.retrieve() );
   ATH_MSG_DEBUG("Retrieved service RegionSelector");
 
-  // consistency check for decoding flag settings
-  if(m_decodeBS && !m_doDecoding) {
-    ATH_MSG_FATAL("Inconsistent setup, you tried to enable BS decoding but disable all decoding. Please fix the configuration");
-    return StatusCode::FAILURE;
-  }
-
-  // disable the RDO->PRD decoding tool if we don't do the sTGC data decoding
-  ATH_CHECK( m_stgcPrepDataProvider.retrieve(DisableTool{!m_doDecoding}) );
-  ATH_MSG_DEBUG("Retrieved " << m_stgcPrepDataProvider);
-
   ATH_CHECK(m_idHelperSvc.retrieve());
   ATH_MSG_DEBUG("Retrieved " << m_idHelperSvc);
 
-  // Retreive PRC raw data provider tool
-  ATH_MSG_DEBUG("Decode BS set to " << m_decodeBS);
-  // disable the BS->RDO decoding tool if we don't do the sTGC data decoding
-  ATH_CHECK( m_rawDataProviderTool.retrieve(DisableTool{ !m_decodeBS || !m_doDecoding }) );
-  ATH_MSG_DEBUG("Retrieved Tool " << m_rawDataProviderTool);
-
-  // ATH_CHECK(m_readKey.initialize());
   ATH_CHECK(m_stgcPrepContainerKey.initialize(!m_stgcPrepContainerKey.empty()));
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode TrigL2MuonSA::StgcDataPreparator::prepareData(const TrigRoiDescriptor* p_roids,
-							 TrigL2MuonSA::StgcHits&  stgcHits)
+							 TrigL2MuonSA::StgcHits&  stgcHits) const
 {
 
   ATH_MSG_DEBUG("StgcDataPreparator::prepareData() was called.");
@@ -88,46 +68,31 @@ StatusCode TrigL2MuonSA::StgcDataPreparator::prepareData(const TrigRoiDescriptor
 
     std::vector<uint32_t> stgcRobList;
     m_regionSelector->ROBIDList(*iroi, stgcRobList);
-     if(m_doDecoding) {
-       if(m_decodeBS) {
-         if ( m_rawDataProviderTool->convert(stgcRobList).isFailure()) {
-             ATH_MSG_WARNING("Conversion of BS for decoding of sTGC failed");
-         }
-       }
-       if ( m_stgcPrepDataProvider->decode(stgcRobList).isFailure() ) {
-         ATH_MSG_WARNING("Problems when preparing sTGC PrepData ");
-       }
-     }//do decoding
 
-     if (!stgcHashList.empty()) {
+    if (!stgcHashList.empty()) {
 
-       // Get sTGC collections
-       for(const IdentifierHash& id : stgcHashList) {
+      // Get sTGC collections
+      for(const IdentifierHash& id : stgcHashList) {
 
-	 Muon::sTgcPrepDataContainer::const_iterator STGCcoll = stgcPrds->indexFind(id);
+	Muon::sTgcPrepDataContainer::const_iterator STGCcoll = stgcPrds->indexFind(id);
 
-	 if( STGCcoll == stgcPrds->end() ) {
-	   continue;
-	 }
+	if( STGCcoll == stgcPrds->end() ) {
+	  continue;
+	}
 
-	 if( (*STGCcoll)->size() == 0) {
-	   ATH_MSG_DEBUG("Empty STGC list");
-	   continue;
-	 }
+	if( (*STGCcoll)->size() == 0) {
+	  ATH_MSG_DEBUG("Empty STGC list");
+	  continue;
+	}
 
-	 stgcHashList_cache.push_back(id);
-	 stgcCols.push_back(*STGCcoll);
-       }
-     }
+	stgcHashList_cache.push_back(id);
+	stgcCols.push_back(*STGCcoll);
+      }
+    }
 
   }
   else {
     ATH_MSG_DEBUG("Use full data access");
-
-    if(m_doDecoding || m_decodeBS) {
-      ATH_MSG_ERROR("decoding of sTGCs is not available yet");
-      return StatusCode::FAILURE;
-    }
 
     // Get sTgc collections
     for(const auto stgccoll : *stgcPrds) {

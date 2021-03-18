@@ -123,7 +123,7 @@ bool FastCaloSimCaloExtrapolation::getCaloSurface(TFCSExtrapolationState& result
     int sample=m_surfacelist[i];
     std::vector<Trk::HitInfo>::iterator it = hitVector->begin();
 
-    while (it != hitVector->end() && it->detID != (IDCaloBoundary+sample)) it++;
+    while (it != hitVector->end() && it->detID != (IDCaloBoundary+sample)) ++it;
 
     if(it==hitVector->end()) continue;
 
@@ -165,7 +165,7 @@ bool FastCaloSimCaloExtrapolation::getCaloSurface(TFCSExtrapolationState& result
       // first intersection with sensitive calo layer
       std::vector<Trk::HitInfo>::iterator it = hitVector->begin();
 
-      while(it < hitVector->end() && (*it).detID != 3) it++;   // to be updated
+      while(it < hitVector->end() && (*it).detID != 3) ++it;   // to be updated
 
       if (it == hitVector->end()) return false;  // no calo intersection, abort
 
@@ -759,6 +759,9 @@ void FastCaloSimCaloExtrapolation::getIterativePCA(float cylR, float cylZ, Amg::
 
     Amg::Vector3D tmpBoundA, tmpBoundB, tmpOnCylinderBoundA, tmpOnCylinderBoundB;
     Amg::Vector3D resBoundA, resBoundB, resOnCylinderBoundA, resOnCylinderBoundB;
+
+    resBoundA.setZero();
+    resBoundB.setZero();
     
     //initial positions on cylinder and distance to line segment
     Amg::Vector3D OnCylinderBoundA = projectOnCylinder(cylR, cylZ, BoundA);

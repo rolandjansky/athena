@@ -543,7 +543,7 @@ StatusCode MdtCalibDbAlg::loadRt(const MuonGM::MuonDetectorManager* muDetMgr){
     if( !detEl ){
       static std::atomic<bool> rtWarningPrinted = false;
       if (!rtWarningPrinted) {
-        ATH_MSG_WARNING("loadRt() - Ignoring nonexistant station in calibration DB: "<<m_idHelperSvc->mdtIdHelper().print_to_string(athenaId)<<", cf. ATLASRECTS-5826");
+        ATH_MSG_WARNING("loadRt() - Ignoring nonexistant station in calibration DB: "<<m_idHelperSvc->mdtIdHelper().print_to_string(athenaId));
         rtWarningPrinted.store(true, std::memory_order_relaxed);
         continue;
       }
@@ -963,7 +963,7 @@ StatusCode MdtCalibDbAlg::loadTube(const MuonGM::MuonDetectorManager* muDetMgr){
     if (!isValid) {
       static std::atomic<bool> idWarningPrinted = false;
       if (!idWarningPrinted) {
-        ATH_MSG_WARNING("Element Identifier " << chId.get_compact() << " retrieved for station name " << name << " is not valid, skipping, cf. ATLASRECTS-5826");
+        ATH_MSG_WARNING("Element Identifier " << chId.get_compact() << " retrieved for station name " << name << " is not valid, skipping");
         idWarningPrinted.store(true, std::memory_order_relaxed);
       }
       continue;
@@ -1017,20 +1017,8 @@ StatusCode MdtCalibDbAlg::loadTube(const MuonGM::MuonDetectorManager* muDetMgr){
     int size      = nml*nlayers*ntubesLay;
 
     if(size!=ntubes) {
-      // currently there is no calibration DB for Run3 or Run4, i.e. nothing for the new
-      // sMDT chambers in the inner barrel layers (BI), so skip them for now until a DB is in place
-      if (m_idHelperSvc->issMdt(chId) && name.find("BI")!=std::string::npos) {
-        static std::atomic<bool> sMDTWarningPrinted = false;
-        if (!sMDTWarningPrinted) {
-          ATH_MSG_WARNING("Currently no entry for "<<name<<" sMDT chambers (eta="<<ieta<<") in database, skipping...");
-          sMDTWarningPrinted.store(true, std::memory_order_relaxed);
-        }
-        continue;
-      }
-      else {
-        ATH_MSG_ERROR( "Pre-existing MdtTubeCalibContainer for chamber ID " <<chId<< " size ("<<size<<") does not match the one found in DB ("<<ntubes<<")");
-        return StatusCode::FAILURE;
-      }
+      ATH_MSG_ERROR( "Mismatch between number of tubes in MdtTubeCalibContainer for chamber "<<name<<","<<iphi<<","<<ieta<<" ("<<size<<") and COOL DB ("<<ntubes<<")");
+      return StatusCode::FAILURE;
     }
 
     //Extract T0, ADCcal, valid flag for each tube from payload.
@@ -1122,7 +1110,7 @@ MuonCalib::MdtTubeCalibContainer* MdtCalibDbAlg::buildMdtTubeCalibContainer(cons
   if( !detEl ){ 
     static std::atomic<bool> warningPrinted = false;
     if (!warningPrinted) {
-      ATH_MSG_WARNING("buildMdtTubeCalibContainer() - Ignoring nonexistant station in calibration DB: "<<m_idHelperSvc->mdtIdHelper().print_to_string(id)<<", cf. ATLASRECTS-5826");
+      ATH_MSG_WARNING("buildMdtTubeCalibContainer() - Ignoring nonexistant station in calibration DB: "<<m_idHelperSvc->mdtIdHelper().print_to_string(id)<<", cf. ATLASRECTS-6035");
       warningPrinted.store(true, std::memory_order_relaxed);
     }
   } else {

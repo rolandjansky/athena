@@ -68,24 +68,26 @@ public:
      succeed
     */
 
-  virtual NeutralParameters* propagate(const NeutralParameters& parameters,
-                                       const Surface& sf,
-                                       PropDirection dir,
-                                       const BoundaryCheck& bcheck,
-                                       bool returnCurv = false) const = 0;
+  virtual std::unique_ptr<NeutralParameters> propagate(
+    const NeutralParameters& parameters,
+    const Surface& sf,
+    PropDirection dir,
+    const BoundaryCheck& bcheck,
+    bool returnCurv = false) const = 0;
 
   /** N 0) <b>Neutral parameters method </b>
       - symmetric interface for new Extrapolation engine
     */
 
-  NeutralParameters* propagate(const NeutralParameters& parameters,
-                               const Surface& sf,
-                               PropDirection dir,
-                               const BoundaryCheck& bcheck,
-                               const MagneticFieldProperties&,
-                               ParticleHypothesis,
-                               bool returnCurv,
-                               const TrackingVolume* tVol = nullptr) const
+  std::unique_ptr<NeutralParameters> propagate(
+    const NeutralParameters& parameters,
+    const Surface& sf,
+    PropDirection dir,
+    const BoundaryCheck& bcheck,
+    const MagneticFieldProperties&,
+    ParticleHypothesis,
+    bool returnCurv,
+    const TrackingVolume* tVol = nullptr) const
   { // avoid warning for tVol
     return propagate(parameters, sf, dir, bcheck, returnCurv);
     if (tVol)

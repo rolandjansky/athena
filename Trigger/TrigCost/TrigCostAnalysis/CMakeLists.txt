@@ -9,7 +9,7 @@ find_package( ROOT COMPONENTS Core Hist RIO )
 # Athena algorithm to do cost analysis and produce histograms
 atlas_add_component( TrigCostAnalysis
                      src/*.cxx src/monitors/*.cxx src/counters/*.cxx src/components/TrigCostAnalysis_entries.cxx
-                     PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthAnalysisBaseCompsLib TrigDataAccessMonitoringLib TrigDecisionToolLib EnhancedBiasWeighterLib xAODEventInfo PathResolver TrigConfData )
+                     PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthAnalysisBaseCompsLib TrigDataAccessMonitoringLib TrigDecisionToolLib EnhancedBiasWeighterLib xAODEventInfo PathResolver TrigConfData TrigCompositeUtilsLib )
 
 # Small helper library used by trigCostHistToCSV
 atlas_add_library( TrigCostAnalysisLib

@@ -119,24 +119,8 @@ public:
     double qop,
     AmgSymMatrix(5) * cov = nullptr) const override final;
 
-  /** Use the Surface as a ParametersBase constructor, from local parameters -
-   * charged */
-  virtual ParametersT<5, Charged, CylinderSurface>* createTrackParameters(
-    double l1,
-    double l2,
-    double phi,
-    double theta,
-    double qop,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
-
-  /** Use the Surface as a ParametersBase constructor, from global parameters -
+ /** Use the Surface as a ParametersBase constructor, from global parameters -
    * charged*/
-  virtual ParametersT<5, Charged, CylinderSurface>* createTrackParameters(
-    const Amg::Vector3D& position,
-    const Amg::Vector3D& momentum,
-    double charge,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
-
   virtual Surface::ChargedTrackParametersUniquePtr createUniqueTrackParameters(
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
@@ -145,7 +129,7 @@ public:
 
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * neutral */
-  virtual ParametersT<5, Neutral, CylinderSurface>* createNeutralParameters(
+  virtual NeutralTrackParametersUniquePtr createUniqueNeutralParameters(
     double l1,
     double l2,
     double phi,
@@ -155,7 +139,7 @@ public:
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -
    * neutral */
-  virtual ParametersT<5, Neutral, CylinderSurface>* createNeutralParameters(
+  virtual NeutralTrackParametersUniquePtr createUniqueNeutralParameters(
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
@@ -163,21 +147,40 @@ public:
 
   /** Use the Surface as a ParametersBase constructor, from local parameters */
   template<int DIM, class T>
-  ParametersT<DIM, T, CylinderSurface>* createParameters(double l1,
-                                                         double l2,
-                                                         double phi,
-                                                         double theta,
-                                                         double qop,
-                                                         AmgSymMatrix(DIM) *
-                                                           cov = 0) const;
+  std::unique_ptr<ParametersT<DIM, T, CylinderSurface>> createUniqueParameters(
+    double l1,
+    double l2,
+    double phi,
+    double theta,
+    double qop,
+    AmgSymMatrix(DIM) * cov = 0) const;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters */
   template<int DIM, class T>
-  const ParametersT<DIM, T, CylinderSurface>* createParameters(
+  std::unique_ptr<ParametersT<DIM, T, CylinderSurface>> createUniqueParameters(
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
     AmgSymMatrix(DIM) * cov = 0) const;
+
+  /** Use the Surface as a ParametersBase constructor, from local parameters */
+  template<int DIM, class T>
+  ParametersT<DIM, T, CylinderSurface> createParameters(double l1,
+                                                     double l2,
+                                                     double phi,
+                                                     double theta,
+                                                     double qop,
+                                                     AmgSymMatrix(DIM) *
+                                                       cov = 0) const;
+
+  /** Use the Surface as a ParametersBase constructor, from global parameters */
+  template<int DIM, class T>
+  ParametersT<DIM, T, CylinderSurface> createParameters(
+    const Amg::Vector3D& position,
+    const Amg::Vector3D& momentum,
+    double charge,
+    AmgSymMatrix(DIM) * cov = 0) const;
+
 
   /** Return the measurement frame - this is needed for alignment, in particular
      for StraightLine and Perigee Surface
@@ -294,9 +297,9 @@ protected: //!< data members
 
   SharedObject<const CylinderBounds> m_bounds; //!< bounds (shared)
   //!< The global reference point (== a point on the  surface)
-  CxxUtils::CachedUniquePtrT<Amg::Vector3D> m_referencePoint;
+  CxxUtils::CachedUniquePtr<Amg::Vector3D> m_referencePoint;
   //!< The rotational symmetry axis
-  CxxUtils::CachedUniquePtrT<Amg::Vector3D> m_rotSymmetryAxis;
+  CxxUtils::CachedUniquePtr<Amg::Vector3D> m_rotSymmetryAxis;
 };
 
 } // end of namespace

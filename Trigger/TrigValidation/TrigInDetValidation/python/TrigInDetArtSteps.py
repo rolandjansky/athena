@@ -11,7 +11,6 @@ import os
 import json
 
 from TrigValTools.TrigValSteering.ExecStep import ExecStep
-from TrigAnalysisTest.TrigAnalysisSteps import AthenaCheckerStep
 from TrigValTools.TrigValSteering.Step import Step
 from TrigValTools.TrigValSteering.CheckSteps import RefComparisonStep
 from AthenaCommon.Utils.unixtools import FindFile
@@ -86,8 +85,7 @@ class TrigInDetReco(ExecStep):
             if (i=='muon') :
                 chains += "'HLT_mu6_idperf_L1MU6',"
                 chains += "'HLT_mu24_idperf_L1MU20',"
-                chains += "'HLT_mu26_ivarmedium_L1MU20',"
-                chains += "'HLT_mu28_ivarmedium_L1MU20',"
+                chains += "'HLT_mu26_ivarperf_L1MU20',"
                 flags += 'doMuonSlice=True;'
             if (i=='electron') :
                 chains +=  "'HLT_e5_etcut_L1EM3',"  ## need an idperf chain once one is in the menu
@@ -98,7 +96,7 @@ class TrigInDetReco(ExecStep):
                 chains +=  "'HLT_tau25_idperf_tracktwoMVA_L1TAU12IM',"
                 flags += 'doTauSlice=True;'
             if (i=='bjet') :
-                chains += "'HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20','HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20',"
+                chains += "'HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20',"
                 flags  += 'doBjetSlice=True;'
             if ( i=='fsjet' or i=='fs' or i=='jet' ) :
                 chains += "'HLT_j45_ftf_L1J15',"
@@ -108,7 +106,7 @@ class TrigInDetReco(ExecStep):
                 flags  += 'doBeamspotSlice=True;'
             if (i=='minbias') :
                 chains += "'HLT_mb_sptrk_L1RD0_FILLED',"
-                flags  += 'doMinBiasSlice=True;'
+                flags  += "doMinBiasSlice=True;setMenu='LS2_v1';"
 
         if ( flags=='' ) : 
             print( "ERROR: no chains configured" )
@@ -154,13 +152,35 @@ class TrigInDetReco(ExecStep):
 # Additional exec (athena) steps - AOD to TrkNtuple
 ##################################################
 
-class TrigInDetAna(AthenaCheckerStep):
-    def __init__(self, name='TrigInDetAna', in_file='AOD.pool.root'):
-        AthenaCheckerStep.__init__(self, name, 'TrigInDetValidation/TrigInDetValidation_AODtoTrkNtuple.py')
+class TrigInDetAna(ExecStep):
+    def __init__(self, name='TrigInDetAna', lrt=False):
+        ExecStep.__init__(self, name )
+        self.type = 'athena'
+        self.job_options = 'TrigInDetValidation/TrigInDetValidation_AODtoTrkNtuple.py'
         self.max_events=-1
         self.required = True
-        self.depends_on_previous = False
-        self.input_file = in_file
+        self.depends_on_previous = True
+        #self.input = 'AOD.pool.root'
+        self.input = ''
+        self.perfmon=False
+        self.imf=False
+        if (lrt):
+            self.args = ' -c "LRT=True" '
+
+##################################################
+# Additional exec (athena) steps - RDO to CostMonitoring
+##################################################
+
+class TrigCostStep(Step):
+    def __init__(self, name='TrigCostStep'):
+        super(TrigCostStep, self).__init__(name)
+        self.required = True
+        self.depends_on_previous = True
+        self.input = 'tmp.RDO_TRIG'
+        self.args = ' --MCCrossSection=0.5 Input.Files=\'["tmp.RDO_TRIG"]\' '
+        self.executable = 'RunTrigCostAnalysis.py'
+
+
 
 ##################################################
 # Additional post-processing steps
@@ -182,6 +202,7 @@ class TrigInDetRdictStep(Step):
         os.system( 'get_files -data TIDAbeam.dat &> /dev/null' )
         os.system( 'get_files -data Test_bin.dat &> /dev/null' )
         os.system( 'get_files -data Test_bin_larged0.dat &> /dev/null' )
+        os.system( 'get_files -data Test_bin_lrt.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata-chains-run3.dat &> /dev/null' )
         os.system( 'get_files -data TIDAhisto-panel.dat &> /dev/null' )
         os.system( 'get_files -data TIDAhisto-panel-vtx.dat &> /dev/null' )
@@ -244,33 +265,28 @@ class TrigInDetCompStep(RefComparisonStep):
         Step.configure(self, test)
 
 
+
+
 class TrigInDetCpuCostStep(RefComparisonStep):
     '''
-    Execute TIDAcpucost for expert-monitoring.root files.
+    Execute TIDAcpucost for data.root files.
     '''
-    def __init__(self, name='TrigInDetCpuCost', ftf_times=True):
+    def __init__( self, name='TrigInDetCpuCost', outdir=None, infile=None, extra=None ):
         super(TrigInDetCpuCostStep, self).__init__(name)
-        self.input_file = 'expert-monitoring.root'
-##      self.ref_file = 'expert-monitoring.root'   #### need to add reference file here 
-        self.output_dir = 'times'
-        self.args = '--auto '
+
+        self.input_file = infile
+        self.output_dir = outdir
         self.auto_report_result = True
-        self.required = True
+        self.required   = True
+        self.extra = extra
         self.executable = 'TIDAcpucost'
-
-        if ftf_times:
-            self.args += ' -d TrigFastTrackFinder_'
-            self.output_dir = 'times-FTF'
     
+
     def configure(self, test):
-        #self.args += self.input_file+' '+self.ref_file+' '+' -o '+self.output_dir
-        if (self.reference is None):
-            ## if not reference found, run with "--noref" option
-            self.args += ' {} --noref -o {} -p TIME'.format(self.input_file,self.output_dir)
+        RefComparisonStep.configure(self, test)
+        if self.reference is None :
+            self.args  = self.input_file + " -o " + self.output_dir + " " + self.extra + "--noref"
         else:
-            self.args += ' {} {} -o {} -p TIME'.format(self.input_file,self.reference,self.output_dir)
-
-        print( "TIDAcpucost " + self.args )    
-
-        super(TrigInDetCpuCostStep, self).configure(test)
+            self.args  = self.input_file + " " + self.reference + " -o " + self.output_dir + " " + self.extra
+        Step.configure(self, test)
 

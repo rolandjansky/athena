@@ -33,6 +33,10 @@
 #include "xAODCaloEvent/CaloVertexedTopoCluster.h"
 #include "PFlowUtils/IWeightPFOTool.h"
 
+
+typedef ElementLink<xAOD::TauJetContainer> TauLink_t;
+typedef ElementLink<xAOD::FlowElementContainer> FELink_t;
+
 namespace met {
 
   using namespace xAOD;
@@ -45,6 +49,7 @@ namespace met {
     m_tauContKey("")
   {
     declareProperty("tauContainer",m_tauContKey);
+    declareProperty("UseFETauLinks", m_useFETauLinks = false ); 
   }
 
   // Destructor
@@ -60,6 +65,13 @@ namespace met {
     ATH_MSG_VERBOSE ("Initializing " << name() << "...");
     ATH_CHECK( m_tauContKey.assign(m_input_data_key));
     ATH_CHECK( m_tauContKey.initialize());
+
+    if (m_useFETauLinks || m_useFELinks) {
+      if (m_neutralFEReadDecorKey.key()=="") {ATH_CHECK( m_neutralFEReadDecorKey.assign(m_input_data_key+"."+m_neutralFELinksKey));}
+      if (m_chargedFEReadDecorKey.key()=="") {ATH_CHECK( m_chargedFEReadDecorKey.assign(m_input_data_key+"."+m_chargedFELinksKey));}
+      ATH_CHECK( m_neutralFEReadDecorKey.initialize());
+      ATH_CHECK( m_chargedFEReadDecorKey.initialize());
+    }
 
     return StatusCode::SUCCESS;
   }
@@ -187,12 +199,81 @@ namespace met {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode METTauAssociator::extractFE(const xAOD::IParticle* obj,
-                                         std::vector<const xAOD::IParticle*>& felist,
-                                         const met::METAssociator::ConstitHolder& constits,
-                                         std::map<const IParticle*,MissingETBase::Types::constvec_t> &/*momenta*/) const
+  StatusCode METTauAssociator::extractFE(const xAOD::IParticle* obj, 
+                                            std::vector<const xAOD::IParticle*>& felist,
+                                            const met::METAssociator::ConstitHolder& constits,
+                                            std::map<const IParticle*,MissingETBase::Types::constvec_t> &/*momenta*/) const
   {
     const TauJet* tau = static_cast<const TauJet*>(obj);
+
+    if (m_useFETauLinks) { 
+      ATH_CHECK( extractFEsFromLinks(tau, felist,constits) );
+    } 
+    else {
+      ATH_CHECK( extractFEs(tau, felist, constits) );
+    }
+
+    return StatusCode::SUCCESS;
+  }
+
+
+  StatusCode METTauAssociator::extractFEsFromLinks(const xAOD::TauJet* tau, //TODO to be tested
+    				    std::vector<const xAOD::IParticle*>& felist,
+				    const met::METAssociator::ConstitHolder& constits) const 
+  {
+
+    ATH_MSG_DEBUG("Extract FEs From Links for " << tau->type()  << " with pT " << tau->pt());
+
+    std::vector<FELink_t> nFELinks;
+    std::vector<FELink_t> cFELinks;
+
+    SG::ReadDecorHandle<xAOD::TauJetContainer, std::vector<FELink_t> > neutralFEReadDecorHandle (m_neutralFEReadDecorKey);
+    SG::ReadDecorHandle<xAOD::TauJetContainer, std::vector<FELink_t> > chargedFEReadDecorHandle (m_chargedFEReadDecorKey);
+    nFELinks=neutralFEReadDecorHandle(*tau);
+    cFELinks=chargedFEReadDecorHandle(*tau);
+
+    // Charged FEs
+    for (FELink_t feLink : cFELinks) {
+      if (feLink.isValid()){
+	const xAOD::FlowElement* fe_init = *feLink;
+	for (const auto fe : *constits.feCont){
+	  if (fe->index() == fe_init->index() && fe->isCharged()){ //index-based match between JetETmiss and CHSFlowElements collections
+	    const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");
+	    if(  fe->isCharged() && PVMatchedAcc(*fe)&& ( !m_cleanChargedPFO || isGoodEoverP(static_cast<const xAOD::TrackParticle*>(fe->chargedObject(0))) ) ) {
+	      ATH_MSG_DEBUG("Accept cFE with pt " << fe->pt() << ", e " << fe->e() << ", eta " << fe->eta() << ", phi " << fe->phi() );
+	      felist.push_back(fe); 
+	    } 
+	  }
+	}
+      }
+    } // end cFE loop
+
+    // Neutral FEs
+    for (FELink_t feLink : nFELinks) {
+      if (feLink.isValid()){
+        const xAOD::FlowElement* fe_init = *feLink;
+	for (const auto fe : *constits.feCont){
+	  if (fe->index() == fe_init->index() && !fe->isCharged()){ //index-based match between JetETmiss and CHSFlowElements collections
+	    if( ( !fe->isCharged()&& fe->e() > FLT_MIN ) ){ 
+	      ATH_MSG_DEBUG("Accept nFE with pt " << fe->pt() << ", e " << fe->e() << ", eta " << fe->eta() << ", phi " << fe->phi() << " in sum.");
+	      felist.push_back(fe);
+	    }   
+	  }
+	}
+      }
+    } // end nFE links loop
+
+
+    return StatusCode::SUCCESS;
+
+  }
+
+
+  StatusCode METTauAssociator::extractFEs(const xAOD::TauJet* tau,
+                                         std::vector<const xAOD::IParticle*>& felist,
+                                         const met::METAssociator::ConstitHolder& constits) const
+  {
+    //const TauJet* tau = static_cast<const TauJet*>(obj);
     const Jet* seedjet = *tau->jetLink();
     TLorentzVector momentum;
     for(const xAOD::FlowElement* pfo : *constits.feCont) {
@@ -222,5 +303,6 @@ namespace met {
     }
     return StatusCode::SUCCESS;
   }
+
 
 }

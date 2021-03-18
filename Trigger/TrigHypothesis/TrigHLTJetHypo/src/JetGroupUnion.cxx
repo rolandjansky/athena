@@ -26,10 +26,10 @@ JetGroupUnion::JetGroupUnion(const std::vector<std::size_t>& siblings,
   }
   
   m_jetIndices.assign(j_elem_indices.begin(), j_elem_indices.end());
+  if (m_jetIndices.empty()) {m_done = true;}
 }
   
-std::optional<std::vector<std::size_t>>
-JetGroupUnion::next(const Collector& collector){
+std::vector<std::size_t> JetGroupUnion::next(const Collector& collector){
   if(collector){
     std::stringstream sstr;
     sstr << "no of indices " << m_jetIndices.size()
@@ -38,9 +38,9 @@ JetGroupUnion::next(const Collector& collector){
   }
   
   if (m_done) {
-    return std::optional<std::vector<std::size_t>>();
+    return std::vector<std::size_t>();
   }
 
   m_done = true;
-  return std::make_optional<std::vector<std::size_t>>(m_jetIndices);
+  return m_jetIndices;
 }

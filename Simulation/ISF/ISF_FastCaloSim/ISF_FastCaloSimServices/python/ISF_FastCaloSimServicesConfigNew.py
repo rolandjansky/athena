@@ -21,7 +21,7 @@ def PunchThroughToolCfg(flags, name="ISF_PunchThroughTool", **kwargs):
 
     acc = RNG(flags.Random.Engine)
     kwargs.setdefault("RandomNumberService", acc.getService("AthRNGSvc"))
-    kwargs.setdefault("RandomStreamName", "AthRNGSvc")
+    kwargs.setdefault("RandomStreamName", "FastCaloSimRnd")
     kwargs.setdefault("FilenameLookupTable", "CaloPunchThroughParametrisation.root")
     kwargs.setdefault("PunchThroughInitiators", [211])
     kwargs.setdefault("PunchThroughParticles", [   2212,     211,      22,      11,      13])
@@ -272,7 +272,7 @@ def FastCaloSimV2ToolCfg(flags, name="ISF_FastCaloSimV2Tool", **kwargs):
     kwargs.setdefault("ParamSvc", acc.getService("ISF_FastCaloSimV2ParamSvc"))
     acc.merge(RNG(flags.Random.Engine))
     kwargs.setdefault("RandomSvc", acc.getService("AthRNGSvc"))
-    kwargs.setdefault("RandomStream", "AthRNGSvc")
+    kwargs.setdefault("RandomStream", "FastCaloSimRnd")
     kwargs.setdefault("PunchThroughTool", "")
 
     acc.setPrivateTools(CompFactory.ISF.FastCaloSimV2Tool(name, **kwargs))
@@ -389,7 +389,7 @@ def DNNCaloSimSvcCfg(flags, name="ISF_DNNCaloSimSvc", **kwargs):
                                                      acc.getPublicTool(FastHit.name)]) #DR needed ?
     kwargs.setdefault("ParamsInputFilename", flags.Sim.FastCalo.ParamsInputFilename)
     kwargs.setdefault("FastCaloSimCaloExtrapolation", acc.getPublicTool(Extrapolator.name))
-    kwargs.setdefault("RandomStream", "AthRNGSvc") # TODO check
+    kwargs.setdefault("RandomStream", "FastCaloSimRnd")
     acc.merge(RNG(flags.Random.Engine))
     kwargs.setdefault("RandomSvc", acc.getService("AthRNGSvc"))
     acc.addService(CompFactory.ISF.DNNCaloSimSvc(name, **kwargs))

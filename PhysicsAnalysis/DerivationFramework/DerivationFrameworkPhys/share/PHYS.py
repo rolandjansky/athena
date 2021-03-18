@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #====================================================================
 # DAOD_PHYS.py
@@ -16,8 +16,8 @@ from DerivationFrameworkMuons import MuonsCommon
 from DerivationFrameworkJetEtMiss.JetCommon import OutputJets
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets, addDefaultTrimmedJets, addJetTruthLabel, addQGTaggerTool, getPFlowfJVT
 from DerivationFrameworkJetEtMiss import METCommon
-from TriggerMenu.api.TriggerAPI import TriggerAPI
-from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
+from TriggerMenuMT.TriggerAPI.TriggerAPI import TriggerAPI
+from TriggerMenuMT.TriggerAPI.TriggerEnums import TriggerPeriod, TriggerType
 from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelper
 
 #====================================================================
@@ -98,9 +98,22 @@ trigger_names_notau = []
 trigger_names_tau = []
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaConfiguration.AutoConfigFlags import GetFileMD
-for chain_name in GetFileMD(athenaCommonFlags.FilesInput.get_Value())['TriggerMenu']['HLTChains']:
-   if chain_name in trigger_names_full_notau: trigger_names_notau.append(chain_name)
-   if chain_name in trigger_names_full_tau:   trigger_names_tau.append(chain_name) 
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
+if ConfigFlags.Trigger.EDMVersion == 3:
+   trigger_names_notau = [
+      "HLT_mu26_ivarmedium_L1MU20",
+      "HLT_mu50_L1MU20",
+      "HLT_e26_etcut_L1EM22VHI",
+      "HLT_e26_lhmedium_L1EM22VHI",
+      "HLT_mu22_mu8noL1_L1MU20",
+      "HLT_e7_lhmedium_mu24_L1MU20",
+   ]
+   trigger_names_tau = ["HLT_tau25_mediumRNN_tracktwoMVA_L1TAU12IM",]   
+else:
+   for chain_name in GetFileMD(ConfigFlags.Input.Files)['TriggerMenu']['HLTChains']:
+      if chain_name in trigger_names_full_notau: trigger_names_notau.append(chain_name)
+      if chain_name in trigger_names_full_tau:   trigger_names_tau.append(chain_name) 
 # Create trigger matching decorations
 trigmatching_helper_notau = TriggerMatchingHelper(name='PHYSTriggerMatchingToolNoTau',
         trigger_list = trigger_names_notau, add_to_df_job=True)
@@ -171,15 +184,20 @@ thinningTools.append(PHYSDiTauTPThinningTool)
 # JET/MET   
 #====================================================================
 
-OutputJets["PHYS"] = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
-reducedJetList = ["AntiKt2PV0TrackJets","AntiKt4PV0TrackJets"]
+# TODO: UFO jets to be added in the future
+largeRJetCollections = [
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" #, "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets"
+]
+
+OutputJets["PHYS"] = largeRJetCollections
+reducedJetList = ["AntiKt2PV0TrackJets","AntiKt4PV0TrackJets", "AntiKtVR30Rmax4Rmin02PV0TrackJets"]
 
 if (DerivationFrameworkIsMonteCarlo):
    OutputJets["PHYS"].append("AntiKt10TruthTrimmedPtFrac5SmallR20Jets")
 
 replaceAODReducedJets(reducedJetList,SeqPHYS,"PHYS")
 add_largeR_truth_jets = DerivationFrameworkIsMonteCarlo and not hasattr(SeqPHYS,'jetalgAntiKt10TruthTrimmedPtFrac5SmallR20')
-addDefaultTrimmedJets(SeqPHYS,"PHYS",dotruth=add_largeR_truth_jets)
+addDefaultTrimmedJets(SeqPHYS,"PHYS",dotruth=add_largeR_truth_jets, linkVRGhosts=True)
 
 # Add large-R jet truth labeling
 if (DerivationFrameworkIsMonteCarlo):
@@ -212,6 +230,7 @@ DerivationFrameworkJob += SeqPHYS
 #====================================================================
 # Tau   
 #====================================================================
+
 # Add low-pt di-tau reconstruction
 from DerivationFrameworkTau.TauCommon import addDiTauLowPt
 addDiTauLowPt(Seq=SeqPHYS)
@@ -233,6 +252,7 @@ PHYSDiTauLowPtTPThinningTool = DerivationFramework__DiTauTrackParticleThinning(n
                                                                                SelectionString         = "DiTauJetsLowPt.nSubjets > 1")
 ToolSvc += PHYSDiTauLowPtTPThinningTool
 thinningTools.append(PHYSDiTauLowPtTPThinningTool)
+
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
@@ -281,7 +301,7 @@ PHYSSlimmingHelper.SmartCollections = ["Electrons",
                                        "DiTauJets",
                                        "DiTauJetsLowPt",
                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-                                       #"AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
+                                       "AntiKtVR30Rmax4Rmin02PV0TrackJets",
                                        #"BTagging_AntiKtVR30Rmax4Rmin02Track_201903"
                                       ]
 
@@ -349,7 +369,8 @@ PHYSSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.T
                                       "AntiKt2PV0TrackJets.pt.eta.phi.m",
                                       "AntiKt4EMTopoJets.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.PartonTruthLabelID",
                                       "AntiKt4EMPFlowJets.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.PartonTruthLabelID.DFCommonJets_fJvt",
-                                      "TruthPrimaryVertices.t.x.y.z"]
+                                      "TruthPrimaryVertices.t.x.y.z",
+                                      "InDetTrackParticles.TTVA_AMVFVertices.TTVA_AMVFWeights"]
 
 # Add trigger matching
 trigmatching_helper_notau.add_to_slimming(PHYSSlimmingHelper)

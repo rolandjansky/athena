@@ -39,6 +39,8 @@ TrigJetConditionConfig_repeated::getCompoundCondition() const {
 ConditionPtr
 TrigJetConditionConfig_repeated::getRepeatedCondition() const {
 
+  if (m_elementConditions.empty()) {return ConditionPtr(nullptr);}
+
   return
     std::make_unique<RepeatedCondition>(getCompoundCondition(),
 					       m_multiplicity,

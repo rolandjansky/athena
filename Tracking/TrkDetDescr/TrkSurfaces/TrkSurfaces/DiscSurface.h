@@ -118,16 +118,7 @@ public:
   /** Virtual constructor*/
   virtual DiscSurface* clone() const override;
 
-  /** Use the Surface as a ParametersBase constructor, from local parameters -
-   * charged */
-  virtual ParametersT<5, Charged, DiscSurface>* createTrackParameters(
-    double l1,
-    double l2,
-    double phi,
-    double theta,
-    double qop,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
-    
+
 /** Use the Surface as a ParametersBase constructor, from local parameters -
    * charged */
   virtual Surface::ChargedTrackParametersUniquePtr createUniqueTrackParameters(
@@ -137,16 +128,10 @@ public:
     double theta,
     double qop,
     AmgSymMatrix(5) * cov = nullptr) const override final;
-    
-  virtual Surface::ChargedTrackParametersUniquePtr createUniqueTrackParameters(
-    const Amg::Vector3D& position,
-    const Amg::Vector3D& momentum,
-    double charge,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -
    * charged*/
-  virtual ParametersT<5, Charged, DiscSurface>* createTrackParameters(
+  virtual Surface::ChargedTrackParametersUniquePtr createUniqueTrackParameters(
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
@@ -154,7 +139,7 @@ public:
 
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * neutral */
-  virtual ParametersT<5, Neutral, DiscSurface>* createNeutralParameters(
+  virtual NeutralTrackParametersUniquePtr createUniqueNeutralParameters(
     double l1,
     double l2,
     double phi,
@@ -164,7 +149,7 @@ public:
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -
    * neutral */
-  virtual ParametersT<5, Neutral, DiscSurface>* createNeutralParameters(
+  virtual NeutralTrackParametersUniquePtr createUniqueNeutralParameters(
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
@@ -172,21 +157,40 @@ public:
 
   /** Use the Surface as a ParametersBase constructor, from local parameters */
   template<int DIM, class T>
-  ParametersT<DIM, T, DiscSurface>* createParameters(double l1,
-                                                     double l2,
-                                                     double phi,
-                                                     double theta,
-                                                     double qop,
-                                                     AmgSymMatrix(DIM) *
-                                                       cov = 0) const;
+  std::unique_ptr<ParametersT<DIM, T, DiscSurface>> createUniqueParameters(
+    double l1,
+    double l2,
+    double phi,
+    double theta,
+    double qop,
+    AmgSymMatrix(DIM) * cov = 0) const;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters */
   template<int DIM, class T>
-  ParametersT<DIM, T, DiscSurface>* createParameters(
+  std::unique_ptr<ParametersT<DIM, T, DiscSurface>> createUniqueParameters(
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
     AmgSymMatrix(DIM) * cov = 0) const;
+
+  /** Use the Surface as a ParametersBase constructor, from local parameters */
+  template<int DIM, class T>
+  ParametersT<DIM, T, DiscSurface> createParameters(double l1,
+                                                    double l2,
+                                                    double phi,
+                                                    double theta,
+                                                    double q,
+                                                    AmgSymMatrix(DIM) *
+                                                      cov = 0) const;
+
+  /** Use the Surface as a ParametersBase constructor, from global parameters */
+  template<int DIM, class T>
+  ParametersT<DIM, T, DiscSurface> createParameters(
+    const Amg::Vector3D& position,
+    const Amg::Vector3D& momentum,
+    double charge,
+    AmgSymMatrix(DIM) * cov = 0) const;
+
 
   /** Return the surface type */
   virtual SurfaceType type() const override final;
@@ -195,7 +199,7 @@ public:
      For the Disc this is @f$ (R*cos(\phi), R*sin(\phi),0)*transform() @f$
      Where  @f$ r,  \phi @f$ denote the r(), averagePhi() of the Bounds.
    */
-  virtual const Amg::Vector3D& globalReferencePoint() const override final; 
+  virtual const Amg::Vector3D& globalReferencePoint() const override final;
 
   /**This method returns the bounds by reference*/
   const SurfaceBounds& bounds() const override final;
@@ -306,7 +310,7 @@ protected: //!< data members
   //!< bounds (shared)
   SharedObject<const SurfaceBounds> m_bounds;
   //!< reference Point on the Surface
-  CxxUtils::CachedUniquePtrT<Amg::Vector3D> m_referencePoint;
+  CxxUtils::CachedUniquePtr<Amg::Vector3D> m_referencePoint;
   //!< static member for boundless approach
   static const NoBounds s_boundless;
 };

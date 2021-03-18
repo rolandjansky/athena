@@ -131,6 +131,8 @@ namespace PayloadHelpers {
   }
 }
 
+std::unique_ptr<TList> TriggerEDMDeserialiserAlg::s_streamerInfoList{};
+std::mutex TriggerEDMDeserialiserAlg::s_mutex;
 
 TriggerEDMDeserialiserAlg::TriggerEDMDeserialiserAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthReentrantAlgorithm(name, pSvcLocator) {}
@@ -158,10 +160,9 @@ StatusCode TriggerEDMDeserialiserAlg::execute(const EventContext& context) const
   ATH_MSG_DEBUG("Obtained HLTResultMT with key " << m_resultKey.key());
   
   const Payload* dataptr = nullptr;
-  // TODO: check if there are use cases where result may be not available in some events and this is not an issue at all
   if ( resultHandle->getSerialisedData( m_moduleID, dataptr ).isFailure() ) {
-    ATH_MSG_WARNING("No payload available with moduleId " << m_moduleID << " in this event");
-    return StatusCode::SUCCESS;
+    ATH_MSG_ERROR("No payload available with moduleId " << m_moduleID << " in this event");
+    return StatusCode::FAILURE;
   }
   ATH_CHECK( deserialise( dataptr ) );
   return StatusCode::SUCCESS;
@@ -341,14 +342,20 @@ StatusCode TriggerEDMDeserialiserAlg::checkSanity( const std::string& transientT
 }
 
 
-
 void TriggerEDMDeserialiserAlg::add_bs_streamerinfos(){
+  std::lock_guard<std::mutex> lock(s_mutex);
+
+  if (s_streamerInfoList) {
+    return;
+  }
+
   std::string extStreamerInfos = "bs-streamerinfos.root";
   std::string extFilePath = PathResolver::find_file(extStreamerInfos, "DATAPATH");
   ATH_MSG_DEBUG( "Using " << extFilePath );
   TFile extFile(extFilePath.c_str());
-  m_streamerInfoList = std::unique_ptr<TList>(extFile.GetStreamerInfoList());
-  for(const auto&& infObj: *m_streamerInfoList) {
+
+  s_streamerInfoList = std::unique_ptr<TList>(extFile.GetStreamerInfoList());
+  for(const auto&& infObj: *s_streamerInfoList) {
     TString t_name=infObj->GetName();
     if (t_name.BeginsWith("listOfRules")){
       ATH_MSG_WARNING( "Could not re-load  class " << t_name );

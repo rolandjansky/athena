@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 //============================================================
 // T2VertexBeamSpot.cxx, (c) ATLAS Detector software
@@ -13,18 +13,13 @@
 //
 //============================================================
 // This algorithm
-#include "TrigT2BeamSpot/T2VertexBeamSpotTool.h"
+#include "T2VertexBeamSpotTool.h"
 #include "T2TrackManager.h"
-#include "T2Timer.h"
 // Specific to this algorithm
 #include "TrigInDetEvent/TrigVertex.h"
 #include "TrigInDetEvent/TrigVertexCollection.h"
 #include "TrigInDetToolInterfaces/ITrigPrimaryVertexFitter.h"
 #include "TrkParameters/TrackParameters.h"
-// Generic Trigger tools
-#include "TrigNavigation/TriggerElement.h"
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigTimeAlgs/TrigTimer.h"
 //Conversion units
 #include "GaudiKernel/SystemOfUnits.h"
 using Gaudi::Units::GeV;
@@ -127,9 +122,6 @@ PESA::T2VertexBeamSpotTool::T2VertexBeamSpotTool( const std::string& type, const
    declareProperty("maxNpvTrigger",  m_maxNpvTrigger  = 2);
 }
 
-
-
-
 StatusCode T2VertexBeamSpotTool::initialize(){
    ATH_MSG_INFO( "Initialising BeamSpot tool" );
 
@@ -147,6 +139,22 @@ StatusCode T2VertexBeamSpotTool::initialize(){
    return StatusCode::SUCCESS;
 }
 
+unsigned T2VertexBeamSpotTool::numHighPTTrack( ConstDataVector<TrackCollection>& tracks ) const
+{
+   unsigned count = 0;
+   for (auto&& track: tracks) {
+      const Trk::TrackParameters* trackPars = track->perigeeParameters();
+      if (trackPars) {
+         float qOverP = trackPars->parameters()[Trk::qOverP];
+         float theta = trackPars->parameters()[Trk::theta];
+         double pt = std::abs(std::sin(theta)/qOverP)/Gaudi::Units::GeV;
+         if (pt > m_trackSeedPt) {
+            ++count;
+         }
+      }
+   }
+   return count;
+}
 
 /********************************************//**
 * \fn Select tracks
@@ -417,7 +425,7 @@ unsigned int T2VertexBeamSpotTool::reconstructVertices( ConstDataVector<TrackCol
     }//End looping over tracks
 
   //monitor number of (passed) vertices, clusters, etc
-  auto mon = Monitored::Group(m_monTool,  nVtx, nPassVtx, nPassBCIDVtx, nClusters, timerVertexRec, BCID );
+  auto mon = Monitored::Group(m_monTool, nVtx, nPassVtx, nPassBCIDVtx, nClusters, timerVertexRec, BCID);
   return static_cast<unsigned int>(nPassVtx);
 }
 

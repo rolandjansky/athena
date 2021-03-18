@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonClusterSegmentFinderTool.h"
@@ -236,13 +236,13 @@ MuonClusterSegmentFinderTool::findPrecisionSegments(std::vector<const Muon::Muon
         return;
     }
 
-    TrackCollection* resolvedTracks = m_ambiTool->process(segTrkColl.get());
+    std::unique_ptr<const TrackCollection> resolvedTracks (m_ambiTool->process(segTrkColl.get()));
     ATH_MSG_DEBUG("Resolved track candidates: old size " << segTrkColl->size() << " new size "
                                                          << resolvedTracks->size());
     // store the resolved segments
 
-    for (TrackCollection::const_iterator it = resolvedTracks->begin(); it != resolvedTracks->end(); ++it) {
-        MuonSegment* seg = m_trackToSegmentTool->convert(**it);
+    for (const Trk::Track* rtrk : *resolvedTracks) {
+        MuonSegment* seg = m_trackToSegmentTool->convert(*rtrk);
         if (!seg) {
             ATH_MSG_VERBOSE("Segment conversion failed, no segment created. ");
         } else {
@@ -251,9 +251,6 @@ MuonClusterSegmentFinderTool::findPrecisionSegments(std::vector<const Muon::Muon
             etaSegs.push_back(seg);
         }
     }
-
-    // memory cleanup
-    delete resolvedTracks;
 }
 
 void
@@ -459,12 +456,12 @@ MuonClusterSegmentFinderTool::find3DSegments(std::vector<const Muon::MuonCluster
         }
     }  // end loop on precision plane segments
 
-    TrackCollection* resolvedTracks = m_ambiTool->process(segTrkColl);
+    std::unique_ptr<const TrackCollection> resolvedTracks (m_ambiTool->process(segTrkColl));
     ATH_MSG_DEBUG("Resolved track candidates: old size " << segTrkColl->size() << " new size "
                                                          << resolvedTracks->size());
     // store the resolved segments
-    for (TrackCollection::const_iterator it = resolvedTracks->begin(); it != resolvedTracks->end(); ++it) {
-        MuonSegment* seg = m_trackToSegmentTool->convert(**it);
+    for (const Trk::Track* rtrk : *resolvedTracks) {
+        MuonSegment* seg = m_trackToSegmentTool->convert(*rtrk);
         if (!seg) {
             ATH_MSG_VERBOSE("Segment conversion failed, no segment created. ");
         } else {
@@ -477,7 +474,6 @@ MuonClusterSegmentFinderTool::find3DSegments(std::vector<const Muon::MuonCluster
 
     // memory cleanup
     delete segTrkColl;
-    delete resolvedTracks;
 
     for (std::vector<Muon::MuonSegment*>::iterator sit = etaSegs.begin(); sit != etaSegs.end(); ++sit) {
         delete *sit;
@@ -1025,7 +1021,7 @@ MuonClusterSegmentFinderTool::belowThreshold(std::vector<const Muon::MuonCluster
     int n_surf_with_hits = 0;
     if (muonClusters.size() > 1) {
         for (std::vector<const Muon::MuonClusterOnTrack*>::const_iterator cit = muonClusters.begin() + 1;
-             cit != muonClusters.end(); cit++)
+             cit != muonClusters.end(); ++cit)
         {
             if ((*cit) && (*(cit - 1))) {
                 if ((*cit)->detectorElement()->center((*cit)->identify())
@@ -1054,10 +1050,10 @@ MuonClusterSegmentFinderTool::belowThreshold(std::vector<const Muon::MuonCluster
     
     for ( ; cit != clusters.end() ; ++cit ) {
       const Muon::MuonClusterOnTrack* clus = *cit;      
-      const Muon::MuonClusterOnTrack* newClus;
       /// get the intercept of the seed direction with the cluster surface
       const Trk::PlaneSurface* surf = dynamic_cast<const Trk::PlaneSurface*> (&clus->associatedSurface());
       if(surf) {
+        const Muon::MuonClusterOnTrack* newClus = nullptr;
 	Amg::Vector3D posOnSurf = intersectPlane( *surf, seed.first, seed.second );
 	Amg::Vector2D lpos;
         surf->globalToLocal(posOnSurf,posOnSurf,lpos);	
@@ -1081,8 +1077,8 @@ MuonClusterSegmentFinderTool::belowThreshold(std::vector<const Muon::MuonCluster
           /// if it's STGC just copy the cluster -> calibration to be added
           newClus = clus;
         }
+        calibratedClusters.push_back(newClus);
       }
-      calibratedClusters.push_back(newClus);
     }
     return calibratedClusters;
   }

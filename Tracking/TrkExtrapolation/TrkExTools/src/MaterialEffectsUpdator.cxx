@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -30,6 +30,7 @@
 // std
 #include <algorithm>
 #include <functional>
+#include <cmath>
 namespace {
 const Trk::ParticleMasses s_particleMasses{};
 }
@@ -147,17 +148,17 @@ Trk::MaterialEffectsUpdator::updateImpl(
   // no material properties - pass them back
   if (particle == Trk::geantino || particle == Trk::nonInteractingMuon || (!m_doMs && !m_doEloss) ||
       !lay.isOnLayer(parm->position())) {
-    return std::unique_ptr<TrackParameters>(parm->clone());
+    return parm->uniqueClone();
   }
 
   // get the quantities
   const Trk::MaterialProperties* mprop = lay.fullUpdateMaterialProperties(*parm);
   if (!mprop) {
-    return std::unique_ptr<TrackParameters>(parm->clone());
+    return parm->uniqueClone();
   }
 
   // get the real pathlength
-  double pathCorrection = fabs(lay.surfaceRepresentation().pathCorrection(parm->position(), parm->momentum()));
+  double pathCorrection = std::abs(lay.surfaceRepresentation().pathCorrection(parm->position(), parm->momentum()));
 
   // set the output if restricted to the direction
   bool outputFlag = m_msgOutputValidationDirection ? dir == int(m_validationDirection) : true;
@@ -194,14 +195,14 @@ Trk::MaterialEffectsUpdator::updateImpl(
   // curvilinear) then should we fall through?
   if (particle == Trk::geantino || particle == Trk::nonInteractingMuon || (!m_doMs && !m_doEloss) ||
       parm->associatedSurface() != meff.associatedSurface()) {
-    return std::unique_ptr<TrackParameters>(parm->clone());
+    return parm->uniqueClone();
   }
 
   // get the kinematics
   double p = parm->momentum().mag();
   double updateMomentum = (m_forceMomentum) ? m_forcedMomentum : p;
   double m = s_particleMasses.mass[particle];
-  double E = sqrt(p * p + m * m);
+  double E = std::sqrt(p * p + m * m);
   double beta = p / E;
 
   double pathcorrection = 1.; // Trick the MultipleScatteringUpdator interface
@@ -241,7 +242,7 @@ Trk::MaterialEffectsUpdator::updateImpl(
     if (E + energyLoss < -m) {
       return nullptr; // protect against flip in correction
     }
-    newP = sqrt(newP2);
+    newP = std::sqrt(newP2);
     sigmaQoverP = energyLossSigma / (beta * p * p);
     sigmaQoverPSq = sigmaQoverP * sigmaQoverP;
     qOverPnew = parm->charge() / newP;
@@ -314,7 +315,7 @@ Trk::MaterialEffectsUpdator::updateImpl(
       // updatedError = new Trk::ErrorMatrix(updatedCovariance);
       // -------------------------------------- screen output --------------------------------------
       if (m_msgOutputCorrections) {
-        double sigmaAngle = sqrt(angularVariation);
+        double sigmaAngle = std::sqrt(angularVariation);
         ATH_MSG_VERBOSE("    sigma(phi) / sigma(theta) = " << sigmaAngle / std::sin(parm->parameters()[Trk::theta]) << " / "
                                                            << sigmaAngle);
         ATH_MSG_VERBOSE("    deltaP / sigmaQoverP      = " << energyLoss << " / " << sigmaQoverP);
@@ -353,15 +354,13 @@ Trk::MaterialEffectsUpdator::updateImpl(
     // ----------------------------------------- validation section ----------------------------------
   }
   updatedParameters[Trk::qOverP] = qOverPnew;
-  return std::unique_ptr<TrackParameters>(
-    parm->associatedSurface().createTrackParameters(
+  return  parm->associatedSurface().createUniqueTrackParameters(
       updatedParameters[Trk::loc1],
       updatedParameters[Trk::loc2],
       updatedParameters[Trk::phi],
       updatedParameters[Trk::theta],
       updatedParameters[Trk::qOverP],
       updatedCovariance
-    )
   );
 }
 
@@ -376,14 +375,14 @@ Trk::MaterialEffectsUpdator::preUpdateImpl(
 ) const {
   // no material properties - pass the parameters back
   if (particle == Trk::geantino || particle == Trk::nonInteractingMuon || (!m_doMs && !m_doEloss)) {
-    return std::unique_ptr<TrackParameters>(parm->clone());
+    return parm->uniqueClone();
   }
 
   // get the split factor
   double preFactor = lay.preUpdateMaterialFactor(*parm, dir);
   // return if the preFactor is less than one
   if (preFactor < 0.01) {
-    return std::unique_ptr<TrackParameters>(parm->clone());
+    return parm->uniqueClone();
   }
 
   // get the material properties
@@ -393,12 +392,12 @@ Trk::MaterialEffectsUpdator::preUpdateImpl(
   bool outputFlag = m_msgOutputValidationDirection ? dir == int(m_validationDirection) : true;
 
   mprop = lay.fullUpdateMaterialProperties(*parm);
-  double pathCorrection = fabs(lay.surfaceRepresentation().pathCorrection(parm->position(), parm->momentum()));
+  double pathCorrection = std::abs(lay.surfaceRepresentation().pathCorrection(parm->position(), parm->momentum()));
   pathCorrection *= preFactor;
 
   // exit if no mprop could be assigned
   if (!mprop) {
-    return std::unique_ptr<TrackParameters>(parm->clone());
+    return parm->uniqueClone();
   }
   // --------------------------------------------------------------------------------------------------
   if (outputFlag) {
@@ -431,7 +430,7 @@ Trk::MaterialEffectsUpdator::postUpdateImpl(
   // no material properties - pass the parameters back
   if (particle == Trk::geantino || particle == Trk::nonInteractingMuon || (!m_doMs && !m_doEloss) ||
       !lay.isOnLayer(parm.position())) {
-    return std::unique_ptr<TrackParameters>(parm.clone());
+    return parm.uniqueClone();
   }
 
   // get the quantities
@@ -440,19 +439,19 @@ Trk::MaterialEffectsUpdator::postUpdateImpl(
 
   // no material properties - pass them back
   if (postFactor < 0.01) {
-    return std::unique_ptr<TrackParameters>(parm.clone());
+    return parm.uniqueClone();
   }
 
   // set the output if restricted to the validation direction
   bool outputFlag = m_msgOutputValidationDirection ? dir == int(m_validationDirection) : true;
 
   mprop = lay.fullUpdateMaterialProperties(parm);
-  double pathCorrection = fabs(lay.surfaceRepresentation().pathCorrection(parm.position(), parm.momentum()));
+  double pathCorrection = std::abs(lay.surfaceRepresentation().pathCorrection(parm.position(), parm.momentum()));
   pathCorrection *= postFactor;
 
   // exit if no material properties
   if (!mprop) {
-    return std::unique_ptr<TrackParameters>(parm.clone());
+    return parm.uniqueClone();
   }
 
   // --------------------------------------------------------------------------------------------------
@@ -487,14 +486,14 @@ Trk::MaterialEffectsUpdator::updateImpl(
 ) const {
   // no material properties - pass them back
   if (particle == Trk::geantino || particle == Trk::nonInteractingMuon || (!m_doMs && !m_doEloss)) {
-    return std::unique_ptr<TrackParameters>(parm->clone());
+    return parm->uniqueClone();
   }
 
   // get the kinematics
   double p = parm->momentum().mag();
   double updateMomentum = (m_forceMomentum) ? m_forcedMomentum : p;
   double m = s_particleMasses.mass[particle];
-  double E = sqrt(p * p + m * m);
+  double E = std::sqrt(p * p + m * m);
   double beta = p / E;
 
   // set the output if restricted to the validation direction
@@ -532,17 +531,15 @@ Trk::MaterialEffectsUpdator::updateImpl(
     if (newP2 < m_momentumCut * m_momentumCut) {
       return nullptr; // protect against FPE
     }
-    double deltaP = sqrt(newP2) - p;
+    double deltaP = std::sqrt(newP2) - p;
     double sigmaQoverP = sigmaDeltaE / std::pow(beta * p, 2);
 
     Trk::DefinedParameter qOverPmod(parm->charge() / (p + deltaP), Trk::qOverP);
 
     // check if Parameters are measured parameters
-    // const Trk::MeasuredTrackParameters* mpars = dynamic_cast<const Trk::MeasuredTrackParameters*>(parm);
     const Trk::TrackParameters* mpars = parm;
     AmgVector(5) updatedParameters(mpars->parameters());
     // initialize ErrorMatrix pointer
-    // Trk::ErrorMatrix* updatedError      = 0;
     AmgSymMatrix(5)* updatedCovariance = nullptr;
     if (mpars || (m_validationMode && !m_validationIgnoreUnmeasured)) {
       // the new CovarianceMatrix - a copy first
@@ -585,11 +582,10 @@ Trk::MaterialEffectsUpdator::updateImpl(
         }
 
         // create the ErrorMatrix
-        // updatedError = new Trk::ErrorMatrix(updatedCovariance);
 
         // -------------------------------------- screen output --------------------------------------
         if (outputFlag && m_msgOutputCorrections) {
-          double sigmaAngle = sqrt(angularVariation);
+          double sigmaAngle = std::sqrt(angularVariation);
           ATH_MSG_VERBOSE("    sigma(phi) / sigma(theta) = " << sigmaAngle / std::sin(parm->parameters()[Trk::theta])
                                                              << " / " << sigmaAngle);
           ATH_MSG_VERBOSE("    deltaP / sigmaQoverP      = " << deltaP << " / " << sigmaQoverP);
@@ -641,19 +637,17 @@ Trk::MaterialEffectsUpdator::updateImpl(
       // ----------------------------------------- validation section ----------------------------------
     }
     updatedParameters[Trk::qOverP] = parm->charge() / (p + deltaP);
-    return std::unique_ptr<TrackParameters>(
-      parm->associatedSurface().createTrackParameters(
+    return parm->associatedSurface().createUniqueTrackParameters(
         updatedParameters[Trk::loc1],
         updatedParameters[Trk::loc2],
         updatedParameters[Trk::phi],
         updatedParameters[Trk::theta],
         updatedParameters[Trk::qOverP],
         updatedCovariance
-      )
     );
   }
   //default if we have not returned just above
-  return std::unique_ptr<TrackParameters>(parm->clone());
+  return parm->uniqueClone();
 }
 
 // actual update method
@@ -669,14 +663,14 @@ Trk::MaterialEffectsUpdator::updateImpl(
 ) const {
   // no material properties - pass them back
   if (particle == Trk::geantino || (!m_doMs && !m_doEloss)) {
-    return std::unique_ptr<TrackParameters>(parm.clone());
+    return parm.uniqueClone();
   }
 
   // get the kinematics
   double p = parm.momentum().mag();
   double updateMomentum = (m_forceMomentum) ? m_forcedMomentum : p;
   double m = s_particleMasses.mass[particle];
-  double E = sqrt(p * p + m * m);
+  double E = std::sqrt(p * p + m * m);
   double beta = p / E;
 
   // set the output if restricted to the validation direction
@@ -717,7 +711,7 @@ Trk::MaterialEffectsUpdator::updateImpl(
     if (newP2 < m_momentumCut * m_momentumCut) {
       return nullptr; // protect against FPE
     }
-    double deltaP = sqrt(newP2) - p;
+    double deltaP = std::sqrt(newP2) - p;
     double sigmaQoverP = sigmaDeltaE / std::pow(beta * p, 2);
 
     updatedParameters[Trk::qOverP] = parm.charge() / (p + deltaP);
@@ -762,7 +756,7 @@ Trk::MaterialEffectsUpdator::updateImpl(
       // create the ErrorMatrix         // -------------------------------------- screen output
       // --------------------------------------
       if (outputFlag && m_msgOutputCorrections) {
-        double sigmaAngle = sqrt(angularVariation);
+        double sigmaAngle = std::sqrt(angularVariation);
         ATH_MSG_VERBOSE("    sigma(phi) / sigma(theta) = " << sigmaAngle / std::sin(parm.parameters()[Trk::theta]) << " / "
                                                            << sigmaAngle);
         ATH_MSG_VERBOSE("    deltaP / sigmaQoverP      = " << deltaP << " / " << sigmaQoverP);
@@ -812,18 +806,16 @@ Trk::MaterialEffectsUpdator::updateImpl(
       }
       // ------------------------------------------validation section ----------------------------------
     }
-    return std::unique_ptr<TrackParameters>(
-      parm.associatedSurface().createTrackParameters(
+    return parm.associatedSurface().createUniqueTrackParameters(
         updatedParameters[Trk::loc1],
         updatedParameters[Trk::loc2],
         updatedParameters[Trk::phi],
         updatedParameters[Trk::theta],
         updatedParameters[Trk::qOverP],
         updatedCovariance
-      )
     );
   }
-  return std::unique_ptr<TrackParameters>(parm.clone());
+  return parm.uniqueClone();
 }
 
 void

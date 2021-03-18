@@ -29,7 +29,7 @@ StatusCode CSCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
 	// Get the CSC Id hit helper
 	CscHitIdHelper* cschhelper = CscHitIdHelper::GetHelper();
 
-	if (cscContainer->size() == 0) ATH_MSG_WARNING(" CscSimHit empty ");
+	if (!cscContainer->size()) ATH_MSG_DEBUG(m_ContainerName<<" container empty");
 	for (auto it : *cscContainer) {
 		const CSCSimHit hit = it;
 
@@ -50,13 +50,13 @@ StatusCode CSCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
 		// does not seem to return this, so we just give measuresPhi=0 and stripNumber=1 for now
 		Identifier offid = m_CscIdHelper->channelID(stname, steta, stphi, clayer, wlayer, 0, 1, true, &isValid);
 		if (!isValid) {
-			ATH_MSG_WARNING(" Cannot build a valid Identifier; skip ");
+            ATH_MSG_WARNING("Cannot build a valid Identifier for CSC stationName="<<stname<<", eta="<<steta<<", phi="<<stphi<<", chamberLayer="<<clayer<<", wireLayer="<<wlayer<<"; skipping...");
 			continue;
 		}
 
 		const MuonGM::CscReadoutElement* cscdet = MuonDetMgr->getCscReadoutElement(offid);
 		if (!cscdet) {
-			ATH_MSG_ERROR("CSCSimHitVariables::fillVariables() - Failed to retrieve CscReadoutElement for" << __FILE__ << __LINE__ << m_CscIdHelper->print_to_string(offid).c_str());
+			ATH_MSG_ERROR("CSCSimHitVariables::fillVariables() - Failed to retrieve CscReadoutElement for "<<m_CscIdHelper->print_to_string(offid).c_str());
 			return StatusCode::FAILURE;
 		}
 

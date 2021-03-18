@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthSequencer.cxx
@@ -21,6 +21,8 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Chrono.h"
 #include "GaudiKernel/Stat.h"
+#include "GaudiKernel/AlgTool.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/GaudiException.h"
 #include "CxxUtils/excepts.h"
 #include "AthenaKernel/AlgorithmTimer.h"
@@ -31,6 +33,8 @@
 #ifdef __APPLE__
 #include <execinfo.h>
 #endif
+
+#include "AthenaBaseComps/DynamicDataHelper.h"
 
 /// timer will abort job once timeout for any algorithm or sequence is reached
 thread_local std::unique_ptr<Athena::AlgorithmTimer> s_abortTimer{nullptr};
@@ -82,6 +86,11 @@ AthSequencer::AthSequencer( const std::string& name,
                   "Flag to configure, if job crashes or skips event in case of FPE. "
                   "Default: crash job. It prints an FATAL to mark job unsuccessful "
                   "for production system if an FPE happened. USE WITH CARE !" );
+
+  declareProperty("ExtraDataForDynamicConsumers", m_undeclaredOutputData,
+                  "Pass these extra output data IDs, which are not declared by any of the algorithms or tools, to dynamic data consumers.");
+  declareProperty("ProcessDynamicDataDependencies", m_runPostInitialize=false,
+                   "Run the post initialization step, to dynamicall create and gather extra data dependencies. Should be enabled for the top most sequence.");
   m_installedSignalHandler=false;
 }
 
@@ -110,7 +119,8 @@ AthSequencer::initialize()
     ATH_MSG_ERROR ("Unable to configure one or more sequencer members ");
     return StatusCode::FAILURE;
   }
-  
+
+  Ath::DynamicDataHelper dynamic_data_helper;
   StatusCode sc(StatusCode::SUCCESS);
   // Loop over all sub-algorithms
   theAlgs = subAlgorithms( );
@@ -120,10 +130,28 @@ AthSequencer::initialize()
     if (!theAlgorithm->sysInitialize( ).isSuccess()) {
       ATH_MSG_ERROR ("Unable to initialize Algorithm "
                      << theAlgorithm->type() << "/" << theAlgorithm->name());
-      sc= StatusCode::FAILURE;      
+      sc= StatusCode::FAILURE;
+    }
+    else if (m_runPostInitialize) {
+       // visit all algorithms and its tools to gather their input, output handles and dynamic data consumers
+       dynamic_data_helper.gatherDataHandlesAndDynamicConsumers(this->name(),theAlgorithm);
     }
   }
-
+  if (sc == StatusCode::SUCCESS && m_runPostInitialize) {
+     ATH_MSG_DEBUG("Allow dynamic data consumers to update their data dependencies.");
+     if (!m_undeclaredOutputData.empty()) {
+        IService* a_svc {};
+        ATH_CHECK( Gaudi::svcLocator()->getService ("ClassIDSvc",a_svc) );
+        IClassIDSvc *clid_svc = dynamic_cast<IClassIDSvc *>(a_svc);
+        if (clid_svc) {
+           ATH_CHECK( dynamic_data_helper.addExtraDependencies(*clid_svc, m_undeclaredOutputData, msg() ) );
+        }
+        else {
+           ATH_MSG_FATAL("Failed to get ClassIDSvc.");
+        }
+     }
+     dynamic_data_helper.updateDataNeeds(m_maxPass, msg());
+  }
   return sc;
 }
 
@@ -590,7 +618,7 @@ bool AthSequencer::prepareCatchAndEnableFPE()
   
   return false;
 }
-
+ 
 // in case we catch a FPE, get stack trace, save the siginfo information then call longjmp
 void AthSequencer::fpe_callback( int /* sig_number */, siginfo_t *info, void* /* data */ )
 {
@@ -686,3 +714,4 @@ AthSequencer::uninstallFPESignalHandler()
 
   m_installedSignalHandler = false;
 }
+

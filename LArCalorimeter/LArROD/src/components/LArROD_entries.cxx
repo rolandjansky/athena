@@ -24,6 +24,9 @@
 #include "LArROD/LArFebErrorSummaryMaker.h"
 #include "LArROD/LArCalibDigitsAccumulatorFreeGain.h"
 #include "LArROD/LArRawChannelBuilderAlg.h"
+#include "LArROD/LArRawChannelBuilderIterAlg.h"
+#include "../LArSCSimpleMaker.h"
+#include "../LArSuperCellBCIDEmAlg.h"
 
 
 typedef LArDigitPreProcessor<LArDigitContainer> LArDigProcessor;
@@ -58,6 +61,9 @@ DECLARE_COMPONENT( LArRawChannelBuilderPedestalDataBase )
 DECLARE_COMPONENT( LArRawChannelBuilderPedestalSampleZero )
 DECLARE_COMPONENT( LArRawChannelBuilderToolTileInfo )
 DECLARE_COMPONENT( LArRawChannelBuilderAlg )
+DECLARE_COMPONENT( LArRawChannelBuilderIterAlg )
+DECLARE_COMPONENT( LArSCSimpleMaker )
+DECLARE_COMPONENT( LArSuperCellBCIDEmAlg )
 
 #include "../tests/SuperCellVsCaloCellTestAlg.h"
 DECLARE_COMPONENT( SuperCellVsCaloCellTestAlg )

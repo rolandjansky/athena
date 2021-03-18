@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file AthenaPoolConverter.cxx
@@ -57,6 +57,13 @@ StatusCode AthenaPoolConverter::createObj(IOpaqueAddress* pAddr, DataObject*& pO
       GenericAddress* genAddr = dynamic_cast<GenericAddress*>(pAddr);
       tokAddr = new TokenAddress(*genAddr, token);
    }
+   if( tokAddr->ipar()[0] > 0 and tokAddr->getToken()->auxString().empty() ) {
+      char text[32];
+      ::sprintf(text, "[CTXT=%08X]", static_cast<int>(*(pAddr->ipar())));
+      tokAddr->getToken()->setAuxString(text);
+   }
+   ATH_MSG_VERBOSE("createObj: " << tokAddr->getToken()->toString() << ", CTX=" << tokAddr->ipar()[0]
+                   << ", auxStr=" << tokAddr->getToken()->auxString() );
    std::lock_guard<CallMutex> lock(m_conv_mut);
    m_i_poolToken = tokAddr->getToken();
    try {

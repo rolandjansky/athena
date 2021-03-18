@@ -34,7 +34,7 @@ namespace MuonCombined {
   }
 
   void MuonCombinedStacoTagTool::combine( const MuonCandidate& muonCandidate, const std::vector<const InDetCandidate*>& indetCandidates, InDetCandidateToTagMap& tagMap,
-					  TrackCollection* combTracks, TrackCollection* METracks) const {  
+					  TrackCollection* combTracks, TrackCollection* METracks) const {
 
     if(!combTracks || !METracks) ATH_MSG_WARNING("No TrackCollection passed");
 
@@ -49,7 +49,7 @@ namespace MuonCombined {
 
     // loop over ID candidates
     for( const auto idTP : indetCandidates ){
-      
+
       //skip tracklets
       if(idTP->isSiliconAssociated()) continue;
 
@@ -66,18 +66,18 @@ namespace MuonCombined {
 
       // check that the to perigee surfaces are the same
       if( idPer->associatedSurface() != msPer->associatedSurface() ){
-        
+
         // extrapolate to id surface
         const Trk::TrackParameters* exPars = m_extrapolator->extrapolate(*muonCandidate.extrapolatedTrack(),idPer->associatedSurface());
         if( !exPars ) {
-          ATH_MSG_WARNING("The ID and MS candidates are not expressed at the same surface: id r " 
-                          << idTP->indetTrackParticle().perigeeParameters().associatedSurface().center().perp() 
-                          << " z " << idTP->indetTrackParticle().perigeeParameters().associatedSurface().center().z() 
-                          << " ms r " << muonCandidate.extrapolatedTrack()->perigeeParameters()->associatedSurface().center().perp() 
+          ATH_MSG_WARNING("The ID and MS candidates are not expressed at the same surface: id r "
+                          << idTP->indetTrackParticle().perigeeParameters().associatedSurface().center().perp()
+                          << " z " << idTP->indetTrackParticle().perigeeParameters().associatedSurface().center().z()
+                          << " ms r " << muonCandidate.extrapolatedTrack()->perigeeParameters()->associatedSurface().center().perp()
                           << " z " << muonCandidate.extrapolatedTrack()->perigeeParameters()->associatedSurface().center().z()
                           << " and extrapolation failed");
           continue;
-        }else{ 
+        }else{
           msPer = dynamic_cast<const Trk::Perigee*>(exPars);
           if( !msPer ) {
             ATH_MSG_WARNING("Extrapolation did not return a perigee!");
@@ -107,10 +107,10 @@ namespace MuonCombined {
       ATH_MSG_DEBUG("Combined Muon with ID " << m_printer->print(*bestPerigee) << " match chi2 " << bestChi2 << " outer match " << outerMatchChi2 );
       StacoTag* tag = new StacoTag(muonCandidate,bestPerigee,bestChi2);
       tagMap.addEntry(bestCandidate,tag);
-    }    
+    }
   }
 
-  std::unique_ptr<const Trk::Perigee> MuonCombinedStacoTagTool::theCombIdMu( const Trk::Perigee& indetPerigee, const Trk::Perigee& extrPerigee, 
+  std::unique_ptr<const Trk::Perigee> MuonCombinedStacoTagTool::theCombIdMu( const Trk::Perigee& indetPerigee, const Trk::Perigee& extrPerigee,
 							     double& chi2 ) const {
 
 
@@ -119,7 +119,7 @@ namespace MuonCombined {
       ATH_MSG_WARNING("Perigee parameters without covariance");
       return nullptr;
     }
-    
+
     const AmgSymMatrix(5)& covID = *indetPerigee.covariance();
     const AmgSymMatrix(5)  weightID = covID.inverse();
     if  ( weightID.determinant() == 0 ){
@@ -152,24 +152,26 @@ namespace MuonCombined {
 
     AmgVector(5) parsMS(extrPerigee.parameters());
     double  diffPhi = parsMS[Trk::phi] - indetPerigee.parameters()[Trk::phi] ;
-    if(diffPhi>M_PI)       parsMS[Trk::phi] -= 2.*M_PI; 
+    if(diffPhi>M_PI)       parsMS[Trk::phi] -= 2.*M_PI;
     else if(diffPhi<-M_PI) parsMS[Trk::phi] += 2.*M_PI;
 
     AmgVector(5) diffPars = indetPerigee.parameters() - parsMS;
-    chi2 = diffPars.transpose() * invCovSum * diffPars; 
-    chi2 = chi2/5. ; 
+    chi2 = diffPars.transpose() * invCovSum * diffPars;
+    chi2 = chi2/5. ;
 
     AmgVector(5) parsCB = (*covCB) * ( weightID * indetPerigee.parameters() + weightMS * parsMS ) ;
 
-    if(parsCB[Trk::phi]>M_PI)       parsCB[Trk::phi] -= 2.*M_PI; 
+    if(parsCB[Trk::phi]>M_PI)       parsCB[Trk::phi] -= 2.*M_PI;
     else if(parsCB[Trk::phi]<-M_PI) parsCB[Trk::phi] += 2.*M_PI;
 
-    return std::unique_ptr<const Trk::Perigee>
-      (indetPerigee.associatedSurface().createParameters<5,Trk::Charged>( parsCB[Trk::locX], parsCB[Trk::locY],
-                                                                          parsCB[Trk::phi],  parsCB[Trk::theta], parsCB[Trk::qOverP], 
-                                                                          covCB ) );
+    return indetPerigee.associatedSurface()
+      .createUniqueParameters<5, Trk::Charged>(parsCB[Trk::locX],
+                                               parsCB[Trk::locY],
+                                               parsCB[Trk::phi],
+                                               parsCB[Trk::theta],
+                                               parsCB[Trk::qOverP],
+                                               covCB);
   }
-
 
   void MuonCombinedStacoTagTool::cleanUp() const {
     //Nothing to clean up here .. hopefully

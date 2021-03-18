@@ -511,7 +511,6 @@ SCTCalib.ReadBS         = ReadBS
 if hasattr( runArgs, 'InputType' ) :
     if runArgs.InputType is 'RAW' :
         ServiceMgr.EventSelector.Input = runArgs.inputNames
-#        ServiceMgr.ByteStreamInputSvc.PartName = runArgs.part
     elif runArgs.InputType is 'NTUP_TRKVALID' :
         SCTCalib.InputTrkVal                       = runArgs.inputNames
     elif runArgs.InputType is 'HIST' :
@@ -609,7 +608,7 @@ SCTCalib.EfficiencySummaryFile     = prefix + 'EfficiencySummaryFile.xml'     # 
 SCTCalib.BSErrorSummaryFile        = prefix + 'BSErrorSummaryFile.xml'        # Summary of BS Errors
 SCTCalib.BSErrorModuleFile         = prefix + 'BSErrorModuleSummary.xml'      # BS Errors for each module
 
-SCTCalib.OutputLevel     = DEBUG # DEBUG / INFO
+SCTCalib.OutputLevel     = WARNING # DEBUG / INFO
 SCTCalib.AuditAlgorithms = True  # False
 
 print(SCTCalib)
@@ -623,6 +622,6 @@ theApp.EvtMax                      = EvtMax
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
 #--------------------------------------------------------------
-ServiceMgr.MessageSvc.OutputLevel = DEBUG
+ServiceMgr.MessageSvc.OutputLevel = WARNING
 ServiceMgr.MessageSvc.debugLimit  = 1000
 ServiceMgr.MessageSvc.infoLimit   = 2000000

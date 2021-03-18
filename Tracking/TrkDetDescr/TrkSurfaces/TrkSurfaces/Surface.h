@@ -187,35 +187,14 @@ public:
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * charged. The caller assumes ownership of the returned ptr.
    */
-  virtual ParametersBase<5, Trk::Charged>* createTrackParameters(
-    double,
-    double,
-    double,
-    double,
-    double,
-    AmgSymMatrix(5) * cov = nullptr) const = 0;
-
-
-  /** Use the Surface as a ParametersBase constructor, from local parameters -
-   * charged. The caller assumes ownership of the returned ptr.
-   */
   virtual ChargedTrackParametersUniquePtr createUniqueTrackParameters(
-    double,
-    double,
-    double,
-    double,
-    double,
+    double l1,
+    double l2,
+    double phi,
+    double theat,
+    double qop,
     AmgSymMatrix(5) * cov = nullptr) const = 0;
 
-
-  /** Use the Surface as a ParametersBase constructor, from global parameters -
-   * charged  The caller assumes ownership of the returned ptr
-   */
-  virtual ParametersBase<5, Trk::Charged>* createTrackParameters(
-    const Amg::Vector3D&,
-    const Amg::Vector3D&,
-    double,
-    AmgSymMatrix(5) * cov = nullptr) const = 0;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -
    * charged  The caller assumes ownership of the returned ptr
@@ -229,18 +208,18 @@ public:
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * neutral.  The caller assumes ownership of the returned ptr
    */
-  virtual ParametersBase<5, Trk::Neutral>* createNeutralParameters(
-    double,
-    double,
-    double,
-    double,
-    double,
+  virtual NeutralTrackParametersUniquePtr createUniqueNeutralParameters(
+    double l1,
+    double l2,
+    double phi,
+    double theat,
+    double qop,
     AmgSymMatrix(5) * cov = nullptr) const = 0;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -
    * neutral. The caller assumes ownership of the returned ptr
    */
-  virtual ParametersBase<5, Trk::Neutral>* createNeutralParameters(
+  virtual NeutralTrackParametersUniquePtr createUniqueNeutralParameters(
     const Amg::Vector3D&,
     const Amg::Vector3D&,
     double charge = 0.,

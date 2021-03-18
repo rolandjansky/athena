@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILERECUTILS_TILERAWCHANNELBUILDERFITFILTERCOOL_H
@@ -75,7 +75,7 @@ class TileRawChannelBuilderFitFilterCool: public TileRawChannelBuilder
 
   private:
 
-    void pulseFit(const TileDigits* digit, double &amplitude, double &time, double &pedestal, double &chi2);
+    void pulseFit(const TileDigits* digit, double &amplitude, double &time, double &pedestal, double &chi2, const EventContext &ctx);
 
     // generic functions for pulse interpolation
     double pulse(double x, const std::vector<double> * xvec, const std::vector<double> * yvec, bool zeroOutside = false) const;

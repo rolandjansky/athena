@@ -25,6 +25,7 @@ TrigConf::L1PrescaleCondAlg::createFromFile( const std::string & filename ) cons
    psLoader.setLevel(TrigConf::MSGTC::WARNING); 
    ATH_MSG_DEBUG( "Going to load prescales" );
    if( psLoader.loadFile( filename, *pss) ) {
+      pss->setPSK(m_psk);
       ATH_MSG_INFO( "L1 prescales set successfully loaded from file " << filename );
    } else {
       ATH_MSG_WARNING( "Failed loading L1 prescales set from file " << filename ); // will be made an error later

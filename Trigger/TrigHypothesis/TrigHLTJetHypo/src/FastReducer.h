@@ -8,11 +8,11 @@
 #include "./RepeatedConditionsDefs.h"
 #include "./Tree.h"
 #include "./JetGroupProduct.h"
-#include "./JetGroupIndAllocator.h"
 #include "./xAODJetCollector.h"
 #include "./ITrigJetHypoInfoCollector.h"
 #include "./JetGroupRegister.h"
 #include "./ConditionFilter.h"
+#include "./PointerPreds.h"
 #include <string>
 #include <map>
 
@@ -26,7 +26,6 @@ typedef std::unique_ptr<ITrigJetHypoInfoCollector> Collector;
 
 using JetGroupInd2ElemInds = std::map<int, std::vector<std::size_t>>;
 using  ConditionFilters = std::vector<std::unique_ptr<ConditionFilter>>;
-
 
 class FastReducer {
  public:
@@ -85,8 +84,6 @@ class FastReducer {
 
   HypoJetVector m_passingJets;
 
-  //  JetGroupIndAllocator m_jgIndAllocator;
-
   JetGroupRegister m_jgRegister;
   /** set up the data structures for propagation. Propagation is the
    act of combining jet groups satisfying children
@@ -123,6 +120,5 @@ class FastReducer {
 
   bool capacitySatisfied(std::size_t ind,
 			 const Collector& collector) const;
-
 };
 #endif

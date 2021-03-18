@@ -38,6 +38,7 @@ flags.Output.doWriteRDO = True
 flags.Output.RDOFileName = 'RDO_TRIG.pool.root'
 
 flags.Trigger.CostMonitoring.doCostMonitoring = True
+flags.Trigger.doRuntimeNaviVal = True
 flags.Scheduler.CheckDependencies = True
 flags.Scheduler.ShowDataDeps = True
 flags.Scheduler.ShowDataFlow = True
@@ -60,12 +61,13 @@ flags.InDet.usePixelDCS = False
 # options that are defined in: AthConfigFlags are handled here
 # they override values from above
 parser = flags.getArgumentParser()
-flags.fillFromArgs(parser=parser)
+args = flags.fillFromArgs(parser=parser)
 
 flags.lock()
 
 
-from AthenaCommon.Constants import INFO, DEBUG, WARNING
+
+from AthenaCommon.Constants import DEBUG, INFO, WARNING
 acc = MainServicesCfg(flags)
 acc.getService('AvalancheSchedulerSvc').VerboseSubSlots = True
 
@@ -90,34 +92,40 @@ from TrigConfigSvc.TrigConfigSvcCfg import createL1PrescalesFileFromMenu
 createL1PrescalesFileFromMenu(flags)
 
 
-acc.getEventAlgo("TrigSignatureMoniMT").OutputLevel = DEBUG
+acc.getEventAlgo("TrigSignatureMoni").OutputLevel = INFO
 acc.getEventAlgo("L1Decoder").ctpUnpacker.UseTBPBits = True # test setup
 
 
 
 from AthenaCommon.Logging import logging
+log = logging.getLogger('runHLT_standalone_newJO')
 logging.getLogger('forcomps').setLevel(DEBUG)
-acc.foreach_component("*/L1Decoder").OutputLevel = DEBUG
-acc.foreach_component("*/L1Decoder/*Tool").OutputLevel = DEBUG # tools
-acc.foreach_component("*HLTTop/*Hypo*").OutputLevel = DEBUG # hypo algs
+acc.foreach_component("*/L1Decoder").OutputLevel = INFO
+acc.foreach_component("*/L1Decoder/*Tool").OutputLevel = INFO # tools
+acc.foreach_component("*HLTTop/*Hypo*").OutputLevel = INFO # hypo algs
 acc.foreach_component("*HLTTop/*Hypo*/*Tool*").OutputLevel = INFO # hypo tools
 acc.foreach_component("*HLTTop/RoRSeqFilter/*").OutputLevel = INFO# filters
-acc.foreach_component("*/FPrecisionCalo").OutputLevel = DEBUG# filters
-acc.foreach_component("*/CHElectronFTF").OutputLevel = DEBUG# filters
-acc.foreach_component("*HLTTop/*Input*").OutputLevel = DEBUG # input makers
+acc.foreach_component("*/FPrecisionCalo").OutputLevel = INFO# filters
+acc.foreach_component("*/CHElectronFTF").OutputLevel = INFO# filters
+acc.foreach_component("*HLTTop/*Input*").OutputLevel = INFO # input makers
 acc.foreach_component("*HLTTop/*HLTEDMCreator*").OutputLevel = WARNING # messaging from the EDM creators
 acc.foreach_component("*HLTTop/*GenericMonitoringTool*").OutputLevel = WARNING # silcence mon tools (addressing by type)
 
+if log.getEffectiveLevel() <= logging.DEBUG:
+    acc.printConfig(withDetails=False, summariseProps=True, printDefaults=True)
 
-acc.printConfig(withDetails=False, summariseProps=True, printDefaults=True)
 
-
-fName = "runHLT_standalone_newJO.pkl"
-print("Storing config in the file {}".format(fName))
+fName =  "runHLT_standalone_newJO.pkl"
+log.info("Storing config in the file %s ", fName)
 with open(fName, "wb") as p:
     acc.store(p)
     p.close()
-status = acc.run()
-if status.isFailure():
-    import sys
-    sys.exit(1)
+
+if not args.configOnly:
+    log.info("Running ...")
+    status = acc.run()
+    if status.isFailure():
+        import sys
+        sys.exit(1)
+else:
+    log.info("The configOnly option used ... exiting.")

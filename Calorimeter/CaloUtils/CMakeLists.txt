@@ -1,4 +1,4 @@
-#Copyright (C) 2020 CERN for the benefit of the ATLAS collaboration
+#Copyright (C) 2020, 2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( CaloUtils )
@@ -65,7 +65,7 @@ atlas_add_test( CaloTowerBuilderTool_test
 
 atlas_add_test( ToolWithConstants_test
    SCRIPT test/ToolWithConstants_test.py
-   LOG_IGNORE_PATTERN "no dictionary for|by peeking into|Current filenames:|IOVDbSvc +INFO|Added successfully Conversion|DetDescrCnvSvc +INFO|GeoModelSvc +INFO|IOVSvc +INFO|with default tag" )
+   LOG_IGNORE_PATTERN "no dictionary for|by peeking into|Current filenames:|IOVDbSvc +INFO|Added successfully Conversion|DetDescrCnvSvc +INFO|GeoModelSvc +INFO|IOVSvc +INFO|with default tag|^Py:MetaReader" )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.txt share/*.py )

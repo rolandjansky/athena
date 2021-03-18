@@ -24,12 +24,8 @@
 
 #include "TrigConfStorage/StorageMgr.h"
 #include "TrigConfStorage/XMLStorageMgr.h"
-
-#include "TrigConfStorage/TrigConfCoolWriter.h"
-
 #include "TrigConfStorage/DBLoader.h"
 #include "TrigConfStorage/IStorageMgr.h"
-#include "TrigConfStorage/StorageMgr.h"
 #include "TrigConfStorage/IHLTFrameLoader.h"
 #include "TrigConfStorage/TrigConfCoolWriter.h"
 #include "TrigConfStorage/MCKLoader.h"
@@ -42,7 +38,8 @@
 #include "TrigConfHLTData/HLTPrescaleSet.h"
 #include "TrigConfJobOptData/JobOptionTable.h"
 
-#include "Run2toRun3Converters.h"
+#include "Run2toRun3ConvertersL1.h"
+#include "Run2toRun3ConvertersHLT.h"
 
 #include "CoolKernel/DatabaseId.h"
 #include "CoolKernel/Exception.h"
@@ -68,48 +65,48 @@ using namespace std;
 using namespace TrigConf;
 
 void printhelp(std::ostream & o, std::ostream& (*lineend) ( std::ostream& os )) {
-  o << "================================================================================\n";
-  o << "The program needs to be run with the following specifications:\n" << lineend;
-  o << "TrigConfReadWrite <options>\n";
-  o << "\n";
-  o << "[Global options]\n";
-  o << "  -i|--input        input [input [input]]             ... source of configuration, format see below (mandatory)\n";
-  o << "  -2|--comp         input [input [input]]             ... source of a second configuration for comparison\n";
-  o << "  -o|--output xml|r3json|cool [output[;cooldb]] [run] ... output format, name (for cool optional run number)\n";
-  o << "                                                      ... absolute output file name must contain '/', cooldb can be appended COMP200|OFLP200\n";
-  o << "  -v|--loglevel     <string>                          ... log level [NIL, VERBOSE, DEBUG, INFO, WARNING, ERROR, FATAL, ALWAYS]\n";
-  o << "  -l|--log          <string>                          ... name of a log file\n";
-  o << "  --jo                                                ... read and write job options where possible\n";
-  o << "  --fw                                                ... read ctp firmware\n";
-  o << "  -p|--print        <int>                             ... print configuration with detail 0...5 (default 1)\n";
-  o << "  -h|--help                                           ... this output\n";
-  o << "  --nomerge                                           ... internally don't merge L2 and EF (by default merge is enabled)\n";
-  o << "\n\n";
-  o << "Input can be specified the following\n";
-  o << "  -i [l1menu.xml] [hltmenu2.xml]                                    ... to read L1 and/or HLT menu from XML [file names must end with '.xml'\n";
-  o << "  -i <TRIGDB_ALIAS>|<TRIGDB_connection> smk[,l1psk,hltpsk,bgsk]     ... to read the menu from a trigger db via alias or explicit connection specification (ORACLE or SQlite)\n";
-  o << "  -i <COOLDB_ALIAS>|<COOLDB_connection>|cool.db run[,lb]            ... to read the menu from COOL for a certain run and possibly LB [file names must end with '.db']\n";
-  o << "\n";
-  o << "The cool dbconnection can be specified as one of the following\n";
-  o << "     - via alias   : COOLONL_TRIGGER    (use COOLONL_TRIGGER/COMP200 for Run 1 data)";
-  o << "     - from sqlite : cool.db            (use cool.db;COMP200 for Run 1 data)";
-  o << "\n";
-  o << "\n";
-  o << "Input for comparison can be specified the same way, using the '-2' or '--comp' option\n";
-  o << "\n";
-  o << "\n";
-  o << "Output formats can be xml or cool. In case a second input is specified for comparison, the output will be on screen or an xml file with the differences\n";
-  o << "  -o xml test                                     ... will produce LVL1config_test.xml and/or HLTconfig_test.xml. When\n";
-  o << "                                                      comparing two menus this will produce Diff_test.xml. In this case the\n";
-  o << "                                                      specification of '-o test' is sufficient\n";
-  o << " -o r3json test                                   ... will produce Run3 JSON LVL1Menu_test.json and HLTMenu_test.json\n";
-  o << "  -o cool                                         ... will produce trig_cool.db with cool db instance CONDBR2 and infinite IOV\n";
-  o << "  -o cool 200000                                  ... will produce trig_cool.db with cool db instance CONDBR2 and run number 200000\n";
-  o << "  -o cool test [200000]                           ... will produce trig_cool_test.db with cool db instance CONDBR2 [and run number 200000]\n";
-  o << "  -o cool ../test.db [200000]                     ... will produce ../test.db with cool db instance CONDBR2 [and run number 200000]\n";
-  o << "  -o cool 'test;COMP200' [200000]                 ... will produce Menu_test.db with cool db instance COMP200 [and run number 200000]\n";
-  o << "\n";
-  o << "================================================================================\n";
+   o << "================================================================================\n";
+   o << "The program needs to be run with the following specifications:\n" << lineend;
+   o << "TrigConfReadWrite <options>\n";
+   o << "\n";
+   o << "[Global options]\n";
+   o << "  -i|--input        input [input [input]]             ... source of configuration, format see below (mandatory)\n";
+   o << "  -2|--comp         input [input [input]]             ... source of a second configuration for comparison\n";
+   o << "  -o|--output xml|r3json|cool [output[;cooldb]] [run] ... output format, name (for cool optional run number)\n";
+   o << "                                                      ... absolute output file name must contain '/', cooldb can be appended COMP200|OFLP200\n";
+   o << "  -v|--loglevel     <string>                          ... log level [NIL, VERBOSE, DEBUG, INFO, WARNING, ERROR, FATAL, ALWAYS]\n";
+   o << "  -l|--log          <string>                          ... name of a log file\n";
+   o << "  --jo                                                ... read and write job options where possible\n";
+   o << "  --fw                                                ... read ctp firmware\n";
+   o << "  -p|--print        <int>                             ... print configuration with detail 0...5 (default 1)\n";
+   o << "  -h|--help                                           ... this output\n";
+   o << "  --nomerge                                           ... internally don't merge L2 and EF (by default merge is enabled)\n";
+   o << "\n\n";
+   o << "Input can be specified the following\n";
+   o << "  -i [l1menu.xml] [hltmenu2.xml]                                    ... to read L1 and/or HLT menu from XML [file names must end with '.xml'\n";
+   o << "  -i <TRIGDB_ALIAS>|<TRIGDB_connection> smk[,l1psk,hltpsk,bgsk]     ... to read the menu from a trigger db via alias or explicit connection specification (ORACLE or SQlite)\n";
+   o << "  -i <COOLDB_ALIAS>|<COOLDB_connection>|cool.db run[,lb]            ... to read the menu from COOL for a certain run and possibly LB [file names must end with '.db']\n";
+   o << "\n";
+   o << "The cool dbconnection can be specified as one of the following\n";
+   o << "     - via alias   : COOLONL_TRIGGER    (use COOLONL_TRIGGER/COMP200 for Run 1 data)";
+   o << "     - from sqlite : cool.db            (use cool.db;COMP200 for Run 1 data)";
+   o << "\n";
+   o << "\n";
+   o << "Input for comparison can be specified the same way, using the '-2' or '--comp' option\n";
+   o << "\n";
+   o << "\n";
+   o << "Output formats can be xml or cool. In case a second input is specified for comparison, the output will be on screen or an xml file with the differences\n";
+   o << "  -o xml [<test>]                                 ... will produce LVL1config_test.xml and/or HLTconfig_test.xml. When\n";
+   o << "                                                      comparing two menus this will produce Diff_test.xml. In this case the\n";
+   o << "                                                      specification of '-o test' is sufficient\n";
+   o << "  -o r3json [<test>]                              ... will produce Run 3 config files L1PrescalesSet[_<test>].json, BunchGroups[_<test>].json, L1Menu[_<test>].json, HLTPrescalesSet[_<test>].json, and HLTMenu[_<test>].json\n";
+   o << "  -o cool                                         ... will produce trig_cool.db with cool db instance CONDBR2 and infinite IOV\n";
+   o << "  -o cool 200000                                  ... will produce trig_cool.db with cool db instance CONDBR2 and run number 200000\n";
+   o << "  -o cool test [200000]                           ... will produce trig_cool_test.db with cool db instance CONDBR2 [and run number 200000]\n";
+   o << "  -o cool ../test.db [200000]                     ... will produce ../test.db with cool db instance CONDBR2 [and run number 200000]\n";
+   o << "  -o cool 'test;COMP200' [200000]                 ... will produce Menu_test.db with cool db instance COMP200 [and run number 200000]\n";
+   o << "\n";
+   o << "================================================================================\n";
 }
 
 class JobConfig {
@@ -130,10 +127,12 @@ public:
    string       l1xmlOutFile { "LVL1Config.xml" };
    string       l1topoOutFile { "L1TopoConfig.xml" };
    string       hltxmlOutFile { "HLTConfig.xml" };
+
+   string       l1JsonOutFile {"L1Menu.json"};
+   string       bgkJsonOutFile {"BunchGroups.json"};
+   string       l1PSJsonOutFile { "L1PrescalesSet.json" };
    string       hltJsonOutFile { "HLTMenu.json" };
    string       hltPSJsonOutFile { "HLTPrescalesSet.json" };
-   string       bgkJsonOutFile {"BunchGroups.json"};
-   string       l1PSJsonOutFile {"L1PrescalesSet.json"};
 
    string       coolInputConnection { "" };
    string       coolOutputConnection { "" };
@@ -322,10 +321,12 @@ JobConfig::parseProgramOptions(int argc, char* argv[]) {
          l1xmlOutFile  = "LVL1config_" + outBase + ".xml";
          l1topoOutFile = "L1TopoConfig_" + outBase + ".xml";
          hltxmlOutFile = "HLTconfig_" + outBase + ".xml";
+
+         l1JsonOutFile = "L1Menu_" + outBase + ".json";
+         bgkJsonOutFile = "BunchGroups_" + outBase + ".json";
+         l1PSJsonOutFile = "L1PrescaleSet_" + outBase + ".json";
          hltJsonOutFile = "HLTMenu_" + outBase + ".json";
          hltPSJsonOutFile = "HLTPrescalesSet_" + outBase + ".json";
-         bgkJsonOutFile   = "BunchGroups_" + outBase + ".json";
-         l1PSJsonOutFile   = "L1PrescaleSet_" + outBase + ".json";
       }
    }
 
@@ -683,14 +684,15 @@ int main( int argc, char* argv[] ) {
       /*------------------
        * to JSON
        *-----------------*/
-      // TODO add L1 menu
+      if(ctpc && l1tm) {
+         convertRun2L1MenuToRun3(ctpc, l1tm, gConfig.l1JsonOutFile);
+         convertRun2L1PrescalesToRun3(ctpc, gConfig.l1PSJsonOutFile);
+         convertRun2BunchGroupsToRun3(ctpc, gConfig.bgkJsonOutFile);
+      }
       if(hltFrame) {
          convertRun2HLTMenuToRun3(hltFrame, gConfig.hltJsonOutFile);
          convertRun2HLTPrescalesToRun3(hltFrame, gConfig.hltPSJsonOutFile);
-         convertRun2BunchGroupsToRun3(ctpc, gConfig.bgkJsonOutFile);
-         convertRun2L1PrescalesToRun3(ctpc, gConfig.l1PSJsonOutFile);
       }
-
    }
 
    if ( (gConfig.output & JobConfig::COOL) != 0 ) {
@@ -706,18 +708,21 @@ int main( int argc, char* argv[] ) {
       unsigned int runNr = gConfig.coolOutputRunNr;
       if(runNr == 0) { runNr = 0x80000000; } // infinite range
 
-      if(ctpc)
+      if(ctpc) {
          coolWriter->writeL1Payload(runNr, *ctpc);
+      }
       try{
-	if(hltFrame)
-	  coolWriter->writeHLTPayload(runNr, *hltFrame, configSource);
+         if(hltFrame) {
+   	      coolWriter->writeHLTPayload(runNr, *hltFrame, configSource);
+         }
       }
       catch(const cool::StorageTypeStringTooLong& e){
-	      log << "FATAL: Unable to write data to COOL";
-      	exit(1);
+         log << "FATAL: Unable to write data to COOL";
+         exit(1);
       }
-       if(mck)
+      if(mck) {
          coolWriter->writeMCKPayload(runNr, mck, release, info);
+      }
    }
 
    delete ctpc;

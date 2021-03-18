@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -21,13 +21,11 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
 
+#include "ExpressionEvaluation/ExpressionParserUser.h"
 
-namespace ExpressionParsing {
-    class ExpressionParser;
-}
 namespace DerivationFramework {
 
-  class CellsInConeThinning:public AthAlgTool, public IAugmentationTool{
+  class CellsInConeThinning:public ExpressionParserUser<AthAlgTool>, public IAugmentationTool{
     public:
     CellsInConeThinning(const std::string& type, 
 			const std::string& name, 
@@ -46,7 +44,6 @@ namespace DerivationFramework {
 
     std::string m_selectionString;
     double m_dr;
-    ExpressionParsing::ExpressionParser *m_parser;
 
   };  
 }

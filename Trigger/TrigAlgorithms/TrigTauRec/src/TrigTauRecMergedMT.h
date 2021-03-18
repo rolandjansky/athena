@@ -1,38 +1,36 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGTAURECMERGEDMT_H
-#define TRIGTAURECMERGEDMT_H
+#ifndef TRIGTAUREC_TRIGTAURECMERGEDMT_H
+#define TRIGTAUREC_TRIGTAURECMERGEDMT_H
 
-// general athena stuff
-#include "TrigTimeAlgs/TrigTimerSvc.h"
+#include "GaudiKernel/ToolHandle.h"
 
-//Gaudi 
-#include "GaudiKernel/ToolHandle.h" 
-#include "GaudiKernel/ServiceHandle.h"
-
-// Base class
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 #include "tauRecTools/ITauToolBase.h"
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODJet/JetContainer.h"
+#include "xAODTau/TauJetContainer.h"
+#include "xAODTau/TauTrackContainer.h"
 
 #include "BeamSpotConditionsData/BeamSpotData.h"
 
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 class TrigTauRecMergedMT: public AthReentrantAlgorithm {
 
  public:
 
   TrigTauRecMergedMT(const std::string& name, ISvcLocator* pSvcLocator);
-  ~TrigTauRecMergedMT();
 
   virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override;
   virtual StatusCode execute(const EventContext& ctx) const override;
 
  private:
@@ -72,9 +70,10 @@ class TrigTauRecMergedMT: public AthReentrantAlgorithm {
   SG::ReadHandleKey< TrigRoiDescriptorCollection > m_L1RoIKey    { this, "L1RoIKey","L1RoI","L1 RoI name"};
   SG::ReadHandleKey< xAOD::CaloClusterContainer > m_clustersKey  { this, "clustersKey", "CaloClusters", "caloclusters in view" };
   SG::ReadHandleKey< xAOD::TrackParticleContainer > m_tracksKey  { this, "Key_trackPartInputContainer", "InDetTrackParticles", "input track particle container key"};
-  SG::ReadHandleKey< xAOD::VertexContainer> m_vertexKey          { this, "Key_vertexInputContainer", "PrimaryVertices", "input vertex container key"};
+  SG::ReadHandleKey< xAOD::VertexContainer> m_vertexKey          { this, "Key_vertexInputContainer", "", "input vertex container key"};
   SG::ReadHandleKey< xAOD::TauJetContainer> m_trigTauJetKey      { this, "Key_trigTauJetInputContainer", "HLT_taujet", "input taujet container" };
   SG::ReadHandleKey< xAOD::TauTrackContainer> m_trigTauTrackInKey      { this, "Key_trigTauTrackInputContainer", "HLT_tautrack_input", "input tautrack container" };
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
   SG::WriteHandleKey< xAOD::JetContainer > m_trigtauSeedOutKey   { this,"Key_trigJetSeedOutputKey","HLT_jet_seed","Key for output jets which are seed for tau jets"};
   SG::WriteHandleKey< xAOD::TauJetContainer > m_trigtauRecOutKey {this,"Key_trigTauJetOutputContainer","HLT_taujet","Output taujet container"};

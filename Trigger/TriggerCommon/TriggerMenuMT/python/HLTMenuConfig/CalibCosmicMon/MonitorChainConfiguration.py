@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
@@ -49,11 +49,7 @@ class MonitorChainConfiguration(ChainConfigurationBase):
         chainSteps = []
         log.debug("Assembling chain for %s", self.chainName)
 
-        if self.chainPartName == 'costmonitor':
-            pass  # costmonitor is a streamer so has no steps
-        elif self.chainPartName == 'cscmon':
-            pass
-        elif self.chainPartName == 'timeburner':
+        if self.chainPartName == 'timeburner':
             chainSteps.append(self.getTimeBurnerStep())
         else:
             raise RuntimeError('Unexpected chainPartName '+self.chainPartName+' in MonitorChainConfiguration')
@@ -64,4 +60,4 @@ class MonitorChainConfiguration(ChainConfigurationBase):
     # TimeBurner configuration
     # --------------------
     def getTimeBurnerStep(self):      
-        return self.getStep(1,'TimeBurner',[TimeBurnerSequenceCfg], comboHypoCfg=None)
+        return self.getStep(1,'TimeBurner',[TimeBurnerSequenceCfg])

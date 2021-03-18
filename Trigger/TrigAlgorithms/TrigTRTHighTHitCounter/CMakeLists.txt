@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigTRTHighTHitCounter )
@@ -7,4 +7,4 @@ atlas_subdir( TrigTRTHighTHitCounter )
 atlas_add_component( TrigTRTHighTHitCounter
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES DecisionHandlingLib AthViews CxxUtils GaudiKernel GeoPrimitives Identifier InDetIdentifier InDetPrepRawData TrigCaloEvent TrigInterfacesLib TrigSteeringEvent xAODTrigRinger )
+                     LINK_LIBRARIES AthViews AthenaBaseComps AthenaMonitoringKernelLib CxxUtils DecisionHandlingLib GaudiKernel Identifier InDetIdentifier InDetPrepRawData StoreGateLib TrigCompositeUtilsLib TrigSteeringEvent xAODTrigRinger xAODTrigger )

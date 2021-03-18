@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -22,7 +22,6 @@ def SpecialTrackAssociatorCfg( name = 'SpecialTrackAssociator', PrimaryVertexCol
     for option in defaults:
         options.setdefault(option, defaults[option])
     options['name'] = name
-    options['VertexContainer'] = PrimaryVertexCollectionName
     acc.setPrivateTools(CP__TrackVertexAssociationTool( **options))
  
     return acc

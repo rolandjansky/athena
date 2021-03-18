@@ -76,7 +76,6 @@ def AddHIJetFinder(R=0.4) :
                             ghostArea=0.0, ptmin = 0., ptminFilter= 5000)
     jtm.HIJetRecs+=[finder]
 
-
 def AddPtAssociationTools(R, doTracks=True) :
     tlist=[]
     if doTracks and jetFlags.useTracks():
@@ -84,14 +83,14 @@ def AddPtAssociationTools(R, doTracks=True) :
         tname='hitrackassoc_04'
         if tname not in jtm.tools:
             JetPtAssociationTool=CompFactory.JetPtAssociationTool
-            jtm.add(JetPtAssociationTool(tname, JetContainer=cname, AssociationName="GhostTrack"))
+            jtm.add(JetPtAssociationTool(tname, JetContainer=cname, MatchingJetContainer=cname, AssociationName="GhostTrack"))
         tlist += [ jtm.tools[tname] ]
     if jetFlags.useTruth():
         cname='AntiKt%dTruthJets' % int(10*R)
         tname='truthassoc_0%d' % int(10*R)
         if tname not in jtm.tools:
             JetPtAssociationTool=CompFactory.JetPtAssociationTool
-            jtm.add(JetPtAssociationTool(tname, JetContainer=cname, AssociationName="GhostTruth"))
+            jtm.add(JetPtAssociationTool(tname, JetContainer=cname, MatchingJetContainer=cname, AssociationName="GhostTruth"))
         tlist += [ jtm.tools[tname] ]
     return tlist
 

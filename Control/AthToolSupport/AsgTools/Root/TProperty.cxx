@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s):
@@ -218,6 +218,7 @@ namespace asg
               ++ iterator;
               if (make_token_tree (iterator, end, subtoken.m_subtokens, true).isFailure())
                 return StatusCode::FAILURE;
+              // cppcheck-suppress mismatchingContainerExpression
               subtoken.m_raw = std::string_view (subtoken.m_subtokens.front().m_raw.data(), subtoken.m_subtokens.back().m_raw.end() - subtoken.m_subtokens.front().m_raw.begin());
               result.emplace_back (std::move (subtoken));
             }

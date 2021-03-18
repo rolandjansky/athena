@@ -4,7 +4,7 @@
 
 #include "ActsGeometry/ActsDetectorElement.h"
 #include "ActsGeometry/ActsAlignmentStore.h"
-#include "Acts/Utilities/Definitions.hpp"
+#include "Acts/Definitions/Algebra.hpp"
 
 ActsAlignmentStore::ActsAlignmentStore(const GeoAlignmentStore &gas){
 
@@ -15,14 +15,14 @@ ActsAlignmentStore::ActsAlignmentStore(const GeoAlignmentStore &gas){
 }
 
 void ActsAlignmentStore::setTransform(const ActsDetectorElement *ade,
-                                      const Acts::Transform3D &xf) {
+                                      const Acts::Transform3 &xf) {
   if (!m_transforms.setTransform(ade, xf)) {
     throw ExcAlignmentStore(
         "Attempted to overwrite Delta in the Alignment Store");
   }
 }
 
-const Acts::Transform3D *
+const Acts::Transform3 *
 ActsAlignmentStore::getTransform(const ActsDetectorElement *ade) const {
   return m_transforms.getTransform(ade);
 }

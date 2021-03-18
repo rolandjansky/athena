@@ -21,14 +21,17 @@
 // Conversion Trk::PatternTrackParameters to  Trk::TrackParameters
 ///////////////////////////////////////////////////////////////////
 
-const Trk::ParametersBase<5,Trk::Charged>*  Trk::PatternTrackParameters::convert(bool covariance) const
+std::unique_ptr<Trk::ParametersBase<5, Trk::Charged>>
+Trk::PatternTrackParameters::convert(bool covariance) const
 {
   AmgSymMatrix(5)* e = nullptr;
-  if(covariance && m_covariance != nullptr) {
+  if (covariance && m_covariance != nullptr) {
     e = new AmgSymMatrix(5)(*m_covariance);
   }
   const AmgVector(5)& p = m_parameters;
-  return m_surface ? (m_surface->createTrackParameters(p[0],p[1],p[2],p[3],p[4],e)): nullptr;
+  return m_surface ? m_surface->createUniqueTrackParameters(
+                        p[0], p[1], p[2], p[3], p[4], e)
+                   : nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -47,7 +50,7 @@ bool Trk::PatternTrackParameters::production(const Trk::ParametersBase<5,Trk::Ch
 
   m_parameters = T->parameters();
 
-  const AmgSymMatrix(5)* C = T->covariance();   
+  const AmgSymMatrix(5)* C = T->covariance();
 
   if(C) {
     if (m_covariance == nullptr) {
@@ -70,7 +73,7 @@ bool Trk::PatternTrackParameters::production(const Trk::ParametersBase<5,Trk::Ch
 /////////////////////////////////////////////////////////////////////////////////
 // Covariance matrix production using jacobian cov(this) = J*( Tp cov)*Jt
 ///////////////////////////////////////////////////////////////////
-      
+
 
 AmgSymMatrix(5) Trk::PatternTrackParameters::newCovarianceMatrix
 (const AmgSymMatrix(5) & V, const double * Jac)
@@ -137,24 +140,24 @@ AmgSymMatrix(5) Trk::PatternTrackParameters::newCovarianceMatrix
 Amg::Vector3D Trk::PatternTrackParameters::position() const
 {
   return calculatePosition();
-} 
+}
 
 ///////////////////////////////////////////////////////////////////
 // Overload of << operator std::ostream
 ///////////////////////////////////////////////////////////////////
 
-std::ostream& Trk::operator << 
+std::ostream& Trk::operator <<
   (std::ostream& sl,const Trk::PatternTrackParameters& se)
-{ 
-  return se.dump(sl); 
-}   
+{
+  return se.dump(sl);
+}
 
-MsgStream& Trk::operator    << 
+MsgStream& Trk::operator    <<
 (MsgStream& sl, const Trk::PatternTrackParameters& se)
 {
   return se.dump(sl);
 }
- 
+
 ///////////////////////////////////////////////////////////////////
 // Print track parameters information
 ///////////////////////////////////////////////////////////////////
@@ -174,7 +177,7 @@ std::ostream& Trk::PatternTrackParameters::dump( std::ostream& out ) const
   const Trk::PerigeeSurface* pe;
   const Trk::CylinderSurface* cy;
   const Trk::StraightLineSurface* li;
-  
+
   if     ((pl=dynamic_cast<const Trk::PlaneSurface*>       (s))) { name = "Plane"   ;
   } else if((li=dynamic_cast<const Trk::StraightLineSurface*>(s))) { name = "Line"    ;
   } else if((di=dynamic_cast<const Trk::DiscSurface*>        (s))) { name = "Disc"    ;
@@ -188,7 +191,7 @@ std::ostream& Trk::PatternTrackParameters::dump( std::ostream& out ) const
   }
 
   out << "Track parameters for " << name << " surface " << std::endl;
-   
+
   out.unsetf(std::ios::fixed);
   out.setf  (std::ios::showpos);
   out.setf  (std::ios::scientific);
@@ -252,7 +255,7 @@ MsgStream& Trk::PatternTrackParameters::dump(MsgStream& out) const
   }
 
   out << "Track parameters for " << name << " surface " << std::endl;
-  
+
   out.unsetf(std::ios::fixed);
   out.setf  (std::ios::showpos);
   out.setf  (std::ios::scientific);
@@ -283,7 +286,7 @@ MsgStream& Trk::PatternTrackParameters::dump(MsgStream& out) const
   out.unsetf(std::ios::showpos);
   out.unsetf(std::ios::scientific);
   return out;
-}	
+}
 
 ///////////////////////////////////////////////////////////////////
 // Protected methods
@@ -321,9 +324,9 @@ Amg::Vector3D Trk::PatternTrackParameters::localToGlobal
   double Se;
   double Ce; sincos(m_parameters[3],&Se,&Ce);
 
-  double P3 = Cf*Se; 
-  double P4 = Sf*Se; 
-  double P5 = Ce;    
+  double P3 = Cf*Se;
+  double P4 = Sf*Se;
+  double P5 = Ce;
   double Bx = A[1]*P5-A[2]*P4;
   double By = A[2]*P3-A[0]*P5;
   double Bz = A[0]*P4-A[1]*P3;
@@ -350,8 +353,8 @@ Amg::Vector3D Trk::PatternTrackParameters::localToGlobal
   double Sf;
   double Cf; sincos(m_parameters[1],&Sf,&Cf);
 
-  double d0 = Cf*Ax[0]+Sf*Ay[0]; 
-  double d1 = Cf*Ax[1]+Sf*Ay[1]; 
+  double d0 = Cf*Ax[0]+Sf*Ay[0];
+  double d1 = Cf*Ax[1]+Sf*Ay[1];
   double d2 = Cf*Ax[2]+Sf*Ay[2];
 
   Amg::Vector3D gp
@@ -401,9 +404,9 @@ Amg::Vector3D Trk::PatternTrackParameters::localToGlobal
   double Se;
   double Ce; sincos(m_parameters[3],&Se,&Ce);
 
-  double P3 = Cf*Se; 
-  double P4 = Sf*Se; 
-  double P5 = Ce;    
+  double P3 = Cf*Se;
+  double P4 = Sf*Se;
+  double P5 = Ce;
   double Bx = A[1]*P5-A[2]*P4;
   double By = A[2]*P3-A[0]*P5;
   double Bz = A[0]*P4-A[1]*P3;
@@ -449,7 +452,7 @@ Amg::Vector3D Trk::PatternTrackParameters::localToGlobal
 bool Trk::PatternTrackParameters::initiate
 (PatternTrackParameters& Tp, const Amg::Vector2D& P,const Amg::MatrixX& E)
 {
-  
+
   int n = E.rows(); if(n<=0 || n>2) { return false;
 }
 
@@ -468,7 +471,7 @@ bool Trk::PatternTrackParameters::initiate
   m_parameters[0] = P  (0);
 
   m_covariance->fillSymmetric(0, 0, E(0,0));
-  
+
   if(n==2) {
     m_parameters[ 1] = P(1);
     m_covariance->fillSymmetric(0, 1, E(1,0));
@@ -493,13 +496,13 @@ bool Trk::PatternTrackParameters::initiate
 /////////////////////////////////////////////////////////////////////////////////
 // Change direction of the parameters
 ///////////////////////////////////////////////////////////////////
-      
+
 void Trk::PatternTrackParameters::changeDirection()
 {
   const double pi = M_PI;
   const double pi2 = 2.*M_PI; //NB CLHEP also defines pi and pi2 constants.
 
-  m_parameters[ 2] =  m_parameters[2]-pi; 
+  m_parameters[ 2] =  m_parameters[2]-pi;
   m_parameters[ 3] =  pi-m_parameters[3];
   m_parameters[ 4] = -m_parameters[4]   ;
 
@@ -509,7 +512,7 @@ void Trk::PatternTrackParameters::changeDirection()
 
   if(!dynamic_cast<const Trk::StraightLineSurface*>(m_surface.get()) &&
      !dynamic_cast<const Trk::PerigeeSurface*>     (m_surface.get())) {
-    
+
     if(m_covariance == nullptr) { return;
 }
 
@@ -588,5 +591,6 @@ int Trk::PatternTrackParameters::surfaceType() const {
   return m_surface->type();
 }
 
-void Trk::PatternTrackParameters::updateParametersHelper(const AmgVector(5) &) {
+void Trk::PatternTrackParameters::updateParametersHelper(const AmgVector(5)& params){
+  m_parameters = params;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*******************************************************************************
@@ -78,6 +78,7 @@ vector<int> e_modules;
 
 class MyMainFrame 
 {
+  // cppcheck-suppress unknownMacro
 	RQ_OBJECT("MyMainFrame")
 
 private:
@@ -137,7 +138,7 @@ Double_t PhysPulse(Double_t *xtime, Double_t *par)
 	lookup = (Int_t)((timelocal-phys_pulse_time[0])/tdiv) ;
 
 	if (lookup < 0  ) lookup = 0;
-	if (lookup > 400) lookup = 400;
+	if (lookup >= 400) lookup = 399;
 
 	xpulse = phys_pulse_amp[lookup] + ((phys_pulse_amp[lookup+1]-phys_pulse_amp[lookup])/tdiv)*(timelocal-phys_pulse_time[lookup]); 
 	xamp   = par[1] + par[2]*xpulse;

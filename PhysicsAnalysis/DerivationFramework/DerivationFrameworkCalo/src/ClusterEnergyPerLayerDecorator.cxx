@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -12,21 +12,20 @@
 #include "CaloUtils/CaloClusterStoreHelper.h"
 #include "CaloClusterCorrection/CaloFillRectangularCluster.h"
 
+#include <TString.h>
+
 // Constructor
 DerivationFramework::ClusterEnergyPerLayerDecorator::ClusterEnergyPerLayerDecorator(const std::string& t,
 						  const std::string& n,
 						  const IInterface* p) :
-  AthAlgTool(t,n,p),
-  m_caloFillRectangularTool("CaloClusterCollectionProcessor"),
-  m_tool(0)
+  AthAlgTool(t,n,p)
 {
   declareInterface<DerivationFramework::IAugmentationTool>(this);
   declareProperty("SGKey_photons", m_SGKey_photons);
   declareProperty("SGKey_electrons", m_SGKey_electrons);
   declareProperty("neta", m_eta_size);
   declareProperty("nphi", m_phi_size);
-  declareProperty("CaloFillRectangularTool", m_caloFillRectangularTool, "Handle of the CaloFillRectangularClusterTool");
-  declareProperty("SGKey_caloCells", m_CellCollectionName="AODCellContainer","Name of the CaloCellContainer");
+  declareProperty("SGKey_caloCells", m_CellCollectionName="AllCalo", "Name of the CaloCellContainer");
   declareProperty("layers", m_layers = {0,1,2,3});  
 }
 
@@ -46,13 +45,7 @@ StatusCode DerivationFramework::ClusterEnergyPerLayerDecorator::initialize()
     return StatusCode::FAILURE;
   }
 
-  ATH_CHECK( m_caloFillRectangularTool.retrieve());
-  m_tool = dynamic_cast<CaloFillRectangularCluster* >( &(*m_caloFillRectangularTool ));
-  if (m_tool == nullptr)
-  {
-    ATH_MSG_FATAL("Could not retrieve / cast CaloFillRectangularCluster tool");
-    return StatusCode::FAILURE;
-  } 
+  ATH_CHECK( m_caloFillRectangularTool.retrieve() );
 
   return StatusCode::SUCCESS;
 }
@@ -101,7 +94,8 @@ DerivationFramework::ClusterEnergyPerLayerDecorator::decorateObject(
                                           egamma->caloCluster()->eta0(),
                                           egamma->caloCluster()->phi0(),
                                           egamma->caloCluster()->clusterSize());
-    m_tool->makeCorrection(ctx, egcClone);
+    const CaloFillRectangularCluster* tool = dynamic_cast<const CaloFillRectangularCluster* >( &(*m_caloFillRectangularTool ));
+    tool->makeCorrection(ctx, egcClone);
   }
   
   for (unsigned int layer: m_layers){

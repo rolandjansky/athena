@@ -1,3 +1,3 @@
-#include "TrigAFPHypo/TrigAFPDijetComboHypoTool.h"
+#include "../TrigAFPDijetComboHypoTool.h"
 DECLARE_COMPONENT( TrigAFPDijetComboHypoTool )
 

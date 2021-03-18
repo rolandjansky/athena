@@ -138,7 +138,7 @@ StatusCode TrigEgammaMonitorElectronAlgorithm::executeNavigation( const EventCon
       }
 
       if(m_forceVetoVeryLoose){///default is false
-        bool veto = (bool)this->m_electronLHVLooseTool->accept(eg);
+        bool veto = ApplyElectronPid(eg,"lhvloose"); 
         if(veto)  continue;
       }
 

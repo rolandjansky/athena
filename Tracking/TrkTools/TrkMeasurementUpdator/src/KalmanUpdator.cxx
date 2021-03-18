@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -61,8 +61,8 @@ StatusCode Trk::KalmanUpdator::finalize()
 }
 
 // updator #1 for Kalman Fitter - version with Amg::Vector2D (for example for PrepRawData)
-Trk::TrackParameters* Trk::KalmanUpdator::addToState (const Trk::TrackParameters& trkPar,
-                                                      const Amg::Vector2D&    measmtPos, 
+std::unique_ptr<Trk::TrackParameters> Trk::KalmanUpdator::addToState (const Trk::TrackParameters& trkPar,
+                                                      const Amg::Vector2D&    measmtPos,
                                                       const Amg::MatrixX&      measmtErr) const {
     if (m_outputlevel <= 0) logStart("addToState(TP,LPOS,ERR)",trkPar);
     FitQualityOnSurface*    fitQoS = nullptr;
@@ -70,7 +70,7 @@ Trk::TrackParameters* Trk::KalmanUpdator::addToState (const Trk::TrackParameters
 }
 
 // updator #2 for Kalman Fitter - version with LocalParameters (for example for RIO_OnTrack)
-Trk::TrackParameters* Trk::KalmanUpdator::addToState (const Trk::TrackParameters& trkPar,
+std::unique_ptr<Trk::TrackParameters> Trk::KalmanUpdator::addToState (const Trk::TrackParameters& trkPar,
                                                             const LocalParameters&  measmtPar,
                                                             const Amg::MatrixX&      measmtErr) const {
     if (m_outputlevel <= 0) logStart("addToState(TP,LPAR,ERR)",trkPar);
@@ -78,21 +78,21 @@ Trk::TrackParameters* Trk::KalmanUpdator::addToState (const Trk::TrackParameters
     return calculateFilterStep (trkPar, measmtPar, measmtErr,1,fitQoS, false);
 }
 // updator #3 for Kalman Fitter - version with Amg::Vector2D (for example for PrepRawData)
-Trk::TrackParameters* Trk::KalmanUpdator::addToState (const Trk::TrackParameters& trkPar,
-                                                      const Amg::Vector2D&    measmtPos, 
+std::unique_ptr<Trk::TrackParameters> Trk::KalmanUpdator::addToState (const Trk::TrackParameters& trkPar,
+                                                      const Amg::Vector2D&    measmtPos,
                                                       const Amg::MatrixX&      measmtErr,
                                                       FitQualityOnSurface*&   fitQoS) const {
     if (m_outputlevel <= 0) logStart("addToState(TP,LPOS,ERR,FQ)",trkPar);
     if (fitQoS) {
       ATH_MSG_WARNING( "expect nil FitQuality pointer, refuse operation to avoid mem leak!"  );
       return nullptr;
-    } 
+    }
       return calculateFilterStep (trkPar, measmtPos, measmtErr, 1, fitQoS, true);
-    
+
 }
 
 // updator #4 for Kalman Fitter - version with LocalParameters (for example for RIO_OnTrack)
-Trk::TrackParameters* Trk::KalmanUpdator::addToState (const Trk::TrackParameters& trkPar,
+std::unique_ptr<Trk::TrackParameters> Trk::KalmanUpdator::addToState (const Trk::TrackParameters& trkPar,
                                                       const LocalParameters&  measmtPar,
                                                       const Amg::MatrixX&      measmtErr,
                                                       FitQualityOnSurface*&   fitQoS) const {
@@ -100,14 +100,14 @@ Trk::TrackParameters* Trk::KalmanUpdator::addToState (const Trk::TrackParameters
     if (fitQoS) {
       ATH_MSG_WARNING( "expect nil FitQuality pointer, refuse operation to avoid mem leak!"  );
       return nullptr;
-    } 
+    }
       return calculateFilterStep (trkPar, measmtPar, measmtErr, 1, fitQoS, true);
-    
+
 }
 
 // inverse updator #1 for Kalman Fitter - version with Amg::Vector2D (for example for PrepRawData)
-Trk::TrackParameters* Trk::KalmanUpdator::removeFromState (const Trk::TrackParameters& trkPar,
-                                                           const Amg::Vector2D&    measmtPos, 
+std::unique_ptr<Trk::TrackParameters> Trk::KalmanUpdator::removeFromState (const Trk::TrackParameters& trkPar,
+                                                           const Amg::Vector2D&    measmtPos,
                                                            const Amg::MatrixX&      measmtErr) const {
     if (m_outputlevel<=0) logStart("removeFromState(TP,LPOS,ERR)",trkPar);
     FitQualityOnSurface*    fitQoS = nullptr;
@@ -115,7 +115,7 @@ Trk::TrackParameters* Trk::KalmanUpdator::removeFromState (const Trk::TrackParam
 }
 
 // inverse updator #2 for Kalman Fitter - version with LocalParameters (for example for RIO_OnTrack)
-Trk::TrackParameters* Trk::KalmanUpdator::removeFromState (const Trk::TrackParameters& trkPar,
+std::unique_ptr<Trk::TrackParameters> Trk::KalmanUpdator::removeFromState (const Trk::TrackParameters& trkPar,
                                                            const LocalParameters&  measmtPar,
                                                            const Amg::MatrixX&      measmtErr) const {
     if (m_outputlevel) logStart("removeFromState(TP,LPAR,ERR)",trkPar);
@@ -124,8 +124,8 @@ Trk::TrackParameters* Trk::KalmanUpdator::removeFromState (const Trk::TrackParam
 }
 
 // inverse updator #3 for Kalman Fitter - version with Amg::Vector2D (for example for PrepRawData)
-Trk::TrackParameters* Trk::KalmanUpdator::removeFromState (const Trk::TrackParameters& trkPar,
-                                                           const Amg::Vector2D&    measmtPos, 
+std::unique_ptr<Trk::TrackParameters> Trk::KalmanUpdator::removeFromState (const Trk::TrackParameters& trkPar,
+                                                           const Amg::Vector2D&    measmtPos,
                                                            const Amg::MatrixX&      measmtErr,
                                                            FitQualityOnSurface*&    fitQoS) const {
     if (m_outputlevel<=0) logStart("removeFromState(TP,LPOS,ERR,FQ)",trkPar);
@@ -133,13 +133,13 @@ Trk::TrackParameters* Trk::KalmanUpdator::removeFromState (const Trk::TrackParam
       ATH_MSG_WARNING( "expect nil FitQuality pointer, refuse operation to"
                        << " avoid mem leak!"  );
       return nullptr;
-    } 
+    }
       return calculateFilterStep (trkPar, measmtPos, measmtErr, -1, fitQoS, true);
-    
+
 }
 
 // inverse updator #4 for Kalman Fitter - version with LocalParameters (for example for RIO_OnTrack)
-Trk::TrackParameters* Trk::KalmanUpdator::removeFromState (const Trk::TrackParameters& trkPar,
+std::unique_ptr<Trk::TrackParameters> Trk::KalmanUpdator::removeFromState (const Trk::TrackParameters& trkPar,
                                                            const LocalParameters&  measmtPar,
                                                            const Amg::MatrixX&      measmtErr,
                                                            FitQualityOnSurface*&    fitQoS) const {
@@ -148,15 +148,17 @@ Trk::TrackParameters* Trk::KalmanUpdator::removeFromState (const Trk::TrackParam
       ATH_MSG_WARNING( "expect nil FitQuality pointer, refuse operation to"
                        << " avoid mem leak!"  );
         return nullptr;
-    } 
+    }
         return calculateFilterStep (trkPar, measmtPar, measmtErr, -1, fitQoS, true);
-    
+
 }
 
 // state-to-state updator, trajectory combination - version without fitQuality
-Trk::TrackParameters* Trk::KalmanUpdator::combineStates (const Trk::TrackParameters& one,
-                                                         const Trk::TrackParameters& two) const {
-	// remember, either one OR two might have no error, but not both !
+std::unique_ptr<Trk::TrackParameters>
+Trk::KalmanUpdator::combineStates(const Trk::TrackParameters& one,
+                                  const Trk::TrackParameters& two) const
+{
+  // remember, either one OR two might have no error, but not both !
   if (!one.covariance() && !two.covariance()) {
     ATH_MSG_WARNING( "both parameters have no errors, invalid "
                      << "use of Updator::combineStates()"  );
@@ -166,24 +168,23 @@ Trk::TrackParameters* Trk::KalmanUpdator::combineStates (const Trk::TrackParamet
   if (!one.covariance()) {
     if (m_outputlevel<=0) logResult("combineStates(TP,TP)",two.parameters(),
 				    *two.covariance());
-    return two.clone();
+    return std::unique_ptr<Trk::TrackParameters>(two.clone());
   }
   if (!two.covariance()) {
     if (m_outputlevel<=0) logResult("combineStates(TP,TP)",one.parameters(),
 				    *one.covariance());
-    return one.clone();
+    return std::unique_ptr<Trk::TrackParameters>(one.clone());
   }
-	
+
   // ... FIXME - TRT is so difficult, need to check that both parameters are in the same frame
   //			   otherwise go into frame of one !
-	
   // ok, normal, let's combine using gain matrix formalism
   const AmgSymMatrix(5)& covTrkOne = (*one.covariance());
   const AmgSymMatrix(5)& covTrkTwo = (*two.covariance());
-	
+
   AmgSymMatrix(5)  sumCov = covTrkOne + covTrkTwo;
   AmgSymMatrix(5)  K      = covTrkOne * sumCov.inverse();
-	
+
   Amg::VectorX         r   = two.parameters() - one.parameters();
   // catch [-pi,pi] phi boundary problems
   if (!diffThetaPhiWithinRange(r)) correctThetaPhiRange(r,sumCov,true);
@@ -194,16 +195,23 @@ Trk::TrackParameters* Trk::KalmanUpdator::combineStates (const Trk::TrackParamet
     ATH_MSG_WARNING( "combineStates(TP,TP): could not combine angular values."  );
     return nullptr;
   }
-	
+
   // return cloned version of Track Parameters (MeasuredPerigee, MeasuredAtA...)
-  TrackParameters* comb = one.associatedSurface().createTrackParameters(par[Trk::loc1],par[Trk::loc2],
-                                                                        par[Trk::phi],par[Trk::theta],par[Trk::qOverP],covPar); 
-  if (m_outputlevel<=0) logResult("combineStates(TP,TP)", par, *covPar);
+  auto comb =
+    one.associatedSurface().createUniqueTrackParameters(par[Trk::loc1],
+                                                        par[Trk::loc2],
+                                                        par[Trk::phi],
+                                                        par[Trk::theta],
+                                                        par[Trk::qOverP],
+                                                        covPar);
+  if (m_outputlevel <= 0){
+    logResult("combineStates(TP,TP)", par, *covPar);
+  }
   return comb;
 }
 
 // state-to-state updator, trajectory combination - version with fitQuality
-Trk::TrackParameters* Trk::KalmanUpdator::combineStates (const Trk::TrackParameters& one,
+std::unique_ptr<Trk::TrackParameters> Trk::KalmanUpdator::combineStates (const Trk::TrackParameters& one,
                                                          const Trk::TrackParameters& two,
                                                          FitQualityOnSurface*& fitQoS) const {
     // try if both Track Parameters are measured ones ?
@@ -215,19 +223,19 @@ Trk::TrackParameters* Trk::KalmanUpdator::combineStates (const Trk::TrackParamet
   if (fitQoS) {
     ATH_MSG_WARNING( "expect nil FitQuality pointer, refuse operation to avoid mem leak!"  );
     return nullptr;
-  } 
+  }
     // if only one of two has an error, return that one
     if (!one.covariance()) {
       fitQoS =  new FitQualityOnSurface(0.f, 5);
       if (m_outputlevel<=0) logResult("combineStates(TP,TP,FQ)", one.parameters(),
 				      (*two.covariance()));
-      return two.clone();
+      return std::unique_ptr<Trk::TrackParameters>(two.clone());
     }
     if (!two.covariance()) {
       fitQoS =  new FitQualityOnSurface(0.f, 5);
       if (m_outputlevel<=0) logResult("combineStates(TP,TP,FQ)", one.parameters(),
 				      (*one.covariance()));
-      return one.clone();
+      return std::unique_ptr<Trk::TrackParameters>(one.clone());
     }
 
     // covariance matrix for prediction and the state to be added
@@ -251,23 +259,30 @@ Trk::TrackParameters* Trk::KalmanUpdator::combineStates (const Trk::TrackParamet
     // compute fit quality
     double  chiSquared = r.transpose()*R_inv*r;
     fitQoS =  new FitQualityOnSurface(chiSquared, 5);
-	
+
     // return cloned version of Track Parameters (MeasuredPerigee, MeasuredAtA...)
-    TrackParameters* comb = one.associatedSurface().createTrackParameters(par[Trk::loc1],par[Trk::loc2],
-                                                                          par[Trk::phi],par[Trk::theta],par[Trk::qOverP],covPar); 
-    if (m_outputlevel<=0) logResult("combineStates(TP,TP,FQ)", par, *covPar);
+    auto comb =
+      one.associatedSurface().createUniqueTrackParameters(par[Trk::loc1],
+                                                          par[Trk::loc2],
+                                                          par[Trk::phi],
+                                                          par[Trk::theta],
+                                                          par[Trk::qOverP],
+                                                          covPar);
+    if (m_outputlevel <= 0){
+      logResult("combineStates(TP,TP,FQ)", par, *covPar);
+    }
     return comb;
-  
+
 }
 
 
 // estimator for FitQuality on Surface (allows for setting of LR for straws)
-const Trk::FitQualityOnSurface* 
+const Trk::FitQualityOnSurface*
 Trk::KalmanUpdator::fullStateFitQuality (const Trk::TrackParameters& trkPar,
                                          const Amg::Vector2D& locPos,
                                          const Amg::MatrixX& rioErr) const {
     ATH_MSG_DEBUG( "--> entered KalmanUpdator::fullStateFitQuality(TP,LPOS,ERR)"  );
-	
+
     // try if Track Parameters are measured ones ?
     if (!trkPar.covariance()) {
       ATH_MSG_ERROR( "updated smoother/trajectory has no error matrix"  );
@@ -282,27 +297,27 @@ Trk::KalmanUpdator::fullStateFitQuality (const Trk::TrackParameters& trkPar,
     for (int iLocCoord=0; iLocCoord < nLocCoord; iLocCoord++) {
       rioPar[iLocCoord] = locPos[iLocCoord];
     }
-    
+
     // measurement Matrix ( n x m )
     Amg::MatrixX H(rioErr.cols(),covTrk.cols());
     H.setZero();
     for (int i=0; i < nLocCoord; i++) H(i,i)=1.f;
-    
+
     // residuals
     Amg::VectorX    r = rioPar - H * trkPar.parameters();
-    
+
     // all the rest is outsourced to a common chi2 routine
     return makeChi2Object(r,covTrk,rioErr,-1,(nLocCoord==1?1:3));
 }
 
 
 // estimator for FitQuality on Surface (allows for setting of LR for straws)
-const Trk::FitQualityOnSurface* 
+const Trk::FitQualityOnSurface*
 Trk::KalmanUpdator::fullStateFitQuality (const Trk::TrackParameters& trkPar,
                                          const Trk::LocalParameters& rioPar,
                                          const Amg::MatrixX&     rioErr) const {
   ATH_MSG_VERBOSE( "--> entered KalmanUpdator::fullStateFitQuality(TP,LPAR,ERR)"  );
-	
+
   // try if Track Parameters are measured ones ?
   if (!trkPar.covariance()) {
     ATH_MSG_ERROR( "updated smoother/trajectory has no error matrix"  );
@@ -315,7 +330,7 @@ Trk::KalmanUpdator::fullStateFitQuality (const Trk::TrackParameters& trkPar,
 
   // State to measurement dimensional reduction Matrix ( n x m )
   const Amg::MatrixX& H(rioPar.expansionMatrix());
-	
+
   // residuals
   Amg::VectorX    r = rioPar;
   if( rioPar.parameterKey()==31 ) r -= trkPar.parameters();
@@ -326,7 +341,7 @@ Trk::KalmanUpdator::fullStateFitQuality (const Trk::TrackParameters& trkPar,
 }
 
 // estimator for FitQuality on Surface (allows for setting of LR for straws)
-const Trk::FitQualityOnSurface* 
+const Trk::FitQualityOnSurface*
 Trk::KalmanUpdator::predictedStateFitQuality (const Trk::TrackParameters& predPar,
                                               const Amg::Vector2D& rioLocPos,
                                               const Amg::MatrixX& rioLocErr) const {
@@ -334,7 +349,7 @@ Trk::KalmanUpdator::predictedStateFitQuality (const Trk::TrackParameters& predPa
   // try if Track Parameters are measured ones ?
   if (predPar.covariance() == nullptr) {
 #if 0
-    if (&predPar == nullptr) 
+    if (&predPar == nullptr)
       ATH_MSG_WARNING( "input state is NULL in predictedStateFitQuality()"  );
     else
 #endif
@@ -355,16 +370,16 @@ Trk::KalmanUpdator::predictedStateFitQuality (const Trk::TrackParameters& predPa
   Amg::MatrixX H(rioLocErr.cols(),covPred.cols());
   H.setZero();
   for (int i=0; i < nLocCoord; i++) H(i,i)=1.f;
-	
+
   // residuals
   Amg::VectorX    r = rioPar - H * predPar.parameters();
-		
+
   // all the rest is outsourced to a common chi2 routine
   return makeChi2Object(r,covPred,rioLocErr,+1,(nLocCoord==1?1:3));
 }
 
 // estimator for FitQuality on Surface (allows for setting of LR for straws)
-const Trk::FitQualityOnSurface* 
+const Trk::FitQualityOnSurface*
 Trk::KalmanUpdator::predictedStateFitQuality (const Trk::TrackParameters& predPar,
                                               const Trk::LocalParameters& rioPar,
                                               const Amg::MatrixX&     rioErr) const {
@@ -373,7 +388,7 @@ Trk::KalmanUpdator::predictedStateFitQuality (const Trk::TrackParameters& predPa
   // try if Track Parameters are measured ones ?
   if (predPar.covariance() == nullptr) {
 #if 0
-    if (&predPar == nullptr) 
+    if (&predPar == nullptr)
       ATH_MSG_WARNING( "input state is NULL in predictedStateFitQuality()"  );
     else
 #endif
@@ -388,18 +403,18 @@ Trk::KalmanUpdator::predictedStateFitQuality (const Trk::TrackParameters& predPa
 
   // State to measurement dimensional reduction Matrix ( n x m )
   const Amg::MatrixX& H(rioPar.expansionMatrix());
-	
+
   // residuals
   Amg::VectorX    r = rioPar;
   if(rioPar.parameterKey()==31) r -= predPar.parameters();
   else                          r -= H * predPar.parameters();
-  
+
   // all the rest is outsourced to a common chi2 routine
   return makeChi2Object(r,covPred,rioErr,+1,rioPar.parameterKey());
 }
 
 // estimator for FitQuality on Surface (allows for setting of LR for straws)
-const Trk::FitQualityOnSurface* 
+const Trk::FitQualityOnSurface*
 Trk::KalmanUpdator::predictedStateFitQuality (const Trk::TrackParameters& one,
                                               const Trk::TrackParameters& two) const {
   ATH_MSG_VERBOSE( "--> entered KalmanUpdator::predictedStateFitQuality(TP,TP)"  );
@@ -415,7 +430,7 @@ Trk::KalmanUpdator::predictedStateFitQuality (const Trk::TrackParameters& one,
                    << "assume initial state and return chi2=0.0"  );
     return new FitQualityOnSurface(0.f, 5);
   }
-    
+
   // covariance matrix for prediction and the state to be added
   const AmgSymMatrix(5)& covTrkOne = (*one.covariance());
   const AmgSymMatrix(5)& covTrkTwo = (*two.covariance());
@@ -434,20 +449,22 @@ std::vector<double> Trk::KalmanUpdator::initialErrors() const {
 }
 
 // mathematics for Kalman updator and inverse Kalman filter
-Trk::TrackParameters* Trk::KalmanUpdator::calculateFilterStep (const Trk::TrackParameters&  trkPar,
-                                                               const Amg::Vector2D&    locPos,
-                                                               const Amg::MatrixX& covRio,
-                                                               const int sign,
-                                                               Trk::FitQualityOnSurface*& fitQoS,
-                                                               bool createFQoS) const {
+std::unique_ptr<Trk::TrackParameters>
+Trk::KalmanUpdator::calculateFilterStep(const Trk::TrackParameters& trkPar,
+                                        const Amg::Vector2D& locPos,
+                                        const Amg::MatrixX& covRio,
+                                        const int sign,
+                                        Trk::FitQualityOnSurface*& fitQoS,
+                                        bool createFQoS) const
+{
 
-    // try if Track Parameters are measured ones ?
+  // try if Track Parameters are measured ones ?
   AmgSymMatrix(5) covTrk;
   if (!trkPar.covariance()) {
     if (sign<0) {
       ATH_MSG_WARNING( "MeasuredTrackParameters == Null, can not calculate updated parameter state"  );
       return nullptr;
-    } 
+    }
       // no error given - use a huge error matrix for the time
       // covTrk = Amg::MatrixX(5, 1) * 1000.f;
       ATH_MSG_VERBOSE( "-U- no covTrk at input -  assign large error matrix for the time being."  );
@@ -456,7 +473,7 @@ Trk::TrackParameters* Trk::KalmanUpdator::calculateFilterStep (const Trk::TrackP
       covTrk(2,2) = m_cov0[2];
       covTrk(3,3) = m_cov0[3];
       covTrk(4,4) = m_cov0[4];
-    
+
   }else {
     covTrk = (*trkPar.covariance());
   }
@@ -469,7 +486,7 @@ Trk::TrackParameters* Trk::KalmanUpdator::calculateFilterStep (const Trk::TrackP
                      << ": undefined phi,theta range in input parameters."  );
     return nullptr;
   }
-  
+
   // measurement vector of RIO_OnTrack - needs more care for # local par?
   int nLocCoord = covRio.cols();
   if ( (nLocCoord < 1) || (nLocCoord > 2 ) ) {
@@ -486,10 +503,10 @@ Trk::TrackParameters* Trk::KalmanUpdator::calculateFilterStep (const Trk::TrackP
   Amg::MatrixX H(covRio.cols(),covTrk.cols());
   H.setZero();
   for (int i=0; i < nLocCoord; i++) H(i,i)=1.f;
-    
+
   // residual from reconstructed hit wrt. predicted state
   Amg::VectorX r = rioPar - H * parTrk;
-    
+
   // compute covariance on of residual R = +/- covRIO + H * covTrk * H.T()
   Amg::MatrixX R = (sign * covRio) + projection(covTrk,(nLocCoord==1 ? 1 : 3) ); // .similarity(H);
   // compute Kalman gain matrix
@@ -521,7 +538,7 @@ Trk::TrackParameters* Trk::KalmanUpdator::calculateFilterStep (const Trk::TrackP
 				  (sign>0?"addToState(TP,LPOS,ERR,FQ)":"removeFromState(TP,LPOS,ERR,FQ)"):
 				  (sign>0?"addToState(TP,LPOS,ERR)":"removeFromState(TP,LPOS,ERR)"),
 				  par,*covPar);
-  
+
   // if a pointer is given, compute chi2
   if (createFQoS) {
     if (sign<0) {
@@ -534,19 +551,25 @@ Trk::TrackParameters* Trk::KalmanUpdator::calculateFilterStep (const Trk::TrackP
     }
   }
   // return cloned version of Track Parameters (MeasuredPerigee, MeasuredAtA...)
-  TrackParameters* updated = trkPar.associatedSurface().createTrackParameters(par[Trk::loc1],par[Trk::loc2],
-											  par[Trk::phi],par[Trk::theta],par[Trk::qOverP],covPar); 
+  auto updated =
+    trkPar.associatedSurface().createUniqueTrackParameters(par[Trk::loc1],
+                                                           par[Trk::loc2],
+                                                           par[Trk::phi],
+                                                           par[Trk::theta],
+                                                           par[Trk::qOverP],
+                                                           covPar);
   return updated;
 }
 
-
 // mathematics for Kalman updator and inverse Kalman filter
-Trk::TrackParameters* Trk::KalmanUpdator::calculateFilterStep (const Trk::TrackParameters&  trkPar,
-                                                               const Trk::LocalParameters&  rioPar,
-                                                               const Amg::MatrixX& covRio,
-                                                               const int sign,
-                                                               Trk::FitQualityOnSurface*& fitQoS,
-                                                               bool createFQoS ) const {
+std::unique_ptr<Trk::TrackParameters>
+Trk::KalmanUpdator::calculateFilterStep(const Trk::TrackParameters& trkPar,
+                                        const Trk::LocalParameters& rioPar,
+                                        const Amg::MatrixX& covRio,
+                                        const int sign,
+                                        Trk::FitQualityOnSurface*& fitQoS,
+                                        bool createFQoS) const
+{
 
   // try if Track Parameters are measured ones ?
   AmgSymMatrix(5) covTrk;
@@ -555,7 +578,7 @@ Trk::TrackParameters* Trk::KalmanUpdator::calculateFilterStep (const Trk::TrackP
       ATH_MSG_WARNING( "MeasuredTrackParameters == Null, can not calculate "
                        << "updated parameter state."  );
       return nullptr;
-    } 
+    }
       // no error given - use a huge error matrix for the time
       // covTrk = Amg::MatrixX(5, 1) * 1000.f;
       ATH_MSG_VERBOSE( "-U- no covTrk at input - "
@@ -565,7 +588,7 @@ Trk::TrackParameters* Trk::KalmanUpdator::calculateFilterStep (const Trk::TrackP
       covTrk(2,2) = m_cov0[2];
       covTrk(3,3) = m_cov0[3];
       covTrk(4,4) = m_cov0[4];
-    
+
   } else {
     covTrk = (*trkPar.covariance());
   }
@@ -598,7 +621,7 @@ Trk::TrackParameters* Trk::KalmanUpdator::calculateFilterStep (const Trk::TrackP
   // catch [-pi,pi] phi boundary problems to keep chi2 under control
   if (!diffThetaPhiWithinRange(r,rioPar.parameterKey()) )
     correctThetaPhiRange(r,R,true,rioPar.parameterKey());
-  
+
   // compute Kalman gain matrix
   if (R.determinant()==0.) return nullptr;
   Amg::MatrixX K   = covTrk * H.transpose() * R.inverse();
@@ -608,7 +631,7 @@ Trk::TrackParameters* Trk::KalmanUpdator::calculateFilterStep (const Trk::TrackP
   if (m_outputlevel<0) {logGainForm (nLocCoord,r,R.inverse(),K,M);}
   // compute local filtered state
   Amg::VectorX par = parTrk + K * r;
-        
+
   // compute covariance matrix of local filteres state
   AmgSymMatrix(5)* covPar;
   if (m_useFruehwirth8a) {
@@ -639,9 +662,13 @@ Trk::TrackParameters* Trk::KalmanUpdator::calculateFilterStep (const Trk::TrackP
     }
   }
   // return cloned version of Track Parameters (MeasuredPerigee, MeasuredAtA...)
-  TrackParameters* updated = trkPar.associatedSurface().createTrackParameters(par[Trk::loc1],par[Trk::loc2],
-                                                                              par[Trk::phi],par[Trk::theta],par[Trk::qOverP],covPar); 
-  return updated;
+  return trkPar.associatedSurface().createUniqueTrackParameters(
+    par[Trk::loc1],
+    par[Trk::loc2],
+    par[Trk::phi],
+    par[Trk::theta],
+    par[Trk::qOverP],
+    covPar);
 }
 
 Amg::MatrixX Trk::KalmanUpdator::projection(const Amg::MatrixX& M, const int key) const
@@ -652,7 +679,7 @@ Amg::MatrixX Trk::KalmanUpdator::projection(const Amg::MatrixX& M, const int key
   const Amg::MatrixX& redMatrix = m_projectionMatrices.reductionMatrix(key);
   Amg::MatrixX R = redMatrix.transpose()*M*redMatrix;
   return R;
-  
+
 }
 
 
@@ -688,7 +715,7 @@ bool Trk::KalmanUpdator::correctThetaPhiRange(Amg::VectorX& V, AmgSymMatrix(5)& 
   else if (key & 8) { // theta is within localParameter and a measured coordinate
     for (int itag = 0, ipos=1 ; itag<Trk::theta; ++itag, ipos*=2) if (key & ipos) ++jtheta;
   }
-  
+
   // correct theta and phi coordinate
   if ((jtheta>=0) && (V[jtheta]<thetaMin || V[jtheta]> M_PI) ) {
     if (m_outputlevel <= 0 ) {
@@ -732,7 +759,7 @@ bool Trk::KalmanUpdator::correctThetaPhiRange(Amg::VectorX& V, AmgSymMatrix(5)& 
       C(2,jtheta) = -C(2,jtheta);
       if (key>15) C(4,jtheta) = -C(4,jtheta);
     }
-    
+
     if (m_outputlevel <=0) {
       msg() << MSG::DEBUG << "-U- now use corrected " << (isDifference?"diff. ":" ") << "value phi= ";
       if (jphi>=0) msg() << V[jphi]; else msg() <<"free";
@@ -770,7 +797,7 @@ bool Trk::KalmanUpdator::correctThetaPhiRange(Amg::VectorX& V, Amg::MatrixX& C,
   else if (key & 8) { // theta is within localParameter and a measured coordinate
     for (int itag = 0, ipos=1 ; itag<Trk::theta; ++itag, ipos*=2) if (key & ipos) ++jtheta;
   }
-  
+
   // correct theta and phi coordinate
   if ((jtheta>=0) && (V[jtheta]<thetaMin || V[jtheta]> M_PI) ) {
     if (m_outputlevel <= 0 ) {
@@ -814,7 +841,7 @@ bool Trk::KalmanUpdator::correctThetaPhiRange(Amg::VectorX& V, Amg::MatrixX& C,
       C(2,jtheta) = -C(2,jtheta);
       if (key>15) C(4,jtheta) = -C(4,jtheta);
     }
-    
+
     if (m_outputlevel <=0) {
       msg() << MSG::DEBUG << "-U- now use corrected " << (isDifference?"diff. ":" ") << "value phi= ";
       if (jphi>=0) msg() << V[jphi]; else msg() <<"free";
@@ -860,9 +887,9 @@ void Trk::KalmanUpdator::logInputCov(const Amg::MatrixX& covTrk,
   msg() << "  covariance matrix                   " << "          " << "                     "
         << std::setw(9)<<covTrk(2,2)<<" "<< std::setw(9)<<covTrk(2,3)<<" "
         << std::setw(9)<<covTrk(2,4)<< "\n"  ;
-  msg() << "  of the PREDICTED track pars         " << "          " << "                               " 
+  msg() << "  of the PREDICTED track pars         " << "          " << "                               "
         << std::setw(9)<<covTrk(3,3)<<" "<< std::setw(9)<<covTrk(3,4)<<"\n"  ;
-  msg() << "                                      " << "          " << "                                         " 
+  msg() << "                                      " << "          " << "                                         "
         << std::setw(9)<<covTrk(4,4)<<std::setprecision(6)<< endmsg;
 
   int nLocCoord = covRio.cols();
@@ -887,7 +914,7 @@ void Trk::KalmanUpdator::logGainForm(int nc, const Amg::VectorX& r, const Amg::M
   for (int i=0; i<nc; i++)  msg() << MSG::VERBOSE // K is a row x col = 5 x nc matrix.
 	<< ( i==0 ? "-U- gain mtx  K=(" : "                (" )
         << std::setiosflags(std::ios::fixed | std::ios::showpoint | std::ios::right )
-        << std::setw(7) << std::setprecision(4) << K(0,i)<<", " 
+        << std::setw(7) << std::setprecision(4) << K(0,i)<<", "
         << std::setw(7) << std::setprecision(4) << K(1,i)<<", "
         << std::setw(7) << std::setprecision(4) << K(2,i)<<", "
         << std::setw(7) << std::setprecision(4) << K(3,i)<<", "
@@ -899,7 +926,7 @@ void Trk::KalmanUpdator::logGainForm(int nc, const Amg::VectorX& r, const Amg::M
         << M(4,4)                <<")" << endmsg;
 }
 
-void Trk::KalmanUpdator::logResult(const std::string& methodName, 
+void Trk::KalmanUpdator::logResult(const std::string& methodName,
                                    const Amg::VectorX& par, const Amg::MatrixX& covPar) const
 {
     // again some verbose debug output
@@ -909,7 +936,7 @@ void Trk::KalmanUpdator::logResult(const std::string& methodName,
           << std::setw(10)<<par[2]<< std::setw(10)<<par[3]<<std::setprecision(4)
           << std::setw(10)<<par[4]                <<endmsg;
     msg() << MSG::VERBOSE << "-U- new cov" <<std::setiosflags(std::ios::right)<<std::setprecision(3)
-          << std::setw(9)<<(covPar)(0,0)<<" "<< std::setw(9)<<(covPar)(0,1)<<" " 
+          << std::setw(9)<<(covPar)(0,0)<<" "<< std::setw(9)<<(covPar)(0,1)<<" "
           << std::setw(9)<<(covPar)(0,2)<<" "<< std::setw(9)<<(covPar)(0,3)
           << " " << std::setw(9)<<(covPar)(0,4)<< "\n";
     msg() << "                                      " << "           " << "          "
@@ -918,10 +945,10 @@ void Trk::KalmanUpdator::logResult(const std::string& methodName,
     msg() << "  covariance matrix                   " << "           " << "                    "
           << std::setw(9)<<(covPar)(2,2)<<" "<< std::setw(9)<<(covPar)(2,3)<<" "
           << std::setw(9)<<(covPar)(2,4)<< "\n";
-    msg() << "  of the UPDATED   track pars         " << "           " 
+    msg() << "  of the UPDATED   track pars         " << "           "
           << "                              " <<std::setw(9)<<(covPar)(3,3)<< " "
           << std::setw(9)<<(covPar)(3,4)<< "\n";
-    msg() << "                                      " << "           " 
-          << "                                        " 
+    msg() << "                                      " << "           "
+          << "                                        "
           << std::setw(9)<<(covPar)(4,4)<<std::setprecision(6)<< endmsg;
 }

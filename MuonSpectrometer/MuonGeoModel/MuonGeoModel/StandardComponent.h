@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef StandardComponent_H
 #define StandardComponent_H
 
 #include "MuonGeoModel/Component.h"
-#include <string>
+#include <iosfwd>
 
 namespace MuonGM {
 

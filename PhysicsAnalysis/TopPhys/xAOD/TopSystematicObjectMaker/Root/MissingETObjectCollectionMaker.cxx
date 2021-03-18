@@ -174,7 +174,7 @@ namespace top {
                                          xAOD::Type::Electron,
                                          new_met_container,
                                          met_electrons.asDataVector(),
-                                         &metHelper),
+                                         metHelper),
                                          "Failed to rebuild electron MET term");
     }
 
@@ -194,7 +194,7 @@ namespace top {
                                          xAOD::Type::Photon,
                                          new_met_container,
                                          met_photons.asDataVector(),
-                                         &metHelper),
+                                         metHelper),
                                          "Failed to rebuild photon MET term");
     }
 
@@ -214,7 +214,7 @@ namespace top {
                                          xAOD::Type::Tau,
                                          new_met_container,
                                          met_taus.asDataVector(),
-                                         &metHelper),
+                                         metHelper),
                                          "Failed to rebuild tau MET term");
     }
 
@@ -237,7 +237,7 @@ namespace top {
                                          xAOD::Type::Muon,
                                          new_met_container,
                                          met_muons.asDataVector(),
-                                         &metHelper),
+                                         metHelper),
                                          "Failed to rebuild muon MET term");
 
       // Muon-jet ghost association
@@ -251,7 +251,7 @@ namespace top {
                                          xAOD::Type::Muon,
                                          new_met_container,
                                          met_muons.asDataVector(),
-                                         &metHelper),
+                                         metHelper),
                                          "Failed to rebuild muon MET term");
     }
 
@@ -264,7 +264,7 @@ namespace top {
                                           new_met_container,
                                           xaod_jet,
                                           xaod_met_core,
-                                          &metHelper,
+                                          metHelper,
                                           m_config->doJVTinMET()),
                                           "Failed to rebuild jet MET term");
 
@@ -282,13 +282,13 @@ namespace top {
         xAOD::MissingET* softClusMet = (*new_met_container)["SoftClusCore"];
         if (softClusMet != nullptr) { //check we retrieved the clust term
           m_met_systematics->setRandomSeed(static_cast<int>(1e6*softClusMet->phi()));
-          top::check(m_met_systematics->applyCorrection(*softClusMet), "Failed to applyCorrection");
+          top::check(m_met_systematics->applyCorrection(*softClusMet, metHelper), "Failed to applyCorrection");
         }
 
         xAOD::MissingET* softTrkMet = (*new_met_container)["PVSoftTrkCore"];
         if (softTrkMet != nullptr) { //check we retrieved the soft trk
           m_met_systematics->setRandomSeed(static_cast<int>(1e6*softTrkMet->phi()));
-          top::check(m_met_systematics->applyCorrection(*softTrkMet), "Failed to applyCorrection");
+          top::check(m_met_systematics->applyCorrection(*softTrkMet, metHelper), "Failed to applyCorrection");
         }
       }
     }

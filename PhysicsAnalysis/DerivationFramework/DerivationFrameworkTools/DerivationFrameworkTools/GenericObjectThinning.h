@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -19,15 +19,11 @@
 #include "StoreGate/ThinningHandleKey.h"
 
 #include "xAODBase/IParticleContainer.h"
-
-namespace ExpressionParsing {
-  class ExpressionParser;
-}
-
+#include "ExpressionEvaluation/ExpressionParserUser.h"
 
 namespace DerivationFramework {
 
-  class GenericObjectThinning : public extends<AthAlgTool, IThinningTool> {
+  class GenericObjectThinning : public extends<ExpressionParserUser<AthAlgTool>, IThinningTool> {
     public: 
       GenericObjectThinning(const std::string& t, const std::string& n, const IInterface* p);
       ~GenericObjectThinning();
@@ -42,8 +38,6 @@ namespace DerivationFramework {
         { this, "ContainerName", "", "" };
 
       //Expression for object thinning selection
-      std::string m_expression;
-      ExpressionParsing::ExpressionParser *m_parser;
       std::string m_selectionString;
 
       //Counters

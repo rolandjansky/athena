@@ -172,8 +172,8 @@ class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuon
     Trk::PseudoMeasurementOnTrack* vertexOnTrack(const Trk::TrackParameters& parameters, const Trk::RecVertex* vertex,
                                                  const Trk::RecVertex* mbeamAxis) const;
 
-    void dumpCaloEloss(const Trk::Track* track, std::string txt) const;
-    int  countAEOTs(const Trk::Track* track, std::string txt) const;
+    void dumpCaloEloss(const Trk::Track* track, const std::string& txt) const;
+    int  countAEOTs(const Trk::Track* track, const std::string& txt) const;
     bool checkTrack(const std::string& txt, const Trk::Track* newTrack, const Trk::Track* track) const;
 
     // helpers, managers, tools

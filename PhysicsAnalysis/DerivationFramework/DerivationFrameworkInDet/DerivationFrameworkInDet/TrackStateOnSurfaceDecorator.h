@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -142,6 +142,7 @@ namespace DerivationFramework {
                               kTrkL2XDecor,  kTrkL2YDecor,  kTrkL2ZDecor,
                               kNPixFloatDecor };
      std::vector<SG::WriteDecorHandleKey<xAOD::TrackParticleContainer> > m_trackPixFloatDecorKeys;
+     SG::WriteDecorHandleKey<xAOD::TrackParticleContainer>               m_trackTSOSMOSLinkDecorKey;
 
 
   }; 

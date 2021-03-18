@@ -9,7 +9,6 @@
 #include "GoodRunsLists/TGoodRunsList.h"
 #include "GoodRunsLists/TGRLCollection.h"
 #include "GoodRunsLists/TMsgLogger.h"
-#include "DBDataModel/CollectionMetadata.h"
 #include "CxxUtils/checker_macros.h"
 
 #include "cmdline.h"

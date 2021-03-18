@@ -135,7 +135,10 @@ class TrigKeySelector(RunLBBasedCondition):
 
             for run in runlist:
                 smk = run.result['SMK']
-                info = list(smknames[int(smk)] if str.isdigit(smk) else ("","",""))
+                if str.isdigit(smk) and int(smk) in smknames:
+                    info = list(smknames[int(smk)])
+                else:
+                    info = ["unknown",0,"no comment"]
                 if info[2]=="" or info[2]=="~":
                     info[2]="no comment"
                 run.stats[k] = { "info" : tuple(info),

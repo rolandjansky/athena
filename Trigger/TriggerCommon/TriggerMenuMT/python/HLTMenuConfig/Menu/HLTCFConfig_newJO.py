@@ -99,7 +99,7 @@ def traverse(acc, startCollectionName, functor):
         __dive(startCollectionName, outputs[startCollectionName])
 
 
-def generateDecisionTree(chains):
+def generateDecisionTree(flags, chains):
     acc = ComponentAccumulator()
     mainSequence = seqOR('HLTAllSteps')
     acc.addSequence( mainSequence )
@@ -320,10 +320,12 @@ def generateDecisionTree(chains):
                 comboHypo = CompFactory.ComboHypo( "CH"+step.name, CheckMultiplicityMap = len(step.sequences) != 1 )
                 acc.addEventAlgo( comboHypo, sequenceName=comboSeq.name )
             pass
-    for stepNumber in range(1, maxStep+1):
-        getDecisionDumper(stepNumber)
+    if flags.Trigger.doRuntimeNaviVal:
+        for stepNumber in range(1, maxStep+1):
+            getDecisionDumper(stepNumber)
     theCFisFixed=True
-    acc.printConfig()
+    if log.getEffectiveLevel() <= logging.DEBUG:
+        acc.printConfig()
     resetDF(acc)
     setHypoOutputs(acc)
     setIMOutputs(acc)
@@ -431,12 +433,13 @@ def generateDecisionTree(chains):
                         comboHypoAlg.ComboHypoTools.append( comboToolConf.confAndCreate( TriggerConfigHLT.getChainDictFromChainName( chain.name ) ) )
 
     # connect dumpers
-    for stepNumber in range(1, maxStep+1):
-        dumper = getDecisionDumper(stepNumber)
-        filters = getFiltersStepSeq(stepNumber)
-        for alg in filters.Members:
-            if isFilterAlg(alg):
-                dumper.Decisions = addAndAssureUniqness( dumper.Decisions, alg.Output, context="Settings of decision dumper" )
+    if flags.Trigger.doRuntimeNaviVal:
+        for stepNumber in range(1, maxStep+1):
+            dumper = getDecisionDumper(stepNumber)
+            filters = getFiltersStepSeq(stepNumber)
+            for alg in filters.Members:
+                if isFilterAlg(alg):
+                    dumper.Decisions = addAndAssureUniqness( dumper.Decisions, alg.Output, context="Settings of decision dumper" )
 
     for chain in chains:
         log.info("CF algorithms for chain %s", chain.name)

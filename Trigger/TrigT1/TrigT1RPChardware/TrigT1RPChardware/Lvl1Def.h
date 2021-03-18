@@ -14,7 +14,6 @@
 //
 // definitions compatible with 64-bit machines
 //
-#include <inttypes.h>
 typedef uint32_t CMAword; // 32 bits for the elementary CMA integer
 typedef uint32_t RODword; // 32 bits for the elementary ROD integer
 typedef  int32_t sbit32;  //

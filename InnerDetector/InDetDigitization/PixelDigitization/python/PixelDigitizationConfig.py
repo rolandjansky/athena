@@ -184,7 +184,7 @@ def PixelConfigCondAlg_MC():
     alg.FEI4BarrelHitDiscConfig=[2]
 
     alg.ChargeScaleFEI4=1.0
-    alg.UseFEI4SpecialScalingFunction=False
+    alg.UseFEI4SpecialScalingFunction=True
 
     #====================================================================================
     # Run-dependent SIMULATION(digitization) parameters:

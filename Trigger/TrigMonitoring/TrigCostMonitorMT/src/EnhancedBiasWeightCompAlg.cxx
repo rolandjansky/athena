@@ -50,13 +50,9 @@ StatusCode EnhancedBiasWeightCompAlg::execute(const EventContext& context) const
     ATH_CHECK( finalDecisionsHandle.isValid() );
 
     // Retrieve information about EB chains that passed
-    std::vector<EBChainInfo> EBChains;
-    for (const TrigCompositeUtils::Decision* decisionObject : *finalDecisionsHandle) {
-        if (decisionObject->name() == "HLTPassRaw") {
-           EBChains = getPassedEBChains(*decisionObject);
-           break;
-        }
-    }
+    const TrigCompositeUtils::Decision* decisionObject = TrigCompositeUtils::getTerminusNode(finalDecisionsHandle);
+    ATH_CHECK(decisionObject != nullptr);
+    std::vector<EBChainInfo> EBChains = getPassedEBChains(*decisionObject);
 
     // Setup output handle
     SG::WriteHandle<xAOD::TrigCompositeContainer> outputHandle = TrigCompositeUtils::createAndStore(m_EBWeightKey, context);

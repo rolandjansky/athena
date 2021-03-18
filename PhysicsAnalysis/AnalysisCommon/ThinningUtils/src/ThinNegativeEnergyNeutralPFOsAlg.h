@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -58,6 +58,8 @@ private:
     { this, "NeutralPFOsKey", "JetETMissNeutralParticleFlowObjects", "StoreGate key for the PFOContainer to be thinned (if any)" };
     SG::ThinningHandleKey<xAOD::FlowElementContainer> m_neutralPFOsFEKey
     { this, "NeutralPFOsFEKey", "", "StoreGate key for the FlowElementContainer to be thinned (if any)" };
+    SG::ThinningHandleKey<xAOD::FlowElementContainer> m_LCNeutralPFOsFEKey
+    { this, "LCNeutralPFOsFEKey", "", "StoreGate key for the LC FlowElementContainer to be thinned (if any)" };
  
     /// Counters
     unsigned long m_nEventsProcessed;

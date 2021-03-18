@@ -12,6 +12,9 @@ from TrigValTools.TrigValSteering.Common import find_file
 hlt = ExecStep.ExecStep()
 hlt.type = 'athenaHLT'
 hlt.job_options = 'TriggerJobOpts/runHLT_standalone.py'
+hlt.forks = 1
+hlt.threads = 4
+hlt.concurrent_events = 4
 hlt.input = 'data'
 hlt.max_events = 50
 hlt.args = '-c "setMenu=\'PhysicsP1_pp_run3_v1\';"'
@@ -36,7 +39,8 @@ tzrecoPreExec = ' '.join([
 
 tzreco = ExecStep.ExecStep('Tier0Reco')
 tzreco.type = 'Reco_tf'
-tzreco.threads = 1
+tzreco.threads = 4
+tzreco.concurrent_events = 4
 tzreco.input = ''
 tzreco.explicit_input = True
 tzreco.max_events = 50

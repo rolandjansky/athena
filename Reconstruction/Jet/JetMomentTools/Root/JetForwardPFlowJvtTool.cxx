@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetForwardPFlowJvtTool.cxx
@@ -53,10 +53,23 @@
       return StatusCode::FAILURE;
     }
 
-    if(!m_orKey.key().empty()){
-      m_orKey = m_jetContainerName + "." + m_orKey.key();
-      ATH_CHECK(m_orKey.initialize());
+    //FlowElement jets instead of PFO jets
+    if(!m_FEKey.empty()){
+      ATH_CHECK(m_FEKey.initialize());
+
+      if(!m_orFEKey.key().empty()){
+        m_orFEKey = m_jetContainerName + "." + m_orFEKey.key();
+        ATH_CHECK(m_orFEKey.initialize());
+      }
     }
+    else{ //PFO reconstruction
+      ATH_CHECK(m_PFOKey.initialize());
+      if(!m_orKey.key().empty()){
+        m_orKey = m_jetContainerName + "." + m_orKey.key();
+        ATH_CHECK(m_orKey.initialize());
+      }
+    }
+
     m_fjvtKey = m_jetContainerName + "." + m_fjvtKey.key();
     m_fjvtRawKey = m_jetContainerName + "." + m_fjvtRawKey.key();
     m_isHSKey = m_jetContainerName + "." + m_isHSKey.key();
@@ -70,7 +83,6 @@
     ATH_CHECK(m_jvtKey.initialize());
 
     ATH_CHECK(m_vxContKey.initialize());
-    ATH_CHECK(m_PFOKey.initialize());
     
     return StatusCode::SUCCESS;
   }
@@ -178,32 +190,64 @@
     std::set<int> charged_pfo;
 
     SG::ReadHandle<jet::TrackVertexAssociation> tvaHandle(m_tvaKey);
-    SG::ReadHandle<xAOD::PFOContainer> PFOHandle(m_PFOKey);
         
     if (!tvaHandle.isValid()){
       ATH_MSG_ERROR("Could not retrieve the TrackVertexAssociation: "
                     << m_tvaKey.key());
       return pu_jets;
     }
-    for(const xAOD::PFO* pfo : *PFOHandle){
-      if (m_orKey.key().empty()) continue;
-      SG::ReadDecorHandle<xAOD::PFO, char> orHandle(m_orKey);
-      if (!orHandle(*pfo)) continue;
-      if (pfo->isCharged()) { 
-        if (vx.index()==pv_index && std::abs((vx.z()-pfo->track(0)->z0())*sin(pfo->track(0)->theta()))>m_dzCut)
-          continue;
-        if (vx.index()!=pv_index
-            && (!tvaHandle->associatedVertex(pfo->track(0))
-                || vx.index()!=tvaHandle->associatedVertex(pfo->track(0))->index())
-            ) continue;
-        input_pfo.push_back(pfoToPseudoJet(pfo, CP::charged, &vx) );
-        charged_pfo.insert(pfo->index());
-      } 
-      else if (std::abs(pfo->eta())<m_neutMaxRap && !pfo->isCharged() && pfo->eEM()>0)
-      { 
-        input_pfo.push_back(pfoToPseudoJet(pfo, CP::neutral, &vx) );
+
+    if(!m_FEKey.empty()){
+      SG::ReadHandle<xAOD::FlowElementContainer> FlowElementHandle(m_FEKey);
+
+      for(const xAOD::FlowElement* fe : *FlowElementHandle){
+        if (!m_orFEKey.key().empty()){
+	  SG::ReadDecorHandle<xAOD::FlowElement, char> orHandle(m_orFEKey);
+	  if (!orHandle(*fe)) continue;
+	}
+	if (fe->isCharged()) {
+          const xAOD::TrackParticle* track = dynamic_cast<const xAOD::TrackParticle*>(fe->chargedObject(0));
+
+          if (vx.index()==pv_index && std::abs((vx.z()-track->z0())*sin(track->theta()))>m_dzCut)
+            continue;
+          if (vx.index()!=pv_index
+              && (!tvaHandle->associatedVertex(track)
+                  || vx.index()!=tvaHandle->associatedVertex(track)->index())
+              ) continue;
+          input_pfo.push_back(feToPseudoJet(fe, CP::charged, &vx) );
+          charged_pfo.insert(fe->index());
+        }
+        else if (std::abs(fe->eta())<m_neutMaxRap && !fe->isCharged() && fe->e()>0)
+          {
+            input_pfo.push_back(feToPseudoJet(fe, CP::neutral, &vx) );
+          }
       }
     }
+    else{
+      SG::ReadHandle<xAOD::PFOContainer> PFOHandle(m_PFOKey);
+
+      for(const xAOD::PFO* pfo : *PFOHandle){
+        if (!m_orKey.key().empty()){
+	  SG::ReadDecorHandle<xAOD::PFO, char> orHandle(m_orKey);
+	  if (!orHandle(*pfo)) continue;
+	}
+        if (pfo->isCharged()) {
+          if (vx.index()==pv_index && std::abs((vx.z()-pfo->track(0)->z0())*sin(pfo->track(0)->theta()))>m_dzCut)
+            continue;
+          if (vx.index()!=pv_index
+              && (!tvaHandle->associatedVertex(pfo->track(0))
+                  || vx.index()!=tvaHandle->associatedVertex(pfo->track(0))->index())
+              ) continue;
+          input_pfo.push_back(pfoToPseudoJet(pfo, CP::charged, &vx) );
+          charged_pfo.insert(pfo->index());
+        }
+        else if (std::abs(pfo->eta())<m_neutMaxRap && !pfo->isCharged() && pfo->eEM()>0)
+          {
+            input_pfo.push_back(pfoToPseudoJet(pfo, CP::neutral, &vx) );
+          }
+      }
+    }
+
     std::shared_ptr<xAOD::JetContainer> vertjets = std::make_shared<xAOD::JetContainer>();
     std::shared_ptr<xAOD::JetAuxContainer> vertjetsAux = std::make_shared<xAOD::JetAuxContainer>();
 
@@ -269,6 +313,28 @@
     // User index is used to identify the xAOD object used for the PSeudoJet
     if (CP::charged == theCharge){
       psj.set_user_index(pfo->index());
+    }else{
+      psj.set_user_index(-1);
+    }
+
+    return psj;
+  }
+
+  fastjet::PseudoJet JetForwardPFlowJvtTool::feToPseudoJet(const xAOD::FlowElement* fe, const CP::PFO_JetMETConfig_charge& theCharge, const xAOD::Vertex *vx) const {
+    TLorentzVector fe_p4;
+    if (CP::charged == theCharge){
+      float pweight = m_weight;
+      if( (m_wpfotool->fillWeight(*fe,pweight)).isSuccess() ){
+	// Create a Peeudojet with the momentum of the selected IParticle
+	fe_p4= TLorentzVector(fe->p4().Px()*pweight,fe->p4().Py()*pweight,fe->p4().Pz()*pweight,fe->e()*pweight);
+      }
+    } else if (CP::neutral == theCharge){
+      fe_p4=FEHelpers::getVertexCorrectedFourVec(*fe, *vx);
+    }
+    fastjet::PseudoJet psj(fe_p4);
+    // User index is used to identify the xAOD object used for the PseudoJet
+    if (CP::charged == theCharge){
+      psj.set_user_index(fe->index());
     }else{
       psj.set_user_index(-1);
     }

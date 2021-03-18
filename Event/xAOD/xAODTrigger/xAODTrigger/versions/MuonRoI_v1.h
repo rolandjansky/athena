@@ -97,6 +97,8 @@ namespace xAOD {
       int getRoI() const;
       /// Get the full sector address
       int getSectorAddress() const;
+      /// Get the sector ID number
+      int getSectorID() const;
       /// Returns if the candidate had the highest p<sub>T</sub> in the sector
       bool isFirstCandidate() const;
       /// Returns if there were other muons detected in the same RoI
@@ -107,8 +109,18 @@ namespace xAOD {
       RoISource getSource() const;
       /// Returns the hemisphere that detected the muon candidate
       Hemisphere getHemisphere() const;
+      /// Returns whether there's overlap between barrel sectors
+      bool getPhiOverlap() const;
+      /// Returns whether there's overlap between the barrel-EC sectors
+      bool getEtaOverlap() const;
       /// Returns the charge sign of the muon candidate
       Charge getCharge() const;
+      /// Returns whether or not there was a 3-station coincidence in the TGC
+      bool getBW3Coincidence() const;
+      /// Returns whether or not there was an inner coincidence in the TGC
+      bool getInnerCoincidence() const;
+      /// Returns whether or not there was a good magnetic field quality in the TGC
+      bool getGoodMF() const;
       /// Returns the veto flag for the candidate
       bool isVetoed() const;
       /// Returns extra flag at end of RoI word indicating that it's in Run3 format

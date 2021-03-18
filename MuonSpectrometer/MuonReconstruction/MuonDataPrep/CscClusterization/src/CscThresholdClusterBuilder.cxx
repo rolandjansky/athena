@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // CscThresholdClusterBuilder.cxx
@@ -58,15 +58,10 @@ CscThresholdClusterBuilder::execute()
 	//prepare output
 	SG::WriteHandle<Muon::CscPrepDataContainer> wh_pclusters(m_pclusters);
 	Muon::CscPrepDataContainer* object = new Muon::CscPrepDataContainer(m_idHelperSvc->cscIdHelper().module_hash_max());
-	if (!wh_pclusters.isPresent()) {
-	  /// record the container in storeGate
-	  if (wh_pclusters.record(std::unique_ptr<Muon::CscPrepDataContainer>(object)).isFailure()) {
-            ATH_MSG_ERROR("Could not record container of CSC Cluster PrepData at " << m_pclusters.key());
-            return StatusCode::RECOVERABLE;
-	  }
-	} else {
-	  ATH_MSG_DEBUG("CSC Cluster PrepData Container is already in StoreGate; nothing to do ");
-	  return StatusCode::SUCCESS;
+	/// record the container in storeGate
+	if (wh_pclusters.record(std::unique_ptr<Muon::CscPrepDataContainer>(object)).isFailure()) {
+	  ATH_MSG_ERROR("Could not record container of CSC Cluster PrepData at " << m_pclusters.key());
+	  return StatusCode::RECOVERABLE;
 	}
 
         if (m_cluster_builder->getClusters(givenIDs, decodedIDs, object).isFailure()) {

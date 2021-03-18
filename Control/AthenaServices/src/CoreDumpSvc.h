@@ -96,6 +96,8 @@ private:
   std::vector<sysDumpRec> m_sysCoreDumps;                ///< Core dump info collected by this service  
   siginfo_t* m_siginfo{nullptr};                         ///< Pointer to siginfo_t struct (set by signal handler)
   std::atomic<EventID::number_type> m_eventCounter{0};   ///< Event counter
+
+  std::vector<uint8_t> m_stack;                          /// Alternate stack for signal handler
   
   ///@{ Properties
 
@@ -116,11 +118,14 @@ private:
 
   Gaudi::Property<int> m_fatalHandlerFlags{this, "FatalHandler", 0, 
       "Flags given to the fatal handler this service installs\n"
-      "if the flag is zero, no additional fatal handler is installed"};
+      "if the flag is zero, no additional fatal handler is installed."};
 
   Gaudi::Property<double> m_timeout{this, "TimeOut", 30.0*60*1e9,
       "Terminate job after it this reaches the time out in Wallclock time, "
       "usually due to hanging during stack unwinding. Timeout given in nanoseconds despite seconds precision"};
+
+  Gaudi::Property<bool> m_killOnSigInt{this, "KillOnSigInt",true, "Terminate job on SIGINT (aka Ctrl-C)"};
+
 	   
   ///@}
 

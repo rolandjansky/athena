@@ -1,17 +1,17 @@
 // Dear emacs, this is -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: PerfStats.h 634033 2014-12-05 14:46:38Z krasznaa $
 #ifndef XAODCORE_TOOLS_PERFSTATS_H
 #define XAODCORE_TOOLS_PERFSTATS_H
 
 // ROOT include(s):
 #include <TVirtualPerfStats.h>
 
+// Athena include(s).
 #include "CxxUtils/checker_macros.h"
+
+// System include(s).
 #include <mutex>
 
 // Forward declaration(s):
@@ -25,10 +25,11 @@ namespace xAOD {
    /// access during an xAOD analysis. It was first developed for the
    /// D3PDReader code, and was later adopted to be used with xAOD files.
    ///
-   /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+   /// Note: One can't use @c override on the virtual functions of this class,
+   /// as it generates a lot of warnings because of how @c ClassDef(...) is
+   /// implemented. :-(
    ///
-   /// $Revision: 634033 $
-   /// $Date: 2014-12-05 15:46:38 +0100 (Fri, 05 Dec 2014) $
+   /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
    class PerfStats : public ::TVirtualPerfStats {
 
@@ -65,14 +66,10 @@ namespace xAOD {
       /// Function called in general when a file reading operation happens
       virtual void FileReadEvent( ::TFile *file, ::Int_t len,
                                   ::Double_t start );
-
-#ifndef __CINT__
       /// Function called in general when a file unzipping operation happens
       virtual void UnzipEvent( ::TObject *tree, ::Long64_t pos,
                                ::Double_t start, ::Int_t complen,
                                ::Int_t objlen );
-#endif // not __CINT__
-
       /// PROOF specific function, not implemented here
       virtual void RateEvent( ::Double_t proctime, ::Double_t deltatime,
                               ::Long64_t eventsprocessed,
@@ -116,6 +113,11 @@ namespace xAOD {
       PerfStats();
 
    private:
+#if ROOT_VERSION_CODE >= ROOT_VERSION( 6, 23, 2 )
+      /// Function letting us know that a new file was opened
+      virtual void SetFile( TFile* file );
+#endif // ROOT version
+
       /// The single instance of the object
       static PerfStats* s_instance ATLAS_THREAD_SAFE;
 

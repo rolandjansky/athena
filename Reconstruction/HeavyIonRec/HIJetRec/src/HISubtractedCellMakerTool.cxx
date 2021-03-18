@@ -33,11 +33,6 @@ StatusCode HISubtractedCellMakerTool::initialize()
 StatusCode HISubtractedCellMakerTool::process (CaloCellContainer* theCells,
                                                const EventContext& ctx) const
 {
-  if (ctx.slot() > 1) {
-    ATH_MSG_ERROR("This tool hasn't been converted for MT.");
-    return StatusCode::FAILURE;
-  }
-
   const xAOD::HIEventShapeContainer* shape=0;
 
   SG::ReadHandle<xAOD::HIEventShapeContainer>  readHandleEvtShape ( m_eventShapeKey , ctx);

@@ -37,7 +37,7 @@ public:
   RpcRdoToPrepDataToolCore( const std::string&, const std::string&, const IInterface* );
 
   // to allow access to the IMuonRdoToPrepDataTool interface
-  StatusCode queryInterface( const InterfaceID& riid, void** ppvIf );
+  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvIf ) override;
 
   // setup/teardown functions, similar like those for Algorithm/Service
   virtual StatusCode initialize() override;
@@ -47,8 +47,8 @@ public:
   virtual StatusCode decode( const std::vector<uint32_t>& robIds ) override;
 
   // debugging 
-  void printInputRdo();
-  void printPrepData();
+  virtual void printInputRdo() override;
+  virtual void printPrepData() override;
   void printCoinData();
 
   // to resolve possible conflicts with IProperty::interfaceID()

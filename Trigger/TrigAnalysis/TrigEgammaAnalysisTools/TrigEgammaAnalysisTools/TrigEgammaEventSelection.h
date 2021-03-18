@@ -85,6 +85,8 @@ class TrigEgammaEventSelection : public TrigEgammaNavTPBaseTool, public TrigEgam
     ToolHandleArray<IAsgElectronLikelihoodTool> m_HLTElectronLHSelectors;
     ToolHandle<IAsgElectronLikelihoodTool>      m_electronLHVLooseTool;
 
+    SG::ReadDecorHandleKey<xAOD::ElectronContainer> m_eleIsoKey{this, "EleIsoKey", "Electrons.etcone20"};
+
     std::vector<std::string> m_supportingTrigList;
     int  m_detailedDataLevel; 
     bool m_selectionZ;

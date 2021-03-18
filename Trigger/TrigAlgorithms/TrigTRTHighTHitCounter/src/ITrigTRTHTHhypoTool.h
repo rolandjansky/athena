@@ -5,7 +5,6 @@
 #define ITRIGTRTHTHHYPOTOOL_H 1
 
 #include "GaudiKernel/IAlgTool.h"
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "xAODTrigRinger/TrigRNNOutput.h"

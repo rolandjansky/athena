@@ -55,7 +55,7 @@ class L1EmulationTest(L1Decoder):
                                                     Decisions = "EMRoIDecisions",
                                                     OutputTrigRoIs = mapThresholdToL1RoICollection("EM"),
                                                     OutputLevel = self.getDefaultProperty("OutputLevel"))
-            self.roiUnpackers += [emUnpacker]
+            self.RoIBRoIUnpackers += [emUnpacker]
             print (emUnpacker)
 
 
@@ -65,24 +65,25 @@ class L1EmulationTest(L1Decoder):
                                                     Decisions = "MURoIDecisions",
                                                     OutputTrigRoIs = mapThresholdToL1RoICollection("MU"),
                                                     OutputLevel=self.getDefaultProperty("OutputLevel"))
-            self.roiUnpackers += [muUnpacker]
+            self.RoIBRoIUnpackers += [muUnpacker]
 
         self.L1DecoderSummaryKey = "L1DecoderSummary"
 
 from DecisionHandling.DecisionHandlingConfig import ComboHypoCfg
 class makeChainStep(object):
     """ Used to store the step info, regardless of the chainDict"""
-    def __init__(self, name, seq=[], multiplicity=[1], comboHypoCfg=ComboHypoCfg, comboToolConfs=[]):
+    def __init__(self, name, seq=[], multiplicity=[1], comboHypoCfg=ComboHypoCfg, comboToolConfs=[], chainDicts=None):
         self.name=name
         self.seq=seq
         self.mult=multiplicity
         self.comboToolConfs=comboToolConfs
         self.comboHypoCfg=comboHypoCfg
+        self.chainDicts = chainDicts
     
 
 chainsCounter = 0
 
-def makeChain( name, L1Thresholds, ChainSteps, Streams="physics:Main", Groups=["RATE:TestRateGroup", "BW:TestBW"] ):
+def makeChain( name, L1Thresholds, ChainSteps, Streams="physics:Main", Groups=["RATE:TestRateGroup", "BW:TestBW"]):
     """
     In addition to making the chain object fills the flags that are used to generate MnuCOnfig JSON file
     """
@@ -105,11 +106,17 @@ def makeChain( name, L1Thresholds, ChainSteps, Streams="physics:Main", Groups=["
     from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDictInLegs
 
     listOfChainDicts = splitChainDictInLegs(chainDict)
+
     
     # create the ChainSteps, with the chaindict
     StepConfig = []
-    for step in ChainSteps:
-        StepConfig+=[ChainStep(step.name, step.seq,  multiplicity=step.mult, chainDicts=listOfChainDicts, comboHypoCfg=step.comboHypoCfg, comboToolConfs=step.comboToolConfs)]
+    for step in ChainSteps:        
+        StepConfig+=[ChainStep(step.name, 
+                                step.seq,  
+                                multiplicity=step.mult, 
+                                chainDicts=step.chainDicts if step.chainDicts else listOfChainDicts, 
+                                comboHypoCfg=step.comboHypoCfg, 
+                                comboToolConfs=step.comboToolConfs)]
 
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain
     chainConfig = Chain( name=name, L1Thresholds=L1Thresholds, ChainSteps=StepConfig )

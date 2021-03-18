@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArPhysWavePredictor.h"
@@ -353,31 +353,29 @@ StatusCode LArPhysWavePredictor::stop()
   /////////////IDEAL PHYSWAVE/////////////////////////////
     
   // get the calibration waveforms from the detector store 
-  std::vector<std::string>::const_iterator key_it = m_keyCali.begin();
-  std::vector<std::string>::const_iterator key_it_e = m_keyCali.end();
 
   int NPhysWave=0;
   int NMPMC=0;  
 
-  for (;key_it!=key_it_e;key_it++) { // Loop over all LArCaliWave containers that are to be processed
+  for (const std::string& key : m_keyCali) { // Loop over all LArCaliWave containers that are to be processed
 
     // Get current LArCaliWaveContainer
     const LArCaliWaveContainer* caliWaveContainer;
-    sc = detStore()->retrieve(caliWaveContainer,*key_it);
+    sc = detStore()->retrieve(caliWaveContainer,key);
     if (sc.isFailure()) {
-       //log << MSG::INF0 << "LArCaliWaveContainer (key = " << *key_it << ") not found in StoreGate" );
+       //log << MSG::INF0 << "LArCaliWaveContainer (key = " << key << ") not found in StoreGate" );
        continue;   
     }
     if ( caliWaveContainer == NULL ) {
-       ATH_MSG_INFO( "LArCaliWaveContainer (key = " << *key_it << ") is empty" );
+       ATH_MSG_INFO( "LArCaliWaveContainer (key = " << key << ") is empty" );
        continue;
     }
     
-    ATH_MSG_INFO( "Processing LArCaliWaveContainer from StoreGate, key = " << *key_it );
+    ATH_MSG_INFO( "Processing LArCaliWaveContainer from StoreGate, key = " << key );
     
     for ( unsigned gain = CaloGain::LARHIGHGAIN ; gain < CaloGain::LARNGAIN ; ++ gain ) { // loop over gain in the current   LArCaliWAveContainer
       
-      ATH_MSG_INFO( "Now processing gain = " << gain << " in LArCaliWaveContainer with key = " << *key_it );
+      ATH_MSG_INFO( "Now processing gain = " << gain << " in LArCaliWaveContainer with key = " << key );
     
       // loop over current cali wave container
       typedef LArCaliWaveContainer::ConstConditionsMapIterator const_iterator;
@@ -386,28 +384,14 @@ StatusCode LArPhysWavePredictor::stop()
 
       for (; itVec != itVec_e; ++itVec) { // loop over channels for a given gain
 		
-        LArCaliWaveContainer::LArCaliWaves::const_iterator cont_it   = (*itVec).begin();
-        LArCaliWaveContainer::LArCaliWaves::const_iterator cont_it_e = (*itVec).end();
 
-	if ( itVec == itVec_e ) {
-          ATH_MSG_INFO( "LArCaliWaveContainer (key = " << *key_it << ") has no wave with gain = " << gain );
-          continue ;
-        }
-        
-        for (;cont_it!=cont_it_e;cont_it++) { // loop over DAC values for a given channel
+        for (const LArCaliWave& larCaliWave : *itVec) { // loop over DAC values for a given channel
 
-          if ( cont_it == cont_it_e ) { 
-	    ATH_MSG_DEBUG("Empty channel found in LArCaliWave container: skipping...");
-	    continue ; 	  
-	  } else {
-	    ATH_MSG_DEBUG((*itVec).size() << " LArCaliWaves found for channel 0x" << MSG::hex << itVec.channelId() << MSG::dec);
-	  }
+          ATH_MSG_DEBUG((*itVec).size() << " LArCaliWaves found for channel 0x" << MSG::hex << itVec.channelId() << MSG::dec);
 	  nchannel++ ;
 	  if ( nchannel < 100 || ( nchannel < 1000 && nchannel%100==0 ) || nchannel%1000==0 ) 
 	     ATH_MSG_INFO( "Processing calibration waveform number " << nchannel );
 
-	  const LArCaliWave& larCaliWave = (*cont_it);
-	  
 	  if ( larCaliWave.getFlag() == LArWave::dac0 )  continue ; // skip dac0 waves          
 	  // TODO: here we should add a DAC selection mechanism for TCM method
 
@@ -415,7 +399,7 @@ StatusCode LArPhysWavePredictor::stop()
 
 	  const HWIdentifier chid = itVec.channelId();
           ATH_MSG_VERBOSE("Predicting physics waveform for channel 0x" << MSG::hex << chid << MSG::dec 
-			  << " (gain = " << gain << " - DAC = " << (*cont_it).getDAC() << ")");
+			  << " (gain = " << gain << " - DAC = " << larCaliWave.getDAC() << ")");
 
 	  // calibration pulse copy (working around the const iterator to be able to manipulate it...)
 	  LArCaliWave theLArCaliWave = larCaliWave;

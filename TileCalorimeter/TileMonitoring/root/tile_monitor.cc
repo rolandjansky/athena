@@ -1,8 +1,30 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include<include/tile_monitor.h>
+
+void selectFile() {
+  
+  gROOT->ProcessLine(".L ./include/dialogs.cc");
+  
+  // Getting the OpenDialog
+  const char *newfile = OpenFileDialog();
+  
+  // Opening the new file
+  file = new TFile(newfile);
+  if (file->IsZombie()) {
+    cout << "Error opening file!" << endl;
+    run = 0;
+    fi le();
+    exit(-1);
+  }
+  else {
+    cout << "\n New selected file: " << newfile << endl;
+    
+    gROOT->ProcessLine(".U ./include/dialogs.cc");
+  }
+}
 
 void tile_monitor(void){
   
@@ -18,7 +40,7 @@ void tile_monitor(void){
   if (file->IsZombie()) {
     cout << "Error opening file!" << endl;
     cout << "Select a input file!" << endl;
-    file();
+    selectFile();
     if(!file)exit(-1);
   }
   
@@ -56,28 +78,6 @@ void tile_cluster(){
 
 void tile_muid(){
   gROOT->ProcessLine(".x ./tile_muid.cc");
-}
-
-void file() {
-  
-  gROOT->ProcessLine(".L ./include/dialogs.cc");
-  
-  // Getting the OpenDialog
-  const char *newfile = OpenFileDialog();
-  
-  // Openning the new file
-  file = new TFile(newfile);
-  if (file->IsZombie()) {
-    cout << "Error opening file!" << endl;
-    run = 0;
-    fi le();
-    exit(-1);
-  }
-  else {
-    cout << "\n New selected file: " << newfile << endl;
-    
-    gROOT->ProcessLine(".U ./include/dialogs.cc");
-  }
 }
 
 void quit() {

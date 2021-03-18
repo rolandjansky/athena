@@ -50,6 +50,7 @@ def defaultTestFlags(configFlags, args):
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     configFlags.Input.RunNumber = [284500]
     configFlags.Input.OverrideRunNumber = True
+    configFlags.Input.LumiBlockNumber = [1]
     configFlags.Input.Files = defaultTestFiles.EVNT # ["root://eosuser.cern.ch///eos/atlas/atlascerngroupdisk/proj-simul/OutputSamples/rel21/mc16_13TeV.photon.E65536.eta20_25.EVNT.merged.pool.root"]
     configFlags.Output.HITSFileName = "myHITSnew.pool.root"
     configFlags.Common.ProductionStep = ProductionStep.Simulation
@@ -71,40 +72,10 @@ def defaultTestFlags(configFlags, args):
     configFlags.GeoModel.Align.Dynamic = False
     configFlags.GeoModel.AtlasVersion = 'ATLAS-R2-2016-01-00-01'
 
-    # Set the detector flags:
-    # Beam pipe
-    configFlags.Detector.SimulateBpipe = True
-    configFlags.Detector.GeometryBpipe = True
-
-    # Inner detectors
-    configFlags.Detector.SimulateBCM = True
-    configFlags.Detector.GeometryBCM = True
-    configFlags.Detector.SimulateDBM = True
-    configFlags.Detector.GeometryDBM = True
-    configFlags.Detector.SimulatePixel = True
-    configFlags.Detector.GeometryPixel = True
-    configFlags.Detector.SimulateSCT = True
-    configFlags.Detector.GeometrySCT = True
-    configFlags.Detector.SimulateTRT = True
-    configFlags.Detector.GeometryTRT = True
-
-    # Muon
-    configFlags.Detector.SimulateMuon = True
-    configFlags.Detector.GeometryMuon = True
-    configFlags.Detector.SimulateMDT = True
-    configFlags.Detector.GeometryMDT = True
-    configFlags.Detector.SimulateRPC = True
-    configFlags.Detector.GeometryRPC = True
-    configFlags.Detector.SimulateTGC = True
-    configFlags.Detector.GeometryTGC = True
-    configFlags.Detector.SimulateCSC = True
-    configFlags.Detector.GeometryCSC = True
-
-    # LAr
-    configFlags.Detector.SimulateLAr = True
-    configFlags.Detector.GeometryLAr = True
-    configFlags.Detector.SimulateTile = True
-    configFlags.Detector.GeometryTile = True
+    detectors =['Bpipe', 'BCM', 'DBM',  'Pixel', 'SCT', 'TRT', 'LAr', 'Tile', 'CSC', 'MDT', 'RPC', 'TGC']
+    # Setup detector flags
+    from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
+    setupDetectorsFromList(configFlags, detectors, toggle_geometry=True)
 
     # Frozen showers OFF = 0
     configFlags.Sim.LArParameterization = 0

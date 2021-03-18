@@ -1,16 +1,19 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 import sys
 import os
 import ROOT
+import argparse
 
-
-def xAODDigest(evt):
+def xAODDigest(evt, counter=False, extravars=False):
     result = list()
 
     for i in range(0, evt.getEntries()):
+        if (counter and (i % 100) == 0):
+            print("Processing event %s" %i) 
+
         evt.getEntry(i)
         ei = evt.retrieve("xAOD::EventInfo", "EventInfo")
         runnbr = ei.runNumber()
@@ -26,15 +29,39 @@ def xAODDigest(evt):
 
         jets = evt.retrieve("xAOD::JetContainer", "AntiKt4EMTopoJets")
         nJets = len(jets)
+        if jets:
+          jet1pt = jets[0].pt()
+          jet1eta = jets[0].eta()
+          jet1phi = jets[0].phi()
+        else:
+          jet1pt = jet1eta = jet1phi = 0
 
         muons = evt.retrieve("xAOD::MuonContainer", "Muons")
         nMuons = len(muons)
+        if muons:
+          muon1pt = muons[0].pt()
+          muon1eta = muons[0].eta()
+          muon1phi = muons[0].phi()
+        else:
+          muon1pt = muon1eta = muon1phi = 0
 
         electrons = evt.retrieve("xAOD::ElectronContainer", "Electrons")
         nElec = len(electrons)
+        if electrons:
+          elec1pt = electrons[0].pt()
+          elec1eta = electrons[0].eta()
+          elec1phi = electrons[0].phi()
+        else:
+          elec1pt = elec1eta = elec1phi = 0
 
         photons = evt.retrieve("xAOD::PhotonContainer", "Photons")
         nPhot = len(photons)
+        if photons:
+          phot1pt = photons[0].pt()
+          phot1eta = photons[0].eta()
+          phot1phi = photons[0].phi()
+        else:
+          phot1pt = phot1eta = phot1phi = 0
 
         nTrueElectrons = 0
         nTruePhotons = 0
@@ -60,9 +87,17 @@ def xAODDigest(evt):
         nFakeElectrons = nElec - nTrueElectrons
         nFakePhotons = nPhot - nTruePhotons
 
-        result.append((runnbr, evtnbr, nclus, nIdTracks, nJets, nMuons,
-                       nElec, nTrueElectrons, nFakeElectrons,
-                       nPhot, nTruePhotons, nFakePhotons))
+        if extravars:
+            result.append((runnbr, evtnbr, nclus, nIdTracks, 
+                           nJets, jet1pt, jet1eta, jet1phi, 
+                           nMuons, muon1pt, muon1eta, muon1phi,
+                           nElec, elec1pt, elec1eta, elec1phi, nTrueElectrons, nFakeElectrons,
+                           nPhot, phot1pt, phot1eta, phot1phi ,nTruePhotons, nFakePhotons))
+        else:
+            result.append((runnbr, evtnbr, nclus, nIdTracks, nJets, nMuons,
+                           nElec, nTrueElectrons, nFakeElectrons,
+                           nPhot, nTruePhotons, nFakePhotons))
+
         pass
 
     # Sort by run/event number
@@ -71,48 +106,76 @@ def xAODDigest(evt):
 
 
 def main():
-    if len(sys.argv) < 2 or sys.argv[1] == "-h" or len(sys.argv) > 3:
-        print("Usage:")
-        print("xAODDigest.py <xAODFile> [<outputFile>]")
-        print("Extracts a few basic quantities from the"
-              "xAOD file and dumps them into a text file")
-        sys.exit(-1)
+    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description="Extracts a few basic quantities from the xAOD file and dumps them into a text file")
+    parser.add_argument("xAODFile", nargs='?', type=str, help="xAOD input filename", action="store")
+    parser.add_argument("outfilename", nargs='?', help="output text file for results", action="store", default=None)
+    parser.add_argument("--outputfilename", help="output text file for results", action="store", default=None)
+    parser.add_argument("--extravars", help="Extract extra variables: pt/eta/phi", action="store_true", default=False)
+    parser.add_argument("--counter", help="Print event counter%100", action="store_true", default=False)
+    parser.add_argument("--inputlist", help="Optional list of xAOD file instead of xAODFile parameter", nargs='+', action="store", default=False)
+    args = parser.parse_args()
 
-    # Check input file existnace
-    if not os.access(sys.argv[1], os.R_OK):
-        print("ERROR, can't access file {}".format(sys.argv[1]))
+    # Check input file existance
+    if not args.inputlist and not os.access(args.xAODFile, os.R_OK):
+        print("ERROR, can't access file {}".format(args.xAODFile))
         sys.exit(-1)
 
     # Check output file ...
-    outfilename = None
-    if len(sys.argv) == 3:
-        outfilename = sys.argv[2]
-        print("Writing to file ", outfilename)
+    outfilename = ''
+    if args.outfilename:
+        outfilename = args.outfilename
+    elif args.outputfilename:
+        outfilename = args.outputfilename
 
+    print("Writing to file ", outfilename)
+
+    # Create TChain or single inputfile
+    if args.inputlist:
+        filelist = ROOT.TChain()
+        for filename in args.inputlist:
+            filelist.AddFile(filename)
+    else:
+        filelist = args.xAODFile
+
+    # Setup TEvent object and add inputs
     evt = ROOT.POOL.TEvent(ROOT.POOL.TEvent.kClassAccess)
-    stat = evt.readFrom(sys.argv[1])
+    stat = evt.readFrom(filelist)
     if not stat:
         print("ERROR, failed to open file {} with POOL.TEvent".format(
-            sys.argv[1]))
+            args.xAODFile))
         sys.exit(-1)
         pass
 
-    digest = xAODDigest(evt)
+    digest = xAODDigest(evt, args.counter, args.extravars)
 
     if outfilename:
         outstr = open(outfilename, "w")
     else:
         outstr = sys.stdout
 
-    header = ("run", "event", "nTopo", "nIdTracks", "nJets", "nMuons",
-              "nElec", "nTrueElec", "nFakeElec",
-              "nPhot", "nTruePhot", "nFakePhot")
+    if args.extravars:
+        header = ("run", "event", "nTopo", "nIdTracks", 
+                  "nJets", "jet1pt", "jet1eta", "jet1phi", 
+                  "nMuons", "muon1pt", "muon1eta", "muon1phi",
+                  "nElec", "elec1pt", "elec1eta", "elec1phi", "nTrueElec", "nFakeElec",
+                  "nPhot", "phot1pt", "phot1eta", "phot1phi", "nTruePhot", "nFakePhot")
+        row_format_header = "{:>20}" * len(header)
+        row_format_header += os.linesep
+        row_format_data = "{:d} {:d} " + "{:20.4f}" * (len(header)-2)
+        row_format_data += os.linesep
+    else:
+        header = ("run", "event", "nTopo", "nIdTracks", "nJets", "nMuons",
+                  "nElec", "nTrueElec", "nFakeElec",
+                  "nPhot", "nTruePhot", "nFakePhot")
+        row_format_header = "{:>12}" * len(header)
+        row_format_header += os.linesep
+        row_format_data = "{:>12}" * len(header)
+        row_format_data += os.linesep
 
-    row_format = "{:>12}" * len(header)
-    row_format += os.linesep
-    outstr.write(row_format.format(*header))
+    outstr.write(row_format_header.format(*header))
     for evt in digest:
-        outstr.write(row_format.format(*evt))
+        outstr.write(row_format_data.format(*evt))
 
     if outfilename:
         outstr.close()

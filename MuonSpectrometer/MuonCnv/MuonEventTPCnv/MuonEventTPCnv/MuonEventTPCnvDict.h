@@ -39,5 +39,7 @@
 #include "MuonEventTPCnv/MuonDigitContainer/CscSimDataCollection_p2.h"
 #include "MuonEventTPCnv/MuonRDO/STGC_RawDataContainer_p1.h"
 #include "MuonEventTPCnv/MuonRDO/MM_RawDataContainer_p1.h"
+#include "MuonEventTPCnv/MuonRDO/NSW_PadTriggerDataContainer_p1.h"
+
 
 #endif // MUONEVENTTPCNV_MUONEVENTTPCNVDICT_H

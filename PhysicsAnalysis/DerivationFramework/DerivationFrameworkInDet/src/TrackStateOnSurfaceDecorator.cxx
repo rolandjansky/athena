@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -196,6 +196,8 @@ namespace DerivationFramework {
        names[kTrkL2ZDecor]="TrkL2Z";
        createDecoratorKeys(*this,m_containerName, m_sgName, names, m_trackPixFloatDecorKeys);
     }
+    m_trackTSOSMOSLinkDecorKey = m_containerName.key() + "." + m_sgName + "msosLink";
+    ATH_CHECK( m_trackTSOSMOSLinkDecorKey.initialize() );
 
     ATH_MSG_DEBUG("Initialization finished.");
 
@@ -213,7 +215,7 @@ namespace DerivationFramework {
     const EventContext& ctx = Gaudi::Hive::currentContext();
     ATH_MSG_DEBUG("Adding TSOS decorations the track particles");
 
-    static SG::AuxElement::Decorator< std::vector< ElementLink< xAOD::TrackStateValidationContainer > > >  dectsos_msosLink(m_sgName+"msosLink");
+    SG::WriteDecorHandle<xAOD::TrackParticleContainer,std::vector< ElementLink< xAOD::TrackStateValidationContainer >  > > dectsos_msosLink(m_trackTSOSMOSLinkDecorKey);
 
     // --- Retrieve track container (absolutely needed for decoration)
     SG::ReadHandle<xAOD::TrackParticleContainer> tracks(m_containerName,ctx);
@@ -322,7 +324,7 @@ namespace DerivationFramework {
     std::vector<SG::WriteDecorHandle<xAOD::TrackParticleContainer,float> >
        trackPixFloatDecorators = createDecorators<xAOD::TrackParticleContainer,float>(m_trackPixFloatDecorKeys,ctx);
     // -- Run over each track and decorate it
-    for (const auto& track : *tracks) {
+    for (const auto track : *tracks) {
       //-- Start with things that do not need a Trk::Track object
 
       // -- Now things that require a Trk::Track object
@@ -410,7 +412,7 @@ namespace DerivationFramework {
 
       // -- Add Track states to the current track, filtering on their type
       std::vector<const Trk::TrackStateOnSurface*> tsoss;
-      for (const auto& trackState: *(trkTrack->trackStateOnSurfaces())){
+      for (const auto trackState: *(trkTrack->trackStateOnSurfaces())){
         //Get rid of any holes that already exist  --  we are doing the search again
         if( trackState->types()[Trk::TrackStateOnSurface::Hole] )
           continue;

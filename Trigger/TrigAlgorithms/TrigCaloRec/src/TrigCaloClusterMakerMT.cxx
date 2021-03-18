@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -17,42 +17,21 @@
 //
 #include <sstream>
 
-//
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/ListItem.h"
-#include "CaloInterface/ISetCaloCellContainerName.h"
-//
+#include "GaudiKernel/StatusCode.h"
+
 #include "AthenaMonitoringKernel/Monitored.h"
 
-#include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
-//
+#include "CaloInterface/ISetCaloCellContainerName.h"
 #include "CaloEvent/CaloCellContainer.h"
-//
-#include "EventKernel/INavigable4Momentum.h"
-#include "NavFourMom/INavigable4MomentumCollection.h"
-//
-#include "CaloUtils/CaloCollectionHelper.h"
-//
 #include "CaloUtils/CaloClusterStoreHelper.h"
-//
 #include "CaloRec/CaloClusterCollectionProcessor.h"
 #include "CaloRec/CaloClusterProcessor.h"
 
-#include "CaloEvent/CaloTowerContainer.h"
-//
 #include "TrigCaloClusterMakerMT.h"
-#include "TrigCaloRec/TrigCaloQuality.h"
-//#include "TrigTimeAlgs/TrigTimerSvc.h"
 
-//#include "xAODCaloEvent/CaloClusterAuxContainer.h"
 #include "xAODTrigCalo/CaloClusterTrigAuxContainer.h"
-//#include "xAODCaloEvent/CaloClusterChangeSignalState.h"
 
 #include "StoreGate/WriteDecorHandle.h"
-
-//
-class ISvcLocator;
 
 
 /////////////////////////////////////////////////////////////////////
@@ -65,21 +44,14 @@ TrigCaloClusterMakerMT::TrigCaloClusterMakerMT(const std::string& name, ISvcLoca
 }
 
 /////////////////////////////////////////////////////////////////////
-    // DESTRUCTOR:
-    /////////////////////////////////////////////////////////////////////
-    //
-    TrigCaloClusterMakerMT::~TrigCaloClusterMakerMT()
-{  }
-
+// INITIALIZE:
+// The initialize method will create all the required algorithm objects
+// Note that it is NOT NECESSARY to run the initialize of individual
+// sub-algorithms.  The framework takes care of it.
 /////////////////////////////////////////////////////////////////////
-    // INITIALIZE:
-    // The initialize method will create all the required algorithm objects
-    // Note that it is NOT NECESSARY to run the initialize of individual
-    // sub-algorithms.  The framework takes care of it.
-    /////////////////////////////////////////////////////////////////////
-    //
+//
 
-   StatusCode TrigCaloClusterMakerMT::initialize()
+StatusCode TrigCaloClusterMakerMT::initialize()
 {
   ATH_MSG_DEBUG("in TrigCaloClusterMakerMT::initialize()" );
 
@@ -96,10 +68,6 @@ TrigCaloClusterMakerMT::TrigCaloClusterMakerMT(const std::string& name, ISvcLoca
   ATH_CHECK( m_clusterMakers.retrieve() );
   ATH_CHECK( m_clusterCorrections.retrieve() );
  
-#if 0
-  ATH_CHECK( m_inputCaloQualityKey.initialize() );
-  ATH_CHECK( m_inputTowersKey.initialize() );
-#endif
   ATH_CHECK( m_inputCellsKey.initialize() );
   ATH_CHECK( m_outputClustersKey.initialize() );
   ATH_CHECK( m_clusterCellLinkOutput.initialize() );
@@ -129,14 +97,6 @@ TrigCaloClusterMakerMT::TrigCaloClusterMakerMT(const std::string& name, ISvcLoca
   ATH_MSG_DEBUG("Initialization of TrigCaloClusterMakerMT completed successfully");
 
   return StatusCode::SUCCESS;
-}
-
-
-StatusCode TrigCaloClusterMakerMT::finalize()
-{
-    ATH_MSG_DEBUG("in finalize()" );
-return StatusCode::SUCCESS;
-
 }
 
 
@@ -181,42 +141,15 @@ StatusCode TrigCaloClusterMakerMT::execute(const EventContext& ctx) const
 					    mon_badCells, mon_engFrac, mon_size);	    
 
 
-#if 0
-  auto  pTrigCaloQuality =   SG::makeHandle (m_inputCaloQualityKey, ctx); 
-  //TrigCaloQuality*  pTrigCaloQuality = trigCaloQuality.ptr();
-
-  ATH_MSG_VERBOSE(" Input CaloQuality : " <<  pTrigCaloQuality.name());
-#endif
-
-  // Looping over cluster maker tools... 
+  // Looping over cluster maker tools...
   
   time_clusMaker.start();
 
   auto cells = SG::makeHandle(m_inputCellsKey, ctx);
   ATH_MSG_VERBOSE(" Input Cells : " << cells.name() <<" of size " <<cells->size() );
 
-#if 0
-  auto towers = SG::makeHandle(m_inputTowersKey, ctx);
-  //  ATH_MSG_DEBUG(" Input Towers : " << towers.name() <<" of size "<< towers->size());
-#endif
-
   for (const ToolHandle<CaloClusterCollectionProcessor>& clproc : m_clusterMakers) {
     
-#if 0
-    else if(clproc->name().find("trigslw") != std::string::npos){
-      if(!algtool || algtool->setProperty( StringProperty("CaloCellContainer",cells.name()) ).isFailure()) { 
-	ATH_MSG_ERROR ("ERROR setting the CaloCellContainer name in the offline tool" ); 
-        //return HLT::TOOL_FAILURE; 
-	return StatusCode::SUCCESS;
-      } 
-      if(!algtool || algtool->setProperty( StringProperty("TowerContainer", towers.name() )).isFailure()) {
-	ATH_MSG_ERROR ("ERROR setting the Tower Container name in the offline tool" );
-        //return HLT::TOOL_FAILURE;
-	return StatusCode::SUCCESS;
-      }
-    }
-#endif
-      
     ATH_CHECK(clproc->execute(ctx, pCaloClusterContainer));
     ATH_MSG_VERBOSE("Executed tool " << clproc->name() );
 
@@ -260,16 +193,6 @@ StatusCode TrigCaloClusterMakerMT::execute(const EventContext& ctx) const
     }
   }
   time_clusCorr.stop();
-
-  // quality flag for clusters
-#if 0
-  if (pTrigCaloQuality &&  pTrigCaloQuality->getError()) { // conversion errors in this RoI
-    for (xAOD::CaloCluster* cl : *pCaloClusterContainer) {
-      CaloClusterBadChannelData data(-999.,-999.,CaloSampling::Unknown,CaloBadChannel(4)); // unphysical data
-      cl->addBadChannel(data);
-    }
-  }
-#endif
 
   // Decorator handle
   SG::WriteDecorHandle<xAOD::CaloClusterContainer, int> mDecor_ncells(m_mDecor_ncells, ctx);

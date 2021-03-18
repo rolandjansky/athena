@@ -21,7 +21,6 @@
 #include "xAODTrigger/TrigNavigation.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigNavigation/Navigation.h"
-#include "GaudiKernel/ToolHandle.h"
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
 

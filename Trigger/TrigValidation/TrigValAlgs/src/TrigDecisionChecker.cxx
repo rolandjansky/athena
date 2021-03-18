@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** R.Goncalo - 21/10/2007 - add tests for TrigDecisionTool:
@@ -279,7 +279,7 @@ StatusCode TrigDecisionChecker::execute()
     ATH_MSG_DEBUG("SMK = " << smk);
     
     // Check to see whether this is an event which we should process
-    if(smk!=m_smKey && m_smKey!=0) {
+    if(smk!=m_smKey && m_smKey!=0u) {
         // We do not have a matching super master key so skip the event and return success
         return StatusCode::SUCCESS;
     }
@@ -975,7 +975,7 @@ StatusCode TrigDecisionChecker::checkElectronEDM(const std::string& trigItem){
         ATH_MSG_INFO("REGTEST: Got electron container, size = " << elfeat.cptr()->size());
         const xAOD::ElectronContainer *elCont = elfeat.cptr();
         
-        for(const auto& eg : *elCont){
+        for(const auto eg : *elCont){
             if (eg) {
                 ATH_MSG_INFO(" REGTEST: egamma energy: " << eg->e() );
                 ATH_MSG_INFO(" REGTEST: egamma eta: " << eg->eta() );
@@ -1030,7 +1030,7 @@ StatusCode TrigDecisionChecker::checkPhotonEDM(const std::string& trigItem){
         ATH_MSG_INFO("REGTEST: Got photon container, size = " << phfeat.cptr()->size());
         const xAOD::PhotonContainer *phCont = phfeat.cptr();
         
-        for(const auto& eg : *phCont){
+        for(const auto eg : *phCont){
             if (eg) {
                 ATH_MSG_INFO(" REGTEST: egamma energy: " << eg->e() );
                 ATH_MSG_INFO(" REGTEST: egamma eta: " << eg->eta() );
@@ -1194,7 +1194,7 @@ StatusCode TrigDecisionChecker::checkJetEDM(const std::string& trigItem){
         ATH_MSG_INFO("REGTEST Got jet container, size: " << jetContsize);
         
         int i = 0;
-        for(const auto & thisjet : *jetCont){
+        for(const auto thisjet : *jetCont){
             ++i;
             ATH_MSG_INFO("REGTEST Looking at jet " << i);
             if (thisjet) {

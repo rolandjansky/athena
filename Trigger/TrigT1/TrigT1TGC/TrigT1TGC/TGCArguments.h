@@ -22,6 +22,7 @@ class TGCArguments
     void set_USE_CONDDB(bool v);
     void set_useRun3Config(bool v);
     void set_USE_NSW(bool v);
+    void set_NSWSideInfo(std::string v);
 
     MSG::Level MSGLEVEL() const;
     bool SHPT_ORED() const;
@@ -31,7 +32,7 @@ class TGCArguments
     bool USE_CONDDB() const;
     bool useRun3Config() const;
     bool USE_NSW() const;
-
+    std::string NSWSideInfo() const;
 
   private:
     MSG::Level m_MSGLEVEL;
@@ -42,7 +43,7 @@ class TGCArguments
     bool m_USE_CONDDB;
     bool m_useRun3Config;
     bool m_USE_NSW;
-
+    std::string m_NSWSideInfo;
 
 
 };

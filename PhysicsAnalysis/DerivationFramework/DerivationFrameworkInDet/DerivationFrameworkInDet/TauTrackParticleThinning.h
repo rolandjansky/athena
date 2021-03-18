@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -22,14 +22,11 @@
 #include "StoreGate/ThinningHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 
-namespace ExpressionParsing {
-  class ExpressionParser;
-}
-
+#include "ExpressionEvaluation/ExpressionParserUser.h"
 
 namespace DerivationFramework {
 
-    class TauTrackParticleThinning : public extends<AthAlgTool, IThinningTool> {
+    class TauTrackParticleThinning : public extends<ExpressionParserUser<AthAlgTool>, IThinningTool> {
     public: 
       TauTrackParticleThinning(const std::string& t, const std::string& n, const IInterface* p);
       virtual ~TauTrackParticleThinning();
@@ -54,8 +51,6 @@ namespace DerivationFramework {
          { this, "SelectionString", "",""};
       Gaudi::Property<float> m_coneSize
          { this, "ConeSize", -1.0,  ""};
-
-      std::unique_ptr<ExpressionParsing::ExpressionParser> m_parser;
   };
 }
 

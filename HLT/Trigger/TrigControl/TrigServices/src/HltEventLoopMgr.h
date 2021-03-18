@@ -12,6 +12,8 @@
 #include "TrigSteeringEvent/OnlineErrorCode.h"
 #include "TrigSteerMonitor/ISchedulerMonSvc.h"
 #include "TrigSteerMonitor/ITrigErrorMonTool.h"
+#include "TrigT1Result/RoIBResult.h"
+#include "xAODTrigger/TrigCompositeContainer.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthService.h"
@@ -20,7 +22,6 @@
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "CxxUtils/checker_macros.h"
 #include "xAODEventInfo/EventInfo.h"
-#include "xAODTrigger/TrigCompositeContainer.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
@@ -259,7 +260,10 @@ private:
     this, "EventInfoRHKey", "EventInfo", "StoreGate key for reading xAOD::EventInfo"};
 
   SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_l1TriggerResultRHKey{
-    this, "L1TriggerResultRHKey", "L1TriggerResult", "StoreGate key for reading L1TriggerResult for RewriteLVL1"};
+    this, "L1TriggerResultRHKey", "", "StoreGate key for reading L1TriggerResult for RewriteLVL1"};
+
+  SG::ReadHandleKey<ROIB::RoIBResult> m_roibResultRHKey{
+    this, "RoIBResultRHKey", "", "StoreGate key for reading RoIBResult for RewriteLVL1 with legacy (Run-2) L1 simulation"};
 
   SG::ReadHandleKey<HLT::HLTResultMT> m_hltResultRHKey;    ///< StoreGate key for reading the HLT result
 

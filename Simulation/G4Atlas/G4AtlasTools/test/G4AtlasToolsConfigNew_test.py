@@ -29,13 +29,10 @@ if __name__ == '__main__':
   ConfigFlags.GeoModel.Run = "RUN2" 
 
   #ConfigFlags.Beam.Type = "cosmics"
-  ConfigFlags.Detector.SimulateBCM = True
-  ConfigFlags.Detector.SimulatePixel = True
-  ConfigFlags.Detector.SimulateSCT = True
-  ConfigFlags.Detector.SimulateTRT = True
-  ConfigFlags.Detector.SimulateLAr = True
-  ConfigFlags.Detector.SimulateHGTD = False
-  ConfigFlags.Detector.SimulateTile = False
+  detectors =['BCM', 'Pixel', 'SCT', 'TRT', 'LAr']
+  # Setup detector flags
+  from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
+  setupDetectorsFromList(ConfigFlags, detectors, toggle_geometry=True)
 
   #ConfigFlags.GeoModel.AtlasVersion = "tb_Tile2000_2003"
   #ConfigFlags.GeoModel.AtlasVersion = "ctbh8"
@@ -50,9 +47,8 @@ if __name__ == '__main__':
 
   from G4AtlasTools.G4AtlasToolsConfigNew import SensitiveDetectorMasterToolCfg
   acc  = SensitiveDetectorMasterToolCfg(ConfigFlags)
-  #tool = cfg.popToolsAndMerge(acc)
-  #cfg.setPrivateTools(tool)
-  cfg.merge(acc)
+  tool = cfg.popToolsAndMerge(acc)
+  cfg.setPrivateTools(tool)
 
   cfg.printConfig(withDetails=True, summariseProps = True)
   ConfigFlags.dump()

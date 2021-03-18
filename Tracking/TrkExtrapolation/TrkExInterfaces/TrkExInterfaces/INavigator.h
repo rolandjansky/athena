@@ -36,16 +36,17 @@ class DetachedTrackingVolume;
 /**useful struct for a single navigation cell*/
 struct NavigationCell
 {
-
+  //Not Ownig ptr to volume from geometry
   const TrackingVolume* nextVolume;
-  const TrackParameters* parametersOnBoundary;
+  //Owning ptr for parameters
+  std::unique_ptr<TrackParameters> parametersOnBoundary;
   BoundarySurfaceFace exitFace;
   /** Constructor */
   NavigationCell(const TrackingVolume* nVol,
-                 const TrackParameters* lPar,
+                 std::unique_ptr<TrackParameters> lPar,
                  BoundarySurfaceFace face = undefinedFace)
     : nextVolume(nVol)
-    , parametersOnBoundary(lPar)
+    , parametersOnBoundary(std::move(lPar))
     , exitFace(face)
   {}
 };
@@ -132,19 +133,6 @@ public:
     PropDirection dir,
     const TrackingVolume& vol) const = 0;
 
-  /** INavigator interface method - getting the next Volume and the parameter
-    for the next Navigation
-    - contains full loop over volume boundaries
-  */
-  virtual NavigationCell nextDenseTrackingVolume(const EventContext& ctx,
-                                                 const IPropagator& prop,
-                                                 const TrackParameters& parms,
-                                                 const Surface* destination,
-                                                 PropDirection dir,
-                                                 ParticleHypothesis particle,
-                                                 const TrackingVolume& vol,
-                                                 double& path) const = 0;
-
    /*
     * Methods without explicit Event Context. To be removed
     * when clients get migrated
@@ -182,19 +170,7 @@ public:
                                     PropDirection dir,
                                     const TrackingVolume& vol) const;
 
-  /** INavigator interface method - getting the next Volume and the parameter
-    for the next Navigation
-    - contains full loop over volume boundaries
-  */
-  NavigationCell nextDenseTrackingVolume(const IPropagator& prop,
-                                         const TrackParameters& parms,
-                                         const Surface* destination,
-                                         PropDirection dir,
-                                         ParticleHypothesis particle,
-                                         const TrackingVolume& vol,
-                                         double& path) const;
 };
-
 } // end of namespace
 #include "TrkExInterfaces/INavigator.icc"
 

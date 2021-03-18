@@ -133,7 +133,8 @@ def error_check(errors_a):
                 mglog.info(err)
                 continue
             # silly ghostscript issue in 21.6.46 nightly
-            if 'required by /lib64/libfontconfig.so' in err:
+            if 'required by /lib64/libfontconfig.so' in err or\
+               'required by /lib64/libgs.so' in err:
                 mglog.info(err)
                 continue
             if 'Error: Symbol' in err and 'has no IMPLICIT type' in err:

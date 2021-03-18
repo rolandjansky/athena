@@ -124,6 +124,33 @@ namespace xAOD{
      else return ( ( roiWord() >> CAND_SECTOR_ADDRESS_SHIFT ) & CAND_SECTOR_ADDRESS_MASK );
    }
 
+   /// The sector ID is a 5- or 6-bit identifier of the sector number. For its detailed
+   /// description, see page 38 of https://edms.cern.ch/file/248757/1/mirod.pdf
+   ///
+   /// @return A 5- or 6-bit identifier
+   ///
+   int MuonRoI_v1::getSectorID() const {
+
+     if (isRun3()) {
+       if( this->getSource() == Forward ) {
+	 return ( ( roiWord() >> RUN3_CAND_SECTORID_SHIFT ) & FORWARD_SECTORID_MASK );
+       } else if( this->getSource() == Endcap ) {
+	 return ( ( roiWord() >> RUN3_CAND_SECTORID_SHIFT ) & ENDCAP_SECTORID_MASK );
+       } else if( this->getSource() == Barrel ) {
+	 return ( ( roiWord() >> RUN3_CAND_SECTORID_SHIFT ) & BARREL_SECTORID_MASK );
+       }
+     } else {
+       if( this->getSource() == Forward ) {
+	 return ( ( roiWord() >> CAND_SECTORID_SHIFT ) & FORWARD_SECTORID_MASK );
+       } else if( this->getSource() == Endcap ) {
+	 return ( ( roiWord() >> CAND_SECTORID_SHIFT ) & ENDCAP_SECTORID_MASK );
+       } else if( this->getSource() == Barrel ) {
+	 return ( ( roiWord() >> CAND_SECTORID_SHIFT ) & BARREL_SECTORID_MASK );
+       }
+     }
+     return 0;
+   }
+
    /// Each muon trigger sector can only send information about a maximum of
    /// two LVL1 muon candidate to the central trigger. If this flag is
    /// <code>true</code>, this candidate had the highest p<sub>T</sub> threshold
@@ -195,6 +222,32 @@ namespace xAOD{
       }
    }
 
+   /// Get whether or not there was a phi overlap between barrel sectors at SL-level.
+   /// This is different from the overlap removal performed in the MUCTPI.
+   /// Valid for Run-2 and Run-3 RPC candidates only
+   ///
+   bool MuonRoI_v1::getPhiOverlap() const {
+     if (isRun3()) {
+       if (getSource() == Barrel) return (roiWord() >> RUN3_BARREL_OL_SHIFT) & RUN3_BARREL_OL_MASK;
+       else return false;
+     } else {
+       if (getSource() == Barrel) return (roiWord() >> BARREL_OL_SHIFT) & BARREL_PHI_OL_MASK;
+       else return false;
+     }
+   }
+
+   /// Get whether or not there was a eta overlap between barrel and endcap sectors at SL-level.
+   /// This is different from the overlap removal performed in the MUCTPI.
+   /// Valid for Run-2 RPC/TGC candidates only
+   ///
+   bool MuonRoI_v1::getEtaOverlap() const {
+     if (isRun3()) return false;
+     else {
+       if (getSource() == Barrel) return (roiWord() >> BARREL_OL_SHIFT) & BARREL_ETA_OL_MASK;
+       else return (roiWord() >> ENDCAP_OL_SHIFT) & ENDCAP_OL_MASK;
+     }
+   }
+
    /// Endcap and forward sectors can tell you what was the charge of the muon
    /// candidate. Barrel candidates can't do this.
    ///
@@ -218,6 +271,32 @@ namespace xAOD{
 	  return Neg;
 	}
       }
+   }
+
+   /// Get whether or not there was a 3-station coincidence in the TGC.
+   /// Valid for Run-3 candidates only.
+   ///
+   bool MuonRoI_v1::getBW3Coincidence() const {
+     if (isRun3() && getSource() != Barrel) return (roiWord() >> RUN3_CAND_TGC_BW2OR3_SHIFT) & 0x1;
+     else return false;
+   }
+
+
+   /// Get whether or not there was an inner coincidence with the TGC.
+   /// Valid for Run-3 candidates only.
+   ///
+   bool MuonRoI_v1::getInnerCoincidence() const {
+     if (isRun3() && getSource() != Barrel) return (roiWord() >> RUN3_CAND_TGC_INNERCOIN_SHIFT) & 0x1;
+     else return false;
+   }
+
+
+   /// Get whether or not there was a good magnetic field quality in the TGC.
+   /// Valid for Run-3 candidates only.
+   ///
+   bool MuonRoI_v1::getGoodMF() const {
+     if (isRun3() && getSource() != Barrel) return (roiWord() >> RUN3_CAND_TGC_GOODMF_SHIFT) & 0x1;
+     else return false;
    }
 
    /// When the overlap handling is activated in the MuCTPI, candidates can be

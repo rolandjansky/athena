@@ -40,9 +40,6 @@ namespace TrigConf {
       // Greet the user:
       ATH_MSG_INFO( "Initialising - Package version: " << PACKAGE_VERSION );
 
-      // Retrieve the needed service(s):
-      CHECK( m_metaStore.retrieve() );
-
       // Register read handle key
       CHECK( m_eventKey.initialize() );
 
@@ -51,34 +48,45 @@ namespace TrigConf {
       CHECK( incSvc.retrieve() );
       incSvc->addListener( this, IncidentType::BeginEvent, 0,
                            m_stopOnFailure );
-      incSvc->addListener( this, IncidentType::BeginInputFile, 0,
-                           m_stopOnFailure );
 
-      // Internal holder for R2 payloads
-      m_tmcAux = std::make_unique<xAOD::TriggerMenuAuxContainer>();
-      m_tmc    = std::make_unique<xAOD::TriggerMenuContainer>();
-      m_tmc->setStore( m_tmcAux.get() );
+      if (m_useInFileMetadata) {
+        // Retrieve the needed service(s):
+        CHECK( m_metaStore.retrieve() );
 
-      // Internal holders for R3 payloads
-      m_hltJsonAux = std::make_unique<xAOD::TriggerMenuJsonAuxContainer>();
-      m_hltJson    = std::make_unique<xAOD::TriggerMenuJsonContainer>();
-      m_hltJson->setStore( m_hltJsonAux.get() );
+        // Set up the callbacks for the service:
+        ServiceHandle< IIncidentSvc > incSvc( "IncidentSvc", name() );
+        incSvc->addListener( this, IncidentType::BeginInputFile, 0,
+                             m_stopOnFailure );
 
-      m_l1JsonAux = std::make_unique<xAOD::TriggerMenuJsonAuxContainer>();
-      m_l1Json    = std::make_unique<xAOD::TriggerMenuJsonContainer>();
-      m_l1Json->setStore( m_l1JsonAux.get() );
+        // Internal holder for R2 payloads
+        m_tmcAux = std::make_unique<xAOD::TriggerMenuAuxContainer>();
+        m_tmc    = std::make_unique<xAOD::TriggerMenuContainer>();
+        m_tmc->setStore( m_tmcAux.get() );
 
-      m_hltpsJsonAux = std::make_unique<xAOD::TriggerMenuJsonAuxContainer>();
-      m_hltpsJson    = std::make_unique<xAOD::TriggerMenuJsonContainer>();
-      m_hltpsJson->setStore( m_hltpsJsonAux.get() );
+        // Internal holders for R3 payloads
+        m_hltJsonAux = std::make_unique<xAOD::TriggerMenuJsonAuxContainer>();
+        m_hltJson    = std::make_unique<xAOD::TriggerMenuJsonContainer>();
+        m_hltJson->setStore( m_hltJsonAux.get() );
 
-      m_l1psJsonAux = std::make_unique<xAOD::TriggerMenuJsonAuxContainer>();
-      m_l1psJson    = std::make_unique<xAOD::TriggerMenuJsonContainer>();
-      m_l1psJson->setStore( m_l1psJsonAux.get() );
+        m_l1JsonAux = std::make_unique<xAOD::TriggerMenuJsonAuxContainer>();
+        m_l1Json    = std::make_unique<xAOD::TriggerMenuJsonContainer>();
+        m_l1Json->setStore( m_l1JsonAux.get() );
 
-      m_bgJsonAux = std::make_unique<xAOD::TriggerMenuJsonAuxContainer>();
-      m_bgJson    = std::make_unique<xAOD::TriggerMenuJsonContainer>();
-      m_bgJson->setStore( m_bgJsonAux.get() );
+        m_hltpsJsonAux = std::make_unique<xAOD::TriggerMenuJsonAuxContainer>();
+        m_hltpsJson    = std::make_unique<xAOD::TriggerMenuJsonContainer>();
+        m_hltpsJson->setStore( m_hltpsJsonAux.get() );
+
+        m_l1psJsonAux = std::make_unique<xAOD::TriggerMenuJsonAuxContainer>();
+        m_l1psJson    = std::make_unique<xAOD::TriggerMenuJsonContainer>();
+        m_l1psJson->setStore( m_l1psJsonAux.get() );
+
+        m_bgJsonAux = std::make_unique<xAOD::TriggerMenuJsonAuxContainer>();
+        m_bgJson    = std::make_unique<xAOD::TriggerMenuJsonContainer>();
+        m_bgJson->setStore( m_bgJsonAux.get() );
+      }
+
+      ATH_CHECK( m_HLTPrescaleSetKey.initialize( !m_useInFileMetadata ) );
+      ATH_CHECK( m_L1PrescaleSetKey.initialize( !m_useInFileMetadata ) );
 
       // Reset the internal flag:
       m_isInFailure = false;
@@ -95,7 +103,7 @@ namespace TrigConf {
 
    const CTPConfig* xAODConfigSvc::ctpConfig() const {
 
-      // Check if the object is well prepared:
+      // Long-term-support interface for (including Run 2 AODs)
       if( m_isInFailure ) {
          REPORT_MESSAGE( MSG::FATAL )
             << "Trigger menu not loaded";
@@ -110,7 +118,7 @@ namespace TrigConf {
 
    const BunchGroupSet* xAODConfigSvc::bunchGroupSet() const {
 
-      // Check if the object is well prepared:
+      // Long-term-support interface (including Run 2 AODs)
       if( m_isInFailure ) {
          REPORT_MESSAGE( MSG::FATAL )
             << "Trigger menu not loaded";
@@ -123,31 +131,10 @@ namespace TrigConf {
       return m_bgSet.get();
    }
 
-   uint32_t xAODConfigSvc::lvl1PrescaleKey() const {
-      if (m_menuJSONContainerAvailable) {
-
-         return m_currentL1psJson.get()->m_ptr->key();
-
-      } else {
-
-         // Check that we know the configuration already:
-         if( ! m_menu.get()->m_ptr ) {
-            REPORT_MESSAGE( MSG::ERROR )
-               << "Trigger menu not yet known. Configuration key not returned.";
-            throw GaudiException( "Service not initialised correctly",
-                                  "TrigConf::xAODConfigSvc::lvl1PrescaleKey",
-                                  StatusCode::FAILURE );
-            return 0;
-         }
-
-         // Return the key from the slot-specific metadata object:
-         return m_menu.get()->m_ptr->l1psk();
-      }
-   }
 
    const HLTChainList* xAODConfigSvc::chainList() const {
 
-      // Check if the object is well prepared:
+      // Long-term-support interface (including Run 2 AODs)
       if( m_isInFailure ) {
          REPORT_MESSAGE( MSG::FATAL )
             << "Trigger menu not loaded";
@@ -162,7 +149,7 @@ namespace TrigConf {
 
    const HLTChainList& xAODConfigSvc::chains() const {
 
-      // Check if the object is well prepared:
+      // Long-term-support interface (including Run 2 AODs)
       if( m_isInFailure ) {
          REPORT_MESSAGE( MSG::FATAL )
             << "Trigger menu not loaded";
@@ -177,7 +164,7 @@ namespace TrigConf {
 
    const HLTSequenceList* xAODConfigSvc::sequenceList() const {
 
-      // Check if the object is well prepared:
+      // Long-term-support interface (including Run 2 AODs)
       if( m_isInFailure ) {
          REPORT_MESSAGE( MSG::FATAL )
             << "Trigger menu not loaded";
@@ -192,7 +179,7 @@ namespace TrigConf {
 
    const HLTSequenceList& xAODConfigSvc::sequences() const {
 
-      // Check if the object is well prepared:
+      // Long-term-support interface (including Run 2 AODs)
       if( m_isInFailure ) {
          REPORT_MESSAGE( MSG::FATAL )
             << "Trigger menu not loaded";
@@ -206,13 +193,14 @@ namespace TrigConf {
    }
 
    uint32_t xAODConfigSvc::masterKey() const {
-      if (m_menuJSONContainerAvailable) {
+      if (m_menuJSONContainerAvailable or !m_useInFileMetadata) {
 
-         return m_currentHltJson.get()->m_ptr->key();
+         // Run3: From in-file JSON metadata or JSON from conditions store
+         return m_currentHlt.get()->smk();
 
       } else {
 
-         // Check that we know the configuration already:
+         // Legacy support for R2 AODs
          if( ! m_menu.get()->m_ptr ) {
             REPORT_MESSAGE( MSG::FATAL )
                << "Trigger menu not yet known. Configuration key not returned.";
@@ -228,14 +216,38 @@ namespace TrigConf {
       }
    }
 
-   uint32_t xAODConfigSvc::hltPrescaleKey() const {
-      if (m_menuJSONContainerAvailable) {
-
-         return m_currentHltpsJson.get()->m_ptr->key();
+   uint32_t xAODConfigSvc::lvl1PrescaleKey() const {
+      if (m_menuJSONContainerAvailable or !m_useInFileMetadata) {
+         
+         // Run3: From in-file JSON metadata or JSON from conditions store
+         return m_currentL1ps.get()->psk();
 
       } else {
 
-         // Check that we know the configuration already:
+         // Legacy support for R2 AODs
+         if( ! m_menu.get()->m_ptr ) {
+            REPORT_MESSAGE( MSG::ERROR )
+               << "Trigger menu not yet known. Configuration key not returned.";
+            throw GaudiException( "Service not initialised correctly",
+                                  "TrigConf::xAODConfigSvc::lvl1PrescaleKey",
+                                  StatusCode::FAILURE );
+            return 0;
+         }
+
+         // Return the key from the slot-specific metadata object:
+         return m_menu.get()->m_ptr->l1psk();
+      }
+   }
+
+   uint32_t xAODConfigSvc::hltPrescaleKey() const {
+      if (m_menuJSONContainerAvailable or !m_useInFileMetadata) {
+
+         // Run3: From in-file JSON metadata or JSON from conditions store
+         return m_currentHltps.get()->psk();
+
+      } else {
+
+         // Legacy support for R2 AODs
          if( ! m_menu.get()->m_ptr ) {
             REPORT_MESSAGE( MSG::FATAL )
                << "Trigger menu not yet known. Configuration key not returned.";
@@ -252,52 +264,57 @@ namespace TrigConf {
    }
 
    const HLTMenu& xAODConfigSvc::hltMenu(const EventContext& ctx) const {
-      if (!m_menuJSONContainerAvailable) {
+      if (m_useInFileMetadata and !m_menuJSONContainerAvailable) {
          REPORT_MESSAGE( MSG::FATAL ) << "Run 3 hltMenu JSON not loaded." << endmsg;
          throw GaudiException( "Service not initialised correctly",
                                "TrigConf::xAODConfigSvc::hltMenu",
                                StatusCode::FAILURE );
       }
+      // Run3: From in-file JSON metadata or JSON from detector store
       return *(m_currentHlt.get(ctx));
    }
 
    const L1Menu& xAODConfigSvc::l1Menu(const EventContext& ctx) const {
-      if (!m_menuJSONContainerAvailable) {
+      if (m_useInFileMetadata and !m_menuJSONContainerAvailable) {
          REPORT_MESSAGE( MSG::FATAL ) << "Run 3 l1Menu JSON not loaded." << endmsg;
          throw GaudiException( "Service not initialised correctly",
                                "TrigConf::xAODConfigSvc::l1Menu",
                                StatusCode::FAILURE );
       }
+      // Run3: From in-file JSON metadata or JSON from detector store
       return *(m_currentL1.get(ctx));
    }
 
    const HLTPrescalesSet& xAODConfigSvc::hltPrescalesSet(const EventContext& ctx) const {
-      if (!m_menuJSONContainerAvailable) {
+      if (m_useInFileMetadata and !m_menuJSONContainerAvailable) {
          REPORT_MESSAGE( MSG::FATAL ) << "Run 3 hltPrescalesSet JSON not loaded." << endmsg;
          throw GaudiException( "Service not initialised correctly",
                                "TrigConf::xAODConfigSvc::hltPrescalesSet",
                                StatusCode::FAILURE );
       }
+      // Run3: From in-file JSON metadata or JSON from conditions store
       return *(m_currentHltps.get(ctx));
    }
 
    const L1PrescalesSet& xAODConfigSvc::l1PrescalesSet(const EventContext& ctx) const {
-      if (!m_menuJSONContainerAvailable) {
+      if (m_useInFileMetadata and !m_menuJSONContainerAvailable) {
          REPORT_MESSAGE( MSG::FATAL ) << "Run 3 l1PrescalesSet JSON not loaded." << endmsg;
          throw GaudiException( "Service not initialised correctly",
                                "TrigConf::xAODConfigSvc::l1PrescalesSet",
                                StatusCode::FAILURE );
       }
+      // Run3: From in-file JSON metadata or JSON from conditions store
       return *(m_currentL1ps.get(ctx));
    }
 
    const L1BunchGroupSet& xAODConfigSvc::l1BunchGroupSet(const EventContext& ctx) const {
-      if (!m_menuJSONContainerAvailable) {
+      if (m_useInFileMetadata and !m_menuJSONContainerAvailable) {
          REPORT_MESSAGE( MSG::FATAL ) << "Run 3 l1BunchGroupSet JSON not loaded." << endmsg;
          throw GaudiException( "Service not initialised correctly",
                                "TrigConf::xAODConfigSvc::l1BunchGroupSet",
                                StatusCode::FAILURE );
       }
+      // Run3: From in-file JSON metadata or JSON from conditions store
       return *(m_currentBg.get(ctx));
    }
 
@@ -560,6 +577,11 @@ namespace TrigConf {
       // Can the incident service provide this to us?
       const EventContext context = Gaudi::Hive::currentContext();
 
+      if (!m_useInFileMetadata) { // Run 3 RAWtoESD, RAWtoALL decoding mode
+         return prepareEventRun3Athena(context);
+      }
+
+      // Otherwise we're dealing with in-file data
       // Read the current event's trigger keys:
       SG::ReadHandle<xAOD::TrigConfKeys> keys(m_eventKey, context);
       if( !keys.isValid() ) {
@@ -585,11 +607,14 @@ namespace TrigConf {
       return StatusCode::FAILURE;
    }
 
+
    StatusCode xAODConfigSvc::prepareEventxAODTriggerMenu(const xAOD::TrigConfKeys* keys, const EventContext& context) {
       const xAOD::TriggerMenu* loadedMenuInSlot = m_menu.get(context)->m_ptr;
 
       // Check if we have the correct menu already:
       if( loadedMenuInSlot != nullptr && xAODKeysMatch( keys, loadedMenuInSlot ) ) {
+         REPORT_MESSAGE( MSG::DEBUG )
+           << "Configuration matches the loaded one, nothing to do." << endmsg;
          return StatusCode::SUCCESS;
       }
 
@@ -631,6 +656,124 @@ namespace TrigConf {
    }
 
 
+   StatusCode xAODConfigSvc::prepareEventRun3Athena(const EventContext& context) {
+      HLTMenu&         currentHlt   = *(m_currentHlt.get(context));
+      L1Menu&          currentL1    = *(m_currentL1.get(context));
+      HLTPrescalesSet& currentHltps = *(m_currentHltps.get(context));
+      L1PrescalesSet&  currentL1ps  = *(m_currentL1ps.get(context));
+      L1BunchGroupSet& currentBg    = *(m_currentBg.get(context));
+
+      // There is only the beginEvent incident when reading the data from the Detector and Conditions stores.
+      // So only one thread may be active at one time on these (slot-specific) objects. Hence we do not need to lock like
+      // we do when we also have to deal with the possibility of concurrent beginFile incidents.
+
+      bool validConfig = true;
+
+      // In the beginEvent incident _before_ the first event, we cannot read the prescales (conditions) but we can still
+      // read the menu (detector store).
+      const bool firstEvent = (!currentHlt.isInitialized() and !currentHltps.isInitialized());
+
+      SG::ReadHandle<HLTMenu> hltMenuHandle(m_hltMenuName);  // No context - Detector Store
+      if( !hltMenuHandle.isValid() ) {
+          REPORT_MESSAGE( MSG::WARNING )
+             << "Unable to load " << m_hltMenuName << " from Detector Store." << endmsg;
+      } else {
+         if (!currentHlt.isInitialized() or currentHlt.smk() != hltMenuHandle->smk()) {
+            validConfig = false;
+            currentHlt.clear();
+            currentHlt.setData( hltMenuHandle->data() );
+            currentHlt.setSMK( hltMenuHandle->smk() );
+         }
+      }
+
+      SG::ReadHandle<L1Menu> l1MenuHandle(m_l1MenuName);  // No context - Detector Store
+      if( !l1MenuHandle.isValid() ) {
+          REPORT_MESSAGE( MSG::WARNING )
+             << "Unable to load " << m_l1MenuName << " from Detector Store." << endmsg;
+      } else {
+         if (!currentL1.isInitialized() or currentL1.smk() != l1MenuHandle->smk()) {
+            validConfig = false;
+            currentL1.clear();
+            currentL1.setData( l1MenuHandle->data() );
+            currentL1.setSMK( l1MenuHandle->smk() );
+         }
+      }
+
+      if (firstEvent) {
+
+          REPORT_MESSAGE( MSG::WARNING )
+             << "L1 and HLT prescales will not be available via the TrigConf::xAODConfigSvc in the first "
+             << "event when running with UseInFileMetadata=False" << endmsg;
+
+      } else {
+
+         SG::ReadCondHandle<L1PrescalesSet> l1psRCH(m_L1PrescaleSetKey, context);
+         if( !l1psRCH.isValid() ) {
+             REPORT_MESSAGE( MSG::WARNING )
+                << "Unable to load " << m_L1PrescaleSetKey.key() << " from Conditions Store." << endmsg;
+         } else {
+            if (!currentL1ps.isInitialized() or currentL1ps.psk() != l1psRCH->psk()) {
+               validConfig = false;
+               currentL1ps.clear();
+               currentL1ps.setData( l1psRCH->data() );
+               currentL1ps.setPSK( l1psRCH->psk() );
+            }
+         }
+   
+         SG::ReadCondHandle<HLTPrescalesSet> hltpsRCH(m_HLTPrescaleSetKey, context);
+         if( !hltpsRCH.isValid() ) {
+             REPORT_MESSAGE( MSG::WARNING )
+                << "Unable to load " << m_HLTPrescaleSetKey.key() << " from Conditions Store." << endmsg;
+         } else {
+            if (!currentHltps.isInitialized() or currentHltps.psk() != hltpsRCH->psk()) {
+               validConfig = false;
+               currentHltps.clear();
+               currentHltps.setData( hltpsRCH->data() );
+               currentHltps.setPSK( hltpsRCH->psk() );
+            }        
+         }
+   
+         // if (BunchGroup TODO) {
+         //    validConfig = false;
+         // }
+      }
+
+      if (validConfig) {
+         REPORT_MESSAGE( MSG::DEBUG )
+           << "Configuration matches the loaded one, nothing to do." << endmsg;
+         return StatusCode::SUCCESS;
+      }
+
+      CTPConfig& ctpConfig = *(m_ctpConfig.get(context));
+      HLTChainList& chainList = *(m_chainList.get(context));
+      HLTSequenceList& sequenceList = *(m_sequenceList.get(context));
+      BunchGroupSet& bgSet = *(m_bgSet.get(context));
+
+      // Copy data into legacy long-term-support interfaces
+      CHECK( prepareTriggerMenu( currentHlt,
+                                 currentL1,
+                                 currentHltps,
+                                 currentL1ps,
+                                 currentBg,
+                                 ctpConfig,
+                                 chainList,
+                                 sequenceList,
+                                 bgSet,
+                                 msg() ) );
+
+      REPORT_MESSAGE( MSG::INFO ) << "Loaded Trigger configuration from Conditions Store and Detector Store:"
+          << "  SMK = " << (currentHlt.isInitialized() ? std::to_string(currentHlt.smk()) : std::string("UNKNOWN"))
+          << ", L1PSK = " << (currentL1ps.isInitialized() ? std::to_string(currentL1ps.psk()) : std::string("UNKNOWN"))
+          << ", HLTPSK = " << (currentHltps.isInitialized() ? std::to_string(currentHltps.psk()) : std::string("UNKNOWN")) << endmsg;
+
+      REPORT_MESSAGE( MSG::DEBUG ) << "ctpConfig.menu().size() = " << ctpConfig.menu().size()
+         << " chainList.size() = " << chainList.size()
+         << " sequenceList.size() = " << sequenceList.size()
+         << " bgSet.bunchGroups().size() = " << bgSet.bunchGroups().size() << endmsg;
+
+      return StatusCode::SUCCESS;
+   }
+
 
 
    StatusCode xAODConfigSvc::prepareEventxAODTriggerMenuJson(const xAOD::TrigConfKeys* keys, const EventContext& context) {
@@ -658,6 +801,8 @@ namespace TrigConf {
       // }
 
       if (validConfig) {
+         REPORT_MESSAGE( MSG::DEBUG )
+           << "Configuration matches the loaded one, nothing to do." << endmsg;
          return StatusCode::SUCCESS;
       }
 
@@ -684,11 +829,21 @@ namespace TrigConf {
       ATH_CHECK( loadPtree("L1 Prescales",  m_l1psJson.get(),  keys->l1psk(),  currentL1psJson,  currentL1ps) );
       // ATH_CHECK( loadPtree("Bunchgroups",   m_bgJson.get(),    TODO,           currentBgGJson,    currentBg) );
 
+      // Loading the payload doesn't additionally let the object know about its own key. We can load this in now too.
+      // The current*Json objects were updated by loadPtree to point to the entry with the correct key.
+      // We don't set this in loadPtree as the poperties are on the derived objects, not the base DataStructure.
+      currentHlt.setSMK( currentHltJson.m_ptr->key() );
+      currentL1.setSMK( currentL1Json.m_ptr->key() );
+      currentHltps.setPSK( currentHltpsJson.m_ptr->key() );
+      currentL1ps.setPSK( currentL1psJson.m_ptr->key() );
+      //currentBg 
+
       CTPConfig& ctpConfig = *(m_ctpConfig.get(context));
       HLTChainList& chainList = *(m_chainList.get(context));
       HLTSequenceList& sequenceList = *(m_sequenceList.get(context));
       BunchGroupSet& bgSet = *(m_bgSet.get(context));
 
+      // Copy data into legacy long-term-support interfaces
       CHECK( prepareTriggerMenu( currentHlt,
                                  currentL1,
                                  currentHltps,

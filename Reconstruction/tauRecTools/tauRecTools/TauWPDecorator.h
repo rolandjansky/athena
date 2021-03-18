@@ -46,7 +46,7 @@ class TauWPDecorator : public TauRecToolBase {
     virtual StatusCode initialize() override;
 
     /** @brief Executation of this tool */
-    virtual StatusCode execute(xAOD::TauJet& pTau) const override;
+    virtual StatusCode execute(xAOD::TauJet& tau) const override;
     
   private:
 
@@ -80,17 +80,20 @@ class TauWPDecorator : public TauRecToolBase {
 
     std::string m_file0p; //!< Calibration file name of 0-prong taus
     std::string m_file1p; //!< Calibration file name of 1-prong taus
+    std::string m_file2p; //!< Calibration file name of 2-prong taus
     std::string m_file3p; //!< Calibration file name of 3-prong taus
 
     std::vector<int> m_EDMWPs; //!< Vector of WPs in the EDM
-    std::vector<float> m_EDMWPEffs0p; //!< Efficiency of each WP in EDP for 0-prong taus
-    std::vector<float> m_EDMWPEffs1p; //!< Efficiency of each WP in EDP for 1-prong taus
-    std::vector<float> m_EDMWPEffs3p; //!< Efficiency of each WP in EDP for 3-prong taus
+    std::vector<float> m_EDMWPEffs0p; //!< Efficiency of each WP in EDM for 0-prong taus
+    std::vector<float> m_EDMWPEffs1p; //!< Efficiency of each WP in EDM for 1-prong taus
+    std::vector<float> m_EDMWPEffs2p; //!< Efficiency of each WP in EDM for 2-prong taus
+    std::vector<float> m_EDMWPEffs3p; //!< Efficiency of each WP in EDM for 3-prong taus
 
     std::vector<std::string> m_decorWPs; //!< Vector of WPs not in the EDM (to be decorated)
     std::vector<SG::AuxElement::Decorator<char>> m_charDecors; //!
     std::vector<float> m_decorWPEffs0p; //!< Efficiency of each WP to be docorated for 0-prong taus
     std::vector<float> m_decorWPEffs1p; //!< Efficiency of each WP to be docorated for 1-prong taus
+    std::vector<float> m_decorWPEffs2p; //!< Efficiency of each WP to be docorated for 2-prong taus
     std::vector<float> m_decorWPEffs3p; //!< Efficiency of each WP to be docorated for 3-prong taus
     
     SG::ReadDecorHandleKey<xAOD::EventInfo> m_aveIntPerXKey {this, 
@@ -102,6 +105,7 @@ class TauWPDecorator : public TauRecToolBase {
 
     std::shared_ptr<std::vector<m_pair_t>> m_hists0p; //!< Efficiency and corresponding score distributions of 0-prong taus
     std::shared_ptr<std::vector<m_pair_t>> m_hists1p; //!< Efficiency and corresponding score distributions of 1-prong taus
+    std::shared_ptr<std::vector<m_pair_t>> m_hists2p; //!< Efficiency and corresponding score distributions of 2-prong taus
     std::shared_ptr<std::vector<m_pair_t>> m_hists3p; //!< Efficiency and corresponding score distributions of 3-prong taus
     
     std::map<int, double> m_xMin; //!< Map of n-prong and the minimum value of x variables

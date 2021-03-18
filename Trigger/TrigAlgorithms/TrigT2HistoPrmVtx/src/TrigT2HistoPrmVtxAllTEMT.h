@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ************************************************
@@ -15,8 +15,8 @@
 #ifndef TRIGT2HISTOPRMVTX_TRIGT2HISTOPRMVTXALLTE_MT_H
 #define TRIGT2HISTOPRMVTX_TRIGT2HISTOPRMVTXALLTE_MT_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
-#include "src/TrigT2HistoPrmVtxBaseMT.h"
+#include "TrigT2HistoPrmVtxBaseMT.h"
+#include "HistoVertexHelper.h"
 
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
@@ -27,7 +27,7 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
-namespace InDet { class BeamSpotData; }
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 /**
  * @brief Class for a fast primary vertex reconstruction in the HLT framework.
@@ -37,11 +37,9 @@ namespace InDet { class BeamSpotData; }
 class TrigT2HistoPrmVtxAllTEMT : public TrigT2HistoPrmVtxBaseMT {
  public:
   TrigT2HistoPrmVtxAllTEMT(const std::string&, ISvcLocator*);
-  virtual ~TrigT2HistoPrmVtxAllTEMT() override;
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute() override;
-  virtual StatusCode finalize() override;
 
  private:
   unsigned int getTrackNumbers(const xAOD::TrackParticleContainer*);

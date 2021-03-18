@@ -18,15 +18,15 @@
 #include "Acts/Geometry/ApproachDescriptor.hpp"
 #include "Acts/Geometry/ProtoLayer.hpp"
 #include "Acts/Geometry/LayerCreator.hpp"
-#include "Acts/Utilities/Definitions.hpp"
+#include "Acts/Definitions/Algebra.hpp"
 #include "Acts/Geometry/GeometryContext.hpp"
-#include "Acts/Utilities/Units.hpp"
+#include "Acts/Definitions/Units.hpp"
 #include "Acts/Utilities/BinningType.hpp"
 
 
 using Acts::Surface;
-using Acts::Transform3D;
-using Acts::Translation3D;
+using Acts::Transform3;
+using Acts::Translation3;
 
 
 using namespace Acts::UnitLiterals;
@@ -181,7 +181,7 @@ ActsLayerBuilder::buildLayers(const Acts::GeometryContext& gctx,
       double layerHalfZ
         = std::abs(pl.max(Acts::binZ) + pl.envelope[Acts::binZ].second - layerZ);
 
-      Transform3D transform(Translation3D(0., 0., -layerZ));
+      Transform3 transform(Translation3(0., 0., -layerZ));
       // set up approach descriptor
 
       std::shared_ptr<Acts::CylinderSurface> innerBoundary
@@ -251,9 +251,9 @@ ActsLayerBuilder::buildLayers(const Acts::GeometryContext& gctx,
 
       if (std::abs(layerZInner) > std::abs(layerZOuter)) std::swap(layerZInner, layerZOuter);
 
-        Transform3D transformNominal(Translation3D(0., 0., layerZ));
-        Transform3D transformInner(Translation3D(0., 0., layerZInner));
-        Transform3D transformOuter(Translation3D(0., 0., layerZOuter));
+        Transform3 transformNominal(Translation3(0., 0., layerZ));
+        Transform3 transformInner(Translation3(0., 0., layerZInner));
+        Transform3 transformOuter(Translation3(0., 0., layerZOuter));
 
         std::shared_ptr<Acts::DiscSurface> innerBoundary = Acts::Surface::makeShared<Acts::DiscSurface>(transformInner, pl.min(Acts::binR), pl.max(Acts::binR));
 

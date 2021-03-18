@@ -26,7 +26,6 @@
 
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
-#include "TrigConfHLTData/HLTUtils.h"
 
 #include "AthViews/View.h"
 #include "AthViews/ViewHelper.h"
@@ -153,12 +152,7 @@ StatusCode TrigMultiTrkComboHypo::initialize() {
     ATH_MSG_DEBUG( "No GenericMonitoringTool configured: no monitoring histograms will be available" );
   }
 
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode TrigMultiTrkComboHypo::finalize() {
-  TrigConf::HLTUtils::hashes2file();
+  ATH_CHECK( m_beamSpotKey.initialize(m_trigLevelString == "EF")); //Only enable for EF
   return StatusCode::SUCCESS;
 }
 
@@ -265,12 +259,12 @@ StatusCode TrigMultiTrkComboHypo::executeL2(const EventContext& context) const {
 
       if (!isInMassRange(mass)) continue;
 
-      xAOD::TrigBphys* trigBphys = fit(std::vector<ElementLink<xAOD::TrackParticleContainer>>{tracks[itrk1], tracks[itrk2]});
-      if (!trigBphys) continue;
+      auto fitterState = m_vertexFitter->makeState(context);
+      std::unique_ptr<xAOD::Vertex> vertex(fit(std::vector<ElementLink<xAOD::TrackParticleContainer>>{tracks[itrk1], tracks[itrk2]}, fitterState.get()));
+      if (!vertex) continue;
 
       ATH_MSG_DEBUG( "Found good dimuon pair at L2 level: stop looking for dimuon pairs" );
       mon_isEventAccepted = 1;
-      delete trigBphys;
       break;
     }
   }
@@ -312,6 +306,11 @@ StatusCode TrigMultiTrkComboHypo::executeEF(const EventContext& context) const {
   ATH_CHECK( trigBphysHandle.record(std::make_unique<xAOD::TrigBphysContainer>(),
                                     std::make_unique<xAOD::TrigBphysAuxContainer>()) );
 
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, context };
+  if(!beamSpotHandle.isValid()) {
+    ATH_MSG_ERROR( "BeamSpot not found" );
+    return StatusCode::FAILURE;
+  }
   // monitored variables
   auto mon_nTrk = Monitored::Scalar<int>("nTrk", 0);
   auto mon_nAcceptedTrk = Monitored::Scalar<int>("nAcceptedTrk", 0);
@@ -324,6 +323,7 @@ StatusCode TrigMultiTrkComboHypo::executeEF(const EventContext& context) const {
   std::vector<int> bphysCharge;
   auto mon_trkMassBeforeFit = Monitored::Collection("trkMassBeforeFit", trkMassBeforeFit);
   auto mon_bphysChi2 = Monitored::Collection("bphysChi2", *trigBphysHandle, &xAOD::TrigBphys::fitchi2);
+  auto mon_bphysLxy = Monitored::Collection("bphysLxy", *trigBphysHandle, &xAOD::TrigBphys::lxy);
   auto mon_bphysFitMass = Monitored::Collection("bphysFitMass", *trigBphysHandle, [](const xAOD::TrigBphys* x){ return x->fitmass()*0.001; } );
   auto mon_bphysMass = Monitored::Collection("bphysMass", bphysMass);
   auto mon_bphysCharge = Monitored::Collection("bphysCharge", bphysCharge);
@@ -332,7 +332,7 @@ StatusCode TrigMultiTrkComboHypo::executeEF(const EventContext& context) const {
 
   auto group = Monitored::Group(m_monTool,
     mon_nTrk, mon_nAcceptedTrk, mon_nCombination, mon_nCombinationBeforeFit, mon_nBPhysObject,
-    mon_trkMassBeforeFit, mon_bphysChi2, mon_bphysFitMass, mon_bphysMass, mon_bphysCharge,
+    mon_trkMassBeforeFit, mon_bphysChi2, mon_bphysLxy, mon_bphysFitMass, mon_bphysMass, mon_bphysCharge,
     mon_timer);
 
   // combine all muons from the event views, make overlap removal
@@ -413,10 +413,11 @@ StatusCode TrigMultiTrkComboHypo::executeEF(const EventContext& context) const {
       if (!isInMassRange(mass)) continue;
 
       mon_nCombinationBeforeFit++;
-
-      xAOD::TrigBphys* trigBphys = fit(std::vector<ElementLink<xAOD::TrackParticleContainer>>{tracks[itrk1].first, tracks[itrk2].first});
-      if (!trigBphys) continue;
-
+      auto fitterState = m_vertexFitter->makeState(context);
+      std::vector<ElementLink<xAOD::TrackParticleContainer>> trackLinks {tracks[itrk1].first, tracks[itrk2].first};
+      std::unique_ptr<xAOD::Vertex> vertex(fit(trackLinks, fitterState.get()));
+      if (!vertex) continue;
+      xAOD::TrigBphys* trigBphys = makeTrigBPhys(vertex.get(), fitterState.get(), beamSpotHandle->beamPos());
       trigBphysHandle->push_back(trigBphys);
       trigBphysTrackIdx.emplace_back(std::vector<size_t>{itrk1, itrk2});
 
@@ -470,8 +471,9 @@ StatusCode TrigMultiTrkComboHypo::executeEF(const EventContext& context) const {
 }
 
 
-xAOD::TrigBphys* TrigMultiTrkComboHypo::fit(const std::vector<ElementLink<xAOD::TrackParticleContainer>>& trackParticleLinks) const {
-  xAOD::TrigBphys* result = nullptr;
+xAOD::Vertex* TrigMultiTrkComboHypo::fit(const std::vector<ElementLink<xAOD::TrackParticleContainer>>& trackParticleLinks,
+         Trk::IVKalState* fitterState) const {
+
 
   ATH_MSG_DEBUG( "Perform vertex fit" );
   std::vector<const xAOD::TrackParticle*> tracklist(trackParticleLinks.size(), nullptr);
@@ -486,20 +488,25 @@ xAOD::TrigBphys* TrigMultiTrkComboHypo::fit(const std::vector<ElementLink<xAOD::
   if (errorcode != 0) startingPoint = Amg::Vector3D::Zero(3);
   ATH_MSG_DEBUG( "Starting point: (" << startingPoint(0) << ", " << startingPoint(1) << ", " << startingPoint(2) << ")" );
 
-  auto fitterState = m_vertexFitter->makeState();
   m_vertexFitter->setMassInputParticles(m_trkMass, *fitterState);
   xAOD::Vertex* vertex = m_vertexFitter->fit(tracklist, startingPoint, *fitterState);
   if (!vertex) {
     ATH_MSG_DEBUG( "Vertex fit fails" );
-    return result;
+    return nullptr;
   }
   if (vertex->chiSquared() > 150.) {
     ATH_MSG_DEBUG( "Fit is successful, but vertex chi2 is too high, we are not going to save it (chi2 = " << vertex->chiSquared() << ")" );
     delete vertex;
-    return result;
+    return nullptr;
   }
   ATH_MSG_DEBUG( "Fit is successful" );
+  vertex->clearTracks();
+  vertex->setTrackParticleLinks(trackParticleLinks);
+  return vertex;
+}
 
+
+xAOD::TrigBphys* TrigMultiTrkComboHypo::makeTrigBPhys(xAOD::Vertex* vertex, Trk::IVKalState* fitterState, const Amg::Vector3D  &beamspot) const {
   double invariantMass = 0.;
   double invariantMassError = 0.;
   if (!m_vertexFitter->VKalGetMassError(invariantMass, invariantMassError, *fitterState).isSuccess()) {
@@ -507,14 +514,14 @@ xAOD::TrigBphys* TrigMultiTrkComboHypo::fit(const std::vector<ElementLink<xAOD::
     invariantMass = -9999.;
   }
 
-  xAOD::TrackParticle::GenVecFourMom_t momentum;
+  xAOD::TrackParticle::GenVecFourMom_t momentum(0, 0, 0, 0);
   for (size_t i = 0; i < vertex->nTrackParticles(); ++i) {
     auto p = vertex->trackParticle(i)->genvecP4();
     p.SetM(m_trkMass[i]);
     momentum += p;
   }
 
-  result = new xAOD::TrigBphys();
+  xAOD::TrigBphys* result = new xAOD::TrigBphys();
   result->makePrivateStore();
   result->initialise(0, momentum.Eta(), momentum.Phi(), momentum.Pt(), xAOD::TrigBphys::MULTIMU, momentum.M(), m_trigLevel);
 
@@ -524,9 +531,8 @@ xAOD::TrigBphys* TrigMultiTrkComboHypo::fit(const std::vector<ElementLink<xAOD::
   result->setFitx(vertex->x());
   result->setFity(vertex->y());
   result->setFitz(vertex->z());
-  result->setTrackParticleLinks(trackParticleLinks);
-
-  delete vertex;
+  result->setTrackParticleLinks(vertex->trackParticleLinks());
+  result->setLxy(Lxy(result, beamspot));
 
   ATH_MSG_DEBUG(
     "TrigBphys objects:\n\t  " <<
@@ -538,7 +544,8 @@ xAOD::TrigBphys* TrigMultiTrkComboHypo::fit(const std::vector<ElementLink<xAOD::
     "mass:          " << result->mass() << "\n\t  " <<
     "fitmass:       " << result->fitmass() << "\n\t  " <<
     "chi2/NDF:      " << result->fitchi2() << " / " << result->fitndof() << "\n\t  " <<
-    "vertex:        (" << result->fitx() << ", " << result->fity() << ", " << result->fitz() << ")" );
+    "vertex:        (" << result->fitx() << ", " << result->fity() << ", " << result->fitz() << "\n\t  " << 
+    "Lxy            " <<  result->lxy() << ")" );
 
   return result;
 }
@@ -550,6 +557,20 @@ bool TrigMultiTrkComboHypo::isIdenticalTracks(const xAOD::TrackParticle* lhs, co
   return (ROOT::Math::VectorUtil::DeltaR(lhs->genvecP4(), rhs->genvecP4()) < m_deltaR);
 }
 
+float TrigMultiTrkComboHypo::Lxy(const xAOD::TrigBphys* bphy, const Amg::Vector3D  &beamSpot) const{
+    double Dx = bphy->fitx() - beamSpot.x();
+    double Dy = bphy->fity() - beamSpot.y();
+    double pBx = 0, pBy=0;
+    size_t n = bphy->nTrackParticles();
+    for (size_t i = 0; i < n; ++i) {
+        auto mom = bphy->trackParticle(i)->genvecP4();
+        pBx+= mom.x();
+        pBy+= mom.y();
+    }
+    double pBt = std::sqrt(pBx*pBx + pBy*pBy);
+    double BsLxy = (pBx*Dx+pBy*Dy)/pBt;
+    return BsLxy;
+}
 
 bool TrigMultiTrkComboHypo::isInMassRange(double mass) const {
 

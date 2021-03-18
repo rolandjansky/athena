@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCTLORENTZMONALG_H
@@ -14,7 +14,8 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
-#include "TrkToolInterfaces/IPRD_AssociationTool.h"
+#include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
+
 
 class SCT_ID;
 
@@ -32,7 +33,7 @@ class SCTLorentzMonAlg : public AthMonitorAlgorithm {
   const SCT_ID* m_pSCTHelper{nullptr};
 
   ToolHandle<Trk::ITrackSummaryTool> m_trackSummaryTool{this, "TrackSummaryTool", "InDetTrackSummaryTool"};
-  ToolHandle<Trk::IPRD_AssociationTool> m_assoTool{this, "AssociationTool", "InDet::InDetPRD_AssociationToolGangedPixels"};
+  ToolHandle<Trk::IPRDtoTrackMapTool> m_assoTool{this, "AssociationTool", "InDet::InDetPRDtoTrackMapToolGangedPixels" };
 
   /// Name of the Track collection to use
   SG::ReadHandleKey<TrackCollection> m_tracksName{this, "tracksName", "CombinedInDetTracks"};

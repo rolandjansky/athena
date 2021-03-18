@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RDBACCESSSVC_RDBQUERY_H
 #define RDBACCESSSVC_RDBQUERY_H
 
 #include "RDBAccessSvc/IRDBQuery.h"
+#include "DBLock/DBLock.h"
 #include <memory>
 #include <vector>
 #include <string>
@@ -28,7 +29,8 @@ class RDBAccessSvc;
 class RDBQuery final : public IRDBQuery
 {
  public:
-  RDBQuery(RDBAccessSvc* accessSvc
+  RDBQuery(const Athena::DBLock& dblock
+           , RDBAccessSvc* accessSvc
 	   , const std::string& nodeName
 	   , const std::string& tagId
 	   , const std::string& connName);
@@ -44,8 +46,9 @@ class RDBQuery final : public IRDBQuery
   virtual bool next() override;
 
  private:
-  RDBQuery() {}
+  RDBQuery() = delete;
 
+  Athena::DBLock           m_dblock;
   coral::IQuery*           m_query;
   coral::IQuery*           m_queryCount;
   RDBAccessSvc*            m_accessSvc;

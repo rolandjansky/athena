@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigMuonEFTrackIsolationAlgMT.h"
@@ -42,14 +42,6 @@ StatusCode TrigMuonEFTrackIsolationAlgMT::initialize()
   if ( not m_monTool.name().empty() ) {
     ATH_CHECK( m_monTool.retrieve() );
   }
-
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode TrigMuonEFTrackIsolationAlgMT::finalize()
-{
-  ATH_MSG_DEBUG("Finalization");
 
   return StatusCode::SUCCESS;
 }

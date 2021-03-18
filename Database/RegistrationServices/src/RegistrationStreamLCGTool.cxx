@@ -34,7 +34,6 @@
 #include "CollectionBase/CollectionFactory.h"
 #include "CollectionBase/ICollection.h"
 #include "CollectionBase/ICollectionColumn.h"
-#include "CollectionBase/ICollectionMetadata.h"
 #include "CollectionBase/ICollectionDescription.h"
 #include "CollectionBase/CollectionDescription.h"
 #include "CollectionBase/CollectionBaseNames.h"
@@ -60,8 +59,6 @@
 #include <typeinfo>
 #include <ctime>
 #include <exception>
-
-#include "DBDataModel/CollectionMetadata.h"
 
 #include "RegistrationStreamLCGTool.h"
 
@@ -309,9 +306,6 @@ RegistrationStreamLCGTool::commit()
        catch (std::exception& e) {
           ATH_MSG_INFO("Unable to register collection: " << e.what());
        }
-
-       // Add metadata to collection
-       addMetadata();
 
        try {
 	  m_collection->commit();
@@ -733,97 +727,5 @@ void RegistrationStreamLCGTool::overrideProperties()
    }
    else {
       ATH_MSG_WARNING("Could not retrieve PropertyServer");
-   }
-}
-
-void
-RegistrationStreamLCGTool::addMetadata()
-{
-   // First get a handle to the MetaDataStore
-
-   ServiceHandle<StoreGateSvc> metadataStore("StoreGateSvc/MetaDataStore", this->name());
-   StatusCode status = metadataStore.retrieve();
-   if (status.isSuccess()) {
-      ATH_MSG_DEBUG("Found metadata store, MetaDataStore");   
-      //ATH_MSG_DEBUG(metadataStore->dump());   
-   }
-
-   // Second grab data from requested CollectionMetadataContainers in MetaDataStore
-
-   // If no entry contains * as a key, take the list
-   if ( std::find(m_cmdKeys.begin(),m_cmdKeys.end(),"*") == m_cmdKeys.end() ) {
-      const CollectionMetadataContainer* cmdbeg = nullptr;
-      //const DataHandle<CollectionMetadata> cmdend;
-      std::vector<std::string>::iterator cmd_it = m_cmdKeys.begin();
-   
-      // Loop over the explicit keys since there is no * key
-      while (cmd_it != m_cmdKeys.end()) {
-         //status = metadataStore->retrieve(cmdbeg,cmdend);
-         std::string key(*cmd_it);
-         ATH_MSG_DEBUG("Looking for key "<<key);
-         if (metadataStore->contains<CollectionMetadataContainer>(key)) {
-            status = metadataStore->retrieve(cmdbeg,key);
-            if (status.isSuccess()) {
-               ATH_MSG_DEBUG("Found metadata object for "<<key<<" in MetaDataStore");   
-               // Loop over the contents of each container and store it in m_collection
-               for (CollectionMetadataContainer::const_iterator cit = cmdbeg->begin();
-                    cit != cmdbeg->end(); cit++) { 
-                  CollectionMetadata::const_iterator it = (*cit)->begin();
-                  while (it != (*cit)->end()) {
-                     ATH_MSG_DEBUG("key = " << it->first << "; value = " << it->second);
-                     m_collection->metadata().setValueForKey(it->first,it->second);
-                     ++it;
-                  }
-               } // cit
-            } 
-         } // if contains
-         //else {ATH_MSG_INFO("Could not find CollectionMetadata in MetaDataStore for key = " << key);}
-         ++cmd_it;
-      } // cmd_it
-   }
-   // or take all CollectionMetadataContainers
-   else {
-      const DataHandle<CollectionMetadataContainer> cmdbeg;
-      const DataHandle<CollectionMetadataContainer> cmdend;
-      status = metadataStore->retrieve(cmdbeg,cmdend);
-      if (status.isSuccess()) {
-         for (; cmdbeg != cmdend; ++cmdbeg) {
-            ATH_MSG_DEBUG("Found CollectionMetadataContainer with key = " << cmdbeg.key());
-            ATH_MSG_DEBUG("Found CollectionMetadataContainer with size = " << cmdbeg->size());
-            // Loop over the contents of each container and store it in m_collection
-            for (CollectionMetadataContainer::const_iterator cit = cmdbeg->begin();
-                 cit != cmdbeg->end(); cit++) { 
-               CollectionMetadata::const_iterator it = (*cit)->begin();
-               while (it != (*cit)->end()) {
-                  ATH_MSG_DEBUG("key = " << it->first << "; value = " << it->second);
-                  m_collection->metadata().setValueForKey(it->first,it->second);
-                  ++it;
-               }
-            }
-         }
-      }
-   }
-
-   // Third, put in any generic metadata for bookkeeping
-
-   // Add the name from the description
-   m_collection->metadata().setValueForKey("Name",m_collection->description().name());
-
-   // Now get a timestamp
-   time_t tm = time(NULL);
-   std::stringstream temp;
-   //temp << ctime(&tm);
-   temp << tm;
-   if (temp.str().size() > 0) {
-      m_collection->metadata().setValueForKey("UnixTimestamp",temp.str());
-   }
-}
-
-void RegistrationStreamLCGTool::setCollMetadataKeys(const std::vector<std::string>& keys)
-{
-   std::vector<std::string>::const_iterator it = keys.begin();
-   while (it != keys.end()) {
-      m_cmdKeys.push_back(*it);
-      ++it;
    }
 }

@@ -14,10 +14,10 @@ import sys,argparse
 # Offline jet collections to monitor
 #####################################
 
-OfflineJetCollections = [
-  'AntiKt4EMTopoJets',
-  'AntiKt4EMPFlowJets',
-]
+OfflineJetCollections = {
+  'AntiKt4EMTopoJets'  : { 'MatchTo' : 'AntiKt4EMPFlowJets' },
+  'AntiKt4EMPFlowJets' : { 'MatchTo' : 'NONE' },
+}
 
 ###########################################
 # L1 jet collections and chains to monitor
@@ -41,7 +41,7 @@ JetCollections  = dict() # List of HLT jet collections for AT and legacy master 
 # AthenaMT
 JetCollections['MT'] = {
   'HLT_AntiKt4EMTopoJets_subjesIS'                   : { 'MatchTo' : 'AntiKt4EMPFlowJets' }, # default small-R EM
-  'HLT_AntiKt10JetRCJets_subjesIS'                   : { 'MatchTo' : 'NONE' },               # a10r
+  'HLT_AntiKt10EMTopoRCJets_subjesIS'                : { 'MatchTo' : 'NONE' },               # a10r
   'HLT_AntiKt10LCTopoJets_subjes'                    : { 'MatchTo' : 'NONE' },               # a10
   'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes' : { 'MatchTo' : 'NONE' },               # a10t
   'HLT_AntiKt4EMTopoJets_subjesgscIS_ftf'            : { 'MatchTo' : 'AntiKt4EMPFlowJets' }, # calo jet w/ calo+track GSC
@@ -51,6 +51,8 @@ JetCollections['MT'] = {
   'HLT_AntiKt4EMPFlowCSSKJets_nojcalib_ftf'          : { 'MatchTo' : 'NONE' },               # pflow cssk nojcalib
 }
 Chains2Monitor['MT'] = {
+  # perf chain (runs no hypo)
+  'HLT_j0_perf_L1J12_EMPTY'                : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS',                   'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
   # Small-R EMTopo chains
   'HLT_j420_L1J100'                        : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS',                   'RefChain' : 'HLT_j85_L1J20',        'OfflineColl' : 'AntiKt4EMTopoJets' },
   'HLT_j260_320eta490_L1J75_31ETA49'       : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS',                   'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
@@ -66,7 +68,7 @@ Chains2Monitor['MT'] = {
   'HLT_j45_cssk_pf_nojcalib_ftf_L1J15'     : { 'HLTColl' : 'HLT_AntiKt4EMPFlowCSSKJets_nojcalib_ftf',          'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
   'HLT_10j40_pf_subresjesgscIS_ftf_L14J15' : { 'HLTColl' : 'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',        'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
   # Large-R reclustered chains
-  'HLT_j460_a10r_L1J100'                   : { 'HLTColl' : 'HLT_AntiKt10JetRCJets_subjesIS',                   'RefChain' : 'HLT_j85_L1J20',        'OfflineColl' : 'AntiKt4EMTopoJets' },
+  'HLT_j460_a10r_L1J100'                   : { 'HLTColl' : 'HLT_AntiKt10EMTopoRCJets_subjesIS',                'RefChain' : 'HLT_j85_L1J20',        'OfflineColl' : 'AntiKt4EMTopoJets' },
   # Large-R LCTopo chains
   'HLT_j460_a10_lcw_subjes_L1J100'         : { 'HLTColl' : 'HLT_AntiKt10LCTopoJets_subjes',                    'RefChain' : 'HLT_j85_L1J20',        'OfflineColl' : 'AntiKt4EMTopoJets' },
   # Large-R trimmed chains
@@ -154,6 +156,7 @@ ExtraSmallROnlineHists = [
   "ActiveArea", 
   "EM3Frac",
   "Tile0Frac",
+  "LooseBad",
 ]
 
 # All online large-R jet collections
@@ -169,6 +172,8 @@ for var in [ "pt", "eta", "m" ]:
   for onlinescale in OnlineScaleMomenta:
     ExtraSmallROnlineHists.append("Jet"+onlinescale+"Momentum_"+var)
 
+OnlineScaleMomenta.append("") #Adding this for convenience in the jet matching loop below
+OfflineScaleMomenta.append("")
 
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
@@ -187,9 +192,20 @@ def TrigJetMonConfig(inputFlags):
   # Match HLT jets to offline jets
   for hltColl,collDict in JetCollections[InputType].items():
     if collDict['MatchTo'] != 'NONE':
-      name = 'Matching_{}_{}'.format(hltColl,collDict['MatchTo'])
-      alg = CompFactory.JetMatcherAlg(name, JetContainerName1=hltColl,JetContainerName2=collDict['MatchTo'])
-      cfg.addEventAlgo(alg)
+      for jetcalibscale in OnlineScaleMomenta:
+        scalestring = jetcalibscale if jetcalibscale == "" else "_"+jetcalibscale
+        name = 'Matching_{}_{}_{}'.format(hltColl,scalestring,collDict['MatchTo'])
+        alg = CompFactory.JetMatcherAlg(name, JetContainerName1=hltColl,JetContainerName2=collDict['MatchTo'],JetCalibScale=jetcalibscale)
+        cfg.addEventAlgo(alg)
+
+  # Match offline to offline jets
+  for offjetColl,collDict in OfflineJetCollections.items():
+    if collDict['MatchTo'] != 'NONE':
+      for jetcalibscale in OfflineScaleMomenta:
+        scalestring = jetcalibscale if jetcalibscale == "" else "_"+jetcalibscale
+        name = 'Matching_{}_{}_{}'.format(offjetColl,scalestring,collDict['MatchTo'])
+        alg = CompFactory.JetMatcherAlg(name, JetContainerName1=offjetColl,JetContainerName2=collDict['MatchTo'],JetCalibScale=jetcalibscale)
+        cfg.addEventAlgo(alg)
 
   # The following class will make a sequence, configure algorithms, and link
   # them to GenericMonitoringTools
@@ -324,19 +340,12 @@ def jetMonitoringConfig(inputFlags,jetcoll,athenaMT):
    InputType = 'Legacy' if not athenaMT else 'MT'
    conf      = basicJetMonAlgSpec(jetcoll,isOnline,athenaMT)
 
-   def defineHistoForJetMatch(conf, parentAlg, monhelper , path):
-       # create a monitoring group with the histo path starting from the parentAlg
-       print('toplevel = '+str(conf.topLevelDir))
-       print('bottomlevel = '+str(conf.bottomLevelDir))
-       group = monhelper.addGroup(parentAlg, conf.Group, conf.topLevelDir+'/'+conf.bottomLevelDir+'/NoTriggerSelection/')
-       # define the histogram
-       group.defineHistogram('ptdiff',title='title', type="TH1F", path='MatchedJets_{}'.format(JetCollections[InputType][jetcoll]['MatchTo']), xbins=100 , xmin=-100000, xmax=100000. ,)
-
    # Declare a configuration dictionnary for a JetContainer
    if isOnline:
      if 'AntiKt4' in jetcoll or 'a4tcem' in jetcoll:
        for hist in ExtraSmallROnlineHists: conf.appendHistos(hist)
        if 'ftf' in jetcoll: # dedicated histograms for FTF chains
+         conf.appendHistos("Jvt")
          conf.appendHistos("JVFCorr")
          conf.appendHistos("JvtRpt")
          conf.appendHistos("SumPtTrkPt500[0]")
@@ -349,16 +358,64 @@ def jetMonitoringConfig(inputFlags,jetcoll,athenaMT):
        for hist in ExtraLargeROnlineHists: conf.appendHistos(hist)
      # Add matched jets plots
      if JetCollections[InputType][jetcoll]['MatchTo'] != 'NONE':
-       matchedJetColl = JetCollections[InputType][jetcoll]['MatchTo']
-       name           = 'jetMatched_{}_{}'.format(jetcoll,matchedJetColl)
-       jetmatchKey    = '{}.matched_{}'.format(jetcoll,matchedJetColl)
-       jetptdiffKey   = '{}.ptdiff_{}'.format(jetcoll,matchedJetColl)
-       conf.appendHistos(ToolSpec('JetHistoMatchedFiller',name,JetMatchedKey=jetmatchKey,JetPtDiffKey=jetptdiffKey,defineHistoFunc=defineHistoForJetMatch,Group='matchedJets_'+jetcoll))
+       def defineHistoForHLTJetMatch(conf, parentAlg, monhelper , path):
+           # create a monitoring group with the histo path starting from the parentAlg
+           group = monhelper.addGroup(parentAlg, conf.Group, conf.topLevelDir+'/'+conf.bottomLevelDir+'/NoTriggerSelection/')
+           # define the histograms
+           for histname in [ 'ptdiff', 'energydiff', 'massdiff' ]: #defines which variable difference will be plotted
+             group.defineHistogram(histname,title=histname, type="TH1F", path='MatchedJets_{}'.format(JetCollections[InputType][jetcoll]['MatchTo']), xbins=100 , xmin=-100000., xmax=100000. ,)
+           for histname in [ 'ptresp', 'energyresp', 'massresp' ]:
+             group.defineHistogram(histname,title=histname, type="TH1F", path='MatchedJets_{}'.format(JetCollections[InputType][jetcoll]['MatchTo']), xbins=100 , xmin=-2., xmax=2. ,)
+           group.defineHistogram('ptresp,ptref;ptresp_vs_ptRef',title='ptresponse vs ptRef', type="TH2F", path='MatchedJets_{}'.format(JetCollections[InputType][jetcoll]['MatchTo']), xbins=10 , xmin=-2., xmax=2., ybins=10, ymin=0., ymax=500000.,)
+           group.defineHistogram('ptresp,etaref;ptresp_vs_etaRef',title='ptresponse vs etaRef', type="TH2F", path='MatchedJets_{}'.format(JetCollections[InputType][jetcoll]['MatchTo']), xbins=10 , xmin=-2., xmax=2., ybins=10, ymin=-5., ymax=5.,)
+       matchedJetColl   = JetCollections[InputType][jetcoll]['MatchTo']
+       jetmatchKey      = '{}.matched_{}'.format(jetcoll,matchedJetColl) #we can get specific calibration scales by adding e.g. '_EtaJESScale' to the strings
+       jetptdiffKey     = '{}.ptdiff_{}'.format(jetcoll,matchedJetColl)
+       jetenergydiffKey = '{}.energydiff_{}'.format(jetcoll,matchedJetColl)
+       jetmassdiffKey   = '{}.massdiff_{}'.format(jetcoll,matchedJetColl)
+       jetptrespKey     = '{}.ptresp_{}'.format(jetcoll,matchedJetColl)
+       jetenergyrespKey = '{}.energyresp_{}'.format(jetcoll,matchedJetColl)
+       jetmassrespKey   = '{}.massresp_{}'.format(jetcoll,matchedJetColl)
+       jetptrefKey      = '{}.ptRef_{}'.format(jetcoll,matchedJetColl)
+       jetetarefKey     = '{}.etaRef_{}'.format(jetcoll,matchedJetColl)
+       name = 'jetMatched_{}_{}'.format(jetcoll,matchedJetColl)
+       conf.appendHistos(ToolSpec('JetHistoMatchedFiller',name,JetMatchedKey=jetmatchKey,JetPtDiffKey=jetptdiffKey,JetEnergyDiffKey=jetenergydiffKey,
+                                  JetMassDiffKey=jetmassdiffKey,JetPtRespKey=jetptrespKey,JetEnergyRespKey=jetenergyrespKey,JetMassRespKey=jetmassrespKey,
+                                  JetPtRefKey=jetptrefKey,JetEtaRefKey=jetetarefKey,
+                                  defineHistoFunc=defineHistoForHLTJetMatch,Group='matchedJets_'+jetcoll)
+       )
    else: # offline
      for hist in ExtraOfflineHists: conf.appendHistos(hist)
      if 'PF' in jetcoll: # dedicated histograms for offline PFlow jets
        conf.appendHistos("SumPtChargedPFOPt500[0]")
        conf.appendHistos("fCharged")
+     if OfflineJetCollections[jetcoll]['MatchTo'] != 'NONE':
+       def defineHistoForOfflineJetMatch(conf, parentAlg, monhelper , path):
+         # create a monitoring group with the histo path starting from the parentAlg
+         group = monhelper.addGroup(parentAlg, conf.Group, conf.topLevelDir+'/'+conf.bottomLevelDir+'/standardHistos/')
+         # define the histograms
+         for histname in [ 'ptdiff', 'energydiff', 'massdiff' ]: #defines which variable difference will be plotted
+           group.defineHistogram(histname,title=histname, type="TH1F", path='MatchedJets_{}'.format(OfflineJetCollections[jetcoll]['MatchTo']), xbins=100 , xmin=-100000., xmax=100000. ,)
+         for histname in [ 'ptresp', 'energyresp', 'massresp' ]:
+           group.defineHistogram(histname,title=histname, type="TH1F", path='MatchedJets_{}'.format(OfflineJetCollections[jetcoll]['MatchTo']), xbins=100 , xmin=-2., xmax=2. ,)
+         group.defineHistogram('ptresp,ptref;ptresp_vs_ptRef',title='ptresp vs ptRef', type="TH2F", path='MatchedJets_{}'.format(OfflineJetCollections[jetcoll]['MatchTo']), xbins=10 , xmin=-2., xmax=2., ybins=10, ymin=0., ymax=500000.,)
+         group.defineHistogram('ptresp,etaref;ptresp_vs_etaRef',title='ptresp vs etaRef', type="TH2F", path='MatchedJets_{}'.format(OfflineJetCollections[jetcoll]['MatchTo']), xbins=10 , xmin=-2., xmax=2., ybins=10, ymin=-5., ymax=5.,)
+       matchedJetColl   = OfflineJetCollections[jetcoll]['MatchTo']
+       jetmatchKey      = '{}.matched_{}'.format(jetcoll,matchedJetColl)
+       jetptdiffKey     = '{}.ptdiff_{}'.format(jetcoll,matchedJetColl)
+       jetenergydiffKey = '{}.energydiff_{}'.format(jetcoll,matchedJetColl)
+       jetmassdiffKey   = '{}.massdiff_{}'.format(jetcoll,matchedJetColl)
+       jetptrespKey     = '{}.ptresp_{}'.format(jetcoll,matchedJetColl)
+       jetenergyrespKey = '{}.energyresp_{}'.format(jetcoll,matchedJetColl)
+       jetmassrespKey   = '{}.massresp_{}'.format(jetcoll,matchedJetColl)
+       jetptrefKey      = '{}.ptRef_{}'.format(jetcoll,matchedJetColl)
+       jetetarefKey     = '{}.etaRef_{}'.format(jetcoll,matchedJetColl)
+       name = 'jetMatched_{}_{}'.format(jetcoll,matchedJetColl)
+       conf.appendHistos(ToolSpec('JetHistoMatchedFiller',name,JetMatchedKey=jetmatchKey,JetPtDiffKey=jetptdiffKey,JetEnergyDiffKey=jetenergydiffKey,
+                                  JetMassDiffKey=jetmassdiffKey,JetPtRespKey=jetptrespKey,JetEnergyRespKey=jetenergyrespKey,JetMassRespKey=jetmassrespKey,
+                                  JetPtRefKey=jetptrefKey,JetEtaRefKey=jetetarefKey,
+                                  defineHistoFunc=defineHistoForOfflineJetMatch,Group='matchedJets_'+jetcoll)
+       )
 
    return conf
 
@@ -440,6 +497,10 @@ def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT,onlyUsePassingJet
      trigConf.appendHistos(
        EventHistoSpec(NjetHistName, (25,0,25), title=NjetHistName+';'+NjetHistName+';Entries' ),
      )
+   if 'jvt' in chain: #track JVT variables for chains with JVT applied
+     trigConf.appendHistos("Jvt")
+     trigConf.appendHistos("JVFCorr")
+     trigConf.appendHistos("JvtRpt")
 
    return trigConf
 
@@ -467,9 +528,10 @@ def jetEfficiencyMonitoringConfig(inputFlags,onlinejetcoll,offlinejetcoll,chain,
    def defineHistoForJetTrigg(conf, parentAlg, monhelper , path):
        # create a monitoring group with the histo path starting from the parentAlg
        group = monhelper.addGroup(parentAlg, conf.Group, conf.topLevelDir+jetcollFolder+'/')
-       # define the histogram
-       group.defineHistogram('trigPassed,jetVar',title='titletrig', type="TEfficiency", path=chainFolder, xbins=10000 , xmin=0, xmax=800000. ,)
-
+       # define the histogram, give them individual names so they don't overwrite each other
+       append = "offlineCut_"+conf.name.split("_")[-1] if "offlineCut" in conf.name else "noOfflineCut"
+       histname = "trigEff_vs_"+conf.Var.Name+"_"+append
+       group.defineHistogram('trigPassed,jetVar;'+histname,title='titletrig', type="TEfficiency", path=chainFolder, xbins=10000 , xmin=0, xmax=800000. ,)
    # Get jet index and eta selection for offline jets
    parts        = chain.split('j')
    multiplicity = parts[0].split('_')[1]
@@ -502,17 +564,18 @@ def jetEfficiencyMonitoringConfig(inputFlags,onlinejetcoll,offlinejetcoll,chain,
 
    if 'smc' in chain:
      trigConf.appendHistos(
-             SelectSpec( 'm50', '50<m', chainFolder, FillerTools = [
-               ToolSpec('JetHistoTriggEfficiency', chain+'_m50',
+             SelectSpec( 'm50', '50<m:GeV&{}<|eta|<{}'.format(etaMin,etaMax), chainFolder, SelectedIndex=index, FillerTools = [
+               ToolSpec('JetHistoTriggEfficiency', chain+'_offlineCut_m50',
                  Group='jetTrigGroup_'+chain+'_m50',
                  Var=retrieveVarToolConf("pt"), # In this context we can not just pass a str alias to describe a histo variable
                  ProbeTrigChain=chain,defineHistoFunc=defineHistoForJetTrigg
                ),
              ] ),
-             SelectSpec( 'et500', '500<et', chainFolder, FillerTools = [
-               ToolSpec('JetHistoTriggEfficiency', chain+'_et500',
+             SelectSpec( 'et500', '500<et:GeV&{}<|eta|<{}'.format(etaMin,etaMax), chainFolder, SelectedIndex=index, FillerTools = [
+               ToolSpec('JetHistoTriggEfficiency', chain+'_offlineCut_et500',
                  Group='jetTrigGroup_'+chain+'_et500',
                  Var=retrieveVarToolConf("m"), # In this context we can not just pass a str alias to describe a histo variable
+                 SortJets=True,
                  ProbeTrigChain=chain,defineHistoFunc=defineHistoForJetTrigg
                ),
              ] ),
@@ -574,7 +637,7 @@ if __name__=='__main__':
   InputType = 'MT' if AthenaMT else 'Legacy'
 
   # Define the output list
-  outputlist = ["xAOD::EventInfo#*","xAOD::VertexContainer#*","xAOD::JetContainer#HLT_*","xAOD::JetAuxContainer#HLT_*Aux.-PseudoJet","xAOD::ShallowAuxContainer#HLT_*Aux.-PseudoJet"]
+  outputlist = ["xAOD::EventInfo#*","xAOD::VertexContainer#*","xAOD::JetContainer#AntiKt4*Jets","xAOD::JetAuxContainer#AntiKt4*JetsAux.-PseudoJet","xAOD::JetContainer#HLT_*","xAOD::JetAuxContainer#HLT_*Aux.-PseudoJet","xAOD::ShallowAuxContainer#HLT_*Aux.-PseudoJet"]
   # Reconstruct small-R truth jets
   if RunTruth:
     from JetRecConfig.StandardSmallRJets import AntiKt4Truth # import the standard definitions
@@ -620,9 +683,20 @@ if __name__=='__main__':
   # Match HLT jets to offline jets
   for hltColl,collDict in JetCollections[InputType].items():
     if collDict['MatchTo'] != 'NONE':
-      name = 'Matching_{}_{}'.format(hltColl,collDict['MatchTo'])
-      alg = CompFactory.JetMatcherAlg(name, JetContainerName1=hltColl,JetContainerName2=collDict['MatchTo'])
-      cfg.addEventAlgo(alg,sequenceName='AthMonSeq_TrigJetMonitorAlgorithm') # Add matchers to monitoring alg sequence
+      for jetcalibscale in OnlineScaleMomenta:
+        scalestring = jetcalibscale if jetcalibscale == "" else "_"+jetcalibscale
+        name = 'Matching_{}_{}_{}'.format(hltColl,scalestring,collDict['MatchTo'])
+        alg = CompFactory.JetMatcherAlg(name, JetContainerName1=hltColl,JetContainerName2=collDict['MatchTo'],JetCalibScale=jetcalibscale)
+        cfg.addEventAlgo(alg,sequenceName='AthMonSeq_TrigJetMonitorAlgorithm') # Add matchers to monitoring alg sequence
+
+  # Match offline to offline jets
+  for offjetColl,collDict in OfflineJetCollections.items():
+    if collDict['MatchTo'] != 'NONE':
+      for jetcalibscale in OfflineScaleMomenta:
+        scalestring = jetcalibscale if jetcalibscale == "" else "_"+jetcalibscale
+        name = 'Matching_{}_{}_{}'.format(offjetColl,scalestring,collDict['MatchTo'])
+        alg = CompFactory.JetMatcherAlg(name, JetContainerName1=offjetColl,JetContainerName2=collDict['MatchTo'],JetCalibScale=jetcalibscale)
+        cfg.addEventAlgo(alg,sequenceName='AthMonSeq_TrigJetMonitorAlgorithm') # Add matchers to monitoring alg sequence
 
   # Loop over L1 jet collectoins
   for jetcoll in L1JetCollections:

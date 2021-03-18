@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ccdb.cxx,v 1.47 2009-03-05 20:03:03 beringer Exp $
@@ -132,7 +132,7 @@ time_t parseTimeSpec(const string& spec) {
 //================================================================
 void printTags(const TagList& tagList) {
   typedef TagList::const_iterator Iter;
-  for(Iter q=tagList.begin(); q!=tagList.end(); q++) {
+  for(Iter q=tagList.begin(); q!=tagList.end(); ++q) {
     cout<<*q<<" ";
   }
 }
@@ -385,8 +385,8 @@ int main(int argc, char* argv[]) {
       vector<string> ml = db->masterList();
       // Sort so that dumps are reproducable
       std::sort(ml.begin(), ml.end());
-      for(vector<string>::const_iterator i = ml.begin(); i != ml.end(); i++) {
-	cout <<*i<< endl;
+      for (const std::string& s : ml) {
+	cout <<s<< endl;
       }
     }    
     else if(CCDB_ADDTEXT("\n")) {} //................................................................
@@ -423,7 +423,7 @@ int main(int argc, char* argv[]) {
       db->getObjectDictionary(od, optCompoundTag);
 
       // A map is guaranteed to be sorted
-      for(CoralDB::ObjectDictionaryMap::const_iterator i = od.begin(); i != od.end(); i++) {
+      for(CoralDB::ObjectDictionaryMap::const_iterator i = od.begin(); i != od.end(); ++i) {
 	cout<<i->first<<"\t"<<i->second<<endl;
       }
     }
@@ -497,7 +497,7 @@ int main(int argc, char* argv[]) {
       db->getConnectionTable(ct);
       // Sort so that dumps are reproducable
       std::sort(ct.begin(), ct.end());
-      for(CoralDB::ConnectionTableMap::const_iterator i=ct.begin(); i!=ct.end(); i++) {
+      for(CoralDB::ConnectionTableMap::const_iterator i=ct.begin(); i!=ct.end(); ++i) {
 	//cout<<*i<<endl;
 	i->print(cout);
       }
@@ -526,7 +526,7 @@ int main(int argc, char* argv[]) {
       CoralDB::AliasesTable data;
       db->getAliasesTable(data);
       // aliases are already sorted
-      for(CoralDB::AliasesTable::const_iterator i=data.begin(); i!=data.end(); i++) {
+      for(CoralDB::AliasesTable::const_iterator i=data.begin(); i!=data.end(); ++i) {
 	//cout<<i->alias()<<"\t"<<i->convention()<<"\t"<<i->id()<<"\n";
 	cout<<*i<<endl;
       }
@@ -548,7 +548,7 @@ int main(int argc, char* argv[]) {
     else if (CCDB_COMMAND(allow_exec, cmd, "getClobNames", DTAG, 0, 0, nargs, coral::ReadOnly, "\t# prints all clob names in the tag")) {
       ClobNameContainer res;
       db->getClobNames(res);
-      for(ClobNameContainer::const_iterator i=res.begin(); i!=res.end(); i++) {
+      for(ClobNameContainer::const_iterator i=res.begin(); i!=res.end(); ++i) {
 	cout << i->first << ", "<<i->second << endl;
       }
     }      
@@ -557,7 +557,7 @@ int main(int argc, char* argv[]) {
       db->getClobNames(cn);
       
       // std::set is guaranteed to be sorted
-      for(CoralDB::ClobNameContainer::const_iterator i=cn.begin(); i!=cn.end(); i++) {
+      for(CoralDB::ClobNameContainer::const_iterator i=cn.begin(); i!=cn.end(); ++i) {
 	Encodable clob = db->findCLOB(i->first, i->second);
 	cout<<i->first<<"\t"<<i->second<<"\t"<<clob<<"\n";
       }
@@ -694,7 +694,7 @@ int main(int argc, char* argv[]) {
       cout<<endl<<endl;
       
       cout<<setw(80)<<setfill('=')<<left<<"Connectivity tags "<<endl;
-      for(TagList::const_iterator it=idTags.begin(); it!=idTags.end(); it++) {
+      for(TagList::const_iterator it=idTags.begin(); it!=idTags.end(); ++it) {
 	TagList connectivityTags;
 	db->getExistingConnectivityTags(connectivityTags, it->tag() );
 	cout<<"ObjDictTag ["<<it->tag()<<"] ==> ";
@@ -703,7 +703,7 @@ int main(int argc, char* argv[]) {
       }
 
       cout<<setw(80)<<setfill('=')<<left<<"Data tags "<<endl;
-      for(TagList::const_iterator it=idTags.begin(); it!=idTags.end(); it++) {
+      for(TagList::const_iterator it=idTags.begin(); it!=idTags.end(); ++it) {
 	TagList dataTags;
 	db->getExistingDataTags(dataTags, it->tag());
 	cout<<"ObjDictTag ["<<it->tag()<<"] ==> ";
@@ -712,7 +712,7 @@ int main(int argc, char* argv[]) {
       }
 
       cout<<setw(80)<<setfill('=')<<left<<"Alias tags "<<endl;
-      for(TagList::const_iterator it=idTags.begin(); it!=idTags.end(); it++) {
+      for(TagList::const_iterator it=idTags.begin(); it!=idTags.end(); ++it) {
 	TagList aliasTags;
 	db->getExistingAliasTags(aliasTags, it->tag());
 	cout<<"ObjDictTag ["<<it->tag()<<"] ==> ";

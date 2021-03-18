@@ -9,7 +9,6 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 #include "CollectionBase/CollectionService.h"
 #include "CollectionBase/ICollection.h"
-#include "CollectionBase/ICollectionMetadata.h"
 #include "DataModelRoot/RootType.h"
 
 #include "TTree.h"
@@ -470,19 +469,6 @@ int main(int argc, char * argv[]){
          logger << Root::kERROR << "ICollection is NULL, exiting... " << Root::GEndl;
          exit(-1);
       }
-
-      // MB : Reading incomplete LBs with tag. Request from Tulay
-      const char* value = collection->metadata().getValueForKey("OutputLumirange");
-      if(value == NULL) {         
-         logger << Root::kERROR << "The collection has no such key of OutputLumirange in metadata, try with OutputIncompleteLumirange key" << Root::GEndl;
-         value = collection->metadata().getValueForKey("OutputIncompleteLumirange");
-         if (value != NULL) logger << Root::kINFO << "OutputIncompleteLumirange key is OK, reading the value..."  << Root::GEndl;
-         else exit(-1);
-      }
-
-      if(verbose == true) logger << Root::kINFO << "Value :  " << value << Root::GEndl;
-      // add xml string to TGoodRunsListReader. Sort out strings below
-      reader.AddXMLString(value);
     }
     // do sorting of all grl objects
     reader.Interpret();

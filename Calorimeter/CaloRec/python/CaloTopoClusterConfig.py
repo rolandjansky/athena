@@ -159,8 +159,6 @@ def getTopoMoments(configFlags):
 def getTopoTruthMoments(configFlags):
     CaloClusterMomentsMaker_DigiHSTruth=CompFactory.CaloClusterMomentsMaker_DigiHSTruth
     TopoMoments_Truth = CaloClusterMomentsMaker_DigiHSTruth ("TopoMoments_Truth")
-    LArHVFraction=CompFactory.LArHVFraction
-    TopoMoments_Truth.LArHVFraction=LArHVFraction(HVScaleCorrKey="LArHVScaleCorr")
     TopoMoments_Truth.WeightingOfNegClusters = configFlags.Calo.TopoCluster.doTreatEnergyCutAsAbsolute
     from AthenaCommon.SystemOfUnits import deg
     TopoMoments_Truth.MaxAxisAngle = 20*deg
@@ -303,12 +301,8 @@ def CaloTopoClusterSplitterToolCfg(configFlags):
 
 # Steering options for trigger
 # Maybe offline reco options should be extracted from flags elsewhere
-def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="",doLCCalib=None,sequenceName='AthAlgSeq'):
+def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="",doLCCalib=None):
     result=ComponentAccumulator()
-    if (sequenceName != 'AthAlgSeq'):
-        from AthenaCommon.CFElements import seqAND
-        #result.mainSeq( seqAND( sequenceName ) )
-        result.addSequence( seqAND(sequenceName) )
 
     if not clustersname:
         clustersname = "CaloTopoClusters"
@@ -370,7 +364,7 @@ def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="",doLCCalib
         from CaloRec.CaloTopoClusterConfig import caloTopoCoolFolderCfg
         result.merge(caloTopoCoolFolderCfg(configFlags))
 
-    result.addEventAlgo(CaloTopoCluster,primary=True,sequenceName=sequenceName)
+    result.addEventAlgo(CaloTopoCluster,primary=True)
     return result
 
 

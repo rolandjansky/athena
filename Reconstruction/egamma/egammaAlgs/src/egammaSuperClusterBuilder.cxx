@@ -1,13 +1,13 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaSuperClusterBuilder.h"
-//
+
 #include "CaloUtils/CaloCellList.h"
 #include "CaloUtils/CaloClusterStoreHelper.h"
 #include "CaloUtils/CaloLayerCalculator.h"
-//
+
 #include "egammaRecEvent/egammaRecContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
@@ -17,12 +17,11 @@
 #include "xAODEgamma/PhotonxAODHelpers.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/Vertex.h"
-//
+
 #include "CaloGeoHelpers/proxim.h"
 #include "FourMomUtils/P4Helpers.h"
 
 #include <cmath>
-#include <vector>
 
 namespace {
 /**
@@ -102,18 +101,15 @@ etaphi_range(const CaloDetDescrManager& dd_man,
 }
 
 /** Find the reference position (eta, phi) relative to which cells are
-   restricted. The return value is whether it succeeded in finding a positive
-   energy max value. (If rv = false, the output variables are passed as
-   arguments are not updated.)
+   restricted.
 */
 egammaSuperClusterBuilder::CentralPosition
-findCentralPosition(const std::vector<const xAOD::CaloCluster*>& clusters)
+findCentralPositionEM2(const std::vector<const xAOD::CaloCluster*>& clusters)
 {
-
   egammaSuperClusterBuilder::CentralPosition cp;
   for (const auto* cluster : clusters) {
     if (cluster->hasSampling(CaloSampling::EMB2)) {
-      float thisEmax = cluster->energy_max(CaloSampling::EMB2);
+      const float thisEmax = cluster->energy_max(CaloSampling::EMB2);
       if (thisEmax > cp.emaxB) {
         cp.emaxB = thisEmax;
         cp.etaB = cluster->etamax(CaloSampling::EMB2);
@@ -121,7 +117,7 @@ findCentralPosition(const std::vector<const xAOD::CaloCluster*>& clusters)
       }
     }
     if (cluster->hasSampling(CaloSampling::EME2)) {
-      float thisEmax = cluster->energy_max(CaloSampling::EME2);
+      const float thisEmax = cluster->energy_max(CaloSampling::EME2);
       if (thisEmax > cp.emaxEC) {
         cp.emaxEC = thisEmax;
         cp.etaEC = cluster->etamax(CaloSampling::EME2);
@@ -132,7 +128,7 @@ findCentralPosition(const std::vector<const xAOD::CaloCluster*>& clusters)
   return cp;
 }
 
-}
+}// end of anonymous namespace
 
 //////////////////////////////////////////////////////////////////////////////
 // Athena interfaces.
@@ -213,7 +209,7 @@ bool
 egammaSuperClusterBuilder::matchesInWindow(const xAOD::CaloCluster* ref,
                                            const xAOD::CaloCluster* clus) const
 {
-  // First the case where we are both endcap and barrel, i.e in the crack
+  // First the case where the seed is both endcap and barrel, i.e. in the crack
   // Check around both measurements of the seed
   if (ref->hasSampling(CaloSampling::EMB2) &&
       ref->hasSampling(CaloSampling::EME2)) {
@@ -248,6 +244,7 @@ egammaSuperClusterBuilder::matchesInWindow(const xAOD::CaloCluster* ref,
   return (dEta < m_searchWindowEtaEndcap && dPhi < m_searchWindowPhiEndcap);
 }
 
+
 std::unique_ptr<xAOD::CaloCluster>
 egammaSuperClusterBuilder::createNewCluster(
   const EventContext& ctx,
@@ -257,32 +254,34 @@ egammaSuperClusterBuilder::createNewCluster(
 {
 
   const auto acSize = clusters.size();
-  if (acSize == 0) {
+  if (clusters.empty()) {
     ATH_MSG_ERROR("Missing the seed cluster! Should not happen.");
     return nullptr;
   }
 
+  // create a new empty cluster
+  // note: we are not adding any cells here
   std::unique_ptr<xAOD::CaloCluster> newCluster(
     CaloClusterStoreHelper::makeCluster(
-      clusters.at(0)->getCellLinks()->getCellContainer()));
+      clusters[0]->getCellLinks()->getCellContainer()));
 
   if (!newCluster) {
     ATH_MSG_ERROR("CaloClusterStoreHelper::makeCluster failed.");
     return nullptr;
   }
   newCluster->setClusterSize(xAOD::CaloCluster::SuperCluster);
+
   // Let's try to find the eta and phi of the hottest cell in L2.
   // This will be used as the center for restricting the cluster size.
   // In the future can refine (or add sanity checks) to the selection
-  CentralPosition cpRef = findCentralPosition(clusters);
+  CentralPosition cpRef = findCentralPositionEM2(clusters);
   // these are the same as the reference but in calo frame (after the processing
   // below)
   CentralPosition cp0 = cpRef;
   // Get the hotest in raw co-ordinates
   if (cp0.emaxB > 0) {
-    CaloCell_ID::CaloSample xsample = CaloCell_ID::EMB2;
     const CaloDetDescrElement* dde =
-      mgr.get_element(xsample, cpRef.etaB, cpRef.phiB);
+      mgr.get_element(CaloCell_ID::EMB2, cpRef.etaB, cpRef.phiB);
     if (dde) {
       cp0.etaB = dde->eta_raw();
       cp0.phiB = dde->phi_raw();
@@ -291,10 +290,10 @@ egammaSuperClusterBuilder::createNewCluster(
                       << cpRef.etaB << ", phi = " << cpRef.phiB);
     }
   }
+
   if (cp0.emaxEC > 0) {
-    CaloCell_ID::CaloSample xsample = CaloCell_ID::EME2;
     const CaloDetDescrElement* dde =
-      mgr.get_element(xsample, cpRef.etaEC, cpRef.phiEC);
+      mgr.get_element(CaloCell_ID::EME2, cpRef.etaEC, cpRef.phiEC);
     if (dde) {
       cp0.etaEC = dde->eta_raw();
       cp0.phiEC = dde->phi_raw();
@@ -303,6 +302,7 @@ egammaSuperClusterBuilder::createNewCluster(
                       << cpRef.etaEC << ", phi = " << cpRef.phiEC);
     }
   }
+
   // Set the eta0/phi0 based on the references, but in raw coordinates
   if (cp0.emaxB >= cp0.emaxEC) {
     newCluster->setEta0(cp0.etaB);
@@ -341,7 +341,7 @@ egammaSuperClusterBuilder::createNewCluster(
     return nullptr;
   }
 
-  // Apply correction  calibration
+  // Apply correction calibration
   if (calibrateCluster(ctx, newCluster.get(), mgr, egType).isFailure()) {
     ATH_MSG_WARNING("There was problem calibrating the object");
     return nullptr;
@@ -370,17 +370,14 @@ egammaSuperClusterBuilder::createNewCluster(
   return newCluster;
 }
 
+
+
 StatusCode
 egammaSuperClusterBuilder::fillClusterConstrained(
   xAOD::CaloCluster& tofill,
   const std::vector<const xAOD::CaloCluster*>& clusters,
   const egammaSuperClusterBuilder::CentralPosition& cp0) const
 {
-  /*
-   * Fill super cluster constraining its size
-   * in eta,phi around the overall hottest cell
-   * and the its L2 size
-   */
   const float addCellsWindowEtaBarrel = m_addCellsWindowEtaBarrel;
   const float addCellsWindowEtaEndcap = m_addCellsWindowEtaEndcap;
   const float addCellsWindowL3EtaBarrel =
@@ -417,7 +414,7 @@ egammaSuperClusterBuilder::fillClusterConstrained(
       if ((!isL2Cell) && (!isL3Cell)) {
         continue;
       }
-      // Also exclude the  inner wheel Endcap
+      // Also exclude the inner wheel Endcap
       if (dde->is_lar_em_endcap_inner()) {
         continue;
       }
@@ -458,7 +455,7 @@ egammaSuperClusterBuilder::fillClusterConstrained(
   }
   // Now calculate the cluster size in 2nd layes
   // use that for constraining the L0/L1 cells we add
-  PhiSize phiSize = findPhiSize(cp0, tofill);
+  const PhiSize phiSize = findPhiSize(cp0, tofill);
   const float phiPlusB = cp0.phiB + phiSize.plusB + m_extraL0L1PhiSize;
   const float phiMinusB = cp0.phiB - phiSize.minusB - m_extraL0L1PhiSize;
   const float phiPlusEC = cp0.phiEC + phiSize.plusEC + m_extraL0L1PhiSize;
@@ -482,7 +479,7 @@ egammaSuperClusterBuilder::fillClusterConstrained(
 
       // only deal with L1 or PS
       const auto sampling = dde->getSampling();
-      bool isL0L1Cell =
+      const bool isL0L1Cell =
         (CaloCell_ID::EMB1 == sampling || CaloCell_ID::EME1 == sampling ||
          CaloCell_ID::PreSamplerB == sampling ||
          CaloCell_ID::PreSamplerE == sampling);
@@ -555,6 +552,7 @@ egammaSuperClusterBuilder::addTileGap3CellsinWindow(
     CaloSampling::TileGap3
   };
   for (auto samp : samples) {
+    // quite slow
     myList.select(mgr,
                   tofill.eta0(),
                   tofill.phi0(),
@@ -649,7 +647,7 @@ egammaSuperClusterBuilder::refineEta1Position(
       !cluster->hasSampling(CaloSampling::EME1)) {
     return StatusCode::SUCCESS;
   }
-  // Now calculare the position using cells in barrel or endcap  or both
+  // Now calculare the position using cells in barrel or endcap or both
   const double aeta = std::abs(cluster->etaBE(2));
   if (aeta < 1.6 && cluster->hasSampling(CaloSampling::EMB1)) {
     ATH_CHECK(makeCorrection1(cluster, mgr, CaloSampling::EMB1));
@@ -674,7 +672,7 @@ egammaSuperClusterBuilder::makeCorrection1(
       std::abs(cluster->phimax(sample)) < 1E-6) {
     return StatusCode::SUCCESS;
   }
-  // Get the hotest in raw co-ordinates
+  // Get the hottest in raw co-ordinates
   // We have two kinds of enums ...
   CaloCell_ID::CaloSample xsample =
     (sample == CaloSampling::EMB1) ? CaloCell_ID::EMB1 : CaloCell_ID::EME1;
@@ -740,7 +738,7 @@ egammaSuperClusterBuilder::findPhiSize(
       continue;
     }
 
-    if (CaloCell_ID::EMB2 == dde->getSampling()) {
+    if (cp0.emaxB > 0 && CaloCell_ID::EMB2 == dde->getSampling()) {
       const float phi0 = cp0.phiB;
       double cell_phi = proxim(dde->phi_raw(), phi0);
       if (cell_phi > phi0) {
@@ -754,7 +752,7 @@ egammaSuperClusterBuilder::findPhiSize(
           phiSize.minusB = diff;
         }
       }
-    } else if (CaloCell_ID::EME2 == dde->getSampling()) {
+    } else if (cp0.emaxEC > 0 && CaloCell_ID::EME2 == dde->getSampling()) {
       const float phi0 = cp0.phiEC;
       double cell_phi = proxim(dde->phi_raw(), phi0);
       if (cell_phi > phi0) {

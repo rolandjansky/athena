@@ -299,7 +299,7 @@ Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
 
       // Change updatedPar for step one
       const Trk::TrackParameters* clonePars1 =
-        CREATE_PARAMETERS(*updatedPar, updatedParameters1, updatedCovariance1);
+        CREATE_PARAMETERS(*updatedPar, updatedParameters1, updatedCovariance1).release();
       delete updatedPar;
       updatedPar = clonePars1;
       // --- Extrapolate changed updatedPar and calculate chi2 for step one
@@ -337,7 +337,7 @@ Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
 
       // --- Change updatedPar for step two
       const Trk::TrackParameters* clonePars2 =
-        CREATE_PARAMETERS(*updatedPar, updatedParameters2, updatedCovariance2);
+        CREATE_PARAMETERS(*updatedPar, updatedParameters2, updatedCovariance2).release();
       delete updatedPar;
       updatedPar = clonePars2;
 
@@ -572,12 +572,13 @@ Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
 
     const Trk::TrackParameters* clonePars =
       (updatedPar->associatedSurface())
-        .createTrackParameters(updatedParameters[0],
-                               updatedParameters[1],
-                               updatedParameters[2],
-                               updatedParameters[3],
-                               updatedParameters[4],
-                               updatedCovariance);
+        .createUniqueTrackParameters(updatedParameters[0],
+                                     updatedParameters[1],
+                                     updatedParameters[2],
+                                     updatedParameters[3],
+                                     updatedParameters[4],
+                                     updatedCovariance)
+        .release();
     delete updatedPar;
     updatedPar = clonePars;
 

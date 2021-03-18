@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ---------------------------------------------------------------------- 
@@ -19,7 +19,6 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
-#include "AtlasHepMC/HEPEVT_Wrapper.h"
 #include "AtlasHepMC/IO_HEPEVT.h"
 
 
@@ -170,6 +169,13 @@ QGSJet::QGSJet( const std::string &name, ISvcLocator *pSvcLocator ):
   m_iout = 0; // output type (output)
 
   // initialize internally used arrays
+  m_partID.resize (kMaxParticles);
+  m_partPx.resize (kMaxParticles);
+  m_partPy.resize (kMaxParticles);
+  m_partPz.resize (kMaxParticles);
+  m_partEnergy.resize (kMaxParticles);
+  m_partMass.resize (kMaxParticles);
+  m_partStat.resize (kMaxParticles);
   for (size_t i = 0; i < kMaxParticles; ++i) {
     m_partID[i] = 0;
     m_partPx[i] = m_partPy[i] = m_partPz[i] = m_partEnergy[i] = m_partMass[i] = 0.0;
@@ -210,7 +216,9 @@ StatusCode QGSJet::genInitialize()
 
   std::cout << "parameters " << m_nEvents << " " << iSeed << " " << m_beamMomentum << " " << m_targetMomentum << " " << m_primaryParticle << " " << m_targetParticle << " " << m_model << " " << m_itab << " " << m_ilheout << " " <<  m_lheout.c_str()<< " " <<  m_paramFile.c_str() << std::endl;
 
-  crmc_set_f_(m_nEvents, iSeed, m_beamMomentum, m_targetMomentum, m_primaryParticle, m_targetParticle, m_model, m_itab, m_ilheout,  m_paramFile.c_str() ); 
+//  crmc_set_f_(m_nEvents, iSeed, m_beamMomentum, m_targetMomentum, m_primaryParticle, m_targetParticle, m_model, m_itab, m_ilheout,  m_paramFile.c_str() ); 
+
+  crmc_set_f_(m_nEvents, iSeed, m_beamMomentum, m_targetMomentum, m_primaryParticle, m_targetParticle, m_model, m_itab, m_ilheout, (m_paramFile + " ").c_str() );
 
     // initialize QGSJet
   //  crmc_init_f_( iSeed, m_beamMomentum, m_targetMomentum, m_primaryParticle, m_targetParticle, m_model, m_paramFile.c_str() );
@@ -228,7 +236,7 @@ StatusCode QGSJet::genInitialize()
 #else
     HepMC::HEPEVT_Wrapper::set_sizeof_int(sizeof( int ));
     HepMC::HEPEVT_Wrapper::set_sizeof_real( 8 );
-    HepMC::HEPEVT_Wrapper::set_max_number_entries(10000);    // as used in crmc-aaa.f!!!
+    HepMC::HEPEVT_Wrapper::set_max_number_entries(kMaxParticles);
 #endif
 
   m_events = 0;

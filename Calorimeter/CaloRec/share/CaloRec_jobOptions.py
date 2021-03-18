@@ -128,6 +128,18 @@ if rec.readESD and not rec.doESD:
 
 # create LArFebErrorSummary for BS input
 if rec.doLArg() and globalflags.DataSource()=='data' and globalflags.InputFormat() == 'bytestream':
+    # this needs to have LArRawDataReading algo already setup
+    if not hasattr(topSequence,"LArRawDataReadingAlg"):
+      from LArByteStream.LArByteStreamConf import LArRawDataReadingAlg
+      from LArConditionsCommon.LArRunFormat import getLArFormatForRun
+      from RecExConfig.AutoConfiguration import GetRunNumber
+      runNum = GetRunNumber()
+      lri=getLArFormatForRun(runNum)
+      if lri.runType()==0:
+        topSequence+=LArRawDataReadingAlg(FailOnCorruption=True,LArRawChannelKey="") 
+      else:   
+        topSequence+=LArRawDataReadingAlg(FailOnCorruption=False) 
+
     from LArROD.LArRODFlags import larRODFlags
     if larRODFlags.doLArFebErrorSummary() :
         try:
@@ -366,5 +378,5 @@ if globalflags.DataSource()=='data' and rec.doESD() and rec.doCalo() and rec.doT
 if jobproperties.CaloRecFlags.doCaloTopoTower():
     include ( "CaloRec/CaloTopoTowerFragment.py" )
 #mixed topo-cluster/topo-tower 
-if jobproperties.CaloRecFlags.doCaloTopoSignal():
+if jobproperties.CaloRecFlags.doCaloTopoSignal() or jobproperties.CaloRecFlags.doCaloFwdTopoTower():
     include ("CaloRec/CaloTopoSignalFragment.py" )

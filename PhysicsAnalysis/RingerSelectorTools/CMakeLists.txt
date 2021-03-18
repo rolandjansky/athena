@@ -7,7 +7,9 @@ set( RingerSelectorTools_version "\"RingerSelectorTools-00-00-18\"" )
 atlas_subdir( RingerSelectorTools )
 
 # External dependencies:
-find_package( ROOT COMPONENTS Core RIO )
+find_package( Boost COMPONENTS filesystem thread system )
+find_package( ROOT COMPONENTS Core Gpad Tree MathCore Hist RIO pthread )
+find_package( onnxruntime )
 
 atlas_add_library( RingerSelectorToolsEnumsLib
                    Root/enums/*.cxx
@@ -15,19 +17,23 @@ atlas_add_library( RingerSelectorToolsEnumsLib
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} PATCoreAcceptLib )
 
+
 atlas_add_library( RingerSelectorToolsLib
                    Root/*.cxx
                    Root/procedures/*.cxx
                    Root/tools/*.cxx
+                   src/onnx/*.cxx
                    PUBLIC_HEADERS RingerSelectorTools
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib AsgTools AthenaKernel GaudiKernel xAODCaloRings xAODEgamma xAODTracking EgammaAnalysisInterfacesLib RingerSelectorToolsEnumsLib
-                   PRIVATE_LINK_LIBRARIES xAODBase AthContainers PathResolver TrkTrackSummary )
+                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${ONNXRUNTIME_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${ONNXRUNTIME_LIBRARIES} AsgTools CxxUtils xAODCaloRings xAODEgamma xAODTracking 
+                   PATCoreLib EgammaAnalysisInterfacesLib RingerSelectorToolsEnumsLib xAODTrigRinger xAODTrigCalo xAODTrigEgamma
+                   PRIVATE_LINK_LIBRARIES xAODBase PathResolver TrkTrackSummary AthOnnxruntimeServiceLib AthenaMonitoringKernelLib)
 
 if( NOT XAOD_STANDALONE )
   atlas_add_component( RingerSelectorTools
                        src/components/*.cxx
-                       LINK_LIBRARIES RingerSelectorToolsLib )
+                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+                       LINK_LIBRARIES ${ONNXRUNTIME_LIBRARIES} ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel AthContainers GaudiKernel TrkTrackSummary RingerSelectorToolsLib )
 endif()
 
 

@@ -153,39 +153,15 @@ def MakeTowersFromClusters(towerMakerName      = 'CaloTowerBuilderAlg',        #
     clusterMoments.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
     clusterMoments.MinBadLArQuality = 4000
     clusterMoments.MomentsNames     = [
-        "FIRST_PHI" 
-        ,"FIRST_ETA"
-        ,"SECOND_R" 
-        ,"SECOND_LAMBDA"
-        ,"DELTA_PHI"
-        ,"DELTA_THETA"
-        ,"DELTA_ALPHA" 
-        ,"CENTER_X"
-        ,"CENTER_Y"
-        ,"CENTER_Z"
-        ,"CENTER_MAG"
-        ,"CENTER_LAMBDA"
-        ,"LATERAL"
-        ,"LONGITUDINAL"
-        ,"FIRST_ENG_DENS" 
-        ,"ENG_FRAC_EM" 
-        ,"ENG_FRAC_MAX" 
-        ,"ENG_FRAC_CORE" 
-        ,"SECOND_ENG_DENS" 
-        ,"ISOLATION"
-        ,"ENG_BAD_CELLS"
-        ,"N_BAD_CELLS"
-        ,"N_BAD_CELLS_CORR"
-        ,"BAD_CELLS_CORR_E"
-        ,"BADLARQ_FRAC"
-        ,"ENG_POS"
-        ,"SIGNIFICANCE"
-        ,"CELL_SIGNIFICANCE"
-        ,"CELL_SIG_SAMPLING"
-        ,"AVG_LAR_Q"
-        ,"AVG_TILE_Q"
-        ,"PTD"
-        ,"MASS"
+        "CENTER_LAMBDA", 
+        #"CENTER_MAG",
+        "LONGITUDINAL",
+        #"FIRST_ENG_DENS",
+        #"ENG_FRAC_MAX",
+        "ENG_FRAC_EM",
+        #"PTD",
+        "SIGNIFICANCE",
+        "ENG_POS"
     ]
 
     from IOVDbSvc.CondDB import conddb

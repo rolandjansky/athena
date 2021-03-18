@@ -275,9 +275,6 @@ void DiTauMassTools::readInParams(TDirectory* dir, MMCCalibrationSetV2::e aset, 
 			{
 				Warning("DiTauMassTools", "Undefined decay channel in input file.");
 			}
-      
-      delete f;
-      delete func;
 		}
 		else {
 			Warning("DiTauMassTools", "Class in input file not recognized.");

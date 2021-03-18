@@ -316,8 +316,10 @@ bool MuonSelector::passIsolCuts()
 {
   float iso_pt40(0);
   if( !m_pxMuon->isolation(iso_pt40, xAOD::Iso::ptcone40) ) {
-    std::cout << "    * MuonSelector::passIsolCuts * WARNING * No isolation variable stored on the muon" << std::endl;
-    if(m_doDebug) std::cout << "    * MuonSelector::passIsolCuts * this muon did not pass the IsoCuts " << std::endl;
+    if(m_doDebug) { 
+      std::cout << "    * MuonSelector::passIsolCuts * WARNING * No isolation variable stored on the muon" << std::endl;
+      std::cout << "    * MuonSelector::passIsolCuts * this muon did not pass the IsoCuts " << std::endl;
+    }
     return false;
   }
   

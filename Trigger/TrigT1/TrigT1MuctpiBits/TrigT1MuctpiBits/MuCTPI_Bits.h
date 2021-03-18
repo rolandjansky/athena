@@ -46,6 +46,8 @@
   /// Mask for extracting the overlap bits for barrel candidates from the data words
    static constexpr uint32_t RUN3_BARREL_OL_MASK = 0x1; // only the phi ovl is used in the run3 format
    static constexpr uint32_t BARREL_OL_MASK = 0x3;
+   static constexpr uint32_t BARREL_PHI_OL_MASK = 0x1;
+   static constexpr uint32_t BARREL_ETA_OL_MASK = 0x2;
   /// Position of the overlap bits in barrel data words
    static constexpr uint32_t RUN3_BARREL_OL_SHIFT = 12; // this is now part of the 4 "candidate flags" bits
    static constexpr uint32_t BARREL_OL_SHIFT = 9;

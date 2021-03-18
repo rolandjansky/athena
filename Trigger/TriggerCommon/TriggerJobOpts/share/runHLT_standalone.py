@@ -217,9 +217,7 @@ setModifiers = ['noLArCalibFolders',
                 'ForceMuonDataType',
                 'useNewRPCCabling',
                 'enableCostMonitoring',
-                #'enableCoherentPS',
                 'useOracle',
-                'enableHotIDMasking',
 ]
 
 if ConfigFlags.Input.isMC:  # MC modifiers
@@ -230,21 +228,12 @@ else:           # More data modifiers
                      'useDynamicAlignFolders',
                      'useHLTMuonAlign',
                      #Check for beamspot quality flag
-                     'UseBeamSpotFlagForBjet',
-                     'UseParamFromDataForBjet',
-                     #Use online luminosity
                      'useOnlineLumi',
                      #for running with real data
                      'DisableMdtT0Fit',
-                     #Setup mufast tuning for data
-                     'UseLUTFromDataForMufast',
-                     'UseRPCTimeDelayFromDataForMufast',
                      #Set muComb/muIso Backextrapolator tuned for real data
-                     'UseBackExtrapolatorDataForMuIso',
                      #Monitoring for L1 muon group
-                     #'muCTPicheck',
                      #Monitoring L1Topo at ROB level
-                     #'L1TopoCheck',
                      'forceTileRODMap',
                      'enableSchedulerMon'
     ]
@@ -287,14 +276,23 @@ include.block("RecExCond/RecExCommon_flags.py")
 from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg
 CAtoGlobalWrapper(IOVDbSvcCfg, ConfigFlags)
 
+# ---------------------------------------------------------------
+# Create main sequences
+# ---------------------------------------------------------------
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
+from AthenaCommon.CFElements import seqOR,parOR
+hltTop = seqOR("HLTTop")
+hltBeginSeq = parOR("HLTBeginSeq")
+hltTop += hltBeginSeq
+topSequence += hltTop
+
 #-------------------------------------------------------------
 # Setting DetFlags
 #-------------------------------------------------------------
-if ConfigFlags.Input.Format == 'BS':
-    ConfigFlags.Trigger.doLVL1 = False
 
 from AthenaCommon.DetFlags import DetFlags
-if ConfigFlags.Trigger.doLVL1:
+if not ConfigFlags.Input.Format == 'BS':
     DetFlags.detdescr.all_setOn()
     #if not ConfigFlags.Input.isMC or ConfigFlags.Common.isOnline:
     #    DetFlags.detdescr.ALFA_setOff()
@@ -335,10 +333,6 @@ rec.doTruth = False
 for mod in modifierList:
     mod.preSetup()
 
-
-from AthenaCommon.AlgSequence import AlgSequence
-topSequence = AlgSequence()
-
 #--------------------------------------------------------------
 # Increase scheduler checks and verbosity
 #--------------------------------------------------------------
@@ -373,10 +367,10 @@ if ConfigFlags.Trigger.doID:
     include("InDetRecExample/InDetRecConditionsAccess.py")
 
 if ConfigFlags.Trigger.doCalo:
-    from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigDataAccess
-    svcMgr.ToolSvc += TrigDataAccess()
+    from TrigT2CaloCommon.CaloDef import setMinimalCaloSetup
+    setMinimalCaloSetup()
     if ConfigFlags.Input.Format == 'POOL':
-        ConfigFlags.Trigger.doTransientByteStream = True # enable transient BS if TrigDataAccess is used with pool data
+        ConfigFlags.Trigger.doTransientByteStream = True # enable transient BS if TrigCaloDataAccessSvc is used with pool data
 
 if ConfigFlags.Trigger.doMuon:
     TriggerFlags.MuonSlice.doTrigMuonConfig=True
@@ -417,15 +411,6 @@ createL1PrescalesFileFromMenu(ConfigFlags)
 
 from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
 CAtoGlobalWrapper(L1ConfigSvcCfg,ConfigFlags)
-
-# ---------------------------------------------------------------
-# Create main sequences
-# ---------------------------------------------------------------
-from AthenaCommon.CFElements import seqOR,parOR
-hltTop = seqOR("HLTTop")
-hltBeginSeq = parOR("HLTBeginSeq")
-hltTop += hltBeginSeq
-topSequence += hltTop
 
 # ---------------------------------------------------------------
 # Event Info setup
@@ -522,7 +507,7 @@ if not hasattr(svcMgr, 'THistSvc'):
     from GaudiSvc.GaudiSvcConf import THistSvc
     svcMgr += THistSvc()
 if hasattr(svcMgr.THistSvc, "Output"):
-    from TriggerJobOpts.HLTTriggerGetter import setTHistSvcOutput
+    from TriggerJobOpts.TriggerHistSvcConfig import setTHistSvcOutput
     setTHistSvcOutput(svcMgr.THistSvc.Output)
 
 #-------------------------------------------------------------
@@ -603,14 +588,16 @@ if opt.doWriteBS or opt.doWriteRDOTrigger:
     TriggerEDMRun3.addHLTNavigationToEDMList(TriggerEDMRun3.TriggerHLTListRun3, decObj, decObjHypoOut)
 
     # Configure output writing
-    CAtoGlobalWrapper( triggerOutputCfg, ConfigFlags, summaryAlg=summaryMakerAlg)
+    CAtoGlobalWrapper(triggerOutputCfg, ConfigFlags, hypos=hypos)
 
 #-------------------------------------------------------------
 # Cost Monitoring
 #-------------------------------------------------------------
 
-from TrigCostMonitorMT.TrigCostMonitorMTConfig import TrigCostMonitorMTCfg
+from TrigCostMonitorMT.TrigCostMonitorMTConfig import TrigCostMonitorMTCfg, TrigCostMonitorMTPostSetup
 CAtoGlobalWrapper(TrigCostMonitorMTCfg, ConfigFlags)
+# TODO - how can TrigCostMonitorMTPostSetup be component-accumulator-ised?
+TrigCostMonitorMTPostSetup()
 
 #-------------------------------------------------------------
 # Debugging for view cross-dependencies

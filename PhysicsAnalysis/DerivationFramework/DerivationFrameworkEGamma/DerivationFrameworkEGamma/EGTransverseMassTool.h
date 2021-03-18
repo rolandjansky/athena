@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,14 +15,12 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 
-namespace ExpressionParsing {
-  class ExpressionParser;
-}
+#include "ExpressionEvaluation/ExpressionParserUser.h"
 
 namespace DerivationFramework {
 
-  class EGTransverseMassTool : public AthAlgTool, public IAugmentationTool {
-    public: 
+  class EGTransverseMassTool : public ExpressionParserUser<AthAlgTool>, public IAugmentationTool {
+    public:
       EGTransverseMassTool(const std::string& t, const std::string& n, const IInterface* p);
 
       StatusCode initialize();
@@ -32,7 +30,6 @@ namespace DerivationFramework {
     private:
       std::string m_expression1;
       float m_METmin;
-      ExpressionParsing::ExpressionParser *m_parser1;
       std::string m_sgName;
       float m_mass1Hypothesis;
       std::string m_container1Name;

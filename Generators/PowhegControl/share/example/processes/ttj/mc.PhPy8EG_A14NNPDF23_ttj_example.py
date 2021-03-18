@@ -5,7 +5,7 @@
 #--------------------------------------------------------------
 evgenConfig.description = "POWHEG+Pythia8 tt+jet production with A14 NNPDF2.3 tune."
 evgenConfig.keywords = ["SM", "top", "1jet"]
-evgenConfig.contact = ["simone.amoroso@cern.ch", "stefan.richter@cern.ch"]
+evgenConfig.contact = ["james.robinson@cern.ch", "stefan.richter@cern.ch"]
 
 # --------------------------------------------------------------
 # Load ATLAS defaults for the Powheg ttj process

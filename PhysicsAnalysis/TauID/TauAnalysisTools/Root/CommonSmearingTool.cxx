@@ -221,10 +221,10 @@ CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau )
 
     if (xTau.nTracks() > 0 and xTau.nTracks() < 6)
     {
-      xTau.setP4(xTau.auxdata<float>("pt_combined"),
-                 xTau.auxdata<float>("eta_combined"),
-                 xTau.auxdata<float>("phi_combined"),
-                 xTau.auxdata<float>("m_combined"));
+      xTau.setP4(xTau.auxdata<float>("ptCombined"),
+                 xTau.auxdata<float>("etaCombined"),
+                 xTau.auxdata<float>("phiCombined"),
+                 xTau.auxdata<float>("mCombined"));
     }
   }
 

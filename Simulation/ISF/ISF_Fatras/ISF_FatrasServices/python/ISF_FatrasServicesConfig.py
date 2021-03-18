@@ -1,11 +1,10 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """
 Service and Tool configurations for ISF for ISF_FatrasServicesConfig
 KG Tan, 04/12/2012
+Updated by J. Chapman
 """
-
-from __future__ import print_function
 
 from AthenaCommon import CfgMgr
 from AthenaCommon.CfgGetter import getPublicTool
@@ -90,14 +89,11 @@ def getInDetTrackingGeometryBuilder(name="ISF_InDetTrackingGeometryBuilder", **k
     kwargs.setdefault("namePrefix"              , 'Fatras')
     kwargs.setdefault("setLayerAssociation"     , False)
     #kwargs.setdefault("VolumeEnclosureOuterR"   , 1148.) ### HACK: Cannot set via imput arguments. Is this right?? -kg
-    if TrkDetFlags.ISF_FatrasCustomGeometry() :
-        from ISF_FatrasDetDescrTools.CustomInDetTrackingGeometryBuilder import CustomInDetTrackingGeometryBuilder as IDGeometryBuilder
+    if not TrkDetFlags.SLHC_Geometry() :
+        kwargs.setdefault("buildTrtStrawLayers" , True)
+        from InDetTrackingGeometry.ConfiguredInDetTrackingGeometryBuilder import ConfiguredInDetTrackingGeometryBuilder as IDGeometryBuilder
     else :
-        if not TrkDetFlags.SLHC_Geometry() :
-            kwargs.setdefault("buildTrtStrawLayers" , True)
-            from InDetTrackingGeometry.ConfiguredInDetTrackingGeometryBuilder import ConfiguredInDetTrackingGeometryBuilder as IDGeometryBuilder
-        else :
-            from InDetTrackingGeometry.ConfiguredSLHC_InDetTrackingGeometryBuilder import ConfiguredSLHC_InDetTrackingGeometryBuilder as IDGeometryBuilder
+        from InDetTrackingGeometry.ConfiguredSLHC_InDetTrackingGeometryBuilder import ConfiguredSLHC_InDetTrackingGeometryBuilder as IDGeometryBuilder
     t = IDGeometryBuilder(name, **kwargs )
     t.VolumeEnclosureOuterR = 1148.
     #t.EnvelopeDefinitionSvc = 'ISF_EnvelopeDefSvc'
@@ -172,8 +168,15 @@ def getFatrasTrackingGeometrySvc(name="ISF_FatrasTrackingGeometrySvc", **kwargs)
 
 def getFatrasNavigator(name="ISF_FatrasNavigator", **kwargs):
     # the Navigator (needed for several instances)
-    from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
-    kwargs.setdefault("TrackingGeometrySvc"  , AtlasTrackingGeometrySvc)#getService('ISF_FatrasTrackingGeometrySvc'))
+
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+
+    if not hasattr (condSeq, 'AtlasTrackingGeometryCondAlg'):
+      from InDetCondFolders import InDetAlignFolders_FATRAS  # noqa: F401
+      from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg
+      TrkGeoCondAlg = ConfiguredTrackingGeometryCondAlg('AtlasTrackingGeometryCondAlg')
+      condSeq+= TrkGeoCondAlg
 
     from TrkExTools.TrkExToolsConf import Trk__Navigator
     return Trk__Navigator(name, **kwargs )
@@ -209,10 +212,8 @@ def getFatrasStaticPropagator(name="ISF_FatrasStaticPropagator", **kwargs):
 # load the static navigation engine
 def getFatrasStaticNavigationEngine(name="ISF_FatrasStaticNavigationEngine", **kwargs):
     #give the tools it needs
-    from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
     kwargs.setdefault("PropagationEngine", getPublicTool('ISF_FatrasStaticPropagator'))
     kwargs.setdefault("MaterialEffectsEngine", getPublicTool('ISF_FatrasMaterialEffectsEngine'))
-    kwargs.setdefault("TrackingGeometry", AtlasTrackingGeometrySvc.TrackingGeometryName)
     # configure output formatting  
     kwargs.setdefault("OutputPrefix", '[SN] - ')
     kwargs.setdefault("OutputPostfix", ' - ')
@@ -396,8 +397,18 @@ def getFatrasMultipleScatteringSamplerGeneralMixture(name="ISF_MultipleScatterin
 
 # Combining all in the MaterialEffectsUpdator
 def getFatrasMaterialUpdator(name="ISF_FatrasMaterialUpdator", **kwargs):
+
     from G4AtlasApps.SimFlags import simFlags
-    from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
+
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+
+    if not hasattr (condSeq, 'AtlasTrackingGeometryCondAlg'):
+      from InDetCondFolders import InDetAlignFolders_FATRAS  # noqa: F401
+      from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg
+      TrkGeoCondAlg = ConfiguredTrackingGeometryCondAlg('AtlasTrackingGeometryCondAlg')
+      condSeq+= TrkGeoCondAlg
+
     kwargs.setdefault("RandomNumberService" , simFlags.RandomSvc() )
     kwargs.setdefault("RandomStreamName"    , ISF_FatrasFlags.RandomStreamName())
     kwargs.setdefault("ParticleBroker"              , ISF_Flags.ParticleBroker())
@@ -427,7 +438,6 @@ def getFatrasMaterialUpdator(name="ISF_FatrasMaterialUpdator", **kwargs):
     kwargs.setdefault("ParticleDecayHelper"             , getPublicTool('ISF_FatrasParticleDecayHelper'))
     # MCTruth Process Code
     kwargs.setdefault("BremProcessCode"             , 3) # TODO: to be taken from central definition
-    kwargs.setdefault("TrackingGeometrySvc"         , AtlasTrackingGeometrySvc)
 
     from ISF_FatrasTools.ISF_FatrasToolsConf import iFatras__McMaterialEffectsUpdator
     return iFatras__McMaterialEffectsUpdator(name, **kwargs )
@@ -507,10 +517,8 @@ def getFatrasStaticExtrapolator(name="ISF_FatrasStaticExEngine", **kwargs):
 
 def getFatrasExEngine(name="ISF_FatrasExEngine", **kwargs):
     # load the tracking geometry service
-    from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
     # assign the tools
     kwargs.setdefault("ExtrapolationEngines"    , [ getPublicTool('ISF_FatrasStaticExEngine') ] )
-    kwargs.setdefault("TrackingGeometrySvc"     , AtlasTrackingGeometrySvc)
     kwargs.setdefault("PropagationEngine"       , getPublicTool('ISF_FatrasStaticPropagator'))
     # configure output formatting 
     kwargs.setdefault("OutputPrefix"     , '[ME] - ')

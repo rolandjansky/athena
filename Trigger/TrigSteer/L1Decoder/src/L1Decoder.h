@@ -69,7 +69,7 @@ private:
     "Enables start-of-event cost monitoring behavior."};
 
   Gaudi::Property<std::string> m_costMonitoringChain{
-    this, "CostMonitoringChain", "HLT_costmonitor_CostMonDS_L1All",
+    this, "CostMonitoringChain", "HLT_noalg_CostMonDS_L1All",
     "Name of the chain which should enable HLT cost montoring."};
 
   ServiceHandle<ITrigCostMTSvc> m_trigCostSvcHandle {
@@ -80,9 +80,13 @@ private:
     this, "ctpUnpacker", "CTPUnpackingTool/CTPUnpackingTool",
     "Tool used to unpack the CTP info"};
 
-  ToolHandleArray<IRoIsUnpackingTool> m_roiUnpackers{
-    this, "roiUnpackers", {},
-    "Tools unpacking RoIs"};
+  ToolHandleArray<IRoIsUnpackingTool> m_roiUnpackers_roib{
+    this, "RoIBRoIUnpackers", {},
+    "Tools unpacking Run-2 RoIs from RoIBResult"};
+
+  ToolHandleArray<IRoIsUnpackingTool> m_roiUnpackers_xaod{
+    this, "xAODRoIUnpackers", {},
+    "Tools unpacking xAOD RoIs from L1TriggerResult"};
 
   ToolHandle<IPrescalingTool> m_prescaler{
     this, "prescaler", "PrescalingTool/PrescalingTool",

@@ -14,7 +14,6 @@
 #include "L1CaloFEXSim/jSuperCellTowerMapper.h"
 #include "L1CaloFEXToolInterfaces/IjFEXSysSim.h"
 #include "L1CaloFEXSim/jFEXSim.h"
-#include "L1CaloFEXSim/jTowerContainer.h"
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"

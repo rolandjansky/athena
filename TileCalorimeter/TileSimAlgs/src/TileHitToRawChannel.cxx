@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -47,7 +47,7 @@ using CLHEP::RandGaussQ;
 //
 // Constructor
 //
-TileHitToRawChannel::TileHitToRawChannel(std::string name, ISvcLocator* pSvcLocator)
+TileHitToRawChannel::TileHitToRawChannel(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
   , m_rChUnit(TileRawChannelUnit::ADCcounts)
   , m_rChType(TileFragHash::Default)
@@ -167,11 +167,13 @@ StatusCode TileHitToRawChannel::execute() {
 
   ATH_MSG_DEBUG( "Executing TileHitToRawChannel" );
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
   ATHRNG::RNGWrapper* rngWrapper = m_atRndmGenSvc->getEngine(this, m_randomStreamName);
-  rngWrapper->setSeed( m_randomStreamName, Gaudi::Hive::currentContext() );
+  rngWrapper->setSeed( m_randomStreamName, ctx );
 
   // step1: read hits from TES
-  SG::ReadHandle<TileHitContainer> hitContainer(m_hitContainerKey);
+  SG::ReadHandle<TileHitContainer> hitContainer(m_hitContainerKey, ctx);
   ATH_CHECK( hitContainer.isValid() );
 
   //Zero sums for monitoring.
@@ -231,7 +233,7 @@ StatusCode TileHitToRawChannel::execute() {
 
       for (ch = 0; ch < nChMax; ++ch) {
         adc_gain[ch] = TileID::HIGHGAIN;
-        adc_ampl[ch] = random[ch] * m_tileToolNoiseSample->getHfn(drawerIdx, ch, TileID::HIGHGAIN)
+        adc_ampl[ch] = random[ch] * m_tileToolNoiseSample->getHfn(drawerIdx, ch, TileID::HIGHGAIN, TileRawChannelUnit::ADCcounts, ctx)
                                   * m_tileInfo->getNoiseScaleFactor();
 
       }
@@ -286,7 +288,7 @@ StatusCode TileHitToRawChannel::execute() {
                                                              , TileRawChannelUnit::MegaElectronVolts);
       double noise;
       // If high saturates, convert adc_id to low-gain value and recalculate.
-      if (adc_ampl[ch] + amp_ch + m_tileToolNoiseSample->getPed(drawerIdx, ch, gain) > m_ampMaxHi) {
+      if (adc_ampl[ch] + amp_ch + m_tileToolNoiseSample->getPed(drawerIdx, ch, gain, TileRawChannelUnit::ADCcounts, ctx) > m_ampMaxHi) {
 
         gain = TileID::LOWGAIN;
         amp_ch = e_ch / m_tileToolEmscale->channelCalib(drawerIdx, ch, gain, 1., m_rChUnit
@@ -295,7 +297,7 @@ StatusCode TileHitToRawChannel::execute() {
         // If Noise is requested, 
         // recalculate noise using the SAME random number as for high.
         if (m_tileNoise) {
-          adc_ampl[ch] = random[ch] * m_tileToolNoiseSample->getHfn(drawerIdx, ch, TileID::LOWGAIN)
+          adc_ampl[ch] = random[ch] * m_tileToolNoiseSample->getHfn(drawerIdx, ch, TileID::LOWGAIN, TileRawChannelUnit::ADCcounts, ctx)
                                     * m_tileInfo->getNoiseScaleFactor();
         }
       }
@@ -391,7 +393,7 @@ StatusCode TileHitToRawChannel::execute() {
   }
 
 
-  SG::WriteHandle<TileRawChannelContainer> rawChannelCnt(m_rawChannelContainerKey);
+  SG::WriteHandle<TileRawChannelContainer> rawChannelCnt(m_rawChannelContainerKey, ctx);
   ATH_CHECK( rawChannelCnt.record(std::move(rawChannelContainer)) );
 
   return StatusCode::SUCCESS;

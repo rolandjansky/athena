@@ -16,7 +16,7 @@ def extractData(filename):
         else:
             run=int(l[0])
             evt=int(l[1])
-            result[(run,evt)]=[int(s) for s in l[2:]]
+            result[(run,evt)]=[float(s) for s in l[2:]]
     rein.close()
     return result,header
 

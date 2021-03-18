@@ -32,7 +32,6 @@
 #include "TrkDistributedKalmanFilter/TrkBaseNode.h"
 #include "TrkDistributedKalmanFilter/TrkFilteringNodes.h"
 #include "TrkDistributedKalmanFilter/TrkTrackState.h"
-#include "TrkDistributedKalmanFilter/TrkTrackState.h"
 #include "TrkDistributedKalmanFilter/TrkPlanarSurface.h"
 
 #include "TrigInDetToolInterfaces/ITrigInDetTrackFitter.h"
@@ -560,6 +559,11 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
 
 void TrigInDetTrackFitter::fit(const TrackCollection& inputTracks, TrackCollection& fittedTracks, const EventContext& ctx, const Trk::ParticleHypothesis& matEffects) const
 {
+   fit(inputTracks,fittedTracks,ctx,matEffects,false);
+}
+
+void TrigInDetTrackFitter::fit(const TrackCollection& inputTracks, TrackCollection& fittedTracks, const EventContext& ctx, const Trk::ParticleHypothesis& matEffects, const bool addTPtoTSoS) const
+{
   MagField::AtlasFieldCache fieldCache;
 
   SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
@@ -568,14 +572,14 @@ void TrigInDetTrackFitter::fit(const TrackCollection& inputTracks, TrackCollecti
   fieldCondObj->getInitializedCache (fieldCache);
   fittedTracks.reserve(inputTracks.size());
   for(auto trIt = inputTracks.begin(); trIt != inputTracks.end(); ++trIt) {
-		Trk::Track* fittedTrack = fitTrack(**trIt, fieldCache, matEffects);
+                Trk::Track* fittedTrack = fitTrack(**trIt, fieldCache, matEffects, addTPtoTSoS);
 		if (fittedTrack!=nullptr) {
 			fittedTracks.push_back(fittedTrack);
 		}
 	}
 }
 
-Trk::Track* TrigInDetTrackFitter::fitTrack(const Trk::Track& recoTrack, MagField::AtlasFieldCache& fieldCache, const Trk::ParticleHypothesis& matEffects) const {
+Trk::Track* TrigInDetTrackFitter::fitTrack(const Trk::Track& recoTrack, MagField::AtlasFieldCache& fieldCache, const Trk::ParticleHypothesis& matEffects, const bool addTPtoTSoS) const {
 
 	const Trk::TrackParameters* trackPars = recoTrack.perigeeParameters();
 	if(trackPars==nullptr) {
@@ -723,7 +727,7 @@ Trk::Track* TrigInDetTrackFitter::fitTrack(const Trk::Track& recoTrack, MagField
         pParVec->push_back(new Trk::TrackStateOnSurface(0, perigee,0,0, typePattern));
         for(auto pnIt = vpTrkNodes.begin(); pnIt!=vpTrkNodes.end(); ++pnIt) {
           if((*pnIt)->isValidated()) {
-            Trk::TrackStateOnSurface* pTSS=createTrackStateOnSurface(*pnIt);
+	     Trk::TrackStateOnSurface* pTSS=createTrackStateOnSurface(*pnIt,addTPtoTSoS);
             if(pTSS!=nullptr) {
               pParVec->push_back(pTSS);
             }
@@ -771,7 +775,7 @@ Trk::Track* TrigInDetTrackFitter::fitTrack(const Trk::Track& recoTrack, MagField
 	return fittedTrack;
 }
 
-Trk::TrackStateOnSurface* TrigInDetTrackFitter::createTrackStateOnSurface(Trk::TrkBaseNode* pN) const
+Trk::TrackStateOnSurface* TrigInDetTrackFitter::createTrackStateOnSurface(Trk::TrkBaseNode* pN, const bool addTPtoTSoS) const
 {
   Trk::TrackStateOnSurface* pTSS=nullptr;
   char type=pN->getNodeType();
@@ -831,9 +835,13 @@ Trk::TrackStateOnSurface* TrigInDetTrackFitter::createTrackStateOnSurface(Trk::T
   typePattern.set(Trk::TrackStateOnSurface::Measurement);
   typePattern.set(Trk::TrackStateOnSurface::Scatterer);
   Trk::FitQualityOnSurface* pFQ=new Trk::FitQualityOnSurface(pN->getChi2(),pN->getNdof());
-  //pTSS = new Trk::TrackStateOnSurface(pRIO, pTP, pFQ, 0, typePattern);
-  delete pTP;
-  pTSS = new Trk::TrackStateOnSurface(pRIO, 0, pFQ, 0, typePattern);
+  if( addTPtoTSoS ) {
+     pTSS = new Trk::TrackStateOnSurface(pRIO, pTP, pFQ, 0, typePattern);
+  }
+  else {
+     delete pTP;
+     pTSS = new Trk::TrackStateOnSurface(pRIO, 0, pFQ, 0, typePattern);
+  }
   return pTSS;
 }
 

@@ -113,11 +113,11 @@ Acts::ObjSurfaceWriter::write(const Acts::GeometryContext &gctx,
       // get the vertices
       auto planarVertices = planarBounds->vertices();
       // loop over the vertices
-      std::vector<Acts::Vector3D> vertices;
+      std::vector<Acts::Vector3> vertices;
       vertices.reserve(planarVertices.size());
       for (auto pv : planarVertices) {
         // get the point in 3D
-        Acts::Vector3D v3D(sTransform * Acts::Vector3D(pv.x(), pv.y(), 0.));
+        Acts::Vector3 v3D(sTransform * Acts::Vector3(pv.x(), pv.y(), 0.));
         vertices.push_back(v3D);
       }
       // get the thickness and vertical faces

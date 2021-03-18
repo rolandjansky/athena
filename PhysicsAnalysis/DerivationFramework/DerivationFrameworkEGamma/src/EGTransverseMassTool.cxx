@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -25,11 +25,6 @@
 #include "DerivationFrameworkEGamma/EGTransverseMassTool.h"
 #include "xAODBase/IParticleContainer.h"
 #include "xAODMissingET/MissingETContainer.h"
-#include "ExpressionEvaluation/ExpressionParser.h"
-#include "ExpressionEvaluation/SGNTUPProxyLoader.h"
-#include "ExpressionEvaluation/SGxAODProxyLoader.h"
-#include "ExpressionEvaluation/MultipleProxyLoader.h"
-
 
 #include <vector>
 #include <string>
@@ -44,10 +39,9 @@ namespace DerivationFramework {
   EGTransverseMassTool::EGTransverseMassTool(const std::string& t,
       const std::string& n,
       const IInterface* p) : 
-    AthAlgTool(t,n,p),
+    ExpressionParserUser<AthAlgTool>(t,n,p),
     m_expression1("true"),
     m_METmin(-999.),
-    m_parser1(0),
     m_sgName(""),
     m_mass1Hypothesis(0.0),
     m_container1Name(""),
@@ -76,20 +70,13 @@ namespace DerivationFramework {
       ATH_MSG_ERROR("No SG name provided for the output of the transverse mass tool!");
       return StatusCode::FAILURE;
     }
-    ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
-    proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
-    proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
-    m_parser1 = new ExpressionParsing::ExpressionParser(proxyLoaders);
-    m_parser1->loadExpression(m_expression1);
+    ATH_CHECK( initializeParser(m_expression1) );
     return StatusCode::SUCCESS;
   }
 
   StatusCode EGTransverseMassTool::finalize()
   {
-    if (m_parser1) {
-      delete m_parser1;
-      m_parser1 = 0;
-    }
+    ATH_CHECK(finalizeParser());
     return StatusCode::SUCCESS;
   }
 
@@ -177,7 +164,7 @@ namespace DerivationFramework {
 
 
     // get the positions of the particles which pass the requirement
-    std::vector<int> entries1 =  m_parser1->evaluateAsVector();
+    std::vector<int> entries1 =  m_parser->evaluateAsVector();
     unsigned int nEntries1 = entries1.size();
 
     // if there are no particles in one of the two lists to combine, just leave function

@@ -11,12 +11,11 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger( 'ConditionsToolSetterFastReduction' )
 
 def is_leaf(node):
-    return node.scenario in  ('simple', 'etaet', 'dijet', 'qjet', 'agg')
+    return node.scenario in  ('simple', 'dijet', 'qjet', 'agg')
 
 
 def is_inner(node):
-    # return node.scenario in ('root', 'and', 'combgen', 'partgen' , 'inserted')
-    return node.scenario in ('root', 'all', 'inserted')
+    return node.scenario in ('root', 'all')
 
 
 class ConditionsToolSetterFastReduction(object):
@@ -87,7 +86,7 @@ class ConditionsToolSetterFastReduction(object):
 
     def _make_filter_condition_tool(self, node):
 
-        """Condtion filters use a list of CompoundCondition containing
+        """Condition filters use a list of CompoundCondition containing
         single jet elemental conditions  select a subset of the reco
         jets to send to the a Condition"""
         
@@ -97,9 +96,6 @@ class ConditionsToolSetterFastReduction(object):
             
             assert len(fc) == 1  # 1 elemental condition
             el_condition_tools.extend(self._make_el_condition_tools(fc))
-
-        if not el_condition_tools:
-            el_condition_tools.append(self.algToolFactory('all'))
 
         condition_tool = self.algToolFactory('repeated')
 
@@ -207,7 +203,7 @@ class ConditionsToolSetterFastReduction(object):
             cmap[node.node_id].multiplicity = 1
 
             fmap[node.node_id] = self.algToolFactory('repeated')
-            fmap[node.node_id].conditionMakers = [self.algToolFactory('all')]
+            fmap[node.node_id].conditionMakers = []
             fmap[node.node_id].multiplicity = 1
 
         
@@ -273,4 +269,3 @@ class ConditionsToolSetterFastReduction(object):
         config_tool.treeVector = treeVec
         self.config_tool = config_tool
         
-        print (self.config_tool)

@@ -11,7 +11,6 @@
 // ********************************************************************
 
 #include "TrigJetHypoToolMT.h"
-#include "TrigJetHypoToolHelperMT.h"
 
 #include "GaudiKernel/StatusCode.h"
 
@@ -49,7 +48,7 @@ StatusCode TrigJetHypoToolMT::initialize(){
     return StatusCode::FAILURE;
   }
   
-  if (m_endLabelIndex == 1) {
+  if (m_endLabelIndex == 1u) {
     m_decisionIDs.push_back(m_decisionID);
   } else {
     for (std::size_t i = 0; i != m_endLabelIndex; ++i){

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -70,13 +70,13 @@ class TileCablingService;
 class TileHitToTTL1: public AthAlgorithm {
   public:
 
-    TileHitToTTL1(std::string name, ISvcLocator* pSvcLocator); //!< Constructor
+    TileHitToTTL1(const std::string& name, ISvcLocator* pSvcLocator); //!< Constructor
 
     virtual ~TileHitToTTL1(); //!< Destructor                          
 
-    StatusCode initialize(); //!< initialize method      
-    StatusCode execute();    //!< execute method   
-    StatusCode finalize();   //!< finalize method   
+    virtual StatusCode initialize() override; //!< initialize method      
+    virtual StatusCode execute() override;    //!< execute method   
+    virtual StatusCode finalize() override;   //!< finalize method   
 
   private:
 

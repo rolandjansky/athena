@@ -121,9 +121,4 @@ class McEventCollectionCnv_p3 : public T_AthenaPoolTPCnvBase<
                      HepMC::DataPool* datapools ) const;
 
 };
-
-///////////////////////////////////////////////////////////////////
-/// Inline methods:
-///////////////////////////////////////////////////////////////////
-
 #endif //> GENERATOROBJECTSTPCNV_MCEVENTCOLLECTIONCNV_P3_H

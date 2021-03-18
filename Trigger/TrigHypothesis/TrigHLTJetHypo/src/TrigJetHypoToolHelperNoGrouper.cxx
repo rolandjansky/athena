@@ -5,7 +5,6 @@
 #include "./TrigJetHypoToolHelperNoGrouper.h"
 #include "./ITrigJetHypoInfoCollector.h"
 #include "./xAODJetCollector.h"
-#include "./JetTrigTimer.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/xAODJetAsIJet.h"  // TLorentzVec
 #include "./nodeIDPrinter.h"
 #include "./DebugInfoCollector.h"
@@ -30,20 +29,6 @@ StatusCode TrigJetHypoToolHelperNoGrouper::initialize() {
   return StatusCode::SUCCESS;
 }
 
-void
-TrigJetHypoToolHelperNoGrouper::collectData(const std::string& exetime,
-					    const std::unique_ptr<ITrigJetHypoInfoCollector>& collector,
-					    const std::optional<bool>& pass) const {
-  if(!collector){return;}
-  auto helperInfo = nodeIDPrinter("TrigJetHypoToolHelperNoGrouper",
-                                  pass,
-                                  exetime
-                                  );
-  
-  collector->collect(name(), helperInfo);
-}
-
-
 bool
 TrigJetHypoToolHelperNoGrouper::pass(HypoJetVector& jetsIn,
 				     xAODJetCollector& jetCollector,
@@ -56,56 +41,57 @@ TrigJetHypoToolHelperNoGrouper::pass(HypoJetVector& jetsIn,
     collector->collect(name(), ss.str());
   }
 
-  JetTrigTimer timer;
-  timer.start();
-  
-  if(jetsIn.empty()){   
-    timer.stop();
+  if(jetsIn.empty()){
+    if (collector){
+      collector->collect(name(), "empty input jet collection");
+    }
     bool pass = false;
-    collectData(timer.readAndReset(), collector, pass);
     return pass;
   }
 
   // prefiltering.
 
-  auto jets = m_prefilter.filter(jetsIn, collector);
-
-  HypoJetIter jets_begin = jets.begin(); 
-  HypoJetIter jets_end = jets.end(); 
- 
+  std::pair<HypoJetCIter, HypoJetCIter> iters =
+    std::make_pair(jetsIn.begin(), jetsIn.end());
+  if (m_prefilter) {
+    iters = m_prefilter->filter(jetsIn.begin(), jetsIn.end(), collector);
+  }
+  
   // see if matchers pass. Each matcher conatains a FastReducer tree.
   // if  > matcher, this means the conditions of different trees may
   // share jets.
   bool pass = true;
   for (const auto& matcher : m_matchers){
-    auto matcher_pass = matcher->match(jets_begin,
-				       jets_end,
+    auto matcher_pass = matcher->match(iters.first,
+				       iters.second,
 				       jetCollector,
 				       collector);
     if (!matcher_pass.has_value()) {
       ATH_MSG_ERROR("Matcher cannot determine result. Config error?");
       return false;
     }
-
+    
     if (!(*matcher_pass)){
       pass = false;
       break;
     }
   }
   
-  timer.stop();
-  collectData(timer.readAndReset(), collector, pass);
-
   return pass;
 }
 
 std::string TrigJetHypoToolHelperNoGrouper::toString() const {
   
-  
   std::stringstream ss;
   ss << name();
-  
-  ss << "prefilter:\n " << m_prefilter << '\n';
+
+  ss << "prefilter: ";
+  if (m_prefilter) {
+    ss << '\n'<<  *m_prefilter;
+  } else {
+    ss << "None";
+  }
+  ss << '\n';
   
   ss << "\nMatchers [" << m_matchers.size() << "]:\n\n";
   unsigned int imatcher{0};
@@ -138,7 +124,9 @@ StatusCode TrigJetHypoToolHelperNoGrouper::makePrefilter(){
 
   // if no conditions the filter will apply n inverter to an empty
   // Compound Condition, which will kill all events.
-  if (m_prefilterConditionMakers.empty()) {return StatusCode::SUCCESS;}
+  if (m_prefilterConditionMakers.empty()) {
+    return StatusCode::SUCCESS;
+  }
   
   auto makeElementalFilterCondition = [](auto& conditionMaker)->ConditionMT {
     return conditionMaker->getRepeatedCondition();
@@ -161,7 +149,7 @@ StatusCode TrigJetHypoToolHelperNoGrouper::makePrefilter(){
   condVec.push_back(std::make_unique<ConditionInverterMT>(std::move(cc)));
   
   // create an filter from the vector containing the inverted condition.
-  m_prefilter = ConditionFilter{condVec};
+  m_prefilter = std::make_unique<ConditionFilter>(condVec);
   
   return StatusCode::SUCCESS;
 }

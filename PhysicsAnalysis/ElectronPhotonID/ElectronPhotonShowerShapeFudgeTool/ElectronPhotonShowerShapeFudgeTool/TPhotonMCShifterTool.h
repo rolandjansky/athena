@@ -343,7 +343,7 @@ class TPhotonMCShifterTool
   TGraphErrors* GetFFmap_DE    (double eta, int isConv, int preselection);
   TGraphErrors* GetFFmap_Eratio(double eta, int isConv, int preselection);
   //  TH2D* GetFFTH2D(int var, int isConv, int preselection);
-  void LoadFFs(int preselection, std::string file);
+  void LoadFFs(int preselection, const std::string& file);
 
  private:
   bool m_verbose;

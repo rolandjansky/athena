@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ParticleSelectionAlg.h
@@ -17,25 +17,17 @@
 // #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthAnalysisBaseComps/AthAnalysisAlgorithm.h"
 #include "xAODBase/IParticleContainer.h"
-//#include "TrigDecisionTool/TrigDecisionTool.h"
 #include "PATCore/IAsgSelectionTool.h"
 
 // STL includes
 #include <string>
 #include <vector>
 
-// // Forward declarations
-// namespace Trig{
-//   class TrigDecisionTool;
-// }
-// Forward declarations
-namespace ExpressionParsing {
-  class ExpressionParser;
-}
+#include "ExpressionEvaluation/ExpressionParserUser.h"
 
 
 class ParticleSelectionAlg
-  : public ::AthAnalysisAlgorithm
+  : public ExpressionParserUser<::AthAnalysisAlgorithm>
 {
 
   ///////////////////////////////////////////////////////////////////
@@ -64,7 +56,6 @@ class ParticleSelectionAlg
 
   /// Athena algorithm's finalize hook
   virtual StatusCode  finalize() override;
-
 
  private:
   /// Private function to perform the actualy work
@@ -114,12 +105,6 @@ class ParticleSelectionAlg
 
   /// @name Internal members
   /// @{
-
-  /// The expression parser
-  ExpressionParsing::ExpressionParser *m_parser;
-
-  // /// The trigger decision tool
-  // ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool;
 
   /// Internal event counter
   unsigned long m_nEventsProcessed;

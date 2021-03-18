@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -152,7 +152,10 @@ public:
   /// Signal that callback has been fired
   virtual void       signalEndProxyPreload() override;
   //@}
-  
+
+  /// May be called once conditions are loaded to let IOVDbSvc release resources
+  virtual void       postConditionsLoad() override;
+
   /// Incident service handle for EndEvent
   virtual void handle( const Incident& incident ) override;
 

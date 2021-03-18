@@ -22,7 +22,7 @@ TCS::inputTypeAsString(TCS::inputTOBType_t type) {
 TCS::inputTOBType_t
 TCS::inputType(const std::string& input) {
 
-   if ( input == "Clusters" || input == "EmTobArray" )
+   if ( input == "Clusters" || input == "EmTobArray" || input == "eEM")
       return TCS::CLUSTER;
 
    if ( input == "Jets" || input == "JetTobArray" )

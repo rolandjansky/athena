@@ -20,7 +20,6 @@
 
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
-#include "TrigConfHLTData/HLTUtils.h"
 
 #include "AthViews/View.h"
 #include "AthViews/ViewHelper.h"
@@ -115,12 +114,6 @@ StatusCode TrigBmumuxComboHypo::initialize() {
     ATH_MSG_DEBUG( "No GenericMonitoringTool configured: no monitoring histograms will be available" );
   }
 
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode TrigBmumuxComboHypo::finalize() {
-  TrigConf::HLTUtils::hashes2file();
   return StatusCode::SUCCESS;
 }
 
@@ -313,7 +306,7 @@ StatusCode TrigBmumuxComboHypo::findDimuonCandidates(TrigBmumuxState& state) con
       }
 
       // fit muons to the common vertex and pass this vertex to the dimuons collection which also takes the ownership of the created object
-      xAOD::Vertex* vertex = fit(trackParticleLinks);
+      xAOD::Vertex* vertex = fit(state.context, trackParticleLinks);
       if (!vertex) continue;
       muonIndices(*vertex) = std::vector<size_t>{itrk1, itrk2};
       state.dimuons.push_back(vertex);
@@ -399,7 +392,7 @@ StatusCode TrigBmumuxComboHypo::findBmumuxCandidates(TrigBmumuxState& state) con
       if (m_BplusToMuMuKaon &&
           p_trk1.Pt() > m_BplusToMuMuKaon_minKaonPt &&
           isInMassRange((p_dimuon + p_trk1.SetM(PDG::mKaon)).M(), m_BplusToMuMuKaon_massRange)) {
-        vtx1 = fit(trackParticleLinks_vtx1, kB_2mu1trk, *dimuonTriggerObjectEL);
+        vtx1 = fit(state.context, trackParticleLinks_vtx1, kB_2mu1trk, *dimuonTriggerObjectEL);
         makeFit_vtx1 = false;
         if (vtx1 && vtx1->chiSquared() < m_BplusToMuMuKaon_chi2) {
           xAOD::TrigBphys* trigBphys = makeTriggerObject(vtx1, xAOD::TrigBphys::BKMUMU, {PDG::mMuon, PDG::mMuon, PDG::mKaon}, dimuonTriggerObjectEL);
@@ -413,7 +406,7 @@ StatusCode TrigBmumuxComboHypo::findBmumuxCandidates(TrigBmumuxState& state) con
           isInMassRange(p_dimuon.M(), m_BcToMuMuPion_dimuonMassRange) &&
           isInMassRange((p_dimuon + p_trk1.SetM(PDG::mPion)).M() - p_dimuon.M() + PDG::mJpsi, m_BcToMuMuPion_massRange)) {
         if (!vtx1 && makeFit_vtx1) {
-          vtx1 = fit(trackParticleLinks_vtx1, kB_2mu1trk, *dimuonTriggerObjectEL);
+          vtx1 = fit(state.context, trackParticleLinks_vtx1, kB_2mu1trk, *dimuonTriggerObjectEL);
           makeFit_vtx1 = false;
         }
         if (vtx1 && vtx1->chiSquared() < m_BcToMuMuPion_chi2) {
@@ -445,7 +438,7 @@ StatusCode TrigBmumuxComboHypo::findBmumuxCandidates(TrigBmumuxState& state) con
             p_trk2.Pt() > m_BsToMuMuPhi1020_minKaonPt &&
             isInMassRange((p_trk1.SetM(PDG::mKaon) + p_trk2.SetM(PDG::mKaon)).M(), m_BsToMuMuPhi1020_phiMassRange) &&
             isInMassRange((p_dimuon + p_trk1.SetM(PDG::mKaon) + p_trk2.SetM(PDG::mKaon)).M(), m_BsToMuMuPhi1020_massRange)) {
-          vtx2 = fit(trackParticleLinks_vtx2, kB_2mu2trk, *dimuonTriggerObjectEL);
+          vtx2 = fit(state.context, trackParticleLinks_vtx2, kB_2mu2trk, *dimuonTriggerObjectEL);
           makeFit_vtx2 = false;
           if (vtx2 && vtx2->chiSquared() < m_BsToMuMuPhi1020_chi2) {
             xAOD::TrigBphys* trigBphys = makeTriggerObject(vtx2, xAOD::TrigBphys::BSPHIMUMU, {PDG::mMuon, PDG::mMuon, PDG::mKaon, PDG::mKaon}, dimuonTriggerObjectEL);
@@ -461,7 +454,7 @@ StatusCode TrigBmumuxComboHypo::findBmumuxCandidates(TrigBmumuxState& state) con
             isInMassRange((p_trk1.SetM(PDG::mKaon) + p_trk2.SetM(PDG::mPion)).M(), m_BdToMuMuKstar0_KstarMassRange) &&
             isInMassRange((p_dimuon + p_trk1.SetM(PDG::mKaon) + p_trk2.SetM(PDG::mPion)).M(), m_BdToMuMuKstar0_massRange)) {
           if (!vtx2 && makeFit_vtx2) {
-            vtx2 = fit(trackParticleLinks_vtx2, kB_2mu2trk, *dimuonTriggerObjectEL);
+            vtx2 = fit(state.context, trackParticleLinks_vtx2, kB_2mu2trk, *dimuonTriggerObjectEL);
             makeFit_vtx2 = false;
           }
           if (vtx2 && vtx2->chiSquared() < m_BdToMuMuKstar0_chi2) {
@@ -477,7 +470,7 @@ StatusCode TrigBmumuxComboHypo::findBmumuxCandidates(TrigBmumuxState& state) con
             isInMassRange((p_trk1.SetM(PDG::mPion) + p_trk2.SetM(PDG::mKaon)).M(), m_BdToMuMuKstar0_KstarMassRange) &&
             isInMassRange((p_dimuon + p_trk1.SetM(PDG::mPion) + p_trk2.SetM(PDG::mKaon)).M(), m_BdToMuMuKstar0_massRange)) {
           if (!vtx2 && makeFit_vtx2) {
-            vtx2 = fit(trackParticleLinks_vtx2, kB_2mu2trk, *dimuonTriggerObjectEL);
+            vtx2 = fit(state.context, trackParticleLinks_vtx2, kB_2mu2trk, *dimuonTriggerObjectEL);
             makeFit_vtx2 = false;
           }
           if (vtx2 && vtx2->chiSquared() < m_BdToMuMuKstar0_chi2) {
@@ -495,7 +488,7 @@ StatusCode TrigBmumuxComboHypo::findBmumuxCandidates(TrigBmumuxState& state) con
             isInMassRange(p_dimuon.M(), m_LambdaBToMuMuProtonKaon_dimuonMassRange) &&
             isInMassRange((p_dimuon + p_trk1.SetM(PDG::mProton) + p_trk2.SetM(PDG::mKaon)).M() - p_dimuon.M() + PDG::mJpsi, m_LambdaBToMuMuProtonKaon_massRange)) {
           if (!vtx2 && makeFit_vtx2) {
-            vtx2 = fit(trackParticleLinks_vtx2, kB_2mu2trk, *dimuonTriggerObjectEL);
+            vtx2 = fit(state.context, trackParticleLinks_vtx2, kB_2mu2trk, *dimuonTriggerObjectEL);
             makeFit_vtx2 = false;
           }
           if (vtx2 && vtx2->chiSquared() < m_LambdaBToMuMuProtonKaon_chi2) {
@@ -512,7 +505,7 @@ StatusCode TrigBmumuxComboHypo::findBmumuxCandidates(TrigBmumuxState& state) con
             isInMassRange(p_dimuon.M(), m_LambdaBToMuMuProtonKaon_dimuonMassRange) &&
             isInMassRange((p_dimuon + p_trk1.SetM(PDG::mKaon) + p_trk2.SetM(PDG::mProton)).M() - p_dimuon.M() + PDG::mJpsi, m_LambdaBToMuMuProtonKaon_massRange)) {
           if (!vtx2 && makeFit_vtx2) {
-            vtx2 = fit(trackParticleLinks_vtx2, kB_2mu2trk, *dimuonTriggerObjectEL);
+            vtx2 = fit(state.context, trackParticleLinks_vtx2, kB_2mu2trk, *dimuonTriggerObjectEL);
             makeFit_vtx2 = false;
           }
           if (vtx2 && vtx2->chiSquared() < m_LambdaBToMuMuProtonKaon_chi2) {
@@ -584,7 +577,8 @@ StatusCode TrigBmumuxComboHypo::createDecisionObjects(TrigBmumuxState& state) co
 }
 
 
-xAOD::Vertex* TrigBmumuxComboHypo::fit(const std::vector<ElementLink<xAOD::TrackParticleContainer>>& trackParticleLinks,
+xAOD::Vertex* TrigBmumuxComboHypo::fit(const EventContext* context,
+                                       const std::vector<ElementLink<xAOD::TrackParticleContainer>>& trackParticleLinks,
                                        Decay decay,
                                        const xAOD::TrigBphys* dimuon) const {
   ATH_MSG_DEBUG( "Perform vertex fit" );
@@ -615,7 +609,7 @@ xAOD::Vertex* TrigBmumuxComboHypo::fit(const std::vector<ElementLink<xAOD::Track
   }
   ATH_MSG_DEBUG( "Starting point: (" << startingPoint(0) << ", " << startingPoint(1) << ", " << startingPoint(2) << ")" );
 
-  auto fitterState = m_vertexFitter->makeState();
+  auto fitterState = m_vertexFitter->makeState(*context);
   m_vertexFitter->setMassInputParticles(m_trkMass[static_cast<size_t>(decay)], *fitterState);
   xAOD::Vertex* vertex = m_vertexFitter->fit(tracklist, startingPoint, *fitterState);
   if (!vertex) {

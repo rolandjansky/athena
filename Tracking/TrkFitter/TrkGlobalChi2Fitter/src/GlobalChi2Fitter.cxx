@@ -5438,9 +5438,13 @@ namespace Trk {
       if ((state->materialEffects() != nullptr) && state->materialEffects()->sigmaDeltaE() > 0) {
         double averagenergyloss = std::abs(state->materialEffects()->deltaE());
         double qoverpbrem = 1000 * states[hitno]->trackParameters()->parameters()[Trk::qOverP];
-        double pbrem = 1 / std::abs(qoverpbrem);
         double qoverp = qoverpbrem - state->materialEffects()->delta_p();
-        double p = 1 / std::abs(qoverp);
+        double pbrem = 999999999999;
+        if (qoverpbrem==0) ATH_MSG_WARNING("fillResiduals() - qoverpbrem is 0 for averagenergyloss="<<averagenergyloss<<" and qoverp="<<qoverp<<", returning pbrem=999999999999");
+        else pbrem = 1 / std::abs(qoverpbrem);
+        double p = 999999999999;
+        if (qoverp==0) ATH_MSG_WARNING("fillResiduals() - qoverp is 0 for averagenergyloss="<<averagenergyloss<<" and qoverpbrem="<<qoverpbrem<<", returning p=999999999999");
+        else p = 1 / std::abs(qoverp);
         double mass = .001 * trajectory.mass();
 
         res[nmeas - nbrem + bremno] = (

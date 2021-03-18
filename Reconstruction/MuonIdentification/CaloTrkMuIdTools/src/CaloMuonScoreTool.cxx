@@ -5,6 +5,7 @@
 #include "CaloTrkMuIdTools/CaloMuonScoreTool.h"
 
 #include "xAODCaloEvent/CaloCluster.h"
+#include "FourMomUtils/xAODP4Helpers.h"
 #include "PathResolver/PathResolver.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "GaudiKernel/SystemOfUnits.h"
@@ -110,6 +111,22 @@ StatusCode CaloMuonScoreTool::initialize() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// CaloMuonScoreTool::unwrapPhiAngles
+///////////////////////////////////////////////////////////////////////////////
+std::vector<float> CaloMuonScoreTool::unwrapPhiAngles(const std::vector<float> &in) const{
+  std::vector<float> out(in.size());
+
+  out[0] = in[0];
+  
+  for (unsigned int i = 1; i < out.size(); i++){
+    float d = xAOD::P4Helpers::deltaPhi(in[i], in[i - 1]);
+    out[i] = out[i - 1] + d;
+  }
+  
+  return out;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // CaloMuonScoreTool::fillInputVectors
 ///////////////////////////////////////////////////////////////////////////////
 void CaloMuonScoreTool::fillInputVectors(std::unique_ptr<const Rec::ParticleCellAssociation>& association, std::vector<float> &eta, std::vector<float> &phi, std::vector<float> &energy, std::vector<int> &samplingId) const {
@@ -128,7 +145,6 @@ void CaloMuonScoreTool::fillInputVectors(std::unique_ptr<const Rec::ParticleCell
 
   return;
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // CaloMuonScoreTool::getMuonScore
@@ -225,18 +241,20 @@ int CaloMuonScoreTool::channelForSamplingId(int &samplingId) const{
 ///////////////////////////////////////////////////////////////////////////////
 // CaloMuonScoreTool::getMedian
 ///////////////////////////////////////////////////////////////////////////////
-float CaloMuonScoreTool::getMedian(std::vector<float> vec) const{
-  std::nth_element( vec.begin(), vec.begin() + vec.size() / 2, vec.end() );
-
-  float val_right = *(vec.begin() + (vec.size() / 2));
-
-  if(vec.size() % 2 == 1){
-    return val_right;
-  }
-
-  float val_left = *(vec.begin() + (vec.size() / 2 - 1 ));
-
-  return (val_left + val_right) / 2;
+float CaloMuonScoreTool::getMedian(std::vector<float> v) const{
+  if (v.empty())
+    return 0.0;
+  
+  int n = v.size() / 2;
+  std::nth_element(v.begin(), v.begin() + n, v.end());
+  float med = v[n];
+  
+  if (v.size() % 2 == 1)
+    return med;
+  
+  auto max_it = std::max_element(v.begin(), v.begin() + n);
+  
+  return (*max_it + med) / 2.0;
 }
 
 
@@ -253,7 +271,9 @@ int CaloMuonScoreTool::getBin(std::vector<float> &bins, float &val) const{
     return -1;
   }
   
-  for(long unsigned int i = 0; i < bins.size(); i++) {
+  int n_bins = bins.size();
+
+  for(int i = 0; i < n_bins; i++) {
     if(val < bins[i]) return i;
   }
 
@@ -282,8 +302,12 @@ std::vector<float> CaloMuonScoreTool::getLinearlySpacedBins(float min, float max
 std::vector<float> CaloMuonScoreTool::getInputTensor(std::vector<float> &eta, std::vector<float> &phi, std::vector<float> &energy, std::vector<int> &sampling) const {
   int n_cells = eta.size();
 
+  // make sure the vector of phi values does not contain discontinuities around the 
+  // boundary between pi and -pi
+  std::vector<float> unwrappedPhi = unwrapPhiAngles(phi);
+
   float median_eta = getMedian(eta);
-  float median_phi = getMedian(phi);
+  float median_phi = getMedian(unwrappedPhi);
 
   // initialise output matrix of zeros
   std::vector<float> tensor(m_etaBins * m_phiBins * m_nChannels, 0.);
@@ -296,7 +320,7 @@ std::vector<float> CaloMuonScoreTool::getInputTensor(std::vector<float> &eta, st
   for(int i = 0; i < n_cells; i++ ){
     // take eta and phi values, and shift them by their repsective median
     float shifted_eta = eta[i] - median_eta;
-    float shifted_phi = phi[i] - median_phi;
+    float shifted_phi = unwrappedPhi[i] - median_phi;
 
     int eta_bin = getBin(eta_bins, shifted_eta); 
     int phi_bin = getBin(phi_bins, shifted_phi);

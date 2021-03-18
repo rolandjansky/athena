@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DCMATHSEGMENTMAKER_H
@@ -209,13 +209,12 @@ class DCMathSegmentMaker : virtual public IMuonSegmentMaker,
     struct segmentCreationInfo {  // miscellaneous objects needed for segment creation
         segmentCreationInfo(ClusterVecPair& spVecs, TrkDriftCircleMath::MdtMultiChamberGeometry* multiGeo,
                             Amg::Transform3D gToStation, Amg::Transform3D amdbToGlobal, double pmin, double pmax)
-            : geom(multiGeo), phimin(pmin), phimax(pmax)
+          : clusters(spVecs.first, spVecs.second),
+            geom(multiGeo),
+            globalTrans(gToStation),
+            amdbTrans(amdbToGlobal),
+            phimin(pmin), phimax(pmax)
         {
-            ClusterVec spacePoints = spVecs.first;
-            ClusterVec phiHits     = spVecs.second;
-            clusters               = ClusterVecPair(spacePoints, phiHits);
-            globalTrans            = gToStation;
-            amdbTrans              = amdbToGlobal;
         }
         ClusterVecPair                               clusters;
         TrkDriftCircleMath::MdtMultiChamberGeometry* geom;
@@ -351,7 +350,8 @@ class DCMathSegmentMaker : virtual public IMuonSegmentMaker,
     TrkDriftCircleMath::CLVec createClusterVec(const Identifier& chid, ClusterVec& spVec,
                                                Amg::Transform3D gToStation) const;
 
-    std::vector<const Trk::MeasurementBase*> associateMDTsToSegment(
+    std::vector<std::unique_ptr<const Trk::MeasurementBase> >
+    associateMDTsToSegment(
         const Amg::Vector3D& gdir, TrkDriftCircleMath::Segment& segment,
         const std::vector<const MdtDriftCircleOnTrack*>& mdts, TrkDriftCircleMath::MdtMultiChamberGeometry* multiGeo,
         Amg::Transform3D gToStation, Amg::Transform3D amdbToGlobal, std::set<Identifier>& deltaVec,
@@ -404,8 +404,9 @@ class DCMathSegmentMaker : virtual public IMuonSegmentMaker,
                                   bool isCurvedSegment) const;
 
 
-    std::vector<const Trk::MeasurementBase*> addEtaHits(std::vector<const MuonClusterOnTrack*>& clusters,
-                                                        bool                                    isEndcap) const;
+    std::vector<std::unique_ptr<const Trk::MeasurementBase> >
+    addEtaHits(std::vector<const MuonClusterOnTrack*>& clusters,
+               bool                                    isEndcap) const;
 
     MuonSegment* createSegment(TrkDriftCircleMath::Segment& segment, const Identifier& chid,
                                const Amg::Vector3D& roadpos, const Amg::Vector3D& roaddir2,

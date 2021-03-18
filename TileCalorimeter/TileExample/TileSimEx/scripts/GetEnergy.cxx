@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //--------------------------------------------------
@@ -102,7 +102,7 @@ int GetEnergy()
   xBLow[0] = offset/lambdaIron;
   int j=0 ;
   // Calculate lower and uper edges of B Cells
-  for(int i=0 ; i<nBCell+1 ; i++)
+  for(int i=0 ; i<nBCell ; i++)
   {
     xBLow[i+1] = abs(enterPos-zBLow[i+j]/lambda) ; // // the z coordiante of the edge of each B cell in lambda
     if(i==8) j=1 ;

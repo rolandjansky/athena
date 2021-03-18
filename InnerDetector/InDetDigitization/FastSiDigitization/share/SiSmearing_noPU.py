@@ -95,9 +95,7 @@ topSequence.PixelSmearedDigitization.DigitizationTool = SiSmearedDigitizationToo
                                                                                   # pitch_Y=0*micrometer,
                                                                                   UseCustomGeometry = False, # @TODO was True, which causes many errors. Why ?
                                                                                   DetectorElementMapName="Pixel_IdHashDetElementMap",
-                                                                                  MergeClusters = False,
-                                                                                  PlanarClusterContainerName="Pixel_PlanarClusters",
-                                                                                  PRD_TruthPlanarContainerName="PRD_MultiTruthPlanarPixel"
+                                                                                  MergeClusters = False
                                                                                   # , Nsigma = 1.0
                                                                                   )
 
@@ -110,20 +108,18 @@ topSequence.SCTSmearedDigitization.DigitizationTool = SiSmearedDigitizationTool(
                                                                                 # pitch_X= 0*micrometer,
                                                                                 UseCustomGeometry = False, # @TODO was True, which causes many errors. Why ?
                                                                                 DetectorElementMapName="SCT_IdHashDetElementMap",
-                                                                                MergeClusters = False,
-                                                                                PlanarClusterContainerName="SCT_PlanarClusters",
-                                                                                PRD_TruthPlanarContainerName="PRD_MultiTruthPlanarSCT")
+                                                                                MergeClusters = False)
 
 rdo_stream = theApp.getOutputStream( "StreamRDO" )
 
 print (rdo_stream)
-rdo_stream.ItemList += ["iFatras::PlanarClusterContainer#Pixel_PlanarClusters"]
+#rdo_stream.ItemList += ["iFatras::PlanarClusterContainer#Pixel_PlanarClusters"]
 ##rdo_stream.ItemList += ["InDet::SiClusterContainer#PixelClusters"]
-rdo_stream.ItemList += ["iFatras::PlanarClusterContainer#SCT_PlanarClusters"]
+#rdo_stream.ItemList += ["iFatras::PlanarClusterContainer#SCT_PlanarClusters"]
 #rdo_stream.ItemList += ["InDet::SiClusterContainer#SCT_Clusters"]
 
-rdo_stream.ItemList += ["PRD_MultiTruthCollection#PRD_MultiTruthPlanarPixel"]
-rdo_stream.ItemList += ["PRD_MultiTruthCollection#PRD_MultiTruthPlanarSCT"]
+#rdo_stream.ItemList += ["PRD_MultiTruthCollection#PRD_MultiTruthPlanarPixel"]
+#rdo_stream.ItemList += ["PRD_MultiTruthCollection#PRD_MultiTruthPlanarSCT"]
 ##rdo_stream.ItemList += ["PRD_MultiTruthCollection#PRD_MultiTruthPixel"]
 #rdo_stream.ItemList += ["PRD_MultiTruthCollection#PRD_MultiTruthSCT"]
 

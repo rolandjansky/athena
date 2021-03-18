@@ -53,7 +53,7 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
     PixelLayerBuilder.Identification       = 'Pixel'
     PixelLayerBuilder.SiDetManagerLocation = 'Pixel'
     # additional layers - handle with care !
-    PixelLayerBuilder.BarrelAdditionalLayerRadii      = [ 130 ]   # The PST
+    PixelLayerBuilder.BarrelAdditionalLayerRadii      = [ 130.0 ]   # The PST
     PixelLayerBuilder.BarrelAdditionalLayerType       = [ 0 ]     # -- will shift volume boundary to PST
     PixelLayerBuilder.EndcapAdditionalLayerPositionsZ = [ -1900. , 1900. ] # DBM
     PixelLayerBuilder.EndcapAdditionalLayerType       = [  1 , 1 ] # DBM
@@ -86,7 +86,7 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
     SCT_LayerBuilder.BarrelAdditionalLayerRadii      = []   
     SCT_LayerBuilder.BarrelAdditionalLayerType      = []   
 
-    SCT_LayerBuilder.EndcapAdditionalLayerPositionsZ = [ -2850 , 2850 ] 
+    SCT_LayerBuilder.EndcapAdditionalLayerPositionsZ = [ -2850. , 2850. ] 
     SCT_LayerBuilder.EndcapAdditionalLayerType       = [  0 , 0 ] 
     SCT_LayerBuilder.BarrelLayerBinsZ                = 1
     SCT_LayerBuilder.BarrelLayerBinsPhi              = 1

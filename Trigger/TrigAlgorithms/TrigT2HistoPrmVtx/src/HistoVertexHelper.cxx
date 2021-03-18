@@ -12,7 +12,7 @@
 // 
 // ************************************************
 
-#include "TrigT2HistoPrmVtx/HistoVertexHelper.h"
+#include "HistoVertexHelper.h"
 
 
 

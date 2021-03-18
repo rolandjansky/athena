@@ -11,6 +11,7 @@
 #include "TrkEventPrimitives/TrackScore.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkToolInterfaces/IAmbiTrackSelectionTool.h"
+#include "AthContainers/ConstDataVector.h"
 
 #include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
 #include "TrkEventUtils/PRDtoTrackMap.h"
@@ -66,9 +67,9 @@ namespace Trk {
          If no prd-to-track map is given the processor might create one internally (for internal
          use only, or exported to storegate).
       */
-      virtual TrackCollection*  process(const TrackCollection* tracksCol,Trk::PRDtoTrackMap *prdToTrackMap) const override;
+      virtual const TrackCollection*  process(const TrackCollection* tracksCol,Trk::PRDtoTrackMap *prdToTrackMap) const override;
 
-      virtual TrackCollection*  process(const TracksScores* /*trackScoreTrackMap*/) const override { return nullptr; }
+      virtual const TrackCollection*  process(const TracksScores* /*trackScoreTrackMap*/) const override { return nullptr; }
 
       /** statistics output to be called by algorithm during finalize. */
       void statistics() override {}
@@ -81,7 +82,7 @@ namespace Trk {
       void addNewTracks(TrackScoreMap &trackScoreTrackMap, Trk::PRDtoTrackMap &prdToTrackMap, const std::vector<const Track*> &tracks ) const;
 
 
-      void solveTracks(TrackScoreMap &trackScoreTrackMap, Trk::PRDtoTrackMap &prdToTrackMap, TrackCollection &final_tracks) const;
+      void solveTracks(TrackScoreMap &trackScoreTrackMap, Trk::PRDtoTrackMap &prdToTrackMap, ConstDataVector<TrackCollection> &final_tracks) const;
 
       /** print out tracks and their scores for debugging*/
       void dumpTracks(const TrackCollection& tracks) const;

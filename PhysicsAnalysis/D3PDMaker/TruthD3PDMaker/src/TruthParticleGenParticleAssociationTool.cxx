@@ -39,11 +39,19 @@ TruthParticleGenParticleAssociationTool::TruthParticleGenParticleAssociationTool
  *
  * Return the target of the association, or 0.
  */
+#ifdef HEPMC3
+const HepMC::GenParticle*
+TruthParticleGenParticleAssociationTool::get (const TruthParticle& p)
+{	  
+return p.genParticle().get();
+}
+#else
 const HepMC::GenParticle*
 TruthParticleGenParticleAssociationTool::get (const TruthParticle& p)
 {
   return p.genParticle();
 }
+#endif
 
 
 } // namespace D3PD

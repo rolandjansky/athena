@@ -152,6 +152,8 @@ class TgcDigitMaker {
   /** Ad hoc implementation of detector position shift */
   void adHocPositionShift(const std::string stationName, int stationEta, int stationPhi, 
 			  const Amg::Vector3D direCos, Amg::Vector3D &localPos) const;
+  /** Method to get time difference by cable radius of inner */
+  float timeDiffByCableRadiusOfInner(const int iStationName, const int stationPhi, const int channel) const;
 
   /** Energy threshold value for each chamber */
   double m_energyThreshold[N_STATIONNAME][N_STATIONETA][N_STATIONPHI][N_GASGAP][N_ISSTRIP];

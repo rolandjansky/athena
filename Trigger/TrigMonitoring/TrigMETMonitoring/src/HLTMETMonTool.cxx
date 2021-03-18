@@ -74,7 +74,6 @@ HLTMETMonTool::HLTMETMonTool(const std::string & type, const std::string & name,
   declareProperty("hlt_topocl_PUC_key", m_hlt_topocl_PUC_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl_PUC");
   declareProperty("hlt_FEB_key", m_hlt_FEB_met_key="HLT_xAOD__TrigMissingETContainer_TrigL2MissingET_FEB");
   declareProperty("hlt_Fex_key", m_hlt_Fex_met_key="HLT_xAOD__TrigMissingETContainer_EFMissingET_Fex_2sidednoiseSupp_PUC");
-  declareProperty("off_key", m_off_met_key="MET_Reference_AntiKt4LCTopo");  
 
   // Muons keys
   declareProperty("muon_run3_key", m_muon_run3_key="HLT_MuonsCB_RoI");
@@ -181,7 +180,7 @@ StatusCode HLTMETMonTool::init() {
       m_met_triggers_hlt_expert.push_back(*it);
   }
 
-
+  ATH_CHECK( m_off_met_key.initialize() );
   
   return StatusCode::SUCCESS;
 }
@@ -715,9 +714,8 @@ StatusCode HLTMETMonTool::fillMETHist() {
     ATH_MSG_DEBUG("Accessing EF electrons container with " << hlt_electronEFcontainer->size() << " elements");
 
   // Get Offline MET container
-  const xAOD::MissingETContainer *off_met_cont = 0;
-  sc = evtStore()->retrieve(off_met_cont, m_off_met_key);
-  if (sc.isFailure() || !off_met_cont) {
+  const xAOD::MissingETContainer *off_met_cont = SG::get(m_off_met_key);
+  if (!off_met_cont) {
     ATH_MSG_DEBUG("Could not retrieve Reconstructed MET term with Key " << m_off_met_key << " : off_met_cont = 0");
   } else {
     ATH_MSG_DEBUG("Got Reconstructed MET term with key " << m_off_met_key);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -8,15 +8,26 @@
 ***************************************************************************/
 
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
-#include "MuonReadoutGeometry/RpcReadoutSet.h"
-#include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoFullPhysVol.h"
-#include "GeoPrimitives/CLHEPtoEigenConverter.h"
+
+#include <GaudiKernel/IMessageSvc.h>
+#include <GeoModelKernel/GeoDefinitions.h>
+#include <GeoModelKernel/GeoLogVol.h>
+#include <GeoModelKernel/GeoPVConstLink.h>
+#include <GeoModelKernel/GeoVFullPhysVol.h>
+#include <GeoModelKernel/GeoVPhysVol.h>
+#include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GeoModelKernel/GeoFullPhysVol.h"
+#include "MuonReadoutGeometry/GenericRPCCache.h"
+#include "MuonReadoutGeometry/RpcReadoutSet.h"
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/RectangleBounds.h"
-#include "AthenaKernel/getMessageSvc.h"
-#include <TString.h> // for Form
+#include "TrkSurfaces/Surface.h"
+#include "TrkSurfaces/SurfaceBounds.h"
+
+#include <TString.h>
+#include <cmath>
+#include <stdexcept>
 
 namespace {
   static constexpr double const& rpc3GapLayerThickness = 11.8; // gas vol. + ( bakelite + graphite + PET )x2
@@ -273,7 +284,16 @@ namespace MuonGM {
 					 <<" lstrip, ldoublerZ "<<lstrip<<" "<<ldoubletZ<<endmsg;
 #endif
       }
-        
+
+    // the only RPCs in ATLAS which have 3 gasGaps (layers) are BI RPCs and those only have 1 doubletPhi
+    if (m_nlayers==3 && ldoubletPhi!=1) {
+#ifdef NDEBUG
+      MsgStream log(Athena::getMessageSvc(),"RpcReadoutElement");
+#endif
+      if (log.level()<=MSG::WARNING) log << MSG::WARNING<<"localStripPos() - found ldoubletPhi="<<ldoubletPhi<<" for BI RPC which cannot be true, setting to 1"<<endmsg;
+      ldoubletPhi=1;
+    }
+
     Amg::Vector3D localP(
 				    localGasGapDepth(lgg),
 				    localStripSCoord(ldoubletZ, ldoubletPhi, measPhi, lstrip),

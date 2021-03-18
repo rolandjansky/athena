@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // small hack to enable datapool usage
@@ -123,6 +123,8 @@ StatusCode TileRawChannelBuilderMF::finalize() {
 
 TileRawChannel* TileRawChannelBuilderMF::rawChannel(const TileDigits* tiledigits) {
 
+  const EventContext &ctx = Gaudi::Hive::currentContext();
+
   ++m_chCounter;
   int i, j, row, col;
   unsigned int k;
@@ -171,14 +173,14 @@ TileRawChannel* TileRawChannelBuilderMF::rawChannel(const TileDigits* tiledigits
   } else {
 
     if (m_bestPhase) phase = (float) -m_tileToolTiming->getSignalPhase(drawerIdx, channel, gain);
-    rms_aux = m_tileToolNoiseSample->getHfn(drawerIdx, channel, gain);
+    rms_aux = m_tileToolNoiseSample->getHfn(drawerIdx, channel, gain, TileRawChannelUnit::ADCcounts, ctx);
 
     switch (m_pedestalMode) {
 
       case -1:
         // use ped estimated from data based on the conditions value
-        ped_aux = m_tileToolNoiseSample->getPed(drawerIdx, channel, gain);
-        /*rms_aux = m_tileToolNoiseSample->getHfn(drawerIdx, channel, gain); */
+        ped_aux = m_tileToolNoiseSample->getPed(drawerIdx, channel, gain, TileRawChannelUnit::ADCcounts, ctx);
+        /*rms_aux = m_tileToolNoiseSample->getHfn(drawerIdx, channel, gain, TileRawChannelUnit::ADCcounts, ctx); */
 
         if (m_chPedCounter[ros][drawer][channel][gain] < 200) {
 
@@ -204,7 +206,7 @@ TileRawChannel* TileRawChannelBuilderMF::rawChannel(const TileDigits* tiledigits
 
       default:
         // use pedestal from conditions DB
-        ped_ch = m_tileToolNoiseSample->getPed(drawerIdx, channel, gain);
+        ped_ch = m_tileToolNoiseSample->getPed(drawerIdx, channel, gain, TileRawChannelUnit::ADCcounts, ctx);
         break;
 
     }
@@ -220,7 +222,7 @@ TileRawChannel* TileRawChannelBuilderMF::rawChannel(const TileDigits* tiledigits
 
       float ofcPhase(-t_ch);
       TileOfcWeightsStruct weights;
-      if (m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, ofcPhase, true, weights).isFailure()) {
+      if (m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, ofcPhase, true, weights, ctx).isFailure()) {
         ATH_MSG_ERROR("getOfcWeights fails.");
         return nullptr;
       }
@@ -409,7 +411,7 @@ TileRawChannel* TileRawChannelBuilderMF::rawChannel(const TileDigits* tiledigits
       if (m_correctAmplitude && cof[3] > m_ampMinThresh && t_ch > m_timeMinThresh && t_ch < m_timeMaxThresh) {
         double correction = 0.0;
         ofcPhase = -t_ch;
-        if (m_tileCondToolOfcOnFly->getOfcWeights(drawerIdx, channel, gain, ofcPhase, true, weights).isFailure()) {
+        if (m_tileCondToolOfcOnFly->getOfcWeights(drawerIdx, channel, gain, ofcPhase, true, weights, ctx).isFailure()) {
           ATH_MSG_ERROR("getOfcWeights fails.");
           return nullptr;
         }

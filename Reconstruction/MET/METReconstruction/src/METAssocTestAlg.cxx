@@ -79,8 +79,8 @@ namespace met {
       helper.setObjSelectionFlag(&assoc,iobj,true);
     }
     // get cluster/inclusive pflow and track/charged pflow constituent sums
-    MissingETBase::Types::constvec_t overlapcalvec = assoc.overlapCalVec(&helper);
-    MissingETBase::Types::constvec_t overlaptrkvec = assoc.overlapTrkVec(&helper);
+    MissingETBase::Types::constvec_t overlapcalvec = assoc.overlapCalVec(helper);
+    MissingETBase::Types::constvec_t overlaptrkvec = assoc.overlapTrkVec(helper);
 
     ATH_MSG_VERBOSE("  Jet constituent-scale pt: " << jetconstp4.pt()     << ", E: " << jetconstp4.e() );
     ATH_MSG_VERBOSE("  Max constituent overlap pt:   " << overlapcalvec.cpt() << ", E: " << overlapcalvec.ce() );
@@ -117,8 +117,8 @@ namespace met {
       if(!obj) continue; // invalid ElementLink -- thinned?
       helper.resetObjSelectionFlags();
       helper.setObjSelectionFlag(&assoc,iobj,true);
-      MissingETBase::Types::constvec_t overlapcalvec = assoc.overlapCalVec(&helper);
-      MissingETBase::Types::constvec_t overlaptrkvec = assoc.overlapTrkVec(&helper);
+      MissingETBase::Types::constvec_t overlapcalvec = assoc.overlapCalVec(helper);
+      MissingETBase::Types::constvec_t overlaptrkvec = assoc.overlapTrkVec(helper);
 
       ATH_MSG_VERBOSE("    Object pt:       " << obj->pt() << ", E: " << obj->e() << ", type: " << obj->type());
       ATH_MSG_VERBOSE("    Constituent pt:  " << overlapcalvec.cpt() << ", E: " << overlapcalvec.ce() );

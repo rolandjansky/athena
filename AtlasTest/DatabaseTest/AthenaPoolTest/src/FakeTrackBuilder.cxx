@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FakeTrackBuilder.h"
@@ -53,14 +53,14 @@ Trk::Track* FakeTrackBuilder::buildTrack(const InDetDD::SiDetectorElementCollect
   const FitQuality*               fitQoS         = 0;
   const MaterialEffectsBase*      mefBase        = 0;
 
-  trackStateOnSurfaces->push_back( new TrackStateOnSurface(rot, trackParameter, fitQoS,  mefBase) );   
+  trackStateOnSurfaces->push_back( new TrackStateOnSurface(rot, trackParameter, fitQoS,  mefBase) );
 
   //std::cout<<counter++<<std::endl;
 
   // test state #1 - arbitrary TP AtaCylinder
   // Amg::Transform3D t = Amg::Transform3D::Identity(); t.setIdentity();
   Trk::CylinderSurface surface(0, 1.0, 2*M_PI, 4.0);
-  trackParameter = surface.createParameters<5,Trk::Charged>(0.0,1.0,3.0,4.0,0.5,0);
+  trackParameter = surface.createUniqueParameters<5,Trk::Charged>(0.0,1.0,3.0,4.0,0.5,0).release();
   trackStateOnSurfaces->push_back( new TrackStateOnSurface(0, trackParameter, 0,  0) );
   //std::cout<<counter++<<std::endl;
 
@@ -68,14 +68,14 @@ Trk::Track* FakeTrackBuilder::buildTrack(const InDetDD::SiDetectorElementCollect
   Amg::Translation3D amgtranslation(1.,2.,3.);
   Amg::Transform3D* amgTransf = new Amg::Transform3D(amgtranslation);
   DiscSurface discSf(amgTransf, 1.0, 2.0);
-  trackParameter = discSf.createParameters<5,Trk::Charged>(0.0,1.0,3.0,4.0,0.5,0);
+  trackParameter = discSf.createUniqueParameters<5,Trk::Charged>(0.0,1.0,3.0,4.0,0.5,0).release();
   trackStateOnSurfaces->push_back( new TrackStateOnSurface(0, trackParameter, 0,  0) );
   //std::cout<<counter++<<std::endl;
 
   // test state #3 - arbitrary AtaPlane + Estimated Brem
   PlaneSurface planeSf(amgTransf, 1.0, 2.0);
-  trackParameter = planeSf.createParameters<5,Trk::Charged>(0.0,1.0,3.0,4.0,0.5,0);
-  const MaterialEffectsBase *ebr 
+  trackParameter = planeSf.createUniqueParameters<5,Trk::Charged>(0.0,1.0,3.0,4.0,0.5,0).release();
+  const MaterialEffectsBase *ebr
     = new EstimatedBremOnTrack((0.7), -0.3,
   0.3, 0.03,
   planeSf);
@@ -86,7 +86,7 @@ Trk::Track* FakeTrackBuilder::buildTrack(const InDetDD::SiDetectorElementCollect
 
   if (elements){
     // test state #4 - AtaPlane at a valid detector element + MatEffects
-    IdentifierHash idHash(0); // should be first pixel 
+    IdentifierHash idHash(0); // should be first pixel
     const InDetDD::SiDetectorElement * detEl = elements->getDetectorElement( idHash);
 
     // MaterialEffects
@@ -100,31 +100,31 @@ Trk::Track* FakeTrackBuilder::buildTrack(const InDetDD::SiDetectorElementCollect
 
     //AtaPlane on det el
     const PlaneSurface& planeDetElSf = dynamic_cast<const PlaneSurface&>(detEl->surface());
-    trackParameter = planeDetElSf.createParameters<5,Trk::Charged>(0.0,1.0,3.0,4.0,0.5,0);
-    
+    trackParameter = planeDetElSf.createUniqueParameters<5,Trk::Charged>(0.0,1.0,3.0,4.0,0.5,0).release();
+
     mefBase = new Trk::MaterialEffectsOnTrack(70.7,scatt,eloss,planeDetElSf, mefPattern);
     std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern(0);
     typePattern.set(Trk::TrackStateOnSurface::Scatterer);
     trackStateOnSurfaces->push_back( new TrackStateOnSurface(0, trackParameter, 0, mefBase,  typePattern) );
   }
-  //Curvi 
+  //Curvi
   Amg::Vector3D pos(1.0,2.0,3.0);
   Amg::Vector3D mom(4.0,5.0,6.0);
-  
+
   trackParameter = new CurvilinearParameters(pos,mom,1.0);
   std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern(0);
   typePattern.set(Trk::TrackStateOnSurface::Parameter);
   trackStateOnSurfaces->push_back( new TrackStateOnSurface(0, trackParameter, 0, 0,  typePattern) );
   //std::cout<<counter++<<std::endl;
-  
-  //VertexOnTrack 
+
+  //VertexOnTrack
   // Amg::Vector2D locpos( 1.0, 2.0);
   // Trk::LocalParameters* vxOTLocParms = new Trk::LocalParameters(locpos);
-  // 
+  //
   AmgSymMatrix(2)  locCov;
   locCov.setIdentity();           // sets it to identity
   locCov(0,0) = 0.001; locCov(1,1)=0.002;
-  // 
+  //
   // Trk::VertexOnTrack* vOT = new VertexOnTrack(vxOTLocParms,locCov, PerigeeSurface());
   // typePattern.reset();
   // typePattern.set(Trk::TrackStateOnSurface::Parameter);
@@ -133,7 +133,7 @@ Trk::Track* FakeTrackBuilder::buildTrack(const InDetDD::SiDetectorElementCollect
 
   if (elements) {
     const InDetDD::SiDetectorElement * detEl = *(elements->begin());
-    if (!detEl) 
+    if (!detEl)
       std::cerr<<"Unable to find any pixel Detector element!! Aborting this part of the test."<<std::endl;
     else {
       InDet::PixelClusterOnTrack* fakePix1
@@ -180,9 +180,9 @@ Trk::Track* FakeTrackBuilder::buildTrack(const InDetDD::SiDetectorElementCollect
 
 Trk::Track* FakeTrackBuilder::buildBrokenTrack(const InDetDD::SiDetectorElementCollection* /*elements*/) {
   // using namespace Trk;
-  // 
+  //
   // DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>;
-  // 
+  //
   // if (elements) {
   //   unsigned int pix1 = 2832011902UL; // CLHEP::bar l1 mod(6,0) index(274,125)
   //   Identifier idPix1(pix1);
@@ -196,25 +196,25 @@ Trk::Track* FakeTrackBuilder::buildBrokenTrack(const InDetDD::SiDetectorElementC
   //   Trk::CovarianceMatrix*  locCov = new Trk::CovarianceMatrix(2);
   //   locCov->fast(1,1) = 0.001; locCov->fast(2,2)=0.0135;
   //   fakePix1->m_localErrMat = Trk::ErrorMatrix(locCov);
-  // 
+  //
   //   // AtaPlane - no surface
   //   CLHEP::HepRotation rotation;
-  //   CLHEP::Hep3Vector pos(10.0,20.0,30.0); 
+  //   CLHEP::Hep3Vector pos(10.0,20.0,30.0);
   //   PlaneSurface planeSf(new HepGeom::Transform3D(rotation,pos));
   //   AtaPlane* trackParameter = new AtaPlane(4.0, 3.0, 2.0, 1.0, 0.001, planeSf );
   //   delete trackParameter->m_associatedSurface;
-  //   trackParameter->m_associatedSurface=0; 
+  //   trackParameter->m_associatedSurface=0;
   // std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> type1(0);
   // type1.set(Trk::TrackStateOnSurface::BremPoint);
   // trackStateOnSurfaces->push_back( new TrackStateOnSurface(0, trackParameter, 0,  0,type1) );
-  // 
+  //
   //   trackStateOnSurfaces->push_back( new TrackStateOnSurface(
   //     fakePix1,0,0,0));
-  // 
+  //
   // }
   //                 //create Track and add to collection
   // FitQuality* fitQuality = new FitQuality(1.0, 2);
-  // 
+  //
   // Trk::TrackInfo info( TrackInfo::Unknown, Trk::undefined);
   //         //  Trk::Track* track = new Trk::Track(Track::unknown,  trackStateOnSurfaces, fitQuality);
   // return new Trk::Track(info,  trackStateOnSurfaces, fitQuality);

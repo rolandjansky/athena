@@ -39,6 +39,7 @@
 ///     3. JvtJvfcorr - a corrected Jvf quantity that corrects for the number of pileup tracks in an event.
 ///
 /// Properties:
+///  JetContainer - name of the jet container
 ///  VertexContainer - name of the vertex container
 ///  TrackParticleContainer - name of the track container
 ///  AssociatedTracks - name for attribute holding the list of associated tracks
@@ -108,6 +109,7 @@ private:  // data
   Gaudi::Property<std::string> m_jetContainerName{this,"JetContainer", "", "SG key for the input jet container"};
   Gaudi::Property<std::string> m_jvtlikelihoodHistName{this, "JVTLikelihoodHistName", "JVTRootCore_kNN100trim_pt20to50_Likelihood", "JVT likelihood histogram name"};
   Gaudi::Property<std::string> m_jvtfileName{this, "JVTFileName", "JetMomentTools/JVTlikelihood_20140805.root", "JVT likelihood file name"};
+  Gaudi::Property<bool> m_suppressInputDeps{this, "SuppressInputDependence", false, "Will JVFCorr and SumPtTrk be created in the same algorithm that uses this tool?"};
 
   SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainer_key{this, "VertexContainer", "PrimaryVertices", "SG key for input vertex container"};
   SG::ReadDecorHandleKey<xAOD::JetContainer> m_jvfCorrKey{this, "JVFCorrName", "JVFCorr", "SG key for input JVFCorr decoration"};

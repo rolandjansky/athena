@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_GEOMODEL_ARRAYFUNCTION_H
@@ -14,7 +14,8 @@
 #include <vector>
 namespace GeoGenfun {
 class ArrayFunction : public AbsFunction  {
-  
+
+  // cppcheck-suppress unknownMacro
   FUNCTION_OBJECT_DEF(ArrayFunction)
     
     public:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthenaKernel/src/CondCont.cpp
@@ -1050,6 +1050,13 @@ CondContMixedBase::insertMixed (const EventIDRange& r,
               // We also need to update the ending run+lbn value
               // for each entry in the tsmap.
               // (This doesn't affect sorting within the tsmap.)
+              // There's a potential race here: a lookup happening
+              // between the extendLastRangeBase above and the updateRanges
+              // below can get a range with an unupdated run/lbn.
+              // It would be cleaner to do the extend/update as a single
+              // operation, but for now we work around by having findMixed
+              // retry if the run/lbn being sought is in the range
+              // of the entry that's actually found.
               tsmap->updateRanges ([&] (RangeKey& k)
                                    { EventIDBase start = k.m_range.start();
                                      EventIDBase stop = k.m_range.stop();
@@ -1124,9 +1131,6 @@ const void*
 CondContMixedBase::findMixed (const EventIDBase& t,
                               EventIDRange const** r) const
 {
-  const void* ptr = CondContBase::findBase (t, nullptr);
-  if (!ptr) return nullptr;
-
   if (!t.isTimeStamp()) {
     MsgStream msg (Athena::getMessageSvc(), title());
     msg << MSG::ERROR << "CondContMixedBase::findMixed: "
@@ -1135,19 +1139,36 @@ CondContMixedBase::findMixed (const EventIDBase& t,
     return nullptr;
   }
 
-  const CondContSet* tsmap = reinterpret_cast<const CondContSet*> (ptr);
-  key_type key = keyFromTimestamp (t);
-  CondContSet::const_iterator it = tsmap->find (key);
+  auto dostall = []() { CxxUtils::stall(); return true; };
+  const void* ptr = nullptr;
+  CondContSet::const_iterator it;
+  do {
+    ptr = CondContBase::findBase (t, nullptr);
+    if (!ptr) return nullptr;
 
-  if (it && key < it->first.m_stop) {
-    if (r) {
-      *r = &it->first.m_range;
+    const CondContSet* tsmap = reinterpret_cast<const CondContSet*> (ptr);
+    key_type key = keyFromTimestamp (t);
+    it = tsmap->find (key);
+
+    if (it && key < it->first.m_stop) {
+      if (r) {
+        *r = &it->first.m_range;
+      }
+      ptr = it->second;
     }
-    ptr = it->second;
-  }
-  else {
-    ptr = nullptr;
-  }
+    else {
+      ptr = nullptr;
+    }
+
+    // When we extend a range in a mixed container, the run/lbn fields
+    // in the ts map are extended as a separate step.  This means
+    // that there is a window in which we can successfully look up
+    // an entry, but the range we get will have the old, unextended
+    // run/lbn.  Work around here: if the run/lbn we're looking
+    // for isn't in the range we get, then try again.
+  } while (ptr &&
+           keyFromRunLBN (t) >= keyFromRunLBN (it->first.m_range.stop()) &&
+           dostall());
 
   return ptr;
 }

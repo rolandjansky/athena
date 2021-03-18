@@ -1,38 +1,34 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from TrigBphysHypo.TrigBphysHypoConf import TrigBmumuxComboHypo, TrigBmumuxComboHypoTool
+from AthenaConfiguration.ComponentFactory import CompFactory
 from TrigBphysHypo.TrigBmumuxComboHypoMonitoringConfig import TrigBmumuxComboHypoMonitoring, TrigBmumuxComboHypoToolMonitoring
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TrigBmumuxComboHypoConfig')
-log.setLevel(logging.DEBUG)
 
 def BmumuxComboHypoCfg(name):
     log.debug('BmumuxComboHypoCfg.name = %s ', name)
     suffix = 'Bmumux'
 
     from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
-    from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
-    vertexFitter = Trk__TrkVKalVrtFitter(
+    vertexFitter = CompFactory.Trk__TrkVKalVrtFitter(
         name = 'TrigBphysFitter_'+suffix,
         FirstMeasuredPoint = False,
         MakeExtendedVertex = False,
         Extrapolator = AtlasExtrapolator())
 
-    from InDetConversionFinderTools.InDetConversionFinderToolsConf import InDet__VertexPointEstimator
-    vertexPointEstimator = InDet__VertexPointEstimator(
+    vertexPointEstimator = CompFactory.InDet__VertexPointEstimator(
         name = 'VertexPointEstimator_'+suffix,
         MinDeltaR = [-10000., -10000., -10000.],
         MaxDeltaR = [ 10000.,  10000.,  10000.],
         MaxPhi    = [ 10000.,  10000.,  10000.],
         MaxChi2OfVtxEstimation = 2000.)
 
-    from TrackToVertex.TrackToVertexConf import Reco__TrackToVertex
-    trackToVertexTool = Reco__TrackToVertex(
+    trackToVertexTool = CompFactory.Reco__TrackToVertex(
         name = 'TrackToVertexTool_'+suffix,
         Extrapolator = AtlasExtrapolator())
 
-    hypo = TrigBmumuxComboHypo(
+    hypo = CompFactory.TrigBmumuxComboHypo(
         name = 'BmumuxComboHypo',
         VertexFitter = vertexFitter,
         VertexPointEstimator = vertexPointEstimator,
@@ -101,7 +97,7 @@ class TrigBmumuxComboHypoConfig(object):
         topoAlgs = chainDict['chainName']
         log.debug("Set for algorithm %s", topoAlgs)
 
-        tool = TrigBmumuxComboHypoTool(topoAlgs)
+        tool = CompFactory.TrigBmumuxComboHypoTool(topoAlgs)
         decay = chainDict['topo'][-1]
         trigDecayDict = {     # xAOD::TrigBphys::pType
             'BpmumuKp':   7,  # BKMUMU

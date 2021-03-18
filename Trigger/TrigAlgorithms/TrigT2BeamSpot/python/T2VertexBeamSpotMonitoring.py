@@ -8,44 +8,47 @@ class BaseMonitoringTool(GenericMonitoringTool):
     madness.
     """
 
-    def makeHisto1D(self, name, type, xbins, xmin, xmax, title, path='EXPERT', opt=None):
+    def makeHisto1D(self, name, type, xbins, xmin, xmax, title, path='EXPERT', opt=None, **kw):
         self.defineHistogram(
             name, path=path, type=type, title=title, opt=opt,
-            xbins=xbins, xmin=xmin, xmax=xmax
+            xbins=xbins, xmin=xmin, xmax=xmax, **kw
         )
 
-    def makeLBNHisto1D(self, name, type, xbins, xmin, xmax, title, path='EXPERT'):
+    def makeLBNHisto1D(self, name, type, xbins, xmin, xmax, title, path='EXPERT', opt="", **kw):
+        opt = "kLBNHistoryDepth=1 " + opt if opt else "kLBNHistoryDepth=1"
         self.makeHisto1D(
-            name, type, xbins, xmin, xmax, title,
-            path=path, opt="kLBNHistoryDepth=1",
+            name, type, xbins, xmin, xmax, title, path=path, opt=opt, **kw,
         )
 
     def makeHisto2D(self, nameX, nameY, type, xbins, xmin, xmax,
-                    ybins, ymin, ymax, title, path='EXPERT', opt=None):
+                    ybins, ymin, ymax, title, path='EXPERT', opt=None, **kw):
         name = ", ".join([nameX, nameY])
         self.defineHistogram(
             name, path=path, type=type, title=title, opt=opt,
             xbins=xbins, xmin=xmin, xmax=xmax,
             ybins=ybins, ymin=ymin, ymax=ymax,
+            **kw
         )
 
     def makeLBNHisto2D(self, nameX, nameY, type, xbins, xmin, xmax,
-                       ybins, ymin, ymax, title, path='EXPERT'):
+                       ybins, ymin, ymax, title, path='EXPERT', opt="", **kw):
+        opt = "kLBNHistoryDepth=1 " + opt if opt else "kLBNHistoryDepth=1"
         self.makeHisto2D(
             nameX, nameY, type, xbins, xmin, xmax, ybins, ymin, ymax, title,
-            path=path, opt="kLBNHistoryDepth=1",
+            path=path, opt=opt, **kw,
         )
 
-    def makeProfile(self, nameX, nameY, xbins, xmin, xmax, title, path='EXPERT', opt=None):
+    def makeProfile(self, nameX, nameY, xbins, xmin, xmax, title, path='EXPERT', opt=None, **kw):
         name = ", ".join([nameX, nameY])
         self.defineHistogram(
             name, path=path, type="TProfile", title=title, opt=opt,
-            xbins=xbins, xmin=xmin, xmax=xmax,
+            xbins=xbins, xmin=xmin, xmax=xmax, **kw,
         )
 
-    def makeLBNProfile(self, nameX, nameY, xbins, xmin, xmax, title, path='EXPERT'):
+    def makeLBNProfile(self, nameX, nameY, xbins, xmin, xmax, title, path='EXPERT', opt="", **kw):
+        opt = "kLBNHistoryDepth=1 " + opt if opt else "kLBNHistoryDepth=1"
         self.makeProfile(
-            nameX, nameY, xbins, xmin, xmax, title, path=path, opt="kLBNHistoryDepth=1",
+            nameX, nameY, xbins, xmin, xmax, title, path=path, opt=opt, **kw,
         )
 
 
@@ -533,3 +536,115 @@ class T2VertexBeamSpotToolMonitoring(BaseMonitoringTool):
             self.makeHisto2D('SplitVertex2NTrksPass', 'SplitVertex1NTrksPass', 'TH2F',
                              50, 0, 50, 50, 0, 50,
                              title="Split Vertex 2 NTrks vs Split Vertex 1 NTrks")
+
+
+class T2BSTrackFilterToolMonitoring(BaseMonitoringTool):
+    """Monitoring for T2BSTrackFilter tool
+
+    Variables defined by tool:
+    - TIME_TrackSelection
+    - TracksPerCollection
+    - SelectedTracksPerCollection
+    - TrackRejectReason
+    - TrackPtPass
+    - TrackEtaPass
+    - TrackPhiPass
+    - TrackZ0Pass
+    - TrackD0Pass
+    - TrackZ0ErrPass
+    - TrackD0ErrPass
+    - TrackNDFPass
+    - TrackQualPass
+    - TrackChi2ProbPass
+    - TrackSiHitsPass
+    - TrackPIXHitsPass
+    - TrackSCTHitsPass
+    - TrackTRTHitsPass
+    """
+    def __init__ (self, name="T2BSTrackFilterToolMonitoring", detail=1):
+        super(T2BSTrackFilterToolMonitoring, self).__init__(name)
+
+        self.makeHisto1D('TIME_TrackSelection', 'TH1I', 100, 0, 100000,
+                         title="Timing track selection; time [#mus];")
+
+        self.makeHisto1D('TracksPerCollection', 'TH1F', 100, 0., 2000.,
+                         title="TracksPerCollection; N tracks per collection; Number of collections")
+        self.makeHisto1D('SelectedTracksPerCollection', 'TH1F', 100, 0., 400.,
+                         title="TracksPerCollectionPass; N accepted tracks per collection; Number of collections")
+
+        # labels correspond to T2TrackBeamSpotImpl::TrackRejectReason (number of reasons is numRejectResons)
+        self.makeLBNHisto1D('TrackRejectReason', 'TH1I', 15, xmin=0, xmax=15,
+                            opt='kVec', title="TrackRejectReason ; Reason ; # of tracks",
+                            xlabels=['PT', 'SiHits', 'PIXHits', 'SCTHits', 'TRTHits',
+                                     'NDF', 'D0', 'Z0', 'D0err', 'Z0err',
+                                     'Eta', 'MinQual', 'MaxQual', 'Chi2Prob', 'D0Chi2'])
+
+        # Track d0 vs phi: another method for extracting the beam position on average
+        # Total number of bins: 70
+        self.makeLBNHisto2D('TrackPhiPass', 'TrackD0Pass', 'TH2I',
+                50, -3.5, 3.5, 50, -2, 2,
+                title="Selected Track d_{0} vs #phi; Track  #phi; Track d_{0}")
+        self.makeLBNHisto2D('TrackPhiFilterBS', 'TrackD0FilterBS', 'TH2I',
+                50, -3.5, 3.5, 50, -2, 2,
+                title="Filtered Track d_{0} vs #phi; Track  #phi; Track d_{0}")
+
+        # ACCEPTED Tracks parameters
+        #-------------------------------------------------------------------------------------------------
+        self.makeHisto1D('TrackPtPass', 'TH1F', 50, 0.0, 50.0,
+                         title="Acc. Track Pt; p_{t} [GeV]; Number of tracks")
+        self.makeHisto1D('TrackEtaPass', 'TH1F', 60, -3.0, 3.0,
+                         title="Acc. Track Eta; #eta; Number of tracks")
+        self.makeHisto1D('TrackPhiPass', 'TH1F', 70, -3.5, 3.5,
+                         title="Acc. Track Phi; #phi; Number of tracks")
+        self.makeHisto1D('TrackZ0Pass', 'TH1F', 100, -200.0, 200.0,
+                         title="Acc. Track Z0; Track z0 [mm]; Number of tracks")
+        self.makeHisto1D('TrackD0Pass', 'TH1F', 100, -10.0, 10.0,
+                         title="Acc. Track D0; Track d0 [mm]; Number of tracks")
+        self.makeHisto1D('TrackZ0errPass', 'TH1F', 100, 0., 5.,
+                         title="Acc. Track Z0err; Track z0 error [mm]; Number of tracks")
+        self.makeHisto1D('TrackD0errPass', 'TH1F', 100, 0., 5.,
+                         title="Acc. Track D0err; Track d0 error [mm]; Number of tracks")
+        self.makeHisto1D('TrackNDFPass', 'TH1F', 10, -0.5, 19.5,
+                         title="Acc. Track NDF; Track NDF; Number of tracks")
+        self.makeHisto1D('TrackQualPass', 'TH1F', 50, 0., 10.,
+                         title="Acc. Track Qual; Track #chi^{2}/ndf; Number of tracks")
+        self.makeHisto1D('TrackChi2ProbPass', 'TH1F', 70, -0.2, 1.2,
+                         title="Acc. Track #chi^{2} probability; Track #chi^{2} probability; Number of tracks")
+        #Accepted Track hits in ID
+        self.makeHisto1D('TrackSiHitsPass', 'TH1I', 12, 0, 12,
+                         title="Acc. Track Silicon hits; N Si hits; Number of tracks")
+        self.makeHisto1D('TrackTRTHitsPass', 'TH1I', 50, 0, 50,
+                         title="Acc. Track TRT hits; N TRT hits; Number of tracks")
+        self.makeHisto1D('TrackPIXHitsPass', 'TH1I', 7, 0, 7,
+                         title="Acc. Track PIX hits; N PIX hits; Number of tracks")
+        self.makeHisto1D('TrackSCTHitsPass', 'TH1I', 9, 0, 9,
+                         title="Acc. Track SCT hits; N SCT hits; Number of tracks")
+
+
+class T2TrackBeamSpotToolMonitoring(BaseMonitoringTool):
+    """Monitoring for T2TrackBeamSpot tool
+
+    Variables defined by tool:
+    - BeamLSMatrices
+    - BeamLSMatricesBCID
+    - TrackLLPolyCoeff
+    """
+    def __init__ (self, name="T2TrackBeamSpotToolMonitoring", detail=1):
+        super(T2TrackBeamSpotToolMonitoring, self).__init__(name)
+
+        self.makeHisto1D('TIME_updateBS', 'TH1I', 100, 0, 10000,
+                         title="Timing beamspot update; time [#mus];")
+
+        self.makeLBNHisto1D('BeamLSMatrices', 'TH1D', 18, 0, 18, opt='kVec',
+                            title="BeamLSMatrices ; Element ; Value",
+                            xlabels=['A_x_x', 'A_x_y', 'A_y_y', 'A_x_tx', 'A_y_tx',
+                                     'A_tx_tx', 'A_x_ty', 'A_y_ty', 'A_tx_ty', 'A_ty_ty',
+                                     'B_x', 'B_y', 'B_tx', 'B_ty', 'd0^2',
+                                     'z0', 'z0^2', '#'])
+
+        self.makeLBNHisto1D('BeamLSMatricesBCID', 'TH1D', 3564*8, 0, 3564*8, opt='kVec',
+                            title="BeamLSMatricesBCID ; Element ; Value")
+
+        # for number of bins see T2TrackBSLLPoly::nbins()
+        self.makeLBNHisto1D('TrackLLPolyCoeff', 'TH1D', 100, 0, 100, opt='kVec',
+                             title="TrackLLPolyCoeff ; Coefficient ; Value")

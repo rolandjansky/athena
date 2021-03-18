@@ -165,9 +165,10 @@ def generateMenu(flags):
     """
     loadChains(flags)
 
-    menuAcc = generateDecisionTree(TriggerConfigHLT.configsList())
+    menuAcc = generateDecisionTree(flags, TriggerConfigHLT.configsList())
     menuAcc.wasMerged()
-    menuAcc.printConfig()
+    if log.getEffectiveLevel() <= logging.DEBUG:
+        menuAcc.printConfig()
 
     log.info('CF is built')
 

@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// LongBeamspotVertexPositioner.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 // class header include
 #include "LongBeamspotVertexPositioner.h"
@@ -30,22 +26,7 @@ namespace Simulation
   LongBeamspotVertexPositioner::LongBeamspotVertexPositioner( const std::string& t,
                                                               const std::string& n,
                                                               const IInterface* p )
-    : base_class(t,n,p),
-      m_L(150.0),// 150.0 mm
-      m_rndGenSvc("AthRNGSvc", n),
-      m_randomEngine(0),
-      m_randomEngineName("VERTEX"),
-      m_timeSmearing(false)
-  {
-    // declare properties for the configuration
-    declareProperty( "LParameter", m_L );
-    declareProperty( "RandomSvc", m_rndGenSvc );
-    declareProperty( "RandomStream", m_randomEngineName );
-    declareProperty( "SimpleTimeSmearing", m_timeSmearing );
-  }
-
-  /** Destructor */
-  LongBeamspotVertexPositioner::~LongBeamspotVertexPositioner()
+    : base_class(t,n,p)
   {
   }
 

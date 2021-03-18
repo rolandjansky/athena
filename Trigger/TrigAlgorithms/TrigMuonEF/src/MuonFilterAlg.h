@@ -1,7 +1,7 @@
 /*
   Filter algorithms for muon trigger
   
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMUONEF_MUONFILTERALG_H
@@ -19,13 +19,10 @@ class MuonFilterAlg : public AthReentrantAlgorithm
     MuonFilterAlg( const std::string& name, ISvcLocator* pSvcLocator );
   
     /** initialize */
-    StatusCode initialize();
-  
-    /** finalize */
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
   
     /** execute the filter alg */
-    StatusCode execute(const EventContext& ctx) const;
+    virtual StatusCode execute(const EventContext& ctx) const override;
 
 
   private :

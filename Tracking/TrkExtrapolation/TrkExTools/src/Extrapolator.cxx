@@ -487,7 +487,7 @@ Trk::Extrapolator::extrapolate(const NeutralParameters& parameters,
     const IPropagator* currentPropagator =
       !m_subPropagators.empty() ? m_subPropagators[Trk::Global] : nullptr;
     if (currentPropagator) {
-      return currentPropagator->propagate(parameters, sf, dir, bcheck);
+      return currentPropagator->propagate(parameters, sf, dir, bcheck).release();
     }
   }
   ATH_MSG_ERROR("  [!] No default Propagator is configured ! Please check jobOptions.");
@@ -3654,8 +3654,8 @@ Trk::Extrapolator::insideVolumeStaticLayers(const EventContext& ctx,
         m_navigator->nextTrackingVolume(ctx, *navPropagator, *navParameters, dir, tvol);
       nextVolume = nextNavCell.nextVolume;
 
-      navParameters =
-        ManagedTrackParmPtr::recapture(navParameters, nextNavCell.parametersOnBoundary);
+      navParameters = ManagedTrackParmPtr::recapture(
+        navParameters, nextNavCell.parametersOnBoundary.release());
 
       bParameters = navParameters;
       // set the new exit Cell
@@ -3671,7 +3671,8 @@ Trk::Extrapolator::insideVolumeStaticLayers(const EventContext& ctx,
 
     nextVolume = nextNavCell.nextVolume;
 
-    navParameters = ManagedTrackParmPtr::recapture(navParameters, nextNavCell.parametersOnBoundary);
+    navParameters = ManagedTrackParmPtr::recapture(
+      navParameters, nextNavCell.parametersOnBoundary.release());
     bParameters = navParameters;
     // set the new exit Cell
     exitFace = nextNavCell.exitFace;

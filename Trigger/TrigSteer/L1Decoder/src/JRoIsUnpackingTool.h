@@ -23,6 +23,7 @@ public:
                       const std::string& name,
                       const IInterface* parent );
 
+  using RoIsUnpackingToolBase::unpack;
   StatusCode unpack(const EventContext& ctx,
                     const ROIB::RoIBResult& roib,
                     const HLT::IDSet& activeChains) const override;

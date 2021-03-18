@@ -4046,6 +4046,8 @@ TileROD_Decoder::getOFW(int fragId, int unit) const
     return ofptr;
   }
 
+  const EventContext &ctx = Gaudi::Hive::currentContext();
+
   std::vector<uint32_t>& ofw = m_OFWeights[id];
   
   ATH_MSG_DEBUG("getOFC fragId: 0x" << MSG::hex << fragId << MSG::dec << " Unit: " << unit);
@@ -4059,7 +4061,7 @@ TileROD_Decoder::getOFW(int fragId, int unit) const
     for (int gain = 0; gain < 2; ++gain) {
       float phase = -m_tileToolTiming->getSignalPhase(drawerIdx, ch, gain);
       TileOfcWeightsStruct weights;
-      if (m_tileCondToolOfcCool->getOfcWeights(drawerIdx, ch, gain, phase, of2, weights).isFailure())
+      if (m_tileCondToolOfcCool->getOfcWeights(drawerIdx, ch, gain, phase, of2, weights, ctx).isFailure())
       {
         ATH_MSG_ERROR( "getOfcWeights fails" );
         return nullptr;

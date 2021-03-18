@@ -9,7 +9,6 @@
 #include "./DebugInfoCollector.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 #include <vector>
-#include <optional>
 
 using CondInd2JetGroupsInds = std::map<int, std::vector<std::size_t>>;
 
@@ -28,8 +27,7 @@ class JetGroupUnion: public IJetGroupProduct{
 		const JetGroupInd2ElemInds& jg2elemjgs,
 		const Collector&);
   
-  virtual
-  std::optional<std::vector<std::size_t>> next(const Collector&) override;
+  virtual std::vector<std::size_t> next(const Collector&) override;
   
  private:
   std::vector<std::size_t>  m_jetIndices;

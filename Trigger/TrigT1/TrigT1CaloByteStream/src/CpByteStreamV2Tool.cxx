@@ -108,7 +108,10 @@ StatusCode CpByteStreamV2Tool::initialize()
     CHECK(m_cpmMaps.retrieve());
     CHECK(m_errorTool.retrieve());
     CHECK(m_robDataProvider.retrieve());
-    ATH_CHECK( m_byteStreamCnvSvc.retrieve() );
+    if (m_enableEncoding.value()) {
+        m_byteStreamCnvSvc = serviceLocator()->service("ByteStreamCnvSvc");
+        ATH_CHECK(m_byteStreamCnvSvc.isValid());
+    }
     
     return StatusCode::SUCCESS;
 }
@@ -183,6 +186,11 @@ StatusCode CpByteStreamV2Tool::convert(
 
 StatusCode CpByteStreamV2Tool::convert(const LVL1::CPBSCollectionV2 *const cp) const
 {
+    if (not m_enableEncoding.value()) {
+        ATH_MSG_ERROR("Encoding method called while " << m_enableEncoding.name() << "=False");
+        return StatusCode::FAILURE;
+    }
+
     const bool debug = msgLvl(MSG::DEBUG);
     if (debug) msg(MSG::DEBUG);
 

@@ -1,20 +1,14 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGEGAMMAHYPO_TRIGPRECISIONPHOTONHYPOTOOLINC_H
 #define TRIGEGAMMAHYPO_TRIGPRECISIONPHOTONHYPOTOOLINC_H 1
 
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "xAODBase/IParticleContainer.h"
-#include "xAODEgamma/PhotonContainer.h"
-#include "xAODEgamma/Photon.h"
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
-#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "ITrigEgammaPrecisionPhotonHypoTool.h"
-#include "PATCore/AcceptData.h"
 #include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "StoreGate/ReadDecorHandle.h"
 

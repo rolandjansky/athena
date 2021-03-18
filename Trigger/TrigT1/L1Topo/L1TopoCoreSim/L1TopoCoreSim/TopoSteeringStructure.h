@@ -19,6 +19,7 @@ namespace TCS {
    class Connector;
    class DecisionConnector;
    class SortingConnector;
+   class CountingConnector;
    class InputConnector;
    class ParameterSpace;
 //    class DecisionAlg;
@@ -40,9 +41,13 @@ namespace TCS {
 
       const std::map<std::string, TCS::DecisionConnector*> & outputConnectors() const { return m_outputLookup; }
 
+      const std::map<std::string, TCS::CountingConnector*> & countConnectors() const { return m_countLookup; }
+
       Connector* connector(const std::string & connectorName) const;
 
       DecisionConnector* outputConnector(const std::string & output) const;
+
+      CountingConnector* countingConnector(const std::string & output) const;
 
       // resets the connectors (status, intermediate TOBs, and decision of algs)
       StatusCode reset();
@@ -60,6 +65,8 @@ namespace TCS {
 
       StatusCode addSortingConnector(SortingConnector * conn);
 
+      StatusCode addCountingConnector(CountingConnector * conn);
+
       StatusCode linkConnectors();
 
       StatusCode instantiateAlgorithms(bool debug);
@@ -73,6 +80,8 @@ namespace TCS {
       std::map<std::string, TCS::DecisionConnector*> m_outputLookup; // output connectors (subset of m_connectors) by connector name
 
       std::map<std::string, TCS::SortingConnector*> m_sortedLookup; // sorting connectors (subset of m_connectors) by connector name
+
+      std::map<std::string, TCS::CountingConnector*> m_countLookup; // counting connectors (subset of m_connectors) by connector name
 
       std::map<std::string, TCS::InputConnector*> m_inputLookup; // input connectors (subset of m_connectors) by connector name
 

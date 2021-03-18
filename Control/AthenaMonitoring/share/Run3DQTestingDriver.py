@@ -27,8 +27,6 @@ if __name__=='__main__':
                         help='Maximum number of events to process (alias for --evtMax)')
     parser.add_argument('--printDetailedConfig', action='store_true',
                         help='Print detailed Athena configuration')
-    parser.add_argument('--threads', type=int, default=0,
-                        help='Number of threads/concurrent events')
     parser.add_argument('--perfmon', action='store_true',
                         help='Run perfmon')
     args, _ = parser.parse_known_args()
@@ -36,15 +34,6 @@ if __name__=='__main__':
     # Setup the Run III behavior
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior = 1
-
-    # Setup logs
-    from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import *
-    log.setLevel(INFO)
-
-    # set threads
-    ConfigFlags.Concurrency.NumThreads=args.threads
-    ConfigFlags.Concurrency.NumConcurrentEvents=args.threads
 
     # Set the Athena configuration flags
     from AthenaConfiguration.AutoConfigFlags import GetFileMD
@@ -56,6 +45,13 @@ if __name__=='__main__':
         from AthenaMonitoring.DQConfigFlags import allSteeringFlagsOff
         allSteeringFlagsOff()
     ConfigFlags.fillFromArgs(parser=parser)
+
+    # Setup logs
+    from AthenaCommon.Logging import log
+    from AthenaCommon import Constants
+    if args.loglevel:
+        log.setLevel(getattr(Constants, args.loglevel))
+
     # override Input.Files with result from our own arguments
     # if --filesInput was specified as well (!) this will override
     if args.inputFiles is not None:
@@ -97,10 +93,10 @@ if __name__=='__main__':
     ConfigFlags.Detector.GeometryPixel = True
     ConfigFlags.Detector.GeometrySCT = True
     ConfigFlags.Detector.GeometryTRT = True
-            
+
     log.info('FINAL CONFIG FLAGS SETTINGS FOLLOW')
-    ConfigFlags.dump()
-        
+    if args.loglevel is None or getattr(Constants, args.loglevel) <= Constants.INFO:
+        ConfigFlags.dump()
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.

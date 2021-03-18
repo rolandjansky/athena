@@ -7,8 +7,10 @@
 #--------------------------------------------------------------
 # RunNumber and number of events
 #--------------------------------------------------------------
+#RunNumber = 332896
 #RunNumber = 364214
-RunNumber = 370059
+RunNumber = 359678
+#RunNumber = 370059
 EvtMax    = -1  
 
 #--------------------------------------------------------------
@@ -35,11 +37,11 @@ ReadBS         = True
 # - Set only one flag to True and others to False
 #------------------------------------------------------------
 #--- Algs using TrkVal or BS
-DoNoisyStrip     = False
+DoNoisyStrip     = True
 DoNoisyLB        = False 
 DoHV             = False
 DoDeadStrip      = False
-DoDeadChip       = True
+DoDeadChip       = False
 #--- Algs using HIST
 DoNoiseOccupancy = False 
 DoRawOccupancy   = False

@@ -22,9 +22,6 @@
 
 #include "./IJetsMatcherMT.h"
 #include "./ConditionsDefsMT.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ICleaner.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerBridge.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
 #include "./ITrigJetRepeatedConditionConfig.h"
 #include "./ConditionFilter.h"
 
@@ -39,9 +36,7 @@ public extends<AthAlgTool, ITrigJetHypoToolNoGrouperConfig> {
   virtual ~TrigJetHypoToolConfig_fastreduction();
 
   virtual StatusCode initialize() override;
-  virtual std::vector<std::shared_ptr<ICleaner>> getCleaners() const override;
   virtual std::unique_ptr<IJetsMatcherMT> getMatcher() const override;
-  virtual std::optional<ConditionsMT> getConditions() const override;
 
   virtual std::vector<std::unique_ptr<ConditionFilter>>
   getConditionFilters() const override;
@@ -70,7 +65,7 @@ public extends<AthAlgTool, ITrigJetHypoToolNoGrouperConfig> {
   Gaudi::Property<std::vector<int>> m_leafNodes{
     this, "leafVector", {}, "node ids for leaf nodes"};
 
-  std::optional<ConditionPtrs> getRepeatedConditions() const;
+  ConditionPtrs getRepeatedConditions() const;
 
 
 };

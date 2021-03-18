@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MSVVERTEXRECOTOOL_H
@@ -19,7 +19,7 @@
 #include "TrkParameters/TrackParameters.h"
 #include "MSVertexUtils/Tracklet.h"
 #include "MSVertexUtils/MSVertex.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/IAthRNGSvc.h"
 #include "StoreGate/WriteDecorHandle.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonPrepRawData/MdtPrepDataContainer.h"
@@ -76,10 +76,6 @@ namespace Muon {
     float m_MaxTollDist;
     bool m_doSystematics;
 
-    CLHEP::HepRandomEngine* m_rndmEngine;
-    std::string             m_rndmEngineName;
-    IAtRndmGenSvc*          m_rndmSvc;
-
     //barrel vertex reco algorithm
     void MSVxFinder(const std::vector<Tracklet>& tracklets, std::unique_ptr<MSVertex>& vtx, const EventContext &ctx) const;
     //endcap vertex reco algorithm
@@ -107,6 +103,7 @@ namespace Muon {
     SG::WriteDecorHandleKey<decortype> m_decor_nTGC{ this, "Decor_nTGC", "nTGC"};
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+    ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", "Random Number Service"};      // Random number service
   };
   
   

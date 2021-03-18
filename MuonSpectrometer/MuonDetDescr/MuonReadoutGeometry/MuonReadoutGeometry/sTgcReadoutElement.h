@@ -1,29 +1,30 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONREADOUTGEOMETRY_STGCREADOUTELEMENT_H
 #define MUONREADOUTGEOMETRY_STGCREADOUTELEMENT_H
 
 #include "MuonReadoutGeometry/MuonClusterReadoutElement.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonReadoutGeometry/MuonChannelDesign.h"
-#include "MuonReadoutGeometry/MuonPadDesign.h"
+
+#include "Identifier/Identifier.h"
 #include "MuonIdHelpers/sTgcIdHelper.h"
+#include "MuonReadoutGeometry/MuonChannelDesign.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MuonReadoutGeometry/MuonPadDesign.h"
+
+#include <string>
+#include <utility>
+#include <vector>
 
 class BLinePar;
-
-namespace Trk{
-  class PlaneSurface;
-}
+class GeoVFullPhysVol;
 
 namespace MuonGM {
   /**
      An sTgcReadoutElement corresponds to a single STGC module; therefore 
      typicaly a barrel muon station contains:
   */
-
-  class MuonDetectorManager;
  
   class sTgcReadoutElement: public MuonClusterReadoutElement {
   public:
@@ -65,6 +66,9 @@ namespace MuonGM {
 
     /** pad corners */
     bool padCorners ( const Identifier& id, std::vector<Amg::Vector2D> &corners) const;
+
+    /** is eta=0 of QL1 or QS1? */
+    bool isEtaZero ( const Identifier& id, double posY) const;
 
     /** number of layers in phi/eta projection */
     virtual int numberOfLayers( bool ) const override;
@@ -313,6 +317,19 @@ namespace MuonGM {
 
     return design->channelCorners(std::pair<int,int>(padEta,padPhi),corners);
 
+  }
+
+  inline bool sTgcReadoutElement::isEtaZero( const Identifier& id, double posY ) const {
+    // This function returns true if we are in the eta 0 region of QL1/QS1
+
+    const MuonChannelDesign* design = getDesign(id);
+    if( !design ) return false;
+
+    if (design->wireCutout == 0.) return false; // Not QL1 / QS1
+
+    if (posY < 0.5*design->xSize - design->wireCutout) return true;
+
+    return false;
   }
 
   inline int sTgcReadoutElement::numberOfLayers( bool ) const { return m_nlayers; }

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -29,10 +29,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IThinningTool.h"
-// AthAnalysisBase doesn't currently include the Trigger Service
-#ifndef XAOD_ANALYSIS
-#include "TrigDecisionTool/TrigDecisionTool.h"
-#endif
 
 // EDM includes
 #include "xAODCaloEvent/CaloCluster.h"
@@ -50,17 +46,17 @@
 #include "StoreGate/ThinningHandleKey.h"
 #include <atomic>
 
-// Forward declarations
-namespace ExpressionParsing {
-  class ExpressionParser;
-}
-
-
-
+#ifndef XAOD_ANALYSIS
+#include "ExpressionEvaluation/ExpressionParserUserWithTrigSupport.h"
+using ThinCaloClustersToolBase = ExpressionParserUserWithTrigSupport<::AthAlgTool>;
+#else
+#include "ExpressionEvaluation/ExpressionParserUser.h"
+using ThinCaloClustersToolBase = ExpressionParserUser<::AthAlgTool>;
+#endif
 
 class ThinCaloClustersTool
-  : virtual public ::DerivationFramework::IThinningTool,
-            public ::AthAlgTool
+   :         public ThinCaloClustersToolBase,
+     virtual public ::DerivationFramework::IThinningTool
 {
 public:
   /// Standard constructor
@@ -128,16 +124,6 @@ private:
   /// Select relevant IParticles based on the selection string
   StatusCode selectFromString( std::vector<bool>& mask,
                                const xAOD::CaloClusterContainer* caloClusterContainer ) const;
-
-
-  /// The trigger decision tool
-// AthAnalysisBase doesn't currently include the Trigger Service
-#ifndef XAOD_ANALYSIS
-  ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool;
-#endif
-
-  /// The expression parser
-  ExpressionParsing::ExpressionParser *m_parser;
 
   /// Name of the CaloClusterContainer to thin
   SG::ThinningHandleKey<xAOD::CaloClusterContainer> m_caloClusKey

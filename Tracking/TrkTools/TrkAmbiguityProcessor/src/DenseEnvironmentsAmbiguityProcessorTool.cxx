@@ -131,7 +131,7 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::statistics(){
 /** Do actual processing of event. Takes a track container, 
     and then returns the tracks which have been selected*/
 
-TrackCollection* 
+const TrackCollection* 
 Trk::DenseEnvironmentsAmbiguityProcessorTool::process(const TracksScores *trackScoreTrackMap) const{
   if (!trackScoreTrackMap) return nullptr;
   // clear prdAssociationTool via selection tool

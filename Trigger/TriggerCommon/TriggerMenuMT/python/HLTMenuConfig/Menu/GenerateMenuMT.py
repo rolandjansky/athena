@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from PyUtils.Decorators import memoize
 
@@ -39,7 +39,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
         """
         == Function to generate menu for certain signatures only
         """
-        log.info('In overwriteSignaturesWith ')
+        log.debug('In overwriteSignaturesWith ')
         global _func_to_modify_signatures
         if _func_to_modify_signatures is not None:
             log.warning('Updating the function to modify signatures from %s to %s',
@@ -108,7 +108,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
         (self.L1Prescales, self.HLTPrescales) = MenuPrescaleConfig(TriggerConfigHLT)
         global _func_to_modify_signatures
         if _func_to_modify_signatures is not None:
-            log.info('setupMenu:  Modifying trigger signatures in TriggerFlags with %s',
+            log.info('[setupMenu] Modifying trigger signatures in TriggerFlags with %s',
                      _func_to_modify_signatures.__name__)
             _func_to_modify_signatures()
             self.signaturesOverwritten = True
@@ -178,11 +178,13 @@ class GenerateMenuMT(object, metaclass=Singleton):
         # and then import them!
         log.debug("[getSignaturesInMenu] signaturesToGenerate: %s",  self.signaturesToGenerate)
 
-        for sig in self.signaturesToGenerate:
+        extendedSignatureToGenerate = self.signaturesToGenerate+['Streaming'] # always import the Streaming sig because noalg chains are moved to StreamingSlice
+
+        for sig in extendedSignatureToGenerate:
             log.debug("[getSignaturesInMenu] sig: %s", sig)
             
             try:
-                if eval('self.do' + sig + 'Chains'):
+                if eval('self.do' + sig + 'Chains') or sig=='Streaming':  
                     if sig == 'Egamma':
                         sigFolder = sig
                         subSigs = ['Electron', 'Photon']
@@ -194,16 +196,13 @@ class GenerateMenuMT(object, metaclass=Singleton):
                         sigFolder = sig
                         subSigs = [sig]
                     for ss in subSigs:
-                        if sigFolder == 'Combined':
-                            continue
-                        else:
-                            #import the includes into the global namespace. Only import the signature we need!
-                            #this is equivalent having this line at the beginning of the file:
-                            #import TriggerMenuMT.HLTMenuConfig.[sig].Generate[sig]ChainDefs as Generate[sig]ChainDefs
-                            import_module = 'TriggerMenuMT.HLTMenuConfig.' + sigFolder +'.Generate' + ss + 'ChainDefs'
-                            globals()['Generate'+ss+'ChainDefs'] = __import__(import_module,fromlist=['Generate'+ss+'ChainDefs'])
-                            if ss not in self.availableSignatures:
-                                self.availableSignatures.append(ss)
+                        #import the includes into the global namespace. Only import the signature we need!
+                        #this is equivalent having this line at the beginning of the file:
+                        #import TriggerMenuMT.HLTMenuConfig.[sig].Generate[sig]ChainDefs as Generate[sig]ChainDefs
+                        import_module = 'TriggerMenuMT.HLTMenuConfig.' + sigFolder +'.Generate' + ss + 'ChainDefs'
+                        globals()['Generate'+ss+'ChainDefs'] = __import__(import_module,fromlist=['Generate'+ss+'ChainDefs'])
+                        if ss not in self.availableSignatures:
+                            self.availableSignatures.append(ss)
 
             except ImportError:
                 log.exception('Problems when importing ChainDef generating code for %s', sig)
@@ -220,9 +219,18 @@ class GenerateMenuMT(object, metaclass=Singleton):
         alignmentGroups_to_align = set()
         length_of_configs = {}
         
-
+        previous_sig = ''
         for chainDict in self.chainDicts:
-
+            if len(set(chainDict['signatures'])) == 1:
+                current_sig = chainDict['signatures'][0]
+                if current_sig != previous_sig:
+                    previous_sig = current_sig
+                    log.info("[generateChains] Now starting generation of signature %s",current_sig)
+            elif len(set(chainDict['signatures'])) > 1:
+                current_sig = 'Combined'
+                if current_sig != previous_sig:
+                    previous_sig = current_sig
+                    log.info("[generateChains] Now starting generation of signature %s",current_sig)
             log.debug("Next: getting chain configuration for chain %s ", chainDict['chainName']) 
             chainConfig,lengthOfChainConfigs = self.__generateChainConfig(chainDict)
             
@@ -259,17 +267,22 @@ class GenerateMenuMT(object, metaclass=Singleton):
         """
 
         # get all chain names from menu
-        log.debug ("getting chains from Menu")
+        log.info("[generateAllChainConfigs] will now get chains from the menu")
         self.getChainsFromMenu()
 
         # decoding of the chain name
+        log.info("[generateAllChainConfigs] will now get chain dictionaries for each chain")
         self.getChainDicts()
         
         #import the necessary signatures
+        log.info("[generateAllChainConfigs] importing the necessary signatures")
         self.importSignaturesToGenerate()
         
+
+        log.info("[generateAllChainConfigs] will now generate the chain configuration for each chain")
         self.generateChains()
 
+        log.info("[generateAllChainConfigs] will now calculate the alignment parameters")
         #dict of signature: set it belongs to
         #e.g. {'Electron': ['Electron','Muon','Photon']}        
         menuAlignment = MenuAlignment(self.combinationsInMenu,
@@ -282,7 +295,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
         # combinationsInMenu = menuAlignment.combinationsInMenu
         # alignmentGroup_sets_to_align = menuAlignment.setsToAlign
 
-        log.debug('Aligning the following signatures with sets: %s',sorted(menuAlignment.sets_to_align))
+        log.info('[generateAllChainConfigs] Aligning the following signatures: %s',sorted(menuAlignment.sets_to_align))
         log.debug('Length of each of the alignment groups: %s',self.configLengthDict)
 
 
@@ -319,9 +332,12 @@ class GenerateMenuMT(object, metaclass=Singleton):
                 log.error('The chain dictionary is: %s', pp.pformat(chainDict))
                 raise Exception("Please fix the menu or the chain.")
         
+        
+        log.info("[generateAllChainConfigs] general alignment complete, will now align PEB chains")
         # align event building sequences
         EventBuildingSequenceSetup.alignEventBuildingSteps(TriggerConfigHLT.configs(), TriggerConfigHLT.dicts())
 
+        log.info("[generateAllChainConfigs] all chain configurations have been generated.")
         return TriggerConfigHLT.configsList()
 
     @memoize
@@ -352,7 +368,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
             elif not eval('self.do' + sig + 'Chains'):
                 log.debug('Signature %s is not switched on (disabled by flag)', sig)
 
-        log.info("The following signature(s) is (are) enabled: %s", self.signaturesToGenerate)
+        log.info("[getChainsFromMenu] The following signature(s) is(are) enabled: %s", self.signaturesToGenerate)
 
         if self.selectChainsForTesting:
             log.info("Narrowing down the list of chains with the selectChainsForTesting list")
@@ -360,7 +376,8 @@ class GenerateMenuMT(object, metaclass=Singleton):
             if len(selectedChains) < len(self.selectChainsForTesting):
                 selectedNames = [ch.name for ch in selectedChains]
                 missingNames = [name for name in self.selectChainsForTesting if name not in selectedNames]
-                log.warning("The following chains were specified in selectChainsForTesting but were not found in the menu: %s", str(missingNames))
+                log.error("[getChainsFromMenu] The following chains were specified in selectChainsForTesting but were not found in the menu: %s", str(missingNames))
+                raise Exception("[getChainsFromMenu] Cannot test one or more requested chains, exiting.")
             chains = selectedChains
 
         if len(chains) == 0:
@@ -409,15 +426,17 @@ class GenerateMenuMT(object, metaclass=Singleton):
             if currentSig in self.availableSignatures and currentSig != 'Combined':
                 try:                    
                     functionToCall ='Generate'+currentSig+'ChainDefs.generateChainConfigs(chainPartDict)' 
-                    log.debug("Trying to get chain config for %s in folder %s using %s", currentSig, sigFolder, functionToCall)
+                    log.debug("[__generateChainConfigs] Trying to get chain config for %s in folder %s using %s", currentSig, sigFolder, functionToCall)
                     chainPartConfig = eval(functionToCall)
-                except RuntimeError:
-                    log.exception( 'Problems creating ChainDef for chain\n %s ', chainName)
-                    continue
+                except Exception:
+                    log.error('[__generateChainConfigs] Problems creating ChainDef for chain %s ', chainName)
+                    log.error('[__generateChainConfigs] I am in chain part\n %s ', chainPartDict)
+                    log.exception('[__generateChainConfigs] Full chain dictionary is\n %s ', mainChainDict)
+                    raise Exception('[__generateChainConfigs] Stopping menu generation. Please investigate the exception shown above.')
             else:
-                log.error('Chain %s ignored - Signature "%s" not available', chainPartDict['chainName'], currentSig)
+                log.error('Chain %s cannot be generated - Signature "%s" not available', chainPartDict['chainName'], currentSig)
                 log.error('Available signature(s): %s', self.availableSignatures)
-                raise Exception('Stopping the execution. Please, correct the configuration.')
+                raise Exception('Stopping the execution. Please correct the configuration.')
 
             log.debug("Chain %s chain configs: %s",chainPartDict['chainName'],chainPartConfig)
             listOfChainConfigs.append(chainPartConfig)
@@ -442,17 +461,24 @@ class GenerateMenuMT(object, metaclass=Singleton):
 
         # This part is to deal with combined chains between different signatures
         if len(listOfChainConfigs) == 0:
-            log.error('No Chain Configuration found ')
-            return False
+            log.error('[__generateChainConfigs] No Chain Configuration found for %s',chainName)
+            raise Exception("[__generateChainConfigs] chain generation failed, exiting.")
 
         elif len(listOfChainConfigs)>1:
                 log.debug("Merging strategy from dictionary: %s", mainChainDict["mergingStrategy"])
                 theChainConfig = mergeChainDefs(listOfChainConfigs, mainChainDict)
 
-                # This needs to be added for topological chains - needs implementation
-                #doTopo = self.CheckIntraSignatureTopo(chainDicts) and chainDict["topo"]
-                #if doTopo:
-                # theChainDef = TriggerMenu.combined.generateCombinedChainDefs._addTopoInfo(theChainDef,chainDicts,listOfChainDefs)
+                if len(mainChainDict['extraComboHypos']) > 0:
+                    try:
+                        functionToCall ='GenerateCombinedChainDefs.addTopoInfo(theChainConfig,mainChainDict,listOfChainConfigs,lengthOfChainConfigs)' 
+                        log.debug("Trying to add extra ComboHypoTool for %s",mainChainDict['extraComboHypos'])
+                        theChainConfig = eval(functionToCall)
+                    except RuntimeError:
+                        log.error('[__generateChainConfigs] Problems creating ChainDef for chain %s ', chainName)
+                        log.error('[__generateChainConfigs] I am in the extraComboHypos section, for %s ', mainChainDict['extraComboHypos'])
+                        log.exception('[__generateChainConfigs] Full chain dictionary is\n %s ', mainChainDict)
+                        raise Exception('[__generateChainConfigs] Stopping menu generation. Please investigate the exception shown above.')
+                        
 
         else:
             theChainConfig = listOfChainConfigs[0]
@@ -465,13 +491,50 @@ class GenerateMenuMT(object, metaclass=Singleton):
 
         log.debug('ChainConfigs  %s ', theChainConfig)
         return theChainConfig,lengthOfChainConfigs
+ 
+    
+    def resolveEmptySteps(self,chainConfigs):
 
+        max_steps = max([len(cc.steps) for cc in chainConfigs], default=0)    
+
+        steps_are_empty = [True for i in range(0,max_steps)]
+
+        for cc in chainConfigs:
+            for istep, the_step in enumerate(cc.steps):
+                if not the_step.isEmpty:
+                    steps_are_empty[istep] = False
+        
+        log.info("[resolveEmptySteps] Are there any fully empty steps? %s", steps_are_empty)
+        
+        empty_step_indices = [i for i,is_empty in enumerate(steps_are_empty) if is_empty]
+        
+        if len(empty_step_indices) == 0:
+            return chainConfigs
+        
+        #ok if this happens in minimal tests or slice tests
+        #just not in the full menu!
+        if len(self.selectChainsForTesting) == 0 and len(self.signaturesToGenerate) != 1:
+            log.error("[resolveEmptySteps] The menu you are trying to generate contains a fully empty step. This is only allowed for partial menus.")
+            raise Exception("[resolveEmptySteps] Please find the source of this empty step and remove it from the menu.")
+
+        log.info("[resolveEmptySteps] I will now delete steps %s (indexed from zero)",empty_step_indices)
+        
+        for cc in chainConfigs:
+            new_steps = []
+            #only add non-empty steps to the new steps list!
+            for istep,step in enumerate(cc.steps):
+                if istep not in empty_step_indices:
+                    new_steps += [step]
+            cc.steps = new_steps
+
+        return chainConfigs 
+ 
     @memoize
     def generateMT(self):
         """
         == Main function of the class which generates L1, L1Topo and HLT menu
         """
-        log.info('GenerateMenuMT.py:generateMT ')
+        log.info('[generateMT] starting menu generation')
 
         # --------------------------------------------------------------------
         # L1 menu generation
@@ -486,29 +549,40 @@ class GenerateMenuMT(object, metaclass=Singleton):
         # HLT menu generation
         # --------------------------------------------------------------------
         finalListOfChainConfigs = self.generateAllChainConfigs()
-        log.debug("Length of FinalListofChainConfigs %s", len(finalListOfChainConfigs))
+        log.info("[generateMT] Length of FinalListofChainConfigs %s", len(finalListOfChainConfigs))
+ 
+        # make sure that we didn't generate any steps that are fully empty in all chains
+        # if there are empty steps, remove them
+        finalListOfChainConfigs = self.resolveEmptySteps(finalListOfChainConfigs)
 
         log.debug("finalListOfChainConfig %s", finalListOfChainConfigs)
         for cc in finalListOfChainConfigs:
-            log.info('ChainName %s', cc.name)
-            log.info('  ChainSteps %s', cc.steps)
-            for step in cc.steps:
-                log.info(step)
+            log.debug('Steps for %s are %s', cc.name, cc.steps)
 
+        log.info("[generateMT] will now make the HLT configuration tree")
         makeHLTTree(newJO=False, triggerConfigHLT = TriggerConfigHLT)
         # the return values used for debugging, might be removed later
+
+        log.info("[generateMT] will now apply HLT prescales")
 
         # Having built the Menu add prescales for disabling items (e.g. MC production)
         applyHLTPrescale(TriggerConfigHLT, self.HLTPrescales, self.signaturesOverwritten)
 
+        log.info("[generateMT] now generating HLT menu JSON...")
+        
         from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
         generateJSON()
+
+        log.info("[generateMT] now generating HLT prescale JSON...")
 
         from TriggerMenuMT.HLTMenuConfig.Menu.HLTPrescaleJSON import generateJSON as generatePrescaleJSON
         generatePrescaleJSON()
 
-        log.debug('[GenerateMenuMT::generateMT] now generating HLTMonitoring JSON...')
+        log.info('[generateMT] now generating HLTMonitoring JSON...')
         from TriggerMenuMT.HLTMenuConfig.Menu.HLTMonitoringJSON import generateDefaultMonitoringJSON
         generateDefaultMonitoringJSON()
 
+
+        log.info('[generateMT] Menu generation is complete.')
         return finalListOfChainConfigs
+

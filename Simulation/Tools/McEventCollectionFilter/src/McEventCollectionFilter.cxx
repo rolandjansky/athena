@@ -201,9 +201,9 @@ StatusCode McEventCollectionFilter::ReduceMCEventCollection(){
 
 
   //to set geantino vertex as a truth primary vertex
-  HepMC::GenVertexPtr hScatVx = HepMC::barcode_to_vertex(genEvt,-3);
+  HepMC::ConstGenVertexPtr hScatVx = HepMC::barcode_to_vertex(genEvt,-3);
   if(hScatVx!=nullptr) {
-    const HepMC::FourVector& pmvxpos=hScatVx->position();
+    HepMC::FourVector pmvxpos=hScatVx->position();
     genVertex->set_position(pmvxpos);
     //to set geantino kinematic phi=eta=0, E=p=E_hard_scat
 #ifdef HEPMC3 
@@ -241,7 +241,7 @@ StatusCode McEventCollectionFilter::ReduceMCEventCollection(){
   //--------------------------------------
   if(m_IsKeepTRTElect){
     for(int i=0;i<(int) m_elecBarcode.size();i++){
-      HepMC::GenParticlePtr thePart=HepMC::barcode_to_particle(genEvt,m_elecBarcode[i]);
+      HepMC::ConstGenParticlePtr thePart=HepMC::barcode_to_particle(genEvt,m_elecBarcode[i]);
       if (!thePart){
         ATH_MSG_DEBUG( "Could not find particle for barcode " << m_elecBarcode[i] );
         continue;

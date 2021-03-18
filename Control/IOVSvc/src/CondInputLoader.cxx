@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // CondInputLoader.cxx 
@@ -59,9 +59,9 @@ CondInputLoader::CondInputLoader( const std::string& name,
   m_condStore("StoreGateSvc/ConditionStore", name),
   m_condSvc("CondSvc",name),
   m_IOVSvc("IOVSvc",name),
+  m_IOVDbSvc("IOVDbSvc",name),
   m_clidSvc("ClassIDSvc",name),
   m_rcuSvc("Athena::RCUSvc",name)
-
 {
   //
   // Property declaration
@@ -94,16 +94,14 @@ CondInputLoader::initialize()
   ATH_CHECK( ivs.retrieve() );
 
   // Update the SG keys if different from Folder Names
-  ServiceHandle<IIOVDbSvc> idb("IOVDbSvc",name());
-  ATH_CHECK( idb.retrieve() );
-
-  std::vector<std::string> keys = idb->getKeyList();
+  ATH_CHECK( m_IOVDbSvc.retrieve() );
+  std::vector<std::string> keys =  m_IOVDbSvc->getKeyList();
   IIOVDbSvc::KeyInfo info;
   DataObjIDColl handles_to_load;
 
   std::map<std::string,std::string> folderKeyMap;
   for (auto key : keys) {
-    if (idb->getKeyInfo(key, info)) {
+    if( m_IOVDbSvc->getKeyInfo(key, info) ) {
       folderKeyMap[info.folderName] = key;
       m_keyFolderMap[key] = info.folderName;
     } else {
@@ -355,7 +353,6 @@ CondInputLoader::execute()
     m_condSvc->dump(ost);
     ATH_MSG_DEBUG(ost.str());
   }
-  
   return sc;
 }
 

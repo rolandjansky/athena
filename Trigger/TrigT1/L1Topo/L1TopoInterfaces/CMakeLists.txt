@@ -12,4 +12,4 @@ atlas_add_library( L1TopoInterfaces
                    PUBLIC_HEADERS L1TopoInterfaces
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES}
-                   LINK_LIBRARIES L1TopoCommon L1TopoEvent TrigConfBase )
+                   LINK_LIBRARIES L1TopoCommon L1TopoEvent TrigConfBase TrigConfIO TrigConfData)

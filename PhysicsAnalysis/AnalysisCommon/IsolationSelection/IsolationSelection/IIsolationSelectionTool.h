@@ -1,11 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
- Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
-// #ifndef ISOLATIONSELECTION_IISOLATIONSELECTIONTOOL_H
-// #define ISOLATIONSELECTION_IISOLATIONSELECTIONTOOL_H
 #ifndef ISOLATIONSELECTION_IISOLATIONSELECTIONTOOL_H
 #define ISOLATIONSELECTION_IISOLATIONSELECTIONTOOL_H
 
@@ -13,6 +11,7 @@
 #include "AsgTools/IAsgTool.h"
 #include "PATCore/AcceptData.h"
 #include "PATCore/AcceptInfo.h"
+
 // EDM include(s):
 #include "xAODPrimitives/IsolationType.h"
 #include "xAODEgamma/Photon.h"
@@ -43,11 +42,11 @@ namespace CP {
 
         public:
             // Cut on object
-            virtual const asg::AcceptData accept(const xAOD::Photon& x) const = 0;
-            virtual const asg::AcceptData accept(const xAOD::Electron& x) const = 0;
-            virtual const asg::AcceptData accept(const xAOD::Muon& x) const = 0;
-            virtual const asg::AcceptData accept(const strObj& x) const = 0;
-            virtual const asg::AcceptData accept(const xAOD::IParticle& x) const = 0;
+            virtual asg::AcceptData accept(const xAOD::Photon& x) const = 0;
+            virtual asg::AcceptData accept(const xAOD::Electron& x) const = 0;
+            virtual asg::AcceptData accept(const xAOD::Muon& x) const = 0;
+            virtual asg::AcceptData accept(const strObj& x) const = 0;
+            virtual asg::AcceptData accept(const xAOD::IParticle& x) const = 0;
             virtual StatusCode setIParticleCutsFrom(xAOD::Type::ObjectType ObjType) = 0;
 
             virtual const asg::AcceptInfo& getPhotonAcceptInfo() const = 0;

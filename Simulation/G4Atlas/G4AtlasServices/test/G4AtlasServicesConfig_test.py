@@ -24,13 +24,10 @@ if __name__ == '__main__':
   inputDir = defaultTestFiles.d
   ConfigFlags.Input.Files = defaultTestFiles.EVNT
 
-  ConfigFlags.Detector.SimulateBpipe = True
-  ConfigFlags.Detector.SimulateID = True
-  ConfigFlags.Detector.SimulateCalo = True 
-  ConfigFlags.Detector.SimulateMuon = True
-  ConfigFlags.Detector.SimulateForward = False
-  ConfigFlags.Detector.GeometryFwdRegion = False
-
+  # Setup detector flags
+  detectors = ['Bpipe', 'BCM', 'DBM', 'Pixel', 'SCT', 'TRT', 'LAr', 'Tile', 'CSC', 'MDT', 'RPC', 'TGC']
+  from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
+  setupDetectorsFromList(ConfigFlags, detectors, toggle_geometry=True)
 
   ConfigFlags.Sim.CavernBG = "Signal"  #for it to go via atlas?
   ConfigFlags.Sim.WorldRRange = 15000

@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TgcRoadDefiner.h"
 #include "MdtRegion.h"
 #include "xAODTrigMuon/L2StandAloneMuonAuxContainer.h"
 #include "xAODTrigMuon/TrigMuonDefs.h"
-
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
@@ -46,7 +44,7 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::initialize()
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi,
+StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const TrigRoiDescriptor*     p_roids,
                                                     const bool                   insideOut,
                                                     const TrigL2MuonSA::TgcHits& tgcHits,
                                                     TrigL2MuonSA::MuonRoad&      muonRoad,
@@ -133,11 +131,11 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
                                         tgcFitResult.tgcMid2[3], tgcFitResult.tgcMid2[2]);
     
     int Octant = (int)(tgcFitResult.tgcMid1[1] / (M_PI/4.));
-    double PhiInOctant = fabs(tgcFitResult.tgcMid1[1] - Octant * (M_PI/4.));
+    double PhiInOctant = std::abs(tgcFitResult.tgcMid1[1] - Octant * (M_PI/4.));
     if (PhiInOctant > (M_PI/8.)) PhiInOctant = (M_PI/4.) - PhiInOctant;
     
     int phiBin = static_cast<int>(PhiInOctant * PHI_RANGE);
-    int etaBin = static_cast<int>((fabs(tgcFitResult.tgcMid1[0]) - 1.)/0.05);
+    int etaBin = static_cast<int>((std::abs(tgcFitResult.tgcMid1[0]) - 1.)/0.05);
     
     int charge = (tgcFitResult.intercept * tgcFitResult.tgcMid2[3]) < 0.0 ? 0: 1;
     
@@ -145,18 +143,18 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
     if (charge==0) tgcFitResult.tgcPT = -1.*tgcFitResult.tgcPT;
     
     // Determine phi direction
-    if (fabs(tgcFitResult.tgcMid1[3])<=ZERO_LIMIT || fabs(tgcFitResult.tgcMid2[3])<=ZERO_LIMIT) {
+    if (std::abs(tgcFitResult.tgcMid1[3])<=ZERO_LIMIT || std::abs(tgcFitResult.tgcMid2[3])<=ZERO_LIMIT) {
 
       tgcFitResult.isPhiDir = false;
-      if (fabs(tgcFitResult.tgcMid1[3])>=0.) tgcFitResult.phi = tgcFitResult.tgcMid1[1];
-      if (fabs(tgcFitResult.tgcMid2[3])>=0.) tgcFitResult.phi = tgcFitResult.tgcMid2[1];
+      if (std::abs(tgcFitResult.tgcMid1[3])>=0.) tgcFitResult.phi = tgcFitResult.tgcMid1[1];
+      if (std::abs(tgcFitResult.tgcMid2[3])>=0.) tgcFitResult.phi = tgcFitResult.tgcMid2[1];
 
     } else {
 
       tgcFitResult.isPhiDir = true;
 
       if( tgcFitResult.tgcMid1[1]*tgcFitResult.tgcMid2[1] < 0
-          && fabsf(tgcFitResult.tgcMid1[1])>M_PI/2. ) {
+          && std::abs(tgcFitResult.tgcMid1[1])>M_PI/2. ) {
 
         double tmp1 = (tgcFitResult.tgcMid1[1]>0)?
           tgcFitResult.tgcMid1[1] - M_PI : tgcFitResult.tgcMid1[1] + M_PI;
@@ -166,23 +164,23 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
 
         double tmp  = (tmp1+tmp2)/2.;
 
-        tgcFitResult.dPhidZ = (fabs(tgcFitResult.tgcMid2[3]-tgcFitResult.tgcMid1[3]) > ZERO_LIMIT)?
-          (tmp2-tmp1)/fabs(tgcFitResult.tgcMid2[3]-tgcFitResult.tgcMid1[3]): 0;
+        tgcFitResult.dPhidZ = (std::abs(tgcFitResult.tgcMid2[3]-tgcFitResult.tgcMid1[3]) > ZERO_LIMIT)?
+          (tmp2-tmp1)/std::abs(tgcFitResult.tgcMid2[3]-tgcFitResult.tgcMid1[3]): 0;
 
         tgcFitResult.phi = (tmp>0.)? tmp - M_PI : tmp + M_PI;
 
       } else {
 
-        tgcFitResult.dPhidZ = (fabs(tgcFitResult.tgcMid2[3]-tgcFitResult.tgcMid1[3]) > ZERO_LIMIT)?
-	  (tgcFitResult.tgcMid2[1]-tgcFitResult.tgcMid1[1])/fabs(tgcFitResult.tgcMid2[3]-tgcFitResult.tgcMid1[3]): 0;
+        tgcFitResult.dPhidZ = (std::abs(tgcFitResult.tgcMid2[3]-tgcFitResult.tgcMid1[3]) > ZERO_LIMIT)?
+	  (tgcFitResult.tgcMid2[1]-tgcFitResult.tgcMid1[1])/std::abs(tgcFitResult.tgcMid2[3]-tgcFitResult.tgcMid1[3]): 0;
         tgcFitResult.phi = (tgcFitResult.tgcMid2[1]+tgcFitResult.tgcMid1[1])/2.;
 
       }
     }
-    float X1 = tgcFitResult.tgcMid1[3] * cos(tgcFitResult.tgcMid1[1]);
-    float Y1 = tgcFitResult.tgcMid1[3] * sin(tgcFitResult.tgcMid1[1]);
-    float X2 = tgcFitResult.tgcMid2[3] * cos(tgcFitResult.tgcMid2[1]);
-    float Y2 = tgcFitResult.tgcMid2[3] * sin(tgcFitResult.tgcMid2[1]);
+    float X1 = tgcFitResult.tgcMid1[3] * std::cos(tgcFitResult.tgcMid1[1]);
+    float Y1 = tgcFitResult.tgcMid1[3] * std::sin(tgcFitResult.tgcMid1[1]);
+    float X2 = tgcFitResult.tgcMid2[3] * std::cos(tgcFitResult.tgcMid2[1]);
+    float Y2 = tgcFitResult.tgcMid2[3] * std::sin(tgcFitResult.tgcMid2[1]);
     if (X1>ZERO_LIMIT && X2>ZERO_LIMIT) tgcFitResult.phiDir = (Y1/X1 + Y2/X2)/2.;
 
     muonRoad.aw[endcap_middle][0]     = tgcFitResult.slope;
@@ -200,7 +198,7 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
       muonRoad.rWidth[bee][i_layer] = R_WIDTH_DEFAULT;
     }
     
-    if( fabs(tgcFitResult.tgcInn[3]) > ZERO_LIMIT ) {
+    if( std::abs(tgcFitResult.tgcInn[3]) > ZERO_LIMIT ) {
       muonRoad.aw[endcap_inner][0]  = tgcFitResult.tgcInn[2]/tgcFitResult.tgcInn[3];
       muonRoad.aw[barrel_inner][0]  = tgcFitResult.tgcInn[2]/tgcFitResult.tgcInn[3];
       muonRoad.aw[csc][0]           = tgcFitResult.tgcInn[2]/tgcFitResult.tgcInn[3];
@@ -245,10 +243,10 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
       
       double theta = 0.;
       if (extrInnerEta != 0.) {
-        theta = atan(exp(-fabs(extrInnerEta)))*2.;
-        muonRoad.aw[endcap_inner][0] = tan(theta)*(fabs(extrInnerEta)/extrInnerEta);
-        muonRoad.aw[barrel_inner][0] = tan(theta)*(fabs(extrInnerEta)/extrInnerEta);
-        muonRoad.aw[csc][0]          = tan(theta)*(fabs(extrInnerEta)/extrInnerEta);
+        theta = std::atan(std::exp(-std::abs(extrInnerEta)))*2.;
+        muonRoad.aw[endcap_inner][0] = std::tan(theta)*(std::abs(extrInnerEta)/extrInnerEta);
+        muonRoad.aw[barrel_inner][0] = std::tan(theta)*(std::abs(extrInnerEta)/extrInnerEta);
+        muonRoad.aw[csc][0]          = std::tan(theta)*(std::abs(extrInnerEta)/extrInnerEta);
       } else {
         muonRoad.aw[endcap_inner][0] = 0;
         muonRoad.aw[barrel_inner][0] = 0;
@@ -270,9 +268,9 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
     // or if inside-out mode, width is tuned based on FTF track extrapolation resolution
     ATH_MSG_DEBUG("Because no TGC hits are available, estimate the road from RoI");
 
-    roiEta = p_roi->eta();
-    theta  = atan(exp(-fabs(roiEta)))*2.;
-    aw     = (fabs(roiEta) > ZERO_LIMIT)? tan(theta)*(fabs(roiEta)/roiEta): 0.;
+    roiEta = p_roids->eta();
+    theta  = std::atan(std::exp(-std::abs(roiEta)))*2.;
+    aw     = (std::abs(roiEta) > ZERO_LIMIT)? std::tan(theta)*(std::abs(roiEta)/roiEta): 0.;
     
     muonRoad.aw[endcap_inner][0]     = aw;
     muonRoad.bw[endcap_inner][0]     = 0;
@@ -321,12 +319,12 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
     side      = (tgcFitResult.tgcMid1[3]<0.)? 0 : 1;
     phiMiddle =  tgcFitResult.tgcMid1[1];
   } else {
-    side      = (p_roi->eta()<0.)? 0 : 1;
-    phiMiddle =  p_roi->phi();
+    side      = (p_roids->eta()<0.)? 0 : 1;
+    phiMiddle =  p_roids->phi();
   }
   muonRoad.side      = side;
   muonRoad.phiMiddle = phiMiddle;
-  muonRoad.phiRoI    = p_roi->phi();
+  muonRoad.phiRoI    = p_roids->phi();
   
   int sector_trigger = 99;
   int sector_overlap = 99;
@@ -339,13 +337,13 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
   // get sector_trigger and sector_overlap by using the region selector
   IdContext context = m_idHelperSvc->mdtIdHelper().module_context();
   
-  double etaMin =  p_roi->eta()-.02;
-  double etaMax =  p_roi->eta()+.02;
+  double etaMin =  p_roids->eta()-.02;
+  double etaMax =  p_roids->eta()+.02;
   double phiMin = muonRoad.phiMiddle-.01;
   double phiMax = muonRoad.phiMiddle+.01;
   if(phiMax > M_PI) phiMax -= M_PI*2.;
   if(phiMin < M_PI*-1) phiMin += M_PI*2.;
-  TrigRoiDescriptor* roi = new TrigRoiDescriptor( p_roi->eta(), etaMin, etaMax, p_roi->phi(), phiMin, phiMax ); 
+  TrigRoiDescriptor* roi = new TrigRoiDescriptor( p_roids->eta(), etaMin, etaMax, p_roids->phi(), phiMin, phiMax ); 
   const IRoiDescriptor* iroi = (IRoiDescriptor*) roi;
   if (iroi) m_regionSelector->HashIDList(*iroi, mdtHashList);
   else {
@@ -362,14 +360,14 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
 
     muonRoad.stationList.push_back(id);
     std::string name = m_idHelperSvc->mdtIdHelper().stationNameString(m_idHelperSvc->mdtIdHelper().stationName(id));
-    if ( name.substr(0, 1) == 'B' ) continue;
-    if ( name.substr(1, 1) != 'M' ) continue;
+    if ( name.substr(0, 1) == "B" ) continue;
+    if ( name.substr(1, 1) != "M" ) continue;
     int stationPhi = m_idHelperSvc->mdtIdHelper().stationPhi(id);
     float floatPhi = (stationPhi-1)*M_PI/4;
     if (name[2]=='S' || name[2]=='E') floatPhi = floatPhi + M_PI/8;
-    tempDeltaPhi = fabs(floatPhi-muonRoad.phiMiddle);
-    if (phiMiddle<0) tempDeltaPhi = fabs(floatPhi-muonRoad.phiMiddle-2*M_PI);
-    if(tempDeltaPhi > M_PI) tempDeltaPhi = fabs(tempDeltaPhi - 2*M_PI);
+    tempDeltaPhi = std::abs(floatPhi-muonRoad.phiMiddle);
+    if (phiMiddle<0) tempDeltaPhi = std::abs(floatPhi-muonRoad.phiMiddle-2*M_PI);
+    if(tempDeltaPhi > M_PI) tempDeltaPhi = std::abs(tempDeltaPhi - 2*M_PI);
     
     int LargeSmall = 0;
     if(name[2]=='S' || name[2]=='E') LargeSmall = 1;
@@ -397,7 +395,7 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
   if (insideOut) {
     muonRoad.side      = (muonRoad.extFtfMiddleEta<0.)? 0 : 1;
     muonRoad.phiMiddle =  muonRoad.extFtfMiddlePhi;
-    muonRoad.phiRoI    = p_roi->phi();
+    muonRoad.phiRoI    = p_roids->phi();
     for (int i_sector=0; i_sector<N_SECTOR; i_sector++) {
       ATH_MSG_DEBUG("Use aw_ftf and bw_ftf as aw and bw");
       muonRoad.aw[endcap_inner][i_sector]  = muonRoad.aw_ftf[3][0];
@@ -446,7 +444,7 @@ bool TrigL2MuonSA::TgcRoadDefiner::prepareTgcPoints(const TrigL2MuonSA::TgcHits&
 
       // reject width=0 hits
       const double ZERO_LIMIT = 1e-5;
-      if( fabs(hit.width) < ZERO_LIMIT ) continue;
+      if( std::abs(hit.width) < ZERO_LIMIT ) continue;
       
       double w = 12.0 / hit.width / hit.width;
       if (hit.isStrip)

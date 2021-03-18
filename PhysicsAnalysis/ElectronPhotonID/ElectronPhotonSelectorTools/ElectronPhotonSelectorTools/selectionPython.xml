@@ -3,7 +3,9 @@
   <class name="AsgForwardElectronIsEMSelector" />
   <class name="AsgPhotonIsEMSelector" />
   <class name="AsgElectronLikelihoodTool" />
+  <class name="AsgForwardElectronLikelihoodTool" />
   <class name="EGammaAmbiguityTool" />
   <class name="AsgDeadHVCellRemovalTool" />
   <class name="AsgElectronChargeIDSelectorTool"/>
+  <class name="AsgElectronSelectorTool"/>
 </lcgdict>

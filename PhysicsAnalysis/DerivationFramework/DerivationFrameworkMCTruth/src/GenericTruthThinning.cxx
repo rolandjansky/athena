@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -9,10 +9,6 @@
 // Removes all truth particles/vertices which do not pass a user-defined cut
 
 #include "DerivationFrameworkMCTruth/GenericTruthThinning.h"
-#include "ExpressionEvaluation/ExpressionParser.h"
-#include "ExpressionEvaluation/SGxAODProxyLoader.h"
-#include "ExpressionEvaluation/SGNTUPProxyLoader.h"
-#include "ExpressionEvaluation/MultipleProxyLoader.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthVertexContainer.h"
 #include "xAODTruth/TruthEventContainer.h"
@@ -71,18 +67,8 @@ StatusCode DerivationFramework::GenericTruthThinning::initialize()
         return StatusCode::FAILURE;
     }
     // Set up the text-parsing machinery for thinning the truth directly according to user cuts
-    if (/*m_vtxString!="" ||*/ m_partString!="") {
-	    ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
-	    proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
-	    proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
-	    if (m_partString!="") {
-		m_partParser = new ExpressionParsing::ExpressionParser(proxyLoaders);
-	    	m_partParser->loadExpression(m_partString);
-	    }	
-	    /*if (m_vtxString!="") {
-                m_vertParser = new ExpressionParsing::ExpressionParser(proxyLoaders);
-                m_vertParser->loadExpression(m_vtxString);
-            }*/
+    if (!m_partString.empty()) {
+       ATH_CHECK( initializeParser(m_partString) );
     }
     return StatusCode::SUCCESS;
 }
@@ -92,14 +78,7 @@ StatusCode DerivationFramework::GenericTruthThinning::finalize()
     ATH_MSG_VERBOSE("finalize() ...");
     ATH_MSG_INFO("Processed "<< m_ntotvtx <<" truth vertices, "<< m_npassvtx << " were retained ");
     ATH_MSG_INFO("Processed "<< m_ntotpart <<" truth particles, "<< m_npasspart << " were retained ");
-    if (m_partString!="") {
-        delete m_partParser;
-        m_partParser = 0;
-    }
-    /*if (m_vtxString!="") {
-        delete m_vertParser;
-        m_vertParser = 0;
-    }*/
+    ATH_CHECK(finalizeParser());
     return StatusCode::SUCCESS;
 }
 
@@ -145,7 +124,7 @@ StatusCode DerivationFramework::GenericTruthThinning::doThinning() const
  
     // Execute the text parsers and update the mask
     if (m_partString!="") {
-    	std::vector<int> entries =  m_partParser->evaluateAsVector();
+    	std::vector<int> entries =  m_parser->evaluateAsVector();
     	unsigned int nEntries = entries.size();
     	// check the sizes are compatible
     	if (nParticles != nEntries ) {
@@ -156,18 +135,6 @@ StatusCode DerivationFramework::GenericTruthThinning::doThinning() const
             for (unsigned int i=0; i<nParticles; ++i) if (entries[i]==1) partMask[i]=true;
     	}
     }
-    /*if (m_vertParser) {
-        std::vector<int> entries =  m_vertParser->evaluateAsVector();
-        unsigned int nEntries = entries.size();
-        // check the sizes are compatible
-        if (nVertices != nEntries ) {
-                ATH_MSG_ERROR("Sizes incompatible! Are you sure your selection string used TruthVertices?");
-            return StatusCode::FAILURE;
-        } else {
-            // set mask
-            for (unsigned int i=0; i<nVertices; ++i) if (entries[i]==1) vertMask[i]=true;
-        }
-    } */  
 
     // Special treatment of taus such that only the last one in the chain is kept 
     // Needs another run over the particle collection

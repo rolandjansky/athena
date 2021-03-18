@@ -7,17 +7,17 @@
 
 #include "./DebugInfoCollector.h"
 #include <vector>
-#include <optional>
 #include <memory>
 
 typedef std::unique_ptr<ITrigJetHypoInfoCollector> Collector;
 
 class IJetGroupProduct{
   /*
-   * Interface to jet group amkers for FastReducer. 
+   * Interface to jet group makers for FastReducer. 
    */
  public:
-  virtual std::optional<std::vector<std::size_t>> next(const Collector&) = 0;
+  virtual ~IJetGroupProduct() = default;
+  virtual std::vector<std::size_t> next(const Collector&) = 0;
 };
 
 #endif

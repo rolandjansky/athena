@@ -194,8 +194,9 @@ StatusCode HltEventLoopMgr::initialize()
   // HLTResultMT ReadHandle (created dynamically from the result builder property)
   m_hltResultRHKey = m_hltResultMaker->resultName();
   ATH_CHECK(m_hltResultRHKey.initialize());
-  // L1TriggerResult ReadHandle
-  ATH_CHECK(m_l1TriggerResultRHKey.initialize(m_rewriteLVL1.value()));
+  // L1TriggerResult and RoIBResult ReadHandles for RewriteLVL1
+  ATH_CHECK(m_l1TriggerResultRHKey.initialize(SG::AllowEmpty));
+  ATH_CHECK(m_roibResultRHKey.initialize(SG::AllowEmpty));
 
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return StatusCode::SUCCESS;
@@ -1286,24 +1287,48 @@ HltEventLoopMgr::DrainSchedulerStatusCode HltEventLoopMgr::drainScheduler()
 
     // Retrieve and convert the L1 result to the output data format
     IOpaqueAddress* l1addr = nullptr;
+    IOpaqueAddress* l1addrLegacy = nullptr;
     if (m_rewriteLVL1) {
-      auto l1TriggerResult = SG::makeHandle(m_l1TriggerResultRHKey, *thisFinishedEvtContext);
-      if (!l1TriggerResult.isValid()) markFailed();
-      HLT_DRAINSCHED_CHECK(sc, "Failed to retrieve the L1 Trigger Result for RewriteLVL1",
-                          HLT::OnlineErrorCode::OUTPUT_BUILD_FAILURE, thisFinishedEvtContext);
+      // Run-3 L1 simulation result
+      if (not m_l1TriggerResultRHKey.empty()) {
+        auto l1TriggerResult = SG::makeHandle(m_l1TriggerResultRHKey, *thisFinishedEvtContext);
+        if (!l1TriggerResult.isValid()) markFailed();
+        HLT_DRAINSCHED_CHECK(sc, "Failed to retrieve the L1 Trigger Result for RewriteLVL1",
+                            HLT::OnlineErrorCode::OUTPUT_BUILD_FAILURE, thisFinishedEvtContext);
 
-      DataObject* l1TriggerResultDO = m_evtStore->accessData(l1TriggerResult.clid(),l1TriggerResult.key());
-      if (l1TriggerResultDO == nullptr) markFailed();
-      HLT_DRAINSCHED_CHECK(sc, "Failed to retrieve the L1 Trigger Result DataObject for RewriteLVL1",
-                          HLT::OnlineErrorCode::OUTPUT_BUILD_FAILURE, thisFinishedEvtContext);
+        DataObject* l1TriggerResultDO = m_evtStore->accessData(l1TriggerResult.clid(),l1TriggerResult.key());
+        if (l1TriggerResultDO == nullptr) markFailed();
+        HLT_DRAINSCHED_CHECK(sc, "Failed to retrieve the L1 Trigger Result DataObject for RewriteLVL1",
+                            HLT::OnlineErrorCode::OUTPUT_BUILD_FAILURE, thisFinishedEvtContext);
 
-      sc = m_outputCnvSvc->createRep(l1TriggerResultDO,l1addr);
-      if (sc.isFailure()) {
-        delete l1addr;
-        atLeastOneFailed = true;
+        sc = m_outputCnvSvc->createRep(l1TriggerResultDO,l1addr);
+        if (sc.isFailure()) {
+          delete l1addr;
+          atLeastOneFailed = true;
+        }
+        HLT_DRAINSCHED_CHECK(sc, "Conversion service failed to convert L1 Trigger Result for RewriteLVL1",
+                            HLT::OnlineErrorCode::OUTPUT_BUILD_FAILURE, thisFinishedEvtContext);
       }
-      HLT_DRAINSCHED_CHECK(sc, "Conversion service failed to convert L1 Trigger Result for RewriteLVL1",
-                          HLT::OnlineErrorCode::OUTPUT_BUILD_FAILURE, thisFinishedEvtContext);
+      // Legacy (Run-2) L1 simulation result
+      if (not m_roibResultRHKey.empty()) {
+        auto roibResult = SG::makeHandle(m_roibResultRHKey, *thisFinishedEvtContext);
+        if (!roibResult.isValid()) markFailed();
+        HLT_DRAINSCHED_CHECK(sc, "Failed to retrieve the RoIBResult for RewriteLVL1",
+                            HLT::OnlineErrorCode::OUTPUT_BUILD_FAILURE, thisFinishedEvtContext);
+
+        DataObject* roibResultDO = m_evtStore->accessData(roibResult.clid(),roibResult.key());
+        if (roibResultDO == nullptr) markFailed();
+        HLT_DRAINSCHED_CHECK(sc, "Failed to retrieve the RoIBResult DataObject for RewriteLVL1",
+                            HLT::OnlineErrorCode::OUTPUT_BUILD_FAILURE, thisFinishedEvtContext);
+
+        sc = m_outputCnvSvc->createRep(roibResultDO,l1addrLegacy);
+        if (sc.isFailure()) {
+          delete l1addrLegacy;
+          atLeastOneFailed = true;
+        }
+        HLT_DRAINSCHED_CHECK(sc, "Conversion service failed to convert RoIBResult for RewriteLVL1",
+                            HLT::OnlineErrorCode::OUTPUT_BUILD_FAILURE, thisFinishedEvtContext);
+      }
     }
 
     // Save event processing time before sending output
@@ -1323,6 +1348,7 @@ HltEventLoopMgr::DrainSchedulerStatusCode HltEventLoopMgr::drainScheduler()
     // The output has been sent out, the ByteStreamAddress can be deleted
     delete addr;
     delete l1addr;
+    delete l1addrLegacy;
 
     //--------------------------------------------------------------------------
     // Flag idle slot to the timeout thread and reset the timer

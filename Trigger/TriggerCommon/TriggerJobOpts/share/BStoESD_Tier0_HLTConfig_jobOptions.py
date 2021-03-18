@@ -36,8 +36,7 @@ if rec.doTrigger():
         from ByteStreamCnvSvcBase. ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc
         ServiceMgr += ByteStreamAddressProviderSvc()
 
-    tf.readBS=True # needed in HLTTriggerGetter - do not understand why it is not
-    # true by default when globalflags.InputFormat = 'bytestream'
+    tf.readBS=True
     tf.doLVL1= False # needed to not rerun the trigger
     tf.doHLT= False # needed to not rerun the trigger
     if ConfigFlags.Trigger.EDMVersion >= 3:
@@ -144,7 +143,13 @@ if rec.doTrigger():
                          'L1CPCMXTools', 'L1EmTauTools', 'L1JEMJetTools', 'L1JetEtTools', 'L1JetTools']:
             if not hasattr(ToolSvc, toolName ):
                 ToolSvc += eval('calotools.LVL1__%s( toolName )' % toolName)
-            getattr(ToolSvc, toolName).LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
+            theTool = getattr(ToolSvc, toolName)
+            theTool.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
+            if 'UseNewConfig' in theTool.getProperties():
+                _log.info("Setting ToolSvc.%s.UseNewConfig to %s", theTool.name(), ConfigFlags.Trigger.readLVL1FromJSON)
+                theTool.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
+
+
 
     #---------------------------------------------------------------------------
     try:
@@ -152,7 +157,7 @@ if rec.doTrigger():
         triggerGetter = T0TriggerGetter()
     except Exception:
         from AthenaCommon.Resilience import treatException
-        treatException("Could not import TriggerJobOpts.TriggerGetter . Switched off !" )
+        treatException("Could not import TriggerJobOpts.T0TriggerGetter . Switched off !" )
         recAlgs.doTrigger=False
     if rec.doWriteBS():
         include( "ByteStreamCnvSvc/RDP_ByteStream_jobOptions.py" )

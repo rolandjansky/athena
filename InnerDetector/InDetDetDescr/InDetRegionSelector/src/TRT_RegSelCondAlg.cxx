@@ -16,8 +16,6 @@
 #include "StoreGate/WriteCondHandle.h"
 
 
-#include "InDetReadoutGeometry/SiDetectorManager.h"
-
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
@@ -31,7 +29,6 @@
 #include "Identifier/Identifier.h" 
 #include "Identifier/IdentifierHash.h" 
 
-#include "TRT_ReadoutGeometry/TRT_DetectorManager.h" 
 #include "TRT_ReadoutGeometry/TRT_Numerology.h" 
 
 #include <iostream>
@@ -50,12 +47,10 @@
 
 TRT_RegSelCondAlg::TRT_RegSelCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthReentrantAlgorithm( name, pSvcLocator ),
-  m_managerName("TRT"),
   m_printTable(false)
 { 
   ATH_MSG_DEBUG( "TRT_RegSelCondAlg::TRT_RegSelCondAlg() " << this->name() );
   declareProperty( "PrintTable",  m_printTable=false );  
-  declareProperty( "ManagerName", m_managerName );  
 }
 
 
@@ -64,7 +59,7 @@ TRT_RegSelCondAlg::TRT_RegSelCondAlg(const std::string& name, ISvcLocator* pSvcL
 StatusCode TRT_RegSelCondAlg::initialize()
 {
   ATH_MSG_DEBUG("TRT_RegSelCondAlg::initialize() ");
-  ATH_CHECK(m_condCablingKey.initialize());
+  ATH_CHECK(m_trtDetEleContKey.initialize());
   ATH_CHECK(m_tableKey.initialize());
   ATH_MSG_INFO("TRT_RegSelCondAlg::initialize() " << m_tableKey );
   return StatusCode::SUCCESS;
@@ -90,16 +85,15 @@ StatusCode TRT_RegSelCondAlg::execute(const EventContext& ctx)  const
   }
 
 
-  StatusCode sc;
-  // Retrieve manager
-  const InDetDD::TRT_DetectorManager* manager;
-
-  if ( (sc=detStore()->retrieve(manager, m_managerName)).isFailure() ) {
-    ATH_MSG_FATAL(  "Could not find the Manager: "<< m_managerName << " !" );
+  // Get TRT Detector Elements
+  SG::ReadCondHandle<InDetDD::TRT_DetElementContainer> trtDetEleHandle(m_trtDetEleContKey,ctx);
+  const InDetDD::TRT_DetElementContainer* elements(*trtDetEleHandle);
+  if (not trtDetEleHandle.isValid() or elements==nullptr) {
+    ATH_MSG_FATAL(m_trtDetEleContKey.fullKey() << " is not available.");
     return StatusCode::FAILURE;
-  } 
+  }
 
-  ATH_MSG_DEBUG( "Manager found " << m_managerName );
+  ATH_MSG_DEBUG( "Retrieved Condition Object with TRT Detector Elements: " << m_trtDetEleContKey.fullKey() );
 
   
   // Get Tool Service
@@ -128,19 +122,10 @@ StatusCode TRT_RegSelCondAlg::execute(const EventContext& ctx)  const
     return StatusCode::FAILURE;
   }
 
-  /// FIXME: since we store the LUT as conditions data, we need an EventIDRange for  
-  ///        the WriteCondHandle, but the SCT cabling is not yet conditions data so
-  ///        have to get the pixelCabling for the SCT case also so that the
-  ///        EventIDRange can be extracted
-  ///        Once the TRT cabling is iself conditions data based, we will be able to 
-  ///        getthe corresponding EventIDRange from there
-
-  SG::ReadCondHandle<PixelCablingCondData> pixCabling( m_condCablingKey, ctx );
-
   EventIDRange id_range;
 
-  if( !pixCabling.range( id_range ) ) {
-    ATH_MSG_ERROR("Failed to retrieve validity range for " << pixCabling.key());
+  if( !trtDetEleHandle.range( id_range ) ) {
+    ATH_MSG_ERROR("Failed to retrieve validity range for " << trtDetEleHandle.key());
     return StatusCode::FAILURE;
   }   
 
@@ -170,7 +155,7 @@ StatusCode TRT_RegSelCondAlg::execute(const EventContext& ctx)  const
     Identifier idelement;
     double phiMin,phiMax,rz;    
     if (idHelper->is_barrel(id)) {
-      Belement = manager->getBarrelElement(idSide, idLayerWheel, idPhiModule, idStrawLayer);
+      Belement = elements->getBarrelDetElement(idSide, idLayerWheel, idPhiModule, idStrawLayer);
       idelement = Belement->identify();
       int Nstraws = Belement->nStraws();
       const int theLastStraw=Nstraws-1;
@@ -197,7 +182,7 @@ StatusCode TRT_RegSelCondAlg::execute(const EventContext& ctx)  const
         rd->addModule(smod);
       }
     } else {
-      Eelement  = manager->getEndcapElement(idSide, idLayerWheel, idStrawLayer, idPhiModule);
+      Eelement  = elements->getEndcapDetElement(idSide, idLayerWheel, idStrawLayer, idPhiModule);
       idelement = Eelement->identify();
       int Nstraws   = Eelement->getDescriptor()->nStraws();
       double pitch  = Eelement->getDescriptor()->strawPitch();

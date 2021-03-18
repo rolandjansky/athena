@@ -157,7 +157,7 @@ StatusCode Trk::STEP_Propagator::finalize()
 
 
 /** Main propagation method NeutralParameters. Use StraightLinePropagator for neutrals*/
-Trk::NeutralParameters*
+std::unique_ptr<Trk::NeutralParameters>
 Trk::STEP_Propagator::propagate (const Trk::NeutralParameters&,
                                  const Trk::Surface&,
                                  Trk::PropDirection,

@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //  Convert TrackParticle parameters to internal VKalVrt parameters
-// and sets up common reference system for ALL tracks 
+// and sets up common reference system for ALL tracks
 // even if in the beginning in was different
-//------------------------------------------------------------------ 
+//------------------------------------------------------------------
 // Header include
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 #include "TrkVKalVrtFitter/VKalVrtAtlas.h"
@@ -16,7 +16,7 @@
 #include  "TrkParameters/TrackParameters.h"
 #include  "TrkNeutralParameters/NeutralParameters.h"
 //----
-#include <iostream> 
+#include <iostream>
 
 namespace Trk {
 
@@ -52,18 +52,18 @@ namespace Trk {
      state.m_trkControl.clear(); state.m_trkControl.reserve(InpTrk.size());
      for (i_ntrk = InpTrk.begin(); i_ntrk < InpTrk.end(); ++i_ntrk) {
 //-- (Measured)Perigee in xAOD::TrackParticle
-       mPer = &(*i_ntrk)->perigeeParameters(); 
+       mPer = &(*i_ntrk)->perigeeParameters();
        if( mPer==nullptr ) continue; // No perigee!!!
        perGlobalPos =  mPer->position();    //Global position of perigee point
        if(fabs(perGlobalPos.z())   > m_IDsizeZ)return StatusCode::FAILURE;   // Crazy user protection
        if(     perGlobalPos.perp() > m_IDsizeR)return StatusCode::FAILURE;
        tmp_refFrameX += perGlobalPos.x() ;	// Reference system calculation
-       tmp_refFrameY += perGlobalPos.y() ;	// Use hit position itself to get more precise 
+       tmp_refFrameY += perGlobalPos.y() ;	// Use hit position itself to get more precise
        tmp_refFrameZ += perGlobalPos.z() ;	// magnetic field
        TrkMatControl tmpMat;
        tmpMat.trkRefGlobPos=Amg::Vector3D( perGlobalPos.x(), perGlobalPos.y(), perGlobalPos.z());
        tmpMat.extrapolationType=2;                   // Perigee point strategy
-       tmpMat.TrkPnt=mPer; 
+       tmpMat.TrkPnt=mPer;
        tmpMat.prtMass = 139.5702;
        if(counter<(int)state.m_MassInputParticles.size())tmpMat.prtMass = state.m_MassInputParticles[counter];
        tmpMat.TrkID=counter; state.m_trkControl.push_back(tmpMat);
@@ -87,7 +87,7 @@ namespace Trk {
 //
 //-- (Measured)Perigee in TrackParticle
 //
-       mPer = &(*i_ntrk)->perigeeParameters(); 
+       mPer = &(*i_ntrk)->perigeeParameters();
        if( mPer==nullptr ) continue; // No perigee!!!
        perGlobalPos =  mPer->position();    //Global position of perigee point
        if( !convertAmg5SymMtx(mPer->covariance(), CovVertTrk) ) return StatusCode::FAILURE; //VK no good covariance matrix!;
@@ -96,29 +96,19 @@ namespace Trk {
        if(fabs(BMAG_FIXED) < 0.01) BMAG_FIXED=0.01;
 //
 //--- Move ref. frame to the track common point refGVertex
-//    Small beamline inclination doesn't change track covariance matrix 
+//    Small beamline inclination doesn't change track covariance matrix
        AmgSymMatrix(5) * tmpCov = new AmgSymMatrix(5)(*(mPer->covariance()));
-       const Perigee * tmpPer=surfGRefPoint.createTrackParameters(mPer->position(),mPer->momentum(),mPer->charge(),tmpCov);
-       VectPerig    =  tmpPer->parameters(); 
-//std::cout.precision(12);
-//std::cout<<"beamtilt="<<(*i_ntrk)->beamlineTiltX()<<", "<<(*i_ntrk)->beamlineTiltY()<<'\n';
-//std::cout<<" Def per==>"<<(*mPer)<<'\n';
-//std::cout<<" Def srf==>"<<mPer->associatedSurface()<<'\n';
-//std::cout<<" Def rot==>"<<mPer->associatedSurface().transform().rotation()<<'\n';
-//std::cout<<" Def trn==>"<<mPer->associatedSurface().transform().translation()<<'\n';
-//std::cout<<" New per==>"<<(*tmpPer)<<'\n';
-//std::cout<<" New per==>"<<tmpPer->momentum()<<'\n';
-//std::cout<<" New srf==>"<<tmpPer->associatedSurface()<<'\n';
-//std::cout<<" New rot==>"<<tmpPer->associatedSurface().transform().rotation()<<'\n';
-//std::cout<<" New trn==>"<<tmpPer->associatedSurface().transform().translation()<<'\n';
-//
+       const Perigee tmpPer(mPer->position(),mPer->momentum(),mPer->charge(),surfGRefPoint,tmpCov);
+       VectPerig    =  tmpPer.parameters();
 //--- Transform to internal parametrisation
        VKalTransform( BMAG_FIXED, (double)VectPerig[0], (double)VectPerig[1],
               (double)VectPerig[2], (double)VectPerig[3], (double)VectPerig[4], CovVertTrk,
                      state.m_ich[ntrk],&state.m_apar[ntrk][0],&state.m_awgt[ntrk][0]);
-       delete tmpPer; //tmpCov matrix is deleted here!!!
 //
-       ntrk++; if(ntrk>=NTrMaxVFit) return StatusCode::FAILURE;
+       ntrk++;
+       if(ntrk>=NTrMaxVFit) {
+         return StatusCode::FAILURE;
+       }
     }
 //-------------- Finally setting new reference frame common for ALL tracks
     state.m_refFrameX=tmp_refFrameX;
@@ -158,13 +148,13 @@ namespace Trk {
      state.m_trkControl.clear(); state.m_trkControl.reserve(InpTrk.size());
      for (i_ntrk = InpTrk.begin(); i_ntrk < InpTrk.end(); ++i_ntrk) {
 //-- (Measured)Perigee in xAOD::NeutralParticle
-       mPer = &(*i_ntrk)->perigeeParameters(); 
+       mPer = &(*i_ntrk)->perigeeParameters();
        if( mPer==nullptr ) continue; // No perigee!!!
        perGlobalPos =  mPer->position();    //Global position of perigee point
        if(fabs(perGlobalPos.z())   > m_IDsizeZ)return StatusCode::FAILURE;   // Crazy user protection
        if(     perGlobalPos.perp() > m_IDsizeR)return StatusCode::FAILURE;
        tmp_refFrameX += perGlobalPos.x() ;	// Reference system calculation
-       tmp_refFrameY += perGlobalPos.y() ;	// Use hit position itself to get more precise 
+       tmp_refFrameY += perGlobalPos.y() ;	// Use hit position itself to get more precise
        tmp_refFrameZ += perGlobalPos.z() ;	// magnetic field
        TrkMatControl tmpMat;
        tmpMat.trkRefGlobPos=Amg::Vector3D( perGlobalPos.x(), perGlobalPos.y(), perGlobalPos.z());
@@ -194,7 +184,7 @@ namespace Trk {
 //
 //-- (Measured)Perigee in TrackParticle
 //
-       mPer = &(*i_ntrk)->perigeeParameters(); 
+       mPer = &(*i_ntrk)->perigeeParameters();
        if( mPer==nullptr ) continue; // No perigee!!!
        perGlobalPos =  mPer->position();    //Global position of perigee point
        if( !convertAmg5SymMtx(mPer->covariance(), CovVertTrk) ) return StatusCode::FAILURE; //VK no good covariance matrix!;
@@ -204,11 +194,11 @@ namespace Trk {
 
 //
 //--- Move ref. frame to the track common point refGVertex
-//    Small beamline inclination doesn't change track covariance matrix 
+//    Small beamline inclination doesn't change track covariance matrix
 //
        AmgSymMatrix(5) * tmpCov = new AmgSymMatrix(5)(*(mPer->covariance()));
-       const Perigee * tmpPer=surfGRefPoint.createTrackParameters(mPer->position(),mPer->momentum(),mPer->charge(),tmpCov);
-       VectPerig    =  tmpPer->parameters(); 
+       const Perigee tmpPer(mPer->position(),mPer->momentum(),mPer->charge(),surfGRefPoint,tmpCov);
+       VectPerig    =  tmpPer.parameters();
        //--- Transform to internal parametrisation
        VKalTransform( BMAG_FIXED, (double)VectPerig[0], (double)VectPerig[1],
               (double)VectPerig[2], (double)VectPerig[3], (double)VectPerig[4], CovVertTrk,
@@ -219,17 +209,17 @@ namespace Trk {
                               state.m_awgt[ntrk][11] = -state.m_awgt[ntrk][11];
                               state.m_awgt[ntrk][12] = -state.m_awgt[ntrk][12];
                               state.m_awgt[ntrk][13] = -state.m_awgt[ntrk][13]; }
-       delete tmpPer; //tmpCov matrix is deleted here!!!
-//
 
-       ntrk++; if(ntrk>=NTrMaxVFit) return StatusCode::FAILURE;
+       ntrk++;
+       if(ntrk>=NTrMaxVFit) {
+         return StatusCode::FAILURE;
+       }
     }
 //-------------- Finally setting new reference frame common for ALL tracks
     state.m_refFrameX=tmp_refFrameX;
     state.m_refFrameY=tmp_refFrameY;
     state.m_refFrameZ=tmp_refFrameZ;
     state.m_fitField.setAtlasMagRefFrame( state.m_refFrameX, state.m_refFrameY, state.m_refFrameZ);
-
     return StatusCode::SUCCESS;
   }
 
@@ -238,8 +228,9 @@ namespace Trk {
   const Perigee* TrkVKalVrtFitter::GetPerigee( const TrackParameters* i_ntrk)  const
   {
        const Perigee* mPer = nullptr;
-       if(i_ntrk->associatedSurface().type()==Surface::Perigee && i_ntrk->covariance()!= nullptr ) 
+       if(i_ntrk->surfaceType()==Surface::Perigee && i_ntrk->covariance()!= nullptr ) {
             mPer = dynamic_cast<const Perigee*> (i_ntrk);
+       }
        return mPer;
   }
 

@@ -11,6 +11,7 @@
 #include <string>
 
 #include "TrigT1MuctpiPhase1/Configuration.h"
+#include "TrigT1MuctpiPhase1/L1TopoLUT.h"
 
 namespace LVL1MUONIF {
   class Lvl1MuCTPIInputPhase1;
@@ -25,7 +26,6 @@ namespace LVL1MUCTPIPHASE1 {
 
   class MuonSectorProcessor;
   class TriggerProcessor;
-
   class SimController
   {
     
@@ -34,13 +34,16 @@ namespace LVL1MUCTPIPHASE1 {
     SimController();
     ~SimController();
 
-    void configureTopo(const std::string& geoFile);
+    void configureTopo(const std::string& barrelFileName,
+		       const std::string& ecfFileName,
+		       const std::string& side0LUTFileName,
+		       const std::string& side1LUTFileName);
     void configureOverlapRemoval(const std::string& lutFile);
 
-    void processData(LVL1MUONIF::Lvl1MuCTPIInputPhase1* input, int bcid=0);
+    bool processData(LVL1MUONIF::Lvl1MuCTPIInputPhase1* input, int bcid=0);
     void setConfiguration( const Configuration& conf );
 
-    LVL1::MuCTPIL1Topo getL1TopoData(int bcidOffset);
+    LVL1::MuCTPIL1Topo getL1TopoData(int bcid);
 
     TriggerProcessor* getTriggerProcessor();
 
@@ -54,6 +57,8 @@ namespace LVL1MUCTPIPHASE1 {
     unsigned int m_maxCandSendToRoib;
     unsigned int m_candBcidOffset;
     std::vector< std::vector< unsigned int > > m_ptSorterBuckets;
+
+    L1TopoLUT m_l1topoLUT;
 
     TriggerProcessor* m_triggerProcessor;
     std::vector<MuonSectorProcessor*> m_muonSectorProcessors;

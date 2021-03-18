@@ -39,9 +39,11 @@ def TRT_CalDbToolCfg(flags, name="TRT_CalDbTool"):
 def TRT_StrawStatusSummaryToolCfg(flags, name="TRT_StrawStatusSummaryTool"):
     """Return a ComponentAccumulator for TRT_StrawStatusSummaryTool"""
     acc = ComponentAccumulator()
+    from AthenaConfiguration.Enums import ProductionStep
+    isGeant4 = flags.Common.ProductionStep == ProductionStep.Simulation
     TRT_StrawStatusSummaryTool = CompFactory.TRT_StrawStatusSummaryTool
     acc.setPrivateTools(TRT_StrawStatusSummaryTool(name="TRT_StrawStatusSummaryTool",
-                                                   isGEANT4=flags.Detector.Simulate))
+                                                   isGEANT4=isGeant4))
     return acc
 
 
@@ -66,13 +68,15 @@ def TRT_LocalOccupancyCfg(flags, name="TRT_LocalOccupancy"):
 def TRTStrawCondAlgCfg(flags, name="TRTStrawCondAlg"):
     """Return a ComponentAccumulator for TRTStrawCondAlg algorithm"""
     acc = ComponentAccumulator()
+    from AthenaConfiguration.Enums import ProductionStep
+    isGeant4 = flags.Common.ProductionStep == ProductionStep.Simulation
     trtStrawStatusSummaryTool = acc.popToolsAndMerge(
         TRT_StrawStatusSummaryToolCfg(flags))
     # Alive straws algorithm
     TRTStrawCondAlg = CompFactory.TRTStrawCondAlg
     acc.addCondAlgo(TRTStrawCondAlg(name="TRTStrawCondAlg",
                                     TRTStrawStatusSummaryTool=trtStrawStatusSummaryTool,
-                                    isGEANT4=flags.Detector.Simulate))
+                                    isGEANT4=isGeant4))
     return acc
 
 

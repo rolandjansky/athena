@@ -55,10 +55,14 @@ namespace TrigConf {
       const L1Prescale & prescale(const std::string & itemName) const;
       const std::map<std::string, L1Prescale>& prescales() const;
 
+      /** Clearing the configuration data */
+      virtual void clear() override;
+
    private:
 
       /** Update the internal prescale map after modification of the data object */
-      virtual void update() override;
+      virtual void update() override { load(); };
+      void load();
 
       /** the prescale key */
       unsigned int m_psk {0};

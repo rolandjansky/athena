@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-/*
- */
 /**
  * @file JetTagInfoTPCnv/test/PhotonAssociationCnv_p1_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -16,6 +14,7 @@
 #include "SGTools/TestStore.h"
 #include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include <cassert>
 #include <iostream>
 
@@ -54,6 +53,7 @@ void testit (const Analysis::PhotonAssociation& trans1)
 void test1 (SGTest::TestStore* store)
 {
   std::cout << "test1\n";
+  (void)Gaudi::Hive::currentContext();
   Analysis::PhotonAssociation trans0a ("name0");
   Analysis::PhotonAssociation trans0b ("name1");
   Athena::getMessageSvc();

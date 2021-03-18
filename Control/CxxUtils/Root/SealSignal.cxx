@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -1499,6 +1499,13 @@ static char buf[SIGNAL_MESSAGE_BUFSIZE];
 bool
 Signal::fatalDump ATLAS_NOT_THREAD_SAFE (int sig, siginfo_t *info, void *extra)
 {
+  return fatalDump (sig, info, extra, s_fatalFd, s_fatalOptions);
+}
+bool
+Signal::fatalDump ATLAS_NOT_THREAD_SAFE (int sig, siginfo_t *info, void *extra,
+                                         IOFD fd,
+                                         unsigned options)
+{
     bool haveCore = false;
     if (sig < 0)
     {
@@ -1506,49 +1513,49 @@ Signal::fatalDump ATLAS_NOT_THREAD_SAFE (int sig, siginfo_t *info, void *extra)
 	haveCore = true;
     }
 
-    if (s_fatalOptions & FATAL_DUMP_SIG)
+    if (options & FATAL_DUMP_SIG)
     {
-	MYWRITE (s_fatalFd, "\n", 1);
+	MYWRITE (fd, "\n", 1);
 	if (s_applicationName)
 	{
-	    MYWRITE (s_fatalFd, s_applicationName,
+	    MYWRITE (fd, s_applicationName,
 		     STDC::strlen (s_applicationName));
-	    MYWRITE (s_fatalFd, " ", 1);
+	    MYWRITE (fd, " ", 1);
 	}
 
-	MYWRITE (s_fatalFd, buf,
+	MYWRITE (fd, buf,
 		 snprintf (buf, SIGNAL_MESSAGE_BUFSIZE, "(pid=%ld ppid=%ld) received fatal signal %d"
 			  " (%.100s)%s\n",
 			  (long) ProcessInfo__pid (), (long) ProcessInfo__ppid (), // wlav :: -> __ (x2)
 			  sig, name (sig), haveCore ? " (core dumped)" : ""));
 
-	MYWRITE (s_fatalFd, buf, sprintf(buf,"signal context:\n"));
-	dumpInfo (s_fatalFd, buf, sig, info);
+	MYWRITE (fd, buf, sprintf(buf,"signal context:\n"));
+	dumpInfo (fd, buf, sig, info);
     }
 
     unsigned long sp = 0;
-    if (s_fatalOptions & FATAL_DUMP_CONTEXT)
-	sp = dumpContext (s_fatalFd, buf, extra);
+    if (options & FATAL_DUMP_CONTEXT)
+	sp = dumpContext (fd, buf, extra);
 
-    if (s_fatalOptions & FATAL_DUMP_STACK)
+    if (options & FATAL_DUMP_STACK)
     {
-	MYWRITE (s_fatalFd, buf, sprintf(buf,"\nstack trace:\n"));
+	MYWRITE (fd, buf, sprintf(buf,"\nstack trace:\n"));
         if (s_lastSP) {
-          MYWRITE (s_fatalFd, buf, sprintf(buf,"\n(backtrace failed; raw dump follows)\n"));
-          MYWRITE (s_fatalFd, buf, sprintf(buf,"%016lx:", s_lastSP));
-          dumpMemory (s_fatalFd, buf, reinterpret_cast<void*>(s_lastSP), 1024);
-          MYWRITE (s_fatalFd, buf, sprintf(buf,"\n\n"));
+          MYWRITE (fd, buf, sprintf(buf,"\n(backtrace failed; raw dump follows)\n"));
+          MYWRITE (fd, buf, sprintf(buf,"%016lx:", s_lastSP));
+          dumpMemory (fd, buf, reinterpret_cast<void*>(s_lastSP), 1024);
+          MYWRITE (fd, buf, sprintf(buf,"\n\n"));
         }
         else {
           s_lastSP = sp;
-          DebugAids::stacktrace (s_fatalFd);
+          DebugAids::stacktrace (fd);
         }
         s_lastSP = 0;
     }
 
-    if (s_fatalOptions & FATAL_DUMP_LIBS)
+    if (options & FATAL_DUMP_LIBS)
     {
-	MYWRITE (s_fatalFd, buf, sprintf(buf,"\nshared libraries present:\n"));
+	MYWRITE (fd, buf, sprintf(buf,"\nshared libraries present:\n"));
 	try { SharedLibrary::loaded (*SignalDumpCallback); }
 	catch (...) { ; }
     }

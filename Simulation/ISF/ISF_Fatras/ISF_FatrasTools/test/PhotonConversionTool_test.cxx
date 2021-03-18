@@ -60,9 +60,8 @@ class TestParticleBroker
 DECLARE_COMPONENT( TestParticleBroker )
 
 
-void test1(iFatras::IPhotonConversionTool& tool)
+void test(iFatras::IPhotonConversionTool& tool)
 {
-  std::cout << "test1\n";
   std::cout << "test: "  << tool.name() << "\n";
   Trk::Material mat1(0.1,  0.2,  0.3,  0.4,  0.5);
   Trk::MaterialProperties trkmat(mat1, 10.0);
@@ -91,7 +90,7 @@ int main()
    ServiceHandle<ISF::IParticleBroker> pbroker ("TestParticleBroker", "testbroker");
    assert (pbroker.retrieve().isSuccess());
  
-   test1(*tool);
+   test(*tool);
 
    return 0;
 }

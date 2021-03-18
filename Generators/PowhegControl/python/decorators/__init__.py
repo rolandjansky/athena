@@ -1,49 +1,7 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
 # flake8: noqa
-from .AnomalousCouplingDecorator import *
-from .BaseDecorator import *
-from .CKKWDecorator import *
-from .CKMDecorator import *
-from .DarkMatterDecorator import *
-from .DarkMatterPhiDecorator import *
-from .DibosonDecorator import *
-from .DibosonInterferenceDecorator import *
-from .ExtraTestsDecorator import *
-from .FakeVirtualDecorator import *
-from .FixedScaleDecorator import *
-from .HeavyQuarkDecorator import *
-from .HiggsDecayModeDecorator import *
-from .HiggsDecayPropertiesDecorator import *
-from .HiggsFixedWidthDecorator import *
-from .HiggsMassWindowDecorator import *
-from .HiggsPropertiesDecorator import *
-from .HPlusJetsDecorator import *
-from .HVJDecorator import *
-from .JacsingDecorator import *
-from .LeptonMassDecorator import *
-from .LHEv3Decorator import *
-from .MassWindowDecorator import *
-from .MiNLONLLDecorator import *
-from .NNLOReweightingDecorator import *
-from .RadiationParametrisationDecorator import *
-from .RunningScaleDecorator import *
-from .RunningScalesDecorator import *
-from .RunningWidthDecorator import *
-from .SecondGenerationQuarkMassDecorator import *
-from .SemileptonicDecorator import *
-from .Sin2ThetaWDecorator import *
-from .SingleTopDecorator import *
-from .SingleVectorBosonDecorator import *
-from .TopDecayBranchingDecorator import *
-from .TopDecayModeDecorator import *
-from .TopDecaySecondGenerationQuarkDecorator import *
-from .TopMassDecorator import *
-from .VectorBosonDecayDecorator import *
-from .V2Decorator import *
-from .VPlusJetsDecorator import *
-from .WIDDecorator import *
-from .WDecayModeDecorator import *
-from .WMassWindowDecorator import *
-from .WWDecayDecorator import *
-from .ZeroWidthDecorator import *
-from .ZMassWindowDecorator import *
+
+from .cached import cached
+from .singleton import Singleton
+from .timed import timed

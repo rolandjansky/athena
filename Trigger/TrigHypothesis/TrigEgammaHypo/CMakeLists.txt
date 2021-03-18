@@ -1,19 +1,14 @@
-################################################################################
-# Package: TrigEgammaHypo
-################################################################################
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigEgammaHypo )
-
-# External dependencies:
-find_package( ROOT COMPONENTS Core MathCore Hist )
 
 # Component(s) in the package:
 atlas_add_component( TrigEgammaHypo
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks AthViews AthenaBaseComps AthenaMonitoringKernelLib CaloDetDescrLib CaloEvent CaloUtilsLib DecisionHandlingLib EgammaAnalysisInterfacesLib GaudiKernel LumiBlockCompsLib LumiBlockData PATCoreLib RecoToolInterfaces StoreGateLib TrigCaloRecLib TrigCompositeUtilsLib TrigInterfacesLib TrigMissingEtEvent TrigMultiVarHypoLib TrigNavigationLib TrigSteeringEvent TrigT1Interfaces TrigTimeAlgsLib TrkCaloExtension TrkSurfaces VxVertex egammaEvent egammaInterfacesLib xAODBase xAODCaloEvent xAODEgamma xAODEgammaCnvLib xAODTracking xAODTrigCalo xAODTrigEgamma xAODTrigRinger xAODTrigger TrigParticle )
+                     LINK_LIBRARIES AthViews AthenaBaseComps AthenaMonitoringKernelLib DecisionHandlingLib EgammaAnalysisInterfacesLib GaudiKernel LumiBlockCompsLib RecoToolInterfaces StoreGateLib TrigCompositeUtilsLib TrigMultiVarHypoLib TrigSteeringEvent TrkCaloExtension xAODBase xAODCaloEvent xAODEgamma xAODEventInfo xAODTracking xAODTrigCalo xAODTrigEgamma xAODTrigRinger xAODTrigger AthOnnxruntimeServiceLib RingerSelectorToolsLib)
+
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-extensions=ATL900,ATL901 )

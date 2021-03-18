@@ -43,7 +43,7 @@ Trk::CylinderSurface::CylinderSurface(const CylinderSurface& csf, const Amg::Tra
 // constructor by radius and halflenght
 Trk::CylinderSurface::CylinderSurface(Amg::Transform3D* htrans, double radius, double hlength)
   : Trk::Surface(htrans)
-  , m_bounds(new Trk::CylinderBounds(radius, hlength))
+  , m_bounds(std::make_shared<Trk::CylinderBounds>(radius, hlength))
   , m_referencePoint(nullptr)
   , m_rotSymmetryAxis(nullptr)
 {}
@@ -52,7 +52,7 @@ Trk::CylinderSurface::CylinderSurface(Amg::Transform3D* htrans, double radius, d
 Trk::CylinderSurface::CylinderSurface(std::unique_ptr<Amg::Transform3D> htrans,
                                       double radius, double hlength)
   : Trk::Surface(std::move(htrans))
-  , m_bounds(new Trk::CylinderBounds(radius, hlength))
+  , m_bounds(std::make_shared<Trk::CylinderBounds>(radius, hlength))
   , m_referencePoint(nullptr)
   , m_rotSymmetryAxis(nullptr)
 {}
@@ -60,7 +60,7 @@ Trk::CylinderSurface::CylinderSurface(std::unique_ptr<Amg::Transform3D> htrans,
 // constructor by radius, halflenght and phisector
 Trk::CylinderSurface::CylinderSurface(Amg::Transform3D* htrans, double radius, double hphi, double hlength)
   : Trk::Surface(htrans)
-  , m_bounds(new Trk::CylinderBounds(radius, hphi, hlength))
+  , m_bounds(std::make_shared<Trk::CylinderBounds>(radius, hphi, hlength))
   , m_referencePoint(nullptr)
   , m_rotSymmetryAxis(nullptr)
 {}

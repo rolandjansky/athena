@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -64,11 +64,11 @@ public:
   bool signedDistance() const;
 
 private:
-  int m_num;
-  double m_first;
-  double m_second;
-  double m_current;
-  bool m_signedDist;
+  int m_num = 0;
+  double m_first = 0;
+  double m_second = 0;
+  double m_current = 0;
+  bool m_signedDist = false;
 };
 
 } // end of namespace

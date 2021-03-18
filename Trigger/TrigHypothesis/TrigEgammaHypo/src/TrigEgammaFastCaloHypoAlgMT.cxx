@@ -1,14 +1,15 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "Gaudi/Property.h"
 #include "TrigEgammaFastCaloHypoAlgMT.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "AthViews/ViewHelper.h"
+#include "xAODTrigger/TrigCompositeContainer.h"
 
-using namespace TrigCompositeUtils;
+namespace TCU = TrigCompositeUtils;
 
 TrigEgammaFastCaloHypoAlgMT::TrigEgammaFastCaloHypoAlgMT( const std::string& name, 
 					  ISvcLocator* pSvcLocator ) :
@@ -39,7 +40,7 @@ StatusCode TrigEgammaFastCaloHypoAlgMT::execute( const EventContext& context ) c
   // new decisions
 
   // new output decisions
-  SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context ); 
+  SG::WriteHandle<TCU::DecisionContainer> outputHandle = TCU::createAndStore(decisionOutput(), context );
   auto decisions = outputHandle.ptr();
 
   // input for decision
@@ -49,13 +50,13 @@ StatusCode TrigEgammaFastCaloHypoAlgMT::execute( const EventContext& context ) c
   size_t counter=0;
   for ( const auto previousDecision: *previousDecisionsHandle ) {
     //get RoI  
-    auto roiELInfo = findLink<TrigRoiDescriptorCollection>( previousDecision, initialRoIString() );
+    auto roiELInfo = TCU::findLink<TrigRoiDescriptorCollection>( previousDecision, TCU::initialRoIString() );
     
     ATH_CHECK( roiELInfo.isValid() );
     const TrigRoiDescriptor* roi = *(roiELInfo.link);
 
     // get View
-    const auto viewEL = previousDecision->objectLink<ViewContainer>( viewString() );
+    const auto viewEL = previousDecision->objectLink<ViewContainer>( TCU::viewString() );
     ATH_CHECK( viewEL.isValid() );
 
     // get cluster
@@ -63,13 +64,13 @@ StatusCode TrigEgammaFastCaloHypoAlgMT::execute( const EventContext& context ) c
     ATH_CHECK( clusterHandle.isValid() );
     ATH_MSG_DEBUG ( "Cluster handle size: " << clusterHandle->size() << "..." );
 
-    auto d = newDecisionIn( decisions, hypoAlgNodeName() );
+    auto d = TCU::newDecisionIn( decisions, TCU::hypoAlgNodeName() );
     
     // get Rings
     const xAOD::TrigRingerRingsContainer* rings = nullptr;    
     if ( not m_ringsKey.empty() ) {      
-      auto ringerShapeHandle = ViewHelper::makeHandle( *viewEL, m_ringsKey, context);
-      ATH_CHECK( ringerShapeHandle.isValid() );
+      auto ringerShapeHandle = ViewHelper::makeHandle( *viewEL, m_ringsKey, context);      
+      ATH_CHECK( ringerShapeHandle.isValid());
       rings = ringerShapeHandle.cptr();	
       ATH_MSG_DEBUG ( "Ringer handle size: " << ringerShapeHandle->size() << "..." );
 
@@ -80,9 +81,6 @@ StatusCode TrigEgammaFastCaloHypoAlgMT::execute( const EventContext& context ) c
       
     }
 
-
-
-
     // create new decision
     toolInput.emplace_back( d, roi, clusterHandle.cptr()->at(0), (rings ? rings->at(0) : nullptr) , previousDecision );
     
@@ -91,12 +89,12 @@ StatusCode TrigEgammaFastCaloHypoAlgMT::execute( const EventContext& context ) c
     { 
       auto clus = ViewHelper::makeLink( *viewEL, clusterHandle, 0 );
       ATH_CHECK( clus.isValid() );
-      d->setObjectLink( featureString(),  clus );
+      d->setObjectLink( TCU::featureString(),  clus );
     }
     
-    d->setObjectLink( roiString(), roiELInfo.link );
+    d->setObjectLink( TCU::roiString(), roiELInfo.link );
     
-    TrigCompositeUtils::linkToPrevious( d, previousDecision, context );
+    TCU::linkToPrevious( d, previousDecision, context );
     ATH_MSG_DEBUG( "Added view, roi, cluster, previous decision to new decision " << counter << " for view " << (*viewEL)->name()  );
     counter++;
 

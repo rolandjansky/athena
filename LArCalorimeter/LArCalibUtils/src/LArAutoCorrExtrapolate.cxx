@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -106,7 +106,7 @@ StatusCode LArAutoCorrExtrapolate::stop()
 // loop over channels
    std::vector<HWIdentifier>::const_iterator it = m_onlineId->channel_begin();
    std::vector<HWIdentifier>::const_iterator it_e = m_onlineId->channel_end();
-   for (;it!=it_e;it++) {
+   for (;it!=it_e;++it) {
       HWIdentifier hwid = (*it);
 
 // skip disconnected channels

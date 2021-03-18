@@ -13,10 +13,8 @@ def load_files_for_fcp_scenario(MASS, CHARGE, X, Y):
     particleLine1="{code}  {intmass}.00  {fcharge}  0.0 # fcp\n".format(code=CODE,intmass=int(MASS), fcharge=float(CHARGE))
     particleLine2="-{code}  {intmass}.00  -{fcharge}  0.0 # fcpBar\n".format(code=CODE,intmass=int(MASS), fcharge=float(CHARGE))
 
-    pdgmod = os.path.isfile('PDGTABLE.MeV')
-    if pdgmod is True:
-        os.remove('PDGTABLE.MeV')
-    os.system('get_files -data PDGTABLE.MeV')
+    import ExtraParticles.PDGHelpers
+
     f=open('PDGTABLE.MeV','a')
     f.writelines(str(pdgLine1))
     f.writelines(str(pdgLine2))

@@ -30,7 +30,6 @@
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "AthenaKernel/EventContextClid.h"
 
-#include "GaudiKernel/ThreadLocalContext.h"
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/Incident.h"
 #include "GaudiKernel/ThreadLocalContext.h"

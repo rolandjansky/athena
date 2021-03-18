@@ -35,4 +35,8 @@ def DBMSensorSDCfg(name="DBMSensorSD", **kwargs):
     kwargs.setdefault("OutputCollectionNames", ["DBMHits"])
     return PixelSensorSDTool(name, **kwargs)
 
+def ITkPixelSensorSDCfg(ConfigFlags, name="ITkPixelSensorSD", **kwargs):
+    print("WARNING: ITkPixelSensorSDCfg: ITkPixel doesn't yet have any Sensitive Detectors defined!")
+    kwargs.setdefault("LogicalVolumeNames", ["addSensitiveDetectorsHere"])
+    return PixelSensorSDCfg(ConfigFlags,name,**kwargs)
 

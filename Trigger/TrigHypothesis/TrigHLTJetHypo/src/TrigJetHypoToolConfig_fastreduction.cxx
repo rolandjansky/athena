@@ -7,11 +7,6 @@
 
 #include "GaudiKernel/StatusCode.h"
 
-#include "./conditionsFactoryMT.h"
-
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/xAODJetAsIJetFactory.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerFactory.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoHelper2.h"
 #include "./RepeatedCondition.h"
 #include "./FastReductionMatcher.h"
 #include "./Tree.h"
@@ -52,35 +47,18 @@ StatusCode TrigJetHypoToolConfig_fastreduction::initialize() {
 
 
 
-std::optional<ConditionPtrs>
+ConditionPtrs
 TrigJetHypoToolConfig_fastreduction::getRepeatedConditions() const {
 
   ConditionPtrs conditions;
 
   // collect the Conditions objects from the various sources
-  // return an invalid optional if any src signals a problem
 
   for(const auto& cm : m_conditionMakers){
     conditions.push_back(cm->getRepeatedCondition());
   }
       
-  return std::make_optional<ConditionPtrs>(std::move(conditions));
-}
-
-std::optional<ConditionsMT>
-TrigJetHypoToolConfig_fastreduction::getConditions() const {
-  /* obtain an unchecked set of conditions */
-  
-  ConditionsMT conditions;
-  for(const auto& cm : m_conditionMakers){
-    conditions.push_back(cm->getRepeatedCondition());
-  }
-
-  for(const auto& cm : m_antiConditionMakers){
-    conditions.push_back(cm->getRepeatedAntiCondition());
-  }
-  
-  return std::make_optional<ConditionsMT>(std::move(conditions));
+  return conditions;
 }
 
 
@@ -92,7 +70,14 @@ TrigJetHypoToolConfig_fastreduction::getConditionFilters() const {
   for(const auto& cm : m_filtConditionMakers){
 
     ConditionsMT filterConditions;  // will contain a single Condition
-    filterConditions.push_back(cm->getRepeatedCondition());
+    ConditionPtr repeatedCondition = cm->getRepeatedCondition();
+
+    // repeatedPtr is a nullptr is there are no contained conditions.
+    // this means the filter should act as pass-through.
+    if (repeatedCondition) {
+      filterConditions.push_back(std::move(repeatedCondition));
+    }
+    
     auto cf = std::make_unique<ConditionFilter>(filterConditions);
     filters.push_back(std::move(cf));
   }
@@ -110,17 +95,15 @@ TrigJetHypoToolConfig_fastreduction::requiresNJets() const {
 std::unique_ptr<IJetsMatcherMT>
 TrigJetHypoToolConfig_fastreduction::getMatcher () const {
 
-  auto opt_conds = getRepeatedConditions();
+  auto repeatedConds = getRepeatedConditions();
 
-  if(!opt_conds.has_value()){
+  if(repeatedConds.empty()){
     return std::unique_ptr<IJetsMatcherMT>(nullptr);
   }
 
   auto matcher =  std::unique_ptr<IJetsMatcherMT>();
-  //  matcher.reset(new FastReductionMatcher(std::move(*opt_conds),
-  //					 Tree(m_treeVec)));
 
-  auto conditions = std::move(*opt_conds);
+  auto conditions = std::move(repeatedConds);
   auto filters = getConditionFilters();
   auto fpm = new FastReductionMatcher(conditions,
 				      filters,
@@ -132,11 +115,4 @@ TrigJetHypoToolConfig_fastreduction::getMatcher () const {
 StatusCode TrigJetHypoToolConfig_fastreduction::checkVals() const {
   return StatusCode::SUCCESS;
 }
-
-std::vector<std::shared_ptr<ICleaner>> 
-TrigJetHypoToolConfig_fastreduction::getCleaners() const {
-  std::vector<std::shared_ptr<ICleaner>> v;
-  return v;
-}
-
 

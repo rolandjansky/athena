@@ -112,23 +112,24 @@ namespace LVL1MUONIF {
 
      friend std::ostream& operator<<( std::ostream&, const Lvl1MuCTPIInputPhase1& );
 
+     size_t getSystemIndex(size_t systemAddress,
+			   size_t subSystemAddress,
+			   size_t sectorAddress ) const;
+
+     size_t getBcidIndex(size_t systemAddress,
+                         int    bcid=0) const;
+
+     typedef std::vector<std::shared_ptr <Lvl1MuSectorLogicDataPhase1> > Lvl1MuVect;
+     typedef std::pair<int, Lvl1MuVect>  Lvl1MuVectWithBC;
+     const std::vector<Lvl1MuVectWithBC>& getData(MuonSystem system) const;
+
    private:
 
       size_t reserve( size_t systemAddress ,
 		      int    bcid=0         );
      
-      size_t getSystemIndex(size_t systemAddress,
-			    size_t subSystemAddress,
-			    size_t sectorAddress ) const;
-
-     size_t getBcidIndex(size_t systemAddress,
-                         int    bcid=0) const;
-
      bool m_isFilledOutOfTimeCandidates[NumberOfMuonSystem];
-
      
-     typedef std::vector<std::shared_ptr <Lvl1MuSectorLogicDataPhase1> > Lvl1MuVect;
-     typedef std::pair<int, Lvl1MuVect>  Lvl1MuVectWithBC; 
      std::vector<Lvl1MuVectWithBC> m_data[ NumberOfMuonSystem ];
    }; // class Lvl1MuCTPIInputPhase1
    
@@ -177,6 +178,10 @@ namespace LVL1MUONIF {
        }
        return -1;
      }
+
+   inline const std::vector<Lvl1MuCTPIInputPhase1::Lvl1MuVectWithBC>&
+     Lvl1MuCTPIInputPhase1::getData(Lvl1MuCTPIInputPhase1::MuonSystem system) const
+   { return m_data[system]; }
    
 } // namespace LVL1MUONIF
 

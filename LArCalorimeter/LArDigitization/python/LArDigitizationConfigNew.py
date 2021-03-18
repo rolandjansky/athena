@@ -159,12 +159,10 @@ def LArOutputCfg(flags):
             ItemList.append("LArDigitContainer#*")
         elif flags.Digitization.PileUpPremixing:
             ItemList.append("LArDigitContainer#" + flags.Overlay.BkgPrefix + "LArDigitContainer_MC")
-        else:
+        elif flags.Digitization.AddCaloDigiThinned:
             ItemList.append("LArDigitContainer#LArDigitContainer_MC_Thinned")
         if not flags.Digitization.PileUpPremixing:
             ItemList.append("LArRawChannelContainer#LArRawChannels")
-        if flags.Detector.SimulateHGTD:
-            ItemList.append("LArHitContainer#HGTDDigitContainer_MC")
         if flags.Digitization.TruthOutput:
             ItemList.append("CaloCalibrationHitContainer#*")
             acc.merge(TruthDigitizationOutputCfg(flags))
@@ -180,7 +178,8 @@ def LArDigitizationBasicCfg(flags, **kwargs):
         kwargs["PileUpTools"] = PileUpTools
     acc.merge(PileUpToolsCfg(flags, **kwargs))
     acc.merge(LArRawChannelBuilderAlgCfg(flags))
-    acc.merge(LArDigitThinnerCfg(flags))
+    if flags.Digitization.AddCaloDigiThinned:
+        acc.merge(LArDigitThinnerCfg(flags))
     return acc
 
 
@@ -209,7 +208,8 @@ def LArOverlayDigitizationBasicCfg(flags, name="digitmaker1", **kwargs):
     acc.addEventAlgo(LArDigitMaker(name, **kwargs))
 
     acc.merge(LArRawChannelBuilderAlgCfg(flags))
-    acc.merge(LArDigitThinnerCfg(flags))
+    if flags.Digitization.AddCaloDigiThinned:
+        acc.merge(LArDigitThinnerCfg(flags))
     return acc
 
 

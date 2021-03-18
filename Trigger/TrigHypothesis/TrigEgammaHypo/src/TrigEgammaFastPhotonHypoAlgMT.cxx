@@ -1,23 +1,13 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "Gaudi/Property.h"
 #include "TrigEgammaFastPhotonHypoAlgMT.h"
+#include "DecisionHandling/TrigCompositeUtils.h"
+#include "xAODTrigger/TrigCompositeContainer.h"
 #include "AthViews/ViewHelper.h"
 
-
-using TrigCompositeUtils::createAndStore; 
-using TrigCompositeUtils::DecisionContainer;
-using TrigCompositeUtils::DecisionAuxContainer; 
-using TrigCompositeUtils::DecisionIDContainer; 
-using TrigCompositeUtils::decisionIDs; 
-using TrigCompositeUtils::newDecisionIn; 
-using TrigCompositeUtils::linkToPrevious;
-using TrigCompositeUtils::viewString;
-using TrigCompositeUtils::featureString;
-using TrigCompositeUtils::hypoAlgNodeName;
-
+namespace TCU = TrigCompositeUtils;
 
 TrigEgammaFastPhotonHypoAlgMT::TrigEgammaFastPhotonHypoAlgMT( const std::string& name, 
 				      ISvcLocator* pSvcLocator ) :
@@ -44,11 +34,11 @@ StatusCode TrigEgammaFastPhotonHypoAlgMT::execute( const EventContext& context )
   std::map<const xAOD::TrigEMCluster*, size_t> clusterToIndexMap;
   size_t clusterCounter = 0;
   for ( auto previousDecision : *previousDecisionsHandle){
-    auto clusterELInfo = TrigCompositeUtils::findLink<xAOD::TrigEMClusterContainer>( previousDecision, "feature" );
+    auto clusterELInfo = TCU::findLink<xAOD::TrigEMClusterContainer>( previousDecision, "feature" );
     
     if( not clusterELInfo.isValid() ) {
       ATH_MSG_ERROR("Can not obtain the link to Cluster");
-      ATH_MSG_ERROR( TrigCompositeUtils::dump( previousDecision, [](const xAOD::TrigComposite* tc){
+      ATH_MSG_ERROR( TCU::dump( previousDecision, [](const xAOD::TrigComposite* tc){
 	    return tc->name() + " " + (tc->object<xAOD::TrigEMCluster>("feature") == 0 ? "has no cluster": "has cluster");
 	  }) );
       return StatusCode::FAILURE;
@@ -60,14 +50,14 @@ StatusCode TrigEgammaFastPhotonHypoAlgMT::execute( const EventContext& context )
   ATH_MSG_DEBUG( "Cluster ptr to decision map has size " << clusterToIndexMap.size() );
 
   // new output decisions
-  SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context ); 
+  SG::WriteHandle<TCU::DecisionContainer> outputHandle = TCU::createAndStore(decisionOutput(), context );
   auto decisions = outputHandle.ptr();
 
   std::vector<TrigEgammaFastPhotonHypoTool::PhotonInfo> hypoToolInput;
  
   for ( auto previousDecision: *previousDecisionsHandle ) {
     //previousDecision->objectLink< ViewContainer >( "view" );
-    const auto viewEL = previousDecision->objectLink<ViewContainer>( viewString() );
+    const auto viewEL = previousDecision->objectLink<ViewContainer>( TCU::viewString() );
       
     ATH_CHECK( viewEL.isValid() );
     
@@ -79,8 +69,8 @@ StatusCode TrigEgammaFastPhotonHypoAlgMT::execute( const EventContext& context )
     ATH_MSG_DEBUG ( "electron handle size: " << photonsHandle->size() << "..." );
 
     for ( auto photonIter = photonsHandle->begin(); photonIter != photonsHandle->end(); ++photonIter, photonCounter++ ) {
-      auto d = newDecisionIn( decisions, hypoAlgNodeName() );
-      d->setObjectLink( featureString(), ViewHelper::makeLink<xAOD::TrigPhotonContainer>( *viewEL, photonsHandle, photonCounter ) );
+      auto d = TCU::newDecisionIn( decisions, TCU::hypoAlgNodeName() );
+      d->setObjectLink( TCU::featureString(), ViewHelper::makeLink<xAOD::TrigPhotonContainer>( *viewEL, photonsHandle, photonCounter ) );
       
       auto clusterPtr = (*photonIter)->emCluster();
       ATH_CHECK( clusterPtr != nullptr );
@@ -90,13 +80,13 @@ StatusCode TrigEgammaFastPhotonHypoAlgMT::execute( const EventContext& context )
       // since we have a map made in advance we can make use of the index lookup w/o the need for additional loop 
       auto origCluster = clusterToIndexMap.find( clusterPtr );
       ATH_CHECK( origCluster != clusterToIndexMap.end() );
-      linkToPrevious( d, decisionInput().key(), origCluster->second );
+      TCU::linkToPrevious( d, decisionInput().key(), origCluster->second );
       
       // now we have DecisionObject ready to be passed to hypo tool. it has link to photon, 
       // and decisions on clusters
       // we shall avoid calling the tools for chains which were already rejected on certain cluster, but this is left to hypo tools
-      DecisionIDContainer clusterDecisionIDs;
-      decisionIDs( previousDecisionsHandle->at( origCluster->second ), clusterDecisionIDs );
+      TCU::DecisionIDContainer clusterDecisionIDs;
+      TCU::decisionIDs( previousDecisionsHandle->at( origCluster->second ), clusterDecisionIDs );
       
       hypoToolInput.emplace_back( TrigEgammaFastPhotonHypoTool::PhotonInfo{ d, *photonIter,  origCluster->first, clusterDecisionIDs } );
     }

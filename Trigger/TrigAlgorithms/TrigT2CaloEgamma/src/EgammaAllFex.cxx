@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -24,7 +24,7 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 EgammaAllFex::EgammaAllFex(const std::string & type, const std::string & name, 
-                   const IInterface* parent): IAlgToolCalo(type, name, parent)
+                   const IInterface* parent): IReAlgToolCalo(type, name, parent)
 		   {
 		   declareProperty("IncludeHad",  m_includeHad = false );
 #ifndef NDEBUG
@@ -34,26 +34,13 @@ EgammaAllFex::EgammaAllFex(const std::string & type, const std::string & name,
 #endif
 }
 
-EgammaAllFex::~EgammaAllFex(){
-}
-
 StatusCode EgammaAllFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 				 const IRoiDescriptor& roi,
 				 const CaloDetDescrElement*& /*caloDDE*/,
-                                 const EventContext* /*context*/) { 
+                                 const EventContext& context) const { 
   
   // Time total AlgTool time 
-  if (!m_timersvc.empty()) {
-    m_timer[0]->start();      
-    m_timer[1]->start();      
-    m_timer[1]->pause();      
-    m_timer[2]->start();      
-    m_timer[2]->pause();      
-    m_timer[3]->start();      
-    m_timer[3]->pause();      
-  }
   // reset error
-  m_error=0x0;
   int ncells = 0;
   // LVL1 positions
   float etaL1=rtrigEmCluster.eta();
@@ -69,35 +56,12 @@ StatusCode EgammaAllFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 
   for(DETID dd = TTEM; dd <= TTHEC; dd=(DETID)( ((int)dd)+1) ){
 	  for(int sampling=0;sampling<4;sampling++) {
-	    // Get detector offline ID's for Collections
-	    if (!m_timersvc.empty()) m_timer[1]->resume();
-	    m_data->RegionSelector(sampling, roi, dd);
+            LArTT_Selector<LArCellCont> sel;
+	    ATH_CHECK( m_dataSvc->loadCollections(context, roi, dd, sampling, sel) );
 
-	    // Finished to access RegionSelector
-	    if (!m_timersvc.empty()) m_timer[1]->pause();
-	    // Time to access Collection (and ByteStreamCnv ROBs)
-	    if (!m_timersvc.empty()) m_timer[2]->resume();
-	    if ( m_data->LoadCollections(m_iBegin,m_iEnd).isFailure() ){
-	    	if (!m_timersvc.empty()) {
-	    	m_timer[3]->stop();      
-	    	m_timer[2]->stop();      
-	    	m_timer[1]->stop();      
-	    	m_timer[0]->stop();      
-	    	}
-	    	return StatusCode::SUCCESS;
-	    }
-	    m_error|=m_data->report_error();
-	    if ( m_saveCells && !m_error ){
-	       m_data->storeCells(m_iBegin,m_iEnd,*m_CaloCellContPoint,m_cellkeepthr);
-            }
-	    // Finished to access Collection
-	    if (!m_timersvc.empty()) m_timer[2]->pause();      
-	    // Algorithmic time
-	    if (!m_timersvc.empty()) m_timer[3]->resume();
 
-      for(m_it = m_iBegin;m_it != m_iEnd; ++m_it) {
+      for(const LArCell* larcell : sel) {
 
-        const LArCell* larcell = (*m_it);
         double energyCell = larcell->energy();
         totalEnergy += energyCell;
         if( dd==TTEM) totalEnergyEM += energyCell;
@@ -108,38 +72,17 @@ StatusCode EgammaAllFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
         ncells++;
 
       }  // end of loop over sampling
-      if (!m_timersvc.empty()) m_timer[3]->pause();
       } // end of loop over all samples   
     } // end of loop over DetID
 
     // TileCAL
-	  if (!m_timersvc.empty()) m_timer[1]->resume();      
-          m_data->RegionSelector(0, roi, TILE);
           // Finished to access RegionSelector
-          if (!m_timersvc.empty()) m_timer[1]->stop();
+          TileCellCollection seltile;
+          ATH_CHECK(m_dataSvc->loadCollections(context, roi, seltile));
 
-          for (unsigned int iR=0;iR<m_data->TileContSize();iR++) {
 
-          // Time to access Collection (and ByteStreamCnv ROBs)
-          if (!m_timersvc.empty()) m_timer[2]->resume();
-          if ( m_data->LoadCollections(m_itBegin,m_itEnd,iR,!iR).isFailure() ){
+    for(const TileCell* tilecell : seltile) {
 
-                  if (!m_timersvc.empty()) {
-	  		m_timer[3]->stop();
-	  		m_timer[2]->stop();
-	  		m_timer[0]->stop();
-	  	}
-                  return StatusCode::SUCCESS;
-          }
-          m_error|=m_data->report_error();
-          // Finished to access Collection
-          if (!m_timersvc.empty()) m_timer[2]->pause();
-          // Algorithmic time
-          if (!m_timersvc.empty()) m_timer[3]->resume();
-
-    for(m_itt = m_itBegin;m_itt != m_itEnd; ++m_itt) {
-
-      const TileCell* tilecell = (*m_itt);
       double energyCell = tilecell->energy();
       totalEnergy += energyCell;
       //samp = CaloSampling::getSampling(*tilecell);
@@ -149,16 +92,8 @@ StatusCode EgammaAllFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
       ncells++;
 
     }  // end of loop over sampling
-    if (!m_timersvc.empty()) m_timer[3]->pause();
-  } // end of loop over Tile drawers
 
     
-  if (!m_timersvc.empty()) m_timer[2]->stop();      
-  if (!m_timersvc.empty()) m_timer[3]->stop();      
-  // Save EMShowerMinimal time
-  if (!m_timersvc.empty()) m_timer[4]->start();      
-
-  
   // Update cluster Variables
 
   if ( m_includeHad )
@@ -170,11 +105,7 @@ StatusCode EgammaAllFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
   rtrigEmCluster.setNCells(ncells);
         
   // Finished save EMShowerMinimal time
-  if (!m_timersvc.empty()) m_timer[4]->stop();      
 
-
-  // Time total AlgTool time 
-  if (!m_timersvc.empty()) m_timer[0]->stop();      
 
   return StatusCode::SUCCESS;
 }

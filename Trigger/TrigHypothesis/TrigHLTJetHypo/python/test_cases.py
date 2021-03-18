@@ -56,6 +56,6 @@ test_strings = [
 
 if __name__ == '__main__':
     for i, tc in enumerate(test_strings):
-        print (i, tc)
+        print (i, tc) # noqa: ATL901
 
-    print('There are %d test cases' % len(test_strings))
+    print('There are %d test cases' % len(test_strings)) # noqa: ATL901

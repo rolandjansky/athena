@@ -131,6 +131,8 @@ def generateEmuEvents():
                              HLT_TestChain5_ev1_TestChain8_ev1_2TestChain6_muv1_L1EM3_L1EM5_L12MU6 \
                              HLT_TestChain10_muEmpty1_TestChain6_muEmpty1_L12MU6 \
                              HLT_TestChain10_muv1_TestChain6_muEmpty1_L1MU6 \
+                             HLT_TestChain5_ev1_TestChain8_ev1_merge_L12EM3 \
+                             HLT_TestChain5_ev1_TestChain8_ev1_L12EM3  \
                              HLT_TestChain6_muv1_TestChain5_ev1_dr_L12MU6'
     data['l1emroi'][2]   =  '2,0.2,0,EM3,EM5,EM7,EM15,EM20,EM50,EM100; 1,-1.1,0,EM3,EM5,EM7,EM15,EM20,EM50;'
     data['emclusters'][2]=  'eta:0.5,phi:0,et:120000; eta:1,phi:-1.2,et:65000;'
@@ -178,7 +180,6 @@ def generateEmuEvents():
 ###########################################################################    
 def generateChainsManually():
     from DecisionHandling.TestUtils import makeChain, makeChainStep    
-
     doMuon     = True
     doElectron = True
     doCombo    = True
@@ -317,7 +318,8 @@ def generateChainsManually():
             makeChain(name='HLT_TestChain6_muv1_TestChain5_ev1dr_L12MU6',  L1Thresholds=["MU6","EM5"], ChainSteps=[
                 makeChainStep("Step1_mu_em", [mu11, el11], multiplicity=[1,1], comboToolConfs=[dimuDrComboHypoTool]),
                 makeChainStep("Step2_mu_em", [mu21, el21], multiplicity=[1,1], comboToolConfs=[dimuDrComboHypoTool])] ),
-                                                                                       
+                                                                             
+           
             makeChain(name='HLT_2TestChain4_muv1dr_L12MU6', L1Thresholds=["MU6"], ChainSteps=[
                 makeChainStep("Step1_2mu",    [mu11], multiplicity=[2], comboToolConfs=[dimuDrComboHypoTool]),
                 makeChainStep("Step2_2mu22",  [mu22], multiplicity=[2]) ] ),
@@ -327,9 +329,23 @@ def generateChainsManually():
             makeChain(name='HLT_TestChain10_muEmpty1_TestChain6_muEmpty1_L12MU6', L1Thresholds=["MU6", "MU6"],  ChainSteps=[
                  makeChainStep("Step1_2muAs_empty", multiplicity=[]),
                  makeChainStep("Step2_2muAs",   [mu21, mu21], multiplicity=[1,1]) ])
-        
-                                                                              
             ]
+        # TODO not clear if this test is correct actually, restore when discussed
+        # from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
+        # from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDictInLegs
+        #     # test change of  multiplicity 
+        # chainName = 'HLT_TestChain5_ev1_TestChain8_ev1_merge_L12EM3'
+        # cd = dictFromChainName(chainName )
+        # cdicts = splitChainDictInLegs(cd)
+        # import pprint
+        # pprint.pprint(cd)
+        # pprint.pprint(cdicts)
+
+        # CombChains += [  makeChain(name = chainName, L1Thresholds = ["EM3", "EM3"], ChainSteps=[
+        #         makeChainStep("Step1_em1merged", [el11], multiplicity = [1], chainDicts = [cdicts[0]] ),
+        #         makeChainStep("Step2_em1merged", [el21, el22], multiplicity = [1,1])
+        #         ]) 
+        #     ]
 
 
         HLTChains += CombChains
@@ -357,7 +373,7 @@ def generateL1Decoder():
 
     muUnpacker = RoIsUnpackingEmulationTool("MURoIsUnpackingTool", InputFilename="l1muroi.dat",  OutputTrigRoIs=mapThresholdToL1RoICollection("MU"), Decisions=mapThresholdToL1DecisionCollection("MU"), ThresholdPrefix="MU" )
 
-    l1Decoder.roiUnpackers = [emUnpacker, muUnpacker]
+    l1Decoder.RoIBRoIUnpackers = [emUnpacker, muUnpacker]
 
     L1UnpackingSeq += l1Decoder
     log.debug(L1UnpackingSeq)

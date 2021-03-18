@@ -78,7 +78,7 @@ StatusCode ActsWriteTrackingGeometryTransforms::execute() {
     os << ";";
 
     // iterate over components of transform
-    const auto* p = srf->transform(gctx.any()).data();
+    const auto* p = srf->transform(gctx.context()).data();
     for(size_t i=0;i<16;i++) {
       if(i>0) {
         os << ",";

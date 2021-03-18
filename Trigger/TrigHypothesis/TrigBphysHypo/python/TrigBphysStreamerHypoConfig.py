@@ -1,7 +1,7 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from TrigBphysHypo.TrigBphysHypoConf import TrigBphysStreamerHypoTool
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def TrigBphysStreamerHypoToolFromDict(chainDict):
-    tool = TrigBphysStreamerHypoTool(chainDict['chainName'])
+    tool = CompFactory.TrigBphysStreamerHypoTool(chainDict['chainName'])
     return tool

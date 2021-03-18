@@ -1,14 +1,14 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
 //    Root Database implementation
 //--------------------------------------------------------------------
 //
-//    Package    : RootStorageSvc (The POOL project)
+//    Package    : APR RootStorageSvc (former POOL project)
 //
-//    Author     : M.Frank
+//    Author     : M.Frank M.Nowak S.Snyder
 //====================================================================
 #ifndef POOL_ROOTTREECONTAINER_H
 #define POOL_ROOTTREECONTAINER_H 1
@@ -114,7 +114,8 @@ namespace pool  {
         if (clazz) {
           if (!dummy) {
             using std::placeholders::_1;
-            std::function<void(void*)> del = std::bind (&TClass::Destructor, clazz, _1, false);
+            void(TClass::*dxtor)(void*, Bool_t) = &TClass::Destructor;
+            std::function<void(void*)> del = std::bind(dxtor, clazz, _1, false);
             dummyptr = dummy_ptr_t (clazz->New(), std::move(del));
             dummy = dummyptr.get();
           }

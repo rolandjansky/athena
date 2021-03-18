@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -191,6 +191,8 @@ StatusCode TileRawChannelBuilderOpt2Filter::finalize() {
 
 TileRawChannel * TileRawChannelBuilderOpt2Filter::rawChannel(const TileDigits* digits) {
 
+  const EventContext &ctx = Gaudi::Hive::currentContext();
+
   ++m_chCounter;
 
   double pedestal = 0.;
@@ -210,7 +212,7 @@ TileRawChannel * TileRawChannelBuilderOpt2Filter::rawChannel(const TileDigits* d
   int drawer = m_tileHWID->drawer(adcId);
   int channel = m_tileHWID->channel(adcId);
 
-  chi2 = filter(ros, drawer, channel, gain, pedestal, energy, time);
+  chi2 = filter(ros, drawer, channel, gain, pedestal, energy, time, ctx);
 
   unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
   
@@ -297,13 +299,13 @@ int TileRawChannelBuilderOpt2Filter::findMaxDigitPosition() {
 }
 
 
-float TileRawChannelBuilderOpt2Filter::getPedestal(int ros, int drawer, int channel, int gain) {
+float TileRawChannelBuilderOpt2Filter::getPedestal(int ros, int drawer, int channel, int gain, const EventContext &ctx) {
   float pedestal = 0.;
   
   switch (m_pedestalMode) {
     case -1:
       // use pedestal from conditions DB
-      pedestal = m_tileToolNoiseSample->getPed(TileCalibUtils::getDrawerIdx(ros, drawer), channel, gain);
+      pedestal = m_tileToolNoiseSample->getPed(TileCalibUtils::getDrawerIdx(ros, drawer), channel, gain, TileRawChannelUnit::ADCcounts, ctx);
       break;
     case 7:
       pedestal = m_digits[6];
@@ -338,7 +340,7 @@ float TileRawChannelBuilderOpt2Filter::getPedestal(int ros, int drawer, int chan
 
 
 double TileRawChannelBuilderOpt2Filter::filter(int ros, int drawer, int channel
-    , int &gain, double &pedestal, double &amplitude, double &time) {
+    , int &gain, double &pedestal, double &amplitude, double &time, const EventContext &ctx) {
 
   ATH_MSG_VERBOSE( "filter()" );
 
@@ -361,7 +363,7 @@ double TileRawChannelBuilderOpt2Filter::filter(int ros, int drawer, int channel
 
   } else {
 
-    pedestal = getPedestal(ros, drawer, channel, gain);
+    pedestal = getPedestal(ros, drawer, channel, gain, ctx);
     double phase = 0.;
     int nIterations = 0;
 
@@ -377,7 +379,7 @@ double TileRawChannelBuilderOpt2Filter::filter(int ros, int drawer, int channel
       }
       
       double ofcPhase(phase);
-      chi2 = compute(ros, drawer, channel, gain, pedestal, amplitude, time, ofcPhase);
+      chi2 = compute(ros, drawer, channel, gain, pedestal, amplitude, time, ofcPhase, ctx);
 
       // If weights for tau=0 are used, deviations are seen in the amplitude =>
       // function to correct the amplitude
@@ -423,7 +425,7 @@ double TileRawChannelBuilderOpt2Filter::filter(int ros, int drawer, int channel
                         << "   OptFilterDigits[0]-OptFilterDigits[ digits_size_1]="
                         << m_digits[0] - m_digits[digits_size_1] );
 
-        nIterations = iterate(ros, drawer, channel, gain, pedestal, amplitude, time, chi2);
+        nIterations = iterate(ros, drawer, channel, gain, pedestal, amplitude, time, chi2, ctx);
 
         ATH_MSG_VERBOSE( "number of iterations= " << nIterations );
 
@@ -442,7 +444,7 @@ double TileRawChannelBuilderOpt2Filter::filter(int ros, int drawer, int channel
         for (int i = 0; i <= digits_size_1; i++)  // Mirror around pedestal
           m_digits[i] = pedestal - (m_digits[i] - pedestal);
 
-        nIterations = iterate(ros, drawer, channel, gain, pedestal, amplitude, time, chi2);
+        nIterations = iterate(ros, drawer, channel, gain, pedestal, amplitude, time, chi2, ctx);
 
         amplitude = -amplitude;
 
@@ -469,7 +471,7 @@ double TileRawChannelBuilderOpt2Filter::filter(int ros, int drawer, int channel
                            << " channel " << channel );
         }
       
-        chi2 = compute(ros, drawer, channel, gain, pedestal, amplitude, time, phase);
+        chi2 = compute(ros, drawer, channel, gain, pedestal, amplitude, time, phase, ctx);
 
         // If weights for tau=0 are used, deviations are seen in the amplitude =>
         // function to correct the amplitude
@@ -503,7 +505,7 @@ double TileRawChannelBuilderOpt2Filter::filter(int ros, int drawer, int channel
 
 
 int TileRawChannelBuilderOpt2Filter::iterate(int ros, int drawer, int channel, int gain,
-    double &pedestal, double &amplitude, double &time, double &chi2) {
+    double &pedestal, double &amplitude, double &time, double &chi2, const EventContext &ctx) {
 
   ATH_MSG_VERBOSE( "iterate()" );
 
@@ -521,7 +523,7 @@ int TileRawChannelBuilderOpt2Filter::iterate(int ros, int drawer, int channel, i
           || m_emulateDsp)
          && nIterations < m_maxIterations) {
 
-    chi2 = compute(ros, drawer, channel, gain, pedestal, amplitude, time, phase);
+    chi2 = compute(ros, drawer, channel, gain, pedestal, amplitude, time, phase, ctx);
 
     savePhase = phase;
 
@@ -555,7 +557,7 @@ int TileRawChannelBuilderOpt2Filter::iterate(int ros, int drawer, int channel, i
 
 
 double TileRawChannelBuilderOpt2Filter::compute(int ros, int drawer, int channel, int gain,
-    double &pedestal, double &amplitude, double &time, double& phase) {
+    double &pedestal, double &amplitude, double &time, double& phase, const EventContext &ctx) {
 
  ATH_MSG_VERBOSE( "compute();"
                  << " ros=" << ros
@@ -576,7 +578,7 @@ double TileRawChannelBuilderOpt2Filter::compute(int ros, int drawer, int channel
   float ofcPhase = (float) phase;
   unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
   TileOfcWeightsStruct weights;
-  if (m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, ofcPhase, m_of2, weights).isFailure())
+  if (m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, ofcPhase, m_of2, weights, ctx).isFailure())
   {
     ATH_MSG_ERROR( "getOfcWeights fails" );
     return 0;

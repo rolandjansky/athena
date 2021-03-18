@@ -1,1003 +1,673 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+#include <algorithm>
+#include <regex>
 
-#include "GaudiKernel/MsgStream.h"
+#include<boost/algorithm/string.hpp>
+
+#include "GaudiKernel/IIncidentSvc.h"
 #include "Gaudi/Property.h"
-
+#include "AthenaInterprocess/Incidents.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigSignatureMoni.h"
 
-#include "TrigSteering/TrigSteer.h"
-#include "TrigSteering/SteeringChain.h"
-#include "TrigSteering/Signature.h"
-#include "TrigInterfaces/AlgoConfig.h"
-#include "TrigConfHLTData/HLTTriggerType.h"
-#include "TrigConfHLTData/HLTSignature.h"
-#include "TrigConfHLTData/HLTStreamTag.h"
-#include "TrigConfHLTData/HLTChainList.h"
-#include "TrigConfHLTData/HLTChain.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/TriggerInfo.h"
+TrigSignatureMoni::TrigSignatureMoni(const std::string& name, ISvcLocator* pSvcLocator)
+  : base_class(name, pSvcLocator)
+{}
 
-#include <vector> 
-#include <set> 
-#include <algorithm>
-#include <TH1I.h>
-#include <TH2I.h>
-#include <map>
+StatusCode TrigSignatureMoni::initialize() {
+  ATH_CHECK(m_l1DecisionsKey.initialize());
+  ATH_CHECK(m_finalDecisionKey.initialize());
+  ATH_CHECK(m_HLTMenuKey.initialize());
+  ATH_CHECK(m_L1MenuKey.initialize());
+  ATH_CHECK(m_decisionCollectorTools.retrieve());
+  ATH_CHECK(m_featureCollectorTools.retrieve());
+  ATH_CHECK(m_histSvc.retrieve());
 
-TrigSignatureMoni::TrigSignatureMoni(const std::string & type, const std::string & name,
-				     const IInterface* parent)
-  :  TrigMonitorToolBase(type, name, parent),   
-     m_trigConfigSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name)
-{
-  declareProperty("HistoPathexpert", m_histoPathexpert = "/EXPERT/TrigSteering");
+  ATH_CHECK(m_incidentSvc.retrieve());
+  m_incidentSvc->addListener(this, AthenaInterprocess::UpdateAfterFork::type());
+
+  return StatusCode::SUCCESS;
 }
 
-// Define helper classes for the signature acceptance histogram (and stream correlation plot)
+StatusCode TrigSignatureMoni::start() {
+  SG::ReadHandle<TrigConf::L1Menu> l1MenuHandle = SG::makeHandle(m_L1MenuKey);
+  SG::ReadHandle<TrigConf::HLTMenu> hltMenuHandle = SG::makeHandle(m_HLTMenuKey);
+  ATH_CHECK(hltMenuHandle.isValid());
 
-class BinBlock;
-template class std::vector<BinBlock*>;
-
-struct staticVariables {
-  int firstSigHistBin;
-  std::string unknown;
-  std::vector<BinBlock *> binBlocks;
-  std::vector<std::string> stepnames;
-  unsigned int maxSteps; 
-  unsigned int totalBins;
-  unsigned int inputBin;
-  unsigned int rawBin;
-  unsigned int psBin;
-  unsigned int firstStepBin;
-  unsigned int rerunBin;
-  unsigned int algoInBin;
-  unsigned int errorBin;
-  unsigned int ptBin;
-};
-
-
-class BinBlock {
-  
-public:
-  virtual ~BinBlock() {}
-  int GetFirstBin() const {return m_firstBin;} // first bin of a block
-  const std::string& GetXLabel(int relBin){return m_XLabels[relBin];}
-
-  static int GetFirstSigHistBin(){ return m_sv.firstSigHistBin;} // first bin of the signature hist
-  static int TotalBinCount() {return m_sv.totalBins;}
-  static int OverflowBin() { return m_sv.totalBins + 1;}
-  static const std::string& GetSigXAxisLabel(int bin); 
-  static void FinalizeInitialization();
-  static void PrepareToBook();
-
-  static const std::vector<std::string> &GetStepNames(){return m_sv.stepnames;}
-  static int GetNStepBins() {return m_sv.stepnames.size();}
-  static unsigned int GetMaxSteps(){return m_sv.maxSteps;} // max num of algorithm steps
-  static unsigned int GetInputBin(){return m_sv.inputBin;}
-  static unsigned int GetRawBin(){return m_sv.rawBin;}
-  static unsigned int GetPSBin(){ return m_sv.psBin;}
-  static unsigned int GetPTBin(){ return m_sv.ptBin;}
-  static unsigned int GetFirstAlgBin(){return m_sv.firstStepBin;}
-  static unsigned int GetRerunBin(){return m_sv.rerunBin;}
-  static unsigned int GetAlgoInBin(){return m_sv.algoInBin;}
-  static unsigned int GetErrorBin(){return m_sv.errorBin;}
-  unsigned int GetNBins() const {return m_NBins;}
-  virtual void PrintBlock() = 0;
-
-protected:
-
-
-  BinBlock(BinBlock *, MsgStream *log);
-
-  static void SetMaxSteps(unsigned int max) {m_sv.maxSteps = max;}
-
-  std::map<int, std::string> m_XLabels;
-  unsigned int m_NBins;
-  int m_firstBin;
-
-  MsgStream *m_log;
-  
-  static struct staticVariables m_sv;
-  
-private:
-};
-// storage for statics;
-struct staticVariables BinBlock::m_sv; 
-
-class GeneralBlock : public BinBlock { // General event columns
-  
-public:
-  GeneralBlock(MsgStream *log) 
-    : BinBlock(this, log)
-  {
-    m_XLabels[0] = "total rate";
-    m_XLabels[1] = "OR of active chains";
-    m_NBins = 2;
-  }
-  int GetOrBin() const {return GetFirstSigHistBin() + m_firstBin + BINS::OR;}
-  int GetAllEvsBin() const {return GetFirstSigHistBin() + m_firstBin + BINS::ALL;}
-
-  void PrintBlock() {
-    (*m_log) << MSG::DEBUG << "**** General Block ****" << endmsg;
-    (*m_log) << MSG::DEBUG << "First bin: " << m_firstBin << ", Number of bins: " << m_NBins << endmsg;
-    (*m_log) << MSG::DEBUG << ", allBin: "  << BINS::ALL  << ", orBin: " << BINS::OR << endmsg;
-  }
-  
-private:
-  enum BINS {ALL=0,OR=1};
-};
-
-
-
-class GroupBlock: public BinBlock { // columns for groups
-  
-public:
-  GroupBlock(const std::vector<const HLT::SteeringChain*>& configuredChains, MsgStream *log);
-  const std::set<int>& GetBinSet(unsigned int chainCounter) const;
-  void SetMask(unsigned int chainCounter, unsigned int mask, std::map<int, unsigned int> &hitMap);
-
-  virtual void PrintBlock();
-  
-private:
-
-  std::map<unsigned int, std::set<int> > m_ch_bin_map; // mapping from chain counter to bin
-  std::set<int> m_emptyList;
-};
-
-class ChainBlock: public BinBlock { // columns for chains
-  
-public:
-  ChainBlock(const std::vector<const HLT::SteeringChain*>& configuredChains, MsgStream *log);
-  int GetSigHistValue(unsigned int chainCounter) const; // to be used by Fill for example
-  int GetSigHistBin(unsigned int chainCounter) const; // to be used by SetBinContent for example
-
-  virtual void PrintBlock();
-
-private:
-  std::map<unsigned int, int> m_ch_bin;
-};
-
-class StreamBlock : public BinBlock { // columns for streams
-  
-public:
-
-  StreamBlock(const TrigConf::HLTChainList* allChains,
-              std::set<std::string> &errorStreamNames, std::string trigLvl,
-              MsgStream *log);
-
-  const std::set<int> &GetSigHistValueSet(unsigned int chainCounter) const;
-  int GetSigHistValue(const std::string& streamTag) const;
-  int GetCorrelHistBin(const std::string& streamTag) const;
-  int GetCatchAllBin() const {return m_catchAll;}
-
-  void SetMask(unsigned int chainCounter, unsigned int mask, std::map<int, unsigned int> &hitMap);
-
-  virtual void PrintBlock();  
-private:
-
-  void InsertStreams(bool isPhysType, const std::string& trgLvl,
-                     const TrigConf::HLTChainList* allChains);
-
-  std::map<std::string, int> m_str_tag_map; // mapping from tag name (name_type) to bin
-  std::map<unsigned int, std::set<int> > m_ch_str_map; // mapping from chain counter to bin
-  std::set<int> m_notFound;
-  int m_catchAll;
-};
-
-
-TrigSignatureMoni::~TrigSignatureMoni()
-{
-  BinBlock::PrepareToBook();
-}
-
-void findChainsInStreams(std::map<std::string, TH1I*>& histograms, 
-                         const std::vector<const HLT::SteeringChain*>& config, const std::string& level) 
-{
-  std::map<std::string, std::vector<std::string> > stream_to_chains; 
-
-  for ( const HLT::SteeringChain* chain : config ) {
-     for ( const HLT::StreamTag& stream : chain->getStreamTags()) {
-      stream_to_chains[stream.getStream()].push_back(chain->getChainName());
-    }
-  }  
-  for ( auto& p : stream_to_chains ) {
-
-    TH1I* h = histograms[p.first] = new TH1I(("ChainsInStream_"+p.first).c_str(), ("Chains in " +level + "stream "+p.first).c_str(), p.second.size(), 0, p.second.size());
-    int bin = 1;
-    std::sort(p.second.begin(), p.second.end());   // sort alphabetically
-    for ( const std::string& label : p.second) {
-      h->GetXaxis()->SetBinLabel(bin, label.c_str());
-      ++bin;
-    }
-  }
-
-}
-
-void fillChainsInStreams(std::map<std::string, TH1I*>& histograms, const std::vector<const HLT::SteeringChain*>& result) 
-{
-  for( const HLT::SteeringChain* chain : result ) {
-    if (chain->chainPassed()){
-      for( const HLT::StreamTag& stream :  chain->getStreamTags() ){
-        if ( ! stream.isPrescaled() ) {
-          histograms[stream.getStream()]->Fill(chain->getChainName().c_str(), 1.);
-        }
+  // Retrieve chain information from menus
+  std::vector<std::string> bcidChainNames;
+  m_groupToChainMap.clear();
+  m_streamToChainMap.clear();
+  m_chainIDToBunchMap.clear();
+  for (const TrigConf::Chain& chain : *hltMenuHandle) {
+    for (const std::string& group : chain.groups()) {
+      // Save chains per RATE group
+      if (group.find("RATE") == 0){
+        m_groupToChainMap[group].insert(HLT::Identifier(chain.name()));
+      }
+      // Save chains BCID monitored
+      else if (group == "MON:BCID"){
+        bcidChainNames.push_back(chain.name());
       }
     }
-  }
-}
-  
 
-StatusCode TrigSignatureMoni::initialize()
-{
-  if ( TrigMonitorToolBase::initialize().isFailure() ) {
-    ATH_MSG_ERROR(" Unable to initialize base class !");
-    return StatusCode::FAILURE;
-  }
-
-  m_parentAlg = dynamic_cast<const HLT::TrigSteer*>(parent());
-  if ( !m_parentAlg ) {
-    ATH_MSG_ERROR("Unable to cast the parent algorithm to HLT::TrigSteer");
-    return StatusCode::FAILURE;
-  }
-
-  m_trigLvl = m_parentAlg->getAlgoConfig()->getHLTLevel() == HLT::L2 ? "L2" : (m_parentAlg->getAlgoConfig()->getHLTLevel()==HLT::EF ? "EF" : "HLT");
-
-  //get access to ConfigService 
-  if (m_trigConfigSvc.empty()) {
-    ATH_MSG_ERROR("No TrigConfigSvc set in the jobOptions");
-    return StatusCode::FAILURE;
-  }
-  
-  ATH_CHECK( m_trigConfigSvc.retrieve() );
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TrigSignatureMoni::bookHists()
-{
-  ATH_CHECK( bookHistograms( false, false, true ) );
-  return StatusCode::SUCCESS;
-}
-
-		
-StatusCode TrigSignatureMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLumiBlock*/, bool /*isNewRun*/ )
-{
-  TrigMonGroup expertHistograms( this, m_parentAlg->name(), expert );
-
-  std::set<std::string> errorStreamNames;
-  for (const auto& s : m_parentAlg->getErrorStreamTags()) {
-    errorStreamNames.insert(s.name()+"_"+s.type());
-    ATH_MSG_INFO("adding error stream name: " << s.name()+"_"+s.type());
-  }
-
-  // Some preliminaries to setting up m_signatureAcceptanceHist...
-
-  const TrigConf::HLTChainList *chainList = m_trigConfigSvc->chainList();
-
-  BinBlock::PrepareToBook();
-
-  std::vector<const HLT::SteeringChain*> configuredChains = m_parentAlg->getConfiguredChains();
-
-  m_generalBlock = new GeneralBlock(&msg());
-  m_streamBlock  = new StreamBlock(chainList, errorStreamNames, m_trigLvl, &msg());
-  m_groupBlock   = new GroupBlock(configuredChains, &msg());
-  m_chainBlock   = new ChainBlock(configuredChains, &msg());
-  BinBlock::FinalizeInitialization();
-
-  // Needed only for checking:
-  /*
-  if(m_logLvl <= MSG::DEBUG){
-    m_generalBlock->PrintBlock();
-    m_streamBlock->PrintBlock();
-    m_groupBlock->PrintBlock();
-    m_chainBlock->PrintBlock();
-  }
-  */
-
-  // Reset private members
-  
-  //histograms 
-  m_signatureAcceptanceHist=0;
-  m_chainlengthHist=0;
-  m_eventsPassingStepHist=0;
-  m_totaleventsPassingStepHist=0;
-  m_stepForEBHist=0;
-    
-  // Step For EventBuilding histogram  
- if(m_trigLvl == "HLT") {
-   m_stepForEBHist = new TH1I("StepForEB", "Step at which EB is called  ", 60, -30., 30.);
-   if ( expertHistograms.regHist(m_stepForEBHist).isFailure()){
-     ATH_MSG_WARNING("Can't book " << m_histoPathexpert+ m_stepForEBHist->GetName());
-   }
-   m_stepForEBHist->GetYaxis()->SetTitle("Events");
-   m_stepForEBHist->GetXaxis()->SetTitle("Step of Event Building");
- }
- 
-  // Chain length histogram
-  std::string title = "Length of Chains in  " + m_trigLvl;
-  m_chainlengthHist = new TH1I("ChainLength",title.c_str(),
-                               BinBlock::TotalBinCount(), 
-                               BinBlock::GetFirstSigHistBin()-0.5, 
-                               BinBlock::GetFirstSigHistBin() + BinBlock::TotalBinCount()-0.5);
-  
-  if ( expertHistograms.regHist(m_chainlengthHist).isFailure()){
-    ATH_MSG_WARNING("Can't book "<< m_histoPathexpert+ m_chainlengthHist->GetName());
-  }
-  m_chainlengthHist->GetYaxis()->SetTitle("Step (Step 0 is the Input!)");
-  m_chainlengthHist->GetXaxis()->SetTitle("chains");
-  
-  // Stream correlation histogram
-  if(m_trigLvl == "EF" || m_trigLvl == "HLT") {
-    m_streamCorrel = new TH2I("StreamCorrel", "Stream vs. Stream (n.b: non-diags are filled on both sides of diag.)", 
-			      m_streamBlock->GetNBins(), 0, m_streamBlock->GetNBins(), 
-			      m_streamBlock->GetNBins(), 0, m_streamBlock->GetNBins());
-    if(m_streamCorrel == 0) {
-      ATH_MSG_WARNING("Can't book "<< m_streamCorrel->GetName());
-    }
-    
-    for(unsigned int i = 0; i <  m_streamBlock->GetNBins(); i++) {
-      m_streamCorrel->GetXaxis()->SetBinLabel(i+1, m_streamBlock->GetXLabel(i).data());
-      m_streamCorrel->GetYaxis()->SetBinLabel(i+1, m_streamBlock->GetXLabel(i).data());
-    }
-    if ( expertHistograms.regHist(m_streamCorrel).isFailure()){
-      ATH_MSG_WARNING("Can't register "<< m_streamCorrel->GetName() << ", deleting");
-      delete m_streamCorrel;
-      m_streamCorrel = 0;
+    // Save chain to stream map
+    for (const std::string& stream : chain.streams()){
+      m_streamToChainMap[stream].insert(HLT::Identifier(chain.name()));
     }
 
-  }
-
-  // Signature acceptance histogram
-  title = "Raw acceptance of signatures in "+ m_trigLvl;
-  m_signatureAcceptanceHist = new
-    TrigLBNHist<TH2I>(TH2I("SignatureAcceptance",title.c_str(), 
-			   BinBlock::TotalBinCount(), 
-			   BinBlock::GetFirstSigHistBin()-0.5, 
-			   BinBlock::GetFirstSigHistBin() + BinBlock::TotalBinCount()-0.5,
-			   BinBlock::GetNStepBins(), 
-			   -0.5, 
-			   BinBlock::GetNStepBins()-0.5 )
-		      );
-
-  for(int bin = 0; bin < BinBlock::TotalBinCount(); bin++)
-    m_signatureAcceptanceHist->GetXaxis()->SetBinLabel(bin+1, BinBlock::GetSigXAxisLabel(bin).data());
-  for(int bin = 0; bin < BinBlock::GetNStepBins(); bin++)
-    m_signatureAcceptanceHist->GetYaxis()->SetBinLabel(bin+1, BinBlock::GetStepNames()[bin].data());
-    
-
-  if ( expertHistograms.regHist((ITrigLBNHist*)m_signatureAcceptanceHist).isFailure()) {
-    ATH_MSG_WARNING("Can't book "<< m_signatureAcceptanceHist->GetName());
-  }
-  
-  // chain length histo: fill 1d histogram with the length of each chain
-  for ( const HLT::SteeringChain* chain : configuredChains ) {
-    unsigned int chainCounter = chain->getChainCounter();
-    int length = chain->getSignatures().size();
-    m_chainlengthHist->Fill( m_chainBlock->GetSigHistValue(chainCounter), length);
-
-    //set unused bins in signatureAcceptance to -1 
-    int binNum = 0;
-    int stepNum = 0;
-    std::vector<std::string> stepNames = BinBlock::GetStepNames();
-    for ( std::string step : stepNames) {
-      if( step.substr(0,4) == "step") {
-
-        if(stepNum >= length) {
-          m_signatureAcceptanceHist->SetBinContent(m_chainBlock->GetSigHistBin(chainCounter)+1, binNum+1, -1);
+    // Save chain id to bunchgroup name map
+    if (l1MenuHandle.isValid() && !chain.l1item().empty()) {
+      bool isMultiItemSeeded = chain.l1item().find(',') != std::string::npos;
+      try {
+        std::vector<std::string> seedingItems {};
+        if( isMultiItemSeeded ) {
+          boost::split(seedingItems, chain.l1item(), boost::is_any_of(","));
+        } else {
+          seedingItems = {chain.l1item()};
         }
-        stepNum++;
-      }
-      binNum++;
-    }
-  }
-
-  
-  //set streamTag-xbins  and group-xbins to -1 at step1 
-  int step1 = BinBlock::GetFirstAlgBin();
-  for(unsigned int bin = 0; bin < m_streamBlock->GetNBins(); bin++)
-    m_signatureAcceptanceHist->SetBinContent(m_streamBlock->GetFirstBin() + bin+1, step1+1, -1);
-  
-  for(unsigned int bin = 0; bin < m_groupBlock->GetNBins(); bin++)
-    m_signatureAcceptanceHist->SetBinContent(m_groupBlock->GetFirstBin() + bin+1, step1+1, -1);
-  
-  findChainsInStreams(m_chainsInStream, configuredChains, m_trigLvl);
-  for ( const auto& s : m_chainsInStream ) { // (string,TH1I*)
-    if ( expertHistograms.regHist(s.second).isFailure()) {
-      ATH_MSG_WARNING("Failed to book stream histogram");
-    }
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-
-
-StatusCode TrigSignatureMoni::fillHists()
-{
-  if( ! m_signatureAcceptanceHist  ){
-    ATH_MSG_WARNING("Pointers to histograms not ok, dont Fill ! ");
-    return StatusCode::FAILURE;  
-  }
-
-  const EventInfo* constEventInfo(0);
-  StatusCode sc_cei =  evtStore()->retrieve(constEventInfo);
-
-  if(sc_cei.isFailure()){
-    ATH_MSG_WARNING("Can't get EventInfo object (for stream tags & Lumiblock number)");
-  }
-
-  const std::vector<const HLT::SteeringChain*>& activeChains = m_parentAlg->getActiveChains();
-  unsigned int maxsuccessfulSteps=0;
-  bool eventPassedRaw = false;
-  bool eventPassedPS = false;
-  bool eventPassedPT = false;
-  bool eventHasError = false;
-  
-  enum accMask {hitInput = 1, hitRaw = 2, hitPS = 4, hitAlgoIn = 8, hitPT = 16, hitRerun=32, hitError=64};
-  std::map<int, unsigned int> streamHit; // Hold a bit mask for each stream hit
-  std::map<int, unsigned int> groupHit;  // Hold a bit mask for each group hit
-
-  //loop chains and fill x-bins for chains
-  for (const HLT::SteeringChain* ch : activeChains) {
-    
-    unsigned int chainCounter = (unsigned int)ch->getChainCounter();
-    unsigned int bin = m_chainBlock->GetSigHistValue(chainCounter);
-    eventPassedRaw = eventPassedRaw  ||  ch->chainPassedRaw();
-    eventPassedPS  = eventPassedPS   ||  ch->chainPassedRaw(); // same as above
-    eventPassedPT  = eventPassedPT   ||  ch->chainPassed();
-
-
-    if ( !ch->isResurrected() ) {
-      m_signatureAcceptanceHist->Fill(bin, BinBlock::GetInputBin());
-      m_streamBlock->SetMask(chainCounter, hitInput, streamHit);
-      m_groupBlock->SetMask(chainCounter, hitInput, groupHit);
-    }
-
-    if ( ch->isResurrected() ) {
-      m_signatureAcceptanceHist->Fill(bin, BinBlock::GetRerunBin());
-      m_streamBlock->SetMask(chainCounter, hitRerun, streamHit);
-      m_groupBlock->SetMask(chainCounter, hitRerun, groupHit);
-      continue;
-    }
-
-    if ( !ch->isResurrected() && !ch->isPrescaled() ) {
-      m_signatureAcceptanceHist->Fill(bin, BinBlock::GetPSBin());
-      m_streamBlock->SetMask(chainCounter, hitPS, streamHit);
-      m_groupBlock->SetMask(chainCounter, hitPS, groupHit);
-    }
-
-    if ( !ch->isResurrected()  && ( !ch->isPrescaled() || ch->isPassedThrough() ) ) {
-      m_signatureAcceptanceHist->Fill(bin, BinBlock::GetAlgoInBin());
-      m_streamBlock->SetMask(chainCounter, hitAlgoIn, streamHit);
-      m_groupBlock->SetMask(chainCounter, hitAlgoIn, groupHit);
-    }
-
-    if ( !ch->isResurrected() && ch->chainPassedRaw() ){
-      m_signatureAcceptanceHist->Fill(bin, BinBlock::GetRawBin());
-      m_streamBlock->SetMask(chainCounter, hitRaw, streamHit);
-      m_groupBlock->SetMask(chainCounter, hitRaw, groupHit);
-    }
-
-    if ( !ch->isResurrected()  && ( ch->chainPassedRaw() || ch->isPassedThrough() )){
-      m_signatureAcceptanceHist->Fill(bin, BinBlock::GetPTBin());
-      m_streamBlock->SetMask(chainCounter, hitPT, streamHit);
-      m_groupBlock->SetMask(chainCounter, hitPT, groupHit);
-    }
-
-    HLT::ErrorCode ecchain = ch->getErrorCode();
-    if ( ecchain.action() > HLT::Action::CONTINUE ) {
-      eventHasError = true;
-      m_signatureAcceptanceHist->Fill(bin, BinBlock::GetErrorBin());
-      m_streamBlock->SetMask(chainCounter, hitError, streamHit);
-      m_groupBlock->SetMask(chainCounter, hitError, groupHit);
-    }
-
-    // fill chain vs. step with the number of successful events per signature
-    unsigned int nsteps = ch->getChainStep();
-    for (unsigned int step = 0; step < nsteps; ++step){
-      m_signatureAcceptanceHist->Fill(bin, BinBlock::GetFirstAlgBin() + step);
-    }
-    
-    maxsuccessfulSteps = nsteps > maxsuccessfulSteps ? nsteps : maxsuccessfulSteps;
-    
-  }//end of chain loop
-  
-  // fill hit streams
-  for(std::map<int, unsigned int>::const_iterator sh = streamHit.begin(); sh != streamHit.end(); sh++) {
-    unsigned int mask = sh->second;
-    if(mask & hitInput)
-      m_signatureAcceptanceHist->Fill(sh->first, BinBlock::GetInputBin());
-
-    if(mask & hitRaw)
-      m_signatureAcceptanceHist->Fill(sh->first, BinBlock::GetRawBin());
-    
-    if(mask & hitPS) 
-      m_signatureAcceptanceHist->Fill(sh->first, BinBlock::GetPSBin());
-    
-    if(mask & hitAlgoIn) 
-      m_signatureAcceptanceHist->Fill(sh->first, BinBlock::GetAlgoInBin());
-    
-    if(mask & hitPT)// the PT bin is filled from the streamtag info below.
-      m_signatureAcceptanceHist->Fill(sh->first, BinBlock::GetFirstAlgBin() + BinBlock::GetMaxSteps() - 1);
-
-    if(mask & hitRerun)
-      m_signatureAcceptanceHist->Fill(sh->first, BinBlock::GetRerunBin());
-
-    if(mask & hitError)
-      m_signatureAcceptanceHist->Fill(sh->first, BinBlock::GetErrorBin());
-  }	
-
-  // fill hit groups
-  for(std::map<int, unsigned int>::iterator gh = groupHit.begin(); gh != groupHit.end(); gh++) {
-    unsigned int mask = gh->second;
-    if(mask & hitInput)
-      m_signatureAcceptanceHist->Fill(gh->first, BinBlock::GetInputBin());
-
-    if(mask & hitRaw)
-      m_signatureAcceptanceHist->Fill(gh->first, BinBlock::GetRawBin());
-    
-    if(mask & hitPS)
-      m_signatureAcceptanceHist->Fill(gh->first, BinBlock::GetPSBin());
-    
-    if(mask & hitAlgoIn)
-      m_signatureAcceptanceHist->Fill(gh->first, BinBlock::GetAlgoInBin());
-    
-    if(mask & hitPT)
-      m_signatureAcceptanceHist->Fill(gh->first, BinBlock::GetPTBin());
-
-    if(mask & hitRerun)
-      m_signatureAcceptanceHist->Fill(gh->first, BinBlock::GetRerunBin());
-
-    if(mask & hitError)
-      m_signatureAcceptanceHist->Fill(gh->first, BinBlock::GetErrorBin());
-
-  }	
-
-  // total level input  ALL EVENTS (chain 0, step=0)  change to x=-1
-  m_signatureAcceptanceHist->Fill( m_generalBlock->GetAllEvsBin(), BinBlock::GetInputBin() );
-  
-  if(activeChains.size() > 0){
-    m_signatureAcceptanceHist->Fill( m_generalBlock->GetOrBin(),     BinBlock::GetInputBin());
-  }
-  
-  if(eventPassedPT) {
-    m_signatureAcceptanceHist->Fill( m_generalBlock->GetOrBin(),     BinBlock::GetPTBin());
-  }
-  
-  if(eventPassedPS) {
-    m_signatureAcceptanceHist->Fill( m_generalBlock->GetOrBin(),     BinBlock::GetPSBin());
-  }
-  
-  if(eventPassedRaw) {
-    m_signatureAcceptanceHist->Fill( m_generalBlock->GetOrBin(),     BinBlock::GetRawBin());
-  }
-  
-  if(eventHasError) {
-    m_signatureAcceptanceHist->Fill( m_generalBlock->GetOrBin(),     BinBlock::GetErrorBin());
-  }
-  for (unsigned int step=0; step <= BinBlock::GetMaxSteps() ;step++) {
-    if(step < maxsuccessfulSteps)
-      m_signatureAcceptanceHist->Fill(m_generalBlock->GetOrBin(), BinBlock::GetFirstAlgBin() + step);
-  }
-
-  
-  if(maxsuccessfulSteps > BinBlock::GetMaxSteps()){
-    ATH_MSG_ERROR("Something wrong? maxsuccessfulSteps "<<maxsuccessfulSteps<<" > m_sv.maxSteps "
-                  <<  BinBlock::GetMaxSteps() <<" ?");
-  }
-
- 
-  if(sc_cei) {
-    //use EventInfo -> TriggerInfo-> Stream Tag  to get streams this event contributes to
-    std::vector<TriggerInfo::StreamTag> streamTags = constEventInfo->trigger_info()->streamTags();
-    
-    if(streamTags.size() > 0)
-      m_signatureAcceptanceHist->Fill(m_generalBlock->GetAllEvsBin(), BinBlock::GetPTBin());
-    
-    // fill total out per stream including additional streamTag prescales
-    
-    for(const TriggerInfo::StreamTag& st : streamTags) {
-      std::string streamKey = st.name()+"_"+st.type();
-      
-      int binNo = m_streamBlock->GetSigHistValue(streamKey);
-      if(binNo != m_streamBlock->GetCatchAllBin())
-        m_signatureAcceptanceHist->Fill( binNo, BinBlock::GetPTBin());
-    }
-    
-    if(m_streamCorrel != 0) { // Fill the correlation histogram, EF only
-      for(std::vector<TriggerInfo::StreamTag>::iterator iter=streamTags.begin(); iter != streamTags.end(); iter++){
-        std::string streamKey = iter->name()+"_"+iter->type();
-
-        int bin1 = m_streamBlock->GetCorrelHistBin(streamKey);
-        for(std::vector<TriggerInfo::StreamTag>::iterator it2=iter; it2 != streamTags.end(); it2++) {
-          int bin2 = m_streamBlock->GetCorrelHistBin(it2->name()+"_"+it2->type());
-          if(bin1 != m_streamBlock->GetCatchAllBin() && bin1 != m_streamBlock->GetCatchAllBin() ) {
-            m_streamCorrel->Fill(bin1,bin2);
-            if(bin1 != bin2)
-              m_streamCorrel->Fill(bin2,bin1);
+        for (const std::string & itemName : seedingItems) {
+          TrigConf::L1Item item = l1MenuHandle->item(itemName);
+          for (const std::string & group : item.bunchgroups()) {
+            if (group != "BGRP0") {
+              m_chainIDToBunchMap[HLT::Identifier(chain.name())].insert(group);
+            }
           }
         }
+      } catch(std::exception & ex) {
+        if(isMultiItemSeeded) {
+          ATH_MSG_INFO("The L1 seed to multi-item-seeded chain " << chain.name() << " could not be completely resolved. This is currently OK. Exception from menu access: " << ex.what());
+        } else {
+          ATH_MSG_WARNING("The L1 seed to chain " << chain.name() << " could not be resolved. Exception from menu access: " << ex.what());
+        }
       }
     }
   }
-  
-  fillChainsInStreams(m_chainsInStream, activeChains);
 
-  if(m_trigLvl == "HLT") 
-    m_stepForEBHist->Fill(m_parentAlg->stepForEB());
+  // Prepare the histograms
+
+  // Initialize SignatureAcceptance and DecisionCount histograms that will monitor 
+  //    chains, groups and sequences per each step
+  const int x {nBinsX(hltMenuHandle)};
+  const int y {nSteps()};
+  ATH_MSG_DEBUG( "Histogram " << x << " x " << y << " bins");
+  std::unique_ptr<TH2> hSA = std::make_unique<TH2I>("SignatureAcceptance", "Raw acceptance of signatures in;chain;step", x, 1, x + 1, y, 1, y + 1);  
+  std::unique_ptr<TH2> hDC = std::make_unique<TH2I>("DecisionCount", "Positive decisions count per step;chain;step", x, 1, x + 1, y, 1, y + 1);
+
+  ATH_CHECK(m_histSvc->regShared(m_bookingPath + "/" + name() + "/SignatureAcceptance", std::move(hSA), m_passHistogram));
+  ATH_CHECK(m_histSvc->regShared(m_bookingPath + "/" + name() + "/DecisionCount", std::move(hDC), m_countHistogram));
+
+  ATH_CHECK(initHist(m_passHistogram, hltMenuHandle));
+  ATH_CHECK(initHist(m_countHistogram, hltMenuHandle));
+
+  // Initialize BunchGroupCount that will count bunchgroup per chain
+  const int xb {nChains(hltMenuHandle)};
+  const int yb {nBunchGroups(l1MenuHandle)};
+  std::unique_ptr<TH2> hBG = std::make_unique<TH2I>("BunchGroupCount", "Bunch group count per chain;chain;bunchgroup", xb, 1, xb + 1, yb, 1, yb + 1);
+  ATH_CHECK(m_histSvc->regShared( m_bookingPath + "/" + name() + "/BunchGroupCount", std::move(hBG), m_bunchHistogram));
+  ATH_CHECK(initBunchHist(m_bunchHistogram, hltMenuHandle, l1MenuHandle));
+
+  // Initialize Rate histogram to save the rates of positive decisions in given interval 
+  //  per chain/group/sequence per in, after ps, out steps
+  const int yr {nBaseSteps()};
+  if ( x > 0 ){
+    std::string outputRateName ("Rate" + std::to_string(m_duration) + "s");
+    m_rateHistogram.init(outputRateName, "Rate of positive decisions;chain;step",
+                         x, yr, m_bookingPath + "/" + name() + '/' + outputRateName.c_str(), m_histSvc).ignore();
+    ATH_CHECK(initHist(m_rateHistogram.getHistogram(), hltMenuHandle, false));
+    ATH_CHECK(initHist(m_rateHistogram.getBuffer(), hltMenuHandle, false));
+  }
+
+  // Initialize SequencesExecutionRate histogram to save the rates of sequences execution
+  // Save sequences names to be monitored
+  std::set<std::string> sequencesSet;
+  for (auto& ctool: m_decisionCollectorTools){
+    ctool->getSequencesNames(sequencesSet);
+  }
+  const int xc = sequencesSet.size();
+  const int yc {1}; // Only rate, this histogram is really 1 D
+  if (xc > 0){
+    std::string outputSequenceName ("SequencesExecutionRate" + std::to_string(m_duration) + "s");
+    m_sequenceHistogram.init(outputSequenceName, "Rate of sequences execution;sequence;rate",
+                             xc, yc, m_bookingPath + "/" + name() + '/' + outputSequenceName.c_str(), m_histSvc).ignore();
+    ATH_CHECK(initSeqHist(m_sequenceHistogram.getHistogram(), sequencesSet));
+    ATH_CHECK(initSeqHist(m_sequenceHistogram.getBuffer(), sequencesSet));
+  }
+
+  // Initialize DecisionsPerBCID histogram to save the rates of positive decisions 
+  //  per BCID per chains that are bcid monitored (in MON:BCID group)
+  const int xbc {nBCIDs()};
+  const int ybc = bcidChainNames.size();
+  if (ybc > 0){
+    std::string outputBCIDName ("DecisionsPerBCID" + std::to_string(m_duration) + "s");
+    m_bcidHistogram.init(outputBCIDName, "Number of positive decisions per BCID per chain;BCID;chain",
+                         xbc, ybc, m_bookingPath + "/" + name() + '/' + outputBCIDName.c_str(), m_histSvc).ignore();
+    ATH_CHECK(initBCIDhist(m_bcidHistogram.getHistogram(), bcidChainNames));
+    ATH_CHECK(initBCIDhist(m_bcidHistogram.getBuffer(), bcidChainNames));
+  }
+  else {
+    ATH_MSG_DEBUG("No chains configured for BCID monitoring.");
+  }
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigSignatureMoni::finalHists() { 
-  m_chainsInStream.clear();
+StatusCode TrigSignatureMoni::stop() {
+  m_rateHistogram.stopTimer();
+  m_bcidHistogram.stopTimer();
+  m_sequenceHistogram.stopTimer();
+
+  if (m_chainIDToBinMap.empty()) {
+    ATH_MSG_INFO( "No chains configured, no counts to print" );
+    return StatusCode::SUCCESS;
+  }
+  
+  auto fixedWidth = [](const std::string& s, size_t sz) {
+    std::ostringstream ss;
+    ss << std::setw(sz) << std::left << s;
+    return ss.str();
+  };
+
+  SG::ReadHandle<TrigConf::HLTMenu> hltMenuHandle = SG::makeHandle(m_HLTMenuKey);
+  ATH_CHECK(hltMenuHandle.isValid());
+
+  // Retrieve information whether chain was active in Step
+  std::map<std::string, std::set<int>> chainToStepsId;
+  for (const TrigConf::Chain& chain : *hltMenuHandle){
+    int nstep {1}; // Start from step=1
+    for (const std::string& seqName : chain.sequencers()){
+      // Example sequencer name is "Step1_FastCalo_electron", we need only information about Step + number
+      std::smatch stepNameMatch;
+      std::regex_search(seqName.begin(), seqName.end(), stepNameMatch, std::regex("[Ss]tep[0-9]+"));
+
+      std::string stepName = stepNameMatch[0];
+      stepName[0] = std::toupper(stepName[0]); // Fix "stepX" -> "StepX"
+      // Check that the step name is set with the same position in the execution (empty steps support)
+      if ("Step" + std::to_string(nstep) == stepName) {
+        chainToStepsId[chain.name()].insert(nstep);
+      } else {
+      	ATH_MSG_DEBUG("Missing counts for step" << nstep << " in chain " << chain.name());
+      }
+      nstep++;
+    }
+  }
+
+  auto collToString = [&](int xbin, const LockedHandle<TH2>& hist, int startOfset=0, int endOffset=0){ 
+    std::string v;
+    const int stepsSize = hist->GetYaxis()->GetNbins() - 3; // L1, AfterPS, Output
+    for (int ybin = 1; ybin <= hist->GetYaxis()->GetNbins()-endOffset; ++ybin) {
+      if (ybin > startOfset) {
+        // Skip steps where chain wasn't active
+        // ybins are for all axis labes, steps are in bins from 3 to stepsSize + 2
+        const std::string chainName = m_passHistogram->GetXaxis()->GetBinLabel(xbin);
+
+        if (ybin < 3 || ybin > stepsSize + 2 || chainToStepsId[chainName].count(ybin - 2) != 0) {
+	        v += fixedWidth(std::to_string( int(hist->GetBinContent( xbin, ybin ))) , 11);
+        } else {
+          v += fixedWidth("-", 11);
+        }
+      } else {
+        v += fixedWidth(" ", 11);
+      }
+    }
+    return v;
+  };
+  
+  std::string v;
+  v += fixedWidth("L1", 11);
+  v += fixedWidth("AfterPS", 11);
+  for (int bin = 1; bin <= m_passHistogram->GetYaxis()->GetNbins()-3; ++bin) {
+    v += fixedWidth("Step" + std::to_string(bin), 11);
+  }
+  v += fixedWidth("Output", 11);
+  
+  ATH_MSG_INFO("Chains passing step (1st row events & 2nd row decision counts):");  
+  ATH_MSG_INFO(fixedWidth("ChainName", 30) << v);
+
+  /*
+    comment for future dev:
+    for combined chains we find x2 the number of decisions, because we count both the HypoAlg and the combo Alg decisions
+  */
+  
+  for (int bin = 1; bin <= (*m_passHistogram)->GetXaxis()->GetNbins(); ++bin) {
+    const std::string chainName = m_passHistogram->GetXaxis()->GetBinLabel(bin);
+    const std::string chainID = std::to_string( HLT::Identifier(chainName) );
+    if (chainName.find("HLT") == 0) { // print only for chains
+      ATH_MSG_INFO( chainName + " #" + chainID);
+      ATH_MSG_INFO( fixedWidth("-- #" + chainID + " Events", 30)  << collToString( bin, m_passHistogram) );
+      ATH_MSG_INFO( fixedWidth("-- #" + chainID + " Features", 30) << collToString( bin, m_countHistogram , 2, 1 ) );
+    }
+    if (chainName.find("All") == 0){
+      ATH_MSG_INFO( fixedWidth(chainName, 30)  << collToString( bin, m_passHistogram) );
+    }
+  }
+
   return StatusCode::SUCCESS;
 }
 
-
-/**
-   Implementation of BinBlock and inheriting classes
-**/
-
-BinBlock::BinBlock(BinBlock *binBlock, MsgStream *log): 
-  m_NBins(0), m_log(log)
-{
-
-  m_sv.firstSigHistBin = -1; // for historical reasons!
-  m_sv.unknown = "unknown";
-  m_sv.totalBins = 0;
-  
-  for(const BinBlock* bb : m_sv.binBlocks) {
-    m_sv.totalBins += bb->GetNBins();
-  }
-  
-  m_firstBin = m_sv.totalBins;
-  
-  m_sv.binBlocks.push_back(binBlock);
-
-}
-
-// This function is badly named. All it does is delete the binBlocks if they exist and clean up.
-void BinBlock::PrepareToBook()
-{
-  for(BinBlock* bb : m_sv.binBlocks) {
-    delete bb;
-  }
-  m_sv.binBlocks.clear();
-  m_sv.stepnames.clear();
-}
-
-void BinBlock::FinalizeInitialization()
-{
-  m_sv.totalBins = 0;
-
-  for(const BinBlock* bb : m_sv.binBlocks) {
-    m_sv.totalBins += bb->GetNBins();
-  }
-
-  // set the step name
-  m_sv.stepnames.push_back("errors");
-  m_sv.stepnames.push_back("input");
-  m_sv.stepnames.push_back("!PS rate");
-  m_sv.stepnames.push_back("algoIn");
-  
-
-  // give numbers to the steps
-  for (unsigned int i_step = 1; i_step <= m_sv.maxSteps; i_step++){
-    m_sv.stepnames.push_back("step "+std::to_string(i_step));
-  }
-
-  m_sv.stepnames.push_back("raw rate");
-  m_sv.stepnames.push_back("total rate");
-  m_sv.stepnames.push_back("rerun rate");
-
-  m_sv.errorBin     = 0;
-  m_sv.inputBin     = 1;
-  m_sv.psBin        = 2;
-  m_sv.algoInBin    = 3;
-  m_sv.firstStepBin = 4;
-  m_sv.rawBin   = m_sv.maxSteps + 4;
-  m_sv.ptBin    = m_sv.maxSteps + 5;
-  m_sv.rerunBin = m_sv.maxSteps + 6; 
-
-}
-
-
-const std::string& BinBlock::GetSigXAxisLabel(int bin)
-{
-  for (BinBlock* bb : m_sv.binBlocks) {
-    int firstBin = bb->GetFirstBin();
-    if(bin >= firstBin && bin < firstBin + int(bb->GetNBins())) {
-      return bb->GetXLabel(bin - firstBin);
+StatusCode TrigSignatureMoni::fillHistogram(const TrigCompositeUtils::DecisionIDContainer& dc, int row, LockedHandle<TH2>& histogram) const {
+  for (TrigCompositeUtils::DecisionID id : dc)  {
+    auto id2bin = m_chainIDToBinMap.find( id );
+     if ( id2bin == m_chainIDToBinMap.end() && HLT::Identifier(id).name().find("leg") != 0 ) {
+      ATH_MSG_WARNING( "HLT chain " << HLT::Identifier(id) << " not configured to be monitored" );
+    } else {
+      histogram->Fill( id2bin->second, double(row) );
     }
   }
-  return m_sv.unknown;
+  return StatusCode::SUCCESS;
 }
 
-GroupBlock::GroupBlock(const std::vector<const HLT::SteeringChain*>& configuredChains, MsgStream *log) 
-  : BinBlock(this, log)
-{
+StatusCode TrigSignatureMoni::fillRate(const TrigCompositeUtils::DecisionIDContainer& dc, int row) const {
+  return fillHistogram(dc, row, m_rateHistogram.getBuffer());
+}
 
-  std::map<std::string, int> groupBinMap;
-  m_NBins = 0;
+StatusCode TrigSignatureMoni::fillPassEvents(const TrigCompositeUtils::DecisionIDContainer& dc, int row) const {
+  return fillHistogram(dc, row, m_passHistogram);
+}
 
-  // First populate groupBinMap with the group names
-  // Done this way to ensure that groups are in alphabetical order in histo
-  for ( const HLT::SteeringChain * chain : configuredChains ) {
-     for ( const std::string& group : chain->getConfigChain()->groups() )
-        groupBinMap[group] = 0;
+StatusCode TrigSignatureMoni::fillDecisionCount(const std::vector<TrigCompositeUtils::DecisionID>& dc, int row) const {
+  for (TrigCompositeUtils::DecisionID id : dc)  {
+    TrigCompositeUtils::DecisionID chain = id;
+    if (TrigCompositeUtils::isLegId(HLT::Identifier(id)) ) chain = TrigCompositeUtils::getIDFromLeg(id);
+    auto id2bin = m_chainIDToBinMap.find( chain );
+    if ( id2bin == m_chainIDToBinMap.end()) {    
+      ATH_MSG_WARNING("HLT chain " << HLT::Identifier(chain) << " not configured to be monitored");
+    } else {
+      m_countHistogram->Fill(id2bin->second, double(row));
+    }
   }
 
-  // Assign bins, set label
-  for ( auto group_bin : groupBinMap ) {
-      m_XLabels[m_NBins] = "grp_" + group_bin.first;
-      group_bin.second = GetFirstSigHistBin() + m_firstBin + m_NBins++;
+  return StatusCode::SUCCESS;
+  
+}
+
+StatusCode TrigSignatureMoni::fillBunchGroups(const TrigCompositeUtils::DecisionIDContainer& dc ) const {
+  for (TrigCompositeUtils::DecisionID id : dc)  {
+    auto id2bin = m_chainIDToBinMap.find(id);
+    auto bunchGroups = m_chainIDToBunchMap.find(id);
+    if (id2bin != m_chainIDToBinMap.end() && bunchGroups != m_chainIDToBunchMap.end()) {
+      for (const std::string& group : bunchGroups->second){
+        m_bunchHistogram->Fill( id2bin->second, double(m_nameToBinMap.at(group)));
+        m_bunchHistogram->Fill( 1, double(m_nameToBinMap.at(group)) );
+      }
+    }
+  }
+  return StatusCode::SUCCESS;
+}
+
+StatusCode TrigSignatureMoni::fillBCID(const TrigCompositeUtils::DecisionIDContainer& dc , int bcid) const {
+  if (nBCIDchains() > 0){
+    for (TrigCompositeUtils::DecisionID id : dc)  {
+      auto id2bin = m_BCIDchainIDToBinMap.find(id);
+      if (id2bin != m_BCIDchainIDToBinMap.end()) {
+        m_bcidHistogram.fill( bcid, id2bin->second );
+      }
+    }
+  }
+  return StatusCode::SUCCESS;
+}
+
+StatusCode TrigSignatureMoni::fillSequences(const std::set<std::string>& sequences) const {
+  for (const std::string& seq : sequences) {
+    m_sequenceHistogram.fill(m_sequenceToBinMap.at(seq), 1);
   }
 
-  // Now set the bin maps for each chain
-  for ( const HLT::SteeringChain * chain : configuredChains ) {
-    std::set<int> binNums;
-    for ( const std::string& group : chain->getConfigChain()->groups() )
-       binNums.insert(groupBinMap[group]);
+  return StatusCode::SUCCESS;
+}
+
+StatusCode TrigSignatureMoni::fillStreamsAndGroups(const std::map<std::string, TrigCompositeUtils::DecisionIDContainer>& nameToChainsMap, const TrigCompositeUtils::DecisionIDContainer& dc) const {
+  // Fill just the last row of the histograms
+  const double row = nSteps();
+  const double rateRow = nBaseSteps();
+  for (const auto& name : nameToChainsMap) {
+    for (TrigCompositeUtils::DecisionID id : dc) {
+      if (name.second.find(id) != name.second.end()){
+        double bin = m_nameToBinMap.at(name.first);
+        m_countHistogram->Fill(bin, row);
+        m_rateHistogram.fill(bin, rateRow);
+        m_passHistogram->Fill(bin, row);
+        break;
+      }
+    }
+  }
+  return StatusCode::SUCCESS;
+}
+
+void TrigSignatureMoni::handle( const Incident& incident ) {
+  // Create and start timer after fork
+  if (incident.type() == AthenaInterprocess::UpdateAfterFork::type()) {
+    if (m_rateHistogram.getTimer() || m_sequenceHistogram.getTimer() || m_bcidHistogram.getTimer()) {
+      ATH_MSG_WARNING("Timer is already running. UpdateAfterFork incident called more than once?");
+      return;
+    }
+
+    // Prevent from publishing empty histograms
+    if (nBinsX() > 0) {
+      m_rateHistogram.startTimer(m_duration, m_intervals);
+    }
     
-    m_ch_bin_map[ chain->getChainCounter() ] = binNums;      
-  }
-}
+    if (nSequenceBins() > 0) {
+      m_sequenceHistogram.startTimer(m_duration, m_intervals);
+    }    
 
-const std::set<int> &GroupBlock::GetBinSet(unsigned int chainCounter) const
-{
-  const auto it = m_ch_bin_map.find(chainCounter);
-  if(it == m_ch_bin_map.end())
-    return m_emptyList;
-
-  return it->second;
-}
-
-void GroupBlock::PrintBlock()
-{
-  (*m_log) << MSG::DEBUG  << "Group Block " 
-	   << "First bin: " << m_firstBin << ", Number of bins: " << m_NBins << endmsg;
-
-  std::map<unsigned int, std::set<int> >::const_iterator mcbit;
-  for(mcbit = m_ch_bin_map.begin(); mcbit != m_ch_bin_map.end(); mcbit++) {
-    (*m_log) << MSG::DEBUG << "chain counter: " << mcbit->first << ", bins: ";
-    for( std::set<int>::const_iterator si = (mcbit->second).begin(); si != (mcbit->second).end(); si++) 
-      (*m_log) << MSG::DEBUG << (*si) << ", ";
-    (*m_log) << MSG::DEBUG << endmsg;
-  }
-}
-
-void GroupBlock::SetMask(unsigned int chainCounter, unsigned int mask, std::map<int, unsigned int> &hitMap) 
-{
-  const std::set<int>& groups = GetBinSet(chainCounter);
-
-  for(int hg : groups) {
-    auto it = hitMap.find(hg);
-    if(it == hitMap.end())
-      hitMap[hg] = 0;
-    else
-      it->second |= mask;
-  }
-}
-
-ChainBlock::ChainBlock(const std::vector<const HLT::SteeringChain*>& configuredChains, MsgStream *log) 
-  : BinBlock(this, log)
-{
-  m_NBins = 0;
-  unsigned int maxSteps = 0;
-
-  // This is here to produce an alphabetically sorted list of chains (to address Savannah bug 79938
-  std::map<std::string, unsigned int> chainname;
-  for (const HLT::SteeringChain* ch : configuredChains) {
-    chainname[ch->getChainName()]= ch->getChainCounter();
-
-    const std::vector<const HLT::Signature*>& signatures = ch->getSignatures();
-    // searching for the longest (max. steps) configured chain
-    maxSteps = signatures.size() > maxSteps ? signatures.size() : maxSteps;
-  }
-  
-  for (const auto& kv : chainname) {  // (name,chainCounter)
-    m_XLabels[m_NBins] = kv.first + "_ChCo_" + std::to_string(kv.second);
-    m_ch_bin[kv.second] = GetFirstSigHistBin() + m_firstBin + m_NBins++;
-  }
-  BinBlock::SetMaxSteps(maxSteps);
-}
-
-
-void ChainBlock::PrintBlock()
-{
-  (*m_log) << MSG::DEBUG << "Chain Block " 
-	   << "First bin: " << m_firstBin << ", Number of bins: " << m_NBins << endmsg;
-
-  std::map<unsigned int, int>::const_iterator mcbit;
-
-  for( mcbit = m_ch_bin.begin(); mcbit != m_ch_bin.end(); mcbit++) {
-    (*m_log) << MSG::DEBUG << mcbit->first << ": " << mcbit->second << "   " << endmsg;
-  }
-
-}
-
-int ChainBlock::GetSigHistValue(unsigned int chainCounter) const
-{
-  const auto it = m_ch_bin.find(chainCounter);
-  if(it != m_ch_bin.end())
-    return it->second;
-
-  return OverflowBin();
-
-}
-
-int ChainBlock::GetSigHistBin(unsigned int chainCounter) const
-{
-  const auto it = m_ch_bin.find(chainCounter);
-  if(it != m_ch_bin.end())
-    return it->second - GetFirstSigHistBin();
-
-  return OverflowBin();
-  
-}
-
-
-StreamBlock::StreamBlock(const TrigConf::HLTChainList* allChains,
-			 std::set<std::string> &errorStreamNames, std::string trigLvl,
-			 MsgStream *log) :
-  BinBlock(this, log) {
-  
-  // first pick out the EF physics streams, then any other EF streams, then any nonphysics L2 streams
-  if(trigLvl == "EF") {
-    InsertStreams(true, "EF", allChains);
-    InsertStreams(false, "EF", allChains);
-    InsertStreams(false, "L2", allChains);
-  } else if(trigLvl == "L2") {
-    InsertStreams(true, "L2", allChains);
-    InsertStreams(false, "L2", allChains);
-  }  else {
-    InsertStreams(true, "HLT", allChains);
-    InsertStreams(false, "EF", allChains);
-    InsertStreams(false, "L2", allChains);
-  }
-
-  // now the debug streams
-  for(const auto &s : errorStreamNames) {
-    m_XLabels[m_NBins] = "str_" + s;
-    m_str_tag_map[s] = m_NBins++;
-  }
-
-  // now a catch-all         --- suppressed on request from Brian 7.4.2011
-  //m_XLabels[m_NBins] = "str_other";
-  //m_str_tag_map["other"] = m_NBins;
-  //m_catchAll = m_NBins++;
-  m_catchAll = -1;
-
-
-  if(m_log->level() <= MSG::DEBUG) {
-    (*log) << MSG::DEBUG << "************ stream tag to bin map *****************" << endmsg;
-
-    std::map<std::string, int>::const_iterator stmit;
-    for(stmit = m_str_tag_map.begin(); stmit != m_str_tag_map.end(); stmit++)
-      (*log) << MSG::DEBUG << (*stmit).first << ": " << (*stmit).second << endmsg;
+    if (nBCIDchains() > 0){
+      m_bcidHistogram.startTimer(m_duration, m_intervals);
+    }
     
-    (*log) << MSG::DEBUG << "*********** chain counter to bin map for streams ***************" << endmsg;
-    std::map<unsigned int, std::set<int> >::const_iterator csmit;
-    for(csmit = m_ch_str_map.begin(); csmit != m_ch_str_map.end(); csmit++) {
-      (*log) << MSG::DEBUG << (*csmit).first << ": ";
-      std::set<int>::iterator si;
-      for(si = (*csmit).second.begin(); si != (*csmit).second.end(); si++)
-	(*log) << (*si) << "  ";
-      (*log) << endmsg;
+    ATH_MSG_DEBUG("Started rate timer");
+  }
+}
+
+StatusCode TrigSignatureMoni::execute( const EventContext& context ) const {
+
+  SG::ReadHandle<TrigCompositeUtils::DecisionContainer> l1Decisions = SG::makeHandle(m_l1DecisionsKey, context);
+
+  const TrigCompositeUtils::Decision* l1SeededChains = nullptr; // Activated by L1
+  const TrigCompositeUtils::Decision* unprescaledChains = nullptr; // Activated and passed prescale check
+  for (const TrigCompositeUtils::Decision* d : *l1Decisions) {
+    if (d->name() == "l1seeded") {
+      l1SeededChains = d;
+    } else if (d->name() == "unprescaled") {
+      unprescaledChains = d;
     }
   }
 
-}
+  if (l1SeededChains == nullptr || unprescaledChains == nullptr) {
+    ATH_MSG_ERROR("Unable to read in the summary from the L1Decoder.");
+    return StatusCode::FAILURE;
+  }
 
-void StreamBlock::InsertStreams(bool isPhysType, const std::string& trgLvl,
-                                const TrigConf::HLTChainList* allChains)
-{
+  auto fillL1 = [&](int index) -> StatusCode {    
+    TrigCompositeUtils::DecisionIDContainer ids;    
+    TrigCompositeUtils::decisionIDs(l1Decisions->at(index), ids);
+    ATH_MSG_DEBUG( "L1 " << index << " N positive decisions " << ids.size()  );
+    ATH_CHECK(fillPassEvents(ids, index + 1));
+    ATH_CHECK(fillRate(ids, index + 1));
+    if (!ids.empty()){
+      m_passHistogram->Fill(1, double(index + 1));
+      m_rateHistogram.fill(1, double(index + 1));
+    }
+    return StatusCode::SUCCESS;
+  };
+
+  // Fill histograms with L1 decisions in and after prescale
+  ATH_CHECK(fillL1(0));
+  ATH_CHECK(fillL1(1));
+
+  // Fill HLT steps
+  int step = 0;
+  for ( auto& ctool: m_decisionCollectorTools ) {
+    std::vector<TrigCompositeUtils::DecisionID> stepSum;
+    std::set<std::string> stepSequences;
+    ctool->getDecisions( stepSum );
+    ctool->getSequencesPerEvent( stepSequences );
+    ATH_MSG_DEBUG( " Step " << step << " decisions (for decisions): " << stepSum.size() );
+    TrigCompositeUtils::DecisionIDContainer stepUniqueSum( stepSum.begin(), stepSum.end() );
+    ATH_CHECK( fillPassEvents( stepUniqueSum, 3+step ) );
+    ATH_CHECK( fillSequences( stepSequences ) );
+    ++step;
+  }
+
+  step = 0;
+  for ( auto& ctool: m_featureCollectorTools ) {
+    std::vector<TrigCompositeUtils::DecisionID> stepSum;
+    std::set<std::string> stepSequences;
+    ctool->getDecisions( stepSum );
+    ATH_MSG_DEBUG( " Step " << step << " decisions (for features): " << stepSum.size() );
+    TrigCompositeUtils::DecisionIDContainer stepUniqueSum( stepSum.begin(), stepSum.end() );
+    ATH_CHECK( fillDecisionCount( stepSum, 3+step ) );
+    ++step;
+  }
+
+  // Fill the final decisions
+  const int row {nSteps()};
+  const int rateRow {nBaseSteps()};
+  SG::ReadHandle<TrigCompositeUtils::DecisionContainer> finalDecisionsHandle = SG::makeHandle( m_finalDecisionKey, context );
+  ATH_CHECK( finalDecisionsHandle.isValid() );
+  TrigCompositeUtils::DecisionIDContainer finalIDs;
+  const TrigCompositeUtils::Decision* decisionObject = TrigCompositeUtils::getTerminusNode(finalDecisionsHandle);
+  if (!decisionObject) {
+    ATH_MSG_WARNING("Unable to locate trigger navigation terminus node. Cannot tell which chains passed the event.");
+  } else {
+    TrigCompositeUtils::decisionIDs(decisionObject, finalIDs);
+  }
   
-  TrigConf::HLTChainList::const_iterator cit;
+  ATH_CHECK( fillStreamsAndGroups(m_streamToChainMap, finalIDs));
+  ATH_CHECK( fillStreamsAndGroups(m_groupToChainMap, finalIDs));
+  ATH_CHECK( fillPassEvents(finalIDs, row));
+  ATH_CHECK( fillRate(finalIDs, rateRow));
+  ATH_CHECK( fillBunchGroups( finalIDs));
+  ATH_CHECK( fillBCID(finalIDs , context.eventID().bunch_crossing_id()));
+
+  if (!finalIDs.empty()) {
+    m_passHistogram->Fill(1, double(row));
+    m_rateHistogram.fill(1, double(rateRow));
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+int TrigSignatureMoni::nBinsX(SG::ReadHandle<TrigConf::HLTMenu>& hltMenuHandle) const {
+  return nChains(hltMenuHandle) + m_groupToChainMap.size() + m_streamToChainMap.size();
+}
+
+int TrigSignatureMoni::nBinsX() const {
+  return m_chainIDToBinMap.size() + m_groupToChainMap.size() + m_streamToChainMap.size() + 1;
+}
+
+int TrigSignatureMoni::nChains(SG::ReadHandle<TrigConf::HLTMenu>& hltMenuHandle) const {
+  return hltMenuHandle->size() + 1; // Chains + "All"
+}
+
+int TrigSignatureMoni::nBCIDs() const {
+  return m_bcidNumber + 1;
+}
+
+int TrigSignatureMoni::nSequenceBins() const {
+  return m_sequenceToBinMap.size();
+}
+
+int TrigSignatureMoni::nSteps() const {
+  return m_decisionCollectorTools.size() + nBaseSteps();
+}
+
+int TrigSignatureMoni::nBaseSteps() const {
+  return 3; // in, after ps, out
+}
+
+int TrigSignatureMoni::nBCIDchains() const {
+  return m_BCIDchainIDToBinMap.size();
+}
+
+int TrigSignatureMoni::nBunchGroups(SG::ReadHandle<TrigConf::L1Menu>& l1MenuHandle) const {
+  return l1MenuHandle.isValid() ? (l1MenuHandle->getObject("bunchGroups").getKeys().size() - 1) : 16;
+}
+
+StatusCode TrigSignatureMoni::initHist(LockedHandle<TH2>& hist, SG::ReadHandle<TrigConf::HLTMenu>& hltMenuHandle, bool steps) {
+  TAxis* x = hist->GetXaxis();
+  x->SetBinLabel(1, "All");
+  int bin = 2; // 1 is for total count, (remember bins numbering in ROOT start from 1)
+
+  std::set<std::string> sortedChainsList;
+  for ( const TrigConf::Chain& chain: *hltMenuHandle ) {
+    sortedChainsList.insert( chain.name() );
+  }
   
-  // First get the names of the streams into a local set (for ordering).
-  // Then use it to set up the m_str_tag_map, then set up the chain to stream map
-
-  std::set<std::string> streamNames;
-  for(cit = allChains->begin(); cit != allChains->end(); cit++) {
-
-    if( (*cit)->level() != trgLvl)
-      continue;
-
-    for(const TrigConf::HLTStreamTag* st : (*cit)->streams()) {
-       if( (isPhysType && st->type() == "physics") || (!isPhysType && st->type() != "physics")) {
-          const std::string namkey = st->stream()+"_"+st->type();
-          streamNames.insert(namkey);
-       }
-    }
-  }
-
-  // Set up m_ch_str_map and the labels vector
-  for(const std::string& sn : streamNames) {
-    m_str_tag_map[ sn ] = m_NBins;
-    m_XLabels[m_NBins] = "str_" + sn;
-    m_NBins++;
-  }
-
-  // Set up the chain to streams map
-  for(cit = allChains->begin(); cit != allChains->end(); cit++) {
-
-     if( (*cit)->level() != trgLvl)
-        continue;
-
-      for(const TrigConf::HLTStreamTag* st : (*cit)->streams()) {
-       if( (isPhysType && st->type() == "physics") || (!isPhysType && st->type() != "physics")) {
-         const std::string namkey = st->stream()+"_"+st->type();
-         if(m_str_tag_map.find(namkey) == m_str_tag_map.end()) {
-           m_ch_str_map.insert(std::pair<unsigned int, std::set<int> >((*cit)->chain_counter(), 
-                                                                       std::set<int>()));
-         }
-         m_ch_str_map[(*cit)->chain_counter()].insert( GetFirstSigHistBin() + 
-                                                       m_firstBin + 
-                                                       m_str_tag_map[namkey] );
-       }
-     }
-  }
-}
-
-void StreamBlock::PrintBlock()
-{
-  if(m_log->level() <= MSG::DEBUG) { 
-    (*m_log) << MSG::DEBUG  << "**** Stream Block ****" << endmsg
-             << "First bin: " << m_firstBin << ", Number of bins: " << m_NBins << endmsg;
-    (*m_log) << MSG::DEBUG  << "Stream tag to bin map " << endmsg;
-    std::map<std::string, int>::iterator mstit;
-    for(mstit = m_str_tag_map.begin(); mstit != m_str_tag_map.end(); mstit++) {
-      (*m_log) << MSG::DEBUG  << mstit->first << ": " << mstit->second << endmsg;
-    }
-    (*m_log) << MSG::DEBUG  << "Chain counter to bin map" << endmsg;
-    std::map<unsigned int, std::set<int> >::iterator mcsit;
-    for(mcsit = m_ch_str_map.begin(); mcsit != m_ch_str_map.end(); mcsit++) {
-      (*m_log) << MSG::DEBUG  << "chain counter " << mcsit->first << ": ";
-      for(int si : mcsit->second)
-        (*m_log) << MSG::DEBUG  << si << ", ";
-      (*m_log) << MSG::DEBUG  << endmsg;
-    }
-  }
-}
-
-const std::set<int> &StreamBlock::GetSigHistValueSet(unsigned int chainCounter) const
-{
-  const auto it = m_ch_str_map.find(chainCounter);
-  if(it != m_ch_str_map.end())
-    return it->second;
-  
-  return m_notFound;
-     
-}
-
-int StreamBlock::GetSigHistValue(const std::string& streamTag) const
-{
-  const auto it = m_str_tag_map.find(streamTag);
-  if(it != m_str_tag_map.end())
-    return GetFirstSigHistBin() + m_firstBin + it->second;
-
-  return m_catchAll;
-}
-
-int StreamBlock::GetCorrelHistBin(const std::string& streamTag) const
-{
-  const auto it = m_str_tag_map.find(streamTag);
-  if(it != m_str_tag_map.end())
-    return it->second;
-
-  return m_catchAll;
-}
-
-
-void StreamBlock::SetMask(unsigned int chainCounter, unsigned int mask, std::map<int, unsigned int> &hitMap) 
-{
-  const std::set<int>& streams = GetSigHistValueSet(chainCounter);
-  for(int hs : streams) {
-    hitMap[hs] |= mask;     // this works because default value of new int entry is 0
-  }
-}
+  for ( const std::string& chainName: sortedChainsList ) {
     
+    x->SetBinLabel( bin, chainName.c_str() );
+    m_chainIDToBinMap[ HLT::Identifier( chainName ).numeric() ] = bin;
+    bin++;
+  }
+
+ 
+  for ( const auto& stream : m_streamToChainMap){
+    x->SetBinLabel( bin, ("str_"+stream.first).c_str());
+    m_nameToBinMap[ stream.first ] = bin;
+    bin++;
+  }
+
+  for ( const auto& group : m_groupToChainMap){
+    x->SetBinLabel( bin, ("grp_"+group.first.substr(group.first.find(':')+1)).c_str() );
+    m_nameToBinMap[ group.first ] = bin;
+    bin++;
+  }
+
+
+  TAxis* y = hist->GetYaxis();
+  y->SetBinLabel(1, steps ? "L1" : "Input");
+  y->SetBinLabel(2, "AfterPS");
+  for ( size_t i = 0; steps && i < m_decisionCollectorTools.size(); ++i) {
+    y->SetBinLabel(3 + i, ("Step "+std::to_string(i)).c_str());
+  }
+  y->SetBinLabel(y->GetNbins(), "Output"); // Last bin
+
+  return StatusCode::SUCCESS;
+}
+
+StatusCode TrigSignatureMoni::initSeqHist(LockedHandle<TH2>& hist, std::set<std::string>& sequenceSet) {
+  TAxis* x = hist->GetXaxis();
+  int bin = 1;
+
+  // Set bin labels
+  for (const std::string& seqName : sequenceSet) {
+    x->SetBinLabel(bin, seqName.c_str());
+    m_sequenceToBinMap[seqName] = bin;
+    ++bin;
+  }
+
+  TAxis* y = hist->GetYaxis();
+  y->SetBinLabel(1, "Rate");
+
+  return StatusCode::SUCCESS;
+}
+
+StatusCode TrigSignatureMoni::initBCIDhist(LockedHandle<TH2>& hist, const std::vector<std::string>& chainNames){
+  std::vector<std::string> sortedChainNames(chainNames);
+  std::sort( sortedChainNames.begin(), sortedChainNames.end() );
+
+  TAxis* y = hist->GetYaxis();
+  int bin = 1;
+
+  for (const std::string& chainName : sortedChainNames){
+    y->SetBinLabel( bin, chainName.c_str() );
+    m_BCIDchainIDToBinMap[HLT::Identifier(chainName).numeric()] = bin;
+    ++bin;
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+StatusCode TrigSignatureMoni::initBunchHist(LockedHandle<TH2>& hist, SG::ReadHandle<TrigConf::HLTMenu>& hltMenuHandle, SG::ReadHandle<TrigConf::L1Menu>& l1MenuHandle) {
+
+  bool gotL1Menu = l1MenuHandle.isValid() && l1MenuHandle->isInitialized();
+
+  TAxis* x = hist->GetXaxis();
+  x->SetBinLabel(1, "All");
+  int bin = 2;
+
+  std::vector<std::string> sortedChainsList;
+  for (const TrigConf::Chain& chain : *hltMenuHandle) {
+    sortedChainsList.push_back( chain.name() );
+  }
+  std::sort( sortedChainsList.begin(), sortedChainsList.end() );
+
+  for (const std::string& chainName : sortedChainsList) {
+    x->SetBinLabel( bin, chainName.c_str() );
+    ++bin;
+  }
+
+  std::vector<std::string> sortedBunchGroups;
+  if (gotL1Menu) {
+    sortedBunchGroups = l1MenuHandle->getObject("bunchGroups").getKeys();
+    std::sort(sortedBunchGroups.begin(), sortedBunchGroups.end());
+    sortedBunchGroups.erase(std::remove(sortedBunchGroups.begin(), sortedBunchGroups.end(), "BGRP0"), sortedBunchGroups.end());
+  } else {
+    for(size_t i = 1; i<=16; ++i) {
+      sortedBunchGroups.emplace_back("BGRP" + std::to_string(i));
+    }
+  }
+
+  bin = 1;
+  TAxis* y = hist->GetYaxis();
+  for (const std::string& group : sortedBunchGroups){
+    std::string bgname = gotL1Menu ? l1MenuHandle->getAttribute( "bunchGroups." + group + ".name", true) : group;
+    y->SetBinLabel( bin, bgname.c_str() );
+    m_nameToBinMap[group] = bin;
+    ++bin;
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+TrigSignatureMoni::RateHistogram::~RateHistogram(){
+  delete m_bufferHistogram.get();
+}
+
+StatusCode TrigSignatureMoni::RateHistogram::init( const std::string& histoName, const std::string& histoTitle,
+  const int x, const int y, const std::string& registerPath, ServiceHandle<ITHistSvc> histSvc ){
+  std::unique_ptr<TH2> h = std::make_unique<TH2F>(histoName.c_str(), histoTitle.c_str(), x, 1, x + 1, y, 1, y + 1);
+  ATH_CHECK( histSvc->regShared( registerPath.c_str(), std::move(h), m_histogram));
+  
+  TH2I * hB = new TH2I( (histoName + "Buffer").c_str(), histoTitle.c_str(), x, 1, x + 1, y, 1, y + 1);
+  m_bufferHistogram.set(hB, &m_mutex);
+  m_bufferHistogram->SetDirectory(0);
+
+  return StatusCode::SUCCESS;
+}
+
+LockedHandle<TH2> & TrigSignatureMoni::RateHistogram::getHistogram() const {
+  return m_histogram;
+}
+
+LockedHandle<TH2> & TrigSignatureMoni::RateHistogram::getBuffer() const {
+  return m_bufferHistogram;
+}
+
+std::unique_ptr<Athena::AlgorithmTimer> & TrigSignatureMoni::RateHistogram::getTimer() {
+  return m_timer;
+}
+
+void TrigSignatureMoni::RateHistogram::fill(const double x, const double y) const {
+  m_bufferHistogram->Fill(x, y);
+}
+
+void TrigSignatureMoni::RateHistogram::startTimer(unsigned int duration, unsigned int intervals) {
+  m_duration = duration;
+  m_timeDivider = std::make_unique<TimeDivider>(intervals, duration, TimeDivider::seconds);
+  m_timer = std::make_unique<Athena::AlgorithmTimer>(duration*50, boost::bind(&RateHistogram::callback, this), Athena::AlgorithmTimer::DELIVERYBYTHREAD);
+}
+
+void TrigSignatureMoni::RateHistogram::stopTimer() {
+  if (m_timer) {
+    m_timer.reset();
+    time_t t = time(0);
+    unsigned int interval;
+    unsigned int duration = m_timeDivider->forcePassed(t, interval);
+    updatePublished(duration); // Divide by time that really passed not by interval duration
+  }
+
+}
+
+void TrigSignatureMoni::RateHistogram::updatePublished(unsigned int duration) const {
+  m_histogram->Reset("ICES");
+  m_histogram->Add(m_bufferHistogram.get(), 1./duration);
+  m_bufferHistogram->Reset("ICES");
+}
+
+
+void TrigSignatureMoni::RateHistogram::callback() const {
+  // Ask time divider if we need to switch to new interval
+  time_t t = time(0);
+  unsigned int newinterval;
+  unsigned int oldinterval;
+
+  if (m_timeDivider->isPassed(t, newinterval, oldinterval)) {
+    updatePublished(m_duration);
+  }
+
+  // Schedule itself in another 1/20 of the integration period in milliseconds
+  if (m_timer) m_timer->start(m_duration*50);
+}

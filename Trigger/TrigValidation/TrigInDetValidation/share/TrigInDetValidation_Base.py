@@ -10,7 +10,7 @@
 import re
 
 from TrigValTools.TrigValSteering import Test, CheckSteps
-from TrigInDetValidation.TrigInDetArtSteps import TrigInDetReco, TrigInDetAna, TrigInDetRdictStep, TrigInDetCompStep, TrigInDetCpuCostStep
+from TrigInDetValidation.TrigInDetArtSteps import TrigInDetReco, TrigInDetAna, TrigCostStep, TrigInDetRdictStep, TrigInDetCompStep, TrigInDetCpuCostStep
 
 
 import sys,getopt
@@ -47,7 +47,7 @@ for opt,arg in opts:
     if opt=="-p":
         postproc=True
     if opt=="-n":
-        Events_local=arg
+        Events_local=int(arg)
     if opt in ("-c", "--config"):
         testconfig = True
     if opt=="-t":
@@ -88,6 +88,7 @@ else :
 
 
 rdo2aod.perfmon = False
+rdo2aod.costmon = True
 rdo2aod.timeout = 18*3600
 rdo2aod.input   = Input    # defined in TrigValTools/share/TrigValInputs.json  
 
@@ -105,11 +106,18 @@ if GridFiles:
 
 test = Test.Test()
 test.art_type = Art_type
+
+lrt_mode = False
+if 'LRT' in dir() :
+    lrt_mode = LRT
+aod_to_ntup = TrigInDetAna(lrt=lrt_mode)
+
+rdo_to_cost = TrigCostStep()
+
 if dry_run:
     test.dry_run = True
 if (not exclude):
-    test.exec_steps = [rdo2aod]
-    test.exec_steps.append(TrigInDetAna())
+    test.exec_steps = [rdo2aod, aod_to_ntup, rdo_to_cost]
     test.check_steps = CheckSteps.default_check_steps(test)
 
 # Run TIDArdict
@@ -123,6 +131,9 @@ if ((not exclude) or postproc ):
             rdict = TrigInDetRdictStep( name=job[0], args=job[1] )
         print( "\n\033[0;32m TIDArdict "+job[1]+" \033[0m" )
         test.check_steps.append(rdict)
+
+
+
        
         
 for _slice in Comp :
@@ -130,12 +141,20 @@ for _slice in Comp :
     test.check_steps.append(compstep)
 
 # CPU cost steps
+# cputest defined with "name" "output directory" "filename" "args" 
+cputest = [ ( "CpuCostStep1", " times ", "expert-monitoring.root", " --auto  -p TIME" ),
+            ( "CpuCostStep2", " times-FTF ", "expert-monitoring.root", " --auto -p TIME -d TrigFastTrackFinder_" ),
+            ( "CpuCostStep3", " cost-perCall ", "TrigCostRoot_Results.root", " --auto -p _Time_perCall -d /Algorithm " ),
+            ( "CpuCostStep4", " cost-perEvent ", "TrigCostRoot_Results.root", " --auto -p _Time_perEvent -d /Algorithm " ),
+            ( "CpuCostStep5", " cost-perCall-chain ", "TrigCostRoot_Results.root", " --auto -p _Time_perCall -d /Chain_Algorithm " ),
+            ( "CpuCostStep6", " cost-perEvent-chain ", "TrigCostRoot_Results.root", " --auto -p _Time_perEvent -d /Chain_Algorithm " ),
+            ]
 
-cpucost=TrigInDetCpuCostStep('CpuCostStep1', ftf_times=False)
-test.check_steps.append(cpucost)
+if ((not exclude) or postproc ):
+    for job in cputest :
+        cpucost = TrigInDetCpuCostStep( name=job[0], outdir=job[1], infile=job[2], extra=job[3] )
+        test.check_steps.append(cpucost)
 
-cpucost2=TrigInDetCpuCostStep('CpuCostStep2')
-test.check_steps.append(cpucost2)
 
 import sys
 sys.exit(test.run())

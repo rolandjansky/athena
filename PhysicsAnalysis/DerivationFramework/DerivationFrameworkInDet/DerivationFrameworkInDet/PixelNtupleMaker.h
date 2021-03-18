@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DERIVATIONFRAMEWORK_PIXELNTUPLEMAKER_H
@@ -19,10 +19,6 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackStateValidationContainer.h"
 #include "xAODTracking/TrackMeasurementValidationContainer.h"
-
-namespace ExpressionParsing {
-  class ExpressionParser;
-}
 
 namespace DerivationFramework {
 

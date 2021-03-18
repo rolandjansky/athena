@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -71,21 +71,21 @@ class TileDQstatus;
 class TileDigitsMaker: public AthAlgorithm {
   public:
     // Constructor
-    TileDigitsMaker(std::string name, ISvcLocator* pSvcLocator);
+    TileDigitsMaker(const std::string& name, ISvcLocator* pSvcLocator);
 
 
     //Destructor 
     virtual ~TileDigitsMaker();
 
     //Gaudi Hooks
-    StatusCode initialize(); //!< initialize method
-    StatusCode execute();    //!< execute method
-    StatusCode finalize();   //!< finalize method
+    virtual StatusCode initialize() override; //!< initialize method
+    virtual StatusCode execute() override;    //!< execute method
+    virtual StatusCode finalize() override;   //!< finalize method
 
   private:
-    StatusCode overlayBackgroundDigits( const TileDigitsCollection *bkgDigitCollection, const TileHitCollection* hitCollection, int igain[], int ros, int drawer, int drawerIdx, int over_gain[] );
+    StatusCode overlayBackgroundDigits(const TileDigitsCollection *bkgDigitCollection, const TileHitCollection* hitCollection, int igain[], int ros, int drawer, int drawerIdx, int over_gain[], const EventContext &ctx);
 
-    StatusCode FillDigitCollection(const TileHitCollection* hitCollection, std::vector<double *> &drawerBufferLo, std::vector<double *> &drawerBufferHi, int igain[], int overgain[], double ech_int[], std::vector<bool> &signal_in_channel) const;
+    StatusCode FillDigitCollection(const TileHitCollection* hitCollection, std::vector<double *> &drawerBufferLo, std::vector<double *> &drawerBufferHi, int igain[], int overgain[], double ech_int[], std::vector<bool> &signal_in_channel, const EventContext &ctx) const;
 
     SG::ReadHandleKey<TileHitContainer> m_hitContainerKey{this,"TileHitContainer","TileHitCnt",
                                                           "input Tile hit container key"};

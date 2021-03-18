@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,10 +11,6 @@
 #include "xAODBase/IParticleContainer.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODMuon/Muon.h"
-#include "ExpressionEvaluation/ExpressionParser.h"
-#include "ExpressionEvaluation/SGxAODProxyLoader.h"
-#include "ExpressionEvaluation/MultipleProxyLoader.h"
-#include "ExpressionEvaluation/SGNTUPProxyLoader.h"
 #include <vector>
 #include <string>
 
@@ -32,11 +28,9 @@ namespace DerivationFramework {
   EGInvariantMassTool::EGInvariantMassTool(const std::string& t,
 					   const std::string& n,
 					   const IInterface* p) : 
-    AthAlgTool(t,n,p),
+    ExpressionParserUser<AthAlgTool,kNumEGInvariantMassToolParser>(t,n,p),
     m_expression1("true"),
     m_expression2("true"),
-    m_parser1(0),
-    m_parser2(0),
     m_sgName(""),
     m_mass1Hypothesis(0.0),
     m_mass2Hypothesis(0.0),
@@ -73,30 +67,17 @@ namespace DerivationFramework {
 
   StatusCode EGInvariantMassTool::initialize()
   {
-    if (m_sgName=="") {
+    if (m_sgName.empty()) {
       ATH_MSG_ERROR("No SG name provided for the output of EGInvariantMassTool!");
       return StatusCode::FAILURE;
     }
-    ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
-    proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
-    proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
-    m_parser1 = new ExpressionParsing::ExpressionParser(proxyLoaders);
-    m_parser1->loadExpression(m_expression1);
-    m_parser2 = new ExpressionParsing::ExpressionParser(proxyLoaders);
-    m_parser2->loadExpression(m_expression2);
+    ATH_CHECK( initializeParser( {m_expression1, m_expression2} ) );
     return StatusCode::SUCCESS;
   }
 
   StatusCode EGInvariantMassTool::finalize()
   {
-    if (m_parser1) {
-      delete m_parser1;
-      m_parser1 = 0;
-    }
-    if (m_parser2) {
-      delete m_parser2;
-      m_parser2 = 0;
-    }
+    ATH_CHECK( finalizeParser());
     return StatusCode::SUCCESS;
   }
 
@@ -176,9 +157,9 @@ namespace DerivationFramework {
     }
  
     // get the positions of the elements which pass the requirement
-    std::vector<int> entries1 =  m_parser1->evaluateAsVector();
+    std::vector<int> entries1 =  m_parser[kParser1]->evaluateAsVector();
     unsigned int nEntries1 = entries1.size();
-    std::vector<int> entries2 =  m_parser2->evaluateAsVector();
+    std::vector<int> entries2 =  m_parser[kParser2]->evaluateAsVector();
     unsigned int nEntries2 = entries2.size();
 
     // if there are no particles in one of the two lists to combine, just leave function
@@ -283,4 +264,5 @@ namespace DerivationFramework {
     }
     return StatusCode::SUCCESS; 
   }
+   
 }

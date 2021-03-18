@@ -18,7 +18,7 @@
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "RPC_CondCabling/RpcCablingCondData.h"
 #include "StoreGate/ReadCondHandleKey.h"
-#include "RegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 #include "MuonRDO/TgcRdoContainer.h"
 #include "StoreGate/ReadHandleKey.h"
 
@@ -68,8 +68,8 @@ namespace TrigL2MuonSA {
     void setBufferName(std::string buffName) {m_calBufferName=buffName;}
 
     std::vector<int>* getLocalBuffer()   {return &m_localBuffer;}
-    int getLocalBufferSize() {return m_localBuffer.size();}
-    void clearLocalBuffer();
+    int getLocalBufferSize() const {return m_localBuffer.size();}
+    /* void clearLocalBuffer(); */
 
     //
     // initialize the stream
@@ -81,14 +81,14 @@ namespace TrigL2MuonSA {
     
     //
     // create the fragment corresponding to an roi
-    StatusCode createRoiFragment(const LVL1::RecMuonRoI* roi,
-				 TrigL2MuonSA::TrackPattern& trackPattern,
-				 TrigL2MuonSA::MdtHits& mdtHits,
-				 TrigL2MuonSA::RpcHits& rpcHits,
-				 TrigL2MuonSA::TgcHits& tgcHits,
-				 int calBufferSize,
-				 bool doDataScouting,
-                                 bool& updateTriggerElement);
+    /* StatusCode createRoiFragment(const LVL1::RecMuonRoI* roi, */
+    /* 				 TrigL2MuonSA::TrackPattern& trackPattern, */
+    /* 				 TrigL2MuonSA::MdtHits& mdtHits, */
+    /* 				 TrigL2MuonSA::RpcHits& rpcHits, */
+    /* 				 TrigL2MuonSA::TgcHits& tgcHits, */
+    /* 				 int calBufferSize, */
+    /* 				 bool doDataScouting, */
+    /*                              bool& updateTriggerElement); */
 
   private:
 
@@ -104,7 +104,9 @@ namespace TrigL2MuonSA {
     std::ofstream m_outputFile;
 
     // the region selector
-    ServiceHandle<IRegSelSvc>  m_regionSelector;
+    ToolHandle<IRegSelTool> m_regSel_MDT{this, "RegionSelectorTool", "RegSelTool/RegSelTool_MDT", "MDT Region Selector Tool"};
+    ToolHandle<IRegSelTool> m_regSel_CSC{this, "RegionSelectorTool", "RegSelTool/RegSelTool_CSC", "CSC Region Selector Tool"};
+    ToolHandle<IRegSelTool> m_regSel_TGC{this, "RegionSelectorTool", "RegSelTool/RegSelTool_TGC", "TGC Region Selector Tool"};
 
     SG::ReadCondHandleKey<RpcCablingCondData> m_readKey{this, "ReadKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
 

@@ -133,8 +133,8 @@ tf.readBS=False
 tf.doID=False
 
 
-from TriggerJobOpts.TriggerGetter import TriggerGetter
-triggerGetter = TriggerGetter()
+from TriggerJobOpts.T0TriggerGetter import T0TriggerGetter
+triggerGetter = T0TriggerGetter()
 
 # trigger configuration
 #from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter

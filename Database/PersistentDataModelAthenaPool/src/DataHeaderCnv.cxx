@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file DataHeaderCnv.cxx
@@ -239,6 +239,7 @@ std::unique_ptr<DataHeader_p5> DataHeaderCnv::poolReadObject_p5()
    void* voidPtr2 = nullptr;
    Token mapToken;
    mapToken.fromString( header->dhFormToken() );
+   mapToken.setAuxString( m_i_poolToken->auxString() );  // set PersSvc context
    if (mapToken.classID() != Guid::null()) {
       if( header->dhFormMdx() != m_dhFormMdx ) {
          m_athenaPoolCnvSvc->setObjPtr(voidPtr2, &mapToken);
@@ -272,6 +273,7 @@ std::unique_ptr<DataHeader_p6> DataHeaderCnv::poolReadObject_p6()
       void* voidPtr2 = nullptr;
       Token mapToken;
       mapToken.fromString( header->dhFormToken() );
+      mapToken.setAuxString( m_i_poolToken->auxString() );  // set PersSvc context
       if (mapToken.classID() != Guid::null()) {
          m_athenaPoolCnvSvc->setObjPtr(voidPtr2, &mapToken);
          if (voidPtr2 == nullptr) {

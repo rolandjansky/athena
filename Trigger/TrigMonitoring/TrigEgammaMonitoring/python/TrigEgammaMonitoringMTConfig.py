@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 '''@file TrigEgammaMonitoringConfigRun3.py
 @author D. Maximov (histograms), Joao victor Pinto (core)
@@ -60,8 +60,8 @@ class TrigEgammaMonAlgBuilder:
   basePath = 'HLT/EgammaMon'
 
 
-  isemnames = ["Tight", "Medium", "Loose"]
-  lhnames   = ["LHTight", "LHMedium", "LHLoose"]
+  isemnames = ["tight", "medium", "loose"]
+  lhnames   = ["lhtight", "lhmedium", "lhloose","lhvloose"]
  
 
   def __init__(self, helper, runflag, **kwargs):
@@ -173,8 +173,16 @@ class TrigEgammaMonAlgBuilder:
             'HLT_e5_lhtight_noringer_L1EM3',
             'HLT_e5_lhtight_L1EM3',
             'HLT_e5_lhtight_gsf_L1EM3',
-
+            'HLT_e5_lhtight_noringer',
+            'HLT_e9_lhtight_noringer-EM7',
+            'HLT_e14_lhtight_noringer-EM12'
             ]
+    monitoring_jpsi = [
+            'HLT_e4_etcut_Jpsiee_L1JPSI-1M5',
+            'HLT_e9_etcut_Jpsiee_L1JPSI-1M5-EM7',
+            'HLT_e14_etcut_Jpsiee_L1JPSI-1M5-EM12',
+            ]
+
 
     monitoring_photon = [
             'HLT_g20_loose_L1EM15VHI',
@@ -194,11 +202,19 @@ class TrigEgammaMonAlgBuilder:
             'HLT_g25_loose_L1EM20VH',
             'HLT_g25_medium_L1EM20VH',
             'HLT_g25_tight_L1EM20VH',
+            'HLT_g35_medium_L1EM20VH',
+            'HLT_g50_medium_L1EM20VH',
             'HLT_g120_loose_L1EM22VHI',
-            'HLT_g140_loose_L1EM22VH'
+            'HLT_g140_loose_L1EM22VH',
+            'HLT_g300_etcut_L1EM22VHI',
+            'HLT_g15_tight_dPhi15_L1DPHI-M70-EM12I'
             ]
 
     monitoringTP_electron = [
+            'HLT_e20_lhtight_ivarloose_L1ZAFB-25DPHI-EM18I',
+            'HLT_e12_lhvloose_L1EM10VH',
+            'HLT_e15_etcut_Zee',
+            'HLT_e15_idperf_Zee',
             'HLT_e17_lhvloose_L1EM15VHI', 
             'HLT_e17_lhvloose_gsf_L1EM15VHI', 
             'HLT_e24_lhvloose_gsf_L1EM20VH', 
@@ -217,7 +233,8 @@ class TrigEgammaMonAlgBuilder:
             'HLT_e26_lhtight_ivarmedium_L1EM22VHI',
             'HLT_e26_lhtight_ivartight_L1EM22VHI',
             'HLT_e60_lhmedium_L1EM22VHI',
-            'HLT_e140_lhloose_L1EM22VHI'
+            'HLT_e140_lhloose_L1EM22VHI',
+            'HLT_e300_etcut_L1EM22VHI'
             ]
 
     #monitoring_tags = ['HLT_e24_lhtight_nod0_ivarloose', 'HLT_e26_lhtight_nod0_ivarloose']
@@ -227,7 +244,7 @@ class TrigEgammaMonAlgBuilder:
     self.photonList   = monitoring_photon
     self.tpList       = monitoringTP_electron
     
-    self.jpsiList     = []
+    self.jpsiList     = monitoring_jpsi
     self.tagItems     = [] #monitoring_tags 
     self.jpsitagItems = [] #monitoring_jpsitags
 
@@ -328,12 +345,12 @@ class TrigEgammaMonAlgBuilder:
       self.zeeMonAlg.isEMResultNames=self.isemnames
       self.zeeMonAlg.LHResultNames=self.lhnames
       self.zeeMonAlg.ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector]
-      self.zeeMonAlg.ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector]
+      self.zeeMonAlg.ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector,VeryLooseLHSelector]
       self.zeeMonAlg.ZeeLowerMass=80
       self.zeeMonAlg.ZeeUpperMass=100
       self.zeeMonAlg.OfflineTagMinEt=25
-      self.zeeMonAlg.OfflineTagSelector='LHTight'
-      self.zeeMonAlg.OfflineProbeSelector='LHLoose'
+      self.zeeMonAlg.OfflineTagSelector='lhtight'
+      self.zeeMonAlg.OfflineProbeSelector='lhloose'
       self.zeeMonAlg.OppositeCharge=True
       self.zeeMonAlg.RemoveCrack=False
       self.zeeMonAlg.TagTriggerList=self.tagItems
@@ -353,12 +370,12 @@ class TrigEgammaMonAlgBuilder:
       self.jpsieeMonAlg.isEMResultNames=self.isemnames
       self.jpsieeMonAlg.LHResultNames=self.lhnames
       self.jpsieeMonAlg.ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector]
-      self.jpsieeMonAlg.ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector]
+      self.jpsieeMonAlg.ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector,VeryLooseLHSelector]
       self.jpsieeMonAlg.ZeeLowerMass=2
       self.jpsieeMonAlg.ZeeUpperMass=5
       self.jpsieeMonAlg.OfflineTagMinEt=5
-      self.jpsieeMonAlg.OfflineTagSelector='LHTight'
-      self.jpsieeMonAlg.OfflineProbeSelector='LHLoose'
+      self.jpsieeMonAlg.OfflineTagSelector='lhtight'
+      self.jpsieeMonAlg.OfflineProbeSelector='lhloose'
       self.jpsieeMonAlg.OppositeCharge=True
       self.jpsieeMonAlg.RemoveCrack=False
       self.jpsieeMonAlg.TagTriggerList=self.jpsitagItems
@@ -585,16 +602,16 @@ class TrigEgammaMonAlgBuilder:
     monGroup = self.addGroup( monAlg, trigger+'_Distributions_' + ("HLT" if online else "Offline"), 
                               self.basePath+'/'+trigger+'/Distributions/' + ("HLT" if online else "Offline") )
 
-    self.addHistogram(monGroup, TH1F("ethad", "ethad; ethad ; Count", 20, -10, 10))
-    self.addHistogram(monGroup, TH1F("ethad1", "ethad1; ehad1 ; Count", 20, -10, 10))
+    self.addHistogram(monGroup, TH1F("ethad", "ethad; ethad ; Count", 20, -1, 1))
+    self.addHistogram(monGroup, TH1F("ethad1", "ethad1; ehad1 ; Count", 20, -1, 1))
     self.addHistogram(monGroup, TH1F("Rhad", "Rhad; Rhad ; Count", 35, -0.3, 0.3))
     self.addHistogram(monGroup, TH1F("Rhad1", "Rhad1; Rhad1 ; Count", 30, -0.3, 0.3))
-    self.addHistogram(monGroup, TH1F("Reta", "Reta; Reta ; Count", 15, 0., 1.5))
-    self.addHistogram(monGroup, TH1F("Rphi", "Rphi; Rphi ; Count", 15, 0., 1.5))
+    self.addHistogram(monGroup, TH1F("Reta", "Reta; Reta ; Count", 15, 0.4, 1.2))
+    self.addHistogram(monGroup, TH1F("Rphi", "Rphi; Rphi ; Count", 15, 0.4, 1.2))
     self.addHistogram(monGroup, TH1F("weta1", "weta1; weta1 ; Count", 12, 0.4, 1.))
     self.addHistogram(monGroup, TH1F("weta2", "weta2; weta2 ; Count", 20, 0., 0.02))
-    self.addHistogram(monGroup, TH1F("f1", "f1; f1 ; Count", 11, -0.1, 1.))
-    self.addHistogram(monGroup, TH1F("f3", "f3; f3 ; Count", 21, -0.1, 0.2))
+    self.addHistogram(monGroup, TH1F("f1", "f1; f1 ; Count", 11, 0, 1.))
+    self.addHistogram(monGroup, TH1F("f3", "f3; f3 ; Count", 21, -0.05, 0.1))
     self.addHistogram(monGroup, TH1F("eratio","eratio; eratio; Count",20, 0, 2))
     self.addHistogram(monGroup, TH1F("et", "ET; ET [GeV] ; Count", 100, 0., 100.))
     self.addHistogram(monGroup, TH1F("highet", "Offline E_{T}; E_{T} [GeV] ; Count", 100, 0., 2000.))

@@ -16,7 +16,6 @@
 #include "AthLinks/ElementLink.h"
 #include "T2CaloEgammaReFastAlgo.h"
 #include "TrigT2CaloCommon/IReAlgToolCalo.h"
-#include "TrigT2CaloCommon/ITrigDataAccess.h"
 #include "CxxUtils/phihelper.h"
 #include "xAODTrigCalo/TrigEMClusterAuxContainer.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"

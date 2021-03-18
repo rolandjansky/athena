@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -43,10 +43,8 @@
 #include "TTree.h"
 #include "GaudiKernel/ITHistSvc.h" 
 // STD
-#include <math.h>
+#include <cmath>
 
-// temporary
-#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkGeometry/TrackingVolume.h"
 
@@ -67,7 +65,7 @@ iFatras::PhotonConversionTool::PhotonConversionTool(const std::string& t, const 
   m_childEnergyScaleFactor(2.),
   m_conversionProbScaleFactor(0.98),
   m_rndGenSvc("AtDSFMTGenSvc", n),
-  m_randomEngine(0),
+  m_randomEngine(nullptr),
   m_randomEngineName("FatrasRnd"),
   m_recordedConversions(0),
   m_droppedConversions(0),
@@ -75,7 +73,7 @@ iFatras::PhotonConversionTool::PhotonConversionTool(const std::string& t, const 
   m_validationTreeName("FatrasPhotonConversions"),
   m_validationTreeDescription("Validation output from the PhotonConversionTool"),
   m_validationTreeFolder("/val/FatrasPhotonConversions"),
-  m_validationTree(0),
+  m_validationTree(nullptr),
   m_validationTool(""),
   m_conversionPointX(0.),
   m_conversionPointY(0.),
@@ -161,14 +159,14 @@ StatusCode iFatras::PhotonConversionTool::initialize()
       m_validationTree->Branch("ConversionChildAngle  " ,  &m_conversionChildAngle,   "convChildA/F");
     
       // now register the Tree
-      ITHistSvc* tHistSvc = 0;
+      ITHistSvc* tHistSvc = nullptr;
       if (service("THistSvc",tHistSvc).isFailure()){ 
 	ATH_MSG_ERROR( "initialize() Could not find Hist Service -> Switching ValidationMode Off !" );
-	delete m_validationTree; m_validationTree = 0;
+	delete m_validationTree; m_validationTree = nullptr;
       }
       if ((tHistSvc->regTree(m_validationTreeFolder, m_validationTree)).isFailure()) {
 	ATH_MSG_ERROR( "initialize() Could not register the validation Tree -> Switching ValidationMode Off !" );
-	delete m_validationTree; m_validationTree = 0;
+	delete m_validationTree; m_validationTree = nullptr;
       }
 
     } // ------------- end of validation mode -----------------------------------------------------------------
@@ -299,7 +297,7 @@ void iFatras::PhotonConversionTool::recordChilds(double time,
 
     // save info for validation
     if (m_validationMode && m_validationTool) {
-      Amg::Vector3D* nPrim=0;
+      Amg::Vector3D* nPrim=nullptr;
       m_validationTool->saveISFVertexInfo(14,vertex,*parent,parent->momentum(),nPrim,children);
     }
 
@@ -427,7 +425,7 @@ bool iFatras::PhotonConversionTool::pairProduction(const Trk::MaterialProperties
   }
   */
 
-  return (m_conversionProbScaleFactor*CLHEP::RandFlat::shoot(m_randomEngine) > attenuation) ? true : false;
+  return m_conversionProbScaleFactor*CLHEP::RandFlat::shoot(m_randomEngine) > attenuation;
 
 }
 

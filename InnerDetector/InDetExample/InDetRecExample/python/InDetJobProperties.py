@@ -1144,8 +1144,8 @@ class useNNTTrainedNetworks(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = False
 
-class keepAdditionalHitsOnTrackParticle(InDetFlagsJobProperty): 
-  """Do not drop first/last hits on track (only for special cases - will blow up TrackParticle szie!!!)""" 
+class keepAdditionalHitsOnTrackParticle(InDetFlagsJobProperty):
+  """Do not drop first/last hits on track (only for special cases - will blow up TrackParticle size!!!)"""
   statusOn     = True 
   allowedTypes = ['bool']
   StoredValue  = False
@@ -1203,6 +1203,18 @@ class doTRTPIDNN(InDetFlagsJobProperty):
   statusOn     = True 
   allowedTypes = ['bool']
   StoredValue  = True
+
+class doTTVADecos(InDetFlagsJobProperty): 
+  """decorate tracks with their AMVF vertices+weights for TTVA""" 
+  statusOn     = True 
+  allowedTypes = ['bool']
+  StoredValue  = True
+
+class minPrecHitFractionTrtExt(InDetFlagsJobProperty):
+  """ Min fraction of precision hits on TRT extension in track finding """
+  statusOn     = True
+  allowedTypes = ['float']
+  StoredValue  = 0.4
 
 ##-----------------------------------------------------------------------------
 ## 2nd step
@@ -2800,7 +2812,9 @@ _list_InDetJobProperties = [Enabled,
                             nnCutLargeD0Threshold,
                             useMuForTRTErrorScaling,
                             writeSeedValNtuple,
-                            doTRTPIDNN
+                            doTRTPIDNN,
+                            doTTVADecos,
+                            minPrecHitFractionTrtExt
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)

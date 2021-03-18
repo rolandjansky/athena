@@ -28,6 +28,7 @@
 
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTrack/Track.h"
+#include "TrkTrackSummary/TrackSummary.h"
 #include "TrkTrack/LinkToTrack.h"
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
 #include "TrkParticleBase/TrackParticleBase.h"
@@ -793,7 +794,7 @@ AlignTrack* BeamspotVertexPreProcessor::doTrackRefit(const Track* track) {
       }
   }
 
-
+  
 
 
 
@@ -887,6 +888,7 @@ DataVector<Track> * BeamspotVertexPreProcessor::processTrackCollection(const Dat
   // loop over tracks
   TrackCollection::const_iterator itr     = tracks->begin();
   TrackCollection::const_iterator itr_end = tracks->end();
+  
   for ( ; itr != itr_end; ++itr, ++index) {
     ATH_MSG_DEBUG("Processing track "<<index);
     const Track* track = *itr;
@@ -895,18 +897,18 @@ DataVector<Track> * BeamspotVertexPreProcessor::processTrackCollection(const Dat
 
     // check whether the track passes the basic selection
     if ((not m_trkSelector.empty()) and (not m_trkSelector->accept(*track))) continue;
-
-
     if(m_refitTracks){
       alignTrack = doTrackRefit(track);
 
       // 2nd track check after refit
       if(alignTrack && !m_trkSelector.empty()) {
-        // do not check for FullVertex tracks:
+	// refitted track loses the summary information, restoring it here
+	alignTrack->setTrackSummary( std::make_unique<Trk::TrackSummary> (*track->trackSummary()) );
+	// do not check for FullVertex tracks:
         if( !(alignTrack->getVtx()) ) {
-          if(!m_trkSelector->accept(*alignTrack))
-             continue;
-        }
+	  if(!m_trkSelector->accept(*alignTrack))
+	    continue;
+	}
       }
     } else{
       alignTrack = new AlignTrack(*track);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTrkMuIdTools/CaloMuonLikelihoodTool.h"
@@ -15,6 +15,7 @@
 
 #include "TFile.h"
 #include "TH1F.h"
+#include <TString.h> // for Form
 
 #include <string>
 #include <iostream>
@@ -25,21 +26,9 @@
 // CaloMuonLikelihoodTool constructor
 ///////////////////////////////////////////////////////////////////////////////
 CaloMuonLikelihoodTool::CaloMuonLikelihoodTool(const std::string& type, const std::string& name, const IInterface* parent) : 
-  AthAlgTool(type,name,parent),
-  m_fileNames{
-  PathResolverFindCalibFile( "CaloTrkMuIdTools/cutBased_release21/CaloMuonLikelihood.PDF.A0.root"),
-  PathResolverFindCalibFile( "CaloTrkMuIdTools/cutBased_release21/CaloMuonLikelihood.PDF.A1.root"),
-  PathResolverFindCalibFile( "CaloTrkMuIdTools/cutBased_release21/CaloMuonLikelihood.PDF.A2.root"),
-  PathResolverFindCalibFile( "CaloTrkMuIdTools/cutBased_release21/CaloMuonLikelihood.PDF.B0.root"),
-  PathResolverFindCalibFile( "CaloTrkMuIdTools/cutBased_release21/CaloMuonLikelihood.PDF.B1.root"),
-  PathResolverFindCalibFile( "CaloTrkMuIdTools/cutBased_release21/CaloMuonLikelihood.PDF.B2.root"),
-  PathResolverFindCalibFile( "CaloTrkMuIdTools/cutBased_release21/CaloMuonLikelihood.PDF.C0.root"),
-  PathResolverFindCalibFile( "CaloTrkMuIdTools/cutBased_release21/CaloMuonLikelihood.PDF.C1.root"),
-  PathResolverFindCalibFile( "CaloTrkMuIdTools/cutBased_release21/CaloMuonLikelihood.PDF.C2.root")
-}
-{
-  declareInterface<ICaloMuonLikelihoodTool>(this);  
-  declareProperty("RootFileNames", m_fileNames);
+    AthAlgTool(type,name,parent),
+    m_fileNames() {
+  declareInterface<ICaloMuonLikelihoodTool>(this);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -47,20 +36,21 @@ CaloMuonLikelihoodTool::CaloMuonLikelihoodTool(const std::string& type, const st
 ///////////////////////////////////////////////////////////////////////////////
 StatusCode CaloMuonLikelihoodTool::initialize() {
   ATH_MSG_INFO("Initializing " << name());
-
   ATH_CHECK(m_caloExtensionTool.retrieve());
-  
-  if (m_fileNames.size()!=9) {
-    ATH_MSG_FATAL("Number of input ROOT files should be 9!");
-    return StatusCode::FAILURE;
-  }
-  
+  m_fileNames = {
+    PathResolverFindCalibFile(Form("%s/CaloMuonLikelihood.PDF.A0.root",m_calibRelease.value().c_str())),
+    PathResolverFindCalibFile(Form("%s/CaloMuonLikelihood.PDF.A1.root",m_calibRelease.value().c_str())),
+    PathResolverFindCalibFile(Form("%s/CaloMuonLikelihood.PDF.A2.root",m_calibRelease.value().c_str())),
+    PathResolverFindCalibFile(Form("%s/CaloMuonLikelihood.PDF.B0.root",m_calibRelease.value().c_str())),
+    PathResolverFindCalibFile(Form("%s/CaloMuonLikelihood.PDF.B1.root",m_calibRelease.value().c_str())),
+    PathResolverFindCalibFile(Form("%s/CaloMuonLikelihood.PDF.B2.root",m_calibRelease.value().c_str())),
+    PathResolverFindCalibFile(Form("%s/CaloMuonLikelihood.PDF.C0.root",m_calibRelease.value().c_str())),
+    PathResolverFindCalibFile(Form("%s/CaloMuonLikelihood.PDF.C1.root",m_calibRelease.value().c_str())),
+    PathResolverFindCalibFile(Form("%s/CaloMuonLikelihood.PDF.C2.root",m_calibRelease.value().c_str()))
+  };
   ATH_CHECK(retrieveHistograms());
-
   return StatusCode::SUCCESS;
 }
-
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // CaloMuonLikelihoodTool::retrieveHistograms

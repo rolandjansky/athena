@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -34,7 +34,7 @@
 //
 // Constructor
 //
-TileTBHitToBeamElem::TileTBHitToBeamElem(std::string name, ISvcLocator* pSvcLocator)
+TileTBHitToBeamElem::TileTBHitToBeamElem(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
   , m_infoName("TileInfo")
   , m_tileTBID(0)

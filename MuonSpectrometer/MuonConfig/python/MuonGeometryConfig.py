@@ -9,7 +9,6 @@ Muon__MuonIdHelperSvc=CompFactory.Muon.MuonIdHelperSvc
 AGDDtoGeoSvc=CompFactory.AGDDtoGeoSvc
 MuonAGDDTool, NSWAGDDTool=CompFactory.getComps("MuonAGDDTool","NSWAGDDTool",)
 
-
 def MuonIdHelperSvcCfg(flags):
     acc = ComponentAccumulator()
     acc.addService( Muon__MuonIdHelperSvc("MuonIdHelperSvc",
@@ -91,7 +90,8 @@ def MuonDetectorToolCfg(flags):
 
     # call fill cache of MuonDetectorTool such that all MdtReadoutElement caches are filled
     # already during initialize() -> this will increase memory -> needs to be measured
-    detTool.FillCacheInitTime = 1
+    detTool.FillCacheInitTime = 1 
+
     # turn on/off caching of MdtReadoutElement surfaces
     detTool.CachingFlag = 1
 
@@ -155,11 +155,15 @@ def MuonAlignmentCondAlgCfg(flags):
     acc.addCondAlgo(MuonAlign)
     return acc
 
-
 def MuonDetectorCondAlgCfg(flags):
     acc = MuonAlignmentCondAlgCfg(flags)
     MuonDetectorCondAlg = CompFactory.MuonDetectorCondAlg
     MuonDetectorManagerCond = MuonDetectorCondAlg()
+    
+    # temporary way to pass MM correction for passivation
+    from MuonGeoModel.MMPassivationFlag import MMPassivationFlag
+    MuonDetectorManagerCond.MMPassivationCorrection = MMPassivationFlag.correction
+
     detTool = acc.popToolsAndMerge(MuonDetectorToolCfg(flags))
     MuonDetectorManagerCond.MuonDetectorTool = detTool
     acc.addCondAlgo(MuonDetectorManagerCond)
@@ -170,6 +174,7 @@ def MuonGeoModelCfg(flags):
     acc=GeoModelCfg(flags)
     gms=acc.getPrimary()
     detTool = acc.popToolsAndMerge(MuonDetectorToolCfg(flags))
+    detTool.FillCacheInitTime = 0 # We do not need to fill cache for the MuonGeoModel MuonDetectorTool, just for the condAlg
     gms.DetectorTools += [ detTool ]
 
     enableAlignment = flags.Common.Project != 'AthSimulation' \

@@ -50,7 +50,7 @@ StatusCode JepJemMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
   // array of monitored items
   std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> variables;
 
-  ATH_MSG_INFO("Retrieve input TriggerTowers " << m_JetElementLocation.key());
+  ATH_MSG_DEBUG("Retrieve input TriggerTowers " << m_JetElementLocation.key());
   SG::ReadHandle<xAOD::JetElementContainer> inputJEs(m_JetElementLocation, ctx);
   
   // create vectors of jet elements with quantities to be monitored

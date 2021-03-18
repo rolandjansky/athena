@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -40,11 +40,11 @@ Trig::TrigDecisionTool::TrigDecisionTool(const std::string& name) :
 #endif
 #ifndef XAOD_ANALYSIS
   ,m_fullNavigation("HLT::Navigation/Navigation", this)
-  ,m_navigation(nullptr) //should initialize it... it's dangerous not to
-#else
-  ,m_navigation(new HLT::StandaloneNavigation())
 #endif
 {
+#ifdef XAOD_ANALYSIS
+  m_navigation = new HLT::StandaloneNavigation();
+#endif
 
   //full Athena env
 #ifndef XAOD_ANALYSIS
@@ -128,7 +128,9 @@ Trig::TrigDecisionTool::initialize() {
 
      m_configTool.disable();
 
+     ATH_MSG_DEBUG("Fetching " << m_configSvc.typeAndName());
      ATH_CHECK(m_configSvc.retrieve());
+
      // call update if there is anything in config svc
      if ( m_configSvc->chainList() || m_configSvc->ctpConfig() ) {
        configurationUpdate( m_configSvc->chainList(), m_configSvc->ctpConfig() );
@@ -183,25 +185,28 @@ std::vector<uint32_t>* Trig::TrigDecisionTool::getKeys() {
 #endif 
 }
 
-void Trig::TrigDecisionTool::setForceConfigUpdate(bool b) {
+void Trig::TrigDecisionTool::setForceConfigUpdate(bool b, bool forceForAllSlots) {
 #if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full athena
-  std::vector<uint8_t>* v = m_forceConfigUpdate.get();
-  v->resize(1);
-  v->at(0) = (uint8_t)b;
+  std::atomic<bool>* ab = m_forceConfigUpdate.get();
+  (*ab) = b;
+  if (forceForAllSlots) {
+    for (size_t dummySlot = 0; dummySlot < SG::getNSlots(); ++dummySlot) {
+      EventContext dummyContext(/*dummyEventNumber*/0, dummySlot);
+      std::atomic<bool>* ab = m_forceConfigUpdate.get(dummyContext);
+      (*ab) = b;
+    }
+  }
 #else // Analysis or Standalone
   m_forceConfigUpdate = b;
+  ATH_MSG_VERBOSE("The forceForAllSlots flag not used in AnalysisBase, but to stop a compiler warning, this flag is " << forceForAllSlots);
 #endif 
 }
 
 
 bool Trig::TrigDecisionTool::getForceConfigUpdate() {
 #if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full athena
-  auto* vec = m_forceConfigUpdate.get();
-  if (vec->size() == 0) {
-    // initialize; if the vector does not exist assume we need update
-    vec->push_back(true);
-  }
-  return vec->at(0);
+  std::atomic<bool>* ab = m_forceConfigUpdate.get();
+  return *ab;
 #else // Analysis or Standalone
   return m_forceConfigUpdate;
 #endif 
@@ -220,6 +225,7 @@ StatusCode Trig::TrigDecisionTool::beginEvent() {
 #if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full athena
   cgmPtr->setOldDecisionKeyPtr( &m_oldDecisionKey );
   cgmPtr->setOldEventInfoKeyPtr( &m_oldEventInfoKey );
+  cgmPtr->setStore(&*evtStore()); // Use of this is deprecated, and should be phased out.
   slot = Gaudi::Hive::currentContext().slot();
 #endif
 
@@ -237,7 +243,7 @@ StatusCode Trig::TrigDecisionTool::beginEvent() {
 #endif
     //for analysis releases we check whether we need to update the config
     //we also do this in full athena, in the case where there was no configSvc provided ...
-    ATH_MSG_VERBOSE("beginEvent: check if config update is nessecary (via config Tool)");
+    ATH_MSG_DEBUG("beginEvent: check if config update is nessecary (via config Tool)");
 
     bool keysMatch = configKeysMatch(m_configTool->masterKey(),
       m_configTool->lvl1PrescaleKey(),
@@ -249,7 +255,8 @@ StatusCode Trig::TrigDecisionTool::beginEvent() {
         << " with SMK: " << m_configTool->masterKey() 
         << " and L1PSK: " << m_configTool->lvl1PrescaleKey() 
         << " and HLTPSK: " << m_configTool->hltPrescaleKey()
-        << " getForceConfigUpdate()=" << getForceConfigUpdate());
+        << " getForceConfigUpdate()=" << getForceConfigUpdate()
+        << " HLT Chains: " << m_configTool->chainList()->size());
 
       std::vector<uint32_t>* keys = getKeys();
       keys->resize(3);
@@ -259,38 +266,40 @@ StatusCode Trig::TrigDecisionTool::beginEvent() {
       configurationUpdate( m_configTool->chainList(), m_configTool->ctpConfig() );
       setForceConfigUpdate(false);
     } else{
-      ATH_MSG_VERBOSE("Tool: Cached Trigger configuration keys match for this event in slot " << slot);
+      ATH_MSG_DEBUG("Tool: Cached Trigger configuration keys match for this event in slot " << slot);
     }
 #ifndef XAOD_ANALYSIS
   }
 #endif
 
 #ifndef XAOD_ANALYSIS
-  if(m_configSvc.name() == "xAODConfigSvc") {
+  if(m_configSvc.name() == "xAODConfigSvc" or m_configSvc.name() == "TrigConfigSvc") {
     // ... and where we are using the xAOD service (instead of the TrigConfSvc)
-    ATH_MSG_VERBOSE("beginEvent: check if config update is nessecary (via xAOD config Svc)");
+    ATH_MSG_DEBUG("beginEvent: check if config update is nessecary (via " << m_configSvc.name() << ")");
 
-    bool keysMatch = configKeysMatch(m_configSvc->masterKey(),
-      m_configSvc->lvl1PrescaleKey(),
-      m_configSvc->hltPrescaleKey());
+    const uint32_t smk = m_configSvc->masterKey();
+    const uint32_t l1psk = m_configSvc->lvl1PrescaleKey();
+    const uint32_t hltpsk = m_configSvc->hltPrescaleKey();
+    bool keysMatch = configKeysMatch(smk, l1psk, hltpsk);
 
     if(!keysMatch or getForceConfigUpdate()){
 
       ATH_MSG_INFO("Svc: updating config in slot " << slot
-        << " with SMK: " << m_configSvc->masterKey() 
-        << " and L1PSK: " << m_configSvc->lvl1PrescaleKey() 
-        << " and HLTPSK: " << m_configSvc->hltPrescaleKey()
-        << " getForceConfigUpdate()=" << getForceConfigUpdate());
+        << " with SMK: " << smk
+        << " and L1PSK: " << l1psk
+        << " and HLTPSK: " << hltpsk
+        << " getForceConfigUpdate()=" << getForceConfigUpdate()
+        << " HLT Chains: " << m_configSvc->chainList()->size());
 
       std::vector<uint32_t>* keys = getKeys();
       keys->resize(3);
-      keys->at(0) = m_configSvc->masterKey();
-      keys->at(1) = m_configSvc->lvl1PrescaleKey();
-      keys->at(2) = m_configSvc->hltPrescaleKey();
+      keys->at(0) = smk;
+      keys->at(1) = l1psk;
+      keys->at(2) = hltpsk;
       configurationUpdate( m_configSvc->chainList(), m_configSvc->ctpConfig() );
       setForceConfigUpdate(false);
     }else{
-      ATH_MSG_VERBOSE("Svc: Cached Trigger configuration keys match for this event in slot " << slot);
+      ATH_MSG_DEBUG("Svc: Cached Trigger configuration keys match for this event in slot " << slot);
     }
   }
 #endif
@@ -302,8 +311,8 @@ StatusCode Trig::TrigDecisionTool::beginInputFile() {
    // We need to update the cached configuration when switching to a new input
    // file:
    //have to do this at the next beginEvent, because the event info isn't ready at this point (e.g. if the file has no events!)
-   ATH_MSG_VERBOSE("Trig::TrigDecisionTool::beginInputFile: setForceConfigUpdate(true)");
-   setForceConfigUpdate(true);
+   ATH_MSG_VERBOSE("Trig::TrigDecisionTool::beginInputFile: setForceConfigUpdate(true, forceForAllSlots=true)");
+   setForceConfigUpdate(true, /*forceForAllSlots=*/ true);
    return StatusCode::SUCCESS;
 }
 
@@ -320,7 +329,7 @@ bool Trig::TrigDecisionTool::configKeysMatch(uint32_t smk, uint32_t lvl1psk, uin
 StatusCode
 Trig::TrigDecisionTool::finalize() {
    // release all chaingroups
-   m_navigation->reset();
+   m_navigation->reset(true);
 
    auto it = std::find(s_instances.begin(), s_instances.end(), name());
    if(it != s_instances.end()){
@@ -344,6 +353,7 @@ Trig::TrigDecisionTool::handle(const Incident& inc) {
       if(m_configSvc.isSet()) {
          ATH_MSG_INFO("updating config via config svc");
          configurationUpdate( m_configSvc->chainList(), m_configSvc->ctpConfig());
+         setForceConfigUpdate(true, /*forceForAllSlots=*/ true);
       } else {
          ATH_MSG_DEBUG("No TrigConfigSvc, ignoring TrigConf incident.");
       }

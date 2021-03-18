@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 // PixelDigitization includes
@@ -20,6 +20,8 @@
 #include <TSystemFile.h>
 #include <TGraph2D.h>
 #include <algorithm>
+#include <TString.h>
+#include <fstream>
 
 // Constructor with parameters:
 EfieldInterpolator::EfieldInterpolator(const std::string& type, const std::string& name, const IInterface* parent) :

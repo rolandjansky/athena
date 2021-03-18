@@ -143,6 +143,7 @@ std::unique_ptr<VarCalc> get_default_calculator() {
     calc->insert("nPixelHitsPlusDeadSensors", Variables::Track::nPixelHitsPlusDeadSensors);
     calc->insert("nSCTHitsPlusDeadSensors", Variables::Track::nSCTHitsPlusDeadSensors);
     calc->insert("eProbabilityHT", Variables::Track::eProbabilityHT);
+    calc->insert("eProbabilityNN", Variables::Track::eProbabilityNN);
 
     // Cluster variable calculator functions
     calc->insert("et_log", Variables::Cluster::et_log);
@@ -156,6 +157,7 @@ std::unique_ptr<VarCalc> get_default_calculator() {
     calc->insert("SECOND_LAMBDAOverClustersMeanSecondLambda", Variables::Cluster::SECOND_LAMBDAOverClustersMeanSecondLambda);
     calc->insert("CENTER_LAMBDAOverClustersMeanCenterLambda", Variables::Cluster::CENTER_LAMBDAOverClustersMeanCenterLambda);
     calc->insert("FirstEngDensOverClustersMeanFirstEngDens" , Variables::Cluster::FirstEngDensOverClustersMeanFirstEngDens);
+
     return calc;
 }
 
@@ -172,16 +174,14 @@ bool centFrac(const xAOD::TauJet &tau, double &out) {
 
 bool etOverPtLeadTrk(const xAOD::TauJet &tau, double &out) {
     float etOverPtLeadTrk;
-    const auto success = tau.detail(TauDetail::etOverPtLeadTrk,
-                                    etOverPtLeadTrk);
+    const auto success = tau.detail(TauDetail::etOverPtLeadTrk, etOverPtLeadTrk);
     out = std::log10(std::max(etOverPtLeadTrk, 0.1f));
     return success;
 }
 
 bool innerTrkAvgDist(const xAOD::TauJet &tau, double &out) {
     float innerTrkAvgDist;
-    const auto success = tau.detail(TauDetail::innerTrkAvgDist,
-                                    innerTrkAvgDist);
+    const auto success = tau.detail(TauDetail::innerTrkAvgDist, innerTrkAvgDist);
     out = innerTrkAvgDist;
     return success;
 }
@@ -208,8 +208,7 @@ bool EMPOverTrkSysP(const xAOD::TauJet &tau, double &out) {
 
 bool ptRatioEflowApprox(const xAOD::TauJet &tau, double &out) {
     float ptRatioEflowApprox;
-    const auto success = tau.detail(TauDetail::ptRatioEflowApprox,
-                                    ptRatioEflowApprox);
+    const auto success = tau.detail(TauDetail::ptRatioEflowApprox, ptRatioEflowApprox);
     out = std::min(ptRatioEflowApprox, 4.0f);
     return success;
 }
@@ -230,8 +229,7 @@ bool dRmax(const xAOD::TauJet &tau, double &out) {
 
 bool trFlightPathSig(const xAOD::TauJet &tau, double &out) {
     float trFlightPathSig;
-    const auto success = tau.detail(TauDetail::trFlightPathSig,
-                                    trFlightPathSig);
+    const auto success = tau.detail(TauDetail::trFlightPathSig, trFlightPathSig);
     out = std::log10(std::max(trFlightPathSig, 0.01f));
     return success;
 }
@@ -264,35 +262,44 @@ bool ptJetSeed_log(const xAOD::TauJet &tau, double &out) {
 }
 
 bool absleadTrackEta(const xAOD::TauJet &tau, double &out){
-  out = std::max(0.f, tau.auxdata<float>("ABS_ETA_LEAD_TRACK"));
+  static const SG::AuxElement::ConstAccessor<float> acc_absEtaLeadTrack("ABS_ETA_LEAD_TRACK");
+  float absEtaLeadTrack = acc_absEtaLeadTrack(tau);
+  out = std::max(0.f, absEtaLeadTrack);
   return true;
 }
 
 bool leadTrackDeltaEta(const xAOD::TauJet &tau, double &out){
-  out = std::max(0.f, tau.auxdata<float>("TAU_ABSDELTAETA"));
+  static const SG::AuxElement::ConstAccessor<float> acc_absDeltaEta("TAU_ABSDELTAETA");
+  float absDeltaEta = acc_absDeltaEta(tau);
+  out = std::max(0.f, absDeltaEta);
   return true;
 }
 
 bool leadTrackDeltaPhi(const xAOD::TauJet &tau, double &out){
-  out = std::max(0.f, tau.auxdata<float>("TAU_ABSDELTAPHI"));
+  static const SG::AuxElement::ConstAccessor<float> acc_absDeltaPhi("TAU_ABSDELTAPHI");
+  float absDeltaPhi = acc_absDeltaPhi(tau);
+  out = std::max(0.f, absDeltaPhi);
   return true;
 }
 
 bool EMFracFixed(const xAOD::TauJet &tau, double &out){
-  float emFracFized = tau.auxdata<float>("EMFracFixed");
-  out = std::max(emFracFized, 0.0f);
+  static const SG::AuxElement::ConstAccessor<float> acc_emFracFixed("EMFracFixed");
+  float emFracFixed = acc_emFracFixed(tau);
+  out = std::max(emFracFixed, 0.0f);
   return true;
 }
 
 bool etHotShotWinOverPtLeadTrk(const xAOD::TauJet &tau, double &out){
-  float etHotShotWinOverPtLeadTrk = tau.auxdata<float>("etHotShotWinOverPtLeadTrk");
+  static const SG::AuxElement::ConstAccessor<float> acc_etHotShotWinOverPtLeadTrk("etHotShotWinOverPtLeadTrk");
+  float etHotShotWinOverPtLeadTrk = acc_etHotShotWinOverPtLeadTrk(tau);
   out = std::max(etHotShotWinOverPtLeadTrk, 1e-6f);
   out = std::log10(out);
   return true;
 }
 
 bool hadLeakFracFixed(const xAOD::TauJet &tau, double &out){
-  float hadLeakFracFixed = tau.auxdata<float>("hadLeakFracFixed");
+  static const SG::AuxElement::ConstAccessor<float> acc_hadLeakFracFixed("hadLeakFracFixed");
+  float hadLeakFracFixed = acc_hadLeakFracFixed(tau);
   out = std::max(0.f, hadLeakFracFixed);
   return true;
 }
@@ -300,8 +307,7 @@ bool hadLeakFracFixed(const xAOD::TauJet &tau, double &out){
 bool PSFrac(const xAOD::TauJet &tau, double &out){
   float PSFrac;
   const auto success = tau.detail(TauDetail::PSSFraction, PSFrac);
-  out = std::max(0.f,PSFrac);
-  
+  out = std::max(0.f,PSFrac);  
   return success;
 }
 
@@ -309,7 +315,6 @@ bool ClustersMeanCenterLambda(const xAOD::TauJet &tau, double &out){
   float ClustersMeanCenterLambda;
   const auto success = tau.detail(TauDetail::ClustersMeanCenterLambda, ClustersMeanCenterLambda);
   out = std::max(0.f, ClustersMeanCenterLambda);
-
   return success;
 }
 
@@ -331,7 +336,6 @@ bool ClustersMeanPresamplerFrac(const xAOD::TauJet &tau, double &out){
   float ClustersMeanPresamplerFrac;
   const auto success = tau.detail(TauDetail::ClustersMeanPresamplerFrac, ClustersMeanPresamplerFrac);
   out = std::max(0.f, ClustersMeanPresamplerFrac);
-
   return success;
 }
 
@@ -339,33 +343,28 @@ bool ClustersMeanSecondLambda(const xAOD::TauJet &tau, double &out){
   float ClustersMeanSecondLambda;
   const auto success = tau.detail(TauDetail::ClustersMeanSecondLambda, ClustersMeanSecondLambda);
   out = std::max(0.f, ClustersMeanSecondLambda);
-
   return success;
 }
 
 namespace Track {
 
-bool pt_log(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track,
-            double &out) {
+bool pt_log(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track, double &out) {
     out = std::log10(track.pt());
     return true;
 }
 
-bool pt_jetseed_log(const xAOD::TauJet &tau, const xAOD::TauTrack& /*track*/,
-                    double &out) {
+bool pt_jetseed_log(const xAOD::TauJet &tau, const xAOD::TauTrack& /*track*/, double &out) {
     out = std::log10(tau.ptJetSeed());
     return true;
 }
 
-bool d0_abs_log(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track,
-                double &out) {
-    out = std::log10(TMath::Abs(track.d0TJVA()) + 1e-6);
+bool d0_abs_log(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track, double &out) {
+    out = std::log10(std::abs(track.d0TJVA()) + 1e-6);
     return true;
 }
 
-bool z0sinThetaTJVA_abs_log(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track,
-                            double &out) {
-    out = std::log10(TMath::Abs(track.z0sinthetaTJVA()) + 1e-6);
+bool z0sinThetaTJVA_abs_log(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track, double &out) {
+    out = std::log10(std::abs(track.z0sinthetaTJVA()) + 1e-6);
     return true;
 }
 
@@ -379,36 +378,29 @@ bool dPhi(const xAOD::TauJet &tau, const xAOD::TauTrack &track, double &out) {
     return true;
 }
 
-bool nInnermostPixelHits(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track,
-                         double &out) {
+bool nInnermostPixelHits(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track, double &out) {
     uint8_t inner_pixel_hits;
-    const auto success = track.track()->summaryValue(
-        inner_pixel_hits, xAOD::numberOfInnermostPixelLayerHits);
+    const auto success = track.track()->summaryValue(inner_pixel_hits, xAOD::numberOfInnermostPixelLayerHits);
     out = inner_pixel_hits;
     return success;
 }
 
-bool nPixelHits(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track,
-                double &out) {
+bool nPixelHits(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track, double &out) {
     uint8_t pixel_hits;
-    const auto success = track.track()->summaryValue(
-        pixel_hits, xAOD::numberOfPixelHits);
+    const auto success = track.track()->summaryValue(pixel_hits, xAOD::numberOfPixelHits);
     out = pixel_hits;
     return success;
 }
 
-bool nSCTHits(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track,
-              double &out) {
+bool nSCTHits(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track, double &out) {
     uint8_t sct_hits;
-    const auto success = track.track()->summaryValue(
-        sct_hits, xAOD::numberOfSCTHits);
+    const auto success = track.track()->summaryValue(sct_hits, xAOD::numberOfSCTHits);
     out = sct_hits;
     return success;
 }
 
 // same as in tau track classification for trigger
-bool nIBLHitsAndExp(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track,
-		    double &out) {
+bool nIBLHitsAndExp(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track, double &out) {
     uint8_t inner_pixel_hits, inner_pixel_exp;
     const auto success1 = track.track()->summaryValue(inner_pixel_hits, xAOD::numberOfInnermostPixelLayerHits);
     const auto success2 = track.track()->summaryValue(inner_pixel_exp, xAOD::expectInnermostPixelLayerHit);
@@ -416,8 +408,7 @@ bool nIBLHitsAndExp(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track,
     return success1 && success2;
 }
 
-bool nPixelHitsPlusDeadSensors(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track,
-			       double &out) {
+bool nPixelHitsPlusDeadSensors(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track, double &out) {
     uint8_t pixel_hits, pixel_dead;
     const auto success1 = track.track()->summaryValue(pixel_hits, xAOD::numberOfPixelHits);
     const auto success2 = track.track()->summaryValue(pixel_dead, xAOD::numberOfPixelDeadSensors);
@@ -425,8 +416,7 @@ bool nPixelHitsPlusDeadSensors(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack
     return success1 && success2;
 }
 
-bool nSCTHitsPlusDeadSensors(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track,
-			     double &out) {
+bool nSCTHitsPlusDeadSensors(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track, double &out) {
     uint8_t sct_hits, sct_dead;
     const auto success1 = track.track()->summaryValue(sct_hits, xAOD::numberOfSCTHits);
     const auto success2 = track.track()->summaryValue(sct_dead, xAOD::numberOfSCTDeadSensors);
@@ -434,14 +424,17 @@ bool nSCTHitsPlusDeadSensors(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &
     return success1 && success2;
 }
 
-bool eProbabilityHT(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track,
-		    double &out) {
-
-    float tracksEProbabilityHT;
-    const auto success =  track.track()->summaryValue( tracksEProbabilityHT, 
-						       xAOD::eProbabilityHT);
-    out = tracksEProbabilityHT;
+bool eProbabilityHT(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track, double &out) {
+    float eProbabilityHT;
+    const auto success = track.track()->summaryValue(eProbabilityHT, xAOD::eProbabilityHT);
+    out = eProbabilityHT;
     return success;
+}
+
+bool eProbabilityNN(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track, double &out) {  
+    static const SG::AuxElement::ConstAccessor<float> acc_eProbabilityNN("eProbabilityNN");
+    out = acc_eProbabilityNN(track);
+    return true;
 }
 
 } // namespace Track
@@ -450,65 +443,56 @@ bool eProbabilityHT(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track,
 namespace Cluster {
 using MomentType = xAOD::CaloCluster::MomentType;
 
-bool et_log(const xAOD::TauJet& /*tau*/, const xAOD::CaloVertexedTopoCluster &cluster,
-            double &out) {
+bool et_log(const xAOD::TauJet& /*tau*/, const xAOD::CaloVertexedTopoCluster &cluster, double &out) {
     out = std::log10(cluster.p4().Et());
     return true;
 }
 
-bool pt_jetseed_log(const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster& /*cluster*/,
-                    double &out) {
+bool pt_jetseed_log(const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster& /*cluster*/, double &out) {
     out = std::log10(tau.ptJetSeed());
     return true;
 }
 
-bool dEta(const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster &cluster,
-          double &out) {
+bool dEta(const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster &cluster, double &out) {
     out = cluster.eta() - tau.eta();
     return true;
 }
 
-bool dPhi(const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster &cluster,
-          double &out) {
+bool dPhi(const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster &cluster, double &out) {
     out = cluster.p4().DeltaPhi(tau.p4());
     return true;
 }
 
-bool SECOND_R(const xAOD::TauJet& /*tau*/, const xAOD::CaloVertexedTopoCluster &cluster,
-              double &out) {
+bool SECOND_R(const xAOD::TauJet& /*tau*/, const xAOD::CaloVertexedTopoCluster &cluster, double &out) {
     const auto success = cluster.clust().retrieveMoment(MomentType::SECOND_R, out);
     out = std::log10(out + 0.1);
     return success;
 }
 
-bool SECOND_LAMBDA(const xAOD::TauJet& /*tau*/, const xAOD::CaloVertexedTopoCluster &cluster,
-                   double &out) {
+bool SECOND_LAMBDA(const xAOD::TauJet& /*tau*/, const xAOD::CaloVertexedTopoCluster &cluster, double &out) {
     const auto success = cluster.clust().retrieveMoment(MomentType::SECOND_LAMBDA, out);
     out = std::log10(out + 0.1);
     return success;
 }
 
-bool CENTER_LAMBDA(const xAOD::TauJet& /*tau*/, const xAOD::CaloVertexedTopoCluster &cluster,
-                   double &out) {
+bool CENTER_LAMBDA(const xAOD::TauJet& /*tau*/, const xAOD::CaloVertexedTopoCluster &cluster, double &out) {
     const auto success = cluster.clust().retrieveMoment(MomentType::CENTER_LAMBDA, out);
     out = std::log10(out + 1e-6);
     return success;
 }
 
 bool SECOND_LAMBDAOverClustersMeanSecondLambda(const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster &cluster, double &out) {
-  float ClustersMeanSecondLambda = tau.auxdata<float>("ClustersMeanSecondLambda");
-
+  static const SG::AuxElement::ConstAccessor<float> acc_ClustersMeanSecondLambda("ClustersMeanSecondLambda");
+  float ClustersMeanSecondLambda = acc_ClustersMeanSecondLambda(tau);
   double secondLambda(0);
   const auto success = cluster.clust().retrieveMoment(MomentType::SECOND_LAMBDA, secondLambda);
-
-  out = secondLambda/ClustersMeanSecondLambda;
-
+  out = (ClustersMeanSecondLambda != 0.) ? secondLambda/ClustersMeanSecondLambda : 0.;
   return success;
 }
 
 bool CENTER_LAMBDAOverClustersMeanCenterLambda(const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster &cluster, double &out) {
-  float ClustersMeanCenterLambda = tau.auxdata<float>("ClustersMeanCenterLambda");
-
+  static const SG::AuxElement::ConstAccessor<float> acc_ClustersMeanCenterLambda("ClustersMeanCenterLambda");
+  float ClustersMeanCenterLambda = acc_ClustersMeanCenterLambda(tau);
   double centerLambda(0);
   const auto success = cluster.clust().retrieveMoment(MomentType::CENTER_LAMBDA, centerLambda);
   if (ClustersMeanCenterLambda == 0.){
@@ -526,15 +510,19 @@ bool CENTER_LAMBDAOverClustersMeanCenterLambda(const xAOD::TauJet &tau, const xA
 bool FirstEngDensOverClustersMeanFirstEngDens(const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster &cluster, double &out) {
   // the ClustersMeanFirstEngDens is the log10 of the energy weighted average of the First_ENG_DENS 
   // divided by ETot to make it dimension-less, 
-  // so we need to evaluate the differance of log10(clusterFirstEngDens/clusterTotalEnergy) and the ClustersMeanFirstEngDens
+  // so we need to evaluate the difference of log10(clusterFirstEngDens/clusterTotalEnergy) and the ClustersMeanFirstEngDens
   double clusterFirstEngDens = 0.0;
   bool status = cluster.clust().retrieveMoment(MomentType::FIRST_ENG_DENS, clusterFirstEngDens);
   if (clusterFirstEngDens < 1e-6) clusterFirstEngDens = 1e-6;
 
-  float clusterTotalEnergy = tau.auxdata<float>("ClusterTotalEnergy");
+  static const SG::AuxElement::ConstAccessor<float> acc_ClusterTotalEnergy("ClusterTotalEnergy");
+  float clusterTotalEnergy = acc_ClusterTotalEnergy(tau);
   if (clusterTotalEnergy < 1e-6) clusterTotalEnergy = 1e-6;
 
-  out = std::log10(clusterFirstEngDens/clusterTotalEnergy) - tau.auxdata<float>("ClustersMeanFirstEngDens");
+  static const SG::AuxElement::ConstAccessor<float> acc_ClustersMeanFirstEngDens("ClustersMeanFirstEngDens");
+  float clustersMeanFirstEngDens = acc_ClustersMeanFirstEngDens(tau);
+
+  out = std::log10(clusterFirstEngDens/clusterTotalEnergy) - clustersMeanFirstEngDens;
   
   return status;
 }

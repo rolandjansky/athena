@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_NSWSTATIONFITTER_H
@@ -9,7 +9,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "TrigT1Interfaces/RecMuonRoI.h"
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 #include "StgcData.h"
 #include "MmData.h"
@@ -27,13 +27,13 @@ namespace TrigL2MuonSA {
 		     const std::string& name,
 		     const IInterface*  parent);
 
-    StatusCode superPointFitter(const LVL1::RecMuonRoI* p_roi,
+    StatusCode superPointFitter(const TrigRoiDescriptor* p_roids,
 				TrigL2MuonSA::TrackPattern& trackPattern) const;
 
-    StatusCode selectStgcHits(const LVL1::RecMuonRoI* p_roi,
+    StatusCode selectStgcHits(const TrigRoiDescriptor* p_roids,
 			      TrigL2MuonSA::StgcHits& stgcHits) const;
 
-    StatusCode selectMmHits(const LVL1::RecMuonRoI* p_roi,
+    StatusCode selectMmHits(const TrigRoiDescriptor* p_roids,
 			    TrigL2MuonSA::MmHits& mmHits) const;
 
     StatusCode calcWeightedSumHit(TrigL2MuonSA::TrackPattern& trackPattern) const;

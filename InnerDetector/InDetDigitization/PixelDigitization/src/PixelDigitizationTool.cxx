@@ -1,6 +1,6 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
- */
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+*/
 
 #include "PixelDigitizationTool.h"
 #include "SiDigitization/SiChargedDiodeCollection.h"
@@ -44,6 +44,7 @@ StatusCode PixelDigitizationTool::initialize() {
 
   ATH_CHECK(m_hitsContainerKey.initialize(!m_onlyUseContainerName));
   ATH_CHECK(m_pixelDetEleCollKey.initialize());
+  ATH_CHECK(m_moduleDataKey.initialize());
   ATH_CHECK(m_rdoContainerKey.initialize());
   ATH_CHECK(m_simDataCollKey.initialize());
 
@@ -117,6 +118,9 @@ StatusCode PixelDigitizationTool::processAllSubEvents(const EventContext& ctx) {
 StatusCode PixelDigitizationTool::digitizeEvent(const EventContext& ctx) {
   ATH_MSG_VERBOSE("PixelDigitizationTool::digitizeEvent()");
 
+  // retrieve conditions data
+  SG::ReadCondHandle<PixelModuleData> moduleData(m_moduleDataKey, ctx);
+
   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey, ctx);
   const InDetDD::SiDetectorElementCollection* elements(*pixelDetEleHandle);
   if (not pixelDetEleHandle.isValid() or elements == nullptr) {
@@ -181,13 +185,13 @@ StatusCode PixelDigitizationTool::digitizeEvent(const EventContext& ctx) {
 
         //Deposit energy in sensor
         ATH_CHECK(m_energyDepositionTool->depositEnergy(*phit, *sielement, trfHitRecord, initialConditions,
-                                                        rndmEngine));
+                                                        rndmEngine, ctx));
 
         //Create signal in sensor, loop over collection of loaded sensorTools
         for (unsigned int itool = 0; itool < m_chargeTool.size(); itool++) {
           ATH_MSG_DEBUG("Executing tool " << m_chargeTool[itool]->name());
-          if (m_chargeTool[itool]->induceCharge(*phit, *chargedDiodes, *sielement, *p_design, trfHitRecord,
-                                                initialConditions, rndmEngine) == StatusCode::FAILURE) {
+          if (m_chargeTool[itool]->induceCharge(*phit, *chargedDiodes, *sielement, *p_design, moduleData.cptr(), trfHitRecord,
+                                                initialConditions, rndmEngine, ctx) == StatusCode::FAILURE) {
             break;
           }
         }

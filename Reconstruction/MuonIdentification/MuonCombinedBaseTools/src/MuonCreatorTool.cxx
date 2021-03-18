@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,7 @@
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 #include "MuidEvent/FieldIntegral.h"
 #include "StoreGate/ReadCondHandle.h"
+#include "AthContainers/ConstDataVector.h"
 
 namespace MuonCombined {
  
@@ -466,6 +467,8 @@ namespace MuonCombined {
     if( !dressMuon(*muon,outputData.xaodSegmentContainer) ){ 
       ATH_MSG_WARNING("Failed to dress muon");
       outputData.muonContainer->pop_back();
+      //if we are dealing with staus, also need to remove the slowMuon
+      if( m_buildStauContainer ) outputData.slowMuonContainer->pop_back();
       return 0;
     }
 
@@ -896,11 +899,28 @@ namespace MuonCombined {
     const Trk::Track* extrapolatedTrack = candidate.extrapolatedTrack();
 
     if (! extrapolatedTrack || !extrapolatedTrack->perigeeParameters()) {
-      ATH_MSG_DEBUG("Something is wrong with this track.");
-      if (!extrapolatedTrack) 
-        ATH_MSG_WARNING("Track doesn't have extrapolated track. Skipping");
-      if (extrapolatedTrack && !extrapolatedTrack->perigeeParameters()) 
-        ATH_MSG_WARNING("Track doesn't have perigee parameters on extrapolated track. Skipping");
+      ATH_MSG_DEBUG("There is no extrapolated track associated to the MuonCandidate.");
+      if(muon.author()==xAOD::Muon::MuidCo){ //this can happen for MuidCo muons, though it's quite rare: in this case just add the ME track
+	if(meLink.isValid()){
+	  ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( meLink,
+                                                                                           *outputData.extrapolatedTrackParticleContainer,
+                                                                                           outputData.extrapolatedTrackCollection);
+          if( link.isValid() ) {
+            ATH_MSG_DEBUG("Adding standalone fit (refitted): pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi() );
+            muon.setTrackParticleLink(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle, link );
+            float fieldInt=m_trackQuery->fieldIntegral(**meLink).betweenSpectrometerMeasurements();
+            muon.setParameter(fieldInt,xAOD::Muon::spectrometerFieldIntegral);
+            int nunspoiled=(*link)->track()->trackSummary()->get(Trk::numberOfCscUnspoiltEtaHits);
+            muon.auxdata<int>("nUnspoiledCscHits")=nunspoiled;
+          }
+        }
+      }
+      else{ //I don't think we should ever get here, but just in case
+	if (!extrapolatedTrack) 
+	  ATH_MSG_WARNING("Track doesn't have extrapolated track. Skipping");
+	if (extrapolatedTrack && !extrapolatedTrack->perigeeParameters()) 
+	  ATH_MSG_WARNING("Track doesn't have perigee parameters on extrapolated track. Skipping");
+      }
     } else {
       //Now we just add the original extrapolated track itself
       //but not for SA muons, for consistency they will still have extrapolatedTrackParticle
@@ -1017,7 +1037,7 @@ namespace MuonCombined {
                                          std::vector<const MuonCombined::MuonCandidate*>& resolvedMuonCandidates) const
   {
     
-    TrackCollection* resolvedTracks=0;
+    std::unique_ptr<const TrackCollection> resolvedTracks;
     std::set<size_t> alreadyIncluded;
     std::hash<const Trk::Track*> trackHash;
     //TrackCollection will hold copies of tracks used for overlap removal
@@ -1146,7 +1166,7 @@ namespace MuonCombined {
       }
       
       // Resolve ambiguity between muon tracks
-      resolvedTracks = m_ambiguityProcessor->process(&muonTracks); 
+      resolvedTracks = std::unique_ptr<const TrackCollection>(m_ambiguityProcessor->process(&muonTracks)); 
       resolvedInDetCandidates.clear();
       
       // link back to InDet candidates and fill the resolved container  
@@ -1184,8 +1204,9 @@ namespace MuonCombined {
       }
 
       
-      if(!resolvedTracks) {
-        resolvedTracks = new TrackCollection(SG::VIEW_ELEMENTS);
+      ConstDataVector<TrackCollection> resolvedTracks2 (SG::VIEW_ELEMENTS);
+      if (resolvedTracks) {
+        resolvedTracks2.assign (resolvedTracks->begin(), resolvedTracks->end());
       }
 
       // add MS tracks to resolvedTrack collection and store a link between tracks and muon candidates
@@ -1201,22 +1222,20 @@ namespace MuonCombined {
 	//the important thing is to end up with the right candidates at the end anyway
 	Trk::Track* copyTrack=new Trk::Track(*track);
 	//this is a little awkward, but the ambi processing returns a VIEW_ELEMENTS collection
-        resolvedTracks->push_back(copyTrack); //VIEW_ELEMENTS, pointer only
+        resolvedTracks2.push_back(copyTrack); //VIEW_ELEMENTS, pointer only
 	muonTracks.push_back(copyTrack); //OWN_ELEMENTS, takes ownership
         trackMuonCandLinks[ copyTrack ] = candidate;
       }
       
       // solve ambiguity
-      TrackCollection* resolvedAllTracks = m_ambiguityProcessor->process(resolvedTracks); 
+      std::unique_ptr<const TrackCollection> resolvedAllTracks (m_ambiguityProcessor->process(resolvedTracks2.asDataVector()));
       
       // loop over resolved tracks and fill resolved muon candidates
-      for(auto track : *resolvedAllTracks) {
+      for(const Trk::Track* track : *resolvedAllTracks) {
         auto trackCandLink = trackMuonCandLinks.find( track );
         if( trackCandLink != trackMuonCandLinks.end() ) 
           resolvedMuonCandidates.push_back( trackCandLink->second );
       }    
-      if(resolvedTracks) delete resolvedTracks;
-      if(resolvedAllTracks) delete resolvedAllTracks;
 
       // print-out
       if( msgLvl(MSG::DEBUG) ){

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*
  *   */
@@ -14,8 +14,8 @@
  *     PURPOSE:  New Algorithm to produce CaloCellContainer
  *      **/
 
-#ifndef TRIGT2CALOCOMMON_HLTCALOCELLMAKER_H
-#define TRIGT2CALOCOMMON_HLTCALOCELLMAKER_H
+#ifndef TRIGCALOREC_HLTCALOCELLMAKER_H
+#define TRIGCALOREC_HLTCALOCELLMAKER_H
 
 #include <string>
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
@@ -32,19 +32,17 @@
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "TileConditions/TileEMScale.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
+#include "TrigT2CaloCommon/ITrigCaloDataAccessSvc.h"
 
-
-class ITrigCaloDataAccessSvc;
 
 /**  Test Algorithm to unpack sequence
  *     produces the CaloCellContainer output. */
 class HLTCaloCellMaker: public AthReentrantAlgorithm {
      public:
 	HLTCaloCellMaker(const std::string & name, ISvcLocator* pSvcLocator);
-	~HLTCaloCellMaker();
 
-	StatusCode execute(const EventContext& context ) const ;
-	StatusCode initialize();
+	virtual StatusCode execute(const EventContext& context ) const override;
+	virtual StatusCode initialize() override;
      private:
 
 	SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;

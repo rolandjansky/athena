@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // IOVDbSvc.cxx
@@ -20,6 +20,7 @@
 #include "AthenaKernel/IAddressProvider.h"
 #include "FileCatalog/IFileCatalog.h"
 #include "EventInfoUtils/EventIDFromStore.h"
+#include "DBLock/DBLock.h"
 
 #include "IOVDbParser.h"
 #include "IOVDbFolder.h"
@@ -34,6 +35,101 @@ namespace {
   refersToConditionsFolder(const ITagInfoMgr::NameTagPair & thisPair){
     return thisPair.first.front() == '/';
   }
+
+
+// Wrap a cool IDatabase with a DBLock.
+class LockedDatabase
+  : public cool::IDatabase
+{
+public:
+  LockedDatabase (cool::IDatabasePtr dbptr,
+                  const Athena::DBLock& dblock);
+  virtual ~LockedDatabase();
+
+  virtual const cool::DatabaseId& databaseId() const override
+  { return m_dbptr->databaseId(); }
+
+  virtual const cool::IRecord& databaseAttributes() const override
+  { return m_dbptr->databaseAttributes(); }
+
+  virtual cool::IFolderSetPtr createFolderSet
+  ( const std::string& fullPath,
+    const std::string& description = "",
+    bool createParents = false ) override
+  { return m_dbptr->createFolderSet (fullPath, description, createParents); }
+
+  virtual bool existsFolderSet( const std::string& folderSetName ) override
+  { return m_dbptr->existsFolderSet (folderSetName); }
+
+  virtual cool::IFolderSetPtr getFolderSet( const std::string& fullPath ) override
+  { return m_dbptr->getFolderSet (fullPath); }
+
+  virtual cool::IFolderPtr createFolder
+  ( const std::string& fullPath,
+    const cool::IFolderSpecification& folderSpec,
+    const std::string& description = "",
+    bool createParents = false ) override
+  { return m_dbptr->createFolder (fullPath, folderSpec, description, createParents); }
+
+  virtual bool existsFolder( const std::string& fullPath ) override
+  { return m_dbptr->existsFolder (fullPath); }
+
+  virtual cool::IFolderPtr getFolder( const std::string& fullPath ) override
+  { return m_dbptr->getFolder (fullPath); }
+
+  virtual const std::vector<std::string> listAllNodes( bool ascending = true ) override
+  { return m_dbptr->listAllNodes (ascending); }
+
+  virtual bool dropNode( const std::string& fullPath ) override
+  { return m_dbptr->dropNode (fullPath); }
+
+  virtual bool existsTag( const std::string& tagName ) const override
+  { return m_dbptr->existsTag (tagName); }
+
+  virtual cool::IHvsNode::Type tagNameScope( const std::string& tagName ) const override
+  { return m_dbptr->tagNameScope (tagName); }
+
+  virtual const std::vector<std::string>
+  taggedNodes( const std::string& tagName ) const override
+  { return m_dbptr->taggedNodes (tagName); }
+
+  virtual bool isOpen() const override
+  { return m_dbptr->isOpen(); }
+
+  virtual void openDatabase() override
+  { return m_dbptr->openDatabase(); }
+
+  virtual void closeDatabase() override
+  { return m_dbptr->closeDatabase(); }
+    
+  virtual const std::string& databaseName() const override
+  { return m_dbptr->databaseName(); }
+
+#ifdef COOL400TX
+  /// Start a new transaction and enter manual transaction mode
+  virtual ITransactionPtr startTransaction() override
+  { return m_dbptr->startTransaction(); }
+#endif
+
+
+private:
+  cool::IDatabasePtr m_dbptr;
+  Athena::DBLock m_dblock;
+};
+
+
+LockedDatabase::LockedDatabase (cool::IDatabasePtr dbptr,
+                                const Athena::DBLock& dblock)
+  : m_dbptr (dbptr),
+    m_dblock (dblock)
+{
+}
+
+
+LockedDatabase::~LockedDatabase()
+{
+}
+
 
 } // anonymous namespace
 
@@ -83,7 +179,8 @@ StatusCode IOVDbSvc::initialize() {
   }
   long int pri=100;
   incSvc->addListener( this, "BeginEvent", pri );
-  incSvc->addListener( this, "StoreCleared", pri );
+  incSvc->addListener( this, "StoreCleared", pri );   // for SP Athena
+  incSvc->addListener( this, IncidentType::EndProcessing, pri );  // for MT Athena
 
   // Register this service for 'I/O' events
   ServiceHandle<IIoComponentMgr> iomgr("IoComponentMgr", name());
@@ -213,11 +310,13 @@ cool::IDatabasePtr IOVDbSvc::getDatabase(bool readOnly) {
     ATH_MSG_INFO( "No default COOL database connection is available");
     dbconn.reset();
   } else {
+    Athena::DBLock dblock;
     if (m_connections[0]->isReadOnly()!=readOnly) {
       ATH_MSG_INFO("Changing state of default connection to readonly=" << readOnly );
       m_connections[0]->setReadOnly(readOnly);
     }
-    dbconn=m_connections[0]->getCoolDb();
+    dbconn = std::make_shared<LockedDatabase> (m_connections[0]->getCoolDb(),
+                                               dblock);
   }
   return dbconn;
 }
@@ -227,6 +326,9 @@ StatusCode IOVDbSvc::preLoadAddresses(StoreID::type storeID,tadList& tlist) {
   if (storeID!=StoreID::DETECTOR_STORE) return StatusCode::SUCCESS;
   // Preloading of addresses should be done ONLY for detector store
   ATH_MSG_DEBUG( "preLoadAddress: storeID -> " << storeID );
+
+  Athena::DBLock dblock;
+
   // check File Level Meta Data of input, see if any requested folders are available there
   SG::ConstIterator<IOVMetaDataContainer> cont;
   SG::ConstIterator<IOVMetaDataContainer> contEnd;
@@ -361,6 +463,8 @@ StatusCode IOVDbSvc::updateAddress(StoreID::type storeID, SG::TransientAddress* 
   Gaudi::Guards::AuditorGuard auditor(std::string("UpdateAddr::")+(tad->name().empty() ? "anonymous" : tad->name()),
                                       auditorSvc(), "preLoadProxy");
 
+  Athena::DBLock dblock;
+
   // first check if this key is managed by IOVDbSvc
   // return FAILURE if not - this allows other AddressProviders to be 
   // asked for the TAD
@@ -477,6 +581,8 @@ StatusCode IOVDbSvc::getRange( const CLID&        clid,
                                std::string&       tag,
                                std::unique_ptr<IOpaqueAddress>&   address) {
 
+  Athena::DBLock dblock;
+
   ATH_MSG_DEBUG( "getRange  clid: " << clid << " key: \""<< dbKey << "\"  t: " << time );
   const std::string& key=dbKey;
   FolderMap::const_iterator fitr=m_foldermap.find(key);
@@ -582,6 +688,8 @@ StatusCode IOVDbSvc::setRange( const CLID&        /*clid*/,
 StatusCode IOVDbSvc::signalBeginRun(const IOVTime& beginRunTime,
                                     const EventContext& ctx)
 {
+  Athena::DBLock dblock;
+
   // Begin run - set state and save time for later use
   m_state=IOVDbSvc::BEGIN_RUN;
   // Is this a different run compared to the previous call?
@@ -652,40 +760,47 @@ void IOVDbSvc::signalEndProxyPreload() {
   // this method does nothing
 }
 
+void IOVDbSvc::postConditionsLoad() {
+   // Close any open POOL files after loding Conditions
+   ATH_MSG_DEBUG( "postConditionsLoad: m_par_managePoolConnections=" << m_par_managePoolConnections
+                  << "  m_poolPayloadRequested=" << m_poolPayloadRequested );
+
+   if (m_par_managePoolConnections && m_poolPayloadRequested) {
+      // reset POOL connection to close all open conditions POOL files
+      m_par_managePoolConnections.set(false);
+      m_poolPayloadRequested=false;
+      if( m_poolSvcContext ) {
+         if (StatusCode::SUCCESS==m_h_poolSvc->disconnect(m_poolSvcContext)) {
+            ATH_MSG_DEBUG( "Successfully closed input POOL connections");
+         } else {
+            ATH_MSG_WARNING( "Unable to close input POOL connections" );
+         }
+         // reopen transaction
+         if (StatusCode::SUCCESS==m_h_poolSvc->connect(pool::ITransaction::READ, m_poolSvcContext)) {
+            ATH_MSG_DEBUG("Reopend read transaction for POOL conditions input files" );
+         } else {
+            ATH_MSG_WARNING("Cannot reopen read transaction for POOL conditions input files");
+         }
+      }
+   }
+}
+
 void IOVDbSvc::handle( const Incident& inc) {
   // Handle incidents:
   // BeginEvent to set IOVDbSvc state to EVENT_LOOP
-  // StoreCleared to close any open POOL files
-  ATH_MSG_VERBOSE( "entering handle(), incident type " << inc.type()
-           << " from " << inc.source() );
+  // StoreCleared/EndProcessing to close any open POOL files
+  ATH_MSG_VERBOSE( "entering handle(), incident type " << inc.type() << " from " << inc.source() );
   if (inc.type()=="BeginEvent") {
     m_state=IOVDbSvc::EVENT_LOOP;
   } else {
-    const StoreClearedIncident* sinc= 
-      dynamic_cast<const StoreClearedIncident*>(&inc);
-    if ((inc.type()=="StoreCleared" && sinc!=0 && sinc->store()==&*m_h_sgSvc)) {
-      if (inc.type()=="StoreCleared") {
-        m_state=IOVDbSvc::FINALIZE_ALG;
-      }
-      if (m_par_managePoolConnections && m_poolPayloadRequested) {
-        // reset POOL connection to close all open conditions POOL files
-        m_par_managePoolConnections.set(false);
-        m_poolPayloadRequested=false;
-        if( m_poolSvcContext ) {
-           if (StatusCode::SUCCESS==m_h_poolSvc->disconnect(m_poolSvcContext)) {
-              ATH_MSG_DEBUG( "Successfully closed input POOL connections");
-           } else {
-              ATH_MSG_WARNING( "Unable to close input POOL connections" );
-           }
-           // reopen transaction
-           if (StatusCode::SUCCESS==m_h_poolSvc->connect(pool::ITransaction::READ,
-                                                         m_poolSvcContext)) {
-              ATH_MSG_DEBUG("Reopend read transaction for POOL conditions input files" );
-           } else {
-              ATH_MSG_WARNING("Cannot reopen read transaction for POOL conditions input files");
-           }
-        }
-      }
+    Athena::DBLock dblock;
+
+    const StoreClearedIncident* sinc = dynamic_cast<const StoreClearedIncident*>(&inc);
+    if( (inc.type()=="StoreCleared" && sinc!=0 && sinc->store()==&*m_h_sgSvc)
+        or inc.type()==IncidentType::EndProcessing )
+    {
+       m_state=IOVDbSvc::FINALIZE_ALG;
+       postConditionsLoad();
     }
   }
 }
@@ -695,7 +810,7 @@ StatusCode IOVDbSvc::processTagInfo() {
   // Set GlobalTag and any folder-specific overrides if given
 
   // dump out contents of TagInfo
-   ATH_MSG_DEBUG( "Tags from input TagInfo:");
+  ATH_MSG_DEBUG( "Tags from input TagInfo:");
   if( msg().level()>=MSG::DEBUG ) m_h_tagInfoMgr->printTags(msg());
   
   // check IOVDbSvc GlobalTag, if not already set

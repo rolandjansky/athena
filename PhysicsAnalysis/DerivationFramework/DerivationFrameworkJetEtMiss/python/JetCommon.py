@@ -56,15 +56,25 @@ else:
 ##################################################################
 
 def defineEDAlg(R=0.4, inputtype="LCTopo"):
-    from EventShapeTools.EventDensityConfig import configEventDensityTool, EventDensityAlg
+    from EventShapeTools.EventDensityConfig import configEventDensityTool, EventDensityAthAlg
     from AthenaCommon.AppMgr import ToolSvc
+    from JetRec.JetRecStandard import jtm
+
+    # map a getter to the input argument
+    inputgetter = { "LCTopo" : jtm.lcget,
+                    "EMTopo" : jtm.emget,
+                    "LCTopoOrigin" : jtm.lcoriginget,
+                    "EMTopoOrigin" : jtm.emoriginget,
+                    "EMPFlow": jtm.empflowget,
+                    "EMPFlowFE": jtm.empflowget_fe
+                    }[inputtype]
 
     t=configEventDensityTool("EDTool"+str(int(R*10))+inputtype,
-                             inputlabel = inputtype,
+                             inputgetter.Label,
                              radius = R)
     t.OutputLevel = 3
     ToolSvc += t
-    return EventDensityAlg( "EventDensityAlg"+t.name(), EventDensityTool = t , OutputLevel=3)
+    return EventDensityAthAlg( "EventDensityAlg"+t.name(), EventDensityTool = t , OutputLevel=3)
 
 ##################################################################
 
@@ -95,7 +105,7 @@ def addGhostAssociation(DerivationFrameworkJob):
 
 ##################################################################
 
-def reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale=-1.0, variableRMinRadius=-1.0, algseq=None, constmods=[]):
+def reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale=-1.0, variableRMinRadius=-1.0, algseq=None, constmods=[], includeVRGhosts=False):
     """Return a list of tools (possibly empty) to be run in a jetalg. These tools will make sure PseudoJets will be associated
     to the container specified by the input arguments.    
     """
@@ -168,11 +178,18 @@ def reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale=-1.0, variab
                       PV0Track='pv0track')
     # create the finder for the temporary collection.
 
-    getters = getterMap[inputtype]
+    getters = jtm.gettersMap[getterMap[inputtype]]
 
-    for getter in jtm.gettersMap[getters]:
+    for getter in getters:
         if not hasattr(algseq, getter.name()):
             algseq += getter
+
+    if includeVRGhosts:
+        if not hasattr(algseq, jtm.gvrtrackget.name()):
+            algseq += jtm.gvrtrackget
+        getters = getters.copy() # So we don't modify the one in jtm
+        getters += [jtm.gvrtrackget]
+        
 
     if len(constmods) > 0:
         finderArgs['modifiersin'] = []
@@ -211,7 +228,7 @@ def reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale=-1.0, variab
 ##################################################################
 
 def buildGenericGroomAlg(jetalg, rsize, inputtype, groomedName, jetToolBuilder,
-                         includePreTools=False, algseq=None, outputGroup="CustomJets",
+                         includePreTools=False, algseq=None, outputGroup="CustomJets", doVRGhosts = False,
                          writeUngroomed=False, variableRMassScale=-1.0, variableRMinRadius=-1.0, constmods=[]):
     algname = "jetalg"+groomedName[:-4]
 
@@ -247,7 +264,7 @@ def buildGenericGroomAlg(jetalg, rsize, inputtype, groomedName, jetToolBuilder,
     else:
         # 1. make sure we have pseudo-jet in our original container
         # this returns a list of the needed tools to do so.
-        jetalgTools = reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale, variableRMinRadius, algseq, constmods=constmods)
+        jetalgTools = reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale, variableRMinRadius, algseq, constmods=constmods, includeVRGhosts=doVRGhosts)
 
         if includePreTools and jetFlags.useTracks() and "Truth" not in inputtype:
             # enable track ghost association and JVF
@@ -275,7 +292,7 @@ def buildGenericGroomAlg(jetalg, rsize, inputtype, groomedName, jetToolBuilder,
 
 ##################################################################
 def addTrimmedJets(jetalg, rsize, inputtype, rclus=0.3, ptfrac=0.05, mods="groomed",
-                   includePreTools=False, algseq=None, outputGroup="Trimmed",
+                   includePreTools=False, algseq=None, outputGroup="Trimmed", includeVRGhosts=False,
                    writeUngroomed=False, variableRMassScale=-1.0, variableRMinRadius=-1.0, constmods=[]):
     from JetRec.JetRecUtils import buildJetAlgName
     inputname = inputtype + "".join(constmods)
@@ -291,7 +308,7 @@ def addTrimmedJets(jetalg, rsize, inputtype, rclus=0.3, ptfrac=0.05, mods="groom
     # pass the trimmedName and our specific trimming tool builder to the generic function :
     return buildGenericGroomAlg(jetalg, rsize, inputtype, trimmedName, trimToolBuilder,
                                 includePreTools, algseq, outputGroup,
-                                writeUngroomed=writeUngroomed,
+                                writeUngroomed=writeUngroomed, doVRGhosts=includeVRGhosts,
                                 variableRMassScale=variableRMassScale, variableRMinRadius=variableRMinRadius, constmods=constmods)
 
 
@@ -478,6 +495,72 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
 
         from JetRec.JetRecConf import JetAlgorithm
         alg = JetAlgorithm(algname, Tools = pretools+[finderTool])
+        dfjetlog.info( "Added "+algname+" to sequence "+algseq.name() )
+        algseq += alg
+        DFJetAlgs[algname] = alg
+
+#####################################################################
+
+def addStandardVRTrackJets(jetalg, vrMassScale, maxR, minR, inputtype, ptmin=0.,
+                           ghostArea=0, algseq=None, outputGroup="CustomJets"):
+    
+    VRJetNameBase = "{0}VR{1}Rmax{2}Rmin0{3}{4}".format(jetalg,int(vrMassScale/1000),int(maxR*10),int(minR*100),inputtype)
+    VRJetOptions = dict(calibOpt = "none", ivtxin = 0)
+    VRJetOptions['variableRMinRadius'] = minR
+    VRJetOptions['variableRMassScale'] = vrMassScale
+    VRJetOptions['ptmin'] = ptmin
+    VRJetOptions['ghostArea'] = ghostArea
+
+    VRJetName = VRJetNameBase + "Jets"
+    dfjetlog.info("VR jet name: " + VRJetName)
+
+    from JetRec.JetRecStandard import jtm
+
+    # map the input to the jtm code for PseudoJetGetter
+    getterMap = dict( LCTopo = 'lctopo', EMTopo = 'emtopo', EMPFlow = 'empflow', EMCPFlow = 'emcpflow', EMPFlowFE = 'empflowfe',
+                      Truth = 'truth',  TruthWZ = 'truthwz', TruthDressedWZ = 'truthdressedwz', TruthCharged = 'truthcharged',
+                      PV0Track='pv0track')
+
+    # Copy so that if we modify it we don't also change the array in jtm.
+    pseudoJetGetters = jtm.gettersMap[getterMap[inputtype]].copy()
+
+    # We want to include ghost associated tracks in the pv0 tracks so that
+    # we can use the looser ghost association criteria for b-tagging.
+    if inputtype == 'PV0Track':
+        pseudoJetGetters += [jtm.gtrackget]
+
+    algname = "jetalg"+VRJetNameBase
+    OutputJets.setdefault(outputGroup , [] ).append(VRJetName)
+
+    # return if the alg is already scheduled here :
+    if algseq is None:
+        dfjetlog.warning( "No algsequence passed! Will not schedule "+algname )
+        return    
+    elif algname in DFJetAlgs:
+        if hasattr(algseq,algname):
+            dfjetlog.warning( "Algsequence "+algseq.name()+" already has an instance of "+algname )
+        else:
+            dfjetlog.info( "Added "+algname+" to sequence "+algseq.name() )
+            algseq += DFJetAlgs[algname]
+        return DFJetAlgs[algname]
+
+    if VRJetName not in jtm.tools:
+
+        mods = []
+
+        if jetFlags.useTruth and jtm.haveParticleJetTools and inputtype == 'PV0Track':
+            mods += [jtm.trackjetdrlabeler, jtm.ghostlabeler]
+
+        VRJetOptions['modifiersin'] = mods
+
+        for getter in pseudoJetGetters:
+            if not hasattr(algseq, getter.name()):
+                algseq += getter
+
+        finderTool= jtm.addJetFinder(VRJetName, jetalg, maxR, pseudoJetGetters, **VRJetOptions)
+
+        from JetRec.JetRecConf import JetAlgorithm
+        alg = JetAlgorithm(algname, Tools = [finderTool])
         dfjetlog.info( "Added "+algname+" to sequence "+algseq.name() )
         algseq += alg
         DFJetAlgs[algname] = alg

@@ -66,6 +66,15 @@ StatusCode JetVertexTaggerTool::initialize() {
   m_jvtKey = m_jetContainerName + "." + m_jvtKey.key();
   m_rptKey = m_jetContainerName + "." + m_rptKey.key();
 
+#ifndef XAOD_STANDALONE
+  if(m_suppressInputDeps){
+    // The user has promised that these will be produced by the same alg running JVT.
+    // Tell the scheduler to ignore them to avoid circular dependencies.
+    renounce(m_jvfCorrKey);
+    renounce(m_sumPtTrkKey);
+  }
+#endif
+
   ATH_CHECK(m_vertexContainer_key.initialize());
   ATH_CHECK(m_jvfCorrKey.initialize());
   ATH_CHECK(m_sumPtTrkKey.initialize());

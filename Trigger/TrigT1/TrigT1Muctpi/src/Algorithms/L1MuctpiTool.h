@@ -39,7 +39,7 @@ namespace LVL1MUCTPI {
       /// Regular Gaudi algorithm finalization function
       virtual StatusCode finalize() override;
       /// Regular Gaudi algorithm execute function
-      virtual StatusCode execute() override;
+      virtual StatusCode execute() const override;
       /// Regular Gaudi algorithm beginRun function
       virtual StatusCode start() override;
 
@@ -47,15 +47,15 @@ namespace LVL1MUCTPI {
    private:
 
       /// Event loop method for running as part of digitization
-      StatusCode executeFromDigi();
+      StatusCode executeFromDigi() const;
       /// Event loop method for running on an AOD file
-      StatusCode executeFromAOD();
+      StatusCode executeFromAOD() const;
       /// Event loop method for running on an RDO file
-      StatusCode executeFromRDO();
+      StatusCode executeFromRDO() const;
       /// Validate the muon threshold configuration
       StatusCode validate( const std::vector< TrigConf::TriggerThreshold* >& thresholds ) const;
       /// Save the outputs of the simulation into StoreGate
-      StatusCode saveOutput(int bcidOffset = 0);
+      StatusCode saveOutput(int bcidOffset = 0) const;
 
       /// The LVL1 configuration service
       ServiceHandle< TrigConf::ILVL1ConfigSvc > m_configSvc;
@@ -111,7 +111,7 @@ namespace LVL1MUCTPI {
       unsigned int m_nimEndcapBit;
       
       /// Function pointer to the execute function we want to use:
-      StatusCode ( LVL1MUCTPI::L1MuctpiTool::*m_executeFunction )( void );
+      StatusCode ( LVL1MUCTPI::L1MuctpiTool::*m_executeFunction )( void ) const;
 
    };
 }

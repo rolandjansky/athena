@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -23,10 +23,9 @@ LArCellMaskingTool::LArCellMaskingTool(
 			     const IInterface* parent)
   : base_class (type, name, parent),
     m_onlineID(nullptr),
-    m_offlineID(nullptr)
+    m_offlineID(nullptr),
+    m_mapInitialized (false)
 {
-  m_mapInitialized = false;
-
   //List of strings to determine detector parts to be masked.
   //Syntax: barrel_endcap pos_neg Feedthrough slot channel (integers separated by white space)
   //Feedthrough, slot, and channel can be left out. In this case all channels belonging to this 
@@ -67,18 +66,15 @@ StatusCode LArCellMaskingTool::initialize()
 
 StatusCode LArCellMaskingTool::fillIncludedCellsMap(const LArOnOffIdMapping* cabling) const
 {
-
-  std::vector<std::string>::const_iterator it=m_rejLArChannels.begin();
-  std::vector<std::string>::const_iterator it_e= m_rejLArChannels.end();
-  for (;it!=it_e;it++) {
+  for (const std::string& s : m_rejLArChannels) {
     std::stringstream is;
-    is << (*it);
+    is << s;
     bool haveFT=false, haveSlot=false, haveChannel=false;
     int bec=0, pn=0, FT=0, slot=1,channel=0;
     //Want at least subdetector (=pn & bec)
     is >> bec >> pn;
     if (is.bad()) {
-      ATH_MSG_ERROR ("jO problem: Malformed string [" << (*it) << "]");
+      ATH_MSG_ERROR ("jO problem: Malformed string [" << s << "]");
       return StatusCode::FAILURE;
     }
 
@@ -161,6 +157,7 @@ StatusCode LArCellMaskingTool::process (CaloCellContainer* theCont,
   if (! m_mapInitialized) {
     // FIXME: Can we do this in start()?
     std::lock_guard<std::mutex> lock (m_mutex);
+    // cppcheck-suppress identicalInnerCondition
     if (!m_mapInitialized) {
       SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl (m_cablingKey, ctx);
       const LArOnOffIdMapping* cabling=*cablingHdl;

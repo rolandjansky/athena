@@ -300,7 +300,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
   std::vector<const xAOD::TrackParticle*> selectedTracks {};
   selectedTracks.reserve(tracks->size());
   unsigned int nTrackBAT = 0, nTrackSTD = 0, nTrackANT = 0, nTrackTOT = 0;
-  for (const auto& thisTrack: *tracks) {
+  for (const auto thisTrack: *tracks) {
     //FIXME: Why is this w.r.t the primary vertex?
     const asg::AcceptData& accept = m_trackSelectionTool->accept(*thisTrack, primaryvertex);
     if (m_useTrackSelection and not accept) continue;
@@ -488,7 +488,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
       "Cannot open " << m_jetContainerName <<
         " jet container or TruthParticles truth particle container. Skipping jet plots.");
   } else {
-    for (const auto& thisJet: *jets) {         // The big jets loop
+    for (const auto thisJet: *jets) {         // The big jets loop
       if (not passJetCuts(*thisJet)) {
         continue;
       }
@@ -741,7 +741,7 @@ InDetPhysValMonitoringTool::getTruthVertices() const {
       ATH_MSG_VERBOSE("Getting TruthEvents container.");
       SG::ReadHandle<xAOD::TruthEventContainer> truthEventContainer(m_truthEventName);
       if (truthEventContainer.isValid()) {
-        for (const auto& evt : *truthEventContainer) {
+        for (const auto evt : *truthEventContainer) {
           truthVtx = evt->truthVertex(0);
           if (truthVtx) {
             truthHSVertices.push_back(truthVtx);
@@ -759,7 +759,7 @@ InDetPhysValMonitoringTool::getTruthVertices() const {
       ATH_MSG_VERBOSE("Getting TruthEvents container.");
       SG::ReadHandle<xAOD::TruthPileupEventContainer> truthPileupEventContainer(m_truthPileUpEventName);
       if (truthPileupEventContainer.isValid()) {
-        for (const auto& evt : *truthPileupEventContainer) {
+        for (const auto evt : *truthPileupEventContainer) {
           truthVtx = evt->truthVertex(0);
           if (truthVtx) {
             truthPUVertices.push_back(truthVtx);

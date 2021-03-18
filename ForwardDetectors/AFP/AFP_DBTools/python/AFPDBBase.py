@@ -1,5 +1,5 @@
 #!/bin/env python
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -34,8 +34,10 @@ class AFPDBRecordBase(object):
             return "Int32"
         elif (typeName == float):
             return "Float"
+        elif (typeName == str):
+            return "String"
         else:
-            raise ValueError ("Unknown type of field. Need to update method translateType")
+            raise ValueError ("Unknown type of field, typeName is %s. Need to update method translateType in AFPDBBase.py" % typeName)
 
 
 class AFPDBTableBase (object):
@@ -105,8 +107,11 @@ class AFPDBTableBase (object):
         
         self.folder.storeObject(iovStart, iovEnd, self.data, 0, self.tag)
 
-    def createFolder (self, db):
+    def createOrGetFolder (self, db):
         print (self.folderSpec)
-        self.folder = db.createFolder(self.folderName, self.folderSpec, self.desc, True)
+        if(db.existsFolder(self.folderName)):
+            self.folder=db.getFolder(self.folderName)
+        else:
+            self.folder=db.createFolder(self.folderName, self.folderSpec, self.desc, True)
 
 

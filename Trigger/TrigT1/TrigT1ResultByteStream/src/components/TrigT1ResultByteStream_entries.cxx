@@ -16,6 +16,7 @@
 
 #include "../L1TriggerByteStreamDecoderAlg.h"
 #include "../ExampleL1TriggerByteStreamTool.h"
+#include "../MuonRoIByteStreamTool.h"
 
 // ROBF for offline
 typedef OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment ROBF; 
@@ -42,3 +43,4 @@ DECLARE_COMPONENT( RoIBResultByteStreamTool )
 
 DECLARE_COMPONENT( L1TriggerByteStreamDecoderAlg )
 DECLARE_COMPONENT( ExampleL1TriggerByteStreamTool )
+DECLARE_COMPONENT( MuonRoIByteStreamTool )

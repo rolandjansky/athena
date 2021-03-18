@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
@@ -50,7 +50,8 @@ TileCondToolOfcCool::getOfcWeights(unsigned int drawerIdx,
                                    unsigned int adc,
                                    float& phase,
                                    bool /*of2*/,
-                                   TileOfcWeightsStruct& weights) const
+                                   TileOfcWeightsStruct& weights,
+                                   const EventContext& ctx) const
 {
   std::fill (std::begin(weights.g), std::end(weights.g), 0);
   std::fill (std::begin(weights.dg), std::end(weights.dg), 0);
@@ -58,7 +59,7 @@ TileCondToolOfcCool::getOfcWeights(unsigned int drawerIdx,
   std::fill (std::begin(weights.w_b), std::end(weights.w_b), 0);
   std::fill (std::begin(weights.w_c), std::end(weights.w_c), 0);
 
-  SG::ReadCondHandle<TileCalibData<TileCalibDrawerOfc>> calibOFC(m_calibOfcKey);
+  SG::ReadCondHandle<TileCalibData<TileCalibDrawerOfc>> calibOFC(m_calibOfcKey, ctx);
 
   calibOFC->getCalibDrawer(drawerIdx)->fillOfc(channel, adc, phase, weights.w_a, weights.w_b,
                                                weights.w_c, weights.g, weights.dg);
@@ -74,9 +75,10 @@ int TileCondToolOfcCool::getOfcWeights(unsigned int drawerIdx,
                                        unsigned int channel,
                                        unsigned int adc,
                                        float& phase, 
-                                       float *a, float *b, float *c, float *g, float *dg) {
+                                       float *a, float *b, float *c, float *g, float *dg,
+                                       const EventContext& ctx) {
 
-  SG::ReadCondHandle<TileCalibData<TileCalibDrawerOfc>> calibOFC(m_calibOfcKey);
+  SG::ReadCondHandle<TileCalibData<TileCalibDrawerOfc>> calibOFC(m_calibOfcKey, ctx);
 
   calibOFC->getCalibDrawer(drawerIdx)->fillOfc(channel, adc, phase, a, b, c, g, dg);
 
@@ -90,9 +92,10 @@ void TileCondToolOfcCool::getOfcParams(unsigned int drawerIdx
                                        , int &NFields
                                        , int &Phamin
                                        , int &Phamax
-                                       , int &NSamples) {
+                                       , int &NSamples
+                                       , const EventContext& ctx) {
 
-  SG::ReadCondHandle<TileCalibData<TileCalibDrawerOfc>> calibOFC(m_calibOfcKey);
+  SG::ReadCondHandle<TileCalibData<TileCalibDrawerOfc>> calibOFC(m_calibOfcKey, ctx);
 
   NPhases = calibOFC->getCalibDrawer(drawerIdx)->getNPhases();
   NFields = calibOFC->getCalibDrawer(drawerIdx)->getNFields();

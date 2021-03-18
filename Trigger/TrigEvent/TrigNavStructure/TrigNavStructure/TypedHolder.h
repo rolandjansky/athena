@@ -12,7 +12,6 @@
 
 #include "TrigNavStructure/TypelessHolder.h"
 #include "TrigNavStructure/TriggerElement.h"
-#include "TrigNavStructure/TypelessHolder.h"
 
 #include "AthContainers/OwnershipPolicy.h"
 

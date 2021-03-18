@@ -34,8 +34,7 @@ function( atlas_build_lvl1_trigger_menu menu )
       ${CMAKE_CURRENT_BINARY_DIR}/Menus/${menu}
       COMMAND ${CMAKE_COMMAND} -E make_directory
       ${CMAKE_XML_OUTPUT_DIRECTORY}/TriggerMenuMT
-      COMMAND strace -o ${CMAKE_CURRENT_BINARY_DIR}/Menus/${menu}.copydir.strace
-      ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_BINARY_DIR}/Menus/${menu}/
+      COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_BINARY_DIR}/Menus/${menu}/
       ${CMAKE_XML_OUTPUT_DIRECTORY}/TriggerMenuMT
       #COMMAND ${CMAKE_COMMAND} -E touch           # do not create stamp file to force rebuild every time
       #${CMAKE_CURRENT_BINARY_DIR}/${menu}.stamp
@@ -100,6 +99,7 @@ atlas_install_python_modules( python/*.py
                               python/LVL1MenuConfig
                               python/L1
                               python/HLTMenuConfig
+                              python/TriggerAPI
                               POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-extensions=ATL900,ATL901 )
 
 atlas_install_scripts( scripts/generateLVL1MenuMT.py
@@ -109,6 +109,9 @@ atlas_install_scripts( scripts/generateLVL1MenuMT.py
                        scripts/verify_menu_config.py
                        scripts/test_full_menu_cf.py
                        scripts/generateBunchGroupSetFromOldKey.py
+                       scripts/extract_chain_from_json.py
+                       scripts/runTriggerAPIExample.py
+                       scripts/generateUnprescaledLists.py
                        POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 # Shell scripts without flake8 checking:
@@ -119,6 +122,8 @@ atlas_install_scripts( scripts/generateL1MenuMT.sh
 atlas_install_joboptions( share/*.py
                           POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-ignore=F821 )
 
+# Temporary copy of LVL1 XML DTD (remove this and the file once XML menu is deprecated)
+atlas_install_xmls( share/*.dtd )
 
 # Tests:
 file( REMOVE_RECURSE ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_generateMenuMT_newJO )
@@ -166,6 +171,11 @@ atlas_add_test( EventBuildingSequenceSetup
                 SCRIPT python -m TriggerMenuMT.HLTMenuConfig.CommonSequences.EventBuildingSequenceSetup
                 PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_EventBuildingSequenceSetup
                 POST_EXEC_SCRIPT nopost.sh )
+
+atlas_add_test( checkMenuPrimaries SCRIPT scripts/checkMenuPrimaries.py 
+                PROPERTIES TIMEOUT 200 
+                POST_EXEC_SCRIPT "check_log.py --errors --config checklogTriggerTest.conf checkMenuPrimaries.log" 
+              )
 
 #----------------------------------
 # List of menus to be created:

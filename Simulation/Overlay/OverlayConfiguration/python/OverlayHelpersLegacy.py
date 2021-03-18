@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Overlay legacy configuration helpers
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 
 
@@ -32,7 +32,7 @@ def setupOverlayLegacyDetectorFlags(detectors):
         DetFlags.LAr_setOn()
     if not detectors or 'Tile' in detectors or 'Calo' in detectors or 'L1Calo' in detectors:
         DetFlags.Tile_setOn()
-    if not detectors or 'L1Calo' in detectors:
+    if not detectors or 'LAr' in detectors or 'Tile' in detectors or 'Calo' in detectors or 'L1Calo' in detectors:
         DetFlags.LVL1_setOn()
     if not detectors or 'CSC' in detectors or 'Muon' in detectors:
         DetFlags.CSC_setOn()

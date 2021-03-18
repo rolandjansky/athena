@@ -1,14 +1,13 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
-#ifndef RINGERREFEX_H
-#define RINGERREFEX_H
+#ifndef TRIGT2CALOEGAMMA_RINGERREFEX_H
+#define TRIGT2CALOEGAMMA_RINGERREFEX_H
 
 
 #include <string>
-#include "xAODTrigRinger/TrigRingerRings.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "CaloEvent/CaloCell.h"
 #include "TrigT2CaloCommon/IReAlgToolCalo.h"

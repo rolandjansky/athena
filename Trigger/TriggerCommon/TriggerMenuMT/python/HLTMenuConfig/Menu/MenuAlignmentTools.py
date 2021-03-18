@@ -26,6 +26,7 @@ the_signature_grouping = OrderedDict([
     ('MuonnoL1', 'MuonnoL1'),
 
     ])
+    
 
 def get_alignment_group_ordering():
     seen = set()
@@ -39,7 +40,7 @@ def get_alignment_group_from_pattern(signature, extra):
     elif signature in the_signature_grouping.keys():
         return the_signature_grouping[signature]
     else:
-        log.info("No dedicated alignment grouping for signature %s (%s)",signature,extra)
+        log.debug("[get_alignment_group_from_pattern] No dedicated alignment grouping for signature %s (%s)",signature,extra)
         return signature
 
 class MenuAlignment():

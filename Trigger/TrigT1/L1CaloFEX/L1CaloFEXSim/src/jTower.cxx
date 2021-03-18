@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -27,17 +27,23 @@ namespace LVL1 {
     m_eta(0.),
     m_phi(0.),
     m_tower_id(-9999999),
-    m_posneg(0)
+    m_posneg(0),
+    m_centre_eta(0.),
+    m_centre_phi(0.),
+    m_fcal_layer(-1)
   {
     this->clearET();
   }
   
   /** constructs a tower and sets the coordinates and identifier */
-  jTower::jTower(float eta, float phi, int id_modifier, int posneg):
+  jTower::jTower(float eta, float phi, int id_modifier, int posneg, float centre_eta, float centre_phi, int fcal_layer):
     m_eta(eta),
     m_phi(phi),
     m_tower_id(id_modifier + phi + (64 * eta)),
-    m_posneg(posneg)
+    m_posneg(posneg),
+    m_centre_eta(centre_eta),
+    m_centre_phi(centre_phi),
+    m_fcal_layer(fcal_layer)
   {
     this->clearET();
   }
@@ -200,14 +206,14 @@ namespace LVL1 {
     const int index = (m_eta * m_posneg);
     return index;
   }
-  
+
   /** Return global phi index.
       Should be derived from tower ID, should be corrected in the future.
       Decision here is whether phi is signed or not */
   int jTower::iPhi() const {
     return m_phi;
   }
-  
+
   /** Return ET of specified supercell */
   int jTower::getET(unsigned int layer,  int cell) const {
     

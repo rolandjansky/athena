@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCalibSvc/MdtCalibrationTool.h"
@@ -92,9 +92,8 @@ MdtCalibrationTool::Imp::Imp(std::string ) :
 }
 
 
-MdtCalibrationTool::MdtCalibrationTool(const std::string& type, const std::string &name, const IInterface* parent) : base_class(type, name, parent),
-  m_hasBISsMDT(false)
-{
+MdtCalibrationTool::MdtCalibrationTool(const std::string& type, const std::string &name, const IInterface* parent) :
+    base_class(type, name, parent) {
   m_imp.reset(new MdtCalibrationTool::Imp(name));
   // settable properties
   declareProperty("TimeWindowLowerBound",m_imp->settings.windowLowerBound );
@@ -134,10 +133,6 @@ StatusCode MdtCalibrationTool::initialize() {
     ATH_MSG_INFO("Processing configuration for layouts with BMG chambers.");
     m_imp->m_BMGid = m_idHelperSvc->mdtIdHelper().stationNameIndex("BMG");
   }
-
-  int bisIndex=m_idHelperSvc->mdtIdHelper().stationNameIndex("BIS");
-  Identifier bis7Id = m_idHelperSvc->mdtIdHelper().elementID(bisIndex, 7, 1);
-  if (m_idHelperSvc->issMdt(bis7Id)) m_hasBISsMDT=true;
 
   // initialise MuonGeoModel access
   ATH_CHECK(detStore()->retrieve( m_imp->m_muonGeoManager ));
@@ -263,15 +258,7 @@ bool MdtCalibrationTool::driftRadiusFromTime( MdtCalibHit &hit,
     // get t0 shift from tool (default: no shift, value is zero)
     if (m_imp->m_doT0Shift) t0 += m_imp->m_t0ShiftTool->getValue(id);
   } else {
-    if (m_hasBISsMDT) {
-      static std::atomic<bool> bisWarningPrinted = false;
-      if (!bisWarningPrinted) {
-        ATH_MSG_WARNING("MdtTubeCalibContainer not found for " << m_idHelperSvc->mdtIdHelper().print_to_string( id ) << " - Tube cannot be calibrated, cf. ATLASRECTS-5819");
-        bisWarningPrinted.store(true, std::memory_order_relaxed);
-      }
-    } else {
-      ATH_MSG_WARNING("MdtTubeCalibContainer not found for " << m_idHelperSvc->mdtIdHelper().print_to_string( id ) << " - Tube cannot be calibrated!");
-    }
+    ATH_MSG_WARNING("MdtTubeCalibContainer not found for " << m_idHelperSvc->mdtIdHelper().print_to_string( id ) << " - Tube cannot be calibrated!");
     return false;
   }
 

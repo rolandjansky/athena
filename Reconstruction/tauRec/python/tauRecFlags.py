@@ -58,9 +58,15 @@ class doTJVA(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
-class useLargeD0Tracks(JobProperty):
-    """ Use LRT tracks in tau track finding """
-    statusOn=False
+class associateLRT(JobProperty):
+    """ associate Large Radius Tracks with tau in TauTrackFinder """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+class classifyLRT(JobProperty):
+    """ classify Large Radius Tracks in tau track classifier """
+    statusOn=True
     allowedTypes=['bool']
     StoredValue=False
 
@@ -144,18 +150,25 @@ class tauRecTauEleRNNConfig(JobProperty):
     StoredValue=[ 'rnneveto_mc16d_config_1p.json', 'rnneveto_mc16d_config_3p.json' ]
 
 class tauRecSeedMinPt(JobProperty):
-    """ minimum jet seed pt
+    """ minimum seed jet pt
     """
     statusOn=True
     allowedTypes=['float']
     StoredValue=10.*Units.GeV
 
 class tauRecSeedMaxEta(JobProperty):
-    """ max allowed abs_eta of jet seed
+    """ max allowed abs_eta of seed jet
     """
     statusOn=True
     allowedTypes=['float']
     StoredValue=2.5
+
+class tauRecMinPt(JobProperty):
+    """ minimum tau pt (MVA TES calibration)
+    """
+    statusOn=True
+    allowedTypes=['float']
+    StoredValue=0.*Units.GeV
 
 class tauRecMaxNTracks(JobProperty):
     """ maximum number of classifiedCharged tracks for a tau candidate
@@ -249,7 +262,7 @@ class tauRecFlags(JobPropertyContainer):
 jobproperties.add_Container(tauRecFlags)
 
 # I want always the following flags in the Rec container  
-_list_tau=[Enabled,doTauRec,isStandalone,tauRecSeedJetCollection,tauRecToolsCVMFSPath,doTJVA,useLargeD0Tracks,removeDuplicateCoreTracks,tauRecMVATrackClassification,tauRecRNNTrackClassification,tauRecMVATrackClassificationConfig,tauRecRNNTrackClassificationConfig,tauRecDecayModeNNClassifierConfig,tauRecCalibrateLCConfig,tauRecMvaTESConfig,tauRecCombinedTESConfig,tauRecTauJetRNNConfig,tauRecTauEleRNNConfig,tauRecSeedMinPt,tauRecSeedMaxEta,tauRecMaxNTracks,tauRecToolsDevToolList,tauRecToolsDevToolListProcessor,doRunTauDiscriminant,doPanTau,doPi0,pi0EtCuts,pi0MVACuts_1prong,pi0MVACuts_mprong,shotPtCut_1Photon,shotPtCut_2Photons,useOldVertexFitterAPI]
+_list_tau=[Enabled,doTauRec,isStandalone,tauRecSeedJetCollection,tauRecToolsCVMFSPath,doTJVA,associateLRT,classifyLRT,removeDuplicateCoreTracks,tauRecMVATrackClassification,tauRecRNNTrackClassification,tauRecMVATrackClassificationConfig,tauRecRNNTrackClassificationConfig,tauRecDecayModeNNClassifierConfig,tauRecCalibrateLCConfig,tauRecMvaTESConfig,tauRecCombinedTESConfig,tauRecTauJetRNNConfig,tauRecTauEleRNNConfig,tauRecSeedMinPt,tauRecSeedMaxEta,tauRecMinPt,tauRecMaxNTracks,tauRecToolsDevToolList,tauRecToolsDevToolListProcessor,doRunTauDiscriminant,doPanTau,doPi0,pi0EtCuts,pi0MVACuts_1prong,pi0MVACuts_mprong,shotPtCut_1Photon,shotPtCut_2Photons,useOldVertexFitterAPI]
 for j in _list_tau: 
     jobproperties.tauRecFlags.add_JobProperty(j)
 del _list_tau

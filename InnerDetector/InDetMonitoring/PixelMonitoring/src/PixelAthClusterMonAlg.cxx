@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelAthClusterMonAlg.h"
@@ -109,27 +109,34 @@ StatusCode PixelAthClusterMonAlg::fillHistograms( const EventContext& ctx ) cons
 
     // Per FE Status
     //
-    if (m_doFEPlots && !m_doOnline) {
+
+    // code requires testing w/ different pixel conditions - could cause segfault!
+    if (m_doFEPlots) {
       int nFE = getNumberOfFEs(pixlayer, m_pixelid->eta_module(waferID));
       for (int iFE=0; iFE<nFE; iFE++) {
 	Identifier pixelID = m_pixelCablingSvc->getPixelIdfromHash(id_hash, iFE, 1, 1);
-	if (m_pixelCondSummaryTool->isActive(id_hash, pixelID) == true && m_pixelCondSummaryTool->isGood(id_hash, pixelID) == true) {
-	  index = 0;  // active and good FE
-	} else if (m_pixelCondSummaryTool->isActive(id_hash, pixelID) == false) {
-	  index = 2;  // inactive or bad FE
+	if (pixelID.is_valid()) {
+	  if (m_pixelCondSummaryTool->isActive(id_hash, pixelID) == true && m_pixelCondSummaryTool->isGood(id_hash, pixelID) == true) {
+	    index = 0;  // active and good FE
+	  } else if (m_pixelCondSummaryTool->isActive(id_hash, pixelID) == false) {
+	    index = 2;  // inactive or bad FE
+	  } else {
+	    index = 1;  // active and bad FE
+	  }
+	  Map_Of_FEs_Status.add(pixlayer, waferID, m_pixelid, iFE, index);
 	} else {
-	  index = 1;  // active and bad FE
+	  ATH_MSG_ERROR("PixelMonitoring: got invalid pixelID " << pixelID << " from id_hash " << id_hash << " with FE#"<< iFE << ".");
 	}
-	Map_Of_FEs_Status.add(pixlayer, waferID, m_pixelid, iFE, index);
       }
     }
+
   }  // end of pixelid wafer loop
 
   fill2DProfLayerAccum( Map_Of_Modules_Status );
   fill1DProfLumiLayers("BadModulesPerLumi", lb, nBadMod);
   fill1DProfLumiLayers("DisabledModulesPerLumi", lb, nDisabledMod);
 
-  if (m_doFEPlots && !m_doOnline) fill2DProfLayerAccum( Map_Of_FEs_Status );
+  if (m_doFEPlots) fill2DProfLayerAccum( Map_Of_FEs_Status );
 
   //*******************************************************************************
   //*************************** End of filling Status Histograms ******************
@@ -353,6 +360,7 @@ StatusCode PixelAthClusterMonAlg::fillHistograms( const EventContext& ctx ) cons
   VecAccumulator2DMap Clus_Occ_SizeCut("ClusOccSizeCut");
   VecAccumulator2DMap Clus_Occ_SizeCut_OnTrack("ClusOccSizeCutOnTrack");
   VecAccumulator2DMap Cluster_FE_Occupancy("ClusterFEOccupancy");
+  VecAccumulator2DMap Cluster_FE_Occupancy_OnTrack("ClusterFEOccupancyOnTrack");
 
   auto clusterGroup = getGroup("Cluster");
   auto clusterGroup_OnTrack = getGroup("Cluster_OnTrack");
@@ -416,7 +424,7 @@ StatusCode PixelAthClusterMonAlg::fillHistograms( const EventContext& ctx ) cons
       // begin cluster occupancy
       //
       Cluster_Occupancy.add(pixlayer, clusID, m_pixelid);
-      if (m_doFEPlots && !m_doOnline) {
+      if (m_doFEPlots) {
 	Cluster_FE_Occupancy.add(pixlayer, clusID, m_pixelid, m_pixelCablingSvc->getFE(&clusID, clusID), 1.0);
       }
       if (cluster.rdoList().size() > 1) Clus_Occ_SizeCut.add(pixlayer, clusID, m_pixelid);
@@ -473,6 +481,9 @@ StatusCode PixelAthClusterMonAlg::fillHistograms( const EventContext& ctx ) cons
 	// begin cluster occupancy
 	//
 	Cluster_Occupancy_OnTrack.add(pixlayer, clusID, m_pixelid);
+	if (m_doFEPlots) {
+	  Cluster_FE_Occupancy_OnTrack.add(pixlayer, clusID, m_pixelid, m_pixelCablingSvc->getFE(&clusID, clusID), 1.0);
+	}
 	if (cluster.rdoList().size() > 1) Clus_Occ_SizeCut_OnTrack.add(pixlayer, clusID, m_pixelid);
 	// 
 	// end cluster occupancy
@@ -504,7 +515,10 @@ StatusCode PixelAthClusterMonAlg::fillHistograms( const EventContext& ctx ) cons
   fill2DProfLayerAccum(Cluster_Occupancy_OnTrack);
   fill2DProfLayerAccum(Clus_Occ_SizeCut);
   fill2DProfLayerAccum(Clus_Occ_SizeCut_OnTrack);
-  if (m_doFEPlots && !m_doOnline) fill2DProfLayerAccum(Cluster_FE_Occupancy);
+  if (m_doFEPlots) {
+    fill2DProfLayerAccum(Cluster_FE_Occupancy);
+    fill2DProfLayerAccum(Cluster_FE_Occupancy_OnTrack);
+  }
   // begin cluster rates
   //
   auto nCls   = Monitored::Scalar<int>( "ncls_per_event", nclusters );

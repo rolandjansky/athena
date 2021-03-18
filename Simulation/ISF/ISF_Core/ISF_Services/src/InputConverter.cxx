@@ -755,7 +755,6 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const ISF::ISFParti
 
   if ( genpart ) {
     if (genpart->end_vertex()) {
-
       /// Set the lifetime appropriately - this is slow but rigorous,
       /// and we don't want to end up with something like vertex time
       /// that we have to validate for every generator on earth...
@@ -782,11 +781,23 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const ISF::ISFParti
         //g4particle->SetProperTime( (lv1-lv0).mag()/Gaudi::Units::c_light );
         G4LorentzVector dist4D(lv1);
         dist4D-=lv0;
-
-        G4LorentzVector fourmom(g4particle->GetMomentum(),g4particle->GetTotalEnergy());
-        //double tau2=dist3D.mag2()*(1/(fourmom.beta()*fourmom.beta())-1)/Gaudi::Units::c_light/Gaudi::Units::c_light;
         
-        ATH_MSG_VERBOSE( "gammaVertex="<<dist4D.gamma()<<" gammamom="<<fourmom.gamma()<<" gamma(beta)="<<1/std::sqrt(1-beta2)<<" lifetime tau(beta)="<<std::sqrt(tau2)<<" lifetime tau="<<tau);
+        double dist4Dgamma=std::numeric_limits<double>::infinity();
+        if(dist4D.t()>0 && dist4D.mag2()>0) {
+          dist4Dgamma=dist4D.gamma();
+        } else {
+          ATH_MSG_VERBOSE( "dist4D t="<<dist4D.t()<<" mag2="<<dist4D.mag2());
+        }  
+        
+        G4LorentzVector fourmom(g4particle->GetMomentum(),g4particle->GetTotalEnergy());
+        double fourmomgamma=std::numeric_limits<double>::infinity();
+        if(fourmom.t()>0 && fourmom.mag2()>0) {
+          fourmomgamma=fourmom.gamma();
+        } else {
+          ATH_MSG_VERBOSE( "fourmom t="<<fourmom.t()<<" mag2="<<fourmom.mag2());
+        }  
+
+        ATH_MSG_VERBOSE( "gammaVertex="<<dist4Dgamma<<" gammamom="<<fourmomgamma<<" gamma(beta)="<<1/std::sqrt(1-beta2)<<" lifetime tau(beta)="<<std::sqrt(tau2)<<" lifetime tau="<<tau);
       }
       
       if(m_quasiStableParticlesIncluded) {

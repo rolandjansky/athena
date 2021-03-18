@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthSequencer.h
@@ -15,6 +15,7 @@
 // Include files
 #include "AthenaBaseComps/AthCommonDataStore.h"
 #include "AthenaBaseComps/AthCommonMsg.h"
+#include "AthenaBaseComps/IDynamicDataConsumer.h"
 
 #include "Gaudi/Property.h"
 #include "Gaudi/Sequence.h"
@@ -36,7 +37,7 @@
  **             last member.
  **/
 class AthSequencer
-  : public AthCommonDataStore<AthCommonMsg<Gaudi::Sequence>>
+   : public AthCommonDataStore<AthCommonMsg<Gaudi::Sequence>>
 {
 public:
 
@@ -241,7 +242,9 @@ private:
   
   static int m_FPEexcepts;
   static bool m_installedSignalHandler;
-  
+  std::vector<std::string> m_undeclaredOutputData;
+  unsigned int m_maxPass = 100;
+  bool m_runPostInitialize = false;
 };
 
 #endif //GAUDISEQUENCER_ATHSEQUENCER_H

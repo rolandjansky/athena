@@ -24,6 +24,8 @@
 
 // EDM includes
 #include "xAODJet/JetContainer.h"
+#include "xAODPFlow/PFOContainer.h" 
+
 
 // Tracking Tool
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
@@ -64,17 +66,17 @@ namespace met {
                           xAOD::Type::ObjectType metType,
                           xAOD::MissingETContainer* metCont,
                           const xAOD::IParticleContainer* collection,
-                          xAOD::MissingETAssociationHelper* helper,
+                          xAOD::MissingETAssociationHelper& helper,
                           MissingETBase::UsageHandler::Policy objScale);
     //
     StatusCode rebuildMET(xAOD::MissingET* met,
                           const xAOD::IParticleContainer* collection,
-                          xAOD::MissingETAssociationHelper* helper,
+                          xAOD::MissingETAssociationHelper& helper,
                           MissingETBase::UsageHandler::Policy objScale);
     //
     StatusCode rebuildMET(xAOD::MissingET* met,
                           const xAOD::IParticleContainer* collection,
-                          xAOD::MissingETAssociationHelper* helper,
+                          xAOD::MissingETAssociationHelper& helper,
                           MissingETBase::UsageHandler::Policy p,
                           bool removeOverlap,
                           MissingETBase::UsageHandler::Policy objScale);
@@ -85,18 +87,18 @@ namespace met {
                              xAOD::MissingETContainer* metCont,
                              const xAOD::JetContainer* jets,
                              const xAOD::MissingETContainer* metCoreCont,
-                             xAOD::MissingETAssociationHelper* helper,
+                             xAOD::MissingETAssociationHelper& helper,
                              bool doJetJVT);
     StatusCode rebuildJetMET(const std::string& metJetKey,
                              const std::string& metSoftKey,
                              xAOD::MissingETContainer* metCont,
                              const xAOD::JetContainer* jets,
                              const xAOD::MissingETContainer* metCoreCont,
-                             xAOD::MissingETAssociationHelper* helper,
+                             xAOD::MissingETAssociationHelper& helper,
                              bool doJetJVT);
     StatusCode rebuildJetMET(xAOD::MissingET* metJet,
                              const xAOD::JetContainer* jets,
-                             xAOD::MissingETAssociationHelper* helper,
+                             xAOD::MissingETAssociationHelper& helper,
                              xAOD::MissingET* metSoftClus,
                              const xAOD::MissingET* coreSoftClus,
                              xAOD::MissingET* metSoftTrk,
@@ -110,17 +112,38 @@ namespace met {
                              xAOD::MissingETContainer* metCont,
                              const xAOD::JetContainer* jets,
                              const xAOD::MissingETContainer* metCoreCont,
-                             xAOD::MissingETAssociationHelper* helper,
+                             xAOD::MissingETAssociationHelper& helper,
                              bool doJetJVT);
+
+   StatusCode retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* cpfo, const xAOD::PFOContainer* npfo,
+			  xAOD::MissingETAssociationHelper& metHelper,
+			  xAOD::PFOContainer *OR_cpfos,
+			  xAOD::PFOContainer *OR_npfos,
+			  bool retainMuon = false,
+			  const xAOD::IParticleContainer* muonCollection=0);//,  
+			  //MissingETBase::UsageHandler::Policy p); 
+
+   StatusCode retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* pfo,
+			  xAOD::MissingETAssociationHelper& metHelper,
+			  const xAOD::PFOContainer **OR_pfos,
+			  bool retainMuon,
+			  const xAOD::IParticleContainer* muonCollection);
+
+    const xAOD::PFOContainer* retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* signals,
+			  xAOD::MissingETAssociationHelper& helper,
+			  bool retainMuon = false,
+ 			  const xAOD::IParticleContainer* muonCollection=0, 
+			  MissingETBase::UsageHandler::Policy p=MissingETBase::UsageHandler::ParticleFlow);
+
     StatusCode rebuildTrackMET(xAOD::MissingET* metJet,
                              const xAOD::JetContainer* jets,
-                             xAOD::MissingETAssociationHelper* helper,
+                             xAOD::MissingETAssociationHelper& helper,
                              xAOD::MissingET* metSoftTrk,
                              const xAOD::MissingET* coreSoftTrk,
                              bool doJetJVT);
 
     StatusCode markInvisible(const xAOD::IParticleContainer* collection,
-			     xAOD::MissingETAssociationHelper* helper,
+			     xAOD::MissingETAssociationHelper& helper,
 			     xAOD::MissingETContainer* metCont);
 
     ///////////////////////////////////////////////////////////////////
@@ -172,6 +195,7 @@ namespace met {
     bool m_orCaloTaggedMuon;
     bool m_greedyPhotons;
     bool m_veryGreedyPhotons;
+
 
     ToolHandle<InDet::IInDetTrackSelectionTool> m_trkseltool;
     /// Default constructor:

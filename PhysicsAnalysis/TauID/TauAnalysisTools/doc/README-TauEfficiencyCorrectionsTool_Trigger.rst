@@ -31,12 +31,15 @@ To get started you can do the following::
   TauAnalysisTools::TauEfficiencyCorrectionsTool TauTriggerEffTool( "TauTriggerEfficiencyCorrectionsTool" );
 
   CHECK(TauTriggerEffTool.setProperty("EfficiencyCorrectionTypes", std::vector<int>({SFTriggerHadTau}) ));
-  CHECK(TauTriggerEffTool.setProperty("TriggerName", "HLT_tau25_medium1_tracktwo" ));
   CHECK(TauTriggerEffTool.setProperty("IDLevel", (int)JETIDBDTTIGHT ));
-  CHECK(TauTriggerEffTool.setProperty("PileupReweightingTool", PileupReweightingTool ));
+  CHECK(TauTriggerEffTool.setProperty("TriggerName", "HLT_tau25_medium1_tracktwo" ));
+  CHECK(TauTriggerEffTool.setProperty("AutoTriggerYear", true ));
 
   CHECK(TauTriggerEffTool.initialize());
 
+The year is automatically detected if you ran ``PileupReweightingTool`` before.
+
+Alternatively you can pass the pile-up tool directly to this tool.
 The ``PileupReweightingTool`` is required to be a ToolHandle to the same
 PileupReweightingTool that you use for you analysis. This tool is used to obtain
 the random run number to make a decision on the year of data taking, that is
@@ -53,8 +56,8 @@ Then in your loop you can apply or get scale factors from the tool by::
   TauTriggerEffTool.applyEfficiencyScaleFactor(xTau);                                     // either directly appending scale factors to the xAOD tau auxiliary store
   TauTriggerEffTool.getEfficiencyScaleFactor(xTau, dEfficiencyScaleFactor);               // or storing fake factors in variable dEfficiencyScaleFactor
 
-Notes on different scale factors for 2015 and 2016
---------------------------------------------------
+Notes on different scale factors for 2015, 2016 and 2017
++-----------------------------------------------------------
 
 By default, if the ``PRWTool`` property is not set, only scale factors for 2016
 data analysis are applied. If you are only analysing 2015 data, this can be
@@ -65,6 +68,7 @@ like::
 
 The final trigger scale factors for 2016 data are extracted from three different measurements: Ztautau, ttbar and their combination. With ``TriggerSFMeasurement`` property one can choose between those measurements. Plots summarizing the trigger SF distributions are available here: https://qbuat-trigger.web.cern.ch/qbuat-trigger/tau_trigger_20.7_final/lmt_overlayed/index.html 
 
+In the latest version of TauAnalysisTools pre-recommendations for 2017 tau triggers are available. Here, all scale factors are set to 1.0, with the relative error taken from the respective 2016 result.
 
 --------------------
 Available properties
@@ -91,7 +95,12 @@ one needs a separate tool instance with at least the following configuration:
      - ``std::string``
      - ``"2016"``
      - year of data taking, not necessary if PileupReweightingTool Property is used
-   
+
+   * - ``AutoTriggerYear``
+     - ``bool``
+     - ``false``
+     - automatically detect the year if ``RandomRunNumber`` decoration exists
+
    * - ``PileupReweightingTool``
      - ``ToolHandle<CP::PileupReweightingTool>``
      - empty
@@ -117,8 +126,31 @@ value ``std::vector<int>({SFTriggerHadTau})``
 Overview of Variations
 ----------------------
 
+MC16 Pre-Recommendations
+--------------------------
+
+The recommended systematic variations are as of now for 2015, 2016 or 2017 as
+indicated by the postfix number:
+
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_STATDATA2015``
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_STATMC2015``
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_SYST2015``
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_STATDATA2016``
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_STATMC2016``
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_SYST2016``
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_STATDATA2017``
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_STATMC2017``
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_SYST2017``
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_TOTAL2017``
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_TOTAL2017``
+
+The following additional systematic variations are also available (**NOT recommended**):
+
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_TOTAL2015``
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_TOTAL2016``
+
 2017 Moriond
----------
+---------------
 
 The recommended systematic variations are as of now for 2015 or 2016 as
 indicated by the postfix number:

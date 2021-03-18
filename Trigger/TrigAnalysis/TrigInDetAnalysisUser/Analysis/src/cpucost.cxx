@@ -34,7 +34,7 @@
 
 #include "computils.h"
 
-
+#include "AtlasStyle.h"
 
 /// Prints usage instructions to standard output and returns given status
 int usage(const std::string& name, int status) {
@@ -51,6 +51,9 @@ int usage(const std::string& name, int status) {
   s << "    -p,  --pattern   value   \t if auto is set, search for histograms containing this string, \n\n";
   s << "    -nr, --noref             \t do not use a reference file, \n\n";
   s << "    -x,  --xoffset   value   \t offset the key by value \n\n";
+  s << "         --logx               \t force logx \n\n";
+  s << "    -as, --atlasstyle        \t use the ATLAS style \n\n";
+  s << "    -w,  --binwidth          \t normalise by bin width\n\n";
   s << "    -v,  --verbose           \t verbose output\n";
   s << "    -h,  --help              \t this help\n";
   s << std::endl;
@@ -70,6 +73,14 @@ std::ostream& operator<<( std::ostream& s, const histoinfo& h ) {
   return s << h.fname << " : " << h.dname; 
 }
 
+
+void binwidth( TH1F* h ) {
+  for ( int i=0 ; i<h->GetNbinsX() ; i++ ) {
+    double w = h->GetBinLowEdge(i+2)-h->GetBinLowEdge(i+1);
+    h->SetBinContent( i+1, h->GetBinContent(i+1)/w );
+    h->SetBinError( i+1, h->GetBinError(i+1)/w );
+  }
+}
 
 
 int main(int argc, char** argv) {
@@ -117,6 +128,10 @@ int main(int argc, char** argv) {
 
   bool show_directory = true;
 
+  bool norm_width = true;
+
+  bool logx = false;
+
   // Parse the arguments
   std::vector<std::string> algorithms;
   for(int argnum = 1; argnum < argc; argnum++){
@@ -141,6 +156,9 @@ int main(int argc, char** argv) {
       if (++argnum < argc) { key = argv[argnum] + std::string("-"); }
       else { return usage(argv[0], -1); }
     }
+    else if ( arg == "--logx") {
+      logx = true;
+    }
     else if (arg == "-np" || arg == "--nopng") {
       nopng = true;
     }
@@ -155,6 +173,12 @@ int main(int argc, char** argv) {
     }
     else if (arg == "-nr" || arg == "--noref") {
       noref = true;
+    }
+    else if (arg == "-w" || arg == "--binwidth") {
+      norm_width = true;
+    }
+    else if (arg == "-as" || arg == "--atlasstyle") {
+      atlasstyle = true;
     }
     else if (arg == "-ap" || arg == "--autopattern") {
       if (++argnum < argc) autopattern = argv[argnum];
@@ -200,6 +224,10 @@ int main(int argc, char** argv) {
       return -3;
     }
   }
+
+  if ( atlasstyle ) SetAtlasStyle();
+
+  gStyle->SetErrorX(0);
 
   if ( noref ) fref = ftest;
 
@@ -300,11 +328,12 @@ int main(int argc, char** argv) {
             
       double x1 = xoffset;
       double x2 = xoffset+0.25;
-      double y1 = 0.80;
+      double y1 = 0.75;
       double y2 = 0.87;
 
-      /// adjust the legend if no reference times are to be plotted
-      if ( noref ) y1 = y2-0.5*(y2-y1);
+      /// no longer adjust the legend if no reference times are to be 
+      /// plotted as we now more properly set the legend size automatically 
+      /// depending on the number of entries
 
       Legend legend(x1, x2, y1, y2);
      
@@ -322,11 +351,14 @@ int main(int argc, char** argv) {
       //      std::cout << "Directory: " << gDirectory->GetName() << std::endl;
 
       TH1F* testhist = (TH1F*)ftest->Get(histname.c_str());
+
       if (testhist == 0 ) {
         std::cerr << "main(): can not find hist " << histname << " in test file" << std::endl;
         continue;
       }
-      
+
+      if ( norm_width ) binwidth( testhist );
+
       /// skip TH2 and TProfiles for the moment ... 
       if ( std::string(testhist->ClassName()).find("TH1")==std::string::npos ) continue; 
       
@@ -342,13 +374,20 @@ int main(int argc, char** argv) {
         continue;
       }
 
+      if ( norm_width ) binwidth( refhist );
 
-      testhist->GetYaxis()->SetTitleOffset(1.5);
-      refhist->GetYaxis()->SetTitleOffset(1.5);
-      testhist->GetXaxis()->SetTitle(_xaxis.c_str());
       testhist->GetYaxis()->SetTitle(yaxis.c_str());
-      refhist->GetXaxis()->SetTitle(_xaxis.c_str());
+      testhist->GetYaxis()->SetTitleOffset(1.5);
+
       refhist->GetYaxis()->SetTitle(yaxis.c_str());
+      refhist->GetYaxis()->SetTitleOffset(1.5);
+      
+      testhist->GetXaxis()->SetTitle(_xaxis.c_str());
+      testhist->GetXaxis()->SetTitleOffset(1.5);
+
+      refhist->GetXaxis()->SetTitle(_xaxis.c_str());
+      refhist->GetXaxis()->SetTitleOffset(1.5);
+
 
       Plots plots;
 
@@ -420,16 +459,21 @@ int main(int argc, char** argv) {
 	
       std::vector<double> range = plots.findxrange();
 
-      double upper = ( range[1]-range[0] )*1.1 + range[0];
-      double lower = range[0] - ( range[1]-range[0] )*0.1; 
-      
+      double lower = range[0];
+      double upper = range[1];
+
       if ( lower<0 ) lower = 0;
-      
+
       plots.SetRangeUser( lower, upper );
 
       plots.Draw( legend, true );
 
-      if ( show_directory ) DrawLabel( x1+0.01, y2+0.03, dirname, kBlack, legend.TextSize(), legend.TextFont() );
+      if ( show_directory ) DrawLabel( x1+0.02, y2+0.02, dirname, kBlack, legend.TextSize(), legend.TextFont() );
+
+      /// could simply run gPad->SetLogyx( logx );
+      /// but that would interfere with the individual plot 
+      /// setting from the config file 
+      if ( logx ) gPad->SetLogx(true); 
 
       plots.back().Print( (plotname+".pdf").c_str() );
       if ( !nopng ) plots.back().Print( (plotname+".png").c_str() );

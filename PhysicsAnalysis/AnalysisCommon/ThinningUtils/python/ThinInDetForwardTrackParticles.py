@@ -11,11 +11,12 @@ class ThinInDetForwardTrackParticles(Configured):
         mlog = logging.getLogger ('ThinInDetForwardTrackParticles.py::configure:')
         from InDetRecExample.InDetJobProperties import InDetFlags
         from InDetRecExample.InDetKeys import InDetKeys
-        from RecExConfig.InputFilePeeker import inputFileSummary
-
-        have_InDetForwardParticles = (inputFileSummary['eventdata_items']
+        from PyUtils.MetaReaderPeeker import convert_itemList
+        
+        eventdata_items = convert_itemList() 
+        have_InDetForwardParticles = (eventdata_items
                                       and  any(InDetKeys.xAODForwardTrackParticleContainer() in elements
-                                             for elements in inputFileSummary['eventdata_items']))
+                                             for elements in eventdata_items))
         if not have_InDetForwardParticles and ( not InDetFlags.doForwardTracks() or not InDetFlags.doParticleCreation() ) :
             mlog.error("Not attempting to thin InDetForwardParticles, because the container %s does not seem to be available", InDetKeys.xAODForwardTrackParticleContainer())
             return True

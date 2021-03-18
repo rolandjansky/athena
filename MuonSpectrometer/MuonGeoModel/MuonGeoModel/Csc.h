@@ -1,16 +1,20 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef Csc_H
 #define Csc_H
 
-#include "GeoModelKernel/GeoFullPhysVol.h"
 #include "MuonGeoModel/DetectorElement.h"
-#include "MuonGeoModel/CscComponent.h"
+
+#include <vector>
+
+class GeoFullPhysVol;
 
 namespace MuonGM {
 
+class Component;
+class CscComponent;
 class CscMultiLayer;
 class Cutout;
 

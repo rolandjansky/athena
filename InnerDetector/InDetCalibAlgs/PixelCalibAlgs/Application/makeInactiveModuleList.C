@@ -7,7 +7,7 @@
 #include<fstream>
 #include<utility>
 #include<string>
-
+#include<filesystem>
 
 
 #include "TFile.h"
@@ -41,7 +41,8 @@ std::vector<std::string> &splitter(const std::string &s, char delim, std::vector
 
 std::vector<std::string> splitter(const std::string &s, char delim) {
   std::vector<std::string> elems;
-  splitter(s, delim, elems);
+  splitter(s, delim, elems); 
+  std::cout<<s<<" "<<delim<<" "<<std::endl;
   return elems;
 }
 
@@ -143,7 +144,7 @@ void checkInactiveModule(bool isIBL, TFile* hitMapFile, int &npush_back, std::ve
   components.push_back("Disk1C");
   components.push_back("Disk2C");
   components.push_back("Disk3C");
-  if (isIBL) components.push_back("IBL");     // kazuki
+  if (isIBL) components.push_back("IBL");
   components.push_back("B0");
   components.push_back("B1");
   components.push_back("B2");
@@ -163,7 +164,7 @@ void checkInactiveModule(bool isIBL, TFile* hitMapFile, int &npush_back, std::ve
 
   for(std::vector<std::string>::const_iterator hemisphere = hemispheres.begin(); 
       hemisphere != hemispheres.end(); ++hemisphere){
-    std::string lbdepDirName = std::string("All/OccupancyLb");
+    std::string lbdepDirName = std::string("OccupancyLb");
 
     for(int k = 1; k <= 3; k ++){
       std::ostringstream component, lbdepPath;
@@ -202,7 +203,7 @@ void checkInactiveModule(bool isIBL, TFile* hitMapFile, int &npush_back, std::ve
   std::string lbdepDirName("lbdep_barrel");
   for(unsigned int layer = 0; layer < staves.size(); layer++){
     std::ostringstream lbdepPath;
-    lbdepPath << "All/OccupancyLb/" << layers[layer];
+    lbdepPath << "OccupancyLb/" << layers[layer];
 
     int nModulesPerStave = 13;
     if (isIBL && layer == 0) nModulesPerStave = 32; // --- IBL --- //
@@ -226,7 +227,6 @@ void checkInactiveModule(bool isIBL, TFile* hitMapFile, int &npush_back, std::ve
     for (int LB = 1; LB <= nbin; LB++) {
    
       if(nEventsLBHistogram->GetBinContent(LB) < 80.) continue; // #events in LB >= 80
-        
       if(lbdep[moduleID]->GetBinContent(LB) ==0) { // (#module hits in LB) / (#events in LB) < 1
         
 	if(flag_start == 0){
@@ -269,7 +269,7 @@ void checkInactiveFEs(bool isIBL, TFile* hitMapFile, int &npush_backFE, std::vec
   components.push_back("Disk1C");
   components.push_back("Disk2C");
   components.push_back("Disk3C");
-  if (isIBL) components.push_back("IBL");     // kazuki
+  if (isIBL) components.push_back("IBL");
   components.push_back("B0");
   components.push_back("B1");
   components.push_back("B2");
@@ -289,7 +289,7 @@ void checkInactiveFEs(bool isIBL, TFile* hitMapFile, int &npush_backFE, std::vec
 
   for(std::vector<std::string>::const_iterator hemisphere = hemispheres.begin();
       hemisphere != hemispheres.end(); ++hemisphere){
-      std::string hitMapsDirName = std::string("All/Occupancy2d");
+      std::string hitMapsDirName = std::string("Occupancy2d");
 
     for(int k = 1; k <= 3; k ++){
       std::ostringstream component, hitMapsPath;
@@ -329,7 +329,7 @@ void checkInactiveFEs(bool isIBL, TFile* hitMapFile, int &npush_backFE, std::vec
   std::string hitMapsDirName("hitMaps_barrel");
   for(unsigned int layer = 0; layer < staves.size(); layer++){
     std::ostringstream hitMapsPath;
-    hitMapsPath << "All/Occupancy2d/" << layers[layer];
+    hitMapsPath <<"Occupancy2d/" << layers[layer];
     int nModulesPerStave = 13;
     if (isIBL && layer == 0) nModulesPerStave = 32; // --- IBL --- //
     if (layer !=0){						//IBL ignored,because treated in function for LB information
@@ -350,7 +350,6 @@ void checkInactiveFEs(bool isIBL, TFile* hitMapFile, int &npush_backFE, std::vec
     //---------------------------------------
     // Further variables for counting
     //---------------------------------------
-    //int sum_FE_all=0;  //variable was used to do some threshold studies
     int nbinx =hitMaps[moduleID]->GetNbinsX();
     int nbiny =hitMaps[moduleID]->GetNbinsY();
     double FE0=0;
@@ -602,10 +601,9 @@ void checkInactiveFEs(bool isIBL, TFile* hitMapFile, int &npush_backFE, std::vec
     if(denom!=0){ 
      average_hit =(FE0+FE1+FE2+FE3+FE4+FE5+FE6+FE7+FE8+FE9+FE10+FE11+FE12+FE13+FE14+FE15)/16;
     }
-    //std::cout<<average_hit<<" "<<FE0<<" "<<FE1<<" "<<FE2<<" "<<FE3<<" "<<FE4<<" "<<FE5<<" "<<FE6<<" "<<FE7<<" "<<FE8<<" "<<FE9<<" "<<FE10<<" "<<FE11<<" "<<FE12<<" "<<FE13<<" "<<FE14<<" "<<FE15<<" "<<moduleID<<std::endl; // cout to check code
     if(FE0<=0.0*average_hit){//value multiplied with average_hit is threshold
       sum=sum+std::pow(2,0);//calculating number to know which FEs in the module shall be masked
-      sum_FE++;//counting done for studies
+      sum_FE++;
     }
     if(FE1<=0.0*average_hit){
       sum=sum+std::pow(2,1);
@@ -669,17 +667,10 @@ void checkInactiveFEs(bool isIBL, TFile* hitMapFile, int &npush_backFE, std::vec
     }
     if (sum!=0){
       a++;
-      //output was used for checking code
-      //std::cout<<moduleID<<"\t"<<sum<<"\t"<<sum_FE<<std::endl;
-      //std::cout<<a<<" "<<moduleID<<" "<<sum<<std::endl;
-      //std::cout<<average_hit<<" "<<FE0<<" "<<FE1<<" "<<FE2<<" "<<FE3<<" "<<FE4<<" "<<FE5<<" "<<FE6<<" "<<FE7<<" "<<FE8<<" "<<FE9<<" "<<FE10<<" "<<FE11<<" "<<FE12<<" "<<FE13<<" "<<FE14<<" "<<FE15<<" "<<moduleID<<" "<<a<<std::endl;
       FEcode.push_back(std::to_string(sum));
       vsFE.push_back(moduleID);
       npush_backFE++;
     }
-    //else{//used for some studies
-      //std::cout<<average_hit<<" "<<FE0<<" "<<FE1<<" "<<FE2<<" "<<FE3<<" "<<FE4<<" "<<FE5<<" "<<FE6<<" "<<FE7<<" "<<FE8<<" "<<FE9<<" "<<FE10<<" "<<FE11<<" "<<FE12<<" "<<FE13<<" "<<FE14<<" "<<FE15<<" "<<moduleID<<std::endl;
-    //}
   }
   
 }
@@ -693,9 +684,8 @@ void setPixelMapping(bool isIBL){
   std::ifstream ifs3;
 
   for(const auto& x : paths){
-
     if(is_file_exist((x + "/PixelMapping_Run2.dat").c_str())){
-      std::cout << "datapath: " << x <<" "<<isIBL<<std::endl;
+      std::cout << "datapath: " << x <<" "<<std::endl;
       if(isIBL){
         ifs.open(x + "/PixelMapping_Run2.dat");
         ifs2.open(x + "/HashVSdcsID.dat");
@@ -741,11 +731,11 @@ void setPixelMapping(bool isIBL){
 	if(flag_start == 1){
 	  int pos = 0;
 	  pos = str.find("INFO") + 6;
-	  if(str.find("INFO") != std::string::npos) tmp_channel = atoi( (str.substr(pos, 4)).c_str() );
+	  if(str.find("INFO") != std::string::npos) {tmp_channel = atoi( (str.substr(pos, 4)).c_str() );}
 	  pos = str.find("[") - 10;
-	  if(str.find("[") != std::string::npos) tmp_hashid = atoi( (str.substr(pos, 8)).c_str() );
+	  if(str.find("[") != std::string::npos) {tmp_hashid = atoi( (str.substr(pos, 8)).c_str() );}
 	  pos = str.find("[") + 19;
-	  if(str.find("[") != std::string::npos) tmp_module_name = str.substr(pos, 19);
+	  if(str.find("[") != std::string::npos) {tmp_module_name = str.substr(pos, 19);}
 	  tmp_position[0] = tmp_channel;
 	  tmp_position[1] = tmp_hashid;
 	  channelMapping.push_back(std::make_pair(tmp_module_name, tmp_position));
@@ -825,8 +815,7 @@ void make_txt(std::string srun, int npush_back, int npush_backFE, std::vector<st
   //---------------------------------------
   // List of masked FE
   //---------------------------------------
-//  int channel_FEcode[npush_size][2];
-  std::vector<std::vector<int>> channel_FEcode;
+  std::vector<std::vector<int>> channel_FEcode(npush_backFE+1, std::vector<int>(2));
   std::cout<<npush_backFE<<std::endl;
   if(npush_backFE > 0){
     for(int i=1; i<=npush_backFE; i++){
@@ -869,10 +858,11 @@ void make_txt(std::string srun, int npush_back, int npush_backFE, std::vector<st
   //---------------------------------------
   //List of masked modules and FEs(IBL) per LB
   //---------------------------------------
-  std::vector<std::vector<unsigned long>> channel_Modulecode;
+  std::vector<std::vector<int>> channel_Modulecode(npush_back+1, std::vector<int>(4));
   if(npush_back > 0){
       for(int i=1; i<=npush_back; i++){
         std::vector<int> position = getPositionFromDCSID(*it_smodule);
+        std::string module_name = *it_smodule;
         int barrel = position[0];
         int layer = position[1];
         int module_phi = position[2];
@@ -887,9 +877,6 @@ void make_txt(std::string srun, int npush_back, int npush_backFE, std::vector<st
         channel_Modulecode[i][1]=65535;
         channel_Modulecode[i][2]=iov_start;
         channel_Modulecode[i][3]=iov_end;
-        //std::cout<<sRun<<" "<<*it_LBstart<<" "<<*it_LBend<<std::endl; 	//check code structure
-        //std::cout<<(sRun << 32)<<" "<<iov_start<<" "<<iov_end<<std::endl;    	//check code structure
-        //std::cout<<*it_smodule<<" "<<channel<<std::endl;                      //check code structure
         for(int l=1; l<=i;l++){//Calculating/getting values for list
           if (channel_Modulecode[i][0]>channel_Modulecode[l][0]){
             continue;
@@ -904,33 +891,37 @@ void make_txt(std::string srun, int npush_back, int npush_backFE, std::vector<st
           }
           channel_Modulecode[l][0]=channel;
           channel_Modulecode[l][1]=65535;
-          std::string module_name=*it_smodule;
           std::string number1 = "7";
           std::string number2 = "8";
           std::string number3 = "1";
           std::string number4 = "2";
-          std::string character = "I";
-          if( module_name[1]==character and (module_name[13]!=number1 or module_name[13]!=number2)){
-           channel_Modulecode[l][1]=1;
+          std::string character = "I"; 
+          if( module_name[1]==character and (module_name[13]==number1 or module_name[13]==number2)){
+           channel_Modulecode[l][1]=0;
           }
-          if(module_name[13]!=number1 and module_name[13]!=number2 and module_name[1]==character){
-           if(module_name[15]==number3) channel_Modulecode[l][1]=1;
-           if(module_name[15]==number4) channel_Modulecode[l][1]=2;
+          else if(module_name[13]!=number1 and module_name[13]!=number2 and module_name[1]==character){
+           if(module_name[15]==number3){ 
+             channel_Modulecode[l][1]=1;
+           }
+           else if(module_name[15]==number4){
+             channel_Modulecode[l][1]=2;
+           }
           }
+
           channel_Modulecode[l][2]=iov_start;
           channel_Modulecode[l][3]=iov_end;
           break;
         }
         
-        *it_smodule++;
-        *it_LBstart++;
-        *it_LBend++;
+        ++it_smodule;
+        ++it_LBstart;
+        ++it_LBend;
       }  
   }
   //-----------------------------------
   // Combine both lists
   //-----------------------------------
-  std::vector<std::vector<unsigned long>> combine;
+  std::vector<std::vector<int>> combine(npush_backFE+npush_back+1, std::vector<int>(4));
   std::string module_info;
   for(int i=1; i<=npush_backFE+npush_back; i++){
 

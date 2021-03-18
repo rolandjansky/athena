@@ -42,7 +42,6 @@
 #include "TrigT1CaloUtils/QuadLinear.h"
 #include "TrigT1CaloUtils/DataError.h"
 #include "TrigT1CaloUtils/CoordToHardware.h"
-#include "TrigT1Interfaces/Coordinate.h"
 #include "TrigT1Interfaces/JEPRoIDecoder.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "TrigT1Interfaces/Coordinate.h"

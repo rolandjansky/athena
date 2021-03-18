@@ -41,6 +41,7 @@ def main():
 
   metadata['normalisation'] = normHist.GetBinContent(1)
   metadata['n_evts'] = normHist.GetBinContent(2)
+  metadata['details'] = args.userDetails
 
   HLTGlobalGroup = getGlobalGroup(inputFile, 'Main')
   L1GlobalGroup = getGlobalGroup(inputFile, 'L1')

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MSVertexTrackletTool.h"
@@ -639,15 +639,16 @@ namespace Muon {
       float s(0),sz(0),sy(0);
       //loop on the mdt hits, find the weighted center
       for(unsigned int i=0; i<mdts.size(); ++i) {
-	float mdt_y = std::sqrt(sq(mdts.at(i)->globalPosition().x())+sq(mdts.at(i)->globalPosition().y()));
-	float mdt_z = mdts.at(i)->globalPosition().z();
-	float sigma2 = sq(Amg::error(mdts.at(i)->localCovariance(),Trk::locR));
-	s += 1/sigma2;
-	sz += mdt_z/sigma2;
-	sy += mdt_y/sigma2;
+        const Muon::MdtPrepData* prd = mdts.at(i);
+        const float mdt_y = std::hypot(prd->globalPosition().x(),prd->globalPosition().y());
+        const float mdt_z = prd->globalPosition().z();
+        const float sigma2 = sq(Amg::error(prd->localCovariance(),Trk::locR));
+        s += 1/sigma2;
+        sz += mdt_z/sigma2;
+        sy += mdt_y/sigma2;
       }
-      float yc = sy/s;
-      float zc = sz/s;
+      const float yc = sy/s;
+      const float zc = sz/s;
       
       //Find the initial parameters of the fit
       float alpha = std::atan2(SeedParams.at(i_p).first,1.0);
@@ -663,15 +664,16 @@ namespace Muon {
       //calculate constants used in the fit
       float sPz(0),sPy(0),sPyy(0),sPzz(0),sPyz(0),sPyyzz(0);
       for(unsigned int i=0; i<mdts.size(); ++i) {
-	float mdt_y = std::sqrt(sq(mdts.at(i)->globalPosition().x())+sq(mdts.at(i)->globalPosition().y()));
-	float mdt_z = mdts.at(i)->globalPosition().z();
-	float sigma2 = sq(Amg::error(mdts.at(i)->localCovariance(),Trk::locR));
-	sPz += (mdt_z-zc)/sigma2;
-	sPy += (mdt_y-yc)/sigma2;
-	sPyy += sq(mdt_y-yc)/sigma2;
-	sPzz += sq(mdt_z-zc)/sigma2;
-	sPyz += (mdt_y-yc)*(mdt_z-zc)/sigma2;
-	sPyyzz += ((mdt_y-yc)-(mdt_z-zc))*((mdt_y-yc)+(mdt_z-zc))/sigma2;
+        const Muon::MdtPrepData* prd = mdts.at(i);
+        float mdt_y = std::hypot(prd->globalPosition().x(), prd->globalPosition().y());
+        float mdt_z = prd->globalPosition().z();
+        float sigma2 = sq(Amg::error(prd->localCovariance(),Trk::locR));
+        sPz += (mdt_z-zc)/sigma2;
+        sPy += (mdt_y-yc)/sigma2;
+        sPyy += sq(mdt_y-yc)/sigma2;
+        sPzz += sq(mdt_z-zc)/sigma2;
+        sPyz += (mdt_y-yc)*(mdt_z-zc)/sigma2;
+        sPyyzz += ((mdt_y-yc)-(mdt_z-zc))*((mdt_y-yc)+(mdt_z-zc))/sigma2;
       }
       
       //iterative fit
@@ -679,42 +681,46 @@ namespace Muon {
       float deltaAlpha = 0;
       float deltad = 0;
       while(true) {      
-	float sumRyi(0),sumRzi(0),sumRi(0);
-	chi2 = 0;
-	Nitr++;
-	for(unsigned int i=0; i<mdts.size(); ++i) {
-	  float mdt_y = std::sqrt(sq(mdts.at(i)->globalPosition().x())+sq(mdts.at(i)->globalPosition().y()));
-	  float mdt_z = mdts.at(i)->globalPosition().z();
-	  float yPi = -(mdt_z-zc)*std::sin(alpha) + (mdt_y-yc)*std::cos(alpha) - d;
-	  float signR;
-	  if(std::abs(yPi) < 1.0e-8) signR = 1.;
-	  else signR = -1.*yPi/std::abs(yPi);
-	  float sigma2 = sq(Amg::error(mdts.at(i)->localCovariance(),Trk::locR));
-	  float ri = signR*mdts.at(i)->localPosition()[Trk::locR];
-	  ////
-	  sumRyi += ri*(mdt_y-yc)/sigma2;
-	  sumRzi += ri*(mdt_z-zc)/sigma2;
-	  sumRi += ri/sigma2;
-	  //
-	  chi2 += sq(yPi+ri)/sigma2;
-	}      
-	float bAlpha = -1*sPyz + std::cos(alpha)*(std::sin(alpha)*sPyyzz +2*std::cos(alpha)*sPyz + sumRzi) + std::sin(alpha)*sumRyi;
-	float AThTh = sPyy + std::cos(alpha)*(2*std::sin(alpha)*sPyz - std::cos(alpha)*sPyyzz);
-	//the new alpha & d parameters
-	float alphaNew = alpha + bAlpha/AThTh;
-	
-	float dNew = sumRi/s;
-	//the errors
-	dalpha = std::sqrt(1/AThTh);
-	dd = std::sqrt(1/s);
-	deltaAlpha = std::abs(alphaNew-alpha);
-	deltad = std::abs(d-dNew);
-	//test if the new segment is different than the previous
-	if(deltaAlpha < 0.0000005 && deltad < 0.000005) break;      
-	alpha = alphaNew;
-	d = dNew;
-	//Guard against infinite loops
-	if(Nitr > 10) break;      
+        float sumRyi(0),sumRzi(0),sumRi(0);
+        chi2 = 0;
+        Nitr++;
+        const float cos_a = std::cos(alpha);
+        const float sin_a = std::sin(alpha);
+        for(unsigned int i=0; i<mdts.size(); ++i) {
+          const Muon::MdtPrepData* prd = mdts.at(i);
+          float mdt_y = std::hypot(prd->globalPosition().x(),prd->globalPosition().y());
+          float mdt_z = prd->globalPosition().z();
+          float yPi = -(mdt_z-zc)*sin_a + (mdt_y-yc)*cos_a - d;
+          float signR = yPi >= 0 ? 1. : -1;
+          float sigma2 = sq(Amg::error(prd->localCovariance(),Trk::locR));
+          float ri = signR*prd->localPosition()[Trk::locR];
+          ////
+          sumRyi += ri*(mdt_y-yc)/sigma2;
+          sumRzi += ri*(mdt_z-zc)/sigma2;
+          sumRi += ri/sigma2;
+          //
+          chi2 += sq(yPi+ri)/sigma2;
+        }      
+        float bAlpha = -1*sPyz + cos_a*(sin_a*sPyyzz +2*cos_a*sPyz + sumRzi) + sin_a*sumRyi;
+        float AThTh = sPyy + cos_a*(2*sin_a*sPyz - cos_a*sPyyzz);
+        /// The AThTh represent the derivative fed in to the Newton
+        /// minimaztion. If the value is too small the procedure will 
+        /// diverge anyway let's break the loop
+        if (std::abs(AThTh) < 1.e-7) break;
+        //the new alpha & d parameters
+        float alphaNew = alpha + bAlpha/AThTh;
+        float dNew = sumRi/s;
+        //the errors
+        dalpha = std::sqrt(1/std::abs(AThTh));
+        dd = std::sqrt(1/s);
+        deltaAlpha = std::abs(alphaNew-alpha);
+        deltad = std::abs(d-dNew);
+        //test if the new segment is different than the previous
+        if(deltaAlpha < 0.0000005 && deltad < 0.000005) break;      
+        alpha = alphaNew;
+        d = dNew;
+        //Guard against infinite loops
+        if(Nitr > 10) break;      
       }//end while loop
 
       //find the chi^2 probability of the segment 

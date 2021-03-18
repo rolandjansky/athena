@@ -41,79 +41,88 @@ public:
     return  IID_TGCcablingSvc;
   }
 
-  StatusCode queryInterface(const InterfaceID& riid,void** ppvIF); 
+  virtual StatusCode queryInterface(const InterfaceID& riid,void** ppvIF) override; 
   
-  StatusCode initialize (void);
-  StatusCode finalize (void);
+  virtual StatusCode initialize () override;
+  virtual StatusCode finalize () override;
 
    //////  virtual methods of ITGCcabling12Svc
   
-  virtual TGCCablingBase* getTGCCabling() const;  
+  virtual const TGCCablingBase* getTGCCabling() const override; 
 
 
   // give max value of ReadoutID parameters
+  virtual
   void getReadoutIDRanges( int& maxRodId,
 			   int& maxSswId,
 			   int& maxSlbId,
 			   int& minChannelId,
-			   int& maxChannelId) const;
+			   int& maxChannelId) const override;
 
   // give phi-range which a ROD covers  
+  virtual
   bool getCoveragefromRodID(const int rodID,
 			    double & startPhi,
 			    double & endPhi
-			    ) const;
+			    ) const override;
 
+  virtual
   bool getCoveragefromRodID(const int rodID,
 			    int & startEndcapSector,
 			    int & coverageOfEndcapSector,
 			    int & startForwardSector,
 			    int & coverageOfForwardSector
-			    ) const;
+			    ) const override;
 
   
   // Readout ID is ored
+  virtual
   bool isOredChannel(const int subDetectorID,
 		     const int rodID,
 		     const int sswID,
 		     const int slbID,
-		     const int channelID) const;
+		     const int channelID) const override;
 
 
   // Offline ID has adjacent Readout ID
-  bool hasAdjacentChannel(const Identifier & offlineID) const;
+  virtual
+  bool hasAdjacentChannel(const Identifier & offlineID) const override;
 
 
   // Online ID has adjacent Readout ID
+  virtual
   bool hasAdjacentChannel(const int subsystemNumber,
 			  const int octantNumber,
 			  const int moduleNumber,
 			  const int layerNumber,
 			  const int rNumber,
 			  const int wireOrStrip,
-			  const int channelNumber) const;
+			  const int channelNumber) const override;
 
 
   // readout IDs -> offline IDs
+  virtual
   bool getOfflineIDfromReadoutID(Identifier & offlineID,
 				 const int subDetectorID,
 				 const int rodID,
 				 const int sswID,
 				 const int slbID,
 				 const int channelID,
-				 bool orChannel=false) const;
+				 bool orChannel=false) const override;
 
   
   // offline IDs -> readout IDs
+  virtual
   bool getReadoutIDfromOfflineID(const Identifier & offlineID,
 				 int & subDetectorID,
 				 int & rodID,
 				 int & sswID,
 				 int & slbID,
 				 int & channelID,
-				 bool adChannel=false) const;
+				 bool adChannel=false) const override;
 
   // offline ID -> online IDs
+  virtual
   bool getOnlineIDfromOfflineID(const Identifier & offlineID,
 				int & subsystemNumber,
 				int & octantNumber,
@@ -121,9 +130,10 @@ public:
 				int & layerNumber,
 				int & rNumber,
 				int & wireOrStrip,
-				int & channelNumber) const;
+				int & channelNumber) const override;
 
   // online IDs -> offline ID
+  virtual
   bool getOfflineIDfromOnlineID(Identifier & offlineID,
 				const int subsystemNumber,
 				const int octantNumber,
@@ -131,9 +141,10 @@ public:
 				const int layerNumber,
 				const int rNumber,
 				const int wireOrStrip,
-				const int channelNumber) const;
+				const int channelNumber) const override;
 
   // readout IDs -> online IDs
+  virtual
   bool getOnlineIDfromReadoutID(const int subDetectorID,
 				const int rodID,
 				const int sswID,
@@ -146,9 +157,10 @@ public:
 				int & rNumber,
 				int & wireOrStrip,
 				int & channelNumber,
-				bool orChannel=false) const;
+				bool orChannel=false) const override;
 
   // online IDs -> readout IDs
+  virtual
   bool getReadoutIDfromOnlineID(int & subDetectorID,
 				int & rodID,
 				int & sswID,
@@ -161,21 +173,23 @@ public:
 				const int rNumber,
 				const int wireOrStrip,
 				const int channelNumber,
-				bool adChannel=false) const;
+				bool adChannel=false) const override;
   
   // element ID -> readout IDs
+  virtual
   bool getReadoutIDfromElementID(const Identifier & elementID,
 				 int & subdetectorID,
-				 int & rodID) const;
+				 int & rodID) const override;
   
   // readout IDs -> element ID
+  virtual
   bool getElementIDfromReadoutID(Identifier & elementID,
 				 const int subDetectorID,
 				 const int rodID,
 				 const int sswID,
 				 const int slbID,
 				 const int channelID,
-				 bool orChannel=false) const;
+				 bool orChannel=false) const override;
 
   // readout ID -> HPT ID  
   bool getHPTIDfromReadoutID(int & phi,
@@ -189,6 +203,7 @@ public:
 			     const int slbID) const;
 
   // HPT ID -> readout ID
+  virtual
   bool getReadoutIDfromHPTID(const int phi,
 			     const bool isAside,
 			     const bool isEndcap,
@@ -197,9 +212,10 @@ public:
 			     int & subsectorID,
 			     int & rodID,
 			     int & sswID,
-			     int & slbID) const;
+			     int & slbID) const override;
 
   // readout ID -> SLB ID
+  virtual
   bool getSLBIDfromReadoutID(int &phi,
 			     bool & isAside,
 			     bool & isEndcap,
@@ -208,27 +224,30 @@ public:
 			     const int subsectorID,
 			     const int rodID,
 			     const int sswID,
-			     const int slbID) const;
+			     const int slbID) const override;
 
   // readout ID -> slbAddr
   //  SLBAddressis  Not Valid for TGCcabling for Octant segmentation
+  virtual
   bool getSLBAddressfromReadoutID(int & slbAddr,
                                   const int subsectorID,
                                   const int rodID,
                                   const int sswID,
-                                  const int slbID) const;
+                                  const int slbID) const override;
 
  
   // readout ID -> RxID
   //  rxId is same as slbID for TGCcabling for Octant segmentation
+  virtual
   bool getRxIDfromReadoutID(int & rxId,
 			    const int subsectorID,
 			    const int rodID,
 			    const int sswID,
-			    const int sbLoc) const;
+			    const int sbLoc) const override;
   
  // ROD_ID / SSW_ID / RX_ID -> SLB ID
   //  rxId is same as slbID for TGCcabling for Octant segmentation
+  virtual
   bool getSLBIDfromRxID(int &phi,
                         bool & isAside,
                         bool & isEndcap,
@@ -237,9 +256,10 @@ public:
                         const int subsectorID,
                         const int rodID,
                         const int sswID,
-                        const int rxId) const;
+                        const int rxId) const override;
   
   // SLB ID -> readout ID
+  virtual
   bool getReadoutIDfromSLBID(const int phi,
 			     const bool isAside,
 			     const bool isEndcap,
@@ -248,39 +268,43 @@ public:
 			     int & subsectorID,
 			     int & rodID,
 			     int & sswID,
-			     int & slbID) const;
+			     int & slbID) const override;
   
   // readout ID -> SL ID
+  virtual
   bool getSLIDfromReadoutID(int & phi,
 			    bool & isAside,
 			    bool & isEndcap,
 			    const int subsectorID,
 			    const int rodID,
 			    const int sswID,
-			    const int slbID) const;
+			    const int slbID) const override;
 
   // SL ID -> readout ID
+  virtual
   bool getReadoutIDfromSLID(const int phi,
 			    const bool isAside,
 			    const bool isEndcap,
 			    int & subsectorID,
 			    int & rodID,
 			    int & sswID,
-			    int & slbID) const;
+			    int & slbID) const override;
 
   // HighPtID used in Simulation -> HighPtID in RDO
+  virtual
   bool getRDOHighPtIDfromSimHighPtID(const bool isForward,
                                      const bool isStrip,
                                      int & index,
                                      int & chip,
-                                     int & hitId) const;
+                                     int & hitId) const override;
  
   // HighPtID in RDO -> HighPtID used in Simulation
+  virtual
   bool getSimHighPtIDfromRDOHighPtID(const bool isForward,
                                      const bool isStrip,
                                      int & index,
                                      int & chip,
-                                     int & hitId) const;
+                                     int & hitId) const override;
 
   // high pt coincidence IDs -> offline IDs
   virtual 
@@ -293,7 +317,7 @@ public:
 				  const int hpb,
 				  const int chip,
 				  const int hitID,
-				  const int pos ) const ;
+				  const int pos ) const override;
 
   // offline IDs -> high pt coincidence IDs
   virtual 
@@ -306,7 +330,7 @@ public:
 				  int & hpb,
 				  int & chip,
 				  int & hitID,
-				  int & pos) const;
+				  int & pos) const override;
 
   // HPT HitID -> ROI Number
   virtual 
@@ -318,7 +342,7 @@ public:
 				  int sub_wire,
 				  int chip_strip,
 				  int hitId_strip,
-				  int sub_strip) const;
+				  int sub_strip) const override;
   // HPT HitID -> ROI Number
   virtual
    bool getHighPtIDfromROINumber(int roi,
@@ -327,7 +351,7 @@ public:
 				 int & hpb,
 				 int & chip,
 				 int & hitID,
-				 int & sub) const;
+				 int & sub) const override;
   
   // low pt coincidence IDs -> offline IDs
   virtual
@@ -338,7 +362,7 @@ public:
 					   const int sbLoc,
 					   const int block,
 					   const int pos,
-					   bool middle=false) const;
+					   bool middle=false) const override;
   
   // offline IDs -> low pt coincidence IDs
   virtual 
@@ -349,7 +373,7 @@ public:
 					    int & sbLoc,
 					    int & block,
 					    int & pos, 
-					    bool middle=false) const;
+					    bool middle=false) const override;
 
   /////////////////////////////////////////////////////////////
   // channel connection
@@ -372,7 +396,7 @@ private:
 };
 
 inline
- TGCCablingBase* TGCcablingSvc::getTGCCabling() const
+ const TGCCablingBase* TGCcablingSvc::getTGCCabling() const
 {
   return m_cabling;
 }  

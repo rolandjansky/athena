@@ -52,23 +52,53 @@ def bmumuxSequence():
         HypoToolGen = TrigBphysStreamerHypoToolFromDict)
 
 
-def dimuSequence():
+def dimuL2Sequence():
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muCombAlgSequence
+    from TrigBphysHypo.TrigBphysHypoConf import TrigBphysStreamerHypo
+    from TrigBphysHypo.TrigBphysStreamerHypoConfig import TrigBphysStreamerHypoToolFromDict
+
+    sequence, viewMaker, combinedMuonContainerName = RecoFragmentsPool.retrieve(muCombAlgSequence, ConfigFlags)
+
+    hypo = TrigBphysStreamerHypo(
+        name = 'DimuL2StreamerHypoAlg',
+        triggerList = getDefaultChainNames(),
+        triggerLevel = 'L2')
+
+    return MenuSequence(
+        Sequence = sequence,
+        Maker = viewMaker,
+        Hypo = hypo,
+        HypoToolGen = TrigBphysStreamerHypoToolFromDict)
+
+
+def dimuEFSequence():
     from DecisionHandling.DecisionHandlingConf import InputMakerForRoI, ViewCreatorPreviousROITool
     from TrigBphysHypo.TrigBphysHypoConf import TrigBphysStreamerHypo
     from TrigBphysHypo.TrigBphysStreamerHypoConfig import TrigBphysStreamerHypoToolFromDict
 
-    inputMakerAlg = InputMakerForRoI(
-        name = 'IM_bphysStreamerDimu',
+    viewMaker = InputMakerForRoI(
+        name = 'IM_bphysStreamerDimuEF',
         mergeUsingFeature = True,
         RoITool = ViewCreatorPreviousROITool(),
         RoIs = 'DimuRoIs')
 
-    sequence = seqAND('dimuSequence', [inputMakerAlg])
+    sequence = seqAND('dimuSequence', [viewMaker])
 
-    hypo = TrigBphysStreamerHypo('DimuStreamerHypoAlg')
+    hypo = TrigBphysStreamerHypo('DimuEFStreamerHypoAlg', triggerLevel = 'EF')
 
     return MenuSequence(
         Sequence = sequence,
-        Maker = inputMakerAlg,
+        Maker = viewMaker,
         Hypo = hypo,
         HypoToolGen = TrigBphysStreamerHypoToolFromDict)
+
+
+def getDefaultChainNames():
+    from TriggerJobOpts.TriggerFlags import TriggerFlags
+    bphysSlice = TriggerFlags.BphysicsSlice.signatures()
+    chains = []
+    if bphysSlice:
+        for chain in bphysSlice:
+            if any(x in chain.name for x in ['bJpsi', 'bUpsi', 'bDimu', 'bBmu', 'bPhi', 'bTau']) and 'l2io' not in chain.name:
+                chains.append(chain.name)
+    return chains

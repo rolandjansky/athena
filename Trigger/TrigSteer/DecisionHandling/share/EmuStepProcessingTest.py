@@ -69,7 +69,7 @@ from AthenaCommon.AppMgr import theApp, ServiceMgr as svcMgr
 from GaudiSvc.GaudiSvcConf import THistSvc
 svcMgr += THistSvc()
 if hasattr(svcMgr.THistSvc, "Output"):
-    from TriggerJobOpts.HLTTriggerGetter import setTHistSvcOutput
+    from TriggerJobOpts.TriggerHistSvcConfig import setTHistSvcOutput
     setTHistSvcOutput(svcMgr.THistSvc.Output)
 
 print ("EmuStepProcessing: dump top Sequence after CF/DF Tree build")
@@ -83,7 +83,7 @@ filters = collectFilters(findSubSequence(topSequence, "HLTAllSteps"))
 
 nfilters = sum(len(v) for v in filters.values())
 nhypos = sum(len(v) for v in hypos.values())
-log.info( "Algorithms counting: Number of Filter algorithms: %d  -  Number of Hypo algoirthms: %d", nfilters , nhypos) 
+log.info( "Algorithms counting: Number of Filter algorithms: %d  -  Number of Hypo algorithms: %d", nfilters , nhypos) 
 
 #dumpMasterSequence()
 

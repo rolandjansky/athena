@@ -3,7 +3,7 @@
 #from PFlowUtils.PFlowUtilsConf import CombinePFO
 
 from PFODQA.PFODQAConf import PhysValPFO # get plots from PFO
-
+from PFODQA.PFODQAConf import PhysValFE  # get plots from FE (and PFO comparison)
 # charged PFO
 PhysValPFO_charged = PhysValPFO("PhysValPFO_charged")
 PhysValPFO_charged.OutputLevel = WARNING
@@ -22,7 +22,7 @@ PhysValPFO_neutral_EM.useNeutralPFO = True
 monMan.AthenaMonTools += [ PhysValPFO_neutral_EM ]
 
 #charged Flow Element
-from PFODQA.PFODQAConf import PhysValFE # get plots from FE
+
 PhysValFE_charged=PhysValFE("PhysValFE_charged")
 PhysValFE_charged.OutputLevel= WARNING
 PhysValFE_charged.DetailLevel= 10
@@ -31,6 +31,7 @@ PhysValFE_charged.FlowElementContainerName="JetETMissChargedFlowElements"
 PhysValFE_charged.PFOContainerName="JetETMissChargedParticleFlowObjects"
 PhysValFE_charged.useNeutralFE= False
 monMan.AthenaMonTools += [ PhysValFE_charged ]
+
 
 PhysValFE_neutral=PhysValFE("PhysValFE_neutral")
 PhysValFE_neutral.OutputLevel= WARNING

@@ -11,16 +11,13 @@
 #define MUONREADOUTGEOMETRY_CSCREADOUTELEMENT_H
 
 #include "MuonReadoutGeometry/MuonClusterReadoutElement.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
+
+#include "Identifier/Identifier.h"
+#include "Identifier/IdentifierHash.h"
 #include "MuonIdHelpers/CscIdHelper.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
-//<<<<<< PUBLIC DEFINES >>>>>>
-#define maxwlay   4
-
-namespace Trk{
-  class TrapezoidBounds;
-  class RotatedTrapezoidBounds;
-}
+#include <string>
 
 namespace Muon {
   class CscAlignModule;
@@ -28,6 +25,10 @@ namespace Muon {
 }
 
 class CscInternalAlignmentPar;
+class GeoVFullPhysVol;
+
+//<<<<<< PUBLIC DEFINES >>>>>>
+#define maxwlay   4
 
 namespace MuonGM {
 
@@ -55,9 +56,6 @@ namespace MuonGM {
     (geo-model defined) local reference frame of any gas gap volume (which is the 
     frame where local coordinates of SimHits, in output from G4, are expressed).
   */
-
-  class MuonDetectorManager;
-
     
   class CscReadoutElement: public MuonClusterReadoutElement 
   {

@@ -329,13 +329,15 @@ namespace top {
     }
 
     ///-- Calibration and smearing --///
-    static const std::string tauSmearName = "TauAnalysisTools::TauSmearingTool";
+    static const std::string tauSmearName = "TauSmearingTool";
     if (asg::ToolStore::contains<TauAnalysisTools::ITauSmearingTool>(tauSmearName)) {
       m_tauSmearingTool = asg::ToolStore::get<TauAnalysisTools::ITauSmearingTool>(tauSmearName);
     } else {
       std::unique_ptr<TauAnalysisTools::TauSmearingTool> tauSmearingTool = std::make_unique<TauAnalysisTools::TauSmearingTool>(tauSmearName);
       top::check(asg::setProperty(tauSmearingTool, "isAFII", m_config->isAFII()),
                  "Failed to set TauSmearingTools isAFII property");
+      top::check(asg::setProperty(tauSmearingTool, "ApplyMVATES", false),
+                 "Failed to set TauSmearingTools ApplyMVATES property");
       top::check(tauSmearingTool->initialize(), "Failed to initialize");
       m_tauSmearingTool = tauSmearingTool.release();
     }

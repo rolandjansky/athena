@@ -16,19 +16,17 @@ class ConditionFilter {
   ConditionFilter(ConditionsMT&);
 
   // find the subset of jets which satisfy a sequence of conditions
-  HypoJetVector filter (const HypoJetCIter& b,
-			const HypoJetCIter& e,
-			const std::unique_ptr<ITrigJetHypoInfoCollector>&
-			) const;
+  std::pair<HypoJetCIter, HypoJetCIter>
+  filter (const HypoJetCIter& b,
+	  const HypoJetCIter& e,
+	  const std::unique_ptr<ITrigJetHypoInfoCollector>&
+	  );
 
-  HypoJetVector filter (const HypoJetVector&,
-			const std::unique_ptr<ITrigJetHypoInfoCollector>&
-			) const;
-  
   std::string toString() const;  
  private:
 
   ConditionsMT m_conditions;
+  HypoJetVector m_filtered;  
 };
 
 std::ostream& operator<<(std::ostream&, const ConditionFilter&);

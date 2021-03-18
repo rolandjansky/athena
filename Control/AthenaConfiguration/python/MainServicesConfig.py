@@ -7,7 +7,7 @@ AthSequencer=CompFactory.AthSequencer
 
 def MainServicesMiniCfg(loopMgr='AthenaEventLoopMgr', masterSequence='AthAlgSeq'):
     #Mininmal basic config, just good enough for HelloWorld and alike
-    cfg=ComponentAccumulator(masterSequence)
+    cfg=ComponentAccumulator(AthSequencer(masterSequence,Sequential=True))
     cfg.setAsTopLevel()
     cfg.setAppProperty('TopAlg',['AthSequencer/'+masterSequence])
     cfg.setAppProperty('MessageSvcType', 'MessageSvc')
@@ -44,13 +44,13 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
     if cfgFlags.Concurrency.NumThreads==0:
         # For serial execution, we need the CondAlgs to execute first.
         cfg.addSequence(AthSequencer('AthCondSeq',StopOverride=True),parentName='AthAllAlgSeq')
-        cfg.addSequence(AthSequencer('AthAlgSeq',IgnoreFilterPassed=True,StopOverride=True),parentName='AthAllAlgSeq')
+        cfg.addSequence(AthSequencer('AthAlgSeq',IgnoreFilterPassed=True,StopOverride=True, ProcessDynamicDataDependencies=True, ExtraDataForDynamicConsumers=[] ),parentName='AthAllAlgSeq')
     else:
         # In MT, the order of execution is irrelevant (determined by data deps).
         # We add the conditions sequence later such that the CondInputLoader gets
         # initialized after all other user Algorithms for MT, so the base classes
         # of data deps can be correctly determined. 
-        cfg.addSequence(AthSequencer('AthAlgSeq',IgnoreFilterPassed=True,StopOverride=True),parentName='AthAllAlgSeq')
+        cfg.addSequence(AthSequencer('AthAlgSeq', IgnoreFilterPassed=True, StopOverride=True, ProcessDynamicDataDependencies=True, ExtraDataForDynamicConsumers=[]), parentName='AthAllAlgSeq')
         cfg.addSequence(AthSequencer('AthCondSeq',StopOverride=True),parentName='AthAllAlgSeq')
 
     cfg.addSequence(AthSequencer('AthEndSeq',Sequential=True),parentName='AthAlgEvtSeq') 
@@ -97,7 +97,7 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
         # Migrated code from AtlasThreadedJob.py
         AuditorSvc=CompFactory.AuditorSvc
         msgsvc.defaultLimit = 0
-        msgsvc.Format = "% F%{:d}W%C%4W%R%e%s%8W%R%T %0W%M".format(cfgFlags.Common.MsgSourceLength)
+        msgsvc.Format = "% F%{:d}W%C%6W%R%e%s%8W%R%T %0W%M".format(cfgFlags.Common.MsgSourceLength)
 
         SG__HiveMgrSvc=CompFactory.SG.HiveMgrSvc
         hivesvc = SG__HiveMgrSvc("EventDataSvc")

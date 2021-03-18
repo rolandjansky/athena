@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 /**
  * @file CaloTools/src/CaloEstimatedGain.h
@@ -67,7 +67,8 @@ private:
                                        const Step step) const;
 
 
-  CaloGain::CaloGain estimatedTileGain (const CaloCell& caloCell,
+  CaloGain::CaloGain estimatedTileGain (const EventContext& ctx,
+                                        const CaloCell& caloCell,
                                         const CaloDetDescrElement& caloDDE,
                                         const Step /*step*/) const;
 

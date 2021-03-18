@@ -107,6 +107,9 @@ protected:
   void doInnerCoincidenceRun3(int SSCId,  TGCRPhiCoincidenceOut* coincidenceOut);
 
   void doTGCNSWCoincidence(TGCRPhiCoincidenceOut* coincidenceOut); 
+  bool doTILECoincidence(TGCRPhiCoincidenceOut* coincidenceOut); 
+  bool doTGCEICoincidence(TGCRPhiCoincidenceOut* coincidenceOut);
+  bool doTGCFICoincidence(TGCRPhiCoincidenceOut* coincidenceOut);
 
 private:
   TGCSectorLogic& operator=(const TGCSectorLogic& right);
@@ -121,6 +124,7 @@ private:
   TGCRegionType m_region;
   int  m_NumberOfWireHighPtBoard;
   bool m_useGoodMF{false};
+  bool m_nswSide{false};
 
   TGCSSCController m_SSCController;
   TGCRPhiCoincidenceMatrix m_matrix;

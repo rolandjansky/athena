@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ThreadLocalContext.h"
@@ -15,6 +15,8 @@
 #include "monitors/MonitorGlobal.h"
 #include "monitors/MonitorThreadOccupancy.h"
 #include "monitors/MonitorROS.h"
+#include "monitors/MonitorChain.h"
+
 
 TrigCostAnalysis::TrigCostAnalysis( const std::string& name, ISvcLocator* pSvcLocator ) :
   AthHistogramAlgorithm(name, pSvcLocator),
@@ -84,6 +86,19 @@ StatusCode TrigCostAnalysis::start() {
     }
   }
 
+  // Call TrigConf::HLTUtils::string2hash(chain.name()) for all the chains to cache the hash to name mapping
+  std::vector<TrigConf::Chain> chains;
+  ATH_CHECK( m_algToChainTool->getAllChains(chains));
+  for (const TrigConf::Chain& chain : chains) {
+    HLT::Identifier(chain.name());
+
+    // Populate legs' names
+    const size_t legsSize {chain.legMultiplicities().size()};
+    for (size_t counter = 0; legsSize > 1 && counter < legsSize; ++counter){\
+      TrigCompositeUtils::createLegName(chain.namehash(), counter);
+    }
+  }
+
   // As an initial guess, 25 should be a good uper maximum for the number of expected View instances.
   ATH_CHECK( checkUpdateMaxView(60) );
   return StatusCode::SUCCESS;
@@ -149,13 +164,35 @@ StatusCode TrigCostAnalysis::execute() {
   SG::ReadHandle<xAOD::TrigCompositeContainer> rosDataHandle(m_rosDataKey, context);
   ATH_CHECK( rosDataHandle.isValid() );
 
+  // Save indexes of algorithm in costDataHandle
+  std::map<std::string, std::set<size_t>> chainToAlgIdx;
+  std::map<std::string, std::vector<TrigConf::Chain>> algToChain = m_algToChainTool->getChainsForAllAlgs(context);
+  for (const xAOD::TrigComposite* tc : *costDataHandle) {
+    const uint32_t nameHash = tc->getDetail<TrigConf::HLTHash>("alg");
+    const std::string name = TrigConf::HLTUtils::hash2string(nameHash, "ALG");
+
+    for (const TrigConf::Chain& chain : algToChain[name]){
+      chainToAlgIdx[chain.name()].insert(tc->index());
+    }
+  }
+
+  const std::set<TrigCompositeUtils::DecisionID> seededChains = m_algToChainTool->retrieveActiveChains(context, "HLTNav_L1");
+  std::vector<TrigCompositeUtils::AlgToChainTool::ChainInfo> seededChainsInfo;
+  for (auto id : seededChains){
+      TrigCompositeUtils::AlgToChainTool::ChainInfo chainInfo;
+      ATH_CHECK(m_algToChainTool->getChainInfo(context, id, chainInfo));
+      seededChainsInfo.push_back(chainInfo);
+  }
+
   const uint32_t onlineSlot = getOnlineSlot( costDataHandle.get() );
   CostData costData;
   ATH_CHECK( costData.set(costDataHandle.get(), rosDataHandle.get(), onlineSlot) );
   costData.setRosToRobMap(m_rosToRob);
+  costData.setChainToAlgMap(chainToAlgIdx);
+  costData.setSeededChains(seededChainsInfo);
   costData.setLb( context.eventID().lumi_block() );
   costData.setTypeMap( m_algTypeMap );
-  if (!m_enhancedBiasTool.name().empty()) {
+  if (!m_enhancedBiasTool.name().empty() && !m_enhancedBiasTool->isMC()) {
     double liveTime = m_enhancedBiasTool->getEBLiveTime(context);
     bool liveTimeIsPerEvent = true;
     if (liveTime == 0.0) { // Note: This comes from a direct "return 0.", hence no delta
@@ -208,6 +245,10 @@ StatusCode TrigCostAnalysis::registerMonitors(MonitoredRange* range) {
   if (m_doMonitorROS) {
     ATH_CHECK( range->addMonitor(std::make_unique<MonitorROS>("ROS_HLT", range)) );
     ATH_MSG_DEBUG("Registering ROS_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
+  }
+  if (m_doMonitorChain) {
+    ATH_CHECK( range->addMonitor(std::make_unique<MonitorChain>("Chain_HLT", range)) );
+    ATH_MSG_INFO("Registering Chain_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
   }
   // if (m_do...) {}
   return StatusCode::SUCCESS;

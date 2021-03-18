@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -60,15 +60,17 @@ class TileMuonReceiverDecision: public AthAlgorithm {
 
  public:
   // constructor
-  TileMuonReceiverDecision(std::string name, ISvcLocator* pSvcLocator);
+  TileMuonReceiverDecision(const std::string& name, ISvcLocator* pSvcLocator);
   // destructor
   virtual ~TileMuonReceiverDecision();
   // Gaudi hooks
-  StatusCode initialize(); //!< initialize method
-  StatusCode execute();    //!< execute method
-  StatusCode finalize();   //!< finalize method
+  virtual StatusCode initialize() override; //!< initialize method
+  virtual StatusCode execute() override;    //!< execute method
+  virtual StatusCode finalize() override;   //!< finalize method
 
  private:
+
+  IntegerProperty m_manualRunPeriod{this,"ManualRunPeriod",-1};
 
   SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this,"TileRawChannelContainer",
                                                                       "MuRcvRawChCnt",

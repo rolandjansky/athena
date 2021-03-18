@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FPVMAP_H
@@ -7,6 +7,7 @@
 
 #include <map>
 #include <string>
+
 class GeoVPhysVol;
 
 namespace MuonGM {
@@ -16,7 +17,7 @@ typedef std::map<std::string,GeoVPhysVol* >::const_iterator DetectorIterator;
 class FPVMAP {
 public:
   FPVMAP();
-  ~FPVMAP();
+  ~FPVMAP()=default;
      inline DetectorIterator Begin();
     inline DetectorIterator End();
     inline int              NDetectors();

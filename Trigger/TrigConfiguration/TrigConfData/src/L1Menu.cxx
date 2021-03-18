@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfData/L1Menu.h"
@@ -13,21 +13,24 @@ TrigConf::L1Menu::L1Menu()
 TrigConf::L1Menu::L1Menu(const boost::property_tree::ptree & data) 
    : DataStructure(data)
 {
-   update();
+   load();
 }
 
 TrigConf::L1Menu::~L1Menu()
 {}
 
 void
-TrigConf::L1Menu::update()
+TrigConf::L1Menu::load()
 {
    if(! isInitialized() || empty() ) {
       return;
    }
+
+   m_run = getAttribute_optional<int>("run").value_or(3);
+   
+   // thresholds
    try {
       m_name = getAttribute("name");
-      // thresholds
       for( const std::string path : {"thresholds", "thresholds.legacyCalo" } ) {
          for( auto & thrByType : data().get_child( path ) ) {
             const std::string & thrType = thrByType.first;
@@ -63,8 +66,8 @@ TrigConf::L1Menu::update()
       throw;
    }
 
+   // boards
    try {
-      // boards
       for( auto & board : data().get_child( "boards" ) ) {
          m_boards.emplace( std::piecewise_construct,
                            std::forward_as_tuple(board.first),
@@ -76,8 +79,8 @@ TrigConf::L1Menu::update()
       throw;
    }
 
+   // connectors
    try {
-      // connectors
       for( auto & conn : data().get_child( "connectors" ) ) {
          auto res = m_connectors.emplace( std::piecewise_construct,
                                           std::forward_as_tuple(conn.first),
@@ -94,9 +97,10 @@ TrigConf::L1Menu::update()
       throw;
    }
 
+   // algorithms
    try {
-      // algorithms
-      for( const std::string algoCategory : { "TOPO", "MULTTOPO", "MUTOPO", "R2TOPO" } ) {
+      auto topoCategories = isRun2() ? std::vector<std::string> {"R2TOPO"} : std::vector<std::string> {"TOPO", "MUTOPO", "MULTTOPO", "R2TOPO"};
+      for( const std::string& algoCategory : topoCategories ) {
          auto & v = m_algorithmsByCategory[algoCategory] = std::vector<TrigConf::L1TopoAlgorithm>();
          if(algoCategory == "MULTTOPO") {
             for( auto & alg : data().get_child( "topoAlgorithms." + algoCategory + ".multiplicityAlgorithms" ) ) {
@@ -131,14 +135,38 @@ TrigConf::L1Menu::update()
       throw;
    }
 
+   // CTP
    try {
-      // CTP
       m_ctp.setData(data().get_child("ctp"));
    }
    catch(std::exception & ex) {
       std::cerr << "ERROR: problem when building L1 menu structure (CTP). " << ex.what() << std::endl;
       throw;
    }
+}
+
+void
+TrigConf::L1Menu::clear()
+{
+   DataStructure::clear();
+
+   m_smk = 0;
+   m_run = 3;
+   m_connectors.clear();
+   m_threshold2ConnectorName.clear();
+   m_boards.clear();
+   m_thresholdsByType.clear();
+   m_thresholdsByName.clear();
+   m_thresholdsByTypeAndMapping.clear();
+
+   m_thrExtraInfo.clear();
+
+   m_algorithmsByCategory.clear();
+   m_algorithmsByName.clear();
+   m_algorithmsByOutput.clear(); 
+
+   m_ctp.clear();
+
 }
 
 unsigned int 

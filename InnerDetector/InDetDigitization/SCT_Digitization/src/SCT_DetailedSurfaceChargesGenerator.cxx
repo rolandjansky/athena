@@ -181,7 +181,7 @@ float SCT_DetailedSurfaceChargesGenerator::DriftTime(float zhit, const SiDetecto
   }
 
   float driftTime{static_cast<float>(log((vdepl+vbias)/denominator))};
-  driftTime *= sensorThickness*sensorThickness/(2.0*m_siPropertiesTool->getSiProperties(hashId).holeDriftMobility()*vdepl);
+  driftTime *= sensorThickness*sensorThickness/(2.0*m_siPropertiesTool->getSiProperties(hashId, ctx).holeDriftMobility()*vdepl);
   return driftTime;
 }
 
@@ -192,7 +192,7 @@ float SCT_DetailedSurfaceChargesGenerator::DiffusionSigma(float zhit, const SiDe
   const IdentifierHash hashId{element->identifyHash()};
   const float t{this->DriftTime(zhit, element, ctx)}; // in ns
   if (t>0.0) {
-    const float diffusionSigma{static_cast<float>(sqrt(2.*m_siPropertiesTool->getSiProperties(hashId).holeDiffusionConstant()*t))}; // in mm
+    const float diffusionSigma{static_cast<float>(sqrt(2.*m_siPropertiesTool->getSiProperties(hashId, ctx).holeDiffusionConstant()*t))}; // in mm
     return diffusionSigma;
   }
   return 0.0;
@@ -304,7 +304,7 @@ void SCT_DetailedSurfaceChargesGenerator::processSiHit(const SiDetectorElement* 
   int numberOfSteps{static_cast<int>(LargeStep/m_smallStepLength) + 1};
   double steps{static_cast<double>(m_numberOfCharges*numberOfSteps)};
   double e1{phit.energyLoss()/steps};
-  double q1{e1*m_siPropertiesTool->getSiProperties(hashId).electronHolePairsPerEnergy()};
+  double q1{e1*m_siPropertiesTool->getSiProperties(hashId, ctx).electronHolePairsPerEnergy()};
 
   //in the following, to test the code, we will use the original coordinate system of the SCTtest3SurfaceChargesGenerator x is eta y is phi z is depth 
   double xhit{xEta};
@@ -329,7 +329,7 @@ void SCT_DetailedSurfaceChargesGenerator::processSiHit(const SiDetectorElement* 
   //some Truth information is cut for pile up events
   const EBC_EVCOLL evColl = EBC_MAINEVCOLL;
   const HepMcParticleLink::PositionFlag idxFlag = (p_eventId==0) ? HepMcParticleLink::IS_POSITION: HepMcParticleLink::IS_INDEX;
-  const HepMcParticleLink trklink{HepMcParticleLink(phit.trackNumber(), p_eventId, evColl, idxFlag)};
+  const HepMcParticleLink trklink{HepMcParticleLink(phit.trackNumber(), p_eventId, evColl, idxFlag, ctx)};
   SiCharge::Process hitproc{SiCharge::track};
   if (phit.trackNumber()!=0) {
     if (not trklink.isValid()) {

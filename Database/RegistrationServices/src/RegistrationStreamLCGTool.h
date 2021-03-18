@@ -83,10 +83,6 @@ public:
    /// REQUIRED INTERFACE METHOD
    const CLID& listID();
 
-   /// Control collection metadata storegate keys
-   /// REQUIRED INTERFACE METHOD
-   void setCollMetadataKeys(const std::vector<std::string>& keys);
-
   /// Standard Destructor
    virtual ~RegistrationStreamLCGTool();
 
@@ -103,8 +99,6 @@ protected:
    void dumpAttList(const ATTLIST* attributes) const;
 
    void overrideProperties();
-
-   void addMetadata();
 
    StatusCode initCollection();
 

@@ -644,7 +644,7 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::updateOrSkip
         (*cov)(i,i) = cov0[i];
       }
     }
-    updatedPar = CREATE_PARAMETERS(*predPar,par,cov);
+    updatedPar = CREATE_PARAMETERS(*predPar,par,cov).release();
     fitQuality = new Trk::FitQuality(0.0, fittableMeasurement->localParameters().dimension());
   } else {
 
@@ -653,7 +653,7 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::updateOrSkip
     // make the update
     updatedPar = m_updator->addToState(*predPar, fittableMeasurement->localParameters(),
                                        fittableMeasurement->localCovariance(),
-                                       fitQuality);
+                                       fitQuality).release();
     ////////////////////////////////////////////////////////////////////
     // check that updated parameters are ok and write back to trajectory
     if (!updatedPar) {
@@ -692,7 +692,7 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::updateOrSkip
       // make the update
       updatedPar = m_updator->addToState(*predPar, fittableMeasurement->localParameters(),
                                          fittableMeasurement->localCovariance(),
-                                         fitQuality);
+                                         fitQuality).release();
       if ( (!updatedPar || !fitQuality ||
            (runOutlier && fitQuality->chiSquared() > m_StateChiSquaredPerNumberDoFPreCut
             * fitQuality->numberDoF())) ) {
@@ -806,7 +806,7 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::enterSeedIntoTrajectory
   for (int i=0; i<5; ++i) (*cov)(i,i) = cov0[i];
   const AmgVector(5)& par = inputParAtStartSurface->parameters();
   // TODO: check does one need covariance here?
-  const Trk::TrackParameters* seedPar = CREATE_PARAMETERS((*inputParAtStartSurface),par, cov);
+  const Trk::TrackParameters* seedPar = CREATE_PARAMETERS((*inputParAtStartSurface),par, cov).release();
   if (inputParAtStartSurface != &inputPar) delete inputParAtStartSurface;
   ffs->checkinForwardPar(seedPar);
   ATH_MSG_VERBOSE ("-Fe prepared trajectory with seed parameters on state "<<ffs->positionOnTrajectory());

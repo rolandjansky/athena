@@ -11,12 +11,17 @@
 #include "TrkToolInterfaces/ITruthToTrack.h"
 
 namespace D3PD {
-
-class GenParticlePerigeeFillerTool
-  : public D3PD::BlockFillerTool<HepMC::GenParticle>
+#ifdef HEPMC3
+class GenParticlePerigeeFillerTool: public D3PD::BlockFillerTool<HepMC::ConstGenParticlePtr>
+{
+public:
+  typedef D3PD::BlockFillerTool<HepMC::ConstGenParticlePtr> Base;
+#else
+class GenParticlePerigeeFillerTool : public D3PD::BlockFillerTool<HepMC::GenParticle>
 {
 public:
   typedef D3PD::BlockFillerTool<HepMC::GenParticle> Base;
+#endif
 
   GenParticlePerigeeFillerTool (const std::string& type,
 			const std::string& name,
@@ -25,7 +30,11 @@ public:
   StatusCode initialize();
   virtual StatusCode book();
 
+#ifdef HEPMC3
+  virtual StatusCode fill (const HepMC::ConstGenParticlePtr& p);
+#else
   virtual StatusCode fill (const HepMC::GenParticle& p);
+#endif
 
 private:
 
@@ -47,4 +56,4 @@ private:
 
 } // namespace D3PD
 
-#endif // not TRACKD3PDMAKER_GENPARTICLEPERIGEEFILLERTOOL_H
+#endif

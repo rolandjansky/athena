@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -17,7 +17,6 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 #include "GaudiKernel/AlgTool.h"
-#include "MuonCondInterface/IMDTCablingDbTool.h"
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "MuonCablingData/MuonMDT_CablingMap.h"
 #include "AthenaKernel/IIOVDbSvc.h"

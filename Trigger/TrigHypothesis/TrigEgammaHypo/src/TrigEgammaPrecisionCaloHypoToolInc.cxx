@@ -1,16 +1,18 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/Combinators.h"
-#include "AthenaMonitoringKernel/Monitored.h"
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
+#include "xAODCaloEvent/CaloCluster.h"
 
 #include "TrigEgammaPrecisionCaloHypoToolInc.h"
 
 
-using namespace TrigCompositeUtils;
+namespace TCU = TrigCompositeUtils;
 
 TrigEgammaPrecisionCaloHypoToolInc::TrigEgammaPrecisionCaloHypoToolInc( const std::string& type, 
 		    const std::string& name, 
@@ -49,23 +51,19 @@ StatusCode TrigEgammaPrecisionCaloHypoToolInc::initialize()  {
 }
 
 
-
-TrigEgammaPrecisionCaloHypoToolInc::~TrigEgammaPrecisionCaloHypoToolInc(){}
-
-
 bool TrigEgammaPrecisionCaloHypoToolInc::decide( const ITrigEgammaPrecisionCaloHypoTool::ClusterInfo& input ) const {
 
   bool pass = false;
 
   auto dEta         = Monitored::Scalar( "dEta", -1. ); 
   auto dPhi         = Monitored::Scalar( "dPhi", -1. );
-  auto eT_T2Calo    = Monitored::Scalar( "Et_em"   , -1.0 );
+  auto eT_Cluster   = Monitored::Scalar( "Et_em"   , -1.0 );
   auto etaBin       = Monitored::Scalar( "EtaBin", -1. );
   auto monEta       = Monitored::Scalar( "Eta", -99. ); 
   auto monPhi       = Monitored::Scalar( "Phi", -99. );
   auto PassedCuts   = Monitored::Scalar<int>( "CutCounter", -1 );  
   auto monitorIt    = Monitored::Group( m_monTool, 
-					       dEta, dPhi, eT_T2Calo,
+					       dEta, dPhi, eT_Cluster,
                                                etaBin, monEta,
 					       monPhi,PassedCuts );
  // when leaving scope it will ship data to monTool
@@ -102,7 +100,7 @@ bool TrigEgammaPrecisionCaloHypoToolInc::decide( const ITrigEgammaPrecisionCaloH
   //  Deal with angle diferences greater than Pi
   dPhi =  fabs( pClus->phi() - phiRef );
   dPhi = ( dPhi < M_PI ? dPhi : 2*M_PI - dPhi ); // TB why only <
-  eT_T2Calo  = pClus->et();
+  eT_Cluster  = pClus->et();
   // apply cuts: DeltaEta( clus-ROI )
   ATH_MSG_DEBUG( "CaloCluster: eta="  << pClus->eta()
   		 << " roi eta=" << etaRef << " DeltaEta=" << dEta
@@ -135,8 +133,8 @@ bool TrigEgammaPrecisionCaloHypoToolInc::decide( const ITrigEgammaPrecisionCaloH
   PassedCuts = PassedCuts + 1; // passed eta cut
   
   // ET_em
-  ATH_MSG_DEBUG( "CaloCluster: ET_em=" << eT_T2Calo << " cut: >"  << m_eTthr[cutIndex] );
-  if ( eT_T2Calo < m_eTthr[cutIndex] ) {
+  ATH_MSG_DEBUG( "CaloCluster: ET_em=" << eT_Cluster << " cut: >"  << m_eTthr[cutIndex] );
+  if ( eT_Cluster < m_eTthr[cutIndex] ) {
     ATH_MSG_DEBUG("REJECT et cut failed");
     return pass;
   }
@@ -165,9 +163,9 @@ int TrigEgammaPrecisionCaloHypoToolInc::findCutIndex( float eta ) const {
 
 StatusCode TrigEgammaPrecisionCaloHypoToolInc::decide( std::vector<ClusterInfo>& input )  const {
   for ( auto& i: input ) {
-    if ( passed ( m_decisionId.numeric(), i.previousDecisionIDs ) ) {
+    if ( TCU::passed ( m_decisionId.numeric(), i.previousDecisionIDs ) ) {
       if ( decide( i ) ) {
-	addDecisionID( m_decisionId, i.decision );
+        TCU::addDecisionID( m_decisionId, i.decision );
       }
     }
   }

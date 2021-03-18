@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: PerfStats.cxx 634033 2014-12-05 14:46:38Z krasznaa $
 
 // ROOT include(s):
 #include <TTree.h>
@@ -347,5 +345,15 @@ namespace xAOD {
       // This object is now the performance monitoring object:
       gPerfStats = this;
    }
+
+#if ROOT_VERSION_CODE >= ROOT_VERSION( 6, 23, 2 )
+   /// Note that this is a private function in @c TVirtualPerfStats, so it is
+   /// not forwarded to @c m_otherPerfStats.
+   ///
+   void PerfStats::SetFile( TFile* file ) {
+
+      m_file = file;
+   }
+#endif // ROOT version
 
 } // namespace xAOD

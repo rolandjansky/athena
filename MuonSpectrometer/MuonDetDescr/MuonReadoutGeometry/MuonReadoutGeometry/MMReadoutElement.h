@@ -1,24 +1,28 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONREADOUTGEOMETRY_MMREADOUTELEMENT_H
 #define MUONREADOUTGEOMETRY_MMREADOUTELEMENT_H
 
 #include "MuonReadoutGeometry/MuonClusterReadoutElement.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
+
+#include "Identifier/Identifier.h"
+#include "MuonIdHelpers/MmIdHelper.h"
 #include "MuonReadoutGeometry/MuonChannelDesign.h"
-#include <cmath>
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
+
+#include <string>
+#include <vector>
 
 class BLinePar;
+class GeoVFullPhysVol;
 
 namespace MuonGM {
   /**
      An MMReadoutElement corresponds to a single STGC module; therefore 
      typicaly a barrel muon station contains:
   */
-
-  class MuonDetectorManager;
  
   class MMReadoutElement: public MuonClusterReadoutElement {
   public:
@@ -47,7 +51,9 @@ namespace MuonGM {
     bool stripGlobalPosition( const Identifier& id, Amg::Vector3D& gpos ) const;
 
     double stripLength( const Identifier& id) const;
-
+    double stripLengthLeft( const Identifier& id) const;
+    double stripLengthRight( const Identifier& id) const;
+    
     /** number of layers in phi/eta projection */
     virtual int numberOfLayers( bool ) const override;
 
@@ -224,7 +230,24 @@ namespace MuonGM {
   inline double MMReadoutElement::stripLength( const Identifier& id) const {
     const MuonChannelDesign* design = getDesign(id);
     if(!design) return -1;
-    return design->channelLength(manager()->mmIdHelper()->channel(id));
+    //return design->channelLength(manager()->mmIdHelper()->channel(id));
+
+    // temporary way to pass MM correction for passivation
+    return std::max(0., design->channelLength(manager()->mmIdHelper()->channel(id)) - manager()->getMMPassivationCorrection());
+  }
+  
+  inline double MMReadoutElement::stripLengthLeft( const Identifier& id) const {
+    const MuonChannelDesign* design = getDesign(id);
+    if(!design) return -1;
+    // temporary way to pass MM correction for passivation
+    return std::max(0., 0.5*(design->channelLength(manager()->mmIdHelper()->channel(id)) - manager()->getMMPassivationCorrection()));
+  }
+
+  inline double MMReadoutElement::stripLengthRight( const Identifier& id) const {
+    const MuonChannelDesign* design = getDesign(id);
+    if(!design) return -1;
+    // temporary way to pass MM correction for passivation
+    return std::max(0., 0.5*(design->channelLength(manager()->mmIdHelper()->channel(id)) - manager()->getMMPassivationCorrection()));
   }
 
   inline bool MMReadoutElement::stripGlobalPosition( const Identifier& id, Amg::Vector3D& gpos ) const {

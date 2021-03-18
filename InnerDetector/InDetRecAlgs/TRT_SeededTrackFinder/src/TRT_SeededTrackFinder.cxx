@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -87,7 +87,7 @@ StatusCode InDet::TRT_SeededTrackFinder::initialize()
   StatusCode  sc;
 
   msg(MSG::DEBUG) << "Initializing TRT_SeededTrackFinder" << endmsg;
- 
+
   //Get the TRT seeded track maker tool
   //
   ATH_CHECK(m_trackmaker.retrieve());
@@ -117,7 +117,7 @@ StatusCode InDet::TRT_SeededTrackFinder::initialize()
   } else {
     m_regionSelector.disable();
   }
-  
+
   // Get output print level
   //
   if(msgLvl(MSG::DEBUG)) {
@@ -140,7 +140,7 @@ namespace InDet {
   class ExtendedSiCombinatorialTrackFinderData_xk : public InDet::SiCombinatorialTrackFinderData_xk
   {
   public:
-    ExtendedSiCombinatorialTrackFinderData_xk(const SG::ReadHandleKey<Trk::PRDtoTrackMap> &key) { 
+    ExtendedSiCombinatorialTrackFinderData_xk(const SG::ReadHandleKey<Trk::PRDtoTrackMap> &key) {
       if (!key.key().empty()) {
         m_prdToTrackMap = SG::ReadHandle<Trk::PRDtoTrackMap>(key);
         setPRDtoTrackMap(m_prdToTrackMap.cptr());
@@ -188,7 +188,7 @@ StatusCode InDet::TRT_SeededTrackFinder::execute_r (const EventContext& ctx) con
   InDet::ExtendedSiCombinatorialTrackFinderData_xk combinatorialData(m_prdToTrackMap);
 
   std::unique_ptr<InDet::ITRT_SeededTrackFinder::IEventData> event_data_p;
-   
+
   if(m_caloSeededRoI ) {
     SG::ReadHandle calo(m_caloKey,ctx);
     std::unique_ptr<RoiDescriptor> roiComp = std::make_unique<RoiDescriptor>(true);
@@ -223,7 +223,7 @@ StatusCode InDet::TRT_SeededTrackFinder::execute_r (const EventContext& ctx) con
   } else {
     event_data_p = m_trackmaker->newEvent(ctx, combinatorialData);
   }
-   
+
   std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData> ext_event_data_p( m_trtExtension->newEvent(ctx) );
 
 //  TrackCollection* outTracks  = new TrackCollection;           //Tracks to be finally output
@@ -710,11 +710,14 @@ Trk::Track* InDet::TRT_SeededTrackFinder::segToTrack(const EventContext&, const 
 	const AmgVector(5)& p = tS.localParameters();
 	AmgSymMatrix(5)* ep = new AmgSymMatrix(5)(tS.localCovariance());
 
-        std::unique_ptr<DataVector<const Trk::TrackStateOnSurface> > 
-           ntsos = std::make_unique<DataVector<const Trk::TrackStateOnSurface> >();
+  std::unique_ptr<DataVector<const Trk::TrackStateOnSurface> >
+    ntsos = std::make_unique<DataVector<const Trk::TrackStateOnSurface> >();
 
-	std::unique_ptr<const Trk::TrackParameters> segPar(surf->createParameters<5, Trk::Charged>(p(0), p(1), p(2), p(3), p(4), ep));
-	if (segPar) {
+  std::unique_ptr<const Trk::TrackParameters> segPar =
+    surf->createUniqueParameters<5, Trk::Charged>(
+      p(0), p(1), p(2), p(3), p(4), ep);
+
+  if (segPar) {
 		if (msgLvl(MSG::DEBUG)) {
 			msg(MSG::DEBUG) << "Initial TRT Segment Parameters for refitting " << (*segPar) << endmsg;
 		}

@@ -128,7 +128,7 @@ namespace Muon {
 
             ATH_MSG_DEBUG(" Cosmic model, starting for measurement closest to muon entry record ");
             const DataVector<const Trk::TrackStateOnSurface> *oldTSOT = track.trackStateOnSurfaces();
-            for (const auto &surf : *oldTSOT) {
+            for (const Trk::TrackStateOnSurface* surf : *oldTSOT) {
 
                 const Trk::TrackParameters *pars = surf->trackParameters();
                 if (!pars) {
@@ -155,7 +155,7 @@ namespace Muon {
         } else if (perp < 1000. && std::abs(z) < 1000.) {
             ATH_MSG_VERBOSE(" track at IP, starting from closest measurement in muon spectrometer ");
             const DataVector<const Trk::TrackStateOnSurface> *oldTSOT = track.trackStateOnSurfaces();
-            for (const auto &surf : *oldTSOT) {
+            for (const Trk::TrackStateOnSurface* surf : *oldTSOT) {
 
                 const Trk::TrackParameters *pars = surf->trackParameters();
                 if (!pars) {
@@ -226,7 +226,7 @@ namespace Muon {
         const Trk::TrackParameters *closestPars = nullptr;
         const Trk::TrackParameters *closestMeasPars = nullptr;
 
-        for (const auto &surf : *oldTSOT) {
+        for (const Trk::TrackStateOnSurface* surf : *oldTSOT) {
 
             // do not consider perigee
             if (surf->type(Trk::TrackStateOnSurface::Perigee)) continue;
@@ -371,7 +371,6 @@ namespace Muon {
         }
 
         ATH_MSG_DEBUG(" perigee pars:        " << m_printer->print(*perigee));
-        ATH_MSG_DEBUG(" second perigee pars: " << m_printer->print(*secondPerigee));
 
         // flag whether the perigees were inserted
         bool perigeeWasInserted = false;
@@ -381,6 +380,7 @@ namespace Muon {
         bool perigeePointsToIP = perigee->position().dot(perDir) < 0. ;
         bool secondPerigeePointsToIP = false;
         if (secondPerigee) {
+	    ATH_MSG_DEBUG(" second perigee pars: " << m_printer->print(*secondPerigee));
             secondPerigeePointsToIP = secondPerigee->position().dot(secondPerigee->momentum()) < 0.;
             if (perigeePointsToIP == secondPerigeePointsToIP) {
                 ATH_MSG_DEBUG(" Track has two perigee's with the same orientation with respect to the IP ");
@@ -630,7 +630,7 @@ namespace Muon {
         extrapolateTracks->reserve(tracks.size());
 
         // loop over muon tracks and extrapolate them to the IP
-        for (const auto& tit : tracks) {
+        for (const Trk::Track* tit : tracks) {
 
             Trk::Track *extrapolateTrack = extrapolate(*tit);
             if (!extrapolateTrack) {

@@ -1,7 +1,8 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 from AthenaCommon import CfgMgr
+from AthenaCommon.BeamFlags import jobproperties
 
 log = logging.getLogger(__name__)
 
@@ -51,6 +52,9 @@ def GetUpdatedIsoTrackCones(postfix="", object_types=("Electrons", "Photons", "M
                 kwargs["MuCorTypes"] = trkcor_list
                 kwargs["MuCorTypesExtra"] = [[]]
                 kwargs["CustomConfigurationNameMu"] = name
+            toolkwargs = {}
+            if jobproperties.Beam.beamType == 'cosmics':
+                toolkwargs['VertexLocation'] = ''
             algs.append(
                 CfgMgr.IsolationBuilder(
                     f"IsolationBuilderTight{cone_str}{track_pt}{postfix}",
@@ -63,8 +67,21 @@ def GetUpdatedIsoTrackCones(postfix="", object_types=("Electrons", "Photons", "M
                             WorkingPoint="Loose",
                         ),
                         CoreTrackEtaRange=0.01 if loose_cone else 0.0,
+                        **toolkwargs,
                     ),
                     **kwargs,
                 )
             )
     return algs
+
+def iso_vars():
+    # Get the list of isolation variables calculated by these functions
+    iso_vars = []
+    for track_pt in 500, 1000:
+        for cone_str in "", "LooseCone":
+            name = f"TightTTVA{cone_str}_pt{track_pt}"
+            iso_vars += ["ptconeCorrBitset_"+name, "ptconecoreTrackPtrCorrection_"+name]
+            for cone_size in 20, 30, 40:
+                for var_str in "", "var":
+                    iso_vars.append(f"pt{var_str}cone{cone_size}_{name}")
+    return iso_vars

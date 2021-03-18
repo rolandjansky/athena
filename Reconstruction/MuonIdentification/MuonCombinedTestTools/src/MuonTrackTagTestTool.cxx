@@ -158,10 +158,9 @@ MuonTrackTagTestTool::chi2(const Trk::Track &idTrack, const Trk::Track &msTrack)
         double sign         = (params[Trk::qOverP] > 0) ? 1 : -1;
         double newqoverp    = sign / (5. * CLHEP::GeV);
         params[Trk::qOverP] = newqoverp;
-        std::unique_ptr<const Trk::TrackParameters> newlastidpar =
-            std::unique_ptr<const Trk::TrackParameters>(lastmeasidpar->associatedSurface().createTrackParameters(
+        std::unique_ptr<const Trk::TrackParameters> newlastidpar =lastmeasidpar->associatedSurface().createUniqueTrackParameters(
                 params[0], params[1], params[2], params[3], params[4],
-                new AmgSymMatrix(5)(*lastmeasidpar->covariance())));
+                new AmgSymMatrix(5)(*lastmeasidpar->covariance()));
         if (newlastidpar) {
             idextrapolatedpar = std::unique_ptr<const Trk::TrackParameters>(
                 m_extrapolator->extrapolateToVolume(*newlastidpar, *msEntrance, Trk::alongMomentum, Trk::muon));
@@ -185,9 +184,8 @@ MuonTrackTagTestTool::chi2(const Trk::Track &idTrack, const Trk::Track &msTrack)
         }
         AmgSymMatrix(5) *newcovmat = new AmgSymMatrix(5)(*mspar->covariance());
         for (int i = 0; i < 5; i++) (*newcovmat)(i, 4) = idcovmat(i, 4);
-        created_mspar =
-            std::unique_ptr<const Trk::TrackParameters>(msparforextrapolator->associatedSurface().createTrackParameters(
-                params[0], params[1], params[2], params[3], params[4], newcovmat));
+        created_mspar = msparforextrapolator->associatedSurface().createUniqueTrackParameters(
+                params[0], params[1], params[2], params[3], params[4], newcovmat);
         msparforextrapolator = created_mspar.get();
     }
     Trk::PropDirection    propdir = Trk::oppositeMomentum;

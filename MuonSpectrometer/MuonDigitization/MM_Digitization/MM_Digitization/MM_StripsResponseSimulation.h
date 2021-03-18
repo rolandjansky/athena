@@ -54,6 +54,13 @@ Comments to be added here...
 class MM_DigitToolInput;
 class MM_StripToolOutput;
 
+namespace CLHEP {
+   class HepRandomEngine;
+   class HepRandom;
+   class RandGeneral;
+}
+
+
 class MM_StripsResponseSimulation {
 
 public :
@@ -62,14 +69,13 @@ public :
   MM_StripsResponseSimulation();
 
   virtual ~MM_StripsResponseSimulation();
-  MM_StripToolOutput GetResponseFrom(const MM_DigitToolInput & digiInput);
+  MM_StripToolOutput GetResponseFrom(const MM_DigitToolInput & digiInput, double gainFraction, double stripPitch, CLHEP::HepRandomEngine* rndmEngine);
 
-  void initialize (unsigned long int seed);
+  void initialize ();
   void writeHistos();
   void initHistos ();
   void clearValues ();
-  void initFunctions ();
-  void whichStrips(const float & hitx, const int & stripOffest, const float & incidentAngleXZ, const float & incidentAngleYZ, const int & stripMinID, const int & stripMaxID, const MM_DigitToolInput & digiInput);
+  void whichStrips(const float & hitx, const int & stripOffest, const float & incidentAngleXZ, const float & incidentAngleYZ, const int & stripMinID, const int & stripMaxID, const MM_DigitToolInput & digiInput, double gainFraction, double stripPitch, CLHEP::HepRandomEngine* rndmEngine);
 
   inline void setQThreshold (float val) { m_qThreshold = val; };
   inline void setTransverseDiffusionSigma (float val) { m_transverseDiffusionSigma = val; };
@@ -116,8 +122,6 @@ private:
   /** // 0.350/10 diffusSigma=transverse diffusion (350 microm per 1cm ) for 93:7 @ 600 V/cm, according to garfield  */
   float m_transverseDiffusionSigma;
   float m_longitudinalDiffusionSigma;
-  float m_pitch;
-  /** //pitch=0.500 properties of the micromegas ToDo: to be reviewed */
   /** crosstalk of neighbor strips, it's 15%  */
   float m_crossTalk1;//0.10; //
   /** // crosstalk of second neighbor strips, it's 6% */
@@ -157,11 +161,7 @@ private:
   std::vector <float> m_l;
 
   /// ToDo: random number from custom functions
-  TF1 *m_polyaFunction;
   TF1 *m_lorentzAngleFunction;
-  TF1 *m_longitudinalDiffusionFunction;
-  TF1 *m_transverseDiffusionFunction;
-  TF1 *m_interactionDensityFunction;
 
   MM_StripsResponseSimulation & operator=(const MM_StripsResponseSimulation &right);
   MM_StripsResponseSimulation(const MM_StripsResponseSimulation&);
@@ -171,8 +171,8 @@ private:
   std::map<TString, TH1F* > m_mapOfHistograms;
   std::map<TString, TH2F* > m_mapOf2DHistograms;
 
-  TRandom3 * m_random;
-
+  std::unique_ptr<CLHEP::RandGeneral> m_randNelectrons;
+  int m_NelectronPropBins;
 
   bool m_writeOutputFile;
   bool m_writeEventDisplays;
@@ -183,11 +183,11 @@ private:
   mutable Athena::MsgStreamMember m_msg = Athena::MsgStreamMember("MMStripResponseSimulation");
 
   // seperate random number generation for performance monitoring
-  float generateTransverseDiffusion(float posY);
-  float getTransverseDiffusion(float posY);
-  float getLongitudinalDiffusion(float posY);
-  float getEffectiveCharge();
-  float getPathLengthTraveled();
+  float generateTransverseDiffusion(float posY, CLHEP::HepRandomEngine* rndmEngine);
+  float getTransverseDiffusion(float posY, CLHEP::HepRandomEngine* rndmEngine);
+  float getLongitudinalDiffusion(float posY, CLHEP::HepRandomEngine* rndmEngine);
+  float getEffectiveCharge(CLHEP::HepRandomEngine* rndmEngine);
+  float getPathLengthTraveled(CLHEP::HepRandomEngine* rndmEngine);
 
 
 

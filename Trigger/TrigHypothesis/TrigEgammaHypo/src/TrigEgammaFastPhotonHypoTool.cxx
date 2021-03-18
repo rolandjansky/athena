@@ -1,6 +1,6 @@
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -10,7 +10,7 @@
 
 #include "TrigEgammaFastPhotonHypoTool.h"
 
-using namespace TrigCompositeUtils;
+namespace TCU = TrigCompositeUtils;
 
 TrigEgammaFastPhotonHypoTool::TrigEgammaFastPhotonHypoTool( const std::string& type, 
 						const std::string& name, 
@@ -46,9 +46,6 @@ if ( *std::min_element( sizes.begin(), sizes.end() ) != *std::max_element( sizes
 
   return StatusCode::SUCCESS;
 }
-
-
-TrigEgammaFastPhotonHypoTool::~TrigEgammaFastPhotonHypoTool() {}
 
 
 bool TrigEgammaFastPhotonHypoTool::decideOnSingleObject( const xAOD::TrigPhoton* photon,size_t cutIndex ) const {
@@ -192,7 +189,7 @@ StatusCode TrigEgammaFastPhotonHypoTool::inclusiveSelection( std::vector<PhotonI
 
     auto objDecision = decideOnSingleObject( i.photon, 0 );
     if ( objDecision == true ) {
-      addDecisionID( m_decisionId.numeric(), i.decision );
+      TCU::addDecisionID( m_decisionId.numeric(), i.decision );
     }
   }
   return StatusCode::SUCCESS;
@@ -202,7 +199,7 @@ StatusCode TrigEgammaFastPhotonHypoTool::inclusiveSelection( std::vector<PhotonI
 StatusCode TrigEgammaFastPhotonHypoTool::markPassing( std::vector<PhotonInfo>& input, const std::set<size_t>& passing ) const {
 
   for ( auto idx: passing ) 
-    addDecisionID( m_decisionId.numeric(), input[idx].decision );
+    TCU::addDecisionID( m_decisionId.numeric(), input[idx].decision );
   return StatusCode::SUCCESS;
 }
 

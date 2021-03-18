@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from TrigT1CTP.TrigT1CTPConf import LVL1CTP__CTPSimulation
 
@@ -9,8 +9,6 @@ class DefaultCTPSimulation(LVL1CTP__CTPSimulation):
 
         from AthenaCommon.Logging import logging
         self.log = logging.getLogger( 'CTPSimulation' )
-
-        self.AthenaMonTools = []
 
     def setDefaultRandomService(self, rndmSvc = 'AtRanluxGenSvc'):
         # Random service is not needed anymore in Run 3 for CTP
@@ -42,6 +40,7 @@ class CTPSimulationOnData(DefaultCTPSimulation):
         self.DoNIM=True
         self.DoRNDM=True
         self.DoPSCL=False
+        self.ForceBunchGroupPattern = False # on data we will take the bunchgroups from COOL
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         if hasattr(svcMgr,'DSConfigSvc'):
             # this case is still needed for reading Run 2 data configuration from the TriggerDB
@@ -61,15 +60,6 @@ class CTPSimulationInReco(DefaultCTPSimulation):
         self.DoPSCL=True
         self.DoNIM=True
         
-        # add validation histograms
-        from TrigT1CTP.TrigT1CTPMonitoring import TrigT1CTPValidationMonitoring
-        self.AthenaMonTools += [ TrigT1CTPValidationMonitoring() ]
-
-        from TriggerJobOpts.TriggerFlags import TriggerFlags
-        if "Log" in  TriggerFlags.enableMonitoring():
-            from TriggerJobOpts.Lvl1TriggerGetter import getLvl1OutputLevel
-            self.OutputLevel=getLvl1OutputLevel()
-            
     def setDefaults(self, handle):
         from TriggerJobOpts.TriggerFlags import TriggerFlags
         handle.DoCalo  = TriggerFlags.doCalo()

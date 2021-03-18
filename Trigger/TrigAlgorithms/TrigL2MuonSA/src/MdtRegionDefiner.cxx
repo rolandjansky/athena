@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtRegionDefiner.h"
@@ -35,7 +35,7 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::initialize()
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigL2MuonSA::MdtRegionDefiner::getMdtRegions(const LVL1::RecMuonRoI* p_roi,
+StatusCode TrigL2MuonSA::MdtRegionDefiner::getMdtRegions(const TrigRoiDescriptor* p_roids,
 							 const TrigL2MuonSA::RpcFitResult& rpcFitResult,
 							 TrigL2MuonSA::MuonRoad& muonRoad,
 							 TrigL2MuonSA::MdtRegion& mdtRegion) const
@@ -185,9 +185,9 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::getMdtRegions(const LVL1::RecMuonRoI*
           else if (i==5) muonRoad.phi[10][j] = muonRoad.extFtfMiddlePhi;
           else muonRoad.phi[i][j] = muonRoad.extFtfMiddlePhi;
         }
-        if (i==4) muonRoad.phi[9][j] = p_roi->phi();
-        else if (i==5) muonRoad.phi[10][j] = p_roi->phi();
-        else muonRoad.phi[i][j] = p_roi->phi();
+        if (i==4) muonRoad.phi[9][j] = p_roids->phi();
+        else if (i==5) muonRoad.phi[10][j] = p_roids->phi();
+        else muonRoad.phi[i][j] = p_roids->phi();
       }
     }
   }
@@ -198,7 +198,7 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::getMdtRegions(const LVL1::RecMuonRoI*
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigL2MuonSA::MdtRegionDefiner::getMdtRegions(const LVL1::RecMuonRoI* p_roi,
+StatusCode TrigL2MuonSA::MdtRegionDefiner::getMdtRegions(const TrigRoiDescriptor* p_roids,
 							 const TrigL2MuonSA::TgcFitResult& tgcFitResult,
 							 TrigL2MuonSA::MuonRoad& muonRoad,
 							 TrigL2MuonSA::MdtRegion& mdtRegion) const
@@ -369,7 +369,7 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::getMdtRegions(const LVL1::RecMuonRoI*
     } 
   }
   
-  StatusCode sc = computePhi(p_roi, tgcFitResult, mdtRegion, muonRoad);
+  StatusCode sc = computePhi(p_roids, tgcFitResult, mdtRegion, muonRoad);
   if (sc.isFailure()) {
     ATH_MSG_ERROR("Error in comupting phi");
     return sc;
@@ -447,18 +447,18 @@ void TrigL2MuonSA::MdtRegionDefiner::find_eta_min_max(float zMin, float rMin, fl
       float eta[4];
       float theta;
 
-      theta  = (fabs(zMin)>0.1)? atan(rMin/fabsf(zMin)): M_PI/2.;
-      eta[0] = (zMin>0.)?  -log(tan(theta/2.)) : log(tan(theta/2.));
+      theta  = (std::abs(zMin)>0.1)? std::atan(rMin/std::abs(zMin)): M_PI/2.;
+      eta[0] = (zMin>0.)?  -std::log(std::tan(theta/2.)) : std::log(std::tan(theta/2.));
 
-      theta  = (fabs(zMax)>0.1)? atan(rMin/fabsf(zMax)): M_PI/2.;
-      eta[1] = (zMax>0.)?  -log(tan(theta/2.)) : log(tan(theta/2.));
+      theta  = (std::abs(zMax)>0.1)? std::atan(rMin/std::abs(zMax)): M_PI/2.;
+      eta[1] = (zMax>0.)?  -std::log(std::tan(theta/2.)) : std::log(std::tan(theta/2.));
       if(doEmulateMuFast) eta[1] = eta[0];
 
-      theta  = (fabs(zMax)>0.1)? atan(rMax/fabsf(zMax)): M_PI/2.;
-      eta[2] = (zMax>0.)?  -log(tan(theta/2.)) : log(tan(theta/2.));
+      theta  = (std::abs(zMax)>0.1)? std::atan(rMax/std::abs(zMax)): M_PI/2.;
+      eta[2] = (zMax>0.)?  -std::log(std::tan(theta/2.)) : std::log(std::tan(theta/2.));
 
-      theta  = (fabs(zMin)>0.1)? atan(rMax/fabsf(zMin)): M_PI/2.;
-      eta[3] = (zMin>0.)?  -log(tan(theta/2.)) : log(tan(theta/2.));
+      theta  = (std::abs(zMin)>0.1)? std::atan(rMax/std::abs(zMin)): M_PI/2.;
+      eta[3] = (zMin>0.)?  -std::log(std::tan(theta/2.)) : std::log(std::tan(theta/2.));
       if(doEmulateMuFast) eta[3] = eta[2];
 
       etaMin = eta[0];
@@ -496,7 +496,7 @@ void TrigL2MuonSA::MdtRegionDefiner::find_barrel_road_dim(float max_road, float 
     iaq = 0;
   }
   
-  dz = max_road*sqrt(1.+iaq);
+  dz = max_road*std::sqrt(1.+iaq);
   z  = (ia)? (rMin-bw)*ia : bw;
   points[0] = z - dz;
   points[1] = z + dz;
@@ -565,7 +565,7 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::prepareTgcPoints(const TrigL2MuonSA::
 
       // reject width=0 hits
       const double ZERO_LIMIT = 1e-5;
-      if( fabs(hit.width) < ZERO_LIMIT ) continue;
+      if( std::abs(hit.width) < ZERO_LIMIT ) continue;
 
       double w = 12.0 / hit.width / hit.width;
       if (hit.isStrip)
@@ -590,7 +590,7 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::prepareTgcPoints(const TrigL2MuonSA::
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigL2MuonSA::MdtRegionDefiner::computePhi(const LVL1::RecMuonRoI* p_roi,
+StatusCode TrigL2MuonSA::MdtRegionDefiner::computePhi(const TrigRoiDescriptor* p_roids,
 						      const TrigL2MuonSA::RpcFitResult& rpcFitResult,
 						      const TrigL2MuonSA::MdtRegion& mdtRegion,
 						      TrigL2MuonSA::MuonRoad& muonRoad) const
@@ -617,14 +617,14 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::computePhi(const LVL1::RecMuonRoI* p_
 	
 	if (chamber==barrel_outer) {
 	  
-	  double MiddleR = fabs(mdtRegion.rMin[barrel_middle][i_sector] + mdtRegion.rMax[barrel_middle][i_sector])/2.;
+	  double MiddleR = std::abs(mdtRegion.rMin[barrel_middle][i_sector] + mdtRegion.rMax[barrel_middle][i_sector])/2.;
 	  double MiddleZ = MiddleR*muonRoad.aw[barrel_middle][i_sector] + muonRoad.bw[barrel_middle][i_sector];
 	  
 	  double mm = (muonRoad.aw[barrel_outer][i_sector]!=0)? 1./muonRoad.aw[barrel_outer][i_sector] : 0.;
-	  double OuterR  = fabs(mdtRegion.rMin[barrel_outer][i_sector]+mdtRegion.rMax[barrel_outer][i_sector])/2.;
+	  double OuterR  = std::abs(mdtRegion.rMin[barrel_outer][i_sector]+mdtRegion.rMax[barrel_outer][i_sector])/2.;
 	  double OuterZ  = (mm)? (OuterR-muonRoad.bw[barrel_outer][i_sector])/mm : muonRoad.bw[barrel_outer][i_sector];
-	  double DzOuter = fabs(OuterZ-MiddleZ);
-	  dz = sqrt((OuterR-MiddleR)*(OuterR-MiddleR) + DzOuter*DzOuter);
+	  double DzOuter = std::abs(OuterZ-MiddleZ);
+	  dz = std::sqrt((OuterR-MiddleR)*(OuterR-MiddleR) + DzOuter*DzOuter);
 	  dz = (OuterR-MiddleR);
 	  
 	} else if (chamber==barrel_inner) {
@@ -633,10 +633,10 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::computePhi(const LVL1::RecMuonRoI* p_
 	  double MiddleZ = 0;
 	  
 	  double mm = (muonRoad.aw[barrel_inner][i_sector]!=0)? 1./muonRoad.aw[barrel_inner][i_sector] : 0.;
-	  double InnerR  = fabs(mdtRegion.rMin[barrel_inner][i_sector]+mdtRegion.rMax[barrel_inner][i_sector])/2.;
+	  double InnerR  = std::abs(mdtRegion.rMin[barrel_inner][i_sector]+mdtRegion.rMax[barrel_inner][i_sector])/2.;
 	  double InnerZ  = (mm)? (InnerR-muonRoad.bw[barrel_inner][i_sector])/mm  : muonRoad.bw[barrel_inner][i_sector];
-	  double DzInner = fabs(InnerZ-MiddleZ);
-	  dz = -sqrt((InnerR-MiddleR)*(InnerR-MiddleR) + DzInner*DzInner);
+	  double DzInner = std::abs(InnerZ-MiddleZ);
+	  dz = -std::sqrt((InnerR-MiddleR)*(InnerR-MiddleR) + DzInner*DzInner);
 	  dz = - std::abs(InnerR-MiddleR);
 	  
 	}
@@ -651,7 +651,7 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::computePhi(const LVL1::RecMuonRoI* p_
 
       } else {
         // RPC data is not read -> use RoI
-        muonRoad.phi[chamber][i_sector] = p_roi->phi();
+        muonRoad.phi[chamber][i_sector] = p_roids->phi();
       }
     }
   }
@@ -661,7 +661,7 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::computePhi(const LVL1::RecMuonRoI* p_
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigL2MuonSA::MdtRegionDefiner::computePhi(const LVL1::RecMuonRoI* p_roi,
+StatusCode TrigL2MuonSA::MdtRegionDefiner::computePhi(const TrigRoiDescriptor* p_roids,
 						      const TrigL2MuonSA::TgcFitResult& tgcFitResult,
 						      const TrigL2MuonSA::MdtRegion& mdtRegion,
 						      TrigL2MuonSA::MuonRoad& muonRoad) const
@@ -691,13 +691,13 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::computePhi(const LVL1::RecMuonRoI* p_
 	
 	if (chamber==endcap_outer) {
 	  
-	  double MiddleZ = fabs(mdtRegion.zMin[endcap_middle][i_sector] + mdtRegion.zMax[endcap_middle][i_sector])/2.;
+	  double MiddleZ = std::abs(mdtRegion.zMin[endcap_middle][i_sector] + mdtRegion.zMax[endcap_middle][i_sector])/2.;
 	  double MiddleR = MiddleZ*muonRoad.aw[endcap_middle][i_sector] + muonRoad.bw[endcap_middle][i_sector];
 	  
-	  double OuterZ  = fabs(mdtRegion.zMin[endcap_outer][i_sector] + mdtRegion.zMax[endcap_outer][i_sector])/2.;
+	  double OuterZ  = std::abs(mdtRegion.zMin[endcap_outer][i_sector] + mdtRegion.zMax[endcap_outer][i_sector])/2.;
 	  double OuterR  = OuterZ*muonRoad.aw[endcap_outer][i_sector] + muonRoad.bw[endcap_outer][i_sector];
-	  double DrOuter = fabs(OuterR-MiddleR);
-	  dz = sqrt((OuterZ-MiddleZ)*(OuterZ-MiddleZ) + DrOuter*DrOuter);
+	  double DrOuter = std::abs(OuterR-MiddleR);
+	  dz = std::sqrt((OuterZ-MiddleZ)*(OuterZ-MiddleZ) + DrOuter*DrOuter);
 	  dz = (OuterZ-MiddleZ);
 	  
 	} if (chamber==endcap_inner || chamber==barrel_inner) {
@@ -709,10 +709,10 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::computePhi(const LVL1::RecMuonRoI* p_
 	    muonRoad.phi[chamber][i_sector] = tgcFitResult.tgcInn[1];
 	    continue;
 	  }
-	  double InnerZ  = fabs(mdtRegion.zMin[endcap_inner][i_sector] + mdtRegion.zMax[endcap_inner][i_sector])/2.;
+	  double InnerZ  = std::abs(mdtRegion.zMin[endcap_inner][i_sector] + mdtRegion.zMax[endcap_inner][i_sector])/2.;
 	  double InnerR  = InnerZ*muonRoad.aw[endcap_inner][i_sector] + muonRoad.bw[endcap_inner][i_sector];
-	  double DrInner = fabs(InnerR-MiddleR);
-	  dz = -sqrt((InnerZ-MiddleZ)*(InnerZ-MiddleZ) + DrInner*DrInner);
+	  double DrInner = std::abs(InnerR-MiddleR);
+	  dz = -std::sqrt((InnerZ-MiddleZ)*(InnerZ-MiddleZ) + DrInner*DrInner);
 	  dz = -std::abs(InnerZ-MiddleZ);
 	}
         
@@ -722,7 +722,7 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::computePhi(const LVL1::RecMuonRoI* p_
 
       } else {
         // TGC data is not read -> use RoI
-        muonRoad.phi[chamber][i_sector] = p_roi->phi();
+        muonRoad.phi[chamber][i_sector] = p_roids->phi();
       }
     }
   }

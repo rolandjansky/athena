@@ -1,13 +1,14 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
-log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.UnconventionalTracking.UnconventionalTrackingDef")
+log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.UnconventionalTracking.UnconventionalTrackingChainConfiguration")
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
-from AthenaCommon.CFElements import parOR
+from AthenaCommon.CFElements import seqAND
 from ..CommonSequences.FullScanDefs import caloFSRoI
+
 
 def unconventionalTrackingChainParts(chainParts):
     unconvtrkChainParts = []
@@ -28,23 +29,26 @@ class UnconventionalTrackingChainConfiguration(ChainConfigurationBase):
     # ----------------------
     # Assemble the chain depending on information from chainName
     # ----------------------
-    def assembleChain(self):                            
+    def assembleChain(self):
         log.debug("Assembling chain %s", self.chainName)
 
         chainSteps = []
 
         stepDictionary = self.getStepDictionary()
 
-        key = self.chainPart['extra']
 
+        key = self.chainPart['extra']
         steps=stepDictionary[key]
+        
+
 
         for step_level in steps:
             for step in step_level:
                 chainstep = getattr(self, step)()
                 chainSteps+=[chainstep]
-    
+
         myChain = self.buildChain(chainSteps)
+
         return myChain
 
     def getStepDictionary(self):
@@ -59,57 +63,50 @@ class UnconventionalTrackingChainConfiguration(ChainConfigurationBase):
         # --------------------
 
         stepDictionary = {
-            "isohpttrack" : [['getIsoHPtTrackTrigger']]
+            "isohpttrack" : [['getSkipStep'],['getFTFTrackReco'],['getIsoHPtTrackTrigger']],
+            "fslrt": [['getFSLRTEmpty'], ['getFSLRTTrigger']]
         }
 
         return stepDictionary
 
 
-
-
         # --------------------
     def getIsoHPtTrackTrigger(self):
-        return self.getStep(3,'IsoHPtTrackTrigger',[IsoHPtTrackTriggerCfg])
+        return self.getStep(7,'IsoHPtTrackTriggerCfg',[IsoHPtTrackTriggerCfg])
+
+    def getFTFTrackReco(self):
+        return self.getStep(6,'FTFRecoOnlyCfg',[FTFRecoOnlyCfg])
+
+    def getSkipStep(self):
+        return  self.getEmptyStep(1,"EmptyUncTrk")
+
+    def getFSLRTTrigger(self):
+        return self.getStep(2,'FSLRTTrigger',[FSLRTTriggerCfg])
+
+    def getFSLRTEmpty(self):
+        return self.getEmptyStep(1, 'FSLRTEmptyStep')
 
 
+def FTFTrackSequence(ConfigFlags):
 
+    from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import getTrackingInputMaker
+    InputMakerAlg=getTrackingInputMaker()
 
-
-def IsoHPtTrackTriggerSequence(ConfigFlags):
-
-
-    from TrigT2CaloCommon.CaloDef import clusterFSInputMaker
-    InputMakerAlg= clusterFSInputMaker()        
-
-   
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
     IDTrigConfig = getInDetTrigConfig( 'jet' )
-
-
-
 
     from TrigEDMConfig.TriggerEDMRun3 import recordable
     from TrigInDetConfig.InDetSetup import makeInDetAlgsNoView
     TrkInputNoViewAlg = makeInDetAlgsNoView( config = IDTrigConfig, rois=caloFSRoI)
 
-    
-
     from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
-    
+
     verticesname = recordable("HLT_IDVertex_FS")
     vtxAlgs = makeVertices( "jet", IDTrigConfig.FT.tracksFTF( doRecord = IDTrigConfig.isRecordable ) , verticesname, IDTrigConfig )
     prmVtx = vtxAlgs[-1]
 
-
-    TrkSeq = parOR("UncTrkrecoSeq", [InputMakerAlg,TrkInputNoViewAlg, prmVtx])
-    sequenceOut = IDTrigConfig.FT.tracksFTF( doRecord = IDTrigConfig.isRecordable ) 
-
-
-    # from .JetTrackingConfig import JetTrackingSequence
-    # (jettrkseq, trkcolls) = RecoFragmentsPool.retrieve( JetTrackingSequence, configFlags, trkopt=jetRecoDict["ftf"], RoIs=RoIs)
-    # recoSeq += jettrkseq
-
-
+    TrkSeq =  [InputMakerAlg,TrkInputNoViewAlg, prmVtx]
+    sequenceOut = IDTrigConfig.FT.tracksFTF( doRecord = IDTrigConfig.isRecordable )
 
     return (TrkSeq, InputMakerAlg, sequenceOut)
 
@@ -117,27 +114,59 @@ def IsoHPtTrackTriggerSequence(ConfigFlags):
 
 
 
-def IsoHPtTrackTriggerMenuSequence():
-        
-
-
+def IsoHPtTrackTriggerHypoSequence():
         from TrigLongLivedParticlesHypo.TrigIsoHPtTrackTriggerHypoTool import TrigIsoHPtTrackTriggerHypoToolFromDict
         from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConf import (TrigIsoHPtTrackTriggerHypoAlgMT)
 
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        ( TrkSeq, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(IsoHPtTrackTriggerSequence,ConfigFlags)
-        
+        # Get sequence name
+        from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+        IDTrigConfig = getInDetTrigConfig( 'jet' )
+        sequenceOut = IDTrigConfig.FT.tracksFTF( doRecord = IDTrigConfig.isRecordable )
+
+        #Setup the hypothesis algorithm
         theIsoHPtTrackTriggerHypo = TrigIsoHPtTrackTriggerHypoAlgMT("L2IsoHPtTrack")
         theIsoHPtTrackTriggerHypo.trackKey =  sequenceOut
 
+        from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
+        from AthenaConfiguration.ComponentFactory import CompFactory
+        DummyInputMakerAlg = conf2toConfigurable(CompFactory.InputMakerForRoI( "IM_IsoHPtTrack_HypoOnlyStep" ))
+        DummyInputMakerAlg.RoITool = conf2toConfigurable(CompFactory.ViewCreatorInitialROITool())
 
-
-        log.info("Building the Step dictinary for IsoHPt!")
-        return MenuSequence( Sequence    = TrkSeq,
-                            Maker       = InputMakerAlg,
+        log.debug("Building the Step dictinary for IsoHPt!")
+        return MenuSequence( Sequence    = seqAND("UncTrkEmptySeq",[DummyInputMakerAlg]),
+                            Maker       = DummyInputMakerAlg,
                             Hypo        = theIsoHPtTrackTriggerHypo,
-                            HypoToolGen = TrigIsoHPtTrackTriggerHypoToolFromDict, 
+                            HypoToolGen = TrigIsoHPtTrackTriggerHypoToolFromDict,
                             )
 
+def FTFRecoOnlySequence():
+        from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlgMT
+        from TrigStreamerHypo.TrigStreamerHypoConfigMT import StreamerHypoToolMTgenerator
+
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        ( TrkSeq, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(FTFTrackSequence,ConfigFlags)
+
+        HypoAlg = TrigStreamerHypoAlgMT("UncTrkDummyStream")
+
+
+        log.debug("Building the Step dictinary for IsoHPt!")
+        return MenuSequence( Sequence    = seqAND("UncTrkrecoSeq", TrkSeq),
+                            Maker       = InputMakerAlg,
+                            Hypo        = HypoAlg,
+                            HypoToolGen = StreamerHypoToolMTgenerator
+                            )
+
+
+
+
+
+
+
 def IsoHPtTrackTriggerCfg(flags):
-    return IsoHPtTrackTriggerMenuSequence()
+    return IsoHPtTrackTriggerHypoSequence()
+def FTFRecoOnlyCfg(flags):
+    return FTFRecoOnlySequence()
+
+def FSLRTTriggerCfg(flags):
+    from TriggerMenuMT.HLTMenuConfig.UnconventionalTracking.FullScanLRTTrackingConfiguration import FullScanLRTTriggerMenuSequence
+    return FullScanLRTTriggerMenuSequence()

@@ -1,20 +1,20 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Gaudi/Property.h"
 #include "TrigEgammaPrecisionPhotonHypoAlgMT.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "AthViews/ViewHelper.h"
 
-using namespace TrigCompositeUtils;
+namespace TCU = TrigCompositeUtils;
 
 TrigEgammaPrecisionPhotonHypoAlgMT::TrigEgammaPrecisionPhotonHypoAlgMT( const std::string& name, 
 					  ISvcLocator* pSvcLocator ) :
   ::HypoBase( name, pSvcLocator ) {}
 
-TrigEgammaPrecisionPhotonHypoAlgMT::~TrigEgammaPrecisionPhotonHypoAlgMT() {}
 
 StatusCode TrigEgammaPrecisionPhotonHypoAlgMT::initialize() {
   ATH_MSG_DEBUG ( "Initializing " << name() << "..." );
@@ -25,10 +25,6 @@ StatusCode TrigEgammaPrecisionPhotonHypoAlgMT::initialize() {
   ATH_CHECK( m_photonsKey.initialize() );
   renounce( m_photonsKey );// photons are made in views, so they are not in the EvtStore: hide them
 
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TrigEgammaPrecisionPhotonHypoAlgMT::finalize() {   
   return StatusCode::SUCCESS;
 }
 
@@ -43,7 +39,7 @@ StatusCode TrigEgammaPrecisionPhotonHypoAlgMT::execute( const EventContext& cont
   // new decisions
 
   // new output decisions
-  SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context ); 
+  SG::WriteHandle<TCU::DecisionContainer> outputHandle = TCU::createAndStore(decisionOutput(), context );
   auto decisions = outputHandle.ptr();
 
   // input for decision
@@ -54,13 +50,13 @@ StatusCode TrigEgammaPrecisionPhotonHypoAlgMT::execute( const EventContext& cont
   for ( auto previousDecision: *previousDecisionsHandle ) {
 
     //get updated RoI  
-    auto roiELInfo = findLink<TrigRoiDescriptorCollection>( previousDecision, roiString() );    
+    auto roiELInfo = TCU::findLink<TrigRoiDescriptorCollection>( previousDecision, TCU::roiString() );
 
     ATH_CHECK( roiELInfo.isValid() );
     const TrigRoiDescriptor* roi = *(roiELInfo.link);
 
     // not using View so commenting out following lines
-    const auto viewEL = previousDecision->objectLink<ViewContainer>( viewString() );
+    const auto viewEL = previousDecision->objectLink<ViewContainer>( TCU::viewString() );
     ATH_CHECK( viewEL.isValid() );
     auto photonHandle = ViewHelper::makeHandle( *viewEL, m_photonsKey, context);
     ATH_CHECK( photonHandle.isValid() );
@@ -77,8 +73,8 @@ StatusCode TrigEgammaPrecisionPhotonHypoAlgMT::execute( const EventContext& cont
 	    ATH_CHECK(ph.isValid());
 
 	    ATH_MSG_DEBUG ( "PhotonHandle in position " << cl << " processing...");
-	    auto d = newDecisionIn( decisions, hypoAlgNodeName() );
-	    d->setObjectLink( featureString(),  ph );
+	    auto d = TCU::newDecisionIn( decisions, TCU::hypoAlgNodeName() );
+	    d->setObjectLink( TCU::featureString(),  ph );
 	    TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
 	    toolInput.emplace_back( d, roi, photonHandle.cptr()->at(cl), previousDecision );
 	    validphotons++;

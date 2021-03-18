@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUFASTSTEERING_H
 #define  TRIGL2MUONSA_MUFASTSTEERING_H
 
-#include "GaudiKernel/Bootstrap.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -23,13 +22,12 @@
 #include "MuCalStreamerTool.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "CscSegmentMaker.h"
-#include "CscRegUtils.h"
 #include "FtfRoadDefiner.h"
 
 //adding a part of DataHandle for AthenaMT
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "StoreGate/ReadHandleKey.h"    
-#include "StoreGate/WriteHandleKey.h"   
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
@@ -56,21 +54,21 @@ class MuFastSteering : public HLT::FexAlgo,
     ITIMER_CALIBRATION_STREAMER,
     ITIMER_TOTAL_PROCESSING
   };
-  
+
  public:
-  
+
   /** Constructor */
   MuFastSteering(const std::string& name, ISvcLocator* svc);
-  
+
   /** hltStop() */
   HLT::ErrorCode hltStop();
-  
+
   /** hltInitialize() */
   HLT::ErrorCode hltInitialize();
   /** hltFinalize() */
   HLT::ErrorCode hltFinalize();
   /** hltExecute(), main code of the algorithm */
-  HLT::ErrorCode hltExecute(const HLT::TriggerElement* /*inputTE*/, 
+  HLT::ErrorCode hltExecute(const HLT::TriggerElement* /*inputTE*/,
 			    HLT::TriggerElement* outputTE);
 
   /** execute(), main code of the algorithm for AthenaMT*/
@@ -83,22 +81,44 @@ class MuFastSteering : public HLT::FexAlgo,
                                DataVector<xAOD::L2StandAloneMuon>& 		outputTracks,
 			       TrigRoiDescriptorCollection&	 		outputID,
 			       TrigRoiDescriptorCollection&	 		outputMS,
-			       DataVector<xAOD::TrigComposite>&			outputComposite );
+			       DataVector<xAOD::TrigComposite>&			outputComposite ) const;
+
+  StatusCode findMuonSignature(const std::vector<const TrigRoiDescriptor*>&	roi,
+			       const std::vector<const xAOD::MuonRoI*>& 	muonRoIs,
+                               DataVector<xAOD::L2StandAloneMuon>& 		outputTracks,
+			       TrigRoiDescriptorCollection&	 		outputID,
+			       TrigRoiDescriptorCollection&	 		outputMS,
+			       DataVector<xAOD::TrigComposite>&			outputComposite ) const;
 
   /** findMuonSignatureIO(), includes reconstract algorithms for inside-out mode **/
   StatusCode findMuonSignatureIO(const xAOD::TrackParticleContainer&            idtracks,
 				 const std::vector<const TrigRoiDescriptor*>    roids,
 				 const std::vector<const LVL1::RecMuonRoI*>     muonRoIs,
 				 DataVector<xAOD::L2CombinedMuon>&              outputCBs,
-				 DataVector<xAOD::L2StandAloneMuon>&            outputSAs );
+				 DataVector<xAOD::L2StandAloneMuon>&            outputSAs ) const;
 
-  int L2MuonAlgoMap(const std::string& name);
+  StatusCode findMuonSignatureIO(const xAOD::TrackParticleContainer&            idtracks,
+				 const std::vector<const TrigRoiDescriptor*>    roids,
+				 const std::vector<const xAOD::MuonRoI*>        muonRoIs,
+				 DataVector<xAOD::L2CombinedMuon>&              outputCBs,
+				 DataVector<xAOD::L2StandAloneMuon>&            outputSAs ) const;
+
+  /** findMultiTrackSignature(), includes reconstract algorithms for multi-track mode **/
+  StatusCode findMultiTrackSignature(const std::vector<const TrigRoiDescriptor*>&	roi,
+			             const std::vector<const LVL1::RecMuonRoI*>& 	muonRoIs,
+                                     DataVector<xAOD::L2StandAloneMuon>& 		outputTracks) const;
+
+  StatusCode findMultiTrackSignature(const std::vector<const TrigRoiDescriptor*>&	roi,
+			             const std::vector<const xAOD::MuonRoI*>& 	        muonRoIs,
+                                     DataVector<xAOD::L2StandAloneMuon>& 		outputTracks) const;
+
+  int L2MuonAlgoMap(const std::string& name) const;
 
   // handler for "UpdateAfterFork" actions
   void handle(const Incident& incident);
 
  protected:
-  
+
   /**
      Called at the end of the algorithm processing to set the steering
      navigation properly
@@ -118,8 +138,25 @@ class MuFastSteering : public HLT::FexAlgo,
                            const std::vector<TrigL2MuonSA::TrackPattern>& trackPatterns,
 			   DataVector<xAOD::L2StandAloneMuon>&	          outputTracks,
 			   TrigRoiDescriptorCollection&  	          outputID,
-			   TrigRoiDescriptorCollection&   	          outputMS);
- 
+			   TrigRoiDescriptorCollection&   	          outputMS) const;
+
+  bool updateOutputObjects(const xAOD::MuonRoI*                           roi,
+                           const TrigRoiDescriptor*                       roids,
+                           const TrigL2MuonSA::MuonRoad&                  muonRoad,
+                           const TrigL2MuonSA::MdtRegion&                 mdtRegion,
+                           const TrigL2MuonSA::RpcHits&                   rpcHits,
+                           const TrigL2MuonSA::TgcHits&                   tgcHits,
+                           const TrigL2MuonSA::RpcFitResult&              rpcFitResult,
+                           const TrigL2MuonSA::TgcFitResult&              tgcFitResult,
+                           const TrigL2MuonSA::MdtHits&                   mdtHits,
+                           const TrigL2MuonSA::CscHits&                   cscHits,
+			   const TrigL2MuonSA::StgcHits&                  stgcHits,
+			   const TrigL2MuonSA::MmHits&                    mmHits,
+                           const std::vector<TrigL2MuonSA::TrackPattern>& trackPatterns,
+			   DataVector<xAOD::L2StandAloneMuon>&	          outputTracks,
+			   TrigRoiDescriptorCollection&  	          outputID,
+			   TrigRoiDescriptorCollection&   	          outputMS) const;
+
   bool storeMuonSA(const LVL1::RecMuonRoI*             roi,
                    const TrigRoiDescriptor*            roids,
                	   const TrigL2MuonSA::MuonRoad&       muonRoad,
@@ -133,30 +170,47 @@ class MuFastSteering : public HLT::FexAlgo,
 		   const TrigL2MuonSA::StgcHits&       stgcHits,
 		   const TrigL2MuonSA::MmHits&         mmHits,
                	   const TrigL2MuonSA::TrackPattern&   pattern,
-                   DataVector<xAOD::L2StandAloneMuon>& outputTracks);
+                   DataVector<xAOD::L2StandAloneMuon>& outputTracks) const;
+
+  bool storeMuonSA(const xAOD::MuonRoI*                roi,
+                   const TrigRoiDescriptor*            roids,
+               	   const TrigL2MuonSA::MuonRoad&       muonRoad,
+               	   const TrigL2MuonSA::MdtRegion&      mdtRegion,
+               	   const TrigL2MuonSA::RpcHits&        rpcHits,
+               	   const TrigL2MuonSA::TgcHits&        tgcHits,
+               	   const TrigL2MuonSA::RpcFitResult&   rpcFitResult,
+               	   const TrigL2MuonSA::TgcFitResult&   tgcFitResult,
+               	   const TrigL2MuonSA::MdtHits&        mdtHits,
+               	   const TrigL2MuonSA::CscHits&        cscHits,
+		   const TrigL2MuonSA::StgcHits&       stgcHits,
+		   const TrigL2MuonSA::MmHits&         mmHits,
+               	   const TrigL2MuonSA::TrackPattern&   pattern,
+                   DataVector<xAOD::L2StandAloneMuon>& outputTracks) const;
 
   bool storeMSRoiDescriptor(const TrigRoiDescriptor*                  roids,
 		            const TrigL2MuonSA::TrackPattern&         pattern,
                             const DataVector<xAOD::L2StandAloneMuon>& outputTracks,
-		            TrigRoiDescriptorCollection&	      outputMS);
+		            TrigRoiDescriptorCollection&	      outputMS) const;
 
 
   bool storeIDRoiDescriptor(const TrigRoiDescriptor*                  roids,
 		            const TrigL2MuonSA::TrackPattern&         pattern,
                             const DataVector<xAOD::L2StandAloneMuon>& outputTracks,
-		            TrigRoiDescriptorCollection&	      outputID);
+		            TrigRoiDescriptorCollection&	      outputID) const;
 
   /**
      Update monitoring variables
   */
   StatusCode updateMonitor(const LVL1::RecMuonRoI*                  roi,
-                           const bool                               isRpcFakeRoi,
 			   const TrigL2MuonSA::MdtHits&             mdtHits,
-                           std::vector<TrigL2MuonSA::TrackPattern>& trackPatterns );
+                           std::vector<TrigL2MuonSA::TrackPattern>& trackPatterns ) const;
+  StatusCode updateMonitor(const xAOD::MuonRoI*                     roi,
+			   const TrigL2MuonSA::MdtHits&             mdtHits,
+                           std::vector<TrigL2MuonSA::TrackPattern>& trackPatterns ) const;
  protected:
-  
+
   // Services
-  
+
   /** Timers */
   ServiceHandle<ITrigTimerSvc> m_timerSvc;
   std::vector<TrigTimer*> m_timingTimers;
@@ -178,7 +232,7 @@ class MuFastSteering : public HLT::FexAlgo,
   /** Handle to MuonBackExtrapolator tool */
   ToolHandle<ITrigMuonBackExtrapolator> m_backExtrapolatorTool {
 	this, "BackExtrapolator", "TrigMuonBackExtrapolator", "public tool for back extrapolating the muon tracks to the IV" };
-  
+
   // calibration streamer tool
   ToolHandle<TrigL2MuonSA::MuCalStreamerTool> m_calStreamer {
 	this, "CalibrationStreamer", "TrigL2MuonSA::MuCalStreamerTool", "" };
@@ -192,28 +246,16 @@ class MuFastSteering : public HLT::FexAlgo,
 
 
  private:
-  TrigL2MuonSA::RpcHits      m_rpcHits;
-  TrigL2MuonSA::TgcHits      m_tgcHits;
-  TrigL2MuonSA::MdtRegion    m_mdtRegion;
-  TrigL2MuonSA::MuonRoad     m_muonRoad;
-  TrigL2MuonSA::RpcFitResult m_rpcFitResult;
-  TrigL2MuonSA::TgcFitResult m_tgcFitResult;
-  TrigL2MuonSA::MdtHits      m_mdtHits_normal;
-  TrigL2MuonSA::MdtHits      m_mdtHits_overlap;
-  TrigL2MuonSA::CscHits      m_cscHits;
-  TrigL2MuonSA::StgcHits     m_stgcHits;
-  TrigL2MuonSA::MmHits       m_mmHits;
-  
+
   // Property
   Gaudi::Property< float > m_scaleRoadBarrelInner { this, "Scale_Road_BarrelInner", 1 };
   Gaudi::Property< float > m_scaleRoadBarrelMiddle { this, "Scale_Road_BarrelMiddle", 1 };
   Gaudi::Property< float > m_scaleRoadBarrelOuter { this, "Scale_Road_BarrelOuter", 1 };
-  
+
   Gaudi::Property< bool > m_use_timer { this, "Timing", false };
   Gaudi::Property< bool > m_use_mcLUT { this, "UseLUTForMC", true};
   Gaudi::Property< bool > m_use_new_segmentfit { this, "USE_NEW_SEGMENTFIT", true};
   Gaudi::Property< bool > m_use_rpc { this, "USE_RPC", true};
-  Gaudi::Property< bool > m_use_mdtcsm { this, "USE_MDTCSM", false};
   Gaudi::Property< bool > m_use_RoIBasedDataAccess_MDT  { this, "USE_ROIBASEDACCESS_MDT",  true};
   Gaudi::Property< bool > m_use_RoIBasedDataAccess_RPC  { this, "USE_ROIBASEDACCESS_RPC",  true};
   Gaudi::Property< bool > m_use_RoIBasedDataAccess_TGC  { this, "USE_ROIBASEDACCESS_TGC",  true};
@@ -224,7 +266,7 @@ class MuFastSteering : public HLT::FexAlgo,
   Gaudi::Property< bool > m_calDataScouting { this, "MuonCalDataScouting", false};
   Gaudi::Property< bool > m_rpcErrToDebugStream { this, "RpcErrToDebugStream", false};
   Gaudi::Property< bool > m_use_endcapInnerFromBarrel { this, "UseEndcapInnerFromBarrel", false};
-  
+
   Gaudi::Property< int > m_esd_rpc_size { this, "ESD_RPC_size", 100 };
   Gaudi::Property< int > m_esd_tgc_size { this, "ESD_TGC_size", 50 };
   Gaudi::Property< int > m_esd_mdt_size { this, "ESD_MDT_size", 100 };
@@ -238,12 +280,14 @@ class MuFastSteering : public HLT::FexAlgo,
   Gaudi::Property< double > m_winPt { this, "WinPt", 4.0 };
 
   Gaudi::Property< bool > m_insideOut { this, "InsideOutMode", false, "" };
+  Gaudi::Property< bool > m_multiTrack { this, "multitrackMode", false, "" };
+  Gaudi::Property< bool > m_doEndcapForl2mt { this, "doEndcapForl2mt", false, "" };
   Gaudi::Property< float > m_ftfminPt { this, "FTFminPt", 3500, "pT [MeV] threshold to FTF tracks for L2Muon Inside-out mode" };
   Gaudi::Property< bool > m_topoRoad { this, "topoRoad", false, "create road in barrel not to highly overlap surrounding L1 RoIs" };
   Gaudi::Property< float > m_dPhisurrRoI { this, "dPhisurrRoI", 99, "phi range to find surrounding L1 RoIs" };
   Gaudi::Property< float > m_dEtasurrRoI { this, "dEtasurrRoI", 99, "eta range to find surrounding L1 RoIs" };
 
-  float getRoiSizeForID(bool isEta, const xAOD::L2StandAloneMuon* muonSA);
+  float getRoiSizeForID(bool isEta, const xAOD::L2StandAloneMuon* muonSA) const;
 
   Gaudi::Property< bool > m_allowOksConfig { this, "AllowOksConfig", true};
   Gaudi::Property< std::string > m_calBufferName { this, "MuonCalBufferName", "/tmp/testOutput"};
@@ -251,6 +295,8 @@ class MuFastSteering : public HLT::FexAlgo,
 
   // Enable to fill FS RoI for ID (cosmic run)
   Gaudi::Property< bool > m_fill_FSIDRoI { this, "FILL_FSIDRoI", false, "Fill FS RoI for ID (will be used in cosmic run)"};
+
+  Gaudi::Property< bool > m_useRun3Config { this, "UseRun3Config", false, "use Run3 L1Muon EDM; xAOD::MuonRoI"};
 
   //adding a part of DataHandle for AthenaMT
   //ReadHandle xAOD::EventInfo
@@ -262,8 +308,10 @@ class MuFastSteering : public HLT::FexAlgo,
 	this, "MuRoIs", "HLT_MURoIs", "Name of the input data from L1Decoder"};
 
   //ReadHandle RecMuonRoIs
-  SG::ReadHandleKey<DataVector<LVL1::RecMuonRoI>> m_recRoiCollectionKey{
-	this, "RecMuonRoI", "HLT_RecMURoIs", "Name of the input data on LVL1::RecMuonRoI produced by L1Decoder"};
+  SG::ReadHandleKey<DataVector<LVL1::RecMuonRoI>> m_run2recRoiCollectionKey{
+	this, "Run2RecMuonRoI", "HLT_RecMURoIs", "Name of the input data on LVL1::RecMuonRoI produced by L1Decoder"};
+  SG::ReadHandleKey<xAOD::MuonRoIContainer> m_recRoiCollectionKey{
+	this, "RecMuonRoI", "LVL1MuonRoIs", "Name of the input data on xAOD::MuonRoI"};
 
   //ReadHandle FTF Tracks
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_FTFtrackKey{

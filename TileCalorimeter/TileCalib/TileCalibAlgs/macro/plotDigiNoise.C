@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -137,7 +137,7 @@ int main(int argc,char** argv)
 		{
 			for(int ch=0;ch<48;ch++)
 			{
-				for(int gain=0;gain<48;gain++)
+				for(int gain=0;gain<2;gain++)
 				{
 					run_plot[part][mod][ch][gain]= new Float_t[numRuns];
 					runerr_plot[part][mod][ch][gain]= new Float_t[numRuns];

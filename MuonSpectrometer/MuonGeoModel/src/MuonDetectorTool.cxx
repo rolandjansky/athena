@@ -273,7 +273,8 @@ MuonDetectorTool::createFactory(MuonDetectorFactory001& theFactory) const
                <<"    ControlAlines                  "<< m_controlAlines <<endmsg
                <<"    MinimalGeoFlag                 "<< m_minimalGeoFlag <<endmsg
                <<"    EnableCscIntAlignment          "<< m_useCscIntAlines <<endmsg
-               <<"    EnableCscIntAlignmentFromGM    "<< m_useCscIntAlinesFromGM );
+               <<"    EnableCscIntAlignmentFromGM    "<< m_useCscIntAlinesFromGM << endmsg
+               <<"    FillCacheInitTime              "<< m_fillCache_initTime );
   if (m_useCscIntAlines) ATH_MSG_INFO("    ControlCscIntAlines            "<< tempControlCscIntAlines );
   else ATH_MSG_INFO("    ControlCscIntAlines   reset to "<< tempControlCscIntAlines );
   ATH_MSG_INFO("    EnableMdtDeformations          "<< m_enableMdtDeformations );

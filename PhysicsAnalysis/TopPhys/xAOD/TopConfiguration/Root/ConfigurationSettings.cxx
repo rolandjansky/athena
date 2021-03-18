@@ -12,6 +12,11 @@
 #include <iostream>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim_all.hpp>
+#include <boost/algorithm/string/join.hpp>
+
+#include "TopConfiguration/MsgCategory.h"
+
+using namespace TopConfiguration;
 
 namespace top {
   ConfigurationSettings* ConfigurationSettings::m_instance = 0;
@@ -205,7 +210,8 @@ namespace top {
     registerParameter("JetJERSmearingModel",
                       "All (inc. data smearing), All_PseudoData (use MC as pseudo-data), Full (inc. data smearing), Full_PseudoData (use MC as pseudo-data) or Simple (MC only - default)",
                       "Simple");
-    registerParameter("JetCalibSequence", "Jet calibaration sequence, GSC (default) or JMS", "GSC");
+    registerParameter("JetCalibSequence", "Jet calibaration sequence.", "GSC", {"GSC", "JMS"});
+    registerParameter("AllowJMSforAFII", "Enable use of UNSUPPORTED small-R jet JMS calibration use on AFII samples.", "False", {"True", "False"});
     registerParameter("StoreJetTruthLabels", "Flag to store truth labels for jets - True (default) or False", "True");
 
     registerParameter("JSF", "Used for top mass analysis, default is 1.0", "1.0");
@@ -411,7 +417,8 @@ namespace top {
 
     registerParameter("ApplyElectronInJetSubtraction",
                       "Subtract electrons close to jets for boosted analysis : True or False(top default)", "False");
-    registerParameter("TopPartonHistory", "ttbar, tb, Wtb, ttz, ttgamma, tHq, False (default)", "False");
+    registerParameter("TopPartonHistory", "Topology to be assumed when reconstructing parton-level history.", "False",
+                      {"ttbar", "tb", "Wtb", "ttz", "ttgamma", "tHq", "False"});
     registerParameter("TopPartonLevel", "Perform parton level analysis (stored in truth tree)? True or False", "True");
     
     registerParameter("TopParticleLevel", "Perform particle level selection (stored in particleLevel tree)? True or False", "False");
@@ -599,7 +606,8 @@ namespace top {
                       "Overlap removal inner radius to be used for electron SlidingDR ,", "0.2");
     registerParameter("OverlapRemovalSlidingInnerDRmu", "Overlap removal inner radius to be used for muon SlidingDR ,",
                       "0.2");
-
+    registerParameter("OverlapRemovalParticleLevelUseRapidity", "Use rapidity instead of pseudo-rapidity for DeltaR"
+                                                                " calculation for overlap removal in particle level", "True", {"True", "False"});
     registerParameter("LargeJetOverlapRemoval",
                       "Perform overlap removal including large-R jets. True or False (default: False).", "False");
 
@@ -868,12 +876,30 @@ namespace top {
     m_configured = true;
   }
 
+  void ConfigurationSettings::checkSettings() {
+    for (const std::pair<std::string, StringData>& entry : strings_) {
+      const StringData& data = entry.second;
+      // if the config option restricts allowed values to some limited set,
+      // check that the configured value is valid
+      if (!data.m_allowed_values.empty()) {
+        if (std::find(data.m_allowed_values.begin(), data.m_allowed_values.end(),data.m_data) == data.m_allowed_values.end()) {
+          ATH_MSG_ERROR("Unsupported value specified for config option " << entry.first << ": " << data.m_data
+              << "\nAllowed values: " << boost::algorithm::join(data.m_allowed_values, ", "));
+          throw std::runtime_error("Unsupported value for config option");
+        }
+      }
+    }
+  }
+
   void ConfigurationSettings::registerParameter(const std::string& name, const std::string& message,
-                                                const std::string& default_val) {
+                                                const std::string& default_val,
+                                                const std::vector<std::string> allowed_values) {
     StringData data;
 
     data.m_data = default_val;
     data.m_human_explanation = message;
+    data.m_default_val = default_val;
+    data.m_allowed_values = allowed_values;
     data.m_set = (default_val.empty() ? false : true);
     strings_[name] = data;
   }
@@ -965,12 +991,13 @@ namespace top {
 
       std::stringstream s2;
       s2 << "\"" << its->second.m_data << "\"";
+      std::string s_values;
+      if (!its->second.m_allowed_values.empty()) {
+        s_values = " Allowed values: " + boost::algorithm::join(its->second.m_allowed_values, ", ");
+      }
       os << std::setw(40) << std::left << s.str() << " : " << std::setw(35) << s2.str() << " - " << std::right <<
-        its->second.m_human_explanation << "\n";
+        its->second.m_human_explanation << " Default: \"" << its->second.m_default_val << "\"." << s_values << "\n";
     }
-
-    //for (const auto& selection : settings.selections())
-    //    os << selection << "\n";
 
     return os;
   }

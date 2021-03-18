@@ -25,7 +25,7 @@ Trk::TrackFitInputPreparator::TrackFitInputPreparator() :
   m_sortingRefPoint(0., 0., 0.),
   m_extrapolator(nullptr)
 {
-  m_TP_ComparisonFunction 
+  m_TP_ComparisonFunction
     = new Trk::TrkParametersComparisonFunction(m_sortingRefPoint);
 }
 
@@ -33,7 +33,7 @@ Trk::TrackFitInputPreparator::TrackFitInputPreparator(const Amg::Vector3D& gp, c
   m_sortingRefPoint(gp),
   m_extrapolator(extrapolator)
 {
-  m_TP_ComparisonFunction 
+  m_TP_ComparisonFunction
     = new Trk::TrkParametersComparisonFunction(m_sortingRefPoint);
 }
 
@@ -100,7 +100,7 @@ StatusCode Trk::TrackFitInputPreparator::copyToTrajectory
       MB_IndexVector::iterator itIdx = sortedHitSet.begin();
       for (; itIdx!=sortedHitSet.end(); ++itIdx) {
         bool outlier = (*inputTrk.trackStateOnSurfaces())[(*itIdx).second]->type(TrackStateOnSurface::Outlier);
-        const Trk::MeasurementBase* extractMB = 
+        const Trk::MeasurementBase* extractMB =
           ((*inputTrk.trackStateOnSurfaces())[(*itIdx).second]->measurementOnTrack());
         if (extractMB) {
             insertStateIntoTrajectory(  trajectory,
@@ -137,7 +137,7 @@ StatusCode Trk::TrackFitInputPreparator::copyToTrajectory
 //                                                         (reintegrateOutliers?false:outlier),
 //                                                         false,istate++));
 //         trajectory.back().identifier(Trk::IdentifierExtractor::extract((*it)->measurementOnTrack()));
-      } 
+      }
     }
   }
 
@@ -212,7 +212,7 @@ StatusCode Trk::TrackFitInputPreparator::copyToTrajectory
       for ( ; itIdx!=sortedHitSet.end(); ++itIdx) {
         if ((*itIdx).second < nInputStates ) {
           bool outlier = (*inputTrk.trackStateOnSurfaces())[(*itIdx).second]->type(TrackStateOnSurface::Outlier);
-          const Trk::MeasurementBase* extractMB = 
+          const Trk::MeasurementBase* extractMB =
             ((*inputTrk.trackStateOnSurfaces())[(*itIdx).second]->measurementOnTrack());
             if (extractMB) {
                 insertStateIntoTrajectory(  trajectory,
@@ -242,7 +242,7 @@ StatusCode Trk::TrackFitInputPreparator::copyToTrajectory
     }
   }
 
-  
+
   /* if inputs are already sorted or assumed so by convention, trajectory will not
      yet have been filled. In that case, just copy linearly. */
 
@@ -276,7 +276,7 @@ StatusCode Trk::TrackFitInputPreparator::copyToTrajectory
 StatusCode Trk::TrackFitInputPreparator::copyToTrajectory
 (Trk::Trajectory& trajectory, const Trk::TrackParameters*& referenceParameters,
  const Trk::Track& inputTrk1, const Trk::Track& inputTrk2,
- const SortInputFlag doSorting, const bool reintegrateOutliers, 
+ const SortInputFlag doSorting, const bool reintegrateOutliers,
  const ParticleHypothesis&  partHypo) const
 {
   if (!trajectory.empty() ) {
@@ -347,7 +347,7 @@ StatusCode Trk::TrackFitInputPreparator::copyToTrajectory
       for ( ; itIdx!=sortedHitSet.end(); ++itIdx) {
         if ((*itIdx).second < nInputStates ) { // extract from track #1
           bool outlier = (*inputTrk1.trackStateOnSurfaces())[(*itIdx).second]->type(TrackStateOnSurface::Outlier);
-          const Trk::MeasurementBase* extractMB = 
+          const Trk::MeasurementBase* extractMB =
             ((*inputTrk1.trackStateOnSurfaces())[(*itIdx).second]->measurementOnTrack());
           if (extractMB) {
             insertStateIntoTrajectory(  trajectory,
@@ -364,7 +364,7 @@ StatusCode Trk::TrackFitInputPreparator::copyToTrajectory
                          << "problem with track #1" << std::endl;
         } else { // extract from track #2
           bool outlier = (*inputTrk2.trackStateOnSurfaces())[(*itIdx).second]->type(TrackStateOnSurface::Outlier);
-          const Trk::MeasurementBase* extractMB = 
+          const Trk::MeasurementBase* extractMB =
             ((*inputTrk2.trackStateOnSurfaces())[(*itIdx).second]->measurementOnTrack());
           if (extractMB) {
             insertStateIntoTrajectory(  trajectory,
@@ -384,7 +384,7 @@ StatusCode Trk::TrackFitInputPreparator::copyToTrajectory
     }
   }
 
-  
+
   /* if inputs are already sorted or assumed so by convention, trajectory will not
      yet have been filled. In that case, just copy linearly. */
 
@@ -436,7 +436,7 @@ Trk::Track* Trk::TrackFitInputPreparator::copyToTrack
   DataVector<const TrackStateOnSurface> *newListOfStates
     = new DataVector<const TrackStateOnSurface>;
   TS_iterator itStates = inputTrk.trackStateOnSurfaces()->begin();
-  for (;itStates!=inputTrk.trackStateOnSurfaces()->end();++itStates) 
+  for (;itStates!=inputTrk.trackStateOnSurfaces()->end();++itStates)
     if ( (*itStates)->type(Trk::TrackStateOnSurface::Measurement) ||
          (*itStates)->type(Trk::TrackStateOnSurface::Outlier)     ) {
       std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern(0);
@@ -445,7 +445,7 @@ Trk::Track* Trk::TrackFitInputPreparator::copyToTrack
         else typePattern.set(TrackStateOnSurface::Measurement);
       newListOfStates->push_back(new TrackStateOnSurface
                            ((*itStates)->measurementOnTrack()->clone(),
-                           ( (*itStates)->trackParameters()           ? 
+                           ( (*itStates)->trackParameters()           ?
                              (*itStates)->trackParameters()->clone()  :
                              nullptr ),
                            nullptr,
@@ -462,7 +462,7 @@ Trk::Track* Trk::TrackFitInputPreparator::copyToTrack
   }
 
   if (doSorting) {
-    Trk::TrackStateOnSurfaceComparisonFunction* CompFunc = 
+    Trk::TrackStateOnSurfaceComparisonFunction* CompFunc =
       new Trk::TrackStateOnSurfaceComparisonFunction
       ( (*inputTrk.trackParameters()->begin())->momentum() ) ;
     if(!__gnu_cxx::is_sorted(newListOfStates->begin(),newListOfStates->end(), *CompFunc))
@@ -484,12 +484,12 @@ Trk::MeasurementSet Trk::TrackFitInputPreparator::stripMeasurements
   MeasurementSet newMbSet;
   // collect MBs from Track (speed: assume use for extending track at end)
   DataVector<const MeasurementBase>::const_iterator it
-    = inputTrk.measurementsOnTrack()->begin(); 
-  for ( ; it!=inputTrk.measurementsOnTrack()->end(); ++it) 
+    = inputTrk.measurementsOnTrack()->begin();
+  for ( ; it!=inputTrk.measurementsOnTrack()->end(); ++it)
     if ((*it)) newMbSet.push_back ( *it );
   // add MBs from input list
   MeasurementSet::const_iterator itSet    = inputMbs.begin();
-  for ( ; itSet!=inputMbs.end(); ++itSet) 
+  for ( ; itSet!=inputMbs.end(); ++itSet)
     if ((*itSet)) newMbSet.push_back ( *itSet );
   return newMbSet;
 
@@ -547,7 +547,7 @@ void Trk::TrackFitInputPreparator::insertStateIntoTrajectory(Trajectory& traject
                             bool  isOutlier,
                             bool  ownsMeasurement,
                             const TrackParameters* initialParameters,
-                            const ParticleHypothesis&  partHypo ) const {    
+                            const ParticleHypothesis&  partHypo ) const {
     const TrackParameters* trkPar = nullptr;
     Trk::ProtoMaterialEffects* matEffOnMeasurementSurface = nullptr;
     //std::cout << "InputPrep: partHypo:" << partHypo << std::endl;
@@ -556,7 +556,9 @@ void Trk::TrackFitInputPreparator::insertStateIntoTrajectory(Trajectory& traject
         if (!trajectory.empty()) {
             /// get previous state:
             const TrackParameters* prevPar = trajectory.back().referenceParameters();
-            if (prevPar->covariance()) prevPar = CREATE_PARAMETERS(*prevPar,prevPar->parameters(),nullptr);
+            if (prevPar->covariance()) {
+              prevPar = CREATE_PARAMETERS(*prevPar,prevPar->parameters(),nullptr).release();
+            }
             const std::vector< const Trk::TrackStateOnSurface * >* collectedTSOS = m_extrapolator->extrapolateM(
                         *prevPar,
                         measurement->associatedSurface(),
@@ -567,7 +569,7 @@ void Trk::TrackFitInputPreparator::insertStateIntoTrajectory(Trajectory& traject
                         //Trk::pion   // FIXME: decide on particle hypothesis to use!
                         //track->info().particleHypothesis()
             );
-            if (trajectory.back().referenceParameters()->covariance()) delete prevPar; // balance CREATE_PARS from a few lines earlier 
+            if (trajectory.back().referenceParameters()->covariance()) delete prevPar; // balance CREATE_PARS from a few lines earlier
             if (collectedTSOS) {
                 // copy into ProtoTrackStateOnSurface for memory management, ignoring the last:
                 for (unsigned int i = 0 ; i < collectedTSOS->size() -1; i++) {

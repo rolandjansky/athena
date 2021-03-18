@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -11,8 +11,6 @@
 #include "GoodRunsLists/IGoodRunsListSelectorTool.h"
 #include "GoodRunsLists/TGoodRunsListReader.h"
 #include "xAODLuminosity/SortLumiBlockRangeByStart.h"
-
-#include "DBDataModel/CollectionMetadata.h"
 
 #include "GoodRunsLists/TGoodRunsList.h"
 
@@ -155,16 +153,15 @@ StatusCode LumiBlockMetaDataTool::beginInputFile(const SG::SourceID&)
 StatusCode LumiBlockMetaDataTool::endInputFile(const SG::SourceID&)
 {
   m_fileCurrentlyOpened=false;
-  xAOD::LumiBlockRangeContainer::const_iterator it;
-  for(it=m_cacheInputRangeContainer->begin(); it!=m_cacheInputRangeContainer->end(); it++) {
-    xAOD::LumiBlockRange* iovr = new xAOD::LumiBlockRange(*(*it));
-    m_cacheOutputRangeContainer->push_back(iovr);
+  for (const auto range : *m_cacheInputRangeContainer) {
+    auto iovr = std::make_unique<xAOD::LumiBlockRange>(*range);
+    m_cacheOutputRangeContainer->push_back(std::move(iovr));
   }
   m_cacheInputRangeContainer->clear();
   
-  for(it=m_cacheSuspectInputRangeContainer->begin(); it!=m_cacheSuspectInputRangeContainer->end(); it++) {
-    xAOD::LumiBlockRange* iovr = new xAOD::LumiBlockRange(*(*it));
-    m_cacheSuspectOutputRangeContainer->push_back(iovr);
+  for (const auto range : *m_cacheSuspectInputRangeContainer) {
+    auto iovr = std::make_unique<xAOD::LumiBlockRange>(*range);
+    m_cacheSuspectOutputRangeContainer->push_back(std::move(iovr));
   }
   m_cacheSuspectInputRangeContainer->clear();
   return(StatusCode::SUCCESS);
@@ -174,19 +171,14 @@ StatusCode LumiBlockMetaDataTool::metaDataStop()
 {
   if(m_fileCurrentlyOpened) {
     ATH_MSG_INFO( "MetaDataStop called when input file open: LumiBlock is suspect" );
-    xAOD::LumiBlockRangeContainer::const_iterator it;
-    for(it=m_cacheInputRangeContainer->begin(); it!=m_cacheInputRangeContainer->end(); it++) {
-      xAOD::LumiBlockRange* iovr = new xAOD::LumiBlockRange(*(*it));
-      m_cacheSuspectOutputRangeContainer->push_back(iovr);
+    for (const auto range : *m_cacheInputRangeContainer) {
+      auto iovr = std::make_unique<xAOD::LumiBlockRange>(*range);
+      m_cacheSuspectOutputRangeContainer->push_back(std::move(iovr));
     }
     m_cacheInputRangeContainer->clear();
   }
   
-  StatusCode sc = finishUp();
-  if (!sc.isSuccess()) {
-    ATH_MSG_INFO( "finishup failed" );
-    return StatusCode::FAILURE;
-  } 
+  ATH_CHECK( finishUp() );
   return(StatusCode::SUCCESS);
 }
 
@@ -209,13 +201,11 @@ StatusCode   LumiBlockMetaDataTool::finishUp() {
   xAOD::LumiBlockRangeAuxContainer* piovSuspectAux = new xAOD::LumiBlockRangeAuxContainer();
   piovSuspect->setStore( piovSuspectAux );
   
-  xAOD::LumiBlockRangeContainer::const_iterator it;
-  
   if(m_cacheSuspectOutputRangeContainer->size()>0) {
     ATH_MSG_VERBOSE("Suspect OutputRangeCollection with size " << m_cacheSuspectOutputRangeContainer->size());
-    for(it=m_cacheSuspectOutputRangeContainer->begin(); it!=m_cacheSuspectOutputRangeContainer->end(); it++) {
-      xAOD::LumiBlockRange* iovr = new xAOD::LumiBlockRange(*(*it));
-      piovSuspect->push_back(iovr);
+    for (const auto range : *m_cacheSuspectOutputRangeContainer) {
+      auto iovr = std::make_unique<xAOD::LumiBlockRange>(*range);
+      piovSuspect->push_back(std::move(iovr));
     }
   }
   
@@ -224,9 +214,9 @@ StatusCode   LumiBlockMetaDataTool::finishUp() {
     m_cacheOutputRangeContainer->sort(xAOD::SortLumiBlockRangeByStart());
     
     //  Use tmp collection to do the merging
-    xAOD::LumiBlockRangeContainer* p_tempLBColl = new xAOD::LumiBlockRangeContainer();
+    xAOD::LumiBlockRangeContainer tempLBColl;
     xAOD::LumiBlockRangeAuxContainer* p_tempAuxLBColl = new xAOD::LumiBlockRangeAuxContainer();
-    p_tempLBColl->setStore( p_tempAuxLBColl );
+    tempLBColl.setStore( p_tempAuxLBColl );
     
     // Sort and Merge LumiBlockRange objects if necessary
     // Merge LumiBlockRange objects for same run and lumiblock
@@ -234,11 +224,11 @@ StatusCode   LumiBlockMetaDataTool::finishUp() {
     xAOD::LumiBlockRangeContainer::const_iterator ie = m_cacheOutputRangeContainer->end();
     xAOD::LumiBlockRangeContainer::const_iterator ilast = m_cacheOutputRangeContainer->begin();
     xAOD::LumiBlockRange* iovr = new xAOD::LumiBlockRange(*(*i));
-    p_tempLBColl->push_back(iovr);
+    tempLBColl.push_back(iovr);
     ATH_MSG_VERBOSE(  "Push_back tmpLBColl with run  " 
 		      << (*i)->startRunNumber() << " LB " << (*i)->startLumiBlockNumber() << " events seen "     
 		      << (*ilast)->eventsSeen() << " expected " << (*i)->eventsExpected());
-    i++;
+    ++i;
     while (i != ie) {
       if( ((*i)->startRunNumber()==(*ilast)->startRunNumber()) &&
 	  ((*i)->stopRunNumber()==(*ilast)->stopRunNumber()) &&
@@ -265,65 +255,61 @@ StatusCode   LumiBlockMetaDataTool::finishUp() {
 			  << iovr->startRunNumber() << " LB " << iovr->startLumiBlockNumber() << " events seen "     
 			  << iovr->eventsSeen() << " expected " << iovr->eventsExpected());
 	
-	p_tempLBColl->push_back(iovr);
+	tempLBColl.push_back(iovr);
 	ilast = i;
       }
-      i++;
+      ++i;
     }
 
-    for(it=p_tempLBColl->begin(); it!=p_tempLBColl->end(); it++) {
-      xAOD::LumiBlockRange* iovr = new xAOD::LumiBlockRange(*(*it));
-      if((*it)->eventsSeen() == (*it)->eventsExpected() ) {
-	piovComplete->push_back(iovr);
+    for (const auto range : tempLBColl) {
+      auto iovr = std::make_unique<xAOD::LumiBlockRange>(*range);
+      if(range->eventsSeen() == range->eventsExpected() ) {
+	piovComplete->push_back(std::move(iovr));
       }
-      else if((*it)->eventsSeen() > (*it)->eventsExpected() ) {
-	piovSuspect->push_back(iovr);
+      else if(range->eventsSeen() > range->eventsExpected() ) {
+	piovSuspect->push_back(std::move(iovr));
       }
       else {
-	piovUnfinished->push_back(iovr);
+	piovUnfinished->push_back(std::move(iovr));
       }
     }
-    delete p_tempLBColl;
   }
 
 
   if(piovComplete->size()>0) {
     ATH_MSG_DEBUG( "Number of Complete LumiBlocks:" << piovComplete->size() );
-    xAOD::LumiBlockRangeContainer::const_iterator it;
-    for(it=piovComplete->begin(); it!=piovComplete->end(); it++) {
+    for (const auto range : *piovComplete) {
       ATH_MSG_INFO("\t [ ("
-		   << (*it)->startRunNumber()  << "," << (*it)->startLumiBlockNumber()
+		   << range->startRunNumber()  << "," << range->startLumiBlockNumber()
 		   << "):("
-		   << (*it)->startRunNumber()  << "," << (*it)->startLumiBlockNumber()
-		   << ") eventsSeen = " << (*it)->eventsSeen()
-		   << ", eventsExpected = " << (*it)->eventsExpected()
+		   << range->startRunNumber()  << "," << range->startLumiBlockNumber()
+		   << ") eventsSeen = " << range->eventsSeen()
+		   << ", eventsExpected = " << range->eventsExpected()
 		   << " ]");
     }
   }
 
   if(piovUnfinished->size()>0) {
     ATH_MSG_DEBUG( "Number of Unfinished LumiBlocks:" << piovUnfinished->size() );
-    xAOD::LumiBlockRangeContainer::const_iterator it;
-    for(it=piovUnfinished->begin(); it!=piovUnfinished->end(); it++) {
+    for (const auto range : *piovUnfinished) {
       ATH_MSG_INFO("\t [ ("
-		   << (*it)->startRunNumber()  << "," << (*it)->startLumiBlockNumber()
+		   << range->startRunNumber()  << "," << range->startLumiBlockNumber()
 		   << "):("
-		   << (*it)->startRunNumber()  << "," << (*it)->startLumiBlockNumber()
-		   << ") eventsSeen = " << (*it)->eventsSeen()
-		   << ", eventsExpected = " << (*it)->eventsExpected()
+		   << range->startRunNumber()  << "," << range->startLumiBlockNumber()
+		   << ") eventsSeen = " << range->eventsSeen()
+		   << ", eventsExpected = " << range->eventsExpected()
 		   << " ]");
     }
   }
   if(piovSuspect->size()>0) {
     ATH_MSG_DEBUG( "Number of Suspect LumiBlocks:"  << piovSuspect->size() );
-    xAOD::LumiBlockRangeContainer::const_iterator it;
-    for(it=piovSuspect->begin(); it!=piovSuspect->end(); it++) {
+    for (const auto range : *piovSuspect) {
       ATH_MSG_INFO("\t [ ("
-		   << (*it)->startRunNumber()  << "," << (*it)->startLumiBlockNumber()
+		   << range->startRunNumber()  << "," << range->startLumiBlockNumber()
 		   << "):("
-		   << (*it)->startRunNumber()  << "," << (*it)->startLumiBlockNumber()
-		   << ") eventsSeen = " << (*it)->eventsSeen()
-		   << ", eventsExpected = " << (*it)->eventsExpected()
+		   << range->startRunNumber()  << "," << range->startLumiBlockNumber()
+		   << ") eventsSeen = " << range->eventsSeen()
+		   << ", eventsExpected = " << range->eventsExpected()
 		   << " ]");
     }
   }

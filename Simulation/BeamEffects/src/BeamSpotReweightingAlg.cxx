@@ -23,7 +23,6 @@ namespace Simulation
   BeamSpotReweightingAlg::BeamSpotReweightingAlg( const std::string& name, ISvcLocator* pSvcLocator )
     : AthReentrantAlgorithm( name, pSvcLocator )
   {
-    declareProperty( "Input_beam_sigma_z", m_input_beam_sigma_z, "Beam spot sigma of the input HIT file to be reweighted");
   }
 
   /** Athena algorithm's interface method initialize() */

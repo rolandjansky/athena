@@ -273,18 +273,18 @@ Trk::Navigator::nextTrackingVolume(const EventContext& ctx,
     const Trk::Surface& currentSurface =
       currentBoundary->surfaceRepresentation();
     // try the propagation
-    const Trk::TrackParameters* trackPar = nullptr;
+    std::unique_ptr<Trk::TrackParameters> trackPar = nullptr;
     // do either RungeKutta (always after first unsuccessful try) or straight
     // line
     if (!currentSurface.isOnSurface(parms.position(), true, 0., 0.)) {
       trackPar =
         (!m_useStraightLineApproximation || tryBoundary > 1)
           ? prop.propagateParameters(
-              ctx, parms, currentSurface, searchDir, true, m_fieldProperties).release()
+              ctx, parms, currentSurface, searchDir, true, m_fieldProperties)
           : prop.propagateParameters(
-              ctx, parms, currentSurface, searchDir, true, s_zeroMagneticField).release();
+              ctx, parms, currentSurface, searchDir, true, s_zeroMagneticField);
     } else {
-      trackPar = parms.clone(); //to be revisited
+      trackPar.reset(parms.clone()); //to be revisited
     }
     if (trackPar) {
       // the next volume pointer
@@ -307,7 +307,7 @@ Trk::Navigator::nextTrackingVolume(const EventContext& ctx,
       }
 
       return Trk::NavigationCell(
-        nextVolume, trackPar, Trk::BoundarySurfaceFace(surface_id));
+        nextVolume, std::move(trackPar), Trk::BoundarySurfaceFace(surface_id));
     }
 
     // ---------------------------------------------------
@@ -334,88 +334,6 @@ Trk::Navigator::nextTrackingVolume(const EventContext& ctx,
   return Trk::NavigationCell(nullptr, nullptr);
 }
 
-Trk::NavigationCell
-Trk::Navigator::nextDenseTrackingVolume(
-  const EventContext& ctx,
-  const Trk::IPropagator &prop,
-  const Trk::TrackParameters &parms,
-  const Trk::Surface *destinationSurface,
-  Trk::PropDirection dir,
-  Trk::ParticleHypothesis particle,
-  const Trk::TrackingVolume &vol,
-  double &path) const {
-  ATH_MSG_DEBUG("  [N] nextDenseTrackingVolume() to volume '"
-                << vol.volumeName() << "', starting from " << parms.position());
-
-
-  Trk::NavigationCell solution(nullptr, nullptr);
-  const Trk::TrackParameters *currPar = &parms;
-
-  double tol = 0.001;
-  path = 0.;
-
-  // check position : if volume exit return trivial solution
-  const Trk::TrackingVolume *nextVolume = nullptr;
-  if (atVolumeBoundary(currPar, &vol, dir, nextVolume, tol) && nextVolume != (&vol)) {
-    if (!nextVolume) {
-      const Amg::Vector3D& gp = currPar->position();
-      const Trk::TrackingVolume *currStatic = trackingGeometry(ctx)->lowestStaticTrackingVolume(gp);
-      if (&vol != currStatic) {
-        nextVolume = currStatic;
-      }
-    }
-    return Trk::NavigationCell(nextVolume, currPar);
-  }
-
-  // prepare vector of boundary surfaces + destination surface
-  std::vector<std::pair<const Trk::Surface *, Trk::BoundaryCheck> > *surfaces =
-    new std::vector<std::pair<const Trk::Surface *, Trk::BoundaryCheck> >;
-
-  if (destinationSurface) {
-    surfaces->push_back(std::pair<const Trk::Surface *, Trk::BoundaryCheck>(destinationSurface, false));
-  }
-
-  const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > > &bounds = vol.boundarySurfaces();
-  for (unsigned int ib = 0; ib < bounds.size(); ib++) {
-    const Trk::Surface *nextSurface = &((bounds[ib].get())->surfaceRepresentation());
-    surfaces->push_back(std::pair<const Trk::Surface *, Trk::BoundaryCheck>(nextSurface, true));
-  }
-
-  // propagate
-  std::vector<unsigned int> solutions;
-  // const Trk::TrackParameters* nextPar = prop.propagate(parms,*surfaces,dir,vol,particle,solutions,path);
-  const Trk::TrackParameters* nextPar = prop.propagate(ctx,
-                                                       parms,
-                                                       *surfaces,
-                                                       dir,
-                                                       m_fieldProperties,
-                                                       particle,
-                                                       solutions,
-                                                       path,
-                                                       false,
-                                                       false,
-                                                       &vol).release();
-  // if (nextPar) throwIntoGarbageBin(nextPar);
-  if (nextPar) {
-    Amg::Vector3D gp = nextPar->position();
-    if (destinationSurface && destinationSurface == &nextPar->associatedSurface()) {
-      solution = Trk::NavigationCell(&vol, nextPar);
-    } else if (atVolumeBoundary(nextPar, &vol, dir, nextVolume, tol)) {
-      if (!nextVolume) {
-        // detached volume boundary or world boundary : resolve
-        const Trk::TrackingVolume *currStatic = trackingGeometry(ctx)->lowestStaticTrackingVolume(gp);
-        if (&vol != currStatic) {
-          nextVolume = currStatic;
-        }
-      }
-      solution = Trk::NavigationCell(nextVolume, nextPar);
-    }
-  }
-  surfaces->clear();
-  delete surfaces;
-
-  return solution;
-}
 
 bool
 Trk::Navigator::atVolumeBoundary(const Trk::TrackParameters* parms,

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BCM_DigitizationTool.h"
@@ -103,7 +103,7 @@ StatusCode BCM_DigitizationTool::createOutputContainers(const EventContext& ctx)
 //----------------------------------------------------------------------
 // ProcessSiHit method:
 //----------------------------------------------------------------------
-void BCM_DigitizationTool::processSiHit(const SiHit &currentHit, double eventTime, unsigned int evtIndex)
+void BCM_DigitizationTool::processSiHit(const SiHit &currentHit, double eventTime, unsigned int evtIndex, const EventContext& ctx)
 {
   const int moduleNo = currentHit.getLayerDisk();
   const float enerDep = computeEnergy(currentHit.energyLoss(), currentHit.localStartPosition(), currentHit.localEndPosition());
@@ -114,7 +114,7 @@ void BCM_DigitizationTool::processSiHit(const SiHit &currentHit, double eventTim
   // Create new deposit and add to vector
   const EBC_EVCOLL evColl = EBC_MAINEVCOLL;
   const HepMcParticleLink::PositionFlag idxFlag = (evtIndex==0) ? HepMcParticleLink::IS_POSITION: HepMcParticleLink::IS_INDEX;
-  const HepMcParticleLink particleLink{HepMcParticleLink(currentHit.trackNumber(), evtIndex, evColl, idxFlag)};
+  const HepMcParticleLink particleLink{HepMcParticleLink(currentHit.trackNumber(), evtIndex, evColl, idxFlag, ctx)};
   const int barcode = particleLink.barcode();
   if (barcode == 0 || barcode == 10001){
     return;
@@ -182,7 +182,7 @@ StatusCode BCM_DigitizationTool::processAllSubEvents(const EventContext& ctx)
     ATH_MSG_DEBUG ( "SiHitCollection found with " << hitCollection->size() << " hits" );
     // Read hits from this collection
     for (const auto& siHit : *hitCollection) {
-      processSiHit(siHit, time, evtIndex);
+      processSiHit(siHit, time, evtIndex, ctx);
     }
 
   }
@@ -206,7 +206,7 @@ StatusCode BCM_DigitizationTool::processAllSubEvents(const EventContext& ctx)
       ATH_MSG_DEBUG ( "SiHitCollection found with " << tmpColl->size() << " hits" );
       // Read hits from this collection
       for (const auto& siHit : *tmpColl) {
-        processSiHit(siHit, time, evtIndex);
+        processSiHit(siHit, time, evtIndex, ctx);
       }
     }
   }
@@ -223,6 +223,8 @@ StatusCode BCM_DigitizationTool::processBunchXing(int bunchXing,
                                                   SubEventIterator bSubEvents,
                                                   SubEventIterator eSubEvents)
 {
+  const EventContext &ctx = Gaudi::Hive::currentContext();
+
   ATH_MSG_DEBUG ( "processBunchXing() " << bunchXing );
 
   SubEventIterator iEvt = bSubEvents;
@@ -241,7 +243,7 @@ StatusCode BCM_DigitizationTool::processBunchXing(int bunchXing,
     SiHitCollection::const_iterator e = seHitColl->end();
     // Read hits from this collection
     for (; i!=e; ++i) {
-      processSiHit(*i, iEvt->time(), iEvt->index());
+      processSiHit(*i, iEvt->time(), iEvt->index(), ctx);
     }
   }
 

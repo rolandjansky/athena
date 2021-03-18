@@ -108,9 +108,9 @@ StatusCode TriggerBitsMakerTool::getBits(boost::dynamic_bitset<uint32_t>& passRa
   // Read the sets of chain IDs
   for (const Decision* decisionObject : *chainsHandle) {
     // Collect all decisions (IDs of passed/prescaled/rerun chains) from named decisionObjects
-    if (decisionObject->name() == "HLTPassRaw") {
+    if (decisionObject->name() == TrigCompositeUtils::summaryPassNodeName()) {
       HLTPassRaw = decisionObject;
-    } else if (decisionObject->name() == "HLTPrescaled") {
+    } else if (decisionObject->name() == TrigCompositeUtils::summaryPrescaledNodeName()) {
       HLTPrescaled = decisionObject;
     }
     if (HLTPassRaw != nullptr && HLTPrescaled != nullptr) {

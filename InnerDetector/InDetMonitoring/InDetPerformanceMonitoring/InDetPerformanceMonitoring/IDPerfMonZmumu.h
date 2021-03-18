@@ -195,6 +195,7 @@ class IDPerfMonZmumu : public AthAlgorithm
   double m_positive_z0_PVerr{};
   double m_positive_d0_PVerr{};
   int m_positive_1_vtx{};
+  int m_positive_parent{};
 
   double m_positive_2_px{};
   double m_positive_2_py{};
@@ -221,6 +222,7 @@ class IDPerfMonZmumu : public AthAlgorithm
   double m_negative_z0_PVerr{};
   double m_negative_d0_PVerr{};
   int m_negative_1_vtx{};
+  int m_negative_parent{};
 
   double m_negative_2_px{};
   double m_negative_2_py{};

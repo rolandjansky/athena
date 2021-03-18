@@ -6,7 +6,6 @@
 #define TRIGJETCONDITIONCONFIG_ABS_ETA_H
 
 #include "ITrigJetConditionConfig.h"
-#include "./ConditionsDefsMT.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "./ConditionsDefsMT.h"
 #include "./ArgStrToDouble.h"

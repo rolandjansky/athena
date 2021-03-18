@@ -494,7 +494,7 @@ std::pair<double, double> JSSTaggerBase::getSF( const xAOD::Jet& jet, asg::Accep
   std::string truthLabelStr;
 
   /// Truth label value
-  SG::ReadDecorHandle<xAOD::JetContainer, float> readTruthLabel(m_readTruthLabelKey);
+  SG::ReadDecorHandle<xAOD::JetContainer, int> readTruthLabel(m_readTruthLabelKey);
   LargeRJetTruthLabel::TypeEnum jetContainment = LargeRJetTruthLabel::intToEnum(readTruthLabel(jet));
 
   /// Contained top tagger

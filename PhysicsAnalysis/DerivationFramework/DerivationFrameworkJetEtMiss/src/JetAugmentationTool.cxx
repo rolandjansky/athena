@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -318,7 +318,7 @@ namespace DerivationFramework {
     }
 
     // loop over the copies
-    for(const auto& jet : *jets_copy) {
+    for(const auto jet : *jets_copy) {
       // get the original jet so we can decorate it
       const xAOD::Jet& jet_orig( *(*jets)[jet->index()] );
 

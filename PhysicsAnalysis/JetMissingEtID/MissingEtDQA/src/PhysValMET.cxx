@@ -882,27 +882,27 @@ namespace MissingEtDQA {
       else m_metmaker = &m_metmakerTopo;
 
       // Electrons
-      if( (*m_metmaker)->rebuildMET("RefEle", xAOD::Type::Electron, met_Reb, metElectrons.asDataVector(), &metHelper).isFailure() ) {
+      if( (*m_metmaker)->rebuildMET("RefEle", xAOD::Type::Electron, met_Reb, metElectrons.asDataVector(), metHelper).isFailure() ) {
     	ATH_MSG_WARNING("Failed to build electron term.");
       }
 
       // Photons
-      if( (*m_metmaker)->rebuildMET("RefGamma", xAOD::Type::Photon, met_Reb, metPhotons.asDataVector(), &metHelper).isFailure() ) {
+      if( (*m_metmaker)->rebuildMET("RefGamma", xAOD::Type::Photon, met_Reb, metPhotons.asDataVector(), metHelper).isFailure() ) {
     	ATH_MSG_WARNING("Failed to build photon term.");
       }
 
       // Taus
-      if( (*m_metmaker)->rebuildMET("RefTau", xAOD::Type::Tau, met_Reb,metTaus.asDataVector(),&metHelper).isFailure() ){
+      if( (*m_metmaker)->rebuildMET("RefTau", xAOD::Type::Tau, met_Reb,metTaus.asDataVector(),metHelper).isFailure() ){
     	ATH_MSG_WARNING("Failed to build tau term.");
       }
 
       // Muons
-      if( (*m_metmaker)->rebuildMET("Muons", xAOD::Type::Muon, met_Reb, metMuons.asDataVector(), &metHelper).isFailure() ) {
+      if( (*m_metmaker)->rebuildMET("Muons", xAOD::Type::Muon, met_Reb, metMuons.asDataVector(), metHelper).isFailure() ) {
     	ATH_MSG_WARNING("Failed to build muon term.");
       }
 
       // Jets
-      if( (*m_metmaker)->rebuildJetMET("RefJet", "SoftClus", "PVSoftTrk", met_Reb, jets, coreMet, &metHelper, true).isFailure() ) {
+      if( (*m_metmaker)->rebuildJetMET("RefJet", "SoftClus", "PVSoftTrk", met_Reb, jets, coreMet, metHelper, true).isFailure() ) {
     	ATH_MSG_WARNING("Failed to build jet and soft terms.");
       }
       MissingETBase::Types::bitmask_t trksource = MissingETBase::Source::Track;
@@ -1267,7 +1267,7 @@ namespace MissingEtDQA {
       	}
       	met_Calo->setStore(met_CaloAux);
         MissingETAssociationHelper metHelper(metMap);
-	if( (*m_metmaker)->rebuildJetMET("RefJet", "SoftClus", "PVSoftTrk", met_Calo, metJetsEmpty.asDataVector(), coreMet, &metHelper, true).isFailure() ) {
+	if( (*m_metmaker)->rebuildJetMET("RefJet", "SoftClus", "PVSoftTrk", met_Calo, metJetsEmpty.asDataVector(), coreMet, metHelper, true).isFailure() ) {
       	  ATH_MSG_WARNING("Failed to build jet and soft terms.");
       	}
 
