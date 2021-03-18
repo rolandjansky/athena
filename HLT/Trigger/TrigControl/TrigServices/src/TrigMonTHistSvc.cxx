@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigMonTHistSvc.h"
@@ -73,16 +73,12 @@ StatusCode TrigMonTHistSvc::regHist_i(std::unique_ptr<T> hist_unique, const std:
 
   // We need to pass ownership to the hist registry now
   phid = nullptr;
-  T* hist = nullptr;
-  if (hist_unique.get() != nullptr) {
-    hist = hist_unique.release();
-  }
-
-  if (not isObjectAllowed(id, hist)) {
+  if (not isObjectAllowed(id, hist_unique.get())) {
     return StatusCode::FAILURE;
   }
 
-  if (hist->Class()->InheritsFrom(TH1::Class())) {
+  if (hist_unique->Class()->InheritsFrom(TH1::Class())) {
+    T* hist = hist_unique.release();
     if (hltinterface::IInfoRegister::instance()->registerTObject(name(), id, hist)) {
       auto [iter,inserted] = m_hists.try_emplace(id, id, hist);
       if (not inserted) {
@@ -96,11 +92,12 @@ StatusCode TrigMonTHistSvc::regHist_i(std::unique_ptr<T> hist_unique, const std:
     }
     else {
       ATH_MSG_ERROR("Registration of " << hist->ClassName() << " with IInfoRegister failed");
+      delete hist;
       return StatusCode::FAILURE;
     }
   }
   else {
-    ATH_MSG_ERROR("Cannot register " << hist->ClassName()
+    ATH_MSG_ERROR("Cannot register " << hist_unique->ClassName()
                                      << " because it does not inherit from TH1");
     return StatusCode::FAILURE;
   }
