@@ -14,7 +14,7 @@ namespace top {
 
   bool TrackJetCleaningSelector::apply(const top::Event& event) const {
     // Selection is applied only if Variable-R track jets are used
-    if (m_config->sgKeyTrackJets() == "AntiKtVR30Rmax4Rmin02TrackJets") {
+    if (m_config->sgKeyTrackJets() == "AntiKtVR30Rmax4Rmin02PV0TrackJets") {
       static SG::AuxElement::Accessor<char> acc_passDRcut("passDRcut");
       for (const xAOD::Jet* jet : event.m_trackJets) {
         top::check(acc_passDRcut.isAvailable(

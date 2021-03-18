@@ -552,7 +552,7 @@ namespace top {
         jetPtr->auxdecor<char>(m_passPreORSelectionLoose) = decoration;
       }
 
-      if (m_config->sgKeyTrackJets() == "AntiKtVR30Rmax4Rmin02TrackJets") { // Event cleaning for variable-R track jets
+      if (m_config->sgKeyTrackJets() == "AntiKtVR30Rmax4Rmin02PV0TrackJets") { // Event cleaning for variable-R track jets
         float pt_baseline = 5e3;
         float radius1 = std::max(0.02, std::min(0.4, 30000. / jetPtr->pt()));
 
