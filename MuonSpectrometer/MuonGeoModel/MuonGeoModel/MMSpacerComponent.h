@@ -11,12 +11,12 @@
 
 namespace MuonGM {
 
-class MMSpacerComponent: public StandardComponent {
+    class MMSpacerComponent : public StandardComponent {
 
-public:
-   MMSpacerComponent();
-   friend std::ostream & operator << (std::ostream& os, const MMSpacerComponent & c);
-};
+      public:
+        MMSpacerComponent();
+        friend std::ostream &operator<<(std::ostream &os, const MMSpacerComponent &c);
+    };
 
 } // namespace MuonGM
 

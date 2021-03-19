@@ -6,21 +6,22 @@
 #define sTGCComponent_H
 
 #include "MuonGeoModel/StandardComponent.h"
-#include <string>
+
 #include <iostream>
+#include <string>
 
 namespace MuonGM {
 
-class sTGCComponent: public StandardComponent {
+    class sTGCComponent : public StandardComponent {
 
-public:
-   sTGCComponent();
-   friend std::ostream & operator << (std::ostream& os, const sTGCComponent & c);
+      public:
+        sTGCComponent();
+        friend std::ostream &operator<<(std::ostream &os, const sTGCComponent &c);
 
-   double yCutout;
-   double yCutoutCathode;
-   std::string subType;
-};
+        double yCutout;
+        double yCutoutCathode;
+        std::string subType;
+    };
 
 } // namespace MuonGM
 

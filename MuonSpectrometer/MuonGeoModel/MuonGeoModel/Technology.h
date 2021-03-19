@@ -11,15 +11,16 @@
 // a placeholder
 namespace MuonGM {
 
-class Technology {
-protected:
-	std::string m_name;
-public:
-	double thickness;
-	Technology(std::string s);
-	virtual ~Technology();
-	std::string GetName();
-};
+    class Technology {
+      protected:
+        std::string m_name;
+
+      public:
+        double thickness;
+        Technology(std::string s);
+        virtual ~Technology();
+        std::string GetName();
+    };
 } // namespace MuonGM
 
 #endif

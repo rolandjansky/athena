@@ -6,16 +6,17 @@
 #define TgcComponent_H
 
 #include "MuonGeoModel/StandardComponent.h"
+
 #include <iostream>
 
 namespace MuonGM {
 
-class TgcComponent: public StandardComponent {
+    class TgcComponent : public StandardComponent {
 
-public:
-   TgcComponent();
-   friend std::ostream & operator << (std::ostream& os, const TgcComponent & c);
-};
+      public:
+        TgcComponent();
+        friend std::ostream &operator<<(std::ostream &os, const TgcComponent &c);
+    };
 
 } // namespace MuonGM
 

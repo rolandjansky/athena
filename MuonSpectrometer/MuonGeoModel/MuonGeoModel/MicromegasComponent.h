@@ -6,19 +6,20 @@
 #define MicromegasComponent_H
 
 #include "MuonGeoModel/StandardComponent.h"
-#include <string>
+
 #include <iostream>
+#include <string>
 
 namespace MuonGM {
 
-class MicromegasComponent: public StandardComponent {
+    class MicromegasComponent : public StandardComponent {
 
-public:
-   MicromegasComponent();
-   friend std::ostream & operator << (std::ostream& os, const MicromegasComponent & c);
+      public:
+        MicromegasComponent();
+        friend std::ostream &operator<<(std::ostream &os, const MicromegasComponent &c);
 
-   std::string subType;
-};
+        std::string subType;
+    };
 
 } // namespace MuonGM
 

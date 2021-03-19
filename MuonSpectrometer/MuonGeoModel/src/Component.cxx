@@ -6,35 +6,30 @@
 
 namespace MuonGM {
 
-Component::Component()
-{
-  name = "XXXY";
-  dx1 = 0.;
-  dx2 = 0.;
-  dy = 0.;
-}
+    Component::Component() {
+        name = "XXXY";
+        dx1 = 0.;
+        dx2 = 0.;
+        dy = 0.;
+    }
 
-Component::Component(const Component& c)
-{
-  name=c.name;
-  dx1=c.dx1;
-  dx2=c.dx2;
-  dy=c.dy;
-}
+    Component::Component(const Component &c) {
+        name = c.name;
+        dx1 = c.dx1;
+        dx2 = c.dx2;
+        dy = c.dy;
+    }
 
-double Component::GetThickness() const
-{
-  return 0;
-}
+    double Component::GetThickness() const { return 0; }
 
-Component& Component::operator=(const Component& c) {
-  if (this!=&c) {
-    name=c.name;
-    dx1=c.dx1;
-    dx2=c.dx2;
-    dy=c.dy;
-  }
-  return *this;
-}
+    Component &Component::operator=(const Component &c) {
+        if (this != &c) {
+            name = c.name;
+            dx1 = c.dx1;
+            dx2 = c.dx2;
+            dy = c.dy;
+        }
+        return *this;
+    }
 
 } // namespace MuonGM

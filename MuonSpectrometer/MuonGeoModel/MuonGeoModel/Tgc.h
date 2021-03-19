@@ -12,30 +12,29 @@ class GeoFullPhysVol;
 
 namespace MuonGM {
 
-class Cutout;
+    class Cutout;
 
-class Tgc: public DetectorElement {
+    class Tgc : public DetectorElement {
 
-public:
-  double width;
-  double length;
-  double thickness;
-  double longWidth;   // for trapezoidal layers
-  double irad;
-  double orad;
-  double dphi;
-  int index;
-	
-  Tgc(Component* s);
-  GeoFullPhysVol* build(int minimalgeo);
-  GeoFullPhysVol* build(int minimalgeo, int cutoutson, std::vector<Cutout*>);
-  void print();
+      public:
+        double width;
+        double length;
+        double thickness;
+        double longWidth; // for trapezoidal layers
+        double irad;
+        double orad;
+        double dphi;
+        int index;
 
-private:
-  TgcComponent* m_component;
-};
+        Tgc(Component *s);
+        GeoFullPhysVol *build(int minimalgeo);
+        GeoFullPhysVol *build(int minimalgeo, int cutoutson, std::vector<Cutout *>);
+        void print();
+
+      private:
+        TgcComponent *m_component;
+    };
 
 } // namespace MuonGM
-
 
 #endif

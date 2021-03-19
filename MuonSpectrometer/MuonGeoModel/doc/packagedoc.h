@@ -34,9 +34,9 @@ Multilayer    (Raw geom) created and built by Mdt - generates the whole tree of 
 DriftTube     (Raw geom) created and built by Multilayer.
 RpcLayer      (Raw geom) created and built by Rpc - generates the whole tree of volumes in a Rpc (up to the active gas).
 CscMultilayer (Raw geom) created and built by Ccs - generates the whole tree of volumes in a Csc chamber (up to the active gas).
-Ded, Spacer, SpacerBeam, Sup are (Raw geom builders) created and built by MuonChamber to describe passive components of stations. 
+Ded, Spacer, SpacerBeam, Sup are (Raw geom builders) created and built by MuonChamber to describe passive components of stations.
 BarrelToroidBuilderRDB, CalorimeterSaddleBuilder,  EndCapToroidBuilderRDB,  FeetToroidBuilderRDB,  ShieldBuilderRDB
-are classes building big dead matter components (used by the Factory). 
+are classes building big dead matter components (used by the Factory).
 Classes which build the raw geometry are un-necessary after the build-up is complete are appropriately deleted by the object producing them.
 
 MuonDetectorManager   - holds the geometry information relevant to clients

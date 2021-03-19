@@ -9,10 +9,10 @@
 
 namespace MuonGM {
 
-class LbiComponent: public StandardComponent {
-public:
-    std::string associated_CMIsubtype;
-};
+    class LbiComponent : public StandardComponent {
+      public:
+        std::string associated_CMIsubtype;
+    };
 } // namespace MuonGM
 
 #endif
