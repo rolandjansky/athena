@@ -37,12 +37,11 @@ namespace LVL1
     float m_minOutputTowerRho;
 
     // Internals
-    StatusCode buildFexBins(const xAOD::JGTowerContainer *towers) const;
-    mutable std::mutex m_mutex;
-    mutable std::atomic_bool m_builtFexBins{false};
-    // The following are protected by above mutex and filled on the first event:
-    mutable std::vector<std::vector<std::size_t>> m_jFEXBins ATLAS_THREAD_SAFE;
-    mutable std::vector<std::vector<std::size_t>> m_jFEXBinsCore ATLAS_THREAD_SAFE;
+    struct JFEXBins {
+      std::vector<std::vector<std::size_t>> m_bins;
+      std::vector<std::vector<std::size_t>> m_binsCore;
+    };
+    JFEXBins buildFexBins(const xAOD::JGTowerContainer *towers) const;
   }; //> end class JTowerRhoSubtractionAlg
 } // namespace LVL1
 
