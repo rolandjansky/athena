@@ -72,10 +72,10 @@ def get_idtrig_view_verifier(name):
    return viewDataVerifier
 
 
-#Temporary fix before we port offline cuts to trigger code, we are using offline configuration
+#FIXME: temporary before we port offline cuts to config settings
 def remapToOffline( name ):
    if name == 'cosmics':
-      return 'Cosmic'
+      return 'Cosmics'
    else:
        return name
 
@@ -87,13 +87,18 @@ def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
          dataVerifier = get_idtrig_view_verifier(verifier+config.name)
          viewAlgs.append( dataVerifier )
 
-
       #FIXME:  eventually adapt the cuts in the configsetting ATR-22755
-      from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
-      from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-      offName = remapToOffline( config.name )
-      trackingCuts = ConfiguredNewTrackingCuts( offName ) #FIXME: replace cosmic 
-      trackingCuts.__indetflags = InDetTrigFlags
+      mode_name = remapToOffline( config.name )
+      if config.name == "cosmics":
+         from InDetTrigRecExample.InDetTrigTrackingCuts import InDetTrigTrackingCuts
+         trackingCuts = InDetTrigTrackingCuts( mode_name ) 
+      #MinBias cuts need to be revisited: ATR-23077
+      else:
+         from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
+         trackingCuts = ConfiguredNewTrackingCuts( mode_name ) 
+      #trackingCuts.printInfo() 
+
+
 
       # --- decide if use the association tool
       usePrdAssociationTool = False 
@@ -149,7 +154,8 @@ def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
 
          from .InDetTrigCommon import siSPSeededTrackFinder_builder, get_full_name
          siSPSeededTrackFinder = siSPSeededTrackFinder_builder( name                  = get_full_name( 'siSPSeededTrackFinder', config.name ),
-                                                                outputTracks          = config.PT.trkTracksPT(),  # config.EFID.trkTracksEFID(), ##outEFIDTracks, 
+                                                                config                = config,
+                                                                outputTracks          = config.PT.trkTracksPT(), 
                                                                 trackingCuts          = trackingCuts,
                                                                 usePrdAssociationTool = usePrdAssociationTool,
                                                                 nameSuffix            = config.name )
@@ -173,9 +179,9 @@ def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
 
       #Verifier should not be necessary when both patt. rec. and PT runs in the same view -> None
       #Also provides particle cnv alg inside
-      precisionAlgs = makePrecisionInDetPatternRecognition(config      = config,
-                                                           inputTracks = config.PT.trkTracksPT(), #config.EFID.trkTracksEFID(),
-                                                           verifier    = None )
+      precisionAlgs = ambiguitySolverForIDPatternRecognition(config      = config,
+                                                             inputTracks = config.PT.trkTracksPT(), 
+                                                             verifier    = None )
 
 
       viewAlgs += precisionAlgs
@@ -185,7 +191,7 @@ def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
 
 
 #This could potentially be unified with makeInDetPrecisionTracking in the InDetPT.py?
-def makePrecisionInDetPatternRecognition( config, inputTracks,verifier = None ):
+def ambiguitySolverForIDPatternRecognition( config, inputTracks,verifier = None ):
    ptAlgs = [] #List containing all the precision tracking algorithms hence every new added alg has to be appended to the list
    
    #-----------------------------------------------------------------------------

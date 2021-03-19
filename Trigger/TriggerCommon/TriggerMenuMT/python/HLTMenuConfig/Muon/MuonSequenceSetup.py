@@ -421,7 +421,8 @@ def muEFCBAlgSequence(ConfigFlags):
     efcbViewsMaker.RoIsLink = "roi" # Merge based on L2SA muon
     efcbViewsMaker.RoITool = ViewCreatorPreviousROITool() # Spawn EventViews on L2SA muon ROI 
     #
-    efcbViewsMaker.Views = "MUEFCBViewRoIs"
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import isCosmic
+    efcbViewsMaker.Views = "MUEFCBViewRoIs" if not isCosmic() else "CosmicEFCBViewRoIs"
     efcbViewsMaker.InViewRoIs = "MUEFCBRoIs"
     #
     efcbViewsMaker.RequireParentView = True
