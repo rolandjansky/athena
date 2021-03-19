@@ -38,6 +38,7 @@ struct fbtTestToyMC_config {
   float realeff_mean;
   float fakeeff_mean;
   float eff_spread;
+  float eff_delta_with_pt;
   std::string selection;
   std::string process;
   bool test_save;
@@ -59,7 +60,7 @@ TFile *rootEffFile;
 
 void initialize(CP::BaseFakeBkgTool& tool, const std::vector<std::string>& input, const std::string& selection, const std::string& process, bool verbose);
 void writeXML(const string& name, int type);
-void writeROOT(const string& name, int type, float realeff_mean, float fakeeff_mean, float eff_spread);
+void writeROOT(const string& name, int type, float realeff_mean, float fakeeff_mean, float eff_spread, float eff_delta_with_pt);
 void setupEfficiencies();
 void lookupEfficiencies(xAOD::IParticle& lepton, ParticleData& lepton_data);
 
@@ -124,6 +125,7 @@ int main(int argc, char *argv[]){
   config.realeff_mean = 0.90;
   config.fakeeff_mean = 0.20;
   config.eff_spread = 0.10;
+  config.eff_delta_with_pt = 0.;
   config.minnbaseline = 1;
   config.maxnbaseline = 4;
   config.test_save = false;
@@ -194,7 +196,7 @@ void Loop(fbtTestToyMC_config config)
     
   Double_t realeff_spread = config.eff_spread;
   Double_t fakeeff_spread = config.eff_spread;
-  
+
   std::vector<bool> isTight;
   std::vector<std::string> input = { config.outputdirname+"efficiencies_full" };
   
@@ -207,7 +209,7 @@ void Loop(fbtTestToyMC_config config)
   else
     {
 	input.back().append(".root");
-	writeROOT(input.back(), 0, config.realeff_mean, config.fakeeff_mean, config.eff_spread);
+	writeROOT(input.back(), 0, config.realeff_mean, config.fakeeff_mean, config.eff_spread, config.eff_delta_with_pt);
 	rootEffFileName = input.back();
 	setupEfficiencies();
     }
@@ -382,13 +384,14 @@ void Loop(fbtTestToyMC_config config)
 
 	int savIndex = 0;
 
-	float nlep_frac = 1./(config.maxnbaseline-config.minnbaseline+1);
-	Int_t nlep_select = config.minnbaseline+rand.Uniform()/nlep_frac;
-
+ 
 	int nEventsMultFactor = 1;
 	if (pass > 0) nEventsMultFactor = 10;  // simulates higher-stats "MC" for removal of real contribution to fake factor result
 	for (Long64_t ievt=0; ievt<nevents_thiscase*nEventsMultFactor;ievt++) {
 
+	  float nlep_frac = 1./(config.maxnbaseline-config.minnbaseline+1);
+	  Int_t nlep_select = config.minnbaseline+rand.Uniform()/nlep_frac;
+ 
 	  Int_t nReal = 0;
 	  Int_t nTight = 0;
 	
@@ -401,6 +404,15 @@ void Loop(fbtTestToyMC_config config)
 	  vector<FakeBkgTools::ParticleData> leptons_data;
 	
 	  vector<bool> lep_real;
+
+	  // set up an ordered vector of lepton pts 
+	  vector<float> lep_pts;
+	  for (int ilep = 0; ilep < nlep_select; ilep++) {
+	    lep_pts.push_back(100*rand.Uniform());
+	  }
+	  // sort in descending order
+	  sort(lep_pts.begin(), lep_pts.end(), std::greater<float>());
+
 	  for (int ilep = 0; ilep < nlep_select; ilep++) {
 	    xAOD::Electron* lepton =  new xAOD::Electron;   // for toy MC the lepton flavor doesn't matter
 	    // assign the lepton as real or fake
@@ -416,7 +428,7 @@ void Loop(fbtTestToyMC_config config)
 	    lepton->makePrivateStore();
 	    lepton->setCharge(rand.Uniform() > 0.5 ? 1 : -1 );
 	    
-	    lep_pt = 100*rand.Uniform();
+	    lep_pt = lep_pts[ilep];
 	    lep_eta = -5. + 10*rand.Uniform();
 	    lepton->setP4( 1000*lep_pt, lep_eta, 0, 0.511);
 	    
@@ -678,7 +690,7 @@ void Loop(fbtTestToyMC_config config)
 
 }
 
-void writeROOT(const string& name, int type, float realeff_mean, float fakeeff_mean, float eff_spread)
+void writeROOT(const string& name, int type, float realeff_mean, float fakeeff_mean, float eff_spread, float eff_delta_with_pt)
 {
   TRandom3 rnd(235789);
 
@@ -701,8 +713,8 @@ void writeROOT(const string& name, int type, float realeff_mean, float fakeeff_m
       TH1D hMuReal_bigSyst("RealEfficiency_mu_pt__bigSyst","RealEfficiency_mu_pt__bigSyst", nbin, 0., 1.*nbin);
 
       for (int ibin = 1; ibin <= nbin; ibin++) {
-	Double_t realeff = TMath::Min(rnd.Gaus(realeff_mean, eff_spread), 0.99);
-	Double_t fakeeff = TMath::Max(rnd.Gaus(fakeeff_mean, eff_spread), 0.01);
+	Double_t realeff = TMath::Min(rnd.Gaus(realeff_mean, eff_spread)+eff_delta_with_pt*(ibin-nbin/2), 0.99);
+	Double_t fakeeff = TMath::Max(rnd.Gaus(fakeeff_mean, eff_spread)-eff_delta_with_pt*(ibin-nbin/2), 0.01);
     
 	float minrfdiff = 0.10;
 	if (realeff - fakeeff < minrfdiff) {
@@ -765,6 +777,7 @@ void parseArguments(int argc, char *argv[], fbtTestToyMC_config &config) {
       {"rmean", required_argument, 0, 'r'},
       {"fmean", required_argument, 0, 'f'},
       {"effsigma", required_argument, 0, 's'},
+      {"effdeltawithpt", required_argument, 0, 'd'},
       {"sel", required_argument, 0, 'l'},
       {"proc", required_argument, 0, 'p'},
       {"test_save", no_argument, 0, 'S'},
@@ -781,7 +794,7 @@ void parseArguments(int argc, char *argv[], fbtTestToyMC_config &config) {
   //  int optind;
   int longindex = 0;
 
-  while ((c = getopt_long(argc, argv, "c:e:m:n:r:f:s:l:p:S:M:HEPvh", long_options, &longindex)) != -1) {
+  while ((c = getopt_long(argc, argv, "c:e:m:n:r:f:s:d:l:p:S:M:HEPvh", long_options, &longindex)) != -1) {
     switch(c) {
     case 'c':
       config.ncases = atoi(optarg);
@@ -797,6 +810,9 @@ void parseArguments(int argc, char *argv[], fbtTestToyMC_config &config) {
       break;
     case 's':
       config.eff_spread = atof(optarg);
+      break;
+    case 'd':
+      config.eff_delta_with_pt = atof(optarg);
       break;
     case 'l':
       config.selection = optarg;
@@ -1152,6 +1168,7 @@ void usage() {
   std::cout << "   --rmean, -r: average real lepton efficiency (default: 0.9)" << std::endl;
   std::cout << "   --fmean, -f: average fake lepton efficiency (default: 0.2)" << std::endl;
   std::cout << "   --effsigma, -s: standard deviation for lepton-to-lepton variation in real and fake efficiencies (default: 0.10)" << std::endl;
+  std::cout << "   --effdeltawithpt, -d: rate at which the real (fake) efficiency increases (decreases) with simulated pt.  Note that the simulated pt range is 0 to 100" << std::endl;
   std::cout << "   --sel, -l: selection string to be used by the tools (default \" >= 1T\") " << std::endl;
   std::cout << "   --proc, -p: process string to be used by the tools (default \" >= 1F[T]\") " << std::endl;
   std::cout << "   --test_save, -S: save output from subjobs in each pseudoexperiement.  If set, requires an argument to specify the base name of the root files where the output will be saved. (default: false) " << std::endl;
