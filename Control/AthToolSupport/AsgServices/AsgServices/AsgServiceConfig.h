@@ -45,6 +45,15 @@ namespace asg
     explicit AsgServiceConfig (const std::string& val_typeAndName);
 
 
+    /// \brief Virtual destructor, to make PyROOT happy
+    ///
+    /// Without it ROOT 6.22+ does not allow Python classes to inherit from this
+    /// type.
+    ///
+  public:
+    virtual ~AsgServiceConfig () = default;
+
+
     /// \brief make a service with the given configuration
     ///
     /// \warn This is mostly meant as a low level interface to be used
