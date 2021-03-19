@@ -48,7 +48,14 @@ if DetFlags.readRDOBS.RPC_on() or DetFlags.readRDOPool.RPC_on() or DetFlags.read
 
     # without the following line, the MuonRPC_CablingSvc is not part of the ServiceMgr, thus add flake8 ignore flag
     import MuonRPC_Cabling.MuonRPC_CablingConfig # noqa: F401
-    ServiceMgr.MuonRPC_CablingSvc.RPCTriggerRoadsfromCool=True
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    enableL1Phase1 = ConfigFlags.Trigger.enableL1Phase1 if ConfigFlags.Trigger.enableL1Phase1 is not None else False
+    if enableL1Phase1:
+        ServiceMgr.MuonRPC_CablingSvc.RPCTriggerRoadsfromCool = False
+        from PathResolver import PathResolver
+        ServiceMgr.MuonRPC_CablingSvc.DatabaseRepository=PathResolver.FindCalibDirectory("MuonRPC_Cabling/RUN3_roads_4_6_8_10_12")
+    else:
+        ServiceMgr.MuonRPC_CablingSvc.RPCTriggerRoadsfromCool = True
     from IOVDbSvc.CondDB import conddb
     #
     # Cabling maps folders from DB
