@@ -154,8 +154,8 @@ if doObj("RAMP"):
   topSequence+=LArRamps2Ntuple
 
 if (doObj("UA2MEV")):
-  print 'DAC2uA check : ',getDBFolderAndTag("/LAR/ElecCalibMC/DAC2uA")
-  print 'uA2MeV check : ',getDBFolderAndTag("/LAR/ElecCalibMC/uA2MeV")
+  print ('DAC2uA check : ',getDBFolderAndTag("/LAR/ElecCalibMC/DAC2uA"))
+  print ('uA2MeV check : ',getDBFolderAndTag("/LAR/ElecCalibMC/uA2MeV"))
   conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/DAC2uA"))
   conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/uA2MeV"))
   from LArCalibTools.LArCalibToolsConf import LAruA2MeV2Ntuple

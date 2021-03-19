@@ -11,7 +11,6 @@
 LArAutoCorr2Ntuple::LArAutoCorr2Ntuple(const std::string& name, ISvcLocator* pSvcLocator)
   : LArCond2NtupleBase(name, pSvcLocator)
 {
-  declareProperty("ContainerKey",m_objKey);
   declareProperty("Nsamples",    m_nsamples=32);
   
   m_ntTitle="AutoCorrelation";
