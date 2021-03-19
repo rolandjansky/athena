@@ -15,6 +15,7 @@
 #include <EventLoop/MessageCheck.h>
 #include <EventLoop/Algorithm.h>
 #include <EventLoop/AlgorithmWrapper.h>
+#include <EventLoop/AsgServiceWrapper.h>
 #include <EventLoop/OutputStream.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/CheckRootVersion.h>
@@ -270,6 +271,15 @@ namespace EL
   {
     // no invariant used
     algsAdd (std::make_unique<AnaReentrantAlgorithmWrapper> (config));
+  }
+
+
+
+  void Job ::
+  algsAdd (const asg::AsgServiceConfig& config)
+  {
+    // no invariant used
+    algsAdd (std::make_unique<AsgServiceWrapper> (config));
   }
 
 
