@@ -302,6 +302,7 @@ class InDetTrigTrackingCuts :
       self.__Xi2max           = 60.0
       self.__Xi2maxNoAdd      = 100.0
       self.__nWeightedClustersMin = 8
+
     # --- changes for heavy ion
     if mode == "HeavyIon":
       self.__minPT            = 0.500 * Units.GeV
@@ -469,6 +470,12 @@ class InDetTrigTrackingCuts :
   def minPTBrem( self ) :
     return self.__minPTBrem
 
+  def phiWidthBrem( self ) :
+    return self.__phiWidthBrem
+
+  def etaWidthBrem( self ) :
+    return self.__etaWidthBrem
+
   def maxPrimaryImpact( self ) :
     return self.__maxPrimaryImpact
 
@@ -600,6 +607,10 @@ class InDetTrigTrackingCuts :
 
   def RegSelZmax( self ) :
     return self.__RegSelZmax
+
+  def doZBoundary( self ) :
+    return self.__doZBoundary
+
 
   def setRegSelZmax( self, val):
     self.__RegSelZmax = val

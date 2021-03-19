@@ -132,6 +132,7 @@ def trackParticleCnv_builder(name, config, inTrackCollectionKey, outTrackParticl
 @makePublicTool
 def ambiguityScoringTool_builder(name, config):
 
+    #ATR-23077 
     #NOTE extra scaling for MB on top of standard cuts (taken from Run2) -> Can we not just put it in the setting with 0.95 factor?
     #from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
     #ptintcut = InDetTrigSliceSettings[('pTmin',signature)]
@@ -147,61 +148,65 @@ def ambiguityScoringTool_builder(name, config):
     #NOTE: Run2 config seems to be using offline version of
     #https://gitlab.cern.ch/atlas/athena/-/blob/master/InnerDetector/InDetExample/InDetRecExample/python/ConfiguredNewTrackingCuts.py
     #1] Is this really what we want here?
-    #2] TODO: Somehow merge/adapt the settings in InDetTrigConfigSettings.py?
+    #2] TODO: in the next MR adapt the cuts based on the config name
+    #from InDetTrigRecExample.InDetTrigTrackingCuts import InDetTrigTrackingCuts
+    #trackingCuts = InDetTrigTrackingCuts( offName ) 
+    from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCuts
+    InDetTrigCutValues = EFIDTrackingCuts
+    #Configuration of parameters based on the signature and Flags (following Run2 settings)
+    kwargs = {}
+    #Prepare default parameter settings for the tool
+    kwargs = setDefaults( kwargs,
+                          Extrapolator        = InDetTrigExtrapolator,
+                          DriftCircleCutTool  = InDetTrigTRTDriftCircleCut,
+                          SummaryTool         = trackSummaryTool_getter( config.PT.setting.doTRT ),
+                          #to have a steeper turn-n curve
+                          minPt               = config.PT.setting.pTmin, #TODO: double check values, implement 0.95 for MinBias?  #InDetTrigCutValues.minPT(), #config.pTmin(),
+                          maxRPhiImp          = InDetTrigCutValues.maxPrimaryImpact(),
+                          maxZImp             = InDetTrigCutValues.maxZImpact(),
+                          maxEta              = InDetTrigCutValues.maxEta(),
+                          minSiClusters       = InDetTrigCutValues.minClusters(),
+                          maxSiHoles          = InDetTrigCutValues.maxHoles(),
+                          maxPixelHoles       = InDetTrigCutValues.maxPixelHoles(),
+                          maxSCTHoles         = InDetTrigCutValues.maxSCTHoles(),
+                          maxDoubleHoles      = InDetTrigCutValues.maxDoubleHoles(),
+                          usePixel            = InDetTrigCutValues.usePixel(),
+                          useSCT              = InDetTrigCutValues.useSCT(),
+                          doEmCaloSeed        = False,
+                          useAmbigFcn         = True,
+                          useTRT_AmbigFcn     = False,
+                          minTRTonTrk         = 0,
+                         )
 
-    if config.PT.isSignature('cosmicsN'):
+    #Change some of the parameters in case of beamgas signature
+    if config.PT.isSignature('beamgas'):
+        from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCutsBeamGas
+        kwargs = setDefaults( kwargs,
+                              minPt          = EFIDTrackingCutsBeamGas.minPT(),
+                              maxRPhiImp     = EFIDTrackingCutsBeamGas.maxPrimaryImpact(),
+                              maxZImp        = EFIDTrackingCutsBeamGas.maxZImpact(),
+                              minSiClusters  = EFIDTrackingCutsBeamGas.minClusters(),
+                              maxSiHoles     = EFIDTrackingCutsBeamGas.maxHoles(),
+                              useSigmaChi2   = True
+                            )
+
+
+    from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetAmbiScoringTool
+    return InDet__InDetAmbiScoringTool(name             = name,
+                                       **kwargs
+                                       )
+
+
+
+def ambiguityScoringTool_getter(name, config):
+   if config.name == 'cosmics':
         #Can potentially recreate the isntance of the tool here and in the if config just have a list of parameters needed to be changed for the tool
         from InDetTrigRecExample.InDetTrigConfigRecLoadToolsCosmics import InDetTrigScoringToolCosmics_SiPattern
         return InDetTrigScoringToolCosmics_SiPattern
-    else:
 
-        from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCuts
-        InDetTrigCutValues = EFIDTrackingCuts
-        #Configuration of parameters based on the signature and Flags (following Run2 settings)
-        kwargs = {}
-        #Prepare default parameter settings for the tool
-        kwargs = setDefaults( kwargs,
-                              Extrapolator        = InDetTrigExtrapolator,
-                              DriftCircleCutTool  = InDetTrigTRTDriftCircleCut,
-                              SummaryTool         = trackSummaryTool_getter( config.PT.setting.doTRT ),
-                              #to have a steeper turn-n curve
-                              minPt               = config.PT.setting.pTmin, #TODO: double check values, implement 0.95 for MinBias?  #InDetTrigCutValues.minPT(), #config.pTmin(),
-                              maxRPhiImp          = InDetTrigCutValues.maxPrimaryImpact(),
-                              maxZImp             = InDetTrigCutValues.maxZImpact(),
-                              maxEta              = InDetTrigCutValues.maxEta(),
-                              minSiClusters       = InDetTrigCutValues.minClusters(),
-                              maxSiHoles          = InDetTrigCutValues.maxHoles(),
-                              maxPixelHoles       = InDetTrigCutValues.maxPixelHoles(),
-                              maxSCTHoles         = InDetTrigCutValues.maxSCTHoles(),
-                              maxDoubleHoles      = InDetTrigCutValues.maxDoubleHoles(),
-                              usePixel            = InDetTrigCutValues.usePixel(),
-                              useSCT              = InDetTrigCutValues.useSCT(),
-                              doEmCaloSeed        = False,
-                              useAmbigFcn         = True,
-                              useTRT_AmbigFcn     = False,
-                              minTRTonTrk         = 0,
-                             )
-
-        #Change some of the parameters in case of beamgas signature
-        if config.PT.isSignature('beamgas'):
-            from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCutsBeamGas
-            kwargs = setDefaults( kwargs,
-                                  minPt          = EFIDTrackingCutsBeamGas.minPT(),
-                                  maxRPhiImp     = EFIDTrackingCutsBeamGas.maxPrimaryImpact(),
-                                  maxZImp        = EFIDTrackingCutsBeamGas.maxZImpact(),
-                                  minSiClusters  = EFIDTrackingCutsBeamGas.minClusters(),
-                                  maxSiHoles     = EFIDTrackingCutsBeamGas.maxHoles(),
-                                  useSigmaChi2   = True
-                                )
-
-
-        from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetAmbiScoringTool
-        return InDet__InDetAmbiScoringTool(name             = name,
-                                           **kwargs
-                                           )
-
-
-
+   else:
+      return    ambiguityScoringTool_builder( name   = name,
+                                              config = config)
 
 
 #--------------------------------------------------------------------------
@@ -214,7 +219,7 @@ def associationTool_getter():
 def trackFitterTool_getter(config):
       #For now load from RecLoadTools where the config is based on: InDetTrigFlags.trackFitterType()  (gaussian, kalman, globalChi2, ...)
       #There are also variations of cosmic/TRT fitters -> Decision which fitter to return  has to be adapted based on the signature as well
-      if config.PT.isSignature('cosmicsN'):
+      if config.name == 'cosmics':
          from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackFitterCosmics
          return InDetTrigTrackFitterCosmics
       else:
@@ -224,11 +229,11 @@ def trackFitterTool_getter(config):
 def trackSelectionTool_getter(config):
       #TODO this might need to be revisited!
 
-      if config.PT.isSignature('beamgas'):
+      if config.name == 'beamgas':
         from InDetTrigRecExample.InDetTrigConfigRecLoadToolsBeamGas import InDetTrigAmbiTrackSelectionToolBeamGas
         return InDetTrigAmbiTrackSelectionToolBeamGas
 
-      elif config.PT.isSignature('cosmicsN'):
+      elif config.name == 'cosmics':
         from InDetTrigRecExample.InDetTrigConfigRecLoadToolsCosmics import  InDetTrigAmbiTrackSelectionToolCosmicsN
         return InDetTrigAmbiTrackSelectionToolCosmicsN
 
@@ -249,11 +254,11 @@ def ambiguityProcessorTool_builder( name, config):
    kwargs = {}
 
    #Add parameters to empty kwargs
-   if config.PT.isSignature('cosmicsN'):
+   if config.name == 'cosmics':
      kwargs = setDefaults( kwargs,
                            SuppressHoleSearch = False,
                            RefitPrds =  False)
-   elif config.PT.isSignature('electron') and InDetTrigFlags.doBremRecovery():
+   elif config.name == 'electron' and InDetTrigFlags.doBremRecovery():
      import AthenaCommon.SystemOfUnits as Units
      kwargs = setDefaults( kwargs,
                            tryBremFit  = True,
@@ -270,7 +275,7 @@ def ambiguityProcessorTool_builder( name, config):
    #Set/Get subtools
    #trackFitterTool    = trackFitterTool_getter(config),
 
-   scoringTool        = ambiguityScoringTool_builder( name   = get_full_name( 'AmbiguityScoringTool',config.name),
+   scoringTool        = ambiguityScoringTool_getter(  name   = get_full_name( 'AmbiguityScoringTool',config.name),
                                                       config = config)
 
    associationTool    = associationTool_getter()
@@ -331,7 +336,7 @@ def ambiguityScoreProcessorTool_builder( name, config):
 
       #-----------------------
       #Set/Get subtools
-      scoringTool = ambiguityScoringTool_builder( name   = get_full_name( 'AmbiguityScoringTool',config.name ),
+      scoringTool = ambiguityScoringTool_getter(  name   = get_full_name( 'AmbiguityScoringTool',config.name ),
                                                   config = config)
 
       associationTool    = associationTool_getter()
@@ -367,10 +372,9 @@ def ambiguityScoreAlg_builder(name, config, inputTrackCollection, outputTrackSco
 #                       Alg/Tools for offline pattern recognition tracking
 
 @makePublicTool
-def siSpacePointsSeedMakerTool_builder(name, trackingCuts, usePrdAssociationTool ):
+def siSpacePointsSeedMakerTool_builder(name, config, trackingCuts, usePrdAssociationTool ):
    from InDetRecExample.InDetKeys  import  InDetKeys
    from .InDetTrigCollectionKeys   import  TrigPixelKeys, TrigSCTKeys
-   from InDetRecExample.InDetJobProperties import InDetFlags
 
    kwargs = {}
    kwargs = setDefaults( kwargs,
@@ -380,63 +384,43 @@ def siSpacePointsSeedMakerTool_builder(name, trackingCuts, usePrdAssociationTool
                          minZ                   = -trackingCuts.maxZImpact(),
                          usePixel               = trackingCuts.usePixel(),
                          SpacePointsPixelName   = TrigPixelKeys.SpacePoints,
-                         useSCT                 = (trackingCuts.useSCT() and trackingCuts.useSCTSeeding()),
+                         useSCT                 = trackingCuts.useSCT(), #Note: this is false for dissappearing tracks in offline
                          SpacePointsSCTName     = TrigSCTKeys.SpacePoints,
-                         useOverlapSpCollection = (trackingCuts.useSCT() and trackingCuts.useSCTSeeding()),
+                         useOverlapSpCollection = trackingCuts.useSCT(), #Note: this is false for dissappearing tracks in offline
                          SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(), #FIXME: Switch to trigger flags? ATR-22756
                          radMax                 = trackingCuts.radMax(),
                          RapidityCut            = trackingCuts.maxEta())
                        
-   
+
+   #FIXME: revisit HI ATR-22756
    #Change/add tracking  parameters based on the different tracking mode
-   if trackingCuts.mode() == "Offline" or InDetFlags.doHeavyIon() or  trackingCuts.mode() == "ForwardTracks":
-      kwargs = setDefaults( kwargs,
-                            maxdImpactPPS = trackingCuts.maxdImpactPPSSeeds(),
-                            maxdImpactSSS = trackingCuts.maxdImpactSSSSeeds())
+   #if config.name == 'HI':
+   #   kwargs = setDefaults( kwargs,
+   #                         maxdImpactPPS = trackingCuts.maxdImpactPPSSeeds(),
+   #                         maxdImpactSSS = trackingCuts.maxdImpactSSSSeeds())
    
    if usePrdAssociationTool:
       kwargs = setDefaults( kwargs,
                             PRDtoTrackMap      = TrigPixelKeys.PRDtoTrackMap)
 
    #FIXME: switch to TrigFlags? ATR-22756
-   if not InDetFlags.doCosmics():
+   if config.name != 'cosmics':
       kwargs = setDefaults( kwargs,
                             maxRadius1     = 0.75*trackingCuts.radMax(),
                             maxRadius2     = trackingCuts.radMax(),
                             maxRadius3     = trackingCuts.radMax())
 
-   #FIXME do we need all of these in the trig? Keep for now, add later if found out that these are needed, ATR-22756
-   #if trackingCuts.mode() == "LowPt" or trackingCuts.mode() == "VeryLowPt" or (trackingCuts.mode() == "Pixel" and InDetFlags.doMinBias()):
-   #   try :
-   #      InDetSiSpacePointsSeedMaker.pTmax              = trackingCuts.maxPT()
-   #   except:
-   #      pass 
-   #   InDetSiSpacePointsSeedMaker.mindRadius         = 4.0
-   #
-   #if trackingCuts.mode() == "SLHC" or trackingCuts.mode() == "SLHCConversionFinding":
-   #   InDetSiSpacePointsSeedMaker.minRadius1         = 0
-   #   InDetSiSpacePointsSeedMaker.minRadius2         = 0
-   #   InDetSiSpacePointsSeedMaker.minRadius3         = 0
-   #   InDetSiSpacePointsSeedMaker.maxRadius1         =1000.*Units.mm
-   #   InDetSiSpacePointsSeedMaker.maxRadius2         =1000.*Units.mm
-   #   InDetSiSpacePointsSeedMaker.maxRadius3         =1000.*Units.mm
-   #
-   #if trackingCuts.mode() == "ForwardTracks" or trackingCuts.mode() == "ForwardSLHCTracks" or trackingCuts.mode() == "VeryForwardSLHCTracks":
-   #   InDetSiSpacePointsSeedMaker.checkEta           = True
-   #   InDetSiSpacePointsSeedMaker.etaMin             = trackingCuts.minEta()
-   #   InDetSiSpacePointsSeedMaker.etaMax             = trackingCuts.maxEta()
-   #   InDetSiSpacePointsSeedMaker.RapidityCut        = trackingCuts.maxEta()
-   #
-   #if trackingCuts.mode() == "DBM":
-   #   InDetSiSpacePointsSeedMaker.etaMin             = trackingCuts.minEta()
-   #   InDetSiSpacePointsSeedMaker.etaMax             = trackingCuts.maxEta()
-   #   InDetSiSpacePointsSeedMaker.useDBM = True
-   
-   
-   from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_ATLxk as SiSpacePointsSeedMaker
+
+   if config.name == 'cosmics':
+      from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_Cosmic as SiSpacePointsSeedMaker
+   #FIXME: revisit HI ATR-22756
+   #elif config.name == 'HI':
+   #   from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_HeavyIon as SiSpacePointsSeedMaker
+   else:
+    from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_ATLxk as SiSpacePointsSeedMaker
+
    return SiSpacePointsSeedMaker ( name    =  name,
                                    **kwargs)
-
 
 
 
@@ -490,14 +474,13 @@ def prdAssociation_builder( InputCollections ):
 def siDetectorElementRoadMakerTool_builder( name, trackingCuts ):
    from InDetRecExample.InDetKeys  import  InDetKeys 
    
-   #Are we happy with this propagator?
    from SiDetElementsRoadTool_xk.SiDetElementsRoadTool_xkConf import InDet__SiDetElementsRoadMaker_xk
    return  InDet__SiDetElementsRoadMaker_xk(name               = name,
                                             PropagatorTool     = trigPropagator_getter(),
                                             usePixel           = trackingCuts.usePixel(),
-                                            PixManagerLocation = InDetKeys.PixelManager(), #FIXME: InDetTrigKeys? ATR-22756
+                                            PixManagerLocation = InDetKeys.PixelManager(), #FIXME: revisit  ATR-22756
                                             useSCT             = trackingCuts.useSCT(), 
-                                            SCTManagerLocation = InDetKeys.SCT_Manager(),  #FIXME switch to trig keys? ATR-22756
+                                            SCTManagerLocation = InDetKeys.SCT_Manager(),  #FIXME: revisit   ATR-22756
                                             RoadWidth          = trackingCuts.RoadWidth())
 
 
@@ -506,7 +489,6 @@ def siDetectorElementRoadMakerTool_builder( name, trackingCuts ):
 def siCombinatorialTrackFinderTool_builder( name, trackingCuts ):
    from .InDetTrigCollectionKeys   import TrigPixelKeys, TrigSCTKeys
    from AthenaCommon.DetFlags      import DetFlags
-   from InDetRecExample.InDetJobProperties import InDetFlags
    import InDetRecExample.TrackingCommon as TrackingCommon
 
    #FIXME: quick hack to try running ID, remove later, ATR-22756
@@ -528,15 +510,6 @@ def siCombinatorialTrackFinderTool_builder( name, trackingCuts ):
                          PixelClusterContainer = TrigPixelKeys.Clusters,
                          SCT_ClusterContainer  = TrigSCTKeys.Clusters)
    
-   #FIXME: Use TriggerFlags instead? ATR-22756
-   if InDetFlags.doDBMstandalone() or trackingCuts.extension() =='DBM':
-      kwargs = setDefaults( kwargs,
-                            MagneticFieldMode     = "NoField",
-                            TrackQualityCut       = 9.3,
-                            useSCT                =  False,
-                            RIOonTrackTool        = TrackingCommon.getInDetRotCreatorDBM(),
-                            )
-   
    
    #Add SCT condition summary if specified
    #FIXME: Use TriggerFlags instead? ATR-22756
@@ -551,54 +524,36 @@ def siCombinatorialTrackFinderTool_builder( name, trackingCuts ):
    
 
 @makePublicTool
-def siTrackMakerTool_builder( name, siDetElementsRoadMakerTool, trackFinderTool, trackingCuts, usePrdAssociationTool ):
+def siTrackMakerTool_builder( name, config, siDetElementsRoadMakerTool, trackFinderTool, trackingCuts, usePrdAssociationTool ):
    from InDetRecExample.InDetJobProperties import InDetFlags
    from InDetRecExample.InDetKeys          import InDetKeys 
    
-   trackPatternRecoInfo = 'SiSPSeededFinder'
-   if InDetFlags.doCosmics():
+   if config.name == 'cosmics':
       trackPatternRecoInfo = 'SiSpacePointsSeedMaker_Cosmic'
-   
-   elif InDetFlags.doHeavyIon():
-     trackPatternRecoInfo = 'SiSpacePointsSeedMaker_HeavyIon'
-   
-   elif trackingCuts.mode() == "LowPt":
-     trackPatternRecoInfo = 'SiSpacePointsSeedMaker_LowMomentum'
-   
-   elif trackingCuts.mode() == "VeryLowPt" or (trackingCuts.mode() == "Pixel" and InDetFlags.doMinBias()):
-     trackPatternRecoInfo = 'SiSpacePointsSeedMaker_VeryLowMomentum'           
-   
-   elif trackingCuts.mode() == "BeamGas":
-     trackPatternRecoInfo = 'SiSpacePointsSeedMaker_BeamGas'
-   
-   elif trackingCuts.mode() == "ForwardTracks":
-     trackPatternRecoInfo = 'SiSpacePointsSeedMaker_ForwardTracks'
-   
-   elif trackingCuts.mode() == "ForwardSLHCTracks":
-     trackPatternRecoInfo = 'SiSpacePointsSeedMaker_ForwardSLHCTracks'
-   
-   elif trackingCuts.mode() == "VeryForwardSLHCTracks": 
-     trackPatternRecoInfo = 'SiSpacePointsSeedMaker_VeryForwardSLHCTracks' 
-   
-   elif trackingCuts.mode() == "SLHCConversionFinding":
-     trackPatternRecoInfo = 'SiSpacePointsSeedMaker_SLHCConversionTracks'
-   
-   elif trackingCuts.mode() == "LargeD0" or trackingCuts.mode() == "LowPtLargeD0":
-     trackPatternRecoInfo = 'SiSpacePointsSeedMaker_LargeD0'
+   #FIXME: Add HI option once implemented ATR-2275
+   #elif config.name == 'HI':
+   #  trackPatternRecoInfo = 'SiSpacePointsSeedMaker_HeavyIon'
+
+   else:
+      trackPatternRecoInfo = 'SiSPSeededFinder'
    
    useBremMode = trackingCuts.mode() == "Offline" or trackingCuts.mode() == "SLHC" or trackingCuts.mode() == "DBM"
    
    kwargs = {}
 
+
+   #FIXME:
+   #Check compatibility of cosmic cuts from offline version with online run2
+   #https://gitlab.cern.ch/atlas/athena/-/blob/21.2/InnerDetector/InDetExample/InDetTrigRecExample/python/InDetTrigConfigRecNewTracking.py#L167-172
    #Prepare default parameter settings for the tool
    kwargs = setDefaults( kwargs,
                          useSCT                        = trackingCuts.useSCT(),
                          usePixel                      = trackingCuts.usePixel(),
                          RoadTool                      = siDetElementsRoadMakerTool,
                          CombinatorialTrackFinder      = trackFinderTool,
-                         pTmin                         = trackingCuts.minPT(),
+                         pTmin                         = trackingCuts.minPT(), 
                          pTminBrem                     = trackingCuts.minPTBrem(),
-                         pTminSSS                      = InDetFlags.pT_SSScut(),
+                         pTminSSS                      = InDetFlags.pT_SSScut(),                      #FIXME: revisit  ATR-22756
                          nClustersMin                  = trackingCuts.minClusters(),
                          nHolesMax                     = trackingCuts.nHolesMax(),
                          nHolesGapMax                  = trackingCuts.nHolesGapMax(),
@@ -606,36 +561,20 @@ def siTrackMakerTool_builder( name, siDetElementsRoadMakerTool, trackFinderTool,
                          Xi2max                        = trackingCuts.Xi2max(),
                          Xi2maxNoAdd                   = trackingCuts.Xi2maxNoAdd(),
                          nWeightedClustersMin          = trackingCuts.nWeightedClustersMin(),
-                         CosmicTrack                   = InDetFlags.doCosmics(),
+                         CosmicTrack                   = (config.name == 'cosmics'),
                          Xi2maxMultiTracks             = trackingCuts.Xi2max(), # was 3.
-                         useSSSseedsFilter             = InDetFlags.doSSSfilter(),
+                         useSSSseedsFilter             = InDetFlags.doSSSfilter(),                    #FIXME: revisit  ATR-22756
                          doMultiTracksProd             = True,
-                         useBremModel                  = InDetFlags.doBremRecovery() and useBremMode, # only for NewTracking the brem is debugged !!!
-                         doCaloSeededBrem              = InDetFlags.doCaloSeededBrem(),
-                         doHadCaloSeedSSS              = InDetFlags.doHadCaloSeededSSS(),
+                         useBremModel                  = InDetFlags.doBremRecovery() and useBremMode, #FIXME: revisit  ATR-22756 
+                         doCaloSeededBrem              = InDetFlags.doCaloSeededBrem(),               #FIXME: revisit  ATR-22756
+                         doHadCaloSeedSSS              = InDetFlags.doHadCaloSeededSSS(),             #FIXME: revisit  ATR-22756
                          phiWidth                      = trackingCuts.phiWidthBrem(),
                          etaWidth                      = trackingCuts.etaWidthBrem(),
-                         InputClusterContainerName     = InDetKeys.CaloClusterROIContainer(), 
-                         InputHadClusterContainerName  = InDetKeys.HadCaloClusterROIContainer(), 
+                         InputClusterContainerName     = InDetKeys.CaloClusterROIContainer(),         #FIXME: revisit  ATR-22756
+                         InputHadClusterContainerName  = InDetKeys.HadCaloClusterROIContainer(),      #FIXME: revisit  ATR-22756
                          TrackPatternRecoInfo          = trackPatternRecoInfo,
                          UseAssociationTool            = usePrdAssociationTool)
-   
-   
-   #Change the parameters based on the tracking cuts
-   if trackingCuts.mode() == "SLHC" or trackingCuts.mode() == "ForwardSLHCTracks" or trackingCuts.mode() == "VeryForwardSLHCTracks" :
-      kwargs = setDefaults( kwargs,
-                            ITKGeometry = True )
-   
-   if trackingCuts.mode() == "DBM":
-      kwargs = setDefaults( kwargs,
-                            MagneticFieldMode = "NoField",
-                            useBremModel = False,
-                            doMultiTracksProd = False,
-                            pTminSSS = -1,
-                            CosmicTrack = False,
-                            useSSSseedsFilter = False,
-                            doCaloSeededBrem = False,
-                            doHadCaloSeedSSS = False)
+
    
    if InDetFlags.doStoreTrackSeeds():
       from SeedToTrackConversionTool.SeedToTrackConversionToolConf import InDet__SeedToTrackConversionTool
@@ -653,7 +592,7 @@ def siTrackMakerTool_builder( name, siDetElementsRoadMakerTool, trackFinderTool,
 
 
 
-def siSPSeededTrackFinder_builder( name, outputTracks, trackingCuts, usePrdAssociationTool, nameSuffix ):
+def siSPSeededTrackFinder_builder( name, config, outputTracks, trackingCuts, usePrdAssociationTool, nameSuffix ):
 
    #FIXME: ATR-22756, ATR-22755
    # 1] Currently some flags are copy paste from offline configuration, might need to switch those to trigger flags
@@ -668,6 +607,7 @@ def siSPSeededTrackFinder_builder( name, outputTracks, trackingCuts, usePrdAssoc
    
    #Load subtools of the TrackFinder
    siSpacePointsSeedMakerTool = siSpacePointsSeedMakerTool_builder(name                  = get_full_name( 'siSPSeedMaker', nameSuffix),
+                                                                   config                = config,
                                                                    trackingCuts          = trackingCuts,
                                                                    usePrdAssociationTool = usePrdAssociationTool )
    
@@ -678,6 +618,8 @@ def siSPSeededTrackFinder_builder( name, outputTracks, trackingCuts, usePrdAssoc
       zVertexMakerTool =  zVertexMakerTool_builder(name, trackingCuts, siSpacePointsSeedMakerTool )
    
    # --- SCT and Pixel detector elements road builder
+   #FIXME: use cosmic version of RMaker as for Run2?
+   #https://gitlab.cern.ch/atlas/athena/-/blob/21.2/InnerDetector/InDetExample/InDetTrigRecExample/python/InDetTrigConfigRecNewTracking.py#L167
    siDetectorElementRoadMaker = siDetectorElementRoadMakerTool_builder( name         = get_full_name( 'SiDetectorElementRoadMaker', nameSuffix),
                                                                         trackingCuts = trackingCuts )
    
@@ -686,6 +628,7 @@ def siSPSeededTrackFinder_builder( name, outputTracks, trackingCuts, usePrdAssoc
                                                                             trackingCuts = trackingCuts)
 
    siTrackMakerTool =  siTrackMakerTool_builder( name                       = get_full_name( 'siTrackMaker', nameSuffix),
+                                                 config                     = config,
                                                  siDetElementsRoadMakerTool = siDetectorElementRoadMaker,
                                                  trackFinderTool            = siCombinatorialTrackFinderTool,
                                                  trackingCuts               = trackingCuts,
@@ -705,22 +648,16 @@ def siSPSeededTrackFinder_builder( name, outputTracks, trackingCuts, usePrdAssoc
                          TracksLocation      = outputTracks, 
                          SeedsTool           = siSpacePointsSeedMakerTool,
                          ZvertexTool         = zVertexMakerTool, 
-                         useZvertexTool      = InDetFlags.useZvertexTool() and trackingCuts.mode() != "DBM",
-                         useNewStrategy      = InDetFlags.useNewSiSPSeededTF() and trackingCuts.mode() != "DBM",
-                         useMBTSTimeDiff     = InDetFlags.useMBTSTimeDiff(),
-                         useZBoundFinding    = trackingCuts.doZBoundary() and trackingCuts.mode() != "DBM" )
+                         useZvertexTool      = InDetFlags.useZvertexTool() and trackingCuts.mode() != "DBM",         #FIXME: revisit  ATR-22756
+                         useNewStrategy      = InDetFlags.useNewSiSPSeededTF() and trackingCuts.mode() != "DBM",     #FIXME: revisit  ATR-22756
+                         useMBTSTimeDiff     = InDetFlags.useMBTSTimeDiff(),                                         #FIXME: revisit  ATR-22756
+                         useZBoundFinding    = trackingCuts.doZBoundary() and trackingCuts.mode() != "DBM" )         
    
    
-   #Specific tracking settings 
-   if trackingCuts.mode() == "ForwardSLHCTracks" or trackingCuts.mode() == "ForwardTracks":
-      kwargs = setDefaults( kwargs,
-                            useNewStrategy     = False,
-                            useMBTSTimeDiff    = InDetFlags.useMBTSTimeDiff(),
-                            useZBoundFinding   = False,
-                            useZvertexTool     = InDetFlags.useZvertexTool() )
    
-      if InDetFlags.doHeavyIon():
-            kwargs = setDefaults( kwargs, FreeClustersCut = 2) #Heavy Ion optimization from Igor
+  #FIXME: revisit HI option ATR-22756
+ #     if InDetFlags.doHeavyIon():
+ #           kwargs = setDefaults( kwargs, FreeClustersCut = 2) #Heavy Ion optimization from Igor
 
    #-----------------------------------------------------
 
