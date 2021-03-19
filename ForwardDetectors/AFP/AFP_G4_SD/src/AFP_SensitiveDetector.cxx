@@ -18,6 +18,7 @@
 #include "G4ThreeVector.hh"
 #include "G4Poisson.hh"
 #include "G4VSolid.hh"
+#include "G4VProcess.hh"
 #include "G4ReflectedSolid.hh"
 #include "G4Material.hh"
 #include "G4MaterialPropertyVector.hh"
@@ -206,10 +207,16 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
   */
 
 //  if ( (VolumeName.contains("Radiator")) && pParticleDefinition->GetPDGCharge() !=0 )
-if ( (VolumeName.contains("Radiator")) || (VolumeName.contains("LGuide")) )
+//if ( (VolumeName.contains("Radiator")) || (VolumeName.contains("LGuide")) )
+  if (  (VolumeName.contains("TDSensor")) )
 //if (  (VolumeName.contains("LGuide")) )
     {
       nQuarticID=szbuff[7]-0x30;
+      if ( pStep->GetPostStepPoint()->GetProcessDefinedStep() == 0 ) return 1;
+      if ( (pStep->GetPostStepPoint()->GetProcessDefinedStep())->GetProcessName()!="OpAbsorption" ) return 1;
+      fWaveLength = 2.*M_PI*CLHEP::hbarc/(CLHEP::MeV*CLHEP::nm)/fKineticEnergy;
+      if (fWaveLength > 800. || fWaveLength < 200.) return 1; // 200-800 nm cut
+      
       m_pTDSimHitCollection->Emplace(m_nHitID,nTrackID,nParticleEncoding,fKineticEnergy,fEnergyDeposit,
                                      fWaveLength,fPreStepX,fPreStepY,fPreStepZ,fPostStepX,fPostStepY,
                                      fPostStepZ,fGlobalTime,nStationID,nDetectorID,(1+2*nQuarticID));//Q1: 1-2, Q2: 3-4
