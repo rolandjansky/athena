@@ -24,14 +24,22 @@ def getParticleFinalStateFilter(name="ISF_ParticleFinalStateFilter", **kwargs):
 
 def getParticleSimWhiteList(name="ISF_ParticleSimWhiteList", **kwargs):
     # GenParticleSimWhiteList
+    from G4AtlasApps.SimFlags import simFlags
+    kwargs.setdefault("MinimumDecayRadiusQS", simFlags.QuasiStableParticleRadius.get_Value())
     return CfgMgr.ISF__GenParticleSimWhiteList(name, **kwargs)
 
 def getGenParticleSimQuasiStableFilter(name="ISF_GenParticleSimQuasiStableFilter", **kwargs):
     # GenParticleSimQuasiStableFilter
+    from G4AtlasApps.SimFlags import simFlags
+    QSP_radius =  simFlags.QuasiStableParticleRadius.get_Value()
+    kwargs.setdefault("MinProdRadius", [QSP_radius, 0.] )
+    kwargs.setdefault("MinDecayRadius", [QSP_radius, QSP_radius] )
     return CfgMgr.ISF__GenParticleSimQuasiStableFilter(name, **kwargs)
 
 def getParticleSimWhiteList_ExtraParticles(name="ISF_ParticleSimWhiteList_ExtraParticles", **kwargs):
     # GenParticleSimWhiteList_LongLived
+    from G4AtlasApps.SimFlags import simFlags
+    kwargs.setdefault("MinimumDecayRadiusQS", simFlags.QuasiStableParticleRadius.get_Value())
     kwargs.setdefault('WhiteLists' , ['G4particle_whitelist.txt', 'G4particle_whitelist_ExtraParticles.txt'] )
     return CfgMgr.ISF__GenParticleSimWhiteList(name, **kwargs)
 
