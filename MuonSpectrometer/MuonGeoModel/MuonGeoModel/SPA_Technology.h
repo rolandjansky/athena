@@ -9,14 +9,12 @@
 
 namespace MuonGM {
 
-class SPA: public Technology {
-public:
-	inline SPA(std::string s);
-};
+    class SPA : public Technology {
+      public:
+        inline SPA(std::string s);
+    };
 
-SPA::SPA(std::string s): Technology(s)
-{
-}
+    SPA::SPA(std::string s) : Technology(s) {}
 } // namespace MuonGM
 
 #endif

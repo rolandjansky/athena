@@ -9,14 +9,14 @@
 
 namespace MuonGM {
 
-class CbmComponent: public StandardComponent {
+    class CbmComponent : public StandardComponent {
 
-public:
-  double lb_height;  // height of LB long beam
-  double lb_width;   // width
-  double hole_pos1;  // location of 1st hole in cross beam for LB 
-  double hole_pos2;  // location of 2nd hole in cross beam for LB 
-};
+      public:
+        double lb_height; // height of LB long beam
+        double lb_width;  // width
+        double hole_pos1; // location of 1st hole in cross beam for LB
+        double hole_pos2; // location of 2nd hole in cross beam for LB
+    };
 
 } // namespace MuonGM
 

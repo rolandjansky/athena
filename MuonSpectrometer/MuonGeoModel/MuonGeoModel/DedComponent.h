@@ -7,8 +7,7 @@
 
 #include "MuonGeoModel/StandardComponent.h"
 namespace MuonGM {
-typedef StandardComponent DedComponent;
+    typedef StandardComponent DedComponent;
 } // namespace MuonGM
-
 
 #endif

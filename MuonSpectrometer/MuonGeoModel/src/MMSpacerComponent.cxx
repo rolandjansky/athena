@@ -8,15 +8,11 @@
 
 namespace MuonGM {
 
-MMSpacerComponent:: MMSpacerComponent():StandardComponent()
-{
-}
+    MMSpacerComponent::MMSpacerComponent() : StandardComponent() {}
 
-
-std::ostream& operator<<(std::ostream& os,const MMSpacerComponent& c)
-{
-  os << "Component " << c.name << std::endl;
-  return os;
-}
+    std::ostream &operator<<(std::ostream &os, const MMSpacerComponent &c) {
+        os << "Component " << c.name << std::endl;
+        return os;
+    }
 
 } // namespace MuonGM

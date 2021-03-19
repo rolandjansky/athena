@@ -5,24 +5,22 @@
 #ifndef DED_H
 #define DED_H
 
-#include <string>
 #include "MuonGeoModel/Technology.h"
 
+#include <string>
 
 namespace MuonGM {
 
-class DED: public Technology {
-public:
-    double AlThickness;
-    double HoneyCombThickness;
+    class DED : public Technology {
+      public:
+        double AlThickness;
+        double HoneyCombThickness;
 
-    DED(std::string s);
+        DED(std::string s);
 
-    bool hasAlHoneyComb()
-        {return false;};
-    bool hasPaperHoneyComb()
-        {return true;};    
-};
+        bool hasAlHoneyComb() { return false; };
+        bool hasPaperHoneyComb() { return true; };
+    };
 } // namespace MuonGM
 
 #endif

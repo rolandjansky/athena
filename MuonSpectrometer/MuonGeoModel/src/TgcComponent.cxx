@@ -8,15 +8,11 @@
 
 namespace MuonGM {
 
-TgcComponent:: TgcComponent():StandardComponent()
-{
-}
+    TgcComponent::TgcComponent() : StandardComponent() {}
 
-
-std::ostream& operator<<(std::ostream& os,const TgcComponent& c)
-{
-  os << "Component " << c.name << std::endl;
-  return os;
-}
+    std::ostream &operator<<(std::ostream &os, const TgcComponent &c) {
+        os << "Component " << c.name << std::endl;
+        return os;
+    }
 
 } // namespace MuonGM

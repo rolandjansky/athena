@@ -9,17 +9,15 @@
 
 namespace MuonGM {
 
-class CMI: public Technology {
-public:
-	inline CMI(std::string s);
-	double largeness;
-	double height;
-	double excent;
-};
+    class CMI : public Technology {
+      public:
+        inline CMI(std::string s);
+        double largeness;
+        double height;
+        double excent;
+    };
 
-CMI::CMI(std::string s): Technology(s), largeness(0.), height(0.), excent(0.)
-{
-}
+    CMI::CMI(std::string s) : Technology(s), largeness(0.), height(0.), excent(0.) {}
 } // namespace MuonGM
 
 #endif

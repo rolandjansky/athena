@@ -6,16 +6,14 @@
 
 namespace MuonGM {
 
-MdtComponent::MdtComponent():StandardComponent()
-{
-  tubelenStepSize=0.;
-  cutoutTubeXShift=0.;
-}
+    MdtComponent::MdtComponent() : StandardComponent() {
+        tubelenStepSize = 0.;
+        cutoutTubeXShift = 0.;
+    }
 
-MdtComponent::MdtComponent(const MdtComponent& c):StandardComponent(c)
-{
-  tubelenStepSize = c.tubelenStepSize;
-  cutoutTubeXShift = c.cutoutTubeXShift;
-}
+    MdtComponent::MdtComponent(const MdtComponent &c) : StandardComponent(c) {
+        tubelenStepSize = c.tubelenStepSize;
+        cutoutTubeXShift = c.cutoutTubeXShift;
+    }
 
 } // namespace MuonGM

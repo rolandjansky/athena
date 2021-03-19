@@ -13,22 +13,21 @@ class GeoVPhysVol;
 
 namespace MuonGM {
 
-class DriftTube: public DetectorElement {
-public:
-	std::string gasMaterial;
-	std::string tubeMaterial;
-	std::string plugMaterial;
-	std::string wireMaterial;
-	double length;
-	double outerRadius;
-	double gasRadius;
-	double plugLength;
+    class DriftTube : public DetectorElement {
+      public:
+        std::string gasMaterial;
+        std::string tubeMaterial;
+        std::string plugMaterial;
+        std::string wireMaterial;
+        double length;
+        double outerRadius;
+        double gasRadius;
+        double plugLength;
 
-	GeoVPhysVol *build();
-	void print();
-	DriftTube(std::string s);
-};
+        GeoVPhysVol *build();
+        void print();
+        DriftTube(std::string s);
+    };
 } // namespace MuonGM
-
 
 #endif
