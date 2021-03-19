@@ -5,8 +5,8 @@
 //  TopoCore
 //  Created by Paula Martinez based on InvariantMassInclusive1 by Joerg Stelzer on 11/16/12.
 
-#ifndef __TopoCore__InvariantMassThreeTOBsInclCharge__
-#define __TopoCore__InvariantMassThreeTOBsInclCharge__
+#ifndef L1TOPOALGORITHMS_INVARIANTMASSTHREETOBSINCLCHARGE_H
+#define L1TOPOALGORITHMS_INVARIANTMASSTHREETOBSINCLCHARGE_H
 
 #include <iostream>
 #include "L1TopoInterfaces/DecisionAlg.h"

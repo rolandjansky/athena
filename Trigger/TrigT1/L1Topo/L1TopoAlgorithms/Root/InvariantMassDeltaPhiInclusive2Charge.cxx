@@ -6,7 +6,8 @@
  * Based on V Sorin 2014 implementation of InvariantMassInclusive2. For questions contact atlas-trig-l1topo-algcom@cern.ch.
  *
  * @brief algorithm calculates the sqr of the INVMASS between two lists and applies invmass criteria. For pairs passing the INVMASS cut a further requirement based on DeltaPhi
- * is applied, addressing ATR-19377. Following ATR-19593, an additional cut in the muon charge is required.
+ * is applied, addressing ATR-19377.
+ * Events containing a pair of TGC muons with same charge are rejected
  *
 **********************************/
 //  TO DO size of the input list to be possbly refined 
@@ -131,8 +132,8 @@ TCS::InvariantMassDeltaPhiInclusive2Charge::initialize() {
        std::string hname_rejectCharge = "hInvariantMassDeltaPhiInclusive2Charge_rejectCharge_bit"+std::to_string(static_cast<int>(i));
        std::string hname_undefCharge  = "hInvariantMassDeltaPhiInclusive2Charge_undefCharge_bit"+std::to_string(static_cast<int>(i));
        // mass
-       bookHist(m_histAcceptM, hname_accept, "INVM vs DPHI", 100, sqrt(p_InvMassMin[i]), sqrt(p_InvMassMax[i]), 100, p_DeltaPhiMin[i], p_DeltaPhiMax[i]);
-       bookHist(m_histRejectM, hname_reject, "INVM vs DPHI", 100, sqrt(p_InvMassMin[i]), sqrt(p_InvMassMax[i]), 100, p_DeltaPhiMin[i], p_DeltaPhiMax[i]);
+       bookHist(m_histAcceptM, hname_accept, "INVM vs DPHI", 100, std::sqrt(p_InvMassMin[i]), std::sqrt(p_InvMassMax[i]), 100, p_DeltaPhiMin[i], p_DeltaPhiMax[i]);
+       bookHist(m_histRejectM, hname_reject, "INVM vs DPHI", 100, std::sqrt(p_InvMassMin[i]), std::sqrt(p_InvMassMax[i]), 100, p_DeltaPhiMin[i], p_DeltaPhiMax[i]);
        // eta2 vs. eta1
        bookHist(m_histAcceptEta1Eta2, hname_accept, "ETA vs ETA", 100, p_MinEta1, p_MaxEta1, 100, p_MinEta2, p_MaxEta2);
        bookHist(m_histRejectEta1Eta2, hname_reject, "ETA vs ETA", 100, p_MinEta1, p_MaxEta1, 100, p_MinEta2, p_MaxEta2);
@@ -171,11 +172,13 @@ TCS::InvariantMassDeltaPhiInclusive2Charge::processBitCorrect( const std::vector
                 const int eta2 = (*tob2)->eta();
                 const unsigned int aeta1 = std::abs(eta1);
                 const unsigned int aeta2 = std::abs(eta2);
+                // Charge cut ( for TGC muons: 0=negative, 1=positive, as described at ATR-22621 )
+                // Check the definition of sectorName at MuCTPIL1TopoCandidate.h (for TGC muons: sectorName.at(0)=E or F, for RPC muons: sectorName.at(0)=B)
+                // If no muon sectorName information is available, sectorName = ""
                 std::string sector1 = (*tob1)->sectorName();
                 std::string sector2 = (*tob2)->sectorName();
                 int charge1 = (*tob1)->charge();
                 int charge2 = (*tob2)->charge();
-                // Charge cut ( for TGC muons: 0=negative, 1=positive, as described at ATR-22621 )
                 std::string totalCharge = "undef";
                 if ( sector1 != "" && sector2 != "" && sector1.at(0) != 'B' && sector2.at(0) != 'B' ) {
                    if ( charge1 + charge2 == 1 ) { totalCharge = "accept"; }
@@ -197,10 +200,10 @@ TCS::InvariantMassDeltaPhiInclusive2Charge::processBitCorrect( const std::vector
                        output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
                    }
                    if(fillAccept and not alreadyFilled) {
-		       fillHist2D(m_histAcceptM[i],sqrt(static_cast<float>(invmass2)),static_cast<float>(deltaPhi));
+		       fillHist2D(m_histAcceptM[i],std::sqrt(static_cast<float>(invmass2)),static_cast<float>(deltaPhi));
 		       fillHist2D(m_histAcceptEta1Eta2[i],eta1, eta2);
                    } else if(fillReject) {
-		       fillHist2D(m_histRejectM[i],sqrt(static_cast<float>(invmass2)),static_cast<float>(deltaPhi));
+		       fillHist2D(m_histRejectM[i],std::sqrt(static_cast<float>(invmass2)),static_cast<float>(deltaPhi));
 		       fillHist2D(m_histRejectEta1Eta2[i],eta1, eta2);
                    }
                    if(fillHistos() and totalCharge == "accept") {
@@ -246,11 +249,13 @@ TCS::InvariantMassDeltaPhiInclusive2Charge::process( const std::vector<TCS::TOBA
                 const int eta2 = (*tob2)->eta();
                 const unsigned int aeta1 = std::abs(eta1);
                 const unsigned int aeta2 = std::abs(eta2);
+                // Charge cut ( for TGC muons: 0=negative, 1=positive, as described at ATR-22621 )
+                // Check the definition of sectorName at MuCTPIL1TopoCandidate.h (for TGC muons: sectorName.at(0)=E or F, for RPC muons: sectorName.at(0)=B)
+                // If no muon sectorName information is available, sectorName = ""
                 std::string sector1 = (*tob1)->sectorName();
                 std::string sector2 = (*tob2)->sectorName();
                 int charge1 = (*tob1)->charge();
                 int charge2 = (*tob2)->charge();
-                // Charge cut ( for TGC muons: 0=negative, 1=positive, as described at ATR-22621 )
                 std::string totalCharge = "undef";
                 if ( sector1 != "" && sector2 != "" && sector1.at(0) != 'B' && sector2.at(0) != 'B' ) {
                    if ( charge1 + charge2 == 1 ) { totalCharge = "accept"; }
@@ -271,10 +276,10 @@ TCS::InvariantMassDeltaPhiInclusive2Charge::process( const std::vector<TCS::TOBA
                        output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
                    }
                    if(fillAccept and not alreadyFilled) {
-		       fillHist2D(m_histAcceptM[i],sqrt(static_cast<float>(invmass2)),static_cast<float>(deltaPhi));
+		       fillHist2D(m_histAcceptM[i],std::sqrt(static_cast<float>(invmass2)),static_cast<float>(deltaPhi));
 		       fillHist2D(m_histAcceptEta1Eta2[i],eta1, eta2);
                    } else if(fillReject) {
-		       fillHist2D(m_histRejectM[i],sqrt(static_cast<float>(invmass2)),static_cast<float>(deltaPhi));
+		       fillHist2D(m_histRejectM[i],std::sqrt(static_cast<float>(invmass2)),static_cast<float>(deltaPhi));
 		       fillHist2D(m_histRejectEta1Eta2[i],eta1, eta2);
                    }
                    if(fillHistos() and totalCharge == "accept") {
