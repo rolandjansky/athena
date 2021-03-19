@@ -24,6 +24,7 @@
 
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
+#include "InDetPerformanceMonitoring/PerfMonServices.h"
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 
 class TH1;

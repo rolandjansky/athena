@@ -249,7 +249,7 @@ IDAlignMonResiduals::IDAlignMonResiduals( const std::string & type, const std::s
 	m_LBRangeMax           =  2599.5;
 	m_nBinsLB              =  52;
 	m_gap_pix              =   4;
-	m_gap_sct              =   4;
+	m_gap_sct              =  10;
 	m_nIBLHitsPerLB        =   0;
 	m_minIBLhits           =  -1;
 	m_hasBeenCalledThisEvent=false;
@@ -1820,11 +1820,11 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	  m_sct_eca_residualx     -> Fill(residualX, hweight);
 	  m_sct_eca_pullx         -> Fill(pullX    , hweight);
 
-	  m_sct_eca_xresvsmodphi_2d -> Fill(modPhi+(layerDisk - 1)* (m_gap_sct + Nmods),residualX, hweight);
+	  m_sct_eca_xresvsmodphi_2d -> Fill(modPhi+(layerDisk) * (m_gap_sct + Nmods),residualX, hweight); // (layerDisk-1)
 
 	  if(foundXOverlap) {
 	    m_sct_bec_Oxresx_mean->Fill(disk+6.0,overlapXResidualX);
-	    m_sct_eca_Oxresxvsmodphi -> Fill(modPhi+ (layerDisk - 1)* (m_gap_sct + Nmods),overlapXResidualX,hweight);
+	    m_sct_eca_Oxresxvsmodphi -> Fill(modPhi+ (layerDisk)* (m_gap_sct + Nmods),overlapXResidualX,hweight);
 	    //                               modPhi+ ModPhiShift[layerDisk],overlapXResidualX    , hweight);
 	  }
 
@@ -1843,10 +1843,10 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	  m_sct_ecc_residualx     ->Fill(residualX, hweight);
 	  m_sct_ecc_pullx         ->Fill(pullX    , hweight);
 
-	  m_sct_ecc_xresvsmodphi_2d -> Fill(modPhi+(layerDisk - 1)* (m_gap_sct + Nmods)    ,residualX, hweight);
+	  m_sct_ecc_xresvsmodphi_2d -> Fill(modPhi+(layerDisk) * (m_gap_sct + Nmods)    ,residualX, hweight);
 	  if(foundXOverlap) {
 	    m_sct_bec_Oxresx_mean->Fill(disk,overlapXResidualX);
-	    m_sct_ecc_Oxresxvsmodphi -> Fill(modPhi+(layerDisk - 1)* (m_gap_sct + Nmods)    ,overlapXResidualX, hweight);
+	    m_sct_ecc_Oxresxvsmodphi -> Fill(modPhi+(layerDisk) * (m_gap_sct + Nmods)    ,overlapXResidualX, hweight);
 	  }
 	}
       }
@@ -4438,12 +4438,11 @@ void IDAlignMonResiduals::MakeSCTEndcapsHistograms(MonGroup& al_mon){
 	      ModulesPerRing = m_SCT_Mgr->numerology().numPhiModulesForDiskRing(iWheel,iEta);
 	      if (maxModulesPerRing < ModulesPerRing)
 		maxModulesPerRing = ModulesPerRing;
-	      //std::cout<< m_SCT_Mgr->numerology().numPhiModulesForDiskRing(iWheel,iEta)<< "  "<<iWheel<<" "<<iEta<<std::endl;
-	      //std::cout<<totalPhiModules<<std::endl;
 	      totalPhiModules+=ModulesPerRing;
 	      maxModulesPerDisk+=ModulesPerRing;
 	    }
-	  totalPhiModulesOuterLayer+=maxModulesPerRing;
+	  totalPhiModulesOuterLayer += maxModulesPerRing;
+	  
 	  if (iSide>0){
 	    if (m_extendedPlots)
 	      {
@@ -4597,26 +4596,34 @@ void IDAlignMonResiduals::MakeSCTEndcapsHistograms(MonGroup& al_mon){
   //for (std::vector<int>::size_type i=0; i!= m_sct_ecc_xresvsmodetaphi_3ds.size(); ++i)
   //RegisterHisto(al_mon,m_sct_ecc_xresvsmodetaphi_3ds[i]); Added
   //std::cout<<"totalPhiModules= "<<totalPhiModules<<std::endl;
-  m_sct_eca_xresvsmodphi_2d = new TH2F("sct_eca_xresvsmodphi_2d","X Residual Mean vs (Modified) Module Phi SCT Endcap A",totalPhiModulesOuterLayer,0,totalPhiModulesOuterLayer,100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange);
+  m_sct_eca_xresvsmodphi_2d = new TH2F("sct_eca_xresvsmodphi_2d","X Residual Mean vs (Modified) Module Phi SCT Endcap A",
+				       totalPhiModulesOuterLayer, 0, totalPhiModulesOuterLayer,
+				       100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange);
   RegisterHisto(al_mon,m_sct_eca_xresvsmodphi_2d);
-  m_sct_ecc_xresvsmodphi_2d = new TH2F("sct_ecc_xresvsmodphi_2d","X Residual Mean vs (Modified) Module Phi SCT Endcap C",totalPhiModulesOuterLayer,0,totalPhiModulesOuterLayer,100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange);
+  m_sct_ecc_xresvsmodphi_2d = new TH2F("sct_ecc_xresvsmodphi_2d","X Residual Mean vs (Modified) Module Phi SCT Endcap C",
+				       totalPhiModulesOuterLayer,0,totalPhiModulesOuterLayer,
+				       100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange);
   RegisterHisto(al_mon,m_sct_ecc_xresvsmodphi_2d);
 
-  m_sct_eca_Oxresxvsmodphi = new TProfile("sct_eca_Oxresxvsmodphi","X_Overlap Residual X Mean vs (Modified) Module Phi SCT Endcap A",totalPhiModulesOuterLayer,0,totalPhiModulesOuterLayer,m_minSCTResFillRange,m_maxSCTResFillRange);
+  m_sct_eca_Oxresxvsmodphi = new TProfile("sct_eca_Oxresxvsmodphi","X_Overlap Residual X Mean vs (Modified) Module Phi SCT Endcap A",
+					  totalPhiModulesOuterLayer,0,totalPhiModulesOuterLayer,m_minSCTResFillRange,m_maxSCTResFillRange);
   RegisterHisto(al_mon,m_sct_eca_Oxresxvsmodphi);
-  m_sct_ecc_Oxresxvsmodphi = new TProfile("sct_ecc_Oxresxvsmodphi","X_Overlap Residual X Mean vs (Modified) Module Phi SCT Endcap C",totalPhiModulesOuterLayer,0,totalPhiModulesOuterLayer,m_minSCTResFillRange,m_maxSCTResFillRange);
+  m_sct_ecc_Oxresxvsmodphi = new TProfile("sct_ecc_Oxresxvsmodphi","X_Overlap Residual X Mean vs (Modified) Module Phi SCT Endcap C",
+					  totalPhiModulesOuterLayer,0,totalPhiModulesOuterLayer,m_minSCTResFillRange,m_maxSCTResFillRange);
   RegisterHisto(al_mon,m_sct_ecc_Oxresxvsmodphi);
   //These histograms are filled in post-processing - only initiated here such that they can be registered as "shift".
   //residual mean as function module phi in endcaps
-  m_sct_eca_xresvsmodphi = new TH1F("sct_eca_xresvsmodphi","X Residual Mean vs (Modified) Module Phi SCT Endcap A;(Modified) Module Phi Identifier;Mean Residual X",totalPhiModulesOuterLayer,0,totalPhiModulesOuterLayer); //495
+  m_sct_eca_xresvsmodphi = new TH1F("sct_eca_xresvsmodphi","X Residual Mean vs (Modified) Module Phi SCT Endcap A;(Modified) Module Phi Identifier;Mean Residual X",
+				    totalPhiModulesOuterLayer,0,totalPhiModulesOuterLayer); //495
   RegisterHisto(al_mon,m_sct_eca_xresvsmodphi);
-  m_sct_ecc_xresvsmodphi = new TH1F("sct_ecc_xresvsmodphi","X Residual Mean vs (Modified) Module Phi SCT Endcap C;(Modified) Module Phi Identifier;Mean Residual X",totalPhiModulesOuterLayer,0,totalPhiModulesOuterLayer);
+  m_sct_ecc_xresvsmodphi = new TH1F("sct_ecc_xresvsmodphi","X Residual Mean vs (Modified) Module Phi SCT Endcap C;(Modified) Module Phi Identifier;Mean Residual X",
+				    totalPhiModulesOuterLayer,0,totalPhiModulesOuterLayer);
   RegisterHisto(al_mon,m_sct_ecc_xresvsmodphi);
   if (m_extendedPlots)
     {
-      m_sct_eca_residualx_fine = new TH1F("sct_eca_residualx_fine","UnBiased X Residual SCT Endcap A;Residual [mm]",2000,-2.0,2.0);
+      m_sct_eca_residualx_fine = new TH1F("sct_eca_residualx_fine","UnBiased X Residual SCT Endcap A;Residual [mm]", 500, -1.0, 1.0);
       RegisterHisto(al_mon,m_sct_eca_residualx_fine);
-      m_sct_ecc_residualx_fine = new TH1F("sct_ecc_residualx_fine","UnBiased X Residual SCT Endcap C;Residual [mm]",2000,-2.0,2.0);
+      m_sct_ecc_residualx_fine = new TH1F("sct_ecc_residualx_fine","UnBiased X Residual SCT Endcap C;Residual [mm]", 500, -1.0, 1.0);
       RegisterHisto(al_mon,m_sct_ecc_residualx_fine);
       m_sct_eca_biased_residualx = new TH1F("sct_eca_biased_residualx","Biased X Residual SCT Endcap A",100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange);
       RegisterHisto(al_mon,m_sct_eca_biased_residualx);

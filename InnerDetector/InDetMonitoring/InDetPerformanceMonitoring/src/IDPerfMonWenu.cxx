@@ -407,7 +407,8 @@ StatusCode IDPerfMonWenu::fillHistograms()
   auto formErrorMessage = [] (const std::string & contName)->std::string {
     return std::string(std::string("No Collection with name ") + contName + std::string(" found in StoreGate"));
   };
-  const xAOD::ElectronContainer* electrons=getCollectionWithCheck<xAOD::ElectronContainer>(evtStore(),m_electronsName);
+  const xAOD::ElectronContainer* electrons = PerfMonServices::getContainer<xAOD::ElectronContainer>( PerfMonServices::ELECTRON_COLLECTION );
+
   if (not electrons){
     const std::string & errMsg=formErrorMessage(m_electronsName);
     if (firstEvent) ATH_MSG_WARNING( errMsg );
