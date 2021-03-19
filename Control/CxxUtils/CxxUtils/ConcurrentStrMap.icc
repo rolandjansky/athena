@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file CxxUtils/ConcurrentStrMap.icc
@@ -12,7 +12,11 @@
 namespace CxxUtils {
 
 
-#define T_CONCURRENTSTRMAP template <class VALUE, template <class> class UPDATER>
+#define T_CONCURRENTSTRMAP template <class VALUE, template <class> class UPDATER> \
+  ATH_REQUIRES (std::is_standard_layout_v<VALUE> &&                     \
+                std::is_trivial_v<VALUE> &&                             \
+                (sizeof (VALUE) <= sizeof (uintptr_t)))
+
 #define CONCURRENTSTRMAP ConcurrentStrMap<VALUE, UPDATER>
 
 

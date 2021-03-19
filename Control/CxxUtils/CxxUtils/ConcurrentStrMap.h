@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file CxxUtils/ConcurrentStrMap.h
@@ -74,7 +74,8 @@ namespace CxxUtils {
  */
 template <class VALUE, template <class> class UPDATER>
 // FIXME: Check UPDATER too.
-ATH_REQUIRES (std::is_pod_v<VALUE> &&
+ATH_REQUIRES (std::is_standard_layout_v<VALUE> &&
+              std::is_trivial_v<VALUE> &&
               (sizeof (VALUE) <= sizeof (uintptr_t)))
 class ConcurrentStrMap
 {
