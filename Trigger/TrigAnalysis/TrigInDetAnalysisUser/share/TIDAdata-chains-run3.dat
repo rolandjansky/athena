@@ -37,6 +37,9 @@ testChains = {
 
     "HLT_mb_sptrk_L1RD0_FILLED:HLT_IDTrack_MinBias_IDTrig",
 
+    "HLT_unconvtrk0_fslrt_L1All:HLT_IDTrack_FSLRT_FTF;DTE",
+    "HLT_unconvtrk0_fslrt_L1All:HLT_IDTrack_FS_FTF;DTE",
+
 #endif
     
     "HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FS:post:rvtx=HLT_IDVertex_FS",
