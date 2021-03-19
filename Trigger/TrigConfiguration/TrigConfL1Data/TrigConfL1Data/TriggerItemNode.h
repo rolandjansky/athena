@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_TriggerItemNode
@@ -51,7 +51,7 @@ namespace TrigConf {
       const std::string& thresholdName() const { return m_ThresholdName; }
       int                position() const { return m_Position; }
       int                multiplicity() const { return m_Multiplicity; }
-      TriggerThreshold*  triggerThreshold() const { return m_Threshold; }
+      const TriggerThreshold* triggerThreshold() const { return m_Threshold; }
       L1DataDef::TriggerType internalTriggerType() const { return m_InternalTrigger.first; }
       unsigned int       internalTriggerNumber() const { return m_InternalTrigger.second; }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfL1Data/TriggerItemNode.h"
@@ -55,7 +55,7 @@ TriggerItemNode::typeFromChar(const char& c) {
 
 std::string
 TrigConf::TriggerItemNode::typeAsString(NodeType type) {
-   static std::string typelabel[] = {"OBJ", "NOT", "AND", "OR", "UNDEF"};
+   static const std::string typelabel[] = {"OBJ", "NOT", "AND", "OR", "UNDEF"};
    return typelabel[type];
 }
 

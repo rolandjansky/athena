@@ -1,17 +1,19 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfL1Data/TriggerThresholdValue.h"
 #include "TrigConfL1Data/CaloInfo.h"
+#include "CxxUtils/checker_macros.h"
+
 #include <iostream>
 
 using namespace std;
 using namespace TrigConf;
 
-// Internal variable
-static TrigConf::CaloInfo fgCaloInfo;
-static const TrigConf::CaloInfo* fgCaloInfoPointer=0;
+// Internal variable (thread-safe, because set during initialize)
+static TrigConf::CaloInfo fgCaloInfo ATLAS_THREAD_SAFE;
+static const TrigConf::CaloInfo* fgCaloInfoPointer ATLAS_THREAD_SAFE = 0;
 
 const int TriggerThresholdValue::fgCaloClusterOff   = 0xff; // 255
 const int TriggerThresholdValue::fgCaloJetOff       = 0x3ff; // 1023

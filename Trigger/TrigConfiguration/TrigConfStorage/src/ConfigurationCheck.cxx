@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -1086,7 +1086,7 @@ public:
       m_offending("")
   {}
 
-  void checkForBG0inTop(TriggerItemNode * const  node, bool& found) const
+  void checkForBG0inTop(const TriggerItemNode * const  node, bool& found) const
   {
     // BGRP0 must be in top AND in the logic
     if(node==0 || node->type()==TriggerItemNode::OR || node->type()==TriggerItemNode::NOT) return;

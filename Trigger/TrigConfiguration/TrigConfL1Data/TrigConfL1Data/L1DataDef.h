@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_L1DataDef
@@ -8,6 +8,8 @@
 #include <string>
 #include <map>
 #include <vector>
+
+#include "CxxUtils/checker_macros.h"
 
 #define declareBackwardCompatibleMethdods(TL,TU)              \
    public:                                                              \
@@ -58,11 +60,12 @@ namespace TrigConf {
       static void printMaxThresholds();
 
       static TriggerType stringAsType(const std::string& type) { return g_sTypeType[type]; }
+
       static std::string& typeAsString(TriggerType tt) { return typeConfig(tt).name; }
 
-      static std::vector<TriggerType>& types() { return g_Types; }
+      static const std::vector<TriggerType>& types() { return g_Types; }
 
-      static TypeConfigMap_t& typeConfigs() { return g_typeConfigs; }
+      static const TypeConfigMap_t& typeConfigs() { return g_typeConfigs; }
       static TriggerTypeConfig& typeConfig(TriggerType tt);
 
       static bool addConfig(TriggerType tt, const std::string& name, unsigned int max, bool internal=false) {
@@ -120,10 +123,11 @@ namespace TrigConf {
       //       static unsigned int Max_MBTSSI_Threshold_Number;
 
    private:
-      static TypeConfigMap_t g_typeConfigs;     // maps TriggerType (e.g. L1DataDef::EM) to the TriggerTypeConfig object
-      static STypeTypeMap_t g_sTypeType;        // maps string to TriggerType (e.g. "EM" -> L1DataDef::EM)
-      static std::vector<TriggerType> g_Types;
-      static unsigned int g_l1Version;
+      // thread-safe because set once during initialize
+      static TypeConfigMap_t g_typeConfigs ATLAS_THREAD_SAFE;     // maps TriggerType (e.g. L1DataDef::EM) to the TriggerTypeConfig object
+      static STypeTypeMap_t g_sTypeType ATLAS_THREAD_SAFE;        // maps string to TriggerType (e.g. "EM" -> L1DataDef::EM)
+      static std::vector<TriggerType> g_Types ATLAS_THREAD_SAFE;
+      static unsigned int g_l1Version ATLAS_THREAD_SAFE;
 
    };
 
