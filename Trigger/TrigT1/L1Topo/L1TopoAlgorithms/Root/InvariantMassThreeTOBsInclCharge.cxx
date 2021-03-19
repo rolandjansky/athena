@@ -7,7 +7,7 @@
  * 
  * For questions contact atlas-trig-l1topo-algcom@cern.ch. 
  * @brief Algorithm calculates the sqr of the INVMASS of three TOBs from one  list and applies invmass criteria.
- * Following ATR-19638, an additional cut in the muon charge is required.
+ * Events containing 3 TGC muons with same charge are rejected
  *
  * @param NumberLeading 
  *
@@ -106,8 +106,8 @@ TCS::InvariantMassThreeTOBsInclCharge::initialize() {
        std::string hname_acceptEta3Eta1 = "hInvariantMassThreeTOBsInclCharge_acceptEta3Eta1_bit"+std::to_string(static_cast<int>(i));
        std::string hname_rejectEta3Eta1 = "hInvariantMassThreeTOBsInclCharge_rejectEta3Eta1_bit"+std::to_string(static_cast<int>(i));
        // mass
-       bookHist(m_histAccept, hname_accept, "INVM", 100, sqrt(p_InvMassMin[i]), sqrt(p_InvMassMax[i]));
-       bookHist(m_histReject, hname_reject, "INVM", 100, sqrt(p_InvMassMin[i]), sqrt(p_InvMassMax[i]));
+       bookHist(m_histAccept, hname_accept, "INVM", 100, std::sqrt(p_InvMassMin[i]), std::sqrt(p_InvMassMax[i]));
+       bookHist(m_histReject, hname_reject, "INVM", 100, std::sqrt(p_InvMassMin[i]), std::sqrt(p_InvMassMax[i]));
        // eta vs eta
        bookHist(m_histAcceptEta1Eta2, hname_acceptEta1Eta2, "ETA vs ETA", 100, -70, 70, 100, -70, 70);
        bookHist(m_histRejectEta1Eta2, hname_rejectEta1Eta2, "ETA vs ETA", 100, -70, 70, 100, -70, 70);
@@ -154,7 +154,9 @@ TCS::InvariantMassThreeTOBsInclCharge::processBitCorrect( const std::vector<TCS:
 		unsigned int invmass2_13 = TSU::Kinematics::calcInvMassBW( *tob1, *tob3 );
 		unsigned int invmass2_23 = TSU::Kinematics::calcInvMassBW( *tob2, *tob3 );
 		unsigned int invmass2 = invmass2_12 + invmass2_13 + invmass2_23;
-                // Muon sector and charge
+                // Charge cut ( for TGC muons: 0=negative, 1=positive, as described at ATR-22621 )
+                // Check the definition of sectorName at MuCTPIL1TopoCandidate.h (for TGC muons: sectorName.at(0)=E or F, for RPC muons: sectorName.at(0)=B)
+                // If no muon sectorName information is available, sectorName = ""
                 std::string sector1 = (*tob1)->sectorName();
                 std::string sector2 = (*tob2)->sectorName();
                 std::string sector3 = (*tob3)->sectorName();
@@ -162,8 +164,6 @@ TCS::InvariantMassThreeTOBsInclCharge::processBitCorrect( const std::vector<TCS:
                 int charge2 = (*tob2)->charge();
                 int charge3 = (*tob3)->charge();
                 int totalCharge = charge1 + charge2 + charge3;
-                // Charge cut ( for TGC muons: 0=negative, 1=positive, as described at ATR-22621 )
-                // Reject if 3 TGC muons with total charge = -3 or 3 ( 0 or 3 in our convention )
                 bool acceptCharge = true;
                 if ( sector1 != "" && sector2 != "" && sector3 != "" && sector1.at(0) != 'B' && sector2.at(0) != 'B' && sector3.at(0) != 'B' ) {
                    if ( totalCharge == 0 or totalCharge == 3 ) { acceptCharge = false; }
@@ -188,12 +188,12 @@ TCS::InvariantMassThreeTOBsInclCharge::processBitCorrect( const std::vector<TCS:
 		    TOBvector.clear();
 		  }
 		  if(fillAccept and not alreadyFilled) {
-		    fillHist1D(m_histAccept[i],sqrt(invmass2));
+		    fillHist1D(m_histAccept[i],std::sqrt(invmass2));
                     fillHist2D(m_histAcceptEta1Eta2[i],(*tob1)->eta(),(*tob2)->eta());
                     fillHist2D(m_histAcceptEta2Eta3[i],(*tob2)->eta(),(*tob3)->eta());
                     fillHist2D(m_histAcceptEta3Eta1[i],(*tob3)->eta(),(*tob1)->eta());
 		  } else if(fillReject) {
-		    fillHist1D(m_histReject[i],sqrt(invmass2));
+		    fillHist1D(m_histReject[i],std::sqrt(invmass2));
                     fillHist2D(m_histRejectEta1Eta2[i],(*tob1)->eta(),(*tob2)->eta());
                     fillHist2D(m_histRejectEta2Eta3[i],(*tob2)->eta(),(*tob3)->eta());
                     fillHist2D(m_histRejectEta3Eta1[i],(*tob3)->eta(),(*tob1)->eta());
@@ -244,7 +244,9 @@ TCS::InvariantMassThreeTOBsInclCharge::process( const std::vector<TCS::TOBArray 
 		unsigned int invmass2_13 = TSU::Kinematics::calcInvMass( *tob1, *tob3 );
 		unsigned int invmass2_23 = TSU::Kinematics::calcInvMass( *tob2, *tob3 );
 		unsigned int invmass2 = invmass2_12 + invmass2_13 + invmass2_23;
-                // Muon sector and charge
+                // Charge cut ( for TGC muons: 0=negative, 1=positive, as described at ATR-22621 )
+                // Check the definition of sectorName at MuCTPIL1TopoCandidate.h (for TGC muons: sectorName.at(0)=E or F, for RPC muons: sectorName.at(0)=B)
+                // If no muon sectorName information is available, sectorName = ""
                 std::string sector1 = (*tob1)->sectorName();
                 std::string sector2 = (*tob2)->sectorName();
                 std::string sector3 = (*tob3)->sectorName();
@@ -252,8 +254,6 @@ TCS::InvariantMassThreeTOBsInclCharge::process( const std::vector<TCS::TOBArray 
                 int charge2 = (*tob2)->charge();
                 int charge3 = (*tob3)->charge();
                 int totalCharge = charge1 + charge2 + charge3;
-                // Charge cut ( for TGC muons: 0=negative, 1=positive, as described at ATR-22621 )
-                // Reject if 3 TGC muons with total charge = -3 or 3 ( 0 or 3 in our convention )
                 bool acceptCharge = true;
                 if ( sector1 != "" && sector2 != "" && sector3 != "" && sector1.at(0) != 'B' && sector2.at(0) != 'B' && sector3.at(0) != 'B' ) {
                    if ( totalCharge == 0 or totalCharge == 3 ) { acceptCharge = false; }
@@ -278,12 +278,12 @@ TCS::InvariantMassThreeTOBsInclCharge::process( const std::vector<TCS::TOBArray 
 		    TOBvector.clear();
 		  }
 		  if(fillAccept and not alreadyFilled) {
-		    fillHist1D(m_histAccept[i],sqrt(invmass2));
+		    fillHist1D(m_histAccept[i],std::sqrt(invmass2));
                     fillHist2D(m_histAcceptEta1Eta2[i],(*tob1)->eta(),(*tob2)->eta());
                     fillHist2D(m_histAcceptEta2Eta3[i],(*tob2)->eta(),(*tob3)->eta());
                     fillHist2D(m_histAcceptEta3Eta1[i],(*tob3)->eta(),(*tob1)->eta());
 		  } else if(fillReject) {
-		    fillHist1D(m_histReject[i],sqrt(invmass2));
+		    fillHist1D(m_histReject[i],std::sqrt(invmass2));
                     fillHist2D(m_histRejectEta1Eta2[i],(*tob1)->eta(),(*tob2)->eta());
                     fillHist2D(m_histRejectEta2Eta3[i],(*tob2)->eta(),(*tob3)->eta());
                     fillHist2D(m_histRejectEta3Eta1[i],(*tob3)->eta(),(*tob1)->eta());
