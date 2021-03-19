@@ -29,6 +29,11 @@
 #include <SampleHandler/SampleHandler.h>
 #include <SampleHandler/MetaObject.h>
 
+namespace asg
+{
+  class AsgServiceConfig;
+}
+
 namespace EL
 {
   /// effects: standard swap
@@ -94,6 +99,7 @@ namespace EL
     void algsAdd (Algorithm *alg_swallow);
     void algsAdd (const AnaAlgorithmConfig& config);
     void algsAdd (const AnaReentrantAlgorithmConfig& config);
+    void algsAdd (const asg::AsgServiceConfig& config);
 
 
     /// \brief add a clone of the given algorithm
