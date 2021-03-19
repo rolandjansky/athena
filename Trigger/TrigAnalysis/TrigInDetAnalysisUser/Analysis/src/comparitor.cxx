@@ -1723,14 +1723,7 @@ int main(int argc, char** argv) {
 	    htestnum = Get( *fftest, chains[j]+"/"+effhist+"_n", testrun, 0, &savedhistos ) ;
 	    htestden = Get( *fftest, chains[j]+"/"+effhist+"_d", testrun, 0, &savedhistos ) ;
 
-	    if ( rebin!=0 ) { 
-    	      htestnum = Rebin(htestnum, rebin );
-	      htestden = Rebin(htestden, rebin );
-	    }
 
-	    std::cout << "test histogram name: : " << htestnum->GetName() << "\txaxis: " << xaxis << "\t" << std::endl;
-
-	    //	if ( xaxis.find("p_{T}")!=std::string::npos || xaxis.find("pt")!=std::string::npos ) { 
 	    //    b.range( chains[j], htestnum );
 	    //    b.range( chains[j], htestden );
 	    //  }
@@ -1739,8 +1732,16 @@ int main(int argc, char** argv) {
 
 	    if ( htestnum && htestden ) { 
 
+	      if ( rebin!=0 ) { 
+		htestnum = Rebin(htestnum, rebin );
+		htestden = Rebin(htestden, rebin );
+	      }
+	      
+	      std::cout << "test histogram name: : " << htestnum->GetName() << "\txaxis: " << xaxis << "\t" << std::endl;
+	      
+	      //	if ( xaxis.find("p_{T}")!=std::string::npos || xaxis.find("pt")!=std::string::npos ) { 
 	      if ( std::string(htestnum->GetName()).find("ntrax_eff")!=std::string::npos ) {
-
+		
 		bool low = true;
 
 		//		if ( chains[j].find("j55")!=std::string::npos ) low = false;

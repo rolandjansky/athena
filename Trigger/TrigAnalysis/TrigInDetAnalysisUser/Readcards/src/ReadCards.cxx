@@ -224,7 +224,7 @@ void ReadCards::parse()
 	mString.replace( pos, 1, "|");
       }
       else { 
-	mString.replace( pos, 1, "_");
+	mString.replace( pos, 1, "####");
       }
 
       //      std::cout << "duff: " << duff << " : " << n << " " << std::endl;
@@ -378,7 +378,14 @@ void ReadCards::parse()
       
       // missing value
       if ( qo.size()==0 && token.size()==0 ) error("missing token : " + input);
-            
+           
+
+      size_t pos = token.find("####");
+      while ( pos !=std::string::npos ) {  
+	token.replace( pos, 4, ";" );
+	pos = token.find("####");
+      }
+
       values.push_back(token);
     }
 
