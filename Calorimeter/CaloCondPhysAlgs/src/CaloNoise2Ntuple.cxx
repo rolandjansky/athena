@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloNoise2Ntuple.h"
@@ -14,9 +14,7 @@ CaloNoise2Ntuple::CaloNoise2Ntuple(const std::string& name, ISvcLocator* pSvcLoc
   AthAlgorithm(name,pSvcLocator),
   m_thistSvc(nullptr),
   m_calo_id(nullptr),
-  m_noiseTool("CaloNoiseToolDB/calonoisetooldb"),
   m_averageTool(""),
-  m_noiseCDOKey(""),
   m_iCool(0),
   m_SubHash(0),
   m_Hash(0),
@@ -33,9 +31,7 @@ CaloNoise2Ntuple::CaloNoise2Ntuple(const std::string& name, ISvcLocator* pSvcLoc
   m_runNumber(0),
   m_lumiBlock(0)
 {
-  declareProperty("noiseTool",m_noiseTool,"noise tool");
   declareProperty("averageTool",m_averageTool,"average tool");
-  declareProperty("NoiseKey",m_noiseCDOKey,"read noise from this Conditions Data Object");
   declareProperty("TreeName",m_treeName="mytree");
 }
 
@@ -56,13 +52,9 @@ StatusCode CaloNoise2Ntuple::initialize()
   ATH_CHECK( detStore()->retrieve( mgr ) );
   m_calo_id      = mgr->getCaloCell_ID();
 
-  if (m_noiseCDOKey.key().empty()) {
-    ATH_CHECK( m_noiseTool.retrieve() );
-  }
-  else {
-    ATH_CHECK(m_noiseCDOKey.initialize());
-    m_noiseTool.disable();
-  }
+  ATH_CHECK( m_totalNoiseKey.initialize() );
+  ATH_CHECK( m_elecNoiseKey.initialize() );
+  ATH_CHECK( m_pileupNoiseKey.initialize() );
 
   if (!m_averageTool.empty()) {
     ATH_CHECK( m_averageTool.retrieve() );
@@ -114,13 +106,10 @@ StatusCode CaloNoise2Ntuple::stop()
   const CaloDetDescrManager* calodetdescrmgr = nullptr;
   ATH_CHECK( detStore()->retrieve(calodetdescrmgr) );
 
-
-  const CaloNoise* noiseCDO=nullptr;
-  if (!m_noiseCDOKey.key().empty()) {
-    SG::ReadCondHandle<CaloNoise> noiseHdl{m_noiseCDOKey};
-    noiseCDO=*noiseHdl;
-  }
-
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  SG::ReadCondHandle<CaloNoise> totalNoise  (m_totalNoiseKey,  ctx);
+  SG::ReadCondHandle<CaloNoise> elecNoise   (m_elecNoiseKey,   ctx);
+  SG::ReadCondHandle<CaloNoise> pileupNoise (m_pileupNoiseKey, ctx);
 
   int ncell=m_calo_id->calo_cell_hash_max();
   ATH_MSG_INFO ( " start loop over Calo cells " << ncell );
@@ -187,14 +176,9 @@ StatusCode CaloNoise2Ntuple::stop()
           }
           m_Gain = igain;
 
-	  if (noiseCDO) {
-	    m_noise=noiseCDO->getNoise(id,gain);
-	  } 
-	  else{    
-	    m_noise = m_noiseTool->totalNoiseRMS(calodde,gain);
-	    m_elecNoise = m_noiseTool->elecNoiseRMS(calodde,gain,-1);
-	    m_pileupNoise = m_noiseTool->pileupNoiseRMS(calodde);
-	  }
+          m_noise       = totalNoise->getNoise(id,gain);
+          m_elecNoise   = elecNoise->getNoise(id,gain);
+          m_pileupNoise = pileupNoise->getNoise(id,gain);
 
           if (!m_averageTool.empty()) {
               m_average = m_averageTool->average(calodde,gain);

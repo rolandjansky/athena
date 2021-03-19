@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloCellNoiseAlg.h"
@@ -13,6 +13,7 @@
 //=== AttributeList
 #include "CoralBase/Blob.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 
 using CLHEP::HepMatrix;
@@ -25,7 +26,6 @@ CaloCellNoiseAlg::CaloCellNoiseAlg(const std::string& name, ISvcLocator* pSvcLoc
   m_thistSvc(nullptr),
   m_calodetdescrmgr(nullptr),
   m_calo_id(nullptr),
-  m_adc2mevTool("LArADC2MeVTool"),
   m_ncell(0),
   m_lumiblock(0),
   m_lumiblockOld(0),
@@ -38,7 +38,6 @@ CaloCellNoiseAlg::CaloCellNoiseAlg(const std::string& name, ISvcLocator* pSvcLoc
   m_nmin(10),
   m_trigDecTool(""),
   m_triggerChainProp(""),
-  m_noiseToolDB(""),
   m_addlumiblock(5),
   m_deltaLumi(0.05)
 {
@@ -73,12 +72,10 @@ CaloCellNoiseAlg::CaloCellNoiseAlg(const std::string& name, ISvcLocator* pSvcLoc
   declareProperty("readNtuple",m_readNtuple);
   declareProperty("doFit",m_doFit);
   declareProperty("nevtMin",m_nmin);
-  declareProperty("ADC2MeVTool",m_adc2mevTool);
   declareProperty("doLumiFit",m_doLumiFit);
   declareProperty("TrigDecisionTool", m_trigDecTool );
   declareProperty("TriggerChain", m_triggerChainProp );
   declareProperty("EnergyCuts",m_cuts);
-  declareProperty("noiseTool",m_noiseToolDB,"noise tool from DB");
   declareProperty("LumiFolderName",m_lumiFolderName="/TRIGGER/LUMI/LBLESTONL");
   declareProperty("NAddLumiBlock",m_addlumiblock,"Number of consecutive lumiblocks to add together ");
   declareProperty("DeltaLumi",m_deltaLumi);
@@ -102,14 +99,13 @@ StatusCode CaloCellNoiseAlg::initialize()
 
   ATH_CHECK( detStore()->retrieve(m_calodetdescrmgr) );
 
-  if (m_doMC) {
-    ATH_CHECK( detStore()->regHandle(m_dd_noise,"") );
-  }
-  else {
-    ATH_CHECK( detStore()->regHandle(m_dd_pedestal,"") );
-  }
+  ATH_CHECK( m_noiseKey.initialize    ( m_doMC) );
+  ATH_CHECK( m_pedestalKey.initialize (!m_doMC) );
 
-  ATH_CHECK( m_adc2mevTool.retrieve() );
+  ATH_CHECK( m_adc2mevKey.initialize() );
+  ATH_CHECK( m_totalNoiseKey.initialize (SG::AllowEmpty) );
+  ATH_CHECK( m_elecNoiseKey.initialize (SG::AllowEmpty) );
+
 
   m_first = true;
   m_lumiblock = 0;
@@ -122,8 +118,6 @@ StatusCode CaloCellNoiseAlg::initialize()
     ATH_CHECK( m_trigDecTool.retrieve() );
     ATH_MSG_INFO ( "  --> Found AlgTool TrigDecisionTool" );
   }
-
-  ATH_CHECK( m_noiseToolDB.retrieve() );
 
   ATH_CHECK( m_cablingKey.initialize());
 
@@ -182,12 +176,8 @@ StatusCode CaloCellNoiseAlg::execute()
 
   }
 
-  const xAOD::EventInfo* eventInfo = nullptr;
-  if (evtStore()->retrieve(eventInfo).isFailure()) {
-    ATH_MSG_WARNING ( " Cannot access to event info " );
-    return StatusCode::SUCCESS;
-  }
-  unsigned int lumiblock = eventInfo->lumiBlock();
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  unsigned int lumiblock = ctx.eventID().lumi_block();
 
   ATH_MSG_DEBUG ( " lumiblock " << lumiblock );
 
@@ -222,6 +212,12 @@ StatusCode CaloCellNoiseAlg::execute()
     }
     m_CellList.reserve(m_ncell);
 
+    const CaloNoise* totalNoise = nullptr;
+    if (!m_totalNoiseKey.empty()) {
+      SG::ReadCondHandle<CaloNoise> noiseH (m_totalNoiseKey, ctx);
+      totalNoise = noiseH.cptr();
+    }
+
     for (int i=0;i<m_ncell;i++) {
      IdentifierHash idHash=i;
      Identifier id=m_calo_id->cell_id(idHash);
@@ -235,7 +231,7 @@ StatusCode CaloCellNoiseAlg::execute()
      cell0.eta = calodde->eta();
      cell0.phi = calodde->phi();
      cell0.nevt_good=0;
-     if (!m_noiseToolDB.empty()) {
+     if (totalNoise) {
           CaloGain::CaloGain gain;
           if (m_calo_id->is_tile(id)) {
               if (m_calo_id->calo_sample(id) == CaloSampling::TileGap3) gain=CaloGain::TILEONEHIGH;
@@ -245,7 +241,7 @@ StatusCode CaloCellNoiseAlg::execute()
               if(m_calo_id->is_hec(id)) gain=CaloGain::LARMEDIUMGAIN;
               else gain=CaloGain::LARHIGHGAIN;
           }
-          cell0.reference = m_noiseToolDB->totalNoiseRMS(calodde,gain,-1);
+          cell0.reference = totalNoise->getNoise (id, gain);
      }
      else{
        cell0.reference=0.;
@@ -395,10 +391,30 @@ StatusCode CaloCellNoiseAlg::readNtuple()
 //_________________________________________________
 StatusCode CaloCellNoiseAlg::fitNoise()
 {
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
-  const LArOnOffIdMapping* cabling=(*cablingHdl);
+ const EventContext& ctx = Gaudi::Hive::currentContext();
+ SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl (m_cablingKey, ctx);
+ const LArOnOffIdMapping* cabling=(*cablingHdl);
  
  ATH_MSG_INFO ( " in  CaloCellNoiseAlg::fitNoise() " );
+
+ const ILArPedestal* pedestal = nullptr;
+ const ILArNoise* noise = nullptr;
+ if (m_doMC) {
+   SG::ReadCondHandle<ILArNoise> noiseH (m_noiseKey, ctx);
+   noise = noiseH.cptr();
+ }
+ else {
+   SG::ReadCondHandle<ILArPedestal> pedH (m_pedestalKey, ctx);
+   pedestal = pedH.cptr();
+ }
+
+ const CaloNoise* elecNoise = nullptr;
+ if (!m_elecNoiseKey.empty()) {
+   SG::ReadCondHandle<CaloNoise> noiseH (m_elecNoiseKey, ctx);
+   elecNoise = noiseH.cptr();
+ }
+
+ SG::ReadCondHandle<LArADC2MeV> adc2mev (m_adc2mevKey, ctx);
 
  FILE* fp = fopen("calonoise.txt","w");
 
@@ -473,7 +489,7 @@ StatusCode CaloCellNoiseAlg::fitNoise()
    }   
  }   // end first loop over cells to store anoise and bnoise
 
-// for LAR try phi patching for missing cells, just to be sure that DB is filled with reasonnable entries in case
+// for LAR try phi patching for missing cells, just to be sure that DB is filled with reasonable entries in case
 //   the cell come back to life
  for (int icell=0;icell<m_ncell;icell++) {
     if (anoise[icell]<3. || m_treeData->m_nevt_good[icell]==0) {
@@ -521,7 +537,6 @@ StatusCode CaloCellNoiseAlg::fitNoise()
    HWIdentifier hwid=cabling->createSignalChannelID(id);
    int subCalo;
    IdentifierHash idSubHash = m_calo_id->subcalo_cell_hash (idHash, subCalo);
-   const CaloDetDescrElement* calodde = m_calodetdescrmgr->get_element(id);
 
    int iCool=-1;
    if (m_calo_id->is_em(id)) {    // EM calo
@@ -570,28 +585,28 @@ StatusCode CaloCellNoiseAlg::fitNoise()
 
 // noise and ADC2MeV in gain ref
           float noise0=-1.;
-          if (m_doMC) noise0 = m_dd_noise->noise(hwid,gainref);
+          if (m_doMC) noise0 = noise->noise(hwid,gainref);
           else {
-           float noise = m_dd_pedestal->pedestalRMS(hwid,gainref);
+           float noise = pedestal->pedestalRMS(hwid,gainref);
            if (noise>= (1.0+LArElecCalib::ERRORCODE)) noise0 = noise;
           }
-          const std::vector<float> *
-            polynom_adc2mev0 = &(m_adc2mevTool->ADC2MEV(id,gainref));
+          LArVectorProxy
+            polynom_adc2mev0 = adc2mev->ADC2MEV(id,gainref);
           float adc2mev0=-1;
-          if (polynom_adc2mev0->size()>1) adc2mev0=(*polynom_adc2mev0)[1];
+          if (polynom_adc2mev0.size()>1) adc2mev0=polynom_adc2mev0[1];
 
 // noise and ADC2MeV in gain
 
           float noise1=-1;
-          if (m_doMC) noise1 = m_dd_noise->noise(hwid,gain);
+          if (m_doMC) noise1 = noise->noise(hwid,gain);
           else {
-             float noise = m_dd_pedestal->pedestalRMS(hwid,gain);
+             float noise = pedestal->pedestalRMS(hwid,gain);
              if (noise>= (1.0+LArElecCalib::ERRORCODE)) noise1 = noise;
           }
-          const std::vector<float> *
-            polynom_adc2mev1 = &(m_adc2mevTool->ADC2MEV(hwid,gain));
+          LArVectorProxy
+            polynom_adc2mev1 = adc2mev->ADC2MEV(hwid,gain);
           float adc2mev1=-1;
-          if (polynom_adc2mev1->size()>1) adc2mev1=(*polynom_adc2mev1)[1];
+          if (polynom_adc2mev1.size()>1) adc2mev1=polynom_adc2mev1[1];
 
           //if (m_calo_id->is_hec(id))
           //  std::cout << " Hec noise1,noise0,adc2mev1,adc2mev0 " << noise1 << " " << noise0 << " " << adc2mev1 << " " << adc2mev0 << std::endl;
@@ -604,8 +619,8 @@ StatusCode CaloCellNoiseAlg::fitNoise()
          //if (m_calo_id->is_hec(id)) 
          //  std::cout << " Hec cell  gain,noise " << igain << " " << anoise_corr << std::endl;
 
-        if (!m_noiseToolDB.empty()) {
-          float adb = m_noiseToolDB->elecNoiseRMS(calodde,gain,-1);
+        if (elecNoise) {
+          float adb = elecNoise->getNoise(id,gain);
 
           // if no correct noise, use reference instead
           if (anoise_corr<1. && adb>1e-6) { 

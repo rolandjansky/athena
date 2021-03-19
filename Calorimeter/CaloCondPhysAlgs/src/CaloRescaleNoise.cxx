@@ -1,8 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloRescaleNoise.h"
+#include "CaloConditions/CaloNoise.h"
 #include "CaloIdentifier/CaloGain.h"
 #include "CaloEvent/CaloCell.h"
 #include "Identifier/Identifier.h"
@@ -13,7 +14,6 @@ CaloRescaleNoise::CaloRescaleNoise(const std::string& name, ISvcLocator* pSvcLoc
   AthAlgorithm(name,pSvcLocator),
   m_thistSvc(nullptr),
   m_calo_id(nullptr),
-  m_noiseTool("CaloNoiseToolDB/calonoisetooldb"),
   m_iCool(0),
   m_SubHash(0),
   m_Hash(0),
@@ -28,7 +28,6 @@ CaloRescaleNoise::CaloRescaleNoise(const std::string& name, ISvcLocator* pSvcLoc
   m_elecNoiseRescaled(0),
   m_tree(nullptr)
 {
-  declareProperty("noiseTool",m_noiseTool,"noise tool");
   declareProperty("absScaling",m_absScaling=false);
 }
 
@@ -48,7 +47,10 @@ StatusCode CaloRescaleNoise::initialize()
   ATH_CHECK( detStore()->retrieve( mgr ) );
   m_calo_id      = mgr->getCaloCell_ID();
 
-  ATH_CHECK( m_noiseTool.retrieve() );
+  ATH_CHECK( m_totalNoiseKey.initialize() );
+  ATH_CHECK( m_elecNoiseKey.initialize() );
+  ATH_CHECK( m_pileupNoiseKey.initialize() );
+
   ATH_CHECK( m_scaleCorrKey.initialize() );
   ATH_CHECK( m_cablingKey.initialize());
   ATH_CHECK( m_onlineScaleCorrKey.initialize() );
@@ -96,7 +98,9 @@ StatusCode CaloRescaleNoise::stop()
   const EventContext& ctx = Gaudi::Hive::currentContext();
   SG::ReadCondHandle<ILArHVScaleCorr> scaleCorr (m_scaleCorrKey, ctx);
   SG::ReadCondHandle<ILArHVScaleCorr> onlineScaleCorr (m_onlineScaleCorrKey, ctx);
-  
+  SG::ReadCondHandle<CaloNoise> totalNoise  (m_totalNoiseKey,  ctx);
+  SG::ReadCondHandle<CaloNoise> elecNoise   (m_elecNoiseKey,   ctx);
+  SG::ReadCondHandle<CaloNoise> pileupNoise (m_pileupNoiseKey, ctx);
 
   int ncell=m_calo_id->calo_cell_hash_max();
   ATH_MSG_INFO ( " start loop over Calo cells " << ncell );
@@ -172,9 +176,9 @@ StatusCode CaloRescaleNoise::stop()
           }
           m_Gain = igain;
 
-          m_noise = m_noiseTool->totalNoiseRMS(calodde,gain);
-          m_elecNoise = m_noiseTool->elecNoiseRMS(calodde,gain,-1);
-          m_pileupNoise = m_noiseTool->pileupNoiseRMS(calodde);
+          m_noise       = totalNoise->getNoise(id,gain);
+          m_elecNoise   = elecNoise->getNoise(id,gain);
+          m_pileupNoise = pileupNoise->getNoise(id,gain);
 
           if (hvonline>0.) {
              if (m_absScaling) {

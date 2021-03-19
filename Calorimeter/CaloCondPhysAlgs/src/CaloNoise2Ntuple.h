@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // CaloNoise2Ntuple.h
@@ -17,7 +17,6 @@
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "CaloInterface/ICaloNoiseTool.h"
 #include "CaloInterface/ICaloMBAverageTool.h"
 
 #include "GaudiKernel/ITHistSvc.h"
@@ -34,16 +33,16 @@ class CaloNoise2Ntuple : public AthAlgorithm {
     /** Standard Athena-Algorithm Constructor */
     CaloNoise2Ntuple(const std::string& name, ISvcLocator* pSvcLocator);
     /** Default Destructor */
-    ~CaloNoise2Ntuple();
+    virtual ~CaloNoise2Ntuple();
     
     /** standard Athena-Algorithm method */
-    StatusCode          initialize();
+    virtual StatusCode          initialize() override;
     /** standard Athena-Algorithm method */
-    StatusCode          execute();
+    virtual StatusCode          execute() override;
     /** standard Athena-Algorithm method */
-    StatusCode          finalize();
+    virtual StatusCode          finalize() override;
     /** standard Athena-Algorithm method */
-    StatusCode          stop();
+    virtual StatusCode          stop() override;
     
   private:
 
@@ -54,10 +53,14 @@ class CaloNoise2Ntuple : public AthAlgorithm {
 
   const CaloCell_ID*       m_calo_id;
 
-  ToolHandle<ICaloNoiseTool> m_noiseTool;
   ToolHandle<ICaloMBAverageTool> m_averageTool;
 
-  SG::ReadCondHandleKey<CaloNoise> m_noiseCDOKey;
+  SG::ReadCondHandleKey<CaloNoise> m_totalNoiseKey
+    { this, "TotalNoiseKey", "totalNoise", "SG key for total noise" };
+  SG::ReadCondHandleKey<CaloNoise> m_elecNoiseKey
+    { this, "ElecNoiseKey", "electronicNoise", "SG key for electronic noise" };
+  SG::ReadCondHandleKey<CaloNoise> m_pileupNoiseKey
+    { this, "PileupNoiseKey", "pileupNoise", "SG key for pileup noise" };
 
   std::string m_treeName;
 
