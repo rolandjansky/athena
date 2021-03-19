@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ReadStats.cxx 642099 2015-01-27 16:43:18Z krasznaa $
@@ -37,11 +37,19 @@ namespace {
    /// @param b2 The second branch's access statistics
    /// @returns <code>true</code> if the first branch was accessed more times
    ///         than the second one. <code>false</code> otherwise.
+   ///         If equal, then compare based on the branch name.
    ///
    bool sortByEntries( const xAOD::BranchStats& b1,
                        const xAOD::BranchStats& b2 ) {
 
-      return ( b1.readEntries() > b2.readEntries() );
+      if ( b1.readEntries() > b2.readEntries() ) {
+        return true;
+      }
+      else if ( b1.readEntries() < b2.readEntries() ) {
+        return false;
+      }
+
+      return strcmp (b1.GetName(), b2.GetName()) < 0;
    }
 
    /// Strict weak ordering based on the number of bytes unpacked from a branch
