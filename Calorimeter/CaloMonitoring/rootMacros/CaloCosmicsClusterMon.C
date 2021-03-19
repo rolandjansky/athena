@@ -98,6 +98,9 @@ class CaloCosmicsClusterMon
  public:
   CaloCosmicsClusterMon(const TGWindow *p, UInt_t w, UInt_t h, TString min);
   virtual ~CaloCosmicsClusterMon();
+  CaloCosmicsClusterMon (const CaloCosmicsClusterMon&) = delete;
+  CaloCosmicsClusterMon& operator= (const CaloCosmicsClusterMon&) = delete;
+
   void CloseMainWindow();
 
   void ConfigureMainMenu();
@@ -123,6 +126,51 @@ class CaloCosmicsClusterMon
 //#####################################################################
 // Class constructor
 CaloCosmicsClusterMon::CaloCosmicsClusterMon(const TGWindow *p, UInt_t w, UInt_t h, TString min)
+  : fMain (nullptr),
+    fMenuDock (nullptr),
+    fGCanvas (nullptr),
+    fContainer (nullptr),
+    fECanvas (),
+    fMenuBar (nullptr),
+    fMenuSummary (nullptr),
+    fMenuCaloCell (nullptr),
+    fMenuPS (nullptr),
+    fHFrame (nullptr),
+    fComboLayer (nullptr),
+    fComboEcut (nullptr),
+    fComboEtaSlice (nullptr),
+    fDrawSingle (nullptr),
+    fDrawLayers (nullptr),
+    fDrawRegions (nullptr),
+    fDrawEcuts (nullptr),
+    fSave (nullptr),
+    fPrintThis (nullptr),
+    fStatusBar (nullptr),
+    fCanvas (nullptr),
+    m_h1d (nullptr),
+    m_href (nullptr),
+    m_h2d (nullptr),
+    m_psFile (nullptr),
+
+    m_fileBaseName (gSystem->BaseName(g_rootFile->GetName())),
+    m_dirEM_General ("EMTopoCluster/General"),
+    m_dirEM_LeadCell ("EMTopoCluster/LeadCell"),
+    m_dirEM_TimeEnergy ("EMTopoCluster/Time_Energy"),
+    m_dirEM_1dRates ("EMTopoCluster/1d_Rates"),
+    m_dirEM_2dRates ("EMTopoCluster/2d_Rates"),
+    m_dirEM_1dAvEnergy ("EMTopoCluster/1d_AvEnergy"),
+    m_dirEM_2dAvEnergy ("EMTopoCluster/2d_AvEnergy"),
+
+    m_dirCaloCal_General ("CaloCalTopoCluster/General"),
+    m_dirCaloCal_LeadCell ("CaloCalTopoCluster/LeadCell"),
+    m_dirCaloCal_TimeEnergy ("CaloCalTopoCluster/Time_Energy"),
+    m_dirCaloCal_1dRates ("CaloCalTopoCluster/1d_Rates"),
+    m_dirCaloCal_2dRates ("CaloCalTopoCluster/2d_Rates"),
+    m_dirCaloCal_1dAvEnergy ("CaloCalTopoCluster/1d_AvEnergy"),
+    m_dirCaloCal_2dAvEnergy ("CaloCalTopoCluster/2d_AvEnergy"),
+
+    m_canvasW (720),
+    m_canvasH (540)
 {
   cout << endl << "constructer loaded" <<endl;
   
@@ -141,24 +189,7 @@ CaloCosmicsClusterMon::CaloCosmicsClusterMon(const TGWindow *p, UInt_t w, UInt_t
   cout << "rootDirName: " << rootDirName <<endl;
   
   // initialize variables
-  m_fileBaseName = gSystem->BaseName(g_rootFile->GetName());
-  
   m_dirClusterMon = rootDirName+"LAr/CaloMonitoring/ClusterMon/";
-  m_dirEM_General = "EMTopoCluster/General";
-  m_dirEM_LeadCell = "EMTopoCluster/LeadCell";
-  m_dirEM_TimeEnergy = "EMTopoCluster/Time_Energy";
-  m_dirEM_1dRates = "EMTopoCluster/1d_Rates";
-  m_dirEM_2dRates = "EMTopoCluster/2d_Rates";
-  m_dirEM_1dAvEnergy = "EMTopoCluster/1d_AvEnergy";
-  m_dirEM_2dAvEnergy = "EMTopoCluster/2d_AvEnergy";
-  
-  m_dirCaloCal_General = "CaloCalTopoCluster/General";
-  m_dirCaloCal_LeadCell = "CaloCalTopoCluster/LeadCell";
-  m_dirCaloCal_TimeEnergy = "CaloCalTopoCluster/Time_Energy";
-  m_dirCaloCal_1dRates = "CaloCalTopoCluster/1d_Rates";
-  m_dirCaloCal_2dRates = "CaloCalTopoCluster/2d_Rates";
-  m_dirCaloCal_1dAvEnergy = "CaloCalTopoCluster/1d_AvEnergy";
-  m_dirCaloCal_2dAvEnergy = "CaloCalTopoCluster/2d_AvEnergy";
   
   /*  //no directory in root file, kamile
   m_dirSummary = "Summary";
@@ -182,12 +213,6 @@ CaloCosmicsClusterMon::CaloCosmicsClusterMon(const TGWindow *p, UInt_t w, UInt_t
   m_dirSumEvsEta = "";
   m_dirSumEvsPhi = "";
   */
-
-  m_histoNameBase1 = "";
-  m_canvasW = 720;
-  m_canvasH = 540;
-  m_psFile = 0;
-  m_psFileName = "";
 
   // global style options
   gStyle->SetOptStat("emr");

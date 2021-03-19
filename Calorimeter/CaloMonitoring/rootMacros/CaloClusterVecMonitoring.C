@@ -75,6 +75,9 @@ class CaloClusterVecMon
  public:
   CaloClusterVecMon(const TGWindow *p, UInt_t w, UInt_t h);
   virtual ~CaloClusterVecMon();
+  CaloClusterVecMon (const CaloClusterVecMon&) = delete;
+  CaloClusterVecMon& operator= (const CaloClusterVecMon&) = delete;
+
   void CloseMainWindow();
 
   void ConfigureMainMenu();
@@ -96,24 +99,41 @@ class CaloClusterVecMon
 //#####################################################################
 // Class constructor
 CaloClusterVecMon::CaloClusterVecMon(const TGWindow *p, UInt_t w, UInt_t h)
-{
-  // initialize variables
-  m_fileBaseName = gSystem->BaseName(g_rootFile->GetName());
-  m_dirCaloClusterVec = "/CaloClusterVecMon/";
-  m_dirSummary = "Summary";
-  m_dirEnergy = "Energy";
-  m_dirEta = "Eta";
-  m_dirPhi = "Phi";
-  m_dirEtaPhi = "EtaPhi";
-  m_dirSumEvsEtaPhi = "SumEvsEtaPhi";
-  m_dirSumEvsEta = "SumEvsEta";
-  m_dirSumEvsPhi = "SumEvsPhi";
-  m_histoNameBase1 = "";
-  m_canvasW = 720;
-  m_canvasH = 540;
-  m_psFile = 0;
-  m_psFileName = "";
+  : fMain (nullptr),
+    fMenuDock (nullptr),
+    fGCanvas (nullptr),
+    fContainer (nullptr),
+    fECanvas (),
+    fMenuBar (nullptr),
+    fMenuSummary (nullptr),
+    fMenuCaloCluster (nullptr),
+    fMenuPS (nullptr),
+    fHFrame (nullptr),
+    fComboEcut (nullptr),
+    fComboEtaSlice (nullptr),
+    fDrawSingle (nullptr),
+    fSave (nullptr),
+    fPrintThis (nullptr),
+    fStatusBar (nullptr),
+    fCanvas (nullptr),
+    m_h1d (nullptr),
+    m_href (nullptr),
+    m_h2d (nullptr),
+    m_psFile (nullptr),
 
+    m_fileBaseName (gSystem->BaseName(g_rootFile->GetName())),
+    m_dirCaloClusterVec ("/CaloClusterVecMon/"),
+    m_dirEnergy ("Energy"),
+    m_dirEta ("Eta"),
+    m_dirPhi ("Phi"),
+    m_dirEtaPhi ("EtaPhi"),
+    m_dirSumEvsEtaPhi ("SumEvsEtaPhi"),
+    m_dirSumEvsEta ("SumEvsEta"),
+    m_dirSumEvsPhi ("SumEvsPhi"),
+    m_dirSummary  ("Summary"),
+    m_canvasW (720),
+    m_canvasH (540)
+{
   // global style options
   gStyle->SetOptStat("emr");
   gStyle->SetPaperSize(TStyle::kA4);

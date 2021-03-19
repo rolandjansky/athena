@@ -78,6 +78,9 @@ class CaloCellVecMon
  public:
   CaloCellVecMon(const TGWindow *p, UInt_t w, UInt_t h, TString min);
   virtual ~CaloCellVecMon();
+  CaloCellVecMon (const CaloCellVecMon&) = delete;
+  CaloCellVecMon& operator= (const CaloCellVecMon&) = delete;
+
   void CloseMainWindow();
 
   void ConfigureMainMenu();
@@ -103,6 +106,46 @@ class CaloCellVecMon
 //#####################################################################
 // Class constructor
 CaloCellVecMon::CaloCellVecMon(const TGWindow *p, UInt_t w, UInt_t h, TString min)
+  : fMain (nullptr),
+    fMenuDock (nullptr),
+    fGCanvas (nullptr),
+    fContainer (nullptr),
+    fECanvas (),
+    fMenuBar (nullptr),
+    fMenuSummary (nullptr),
+    fMenuCaloCell (nullptr),
+    fMenuPS (nullptr),
+    fHFrame (nullptr),
+    fComboLayer (nullptr),
+    fComboEcut (nullptr),
+    fComboEtaSlice (nullptr),
+    fDrawSingle (nullptr),
+    fDrawLayers (nullptr),
+    fDrawRegions (nullptr),
+    fDrawEcuts (nullptr),
+    fSave (nullptr),
+    fPrintThis (nullptr),
+    fStatusBar (nullptr),
+    fCanvas (nullptr),
+    m_h1d (nullptr),
+    m_href (nullptr),
+    m_h2d (nullptr),
+    m_psFile (nullptr),
+
+    m_fileBaseName (gSystem->BaseName(g_rootFile->GetName())),
+    m_dirEnergy ("Energy"),
+    m_dir1dRateEta ("1d_Rate"),
+    m_dir1dRatePhi ("1d_Rate"),
+    m_dir2dAvEn ("2d_AvEn"),
+    m_dir2dNoise ("2d_Noise"),
+    m_dir2dRate ("2d_Rate"),
+    m_dirEnvsTime ("EnvsTime"),
+    m_dirKnownBadChan ("KnownBadChan"),
+    m_dirNoCondChan ("NoCondChan"),
+    m_dirSummary ("Summary"),
+
+    m_canvasW (720),
+    m_canvasH (540)
 {
   cout << endl << "constructer loaded" <<endl;
   
@@ -119,7 +162,6 @@ CaloCellVecMon::CaloCellVecMon(const TGWindow *p, UInt_t w, UInt_t h, TString mi
 
 
   // initialize variables
-  m_fileBaseName = gSystem->BaseName(g_rootFile->GetName());
   m_dirCaloCellVec = rootDirName + min + "/LAr/CaloMonitoring/CaloCellVecMon/";
   cout << "m_dirCaloCellVec: " << m_dirCaloCellVec <<endl;
   
@@ -135,23 +177,7 @@ CaloCellVecMon::CaloCellVecMon(const TGWindow *p, UInt_t w, UInt_t h, TString mi
   m_dirEnvsTime = "SumEvsEta";
   m_dirKnownBadChan = "SumEvsPhi";
   */
-  m_dirSummary = "Summary";
-  m_dirEnergy = "Energy";
-  m_dir1dRateEta = "1d_Rate";
-  m_dir1dRatePhi = "1d_Rate";
-  m_dir2dAvEn = "2d_AvEn";
-  m_dir2dNoise = "2d_Noise";
-  m_dir2dRate = "2d_Rate";
-  m_dirEnvsTime = "EnvsTime";
-  m_dirKnownBadChan = "KnownBadChan";
-  m_dirNoCondChan = "NoCondChan";
   
-  m_histoNameBase1 = "";
-  m_canvasW = 720;
-  m_canvasH = 540;
-  m_psFile = 0;
-  m_psFileName = "";
-
   // global style options
   gStyle->SetOptStat("emr");
   gStyle->SetPaperSize(TStyle::kA4);
