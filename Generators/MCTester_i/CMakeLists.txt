@@ -7,13 +7,17 @@ atlas_subdir( MCTester_i )
 find_package( MCTester )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
 if (HEPMC3_USE)
-set( MCTester_sources src/MCTesterAlg.cxx 
+  set( MCTester_sources src/MCTesterAlg.cxx 
                       ${HEPMC3_INCLUDE_DIR}/../share/HepMC3/interfaces/mc-tester/src/HepMC3Particle.cxx 
                       ${HEPMC3_INCLUDE_DIR}/../share/HepMC3/interfaces/mc-tester/src/HepMC3Event.cxx) 
-set( HEPMC_MCTester_INTERFACE_DIR ${HEPMC3_INCLUDE_DIR}/../share/HepMC3/interfaces/mc-tester/include)
+  set( HEPMC_MCTester_INTERFACE_DIR ${HEPMC3_INCLUDE_DIR}/../share/HepMC3/interfaces/mc-tester/include)
+  #This is needed for HepMC3 only as the HepMC2 interface compiled in MC-TESTER (with the same warnings) 
+  #Should be removed after next MC-TESTER release
+  set_source_files_properties(${HEPMC3_INCLUDE_DIR}/../share/HepMC3/interfaces/mc-tester/src/HepMC3Event.cxx PROPERTIES COMPILE_FLAGS -Wno-ignored-qualifiers -Wno-unused-parameter)
+  set_source_files_properties(${HEPMC3_INCLUDE_DIR}/../share/HepMC3/interfaces/mc-tester/src/HepMC3Particle.cxx PROPERTIES COMPILE_FLAGS -Wno-ignored-qualifiers -Wno-unused-parameter)
 else()
-set( MCTester_sources src/MCTesterAlg.cxx)
-set( HEPMC_MCTester_INTERFACE_DIR ${MCTESTER_INCLUDE_DIRS})
+  set( MCTester_sources src/MCTesterAlg.cxx)
+  set( HEPMC_MCTester_INTERFACE_DIR ${MCTESTER_INCLUDE_DIRS})
 endif()
 
 # Component(s) in the package:
@@ -22,6 +26,7 @@ atlas_add_component( MCTester_i
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${MCTESTER_INCLUDE_DIRS} ${HEPMC_MCTester_INTERFACE_DIR}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${MCTESTER_LIBRARIES} AtlasHepMCLib AthenaBaseComps GaudiKernel StoreGateLib SGtests EventInfo GeneratorObjects )
+
 
 # Install files from the package:
 atlas_install_headers( MCTester_i )
