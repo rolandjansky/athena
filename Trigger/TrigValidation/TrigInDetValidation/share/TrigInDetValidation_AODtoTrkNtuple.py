@@ -88,7 +88,6 @@ if ( True ) :
   TestMonTool.AnalysisConfig = "nTuple" #Change to Tier0 for T0 Analysis
   TestMonTool.EnableLumi = False
   TestMonTool.RequireDecision = False
-  # TestMonTool.RequireDecision = True
   TestMonTool.mcTruth = True
   TestMonTool.ntupleChainNames = ['']
 
@@ -150,6 +149,9 @@ if ( True ) :
     "HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
     "HLT_j45_ftf_L1J15:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
 
+    "HLT_unconvtrk.*_fslrt.*:HLT_IDTrack_FSLRT_FTF;DTE",
+    "HLT_unconvtrk.*_fslrt.*:HLT_IDTrack_FS_FTF;DTE",
+    
     "HLT_mu.*_idperf.*:HLT_IDTrack_Muon_FTF",
     "HLT_mu.*_idperf.*:HLT_IDTrack_Muon_FTF:roi=HLT_Roi_L2SAMuon",
     "HLT_mu.*_idperf.*:HLT_IDTrack_Muon_IDTrig",

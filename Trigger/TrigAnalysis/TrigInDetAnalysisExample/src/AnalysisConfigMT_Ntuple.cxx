@@ -283,7 +283,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 					   << ( passPhysics ? "[91;1m" : "" ) << "\tpass physics  " <<  passPhysics << ( passPhysics ? "[m" : "" ) 
 					   << "\t: ( pass " << (*m_tdt)->isPassed(chainName, decisiontype_ ) << "\tdec type " << decisiontype_ << " ) " << endmsg;
 
-		if ( (*m_tdt)->isPassed(chainName, decisiontype_ ) ) { 
+		if ( (*m_tdt)->isPassed(chainName, decisiontype_ ) ||  !m_chainNames[ichain].passed() ) { 
 		  analyse = true;
 		  passed_chains++;
 		}
@@ -608,7 +608,6 @@ void AnalysisConfigMT_Ntuple::loop() {
 	}
 
 	/// navigate through the requested storegate TEST chains
-	
 	for ( unsigned ichain=0 ; ichain<m_chainNames.size() ; ichain++ ) {  
 	  
 	  /// keep this printout here, but commented for usefull debug purposes ...
@@ -924,6 +923,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 
 
 	// now loop over all relevant chains to get the trigger tracks...
+
 	for ( unsigned ichain=0 ; ichain<m_chainNames.size() ; ichain++ ) {  
 
 		// create chains for ntpl
@@ -948,14 +948,18 @@ void AnalysisConfigMT_Ntuple::loop() {
 		
 		/// now decide whether we want all the TEs for this chain, or just those 
 		/// that are still active
+
+
 		unsigned decisiontype;
-                if ( m_chainNames[ichain].passed() ) decisiontype = decisiontype_;
-		else                                 decisiontype = TrigDefs::alsoDeactivateTEs;
-
-
+                if ( m_chainNames[ichain].passed() ) {
+		  decisiontype = decisiontype_;
+		} else {
+		
+		  decisiontype = TrigDefs::alsoDeactivateTEs;
+		  decisiontype_ = TrigDefs::requireDecision;		
+		}
 		/// if the chain did not pass, skip this chain completely 
 		if ( !(*m_tdt)->isPassed( chainName, decisiontype_ ) ) continue;
-
 
 		/// new MT TDT feature access  
 		
@@ -969,6 +973,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 		/// the TDT combination feature retrieval has been implemented
 		/// at that point it can be replaced by the appropriate 
 		/// code using the new TDT feature access
+
 
 		if ( roi_name!="" ) { 
 
