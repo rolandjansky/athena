@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -265,7 +265,7 @@ TauVertexFinder::getPV_TJVA(const xAOD::TauJet& pTau,
     ATH_MSG_DEBUG("TJVA vtx found at z: " << vertices.at(maxIndex)->z() );
     ATH_MSG_DEBUG("highest pt vtx found at z: " << vertices.at(0)->z());
 
-    float min_sumDz = 99999999;
+    float min_sumDz = 99999999.;
     iVertex = 0;
     for (const xAOD::Vertex* vert : vertices) {
       ATH_MSG_DEBUG("i=" << iVertex << ", z=" << vert->z() << ", JVF=" << v_jvf[iVertex] << ", sumDz=" << sumDz[iVertex]);
