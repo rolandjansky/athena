@@ -230,6 +230,8 @@ private:
                            int strawGasType,
                            CLHEP::HepRandomEngine* rndmEngine);
 
+  double setClusterZ(double cluster_z_in, bool isLong, bool isShort, bool isEC) const;
+
   std::vector<double> m_drifttimes;     // electron drift times
   std::vector<double> m_expattenuation; // tabulation of exp()
   unsigned int  m_maxelectrons;         // maximum number of them (minmum is 100 for the Gaussian approx to be ok);
