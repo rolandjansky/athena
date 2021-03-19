@@ -146,7 +146,7 @@ namespace InDet {
       StatusCode convStrategy();
       StatusCode  itkFastTrackingStrategy();
       void magneticFieldInit();
-      bool Quality(const Trk::Track*,int,int);
+      bool Quality(const Trk::Track*,int,int,int);
 
       MsgStream&    dumptools(MsgStream&    out) const;
       MsgStream&    dumpevent(MsgStream&    out) const;

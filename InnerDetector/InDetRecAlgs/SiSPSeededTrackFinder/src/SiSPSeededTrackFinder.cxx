@@ -980,19 +980,19 @@ void InDet::SiSPSeededTrackFinder::filterSharedTracksN (std::multimap<double,Trk
       const Trk::FitQualityOnSurface* fq =  (*m)->fitQualityOnSurface();
       if(!fq) continue;
     
-     if(fq->numberDoF() == 2) ++np;
+      if(fq->numberDoF() == 2) ++np;
      
-     const Trk::MeasurementBase* mb = (*m)->measurementOnTrack();
-     const Trk::RIO_OnTrack*     ri = dynamic_cast<const Trk::RIO_OnTrack*>(mb);
-     if(!ri) continue;
-     const Trk::PrepRawData*     pr = ri->prepRawData();
-     if(pr) {
+      const Trk::MeasurementBase* mb = (*m)->measurementOnTrack();
+      const Trk::RIO_OnTrack*     ri = dynamic_cast<const Trk::RIO_OnTrack*>(mb);
+      if(!ri) continue;
+      const Trk::PrepRawData*     pr = ri->prepRawData();
+      if(pr) {
         ++nc; if(clusters.find(pr)==fe) {prd[nf++]=pr; if(nf==100) break;}
       }
     }
     
     for(int n=0; n!=nf; ++n) clusters.insert(prd[n]);
-    if( np > 2 && Quality((*q).second,nc,nf) ) OT.push_back((*q).second);
+    if( Quality((*q).second,nc,nf,np) ) OT.push_back((*q).second);
     else delete (*q).second;
   }
 }
@@ -1116,7 +1116,7 @@ void InDet::SiSPSeededTrackFinder::magneticFieldInit()
 // Track quality calculation
 ///////////////////////////////////////////////////////////////////
 
-bool InDet::SiSPSeededTrackFinder::Quality(const Trk::Track* Tr,int Nc,int Nf)
+bool InDet::SiSPSeededTrackFinder::Quality(const Trk::Track* Tr,int Nc,int Nf, int Np)
 {
   DataVector<const Trk::TrackStateOnSurface>::const_iterator  m = Tr->trackStateOnSurfaces()->begin();
   const Trk::TrackParameters* par = (*m)->trackParameters();
@@ -1126,6 +1126,7 @@ bool InDet::SiSPSeededTrackFinder::Quality(const Trk::Track* Tr,int Nc,int Nf)
   if(Nc    < m_etaDependentCutsSvc->getMinSiHitsAtEta(eta)) return false;
   if(Nf    < m_etaDependentCutsSvc->getMinSiNotSharedAtEta(eta)) return false;
   if(Nc-Nf > m_etaDependentCutsSvc->getMaxSharedAtEta(eta)) return false;
+  if(Np    < m_etaDependentCutsSvc->getMinPixelHitsAtEta(eta)) return false;
 
   if(par->pT() < m_etaDependentCutsSvc->getMinPtAtEta(eta)) return false;
   if(!(*m)->type(Trk::TrackStateOnSurface::Perigee)) return true ;
