@@ -69,7 +69,10 @@ class ParticleGun(EvgenAlg):
         """
         ## Set event weight(s)
         # TODO: allow weighted sampling?
-        from AthenaPython.PyAthena import HepMC
+        try:
+          from AthenaPython.PyAthena import HepMC3  as HepMC
+        except ImportError:
+          from AthenaPython.PyAthena import HepMC   as HepMC        
         evt.weights().push_back(1.0)
 
         ## Make and fill particles
