@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -9,7 +9,6 @@
 #include "LongLivedParticleDPDMaker/EmergingJetsHighPtFilterTool.h"
 #include <vector>
 #include <string>
-#include "xAODJet/JetContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
 #include "TrigDecisionTool/ChainGroup.h"
@@ -26,7 +25,6 @@ DerivationFramework::EmergingJetsHighPtFilterTool::EmergingJetsHighPtFilterTool(
   m_npass(0),
   m_nptpass(0),
   m_nhighptpass(0),
-  m_jetSGKey("AntiKt4EMTopoJets"),
   m_ptCut(100000.0),
   m_highPtCut(300000.0),
   m_etaCut(2.5),
@@ -36,7 +34,6 @@ DerivationFramework::EmergingJetsHighPtFilterTool::EmergingJetsHighPtFilterTool(
     declareInterface<DerivationFramework::ISkimmingTool>(this);
     declareProperty("TrigDecisionTool", m_tdt, "Tool to access the trigger decision");
     declareProperty("Triggers", m_triggers = std::vector< std::string >());
-    declareProperty("JetContainerKey", m_jetSGKey);
     declareProperty("JetPtCut", m_ptCut);
     declareProperty("JetHighPtCut", m_highPtCut);
     declareProperty("JetEtaCut", m_etaCut);
@@ -58,7 +55,9 @@ StatusCode DerivationFramework::EmergingJetsHighPtFilterTool::initialize()
        return StatusCode::FAILURE;
      }
      ATH_MSG_INFO("Retrieved tool: " << m_tdt);
-     
+  
+     ATH_CHECK(m_jetSGKey.initialize());    
+ 
      return StatusCode::SUCCESS;
      
 }
@@ -97,9 +96,8 @@ bool DerivationFramework::EmergingJetsHighPtFilterTool::eventPassesFilter() cons
 
 
   // access jet container
-  const xAOD::JetContainer* jets(0);
-  StatusCode sc = evtStore()->retrieve(jets,m_jetSGKey);
-  if( sc.isFailure() || !jets ){
+  SG::ReadHandle<xAOD::JetContainer> jets(m_jetSGKey);
+  if( !jets.isValid() ) {
     msg(MSG::WARNING) << "No Jet container found, will skip this event" << endmsg;
     return false;
   } 
@@ -111,7 +109,7 @@ bool DerivationFramework::EmergingJetsHighPtFilterTool::eventPassesFilter() cons
   int nHighPtJetsPassed = 0;
   for ( unsigned int i = 0; i < jets->size(); ++i ) { 
     const xAOD::Jet* jet = jets->at(i);
-    if ( (jet->pt() < m_ptCut) || (fabs(jet->eta()) > m_etaCut) ) continue;
+    if ( (jet->pt() < m_ptCut) || (std::abs(jet->eta()) > m_etaCut) ) continue;
     nJetsPassed += 1;
     ATH_MSG_INFO( "pt cut passing jet pt: " << jet->pt() * 0.001);
     if ( jet->pt() < m_highPtCut ) continue;

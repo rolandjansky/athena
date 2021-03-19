@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from TriggerMenuMT.TriggerAPI.TriggerAPI import TriggerAPI
 from TriggerMenuMT.TriggerAPI.TriggerEnums import TriggerPeriod, TriggerType
@@ -180,6 +180,20 @@ class RPVLLTriggers:
         HIPsList = getTriggerList( TriggerType.exotics, "hiptrt" )
         return HIPsList
 
+    def getTauSingleTriggers(self):
+        #DV_METFilterFlags.triggers
+        SingleRNNTauList = getTriggerList( TriggerType.tau_single )
+        return SingleRNNTauList
+    
+    def getTauDiTriggers(self):
+        #DV_METFilterFlags.triggers
+        SingleRNNTauList = getTriggerList( TriggerType.tau_multi )
+        return SingleRNNTauList
+
+    def getTauMETTriggers(self):
+        #DV_METFilterFlags.triggers
+        SingleRNNTauList = getTriggerList(  TriggerType.ALL, matching_pattern="HLT_tau.*xe.*" )
+        return SingleRNNTauList
 
     
 # Flags to turn RPVLL TriggerAPI implementation on/off
@@ -194,5 +208,4 @@ class doRPVLLTriggerAPI(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = False # TriggerAPI is not correctly working now. See DATREP-183
-    pass
 rpvllTrig.add_JobProperty(doRPVLLTriggerAPI)

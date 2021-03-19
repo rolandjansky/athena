@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ### configure trigger filters
 if len(primRPVLLDESDM.Quirks_triggerFilterFlags.TriggerNames) == 0:
@@ -25,7 +26,6 @@ for trigName in primRPVLLDESDM.Quirks_triggerFilterFlags.TriggerNames:
     topSequence += TriggerFilter( TriggerFilterName,
                                   trigger = trigName )
     triggerFilterNames.append( TriggerFilterName )
-    pass
 
 # Create a combined filter by ORing together all the trigger filters
 combinedTriggerFilterName = "Quirks_CombinedTriggerFilter"
@@ -35,10 +35,8 @@ cmdstring = ""
 for triggerFilterName in triggerFilterNames :
     if triggerFilterCounter > 0 :
         cmdstring += " or "
-        pass
     cmdstring += triggerFilterName
     triggerFilterCounter += 1
-    pass
 topSequence.Quirks_CombinedTriggerFilter.cmdstring = cmdstring    
 filtersToBookkeep+=["Quirks_CombinedTriggerFilter"]
 
@@ -62,7 +60,6 @@ topSequence.QuirksCombinedFilter.cmdstring="Quirks_CombinedTriggerFilter and Qui
 
 if topCmdString.__len__() > 0:
     topCmdString+=" or "
-    pass
 topCmdString+="QuirksCombinedFilter"
 
 filtersToBookkeep+=["QuirksCombinedFilter"]

@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ### configure trigger filters
 if len(primRPVLLDESDM.Stopped_triggerFilterFlags.TriggerNames) == 0:
@@ -25,7 +26,6 @@ for trigName in primRPVLLDESDM.Stopped_triggerFilterFlags.TriggerNames:
     topSequence += TriggerFilter( TriggerFilterName,
                                   trigger = trigName )
     triggerFilterNames.append( TriggerFilterName )
-    pass
 
 # Create a combined filter by ORing together all the trigger filters
 combinedTriggerFilterName = "Stopped_CombinedTriggerFilter"
@@ -35,10 +35,8 @@ cmdstring = ""
 for triggerFilterName in triggerFilterNames :
     if triggerFilterCounter > 0 :
         cmdstring += " or "
-        pass
     cmdstring += triggerFilterName
     triggerFilterCounter += 1
-    pass
 topSequence.Stopped_CombinedTriggerFilter.cmdstring = cmdstring    
 filtersToBookkeep+=["Stopped_CombinedTriggerFilter"]
 
@@ -125,7 +123,6 @@ topSequence.StoppedCombinedFilter.cmdstring="Stopped_CombinedTriggerFilter and S
 
 if topCmdString.__len__() > 0:
     topCmdString+=" or "
-    pass
 topCmdString+="StoppedCombinedFilter"
 
 filtersToBookkeep+=["StoppedCombinedFilter"]

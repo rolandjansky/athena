@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -8,8 +8,6 @@
 // Author: Shimpei Yamamoto (shimpei.yamamoto@cern.ch)
 
 #include "LongLivedParticleDPDMaker/KinkTrkZeeTagTool.h"
-#include "xAODTracking/TrackingPrimitives.h"
-#include "xAODMissingET/MissingETContainer.h"
 #include <vector>
 #include <string>
 
@@ -30,8 +28,7 @@ DerivationFramework::KinkTrkZeeTagTool::KinkTrkZeeTagTool(const std::string& t,
   m_clusterEtaMax(2.8),
   m_diEleMassLow(50.),
   m_diEleMassHigh(-1),
-  m_dPhiMax(10),
-  m_sgKeyPrefix("KinkTrk")
+  m_dPhiMax(10)
 {
   declareInterface<DerivationFramework::IAugmentationTool>(this);
   declareProperty("TriggerDecisionTool", m_trigDecisionTool);
@@ -46,8 +43,7 @@ DerivationFramework::KinkTrkZeeTagTool::KinkTrkZeeTagTool(const std::string& t,
   declareProperty("ClusterEtaMax", m_clusterEtaMax);
   declareProperty("DiEleMassLow", m_diEleMassLow);
   declareProperty("DiEleMassHigh", m_diEleMassHigh);
-  declareProperty("DeltaPhiMax", m_dPhiMax); 
-  declareProperty("StoreGateKeyPrefix", m_sgKeyPrefix);
+  declareProperty("DeltaPhiMax", m_dPhiMax);
 }
   
 
@@ -79,13 +75,9 @@ StatusCode DerivationFramework::KinkTrkZeeTagTool::initialize()
 
   ATH_CHECK(m_electronSGKey.initialize());
   ATH_CHECK(m_clusterSGKey.initialize());
+  ATH_CHECK(m_KinkTrkDiEleMassKey.initialize());
+  ATH_CHECK(m_KinkTrkProbeEleEtKey.initialize());
 
-
-  //Build WriteHandleKeys:
-  m_diEleMassKey=m_sgKeyPrefix+"DiEleMass";
-  ATH_CHECK(m_diEleMassKey.initialize());
-  m_probeEleEtKey=m_sgKeyPrefix+"ProbeEleEt";
-  ATH_CHECK(m_probeEleEtKey.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -101,12 +93,15 @@ StatusCode DerivationFramework::KinkTrkZeeTagTool::finalize()
 // Augmentation
 StatusCode DerivationFramework::KinkTrkZeeTagTool::addBranches() const
 {
-  auto diEleMass = std::make_unique<std::vector<float> >(); 
-  auto probeEleEt = std::make_unique< std::vector<float> >();
+  SG::WriteHandle< std::vector<float> > diEleMass(m_KinkTrkDiEleMassKey);
+  ATH_CHECK(diEleMass.record(std::make_unique< std::vector<float> >()));
+
+  SG::WriteHandle< std::vector<float> > probeEleEt(m_KinkTrkProbeEleEtKey);
+  ATH_CHECK(probeEleEt.record(std::make_unique< std::vector<float> >()));
 
   SG::ReadHandle<xAOD::ElectronContainer> electrons(m_electronSGKey);
-  SG::ReadHandle< xAOD::CaloClusterContainer> clusters(m_clusterSGKey);
-
+  SG::ReadHandle<xAOD::CaloClusterContainer> clusters(m_clusterSGKey);
+	
   for (const auto ele: *electrons) {
     if (!checkTagElectron(ele)) continue;
     for (const auto clu: *clusters) {
@@ -116,13 +111,6 @@ StatusCode DerivationFramework::KinkTrkZeeTagTool::addBranches() const
       probeEleEt->push_back(clu->et());
     }
   }
-
-  // Writing to SG
-  SG::WriteHandle<std::vector<float > > diEleMassHdl(m_diEleMassKey);
-  ATH_CHECK(diEleMassHdl.record(std::move(diEleMass)));
-
-  SG::WriteHandle<std::vector<float> > probeEleEtHdl(m_probeEleEtKey);
-  ATH_CHECK(probeEleEtHdl.record(std::move(probeEleEt)));
 
   return StatusCode::SUCCESS;
 }
@@ -156,7 +144,7 @@ bool DerivationFramework::KinkTrkZeeTagTool::checkCluster(const xAOD::CaloCluste
 
 bool DerivationFramework::KinkTrkZeeTagTool::checkEleClusPair(const xAOD::Electron *ele, const xAOD::CaloCluster *clu) const
 {
-  if (fabs(ele->p4().DeltaPhi(clu->p4())) > m_dPhiMax) return false;
+  if (std::abs(ele->p4().DeltaPhi(clu->p4())) > m_dPhiMax) return false;
   float mass = (ele->p4()+clu->p4()).M();
   if (mass < m_diEleMassLow) return false;
   if (mass > m_diEleMassHigh) return false;
@@ -167,7 +155,7 @@ bool DerivationFramework::KinkTrkZeeTagTool::checkEleClusPair(const xAOD::Electr
 bool DerivationFramework::KinkTrkZeeTagTool::passElectronQuality(const xAOD::Electron *ele) const
 {
   if (ele->pt() < m_electronPtCut) return false;
-  if (fabs(ele->eta()) > m_electronEtaMax) return false;
+  if (std::abs(ele->eta()) > m_electronEtaMax) return false;
   bool passID(false);
   for (unsigned int i=0; i<m_electronIDKeys.size(); i++) {
     if (ele->passSelection(passID, m_electronIDKeys[i])) {
@@ -184,7 +172,7 @@ bool DerivationFramework::KinkTrkZeeTagTool::passElectronQuality(const xAOD::Ele
 bool DerivationFramework::KinkTrkZeeTagTool::passClusterQuality(const xAOD::CaloCluster *clu) const
 {
   if (clu->et() < m_clusterEtCut) return false;
-  if (fabs(clu->eta()) > m_clusterEtaMax) return false;
+  if (std::abs(clu->eta()) > m_clusterEtaMax) return false;
   return true;
 }
 

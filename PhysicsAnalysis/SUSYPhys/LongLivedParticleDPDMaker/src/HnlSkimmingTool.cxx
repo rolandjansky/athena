@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -28,8 +28,6 @@ DerivationFramework::HnlSkimmingTool::HnlSkimmingTool(const std::string& t,
   declareProperty("TrigDecisionTool", m_trigDecisionTool, "Tool to access the trigger decision");
   declareProperty("Triggers", m_triggers=std::vector<std::string>());
 
-  // Muons
-  declareProperty("MuonContainerKey", m_muonSGKey="Muons");
   // Prompt muons
   declareProperty("Mu1PtMin", m_mu1PtMin=-1.);
   declareProperty("Mu1AbsEtaMax", m_mu1AbsEtaMax=2.5);
@@ -46,8 +44,6 @@ DerivationFramework::HnlSkimmingTool::HnlSkimmingTool(const std::string& t,
   declareProperty("Mu2IsoCut", m_mu2IsoCut=1.);
   declareProperty("Mu2d0Min", m_mu2d0Min=0.1, "Unit is mm");
 
-  // Electrons
-  declareProperty("ElectronContainerKey", m_electronSGKey="Electrons");
   // Prompt electrons
   declareProperty("El1PtMin", m_el1PtMin=-1.);
   declareProperty("El1AbsEtaMax", m_el1AbsEtaMax=2.5);
@@ -73,6 +69,8 @@ StatusCode DerivationFramework::HnlSkimmingTool::initialize()
 
   ATH_CHECK(m_trigDecisionTool.retrieve());
   ATH_MSG_INFO("Retrieved tool: " << m_trigDecisionTool);
+  ATH_CHECK(m_muonSGKey.initialize());
+  ATH_CHECK(m_electronSGKey.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -121,20 +119,18 @@ bool DerivationFramework::HnlSkimmingTool::eventPassesFilter() const
   if (not passedTrigger) return acceptEvent;
 
   // Retrieve muon container 
-  const xAOD::MuonContainer* muons = nullptr;
+  SG::ReadHandle<xAOD::MuonContainer> muons(m_muonSGKey);
   if (m_isPromptMuon or m_isDisplacedMuon) {
-    StatusCode sc = evtStore()->retrieve(muons, m_muonSGKey);
-    if (sc.isFailure()) {
+    if( !muons.isValid() ) {
       ATH_MSG_FATAL("No muon collection with name " << m_muonSGKey << " found in StoreGate!");
       return acceptEvent;
     }
   }
 
   // Retrieve electron container
-  const xAOD::ElectronContainer* electrons = nullptr;
+  SG::ReadHandle<xAOD::ElectronContainer> electrons(m_electronSGKey);
   if ((not m_isPromptMuon) or (not m_isDisplacedMuon)) {
-    StatusCode sc = evtStore()->retrieve(electrons, m_electronSGKey);
-    if (sc.isFailure()) {
+    if( !electrons.isValid() ) {
       ATH_MSG_FATAL("No electron collection with name " << m_electronSGKey << " found in StoreGate!");
       return acceptEvent;
     }
@@ -229,7 +225,7 @@ bool DerivationFramework::HnlSkimmingTool::eventPassesFilter() const
   return acceptEvent;
 }
 
-void DerivationFramework::HnlSkimmingTool::getPromptMuonCandidates(const xAOD::MuonContainer* muons,
+void DerivationFramework::HnlSkimmingTool::getPromptMuonCandidates(SG::ReadHandle<DataVector<xAOD::Muon_v1>>& muons,
                                                                    std::vector<const xAOD::Muon*>& promptMuonCandidates) const
 {
   for (const xAOD::Muon* muon : *muons) {
@@ -268,7 +264,7 @@ void DerivationFramework::HnlSkimmingTool::getPromptMuonCandidates(const xAOD::M
   }
 }
 
-void DerivationFramework::HnlSkimmingTool::getDisplacedMuonCandidates(const xAOD::MuonContainer* muons,
+void DerivationFramework::HnlSkimmingTool::getDisplacedMuonCandidates(SG::ReadHandle<DataVector<xAOD::Muon_v1>>& muons,
                                                                       std::vector<const xAOD::Muon*>& displacedMuonCandidates) const
 {
   for (const xAOD::Muon* muon : *muons) {
@@ -319,7 +315,7 @@ void DerivationFramework::HnlSkimmingTool::getDisplacedMuonCandidates(const xAOD
   }
 }
 
-void DerivationFramework::HnlSkimmingTool::getPromptElectronCandidates(const xAOD::ElectronContainer* electrons,
+void DerivationFramework::HnlSkimmingTool::getPromptElectronCandidates(SG::ReadHandle<DataVector<xAOD::Electron_v1>>& electrons,
                                                                        std::vector<const xAOD::Electron*>& promptElectronCandidates) const
 {
   for (const xAOD::Electron* electron : *electrons) {
@@ -349,7 +345,7 @@ void DerivationFramework::HnlSkimmingTool::getPromptElectronCandidates(const xAO
   }
 }
 
-void DerivationFramework::HnlSkimmingTool::getDisplacedElectronCandidates(const xAOD::ElectronContainer* electrons,
+void DerivationFramework::HnlSkimmingTool::getDisplacedElectronCandidates(SG::ReadHandle<DataVector<xAOD::Electron_v1>>& electrons,
                                                                           std::vector<const xAOD::Electron*>& displacedElectronCandidates) const
 {
   for (const xAOD::Electron* electron : *electrons) {

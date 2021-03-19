@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 # Author: Heather Russel
-# Modified: 17 July 2017 by Colleen Treado
+# Modified: 3 Dec 2019 by Guillermo Hamity
 
 # STEP 1: PARSE PHYSICS MAIN LOGFILES
 # $ python readFiles.py [output file name] [InputFolderWithLogFiles]
@@ -78,7 +78,10 @@ filterNames = [ 'DiLep_SiElectronFilterKernel',
                 'HnlFilterKernel',
                 'HV_MuvtxFilterKernel',
                 'HV_JetMETFilterKernel',
-                'HV_CalRatioFilterKernel' ]
+                'HV_CalRatioFilterKernel',
+                'LargeRTaus_SiFilterKernel',
+                'LargeRTaus_DiFilterKernel',
+                'LargeRTaus_METFilterKernel']
 
 # list filter names excluding DVAugmentationKernel -- for plotting and calculating rate
 filterNames_mAug = [fn for fn in filterNames if fn != 'DVAugmentationKernel']
@@ -275,7 +278,10 @@ ROOT.kGreen+1,
 # HNL
 ROOT.kOrange+8,
 # three for HV
-ROOT.kViolet+8, ROOT.kViolet+3, ROOT.kViolet-9 ]
+ROOT.kViolet+8, ROOT.kViolet+3, ROOT.kViolet-9,
+# LargeR Taus
+ROOT.kYellow+2,ROOT.kYellow+9,ROOT.kYellow-5
+ ]
 
 # ALL FILTERS -- STACK PLOT
 # create + configure new canvas

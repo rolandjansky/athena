@@ -1,5 +1,5 @@
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
 ## Name:        HNLFlags.py
@@ -28,7 +28,6 @@ class doHnlElMu(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = True
-    pass
 primRPVLLDESDM.add_JobProperty(doHnlElMu)
 
 class doHnlElEl(JobProperty):
@@ -36,7 +35,6 @@ class doHnlElEl(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = True
-    pass
 primRPVLLDESDM.add_JobProperty(doHnlElEl)
 
 class doHnlMuEl(JobProperty):
@@ -44,7 +42,6 @@ class doHnlMuEl(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = True
-    pass
 primRPVLLDESDM.add_JobProperty(doHnlMuEl)
 
 class promptMuonPtThreshHnl(JobProperty):
@@ -52,7 +49,6 @@ class promptMuonPtThreshHnl(JobProperty):
     statusOn = True
     allowedTypes = ["float"]
     StoredValue = 28.*Units.GeV
-    pass
 primRPVLLDESDM.add_JobProperty(promptMuonPtThreshHnl)
 
 class promptElectronPtThreshHnl(JobProperty):
@@ -60,7 +56,6 @@ class promptElectronPtThreshHnl(JobProperty):
     statusOn = True
     allowedTypes = ["float"]
     StoredValue = 28.*Units.GeV
-    pass
 primRPVLLDESDM.add_JobProperty(promptElectronPtThreshHnl)
 
 class displacedMuonPtThreshHnl(JobProperty):
@@ -68,7 +63,6 @@ class displacedMuonPtThreshHnl(JobProperty):
     statusOn = True
     allowedTypes = ["float"]
     StoredValue = 5.*Units.GeV
-    pass
 primRPVLLDESDM.add_JobProperty(displacedMuonPtThreshHnl)
 
 class displacedElectronPtThreshHnl(JobProperty):
@@ -76,7 +70,6 @@ class displacedElectronPtThreshHnl(JobProperty):
     statusOn = True
     allowedTypes = ["float"]
     StoredValue = 5.*Units.GeV
-    pass
 primRPVLLDESDM.add_JobProperty(displacedElectronPtThreshHnl)
 
 class promptMuonIsoThreshHnl(JobProperty):
@@ -84,7 +77,6 @@ class promptMuonIsoThreshHnl(JobProperty):
     statusOn = True
     allowedTypes = ["float"]
     StoredValue = 0.05
-    pass
 primRPVLLDESDM.add_JobProperty(promptMuonIsoThreshHnl)
 
 class promptElectronIsoThreshHnl(JobProperty):
@@ -92,7 +84,6 @@ class promptElectronIsoThreshHnl(JobProperty):
     statusOn = True
     allowedTypes = ["float"]
     StoredValue = 0.05
-    pass
 primRPVLLDESDM.add_JobProperty(promptElectronIsoThreshHnl)
 
 class displacedMuonIsoThreshHnl(JobProperty):
@@ -100,7 +91,6 @@ class displacedMuonIsoThreshHnl(JobProperty):
     statusOn = True
     allowedTypes = ["float"]
     StoredValue = 9999.
-    pass
 primRPVLLDESDM.add_JobProperty(displacedMuonIsoThreshHnl)
 
 class displacedElectronIsoThreshHnl(JobProperty):
@@ -108,7 +98,6 @@ class displacedElectronIsoThreshHnl(JobProperty):
     statusOn = True
     allowedTypes = ["float"]
     StoredValue = 9999.
-    pass
 primRPVLLDESDM.add_JobProperty(displacedElectronIsoThreshHnl)
 
 class promptElectronIsoTypeHnl(JobProperty):
@@ -116,7 +105,6 @@ class promptElectronIsoTypeHnl(JobProperty):
     statusOn = True
     allowedTypes = ["int"]
     StoredValue = xAODIso.ptcone30
-    pass
 primRPVLLDESDM.add_JobProperty(promptElectronIsoTypeHnl)
 
 class displacedElectronIsoTypeHnl(JobProperty):
@@ -124,7 +112,6 @@ class displacedElectronIsoTypeHnl(JobProperty):
     statusOn = True
     allowedTypes = ["int"]
     StoredValue = xAODIso.ptcone30
-    pass
 primRPVLLDESDM.add_JobProperty(displacedElectronIsoTypeHnl)
 
 class promptMuonTypesHnl(JobProperty):
@@ -132,7 +119,6 @@ class promptMuonTypesHnl(JobProperty):
     statusOn = True
     allowedTypes = ["list"]
     StoredValue = [ROOT.xAOD.Muon.Combined]
-    pass
 primRPVLLDESDM.add_JobProperty(promptMuonTypesHnl)
 
 class displacedMuonTypesHnl(JobProperty):
@@ -141,7 +127,6 @@ class displacedMuonTypesHnl(JobProperty):
     allowedTypes = ["list"]
     StoredValue = [ROOT.xAOD.Muon.Combined,
                    ROOT.xAOD.Muon.MuonStandAlone]
-    pass
 primRPVLLDESDM.add_JobProperty(displacedMuonTypesHnl)
 
 class promptElectronIDHnl(JobProperty):
@@ -149,7 +134,6 @@ class promptElectronIDHnl(JobProperty):
     statusOn = True
     allowedTypes = ["str"]
     StoredValue = "LHLoose"
-    pass
 primRPVLLDESDM.add_JobProperty(promptElectronIDHnl)
 
 class displacedMuonD0ThreshHnl(JobProperty):
@@ -157,7 +141,6 @@ class displacedMuonD0ThreshHnl(JobProperty):
     statusOn = True
     allowedTypes = ["float"]
     StoredValue = 0.1*Units.mm
-    pass
 primRPVLLDESDM.add_JobProperty(displacedMuonD0ThreshHnl)
 
 class displacedElectronD0ThreshHnl(JobProperty):
@@ -165,7 +148,6 @@ class displacedElectronD0ThreshHnl(JobProperty):
     statusOn = True
     allowedTypes = ["float"]
     StoredValue = 1.0*Units.mm
-    pass
 primRPVLLDESDM.add_JobProperty(displacedElectronD0ThreshHnl)
 
 class doHnlMultiLeptonTriggers(JobProperty):
@@ -173,7 +155,6 @@ class doHnlMultiLeptonTriggers(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = False
-    pass
 primRPVLLDESDM.add_JobProperty(doHnlMultiLeptonTriggers)
 
 class leptonDphiThreshHnl(JobProperty):
@@ -181,5 +162,4 @@ class leptonDphiThreshHnl(JobProperty):
     statusOn = True
     allowedTypes = ["float"]
     StoredValue = 0.0*Units.radian
-    pass
 primRPVLLDESDM.add_JobProperty(leptonDphiThreshHnl)

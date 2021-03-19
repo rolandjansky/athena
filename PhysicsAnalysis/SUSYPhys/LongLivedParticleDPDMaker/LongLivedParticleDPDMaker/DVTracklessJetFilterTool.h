@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -16,6 +16,8 @@
 
 // DerivationFramework includes
 #include "DerivationFrameworkInterfaces/ISkimmingTool.h"
+#include "xAODJet/JetContainer.h"
+#include "StoreGate/ReadHandleKey.h"
 
 namespace DerivationFramework {
 
@@ -43,10 +45,10 @@ namespace DerivationFramework {
     virtual bool eventPassesFilter() const;
     
   private:
-    mutable unsigned int m_ntot;
-    mutable unsigned int m_npass;
-    std::string m_jetSGKey;
-    
+    mutable std::atomic<unsigned int> m_ntot;
+    mutable std::atomic<unsigned int> m_npass;
+    SG::ReadHandleKey<xAOD::JetContainer> m_jetSGKey
+      { this, "JetContainerKey", "AntiKt4EMTopoJets", ""};
 
     double m_ptCut;
     double m_etaCut;

@@ -156,6 +156,8 @@ RPVLLfilterNames.extend(["RPVLL_KinkedTrackStubletFilterKernel"])
 # Zee/Zmumu filter
 #====================================================================
 from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFramework__KinkTrkZeeTagTool
+KinkTrkDiEleMassStr = "KinkTrkDiEleMass"
+KinkTrkProbeEleEtStr = "KinkTrkProbeEleEt"
 KinkTrkZeeTagTool = DerivationFramework__KinkTrkZeeTagTool(name                 = "KinkTrkZeeTagTool",
                                                            Triggers             = primRPVLLDESDM.KinkedTrack_ZeeFilterFlags.triggerNames,
                                                            TriggerMatchDeltaR   = 0.1,
@@ -170,12 +172,15 @@ KinkTrkZeeTagTool = DerivationFramework__KinkTrkZeeTagTool(name                 
                                                            DiEleMassLow         = primRPVLLDESDM.KinkedTrack_ZeeFilterFlags.diElectronMassLow,
                                                            DiEleMassHigh        = primRPVLLDESDM.KinkedTrack_ZeeFilterFlags.diElectronMassHigh,
                                                            DeltaPhiMax          = primRPVLLDESDM.KinkedTrack_ZeeFilterFlags.deltaPhiMax,
-                                                           StoreGateKeyPrefix   = "KinkTrk")
+                                                           KinkTrkDiEleMassKey  = KinkTrkDiEleMassStr,
+                                                           KinkTrkProbeEleEtKey = KinkTrkProbeEleEtStr)
 
 print(KinkTrkZeeTagTool)
 ToolSvc += KinkTrkZeeTagTool
 
 from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFramework__KinkTrkZmumuTagTool
+KinkTrkDiMuMassStr = "KinkTrkDiMuMass"
+KinkTrkProbeMuPtStr = "KinkTrkProbeMuPt"
 KinkTrkZmumuTagTool = DerivationFramework__KinkTrkZmumuTagTool(name            = "KinkTrkZmumuTagTool",
                                                            Triggers            = primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags.triggerNames,
                                                            TriggerMatchDeltaR  = 0.1,
@@ -190,7 +195,8 @@ KinkTrkZmumuTagTool = DerivationFramework__KinkTrkZmumuTagTool(name            =
                                                            DiMuonMassLow       = primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags.diMuonMassLow,
                                                            DiMuonMassHigh      = primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags.diMuonMassHigh,
                                                            DeltaPhiMax         = primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags.deltaPhiMax,
-                                                           StoreGateKeyPrefix  = "KinkTrk")
+                                                           KinkTrkDiMuMassKey  = KinkTrkDiMuMassStr,
+                                                           KinkTrkProbeMuPtKey = KinkTrkProbeMuPtStr)
 
 print(KinkTrkZmumuTagTool)
 ToolSvc += KinkTrkZmumuTagTool
@@ -244,7 +250,8 @@ ToolSvc+= KinkTrkZeeFinalFilterTool
 topSequence += DerivationFramework__DerivationKernel("RPVLL_KinkedTrackZeeFilterKernel",
                                                      SkimmingTools = [KinkTrkZeeFinalFilterTool])
 RPVLLfilterNames.extend(["RPVLL_KinkedTrackZeeFilterKernel"])
-
+topSequence.RPVLL_KinkedTrackZeeFilterKernel.ExtraInputs = [('std::vector<float>', KinkTrkDiEleMassStr),
+                                                            ('std::vector<float>', KinkTrkProbeEleEtStr)]
 
 ##
 ## Selecting low-pT probe muons
@@ -280,4 +287,6 @@ ToolSvc+= KinkTrkZmumuFinalFilterTool
 topSequence += DerivationFramework__DerivationKernel("RPVLL_KinkedTrackZmumuFilterKernel",
                                                      SkimmingTools = [KinkTrkZmumuFinalFilterTool])
 RPVLLfilterNames.extend(["RPVLL_KinkedTrackZmumuFilterKernel"])
+topSequence.RPVLL_KinkedTrackZmumuFilterKernel.ExtraInputs = [('std::vector<float>', KinkTrkDiMuMassStr),
+                                                              ('std::vector<float>', KinkTrkProbeMuPtStr)]
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -23,18 +23,15 @@ DerivationFramework::KinkTrkZmumuTagTool::KinkTrkZmumuTagTool(const std::string&
   m_trigNames(std::vector<std::string>()),
   m_trigMatchDeltaR(0.1),
   m_muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool"),
-  m_muonSGKey("Muons"),
   m_muonIDKeys(std::vector<std::string>()),
   m_muonPtCut(0),
   m_muonEtaMax(9999),
-  m_trackSGKey("MuonSpectrometerTracks"),
   m_trackPtCut(0),
   m_trackEtaMax(9999),
   m_diMuonMassLow(50.),
   m_diMuonMassHigh(-1),
   m_dPhiMax(10),
-  m_doOppositeSignReq(false),
-  m_sgKeyPrefix("KinkTrk")
+  m_doOppositeSignReq(false)
 {
   declareInterface<DerivationFramework::IAugmentationTool>(this);
   declareProperty("TriggerDecisionTool", m_trigDecisionTool);
@@ -42,18 +39,15 @@ DerivationFramework::KinkTrkZmumuTagTool::KinkTrkZmumuTagTool(const std::string&
   declareProperty("Triggers", m_trigNames);
   declareProperty("TriggerMatchDeltaR", m_trigMatchDeltaR);
   declareProperty("RequireTriggerMatch", m_doTrigMatch);
-  declareProperty("MuonContainerKey", m_muonSGKey);
   declareProperty("MuonIDKeys", m_muonIDKeys);
   declareProperty("MuonPtMin", m_muonPtCut);
   declareProperty("MuonEtaMax", m_muonEtaMax);
-  declareProperty("TrackContainerKey", m_trackSGKey);
   declareProperty("TrackPtMin", m_trackPtCut);
   declareProperty("TrackEtaMax", m_trackEtaMax);
   declareProperty("DiMuonMassLow", m_diMuonMassLow);
   declareProperty("DiMuonMassHigh", m_diMuonMassHigh);
   declareProperty("DeltaPhiMax", m_dPhiMax); 
-  declareProperty("RequireOppositeSign", m_doOppositeSignReq); 
-  declareProperty("StoreGateKeyPrefix", m_sgKeyPrefix);
+  declareProperty("RequireOppositeSign", m_doOppositeSignReq);
 }
   
 
@@ -85,6 +79,11 @@ StatusCode DerivationFramework::KinkTrkZmumuTagTool::initialize()
 
   CHECK(m_muonSelectionTool.retrieve());
 
+  ATH_CHECK(m_muonSGKey.initialize());
+  ATH_CHECK(m_trackSGKey.initialize());
+  ATH_CHECK(m_KinkTrkDiMuMassKey.initialize());
+  ATH_CHECK(m_KinkTrkProbeMuPtKey.initialize());
+
   return StatusCode::SUCCESS;
 }
 
@@ -100,16 +99,24 @@ StatusCode DerivationFramework::KinkTrkZmumuTagTool::finalize()
 // Augmentation
 StatusCode DerivationFramework::KinkTrkZmumuTagTool::addBranches() const
 {
-  std::vector<float> *diMuonTrkMass = new std::vector<float>();
-  std::vector<float> *probeMuPt = new std::vector<float>();
-  std::string sgKey1(m_sgKeyPrefix+"DiMuMass");
-  std::string sgKey2(m_sgKeyPrefix+"ProbeMuPt");
 
-  const xAOD::MuonContainer* muons(0);
-  ATH_CHECK(evtStore()->retrieve(muons, m_muonSGKey));	
+  SG::WriteHandle< std::vector<float> > diMuonTrkMass(m_KinkTrkDiMuMassKey);
+  ATH_CHECK(diMuonTrkMass.record(std::make_unique< std::vector<float> >()));
 
-  const xAOD::TrackParticleContainer* mstracks(0);
-  ATH_CHECK(evtStore()->retrieve(mstracks, m_trackSGKey));
+  SG::WriteHandle< std::vector<float> > probeMuPt(m_KinkTrkProbeMuPtKey);
+  ATH_CHECK(probeMuPt.record(std::make_unique< std::vector<float> >()));
+
+  SG::ReadHandle<xAOD::MuonContainer> muons(m_muonSGKey);
+  if( !muons.isValid() ) {
+    msg(MSG::WARNING) << "No Muon container found, will skip this event" << endmsg;
+    return StatusCode::FAILURE;
+  } 
+
+  SG::ReadHandle<xAOD::TrackParticleContainer> mstracks(m_trackSGKey);
+  if( !mstracks.isValid() ) {
+    msg(MSG::WARNING) << "No MS track container found, will skip this event" << endmsg;
+    return StatusCode::FAILURE;
+  } 
 
   for (auto muon: *muons) {
     if (!checkTagMuon(muon)) continue;
@@ -120,24 +127,6 @@ StatusCode DerivationFramework::KinkTrkZmumuTagTool::addBranches() const
       probeMuPt->push_back(track->pt());
     }
   }
-
-  // Writing to SG
-  if (evtStore()->contains< float >(sgKey1)) {
-    ATH_MSG_ERROR("StoreGate key " << sgKey1 << "already exists.");
-    // avoid mem leak
-    delete diMuonTrkMass;
-    delete probeMuPt;
-    return StatusCode::FAILURE;
-  }
-  CHECK(evtStore()->record(diMuonTrkMass, sgKey1));
-
-  if (evtStore()->contains< float >(sgKey2)) {
-    ATH_MSG_ERROR("StoreGate key " << sgKey2 << "already exists.");
-    // avoid mem leak
-    delete probeMuPt;
-    return StatusCode::FAILURE;
-  }
-  CHECK(evtStore()->record(probeMuPt, sgKey2));
 
   return StatusCode::SUCCESS;
 }
@@ -171,7 +160,7 @@ bool DerivationFramework::KinkTrkZmumuTagTool::checkMSTrack(const xAOD::TrackPar
 
 bool DerivationFramework::KinkTrkZmumuTagTool::checkMuonTrackPair(const xAOD::Muon *muon, const xAOD::TrackParticle *track) const
 {
-  if (fabs(muon->p4().DeltaPhi(track->p4())) > m_dPhiMax) return false;
+  if (std::abs(muon->p4().DeltaPhi(track->p4())) > m_dPhiMax) return false;
   if (m_doOppositeSignReq) {
     if (muon->charge()*track->charge() > 0) return false;
   }
@@ -184,32 +173,12 @@ bool DerivationFramework::KinkTrkZmumuTagTool::checkMuonTrackPair(const xAOD::Mu
 
 bool DerivationFramework::KinkTrkZmumuTagTool::passMuonQuality(const xAOD::Muon *muon) const
 {
-  if (muon->pt() < m_muonPtCut) return false;
-  if (fabs(muon->eta()) > m_muonEtaMax) return false;
+  if( muon->pt() < m_muonPtCut                    ) return false;
+  if( std::abs(muon->eta()) > m_muonEtaMax            ) return false;
+  if( !m_muonSelectionTool->passedMuonCuts(*muon) ) return false;
+  if( muon->muonType() != xAOD::Muon::Combined    ) return false;
 
-  bool passID(false);
-  for (unsigned int i=0; i<m_muonIDKeys.size(); i++) {
-    int qflag(0);
-    if (m_muonIDKeys[i] == "VeryLoose") {
-      qflag = xAOD::Muon::VeryLoose;
-    } else if (m_muonIDKeys[i] == "Loose") {
-      qflag = xAOD::Muon::Loose;
-    } else if (m_muonIDKeys[i] == "Medium" ) {
-      qflag = xAOD::Muon::Medium;
-    } else if (m_muonIDKeys[i] == "Tight") { 
-      qflag = xAOD::Muon::Tight;
-    } else {
-      ATH_MSG_WARNING("Cannot find the muon quality flag " << m_muonIDKeys[i] << ". Use Medium instead.");
-      qflag = xAOD::Muon::Medium;
-    }
-
-    if ( m_muonSelectionTool->getQuality(*muon) <= qflag ) {
-      passID = true;
-      break;
-    }
-  }
-  if (!passID) return false;
-
+  // Good muon!
   return true;
 }
 
@@ -217,7 +186,7 @@ bool DerivationFramework::KinkTrkZmumuTagTool::passMuonQuality(const xAOD::Muon 
 bool DerivationFramework::KinkTrkZmumuTagTool::passMSTrackQuality(const xAOD::TrackParticle *track) const
 {
   if (track->pt() < m_trackPtCut) return false;
-  if (fabs(track->eta()) > m_trackEtaMax) return false;
+  if (std::abs(track->eta()) > m_trackEtaMax) return false;
   return true;
 }
 

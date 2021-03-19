@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 ##=============================================================================
 ## Name:        LongLivedDPD_topOptions.py
 ##
@@ -39,6 +40,7 @@ primRPVLLDESDM.doKinkedTrack=True
 primRPVLLDESDM.doHips=True
 primRPVLLDESDM.doStopped=True
 primRPVLLDESDM.doHV=True
+primRPVLLDESDM.doVH=True
 
 # Some global flags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags

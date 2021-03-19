@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -21,14 +21,10 @@
 DerivationFramework::RpvEgammaIDTool::RpvEgammaIDTool( const std::string& t,
 						       const std::string& n,
 						       const IInterface* p ) :
-  AthAlgTool(t,n,p),
-  m_collName("ElectronCollection"),
-  m_sgPrefix("")
+  AthAlgTool(t,n,p)
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
-    declareProperty("SelectionVariables",m_qualFlags);
-    declareProperty("CollectionName", m_collName);
-    declareProperty("SGPrefix", m_sgPrefix);
+    declareProperty("SelectionVariable",m_selectionString);
   }
  
 // Destructor
@@ -38,11 +34,9 @@ DerivationFramework::RpvEgammaIDTool::~RpvEgammaIDTool() {
 // Athena initialize and finalize
 StatusCode DerivationFramework::RpvEgammaIDTool::initialize()
 {
-     if (m_qualFlags.size()==0) {
-        ATH_MSG_ERROR("No selection variables for the egamma passSelection wrapper tool!");
-        return StatusCode::FAILURE;
-     }
      ATH_MSG_VERBOSE("initialize() ...");
+     ATH_CHECK(m_collNameKey.initialize());
+     ATH_CHECK(m_egammaSelectionKey.initialize());
      return StatusCode::SUCCESS;
 }
 StatusCode DerivationFramework::RpvEgammaIDTool::finalize()
@@ -56,48 +50,28 @@ StatusCode DerivationFramework::RpvEgammaIDTool::addBranches() const
 {
 
      // Retrieve data
-     const xAOD::EgammaContainer* egammas =  evtStore()->retrieve< const xAOD::EgammaContainer >( m_collName );
-     if( ! egammas ) {
-        ATH_MSG_ERROR("Couldn't retrieve e-gamma container with key: " << m_collName);
+     SG::ReadHandle<xAOD::EgammaContainer> egammas(m_collNameKey);
+     if( !egammas.isValid() ) {
+        ATH_MSG_ERROR("Couldn't retrieve e-gamma container with key: " << m_collNameKey);
         return StatusCode::FAILURE;
      }
        
-     // Make vectors for the cut results
-     std::vector<std::vector<int>* > allSelectionResults;
-     for (std::vector<std::string>::const_iterator strItr = m_qualFlags.begin(); strItr!=m_qualFlags.end(); ++strItr) {
-        std::vector<int> *passEgamma = new std::vector<int>(); 
-        allSelectionResults.push_back(passEgamma);
-     } 
+     SG::WriteHandle< std::vector<int> > egammaSelection(m_egammaSelectionKey);
+     ATH_CHECK(egammaSelection.record(std::make_unique< std::vector<int> >()));
+
      // Loop over egammas, set decisions   
      for (xAOD::EgammaContainer::const_iterator eIt = egammas->begin(); eIt!=egammas->end(); ++eIt) {
-        unsigned int itr(0);
-        for (std::vector<std::string>::const_iterator strItr = m_qualFlags.begin(); strItr!=m_qualFlags.end(); ++strItr, ++itr) {
-                bool val(0);
-                if ( (*eIt)->passSelection(val,*strItr) ) {
-                        if (val) {allSelectionResults[itr]->push_back(1);}
-                        else {allSelectionResults[itr]->push_back(0);}
-                } else {
-                        ATH_MSG_WARNING("Evident problem with quality flag " << *strItr << " so setting to false!");
-                        allSelectionResults[itr]->push_back(0);
-                }
+        bool val(0);
+        if ( (*eIt)->passSelection(val,m_selectionString) ) {
+          if (val) {egammaSelection->push_back(1);}
+          else {egammaSelection->push_back(0);}
+        }
+        else{
+          ATH_MSG_WARNING("Evident problem with quality flag " << m_selectionString << " so setting to false!");
+          egammaSelection->push_back(0);
         }
      }     
 
-     // Write decision to SG for access by downstream algs
-     unsigned int itr(0);
-     for (std::vector<std::string>::const_iterator strItr = m_qualFlags.begin(); strItr!=m_qualFlags.end(); ++strItr, ++itr) {
-        std::string sgKey("");
-        if (m_sgPrefix=="") {
-                sgKey = *strItr;
-        } else {
-                sgKey = m_sgPrefix+*strItr;
-        }   
-        if (evtStore()->contains<std::vector<int> >(sgKey)) {
-                ATH_MSG_ERROR("Tool is attempting to write a StoreGate key " << sgKey << " which already exists. Please use a different key");
-                return StatusCode::FAILURE;
-        }
-        CHECK(evtStore()->record(allSelectionResults[itr],sgKey));       
-     }
      return StatusCode::SUCCESS;
 
 }

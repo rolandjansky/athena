@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////
@@ -17,6 +17,7 @@
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODMuon/MuonContainer.h"
+#include "StoreGate/ReadHandleKey.h"
 
 #include <string>
 #include <vector>
@@ -50,7 +51,7 @@ namespace DerivationFramework {
     std::vector<std::string> m_triggers;
 
     // Muons
-    std::string m_muonSGKey;
+    SG::ReadHandleKey<xAOD::MuonContainer> m_muonSGKey { this, "MuonContainerKey", "Muons", ""};
     // Prompt muons
     float m_mu1PtMin;
     float m_mu1AbsEtaMax;
@@ -68,7 +69,7 @@ namespace DerivationFramework {
     float m_mu2d0Min;
 
     // Electrons
-    std::string m_electronSGKey;
+    SG::ReadHandleKey<xAOD::ElectronContainer> m_electronSGKey { this, "ElectronContainerKey", "Electrons", ""};
     // Prompt electrons
     float m_el1PtMin;
     float m_el1AbsEtaMax;
@@ -86,13 +87,13 @@ namespace DerivationFramework {
 
     float m_dPhiMin;
 
-    void getPromptMuonCandidates(const xAOD::MuonContainer* muons,
+    void getPromptMuonCandidates(SG::ReadHandle<DataVector<xAOD::Muon_v1>>& muons,
                                  std::vector<const xAOD::Muon*>& promptMuonCandidates) const;
-    void getDisplacedMuonCandidates(const xAOD::MuonContainer* muons,
+    void getDisplacedMuonCandidates(SG::ReadHandle<DataVector<xAOD::Muon_v1>>& muons,
                                     std::vector<const xAOD::Muon*>& displacedMuonCandidates) const;
-    void getPromptElectronCandidates(const xAOD::ElectronContainer* electrons,
+    void getPromptElectronCandidates(SG::ReadHandle<DataVector<xAOD::Electron_v1>>& electrons,
                                      std::vector<const xAOD::Electron*>& promptElectronCandidates) const;
-    void getDisplacedElectronCandidates(const xAOD::ElectronContainer* electrons,
+    void getDisplacedElectronCandidates(SG::ReadHandle<DataVector<xAOD::Electron_v1>>& electrons,
                                         std::vector<const xAOD::Electron*>& displacedElectronCandidates) const;
   };
  

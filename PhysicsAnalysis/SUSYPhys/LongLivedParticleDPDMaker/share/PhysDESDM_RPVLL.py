@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 ##-----------------------------------------------------------------------------
 ## Name: PhysDESDM_RPVLL.py
 ##
@@ -50,43 +51,38 @@ filtersToBookkeep = [] # Not sure what this does?
 ## Dilepton search (contact Mike Flowerdew)
 if primRPVLLDESDM.doDiLep():
     include("LongLivedParticleDPDMaker/PhysDESDM_DiLep.py")
-    pass
 
 ## RPV search based on displaced vertex finding in the ID (contact: Nick Barlow)
 if primRPVLLDESDM.doDV():
     include("LongLivedParticleDPDMaker/PhysDESDM_DV.py")
-    pass
 
 # Kink-based chargino search (contact: Shimpei Yamamoto)
 if primRPVLLDESDM.doKinkedTrack():
     include("LongLivedParticleDPDMaker/PhysDESDM_KinkedTrack.py")
-    pass
 
 ## Emerging jet search (contact James Beacham)
 if primRPVLLDESDM.doEmerging():
     include("LongLivedParticleDPDMaker/PhysDESDM_Emerging.py")
-    pass
 
 ## Stopped R-hadron search (contact: Andy Haas)
 if primRPVLLDESDM.doStopped():
     include("LongLivedParticleDPDMaker/PhysDESDM_Stopped.py")
-    pass
 
 ## Highly ionizing particles search (contact: Avishek Chatterjee)
 ### Now has it's own stream.
 if primRPVLLDESDM.doHips():
     include("LongLivedParticleDPDMaker/PhysDESDM_Hips.py")
-    pass
 
 ## Heavy neutral lepton search (contact: Avishek Chatterjee)
 if primRPVLLDESDM.doHnl():
     include("LongLivedParticleDPDMaker/PhysDESDM_HNL.py")
-    pass
 
 # Exotics displaced hadronic jets =search (contact: Heather Russell)
 if primRPVLLDESDM.doHV():
     include("LongLivedParticleDPDMaker/PhysDESDM_HV.py")
-    pass
+
+if primRPVLLDESDM.doTaus():
+    include("LongLivedParticleDPDMaker/PhysDESDM_Taus.py")
 
 # ##########################################################################################
 # Second, filters I'm not sure of (move above this line if definitely needed)
@@ -94,12 +90,10 @@ if primRPVLLDESDM.doHV():
 ## VH DV search based on displaced vertex finding in the ID along with a W or Z leptonic decay (contact: Andy Haas)
 if primRPVLLDESDM.doVH_DV():
     include("LongLivedParticleDPDMaker/PhysDESDM_VH_DV.py")
-    pass
 
 ## Quirks search (contact: Jim Black)
 if primRPVLLDESDM.doQuirks():
     include("LongLivedParticleDPDMaker/PhysDESDM_Quirks.py")
-    pass
 
 
 

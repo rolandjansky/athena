@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 
 ##=============================================================================
@@ -42,6 +42,8 @@ from LongLivedParticleDPDMaker import HNLFlags          # noqa: F401
 from LongLivedParticleDPDMaker import HVFlags           # noqa: F401
 from LongLivedParticleDPDMaker import SmpCaloIdFlags    # noqa: F401
 from LongLivedParticleDPDMaker import SmpMsFlags        # noqa: F401
+from LongLivedParticleDPDMaker import VHFlags           # noqa: F401
+from LongLivedParticleDPDMaker import TauFlags          # noqa: F401
 
 #===============================================================
 # Set specific properties for each of the analysis selections
@@ -51,85 +53,86 @@ class doDiLep(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = True
-    pass
 primRPVLLDESDM.add_JobProperty(doDiLep)
     
 class doDV(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = True
-    pass
 primRPVLLDESDM.add_JobProperty(doDV)
 
 class doKinkedTrack(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = True
-    pass
 primRPVLLDESDM.add_JobProperty(doKinkedTrack)
 
 class doEmerging(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = True
-    pass
 primRPVLLDESDM.add_JobProperty(doEmerging)
     
 class doStopped(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = False
-    pass
 primRPVLLDESDM.add_JobProperty(doStopped)
 
 class doVH_DV(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = False
-    pass
 primRPVLLDESDM.add_JobProperty(doVH_DV)
 
 class doQuirks(JobProperty):
     statusOn=True
     allowedTypes = ["bool"]
     StoredValue = False
-    pass
 primRPVLLDESDM.add_JobProperty(doQuirks)
 
 class doHips(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = False
-    pass
 primRPVLLDESDM.add_JobProperty(doHips)
 
 class doHnl(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = True
-    pass
 primRPVLLDESDM.add_JobProperty(doHnl)
 
 class doHV(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = True
-    pass
 primRPVLLDESDM.add_JobProperty(doHV)
 
 class doSmpCaloId(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = False
-    pass
 primRPVLLDESDM.add_JobProperty(doSmpCaloId)
 
 class doSmpMs(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = False
-    pass
 primRPVLLDESDM.add_JobProperty(doSmpMs)
+
+class doVH(JobProperty):
+    statusOn = True
+    allowedTypes = ["bool"]
+    StoredValue = True
+primRPVLLDESDM.add_JobProperty(doVH)
+
+class doTaus(JobProperty):
+    statusOn = True
+    allowedTypes = ["bool"]
+    StoredValue = True
+primRPVLLDESDM.add_JobProperty(doTaus)
+
 
 class prescaleFlags(JobProperty):
     statusOn = True
