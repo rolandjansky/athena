@@ -2239,17 +2239,11 @@ HLT_noalg_mb_L1RD2_EMPTY:
 HLT_noalg_zb_L1ZB:
   eventCount: 20
 HLT_tau0_perf_ptonly_L1TAU12:
-  eventCount: 3
+  eventCount: 4
   stepCounts:
     0: 4
-    1: 4
-    2: 4
-    3: 3
   stepFeatures:
     0: 5
-    1: 4
-    2: 4
-    3: 3
 HLT_tau0_perf_ptonly_L1TAU60:
   eventCount: 0
 HLT_tau160_idperf_ptonly_L1TAU100:
@@ -2320,14 +2314,8 @@ HLT_tau25_idperf_ptonly_L1TAU12IM:
   eventCount: 3
   stepCounts:
     0: 3
-    1: 3
-    2: 3
-    3: 3
   stepFeatures:
     0: 4
-    1: 3
-    2: 3
-    3: 3
 HLT_tau25_idperf_track_L1TAU12IM:
   eventCount: 3
   stepCounts:
@@ -2710,14 +2698,8 @@ HLT_tau35_idperf_ptonly_L1TAU12IM:
   eventCount: 3
   stepCounts:
     0: 3
-    1: 3
-    2: 3
-    3: 3
   stepFeatures:
     0: 4
-    1: 3
-    2: 3
-    3: 3
 HLT_tau35_idperf_track_L1TAU12IM:
   eventCount: 3
   stepCounts:
