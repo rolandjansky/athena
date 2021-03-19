@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef TOPCPTOOLS_TOPBOOSTEDTAGGINGCPTOOLS_H_
@@ -8,7 +8,7 @@
 // Include what you use
 #include <vector>
 #include <string>
-#include <map>
+#include <unordered_map>
 
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
@@ -29,6 +29,16 @@ namespace top {
     StatusCode initialize();
   private:
     std::shared_ptr<top::TopConfig> m_config;
+
+    std::vector<std::string> m_jetCollections;
+    std::vector<std::string> m_taggersTypes;
+    std::unordered_map<std::string, std::string > m_taggersConfigs;
+    std::unordered_map<std::string, std::string > m_taggersCalibAreas;
+    std::unordered_map<std::string, std::string > m_taggerSFsConfigs;
+    std::unordered_map<std::string, std::string > m_taggerSFsNames;
+
+    void initTaggersMaps();
+    void initSFsMaps();
 
     std::unordered_map<std::string, asg::AnaToolHandle<IJetDecorator> > m_taggers;
     std::unordered_map<std::string, ToolHandle<ICPJetUncertaintiesTool> > m_tagSFuncertTool;

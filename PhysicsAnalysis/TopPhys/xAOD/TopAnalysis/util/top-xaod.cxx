@@ -500,6 +500,8 @@ int main(int argc, char** argv) {
   std::string AMITag = topConfig->getAMITag();
   ULong64_t totalEvents = 0;
   ULong64_t totalEventsInFiles = 0;
+  std::unordered_map<std::string, std::vector<std::string>> boostedTaggersSFSysNames = topConfig->boostedTaggersSFSysNames();
+  
   sumWeights->Branch("dsid", &dsid);
   sumWeights->Branch("isAFII", &isAFII);
   sumWeights->Branch("AMITag", &AMITag);
@@ -509,6 +511,10 @@ int main(int argc, char** argv) {
     sumWeights->Branch("names_mc_generator_weights", &names_LHE3);
   }
   sumWeights->Branch("totalEvents", &totalEvents, "totalEvents/l");
+
+  for(auto& it : boostedTaggersSFSysNames) {
+    sumWeights->Branch(("sysNames_"+it.first).c_str(),&it.second);
+  }
 
   TTree* sumPdfWeights = 0;
   std::unordered_map<std::string, std::vector<float>*> totalEventsPdfWeighted;

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopCPTools/TopBoostedTaggingCPTools.h"
@@ -41,130 +41,154 @@ namespace top {
     }
 
 
-    std::vector<std::pair<std::string, std::string> > boostedJetTaggers = m_config->boostedJetTaggers();
+    const std::vector<std::pair<std::string, std::string> >& boostedJetTaggers = m_config->boostedJetTaggers();
     if (boostedJetTaggers.size() == 0) {
       ATH_MSG_INFO("top::BoostedTaggingCPTools: boostedJetTagging not set. No need to initialise anything.");
       return StatusCode::SUCCESS;
     }
 
+    initTaggersMaps();
+    if (m_config->applyBoostedJetTaggersUncertainties())
+      initSFsMaps();
 
-    top::check(
-      m_config->sgKeyLargeRJets() == "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" || m_config->sgKeyLargeRJets() == "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
+    top::check(std::find(std::begin(m_jetCollections),std::end(m_jetCollections),m_config->sgKeyLargeRJets())!=std::end(m_jetCollections),
       "Error in BoostedTaggingCPTools: boosted jet taggers are not available for this large-R jet collection.");
-
-    std::unordered_map<std::string, std::string > taggersConfigs;
-    std::unordered_map<std::string, std::string > taggerSFconfigs;
-    std::unordered_map<std::string, std::string > taggerSFnames;
-    std::unordered_map<std::string, std::string > taggersCalibAreas;
-
-    std::vector<std::string > taggersTypes = {
-      "JSSWTopTaggerDNN", "SmoothedWZTagger"
-    };
-
-    taggersCalibAreas["JSSWTopTaggerDNN"] = "JSSWTopTaggerDNN/Rel21/";
-    taggersCalibAreas["SmoothedWZTagger"] = "SmoothedWZTaggers/Rel21/";
-
-    if (m_config->sgKeyLargeRJets() == "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets") {
-      taggersConfigs["JSSWTopTaggerDNN:DNNTaggerTopQuarkContained50"] =
-        "JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_MC16d_20190405_50Eff.dat";
-      taggersConfigs["JSSWTopTaggerDNN:DNNTaggerTopQuarkContained80"] =
-        "JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_MC16d_20190827_80Eff.dat";
-      taggersConfigs["JSSWTopTaggerDNN:DNNTaggerTopQuarkInclusive50"] =
-        "JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkInclusive_MC16d_20190405_50Eff.dat";
-      taggersConfigs["JSSWTopTaggerDNN:DNNTaggerTopQuarkInclusive80"] =
-        "JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkInclusive_MC16d_20190405_80Eff.dat";
-
-      taggersConfigs["SmoothedWZTagger:SmoothWContained50"] =
-        "SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16d_20190410.dat";
-      taggersConfigs["SmoothedWZTagger:SmoothWContained80"] =
-        "SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC16d_20190410.dat";
-
-      taggersConfigs["SmoothedWZTagger:SmoothZContained50"] =
-        "SmoothedContainedZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16d_20190410.dat";
-      taggersConfigs["SmoothedWZTagger:SmoothZContained80"] =
-        "SmoothedContainedZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC16d_20190410.dat";
-
-      // tagger SF uncertainties
-      taggerSFconfigs["JSSWTopTaggerDNN:DNNTaggerTopQuarkContained80"] =
-        "rel21/Summer2019/R10_SF_LC_DNNContained80_TopTag.config";
-      taggerSFnames["JSSWTopTaggerDNN:DNNTaggerTopQuarkContained80"] = "DNNTaggerTopQuarkContained80_SF";
-    } else if (m_config->sgKeyLargeRJets() == "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets") {
-      taggersConfigs["SmoothedWZTagger:SmoothWContained2VarMaxSig"] =
-        "SmoothedWTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_2Var_MC16d_20190809.dat";
-      taggersConfigs["SmoothedWZTagger:SmoothZContained2VarMaxSig"] =
-        "SmoothedZTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_2Var_MC16d_20190809.dat";
-
-      taggersConfigs["SmoothedWZTagger:SmoothW3VarMaxSig"] =
-        "SmoothedContainedWTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_3Var_MC16d_20190410.dat";
-      taggersConfigs["SmoothedWZTagger:SmoothZ3VarMaxSig"] =
-        "SmoothedContainedZTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_3Var_MC16d_20190410.dat";
-
-      // tagger SF uncertainties
-      taggerSFconfigs["SmoothedWZTagger:SmoothWContained2VarMaxSig"] =
-        "rel21/Summer2019/R10_SF_TCC_2VarSmooth_WTag.config";
-      taggerSFnames["SmoothedWZTagger:SmoothWContained2VarMaxSig"] = "SmoothWContained2VarMaxSig_SF";
-      taggerSFconfigs["SmoothedWZTagger:SmoothZContained2VarMaxSig"] =
-        "rel21/Summer2019/R10_SF_TCC_2VarSmooth_ZTag.config";
-      taggerSFnames["SmoothedWZTagger:SmoothZContained2VarMaxSig"] = "SmoothZContained2VarMaxSig_SF";
-    }
 
     for (const std::pair<std::string, std::string>& name : boostedJetTaggers) {
       const std::string& taggerType = name.first;
-      const std::string& shortName = name.second;
-      const std::string fullName = taggerType + "_" + shortName; // Name to idendify tagger
-      const std::string origName = taggerType + ":" + shortName; // Original name set in the top config
+      const std::string& taggerName = name.second;
 
-      top::check(taggersConfigs.find(origName) != taggersConfigs.end(),
-                 ("Error in BoostedTaggingCPTools: Unknown tagger in the config file: " + origName).c_str());
+      top::check(m_taggersConfigs.find(taggerName) != std::end(m_taggersConfigs),
+                 ("Error in BoostedTaggingCPTools: Unknown tagger in the config file: " + taggerName).c_str());
 
-      top::check(std::find(taggersTypes.begin(), taggersTypes.end(),
-                           taggerType) != taggersTypes.end(), "Error in BoostedTaggingCPTools: Unknown TAGGER_TYPE.");
-      if (taggerType == "JSSWTopTaggerDNN") top::check(ASG_MAKE_ANA_TOOL(m_taggers[fullName],
-                                                                         JSSWTopTaggerDNN),
-                                                       "Failed to make " + origName);
-      else if (taggerType == "SmoothedWZTagger") top::check(ASG_MAKE_ANA_TOOL(m_taggers[fullName],
-                                                                              SmoothedWZTagger),
-                                                            "Failed to make " + origName);
+      top::check(std::find(m_taggersTypes.begin(), m_taggersTypes.end(), taggerType) != m_taggersTypes.end(),
+                 "Error in BoostedTaggingCPTools: Unknown TAGGER_TYPE.");
+      if (taggerType == "JSSWTopTaggerDNN")
+        top::check(ASG_MAKE_ANA_TOOL(m_taggers[taggerName], JSSWTopTaggerDNN), "Failed to make " + taggerName);
+      else if (taggerType == "SmoothedWZTagger")
+        top::check(ASG_MAKE_ANA_TOOL(m_taggers[taggerName], SmoothedWZTagger), "Failed to make " + taggerName);
 
-      m_taggers[fullName].setName(fullName);
-      top::check(m_taggers[fullName].setProperty("ConfigFile",
-                                                 taggersConfigs[origName]), "Failed to set ConfigFile for " + origName);
-      top::check(m_taggers[fullName].setProperty("ContainerName",
-                                                 m_config->sgKeyLargeRJets()), "Failed to set ContainerName " + origName);
-      top::check(m_taggers[fullName].setProperty("CalibArea",
-                                                 taggersCalibAreas[taggerType]),
-                 "Failed to set CalibArea for " + origName);
+      m_taggers[taggerName].setName(taggerName);
+      top::check(m_taggers[taggerName].setProperty("ConfigFile", m_taggersConfigs[taggerName]),
+                 "Failed to set ConfigFile for " + taggerName);
+      top::check(m_taggers[taggerName].setProperty("ContainerName", m_config->sgKeyLargeRJets()),
+                 "Failed to set ContainerName " + taggerName);
+      top::check(m_taggers[taggerName].setProperty("CalibArea", m_taggersCalibAreas[taggerType]),
+                 "Failed to set CalibArea for " + taggerName);
       // not all BJT taggers implement IsMC property -- only those that have calibration SFs
       // so we have to check here that we try to set this property only where applicable
       if (taggerType == "JSSWTopTaggerDNN" || taggerType == "SmoothedWZTagger") {
-        top::check(m_taggers[fullName].setProperty("IsMC", m_config->isMC()), "Failed to set IsMC for " + origName);
+        top::check(m_taggers[taggerName].setProperty("IsMC", m_config->isMC()),
+                   "Failed to set IsMC for " + taggerName);
       }
-      top::check(m_taggers[fullName].initialize(), "Failed to initialize " + origName);
+      top::check(m_taggers[taggerName].initialize(), "Failed to initialize " + taggerName);
 
       // initialize SF uncertainty tools for supported WPs
-      if (m_config->isMC()) {
+      if (m_config->isMC() && m_config->applyBoostedJetTaggersUncertainties()) {
         std::string jet_def = m_config->sgKeyLargeRJets();
         jet_def.erase(jet_def.length() - 4); // jet collection name sans 'Jets' suffix
 
-        const std::string name = "JetSFuncert_" + fullName;
+        const std::string name = "JetSFuncert_" + taggerName;
         try {
-          const std::string& cfg = taggerSFconfigs.at(origName);
+          const std::string& cfg = m_taggerSFsConfigs.at(taggerName);
           JetUncertaintiesTool* jet_SF_tmp = new JetUncertaintiesTool(name);
 
           top::check(jet_SF_tmp->setProperty("JetDefinition", jet_def), "Failed to set JetDefinition for " + name);
           top::check(jet_SF_tmp->setProperty("MCType", "MC16"), "Failed to set MCType for " + name);
-          top::check(jet_SF_tmp->setProperty("ConfigFile", cfg), "Failed to set MCType for " + name);
+          top::check(jet_SF_tmp->setProperty("ConfigFile", cfg), "Failed to set ConfigFile for " + name);
           top::check(jet_SF_tmp->setProperty("IsData", false), "Failed to set IsData for " + name);
           top::check(jet_SF_tmp->initialize(), "Failed to initialize " + name);
-          m_tagSFuncertTool[fullName] = jet_SF_tmp;
-          m_config->setCalibBoostedJetTagger(fullName, taggerSFnames[origName]);
+          m_tagSFuncertTool[taggerName] = jet_SF_tmp;
+          m_config->setCalibBoostedJetTagger(taggerName, m_taggerSFsNames[taggerName]);
         } catch (std::out_of_range& e) {
           // skip taggers which do not yet have SFs available
-          ATH_MSG_WARNING("Boosted jet tagger " + fullName + " is not yet calibrated! No SFs are available.");
+          ATH_MSG_WARNING("Boosted jet tagger " + taggerName + " is not yet calibrated! No SFs are available.");
         }
       }
     }
 
     return StatusCode::SUCCESS;
   }
+  
+  void BoostedTaggingCPTools::initTaggersMaps() {
+    
+    // Calib areas
+    m_taggersCalibAreas["JSSWTopTaggerDNN"] = "JSSWTopTaggerDNN/Rel21/";
+    m_taggersCalibAreas["SmoothedWZTagger"] = "SmoothedWZTaggers/Rel21/";
+    
+    // Supported tagger types
+    m_taggersTypes = {
+      "JSSWTopTaggerDNN", "SmoothedWZTagger"
+    };
+    
+    // Supported jet collections
+    m_jetCollections = {
+      "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+      "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets"
+    };
+    
+    
+    auto setConfig = [this](const std::string& tagger, const std::string& configName) {
+      m_taggersConfigs[tagger] = configName;
+    };
+    
+    if (m_config->sgKeyLargeRJets() == "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets") {
+      
+      // Top taggers
+      setConfig("DNNTaggerTopQuarkContained50","JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_MC16_20201216_50Eff.dat");
+      setConfig("DNNTaggerTopQuarkContained80","JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_MC16_20201216_80Eff.dat");
+      setConfig("DNNTaggerTopQuarkInclusive50","JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkInclusive_MC16_20201216_50Eff.dat");
+      setConfig("DNNTaggerTopQuarkInclusive80","JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkInclusive_MC16_20201216_80Eff.dat");
+      
+      // WZ taggers
+      setConfig("SmoothWContained50","SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16_20201216.dat");
+      setConfig("SmoothWContained80","SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC16_20201216.dat");
+      setConfig("SmoothZContained50","SmoothedContainedZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16_20201216.dat");
+      setConfig("SmoothZContained80","SmoothedContainedZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC16_20201216.dat");
+
+    } else if (m_config->sgKeyLargeRJets() == "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets") {
+      // WZ taggers
+      setConfig("SmoothWContained2VarMaxSig","SmoothedWTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_2Var_MC16d_20190809.dat");
+      setConfig("SmoothZContained2VarMaxSig","SmoothedZTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_2Var_MC16d_20190809.dat");
+      setConfig("SmoothW3VarMaxSig","SmoothedContainedWTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_3Var_MC16d_20190410.dat");
+      setConfig("SmoothZ3VarMaxSig","SmoothedContainedZTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_3Var_MC16d_20190410.dat");
+    }
+
+  }
+  
+  
+  
+  void BoostedTaggingCPTools::initSFsMaps() {
+    // Here we initialize SFs maps
+    
+    // This lambda function is universal for all taggers
+    auto setMaps = [this](const std::string& configPath, const std::string& tagger, const std::string& configName) {
+      m_taggerSFsConfigs[tagger] = configPath + "/" + configName;
+      m_taggerSFsNames[tagger] = tagger+"_SF";
+    };
+    
+    if (m_config->sgKeyLargeRJets() == "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets") {
+      // Tagging scale factors availabel for AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
+      
+      const std::string configPath="rel21/Fall2020";
+      //Top taggers
+      setMaps(configPath,"DNNTaggerTopQuarkContained50","R10_SF_LCTopo_TopTagContained_SigEff50.config");
+      setMaps(configPath,"DNNTaggerTopQuarkContained80","R10_SF_LCTopo_TopTagContained_SigEff80.config");
+      setMaps(configPath,"DNNTaggerTopQuarkInclusive50","R10_SF_LCTopo_TopTagInclusive_SigEff50.config");
+      setMaps(configPath,"DNNTaggerTopQuarkInclusive80","R10_SF_LCTopo_TopTagInclusive_SigEff80.config");
+      //WZ taggers
+      setMaps(configPath,"SmoothWContained50","R10_SF_LCTopo_WTag_SigEff50.config");
+      setMaps(configPath,"SmoothWContained80","R10_SF_LCTopo_WTag_SigEff80.config");
+      
+    } else if (m_config->sgKeyLargeRJets() == "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets") {
+      // Tagging scale factors available for some of the taggers for TCC jets
+      
+      const std::string configPath="rel21/Summer2019/";
+      //WZ taggers
+      setMaps(configPath,"SmoothWContained2VarMaxSig","R10_SF_TCC_2VarSmooth_WTag.config");
+      setMaps(configPath,"SmoothZContained2VarMaxSig","R10_SF_TCC_2VarSmooth_ZTag.config");
+    }
+  }
+  
+  
 }  // namespace top

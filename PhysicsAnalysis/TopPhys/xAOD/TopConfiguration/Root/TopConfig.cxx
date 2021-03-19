@@ -1525,6 +1525,8 @@ namespace top {
       m_chosen_boostedJetTaggers.push_back(std::make_pair(helpvec[0], helpvec[1]));
     }
 
+    m_applyBoostedTaggerUncertainties = (settings->value("BoostedJetTaggingUncertainties") == "True");
+
     m_btagging_cdi_path = settings->value("BTagCDIPath");
 
     // now get all Btagging WP from the config file, and store them properly in a map.
@@ -2071,6 +2073,11 @@ namespace top {
 
   void TopConfig::setCalibBoostedJetTagger(const std::string& WP, const std::string& SFname) {
     m_boostedTaggerSFnames[WP] = SFname;
+  }
+
+  void TopConfig::applyBoostedJetTaggersUncertainties(bool flag) {
+    if (!m_configFixed)
+      m_applyBoostedTaggerUncertainties = flag;
   }
 
   std::string TopConfig::FormatedWP(std::string raw_WP) {
