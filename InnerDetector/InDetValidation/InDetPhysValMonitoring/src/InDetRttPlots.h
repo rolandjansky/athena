@@ -81,6 +81,9 @@ public:
 
 private:
   InDetPerfPlot_TrackParameters m_trackParameters;
+  InDetPerfPlot_TrackParameters m_matchedTrackParameters;
+  InDetPerfPlot_TrackParameters m_mergedTrackParameters;
+  InDetPerfPlot_TrackParameters m_fakeTrackParameters;
   InDetPerfPlot_nTracks m_nTracks;
   InDetPerfPlot_HitResidual m_hitResidualPlot;
   InDetPerfPlot_HitEfficiency m_hitEffPlot;

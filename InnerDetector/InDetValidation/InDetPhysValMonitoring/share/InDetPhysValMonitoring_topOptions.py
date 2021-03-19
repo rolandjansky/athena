@@ -59,4 +59,9 @@ include ("PhysValMonitoring/PhysValInDet_jobOptions.py")
 # finally, set up the infrastructure for writing our output
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
+
 svcMgr.THistSvc.Output += ["M_output DATAFILE='"+MyArgs.outputFile+"' OPT='RECREATE'"]
+
+
+ToolSvc.InDetVertexTruthMatchTool.OutputLevel = 2
+

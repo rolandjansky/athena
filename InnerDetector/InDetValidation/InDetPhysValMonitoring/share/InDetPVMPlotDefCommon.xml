@@ -933,7 +933,7 @@
   <y title="Entries"/>
 </h>
 <h id="vx_track_weights" type="TH1F" title="Weights of tracks at vertex">
-  <x title="Weight" n="100" lo="0." hi="10.0"/>
+  <x title="Weight" n="100" lo="0." hi="1.55555"/>
   <y title="Entries"/>
 </h>
 <h id="vx_track_pt" type="TH1F" title="Tracks at vertex p_{T}">
@@ -968,6 +968,171 @@
   <x title="#sigma(z_{0}) (mm)" n="50" lo="0.0" hi="5.0"/>
   <y title="Entries"/>
 </h>
+<!-- Helen OTP Vertex plots -->
+<h id="vx_ntracks_vs_nmatchedvertices" type="TH1" title="Number of tracks for matched PU vertices">
+  <x title="Number of Matched PU Vertices" n="150" lo="0.0" hi="150"/>
+  <y title="Number of Tracks" />
+</h>
+<h id="vx_ntracks_vs_nmergedvertices" type="TH1" title="Number of tracks for merged PU vertices">
+  <x title="Number of Merged PU Vertices" n="150" lo="0.0" hi="150"/>
+  <y title="Number of Tracks" />
+</h>
+<h id="vx_ntracks_vs_nsplitvertices" type="TH1" title="Number of tracks for split PU vertices">
+  <x title="Number of Split PU Vertices" n="150" lo="0.0" hi="150"/>
+  <y title="Number of Tracks" />
+</h>
+<h id="vx_ntracks_vs_nfakevertices" type="TH1" title="Number of tracks for fake PU vertices">
+  <x title="Number of Fake PU Vertices" n="150" lo="0.0" hi="150"/>
+  <y title="Number of Tracks" />
+</h>
+<h id="vx_ntracks_vs_HS_nmatchedvertices" type="TH1" title="Number of tracks for matched HS vertices">
+  <x title="Number of Matched HS Vertices" n="150" lo="0.0" hi="150"/>
+  <y title="Number of Tracks" />
+</h>
+<h id="vx_ntracks_vs_HS_nmergedvertices" type="TH1" title="Number of tracks for merged HS vertices">
+  <x title="Number of Merged HS Vertices" n="150" lo="0.0" hi="150"/>
+  <y title="Number of Tracks" />
+</h>
+<h id="vx_ntracks_vs_HS_nsplitvertices" type="TH1" title="Number of tracks for split HS vertices">
+  <x title="Number of Split HS Vertices" n="150" lo="0.0" hi="50"/>
+  <y title="Number of Tracks" />
+</h>
+<h id="vx_ntracks_vs_HS_nfakevertices" type="TH1" title="Number of tracks for fake HS vertices">
+  <x title="Number of Fake HS Vertices" n="150" lo="0.0" hi="50"/>
+  <y title="Number of Tracks" />
+</h>
+<h id="vx_sumpT_matched" type="TH1" title="SumPt of tracks for matched vertices">
+  <x title="sum p_{T} (GeV)of tracks" n="100" lo="0.0" hi="400"/>
+  <y title="Entries" />
+</h>
+<h id="vx_sumpT_merged" type="TH1" title="SumPt of tracks for merged vertices">
+  <x title="sum p_{T} (GeV)of tracks" n="100" lo="0.0" hi="400"/>
+  <y title="Entries" />
+</h>
+<h id="vx_sumpT_split" type="TH1" title="SumPt of tracks for split vertices">
+  <x title="sum p_{T} (GeV)of tracks" n="100" lo="0.0" hi="400"/>
+  <y title="Entries" />
+</h>
+<h id="vx_sumpT_fake" type="TH1" title="SumPt of tracks for fake vertices">
+  <x title="sum p_{T} (GeV)of tracks" n="100" lo="0.0" hi="400"/>
+  <y title="Entries" />
+</h>
+<h id="vx_sumpT_HS_matched" type="TH1" title="SumPt of tracks for HS matched vertices">
+  <x title="sum p_{T} (GeV)of tracks" n="100" lo="0.0" hi="400"/>
+  <y title="Entries" />
+</h>
+<h id="vx_sumpT_HS_merged" type="TH1" title="SumPt of tracks for HS merged vertices">
+  <x title="sum p_{T} (GeV)of tracks" n="100" lo="0.0" hi="400"/>
+  <y title="Entries" />
+</h>
+<h id="vx_sumpT_HS_split" type="TH1" title="SumPt of tracks for HS split vertices">
+  <x title="sum p_{T} (GeV)of tracks" n="100" lo="0.0" hi="400"/>
+  <y title="Entries" />
+</h>
+<h id="vx_sumpT_HS_fake" type="TH1" title="SumPt of tracks for HS fake vertices">
+  <x title="sum p_{T} (GeV)of tracks" n="100" lo="0.0" hi="400"/>
+  <y title="Entries" />
+</h>
+
+<!--Helen OTP sum charge plots -->
+<h id="vx_sumCharge_matched" type="TH1" title="Sum of charges of tracks for matched vertices">
+  <x title="sum of charges of tracks" n="100" lo="-25.0" hi="25"/>
+  <y title="Entries" />
+</h>
+<h id="vx_sumCharge_merged" type="TH1" title="Sum of charges of tracks for merged vertices">
+  <x title="sum of charges of tracks" n="100" lo="-25.0" hi="25"/>
+  <y title="Entries" />
+</h>
+<h id="vx_sumCharge_split" type="TH1" title="Sumof charges of tracks for split vertices">
+  <x title="sum of charges of tracks" n="100" lo="-25.0" hi="25"/>
+  <y title="Entries" />
+</h>
+<h id="vx_sumCharge_fake" type="TH1" title="Sum of charges of tracks for fake vertices">
+  <x title="sum of charges of tracks" n="100" lo="-25.0" hi="25"/>
+  <y title="Entries" />
+</h>
+<h id="vx_sumCharge_HS_matched" type="TH1" title="Sum of charges of tracks for HS matched vertices">
+  <x title="sum of charges of tracks" n="100" lo="-25.0" hi="25"/>
+  <y title="Entries" />
+</h>
+<h id="vx_sumCharge_HS_merged" type="TH1" title="Sum of charges of tracks for HS merged vertices">
+  <x title="sum of charges of tracks" n="100" lo="-25.0" hi="25"/>
+  <y title="Entries" />
+</h>
+<h id="vx_sumCharge_HS_split" type="TH1" title="Sumof charges of tracks for HS split vertices">
+  <x title="sum of charges of tracks" n="100" lo="-25.0" hi="25"/>
+  <y title="Entries" />
+</h>
+<h id="vx_sumCharge_HS_fake" type="TH1" title="Sum of charges of tracks for HS fake vertices">
+  <x title="sum of charges of tracks" n="100" lo="-25.0" hi="25"/>
+  <y title="Entries" />
+</h>
+<h id="vx_sumCharge_N_trk_HS_matched" type="TH1" title="Sum of charges of tracks/N_trk for HS matched vertices">
+  <x title="sum of charges of tracks/number of tracks" n="100" lo="-0.5" hi="0.5"/>
+  <y title="Entries" />
+</h>
+<h id="vx_sumCharge_N_trk_HS_merged" type="TH1" title="Sum of charges of tracks/N_trk for HS merged vertices">
+  <x title="sum of charges of tracks/number of tracks" n="100" lo="-0.5" hi="0.5"/>
+  <y title="Entries" />
+</h>
+<h id="vx_sumCharge_N_trk_HS_split" type="TH1" title="Sum of charges of tracks/N_trk for HS split vertices">
+  <x title="sum of charges of tracks/number of tracks" n="100" lo="-0.5" hi="0.5"/>
+  <y title="Entries" />
+</h>
+<h id="vx_sumCharge_N_trk_HS_fake" type="TH1" title="Sum of charges of tracks/N_trk for HS fake vertices">
+  <x title="sum of charges of tracks/number of tracks" n="100" lo="-0.5" hi="0.5"/>
+  <y title="Entries" />
+</h>
+
+<h id="vx_sumCharge_N_trk_matched" type="TH1" title="Sum of charges of tracks/N_trk for PU matched vertices">
+  <x title="sum of charges of tracks/number of tracks" n="100" lo="-0.5" hi="0.5"/>
+  <y title="Entries" />
+</h>
+<h id="vx_sumCharge_N_trk_merged" type="TH1" title="Sum of charges of tracks/N_trk for PU merged vertices">
+  <x title="sum of charges of tracks/number of tracks" n="100" lo="-0.5" hi="0.5"/>
+  <y title="Entries" />
+</h>
+<h id="vx_sumCharge_N_trk_split" type="TH1" title="Sum of charges of tracks/N_trk for PU  split vertices">
+  <x title="sum of charges of tracks/number of tracks" n="100" lo="-0.5" hi="0.5"/>
+  <y title="Entries" />
+</h>
+<h id="vx_sumCharge_N_trk_fake" type="TH1" title="Sum of charges of tracks/N_trk for PU fake vertices">
+  <x title="sum of charges of tracks/number of tracks" n="100" lo="-0.5" hi="0.5"/>
+  <y title="Entries" />
+</h>
+<h id="vx_z_asym_matched" type="TH1" title="asymmetry of track Z0 around vertex of tracks for matched vertices">
+  <x title="asymmetry of track Z0 around vertex of tracks" n="100" lo="-5.0" hi="5"/>
+  <y title="Entries" />
+</h>
+<h id="vx_z_asym_merged" type="TH1" title="asymmetry of track Z0 around vertex of tracks for merged vertices">
+  <x title="asymmetry of track Z0 around vertex of tracks" n="100" lo="-5.0" hi="5"/>
+  <y title="Entries" />
+</h>
+<h id="vx_z_asym_split" type="TH1" title="asymmetry of track Z0 around vertex of tracks for split vertices">
+  <x title="asymmetry of track Z0 around vertex of tracks" n="100" lo="-5.0" hi="5"/>
+  <y title="Entries" />
+</h>
+<h id="vx_z_asym_fake" type="TH1" title="asymmetry of track Z0 around vertex of tracks for fake vertices">
+  <x title="asymmetry of track Z0 around vertex of tracks" n="100" lo="-5.0" hi="5"/>
+  <y title="Entries" />
+</h>
+<h id="vx_z_asym_HS_matched" type="TH1" title="asymmetry of track Z0 around vertex of tracks for HS matched vertices">
+  <x title="asymmetry of track Z0 around vertex of tracks" n="100" lo="-5.0" hi="5"/>
+  <y title="Entries" />
+</h>
+<h id="vx_z_asym_HS_merged" type="TH1" title="asymmetry of track Z0 around vertex of tracks for HS merged vertices">
+  <x title="asymmetry of track Z0 around vertex of tracks" n="100" lo="-5.0" hi="5"/>
+  <y title="Entries" />
+</h>
+<h id="vx_z_asym_HS_split" type="TH1" title="asymmetry of track Z0 around vertex of tracks for HS split vertices">
+  <x title="asymmetry of track Z0 around vertex of tracks" n="100" lo="-5.0" hi="5"/>
+  <y title="Entries" />
+</h>
+<h id="vx_z_asym_HS_fake" type="TH1" title="asymmetry of track Z0 around vertex of tracks for HS fake vertices">
+  <x title="asymmetry of track Z0 around vertex of tracks" n="100" lo="-5.0" hi="5"/>
+  <y title="Entries" />
+</h>
+
 <!-- -->
 <!-- Bad Match Rate (BMR) plots -->
 <h id="BadMatchRate" type="TProfile" title="Fraction of Tracks with &lt; 80% Truth Matching Probability">

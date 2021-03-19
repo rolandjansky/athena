@@ -32,6 +32,14 @@ InDetPerfPlot_nTracks::initializePlots() {
 
   book(m_ntracks_vs_mu,"ntracks_vs_mu");
   book(m_ntracks_vs_nvertices,"ntracks_vs_nvertices");
+  //book(m_ntracks_vs_nmatchedvertices,"ntracks_vs_nmatchedvertices");
+  //book(m_ntracks_vs_nmergedvertices,"ntracks_vs_nmergedvertices");
+  //book(m_ntracks_vs_nsplitvertices,"ntracks_vs_nsplitvertices");
+  //book(m_ntracks_vs_nfakevertices,"ntracks_vs_nfakevertices");
+ 
+
+
+
 }
 
 void
@@ -45,5 +53,9 @@ void InDetPerfPlot_nTracks::fill(const unsigned int ntracks, const unsigned int 
 
   fillHisto(m_ntracks_vs_mu, muu, ntracks);
   fillHisto(m_ntracks_vs_nvertices, nvertices, ntracks);
+ // fillHisto(m_ntracks_vs_nmatchedvertices,nvertices, ntracks);
+ // fillHisto(m_ntracks_vs_nmergedvertices,nvertices, ntracks);
+ // fillHisto(m_ntracks_vs_nsplitvertices,nvertices, ntracks);
+ // fillHisto(m_ntracks_vs_nfakevertices,nvertices, ntracks);
 
 }

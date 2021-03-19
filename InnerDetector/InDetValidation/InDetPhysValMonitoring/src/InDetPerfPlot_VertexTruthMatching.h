@@ -62,6 +62,8 @@ private:
     TProfile* m_vx_nReco_vs_nTruth_highpu;
     TProfile* m_vx_nReco_vs_nTruth_hssplit;
     TProfile* m_vx_nReco_vs_nTruth_none;
+
+
     // HS vertex reconstruction efficiency vs PU
     TEfficiency* m_vx_hs_reco_eff;
     // HS vertex selection efficiency vs PU
@@ -117,6 +119,54 @@ private:
     TH2* m_vx_hs_truth_z_pull_vs_nTrk;
     TH2* m_vx_hs_truth_x_pull_vs_nTrk;
     TH2* m_vx_hs_truth_y_pull_vs_nTrk;
+    // New Histograms for #of tracks acssociated with each type of vertex  - Helen OTP
+    TH1* m_vx_ntracks_vs_nmatchedvertices;
+    TH1* m_vx_ntracks_vs_nmergedvertices;
+    TH1* m_vx_ntracks_vs_nsplitvertices;
+    TH1* m_vx_ntracks_vs_nfakevertices;
+    TH1* m_vx_ntracks_vs_HS_nmatchedvertices;
+    TH1* m_vx_ntracks_vs_HS_nmergedvertices;
+    TH1* m_vx_ntracks_vs_HS_nsplitvertices;
+    TH1* m_vx_ntracks_vs_HS_nfakevertices;
+    // Helen OTP - sum Pt of tracks for each type of vertex
+    TH1* m_vx_sumpT_matched;
+    TH1* m_vx_sumpT_merged;
+    TH1* m_vx_sumpT_split;
+    TH1* m_vx_sumpT_fake;
+    TH1* m_vx_sumpT_HS_matched;
+    TH1* m_vx_sumpT_HS_merged;
+    TH1* m_vx_sumpT_HS_split;
+    TH1* m_vx_sumpT_HS_fake;
+    // Helen OTP - sum of charges 
+    TH1* m_vx_sumCharge_matched;
+    TH1* m_vx_sumCharge_merged;
+    TH1* m_vx_sumCharge_split;
+    TH1* m_vx_sumCharge_fake;
+    TH1* m_vx_sumCharge_HS_matched;
+    TH1* m_vx_sumCharge_HS_merged;
+    TH1* m_vx_sumCharge_HS_split;
+    TH1* m_vx_sumCharge_HS_fake;
+    // Helen OTP - sum charge/n_trk
+    TH1* m_vx_sumCharge_N_trk_HS_matched;
+    TH1* m_vx_sumCharge_N_trk_HS_merged;
+    TH1* m_vx_sumCharge_N_trk_HS_split;
+    TH1* m_vx_sumCharge_N_trk_HS_fake;
+    TH1* m_vx_sumCharge_N_trk_matched;
+    TH1* m_vx_sumCharge_N_trk_merged;
+    TH1* m_vx_sumCharge_N_trk_split;
+    TH1* m_vx_sumCharge_N_trk_fake;
+    // Helen OTP asymmetery in z
+    TH1* m_vx_z_asym_matched;
+    TH1* m_vx_z_asym_merged;
+    TH1* m_vx_z_asym_split;
+    TH1* m_vx_z_asym_fake;
+    TH1* m_vx_z_asym_HS_matched;
+    TH1* m_vx_z_asym_HS_merged;
+    TH1* m_vx_z_asym_HS_split;
+    TH1* m_vx_z_asym_HS_fake;
+
+
+
 
     ///@}
 private:

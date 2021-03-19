@@ -17,6 +17,9 @@
 
 InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string& sDir, const int iDetailLevel) : InDetPlotBase(pParent, sDir),
   m_trackParameters(this, "Tracks/Selected/Parameters"),
+  m_matchedTrackParameters(this, "Tracks/Matched/Parameters"),
+  m_mergedTrackParameters(this, "Tracks/Merged/Parameters"),
+  m_fakeTrackParameters(this, "Tracks/Fake/Parameters"),
   m_nTracks(this, "Tracks/Tracks"),
   m_hitResidualPlot(this, "Tracks/Hits/Residuals"),
   m_hitEffPlot(this, "Tracks/Hits/Efficiency"),
@@ -152,6 +155,9 @@ InDetRttPlots::fill(const xAOD::TrackParticle& particle) {
   m_hitEffPlot.fill(particle);
   // fill pt plots
   m_trackParameters.fill(particle);
+  m_matchedTrackParameters.fill(particle);
+  m_mergedTrackParameters.fill(particle);
+  m_fakeTrackParameters.fill(particle);
   m_anTrackingPlots.fill(particle);
 
   if(m_iDetailLevel >= 200){
@@ -204,6 +210,9 @@ void
 InDetRttPlots::fill(const xAOD::TruthParticle& truthParticle) {
   // fill truth plots 
   m_trackParameters.fill(truthParticle);
+  m_matchedTrackParameters.fill(truthParticle);
+  m_mergedTrackParameters.fill(truthParticle);
+  m_fakeTrackParameters.fill(truthParticle);
 }
 
 //
