@@ -358,7 +358,7 @@ bool ElectronPhotonVariableCorrectionBase::isEqualToUncorrectedDiscontinuity(con
 
 const StatusCode ElectronPhotonVariableCorrectionBase::getKinematicProperties(const xAOD::Egamma& egamma_object, float& pt, float& eta, float& phi) const
 {
-    // just reteriving eta and pt is probably less expensive then checking if I need it and
+    // just retrieving eta and pt is probably less expensive then checking if I need it and
     // then retrieve it only if I actually need it
 
     // protection against bad clusters
@@ -380,6 +380,11 @@ const StatusCode ElectronPhotonVariableCorrectionBase::getKinematicProperties(co
         et = (cosheta != 0.) ? energy/cosheta : 0.;
     }
     pt = et;
+    // issue a warning if pT is unphysical - i.e. < 0
+    if (pt < 0)
+    {
+        ATH_MSG_WARNING("Encountered EGamma object with strange pT: " << pt << " MeV. Correcting as if it has a pT of 0.");
+    }
     // phi
     phi = cluster->phiBE(2);
 
@@ -629,7 +634,7 @@ const StatusCode ElectronPhotonVariableCorrectionBase::getCorrectionParameters(s
         switch (m_ParameterTypeVector.at(parameter_itr))
         {
             case ElectronPhotonVariableCorrectionBase::parameterType::EtaDependentTGraph:
-                // evaluate TGraph at abs(eta)
+                // evaluate TGraph at eta
                 properties.at(parameter_itr) = m_graphCopies.at(parameter_itr)->Eval(etaForBinned);
                 break;
             case ElectronPhotonVariableCorrectionBase::parameterType::PtDependentTGraph:
@@ -770,12 +775,12 @@ const StatusCode ElectronPhotonVariableCorrectionBase::findBin(int& return_bin, 
 {
     // need to find the bin in which the evalPoint is
     return_bin = -1;
-    // if the evalPoint is < 0, something is very wrong
+    // if the evalPoint is < lowest bin edge, interpolate to -inf and return leftmost value
     if (evalPoint < binning.at(0))
     {
-        // I use it for eta and pT, so error message is tailored to that...
-        ATH_MSG_ERROR("Abs(Eta) or pT of object is smaller than 0.");
-        return StatusCode::FAILURE;
+        return_bin = 0;
+        // found bin, no need to continue here
+        return StatusCode::SUCCESS;
     }
     // loop over bin boundaries
     //run only up to binning.size()-1, as running to binning.size() will get a seg fault for the boundary check
