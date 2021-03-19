@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
- 
+
 #include "SCEmulation.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
@@ -28,19 +28,31 @@ namespace
    * 
    * Each bin contains its lower edge and not its upper edge
    */
-  std::size_t getIndex(const std::vector<float> &bins, float value)
+  std::size_t getIndex(const std::vector<float> &bins, float value, bool &warn)
   {
     auto itr = std::upper_bound(bins.begin(), bins.end(), value);
     // upper_bound returns an iterator to the first value larger than value
     // If begin is returned, then value is below the lowest bin edge,
     // If end is returned, then value is above the highest bin edge
-    if (itr == bins.begin() || itr == bins.end())
-      return SIZE_MAX;
-    return std::distance(bins.begin(), itr) - 1;
+    warn = false;
+    if (itr == bins.begin())
+    {
+      // Assign all underflows to the lowest bin
+      warn = true;
+      return 0;
+    }
+    else if (itr == bins.end())
+    {
+      // Assign all overflows to the highest bin
+      warn = true;
+      return bins.size() - 2;
+    }
+    else
+      return std::distance(bins.begin(), itr) - 1;
   }
 
   /// Get a random number from a binned cdf
-  float getRandom(const std::map<float, float>& integrals, std::mt19937_64& generator)
+  float getRandom(const std::map<float, float> &integrals, std::mt19937_64 &generator)
   {
     // The integrals are essentially a binned cdf (though not necessarily properly normalised)
     // We invert this by constructing a random number uniformly distributed between the
@@ -195,9 +207,9 @@ namespace LVL1
         std::size_t etaIndex = getEtaIndex(sample, p.first.first.first);
         std::size_t etIndex = getEtIndex(sample, p.first.second.first);
         auto mapKey = std::make_tuple(sample, etaIndex, etIndex);
-        std::map<float, float>& integrals = m_timingSamples[mapKey];
+        std::map<float, float> &integrals = m_timingSamples[mapKey];
         float cumulativeSum = 0;
-        TAxis* axis = p.second->GetXaxis();
+        TAxis *axis = p.second->GetXaxis();
         integrals[cumulativeSum] = axis->GetBinLowEdge(1);
         for (int idx = 1; idx < axis->GetNbins(); ++idx)
         {
@@ -267,7 +279,7 @@ namespace LVL1
       if (m_useNoise && !cdde->is_tile() && cell->gain() == CaloGain::LARHIGHGAIN)
       {
         std::vector<float> noise = m_noiseTool->elecNoiseRMS3gains(cdde);
-        float sigma = noise.at(1)*noise.at(1) - noise.at(0)*noise.at(0);
+        float sigma = noise.at(1) * noise.at(1) - noise.at(0) * noise.at(0);
         sigmaNoisePerSuperCell[scIDHash] += (sigma > 0 ? std::sqrt(sigma) : 0.0f);
       }
       // This is a bad definition, but it's needed to be consistent with the other code (for now...)
@@ -285,7 +297,7 @@ namespace LVL1
         else if (!isTile)
         {
           // Use the random sampling from timing histograms (only midtrain)
-          
+
           CaloSampling::CaloSample sample = cell->caloDDE()->getSampling();
           // Locate the correct eta/et bins
           std::size_t iEta = getEtaIndex(sample, std::abs(cell->eta()));
@@ -360,7 +372,7 @@ namespace LVL1
       }
       // Only push LAr supercells
       CaloSampling::CaloSample s = dde->getSampling();
-      bool isTile_BAD = s >= 9 && s <21;
+      bool isTile_BAD = s >= 9 && s < 21;
       if (isTile_BAD)
         continue;
       float energy = energies.at(idx);
@@ -396,11 +408,19 @@ namespace LVL1
 
   std::size_t SCEmulation::getEtaIndex(CaloSampling::CaloSample sample, float eta)
   {
-    return getIndex(m_etaBins.at(sample), eta);
+    bool warn = false;
+    std::size_t idx = getIndex(m_etaBins.at(sample), eta, warn);
+    if (warn)
+      ATH_MSG_WARNING("Eta value " << eta << " for sampling " << sample << " does not fall in a bin");
+    return idx;
   }
 
   std::size_t SCEmulation::getEtIndex(CaloSampling::CaloSample sample, float et)
   {
-    return getIndex(m_etBins.at(sample), et);
+    bool warn = false;
+    std::size_t idx = getIndex(m_etBins.at(sample), et, warn);
+    if (warn)
+      ATH_MSG_WARNING("Et value " << et << " for sampling " << sample << " does not fall in a bin");
+    return idx;
   }
 } // namespace LVL1
