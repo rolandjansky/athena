@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.CFElements import parOR, seqAND
@@ -35,9 +35,6 @@ def _getTauSignatureShort( name ):
     elif "TrackTwo" in name:
       signature = 'tauTrkTwo'
       signatureID = 'tauIso'
-    elif "tauId" in name:
-      signature = 'tauId'
-      signatureID = 'tauTau'
     elif "EF" in name:
       signature = 'tauEF'
       signatureID = 'tauIso'
@@ -278,9 +275,7 @@ def tauIdSequence( RoIs, name):
 
     tauPrecisionAlg = ""
 
-    if "Id" in name:
-      tauPrecisionAlg = _algoTauPrecision(inputRoIs = RoIs, tracks = IDTrigConfig.PT.tracksPT(), step = "Id")
-    elif "TrackInView" in name:
+    if "TrackInView" in name:
       tauPrecisionAlg = _algoTauPrecision(inputRoIs = RoIs, tracks = IDTrigConfig.PT.tracksPT(), step = "Track")
       ViewVerifyId.DataObjects += [( 'xAOD::TauTrackContainer' , 'StoreGateSvc+HLT_tautrack_Presel'),
                                    ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_Presel' )]
@@ -569,29 +564,6 @@ def tauPrecIsoTrackSequence(ConfigFlags):
 
     tauPrecIsoTrkSequence = seqAND("tauPrecIsoTrkSequence", [tauPrecIsoViewsMaker, tauPrecIsoTrackInViewSequence ])
     return (tauPrecIsoTrkSequence, tauPrecIsoViewsMaker, sequenceOut)
-
-
-# ===============================================================================================                                                           
-#   Reco sequence for Tau Precision Alg   (pTonly) 
-# ===============================================================================================      
-
-def tauIDSequence(ConfigFlags):
-
-    RecoSequenceName                  = "tauIdInViewSequence"
-
-    ftfIdViewsMaker                   = EventViewCreatorAlgorithm("IMFTFId")
-    ftfIdViewsMaker.RoIsLink          = "roi"
-    ftfIdViewsMaker.RoITool           = ViewCreatorPreviousROITool()
-    ftfIdViewsMaker.InViewRoIs        = "RoiForTau"
-    ftfIdViewsMaker.Views             = "TAUFTFIdViews"
-    ftfIdViewsMaker.ViewFallThrough   = True
-    ftfIdViewsMaker.RequireParentView = True
-    ftfIdViewsMaker.ViewNodeName      = RecoSequenceName
-
-    (tauFTFIdInViewSequence, sequenceOut) = tauIdSequence( ftfIdViewsMaker.InViewRoIs, RecoSequenceName)
-
-    tauFastTrackIdSequence = seqAND("tauFastTrackIdSequence", [ftfIdViewsMaker, tauFTFIdInViewSequence ])
-    return (tauFastTrackIdSequence, ftfIdViewsMaker, sequenceOut)
 
 # ===============================================================================================                                                            
 #    Reco sequence for Tau Precision Alg   (track)                                                              
