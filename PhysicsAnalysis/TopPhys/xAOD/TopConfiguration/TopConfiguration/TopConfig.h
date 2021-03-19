@@ -1721,9 +1721,16 @@ namespace top {
     inline virtual unsigned int trkjet_btagging_num_Light_eigenvars(std::string WP) const {return bTag_eigen_light_trkJet.at(WP);}
 
 
-    const std::vector<std::pair<std::string, std::string> > boostedJetTaggers() const {return m_chosen_boostedJetTaggers;}
-    const std::unordered_map<std::string, std::string> boostedTaggerSFnames() const {return m_boostedTaggerSFnames;}
+    const std::vector<std::pair<std::string, std::string> >& boostedJetTaggers() const {return m_chosen_boostedJetTaggers;}
+    const std::unordered_map<std::string, std::string>& boostedTaggerSFnames() const {return m_boostedTaggerSFnames;}
+    const std::unordered_map<std::string, std::vector<std::string>>& boostedTaggersSFSysNames() const {return m_boostedTaggersSFSysNames;}
     void setCalibBoostedJetTagger(const std::string& WP, const std::string& SFname);
+    void setBoostedTaggersSFSysNames(const std::unordered_map<std::string, std::vector<std::string>>& sysNames) {m_boostedTaggersSFSysNames=sysNames;}
+    // TEMPORARY methods to enable/disable boosted tagging SF uncertainties
+    // TODO implemented for testing of JetUncertainties in r22 until porting is fully done
+    inline bool applyBoostedJetTaggersUncertainties() const { return m_applyBoostedTaggerUncertainties; }
+    void applyBoostedJetTaggersUncertainties(bool flag);
+
     // B-tagging WPs requested by user (updated to pair of strings to hold algorithm and WP)
     const std::vector<std::pair<std::string, std::string> > bTagWP() const {return m_chosen_btaggingWP_caloJet;}
     const std::vector<std::pair<std::string, std::string> > bTagWP_trkJet() const {return m_chosen_btaggingWP_trkJet;}
@@ -2465,6 +2472,8 @@ namespace top {
     // Boosted jet taggers requested by user
     std::vector<std::pair<std::string, std::string> > m_chosen_boostedJetTaggers;
     std::unordered_map<std::string, std::string> m_boostedTaggerSFnames;
+    std::unordered_map<std::string, std::vector<std::string>> m_boostedTaggersSFSysNames;
+    bool m_applyBoostedTaggerUncertainties;
 
     // B-tagging WPs requested by the user (updated to pair of string to hold algorithm and WP)
     std::vector<std::pair<std::string, std::string> > m_chosen_btaggingWP;

@@ -233,6 +233,7 @@ namespace top {
                       "Boosted jet taggers to use in the analysis, separated by commas or white spaces."
                       " By default, no tagger is used.",
                       " ");
+    registerParameter("BoostedJetTaggingUncertainties", "Whether to enable BoostedJetTaggers SF systematics. Temporary to test JetUncertainties in r22.", "False", {"True", "False"});
 
     registerParameter("TrackJetPt", "Track Jet pT cut for object selection (in MeV). Default 10 GeV.", "10000.");
     registerParameter("TrackJetEta", "Absolute Track Jet eta cut for object selection. Default 2.5.", "2.5");

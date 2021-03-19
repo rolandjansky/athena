@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: JetObjectCollectionMaker.h 809674 2017-08-23 14:10:24Z iconnell $
@@ -90,8 +90,8 @@ namespace top {
     virtual std::string getLargeRModName(const std::string& NPModel) const;
     // specify Systematic
     virtual void addSystematics(const std::set<std::string>& specifiedSystematics,
-                                const CP::SystematicSet& recommendedSysts, std::unordered_map<CP::SystematicSet,
-                                                                                              CP::SystematicSet>& map,
+                                const CP::SystematicSet& recommendedSysts,
+                                std::unordered_map<CP::SystematicSet, CP::SystematicSet>& map,
                                 const std::string& modName, bool isLargeR = false,
                                 bool onlyJER = false);
 
@@ -101,6 +101,8 @@ namespace top {
     virtual StatusCode applySystematic(ToolHandle<ICPJetUncertaintiesTool>& tool,
                                        const std::unordered_map<CP::SystematicSet, CP::SystematicSet>& map,
                                        bool isLargeR = false);
+
+    virtual StatusCode applyTaggingSFSystematic();
 
     StatusCode printout(const bool isLargeR);
 
@@ -130,6 +132,9 @@ namespace top {
 
     ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolLargeR;
     std::unordered_map<std::string, ToolHandle<ICPJetUncertaintiesTool> > m_tagSFuncertTool;
+    std::unordered_map<std::string, std::vector<CP::SystematicSet>> m_tagSFUncorrelatedSystematics; // Uncertainties name fo
+    std::unordered_map<std::string, std::vector<std::string>> m_tagSFSysNames;
+
 
     // do decorate the large-R jets with the boosted-tagging flags
     // and decorate jets with TAccept object containing detailed tag result informaiton
@@ -155,7 +160,7 @@ namespace top {
     StatusCode decorateBJets(xAOD::Jet& jet);
     StatusCode decorateHSJets();
     StatusCode decorateMatchedTruth();
-    StatusCode tagLargeRJet(const xAOD::JetContainer& jet);
+    StatusCode tagLargeRJets(const xAOD::JetContainer& jet);
     StatusCode tagNominalLargeRJets();
 
     ///-- Large R jet truth labeling --///
