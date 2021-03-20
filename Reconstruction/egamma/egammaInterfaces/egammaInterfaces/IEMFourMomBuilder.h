@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAINTERFACES_IEMFOURMOMBUILDER_H
@@ -46,8 +46,6 @@ class IEMFourMomBuilder : virtual public IegammaBaseTool
   virtual StatusCode initialize() = 0;
   /** @brief execute method */
   virtual StatusCode execute(const EventContext& ctx, xAOD::Egamma* eg) const = 0;
-  /** @brief execute method for the HLT*/
-  virtual StatusCode hltExecute(xAOD::Egamma* eg) const = 0;
 };
 
 inline const InterfaceID& IEMFourMomBuilder::interfaceID()
