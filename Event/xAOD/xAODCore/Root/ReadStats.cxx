@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ReadStats.cxx 642099 2015-01-27 16:43:18Z krasznaa $
@@ -102,11 +102,7 @@ namespace {
       /// Operator evaluating if a variable should be selected
       result_type operator()( argument_type var ) const {
 
-         if( var.readEntries() < m_entries ) {
-            return false;
-         } else {
-            return true;
-         }
+         return var.readEntries() >= m_entries;
       }
 
    private:
@@ -157,11 +153,7 @@ namespace {
       /// Operator evaluating if a variable should be selected
       result_type operator()( argument_type var ) const {
 
-         if( var.zippedBytesRead() < m_bytes ) {
-            return false;
-         } else {
-            return true;
-         }
+         return var.zippedBytesRead() >= m_bytes;
       }
 
    private:
@@ -381,7 +373,7 @@ namespace xAOD {
 
       // Iterate over the elements of the collection:
       ::TIter next( coll );
-      ::TObject* obj = 0;
+      ::TObject* obj = nullptr;
       ::Int_t result = 0;
       while( ( obj = next() ) ) {
 
@@ -635,7 +627,7 @@ namespace xAOD {
          if( ! brType ) {
             Error( "branch", "Coudln't find type_info for aux ID %i",
                    static_cast< int >( auxid ) );
-            return 0;
+            return nullptr;
          }
          const std::string brTypeName = SG::normalizedTypeinfoName( *brType );
 
@@ -667,7 +659,7 @@ namespace xAOD {
       }
 
       // Return a null pointer if the object was not found:
-      return 0;
+      return nullptr;
    }
 
    BranchStats* ReadStats::container( const std::string& name ) {
@@ -691,7 +683,7 @@ namespace xAOD {
       }
 
       // We didn't find it:
-      return 0;
+      return nullptr;
    }
 
    const ReadStats::Map_t& ReadStats::branches() const {
@@ -715,12 +707,9 @@ namespace xAOD {
    ///
    bool ReadStats::isCompatible( const ReadStats& rh ) const {
 
-      if( ( m_branchNum == rh.branchNum() ) &&
-          ( m_cacheSize == rh.cacheSize() ) ) {
-         return true;
-      } else {
-         return false;
-      }
+      return ( m_branchNum == rh.branchNum() ) &&
+
+          ( m_cacheSize == rh.cacheSize() );
    }
 
    /// This function is used to merge the information from two objects.
@@ -1124,7 +1113,7 @@ namespace xAOD {
 
       // Iterate over the elements of the collection:
       ::TIter next( coll );
-      ::TObject* obj = 0;
+      ::TObject* obj = nullptr;
       ::Int_t result = 0;
       while( ( obj = next() ) ) {
 

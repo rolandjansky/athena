@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Gaudi/Athena include(s):
@@ -180,10 +180,9 @@ namespace xAODMaker {
          std::vector< TriggerInfo::StreamTag >::const_iterator st_end =
             aod->trigger_info()->streamTags().end();
          for( ; st_itr != st_end; ++st_itr ) {
-            streamTags.push_back(
-                xAOD::EventInfo::StreamTag( st_itr->name(), st_itr->type(),
+            streamTags.emplace_back( st_itr->name(), st_itr->type(),
                                             st_itr->obeysLumiblock(),
-                                            st_itr->robs(), st_itr->dets() ) );
+                                            st_itr->robs(), st_itr->dets() );
          }
          xaod->setStreamTags( streamTags );
       }
@@ -294,9 +293,9 @@ namespace xAODMaker {
             link.resetWithKeyAndIndex( "PileUpEventInfo", itr->index() );
 
             // Add the new object
-            subEvents.push_back( xAOD::EventInfo::SubEvent( itr->time(),
+            subEvents.emplace_back( itr->time(),
                                                             itr->index(),
-                                                            type, link ) );
+                                                            type, link );
          }
 
          // Add the vector to the EventInfo:

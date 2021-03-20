@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -15,7 +15,7 @@
 namespace xAOD {
 
    TrigPassBits_v1::TrigPassBits_v1()
-      : SG::AuxElement(), m_container( 0 ) {
+      : SG::AuxElement(), m_container( nullptr ) {
 
    }
 

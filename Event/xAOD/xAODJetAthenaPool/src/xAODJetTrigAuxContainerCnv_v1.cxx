@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODJetTrigAuxContainerCnv_v1.cxx 800408 2017-03-13 09:28:39Z sschramm $
@@ -52,7 +52,7 @@ persToTrans( const xAOD::JetTrigAuxContainer_v1* oldObj,
 
    // Copy the payload of the v1 object into the latest one by misusing
    // the thinning code a bit...
-   SG::copyAuxStoreThinned( *oldObj, *newObj, 0 );
+   SG::copyAuxStoreThinned( *oldObj, *newObj, nullptr );
 
    //The old  uses v_
    xAOD::JetContainer oldInt;

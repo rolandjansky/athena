@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 // Local include(s).
 #include "xAODCore/AuxContainerBase.h"
@@ -93,7 +93,9 @@ int main() {
 
    // Execute the test function in the requested number of threads.
    std::vector< std::thread > threads;
-   for( int i = 0; i < THREADS; ++i ) {
+   threads.reserve(THREADS);
+
+for( int i = 0; i < THREADS; ++i ) {
       threads.emplace_back( execute );
    }
 

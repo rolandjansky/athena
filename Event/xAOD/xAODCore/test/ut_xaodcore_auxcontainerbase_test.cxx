@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -24,12 +24,12 @@ struct MoveTest
 {
   MoveTest(int x=0) : m_v(x) {}
   MoveTest(const MoveTest& other): m_v (other.m_v) {}
-  MoveTest(MoveTest&& other): m_v (std::move(other.m_v)) {}
+  MoveTest(MoveTest&& other) noexcept : m_v (std::move(other.m_v)) {}
   MoveTest& operator= (const MoveTest& other) {
     if (this != &other) m_v = other.m_v;
     return *this;
   }
-  MoveTest& operator= (MoveTest&& other) {
+  MoveTest& operator= (MoveTest&& other)  noexcept {
     if (this != &other) m_v = std::move(other.m_v);
     return *this;
   }
@@ -124,7 +124,7 @@ void test1()
   s1.reserve(20);
   assert (s1.getData(ityp4) == nullptr);
   const int* i3 = reinterpret_cast<const int*> (s1.getData(ityp3));
-  assert (i3 != 0);
+  assert (i3 != nullptr);
   for (int i=0; i<3; i++) {
     assert (i1[i] == i);
     assert (i2[i] == i+100);

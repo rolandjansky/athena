@@ -1,11 +1,13 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
 // System include(s):
 #include <algorithm>
 #include <stdexcept>
+#include <utility>
+
 
 // xAOD include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -42,7 +44,7 @@ namespace xAOD {
   TrigComposite_v1::TrigComposite_v1() {
   }
 
-  TrigComposite_v1::TrigComposite_v1( const TrigComposite_v1& parent ) : SG::AuxElement() {
+  TrigComposite_v1::TrigComposite_v1( const TrigComposite_v1& parent ) : SG::AuxElement(parent) {
     this->makePrivateStore( parent );
   }
 
@@ -84,7 +86,7 @@ namespace xAOD {
   }
 
   bool TrigComposite_v1::copyLinkFrom(const xAOD::TrigComposite_v1& other, const std::string& name, std::string newName) {
-    if (newName == "") {
+    if (newName.empty()) {
       newName = name;
     }
     bool didCopy = false;
@@ -105,13 +107,13 @@ namespace xAOD {
   }
 
   bool TrigComposite_v1::copyLinkFrom(const xAOD::TrigComposite_v1* other, const std::string& name, std::string newName) {
-    return copyLinkFrom(*other, name, newName);
+    return copyLinkFrom(*other, name, std::move(newName));
   }
 
   bool TrigComposite_v1::copyLinkCollectionFrom(const xAOD::TrigComposite_v1& other, const std::string& name, std::string newName) {
     bool didCopy = false;
     // Check for the existence of a collection.
-    if (newName == "") {
+    if (newName.empty()) {
       newName = name;
     }
     const std::string mangledName = name + s_collectionSuffix;
@@ -134,7 +136,7 @@ namespace xAOD {
   }
     
   bool TrigComposite_v1::copyLinkCollectionFrom(const xAOD::TrigComposite_v1* other, const std::string& name, std::string newName) {
-    return copyLinkCollectionFrom(*other, name, newName);
+    return copyLinkCollectionFrom(*other, name, std::move(newName));
   }
 
   bool TrigComposite_v1::copyAllLinksFrom(const xAOD::TrigComposite_v1& other) {
@@ -454,7 +456,7 @@ std::ostream& operator<<(std::ostream& os, const xAOD::TrigComposite_v1& tc) {
     os << ", CLID:"  << tc.linkColClids()[i];
     if (i != tc.linkColNames().size() - 1) os << std::endl;
   }
-  if (tc.decisions().size()) {
+  if (!tc.decisions().empty()) {
     os << std::endl << "  N Decisions:" << tc.decisions().size() << std::endl << "    ";
     for (const TrigCompositeUtils::DecisionID id : tc.decisions()) os << id << ", ";
   }

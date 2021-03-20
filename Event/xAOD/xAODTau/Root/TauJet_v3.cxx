@@ -243,8 +243,7 @@ namespace xAOD {
   {
     // Get the discriminant accessor:
     const Accessor< float >* acc = xAODTau::discriminantAccessorV3( discID );
-    if( ! acc ) return false;
-    return true;
+    return acc != nullptr;
   }
 
 
@@ -320,7 +319,7 @@ namespace xAOD {
   //-------------------------------------------------------------------------
   bool TauJet_v3::detail( TauJetParameters::Detail detail, const IParticle* &value ) const {
     // Get the detail accessor:
-    value=0;
+    value=nullptr;
     const Accessor< ElementLink<IParticleContainer> >* acc = xAODTau::detailsAccessorV3<ElementLink<IParticleContainer> >( detail );
     if( ! acc ) return false;
     if( ! acc->isAvailable( *this ) ) return false;    
@@ -350,7 +349,7 @@ namespace xAOD {
   // Set IParticle detail via enum
   //-------------------------------------------------------------------------
   void TauJet_v3::setDetail( TauJetParameters::Detail detail, const IParticle* value, const IParticleContainer* cont ) {
-    if(value==0){
+    if(value==nullptr){
       ElementLink < IParticleContainer > lParticleLink;
       ( *( xAODTau::detailsAccessorV3<ElementLink < IParticleContainer > >( detail ) ) )( *this ) = lParticleLink;
     }    
@@ -468,7 +467,7 @@ namespace xAOD {
 	else tracks_pass_mask++;
       }
     }
-    return 0;
+    return nullptr;
 
   }
 
@@ -477,7 +476,7 @@ namespace xAOD {
   TauTrack* TauJet_v3::trackNonConst( size_t i, TauJetParameters::TauTrackFlag flag/*=TauJetParameters::TauTrackFlag::classifiedCharged*/ ) {
     int container_index=-1;
     const TauTrack* c_trk=track(i,flag, &container_index);
-    if(c_trk==0 || container_index<0) return 0;
+    if(c_trk==nullptr || container_index<0) return nullptr;
     ElementLink< xAOD::TauTrackContainer > link = tauTrackAcc(*this).at(0);//we don't care about this specific link, just the container
     xAOD::TauTrackContainer* tauTrackContainer = link.getDataNonConstPtr();
     TauTrack* trk=tauTrackContainer->at(container_index);
@@ -990,7 +989,7 @@ namespace xAOD {
 
 
 
-  void TauJet_v3::dump() {
+  void TauJet_v3::dump() const {
 	  /* keep these two lines to create the template methods. Otherwise they are optimzed away
 	   * later: move these two lines into a dummy method, which nobody is calling
 	   */

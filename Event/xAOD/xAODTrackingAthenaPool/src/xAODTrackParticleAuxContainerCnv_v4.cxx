@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -49,7 +49,7 @@ persToTrans(  const xAOD::TrackParticleAuxContainer_v4* oldObj,
 	
   // Copy the payload of the v4 object into the latest one by misusing
   // the thinning code a bit...
-  SG::copyAuxStoreThinned( *oldObj, *newObj, 0 );
+  SG::copyAuxStoreThinned( *oldObj, *newObj, nullptr );
 
   // Set up interface containers on top of them:
 	

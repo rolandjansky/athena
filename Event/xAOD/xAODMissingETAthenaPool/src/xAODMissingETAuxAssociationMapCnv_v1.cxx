@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODMissingETAuxAssociationMapCnv_v1.cxx 693797 2015-09-08 22:06:19Z khoo $
@@ -59,7 +59,7 @@ persToTrans( const xAOD::MissingETAuxAssociationMap_v1* oldObj,
 
    // Copy the payload of the v1 object into the latest one by misusing
    // the thinning code a bit...
-   SG::copyAuxStoreThinned( *oldObj, *newObj, 0 );
+   SG::copyAuxStoreThinned( *oldObj, *newObj, nullptr );
 
    // Set up interface containers on top of them:
 
@@ -116,12 +116,12 @@ persToTrans( const xAOD::MissingETAuxAssociationMap_v1* oldObj,
        // Ensure uniqueness
        if(calmap[calmask].sumpt()==0 && calvec.sumpt()>1e-9) {
 	 calmap[calmask] = calvec;
-	 sortedCalPairs.push_back(std::make_pair(calmask,calvec));
+	 sortedCalPairs.emplace_back(calmask,calvec);
 	 ATH_MSG("    Add unique cal mask " << calmask << ", sumpt " << calvec.sumpt());
        }
        if(trkmap[trkmask].sumpt()==0 && trkvec.sumpt()>1e-9) {
 	 trkmap[trkmask] = trkvec;
-	 sortedTrkPairs.push_back(std::make_pair(trkmask,trkvec));
+	 sortedTrkPairs.emplace_back(trkmask,trkvec);
 	 ATH_MSG("    Add unique trk mask " << trkmask << ", sumpt " << trkvec.sumpt());
        }
      }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s).
@@ -27,12 +27,12 @@
 namespace {
 
    /// Objects implementing a transient object store
-   static std::once_flag storeInitStatus;
+   std::once_flag storeInitStatus;
 #ifdef XAOD_STANDALONE
    static std::unique_ptr< xAOD::TEvent > event;
    static std::unique_ptr< xAOD::TStore > store;
 #else
-   static std::unique_ptr< SGTest::TestStore > store;
+   std::unique_ptr< SGTest::TestStore > store;
 #endif // XAOD_STANDALONE
 
 #ifndef XAOD_STANDALONE

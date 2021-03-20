@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ShallowAuxContainer.cxx 793737 2017-01-24 20:11:10Z ssnyder $
@@ -24,8 +24,8 @@ namespace xAOD {
    ShallowAuxContainer::ShallowAuxContainer( bool standalone )
       : m_selection(), 
         m_store( new SG::AuxStoreInternal( standalone ) ),
-        m_storeIO( 0 ), m_ownsStore( true ), m_locked( false ),
-        m_parentLink(), m_parentIO( 0 ), m_shallowIO( true ), 
+        m_storeIO( nullptr ), m_ownsStore( true ), m_locked( false ),
+        m_parentLink(), m_parentIO( nullptr ), m_shallowIO( true ), 
         m_auxids (),
         m_auxidsValid (false),
         m_name( "UNKNOWN" ) {
@@ -57,8 +57,8 @@ namespace xAOD {
                         bool standalone )
       : m_selection(), 
         m_store( new SG::AuxStoreInternal( standalone ) ),
-        m_storeIO( 0 ), m_ownsStore( true ), m_locked( false ),
-        m_parentLink( parent ), m_parentIO( 0 ), m_shallowIO( true ),
+        m_storeIO( nullptr ), m_ownsStore( true ), m_locked( false ),
+        m_parentLink( parent ), m_parentIO( nullptr ), m_shallowIO( true ),
         m_auxids (),
         m_auxidsValid (false),
         m_name( "UNKNOWN" ) {
@@ -88,7 +88,7 @@ namespace xAOD {
       // Clean up if necessary:
       if( m_ownsStore && m_store ) {
          delete m_store;
-         m_store = 0;
+         m_store = nullptr;
       }
 
       m_selection  = rhs.m_selection;
@@ -157,7 +157,7 @@ namespace xAOD {
 
       if( m_ownsStore && m_store ) {
          delete m_store;
-         m_store = 0;
+         m_store = nullptr;
       }
 
       // Do the assignment:
@@ -204,7 +204,7 @@ namespace xAOD {
       }
 
       // Apparently the variable wasn't found:
-      return 0;
+      return nullptr;
    }
 
    const ShallowAuxContainer::auxid_set_t&
@@ -429,7 +429,7 @@ namespace xAOD {
                 << "variable ("
                 << SG::AuxTypeRegistry::instance().getName( auxid )
                 << ") requested" << std::endl;
-      return 0;
+      return nullptr;
    }
 
    const std::type_info* ShallowAuxContainer::getIOType( auxid_t auxid ) const {
@@ -450,7 +450,7 @@ namespace xAOD {
                 << "variable ("
                 << SG::AuxTypeRegistry::instance().getName( auxid )
                 << ") requested" << std::endl;
-      return 0;
+      return nullptr;
    }
 
    const ShallowAuxContainer::auxid_set_t&

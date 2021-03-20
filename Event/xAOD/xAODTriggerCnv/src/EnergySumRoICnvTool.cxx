@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: EnergySumRoICnvTool.cxx 629847 2014-11-20 15:41:02Z masik $
@@ -48,7 +48,7 @@ namespace xAODMaker {
                                             xAOD::EnergySumRoI* xaod ) {
 
       // If there is no RoI to convert:
-      if( ! aod->getEnergySumROIs().size() ) {
+      if( aod->getEnergySumROIs().empty() ) {
          ATH_MSG_WARNING( "No EnergySum RoI received on the input" );
          return StatusCode::SUCCESS;
       }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -71,7 +71,7 @@ namespace xAODMaker {
 
       // Retrieve the AOD object:
       // FIXME: Use a ReadHandle.
-      const EventInfo* aod = 0;
+      const EventInfo* aod = nullptr;
       if( m_aodKey.empty() ) {
          // If key has not been set, do a keyless retrieve instead.
          // This is not standard behavior, but is for compatibility
@@ -142,12 +142,12 @@ namespace xAODMaker {
          default:
            break;
          }
-         subEvents.push_back( xAOD::EventInfo::SubEvent( pu_itr->time(),
+         subEvents.emplace_back( pu_itr->time(),
                                                          pu_itr->index(),
                                                          type,
                                                          EiLink( m_pileupKey.key(),
                                                                  puei->size() -
-                                                                 1 ) ) );
+                                                                 1 ) );
       }
 
       // And now update the main EventInfo object with the sub-events:

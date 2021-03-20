@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -91,7 +91,7 @@ namespace xAOD {
       static const std::array< const Accessor< std::vector< float > >*, 8 > allAcc = {
          { &etaAcc, &phiAcc, &eAcc, &emaxAcc, &phimaxAcc, &etamaxAcc, &etasizeAcc,
            &phisizeAcc } };
-      for( auto a : allAcc ) {
+      for( const auto *a : allAcc ) {
          if( a->isAvailable( *this ) ) {
            if (!(*a)(*this).empty()) {
              if (clearSamplingVars){
@@ -716,7 +716,7 @@ namespace xAOD {
       static const std::array< const Accessor< std::vector< float > >*, 8 > allAcc = {
         { &etaAcc, &phiAcc, &eAcc, &emaxAcc, &phimaxAcc, &etamaxAcc,
           &etasizeAcc, &phisizeAcc } };
-      for (auto a : allAcc) {
+      for (const auto *a : allAcc) {
         if (a->isAvailableWritable(*this)) {
           (*a)(*this).clear();
         }

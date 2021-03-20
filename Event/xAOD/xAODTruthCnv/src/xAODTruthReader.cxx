@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaKernel/errorcheck.h"
@@ -45,9 +45,9 @@ namespace xAODReader {
   StatusCode xAODTruthReader::execute() {
     // Retrieve the xAOD truth:
     /// @todo Can the main truth event be a singleton, not a container?
-    const xAOD::TruthEventContainer* xTruthEventContainer = NULL;
+    const xAOD::TruthEventContainer* xTruthEventContainer = nullptr;
     CHECK( evtStore()->retrieve( xTruthEventContainer, m_xaodTruthEventContainerName));
-    const xAOD::TruthPileupEventContainer* xTruthPUEventContainer = NULL;
+    const xAOD::TruthPileupEventContainer* xTruthPUEventContainer = nullptr;
     //CHECK( evtStore()->retrieve( xTruthPUEventContainer, m_xaodTruthPUEventContainerName));
 
     ATH_MSG_INFO("Number of signal events in this Athena event: " << xTruthEventContainer->size());

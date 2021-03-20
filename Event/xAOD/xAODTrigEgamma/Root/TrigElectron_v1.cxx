@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TrigElectron_v1.cxx 797628 2017-02-16 21:31:00Z rwhite $
@@ -166,13 +166,13 @@ namespace xAOD {
 
       // Check if the link is available:
       if( ! acc.isAvailable( *this ) ) {
-         return 0;
+         return nullptr;
       }
 
       // Check if the link is valid:
       const EMClusterLink_t& link = acc( *this );
       if( ! link.isValid() ) {
-         return 0;
+         return nullptr;
       }
 
       // Return the pointer:
@@ -199,13 +199,13 @@ namespace xAOD {
 
       // Check if the link is available:
       if( ! acc.isAvailable( *this ) ) {
-         return 0;
+         return nullptr;
       }
 
       // Check if the link is valid:
       const TrackParticleLink_t& link = acc( *this );
       if( ! link.isValid() ) {
-         return 0;
+         return nullptr;
       }
 
       // Return the pointer:

@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODMISSINGET_VERSIONS_MISSINGETASSOCIATIONMAP_V1_H
@@ -80,7 +80,7 @@ namespace xAOD
      *
      *  @param[in]  ElementLink to the xAOD::IParticle object searched for in the association map.   
      */
-    const_iterator findByJetConst(ElementLink<IParticleContainer> constLink) const;
+    const_iterator findByJetConst(const ElementLink<IParticleContainer>& constLink) const;
     /*! @brief Find association from jet constituent
      *
      *  @return Iterator referencing a modifiable xAOD::MissingETAssociation_v1 object linking to the jet containing this constituent. If the parent jet is not in the association map,
@@ -88,9 +88,9 @@ namespace xAOD
      *
      *  @param[in]  ElementLink to the xAOD::IParticle object searched for in the association map.   
      */
-    iterator       findByJetConst(ElementLink<IParticleContainer> constLink);
+    iterator       findByJetConst(const ElementLink<IParticleContainer>& constLink);
     size_t findIndexByJetConst(const IParticle* pConst) const;
-    size_t findIndexByJetConst(ElementLink<IParticleContainer> pConstLink) const;
+    size_t findIndexByJetConst(const ElementLink<IParticleContainer>& pConstLink) const;
     /*! @brief Get an association for miscellaneous objects not associated to jets
      *
      *  @return View container of non-overlapping constituents, which the user should delete

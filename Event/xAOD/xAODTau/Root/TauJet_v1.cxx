@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TauJet_v1.cxx 740338 2016-04-14 16:03:58Z griffith $
@@ -7,7 +7,7 @@
 
 // System include(s):
 extern "C" {
-#   include <stdint.h>
+#   include <cstdint>
 }
 #include <bitset>
 
@@ -216,8 +216,7 @@ namespace xAOD {
   {
     // Get the discriminant accessor:
     const Accessor< float >* acc = xAODTau::discriminantAccessorV1( discID );
-    if( ! acc ) return false;
-    return true;
+    return acc != nullptr;
   }
 
 
@@ -959,7 +958,7 @@ namespace xAOD {
   }
 
 
-  void TauJet_v1::dump() {
+  void TauJet_v1::dump() const {
 	  /* keep these two lines to create the template methods. Otherwise they are optimzed away
 	   * later: move these two lines into a dummy method, which nobody is calling
 	   */

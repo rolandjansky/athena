@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODTrackParticleAuxContainerCnv.cxx 791368 2017-01-05 08:55:07Z krasznaa $
@@ -76,7 +76,7 @@ createPersistentWithKey( xAOD::TrackParticleAuxContainer* trans,
       if( ! m_compressorTool->compress( *tp ).isSuccess() ) {
          REPORT_MESSAGE( MSG::ERROR )
                << "Failed to compress track particle";
-         return 0;
+         return nullptr;
       }
    }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ClusterCreator.cxx 596346 2014-05-10 13:47:20Z krasznaa $
@@ -53,7 +53,7 @@ StatusCode ClusterCreator::initialize() {
    // Retrieve the needed tool(s):
    CHECK( m_cnvTool.retrieve() );
 
-   if( ! m_xaodContainerNames.size() ) {
+   if( m_xaodContainerNames.empty() ) {
       // Assume same key in AOD and xAOD if to explicitly set
       m_xaodContainerNames = m_aodContainerNames;
    }
@@ -69,8 +69,8 @@ StatusCode ClusterCreator::initialize() {
    }
 
    // Tell the user what's going to happen:
-   if( ( m_aodContainerNames.size() == 0 ) &&
-       ( m_xaodContainerNames.size() == 0 ) ) {
+   if( ( m_aodContainerNames.empty() ) &&
+       ( m_xaodContainerNames.empty() ) ) {
       ATH_MSG_INFO( "Will convert all CaloClusterContainers in the event");
       m_keySet = false;
    }
@@ -128,7 +128,7 @@ StatusCode ClusterCreator::execute() {
       }
 
       // Retrieve the AOD clusters:
-      const CaloClusterContainer* aod = 0;
+      const CaloClusterContainer* aod = nullptr;
       CHECK( evtStore()->retrieve( aod, aodName ) );
       ATH_MSG_DEBUG( "Retrieved clusters with key: " << aodName );
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -14,6 +14,8 @@
 #include "AthContainers/normalizedTypeinfoName.h"
 
 #include <iostream>
+#include <utility>
+
 
 // Local include(s):
 #include "xAODBPhys/BPhysMetaDataHelper.h"
@@ -33,7 +35,7 @@ namespace xAOD {
   //-----------------------------------------------------------------------
   void BPhysMetaDataHelper::setPrefix(std::string prefix) {
 
-    m_prefix = prefix;
+    m_prefix = std::move(prefix);
   }
   //-----------------------------------------------------------------------
   std::map<std::string, const std::type_info*>
@@ -49,7 +51,7 @@ namespace xAOD {
   //
   TString BPhysMetaDataHelper::metaDataToString(TString header) const {
   
-    TString str = header;
+    TString str = std::move(header);
     std::map<std::string, std::string> ms = valuesS();
     for ( auto it = ms.begin(); it != ms.end(); ++it ) {
       str += Form("%-30s :S : %s\n", it->first.c_str(), it->second.c_str());
@@ -135,7 +137,7 @@ namespace xAOD {
   //-----------------------------------------------------------------------
   TString BPhysMetaDataHelper::varTypesToString(TString header) const {
 
-    TString str = header;
+    TString str = std::move(header);
     if ( !m_tmapOk ) cacheVarTypes();
     for (auto &ent : m_tmap) {
       str += Form("%-30s : %s\n", ent.first.c_str(),

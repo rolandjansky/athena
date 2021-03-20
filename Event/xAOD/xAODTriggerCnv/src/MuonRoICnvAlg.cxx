@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: MuonRoICnvAlg.cxx 575028 2013-12-11 14:30:06Z krasznaa $
@@ -44,7 +44,7 @@ namespace xAODMaker {
    StatusCode MuonRoICnvAlg::execute() {
 
       // Retrieve the AOD container:
-      const LVL1_ROI* aod = 0;
+      const LVL1_ROI* aod = nullptr;
       CHECK( evtStore()->retrieve( aod, m_aodKey ) );
 
       // Create the xAOD container and its auxiliary store:

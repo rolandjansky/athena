@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -52,7 +52,7 @@ StatusCode TrigMuonEFInfoToMuonCnvTool::convertTrigMuonEFInfo(const TrigMuonEFIn
     ATH_MSG_DEBUG("Start conversion of TrigMuonEFInfo, n(muons) to convert = " << efinfo.TrackContainer()->size());
     const int nmuin = muoncontainer.size();
     // loop on TrigMuonEFInfoTracks attached to this TrigMuonEFInfo object
-    for( auto infotrk : *(efinfo.TrackContainer()) ) {
+    for( const auto *infotrk : *(efinfo.TrackContainer()) ) {
         
         if( !infotrk->hasExtrapolatedTrack() && !infotrk->hasCombinedTrack() ){
             ATH_MSG_WARNING("TrigMuonEFInfoTrack has no extrapolated or combined track, will not be converted to xAOD");
@@ -158,7 +158,7 @@ StatusCode TrigMuonEFInfoToMuonCnvTool::convertTrigMuonEFInfoContainer(const Tri
                                                   xAOD::TrackParticleContainer* combParticleContainer,
                                                   xAOD::TrackParticleContainer* extrapParticleContainer) const {
     //loop on TrigMunEFInfo objects and convert them
-    for(auto efinfo : efinfocont) {
+    for(const auto *efinfo : efinfocont) {
         StatusCode sc = convertTrigMuonEFInfo( *efinfo, muoncontainer, combParticleContainer, extrapParticleContainer );
         if(sc.isFailure()) return sc;
     }

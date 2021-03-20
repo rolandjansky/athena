@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaKernel/errorcheck.h"
@@ -193,7 +193,7 @@ namespace xAODMaker {
 	  if (isSignalProcess) {
 	    xTruthEventContainer->push_back( xTruthEvent );
 	    // Cross-section
-	    auto crossSection = genEvt->cross_section();
+	    const auto *crossSection = genEvt->cross_section();
 #ifdef HEPMC3
 	    xTruthEvent->setCrossSection(crossSection ? (float)crossSection->xsec() : -1);
 	    xTruthEvent->setCrossSectionError(crossSection ? (float)crossSection->xsec_err() : -1);
@@ -223,7 +223,7 @@ namespace xAODMaker {
 	    xTruthEvent->setWeights(weights);
                     
 	    // Heavy ion info
-	    auto const hiInfo = genEvt->heavy_ion();
+	    const auto *const hiInfo = genEvt->heavy_ion();
 	    if (hiInfo) {
 #ifdef HEPMC3
               /* Please note HepMC3 as well as more recent HePMC2 versions   have more Hi parameters */
@@ -261,7 +261,7 @@ namespace xAODMaker {
                     
 	    // Parton density info
 	    // This will exist 99% of the time, except for e.g. cosmic or particle gun simulation
-	    auto const pdfInfo = genEvt->pdf_info();
+	    const auto *const pdfInfo = genEvt->pdf_info();
 	    if (pdfInfo) {
 #ifdef HEPMC3
 	      xTruthEvent->setPdfInfoParameter(pdfInfo->parton_id[0], xAOD::TruthEvent::PDGID1);
@@ -300,7 +300,7 @@ namespace xAODMaker {
                 
 	  // Check signal process vertex
 	  // If this is a disconnected vertex, add it manually or won't be added from the loop over particles below.
-	   auto disconnectedSignalProcessVtx = HepMC::signal_process_vertex((HepMC::GenEvent*)genEvt); // Get the signal process vertex
+	   auto *disconnectedSignalProcessVtx = HepMC::signal_process_vertex((HepMC::GenEvent*)genEvt); // Get the signal process vertex
 	  if (disconnectedSignalProcessVtx) {
 #ifdef HEPMC3
 	    if (disconnectedSignalProcessVtx->particles_in().size() == 0 &&
@@ -327,7 +327,7 @@ namespace xAODMaker {
           genEvt_valid_beam_particles=genEvt->valid_beam_particles();
 	  if ( genEvt_valid_beam_particles ) beamParticles = genEvt->beam_particles();
 #endif 
-	  for (auto  part: *((HepMC::GenEvent*)genEvt)) {
+	  for (auto *  part: *((HepMC::GenEvent*)genEvt)) {
 	    // (a) create TruthParticle
 	    xAOD::TruthParticle* xTruthParticle = new xAOD::TruthParticle();
 	    xTruthParticleContainer->push_back( xTruthParticle );
@@ -349,7 +349,7 @@ namespace xAODMaker {
 	      }
 	    }
 	    // (d) Particle's production vertex
-	    auto productionVertex = part->production_vertex();
+	    auto *productionVertex = part->production_vertex();
 	    if (productionVertex) {
 	      VertexParticles& parts = vertexMap[productionVertex];
 	      if (parts.incoming.empty() && parts.outgoing.empty())
@@ -361,7 +361,7 @@ namespace xAODMaker {
 	    // else maybe want to keep track that this is the production vertex
 	    //
 	    // (e) Particle's decay vertex
-	    auto decayVertex = part->end_vertex();
+	    auto *decayVertex = part->end_vertex();
 	    if (decayVertex) {
 	      VertexParticles& parts = vertexMap[decayVertex];
 	      if (parts.incoming.empty() && parts.outgoing.empty())
@@ -373,8 +373,8 @@ namespace xAODMaker {
 	  } // end of loop over particles
                 
 	  // (3) Loop over the map
-	  auto signalProcessVtx = HepMC::signal_process_vertex(genEvt); // Get the signal process vertex
-	  for (auto  vertex : vertices) {
+	  auto *signalProcessVtx = HepMC::signal_process_vertex(genEvt); // Get the signal process vertex
+	  for (auto *  vertex : vertices) {
 	    const auto& parts = vertexMap[vertex];
 	    // (a) create TruthVertex
 	    xAOD::TruthVertex* xTruthVertex = new xAOD::TruthVertex();
@@ -547,10 +547,10 @@ namespace xAODMaker {
         //The map from the HepMC record pairs the weight names with a corresponding index,
         //it is not guaranteed that the indices are ascending when iterating over the map
         std::sort(orderedWeightNameVec.begin(), orderedWeightNameVec.end(),
-                  [&](std::string i, std::string j){return weightNameMap.at(i) < weightNameMap.at(j);});
+                  [&](const std::string& i, const std::string& j){return weightNameMap.at(i) < weightNameMap.at(j);});
                             
         md->setMcChannelNumber(mcChannelNumber);
-        md->setWeightNames( std::move(orderedWeightNameVec) );
+        md->setWeightNames( orderedWeightNameVec );
 #endif
 
 	if(!metaFields.lhefGenerator.empty()) {

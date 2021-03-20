@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -45,7 +45,7 @@ namespace xAODMaker {
   {
     ATH_MSG_VERBOSE( "in TrigPassBitsCnvTool::convert" );
     // If there is no TrigPassBits to convert:
-    if( ! aod->size() ) {
+    if( aod->empty() ) {
       ATH_MSG_DEBUG( "No TrigPassBits objects received on the input" );
       return StatusCode::SUCCESS;
     }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: AuxContainerBase.cxx 793746 2017-01-24 21:23:52Z ssnyder $
@@ -25,7 +25,7 @@ namespace xAOD {
 
    AuxContainerBase::AuxContainerBase( bool allowDynamicVars )
       : SG::IAuxStore(),
-        m_auxids(), m_vecs(), m_store( 0 ), m_storeIO( 0 ),
+        m_auxids(), m_vecs(), m_store( nullptr ), m_storeIO( nullptr ),
         m_ownsStore( true ),
         m_locked( false ),
         m_name( "UNKNOWN" ) {
@@ -46,7 +46,7 @@ namespace xAOD {
    ///
    AuxContainerBase::AuxContainerBase( const AuxContainerBase& parent )
       : SG::IAuxStore(),
-        m_auxids(), m_vecs(), m_store( 0 ), m_storeIO( 0 ),
+        m_auxids(), m_vecs(), m_store( nullptr ), m_storeIO( nullptr ),
         m_ownsStore( true ),
         m_locked( false )
    {
@@ -73,7 +73,7 @@ namespace xAOD {
       : SG::IAuxStore(),
         m_auxids(), m_vecs(),
         m_store( store ),
-        m_storeIO( 0 ), m_ownsStore( false ),
+        m_storeIO( nullptr ), m_ownsStore( false ),
         m_locked( false),
         m_name( "UNKNOWN" ) {
 
@@ -115,8 +115,8 @@ namespace xAOD {
          m_auxids -= m_store->getAuxIDs();
          delete m_store;
       }
-      m_store = 0;
-      m_storeIO = 0;
+      m_store = nullptr;
+      m_storeIO = nullptr;
       m_ownsStore = true;
 
       // Take posession of the new dynamic store:
@@ -169,8 +169,8 @@ namespace xAOD {
          m_auxids -= m_store->getAuxIDs();
          delete m_store;
       }
-      m_store = 0;
-      m_storeIO = 0;
+      m_store = nullptr;
+      m_storeIO = nullptr;
 
       // Take posession of the new object:
       m_store = store;
@@ -210,7 +210,7 @@ namespace xAOD {
                       << "Unknown variable ("
                       << SG::AuxTypeRegistry::instance().getName( auxid )
                       << ") requested" << std::endl;
-            return 0;
+            return nullptr;
          }
       }
 
@@ -259,7 +259,7 @@ namespace xAOD {
                      << "Can't provide variable "
                      << SG::AuxTypeRegistry::instance().getName( auxid )
                      << std::endl;
-           return 0;
+           return nullptr;
          }
        }
 
@@ -378,7 +378,7 @@ namespace xAOD {
                       << "Unknown variable ("
                       << SG::AuxTypeRegistry::instance().getName( auxid )
                       << ") requested" << std::endl;
-            return 0;
+            return nullptr;
          }
       }
       m_vecs[ auxid ]->reserve( capacity );
@@ -532,7 +532,7 @@ namespace xAOD {
                                      const SG::AuxDataOption& option ) {
 
       guard_t guard (m_mutex);
-      if (id < m_vecs.size() && m_vecs[id] != 0)
+      if (id < m_vecs.size() && m_vecs[id] != nullptr)
          return m_vecs[id]->setOption (option);
 
       if (m_store)
@@ -563,7 +563,7 @@ namespace xAOD {
                       << "Unknown variable ("
                       << SG::AuxTypeRegistry::instance().getName( auxid )
                       << ") requested" << std::endl;
-            return 0;
+            return nullptr;
          }
       }
 

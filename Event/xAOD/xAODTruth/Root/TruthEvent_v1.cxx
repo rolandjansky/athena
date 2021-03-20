@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TruthEvent_v1.cxx 761798 2016-07-14 08:15:01Z krasznaa $
@@ -52,7 +52,7 @@ namespace xAOD {
                                          PdfParam information ) const {
 
       // Look for the accessor object:
-      auto* acc = pdfInfoAccessorV1Int( information );
+      const auto * acc = pdfInfoAccessorV1Int( information );
       if( ! acc ) return false;
 
       // Get the value:
@@ -64,7 +64,7 @@ namespace xAOD {
                                          PdfParam information ) const {
 
       // Look for the accessor object:
-      auto* acc = pdfInfoAccessorV1Float( information );
+      const auto * acc = pdfInfoAccessorV1Float( information );
       if( ! acc ) return false;
 
       // Get the value:
@@ -76,7 +76,7 @@ namespace xAOD {
                                             PdfParam information ) {
 
       // Look for the accessor object:
-      auto* acc = pdfInfoAccessorV1Int( information );
+      const auto * acc = pdfInfoAccessorV1Int( information );
       if( ! acc ) return false;
 
       // Set the value:
@@ -88,7 +88,7 @@ namespace xAOD {
                                             PdfParam information ) {
 
       // Look for the accessor object:
-      auto* acc = pdfInfoAccessorV1Float( information );
+      const auto * acc = pdfInfoAccessorV1Float( information );
       if( ! acc ) return false;
 
       // Set the value:
@@ -139,7 +139,7 @@ namespace xAOD {
                                           HIParam information ) const {
 
       // Look for the accessor object:
-      auto* acc = heavyIonAccessorV1Int( information );
+      const auto * acc = heavyIonAccessorV1Int( information );
       if( ! acc ) return false;
 
       // Get the value:
@@ -151,7 +151,7 @@ namespace xAOD {
                                           HIParam information ) const {
 
       // Look for the accessor object:
-      auto* acc = heavyIonAccessorV1Float( information );
+      const auto * acc = heavyIonAccessorV1Float( information );
       if( ! acc ) return false;
 
       // Get the value:
@@ -163,7 +163,7 @@ namespace xAOD {
                                              HIParam information ) {
 
       // Look for the accessor object:
-      auto* acc = heavyIonAccessorV1Int( information );
+      const auto * acc = heavyIonAccessorV1Int( information );
       if( ! acc ) return false;
 
       // Set the value:
@@ -175,7 +175,7 @@ namespace xAOD {
                                              HIParam information ) {
 
       // Look for the accessor object:
-      auto* acc = heavyIonAccessorV1Float( information );
+      const auto * acc = heavyIonAccessorV1Float( information );
       if( ! acc ) return false;
 
       // Set the value:

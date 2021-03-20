@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020, 2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021, 2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -70,12 +70,12 @@ namespace xAOD {
 
    EventInfo_v1::EventInfo_v1()
       : SG::AuxElement(), m_streamTags(),
-        m_subEvents(), m_evtStore( 0 ) {
+        m_subEvents(), m_evtStore( nullptr ) {
 
    }
 
    EventInfo_v1::EventInfo_v1( const EventInfo_v1& parent )
-      : SG::AuxElement(), m_streamTags(),
+      : SG::AuxElement(parent), m_streamTags(),
         m_subEvents(),
         m_evtStore( parent.m_evtStore ) {
 
@@ -494,7 +494,7 @@ namespace xAOD {
       if( m_link.isValid() ) {
          return *m_link;
       } else {
-         return 0;
+         return nullptr;
       }
    }
 
@@ -729,7 +729,7 @@ namespace xAOD {
       return true;
    }
 
-   bool EventInfo_v1::setEventFlagBit( EventFlagSubDet subDet, size_t bit)
+   bool EventInfo_v1::setEventFlagBit( EventFlagSubDet subDet, size_t bit) const
    {
      return updateEventFlagBit (subDet, bit);
    }
@@ -1010,10 +1010,10 @@ namespace xAOD {
 
       m_streamTags.reset();
       m_subEvents.reset();
-      m_evtStore = 0;
+      m_evtStore = nullptr;
 
       if( usingStandaloneStore() ) {
-         setStore( ( SG::IAuxStore* ) 0 );
+         setStore( ( SG::IAuxStore* ) nullptr );
       }
 
       return;

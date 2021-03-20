@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // TauJetCnvTool.cxx 
@@ -154,7 +154,7 @@ namespace xAODMaker {
 	//set individual details variables
 
 	const Analysis::TauCommonDetails* commonDetails(tau->details<Analysis::TauCommonDetails>());
-	if(commonDetails != NULL)
+	if(commonDetails != nullptr)
 	  {
 	    int tempint = 0;
 

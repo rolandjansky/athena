@@ -11,8 +11,10 @@
 #include "xAODBase/IParticleContainer.h"
 #include "xAODBase/ObjectType.h"
 
-#include <iterator>
 #include <cstdio>
+#include <iterator>
+#include <utility>
+
 
 using namespace xAOD;
 
@@ -87,7 +89,7 @@ MissingETAssociationMap_v1::iterator MissingETAssociationMap_v1::f_find(const Je
 void MissingETAssociationMap_v1::f_setJetConstMap(std::map<ElementLink<IParticleContainer>, size_t> map)
 {
   m_jetConstLinks.clear();
-  m_jetConstLinks = map;
+  m_jetConstLinks = std::move(map);
 }
 
 void MissingETAssociationMap_v1::f_clearJetConstMap()
@@ -133,7 +135,7 @@ MissingETAssociationMap_v1::iterator MissingETAssociationMap_v1::findByJetConst(
   return findByJetConst(el);
 }
 
-MissingETAssociationMap_v1::const_iterator MissingETAssociationMap_v1::findByJetConst(ElementLink<IParticleContainer> constLink) const
+MissingETAssociationMap_v1::const_iterator MissingETAssociationMap_v1::findByJetConst(const ElementLink<IParticleContainer>& constLink) const
 {
   MissingETAssociationMap_v1::const_iterator iAssoc(this->end());
   size_t index = findIndexByJetConst(constLink);
@@ -143,7 +145,7 @@ MissingETAssociationMap_v1::const_iterator MissingETAssociationMap_v1::findByJet
   return iAssoc;
 }
 
-MissingETAssociationMap_v1::iterator MissingETAssociationMap_v1::findByJetConst(ElementLink<IParticleContainer> constLink)
+MissingETAssociationMap_v1::iterator MissingETAssociationMap_v1::findByJetConst(const ElementLink<IParticleContainer>& constLink)
 {
   MissingETAssociationMap_v1::iterator iAssoc(this->end());
   size_t index = findIndexByJetConst(constLink);
@@ -160,7 +162,7 @@ size_t MissingETAssociationMap_v1::findIndexByJetConst(const IParticle* pConst) 
   return findIndexByJetConst(el);
 }
 
-size_t MissingETAssociationMap_v1::findIndexByJetConst(ElementLink<IParticleContainer> constLink) const
+size_t MissingETAssociationMap_v1::findIndexByJetConst(const ElementLink<IParticleContainer>& constLink) const
 {
   size_t index = MissingETBase::Numerical::invalidIndex();
   std::map<ElementLink<IParticleContainer>, size_t>::const_iterator iConstMap = m_jetConstLinks.find(constLink);
@@ -178,7 +180,7 @@ const MissingETAssociation_v1* MissingETAssociationMap_v1::getMiscAssociation() 
   MissingETAssociationMap_v1::const_reverse_iterator rIter(this->rbegin());
   MissingETAssociationMap_v1::const_reverse_iterator fAssoc(this->rend());
   while ( rIter != fAssoc && !(*rIter)->isMisc() ) { ++rIter; }
-  return rIter != fAssoc ? *rIter : (MissingETAssociation_v1*)0;
+  return rIter != fAssoc ? *rIter : (MissingETAssociation_v1*)nullptr;
 }
 
 MissingETAssociation_v1* MissingETAssociationMap_v1::getMiscAssociation()
@@ -186,7 +188,7 @@ MissingETAssociation_v1* MissingETAssociationMap_v1::getMiscAssociation()
   MissingETAssociationMap_v1::reverse_iterator rIter(this->rbegin());
   MissingETAssociationMap_v1::reverse_iterator fAssoc(this->rend());
   while ( rIter != fAssoc && !(*rIter)->isMisc() ) { ++rIter; }
-  return rIter != fAssoc ? *rIter : (MissingETAssociation_v1*)0;
+  return rIter != fAssoc ? *rIter : (MissingETAssociation_v1*)nullptr;
 }
 
 bool MissingETAssociationMap_v1::identifyOverlaps()
@@ -258,7 +260,7 @@ const xAOD::IParticleContainer* MissingETAssociationMap_v1::getUniqueSignals(con
 const xAOD::IParticleContainer* MissingETAssociationMap_v1::getOverlapRemovedSignals(const MissingETAssociationHelper& helper,const xAOD::IParticleContainer* signals,MissingETBase::UsageHandler::Policy p) const
 {
   MissingETBase::Types::const_signal_vector_t* uniques = new MissingETBase::Types::const_signal_vector_t(SG::VIEW_ELEMENTS);
-  for(const auto sig : *signals) {
+  for(const auto *const sig : *signals) {
     if(!MissingETAssociation_v1::testPolicy(sig->type(),p)) continue;
     
     size_t assocIndex = findIndexByJetConst(sig);

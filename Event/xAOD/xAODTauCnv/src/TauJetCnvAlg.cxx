@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // TauJetCnvAlg.cxx 
@@ -59,7 +59,7 @@ StatusCode TauJetCnvAlg::initialize()
 {
   ATH_MSG_INFO ("Initializing " << name() << "...");
 
-  if( m_xaodTauJetContainerName == "" ) m_xaodTauJetContainerName = m_inputTauJetContainerName;
+  if( m_xaodTauJetContainerName.empty() ) m_xaodTauJetContainerName = m_inputTauJetContainerName;
 
   CHECK(m_cnvTool.retrieve());
 

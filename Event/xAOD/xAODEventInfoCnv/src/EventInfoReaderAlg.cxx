@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: EventInfoReaderAlg.cxx 682548 2015-07-13 13:57:15Z krasznaa $
@@ -61,7 +61,7 @@ namespace xAODReader {
    StatusCode EventInfoReaderAlg::execute() {
 
       // Get the EventInfo object:
-      const xAOD::EventInfo* ei = 0;
+      const xAOD::EventInfo* ei = nullptr;
       ATH_CHECK( evtStore()->retrieve( ei, m_key ) );
 
       // Basic info:
