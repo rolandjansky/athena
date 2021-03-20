@@ -248,13 +248,13 @@ namespace CP {
             wp->addCut(new IsolationConditionFormula("MuonPLImprovedTightBin6", PLVvar, PLVbin, {6,99},  {0,2.7}, "-0.6732"));
         } else if (muWPname == "PLImprovedVeryTight") {
             std::string PLVvar ="PromptLeptonImprovedVeto", PLVbin = "PromptLeptonImprovedInput_MVAXBin";
-            wp->addCut(new IsolationConditionFormula("MuonPLImprovedVeryTightBin0", PLVvar, PLVbin, {-99,0}, {0,2.7}, "-0.7908"));
-            wp->addCut(new IsolationConditionFormula("MuonPLImprovedVeryTightBin1", PLVvar, PLVbin, {1,1},   {0,2.7}, "-0.00932*(x/1000) - 0.6976"));
-            wp->addCut(new IsolationConditionFormula("MuonPLImprovedVeryTightBin2", PLVvar, PLVbin, {2,2},   {0,2.7}, "-0.00356*(x/1000) - 0.8342"));
-            wp->addCut(new IsolationConditionFormula("MuonPLImprovedVeryTightBin3", PLVvar, PLVbin, {3,3},   {0,2.7}, "-0.00108*(x/1000) - 0.9092"));
-            wp->addCut(new IsolationConditionFormula("MuonPLImprovedVeryTightBin4", PLVvar, PLVbin, {4,4},   {0,2.7},  "0.00357142857143*(x/1000) - 1.04148571429"));
-            wp->addCut(new IsolationConditionFormula("MuonPLImprovedVeryTightBin5", PLVvar, PLVbin, {5,5},   {0,2.7},  "0.00804545454545*(x/1000) - 1.20235454545"));
-            wp->addCut(new IsolationConditionFormula("MuonPLImprovedVeryTightBin6", PLVvar, PLVbin, {6,99},  {0,2.7}, "-0.8469"));
+            wp->addCut(new IsolationConditionFormula("MuonPLImprovedVeryTightBin0", PLVvar, PLVbin, {-99,0}, {0,2.7}, "-0.8426"));
+            wp->addCut(new IsolationConditionFormula("MuonPLImprovedVeryTightBin1", PLVvar, PLVbin, {1,1},   {0,2.7}, "-0.00686*(x/1000) - 0.774"));
+            wp->addCut(new IsolationConditionFormula("MuonPLImprovedVeryTightBin2", PLVvar, PLVbin, {2,2},   {0,2.7}, "-0.00044*(x/1000) - 0.922"));
+            wp->addCut(new IsolationConditionFormula("MuonPLImprovedVeryTightBin3", PLVvar, PLVbin, {3,3},   {0,2.7}, "0.00016*(x/1000) - 0.9558"));
+            wp->addCut(new IsolationConditionFormula("MuonPLImprovedVeryTightBin4", PLVvar, PLVbin, {4,4},   {0,2.7},  "0.00178571428571*(x/1000) - 1.00754285714"));
+            wp->addCut(new IsolationConditionFormula("MuonPLImprovedVeryTightBin5", PLVvar, PLVbin, {5,5},   {0,2.7},  "0.00492727272727*(x/1000) - 1.12037272727"));
+            wp->addCut(new IsolationConditionFormula("MuonPLImprovedVeryTightBin6", PLVvar, PLVbin, {6,99},  {0,2.7}, "-0.9049"));
         }
 	else{
 	  ATH_MSG_ERROR("Unknown muon isolation WP: " << muWPname);
