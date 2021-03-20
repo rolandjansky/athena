@@ -31,7 +31,7 @@ void NSW_PadTriggerDataContainerCnv_p1::transToPers(const NSW_PadTriggerDataCont
     }
     persistentObj->m_collections.reserve(transientObj->size());
     // Iterate over collections
-    for (const auto& tCollection : *transientObj) {
+    for (const Muon::NSW_PadTriggerData* tCollection : *transientObj) {
         NSW_PadTriggerData_p1 pCollection{};
         pCollection.m_segments.reserve(tCollection->size());
 
