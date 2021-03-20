@@ -3,57 +3,29 @@
 */
 
 #include "../src/TrigALFAROBMonitor.h"
-#include "TrigT1Result/RoIBResult.h"
-#include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/Menu.h"
-#include "TrigConfL1Data/TriggerItem.h"
-#include "TrigConfHLTData/HLTChain.h"
-#include "TrigConfHLTData/HLTChainList.h"
-#include "TrigConfData/L1Menu.h"
 
-#include "TrigSteeringEvent/Lvl1Result.h"
-#include "TrigSteeringEvent/HLTResult.h"
-#include "TrigT1Result/MuCTPI_RDO.h"
-#include "TrigT1Result/MuCTPI_MultiplicityWord_Decoder.h"
-#include "TrigT1Result/MuCTPI_DataWord_Decoder.h"
-#include "GaudiKernel/ITHistSvc.h"
 #include "AthenaKernel/Timeout.h"
-#include "TrigConfInterfaces/ITrigConfigSvc.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-#include "AthenaMonitoringKernel/OHLockedHist.h"
+
 #include "EventInfo/TriggerInfo.h"
 #include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventType.h"
-#include "eformat/eformat.h"
-#include "eformat/index.h"
-#include "eformat/SourceIdentifier.h"
 
-#include <algorithm>
+#include "eformat/eformat.h"
+
 #include <sstream>
-#include <iomanip>
 #include <cassert>
-#include <bitset>
-#include <TH1F.h>
-#include <TH2F.h>
-#include <TProfile2D.h>
 
 
 ////////////////////////////////////////////////////////////////////////////
 
 TrigALFAROBMonitor::TrigALFAROBMonitor(const std::string& name, ISvcLocator* pSvcLocator) :
   AthReentrantAlgorithm(name, pSvcLocator), 
-  m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
-  m_lvl1ConfSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
   m_rootHistSvc("THistSvc", name),
   m_robDataProviderSvc( "ROBDataProviderSvc", name ),
 
-  m_hist_failedChecksumForALFAROB(0),
-  m_histProp_failedChecksumForALFAROB(Gaudi::Histo1DDef("FailedChecksumForALFAROB" ,0,1,1)),
-  //m_hist_ALFA_trig_validated_tracks({ {0} } ),
-  //m_hist_pmfMonitoring( {0} ),
-  m_hist_genericStatusForROB(0),
-  m_hist_specificStatusForROB(0),
+  //m_hist_failedChecksumForALFAROB(0),
+  //m_histProp_failedChecksumForALFAROB(Gaudi::Histo1DDef("FailedChecksumForALFAROB" ,0,1,1)),
   m_lvl1muCTPIResult(0)
 {
   // Declare the properties
@@ -65,41 +37,13 @@ TrigALFAROBMonitor::TrigALFAROBMonitor(const std::string& name, ISvcLocator* pSv
   declareProperty("DebugStreamName",                    m_debugStreamName="ALFAROBErrorStream");
   declareProperty("CalibrationStreamName",              m_calibrationStreamName="ALFACalib");
   declareProperty("TestROBChecksum",                    m_doROBChecksum=true);
-  declareProperty("HistFailedChecksumForALFAROB",       m_histProp_failedChecksumForALFAROB,"ALFA ROBs with inconsistent checksum");
-  declareProperty("TestROBStatus",                      m_doROBStatus=true);
+  //declareProperty("HistFailedChecksumForALFAROB",       m_histProp_failedChecksumForALFAROB,"ALFA ROBs with inconsistent checksum");
   declareProperty("MonitorALFATracks",                  m_doALFATracking=true);
   declareProperty("MonitorPMFactivity",                 m_doPMFMonitoring=true);
   declareProperty("DoGoodDataMonitoring",               m_doDataGoodMonitoring=true);
   declareProperty("DoODDistanceHistograming",           m_doODDistance=true);
 
   declareProperty("keyRBResult",  m_keyRBResult = "");
-
-  // fill map with generic status codes
-  m_map_GenericStatus[eformat::UNCLASSIFIED]      = "UNCLASSIFIED";
-  m_map_GenericStatus[eformat::BCID_CHECK_FAIL]   = "BCID_CHECK_FAIL";
-  m_map_GenericStatus[eformat::LVL1ID_CHECK_FAIL] = "LVL1ID_CHECK_FAIL";
-  m_map_GenericStatus[eformat::TIMEOUT]           = "TIMEOUT";
-  m_map_GenericStatus[eformat::DATA_CORRUPTION]   = "DATA_CORRUPTION";
-  m_map_GenericStatus[eformat::INTERNAL_OVERFLOW] = "INTERNAL_OVERFLOW";
-
-  // fill vector with specific status codes
-  m_vec_SpecificStatus.reserve(16);
-  m_vec_SpecificStatus.push_back("TRIGGER_TYPE_SYNC_ERROR");
-  m_vec_SpecificStatus.push_back("FRAGMENT_SIZE_ERROR");
-  m_vec_SpecificStatus.push_back("DATABLOCK_ERROR");
-  m_vec_SpecificStatus.push_back("CTRL_WORD_ERROR");
-  m_vec_SpecificStatus.push_back("MISSING_BOF");
-  m_vec_SpecificStatus.push_back("MISSING_EOF");
-  m_vec_SpecificStatus.push_back("INVALID_HEADER_MARKER");
-  m_vec_SpecificStatus.push_back("FORMAT_ERROR");
-  m_vec_SpecificStatus.push_back("DUPLICATE_EVENT");
-  m_vec_SpecificStatus.push_back("SEQUENCE_ERROR");
-  m_vec_SpecificStatus.push_back("TRANSMISSION_ERROR");
-  m_vec_SpecificStatus.push_back("TRUNCATION");
-  m_vec_SpecificStatus.push_back("SHORT_FRAGMENT");
-  m_vec_SpecificStatus.push_back("FRAGMENT_LOST");
-  m_vec_SpecificStatus.push_back("FRAGMENT_PENDING");
-  m_vec_SpecificStatus.push_back("ROL_DISABLED");
 
  // fill vectors with names of trigger items
  m_map_TrgNamesToHistGroups["L1_ALFA_ELAST15"] = 0;
@@ -128,8 +72,7 @@ StatusCode TrigALFAROBMonitor::initialize(){
   ATH_MSG_INFO( "         Name of used DEBUG stream          = " << m_debugStreamName );
   ATH_MSG_INFO( " Name of streamTag to select events for monitoring  = " << m_calibrationStreamName );
   ATH_MSG_INFO( " Do ROB checksum test                       = " << m_doROBChecksum );
-  ATH_MSG_INFO( "        Hist:FailedChecksumForALFAROB       = " << m_histProp_failedChecksumForALFAROB );
-  ATH_MSG_INFO( " Do ROB status test                         = " << m_doROBStatus );
+  //ATH_MSG_INFO( "        Hist:FailedChecksumForALFAROB       = " << m_histProp_failedChecksumForALFAROB );
 
   // Locate the ROBDataProviderSvc
   StatusCode sc = m_robDataProviderSvc.retrieve();
@@ -138,24 +81,6 @@ StatusCode TrigALFAROBMonitor::initialize(){
     return sc;
   } 
   
-  // locate the TrigConfSvc
-  sc = m_configSvc.retrieve();
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR( "Could not find TrigConfSvc" );
-    return sc;
-  } else {
-    ATH_MSG_DEBUG( "TrigConfSvc identified" ); 
-  }
-
-  // connect to the LVL1ConfigSvc
-  sc = m_lvl1ConfSvc.retrieve();
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR( "Could not find LVL1ConfSvc" );
-    return sc;
-  } else {
-    ATH_MSG_DEBUG( "LVL1ConfSvc service identified" );
-  }
-
   m_ALFARobIds.push_back(m_lvl1ALFA1ROBid.value());
   m_ALFARobIds.push_back(m_lvl1ALFA2ROBid.value());
 
@@ -172,9 +97,6 @@ StatusCode TrigALFAROBMonitor::initialize(){
 StatusCode TrigALFAROBMonitor::execute (const EventContext& ctx) const {
 
   uint32_t  LB; // luminosity block number
-  uint32_t previousEventLB(99999); // luminosity block number of the previous events
-  uint32_t prescKey(-999); // current hlt prescale key
-  bool SBflag(false);
 
   std::vector <float> loc_pU[8][10];
   std::vector <float> loc_pV[8][10];
@@ -200,33 +122,6 @@ StatusCode TrigALFAROBMonitor::execute (const EventContext& ctx) const {
   const EventIDBase p_EventIDBase = ctx.eventID();
   LB = p_EventIDBase.lumi_block();
   ATH_MSG_DEBUG(" Decoded lumi block nb: " <<LB);
-
-  if (previousEventLB >= 99999) {
-    previousEventLB = LB;  // first event
-  } else {
-     if (LB > previousEventLB){ // new LB
-        uint32_t newPrescKey = m_configSvc->hltPrescaleKey();
-        if (newPrescKey != prescKey) {
-             ATH_MSG_DEBUG ("HLT prescale key changed to "<<newPrescKey );
-             
-             // check with cont monitor if the SB fla has been set
-             for (const TrigConf::HLTChain* chain: m_configSvc->chains()) {
-               if (chain->chain_name() == "HLT_costmonitor") {
-                 ATH_MSG_INFO ("found HLT_costmonitor chain with prescale " << chain->prescale()
-                               << " and the SB flag set to: "<<SBflag);
-                 if (chain->prescale() >=1 ) {
-                   SBflag = true;
-                 } else {
-                   SBflag = false;
-                 }
-               }
-             }
-
-             prescKey = newPrescKey;
-        }
-        previousEventLB = LB;
-     }
-  }
 
   // Now try to extract L1 decisons from ROIB fragment
   if(!evtStore()->contains<ROIB::RoIBResult>(m_keyRBResult)) {
@@ -266,14 +161,11 @@ StatusCode TrigALFAROBMonitor::execute (const EventContext& ctx) const {
     // verify checksum
     if (verifyALFAROBChecksum(**it )) event_with_checksum_failure=true ; 
 
-    // verify status bits
-    verifyROBStatusBits(**it);
-
     // decode ALFA ROBs
     bool FiberHitsODNeg[8][3][30], FiberHitsODPos[8][3][30];
     if (! event_with_checksum_failure) {
        if (decodeALFA(**it, loc_pU, loc_pV, FiberHitsODNeg, FiberHitsODPos, triggerHitPattern, triggerHitPatternReady ) == 0) {
-          findALFATracks(roIBResult, LB, SBflag, loc_pU, loc_pV);
+          findALFATracks(roIBResult, LB, loc_pU, loc_pV);
           findODTracks (FiberHitsODNeg, FiberHitsODPos, triggerHitPattern, triggerHitPatternReady);
       }
     }
@@ -308,12 +200,6 @@ StatusCode TrigALFAROBMonitor::start() {
 
   ATH_MSG_INFO("TrigALFAROBMonitor::start()");
 
-  const TrigConf::CTPConfig *ctp_confg = m_configSvc->ctpConfig();
-  if(!ctp_confg) {
-     ATH_MSG_DEBUG("Failed to get CTPConfig");
-     return StatusCode::SUCCESS;
-  }
-
   SG::ReadHandle<TrigConf::L1Menu>  l1MenuHandle = SG::makeHandle( m_L1MenuKey );
   if( l1MenuHandle.isValid() ) {
     for ( const TrigConf::L1Item& item: *l1MenuHandle ){
@@ -341,9 +227,6 @@ StatusCode TrigALFAROBMonitor::start() {
           ATH_MSG_DEBUG(" triggerItem number: "<<it->first<< " histo group: "<<it->second);
   }
  
-  // Define histograms only when checks are requested
-  if ((not m_doROBChecksum.value()) && (not m_doROBStatus.value())) return StatusCode::SUCCESS;
-
   // *-- booking path
   m_pathHisto = std::string("/EXPERT/") + name() + "/";
 
@@ -406,45 +289,17 @@ bool TrigALFAROBMonitor::verifyALFAROBChecksum(const OFFLINE_FRAGMENTS_NAMESPACE
     // fill the histograms
     std::ostringstream ost;
     ost << "0x" << std::hex << robFrag.source_id();
-    if (m_hist_failedChecksumForALFAROB) {
-      oh_scoped_lock_histogram lock;
-      m_hist_failedChecksumForALFAROB->Fill((ost.str()).c_str(), 1.);
-      m_hist_failedChecksumForALFAROB->LabelsDeflate("X");
-    }
+    //if (m_hist_failedChecksumForALFAROB) {
+      //oh_scoped_lock_histogram lock;
+      //m_hist_failedChecksumForALFAROB->Fill((ost.str()).c_str(), 1.);
+      //m_hist_failedChecksumForALFAROB->LabelsDeflate("X");
+    //}
   }
 
   return failed_checksum;
 
 }
 
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-void TrigALFAROBMonitor::verifyROBStatusBits(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag) const {
-
-  // print check for received ROB
-	ATH_MSG_VERBOSE(" verifyROBStatusBits: ROB id = 0x" << std::setw(6)  << MSG::hex << robFrag.source_id() << MSG::dec);
-
-  // fill monitoring histogram for ROB generic status
-  if ( ( m_hist_genericStatusForROB ) && ( robFrag.nstatus() != 0 ) ) {
-    const uint32_t* it_status;
-    robFrag.status(it_status);
-    //if ((*it_status) != 0) m_hist_genericStatusForROB->Fill(eformat::helper::SourceIdentifier(robFrag.source_id()).human_detector().c_str(),
-							    //m_map_GenericStatus[eformat::helper::Status(*it_status).generic()].c_str(),1.);
-  }
-
-  // fill monitoring histogram for ROB specific status
-  if ( ( m_hist_specificStatusForROB ) && ( robFrag.nstatus() != 0 ) ) {
-    const uint32_t* it_status;
-    robFrag.status(it_status);
-    if ((*it_status) != 0) {
-      std::bitset<16> specificBits(eformat::helper::Status(*it_status).specific());
-      for (unsigned int index=0; index < 16; ++index) {
-	//if (specificBits[index]) m_hist_specificStatusForROB->Fill(eformat::helper::SourceIdentifier(robFrag.source_id()).human_detector().c_str(),
-								   //m_vec_SpecificStatus[index].c_str(),1.);
-      }
-    }
-  }
-}
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 uint32_t TrigALFAROBMonitor::decodeALFA(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag, 
@@ -712,57 +567,8 @@ void TrigALFAROBMonitor::dumpRoIBDataWord(uint32_t data_word) const {
   return;
 }
 
-bool TrigALFAROBMonitor::getLvl1Result(LVL1CTP::Lvl1Result &resultL1) const {
-
-   if(evtStore()->contains<LVL1CTP::Lvl1Result>("Lvl1Result")) {
-
-	const LVL1CTP::Lvl1Result* l1ptr = 0;    
-	if(evtStore()->retrieve<LVL1CTP::Lvl1Result>(l1ptr, "Lvl1Result").isSuccess() && l1ptr) {
-		resultL1 = *l1ptr;
-                //ATH_MSG_INFO ("Success in retrieving Lvl1Result from StoreGate");
-		return true;
-	}
-	else {
-		//log() << MSG::WARNING << "Error retrieving Lvl1Result from StoreGate" << endmsg;
-                ATH_MSG_INFO ("Error retrieving Lvl1Result from StoreGate");
-		return false;
-	}
-    }
-    else {
-	if(1) /* outputLevel() <= MSG::DEBUG) */ {
-		//log() << MSG::DEBUG << "Lvl1Result does not exist with key: " << m_keyL1Result << endmsg;
-		ATH_MSG_INFO ("Lvl1Result does not exist with key: " << "Lvl1Result");
-                return false;
-	}
-  }
-
-}
-
-bool TrigALFAROBMonitor::getHLTResult(HLT::HLTResult &resultHLT) const {
-
-   if(evtStore()->contains<HLT::HLTResult>("HLTResult_HLT")) {
-
-	const HLT::HLTResult* hltptr = 0;    
-	if(evtStore()->retrieve<HLT::HLTResult>(hltptr, "HLTResult_HLT").isSuccess() && hltptr) {
-		resultHLT = *hltptr;
-		return true;
-	}
-	else {
-                ATH_MSG_INFO ("Error retrieving HLTResult from StoreGate");
-		return false;
-	}
-    }
-    else {
-	if(1) /* outputLevel() <= MSG::DEBUG) */ {
-		ATH_MSG_INFO ("HLTResult does not exist with key: " << "HLTResult_HLT");
-                return false;
-	}
-    }
-}
-
 void TrigALFAROBMonitor::findALFATracks( const ROIB::RoIBResult* roIBResult, 
                                          const int lumiBlockNb, 
-                                         const bool SBflag, 
                                          std::vector<float> (&loc_pU) [8][10], 
                                          std::vector<float> (&loc_pV) [8][10]) const {
 	float x_Rec[8];
@@ -935,10 +741,6 @@ void TrigALFAROBMonitor::findALFATracks( const ROIB::RoIBResult* roIBResult,
                						    auto monGroup60 = Monitored::Group (  *m_monTools["MonTool_" + trk60],   x_coord, y_coord );
            					}
 
-                                                if (SBflag) {
-                                                   //m_hist_ALFA_trig_validated_tracks_SB[it->second][iDet]->Fill(x_Rec[iDet],y_Rec[iDet]);
-                                                }
-                                                //ATH_MSG_INFO ("found track in det: "<<iDet<<" item: "<<it->first<<" in word: "<<word<<" offset: "<<offset);
                     			   }
                 		   }
                                 }
@@ -1462,7 +1264,6 @@ void TrigALFAROBMonitor::findODTracks( bool FiberHitsODNeg[][3][30], bool FiberH
                      auto monGroup = Monitored::Group (  *m_monTools["MonTool_OD_" + m_stationNames[iStation*2]], pos );
                  }
 
-                 //m_hist_PosDetector[iStation*2][iSide]->Fill(Pos[0]);
                  ODtracks[iStation*2][iSide] = Pos[0];
             }
             if (FoundTrack[1]) {
@@ -1471,7 +1272,6 @@ void TrigALFAROBMonitor::findODTracks( bool FiberHitsODNeg[][3][30], bool FiberH
                      auto pos    = Monitored::Scalar<double>(stationName, Pos[1]);
                      auto monGroup = Monitored::Group (  *m_monTools["MonTool_OD_" + m_stationNames[iStation*2+1]], pos );
                  }
-                 //m_hist_PosDetector[iStation*2+1][iSide]->Fill(Pos[1]);
                  ODtracks[iStation*2+1][iSide] = Pos[1];
             }
             //if (FoundTrack[0] && FoundTrack[1]){
@@ -1482,7 +1282,6 @@ void TrigALFAROBMonitor::findODTracks( bool FiberHitsODNeg[][3][30], bool FiberH
                   auto monGroup = Monitored::Group (  *m_monTools["MonTool_OD_" +  m_stationNames[iStation*2]], pos );
               }
 
-              //m_hist_DistStation[2*iStation][iSide]->Fill(-ODtracks[iStation*2][iSide] - ODtracks[iStation*2+1][iSide] + m_alfa_edge[iStation*2] + m_alfa_edge[iStation*2+1]);
             }
 
         }//end of iSide-loop
