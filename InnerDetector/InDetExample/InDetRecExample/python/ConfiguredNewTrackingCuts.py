@@ -311,6 +311,7 @@ class ConfiguredNewTrackingCuts :
         if self.__indetflags.doFastTracking():
           self.__minPT                 = [1.0 * Units.GeV, 0.4 * Units.GeV, 0.4 * Units.GeV]
           self.__maxZImpact            = [150.0 * Units.mm]
+          self.__minPixel              = [3]
           self.__nHolesMax             = [1]
           self.__nHolesGapMax          = [1]
           self.__minPTSeed             = 1.0 * Units.GeV
