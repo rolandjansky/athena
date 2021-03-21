@@ -25,13 +25,13 @@ class hasSTGC(JobProperty):
      """ does the layout contain STGC chambers? """
      statusOn     = True
      allowedTypes = ['bool']
-     StoredValue  = True
+     StoredValue  = False
 
 class hasMM(JobProperty):
      """ does the layout contain MicroMegas chambers? """
      statusOn     = True
      allowedTypes = ['bool']
-     StoredValue  = True
+     StoredValue  = False
 
 class MuonGeometryFlags_JobProperties(JobPropertyContainer):
     """ The geometry flag/job property container """

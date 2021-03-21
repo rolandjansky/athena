@@ -49,6 +49,7 @@ def getNewConfigFlags():
     from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
     ConfigFlags.Detector.GeometrysTGC = MuonGeometryFlags.hasSTGC()
     ConfigFlags.Detector.GeometryMM = MuonGeometryFlags.hasMM()
+    ConfigFlags.Detector.GeometryCSC = MuonGeometryFlags.hasCSC()
     
     # Now setup Reco:
     reco_flag_map = { 'BCM':'BCM', 'IBL':'pixel', 'Pixel':'pixel', 'SCT':'SCT', 'TRT':'TRT'}
