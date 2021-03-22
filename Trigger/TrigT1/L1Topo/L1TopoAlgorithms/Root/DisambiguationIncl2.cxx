@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * DisambiguationIncl2.cpp
@@ -15,7 +15,6 @@
 #include "L1TopoAlgorithms/DisambiguationIncl2.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
-#include "L1TopoSimulationUtils/Kinematics.h"
 
 REGISTER_ALG_TCS(DisambiguationIncl2)
 
@@ -95,7 +94,7 @@ TCS::DisambiguationIncl2::processBitCorrect( const std::vector<TCS::TOBArray con
 
 
                // test DeltaR2Min, DeltaR2Max
-               unsigned int deltaR2 = TSU::Kinematics::calcDeltaR2BW( *tob1, *tob2 );
+               unsigned int deltaR2 = calcDeltaR2BW( *tob1, *tob2 );
                
                for(unsigned int i=0; i<numberOutputBits(); ++i) {
                    bool accept = false;
@@ -141,7 +140,7 @@ TCS::DisambiguationIncl2::process( const std::vector<TCS::TOBArray const *> & in
 
 
                // test DeltaR2Min, DeltaR2Max
-               unsigned int deltaR2 = TSU::Kinematics::calcDeltaR2( *tob1, *tob2 );
+               unsigned int deltaR2 = calcDeltaR2( *tob1, *tob2 );
                
                for(unsigned int i=0; i<numberOutputBits(); ++i) {
                    bool accept = false;

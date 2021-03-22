@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * EMMultiplicity.cpp
@@ -21,9 +21,6 @@
 #include "L1TopoEvent/TOBArray.h"
 #include "L1TopoEvent/ClusterTOBArray.h"
 #include "L1TopoEvent/GenericTOB.h"
-
-#include "TH1F.h"
-#include "TH2F.h"
 
 REGISTER_ALG_TCS(EMMultiplicity)
 

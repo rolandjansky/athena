@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 //  MetSort.cxx
 //  author: Joerg Stelzer
@@ -14,10 +14,7 @@
 #include <cmath>
 
 // Bitwise implementation utils
-#include "L1TopoSimulationUtils/L1TopoDataTypes.h"
 #include "L1TopoSimulationUtils/Trigo.h"
-#include "L1TopoSimulationUtils/Hyperbolic.h"
-#include "L1TopoSimulationUtils/Kinematics.h"
 
 using std::sqrt;
 using std::round;
@@ -51,7 +48,7 @@ TCS::MetSort::sortBitCorrect(const InputTOBArray & input, TOBArray & output) {
    }
 
    const MetTOBArray & mets = dynamic_cast<const MetTOBArray&>(input);
-   int missingET = TSU::Kinematics::quadraticSumBW(mets[0].Ex(), mets[0].Ey());
+   int missingET = quadraticSumBW(mets[0].Ex(), mets[0].Ey());
    int metphi = TSU::Trigo::atan2(mets[0].Ex(),mets[0].Ey());
 
    TRG_MSG_DEBUG("MET phi values " << metphi << " " );

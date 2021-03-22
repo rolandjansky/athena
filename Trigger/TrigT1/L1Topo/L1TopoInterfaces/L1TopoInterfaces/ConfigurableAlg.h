@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 //  BaseTOBoAlg.h
 //  TopoCore
@@ -14,6 +14,7 @@
 #include "L1TopoInterfaces/ParameterSpace.h"
 #include "L1TopoInterfaces/AlgFactory.h"
 #include "L1TopoCommon/StatusCode.h"
+#include "L1TopoEvent/GenericTOB.h"
 
 #include <vector>
 #include <string>
@@ -62,6 +63,20 @@ namespace TCS {
       bool isCountingAlg() const { return m_algType == COUNT; }
 
       bool isLegacyTopo() const { return m_isLegacyTopo; }
+
+      // Kinematic calculation
+      unsigned int calcDeltaPhiBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
+      unsigned int calcDeltaEtaBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
+      unsigned int calcInvMassBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
+      unsigned int calcTMassBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
+      unsigned int calcDeltaR2BW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
+      unsigned long quadraticSumBW(int i1, int i2);
+      unsigned int calcDeltaPhi(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
+      unsigned int calcDeltaEta(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
+      unsigned int calcInvMass(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
+      unsigned int calcTMass(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
+      unsigned int calcDeltaR2(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
+
 
       // const access to parameter
       const Parameter & parameter(const std::string & parameterName) const;

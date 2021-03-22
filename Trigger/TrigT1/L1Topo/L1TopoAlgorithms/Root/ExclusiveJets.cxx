@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * ExclusiveJets.cxx
@@ -16,17 +16,11 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
-#include "TH1F.h"
-#include "TH2F.h"
+
 #include "L1TopoAlgorithms/ExclusiveJets.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
-// Bitwise implementation utils
-#include "L1TopoSimulationUtils/L1TopoDataTypes.h"
-#include "L1TopoSimulationUtils/Trigo.h"
-#include "L1TopoSimulationUtils/Hyperbolic.h"
-#include "L1TopoSimulationUtils/Kinematics.h"
-//
+
 REGISTER_ALG_TCS(ExclusiveJets)
 
 TCS::ExclusiveJets::ExclusiveJets(const std::string & name) : DecisionAlg(name)

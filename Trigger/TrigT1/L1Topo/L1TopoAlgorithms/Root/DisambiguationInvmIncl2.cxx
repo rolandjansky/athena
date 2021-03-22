@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * DisambiguationInvmIncl2.cpp
@@ -17,10 +17,6 @@
 #include "L1TopoAlgorithms/DisambiguationInvmIncl2.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
-// Bitwise implementation utils
-#include "L1TopoSimulationUtils/L1TopoDataTypes.h"
-#include "L1TopoSimulationUtils/Trigo.h"
-#include "L1TopoSimulationUtils/Hyperbolic.h"
 
 REGISTER_ALG_TCS(DisambiguationInvmIncl2)
 
@@ -28,48 +24,6 @@ REGISTER_ALG_TCS(DisambiguationInvmIncl2)
 // not the best solution but we will move to athena where this comes for free
 #define LOG std::cout << "TCS::DisambiguationInvmIncl2:     "
 
-namespace {
-unsigned int
-calcInvMass(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
-    double deta = fabs( tob1->etaDouble() - tob2->etaDouble() );
-    double dphi = fabs( tob1->phiDouble() - tob2->phiDouble() );
-    if(dphi>M_PI)
-        dphi = 2*M_PI - dphi;
-    double cosheta = cosh (deta);
-    double cosphi = cos (dphi);
-    double invmass2 = 2*tob1->Et()*tob2->Et()*(cosheta - cosphi);
-    return round( invmass2 );
-}
-
-unsigned int
-calcInvMassBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
-    auto bit_cosheta = TSU::L1TopoDataTypes<19,7>(TSU::Hyperbolic::Cosh.at(abs(tob1->eta() - tob2->eta())));
-    auto bit_cosphi = TSU::L1TopoDataTypes<9,7>(TSU::Trigo::Cos.at(abs(tob1->phi() - tob2->phi())));
-    TSU::L1TopoDataTypes<11,0> bit_Et1(tob1->Et());
-    TSU::L1TopoDataTypes<11,0> bit_Et2(tob2->Et());
-    auto bit_invmass2 = 2*bit_Et1*bit_Et2*(bit_cosheta - bit_cosphi);
-    return int(bit_invmass2) ;
-}
-
-unsigned int
-calcDeltaR2(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
-    double deta = ( tob1->etaDouble() - tob2->etaDouble() );
-    double dphi = fabs( tob1->phiDouble() - tob2->phiDouble() );
-    if(dphi>M_PI)
-        dphi = 2*M_PI - dphi;
-    return round ( 100 * ((dphi)*(dphi) + (deta)*(deta) )) ;
-}
-
-unsigned int
-calcDeltaR2BW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
-    int detaB = abs( tob1->eta() - tob2->eta() );
-    int dphiB = abs( tob1->phi() - tob2->phi() );
-    if(dphiB>32)
-        dphiB = 64 - dphiB;
-    unsigned int bit_dr2 = dphiB*dphiB + detaB*detaB;
-    return bit_dr2;
-}
-} // namespace
 
 TCS::DisambiguationInvmIncl2::DisambiguationInvmIncl2(const std::string & name) : DecisionAlg(name)
 {

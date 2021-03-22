@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Kinematics.h
@@ -16,10 +16,17 @@
 
 namespace TSU { 
    struct Kinematics {
+	static unsigned int calcDeltaPhiBWLegacy(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);		
+	static unsigned int calcDeltaEtaBWLegacy(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
+
+	static unsigned int calcInvMassBWLegacy(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
+	static unsigned int calcTMassBWLegacy(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
+	static unsigned int calcDeltaR2BWLegacy(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
 	static unsigned int calcDeltaPhiBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);		
 	static unsigned int calcDeltaEtaBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
 
 	static unsigned int calcInvMassBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
+	static unsigned int calcTMassBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
 	static unsigned int calcDeltaR2BW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
      /**
         @brief compute the sum in quadrature of two ints
@@ -38,6 +45,7 @@ namespace TSU {
 	static unsigned int calcDeltaPhi(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
 	static unsigned int calcDeltaEta(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
 	static unsigned int calcInvMass(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
+	static unsigned int calcTMass(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
 	static unsigned int calcDeltaR2(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
    };
 

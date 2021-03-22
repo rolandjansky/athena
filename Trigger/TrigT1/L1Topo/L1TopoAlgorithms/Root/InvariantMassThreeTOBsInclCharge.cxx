@@ -21,19 +21,11 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
-#include "TH1F.h"
-#include "TH2F.h"
 
 #include "L1TopoAlgorithms/InvariantMassThreeTOBsInclCharge.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
-// Bitwise implementation utils
-#include "L1TopoSimulationUtils/L1TopoDataTypes.h"
-#include "L1TopoSimulationUtils/Trigo.h"
-#include "L1TopoSimulationUtils/Hyperbolic.h"
-#include "L1TopoSimulationUtils/Kinematics.h"
 
-//
 
 REGISTER_ALG_TCS(InvariantMassThreeTOBsInclCharge)
 
@@ -150,9 +142,9 @@ TCS::InvariantMassThreeTOBsInclCharge::processBitCorrect( const std::vector<TCS:
 		if (p_OneBarrel && static_cast<parType_t>(std::abs((*tob1)->eta())) > 10 && static_cast<parType_t>(std::abs((*tob2)->eta())) > 10 && static_cast<parType_t>(std::abs((*tob3)->eta())) > 10 ) continue;
                
 		// Inv Mass calculation
-		unsigned int invmass2_12 = TSU::Kinematics::calcInvMassBW( *tob1, *tob2 );
-		unsigned int invmass2_13 = TSU::Kinematics::calcInvMassBW( *tob1, *tob3 );
-		unsigned int invmass2_23 = TSU::Kinematics::calcInvMassBW( *tob2, *tob3 );
+		unsigned int invmass2_12 = calcInvMassBW( *tob1, *tob2 );
+		unsigned int invmass2_13 = calcInvMassBW( *tob1, *tob3 );
+		unsigned int invmass2_23 = calcInvMassBW( *tob2, *tob3 );
 		unsigned int invmass2 = invmass2_12 + invmass2_13 + invmass2_23;
                 // Charge cut ( for TGC muons: 0=negative, 1=positive, as described at ATR-22621 )
                 // Check the definition of sectorName at MuCTPIL1TopoCandidate.h (for TGC muons: sectorName.at(0)=E or F, for RPC muons: sectorName.at(0)=B)
@@ -240,9 +232,9 @@ TCS::InvariantMassThreeTOBsInclCharge::process( const std::vector<TCS::TOBArray 
 		if (p_OneBarrel && static_cast<parType_t>(std::abs((*tob1)->eta())) > 10 && static_cast<parType_t>(std::abs((*tob2)->eta())) > 10 && static_cast<parType_t>(std::abs((*tob3)->eta())) > 10 ) continue;
 		
 		// Inv Mass calculation            
-		unsigned int invmass2_12 = TSU::Kinematics::calcInvMass( *tob1, *tob2 );
-		unsigned int invmass2_13 = TSU::Kinematics::calcInvMass( *tob1, *tob3 );
-		unsigned int invmass2_23 = TSU::Kinematics::calcInvMass( *tob2, *tob3 );
+		unsigned int invmass2_12 = calcInvMass( *tob1, *tob2 );
+		unsigned int invmass2_13 = calcInvMass( *tob1, *tob3 );
+		unsigned int invmass2_23 = calcInvMass( *tob2, *tob3 );
 		unsigned int invmass2 = invmass2_12 + invmass2_13 + invmass2_23;
                 // Charge cut ( for TGC muons: 0=negative, 1=positive, as described at ATR-22621 )
                 // Check the definition of sectorName at MuCTPIL1TopoCandidate.h (for TGC muons: sectorName.at(0)=E or F, for RPC muons: sectorName.at(0)=B)

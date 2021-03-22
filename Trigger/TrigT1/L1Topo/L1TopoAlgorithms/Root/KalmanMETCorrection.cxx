@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * KalmanMETCorrection.cpp
@@ -106,6 +106,7 @@ TCS::KalmanMETCorrection::processBitCorrect( const std::vector<TCS::TOBArray con
 
        corrfactor = LUTobj.getcorrKF(ipt,jeta);   
 
+       // This part of the code has to be reviewed again for phase1 BW simulation
        auto cosphi = TSU::L1TopoDataTypes<9,7>(TSU::Trigo::Cos.at(/*abs*/(parType_t((*tob)->phi()))));
        auto sinphi = TSU::L1TopoDataTypes<9,7>(TSU::Trigo::Sin.at(/*abs*/(parType_t((*tob)->phi()))));
 
@@ -114,7 +115,7 @@ TCS::KalmanMETCorrection::processBitCorrect( const std::vector<TCS::TOBArray con
             
 
         TRG_MSG_DEBUG("corr  " << corrfactor);
-         TRG_MSG_DEBUG("metsumx " << summetx << "metsumy " << summety );
+	TRG_MSG_DEBUG("metsumx " << summetx << "metsumy " << summety );
 
        corrfactor = 0;
   }

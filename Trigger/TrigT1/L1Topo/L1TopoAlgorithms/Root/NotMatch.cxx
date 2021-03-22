@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * NotMatch.cpp
@@ -21,36 +21,6 @@ REGISTER_ALG_TCS(NotMatch)
 
 // not the best solution but we will move to athena where this comes for free
 #define LOG cout << "TCS::NotMatch:     "
-
-
-
-
-namespace {
-   unsigned int
-   calcDeltaR2(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
-      double deta = ( tob1->etaDouble() - tob2->etaDouble() );
-      double dphi = fabs( tob1->phiDouble() - tob2->phiDouble() );
-      if(dphi>M_PI)
-         dphi = 2*M_PI - dphi;
-
-      return round ( 100 * ((dphi)*(dphi) + (deta)*(deta) )) ;
-
-   }
-
-   unsigned int
-   calcDeltaR2BW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
-
-      int detaB = abs( tob1->eta() - tob2->eta() );
-      int dphiB = abs( tob1->phi() - tob2->phi() );
-      if(dphiB>32)
-         dphiB = 64 - dphiB;
-
-      unsigned int bit_dr2 = dphiB*dphiB + detaB*detaB;
-      return bit_dr2;
-
-   }
-
-}
 
 
 TCS::NotMatch::NotMatch(const std::string & name) : DecisionAlg(name)
