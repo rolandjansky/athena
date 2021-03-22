@@ -475,6 +475,9 @@ if hasattr( runArgs, "outputEVNTFile") or hasattr( runArgs, "outputEVNT_PreFile"
        for jetradius in [4,6]:
           StreamEVGEN.ItemList += ["xAOD::JetContainer#AntiKt{}TruthJets".format(jetradius)]
           StreamEVGEN.ItemList += ["xAOD::JetAuxContainer#AntiKt{}TruthJetsAux.TruthLabelID.PartonTruthLabelID".format(jetradius)]
+    if evgenConfig.savePileupTruthParticles:
+       StreamEVGEN.ItemList += ["xAOD::TruthParticleContainer#TruthPileupParticles*"]
+       StreamEVGEN.ItemList += ["xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux.*"]
 
     # Remove any requested items from the ItemList so as not to write out
     for removeItem in evgenConfig.doNotSaveItems: StreamEVGEN.ItemList.remove( removeItem )
