@@ -42,6 +42,11 @@ JetStreamersGroup = ['RATE:SeededStreamers', 'BW:Jet']
 METStreamersGroup = ['RATE:SeededStreamers', 'BW:MET']
 BCIDmonGroup = ['MON:BCID']
 PrimaryGroup = ['Primary']
+PrimaryLegGroup = ['Primary:Legacy']
+PrimaryPhIGroup = ['Primary:PhaseI']
+SupportGroup = ['Support']
+SupportLegGroup = ['Support:Legacy']
+SupportPhIGroup = ['Support:PhaseI']
 
 def setupMenu():
 
@@ -57,16 +62,16 @@ def setupMenu():
 
     TriggerFlags.MuonSlice.signatures = [
         #ATR-20049
-        ChainProp(name='HLT_2mu6_L12MU6',     l1SeedThresholds=['MU6'],   groups=MultiMuonGroup),
+        ChainProp(name='HLT_2mu6_L12MU6',     l1SeedThresholds=['MU6'],   groups=SupportGroup+MultiMuonGroup),
         #Planned Primaries
         #-- 1 mu iso
-        ChainProp(name='HLT_mu24_ivarmedium_L1MU20', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu24_ivarmedium_L1MU20', groups=SupportGroup+SingleMuonGroup),
         ChainProp(name='HLT_mu26_ivarmedium_L1MU20', groups=PrimaryGroup+SingleMuonGroup, monGroups=['muonMon:shifter','idMon:t0']),
         ChainProp(name='HLT_mu28_ivarmedium_L1MU20', groups=PrimaryGroup+SingleMuonGroup),
         #-- 1 mu
-        ChainProp(name='HLT_mu6_idperf_L1MU6', groups=SingleMuonGroup),
-        ChainProp(name="HLT_mu26_L1MU20", groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu24_idperf_L1MU20', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu6_idperf_L1MU6', groups=SupportGroup+SingleMuonGroup),
+        ChainProp(name="HLT_mu26_L1MU20", groups=SupportGroup+SingleMuonGroup),
+        ChainProp(name='HLT_mu24_idperf_L1MU20', groups=SupportGroup+SingleMuonGroup),
         ChainProp(name='HLT_mu50_L1MU20', groups=PrimaryGroup+SingleMuonGroup),
         ChainProp(name='HLT_mu60_0eta105_msonly_L1MU20', groups=PrimaryGroup+SingleMuonGroup),
         ChainProp(name='HLT_mu60_L1MU20', groups=PrimaryGroup+SingleMuonGroup),
@@ -98,14 +103,14 @@ def setupMenu():
 
     TriggerFlags.EgammaSlice.signatures = [
         # ElectronChains----------
-        ChainProp(name='HLT_e26_etcut_L1EM22VHI', groups=SingleElectronGroup + BCIDmonGroup),
-        ChainProp(name='HLT_2e17_etcut_L12EM15VH', stream=[PhysicsStream], groups=MultiElectronGroup),
-        ChainProp(name='HLT_g140_etcut_L1EM24VHI', groups=SinglePhotonGroup),
-        ChainProp(name='HLT_2g35_etcut_L12EM20VH', groups=MultiPhotonGroup),
+        ChainProp(name='HLT_e26_etcut_L1EM22VHI', groups=SupportGroup+SingleElectronGroup+BCIDmonGroup),
+        ChainProp(name='HLT_2e17_etcut_L12EM15VH', stream=[PhysicsStream], groups=SupportGroup+MultiElectronGroup),
+        ChainProp(name='HLT_g140_etcut_L1EM24VHI', groups=SupportGroup+SinglePhotonGroup),
+        ChainProp(name='HLT_2g35_etcut_L12EM20VH', groups=SupportGroup+MultiPhotonGroup),
     ]
 
     TriggerFlags.METSlice.signatures = [
-        ChainProp(name='HLT_xe65_cell_L1XE50', groups=SingleMETGroup + BCIDmonGroup),
+        ChainProp(name='HLT_xe65_cell_L1XE50', groups=SingleMETGroup+BCIDmonGroup),
         ChainProp(name='HLT_xe100_mht_L1XE50', groups=SingleMETGroup),
         ChainProp(name='HLT_xe100_tcpufit_L1XE50', groups=SingleMETGroup),
         ChainProp(name='HLT_xe100_trkmht_L1XE50', groups=SingleMETGroup),
@@ -146,7 +151,7 @@ def setupMenu():
 
     TriggerFlags.TauSlice.signatures = [
         #ATR-20049
-        ChainProp(name="HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100", groups=PrimaryLegGroup+SingleTauGroup),
     ]
     TriggerFlags.BphysicsSlice.signatures = [
         #ATR-20049

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigComboHypoTool.h"
+#include "TrigHypoCommonTools/TrigComboHypoTool.h"
 
 #include <cmath>
 
@@ -49,8 +49,14 @@ bool TrigComboHypoTool::executeAlg(std::vector<LegDecision> &combination) const 
   auto monitorIt      = Monitored::Group( m_monTool, varOfAccepted, varOfProcessed);
 
   //check that we found the two legs
-  if (combination.size() < 2){
+  int nCombs(combination.size());
+  if (nCombs < 2){
     ATH_MSG_ERROR("Number of legs found is less than 2! N_legs = " << combination.size() );
+    return false;
+  }
+
+  if ( (m_legA >= nCombs) || (m_legB >= nCombs)){
+    ATH_MSG_ERROR("One or both leg indexes are out of range: n_combinations =  " << combination.size() <<", legA = "<<m_legA<<", legB = "<< m_legB );
     return false;
   }
 
@@ -60,12 +66,15 @@ bool TrigComboHypoTool::executeAlg(std::vector<LegDecision> &combination) const 
     ATH_MSG_ERROR("link for "<<m_legA<<" not valid");
     return false;
   }
-  EL = combination[m_legB].second;    
+  ATH_MSG_DEBUG("link for legA: "<<m_legA<<" is valid");
+
+  EL = combination[m_legB].second;
   auto legB_pLink = TrigCompositeUtils::findLink<xAOD::IParticleContainer>( *EL, featureString() ).link;
   if (!legB_pLink.isValid()){
     ATH_MSG_ERROR("link for "<<m_legB<<" not valid");
     return false;
   }
+  ATH_MSG_DEBUG("link for legB: "<<m_legB<<" is valid");
 
   TLorentzVector hlv1 = (*legA_pLink)->p4();
   TLorentzVector hlv2 = (*legB_pLink)->p4();  
@@ -90,11 +99,11 @@ bool TrigComboHypoTool::executeAlg(std::vector<LegDecision> &combination) const 
   ATH_MSG_DEBUG("Found a combination with " << varOfProcessed);
 
   if (varOfProcessed < m_varMin || varOfProcessed > m_varMax){ 
-    ATH_MSG_DEBUG("Combination failed var cut: " << varOfProcessed << " not in [" << m_varMin << "," <<  m_varMax << "]");
+    ATH_MSG_DEBUG("Combination failed var cut: "<< m_varTag <<"= "<< varOfProcessed << " not in [" << m_varMin << "," <<  m_varMax << "]");
     pass=false;
   }else{
     varOfAccepted = value;
-    ATH_MSG_DEBUG( m_varTag << varOfAccepted << " is  within [" <<m_varMin<< "," << m_varMax << "] This selection passed! ");
+    ATH_MSG_DEBUG( m_varTag <<"= "<< varOfAccepted << " is  within [" <<m_varMin<< "," << m_varMax << "] This selection passed! ");
   }
   
   return pass;
