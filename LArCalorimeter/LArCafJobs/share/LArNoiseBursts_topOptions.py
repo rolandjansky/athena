@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
@@ -58,10 +58,9 @@ cfg =  TriggerConfigGetter("ReadPool")
 from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
 ToolSvc += Trig__TrigDecisionTool( "TrigDecisionTool" )
 
-# --- CaloNoiseTool configuration ---
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-theCaloNoiseTool = CaloNoiseToolDefault()
-ToolSvc += theCaloNoiseTool
+# --- CaloNoise configuration ---
+from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+CaloNoiseCondAlg ('totalNoise')
 
 # --- BunchCrossing Tool configuration ---
 from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
@@ -82,7 +81,6 @@ include.block("LArCellRec/LArCollisionTime_jobOptions.py")
 
 from LArCellRec.LArCellRecConf import LArCollisionTimeAlg
 topSequence += LArCollisionTimeAlg("LArCollisionTimeAlg")
-topSequence.LArCollisionTimeAlg.NoiseTool = theCaloNoiseTool
  
 from AthenaCommon.GlobalFlags import globalflags
 if globalflags.DataSource()=='data' :
@@ -97,7 +95,6 @@ topSequence.LArCollisionTimeAlg.OutputLevel = INFO
 
 from LArCafJobs.LArCafJobsConf import LArNoiseBursts
 topSequence += LArNoiseBursts( "LArNoiseBursts" )
-topSequence.LArNoiseBursts.ICaloNoiseTool = theCaloNoiseTool
 topSequence.LArNoiseBursts.BCTool = theBCTool
 topSequence.LArNoiseBursts.SigmaCut = 3.0
 topSequence.LArNoiseBursts.NumberOfBunchesInFront = 30

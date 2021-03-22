@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LArHECNoise_H
@@ -19,8 +19,6 @@
 #include "Identifier/Range.h" 
 #include "Identifier/IdentifierHash.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
-#include "CaloInterface/ICaloNoiseTool.h"
-#include "CaloInterface/ICalorimeterNoiseTool.h"
 #include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -66,7 +64,6 @@ class LArHECNoise : public AthAlgorithm  {
 
    SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
    /*Tools*/
-   ToolHandle<ICaloNoiseTool> m_calo_noise_tool;
    ToolHandle<Trig::IBunchCrossingTool> m_bc_tool;
 
    ToolHandle< Trig::TrigDecisionTool > m_trigDec;

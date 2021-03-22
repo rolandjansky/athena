@@ -261,9 +261,9 @@ if hasattr(runArgs,"outputNTUP_LARNOISEFile") or hasattr(runArgs,"outputNTUP_HEC
 #
 #####################
 
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-theCaloNoiseTool = CaloNoiseToolDefault()
-ToolSvc+=theCaloNoiseTool
+from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+CaloNoiseCondAlg ('totalNoise')
+
 from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
 theLArBadChannelTool=LArBadChanTool()
 ToolSvc+=theLArBadChannelTool
@@ -274,7 +274,6 @@ if hasattr(runArgs,"outputNTUP_LARNOISEFile"):
    #include("LArCellRec//LArCollisionTime_jobOptions.py")
    from LArCafJobs.LArCafJobsConf import LArNoiseBursts
    topSequence += LArNoiseBursts( "LArNoiseBursts" )
-   topSequence.LArNoiseBursts.ICaloNoiseTool = theCaloNoiseTool
    topSequence.LArNoiseBursts.BCTool = theBCTool
    topSequence.LArNoiseBursts.SigmaCut = 3.0
    topSequence.LArNoiseBursts.NumberOfBunchesInFront = 30
