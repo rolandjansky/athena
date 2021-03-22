@@ -1,9 +1,29 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonRPC_Cabling/CablingRPC.h"
-#include <math.h>
+
+#include <cmath>
+#include <TString.h> // for Form
+
+namespace {
+    // const map between RPC stationName and integer for cabling code
+    const static std::map<std::string, int> rpcStats = {
+        std::make_pair<std::string, int>("BML", 0),
+        std::make_pair<std::string, int>("BMS", 1),
+        std::make_pair<std::string, int>("BOL", 2),
+        std::make_pair<std::string, int>("BOS", 3),
+        std::make_pair<std::string, int>("BMF", 4),
+        std::make_pair<std::string, int>("BOF", 5),
+        std::make_pair<std::string, int>("BOG", 6),
+        std::make_pair<std::string, int>("BME", 7),
+        std::make_pair<std::string, int>("BIS", 8),
+        std::make_pair<std::string, int>("BIL", 9),
+        std::make_pair<std::string, int>("BIM", 10),
+        std::make_pair<std::string, int>("BIR", 11)
+    };
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 //////////////////////////////// CABLING SETUP ////////////////////////////////
@@ -15,8 +35,6 @@ CablingRPCBase* MuonRPC_Cabling::CablingRPC::s_instance = 0;
 bool MuonRPC_Cabling::CablingRPC::s_status = false;
 bool MuonRPC_Cabling::CablingRPC::s_cosmic_configuration = false;
 bool MuonRPC_Cabling::CablingRPC::s_RPCMapfromCool = true;
-//std::string MuonRPC_Cabling::CablingRPC::ConfName = "./LVL1conf_ver42.data";
-//std::string MuonRPC_Cabling::CablingRPC::CorrName = "./LVL1conf_ver10.corr";
 std::string MuonRPC_Cabling::CablingRPC::ConfName = "";
 std::string MuonRPC_Cabling::CablingRPC::CorrName = "";
 std::string MuonRPC_Cabling::CablingRPC::DataName = "ATLAS.121108";
@@ -43,7 +61,7 @@ CablingRPC::CablingRPC() : CablingRPCBase(), m_Version(""),m_MaxType(0)
 	initMapsFromASCII();
     }
 
-  for (int i1=0; i1<8; ++i1)
+  for (int i1=0; i1<(int)rpcStats.size(); ++i1)
       for (int i2=0; i2<2; ++i2)
 	  for (int i3=0; i3<9; ++i3)
 	      for (int i4=0; i4<8; ++i4)
@@ -1834,40 +1852,23 @@ unsigned int CablingRPC::computeZIndexInCablingStation(std::string stationName, 
   unsigned int zIndexInCablingStation = 999;
 
   int iStat=0;
-  int astEta = fabs(stationEta);
-  // bool nBOE = true;
-  // if (stationName=="BOL" && astEta==8 ) nBOE=false;
+  int astEta = std::abs(stationEta);
   
+  std::map<std::string,int>::const_iterator stItr = rpcStats.find(stationName);
+  if (stItr != rpcStats.end()) iStat = stItr->second;
+  else throw std::runtime_error(Form("File: %s, Line: %d\nCablingRPC::computeZIndexInCablingStation() - StationName %s not found", __FILE__, __LINE__, stationName.c_str()));
 
-  if      (stationName=="BML")  iStat=0; // BML 
-  else if (stationName=="BMS")  iStat=1; // BMS
-  else if (stationName=="BOL")  iStat=2; // BOL
-  else if (stationName=="BOS")  iStat=3; // BOS
-  else if (stationName=="BMF")  iStat=4; // BMF
-  else if (stationName=="BOF")  iStat=5; // BOF
-  else if (stationName=="BOG")  iStat=6; // BOG
-  else if (stationName=="BME")  iStat=7; // BME
-  else if (stationName=="BIS")  iStat=8; // BIS
-  else 
-  {
-      std::cout<<"ERROR - no iStat set; StationName ="<<stationName<<std::endl;
-      return 9999;
-  }
   int side = 0;
   if (stationEta>0) side=1;
-
 
   // already computed   
   if (m_absZindexInThelayerOfThisChamber[iStat][side][astEta][stationPhi-1][doubletR-1][doubletZ-1] < 999) 
     {
-      //      std::cout<<"... absZindexInThelayerOfThisChamber already there "<<std::endl; 
       return m_absZindexInThelayerOfThisChamber[iStat][side][astEta][stationPhi-1][doubletR-1][doubletZ-1];  
     }
   // otherwise compute now 
-  //std::cout<<"... absZindexInThelayerOfThisChamber needs to be computed "<<std::endl; 
   int cablingStation = -1;
   int sectType = m_SectorMap[logicSector];
-  //std::cout<<" logicSector, sectorType = "<<logicSector<<" "<<sectType<<std::endl;
   if (sectType < 1 || sectType > m_MaxType+1)
     {
       DISP <<"sectorType = "<<sectType<<" out of range ";
