@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
@@ -8,6 +8,7 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/HistoProperty.h"
 #include "ByteStreamData/RawEvent.h"
+#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "eformat/Status.h"
 #include <stdint.h>
 
@@ -25,7 +26,6 @@ namespace ROIB {
 }
 
 class MuCTPI_RDO;
-class IROBDataProviderSvc;
 class ITrigROBDataProviderSvc;
 
 class TrigALFAROBMonitor:public AthReentrantAlgorithm {
