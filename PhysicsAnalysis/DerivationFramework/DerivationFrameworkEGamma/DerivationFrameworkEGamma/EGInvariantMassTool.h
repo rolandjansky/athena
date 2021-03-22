@@ -10,39 +10,106 @@
 #ifndef DERIVATIONFRAMEWORK_EGINVARIANTMASSTOOL_H
 #define DERIVATIONFRAMEWORK_EGINVARIANTMASSTOOL_H
 
-#include <string>
-
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
+//
 #include "ExpressionEvaluation/ExpressionParserUser.h"
-
+#include "GaudiKernel/EventContext.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODBase/IParticleContainer.h"
+//
+#include <string>
+#include <vector>
 namespace DerivationFramework {
 
-  enum EEGInvariantMassToolParser {kParser1,kParser2, kNumEGInvariantMassToolParser};
-  class EGInvariantMassTool
-     : public ExpressionParserUser<AthAlgTool,kNumEGInvariantMassToolParser>,
-       public IAugmentationTool
-  {
-    public:
-      EGInvariantMassTool(const std::string& t, const std::string& n, const IInterface* p);
+enum EEGInvariantMassToolParser
+{
+  kParser1,
+  kParser2,
+  kNumEGInvariantMassToolParser
+};
+class EGInvariantMassTool
+  : public ExpressionParserUser<AthAlgTool, kNumEGInvariantMassToolParser>
+  , public IAugmentationTool
+{
+public:
+  EGInvariantMassTool(const std::string& t,
+                      const std::string& n,
+                      const IInterface* p);
 
-      StatusCode initialize();
-      StatusCode finalize();
-      virtual StatusCode addBranches() const;
+  virtual StatusCode initialize() override final;
+  virtual StatusCode addBranches() const override final;
 
-    private:
-      std::string m_expression1, m_expression2;
-      std::string m_sgName;
-      float m_mass1Hypothesis, m_mass2Hypothesis;
-      std::string m_container1Name;
-      std::string m_container2Name;
-      std::string m_pt1BranchName, m_eta1BranchName, m_phi1BranchName;
-      std::string m_pt2BranchName, m_eta2BranchName, m_phi2BranchName;
-      bool m_checkCharge;
-      float m_mindR;
-      bool m_doTransverseMass;
-      StatusCode getInvariantMasses(std::vector<float>*) const;
-  }; 
+private:
+  StatusCode getInvariantMasses(const EventContext& ctx,
+                                std::vector<float>&) const;
+
+  std::string m_expression1, m_expression2;
+  SG::WriteHandleKey<std::vector<float>> m_sgName{ this,
+                                                   "StoreGateEntryName",
+                                                   "",
+                                                   "SG key of output object" };
+
+  SG::ReadHandleKey<xAOD::IParticleContainer> m_container1Name{
+    this,
+    "Container1Name",
+    "",
+    "SG key of first  container"
+  };
+  SG::ReadHandleKey<xAOD::IParticleContainer> m_container2Name{
+    this,
+    "Container2Name",
+    "",
+    "SG key of second container"
+  };
+
+  SG::ReadHandleKey<std::vector<float>> m_pt1BranchName{
+    this,
+    "Pt1BranchName",
+    "",
+    "Pt1 if different than default"
+  };
+
+  SG::ReadHandleKey<std::vector<float>> m_eta1BranchName{
+    this,
+    "Eta1BranchName",
+    "",
+    "Eta1 if different than default"
+  };
+
+  SG::ReadHandleKey<std::vector<float>> m_phi1BranchName{
+    this,
+    "Phi1BranchName",
+    "",
+    "Phi1 if different than default"
+  };
+
+  SG::ReadHandleKey<std::vector<float>> m_pt2BranchName{
+    this,
+    "Pt2BranchName",
+    "",
+    "Pt2 if different than default"
+  };
+
+  SG::ReadHandleKey<std::vector<float>> m_eta2BranchName{
+    this,
+    "Eta2BranchName",
+    "",
+    "Eta2 if different than default"
+  };
+
+  SG::ReadHandleKey<std::vector<float>> m_phi2BranchName{
+    this,
+    "Phi2BranchName",
+    "",
+    "Phi2 if different than default"
+  };
+
+  float m_mass1Hypothesis, m_mass2Hypothesis;
+  float m_mindR;
+  bool m_checkCharge;
+  bool m_doTransverseMass;
+};
 }
 
 #endif // DERIVATIONFRAMEWORK_EGINVARIANTMASSTOOL_H
