@@ -20,6 +20,8 @@
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthParticleAuxContainer.h"
 
+#include "MCTruthClassifier/IMCTruthClassifier.h"
+
 #include "GeneratorFilters/PileupTruthParticleSlimmer.h"
 
 
@@ -27,7 +29,7 @@ using namespace std;
 
     
 PileupTruthParticleSlimmer::PileupTruthParticleSlimmer( const string& name, ISvcLocator* svcLoc )
-: AthAlgorithm( name, svcLoc )
+: AthAlgorithm( name, svcLoc ), m_classifier("MCTruthClassifier/MCTruthClassifier")
 {
     /// @todo TruthParticle -> TruthParticles
     declareProperty("xAODTruthParticleContainerName", m_xaodTruthParticleContainerName="TruthParticles" );
@@ -43,6 +45,7 @@ StatusCode PileupTruthParticleSlimmer::initialize() {
     ATH_MSG_DEBUG("Initializing; package version: " << PACKAGE_VERSION );
     ATH_MSG_DEBUG("xAOD input TruthParticleContainer name = " << m_xaodTruthParticleContainerName );
     ATH_MSG_DEBUG("xAOD output TruthPileupParticleContainer name = " << m_xaodTruthPileupParticleContainerName );
+    ATH_CHECK(m_classifier.retrieve());
     return StatusCode::SUCCESS;
 }
 
@@ -73,6 +76,12 @@ StatusCode PileupTruthParticleSlimmer::execute() {
         return StatusCode::FAILURE;
     }
 
+    // Set up decorators
+    const static SG::AuxElement::Decorator<unsigned int> originDecorator("classifierParticleOrigin");
+    const static SG::AuxElement::Decorator<unsigned int> typeDecorator("classifierParticleType");
+    const static SG::AuxElement::Decorator<unsigned int> outcomeDecorator("classifierParticleOutCome");
+    const static SG::AuxElement::Decorator<unsigned int> classificationDecorator("Classification");
+    const static SG::AuxElement::Decorator<int> parenthadronPIDDecorator("parentHadronID");
 
     // Loop over full TruthParticle container
     unsigned int nParticles = xTruthParticleContainer->size();
@@ -105,6 +114,22 @@ StatusCode PileupTruthParticleSlimmer::execute() {
         xTruthParticle->setPy(theParticle->py());
         xTruthParticle->setPz(theParticle->pz());
         xTruthParticle->setE(theParticle->e());
+
+        std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> classification = m_classifier->particleTruthClassifier(xTruthParticle);
+        unsigned int particleOutCome = m_classifier->getParticleOutCome();
+
+        unsigned int result = (unsigned int)m_classifier->classify(xTruthParticle);
+
+        int hadron_pdg = (int)m_classifier->getParentHadronID(xTruthParticle);
+
+        unsigned int particleType = classification.first;
+        unsigned int particleOrigin = classification.second;
+        typeDecorator(*xTruthParticle) = particleType;
+        originDecorator(*xTruthParticle) = particleOrigin;
+        outcomeDecorator(*xTruthParticle) = particleOutCome;  
+
+        classificationDecorator(*xTruthParticle) = result;
+        parenthadronPIDDecorator(*xTruthParticle) = hadron_pdg;
 
       }
 

@@ -6,6 +6,7 @@
 #define GENERATORFILTERS_PILEUPTRUTHPARTICLESLIMMER_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 #include "xAODTruth/TruthEvent.h"
 #include "xAODTruth/TruthPileupEvent.h"
@@ -13,6 +14,8 @@
 #include "StoreGate/StoreGateSvc.h"
 
 #include <unordered_set>
+
+class IMCTruthClassifier;
 
 /// @brief Algorithm to skim the xAOD truth particle container for pileup minbias samples
 ///
@@ -48,6 +51,8 @@ private:
 
   /// a flag to force rerunning (useful for rerunning on ESDs)
   bool m_forceRerun;
+
+  ToolHandle<IMCTruthClassifier> m_classifier;
 
 }; // class PileupTruthParticleSlimmer
 

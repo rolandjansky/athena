@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -57,6 +57,14 @@ class IMCTruthClassifier : virtual public asg::IAsgTool {
 
   /* All get to see these*/
   virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin>  particleTruthClassifier(const xAOD::TruthParticle *)= 0; 
+
+  virtual unsigned int classify(const xAOD::TruthParticle *) = 0; 
+
+  virtual std::tuple<unsigned int, const xAOD::TruthParticle*> defOrigOfParticle(const xAOD::TruthParticle*) = 0;  
+
+  virtual const xAOD::TruthParticle* getParentHadron(const xAOD::TruthParticle*) = 0;
+
+  virtual int getParentHadronID(const xAOD::TruthParticle*) = 0;
   
   virtual MCTruthPartClassifier::ParticleOutCome  getParticleOutCome() = 0;
   
