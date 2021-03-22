@@ -56,7 +56,7 @@ class ttWm_QCD(PowhegV2):
         self.add_keyword("CKM_Vus")
         self.add_keyword("clobberlhe")                  # not used by authors in example
         self.add_keyword("colltest")
-        self.add_keyword("compress_lhe", 1)             # not used by authors in example
+        self.add_keyword("compress_lhe")                # not used by authors in example
         self.add_keyword("compress_upb")                # not used by authors in example
         self.add_keyword("compute_rwgt")
         self.add_keyword("correlations")
@@ -70,8 +70,6 @@ class ttWm_QCD(PowhegV2):
         self.add_keyword("foldphi", 2)
         self.add_keyword("foldy", 2)
         self.add_keyword("for_reweighting")             # not used by authors in example
-        self.add_keyword("fullrwgt")                    # not used by authors in example
-        self.add_keyword("fullrwgtmode")                # not used by authors in example
         self.add_keyword("gfermi")
         self.add_keyword("hbzd")
         self.add_keyword("hdamp")
