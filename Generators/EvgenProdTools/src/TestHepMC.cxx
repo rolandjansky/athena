@@ -1,8 +1,9 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef XAOD_ANALYSIS
 
+#include "PathResolver/PathResolver.h"
 #include "EvgenProdTools/TestHepMC.h"
 #include "GaudiKernel/DataSvc.h"
 #include "TruthUtils/PIDHelpers.h"
@@ -191,8 +192,10 @@ StatusCode TestHepMC::initialize() {
   } // End of histogramming setup
 
   // open the files and read G4particle_whitelist.txt
+  const std::string fileName = "G4particle_whitelist.txt";
+  const std::string fileLocation = PathResolver::find_file(fileName,"DATAPATH");
   std::ifstream G4file;
-  G4file.open("G4particle_whitelist.txt");
+  G4file.open(fileLocation);
   std::string line;
   int G4pdgID;
   if (!G4file.fail()){

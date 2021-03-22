@@ -120,6 +120,11 @@ def error_check(errors):
                 # https://answers.launchpad.net/mg5amcnlo/+question/690004
                 mglog.info(err)
                 continue
+            if 'Helicity recycling optimization requires Python3. This optimzation is therefore deactivated automatically.' in err or\
+               'In general this optimization speed up the computation be a factor of two.' in err:
+                # In MG5_aMC 2.9.2, there is some optimization that needs Python3. In 21.6, this won't work of course.
+                mglog.info(err)
+                continue
             if 'More information is found in' in err:
                 my_debug_file = err.split("'")[1]
             if err.startswith('tar'):
@@ -620,10 +625,6 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None,
     ls_dir(currdir)
     ls_dir(MADGRAPH_GRIDPACK_LOCATION)
 
-    if not isNLO:
-        # hack script to add reweighting and systematics, if required
-        hack_gridpack_script()
-
     # Update the run card according to consistency checks
     run_card_consistency_check(isNLO=isNLO,process_dir=MADGRAPH_GRIDPACK_LOCATION)
 
@@ -657,6 +658,20 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None,
         generate = stack_subprocess([MADGRAPH_GRIDPACK_LOCATION+'/bin/run.sh',str(int(nevents)),str(int(random_seed))],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
         (out,err) = generate.communicate()
         error_check(err)
+        # add reweighting, which is not run automatically from LO GPs
+        reweight_card=get_reweight_card(MADGRAPH_GRIDPACK_LOCATION)
+        if not reweight_card is None:
+            #move events back into run dir first
+            events='{}/Events/GridRun_{}/{}'.format(MADGRAPH_GRIDPACK_LOCATION,int(random_seed),'unweighted_events.lhe.gz')
+            shutil.move('events.lhe.gz',events)
+            pythonpath_backup=os.environ['PYTHONPATH']
+            # workaround as madevent crashes when path to mg in PYTHONPATH
+            os.environ['PYTHONPATH']=':'.join([p for p in pythonpath_backup.split(':') if not 'madgraph5amc' in p])
+            add_reweighting('GridRun_{}'.format(int(random_seed)))
+            os.environ['PYTHONPATH']=pythonpath_backup
+            shutil.move(events,'events.lhe.gz')
+
+
 
     else:
         ### NLO RUN ###
@@ -2445,78 +2460,17 @@ def run_card_consistency_check(isNLO=False,process_dir='.'):
     mglog.info('Finished checking run card - All OK!')
 
 
-def hack_gridpack_script():
-    reweight_card = get_reweight_card(process_dir=MADGRAPH_GRIDPACK_LOCATION)
-
-    need_to_add_rwgt=reweight_card is not None
-
-    run_card_dict=getDictFromCard(get_default_runcard(process_dir=MADGRAPH_GRIDPACK_LOCATION),lowercase=True)
-
-    systematics_program=None
-    if settingIsTrue(run_card_dict['use_syst']):
-        systematics_program='systematics'
-        if checkSettingExists('systematics_program',run_card_dict):
-            if checkSetting('systematics_program','systematics',run_card_dict):
-                systematics_program='systematics'
-            if checkSetting('systematics_program','syscalc',run_card_dict):
-                systematics_program='syscalc'
-            if checkSetting('systematics_program','none',run_card_dict):
-                systematics_program=None
-    need_to_add_syst=systematics_program is not None
-
-    systematics_arguments=''
-    if checkSettingExists('systematics_arguments',run_card_dict):
-        sys_dict=MadGraphSystematicsUtils.parse_systematics_arguments(run_card_dict['systematics_arguments'])
-        for s in sys_dict:
-            systematics_arguments+=' --'+s+'='+sys_dict[s]
-
-    # add systematics calculation and reweighting to run.sh
-    runscript=MADGRAPH_GRIDPACK_LOCATION+'/bin/run.sh'
-    oldscript = open(runscript,'r')
-    newscript = open(runscript+'.tmp','w')
-    # in older MG versions the gridpack is run with the command below
-    gridrun_line_old='./bin/gridrun $num_events $seed'
-    syst_line_old=''
-    reweight_line_old='./bin/madevent reweight '+MADGRAPH_RUN_NAME+' -f\n'
-    # in new versions it is run like this
-    gridrun_line_new='${DIR}/bin/gridrun $num_events $seed $gran'
-    syst_line_new=''
-    reweight_line_new='${DIR}/bin/madevent reweight '+MADGRAPH_RUN_NAME+' -f\n'
-
-    for line in oldscript:
-        if (need_to_add_rwgt or need_to_add_syst) and gridrun_line_old in line:
-            newscript.write(line)
-            # run systematics
-            if need_to_add_syst:
-                newscript.write(syst_line_old)
-                need_to_add_syst=False
-            # reweight
-            if need_to_add_rwgt:
-                newscript.write(reweight_line_old)
-                need_to_add_rwgt=False
-        elif (need_to_add_rwgt or need_to_add_syst) and gridrun_line_new in line:
-            newscript.write(line)
-            # run systematics
-            if need_to_add_syst:
-                newscript.write(syst_line_new)
-                need_to_add_syst=False
-            # reweight
-            if need_to_add_rwgt:
-                newscript.write(reweight_line_new)
-                need_to_add_rwgt=False
-
-        else:
-            newscript.write(line)
-    oldscript.close()
-    newscript.close()
-    mglog.info('created '+runscript+'.tmp')
-
-    if reweight_card and need_to_add_rwgt:
-        raise RuntimeError('Could not add reweighting to gridpack script: '+runscript+' maybe line to generate events changed')
-    shutil.move(runscript+'.tmp',runscript)
-    st = os.stat(runscript)
-    os.chmod(runscript, st.st_mode | stat.S_IEXEC)
-
+def add_reweighting(run_name,reweight_card=None,process_dir=MADGRAPH_GRIDPACK_LOCATION):
+    mglog.info('Running reweighting module on existing events')
+    if not reweight_card is None:
+        mglog.info('Copying new reweight card from '+reweight_card)
+        shutil.move(reweight_card,process_dir+'/Cards/reweight_card.dat')
+    reweight_cmd='{}/bin/madevent reweight {} -f'.format(process_dir,run_name)
+    global MADGRAPH_CATCH_ERRORS
+    reweight = stack_subprocess([python]+reweight_cmd.split(),stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
+    (out,err) = reweight.communicate()
+    error_check(err)
+    mglog.info('Finished reweighting')
 
 def check_reset_proc_number(opts):
     if 'ATHENA_PROC_NUMBER' in os.environ and int(os.environ['ATHENA_PROC_NUMBER'])>0:
