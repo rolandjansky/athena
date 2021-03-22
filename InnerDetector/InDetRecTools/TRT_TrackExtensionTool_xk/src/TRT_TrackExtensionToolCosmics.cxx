@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -264,7 +264,7 @@ InDet::TRT_TrackExtensionToolCosmics::extendTrack(const EventContext& ctx,
   }
 
   if(Tr.perigeeParameters()) {
-    return extendTrack(ctx, *Tr.perigeeParameters(),event_data);
+    return extendTrack(ctx, Tr.perigeeParameters(),event_data);
   }
   event_data.m_measurement.clear();
   return event_data.m_measurement;
@@ -397,7 +397,7 @@ class tp_sort_cosmics{
 
 std::vector<const Trk::MeasurementBase*>&
 InDet::TRT_TrackExtensionToolCosmics::extendTrack(const EventContext& /*ctx*/,
-                                                  const Trk::TrackParameters& par,
+                                                  const Trk::TrackParameters * par,
                                                   InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const
 {
   InDet::TRT_TrackExtensionToolCosmics::EventData &
@@ -412,7 +412,7 @@ InDet::TRT_TrackExtensionToolCosmics::extendTrack(const EventContext& /*ctx*/,
 
   std::vector<const Trk::TrackParameters* >* tpars_down=0;
   std::vector<const Trk::TrackParameters* >* tpars_up=0;
-  const Trk::Perigee *per=dynamic_cast<const Trk::Perigee *>(&par);
+  const Trk::Perigee *per=dynamic_cast<const Trk::Perigee *>(par);
   if (!per) {
     msg(MSG::FATAL)<<"Track perigee not found!"<<endmsg;
     return event_data.m_measurement;
@@ -492,7 +492,7 @@ InDet::TRT_TrackExtensionToolCosmics::extendTrack(const EventContext& /*ctx*/,
 
 Trk::TrackSegment* 
 InDet::TRT_TrackExtensionToolCosmics::findSegment(const EventContext& /*ctx*/,
-                                                  const Trk::TrackParameters&,
+                                                  const Trk::TrackParameters *,
                                                   InDet::ITRT_TrackExtensionTool::IEventData &) const
 {
   return NULL;

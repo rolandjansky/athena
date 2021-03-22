@@ -17,6 +17,7 @@
 #include "TrkSurfaces/CylinderBounds.h"
 #include "TrkSurfaces/RectangleBounds.h"
 #include "TrkSurfaces/DiscBounds.h"
+#include "TrkEventPrimitives/FitQuality.h"
 #include "GeoModelInterfaces/IGeoModelTool.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "TRT_ReadoutGeometry/TRT_Numerology.h"
@@ -215,7 +216,7 @@ InDet::TRT_TrackSegmentsMaker_ATLxk::newEvent(const EventContext &ctx) const
 
       int               ns = m_trtid->straw((*c)->identify());
       const Amg::Vector3D& sc = (*c)->detectorElement()->strawCenter(ns);
-      float             Fs = atan2(sc.y(),sc.x()); if(Fs<0.) Fs+=pi2;
+      float             Fs = std::atan2(sc.y(),sc.x()); if(Fs<0.) Fs+=pi2;
       event_data->m_circles[n].set((*c),Fs,ad);
       
       // Loop through all dz/dr for given cluster 
@@ -299,7 +300,7 @@ InDet::TRT_TrackSegmentsMaker_ATLxk::newRegion
 	
 	int               ns = m_trtid->straw((*c)->identify());
 	const Amg::Vector3D& sc = (*c)->detectorElement()->strawCenter(ns);
-	float             Fs = atan2(sc.y(),sc.x()); if(Fs<0.) Fs+=pi2;
+	float             Fs = std::atan2(sc.y(),sc.x()); if(Fs<0.) Fs+=pi2;
 	event_data->m_circles[n].set((*c),Fs,ad);
 	
 	// Loop through all dz/dr for given cluster 
@@ -694,10 +695,10 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::findLocaly(const EventContext &ctx,
   double pin = 1./(pT*std::sqrt((1.+condData.m_dzdr[ndzdr]*condData.m_dzdr[ndzdr])));
 
   Amg::Vector3D PSV(0.,0.,0.); Trk::PerigeeSurface PS(PSV);
-  auto Tp = PS.createUniqueTrackParameters(0.,0.,fm,atan2(1.,condData.m_dzdr[ndzdr]),pin,0);
+  auto Tp = PS.createUniqueTrackParameters(0.,0.,fm, std::atan2(1.,condData.m_dzdr[ndzdr]),pin,0);
     ++event_data.m_nlocal;
 
-  Trk::TrackSegment* seg = m_extensionTool->findSegment(ctx, *Tp, *(event_data.m_extEventData) );
+  Trk::TrackSegment* seg = m_extensionTool->findSegment(ctx, Tp.get(), *(event_data.m_extEventData) );
   if(!seg) return;
 
   // Momentum cut
