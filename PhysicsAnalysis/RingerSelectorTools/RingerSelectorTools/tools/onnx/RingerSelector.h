@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef RingerSelectorTools_tools_onnx_RingerSelectorTool_h 
-#define RingerSelectorTools_tools_onnx_RingerSelectorTool_h 
+#ifndef RingerSelectorTools_tools_onnx_RingerSelector_h 
+#define RingerSelectorTools_tools_onnx_RingerSelector_h 
 
 
 
@@ -17,7 +17,6 @@
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "xAODTrigEgamma/TrigElectron.h"
 #include "GaudiKernel/SystemOfUnits.h"
-#include "AthenaMonitoringKernel/MonitoredTimer.h"
 #include <memory>
 #include "TEnv.h"
 
@@ -25,41 +24,40 @@ namespace Ringer {
 
   namespace onnx{
 
-    class RingerSelectorTool : public asg::AsgMessaging
+    class RingerSelector : public asg::AsgMessaging
 
     {
       public:
     
         /** Standard constructor */
-        RingerSelectorTool();
+        RingerSelector( std::string name );
     
         /** Standard destructor */
-        ~RingerSelectorTool()=default;
+        ~RingerSelector()=default;
 
 
         /**
          * @brief read tunings from configuration file
          **/
         StatusCode read_from( std::string, AthONNX::IONNXRuntimeSvc *);
-        
+
+
+        /**
+         * @brief prepare all inputs
+         **/
+        std::vector<std::vector<float>>  prepare_inputs( const xAOD::TrigRingerRings *, const xAOD::TrigElectron *) const;
+
+
         /**
          * @briel Calculation of model output for fast calorimetry step
          **/
-        float predict(const xAOD::TrigRingerRings *,
-                      Monitored::Timer<> &propagate_time, Monitored::Timer<> &preproc_time) const;
-              
- 
-        /**
-         * @briel Calculation of model output for fast calorimetry step
-         **/
-        float predict(const xAOD::TrigRingerRings *, const xAOD::TrigElectron *, 
-                      Monitored::Timer<> &propagate_time, Monitored::Timer<> &preproc_time) const;
+        float predict(const xAOD::TrigRingerRings *, std::vector< std::vector< float > > & ) const;
 
 
         /**
          * @brief Accept method
          **/
-        bool accept(const xAOD::TrigRingerRings *, float discriminant, float mu ) const;
+        bool accept(const xAOD::TrigRingerRings *, float discr, float mu ) const;
     
 
       private:
@@ -68,14 +66,12 @@ namespace Ringer {
         std::vector< Ringer::onnx::Model > m_models;
         /// @brief hold all thresholds definitions
         std::vector< Ringer::onnx::Threshold > m_thresholds;
-
+        /// @brief use shower shapes as second inpit
         bool m_useShowerShapes;
-
+        /// @brief use track as thrird output
         bool m_useTrackVariables;
 
-        /// @brief prepare inputs to apply into the model
-        void prepare_inputs( const xAOD::TrigRingerRings *, const xAOD::TrigElectron * , std::vector< std::vector<float> > &) const;
-        /// @brief parse tenv string into list with type T
+       /// @brief parse tenv string into list with type T
         template <typename T> bool strtof(const std::string& input, T& f);
         /// @brief Get the list of values inside of tenv
         template <typename T>  std::vector<T> GetValues (const std::string& input,  TEnv& env);

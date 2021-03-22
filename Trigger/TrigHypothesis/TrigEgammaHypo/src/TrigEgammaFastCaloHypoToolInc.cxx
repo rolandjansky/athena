@@ -19,7 +19,6 @@ TrigEgammaFastCaloHypoToolInc::TrigEgammaFastCaloHypoToolInc( const std::string&
   : base_class( type, name, parent ),
     m_decisionId( HLT::Identifier::fromToolName( name ) ) ,
     m_selectorTool(),
-    m_onnxSelectorTool(),
     m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool")
 {
   declareProperty("LumiBlockMuTool", m_lumiBlockMuTool, "Luminosity Tool" );
@@ -78,10 +77,7 @@ StatusCode TrigEgammaFastCaloHypoToolInc::initialize()  {
 
     if( m_useRun3 ){
       ATH_MSG_INFO( "Using the new Onnx ringer selector for Run3" );
-      if( m_onnxSelectorTool.read_from( m_configFile, &*m_onnxSvc ).isFailure() ){
-        ATH_MSG_ERROR( "It's not possible to read all tuning files from " << m_configFile );
-        return StatusCode::FAILURE;
-      } 
+      CHECK( m_ringerTool.retrieve() );
 
     }else{// Run2
       m_selectorTool.setConstantsCalibPath( m_constantsCalibPath ); 
@@ -373,11 +369,8 @@ bool TrigEgammaFastCaloHypoToolInc::decide_ringer ( const ITrigEgammaFastCaloHyp
     return false;
   }
 
-  float eta     = std::fabs(emCluster->eta());
   float et      = emCluster->et() / Gaudi::Units::GeV;
   float avgmu   = m_lumiBlockMuTool->averageInteractionsPerCrossing();
-  
-  if(eta>2.50) eta=2.50;///fix for events out of the ranger
 
   // make sure that monitoring histogram will plotting only the events of chain.
   ///Et threshold
@@ -392,7 +385,15 @@ bool TrigEgammaFastCaloHypoToolInc::decide_ringer ( const ITrigEgammaFastCaloHyp
   float output;
 
   if (m_useRun3){
-    output = m_onnxSelectorTool.predict( ringerShape, propagate_time, preproc_time );
+    
+    preproc_time.start();
+    auto inputs = m_ringerTool->prepare_inputs( ringerShape , nullptr);
+    preproc_time.stop();
+    
+    propagate_time.start();
+    output = m_ringerTool->predict( ringerShape, inputs );
+    propagate_time.stop();
+
   }else{
     const std::vector<float> rings = ringerShape->rings();
     std::vector<float> refRings(rings.size());
@@ -407,9 +408,10 @@ bool TrigEgammaFastCaloHypoToolInc::decide_ringer ( const ITrigEgammaFastCaloHyp
 
   decide_time.start();
   if (m_useRun3){
-    accept = m_onnxSelectorTool.accept(ringerShape, output, avgmu);
+    accept = bool( m_ringerTool->accept(ringerShape, output, avgmu) );
+    ATH_MSG_DEBUG(name()<< " Accept? " <<  (accept?"Yes":"No") );
   }else{
-    accept = m_selectorTool.accept(output, emCluster->et(),emCluster->eta(),avgmu);
+    accept = m_selectorTool.accept(output, emCluster->et(),emCluster->eta(),avgmu) ;
   }
   decide_time.stop();
 

@@ -18,7 +18,7 @@ namespace Ringer{
 
   namespace onnx{
 
-    class Model/*public asg::AsgMessaging*/
+    class Model
     {
       public:
         
