@@ -80,7 +80,8 @@ bool InDet::SiTrajectoryElement_xk::set
   
   if (m_tools->isITkGeometry()) {
     m_radlength = .04;
-    if(m_ndf == 2 and fabs(T(2,2)) > .1) m_radlength = .07;
+    if(not m_tools->useFastTracking() and m_ndf == 2 and fabs(T(2,2)) > .1) m_radlength = .07;
+    else if (m_tools->useFastTracking() and m_ndf == 2 ) m_radlength = .12;
   }
   
   m_Tr[ 0] = T(0,0); m_Tr[ 1]=T(1,0); m_Tr[ 2]=T(2,0);
