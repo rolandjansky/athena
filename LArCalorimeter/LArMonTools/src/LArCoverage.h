@@ -1,6 +1,6 @@
 //Dear emacs, this is -*-c++-*-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -124,10 +124,10 @@ private:
   TH2I_LW* m_hCoverageHWHECA;  TH2I_LW* m_hCoverageHWHECC;
   TH2I_LW* m_hCoverageHWFCALA; TH2I_LW* m_hCoverageHWFCALC;
 
-  // CaloNoiseTool histograms
-  TProfile_LW* m_hCaloNoiseToolEM[4];
-  TProfile_LW* m_hCaloNoiseToolHEC[4];
-  TProfile_LW* m_hCaloNoiseToolFCAL[4];
+  // CaloNoise histograms
+  TProfile_LW* m_hCaloNoiseEM[4];
+  TProfile_LW* m_hCaloNoiseHEC[4];
+  TProfile_LW* m_hCaloNoiseFCAL[4];
 
   // Bad Channels from DB
   TH2I_LW*   m_hBadChannelsBarrelA;
