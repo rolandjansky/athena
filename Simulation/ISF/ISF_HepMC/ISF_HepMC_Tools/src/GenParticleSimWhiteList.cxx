@@ -34,7 +34,7 @@ ISF::GenParticleSimWhiteList::GenParticleSimWhiteList( const std::string& t,
     // different options
     declareProperty("WhiteLists", m_whiteLists={"G4particle_whitelist.txt"});
     declareProperty("QuasiStableSim", m_qs=true);
-    declareProperty("MinimumDecayRadiusQS", m_minDecayRadiusQS=22.0*Gaudi::Units::mm);
+    declareProperty("MinimumDecayRadiusQS", m_minDecayRadiusQS=30.19*Gaudi::Units::mm);
 }
 
 // Athena algtool's Hooks
