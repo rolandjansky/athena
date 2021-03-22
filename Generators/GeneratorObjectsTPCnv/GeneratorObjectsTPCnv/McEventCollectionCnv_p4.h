@@ -113,7 +113,7 @@ class McEventCollectionCnv_p4 : public T_AthenaPoolTPCnvBase<
   createGenVertex( const McEventCollection_p4& persEvts,
                    const GenVertex_p4& vtx,
                    ParticlesMap_t& bcToPart,
-                   HepMC::DataPool& datapools ) const;
+                   HepMC::DataPool& datapools,HepMC::GenEvent* parent=nullptr  ) const;
 
   /** @brief Create a transient @c GenParticle from a persistent one (vers.1)
    *  It returns the new @c GenParticle. Note that the map being passed as an
@@ -123,7 +123,7 @@ class McEventCollectionCnv_p4 : public T_AthenaPoolTPCnvBase<
   HepMC::GenParticlePtr
   createGenParticle( const GenParticle_p4& p,
                      ParticlesMap_t& partToEndVtx,
-                     HepMC::DataPool& datapools ) const;
+                     HepMC::DataPool& datapools,HepMC::GenVertexPtr parent=nullptr  ) const;
 
   /** @brief Method to write a persistent @c GenVertex object. The persistent
    *  vertex is added to the persistent is added to the persistent

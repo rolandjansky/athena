@@ -163,16 +163,12 @@ void McEventCollectionCnv_p5::persToTrans( const McEventCollection_p5* persObj,
     // particle.
     // As not all particles are stable (d'oh!) we take 50% of the number of
     // particles as an initial size of the hash-map (to prevent re-hash)
-    ParticlesMap_t partToEndVtx( (persEvt.m_particlesEnd-
-                                  persEvt.m_particlesBegin)/2 );
+    ParticlesMap_t partToEndVtx( (persEvt.m_particlesEnd- persEvt.m_particlesBegin)/2 );
 
     // create the vertices
     const unsigned int endVtx = persEvt.m_verticesEnd;
     for ( unsigned int iVtx= persEvt.m_verticesBegin; iVtx != endVtx; ++iVtx ) {
-      genEvt->add_vertex( createGenVertex( *persObj,
-                                           persObj->m_genVertices[iVtx],
-                                           partToEndVtx,
-                                           datapools ) );
+       createGenVertex( *persObj, persObj->m_genVertices[iVtx], partToEndVtx,datapools, genEvt );
     } //> end loop over vertices
 
     // set the signal process vertex
@@ -552,20 +548,34 @@ HepMC::GenVertexPtr
 McEventCollectionCnv_p5::createGenVertex( const McEventCollection_p5& persEvt,
                                           const GenVertex_p5& persVtx,
                                           ParticlesMap_t& partToEndVtx, HepMC::DataPool& datapools
+                                         ,HepMC::GenEvent* parent 
                                           ) const
 {
-  HepMC::GenVertexPtr vtx(0);
+  HepMC::GenVertexPtr vtx(nullptr);
   if(m_isPileup) {
     vtx=HepMC::newGenVertexPtr();
   } else {
     vtx = datapools.getGenVertex();
   }
+  if (parent ) parent->add_vertex(vtx);
 #ifdef HEPMC3
   vtx->set_position(HepMC::FourVector( persVtx.m_x , persVtx.m_y , persVtx.m_z ,persVtx.m_t ));
   //AV ID cannot be assigned in HepMC3. And its meaning in HepMC2 is not clear.
-  // vtx->m_id      = persVtx.m_id;
+  vtx->set_status(persVtx.m_id);
   vtx->add_attribute("weights",std::make_shared<HepMC3::VectorFloatAttribute>(persVtx.m_weights));
   vtx->add_attribute("barcode",std::make_shared<HepMC3::IntAttribute>(persVtx.m_barcode));
+  // handle the in-going (orphans) particles
+  const unsigned int nPartsIn = persVtx.m_particlesIn.size();
+  for ( unsigned int i = 0; i != nPartsIn; ++i ) {
+    createGenParticle( persEvt.m_genParticles[persVtx.m_particlesIn[i]], partToEndVtx, datapools );
+  }
+
+  HepMC::suggest_barcode(vtx,persVtx.m_barcode);
+  // now handle the out-going particles
+  const unsigned int nPartsOut = persVtx.m_particlesOut.size();
+  for ( unsigned int i = 0; i != nPartsOut; ++i ) {
+    createGenParticle( persEvt.m_genParticles[persVtx.m_particlesOut[i]], partToEndVtx, datapools, vtx );
+  }
 #else
   vtx->m_position.setX( persVtx.m_x );
   vtx->m_position.setY( persVtx.m_y );
@@ -579,7 +589,6 @@ McEventCollectionCnv_p5::createGenVertex( const McEventCollection_p5& persEvt,
                                     persVtx.m_weights.end() );
   vtx->m_event   = 0;
   vtx->m_barcode = persVtx.m_barcode;
-#endif
 
   // handle the in-going (orphans) particles
   const unsigned int nPartsIn = persVtx.m_particlesIn.size();
@@ -596,20 +605,22 @@ McEventCollectionCnv_p5::createGenVertex( const McEventCollection_p5& persEvt,
                                               partToEndVtx,
                                               datapools ) );
   }
+#endif
 
   return vtx;
 }
 
 HepMC::GenParticlePtr
 McEventCollectionCnv_p5::createGenParticle( const GenParticle_p5& persPart,
-                                            ParticlesMap_t& partToEndVtx, HepMC::DataPool& datapools ) const
+                                            ParticlesMap_t& partToEndVtx, HepMC::DataPool& datapools ,HepMC::GenVertexPtr parent ) const
 {
-  HepMC::GenParticlePtr p(0);
+  HepMC::GenParticlePtr p(nullptr);
     if (m_isPileup) {
     p = HepMC::newGenParticlePtr();
   } else {
     p    = datapools.getGenParticle();
   }
+  if (parent) parent->add_particle_out(p);
 #ifdef HEPMC3
   p->set_pdg_id(              persPart.m_pdgId);
   p->set_status(              persPart.m_status);
