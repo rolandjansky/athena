@@ -11,3 +11,4 @@ atlas_add_component( TrigHypoCommonTools
 
 # Install files from the package:
 atlas_install_headers( TrigHypoCommonTools )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-extensions=ATL900,ATL901 )

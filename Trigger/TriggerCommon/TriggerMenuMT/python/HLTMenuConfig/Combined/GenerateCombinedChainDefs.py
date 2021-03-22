@@ -46,8 +46,8 @@ def addTopoInfo(theChainConfig, chainDict, listOfChainDefs, lengthOfChainConfigs
 
     return theChainConfig
 
-def TrigComboHypoToolFromDict(chainDict):#, topoInfo): #I'm not sure why when I try to change the constructor in order to specify the topoInfo to use, I get the error:
-    from TrigComboHypo.TrigComboHypoConf import TrigComboHypoTool
+def TrigComboHypoToolFromDict(chainDict):
+    from TrigHypoCommonTools.TrigHypoCommonToolsConf import TrigComboHypoTool
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 
     name     = chainDict['chainName']
