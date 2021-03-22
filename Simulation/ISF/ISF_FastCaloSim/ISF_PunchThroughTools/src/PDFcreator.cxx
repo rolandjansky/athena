@@ -22,28 +22,30 @@
 #include "TF1.h"
 
 
+
+
 /*=========================================================================
  *  DESCRIPTION OF FUNCTION:
  *  ==> see headerfile
  *=======================================================================*/
-void ISF::PDFcreator::addToEnergyEtaRangeHist1DMap(double energy, std::vector<double> etaMinEtaMax, TH1 *hist) {
+void ISF::PDFcreator::addToEnergyEtaRangeHist1DMap(double energy, std::vector<double> etaMinEtaMax, TFCS1DFunction *hist) {
 
  if(m_energy_etaRange_hists1D.find(energy) != m_energy_etaRange_hists1D.end()){ //if energy entry exists, insert into inner eta map
    (m_energy_etaRange_hists1D.find(energy)->second).insert(std::make_pair(etaMinEtaMax, hist));
  }
  else{ //if energy entry does not exist create new full energy entry
-   std::map< std::vector<double>, TH1*> inner;
+   std::map< std::vector<double>, TFCS1DFunction*> inner;
    inner.insert(std::make_pair(etaMinEtaMax, hist));
    m_energy_etaRange_hists1D.insert(std::make_pair(energy, inner));
  }
 }
 
-void ISF::PDFcreator::addToEnergyEtaRangeHist2DMap(double energy, std::vector<double> etaMinEtaMax, TH2 *hist){
+void ISF::PDFcreator::addToEnergyEtaRangeHist2DMap(double energy, std::vector<double> etaMinEtaMax, std::map< double , TFCS1DFunction* >  *hist){
   if(m_energy_etaRange_hists2D.find(energy) != m_energy_etaRange_hists2D.end()){ //if energy entry exists, insert into inner eta map
     (m_energy_etaRange_hists2D.find(energy)->second).insert(std::make_pair(etaMinEtaMax, hist));
   }
   else{ //if energy entry does not exist create new full energy entry
-    std::map< std::vector<double>, TH2*> inner;
+    std::map< std::vector<double>, std::map< double , TFCS1DFunction* > *> inner;
     inner.insert(std::make_pair(etaMinEtaMax, hist));
     m_energy_etaRange_hists2D.insert(std::make_pair(energy, inner));
   }
@@ -53,12 +55,12 @@ double ISF::PDFcreator::getRand(const std::vector<double>& inputParameters, cons
 {
 
     //define variable to return from getRand call, should never return zero
-    double random = 0;
+    float random = 0.;
 
     //Implementation for 1D hist
     if(!m_energy_etaRange_hists1D.empty()){
     //Select energy values neighbouring input energy
-    std::map< double , std::map< std::vector<double>, TH1*> >::const_iterator itUpperEnergy, itPrevEnergy, selectedEnergy, secondSelectedEnergy;
+    std::map< double , std::map< std::vector<double>, TFCS1DFunction*> >::const_iterator itUpperEnergy, itPrevEnergy, selectedEnergy, secondSelectedEnergy;
 
     //selects first energy that is not less than input energy
     itUpperEnergy = std::lower_bound(m_energy_etaRange_hists1D.begin(), std::prev(m_energy_etaRange_hists1D.end()), inputParameters.at(0), compareEnergy1D);
@@ -120,9 +122,9 @@ double ISF::PDFcreator::getRand(const std::vector<double>& inputParameters, cons
     //Now move on to selecting the correct eta window
     //first get the map of eta windows to hists.
 
-    const std::map< std::vector<double>, TH1*>& etaMinEtaMax_hists = selectedEnergy->second;
+    const std::map< std::vector<double>, TFCS1DFunction*>& etaMinEtaMax_hists = selectedEnergy->second;
 
-    std::map< std::vector<double>, TH1*>::const_iterator itSelectedEtaWindow, itSecondEtaWindow;
+    std::map< std::vector<double>, TFCS1DFunction*>::const_iterator itSelectedEtaWindow, itSecondEtaWindow;
 
     //choose first max eta that is not less than input eta
     itSelectedEtaWindow = std::lower_bound(etaMinEtaMax_hists.begin(), std::prev(etaMinEtaMax_hists.end()), inputParameters.at(1), compareEtaMax1D);
@@ -165,18 +167,18 @@ double ISF::PDFcreator::getRand(const std::vector<double>& inputParameters, cons
 
 
     //get the chosen histogram from the map
-    TH1* hist = itSelectedEtaWindow->second;
+    TFCS1DFunction* hist = itSelectedEtaWindow->second;
     //Draw randomly from the histogram distribution.
     //if obj is 1D histogram just draw randomly from it
-    random = hist->GetRandom();
+    random = hist->rnd_to_fct(CLHEP::RandFlat::shoot(m_randomEngine));
     if(randMax != 0.){
       while (random < randMin || random > randMax){
-      random = hist->GetRandom();
+      random = hist->rnd_to_fct(CLHEP::RandFlat::shoot(m_randomEngine));
       }
     }
     else{
       while (random < randMin){
-        random = hist->GetRandom();
+        random = hist->rnd_to_fct(CLHEP::RandFlat::shoot(m_randomEngine));
       }
     }
 
@@ -187,7 +189,7 @@ double ISF::PDFcreator::getRand(const std::vector<double>& inputParameters, cons
     //Implementation for 2D hist
     if(!m_energy_etaRange_hists2D.empty()){
     //Select energy values neighbouring input energy
-    std::map< const double , std::map< std::vector<double>, TH2*> >::const_iterator itUpperEnergy, itPrevEnergy, selectedEnergy, secondSelectedEnergy;
+    std::map< const double , std::map< std::vector<double>, std::map< double , TFCS1DFunction* >* > >::const_iterator itUpperEnergy, itPrevEnergy, selectedEnergy, secondSelectedEnergy;
 
     //selects first energy that is not less than input energy
     itUpperEnergy = std::lower_bound(m_energy_etaRange_hists2D.begin(), std::prev(m_energy_etaRange_hists2D.end()), inputParameters.at(0), compareEnergy2D);
@@ -247,9 +249,9 @@ double ISF::PDFcreator::getRand(const std::vector<double>& inputParameters, cons
 
     //Now move on to selecting the correct eta window
     //first get the map of eta windows to hists.
-    const std::map< std::vector<double>, TH2*>& etaMinEtaMax_hists = selectedEnergy->second;
+    const std::map< std::vector<double>, std::map< double , TFCS1DFunction* >* >& etaMinEtaMax_hists = selectedEnergy->second;
 
-    std::map< std::vector<double>, TH2*>::const_iterator itSelectedEtaWindow, itSecondEtaWindow;
+    std::map< std::vector<double>, std::map< double , TFCS1DFunction* >* >::const_iterator itSelectedEtaWindow, itSecondEtaWindow;
 
     //choose first max eta that is not less than input eta
     itSelectedEtaWindow = std::lower_bound(etaMinEtaMax_hists.begin(), std::prev(etaMinEtaMax_hists.end()), inputParameters.at(1), compareEtaMax2D);
@@ -290,44 +292,38 @@ double ISF::PDFcreator::getRand(const std::vector<double>& inputParameters, cons
       }
     }
 
+    //get map entry corresponding to outEnergy bin
+    std::map< double , TFCS1DFunction* >* hist2d = itSelectedEtaWindow->second;
 
-    TH2* hist2d = itSelectedEtaWindow->second;
+    std::map< double , TFCS1DFunction* >::iterator upperBin2D, chosenBin;
+    upperBin2D = hist2d->lower_bound(outEnergy);
 
-    //get x bin with most entries (excluding under and overflow)
-    //this is what we approach if we find an empty bin in next step
-    Int_t maxBin = (hist2d->ProjectionX())->GetMaximumBin();
-
-    //Get y projection of bin that closest matches output energy
-    TAxis *xaxis = hist2d->GetXaxis();
-    Int_t binx = xaxis->FindBin(outEnergy);
-
-    TH1 * hist = hist2d->ProjectionY("projectionHist",binx,binx);
-    std::unique_ptr<TH1> hist_unique(hist);
-
-
-    //incase we select an empty x bin, chose next closest appropriate bin by stepping towards maxBin
-    while (hist->Integral() == 0.){
-      if(binx > maxBin){
-        binx--; //increment bin choice towards maxBin
-      }
-      else{
-        binx++; //increment bin choice towards maxBin
-      }
-      hist = hist2d->ProjectionY("projectionHist",binx,binx);
+    //if enenrgy greater than max in hist, choose highest bin
+    if(upperBin2D == hist2d->end()){
+      chosenBin = std::prev(upperBin2D);
+    }
+    else if(upperBin2D == hist2d->begin()){ //if energy smaller than first bin choose this
+      chosenBin = upperBin2D;
+    }
+    else if(abs(outEnergy - upperBin2D->first) < abs(outEnergy - std::prev(upperBin2D)->first)){ //choose closest bin to outEnergy
+      chosenBin = upperBin2D;
+    }
+    else{
+      chosenBin = std::prev(upperBin2D);
     }
 
-    //Draw randomly from the histogram distribution.
-    //if obj is 1D histogram just draw randomly from it
-    random = hist->GetRandom();
+    TFCS1DFunction* hist = chosenBin->second;
 
+    //draw random number from chosen hist
+    random = hist->rnd_to_fct(CLHEP::RandFlat::shoot(m_randomEngine));
     if(randMax != 0.){
       while (random < randMin || random > randMax){
-      random = hist->GetRandom();
+      random = hist->rnd_to_fct(CLHEP::RandFlat::shoot(m_randomEngine));
       }
     }
     else{
       while (random < randMin){
-        random = hist->GetRandom();
+        random = hist->rnd_to_fct(CLHEP::RandFlat::shoot(m_randomEngine));
       }
     }
 
