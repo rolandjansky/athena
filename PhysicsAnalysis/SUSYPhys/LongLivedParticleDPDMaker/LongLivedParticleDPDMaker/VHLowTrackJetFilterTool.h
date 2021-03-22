@@ -39,8 +39,8 @@ namespace DerivationFramework {
     virtual ~VHLowTrackJetFilterTool() = default;
     
     // Athena algtool's Hooks
-    StatusCode  initialize();
-    StatusCode  finalize() override;
+    virtual StatusCode  initialize() override;
+    virtual StatusCode  finalize() override;
     
     /** Check that the current event passes this filter */
     virtual bool eventPassesFilter() const override;
