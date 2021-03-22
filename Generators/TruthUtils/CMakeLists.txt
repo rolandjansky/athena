@@ -24,4 +24,5 @@ set( TruthUtilsEnvironment_DIR ${CMAKE_CURRENT_SOURCE_DIR}
    CACHE PATH "Location of TruthUtilsEnvironment.cmake" )
 find_package( TruthUtilsEnvironment )
 
-
+# Install files from the package:
+atlas_install_runtime( share/*.txt )
