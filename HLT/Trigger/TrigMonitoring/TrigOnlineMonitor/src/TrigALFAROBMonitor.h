@@ -11,24 +11,12 @@
 #include "eformat/Status.h"
 #include <stdint.h>
 
-//#include "TrigT1Result/MuCTPIRoI.h"
-#include "TrigConfInterfaces/ITrigConfigSvc.h"
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
-
-#include "TrigSteeringEvent/Lvl1Result.h"
-#include "TrigSteeringEvent/HLTResult.h"
-
-#include "TrigConfHLTData/HLTChain.h"
-#include "TrigConfHLTData/HLTChainList.h"
-
 #include "TrigConfData/L1Menu.h"
 #include "TrigT1Result/RoIBResult.h"
 
 #include "AthenaMonitoringKernel/Monitored.h"
 
 #include <initializer_list>
-
-
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -39,10 +27,6 @@ namespace ROIB {
 class MuCTPI_RDO;
 class IROBDataProviderSvc;
 class ITrigROBDataProviderSvc;
-
-class TH1F;       /// for monitoring purposes
-class TH2F;       /// for monitoring purposes
-class TProfile2D; /// for monitoring purposes
 
 class TrigALFAROBMonitor:public AthReentrantAlgorithm {
 public:
@@ -60,11 +44,6 @@ private:
    * @return value of the message level for this algorithm.
    */
 
-  typedef ServiceHandle<TrigConf::ITrigConfigSvc> TrigConfigSvc_t;
-  typedef ServiceHandle<TrigConf::ILVL1ConfigSvc> Lvl1ConfigSvc_t;
-
-  TrigConfigSvc_t		   m_configSvc;
-  Lvl1ConfigSvc_t		   m_lvl1ConfSvc;
   ServiceHandle<ITHistSvc>         m_rootHistSvc;
   std::string                      m_keyRBResult;      // Key to retrieve the RoIBResult from SG
   std::string                      m_keyL1Result;      // key to retrieve the L1Result from SG
@@ -91,56 +70,24 @@ private:
 
   /// Switch for ROB checksum test
   BooleanProperty                  m_doROBChecksum;
-  TH1F*                            m_hist_failedChecksumForALFAROB;
-  Histo1DProperty                  m_histProp_failedChecksumForALFAROB;
 
   /// Switch for ALFA fast online tracking
   BooleanProperty                  m_doALFATracking;
-  TH2F*                            m_hist_ALFA_trig_validated_tracks[12][8]= {{0}}; //12 trigger condition &  8 alfa stations
-  TH2F*                            m_hist_ALFA_trig_validated_tracks_1LB[12][8]= {{0}}; //reset after each LB
-  TH2F*                            m_hist_ALFA_trig_validated_tracks_1LB_current[12][8]= {{0}}; //reset after 60 LB
-  TH2F*                            m_hist_ALFA_trig_validated_tracks_10LB[12][8]= {{0}}; //reset after 10 LBs
-  TH2F*                            m_hist_ALFA_trig_validated_tracks_60LB[12][8]= {{0}}; //reset after 60 LB
-  TH2F*                            m_hist_ALFA_trig_validated_tracks_SB[12][8]= {{0}}; //reset after 60 LB
   BooleanProperty                  m_doPMFMonitoring;
-  TH2F*                            m_hist_pmfMonitoring[8]={0};
   BooleanProperty                  m_doDataGoodMonitoring;
-  TH1F*                            m_hist_goodData;
-  TH2F*                            m_hist_goodDataLB15;
-  TH2F*                            m_hist_goodDataLB18;
-  TH2F*                            m_hist_corruptedROD_LB;
   BooleanProperty                  m_doODDistance;
-  TH1F*                            m_hist_PosDetector[8][2];
-  TH1F*                            m_hist_DistStation[8][2];
-
-  /// Switch for ROB status bit histograms
-  BooleanProperty                  m_doROBStatus;
-  TH2F*                            m_hist_genericStatusForROB;
-  TH2F*                            m_hist_specificStatusForROB;
-  std::map<eformat::GenericStatus, std::string> m_map_GenericStatus;
-  std::vector<std::string>                      m_vec_SpecificStatus;
-
-  TH2F*                            m_hist_bckg_pcx[4][4];
-  TH2F*                            m_hist_bckg_pcy[4][4];
-  TH2F*                            m_hist_bckg_pax[4][4];
-  TH2F*                            m_hist_bckg_pay[4][4];
 
   /// pointers to the CTP and muCTPi result objects
   ROIB::MuCTPIResult*              m_lvl1muCTPIResult;  // RoIB muCTPi Result
 
   ToolHandleArray<GenericMonitoringTool> m_monTools{this, "MonTools", {}, "Monitoring tools"};
 
-  /// vectors with CTP and muCTPi ROB Ids
   std::vector<uint32_t> m_ALFARobIds;
-
-  Histo1DProperty                  m_histProp_NumberOfRoIs;
 
   std::map<std::string, int> m_map_TrgNamesToHistGroups;
   std::map<int, int>         m_map_TrgItemNumbersToHistGroups;
 
-
   std::string m_pathHisto;
-
 
   int m_elast15 {0}, m_elast18 {0},  m_syst17 {0}, m_syst18 {0};     // ctp-items id numbers to select golden alfa trigger for data quality assesment
 
@@ -168,9 +115,6 @@ private:
 
   bool verifyALFAROBChecksum(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag) const;
 
-  /// Helper for status bits test
-  void verifyROBStatusBits(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag) const ;
-
   /// Helper for decoding the ALFA ROB 
   uint32_t  decodeALFA(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag, std::vector<float> (&loc_pU) [8][10], 
                        std::vector<float> (&loc_pV) [8][10],
@@ -184,16 +128,11 @@ private:
   uint32_t  decodePMT0(uint32_t dataWord) const;
 
   /// find tacks in ALFA detectors
-  void findALFATracks(const ROIB::RoIBResult* roIBResult, const int lumiBlockNb, const bool SBflag, 
+  void findALFATracks(const ROIB::RoIBResult* roIBResult, const int lumiBlockNb, 
                       std::vector<float> (&loc_pU) [8][10], std::vector<float> (&loc_pV) [8][10]) const;
 
   // find OD tracks and calculate distance
   void findODTracks (bool FiberHitsODNeg[][3][30], bool FiberHitsODPos[][3][30], std::map<int,int>& triggerHitPattern,std::map<int,int>& triggerHitPatternReady) const;
-
-  // get lvl1 results to seed track histograms depending on the trigger items
-  bool getLvl1Result(LVL1CTP::Lvl1Result &resultL1) const;
-
-  bool getHLTResult(HLT::HLTResult &resultHLT) const;
 
   /// Helper to print contents of a muCTPi RoIB data word 
   void dumpRoIBDataWord(uint32_t data_word ) const;
