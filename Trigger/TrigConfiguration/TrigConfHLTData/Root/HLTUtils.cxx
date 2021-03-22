@@ -561,7 +561,7 @@ TrigConf::HLTTEUtils::mergeHLTChainList2( HLTFrame& frame) {
    
    // we need to keep the steps in sync so first we find the last step in L2
    unsigned int lastL2step(0);
-   for( TrigConf::HLTChain* chain : frame.chains() ) {
+   for( TrigConf::HLTChain* chain : frame.getHLTChainList() ) {
       if(chain->level_enum() != L2) continue;
       lastL2step = max(lastL2step, chain->lastStep());
    }
@@ -574,7 +574,7 @@ TrigConf::HLTTEUtils::mergeHLTChainList2( HLTFrame& frame) {
    // 5. merge the prescales, streams
 
    vector<HLTChain*> newHLTchains; 
-   for( TrigConf::HLTChain* chain : frame.chains() ) {
+   for( TrigConf::HLTChain* chain : frame.getHLTChainList() ) {
       if( chain->level_enum() != EF ) continue;
 
 
@@ -600,7 +600,7 @@ TrigConf::HLTTEUtils::mergeHLTChainList2( HLTFrame& frame) {
 
 
       // find the lower chain
-      const HLTChain * l2Chain = frame.chains().chain( hltChain->lower_chain_name() );
+      const HLTChain * l2Chain = frame.getHLTChainList().chain( hltChain->lower_chain_name() );
 
       // if no seeding l2 chain is found, nothing needs to be done
       if(l2Chain) {
