@@ -69,7 +69,7 @@ class HLTTauMonTool : public IHLTMonTool {
 //#endif
 
   /// Method fills the histograms for one tau trigger item.
-  StatusCode fillHistogramsForItem(const std::string & trigItem, const bool & monRNN, const bool & monBDT); 
+  StatusCode fillHistogramsForItem(const std::string & trigItem, const bool & monRNN, const bool & monBDT, const std::string & goodTauRefType); 
   
  private:
 
@@ -87,9 +87,9 @@ class HLTTauMonTool : public IHLTMonTool {
   StatusCode fillPreselTau(const xAOD::TauJet *aEFTau);
   StatusCode fillEFTau(const xAOD::TauJet *aEFTau, const std::string & trigItem, const std::string & BDTinput_type, const bool & monRNN, const bool & monBDT);
   /// Method filling the EF vs Offline tau histograms
-  StatusCode fillEFTauVsOffline(const xAOD::TauJet *aEFTau, const std::string & trigItem, const std::string & BDTinput_type);
-  StatusCode fillPreselTauVsOffline(const xAOD::TauJet *aEFTau);
-  StatusCode fillL1TauVsOffline(const xAOD::EmTauRoI *aEFTau);
+  StatusCode fillEFTauVsOffline(const xAOD::TauJet *aEFTau, const std::string & trigItem, const std::string & BDTinput_type, const std::string & goodTauRefType);
+  StatusCode fillPreselTauVsOffline(const xAOD::TauJet *aEFTau, const std::string & goodTauRefType);
+  StatusCode fillL1TauVsOffline(const xAOD::EmTauRoI *aEFTau, const std::string & goodTauRefType);
   StatusCode fillEFTauVsTruth(const xAOD::TauJet *aEFTau, const std::string & trigItem);  
   StatusCode fillTopoValidation(const std::string & trigItem_topo, const std::string & trigItem_support);
 
@@ -98,9 +98,9 @@ class HLTTauMonTool : public IHLTMonTool {
 
   /// Method for Turn On Curves
   StatusCode examineTruthTau(const xAOD::TruthParticle& xTruthParticle) const;
-  StatusCode TruthTauEfficiency(const std::string & trigItem, const std::string & TauCont_type);
+  StatusCode TruthTauEfficiency(const std::string & trigItem, const std::string & TauCont_type, const std::string & goodTauRefType);
   StatusCode RecoTauEfficiency(const std::string & trigItem);
-  StatusCode TauEfficiency(const std::string & trigItem, const std::string & TauDenom);
+  StatusCode TauEfficiency(const std::string & trigItem, const std::string & TauDenom, const std::string & goodTauRefType);
 //  StatusCode TauEfficiencyCombo(const std::string & trigItem);
 
   StatusCode RealZTauTauEfficiency(const std::string & goodTauRefType);
