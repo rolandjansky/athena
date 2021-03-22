@@ -395,6 +395,9 @@ if evgenConfig.saveJets:
    for jetradius in [4,6]:
       StreamEVGEN.ItemList += ["xAOD::JetContainer#AntiKt{}TruthJets".format(jetradius)]
       StreamEVGEN.ItemList += ["xAOD::JetAuxContainer#AntiKt{}TruthJetsAux.TruthLabelID.PartonTruthLabelID".format(jetradius)]
+if evgenConfig.savePileupTruthParticles:
+   StreamEVGEN.ItemList += ["xAOD::TruthParticleContainer#TruthPileupParticles*"]
+   StreamEVGEN.ItemList += ["xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux.*"]
 
 ## Set the run numbers
 dsid = os.path.basename(runArgs.jobConfig[0])

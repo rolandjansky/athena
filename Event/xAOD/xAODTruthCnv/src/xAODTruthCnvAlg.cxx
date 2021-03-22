@@ -153,7 +153,7 @@ namespace xAODMaker {
             CHECK( evtStore()->record( xTruthVertexAuxContainer, m_xaodTruthVertexContainerName + "Aux." ) );
             xTruthVertexContainer->setStore( xTruthVertexAuxContainer );
             ATH_MSG_DEBUG( "Recorded TruthVertexContainer with key: " << m_xaodTruthVertexContainerName );
-            
+           
             // ***********************************************************************************
             // Create the xAOD objects
             // This consists of three parts:
