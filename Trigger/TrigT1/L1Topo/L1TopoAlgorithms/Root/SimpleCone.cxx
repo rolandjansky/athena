@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * SimpleCone.cpp
@@ -15,7 +15,6 @@
 #include <sstream>
 #include <vector>
 #include <algorithm>
-#include "TH1F.h"
 
 #include "L1TopoAlgorithms/SimpleCone.h"
 #include "L1TopoCommon/Exception.h"

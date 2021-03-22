@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * InvariantMassInclusive1.cpp
@@ -15,18 +15,11 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
-#include "TH1F.h"
 
 #include "L1TopoAlgorithms/InvariantMassInclusive1.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
-// Bitwise implementation utils
-#include "L1TopoSimulationUtils/L1TopoDataTypes.h"
-#include "L1TopoSimulationUtils/Trigo.h"
-#include "L1TopoSimulationUtils/Hyperbolic.h"
-#include "L1TopoSimulationUtils/Kinematics.h"
 
-//
 
 REGISTER_ALG_TCS(InvariantMassInclusive1)
 
@@ -142,7 +135,7 @@ TCS::InvariantMassInclusive1::processBitCorrect( const std::vector<TCS::TOBArray
                if (p_OneBarrel && parType_t(abs((*tob1)->eta())) > 10 && parType_t(abs((*tob2)->eta())) > 10 ) continue;
                
                // Inv Mass calculation
-               unsigned int invmass2 = TSU::Kinematics::calcInvMassBW( *tob1, *tob2 );
+               unsigned int invmass2 = calcInvMassBW( *tob1, *tob2 );
                for(unsigned int i=0; i<numberOutputBits(); ++i) {
                    bool accept = false;
                    if( parType_t((*tob1)->Et()) <= std::min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
@@ -199,7 +192,7 @@ TCS::InvariantMassInclusive1::process( const std::vector<TCS::TOBArray const *> 
                
                // Inv Mass calculation
              
-	       unsigned int invmass2 = TSU::Kinematics::calcInvMass( *tob1, *tob2 );
+	       unsigned int invmass2 = calcInvMass( *tob1, *tob2 );
 
 
                for(unsigned int i=0; i<numberOutputBits(); ++i) {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * MinDeltaPhiIncl2.cpp
@@ -16,13 +16,10 @@
 #include <sstream>
 #include <vector>
 #include <algorithm>
-#include "TH1F.h"
-
 
 #include "L1TopoAlgorithms/MinDeltaPhiIncl2.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
-#include "L1TopoSimulationUtils/Kinematics.h"
 
 REGISTER_ALG_TCS(MinDeltaPhiIncl2)
 
@@ -111,7 +108,7 @@ TCS::MinDeltaPhiIncl2::processBitCorrect( const std::vector<TCS::TOBArray const 
                if( parType_t((*tob2)->Et()) <= p_MinET2) continue; // ET cut
 
                // test DeltaPhiMin, DeltaPhiMax
-               unsigned int deltaPhi = TSU::Kinematics::calcDeltaPhiBW( *tob1, *tob2 );
+               unsigned int deltaPhi = calcDeltaPhiBW( *tob1, *tob2 );
 
                if (firstphi) {
                   mindphi = deltaPhi;
@@ -183,7 +180,7 @@ TCS::MinDeltaPhiIncl2::process( const std::vector<TCS::TOBArray const *> & input
                if( parType_t((*tob2)->Et()) <= p_MinET2) continue; // ET cut
 
                // test DeltaPhiMin, DeltaPhiMax
-               unsigned int deltaPhi = TSU::Kinematics::calcDeltaPhi( *tob1, *tob2 );
+               unsigned int deltaPhi = calcDeltaPhi( *tob1, *tob2 );
 
                if (firstphi) {
                   mindphi = deltaPhi;

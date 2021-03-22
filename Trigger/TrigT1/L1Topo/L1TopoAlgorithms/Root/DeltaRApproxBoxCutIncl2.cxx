@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * DeltaRApproxBoxCutIncl2.cpp
@@ -11,33 +11,12 @@
 **********************************/
 
 #include <cmath>
-#include "TH1F.h"
-#include "TH2F.h"
 
 #include "L1TopoAlgorithms/DeltaRApproxBoxCutIncl2.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
 
 REGISTER_ALG_TCS(DeltaRApproxBoxCutIncl2)
-
-
-namespace {
-   unsigned int
-   calcDeltaPhi(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
-      double dphi = fabs( tob1->phiDouble() - tob2->phiDouble() );
-      if(dphi>M_PI)
-         dphi = 2*M_PI - dphi;
-      
-      return round( 10 * dphi );
-   }
-
-   unsigned int
-   calcDeltaEta(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
-      double deta = std::abs( tob1->eta() - tob2->eta() );
-      return deta;
-   }
-}
-
 
 TCS::DeltaRApproxBoxCutIncl2::DeltaRApproxBoxCutIncl2(const std::string & name) : DecisionAlg(name)
 {

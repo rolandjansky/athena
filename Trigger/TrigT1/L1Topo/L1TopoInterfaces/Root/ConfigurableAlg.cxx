@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 //  BaseTOBoAlg.cpp
 //  TopoCore
@@ -8,6 +8,11 @@
 #include "L1TopoInterfaces/ConfigurableAlg.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/IL1TopoHistSvc.h"
+// Bitwise implementation utils
+#include "L1TopoSimulationUtils/L1TopoDataTypes.h"
+#include "L1TopoSimulationUtils/Trigo.h"
+#include "L1TopoSimulationUtils/Hyperbolic.h"
+#include "L1TopoSimulationUtils/Kinematics.h"
 
 #include "TH1.h"
 #include "TH2.h"
@@ -109,6 +114,77 @@ ConfigurableAlg::ConfigurableAlg(const  std::string & name, AlgType algType) :
 
 ConfigurableAlg::~ConfigurableAlg()
 {}
+
+// Kinematic Calculation
+unsigned int
+ConfigurableAlg::calcDeltaPhiBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+  if (m_isLegacyTopo)
+    {return TSU::Kinematics::calcDeltaPhiBWLegacy(tob1,tob2);}
+  else
+    {return TSU::Kinematics::calcDeltaPhiBW(tob1,tob2);}
+}
+
+unsigned int
+ConfigurableAlg::calcDeltaEtaBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+  if (m_isLegacyTopo)
+    {return TSU::Kinematics::calcDeltaEtaBWLegacy(tob1,tob2);}
+  else
+    {return TSU::Kinematics::calcDeltaEtaBW(tob1,tob2);}
+}
+
+unsigned int
+ConfigurableAlg::calcInvMassBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+  if (m_isLegacyTopo)
+    {return TSU::Kinematics::calcInvMassBWLegacy(tob1,tob2);}
+  else
+    {return TSU::Kinematics::calcInvMassBW(tob1,tob2);}
+}
+
+unsigned int
+ConfigurableAlg::calcTMassBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+  if (m_isLegacyTopo)
+    {return TSU::Kinematics::calcTMassBWLegacy(tob1,tob2);}
+  else
+    {return TSU::Kinematics::calcTMassBW(tob1,tob2);}
+}
+
+unsigned int
+ConfigurableAlg::calcDeltaR2BW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+  if (m_isLegacyTopo)
+    {return TSU::Kinematics::calcDeltaR2BWLegacy(tob1,tob2);}
+  else
+    {return TSU::Kinematics::calcDeltaR2BW(tob1,tob2);}
+}
+
+unsigned long
+ConfigurableAlg::quadraticSumBW(int i1, int i2) {
+  return TSU::Kinematics::quadraticSumBW(i1, i2);
+}
+
+unsigned int
+ConfigurableAlg::calcDeltaPhi(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+  return TSU::Kinematics::calcDeltaPhi(tob1,tob2);
+}
+
+unsigned int
+ConfigurableAlg::calcDeltaEta(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+  return TSU::Kinematics::calcDeltaEta(tob1,tob2);
+}
+
+unsigned int
+ConfigurableAlg::calcInvMass(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+  return TSU::Kinematics::calcInvMass(tob1,tob2);
+}
+
+unsigned int
+ConfigurableAlg::calcTMass(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+  return TSU::Kinematics::calcTMass(tob1,tob2);
+}
+
+unsigned int
+ConfigurableAlg::calcDeltaR2(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+  return TSU::Kinematics::calcDeltaR2(tob1,tob2);
+}
 
 
 // define parameters to be called by developer

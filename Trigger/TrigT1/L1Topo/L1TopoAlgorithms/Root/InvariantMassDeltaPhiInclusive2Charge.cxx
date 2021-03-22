@@ -14,14 +14,6 @@
 #include "L1TopoAlgorithms/InvariantMassDeltaPhiInclusive2Charge.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
-// Bitwise implementation utils
-#include "L1TopoSimulationUtils/L1TopoDataTypes.h"
-#include "L1TopoSimulationUtils/Trigo.h"
-#include "L1TopoSimulationUtils/Hyperbolic.h"
-#include "L1TopoSimulationUtils/Kinematics.h"
-//
-#include "TH1F.h"
-#include "TH2F.h"
 
 #include <cmath>
 
@@ -164,9 +156,9 @@ TCS::InvariantMassDeltaPhiInclusive2Charge::processBitCorrect( const std::vector
                  tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2;
                  ++tob2) {
                 // Inv Mass calculation
-                unsigned int invmass2 = TSU::Kinematics::calcInvMassBW( *tob1, *tob2 );
+                unsigned int invmass2 = calcInvMassBW( *tob1, *tob2 );
 		// test DeltaPhiMin, DeltaPhiMax                                       
-		unsigned int deltaPhi = TSU::Kinematics::calcDeltaPhiBW( *tob1, *tob2 );
+		unsigned int deltaPhi = calcDeltaPhiBW( *tob1, *tob2 );
                 const int eta1 = (*tob1)->eta();
                 const int eta2 = (*tob2)->eta();
                 const unsigned int aeta1 = std::abs(eta1);
@@ -239,9 +231,9 @@ TCS::InvariantMassDeltaPhiInclusive2Charge::process( const std::vector<TCS::TOBA
                  tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2;
                  ++tob2) {
                 // Inv Mass calculation
-                unsigned int invmass2 = TSU::Kinematics::calcInvMass( *tob1, *tob2 );
+                unsigned int invmass2 = calcInvMass( *tob1, *tob2 );
 		// test DeltaPhiMin, DeltaPhiMax                                     
-		unsigned int deltaPhi = TSU::Kinematics::calcDeltaPhi( *tob1, *tob2 );
+		unsigned int deltaPhi = calcDeltaPhi( *tob1, *tob2 );
                 const int eta1 = (*tob1)->eta();
                 const int eta2 = (*tob2)->eta();
                 const unsigned int aeta1 = std::abs(eta1);

@@ -56,13 +56,13 @@ EMTauInputProviderFEX::handle(const Incident& incident) {
    string histPath = "/EXPERT/" + name() + "/";
    replace( histPath.begin(), histPath.end(), '.', '/'); 
 
-   auto hEMEt = std::make_unique<TH1I>( "EMTOBEt", "EM TOB Et", 40, 0, 200);
+   auto hEMEt = std::make_unique<TH1I>( "EMTOBEt", "EM TOB Et", 400, 0, 400);
    hEMEt->SetXTitle("E_{T}");
    auto hEMEtaPhi = std::make_unique<TH2I>( "EMTOBPhiEta", "EM TOB Location", 100, -50, 50, 64, 0, 64);
    hEMEtaPhi->SetXTitle("#eta");
    hEMEtaPhi->SetYTitle("#phi");
 
-   auto hTauEt = std::make_unique<TH1I>( "TauTOBEt", "Tau TOB Et", 40, 0, 200);
+   auto hTauEt = std::make_unique<TH1I>( "TauTOBEt", "Tau TOB Et", 400, 0, 400);
    hTauEt->SetXTitle("E_{T}");
    auto hTauEtaPhi = std::make_unique<TH2I>( "TauTOBPhiEta", "Tau TOB Location", 100, -50, 50, 64, 0, 64);
    hTauEtaPhi->SetXTitle("#eta");
@@ -126,9 +126,10 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
 
     int ieta = ConvertEta((int)eFexRoI->iEta());
     int iphi = eFexRoI->iPhi();
+    unsigned int iet = static_cast<unsigned int>(eFexRoI->et()/Gaudi::Units::GeV);
 
     //EM TOB
-    TCS::ClusterTOB cluster( static_cast<unsigned int>(eFexRoI->tobEt()/Gaudi::Units::GeV), static_cast<unsigned int>(0), ieta, iphi, TCS::CLUSTER , static_cast<long int>(eFexRoI->Word0()) );
+    TCS::ClusterTOB cluster( iet, static_cast<unsigned int>(0), ieta, iphi, TCS::CLUSTER , static_cast<long int>(eFexRoI->Word0()) );
     cluster.setEtaDouble( eFexRoI->eta() );
     cluster.setPhiDouble( eFexRoI->phi() );
     

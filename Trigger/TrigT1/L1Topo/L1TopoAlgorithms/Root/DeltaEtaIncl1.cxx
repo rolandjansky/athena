@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * DeltaEtaIncl1.cpp
@@ -16,12 +16,10 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
-#include "TH1F.h"
 
 #include "L1TopoAlgorithms/DeltaEtaIncl1.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
-#include "L1TopoSimulationUtils/Kinematics.h"
 
 REGISTER_ALG_TCS(DeltaEtaIncl1)
 
@@ -124,7 +122,7 @@ TCS::DeltaEtaIncl1::processBitCorrect( const std::vector<TCS::TOBArray const *> 
                    if( parType_t((*tob2)->Et()) <= std::min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
                    if( (parType_t((*tob1)->Et()) <= std::max(p_MinET1[i],p_MinET2[i])) && (parType_t((*tob2)->Et()) <= std::max(p_MinET1[i],p_MinET2[i]))) continue;
                    // DeltaEta cuts
-                   unsigned int deltaEta = TSU::Kinematics::calcDeltaEtaBW( *tob1, *tob2 );
+                   unsigned int deltaEta = calcDeltaEtaBW( *tob1, *tob2 );
                    std::stringstream msgss;
                    msgss << "Combination : " << distance( input[0]->begin(), tob1)
                          << " x " << distance( input[0]->begin(), tob2)
@@ -178,7 +176,7 @@ TCS::DeltaEtaIncl1::process( const std::vector<TCS::TOBArray const *> & input,
                    if( parType_t((*tob2)->Et()) <= std::min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
                    if( (parType_t((*tob1)->Et()) <= std::max(p_MinET1[i],p_MinET2[i])) && (parType_t((*tob2)->Et()) <= std::max(p_MinET1[i],p_MinET2[i]))) continue;
                    // DeltaEta cuts
-                   unsigned int deltaEta = TSU::Kinematics::calcDeltaEta( *tob1, *tob2 );
+                   unsigned int deltaEta = calcDeltaEta( *tob1, *tob2 );
                    std::stringstream msgss;
                    msgss << "Combination : " << distance( input[0]->begin(), tob1)
                          << " x " << distance( input[0]->begin(), tob2)

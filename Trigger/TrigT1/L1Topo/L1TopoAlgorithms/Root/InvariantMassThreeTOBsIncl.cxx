@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * InvariantMassThreeTOBsIncl.cxx
@@ -23,19 +23,10 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
-#include "TH1F.h"
-#include "TH2F.h"
 
 #include "L1TopoAlgorithms/InvariantMassThreeTOBsIncl.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
-// Bitwise implementation utils
-#include "L1TopoSimulationUtils/L1TopoDataTypes.h"
-#include "L1TopoSimulationUtils/Trigo.h"
-#include "L1TopoSimulationUtils/Hyperbolic.h"
-#include "L1TopoSimulationUtils/Kinematics.h"
-
-//
 
 REGISTER_ALG_TCS(InvariantMassThreeTOBsIncl)
 
@@ -140,9 +131,9 @@ TCS::InvariantMassThreeTOBsIncl::processBitCorrect( const std::vector<TCS::TOBAr
 		if (p_OneBarrel && parType_t(abs((*tob1)->eta())) > 10 && parType_t(abs((*tob2)->eta())) > 10 && parType_t(abs((*tob3)->eta())) > 10 ) continue;
                
 		// Inv Mass calculation
-		unsigned int invmass2_12 = TSU::Kinematics::calcInvMassBW( *tob1, *tob2 );
-		unsigned int invmass2_13 = TSU::Kinematics::calcInvMassBW( *tob1, *tob3 );
-		unsigned int invmass2_23 = TSU::Kinematics::calcInvMassBW( *tob2, *tob3 );
+		unsigned int invmass2_12 = calcInvMassBW( *tob1, *tob2 );
+		unsigned int invmass2_13 = calcInvMassBW( *tob1, *tob3 );
+		unsigned int invmass2_23 = calcInvMassBW( *tob2, *tob3 );
 		unsigned int invmass2 = invmass2_12 + invmass2_13 + invmass2_23;
 		for(unsigned int i=0; i<numberOutputBits(); ++i) {
 		  bool accept = false;
@@ -212,9 +203,9 @@ TCS::InvariantMassThreeTOBsIncl::process( const std::vector<TCS::TOBArray const 
 		
 		// Inv Mass calculation
              
-		unsigned int invmass2_12 = TSU::Kinematics::calcInvMass( *tob1, *tob2 );
-		unsigned int invmass2_13 = TSU::Kinematics::calcInvMass( *tob1, *tob3 );
-		unsigned int invmass2_23 = TSU::Kinematics::calcInvMass( *tob2, *tob3 );
+		unsigned int invmass2_12 = calcInvMass( *tob1, *tob2 );
+		unsigned int invmass2_13 = calcInvMass( *tob1, *tob3 );
+		unsigned int invmass2_23 = calcInvMass( *tob2, *tob3 );
 		unsigned int invmass2 = invmass2_12 + invmass2_13 + invmass2_23;
 		for(unsigned int i=0; i<numberOutputBits(); ++i) {
 		  bool accept = false;
