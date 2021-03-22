@@ -1780,11 +1780,11 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPP
             if (meanOneOverTanTheta<1e-8) {
               meanOneOverTanTheta = 1e-8;
             }
+            if(m_SP[t]->z()<0) meanOneOverTanTheta = -meanOneOverTanTheta;
             if (B2<1e-8) {
               B2=1e-8;
             }
-            float theta = std::atan(1./meanOneOverTanTheta);
-            m_SP[t]->setEta(-std::log(std::tan(0.5*theta)));
+            m_SP[t]->setEta(std::asinh(meanOneOverTanTheta));
             m_SP[t]->setPt(std::sqrt(S2/B2)/(1000*m_K));
           }
           m_CmSp[m_nCmSp].Fl = B/std::sqrt(S2); m_CmSp[m_nCmSp].In = t; if(++m_nCmSp==500) break;
@@ -2040,15 +2040,14 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpSSS
           m_Im[t] = Im;
           if (m_writeNtuple) {
             m_SP[t]->setParam(Im);
-            float meanOneOverTanTheta = std::abs(tb+tz)*0.5;
-            if (meanOneOverTanTheta<1e-8) {
+            float meanOneOverTanTheta = (tb+tz)*0.5;
+            if (std::abs(meanOneOverTanTheta)<1e-8) {
               meanOneOverTanTheta = 1e-8;
             }
             if (B2<1e-8) {
               B2=1e-8;
             }
-            float theta = std::atan(1./meanOneOverTanTheta);
-            m_SP[t]->setEta(-std::log(std::tan(0.5*theta)));
+            m_SP[t]->setEta(std::asinh(meanOneOverTanTheta));
             m_SP[t]->setPt(std::sqrt(S2/B2)/(1000*m_K));
           }
           m_L [t] = std::sqrt(dxy+dz*dz);
