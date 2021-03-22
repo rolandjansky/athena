@@ -23,3 +23,5 @@ athenaCommonFlags.EvtMax=-1
 UserAlgs = ["BTagging/btaggingAlgs.py"]
 
 include ("RecExCommon/RecExCommon_topOptions.py")
+from SGComps import AddressRemappingSvc
+AddressRemappingSvc.addInputRename ("xAOD::TrackParticleContainer","InDetTrackParticles.TrackCompatibility","InDetTrackParticles.TrackCompatibility_rename")
