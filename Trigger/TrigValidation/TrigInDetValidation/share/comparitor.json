@@ -1,6 +1,6 @@
 {
     "L2muonLRT":{
-	"chains" : "HLT_mu6_LRT_idperf_l2lrt_L1MU6:HLT_IDTrack_MuonLRT_FTF:HLT_Roi_L2SAMuon_LRT"
+	"chains" : "HLT_mu6_LRT_idperf_l2lrt_L1MU6:HLT_IDTrack_MuonLRT_FTF:HLT_Roi_L2SAMuon_LRT HLT_mu6_idperf_L1MU6:HLT_IDTrack_Muon_FTF:HLT_Roi_L2SAMuon"
     },
     "L2muon":{ 
         "chains" : "HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_FTF:HLT_Roi_L2SAMuon HLT_mu26_ivarperf_L1MU20:HLT_IDTrack_MuonIso_FTF:HLT_Roi_MuonIso"
