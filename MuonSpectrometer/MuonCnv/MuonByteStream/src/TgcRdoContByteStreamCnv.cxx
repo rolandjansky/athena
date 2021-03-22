@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonByteStream/TgcRdoContByteStreamCnv.h"
@@ -84,9 +84,6 @@ TgcRdoContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr)
 {
    MsgStream log(msgSvc(), const_cnvName);
 
-   // get Raw Event data
-   RawEventWrite* re = m_byteStreamEventAccess->getRawEvent();  
-
    // retrieve TGC RDO container
    TgcRdoContainer * cont(NULL); 
    StoreGateSvc::fromStorable(pObj, cont);
@@ -103,5 +100,5 @@ TgcRdoContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr)
    pAddr = addr; 
 
    // convert
-   return m_tool->convert(cont, re, log); 
+   return m_tool->convert(cont); 
 }
