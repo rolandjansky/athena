@@ -5,7 +5,7 @@
 #ifndef TAURECTOOLS_TRACKSORT_H
 #define TAURECTOOLS_TRACKSORT_H
 
-#ifndef XAOD_STANDALONE
+#ifndef XAOD_ANALYSIS
 #include "Particle/TrackParticle.h"
 #include "Particle/TrackParticleContainer.h"
 #endif
@@ -14,11 +14,11 @@
 
 /**
  * @brief Helper method to sort tracks
- * 
+ *
  * Usage:
  * sort(track_begin, track_end, tauTrackSort);
  * We want pt0 > pt1 > ..., so the test on ptInvVert is < .
- * 
+ *
  */
 
 class TrackSort {
@@ -26,7 +26,7 @@ class TrackSort {
 public:
   TrackSort(){};
 
-#ifndef XAOD_STANDALONE
+#ifndef XAOD_ANALYSIS
   bool operator() (const ElementLink<Rec::TrackParticleContainer>& t1, const ElementLink<Rec::TrackParticleContainer> &t2) const
   {
     return fabs( (*t1)->pt() ) > fabs( (*t2)->pt() );
