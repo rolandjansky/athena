@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 /********************************************************************
@@ -90,12 +90,6 @@ EMFourMomBuilder::execute(const EventContext& ctx, xAOD::Egamma* eg) const
     sc = setFromCluster(*eg);
   }
   return sc;
-}
-
-StatusCode
-EMFourMomBuilder::hltExecute(xAOD::Egamma* eg) const
-{
-  return execute(Gaudi::Hive::currentContext(), eg);
 }
 
 StatusCode
