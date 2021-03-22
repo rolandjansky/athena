@@ -233,14 +233,14 @@ class L1MenuConfig(object):
         if menuToLoadReq in menuMap:
             menuToLoad = menuMap[menuToLoadReq]
             if not silent:
-                log.info("Menu %s was requested, but will load %s as specified in TriggerMenuMT.L1.Menu.menuMap", menuToLoadReq, menuToLoad)
+                log.info("Menu %s was requested, but will load %s as specified in TriggerMenuMT.L1.Menu.menuMap", menuToLoadReq, menuToLoad[0])
         else:
-            menuToLoad = menuToLoadReq
+            menuToLoad = [menuToLoadReq,str(menuToLoadReq)+"_inputs",str(menuToLoadReq)+"_inputs_legacy"]
         return menuToLoad
 
     def _checkMenuExistence(self):
         from PyUtils.moduleExists import moduleExists
-        modname = 'TriggerMenuMT.L1.Menu.Menu_%s' % self.menuFilesToLoad
+        modname = 'TriggerMenuMT.L1.Menu.Menu_%s' % self.menuFilesToLoad[0]
         if not moduleExists (modname):
             log.error("No L1 menu available for %s, module %s does not exist", self.menuName, modname )
             return False
@@ -256,13 +256,13 @@ class L1MenuConfig(object):
         """
 
         # we apply a hack here. menu group is working on LS2_v1, until ready we will use MC_pp_v8
-        log.info("Reading TriggerMenuMT.Menu.Menu_%s", self.menuFilesToLoad)
-        menumodule = __import__('TriggerMenuMT.L1.Menu.Menu_%s' % self.menuFilesToLoad, globals(), locals(), ['defineMenu'], 0)
+        log.info("Reading TriggerMenuMT.Menu.Menu_%s", self.menuFilesToLoad[0])
+        menumodule = __import__('TriggerMenuMT.L1.Menu.Menu_%s' % self.menuFilesToLoad[0], globals(), locals(), ['defineMenu'], 0)
         menumodule.defineMenu()
-        log.info("... L1 menu '%s' contains %i items", self.menuFilesToLoad, len(L1MenuFlags.items()))
+        log.info("... L1 menu '%s' contains %i items", self.menuFilesToLoad[0], len(L1MenuFlags.items()))
 
-        log.info("Reading TriggerMenuMT.Menu.Menu_%s_inputs", self.menuFilesToLoad)
-        topomenumodule = __import__('TriggerMenuMT.L1.Menu.Menu_%s_inputs' % self.menuFilesToLoad, globals(), locals(), ['defineMenu'], 0)
+        log.info("Reading TriggerMenuMT.Menu.Menu_%s", self.menuFilesToLoad[1])
+        topomenumodule = __import__('TriggerMenuMT.L1.Menu.Menu_%s' % self.menuFilesToLoad[1], globals(), locals(), ['defineMenu'], 0)
         topomenumodule.defineInputsMenu() # this adds the inputs definition (boards) to L1MenuFlags.boards
         connectorCount = 0
         algoCount = 0
@@ -278,16 +278,16 @@ class L1MenuConfig(object):
                     else:
                         for t in c["signalGroups"]:
                             algoCount += len(t["signals"])
-        log.info("... L1Topo menu '%s' contains %i boards (%s)", self.menuFilesToLoad, len(L1MenuFlags.boards()), ', '.join(L1MenuFlags.boards().keys()))
+        log.info("... L1Topo menu '%s' contains %i boards (%s)", self.menuFilesToLoad[0], len(L1MenuFlags.boards()), ', '.join(L1MenuFlags.boards().keys()))
         log.info("    with %i connectors and %i input signals", connectorCount, algoCount)
 
         try:
-            log.info("Reading TriggerMenuMT.Menu.Menu_%s_inputs_legacy", self.menuFilesToLoad)
-            legacymenumodule = __import__('TriggerMenuMT.L1.Menu.Menu_%s_inputs_legacy' % self.menuFilesToLoad, globals(), locals(), ['defineMenu'], 0)
+            log.info("Reading TriggerMenuMT.Menu.Menu_%s", self.menuFilesToLoad[2])
+            legacymenumodule = __import__('TriggerMenuMT.L1.Menu.Menu_%s' % self.menuFilesToLoad[2], globals(), locals(), ['defineMenu'], 0)
             legacymenumodule.defineLegacyInputsMenu()
-            log.info("... L1 legacy menu %s contains %i legacy boards (%s)", self.menuFilesToLoad, len(L1MenuFlags.legacyBoards()), ', '.join(L1MenuFlags.legacyBoards().keys()))
+            log.info("... L1 legacy menu %s contains %i legacy boards (%s)", self.menuFilesToLoad[2], len(L1MenuFlags.legacyBoards()), ', '.join(L1MenuFlags.legacyBoards().keys()))
         except ImportError as ie:
-            if ie.name == 'TriggerMenuMT.L1.Menu.Menu_%s_inputs_legacy' % self.menuFilesToLoad:
+            if ie.name == 'TriggerMenuMT.L1.Menu.Menu_%s' % self.menuFilesToLoad[2]:
                 log.info("==> No menu defining the legacy inputs was found, will assume this intended. %s %s %s",
                          ie.msg, ie.name, ie.path)
             else:
@@ -413,9 +413,12 @@ class L1MenuConfig(object):
                             thrName = currentTopoCategory.prefix + lineName
                             thr = self.getDefinedThreshold(thrName) # threshold has to be defined
                             if thr is None:
-                                msg = 'Threshold %s is required for board %s, connector %s (file L1/Menu/Menu_%s_inputs%s.py), but it is not registered. ' % (thrName, boardName, connDef['name'],
-                                                                                                                                                             self.menuFilesToLoad, '_legacy' if 'legacy' in boardDef else "" )
-                                msg += 'Please add L1Topo alg with output %s to L1/Config/TopoAlgoDef%s.py.' % (thrName.split('_',1)[-1], 'Legacy' if 'legacy' in boardDef else "")
+                                if 'legacy' in boardDef:       
+                                    msg = 'Threshold %s is required for board %s, connector %s (file L1/Menu/Menu_%s.py), but it is not registered. ' % (thrName, boardName, connDef['name'], self.menuFilesToLoad[2])
+                                    msg += 'Please add L1Topo alg with output %s to L1/Config/TopoAlgoDefLegacy.py.' % (thrName.split('_',1)[-1])
+                                else:
+                                    msg = 'Threshold %s is required for board %s, connector %s (file L1/Menu/Menu_%s.py), but it is not registered. ' % (thrName, boardName, connDef['name'], self.menuFilesToLoad[1])
+                                    msg += 'Please add L1Topo alg with output %s to L1/Config/TopoAlgoDef.py.' % (thrName.split('_',1)[-1])
                                 log.error(msg)
                                 raise RuntimeError(msg)
                             else:
@@ -594,7 +597,7 @@ class L1MenuConfig(object):
                 if thrName not in self.l1menu.thresholds:
                     isLegacyThr = any(filter(lambda x: thrName.startswith(x), ["R2TOPO_", "EM", "HA", "J", "XE", "TE", "XS"]))
 
-                    msg = "L1 item {item} has been added to the menu L1/Menu/Menu_{menu}.py, but the required threshold {thr} is not listed as input in L1/Menu/Menu_{menu}_inputs{legacy}.py".format(item=itemName, thr=thrName, menu=self.menuFilesToLoad, legacy = "_legacy" if isLegacyThr else "")
+                    msg = "L1 item {item} has been added to the menu L1/Menu/Menu_{menu}.py, but the required threshold {thr} is not listed as input in L1/Menu/Menu_{menu}.py".format(item=itemName, thr=thrName, menu=self.menuFilesToLoad[2] if isLegacyThr else self.menuFilesToLoad[1])
                     log.error(msg)
                     raise RuntimeError(msg)
 
