@@ -117,6 +117,11 @@ namespace ExpressionParsing {
          SG::ReadHandleKey< T_Cont > key(var_name);
          std::pair<std::unordered_map<std::string, std::any >::iterator, bool> ret = read_keys.insert(std::make_pair(var_name, std::move(key)));
          if (!ret.second) {
+            if (ret.first != read_keys.end()
+                && ret.first->first == var_name
+                && ret.first->second.type().hash_code() == typeid(key).hash_code()) {
+               return true;
+            }
             PlainAccessorFactory::throwFailedToAddHandle(var_name);
          }
          SG::ReadHandleKey< T_Cont > *key_final( std::any_cast<SG::ReadHandleKey< T_Cont > >( &ret.first->second));

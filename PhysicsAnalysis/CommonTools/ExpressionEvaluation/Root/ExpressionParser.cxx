@@ -89,7 +89,7 @@ namespace ExpressionParsing {
   std::vector<std::string> ExpressionParser::getVariables() const {
     std::vector<std::string> vars;
     for (const StackElement &element : m_code) {
-       if (element.isProxy()) {
+       if (element.isProxy() && std::find(vars.begin(),vars.end(),element.proxyVarName()) == vars.end() ) {
           vars.push_back( element.proxyVarName() );
        }
     }
