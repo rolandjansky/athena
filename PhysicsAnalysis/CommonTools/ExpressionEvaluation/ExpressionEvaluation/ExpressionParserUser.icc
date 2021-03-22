@@ -91,7 +91,21 @@ bool ExpressionParserUserBase<T_Base,NUM_PARSER>::updateDataNeeds(const std::vec
    std::vector<std::string> var_names = ExpressionParsing::ParserHelper<NUM_PARSER>::getVariables(m_parser);
 
    auto parent = ExpressionParsing::SGxAODProxyLoader::wrapParent(this);
-   return m_xAODProxyLoader->updateDataDependencies(parent,var_names, input_data_in, output_data_in,new_input_handles,new_output_handles);
+   return m_xAODProxyLoader->updateDataDependencies(parent,var_names, m_renounce, input_data_in, output_data_in,new_input_handles,new_output_handles);
+}
+
+template <class T_Base, unsigned short const NUM_PARSER>
+bool ExpressionParserUserBase<T_Base,NUM_PARSER>::renounceInput( const DataObjID& output_data_id) {
+   if (m_xAODProxyLoader) {
+      std::vector<std::string> var_names = ExpressionParsing::ParserHelper<NUM_PARSER>::getVariables(m_parser);
+
+      for (const std::string &var : var_names) {
+         if (output_data_id.key().find(var) != std::string::npos)  {
+            m_renounce.push_back(output_data_id.key());
+         }
+      }
+   }
+   return T_Base::renounceInput(output_data_id);
 }
 
 template <class T_Base, unsigned short const NUM_PARSER>

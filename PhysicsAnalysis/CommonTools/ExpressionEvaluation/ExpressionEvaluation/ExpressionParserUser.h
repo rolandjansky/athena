@@ -85,6 +85,8 @@ public:
                                 std::vector<Gaudi::DataHandle *> &new_input_handles,
                                 std::vector<Gaudi::DataHandle *> &new_output_handles) override;
 
+   virtual bool renounceInput( const DataObjID &output_data_id) override;
+
 protected:
    StatusCode _initializeParser(const ExpressionParsing::SelectionArg<NUM_PARSER> &selection_string,
                                 ExpressionParsing::AppendLoaderFunc pre_xaod_loader=ExpressionParsing::NoLoaderFunc,
@@ -97,6 +99,7 @@ protected:
                               std::unique_ptr<ExpressionParsing::ExpressionParser>,
                               std::array< std::unique_ptr<ExpressionParsing::ExpressionParser>, NUM_PARSER> >::type m_parser;
 
+   std::vector<std::string>  m_renounce;
 };
 
 template <class T_Base, unsigned short const NUM_PARSER = 1>

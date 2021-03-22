@@ -303,6 +303,7 @@ int main(int argc, char **argv)
   // track particle expression
   //  ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
   ServiceHandle<StoreGateSvc> unused("StoreGateSvc","");
+  std::vector< std::string > renounce;
   ExpressionParsing::SGxAODProxyLoader *xAODProxyLoader=new ExpressionParsing::SGxAODProxyLoader(unused);
   //  proxyLoaders->push_back(xAODProxyLoader);
 
@@ -310,6 +311,7 @@ int main(int argc, char **argv)
   parser->loadExpression("InDetTrackParticles.pt>10*GeV && abs(InDetTrackParticles.z0)<100*mm && InDetTrackParticles.PID>0.");
   xAODProxyLoader->updateDataDependencies(dummy_parent,
                                           parser->getVariables(),
+                                          renounce,
                                           input_data,
                                           output_data,
                                           new_input_handles,
@@ -321,6 +323,7 @@ int main(int argc, char **argv)
   muon_parser->loadExpression("Muons.pt>25*GeV && abs(Muons.eta)<2.5 && Muons.isTight");
   muon_xAODProxyLoader->updateDataDependencies(dummy_parent,
                                                muon_parser->getVariables(),
+                                               renounce,
                                                input_data,
                                                output_data,
                                                new_input_handles,
@@ -333,6 +336,7 @@ int main(int argc, char **argv)
                                " && !(count(Muons.pt>25*GeV && abs(Muons.eta)<2.5 && Muons.isTight)+(-(count(Muons.pt>25*GeV && abs(Muons.eta)<2.5 && Muons.isTight)/2)*2)==0)");
   event_xAODProxyLoader->updateDataDependencies(dummy_parent,
                                                event_parser->getVariables(),
+                                               renounce,
                                                input_data,
                                                output_data,
                                                new_input_handles,
