@@ -120,6 +120,11 @@ def error_check(errors):
                 # https://answers.launchpad.net/mg5amcnlo/+question/690004
                 mglog.info(err)
                 continue
+            if 'Helicity recycling optimization requires Python3. This optimzation is therefore deactivated automatically.' in err or\
+               'In general this optimization speed up the computation be a factor of two.' in err:
+                # In MG5_aMC 2.9.2, there is some optimization that needs Python3. In 21.6, this won't work of course.
+                mglog.info(err)
+                continue
             if 'More information is found in' in err:
                 my_debug_file = err.split("'")[1]
             if err.startswith('tar'):
