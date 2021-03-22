@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CNVTOOLS_TGCRDOCONTRAWEVENTTOOL_H
@@ -11,6 +11,7 @@
 #include "MuonTGC_CnvTools/ITGC_RDOtoByteStreamTool.h"
 
 #include "ByteStreamData/RawEvent.h" 
+#include "ByteStreamCnvSvc/ByteStreamCnvSvc.h"
 #include "TGC_Hid2RESrcID.h"
 
 class TgcRdoContainer; 
@@ -29,8 +30,7 @@ namespace Muon {
    */
 
   class TgcRdoContByteStreamTool : 
-    public AthAlgTool, 
-    virtual public ITGC_RDOtoByteStreamTool 
+    public extends<AthAlgTool, ITGC_RDOtoByteStreamTool>
     {
     public:
   
@@ -41,20 +41,19 @@ namespace Muon {
       /** Destructor */ 
       virtual ~TgcRdoContByteStreamTool();
 
-      /** AthAlgTool InterfaceID */
-      static const InterfaceID& interfaceID( ) ;
-
       /** Initializer */
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
       /** Finalizer */
-      virtual StatusCode finalize();
+      virtual StatusCode finalize() override;
 
       /** Convert RDO container to Byte Stream */
-      StatusCode convert(const TgcRdoContainer* cont, RawEventWrite* re, MsgStream& log);
+      virtual StatusCode convert(const TgcRdoContainer* cont) const override;
 
     private: 
+      ServiceHandle<ByteStreamCnvSvc> m_byteStreamCnvSvc
+      { this, "ByteStreamCnvSvc", "ByteStreamCnvSvc" };
+
       TGC_Hid2RESrcID * m_hid2re; 
-      FullEventAssembler<TGC_Hid2RESrcID> m_fea;    
     };
 } // end of namespace 
 
