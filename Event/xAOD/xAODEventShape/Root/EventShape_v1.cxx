@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -39,7 +39,7 @@ namespace {
       // Complain:
       std::cerr << "eventShapeAccessor ERROR Received unknown "
                 << "xAOD::EventShape::EventShapeID (" << id << ")" << std::endl;
-      return 0;
+      return nullptr;
    }
 
    /// Helper function for getting the Accessor for a given EventDensityID
@@ -58,7 +58,7 @@ namespace {
       std::cerr << "eventDensityAccessor ERROR Received unknown "
                 << "xAOD::EventShape::EventDensityID (" << id << ")"
                 << std::endl;
-      return 0;
+      return nullptr;
    }
 
    /// Helper function retrieving a float variable from the EventShape object

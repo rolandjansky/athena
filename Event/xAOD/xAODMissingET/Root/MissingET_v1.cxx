@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -57,7 +57,7 @@ MissingET_v1::MissingET_v1( const IParticle* particle, const std::string& name,
 
 // CHECK use makePrivateStore to control that behaviour ??
 MissingET_v1::MissingET_v1(const MissingET_v1& met)
-  : SG::AuxElement() {
+  : SG::AuxElement(met) {
   
   this->makePrivateStore(&met);
   updateHash();

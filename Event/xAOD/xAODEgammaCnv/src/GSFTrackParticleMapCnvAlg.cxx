@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Gaudi/Athena include(s):
@@ -70,7 +70,7 @@ namespace xAODMaker {
     ATH_MSG_DEBUG( "Retrieved particles with key: " << m_xaodContainerNameGSF );
 
     // Retrieve the GSF -> Trk associations
-    const TrackParticleAssocs *trkassocs = 0;
+    const TrackParticleAssocs *trkassocs = nullptr;
     StatusCode sc=evtStore()->retrieve( trkassocs, m_trackMapName ) ;
    
     if( sc.isFailure()) {

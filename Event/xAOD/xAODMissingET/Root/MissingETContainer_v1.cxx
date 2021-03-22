@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -24,13 +24,13 @@ MissingETContainer_v1::~MissingETContainer_v1()
 const MissingET_v1* MissingETContainer_v1::operator[](const std::string& name) const
 {
   const_iterator fObj(this->find(name));
-  return fObj != this->end() ? *fObj : (const MissingET_v1*)0;
+  return fObj != this->end() ? *fObj : (const MissingET_v1*)nullptr;
 }
 
 MissingET_v1* MissingETContainer_v1::operator[](const std::string& name)
 {
   iterator fObj(this->find(name));
-  return fObj != this->end() ? *fObj : (MissingET_v1*)0;
+  return fObj != this->end() ? *fObj : (MissingET_v1*)nullptr;
 }
 
 // MissingETContainer_v1::const_iterator MissingETContainer_v1::find(const std::string& name) const

@@ -86,7 +86,7 @@ namespace xAOD {
          }
       }
 
-      return 0;
+      return nullptr;
    }
 
    /// Find the element type of a @c DataVector class.
@@ -119,7 +119,7 @@ namespace xAOD {
 
          // Usually the full DataVector name includes two template
          // arguments. But we only need the first one, before the first comma.
-         const std::string::size_type comma = elt.find( "," );
+         const std::string::size_type comma = elt.find( ',' );
          if( comma != std::string::npos ) {
             elt = elt.substr( 0, comma );
          }
@@ -179,7 +179,7 @@ namespace xAOD {
       }; // struct TEnvBuff
 
       /// The Root proxy environment structure.
-      typedef ROOT::TCollectionProxyInfo::Environ< TEnvBuff >  Env_t;
+      using Env_t = ROOT::TCollectionProxyInfo::Environ<TEnvBuff>;
 
       /// Fetch the container from a proxy environment.
       ///
@@ -205,7 +205,7 @@ namespace xAOD {
          buff.fIndex = 0;
          e.fSize  = c.size();
          if( 0 == e.fSize ) {
-            return 0;
+            return nullptr;
          }
          char* start = c[ 0 ];
          buff.fEltPtr = start + buff.fOffset;
@@ -228,7 +228,7 @@ namespace xAOD {
          buff.fIndex += e.fIdx;
          e.fIdx = 0;
          if( buff.fIndex >= e.fSize ) {
-            return 0;
+            return nullptr;
          }
          char* ptr = c[ buff.fIndex ];
          buff.fEltPtr = ptr + buff.fOffset;
@@ -251,7 +251,7 @@ namespace xAOD {
       static void* clear( void* env ) {
 
          cont( env )->clear();
-         return 0;
+         return nullptr;
       }
 
       /// Return a new environment structure.
@@ -273,7 +273,7 @@ namespace xAOD {
       /// Not implemented for xAOD
       static void* construct( void* /*from*/, size_t /*size*/ )  {
          ::Fatal( "xAOD::TDVCollectionProxy", "construct not implemented" );
-         return 0;
+         return nullptr;
       }
 
       /// Not implemented for xAOD
@@ -284,13 +284,13 @@ namespace xAOD {
       /// Not implemented for xAOD
       static void* feed( void* /*from*/, void* /*to*/, size_t /*size*/ )  {
          ::Fatal( "xAOD::TDVCollectionProxy", "feed not implemented" );
-         return 0;
+         return nullptr;
       }
 
       /// Not implemented for xAOD
       static void* collect( void* /*from*/, void* /*to*/ )  {
          ::Fatal( "xAOD::TDVCollectionProxy", "collect not implemented" );
-         return 0;
+         return nullptr;
       }
    }; // class TDVCollectionFuncs
 
@@ -305,7 +305,7 @@ namespace xAOD {
       : TGenCollectionProxy( typeid( DataVector< TDVCollectionProxyDummy > ),
                              sizeof( char* ) ),
         fName( conttype ), fInitialized( kFALSE ),
-        fContoff( 0 ), fOffset( 0 ), fEltBase( 0 ), fEltType( 0 ) {
+        fContoff( 0 ), fOffset( 0 ), fEltBase( nullptr ), fEltType( nullptr ) {
 
       // Set up the element size.  No offset, since this isn't a map.
       fValDiff        = sizeof( void* );
@@ -326,11 +326,11 @@ namespace xAOD {
       // Make sure that TGenCollectionProxy knows that it's not
       // fully set up yet:
       if( fValue ) {
-         delete fValue.exchange( 0 );
+         delete fValue.exchange( nullptr );
       }
       if( fVal ) {
          delete fVal;
-         fVal = 0;
+         fVal = nullptr;
       }
 
       // This container pretends to hold objects, not pointers:
@@ -356,11 +356,11 @@ namespace xAOD {
       // on the same page...
       if( ! fInitialized ) {
          if( fValue ) {
-            delete fValue.exchange( 0 );
+            delete fValue.exchange( nullptr );
          }
          if( fVal ) {
             delete fVal;
-            fVal = 0;
+            fVal = nullptr;
          }
       }
    }
@@ -429,7 +429,7 @@ namespace xAOD {
          ::Fatal( "xAOD::TDVCollectionProxy::InitializeEx",
                   "Couldn't find dictionary for class %s",
                   fName.Data() );
-         return 0;
+         return nullptr;
       }
 
       // Check if it is a DataVector:
@@ -438,7 +438,7 @@ namespace xAOD {
          ::Fatal( "xAOD::TDVCollectionProxy::InitializeEx",
                   "Class \"%s\" doesn't seem to be a DataVector",
                   cl->GetName() );
-         return 0;
+         return nullptr;
       }
 
       // Find the container and element offsets.
@@ -457,7 +457,7 @@ namespace xAOD {
 
       // Need to override what that set up for fValue and fVal.
       if( fValue ) {
-         delete fValue.exchange( 0 );
+         delete fValue.exchange( nullptr );
       }
       if( fVal )   delete fVal;
       fValue = new TGenCollectionProxy::Value( eltname.c_str(), false );

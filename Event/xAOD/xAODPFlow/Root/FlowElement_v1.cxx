@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // EDM include(s):
@@ -48,7 +48,7 @@ namespace xAOD {
 
   }
 
-  void FlowElement_v1::setP4(FourMom_t p4){
+  void FlowElement_v1::setP4(const FourMom_t& p4){
     setP4(p4.Pt(), p4.Eta(), p4.Phi(), p4.M());
   }
 

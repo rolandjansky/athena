@@ -70,7 +70,7 @@ StatusCode
       for (const DataHeaderElement& elem : *dataHeader) {
         // Caveat: assume branch name that Athena I/O is going to give to
         // this object is the key name
-        const std::string key = elem.getKey();
+        const std::string& key = elem.getKey();
         const CLID classID = elem.getPrimaryClassID();
 
         // Skip objects that were set up to be ignored.
@@ -82,7 +82,7 @@ StatusCode
               break;
             }
           }
-          if (ignoreObject == true) continue;
+          if (ignoreObject) continue;
         }
 
         // Get the type name of this object.

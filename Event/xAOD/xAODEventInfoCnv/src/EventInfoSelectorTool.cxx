@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file EventInfoSelectorTool.cxx
@@ -38,7 +38,7 @@ namespace xAODMaker {
       }
 
       const DataHandle<EventInfo> aod;
-      if( m_aodKey == "" ) {
+      if( m_aodKey.empty() ) {
          CHECK( evtStore()->retrieve( aod ) );
       } else {
          CHECK( evtStore()->retrieve( aod, m_aodKey ) );

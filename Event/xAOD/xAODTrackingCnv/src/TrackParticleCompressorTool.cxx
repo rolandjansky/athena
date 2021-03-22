@@ -1,10 +1,14 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TrackParticleCompressorTool.cxx 789658 2016-12-14 14:28:40Z krasznaa $
 
 // Local include(s):
+#include <memory>
+
+
+
 #include "TrackParticleCompressorTool.h"
 
 namespace xAODMaker {
@@ -40,8 +44,8 @@ namespace xAODMaker {
 
 
       // Create the helper objects:
-      m_diagCovMatrixCompressor.reset(
-               new CxxUtils::FloatCompressor( m_diagCovMatrixBits ) );
+      m_diagCovMatrixCompressor = std::make_unique<CxxUtils::FloatCompressor>(
+               m_diagCovMatrixBits );
 
       // Return gracefully:
       return StatusCode::SUCCESS;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -43,7 +43,7 @@ persToTrans( const xAOD::TrigRNNOutputAuxContainer_v1* oldObj,
 
    // Clear the transient object:
    newObj->resize(0);
-   SG::copyAuxStoreThinned( *oldObj, *newObj, 0 );
+   SG::copyAuxStoreThinned( *oldObj, *newObj, nullptr );
 
    // Set up an interface container on top of the old object:
    xAOD::TrigRNNOutputContainer_v1 oldInt;

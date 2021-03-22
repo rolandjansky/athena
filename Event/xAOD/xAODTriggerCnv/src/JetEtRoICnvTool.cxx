@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: JetEtRoICnvTool.cxx 575028 2013-12-11 14:30:06Z krasznaa $
@@ -45,7 +45,7 @@ namespace xAODMaker {
                                         xAOD::JetEtRoI* xaod ) {
 
       // If there is no RoI to convert:
-      if( ! aod->getJetEtROIs().size() ) {
+      if( aod->getJetEtROIs().empty() ) {
          // This happens unfortunately. Let's discuss with L1Calo about how
          // we should handle this...
          ATH_MSG_DEBUG( "No JetEt RoI received on the input" );

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -76,7 +76,7 @@ void test1()
   s1.reserve(20);
   assert (s1.getData(ityp4) == nullptr);
   const int* i3 = reinterpret_cast<const int*> (s1.getData(ityp3));
-  assert (i3 != 0);
+  assert (i3 != nullptr);
   i1 = reinterpret_cast<int*> (s1.getData(ityp1, 10, 20));
   i2 = reinterpret_cast<int*> (s1.getData(ityp2, 10, 20));
   for (int i=0; i<3; i++) {

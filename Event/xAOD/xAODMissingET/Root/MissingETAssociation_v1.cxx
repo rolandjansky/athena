@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAODMissingET/versions/MissingETAssociation_v1.h"
@@ -111,7 +111,7 @@ namespace xAOD {
   }
 
   MissingETAssociation_v1::MissingETAssociation_v1(const MissingETAssociation_v1& assocDescr)
-    : SG::AuxElement()
+    : SG::AuxElement(assocDescr)
   {
     this->makePrivateStore(&assocDescr);
     initCache();
@@ -180,8 +180,8 @@ namespace xAOD {
           linklist.push_back(el);
         }
         m_objConstLinks.push_back(linklist);
-        this->f_overlapIndices().push_back(vector<size_t>(0));
-        this->f_overlapTypes().push_back(vector<unsigned char>(0));
+        this->f_overlapIndices().emplace_back(0);
+        this->f_overlapTypes().emplace_back(0);
         bool linkset = f_setLink<MissingETBase::Types::objlink_t>(oLnk);
         return linkset;
       }
@@ -434,21 +434,21 @@ namespace xAOD {
 
   bool MissingETAssociation_v1::setRefJet(const Jet* pJet)
   { 
-    bool wasSet(this->f_jetLink().getStorableObjectPointer() != 0);
+    bool wasSet(this->f_jetLink().getStorableObjectPointer() != nullptr);
     f_setObject<Jet,MissingETBase::Types::jetlink_t>(pJet,this->f_jetLink());
     return wasSet;
   }
 
   bool MissingETAssociation_v1::setRefJet(const JetContainer* pJetCont, size_t pJetIdx)
   {
-    bool wasSet(this->f_jetLink().getStorableObjectPointer() != 0);
+    bool wasSet(this->f_jetLink().getStorableObjectPointer() != nullptr);
     this->f_jetLink().toIndexedElement(*pJetCont,pJetIdx);
     return wasSet;
   }
 
   bool MissingETAssociation_v1::setJetLink(const MissingETBase::Types::jetlink_t& jetLnk)
   {
-    bool wasSet(this->f_jetLink().getStorableObjectPointer() != 0);
+    bool wasSet(this->f_jetLink().getStorableObjectPointer() != nullptr);
     this->f_jetLink() = jetLnk;
     return wasSet;
   }
@@ -504,14 +504,14 @@ namespace xAOD {
   std::vector<const IParticle*> MissingETAssociation_v1::objects() const
   { 
     vector<const IParticle*> pVec;
-    for ( objlink_vector_t::const_iterator fLnk(this->objectLinks().begin()); fLnk != this->objectLinks().end(); ++fLnk) {pVec.push_back((*fLnk).isValid()?*(*fLnk):NULL); }
+    for ( objlink_vector_t::const_iterator fLnk(this->objectLinks().begin()); fLnk != this->objectLinks().end(); ++fLnk) {pVec.push_back((*fLnk).isValid()?*(*fLnk):nullptr); }
     return pVec;
   }
 
   std::vector<const IParticle*> MissingETAssociation_v1::objects(std::vector<constvec_t>& calVecs,std::vector<constvec_t>& trkVecs) const
   {
     size_t nEnt(this->objectLinks().size());
-    vector<const IParticle*> pVec(nEnt,(const IParticle*)0);
+    vector<const IParticle*> pVec(nEnt,(const IParticle*)nullptr);
     calVecs.clear(); calVecs.resize(this->sizeCal(),constvec_t()); 
     trkVecs.clear(); trkVecs.resize(this->sizeTrk(),constvec_t()); 
     for ( size_t idx(0); idx < nEnt; ++idx ) pVec[idx] = *(this->objectLinks().at(idx));
@@ -708,7 +708,7 @@ namespace xAOD {
         this->addOverlap(iTargetObj,objIdx,overlapTypes);
       }
     }
-    return overlapIndices(objIdx).size()>0;
+    return !overlapIndices(objIdx).empty();
   }
 
   bool MissingETAssociation_v1::hasOverlaps(const MissingETAssociationHelper& helper, size_t objIdx,MissingETBase::UsageHandler::Policy p) const
@@ -872,22 +872,18 @@ namespace xAOD {
   bool MissingETAssociation_v1::testPolicy(unsigned int type,MissingETBase::UsageHandler::Policy p) {
     switch(p) {
     case MissingETBase::UsageHandler::TrackCluster:      
-      if(type==xAOD::Type::CaloCluster
-         || type==xAOD::Type::TrackParticle) {return true;}
-      else {return false;}
+      return type==xAOD::Type::CaloCluster
+
+         || type==xAOD::Type::TrackParticle;
     case MissingETBase::UsageHandler::OnlyCluster:
-      if(type==xAOD::Type::CaloCluster) {return true;}
-      else {return false;}
+      return type==xAOD::Type::CaloCluster;
     case MissingETBase::UsageHandler::OnlyTrack:
-      if(type==xAOD::Type::TrackParticle) {return true;}
-      else {return false;}
+      return type==xAOD::Type::TrackParticle;
     case MissingETBase::UsageHandler::ParticleFlow:
       if(type==xAOD::Type::ParticleFlow) {return true;}
-      if(type==xAOD::Type::FlowElement) {return true;}
-      else {return false;}
+      return type==xAOD::Type::FlowElement;
     case MissingETBase::UsageHandler::AllCalo:
-      if(type!=xAOD::Type::TrackParticle) {return true;}
-      else {return false;}
+      return type!=xAOD::Type::TrackParticle;
     default: break;
     }
     return false;

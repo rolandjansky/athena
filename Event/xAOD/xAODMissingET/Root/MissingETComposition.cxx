@@ -1,11 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAODMissingET/MissingETComposition.h"
 #include "xAODJet/JetAttributes.h"
 
 #include <cstdio>
+#include <utility>
+
 
 namespace xAOD {
 
@@ -27,14 +29,14 @@ namespace xAOD {
   bool MissingETComposition::add(MissingETComponentMap* pMap,const MissingET* pMET,MissingETBase::Types::bitmask_t sw)
   {
     // input check
-    if ( pMap == 0 || pMET == 0 ) 
+    if ( pMap == nullptr || pMET == nullptr ) 
       { printf("MissingETComposition::add - ERROR - possible invalid pointer values: MissingETComponentMap* = %p, MissingET* = %p\n",(void*)pMap,(void*)pMET); return false; }
     // check if MET object already in map
     if ( pMap->find(pMET) != pMap->end() ) 
       { printf("MissingETComposition::add - WARNING - MissingET object \042%s\042 already in map, not added again\n",pMET->name().c_str()); return false; }
     // insert object
     pMap->push_back(new MissingETComponent(pMET,sw));
-    return pMap->back() != 0;
+    return pMap->back() != nullptr;
   }
 
   bool MissingETComposition::insert(MissingETComponentMap* pMap,const MissingET* pMET,const IParticle* pPart,MissingETBase::Types::weight_t weight)
@@ -43,7 +45,7 @@ namespace xAOD {
   bool MissingETComposition::insert(MissingETComponentMap* pMap,const MissingET* pMET,const IParticle* pPart,double wpx,double wpy,double wet)
   { 
     // input check
-    if ( pMap == 0 || pMET == 0 )
+    if ( pMap == nullptr || pMET == nullptr )
       { printf("MissingETComposition::insert - ERROR - possible invalid pointer values: MissingETComponentMap* = %p, MissingET* = %p\n",(void*)pMap,(void*)pMET); return false; }
     // check if MET object already in map
     MissingETComponentMap::iterator fMap(pMap->find(pMET));
@@ -78,26 +80,26 @@ namespace xAOD {
   // Note that this should work because the payload of DataVector<MissingETComponent> is actually a pointer.
 
   MissingETComponentMap::const_iterator MissingETComposition::find(const MissingETComponentMap* pMap,const MissingET* pMET)
-  { return pMap != 0 ? pMap->find(pMET) : MissingETComponentMap::const_iterator(); }
+  { return pMap != nullptr ? pMap->find(pMET) : MissingETComponentMap::const_iterator(); }
 
   MissingETComponentMap::iterator MissingETComposition::find(MissingETComponentMap* pMap,const MissingET* pMET)
-  { return pMap != 0 ? pMap->find(pMET) : MissingETComponentMap::iterator(); }
+  { return pMap != nullptr ? pMap->find(pMET) : MissingETComponentMap::iterator(); }
 
   MissingETComponentMap::const_iterator MissingETComposition::find(const MissingETComponentMap* pMap,const std::string& metName)
-  { return pMap !=0 ? pMap->find(metName) : MissingETComponentMap::const_iterator(); }
+  { return pMap !=nullptr ? pMap->find(metName) : MissingETComponentMap::const_iterator(); }
 
   MissingETComponentMap::iterator MissingETComposition::find(MissingETComponentMap* pMap,const std::string& metName)
-  { return pMap !=0 ? pMap->find(metName) : MissingETComponentMap::iterator(); }
+  { return pMap !=nullptr ? pMap->find(metName) : MissingETComponentMap::iterator(); }
 
   MissingETComponentMap::const_iterator MissingETComposition::find(const MissingETComponentMap* pMap,MissingETBase::Types::bitmask_t src)
-  { return pMap !=0 ? pMap->find(src) : MissingETComponentMap::const_iterator(); }
+  { return pMap !=nullptr ? pMap->find(src) : MissingETComponentMap::const_iterator(); }
 
   MissingETComponentMap::iterator MissingETComposition::find(MissingETComponentMap* pMap,MissingETBase::Types::bitmask_t src)
-  { return pMap !=0 ? pMap->find(src) : MissingETComponentMap::iterator(); }
+  { return pMap !=nullptr ? pMap->find(src) : MissingETComponentMap::iterator(); }
 
   MissingETComponentMap::const_iterator MissingETComposition::find(const MissingETComponentMap* pMap,const IParticle* pPart)
   {
-    if ( pMap == 0 ) { return MissingETComponentMap::const_iterator(); }
+    if ( pMap == nullptr ) { return MissingETComponentMap::const_iterator(); }
     // linear search - FIXME: method find(const IParticle*) in MissingETComponentMap ??
     MissingETComponentMap::const_iterator fCont(pMap->begin()); 
     MissingETComponentMap::const_iterator lCont(pMap->end());
@@ -108,7 +110,7 @@ namespace xAOD {
 
   MissingETComponentMap::iterator MissingETComposition::find(MissingETComponentMap* pMap,const IParticle* pPart) 
   {
-    if ( pMap == 0 ) { return MissingETComponentMap::iterator(); }
+    if ( pMap == nullptr ) { return MissingETComponentMap::iterator(); }
     // linear search - FIXME: method find(const IParticle*) in MissingETComponentMap ??
     MissingETComponentMap::iterator fCont(pMap->begin()); 
     MissingETComponentMap::iterator lCont(pMap->end());
@@ -119,33 +121,33 @@ namespace xAOD {
 
   const MissingETComponent* MissingETComposition::getComponent(const MissingETComponentMap* pMap,const IParticle* pPart)
   { 
-    if ( pMap == 0 ) { return (const MissingETComponent*)0; }
-    else { MissingETComponentMap::const_iterator fCont(find(pMap,pPart)); return fCont != pMap->end() ? *fCont : (const MissingETComponent*)0; }
+    if ( pMap == nullptr ) { return (const MissingETComponent*)nullptr; }
+    else { MissingETComponentMap::const_iterator fCont(find(pMap,pPart)); return fCont != pMap->end() ? *fCont : (const MissingETComponent*)nullptr; }
   } 
 
   MissingETComponent* MissingETComposition::getComponent(MissingETComponentMap* pMap,const IParticle* pPart)
   { 
-    if ( pMap == 0 ) { return (MissingETComponent*)0; }
-    else { MissingETComponentMap::iterator fCont(find(pMap,pPart)); return fCont != pMap->end() ? *fCont : (MissingETComponent*)0; }
+    if ( pMap == nullptr ) { return (MissingETComponent*)nullptr; }
+    else { MissingETComponentMap::iterator fCont(find(pMap,pPart)); return fCont != pMap->end() ? *fCont : (MissingETComponent*)nullptr; }
   } 
 
   const MissingETComponent* MissingETComposition::getComponent(const MissingETComponentMap* pMap,const MissingET* pMET)
-  { MissingETComponentMap::const_iterator fCont(find(pMap,pMET)); return fCont != pMap->end() ? *fCont : (const MissingETComponent*)0; }
+  { MissingETComponentMap::const_iterator fCont(find(pMap,pMET)); return fCont != pMap->end() ? *fCont : (const MissingETComponent*)nullptr; }
 
   MissingETComponent* MissingETComposition::getComponent(MissingETComponentMap* pMap,const MissingET* pMET)
-  { MissingETComponentMap::iterator fCont(find(pMap,pMET)); return fCont != pMap->end() ? *fCont : (MissingETComponent*)0; }
+  { MissingETComponentMap::iterator fCont(find(pMap,pMET)); return fCont != pMap->end() ? *fCont : (MissingETComponent*)nullptr; }
 
   const  MissingETComponent*  MissingETComposition::getComponent(const MissingETComponentMap* pMap,const std::string& metName)
-  { MissingETComponentMap::const_iterator fCont(find(pMap,metName)); return fCont != pMap->end() ? *fCont : (const MissingETComponent*)0; }
+  { MissingETComponentMap::const_iterator fCont(find(pMap,metName)); return fCont != pMap->end() ? *fCont : (const MissingETComponent*)nullptr; }
 
   MissingETComponent*  MissingETComposition::getComponent(MissingETComponentMap* pMap,const std::string& metName)
-  { MissingETComponentMap::iterator fCont(find(pMap,metName)); return fCont != pMap->end() ? *fCont : (MissingETComponent*)0; }
+  { MissingETComponentMap::iterator fCont(find(pMap,metName)); return fCont != pMap->end() ? *fCont : (MissingETComponent*)nullptr; }
 
   const MissingETComponent* MissingETComposition::getComponent(const MissingETComponentMap* pMap,MissingETBase::Types::bitmask_t sw)
-  { MissingETComponentMap::const_iterator fCont(find(pMap,sw)); return fCont != pMap->end() ? *fCont : (const MissingETComponent*)0; }
+  { MissingETComponentMap::const_iterator fCont(find(pMap,sw)); return fCont != pMap->end() ? *fCont : (const MissingETComponent*)nullptr; }
 
   MissingETComponent* MissingETComposition::getComponent(MissingETComponentMap* pMap,MissingETBase::Types::bitmask_t sw)
-  { MissingETComponentMap::iterator fCont(find(pMap,sw)); return fCont != pMap->end() ? *fCont : (MissingETComponent*)0; }
+  { MissingETComponentMap::iterator fCont(find(pMap,sw)); return fCont != pMap->end() ? *fCont : (MissingETComponent*)nullptr; }
 
   // ------------------------------------------------------------- accessing data
 
@@ -155,21 +157,21 @@ namespace xAOD {
   { MissingETComponentMap::const_iterator fCont(find(pMap,pPart)); return fCont == pMap->end() ? MissingETBase::Types::weight_t(0.,0.,0.) : (*fCont)->weight(pPart); }
 
   MissingETBase::Types::weight_t MissingETComposition::getWeight(MissingETComponentMap::const_iterator fCont,const IParticle* pPart)
-  { return *fCont != 0 ? (*fCont)->weight(pPart) : MissingETBase::Types::weight_t(0.,0.,0.); }
+  { return *fCont != nullptr ? (*fCont)->weight(pPart) : MissingETBase::Types::weight_t(0.,0.,0.); }
 
   // -- status word
   MissingETBase::Types::bitmask_t MissingETComposition::getStatusWord(const MissingETComponentMap* pMap,const MissingET* pmetObj)
   { MissingETComponentMap::const_iterator fCont(find(pMap,pmetObj)); return fCont == pMap->end() ? MissingETBase::Status::clearedStatus() : (*fCont)->statusWord(); }
 
   MissingETBase::Types::bitmask_t MissingETComposition::getStatusWord(MissingETComponentMap::const_iterator fCont)
-  { return *fCont != 0 ? (*fCont)->statusWord() : MissingETBase::Status::clearedStatus(); }
+  { return *fCont != nullptr ? (*fCont)->statusWord() : MissingETBase::Status::clearedStatus(); }
 
   // -- MissingET object
   const MissingET* MissingETComposition::getMissingET(const MissingETComponentMap* pMap,const IParticle* pPart)
   { return getMissingET(find(pMap,pPart)); }
 
   const MissingET* MissingETComposition::getMissingET(MissingETComponentMap::const_iterator fCont)
-  { return *fCont != 0  ? (*fCont)->metObject() : (const MissingET*)0; }
+  { return *fCont != nullptr  ? (*fCont)->metObject() : (const MissingET*)nullptr; }
 
   const MissingET* MissingETComposition::getMissingET(const MissingETComponentMap* pMap,const std::string& name)
   { return getMissingET(find(pMap,name)); }
@@ -185,7 +187,7 @@ namespace xAOD {
 				 const MissingETBase::Types::constvec_t& trkvec)
   {
     // input check
-    if ( pMap == 0 || pJet == 0 ) 
+    if ( pMap == nullptr || pJet == nullptr ) 
       { printf("MissingETComposition::add - ERROR - possible invalid pointer values: MissingETAssociationMap* = %p, Jet* = %p\n",(void*)pMap,(void*)pJet); return false; }
     // check if jet already in map
     if ( pMap->find(pJet) != pMap->end() ) 
@@ -196,13 +198,13 @@ namespace xAOD {
     pMap->setJetConstituents(jetconst,nextIdx);
     // printf("Jet track vector: px %f, py %f\n",trkvec.cpx(),trkvec.cpy());
     pMap->back()->setJetTrkVec(trkvec);
-    return pMap->back() != 0;
+    return pMap->back() != nullptr;
   }
 
   bool MissingETComposition::add(MissingETAssociationMap* pMap,const Jet* pJet, const std::vector<const IParticle*>& jettracks)
   {
     // input check
-    if ( pMap == 0 || pJet == 0 ) 
+    if ( pMap == nullptr || pJet == nullptr ) 
       { printf("MissingETComposition::add - ERROR - possible invalid pointer values: MissingETAssociationMap* = %p, Jet* = %p\n",(void*)pMap,(void*)pJet); return false; }
     // check if jet already in map
     if ( pMap->find(pJet) != pMap->end() ) 
@@ -211,7 +213,7 @@ namespace xAOD {
     // size_t nextIdx = pMap->size();
     std::vector<ElementLink<IParticleContainer> > jetconst = pJet->constituentLinks();
     MissingETBase::Types::constvec_t trkvec;
-    if(jettracks.size()>0) {
+    if(!jettracks.empty()) {
       const IParticleContainer* pTrkCont = static_cast<const IParticleContainer*>(jettracks.front()->container());
       for(const auto& trk : jettracks) {  
     	ElementLink<IParticleContainer> link(*pTrkCont,trk->index());
@@ -225,17 +227,17 @@ namespace xAOD {
   bool MissingETComposition::addMiscAssociation(MissingETAssociationMap* pMap)
   {
     // input check
-    if ( pMap == 0 ) 
+    if ( pMap == nullptr ) 
       { printf("MissingETComposition::addMiscAssociation - ERROR - possible invalid pointer values: MissingETAssociationMap* = %p\n",(void*)pMap); return false; }
     // insert object
-    pMap->push_back(new MissingETAssociation((const Jet*)NULL,true));
-    return pMap->back() != 0;
+    pMap->push_back(new MissingETAssociation((const Jet*)nullptr,true));
+    return pMap->back() != nullptr;
   }
 
   bool MissingETComposition::insert(MissingETAssociationMap* pMap,size_t jetIndex,const IParticle* pPart,const std::vector<const IParticle*>& constlist)
   { 
     // input check
-    if ( pMap == 0 )
+    if ( pMap == nullptr )
       { printf("MissingETComposition::insert - ERROR - possible invalid pointer value: MissingETAssociationMap* = %p\n",(void*)pMap); return false; }
     // check if MET object already in map
 
@@ -251,7 +253,7 @@ namespace xAOD {
   bool MissingETComposition::insert(MissingETAssociationMap* pMap,const Jet* pJet,const IParticle* pPart,const std::vector<const IParticle*>& constlist)
   { 
     // input check
-    if ( pMap == 0 || pJet == 0 )
+    if ( pMap == nullptr || pJet == nullptr )
       { printf("MissingETComposition::insert - ERROR - possible invalid pointer values: MissingETAssociationMap* = %p, Jet* = %p\n",(void*)pMap,(void*)pJet); return false; }
     // check if jet already in map
     size_t jetIndex(pMap->findIndex(pJet));
@@ -265,7 +267,7 @@ namespace xAOD {
 				    std::map<const IParticle*,MissingETBase::Types::constvec_t> pOverride)
   { 
     // input check
-    if ( pMap == 0 )
+    if ( pMap == nullptr )
       { printf("MissingETComposition::insert - ERROR - possible invalid pointer values: MissingETAssociationMap* = %p\n",(void*)pMap); return false; }
     
     // loop over constituents and try to identify an appropriate association
@@ -287,14 +289,14 @@ namespace xAOD {
         pMap->getMiscAssociation()->addOverrideMom(pOverride);
       }
     }
-    if (!constMap.size()) insertMisc(pMap,pPart,std::vector<const IParticle*>());
+    if (constMap.empty()) insertMisc(pMap,pPart,std::vector<const IParticle*>());
     return true;
   }
 
   bool MissingETComposition::setJetConstSum(MissingETAssociationMap* metMap,const Jet* jet,const std::vector<const IParticle*>& altConsts,
 				    std::map<const IParticle*,MissingETBase::Types::constvec_t> pOverride) {
     std::vector<ElementLink<IParticleContainer> > jetconst;
-    if(altConsts.size()>0) {
+    if(!altConsts.empty()) {
       for(const auto& alt : altConsts) {  
         const IParticleContainer* pCont = static_cast<const IParticleContainer*>(alt->container());
     	ElementLink<IParticleContainer> link(*pCont,alt->index());
@@ -302,7 +304,7 @@ namespace xAOD {
       }
     }
     metMap->setJetConstituents(jetconst,jet);
-    if (altConsts.size()>0) insert(metMap,jet,altConsts,pOverride);
+    if (!altConsts.empty()) insert(metMap,jet,altConsts,std::move(pOverride));
     else insert(metMap,jet,jet,altConsts);
     return true;
   }
@@ -310,7 +312,7 @@ namespace xAOD {
   bool MissingETComposition::insertMisc(MissingETAssociationMap* pMap,const IParticle* pPart,const std::vector<const IParticle*>& constlist)
   { 
     // input check
-    if ( pMap == 0 )
+    if ( pMap == nullptr )
       { printf("MissingETComposition::insertMisc - ERROR - possible invalid pointer values: MissingETAssociationMap* = %p\n",(void*)pMap); return false; }
     
     size_t jetIndex(MissingETBase::Numerical::invalidIndex());
@@ -329,14 +331,14 @@ namespace xAOD {
   }
 
   MissingETAssociationMap::const_iterator MissingETComposition::find(const MissingETAssociationMap* pMap,const Jet* pJet)
-  { return pMap != 0 ? pMap->find(pJet) : MissingETAssociationMap::const_iterator(); }
+  { return pMap != nullptr ? pMap->find(pJet) : MissingETAssociationMap::const_iterator(); }
 
   MissingETAssociationMap::iterator       MissingETComposition::find(MissingETAssociationMap* pMap,const Jet* pJet)
-  { return pMap != 0 ? pMap->find(pJet) : MissingETAssociationMap::iterator(); }
+  { return pMap != nullptr ? pMap->find(pJet) : MissingETAssociationMap::iterator(); }
 
   MissingETAssociationMap::const_iterator MissingETComposition::find(const MissingETAssociationMap* pMap,const IParticle* pPart)
   {
-    if ( pMap == 0 ) { return MissingETAssociationMap::const_iterator(); }
+    if ( pMap == nullptr ) { return MissingETAssociationMap::const_iterator(); }
     // linear search - FIXME: method find(const IParticle*) in MissingETAssociationMap ??
     MissingETAssociationMap::const_iterator fAssoc(pMap->begin());
     MissingETAssociationMap::const_iterator lAssoc(pMap->end());
@@ -347,7 +349,7 @@ namespace xAOD {
 
   MissingETAssociationMap::iterator MissingETComposition::find(MissingETAssociationMap* pMap,const IParticle* pPart)
   {
-    if ( pMap == 0 ) { return MissingETAssociationMap::iterator(); }
+    if ( pMap == nullptr ) { return MissingETAssociationMap::iterator(); }
     // linear search - FIXME: method find(const IParticle*) in MissingETAssociationMap ??
     MissingETAssociationMap::iterator fAssoc(pMap->begin()); 
     MissingETAssociationMap::iterator lAssoc(pMap->end());
@@ -389,7 +391,7 @@ namespace xAOD {
   std::vector<const MissingETAssociation*> MissingETComposition::getAssociations(const MissingETAssociationMap* pMap,const IParticle* pPart)
   { 
     std::vector<const MissingETAssociation*> assocs;
-    if ( pMap == 0 ) { return assocs; }
+    if ( pMap == nullptr ) { return assocs; }
     else { 
       for (MissingETAssociationMap::const_iterator fAssoc = pMap->begin();fAssoc!=pMap->end(); fAssoc++) {
 	if ((*fAssoc)->findIndex(pPart) != MissingETBase::Numerical::invalidIndex()) assocs.push_back(*fAssoc);
@@ -401,7 +403,7 @@ namespace xAOD {
   std::vector<MissingETAssociation*> MissingETComposition::getAssociations(MissingETAssociationMap* pMap,const IParticle* pPart)
   { 
     std::vector<MissingETAssociation*> assocs;
-    if ( pMap == 0 ) { return assocs; }
+    if ( pMap == nullptr ) { return assocs; }
     else { 
       for (MissingETAssociationMap::iterator fAssoc = pMap->begin();fAssoc!=pMap->end(); fAssoc++) {
 	if ((*fAssoc)->findIndex(pPart) != MissingETBase::Numerical::invalidIndex()) assocs.push_back(*fAssoc);
@@ -411,10 +413,10 @@ namespace xAOD {
   } 
 
   const MissingETAssociation* MissingETComposition::getAssociation(const MissingETAssociationMap* pMap,const Jet* pJet)
-  { MissingETAssociationMap::const_iterator fAssoc(find(pMap,pJet)); return fAssoc != pMap->end() ? *fAssoc : (const MissingETAssociation*)0; }
+  { MissingETAssociationMap::const_iterator fAssoc(find(pMap,pJet)); return fAssoc != pMap->end() ? *fAssoc : (const MissingETAssociation*)nullptr; }
 
   MissingETAssociation* MissingETComposition::getAssociation(MissingETAssociationMap* pMap,const Jet* pJet)
-  { MissingETAssociationMap::iterator fAssoc(find(pMap,pJet)); return fAssoc != pMap->end() ? *fAssoc : (MissingETAssociation*)0; }
+  { MissingETAssociationMap::iterator fAssoc(find(pMap,pJet)); return fAssoc != pMap->end() ? *fAssoc : (MissingETAssociation*)nullptr; }
 
   // MissingETBase::Types::constvec_t MissingETComposition::getConstVec(const MissingETAssociationMap* pMap,const IParticle* pPart);
 
@@ -423,9 +425,9 @@ namespace xAOD {
   const Jet* MissingETComposition::getRefJet(const MissingETAssociationMap* pMap,const IParticle* pPart)
   {
     MissingETAssociationMap::const_iterator fAssoc = find(pMap,pPart);
-    return fAssoc==pMap->end() ? 0 : getRefJet(fAssoc);
+    return fAssoc==pMap->end() ? nullptr : getRefJet(fAssoc);
   }
 
   const Jet* MissingETComposition::getRefJet(MissingETAssociationMap::const_iterator fAssoc)
-  { return *fAssoc != 0  ? (*fAssoc)->refJet() : (const Jet*) 0; }
+  { return *fAssoc != nullptr  ? (*fAssoc)->refJet() : (const Jet*) nullptr; }
 }

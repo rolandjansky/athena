@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TrigMissingETCnvTool.cxx 785790 2016-11-22 16:48:26Z ssnyder $
@@ -49,7 +49,7 @@ namespace xAODMaker {
                                  xAOD::TrigMissingETContainer* xaod ) const {
 
     // A small sanity check. The output container should really be empty...
-    if( xaod->size() ) {
+    if( !xaod->empty() ) {
       ATH_MSG_WARNING( "The output xAOD container is not empty (size=="
                        << xaod->size() << ")" );
     }
@@ -59,7 +59,7 @@ namespace xAODMaker {
     for( ; aod_itr != aod_end; ++aod_itr ) {
 
        // Create a (single) output xAOD object.
-       auto xMET = new xAOD::TrigMissingET();
+       auto *xMET = new xAOD::TrigMissingET();
        xaod->push_back(xMET);
 
        // Transfer the simple items

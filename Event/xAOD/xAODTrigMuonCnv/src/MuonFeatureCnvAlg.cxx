@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id:$ //
@@ -51,7 +51,7 @@ namespace xAODMaker {
     
     // Retrieve the AOD container:
     // MuonFeature
-    const MuonFeatureContainer* aod_mf = 0;
+    const MuonFeatureContainer* aod_mf = nullptr;
     if (evtStore()->retrieve( aod_mf, m_mfName ).isFailure()) {
       ATH_MSG_WARNING("Requesting in Alg: MuonFeatureCnvAlg to convert AOD MuonFeatureContainer name: " << m_mfName <<
 		      " into xAOD " << m_xaodName << ". Input container not found or incorrect type");
@@ -59,7 +59,7 @@ namespace xAODMaker {
     }
 
     // MuonFeatureDetails
-    const MuonFeatureDetailsContainer* aod_mfd = 0;
+    const MuonFeatureDetailsContainer* aod_mfd = nullptr;
     if (evtStore()->retrieve( aod_mfd, m_mfName ).isFailure()) {
       ATH_MSG_WARNING("Requesting in Alg: MuonFeatureCnvAlg to convert AOD MuonFeatureDetailsContainer name: " << m_mfdName <<
 		      " into xAOD " << m_xaodName << ". Input container not found or incorrect type");

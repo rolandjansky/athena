@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -47,7 +47,7 @@ persToTrans( const xAOD::JetRoIAuxContainer_v1* oldObj,
    // Clear the transient object:
    newObj->resize( 0 );
 
-   SG::copyAuxStoreThinned( *oldObj, *newObj, 0 );
+   SG::copyAuxStoreThinned( *oldObj, *newObj, nullptr );
 
    // Now a bit of jiggery-pokery to set threshold pattern
    xAOD::JetRoIContainer newInt;

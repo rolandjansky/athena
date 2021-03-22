@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: MissingETCnvAlg.cxx 586557 2014-03-06 17:56:05Z krasznaa $
@@ -55,7 +55,7 @@ namespace xAODMaker {
       for( ; key_itr != key_end; ++key_itr ) {
 
          // Try to retrieve the object:
-         const MissingET* met = 0;
+         const MissingET* met = nullptr;
          if( evtStore()->retrieve( met, *key_itr ).isFailure() ) {
             ATH_MSG_WARNING( "Couldn't retrieve MET object with key: "
                              << *key_itr );

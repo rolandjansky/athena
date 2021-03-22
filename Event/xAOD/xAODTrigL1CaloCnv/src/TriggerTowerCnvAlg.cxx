@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TriggerTowerCnvAlg.cxx 576327 2013-12-19 16:08:56Z morrisj $
@@ -44,7 +44,7 @@ namespace xAODMaker {
    StatusCode TriggerTowerCnvAlg::execute() {
       
       // Retrieve the ESD container:
-      const TriggerTowerCollection* esd = 0;
+      const TriggerTowerCollection* esd = nullptr;
       CHECK( evtStore()->retrieve( esd, m_esdKey ) );
       
       // Create the xAOD container and its auxiliary store:

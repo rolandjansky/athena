@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id:$ //
@@ -47,7 +47,7 @@ namespace xAODMaker {
     StatusCode TrigEFBphysCnvAlg::execute() {
         
         // Retrieve the AOD container:
-        const TrigEFBphysContainer* aod = 0;
+        const TrigEFBphysContainer* aod = nullptr;
         if (evtStore()->retrieve( aod, m_aodKey ).isFailure()) {
             ATH_MSG_WARNING("Requesting in Alg: TrigEFBphysCnvAlg to convert AOD Key: " << m_aodKey <<
                             " into xAOD " << m_xaodKey << ". Input container not found or incorrect type");

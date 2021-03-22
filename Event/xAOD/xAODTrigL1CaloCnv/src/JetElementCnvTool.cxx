@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: JetElementCnvTool.cxx 691832 2015-08-28 08:21:40Z morrisj $
@@ -16,7 +16,9 @@ namespace {
   template <typename T>
   std::vector<T> convertVector(const std::vector<int>& in) {
     std::vector<T> result;
-    for(auto i : in) {
+    result.reserve(in.size());
+
+for(auto i : in) {
       result.push_back(static_cast<T>(i));
     }
     return result;
@@ -56,7 +58,7 @@ namespace xAODMaker {
                                           xAOD::JetElementContainer* xaod) {
 
       // A small sanity check. The output container should really be empty...
-      if( xaod->size() ) {
+      if( !xaod->empty() ) {
          ATH_MSG_WARNING( "The output xAOD container is not empty (size=="
                           << xaod->size() << ")" );
       }

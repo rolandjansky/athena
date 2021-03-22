@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s):
@@ -42,7 +42,7 @@ StatusCode
 
       // If DataHeader key not specified, try determining it
       if (m_dataHeaderKey.empty()) {
-        auto parentAlg = dynamic_cast< const INamedInterface* >(parent());
+        const auto *parentAlg = dynamic_cast< const INamedInterface* >(parent());
         if (parentAlg)
           m_dataHeaderKey = parentAlg->name();
       }
@@ -104,7 +104,7 @@ StatusCode
       }
 
       // Replace content in store with content created for this stream
-      auto output = m_metaDataSvc->tryRetrieve< xAOD::FileMetaData >(m_key);
+      auto *output = m_metaDataSvc->tryRetrieve< xAOD::FileMetaData >(m_key);
       if (output) *output = *m_info;
       else ATH_MSG_DEBUG("cannot copy FileMetaData payload to output");
 
@@ -166,7 +166,7 @@ StatusCode
           ATH_MSG_DEBUG("Retrieved " << m_dataHeaderKey);
 
           xAOD::FileMetaData::MetaDataType type = xAOD::FileMetaData::dataType;
-          const std::string tag = dataHeader->getProcessTag();
+          const std::string& tag = dataHeader->getProcessTag();
 
           if (m_info->setValue(type, tag))
             ATH_MSG_DEBUG("set " << type << " to "<< tag);

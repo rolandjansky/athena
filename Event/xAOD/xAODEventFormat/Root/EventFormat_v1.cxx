@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: EventFormat_v1.cxx 641134 2015-01-22 19:35:12Z ssnyder $
@@ -97,7 +97,7 @@ namespace xAOD {
                      << " Information requested about unknown branch ("
                      << key << ")" << std::endl;
          }
-         return 0;
+         return nullptr;
       }
 
       return &( itr->second );
@@ -135,7 +135,7 @@ namespace xAOD {
            std::cerr.width( width );
          }
 
-         return 0;
+         return nullptr;
       }
 
       return &( itr->second );

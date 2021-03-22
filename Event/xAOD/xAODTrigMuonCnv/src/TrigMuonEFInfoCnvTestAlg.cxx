@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigMuonEFInfoCnvTestAlg.h"
@@ -55,9 +55,9 @@ StatusCode TrigMuonEFInfoCnvTestAlg::execute() {
 		  
   // put all TrigMuonEF tracks into a single vector
   std::vector<const TrigMuonEFInfoTrack*> efinfotracks;
-  for(auto infoit : *infocont) {
+  for(const auto *infoit : *infocont) {
     const TrigMuonEFInfoTrackContainer* trkcont = infoit->TrackContainer();
-    for(auto trk : *trkcont) {
+    for(const auto *trk : *trkcont) {
 
       if(trk->hasCombinedTrack() || trk->hasExtrapolatedTrack()) {
 	// for now ignore MS only tracks
@@ -171,19 +171,19 @@ StatusCode TrigMuonEFInfoCnvTestAlg::compareCombinedTracks(const TrigMuonEFInfoT
  */ 
 StatusCode TrigMuonEFInfoCnvTestAlg::comparePrimaryTracks(const TrigMuonEFInfoTrack* infotrk, const xAOD::Muon* muon) {
 
-  const TrigMuonEFTrack* primtrk=0;
+  const TrigMuonEFTrack* primtrk=nullptr;
   if( infotrk->hasExtrapolatedTrack() ) {
     primtrk = infotrk->ExtrapolatedTrack();
   }
   if( infotrk->hasCombinedTrack() ) {
     primtrk = infotrk->CombinedTrack();
   }
-  if(primtrk!=0 && muon->primaryTrackParticleLink().isValid()) {
+  if(primtrk!=nullptr && muon->primaryTrackParticleLink().isValid()) {
     StatusCode sc = compareTracks(primtrk, *(muon->primaryTrackParticleLink()));
     if(sc.isFailure()) return sc;
   } else {
-    if(primtrk!=0 || muon->primaryTrackParticleLink().isValid()) {
-      ATH_MSG_ERROR("One of the primary tracks is not good, old = " << (primtrk!=0) << ", new = " << muon->primaryTrackParticleLink().isValid() );
+    if(primtrk!=nullptr || muon->primaryTrackParticleLink().isValid()) {
+      ATH_MSG_ERROR("One of the primary tracks is not good, old = " << (primtrk!=nullptr) << ", new = " << muon->primaryTrackParticleLink().isValid() );
       return StatusCode::RECOVERABLE;
     } else return StatusCode::SUCCESS; // this means both are 0, which is ok
   }

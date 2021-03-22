@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CompositeParticle_v1.cxx 677733 2015-06-23 19:31:10Z kkoeneke $
 
 // standard includes
-#include <math.h>       /* remainder and M_PI */
+#include <cmath>       /* remainder and M_PI */
 
 // Event Kernel include
 #include "TruthUtils/PIDHelpers.h" // for MC::PID::isElectron(...) and others
@@ -593,12 +593,12 @@ namespace xAOD {
   const xAOD::MissingET*
   CompositeParticle_v1::missingET() const {
     if ( !(metLinkAcc.isAvailable(*this)) ) {
-      return 0;
+      return nullptr;
     }
     const ElementLink<xAOD::MissingETContainer>& metLink = metLinkAcc(*this);
     // Check if we have a valid ElementLink
     if ( ! metLink.isValid() ) {
-      return 0;
+      return nullptr;
     }
     return *metLink;
   }
@@ -782,11 +782,11 @@ namespace xAOD {
   const xAOD::IParticle*
   CompositeParticle_v1::part( std::size_t index ) const {
     if ( index >= this->nParts() ) {
-       return 0;
+       return nullptr;
     }
     const xAOD::IParticleLink & constitLink = partLink( index );
     if ( ! constitLink.isValid() ) {
-       return 0;
+       return nullptr;
     }
     return *constitLink;
   }
@@ -1071,11 +1071,11 @@ namespace xAOD {
   const xAOD::IParticle*
   CompositeParticle_v1::otherPart( std::size_t index ) const {
     if ( index >= this->nOtherParts() ) {
-       return 0;
+       return nullptr;
     }
     const xAOD::IParticleLink & otherPartLink = this->otherPartLink( index );
     if ( ! otherPartLink.isValid() ) {
-       return 0;
+       return nullptr;
     }
     return *otherPartLink;
   }

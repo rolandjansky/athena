@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TrigTrackCountsCnvAlg.cxx 603353 2014-06-24 12:36:04Z azemla $
@@ -44,7 +44,7 @@ namespace xAODMaker {
    StatusCode TrigTrackCountsCnvAlg::execute() {
 
       // Retrieve the AOD container:
-      const TrigTrackCountsCollection* aod = 0;
+      const TrigTrackCountsCollection* aod = nullptr;
       CHECK( evtStore()->retrieve( aod, m_aodKey ) );
 
       // Create the xAOD container and its auxiliary store:

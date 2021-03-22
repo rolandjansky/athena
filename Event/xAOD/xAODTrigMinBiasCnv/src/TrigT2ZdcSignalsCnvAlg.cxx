@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TrigT2ZdcSignalsCnvAlg.cxx 608072 2014-07-23 00:27:40Z azemla $
@@ -44,7 +44,7 @@ namespace xAODMaker {
    StatusCode TrigT2ZdcSignalsCnvAlg::execute() {
 
       // Retrieve the AOD container:
-      const TrigT2ZdcSignalsContainer* aod = 0;
+      const TrigT2ZdcSignalsContainer* aod = nullptr;
       CHECK( evtStore()->retrieve( aod, m_aodKey ) );
 
       // Create the xAOD container and its auxiliary store:

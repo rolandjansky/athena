@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s):
@@ -38,7 +38,7 @@ namespace xAOD {
 
       // Merge the objects from all the threads:
       ReadStats result;
-      for( auto& pair : m_stats ) {
+      for( const auto & pair : m_stats ) {
          result += pair.second;
       }
 

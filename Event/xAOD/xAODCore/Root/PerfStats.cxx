@@ -18,7 +18,7 @@ ClassImp( xAOD::PerfStats )
 namespace xAOD {
 
    // Initialize the static variable(s):
-   PerfStats* PerfStats::s_instance = 0;
+   PerfStats* PerfStats::s_instance = nullptr;
    std::mutex PerfStats::s_mutex;
 
    /// The destructor is a quite important function in this class.
@@ -31,7 +31,7 @@ namespace xAOD {
       // Since this object can only be deleted by deleting the global
       // gPerfStats object, make sure that all the objects get deleted
       // if the user asked for it...
-      s_instance = 0;
+      s_instance = nullptr;
       if( m_otherPerfStats ) {
          delete m_otherPerfStats;
       }
@@ -330,8 +330,8 @@ namespace xAOD {
    /// gPerfStats to point to this object.
    ///
    PerfStats::PerfStats()
-      : m_otherPerfStats( 0 ), m_running( false ), m_startTime( 0.0 ),
-        m_tree( 0 ), m_file( 0 ), m_treeWarningPrinted( false ) {
+      : m_otherPerfStats( nullptr ), m_running( false ), m_startTime( 0.0 ),
+        m_tree( nullptr ), m_file( nullptr ), m_treeWarningPrinted( false ) {
 
       // locked via instance().
 

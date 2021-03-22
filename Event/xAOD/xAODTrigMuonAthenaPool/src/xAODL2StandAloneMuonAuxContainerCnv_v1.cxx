@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODL2StandAloneMuonAuxContainerCnv_v1.cxx 707606 2015-11-12 19:59:49Z krasznaa $
@@ -71,7 +71,7 @@ persToTrans( const xAOD::L2StandAloneMuonAuxContainer_v1* oldObj,
 
    // Copy the payload of the v1 object into the latest one by misusing
    // the thinning code a bit...
-   SG::copyAuxStoreThinned( *oldObj, *newObj, 0 );
+   SG::copyAuxStoreThinned( *oldObj, *newObj, nullptr );
 
    size_t sz = oldObj->size();
    newObj->resize (sz);

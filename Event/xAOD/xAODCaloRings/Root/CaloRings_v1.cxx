@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // standard library includes:
@@ -85,10 +85,10 @@ RingSetLinks::const_iterator CaloRings_v1::end() const
 RingSet *CaloRings_v1::at(const unsigned int i)
 {
   if ( i > nRingSets() ) 
-    return 0;
+    return nullptr;
   ElementLink<RingSetContainer_v1> &rsEL = accRingSetLinks( *this ).at(i);
   if ( !rsEL.isValid() ) {
-    return 0;
+    return nullptr;
   }
   // If we want to use it as an left operand, we must do this:
   return const_cast<RingSet*>(*rsEL);
@@ -98,10 +98,10 @@ RingSet *CaloRings_v1::at(const unsigned int i)
 RingSet *CaloRings_v1::operator[](const unsigned int i)
 {
   if ( i > nRingSets() ) 
-    return 0;
+    return nullptr;
   ElementLink<RingSetContainer_v1> &rsEL = accRingSetLinks( *this )[i];
   if ( !rsEL.isValid() ) {
-    return 0;
+    return nullptr;
   }
   // If we want to use it as an left operand, we must do this:
   return const_cast<RingSet*>(*rsEL);
@@ -111,11 +111,11 @@ RingSet *CaloRings_v1::operator[](const unsigned int i)
 const RingSet *CaloRings_v1::at(const unsigned int i) const
 {
   if ( i > nRingSets() ) 
-    return 0;
+    return nullptr;
   const ElementLink<RingSetContainer_v1> &rsEL = 
     constAccRingSetLinks( *this ).at(i);
   if ( !rsEL.isValid() ) {
-    return 0;
+    return nullptr;
   }
   return *rsEL;
 }
@@ -124,11 +124,11 @@ const RingSet *CaloRings_v1::at(const unsigned int i) const
 const RingSet *CaloRings_v1::operator[](const unsigned int i) const
 {
   if ( i > nRingSets() ) 
-    return 0;
+    return nullptr;
   const ElementLink<RingSetContainer_v1> &rsEL = 
     constAccRingSetLinks( *this )[i];
   if ( !rsEL.isValid() ) {
-    return 0;
+    return nullptr;
   }
   return *rsEL;
 }

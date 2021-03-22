@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -57,7 +57,7 @@ persToTrans( const xAOD::TrigCompositeAuxContainer_v1* oldObj,
    newObj->resize( 0 );
 
    // This line does the conversion.
-   SG::copyAuxStoreThinned( *oldObj, *newObj, 0 ); 
+   SG::copyAuxStoreThinned( *oldObj, *newObj, nullptr ); 
 
    // Print what happened:
    ATH_MSG( "Converting xAOD::TrigCompositeAuxContainer_v1 to current version "

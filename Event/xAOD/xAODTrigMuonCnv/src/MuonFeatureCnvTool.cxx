@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id:$
@@ -118,16 +118,15 @@ StatusCode MuonFeatureCnvTool::convertMuonFeature( const MuonFeatureDetails* aod
                         aodMfd->tgc_Mid_phi_chi2(), aodMfd->tgc_Mid_phi_N());
     xaod->setTgcPt     (aodMfd->tgc_PT());
 
-    const std::vector< std::vector<int> > chamber_type_1 = aodMfd->chamber_type_1();
-    const std::vector< std::vector<int> > chamber_type_2 = aodMfd->chamber_type_2();
-    const std::vector< std::vector<float> > aw           = aodMfd->aw();
-    const std::vector< std::vector<float> > bw           = aodMfd->bw();
-    const std::vector< std::vector<float> > zetaMin      = aodMfd->zetaMin();
-    const std::vector< std::vector<float> > zetaMax      = aodMfd->zetaMax();
-    const std::vector< std::vector<float> > radMin       = aodMfd->radMin();
-    const std::vector< std::vector<float> > radMax       = aodMfd->radMax();
-    const std::vector< std::vector<float> > etaMin       = aodMfd->etaMin();
-    const std::vector< std::vector<float> > etaMax       = aodMfd->etaMax();
+    const std::vector< std::vector<int> >& chamber_type_1 = aodMfd->chamber_type_1();
+    const std::vector< std::vector<float> >& aw           = aodMfd->aw();
+    const std::vector< std::vector<float> >& bw           = aodMfd->bw();
+    const std::vector< std::vector<float> >& zetaMin      = aodMfd->zetaMin();
+    const std::vector< std::vector<float> >& zetaMax      = aodMfd->zetaMax();
+    const std::vector< std::vector<float> >& radMin       = aodMfd->radMin();
+    const std::vector< std::vector<float> >& radMax       = aodMfd->radMax();
+    const std::vector< std::vector<float> >& etaMin       = aodMfd->etaMin();
+    const std::vector< std::vector<float> >& etaMax       = aodMfd->etaMax();
     for (int sector=0; sector<2; sector++) {
       for (int station=0; station<4; station++) {
         xaod->setChamberType1(station, sector, chamber_type_1[sector][station]);
@@ -139,13 +138,13 @@ StatusCode MuonFeatureCnvTool::convertMuonFeature( const MuonFeatureDetails* aod
       }      
     }
 
-    const std::vector<uint32_t> pad_hit_onlineId = aodMfd->pad_hit_onlineId();
-    const std::vector<uint32_t> pad_hit_code     = aodMfd->pad_hit_code();
-    const std::vector<float>    pad_hit_x        = aodMfd->pad_hit_x();
-    const std::vector<float>    pad_hit_y        = aodMfd->pad_hit_y();
-    const std::vector<float>    pad_hit_z        = aodMfd->pad_hit_z();
-    const std::vector<float>    pad_hit_r        = aodMfd->pad_hit_r();
-    const std::vector<float>    pad_hit_p        = aodMfd->pad_hit_p();
+    const std::vector<uint32_t>& pad_hit_onlineId = aodMfd->pad_hit_onlineId();
+    const std::vector<uint32_t>& pad_hit_code     = aodMfd->pad_hit_code();
+    const std::vector<float>&    pad_hit_x        = aodMfd->pad_hit_x();
+    const std::vector<float>&    pad_hit_y        = aodMfd->pad_hit_y();
+    const std::vector<float>&    pad_hit_z        = aodMfd->pad_hit_z();
+    const std::vector<float>&    pad_hit_r        = aodMfd->pad_hit_r();
+    const std::vector<float>&    pad_hit_p        = aodMfd->pad_hit_p();
     for (unsigned int i=0; i< pad_hit_onlineId.size(); i++) {
       if ( i >= pad_hit_code.size() || i >= pad_hit_x.size() || i >= pad_hit_y.size() || 
            i >= pad_hit_z.size() || i >= pad_hit_r.size() || i >= pad_hit_p.size() ) continue;
@@ -155,26 +154,26 @@ StatusCode MuonFeatureCnvTool::convertMuonFeature( const MuonFeatureDetails* aod
     }
 
 
-    const std::vector<float>    tgc_Inn_rho_hit_phi    = aodMfd->tgc_Inn_rho_hit_phi();
-    const std::vector<float>    tgc_Inn_rho_hit_r      = aodMfd->tgc_Inn_rho_hit_r();
-    const std::vector<float>    tgc_Inn_rho_hit_z      = aodMfd->tgc_Inn_rho_hit_z();
-    const std::vector<float>    tgc_Inn_rho_hit_width  = aodMfd->tgc_Inn_rho_hit_width();
-    const std::vector<uint32_t> tgc_Inn_rho_hit_in_seg = aodMfd->tgc_Inn_rho_hit_in_seg();
-    const std::vector<float>    tgc_Inn_phi_hit_phi    = aodMfd->tgc_Inn_phi_hit_phi();
-    const std::vector<float>    tgc_Inn_phi_hit_r      = aodMfd->tgc_Inn_phi_hit_r();
-    const std::vector<float>    tgc_Inn_phi_hit_z      = aodMfd->tgc_Inn_phi_hit_z();
-    const std::vector<float>    tgc_Inn_phi_hit_width  = aodMfd->tgc_Inn_phi_hit_width();
-    const std::vector<uint32_t> tgc_Inn_phi_hit_in_seg = aodMfd->tgc_Inn_phi_hit_in_seg();
-    const std::vector<float>    tgc_Mid_rho_hit_phi    = aodMfd->tgc_Mid_rho_hit_phi();
-    const std::vector<float>    tgc_Mid_rho_hit_r      = aodMfd->tgc_Mid_rho_hit_r();
-    const std::vector<float>    tgc_Mid_rho_hit_z      = aodMfd->tgc_Mid_rho_hit_z();
-    const std::vector<float>    tgc_Mid_rho_hit_width  = aodMfd->tgc_Mid_rho_hit_width();
-    const std::vector<uint32_t> tgc_Mid_rho_hit_in_seg = aodMfd->tgc_Mid_rho_hit_in_seg();
-    const std::vector<float>    tgc_Mid_phi_hit_phi    = aodMfd->tgc_Mid_phi_hit_phi();
-    const std::vector<float>    tgc_Mid_phi_hit_r      = aodMfd->tgc_Mid_phi_hit_r();
-    const std::vector<float>    tgc_Mid_phi_hit_z      = aodMfd->tgc_Mid_phi_hit_z();
-    const std::vector<float>    tgc_Mid_phi_hit_width  = aodMfd->tgc_Mid_phi_hit_width();
-    const std::vector<uint32_t> tgc_Mid_phi_hit_in_seg = aodMfd->tgc_Mid_phi_hit_in_seg();
+    const std::vector<float>&    tgc_Inn_rho_hit_phi    = aodMfd->tgc_Inn_rho_hit_phi();
+    const std::vector<float>&    tgc_Inn_rho_hit_r      = aodMfd->tgc_Inn_rho_hit_r();
+    const std::vector<float>&    tgc_Inn_rho_hit_z      = aodMfd->tgc_Inn_rho_hit_z();
+    const std::vector<float>&    tgc_Inn_rho_hit_width  = aodMfd->tgc_Inn_rho_hit_width();
+    const std::vector<uint32_t>& tgc_Inn_rho_hit_in_seg = aodMfd->tgc_Inn_rho_hit_in_seg();
+    const std::vector<float>&    tgc_Inn_phi_hit_phi    = aodMfd->tgc_Inn_phi_hit_phi();
+    const std::vector<float>&    tgc_Inn_phi_hit_r      = aodMfd->tgc_Inn_phi_hit_r();
+    const std::vector<float>&    tgc_Inn_phi_hit_z      = aodMfd->tgc_Inn_phi_hit_z();
+    const std::vector<float>&    tgc_Inn_phi_hit_width  = aodMfd->tgc_Inn_phi_hit_width();
+    const std::vector<uint32_t>& tgc_Inn_phi_hit_in_seg = aodMfd->tgc_Inn_phi_hit_in_seg();
+    const std::vector<float>&    tgc_Mid_rho_hit_phi    = aodMfd->tgc_Mid_rho_hit_phi();
+    const std::vector<float>&    tgc_Mid_rho_hit_r      = aodMfd->tgc_Mid_rho_hit_r();
+    const std::vector<float>&    tgc_Mid_rho_hit_z      = aodMfd->tgc_Mid_rho_hit_z();
+    const std::vector<float>&    tgc_Mid_rho_hit_width  = aodMfd->tgc_Mid_rho_hit_width();
+    const std::vector<uint32_t>& tgc_Mid_rho_hit_in_seg = aodMfd->tgc_Mid_rho_hit_in_seg();
+    const std::vector<float>&    tgc_Mid_phi_hit_phi    = aodMfd->tgc_Mid_phi_hit_phi();
+    const std::vector<float>&    tgc_Mid_phi_hit_r      = aodMfd->tgc_Mid_phi_hit_r();
+    const std::vector<float>&    tgc_Mid_phi_hit_z      = aodMfd->tgc_Mid_phi_hit_z();
+    const std::vector<float>&    tgc_Mid_phi_hit_width  = aodMfd->tgc_Mid_phi_hit_width();
+    const std::vector<uint32_t>& tgc_Mid_phi_hit_in_seg = aodMfd->tgc_Mid_phi_hit_in_seg();
     for (unsigned int i=0; i< tgc_Inn_rho_hit_phi.size(); i++) {
       if (i >= tgc_Inn_rho_hit_r.size() || i >= tgc_Inn_rho_hit_z.size() ||
           i >= tgc_Inn_rho_hit_width.size() || i >= tgc_Inn_rho_hit_in_seg.size() || 
@@ -190,14 +189,14 @@ StatusCode MuonFeatureCnvTool::convertMuonFeature( const MuonFeatureDetails* aod
 		      tgc_Inn_rho_hit_width[i], (int)tgc_Inn_rho_hit_in_seg[i], 0, 0, 0);
     }
 
-    const std::vector<uint32_t> mdt_onlineId      = aodMfd->mdt_onlineId();
-    const std::vector<uint32_t> mdt_offlineId     = aodMfd->mdt_offlineId();
-    const std::vector<float>    mdt_tube_r        = aodMfd->mdt_tube_r();
-    const std::vector<float>    mdt_tube_z        = aodMfd->mdt_tube_z();
-    const std::vector<float>    mdt_tube_residual = aodMfd->mdt_tube_residual();
-    const std::vector<float>    mdt_tube_time     = aodMfd->mdt_tube_time();
-    const std::vector<float>    mdt_tube_space    = aodMfd->mdt_tube_space();
-    const std::vector<float>    mdt_tube_sigma    = aodMfd->mdt_tube_sigma();
+    const std::vector<uint32_t>& mdt_onlineId      = aodMfd->mdt_onlineId();
+    const std::vector<uint32_t>& mdt_offlineId     = aodMfd->mdt_offlineId();
+    const std::vector<float>&    mdt_tube_r        = aodMfd->mdt_tube_r();
+    const std::vector<float>&    mdt_tube_z        = aodMfd->mdt_tube_z();
+    const std::vector<float>&    mdt_tube_residual = aodMfd->mdt_tube_residual();
+    const std::vector<float>&    mdt_tube_time     = aodMfd->mdt_tube_time();
+    const std::vector<float>&    mdt_tube_space    = aodMfd->mdt_tube_space();
+    const std::vector<float>&    mdt_tube_sigma    = aodMfd->mdt_tube_sigma();
     int chamber = 999;
     for (unsigned int i=0; i< mdt_onlineId.size(); i++) {
       if ( i >= mdt_offlineId.size() || i >= mdt_tube_r.size() || 
@@ -242,7 +241,7 @@ StatusCode MuonFeatureCnvTool::convertMuonFeatureContainer(const MuonFeatureCont
   MuonFeatureDetailsContainer::const_iterator citMfdBegin = aodMfd->begin();
   MuonFeatureDetailsContainer::const_iterator citMfdEnd   = aodMfd->end();
   for (citMfd = citMfdBegin; citMfd != citMfdEnd; ++citMfd) {
-    vMfd.push_back(std::make_pair(false, *citMfd));
+    vMfd.emplace_back(false, *citMfd);
   }
 
   citMfd = citMfdBegin;

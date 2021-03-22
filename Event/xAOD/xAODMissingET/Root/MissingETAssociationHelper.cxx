@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAODMissingET/MissingETAssociationHelper.h"
@@ -20,7 +20,7 @@ using namespace xAOD;
 /////////////////////////////////
 
 MissingETAssociationHelper::MissingETAssociationHelper()
-  : m_map(0)
+  : m_map(nullptr)
 {  }
 
 MissingETAssociationHelper::MissingETAssociationHelper(const MissingETAssociationMap_v1* map)

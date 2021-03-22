@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: SafeDeepCopy.cxx 676241 2015-06-18 06:15:44Z krasznaa $
@@ -58,7 +58,7 @@ namespace xAOD {
          // provide it. Most usually this happens when reading a container from
          // a file, in which not all elements were decorated consistently.
          // This has to be caught here:
-         const void* src = 0;
+         const void* src = nullptr;
          try {
             src = ocont->getDataArray( auxid );
          } catch( const SG::ExcBadAuxVar& ) {

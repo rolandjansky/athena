@@ -1,6 +1,6 @@
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -86,32 +86,20 @@ namespace xAOD {
    }
 
    bool gFexJetRoI_v1::isgBlock() const {
-     if (gFexType() == gBlock){
-        return true;
-     }
-     return false;
+     return gFexType() == gBlock;
    }
 
    bool gFexJetRoI_v1::isgJet() const {
-     if (gFexType() == gJet){
-        return true;
-     }
-     return false;
+     return gFexType() == gJet;
    }
 
    bool gFexJetRoI_v1::isgRho() const {
-     if (gFexType() == gRho){
-        return true;
-     }
-     return false;
+     return gFexType() == gRho;
    }
 
    bool gFexJetRoI_v1::isLeadingJet() const {
      auto tobID = (word() >> s_tobIDBit) & s_tobIDMask;
-     if (tobID == 1 || tobID == 2 || tobID == 5 || tobID == 6){
-        return true;
-     }
-     return false;
+     return tobID == 1 || tobID == 2 || tobID == 5 || tobID == 6;
    }
 
    unsigned int gFexJetRoI_v1::unpackStatus() const{

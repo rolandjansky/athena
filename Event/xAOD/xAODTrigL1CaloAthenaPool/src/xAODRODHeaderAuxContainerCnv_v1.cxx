@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -96,7 +96,7 @@ persToTrans( const xAOD::RODHeaderAuxContainer_v1* oldObj,
 
          // Ignore the ones that we already copied:
          bool ignore = false;
-         for( auto* acc : knownVars ) {
+         for( const auto * acc : knownVars ) {
             if( auxid == acc->auxid() ) {
                ignore = true;
                break;
@@ -116,7 +116,7 @@ persToTrans( const xAOD::RODHeaderAuxContainer_v1* oldObj,
          // , and we won't even need to use a private function for it. But
          // in order to make the code work in 20.1.X.Y, this ugly hack needs
          // to be done to make the code safe.
-         const void* src = 0;
+         const void* src = nullptr;
          try {
             const xAOD::RODHeaderContainer_v1& helper = oldInt;
             src = helper.getDataArray( auxid );

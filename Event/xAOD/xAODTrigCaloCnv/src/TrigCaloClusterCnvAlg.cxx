@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TrigCaloClusterCnvAlg.cxx 592334 2014-04-10 11:01:56Z krasznaa $
@@ -44,7 +44,7 @@ namespace xAODMaker {
    StatusCode TrigCaloClusterCnvAlg::execute() {
 
       // Retrieve the AOD container:
-      const TrigCaloClusterContainer* aod = 0;
+      const TrigCaloClusterContainer* aod = nullptr;
       CHECK( evtStore()->retrieve( aod, m_aodKey ) );
 
       // Create the xAOD container and its auxiliary store:

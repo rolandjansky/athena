@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: L2StandAloneMuon_v2.h 661304 2015-04-18 04:31:23Z mishitsu $
@@ -419,7 +419,7 @@ namespace xAOD {
       const std::vector< std::string >& rpcHitStationName() const;
       /// Set RPC hits
       void setRpcHit(uint32_t layer,  uint32_t measuresPhi, float x, float y, float z,
-                     float time, float distEta, float distPhi, std::string stationName );
+                     float time, float distEta, float distPhi, const std::string& stationName );
 
       /// Get TGC hits
       const std::vector< float >& tgcHitEta() const;

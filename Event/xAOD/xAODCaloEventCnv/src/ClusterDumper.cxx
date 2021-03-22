@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ClusterDumper.cxx 767574 2016-08-11 13:52:47Z ssnyder $
@@ -26,7 +26,7 @@ ClusterDumper::ClusterDumper( const std::string& name,
 StatusCode ClusterDumper::initialize() {
   ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
 
-  if (m_fileName.size()!=0) {
+  if (!m_fileName.empty()) {
     m_fileOut.open(m_fileName);
     if (m_fileOut.is_open()) {
       m_out=&m_fileOut;
@@ -52,11 +52,11 @@ StatusCode ClusterDumper::finalize() {
  
 StatusCode ClusterDumper::execute() {
 
-  const xAOD::CaloClusterContainer* clustercontainer = 0;
+  const xAOD::CaloClusterContainer* clustercontainer = nullptr;
   CHECK( evtStore()->retrieve(clustercontainer,m_containerName));
   ATH_MSG_DEBUG( "Retrieved clusters with key: " << m_containerName );
 
-  const CaloClusterCellLinkContainer* cclptr=0;
+  const CaloClusterCellLinkContainer* cclptr=nullptr;
   if (evtStore()->contains<CaloClusterCellLinkContainer>(m_containerName+"_links")) {
     CHECK(evtStore()->retrieve(cclptr,m_containerName+"_links"));
     ATH_MSG_INFO("Found corresponding cell-link container with size " << cclptr->size());

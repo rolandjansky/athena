@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TrigBjetCnvAlg.cxx 619848 2014-10-03 13:59:50Z lidiaz $
@@ -46,7 +46,7 @@ namespace xAODMaker {
    StatusCode TrigBjetCnvAlg::execute() {
 
       // Retrieve the AOD container:
-     const TrigEFBjetContainer* aod = 0;
+     const TrigEFBjetContainer* aod = nullptr;
       CHECK( evtStore()->retrieve( aod, m_aodKey ) );
 
       // Create the xAOD container and its auxiliary store:

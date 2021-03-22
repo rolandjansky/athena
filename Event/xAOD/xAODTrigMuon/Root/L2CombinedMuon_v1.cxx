@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -121,11 +121,11 @@ namespace xAOD {
       static const Accessor< ElementLink< TrackParticleContainer > >
          acc( "idTrackLink" );
       if( ! acc.isAvailable( *this ) ) {
-         return 0;
+         return nullptr;
       }
       const ElementLink< TrackParticleContainer >& el = acc( *this );
       if( ! el.isValid() ) {
-         return 0;
+         return nullptr;
       }
       return *el;
    }
@@ -139,11 +139,11 @@ namespace xAOD {
       static const Accessor< ElementLink< L2StandAloneMuonContainer > >
          acc( "muSATrackLink" );
       if( ! acc.isAvailable( *this ) ) {
-         return 0;
+         return nullptr;
       }
       const ElementLink< L2StandAloneMuonContainer >& el = acc( *this );
       if( ! el.isValid() ) {
-         return 0;
+         return nullptr;
       }
       return *el;
    }

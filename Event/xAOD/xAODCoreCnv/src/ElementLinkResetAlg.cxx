@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -41,19 +41,19 @@ namespace xAODMaker {
 
       // Collect all the container(s):
       std::vector< std::pair< const SG::IConstAuxStore*, std::string > > stores;
-      if( m_keys.size() ) {
+      if( !m_keys.empty() ) {
          for( const std::string& key : m_keys ) {
-            const SG::IConstAuxStore* store = 0;
+            const SG::IConstAuxStore* store = nullptr;
             ATH_CHECK( evtStore()->retrieve( store, key ) );
-            stores.push_back( std::make_pair( store, key ) );
+            stores.emplace_back( store, key );
          }
       } else {
          SG::ConstIterator< SG::IConstAuxStore > begin, end;
          ATH_CHECK( evtStore()->retrieve( begin, end ) );
          for( auto itr = begin; itr != end; ++itr ) {
-            const SG::IConstAuxStore* store = 0;
+            const SG::IConstAuxStore* store = nullptr;
             ATH_CHECK( evtStore()->retrieve( store, itr.key() ) );
-            stores.push_back( std::make_pair( store, itr.key() ) );
+            stores.emplace_back( store, itr.key() );
          }
       }
       ATH_MSG_DEBUG( "Number of IConstAuxStore objects retrieved: "

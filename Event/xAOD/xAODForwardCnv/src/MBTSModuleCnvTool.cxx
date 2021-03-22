@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Gaudi/Athena include(s):
@@ -58,7 +58,7 @@ namespace xAODMaker {
       //xmbtsmod->setMbtsQuality((*itr)->quality()); // original
       xmbtsmod->setMbtsQuality ( ((*itr)->provenance()<<16 ) | (*itr)->quality());  //fix
       ATH_MSG_DEBUG( "MBTS: quality=" << (*itr)->quality() << " provenance=" << (*itr)->provenance() << " mbtsQuality=" << xmbtsmod->mbtsQuality()  );
-      const TileTBID*  tileid = 0;
+      const TileTBID*  tileid = nullptr;
       CHECK( detStore() -> retrieve(tileid) );
       Identifier id = (*itr)->ID();
 

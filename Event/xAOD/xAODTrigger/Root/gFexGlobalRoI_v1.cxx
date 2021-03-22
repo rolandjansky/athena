@@ -1,6 +1,6 @@
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -69,31 +69,19 @@ namespace xAOD {
    }
 
    bool gFexGlobalRoI_v1::isgScalar() const {
-     if (globalType() == gScalar){
-        return true;
-     }
-     return false;
+     return globalType() == gScalar;
    }
 
    bool gFexGlobalRoI_v1::isgMET() const {
-     if (globalType() == gMET){
-        return true;
-     }
-     return false;
+     return globalType() == gMET;
    }
 
    bool gFexGlobalRoI_v1::isgMHT() const {
-     if (globalType() == gMHT){
-        return true;
-     }
-     return false;
+     return globalType() == gMHT;
    }
 
    bool gFexGlobalRoI_v1::isgMST() const {
-     if (globalType() == gMST){
-        return true;
-     }
-     return false;
+     return globalType() == gMST;
    }
 
 

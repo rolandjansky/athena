@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: AuxStoreWrapper.cxx 695881 2015-09-21 08:47:05Z will $
@@ -96,7 +96,7 @@ namespace xAODMaker {
                              << "\" and CLID " << proxy->clID() );
 
             // Check if we need to worry about this object:
-            if( m_keysSet.size() ) {
+            if( !m_keysSet.empty() ) {
                if( m_keysSet.find( proxy->name() ) == m_keysSet.end() ) {
                   // This SG key was not mentioned in the jobOptions...
                   ATH_MSG_VERBOSE( "Conversion for this key was not "
@@ -152,7 +152,7 @@ namespace xAODMaker {
          ATH_MSG_VERBOSE( "Now wrapping object: " << name );
 
          // Access the object with an SG::IAuxStore pointer:
-         const SG::IAuxStore* original = 0;
+         const SG::IAuxStore* original = nullptr;
          if( ! evtStore()->retrieve( original, name ).isSuccess() ) {
             ATH_MSG_WARNING( "Couldn't retrieve object \"" << name << "\" "
                              << "with interface SG::IAuxStore" );
@@ -207,7 +207,7 @@ namespace xAODMaker {
          return StatusCode::FAILURE;
       }
       // Now make StoreGate forget about this proxy completely:
-      CHECK( evtStore()->removeProxy( storeProxy, 0, true ) );
+      CHECK( evtStore()->removeProxy( storeProxy, nullptr, true ) );
 
       // Create the new object as a wrapper around the original:
       xAOD::AuxContainerBase* holder = new xAOD::AuxContainerBase();

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ut_xaodcore_shallowcopy.cxx 673658 2015-06-09 12:45:34Z krasznaa $
@@ -53,8 +53,8 @@ int testCopy (const DataVector<SG::AuxElement>& origVec,
    // Some starting tests:
    copyAux.setShallowIO( true );
    SIMPLE_ASSERT( copyAux.getAuxIDs().size() == 2 );
-   SIMPLE_ASSERT( copyAux.getDynamicAuxIDs().size() == 0 );
-   SIMPLE_ASSERT( copyAux.getSelectedAuxIDs().size() == 0 );
+   SIMPLE_ASSERT( copyAux.getDynamicAuxIDs().empty() );
+   SIMPLE_ASSERT( copyAux.getSelectedAuxIDs().empty() );
    copyAux.setShallowIO( false );
    SIMPLE_ASSERT( copyAux.getAuxIDs().size() == 2 );
    SIMPLE_ASSERT( copyAux.getDynamicAuxIDs().size() == 2 );
