@@ -108,7 +108,7 @@ class McEventCollectionCnv_p3 : public T_AthenaPoolTPCnvBase<
   createGenVertex( const McEventCollection_p3& persEvts,
                    const GenVertex_p3& vtx,
                    ParticlesMap_t& bcToPart,
-                   HepMC::DataPool& datapools ) const;
+                   HepMC::DataPool& datapools, HepMC::GenEvent* parent=nullptr ) const;
 
   /** @brief Create a transient @c GenParticle from a persistent one (vers.1)
    *  It returns the new @c GenParticle. Note that the map being passed as an
@@ -118,7 +118,7 @@ class McEventCollectionCnv_p3 : public T_AthenaPoolTPCnvBase<
   HepMC::GenParticlePtr
   createGenParticle( const GenParticle_p3& p,
                      ParticlesMap_t& partToEndVtx,
-                     HepMC::DataPool& datapools ) const;
+                     HepMC::DataPool& datapools, HepMC::GenVertexPtr parent=nullptr ) const;
 
 };
 #endif //> GENERATOROBJECTSTPCNV_MCEVENTCOLLECTIONCNV_P3_H

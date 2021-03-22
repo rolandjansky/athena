@@ -347,7 +347,7 @@ HepMC::GenVertexPtr
 McEventCollectionCnv_p4::createGenVertex( const McEventCollection_p4& persEvt,
                                           const GenVertex_p4& persVtx,
                                           ParticlesMap_t& partToEndVtx,
-                                          HepMC::DataPool& datapools ) const
+                                          HepMC::DataPool& datapools, HepMC::GenEvent* parent ) const
 {
   HepMC::GenVertexPtr vtx(0);
   if(m_isPileup)
@@ -358,13 +358,27 @@ McEventCollectionCnv_p4::createGenVertex( const McEventCollection_p4& persEvt,
     {
       vtx = datapools.getGenVertex();
     }
+  if (parent) parent->add_vertex(vtx);
 #ifdef HEPMC3
   vtx->set_position(HepMC::FourVector( persVtx.m_x , persVtx.m_y , persVtx.m_z ,persVtx.m_t ));
-  //AV ID cannot be assigned in HepMC3. And its meaning in HepMC2 is not clear.
-  // vtx->m_id      = persVtx.m_id;
+  vtx->set_status(persVtx.m_id);
   vtx->add_attribute("weights",std::make_shared<HepMC3::VectorFloatAttribute>(persVtx.m_weights));
   vtx->add_attribute("barcode",std::make_shared<HepMC3::IntAttribute>(persVtx.m_barcode));
 
+  // handle the in-going (orphans) particles
+  //Is this needed in HepMC3?
+  const unsigned int nPartsIn = persVtx.m_particlesIn.size();
+  for ( unsigned int i = 0; i != nPartsIn; ++i )
+    {
+      createGenParticle( persEvt.m_genParticles[persVtx.m_particlesIn[i]], partToEndVtx, datapools );
+    }
+
+  // now handle the out-going particles
+  const unsigned int nPartsOut = persVtx.m_particlesOut.size();
+  for ( unsigned int i = 0; i != nPartsOut; ++i )
+    {
+      createGenParticle( persEvt.m_genParticles[persVtx.m_particlesOut[i]], partToEndVtx, datapools, vtx );
+    }
 #else
   vtx->m_position.setX( persVtx.m_x );
   vtx->m_position.setY( persVtx.m_y );
@@ -378,7 +392,6 @@ McEventCollectionCnv_p4::createGenVertex( const McEventCollection_p4& persEvt,
                                     persVtx.m_weights.end() );
   vtx->m_event   = 0;
   vtx->m_barcode = persVtx.m_barcode;
-#endif
 
   // handle the in-going (orphans) particles
   const unsigned int nPartsIn = persVtx.m_particlesIn.size();
@@ -397,6 +410,7 @@ McEventCollectionCnv_p4::createGenVertex( const McEventCollection_p4& persEvt,
                                                 partToEndVtx,
                                                 datapools ) );
     }
+#endif
 
   return vtx;
 }
@@ -404,7 +418,7 @@ McEventCollectionCnv_p4::createGenVertex( const McEventCollection_p4& persEvt,
 HepMC::GenParticlePtr
 McEventCollectionCnv_p4::createGenParticle( const GenParticle_p4& persPart,
                                             ParticlesMap_t& partToEndVtx,
-                                            HepMC::DataPool& datapools ) const
+                                            HepMC::DataPool& datapools, HepMC::GenVertexPtr parent ) const
 {
   HepMC::GenParticlePtr p(0);
   if (m_isPileup)
@@ -415,6 +429,7 @@ McEventCollectionCnv_p4::createGenParticle( const GenParticle_p4& persPart,
     {
       p    = datapools.getGenParticle();
     }
+  if (parent) parent->add_particle_out(p);
 #ifdef HEPMC3
   p->set_pdg_id(              persPart.m_pdgId);
   p->set_status(              persPart.m_status);
