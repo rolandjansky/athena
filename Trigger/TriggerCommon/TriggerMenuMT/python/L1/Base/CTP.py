@@ -48,7 +48,7 @@ class CTP(object):
         inputConnectorList += self.inputConnectors["ctpin"]["slot9"].values()
         for connName in inputConnectorList:
             if connName != '' and connName not in availableConnectors:
-                msg = "Connector '%s' requested in L1/Config/CTPConfig.py not defined as menu input. Please add it to L1/Menu/Menu_%s_inputs.py" % (connName, menuToLoad)
+                msg = "Connector '%s' requested in L1/Config/CTPConfig.py not defined as menu input. Please add it to L1/Menu/Menu_%s.py" % (connName, menuToLoad[1])
                 log.error(msg)
                 raise RuntimeError(msg)
 
