@@ -54,7 +54,7 @@ StatusCode HepMCTruthReader::execute() {
     if (cntr>0) ATH_MSG_INFO("Printing pileup events...");  
 
     if (cntr==0) {
-      auto *signalProcessVtx = HepMC::signal_process_vertex((HepMC::GenEvent*)genEvt);
+      auto signalProcessVtx = HepMC::signal_process_vertex((HepMC::GenEvent*)genEvt);
       ATH_MSG_INFO("Signal process vertex position: (" << (signalProcessVtx?signalProcessVtx->position().x():0)
 		   << ", " << (signalProcessVtx?signalProcessVtx->position().y():0)
            << ", " << (signalProcessVtx?signalProcessVtx->position().z():0)
