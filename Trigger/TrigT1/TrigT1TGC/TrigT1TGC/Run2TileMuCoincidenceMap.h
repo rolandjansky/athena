@@ -61,7 +61,7 @@ class Run2TileMuCoincidenceMap
   virtual ~Run2TileMuCoincidenceMap() = default;
 
   Run2TileMuCoincidenceMap(const Run2TileMuCoincidenceMap& right) = default;
-  Run2TileMuCoincidenceMap& operator = (const Run2TileMuCoincidenceMap& right) = default;
+  Run2TileMuCoincidenceMap& operator = (const Run2TileMuCoincidenceMap& right) = delete;
 
   uint16_t getAddr(int16_t side, int16_t sec, int16_t ssc) const;
 
