@@ -5,14 +5,13 @@
 #define TRIGEGAMMAHYPO_TRIGEGAMMAFASTCALOHYPOTOOLINC_H 1
 
 #include "xAODTrigCalo/TrigEMCluster.h"
-
 #include "xAODTrigRinger/TrigRingerRings.h"
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+
 #include "TrigMultiVarHypo/tools/RingerSelectorTool.h"
-#include "RingerSelectorTools/tools/onnx/RingerSelectorTool.h"
-#include "AthOnnxruntimeService/IONNXRuntimeSvc.h"
+#include "RingerSelectorTools/IAsgRingerSelectorTool.h"
 #include "LumiBlockComps/ILumiBlockMuTool.h"
 
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
@@ -50,7 +49,6 @@ class TrigEgammaFastCaloHypoToolInc : public extends<AthAlgTool, ITrigEgammaFast
 
     HLT::Identifier m_decisionId;
     Ringer::RingerSelectorTool        m_selectorTool;
-    Ringer::onnx::RingerSelectorTool  m_onnxSelectorTool;
     ToolHandle<ILumiBlockMuTool>      m_lumiBlockMuTool;
 
     
@@ -80,8 +78,8 @@ class TrigEgammaFastCaloHypoToolInc : public extends<AthAlgTool, ITrigEgammaFast
  
 
     ToolHandle< GenericMonitoringTool >       m_monTool{ this, "MonTool", "", "Monitoring tool" };
-    ServiceHandle< AthONNX::IONNXRuntimeSvc > m_onnxSvc{ this, "ONNXRuntimeSvc", "AthONNX::ONNXRuntimeSvc", "Name of the service to use" };
-    
+    ToolHandle<Ringer::IAsgRingerSelectorTool>m_ringerTool{ this, "RingerSelector", "", "Ringer tool" };
+
 
 }; 
 

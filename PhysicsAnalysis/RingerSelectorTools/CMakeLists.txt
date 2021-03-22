@@ -22,7 +22,7 @@ atlas_add_library( RingerSelectorToolsLib
                    Root/*.cxx
                    Root/procedures/*.cxx
                    Root/tools/*.cxx
-                   src/onnx/*.cxx
+                   Root/tools/onnx/*.cxx
                    PUBLIC_HEADERS RingerSelectorTools
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${ONNXRUNTIME_INCLUDE_DIRS}
                    LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${ONNXRUNTIME_LIBRARIES} AsgTools CxxUtils xAODCaloRings xAODEgamma xAODTracking 
@@ -32,8 +32,8 @@ atlas_add_library( RingerSelectorToolsLib
 if( NOT XAOD_STANDALONE )
   atlas_add_component( RingerSelectorTools
                        src/components/*.cxx
-                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                       LINK_LIBRARIES ${ONNXRUNTIME_LIBRARIES} ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel AthContainers GaudiKernel TrkTrackSummary RingerSelectorToolsLib )
+                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${ONNXRUNTIME_INCLUDE_DIRS}
+                       LINK_LIBRARIES ${ONNXRUNTIME_LIBRARIES} ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel AthContainers GaudiKernel TrkTrackSummary RingerSelectorToolsLib AthOnnxruntimeServiceLib )
 endif()
 
 

@@ -11,7 +11,6 @@ namespace Ringer{
 
     Model::Model( std::string modelPath, AthONNX::IONNXRuntimeSvc *svc,
                   float etmin, float etmax, float etamin, float etamax):
-      //asg::AsgMessaging("Model"),
       m_etmin(etmin),
       m_etmax(etmax),
       m_etamin(etamin),

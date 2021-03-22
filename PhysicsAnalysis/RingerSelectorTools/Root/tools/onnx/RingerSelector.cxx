@@ -3,12 +3,11 @@
 */
 
 // Local includes:
-#include "RingerSelectorTools/tools/onnx/RingerSelectorTool.h"
+#include "RingerSelectorTools/tools/onnx/RingerSelector.h"
 #include "PathResolver/PathResolver.h"
 #include <algorithm>
 #include "TEnv.h"
 
-using namespace Monitored;
 
 
 namespace Ringer{
@@ -17,13 +16,13 @@ namespace Ringer{
 
 
     //==============================================================================
-    RingerSelectorTool::RingerSelectorTool():
-      asg::AsgMessaging("RingerSelectorTool")
+    RingerSelector::RingerSelector(std::string name):
+      asg::AsgMessaging(name)
     {;}
     
 
     //==============================================================================
-    StatusCode RingerSelectorTool::read_from( std::string path , AthONNX::IONNXRuntimeSvc *svc )
+    StatusCode RingerSelector::read_from( std::string path , AthONNX::IONNXRuntimeSvc *svc )
     {
 
       std::string configFile = PathResolverFindCalibFile( path );
@@ -61,8 +60,7 @@ namespace Ringer{
         // Loop over all models
         for ( unsigned idx = 0; idx < size; ++idx ){
           std::string modelPath = PathResolverFindCalibFile( basepath+"/"+model_paths[idx] );
-          //std::string modelPath = basepath+"/"+model_paths[idx];
-          ATH_MSG_INFO( "Reading Onnx model from: " << modelPath );
+          ATH_MSG_DEBUG( "Reading Onnx model from: " << modelPath );
           auto model = Ringer::onnx::Model( modelPath, svc, etmin[idx], etmax[idx], etamin[idx], etamax[idx]) ;
           
           // Compile the model
@@ -108,91 +106,18 @@ namespace Ringer{
     }
 
 
-    //==============================================================================
-    float RingerSelectorTool::predict(const xAOD::TrigRingerRings *ringerShape, const xAOD::TrigElectron *el ,
-                                      Monitored::Timer<> &propagate_time, Monitored::Timer<> &preproc_time) const
-    {
-      float et = ringerShape->emCluster()->et()/Gaudi::Units::GeV;
-      float eta = std::min( std::abs(ringerShape->emCluster()->eta()), float(2.5) );
- 
-      // Find the correct model and predict
-      for( auto& model : m_models ){
-        
-        ATH_MSG_DEBUG("model_Etmin: "<<model.etMin()<<" model_Etmax: "<<model.etMax());
-        if(et<=model.etMin() || et > model.etMax()) continue;
-        if(eta<=model.etaMin() || eta > model.etaMax()) continue;
-        
-        ATH_MSG_DEBUG("Event Et: "<< et <<" is between model Et_min: "<< model.etMin() <<" and model Et_max: "<<model.etMax());
-        ATH_MSG_DEBUG("Event eta: "<< eta <<" is between model eta_min: "<< model.etaMin() <<" and model eta_max: "<<model.etaMax());
-        std::vector< std::vector<float> > inputs;
-                    
-        preproc_time.start();
-        prepare_inputs( ringerShape, el, inputs );
-        preproc_time.stop();
-
-        propagate_time.start();
-        auto output = model.predict( inputs );       
-        propagate_time.stop();
-        
-        ATH_MSG_DEBUG( "The current model predict with output: " << output );
-        return output;
-      }
-
-      return -999;
-    }
-
-
-
-    //==============================================================================
-    float RingerSelectorTool::predict(const xAOD::TrigRingerRings *ringerShape , Monitored::Timer<> &propagate_time, 
-                                      Monitored::Timer<> &preproc_time ) const
-    {
-      float et = ringerShape->emCluster()->et()/Gaudi::Units::GeV;
-      float eta = std::min( std::abs(ringerShape->emCluster()->eta()), float(2.5));
- 
-      // Find the correct model and predict
-      for( auto& model : m_models ){
-        ATH_MSG_DEBUG("model_Etmin: "<<model.etMin()<<" model_Etmax: "<<model.etMax());
-        
-        if(et<=model.etMin() || et > model.etMax()) continue;
-        if(eta<=model.etaMin() || eta > model.etaMax()) continue;
- 
-        
-        ATH_MSG_DEBUG("Event Et: "<< et <<" is between model Et_min: "<< model.etMin() <<" and model Et_max: "<<model.etMax());
-        ATH_MSG_DEBUG("Event eta: "<< eta <<" is between model eta_min: "<< model.etaMin() <<" and model eta_max: "<<model.etaMax());
-        std::vector< std::vector<float> > inputs;
-        
-        preproc_time.start();
-        prepare_inputs( ringerShape, nullptr, inputs );
-        preproc_time.stop();
-
-        propagate_time.start();
-        auto output = model.predict( inputs );       
-        propagate_time.stop();
-
-        ATH_MSG_DEBUG( "The current model predict with output: " << output );
-        return output;
-      }
-
-      return -999;
-    }
-
-
-
    
     //==============================================================================
-    bool RingerSelectorTool::accept( const xAOD::TrigRingerRings *ringerShape, float discriminant, float avgmu ) const 
+    bool RingerSelector::accept( const xAOD::TrigRingerRings *ringerShape, float discr, float avgmu ) const 
     {
       float et = ringerShape->emCluster()->et()/Gaudi::Units::GeV;
       float eta = std::min( std::abs(ringerShape->emCluster()->eta()), float(2.5));
     
-      ATH_MSG_DEBUG( "Event et = "<< et << ", eta = " << eta );
+      ATH_MSG_INFO( "Event et = "<< et << ", eta = " << eta );
       for( auto& cutDef : m_thresholds ){
         if ( et <= cutDef.etMin() || et > cutDef.etMax() ) continue;
         if ( eta <= cutDef.etaMin() || eta > cutDef.etaMax() ) continue;
-        ATH_MSG_DEBUG( "Output = " << discriminant << " Avgmu = " << avgmu );
-        ATH_MSG_DEBUG( "Passed ? " << cutDef.accept( discriminant, avgmu ) );
-        return cutDef.accept( discriminant, avgmu );
+        return cutDef.accept( discr, avgmu );
       }// loop over all thresholds
     
       return false;
@@ -200,10 +125,10 @@ namespace Ringer{
 
 
     //==============================================================================
-    void RingerSelectorTool::prepare_inputs(  const xAOD::TrigRingerRings *ringerShape, 
-                                              const xAOD::TrigElectron *el, 
-                                              std::vector<std::vector<float>>&inputs ) const
+    std::vector<std::vector<float>> RingerSelector::prepare_inputs(  const xAOD::TrigRingerRings *ringerShape, 
+                                                                     const xAOD::TrigElectron *el ) const
     {
+      std::vector< std::vector< float > > inputs;
       const std::vector<float> rings = ringerShape->rings();
       std::vector<float> refRings(rings.size());
       refRings.assign(rings.begin(), rings.end());
@@ -256,11 +181,36 @@ namespace Ringer{
         inputs.push_back( refTrack );
       }
 
+      return inputs;
     }
 
 
     //==============================================================================
-    template <typename T> bool RingerSelectorTool::strtof(const std::string& input, T& f)
+    float RingerSelector::predict(const xAOD::TrigRingerRings *ringerShape , std::vector<std::vector<float>> &inputs ) const
+    {
+      float et = ringerShape->emCluster()->et()/Gaudi::Units::GeV;
+      float eta = std::min( std::abs(ringerShape->emCluster()->eta()), float(2.5));
+ 
+      // Find the correct model and predict
+      for( auto& model : m_models ){
+        
+        if(et<=model.etMin() || et > model.etMax()) continue;
+        if(eta<=model.etaMin() || eta > model.etaMax()) continue;
+
+        auto output = model.predict( inputs );       
+
+        ATH_MSG_INFO( "The current model predict with output: " << output );
+        return output;
+      }
+
+      return -999;
+    }
+
+
+
+
+    //==============================================================================
+    template <typename T> bool RingerSelector::strtof(const std::string& input, T& f)
     {  
       int diff = 0 ;
       std::string tmp = input;
@@ -291,7 +241,7 @@ namespace Ringer{
 
 
     //==============================================================================
-    template <typename T>  std::vector<T> RingerSelectorTool::GetValues (const std::string& input,  TEnv& env)
+    template <typename T>  std::vector<T> RingerSelector::GetValues (const std::string& input,  TEnv& env)
     {    
       std::vector<T> CutVector;    
       std::string env_input(env.GetValue(input.c_str(), ""));
@@ -313,7 +263,7 @@ namespace Ringer{
 
 
     //==============================================================================
-    std::vector<std::string> RingerSelectorTool::GetPaths(const std::string& input, TEnv& env)
+    std::vector<std::string> RingerSelector::GetPaths(const std::string& input, TEnv& env)
     {
       std::vector<std::string> CutVector;    
       std::string env_input(env.GetValue(input.c_str(), ""));

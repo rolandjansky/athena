@@ -239,9 +239,13 @@ class TrigEgammaFastCaloHypoToolConfig:
        raise RuntimeError( "Bad selection name: %s" % self.pidname() )
     
     if self.__useRun3:
+      from RingerSelectorTools.RingerSelectorToolsConf import Ringer__AsgRingerSelectorTool
       basepath = 'RingerSelectorTools/TrigL2_20210227_r3'
       self.__log.info('Ringer version: %s', basepath)
-      return basepath+ '/ElectronRinger{OP}TriggerConfig.conf'.format(OP=possibleSel[self.pidname()] )
+      basepath += basepath+ '/ElectronRinger{OP}TriggerConfig.conf'.format(OP=possibleSel[self.pidname()] )
+      selector = Ringer__AsgRingerSelectorTool( "Ringer"+possibleSel[self.pidname()] )
+      selector.ConfigFile = basepath
+      self.tool().RingerSelector = selector
 
     else:
       basepath = 'RingerSelectorTools/TrigL2_20180903_v9'
