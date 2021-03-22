@@ -9,6 +9,7 @@
  **/
 
 #include "SCT_ChargeTrappingTool.h"
+#include "SCT_ConditionsTools/SCT_GetPotentialValue.h"
 
 #include "Identifier/IdentifierHash.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
@@ -325,6 +326,11 @@ void SCT_ChargeTrappingTool::holeTransport(double& x0, double& y0, double& xfin,
   ATH_MSG_DEBUG("h:qstrip=" << qstrip[0] << " " << qstrip[1] << " " << qstrip[2] << " " << qstrip[3] << " " << qstrip[4]);
   // end of hole tracing 
   return;
+}
+
+double 
+SCT_ChargeTrappingTool::getPotentialValue(int& ix, int& iy) const {
+  return getPotentialValue(ix, iy);
 }
 
 const InDetDD::SiDetectorElement* SCT_ChargeTrappingTool::getDetectorElement(const IdentifierHash& waferHash, const EventContext& ctx) const {
