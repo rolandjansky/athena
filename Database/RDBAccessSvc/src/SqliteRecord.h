@@ -18,6 +18,7 @@
 #include <variant>
 #include <string>
 #include <tuple>
+#include <stdexcept>
 
 enum SqliteInpType
 {
