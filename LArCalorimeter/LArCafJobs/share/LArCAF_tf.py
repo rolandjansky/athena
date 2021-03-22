@@ -14,7 +14,8 @@ import PyJobTransforms.trfArgClasses as trfArgClasses
 if __name__ == '__main__':
 
     executorSet = set()
-    executorSet.add(athenaExecutor(name = 'LArCAFcalib', skeletonFile = 'LArCafJobs/skeleton.LArCAF.py',
+    executorSet.add(athenaExecutor(name = 'LArCAFcalib', skeletonFile = None,
+                                   skeletonCA='LArCafJobs.LArShapeDumperSkeleton',
                                    substep = 'r2e', inData = ['BS',], outData = ['NTUP_SAMPLESMON','NTUP_HECNOISE']))
     
     trf = transform(executor = executorSet)  

@@ -4,7 +4,7 @@ from LArROD.LArRODFlags import larRODFlags
 from AthenaCommon.GlobalFlags import globalflags
 from LArByteStream.LArByteStreamConf import LArRawDataReadingAlg
 
-def LArRawChannelBuilderDefault():
+def LArRawChannelBuilderDefault(forceIter=False):
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
 
@@ -17,11 +17,15 @@ def LArRawChannelBuilderDefault():
 
         LArADC2MeVCondAlgDefault()
 
-        from LArConditionsCommon.LArRunFormat import getLArFormatForRun
-        from RecExConfig.AutoConfiguration import GetRunNumber
-        runNum = GetRunNumber()
-        lri=getLArFormatForRun(runNum)
-        if lri is not None and lri.runType() is not None and lri.runType()==0:
+        if not forceIter:
+            from LArConditionsCommon.LArRunFormat import getLArFormatForRun
+            from RecExConfig.AutoConfiguration import GetRunNumber
+            runNum = GetRunNumber()
+            lri=getLArFormatForRun(runNum)
+            if lri is not None and lri.runType() is not None and lri.runType()==0:
+                forceIter=True
+                
+        if forceIter:
            from LArROD.LArRODConf import LArRawChannelBuilderIterAlg
            theLArRawChannelBuilder=LArRawChannelBuilderIterAlg()
            theLArRawChannelBuilder.minSample=2
@@ -29,8 +33,8 @@ def LArRawChannelBuilderDefault():
            theLArRawChannelBuilder.minADCforIterInSigma=4
            theLArRawChannelBuilder.minADCforIter=15
            theLArRawChannelBuilder.defaultPhase=12
-           from AthenaCommon.Constants import DEBUG
-           theLArRawChannelBuilder.OutputLevel=DEBUG
+           #from AthenaCommon.Constants import DEBUG
+           #theLArRawChannelBuilder.OutputLevel=DEBUG
         else:
            from LArROD.LArRODConf import LArRawChannelBuilderAlg
            theLArRawChannelBuilder=LArRawChannelBuilderAlg()

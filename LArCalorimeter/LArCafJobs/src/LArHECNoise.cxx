@@ -92,8 +92,7 @@ LArHECNoise::LArHECNoise(const std::string& name,
     m_nt_z(0),
     m_nt_r(0),
     m_nt_ped(0),
-    m_nt_pedRMS(0),
-    m_ped(nullptr)
+    m_nt_pedRMS(0)
  {
 
    // Trigger
@@ -106,8 +105,8 @@ LArHECNoise::LArHECNoise(const std::string& name,
    declareProperty("MinDigitADC",m_MinDigitADC=20);
    declareProperty("MaxDeltaT",m_MaxDeltaT=5);
 
-    m_nt_prescale = new float(m_TriggerLines.size());
-    m_nt_trigger = new bool(m_TriggerLines.size());
+    m_nt_prescale = new float[m_TriggerLines.size()];
+    m_nt_trigger = new bool[m_TriggerLines.size()];
  }
 
 
@@ -122,6 +121,7 @@ StatusCode LArHECNoise::initialize() {
   ATH_CHECK(m_trigDec.retrieve());
   
   ATH_CHECK( m_cablingKey.initialize() );
+  ATH_CHECK( m_pedKey.initialize() );
 
   // Retrieve online ID helper
   const LArOnlineID* LArOnlineIDHelper = nullptr;
@@ -225,8 +225,14 @@ StatusCode LArHECNoise::execute() {
      return StatusCode::FAILURE;
   }
 
-  // retrieve pedestals
-  ATH_CHECK( detStore()->retrieve(m_ped,"Pedestal") );
+
+  SG::ReadCondHandle<ILArPedestal> pedHdl{m_pedKey};
+  const ILArPedestal* ped{*pedHdl};
+  if(!ped) {
+     ATH_MSG_ERROR("Do not have pedestal object " << m_pedKey.key() );
+     return StatusCode::FAILURE;
+  }
+
 
   const LArDigitContainer* ld = 0;
   if (evtStore()->contains<LArDigitContainer>("LArDigitContainer")) {
@@ -279,8 +285,8 @@ StatusCode LArHECNoise::execute() {
               m_nt_gain = pLArDigit->gain();
               Identifier oid = cabling->cnvToIdentifier(hid);
               m_nt_OID = pLArDigit->channelID().get_compact();
-              m_nt_ped = m_ped->pedestal(pLArDigit->channelID(),pLArDigit->gain());
-              m_nt_pedRMS = m_ped->pedestalRMS(pLArDigit->channelID(),pLArDigit->gain());
+              m_nt_ped = ped->pedestal(pLArDigit->channelID(),pLArDigit->gain());
+              m_nt_pedRMS = ped->pedestalRMS(pLArDigit->channelID(),pLArDigit->gain());
               m_nt_side = m_calocell_id->pos_neg(oid);
               m_nt_samp = m_calocell_id->sampling(oid);
               m_nt_reg = m_calocell_id->region(oid);

@@ -65,6 +65,7 @@ class LArHECNoise : public AthAlgorithm  {
    TTree* m_tree;
 
    SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+   SG::ReadCondHandleKey<ILArPedestal> m_pedKey{this,"PedestalKey","LArPedestal","SG Key of Pedestal obj"};
    /*Tools*/
    ToolHandle<ICaloNoiseTool> m_calo_noise_tool;
    ToolHandle<Trig::IBunchCrossingTool> m_bc_tool;
@@ -112,7 +113,7 @@ class LArHECNoise : public AthAlgorithm  {
    std::vector<std::string> m_TriggerLines;
    int m_MinDigitADC;
    int m_MaxDeltaT;
-   const ILArPedestal* m_ped;
+
 
 };
 

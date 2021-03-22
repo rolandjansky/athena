@@ -5,9 +5,7 @@
 #include "LArCafJobs/LArShapeDumper.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "LArRawEvent/LArDigit.h"
-#include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/INTupleSvc.h"
-#include "GaudiKernel/MsgStream.h"
 #include "LArRawEvent/LArOFIterResultsContainer.h"
 #include "LArRawEvent/LArFebErrorSummary.h"
 #include "LArElecCalib/ILArPedestal.h"
@@ -17,12 +15,10 @@
 #include "LArRawConditions/LArShapeComplete.h"
 #include "LArRawConditions/LArAutoCorrComplete.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
-#include "LArElecCalib/ILArADC2MeVTool.h"
 
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescriptor.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
-#include "CaloInterface/ICaloNoiseTool.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "LArRecConditions/LArBadChannel.h"
 #include "LArCafJobs/DataContainer.h"
@@ -53,13 +49,9 @@ LArShapeDumper::LArShapeDumper(const std::string & name, ISvcLocator * pSvcLocat
   m_nPrescaledAway(0),
   m_nLArError(0),
   m_nNoDigits(0),
-  m_dumperTool("LArShapeDumperTool"),
   m_badChannelMasker("BadChannelMasker", this),
-  m_adc2mevTool("LArADC2MeVTool"),
   m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
   m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
-  m_bcidTool("BunchCrossingTool"),
-  m_larPedestal(nullptr),
   m_caloDetDescrMgr(nullptr),
   m_onlineHelper(nullptr),
   m_doEM(false),
@@ -80,8 +72,6 @@ LArShapeDumper::LArShapeDumper(const std::string & name, ISvcLocator * pSvcLocat
   declareProperty("Gains", m_gainSpec = "HIGH,MEDIUM,LOW");
   declareProperty("DumpDisconnected", m_dumpDisc = false);
   declareProperty("BadChannelMasker", m_badChannelMasker);
-  declareProperty("ADC2MeVTool", m_adc2mevTool);
-  declareProperty("BunchCrossingTool",m_bcidTool);
   declareProperty("DoStream", m_doStream = false);
   declareProperty("DoTrigger", m_doTrigger = true);
   declareProperty("DoOFCIter", m_doOFCIter = true);
@@ -109,9 +99,11 @@ StatusCode LArShapeDumper::initialize()
   ATH_CHECK( m_cablingKey.initialize() );
   ATH_CHECK( m_BCKey.initialize() );
   ATH_CHECK( m_noiseCDOKey.initialize() );
+  ATH_CHECK( m_adc2mevKey.initialize() );
+  ATH_CHECK( m_pedestalKey.initialize() );
+  ATH_CHECK( m_bcDataKey.initialize() );
 
   ATH_CHECK( m_badChannelMasker.retrieve() );
-  ATH_CHECK( m_adc2mevTool.retrieve() );
   ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
   ATH_CHECK( detStore()->retrieve(m_caloDetDescrMgr) );
 
@@ -136,8 +128,8 @@ StatusCode LArShapeDumper::initialize()
   m_gains[CaloGain::LARMEDIUMGAIN] = (m_gainSpec.find("MEDIUM") != std::string::npos);
   m_gains[CaloGain::LARLOWGAIN]    = (m_gainSpec.find("LOW")    != std::string::npos);
   
-  if (m_onlyEmptyBC)
-    ATH_CHECK(m_bcidTool.retrieve());
+  //if (m_onlyEmptyBC)
+  //ATH_CHECK(m_bcidTool.retrieve());
 
   return StatusCode::SUCCESS; 
 }
@@ -219,7 +211,7 @@ StatusCode LArShapeDumper::start()
 StatusCode LArShapeDumper::execute()
 {    
   m_count++;
-
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   if ((m_prescale > 1 && m_random.Rndm() > 1.0/m_prescale) || m_prescale <= 0) {
     ATH_MSG_VERBOSE ( "======== prescaling event "<< m_count << " ========" );
     m_nPrescaledAway++;
@@ -237,20 +229,29 @@ StatusCode LArShapeDumper::execute()
   int bunchId   = eventInfo->bcid();
 
   
-  if (m_onlyEmptyBC) {
-    const Trig::IBunchCrossingTool::BunchCrossingType bcType=m_bcidTool->bcType(bunchId);
-    if (bcType!=Trig::IBunchCrossingTool::BunchCrossingType::Empty) {
-      ATH_MSG_DEBUG("Ignoring Event with bunch crossing type " << bcType);
-      m_nWrongBunchGroup++;
-      return StatusCode::SUCCESS;
-    }
-  }
-
   if (eventInfo->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error) {
     ATH_MSG_DEBUG("Ignoring Event b/c of LAr ERROR");
     m_nLArError++;
     return StatusCode::SUCCESS;
   }
+
+
+  SG::ReadCondHandle<BunchCrossingCondData> bccd (m_bcDataKey,ctx);
+  const BunchCrossingCondData* bunchCrossing=*bccd;
+  if (!bunchCrossing) {
+    ATH_MSG_ERROR("Failed to retrieve Bunch Crossing obj");
+    return StatusCode::FAILURE;
+  }
+  
+
+  if (m_onlyEmptyBC) {
+    if (!bccd->isFilled(bunchId)) {
+      ATH_MSG_DEBUG("Ignoring Event with bunch crossing type ");
+      m_nWrongBunchGroup++;
+      return StatusCode::SUCCESS;
+    }
+   }
+
 
   EventData* eventData = 0;
   int eventIndex = -1;
@@ -274,8 +275,7 @@ StatusCode LArShapeDumper::execute()
   const LArRawChannelContainer* rawChannelContainer = 0;
   ATH_CHECK( evtStore()->retrieve(rawChannelContainer, m_channelsKey) );
   
-  ATH_CHECK( detStore()->retrieve(m_larPedestal) );
-
+  
   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
   const LArOnOffIdMapping* cabling=*cablingHdl;
   if(!cabling) {
@@ -283,6 +283,20 @@ StatusCode LArShapeDumper::execute()
      return StatusCode::FAILURE;
   }
 
+  SG::ReadCondHandle<LArADC2MeV> adc2mevHdl(m_adc2mevKey, ctx);
+  const LArADC2MeV* adc2MeV=*adc2mevHdl;
+  if(!adc2MeV) {
+     ATH_MSG_ERROR( "Failed to retreive ADC2MeV cond obj" );
+     return StatusCode::FAILURE;
+  }
+
+  SG::ReadCondHandle<ILArPedestal> pedHdl(m_pedestalKey, ctx);
+  const ILArPedestal* pedestals=*pedHdl;
+  if (!pedestals) {
+    ATH_MSG_ERROR("Failed to retrieve pedestal cond obj");
+     return StatusCode::FAILURE;
+  }
+  
   const LArOFIterResultsContainer* ofIterResult = 0;
   if (m_doOFCIter) {
     ATH_CHECK( evtStore()->retrieve(ofIterResult, "LArOFIterResult") );
@@ -366,8 +380,8 @@ StatusCode LArShapeDumper::execute()
     if (!connected && !m_dumpDisc) continue;
    
     // Check ADCMax selection
-    float pedestal = m_larPedestal->pedestal(channelID, gain);
-    float pedestalRMS = m_larPedestal->pedestalRMS(channelID, gain);
+    float pedestal = pedestals->pedestal(channelID, gain);
+    float pedestalRMS = pedestals->pedestalRMS(channelID, gain);
     if (m_minADCMax > 0 || m_noiseSignifCut > 0) {
       const std::vector<short>& samples = (*digit)->samples();
       double maxValue = -1;
@@ -396,7 +410,7 @@ StatusCode LArShapeDumper::execute()
     unsigned int status = 0xFFFFFFFF;
     if (connected) {
       if (!caloDetElement) caloDetElement = m_caloDetDescrMgr->get_element(id);
-      noise = noiseCDO->getNoise(channelID,gain);
+      noise = noiseCDO->getNoise(id,gain);
       status = bcCont->status(channelID).packedData();
       HWIdentifier febId = m_onlineHelper->feb_Id(m_onlineHelper->feedthrough_Id(channelID), m_onlineHelper->slot(channelID));
       std::map<unsigned int,uint16_t>::const_iterator findError = febErrorMap.find(febId.get_identifier32().get_compact());
@@ -444,7 +458,7 @@ StatusCode LArShapeDumper::execute()
 //           << " not found. (size was " << ofcResultPosition.size() << ")" << endmsg;
     
    
-    const std::vector<float>& ramp=m_adc2mevTool->ADC2MEV(channelID,gain); //dudu
+    const auto ramp=adc2MeV->ADC2MEV(channelID,gain); //dudu
     data->setADCMax(rawChannel->energy()/ramp[1]); //pow(ADCPeak,i); //dudu
 	    
 
