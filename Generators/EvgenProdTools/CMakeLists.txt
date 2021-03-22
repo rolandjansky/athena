@@ -14,7 +14,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           Event/EventInfo
                           GaudiKernel
-                          Generators/TruthUtils )
+                          Generators/TruthUtils
+                          Tools/PathResolver )
 
 # External dependencies:
 find_package( HepMC )
@@ -26,12 +27,12 @@ atlas_add_library( EvgenProdToolsLib
                    PUBLIC_HEADERS EvgenProdTools
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps TruthHelper GeneratorModulesLib
-                   PRIVATE_LINK_LIBRARIES AthenaKernel EventInfo GaudiKernel TruthUtils IOVDbDataModel AthenaPoolUtilities )
+                   PRIVATE_LINK_LIBRARIES AthenaKernel EventInfo GaudiKernel TruthUtils IOVDbDataModel AthenaPoolUtilities PathResolver )
 
 atlas_add_component( EvgenProdTools
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps TruthHelper GeneratorModulesLib AthenaKernel EventInfo GaudiKernel TruthUtils EvgenProdToolsLib IOVDbDataModel AthenaPoolUtilities )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps TruthHelper GeneratorModulesLib AthenaKernel EventInfo GaudiKernel TruthUtils EvgenProdToolsLib IOVDbDataModel AthenaPoolUtilities PathResolver )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
