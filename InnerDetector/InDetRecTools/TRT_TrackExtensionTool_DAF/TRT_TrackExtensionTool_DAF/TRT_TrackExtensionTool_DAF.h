@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -7,7 +7,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 // (c) ATLAS Detector software
 /////////////////////////////////////////////////////////////////////////////////
-//  Concret implementation for base class ITRT_TrackExtensionTool
+//  Concrete implementation for base class ITRT_TrackExtensionTool
 /////////////////////////////////////////////////////////////////////////////////
 // Sebastian Fleischmann
 /////////////////////////////////////////////////////////////////////////////////
@@ -82,7 +82,7 @@ public:
 
     virtual std::vector<const Trk::MeasurementBase*>&
        extendTrack(const EventContext& ctx,
-                   const Trk::TrackParameters&,
+                   const Trk::TrackParameters * pTrackParams,
                    InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
 
     virtual Trk::Track*
@@ -96,7 +96,7 @@ public:
     ///////////////////////////////////////////////////////////////////
 
     virtual Trk::TrackSegment* findSegment(const EventContext& ctx,
-                                           const Trk::TrackParameters&,
+                                           const Trk::TrackParameters *,
                                            InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
 
     ///////////////////////////////////////////////////////////////////
@@ -133,9 +133,8 @@ protected:
        const TRT_DriftCircleContainer               *m_trtcontainer = nullptr;
        std::vector<const Trk::MeasurementBase*>      m_measurement;               //!< vector of MeasurementBase for the output
        std::vector <const InDetDD::TRT_BaseElement*> m_detectorElements;          //!< vector to store the detElements
-       std::vector <const Trk::TrackParameters*>     m_propagatedTrackParameters; //!< vector to store the propagated track parameters (propagated to the related entry of m_detectorElements)
-
-       const Trk::TrackParameters                  *m_siliconTrkParams = nullptr; //!< track parameters at the outermost Silicon layer
+       std::vector <std::shared_ptr< const Trk::TrackParameters>>     m_propagatedTrackParameters; //!< vector to store the propagated track parameters (propagated to the related entry of m_detectorElements)
+       const Trk::TrackParameters                   *m_siliconTrkParams = nullptr; //!< track parameters at the outermost Silicon layer
     };
 
 
@@ -162,9 +161,9 @@ protected:
     ///////////////////////////////////////////////////////////////////
 
     /** find an element-wise extension (ie. the RIOs in a CompROT belong to one detElement) */
-    StatusCode elementWiseExtension(int, int, InDet::TRT_TrackExtensionTool_DAF::EventData &event_data) const;
+    bool elementWiseExtension(int, int, InDet::TRT_TrackExtensionTool_DAF::EventData &event_data) const;
     /** find a barrel extension with RIOs grouped along the globalPositions of the track */
-    StatusCode groupedBarrelExtension(int, int, InDet::TRT_TrackExtensionTool_DAF::EventData &event_data) const;
+    bool groupedBarrelExtension(int, int, InDet::TRT_TrackExtensionTool_DAF::EventData &event_data) const;
 
 };
 

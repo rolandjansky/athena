@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -15,18 +15,20 @@
 #ifndef ITRT_TrackExtensionTool_H
 #define ITRT_TrackExtensionTool_H
 
-#include <list>
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/EventContext.h"
-#include "TrkTrack/Track.h"
-#include "TrkMeasurementBase/MeasurementBase.h"
-#include "TrkSegment/TrackSegment.h"
+#include "TrkParameters/TrackParameters.h" //typedef, cannot fwd declare
+#include "GaudiKernel/IAlgTool.h"
+#include <vector>
+#include <memory> //for unique_ptr
 
 class MsgStream;
+class EventContext;
+namespace Trk{
+  class Track;
+  class TrackSegment;
+  class MeasurementBase; //only the ptr is template parameter
+}
 
 namespace InDet {
-
- 
   static const InterfaceID IID_ITRT_TrackExtensionTool
     ("InDet::ITRT_TrackExtensionTool",1,0);
 
@@ -47,15 +49,13 @@ namespace InDet {
       ///////////////////////////////////////////////////////////////////
 
       static const InterfaceID& interfaceID();
-      virtual StatusCode initialize ()=0;
-      virtual StatusCode finalize   ()=0;
 
       ///////////////////////////////////////////////////////////////////
       // Main methods for track extension to TRT
       ///////////////////////////////////////////////////////////////////
 
       ///////////////////////////////////////////////////////////////////
-      // Pixles and sct track extension to TRT
+      // Pixels and sct track extension to TRT
       ///////////////////////////////////////////////////////////////////
 
       virtual std::vector<const Trk::MeasurementBase*>& extendTrack
@@ -65,7 +65,7 @@ namespace InDet {
 
       virtual std::vector<const Trk::MeasurementBase*>& extendTrack
         (const EventContext& ctx,
-         const Trk::TrackParameters&,
+         const Trk::TrackParameters * pTrackParams,
          InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const = 0;
 
       virtual Trk::Track* newTrack
@@ -79,11 +79,11 @@ namespace InDet {
 
       virtual Trk::TrackSegment* findSegment
         (const EventContext& ctx,
-         const Trk::TrackParameters&,
+         const Trk::TrackParameters *,
          InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const = 0;
 
       ///////////////////////////////////////////////////////////////////
-      //  Tool initialisation  for new eevent
+      //  Tool initialisation  for new event
       ///////////////////////////////////////////////////////////////////
 
       virtual std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData> newEvent(const EventContext& ctx) const = 0;

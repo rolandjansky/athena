@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -75,9 +75,9 @@ namespace InDet{
       virtual std::vector<const Trk::MeasurementBase*>& extendTrack
         (const EventContext& ctx, const Trk::Track&,InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
       virtual std::vector<const Trk::MeasurementBase*>& extendTrack
-        (const EventContext& ctx, const Trk::TrackParameters&,InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
+        (const EventContext& ctx, const Trk::TrackParameters *,InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
       virtual Trk::TrackSegment* findSegment
-        (const EventContext& ctx, const Trk::TrackParameters&, InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
+        (const EventContext& ctx, const Trk::TrackParameters *, InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
       virtual Trk::Track* newTrack
         (const EventContext& ctx, const Trk::Track&, InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
       virtual std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData> newEvent(const EventContext& ctx) const override;
@@ -111,7 +111,7 @@ namespace InDet{
 
       std::vector<const Trk::MeasurementBase*>& extendTrackFromParameters
       (const EventContext& ctx,
-       const Trk::TrackParameters&,
+       const Trk::TrackParameters *,
        InDet::TRT_TrackExtensionTool_xk::EventData &event_data) const;
 
       ///////////////////////////////////////////////////////////////////
@@ -156,7 +156,7 @@ namespace InDet{
       void       magneticFieldInit();
       StatusCode magneticFieldInit(IOVSVC_CALLBACK_ARGS);
       bool isGoodExtension(const EventContext& ctx,
-                           const Trk::TrackParameters&,
+                           const Trk::TrackParameters *,
                            InDet::TRT_TrackExtensionTool_xk::EventData &event_data) const;
       bool numberPIXandSCTclustersCut(const Trk::Track&) const;
 
