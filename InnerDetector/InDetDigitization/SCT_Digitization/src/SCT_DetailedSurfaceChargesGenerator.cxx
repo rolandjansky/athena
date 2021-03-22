@@ -10,7 +10,7 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
 #include "SCT_ReadoutGeometry/SCT_BarrelModuleSideDesign.h"
-
+#include "SCT_ConditionsTools/SCT_GetPotentialValue.h"
 // CLHEP
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Random/RandFlat.h"
@@ -922,6 +922,10 @@ void SCT_DetailedSurfaceChargesGenerator::holeTransport(double& x0, double& y0, 
   ATH_MSG_DEBUG("holeTransport : x,y=(" << x0*1.e4<< "," <<y0*1.e4<< ")->(" << x*1.e4<< "," <<y*1.e4 << ") t=" << t_current);
 #endif
   return;
+}
+
+double SCT_DetailedSurfaceChargesGenerator::GetPotentialValue(int ix, int iy) const{
+  return getPotentialValue(ix, iy);
 }
 
 //---------------------------------------------------------------------
