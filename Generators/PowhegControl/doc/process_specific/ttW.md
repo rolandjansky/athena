@@ -23,7 +23,7 @@ For $`\mathrm{t}\bar{\mathrm{t}}\mathrm{W}^-`$:
 't t~ W- > all'                       # all possible decays are allowed
 't t~ W- > b j j b~ j j j j'          # all-hadronic
 't t~ W- > b l+ vl b~ l- vl~ l- vl~'  # "all-leptonic"
-'t t~ W- > b j j vl b~ l- vl~ l- vl~' # exactly two negative-sign leptons
+'t t~ W- > b j j b~ l- vl~ l- vl~'    # exactly two negative-sign leptons
 't t~ W- > undecayed'                 # stable resonances
 ```
 

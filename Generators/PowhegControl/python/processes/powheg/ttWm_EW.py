@@ -21,9 +21,9 @@ _decay_mode_lookup = {
 
 
 
-class ttWm_QCD(PowhegV2):
+class ttWm_EW(PowhegV2):
     """
-    Powheg interface for ttW- production with NLO QCD corrections.
+    Powheg interface for ttW- production with NLO EW corrections.
 
     Reference for this process: https://arxiv.org/abs/2101.11808
 
@@ -36,7 +36,7 @@ class ttWm_QCD(PowhegV2):
         @param base_directory: path to PowhegBox code.
         @param kwargs          dictionary of arguments from Gen_tf.
         """
-        super(ttWm_QCD, self).__init__(base_directory, "Wtt_dec/pp_ttWm_QCD", **kwargs)
+        super(ttWm_EW, self).__init__(base_directory, "Wtt_dec/pp_ttWm_EW", **kwargs)
 
         # List of allowed decay modes
         # (The sorting of the list is just to increase readability when it's printed)
