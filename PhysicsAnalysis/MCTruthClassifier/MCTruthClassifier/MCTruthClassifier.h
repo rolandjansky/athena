@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 #ifndef MCTRUTHCLASSIFIER_MCTRUTHCLASSIFIER_H
 #define MCTRUTHCLASSIFIER_MCTRUTHCLASSIFIER_H
@@ -63,35 +63,61 @@ public:
   ~MCTruthClassifier();  
 
   // Gaudi algorithm hooks
-  StatusCode initialize();
-  virtual StatusCode execute();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
 
   /*All Get to see those*/
-  std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(const xAOD::TruthParticle *);     
+  std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(const xAOD::TruthParticle *) override;
 
-  MCTruthPartClassifier::ParticleOutCome getParticleOutCome(){return  m_ParticleOutCome;}
+  virtual unsigned int classify(const xAOD::TruthParticle  *) override;
 
-  const xAOD::TruthParticle* getMother(const xAOD::TruthParticle*);
-  const xAOD::TruthParticle* getMother(){return m_Mother;}
+  virtual const xAOD::TruthParticle* getParentHadron(const xAOD::TruthParticle*)  override;
 
-  int   getMotherPDG(){return m_MotherPDG;};
-  int   getMotherBarcode(){return m_MotherBarcode;};
+  virtual int getParentHadronID(const xAOD::TruthParticle*) override;
 
-  const xAOD::TruthParticle* getPhotonMother(){return m_PhotonMother;}
-  int   getPhotonMotherPDG(){return m_PhotonMotherPDG;}
-  int   getPhotonMotherBarcode(){return m_PhotonMotherBarcode;}
+  enum MCTC_bits { HadTau=0, Tau, hadron, frombsm, uncat, isbsm, isgeant, stable, totalBits };
+
+  static unsigned int isGeant(const unsigned int classify) { return std::bitset<MCTC_bits::totalBits> (classify).test(MCTC_bits::isgeant); }
+  static unsigned int isBSM(const unsigned int classify) { return std::bitset<MCTC_bits::totalBits> (classify).test(MCTC_bits::isbsm); }
+  static unsigned int fromBSM(const unsigned int classify) { return std::bitset<MCTC_bits::totalBits> (classify).test(MCTC_bits::frombsm); }
+
+
+  /*! \brief This helper function returns the value -1 by checking the bit set in \ref MCTruthClassifier. 
+   * It returns the value -1 if uncategorised, 0 if non-prompt, 1 if prompt
+   * It also checks for prompt taus
+   */
+
+  static int isPrompt(const unsigned int classify, bool allow_prompt_tau_decays = true) {
+    std::bitset<MCTC_bits::totalBits> res(classify);
+    if (res.test(MCTC_bits::uncat))  return -1;
+    bool fromPromptTau = res.test(MCTC_bits::Tau) && !res.test(MCTC_bits::HadTau);
+    if (fromPromptTau) return int(allow_prompt_tau_decays);
+    return !res.test(MCTC_bits::hadron);
+  }
+
+  MCTruthPartClassifier::ParticleOutCome getParticleOutCome() override { return  m_ParticleOutCome; }
+
+  const xAOD::TruthParticle* getMother (const xAOD::TruthParticle*);
+  const xAOD::TruthParticle* getMother() override {return m_Mother;}
+
+  int   getMotherPDG() override {return m_MotherPDG;};
+  int   getMotherBarcode() override {return m_MotherBarcode;};
+
+  const xAOD::TruthParticle* getPhotonMother() override {return m_PhotonMother;}
+  int   getPhotonMotherPDG() override {return m_PhotonMotherPDG;}
+  int   getPhotonMotherBarcode() override {return m_PhotonMotherBarcode;}
 
   std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin>
-    checkOrigOfBkgElec(const xAOD::TruthParticle* thePart);
+    checkOrigOfBkgElec (const xAOD::TruthParticle* thePart) override;
 
-  const xAOD::TruthParticle* getBkgElecMother(){return m_BkgElecMother;}
+  const xAOD::TruthParticle* getBkgElecMother() override {return m_BkgElecMother;}
 
-  std::vector<const xAOD::TruthParticle*>* getTauFinalState(){return &m_tauFinalStatePart;}
+  std::vector<const xAOD::TruthParticle*>* getTauFinalState() override {return &m_tauFinalStatePart;}
 
 
 #ifndef XAOD_ANALYSIS /*Not for analysis*/
-  std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin>  particleTruthClassifier(const HepMC::GenParticle *); 
+  std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(const HepMC::GenParticle*) override; 
   bool compareTruthParticles(const HepMC::GenParticle *genPart, const xAOD::TruthParticle *truthPart);
 #endif
 
@@ -148,6 +174,8 @@ private:
   MCTruthPartClassifier::ParticleOutCome defOutComeOfPhoton(const xAOD::TruthParticle*);
   //
   MCTruthPartClassifier::ParticleOrigin  defOrigOfNeutrino(const xAOD::TruthParticleContainer* m_xTruthParticleContainer ,const xAOD::TruthParticle*);
+  //
+  virtual std::tuple<unsigned int, const xAOD::TruthParticle*> defOrigOfParticle(const xAOD::TruthParticle*) override; 
   //
   MCTruthPartClassifier::ParticleOrigin  defHadronType(long);
   bool isHadron(const xAOD::TruthParticle*);
