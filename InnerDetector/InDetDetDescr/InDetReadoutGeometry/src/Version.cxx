@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetReadoutGeometry/Version.h"
@@ -18,22 +18,6 @@ Version::Version(const std::string & tag,
 		 int minor,
 		 int patch)
   : m_tag(tag),
-    m_name(name),
-    m_layout(layout),
-    m_description(description),
-    m_major(major),
-    m_minor(minor),
-    m_patch(patch)
-{}
-
-// For backward compatibility
-Version::Version(const std::string & name, 
-		 const std::string & layout, 
-		 const std::string & description, 
-		 int major,
-		 int minor,
-		 int patch)
-  : m_tag("-"),
     m_name(name),
     m_layout(layout),
     m_description(description),
