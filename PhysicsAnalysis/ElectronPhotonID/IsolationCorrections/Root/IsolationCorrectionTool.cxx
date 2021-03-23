@@ -9,7 +9,6 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PathResolver/PathResolver.h"
-#include <boost/algorithm/string.hpp>
 #include "xAODPrimitives/IsolationHelpers.h"
 
 #ifndef ROOTCORE
@@ -18,7 +17,6 @@
 #endif //ROOTCORE
 
 #include "TFile.h"
-#include "xAODEventShape/EventShape.h"
 
 namespace CP {
 
@@ -26,7 +24,7 @@ namespace CP {
     : asg::AsgMetadataTool(name), m_systDDonoff("PH_Iso_DDonoff") {
     declareProperty("CorrFile",                    m_corr_file                      = "IsolationCorrections/v5/isolation_ptcorrections_rel20_2.root");
     declareProperty("CorrFile_ddshift",            m_corr_ddshift_file              = "IsolationCorrections/v3/isolation_ddcorrection_shift.root");
-    declareProperty("CorrFile_ddsmearing",         m_corr_ddsmearing_file           = "IsolationCorrections/v1/isolation_ddcorrection_smearing.root", "a run I smearing for MC calo iso"); 
+    declareProperty("CorrFile_ddsmearing",         m_corr_ddsmearing_file           = "IsolationCorrections/v1/isolation_ddcorrection_smearing.root", "a run I smearing for MC calo iso");
     declareProperty("ToolVer",                     m_tool_ver_str                   = "REL21");
     declareProperty("DataDrivenVer",               m_ddVersion                      = "2017");
     declareProperty("AFII_corr",                   m_AFII_corr                      = false);
@@ -48,8 +46,13 @@ namespace CP {
   StatusCode IsolationCorrectionTool::initialize() {
     ATH_MSG_INFO( "in initialize of " << name() << "..." );
 
-    m_isol_corr->msg().setLevel(this->msg().level());
+    //ReadHandles
+    ASG_CHECK(m_eventInfoKey.initialize());
+    ASG_CHECK(m_centralEventShapeKey.initialize(m_apply_etaEDParPU_corr));
+    ASG_CHECK(m_forwardEventShapeKey.initialize(m_apply_etaEDParPU_corr));
 
+    //
+    m_isol_corr->msg().setLevel(this->msg().level());
     //
     // Resolve the paths to the input files
     std::vector < std::string > corrFileNameList;
@@ -58,7 +61,7 @@ namespace CP {
     corrFileNameList.push_back(m_corr_ddsmearing_file);
 
     for ( unsigned int i=0; i<corrFileNameList.size(); ++i ){
-      
+
       //First try the PathResolver
       std::string filename = PathResolverFindCalibFile( corrFileNameList.at(i) );
       if (filename.empty()){
@@ -67,13 +70,13 @@ namespace CP {
       } else{
 	      ATH_MSG_INFO(" Path found = "<<filename);
       }
-      corrFileNameList.at(i) = filename;	
+      corrFileNameList.at(i) = filename;
     }
     //
 
     CP::IsolationCorrection::Version tool_ver;
-    
-    if      (m_tool_ver_str == "REL21")   tool_ver = CP::IsolationCorrection::REL21;	   
+
+    if      (m_tool_ver_str == "REL21")   tool_ver = CP::IsolationCorrection::REL21;
     else if (m_tool_ver_str == "REL20_2") tool_ver = CP::IsolationCorrection::REL20_2;
     else if (m_tool_ver_str == "REL17_2") tool_ver = CP::IsolationCorrection::REL17_2;
     else {
@@ -97,10 +100,10 @@ namespace CP {
     m_isol_corr->FitType(m_useLogLogFit);
     m_isol_corr->ForcePartType(m_forcePartType);
 
-    // Note that systematics in Rel 21 are NOT done with the DD-Corr ON/OFF method! 
+    // Note that systematics in Rel 21 are NOT done with the DD-Corr ON/OFF method!
     if (m_apply_ddDefault) {
       if (m_ddVersion == "2015" || m_ddVersion == "2015_2016" || m_ddVersion == "2017") {
-        //if not REL21, register ourselves with the systematic registry! 
+        //if not REL21, register ourselves with the systematic registry!
 	      if (m_tool_ver_str!="REL21") {
 	        CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
 	        if( registry.registerSystematics( *this ) != StatusCode::SUCCESS ) return StatusCode::FAILURE;
@@ -153,10 +156,6 @@ namespace CP {
     return m_isol_corr->initialize();
   }
 
-  StatusCode IsolationCorrectionTool::finalize() {
-    ATH_MSG_INFO( "in finalize" );    
-    return m_isol_corr->finalize();
-  }
 
   // this will correct a corrected topoetcone : replace a (old) leakage by another (new) one
   // This is not for photon, as it does not consider DD
@@ -164,7 +163,7 @@ namespace CP {
 
     static const std::vector<xAOD::Iso::IsolationType> topoisolation_types = {xAOD::Iso::topoetcone20,
 									                                                      xAOD::Iso::topoetcone40};
-    
+
     for (auto type : topoisolation_types) {
       float oldleak = 0.;
       if (eg.isolationCaloCorrection(oldleak, type, xAOD::Iso::ptCorrection)) {
@@ -185,7 +184,7 @@ namespace CP {
 	      return CP::CorrectionCode::Error;
       }
     }
-    
+
     if (m_correct_etcone){
       // this is supposed to correct an uncorrected etcone
       static const std::vector<xAOD::Iso::IsolationType> isolation_types = {xAOD::Iso::etcone20,
@@ -221,24 +220,18 @@ namespace CP {
       ATH_MSG_VERBOSE("SC based core correction value: " << topoetconecoreConeEnergyCorrection);
       SCsub = - topoetconecoreConeEnergyCorrection + core57cells;
     }
-	
+
     float centralDensity = 0.;
     float forwardDensity = 0.;
     if(m_apply_etaEDParPU_corr){
-      const xAOD::EventShape* evtShapeCentral;
-      const xAOD::EventShape* evtShapeForward;
-      if(evtStore()->retrieve(evtShapeCentral, "TopoClusterIsoCentralEventShape").isFailure()){
-        ATH_MSG_WARNING("Cannot retrieve density container " << "TopoClusterIsoCentralEventShape" << " for isolation correction.");
-        return CP::CorrectionCode::Error;
-      }
-      if(evtStore()->retrieve(evtShapeForward, "TopoClusterIsoForwardEventShape").isFailure()){
-        ATH_MSG_WARNING("Cannot retrieve density container " << "TopoClusterIsoForwardEventShape" << " for isolation correction.");
-        return CP::CorrectionCode::Error;
-      }
+      SG::ReadHandle<xAOD::EventShape> shapeCentral (m_centralEventShapeKey);
+      SG::ReadHandle<xAOD::EventShape> shapeForward (m_forwardEventShapeKey);
+      const xAOD::EventShape* evtShapeCentral = shapeCentral.ptr();
+      const xAOD::EventShape* evtShapeForward = shapeForward.ptr();
       centralDensity = evtShapeCentral->getDensity(xAOD::EventShape::Density);
       forwardDensity = evtShapeForward->getDensity(xAOD::EventShape::Density);
     }
-	
+
     static const std::vector<xAOD::Iso::IsolationType> topoisolation_types = {xAOD::Iso::topoetcone20,
 									                                                            xAOD::Iso::topoetcone40};
     for (auto type : topoisolation_types) {
@@ -251,23 +244,26 @@ namespace CP {
       bool gotIso   = eg.isolationValue(oldiso,type);
       if (!gotIso) continue;
 
-      // Use the Random Run Number from the Event Info to check which year's DD-Corrections to use 
-      // If the RandomRunNo can't be obtained, then default to what is set by either the default choice or by the AuxData check 
-      unsigned int theRunNumber = 0 ; 
-      const xAOD::EventInfo *eventInfo = evtStore()->retrieve< const xAOD::EventInfo>("EventInfo");
-      if (eventInfo) { 
-	      static const SG::AuxElement::Accessor<unsigned int> randomrunnumber("RandomRunNumber"); 
-	      if (randomrunnumber.isAvailable(*eventInfo))
-	        theRunNumber = randomrunnumber(*(eventInfo)) ; 
-      } else
-	      ATH_MSG_WARNING("Could not retrieve EventInfo object"); 
+      // Use the Random Run Number from the Event Info to check which year's DD-Corrections to use
+      // If the RandomRunNo can't be obtained, then default to what is set by either the default choice or by the AuxData check
+      unsigned int theRunNumber = 0 ;
+      SG::ReadHandle<xAOD::EventInfo> evtInfo (m_eventInfoKey);
+      const xAOD::EventInfo* eventInfo = evtInfo.ptr();
+      if (eventInfo) {
+	      static const SG::AuxElement::Accessor<unsigned int> randomrunnumber("RandomRunNumber");
+	      if (randomrunnumber.isAvailable(*eventInfo)){
+	        theRunNumber = randomrunnumber(*(eventInfo)) ;
+        }
+      } else{
+	      ATH_MSG_WARNING("Could not retrieve EventInfo object");
+      }
       if (theRunNumber >= 320000)
-	      m_ddVersion = "2017" ;      // RunNo found, and is in 2017 range 
+	      m_ddVersion = "2017" ;      // RunNo found, and is in 2017 range
       else if (theRunNumber > 0)
 	      m_ddVersion = "2015_2016" ; // RunNo found, but less than 2017 range
       // otherwise, stick with default (m_ddVersion is already assigned)
 
-      // Don't use DD Corrections for AFII if not rel21 ? (I do not know what was done for rel20.7 !!!) 
+      // Don't use DD Corrections for AFII if not rel21 ? (I do not know what was done for rel20.7 !!!)
       if (m_tool_ver_str != "REL21" && m_AFII_corr) m_apply_dd = false;
 
       float iso     = oldiso;
@@ -340,7 +336,7 @@ namespace CP {
   float IsolationCorrectionTool::GetPtCorrection(const xAOD::Egamma& input, xAOD::Iso::IsolationType isol) const {
     return m_isol_corr->GetPtCorrection(input, isol);
   }
-  
+
   float IsolationCorrectionTool::GetDDCorrection(const xAOD::Egamma& input, xAOD::Iso::IsolationType isol){
     return m_isol_corr->GetDDCorrection(input, isol, m_ddVersion);
   }
