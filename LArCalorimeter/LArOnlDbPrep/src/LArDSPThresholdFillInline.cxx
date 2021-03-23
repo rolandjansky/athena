@@ -1,14 +1,15 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArOnlDbPrep/LArDSPThresholdFillInline.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/CaloGain.h"
-#include "CaloInterface/ICaloNoiseTool.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
+#include "CaloConditions/CaloNoise.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include <fstream>
 
@@ -25,7 +26,6 @@
 LArDSPThresholdFillInline::LArDSPThresholdFillInline(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name,pSvcLocator),
   m_onlineID(0),
-  m_noisetool("CaloNoiseToolDefault"),
   m_badChannelMasker("LArBadChannelMasker"),
   m_workmode (FIXED)
 {
@@ -48,7 +48,6 @@ LArDSPThresholdFillInline::LArDSPThresholdFillInline(const std::string& name, IS
   declareProperty("sigmaNoiseQt",m_sigmaNoiseQt);
   declareProperty("usePileupNoiseSamples",m_usePileupNoiseSamples);
   declareProperty("usePileupNoiseQt",m_usePileupNoiseQt);
-  declareProperty("NoiseTool",m_noisetool);
 
   //For channel masking
   declareProperty("MaskBadChannels",m_maskBadChannels=false);
@@ -109,8 +108,10 @@ StatusCode LArDSPThresholdFillInline::initialize() {
     else
       ATH_MSG_INFO ( "ICaloCellTool::elecNoiseRMS times " << name() << ".sigmaNoiseQt for DSP thresholds" );
 
-    ATH_CHECK( m_noisetool.retrieve() );
   }
+
+  ATH_CHECK( m_totalNoiseKey.initialize (m_workmode == NOISE) );
+  ATH_CHECK( m_elecNoiseKey.initialize (m_workmode == NOISE) );
 
   return StatusCode::SUCCESS;
 }   
@@ -118,6 +119,8 @@ StatusCode LArDSPThresholdFillInline::initialize() {
 StatusCode LArDSPThresholdFillInline::stop() {
 
   ATH_MSG_DEBUG ( "start stop()" );
+
+  const EventContext& ctx = Gaudi::Hive::currentContext();
 
   if (m_fill) {
 
@@ -157,11 +160,20 @@ StatusCode LArDSPThresholdFillInline::stop() {
     }
     ATH_MSG_INFO ( "theCaloDDM retrieved" );
 
-    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl (m_cablingKey, ctx);
     const LArOnOffIdMapping* cabling{*cablingHdl};
     if(!cabling) {
         ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key());
         return StatusCode::FAILURE;
+    }
+
+    const CaloNoise* totalNoise = nullptr;
+    const CaloNoise* elecNoise = nullptr;
+    if (m_workmode == NOISE) {
+      SG::ReadCondHandle<CaloNoise> totalNoiseH (m_totalNoiseKey, ctx);
+      totalNoise = totalNoiseH.cptr();
+      SG::ReadCondHandle<CaloNoise> elecNoiseH (m_elecNoiseKey, ctx);
+      elecNoise = elecNoiseH.cptr();
     }
 
     for (unsigned hs=0;hs<hashMax;++hs) {
@@ -225,27 +237,26 @@ StatusCode LArDSPThresholdFillInline::stop() {
 	else
 	  igain = CaloGain::LARHIGHGAIN;
 
-	ATH_MSG_DEBUG ( "hash, eta, phi: " << caloDDE->calo_hash() << ", " << caloDDE->eta() << ", " << caloDDE->phi() << "; noise: " << m_noisetool->totalNoiseRMS(caloDDE,igain) );
+	ATH_MSG_DEBUG ( "hash, eta, phi: " << caloDDE->calo_hash() << ", " << caloDDE->eta() << ", " << caloDDE->phi() << "; noise: " << totalNoise->getNoise(id,igain) );
 
 	float samplesThr = 0.;
 	float QtThr = 0.;
 
 	if(m_usePileupNoiseSamples)
-	  samplesThr = m_noisetool->totalNoiseRMS(caloDDE,igain);
+	  samplesThr = totalNoise->getNoise(id,igain);
 	else
-	  samplesThr = m_noisetool->elecNoiseRMS(caloDDE,igain,-1);
+	  samplesThr = elecNoise->getNoise(id,igain);
 
 	if(m_usePileupNoiseQt)
-	  QtThr = m_noisetool->totalNoiseRMS(caloDDE,igain);
+	  QtThr = totalNoise->getNoise(id,igain);
 	else
-	  QtThr = m_noisetool->elecNoiseRMS(caloDDE,igain,-1);
+	  QtThr = elecNoise->getNoise(id,igain);
 
 	//cont->set(chid,QtThr*m_sigmaNoiseQt,samplesThr*m_sigmaNoiseSamples,QtThr*m_sigmaNoiseQt);
 	ptQThrBlob[hs]=QtThr*m_sigmaNoiseQt;
 	psamplesBlob[hs]=samplesThr*m_sigmaNoiseSamples;
 	ptrigSumBlob[hs]=QtThr*m_sigmaNoiseQt;
 
-      //cont->set(chid,(m_noisetool->totalNoiseRMS(caloDDE,CaloGain::LARHIGHGAIN))*m_sigmaNoiseQt,(m_noisetool->totalNoiseRMS(caloDDE,CaloGain::LARHIGHGAIN))*m_sigmaNoiseSamples,(m_noisetool->totalNoiseRMS(caloDDE,CaloGain::LARHIGHGAIN))*m_sigmaNoiseQt);
       }// end if NOISE
     }//end loop over cells
   }//end if FILL

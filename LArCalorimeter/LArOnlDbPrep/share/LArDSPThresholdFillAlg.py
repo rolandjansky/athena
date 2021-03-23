@@ -54,14 +54,13 @@ from CaloTools.CaloNoiseFlags import jobproperties
 #jobproperties.CaloNoiseFlags.FixedLuminosity.set_Value_and_Lock(1.45*30/8)
 jobproperties.CaloNoiseFlags.FixedLuminosity.set_Value_and_Lock(-1.)
 
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-theCaloNoiseTool = CaloNoiseToolDefault()
-theCaloNoiseTool.OutputLevel=INFO
-theCaloNoiseTool.RescaleForHV=False
-ToolSvc+=theCaloNoiseTool
-
+# Turn this off before configuring CaloNoiseCondAlg.
 from CaloRec.CaloCellFlags import jobproperties
 jobproperties.CaloCellFlags.doLArHVCorr = False
+
+from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+CaloNoiseCondAlg ('totalNoise')
+CaloNoiseCondAlg ('electronicNoise')
 
 conddb.addOverride("/CALO/Ofl/Noise/PileUpNoiseLumi","CALOOflNoisePileUpNoiseLumi-RUN2-UPD1-00")
 if 'pileupsqlite' in dir():
@@ -110,7 +109,6 @@ if ModeType=="noise":
     theLArDSPThresholdFillAlg.sigmaNoiseQt=Qtval
     theLArDSPThresholdFillAlg.usePileupNoiseSamples=Samppileup
     theLArDSPThresholdFillAlg.usePileupNoiseQt=Qtpileup
-    theLArDSPThresholdFillAlg.NoiseTool=theCaloNoiseTool
 
 
 if fill:
