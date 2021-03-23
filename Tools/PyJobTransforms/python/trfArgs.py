@@ -421,9 +421,8 @@ def getExtraDPDList(NTUPOnly = False):
 
     # Trigger NTUPs (for merging only!)
     if NTUPOnly:
-        extraDPDs.append(dpdType('NTUP_TRIGCOST', treeNames=['trig_cost']))
-        extraDPDs.append(dpdType('NTUP_TRIGRATE', treeNames=['trig_cost']))
-        extraDPDs.append(dpdType('NTUP_TRIGEBWGHT', treeNames=['trig_cost']))
+        extraDPDs.append(dpdType('NTUP_TRIGCOST'))
+        extraDPDs.append(dpdType('NTUP_TRIGRATE', treeNames=['metadata']))
     else:
         extraDPDs.append(dpdType('DAOD_HSG2'))
         extraDPDs.append(dpdType('DESDM_ZMUMU'))

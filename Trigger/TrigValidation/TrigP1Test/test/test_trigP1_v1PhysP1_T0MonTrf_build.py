@@ -57,10 +57,24 @@ tzmon.input = ''
 tzmon.args = '--dqOffByDefault Input.Files="[\'AOD.pool.root\']" DQ.Steering.doHLTMon=True'  
 
 #====================================================================================================
+# Merging NTUP_TRIGRATE/COST
+tzmergecost = ExecStep.ExecStep('Tier0MergeCost')
+tzmergecost.type = 'other'
+tzmergecost.executable = 'NTUPMerge_tf.py'
+tzmergecost.input = ''                                                                             
+tzmergecost.args = '--inputNTUP_TRIGCOSTFile="cost.ntup.root" --outputNTUP_TRIGCOST_MRGFile="cost.ntup.merge.root"'
+
+tzmergerate = ExecStep.ExecStep('Tier0MergeRate')
+tzmergerate.type = 'other'
+tzmergerate.executable = 'NTUPMerge_tf.py'
+tzmergerate.input = ''                                                                             
+tzmergerate.args = '--inputNTUP_TRIGRATEFile="rate.ntup.root" --outputNTUP_TRIGRATE_MRGFile="rate.ntup.merge.root"'
+
+#====================================================================================================
 # The full test
 test = Test.Test()
 test.art_type = 'build'
-test.exec_steps = [hlt,tzreco,tzmon]
+test.exec_steps = [hlt,tzreco,tzmon,tzmergecost,tzmergerate]
 test.check_steps = CheckSteps.default_check_steps(test)
 
 # Overwrite default histogram file name for checks
