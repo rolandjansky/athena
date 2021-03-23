@@ -121,30 +121,26 @@ METCollisionFilter::execute()
 
   //////////////////////////////////////////////
 
-  bool pass(false), passCalo(false), passCaloCluster(false), passMBTS(false), passLB(false);
-  double timeDiff(MET::MagicNumber), timeA(MET::MagicNumber), timeC(MET::MagicNumber);
-  int countA(MET::MagicNumber), countC(MET::MagicNumber);
-
+  bool pass(false), passCaloCluster(false), passLB(false);
+  TimingFilterInformation time_calo, time_MTSB;
+    
   //////////////////////////////////////////////  
 
   if (m_doCaloTimeFilter) {
-    sc = m_calofilter->getTimeDifference(passCalo,timeDiff,timeA,timeC,countA,countC);
-    if ( sc.isFailure() ) {
-      ATH_MSG_WARNING (m_calofilter.propertyName() << ": Failed to execute tool " << m_calofilter.type());
-      return StatusCode::FAILURE;
-    }
-    if (passCalo) {
+    
+    ATH_CHECK(m_calofilter->getTimeDifference(time_calo));
+    if (time_calo.passCut) {
       ATH_MSG_DEBUG ("Event accepted by CaloTimeFilter.");
       ++m_caloaccept;
     } else 
       ATH_MSG_DEBUG ("Event rejected by CaloTimeFilter.");
 
-    s_goodies.setValue("Calo_pass",     static_cast<int>(passCalo));
-    s_goodies.setValue("Calo_timeDiff", timeDiff);
-    s_goodies.setValue("Calo_timeA",    timeA);
-    s_goodies.setValue("Calo_timeC",    timeC);
-    s_goodies.setValue("Calo_countA",   countA);
-    s_goodies.setValue("Calo_countC",   countC);
+    s_goodies.setValue("Calo_pass",     int(time_calo.passCut));
+    s_goodies.setValue("Calo_timeDiff", time_calo.timeDiff);
+    s_goodies.setValue("Calo_timeA",    time_calo.timeA);
+    s_goodies.setValue("Calo_timeC",    time_calo.timeC);
+    s_goodies.setValue("Calo_countA",   time_calo.ncellA);
+    s_goodies.setValue("Calo_countC",   time_calo.ncellC);
   }
 
   if (m_doCaloClusterTimeFilter) {
@@ -164,23 +160,19 @@ METCollisionFilter::execute()
   //////////////////////////////////////////////  
 
   if (m_doMBTSTimeFilter) {
-    sc = m_mbtsfilter->getTimeDifference(passMBTS,timeDiff,timeA,timeC,countA,countC);
-    if ( sc.isFailure() ) {
-      ATH_MSG_WARNING (m_mbtsfilter.propertyName() << ": Failed to execute tool " << m_mbtsfilter.type());
-      return StatusCode::FAILURE;
-    }
-    if (passMBTS) { 
+    ATH_CHECK( m_mbtsfilter->getTimeDifference(time_MTSB));
+    if (time_MTSB.passCut) { 
       ATH_MSG_DEBUG ("Event accepted by MBTSTimeFilter.");
       ++m_mbtsaccept;
     } else
       ATH_MSG_DEBUG ("Event rejected by MBTSTimeFilter.");
 
-    s_goodies.setValue("MBTS_pass",     static_cast<int>(passMBTS));
-    s_goodies.setValue("MBTS_timeDiff", timeDiff);
-    s_goodies.setValue("MBTS_timeA",    timeA);
-    s_goodies.setValue("MBTS_timeC",    timeC);
-    s_goodies.setValue("MBTS_countA",   countA);
-    s_goodies.setValue("MBTS_countC",   countC);
+    s_goodies.setValue("MBTS_pass",     int(time_MTSB.passCut));
+    s_goodies.setValue("MBTS_timeDiff", time_MTSB.timeDiff);
+    s_goodies.setValue("MBTS_timeA",    time_MTSB.timeA);
+    s_goodies.setValue("MBTS_timeC",    time_MTSB.timeC);
+    s_goodies.setValue("MBTS_countA",   time_MTSB.ncellA);
+    s_goodies.setValue("MBTS_countC",   time_MTSB.ncellC);
   }
 
   //////////////////////////////////////////////  
@@ -193,7 +185,7 @@ METCollisionFilter::execute()
   //////////////////////////////////////////////
 
   if (m_doCaloTimeFilter && m_doMBTSTimeFilter) {
-    pass = passCalo && passMBTS;
+    pass = time_calo.passCut && time_MTSB.passCut;
     ATH_MSG_DEBUG ("Event accepted as collision ? " << pass);
     //this->setFilterPassed (pass); // This skips the execution of following algs for this event
     s_goodies.setValue(m_prefix+"IsCollisionCandidate",static_cast<int>(pass));

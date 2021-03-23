@@ -1,51 +1,45 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PrimaryDPDMaker_MBTSTimeFilterTool_H
 #define PrimaryDPDMaker_MBTSTimeFilterTool_H
 
-/** @file MBTSTimeFilterTool.h
- *  @brief This file contains the class definition for the MBTSTimeFilterTool class.
- *  @author Max Baak <mbaak@cern.ch>
- **/
+#include "PrimaryDPDMaker/IMBTSTimeFilterTool.h"
+#include "AsgTools/AsgTool.h"
+#include "TileIdentifier/TileTBID.h"
 
-#include "AthenaBaseComps/AthAlgTool.h"
-
-/** @class MBTSTimeFilterTool
- *  @brief This file contains the class definition for the MBTSTimeFilterTool class.
- **/
-
-static const InterfaceID IID_MBTSTimeFilterTool("MBTSTimeFilterTool", 1, 0);
-
-class TileTBID;
-
-class MBTSTimeFilterTool : public AthAlgTool
+class MBTSTimeFilterTool : public asg::AsgTool, virtual public IMBTSTimeFilterTool
 {
  public:    
-  MBTSTimeFilterTool( const std::string&, const std::string&, const IInterface* );
-  virtual ~MBTSTimeFilterTool();
+    MBTSTimeFilterTool( const std::string& tool_name);
+    ASG_TOOL_CLASS( MBTSTimeFilterTool, IMBTSTimeFilterTool )
 
-  /** AlgTool and IAlgTool interface methods */
-  static const InterfaceID& interfaceID( ) { return IID_MBTSTimeFilterTool; };
+ 
+    virtual ~MBTSTimeFilterTool() = default;
 
+ 
   /** Overriding initialize and finalize */
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  
+  virtual StatusCode getTimeDifference(TimingFilterInformation& time_info,
+                                        const SG::ReadHandleKey<TileCellContainer>& key,
+                                        const EventContext& ctx) const  override;
 
-  virtual StatusCode getTimeDifference(bool& passCut, double& timeDiff, double& timeA, double&timeC, int& countA, int& countC);
-
+ virtual  StatusCode getTimeDifference(TimingFilterInformation& time_info) override;
  protected:
-
-  bool m_warningPrinted;
-
+    /// Once the container is retrieve the filling mechanism is the same.
+    void fillTimeDifference(TimingFilterInformation& time_info, const TileCellContainer* container) const;
+ 
   /** For access to the tile test beam identifiers */
-  const TileTBID* m_tileTBID;
+  const TileTBID* m_tileTBID{nullptr};
 
-  std::string m_mbtsContainerName;
-  double m_chargethreshold;
-  int m_minhitsperside;
-  double m_maxtimediff;
+    // Value in pC, from T2MbtsFex.cxx
+  Gaudi::Property<float> m_chargethreshold{this, "ChargeThreshold", 60.0/222.0};
+  Gaudi::Property<int>   m_minhitsperside{this, "MinHitsPerSide",     2 }; 
+  Gaudi::Property<float> m_maxtimediff{this, "MaxTimeDifference", 10.0 }; 
+  Gaudi::Property<std::string> m_mbtsContainerName{this, "MBTSContainerName", "MBTSContainer"};
+
 };
 
 #endif

@@ -1,115 +1,45 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-/*************************************************************
- * @class CaloTimeFilter
- *
- * @author Guillaume Unal
- * @author Karsten Koeneke
- *
- * @date November 2009
- * 
- * @brief a filter to select good timed in events.
- *
- ************************************************************/
 
 // This class's header
 #include "PrimaryDPDMaker/CaloTimeFilterTool.h"
+#include <float.h>
 
-#include "LArRecEvent/LArCollisionTime.h"
-
-CaloTimeFilterTool::CaloTimeFilterTool( const std::string& type, const std::string& name, const IInterface* parent ) 
- : AthAlgTool( type, name, parent )
- , m_timeCut( 5.0 )
- , m_mincellsperside(2)
-{
-  declareInterface<CaloTimeFilterTool>( this );
-
-  declareProperty( "timeDiffCut",    m_timeCut );
-  declareProperty( "MinCellsPerSide",    m_mincellsperside = 9 );
+CaloTimeFilterTool::CaloTimeFilterTool( const std::string& tool_type) : 
+       asg::AsgTool( tool_type ){
 }
 
+StatusCode CaloTimeFilterTool::getTimeDifference(TimingFilterInformation& time_info, const SG::ReadHandleKey<LArCollisionTime>& read_key,
+                                                 const EventContext& ctx) const {
+    ATH_MSG_DEBUG("CaloTimeFilterTool::getTimeDifference()");
 
-CaloTimeFilterTool::~CaloTimeFilterTool()
-{
-   if (msgLvl(MSG::DEBUG))
-      {
-         msg(MSG::DEBUG) << "CaloTimeFilter destructor called" << endmsg;
-      }
-}
+    SG::ReadHandle<LArCollisionTime> readHandle{read_key,ctx};
+    if (!readHandle.isValid()){
+        ATH_MSG_FATAL("Failed to retrieve "<<read_key);
+        return StatusCode::FAILURE;
+    }
 
-
-StatusCode
-CaloTimeFilterTool::initialize()
-{
-   if (msgLvl(MSG::INFO))
-      {
-         msg(MSG::INFO)  <<"CaloTimeFilter initialize()" << endmsg;
-      }
-
-   //-----------------------------------------
-   // Declare the simple StatusCode
-   //-----------------------------------------
-   StatusCode sc = StatusCode::SUCCESS ;
-   
-   m_nevt=0;
-
-   return sc;
-}
-
-
-StatusCode
-CaloTimeFilterTool::getTimeDifference(bool& passCut, double& timeDiff, double& timeA, double&timeC, int& ncellA, int& ncellC)
-{
-   //.............................................
-   if (msgLvl(MSG::DEBUG))
-      {
-         msg(MSG::DEBUG) << "CaloTimeFilter execute()" << endmsg;
-      }
-
-   m_nevt++;
-
-   const LArCollisionTime* larCollisionTime;
-   if ( evtStore()->retrieve(larCollisionTime,"LArCollisionTime").isFailure() )
-      {
-         if (msgLvl(MSG::INFO))
-            {
-               msg(MSG::INFO)
-                  << " Could not get pointer to LArCollisionTime "
-                  << endmsg;
-            }
-         return StatusCode::SUCCESS;
-      }
-
-
-
-   ncellA    = larCollisionTime->ncellA();
-   ncellC    = larCollisionTime->ncellC();
-   timeA   =   larCollisionTime->timeA();
-   timeC   =   larCollisionTime->timeC();
-
-
-   timeDiff = 999.;
-   if ( ncellA > m_mincellsperside && ncellC > m_mincellsperside ) { timeDiff = (timeA-timeC); }
-
-   passCut = false;
-   if ( std::fabs(timeDiff) < m_timeCut )
-      {
-         passCut = true;
-      }
-
+   fillTimeDifference(time_info, readHandle.cptr());
    return StatusCode::SUCCESS;
+}  
+
+StatusCode CaloTimeFilterTool::getTimeDifference(TimingFilterInformation& time_info){
+    const LArCollisionTime* larCollisionTime = nullptr;
+    ATH_CHECK(evtStore()->retrieve(larCollisionTime, m_containerName));
+    fillTimeDifference(time_info, larCollisionTime);
+    return StatusCode::SUCCESS;
+} 
+void CaloTimeFilterTool::fillTimeDifference(TimingFilterInformation& time_info, const LArCollisionTime* larCollisionTime ) const{   
+
+   time_info.ncellA    = larCollisionTime->ncellA();
+   time_info.ncellC    = larCollisionTime->ncellC();
+   time_info.timeA     = larCollisionTime->timeA();
+   time_info.timeC     = larCollisionTime->timeC();
+
+
+   time_info.timeDiff = FLT_MAX;
+   if ( time_info.ncellA > m_mincellsperside && time_info.ncellC > m_mincellsperside ) { time_info.timeDiff = (time_info.timeA-time_info.timeC); }
+   
+   time_info.passCut = ( std::abs(time_info.timeDiff) < m_timeCut );
 }
-
-
-StatusCode
-CaloTimeFilterTool::finalize()
-{
-   if (msgLvl(MSG::DEBUG))
-      {
-         msg(MSG::DEBUG) <<"CaloTimeFilter finalize()" << endmsg;
-      }
-   return StatusCode::SUCCESS; 
-}
-
