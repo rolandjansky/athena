@@ -65,7 +65,6 @@
 + Database/APR/ImplicitCollection
 + Database/APR/POOLCore
 + Database/APR/PersistencySvc
-+ Database/APR/RelationalCollection
 + Database/APR/RootCollection
 + Database/APR/RootStorageSvc
 + Database/APR/StorageSvc
