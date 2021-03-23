@@ -13,11 +13,9 @@
 
 class Identifier; 
 class StoreGateSvc; 
-
 class RpcIdHelper;
 class IIOVSvc;
 class StatusCode;
-
 
 class RPCTriggerDbTool: public AthAlgTool, public IRPCTriggerDbTool
 {
