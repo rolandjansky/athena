@@ -581,12 +581,12 @@ void TGCSectorLogic::doInnerCoincidence(const SG::ReadCondHandleKey<TGCTriggerDa
     else{//  NSW or FI are used to inner coincidnece in SSC#5~18 in Endcap and Forward region 
 
       int pos = 4*coincidenceOut->getR() +  coincidenceOut->getPhi();
-      bool validFI = (m_mapEIFI->getFlagROI(pos, coincidenceOut->getIdSSC(), m_sectorId) == 1);
+      bool validFI = (m_mapEIFI->getFlagROI(pos, coincidenceOut->getIdSSC(), m_sectorId) == 1) && m_region==ENDCAP;
 
       if(tgcArgs()->USE_NSW() && m_nswSide){ //this function will be implemented.There is a NSW on A-side only in early Run3;
 	doTGCNSWCoincidence(coincidenceOut);
       }
-      else if(m_nswSide && validFI){
+      else if(!m_nswSide && validFI){
 	if(m_useEIFI){
 	  coincidenceOut->setInnerCoincidenceFlag( doTGCFICoincidence(coincidenceOut) );
 	}
