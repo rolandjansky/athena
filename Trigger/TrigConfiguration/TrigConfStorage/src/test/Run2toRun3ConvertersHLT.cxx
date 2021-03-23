@@ -54,7 +54,7 @@ std::vector<std::string> l1thresholds(const TrigConf::HLTFrame* frame, const Tri
    std::set<std::string> names;
    for ( const auto sig: cptr->signatures() ) {
       for ( const auto te: sig->outputTEs() ) {
-         auto sequence = frame->sequences().getSequence(te->name());
+         auto sequence = frame->getHLTSequenceList().getSequence(te->name());
          for ( const auto inTE: sequence->inputTEs() ) {
             if ( not ( inTE->name().find("L2_") == 0 or inTE->name().find("EF_") == 0 or inTE->name().find("HLT_") == 0 ) ) {
                names.insert(inTE->name());
@@ -81,7 +81,7 @@ bool convertHLTMenu(const TrigConf::HLTFrame* frame, TrigConf::HLTMenu& menu) {
 
    std::map<std::string, const TrigConf::HLTStreamTag*> allStreams;
 
-   for ( auto cptr : frame->chains() ) {
+   for ( auto cptr : frame->getHLTChainList() ) {
       ptree pChain;
       pChain.put("counter", cptr->chain_counter());
       pChain.put("nameHash", cptr->chain_hash_id());
@@ -138,7 +138,7 @@ void convertRun2HLTPrescalesToRun3(const TrigConf::HLTFrame* frame, const std::s
    top.put("filetype", "hltprescale");
    top.put("name", frame->name());
    ptree pChains;
-   for ( auto cptr : frame->chains() ) {
+   for ( auto cptr : frame->getHLTChainList() ) {
       ptree pChain;
       pChain.put("name", cptr->chain_name());
       pChain.put("counter", cptr->chain_counter());

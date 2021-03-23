@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfHLTData/HLTFrame.h"
@@ -35,9 +35,9 @@ HLTFrame::~HLTFrame()
 
 void
 HLTFrame::clear() {
-   theHLTChainList().clear();
-   theHLTSequenceList().clear();
-   thePrescaleSetCollection().clear();
+   m_HLTChainList.clear();
+   m_HLTSequenceList.clear();
+   m_hltPrescaleSets.clear();
 
    setId(0);
    setName("");
@@ -146,26 +146,4 @@ TrigConf::operator<<(std::ostream & o, const TrigConf::HLTFrame & f) {
      << f.getHLTChainList()
      << f.getHLTSequenceList();
    return o;
-}
-
-
-// for python
-vector<TrigConf::HLTChain*>
-HLTFrame::chainsV() const {
-   vector<HLTChain*> ch(chains().size());
-   copy(chains().begin(), chains().end(), ch.begin());
-   return ch;
-}
-
-vector<TrigConf::HLTSequence*>
-HLTFrame::sequencesV() const {
-   vector<HLTSequence*> seq(sequences().size());
-   copy(sequences().begin(), sequences().end(), seq.begin());
-   return seq;
-}
-
-string HLTFrame::__str__() const {
-   stringstream s;
-   s << *this;
-   return s.str();
 }

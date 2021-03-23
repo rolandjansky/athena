@@ -172,11 +172,11 @@ HLTConfigSvc::initialize ATLAS_NOT_THREAD_SAFE() {
    // to do so, take the EF chain's lower_chain_name and loop through 
    // all L2 chains to find the matching chain_counter 
 
-   for( HLTChain* ch: m_HLTFrame.chains() ) {
+   for( HLTChain* ch: m_HLTFrame.getHLTChainList() ) {
       if( ch->level_enum() != EF ) continue;
       unsigned int lower_chain_counter = -1;
       if(ch->lower_chain_name() != "") {
-         HLTChain* lowerChain = m_HLTFrame.chains().chain(ch->lower_chain_name());
+         HLTChain* lowerChain = m_HLTFrame.getHLTChainList().chain(ch->lower_chain_name());
          if(lowerChain) lower_chain_counter = lowerChain->chain_counter();
       }
       ch->set_lower_chain_counter( lower_chain_counter );

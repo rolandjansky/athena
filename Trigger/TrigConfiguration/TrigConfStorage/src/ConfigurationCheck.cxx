@@ -1155,7 +1155,7 @@ public:
          }
       }
 
-      for( HLTChain* ch: m_hlt->chains() ) {
+      for( HLTChain* ch: m_hlt->getHLTChainList() ) {
 
          if( ch->level()=="EF" ) continue; // chains we do not care about in this check
          if( ch->lower_chain_name() == "") continue; // unseeded

@@ -86,12 +86,12 @@ namespace TrigConf {
 
       // access to HLT chains
       virtual const HLTChainList& chains() const override {
-         return m_hltFrame.chains();
+         return m_hltFrame.getHLTChainList();
       }
 
       // access to HLT sequences
       virtual const HLTSequenceList& sequences() const override {
-         return m_hltFrame.sequences();
+         return m_hltFrame.getHLTSequenceList();
       }
 
       // access to SMK

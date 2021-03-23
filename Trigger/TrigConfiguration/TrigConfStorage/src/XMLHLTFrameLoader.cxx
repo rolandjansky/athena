@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./XMLBoostHelper.h"
@@ -129,7 +129,7 @@ TrigConf::XMLHLTFrameLoader::buildHLTChainList( HLTFrame& frame ) {
    // assert that we don't have a mixed menu
    bool foundL2EFChain(false);
    bool foundHLTChain(false);
-   for( const TrigConf::HLTChain* chain : frame.chains() ) {
+   for( const TrigConf::HLTChain* chain : frame.getHLTChainList() ) {
       if(chain->level_enum() == TrigConf::HLT) {
          foundHLTChain = true;
       } else {
@@ -145,18 +145,18 @@ TrigConf::XMLHLTFrameLoader::buildHLTChainList( HLTFrame& frame ) {
    // merge chainlist if needed
    if( frame.mergedHLT() ) {
       bool needMerging(false);
-      for( const TrigConf::HLTChain* chain : frame.chains() ) {
+      for( const TrigConf::HLTChain* chain : frame.getHLTChainList() ) {
          if(chain->level_enum() != TrigConf::HLT)
             needMerging = true;
       }
 
       if(needMerging) {
-         TRG_MSG_DEBUG("Call merging of " << frame.chains().size() << " L2 and EF chains");
+         TRG_MSG_DEBUG("Call merging of " << frame.getHLTChainList().size() << " L2 and EF chains");
          HLTTEUtils::mergeHLTChainList2(frame);
       }
    }
 
-   TRG_MSG_INFO("Loaded " << frame.chains().size() << " chains");
+   TRG_MSG_INFO("Loaded " << frame.getHLTChainList().size() << " chains");
 
    //   std::cout<<"FPP: XMLHLTFrameLoader::load HLTFrame.mergedHLT() is " << nfTarget.mergedHLT() <<" and chainlist size is "<< nfTarget.getHLTChainList().chains() <<std::endl;
 
@@ -197,7 +197,7 @@ TrigConf::XMLHLTFrameLoader::buildHLTSequenceList( HLTFrame& frame ) {
       frame.theHLTSequenceList().addHLTSequence( aSeq );
    }
 
-   TRG_MSG_INFO("Loaded " << frame.sequences().size() << " sequences");
+   TRG_MSG_INFO("Loaded " << frame.getHLTSequenceList().size() << " sequences");
 
 }
 

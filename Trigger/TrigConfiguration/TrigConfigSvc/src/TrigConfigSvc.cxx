@@ -199,7 +199,7 @@ TrigConfigSvc::chains() const {
       return m_hltservice->chains();
 
    REPORT_MESSAGE(MSG::WARNING) << "No HLT trigger configuration available" << endmsg;
-   return m_NullFrame.chains();
+   return m_NullFrame.getHLTChainList();
 }
 
 
@@ -209,7 +209,7 @@ TrigConfigSvc::sequences() const {
       return m_hltservice->sequences();
 
    REPORT_MESSAGE(MSG::WARNING) << "No HLT trigger configuration available" << endmsg;
-   return m_NullFrame.sequences();
+   return m_NullFrame.getHLTSequenceList();
 }
 
 

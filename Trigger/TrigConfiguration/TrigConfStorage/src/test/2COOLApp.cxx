@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////
@@ -863,7 +863,7 @@ int main( int argc, char* argv[] ) {
                    hltFrame.setSMK(masterConfigKey);
                    hltFrame.thePrescaleSetCollection().set_prescale_key_to_load(hltPrescaleKey);
                    sm->hltFrameLoader().load( hltFrame );
-                   hltpss = unique_ptr<TrigConf::HLTPrescaleSet>(hltFrame.chains().extractPrescaleSet());
+                   hltpss = unique_ptr<TrigConf::HLTPrescaleSet>(hltFrame.getHLTChainList().extractPrescaleSet());
                    cout << endl << *hltpss << endl;
                  }
                }
@@ -965,7 +965,7 @@ int main( int argc, char* argv[] ) {
                                            hltFrame,
                                            configSource);
 
-               unique_ptr<TrigConf::HLTPrescaleSet> hltpss(hltFrame.chains().extractPrescaleSet());
+               unique_ptr<TrigConf::HLTPrescaleSet> hltpss(hltFrame.getHLTChainList().extractPrescaleSet());
                coolWriter->writeHltPrescalePayload( runRanges, *hltpss.get());
                
                log << "Retrieving Lvl1 prescale set from " << lvl1ConfigXml << lineend;

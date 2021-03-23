@@ -334,7 +334,7 @@ TrigConf::DSConfigSvc::update ATLAS_NOT_THREAD_SAFE ( IOVSVC_CALLBACK_ARGS_K( ke
             nChains++;
          }
          ATH_MSG_INFO( "  Number of chains: " << nChains );
-         ATH_MSG_DEBUG( m_hltFrame.chains() );
+         ATH_MSG_DEBUG( m_hltFrame.getHLTChainList() );
       }
 
 

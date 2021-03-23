@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_HLTFrame
@@ -38,6 +38,7 @@ namespace TrigConf {
       /**@brief destructor*/
       ~HLTFrame();
 
+      /**@brief clear chains, sequences and prescales*/
       void clear();
 
       HLTChainList&                   theHLTChainList() { return m_HLTChainList; }    ///< accessor to the list of HLT chains
@@ -45,9 +46,7 @@ namespace TrigConf {
       HLTPrescaleSetCollection&       thePrescaleSetCollection() { return m_hltPrescaleSets; }
       HLTPrescaleSet*                 thePrescaleSet(unsigned int lbn=0) { return m_hltPrescaleSets.thePrescaleSet(lbn); }
 
-      const HLTChainList&             chains() const { return m_HLTChainList; }    ///< const accessor to the list of HLT chains
       const HLTChainList&             getHLTChainList() const { return m_HLTChainList; }    ///< const accessor to the list of HLT chains
-      const HLTSequenceList&          sequences() const { return m_HLTSequenceList; } ///< const accessor to the list of HLT sequences
       const HLTSequenceList&          getHLTSequenceList() const { return m_HLTSequenceList; } ///< const accessor to the list of HLT sequences
       const HLTPrescaleSetCollection& getPrescaleSetCollection() const { return m_hltPrescaleSets; }
       const HLTPrescaleSet*           getPrescaleSet() const { return m_hltPrescaleSets.prescaleSet(); }
@@ -69,12 +68,6 @@ namespace TrigConf {
 
       bool equals(const HLTFrame* other, const std::string& filename) const;
       DiffStruct* compareTo(const HLTFrame* o) const;
-
-
-      // for usage in python, since I can't bind HLTChainList due to boost multi_index dependency
-      std::vector<TrigConf::HLTChain*> chainsV() const;        ///< const accessor to the list of HLT chains as vector
-      std::vector<TrigConf::HLTSequence*> sequencesV() const; ///< const accessor to the list of HLT sequences as vector
-      std::string __str__() const;
 
    private:
 

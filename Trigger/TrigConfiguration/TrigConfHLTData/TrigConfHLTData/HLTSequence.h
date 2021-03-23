@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_HLTSequence
@@ -67,11 +67,11 @@ namespace TrigConf {
 
       std::string concise() const;
 
-      void setL2(bool on=true) const { set(); if(on) m_level |= 0x1; else m_level &= 0x6; }
-      void setEF(bool on=true) const { set(); if(on) m_level |= 0x2; else m_level &= 0x5; }
-      void setHLT(bool on=true) const { set(); if(on) m_level = 0x4; else m_level &= 0x3; }
+      void setL2(bool on=true) { set(); if(on) m_level |= 0x1; else m_level &= 0x6; }
+      void setEF(bool on=true) { set(); if(on) m_level |= 0x2; else m_level &= 0x5; }
+      void setHLT(bool on=true) { set(); if(on) m_level = 0x4; else m_level &= 0x3; }
 
-      void reset() const { m_level = 0x8; }
+      void reset() { m_level = 0x8; }
       bool inL2() const { return (m_level&0x1) != 0; }
       bool inEF() const { return (m_level&0x2) != 0; }
       bool inHLT() const { return (m_level&0x4) != 0; }
@@ -94,9 +94,9 @@ namespace TrigConf {
       HLTTriggerElement*              m_topoStartTE { nullptr }; //!< only for topolical algorithms: specify output TE from previous topological Algo, for combinations
 
       // bit 0 - L2 / bit 1 - EF / bit 2 - HLT / bit 3 - unset
-      mutable unsigned int            m_level { 0 };      //!< level where sequence is running for a given configuration (to be determined in light of the menu, this
+      unsigned int            m_level { 0 };      //!< level where sequence is running for a given configuration (to be determined in light of the menu, this
                                                     //!< is not a property of the chain per se.) In rare cases a sequence could be running explicitely in both levels
-      void set() const { m_level &= 0x7; } 
+      void set() { m_level &= 0x7; }
                                              
       friend std::ostream & operator<<(std::ostream &, const HLTSequence &);
 

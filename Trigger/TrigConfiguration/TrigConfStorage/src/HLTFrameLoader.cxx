@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./HLTFrameLoader.h"
@@ -105,13 +105,13 @@ TrigConf::HLTFrameLoader::load( HLTFrame& frame ) {
       //merge chainlist
       if( frame.mergedHLT() ) {
         bool needMerging(false);
-        for( const TrigConf::HLTChain* chain : frame.chains() ) {
+        for( const TrigConf::HLTChain* chain : frame.getHLTChainList() ) {
           if(chain->level_enum() != TrigConf::HLT)
             needMerging = true;
         }
         
         if(needMerging) {
-          TRG_MSG_DEBUG("Call merging of " << frame.chains().size() << " L2 and EF chains");
+          TRG_MSG_DEBUG("Call merging of " << frame.getHLTChainList().size() << " L2 and EF chains");
           HLTTEUtils::mergeHLTChainList2(frame);
         }
       }
