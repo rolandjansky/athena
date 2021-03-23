@@ -422,39 +422,6 @@ bool SelectionCutJetIDWP::accept(const xAOD::TauJet& xTau,
   case JETIDNONEUNCONFIGURED:
     bPass = true;
     break;
-  case JETIDBDTLOOSE:
-    if (xTau.isTau(xAOD::TauJetParameters::JetBDTSigLoose)) bPass = true;
-    break;
-  case JETIDBDTMEDIUM:
-    if (xTau.isTau(xAOD::TauJetParameters::JetBDTSigMedium)) bPass = true;
-    break;
-  case JETIDBDTTIGHT:
-    if (xTau.isTau(xAOD::TauJetParameters::JetBDTSigTight)) bPass = true;
-    break;
-  case JETIDBDTLOOSENOTMEDIUM:
-    if (xTau.isTau(xAOD::TauJetParameters::JetBDTSigLoose) and !xTau.isTau(xAOD::TauJetParameters::JetBDTSigMedium)) bPass = true;
-    break;
-  case JETIDBDTLOOSENOTTIGHT:
-    if (xTau.isTau(xAOD::TauJetParameters::JetBDTSigLoose) and !xTau.isTau(xAOD::TauJetParameters::JetBDTSigTight)) bPass = true;
-    break;
-  case JETIDBDTMEDIUMNOTTIGHT:
-    if (xTau.isTau(xAOD::TauJetParameters::JetBDTSigMedium) and !xTau.isTau(xAOD::TauJetParameters::JetBDTSigTight)) bPass = true;
-    break;
-  case JETIDBDTNOTLOOSE:
-    if (!xTau.isTau(xAOD::TauJetParameters::JetBDTSigLoose)) bPass = true;
-    break;
-  case JETIDBDTVERYLOOSE:
-    if (xTau.isTau(xAOD::TauJetParameters::JetBDTSigVeryLoose)) bPass = true;
-    break;
-  case JETBDTBKGLOOSE:
-    if (xTau.isTau(xAOD::TauJetParameters::JetBDTBkgLoose)) bPass = true;
-    break;
-  case JETBDTBKGMEDIUM:
-    if (xTau.isTau(xAOD::TauJetParameters::JetBDTBkgMedium)) bPass = true;
-    break;
-  case JETBDTBKGTIGHT:
-    if (xTau.isTau(xAOD::TauJetParameters::JetBDTBkgTight)) bPass = true;
-    break;
   case JETIDRNNVERYLOOSE:
     if (xTau.isTau(xAOD::TauJetParameters::JetRNNSigVeryLoose)) bPass = true;
     break;
@@ -476,7 +443,7 @@ bool SelectionCutJetIDWP::accept(const xAOD::TauJet& xTau,
     acceptData.setCutResult( "JetIDWP", true );
     return true;
   }
-  m_tTST->msg() << MSG::VERBOSE << "Tau failed JetBDTWP requirement, tau transformed BDT score: " << xTau.discriminant(xAOD::TauJetParameters::BDTJetScoreSigTrans) << endmsg;
+  m_tTST->msg() << MSG::VERBOSE << "Tau failed JetRNNWP requirement, tau transformed RNN score: " << xTau.discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans) << endmsg;
   return false;
 }
 
