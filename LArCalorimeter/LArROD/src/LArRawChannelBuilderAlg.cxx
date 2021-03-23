@@ -5,17 +5,22 @@
 #include "LArROD/LArRawChannelBuilderAlg.h" 
 #include "GaudiKernel/SystemOfUnits.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
+#include "CaloEvent/CaloCellContainer.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "LArRawEvent/LArDigitContainer.h"
+#include "LArIdentifier/LArOnline_SuperCellID.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArCOOLConditions/LArDSPThresholdsFlat.h"
+#include "AthAllocators/DataPool.h"
 #include <cmath>
 
 LArRawChannelBuilderAlg::LArRawChannelBuilderAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  AthReentrantAlgorithm(name, pSvcLocator) {}
+  AthReentrantAlgorithm(name, pSvcLocator), m_sem_mgr(0) {}
   
 StatusCode LArRawChannelBuilderAlg::initialize() {
   ATH_CHECK(m_digitKey.initialize());	 
-  ATH_CHECK(m_rawChannelKey.initialize());
+  if ( m_isSC ) ATH_CHECK(m_cellKey.initialize());
+  else ATH_CHECK(m_rawChannelKey.initialize());
   ATH_CHECK(m_pedestalKey.initialize());	 
   ATH_CHECK(m_adc2MeVKey.initialize());	 
   ATH_CHECK(m_ofcKey.initialize());	 
@@ -30,7 +35,17 @@ StatusCode LArRawChannelBuilderAlg::initialize() {
     }
   }
 
-  ATH_CHECK(detStore()->retrieve(m_onlineId,"LArOnlineID"));
+  if ( m_isSC ) {
+	const LArOnline_SuperCellID* ll;
+	ATH_CHECK(detStore()->retrieve(ll,"LArOnline_SuperCellID"));
+	m_onlineId = (const LArOnlineID_Base*)ll;
+	ATH_CHECK( detStore()->retrieve (m_sem_mgr, "CaloSuperCellMgr") );
+  }
+  else {
+	const LArOnlineID* ll;
+	ATH_CHECK(detStore()->retrieve(ll,"LArOnlineID"));
+	m_onlineId = (const LArOnlineID_Base*)ll;
+  }
 
   const std::string cutmsg = m_absECutFortQ.value() ? " fabs(E) < " : " E < "; 
   ATH_MSG_INFO("Energy cut for time and quality computation: " << cutmsg << 
@@ -50,8 +65,18 @@ StatusCode LArRawChannelBuilderAlg::execute(const EventContext& ctx) const {
   SG::ReadHandle<LArDigitContainer> inputContainer(m_digitKey,ctx);
 
   //Write output via write handle
-  SG::WriteHandle<LArRawChannelContainer>outputContainer(m_rawChannelKey,ctx);
-  ATH_CHECK(outputContainer.record(std::make_unique<LArRawChannelContainer>()));
+
+  auto  outputContainerCellPtr = std::make_unique<CaloCellContainer>(SG::VIEW_ELEMENTS);
+  auto  outputContainerLRPtr = std::make_unique<LArRawChannelContainer>();
+
+  DataPool<CaloCell> dataPool;
+  if ( m_isSC ) {
+    unsigned int hash_max = m_onlineId->channelHashMax();
+    if (dataPool.allocated()==0){
+      dataPool.reserve (hash_max);
+    }
+    outputContainerCellPtr->reserve( hash_max );
+  }
 	    
   //Get Conditions input
   SG::ReadCondHandle<ILArPedestal> pedHdl(m_pedestalKey,ctx);
@@ -95,6 +120,7 @@ StatusCode LArRawChannelBuilderAlg::execute(const EventContext& ctx) const {
 
     const HWIdentifier id=digit->hardwareID();
     const bool connected=(*cabling)->isOnlineConnected(id);
+    
 
     ATH_MSG_VERBOSE("Working on channel " << m_onlineId->channel_name(id));
 
@@ -111,13 +137,14 @@ StatusCode LArRawChannelBuilderAlg::execute(const EventContext& ctx) const {
     //Sanity check on input conditions data:
     // FIXME: fix to get splash test running, should implement the iterations later
     size_t len=nSamples;
-    if(ATH_UNLIKELY(ofca.size()<nSamples)) {
+    if(!m_isSC && ATH_UNLIKELY(ofca.size()<nSamples)) {
       if (!connected) continue; //No conditions for disconencted channel, who cares?
       ATH_MSG_DEBUG("Number of OFC a's doesn't match number of samples for conencted channel " << m_onlineId->channel_name(id) 
 		    << " gain " << gain << ". OFC size=" << ofca.size() << ", nbr ADC samples=" << nSamples);
-      //return StatusCode::FAILURE;
       len=ofca.size();
     }
+    if (m_isSC && !connected ) continue;
+    if (m_isSC ) len = nSamples <= ofca.size() ? nSamples : ofca.size();
     
     if (ATH_UNLIKELY(p==ILArPedestal::ERRORCODE)) {
       if (!connected) continue; //No conditions for disconencted channel, who cares?
@@ -137,9 +164,11 @@ StatusCode LArRawChannelBuilderAlg::execute(const EventContext& ctx) const {
     //Apply OFCs to get amplitude
     float A=0;
     bool saturated=false;
+    unsigned int init=0;
+    if (m_isSC) init=1;
     for (size_t i=0;i<len;++i) {
-      A+=(samples[i]-p)*ofca[i];
-      if (samples[i]==4096 || samples[i]==0) saturated=true;
+      A+=(samples[i+init]-p)*ofca[i];
+      if (samples[i+init]==4096 || samples[i+init]==0) saturated=true;
     }
     
     //Apply Ramp
@@ -236,9 +265,32 @@ StatusCode LArRawChannelBuilderAlg::execute(const EventContext& ctx) const {
     }//end if above cut
 
    
-    outputContainer->emplace_back(id,static_cast<int>(std::floor(E+0.5)),
+    if ( m_isSC ){
+    CaloCell* ss = dataPool.nextElementPtr();
+    Identifier offId = cabling->cnvToIdentifier(id);
+    
+    const CaloDetDescrElement* dde = m_sem_mgr->get_element (offId);
+    ss->setCaloDDE(dde);
+    ss->setEnergy(E);
+    ss->setTime(tau);
+    ss->setGain((CaloGain::CaloGain)0);
+    ss->setProvenance(prov);
+    ss->setQuality(iquaShort);
+    outputContainerCellPtr->push_back(ss);
+    }
+    else{
+    outputContainerLRPtr->emplace_back(id,static_cast<int>(std::floor(E+0.5)),
 				  static_cast<int>(std::floor(tau+0.5)),
 				  iquaShort,prov,(CaloGain::CaloGain)gain);
+    }
+  }
+  if ( m_isSC ) {
+  SG::WriteHandle<CaloCellContainer>outputContainer(m_cellKey,ctx);
+  outputContainerCellPtr->reserve( m_onlineId->channelHashMax() );
+  ATH_CHECK(outputContainer.record(std::move(outputContainerCellPtr) ) );
+  } else {
+  SG::WriteHandle<LArRawChannelContainer>outputContainer(m_rawChannelKey,ctx);
+  ATH_CHECK(outputContainer.record(std::move(outputContainerLRPtr) ) );
   }
 
   return StatusCode::SUCCESS;

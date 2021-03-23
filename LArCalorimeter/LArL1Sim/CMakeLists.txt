@@ -11,7 +11,7 @@ atlas_add_component( LArL1Sim
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthAllocators AthenaBaseComps GaudiKernel GeoModelInterfaces LArDigitizationLib CaloDetDescrLib CaloEvent CaloIdentifier CaloTriggerToolLib AthenaKernel StoreGateLib EventInfo LArCablingLib LArElecCalib LArIdentifier LArRawEvent LArSimEvent PathResolver )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthAllocators AthenaBaseComps GaudiKernel GeoModelInterfaces LArDigitizationLib CaloDetDescrLib CaloEvent CaloIdentifier CaloTriggerToolLib AthenaKernel StoreGateLib EventInfo LArCablingLib LArElecCalib LArIdentifier LArRawEvent LArSimEvent LArRawConditions PathResolver )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

@@ -57,14 +57,6 @@ StatusCode LArAutoCorrNoiseCondAlg::initialize()
   m_nGains = ( m_isSuperCell ) ? 1 : 3;
 
   
-  if (m_isSuperCell) {
-    ATH_MSG_ERROR("This cond-algo doesn't work yet for SuperCells");
-  }
-  //Super-cells are only half-implemented here.
-  //The produced LArAutoCorrNoise CDO will always use LArMCSym to query the underlying storage but
-  //we dont' use symmetry for SuperCells. Suggest to implement dedicated CDO for supercells. 
-
-
   return StatusCode::SUCCESS;
 }
 
@@ -98,10 +90,12 @@ StatusCode LArAutoCorrNoiseCondAlg::execute()
   }
   // MC symmetrization helper
   const LArMCSym*              larMCsym = nullptr;
+  if ( !m_isSuperCell && m_MCsym ) {
   SG::ReadCondHandle<LArMCSym> larMCsymHdl{m_LArMCSymObjKey};
   larMCsym = *larMCsymHdl;
   if ( larMCsym == nullptr ) {
     ATH_MSG_ERROR( "Failed to retrieve LArMCSym object" );
+  }
   }
 
   // Get pointers to inputs

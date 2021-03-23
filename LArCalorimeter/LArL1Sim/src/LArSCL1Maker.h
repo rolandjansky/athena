@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARL1SIM_LARSCL1MAKER_H
@@ -15,17 +15,24 @@
 // ....... include
 //
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "Gaudi/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "LArDigitization/LArHitEMap.h"
-#include "LArElecCalib/ILArAutoCorrNoiseTool.h"
-#include "LArElecCalib/ILArADC2MeVTool.h"
+#include "LArRawConditions/LArAutoCorrNoise.h"
+#include "LArRawConditions/LArADC2MeV.h"
 #include "CaloDetDescr/ICaloSuperCellIDTool.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 #include "LArCabling/LArOnOffIdMapping.h"
+#include "LArRawEvent/LArDigitContainer.h"
 
+#include "LArElecCalib/ILArfSampl.h"
+#include "LArElecCalib/ILArShape.h"
+#include "LArElecCalib/ILArPedestal.h"
+#include "LArElecCalib/ILArNoise.h"
 
 
 class IAtRndmGenSvc;
@@ -33,10 +40,6 @@ class ITriggerTime;
 class CaloCell_SuperCell_ID;
 class CaloCell_ID;
 class LArOnline_SuperCellID;
-class ILArShape;
-class ILArfSampl;
-class ILArPedestal;
-class ILArNoise;
 
 class CaloSuperCellDetDescrManager;
 
@@ -57,8 +60,7 @@ namespace CLHEP
    @author Denis O. Damazio (BNL)
  */
 
-class LArSCL1Maker : public AthAlgorithm,
-                     public IIncidentListener 
+class LArSCL1Maker : public AthReentrantAlgorithm
 {
 //
 // >>>>>>>> public methods
@@ -73,19 +75,50 @@ class LArSCL1Maker : public AthAlgorithm,
 // ..... Gaudi algorithm hooks
 //
   /**  Read ascii files for auxiliary data (puslse shapes, noise, etc...) */
-  virtual StatusCode initialize();
+  StatusCode initialize();
   /**       Create  LArSCL1  object
       save in TES (2 containers: 1 EM, 1 hadronic)
   */
-  virtual StatusCode execute();
+  StatusCode execute(const EventContext& context) const;
 
-  virtual StatusCode finalize();
-  virtual void handle(const Incident&);
+  StatusCode finalize();
 
 
  private:
 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKeySC{this,"ScCablingKey","LArOnOffIdMapSC","SG Key of SC LArOnOffIdMapping object"};
+  /// Property: Pulse shape (conditions input).
+  SG::ReadCondHandleKey<ILArShape> m_shapesKey
+  {this, "ShapeKey", "LArShapeSC", "SG Key of Shape conditions object"};
+ 
+  /// Property: Fraction of Energy Sampled (conditions input).
+  SG::ReadCondHandleKey<ILArfSampl> m_fracSKey
+  {this, "FracSKey", "LArfSamplSC", "SG Key of fSamplS conditions object"};
+ 
+  /// Property: Pedestal offset (conditions input).
+  SG::ReadCondHandleKey<ILArPedestal> m_pedestalSCKey
+  {this, "PedestalKey", "LArPedestalSC", "SGKey of LArPedestal object"};
+
+  /// Property: Electronics Noise (conditions input).
+  SG::ReadCondHandleKey<ILArNoise> m_noiseSCKey
+  {this, "LArNoiseKey", "LArNoiseSC", "SGKey of LArNoise object"};
+
+  /// Property: AutoCorr Noise (conditions input).
+  SG::ReadCondHandleKey<LArAutoCorrNoise> m_autoCorrNoiseSCKey
+  {this, "LArAutoCorrKey", "LArAutoCorrNoiseSC", "SGKey of LArAutoCorrNoise object"};
+
+  /// Property: ADC2MeV conversion (conditions input).
+  SG::ReadCondHandleKey<LArADC2MeV> m_adc2mevSCKey
+  {this, "LArADC2MeVKey", "LArADC2MeVSC", "SGKey of LArADC2MeV object"};
+
+  template <class T>
+  const T* retrieve(const EventContext& context, SG::ReadCondHandleKey<T> handleKey) const {
+	SG::ReadCondHandle<T> handle( handleKey, context);
+	if ( not handle.isValid() ) {
+		ATH_MSG_ERROR("could not retrieve : " << handle.key() );
+		return nullptr;
+	} else return handle.cptr();
+  }
 
 //
 // >>>>>>>> private algorithm parts
@@ -100,18 +133,14 @@ class LArSCL1Maker : public AthAlgorithm,
 				  std::vector<float>& inputV) ;
 
 
-
-  /** Method to update all conditions */
-  StatusCode updateConditions();
-
   /** Method to print SuperCell Conditions */
   void printConditions(const HWIdentifier& hwSC);
 
   /** Method for converting Hits from samples (simplified version
  * of the same method in LarPileUpTool) */
- void ConvertHits2Samples(const HWIdentifier & hwSC, CaloGain::CaloGain igain,
+ void ConvertHits2Samples(const EventContext& context, const HWIdentifier & hwSC, CaloGain::CaloGain igain,
        const std::vector<std::pair<float,float> >& TimeE,
-	std::vector<float>& samples);
+	std::vector<float>& samples) const;
 
 //
 // >>>>>>>> private data parts
@@ -126,7 +155,7 @@ class LArSCL1Maker : public AthAlgorithm,
   /** Alorithm property: use trigger time or not*/
   bool m_useTriggerTime;
   /** pointer to the TriggerTimeTool */
-  ToolHandle<ITriggerTime> p_triggerTimeTool;
+  //ToolHandle<ITriggerTime> p_triggerTimeTool;
  
   int m_BeginRunPriority;
 
@@ -159,6 +188,8 @@ class LArSCL1Maker : public AthAlgorithm,
 
   /** hit map */
   SG::ReadHandleKey<LArHitEMap> m_hitMapKey{this,"LArHitEMapKey","LArHitEMap"};
+  /** output Lar Digits SC container */
+  SG::WriteHandleKey<LArDigitContainer> m_sLArDigitsContainerKey {this, "SCL1ContainerName","LArDigitSCL1","Output LArDigit container"};
 
 
   /** list of hit containers */
@@ -192,33 +223,10 @@ class LArSCL1Maker : public AthAlgorithm,
 /** algorithm property: switch chrono on */
   bool m_chronoTest;               
 
-/** Conditions (shape) of SuperCell */
-  const ILArShape* m_shapes;
-/** Conditions (fSamples) of SuperCell */
-  const ILArfSampl* m_fracS;
-/** Conditions (LArPedestalSC) of SuperCell */
-  const ILArPedestal* m_PedestalSC;
-/** Conditions (LArNoiseSC) of SuperCell */
-  const ILArNoise* m_NoiseSC;
-/** Special Tool for AutoCorrelation sqrt */
-  ToolHandle<ILArAutoCorrNoiseTool> m_autoCorrNoiseTool;
-/** Special Tool for AutoCorrelation sqrt */
-  ToolHandle<ILArADC2MeVTool> m_adc2mevTool;
-/** key for fSampl conditions */
-  std::string m_fSamplKey;
-/** key for Shape conditions */
-  std::string m_shapesKey;
-/** key for Noise conditions */
-  std::string m_noiseKey;
-/** key for Pedestal conditions */
-  std::string m_pedestalKey;
-
   /** output number of samples */
   unsigned int m_nSamples;
   /** output first samples */
   unsigned int m_firstSample;
-  /** m_first */
-  bool m_first;
 
    std::string m_saveHitsContainer;
 
