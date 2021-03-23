@@ -1482,8 +1482,8 @@ CombinedMuonTrackBuilder::standaloneFit(const Trk::Track& inputSpectrometerTrack
 
             if (checkTrack("refineFit", refinedTrack.get(), track.get())) {
                 ATH_MSG_VERBOSE("refined track checks out");
+                track.swap(refinedTrack);
             }
-            track.swap(refinedTrack);
         } else {
             ATH_MSG_VERBOSE("refined track fit failed");
             ++improvementsFailed;
@@ -1529,8 +1529,8 @@ CombinedMuonTrackBuilder::standaloneFit(const Trk::Track& inputSpectrometerTrack
                           << " Chi2/DoF= " << fitChi2);
 
             ++m_countDegradedStandaloneFit;
-            if (improvementsFailed == 2) {
-                ATH_MSG_WARNING("reject track, quality degraded and improvements failed");
+            if (improvementsFailed >= 2) {
+                ATH_MSG_DEBUG("reject track, quality degraded and improvements failed");
                  if (haveSpectrometerRefit) {
                         delete spectrometerFit;
                 }
