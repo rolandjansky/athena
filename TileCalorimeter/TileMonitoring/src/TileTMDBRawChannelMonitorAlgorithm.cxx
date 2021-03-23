@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
@@ -96,8 +96,8 @@ StatusCode TileTMDBRawChannelMonitorAlgorithm::fillHistograms( const EventContex
   std::vector<float> coinThrModules_1Th[TMDB_NUMBER_BARRELS][1][TMDB_NUMBER_LAYERS]; // (EBAxEBC) x Thresholds x (D5 x D5+D6) 
   std::vector<float> coinThrModules_2Th[TMDB_NUMBER_BARRELS][2][TMDB_NUMBER_LAYERS]; // (EBAxEBC) x Thresholds x (D5 x D5+D6) 
 
-  float TMDB_D6_amplitude[2][64]; // (EBA and EBC) x 64 modules
-  float TMDB_D56_amplitude[2][64]; // (EBA and EBC) x 64 modules
+  float TMDB_D6_amplitude[2][64] = {{0}}; // (EBA and EBC) x 64 modules
+  float TMDB_D56_amplitude[2][64] = {{0}}; // (EBA and EBC) x 64 modules
 
   SG::ReadHandle<TileRawChannelContainer> rawContainer(m_rawChannelContainerKey, ctx);
   for (IdentifierHash hash : rawContainer->GetAllCurrentHashes()) {
