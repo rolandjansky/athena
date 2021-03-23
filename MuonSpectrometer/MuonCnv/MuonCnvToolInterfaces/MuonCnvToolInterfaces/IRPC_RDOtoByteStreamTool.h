@@ -1,15 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCNVTOOLINTERFACES_IRPC_RDOTOBYTESTREAMTOOL_H
 #define MUONCNVTOOLINTERFACES_IRPC_RDOTOBYTESTREAMTOOL_H
 
 #include "GaudiKernel/IAlgTool.h"
+#include "ByteStreamData/RawEvent.h"
 
 class RpcPadContainer; 
 class MsgStream ; 
-class RawEventWrite;
 
 static const InterfaceID IID_IRPC_RDOtoByteStreamTool( "Muon::IRPC_RDOtoByteStreamTool", 1, 0 );
 
@@ -25,22 +25,17 @@ namespace Muon {
   * Jan-14-2003, BNL
   * Conversion of Rpc Pad Container to byte stream
   */
-class IRPC_RDOtoByteStreamTool: public IAlgTool {
+class IRPC_RDOtoByteStreamTool: virtual public IAlgTool {
 
 public:
 
   static const InterfaceID& interfaceID() { return IID_IRPC_RDOtoByteStreamTool; };
 
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
-
   /** Conversion method, which takes the RDO container and converts it into raw data, filled into RawEventWrite.
   @param cont RDO container which will be used to fill the raw event
   @param re Raw event to be filled by this method.
-  @param log MsgStream to be filled by method.
-  @todo Do we really need to pass in a logfile? This is a AlgTool and so can provide its own log objects.
   */
-  StatusCode convert(RpcPadContainer* cont, RawEventWrite* re, MsgStream& log )=0; 
+  virtual StatusCode convert(RpcPadContainer* cont, RawEventWrite* re ) const =0; 
   
 };
 }

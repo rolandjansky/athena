@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RpcPadContByteStreamTool.h"
@@ -31,12 +31,20 @@ StatusCode Muon::RpcPadContByteStreamTool::initialize() {
   ATH_CHECK(m_readKey.initialize());
   ATH_CHECK(m_idHelperSvc.retrieve());
   m_hid2re.set(&m_idHelperSvc->rpcIdHelper());
+
+  ATH_CHECK( m_byteStreamCnvSvc.retrieve() );
+  
   return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::RpcPadContByteStreamTool::convert(CONTAINER* cont, RawEventWrite* re) {
-   m_fea.clear();
-   m_fea.idMap().set(&m_idHelperSvc->rpcIdHelper());
+StatusCode Muon::RpcPadContByteStreamTool::convert(CONTAINER* cont, RawEventWrite* /*re*/) const
+{
+   FullEventAssembler<RPC_Hid2RESrcID>* fea = nullptr;
+   ATH_CHECK( m_byteStreamCnvSvc->getFullEventAssembler (fea,
+                                                         "RpcRdoContByteStream")
+              );
+
+   fea->idMap().set(&m_idHelperSvc->rpcIdHelper());
 
    FullEventAssembler<RPC_Hid2RESrcID>::RODDATA* theROD;
  
@@ -59,14 +67,11 @@ StatusCode Muon::RpcPadContByteStreamTool::convert(CONTAINER* cont, RawEventWrit
     // RpcROD_Encoder has collected all the pads, now can fill the
     // ROD block data. 
     for (; it!=it_end;++it) { 
-      theROD  = m_fea.getRodData( (*it).first ); 
+      theROD  = fea->getRodData( (*it).first ); 
       ((*it).second).set( &m_hid2re ) ; 
       ((*it).second).fillROD( *theROD ) ; 
     } 
     
-    MsgStream log(Athena::getMessageSvc(), "RpcPadContByteStreamTool");
-    m_fea.fill(re, log); 
-
     return StatusCode::SUCCESS; 
 }
 
