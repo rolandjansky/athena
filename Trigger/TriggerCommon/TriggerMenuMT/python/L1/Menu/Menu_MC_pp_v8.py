@@ -68,7 +68,7 @@ def defineMenu():
         'L1_eEM7_MU20',
 
         # single tau
-        'L1_TAU5', 'L1_TAU12', 'L1_TAU12IM',   'L1_TAU20IM', 'L1_TAU30', 'L1_TAU40', 'L1_TAU60', 'L1_TAU90', 'L1_TAU100',
+        'L1_TAU5', 'L1_TAU8', 'L1_TAU12IM',   'L1_TAU20IM', 'L1_TAU30', 'L1_TAU40', 'L1_TAU60', 'L1_TAU90', 'L1_TAU100',
         'L1_TAU8_EMPTY', 'L1_TAU8_FIRSTEMPTY', 'L1_TAU8_UNPAIRED_ISO', 'L1_TAU30_EMPTY', 'L1_TAU30_UNPAIRED_ISO',
         # new calo
         'L1_eTAU12', 'L1_eTAU100',

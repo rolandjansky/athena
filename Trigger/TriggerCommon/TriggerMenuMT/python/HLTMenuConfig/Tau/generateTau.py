@@ -47,7 +47,7 @@ if __name__ == "__main__":
     ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.lock()
     from ..Menu.DictFromChainName import dictFromChainName
-    chain = generateChains(ConfigFlags, dictFromChainName('HLT_tau0_perf_ptonly_L1TAU12'))
+    chain = generateChains(ConfigFlags, dictFromChainName('HLT_tau0_perf_ptonly_L1TAU8'))
     for step in chain.steps:
         for s in step.sequences:
             if not isinstance(s, EmptyMenuSequence):

@@ -26,7 +26,7 @@ monitoring_tau = [
 ]
 
 monitoring_tau_pp = [
-    'tau0_perf_ptonly_L1TAU100',
+    'tau0_ptonly_L1TAU100',
     'tau80_medium1_tracktwo_L1TAU60',
     'tau160_idperf_track_L1TAU100',
     'tau160_idperf_tracktwo_L1TAU100',
@@ -67,10 +67,10 @@ monitoring_tau_pp = [
 monitoring_tau_validation = [
 
         # tau0
-        'tau0_perf_ptonly_L1TAU12',
-        'tau0_perf_ptonly_L1TAU60',
+        'tau0_ptonly_L1TAU8',
+        'tau0_ptonly_L1TAU60',
         # tau25
-        'tau25_idperf_ptonly_L1TAU12IM',
+        'tau25_ptonly_L1TAU12IM',
         'tau25_idperf_track_L1TAU12IM',
         'tau25_idperf_tracktwo_L1TAU12IM',
         'tau25_idperf_tracktwoEF_L1TAU12IM',
@@ -90,10 +90,8 @@ monitoring_tau_validation = [
         'tau25_medium1_track_L1TAU12IM',
         'tau25_medium1_tracktwo_L1TAU12IM',
         'tau25_medium1_tracktwoEF_L1TAU12IM',
-        'tau25_medium1_tracktwoMVA_L1TAU12IM',
-        'tau25_medium1_tracktwoMVABDT_L1TAU12IM',
         # tau35
-        'tau35_idperf_ptonly_L1TAU12IM',
+        'tau35_ptonly_L1TAU12IM',
         'tau35_idperf_track_L1TAU12IM',
         'tau35_idperf_tracktwo_L1TAU12IM',
         'tau35_idperf_tracktwoEF_L1TAU12IM',
@@ -111,7 +109,7 @@ monitoring_tau_validation = [
         'tau35_tightRNN_tracktwoMVA_L1TAU12IM',
         'tau35_tightRNN_tracktwoMVABDT_L1TAU12IM',
         # tau160
-        'tau160_idperf_ptonly_L1TAU100',
+        'tau160_ptonly_L1TAU100',
         'tau160_idperf_track_L1TAU100',
         'tau160_idperf_tracktwo_L1TAU100',
         'tau160_idperf_tracktwoEF_L1TAU100',
@@ -127,8 +125,6 @@ monitoring_tau_validation = [
         'tau160_medium1_track_L1TAU100',
         'tau160_medium1_tracktwo_L1TAU100',
         'tau160_medium1_tracktwoEF_L1TAU100',
-        'tau160_medium1_tracktwoMVA_L1TAU100',
-        'tau160_medium1_tracktwoMVABDT_L1TAU100',
 ]
 
 monitoring_tau_cosmic = [

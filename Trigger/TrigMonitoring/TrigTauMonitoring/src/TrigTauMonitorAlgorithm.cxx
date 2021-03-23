@@ -757,15 +757,21 @@ void TrigTauMonitorAlgorithm::setTrigInfo(const std::string trigger)
   else if(idwp.find("RNN")!=std::string::npos) isRNN=true;
   else if(idwp=="loose1" || idwp=="medium1" || idwp=="tight1") isBDT=true;
 
-  type=names[3];
   if(names[0].find("L1")!=std::string::npos) isL1=true;
 
-  if(names[4].find("L1TAU") !=std::string::npos)
-  { 
-      l1item =names[4];
-      l1thr = std::stof(names[4].substr(5,names[4].length()));
+  if(names.size() <= 4 && names[3].find("L1TAU") !=std::string::npos)
+  {
+    type=names[2];
+    l1item =names[3];
+    l1thr = std::stof(names[3].substr(5,names[3].length()));
+  } 
+  else if (names[4].find("L1TAU") !=std::string::npos) 
+  {
+    type=names[3];
+    l1item =names[4];
+    l1thr = std::stof(names[4].substr(5,names[4].length())); 
   }
-
+ 
   TrigInfo info{trigger,idwp,l1item,l1type,type,isL1,isRNN,isBDT,isPerf,hlthr,l1thr,false};
 
   m_trigInfo[trigger] = info;

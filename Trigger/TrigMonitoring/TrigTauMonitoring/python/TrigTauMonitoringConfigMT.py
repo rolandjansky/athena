@@ -151,11 +151,11 @@ class TrigTauMonAlgBuilder:
     # This will be removed for future.
     monitoring_tau = [
     # tau0
-    'HLT_tau0_perf_ptonly_L1TAU12',
-    'HLT_tau0_perf_ptonly_L1TAU60',
-    'HLT_tau0_perf_ptonly_L1TAU100',
+    'HLT_tau0_ptonly_L1TAU8',
+    'HLT_tau0_ptonly_L1TAU60',
+    'HLT_tau0_ptonly_L1TAU100',
     # tau25
-    'HLT_tau25_idperf_ptonly_L1TAU12IM',
+    'HLT_tau25_ptonly_L1TAU12IM',
     'HLT_tau25_idperf_track_L1TAU12IM',
     'HLT_tau25_idperf_tracktwo_L1TAU12IM',
     'HLT_tau25_idperf_tracktwoEF_L1TAU12IM',
@@ -184,10 +184,8 @@ class TrigTauMonAlgBuilder:
     'HLT_tau25_medium1_track_L1TAU12IM',
     'HLT_tau25_medium1_tracktwo_L1TAU12IM',
     'HLT_tau25_medium1_tracktwoEF_L1TAU12IM',
-    'HLT_tau25_medium1_tracktwoMVA_L1TAU12IM',
-    'HLT_tau25_medium1_tracktwoMVABDT_L1TAU12IM', 
     # tau35
-    'HLT_tau35_idperf_ptonly_L1TAU12IM',
+    'HLT_tau35_ptonly_L1TAU12IM',
     'HLT_tau35_idperf_track_L1TAU12IM',
     'HLT_tau35_idperf_tracktwo_L1TAU12IM',
     'HLT_tau35_idperf_tracktwoEF_L1TAU12IM',
@@ -216,7 +214,7 @@ class TrigTauMonAlgBuilder:
     # tau80
     'HLT_tau80_medium1_tracktwo_L1TAU60',
     # tau160
-    'HLT_tau160_idperf_ptonly_L1TAU100',
+    'HLT_tau160_ptonly_L1TAU100',
     'HLT_tau160_idperf_track_L1TAU100',
     'HLT_tau160_idperf_tracktwo_L1TAU100',
     'HLT_tau160_idperf_tracktwoEF_L1TAU100',
@@ -235,10 +233,8 @@ class TrigTauMonAlgBuilder:
     'HLT_tau160_medium1_track_L1TAU100',
     'HLT_tau160_medium1_tracktwo_L1TAU100',
     'HLT_tau160_medium1_tracktwoEF_L1TAU100',
-    'HLT_tau160_medium1_tracktwoMVA_L1TAU100',
-    'HLT_tau160_medium1_tracktwoMVABDT_L1TAU100',
     # tau200
-    'HLT_tau200_mediumRNN_ptonly_L1TAU100',
+    'HLT_tau200_ptonly_L1TAU100',
     'HLT_tau200_mediumRNN_track_L1TAU100',
     'HLT_tau200_mediumRNN_tracktwo_L1TAU100',
     'HLT_tau200_mediumRNN_tracktwoEF_L1TAU100',
@@ -247,8 +243,6 @@ class TrigTauMonAlgBuilder:
     'HLT_tau200_medium1_track_L1TAU100',
     'HLT_tau200_medium1_tracktwo_L1TAU100',
     'HLT_tau200_medium1_tracktwoEF_L1TAU100',
-    'HLT_tau200_medium1_tracktwoMVA_L1TAU100',
-    'HLT_tau200_medium1_tracktwoMVABDT_L1TAU100',   
     # ditau
     'HLT_tau80_mediumRNN_tracktwoMVA_tau60_mediumRNN_tracktwoMVA_L1TAU60_2TAU40',
     'HLT_tau80_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA_L1TAU60_DR-TAU20ITAU12I',
