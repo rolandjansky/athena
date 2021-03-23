@@ -9,7 +9,7 @@ if conddb.isMC:
 else:
     include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 
-from LArRecUtils.LArRecUtilsConf import LArADC2MeVSCCondAlg 
+from LArRecUtils.LArRecUtilsConf import LArADC2MeVCondAlg 
 from AthenaCommon.AlgSequence import AthSequencer
 from LArCabling.LArCablingAccess import LArOnOffIdMappingSC
 condSeq = AthSequencer("AthCondSeq")
@@ -23,7 +23,7 @@ def LArADC2MeVSCCondAlgDefault (name="LArADC2MeVSCCondAlgDefault"):
         return getattr(condSeq,"LArADC2MeVSCCondAlg")
 
 
-    theADC2MeVCondAlg=LArADC2MeVSCCondAlg(LArADC2MeVKey = 'LArADC2MeV')
+    theADC2MeVCondAlg=LArADC2MeVCondAlg(LArADC2MeVKey = 'LArADC2MeV',isSuperCell=True)
  
     if conddb.isMC:
         from LArConditionsCommon.LArCondFlags import larCondFlags 

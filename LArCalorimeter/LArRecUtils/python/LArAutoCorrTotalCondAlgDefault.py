@@ -9,12 +9,7 @@ include("LArConditionsCommon/LArConditionsCommon_MC_jobOptions.py")
 
 from LArRecUtils.LArRecUtilsConf import LArAutoCorrTotalCondAlg 
 from AthenaCommon.AlgSequence import AthSequencer
-if "SuperCells" not in dir(): 
-    SuperCells = False
-if SuperCells:
-    from LArCabling.LArCablingAccess import LArOnOffIdMappingSC
-else:
-    from LArCabling.LArCablingAccess import LArOnOffIdMapping
+from LArCabling.LArCablingAccess import LArOnOffIdMapping
 condSeq = AthSequencer("AthCondSeq")
 
 
@@ -22,11 +17,7 @@ def LArAutoCorrTotalCondAlgDefault():
 
     mlog = logging.getLogger( 'LArAutoCorrTotalCondAlg::__init__ ' )
     mlog.info("entering LArAutoCorrTotalCondAlgDefault")
-
-    if SuperCells:
-        LArOnOffIdMappingSC()
-    else:
-        LArOnOffIdMapping()
+    LArOnOffIdMapping()
     condSeq = AthSequencer("AthCondSeq")
     if hasattr (condSeq,"LArAutoCorrTotalCondAlg"):
         return getattr(condSeq,"LArAutoCorrTotalCondAlg")

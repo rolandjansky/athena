@@ -3,32 +3,42 @@
 from LArRecUtils.LArRecUtilsConf import LArADC2MeVCondAlg 
 from AthenaCommon.AlgSequence import AthSequencer
 from LArCabling.LArCablingAccess import LArOnOffIdMappingSC
-condSeq = AthSequencer("AthCondSeq")
+from IOVDbSvc.CondDB import conddb
 
+def addLArFlatFolder (db, obj, calg, folder_base='/LAR/ElecCalibFlat/',qual=''):
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSequence = AthSequencer("AthCondSeq")
+
+    folder = folder_base + obj
+    if not conddb.folderRequested(folder):
+      conddb.addFolder(db, folder + qual,
+                     className = 'CondAttrListCollection')
+      condSequence += calg (ReadKey=folder, WriteKey='LAr'+obj+'SC')
+    return
 
 def LArADC2MeVSCCondAlgDefault(isMC=True):
 
-    #if isMC:
-    #   include("LArConditionsCommon/LArConditionsCommon_MC_jobOptions.py")
-    #else:
-    #   include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
-
-    LArOnOffIdMappingSC()
     condSeq = AthSequencer("AthCondSeq")
     if hasattr (condSeq,"LArADC2MeVSCCondAlg"):
         return getattr(condSeq,"LArADC2MeVSCCondAlg")
 
-    theADC2MeVCondAlg=LArADC2MeVCondAlg("LArADC2MeVSCCondAlg",LArADC2MeVKey = 'LArADC2MeV')
+    LArOnOffIdMappingSC()
+    condSeq = AthSequencer("AthCondSeq")
+
+    from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArRampSC_ as LArRampCondAlg
+    from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LAruA2MeVSC_ as LAruA2MeVCondAlg
+    from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArDAC2uASC_ as LArDAC2uACondAlg
+    addLArFlatFolder ('LAR_OFL', 'Ramp', LArRampCondAlg,'/LAR/ElecCalibMCSC/')
+    addLArFlatFolder ('LAR_OFL', 'uA2MeV', LAruA2MeVCondAlg,'/LAR/ElecCalibMCSC/')
+    addLArFlatFolder ('LAR_OFL', 'DAC2uA', LArDAC2uACondAlg,'/LAR/ElecCalibMCSC/')
+
+
+    theADC2MeVCondAlg=LArADC2MeVCondAlg("LArADC2MeVSCCondAlg",LArADC2MeVKey = 'LArADC2MeVSC',isSuperCell=True,LArOnOffIdMappingKey='LArOnOffIdMapSC')
  
     if isMC:
-        from LArConditionsCommon.LArCondFlags import larCondFlags 
-        if not larCondFlags.hasMphys():
-            theADC2MeVCondAlg.LArMphysOverMcalKey="" #No MphysOVerMcal
-        else:
-            theADC2MeVCondAlg.LArMphysOverMcalKey="LArMphysOverMcal"
+        theADC2MeVCondAlg.LArMphysOverMcalKey="" #No MphysOVerMcal
 
-        if not larCondFlags.hasHVCorr():
-            theADC2MeVCondAlg.LArHVScaleCorrKey=""
+        theADC2MeVCondAlg.LArHVScaleCorrKey=""
       
         theADC2MeVCondAlg.LAruA2MeVKey="LAruA2MeVSC"
         theADC2MeVCondAlg.LArDAC2uAKey="LArDAC2uASC"
@@ -36,9 +46,6 @@ def LArADC2MeVSCCondAlgDefault(isMC=True):
 
 
         theADC2MeVCondAlg.UseFEBGainTresholds=False
-    else: # not MC:
-        from LArRecUtils.LArFebConfigCondAlgDefault import LArFebConfigCondAlgDefault
-        LArFebConfigCondAlgDefault()
         
     condSeq+=theADC2MeVCondAlg
     return theADC2MeVCondAlg
